@@ -7,42 +7,37 @@ Author: Leonardo de Moura
 #include <cstring>
 #include "name.h"
 #include "debug.h"
+#include "rc.h"
 
 namespace lean {
 
 constexpr char const * anonymous_str = "[anonymous]";
 
 struct name::imp {
+    MK_LEAN_RC()
     bool     m_is_string;
-    unsigned m_rc;
     imp *    m_prefix;
     union {
         char * m_str;
         unsigned m_k;
     };
-
-    void inc_ref() { m_rc++; }
-
-    void dec_ref() { 
+    
+    void dealloc() {
         imp * curr = this;
-        while (curr) {
-            lean_assert(curr->m_rc > 0); 
-            curr->m_rc--; 
-            if (curr->m_rc == 0) {
-                imp * p = curr->m_prefix;
-                if (curr->m_is_string)
-                    delete[] reinterpret_cast<char*>(curr);
-                else
-                    delete curr;
-                curr = p;
-            }
-            else {
-                curr = 0;
-            }
+        while (true) {
+            lean_assert(curr->get_rc() == 0);
+            imp * p = curr->m_prefix;
+            if (curr->m_is_string)
+                delete[] reinterpret_cast<char*>(curr);
+            else
+                delete curr;
+            curr = p;
+            if (!curr || !curr->dec_ref_core())
+                break;
         }
     }
 
-    imp(bool s, imp * p):m_is_string(s), m_rc(1), m_prefix(p) { if (p) p->inc_ref(); }
+    imp(bool s, imp * p):m_rc(1), m_is_string(s), m_prefix(p) { if (p) p->inc_ref(); }
 
     static void display_core(std::ostream & out, char const * sep, imp * p) {
         lean_assert(p != nullptr);

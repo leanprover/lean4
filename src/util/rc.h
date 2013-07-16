@@ -1,0 +1,28 @@
+/*
+Copyright (c) 2013 Microsoft Corporation. All rights reserved. 
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Leonardo de Moura 
+*/
+#pragma once
+
+// Goodies for reference counting
+
+#include "debug.h"
+
+#ifdef LEAN_THREAD_UNSAFE_REF_COUNT
+#define MK_LEAN_RC()                                                    \
+unsigned m_rc;                                                          \
+unsigned get_rc() const { return m_rc; }                                \
+void inc_ref() { m_rc++; }                                              \
+bool dec_ref_core() { lean_assert(get_rc() > 0);  m_rc--; return m_rc == 0; } \
+void dec_ref() { if (dec_ref_core()) dealloc(); }
+#else
+#include <atomic>
+#define MK_LEAN_RC()                                                    \
+std::atomic<unsigned> m_rc;                                             \
+unsigned get_rc() const { return std::atomic_load(&m_rc); }             \
+void inc_ref() { std::atomic_fetch_add_explicit(&m_rc, 1u, std::memory_order_relaxed); } \
+bool dec_ref_core() { lean_assert(get_rc() > 0); return std::atomic_fetch_sub_explicit(&m_rc, 1u, std::memory_order_relaxed) == 1u; } \
+void dec_ref() { if (dec_ref_core()) dealloc(); }
+#endif

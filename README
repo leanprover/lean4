@@ -1,0 +1,18 @@
+
+Requirements:
+
+- C++11 compatible compiler 
+- GMP (GNU multiprecision library)
+  http://gmplib.org/
+- (optional) gperftools
+  https://code.google.com/p/gperftools/
+
+Instructions for installing gcc-4.8 (C++11 compatible) on Ubuntu
+Execute:
+    sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+    sudo update-alternatives --remove-all gcc 
+    sudo update-alternatives --remove-all g++ 
+    sudo apt-get update
+    sudo apt-get install g++-4.8 -y
+    sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y
+

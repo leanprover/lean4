@@ -8,36 +8,38 @@ Author: Leonardo de Moura
 
 // Macros for defining numeral classes
 #define DEFINE_ORDER_OPS(T)                                             \
-friend bool operator==(T const & a, T const & b) { return cmp(a, b) == 0; } \
-friend bool operator!=(T const & a, T const & b) { return cmp(a, b) != 0; } \
 friend bool operator<(T const & a, T const & b) { return cmp(a, b) < 0; } \
 friend bool operator>(T const & a, T const & b) { return cmp(a, b) > 0; } \
 friend bool operator<=(T const & a, T const & b) { return cmp(a, b) <= 0; } \
 friend bool operator>=(T const & a, T const & b) { return cmp(a, b) >= 0; } \
-friend bool operator==(T const & a, unsigned b) { return cmp(a, b) == 0; } \
-friend bool operator!=(T const & a, unsigned b) { return cmp(a, b) != 0; } \
 friend bool operator<(T const & a, unsigned b) { return cmp(a, b) < 0; } \
 friend bool operator>(T const & a, unsigned b) { return cmp(a, b) > 0; } \
 friend bool operator<=(T const & a, unsigned b) { return cmp(a, b) <= 0; } \
 friend bool operator>=(T const & a, unsigned b) { return cmp(a, b) >= 0; } \
-friend bool operator==(T const & a, int b) { return cmp(a, b) == 0; }   \
-friend bool operator!=(T const & a, int b) { return cmp(a, b) != 0; }   \
 friend bool operator<(T const & a, int b) { return cmp(a, b) < 0; }     \
 friend bool operator>(T const & a, int b) { return cmp(a, b) > 0; }     \
 friend bool operator<=(T const & a, int b) { return cmp(a, b) <= 0; }   \
 friend bool operator>=(T const & a, int b) { return cmp(a, b) >= 0; }   \
-friend bool operator==(unsigned a, T const & b) { return cmp(b, a) == 0; } \
-friend bool operator!=(unsigned a, T const & b) { return cmp(b, a) != 0; } \
 friend bool operator<(unsigned a, T const & b) { return cmp(b, a) > 0; } \
 friend bool operator>(unsigned a, T const & b) { return cmp(b, a) < 0; } \
 friend bool operator<=(unsigned a, T const & b) { return cmp(b, a) >= 0; } \
 friend bool operator>=(unsigned a, T const & b) { return cmp(b, a) <= 0; } \
-friend bool operator==(int a, T const & b) { return cmp(b, a) == 0; }   \
-friend bool operator!=(int a, T const & b) { return cmp(b, a) != 0; }   \
 friend bool operator<(int a, T const & b) { return cmp(b, a) > 0; }     \
 friend bool operator>(int a, T const & b) { return cmp(b, a) < 0; }     \
 friend bool operator<=(int a, T const & b) { return cmp(b, a) >= 0; }   \
 friend bool operator>=(int a, T const & b) { return cmp(b, a) <= 0; } 
+
+#define DEFINE_EQ_OPS(T)                                                \
+friend bool operator==(T const & a, T const & b) { return cmp(a, b) == 0; } \
+friend bool operator!=(T const & a, T const & b) { return cmp(a, b) != 0; } \
+friend bool operator==(T const & a, unsigned b) { return cmp(a, b) == 0; } \
+friend bool operator!=(T const & a, unsigned b) { return cmp(a, b) != 0; } \
+friend bool operator==(T const & a, int b) { return cmp(a, b) == 0; }   \
+friend bool operator!=(T const & a, int b) { return cmp(a, b) != 0; }   \
+friend bool operator==(unsigned a, T const & b) { return cmp(b, a) == 0; } \
+friend bool operator!=(unsigned a, T const & b) { return cmp(b, a) != 0; } \
+friend bool operator==(int a, T const & b) { return cmp(b, a) == 0; }   \
+friend bool operator!=(int a, T const & b) { return cmp(b, a) != 0; }
 
 
 #define DEFINE_SIGN_METHODS()                   \

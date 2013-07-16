@@ -11,10 +11,13 @@ Author: Leonardo de Moura
 #include "debug.h"
 
 namespace lean {
+class mpq;
 
 // Wrapper for GMP integers
 class mpz {
+    friend class mpq;
     mpz_t m_val;
+    mpz(__mpz_struct const * v) { mpz_init_set(m_val, v); }
 public:
     mpz() { mpz_init(m_val); }
     mpz(char const * v) { mpz_init_set_str(m_val, const_cast<char*>(v), 10); } 
@@ -27,10 +30,13 @@ public:
     ~mpz() { mpz_clear(m_val); }
     
     int sgn() const { return mpz_sgn(m_val); }
+    friend int sgn(mpz const & a) { return a.sgn(); }
     DEFINE_SIGN_METHODS()
     
     void neg() { mpz_neg(m_val, m_val); }
     void abs() { mpz_abs(m_val, m_val); }
+    friend mpz abs(mpz a) { a.abs(); return a; }
+    friend mpz neg(mpz a) { a.neg(); return a; }
 
     bool even() const { return mpz_even_p(m_val) != 0; }
     bool odd() const { return !even(); }
@@ -55,6 +61,7 @@ public:
     friend int cmp(mpz const & a, unsigned b) { return mpz_cmp_ui(a.m_val, b); }
     friend int cmp(mpz const & a, int b) { return mpz_cmp_si(a.m_val, b); }
     DEFINE_ORDER_OPS(mpz)
+    DEFINE_EQ_OPS(mpz)
 
     mpz & operator+=(mpz const & o) { mpz_add(m_val, m_val, o.m_val); return *this; }
     mpz & operator+=(unsigned u) { mpz_add_ui(m_val, m_val, u); return *this; }
@@ -69,6 +76,8 @@ public:
     mpz & operator/=(unsigned u) { mpz_tdiv_q_ui(m_val, m_val, u); return *this; }
     friend mpz rem(mpz const & a, mpz const & b) { mpz r; mpz_tdiv_r(r.m_val, a.m_val, b.m_val); return r; }
     mpz & operator%=(mpz const & o) { mpz r(*this % o); mpz_swap(m_val, r.m_val); return *this; }
+    DEFINE_ARITH_OPS(mpz)
+    friend mpz operator%(mpz const & a, mpz const & b);
 
     mpz & operator&=(mpz const & o) { mpz_and(m_val, m_val, o.m_val); return *this; }
     mpz & operator|=(mpz const & o) { mpz_ior(m_val, m_val, o.m_val); return *this; }
@@ -112,9 +121,6 @@ public:
     friend mpz operator|(mpz a, mpz const & b) { return a |= b; }
     friend mpz operator^(mpz a, mpz const & b) { return a ^= b; }
     friend mpz operator~(mpz a) { a.comp(); return a; }
-
-    DEFINE_ARITH_OPS(mpz)
-    friend mpz operator%(mpz const & a, mpz const & b);
 
     friend void gcd(mpz & g, mpz const & a, mpz const & b) { mpz_gcd(g.m_val, a.m_val, b.m_val); }
     friend mpz gcd(mpz const & a, mpz const & b) { mpz r; gcd(r, a, b); return r; }

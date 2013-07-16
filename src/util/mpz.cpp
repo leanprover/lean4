@@ -52,18 +52,22 @@ mpz operator%(mpz const & a, mpz const & b) {
     return r;
 }
 
-std::ostream & operator<<(std::ostream & out, mpz const & v) {
-    size_t sz = mpz_sizeinbase(v.m_val, 10) + 2;
+void display(std::ostream & out, __mpz_struct const * v) {
+    size_t sz = mpz_sizeinbase(v, 10) + 2;
     if (sz < 1024) {
         char buffer[1024];
-        mpz_get_str(buffer, 10, v.m_val);
+        mpz_get_str(buffer, 10, v);
         out << buffer;
     }
     else {
         std::unique_ptr<char> buffer(new char[sz]);
-        mpz_get_str(buffer.get(), 10, v.m_val);
+        mpz_get_str(buffer.get(), 10, v);
         out << buffer.get();
     }
+}
+
+std::ostream & operator<<(std::ostream & out, mpz const & v) {
+    display(out, v.m_val);
     return out;
 }
 

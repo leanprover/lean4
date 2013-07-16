@@ -1,0 +1,42 @@
+/*
+Copyright (c) 2013 Microsoft Corporation. All rights reserved. 
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Leonardo de Moura 
+*/
+
+#include "trace.h"
+#include <set>
+#include <string>
+#include <memory>
+
+#ifndef LEAN_TRACE_OUT
+#define LEAN_TRACE_OUT ".lean_trace"
+#endif  
+
+namespace lean {
+
+#ifdef LEAN_TRACE
+std::ofstream tout(LEAN_TRACE_OUT);
+std::mutex    trace_mutex;
+#endif
+    
+static std::unique_ptr<std::set<std::string>> g_enabled_trace_tags;
+
+void enable_trace(char const * tag) {
+    if (!g_enabled_trace_tags)
+        g_enabled_trace_tags.reset(new std::set<std::string>());
+    g_enabled_trace_tags->insert(tag);
+}
+
+void disable_trace(char const * tag) {
+    if (g_enabled_trace_tags) 
+        g_enabled_trace_tags->erase(tag);
+}
+
+bool is_trace_enabled(char const * tag) {
+    return g_enabled_trace_tags && g_enabled_trace_tags->find(tag) != g_enabled_trace_tags->end();
+}
+
+}
+

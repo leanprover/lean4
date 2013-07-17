@@ -8,5 +8,7 @@ include_directories("${LEAN_BINARY_DIR}")
 include_directories (${LEAN_SOURCE_DIR}/util) 
 set (EXTRA_LIBS ${EXTRA_LIBS} util ${GMP_LIBRARIES})
 
+set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
+
 add_executable(lean lean.cpp)
 target_link_libraries (lean ${EXTRA_LIBS})

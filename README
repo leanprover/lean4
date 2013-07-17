@@ -6,6 +6,8 @@ Requirements:
   http://gmplib.org/
 - (optional) gperftools
   https://code.google.com/p/gperftools/
+- cmake
+  http://www.cmake.org
 
 Instructions for installing gcc-4.8 (C++11 compatible) on Ubuntu
 Execute:

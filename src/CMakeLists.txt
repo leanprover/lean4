@@ -41,5 +41,6 @@ mark_as_advanced(GMP_INCLUDE_DIR GMP_LIBRARIES)
 set (CMAKE_CXX_COMPILER clang++)
 
 add_subdirectory(util)
+add_subdirectory(numerics)
 add_subdirectory(shell)
 

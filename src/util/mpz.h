@@ -12,7 +12,9 @@ Author: Leonardo de Moura
 namespace lean {
 class mpq;
 
-// Wrapper for GMP integers
+/**
+   \brief Wrapper for GMP integers
+*/
 class mpz {
     friend class mpq;
     mpz_t m_val;
@@ -198,10 +200,12 @@ public:
     */
     unsigned power_of_two_multiple() const { return mpz_scan1(m_val, 0); }
 
-    friend mpz power(mpz const & a, unsigned k) { mpz r; mpz_pow_ui(r.m_val, a.m_val, k); return r; }
+    friend void power(mpz & a, mpz const & b, unsigned k) { mpz_pow_ui(a.m_val, b.m_val, k); }
+    friend mpz power(mpz const & a, unsigned k) { mpz r; power(r, a, k); return r; }
 
     friend void rootrem(mpz & root, mpz & rem, mpz const & a, unsigned k) { mpz_rootrem(root.m_val, rem.m_val, a.m_val, k); }
-    friend void root(mpz & root, mpz const & a, unsigned k) { mpz_root(root.m_val, a.m_val, k); }
+    // root <- a^{1/k}, return true iff the result is an integer
+    friend bool root(mpz & root, mpz const & a, unsigned k);
     friend mpz root(mpz const & a, unsigned k) { mpz r; root(r, a, k); return r; }
 
     friend void gcd(mpz & g, mpz const & a, mpz const & b) { mpz_gcd(g.m_val, a.m_val, b.m_val); }

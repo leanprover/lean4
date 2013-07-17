@@ -8,6 +8,17 @@ Author: Leonardo de Moura
 
 namespace lean {
 
+int cmp(mpq const & a, mpz const & b) {
+    if (a.is_integer()) {
+        return mpz_cmp(mpq_numref(a.m_val), mpq::zval(b));
+    }
+    else {
+        static thread_local mpz tmp;
+        mpz_mul(mpq::zval(tmp), mpq_denref(a.m_val), mpq::zval(b));
+        return mpz_cmp(mpq_numref(a.m_val), mpq::zval(tmp));
+    }
+}
+
 void mpq::floor() {
     if (is_integer())
         return;
@@ -60,6 +71,32 @@ std::ostream & operator<<(std::ostream & out, mpq const & v) {
         display(out, mpq_denref(v.m_val));
     }
     return out;
+}
+
+void display_decimal(std::ostream & out, mpq const & a, unsigned prec) {
+    mpz n1, d1, v1;
+    numerator(n1, a);
+    denominator(d1, a);
+    if (a.is_neg()) {
+        out << "-";
+        neg(n1);
+    }
+    v1 = n1 / d1;
+    out << v1;
+    n1 = rem(n1, d1);
+    if (n1.is_zero())
+        return;
+    out << ".";
+    for (unsigned i = 0; i < prec; i++) {
+        n1 *= 10;
+        v1 = n1 / d1;
+        lean_assert(v1 < 10);
+        out << v1;
+        n1 = rem(n1, d1);
+        if (n1.is_zero())
+            return;
+    }
+    out << "?";
 }
 
 }

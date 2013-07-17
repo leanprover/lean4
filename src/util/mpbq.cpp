@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura 
 */
+#include <limits.h>
 #include "mpbq.h"
 
 namespace lean {
@@ -39,11 +40,27 @@ int cmp(mpbq const & a, mpbq const & b) {
 
 int cmp(mpbq const & a, mpz const & b) {
     static thread_local mpz tmp;
-    if (a.m_k == 0)
+    if (a.m_k == 0) {
         return cmp(a.m_num, b);
+    }
     else {
         mul2k(tmp, b, a.m_k);
         return cmp(a.m_num, tmp);
+    }
+}
+
+int cmp(mpbq const & a, mpq const & b) {
+    if (a.is_integer() && b.is_integer()) {
+        return a.m_num < b;
+    }
+    else {
+        static thread_local mpz tmp1;
+        static thread_local mpz tmp2;
+        // tmp1 <- numerator(a)*denominator(b)
+        denominator(tmp1, b); tmp1 *= a.m_num;
+        // tmp2 <- numerator(b)*denominator(a)
+        numerator(tmp2, b); mul2k(tmp2, tmp2, a.m_k); 
+        return tmp1 < tmp2;
     }
 }
 
@@ -142,6 +159,15 @@ mpbq & mpbq::mul_int(T const & a) {
 mpbq & mpbq::operator*=(unsigned a) { return mul_int<unsigned>(a); }
 mpbq & mpbq::operator*=(int a) { return mul_int<int>(a); }
 
+void power(mpbq & a, mpbq const & b, unsigned k) {
+    lean_assert(static_cast<unsigned long long>(k) * static_cast<unsigned long long>(b.m_k) <= static_cast<unsigned long long>(UINT_MAX));
+    // We don't need to normalize because:
+    //   If b.m_k == 0, then b is an integer, and the result be an integer
+    //   If b.m_k > 0, then b.m_num must be odd, and the (b.m_num)^k will also be odd
+    a.m_k = b.m_k * k;
+    power(a.m_num, b.m_num, k);
+}
+
 int mpbq::magnitude_lb() const {
     int s = m_num.sgn();
     if (s < 0) {
@@ -192,6 +218,96 @@ void mul2k(mpbq & a, unsigned k) {
     }
 }
 
+bool root_lower(mpbq & a, mpbq const & b, unsigned n) {
+    bool r = root(a.m_num, b.m_num, n);
+    if (!r)
+        --a.m_num;
+    if (b.m_k % n == 0) {
+        a.m_k = b.m_k / n;
+        a.normalize();
+        return r;
+    }
+    else if (a.m_num.is_neg()) {
+        a.m_k = b.m_k / n;
+        a.normalize();
+        return false;
+    }
+    else {
+        a.m_k = b.m_k / n;
+        a.m_k++;
+        a.normalize();
+        return false;
+    }
+}
+
+bool root_upper(mpbq & a, mpbq const & b, unsigned n) {
+    bool r = root(a.m_num, b.m_num, n);
+    if (b.m_k % n == 0) {
+        a.m_k = b.m_k / n;
+        a.normalize();
+        return r;
+    }
+    else if (a.m_num.is_neg()) {
+        a.m_k = b.m_k / n;
+        a.m_k++;
+        a.normalize();
+        return false;
+    }
+    else {
+        a.m_k = b.m_k / n;
+        a.normalize();
+        return false;
+    }
+}
+
+void refine_upper(mpq const & q, mpbq & l, mpbq & u) {
+    lean_assert(l < q && q < u);
+    lean_assert(!q.get_denominator().is_power_of_two());
+    mpbq mid; 
+    while (true) {
+        mid = l + u;
+        div2(mid);
+        if (mid > q) {
+            u.swap(mid);
+            lean_assert(l < q && q < u);
+            return;
+        }
+        l.swap(mid);
+    }
+}
+
+void refine_lower(mpq const & q, mpbq & l, mpbq & u) {
+    lean_assert(l < q && q < u);
+    lean_assert(!q.get_denominator().is_power_of_two());
+    mpbq mid; 
+    while (true) {
+        mid = l + u;
+        div2(mid);
+        if (mid < q) {
+            l.swap(mid);
+            lean_assert(l < q && q < u);
+            return;
+        }
+        u.swap(mid);
+    }
+}
+
+bool lt_1div2k(mpbq const & a, unsigned k) {
+    if (a.m_num.is_nonpos()) 
+        return true;
+    if (a.m_k <= k) {
+        // since a.m_num >= 1
+        return false;
+    }
+    else {
+        lean_assert(a.m_k > k);
+        static thread_local mpz tmp;
+        tmp = 1;
+        mul2k(tmp, tmp, a.m_k - k);
+        return a.m_num < tmp;
+    }
+}
+
 std::ostream & operator<<(std::ostream & out, mpbq const & v) {
     if (v.m_k == 0) {
         out << v.m_num;
@@ -203,6 +319,35 @@ std::ostream & operator<<(std::ostream & out, mpbq const & v) {
         out << v.m_num << "/2^" << v.m_k;
     }
     return out;
+}
+
+void display_decimal(std::ostream & out, mpbq const & a, unsigned prec) {
+    if (a.is_integer()) {
+        out << a.m_num;
+        return;
+    }
+    else {
+        mpz two_k;
+        mpz n1, v1;
+        if (a.is_neg())
+            out << "-";
+        v1 = abs(a.m_num);
+        power(two_k, mpz(2), a.m_k);
+        n1 = rem(v1, two_k);
+        v1 = v1/two_k;
+        lean_assert(!n1.is_zero());
+        out << v1;
+        out << ".";
+        for (unsigned i = 0; i < prec; i++) {
+            n1 *= 10;
+            v1  = n1/two_k;
+            n1  = rem(n1, two_k);
+            out << v1;
+            if (n1.is_zero())
+                return;
+        }
+        out << "?";
+    }
 }
 
 }

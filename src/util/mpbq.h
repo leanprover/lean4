@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "mpz.h"
+#include "mpq.h"
 
 namespace lean {
 
@@ -55,54 +56,67 @@ public:
     
     friend int cmp(mpbq const & a, mpbq const & b);
     friend int cmp(mpbq const & a, mpz const & b);
+    friend int cmp(mpbq const & a, mpq const & b);
     friend int cmp(mpbq const & a, unsigned b) { return cmp(a, mpbq(b)); }
     friend int cmp(mpbq const & a, int b) { return cmp(a, mpbq(b)); }
 
     friend bool operator<(mpbq const & a, mpbq const & b) { return cmp(a, b) < 0; } 
     friend bool operator<(mpbq const & a, mpz const & b) { return cmp(a, b) < 0; } 
+    friend bool operator<(mpbq const & a, mpq const & b) { return cmp(a, b) < 0; } 
     friend bool operator<(mpbq const & a, unsigned b) { return cmp(a, b) < 0; } 
     friend bool operator<(mpbq const & a, int b) { return cmp(a, b) < 0; }     
+    friend bool operator<(mpz const & a, mpbq const & b) { return cmp(b, a) > 0; }     
+    friend bool operator<(mpq const & a, mpbq const & b) { return cmp(b, a) > 0; }     
     friend bool operator<(unsigned a, mpbq const & b) { return cmp(b, a) > 0; } 
     friend bool operator<(int a, mpbq const & b) { return cmp(b, a) > 0; }     
-    friend bool operator<(mpz const & a, mpbq const & b) { return cmp(b, a) > 0; }     
 
     friend bool operator>(mpbq const & a, mpbq const & b) { return cmp(a, b) > 0; } 
     friend bool operator>(mpbq const & a, mpz const & b) { return cmp(a, b) > 0; } 
+    friend bool operator>(mpbq const & a, mpq const & b) { return cmp(a, b) > 0; } 
     friend bool operator>(mpbq const & a, unsigned b) { return cmp(a, b) > 0; } 
     friend bool operator>(mpbq const & a, int b) { return cmp(a, b) > 0; }     
-    friend bool operator>(unsigned a, mpbq const & b) { return cmp(b, a) > 0; } 
-    friend bool operator>(int a, mpbq const & b) { return cmp(b, a) > 0; }     
-    friend bool operator>(mpz const & a, mpbq const & b) { return cmp(b, a) > 0; }     
+    friend bool operator>(mpz const & a, mpbq const & b) { return cmp(b, a) < 0; }     
+    friend bool operator>(mpq const & a, mpbq const & b) { return cmp(b, a) < 0; }     
+    friend bool operator>(unsigned a, mpbq const & b) { return cmp(b, a) < 0; } 
+    friend bool operator>(int a, mpbq const & b) { return cmp(b, a) < 0; }     
 
     friend bool operator<=(mpbq const & a, mpbq const & b) { return cmp(a, b) <= 0; } 
     friend bool operator<=(mpbq const & a, mpz const & b) { return cmp(a, b) <= 0; } 
+    friend bool operator<=(mpbq const & a, mpq const & b) { return cmp(a, b) <= 0; } 
     friend bool operator<=(mpbq const & a, unsigned b) { return cmp(a, b) <= 0; } 
     friend bool operator<=(mpbq const & a, int b) { return cmp(a, b) <= 0; }     
-    friend bool operator<=(unsigned a, mpbq const & b) { return cmp(b, a) > 0; } 
-    friend bool operator<=(int a, mpbq const & b) { return cmp(b, a) > 0; }     
-    friend bool operator<=(mpz const & a, mpbq const & b) { return cmp(b, a) > 0; }     
+    friend bool operator<=(mpz const & a, mpbq const & b) { return cmp(b, a) >= 0; }     
+    friend bool operator<=(mpq const & a, mpbq const & b) { return cmp(b, a) >= 0; }     
+    friend bool operator<=(unsigned a, mpbq const & b) { return cmp(b, a) >= 0; } 
+    friend bool operator<=(int a, mpbq const & b) { return cmp(b, a) >= 0; }     
 
     friend bool operator>=(mpbq const & a, mpbq const & b) { return cmp(a, b) >= 0; } 
     friend bool operator>=(mpbq const & a, mpz const & b) { return cmp(a, b) >= 0; } 
+    friend bool operator>=(mpbq const & a, mpq const & b) { return cmp(a, b) >= 0; } 
     friend bool operator>=(mpbq const & a, unsigned b) { return cmp(a, b) >= 0; } 
     friend bool operator>=(mpbq const & a, int b) { return cmp(a, b) >= 0; }     
-    friend bool operator>=(unsigned a, mpbq const & b) { return cmp(b, a) > 0; } 
-    friend bool operator>=(int a, mpbq const & b) { return cmp(b, a) > 0; }     
-    friend bool operator>=(mpz const & a, mpbq const & b) { return cmp(b, a) > 0; }     
+    friend bool operator>=(mpz const & a, mpbq const & b) { return cmp(b, a) <= 0; }     
+    friend bool operator>=(mpq const & a, mpbq const & b) { return cmp(b, a) <= 0; }     
+    friend bool operator>=(unsigned a, mpbq const & b) { return cmp(b, a) <= 0; } 
+    friend bool operator>=(int a, mpbq const & b) { return cmp(b, a) <= 0; }     
 
     friend bool operator==(mpbq const & a, mpbq const & b) { return a.m_k == b.m_k && a.m_num == b.m_num; }
     friend bool operator==(mpbq const & a, mpz const & b) { return a.is_integer() && a.m_num == b; }
+    friend bool operator==(mpbq const & a, mpq const & b) { return cmp(a, b) == 0; }
     friend bool operator==(mpbq const & a, unsigned int b) { return a.is_integer() && a.m_num == b; }
     friend bool operator==(mpbq const & a, int b) { return a.is_integer() && a.m_num == b; }
     friend bool operator==(mpz const & a, mpbq const & b) { return operator==(b, a); }
+    friend bool operator==(mpq const & a, mpbq const & b) { return operator==(b, a); }
     friend bool operator==(unsigned int a, mpbq const & b) { return operator==(b, a); }
     friend bool operator==(int a, mpbq const & b) { return operator==(b, a); }
 
     friend bool operator!=(mpbq const & a, mpbq const & b) { return !operator==(a,b); }
     friend bool operator!=(mpbq const & a, mpz const & b) { return !operator==(a,b); }
-    friend bool operator!=(mpz const & a, mpbq const & b) { return !operator==(a,b); }
+    friend bool operator!=(mpbq const & a, mpq const & b) { return !operator==(a,b); }
     friend bool operator!=(mpbq const & a, unsigned int b) { return !operator==(a,b); }
     friend bool operator!=(mpbq const & a, int b) { return !operator==(a,b); }
+    friend bool operator!=(mpz const & a, mpbq const & b) { return !operator==(a,b); }
+    friend bool operator!=(mpq const & a, mpbq const & b) { return !operator==(a,b); }
     friend bool operator!=(unsigned int a, mpbq const & b) { return !operator==(a,b); }
     friend bool operator!=(int a, mpbq const & b) { return !operator==(a,b); }
 
@@ -148,6 +162,8 @@ public:
     mpbq & operator--() { return operator-=(1); }
     mpbq operator--(int) { mpbq r(*this); --(*this); return r; }
 
+    friend void power(mpbq & a, mpbq const & b, unsigned k);
+
     /**
        \brief Return the magnitude of a = b/2^k.
        It is defined as:
@@ -178,14 +194,53 @@ public:
     friend void mul2(mpbq & a);
     // a <- a*2^k
     friend void mul2k(mpbq & a, unsigned k);
-
     // a <- b * 2^k
     friend void mul2k(mpbq & a, mpbq const & b, unsigned k) { a = b; mul2k(a, k); }
-    // a <- b / 2^k
-    friend void div2k(mpbq & a, mpbq const & b, unsigned k);
-
     
+    // a <- a/2
+    friend void div2(mpbq & a) { bool old_k_zero = (a.m_k == 0); a.m_k++; if (old_k_zero) a.normalize(); }
+    // a <- a/2^k
+    friend void div2k(mpbq & a, unsigned k) { bool old_k_zero = (a.m_k == 0); a.m_k += k; if (old_k_zero) a.normalize(); }
+    // a <- b / 2^k
+    friend void div2k(mpbq & a, mpbq const & b, unsigned k) { a = b; div2k(a, k); }
+
+    /**
+       \brief Return true if b^{1/n} is a binary rational, and store the result in a.
+       Otherwise, return false and return an lower bound based on the integer root of the 
+       numerator and denominator/n
+    */
+    friend bool root_lower(mpbq & a, mpbq const & b, unsigned n);
+    friend bool root_upper(mpbq & a, mpbq const & b, unsigned n);
+
+    /**
+       \brief Given a rational q which cannot be represented as a binary rational,
+       and an interval (l, u) s.t. l < q < u. This method stores in u, a u' s.t.
+       q < u' < u.
+       In the refinement process, the lower bound l may be also refined to l' 
+       s.t. l < l' < q
+    */
+    friend void refine_upper(mpq const & q, mpbq & l, mpbq & u);
+    /**
+       \brief Similar to refine_upper.
+    */
+    friend void refine_lower(mpq const & q, mpbq & l, mpbq & u);
+
+    /**
+       \brief Return true iff a < 1/2^k
+    */
+    friend bool lt_1div2k(mpbq const & a, unsigned k);
+
     friend std::ostream & operator<<(std::ostream & out, mpbq const & v);
+
+    friend void display_decimal(std::ostream & out, mpbq const & a, unsigned prec);
+
+    class decimal {
+        mpbq const & m_val;
+        unsigned     m_prec;
+    public:
+        decimal(mpbq const & val, unsigned prec = 10):m_val(val), m_prec(prec) {}
+        friend std::ostream & operator<<(std::ostream & out, decimal const & d) { display_decimal(out, d.m_val, d.m_prec); return out; }
+    };
 };
 
 }

@@ -52,6 +52,12 @@ mpz operator%(mpz const & a, mpz const & b) {
     return r;
 }
 
+bool root(mpz & root, mpz const & a, unsigned k) { 
+    static thread_local mpz rem;
+    mpz_rootrem(root.m_val, rem.m_val, a.m_val, k); 
+    return rem.is_zero();
+}
+
 void display(std::ostream & out, __mpz_struct const * v) {
     size_t sz = mpz_sizeinbase(v, 10) + 2;
     if (sz < 1024) {

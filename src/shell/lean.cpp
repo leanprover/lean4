@@ -58,11 +58,18 @@ void tst4() {
     }
 }
 
+void tst5() {
+    lean::mpbq n(7,4);
+    std::cout << lean::mpbq::decimal(n) << "\n";
+    lean::mpq r(4, 3);
+    std::cout << lean::mpq::decimal(r) << "\n";
+}
+
 int main() {
     std::cout << "Lean (version " << LEAN_VERSION_MAJOR << "." << LEAN_VERSION_MINOR << ")\n";
     tst1();
     tst2();
-    tst3();
+    tst5();
     std::cout << "done\n";
     return 0;
 }

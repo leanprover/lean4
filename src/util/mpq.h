@@ -9,7 +9,9 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-// Wrapper for GMP rationals
+/**
+   \brief Wrapper for GMP rationals
+*/
 class mpq {
     mpq_t m_val;
     static mpz_t const & zval(mpz const & v) { return v.m_val; }
@@ -68,30 +70,39 @@ public:
     bool is_integer() const { return mpz_cmp_ui(mpq_denref(m_val), 1u) == 0; }
 
     friend int cmp(mpq const & a, mpq const & b) { return mpq_cmp(a.m_val, b.m_val); }
+    friend int cmp(mpq const & a, mpz const & b);
     friend int cmp(mpq const & a, unsigned b) { return mpq_cmp_ui(a.m_val, b, 1); }
     friend int cmp(mpq const & a, int b) { return mpq_cmp_si(a.m_val, b, 1); }
 
     friend bool operator<(mpq const & a, mpq const & b) { return cmp(a, b) < 0; } 
+    friend bool operator<(mpq const & a, mpz const & b) { return cmp(a, b) < 0; } 
     friend bool operator<(mpq const & a, unsigned b) { return cmp(a, b) < 0; } 
     friend bool operator<(mpq const & a, int b) { return cmp(a, b) < 0; }     
+    friend bool operator<(mpz const & a, mpq const & b) { return cmp(b, a) > 0; }     
     friend bool operator<(unsigned a, mpq const & b) { return cmp(b, a) > 0; } 
     friend bool operator<(int a, mpq const & b) { return cmp(b, a) > 0; }     
 
     friend bool operator>(mpq const & a, mpq const & b) { return cmp(a, b) > 0; } 
+    friend bool operator>(mpq const & a, mpz const & b) { return cmp(a, b) > 0; } 
     friend bool operator>(mpq const & a, unsigned b) { return cmp(a, b) > 0; } 
     friend bool operator>(mpq const & a, int b) { return cmp(a, b) > 0; }     
+    friend bool operator>(mpz const & a, mpq const & b) { return cmp(b, a) < 0; } 
     friend bool operator>(unsigned a, mpq const & b) { return cmp(b, a) < 0; } 
     friend bool operator>(int a, mpq const & b) { return cmp(b, a) < 0; }     
 
     friend bool operator<=(mpq const & a, mpq const & b) { return cmp(a, b) <= 0; } 
+    friend bool operator<=(mpq const & a, mpz const & b) { return cmp(a, b) <= 0; }  
     friend bool operator<=(mpq const & a, unsigned b) { return cmp(a, b) <= 0; } 
     friend bool operator<=(mpq const & a, int b) { return cmp(a, b) <= 0; }   
+    friend bool operator<=(mpz const & a, mpq const & b) { return cmp(b, a) >= 0; } 
     friend bool operator<=(unsigned a, mpq const & b) { return cmp(b, a) >= 0; } 
     friend bool operator<=(int a, mpq const & b) { return cmp(b, a) >= 0; }   
 
     friend bool operator>=(mpq const & a, mpq const & b) { return cmp(a, b) >= 0; } 
+    friend bool operator>=(mpq const & a, mpz const & b) { return cmp(a, b) >= 0; } 
     friend bool operator>=(mpq const & a, unsigned b) { return cmp(a, b) >= 0; } 
     friend bool operator>=(mpq const & a, int b) { return cmp(a, b) >= 0; }   
+    friend bool operator>=(mpz const & a, mpq const & b) { return cmp(b, a) <= 0; } 
     friend bool operator>=(unsigned a, mpq const & b) { return cmp(b, a) <= 0; } 
     friend bool operator>=(int a, mpq const & b) { return cmp(b, a) <= 0; } 
 
@@ -105,9 +116,9 @@ public:
 
     friend bool operator!=(mpq const & a, mpq const & b) { return !operator==(a,b); }
     friend bool operator!=(mpq const & a, mpz const & b) { return !operator==(a,b); }
-    friend bool operator!=(mpz const & a, mpq const & b) { return !operator==(a,b); }
     friend bool operator!=(mpq const & a, unsigned int b) { return !operator==(a,b); }
     friend bool operator!=(mpq const & a, int b) { return !operator==(a,b); }
+    friend bool operator!=(mpz const & a, mpq const & b) { return !operator==(a,b); }
     friend bool operator!=(unsigned int a, mpq const & b) { return !operator==(a,b); }
     friend bool operator!=(int a, mpq const & b) { return !operator==(a,b); }
     
@@ -169,16 +180,32 @@ public:
     mpq & operator--() { return operator-=(1); }
     mpq operator--(int) { mpq r(*this); --(*this); return r; }
     
-    mpz get_numerator() const { return mpz(mpq_numref(m_val)); }
-    mpz get_denominator() const { return mpz(mpq_denref(m_val)); }
-
-    friend std::ostream & operator<<(std::ostream & out, mpq const & v);
+    // a <- numerator(b)
+    friend void numerator(mpz & a, mpq const & b) { mpz_set(a.m_val, mpq_numref(b.m_val)); }
+    // a <- denominator(b)
+    friend void denominator(mpz & a, mpq const & b) { mpz_set(a.m_val, mpq_denref(b.m_val)); }
+    
+    mpz get_numerator() const { mpz r; numerator(r, *this); return r; }
+    mpz get_denominator() const { mpz r; denominator(r, *this); return r; }
 
     void floor();
     friend mpz floor(mpq const & a);
 
     void ceil();
     friend mpz ceil(mpq const & a);
+
+    friend std::ostream & operator<<(std::ostream & out, mpq const & v);
+
+    friend void display_decimal(std::ostream & out, mpq const & a, unsigned prec);
+
+    class decimal {
+        mpq const & m_val;
+        unsigned     m_prec;
+    public:
+        decimal(mpq const & val, unsigned prec = 10):m_val(val), m_prec(prec) {}
+        friend std::ostream & operator<<(std::ostream & out, decimal const & d) { display_decimal(out, d.m_val, d.m_prec); return out; }
+    };
+
 };
 
 }

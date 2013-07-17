@@ -40,7 +40,7 @@ bool mpz::is_power_of_two(unsigned & shift) const {
         return false;
     }
 }
-
+    
 mpz operator%(mpz const & a, mpz const & b) { 
     mpz r(rem(a, b));
     if (r.is_neg()) {

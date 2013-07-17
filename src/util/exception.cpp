@@ -17,7 +17,7 @@ exception::exception(std::string const & msg):m_msg(msg) {
 exception::exception(exception const & e):m_msg(e.m_msg) {
 }
 
-exception::~exception() {
+exception::~exception() noexcept {
 }
 
 char const * exception::what() const noexcept {

@@ -16,7 +16,7 @@ public:
     exception(char const * msg);
     exception(std::string const & msg);
     exception(exception const & ex);
-    virtual ~exception();
+    virtual ~exception() noexcept;
     virtual char const * what() const noexcept;
 };
 

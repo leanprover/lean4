@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include <set>
 #include <string>
 #include <memory>
+#include <cstdlib>
 
 #ifndef _WINDOWS
 // Support for pid

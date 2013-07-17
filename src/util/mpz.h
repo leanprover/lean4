@@ -79,6 +79,11 @@ public:
     DEFINE_ARITH_OPS(mpz)
     friend mpz operator%(mpz const & a, mpz const & b);
 
+    mpz & operator++() { return operator+=(1); }
+    mpz & operator--() { return operator-=(1); }
+    mpz operator++(int) { mpz r(*this); ++(*this); return r; }
+    mpz operator--(int) { mpz r(*this); --(*this); return r; }
+
     mpz & operator&=(mpz const & o) { mpz_and(m_val, m_val, o.m_val); return *this; }
     mpz & operator|=(mpz const & o) { mpz_ior(m_val, m_val, o.m_val); return *this; }
     mpz & operator^=(mpz const & o) { mpz_xor(m_val, m_val, o.m_val); return *this; }

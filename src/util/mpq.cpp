@@ -34,7 +34,7 @@ mpz floor(mpq const & a) {
     mpz r;
     mpz_tdiv_q(mpq::zval(r), mpq_numref(a.m_val), mpq_denref(a.m_val));
     if (a.is_neg())
-        r -= 1;
+        --r;
     return r;
 }
 
@@ -44,7 +44,7 @@ mpz ceil(mpq const & a) {
     mpz r;
     mpz_tdiv_q(mpq::zval(r), mpq_numref(a.m_val), mpq_denref(a.m_val));
     if (a.is_pos())
-        r += 1;
+        ++r;
     return r;
 }
 

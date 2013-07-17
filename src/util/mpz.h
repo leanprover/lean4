@@ -59,6 +59,14 @@ public:
     unsigned long int get_unsigned_long_int() const { lean_assert(is_unsigned_long_int()); return mpz_get_ui(m_val); }
     unsigned int get_unsigned_int() const { lean_assert(is_unsigned_int()); return static_cast<unsigned>(get_unsigned_long_int()); }
 
+    mpz & operator=(mpz const & v) { mpz_set(m_val, v.m_val); return *this; }
+    mpz & operator=(mpz && v) { swap(v); return *this; }
+    mpz & operator=(char const * v) { mpz_set_str(m_val, v, 10); return *this; }
+    mpz & operator=(unsigned long int v) { mpz_set_ui(m_val, v); return *this; }
+    mpz & operator=(long int v) { mpz_set_si(m_val, v); return *this; }
+    mpz & operator=(unsigned int v) { return operator=(static_cast<unsigned long int>(v)); }
+    mpz & operator=(int v) { return operator=(static_cast<long int>(v)); }
+
     friend int cmp(mpz const & a, mpz const & b) { return mpz_cmp(a.m_val, b.m_val); }
     friend int cmp(mpz const & a, unsigned b) { return mpz_cmp_ui(a.m_val, b); }
     friend int cmp(mpz const & a, int b) { return mpz_cmp_si(a.m_val, b); }
@@ -164,11 +172,11 @@ public:
     // this <- this - a*b
     void submul(mpz const & a, mpz const & b) { mpz_submul(m_val, a.m_val, b.m_val); }
 
-    // this <- this * 2^k
-    void mul2k(unsigned k) { mpz_mul_2exp(m_val, m_val, k); }
-    // this <- this / 2^k
-    void div2k(unsigned k) { mpz_tdiv_q_2exp(m_val, m_val, k); }
-    
+    // a <- b * 2^k
+    friend void mul2k(mpz & a, mpz const & b, unsigned k) { mpz_mul_2exp(a.m_val, b.m_val, k); }
+    // a <- b / 2^k
+    friend void div2k(mpz & a, mpz const & b, unsigned k) { mpz_tdiv_q_2exp(a.m_val, b.m_val, k); }
+
     /**
        \brief Return the position of the most significant bit.
        Return 0 if the number is negative

@@ -62,6 +62,7 @@ std::ostream & operator<<(std::ostream & out, mpq const & v) {
     return out;
 }
 
-void pp(mpq const & v) { std::cout << v << std::endl; }
-
 }
+
+void pp(lean::mpq const & v) { std::cout << v << std::endl; }
+

@@ -72,3 +72,5 @@ std::ostream & operator<<(std::ostream & out, mpz const & v) {
 }
 
 }
+
+void pp(lean::mpz const & n) { std::cout << n << std::endl; }

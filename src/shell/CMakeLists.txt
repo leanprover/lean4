@@ -6,7 +6,7 @@ configure_file (
 include_directories("${LEAN_BINARY_DIR}")
 
 include_directories (${LEAN_SOURCE_DIR}/util) 
-set (EXTRA_LIBS ${EXTRA_LIBS} util gmp)
+set (EXTRA_LIBS ${EXTRA_LIBS} util ${GMP_LIBRARIES})
 
 add_executable(lean lean.cpp)
 target_link_libraries (lean ${EXTRA_LIBS})

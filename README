@@ -9,6 +9,18 @@ Requirements:
 - cmake
   http://www.cmake.org
 
+Instructions for DEBUG build 
+  mkdir -p build/debug
+  cd build/debug
+  cmake -DCMAKE_BUILD_TYPE=DEBUG ../../src        
+  make
+
+Instructions for RELEASE build 
+  mkdir -p build/release
+  cd build/release
+  cmake -DCMAKE_BUILD_TYPE=RELEASE ../../src        
+  make
+
 Instructions for installing gcc-4.8 (C++11 compatible) on Ubuntu
 Execute:
     sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y

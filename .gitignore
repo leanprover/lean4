@@ -2,3 +2,7 @@
 .lean_trace
 a.out
 build
+GPATH
+GRTAGS
+GSYMS
+GTAGS

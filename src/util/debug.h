@@ -32,7 +32,8 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
- 
+
+void abort_on_violation(bool flag); 
 void notify_assertion_violation(char const * file_name, int line, char const * condition);
 void enable_debug(char const * tag);
 void disable_debug(char const * tag);

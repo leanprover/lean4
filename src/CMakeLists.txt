@@ -1,9 +1,10 @@
-cmake_minimum_required (VERSION 2.8.7)
-project (LEAN CXX)
-set (LEAN_VERSION_MAJOR 0)
-set (LEAN_VERSION_MINOR 1)
+cmake_minimum_required(VERSION 2.8.7)
+project(LEAN CXX)
+set(LEAN_VERSION_MAJOR 0)
+set(LEAN_VERSION_MINOR 1)
 
-set (CMAKE_COLOR_MAKEFILE ON)
+set(CMAKE_COLOR_MAKEFILE ON)
+enable_testing()
 
 # Initialize CXXFLAGS.
 set(CMAKE_CXX_FLAGS                "-Wall -std=c++11")
@@ -32,15 +33,18 @@ endif (GMP_INCLUDE_DIR AND GMP_LIBRARIES)
 
 find_path(GMP_INCLUDE_DIR NAMES gmp.h )
 find_library(GMP_LIBRARIES NAMES gmp libgmp )
-MESSAGE(STATUS "GMP: " ${GMP_LIBRARIES})
+message(STATUS "GMP: " ${GMP_LIBRARIES})
 
 include(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(GMP DEFAULT_MSG GMP_INCLUDE_DIR GMP_LIBRARIES)
+find_package_handle_standard_args(GMP DEFAULT_MSG GMP_INCLUDE_DIR GMP_LIBRARIES)
 mark_as_advanced(GMP_INCLUDE_DIR GMP_LIBRARIES)
 
-set (CMAKE_CXX_COMPILER clang++)
-
+include_directories(${LEAN_SOURCE_DIR}/util) 
+include_directories(${LEAN_SOURCE_DIR}/numerics) 
 add_subdirectory(util)
 add_subdirectory(numerics)
+set(EXTRA_LIBS ${EXTRA_LIBS} util numerics ${GMP_LIBRARIES})
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
 add_subdirectory(shell)
+add_subdirectory(tests/numerics)
 

@@ -19,8 +19,13 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-static volatile bool                          g_enable_assertions = true;
+static bool                                   g_abort_on_violation = false;
+static bool                                   g_enable_assertions = true;
 static std::unique_ptr<std::set<std::string>> g_enabled_debug_tags;
+
+void abort_on_violation(bool f) {
+    g_abort_on_violation = f;
+}
 
 void enable_assertions(bool f) {
     g_enable_assertions = f;
@@ -54,6 +59,8 @@ bool is_debug_enabled(const char * tag) {
 }
 
 void invoke_debugger() {
+    if (g_abort_on_violation)
+        exit(1);
     int * x = 0;
     for (;;) {
         #ifdef _WINDOWS

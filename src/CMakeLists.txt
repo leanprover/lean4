@@ -32,8 +32,17 @@ if (GMP_INCLUDE_DIR AND GMP_LIBRARIES)
 endif (GMP_INCLUDE_DIR AND GMP_LIBRARIES)
 
 find_path(GMP_INCLUDE_DIR NAMES gmp.h )
-find_library(GMP_LIBRARIES NAMES gmp libgmp )
+find_library(GMP_LIBRARIES NAMES gmp libgmp REQUIRED)
 message(STATUS "GMP: " ${GMP_LIBRARIES})
+
+find_library(TCMALLOC_LIBRARY tcmalloc)
+if (${TCMALLOC_LIBRARY} MATCHES "TCMALLOC_LIBRARY-NOTFOUND")
+  message("*** WARNING: failed to find tcmalloc")
+  message("*** The (optional) tcmalloc library is available at: https://code.google.com/p/gperftools")
+else()
+  message("Found tcmalloc")
+  set(EXTRA_LIBS ${EXTRA_LIBS} ${TCMALLOC_LIBRARY})
+endif()
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(GMP DEFAULT_MSG GMP_INCLUDE_DIR GMP_LIBRARIES)

@@ -181,9 +181,9 @@ public:
     mpq operator--(int) { mpq r(*this); --(*this); return r; }
     
     // a <- numerator(b)
-    friend void numerator(mpz & a, mpq const & b) { mpz_set(a.m_val, mpq_numref(b.m_val)); }
+    friend void numerator(mpz & a, mpq const & b) { mpz_set(zval(a), mpq_numref(b.m_val)); }
     // a <- denominator(b)
-    friend void denominator(mpz & a, mpq const & b) { mpz_set(a.m_val, mpq_denref(b.m_val)); }
+    friend void denominator(mpz & a, mpq const & b) { mpz_set(zval(a), mpq_denref(b.m_val)); }
     
     mpz get_numerator() const { mpz r; numerator(r, *this); return r; }
     mpz get_denominator() const { mpz r; denominator(r, *this); return r; }

@@ -7,10 +7,95 @@ Author: Leonardo de Moura
 #include <iostream>
 #include "test.h"
 #include "mpq.h"
+using namespace lean;
+
+static void tst1() {
+    mpq a(2,3), b(4,3);
+    b = a / b;
+    lean_assert(b == mpq(1,2));
+    a = mpq(2);
+    a.inv();
+    lean_assert(a == b);
+    a = -2;
+    b = mpq(-1, 2);
+    a.inv();
+    lean_assert(a == b);
+}
+
+static void tst2() {
+    mpq a(2,3);
+    lean_assert(floor(a) == 0);
+    lean_assert(ceil(a) == 1);
+    mpq b(-2, 3);
+    lean_assert(floor(b) == -1);
+    lean_assert(ceil(b) == 0);
+    mpq c;
+    lean_assert(floor(c) == 0);
+    lean_assert(ceil(c) == 0);
+    mpq d(3);
+    lean_assert(d > 0);
+    lean_assert(d.is_pos());
+    lean_assert(floor(d) == d);
+    lean_assert(ceil(d) == d);
+    mpq e(-3);
+    lean_assert(e < 0);
+    lean_assert(e.is_neg());
+    lean_assert(floor(e) == e);
+    lean_assert(ceil(e) == e);
+}
+
+static void tst3() {
+    mpq a("1");
+    mpq b(1);
+    lean_assert(a == b);
+}
+
+static void tst4() {
+    mpq a(8,6);
+    lean_assert(a == mpq(4,3));
+    lean_assert(mpq(1,2)+mpq(1,2) == mpq(1));
+    lean_assert(mpq("1/2") < mpq("2/3"));
+    lean_assert(mpq(-1,2).is_neg());
+    lean_assert(mpq(-1,2).is_nonpos());
+    lean_assert(!mpq(-1,2).is_zero());
+    lean_assert(mpq(1,2) > mpq());
+    lean_assert(mpq().is_zero());
+    lean_assert(mpq(2,3) + mpq(4,3) == mpq(2));
+    lean_assert(mpq(1,2) >= mpq(1,3));
+    lean_assert(mpq(3,4).get_denominator() == 4);
+    lean_assert(mpq(3,4).get_numerator() == 3);
+    lean_assert(mpq(1,2) / mpq(5,4) == mpq(2,5));
+    lean_assert(mpq(1,2) - mpq(2,3) == mpq(-1,6));
+    lean_assert(mpq(3,4) * mpq(2,3) == mpq(1,2));
+    a *= 3;
+    lean_assert(a == 4);
+    a /= 2;
+    lean_assert(a == 2);
+    lean_assert(a.is_integer());
+    a /= 5;
+    lean_assert(a == mpq(2,5));
+    lean_assert(!a.is_integer());
+    mpq b(3,7);
+    a *= b;
+    lean_assert(a == mpq(6,35));
+    a /= b;
+    lean_assert(a == mpq(2,5));
+    mpz c(5);
+    a *= c;
+    lean_assert(a == 2);
+    a += c;
+    lean_assert(a == 7);
+    a -= c;
+    lean_assert(a == 2);
+    a /= c;
+    lean_assert(a == mpq(2,5));
+}
 
 int main() {
-    lean::abort_on_violation(true);
-    lean_assert(false);
-    std::cout << "PASSED\n";
-    return 0;
+    continue_on_violation(true);
+    tst1();
+    tst2();
+    tst3();
+    tst4();
+    return has_violations() ? 1 : 0;
 }

@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved. 
+Copyright (c) 2013 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Leonardo de Moura 
+Author: Leonardo de Moura
 */
 #pragma once
 #include "mpz.h"
@@ -18,8 +18,8 @@ class mpq {
     static mpz_t & zval(mpz & v) { return v.m_val; }
 public:
     friend void swap(mpq & a, mpq & b) { mpq_swap(a.m_val, b.m_val); }
-    friend void swap_numerator(mpq & a, mpz & b) { mpz_swap(mpq_numref(a.m_val), b.m_val); mpq_canonicalize(a.m_val); }
-    friend void swap_denominator(mpq & a, mpz & b) { mpz_swap(mpq_denref(a.m_val), b.m_val); mpq_canonicalize(a.m_val); }
+    friend void swap_numerator(mpq & a, mpz & b) { mpz_swap(mpq_numref(a.m_val), zval(b)); mpq_canonicalize(a.m_val); }
+    friend void swap_denominator(mpq & a, mpz & b) { mpz_swap(mpq_denref(a.m_val), zval(b)); mpq_canonicalize(a.m_val); }
 
     mpq & operator=(mpz const & v) { mpq_set_z(m_val, v.m_val); return *this; }
     mpq & operator=(mpq const & v) { mpq_set(m_val, v.m_val); return *this; }
@@ -50,7 +50,7 @@ public:
 
     int sgn() const { return mpq_sgn(m_val); }
     friend int sgn(mpq const & a) { return a.sgn(); }
-    bool is_pos() const { return sgn() > 0; } 
+    bool is_pos() const { return sgn() > 0; }
     bool is_neg() const { return sgn() < 0; }
     bool is_zero() const { return sgn() == 0; }
     bool is_nonpos() const { return !is_pos(); }
@@ -74,37 +74,37 @@ public:
     friend int cmp(mpq const & a, unsigned b) { return mpq_cmp_ui(a.m_val, b, 1); }
     friend int cmp(mpq const & a, int b) { return mpq_cmp_si(a.m_val, b, 1); }
 
-    friend bool operator<(mpq const & a, mpq const & b) { return cmp(a, b) < 0; } 
-    friend bool operator<(mpq const & a, mpz const & b) { return cmp(a, b) < 0; } 
-    friend bool operator<(mpq const & a, unsigned b) { return cmp(a, b) < 0; } 
-    friend bool operator<(mpq const & a, int b) { return cmp(a, b) < 0; }     
-    friend bool operator<(mpz const & a, mpq const & b) { return cmp(b, a) > 0; }     
-    friend bool operator<(unsigned a, mpq const & b) { return cmp(b, a) > 0; } 
-    friend bool operator<(int a, mpq const & b) { return cmp(b, a) > 0; }     
+    friend bool operator<(mpq const & a, mpq const & b) { return cmp(a, b) < 0; }
+    friend bool operator<(mpq const & a, mpz const & b) { return cmp(a, b) < 0; }
+    friend bool operator<(mpq const & a, unsigned b) { return cmp(a, b) < 0; }
+    friend bool operator<(mpq const & a, int b) { return cmp(a, b) < 0; }
+    friend bool operator<(mpz const & a, mpq const & b) { return cmp(b, a) > 0; }
+    friend bool operator<(unsigned a, mpq const & b) { return cmp(b, a) > 0; }
+    friend bool operator<(int a, mpq const & b) { return cmp(b, a) > 0; }
 
-    friend bool operator>(mpq const & a, mpq const & b) { return cmp(a, b) > 0; } 
-    friend bool operator>(mpq const & a, mpz const & b) { return cmp(a, b) > 0; } 
-    friend bool operator>(mpq const & a, unsigned b) { return cmp(a, b) > 0; } 
-    friend bool operator>(mpq const & a, int b) { return cmp(a, b) > 0; }     
-    friend bool operator>(mpz const & a, mpq const & b) { return cmp(b, a) < 0; } 
-    friend bool operator>(unsigned a, mpq const & b) { return cmp(b, a) < 0; } 
-    friend bool operator>(int a, mpq const & b) { return cmp(b, a) < 0; }     
+    friend bool operator>(mpq const & a, mpq const & b) { return cmp(a, b) > 0; }
+    friend bool operator>(mpq const & a, mpz const & b) { return cmp(a, b) > 0; }
+    friend bool operator>(mpq const & a, unsigned b) { return cmp(a, b) > 0; }
+    friend bool operator>(mpq const & a, int b) { return cmp(a, b) > 0; }
+    friend bool operator>(mpz const & a, mpq const & b) { return cmp(b, a) < 0; }
+    friend bool operator>(unsigned a, mpq const & b) { return cmp(b, a) < 0; }
+    friend bool operator>(int a, mpq const & b) { return cmp(b, a) < 0; }
 
-    friend bool operator<=(mpq const & a, mpq const & b) { return cmp(a, b) <= 0; } 
-    friend bool operator<=(mpq const & a, mpz const & b) { return cmp(a, b) <= 0; }  
-    friend bool operator<=(mpq const & a, unsigned b) { return cmp(a, b) <= 0; } 
-    friend bool operator<=(mpq const & a, int b) { return cmp(a, b) <= 0; }   
-    friend bool operator<=(mpz const & a, mpq const & b) { return cmp(b, a) >= 0; } 
-    friend bool operator<=(unsigned a, mpq const & b) { return cmp(b, a) >= 0; } 
-    friend bool operator<=(int a, mpq const & b) { return cmp(b, a) >= 0; }   
+    friend bool operator<=(mpq const & a, mpq const & b) { return cmp(a, b) <= 0; }
+    friend bool operator<=(mpq const & a, mpz const & b) { return cmp(a, b) <= 0; }
+    friend bool operator<=(mpq const & a, unsigned b) { return cmp(a, b) <= 0; }
+    friend bool operator<=(mpq const & a, int b) { return cmp(a, b) <= 0; }
+    friend bool operator<=(mpz const & a, mpq const & b) { return cmp(b, a) >= 0; }
+    friend bool operator<=(unsigned a, mpq const & b) { return cmp(b, a) >= 0; }
+    friend bool operator<=(int a, mpq const & b) { return cmp(b, a) >= 0; }
 
-    friend bool operator>=(mpq const & a, mpq const & b) { return cmp(a, b) >= 0; } 
-    friend bool operator>=(mpq const & a, mpz const & b) { return cmp(a, b) >= 0; } 
-    friend bool operator>=(mpq const & a, unsigned b) { return cmp(a, b) >= 0; } 
-    friend bool operator>=(mpq const & a, int b) { return cmp(a, b) >= 0; }   
-    friend bool operator>=(mpz const & a, mpq const & b) { return cmp(b, a) <= 0; } 
-    friend bool operator>=(unsigned a, mpq const & b) { return cmp(b, a) <= 0; } 
-    friend bool operator>=(int a, mpq const & b) { return cmp(b, a) <= 0; } 
+    friend bool operator>=(mpq const & a, mpq const & b) { return cmp(a, b) >= 0; }
+    friend bool operator>=(mpq const & a, mpz const & b) { return cmp(a, b) >= 0; }
+    friend bool operator>=(mpq const & a, unsigned b) { return cmp(a, b) >= 0; }
+    friend bool operator>=(mpq const & a, int b) { return cmp(a, b) >= 0; }
+    friend bool operator>=(mpz const & a, mpq const & b) { return cmp(b, a) <= 0; }
+    friend bool operator>=(unsigned a, mpq const & b) { return cmp(b, a) <= 0; }
+    friend bool operator>=(int a, mpq const & b) { return cmp(b, a) <= 0; }
 
     friend bool operator==(mpq const & a, mpq const & b) { return mpq_equal(a.m_val, b.m_val) != 0; }
     friend bool operator==(mpq const & a, mpz const & b) { return a.is_integer() && mpz_cmp(mpq_numref(a.m_val), zval(b)) == 0; }
@@ -121,7 +121,7 @@ public:
     friend bool operator!=(mpz const & a, mpq const & b) { return !operator==(a,b); }
     friend bool operator!=(unsigned int a, mpq const & b) { return !operator==(a,b); }
     friend bool operator!=(int a, mpq const & b) { return !operator==(a,b); }
-    
+
     mpq & operator+=(mpq const & o) { mpq_add(m_val, m_val, o.m_val); return *this; }
     mpq & operator+=(mpz const & o) { mpz_addmul(mpq_numref(m_val), mpq_denref(m_val), o.m_val); mpq_canonicalize(m_val); return *this; }
     mpq & operator+=(unsigned int k) { mpz_addmul_ui(mpq_numref(m_val), mpq_denref(m_val), k); mpq_canonicalize(m_val); return *this; }
@@ -142,34 +142,34 @@ public:
     mpq & operator/=(unsigned int k) { mpz_mul_ui(mpq_denref(m_val), mpq_denref(m_val), k); mpq_canonicalize(m_val); return *this; }
     mpq & operator/=(int k) { mpz_mul_si(mpq_denref(m_val), mpq_denref(m_val), k); mpq_canonicalize(m_val); return *this; }
 
-    friend mpq operator+(mpq a, mpq const & b) { return a += b; } 
-    friend mpq operator+(mpq a, mpz const & b) { return a += b; } 
-    friend mpq operator+(mpq a, unsigned b)  { return a += b; }         
-    friend mpq operator+(mpq a, int b)  { return a += b; }              
+    friend mpq operator+(mpq a, mpq const & b) { return a += b; }
+    friend mpq operator+(mpq a, mpz const & b) { return a += b; }
+    friend mpq operator+(mpq a, unsigned b)  { return a += b; }
+    friend mpq operator+(mpq a, int b)  { return a += b; }
     friend mpq operator+(mpz const & a, mpq b) { return b += a; }
-    friend mpq operator+(unsigned a, mpq b) { return b += a; }          
-    friend mpq operator+(int a, mpq b) { return b += a; }               
+    friend mpq operator+(unsigned a, mpq b) { return b += a; }
+    friend mpq operator+(int a, mpq b) { return b += a; }
 
-    friend mpq operator-(mpq a, mpq const & b) { return a -= b; } 
-    friend mpq operator-(mpq a, mpz const & b) { return a -= b; } 
-    friend mpq operator-(mpq a, unsigned b) { return a -= b; }          
-    friend mpq operator-(mpq a, int b) { return a -= b; }               
+    friend mpq operator-(mpq a, mpq const & b) { return a -= b; }
+    friend mpq operator-(mpq a, mpz const & b) { return a -= b; }
+    friend mpq operator-(mpq a, unsigned b) { return a -= b; }
+    friend mpq operator-(mpq a, int b) { return a -= b; }
     friend mpq operator-(mpz const & a, mpq b) { b.neg(); return b += a; }
-    friend mpq operator-(unsigned a, mpq b) { b.neg(); return b += a; } 
-    friend mpq operator-(int a, mpq b) { b.neg(); return b += a; }      
+    friend mpq operator-(unsigned a, mpq b) { b.neg(); return b += a; }
+    friend mpq operator-(int a, mpq b) { b.neg(); return b += a; }
 
     friend mpq operator*(mpq a, mpq const & b) { return a *= b; }
     friend mpq operator*(mpq a, mpz const & b) { return a *= b; }
-    friend mpq operator*(mpq a, unsigned b) { return a *= b; }          
-    friend mpq operator*(mpq a, int b) { return a *= b; }               
+    friend mpq operator*(mpq a, unsigned b) { return a *= b; }
+    friend mpq operator*(mpq a, int b) { return a *= b; }
     friend mpq operator*(mpz const & a, mpq b) { return b *= a; }
-    friend mpq operator*(unsigned a, mpq b) { return b *= a; }          
+    friend mpq operator*(unsigned a, mpq b) { return b *= a; }
     friend mpq operator*(int a, mpq b) { return b *= a; }
 
-    friend mpq operator/(mpq a, mpq const & b) { return a /= b; }            
-    friend mpq operator/(mpq a, mpz const & b) { return a /= b; }            
-    friend mpq operator/(mpq a, unsigned b) { return a /= b; }            
-    friend mpq operator/(mpq a, int b) { return a /= b; }        
+    friend mpq operator/(mpq a, mpq const & b) { return a /= b; }
+    friend mpq operator/(mpq a, mpz const & b) { return a /= b; }
+    friend mpq operator/(mpq a, unsigned b) { return a /= b; }
+    friend mpq operator/(mpq a, int b) { return a /= b; }
     friend mpq operator/(mpz const & a, mpq b) { b.inv(); return b *= a; }
     friend mpq operator/(unsigned a, mpq b) { b.inv(); return b *= a; }
     friend mpq operator/(int a, mpq b) { b.inv(); return b *= a; }
@@ -179,12 +179,12 @@ public:
 
     mpq & operator--() { return operator-=(1); }
     mpq operator--(int) { mpq r(*this); --(*this); return r; }
-    
+
     // a <- numerator(b)
     friend void numerator(mpz & a, mpq const & b) { mpz_set(zval(a), mpq_numref(b.m_val)); }
     // a <- denominator(b)
     friend void denominator(mpz & a, mpq const & b) { mpz_set(zval(a), mpq_denref(b.m_val)); }
-    
+
     mpz get_numerator() const { mpz r; numerator(r, *this); return r; }
     mpz get_denominator() const { mpz r; denominator(r, *this); return r; }
 

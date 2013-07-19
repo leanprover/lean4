@@ -195,6 +195,7 @@ public:
     friend mpz ceil(mpq const & a);
 
     friend void power(mpq & a, mpq const & b, unsigned k);
+    friend void _power(mpq & a, mpq const & b, unsigned k) { power(a, b, k); }
     friend mpq power(mpq a, unsigned k) { power(a, a, k); return a; }
 
     friend std::ostream & operator<<(std::ostream & out, mpq const & v);
@@ -222,6 +223,8 @@ public:
     static void neg(mpq & v) { v.neg(); }
     static void inv(mpq & v) { v.inv(); }
     static void reset(mpq & v) { v = 0; }
+    // v <- v^k
+    static void power(mpq & v, unsigned k) { _power(v, v, k); }
 };
 
 }

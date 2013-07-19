@@ -163,6 +163,7 @@ public:
     mpbq operator--(int) { mpbq r(*this); --(*this); return r; }
 
     friend void power(mpbq & a, mpbq const & b, unsigned k);
+    friend void _power(mpbq & a, mpbq const & b, unsigned k) { power(a, b, k); }
 
     /**
        \brief Return the magnitude of a = b/2^k.
@@ -253,6 +254,8 @@ public:
     static void set_rounding(bool plus_inf) {}
     static void neg(mpbq & v) { v.neg(); }
     static void reset(mpbq & v) { v = 0; }
+    // v <- v^k
+    static void power(mpbq & v, unsigned k) { _power(v, v, k); }
 };
 
 }

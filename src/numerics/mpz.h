@@ -202,6 +202,7 @@ public:
     unsigned power_of_two_multiple() const { return mpz_scan1(m_val, 0); }
 
     friend void power(mpz & a, mpz const & b, unsigned k) { mpz_pow_ui(a.m_val, b.m_val, k); }
+    friend void _power(mpz & a, mpz const & b, unsigned k) { power(a, b, k); }
     friend mpz power(mpz const & a, unsigned k) { mpz r; power(r, a, k); return r; }
 
     friend void rootrem(mpz & root, mpz & rem, mpz const & a, unsigned k) { mpz_rootrem(root.m_val, rem.m_val, a.m_val, k); }
@@ -228,6 +229,8 @@ public:
     static void set_rounding(bool plus_inf) {}
     static void neg(mpz & v) { v.neg(); }
     static void reset(mpz & v) { v = 0; }
+    // v <- v^k
+    static void power(mpz & v, unsigned k) { _power(v, v, k); }
 };
 
 }

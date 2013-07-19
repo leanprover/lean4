@@ -26,7 +26,7 @@ public:
     static void neg(double & v) { v = -v; }
     static void inv(double & v) { v = 1.0/v; }
     static void reset(double & v) { v = 0.0; }
-    // b <- b^k
+    // v <- v^k
     static void power(double & v, unsigned k) { double_power(v, k); }
 };
 

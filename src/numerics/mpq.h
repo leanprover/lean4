@@ -211,6 +211,7 @@ public:
 template<>
 class numeric_traits<mpq> {
 public:
+    static bool precise() { return true; }
     static bool is_zero(mpq const &  v) { return v.is_zero(); }
     static bool is_pos(mpq const & v) { return v.is_pos(); }
     static bool is_neg(mpq const & v) { return v.is_neg(); }

@@ -18,6 +18,7 @@ void double_power(double & v, unsigned k);
 template<>
 class numeric_traits<double> {
 public:
+    static bool precise() { return false; }
     static bool is_zero(double v) { return v == 0.0; }
     static bool is_pos(double v) { return v > 0.0; }
     static bool is_neg(double v) { return v < 0.0; }

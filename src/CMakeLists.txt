@@ -26,31 +26,19 @@ else ()
     message(FATAL_ERROR "Your C++ compiler does not support C++11.")
 endif ()
 
-if (GMP_INCLUDE_DIR AND GMP_LIBRARIES)
-   # Already in cache, be silent
-   set(GMP_FIND_QUIETLY TRUE)
-endif (GMP_INCLUDE_DIR AND GMP_LIBRARIES)
+# GMP
+include(cmake/FindGMP.cmake)
 
-find_path(GMP_INCLUDE_DIR NAMES gmp.h )
-find_library(GMP_LIBRARIES NAMES gmp libgmp REQUIRED)
-message(STATUS "GMP: " ${GMP_LIBRARIES})
-
-find_library(TCMALLOC_LIBRARY tcmalloc)
-if (${TCMALLOC_LIBRARY} MATCHES "TCMALLOC_LIBRARY-NOTFOUND")
-  message("*** WARNING: failed to find tcmalloc")
-  message("*** The (optional) tcmalloc library is available at: https://code.google.com/p/gperftools")
-else()
-  message("Found tcmalloc")
-  set(EXTRA_LIBS ${EXTRA_LIBS} ${TCMALLOC_LIBRARY})
+# tcmalloc
+include(cmake/FindTcmalloc.cmake)
+if(${TCMALLOC_FOUND})
+  set(EXTRA_LIBS ${EXTRA_LIBS} ${TCMALLOC_LIBRARIES})
 endif()
 
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(GMP DEFAULT_MSG GMP_INCLUDE_DIR GMP_LIBRARIES)
-mark_as_advanced(GMP_INCLUDE_DIR GMP_LIBRARIES)
-
-include_directories(${LEAN_SOURCE_DIR}/util) 
-include_directories(${LEAN_SOURCE_DIR}/numerics) 
+include_directories(${LEAN_SOURCE_DIR}/util)
+include_directories(${LEAN_SOURCE_DIR}/numerics)
 include_directories(${LEAN_SOURCE_DIR}/interval)
+
 add_subdirectory(util)
 add_subdirectory(numerics)
 add_subdirectory(interval)
@@ -59,4 +47,3 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
 add_subdirectory(shell)
 add_subdirectory(tests/numerics)
 add_subdirectory(tests/interval)
-

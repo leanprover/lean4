@@ -31,7 +31,7 @@ public:
     mpz(mpz && s):mpz() { mpz_swap(m_val, s.m_val); }
     ~mpz() { mpz_clear(m_val); }
 
-    void swap(mpz & o) { mpz_swap(m_val, o.m_val); }
+    friend void swap(mpz & a, mpz & b) { mpz_swap(a.m_val, b.m_val); }
 
     unsigned hash() const { return static_cast<unsigned>(mpz_get_si(m_val)); }
 
@@ -63,7 +63,7 @@ public:
     unsigned int get_unsigned_int() const { lean_assert(is_unsigned_int()); return static_cast<unsigned>(get_unsigned_long_int()); }
 
     mpz & operator=(mpz const & v) { mpz_set(m_val, v.m_val); return *this; }
-    mpz & operator=(mpz && v) { swap(v); return *this; }
+    mpz & operator=(mpz && v) { swap(*this, v); return *this; }
     mpz & operator=(char const * v) { mpz_set_str(m_val, v, 10); return *this; }
     mpz & operator=(unsigned long int v) { mpz_set_ui(m_val, v); return *this; }
     mpz & operator=(long int v) { mpz_set_si(m_val, v); return *this; }

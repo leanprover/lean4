@@ -17,13 +17,13 @@ class mpq {
     static mpz_t const & zval(mpz const & v) { return v.m_val; }
     static mpz_t & zval(mpz & v) { return v.m_val; }
 public:
-    void swap(mpq & v) { mpq_swap(m_val, v.m_val); }
-    void swap_numerator(mpz & v) { mpz_swap(mpq_numref(m_val), v.m_val); mpq_canonicalize(m_val); }
-    void swap_denominator(mpz & v) { mpz_swap(mpq_denref(m_val), v.m_val); mpq_canonicalize(m_val); }
+    friend void swap(mpq & a, mpq & b) { mpq_swap(a.m_val, b.m_val); }
+    friend void swap_numerator(mpq & a, mpz & b) { mpz_swap(mpq_numref(a.m_val), b.m_val); mpq_canonicalize(a.m_val); }
+    friend void swap_denominator(mpq & a, mpz & b) { mpz_swap(mpq_denref(a.m_val), b.m_val); mpq_canonicalize(a.m_val); }
 
     mpq & operator=(mpz const & v) { mpq_set_z(m_val, v.m_val); return *this; }
     mpq & operator=(mpq const & v) { mpq_set(m_val, v.m_val); return *this; }
-    mpq & operator=(mpq && v) { swap(v); return *this; }
+    mpq & operator=(mpq && v) { swap(*this, v); return *this; }
     mpq & operator=(char const * v) { mpq_set_str(m_val, v, 10); return *this; }
     mpq & operator=(unsigned long int v) { mpq_set_ui(m_val, v, 1u); return *this; }
     mpq & operator=(long int v) { mpq_set_si(m_val, v, 1); return *this; }

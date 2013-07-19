@@ -28,11 +28,11 @@ public:
     ~mpbq() {}
 
     mpbq & operator=(mpbq const & v) { m_num = v.m_num; m_k = v.m_k; return *this; }
-    mpbq & operator=(mpbq && v) { swap(v); return *this; }
+    mpbq & operator=(mpbq && v) { swap(*this, v); return *this; }
     mpbq & operator=(unsigned int v) { m_num = v; m_k = 0; return *this; }
     mpbq & operator=(int v) { m_num = v; m_k = 0; return *this; }
 
-    void swap(mpbq & o) { m_num.swap(o.m_num); std::swap(m_k, o.m_k); }
+    friend void swap(mpbq & a, mpbq & b) { swap(a.m_num, b.m_num); std::swap(a.m_k, b.m_k); }
 
     unsigned hash() const { return m_num.hash(); }
 

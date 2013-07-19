@@ -71,7 +71,6 @@ void neg(T & a, xnumeral_kind & ak) {
 
 template<typename T>
 void inv(T & a, xnumeral_kind & ak) {
-    lean_assert(numeral_manager::field());
     switch (ak) {
     case XN_MINUS_INFINITY:
         ak = XN_NUMERAL;
@@ -175,7 +174,7 @@ void div(T & r, xnumeral_kind & rk, T const & a, xnumeral_kind ak, T const & b, 
     }
     else {
         rk = XN_NUMERAL;
-        c = a / b;
+        r = a / b;
     }
 }
 
@@ -209,7 +208,7 @@ bool eq(T const & a, xnumeral_kind ak, T const & b, xnumeral_kind bk) {
 
 template<typename T>
 bool neq(T const & a, xnumeral_kind ak, T const & b, xnumeral_kind bk) {
-    return !eq(m, a, ak, b, bk);
+    return !eq(a, ak, b, bk);
 }
 
 template<typename T>
@@ -226,7 +225,7 @@ bool lt(T const & a, xnumeral_kind ak, T const & b, xnumeral_kind bk) {
         case XN_PLUS_INFINITY:
             return true;
         default:
-            UNREACHABLE();
+            lean_unreachable();
             return false;
         }
     case XN_PLUS_INFINITY:
@@ -239,17 +238,17 @@ bool lt(T const & a, xnumeral_kind ak, T const & b, xnumeral_kind bk) {
 
 template<typename T>
 bool gt(T const & a, xnumeral_kind ak, T const & b, xnumeral_kind bk) {
-    return lt(m, b, bk, a, ak);
+    return lt(b, bk, a, ak);
 }
 
 template<typename T>
 bool le(T const & a, xnumeral_kind ak, T const & b, xnumeral_kind bk) {
-    return !gt(m, a, ak, b, bk);
+    return !gt(a, ak, b, bk);
 }
 
 template<typename T>
 bool ge(T const & a, xnumeral_kind ak, T const & b, xnumeral_kind bk) {
-    return !lt(m, a, ak, b, bk);
+    return !lt(a, ak, b, bk);
 }
 
 template<typename T>

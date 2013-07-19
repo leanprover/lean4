@@ -268,11 +268,11 @@ void refine_upper(mpq const & q, mpbq & l, mpbq & u) {
         mid = l + u;
         div2(mid);
         if (mid > q) {
-            u.swap(mid);
+            swap(u, mid);
             lean_assert(l < q && q < u);
             return;
         }
-        l.swap(mid);
+        swap(l, mid);
     }
 }
 
@@ -284,11 +284,11 @@ void refine_lower(mpq const & q, mpbq & l, mpbq & u) {
         mid = l + u;
         div2(mid);
         if (mid < q) {
-            l.swap(mid);
+            swap(l, mid);
             lean_assert(l < q && q < u);
             return;
         }
-        u.swap(mid);
+        swap(u, mid);
     }
 }
 

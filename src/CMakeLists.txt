@@ -50,10 +50,13 @@ mark_as_advanced(GMP_INCLUDE_DIR GMP_LIBRARIES)
 
 include_directories(${LEAN_SOURCE_DIR}/util) 
 include_directories(${LEAN_SOURCE_DIR}/numerics) 
+include_directories(${LEAN_SOURCE_DIR}/interval)
 add_subdirectory(util)
 add_subdirectory(numerics)
+add_subdirectory(interval)
 set(EXTRA_LIBS ${EXTRA_LIBS} util numerics ${GMP_LIBRARIES})
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
 add_subdirectory(shell)
 add_subdirectory(tests/numerics)
+add_subdirectory(tests/interval)
 

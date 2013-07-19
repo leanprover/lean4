@@ -72,15 +72,15 @@ interval<T>::~interval() {
 }
 
 template<typename T>
-void swap(interval<T> & a, interval<T> & b) {
+void interval<T>::_swap(interval<T> & b) {
     using std::swap;
-    swap(a.m_lower, b.m_lower);
-    swap(a.m_upper, b.m_upper);
+    swap(m_lower, b.m_lower);
+    swap(m_upper, b.m_upper);
     unsigned tmp;
-    tmp = a.m_lower_inf;  a.m_lower_inf  = b.m_lower_inf;  b.m_lower_inf = tmp;
-    tmp = a.m_upper_inf;  a.m_upper_inf  = b.m_upper_inf;  b.m_upper_inf = tmp;    
-    tmp = a.m_lower_open; a.m_lower_open = b.m_lower_open; b.m_lower_open = tmp;
-    tmp = a.m_upper_open; a.m_upper_open = b.m_upper_open; b.m_upper_open = tmp;    
+    tmp = m_lower_inf;  m_lower_inf  = b.m_lower_inf;  b.m_lower_inf = tmp;
+    tmp = m_upper_inf;  m_upper_inf  = b.m_upper_inf;  b.m_upper_inf = tmp;    
+    tmp = m_lower_open; m_lower_open = b.m_lower_open; b.m_lower_open = tmp;
+    tmp = m_upper_open; m_upper_open = b.m_upper_open; b.m_upper_open = tmp;    
 }
 
 template<typename T>
@@ -88,6 +88,24 @@ bool interval<T>::contains_zero() const {
     return 
         (is_lower_neg() || (is_lower_zero() && !is_lower_open())) &&
         (is_upper_pos() || (is_upper_zero() && !is_upper_open()));
+}
+
+template<typename T>
+bool interval<T>::_eq(interval<T> const & b) const {
+    return 
+        m_lower_open == b.m_lower_open &&
+        m_upper_open == b.m_upper_open &&
+        eq(m_lower, lower_kind(), b.m_lower, b.lower_kind()) &&
+        eq(m_upper, upper_kind(), b.m_upper, b.upper_kind());
+}
+
+template<typename T>
+bool interval<T>::before(interval<T> const & b) const {
+    // TODO
+    //if (is_upper_inf() || b.lower_is_inf())
+    //    return false;
+    // return m_upper < b.m_lower || (is_upper_open() && 
+    return true;
 }
 
 template<typename T>
@@ -313,6 +331,82 @@ interval<T> & interval<T>::operator/=(interval<T> const & o) {
 }
 
 template<typename T>
+void interval<T>::inv() {
+    // If the interval [l,u] does not contain 0, then 1/[l,u] = [1/u, 1/l]
+    lean_assert(!contains_zero());
+
+    using std::swap;
+
+    static thread_local T new_l_val;
+    static thread_local T new_u_val;
+    xnumeral_kind new_l_kind, new_u_kind;
+    
+    if (is_P1()) {
+        // 0 < l <= x --> 1/x <= 1/l
+        // 0 < l <= x <= u --> 1/u <= 1/x (use lower and upper bounds)
+        
+        round_to_minus_inf();
+        new_l_val  = m_upper; 
+        new_l_kind = upper_kind();
+        ::lean::inv(new_l_val, new_l_kind);
+        lean_assert(new_l_kind == XN_NUMERAL);
+        bool new_l_open = is_upper_open();
+        
+        if (is_lower_zero()) {
+            lean_assert(is_lower_open());
+            reset(m_upper);
+            set_is_upper_inf(true);
+            set_is_upper_open(true);
+        }
+        else {
+            round_to_plus_inf();
+            new_u_val = m_lower;
+            inv(new_u_val);
+            swap(m_upper, new_u_val);
+            set_is_upper_inf(false);
+            set_is_upper_open(is_lower_open());
+        }
+        
+        swap(m_lower, new_l_val);
+        set_is_lower_inf(false); 
+        set_is_lower_open(new_l_open);
+    }
+    else if (is_N1()) {
+        // x <= u < 0 --> 1/u <= 1/x
+        // l <= x <= u < 0 --> 1/l <= 1/x (use lower and upper bounds)
+        round_to_plus_inf();
+        new_u_val  = m_lower;
+        new_u_kind = lower_kind();
+        ::lean::inv(new_u_val, new_u_kind);
+        lean_assert(new_u_kind == XN_NUMERAL);
+
+        bool new_u_open = is_lower_open();
+
+        if (is_upper_zero()) {
+            lean_assert(is_upper_open());
+            reset(m_lower);
+            set_is_lower_open(true);
+            set_is_lower_inf(true);
+        }
+        else {
+            round_to_minus_inf();
+            new_l_val = m_upper;
+            inv(new_l_val);
+            swap(m_lower, new_l_val);
+            set_is_lower_inf(false);
+            set_is_lower_open(is_upper_open());
+        }
+        
+        swap(m_upper, new_u_val); 
+        set_is_upper_inf(false);
+        set_is_upper_open(new_u_open);
+    }
+    else {
+        lean_unreachable();
+    }
+}
+
+template<typename T>
 bool interval<T>::check_invariant() const {
     lean_assert(!m_lower_inf || m_lower_open);
     lean_assert(!m_upper_inf || m_upper_open);
@@ -337,3 +431,4 @@ void interval<T>::display(std::ostream & out) const {
 
 
 }
+

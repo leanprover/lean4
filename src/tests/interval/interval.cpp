@@ -12,6 +12,7 @@ using namespace lean;
 void tst1() {
     interval<mpq> t(1, 3);
     std::cout << t + interval<mpq>(2, 4, false, true) << "\n";
+    std::cout << t << " --> " << inv(t) << "\n";
 }
 
 int main() {

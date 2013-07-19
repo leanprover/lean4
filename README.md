@@ -23,6 +23,13 @@ Instructions for RELEASE build
     cmake -DCMAKE_BUILD_TYPE=RELEASE ../../src
     make
 
+Instructions for installing gperftools on Ubuntu
+
+    sudo add-apt-repository ppa:agent-8131/ppa
+    sudo apt-get update
+    sudo apt-get dist-upgrade
+    sudo apt-get install libgoogle-perftools-dev
+
 Instructions for installing gcc-4.8 (C++11 compatible) on Ubuntu
 
     sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y

@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved. 
+Copyright (c) 2013 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Leonardo de Moura 
+Author: Leonardo de Moura
 */
 #include <cstring>
 #include "name.h"
@@ -21,7 +21,7 @@ struct name::imp {
         char * m_str;
         unsigned m_k;
     };
-    
+
     void dealloc() {
         imp * curr = this;
         while (true) {
@@ -45,7 +45,7 @@ struct name::imp {
             display_core(out, sep, p->m_prefix);
             out << sep;
         }
-        if (p->m_is_string) 
+        if (p->m_is_string)
             out << p->m_str;
         else
             out << p->m_k;
@@ -103,7 +103,7 @@ name::~name() {
 }
 
 name & name::operator=(name const & other) {
-    if (other.m_imp) 
+    if (other.m_imp)
         other.m_imp->inc_ref();
     if (m_imp)
         m_imp->dec_ref();
@@ -121,9 +121,9 @@ name & name::operator=(name && other) {
 }
 
 name::kind name::get_kind() const {
-    if (m_imp == nullptr) 
+    if (m_imp == nullptr)
         return kind::ANONYMOUS;
-    else 
+    else
         return m_imp->m_is_string ? kind::STRING : kind::NUMERAL;
 }
 
@@ -174,10 +174,10 @@ name name::get_prefix() const {
 static unsigned num_digits(unsigned k) {
     if (k == 0)
         return 1;
-    int r = 0; 
-    while (k != 0) { 
-        k /= 10; 
-        r++; 
+    int r = 0;
+    while (k != 0) {
+        k /= 10;
+        r++;
     }
     return r;
 }

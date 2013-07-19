@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved. 
+Copyright (c) 2013 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Leonardo de Moura 
+Author: Leonardo de Moura
 */
 #pragma once
 #include <iostream>
@@ -22,7 +22,7 @@ class mpz {
     mpz(__mpz_struct const * v) { mpz_init_set(m_val, v); }
 public:
     mpz() { mpz_init(m_val); }
-    mpz(char const * v) { mpz_init_set_str(m_val, const_cast<char*>(v), 10); } 
+    mpz(char const * v) { mpz_init_set_str(m_val, const_cast<char*>(v), 10); }
     mpz(unsigned long int v) { mpz_init_set_ui(m_val, v); }
     mpz(long int v) { mpz_init_set_si(m_val, v); }
     mpz(unsigned int v) { mpz_init_set_ui(m_val, v); }
@@ -37,12 +37,12 @@ public:
 
     int sgn() const { return mpz_sgn(m_val); }
     friend int sgn(mpz const & a) { return a.sgn(); }
-    bool is_pos() const { return sgn() > 0; } 
+    bool is_pos() const { return sgn() > 0; }
     bool is_neg() const { return sgn() < 0; }
     bool is_zero() const { return sgn() == 0; }
     bool is_nonpos() const { return !is_pos(); }
     bool is_nonneg() const { return !is_neg(); }
-    
+
     void neg() { mpz_neg(m_val, m_val); }
     friend mpz neg(mpz a) { a.neg(); return a; }
 
@@ -74,29 +74,29 @@ public:
     friend int cmp(mpz const & a, unsigned b) { return mpz_cmp_ui(a.m_val, b); }
     friend int cmp(mpz const & a, int b) { return mpz_cmp_si(a.m_val, b); }
 
-    friend bool operator<(mpz const & a, mpz const & b) { return cmp(a, b) < 0; } 
-    friend bool operator<(mpz const & a, unsigned b) { return cmp(a, b) < 0; } 
-    friend bool operator<(mpz const & a, int b) { return cmp(a, b) < 0; }     
-    friend bool operator<(unsigned a, mpz const & b) { return cmp(b, a) > 0; } 
-    friend bool operator<(int a, mpz const & b) { return cmp(b, a) > 0; }     
+    friend bool operator<(mpz const & a, mpz const & b) { return cmp(a, b) < 0; }
+    friend bool operator<(mpz const & a, unsigned b) { return cmp(a, b) < 0; }
+    friend bool operator<(mpz const & a, int b) { return cmp(a, b) < 0; }
+    friend bool operator<(unsigned a, mpz const & b) { return cmp(b, a) > 0; }
+    friend bool operator<(int a, mpz const & b) { return cmp(b, a) > 0; }
 
-    friend bool operator>(mpz const & a, mpz const & b) { return cmp(a, b) > 0; } 
-    friend bool operator>(mpz const & a, unsigned b) { return cmp(a, b) > 0; } 
-    friend bool operator>(mpz const & a, int b) { return cmp(a, b) > 0; }     
-    friend bool operator>(unsigned a, mpz const & b) { return cmp(b, a) < 0; } 
-    friend bool operator>(int a, mpz const & b) { return cmp(b, a) < 0; }     
+    friend bool operator>(mpz const & a, mpz const & b) { return cmp(a, b) > 0; }
+    friend bool operator>(mpz const & a, unsigned b) { return cmp(a, b) > 0; }
+    friend bool operator>(mpz const & a, int b) { return cmp(a, b) > 0; }
+    friend bool operator>(unsigned a, mpz const & b) { return cmp(b, a) < 0; }
+    friend bool operator>(int a, mpz const & b) { return cmp(b, a) < 0; }
 
-    friend bool operator<=(mpz const & a, mpz const & b) { return cmp(a, b) <= 0; } 
-    friend bool operator<=(mpz const & a, unsigned b) { return cmp(a, b) <= 0; } 
-    friend bool operator<=(mpz const & a, int b) { return cmp(a, b) <= 0; }   
-    friend bool operator<=(unsigned a, mpz const & b) { return cmp(b, a) >= 0; } 
-    friend bool operator<=(int a, mpz const & b) { return cmp(b, a) >= 0; }   
+    friend bool operator<=(mpz const & a, mpz const & b) { return cmp(a, b) <= 0; }
+    friend bool operator<=(mpz const & a, unsigned b) { return cmp(a, b) <= 0; }
+    friend bool operator<=(mpz const & a, int b) { return cmp(a, b) <= 0; }
+    friend bool operator<=(unsigned a, mpz const & b) { return cmp(b, a) >= 0; }
+    friend bool operator<=(int a, mpz const & b) { return cmp(b, a) >= 0; }
 
-    friend bool operator>=(mpz const & a, mpz const & b) { return cmp(a, b) >= 0; } 
-    friend bool operator>=(mpz const & a, unsigned b) { return cmp(a, b) >= 0; } 
-    friend bool operator>=(mpz const & a, int b) { return cmp(a, b) >= 0; }   
-    friend bool operator>=(unsigned a, mpz const & b) { return cmp(b, a) <= 0; } 
-    friend bool operator>=(int a, mpz const & b) { return cmp(b, a) <= 0; } 
+    friend bool operator>=(mpz const & a, mpz const & b) { return cmp(a, b) >= 0; }
+    friend bool operator>=(mpz const & a, unsigned b) { return cmp(a, b) >= 0; }
+    friend bool operator>=(mpz const & a, int b) { return cmp(a, b) >= 0; }
+    friend bool operator>=(unsigned a, mpz const & b) { return cmp(b, a) <= 0; }
+    friend bool operator>=(int a, mpz const & b) { return cmp(b, a) <= 0; }
 
     friend bool operator==(mpz const & a, mpz const & b) { return cmp(a, b) == 0; }
     friend bool operator==(mpz const & a, unsigned b) { return cmp(a, b) == 0; }
@@ -109,7 +109,7 @@ public:
     friend bool operator!=(mpz const & a, int b) { return cmp(a, b) != 0; }
     friend bool operator!=(unsigned a, mpz const & b) { return cmp(b, a) != 0; }
     friend bool operator!=(int a, mpz const & b) { return cmp(b, a) != 0; }
-    
+
     mpz & operator+=(mpz const & o) { mpz_add(m_val, m_val, o.m_val); return *this; }
     mpz & operator+=(unsigned u) { mpz_add_ui(m_val, m_val, u); return *this; }
     mpz & operator+=(int u) { if (u >= 0) mpz_add_ui(m_val, m_val, u); else mpz_sub_ui(m_val, m_val, u); return *this; }
@@ -128,28 +128,28 @@ public:
     friend mpz rem(mpz const & a, mpz const & b) { mpz r; mpz_tdiv_r(r.m_val, a.m_val, b.m_val); return r; }
     mpz & operator%=(mpz const & o) { mpz r(*this % o); mpz_swap(m_val, r.m_val); return *this; }
 
-    friend mpz operator+(mpz a, mpz const & b) { return a += b; } 
-    friend mpz operator+(mpz a, unsigned b)  { return a += b; }         
-    friend mpz operator+(mpz a, int b)  { return a += b; }              
-    friend mpz operator+(unsigned a, mpz b) { return b += a; }          
-    friend mpz operator+(int a, mpz b) { return b += a; }               
+    friend mpz operator+(mpz a, mpz const & b) { return a += b; }
+    friend mpz operator+(mpz a, unsigned b)  { return a += b; }
+    friend mpz operator+(mpz a, int b)  { return a += b; }
+    friend mpz operator+(unsigned a, mpz b) { return b += a; }
+    friend mpz operator+(int a, mpz b) { return b += a; }
 
-    friend mpz operator-(mpz a, mpz const & b) { return a -= b; } 
-    friend mpz operator-(mpz a, unsigned b) { return a -= b; }          
-    friend mpz operator-(mpz a, int b) { return a -= b; }               
-    friend mpz operator-(unsigned a, mpz b) { b.neg(); return b += a; } 
-    friend mpz operator-(int a, mpz b) { b.neg(); return b += a; }      
+    friend mpz operator-(mpz a, mpz const & b) { return a -= b; }
+    friend mpz operator-(mpz a, unsigned b) { return a -= b; }
+    friend mpz operator-(mpz a, int b) { return a -= b; }
+    friend mpz operator-(unsigned a, mpz b) { b.neg(); return b += a; }
+    friend mpz operator-(int a, mpz b) { b.neg(); return b += a; }
 
     friend mpz operator*(mpz a, mpz const & b) { return a *= b; }
-    friend mpz operator*(mpz a, unsigned b) { return a *= b; }          
-    friend mpz operator*(mpz a, int b) { return a *= b; }               
-    friend mpz operator*(unsigned a, mpz b) { return b *= a; }          
+    friend mpz operator*(mpz a, unsigned b) { return a *= b; }
+    friend mpz operator*(mpz a, int b) { return a *= b; }
+    friend mpz operator*(unsigned a, mpz b) { return b *= a; }
     friend mpz operator*(int a, mpz b) { return b *= a; }
 
-    friend mpz operator/(mpz a, mpz const & b) { return a /= b; }            
+    friend mpz operator/(mpz a, mpz const & b) { return a /= b; }
     friend mpz operator/(mpz a, unsigned b) { return a /= b; }
     friend mpz operator/(mpz a, int b) { return a /= b; }
-    friend mpz operator/(unsigned a, mpz const & b) { mpz r(a); return r /= b; } 
+    friend mpz operator/(unsigned a, mpz const & b) { mpz r(a); return r /= b; }
     friend mpz operator/(int a, mpz const & b) { mpz r(a); return r /= b; }
 
     friend mpz operator%(mpz const & a, mpz const & b);
@@ -215,7 +215,7 @@ public:
     friend void lcm(mpz & l, mpz const & a, mpz const & b) { mpz_lcm(l.m_val, a.m_val, b.m_val); }
     friend mpz lcm(mpz const & a, mpz const & b) { mpz l; lcm(l, a, b); return l; }
 
-    friend std::ostream & operator<<(std::ostream & out, mpz const & v); 
+    friend std::ostream & operator<<(std::ostream & out, mpz const & v);
 };
 
 template<>

@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved. 
+Copyright (c) 2013 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Leonardo de Moura 
+Author: Leonardo de Moura
 */
 #pragma once
 
@@ -10,12 +10,12 @@ Author: Leonardo de Moura
 #include <fstream>
 #include <mutex>
 namespace lean {
-extern std::ofstream tout; 
+extern std::ofstream tout;
 extern std::mutex    trace_mutex;
 }
 #define TRACE_CODE(CODE) { std::lock_guard<std::mutex> _lean_trace_lock_(lean::trace_mutex); CODE }
 #else
-#define TRACE_CODE(CODE) 
+#define TRACE_CODE(CODE)
 #endif
 
 #define lean_trace(TAG, CODE) TRACE_CODE(if (lean::is_trace_enabled(TAG)) { lean::tout << "-------- [" << TAG << "] " << __FUNCTION__ << " " << __FILE__ << ":" << __LINE__ << " ---------\n"; CODE lean::tout << "------------------------------------------------\n"; lean::tout.flush(); })

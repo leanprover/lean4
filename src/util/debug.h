@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved. 
+Copyright (c) 2013 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Leonardo de Moura 
+Author: Leonardo de Moura
 */
 #pragma once
 
@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #ifdef LEAN_DEBUG
 #define DEBUG_CODE(CODE) CODE
 #else
-#define DEBUG_CODE(CODE) 
+#define DEBUG_CODE(CODE)
 #endif
 
 #define lean_assert(COND) DEBUG_CODE({if (!(COND)) { lean::notify_assertion_violation(__FILE__, __LINE__, #COND); lean::invoke_debugger(); }})
@@ -39,7 +39,7 @@ void disable_debug(char const * tag);
 bool is_debug_enabled(char const * tag);
 void invoke_debugger();
 // support for testing
-void continue_on_violation(bool flag); 
+void continue_on_violation(bool flag);
 bool has_violations();
 
 }

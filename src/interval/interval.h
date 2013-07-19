@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved. 
+Copyright (c) 2013 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Leonardo de Moura 
+Author: Leonardo de Moura
 */
 #pragma once
 #include "numeric_traits.h"
@@ -35,7 +35,7 @@ public:
     interval & operator=(T const & n);
     interval & operator=(interval const & n);
     interval & operator=(interval && n);
-    
+
     interval();
     template<typename T2> interval(T2 const & n):m_lower(n), m_upper(n) { set_closed_endpoints();}
     interval(interval const & n);
@@ -48,7 +48,7 @@ public:
     ~interval();
 
     friend void swap(interval<T> & a, interval<T> & b) { a._swap(b); }
-    
+
     bool is_lower_neg() const { return  ::lean::is_neg(m_lower,  lower_kind()); }
     bool is_lower_pos() const { return  ::lean::is_pos(m_lower,  lower_kind()); }
     bool is_lower_zero() const { return ::lean::is_zero(m_lower, lower_kind()); }
@@ -102,7 +102,7 @@ public:
     friend interval operator/(interval a, interval const & b) { return a /= b; }
 
     bool check_invariant() const;
-    
+
     void display(std::ostream & out) const;
 
     friend std::ostream & operator<<(std::ostream & out, interval const & n) {

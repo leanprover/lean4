@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved. 
+Copyright (c) 2013 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Leonardo de Moura 
+Author: Leonardo de Moura
 */
 #pragma once
 #include <iostream>
@@ -14,5 +14,3 @@ std::ostream& verbose_stream();
 void          set_verbose_stream(std::ostream& s);
 #define lean_verbose(LVL, CODE) { if (get_verbosity_level() >= LVL) { CODE } }
 }
-
-

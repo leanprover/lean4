@@ -30,7 +30,7 @@ void tst3() {
                 lean::mpbq n2(2);
                 lean_assert(n1 < n2);
             }});
-    
+
     std::thread t2([](){
             for (unsigned i = 0; i < 10000000; i++) {
                 lean::mpbq n1(500000001,3);

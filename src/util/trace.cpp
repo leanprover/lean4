@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved. 
+Copyright (c) 2013 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Leonardo de Moura 
+Author: Leonardo de Moura
 */
 
 #include "trace.h"
@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 
 #ifndef LEAN_TRACE_OUT
 #define LEAN_TRACE_OUT ".lean_trace"
-#endif  
+#endif
 
 namespace lean {
 
@@ -20,7 +20,7 @@ namespace lean {
 std::ofstream tout(LEAN_TRACE_OUT);
 std::mutex    trace_mutex;
 #endif
-    
+
 static std::unique_ptr<std::set<std::string>> g_enabled_trace_tags;
 
 void enable_trace(char const * tag) {
@@ -30,7 +30,7 @@ void enable_trace(char const * tag) {
 }
 
 void disable_trace(char const * tag) {
-    if (g_enabled_trace_tags) 
+    if (g_enabled_trace_tags)
         g_enabled_trace_tags->erase(tag);
 }
 
@@ -39,4 +39,3 @@ bool is_trace_enabled(char const * tag) {
 }
 
 }
-

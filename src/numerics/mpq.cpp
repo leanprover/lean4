@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved. 
+Copyright (c) 2013 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Leonardo de Moura 
+Author: Leonardo de Moura
 */
 #include "mpq.h"
 
@@ -102,4 +102,3 @@ void display_decimal(std::ostream & out, mpq const & a, unsigned prec) {
 }
 
 void pp(lean::mpq const & v) { std::cout << v << std::endl; }
-

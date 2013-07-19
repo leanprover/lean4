@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved. 
+Copyright (c) 2013 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Leonardo de Moura 
+Author: Leonardo de Moura
 */
 #include <memory>
 #include "mpz.h"
@@ -40,8 +40,8 @@ bool mpz::is_power_of_two(unsigned & shift) const {
         return false;
     }
 }
-    
-mpz operator%(mpz const & a, mpz const & b) { 
+
+mpz operator%(mpz const & a, mpz const & b) {
     mpz r(rem(a, b));
     if (r.is_neg()) {
         if (b.is_pos())
@@ -52,9 +52,9 @@ mpz operator%(mpz const & a, mpz const & b) {
     return r;
 }
 
-bool root(mpz & root, mpz const & a, unsigned k) { 
+bool root(mpz & root, mpz const & a, unsigned k) {
     static thread_local mpz rem;
-    mpz_rootrem(root.m_val, rem.m_val, a.m_val, k); 
+    mpz_rootrem(root.m_val, rem.m_val, a.m_val, k);
     return rem.is_zero();
 }
 

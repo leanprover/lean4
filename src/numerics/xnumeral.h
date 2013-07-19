@@ -1,15 +1,15 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved. 
+Copyright (c) 2013 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Leonardo de Moura 
+Author: Leonardo de Moura
 */
 #pragma once
 
 #include <iostream>
 #include "numeric_traits.h"
 #include "debug.h"
-    
+
 namespace lean {
 
 // Goodies (templates) for computing with extended numeral.
@@ -38,8 +38,8 @@ bool is_neg(T const & a, xnumeral_kind ak) {
     return ak == XN_MINUS_INFINITY || (ak == XN_NUMERAL && numeric_traits<T>::is_neg(a));
 }
 
-inline bool is_infinite(xnumeral_kind ak) { 
-    return ak != XN_NUMERAL; 
+inline bool is_infinite(xnumeral_kind ak) {
+    return ak != XN_NUMERAL;
 }
 
 template<typename T>

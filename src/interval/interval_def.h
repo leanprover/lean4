@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved. 
+Copyright (c) 2013 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Leonardo de Moura 
+Author: Leonardo de Moura
 */
 #pragma once
 #include <utility>
@@ -49,8 +49,8 @@ interval<T>::interval():
 
 template<typename T>
 interval<T>::interval(interval const & n):
-    m_lower(n.m_lower), 
-    m_upper(n.m_upper), 
+    m_lower(n.m_lower),
+    m_upper(n.m_upper),
     m_lower_open(n.m_lower_open),
     m_upper_open(n.m_upper_open),
     m_lower_inf(n.m_lower_inf),
@@ -59,8 +59,8 @@ interval<T>::interval(interval const & n):
 
 template<typename T>
 interval<T>::interval(interval && n):
-    m_lower(std::move(n.m_lower)), 
-    m_upper(std::move(n.m_upper)), 
+    m_lower(std::move(n.m_lower)),
+    m_upper(std::move(n.m_upper)),
     m_lower_open(n.m_lower_open),
     m_upper_open(n.m_upper_open),
     m_lower_inf(n.m_lower_inf),
@@ -78,21 +78,21 @@ void interval<T>::_swap(interval<T> & b) {
     swap(m_upper, b.m_upper);
     unsigned tmp;
     tmp = m_lower_inf;  m_lower_inf  = b.m_lower_inf;  b.m_lower_inf = tmp;
-    tmp = m_upper_inf;  m_upper_inf  = b.m_upper_inf;  b.m_upper_inf = tmp;    
+    tmp = m_upper_inf;  m_upper_inf  = b.m_upper_inf;  b.m_upper_inf = tmp;
     tmp = m_lower_open; m_lower_open = b.m_lower_open; b.m_lower_open = tmp;
-    tmp = m_upper_open; m_upper_open = b.m_upper_open; b.m_upper_open = tmp;    
+    tmp = m_upper_open; m_upper_open = b.m_upper_open; b.m_upper_open = tmp;
 }
 
 template<typename T>
 bool interval<T>::contains_zero() const {
-    return 
+    return
         (is_lower_neg() || (is_lower_zero() && !is_lower_open())) &&
         (is_upper_pos() || (is_upper_zero() && !is_upper_open()));
 }
 
 template<typename T>
 bool interval<T>::_eq(interval<T> const & b) const {
-    return 
+    return
         m_lower_open == b.m_lower_open &&
         m_upper_open == b.m_upper_open &&
         eq(m_lower, lower_kind(), b.m_lower, b.lower_kind()) &&
@@ -104,7 +104,7 @@ bool interval<T>::before(interval<T> const & b) const {
     // TODO
     //if (is_upper_inf() || b.lower_is_inf())
     //    return false;
-    // return m_upper < b.m_lower || (is_upper_open() && 
+    // return m_upper < b.m_lower || (is_upper_open() &&
     return true;
 }
 
@@ -197,11 +197,11 @@ interval<T> & interval<T>::operator*=(interval<T> const & o) {
             // a <= x <= b <= 0, 0 <= c <= y <= d --> a*d <= x*y (uses the fact that x is neg (b is not positive) or y is pos (c is not negative))
             // x <= b <= 0,  0 <= c <= y --> x*y <= b*c
             lean_assert(i2.is_P());
-            
-            // must update upper_is_open first, since value of is_N0(i1) and is_P0(i2) may be affected by update 
+
+            // must update upper_is_open first, since value of is_N0(i1) and is_P0(i2) may be affected by update
             set_is_upper_open((i1.is_N0() || i2.is_P0()) ? false : (b_o || c_o));
             set_is_lower_open(a_o || d_o);
-            
+
             round_to_minus_inf();
             mul(new_l_val, new_l_kind, a, a_k, d, d_k);
             round_to_plus_inf();
@@ -213,7 +213,7 @@ interval<T> & interval<T>::operator*=(interval<T> const & o) {
             // b > 0, x <= b,  c <= y <= d <= 0 --> b*c <= x*y (uses the fact that d is not positive)
             // a < 0, a <= x,  c <= y <= d <= 0 --> x*y <= a*c (uses the fact that d is not positive)
             set_is_lower_open(b_o || c_o);
-            set_is_upper_open(a_o || c_o); 
+            set_is_upper_open(a_o || c_o);
 
             round_to_minus_inf();
             mul(new_l_val, new_l_kind, b, b_k, c, c_k);
@@ -230,7 +230,7 @@ interval<T> & interval<T>::operator*=(interval<T> const & o) {
             bool  bc_o = b_o || c_o;
             bool  ac_o = a_o || c_o;
             bool  bd_o = b_o || d_o;
-            
+
             round_to_minus_inf();
             mul(ad, ad_k, a, a_k, d, d_k);
             mul(bc, bc_k, b, b_k, c, c_k);
@@ -249,7 +249,7 @@ interval<T> & interval<T>::operator*=(interval<T> const & o) {
                 set_is_lower_open(bc_o);
             }
 
-            
+
             if (gt(ac, ac_k, bd, bd_k) || (eq(ac, ac_k, bd, bd_k) && !ac_o && bd_o)) {
                 swap(new_u_val, ac);
                 new_u_kind = ac_k;
@@ -267,7 +267,7 @@ interval<T> & interval<T>::operator*=(interval<T> const & o) {
             lean_assert(i2.is_P());
 
             set_is_lower_open(a_o || d_o);
-            set_is_upper_open(b_o || d_o); 
+            set_is_upper_open(b_o || d_o);
 
             round_to_minus_inf();
             mul(new_l_val, new_l_kind, a, a_k, d, d_k);
@@ -276,12 +276,12 @@ interval<T> & interval<T>::operator*=(interval<T> const & o) {
         }
     }
     else {
-        lean_assert(i1.is_P());        
+        lean_assert(i1.is_P());
         if (i2.is_N()) {
             // 0 <= a <= x <= b,   c <= y <= d <= 0  -->  x*y <= b*c (uses the fact that x is pos (a is not neg) or y is neg (d is not pos))
             // 0 <= a <= x,  y <= d <= 0  --> a*d <= x*y
-            
-            // must update upper_is_open first, since value of is_P0(i1) and is_N0(i2) may be affected by update 
+
+            // must update upper_is_open first, since value of is_P0(i1) and is_N0(i2) may be affected by update
             set_is_upper_open((i1.is_P0() || i2.is_N0()) ? false : a_o || d_o);
             set_is_lower_open(b_o || c_o);
 
@@ -303,7 +303,7 @@ interval<T> & interval<T>::operator*=(interval<T> const & o) {
         }
         else {
             lean_assert(i2.is_P());
-            // 0 <= a <= x, 0 <= c <= y --> a*c <= x*y 
+            // 0 <= a <= x, 0 <= c <= y --> a*c <= x*y
             // x <= b, y <= d --> x*y <= b*d (uses the fact that x is pos (a is not negative) or y is pos (c is not negative))
 
             set_is_lower_open((i1.is_P0() || i2.is_P0()) ? false : a_o || c_o);
@@ -340,18 +340,18 @@ void interval<T>::inv() {
     static thread_local T new_l_val;
     static thread_local T new_u_val;
     xnumeral_kind new_l_kind, new_u_kind;
-    
+
     if (is_P1()) {
         // 0 < l <= x --> 1/x <= 1/l
         // 0 < l <= x <= u --> 1/u <= 1/x (use lower and upper bounds)
-        
+
         round_to_minus_inf();
-        new_l_val  = m_upper; 
+        new_l_val  = m_upper;
         new_l_kind = upper_kind();
         ::lean::inv(new_l_val, new_l_kind);
         lean_assert(new_l_kind == XN_NUMERAL);
         bool new_l_open = is_upper_open();
-        
+
         if (is_lower_zero()) {
             lean_assert(is_lower_open());
             reset(m_upper);
@@ -366,9 +366,9 @@ void interval<T>::inv() {
             set_is_upper_inf(false);
             set_is_upper_open(is_lower_open());
         }
-        
+
         swap(m_lower, new_l_val);
-        set_is_lower_inf(false); 
+        set_is_lower_inf(false);
         set_is_lower_open(new_l_open);
     }
     else if (is_N1()) {
@@ -396,8 +396,8 @@ void interval<T>::inv() {
             set_is_lower_inf(false);
             set_is_lower_open(is_upper_open());
         }
-        
-        swap(m_upper, new_u_val); 
+
+        swap(m_upper, new_u_val);
         set_is_upper_inf(false);
         set_is_upper_open(new_u_open);
     }
@@ -431,4 +431,3 @@ void interval<T>::display(std::ostream & out) const {
 
 
 }
-

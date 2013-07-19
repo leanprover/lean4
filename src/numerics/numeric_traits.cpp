@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved. 
+Copyright (c) 2013 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Leonardo de Moura 
+Author: Leonardo de Moura
 */
 #include <cfenv>
 #include <cmath>
@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-void set_processor_rounding(bool plus_inf) { 
+void set_processor_rounding(bool plus_inf) {
     if (plus_inf)
         std::fesetround(FE_UPWARD);
     else

@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved. 
+Copyright (c) 2013 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Leonardo de Moura 
+Author: Leonardo de Moura
 */
 #include <limits.h>
 #include "mpbq.h"
@@ -59,7 +59,7 @@ int cmp(mpbq const & a, mpq const & b) {
         // tmp1 <- numerator(a)*denominator(b)
         denominator(tmp1, b); tmp1 *= a.m_num;
         // tmp2 <- numerator(b)*denominator(a)
-        numerator(tmp2, b); mul2k(tmp2, tmp2, a.m_k); 
+        numerator(tmp2, b); mul2k(tmp2, tmp2, a.m_k);
         return tmp1 < tmp2;
     }
 }
@@ -83,7 +83,7 @@ mpbq & mpbq::operator+=(mpbq const & a) {
     return *this;
 }
 
-template<typename T> 
+template<typename T>
 mpbq & mpbq::add_int(T const & a) {
     if (m_k == 0) {
         m_num += a;
@@ -97,7 +97,7 @@ mpbq & mpbq::add_int(T const & a) {
     }
     normalize();
     return *this;
-}    
+}
 mpbq & mpbq::operator+=(unsigned a) { return add_int<unsigned>(a); }
 mpbq & mpbq::operator+=(int a) { return add_int<int>(a); }
 
@@ -120,7 +120,7 @@ mpbq & mpbq::operator-=(mpbq const & a) {
     return *this;
 }
 
-template<typename T> 
+template<typename T>
 mpbq & mpbq::sub_int(T const & a) {
     if (m_k == 0) {
         m_num -= a;
@@ -134,7 +134,7 @@ mpbq & mpbq::sub_int(T const & a) {
     }
     normalize();
     return *this;
-}    
+}
 mpbq & mpbq::operator-=(unsigned a) { return sub_int<unsigned>(a); }
 mpbq & mpbq::operator-=(int a) { return sub_int<int>(a); }
 
@@ -150,12 +150,12 @@ mpbq & mpbq::operator*=(mpbq const & a) {
     return *this;
 }
 
-template<typename T> 
+template<typename T>
 mpbq & mpbq::mul_int(T const & a) {
     m_num *= a;
     normalize();
     return *this;
-}    
+}
 mpbq & mpbq::operator*=(unsigned a) { return mul_int<unsigned>(a); }
 mpbq & mpbq::operator*=(int a) { return mul_int<int>(a); }
 
@@ -263,7 +263,7 @@ bool root_upper(mpbq & a, mpbq const & b, unsigned n) {
 void refine_upper(mpq const & q, mpbq & l, mpbq & u) {
     lean_assert(l < q && q < u);
     lean_assert(!q.get_denominator().is_power_of_two());
-    mpbq mid; 
+    mpbq mid;
     while (true) {
         mid = l + u;
         div2(mid);
@@ -279,7 +279,7 @@ void refine_upper(mpq const & q, mpbq & l, mpbq & u) {
 void refine_lower(mpq const & q, mpbq & l, mpbq & u) {
     lean_assert(l < q && q < u);
     lean_assert(!q.get_denominator().is_power_of_two());
-    mpbq mid; 
+    mpbq mid;
     while (true) {
         mid = l + u;
         div2(mid);
@@ -293,7 +293,7 @@ void refine_lower(mpq const & q, mpbq & l, mpbq & u) {
 }
 
 bool lt_1div2k(mpbq const & a, unsigned k) {
-    if (a.m_num.is_nonpos()) 
+    if (a.m_num.is_nonpos())
         return true;
     if (a.m_k <= k) {
         // since a.m_num >= 1

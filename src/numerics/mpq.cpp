@@ -59,6 +59,12 @@ mpz ceil(mpq const & a) {
     return r;
 }
 
+void power(mpq & a, mpq const & b, unsigned k) {
+    mpz_pow_ui(mpq_numref(a.m_val), mpq_numref(b.m_val), k);
+    mpz_pow_ui(mpq_denref(a.m_val), mpq_denref(b.m_val), k);
+    mpq_canonicalize(a.m_val);
+}
+
 extern void display(std::ostream & out, __mpz_struct const * v);
 
 std::ostream & operator<<(std::ostream & out, mpq const & v) {

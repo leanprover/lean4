@@ -194,6 +194,9 @@ public:
     void ceil();
     friend mpz ceil(mpq const & a);
 
+    friend void power(mpq & a, mpq const & b, unsigned k);
+    friend mpq power(mpq a, unsigned k) { power(a, a, k); return a; }
+
     friend std::ostream & operator<<(std::ostream & out, mpq const & v);
 
     friend void display_decimal(std::ostream & out, mpq const & a, unsigned prec);

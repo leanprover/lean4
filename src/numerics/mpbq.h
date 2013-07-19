@@ -243,4 +243,15 @@ public:
     };
 };
 
+template<>
+class numeric_traits<mpbq> {
+public:
+    static bool is_zero(mpbq const &  v) { return v.is_zero(); }
+    static bool is_pos(mpbq const & v) { return v.is_pos(); }
+    static bool is_neg(mpbq const & v) { return v.is_neg(); }
+    static void set_rounding(bool plus_inf) {}
+    static void neg(mpbq & v) { v.neg(); }
+    static void reset(mpbq & v) { v = 0; }
+};
+
 }

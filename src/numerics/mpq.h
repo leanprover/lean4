@@ -208,4 +208,16 @@ public:
 
 };
 
+template<>
+class numeric_traits<mpq> {
+public:
+    static bool is_zero(mpq const &  v) { return v.is_zero(); }
+    static bool is_pos(mpq const & v) { return v.is_pos(); }
+    static bool is_neg(mpq const & v) { return v.is_neg(); }
+    static void set_rounding(bool plus_inf) {}
+    static void neg(mpq & v) { v.neg(); }
+    static void inv(mpq & v) { v.inv(); }
+    static void reset(mpq & v) { v = 0; }
+};
+
 }

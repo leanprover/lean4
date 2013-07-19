@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <gmp.h>
 #include "debug.h"
+#include "numeric_traits.h"
 
 namespace lean {
 class mpq;
@@ -215,6 +216,17 @@ public:
     friend mpz lcm(mpz const & a, mpz const & b) { mpz l; lcm(l, a, b); return l; }
 
     friend std::ostream & operator<<(std::ostream & out, mpz const & v); 
+};
+
+template<>
+class numeric_traits<mpz> {
+public:
+    static bool is_zero(mpz const & v) { return v.is_zero(); }
+    static bool is_pos(mpz const & v) { return v.is_pos(); }
+    static bool is_neg(mpz const & v) { return v.is_neg(); }
+    static void set_rounding(bool plus_inf) {}
+    static void neg(mpz & v) { v.neg(); }
+    static void reset(mpz & v) { v = 0; }
 };
 
 }

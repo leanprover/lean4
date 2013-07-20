@@ -8,10 +8,8 @@ Author: Leonardo de Moura
 #include "mpq.h"
 
 namespace lean {
-
 template class interval<mpq>;
 template class interval<double>;
-
 }
 
 void pp(lean::interval<lean::mpq> const & i) { std::cout << i << std::endl; }

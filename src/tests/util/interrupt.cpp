@@ -39,7 +39,35 @@ static void tst1() {
     t2.join();
 }
 
+class A {
+public:
+    unsigned m_x;
+    A():m_x(0) { std::cout << "created...\n"; }
+    ~A() { std::cout << "deleted: " << m_x << "\n"; }
+};
+
+static thread_local A g_a;
+
+static void mka(unsigned x) {
+    std::cout << "starting mka " << x << "\n";
+    g_a.m_x = x;
+}
+
+static void tst2() {
+    {
+        std::thread t1([](){ mka(1); });
+        t1.join();
+    }
+    std::thread t2([](){ mka(2);
+            std::chrono::milliseconds dura(200);
+            std::this_thread::sleep_for(dura);
+        });
+    std::thread t3([](){ mka(3); });
+    t2.join(); t3.join();
+}
+
 int main() {
     tst1();
+    tst2();
     return 0;
 }

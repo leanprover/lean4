@@ -44,6 +44,7 @@ public:
        \brief Size of the this name (in characters) when using the given separator.
     */
     size_t size(char const * sep = default_name_separator) const;
+    unsigned hash() const;
     friend std::ostream & operator<<(std::ostream & out, name const & n);
     class sep {
         name const & m_name;

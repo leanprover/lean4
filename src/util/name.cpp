@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "name.h"
 #include "debug.h"
 #include "rc.h"
+#include "hash.h"
 
 namespace lean {
 
@@ -206,6 +207,24 @@ size_t name::size(char const * sep) const {
             }
         }
         return r;
+    }
+}
+
+unsigned name::hash() const {
+    if (m_imp == nullptr)
+        return 17;
+    else {
+        unsigned h = 13;
+        imp const * i = m_imp;
+        do {
+            if (i->m_is_string)
+                h = ::lean::hash(i->m_str, strlen(i->m_str), h);
+            else
+                h = ::lean::hash(h, i->m_k);
+            i = i->m_prefix;
+        }
+        while (i != nullptr);
+        return h;
     }
 }
 

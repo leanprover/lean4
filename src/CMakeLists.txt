@@ -28,6 +28,7 @@ endif ()
 
 # GMP
 include(cmake/FindGMP.cmake)
+set(EXTRA_LIBS ${EXTRA_LIBS} ${GMP_LIBRARIES})
 
 # tcmalloc
 include(cmake/FindTcmalloc.cmake)
@@ -40,10 +41,13 @@ include_directories(${LEAN_SOURCE_DIR}/numerics)
 include_directories(${LEAN_SOURCE_DIR}/interval)
 
 add_subdirectory(util)
+set(EXTRA_LIBS ${EXTRA_LIBS} util)
 add_subdirectory(numerics)
+set(EXTRA_LIBS ${EXTRA_LIBS} numerics)
 add_subdirectory(interval)
-set(EXTRA_LIBS ${EXTRA_LIBS} util numerics interval ${GMP_LIBRARIES})
+set(EXTRA_LIBS ${EXTRA_LIBS} interval)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
 add_subdirectory(shell)
+add_subdirectory(tests/util)
 add_subdirectory(tests/numerics)
 add_subdirectory(tests/interval)

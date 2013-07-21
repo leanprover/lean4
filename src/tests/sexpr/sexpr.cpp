@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "sexpr.h"
+#include "sexpr_funcs.h"
 #include "mpq.h"
 #include "name.h"
 #include "test.h"
@@ -48,6 +49,26 @@ static void tst1() {
     std::cout << sexpr{ sexpr(1,2), sexpr(2,3), sexpr(0,1) } << "\n";
     // list of lists
     std::cout << sexpr{ sexpr{1,2}, sexpr{2,3}, sexpr{0,1} } << "\n";
+    lean_assert(reverse(sexpr{1, 2, 3}) == (sexpr{3, 2, 1}));
+    sexpr l = map(sexpr{1, 2, 3},
+                  [](sexpr e) {
+                      return sexpr(to_int(e) + 10);
+                  });
+    std::cout << l << std::endl;
+    lean_assert(l == (sexpr{11, 12, 13}));
+    {
+        sexpr l = filter(sexpr{10, -2, 3, -1, 0}, [](sexpr e) { return to_int(e) >= 0; });
+        std::cout << l << std::endl;
+        lean_assert(l == (sexpr{10, 3, 0}));
+    }
+    lean_assert(member(3, sexpr{10, 2, 3, 1}));
+    lean_assert(!member(3, nil()));
+    lean_assert(!member(3, sexpr{10, 2, 1}));
+    lean_assert(append(sexpr{1,2}, sexpr{3,4}) == (sexpr{1,2,3,4}));
+    lean_assert(append(l, nil()) == l);
+    lean_assert(append(nil(), l) == l);
+    lean_assert(contains(sexpr{10,20,-2,0,10}, [](sexpr e) { return to_int(e) < 0; }));
+    lean_assert(!contains(sexpr{10,20,-2,0,10}, [](sexpr e) { return to_int(e) < -10; }));
 }
 
 int main() {

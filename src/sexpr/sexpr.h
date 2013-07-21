@@ -112,8 +112,14 @@ unsigned length(sexpr const & s);
 inline unsigned len(sexpr const & s) { return length(s); }
 
 bool operator==(sexpr const & a, sexpr const & b);
+inline bool operator==(sexpr const & a, int b) { return is_int(a) && to_int(a) == b; }
+inline bool operator==(sexpr const & a, double b) { return is_double(a) && to_double(a) == b; }
+inline bool operator==(sexpr const & a, std::string const & b) { return is_string(a) && to_string(a) == b; }
+inline bool operator==(sexpr const & a, name const & b) { return is_name(a) && to_name(a) == b; }
+inline bool operator==(sexpr const & a, mpz const & b) { return is_mpz(a) && to_mpz(a) == b; }
+inline bool operator==(sexpr const & a, mpq const & b) { return is_mpq(a) && to_mpq(a) == b; }
+template<typename T> inline bool operator!=(sexpr const & a, T const & b) { return !(a == b); }
 bool operator<(sexpr const & a, sexpr const & b);
-inline bool operator!=(sexpr const & a, sexpr const & b) { return !(a == b); }
 inline bool operator>(sexpr const & a, sexpr const & b) { return b < a; }
 inline bool operator<=(sexpr const & a, sexpr const & b) { return !(a > b); }
 inline bool operator>=(sexpr const & a, sexpr const & b) { return !(a < b); }

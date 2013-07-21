@@ -138,9 +138,9 @@ char const * name::get_string() const {
     return m_imp->m_str;
 }
 
-bool name::operator==(name const & other) const {
-    imp * i1 = m_imp;
-    imp * i2 = other.m_imp;
+bool operator==(name const & a, name const & b) {
+    name::imp * i1 = a.m_imp;
+    name::imp * i2 = b.m_imp;
     while (true) {
         if (i1 == i2)
             return true;
@@ -150,12 +150,12 @@ bool name::operator==(name const & other) const {
         lean_assert(i2 != nullptr);
         if (i1->m_is_string != i2->m_is_string)
             return false;
-        if (m_imp->m_is_string) {
-            if (strcmp(get_string(), other.get_string()) != 0)
+        if (i1->m_is_string) {
+            if (strcmp(i1->m_str, i2->m_str) != 0)
                 return false;
         }
         else {
-            if (get_numeral() != other.get_numeral())
+            if (i1->m_k != i2->m_k)
                 return false;
         }
         i1 = i1->m_prefix;

@@ -15,11 +15,11 @@ constexpr char const * default_name_separator = "::";
    \brief Hierarchical names.
 */
 class name {
-    enum class kind { ANONYMOUS, STRING, NUMERAL };
     struct imp;
     imp * m_imp;
     name(imp * p);
 public:
+    enum class kind { ANONYMOUS, STRING, NUMERAL };
     name();
     explicit name(char const * name);
     explicit name(unsigned k);
@@ -30,8 +30,8 @@ public:
     ~name();
     name & operator=(name const & other);
     name & operator=(name && other);
-    bool operator==(name const & other) const;
-    bool operator!=(name const & other) const { return !operator==(other); }
+    friend bool operator==(name const & a, name const & b);
+    friend bool operator!=(name const & a, name const & b) { return !(a == b); }
     kind get_kind() const;
     bool is_anonymous() const { return get_kind() == kind::ANONYMOUS; }
     bool is_string() const { return get_kind() == kind::STRING; }

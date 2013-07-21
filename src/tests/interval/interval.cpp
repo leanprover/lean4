@@ -90,5 +90,5 @@ int main() {
     enable_trace("numerics");
     tst1();
     tst2();
-    return 0;
+    return has_violations() ? 1 : 0;
 }

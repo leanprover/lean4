@@ -91,11 +91,48 @@ static void tst4() {
     lean_assert(a == mpq(2,5));
 }
 
+static void tst5() {
+    mpq a;
+    a = 1;
+    lean_assert(a == mpq(1));
+    lean_assert(a <= 1);
+    lean_assert(a < 2);
+    lean_assert(a > 0);
+    lean_assert(a >= 0);
+    lean_assert(a >= 1);
+    lean_assert(!(a >= 2));
+    lean_assert(a == 1);
+    lean_assert(1 == a);
+    lean_assert(a != 2);
+    lean_assert(!(a == 3));
+    lean_assert(a < mpz(2));
+    lean_assert(a <= mpz(1));
+    lean_assert(a > 0);
+    lean_assert(a <= 1u);
+    lean_assert(a < 2u);
+    lean_assert(a > 0u);
+    lean_assert(a >= 1u);
+    lean_assert(a == 1u);
+    lean_assert(1u >= a);
+    lean_assert(2u > a);
+    a = "1/3";
+    lean_assert(a == mpq(1,3));
+    a = 2.0;
+    lean_assert(a == mpq(2));
+    a = mpz(10);
+    lean_assert(a == mpq(10));
+    lean_assert(a >= mpz(10));
+    lean_assert(mpz(10) <= a);
+    lean_assert(mpz(10) >= a);
+    lean_assert(mpz(10) == a);
+}
+
 int main() {
     continue_on_violation(true);
     tst1();
     tst2();
     tst3();
     tst4();
+    tst5();
     return has_violations() ? 1 : 0;
 }

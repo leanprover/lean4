@@ -27,21 +27,18 @@ class sexpr {
 public:
     enum class kind { NIL, STRING, INT, DOUBLE, NAME, MPZ, MPQ, CONS };
     sexpr():m_ptr(nullptr) {}
-    sexpr(char const * v);
-    sexpr(std::string const & v);
-    sexpr(int v);
-    sexpr(double v);
-    sexpr(name const & v);
-    sexpr(mpz const & v);
-    sexpr(mpq const & v);
+    explicit sexpr(char const * v);
+    explicit sexpr(std::string const & v);
+    explicit sexpr(int v);
+    explicit sexpr(double v);
+    explicit sexpr(name const & v);
+    explicit sexpr(mpz const & v);
+    explicit sexpr(mpq const & v);
     sexpr(sexpr const & h, sexpr const & t);
-    sexpr(char const * v, sexpr const & t):sexpr(sexpr(v), t) {}
-    sexpr(std::string const & v, sexpr const & t):sexpr(sexpr(v), t) {}
-    sexpr(int v, sexpr const & t):sexpr(sexpr(v), t) {}
-    sexpr(double v, sexpr const & t):sexpr(sexpr(v), t) {}
-    sexpr(name const & v, sexpr const & t):sexpr(sexpr(v), t) {}
-    sexpr(mpz const & v, sexpr const & t):sexpr(sexpr(v), t) {}
-    sexpr(mpq const & v, sexpr const & t):sexpr(sexpr(v), t) {}
+    template<typename T>
+    sexpr(T const & h, sexpr const & t):sexpr(sexpr(h), t) {}
+    template<typename T1, typename T2>
+    sexpr(T1 const & h, T2 const & t):sexpr(sexpr(h), sexpr(t)) {}
     sexpr(sexpr const & s);
     sexpr(sexpr && s);
     template<typename T>
@@ -71,11 +68,8 @@ public:
 
     sexpr & operator=(sexpr const & s);
     sexpr & operator=(sexpr&& s);
-    sexpr & operator=(char const * v) { return operator=(sexpr(v)); }
-    sexpr & operator=(std::string const & v) { return operator=(sexpr(v)); }
-    sexpr & operator=(int v) { return operator=(sexpr(v)); }
-    sexpr & operator=(mpz const & v) { return operator=(sexpr(v)); }
-    sexpr & operator=(mpq const & v) { return operator=(sexpr(v)); }
+    template<typename T>
+    sexpr & operator=(T const & v) { return operator=(sexpr(v)); }
 
     friend void swap(sexpr & a, sexpr & b) { std::swap(a.m_ptr, b.m_ptr); }
 
@@ -115,10 +109,13 @@ bool operator==(sexpr const & a, sexpr const & b);
 inline bool operator==(sexpr const & a, int b) { return is_int(a) && to_int(a) == b; }
 inline bool operator==(sexpr const & a, double b) { return is_double(a) && to_double(a) == b; }
 inline bool operator==(sexpr const & a, std::string const & b) { return is_string(a) && to_string(a) == b; }
-inline bool operator==(sexpr const & a, name const & b) { return is_name(a) && to_name(a) == b; }
-inline bool operator==(sexpr const & a, mpz const & b) { return is_mpz(a) && to_mpz(a) == b; }
-inline bool operator==(sexpr const & a, mpq const & b) { return is_mpq(a) && to_mpq(a) == b; }
+bool operator==(sexpr const & a, name const & b);
+bool operator==(sexpr const & a, mpz const & b);
+bool operator==(sexpr const & a, mpq const & b);
+template<typename T> inline bool operator==(T const & a, sexpr const & b) { return b == a; }
+inline bool operator!=(sexpr const & a, sexpr const & b) { return !(a == b); }
 template<typename T> inline bool operator!=(sexpr const & a, T const & b) { return !(a == b); }
+template<typename T> inline bool operator!=(T const & a, sexpr const & b) { return !(a == b); }
 bool operator<(sexpr const & a, sexpr const & b);
 inline bool operator>(sexpr const & a, sexpr const & b) { return b < a; }
 inline bool operator<=(sexpr const & a, sexpr const & b) { return !(a > b); }

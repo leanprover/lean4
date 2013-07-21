@@ -71,8 +71,46 @@ static void tst1() {
     lean_assert(!contains(sexpr{10,20,-2,0,10}, [](sexpr e) { return to_int(e) < -10; }));
 }
 
+void tst2() {
+    sexpr a;
+    a = 2;
+    lean_assert(a == sexpr(2));
+    lean_assert(a == 2);
+    lean_assert(2 == a);
+    a = 0.125;
+    lean_assert(a == sexpr(0.125));
+    lean_assert(a == 0.125);
+    lean_assert(0.125 == a);
+    a = "foo";
+    lean_assert(a == sexpr("foo"));
+    lean_assert(a == "foo");
+    lean_assert("foo" == a);
+    lean_assert(a != "blah");
+    lean_assert(a != name("foo"));
+    lean_assert(std::string("foo") == a);
+    lean_assert(a == std::string("foo"));
+    a = name(name("foo"), 1);
+    lean_assert(a == sexpr(name(name("foo"), 1)));
+    lean_assert(a == name(name("foo"), 1));
+    lean_assert(name(name("foo"), 1) == a);
+    a = mpq(1,3);
+    lean_assert(a == sexpr(mpq(1,3)));
+    lean_assert(a == mpq(1,3));
+    lean_assert(mpq(1, 3) == a);
+    lean_assert(mpq(2, 3) != a);
+    a = power(mpz(2),100);
+    lean_assert(a == sexpr(power(mpz(2), 100)));
+    lean_assert(a == power(mpz(2), 100));
+    lean_assert(power(mpz(2), 100) == a);
+    lean_assert(mpq(power(mpz(2), 100)) != a);
+    lean_assert(sexpr(1, 2) != sexpr(2, 1));
+    lean_assert(sexpr(1, 2) != sexpr(1, sexpr(2, nil())));
+    lean_assert(sexpr(1, 2) == sexpr(1, sexpr(2)));
+}
+
 int main() {
     continue_on_violation(true);
     tst1();
+    tst2();
     return has_violations() ? 1 : 0;
 }

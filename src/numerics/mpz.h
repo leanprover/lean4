@@ -22,11 +22,11 @@ class mpz {
     mpz(__mpz_struct const * v) { mpz_init_set(m_val, v); }
 public:
     mpz() { mpz_init(m_val); }
-    mpz(char const * v) { mpz_init_set_str(m_val, const_cast<char*>(v), 10); }
-    mpz(unsigned long int v) { mpz_init_set_ui(m_val, v); }
-    mpz(long int v) { mpz_init_set_si(m_val, v); }
-    mpz(unsigned int v) { mpz_init_set_ui(m_val, v); }
-    mpz(int v) { mpz_init_set_si(m_val, v); }
+    explicit mpz(char const * v) { mpz_init_set_str(m_val, const_cast<char*>(v), 10); }
+    explicit mpz(unsigned long int v) { mpz_init_set_ui(m_val, v); }
+    explicit mpz(long int v) { mpz_init_set_si(m_val, v); }
+    explicit mpz(unsigned int v) { mpz_init_set_ui(m_val, v); }
+    explicit mpz(int v) { mpz_init_set_si(m_val, v); }
     mpz(mpz const & s) { mpz_init_set(m_val, s.m_val); }
     mpz(mpz && s):mpz() { mpz_swap(m_val, s.m_val); }
     ~mpz() { mpz_clear(m_val); }

@@ -22,8 +22,8 @@ public:
     mpbq():m_k(0) {}
     mpbq(mpbq const & v):m_num(v.m_num), m_k(v.m_k) {}
     mpbq(mpbq && v);
-    mpbq(mpz const & v):m_num(v), m_k(0) {}
-    mpbq(int n):m_num(n), m_k(0) {}
+    explicit mpbq(mpz const & v):m_num(v), m_k(0) {}
+    explicit mpbq(int n):m_num(n), m_k(0) {}
     mpbq(int n, unsigned k):m_num(n), m_k(k) { normalize(); }
     ~mpbq() {}
 
@@ -133,28 +133,22 @@ public:
     mpbq & operator*=(int a);
 
     friend mpbq operator+(mpbq a, mpbq const & b) { return a += b; }
-    friend mpbq operator+(mpbq a, mpz const & b) { return a += b; }
-    friend mpbq operator+(mpbq a, unsigned b)  { return a += b; }
-    friend mpbq operator+(mpbq a, int b)  { return a += b; }
-    friend mpbq operator+(mpz const & a, mpbq b) { return b += a; }
-    friend mpbq operator+(unsigned a, mpbq b) { return b += a; }
-    friend mpbq operator+(int a, mpbq b) { return b += a; }
+    template<typename T>
+    friend mpbq operator+(mpbq a, T const & b) { return a += mpbq(b); }
+    template<typename T>
+    friend mpbq operator+(T const & a, mpbq b) { return b += mpbq(a); }
 
     friend mpbq operator-(mpbq a, mpbq const & b) { return a -= b; }
-    friend mpbq operator-(mpbq a, mpz const & b) { return a -= b; }
-    friend mpbq operator-(mpbq a, unsigned b) { return a -= b; }
-    friend mpbq operator-(mpbq a, int b) { return a -= b; }
-    friend mpbq operator-(mpz const & a, mpbq b) { b.neg(); return b += a; }
-    friend mpbq operator-(unsigned a, mpbq b) { b.neg(); return b += a; }
-    friend mpbq operator-(int a, mpbq b) { b.neg(); return b += a; }
+    template<typename T>
+    friend mpbq operator-(mpbq a, T const & b) { return a -= mbpq(b); }
+    template<typename T>
+    friend mpbq operator-(T const & a, mpbq b) { b.neg(); return b += mpbq(a); }
 
     friend mpbq operator*(mpbq a, mpbq const & b) { return a *= b; }
-    friend mpbq operator*(mpbq a, mpz const & b) { return a *= b; }
-    friend mpbq operator*(mpbq a, unsigned b) { return a *= b; }
-    friend mpbq operator*(mpbq a, int b) { return a *= b; }
-    friend mpbq operator*(mpz const & a, mpbq b) { return b *= a; }
-    friend mpbq operator*(unsigned a, mpbq b) { return b *= a; }
-    friend mpbq operator*(int a, mpbq b) { return b *= a; }
+    template<typename T>
+    friend mpbq operator*(mpbq a, mpz const & b) { return a *= mpbq(b); }
+    template<typename T>
+    friend mpbq operator*(T const & a, mpbq b) { return b *= mpbq(a); }
 
     mpbq & operator++() { return operator+=(1); }
     mpbq operator++(int) { mpbq r(*this); ++(*this); return r; }

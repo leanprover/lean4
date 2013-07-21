@@ -21,8 +21,8 @@ class name {
     name(imp * p);
 public:
     name();
-    name(char const * name);
-    name(unsigned k);
+    explicit name(char const * name);
+    explicit name(unsigned k);
     name(name const & prefix, char const * name);
     name(name const & prefix, unsigned k);
     name(name const & other);

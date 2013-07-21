@@ -172,8 +172,8 @@ bool operator==(sexpr const & a, sexpr const & b) {
     sexpr::kind kb = b.get_kind();
     if (ka != kb)
         return false;
-    // if (a.hash() != b.hash())
-    //     return false;
+    if (a.hash() != b.hash())
+        return false;
     switch (ka) {
     case sexpr::kind::NIL:         return true;
     case sexpr::kind::STRING:      return to_string(a) == to_string(b);
@@ -224,4 +224,10 @@ std::ostream & operator<<(std::ostream & out, sexpr const & s) {
     return out;
 }
 
+bool operator==(sexpr const & a, name const & b) { return is_name(a) && to_name(a) == b; }
+bool operator==(sexpr const & a, mpz const & b) { return is_mpz(a) && to_mpz(a) == b; }
+bool operator==(sexpr const & a, mpq const & b) { return is_mpq(a) && to_mpq(a) == b; }
+
 }
+
+void pp(lean::sexpr const & n) { std::cout << n << "\n"; }

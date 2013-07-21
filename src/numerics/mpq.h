@@ -29,21 +29,16 @@ public:
     mpq & operator=(long int v) { mpq_set_si(m_val, v, 1); return *this; }
     mpq & operator=(unsigned int v) { return operator=(static_cast<unsigned long int>(v)); }
     mpq & operator=(int v) { return operator=(static_cast<long int>(v)); }
+    mpq & operator=(double v) { mpq_set_d(m_val, v); return *this; }
 
     mpq() { mpq_init(m_val); }
     mpq(mpq const & v):mpq() { operator=(v); }
-    mpq(mpz const & v):mpq() { operator=(v); }
     mpq(mpq && s):mpq() { mpq_swap(m_val, s.m_val); }
-    mpq(char const * v):mpq() { operator=(v); }
-    mpq(unsigned long int v):mpq() { operator=(v); }
-    mpq(long int v):mpq() { operator=(v); }
-    mpq(unsigned int v):mpq() { operator=(v); }
-    mpq(int v):mpq() { operator=(v); }
+    template<typename T> explicit mpq(T const & v):mpq() { operator=(v); }
     mpq(unsigned long int n, unsigned long int d):mpq() { mpq_set_ui(m_val, n, d); mpq_canonicalize(m_val); }
     mpq(long int n, long int d):mpq() { mpq_set_si(m_val, n, d); mpq_canonicalize(m_val); }
     mpq(unsigned int n, unsigned int d):mpq() { mpq_set_ui(m_val, n, d); mpq_canonicalize(m_val); }
     mpq(int n, int d):mpq() { mpq_set_si(m_val, n, d); mpq_canonicalize(m_val); }
-    mpq(double v):mpq() { mpq_set_d(m_val, v); }
     ~mpq() { mpq_clear(m_val); }
 
     unsigned hash() const { return static_cast<unsigned>(mpz_get_si(mpq_numref(m_val))); }

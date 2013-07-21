@@ -168,6 +168,8 @@ unsigned length(sexpr const & s) {
 }
 
 bool operator==(sexpr const & a, sexpr const & b) {
+    if (eqp(a, b))
+        return true;
     sexpr::kind ka = a.get_kind();
     sexpr::kind kb = b.get_kind();
     if (ka != kb)

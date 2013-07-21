@@ -23,6 +23,25 @@ static void tst1() {
     lean_assert(n != name());
     lean_assert(name().get_kind() == name::kind::ANONYMOUS);
     lean_assert(name(name(), "foo") == name("foo"));
+
+    lean_assert(name(n, 1) < name(n, 2));
+    std::cout << "cmp(" << name(n, 1) << ", " << name(n, 2) << ") = " << cmp(name(n,1), name(n, 2)) << "\n";
+    lean_assert(!(name(n, 1) >= name(n, 2)));
+    lean_assert(name(n, 1) < name(name(n, 1), 1));
+    lean_assert(n < name(n, 1));
+    lean_assert(name(n, 2) > name(name(n, 1), 1));
+    lean_assert(name(name("aa"), 2) < name(name(n, 1), 1));
+    lean_assert(name(n, "aaa") < name(n, "xxx"));
+    lean_assert(name(n, 1) < name(n, "xxx"));
+    lean_assert(name(n, 1) < name(name(n, "xxx"), 1));
+    lean_assert(name() < name(name(n, "xxx"), 1));
+    lean_assert(name(1) < name(name(n, "xxx"), 1));
+    lean_assert(name(1) < name(2));
+    lean_assert(name(2) > name(1));
+    lean_assert(name(1) > name());
+    lean_assert(name(2) < name(name("foo"), 1));
+    lean_assert(name(0u) < name(name(1), "foo"));
+    lean_assert(name(2) > name(name(1), "foo"));
 }
 
 int main() {

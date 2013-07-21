@@ -5,10 +5,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <cstring>
+#include <vector>
+#include <algorithm>
 #include "name.h"
 #include "debug.h"
 #include "rc.h"
 #include "hash.h"
+#include "trace.h"
 
 namespace lean {
 
@@ -57,6 +60,15 @@ struct name::imp {
             out << anonymous_str;
         else
             display_core(out, sep, p);
+    }
+
+    friend void copy_limbs(imp * p, std::vector<name::imp *> & limbs) {
+        limbs.clear();
+        while (p != nullptr) {
+            limbs.push_back(p);
+            p = p->m_prefix;
+        }
+        std::reverse(limbs.begin(), limbs.end());
     }
 };
 
@@ -161,6 +173,34 @@ bool operator==(name const & a, name const & b) {
         i1 = i1->m_prefix;
         i2 = i2->m_prefix;
     }
+}
+
+int cmp(name::imp * i1, name::imp * i2) {
+    static thread_local std::vector<name::imp *> limbs1;
+    static thread_local std::vector<name::imp *> limbs2;
+    copy_limbs(i1, limbs1);
+    copy_limbs(i2, limbs2);
+    auto it1 = limbs1.begin();
+    auto it2 = limbs2.begin();
+    for (; it1 != limbs1.end() && it2 != limbs2.end(); ++it1, ++it2) {
+        i1 = *it1;
+        i2 = *it2;
+
+        if (i1->m_is_string != i2->m_is_string)
+            return i1->m_is_string ? 1 : -1;
+
+        if (i1->m_is_string) {
+            int c = strcmp(i1->m_str, i2->m_str);
+            if (c != 0)
+                return c;
+        }
+        else if (i1->m_k != i2->m_k) {
+            return i1->m_k < i2->m_k ? -1 : 1;
+        }
+    }
+    if (it1 == limbs1.end() && it2 == limbs2.end())
+        return 0;
+    else return it1 == limbs1.end() ? -1 : 1;
 }
 
 bool name::is_atomic() const {

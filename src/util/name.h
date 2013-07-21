@@ -16,8 +16,9 @@ constexpr char const * default_name_separator = "::";
 */
 class name {
     struct imp;
+    friend int cmp(imp * i1, imp * i2);
     imp * m_imp;
-    name(imp * p);
+    explicit name(imp * p);
 public:
     enum class kind { ANONYMOUS, STRING, NUMERAL };
     name();
@@ -32,6 +33,12 @@ public:
     name & operator=(name && other);
     friend bool operator==(name const & a, name const & b);
     friend bool operator!=(name const & a, name const & b) { return !(a == b); }
+    // total order on hierarchical names.
+    friend int cmp(name const & a, name const & b) { return cmp(a.m_imp, b.m_imp); }
+    friend bool operator<(name const & a, name const & b) { return cmp(a, b) < 0; }
+    friend bool operator>(name const & a, name const & b) { return cmp(a, b) > 0; }
+    friend bool operator<=(name const & a, name const & b) { return cmp(a, b) <= 0; }
+    friend bool operator>=(name const & a, name const & b) { return cmp(a, b) >= 0; }
     kind get_kind() const;
     bool is_anonymous() const { return get_kind() == kind::ANONYMOUS; }
     bool is_string() const { return get_kind() == kind::STRING; }

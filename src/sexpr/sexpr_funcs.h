@@ -11,6 +11,17 @@ Author: Leonardo de Moura
 namespace lean {
 
 template<typename F>
+void foreach(sexpr const & l, F f) {
+    lean_assert(is_list(l));
+    sexpr const * h = &l;
+    while (!is_nil(*h)) {
+        lean_assert(is_cons(*h));
+        f(head(*h));
+        h = &tail(*h);
+    }
+}
+
+template<typename F>
 sexpr map(sexpr const & l, F f) {
     lean_assert(is_list(l));
     if (is_nil(l)) {

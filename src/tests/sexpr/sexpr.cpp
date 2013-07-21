@@ -71,7 +71,7 @@ static void tst1() {
     lean_assert(!contains(sexpr{10,20,-2,0,10}, [](sexpr e) { return to_int(e) < -10; }));
 }
 
-void tst2() {
+static void tst2() {
     sexpr a;
     a = 2;
     lean_assert(a == sexpr(2));
@@ -108,9 +108,17 @@ void tst2() {
     lean_assert(sexpr(1, 2) == sexpr(1, sexpr(2)));
 }
 
+static void tst3() {
+    int sum = 0;
+    foreach(sexpr{0, 1, 2, 3, 4},
+            [&](sexpr const & e) { sum += to_int(e); });
+    lean_assert(sum == 10);
+}
+
 int main() {
     continue_on_violation(true);
     tst1();
     tst2();
+    tst3();
     return has_violations() ? 1 : 0;
 }

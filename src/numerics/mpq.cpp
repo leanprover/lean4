@@ -5,8 +5,17 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "mpq.h"
+#include "mpbq.h"
 
 namespace lean {
+
+mpq & mpq::operator=(mpbq const & b) {
+    *this = 2;
+    power(*this, *this, b.get_k());
+    inv();
+    *this *= b.get_numerator();
+    return *this;
+}
 
 int cmp(mpq const & a, mpz const & b) {
     if (a.is_integer()) {

@@ -9,6 +9,30 @@ Author: Leonardo de Moura
 
 namespace lean {
 
+bool set(mpbq & a, mpq const & b) {
+    if (b.is_integer()) {
+        numerator(a.m_num, b);
+        a.m_k = 0;
+        return true;
+    }
+    else {
+        static thread_local mpz d;
+        denominator(d, b);
+        unsigned shift;
+        if (d.is_power_of_two(shift)) {
+            numerator(a.m_num, b);
+            a.m_k = shift;
+            lean_assert(a == b);
+            return true;
+        }
+        else {
+            numerator(a.m_num, b);
+            a.m_k = d.log2() + 1;
+            return false;
+        }
+    }
+}
+
 void mpbq::normalize() {
     if (m_k == 0)
         return;
@@ -51,7 +75,7 @@ int cmp(mpbq const & a, mpz const & b) {
 
 int cmp(mpbq const & a, mpq const & b) {
     if (a.is_integer() && b.is_integer()) {
-        return a.m_num < b;
+        return -cmp(b, a.m_num);
     }
     else {
         static thread_local mpz tmp1;
@@ -60,7 +84,7 @@ int cmp(mpbq const & a, mpq const & b) {
         denominator(tmp1, b); tmp1 *= a.m_num;
         // tmp2 <- numerator(b)*denominator(a)
         numerator(tmp2, b); mul2k(tmp2, tmp2, a.m_k);
-        return tmp1 < tmp2;
+        return cmp(tmp1, tmp2);
     }
 }
 

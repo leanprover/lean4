@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "mpz.h"
 #include "mpq.h"
+#include "bit_tricks.h"
 
 namespace lean {
 
@@ -23,12 +24,19 @@ public:
     mpbq(mpbq const & v):m_num(v.m_num), m_k(v.m_k) {}
     mpbq(mpbq && v);
     explicit mpbq(mpz const & v):m_num(v), m_k(0) {}
+    explicit mpbq(mpq const & v) { set(*this, v); }
     explicit mpbq(int n):m_num(n), m_k(0) {}
     mpbq(int n, unsigned k):m_num(n), m_k(k) { normalize(); }
     ~mpbq() {}
 
+    // a <- b
+    // Return true iff b is a binary rational.
+    friend bool set(mpbq & a, mpq const & b);
+
     mpbq & operator=(mpbq const & v) { m_num = v.m_num; m_k = v.m_k; return *this; }
     mpbq & operator=(mpbq && v) { swap(*this, v); return *this; }
+    mpbq & operator=(mpz const & v) { m_num = v; m_k = 0; return *this; }
+    mpbq & operator=(mpq const & v) { set(*this, v); return *this; }
     mpbq & operator=(unsigned int v) { m_num = v; m_k = 0; return *this; }
     mpbq & operator=(int v) { m_num = v; m_k = 0; return *this; }
 
@@ -132,6 +140,9 @@ public:
     mpbq & operator*=(unsigned a);
     mpbq & operator*=(int a);
 
+    mpbq & operator/=(unsigned a) { lean_assert(is_power_of_two(a)); div2k(*this, log2(a)); return *this; }
+    mpbq & operator/=(int a) { if (a < 0) { a = -a; neg(); } return *this /= static_cast<unsigned>(a); }
+
     friend mpbq operator+(mpbq a, mpbq const & b) { return a += b; }
     template<typename T>
     friend mpbq operator+(mpbq a, T const & b) { return a += mpbq(b); }
@@ -149,6 +160,9 @@ public:
     friend mpbq operator*(mpbq a, mpz const & b) { return a *= mpbq(b); }
     template<typename T>
     friend mpbq operator*(T const & a, mpbq b) { return b *= mpbq(a); }
+
+    friend mpbq operator/(mpbq a, unsigned b) { return a /= b; }
+    friend mpbq operator/(mpbq a, int b) { return a /= b; }
 
     mpbq & operator++() { return operator+=(1); }
     mpbq operator++(int) { mpbq r(*this); ++(*this); return r; }

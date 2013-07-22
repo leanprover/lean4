@@ -1,3 +1,6 @@
 add_executable(mpq mpq.cpp)
 target_link_libraries(mpq ${EXTRA_LIBS})
 add_test(mpq ${CMAKE_CURRENT_BINARY_DIR}/mpq)
+add_executable(mpbq mpbq.cpp)
+target_link_libraries(mpbq ${EXTRA_LIBS})
+add_test(mpbq ${CMAKE_CURRENT_BINARY_DIR}/mpbq)

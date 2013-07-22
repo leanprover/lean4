@@ -29,7 +29,7 @@ expr_var::expr_var(unsigned idx):
     m_vidx(idx) {}
 
 expr_const::expr_const(name const & n, unsigned pos):
-    expr_cell(expr_kind::Constant, m_name.hash()),
+    expr_cell(expr_kind::Constant, n.hash()),
     m_name(n),
     m_pos(pos) {}
 
@@ -44,7 +44,7 @@ expr_app::~expr_app() {
 expr app(unsigned num_args, expr const * args) {
     lean_assert(num_args > 1);
     unsigned _num_args;
-    unsigned _num_args0;
+    unsigned _num_args0 = 0;
     expr const & arg0 = args[0];
     // Remark: we represet ((app a b) c) as (app a b c)
     if (is_app(arg0)) {

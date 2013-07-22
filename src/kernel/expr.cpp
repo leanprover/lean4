@@ -115,97 +115,62 @@ void expr_cell::dealloc() {
     }
 }
 
-bool operator==(expr const & a, expr const & b) {
-    if (eqp(a, b))
-        return true;
-    if (a.hash() != b.hash() || a.kind() != b.kind())
-        return false;
-    static thread_local std::vector<expr_cell_pair> todo;
-    static thread_local expr_cell_pair_set visited;
-    auto visit = [&](expr_cell * a, expr_cell * b) -> bool {
-        if (a == b)
+namespace expr_eq {
+static thread_local expr_cell_pair_set g_eq_visited;
+bool eq(expr const & a, expr const & b) {
+    if (eqp(a, b))            return true;
+    if (a.hash() != b.hash()) return false;
+    if (a.kind() != b.kind()) return false;
+    if (is_var(a))            return get_var_idx(a) == get_var_idx(b);
+    if (is_prop(a))           return true;
+    if (get_rc(a) > 1 && get_rc(b) > 1) {
+        auto p = std::make_pair(a.raw(), b.raw());
+        if (g_eq_visited.find(p) != g_eq_visited.end())
             return true;
-        if (a->hash() != b->hash())
-            return false;
-        if (a->kind() != b->kind())
-            return false;
-        if (a->kind() == expr_kind::Prop)
-            return true;
-        if (a->kind() == expr_kind::Var)
-            return get_var_idx(a) == get_var_idx(b);
-        expr_cell_pair p(a, b);
-        if (visited.find(p) != visited.end())
-            return true;
-        todo.push_back(p);
-        visited.insert(p);
-        return true;
-    };
-    todo.clear();
-    visited.clear();
-    visit(a.raw(), b.raw());
-    while (!todo.empty()) {
-        auto p = todo.back();
-        expr_cell * a = p.first;
-        expr_cell * b = p.second;
-        todo.pop_back();
-        lean_assert(a != b);
-        lean_assert(a->hash() == b->hash());
-        lean_assert(a->kind() == b->kind());
-        switch (a->kind()) {
-        case expr_kind::Var:
-            lean_unreachable();
-            break;
-        case expr_kind::Constant:
-            if (get_const_name(a) != get_const_name(b))
-                return false;
-            break;
-        case expr_kind::App:
-            if (get_num_args(a) != get_num_args(b))
-                return false;
-            for (unsigned i = 0; i < get_num_args(a); i++) {
-                if (!visit(get_arg(a, i).raw(), get_arg(b, i).raw()))
-                    return false;
-            }
-            break;
-        case expr_kind::Lambda:
-        case expr_kind::Pi:
-            // Lambda and Pi
-            // Remark: we ignore get_abs_name because we want alpha-equivalence
-            if (!visit(get_abs_type(a).raw(), get_abs_type(b).raw()) ||
-                !visit(get_abs_expr(a).raw(), get_abs_expr(b).raw()))
-                return false;
-            break;
-        case expr_kind::Prop:
-            lean_unreachable();
-            break;
-        case expr_kind::Type:
-            if (get_ty_num_vars(a) != get_ty_num_vars(b))
-                return false;
-            for (unsigned i = 0; i < get_ty_num_vars(a); i++) {
-                uvar v1 = get_ty_var(a, i);
-                uvar v2 = get_ty_var(b, i);
-                if (v1.first != v2.first || v1.second != v2.second)
-                    return false;
-            }
-            break;
-        case expr_kind::Numeral:
-            if (get_numeral(a) != get_numeral(b))
-                return false;
-            break;
-        }
+        g_eq_visited.insert(p);
     }
-    return true;
+    switch (a.kind()) {
+    case expr_kind::Var:      lean_unreachable(); return true;
+    case expr_kind::Constant: return get_const_name(a) == get_const_name(b);
+    case expr_kind::App:
+        if (get_num_args(a) != get_num_args(b))
+            return false;
+        for (unsigned i = 0; i < get_num_args(a); i++)
+            if (!eq(get_arg(a, i), get_arg(b, i)))
+                return false;
+        return true;
+    case expr_kind::Lambda:
+    case expr_kind::Pi:
+        // Lambda and Pi
+        // Remark: we ignore get_abs_name because we want alpha-equivalence
+        return eq(get_abs_type(a), get_abs_type(b)) && eq(get_abs_expr(a), get_abs_expr(b));
+    case expr_kind::Prop:     lean_unreachable(); return true;
+    case expr_kind::Type:
+        if (get_ty_num_vars(a) != get_ty_num_vars(b))
+            return false;
+        for (unsigned i = 0; i < get_ty_num_vars(a); i++) {
+            uvar v1 = get_ty_var(a, i);
+            uvar v2 = get_ty_var(b, i);
+            if (v1.first != v2.first || v1.second != v2.second)
+                return false;
+        }
+        return true;
+    case expr_kind::Numeral:  return get_numeral(a) == get_numeral(b);
+    }
+    lean_unreachable();
+    return false;
+}
+} // namespace expr_eq
+bool operator==(expr const & a, expr const & b) {
+    expr_eq::g_eq_visited.clear();
+    return expr_eq::eq(a, b);
 }
 
 // Low-level pretty printer
 std::ostream & operator<<(std::ostream & out, expr const & a) {
     switch (a.kind()) {
-    case expr_kind::Var:
-        out << "#" << get_var_idx(a);
-        break;
-    case expr_kind::Constant:
-        out << get_const_name(a);
-        break;
+    case expr_kind::Var:      out << "#" << get_var_idx(a); break;
+    case expr_kind::Constant: out << get_const_name(a);     break;
     case expr_kind::App:
         out << "(";
         for (unsigned i = 0; i < get_num_args(a); i++) {
@@ -214,21 +179,11 @@ std::ostream & operator<<(std::ostream & out, expr const & a) {
         }
         out << ")";
         break;
-    case expr_kind::Lambda:
-        out << "(fun (" << get_abs_name(a) << " : " << get_abs_type(a) << ") " << get_abs_expr(a) << ")";
-        break;
-    case expr_kind::Pi:
-        out << "(forall (" << get_abs_name(a) << " : " << get_abs_type(a) << ") " << get_abs_expr(a) << ")";
-        break;
-    case expr_kind::Prop:
-        out << "Prop";
-        break;
-    case expr_kind::Type:
-        out << "Type";
-        break;
-    case expr_kind::Numeral:
-        out << get_numeral(a);
-        break;
+    case expr_kind::Lambda:  out << "(fun (" << get_abs_name(a) << " : " << get_abs_type(a) << ") " << get_abs_expr(a) << ")";    break;
+    case expr_kind::Pi:      out << "(forall (" << get_abs_name(a) << " : " << get_abs_type(a) << ") " << get_abs_expr(a) << ")"; break;
+    case expr_kind::Prop:    out << "Prop"; break;
+    case expr_kind::Type:    out << "Type"; break;
+    case expr_kind::Numeral: out << get_numeral(a); break;
     }
     return out;
 }

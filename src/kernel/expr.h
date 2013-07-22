@@ -146,6 +146,8 @@ public:
     ~expr_app();
     unsigned     get_num_args() const        { return m_num_args; }
     expr const & get_arg(unsigned idx) const { lean_assert(idx < m_num_args); return m_args[idx]; }
+    expr const * begin_args() const          { return m_args; }
+    expr const * end_args() const            { return m_args + m_num_args; }
 };
 // 4. Abstraction
 class expr_abstraction : public expr_cell {
@@ -257,6 +259,7 @@ inline expr_numeral *     to_numeral(expr const & e)     { return to_numeral(e.r
 
 // =======================================
 // Accessors
+inline unsigned     get_rc(expr_cell * e)                   { return e->get_rc(); }
 inline unsigned     get_var_idx(expr_cell * e)              { return to_var(e)->get_vidx(); }
 inline name const & get_const_name(expr_cell * e)           { return to_constant(e)->get_name(); }
 inline unsigned     get_const_pos(expr_cell * e)            { return to_constant(e)->get_pos(); }
@@ -269,11 +272,14 @@ inline unsigned     get_ty_num_vars(expr_cell * e)          { return to_type(e)-
 inline uvar const & get_ty_var(expr_cell * e, unsigned idx) { return to_type(e)->get_var(idx); }
 inline mpz const &  get_numeral(expr_cell * e)              { return to_numeral(e)->get_num(); }
 
+inline unsigned     get_rc(expr const &  e)                  { return e.raw()->get_rc(); }
 inline unsigned     get_var_idx(expr const & e)              { return to_var(e)->get_vidx(); }
 inline name const & get_const_name(expr const & e)           { return to_constant(e)->get_name(); }
 inline unsigned     get_const_pos(expr const & e)            { return to_constant(e)->get_pos(); }
 inline unsigned     get_num_args(expr const & e)             { return to_app(e)->get_num_args(); }
 inline expr const & get_arg(expr const & e, unsigned idx)    { return to_app(e)->get_arg(idx); }
+inline expr const * begin_args(expr const & e)               { return to_app(e)->begin_args(); }
+inline expr const * end_args(expr const & e)                 { return to_app(e)->end_args(); }
 inline name const & get_abs_name(expr const & e)             { return to_abstraction(e)->get_name(); }
 inline expr const & get_abs_type(expr const & e)             { return to_abstraction(e)->get_type(); }
 inline expr const & get_abs_expr(expr const & e)             { return to_abstraction(e)->get_expr(); }
@@ -289,5 +295,19 @@ inline bool operator!=(expr const & a, expr const & b) { return !operator==(a, b
 // =======================================
 
 std::ostream & operator<<(std::ostream & out, expr const & a);
+
+/**
+   \brief Wrapper for iterating over application arguments.
+   If n is an application, it allows us to write
+   for (expr const & arg : app_args(n)) {
+   ... do something with argument
+   }
+*/
+struct app_args {
+    expr const & m_app;
+    app_args(expr const & a):m_app(a) { lean_assert(is_app(a)); }
+    expr const * begin() const { return &get_arg(m_app, 0); }
+    expr const * end() const { return begin() + get_num_args(m_app); }
+};
 
 }

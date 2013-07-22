@@ -13,6 +13,8 @@ class mpq;
 class mpz;
 struct sexpr_cell;
 
+enum class sexpr_kind { NIL, STRING, INT, DOUBLE, NAME, MPZ, MPQ, CONS };
+
 /**
    \brief Simple LISP-like S-expressions.
    1. Atoms: nil, string, int, name, mpz or mpq
@@ -25,7 +27,6 @@ struct sexpr_cell;
 class sexpr {
     sexpr_cell * m_ptr;
 public:
-    enum class kind { NIL, STRING, INT, DOUBLE, NAME, MPZ, MPQ, CONS };
     sexpr():m_ptr(nullptr) {}
     explicit sexpr(char const * v);
     explicit sexpr(std::string const & v);
@@ -51,7 +52,7 @@ public:
     }
     ~sexpr();
 
-    kind get_kind() const;
+    sexpr_kind kind() const;
 
     friend bool is_nil(sexpr const & s) { return s.m_ptr == nullptr; }
     friend sexpr const & head(sexpr const & s);
@@ -84,15 +85,14 @@ inline sexpr nil() { return sexpr(); }
 inline sexpr cons(sexpr const & head, sexpr const & tail) { return sexpr(head, tail); }
 inline sexpr const & car(sexpr const & s) { return head(s); }
 inline sexpr const & cdr(sexpr const & s) { return tail(s); }
-inline bool is_atom(sexpr const & s) { return s.get_kind() != sexpr::kind::CONS; }
-inline bool is_cons(sexpr const & s) { return s.get_kind() == sexpr::kind::CONS; }
-
-inline bool is_string(sexpr const & s) { return s.get_kind() == sexpr::kind::STRING; }
-inline bool is_int(sexpr const & s) { return s.get_kind() == sexpr::kind::INT; }
-inline bool is_double(sexpr const & s) { return s.get_kind() == sexpr::kind::DOUBLE; }
-inline bool is_name(sexpr const & s) { return s.get_kind() == sexpr::kind::NAME; }
-inline bool is_mpz(sexpr const & s) { return s.get_kind() == sexpr::kind::MPZ; }
-inline bool is_mpq(sexpr const & s) { return s.get_kind() == sexpr::kind::MPQ; }
+inline bool is_atom(sexpr const & s)   { return s.kind() != sexpr_kind::CONS; }
+inline bool is_cons(sexpr const & s)   { return s.kind() == sexpr_kind::CONS; }
+inline bool is_string(sexpr const & s) { return s.kind() == sexpr_kind::STRING; }
+inline bool is_int(sexpr const & s)    { return s.kind() == sexpr_kind::INT; }
+inline bool is_double(sexpr const & s) { return s.kind() == sexpr_kind::DOUBLE; }
+inline bool is_name(sexpr const & s)   { return s.kind() == sexpr_kind::NAME; }
+inline bool is_mpz(sexpr const & s)    { return s.kind() == sexpr_kind::MPZ; }
+inline bool is_mpq(sexpr const & s)    { return s.kind() == sexpr_kind::MPQ; }
 
 inline std::string const & to_string(sexpr const & s) { return s.get_string(); }
 inline int to_int(sexpr const & s) { return s.get_int(); }

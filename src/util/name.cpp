@@ -133,11 +133,11 @@ name & name::operator=(name && other) {
     return *this;
 }
 
-name::kind name::get_kind() const {
+name_kind name::kind() const {
     if (m_imp == nullptr)
-        return kind::ANONYMOUS;
+        return name_kind::ANONYMOUS;
     else
-        return m_imp->m_is_string ? kind::STRING : kind::NUMERAL;
+        return m_imp->m_is_string ? name_kind::STRING : name_kind::NUMERAL;
 }
 
 unsigned name::get_numeral() const {

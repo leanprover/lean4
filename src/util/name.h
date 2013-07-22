@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 namespace lean {
 
 constexpr char const * default_name_separator = "::";
+enum class name_kind { ANONYMOUS, STRING, NUMERAL };
 
 /**
    \brief Hierarchical names.
@@ -20,7 +21,6 @@ class name {
     imp * m_imp;
     explicit name(imp * p);
 public:
-    enum class kind { ANONYMOUS, STRING, NUMERAL };
     name();
     explicit name(char const * name);
     explicit name(unsigned k);
@@ -39,10 +39,10 @@ public:
     friend bool operator>(name const & a, name const & b) { return cmp(a, b) > 0; }
     friend bool operator<=(name const & a, name const & b) { return cmp(a, b) <= 0; }
     friend bool operator>=(name const & a, name const & b) { return cmp(a, b) >= 0; }
-    kind get_kind() const;
-    bool is_anonymous() const { return get_kind() == kind::ANONYMOUS; }
-    bool is_string() const { return get_kind() == kind::STRING; }
-    bool is_numeral() const { return get_kind() == kind::NUMERAL; }
+    name_kind kind() const;
+    bool is_anonymous() const { return kind() == name_kind::ANONYMOUS; }
+    bool is_string() const    { return kind() == name_kind::STRING; }
+    bool is_numeral() const   { return kind() == name_kind::NUMERAL; }
     unsigned get_numeral() const;
     char const * get_string() const;
     bool is_atomic() const;

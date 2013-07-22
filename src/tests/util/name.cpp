@@ -21,7 +21,7 @@ static void tst1() {
     lean_assert(name(name(n, "foo"), 1) != name(name(n, "bla"), 1));
     lean_assert(name(name(name("f"), "bla"), 1) != name(name(n, "bla"), 1));
     lean_assert(n != name());
-    lean_assert(name().get_kind() == name::kind::ANONYMOUS);
+    lean_assert(name().kind() == name_kind::ANONYMOUS);
     lean_assert(name(name(), "foo") == name("foo"));
 
     lean_assert(name(n, 1) < name(n, 2));

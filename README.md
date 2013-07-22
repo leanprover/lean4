@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/soonhokong/lean.png?branch=master)](https://travis-ci.org/soonhokong/lean)
+
 Requirements
 ============
 

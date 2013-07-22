@@ -1,0 +1,41 @@
+language: cpp
+
+env:
+  matrix:
+   - CMAKE_CXX_COMPILER=clang++-3.3
+     CMAKE_BUILD_TYPE=DEBUG
+   - CMAKE_CXX_COMPILER=g++-4.8
+     CMAKE_BUILD_TYPE=DEBUG
+   - CMAKE_CXX_COMPILER=clang++-3.3
+     CMAKE_BUILD_TYPE=RELEASE
+   - CMAKE_CXX_COMPILER=g++-4.8
+     CMAKE_BUILD_TYPE=RELEASE
+
+before_script:
+  - mkdir -p build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ../src
+
+script:
+  - make
+  - ctest -T test -VV
+
+install:
+  - sudo add-apt-repository --yes ppa:agent-8131/ppa
+  - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
+  - sudo add-apt-repository --yes ppa:h-rayflood/llvm
+  - sudo apt-get -qq update
+  - sudo apt-get -qq install libgoogle-perftools-dev
+  - sudo apt-get -qq install libgmp-dev
+  - sudo apt-get -qq install cmake
+  - sudo apt-get -qq install libstdc++-4.8-dev
+  - if [[ $CMAKE_CXX_COMPILER == g++-4.8 ]]; then sudo apt-get -qq install g++-4.8; fi
+  - if [[ $CMAKE_CXX_COMPILER == clang++-3.3 ]]; then sudo apt-get -qq install clang-3.3; fi
+
+notifications:
+  email:
+    recipients:
+    - soonhok@cs.cmu.edu
+    - leonardo@microsoft.com
+    on_success: always
+    on_failure: always

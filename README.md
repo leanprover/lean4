@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/soonhokong/lean.png?branch=master)](https://travis-ci.org/soonhokong/lean)
+[![Build Status](https://travis-ci.org/leodemoura/lean.png?branch=master)](https://travis-ci.org/leodemoura/lean)
 
 Requirements
 ============

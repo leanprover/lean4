@@ -119,10 +119,29 @@ static void tst3() {
     lean_assert(sum == 10);
 }
 
+static void tst4() {
+    lean_assert(sexpr(1) < sexpr(2));
+    lean_assert(sexpr() < sexpr(2));
+    lean_assert(sexpr("foo") < sexpr(2));
+    lean_assert(sexpr(3) > sexpr(2));
+    lean_assert(sexpr(2) < sexpr(1.0));
+    lean_assert(sexpr("foo") < sexpr(name("foo")));
+    lean_assert(!(sexpr(name("foo")) < sexpr(name("foo"))));
+    auto e = sexpr(1);
+    lean_assert(e == e);
+    lean_assert((sexpr{1, 2, 3}) <= (sexpr{1, 2, 3}));
+    lean_assert((sexpr{1, 2, 3}) >= (sexpr{1, 2, 3}));
+    lean_assert((sexpr{1, 1, 3}) < (sexpr{1, 2, 3}));
+    lean_assert((sexpr{2, 1, 3}) > (sexpr{1, 2, 3}));
+    lean_assert((sexpr{2, 1, 3}) > (sexpr("foo")));
+    lean_assert(sexpr(1, 2) > sexpr(0, 1));
+}
+
 int main() {
     continue_on_violation(true);
     tst1();
     tst2();
     tst3();
+    tst4();
     return has_violations() ? 1 : 0;
 }

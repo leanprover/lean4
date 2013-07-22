@@ -189,9 +189,32 @@ bool operator==(sexpr const & a, sexpr const & b) {
     return false;
 }
 
-bool operator<(sexpr const & a, sexpr const & b) {
-    // TODO
-    return false;
+int cmp(sexpr const & a, sexpr const & b) {
+    if (eqp(a, b))
+        return 0;
+    sexpr::kind ka = a.get_kind();
+    sexpr::kind kb = b.get_kind();
+    if (ka != kb)
+        return ka < kb ? -1 : 1;
+    if (a.hash() == b.hash()) {
+        if (a == b)
+            return 0;
+    }
+    switch (ka) {
+    case sexpr::kind::NIL:         return 0;
+    case sexpr::kind::STRING:      return strcmp(to_string(a).c_str(), to_string(b).c_str());
+    case sexpr::kind::INT:         return to_int(a) == to_int(b) ? 0 : (to_int(a) < to_int(b) ? -1 : 1);
+    case sexpr::kind::DOUBLE:      return to_double(a) == to_double(b) ? 0 : (to_double(a) < to_double(b) ? -1 : 1);
+    case sexpr::kind::NAME:        return cmp(to_name(a), to_name(b));
+    case sexpr::kind::MPZ:         return cmp(to_mpz(a), to_mpz(b));
+    case sexpr::kind::MPQ:         return cmp(to_mpq(a), to_mpq(b));
+    case sexpr::kind::CONS:        {
+        int r = cmp(head(a), head(b));
+        if (r != 0)
+            return r;
+        return cmp(tail(a), tail(b));
+    }}
+    return 0;
 }
 
 std::ostream & operator<<(std::ostream & out, sexpr const & s) {

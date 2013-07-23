@@ -118,6 +118,14 @@ static void tst3() {
     lean_verify(r1 == r2);
 }
 
+static void tst4() {
+    expr f = constant(name("f"));
+    expr a = var(0);
+    for (unsigned i = 0; i < 10000; i++) {
+        a = app({f, a});
+    }
+}
+
 int main() {
     // continue_on_violation(true);
     std::cout << "sizeof(expr):     " << sizeof(expr) << "\n";
@@ -125,5 +133,7 @@ int main() {
     tst1();
     tst2();
     tst3();
+    tst4();
+    std::cout << "done" << "\n";
     return has_violations() ? 1 : 0;
 }

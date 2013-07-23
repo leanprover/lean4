@@ -129,6 +129,12 @@ public:
     friend expr numeral(mpz const & n);
 
     friend bool eqp(expr const & a, expr const & b) { return a.m_ptr == b.m_ptr; }
+
+    // Overloaded operator() can be used to create applications
+    expr operator()(expr const & a1) const;
+    expr operator()(expr const & a1, expr const & a2) const;
+    expr operator()(expr const & a1, expr const & a2, expr const & a3) const;
+    expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4) const;
 };
 
 // =======================================
@@ -252,6 +258,11 @@ inline expr prop() { return expr(new expr_prop()); }
 inline expr type(uvar const & uv) { return type(1, &uv); }
 inline expr type(std::initializer_list<uvar> const & l) { return type(l.size(), l.begin()); }
 inline expr numeral(mpz const & n) { return expr(new expr_numeral(n)); }
+
+inline expr expr::operator()(expr const & a1) const { return app(*this, a1); }
+inline expr expr::operator()(expr const & a1, expr const & a2) const { return app(*this, a1, a2); }
+inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3) const { return app(*this, a1, a2, a3); }
+inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4) const { return app(*this, a1, a2, a3, a4); }
 // =======================================
 
 // =======================================

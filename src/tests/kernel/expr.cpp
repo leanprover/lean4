@@ -17,17 +17,17 @@ void tst1() {
     a = numeral(mpz(10));
     expr f;
     f = var(0);
-    expr fa = app(f, a);
+    expr fa = f(a);
     std::cout << fa << "\n";
-    std::cout << app(fa, a) << "\n";
+    std::cout << fa(a) << "\n";
     lean_assert(eqp(arg(fa, 0), f));
     lean_assert(eqp(arg(fa, 1), a));
-    lean_assert(!eqp(fa, app(f, a)));
-    lean_assert(app(fa, a) == app(f, a, a));
-    std::cout << app(fa, fa, fa) << "\n";
+    lean_assert(!eqp(fa, f(a)));
+    lean_assert(app(fa, a) == f(a, a));
+    std::cout << fa(fa, fa) << "\n";
     std::cout << lambda("x", prop(), var(0)) << "\n";
-    lean_assert(app(app(f, a), a) == app(f, a, a));
-    lean_assert(app(f, app(a, a)) != app(f, a, a));
+    lean_assert(f(a)(a) == f(a, a));
+    lean_assert(f(a(a)) != f(a, a));
 }
 
 expr mk_dag(unsigned depth, bool _closed = false) {
@@ -35,7 +35,7 @@ expr mk_dag(unsigned depth, bool _closed = false) {
     expr a = _closed ? constant("a") : var(0);
     while (depth > 0) {
         depth--;
-        a = app(f, a, a);
+        a = f(a, a);
     }
     return a;
 }
@@ -113,7 +113,7 @@ expr mk_big(expr f, unsigned depth, unsigned val) {
     if (depth == 1)
         return constant(name(val));
     else
-        return app(f, mk_big(f, depth - 1, val << 1), mk_big(f, depth - 1, (val << 1) + 1));
+        return f(mk_big(f, depth - 1, val << 1), mk_big(f, depth - 1, (val << 1) + 1));
 }
 
 void tst3() {
@@ -127,7 +127,7 @@ void tst4() {
     expr f = constant("f");
     expr a = var(0);
     for (unsigned i = 0; i < 10000; i++) {
-        a = app(f, a);
+        a = f(a);
     }
 }
 
@@ -135,7 +135,7 @@ expr mk_redundant_dag(expr f, unsigned depth) {
     if (depth == 0)
         return var(0);
     else
-        return app(f, mk_redundant_dag(f, depth - 1), mk_redundant_dag(f, depth - 1));
+        return f(mk_redundant_dag(f, depth - 1), mk_redundant_dag(f, depth - 1));
 }
 
 
@@ -191,10 +191,10 @@ void tst6() {
 void tst7() {
     expr f  = constant("f");
     expr v  = var(0);
-    expr a1 = max_sharing(app(f, v, v));
-    expr a2 = max_sharing(app(f, v, v));
+    expr a1 = max_sharing(f(v,v));
+    expr a2 = max_sharing(f(v,v));
     lean_assert(!eqp(a1, a2));
-    expr b  = max_sharing(app(f, a1, a2));
+    expr b  = max_sharing(f(a1, a2));
     lean_assert(eqp(arg(b, 1), arg(b, 2)));
 }
 
@@ -208,16 +208,16 @@ void tst8() {
     lean_assert(closed(a));
     lean_assert(!closed(x));
     lean_assert(closed(f));
-    lean_assert(!closed(app(f, x)));
+    lean_assert(!closed(f(x)));
     lean_assert(closed(lambda("x", p, x)));
     lean_assert(!closed(lambda("x", x, x)));
     lean_assert(!closed(lambda("x", p, y)));
-    lean_assert(closed(app(f, app(f, app(f, a)))));
-    lean_assert(closed(lambda("x", p, app(f, app(f, app(f, a))))));
+    lean_assert(closed(f(f(f(a)))));
+    lean_assert(closed(lambda("x", p, f(f(f(a))))));
     lean_assert(closed(pi("x", p, x)));
     lean_assert(!closed(pi("x", x, x)));
     lean_assert(!closed(pi("x", p, y)));
-    lean_assert(closed(pi("x", p, app(f, app(f, app(f, a))))));
+    lean_assert(closed(pi("x", p, f(f(f(a))))));
     lean_assert(closed(lambda("y", p, lambda("x", p, y))));
     lean_assert(closed(lambda("y", p, app(lambda("x", p, y), var(0)))));
     expr r = lambda("y", p, app(lambda("x", p, y), var(0)));

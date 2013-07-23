@@ -123,7 +123,7 @@ bool eq(expr const & a, expr const & b) {
     if (a.kind() != b.kind()) return false;
     if (is_var(a))            return get_var_idx(a) == get_var_idx(b);
     if (is_prop(a))           return true;
-    if (get_rc(a) > 1 && get_rc(b) > 1) {
+    if (is_shared(a) && is_shared(b)) {
         auto p = std::make_pair(a.raw(), b.raw());
         if (g_eq_visited.find(p) != g_eq_visited.end())
             return true;

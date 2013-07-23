@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <unordered_set>
 #include "expr.h"
+#include "expr_functors.h"
 #include "hash.h"
 
 namespace lean {
@@ -14,12 +15,6 @@ namespace lean {
 // =======================================
 // Expression Set
 // Remark: to expressions are assumed to be equal if they are "pointer-equal"
-struct expr_hash {
-    unsigned operator()(expr const & e) const { return e.hash(); }
-};
-struct expr_eqp {
-    bool operator()(expr const & e1, expr const & e2) const { return eqp(e1, e2); }
-};
 typedef std::unordered_set<expr, expr_hash, expr_eqp> expr_set;
 // =======================================
 
@@ -30,12 +25,6 @@ typedef std::unordered_set<expr, expr_hash, expr_eqp> expr_set;
 // WARNING: use with care, this kind of set
 // does not prevent an expression from being
 // garbage collected.
-struct expr_cell_hash {
-    unsigned operator()(expr_cell * e) const { return e->hash(); }
-};
-struct expr_cell_eqp {
-    bool operator()(expr_cell * e1, expr_cell * e2) const { return e1 == e2; }
-};
 typedef std::unordered_set<expr_cell*, expr_cell_hash, expr_cell_eqp> expr_cell_set;
 // =======================================
 

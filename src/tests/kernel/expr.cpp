@@ -5,11 +5,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "expr.h"
+#include "expr_max_shared.h"
+#include "expr_set.h"
 #include "test.h"
 #include <algorithm>
 using namespace lean;
 
-static void tst1() {
+void tst1() {
     expr a;
     a = numeral(mpz(10));
     expr f;
@@ -96,7 +98,7 @@ unsigned depth3(expr const & e) {
     return m;
 }
 
-static void tst2() {
+void tst2() {
     expr r1 = mk_dag(20);
     expr r2 = mk_dag(20);
     lean_verify(r1 == r2);
@@ -111,14 +113,14 @@ expr mk_big(expr f, unsigned depth, unsigned val) {
         return app({f, mk_big(f, depth - 1, val << 1), mk_big(f, depth - 1, (val << 1) + 1)});
 }
 
-static void tst3() {
+void tst3() {
     expr f = constant(name("f"));
     expr r1 = mk_big(f, 18, 0);
     expr r2 = mk_big(f, 18, 0);
     lean_verify(r1 == r2);
 }
 
-static void tst4() {
+void tst4() {
     expr f = constant(name("f"));
     expr a = var(0);
     for (unsigned i = 0; i < 10000; i++) {
@@ -126,14 +128,55 @@ static void tst4() {
     }
 }
 
+expr mk_redundant_dag(expr f, unsigned depth) {
+    if (depth == 0)
+        return var(0);
+    else
+        return app({f, mk_redundant_dag(f, depth - 1), mk_redundant_dag(f, depth - 1)});
+}
+
+
+unsigned count_core(expr const & a, expr_set & s) {
+    if (s.find(a) != s.end())
+        return 0;
+    s.insert(a);
+    switch (a.kind()) {
+    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Prop: case expr_kind::Type: case expr_kind::Numeral:
+        return 1;
+    case expr_kind::App:
+        return std::accumulate(begin_args(a), end_args(a), 1,
+                          [&](unsigned sum, expr const & arg){ return sum + count_core(arg, s); });
+    case expr_kind::Lambda: case expr_kind::Pi:
+        return count_core(get_abs_type(a), s) + count_core(get_abs_expr(a), s) + 1;
+    }
+    return 0;
+}
+
+unsigned count(expr const & a) {
+    expr_set s;
+    return count_core(a, s);
+}
+
+void tst5() {
+    expr f  = constant(name("f"));
+    expr r1 = mk_redundant_dag(f, 1);
+    expr r2 = max_shared(r1);
+    std::cout << "r1: " << r1 << "\n";
+    std::cout << "r2: " << r1 << "\n";
+    std::cout << "count(r1): " << count(r1) << "\n";
+    std::cout << "count(r2): " << count(r2) << "\n";
+    lean_assert(r1 == r2);
+}
+
 int main() {
     // continue_on_violation(true);
     std::cout << "sizeof(expr):     " << sizeof(expr) << "\n";
     std::cout << "sizeof(expr_app): " << sizeof(expr_app) << "\n";
-    tst1();
-    tst2();
-    tst3();
-    tst4();
+    // tst1();
+    // tst2();
+    // tst3();
+    // tst4();
+    tst5();
     std::cout << "done" << "\n";
     return has_violations() ? 1 : 0;
 }

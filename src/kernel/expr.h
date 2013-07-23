@@ -260,6 +260,7 @@ inline expr_numeral *     to_numeral(expr const & e)     { return to_numeral(e.r
 // =======================================
 // Accessors
 inline unsigned     get_rc(expr_cell * e)                   { return e->get_rc(); }
+inline bool         is_shared(expr_cell * e)                { return get_rc(e) > 1; }
 inline unsigned     get_var_idx(expr_cell * e)              { return to_var(e)->get_vidx(); }
 inline name const & get_const_name(expr_cell * e)           { return to_constant(e)->get_name(); }
 inline unsigned     get_const_pos(expr_cell * e)            { return to_constant(e)->get_pos(); }
@@ -273,6 +274,7 @@ inline uvar const & get_ty_var(expr_cell * e, unsigned idx) { return to_type(e)-
 inline mpz const &  get_numeral(expr_cell * e)              { return to_numeral(e)->get_num(); }
 
 inline unsigned     get_rc(expr const &  e)                  { return e.raw()->get_rc(); }
+inline bool         is_shared(expr const & e)                { return get_rc(e) > 1; }
 inline unsigned     get_var_idx(expr const & e)              { return to_var(e)->get_vidx(); }
 inline name const & get_const_name(expr const & e)           { return to_constant(e)->get_name(); }
 inline unsigned     get_const_pos(expr const & e)            { return to_constant(e)->get_pos(); }

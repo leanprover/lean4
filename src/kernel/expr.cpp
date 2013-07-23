@@ -43,34 +43,34 @@ expr_app::~expr_app() {
     for (unsigned i = 0; i < m_num_args; i++)
         (m_args+i)->~expr();
 }
-expr app(unsigned num_args, expr const * args) {
-    lean_assert(num_args > 1);
-    unsigned _num_args;
-    unsigned _num_args0 = 0;
-    expr const & arg0 = args[0];
+expr app(unsigned n, expr const * as) {
+    lean_assert(n > 1);
+    unsigned new_n;
+    unsigned n0 = 0;
+    expr const & arg0 = as[0];
     // Remark: we represet ((app a b) c) as (app a b c)
     if (is_app(arg0)) {
-        _num_args0 = get_num_args(arg0);
-        _num_args  = num_args + _num_args0 - 1;
+        n0    = num_args(arg0);
+        new_n = n + n0 - 1;
     }
     else {
-        _num_args = num_args;
+        new_n = n;
     }
-    char * mem   = new char[sizeof(expr_app) + _num_args*sizeof(expr)];
-    expr r(new (mem) expr_app(_num_args));
+    char * mem   = new char[sizeof(expr_app) + new_n*sizeof(expr)];
+    expr r(new (mem) expr_app(new_n));
     expr * m_args = to_app(r)->m_args;
     unsigned i = 0;
     unsigned j = 0;
-    if (_num_args != num_args) {
-        for (; i < _num_args0; i++)
-            new (m_args+i) expr(get_arg(arg0, i));
+    if (new_n != n) {
+        for (; i < n0; i++)
+            new (m_args+i) expr(arg(arg0, i));
         j++;
     }
-    for (; i < _num_args; ++i, ++j) {
-        lean_assert(j < num_args);
-        new (m_args+i) expr(args[j]);
+    for (; i < new_n; ++i, ++j) {
+        lean_assert(j < n);
+        new (m_args+i) expr(as[j]);
     }
-    to_app(r)->m_hash = hash_args(_num_args, m_args);
+    to_app(r)->m_hash = hash_args(new_n, m_args);
     return r;
 }
 
@@ -125,7 +125,7 @@ public:
         if (eqp(a, b))            return true;
         if (a.hash() != b.hash()) return false;
         if (a.kind() != b.kind()) return false;
-        if (is_var(a))            return get_var_idx(a) == get_var_idx(b);
+        if (is_var(a))            return var_idx(a) == var_idx(b);
         if (is_prop(a))           return true;
         if (is_shared(a) && is_shared(b)) {
             auto p = std::make_pair(a.raw(), b.raw());
@@ -135,31 +135,31 @@ public:
         }
         switch (a.kind()) {
         case expr_kind::Var:      lean_unreachable(); return true;
-        case expr_kind::Constant: return get_const_name(a) == get_const_name(b);
+        case expr_kind::Constant: return const_name(a) == const_name(b);
         case expr_kind::App:
-            if (get_num_args(a) != get_num_args(b))
+            if (num_args(a) != num_args(b))
                 return false;
-            for (unsigned i = 0; i < get_num_args(a); i++)
-                if (!apply(get_arg(a, i), get_arg(b, i)))
+            for (unsigned i = 0; i < num_args(a); i++)
+                if (!apply(arg(a, i), arg(b, i)))
                     return false;
             return true;
         case expr_kind::Lambda:
         case expr_kind::Pi:
             // Lambda and Pi
             // Remark: we ignore get_abs_name because we want alpha-equivalence
-            return apply(get_abs_type(a), get_abs_type(b)) && apply(get_abs_expr(a), get_abs_expr(b));
+            return apply(abst_type(a), abst_type(b)) && apply(abst_expr(a), abst_expr(b));
         case expr_kind::Prop:     lean_unreachable(); return true;
         case expr_kind::Type:
-            if (get_ty_num_vars(a) != get_ty_num_vars(b))
+            if (ty_num_vars(a) != ty_num_vars(b))
                 return false;
-            for (unsigned i = 0; i < get_ty_num_vars(a); i++) {
-                uvar v1 = get_ty_var(a, i);
-                uvar v2 = get_ty_var(b, i);
+            for (unsigned i = 0; i < ty_num_vars(a); i++) {
+                uvar v1 = ty_var(a, i);
+                uvar v2 = ty_var(b, i);
                 if (v1.first != v2.first || v1.second != v2.second)
                     return false;
             }
             return true;
-        case expr_kind::Numeral:  return get_numeral(a) == get_numeral(b);
+        case expr_kind::Numeral:  return num_value(a) == num_value(b);
         }
         lean_unreachable();
         return false;
@@ -174,21 +174,21 @@ bool operator==(expr const & a, expr const & b) {
 // Low-level pretty printer
 std::ostream & operator<<(std::ostream & out, expr const & a) {
     switch (a.kind()) {
-    case expr_kind::Var:      out << "#" << get_var_idx(a); break;
-    case expr_kind::Constant: out << get_const_name(a);     break;
+    case expr_kind::Var:      out << "#" << var_idx(a); break;
+    case expr_kind::Constant: out << const_name(a);     break;
     case expr_kind::App:
         out << "(";
-        for (unsigned i = 0; i < get_num_args(a); i++) {
+        for (unsigned i = 0; i < num_args(a); i++) {
             if (i > 0) out << " ";
-            out << get_arg(a, i);
+            out << arg(a, i);
         }
         out << ")";
         break;
-    case expr_kind::Lambda:  out << "(fun (" << get_abs_name(a) << " : " << get_abs_type(a) << ") " << get_abs_expr(a) << ")";    break;
-    case expr_kind::Pi:      out << "(pi (" << get_abs_name(a) << " : " << get_abs_type(a) << ") " << get_abs_expr(a) << ")"; break;
+    case expr_kind::Lambda:  out << "(fun (" << abst_name(a) << " : " << abst_type(a) << ") " << abst_expr(a) << ")";    break;
+    case expr_kind::Pi:      out << "(pi (" << abst_name(a) << " : " << abst_type(a) << ") " << abst_expr(a) << ")"; break;
     case expr_kind::Prop:    out << "Prop"; break;
     case expr_kind::Type:    out << "Type"; break;
-    case expr_kind::Numeral: out << get_numeral(a); break;
+    case expr_kind::Numeral: out << num_value(a); break;
     }
     return out;
 }

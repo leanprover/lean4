@@ -279,35 +279,35 @@ inline expr_numeral *     to_numeral(expr const & e)     { return to_numeral(e.r
 
 // =======================================
 // Accessors
-inline unsigned     get_rc(expr_cell * e)                   { return e->get_rc(); }
-inline bool         is_shared(expr_cell * e)                { return get_rc(e) > 1; }
-inline unsigned     get_var_idx(expr_cell * e)              { return to_var(e)->get_vidx(); }
-inline name const & get_const_name(expr_cell * e)           { return to_constant(e)->get_name(); }
-inline unsigned     get_const_pos(expr_cell * e)            { return to_constant(e)->get_pos(); }
-inline unsigned     get_num_args(expr_cell * e)             { return to_app(e)->get_num_args(); }
-inline expr const & get_arg(expr_cell * e, unsigned idx)    { return to_app(e)->get_arg(idx); }
-inline name const & get_abs_name(expr_cell * e)             { return to_abstraction(e)->get_name(); }
-inline expr const & get_abs_type(expr_cell * e)             { return to_abstraction(e)->get_type(); }
-inline expr const & get_abs_expr(expr_cell * e)             { return to_abstraction(e)->get_expr(); }
-inline unsigned     get_ty_num_vars(expr_cell * e)          { return to_type(e)->size(); }
-inline uvar const & get_ty_var(expr_cell * e, unsigned idx) { return to_type(e)->get_var(idx); }
-inline mpz const &  get_numeral(expr_cell * e)              { return to_numeral(e)->get_num(); }
+inline unsigned     get_rc(expr_cell * e)               { return e->get_rc(); }
+inline bool         is_shared(expr_cell * e)            { return get_rc(e) > 1; }
+inline unsigned     var_idx(expr_cell * e)              { return to_var(e)->get_vidx(); }
+inline name const & const_name(expr_cell * e)           { return to_constant(e)->get_name(); }
+inline unsigned     const_pos(expr_cell * e)            { return to_constant(e)->get_pos(); }
+inline unsigned     num_args(expr_cell * e)             { return to_app(e)->get_num_args(); }
+inline expr const & arg(expr_cell * e, unsigned idx)    { return to_app(e)->get_arg(idx); }
+inline name const & abst_name(expr_cell * e)            { return to_abstraction(e)->get_name(); }
+inline expr const & abst_type(expr_cell * e)            { return to_abstraction(e)->get_type(); }
+inline expr const & abst_expr(expr_cell * e)            { return to_abstraction(e)->get_expr(); }
+inline unsigned     ty_num_vars(expr_cell * e)          { return to_type(e)->size(); }
+inline uvar const & ty_var(expr_cell * e, unsigned idx) { return to_type(e)->get_var(idx); }
+inline mpz const &  num_value(expr_cell * e)            { return to_numeral(e)->get_num(); }
 
-inline unsigned     get_rc(expr const &  e)                  { return e.raw()->get_rc(); }
-inline bool         is_shared(expr const & e)                { return get_rc(e) > 1; }
-inline unsigned     get_var_idx(expr const & e)              { return to_var(e)->get_vidx(); }
-inline name const & get_const_name(expr const & e)           { return to_constant(e)->get_name(); }
-inline unsigned     get_const_pos(expr const & e)            { return to_constant(e)->get_pos(); }
-inline unsigned     get_num_args(expr const & e)             { return to_app(e)->get_num_args(); }
-inline expr const & get_arg(expr const & e, unsigned idx)    { return to_app(e)->get_arg(idx); }
-inline expr const * begin_args(expr const & e)               { return to_app(e)->begin_args(); }
-inline expr const * end_args(expr const & e)                 { return to_app(e)->end_args(); }
-inline name const & get_abs_name(expr const & e)             { return to_abstraction(e)->get_name(); }
-inline expr const & get_abs_type(expr const & e)             { return to_abstraction(e)->get_type(); }
-inline expr const & get_abs_expr(expr const & e)             { return to_abstraction(e)->get_expr(); }
-inline unsigned     get_ty_num_vars(expr const & e)          { return to_type(e)->size(); }
-inline uvar const & get_ty_var(expr const & e, unsigned idx) { return to_type(e)->get_var(idx); }
-inline mpz const &  get_numeral(expr const & e)              { return to_numeral(e)->get_num(); }
+inline unsigned     get_rc(expr const &  e)              { return e.raw()->get_rc(); }
+inline bool         is_shared(expr const & e)            { return get_rc(e) > 1; }
+inline unsigned     var_idx(expr const & e)              { return to_var(e)->get_vidx(); }
+inline name const & const_name(expr const & e)           { return to_constant(e)->get_name(); }
+inline unsigned     const_pos(expr const & e)            { return to_constant(e)->get_pos(); }
+inline unsigned     num_args(expr const & e)             { return to_app(e)->get_num_args(); }
+inline expr const & arg(expr const & e, unsigned idx)    { return to_app(e)->get_arg(idx); }
+inline expr const * begin_args(expr const & e)           { return to_app(e)->begin_args(); }
+inline expr const * end_args(expr const & e)             { return to_app(e)->end_args(); }
+inline name const & abst_name(expr const & e)            { return to_abstraction(e)->get_name(); }
+inline expr const & abst_type(expr const & e)            { return to_abstraction(e)->get_type(); }
+inline expr const & abst_expr(expr const & e)            { return to_abstraction(e)->get_expr(); }
+inline unsigned     ty_num_vars(expr const & e)          { return to_type(e)->size(); }
+inline uvar const & ty_var(expr const & e, unsigned idx) { return to_type(e)->get_var(idx); }
+inline mpz const &  num_value(expr const & e)            { return to_numeral(e)->get_num(); }
 // =======================================
 
 // =======================================
@@ -344,11 +344,11 @@ std::ostream & operator<<(std::ostream & out, expr const & a);
    ... do something with argument
    }
 */
-struct app_args {
+struct args {
     expr const & m_app;
-    app_args(expr const & a):m_app(a) { lean_assert(is_app(a)); }
-    expr const * begin() const { return &get_arg(m_app, 0); }
-    expr const * end() const { return begin() + get_num_args(m_app); }
+    args(expr const & a):m_app(a) { lean_assert(is_app(a)); }
+    expr const * begin() const { return &arg(m_app, 0); }
+    expr const * end() const { return begin() + num_args(m_app); }
 };
 // =======================================
 

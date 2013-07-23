@@ -19,7 +19,7 @@ public:
         case expr_kind::Constant: case expr_kind::Prop: case expr_kind::Type: case expr_kind::Numeral:
             return false;
         case expr_kind::Var:
-            return get_var_idx(e) >= offset;
+            return var_idx(e) >= offset;
         case expr_kind::App: case expr_kind::Lambda: case expr_kind::Pi:
             break;
         }
@@ -45,7 +45,7 @@ public:
             break;
         case expr_kind::Lambda:
         case expr_kind::Pi:
-            result = apply(get_abs_type(e), offset) || apply(get_abs_expr(e), offset + 1);
+            result = apply(abst_type(e), offset) || apply(abst_expr(e), offset + 1);
             break;
         }
 

@@ -20,8 +20,8 @@ void tst1() {
     expr fa = app(f, a);
     std::cout << fa << "\n";
     std::cout << app(fa, a) << "\n";
-    lean_assert(eqp(get_arg(fa, 0), f));
-    lean_assert(eqp(get_arg(fa, 1), a));
+    lean_assert(eqp(arg(fa, 0), f));
+    lean_assert(eqp(arg(fa, 1), a));
     lean_assert(!eqp(fa, app(f, a)));
     lean_assert(app(fa, a) == app(f, a, a));
     std::cout << app(fa, fa, fa) << "\n";
@@ -46,12 +46,12 @@ unsigned depth1(expr const & e) {
         return 1;
     case expr_kind::App: {
         unsigned m = 0;
-        for (expr const & a : app_args(e))
+        for (expr const & a : args(e))
             m = std::max(m, depth1(a));
         return m + 1;
     }
     case expr_kind::Lambda: case expr_kind::Pi:
-        return std::max(depth1(get_abs_type(e)), depth1(get_abs_expr(e))) + 1;
+        return std::max(depth1(abst_type(e)), depth1(abst_expr(e))) + 1;
     }
     return 0;
 }
@@ -67,7 +67,7 @@ unsigned depth2(expr const & e) {
                             [](unsigned m, expr const & arg){ return std::max(depth2(arg), m); })
             + 1;
     case expr_kind::Lambda: case expr_kind::Pi:
-        return std::max(depth2(get_abs_type(e)), depth2(get_abs_expr(e))) + 1;
+        return std::max(depth2(abst_type(e)), depth2(abst_expr(e))) + 1;
     }
     return 0;
 }
@@ -87,14 +87,14 @@ unsigned depth3(expr const & e) {
             m = std::max(c, m);
             break;
         case expr_kind::App: {
-            unsigned num = get_num_args(e);
+            unsigned num = num_args(e);
             for (unsigned i = 0; i < num; i++)
-                todo.push_back(std::make_pair(&get_arg(e, i), c));
+                todo.push_back(std::make_pair(&arg(e, i), c));
             break;
         }
         case expr_kind::Lambda: case expr_kind::Pi:
-            todo.push_back(std::make_pair(&get_abs_type(e), c));
-            todo.push_back(std::make_pair(&get_abs_expr(e), c));
+            todo.push_back(std::make_pair(&abst_type(e), c));
+            todo.push_back(std::make_pair(&abst_expr(e), c));
             break;
         }
     }
@@ -150,7 +150,7 @@ unsigned count_core(expr const & a, expr_set & s) {
         return std::accumulate(begin_args(a), end_args(a), 1,
                           [&](unsigned sum, expr const & arg){ return sum + count_core(arg, s); });
     case expr_kind::Lambda: case expr_kind::Pi:
-        return count_core(get_abs_type(a), s) + count_core(get_abs_expr(a), s) + 1;
+        return count_core(abst_type(a), s) + count_core(abst_expr(a), s) + 1;
     }
     return 0;
 }
@@ -195,7 +195,7 @@ void tst7() {
     expr a2 = max_sharing(app(f, v, v));
     lean_assert(!eqp(a1, a2));
     expr b  = max_sharing(app(f, a1, a2));
-    lean_assert(eqp(get_arg(b, 1), get_arg(b, 2)));
+    lean_assert(eqp(arg(b, 1), arg(b, 2)));
 }
 
 void tst8() {
@@ -249,10 +249,6 @@ int main() {
     continue_on_violation(true);
     std::cout << "sizeof(expr):     " << sizeof(expr) << "\n";
     std::cout << "sizeof(expr_app): " << sizeof(expr_app) << "\n";
-    tst8();
-    tst9();
-    tst10();
-    return 0;
     tst1();
     tst2();
     tst3();
@@ -260,6 +256,9 @@ int main() {
     tst5();
     tst6();
     tst7();
+    tst8();
+    tst9();
+    tst10();
     std::cout << "done" << "\n";
     return has_violations() ? 1 : 0;
 }

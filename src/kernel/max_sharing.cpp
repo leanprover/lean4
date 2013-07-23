@@ -40,7 +40,7 @@ public:
         case expr_kind::App: {
             std::vector<expr> new_args;
             bool modified = false;
-            for (expr const & old_arg : app_args(a)) {
+            for (expr const & old_arg : args(a)) {
                 new_args.push_back(apply(old_arg));
                 if (!eqp(old_arg, new_args.back()))
                     modified = true;
@@ -57,12 +57,12 @@ public:
         }
         case expr_kind::Lambda:
         case expr_kind::Pi: {
-            expr const & old_t = get_abs_type(a);
-            expr const & old_e = get_abs_expr(a);
+            expr const & old_t = abst_type(a);
+            expr const & old_e = abst_expr(a);
             expr t = apply(old_t);
             expr e = apply(old_e);
             if (!eqp(t, old_t) || !eqp(e, old_e)) {
-                name const & n     = get_abs_name(a);
+                name const & n     = abst_name(a);
                 expr r = is_pi(a) ? pi(n, t, e) : lambda(n, t, e);
                 cache(r);
                 return r;

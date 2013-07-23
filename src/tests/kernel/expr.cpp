@@ -187,6 +187,16 @@ void tst6() {
     }
 }
 
+void tst7() {
+    expr f  = constant(name("f"));
+    expr v  = var(0);
+    expr a1 = max_sharing(app(f, v, v));
+    expr a2 = max_sharing(app(f, v, v));
+    lean_assert(!eqp(a1, a2));
+    expr b  = max_sharing(app(f, a1, a2));
+    lean_assert(eqp(get_arg(b, 1), get_arg(b, 2)));
+}
+
 int main() {
     continue_on_violation(true);
     std::cout << "sizeof(expr):     " << sizeof(expr) << "\n";
@@ -197,6 +207,7 @@ int main() {
     tst4();
     tst5();
     tst6();
+    tst7();
     std::cout << "done" << "\n";
     return has_violations() ? 1 : 0;
 }

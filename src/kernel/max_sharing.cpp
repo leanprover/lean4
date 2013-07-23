@@ -25,12 +25,14 @@ class max_sharing_functor {
 public:
 
     expr apply(expr const & a) {
-        if (a.raw()->max_shared())
-            return a;
         auto r = m_cache.find(a);
         if (r != m_cache.end()) {
             lean_assert((*r).raw()->max_shared());
             return *r;
+        }
+        if (a.raw()->max_shared()) {
+            m_cache.insert(a);
+            return a;
         }
         switch (a.kind()) {
         case expr_kind::Var: case expr_kind::Constant: case expr_kind::Prop: case expr_kind::Type: case expr_kind::Numeral:

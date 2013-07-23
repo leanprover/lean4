@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "expr.h"
-#include "expr_max_shared.h"
 #include "expr_set.h"
+#include "max_sharing.h"
 #include "test.h"
 #include <algorithm>
 using namespace lean;

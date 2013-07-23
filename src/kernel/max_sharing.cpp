@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <unordered_set>
 #include <vector>
-#include "expr_max_shared.h"
+#include "expr.h"
 #include "expr_functors.h"
 
 namespace lean {

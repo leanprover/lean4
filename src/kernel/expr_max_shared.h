@@ -9,7 +9,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 /**
-   \brief Return a structurally identical expression that is maximally shared.
+   \brief The resultant expression is structurally identical to the input one, but
+   it uses maximally shared sub-expressions.
 */
-expr max_shared(expr const & a);
+expr max_sharing(expr const & a);
 }

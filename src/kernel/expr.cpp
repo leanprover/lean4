@@ -20,7 +20,8 @@ unsigned hash_vars(unsigned size, uvar const * vars) {
 }
 
 expr_cell::expr_cell(expr_kind k, unsigned h):
-    m_kind(k),
+    m_kind(static_cast<unsigned>(k)),
+    m_max_shared(0),
     m_hash(h),
     m_rc(1) {}
 
@@ -103,7 +104,7 @@ expr_numeral::expr_numeral(mpz const & n):
     m_numeral(n) {}
 
 void expr_cell::dealloc() {
-    switch (m_kind) {
+    switch (kind()) {
     case expr_kind::Var:        delete static_cast<expr_var*>(this); break;
     case expr_kind::Constant:   delete static_cast<expr_const*>(this); break;
     case expr_kind::App:        static_cast<expr_app*>(this)->~expr_app(); delete[] reinterpret_cast<char*>(this); break;

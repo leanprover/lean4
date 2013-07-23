@@ -33,6 +33,8 @@ The main API is divided in the following sections
 ======================================= */
 enum class expr_kind { Var, Constant, App, Lambda, Pi, Prop, Type, Numeral };
 
+class max_sharing_functor;
+
 /**
     \brief Base class used to represent expressions.
 
@@ -42,13 +44,17 @@ enum class expr_kind { Var, Constant, App, Lambda, Pi, Prop, Type, Numeral };
 */
 class expr_cell {
 protected:
-    expr_kind m_kind;
-    unsigned  m_hash;
+    unsigned m_kind:16;
+    unsigned m_max_shared:1; // flag indicating if the cell has maximally shared subexpressions
+    unsigned m_hash;
     MK_LEAN_RC(); // Declare m_rc counter
     void dealloc();
+    bool max_shared() const { return m_max_shared == 1; }
+    void set_max_shared() { lean_assert(!max_shared()); m_max_shared = 1; }
+    friend class max_sharing_functor;
 public:
     expr_cell(expr_kind k, unsigned h);
-    expr_kind kind() const { return m_kind; }
+    expr_kind kind() const { return static_cast<expr_kind>(m_kind); }
     unsigned  hash() const { return m_hash; }
 };
 
@@ -119,7 +125,7 @@ public:
 };
 
 // =======================================
-// Expr Representation
+// Expr (internal) Representation
 // 1. Free variables
 class expr_var : public expr_cell {
     unsigned m_vidx; // de Bruijn index
@@ -225,17 +231,21 @@ inline expr var(unsigned idx) { return expr(new expr_var(idx)); }
 inline expr constant(name const & n) { return expr(new expr_const(n)); }
 inline expr constant(name const & n, unsigned pos) { return expr(new expr_const(n, pos)); }
        expr app(unsigned num_args, expr const * args);
-inline expr app(std::initializer_list<expr> const & l) { return app(l.size(), l.begin()); }
+inline expr app(expr const & e1, expr const & e2) { expr args[2] = {e1, e2}; return app(2, args); }
+inline expr app(expr const & e1, expr const & e2, expr const & e3) { expr args[3] = {e1, e2, e3}; return app(3, args); }
+inline expr app(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { expr args[4] = {e1, e2, e3, e4}; return app(4, args); }
+inline expr app(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { expr args[5] = {e1, e2, e3, e4, e5}; return app(5, args); }
 inline expr lambda(name const & n, expr const & t, expr const & e) { return expr(new expr_lambda(n, t, e)); }
 inline expr pi(name const & n, expr const & t, expr const & e) { return expr(new expr_pi(n, t, e)); }
 inline expr prop() { return expr(new expr_prop()); }
        expr type(unsigned size, uvar const * vars);
+inline expr type(uvar const & uv) { return type(1, &uv); }
 inline expr type(std::initializer_list<uvar> const & l) { return type(l.size(), l.begin()); }
 inline expr numeral(mpz const & n) { return expr(new expr_numeral(n)); }
 // =======================================
 
 // =======================================
-// Casting
+// Casting (these functions are only needed for low-level code)
 inline expr_var *         to_var(expr_cell * e)         { lean_assert(is_var(e));         return static_cast<expr_var*>(e); }
 inline expr_const *       to_constant(expr_cell * e)    { lean_assert(is_constant(e));    return static_cast<expr_const*>(e); }
 inline expr_app *         to_app(expr_cell * e)         { lean_assert(is_app(e));         return static_cast<expr_app*>(e); }

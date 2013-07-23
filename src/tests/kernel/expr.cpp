@@ -16,15 +16,17 @@ void tst1() {
     a = numeral(mpz(10));
     expr f;
     f = var(0);
-    expr fa = app({f, a});
+    expr fa = app(f, a);
     std::cout << fa << "\n";
-    std::cout << app({fa, a}) << "\n";
+    std::cout << app(fa, a) << "\n";
     lean_assert(eqp(get_arg(fa, 0), f));
     lean_assert(eqp(get_arg(fa, 1), a));
-    lean_assert(!eqp(fa, app({f, a})));
-    lean_assert(app({fa, a}) == app({f, a, a}));
-    std::cout << app({fa, fa, fa}) << "\n";
+    lean_assert(!eqp(fa, app(f, a)));
+    lean_assert(app(fa, a) == app(f, a, a));
+    std::cout << app(fa, fa, fa) << "\n";
     std::cout << lambda(name("x"), prop(), var(0)) << "\n";
+    lean_assert(app(app(f, a), a) == app(f, a, a));
+    lean_assert(app(f, app(a, a)) != app(f, a, a));
 }
 
 expr mk_dag(unsigned depth) {
@@ -32,7 +34,7 @@ expr mk_dag(unsigned depth) {
     expr a = var(0);
     while (depth > 0) {
         depth--;
-        a = app({f, a, a});
+        a = app(f, a, a);
     }
     return a;
 }
@@ -110,7 +112,7 @@ expr mk_big(expr f, unsigned depth, unsigned val) {
     if (depth == 1)
         return var(val);
     else
-        return app({f, mk_big(f, depth - 1, val << 1), mk_big(f, depth - 1, (val << 1) + 1)});
+        return app(f, mk_big(f, depth - 1, val << 1), mk_big(f, depth - 1, (val << 1) + 1));
 }
 
 void tst3() {
@@ -124,7 +126,7 @@ void tst4() {
     expr f = constant(name("f"));
     expr a = var(0);
     for (unsigned i = 0; i < 10000; i++) {
-        a = app({f, a});
+        a = app(f, a);
     }
 }
 
@@ -132,7 +134,7 @@ expr mk_redundant_dag(expr f, unsigned depth) {
     if (depth == 0)
         return var(0);
     else
-        return app({f, mk_redundant_dag(f, depth - 1), mk_redundant_dag(f, depth - 1)});
+        return app(f, mk_redundant_dag(f, depth - 1), mk_redundant_dag(f, depth - 1));
 }
 
 
@@ -161,20 +163,32 @@ void tst5() {
     expr f  = constant(name("f"));
     {
         expr r1 = mk_redundant_dag(f, 5);
-        expr r2 = max_shared(r1);
+        expr r2 = max_sharing(r1);
         std::cout << "count(r1): " << count(r1) << "\n";
         std::cout << "count(r2): " << count(r2) << "\n";
         lean_assert(r1 == r2);
     }
     {
         expr r1 = mk_redundant_dag(f, 16);
-        expr r2 = max_shared(r1);
+        expr r2 = max_sharing(r1);
         lean_assert(r1 == r2);
     }
 }
 
+void tst6() {
+    expr f = constant(name("f"));
+    expr r = mk_redundant_dag(f, 12);
+    for (unsigned i = 0; i < 1000; i++) {
+        r = max_sharing(r);
+    }
+    r = mk_big(f, 16, 0);
+    for (unsigned i = 0; i < 1000000; i++) {
+        r = max_sharing(r);
+    }
+}
+
 int main() {
-    // continue_on_violation(true);
+    continue_on_violation(true);
     std::cout << "sizeof(expr):     " << sizeof(expr) << "\n";
     std::cout << "sizeof(expr_app): " << sizeof(expr_app) << "\n";
     tst1();
@@ -182,6 +196,7 @@ int main() {
     tst3();
     tst4();
     tst5();
+    tst6();
     std::cout << "done" << "\n";
     return has_violations() ? 1 : 0;
 }

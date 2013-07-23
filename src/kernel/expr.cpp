@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include "expr.h"
-#include "expr_set.h"
+#include "sets.h"
 #include "hash.h"
 
 namespace lean {

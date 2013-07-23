@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include <unordered_set>
 #include <vector>
 #include "expr.h"
-#include "expr_functors.h"
 
 namespace lean {
 

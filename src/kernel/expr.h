@@ -309,8 +309,17 @@ inline mpz const &  get_numeral(expr const & e)              { return to_numeral
 inline bool operator!=(expr const & a, expr const & b) { return !operator==(a, b); }
 // =======================================
 
-std::ostream & operator<<(std::ostream & out, expr const & a);
+// =======================================
+// Auxiliary functors
+struct expr_hash { unsigned operator()(expr const & e) const { return e.hash(); } };
+struct expr_eqp { bool operator()(expr const & e1, expr const & e2) const { return eqp(e1, e2); } };
+struct expr_cell_hash { unsigned operator()(expr_cell * e) const { return e->hash(); } };
+struct expr_cell_eqp { bool operator()(expr_cell * e1, expr_cell * e2) const { return e1 == e2; } };
+// =======================================
 
+// =======================================
+// Miscellaneous
+std::ostream & operator<<(std::ostream & out, expr const & a);
 /**
    \brief Wrapper for iterating over application arguments.
    If n is an application, it allows us to write
@@ -324,5 +333,6 @@ struct app_args {
     expr const * begin() const { return &get_arg(m_app, 0); }
     expr const * end() const { return begin() + get_num_args(m_app); }
 };
+// =======================================
 
 }

@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #pragma once
 #include <unordered_map>
 #include "expr.h"
-#include "expr_functors.h"
 
 namespace lean {
 

@@ -184,7 +184,7 @@ std::ostream & operator<<(std::ostream & out, expr const & a) {
         out << ")";
         break;
     case expr_kind::Lambda:  out << "(fun (" << get_abs_name(a) << " : " << get_abs_type(a) << ") " << get_abs_expr(a) << ")";    break;
-    case expr_kind::Pi:      out << "(forall (" << get_abs_name(a) << " : " << get_abs_type(a) << ") " << get_abs_expr(a) << ")"; break;
+    case expr_kind::Pi:      out << "(pi (" << get_abs_name(a) << " : " << get_abs_type(a) << ") " << get_abs_expr(a) << ")"; break;
     case expr_kind::Prop:    out << "Prop"; break;
     case expr_kind::Type:    out << "Type"; break;
     case expr_kind::Numeral: out << get_numeral(a); break;

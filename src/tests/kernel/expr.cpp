@@ -24,13 +24,13 @@ void tst1() {
     lean_assert(!eqp(fa, app(f, a)));
     lean_assert(app(fa, a) == app(f, a, a));
     std::cout << app(fa, fa, fa) << "\n";
-    std::cout << lambda(name("x"), prop(), var(0)) << "\n";
+    std::cout << lambda("x", prop(), var(0)) << "\n";
     lean_assert(app(app(f, a), a) == app(f, a, a));
     lean_assert(app(f, app(a, a)) != app(f, a, a));
 }
 
 expr mk_dag(unsigned depth) {
-    expr f = constant(name("f"));
+    expr f = constant("f");
     expr a = var(0);
     while (depth > 0) {
         depth--;
@@ -116,14 +116,14 @@ expr mk_big(expr f, unsigned depth, unsigned val) {
 }
 
 void tst3() {
-    expr f = constant(name("f"));
+    expr f = constant("f");
     expr r1 = mk_big(f, 18, 0);
     expr r2 = mk_big(f, 18, 0);
     lean_verify(r1 == r2);
 }
 
 void tst4() {
-    expr f = constant(name("f"));
+    expr f = constant("f");
     expr a = var(0);
     for (unsigned i = 0; i < 10000; i++) {
         a = app(f, a);
@@ -160,7 +160,7 @@ unsigned count(expr const & a) {
 }
 
 void tst5() {
-    expr f  = constant(name("f"));
+    expr f  = constant("f");
     {
         expr r1 = mk_redundant_dag(f, 5);
         expr r2 = max_sharing(r1);
@@ -176,7 +176,7 @@ void tst5() {
 }
 
 void tst6() {
-    expr f = constant(name("f"));
+    expr f = constant("f");
     expr r = mk_redundant_dag(f, 12);
     for (unsigned i = 0; i < 1000; i++) {
         r = max_sharing(r);
@@ -188,7 +188,7 @@ void tst6() {
 }
 
 void tst7() {
-    expr f  = constant(name("f"));
+    expr f  = constant("f");
     expr v  = var(0);
     expr a1 = max_sharing(app(f, v, v));
     expr a2 = max_sharing(app(f, v, v));

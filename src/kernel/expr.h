@@ -229,6 +229,7 @@ inline bool is_sort(expr const & e)        { return is_prop(e) || is_type(e); }
 // Constructors
 inline expr var(unsigned idx) { return expr(new expr_var(idx)); }
 inline expr constant(name const & n) { return expr(new expr_const(n)); }
+inline expr constant(char const * n) { return constant(name(n)); }
 inline expr constant(name const & n, unsigned pos) { return expr(new expr_const(n, pos)); }
        expr app(unsigned num_args, expr const * args);
 inline expr app(expr const & e1, expr const & e2) { expr args[2] = {e1, e2}; return app(2, args); }
@@ -236,7 +237,9 @@ inline expr app(expr const & e1, expr const & e2, expr const & e3) { expr args[3
 inline expr app(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { expr args[4] = {e1, e2, e3, e4}; return app(4, args); }
 inline expr app(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { expr args[5] = {e1, e2, e3, e4, e5}; return app(5, args); }
 inline expr lambda(name const & n, expr const & t, expr const & e) { return expr(new expr_lambda(n, t, e)); }
+inline expr lambda(char const * n, expr const & t, expr const & e) { return lambda(name(n), t, e); }
 inline expr pi(name const & n, expr const & t, expr const & e) { return expr(new expr_pi(n, t, e)); }
+inline expr pi(char const * n, expr const & t, expr const & e) { return pi(name(n), t, e); }
 inline expr prop() { return expr(new expr_prop()); }
        expr type(unsigned size, uvar const * vars);
 inline expr type(uvar const & uv) { return type(1, &uv); }

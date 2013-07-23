@@ -159,23 +159,28 @@ unsigned count(expr const & a) {
 
 void tst5() {
     expr f  = constant(name("f"));
-    expr r1 = mk_redundant_dag(f, 1);
-    expr r2 = max_shared(r1);
-    std::cout << "r1: " << r1 << "\n";
-    std::cout << "r2: " << r1 << "\n";
-    std::cout << "count(r1): " << count(r1) << "\n";
-    std::cout << "count(r2): " << count(r2) << "\n";
-    lean_assert(r1 == r2);
+    {
+        expr r1 = mk_redundant_dag(f, 5);
+        expr r2 = max_shared(r1);
+        std::cout << "count(r1): " << count(r1) << "\n";
+        std::cout << "count(r2): " << count(r2) << "\n";
+        lean_assert(r1 == r2);
+    }
+    {
+        expr r1 = mk_redundant_dag(f, 16);
+        expr r2 = max_shared(r1);
+        lean_assert(r1 == r2);
+    }
 }
 
 int main() {
     // continue_on_violation(true);
     std::cout << "sizeof(expr):     " << sizeof(expr) << "\n";
     std::cout << "sizeof(expr_app): " << sizeof(expr_app) << "\n";
-    // tst1();
-    // tst2();
-    // tst3();
-    // tst4();
+    tst1();
+    tst2();
+    tst3();
+    tst4();
     tst5();
     std::cout << "done" << "\n";
     return has_violations() ? 1 : 0;

@@ -115,9 +115,9 @@ void expr_cell::dealloc() {
     }
 }
 
-namespace expr_eq {
+namespace expr_eq_ns {
 static thread_local expr_cell_pair_set g_eq_visited;
-bool eq(expr const & a, expr const & b) {
+bool apply(expr const & a, expr const & b) {
     if (eqp(a, b))            return true;
     if (a.hash() != b.hash()) return false;
     if (a.kind() != b.kind()) return false;
@@ -136,14 +136,14 @@ bool eq(expr const & a, expr const & b) {
         if (get_num_args(a) != get_num_args(b))
             return false;
         for (unsigned i = 0; i < get_num_args(a); i++)
-            if (!eq(get_arg(a, i), get_arg(b, i)))
+            if (!apply(get_arg(a, i), get_arg(b, i)))
                 return false;
         return true;
     case expr_kind::Lambda:
     case expr_kind::Pi:
         // Lambda and Pi
         // Remark: we ignore get_abs_name because we want alpha-equivalence
-        return eq(get_abs_type(a), get_abs_type(b)) && eq(get_abs_expr(a), get_abs_expr(b));
+        return apply(get_abs_type(a), get_abs_type(b)) && apply(get_abs_expr(a), get_abs_expr(b));
     case expr_kind::Prop:     lean_unreachable(); return true;
     case expr_kind::Type:
         if (get_ty_num_vars(a) != get_ty_num_vars(b))
@@ -162,8 +162,8 @@ bool eq(expr const & a, expr const & b) {
 }
 } // namespace expr_eq
 bool operator==(expr const & a, expr const & b) {
-    expr_eq::g_eq_visited.clear();
-    return expr_eq::eq(a, b);
+    expr_eq_ns::g_eq_visited.clear();
+    return expr_eq_ns::apply(a, b);
 }
 
 // Low-level pretty printer

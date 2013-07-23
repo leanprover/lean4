@@ -7,9 +7,10 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 #include <limits>
-#include "name.h"
 #include "rc.h"
+#include "name.h"
 #include "mpz.h"
+#include "hash.h"
 
 namespace lean {
 /* =======================================
@@ -310,11 +311,21 @@ inline bool operator!=(expr const & a, expr const & b) { return !operator==(a, b
 // =======================================
 
 // =======================================
+// Expression+Offset
+typedef std::pair<expr, unsigned>       expr_offset;
+typedef std::pair<expr_cell*, unsigned> expr_cell_offset;
+// =======================================
+
+// =======================================
 // Auxiliary functors
 struct expr_hash { unsigned operator()(expr const & e) const { return e.hash(); } };
 struct expr_eqp { bool operator()(expr const & e1, expr const & e2) const { return eqp(e1, e2); } };
 struct expr_cell_hash { unsigned operator()(expr_cell * e) const { return e->hash(); } };
 struct expr_cell_eqp { bool operator()(expr_cell * e1, expr_cell * e2) const { return e1 == e2; } };
+struct expr_offset_hash { unsigned operator()(expr_offset const & p) const { return hash(p.first.hash(), p.second); } };
+struct expr_offset_eqp { unsigned operator()(expr_offset const & p1, expr_offset const & p2) const { return eqp(p1.first, p2.first) && p1.second == p2.second; } };
+struct expr_cell_offset_hash { unsigned operator()(expr_cell_offset const & p) const { return hash(p.first->hash(), p.second); } };
+struct expr_cell_offset_eqp { unsigned operator()(expr_cell_offset const & p1, expr_cell_offset const & p2) const { return p1 == p2; } };
 // =======================================
 
 // =======================================

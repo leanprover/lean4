@@ -4,11 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <algorithm>
 #include "expr.h"
 #include "sets.h"
 #include "max_sharing.h"
+#include "free_vars.h"
 #include "test.h"
-#include <algorithm>
 using namespace lean;
 
 void tst1() {
@@ -29,9 +30,9 @@ void tst1() {
     lean_assert(app(f, app(a, a)) != app(f, a, a));
 }
 
-expr mk_dag(unsigned depth) {
+expr mk_dag(unsigned depth, bool _closed = false) {
     expr f = constant("f");
-    expr a = var(0);
+    expr a = _closed ? constant("a") : var(0);
     while (depth > 0) {
         depth--;
         a = app(f, a, a);
@@ -110,7 +111,7 @@ void tst2() {
 
 expr mk_big(expr f, unsigned depth, unsigned val) {
     if (depth == 1)
-        return var(val);
+        return constant(name(val));
     else
         return app(f, mk_big(f, depth - 1, val << 1), mk_big(f, depth - 1, (val << 1) + 1));
 }
@@ -197,10 +198,61 @@ void tst7() {
     lean_assert(eqp(get_arg(b, 1), get_arg(b, 2)));
 }
 
+void tst8() {
+    expr f = constant("f");
+    expr x = var(0);
+    expr a = constant("a");
+    expr n = numeral(mpz(10));
+    expr p = prop();
+    expr y = var(1);
+    lean_assert(closed(a));
+    lean_assert(!closed(x));
+    lean_assert(closed(f));
+    lean_assert(!closed(app(f, x)));
+    lean_assert(closed(lambda("x", p, x)));
+    lean_assert(!closed(lambda("x", x, x)));
+    lean_assert(!closed(lambda("x", p, y)));
+    lean_assert(closed(app(f, app(f, app(f, a)))));
+    lean_assert(closed(lambda("x", p, app(f, app(f, app(f, a))))));
+    lean_assert(closed(pi("x", p, x)));
+    lean_assert(!closed(pi("x", x, x)));
+    lean_assert(!closed(pi("x", p, y)));
+    lean_assert(closed(pi("x", p, app(f, app(f, app(f, a))))));
+    lean_assert(closed(lambda("y", p, lambda("x", p, y))));
+    lean_assert(closed(lambda("y", p, app(lambda("x", p, y), var(0)))));
+    expr r = lambda("y", p, app(lambda("x", p, y), var(0)));
+    lean_assert(closed(r));
+    lean_assert(closed(r));
+    r = lambda("y", p, app(lambda("x", p, y), var(1)));
+    lean_assert(!closed(r));
+    r = lambda("y", p, app(lambda("x", p, var(0)), var(1)));
+    lean_assert(!closed(r));
+    lean_assert(closed(lambda("z", p, r)));
+}
+
+void tst9() {
+    expr r = mk_dag(20, true);
+    lean_assert(closed(r));
+    r = mk_dag(20, false);
+    lean_assert(!closed(r));
+}
+
+void tst10() {
+    expr f = constant("f");
+    expr r = mk_big(f, 16, 0);
+    for (unsigned i = 0; i < 1000; i++) {
+        lean_assert(closed(r));
+    }
+}
+
 int main() {
     continue_on_violation(true);
     std::cout << "sizeof(expr):     " << sizeof(expr) << "\n";
     std::cout << "sizeof(expr_app): " << sizeof(expr_app) << "\n";
+    tst8();
+    tst9();
+    tst10();
+    return 0;
     tst1();
     tst2();
     tst3();

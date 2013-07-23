@@ -22,6 +22,7 @@ unsigned hash_vars(unsigned size, uvar const * vars) {
 expr_cell::expr_cell(expr_kind k, unsigned h):
     m_kind(static_cast<unsigned>(k)),
     m_max_shared(0),
+    m_closed(0),
     m_hash(h),
     m_rc(1) {}
 

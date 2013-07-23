@@ -46,13 +46,19 @@ class max_sharing_functor;
 class expr_cell {
 protected:
     unsigned m_kind:16;
-    unsigned m_max_shared:1; // flag indicating if the cell has maximally shared subexpressions
+    unsigned m_max_shared:1; // flag (used by max_sharing_functor) indicating if the cell has maximally shared subexpressions
+    unsigned m_closed:1;     // flag (used by has_free_var_functor): 1 means it is definitely close, 0 means don't know
     unsigned m_hash;
     MK_LEAN_RC(); // Declare m_rc counter
     void dealloc();
+
     bool max_shared() const { return m_max_shared == 1; }
-    void set_max_shared() { lean_assert(!max_shared()); m_max_shared = 1; }
+    void set_max_shared() { m_max_shared = 1; }
     friend class max_sharing_functor;
+
+    bool is_closed() const { return m_closed == 1; }
+    void set_closed() { m_closed = 1; }
+    friend class has_free_var_functor;
 public:
     expr_cell(expr_kind k, unsigned h);
     expr_kind kind() const { return static_cast<expr_kind>(m_kind); }

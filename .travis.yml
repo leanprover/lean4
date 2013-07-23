@@ -4,12 +4,28 @@ env:
   matrix:
    - CMAKE_CXX_COMPILER=clang++-3.3
      CMAKE_BUILD_TYPE=DEBUG
+     USE_TCMALLOC=TRUE
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=DEBUG
+     USE_TCMALLOC=TRUE
    - CMAKE_CXX_COMPILER=clang++-3.3
      CMAKE_BUILD_TYPE=RELEASE
+     USE_TCMALLOC=TRUE
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=RELEASE
+     USE_TCMALLOC=TRUE
+   - CMAKE_CXX_COMPILER=clang++-3.3
+     CMAKE_BUILD_TYPE=DEBUG
+     USE_TCMALLOC=FALSE
+   - CMAKE_CXX_COMPILER=g++-4.8
+     CMAKE_BUILD_TYPE=DEBUG
+     USE_TCMALLOC=FALSE
+   - CMAKE_CXX_COMPILER=clang++-3.3
+     CMAKE_BUILD_TYPE=RELEASE
+     USE_TCMALLOC=FALSE
+   - CMAKE_CXX_COMPILER=g++-4.8
+     CMAKE_BUILD_TYPE=RELEASE
+     USE_TCMALLOC=FALSE
 
 before_script:
   - mkdir -p build
@@ -21,11 +37,11 @@ script:
   - ctest -T test -VV
 
 install:
-  - sudo add-apt-repository --yes ppa:agent-8131/ppa
+  -
   - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
   - sudo add-apt-repository --yes ppa:h-rayflood/llvm
   - sudo apt-get -qq update
-  - sudo apt-get -qq install libgoogle-perftools-dev
+  - if [[ $USE_TCMALLOC == TRUE ]]; then sudo add-apt-repository --yes ppa:agent-8131/ppa && sudo apt-get -qq update && sudo apt-get -qq install libgoogle-perftools-dev; fi
   - sudo apt-get -qq install libgmp-dev
   - sudo apt-get -qq install cmake
   - sudo apt-get -qq install libstdc++-4.8-dev

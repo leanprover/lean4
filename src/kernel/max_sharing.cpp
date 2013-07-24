@@ -58,12 +58,12 @@ public:
         case expr_kind::Lambda:
         case expr_kind::Pi: {
             expr const & old_t = abst_type(a);
-            expr const & old_e = abst_expr(a);
+            expr const & old_b = abst_body(a);
             expr t = apply(old_t);
-            expr e = apply(old_e);
-            if (!eqp(t, old_t) || !eqp(e, old_e)) {
+            expr b = apply(old_b);
+            if (!eqp(t, old_t) || !eqp(b, old_b)) {
                 name const & n     = abst_name(a);
-                expr r = is_pi(a) ? pi(n, t, e) : lambda(n, t, e);
+                expr r = is_pi(a) ? pi(n, t, b) : lambda(n, t, b);
                 cache(r);
                 return r;
             }

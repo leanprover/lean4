@@ -172,12 +172,12 @@ public:
 class expr_abstraction : public expr_cell {
     name     m_name;
     expr     m_type;
-    expr     m_expr;
+    expr     m_body;
 public:
     expr_abstraction(expr_kind k, name const & n, expr const & t, expr const & e);
     name const & get_name() const { return m_name; }
     expr const & get_type() const { return m_type; }
-    expr const & get_expr() const { return m_expr; }
+    expr const & get_body() const { return m_body; }
 };
 // 5. Lambda
 class expr_lambda : public expr_abstraction {
@@ -299,7 +299,7 @@ inline unsigned     num_args(expr_cell * e)             { return to_app(e)->get_
 inline expr const & arg(expr_cell * e, unsigned idx)    { return to_app(e)->get_arg(idx); }
 inline name const & abst_name(expr_cell * e)            { return to_abstraction(e)->get_name(); }
 inline expr const & abst_type(expr_cell * e)            { return to_abstraction(e)->get_type(); }
-inline expr const & abst_expr(expr_cell * e)            { return to_abstraction(e)->get_expr(); }
+inline expr const & abst_body(expr_cell * e)            { return to_abstraction(e)->get_body(); }
 inline unsigned     ty_num_vars(expr_cell * e)          { return to_type(e)->size(); }
 inline uvar const & ty_var(expr_cell * e, unsigned idx) { return to_type(e)->get_var(idx); }
 inline mpz const &  num_value(expr_cell * e)            { return to_numeral(e)->get_num(); }
@@ -315,7 +315,7 @@ inline expr const * begin_args(expr const & e)           { return to_app(e)->beg
 inline expr const * end_args(expr const & e)             { return to_app(e)->end_args(); }
 inline name const & abst_name(expr const & e)            { return to_abstraction(e)->get_name(); }
 inline expr const & abst_type(expr const & e)            { return to_abstraction(e)->get_type(); }
-inline expr const & abst_expr(expr const & e)            { return to_abstraction(e)->get_expr(); }
+inline expr const & abst_body(expr const & e)            { return to_abstraction(e)->get_body(); }
 inline unsigned     ty_num_vars(expr const & e)          { return to_type(e)->size(); }
 inline uvar const & ty_var(expr const & e, unsigned idx) { return to_type(e)->get_var(idx); }
 inline mpz const &  num_value(expr const & e)            { return to_numeral(e)->get_num(); }

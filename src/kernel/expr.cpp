@@ -74,11 +74,11 @@ expr app(unsigned n, expr const * as) {
     return r;
 }
 
-expr_abstraction::expr_abstraction(expr_kind k, name const & n, expr const & t, expr const & e):
-    expr_cell(k, ::lean::hash(t.hash(), e.hash())),
+expr_abstraction::expr_abstraction(expr_kind k, name const & n, expr const & t, expr const & b):
+    expr_cell(k, ::lean::hash(t.hash(), b.hash())),
     m_name(n),
     m_type(t),
-    m_expr(e) {
+    m_body(b) {
 }
 expr_lambda::expr_lambda(name const & n, expr const & t, expr const & e):
     expr_abstraction(expr_kind::Lambda, n, t, e) {}
@@ -147,7 +147,7 @@ public:
         case expr_kind::Pi:
             // Lambda and Pi
             // Remark: we ignore get_abs_name because we want alpha-equivalence
-            return apply(abst_type(a), abst_type(b)) && apply(abst_expr(a), abst_expr(b));
+            return apply(abst_type(a), abst_type(b)) && apply(abst_body(a), abst_body(b));
         case expr_kind::Prop:     lean_unreachable(); return true;
         case expr_kind::Type:
             if (ty_num_vars(a) != ty_num_vars(b))
@@ -184,8 +184,8 @@ std::ostream & operator<<(std::ostream & out, expr const & a) {
         }
         out << ")";
         break;
-    case expr_kind::Lambda:  out << "(fun (" << abst_name(a) << " : " << abst_type(a) << ") " << abst_expr(a) << ")";    break;
-    case expr_kind::Pi:      out << "(pi (" << abst_name(a) << " : " << abst_type(a) << ") " << abst_expr(a) << ")"; break;
+    case expr_kind::Lambda:  out << "(fun (" << abst_name(a) << " : " << abst_type(a) << ") " << abst_body(a) << ")";    break;
+    case expr_kind::Pi:      out << "(pi (" << abst_name(a) << " : " << abst_type(a) << ") " << abst_body(a) << ")"; break;
     case expr_kind::Prop:    out << "Prop"; break;
     case expr_kind::Type:    out << "Type"; break;
     case expr_kind::Numeral: out << num_value(a); break;

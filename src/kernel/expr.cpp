@@ -195,4 +195,18 @@ std::ostream & operator<<(std::ostream & out, expr const & a) {
     return out;
 }
 
+expr copy(expr const & a) {
+    switch (a.kind()) {
+    case expr_kind::Var:      return var(var_idx(a));
+    case expr_kind::Constant: return constant(const_name(a), const_pos(a));
+    case expr_kind::Prop:     return prop();
+    case expr_kind::Type:     return type(ty_num_vars(a), begin_ty_vars(a));
+    case expr_kind::Numeral:  return numeral(num_value(a));
+    case expr_kind::App:      return app(num_args(a), begin_args(a));
+    case expr_kind::Lambda:   return lambda(abst_name(a), abst_type(a), abst_body(a));
+    case expr_kind::Pi:       return pi(abst_name(a), abst_type(a), abst_body(a));
+    }
+    lean_unreachable();
+    return expr();
+}
 }

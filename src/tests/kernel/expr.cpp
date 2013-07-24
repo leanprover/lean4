@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "test.h"
 #include "abstract.h"
 #include "instantiate.h"
+#include "deep_copy.h"
 using namespace lean;
 
 void tst1() {
@@ -280,6 +281,17 @@ void tst11() {
     lean_assert(substitute(f(a), b, f(f(f(a)))) == f(f(b)));
 }
 
+void tst12() {
+    expr f = constant("f");
+    expr a = constant("a");
+    expr x = var(0);
+    expr F = pi("y", prop(), lambda("x", prop(), f(f(f(x,a),numeral(10)),x)));
+    expr G = deep_copy(F);
+    lean_assert(F == G);
+    lean_assert(!eqp(F, G));
+    lean_assert(count(F) == count(G));
+}
+
 int main() {
     continue_on_violation(true);
     std::cout << "sizeof(expr):      " << sizeof(expr) << "\n";
@@ -296,6 +308,7 @@ int main() {
     tst9();
     tst10();
     tst11();
+    tst12();
     std::cout << "done" << "\n";
     return has_violations() ? 1 : 0;
 }

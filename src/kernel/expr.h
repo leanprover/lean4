@@ -200,6 +200,7 @@ public:
     ~expr_type();
     unsigned size() const { return m_size; }
     uvar const & get_var(unsigned idx) const { lean_assert(idx < m_size); return m_vars[idx]; }
+    uvar const * get_vars() const { return m_vars; }
 };
 // 9. Numerals
 class expr_numeral : public expr_cell {
@@ -255,6 +256,7 @@ inline expr prop() { return expr(new expr_prop()); }
 inline expr type(uvar const & uv) { return type(1, &uv); }
 inline expr type(std::initializer_list<uvar> const & l) { return type(l.size(), l.begin()); }
 inline expr numeral(mpz const & n) { return expr(new expr_numeral(n)); }
+inline expr numeral(int n) { return numeral(mpz(n)); }
 
 inline expr expr::operator()(expr const & a1) const { return app(*this, a1); }
 inline expr expr::operator()(expr const & a1, expr const & a2) const { return app(*this, a1, a2); }
@@ -315,6 +317,8 @@ inline expr const & abst_type(expr const & e)            { return to_abstraction
 inline expr const & abst_body(expr const & e)            { return to_abstraction(e)->get_body(); }
 inline unsigned     ty_num_vars(expr const & e)          { return to_type(e)->size(); }
 inline uvar const & ty_var(expr const & e, unsigned idx) { return to_type(e)->get_var(idx); }
+inline uvar const * begin_ty_vars(expr const & e)        { return to_type(e)->get_vars(); }
+inline uvar const * end_ty_vars(expr const & e)          { return begin_ty_vars(e) + ty_num_vars(e); }
 inline mpz const &  num_value(expr const & e)            { return to_numeral(e)->get_num(); }
 // =======================================
 
@@ -358,6 +362,10 @@ struct args {
     expr const * begin() const { return &arg(m_app, 0); }
     expr const * end() const { return begin() + num_args(m_app); }
 };
+/**
+   \brief Return a shallow copy of \c e
+*/
+expr copy(expr const & e);
 // =======================================
 
 }

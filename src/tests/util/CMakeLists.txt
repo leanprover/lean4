@@ -4,6 +4,12 @@ add_test(interrupt ${CMAKE_CURRENT_BINARY_DIR}/interrupt)
 add_executable(name name.cpp)
 target_link_libraries(name ${EXTRA_LIBS})
 add_test(name ${CMAKE_CURRENT_BINARY_DIR}/name)
+<<<<<<< HEAD
 add_executable(format format.cpp)
 target_link_libraries(format ${EXTRA_LIBS})
 add_test(format ${CMAKE_CURRENT_BINARY_DIR}/format)
+=======
+add_executable(buffer buffer.cpp)
+target_link_libraries(buffer ${EXTRA_LIBS})
+add_test(buffer ${CMAKE_CURRENT_BINARY_DIR}/buffer)
+>>>>>>> Add (temporary) buffer class

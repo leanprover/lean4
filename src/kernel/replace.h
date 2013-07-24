@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include <vector>
+#include "buffer.h"
 #include "expr.h"
 #include "maps.h"
 namespace lean {
@@ -38,7 +38,7 @@ class replace_fn {
             case expr_kind::Prop: case expr_kind::Type: case expr_kind::Numeral: case expr_kind::Constant: case expr_kind::Var:
                 break;
             case expr_kind::App: {
-                std::vector<expr> new_args;
+                buffer<expr> new_args;
                 bool modified = false;
                 for (expr const & a : args(e)) {
                     new_args.push_back(apply(a, offset));

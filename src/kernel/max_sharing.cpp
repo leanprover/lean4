@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <unordered_set>
-#include <vector>
+#include "buffer.h"
 #include "max_sharing.h"
 
 namespace lean {
@@ -36,7 +36,7 @@ struct max_sharing_fn::imp {
             cache(a);
             return a;
         case expr_kind::App: {
-            std::vector<expr> new_args;
+            buffer<expr> new_args;
             bool modified = false;
             for (expr const & old_arg : args(a)) {
                 new_args.push_back(apply(old_arg));

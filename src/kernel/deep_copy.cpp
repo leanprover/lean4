@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <vector>
 #include "expr.h"
 #include "maps.h"
+#include "buffer.h"
 
 namespace lean {
 class deep_copy_fn {
@@ -23,7 +23,7 @@ class deep_copy_fn {
         case expr_kind::Var: case expr_kind::Constant: case expr_kind::Prop: case expr_kind::Type: case expr_kind::Numeral:
             r = copy(a); break; // shallow copy is equivalent to deep copy for these ones.
         case expr_kind::App: {
-            std::vector<expr> new_args;
+            buffer<expr> new_args;
             for (expr const & old_arg : args(a))
                 new_args.push_back(apply(old_arg));
             r = app(new_args.size(), new_args.data());

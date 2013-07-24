@@ -88,7 +88,7 @@ name::name(name const & prefix, char const * name) {
     lean_assert(sz < 1u<<31);
     char * mem = new char[sizeof(imp) + sz + 1];
     m_imp      = new (mem) imp(true, prefix.m_imp);
-    memcpy(mem + sizeof(imp), name, sz + 1);
+    std::memcpy(mem + sizeof(imp), name, sz + 1);
     m_imp->m_str       = mem + sizeof(imp);
     if (m_imp->m_prefix)
         m_imp->m_hash = hash_str(sz, name, m_imp->m_prefix->m_hash);

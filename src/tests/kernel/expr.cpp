@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "max_sharing.h"
 #include "free_vars.h"
 #include "test.h"
+#include "var_changer.h"
 using namespace lean;
 
 void tst1() {
@@ -250,11 +251,24 @@ void tst10() {
 void tst11() {
     expr f = constant("f");
     expr a = constant("a");
-    expr y = var(0);
+    expr b = constant("b");
     expr x = var(0);
-    lean_assert(closed(lambda("bla", prop(), lambda("x", prop(), f(f(a, a, x), y)))));
-}
+    expr y = var(1);
+    std::cout << instantiate(f(a), lambda("x", prop(), f(f(y, b), f(x, y)))) << "\n";
+    lean_assert(instantiate(f(a), lambda("x", prop(), f(f(y, b), f(x, y)))) ==
+                lambda("x", prop(), f(f(f(a), b), f(x, f(a)))));
+    std::cout << abstract(constant("a"), lambda("x", prop(), f(a, lambda("y", prop(), f(b, a))))) << "\n";
+    lean_assert(abstract(constant("a"), lambda("x", prop(), f(a, lambda("y", prop(), f(b, a))))) ==
+                lambda("x", prop(), f(var(1), lambda("y", prop(), f(b, var(2))))));
+    std::cout << abstract_p(constant("a"), lambda("x", prop(), f(a, lambda("y", prop(), f(b, a))))) << "\n";
+    lean_assert(abstract_p(constant("a"), lambda("x", prop(), f(a, lambda("y", prop(), f(b, a))))) ==
+                lambda("x", prop(), f(a, lambda("y", prop(), f(b, a)))));
+    std::cout << abstract_p(a, lambda("x", prop(), f(a, lambda("y", prop(), f(b, a))))) << "\n";
+    lean_assert(abstract_p(a, lambda("x", prop(), f(a, lambda("y", prop(), f(b, a))))) ==
+                lambda("x", prop(), f(var(1), lambda("y", prop(), f(b, var(2))))));
 
+    lean_assert(substitute(f(a), b, f(f(f(a)))) == f(f(b)));
+}
 
 int main() {
     continue_on_violation(true);

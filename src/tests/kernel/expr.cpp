@@ -28,6 +28,8 @@ void tst1() {
     std::cout << lambda("x", prop(), var(0)) << "\n";
     lean_assert(f(a)(a) == f(a, a));
     lean_assert(f(a(a)) != f(a, a));
+    lean_assert(lambda("x", prop(), var(0)) == lambda("y", prop(), var(0)));
+    std::cout << pi("x", prop(), var(0)) << "\n";
 }
 
 expr mk_dag(unsigned depth, bool _closed = false) {
@@ -245,6 +247,15 @@ void tst10() {
     }
 }
 
+void tst11() {
+    expr f = constant("f");
+    expr a = constant("a");
+    expr y = var(0);
+    expr x = var(0);
+    lean_assert(closed(lambda("bla", prop(), lambda("x", prop(), f(f(a, a, x), y)))));
+}
+
+
 int main() {
     continue_on_violation(true);
     std::cout << "sizeof(expr):     " << sizeof(expr) << "\n";
@@ -259,6 +270,7 @@ int main() {
     tst8();
     tst9();
     tst10();
+    tst11();
     std::cout << "done" << "\n";
     return has_violations() ? 1 : 0;
 }

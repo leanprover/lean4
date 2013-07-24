@@ -48,7 +48,7 @@ expr app(unsigned n, expr const * as) {
     unsigned new_n;
     unsigned n0 = 0;
     expr const & arg0 = as[0];
-    // Remark: we represet ((app a b) c) as (app a b c)
+    // Remark: we represent ((app a b) c) as (app a b c)
     if (is_app(arg0)) {
         n0    = num_args(arg0);
         new_n = n + n0 - 1;

@@ -73,6 +73,7 @@ static void tst1() {
     sexpr s3 = s1;
     lean_assert(eqp(s1, s3));
     lean_assert(!eqp(sexpr(1), sexpr(1)));
+    lean_assert(is_list(nil()));
 }
 
 static void tst2() {

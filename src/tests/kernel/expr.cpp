@@ -109,9 +109,9 @@ unsigned depth3(expr const & e) {
 void tst2() {
     expr r1 = mk_dag(20);
     expr r2 = mk_dag(20);
-    lean_verify(r1 == r2);
+    lean_assert(r1 == r2);
     std::cout << depth2(r1) << "\n";
-    lean_verify(depth2(r1) == 21);
+    lean_assert(depth2(r1) == 21);
 }
 
 expr mk_big(expr f, unsigned depth, unsigned val) {
@@ -125,7 +125,7 @@ void tst3() {
     expr f = constant("f");
     expr r1 = mk_big(f, 18, 0);
     expr r2 = mk_big(f, 18, 0);
-    lean_verify(r1 == r2);
+    lean_assert(r1 == r2);
 }
 
 void tst4() {

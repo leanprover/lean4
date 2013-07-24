@@ -26,10 +26,10 @@ struct sexpr_cell {
 struct sexpr_string : public sexpr_cell {
     std::string m_value;
     sexpr_string(char const * v):
-        sexpr_cell(sexpr_kind::STRING, hash(v, strlen(v), 13)),
+        sexpr_cell(sexpr_kind::STRING, hash_str(strlen(v), v, 13)),
         m_value(v) {}
     sexpr_string(std::string const & v):
-        sexpr_cell(sexpr_kind::STRING, hash(v.c_str(), v.size(), 13)),
+        sexpr_cell(sexpr_kind::STRING, hash_str(v.size(), v.c_str(), 13)),
         m_value(v) {}
 };
 

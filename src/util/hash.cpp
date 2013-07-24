@@ -20,7 +20,7 @@ void mix(unsigned & a, unsigned & b, unsigned & c) {
 
 // Bob Jenkin's hash function.
 // http://burtleburtle.net/bob/hash/doobs.html
-unsigned hash(char const * str, unsigned length, unsigned init_value) {
+unsigned hash_str(unsigned length, char const * str, unsigned init_value) {
     register unsigned a, b, c, len;
 
     /* Set up the internal state */

@@ -20,6 +20,7 @@ constexpr char const * anonymous_str = "[anonymous]";
 struct name::imp {
     MK_LEAN_RC()
     bool     m_is_string;
+    unsigned m_hash;
     imp *    m_prefix;
     union {
         char * m_str;
@@ -41,7 +42,7 @@ struct name::imp {
         }
     }
 
-    imp(bool s, imp * p):m_rc(1), m_is_string(s), m_prefix(p) { if (p) p->inc_ref(); }
+    imp(bool s, imp * p):m_rc(1), m_is_string(s), m_hash(0), m_prefix(p) { if (p) p->inc_ref(); }
 
     static void display_core(std::ostream & out, char const * sep, imp * p) {
         lean_assert(p != nullptr);
@@ -89,11 +90,19 @@ name::name(name const & prefix, char const * name) {
     m_imp      = new (mem) imp(true, prefix.m_imp);
     memcpy(mem + sizeof(imp), name, sz + 1);
     m_imp->m_str       = mem + sizeof(imp);
+    if (m_imp->m_prefix)
+        m_imp->m_hash = hash_str(sz, name, m_imp->m_prefix->m_hash);
+    else
+        m_imp->m_hash = hash_str(sz, name, 0);
 }
 
 name::name(name const & prefix, unsigned k) {
     m_imp      = new imp(false, prefix.m_imp);
     m_imp->m_k = k;
+    if (m_imp->m_prefix)
+        m_imp->m_hash = ::lean::hash(m_imp->m_prefix->m_hash, k);
+    else
+        m_imp->m_hash = k;
 }
 
 name::name(char const * n):name(name(), n) {
@@ -157,6 +166,8 @@ bool operator==(name const & a, name const & b) {
         if (i1 == i2)
             return true;
         if ((i1 == nullptr) != (i2 == nullptr))
+            return false;
+        if (i1->m_hash != i2->m_hash)
             return false;
         lean_assert(i1 != nullptr);
         lean_assert(i2 != nullptr);
@@ -251,21 +262,7 @@ size_t name::size(char const * sep) const {
 }
 
 unsigned name::hash() const {
-    if (m_imp == nullptr)
-        return 17;
-    else {
-        unsigned h = 13;
-        imp const * i = m_imp;
-        do {
-            if (i->m_is_string)
-                h = ::lean::hash(i->m_str, strlen(i->m_str), h);
-            else
-                h = ::lean::hash(h, i->m_k);
-            i = i->m_prefix;
-        }
-        while (i != nullptr);
-        return h;
-    }
+    return m_imp->m_hash;
 }
 
 std::ostream & operator<<(std::ostream & out, name const & n) {

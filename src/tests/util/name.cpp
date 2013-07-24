@@ -44,8 +44,26 @@ static void tst1() {
     lean_assert(name(2) > name(name(1), "foo"));
 }
 
+static name mk_big_name(unsigned num) {
+    name n("foo");
+    for (unsigned i = 0; i < num; i++) {
+        n = name(n, "bla");
+    }
+    return n;
+}
+
+static void tst2() {
+    name n1 = mk_big_name(2000);
+    name n2 = mk_big_name(2000);
+    lean_assert(n1.hash() == n2.hash());
+    for (unsigned i = 0; i < 10000; i++)
+        n1.hash();
+    std::cout << "n1.hash(): " << n1.hash() << "\n";
+}
+
 int main() {
     continue_on_violation(true);
     tst1();
+    tst2();
     return has_violations() ? 1 : 0;
 }

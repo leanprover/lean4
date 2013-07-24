@@ -12,7 +12,7 @@ namespace lean {
 expr instantiate(unsigned n, expr const * s, expr const & e) {
     lean_assert(std::all_of(s, s+n, closed));
 
-    auto f = [=](expr const & e, unsigned offset) {
+    auto f = [=](expr const & e, unsigned offset) -> expr {
         if (is_var(e)) {
             unsigned vidx = var_idx(e);
             if (vidx >= offset) {

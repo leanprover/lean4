@@ -12,7 +12,7 @@ namespace lean {
 expr abstract(unsigned n, expr const * s, expr const & e) {
     lean_assert(std::all_of(s, s+n, closed));
 
-    auto f = [=](expr const & e, unsigned offset) {
+    auto f = [=](expr const & e, unsigned offset) -> expr {
         unsigned i = n;
         while (i > 0) {
             --i;
@@ -27,7 +27,7 @@ expr abstract(unsigned n, expr const * s, expr const & e) {
 expr abstract_p(unsigned n, expr const * s, expr const & e) {
     lean_assert(std::all_of(s, s+n, closed));
 
-    auto f = [=](expr const & e, unsigned offset) {
+    auto f = [=](expr const & e, unsigned offset) -> expr {
         unsigned i = n;
         while (i > 0) {
             --i;

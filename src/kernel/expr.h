@@ -34,8 +34,6 @@ The main API is divided in the following sections
 ======================================= */
 enum class expr_kind { Var, Constant, App, Lambda, Pi, Prop, Type, Numeral };
 
-class max_sharing_functor;
-
 /**
     \brief Base class used to represent expressions.
 
@@ -46,19 +44,19 @@ class max_sharing_functor;
 class expr_cell {
 protected:
     unsigned m_kind:16;
-    unsigned m_max_shared:1; // flag (used by max_sharing_functor) indicating if the cell has maximally shared subexpressions
-    unsigned m_closed:1;     // flag (used by has_free_var_functor): 1 means it is definitely close, 0 means don't know
+    unsigned m_max_shared:1; // flag (used by max_sharing_fn) indicating if the cell has maximally shared subexpressions
+    unsigned m_closed:1;     // flag (used by has_free_var_fn): 1 means it is definitely close, 0 means don't know
     unsigned m_hash;
     MK_LEAN_RC(); // Declare m_rc counter
     void dealloc();
 
     bool max_shared() const { return m_max_shared == 1; }
     void set_max_shared() { m_max_shared = 1; }
-    friend class max_sharing_functor;
+    friend class max_sharing_fn;
 
     bool is_closed() const { return m_closed == 1; }
     void set_closed() { m_closed = 1; }
-    friend class has_free_var_functor;
+    friend class has_free_var_fn;
 public:
     expr_cell(expr_kind k, unsigned h);
     expr_kind kind() const { return static_cast<expr_kind>(m_kind); }
@@ -334,7 +332,7 @@ typedef std::pair<expr_cell*, unsigned> expr_cell_offset;
 // =======================================
 
 // =======================================
-// Auxiliary functors
+// Auxiliary functionals
 struct expr_hash { unsigned operator()(expr const & e) const { return e.hash(); } };
 struct expr_eqp { bool operator()(expr const & e1, expr const & e2) const { return eqp(e1, e2); } };
 struct expr_cell_hash { unsigned operator()(expr_cell * e) const { return e->hash(); } };

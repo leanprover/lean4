@@ -10,9 +10,9 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-class has_free_var_functor {
+class has_free_var_fn {
     expr_cell_offset_set m_visited;
-public:
+
     bool apply(expr const & e, unsigned offset) {
         // handle easy cases
         switch (e.kind()) {
@@ -54,11 +54,12 @@ public:
 
         return result;
     }
+public:
+    bool operator()(expr const & e) { return apply(e, 0); }
 };
 
 bool has_free_vars(expr const & e) {
-    has_free_var_functor f;
-    return f.apply(e, 0);
+    return has_free_var_fn()(e);
 }
 
 }

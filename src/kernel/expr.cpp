@@ -118,9 +118,9 @@ void expr_cell::dealloc() {
 }
 
 
-class eq_functor {
+class eq_fn {
     expr_cell_pair_set m_eq_visited;
-public:
+
     bool apply(expr const & a, expr const & b) {
         if (eqp(a, b))            return true;
         if (a.hash() != b.hash()) return false;
@@ -164,11 +164,14 @@ public:
         lean_unreachable();
         return false;
     }
+public:
+    bool operator()(expr const & a, expr const & b) {
+        return apply(a, b);
+    }
 };
 
 bool operator==(expr const & a, expr const & b) {
-    eq_functor f;
-    return f.apply(a, b);
+    return eq_fn()(a, b);
 }
 
 // Low-level pretty printer

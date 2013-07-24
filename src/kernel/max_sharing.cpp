@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-class max_sharing_functor {
+class max_sharing_fn {
     struct expr_struct_eq { unsigned operator()(expr const & e1, expr const & e2) const { return e1 == e2; }};
     typedef typename std::unordered_set<expr, expr_hash, expr_struct_eq> expr_cache;
 
@@ -20,8 +20,6 @@ class max_sharing_functor {
         a.raw()->set_max_shared();
         m_cache.insert(a);
     }
-
-public:
 
     expr apply(expr const & a) {
         auto r = m_cache.find(a);
@@ -75,16 +73,16 @@ public:
         lean_unreachable();
         return a;
     }
+
+public:
+    expr operator()(expr const & a) { return apply(a); }
 };
 
 expr max_sharing(expr const & a) {
-    if (a.raw()->max_shared()) {
+    if (a.raw()->max_shared())
         return a;
-    }
-    else {
-        max_sharing_functor f;
-        return f.apply(a);
-    }
+    else
+        return max_sharing_fn()(a);
 }
 
 } // namespace lean

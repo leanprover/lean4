@@ -22,8 +22,7 @@ expr abstract(unsigned n, expr const * s, expr const & e) {
         return e;
     };
 
-    replace_proc<decltype(f)> proc(f);
-    return proc(e);
+    return replace_fn<decltype(f)>(f)(e);
 }
 expr abstract_p(unsigned n, expr const * s, expr const & e) {
     lean_assert(std::all_of(s, s+n, closed));
@@ -38,7 +37,6 @@ expr abstract_p(unsigned n, expr const * s, expr const & e) {
         return e;
     };
 
-    replace_proc<decltype(f)> proc(f);
-    return proc(e);
+    return replace_fn<decltype(f)>(f)(e);
 }
 }

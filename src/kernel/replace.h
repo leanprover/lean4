@@ -20,7 +20,7 @@ namespace lean {
    bindings operators that enclosing s.
 */
 template<typename F>
-class replace_proc {
+class replace_fn {
     expr_cell_offset_map<expr> m_cache;
     F                          m_f;
 
@@ -75,7 +75,7 @@ class replace_proc {
     }
 
 public:
-    replace_proc(F const & f):
+    replace_fn(F const & f):
         m_f(f) {
     }
 

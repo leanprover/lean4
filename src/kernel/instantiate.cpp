@@ -25,7 +25,6 @@ expr instantiate(unsigned n, expr const * s, expr const & e) {
         return e;
     };
 
-    replace_proc<decltype(f)> proc(f);
-    return proc(e);
+    return replace_fn<decltype(f)>(f)(e);
 }
 }

@@ -43,19 +43,18 @@ enum class expr_kind { Var, Constant, App, Lambda, Pi, Prop, Type, Numeral };
 */
 class expr_cell {
 protected:
-    unsigned m_kind:16;
-    unsigned m_max_shared:1; // flag (used by max_sharing_fn) indicating if the cell has maximally shared subexpressions
-    unsigned m_closed:1;     // flag (used by has_free_var_fn): 1 means it is definitely close, 0 means don't know
+    unsigned short     m_kind;
+    std::atomic_ushort m_flags;
     unsigned m_hash;
     MK_LEAN_RC(); // Declare m_rc counter
     void dealloc();
 
-    bool max_shared() const { return m_max_shared == 1; }
-    void set_max_shared() { m_max_shared = 1; }
+    bool max_shared() const { return (m_flags & 1) != 0; }
+    void set_max_shared() { m_flags |= 1; }
     friend class max_sharing_fn;
 
-    bool is_closed() const { return m_closed == 1; }
-    void set_closed() { m_closed = 1; }
+    bool is_closed() const { return (m_flags & 2) != 0; }
+    void set_closed() { m_flags |= 2; }
     friend class has_free_var_fn;
 public:
     expr_cell(expr_kind k, unsigned h);

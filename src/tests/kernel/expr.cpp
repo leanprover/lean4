@@ -282,8 +282,9 @@ void tst11() {
 
 int main() {
     continue_on_violation(true);
-    std::cout << "sizeof(expr):     " << sizeof(expr) << "\n";
-    std::cout << "sizeof(expr_app): " << sizeof(expr_app) << "\n";
+    std::cout << "sizeof(expr):      " << sizeof(expr) << "\n";
+    std::cout << "sizeof(expr_app):  " << sizeof(expr_app) << "\n";
+    std::cout << "sizeof(expr_cell): " << sizeof(expr_cell) << "\n";
     tst1();
     tst2();
     tst3();

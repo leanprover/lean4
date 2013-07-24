@@ -36,7 +36,10 @@ before_script:
 script:
   - make
   - ctest -T test -VV
-  - cd ..; if [[ $BUILD_DOXYGEN == TRUE ]]; then sudo apt-get -qq install doxygen graphviz; doxygen src/Doxyfile; COMMIT_LOG=`git log --oneline -n 1`; git config user.email "soonhok@cs.cmu.edu"; git config user.name "Soonho Kong"; git checkout -B gh-pages gh-pages; git add -A doc;  git commit -m "Update doxygen - $COMMIT_LOG"; git push origin gh-pages; git checkout master; fi
+
+after_success:
+  - cd ..
+  - if [[ $BUILD_DOXYGEN == TRUE ]]; then ./script/update_doxygen.sh; fi
 
 install:
   - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test

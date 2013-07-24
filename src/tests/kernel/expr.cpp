@@ -10,7 +10,8 @@ Author: Leonardo de Moura
 #include "max_sharing.h"
 #include "free_vars.h"
 #include "test.h"
-#include "var_changer.h"
+#include "abstract.h"
+#include "instantiate.h"
 using namespace lean;
 
 void tst1() {
@@ -246,6 +247,15 @@ void tst10() {
     for (unsigned i = 0; i < 1000; i++) {
         lean_assert(closed(r));
     }
+}
+
+/**
+   \brief Substitute s with t in e.
+
+   \pre s and t must be closed expressions (i.e., no free variables)
+*/
+inline expr substitute(expr const & s, expr const & t, expr const & e) {
+    return instantiate(t, abstract(s, e));
 }
 
 void tst11() {

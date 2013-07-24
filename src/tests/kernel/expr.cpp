@@ -292,6 +292,18 @@ void tst12() {
     lean_assert(count(F) == count(G));
 }
 
+void tst13() {
+    expr f  = constant("f");
+    expr v  = var(0);
+    expr a1 = max_sharing(f(v,v));
+    expr a2 = max_sharing(f(v,v));
+    lean_assert(!eqp(a1, a2));
+    lean_assert(a1 == a2);
+    max_sharing_fn M;
+    lean_assert(eqp(M(f(v,v)), M(f(v,v))));
+    lean_assert(eqp(M(a1), M(a2)));
+}
+
 int main() {
     continue_on_violation(true);
     std::cout << "sizeof(expr):      " << sizeof(expr) << "\n";
@@ -309,6 +321,7 @@ int main() {
     tst10();
     tst11();
     tst12();
+    tst13();
     std::cout << "done" << "\n";
     return has_violations() ? 1 : 0;
 }

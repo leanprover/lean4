@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include "buffer.h"
+#include "test.h"
 using namespace lean;
 
 template<typename C>
@@ -27,6 +28,7 @@ void perftest() {
 }
 
 int main() {
+    continue_on_violation(true);
     loop<buffer<int>>(100);
-    return 0;
+    return has_violations() ? 1 : 0;
 }

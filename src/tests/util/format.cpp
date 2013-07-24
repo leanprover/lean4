@@ -9,6 +9,10 @@ Author: Soonho Kong
 
 using namespace lean;
 
+void color(const char *s, int n) {
+    std::cout << "\e[" << (31 + n % 7) << "m" << s << "\e[0m";
+}
+
 static void tst1() {
     format f_atom1("foo");
     format f_atom2("bar");
@@ -36,6 +40,13 @@ static void tst1() {
               << "f6 = " << f6 << std::endl
               << "f7 = " << f7 << std::endl
         ;
+
+    color("This ", 0);
+    color("is ",   1);
+    color("how ",  2);
+    color("we ",   3);
+    color("work.", 4);
+    std::cout << std::endl;
 }
 
 int main() {

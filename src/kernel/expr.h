@@ -224,6 +224,7 @@ inline bool is_numeral(expr_cell * e)     { return e->kind() == expr_kind::Numer
 inline bool is_abstraction(expr_cell * e) { return is_lambda(e) || is_pi(e); }
 inline bool is_sort(expr_cell * e)        { return is_prop(e) || is_type(e); }
 
+inline bool is_null(expr const & e)        { return e.raw() == nullptr; }
 inline bool is_var(expr const & e)         { return e.kind() == expr_kind::Var; }
 inline bool is_constant(expr const & e)    { return e.kind() == expr_kind::Constant; }
 inline bool is_app(expr const & e)         { return e.kind() == expr_kind::App; }

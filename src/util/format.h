@@ -6,7 +6,9 @@ Author: Soonho Kong
 */
 #pragma once
 #include "sexpr.h"
+#include "debug.h"
 #include <iostream>
+#include <algorithm>
 
 namespace lean {
 /**
@@ -14,88 +16,198 @@ namespace lean {
 
    uses `sexpr` as an internal representation.
 
-   nil           = nil sexpr
-   text    s     = ("TEXT"    s    )
-   nest    f     = ("NEST"    f    )
-   choice  f1 f2 = ("CHOICE"  f1 f2)
-   compose f1 f2 = ("COMPOSE" f1 f2)
-   line          = ("LINE")
-   nest    n  f  = ("NEST"    n   f)
-
+   nil                    = ["NIL"]
+   text         s         = ("TEXT"  . s)
+   choice       f1 f2     = ("CHOICE"  f1 . f2)
+   compose      f1 ... fn = ["COMPOSE" f1 ... fn]
+   line                   = ["LINE"]
+   nest         n  f      = ("NEST" n . f)
+   highlight    c  f      = ("HIGHLIGHT" c . f)
 */
 
 class format {
-    sexpr m_value;
-
 public:
-    enum format_kind { NIL, NEST, COMPOSE, CHOICE, LINE, TEXT };
+    enum format_kind { NIL, NEST, COMPOSE, CHOICE, LINE, TEXT, COLOR_BEGIN, COLOR_END};
+    enum format_color {RED, GREEN, ORANGE, BLUE, PINK, CYAN, GREY};
+private:
+    sexpr m_value;
+    static sexpr flatten(sexpr const & s);
+    static format flatten(format const & f);
 
-    format():m_value(sexpr()) {}
-    explicit format(sexpr const & v):m_value(v) {}
-    explicit format(char const * v):m_value(v) {}
-    explicit format(std::string const & v):m_value(v) {}
-    explicit format(int v):m_value(v) {}
-    explicit format(double v):m_value(v) {}
-    explicit format(name const & v):m_value(v) {}
-    explicit format(mpz const & v):m_value(v) {}
-    explicit format(mpq const & v):m_value(v) {}
-    format(format const & f1, format const & f2) {
-        m_value = sexpr(sexpr(COMPOSE), sexpr(f1.m_value, f2.m_value));
+    // Functions for the internal sexpr representation
+    static inline format_kind sexpr_kind(sexpr const & s) {
+        lean_assert(is_cons(s));
+        return static_cast<format_kind>(to_int(car(s)));
     }
-    format(format const & f):m_value(f.m_value) {}
-
-    format_kind kind() const {
-        if(is_nil(m_value)) {
-            return NIL;
-        }
-        if(is_cons(m_value)) {
-            /* CHOICE, COMPOSE, LINE, NEST */
-            return static_cast<format_kind>(to_int(car(m_value)));
-        }
-        return TEXT;
+    static inline sexpr sexpr_compose(sexpr const & l) {
+        lean_assert(is_list(l));
+        return sexpr(sexpr(format_kind::COMPOSE), l);
+    }
+    static inline sexpr sexpr_compose(std::initializer_list<sexpr> const & l) {
+        return sexpr_compose(sexpr(l));
+    }
+    static inline sexpr const & sexpr_compose_list(sexpr const & s) {
+        lean_assert(sexpr_kind(s) == format_kind::COMPOSE);
+        return cdr(s);
+    }
+    static inline sexpr sexpr_choice(sexpr const & s1, sexpr const & s2) {
+        return sexpr(sexpr(format_kind::CHOICE), sexpr(s1, s2));
+    }
+    static inline sexpr const & sexpr_choice_1(sexpr const & s) {
+        return car(cdr(s));
+    }
+    static inline sexpr const & sexpr_choice_2(sexpr const & s) {
+        return cdr(cdr(s));
+    }
+    static inline sexpr sexpr_nest(int i, sexpr const & s) {
+        return sexpr(sexpr(format_kind::NEST), sexpr(i, s));
+    }
+    static inline int sexpr_nest_i(sexpr const & s) {
+        lean_assert(sexpr_kind(s) == format_kind::NEST);
+        return to_int(car(cdr(s)));
+    }
+    static inline sexpr const & sexpr_nest_s(sexpr const & s) {
+        lean_assert(sexpr_kind(s) == format_kind::NEST);
+        return cdr(cdr(s));
+    }
+    static inline sexpr sexpr_text(sexpr const & s) {
+        return sexpr(sexpr(format_kind::TEXT), s);
+    }
+    static inline sexpr const & sexpr_text_t(sexpr const & s) {
+        lean_assert(sexpr_kind(s) == format_kind::TEXT);
+        return cdr(s);
+    }
+    static inline sexpr sexpr_text(std::string const & s) {
+        return sexpr(sexpr(format_kind::TEXT), sexpr(s));
+    }
+    static inline sexpr sexpr_color_begin(format_color c) {
+        return sexpr(sexpr(format_kind::COLOR_BEGIN), sexpr(c));
+    }
+    static inline format_color sexpr_color_begin(sexpr const & s) {
+        lean_assert(sexpr_kind(s) == format_kind::TEXT);
+        return static_cast<format_color>(to_int(cdr(s)));
+    }
+    static inline sexpr sexpr_color_end() {
+        return sexpr{sexpr(format_kind::COLOR_END)};
+    }
+    static inline sexpr sexpr_highlight(sexpr const & s, format_color c) {
+        return sexpr_compose({sexpr_color_begin(c), s, sexpr_color_end()});
+    }
+    static inline sexpr sexpr_nil() {
+        return sexpr{sexpr(format::format_kind::NIL)};
+    }
+    static inline sexpr sexpr_line() {
+        return sexpr{sexpr(format::format_kind::LINE)};
     }
 
-    unsigned hash() const { return m_value.hash(); }
+    // Functions used inside of pretty printing
+    static bool  fits(int w, sexpr const & s);
+    static sexpr better(int w, int k, sexpr const & s1, sexpr const & s2);
+    static sexpr be(int w, int k, sexpr const & s, sexpr const & r);
+    static sexpr best(int w, int k, sexpr const & s);
 
-    format & operator=(format const & s);
-    format & operator=(format&& s);
-    template<typename T>
-    format & operator=(T const & v) { return operator=(format(v)); }
-
-    std::ostream & display(std::ostream & out, sexpr const & s);
-    friend std::ostream & operator<<(std::ostream & out, format const & f);
-
-    friend format compose(format const & f1, format const & f2) {
-        return format(f1, f2);
+    static bool is_fnil(format const & f)   {
+        return to_int(car(f.m_value)) == format_kind::NIL;
+    }
+    static bool is_compose(format const & f)   {
+        return to_int(car(f.m_value)) == format_kind::COMPOSE;
+    }
+    static bool is_nest(format const & f) {
+        return to_int(car(f.m_value)) == format_kind::NEST;
+    }
+    static bool is_text(format const & f) {
+        return to_int(car(f.m_value)) == format_kind::TEXT;
+    }
+    static bool is_line(format const & f) {
+        return to_int(car(f.m_value)) == format_kind::LINE;
+    }
+    static bool is_choice(format const & f) {
+        return to_int(car(f.m_value)) == format_kind::CHOICE;
     }
     friend format choice(format const & f1, format const & f2) {
-        return format(sexpr(sexpr(CHOICE), sexpr(f1.m_value, f2.m_value)));
-    }
-    friend format nest(int i, format const & f) {
-        return format(sexpr(sexpr(NEST), sexpr(sexpr(i), f.m_value)));
+        return format(sexpr_choice(f1.m_value, f2.m_value));
     }
 
-    friend bool is_compose(format const & f)   {
-        return is_cons(f.m_value) && to_int(car(f.m_value)) == format_kind::COMPOSE;
-    }
-    friend bool is_nest(format const & f) {
-        return is_cons(f.m_value) && to_int(car(f.m_value)) == format_kind::NEST;
-    }
-    friend bool is_text(format const & f) {
-        return !is_cons(f.m_value);
-    }
-    friend bool is_line(format const & f) {
-        return is_cons(f.m_value) && to_int(car(f.m_value)) == format_kind::LINE;
-    }
-    friend bool is_choice(format const & f) {
-        return is_cons(f.m_value) && to_int(car(f.m_value)) == format_kind::CHOICE;
+public:
+    // Constructors
+    format():m_value(sexpr_nil()) {}
+    explicit format(sexpr const & v):m_value(v) {}
+    explicit format(char const * v):m_value(sexpr_text(sexpr(v))) {}
+    explicit format(std::string const & v):m_value(sexpr_text(sexpr(v))) {}
+    explicit format(int v):m_value(sexpr_text(sexpr(std::to_string(v)))) {}
+    explicit format(double v):m_value(sexpr_text(sexpr(std::to_string(v)))) {}
+    explicit format(name const & v):m_value(sexpr_text(sexpr(v))) {}
+
+    // TODO: need to convert mpz and mpq to string, and then pass to sexpr
+    explicit format(mpz const & v):m_value(sexpr_text(sexpr(v))) {}
+    explicit format(mpq const & v):m_value(sexpr_text(sexpr(v))) {}
+    format(format const & f1, format const & f2):m_value(sexpr_compose({f1.m_value, f2.m_value})) {}
+    format(format const & f):m_value(f.m_value) {}
+    format(std::initializer_list<format> const & l):format() {
+        lean_assert(l.size() >= 2);
+        auto it = l.begin();
+        sexpr const & s1 = (it++)->m_value;
+        sexpr const & s2 = (it++)->m_value;
+        m_value = sexpr_compose({s1, s2});
+
+        m_value = std::accumulate(it, l.end(), m_value,
+                                  [](sexpr const & result, const format f) {
+                                      return sexpr_compose({result, f.m_value});
+                                  }
+            );
     }
 
-    friend format flatten(format const & f);
+    format_kind kind() const {
+        return sexpr_kind(m_value);
+    }
+    unsigned hash() const { return m_value.hash(); }
+
+    friend format compose(format const & f1, format const & f2);
+    friend format nest(int i, format const & f);
+    friend format highlight(format const & f, format::format_color const c = RED);
+    friend format line();
+
+    friend format group(format const & f);
+    friend format above(format const & f1, format const & f2);
+    friend format bracket(std::string const l, format const & x, std::string const r);
+    friend format wrap(format const & f1, format const & f2);
+
+    format & operator+=(format const & f) {
+        *this = format{*this, format(" "), f};
+        return *this;
+    }
+    friend std::ostream & operator<<(std::ostream & out, format const & f);
+    // x <+> y = x <> text " " <> y
+    friend format operator+(format const & f1, format const & f2);
+    friend std::ostream & layout(std::ostream & out, sexpr const & s);
+    friend std::ostream & pretty(std::ostream & out, unsigned w, format const & f);
 };
 
-inline format line() {
-    return format(sexpr(format::format_kind::LINE));
-}
+format wrap(format const & f1, format const & f2);
+format compose(format const & f1, format const & f2);
+format nest(int i, format const & f);
+format highlight(format const & f, format::format_color const c);
+format line();
+format group(format const & f);
+format above(format const & f1, format const & f2);
+format bracket(std::string const l, format const & x, std::string const r);
+format wrap(format const & f1, format const & f2);
 
+template <class InputIterator, typename F>
+format folddoc(InputIterator first, InputIterator last, F f) {
+    auto first_elem = *first;
+    return std::accumulate(++first, last, first_elem, f);
+}
+template <class InputIterator>
+format spread(InputIterator first, InputIterator last) {
+    return folddoc(first, last, compose);
+}
+template <class InputIterator>
+format stack(InputIterator first, InputIterator last) {
+    return folddoc(first, last, above);
+}
+template <typename InputIterator>
+format fill(InputIterator first, InputIterator last) {
+    return folddoc(first, last, wrap);
+}
 }

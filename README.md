@@ -11,19 +11,8 @@ Requirements
 - cmake
   http://www.cmake.org
 
-Instructions for DEBUG build
-
-    mkdir -p build/debug
-    cd build/debug
-    cmake -DCMAKE_BUILD_TYPE=DEBUG ../../src
-    make
-
-Instructions for RELEASE build
-
-    mkdir -p build/release
-    cd build/release
-    cmake -DCMAKE_BUILD_TYPE=RELEASE ../../src
-    make
+Install Packages on Ubuntu
+--------------------------
 
 Instructions for installing gperftools on Ubuntu
 
@@ -57,3 +46,66 @@ option. For example
     cmake -DCMAKE_BUILD_TYPE=DEBUG -DCMAKE_CXX_COMPILER=clang++-3.3 ../../src
 
 [1]: http://clang.llvm.org/cxx_status.html
+
+Install Packages on OS X
+------------------------
+We assume that you are using [homebrew][homebrew], "The missing package manager for OS X".
+
+[homebrew]: http://brew.sh
+
+Instructions for installing gperftools on OS X 10.8
+
+    $ brew install gperftools
+
+Instructions for installing gcc-4.8 (C++11 compatible) on OS X 10.8
+
+    $ brew tap homebrew/versions
+    $ brew install gcc48
+
+Instructions for installing clang-3.3 (C++11 compatible) on OS X 10.8
+
+    $ brew install llvm --with-clang --with-asan
+
+Build Instructions
+==================
+
+Using [CMake][cmake] + Make
+---------------------
+Instructions for DEBUG build
+
+    mkdir -p build/debug
+    cd build/debug
+    cmake -DCMAKE_BUILD_TYPE=DEBUG ../../src
+    make
+
+Instructions for RELEASE build
+
+    mkdir -p build/release
+    cd build/release
+    cmake -DCMAKE_BUILD_TYPE=RELEASE ../../src
+    make
+
+Using [CMake][cmake] + [Ninja][ninja]
+-------------------------------
+[CMake 2.8.11][cmake] supports [Ninja][ninja] build system using
+``-G`` option. Some people[1] report that using [Ninja][ninja] can
+reduce the build time, [1]
+
+[1]: https://plus.google.com/108996039294665965197/posts/SfhrFAhRyyd
+
+Instructions for DEBUG build
+
+    mkdir -p build/debug
+    cd build/debug
+    cmake -DCMAKE_BUILD_TYPE=DEBUG -G Ninja ../../src
+    ninja
+
+Instructions for RELEASE build
+
+    mkdir -p build/release
+    cd build/release
+    cmake -DCMAKE_BUILD_TYPE=RELEASE -G Ninja ../../src
+    ninja
+
+[cmake]: http://www.cmake.org/
+[ninja]: http://martine.github.io/ninja/

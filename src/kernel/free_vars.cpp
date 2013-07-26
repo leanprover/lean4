@@ -7,11 +7,18 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include "free_vars.h"
 #include "sets.h"
+#include "replace.h"
 
 namespace lean {
 
-class has_free_var_fn {
+/** \brief Functional object for checking whether a kernel expression has free variables or not. */
+class has_free_vars_fn {
+protected:
     expr_cell_offset_set m_visited;
+
+    virtual bool process_var(expr const & x, unsigned offset) {
+        return var_idx(x) >= offset;
+    }
 
     bool apply(expr const & e, unsigned offset) {
         // handle easy cases
@@ -19,7 +26,7 @@ class has_free_var_fn {
         case expr_kind::Constant: case expr_kind::Prop: case expr_kind::Type: case expr_kind::Numeral:
             return false;
         case expr_kind::Var:
-            return var_idx(e) >= offset;
+            return process_var(e, offset);
         case expr_kind::App: case expr_kind::Lambda: case expr_kind::Pi:
             break;
         }
@@ -59,7 +66,43 @@ public:
 };
 
 bool has_free_vars(expr const & e) {
-    return has_free_var_fn()(e);
+    return has_free_vars_fn()(e);
+}
+
+/** \brief Functional object for checking whether a kernel expression has a free variable in the range <tt>[low, high)</tt> or not. */
+class has_free_var_in_range_fn : public has_free_vars_fn {
+    unsigned m_low;
+    unsigned m_high;
+    virtual bool process_var(expr const & x, unsigned offset) {
+        return var_idx(x) >= offset + m_low && var_idx(x) < offset + m_high;
+    }
+public:
+    has_free_var_in_range_fn(unsigned low, unsigned high):m_low(low), m_high(high) {
+        lean_assert(low < high);
+    }
+};
+
+bool has_free_var(expr const & e, unsigned vidx) {
+    return has_free_var_in_range_fn(vidx, vidx+1)(e);
+}
+
+bool has_free_var(expr const & e, unsigned low, unsigned high) {
+    return has_free_var_in_range_fn(low, high)(e);
+}
+
+expr lower_free_vars(expr const & e, unsigned d) {
+    lean_assert(d > 0);
+    lean_assert(!has_free_var(e, 0, d));
+    auto f = [=](expr const & e, unsigned offset) -> expr {
+        if (is_var(e) && var_idx(e) >= offset) {
+            lean_assert(var_idx(e) >= offset + d);
+            return var(var_idx(e) - d);
+        }
+        else {
+            return e;
+        }
+    };
+    return replace_fn<decltype(f)>(f)(e);
 }
 
 }

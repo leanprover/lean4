@@ -31,6 +31,7 @@ Author: Leonardo de Moura
 #define lean_verify(COND) (COND)
 #endif
 
+//! Lean namespace
 namespace lean {
 
 void notify_assertion_violation(char const * file_name, int line, char const * condition);

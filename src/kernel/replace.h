@@ -12,12 +12,12 @@ namespace lean {
 /**
    \brief Functional for applying <tt>F</tt> to the subexpressions of a given expression.
 
-   The signature of \f$F\f$ is
+   The signature of \c F is
    unsigned, expr -> expr
 
-   F is invoked for each subexpression s of the input expression e.
-   In a call F(n, s), n is the scope level, i.e., the number of
-   bindings operators that enclosing s.
+   F is invoked for each subexpression \c s of the input expression e.
+   In a call <tt>F(n, s)</tt>, n is the scope level, i.e., the number of
+   bindings operators that enclosing \c s.
 */
 template<typename F>
 class replace_fn {

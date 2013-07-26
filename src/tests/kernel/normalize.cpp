@@ -36,6 +36,7 @@ static expr plus() {
     return lam(num(), lam(num(), lam(t(), lam(arrow(v(0), v(0)), lam(v(1), body)))));
 }
 static expr two() { return app(plus(), one(), one()); }
+static expr three() { return app(plus(), two(), one()); }
 static expr four() { return app(plus(), two(), two()); }
 static expr times() {
     // fun (m n : numeral) (A : Type 0) (f : A -> A) (x : A) => m A (n A f) x.
@@ -88,11 +89,11 @@ static void tst_church_numbers() {
     std::cout << count(normalize(app(app(times(), two(), app(power(), two(), four())), N, s, z))) << "\n";
     std::cout << count(normalize(app(app(times(), four(), app(power(), two(), four())), N, s, z))) << "\n";
     lean_assert(count(normalize(app(app(times(), four(), app(power(), two(), four())), N, s, z))) == 64 + 2);
-    expr sixty_four_k = normalize(app(app(power(), two(), app(power(), two(), four())), N, s, z));
-    std::cout << count(sixty_four_k) << "\n";
-    lean_assert(count(sixty_four_k) == 65536 + 2);
-    expr three = app(plus(), two(), one());
-    lean_assert(count(normalize(app(app(power(), three, three), N, s, z))) == 27 + 2);
+    expr big = normalize(app(app(power(), two(), app(power(), two(), three())), N, s, z));
+    std::cout << count(big) << "\n";
+    lean_assert(count(big) == 256 + 2);
+    // expr three = app(plus(), two(), one());
+    // lean_assert(count(normalize(app(app(power(), three, three), N, s, z))) == 27 + 2);
     // expr big = normalize(app(app(power(), two(), app(times(), app(plus(), four(), one()), four())), N, s, z));
     // std::cout << count(big) << "\n";
     std::cout << normalize(lam(lam(app(app(times(), four(), four()), N, var(0), z)))) << "\n";

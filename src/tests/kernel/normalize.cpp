@@ -11,10 +11,7 @@ Author: Leonardo de Moura
 #include "sets.h"
 using namespace lean;
 
-static void eval(expr const & e) {
-    std::cout << e << " --> " << normalize(e) << "\n";
-}
-
+static void eval(expr const & e) { std::cout << e << " --> " << normalize(e) << "\n"; }
 static expr t() { return constant("t"); }
 static expr lam(expr const & e) { return lambda("_", t(), e); }
 static expr lam(expr const & t, expr const & e) { return lambda("_", t, e); }
@@ -60,7 +57,7 @@ unsigned count_core(expr const & a, expr_set & s) {
         return 1;
     case expr_kind::App:
         return std::accumulate(begin_args(a), end_args(a), 1,
-                          [&](unsigned sum, expr const & arg){ return sum + count_core(arg, s); });
+                               [&](unsigned sum, expr const & arg){ return sum + count_core(arg, s); });
     case expr_kind::Lambda: case expr_kind::Pi:
         return count_core(abst_type(a), s) + count_core(abst_body(a), s) + 1;
     }

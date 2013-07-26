@@ -10,9 +10,9 @@ Author: Leonardo de Moura
 #include "maps.h"
 namespace lean {
 /**
-   \brief Functional for applying F to the subexpressions of a given expression.
+   \brief Functional for applying <tt>F</tt> to the subexpressions of a given expression.
 
-   The signature of F is
+   The signature of \f$F\f$ is
    unsigned, expr -> expr
 
    F is invoked for each subexpression s of the input expression e.

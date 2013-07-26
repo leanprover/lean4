@@ -65,6 +65,7 @@ public:
     mpz const & get_mpz() const;
     mpq const & get_mpq() const;
 
+    /** \brief Hash code for this S-expression*/
     unsigned hash() const;
 
     sexpr & operator=(sexpr const & s);
@@ -74,18 +75,30 @@ public:
 
     friend void swap(sexpr & a, sexpr & b) { std::swap(a.m_ptr, b.m_ptr); }
 
-    // Pointer equality
+    /** \brief Pointer equality */
     friend bool eqp(sexpr const & a, sexpr const & b) { return a.m_ptr == b.m_ptr; }
 
     friend std::ostream & operator<<(std::ostream & out, sexpr const & s);
 
 };
 
+/** \brief Return the nil S-expression */
 inline sexpr nil() { return sexpr(); }
+/** \brief Return a cons-cell (aka pair) composed of \c head and \c tail */
 inline sexpr cons(sexpr const & head, sexpr const & tail) { return sexpr(head, tail); }
+/**
+    \brief Return the first argument of the given cons cell (aka pair).
+    \pre is_cons(s)
+*/
 inline sexpr const & car(sexpr const & s) { return head(s); }
+/**
+    \brief Return the second argument of the given cons cell (aka pair).
+    \pre is_cons(s)
+*/
 inline sexpr const & cdr(sexpr const & s) { return tail(s); }
+/** \brief Return true iff \c s is not an atom (i.e., it is not a cons cell). */
 inline bool is_atom(sexpr const & s)   { return s.kind() != sexpr_kind::CONS; }
+/** \brief Return true iff \c s is not a cons cell. */
 inline bool is_cons(sexpr const & s)   { return s.kind() == sexpr_kind::CONS; }
 inline bool is_string(sexpr const & s) { return s.kind() == sexpr_kind::STRING; }
 inline bool is_int(sexpr const & s)    { return s.kind() == sexpr_kind::INT; }
@@ -101,10 +114,19 @@ inline name const & to_name(sexpr const & s) { return s.get_name(); }
 inline mpz const & to_mpz(sexpr const & s) { return s.get_mpz(); }
 inline mpq const & to_mpq(sexpr const & s) { return s.get_mpq(); }
 
+/** \brief Return true iff \c s is nil or \c s is a cons cell where \c is_list(tail(s)). */
 bool is_list(sexpr const & s);
+/**
+    \brief Return the length of the given list.
+    \pre is_list(s)
+*/
 unsigned length(sexpr const & s);
+/** \brief Alias for #length. */
 inline unsigned len(sexpr const & s) { return length(s); }
 
+/** \brief Return true iff the two given S-expressions are structurally identical.
+    \warning This is not pointer equality.
+*/
 bool operator==(sexpr const & a, sexpr const & b);
 inline bool operator==(sexpr const & a, int b) { return is_int(a) && to_int(a) == b; }
 inline bool operator==(sexpr const & a, double b) { return is_double(a) && to_double(a) == b; }

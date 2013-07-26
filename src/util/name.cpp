@@ -17,6 +17,9 @@ namespace lean {
 
 constexpr char const * anonymous_str = "[anonymous]";
 
+/**
+   \brief Actual implementation of hierarchical names.
+*/
 struct name::imp {
     MK_LEAN_RC()
     bool     m_is_string;

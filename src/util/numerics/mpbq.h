@@ -11,7 +11,12 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-// Multiple precision binary rationals
+/**
+    \brief Multiple precision binary rationals.
+
+    A binary rational is a rational number of the form:
+    \f$   \frac{a}{2^k}  \f$
+*/
 class mpbq {
     mpz      m_num;
     unsigned m_k;

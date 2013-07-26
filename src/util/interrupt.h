@@ -26,6 +26,9 @@ void reset_interrupt();
 */
 bool interrupted();
 
+/**
+   \brief Exception used to sign lean interruptions.
+*/
 class interrupt : public std::exception {
 public:
     virtual char const * what() const noexcept { return "interrupted"; }

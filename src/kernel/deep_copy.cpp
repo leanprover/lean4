@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "buffer.h"
 
 namespace lean {
+/** \brief Implements deep copy of kernel expressions. */
 class deep_copy_fn {
     expr_cell_map<expr> m_cache;
 
@@ -37,6 +38,10 @@ class deep_copy_fn {
         return r;
     }
 public:
+    /**
+        \brief Return a new expression that is equal to the given
+        argument, but does not share any memory cell with it.
+    */
     expr operator()(expr const & a) { return apply(a); }
 };
 

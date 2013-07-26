@@ -8,6 +8,10 @@ Author: Leonardo de Moura
 
 namespace lean {
 
+/**
+   \brief Template specializations define traits for native and lean
+   numeric types.
+*/
 template<typename T>
 class numeric_traits {
 };

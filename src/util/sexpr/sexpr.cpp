@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "mpq.h"
 
 namespace lean {
-
+/** \brief Base class used to represent S-expression cells. */
 struct sexpr_cell {
     void dealloc();
     MK_LEAN_RC()
@@ -23,6 +23,7 @@ struct sexpr_cell {
     sexpr_cell(sexpr_kind k, unsigned h):m_rc(1), m_kind(k), m_hash(h) {}
 };
 
+/** \brief S-expression cell: string atom */
 struct sexpr_string : public sexpr_cell {
     std::string m_value;
     sexpr_string(char const * v):
@@ -33,6 +34,7 @@ struct sexpr_string : public sexpr_cell {
         m_value(v) {}
 };
 
+/** \brief S-expression cell: int atom */
 struct sexpr_int : public sexpr_cell {
     int m_value;
     sexpr_int(int v):
@@ -40,6 +42,7 @@ struct sexpr_int : public sexpr_cell {
         m_value(v) {}
 };
 
+/** \brief S-expression cell: double atom */
 struct sexpr_double : public sexpr_cell {
     double m_value;
     sexpr_double(double v):
@@ -47,6 +50,7 @@ struct sexpr_double : public sexpr_cell {
         m_value(v) {}
 };
 
+/** \brief S-expression cell: hierarchical name atom */
 struct sexpr_name : public sexpr_cell {
     name m_value;
     sexpr_name(name const & v):
@@ -54,6 +58,7 @@ struct sexpr_name : public sexpr_cell {
         m_value(v) {}
 };
 
+/** \brief S-expression cell: multi-precision integer atom */
 struct sexpr_mpz : public sexpr_cell {
     mpz m_value;
     sexpr_mpz(mpz const & v):
@@ -61,6 +66,7 @@ struct sexpr_mpz : public sexpr_cell {
         m_value(v) {}
 };
 
+/** \brief S-expression cell: multi-precision rational atom */
 struct sexpr_mpq : public sexpr_cell {
     mpq m_value;
     sexpr_mpq(mpq const & v):
@@ -68,6 +74,7 @@ struct sexpr_mpq : public sexpr_cell {
         m_value(v) {}
 };
 
+/** \brief S-expression cell: cons cell (aka pair) */
 struct sexpr_cons : public sexpr_cell {
     sexpr m_head;
     sexpr m_tail;

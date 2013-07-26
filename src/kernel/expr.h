@@ -136,14 +136,14 @@ public:
 
 // =======================================
 // Expr (internal) Representation
-// 1. Free variables
+/** \brief Free variables. They are encoded using de Bruijn's indices. */
 class expr_var : public expr_cell {
     unsigned m_vidx; // de Bruijn index
 public:
     expr_var(unsigned idx);
     unsigned get_vidx() const { return m_vidx; }
 };
-// 2. Constants
+/** \brief Constants. */
 class expr_const : public expr_cell {
     name     m_name;
     unsigned m_pos;  // position in the environment.
@@ -152,7 +152,7 @@ public:
     name const & get_name() const { return m_name; }
     unsigned     get_pos() const { return m_pos; }
 };
-// 3. Applications
+/** \brief Function Applications */
 class expr_app : public expr_cell {
     unsigned m_num_args;
     expr     m_args[0];
@@ -165,7 +165,7 @@ public:
     expr const * begin_args() const          { return m_args; }
     expr const * end_args() const            { return m_args + m_num_args; }
 };
-// 4. Abstraction
+/** \brief Super class for lambda abstraction and pi (functional spaces). */
 class expr_abstraction : public expr_cell {
     name     m_name;
     expr     m_type;
@@ -176,22 +176,22 @@ public:
     expr const & get_type() const { return m_type; }
     expr const & get_body() const { return m_body; }
 };
-// 5. Lambda
+/** \brief Lambda abstractions */
 class expr_lambda : public expr_abstraction {
 public:
     expr_lambda(name const & n, expr const & t, expr const & e);
 };
-// 6. Pi
+/** \brief (dependent) Functional spaces */
 class expr_pi : public expr_abstraction {
 public:
     expr_pi(name const & n, expr const & t, expr const & e);
 };
-// 7. Prop
+/** \brief Propositions */
 class expr_prop : public expr_cell {
 public:
     expr_prop():expr_cell(expr_kind::Prop, 17) {}
 };
-// 8. Type lvl
+/** \brief Type */
 class expr_type : public expr_cell {
     unsigned m_size;
     uvar     m_vars[0];
@@ -202,7 +202,7 @@ public:
     uvar const & get_var(unsigned idx) const { lean_assert(idx < m_size); return m_vars[idx]; }
     uvar const * get_vars() const { return m_vars; }
 };
-// 9. Numerals
+/** \brief Numerals (efficient encoding using GMP numbers) */
 class expr_numeral : public expr_cell {
     mpz   m_numeral;
 public:
@@ -337,13 +337,21 @@ typedef std::pair<expr_cell*, unsigned> expr_cell_offset;
 
 // =======================================
 // Auxiliary functionals
+/** \brief Functional object for hashing kernel expressions. */
 struct expr_hash { unsigned operator()(expr const & e) const { return e.hash(); } };
+/** \brief Functional object for testing pointer equality between kernel expressions. */
 struct expr_eqp { bool operator()(expr const & e1, expr const & e2) const { return eqp(e1, e2); } };
+/** \brief Functional object for hashing kernel expression cells. */
 struct expr_cell_hash { unsigned operator()(expr_cell * e) const { return e->hash(); } };
+/** \brief Functional object for testing pointer equality between kernel cell expressions. */
 struct expr_cell_eqp { bool operator()(expr_cell * e1, expr_cell * e2) const { return e1 == e2; } };
+/** \brief Functional object for hashing a pair (n,k) where n is a kernel expressions, and k is an offset. */
 struct expr_offset_hash { unsigned operator()(expr_offset const & p) const { return hash(p.first.hash(), p.second); } };
+/** \brief Functional object for comparing pairs (expression, offset). */
 struct expr_offset_eqp { unsigned operator()(expr_offset const & p1, expr_offset const & p2) const { return eqp(p1.first, p2.first) && p1.second == p2.second; } };
+/** \brief Functional object for hashing a pair (n,k) where n is a kernel cell expressions, and k is an offset. */
 struct expr_cell_offset_hash { unsigned operator()(expr_cell_offset const & p) const { return hash(p.first->hash(), p.second); } };
+/** \brief Functional object for comparing pairs (expression cell, offset). */
 struct expr_cell_offset_eqp { unsigned operator()(expr_cell_offset const & p1, expr_cell_offset const & p2) const { return p1 == p2; } };
 // =======================================
 
@@ -352,10 +360,14 @@ struct expr_cell_offset_eqp { unsigned operator()(expr_cell_offset const & p1, e
 std::ostream & operator<<(std::ostream & out, expr const & a);
 /**
    \brief Wrapper for iterating over application arguments.
-   If n is an application, it allows us to write
+
+   If \c n is an application, it allows us to write
+
+   \code
    for (expr const & arg : app_args(n)) {
    ... do something with argument
    }
+   \endcode
 */
 struct args {
     expr const & m_app;

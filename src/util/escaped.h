@@ -9,7 +9,10 @@ Author: Leonardo de Moura
 #include <iostream>
 
 namespace lean {
-
+/**
+   \brief Helper class for printing quoted strings.
+   For example, the string <tt>foo\"bla</tt> is displayed as <tt>"foo\"bla"</tt>.
+*/
 class escaped {
     char const * m_str;
     bool         m_trim_nl; // if true -> eliminate '\n' in the end of m_str.
@@ -19,5 +22,4 @@ public:
     escaped(char const * str, bool trim_nl = false, unsigned indent = 0):m_str(str), m_trim_nl(trim_nl), m_indent(indent) {}
     friend std::ostream & operator<<(std::ostream & out, escaped const & s);
 };
-
 }

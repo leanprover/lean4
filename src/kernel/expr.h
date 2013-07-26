@@ -293,6 +293,7 @@ inline expr_numeral *     to_numeral(expr const & e)     { return to_numeral(e.r
 inline unsigned     get_rc(expr_cell * e)               { return e->get_rc(); }
 inline bool         is_shared(expr_cell * e)            { return get_rc(e) > 1; }
 inline unsigned     var_idx(expr_cell * e)              { return to_var(e)->get_vidx(); }
+inline bool         is_var(expr_cell * e, unsigned i)   { return is_var(e) && var_idx(e) == i; }
 inline name const & const_name(expr_cell * e)           { return to_constant(e)->get_name(); }
 inline unsigned     const_pos(expr_cell * e)            { return to_constant(e)->get_pos(); }
 inline unsigned     num_args(expr_cell * e)             { return to_app(e)->get_num_args(); }
@@ -307,6 +308,7 @@ inline mpz const &  num_value(expr_cell * e)            { return to_numeral(e)->
 inline unsigned     get_rc(expr const &  e)              { return e.raw()->get_rc(); }
 inline bool         is_shared(expr const & e)            { return get_rc(e) > 1; }
 inline unsigned     var_idx(expr const & e)              { return to_var(e)->get_vidx(); }
+inline bool         is_var(expr const & e, unsigned i)   { return is_var(e) && var_idx(e) == i; }
 inline name const & const_name(expr const & e)           { return to_constant(e)->get_name(); }
 inline unsigned     const_pos(expr const & e)            { return to_constant(e)->get_pos(); }
 inline unsigned     num_args(expr const & e)             { return to_app(e)->get_num_args(); }

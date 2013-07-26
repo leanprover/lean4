@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include "expr.h"
+#include "free_vars.h"
 #include "list.h"
 #include "buffer.h"
 #include "trace.h"
@@ -63,27 +64,25 @@ expr reify_closure(expr const & a, context const & c, unsigned k) {
     lean_assert(is_lambda(a));
     expr new_t = reify(normalize(abst_type(a), c, k), k);
     expr new_b = reify(normalize(abst_body(a), extend(c, value(k)), k+1), k+1);
-    return lambda(abst_name(a), new_t, new_b);
-#if 0
     // TODO: ETA-reduction
     if (is_app(new_b)) {
         // (lambda (x:T) (app f ... (var 0)))
         // check eta-rule applicability
         unsigned n = num_args(new_b);
-        lean_assert(n >= 2);
-        expr const & last_arg = arg(new_b, n - 1);
-        if (is_var(last_arg) && var_idx(last_arg) == 0) {
+        if (is_var(arg(new_b, n - 1), 0) &&
+            std::all_of(begin_args(new_b),
+                        end_args(new_b) - 1,
+                        [](expr const & arg) { return !has_free_var(arg, 0); })) {
             if (n == 2)
-                return arg(new_b, 0);
+                return lower_free_vars(arg(new_b, 0), 1);
             else
-                return app(n - 1, begin_args(new_b));
+                return lower_free_vars(app(n - 1, begin_args(new_b)), 1);
         }
         return lambda(abst_name(a), new_t, new_b);
     }
     else {
         return lambda(abst_name(a), new_t, new_b);
     }
-#endif
 }
 expr reify(value const & v, unsigned k) {
     lean_trace("normalize", tout << "Reify kind: " << static_cast<unsigned>(v.kind()) << "\n";

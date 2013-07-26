@@ -210,3 +210,5 @@ expr copy(expr const & a) {
     return expr();
 }
 }
+
+void pp(lean::expr const & e) { std::cout << e << std::endl; }

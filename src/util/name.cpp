@@ -77,35 +77,35 @@ struct name::imp {
 };
 
 name::name(imp * p) {
-    m_imp = p;
-    if (m_imp)
-        m_imp->inc_ref();
+    m_ptr = p;
+    if (m_ptr)
+        m_ptr->inc_ref();
 }
 
 name::name() {
-    m_imp = nullptr;
+    m_ptr = nullptr;
 }
 
 name::name(name const & prefix, char const * name) {
     size_t sz  = strlen(name);
     lean_assert(sz < 1u<<31);
     char * mem = new char[sizeof(imp) + sz + 1];
-    m_imp      = new (mem) imp(true, prefix.m_imp);
+    m_ptr      = new (mem) imp(true, prefix.m_ptr);
     std::memcpy(mem + sizeof(imp), name, sz + 1);
-    m_imp->m_str       = mem + sizeof(imp);
-    if (m_imp->m_prefix)
-        m_imp->m_hash = hash_str(sz, name, m_imp->m_prefix->m_hash);
+    m_ptr->m_str       = mem + sizeof(imp);
+    if (m_ptr->m_prefix)
+        m_ptr->m_hash = hash_str(sz, name, m_ptr->m_prefix->m_hash);
     else
-        m_imp->m_hash = hash_str(sz, name, 0);
+        m_ptr->m_hash = hash_str(sz, name, 0);
 }
 
 name::name(name const & prefix, unsigned k) {
-    m_imp      = new imp(false, prefix.m_imp);
-    m_imp->m_k = k;
-    if (m_imp->m_prefix)
-        m_imp->m_hash = ::lean::hash(m_imp->m_prefix->m_hash, k);
+    m_ptr      = new imp(false, prefix.m_ptr);
+    m_ptr->m_k = k;
+    if (m_ptr->m_prefix)
+        m_ptr->m_hash = ::lean::hash(m_ptr->m_prefix->m_hash, k);
     else
-        m_imp->m_hash = k;
+        m_ptr->m_hash = k;
 }
 
 name::name(char const * n):name(name(), n) {
@@ -114,57 +114,43 @@ name::name(char const * n):name(name(), n) {
 name::name(unsigned k):name(name(), k) {
 }
 
-name::name(name const & other):m_imp(other.m_imp) {
-    m_imp->inc_ref();
+name::name(name const & other):m_ptr(other.m_ptr) {
+    m_ptr->inc_ref();
 }
 
-name::name(name && other):m_imp(other.m_imp) {
-    other.m_imp = 0;
+name::name(name && other):m_ptr(other.m_ptr) {
+    other.m_ptr = 0;
 }
 
 name::~name() {
-    if (m_imp)
-        m_imp->dec_ref();
+    if (m_ptr)
+        m_ptr->dec_ref();
 }
 
-name & name::operator=(name const & other) {
-    if (other.m_imp)
-        other.m_imp->inc_ref();
-    if (m_imp)
-        m_imp->dec_ref();
-    m_imp = other.m_imp;
-    return *this;
-}
+name & name::operator=(name const & other) { LEAN_COPY_REF(name, other); }
 
-name & name::operator=(name && other) {
-    lean_assert(this != &other);
-    if (m_imp)
-        m_imp->dec_ref();
-    m_imp       = other.m_imp;
-    other.m_imp = 0;
-    return *this;
-}
+name & name::operator=(name && other) { LEAN_MOVE_REF(name, other); }
 
 name_kind name::kind() const {
-    if (m_imp == nullptr)
+    if (m_ptr == nullptr)
         return name_kind::ANONYMOUS;
     else
-        return m_imp->m_is_string ? name_kind::STRING : name_kind::NUMERAL;
+        return m_ptr->m_is_string ? name_kind::STRING : name_kind::NUMERAL;
 }
 
 unsigned name::get_numeral() const {
     lean_assert(is_numeral());
-    return m_imp->m_k;
+    return m_ptr->m_k;
 }
 
 char const * name::get_string() const {
     lean_assert(is_string());
-    return m_imp->m_str;
+    return m_ptr->m_str;
 }
 
 bool operator==(name const & a, name const & b) {
-    name::imp * i1 = a.m_imp;
-    name::imp * i2 = b.m_imp;
+    name::imp * i1 = a.m_ptr;
+    name::imp * i2 = b.m_ptr;
     while (true) {
         if (i1 == i2)
             return true;
@@ -218,12 +204,12 @@ int cmp(name::imp * i1, name::imp * i2) {
 }
 
 bool name::is_atomic() const {
-    return m_imp == nullptr || m_imp->m_prefix == nullptr;
+    return m_ptr == nullptr || m_ptr->m_prefix == nullptr;
 }
 
 name name::get_prefix() const {
     lean_assert(!is_atomic());
-    return name(m_imp->m_prefix);
+    return name(m_ptr->m_prefix);
 }
 
 static unsigned num_digits(unsigned k) {
@@ -238,11 +224,11 @@ static unsigned num_digits(unsigned k) {
 }
 
 size_t name::size(char const * sep) const {
-    if (m_imp == nullptr) {
+    if (m_ptr == nullptr) {
         return strlen(anonymous_str);
     }
     else {
-        imp * i       = m_imp;
+        imp * i       = m_ptr;
         size_t sep_sz = strlen(sep);
         size_t r      = 0;
         while (true) {
@@ -265,18 +251,18 @@ size_t name::size(char const * sep) const {
 }
 
 unsigned name::hash() const {
-    return m_imp->m_hash;
+    return m_ptr->m_hash;
 }
 
 std::ostream & operator<<(std::ostream & out, name const & n) {
-    name::imp::display(out, default_name_separator, n.m_imp);
+    name::imp::display(out, default_name_separator, n.m_ptr);
     return out;
 }
 
 name::sep::sep(name const & n, char const * s):m_name(n), m_sep(s) {}
 
 std::ostream & operator<<(std::ostream & out, name::sep const & s) {
-    name::imp::display(out, s.m_sep, s.m_name.m_imp);
+    name::imp::display(out, s.m_sep, s.m_name.m_ptr);
     return out;
 }
 

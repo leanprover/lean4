@@ -30,3 +30,18 @@ void inc_ref() { std::atomic_fetch_add_explicit(&m_rc, 1u, std::memory_order_rel
 bool dec_ref_core() { lean_assert(get_rc() > 0); return std::atomic_fetch_sub_explicit(&m_rc, 1u, std::memory_order_relaxed) == 1u; } \
 void dec_ref() { if (dec_ref_core()) dealloc(); }
 #endif
+
+#define LEAN_COPY_REF(T, Arg)                   \
+    if (Arg.m_ptr)                              \
+        Arg.m_ptr->inc_ref();                   \
+    if (m_ptr)                                  \
+        m_ptr->dec_ref();                       \
+    m_ptr = Arg.m_ptr;                          \
+    return *this;
+
+#define LEAN_MOVE_REF(T, Arg)                   \
+    if (m_ptr)                                  \
+        m_ptr->dec_ref();                       \
+    m_ptr   = Arg.m_ptr;                        \
+    Arg.m_ptr = 0;                              \
+    return *this;

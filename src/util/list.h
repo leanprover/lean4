@@ -33,22 +33,8 @@ public:
     list(list&& s):m_ptr(s.m_ptr) { s.m_ptr = 0; }
     ~list() { if (m_ptr) m_ptr->dec_ref(); }
 
-    list & operator=(list const & s) {
-        if (s.m_ptr)
-            s.m_ptr->inc_ref();
-        if (m_ptr)
-            m_ptr->dec_ref();
-        m_ptr = s.m_ptr;
-        return *this;
-    }
-
-    list & operator=(list && s) {
-        if (m_ptr)
-            m_ptr->dec_ref();
-        m_ptr   = s.m_ptr;
-        s.m_ptr = 0;
-        return *this;
-    }
+    list & operator=(list const & s) { LEAN_COPY_REF(list, s); }
+    list & operator=(list && s) { LEAN_MOVE_REF(list, s); }
 
     friend bool is_nil(list const & l) { return l.m_ptr == nullptr; }
     friend T const & head(list const & l) { lean_assert(!is_nil(l)); return l.m_ptr->m_head; }

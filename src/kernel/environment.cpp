@@ -126,7 +126,7 @@ struct environment::imp {
                           unsigned num = u_dists.size();
                           for (uvar v2 = 0; v2 < num; v2++) {
                               if (v2 != uvar_idx(u) && u_dists[v2] != uninit) {
-                                  out << uvar_name(u) << "  >= " << uvar_name(m_uvars[v2]);
+                                  out << uvar_name(u) << " >= " << uvar_name(m_uvars[v2]);
                                   if (u_dists[v2] > 0)
                                       out << " + " << u_dists[v2];
                                   out << "\n";

@@ -82,15 +82,17 @@ struct environment::imp {
         lean_assert(v1 < num);
         lean_assert(v2 < num);
         std::vector<unsigned> & v1_dists = m_uvar_distances[v1];
-        v1_dists[v2] = d;
-        // update forward
-        std::vector<unsigned> & v2_dists = m_uvar_distances[v2];
-        for (uvar v3 = 0; v3 < num; v3++) {
-            if (v2_dists[v3] != uninit) {
-                lean_assert(v1 != v3);
-                unsigned d_v1_v3 = add(d, v2_dists[v3]);
-                if (v1_dists[v3] == uninit || d_v1_v3 >= v1_dists[v3])
-                    v1_dists[v3] = d_v1_v3;
+        if (v1_dists[v2] == uninit || d >= v1_dists[v2]) {
+            v1_dists[v2] = d;
+            // update forward
+            std::vector<unsigned> & v2_dists = m_uvar_distances[v2];
+            for (uvar v3 = 0; v3 < num; v3++) {
+                if (v2_dists[v3] != uninit) {
+                    lean_assert(v1 != v3);
+                    unsigned d_v1_v3 = add(d, v2_dists[v3]);
+                    if (v1_dists[v3] == uninit || d_v1_v3 >= v1_dists[v3])
+                        v1_dists[v3] = d_v1_v3;
+                }
             }
         }
     }
@@ -130,7 +132,6 @@ struct environment::imp {
                                   out << "\n";
                               }
                           }
-                          out << "\n";
                       });
     }
 

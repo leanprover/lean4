@@ -21,7 +21,6 @@ namespace lean {
           |   App      [expr]
           |   Lambda   name expr expr
           |   Pi       name expr expr
-          |   Prop
           |   Type     universe
           |   Numeral  value
 
@@ -33,7 +32,7 @@ The main API is divided in the following sections
 - Accessors
 - Miscellaneous
 ======================================= */
-enum class expr_kind { Var, Constant, App, Lambda, Pi, Prop, Type, Numeral };
+enum class expr_kind { Var, Constant, App, Lambda, Pi, Type, Numeral };
 
 /**
     \brief Base class used to represent expressions.
@@ -171,11 +170,6 @@ class expr_pi : public expr_abstraction {
 public:
     expr_pi(name const & n, expr const & t, expr const & e);
 };
-/** \brief Propositions */
-class expr_prop : public expr_cell {
-public:
-    expr_prop():expr_cell(expr_kind::Prop, 17) {}
-};
 /** \brief Type */
 class expr_type : public expr_cell {
     level    m_level;
@@ -200,11 +194,9 @@ inline bool is_constant(expr_cell * e)    { return e->kind() == expr_kind::Const
 inline bool is_app(expr_cell * e)         { return e->kind() == expr_kind::App; }
 inline bool is_lambda(expr_cell * e)      { return e->kind() == expr_kind::Lambda; }
 inline bool is_pi(expr_cell * e)          { return e->kind() == expr_kind::Pi; }
-inline bool is_prop(expr_cell * e)        { return e->kind() == expr_kind::Prop; }
 inline bool is_type(expr_cell * e)        { return e->kind() == expr_kind::Type; }
 inline bool is_numeral(expr_cell * e)     { return e->kind() == expr_kind::Numeral; }
 inline bool is_abstraction(expr_cell * e) { return is_lambda(e) || is_pi(e); }
-inline bool is_sort(expr_cell * e)        { return is_prop(e) || is_type(e); }
 
 inline bool is_null(expr const & e)        { return e.raw() == nullptr; }
 inline bool is_var(expr const & e)         { return e.kind() == expr_kind::Var; }
@@ -212,11 +204,9 @@ inline bool is_constant(expr const & e)    { return e.kind() == expr_kind::Const
 inline bool is_app(expr const & e)         { return e.kind() == expr_kind::App; }
 inline bool is_lambda(expr const & e)      { return e.kind() == expr_kind::Lambda; }
 inline bool is_pi(expr const & e)          { return e.kind() == expr_kind::Pi; }
-inline bool is_prop(expr const & e)        { return e.kind() == expr_kind::Prop; }
 inline bool is_type(expr const & e)        { return e.kind() == expr_kind::Type; }
 inline bool is_numeral(expr const & e)     { return e.kind() == expr_kind::Numeral; }
 inline bool is_abstraction(expr const & e) { return is_lambda(e) || is_pi(e); }
-inline bool is_sort(expr const & e)        { return is_prop(e) || is_type(e); }
 // =======================================
 
 // =======================================
@@ -234,7 +224,6 @@ inline expr lambda(name const & n, expr const & t, expr const & e) { return expr
 inline expr lambda(char const * n, expr const & t, expr const & e) { return lambda(name(n), t, e); }
 inline expr pi(name const & n, expr const & t, expr const & e) { return expr(new expr_pi(n, t, e)); }
 inline expr pi(char const * n, expr const & t, expr const & e) { return pi(name(n), t, e); }
-inline expr prop() { return expr(new expr_prop()); }
 inline expr type(level const & l) { return expr(new expr_type(l)); }
 inline expr numeral(mpz const & n) { return expr(new expr_numeral(n)); }
 inline expr numeral(int n) { return numeral(mpz(n)); }
@@ -253,7 +242,6 @@ inline expr_app *         to_app(expr_cell * e)         { lean_assert(is_app(e))
 inline expr_abstraction * to_abstraction(expr_cell * e) { lean_assert(is_abstraction(e)); return static_cast<expr_abstraction*>(e); }
 inline expr_lambda *      to_lambda(expr_cell * e)      { lean_assert(is_lambda(e));      return static_cast<expr_lambda*>(e); }
 inline expr_pi *          to_pi(expr_cell * e)          { lean_assert(is_pi(e));          return static_cast<expr_pi*>(e); }
-inline expr_prop *        to_prop(expr_cell * e)        { lean_assert(is_prop(e));        return static_cast<expr_prop*>(e); }
 inline expr_type *        to_type(expr_cell * e)        { lean_assert(is_type(e));        return static_cast<expr_type*>(e); }
 inline expr_numeral *     to_numeral(expr_cell * e)     { lean_assert(is_numeral(e));     return static_cast<expr_numeral*>(e); }
 
@@ -263,7 +251,6 @@ inline expr_app *         to_app(expr const & e)         { return to_app(e.raw()
 inline expr_abstraction * to_abstraction(expr const & e) { return to_abstraction(e.raw()); }
 inline expr_lambda *      to_lambda(expr const & e)      { return to_lambda(e.raw()); }
 inline expr_pi *          to_pi(expr const & e)          { return to_pi(e.raw()); }
-inline expr_prop *        to_prop(expr const & e)        { return to_prop(e.raw()); }
 inline expr_type *        to_type(expr const & e)        { return to_type(e.raw()); }
 inline expr_numeral *     to_numeral(expr const & e)     { return to_numeral(e.raw()); }
 // =======================================

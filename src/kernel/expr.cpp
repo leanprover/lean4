@@ -97,7 +97,6 @@ void expr_cell::dealloc() {
     case expr_kind::App:        static_cast<expr_app*>(this)->~expr_app(); delete[] reinterpret_cast<char*>(this); break;
     case expr_kind::Lambda:     delete static_cast<expr_lambda*>(this); break;
     case expr_kind::Pi:         delete static_cast<expr_pi*>(this); break;
-    case expr_kind::Prop:       delete static_cast<expr_prop*>(this); break;
     case expr_kind::Type:       delete static_cast<expr_type*>(this); break;
     case expr_kind::Numeral:    delete static_cast<expr_numeral*>(this); break;
     }
@@ -111,7 +110,6 @@ class eq_fn {
         if (a.hash() != b.hash()) return false;
         if (a.kind() != b.kind()) return false;
         if (is_var(a))            return var_idx(a) == var_idx(b);
-        if (is_prop(a))           return true;
         if (is_shared(a) && is_shared(b)) {
             auto p = std::make_pair(a.raw(), b.raw());
             if (m_eq_visited.find(p) != m_eq_visited.end())
@@ -133,7 +131,6 @@ class eq_fn {
             // Lambda and Pi
             // Remark: we ignore get_abs_name because we want alpha-equivalence
             return apply(abst_type(a), abst_type(b)) && apply(abst_body(a), abst_body(b));
-        case expr_kind::Prop:     lean_unreachable(); return true;
         case expr_kind::Type:     return ty_level(a) == ty_level(b);
         case expr_kind::Numeral:  return num_value(a) == num_value(b);
         }
@@ -165,7 +162,6 @@ std::ostream & operator<<(std::ostream & out, expr const & a) {
         break;
     case expr_kind::Lambda:  out << "(fun (" << abst_name(a) << " : " << abst_type(a) << ") " << abst_body(a) << ")";    break;
     case expr_kind::Pi:      out << "(pi (" << abst_name(a) << " : " << abst_type(a) << ") " << abst_body(a) << ")"; break;
-    case expr_kind::Prop:    out << "Prop"; break;
     case expr_kind::Type:    out << "(Type " << ty_level(a) << ")"; break;
     case expr_kind::Numeral: out << num_value(a); break;
     }
@@ -176,7 +172,6 @@ expr copy(expr const & a) {
     switch (a.kind()) {
     case expr_kind::Var:      return var(var_idx(a));
     case expr_kind::Constant: return constant(const_name(a), const_pos(a));
-    case expr_kind::Prop:     return prop();
     case expr_kind::Type:     return type(ty_level(a));
     case expr_kind::Numeral:  return numeral(num_value(a));
     case expr_kind::App:      return app(num_args(a), begin_args(a));

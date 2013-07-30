@@ -101,7 +101,7 @@ value normalize(expr const & a, context const & c, unsigned k) {
     switch (a.kind()) {
     case expr_kind::Var:
         return lookup(c, var_idx(a));
-    case expr_kind::Constant: case expr_kind::Prop: case expr_kind::Type: case expr_kind::Numeral:
+    case expr_kind::Constant: case expr_kind::Type: case expr_kind::Numeral:
         return value(a);
     case expr_kind::App: {
         value f    = normalize(arg(a, 0), c, k);

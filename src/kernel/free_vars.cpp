@@ -23,7 +23,7 @@ protected:
     bool apply(expr const & e, unsigned offset) {
         // handle easy cases
         switch (e.kind()) {
-        case expr_kind::Constant: case expr_kind::Prop: case expr_kind::Type: case expr_kind::Numeral:
+        case expr_kind::Constant: case expr_kind::Type: case expr_kind::Numeral:
             return false;
         case expr_kind::Var:
             return process_var(e, offset);
@@ -44,7 +44,7 @@ protected:
         bool result = false;
 
         switch (e.kind()) {
-        case expr_kind::Constant: case expr_kind::Prop: case expr_kind::Type: case expr_kind::Numeral: case expr_kind::Var:
+        case expr_kind::Constant: case expr_kind::Type: case expr_kind::Numeral: case expr_kind::Var:
             // easy cases were already handled
             lean_unreachable(); return false;
         case expr_kind::App:

@@ -21,6 +21,7 @@ void tst1() {
     expr f;
     f = var(0);
     expr fa = f(a);
+    expr ty = type(level());
     std::cout << fa << "\n";
     std::cout << fa(a) << "\n";
     lean_assert(eqp(arg(fa, 0), f));
@@ -28,11 +29,11 @@ void tst1() {
     lean_assert(!eqp(fa, f(a)));
     lean_assert(app(fa, a) == f(a, a));
     std::cout << fa(fa, fa) << "\n";
-    std::cout << lambda("x", prop(), var(0)) << "\n";
+    std::cout << lambda("x", ty, var(0)) << "\n";
     lean_assert(f(a)(a) == f(a, a));
     lean_assert(f(a(a)) != f(a, a));
-    lean_assert(lambda("x", prop(), var(0)) == lambda("y", prop(), var(0)));
-    std::cout << pi("x", prop(), var(0)) << "\n";
+    lean_assert(lambda("x", ty, var(0)) == lambda("y", ty, var(0)));
+    std::cout << pi("x", ty, var(0)) << "\n";
 }
 
 expr mk_dag(unsigned depth, bool _closed = false) {
@@ -47,7 +48,7 @@ expr mk_dag(unsigned depth, bool _closed = false) {
 
 unsigned depth1(expr const & e) {
     switch (e.kind()) {
-    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Prop: case expr_kind::Type: case expr_kind::Numeral:
+    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Numeral:
         return 1;
     case expr_kind::App: {
         unsigned m = 0;
@@ -64,7 +65,7 @@ unsigned depth1(expr const & e) {
 // This is the fastest depth implementation in this file.
 unsigned depth2(expr const & e) {
     switch (e.kind()) {
-    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Prop: case expr_kind::Type: case expr_kind::Numeral:
+    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Numeral:
         return 1;
     case expr_kind::App:
         return
@@ -88,7 +89,7 @@ unsigned depth3(expr const & e) {
         unsigned c     = p.second + 1;
         todo.pop_back();
         switch (e.kind()) {
-        case expr_kind::Var: case expr_kind::Constant: case expr_kind::Prop: case expr_kind::Type: case expr_kind::Numeral:
+        case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Numeral:
             m = std::max(c, m);
             break;
         case expr_kind::App: {
@@ -149,7 +150,7 @@ unsigned count_core(expr const & a, expr_set & s) {
         return 0;
     s.insert(a);
     switch (a.kind()) {
-    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Prop: case expr_kind::Type: case expr_kind::Numeral:
+    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Numeral:
         return 1;
     case expr_kind::App:
         return std::accumulate(begin_args(a), end_args(a), 1,
@@ -208,7 +209,7 @@ void tst8() {
     expr x = var(0);
     expr a = constant("a");
     expr n = numeral(mpz(10));
-    expr p = prop();
+    expr p = type(level());
     expr y = var(1);
     lean_assert(closed(a));
     lean_assert(!closed(x));
@@ -265,18 +266,19 @@ void tst11() {
     expr b = constant("b");
     expr x = var(0);
     expr y = var(1);
-    std::cout << instantiate(f(a), lambda("x", prop(), f(f(y, b), f(x, y)))) << "\n";
-    lean_assert(instantiate(f(a), lambda("x", prop(), f(f(y, b), f(x, y)))) ==
-                lambda("x", prop(), f(f(f(a), b), f(x, f(a)))));
-    std::cout << abstract(constant("a"), lambda("x", prop(), f(a, lambda("y", prop(), f(b, a))))) << "\n";
-    lean_assert(abstract(constant("a"), lambda("x", prop(), f(a, lambda("y", prop(), f(b, a))))) ==
-                lambda("x", prop(), f(var(1), lambda("y", prop(), f(b, var(2))))));
-    std::cout << abstract_p(constant("a"), lambda("x", prop(), f(a, lambda("y", prop(), f(b, a))))) << "\n";
-    lean_assert(abstract_p(constant("a"), lambda("x", prop(), f(a, lambda("y", prop(), f(b, a))))) ==
-                lambda("x", prop(), f(a, lambda("y", prop(), f(b, a)))));
-    std::cout << abstract_p(a, lambda("x", prop(), f(a, lambda("y", prop(), f(b, a))))) << "\n";
-    lean_assert(abstract_p(a, lambda("x", prop(), f(a, lambda("y", prop(), f(b, a))))) ==
-                lambda("x", prop(), f(var(1), lambda("y", prop(), f(b, var(2))))));
+    expr t = type(level());
+    std::cout << instantiate(f(a), lambda("x", t, f(f(y, b), f(x, y)))) << "\n";
+    lean_assert(instantiate(f(a), lambda("x", t, f(f(y, b), f(x, y)))) ==
+                lambda("x", t, f(f(f(a), b), f(x, f(a)))));
+    std::cout << abstract(constant("a"), lambda("x", t, f(a, lambda("y", t, f(b, a))))) << "\n";
+    lean_assert(abstract(constant("a"), lambda("x", t, f(a, lambda("y", t, f(b, a))))) ==
+                lambda("x", t, f(var(1), lambda("y", t, f(b, var(2))))));
+    std::cout << abstract_p(constant("a"), lambda("x", t, f(a, lambda("y", t, f(b, a))))) << "\n";
+    lean_assert(abstract_p(constant("a"), lambda("x", t, f(a, lambda("y", t, f(b, a))))) ==
+                lambda("x", t, f(a, lambda("y", t, f(b, a)))));
+    std::cout << abstract_p(a, lambda("x", t, f(a, lambda("y", t, f(b, a))))) << "\n";
+    lean_assert(abstract_p(a, lambda("x", t, f(a, lambda("y", t, f(b, a))))) ==
+                lambda("x", t, f(var(1), lambda("y", t, f(b, var(2))))));
 
     lean_assert(substitute(f(a), b, f(f(f(a)))) == f(f(b)));
 }
@@ -285,7 +287,8 @@ void tst12() {
     expr f = constant("f");
     expr a = constant("a");
     expr x = var(0);
-    expr F = pi("y", prop(), lambda("x", prop(), f(f(f(x,a),numeral(10)),x)));
+    expr t = type(level());
+    expr F = pi("y", t, lambda("x", t, f(f(f(x,a),numeral(10)),x)));
     expr G = deep_copy(F);
     lean_assert(F == G);
     lean_assert(!eqp(F, G));

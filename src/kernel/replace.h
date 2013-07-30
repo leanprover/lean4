@@ -35,7 +35,7 @@ class replace_fn {
         expr r = m_f(e, offset);
         if (eqp(e, r)) {
             switch (e.kind()) {
-            case expr_kind::Prop: case expr_kind::Type: case expr_kind::Numeral: case expr_kind::Constant: case expr_kind::Var:
+            case expr_kind::Type: case expr_kind::Numeral: case expr_kind::Constant: case expr_kind::Var:
                 break;
             case expr_kind::App: {
                 buffer<expr> new_args;

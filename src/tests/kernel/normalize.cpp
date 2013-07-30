@@ -53,7 +53,7 @@ unsigned count_core(expr const & a, expr_set & s) {
         return 0;
     s.insert(a);
     switch (a.kind()) {
-    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Prop: case expr_kind::Type: case expr_kind::Numeral:
+    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Numeral:
         return 1;
     case expr_kind::App:
         return std::accumulate(begin_args(a), end_args(a), 1,
@@ -102,7 +102,7 @@ static void tst1() {
     expr b = constant("b");
     expr x = var(0);
     expr y = var(1);
-    expr t = prop();
+    expr t = type(level());
     eval(app(lambda("x", t, x), a));
     eval(app(lambda("x", t, x), a, b));
     eval(lambda("x", t, f(x)));

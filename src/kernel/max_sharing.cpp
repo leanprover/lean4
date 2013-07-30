@@ -36,39 +36,15 @@ struct max_sharing_fn::imp {
             cache(a);
             return a;
         case expr_kind::App: {
-            buffer<expr> new_args;
-            bool modified = false;
-            for (expr const & old_arg : args(a)) {
-                new_args.push_back(apply(old_arg));
-                if (!eqp(old_arg, new_args.back()))
-                    modified = true;
-            }
-            if (!modified) {
-                cache(a);
-                return a;
-            }
-            else {
-                expr r = app(new_args.size(), new_args.data());
-                cache(r);
-                return r;
-            }
+            expr r = update_app(a, [=](expr const & c){ return apply(c); });
+            cache(r);
+            return r;
         }
         case expr_kind::Lambda:
         case expr_kind::Pi: {
-            expr const & old_t = abst_type(a);
-            expr const & old_b = abst_body(a);
-            expr t = apply(old_t);
-            expr b = apply(old_b);
-            if (!eqp(t, old_t) || !eqp(b, old_b)) {
-                name const & n     = abst_name(a);
-                expr r = is_pi(a) ? pi(n, t, b) : lambda(n, t, b);
-                cache(r);
-                return r;
-            }
-            else {
-                cache(a);
-                return a;
-            }
+            expr r = update_abst(a, [=](expr const & t, expr const & b) { return std::make_pair(apply(t), apply(b)); });
+            cache(r);
+            return r;
         }}
         lean_unreachable();
         return a;

@@ -39,35 +39,14 @@ class replace_fn {
             switch (e.kind()) {
             case expr_kind::Type: case expr_kind::Numeral: case expr_kind::Constant: case expr_kind::Var:
                 break;
-            case expr_kind::App: {
-                buffer<expr> new_args;
-                bool modified = false;
-                for (expr const & a : args(e)) {
-                    new_args.push_back(apply(a, offset));
-                    if (!eqp(a, new_args.back()))
-                        modified = true;
-                }
-                if (modified)
-                    r = app(new_args.size(), new_args.data());
-                else
-                    r = e;
+            case expr_kind::App:
+                r = update_app(e, [=](expr const & c) { return apply(c, offset); });
+                break;
+            case expr_kind::Lambda:
+            case expr_kind::Pi:
+                r = update_abst(e, [=](expr const & t, expr const & b) { return std::make_pair(apply(t, offset), apply(b, offset+1)); });
                 break;
             }
-            case expr_kind::Lambda:
-            case expr_kind::Pi: {
-                expr const & old_t = abst_type(e);
-                expr const & old_b = abst_body(e);
-                expr t = apply(old_t, offset);
-                expr b = apply(old_b, offset+1);
-                if (!eqp(t, old_t) || !eqp(b, old_b)) {
-                    name const & n = abst_name(e);
-                    r = is_pi(e) ? pi(n, t, b) : lambda(n, t, b);
-                }
-                else {
-                    r = e;
-                }
-                break;
-            }}
         }
 
         if (sh)

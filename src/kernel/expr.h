@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "mpz.h"
 #include "level.h"
 #include "hash.h"
+#include "buffer.h"
 
 namespace lean {
 /* =======================================
@@ -333,5 +334,34 @@ struct args {
    \brief Return a shallow copy of \c e
 */
 expr copy(expr const & e);
+// =======================================
+
+// =======================================
+// Update
+template<typename F> expr update_app(expr const & e, F f) {
+    buffer<expr> new_args;
+    bool modified = false;
+    for (expr const & a : args(e)) {
+        new_args.push_back(f(a));
+        if (!eqp(a, new_args.back()))
+            modified = true;
+    }
+    if (modified)
+        return app(new_args.size(), new_args.data());
+    else
+        return e;
+}
+template<typename F> expr update_abst(expr const & e, F f) {
+    expr const & old_t = abst_type(e);
+    expr const & old_b = abst_body(e);
+    std::pair<expr, expr> p = f(old_t, old_b);
+    if (!eqp(p.first, old_t) || !eqp(p.second, old_b)) {
+        name const & n = abst_name(e);
+        return is_pi(e) ? pi(n, p.first, p.second) : lambda(n, p.first, p.second);
+    }
+    else {
+        return e;
+    }
+}
 // =======================================
 }

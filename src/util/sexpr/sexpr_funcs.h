@@ -48,6 +48,42 @@ sexpr filter(sexpr const & l, P p) {
     }
 }
 
+template<class T, class BinaryOperation>
+T foldl(sexpr const & l, T init, BinaryOperation op) {
+    lean_assert(is_list(l));
+    if (is_nil(l)) {
+        return init;
+    }
+    else {
+        lean_assert(is_cons(l));
+        return foldl(tail(l), op(init, head(l)), op);
+    }
+}
+
+template<class T, class BinaryOperation>
+T foldr(sexpr const & l, T init, BinaryOperation op) {
+    lean_assert(is_list(l));
+    if (is_nil(l)) {
+        return init;
+    }
+    else {
+        lean_assert(is_cons(l));
+        return op(head(l), foldr(tail(l), init, op));
+    }
+}
+
+template<typename F>
+bool forall(sexpr const & l, F f) {
+    lean_assert(is_list(l));
+    if (is_nil(l)) {
+        return true;
+    }
+    else {
+        lean_assert(is_cons(l));
+        return f(head(l)) && forall(tail(l), f);
+    }
+}
+
 template<typename P>
 bool contains(sexpr const & l, P p) {
     lean_assert(is_list(l));

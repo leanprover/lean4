@@ -14,10 +14,12 @@ class deep_copy_fn {
     expr_cell_map<expr> m_cache;
 
     expr apply(expr const & a) {
+        bool sh = false;
         if (is_shared(a)) {
             auto r = m_cache.find(a.raw());
             if (r != m_cache.end())
                 return r->second;
+            sh = true;
         }
         expr r;
         switch (a.kind()) {
@@ -33,7 +35,7 @@ class deep_copy_fn {
         case expr_kind::Lambda:   r = lambda(abst_name(a), apply(abst_type(a)), apply(abst_body(a))); break;
         case expr_kind::Pi:       r = pi(abst_name(a), apply(abst_type(a)), apply(abst_body(a))); break;
         }
-        if (is_shared(a))
+        if (sh)
             m_cache.insert(std::make_pair(a.raw(), r));
         return r;
     }

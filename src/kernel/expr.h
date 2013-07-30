@@ -77,21 +77,10 @@ public:
 
     friend void swap(expr & a, expr & b) { std::swap(a.m_ptr, b.m_ptr); }
 
-    expr & operator=(expr const & s) {
-        if (s.m_ptr)
-            s.m_ptr->inc_ref();
-        if (m_ptr)
-            m_ptr->dec_ref();
-        m_ptr = s.m_ptr;
-        return *this;
-    }
-    expr & operator=(expr && s) {
-        if (m_ptr)
-            m_ptr->dec_ref();
-        m_ptr = s.m_ptr;
-        s.m_ptr = 0;
-        return *this;
-    }
+    void release() { if (m_ptr) m_ptr->dec_ref(); m_ptr = nullptr; }
+
+    expr & operator=(expr const & s) { LEAN_COPY_REF(expr, s); }
+    expr & operator=(expr && s) { LEAN_MOVE_REF(expr, s); }
 
     expr_kind kind() const { return m_ptr->kind(); }
     unsigned  hash() const { return m_ptr->hash(); }
@@ -345,5 +334,4 @@ struct args {
 */
 expr copy(expr const & e);
 // =======================================
-
 }

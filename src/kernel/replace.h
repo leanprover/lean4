@@ -25,11 +25,13 @@ class replace_fn {
     F                          m_f;
 
     expr apply(expr const & e, unsigned offset) {
+        bool sh = false;
         if (is_shared(e)) {
             expr_cell_offset p(e.raw(), offset);
             auto it = m_cache.find(p);
             if (it != m_cache.end())
                 return it->second;
+            sh = true;
         }
 
         expr r = m_f(e, offset);
@@ -68,7 +70,7 @@ class replace_fn {
             }}
         }
 
-        if (is_shared(e))
+        if (sh)
             m_cache.insert(std::make_pair(expr_cell_offset(e.raw(), offset), r));
 
         return r;

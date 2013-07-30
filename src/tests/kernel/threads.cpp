@@ -16,6 +16,11 @@ Author: Leonardo de Moura
 #include "test.h"
 using namespace lean;
 
+expr normalize(expr const & e) {
+    environment env;
+    return normalize(e, env);
+}
+
 static void mk(expr const & a) {
     expr b = constant("b");
     for (unsigned i = 0; i < 100; i++) {

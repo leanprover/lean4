@@ -6,7 +6,10 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "expr.h"
+#include "environment.h"
+#include "context.h"
 
 namespace lean {
-expr normalize(expr const & e);
+class environment;
+expr normalize(expr const & e, environment const & env, context const & ctx = context());
 }

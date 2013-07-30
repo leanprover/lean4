@@ -11,6 +11,11 @@ Author: Leonardo de Moura
 #include "sets.h"
 using namespace lean;
 
+expr normalize(expr const & e) {
+    environment env;
+    return normalize(e, env);
+}
+
 static void eval(expr const & e) { std::cout << e << " --> " << normalize(e) << "\n"; }
 static expr t() { return constant("t"); }
 static expr lam(expr const & e) { return lambda("_", t(), e); }
@@ -118,9 +123,21 @@ static void tst1() {
     lean_assert(normalize(lam(l12(l01))) == lam(lam(v(1)(v(1)))));
 }
 
+static void tst2() {
+    environment env;
+    expr f = constant("f");
+    expr a = constant("a");
+    expr b = constant("b");
+    expr x = var(0);
+    expr y = var(1);
+    expr t = type(level());
+    std::cout << normalize(f(x,x), env, extend(context(), context_entry(t, f(a)))) << "\n";
+}
+
 int main() {
     continue_on_violation(true);
-    tst1();
     tst_church_numbers();
+    tst1();
+    tst2();
     return has_violations() ? 1 : 0;
 }

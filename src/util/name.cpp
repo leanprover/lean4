@@ -115,7 +115,8 @@ name::name(unsigned k):name(name(), k) {
 }
 
 name::name(name const & other):m_ptr(other.m_ptr) {
-    m_ptr->inc_ref();
+    if (m_ptr)
+        m_ptr->inc_ref();
 }
 
 name::name(name && other):m_ptr(other.m_ptr) {

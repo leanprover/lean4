@@ -92,7 +92,7 @@ bool operator==(level const & l1, level const & l2) {
 std::ostream & operator<<(std::ostream & out, level const & l) {
     switch (kind(l)) {
     case level_kind::UVar: out << uvar_name(l);                                            return out;
-    case level_kind::Lift: out << lift_of(l) << "+" << lift_offset(l);                   return out;
+    case level_kind::Lift: out << lift_of(l) << "+" << lift_offset(l);                     return out;
     case level_kind::Max:  out << "(max " << max_level1(l) << " " << max_level2(l) << ")"; return out;
     }
     return out;

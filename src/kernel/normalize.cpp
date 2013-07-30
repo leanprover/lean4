@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
+#include "normalize.h"
 #include "expr.h"
 #include "context.h"
 #include "environment.h"
@@ -17,70 +18,61 @@ Author: Leonardo de Moura
 namespace lean {
 
 class value;
-typedef list<value> local_context;
+typedef list<value> stack; //!< Normalization stack
 enum class value_kind { Expr, Closure, BoundedVar };
 class value {
-    unsigned       m_kind:2;
-    unsigned       m_bvar:30;
-    expr           m_expr;
-    local_context  m_ctx;
+    value_kind m_kind;
+    unsigned   m_bvar;
+    expr       m_expr;
+    stack      m_ctx;
 public:
-    value() {}
-    explicit value(expr const & e):m_kind(static_cast<unsigned>(value_kind::Expr)), m_expr(e) {}
-    explicit value(unsigned k):m_kind(static_cast<unsigned>(value_kind::BoundedVar)), m_bvar(k) {}
-    value(expr const & e, local_context const & c):
-        m_kind(static_cast<unsigned>(value_kind::Closure)),
-        m_expr(e),
-        m_ctx(c) {
-        lean_assert(is_lambda(e));
-    }
+    explicit value(expr const & e):m_kind(value_kind::Expr), m_expr(e) {}
+    explicit value(unsigned k):m_kind(value_kind::BoundedVar), m_bvar(k) {}
+    value(expr const & e, stack const & c):m_kind(value_kind::Closure), m_expr(e), m_ctx(c) { lean_assert(is_lambda(e)); }
 
-    value_kind kind() const { return static_cast<value_kind>(m_kind); }
+    value_kind kind() const { return m_kind; }
 
     bool is_expr() const        { return kind() == value_kind::Expr; }
     bool is_closure() const     { return kind() == value_kind::Closure; }
     bool is_bounded_var() const { return kind() == value_kind::BoundedVar; }
 
-    expr const & get_expr() const         { lean_assert(is_expr() || is_closure()); return m_expr; }
-    local_context const & get_ctx() const { lean_assert(is_closure());              return m_ctx; }
-    unsigned get_var_idx() const          { lean_assert(is_bounded_var());          return m_bvar; }
+    expr  const & get_expr() const { lean_assert(is_expr() || is_closure()); return m_expr; }
+    stack const & get_ctx()  const { lean_assert(is_closure());              return m_ctx; }
+    unsigned get_var_idx()   const { lean_assert(is_bounded_var());          return m_bvar; }
 };
 
-value_kind            kind(value const & v)    { return v.kind(); }
-expr const &          to_expr(value const & v) { return v.get_expr(); }
-local_context const & ctx_of(value const & v)  { return v.get_ctx(); }
-unsigned              to_bvar(value const & v) { return v.get_var_idx(); }
+value_kind            kind(value const & v)     { return v.kind(); }
+expr const &          to_expr(value const & v)  { return v.get_expr(); }
+stack const &         stack_of(value const & v) { return v.get_ctx(); }
+unsigned              to_bvar(value const & v)  { return v.get_var_idx(); }
 
-local_context extend(local_context const & c, value const & v) { return cons(v, c); }
+stack extend(stack const & s, value const & v) { return cons(v, s); }
 
 class normalize_fn {
     environment const & m_env;
     context     const & m_ctx;
 
-    value lookup(local_context const & c, unsigned i) {
-        local_context const * it1 = &c;
-        while (!is_nil(*it1)) {
-            if (i == 0)
+    value lookup(stack const & s, unsigned i, unsigned k) {
+        unsigned j = i;
+        stack const * it1 = &s;
+        while (*it1) {
+            if (j == 0)
                 return head(*it1);
-            --i;
+            --j;
             it1 = &tail(*it1);
         }
-
-        context const * it2 = &m_ctx;
-        while (!is_nil(*it2)) {
-            if (i == 0) {
-                expr const & b = head(*it2).get_body();
-                if (!is_null(b))
-                    return value(b);
-                else break;
-            }
-            --i;
-            it2 = &tail(*it2);
+        context const & c = ::lean::lookup(m_ctx, j);
+        if (c) {
+            context_entry const & entry = head(c);
+            if (entry.get_body())
+                return value(::lean::normalize(entry.get_body(), m_env, tail(c)));
+            else
+                return value(length(c) - 1);
         }
         throw exception("unknown free variable");
     }
 
-    expr reify_closure(expr const & a, local_context const & c, unsigned k) {
+    expr reify_closure(expr const & a, stack const & c, unsigned k) {
         lean_assert(is_lambda(a));
         expr new_t = reify(normalize(abst_type(a), c, k), k);
         expr new_b = reify(normalize(abst_body(a), extend(c, value(k)), k+1), k+1);
@@ -98,8 +90,7 @@ class normalize_fn {
                     return lower_free_vars(app(n - 1, begin_args(new_b)), 1);
             }
             return lambda(abst_name(a), new_t, new_b);
-        }
-        else {
+        } else {
             return lambda(abst_name(a), new_t, new_b);
         }
     }
@@ -110,17 +101,17 @@ class normalize_fn {
         switch (v.kind()) {
         case value_kind::Expr:       return to_expr(v);
         case value_kind::BoundedVar: return var(k - to_bvar(v) - 1);
-        case value_kind::Closure:    return reify_closure(to_expr(v), ctx_of(v), k);
+        case value_kind::Closure:    return reify_closure(to_expr(v), stack_of(v), k);
         }
         lean_unreachable();
         return expr();
     }
 
-    value normalize(expr const & a, local_context const & c, unsigned k) {
+    value normalize(expr const & a, stack const & c, unsigned k) {
         lean_trace("normalize", tout << "Normalize, k: " << k << "\n" << a << "\n";);
         switch (a.kind()) {
         case expr_kind::Var:
-            return lookup(c, var_idx(a));
+            return lookup(c, var_idx(a), k);
         case expr_kind::Constant: case expr_kind::Type: case expr_kind::Numeral:
             return value(a);
         case expr_kind::App: {
@@ -132,7 +123,7 @@ class normalize_fn {
                     // beta reduction
                     expr const & fv = to_expr(f);
                     lean_trace("normalize", tout << "beta reduction...\n" << fv << "\n";);
-                    local_context new_c = extend(ctx_of(f), normalize(arg(a, i), c, k));
+                    stack new_c = extend(stack_of(f), normalize(arg(a, i), c, k));
                     f = normalize(abst_body(fv), new_c, k);
                     if (i == n - 1)
                         return f;
@@ -166,12 +157,12 @@ public:
     }
 
     expr operator()(expr const & e) {
-        return reify(normalize(e, local_context(), 0), 0);
+        unsigned k = length(m_ctx);
+        return reify(normalize(e, stack(), k), k);
     }
 };
 
 expr normalize(expr const & e, environment const & env, context const & ctx) {
     return normalize_fn(env, ctx)(e);
 }
-
 }

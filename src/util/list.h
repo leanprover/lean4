@@ -31,10 +31,19 @@ public:
     list(T const & h, list const & t):m_ptr(new cell(h, t)) {}
     list(list const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     list(list&& s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
+    list(std::initializer_list<T> const & l):list() {
+        auto it = l.end();
+        while (it != l.begin()) {
+            --it;
+            *this = list(*it, *this);
+        }
+    }
     ~list() { if (m_ptr) m_ptr->dec_ref(); }
 
     list & operator=(list const & s) { LEAN_COPY_REF(list, s); }
     list & operator=(list && s) { LEAN_MOVE_REF(list, s); }
+
+    operator bool() const { return m_ptr != nullptr; }
 
     friend bool is_nil(list const & l) { return l.m_ptr == nullptr; }
     friend T const & head(list const & l) { lean_assert(!is_nil(l)); return l.m_ptr->m_head; }
@@ -51,7 +60,7 @@ template<typename T> inline std::ostream & operator<<(std::ostream & out, list<T
     out << "(";
     bool first = true;
     list<T> const * ptr = &l;
-    while (!is_nil(*ptr)) {
+    while (*ptr) {
         if (first)
             first = false;
         else
@@ -61,5 +70,15 @@ template<typename T> inline std::ostream & operator<<(std::ostream & out, list<T
     }
     out << ")";
     return out;
+}
+
+template<typename T> unsigned length(list<T> const & l) {
+    unsigned r = 0;
+    list<T> const * it = &l;
+    while (*it) {
+        r++;
+        it = &tail(*it);
+    }
+    return r;
 }
 }

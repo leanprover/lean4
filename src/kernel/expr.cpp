@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <sstream>
 #include "expr.h"
+#include "free_vars.h"
 #include "sets.h"
 #include "hash.h"
 #include "format.h"
@@ -164,8 +165,20 @@ std::ostream & operator<<(std::ostream & out, expr const & a) {
         out << ")";
         break;
     case expr_kind::Lambda:  out << "(fun (" << abst_name(a) << " : " << abst_type(a) << ") " << abst_body(a) << ")";    break;
-    case expr_kind::Pi:      out << "(pi (" << abst_name(a) << " : " << abst_type(a) << ") " << abst_body(a) << ")"; break;
-    case expr_kind::Type:    out << "(Type " << ty_level(a) << ")"; break;
+    case expr_kind::Pi:
+        if (has_free_var(abst_body(a), 0))
+            out << "(pi (" << abst_name(a) << " : " << abst_type(a) << ") " << abst_body(a) << ")";
+        else
+            out << abst_type(a) << " -> " << abst_body(a);
+        break;
+    case expr_kind::Type: {
+        level const & l = ty_level(a);
+        if (is_uvar(l) && uvar_idx(l) == 0)
+            out << "Type";
+        else
+            out << "(Type " << ty_level(a) << ")";
+        break;
+    }
     case expr_kind::Numeral: out << num_value(a); break;
     }
     return out;

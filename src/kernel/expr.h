@@ -84,9 +84,11 @@ public:
     expr & operator=(expr && s) { LEAN_MOVE_REF(expr, s); }
 
     expr_kind kind() const { return m_ptr->kind(); }
-    unsigned  hash() const { return m_ptr->hash(); }
+    unsigned  hash() const { return m_ptr ? m_ptr->hash() : 23; }
 
     expr_cell * raw() const { return m_ptr; }
+
+    operator bool() const { return m_ptr != nullptr; }
 
     friend expr var(unsigned idx);
     friend expr constant(name const & n);
@@ -188,7 +190,6 @@ inline bool is_type(expr_cell * e)        { return e->kind() == expr_kind::Type;
 inline bool is_numeral(expr_cell * e)     { return e->kind() == expr_kind::Numeral; }
 inline bool is_abstraction(expr_cell * e) { return is_lambda(e) || is_pi(e); }
 
-inline bool is_null(expr const & e)        { return e.raw() == nullptr; }
 inline bool is_var(expr const & e)         { return e.kind() == expr_kind::Var; }
 inline bool is_constant(expr const & e)    { return e.kind() == expr_kind::Constant; }
 inline bool is_app(expr const & e)         { return e.kind() == expr_kind::App; }
@@ -214,6 +215,7 @@ inline expr lambda(name const & n, expr const & t, expr const & e) { return expr
 inline expr lambda(char const * n, expr const & t, expr const & e) { return lambda(name(n), t, e); }
 inline expr pi(name const & n, expr const & t, expr const & e) { return expr(new expr_pi(n, t, e)); }
 inline expr pi(char const * n, expr const & t, expr const & e) { return pi(name(n), t, e); }
+inline expr arrow(expr const & t, expr const & e) { return pi(name("_"), t, e); }
 inline expr type(level const & l) { return expr(new expr_type(l)); }
 inline expr numeral(mpz const & n) { return expr(new expr_numeral(n)); }
 inline expr numeral(int n) { return numeral(mpz(n)); }

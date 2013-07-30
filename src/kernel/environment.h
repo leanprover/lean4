@@ -36,7 +36,7 @@ public:
        \brief Return true iff the constraint l1 >= l2 is implied by the constraints
        in the environment.
     */
-    bool is_implied(level const & l1, level const & l2) const;
+    bool is_ge(level const & l1, level const & l2) const;
 
     void display_uvars(std::ostream & out) const;
 };

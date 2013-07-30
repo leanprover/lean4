@@ -46,6 +46,7 @@ public:
     friend std::ostream & operator<<(std::ostream & out, level const & l);
 };
 inline level max(level const & l1, level const & l2) { return level(l1, l2); }
+       level max(std::initializer_list<level> const & l);
 inline level operator+(level const & l, unsigned k)  { return level(l, k); }
 inline bool is_uvar(level const & l) { return kind(l) == level_kind::UVar;  }
 inline bool is_lift(level const & l) { return kind(l) == level_kind::Lift; }

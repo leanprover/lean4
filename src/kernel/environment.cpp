@@ -40,26 +40,26 @@ struct environment::imp {
     }
 
     /** \brief Return true iff l1 >= l2 + k */
-    bool is_implied(level const & l1, level const & l2, int k) {
+    bool is_ge(level const & l1, level const & l2, int k) {
         switch (kind(l2)) {
         case level_kind::UVar:
             switch (kind(l1)) {
             case level_kind::UVar: {
                 unsigned d = m_uvar_distances[uvar_idx(l1)][uvar_idx(l2)];
-                return k >= 0 && d != uninit && d >= static_cast<unsigned>(k);
+                return d != uninit && (k < 0 || (k >= 0 && d >= static_cast<unsigned>(k)));
             }
-            case level_kind::Lift: return is_implied(lift_of(l1), l2, sub(k, lift_offset(l1)));
-            case level_kind::Max:  return is_implied(max_level1(l1), l2, k) || is_implied(max_level2(l1), l2, k);
+            case level_kind::Lift: return is_ge(lift_of(l1), l2, sub(k, lift_offset(l1)));
+            case level_kind::Max:  return is_ge(max_level1(l1), l2, k) || is_ge(max_level2(l1), l2, k);
             }
-        case level_kind::Lift: return is_implied(l1, lift_of(l2), add(k, lift_offset(l2)));
-        case level_kind::Max:  return is_implied(l1, max_level1(l2), k) && is_implied(l1, max_level2(l2), k);
+        case level_kind::Lift: return is_ge(l1, lift_of(l2), add(k, lift_offset(l2)));
+        case level_kind::Max:  return is_ge(l1, max_level1(l2), k) && is_ge(l1, max_level2(l2), k);
         }
         lean_unreachable();
         return false;
     }
 
-    bool is_implied(level const & l1, level const & l2) {
-        return is_implied(l1, l2, 0);
+    bool is_ge(level const & l1, level const & l2) {
+        return is_ge(l1, l2, 0);
     }
 
     level add_var(name const & n) {
@@ -151,8 +151,8 @@ level environment::define_uvar(name const & n, level const & l) {
     return m_imp->define_uvar(n, l);
 }
 
-bool environment::is_implied(level const & l1, level const & l2) const {
-    return m_imp->is_implied(l1, l2);
+bool environment::is_ge(level const & l1, level const & l2) const {
+    return m_imp->is_ge(l1, l2);
 }
 
 void environment::display_uvars(std::ostream & out) const {

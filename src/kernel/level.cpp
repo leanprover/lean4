@@ -85,4 +85,14 @@ std::ostream & operator<<(std::ostream & out, level const & l) {
     }
     return out;
 }
+
+level max(std::initializer_list<level> const & l) {
+    lean_assert(l.size() >= 1);
+    auto it = l.begin();
+    level r = *it;
+    ++it;
+    for (; it != l.end(); ++it)
+        r = max(r, *it);
+    return r;
+}
 }

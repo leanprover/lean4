@@ -138,11 +138,29 @@ static void tst4() {
     lean_assert(sexpr(1, 2) > sexpr(0, 1));
 }
 
+static void tst5() {
+    lean_assert(foldl(sexpr{1,2,3,4,5,6,7,8,9},
+                      0,
+                      [](int result, sexpr const & s) {
+                          return result * 10 + to_int(s);
+                      })
+                == 123456789);
+
+    lean_assert(foldr(sexpr{1,2,3,4,5,6,7,8,9},
+                      0,
+                      [](sexpr const & s, int result) {
+                          return result * 10 + to_int(s);
+                      })
+                == 987654321);
+}
+
+
 int main() {
     continue_on_violation(true);
     tst1();
     tst2();
     tst3();
     tst4();
+    tst5();
     return has_violations() ? 1 : 0;
 }

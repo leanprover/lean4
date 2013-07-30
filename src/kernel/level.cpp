@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "level.h"
 #include "rc.h"
 #include "debug.h"
+#include "hash.h"
 
 namespace lean {
 struct level_cell {
@@ -30,11 +31,14 @@ struct level_max : public level_cell {
     level m_l2;
     level_max(level const & l1, level const & l2):level_cell(level_kind::Max), m_l1(l1), m_l2(l2) {}
 };
+level_uvar * to_uvar(level_cell * c) { return static_cast<level_uvar*>(c); }
+level_lift * to_lift(level_cell * c) { return static_cast<level_lift*>(c); }
+level_max  * to_max(level_cell * c)  { return static_cast<level_max*>(c); }
 void level_cell::dealloc() {
     switch (m_kind) {
-    case level_kind::UVar:    delete static_cast<level_uvar*>(this); break;
-    case level_kind::Lift:    delete static_cast<level_lift*>(this); break;
-    case level_kind::Max:     delete static_cast<level_max*> (this); break;
+    case level_kind::UVar:    delete to_uvar(this); break;
+    case level_kind::Lift:    delete to_lift(this); break;
+    case level_kind::Max:     delete to_max(this);  break;
     }
 }
 level::level():                                  m_ptr(new level_uvar(name("bot"), 0)) { lean_assert(uvar_name(*this) == name("bot")); }
@@ -53,6 +57,14 @@ level::level(level && s):
 level::~level() {
     if (m_ptr)
         m_ptr->dec_ref();
+}
+unsigned level::hash() const {
+    switch (m_ptr->m_kind) {
+    case level_kind::UVar: return to_uvar(m_ptr)->m_name.hash();
+    case level_kind::Lift: return ::lean::hash(to_lift(m_ptr)->m_l.hash(), to_lift(m_ptr)->m_k);
+    case level_kind::Max:  return ::lean::hash(to_max(m_ptr)->m_l1.hash(), to_max(m_ptr)->m_l2.hash());
+    }
+    return 0;
 }
 
 level_kind    kind       (level const & l) { lean_assert(l.m_ptr); return l.m_ptr->m_kind; }
@@ -80,8 +92,8 @@ bool operator==(level const & l1, level const & l2) {
 std::ostream & operator<<(std::ostream & out, level const & l) {
     switch (kind(l)) {
     case level_kind::UVar: out << uvar_name(l);                                            return out;
-    case level_kind::Lift: out << lift_of(l) << " + " << lift_offset(l);                   return out;
-    case level_kind::Max:  out << "max(" << max_level1(l) << ", " << max_level2(l) << ")"; return out;
+    case level_kind::Lift: out << lift_of(l) << "+" << lift_offset(l);                   return out;
+    case level_kind::Max:  out << "(max " << max_level1(l) << " " << max_level2(l) << ")"; return out;
     }
     return out;
 }

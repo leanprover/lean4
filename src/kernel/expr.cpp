@@ -15,10 +15,6 @@ unsigned hash_args(unsigned size, expr const * args) {
     return hash(size, [&args](unsigned i){ return args[i].hash(); });
 }
 
-unsigned hash_vars(unsigned size, uvar const * vars) {
-    return hash(size, [&vars](unsigned i){ return vars[i].second.hash(); });
-}
-
 expr_cell::expr_cell(expr_kind k, unsigned h):
     m_kind(static_cast<unsigned>(k)),
     m_flags(0),
@@ -84,21 +80,12 @@ expr_lambda::expr_lambda(name const & n, expr const & t, expr const & e):
 expr_pi::expr_pi(name const & n, expr const & t, expr const & e):
     expr_abstraction(expr_kind::Pi, n, t, e) {}
 
-expr_type::expr_type(unsigned size, uvar const * vars):
-    expr_cell(expr_kind::Type, hash_vars(size, vars)),
-    m_size(size) {
-    for (unsigned i = 0; i < m_size; i++)
-        new (m_vars + i) uvar(vars[i]);
+expr_type::expr_type(level const & l):
+    expr_cell(expr_kind::Type, l.hash()),
+    m_level(l) {
 }
 expr_type::~expr_type() {
-    for (unsigned i = 0; i < m_size; i++)
-        (m_vars+i)->~uvar();
 }
-expr type(unsigned size, uvar const * vars) {
-    char * mem = new char[sizeof(expr_type) + size*sizeof(uvar)];
-    return expr(new (mem) expr_type(size, vars));
-}
-
 expr_numeral::expr_numeral(mpz const & n):
     expr_cell(expr_kind::Numeral, n.hash()),
     m_numeral(n) {}
@@ -111,11 +98,10 @@ void expr_cell::dealloc() {
     case expr_kind::Lambda:     delete static_cast<expr_lambda*>(this); break;
     case expr_kind::Pi:         delete static_cast<expr_pi*>(this); break;
     case expr_kind::Prop:       delete static_cast<expr_prop*>(this); break;
-    case expr_kind::Type:       static_cast<expr_type*>(this)->~expr_type(); delete[] reinterpret_cast<char*>(this); break;
+    case expr_kind::Type:       delete static_cast<expr_type*>(this); break;
     case expr_kind::Numeral:    delete static_cast<expr_numeral*>(this); break;
     }
 }
-
 
 class eq_fn {
     expr_cell_pair_set m_eq_visited;
@@ -148,16 +134,7 @@ class eq_fn {
             // Remark: we ignore get_abs_name because we want alpha-equivalence
             return apply(abst_type(a), abst_type(b)) && apply(abst_body(a), abst_body(b));
         case expr_kind::Prop:     lean_unreachable(); return true;
-        case expr_kind::Type:
-            if (ty_num_vars(a) != ty_num_vars(b))
-                return false;
-            for (unsigned i = 0; i < ty_num_vars(a); i++) {
-                uvar v1 = ty_var(a, i);
-                uvar v2 = ty_var(b, i);
-                if (v1.first != v2.first || v1.second != v2.second)
-                    return false;
-            }
-            return true;
+        case expr_kind::Type:     return ty_level(a) == ty_level(b);
         case expr_kind::Numeral:  return num_value(a) == num_value(b);
         }
         lean_unreachable();
@@ -189,7 +166,7 @@ std::ostream & operator<<(std::ostream & out, expr const & a) {
     case expr_kind::Lambda:  out << "(fun (" << abst_name(a) << " : " << abst_type(a) << ") " << abst_body(a) << ")";    break;
     case expr_kind::Pi:      out << "(pi (" << abst_name(a) << " : " << abst_type(a) << ") " << abst_body(a) << ")"; break;
     case expr_kind::Prop:    out << "Prop"; break;
-    case expr_kind::Type:    out << "Type"; break;
+    case expr_kind::Type:    out << "(Type " << ty_level(a) << ")"; break;
     case expr_kind::Numeral: out << num_value(a); break;
     }
     return out;
@@ -200,7 +177,7 @@ expr copy(expr const & a) {
     case expr_kind::Var:      return var(var_idx(a));
     case expr_kind::Constant: return constant(const_name(a), const_pos(a));
     case expr_kind::Prop:     return prop();
-    case expr_kind::Type:     return type(ty_num_vars(a), begin_ty_vars(a));
+    case expr_kind::Type:     return type(ty_level(a));
     case expr_kind::Numeral:  return numeral(num_value(a));
     case expr_kind::App:      return app(num_args(a), begin_args(a));
     case expr_kind::Lambda:   return lambda(abst_name(a), abst_type(a), abst_body(a));

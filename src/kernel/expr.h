@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "rc.h"
 #include "name.h"
 #include "mpz.h"
+#include "level.h"
 #include "hash.h"
 
 namespace lean {
@@ -63,21 +64,6 @@ public:
 };
 
 /**
-   \brief Instead of fixed universes, we use universe variables with
-   explicit user-declared constraints between universe variables.
-
-   Each universe variable is associated with a name.
-
-   If the Boolean in the following pair is true, then we are taking
-   the successor of the universe variable.
-
-   For additional information, see:
-   Explicit universes for the calculus of constructions, Courant J (2002).
-*/
-typedef std::pair<bool, name> universe_variable;
-typedef universe_variable uvar;
-
-/**
    \brief Exprs for encoding formulas/expressions, types and proofs.
 */
 class expr {
@@ -121,8 +107,7 @@ public:
     friend expr lambda(name const & n, expr const & t, expr const & e);
     friend expr pi(name const & n, expr const & t, expr const & e);
     friend expr prop();
-    friend expr type(unsigned size, uvar const * vars);
-    friend expr type(std::initializer_list<uvar> const & l);
+    friend expr type(level const & l);
     friend expr numeral(mpz const & n);
 
     friend bool eqp(expr const & a, expr const & b) { return a.m_ptr == b.m_ptr; }
@@ -193,14 +178,11 @@ public:
 };
 /** \brief Type */
 class expr_type : public expr_cell {
-    unsigned m_size;
-    uvar     m_vars[0];
+    level    m_level;
 public:
-    expr_type(unsigned size, uvar const * vars);
+    expr_type(level const & l);
     ~expr_type();
-    unsigned size() const { return m_size; }
-    uvar const & get_var(unsigned idx) const { lean_assert(idx < m_size); return m_vars[idx]; }
-    uvar const * get_vars() const { return m_vars; }
+    level const & get_level() const { return m_level; }
 };
 /** \brief Numerals (efficient encoding using GMP numbers) */
 class expr_numeral : public expr_cell {
@@ -253,9 +235,7 @@ inline expr lambda(char const * n, expr const & t, expr const & e) { return lamb
 inline expr pi(name const & n, expr const & t, expr const & e) { return expr(new expr_pi(n, t, e)); }
 inline expr pi(char const * n, expr const & t, expr const & e) { return pi(name(n), t, e); }
 inline expr prop() { return expr(new expr_prop()); }
-       expr type(unsigned size, uvar const * vars);
-inline expr type(uvar const & uv) { return type(1, &uv); }
-inline expr type(std::initializer_list<uvar> const & l) { return type(l.size(), l.begin()); }
+inline expr type(level const & l) { return expr(new expr_type(l)); }
 inline expr numeral(mpz const & n) { return expr(new expr_numeral(n)); }
 inline expr numeral(int n) { return numeral(mpz(n)); }
 
@@ -290,39 +270,35 @@ inline expr_numeral *     to_numeral(expr const & e)     { return to_numeral(e.r
 
 // =======================================
 // Accessors
-inline unsigned     get_rc(expr_cell * e)               { return e->get_rc(); }
-inline bool         is_shared(expr_cell * e)            { return get_rc(e) > 1; }
-inline unsigned     var_idx(expr_cell * e)              { return to_var(e)->get_vidx(); }
-inline bool         is_var(expr_cell * e, unsigned i)   { return is_var(e) && var_idx(e) == i; }
-inline name const & const_name(expr_cell * e)           { return to_constant(e)->get_name(); }
-inline unsigned     const_pos(expr_cell * e)            { return to_constant(e)->get_pos(); }
-inline unsigned     num_args(expr_cell * e)             { return to_app(e)->get_num_args(); }
-inline expr const & arg(expr_cell * e, unsigned idx)    { return to_app(e)->get_arg(idx); }
-inline name const & abst_name(expr_cell * e)            { return to_abstraction(e)->get_name(); }
-inline expr const & abst_type(expr_cell * e)            { return to_abstraction(e)->get_type(); }
-inline expr const & abst_body(expr_cell * e)            { return to_abstraction(e)->get_body(); }
-inline unsigned     ty_num_vars(expr_cell * e)          { return to_type(e)->size(); }
-inline uvar const & ty_var(expr_cell * e, unsigned idx) { return to_type(e)->get_var(idx); }
-inline mpz const &  num_value(expr_cell * e)            { return to_numeral(e)->get_num(); }
+inline unsigned      get_rc(expr_cell * e)               { return e->get_rc(); }
+inline bool          is_shared(expr_cell * e)            { return get_rc(e) > 1; }
+inline unsigned      var_idx(expr_cell * e)              { return to_var(e)->get_vidx(); }
+inline bool          is_var(expr_cell * e, unsigned i)   { return is_var(e) && var_idx(e) == i; }
+inline name const &  const_name(expr_cell * e)           { return to_constant(e)->get_name(); }
+inline unsigned      const_pos(expr_cell * e)            { return to_constant(e)->get_pos(); }
+inline unsigned      num_args(expr_cell * e)             { return to_app(e)->get_num_args(); }
+inline expr const &  arg(expr_cell * e, unsigned idx)    { return to_app(e)->get_arg(idx); }
+inline name const &  abst_name(expr_cell * e)            { return to_abstraction(e)->get_name(); }
+inline expr const &  abst_type(expr_cell * e)            { return to_abstraction(e)->get_type(); }
+inline expr const &  abst_body(expr_cell * e)            { return to_abstraction(e)->get_body(); }
+inline level const & ty_level(expr_cell * e)             { return to_type(e)->get_level(); }
+inline mpz const &   num_value(expr_cell * e)            { return to_numeral(e)->get_num(); }
 
-inline unsigned     get_rc(expr const &  e)              { return e.raw()->get_rc(); }
-inline bool         is_shared(expr const & e)            { return get_rc(e) > 1; }
-inline unsigned     var_idx(expr const & e)              { return to_var(e)->get_vidx(); }
-inline bool         is_var(expr const & e, unsigned i)   { return is_var(e) && var_idx(e) == i; }
-inline name const & const_name(expr const & e)           { return to_constant(e)->get_name(); }
-inline unsigned     const_pos(expr const & e)            { return to_constant(e)->get_pos(); }
-inline unsigned     num_args(expr const & e)             { return to_app(e)->get_num_args(); }
-inline expr const & arg(expr const & e, unsigned idx)    { return to_app(e)->get_arg(idx); }
-inline expr const * begin_args(expr const & e)           { return to_app(e)->begin_args(); }
-inline expr const * end_args(expr const & e)             { return to_app(e)->end_args(); }
-inline name const & abst_name(expr const & e)            { return to_abstraction(e)->get_name(); }
-inline expr const & abst_type(expr const & e)            { return to_abstraction(e)->get_type(); }
-inline expr const & abst_body(expr const & e)            { return to_abstraction(e)->get_body(); }
-inline unsigned     ty_num_vars(expr const & e)          { return to_type(e)->size(); }
-inline uvar const & ty_var(expr const & e, unsigned idx) { return to_type(e)->get_var(idx); }
-inline uvar const * begin_ty_vars(expr const & e)        { return to_type(e)->get_vars(); }
-inline uvar const * end_ty_vars(expr const & e)          { return begin_ty_vars(e) + ty_num_vars(e); }
-inline mpz const &  num_value(expr const & e)            { return to_numeral(e)->get_num(); }
+inline unsigned      get_rc(expr const &  e)              { return e.raw()->get_rc(); }
+inline bool          is_shared(expr const & e)            { return get_rc(e) > 1; }
+inline unsigned      var_idx(expr const & e)              { return to_var(e)->get_vidx(); }
+inline bool          is_var(expr const & e, unsigned i)   { return is_var(e) && var_idx(e) == i; }
+inline name const &  const_name(expr const & e)           { return to_constant(e)->get_name(); }
+inline unsigned      const_pos(expr const & e)            { return to_constant(e)->get_pos(); }
+inline unsigned      num_args(expr const & e)             { return to_app(e)->get_num_args(); }
+inline expr const &  arg(expr const & e, unsigned idx)    { return to_app(e)->get_arg(idx); }
+inline expr const *  begin_args(expr const & e)           { return to_app(e)->begin_args(); }
+inline expr const *  end_args(expr const & e)             { return to_app(e)->end_args(); }
+inline name const &  abst_name(expr const & e)            { return to_abstraction(e)->get_name(); }
+inline expr const &  abst_type(expr const & e)            { return to_abstraction(e)->get_type(); }
+inline expr const &  abst_body(expr const & e)            { return to_abstraction(e)->get_body(); }
+inline level const & ty_level(expr const & e)             { return to_type(e)->get_level(); }
+inline mpz const &   num_value(expr const & e)            { return to_numeral(e)->get_num(); }
 // =======================================
 
 // =======================================

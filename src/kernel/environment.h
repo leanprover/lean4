@@ -38,6 +38,7 @@ public:
     */
     bool is_ge(level const & l1, level const & l2) const;
 
+    /** \brief Display universal variables, and their constraints */
     void display_uvars(std::ostream & out) const;
 };
 }

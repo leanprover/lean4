@@ -304,6 +304,14 @@ void tst13() {
     lean_assert(eqp(M(a1), M(a2)));
 }
 
+void tst14() {
+    expr t0 = type(level());
+    expr t1 = type(level()+1);
+    lean_assert(ty_level(t1) == level()+1);
+    lean_assert(t0 != t1);
+    std::cout << t0 << " " << t1 << "\n";
+}
+
 int main() {
     continue_on_violation(true);
     std::cout << "sizeof(expr):      " << sizeof(expr) << "\n";
@@ -322,6 +330,7 @@ int main() {
     tst11();
     tst12();
     tst13();
+    tst14();
     std::cout << "done" << "\n";
     return has_violations() ? 1 : 0;
 }

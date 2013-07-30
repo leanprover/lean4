@@ -14,10 +14,12 @@ Author: Leonardo de Moura
 namespace lean {
 constexpr unsigned uninit = std::numeric_limits<int>::max();
 
+/** \brief Implementation of the Lean environment. */
 struct environment::imp {
     std::vector<std::vector<unsigned>> m_uvar_distances;
     std::vector<level>                 m_uvars;
 
+    /** \brief Return v - k. It throws an exception if there is a underflow. */
     static int sub(int v, unsigned k) {
         long long r = static_cast<long long>(v) - static_cast<long long>(k);
         if (r < std::numeric_limits<int>::min())
@@ -25,6 +27,7 @@ struct environment::imp {
         return static_cast<int>(r);
     }
 
+    /** \brief Return v + k. It throws an exception if there is an overflow. */
     static int add(int v, unsigned k) {
         long long r = static_cast<long long>(v) + static_cast<long long>(k);
         if (r > std::numeric_limits<int>::max() - 1)
@@ -32,6 +35,7 @@ struct environment::imp {
         return static_cast<int>(r);
     }
 
+    /** \brief Return v + k. It throws an exception if there is an overflow. */
     static unsigned add(unsigned v, unsigned k) {
         unsigned long long r = static_cast<unsigned long long>(v) + static_cast<unsigned long long>(k);
         if (r > std::numeric_limits<int>::max() - 1)

@@ -19,14 +19,20 @@ enum class level_kind { UVar, Lift, Max };
 class level {
     friend class environment;
     level_cell * m_ptr;
+    /** \brief Private constructor used by the environment to create a new universe variable named \c n with internal id \c u. */
     level(name const & n, uvar u);
 public:
+    /** \brief Universe 0 */
     level();
+    /** \brief Lift universe l by k (l + k) */
     level(level const & l, unsigned k);
+    /** \brief New level that is >= max(l1,l2) */
     level(level const & l1, level const & l2);
     level(level const & l);
     level(level&& s);
     ~level();
+
+    unsigned hash() const;
 
     friend level_kind    kind       (level const & l);
     friend name const &  uvar_name  (level const & l);

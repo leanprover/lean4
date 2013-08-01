@@ -57,5 +57,6 @@ notifications:
     recipients:
     - soonhok@cs.cmu.edu
     - leonardo@microsoft.com
+    - leansmt-dev@googlegroups.com
     on_success: always
     on_failure: always

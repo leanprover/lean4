@@ -7,8 +7,9 @@ Author: Soonho Kong
 #pragma once
 #include "sexpr.h"
 #include "debug.h"
-#include <iostream>
 #include <algorithm>
+#include <iostream>
+#include <sstream>
 
 namespace lean {
 /**
@@ -77,6 +78,12 @@ private:
         lean_assert(sexpr_kind(s) == format_kind::TEXT);
         return cdr(s);
     }
+    static inline size_t const sexpr_text_length(sexpr const & s) {
+        lean_assert(sexpr_kind(s) == format_kind::TEXT);
+        std::stringstream ss;
+        ss << cdr(s);
+        return ss.str().length();
+    }
     static inline sexpr sexpr_text(std::string const & s) {
         return sexpr(sexpr(format_kind::TEXT), sexpr(s));
     }
@@ -102,9 +109,9 @@ private:
 
     // Functions used inside of pretty printing
     static bool  fits(int w, sexpr const & s);
-    static sexpr better(int w, int k, sexpr const & s1, sexpr const & s2);
-    static sexpr be(int w, int k, sexpr const & s, sexpr const & r);
-    static sexpr best(int w, int k, sexpr const & s);
+    static sexpr better(unsigned w, unsigned k, sexpr const & s1, sexpr const & s2);
+    static sexpr be(unsigned w, unsigned k, sexpr const & s, sexpr const & r);
+    static sexpr best(unsigned w, unsigned k, sexpr const & s);
 
     static bool is_fnil(format const & f)   {
         return to_int(car(f.m_value)) == format_kind::NIL;
@@ -134,11 +141,9 @@ public:
     explicit format(sexpr const & v):m_value(v) {}
     explicit format(char const * v):m_value(sexpr_text(sexpr(v))) {}
     explicit format(std::string const & v):m_value(sexpr_text(sexpr(v))) {}
-    explicit format(int v):m_value(sexpr_text(sexpr(std::to_string(v)))) {}
-    explicit format(double v):m_value(sexpr_text(sexpr(std::to_string(v)))) {}
+    explicit format(int v):m_value(sexpr_text(sexpr(v))) {}
+    explicit format(double v):m_value(sexpr_text(sexpr(v))) {}
     explicit format(name const & v):m_value(sexpr_text(sexpr(v))) {}
-
-    // TODO: need to convert mpz and mpq to string, and then pass to sexpr
     explicit format(mpz const & v):m_value(sexpr_text(sexpr(v))) {}
     explicit format(mpq const & v):m_value(sexpr_text(sexpr(v))) {}
     format(format const & f1, format const & f2):m_value(sexpr_compose({f1.m_value, f2.m_value})) {}
@@ -173,7 +178,7 @@ public:
     friend format wrap(format const & f1, format const & f2);
 
     format & operator+=(format const & f) {
-        *this = format{*this, format(" "), f};
+        *this = *this + f;
         return *this;
     }
     friend std::ostream & operator<<(std::ostream & out, format const & f);

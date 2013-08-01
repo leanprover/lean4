@@ -9,9 +9,7 @@
 #include "sexpr_funcs.h"
 
 namespace lean {
-
 static int default_width = 78;
-
 std::ostream & layout(std::ostream & out, sexpr const & s) {
     lean_assert(!is_nil(s));
     switch (format::sexpr_kind(s)) {
@@ -138,17 +136,14 @@ bool format::fits(int w, sexpr const & s) {
     case format_kind::COLOR_BEGIN:
     case format_kind::COLOR_END:
         return fits(w, cdr(s));
-
     case format_kind::TEXT:
     {
-        sexpr const & v = sexpr_text_t(x);
-        int l = to_string(v).length();
-        if(l > w)
+        size_t l = sexpr_text_length(x);
+        if(l - w > 0)
             return false;
         else
             return fits(w - l, cdr(s));
     }
-
     case format_kind::LINE:
         return true;
 
@@ -162,7 +157,7 @@ bool format::fits(int w, sexpr const & s) {
     return false;
 }
 
-sexpr format::be(int w, int k, sexpr const & s, sexpr const & r) {
+sexpr format::be(unsigned w, unsigned k, sexpr const & s, sexpr const & r) {
     /* be w k [] = Nil */
     if(is_nil(s)) {
         if(is_nil(r)) {
@@ -202,10 +197,7 @@ sexpr format::be(int w, int k, sexpr const & s, sexpr const & r) {
         return be(w, k, sexpr(sexpr(i + j, x), z), r);
     }
     case format_kind::TEXT:
-    {
-        sexpr const & l = sexpr_text_t(v);
-        return sexpr(v, be(w, k + to_string(l).length(), z, r));
-    }
+        return sexpr(v, be(w, k + sexpr_text_length(v), z, r));
     case format_kind::LINE:
         return sexpr(v, sexpr(sexpr_text(std::string(i, ' ')), be(w, i, z, r)));
     case format_kind::CHOICE:
@@ -225,7 +217,7 @@ sexpr format::be(int w, int k, sexpr const & s, sexpr const & r) {
     return sexpr();
 }
 
-sexpr format::best(int w, int k, sexpr const & s) {
+sexpr format::best(unsigned w, unsigned k, sexpr const & s) {
     return be(w, k, sexpr{sexpr(0, s)}, sexpr());
 }
 
@@ -235,7 +227,7 @@ std::ostream & operator<<(std::ostream & out, format const & f)
 }
 
 format operator+(format const & f1, format const & f2) {
-    return format{f1, format(" "), f2};
+    return format{f1, f2};
 }
 
 std::ostream & pretty(std::ostream & out, unsigned w, format const & f) {

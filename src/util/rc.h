@@ -43,5 +43,5 @@ void dec_ref() { if (dec_ref_core()) dealloc(); }
     if (m_ptr)                                  \
         m_ptr->dec_ref();                       \
     m_ptr   = Arg.m_ptr;                        \
-    Arg.m_ptr = 0;                              \
+    Arg.m_ptr = nullptr;                        \
     return *this;

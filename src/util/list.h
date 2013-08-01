@@ -30,7 +30,7 @@ public:
     list():m_ptr(nullptr) {}
     list(T const & h, list const & t):m_ptr(new cell(h, t)) {}
     list(list const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
-    list(list&& s):m_ptr(s.m_ptr) { s.m_ptr = 0; }
+    list(list&& s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~list() { if (m_ptr) m_ptr->dec_ref(); }
 
     list & operator=(list const & s) { LEAN_COPY_REF(list, s); }

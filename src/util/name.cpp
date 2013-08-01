@@ -119,7 +119,7 @@ name::name(name const & other):m_ptr(other.m_ptr) {
 }
 
 name::name(name && other):m_ptr(other.m_ptr) {
-    other.m_ptr = 0;
+    other.m_ptr = nullptr;
 }
 
 name::~name() {

@@ -73,7 +73,7 @@ private:
 public:
     expr():m_ptr(0) {}
     expr(expr const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
-    expr(expr && s):m_ptr(s.m_ptr) { s.m_ptr = 0; }
+    expr(expr && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~expr() { if (m_ptr) m_ptr->dec_ref(); }
 
     friend void swap(expr & a, expr & b) { std::swap(a.m_ptr, b.m_ptr); }

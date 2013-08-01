@@ -52,7 +52,7 @@ level::level(level const & s):
 }
 level::level(level && s):
     m_ptr(s.m_ptr) {
-    s.m_ptr = 0;
+    s.m_ptr = nullptr;
 }
 level::~level() {
     if (m_ptr)

@@ -110,7 +110,7 @@ sexpr::sexpr(sexpr const & s):m_ptr(s.m_ptr) {
         m_ptr->inc_ref();
 }
 sexpr::sexpr(sexpr && s):m_ptr(s.m_ptr) {
-    s.m_ptr = 0;
+    s.m_ptr = nullptr;
 }
 sexpr::~sexpr() {
     if (m_ptr)

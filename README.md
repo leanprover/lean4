@@ -88,8 +88,8 @@ Instructions for RELEASE build
 Using [CMake][cmake] + [Ninja][ninja]
 -------------------------------
 [CMake 2.8.11][cmake] supports [Ninja][ninja] build system using
-``-G`` option. Some people[1] report that using [Ninja][ninja] can
-reduce the build time, [1]
+``-G`` option. [Some people report][1] that using [Ninja][ninja] can
+reduce the build time, esp when a build is incremental.
 
 [1]: https://plus.google.com/108996039294665965197/posts/SfhrFAhRyyd
 

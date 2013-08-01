@@ -365,3 +365,4 @@ template<typename F> expr update_abst(expr const & e, F f) {
 }
 // =======================================
 }
+void pp(lean::expr const & a);

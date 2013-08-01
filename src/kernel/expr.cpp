@@ -3,11 +3,14 @@ Copyright (c) 2013 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
+        Soonho Kong
 */
 #include <vector>
+#include <sstream>
 #include "expr.h"
 #include "sets.h"
 #include "hash.h"
+#include "format.h"
 
 namespace lean {
 
@@ -183,4 +186,55 @@ expr copy(expr const & a) {
 }
 }
 
-void pp(lean::expr const & e) { std::cout << e << std::endl; }
+lean::format pp_aux(lean::expr const & a) {
+    using namespace lean;
+    switch (a.kind()) {
+    case expr_kind::Var:
+        return format{format("#"), format(static_cast<int>(var_idx(a)))};
+    case expr_kind::Constant:
+        return format(const_name(a));
+    case expr_kind::App:
+    {
+        format r("(");
+        for (unsigned i = 0; i < num_args(a); i++) {
+            if (i > 0) r += format(" ");
+            r += pp_aux(arg(a, i));
+        }
+        r += format(")");
+        return r;
+    }
+    case expr_kind::Lambda:
+        return format{format("(\u03BB ("), /* Use unicode lambda */
+                format(abst_name(a)),
+                format(" : "),
+                pp_aux(abst_type(a)),
+                format(") "),
+                pp_aux(abst_body(a)),
+                format(")")};
+    case expr_kind::Pi:
+        return format{format("(\u03A0 ("), /* Use unicode Pi */
+                format(abst_name(a)),
+                format(" : "),
+                pp_aux(abst_type(a)),
+                format(") "),
+                pp_aux(abst_body(a)),
+                format(")")};
+    case expr_kind::Type:
+    {
+        std::stringstream ss;
+        ss << ty_level(a);
+        return format{format("(Type "),
+                format(ss.str()),
+                format(")")};
+    }
+    case expr_kind::Numeral:
+        return format(num_value(a));
+    }
+    lean_unreachable();
+    return format();
+}
+
+void pp(lean::expr const & a) {
+    lean::format const & f = pp_aux(a);
+    std::cout << f;
+}

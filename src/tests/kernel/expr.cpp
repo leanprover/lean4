@@ -3,6 +3,7 @@ Copyright (c) 2013 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
+        Soonho Kong
 */
 #include <algorithm>
 #include "expr.h"
@@ -35,6 +36,22 @@ void tst1() {
     lean_assert(lambda("x", ty, var(0)) == lambda("y", ty, var(0)));
     std::cout << pi("x", ty, var(0)) << "\n";
 }
+
+void tst1_pp() {
+    std::cerr << "=============== PP =====================\n";
+    expr a;
+    a = numeral(mpz(10));
+    expr f;
+    f = var(0);
+    expr fa = f(a);
+    expr ty = type(level());
+    pp(fa(a)); std::cout << "\n";
+    pp(fa(fa, fa)); std::cout << "\n";
+    pp(lambda("x", ty, var(0))); std::cout << "\n";
+    pp(pi("x", ty, var(0))); std::cout << "\n";
+    std::cerr << "=============== PP =====================\n";
+}
+
 
 expr mk_dag(unsigned depth, bool _closed = false) {
     expr f = constant("f");
@@ -321,6 +338,7 @@ int main() {
     std::cout << "sizeof(expr_app):  " << sizeof(expr_app) << "\n";
     std::cout << "sizeof(expr_cell): " << sizeof(expr_cell) << "\n";
     tst1();
+    tst1_pp();
     tst2();
     tst3();
     tst4();

@@ -115,6 +115,9 @@ format bracket(std::string const l, format const & x, std::string const r) {
                  line(),
                  format(r)});
 }
+format paren(format const & x) {
+    return bracket("(", x, ")");
+}
 
 // wrap = <+/>
 // wrap x y = x <> (text " " :<|> line) <> y
@@ -127,8 +130,9 @@ bool format::fits(int w, sexpr const & s) {
     lean_assert(is_list(s));
     if (is_nil(s))
         return true;
-    if (w < 0)
+    if (w < 0) {
         return false;
+    }
 
     sexpr const & x = car(s);
     switch (sexpr_kind(x)) {
@@ -139,10 +143,12 @@ bool format::fits(int w, sexpr const & s) {
     case format_kind::TEXT:
     {
         size_t l = sexpr_text_length(x);
-        if(l - w > 0)
+        if(w - static_cast<int>(l) < 0) {
             return false;
-        else
-            return fits(w - l, cdr(s));
+        }
+        else {
+            return fits(w - static_cast<int>(l), cdr(s));
+        }
     }
     case format_kind::LINE:
         return true;
@@ -204,13 +210,14 @@ sexpr format::be(unsigned w, unsigned k, sexpr const & s, sexpr const & r) {
     {
         sexpr const & x = sexpr_choice_1(v);
         sexpr const & y = sexpr_choice_2(v);;
-        sexpr const & s1 = be(w, k, sexpr(sexpr(i, x), z), r);
-        if (fits(w - k, s1)) {
-            return s1;
-        } else {
-            sexpr const & s2 = be(w, k, sexpr(sexpr(i, y), z), r);
-            return s2;
+        int d = static_cast<int>(w) - static_cast<int>(k);
+        if(d >= 0) {
+            sexpr const & s1 = be(w, k, sexpr(sexpr(i, x), z), r);
+            if (fits(d, s1))
+                return s1;
         }
+        sexpr const & s2 = be(w, k, sexpr(sexpr(i, y), z), r);
+        return s2;
     }
     }
     lean_unreachable();

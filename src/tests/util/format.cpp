@@ -34,6 +34,10 @@ static void tst1() {
     format f10;
     f10 += f6 + f5 + f3;
     format f11 = above(f1, above(above(f2, f3), f4));
+    format f12 = paren(format{format("a"),
+                              format("b"),
+                              format("c"),
+                              format("d")});
 
     std::vector<std::pair<std::string, format> > v =
         {{"f1",  f1},
@@ -47,6 +51,7 @@ static void tst1() {
          {"f9",  f9},
          {"f10", f10},
          {"f11", f11},
+         {"f12", f12},
         };
 
     std::for_each(v.begin(), v.end(),
@@ -56,11 +61,17 @@ static void tst1() {
                                 << "--------------------" << endl << endl;
                   });
 
-//    std::vector<std::string> ss = {"Last", "weekend's", "revelation", "that", "J.K.", "Rowling", "is", "the", "author", "of", "the", "critically", "acclaimed", "and", "--", "until", "now", "--", "commercially", "unsuccessful", "crime", "novel", "The", "Cuckoo's", "Calling", "has", "electrified", "the", "book", "world", "and", "solidified", "Rowling's", "reputation", "as", "a", "genuine", "writing", "talent:", "After", "all,", "if", "she", "can", "impress", "the", "critics", "without", "the", "benefit", "of", "her", "towering", "reputation,", "then", "surely", "her", "success", "is", "deserved."};
 
-    std::vector<std::string> ss = {"Last", "weekend's", "revelation", "that", "J.K.", "Rowling", "is", "the", "author", "of", "the", "critically", "acclaimed"};
+    std::vector<std::string> ss = {"Last", "weekend's", "revelation", "that", "J.K.", "Rowling", "is", "the", "author", "of", "the", "critically", "acclaimed", "and", "--", "until", "now", "--", "commercially", "unsuccessful", "crime", "novel", "The", "Cuckoo's", "Calling", "has", "electrified", "the", "book", "world", "and", "solidified", "Rowling's", "reputation", "as", "a", "genuine", "writing", "talent:", "After", "all,", "if", "she", "can", "impress", "the", "critics", "without", "the", "benefit", "of", "her", "towering", "reputation,", "then", "surely", "her", "success", "is", "deserved."};
 
-    std::vector<format> sl = {f1, f2, f3, f4};
+    cout << accumulate(++ss.begin(),
+               ss.end(),
+               format(*ss.begin()),
+               [](format const & result, std::string const & s) {
+                   return wrap(result, format(s));
+               });
+
+    std::vector<format> sl = {f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12};
 
     cout << "fill" << endl;
     cout << std::string(40, '=') << endl;

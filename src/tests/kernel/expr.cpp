@@ -190,6 +190,12 @@ void tst5() {
         expr r2 = max_sharing(r1);
         std::cout << "count(r1): " << count(r1) << "\n";
         std::cout << "count(r2): " << count(r2) << "\n";
+        std::cout << "r1 = " << std::endl;
+        pp(r1);
+        std::cout << std::endl;
+        std::cout << "r2 = " << std::endl;
+        pp(r2);
+        std::cout << std::endl;
         lean_assert(r1 == r2);
     }
     {
@@ -251,6 +257,10 @@ void tst8() {
     r = lambda("y", p, app(lambda("x", p, var(0)), var(1)));
     lean_assert(!closed(r));
     lean_assert(closed(lambda("z", p, r)));
+
+    pp(lambda("y", p, app(lambda("x", p, y), var(0)))); std::cout << std::endl;
+    pp(pi("x", p, f(f(f(a))))); std::cout << std::endl;
+
 }
 
 void tst9() {

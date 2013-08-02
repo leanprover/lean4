@@ -195,37 +195,38 @@ lean::format pp_aux(lean::expr const & a) {
         return format(const_name(a));
     case expr_kind::App:
     {
-        format r("(");
+        format r;
         for (unsigned i = 0; i < num_args(a); i++) {
             if (i > 0) r += format(" ");
             r += pp_aux(arg(a, i));
         }
-        r += format(")");
-        return r;
+        return paren(r);
     }
     case expr_kind::Lambda:
-        return format{format("(\u03BB ("), /* Use unicode lambda */
-                format(abst_name(a)),
-                format(" : "),
-                pp_aux(abst_type(a)),
-                format(") "),
-                pp_aux(abst_body(a)),
-                format(")")};
+        return paren(format{
+                       highlight(format("\u03BB "), format::format_color::PINK), /* Use unicode lambda */
+                       paren(format{
+                               format(abst_name(a)),
+                               format(" : "),
+                               pp_aux(abst_type(a))}),
+                       format(" "),
+                       pp_aux(abst_body(a))});
     case expr_kind::Pi:
-        return format{format("(\u03A0 ("), /* Use unicode Pi */
-                format(abst_name(a)),
-                format(" : "),
-                pp_aux(abst_type(a)),
-                format(") "),
-                pp_aux(abst_body(a)),
-                format(")")};
+        return paren(format{
+                       highlight(format("\u03A0 "), format::format_color::ORANGE), /* Use unicode lambda */
+                       paren(format{
+                               format(abst_name(a)),
+                               format(" : "),
+                               pp_aux(abst_type(a))}),
+                       format(" "),
+                       pp_aux(abst_body(a))});
     case expr_kind::Type:
     {
         std::stringstream ss;
         ss << ty_level(a);
-        return format{format("(Type "),
-                format(ss.str()),
-                format(")")};
+
+        return paren(format{format("Type "),
+                            format(ss.str())});
     }
     case expr_kind::Numeral:
         return format(num_value(a));

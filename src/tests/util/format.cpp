@@ -96,8 +96,15 @@ static void tst1() {
     return;
 }
 
+static void tst2() {
+    format f4 = nest(3, compose(format("foo"), compose(line(), format("bla"))));
+    cout << f4 << "\n";
+    cout << paren(f4) << "\n";
+}
+
 int main() {
     continue_on_violation(true);
     tst1();
+    tst2();
     return has_violations() ? 1 : 0;
 }

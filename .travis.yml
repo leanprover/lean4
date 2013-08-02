@@ -55,6 +55,7 @@ install:
 notifications:
   email:
     recipients:
+    - soonho.kong@gmail.com
     - leansmt-dev@googlegroups.com
     on_success: always
     on_failure: always

@@ -30,6 +30,10 @@ endif ()
 include(cmake/FindGMP.cmake)
 set(EXTRA_LIBS ${EXTRA_LIBS} ${GMP_LIBRARIES})
 
+# Flex and Bison
+include(cmake/FindBISONPP.cmake)
+find_package(FLEX REQUIRED)
+
 # tcmalloc
 option(tcmalloc "tcmalloc" ON)
 if("${tcmalloc}" MATCHES "ON")

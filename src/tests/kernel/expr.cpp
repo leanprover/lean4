@@ -49,6 +49,7 @@ void tst1_pp() {
     pp(fa(fa, fa)); std::cout << "\n";
     pp(lambda("x", ty, var(0))); std::cout << "\n";
     pp(pi("x", ty, var(0))); std::cout << "\n";
+    pp(pi("x", ty, lambda("y", ty, var(0)))); std::cout << "\n";
     std::cerr << "=============== PP =====================\n";
 }
 

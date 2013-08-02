@@ -151,6 +151,10 @@ bool operator==(expr const & a, expr const & b) {
     return eq_fn()(a, b);
 }
 
+bool is_arrow(expr const & t) {
+    return is_pi(t) && !has_free_var(abst_body(t), 0);
+}
+
 // Low-level pretty printer
 std::ostream & operator<<(std::ostream & out, expr const & a) {
     switch (a.kind()) {
@@ -166,10 +170,12 @@ std::ostream & operator<<(std::ostream & out, expr const & a) {
         break;
     case expr_kind::Lambda:  out << "(fun (" << abst_name(a) << " : " << abst_type(a) << ") " << abst_body(a) << ")";    break;
     case expr_kind::Pi:
-        if (has_free_var(abst_body(a), 0))
+        if (!is_arrow(a))
             out << "(pi (" << abst_name(a) << " : " << abst_type(a) << ") " << abst_body(a) << ")";
-        else
+        else if (!is_arrow(abst_type(a)))
             out << abst_type(a) << " -> " << abst_body(a);
+        else
+            out << "(" << abst_type(a) << ") -> " << abst_body(a);
         break;
     case expr_kind::Type: {
         level const & l = ty_level(a);

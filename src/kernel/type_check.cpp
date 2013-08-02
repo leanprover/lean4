@@ -19,9 +19,15 @@ class infer_type_fn {
         return ::lean::normalize(e, m_env, ctx);
     }
 
+    expr normalize(expr const & e, context const & ctx, expr const & v) {
+        return ::lean::normalize(e, m_env, ctx, v);
+    }
+
     expr lookup(context const & c, unsigned i) {
         context const & def_c = ::lean::lookup(c, i);
-        return lift_free_vars(head(def_c).get_type(), length(c) - length(def_c));
+        lean_assert(length(c) >= length(def_c));
+        lean_assert(length(def_c) > 0);
+        return lift_free_vars(head(def_c).get_type(), length(c) - (length(def_c) - 1));
     }
 
     level infer_universe(expr const & t, context const & ctx) {
@@ -85,7 +91,10 @@ class infer_type_fn {
                 expr const & c = arg(e, i);
                 expr c_t       = infer_type(c, ctx);
                 check_type(e, i, abst_type(f_t), c_t, ctx);
-                f_t = normalize(abst_body(f_t), extend(ctx, abst_name(f_t), c_t));
+                // Remark: if f_t is an arrow, we don't have to call normalize and
+                // lower_free_vars
+                f_t = normalize(abst_body(f_t), ctx, c);
+                f_t = lower_free_vars(f_t, 1);
                 i++;
                 if (i == num)
                     return f_t;

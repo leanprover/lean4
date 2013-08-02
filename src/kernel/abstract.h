@@ -27,4 +27,15 @@ inline expr abstract(expr const & s, expr const & e) { return abstract(1, &s, e)
 */
 expr abstract_p(unsigned n, expr const * s, expr const & e);
 inline expr abstract_p(expr const & s, expr const & e) { return abstract_p(1, &s, e); }
+
+/**
+   \brief Create a lambda expression (lambda (x : t) b), the term b is abstracted using abstract(constant(x), b).
+*/
+inline expr fun(name const & n, expr const & t, expr const & b) { return lambda(n, t, abstract(constant(n), b)); }
+inline expr fun(char const * n, expr const & t, expr const & b) { return fun(name(n), t, b); }
+/**
+   \brief Create a Pi expression (pi (x : t) b), the term b is abstracted using abstract(constant(x), b).
+*/
+inline expr Fun(name const & n, expr const & t, expr const & b) { return pi(n, t, abstract(constant(n), b)); }
+inline expr Fun(char const * n, expr const & t, expr const & b) { return Fun(name(n), t, b); }
 }

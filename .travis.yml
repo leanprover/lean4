@@ -48,6 +48,7 @@ install:
   - if [[ $USE_TCMALLOC == TRUE ]]; then sudo add-apt-repository --yes ppa:agent-8131/ppa && sudo apt-get -qq update && sudo apt-get -qq install libgoogle-perftools-dev; fi
   - sudo apt-get -qq install libgmp-dev
   - sudo apt-get -qq install cmake
+  - sudo apt-get -qq install flex bison++
   - sudo apt-get -qq install libstdc++-4.8-dev
   - if [[ $CMAKE_CXX_COMPILER == g++-4.8 ]]; then sudo apt-get -qq install g++-4.8; fi
   - if [[ $CMAKE_CXX_COMPILER == clang++-3.3 ]]; then sudo apt-get -qq install clang-3.3; fi

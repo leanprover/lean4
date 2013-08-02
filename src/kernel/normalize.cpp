@@ -76,6 +76,19 @@ class normalize_fn {
         lean_assert(is_lambda(a));
         expr new_t = reify(normalize(abst_type(a), c, k), k);
         expr new_b = reify(normalize(abst_body(a), extend(c, value(k)), k+1), k+1);
+        return lambda(abst_name(a), new_t, new_b);
+#if 0
+        // Eta-reduction + Cumulativity + Set theoretic interpretation is unsound.
+        // Example:
+        //   f : (Type 2) -> (Type 2)
+        //   (lambda (x : (Type 1)) (f x)) : (Type 1) -> (Type 2)
+        // The domains of these two terms are different. So, they must have different denotations.
+        // However, by eta-reduction, we have:
+        //     (lambda (x : (Type 1)) (f x)) == f
+        // For now, we will disable it.
+        // REMARK: we can workaround this problem by applying only when the domain of f is equal
+        // to the domain of the lambda abstraction.
+        //
         if (is_app(new_b)) {
             // (lambda (x:T) (app f ... (var 0)))
             // check eta-rule applicability
@@ -93,6 +106,7 @@ class normalize_fn {
         } else {
             return lambda(abst_name(a), new_t, new_b);
         }
+#endif
     }
 
     expr reify(value const & v, unsigned k) {

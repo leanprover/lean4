@@ -41,10 +41,10 @@ public:
     unsigned get_var_idx()   const { lean_assert(is_bounded_var());          return m_bvar; }
 };
 
-value_kind            kind(value const & v)     { return v.kind(); }
-expr const &          to_expr(value const & v)  { return v.get_expr(); }
-stack const &         stack_of(value const & v) { return v.get_ctx(); }
-unsigned              to_bvar(value const & v)  { return v.get_var_idx(); }
+value_kind    kind(value const & v)     { return v.kind(); }
+expr const &  to_expr(value const & v)  { return v.get_expr(); }
+stack const & stack_of(value const & v) { return v.get_ctx(); }
+unsigned      to_bvar(value const & v)  { return v.get_var_idx(); }
 
 stack extend(stack const & s, value const & v) { return cons(v, s); }
 

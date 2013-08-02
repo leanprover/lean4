@@ -36,9 +36,9 @@ static void tst2() {
 static void tst3() {
     environment env;
     level l1 = env.define_uvar("l1", level());
-    level l2 = env.define_uvar("l2", level(l1, (1<<30) + 1024));
+    level l2 = env.define_uvar("l2", l1 + ((1<<30) + 1024));
     try {
-        level l3 = env.define_uvar("l3", level(l2, 1<<30));
+        level l3 = env.define_uvar("l3", l2 + (1<<30));
         lean_unreachable();
     }
     catch (exception ex) {
@@ -74,11 +74,27 @@ static void tst4() {
     env.display_uvars(std::cout);
 }
 
+static void tst5() {
+    environment env;
+    level l1 = env.define_uvar("l1", level() + 1);
+    level l2 = env.define_uvar("l2", level() + 1);
+    std::cout << max(l1, l1) << "\n";
+    lean_assert(max(l1, l1) == l1);
+    lean_assert(max(l1+1, l1+1) == l1+1);
+    std::cout << max(l1, l1+1) << "\n";
+    std::cout << max(l2, max(l1, l1+1)) << "\n";
+    lean_assert(max(l1, l1+1) == l1+1);
+    lean_assert(max(l2, max(l1, l1+1)) == max(l2, l1+1));
+    std::cout << max(l1, max(l2, l1+1)) << "\n";
+    lean_assert(max(l1, max(l2, l1+1)) == max(l1+1, l2));
+}
+
 int main() {
-    continue_on_violation(true);
+    // continue_on_violation(true);
     tst1();
     tst2();
     tst3();
     tst4();
+    tst5();
     return has_violations() ? 1 : 0;
 }

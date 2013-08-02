@@ -53,10 +53,10 @@ struct environment::imp {
                 return d != uninit && (k < 0 || (k >= 0 && d >= static_cast<unsigned>(k)));
             }
             case level_kind::Lift: return is_ge(lift_of(l1), l2, sub(k, lift_offset(l1)));
-            case level_kind::Max:  return is_ge(max_level1(l1), l2, k) || is_ge(max_level2(l1), l2, k);
+            case level_kind::Max:  return std::any_of(max_begin_levels(l1), max_end_levels(l1), [&](level const & l) { return is_ge(l, l2, k); });
             }
         case level_kind::Lift: return is_ge(l1, lift_of(l2), add(k, lift_offset(l2)));
-        case level_kind::Max:  return is_ge(l1, max_level1(l2), k) && is_ge(l1, max_level2(l2), k);
+        case level_kind::Max:  return std::all_of(max_begin_levels(l2), max_end_levels(l2), [&](level const & l) { return is_ge(l1, l, k); });
         }
         lean_unreachable();
         return false;
@@ -103,9 +103,9 @@ struct environment::imp {
 
     void add_constraints(uvar v1, level const & l, unsigned k) {
         switch (kind(l)) {
-        case level_kind::UVar: add_constraint(v1, uvar_idx(l), k);                   return;
-        case level_kind::Lift: add_constraints(v1, lift_of(l), add(k, lift_offset(l)));  return;
-        case level_kind::Max:  add_constraints(v1, max_level1(l), k); add_constraints(v1, max_level2(l), k); return;
+        case level_kind::UVar: add_constraint(v1, uvar_idx(l), k); return;
+        case level_kind::Lift: add_constraints(v1, lift_of(l), add(k, lift_offset(l))); return;
+        case level_kind::Max:  std::for_each(max_begin_levels(l), max_end_levels(l), [&](level const & l1) { add_constraints(v1, l1, k); }); return;
         }
         lean_unreachable();
     }

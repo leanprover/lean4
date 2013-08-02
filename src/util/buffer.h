@@ -94,6 +94,11 @@ public:
         m_pos--;
     }
 
+    void append(unsigned sz, T const * elems) {
+        for (unsigned i = 0; i < sz; i++)
+            push_back(elems[i]);
+    }
+
     void resize(unsigned nsz, T const & elem=T()) {
         unsigned sz = size();
         if (nsz > sz) {

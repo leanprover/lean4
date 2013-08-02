@@ -21,13 +21,14 @@ class level {
     level_cell * m_ptr;
     /** \brief Private constructor used by the environment to create a new universe variable named \c n with internal id \c u. */
     level(name const & n, uvar u);
+    level(level const & l, unsigned k);
+    level(level_cell * ptr);
+    friend level to_level(level_cell * c);
+    friend level_cell * to_cell(level const & l);
+    friend level operator+(level const & l, unsigned k);
 public:
     /** \brief Universe 0 */
     level();
-    /** \brief Lift universe l by k (l + k) */
-    level(level const & l, unsigned k);
-    /** \brief New level that is >= max(l1,l2) */
-    level(level const & l1, level const & l2);
     level(level const & l);
     level(level&& s);
     ~level();
@@ -39,8 +40,8 @@ public:
     friend uvar          uvar_idx   (level const & l);
     friend level const & lift_of    (level const & l);
     friend unsigned      lift_offset(level const & l);
-    friend level const & max_level1 (level const & l);
-    friend level const & max_level2 (level const & l);
+    friend unsigned      max_size   (level const & l);
+    friend level const & max_level  (level const & l, unsigned i);
 
     level & operator=(level const & l);
     level & operator=(level&& l);
@@ -51,10 +52,15 @@ public:
 
     friend std::ostream & operator<<(std::ostream & out, level const & l);
 };
-inline level max(level const & l1, level const & l2) { return level(l1, l2); }
-       level max(std::initializer_list<level> const & l);
-inline level operator+(level const & l, unsigned k)  { return level(l, k); }
+
+level max(level const & l1, level const & l2);
+level max(std::initializer_list<level> const & l);
+level operator+(level const & l, unsigned k);
+
 inline bool is_uvar(level const & l) { return kind(l) == level_kind::UVar;  }
 inline bool is_lift(level const & l) { return kind(l) == level_kind::Lift; }
 inline bool is_max (level const & l) { return kind(l) == level_kind::Max;  }
+
+inline level const * max_begin_levels(level const & l) { return &max_level(l, 0); }
+inline level const * max_end_levels(level const & l)   { return max_begin_levels(l) + max_size(l); }
 }

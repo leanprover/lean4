@@ -11,6 +11,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 class environment;
-/** \brief Normalize e using the environment env and context ctx */
+/** \brief Normalize \c e using the environment \c env and context \c ctx */
 expr normalize(expr const & e, environment const & env, context const & ctx = context());
 }

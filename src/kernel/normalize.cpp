@@ -17,42 +17,44 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-class value;
-typedef list<value> stack; //!< Normalization stack
-enum class value_kind { Expr, Closure, BoundedVar };
-class value {
-    value_kind m_kind;
-    unsigned   m_bvar;
-    expr       m_expr;
-    stack      m_ctx;
+class svalue;
+typedef list<svalue> stack; //!< Normalization stack
+enum class svalue_kind { Expr, Closure, BoundedVar };
+/** \brief Stack value: simple expressions, closures and bounded variables. */
+class svalue {
+    svalue_kind m_kind;
+    unsigned    m_bvar;
+    expr        m_expr;
+    stack       m_ctx;
 public:
-    explicit value(expr const & e):m_kind(value_kind::Expr), m_expr(e) {}
-    explicit value(unsigned k):m_kind(value_kind::BoundedVar), m_bvar(k) {}
-    value(expr const & e, stack const & c):m_kind(value_kind::Closure), m_expr(e), m_ctx(c) { lean_assert(is_lambda(e)); }
+    explicit svalue(expr const & e):        m_kind(svalue_kind::Expr), m_expr(e) {}
+    explicit svalue(unsigned k):            m_kind(svalue_kind::BoundedVar), m_bvar(k) {}
+    svalue(expr const & e, stack const & c):m_kind(svalue_kind::Closure), m_expr(e), m_ctx(c) { lean_assert(is_lambda(e)); }
 
-    value_kind kind() const { return m_kind; }
+    svalue_kind kind() const { return m_kind; }
 
-    bool is_expr() const        { return kind() == value_kind::Expr; }
-    bool is_closure() const     { return kind() == value_kind::Closure; }
-    bool is_bounded_var() const { return kind() == value_kind::BoundedVar; }
+    bool is_expr() const        { return kind() == svalue_kind::Expr; }
+    bool is_closure() const     { return kind() == svalue_kind::Closure; }
+    bool is_bounded_var() const { return kind() == svalue_kind::BoundedVar; }
 
     expr  const & get_expr() const { lean_assert(is_expr() || is_closure()); return m_expr; }
     stack const & get_ctx()  const { lean_assert(is_closure());              return m_ctx; }
     unsigned get_var_idx()   const { lean_assert(is_bounded_var());          return m_bvar; }
 };
 
-value_kind    kind(value const & v)     { return v.kind(); }
-expr const &  to_expr(value const & v)  { return v.get_expr(); }
-stack const & stack_of(value const & v) { return v.get_ctx(); }
-unsigned      to_bvar(value const & v)  { return v.get_var_idx(); }
+svalue_kind   kind(svalue const & v)     { return v.kind(); }
+expr const &  to_expr(svalue const & v)  { return v.get_expr(); }
+stack const & stack_of(svalue const & v) { return v.get_ctx(); }
+unsigned      to_bvar(svalue const & v)  { return v.get_var_idx(); }
 
-stack extend(stack const & s, value const & v) { return cons(v, s); }
+stack extend(stack const & s, svalue const & v) { return cons(v, s); }
 
+/** \brief Expression normalizer. */
 class normalize_fn {
     environment const & m_env;
     context     const & m_ctx;
 
-    value lookup(stack const & s, unsigned i, unsigned k) {
+    svalue lookup(stack const & s, unsigned i, unsigned k) {
         unsigned j = i;
         stack const * it1 = &s;
         while (*it1) {
@@ -65,17 +67,18 @@ class normalize_fn {
         if (c) {
             context_entry const & entry = head(c);
             if (entry.get_body())
-                return value(::lean::normalize(entry.get_body(), m_env, tail(c)));
+                return svalue(::lean::normalize(entry.get_body(), m_env, tail(c)));
             else
-                return value(length(c) - 1);
+                return svalue(length(c) - 1);
         }
         throw exception("unknown free variable");
     }
 
-    expr reify_closure(expr const & a, stack const & c, unsigned k) {
+    /** \brief Convert the closure \c a into an expression using the given stack in a context that contains \c k binders. */
+    expr reify_closure(expr const & a, stack const & s, unsigned k) {
         lean_assert(is_lambda(a));
-        expr new_t = reify(normalize(abst_domain(a), c, k), k);
-        expr new_b = reify(normalize(abst_body(a), extend(c, value(k)), k+1), k+1);
+        expr new_t = reify(normalize(abst_domain(a), s, k), k);
+        expr new_b = reify(normalize(abst_body(a), extend(s, svalue(k)), k+1), k+1);
         return lambda(abst_name(a), new_t, new_b);
 #if 0
         // Eta-reduction + Cumulativity + Set theoretic interpretation is unsound.
@@ -109,27 +112,29 @@ class normalize_fn {
 #endif
     }
 
-    expr reify(value const & v, unsigned k) {
+    /** \brief Convert the value \c v back into an expression in a context that contains \c k binders. */
+    expr reify(svalue const & v, unsigned k) {
         lean_trace("normalize", tout << "Reify kind: " << static_cast<unsigned>(v.kind()) << "\n";
                    if (v.is_bounded_var()) tout << "#" << to_bvar(v); else tout << to_expr(v); tout << "\n";);
         switch (v.kind()) {
-        case value_kind::Expr:       return to_expr(v);
-        case value_kind::BoundedVar: return var(k - to_bvar(v) - 1);
-        case value_kind::Closure:    return reify_closure(to_expr(v), stack_of(v), k);
+        case svalue_kind::Expr:       return to_expr(v);
+        case svalue_kind::BoundedVar: return var(k - to_bvar(v) - 1);
+        case svalue_kind::Closure:    return reify_closure(to_expr(v), stack_of(v), k);
         }
         lean_unreachable();
         return expr();
     }
 
-    value normalize(expr const & a, stack const & c, unsigned k) {
+    /** \brief Normalize the expression \c a in a context composed of stack \c s and \c k binders. */
+    svalue normalize(expr const & a, stack const & s, unsigned k) {
         lean_trace("normalize", tout << "Normalize, k: " << k << "\n" << a << "\n";);
         switch (a.kind()) {
         case expr_kind::Var:
-            return lookup(c, var_idx(a), k);
+            return lookup(s, var_idx(a), k);
         case expr_kind::Constant: case expr_kind::Type: case expr_kind::Numeral:
-            return value(a);
+            return svalue(a);
         case expr_kind::App: {
-            value f    = normalize(arg(a, 0), c, k);
+            svalue f    = normalize(arg(a, 0), s, k);
             unsigned i = 1;
             unsigned n = num_args(a);
             while (true) {
@@ -137,8 +142,8 @@ class normalize_fn {
                     // beta reduction
                     expr const & fv = to_expr(f);
                     lean_trace("normalize", tout << "beta reduction...\n" << fv << "\n";);
-                    stack new_c = extend(stack_of(f), normalize(arg(a, i), c, k));
-                    f = normalize(abst_body(fv), new_c, k);
+                    stack new_s = extend(stack_of(f), normalize(arg(a, i), s, k));
+                    f = normalize(abst_body(fv), new_s, k);
                     if (i == n - 1)
                         return f;
                     i++;
@@ -148,20 +153,20 @@ class normalize_fn {
                     buffer<expr> new_args;
                     new_args.push_back(reify(f, k));
                     for (; i < n; i++)
-                        new_args.push_back(reify(normalize(arg(a, i), c, k), k));
-                    return value(app(new_args.size(), new_args.data()));
+                        new_args.push_back(reify(normalize(arg(a, i), s, k), k));
+                    return svalue(app(new_args.size(), new_args.data()));
                 }
             }
         }
         case expr_kind::Lambda:
-            return value(a, c);
+            return svalue(a, s);
         case expr_kind::Pi: {
-            expr new_t = reify(normalize(abst_domain(a), c, k), k);
-            expr new_b = reify(normalize(abst_body(a), extend(c, value(k)), k+1), k+1);
-            return value(pi(abst_name(a), new_t, new_b));
+            expr new_t = reify(normalize(abst_domain(a), s, k), k);
+            expr new_b = reify(normalize(abst_body(a), extend(s, svalue(k)), k+1), k+1);
+            return svalue(pi(abst_name(a), new_t, new_b));
         }}
         lean_unreachable();
-        return value(a);
+        return svalue(a);
     }
 
 public:

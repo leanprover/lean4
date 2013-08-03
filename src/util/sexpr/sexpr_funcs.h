@@ -12,6 +12,8 @@ namespace lean {
 
 template<typename F>
 void foreach(sexpr const & l, F f) {
+    static_assert(std::is_same<typename std::result_of<F(sexpr const &)>::type, void>::value,
+                  "foreach: return type of f is not void");
     lean_assert(is_list(l));
     sexpr const * h = &l;
     while (!is_nil(*h)) {
@@ -23,6 +25,8 @@ void foreach(sexpr const & l, F f) {
 
 template<typename F>
 sexpr map(sexpr const & l, F f) {
+    static_assert(std::is_same<typename std::result_of<F(sexpr const &)>::type, sexpr>::value,
+                  "map: return type of f is not sxpr");
     lean_assert(is_list(l));
     if (is_nil(l)) {
         return l;
@@ -35,6 +39,8 @@ sexpr map(sexpr const & l, F f) {
 
 template<typename P>
 sexpr filter(sexpr const & l, P p) {
+    static_assert(std::is_same<typename std::result_of<P(sexpr const &)>::type, bool>::value,
+                  "filter: return type of p is not bool");
     lean_assert(is_list(l));
     if (is_nil(l)) {
         return l;
@@ -48,8 +54,10 @@ sexpr filter(sexpr const & l, P p) {
     }
 }
 
-template<class T, class BinaryOperation>
-T foldl(sexpr const & l, T init, BinaryOperation op) {
+template<class T, class BOP>
+T foldl(sexpr const & l, T init, BOP op) {
+    static_assert(std::is_same<typename std::result_of<BOP(T, sexpr const &)>::type, T>::value,
+                  "foldl: return type of op is not T");
     lean_assert(is_list(l));
     if (is_nil(l)) {
         return init;
@@ -60,8 +68,10 @@ T foldl(sexpr const & l, T init, BinaryOperation op) {
     }
 }
 
-template<class T, class BinaryOperation>
-T foldr(sexpr const & l, T init, BinaryOperation op) {
+template<class T, class BOP>
+T foldr(sexpr const & l, T init, BOP op) {
+    static_assert(std::is_same<typename std::result_of<BOP(sexpr const &, T)>::type, T>::value,
+                  "foldr: return type of op is not T");
     lean_assert(is_list(l));
     if (is_nil(l)) {
         return init;
@@ -72,20 +82,24 @@ T foldr(sexpr const & l, T init, BinaryOperation op) {
     }
 }
 
-template<typename F>
-bool forall(sexpr const & l, F f) {
+template<typename P>
+bool forall(sexpr const & l, P p) {
+    static_assert(std::is_same<typename std::result_of<P(sexpr const &)>::type, bool>::value,
+                  "forall: return type of p is not bool");
     lean_assert(is_list(l));
     if (is_nil(l)) {
         return true;
     }
     else {
         lean_assert(is_cons(l));
-        return f(head(l)) && forall(tail(l), f);
+        return p(head(l)) && forall(tail(l), p);
     }
 }
 
 template<typename P>
 bool contains(sexpr const & l, P p) {
+    static_assert(std::is_same<typename std::result_of<P(sexpr const &)>::type, bool>::value,
+                  "contains: return type of p is not bool");
     lean_assert(is_list(l));
     if (is_nil(l)) {
         return false;

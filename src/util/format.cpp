@@ -91,7 +91,7 @@ sexpr format::flatten(sexpr const & s) {
         /* flatten (x <|> y) = flatten x */
         return flatten(sexpr_choice_1(s));
     case format_kind::LINE:
-        return sexpr_text(sexpr(""));
+        return sexpr_text(sexpr(" "));
     case format_kind::TEXT:
     case format_kind::COLOR_BEGIN:
     case format_kind::COLOR_END:

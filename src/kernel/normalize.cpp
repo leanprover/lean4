@@ -174,18 +174,9 @@ public:
         unsigned k = length(m_ctx);
         return reify(normalize(e, stack(), k), k);
     }
-
-    expr operator()(expr const & e, expr const & v) {
-        unsigned k = length(m_ctx);
-        stack s = extend(stack(), normalize(v, stack(), k));
-        return reify(normalize(e, s, k+1), k+1);
-    }
 };
 
 expr normalize(expr const & e, environment const & env, context const & ctx) {
     return normalize_fn(env, ctx)(e);
-}
-expr normalize(expr const & e, environment const & env, context const & ctx, expr const & v) {
-    return normalize_fn(env, ctx)(e, v);
 }
 }

@@ -20,10 +20,6 @@ class infer_type_fn {
         return ::lean::normalize(e, m_env, ctx);
     }
 
-    expr normalize(expr const & e, context const & ctx, expr const & v) {
-        return ::lean::normalize(e, m_env, ctx, v);
-    }
-
     expr lookup(context const & c, unsigned i) {
         context const & def_c = ::lean::lookup(c, i);
         lean_assert(length(c) >= length(def_c));

@@ -13,6 +13,4 @@ namespace lean {
 class environment;
 /** \brief Normalize e using the environment env and context ctx */
 expr normalize(expr const & e, environment const & env, context const & ctx = context());
-/** \brief Normalize e using the environment env, context ctx, and add v to "normalization stack" */
-expr normalize(expr const & e, environment const & env, context const & ctx, expr const & v);
 }

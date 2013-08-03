@@ -18,7 +18,7 @@ using namespace lean;
 
 void tst1() {
     expr a;
-    a = numeral(mpz(10));
+    a = constant("a");
     expr f;
     f = var(0);
     expr fa = f(a);
@@ -40,7 +40,7 @@ void tst1() {
 void tst1_pp() {
     std::cerr << "=============== PP =====================\n";
     expr a;
-    a = numeral(mpz(10));
+    a = constant("a");
     expr f;
     f = var(0);
     expr fa = f(a);
@@ -66,7 +66,7 @@ expr mk_dag(unsigned depth, bool _closed = false) {
 
 unsigned depth1(expr const & e) {
     switch (e.kind()) {
-    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Numeral:
+    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
         return 1;
     case expr_kind::App: {
         unsigned m = 0;
@@ -83,7 +83,7 @@ unsigned depth1(expr const & e) {
 // This is the fastest depth implementation in this file.
 unsigned depth2(expr const & e) {
     switch (e.kind()) {
-    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Numeral:
+    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
         return 1;
     case expr_kind::App:
         return
@@ -107,7 +107,7 @@ unsigned depth3(expr const & e) {
         unsigned c     = p.second + 1;
         todo.pop_back();
         switch (e.kind()) {
-        case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Numeral:
+        case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
             m = std::max(c, m);
             break;
         case expr_kind::App: {
@@ -168,7 +168,7 @@ unsigned count_core(expr const & a, expr_set & s) {
         return 0;
     s.insert(a);
     switch (a.kind()) {
-    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Numeral:
+    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
         return 1;
     case expr_kind::App:
         return std::accumulate(begin_args(a), end_args(a), 1,
@@ -232,7 +232,7 @@ void tst8() {
     expr f = constant("f");
     expr x = var(0);
     expr a = constant("a");
-    expr n = numeral(mpz(10));
+    expr n = constant("n");
     expr p = type(level());
     expr y = var(1);
     lean_assert(closed(a));
@@ -316,7 +316,7 @@ void tst12() {
     expr a = constant("a");
     expr x = var(0);
     expr t = type(level());
-    expr F = pi("y", t, lambda("x", t, f(f(f(x,a),numeral(10)),x)));
+    expr F = pi("y", t, lambda("x", t, f(f(f(x,a),constant("10")),x)));
     expr G = deep_copy(F);
     lean_assert(F == G);
     lean_assert(!eqp(F, G));

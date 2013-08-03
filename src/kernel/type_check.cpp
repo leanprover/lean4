@@ -110,9 +110,8 @@ class infer_type_fn {
             level l2 = infer_universe(abst_body(e), extend(ctx, abst_name(e), abst_domain(e)));
             return type(max(l1, l2));
         }
-        case expr_kind::Numeral:
-            // TODO
-            return e;
+        case expr_kind::Value:
+            return to_value(e).get_type();
         }
         lean_unreachable();
         return e;

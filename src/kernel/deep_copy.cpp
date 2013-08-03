@@ -23,7 +23,7 @@ class deep_copy_fn {
         }
         expr r;
         switch (a.kind()) {
-        case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Numeral:
+        case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
             r = copy(a); break; // shallow copy is equivalent to deep copy for these ones.
         case expr_kind::App: {
             buffer<expr> new_args;

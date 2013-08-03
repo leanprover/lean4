@@ -29,10 +29,9 @@ expr_var::expr_var(unsigned idx):
     expr_cell(expr_kind::Var, idx),
     m_vidx(idx) {}
 
-expr_const::expr_const(name const & n, unsigned pos):
+expr_const::expr_const(name const & n):
     expr_cell(expr_kind::Constant, n.hash()),
-    m_name(n),
-    m_pos(pos) {}
+    m_name(n) {}
 
 expr_app::expr_app(unsigned num_args):
     expr_cell(expr_kind::App, 0),
@@ -90,9 +89,15 @@ expr_type::expr_type(level const & l):
 }
 expr_type::~expr_type() {
 }
-expr_numeral::expr_numeral(mpz const & n):
-    expr_cell(expr_kind::Numeral, n.hash()),
-    m_numeral(n) {}
+
+expr_value::expr_value(value & v):
+    expr_cell(expr_kind::Value, v.hash()),
+    m_val(v) {
+    m_val.inc_ref();
+}
+expr_value::~expr_value() {
+    m_val.dec_ref();
+}
 
 void expr_cell::dealloc() {
     switch (kind()) {
@@ -102,7 +107,7 @@ void expr_cell::dealloc() {
     case expr_kind::Lambda:     delete static_cast<expr_lambda*>(this); break;
     case expr_kind::Pi:         delete static_cast<expr_pi*>(this); break;
     case expr_kind::Type:       delete static_cast<expr_type*>(this); break;
-    case expr_kind::Numeral:    delete static_cast<expr_numeral*>(this); break;
+    case expr_kind::Value:      delete static_cast<expr_value*>(this); break;
     }
 }
 
@@ -136,7 +141,7 @@ class eq_fn {
             // Remark: we ignore get_abs_name because we want alpha-equivalence
             return apply(abst_domain(a), abst_domain(b)) && apply(abst_body(a), abst_body(b));
         case expr_kind::Type:     return ty_level(a) == ty_level(b);
-        case expr_kind::Numeral:  return num_value(a) == num_value(b);
+        case expr_kind::Value:    return to_value(a) == to_value(b);
         }
         lean_unreachable();
         return false;
@@ -185,7 +190,7 @@ std::ostream & operator<<(std::ostream & out, expr const & a) {
             out << "(Type " << ty_level(a) << ")";
         break;
     }
-    case expr_kind::Numeral: out << num_value(a); break;
+    case expr_kind::Value: to_value(a).display(out); break;
     }
     return out;
 }
@@ -193,9 +198,9 @@ std::ostream & operator<<(std::ostream & out, expr const & a) {
 expr copy(expr const & a) {
     switch (a.kind()) {
     case expr_kind::Var:      return var(var_idx(a));
-    case expr_kind::Constant: return constant(const_name(a), const_pos(a));
+    case expr_kind::Constant: return constant(const_name(a));
     case expr_kind::Type:     return type(ty_level(a));
-    case expr_kind::Numeral:  return numeral(num_value(a));
+    case expr_kind::Value:    return to_expr(static_cast<expr_value*>(a.raw())->m_val);
     case expr_kind::App:      return app(num_args(a), begin_args(a));
     case expr_kind::Lambda:   return lambda(abst_name(a), abst_domain(a), abst_body(a));
     case expr_kind::Pi:       return pi(abst_name(a), abst_domain(a), abst_body(a));
@@ -212,6 +217,8 @@ lean::format pp_aux(lean::expr const & a) {
         return format{format("#"), format(static_cast<int>(var_idx(a)))};
     case expr_kind::Constant:
         return format(const_name(a));
+    case expr_kind::Value:
+        return to_value(a).pp();
     case expr_kind::App:
     {
         format r;
@@ -247,8 +254,6 @@ lean::format pp_aux(lean::expr const & a) {
         return paren(format{format("Type "),
                             format(ss.str())});
     }
-    case expr_kind::Numeral:
-        return format(num_value(a));
     }
     lean_unreachable();
     return format();

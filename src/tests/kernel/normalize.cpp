@@ -57,7 +57,7 @@ unsigned count_core(expr const & a, expr_set & s) {
         return 0;
     s.insert(a);
     switch (a.kind()) {
-    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Numeral:
+    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
         return 1;
     case expr_kind::App:
         return std::accumulate(begin_args(a), end_args(a), 1,

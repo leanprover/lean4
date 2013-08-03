@@ -284,8 +284,8 @@ void tst10() {
 
    \pre s and t must be closed expressions (i.e., no free variables)
 */
-inline expr substitute(expr const & s, expr const & t, expr const & e) {
-    return instantiate(t, abstract(s, e));
+inline expr substitute(expr const & e, expr const & s, expr const & t) {
+    return instantiate(abstract(e, s), t);
 }
 
 void tst11() {
@@ -295,20 +295,20 @@ void tst11() {
     expr x = var(0);
     expr y = var(1);
     expr t = type(level());
-    std::cout << instantiate(f(a), lambda("x", t, f(f(y, b), f(x, y)))) << "\n";
-    lean_assert(instantiate(f(a), lambda("x", t, f(f(y, b), f(x, y)))) ==
+    std::cout << instantiate(lambda("x", t, f(f(y, b), f(x, y))), f(a)) << "\n";
+    lean_assert(instantiate(lambda("x", t, f(f(y, b), f(x, y))), f(a)) ==
                 lambda("x", t, f(f(f(a), b), f(x, f(a)))));
-    std::cout << abstract(constant("a"), lambda("x", t, f(a, lambda("y", t, f(b, a))))) << "\n";
-    lean_assert(abstract(constant("a"), lambda("x", t, f(a, lambda("y", t, f(b, a))))) ==
+    std::cout << abstract(lambda("x", t, f(a, lambda("y", t, f(b, a)))), constant("a")) << "\n";
+    lean_assert(abstract(lambda("x", t, f(a, lambda("y", t, f(b, a)))), constant("a")) ==
                 lambda("x", t, f(var(1), lambda("y", t, f(b, var(2))))));
-    std::cout << abstract_p(constant("a"), lambda("x", t, f(a, lambda("y", t, f(b, a))))) << "\n";
-    lean_assert(abstract_p(constant("a"), lambda("x", t, f(a, lambda("y", t, f(b, a))))) ==
+    std::cout << abstract_p(lambda("x", t, f(a, lambda("y", t, f(b, a)))), constant("a")) << "\n";
+    lean_assert(abstract_p(lambda("x", t, f(a, lambda("y", t, f(b, a)))), constant("a")) ==
                 lambda("x", t, f(a, lambda("y", t, f(b, a)))));
-    std::cout << abstract_p(a, lambda("x", t, f(a, lambda("y", t, f(b, a))))) << "\n";
-    lean_assert(abstract_p(a, lambda("x", t, f(a, lambda("y", t, f(b, a))))) ==
+    std::cout << abstract_p(lambda("x", t, f(a, lambda("y", t, f(b, a)))), a) << "\n";
+    lean_assert(abstract_p(lambda("x", t, f(a, lambda("y", t, f(b, a)))), a) ==
                 lambda("x", t, f(var(1), lambda("y", t, f(b, var(2))))));
 
-    lean_assert(substitute(f(a), b, f(f(f(a)))) == f(f(b)));
+    lean_assert(substitute(f(f(f(a))), f(a), b) == f(f(b)));
 }
 
 void tst12() {

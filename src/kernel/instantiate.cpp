@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "replace.h"
 
 namespace lean {
-expr instantiate_with_closed(unsigned n, expr const * s, expr const & e) {
+expr instantiate_with_closed(expr const & e, unsigned n, expr const * s) {
     lean_assert(std::all_of(s, s+n, closed));
 
     auto f = [=](expr const & e, unsigned offset) -> expr {
@@ -26,7 +26,7 @@ expr instantiate_with_closed(unsigned n, expr const * s, expr const & e) {
     };
     return replace_fn<decltype(f)>(f)(e);
 }
-expr instantiate(unsigned n, expr const * s, expr const & e) {
+expr instantiate(expr const & e, unsigned n, expr const * s) {
     auto f = [=](expr const & e, unsigned offset) -> expr {
         if (is_var(e)) {
             unsigned vidx = var_idx(e);

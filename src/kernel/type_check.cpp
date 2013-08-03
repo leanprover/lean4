@@ -41,14 +41,19 @@ class infer_type_fn {
         throw exception(buffer.str());
     }
 
-    expr infer_pi(expr const & e, context const & ctx) {
-        lean_trace("type_check", tout << "infer pi\n" << e << "\n";);
-        expr p = normalize(infer_type(e, ctx), ctx);
-        if (is_pi(p))
-            return p;
+    expr check_pi(expr const & e, context const & ctx) {
+        if (is_pi(e))
+            return e;
+        expr r = normalize(e, ctx);
+        if (is_pi(r))
+            return r;
         std::ostringstream buffer;
         buffer << "function expected, in context:\n" << ctx << "\ngiven:\n" << e;
         throw exception(buffer.str());
+    }
+
+    expr infer_pi(expr const & e, context const & ctx) {
+        return check_pi(infer_type(e, ctx), ctx);
     }
 
     bool check_type_core(expr const & expected, expr const & given) {
@@ -84,19 +89,19 @@ class infer_type_fn {
         case expr_kind::Var:      return lookup(ctx, var_idx(e));
         case expr_kind::Type:     return type(ty_level(e) + 1);
         case expr_kind::App: {
-            expr f       = arg(e, 0);
+            expr f_t     = infer_pi(arg(e, 0), ctx);
             unsigned i   = 1;
             unsigned num = num_args(e);
             lean_assert(num >= 2);
             while (true) {
                 expr const & c = arg(e, i);
-                expr f_t       = infer_pi(f, ctx);
                 expr c_t       = infer_type(c, ctx);
                 check_type(e, i, abst_domain(f_t), c_t, ctx);
-                f = instantiate(abst_body(f_t), c);
+                f_t = instantiate(abst_body(f_t), c);
                 i++;
                 if (i == num)
-                    return f;
+                    return f_t;
+                check_pi(f_t, ctx);
             }
         }
         case expr_kind::Lambda: {

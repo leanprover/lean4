@@ -31,7 +31,7 @@ static void mk(expr const & a) {
         h = max_sharing(h);
         lean_assert(closed(h));
         h = normalize(h);
-        h = abstract(a, h);
+        h = abstract(h, a);
         lean_assert(!closed(h));
         h = deep_copy(h);
     }

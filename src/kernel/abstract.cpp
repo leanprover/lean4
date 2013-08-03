@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "replace.h"
 
 namespace lean {
-expr abstract(unsigned n, expr const * s, expr const & e) {
+expr abstract(expr const & e, unsigned n, expr const * s) {
     lean_assert(std::all_of(s, s+n, closed));
 
     auto f = [=](expr const & e, unsigned offset) -> expr {
@@ -24,7 +24,7 @@ expr abstract(unsigned n, expr const * s, expr const & e) {
 
     return replace_fn<decltype(f)>(f)(e);
 }
-expr abstract_p(unsigned n, expr const * s, expr const & e) {
+expr abstract_p(expr const & e, unsigned n, expr const * s) {
     lean_assert(std::all_of(s, s+n, closed));
 
     auto f = [=](expr const & e, unsigned offset) -> expr {

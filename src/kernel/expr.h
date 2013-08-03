@@ -373,7 +373,7 @@ template<typename F> expr update_abst(expr const & e, F f) {
     static_assert(std::is_same<typename std::result_of<F(expr const &, expr const &)>::type,
                   std::pair<expr, expr>>::value,
                   "update_abst: return type of f is not pair<expr, expr>");
-    expr const & old_t = abst_type(e);
+    expr const & old_t = abst_domain(e);
     expr const & old_b = abst_body(e);
     std::pair<expr, expr> p = f(old_t, old_b);
     if (!eqp(p.first, old_t) || !eqp(p.second, old_b)) {

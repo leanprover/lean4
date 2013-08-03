@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "expr.h"
 #include "abstract.h"
+#include "instantiate.h"
 #include "deep_copy.h"
 #include "name.h"
 #include "test.h"
@@ -27,9 +28,20 @@ static void tst1() {
     }
 }
 
+static void tst2() {
+    expr r = lambda("x", type(level()), app(var(0), var(1), var(2)));
+    std::cout << instantiate(constant("a"), r) << std::endl;
+    lean_assert(instantiate(constant("a"), r) == lambda("x", type(level()), app(var(0), constant("a"), var(1))));
+    lean_assert(instantiate(constant("b"), instantiate(constant("a"), r)) ==
+                lambda("x", type(level()), app(var(0), constant("a"), constant("b"))));
+    std::cout << instantiate(constant("a"), abst_body(r)) << std::endl;
+    lean_assert(instantiate(constant("a"), abst_body(r)) == app(constant("a"), var(0), var(1)));
+}
+
 int main() {
     continue_on_violation(true);
     tst1();
+    tst2();
     std::cout << "done" << "\n";
     return has_violations() ? 1 : 0;
 }

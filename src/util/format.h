@@ -208,21 +208,64 @@ format bracket(std::string const l, format const & x, std::string const r);
 format paren(format const & x);
 format wrap(format const & f1, format const & f2);
 
+// is_iterator
+template<typename T, typename = void>
+struct is_iterator
+{
+   static constexpr bool value = false;
+};
+template<typename T>
+struct is_iterator<T, typename std::enable_if<!std::is_same<typename std::iterator_traits<T>::value_type, void>::value>::type>
+{
+   static constexpr bool value = true;
+};
+
 template <class InputIterator, typename F>
 format folddoc(InputIterator first, InputIterator last, F f) {
-    auto first_elem = *first;
-    return std::accumulate(++first, last, first_elem, f);
+    // InputIterator : iterator<T>
+    static_assert(is_iterator<InputIterator>::value, "folddoc takes non-iterator type arguments");
+    // F : T x format -> format
+    static_assert(std::is_same<typename std::result_of<F(typename std::iterator_traits<InputIterator>::value_type,
+                                                         format)>::type, format>::value,
+                  "folddoc: return type of f is not format");
+    if(first == last) { return format(); }
+    return f(*first, folddoc(first + 1, last, f));
 }
 template <class InputIterator>
 format spread(InputIterator first, InputIterator last) {
+    static_assert(std::is_same<typename std::iterator_traits<InputIterator>::value_type, format>::value,
+                  "stack takes an argument which is not a iterator containing format.");
     return folddoc(first, last, compose);
+}
+inline format spread(std::initializer_list<format> const & l) {
+    return spread(l.begin(), l.end());
 }
 template <class InputIterator>
 format stack(InputIterator first, InputIterator last) {
+    static_assert(std::is_same<typename std::iterator_traits<InputIterator>::value_type, format>::value,
+                  "stack takes an argument which is not a iterator containing format.");
     return folddoc(first, last, above);
+}
+inline format stack(std::initializer_list<format> const & l) {
+    return stack(l.begin(), l.end());
 }
 template <typename InputIterator>
 format fill(InputIterator first, InputIterator last) {
+    static_assert(std::is_same<typename std::iterator_traits<InputIterator>::value_type, format>::value,
+                  "fill takes an argument which is not a iterator containing format.");
     return folddoc(first, last, wrap);
+}
+inline format fill(std::initializer_list<format> const & l) {
+    return fill(l.begin(), l.end());
+}
+template <typename InputIterator>
+format fillwords(InputIterator first, InputIterator last) {
+    static_assert(std::is_same<typename std::iterator_traits<InputIterator>::value_type,
+                  typename std::string>::value,
+                  "fillwords takes an argument which is not a iterator containing std::string.");
+    return folddoc(first, last, [](std::string const & s, format const & r) { return wrap(format(s), r); } );
+}
+inline format fillwords(std::initializer_list<std::string> const & l) {
+    return fillwords(l.begin(), l.end());
 }
 }

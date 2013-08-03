@@ -21,15 +21,13 @@ static void tst1() {
     format f_atom3(1);
     format f_atom4(3.1415);
     format f1(highlight(f_atom1), f_atom2);
-//    format f2{f_atom1, f_atom2, highlight(f_atom3, format::format_color::ORANGE), f_atom4};
-    format f2{f_atom1, highlight(f_atom3, format::format_color::ORANGE)};
+    format f2{f_atom1, f_atom2, highlight(f_atom3, format::format_color::ORANGE), f_atom4};
     format f3 = compose(f1, f2);
     format f4 = nest(3, f3);
     format f5 = line();
     format f6(f4, f5);
     format f7 = nest(10, format{f6, f4, f6, f4});
-//    format f8(f_atom1, nest(3, format(line(), f_atom1)));
-    format f8 = f7;
+    format f8(f_atom1, nest(3, format(line(), f_atom1)));
     format f9 = f7 + f8;
     format f10;
     f10 += f6 + f5 + f3;
@@ -57,19 +55,13 @@ static void tst1() {
     std::for_each(v.begin(), v.end(),
                   [](std::pair<std::string, format> const & p) {
                       cout << "---- " << p.first << " ----------" << endl
-                                << p.second << endl
-                                << "--------------------" << endl << endl;
+                           << p.second << endl
+                           << "--------------------" << endl << endl;
                   });
-
 
     std::vector<std::string> ss = {"Last", "weekend's", "revelation", "that", "J.K.", "Rowling", "is", "the", "author", "of", "the", "critically", "acclaimed", "and", "--", "until", "now", "--", "commercially", "unsuccessful", "crime", "novel", "The", "Cuckoo's", "Calling", "has", "electrified", "the", "book", "world", "and", "solidified", "Rowling's", "reputation", "as", "a", "genuine", "writing", "talent:", "After", "all,", "if", "she", "can", "impress", "the", "critics", "without", "the", "benefit", "of", "her", "towering", "reputation,", "then", "surely", "her", "success", "is", "deserved."};
 
-    cout << accumulate(++ss.begin(),
-               ss.end(),
-               format(*ss.begin()),
-               [](format const & result, std::string const & s) {
-                   return wrap(result, format(s));
-               });
+    cout << fillwords(ss.begin(), ss.end());
 
     std::vector<format> sl = {f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12};
 
@@ -78,7 +70,6 @@ static void tst1() {
     pretty(cout, 60, fill(sl.begin(), sl.end()));
     cout << endl;
     cout << std::string(40, '=') << endl;
-
 
     cout << "stack" << endl;
     cout << std::string(40, '=') << endl;
@@ -92,7 +83,6 @@ static void tst1() {
     cout << endl;
     cout << std::string(40, '=') << endl;
 
-//    cout << fill(ss.begin(), ss.end()) << endl;
     return;
 }
 

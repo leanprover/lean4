@@ -237,6 +237,10 @@ format operator+(format const & f1, format const & f2) {
     return format{f1, f2};
 }
 
+format operator^(format const & f1, format const & f2) {
+    return format{f1, format(" "), f2};
+}
+
 std::ostream & pretty(std::ostream & out, unsigned w, format const & f) {
     sexpr const & b = format::best(w, 0, f.m_value);
     return layout_list(out, b);

@@ -177,13 +177,22 @@ public:
     friend format bracket(std::string const l, format const & x, std::string const r);
     friend format wrap(format const & f1, format const & f2);
 
+    // x + y = x <> y
+    friend format operator+(format const & f1, format const & f2);
     format & operator+=(format const & f) {
         *this = *this + f;
         return *this;
     }
+
+    // x ^ y = x <> " " <> y
+    friend format operator^(format const & f1, format const & f2);
+    format & operator^=(format const & f) {
+        *this = *this ^ f;
+        return *this;
+    }
+
     friend std::ostream & operator<<(std::ostream & out, format const & f);
-    // x <+> y = x <> text " " <> y
-    friend format operator+(format const & f1, format const & f2);
+
     friend std::ostream & layout(std::ostream & out, sexpr const & s);
     friend std::ostream & pretty(std::ostream & out, unsigned w, format const & f);
 };

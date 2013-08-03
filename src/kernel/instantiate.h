@@ -13,6 +13,13 @@ namespace lean {
 
    \pre s[0], ..., s[n-1] must be closed expressions (i.e., no free variables).
 */
+expr instantiate_with_closed(unsigned n, expr const * s, expr const & e);
+inline expr instantiate_with_closed(expr const & s, expr const & e) { return instantiate_with_closed(1, &s, e); }
+
+/**
+   \brief Replace the free variables with indices 0,...,n-1 with s[n-1],...,s[0] in e.
+*/
 expr instantiate(unsigned n, expr const * s, expr const & e);
 inline expr instantiate(expr const & s, expr const & e) { return instantiate(1, &s, e); }
+
 }

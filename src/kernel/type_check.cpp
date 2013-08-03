@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <sstream>
 #include "type_check.h"
 #include "normalize.h"
+#include "instantiate.h"
 #include "free_vars.h"
 #include "exception.h"
 #include "trace.h"
@@ -83,23 +84,19 @@ class infer_type_fn {
         case expr_kind::Var:      return lookup(ctx, var_idx(e));
         case expr_kind::Type:     return type(ty_level(e) + 1);
         case expr_kind::App: {
-            expr f_t     = infer_pi(arg(e, 0), ctx);
+            expr f       = arg(e, 0);
             unsigned i   = 1;
             unsigned num = num_args(e);
             lean_assert(num >= 2);
             while (true) {
                 expr const & c = arg(e, i);
+                expr f_t       = infer_pi(f, ctx);
                 expr c_t       = infer_type(c, ctx);
                 check_type(e, i, abst_domain(f_t), c_t, ctx);
-                // Remark: if f_t is an arrow, we don't have to call normalize and
-                // lower_free_vars
-                f_t = normalize(abst_body(f_t), ctx, c);
-                f_t = lower_free_vars(f_t, 1);
+                f = instantiate(abst_body(f_t), c);
                 i++;
                 if (i == num)
-                    return f_t;
-                if (!is_pi(f_t))
-                    throw exception("function expected");
+                    return f;
             }
         }
         case expr_kind::Lambda: {

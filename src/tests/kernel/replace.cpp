@@ -30,13 +30,15 @@ static void tst1() {
 
 static void tst2() {
     expr r = lambda("x", type(level()), app(var(0), var(1), var(2)));
-    std::cout << instantiate(constant("a"), r) << std::endl;
-    lean_assert(instantiate(constant("a"), r) == lambda("x", type(level()), app(var(0), constant("a"), var(1))));
-    lean_assert(instantiate(constant("b"), instantiate(constant("a"), r)) ==
+    std::cout << instantiate_with_closed(constant("a"), r) << std::endl;
+    lean_assert(instantiate_with_closed(constant("a"), r) == lambda("x", type(level()), app(var(0), constant("a"), var(1))));
+    lean_assert(instantiate_with_closed(constant("b"), instantiate_with_closed(constant("a"), r)) ==
                 lambda("x", type(level()), app(var(0), constant("a"), constant("b"))));
-    std::cout << instantiate(constant("a"), abst_body(r)) << std::endl;
-    lean_assert(instantiate(constant("a"), abst_body(r)) == app(constant("a"), var(0), var(1)));
-}
+    std::cout << instantiate_with_closed(constant("a"), abst_body(r)) << std::endl;
+    lean_assert(instantiate_with_closed(constant("a"), abst_body(r)) == app(constant("a"), var(0), var(1)));
+    std::cout << instantiate(var(10), r) << std::endl;
+    lean_assert(instantiate(var(10), r) == lambda("x", type(level()), app(var(0), var(11), var(1))));
+ }
 
 int main() {
     continue_on_violation(true);

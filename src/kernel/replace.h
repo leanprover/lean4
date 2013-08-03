@@ -21,6 +21,8 @@ namespace lean {
 */
 template<typename F>
 class replace_fn {
+    static_assert(std::is_same<typename std::result_of<F(expr const &, unsigned)>::type, expr>::value,
+                  "replace_fn: return type of F is not expr");
     expr_cell_offset_map<expr> m_cache;
     F                          m_f;
 

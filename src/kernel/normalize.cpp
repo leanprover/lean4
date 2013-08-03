@@ -74,7 +74,7 @@ class normalize_fn {
 
     expr reify_closure(expr const & a, stack const & c, unsigned k) {
         lean_assert(is_lambda(a));
-        expr new_t = reify(normalize(abst_type(a), c, k), k);
+        expr new_t = reify(normalize(abst_domain(a), c, k), k);
         expr new_b = reify(normalize(abst_body(a), extend(c, value(k)), k+1), k+1);
         return lambda(abst_name(a), new_t, new_b);
 #if 0
@@ -156,7 +156,7 @@ class normalize_fn {
         case expr_kind::Lambda:
             return value(a, c);
         case expr_kind::Pi: {
-            expr new_t = reify(normalize(abst_type(a), c, k), k);
+            expr new_t = reify(normalize(abst_domain(a), c, k), k);
             expr new_b = reify(normalize(abst_body(a), extend(c, value(k)), k+1), k+1);
             return value(pi(abst_name(a), new_t, new_b));
         }}

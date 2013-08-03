@@ -52,7 +52,7 @@ protected:
             break;
         case expr_kind::Lambda:
         case expr_kind::Pi:
-            result = apply(abst_type(e), offset) || apply(abst_body(e), offset + 1);
+            result = apply(abst_domain(e), offset) || apply(abst_body(e), offset + 1);
             break;
         }
 

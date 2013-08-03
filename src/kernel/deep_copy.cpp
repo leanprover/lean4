@@ -32,8 +32,8 @@ class deep_copy_fn {
             r = app(new_args.size(), new_args.data());
             break;
         }
-        case expr_kind::Lambda:   r = lambda(abst_name(a), apply(abst_type(a)), apply(abst_body(a))); break;
-        case expr_kind::Pi:       r = pi(abst_name(a), apply(abst_type(a)), apply(abst_body(a))); break;
+        case expr_kind::Lambda:   r = lambda(abst_name(a), apply(abst_domain(a)), apply(abst_body(a))); break;
+        case expr_kind::Pi:       r = pi(abst_name(a), apply(abst_domain(a)), apply(abst_body(a))); break;
         }
         if (sh)
             m_cache.insert(std::make_pair(a.raw(), r));

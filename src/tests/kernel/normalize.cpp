@@ -63,7 +63,7 @@ unsigned count_core(expr const & a, expr_set & s) {
         return std::accumulate(begin_args(a), end_args(a), 1,
                                [&](unsigned sum, expr const & arg){ return sum + count_core(arg, s); });
     case expr_kind::Lambda: case expr_kind::Pi:
-        return count_core(abst_type(a), s) + count_core(abst_body(a), s) + 1;
+        return count_core(abst_domain(a), s) + count_core(abst_body(a), s) + 1;
     }
     return 0;
 }

@@ -76,7 +76,7 @@ expr app(unsigned n, expr const * as) {
 expr_abstraction::expr_abstraction(expr_kind k, name const & n, expr const & t, expr const & b):
     expr_cell(k, ::lean::hash(t.hash(), b.hash())),
     m_name(n),
-    m_type(t),
+    m_domain(t),
     m_body(b) {
 }
 expr_lambda::expr_lambda(name const & n, expr const & t, expr const & e):
@@ -134,7 +134,7 @@ class eq_fn {
         case expr_kind::Pi:
             // Lambda and Pi
             // Remark: we ignore get_abs_name because we want alpha-equivalence
-            return apply(abst_type(a), abst_type(b)) && apply(abst_body(a), abst_body(b));
+            return apply(abst_domain(a), abst_domain(b)) && apply(abst_body(a), abst_body(b));
         case expr_kind::Type:     return ty_level(a) == ty_level(b);
         case expr_kind::Numeral:  return num_value(a) == num_value(b);
         }
@@ -168,14 +168,14 @@ std::ostream & operator<<(std::ostream & out, expr const & a) {
         }
         out << ")";
         break;
-    case expr_kind::Lambda:  out << "(fun (" << abst_name(a) << " : " << abst_type(a) << ") " << abst_body(a) << ")";    break;
+    case expr_kind::Lambda:  out << "(fun (" << abst_name(a) << " : " << abst_domain(a) << ") " << abst_body(a) << ")";    break;
     case expr_kind::Pi:
         if (!is_arrow(a))
-            out << "(pi (" << abst_name(a) << " : " << abst_type(a) << ") " << abst_body(a) << ")";
-        else if (!is_arrow(abst_type(a)))
-            out << abst_type(a) << " -> " << abst_body(a);
+            out << "(pi (" << abst_name(a) << " : " << abst_domain(a) << ") " << abst_body(a) << ")";
+        else if (!is_arrow(abst_domain(a)))
+            out << abst_domain(a) << " -> " << abst_body(a);
         else
-            out << "(" << abst_type(a) << ") -> " << abst_body(a);
+            out << "(" << abst_domain(a) << ") -> " << abst_body(a);
         break;
     case expr_kind::Type: {
         level const & l = ty_level(a);
@@ -197,8 +197,8 @@ expr copy(expr const & a) {
     case expr_kind::Type:     return type(ty_level(a));
     case expr_kind::Numeral:  return numeral(num_value(a));
     case expr_kind::App:      return app(num_args(a), begin_args(a));
-    case expr_kind::Lambda:   return lambda(abst_name(a), abst_type(a), abst_body(a));
-    case expr_kind::Pi:       return pi(abst_name(a), abst_type(a), abst_body(a));
+    case expr_kind::Lambda:   return lambda(abst_name(a), abst_domain(a), abst_body(a));
+    case expr_kind::Pi:       return pi(abst_name(a), abst_domain(a), abst_body(a));
     }
     lean_unreachable();
     return expr();
@@ -227,7 +227,7 @@ lean::format pp_aux(lean::expr const & a) {
                        paren(format{
                                format(abst_name(a)),
                                format(" : "),
-                               pp_aux(abst_type(a))}),
+                               pp_aux(abst_domain(a))}),
                        format(" "),
                        pp_aux(abst_body(a))});
     case expr_kind::Pi:
@@ -236,7 +236,7 @@ lean::format pp_aux(lean::expr const & a) {
                        paren(format{
                                format(abst_name(a)),
                                format(" : "),
-                               pp_aux(abst_type(a))}),
+                               pp_aux(abst_domain(a))}),
                        format(" "),
                        pp_aux(abst_body(a))});
     case expr_kind::Type:

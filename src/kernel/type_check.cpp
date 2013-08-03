@@ -90,7 +90,7 @@ class infer_type_fn {
             while (true) {
                 expr const & c = arg(e, i);
                 expr c_t       = infer_type(c, ctx);
-                check_type(e, i, abst_type(f_t), c_t, ctx);
+                check_type(e, i, abst_domain(f_t), c_t, ctx);
                 // Remark: if f_t is an arrow, we don't have to call normalize and
                 // lower_free_vars
                 f_t = normalize(abst_body(f_t), ctx, c);
@@ -103,13 +103,13 @@ class infer_type_fn {
             }
         }
         case expr_kind::Lambda: {
-            infer_universe(abst_type(e), ctx);
-            expr t = infer_type(abst_body(e), extend(ctx, abst_name(e), abst_type(e)));
-            return pi(abst_name(e), abst_type(e), t);
+            infer_universe(abst_domain(e), ctx);
+            expr t = infer_type(abst_body(e), extend(ctx, abst_name(e), abst_domain(e)));
+            return pi(abst_name(e), abst_domain(e), t);
         }
         case expr_kind::Pi: {
-            level l1 = infer_universe(abst_type(e), ctx);
-            level l2 = infer_universe(abst_body(e), extend(ctx, abst_name(e), abst_type(e)));
+            level l1 = infer_universe(abst_domain(e), ctx);
+            level l2 = infer_universe(abst_body(e), extend(ctx, abst_name(e), abst_domain(e)));
             return type(max(l1, l2));
         }
         case expr_kind::Numeral:

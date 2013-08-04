@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <vector>
 #include <limits>
+#include <atomic>
 #include "environment.h"
 #include "exception.h"
 #include "debug.h"
@@ -18,6 +19,14 @@ constexpr unsigned uninit = std::numeric_limits<int>::max();
 struct environment::imp {
     std::vector<std::vector<unsigned>> m_uvar_distances;
     std::vector<level>                 m_uvars;
+    std::atomic<unsigned>              m_num_children;
+    std::shared_ptr<imp>               m_parent;
+
+    bool has_children() const { return m_num_children > 0; }
+    void inc_children() { m_num_children++; }
+    void dec_children() { m_num_children--; }
+
+    bool has_parent() const { return m_parent != nullptr; }
 
     /** \brief Return v - k. It throws an exception if there is a underflow. */
     static int sub(int v, unsigned k) {
@@ -63,7 +72,10 @@ struct environment::imp {
     }
 
     bool is_ge(level const & l1, level const & l2) {
-        return is_ge(l1, l2, 0);
+        if (!has_parent())
+            return is_ge(l1, l2, 0);
+        else
+            return m_parent->is_ge(l1, l2);
     }
 
     level add_var(name const & n) {
@@ -111,6 +123,10 @@ struct environment::imp {
     }
 
     level define_uvar(name const & n, level const & l) {
+        if (has_parent())
+            throw exception("invalid universe declaration, universe variables can only be declared in top-level environments");
+        if (has_children())
+            throw exception("invalid universe declaration, environment has children environments");
         level r = add_var(n);
         add_constraints(uvar_idx(r), l, 0);
         return r;
@@ -139,13 +155,33 @@ struct environment::imp {
                       });
     }
 
-    imp() {
+    imp():
+        m_num_children(0) {
         init_uvars();
+    }
+
+    explicit imp(std::shared_ptr<imp> const & parent):
+        m_num_children(0),
+        m_parent(parent) {
+        m_parent->inc_children();
+    }
+
+    ~imp() {
+        if (m_parent)
+            m_parent->dec_children();
     }
 };
 
 environment::environment():
-    m_imp(new imp) {
+    m_imp(new imp()) {
+}
+
+environment::environment(imp * new_ptr):
+    m_imp(new_ptr) {
+}
+
+environment::environment(std::shared_ptr<imp> const & ptr):
+    m_imp(ptr) {
 }
 
 environment::~environment() {
@@ -162,4 +198,22 @@ bool environment::is_ge(level const & l1, level const & l2) const {
 void environment::display_uvars(std::ostream & out) const {
     m_imp->display_uvars(out);
 }
+
+environment environment::mk_child() const {
+    return environment(new imp(m_imp));
+}
+
+bool environment::has_children() const {
+    return m_imp->has_children();
+}
+
+bool environment::has_parent() const {
+    return m_imp->has_parent();
+}
+
+environment environment::parent() const {
+    lean_assert(has_parent());
+    return environment(m_imp->m_parent);
+}
+
 }

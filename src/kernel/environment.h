@@ -16,7 +16,9 @@ namespace lean {
 */
 class environment {
     struct imp;
-    std::unique_ptr<imp> m_imp;
+    std::shared_ptr<imp> m_imp;
+    explicit environment(std::shared_ptr<imp> const & ptr);
+    explicit environment(imp * new_ptr);
 public:
     environment();
     ~environment();
@@ -40,5 +42,29 @@ public:
 
     /** \brief Display universal variables, and their constraints */
     void display_uvars(std::ostream & out) const;
+
+    /**
+       \brief Return universal variable with the given name.
+       Throw an exception if variable is not defined in this environment.
+    */
+    level get_uvar(name const & n) const;
+
+    /**
+       \brief Create a child environment. This environment will only allow "read-only" operations until
+       all children environments are deleted.
+    */
+    environment mk_child() const;
+
+    /** \brief Return true iff this environment has children environments. */
+    bool has_children() const;
+
+    /** \brief Return true iff this environment has a parent environment. */
+    bool has_parent() const;
+
+    /**
+        \brief Return parent environment of this environment.
+        \pre has_parent()
+    */
+    environment parent() const;
 };
 }

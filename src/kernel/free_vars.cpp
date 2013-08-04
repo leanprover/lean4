@@ -27,7 +27,7 @@ protected:
             return false;
         case expr_kind::Var:
             return process_var(e, offset);
-        case expr_kind::App: case expr_kind::Lambda: case expr_kind::Pi:
+        case expr_kind::App: case expr_kind::Eq: case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Let:
             break;
         }
 
@@ -50,9 +50,15 @@ protected:
         case expr_kind::App:
             result = std::any_of(begin_args(e), end_args(e), [=](expr const & arg){ return apply(arg, offset); });
             break;
+        case expr_kind::Eq:
+            result = apply(eq_lhs(e), offset) || apply(eq_rhs(e), offset);
+            break;
         case expr_kind::Lambda:
         case expr_kind::Pi:
             result = apply(abst_domain(e), offset) || apply(abst_body(e), offset + 1);
+            break;
+        case expr_kind::Let:
+            result = apply(let_value(e), offset) || apply(let_body(e), offset + 1);
             break;
         }
 

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "expr.h"
 #include "context.h"
 #include "environment.h"
+#include "builtin.h"
 #include "free_vars.h"
 #include "list.h"
 #include "buffer.h"
@@ -163,13 +164,26 @@ class normalize_fn {
                 }
             }
         }
+        case expr_kind::Eq: {
+            expr new_l = reify(normalize(eq_lhs(a), s, k), k);
+            expr new_r = reify(normalize(eq_rhs(a), s, k), k);
+            if (new_l == new_r) {
+                return svalue(bool_value(true));
+            } else {
+                // TODO: Invoke semantic attachments.
+                return svalue(eq(new_l, new_r));
+            }
+        }
         case expr_kind::Lambda:
             return svalue(a, s);
         case expr_kind::Pi: {
             expr new_t = reify(normalize(abst_domain(a), s, k), k);
             expr new_b = reify(normalize(abst_body(a), extend(s, svalue(k)), k+1), k+1);
             return svalue(pi(abst_name(a), new_t, new_b));
-        }}
+        }
+        case expr_kind::Let:
+            return normalize(let_body(a), extend(s, normalize(let_value(a), s, k)), k+1);
+        }
         lean_unreachable();
         return svalue(a);
     }

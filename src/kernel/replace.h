@@ -44,9 +44,15 @@ class replace_fn {
             case expr_kind::App:
                 r = update_app(e, [=](expr const & c) { return apply(c, offset); });
                 break;
+            case expr_kind::Eq:
+                r = update_eq(e, [=](expr const & l, expr const & r) { return std::make_pair(apply(l, offset), apply(r, offset)); });
+                break;
             case expr_kind::Lambda:
             case expr_kind::Pi:
                 r = update_abst(e, [=](expr const & t, expr const & b) { return std::make_pair(apply(t, offset), apply(b, offset+1)); });
+                break;
+            case expr_kind::Let:
+                r = update_let(e, [=](expr const & v, expr const & b) { return std::make_pair(apply(v, offset), apply(b, offset+1)); });
                 break;
             }
         }

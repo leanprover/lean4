@@ -71,7 +71,13 @@ expr app(unsigned n, expr const * as) {
     to_app(r)->m_hash = hash_args(new_n, m_args);
     return r;
 }
-
+expr_eq::expr_eq(expr const & lhs, expr const & rhs):
+    expr_cell(expr_kind::Eq, ::lean::hash(lhs.hash(), rhs.hash())),
+    m_lhs(lhs),
+    m_rhs(rhs) {
+}
+expr_eq::~expr_eq() {
+}
 expr_abstraction::expr_abstraction(expr_kind k, name const & n, expr const & t, expr const & b):
     expr_cell(k, ::lean::hash(t.hash(), b.hash())),
     m_name(n),
@@ -89,7 +95,14 @@ expr_type::expr_type(level const & l):
 }
 expr_type::~expr_type() {
 }
-
+expr_let::expr_let(name const & n, expr const & v, expr const & b):
+    expr_cell(expr_kind::Let, ::lean::hash(v.hash(), b.hash())),
+    m_name(n),
+    m_value(v),
+    m_body(b) {
+}
+expr_let::~expr_let() {
+}
 expr_value::expr_value(value & v):
     expr_cell(expr_kind::Value, v.hash()),
     m_val(v) {
@@ -104,10 +117,12 @@ void expr_cell::dealloc() {
     case expr_kind::Var:        delete static_cast<expr_var*>(this); break;
     case expr_kind::Constant:   delete static_cast<expr_const*>(this); break;
     case expr_kind::App:        static_cast<expr_app*>(this)->~expr_app(); delete[] reinterpret_cast<char*>(this); break;
+    case expr_kind::Eq:         delete static_cast<expr_eq*>(this); break;
     case expr_kind::Lambda:     delete static_cast<expr_lambda*>(this); break;
     case expr_kind::Pi:         delete static_cast<expr_pi*>(this); break;
     case expr_kind::Type:       delete static_cast<expr_type*>(this); break;
     case expr_kind::Value:      delete static_cast<expr_value*>(this); break;
+    case expr_kind::Let:        delete static_cast<expr_let*>(this); break;
     }
 }
 
@@ -142,6 +157,7 @@ class eq_fn {
                 if (!apply(arg(a, i), arg(b, i)))
                     return false;
             return true;
+        case expr_kind::Eq:       return apply(eq_lhs(a), eq_lhs(b)) && apply(eq_rhs(a), eq_rhs(b));
         case expr_kind::Lambda:
         case expr_kind::Pi:
             // Lambda and Pi
@@ -149,6 +165,7 @@ class eq_fn {
             return apply(abst_domain(a), abst_domain(b)) && apply(abst_body(a), abst_body(b));
         case expr_kind::Type:     return ty_level(a) == ty_level(b);
         case expr_kind::Value:    return to_value(a) == to_value(b);
+        case expr_kind::Let:      return apply(let_value(a), let_value(b)) && apply(let_body(a), let_body(b));
         }
         lean_unreachable();
         return false;
@@ -180,15 +197,17 @@ std::ostream & operator<<(std::ostream & out, expr const & a) {
         }
         out << ")";
         break;
-    case expr_kind::Lambda:  out << "(fun (" << abst_name(a) << " : " << abst_domain(a) << ") " << abst_body(a) << ")";    break;
+    case expr_kind::Eq:      out << "(" << eq_lhs(a) << " = " << eq_rhs(a) << ")"; break;
+    case expr_kind::Lambda:  out << "(fun " << abst_name(a) << " : " << abst_domain(a) << " => " << abst_body(a) << ")"; break;
     case expr_kind::Pi:
         if (!is_arrow(a))
-            out << "(pi (" << abst_name(a) << " : " << abst_domain(a) << ") " << abst_body(a) << ")";
+            out << "(pi " << abst_name(a) << " : " << abst_domain(a) << ", " << abst_body(a) << ")";
         else if (!is_arrow(abst_domain(a)))
             out << abst_domain(a) << " -> " << abst_body(a);
         else
             out << "(" << abst_domain(a) << ") -> " << abst_body(a);
         break;
+    case expr_kind::Let:  out << "(let " << let_name(a) << " := " << let_value(a) << " in " << let_body(a) << ")"; break;
     case expr_kind::Type: {
         level const & l = ty_level(a);
         if (is_uvar(l) && uvar_idx(l) == 0)
@@ -209,8 +228,10 @@ expr copy(expr const & a) {
     case expr_kind::Type:     return type(ty_level(a));
     case expr_kind::Value:    return to_expr(static_cast<expr_value*>(a.raw())->m_val);
     case expr_kind::App:      return app(num_args(a), begin_args(a));
+    case expr_kind::Eq:       return eq(eq_lhs(a), eq_rhs(a));
     case expr_kind::Lambda:   return lambda(abst_name(a), abst_domain(a), abst_body(a));
     case expr_kind::Pi:       return pi(abst_name(a), abst_domain(a), abst_body(a));
+    case expr_kind::Let:      return let(let_name(a), let_value(a), let_body(a));
     }
     lean_unreachable();
     return expr();
@@ -235,6 +256,17 @@ lean::format pp_aux(lean::expr const & a) {
         }
         return paren(r);
     }
+    case expr_kind::Eq:
+        return paren(format{pp_aux(eq_lhs(a)), format("="), pp_aux(eq_rhs(a))});
+    case expr_kind::Let:
+        return paren(format{
+                       highlight(format("let "), format::format_color::PINK), /* Use unicode lambda */
+                       paren(format{
+                               format(let_name(a)),
+                               format(" := "),
+                               pp_aux(let_value(a))}),
+                       format(" in "),
+                       pp_aux(let_body(a))});
     case expr_kind::Lambda:
         return paren(format{
                        highlight(format("\u03BB "), format::format_color::PINK), /* Use unicode lambda */

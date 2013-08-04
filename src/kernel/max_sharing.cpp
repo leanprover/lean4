@@ -40,9 +40,19 @@ struct max_sharing_fn::imp {
             cache(r);
             return r;
         }
+        case expr_kind::Eq : {
+            expr r = update_eq(a, [=](expr const & l, expr const & r){ return std::make_pair(apply(l), apply(r)); });
+            cache(r);
+            return r;
+        }
         case expr_kind::Lambda:
         case expr_kind::Pi: {
             expr r = update_abst(a, [=](expr const & t, expr const & b) { return std::make_pair(apply(t), apply(b)); });
+            cache(r);
+            return r;
+        }
+        case expr_kind::Let: {
+            expr r = update_let(a, [=](expr const & v, expr const & b) { return std::make_pair(apply(v), apply(b)); });
             cache(r);
             return r;
         }}

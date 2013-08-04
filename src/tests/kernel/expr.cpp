@@ -74,8 +74,12 @@ unsigned depth1(expr const & e) {
             m = std::max(m, depth1(a));
         return m + 1;
     }
+    case expr_kind::Eq:
+        return std::max(depth1(eq_lhs(e)), depth1(eq_rhs(e))) + 1;
     case expr_kind::Lambda: case expr_kind::Pi:
         return std::max(depth1(abst_domain(e)), depth1(abst_body(e))) + 1;
+    case expr_kind::Let:
+        return std::max(depth1(let_value(e)), depth1(let_body(e))) + 1;
     }
     return 0;
 }
@@ -90,8 +94,12 @@ unsigned depth2(expr const & e) {
             std::accumulate(begin_args(e), end_args(e), 0,
                             [](unsigned m, expr const & arg){ return std::max(depth2(arg), m); })
             + 1;
+    case expr_kind::Eq:
+        return std::max(depth2(eq_lhs(e)), depth2(eq_rhs(e))) + 1;
     case expr_kind::Lambda: case expr_kind::Pi:
         return std::max(depth2(abst_domain(e)), depth2(abst_body(e))) + 1;
+    case expr_kind::Let:
+        return std::max(depth2(let_value(e)), depth2(let_body(e))) + 1;
     }
     return 0;
 }
@@ -116,9 +124,17 @@ unsigned depth3(expr const & e) {
                 todo.push_back(std::make_pair(&arg(e, i), c));
             break;
         }
+        case expr_kind::Eq:
+            todo.push_back(std::make_pair(&eq_lhs(e), c));
+            todo.push_back(std::make_pair(&eq_rhs(e), c));
+            break;
         case expr_kind::Lambda: case expr_kind::Pi:
             todo.push_back(std::make_pair(&abst_domain(e), c));
             todo.push_back(std::make_pair(&abst_body(e), c));
+            break;
+        case expr_kind::Let:
+            todo.push_back(std::make_pair(&let_value(e), c));
+            todo.push_back(std::make_pair(&let_body(e), c));
             break;
         }
     }
@@ -173,8 +189,12 @@ unsigned count_core(expr const & a, expr_set & s) {
     case expr_kind::App:
         return std::accumulate(begin_args(a), end_args(a), 1,
                           [&](unsigned sum, expr const & arg){ return sum + count_core(arg, s); });
+    case expr_kind::Eq:
+        return count_core(eq_lhs(a), s) + count_core(eq_rhs(a), s) + 1;
     case expr_kind::Lambda: case expr_kind::Pi:
         return count_core(abst_domain(a), s) + count_core(abst_body(a), s) + 1;
+    case expr_kind::Let:
+        return count_core(let_value(a), s) + count_core(let_body(a), s) + 1;
     }
     return 0;
 }
@@ -343,6 +363,14 @@ void tst14() {
     std::cout << t0 << " " << t1 << "\n";
 }
 
+void tst15() {
+    expr t = eq(constant("a"), constant("b"));
+    std::cout << t << "\n";
+    expr l = let("a", constant("b"), var(0));
+    std::cout << l << "\n";
+    lean_assert(closed(l));
+}
+
 int main() {
     continue_on_violation(true);
     std::cout << "sizeof(expr):      " << sizeof(expr) << "\n";
@@ -363,6 +391,7 @@ int main() {
     tst12();
     tst13();
     tst14();
+    tst15();
     std::cout << "done" << "\n";
     return has_violations() ? 1 : 0;
 }

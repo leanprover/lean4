@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include "normalize.h"
+#include "builtin.h"
 #include "trace.h"
 #include "test.h"
 #include "sets.h"
@@ -62,8 +63,12 @@ unsigned count_core(expr const & a, expr_set & s) {
     case expr_kind::App:
         return std::accumulate(begin_args(a), end_args(a), 1,
                                [&](unsigned sum, expr const & arg){ return sum + count_core(arg, s); });
+    case expr_kind::Eq:
+        return count_core(eq_lhs(a), s) + count_core(eq_rhs(a), s) + 1;
     case expr_kind::Lambda: case expr_kind::Pi:
         return count_core(abst_domain(a), s) + count_core(abst_body(a), s) + 1;
+    case expr_kind::Let:
+        return count_core(let_value(a), s) + count_core(let_body(a), s) + 1;
     }
     return 0;
 }
@@ -159,10 +164,28 @@ static void tst2() {
     lean_assert(F6 == lambda("z1", t, lambda("z2", t, app(var(2), var(3), constant("a")))));
 }
 
+static void tst3() {
+    environment env;
+    expr t1 = constant("a");
+    expr t2 = constant("a");
+    expr e = eq(t1, t2);
+    std::cout << e << " --> " << normalize(e, env) << "\n";
+    lean_assert(normalize(e, env) == bool_value(true));
+}
+
+static void tst4() {
+    environment env;
+    expr t1 = let("a", constant("b"), lambda("c", type(), var(1)(var(0))));
+    std::cout << t1 << " --> " << normalize(t1, env) << "\n";
+    lean_assert(normalize(t1, env) == lambda("c", type(), constant("b")(var(0))));
+}
+
 int main() {
     continue_on_violation(true);
     tst_church_numbers();
     tst1();
     tst2();
+    tst3();
+    tst4();
     return has_violations() ? 1 : 0;
 }

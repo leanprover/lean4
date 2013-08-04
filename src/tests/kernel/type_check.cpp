@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "type_check.h"
 #include "abstract.h"
 #include "exception.h"
+#include "builtin.h"
 #include "trace.h"
 #include "test.h"
 using namespace lean;
@@ -63,10 +64,20 @@ static void tst2() {
     }
 }
 
+static void tst3() {
+    environment env;
+    expr f = fun("a", bool_type(), eq(constant("a"), bool_value(true)));
+    std::cout << infer_type(f, env) << "\n";
+    lean_assert(infer_type(f, env) == arrow(bool_type(), bool_type()));
+    expr t = let("a", bool_value(true), var(0));
+    std::cout << infer_type(t, env) << "\n";
+}
+
 int main() {
     continue_on_violation(true);
     enable_trace("type_check");
     tst1();
     tst2();
+    tst3();
     return has_violations() ? 1 : 0;
 }

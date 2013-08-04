@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "type_check.h"
 #include "normalize.h"
 #include "instantiate.h"
+#include "builtin.h"
 #include "free_vars.h"
 #include "exception.h"
 #include "trace.h"
@@ -100,6 +101,10 @@ class infer_type_fn {
                 check_pi(f_t, ctx);
             }
         }
+        case expr_kind::Eq:
+            infer_type(eq_lhs(e), ctx);
+            infer_type(eq_rhs(e), ctx);
+            return bool_type();
         case expr_kind::Lambda: {
             infer_universe(abst_domain(e), ctx);
             expr t = infer_type(abst_body(e), extend(ctx, abst_name(e), abst_domain(e)));
@@ -110,6 +115,8 @@ class infer_type_fn {
             level l2 = infer_universe(abst_body(e), extend(ctx, abst_name(e), abst_domain(e)));
             return type(max(l1, l2));
         }
+        case expr_kind::Let:
+            return infer_type(let_body(e), extend(ctx, let_name(e), infer_type(let_value(e), ctx), let_value(e)));
         case expr_kind::Value:
             return to_value(e).get_type();
         }

@@ -149,11 +149,16 @@ class normalize_fn {
                     i++;
                 }
                 else {
-                    // TODO: support for interpreted symbols
                     buffer<expr> new_args;
-                    new_args.push_back(reify(f, k));
+                    expr new_f = reify(f, k);
+                    new_args.push_back(new_f);
                     for (; i < n; i++)
                         new_args.push_back(reify(normalize(arg(a, i), s, k), k));
+                    if (is_value(new_f)) {
+                        expr r;
+                        if (to_value(new_f).normalize(new_args.size(), new_args.data(), r))
+                            return svalue(r);
+                    }
                     return svalue(app(new_args.size(), new_args.data()));
                 }
             }

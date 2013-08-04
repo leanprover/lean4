@@ -111,6 +111,13 @@ void expr_cell::dealloc() {
     }
 }
 
+expr type() {
+    static thread_local expr r;
+    if (!r)
+        r = type(level());
+    return r;
+}
+
 class eq_fn {
     expr_cell_pair_set m_eq_visited;
 

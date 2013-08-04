@@ -179,7 +179,7 @@ public:
     virtual ~value() {}
     virtual char const * kind() const = 0;
     virtual expr get_type() const = 0;
-    virtual expr normalize(unsigned num_args, expr const * args) const = 0;
+    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const = 0;
     virtual bool operator==(value const & other) const = 0;
     virtual void display(std::ostream & out) const = 0;
     virtual format pp() const = 0;
@@ -237,6 +237,7 @@ inline expr pi(name const & n, expr const & t, expr const & e) { return expr(new
 inline expr pi(char const * n, expr const & t, expr const & e) { return pi(name(n), t, e); }
 inline expr arrow(expr const & t, expr const & e) { return pi(name("_"), t, e); }
 inline expr type(level const & l) { return expr(new expr_type(l)); }
+       expr type();
 
 inline expr expr::operator()(expr const & a1) const { return app(*this, a1); }
 inline expr expr::operator()(expr const & a1, expr const & a2) const { return app(*this, a1, a2); }

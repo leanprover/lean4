@@ -169,8 +169,9 @@ class normalize_fn {
             expr new_r = reify(normalize(eq_rhs(a), s, k), k);
             if (new_l == new_r) {
                 return svalue(bool_value(true));
+            } else if (is_value(new_l) && is_value(new_r)) {
+                return svalue(bool_value(false));
             } else {
-                // TODO: Invoke semantic attachments.
                 return svalue(eq(new_l, new_r));
             }
         }

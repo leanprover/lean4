@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "environment.h"
 #include "type_check.h"
+#include "builtin.h"
 #include "arith.h"
 #include "normalize.h"
 #include "abstract.h"
@@ -74,11 +75,20 @@ static void tst4() {
     lean_assert(normalize(e2, env) == fun("a", int_type(), app(int_sub(), constant("a"), int_value(-20))));
 }
 
+static void tst5() {
+    environment env;
+    expr e = eq(int_value(3), int_value(4));
+    std::cout << e << " --> " << normalize(e, env) << "\n";
+    lean_assert(normalize(e, env) == bool_value(false));
+    lean_assert(normalize(eq(constant("a"), int_value(3)), env) == eq(constant("a"), int_value(3)));
+}
+
 int main() {
     continue_on_violation(true);
     tst1();
     tst2();
     tst3();
     tst4();
+    tst5();
     return has_violations() ? 1 : 0;
 }

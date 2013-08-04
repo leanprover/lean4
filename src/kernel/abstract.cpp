@@ -31,7 +31,7 @@ expr abstract_p(expr const & e, unsigned n, expr const * s) {
         unsigned i = n;
         while (i > 0) {
             --i;
-            if (eqp(s[i], e))
+            if (is_eqp(s[i], e))
                 return var(offset + n - i - 1);
         }
         return e;

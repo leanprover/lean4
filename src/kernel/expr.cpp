@@ -137,7 +137,7 @@ class eq_fn {
     expr_cell_pair_set m_eq_visited;
 
     bool apply(expr const & a, expr const & b) {
-        if (eqp(a, b))            return true;
+        if (is_eqp(a, b))         return true;
         if (a.hash() != b.hash()) return false;
         if (a.kind() != b.kind()) return false;
         if (is_var(a))            return var_idx(a) == var_idx(b);

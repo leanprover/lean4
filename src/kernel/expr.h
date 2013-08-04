@@ -104,7 +104,7 @@ public:
     friend expr type(level const & l);
     friend expr let(name const & n, expr const & v, expr const & e);
 
-    friend bool eqp(expr const & a, expr const & b) { return a.m_ptr == b.m_ptr; }
+    friend bool is_eqp(expr const & a, expr const & b) { return a.m_ptr == b.m_ptr; }
 
     // Overloaded operator() can be used to create applications
     expr operator()(expr const & a1) const;
@@ -358,7 +358,7 @@ typedef std::pair<expr_cell*, unsigned> expr_cell_offset;
 /** \brief Functional object for hashing kernel expressions. */
 struct expr_hash { unsigned operator()(expr const & e) const { return e.hash(); } };
 /** \brief Functional object for testing pointer equality between kernel expressions. */
-struct expr_eqp { bool operator()(expr const & e1, expr const & e2) const { return eqp(e1, e2); } };
+struct expr_eqp { bool operator()(expr const & e1, expr const & e2) const { return is_eqp(e1, e2); } };
 /** \brief Functional object for hashing kernel expression cells. */
 struct expr_cell_hash { unsigned operator()(expr_cell * e) const { return e->hash(); } };
 /** \brief Functional object for testing pointer equality between kernel cell expressions. */
@@ -366,7 +366,7 @@ struct expr_cell_eqp { bool operator()(expr_cell * e1, expr_cell * e2) const { r
 /** \brief Functional object for hashing a pair (n,k) where n is a kernel expressions, and k is an offset. */
 struct expr_offset_hash { unsigned operator()(expr_offset const & p) const { return hash(p.first.hash(), p.second); } };
 /** \brief Functional object for comparing pairs (expression, offset). */
-struct expr_offset_eqp { unsigned operator()(expr_offset const & p1, expr_offset const & p2) const { return eqp(p1.first, p2.first) && p1.second == p2.second; } };
+struct expr_offset_eqp { unsigned operator()(expr_offset const & p1, expr_offset const & p2) const { return is_eqp(p1.first, p2.first) && p1.second == p2.second; } };
 /** \brief Functional object for hashing a pair (n,k) where n is a kernel cell expressions, and k is an offset. */
 struct expr_cell_offset_hash { unsigned operator()(expr_cell_offset const & p) const { return hash(p.first->hash(), p.second); } };
 /** \brief Functional object for comparing pairs (expression cell, offset). */
@@ -408,7 +408,7 @@ template<typename F> expr update_app(expr const & e, F f) {
     bool modified = false;
     for (expr const & a : args(e)) {
         new_args.push_back(f(a));
-        if (!eqp(a, new_args.back()))
+        if (!is_eqp(a, new_args.back()))
             modified = true;
     }
     if (modified)
@@ -423,7 +423,7 @@ template<typename F> expr update_abst(expr const & e, F f) {
     expr const & old_t = abst_domain(e);
     expr const & old_b = abst_body(e);
     std::pair<expr, expr> p = f(old_t, old_b);
-    if (!eqp(p.first, old_t) || !eqp(p.second, old_b)) {
+    if (!is_eqp(p.first, old_t) || !is_eqp(p.second, old_b)) {
         name const & n = abst_name(e);
         return is_pi(e) ? pi(n, p.first, p.second) : lambda(n, p.first, p.second);
     }
@@ -438,7 +438,7 @@ template<typename F> expr update_let(expr const & e, F f) {
     expr const & old_v = let_value(e);
     expr const & old_b = let_body(e);
     std::pair<expr, expr> p = f(old_v, old_b);
-    if (!eqp(p.first, old_v) || !eqp(p.second, old_b))
+    if (!is_eqp(p.first, old_v) || !is_eqp(p.second, old_b))
         return let(let_name(e), p.first, p.second);
     else
         return e;
@@ -450,7 +450,7 @@ template<typename F> expr update_eq(expr const & e, F f) {
     expr const & old_l = eq_lhs(e);
     expr const & old_r = eq_rhs(e);
     std::pair<expr, expr> p = f(old_l, old_r);
-    if (!eqp(p.first, old_l) || !eqp(p.second, old_r))
+    if (!is_eqp(p.first, old_l) || !is_eqp(p.second, old_r))
         return eq(p.first, p.second);
     else
         return e;

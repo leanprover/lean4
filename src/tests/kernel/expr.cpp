@@ -25,9 +25,9 @@ void tst1() {
     expr ty = type(level());
     std::cout << fa << "\n";
     std::cout << fa(a) << "\n";
-    lean_assert(eqp(arg(fa, 0), f));
-    lean_assert(eqp(arg(fa, 1), a));
-    lean_assert(!eqp(fa, f(a)));
+    lean_assert(is_eqp(arg(fa, 0), f));
+    lean_assert(is_eqp(arg(fa, 1), a));
+    lean_assert(!is_eqp(fa, f(a)));
     lean_assert(app(fa, a) == f(a, a));
     std::cout << fa(fa, fa) << "\n";
     std::cout << lambda("x", ty, var(0)) << "\n";
@@ -243,9 +243,9 @@ void tst7() {
     expr v  = var(0);
     expr a1 = max_sharing(f(v,v));
     expr a2 = max_sharing(f(v,v));
-    lean_assert(!eqp(a1, a2));
+    lean_assert(!is_eqp(a1, a2));
     expr b  = max_sharing(f(a1, a2));
-    lean_assert(eqp(arg(b, 1), arg(b, 2)));
+    lean_assert(is_eqp(arg(b, 1), arg(b, 2)));
 }
 
 void tst8() {
@@ -339,7 +339,7 @@ void tst12() {
     expr F = pi("y", t, lambda("x", t, f(f(f(x,a),constant("10")),x)));
     expr G = deep_copy(F);
     lean_assert(F == G);
-    lean_assert(!eqp(F, G));
+    lean_assert(!is_eqp(F, G));
     lean_assert(count(F) == count(G));
 }
 
@@ -348,11 +348,11 @@ void tst13() {
     expr v  = var(0);
     expr a1 = max_sharing(f(v,v));
     expr a2 = max_sharing(f(v,v));
-    lean_assert(!eqp(a1, a2));
+    lean_assert(!is_eqp(a1, a2));
     lean_assert(a1 == a2);
     max_sharing_fn M;
-    lean_assert(eqp(M(f(v,v)), M(f(v,v))));
-    lean_assert(eqp(M(a1), M(a2)));
+    lean_assert(is_eqp(M(f(v,v)), M(f(v,v))));
+    lean_assert(is_eqp(M(a1), M(a2)));
 }
 
 void tst14() {

@@ -25,6 +25,7 @@ bool is_convertible_core(expr const & expected, expr const & given, environment 
 }
 
 bool is_convertible(expr const & expected, expr const & given, environment const & env, context const & ctx) {
+    lean_trace("is_convertible", tout << expected << "\n" << given << "\n" << ctx << "\n";);
     if (is_convertible_core(expected, given, env))
         return true;
     expr e_n = normalize(expected, env, ctx);
@@ -97,6 +98,7 @@ struct infer_type_fn {
                            << "\ngiven type:\n" << c_t;
                     if (!empty(ctx))
                         buffer << "\nin context:\n" << ctx;
+                    throw exception(buffer.str());
                 }
                 f_t = instantiate(abst_body(f_t), c);
                 i++;

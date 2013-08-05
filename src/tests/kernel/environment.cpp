@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "normalize.h"
 #include "abstract.h"
 #include "exception.h"
+#include "trace.h"
 #include "test.h"
 using namespace lean;
 
@@ -103,10 +104,36 @@ static void tst3() {
     }
 }
 
+static void tst4() {
+    environment env;
+    env.add_definition("a", int_type(), int_value(1), true); // add opaque definition
+    expr t = app(int_add(), constant("a"), int_value(1));
+    std::cout << t << " --> " << normalize(t, env) << "\n";
+    lean_assert(normalize(t, env) == t);
+    env.add_definition("b", int_type(), app(int_add(), constant("a"), int_value(1)));
+    expr t2 = app(int_sub(), constant("b"), int_value(9));
+    std::cout << t2 << " --> " << normalize(t2, env) << "\n";
+    lean_assert(normalize(t2, env) == app(int_sub(), app(int_add(), constant("a"), int_value(1)), int_value(9)));
+}
+
+static void tst5() {
+    environment env;
+    env.add_definition("a", int_type(), int_value(1), true); // add opaque definition
+    try {
+        std::cout << infer_type(app(int_add(), constant("a"), int_type()), env) << "\n";
+        lean_unreachable();
+    } catch (exception ex) {
+        std::cout << "expected error: " << ex.what() << "\n";
+    }
+}
+
 int main() {
+    enable_trace("is_convertible");
     continue_on_violation(true);
     tst1();
     tst2();
     tst3();
+    tst4();
+    tst5();
     return has_violations() ? 1 : 0;
 }

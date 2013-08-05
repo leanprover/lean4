@@ -32,5 +32,8 @@ inline context extend(context const & c, name const & n, expr const & t, expr co
 inline context extend(context const & c, name const & n, expr const & t) {
     return context(context_entry(n, t), c);
 }
+inline bool empty(context const & c) {
+    return is_nil(c);
+}
 std::ostream & operator<<(std::ostream & out, context const & c);
 }

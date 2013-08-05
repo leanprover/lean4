@@ -14,12 +14,26 @@ Author: Leonardo de Moura
 #include "trace.h"
 
 namespace lean {
+bool is_convertible_core(expr const & expected, expr const & given, environment const & env) {
+    if (expected == given)
+        return true;
+    if (is_type(expected) && is_type(given)) {
+        if (env.is_ge(ty_level(expected), ty_level(given)))
+            return true;
+    }
+    return false;
+}
+
+bool is_convertible(expr const & expected, expr const & given, environment const & env, context const & ctx) {
+    if (is_convertible_core(expected, given, env))
+        return true;
+    expr e_n = normalize(expected, env, ctx);
+    expr g_n = normalize(given, env, ctx);
+    return is_convertible_core(e_n, g_n, env);
+}
+
 class infer_type_fn {
     environment const & m_env;
-
-    expr normalize(expr const & e, context const & ctx) {
-        return ::lean::normalize(e, m_env, ctx);
-    }
 
     expr lookup(context const & c, unsigned i) {
         context const & def_c = ::lean::lookup(c, i);
@@ -30,51 +44,35 @@ class infer_type_fn {
 
     level infer_universe(expr const & t, context const & ctx) {
         lean_trace("type_check", tout << "infer universe\n" << t << "\n";);
-        expr u = normalize(infer_type(t, ctx), ctx);
+        expr u = normalize(infer_type(t, ctx), m_env, ctx);
         if (is_type(u))
             return ty_level(u);
+        if (is_bool_type(u))
+            return level();
         std::ostringstream buffer;
-        buffer << "type expected, in context:\n" << ctx << "\ngiven:\n" << t;
+        buffer << "type expected";
+        if (!empty(ctx))
+            buffer << ", in context:\n" << ctx;
+        buffer << "\ngiven:\n" << t;
         throw exception(buffer.str());
     }
 
     expr check_pi(expr const & e, context const & ctx) {
         if (is_pi(e))
             return e;
-        expr r = normalize(e, ctx);
+        expr r = normalize(e, m_env, ctx);
         if (is_pi(r))
             return r;
         std::ostringstream buffer;
-        buffer << "function expected, in context:\n" << ctx << "\ngiven:\n" << e;
+        buffer << "function expected";
+        if (!empty(ctx))
+            buffer << ", in context:\n" << ctx;
+        buffer << "\ngiven:\n" << e;
         throw exception(buffer.str());
     }
 
     expr infer_pi(expr const & e, context const & ctx) {
         return check_pi(infer_type(e, ctx), ctx);
-    }
-
-    bool check_type_core(expr const & expected, expr const & given) {
-        if (expected == given)
-            return true;
-        if (is_type(expected) && is_type(given)) {
-            if (m_env.is_ge(ty_level(expected), ty_level(given)))
-                return true;
-        }
-        return false;
-    }
-
-    void check_type(expr const & e, unsigned i, expr const & expected, expr const & given, context const & ctx) {
-        if (check_type_core(expected, given))
-            return;
-        expr e_n = normalize(expected, ctx);
-        expr g_n = normalize(given, ctx);
-        if (check_type_core(e_n, g_n))
-            return;
-        std::ostringstream buffer;
-        buffer << "type mismatch at argument " << i << " of\n" << e
-               << "\nexpected type:\n" << expected
-               << "\ngiven type:\n" << given << "\nin context:\n" << ctx;;
-        throw exception(buffer.str());
     }
 
     expr infer_type(expr const & e, context const & ctx) {
@@ -93,7 +91,14 @@ class infer_type_fn {
             while (true) {
                 expr const & c = arg(e, i);
                 expr c_t       = infer_type(c, ctx);
-                check_type(e, i, abst_domain(f_t), c_t, ctx);
+                if (!is_convertible(abst_domain(f_t), c_t, m_env, ctx)) {
+                    std::ostringstream buffer;
+                    buffer << "type mismatch at argument " << i << " of\n" << e
+                           << "\nexpected type:\n" << abst_domain(f_t)
+                           << "\ngiven type:\n" << c_t;
+                    if (!empty(ctx))
+                        buffer << "\nin context:\n" << ctx;
+                }
                 f_t = instantiate(abst_body(f_t), c);
                 i++;
                 if (i == num)

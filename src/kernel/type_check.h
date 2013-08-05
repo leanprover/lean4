@@ -11,4 +11,5 @@ Author: Leonardo de Moura
 
 namespace lean {
 expr infer_type(expr const & e, environment const & env, context const & ctx = context());
+bool is_convertible(expr const & t1, expr const & t2, environment const & env, context const & ctx = context());
 }

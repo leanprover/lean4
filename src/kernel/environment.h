@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 #include <memory>
+#include "expr.h"
 #include "level.h"
 
 namespace lean {
@@ -67,5 +68,22 @@ public:
         \pre has_parent()
     */
     environment parent() const;
+
+    /**
+       \brief Add a new definition n : t := v.
+       It throws an exception if v does not have type t.
+       If opaque == true, then definition is not used by normalizer.
+    */
+    void add_definition(name const & n, expr const & t, expr const & v, bool opaque = false);
+
+    /**
+       \brief Add a new definition n : infer_type(v) := v.
+       If opaque == true, then definition is not used by normalizer.
+    */
+    void add_definition(name const & n, expr const & v, bool opaque = false);
+
+    /**
+    */
+    void add_fact(name const & n, expr const & t);
 };
 }

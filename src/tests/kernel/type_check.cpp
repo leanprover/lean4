@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "abstract.h"
 #include "exception.h"
 #include "builtin.h"
+#include "arith.h"
 #include "trace.h"
 #include "test.h"
 using namespace lean;
@@ -73,11 +74,19 @@ static void tst3() {
     std::cout << infer_type(t, env) << "\n";
 }
 
+static void tst4() {
+    environment env;
+    expr a = eq(int_value(1), int_value(2));
+    expr pr   = lambda("x", a, var(0));
+    std::cout << infer_type(pr, env) << "\n";
+}
+
 int main() {
     continue_on_violation(true);
     enable_trace("type_check");
     tst1();
     tst2();
     tst3();
+    tst4();
     return has_violations() ? 1 : 0;
 }

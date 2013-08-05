@@ -63,7 +63,7 @@ static void tst3() {
     try {
         env.add_definition("a", int_type(), constant("a"));
         lean_unreachable();
-    } catch (exception ex) {
+    } catch (exception const & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
     }
     env.add_definition("a", int_type(), app(int_add(), int_value(1), int_value(2)));
@@ -76,20 +76,20 @@ static void tst3() {
     try {
         env.add_definition("c", arrow(int_type(), int_type()), constant("a"));
         lean_unreachable();
-    } catch (exception ex) {
+    } catch (exception const & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
     }
     try {
         env.add_definition("a", int_type(), int_value(10));
         lean_unreachable();
-    } catch (exception ex) {
+    } catch (exception const & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
     }
     environment c_env = env.mk_child();
     try {
         env.add_definition("c", int_type(), constant("a"));
         lean_unreachable();
-    } catch (exception ex) {
+    } catch (exception const & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
     }
     lean_assert(normalize(constant("b"), env) == int_value(6));
@@ -97,11 +97,13 @@ static void tst3() {
     c_env.add_definition("c", int_type(), constant("a"));
     lean_assert(normalize(constant("c"), c_env) == int_value(3));
     try {
-        lean_assert(normalize(constant("c"), env) == int_value(3));
+        expr r = normalize(constant("c"), env);
+        lean_assert(r == int_value(3))
         lean_unreachable();
-    } catch (exception ex) {
-        std::cout << "expected error: " << ex.what() << "\n";
+    } catch (exception const & ex) {
+        std::cout << "expected error: " << ex.what() << std::endl;
     }
+    std::cout << "end tst3" << std::endl;
 }
 
 static void tst4() {
@@ -122,7 +124,7 @@ static void tst5() {
     try {
         std::cout << infer_type(app(int_add(), constant("a"), int_type()), env) << "\n";
         lean_unreachable();
-    } catch (exception ex) {
+    } catch (exception const & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
     }
 }
@@ -137,13 +139,13 @@ static void tst6() {
     try {
         infer_type(app(constant("f"), type(w)), env);
         lean_unreachable();
-    } catch (exception ex) {
+    } catch (exception const & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
     }
     try {
         infer_type(app(constant("f"), type(u)), env);
         lean_unreachable();
-    } catch (exception ex) {
+    } catch (exception const & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
     }
     t = app(constant("f"), type());

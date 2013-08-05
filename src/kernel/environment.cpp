@@ -6,11 +6,11 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <vector>
-#include <limits>
 #include <atomic>
 #include <sstream>
 #include <unordered_map>
 #include "environment.h"
+#include "safe_arith.h"
 #include "type_check.h"
 #include "exception.h"
 #include "debug.h"
@@ -55,10 +55,14 @@ void environment::fact::display(std::ostream & out) const {
 /** \brief Implementation of the Lean environment. */
 struct environment::imp {
     typedef std::unordered_map<name, object *, name_hash, name_eq> object_dictionary;
-    std::vector<std::vector<unsigned>>   m_uvar_distances;
+    typedef std::tuple<level, level, int> constraint;
+    // Universe variable management
+    std::vector<constraint>              m_constraints;
     std::vector<level>                   m_uvars;
+    // Children environment management
     std::atomic<unsigned>                m_num_children;
     std::shared_ptr<imp>                 m_parent;
+    // Object management
     std::vector<object*>                 m_objects;
     object_dictionary                    m_object_dictionary;
 
@@ -68,43 +72,30 @@ struct environment::imp {
 
     bool has_parent() const { return m_parent != nullptr; }
 
-    /** \brief Return v - k. It throws an exception if there is a underflow. */
-    static int sub(int v, unsigned k) {
-        long long r = static_cast<long long>(v) - static_cast<long long>(k);
-        if (r < std::numeric_limits<int>::min())
-            throw exception("universe overflow");
-        return static_cast<int>(r);
-    }
-
-    /** \brief Return v + k. It throws an exception if there is an overflow. */
-    static int add(int v, unsigned k) {
-        long long r = static_cast<long long>(v) + static_cast<long long>(k);
-        if (r > std::numeric_limits<int>::max() - 1)
-            throw exception("universe overflow");
-        return static_cast<int>(r);
-    }
-
-    /** \brief Return v + k. It throws an exception if there is an overflow. */
-    static unsigned add(unsigned v, unsigned k) {
-        unsigned long long r = static_cast<unsigned long long>(v) + static_cast<unsigned long long>(k);
-        if (r > std::numeric_limits<int>::max() - 1)
-            throw exception("universe overflow");
-        return static_cast<unsigned>(r);
+    /** \brief Return true if l1 >= l2 + k is implied by constraints
+        \pre is_uvar(l1) && is_uvar(l2)
+     */
+    bool is_implied(level const & l1, level const & l2, int k) {
+        lean_assert(is_uvar(l1) && is_uvar(l2));
+        if (l1 == l2)
+            return k <= 0;
+        else
+            return std::any_of(m_constraints.begin(), m_constraints.end(),
+                               [&](constraint const & c) { return std::get<0>(c) == l1 && std::get<1>(c) == l2 && std::get<2>(c) >= k; });
     }
 
     /** \brief Return true iff l1 >= l2 + k */
     bool is_ge(level const & l1, level const & l2, int k) {
+        if (l1 == l2)
+            return k == 0;
         switch (kind(l2)) {
         case level_kind::UVar:
             switch (kind(l1)) {
-            case level_kind::UVar: {
-                unsigned d = m_uvar_distances[uvar_idx(l1)][uvar_idx(l2)];
-                return d != uninit && (k < 0 || (k >= 0 && d >= static_cast<unsigned>(k)));
-            }
-            case level_kind::Lift: return is_ge(lift_of(l1), l2, sub(k, lift_offset(l1)));
+            case level_kind::UVar: return is_implied(l1, l2, k);
+            case level_kind::Lift: return is_ge(lift_of(l1), l2, safe_sub(k, lift_offset(l1)));
             case level_kind::Max:  return std::any_of(max_begin_levels(l1), max_end_levels(l1), [&](level const & l) { return is_ge(l, l2, k); });
             }
-        case level_kind::Lift: return is_ge(l1, lift_of(l2), add(k, lift_offset(l2)));
+        case level_kind::Lift: return is_ge(l1, lift_of(l2), safe_add(k, lift_offset(l2)));
         case level_kind::Max:  return std::all_of(max_begin_levels(l2), max_end_levels(l2), [&](level const & l) { return is_ge(l1, l, k); });
         }
         lean_unreachable();
@@ -121,43 +112,35 @@ struct environment::imp {
     level add_var(name const & n) {
         if (std::any_of(m_uvars.begin(), m_uvars.end(), [&](level const & l){ return uvar_name(l) == n; }))
             throw exception("invalid universe variable declaration, it has already been declared");
-        unsigned idx = m_uvars.size();
-        level r(n, idx);
+        level r(n);
         m_uvars.push_back(r);
-        std::for_each(m_uvar_distances.begin(), m_uvar_distances.end(), [](std::vector<unsigned> & v) { v.push_back(uninit); });
-        m_uvar_distances.push_back(std::vector<unsigned>());
-        std::vector<unsigned> & d = m_uvar_distances.back();
-        d.resize(m_uvars.size(), static_cast<unsigned>(uninit));
-        d[idx] = 0;
         return r;
     }
 
-    void add_constraint(uvar v1, uvar v2, unsigned d) {
-        lean_assert(v1 != v2);
-        unsigned num = m_uvar_distances.size();
-        lean_assert(v1 < num);
-        lean_assert(v2 < num);
-        std::vector<unsigned> & v1_dists = m_uvar_distances[v1];
-        if (v1_dists[v2] == uninit || d >= v1_dists[v2]) {
-            v1_dists[v2] = d;
-            // update forward
-            std::vector<unsigned> & v2_dists = m_uvar_distances[v2];
-            for (uvar v3 = 0; v3 < num; v3++) {
-                if (v2_dists[v3] != uninit) {
-                    lean_assert(v1 != v3);
-                    unsigned d_v1_v3 = add(d, v2_dists[v3]);
-                    if (v1_dists[v3] == uninit || d_v1_v3 >= v1_dists[v3])
-                        v1_dists[v3] = d_v1_v3;
-                }
+    void add_constraint(level const & l1, level const & l2, int d) {
+        if (is_implied(l1, l2, d))
+            return; // redundant
+        buffer<constraint> to_add;
+        for (constraint const & c : m_constraints) {
+            if (std::get<0>(c) == l2) {
+                level const & l3 = std::get<1>(c);
+                int l1_l3_d = safe_add(d, std::get<2>(c));
+                if (!is_implied(l1, l3, l1_l3_d))
+                    to_add.push_back(constraint(l1, l3, l1_l3_d));
             }
+        }
+        m_constraints.push_back(constraint(l1, l2, d));
+        for (constraint const & c: to_add) {
+            m_constraints.push_back(c);
         }
     }
 
-    void add_constraints(uvar v1, level const & l, unsigned k) {
+    void add_constraints(level const & n, level const & l, int k) {
+        lean_assert(is_uvar(n));
         switch (kind(l)) {
-        case level_kind::UVar: add_constraint(v1, uvar_idx(l), k); return;
-        case level_kind::Lift: add_constraints(v1, lift_of(l), add(k, lift_offset(l))); return;
-        case level_kind::Max:  std::for_each(max_begin_levels(l), max_end_levels(l), [&](level const & l1) { add_constraints(v1, l1, k); }); return;
+        case level_kind::UVar: add_constraint(n, l, k); return;
+        case level_kind::Lift: add_constraints(n, lift_of(l), safe_add(k, lift_offset(l))); return;
+        case level_kind::Max:  std::for_each(max_begin_levels(l), max_end_levels(l), [&](level const & l1) { add_constraints(n, l1, k); }); return;
         }
         lean_unreachable();
     }
@@ -168,7 +151,7 @@ struct environment::imp {
         if (has_children())
             throw exception("invalid universe declaration, environment has children environments");
         level r = add_var(n);
-        add_constraints(uvar_idx(r), l, 0);
+        add_constraints(r, l, 0);
         return r;
     }
 
@@ -189,25 +172,15 @@ struct environment::imp {
 
     void init_uvars() {
         m_uvars.push_back(level());
-        m_uvar_distances.push_back(std::vector<unsigned>());
-        m_uvar_distances.back().push_back(0);
-        lean_assert(uvar_idx(m_uvars.back()) == 0);
     }
 
     void display_uvars(std::ostream & out) const {
-        std::for_each(m_uvars.begin(), m_uvars.end(),
-                      [&](level const & u) {
-                          std::vector<unsigned> const & u_dists = m_uvar_distances[uvar_idx(u)];
-                          unsigned num = u_dists.size();
-                          for (uvar v2 = 0; v2 < num; v2++) {
-                              if (v2 != uvar_idx(u) && u_dists[v2] != uninit) {
-                                  out << uvar_name(u) << " >= " << uvar_name(m_uvars[v2]);
-                                  if (u_dists[v2] > 0)
-                                      out << " + " << u_dists[v2];
-                                  out << "\n";
-                              }
-                          }
-                      });
+        for (constraint const & c : m_constraints) {
+            out << uvar_name(std::get<0>(c)) << " >= " << uvar_name(std::get<1>(c));
+            if (std::get<2>(c) >= 0)
+                out << " + " << std::get<2>(c);
+            out << "\n";
+        }
     }
 
     void check_no_children() {

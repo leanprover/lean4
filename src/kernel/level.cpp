@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
+#include "safe_arith.h"
 #include "level.h"
 #include "buffer.h"
 #include "rc.h"
@@ -20,8 +21,7 @@ struct level_cell {
 };
 struct level_uvar : public level_cell {
     name m_name;
-    uvar m_uvar;
-    level_uvar(name const & n, uvar u):level_cell(level_kind::UVar), m_name(n), m_uvar(u) {}
+    level_uvar(name const & n):level_cell(level_kind::UVar), m_name(n) {}
 };
 struct level_lift : public level_cell {
     level    m_l;
@@ -52,8 +52,8 @@ void level_cell::dealloc() {
     case level_kind::Max:     static_cast<level_max*>(this)->~level_max(); delete[] reinterpret_cast<char*>(this); break;
     }
 }
-level::level():                           m_ptr(new level_uvar(name("bot"), 0)) { lean_assert(uvar_name(*this) == name("bot")); }
-level::level(name const & n, uvar u):     m_ptr(new level_uvar(n, u)) {}
+level::level():                           m_ptr(new level_uvar(name("bot"))) { lean_assert(uvar_name(*this) == name("bot")); }
+level::level(name const & n):             m_ptr(new level_uvar(n)) {}
 level::level(level const & l, unsigned k):m_ptr(new level_lift(l, k)) { lean_assert(is_uvar(l)); }
 level::level(level_cell * ptr):           m_ptr(ptr) { lean_assert(m_ptr->get_rc() == 1); }
 level::level(level const & s):
@@ -133,7 +133,7 @@ level max(level const & l1, level const & l2) {
 level operator+(level const & l, unsigned k)  {
     switch (kind(l)) {
     case level_kind::UVar: return level(l, k);
-    case level_kind::Lift: return level(lift_of(l), lift_offset(l) + k);
+    case level_kind::Lift: return level(lift_of(l), safe_add(lift_offset(l), k));
     case level_kind::Max: {
         std::cout << l << "\n";
         buffer<level> new_lvls;
@@ -147,7 +147,6 @@ level operator+(level const & l, unsigned k)  {
 
 level_kind    kind       (level const & l) { lean_assert(l.m_ptr); return l.m_ptr->m_kind; }
 name const &  uvar_name  (level const & l) { lean_assert(is_uvar(l)); return static_cast<level_uvar*>(l.m_ptr)->m_name; }
-uvar          uvar_idx   (level const & l) { lean_assert(is_uvar(l)); return static_cast<level_uvar*>(l.m_ptr)->m_uvar; }
 level const & lift_of    (level const & l) { lean_assert(is_lift(l)); return static_cast<level_lift*>(l.m_ptr)->m_l; }
 unsigned      lift_offset(level const & l) { lean_assert(is_lift(l)); return static_cast<level_lift*>(l.m_ptr)->m_k; }
 unsigned      max_size   (level const & l) { lean_assert(is_max(l));  return static_cast<level_max*>(l.m_ptr)->m_size; }
@@ -159,7 +158,7 @@ level & level::operator=(level&& l) { LEAN_MOVE_REF(level, l); }
 bool operator==(level const & l1, level const & l2) {
     if (kind(l1) != kind(l2)) return false;
     switch (kind(l1)) {
-    case level_kind::UVar: return uvar_idx(l1) == uvar_idx(l2);
+    case level_kind::UVar: return uvar_name(l1) == uvar_name(l2);
     case level_kind::Lift: return lift_of(l1)  == lift_of(l2)  && lift_offset(l1) == lift_offset(l2);
     case level_kind::Max:
         if (max_size(l1) == max_size(l2)) {

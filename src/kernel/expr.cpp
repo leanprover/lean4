@@ -210,7 +210,7 @@ std::ostream & operator<<(std::ostream & out, expr const & a) {
     case expr_kind::Let:  out << "(let " << let_name(a) << " := " << let_value(a) << " in " << let_body(a) << ")"; break;
     case expr_kind::Type: {
         level const & l = ty_level(a);
-        if (is_uvar(l) && uvar_idx(l) == 0)
+        if (l == level())
             out << "Type";
         else
             out << "(Type " << ty_level(a) << ")";

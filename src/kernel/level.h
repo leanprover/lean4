@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 namespace lean {
 class environment;
 struct level_cell;
-typedef unsigned uvar;
 enum class level_kind { UVar, Lift, Max };
 /**
    \brief Universe level.
@@ -20,7 +19,6 @@ class level {
     friend class environment;
     level_cell * m_ptr;
     /** \brief Private constructor used by the environment to create a new universe variable named \c n with internal id \c u. */
-    level(name const & n, uvar u);
     level(level const & l, unsigned k);
     level(level_cell * ptr);
     friend level to_level(level_cell * c);
@@ -29,6 +27,7 @@ class level {
 public:
     /** \brief Universe 0 */
     level();
+    level(name const & n);
     level(level const & l);
     level(level&& s);
     ~level();
@@ -37,7 +36,6 @@ public:
 
     friend level_kind    kind       (level const & l);
     friend name const &  uvar_name  (level const & l);
-    friend uvar          uvar_idx   (level const & l);
     friend level const & lift_of    (level const & l);
     friend unsigned      lift_offset(level const & l);
     friend unsigned      max_size   (level const & l);

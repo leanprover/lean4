@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "builtin.h"
+#include "environment.h"
 
 namespace lean {
 
@@ -23,16 +24,7 @@ public:
 
 char const * bool_type_value::g_kind = "bool";
 
-expr bool_type() {
-    static thread_local expr r;
-    if (!r)
-        r = to_expr(*(new bool_type_value()));
-    return r;
-}
-
-bool is_bool_type(expr const & e) {
-    return is_value(e) && to_value(e).kind() == bool_type_value::g_kind;
-}
+MK_BUILTIN(bool_type, bool_type_value);
 
 class bool_value_value : public value {
     bool m_val;
@@ -75,4 +67,6 @@ bool is_false(expr const & e) {
     return is_bool_value(e) && !to_bool(e);
 }
 
+void add_basic_theory(environment & env) {
+}
 }

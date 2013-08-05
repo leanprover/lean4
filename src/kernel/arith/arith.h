@@ -26,4 +26,22 @@ bool is_int_sub(expr const & e);
 
 expr int_mul();
 bool is_int_mul(expr const & e);
+
+expr int_div();
+bool is_int_div(expr const & e);
+
+expr int_leq();
+bool is_int_leq(expr const & e);
+
+expr int_geq();
+bool is_int_geq(expr const & e);
+
+expr int_lt();
+bool is_int_lt(expr const & e);
+
+expr int_gt();
+bool is_int_gt(expr const & e);
+
+class environment;
+void add_int_theory(environment & env);
 }

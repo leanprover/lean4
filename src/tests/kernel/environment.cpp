@@ -31,8 +31,7 @@ static void tst1() {
         try {
             level o = env.define_uvar("o", w + 1);
             lean_unreachable();
-        }
-        catch (exception const & ex) {
+        } catch (exception const & ex) {
             std::cout << "expected error: " << ex.what() << "\n";
         }
     }
@@ -58,9 +57,56 @@ static void tst2() {
     std::cout << "uvar: " << child.get_uvar("u") << "\n";
 }
 
+static void tst3() {
+    environment env;
+    try {
+        env.add_definition("a", int_type(), constant("a"));
+        lean_unreachable();
+    } catch (exception ex) {
+        std::cout << "expected error: " << ex.what() << "\n";
+    }
+    env.add_definition("a", int_type(), app(int_add(), int_value(1), int_value(2)));
+    expr t = app(int_add(), constant("a"), int_value(1));
+    std::cout << t << " --> " << normalize(t, env) << "\n";
+    lean_assert(normalize(t, env) == int_value(4));
+    env.add_definition("b", int_type(), app(int_mul(), int_value(2), constant("a")));
+    std::cout << "b --> " << normalize(constant("b"), env) << "\n";
+    lean_assert(normalize(constant("b"), env) == int_value(6));
+    try {
+        env.add_definition("c", arrow(int_type(), int_type()), constant("a"));
+        lean_unreachable();
+    } catch (exception ex) {
+        std::cout << "expected error: " << ex.what() << "\n";
+    }
+    try {
+        env.add_definition("a", int_type(), int_value(10));
+        lean_unreachable();
+    } catch (exception ex) {
+        std::cout << "expected error: " << ex.what() << "\n";
+    }
+    environment c_env = env.mk_child();
+    try {
+        env.add_definition("c", int_type(), constant("a"));
+        lean_unreachable();
+    } catch (exception ex) {
+        std::cout << "expected error: " << ex.what() << "\n";
+    }
+    lean_assert(normalize(constant("b"), env) == int_value(6));
+    lean_assert(normalize(constant("b"), c_env) == int_value(6));
+    c_env.add_definition("c", int_type(), constant("a"));
+    lean_assert(normalize(constant("c"), c_env) == int_value(3));
+    try {
+        lean_assert(normalize(constant("c"), env) == int_value(3));
+        lean_unreachable();
+    } catch (exception ex) {
+        std::cout << "expected error: " << ex.what() << "\n";
+    }
+}
+
 int main() {
     continue_on_violation(true);
     tst1();
     tst2();
+    tst3();
     return has_violations() ? 1 : 0;
 }

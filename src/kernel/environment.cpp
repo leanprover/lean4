@@ -9,19 +9,58 @@ Author: Leonardo de Moura
 #include <limits>
 #include <atomic>
 #include <sstream>
+#include <unordered_map>
 #include "environment.h"
+#include "type_check.h"
 #include "exception.h"
 #include "debug.h"
 
 namespace lean {
 constexpr unsigned uninit = std::numeric_limits<int>::max();
 
+environment::definition::definition(name const & n, expr const & t, expr const & v, bool opaque):
+    m_name(n),
+    m_type(t),
+    m_value(v),
+    m_opaque(opaque) {
+}
+
+environment::definition::~definition() {
+}
+
+environment::object_kind environment::definition::kind() const {
+    return object_kind::Definition;
+}
+
+void environment::definition::display(std::ostream & out) const {
+    out << "Definition " << m_name << " : " << m_type << " := " << m_value << "\n";
+}
+
+environment::fact::fact(name const & n, expr const & t):
+    m_name(n),
+    m_type(t) {
+}
+
+environment::fact::~fact() {
+}
+
+environment::object_kind environment::fact::kind() const {
+    return object_kind::Fact;
+}
+
+void environment::fact::display(std::ostream & out) const {
+    out << "Fact " << m_name << " : " << m_type << "\n";
+}
+
 /** \brief Implementation of the Lean environment. */
 struct environment::imp {
-    std::vector<std::vector<unsigned>> m_uvar_distances;
-    std::vector<level>                 m_uvars;
-    std::atomic<unsigned>              m_num_children;
-    std::shared_ptr<imp>               m_parent;
+    typedef std::unordered_map<name, object *, name_hash, name_eq> object_dictionary;
+    std::vector<std::vector<unsigned>>   m_uvar_distances;
+    std::vector<level>                   m_uvars;
+    std::atomic<unsigned>                m_num_children;
+    std::shared_ptr<imp>                 m_parent;
+    std::vector<object*>                 m_objects;
+    object_dictionary                    m_object_dictionary;
 
     bool has_children() const { return m_num_children > 0; }
     void inc_children() { m_num_children++; }
@@ -171,6 +210,52 @@ struct environment::imp {
                       });
     }
 
+    void check_no_children() {
+        if (has_children())
+            throw exception("invalid object declaration, environment has children environments");
+    }
+
+    void check_name(name const & n) {
+        if (m_object_dictionary.find(n) != m_object_dictionary.end()) {
+            std::ostringstream s;
+            s << "environment already contains an object with name '" << n << "'";
+            throw exception (s.str());
+        }
+    }
+
+    void add_definition(name const & n, expr const & t, expr const & v, bool opaque) {
+        m_objects.push_back(new definition(n, t, v, opaque));
+        m_object_dictionary.insert(std::make_pair(n, m_objects.back()));
+    }
+
+    void add_fact(name const & n, expr const & t) {
+        m_objects.push_back(new fact(n, t));
+        m_object_dictionary.insert(std::make_pair(n, m_objects.back()));
+    }
+
+    object const * get_object_ptr(name const & n) const {
+        auto it = m_object_dictionary.find(n);
+        if (it == m_object_dictionary.end()) {
+            if (has_parent())
+                return m_parent->get_object_ptr(n);
+            else
+                return nullptr;
+        } else {
+            return it->second;
+        }
+    }
+
+    object const & get_object(name const & n) const {
+        object const * ptr = get_object_ptr(n);
+        if (ptr) {
+            return *ptr;
+        } else {
+            std::ostringstream s;
+            s << "unknown object '" << n << "'";
+            throw exception (s.str());
+        }
+    }
+
     imp():
         m_num_children(0) {
         init_uvars();
@@ -185,6 +270,7 @@ struct environment::imp {
     ~imp() {
         if (m_parent)
             m_parent->dec_children();
+        std::for_each(m_objects.begin(), m_objects.end(), [](object * obj) { delete obj; });
     }
 };
 
@@ -236,4 +322,40 @@ level environment::get_uvar(name const & n) const {
     return m_imp->get_uvar(n);
 }
 
+void environment::add_definition(name const & n, expr const & t, expr const & v, bool opaque) {
+    m_imp->check_no_children();
+    m_imp->check_name(n);
+    infer_universe(t, *this);
+    expr v_t = infer_type(v, *this);
+    if (!is_convertible(t, v_t, *this)) {
+        std::ostringstream buffer;
+        buffer << "type mismatch when defining '" << n << "'\n"
+               << "expected type:\n" << t << "\n"
+               << "given type:\n" << v_t;
+        throw exception(buffer.str());
+    }
+    m_imp->add_definition(n, t, v, opaque);
+}
+
+void environment::add_definition(name const & n, expr const & v, bool opaque) {
+    m_imp->check_no_children();
+    m_imp->check_name(n);
+    expr v_t = infer_type(v, *this);
+    m_imp->add_definition(n, v_t, v, opaque);
+}
+
+void environment::add_fact(name const & n, expr const & t) {
+    m_imp->check_no_children();
+    m_imp->check_name(n);
+    infer_universe(t, *this);
+    m_imp->add_fact(n, t);
+}
+
+environment::object const & environment::get_object(name const & n) const {
+    return m_imp->get_object(n);
+}
+
+environment::object const * environment::get_object_ptr(name const & n) const {
+    return m_imp->get_object_ptr(n);
+}
 }

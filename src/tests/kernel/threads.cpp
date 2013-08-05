@@ -13,11 +13,16 @@ Author: Leonardo de Moura
 #include "deep_copy.h"
 #include "abstract.h"
 #include "normalize.h"
+#include "arith.h"
 #include "test.h"
 using namespace lean;
 
 expr normalize(expr const & e) {
     environment env;
+    env.add_fact("a", int_type());
+    env.add_fact("b", int_type());
+    env.add_fact("f", arrow(int_type(), arrow(int_type(), int_type())));
+    env.add_fact("h", arrow(int_type(), arrow(int_type(), int_type())));
     return normalize(e, env);
 }
 

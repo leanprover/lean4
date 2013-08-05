@@ -32,7 +32,7 @@ bool is_convertible(expr const & expected, expr const & given, environment const
     return is_convertible_core(e_n, g_n, env);
 }
 
-class infer_type_fn {
+struct infer_type_fn {
     environment const & m_env;
 
     expr lookup(context const & c, unsigned i) {
@@ -50,10 +50,10 @@ class infer_type_fn {
         if (is_bool_type(u))
             return level();
         std::ostringstream buffer;
-        buffer << "type expected";
+        buffer << "type expected, ";
         if (!empty(ctx))
-            buffer << ", in context:\n" << ctx;
-        buffer << "\ngiven:\n" << t;
+            buffer << "in context:\n" << ctx << "\n";
+        buffer << "got:\n" << t;
         throw exception(buffer.str());
     }
 
@@ -64,10 +64,10 @@ class infer_type_fn {
         if (is_pi(r))
             return r;
         std::ostringstream buffer;
-        buffer << "function expected";
+        buffer << "function expected, ";
         if (!empty(ctx))
-            buffer << ", in context:\n" << ctx;
-        buffer << "\ngiven:\n" << e;
+            buffer << "in context:\n" << ctx << "\n";
+        buffer << "got:\n" << e;
         throw exception(buffer.str());
     }
 
@@ -79,8 +79,7 @@ class infer_type_fn {
         lean_trace("type_check", tout << "infer type\n" << e << "\n" << ctx << "\n";);
         switch (e.kind()) {
         case expr_kind::Constant:
-            // TODO
-            return e;
+            return m_env.get_object(const_name(e)).get_type();
         case expr_kind::Var:      return lookup(ctx, var_idx(e));
         case expr_kind::Type:     return type(ty_level(e) + 1);
         case expr_kind::App: {
@@ -128,7 +127,7 @@ class infer_type_fn {
         lean_unreachable();
         return e;
     }
-public:
+
     infer_type_fn(environment const & env):
         m_env(env) {
     }
@@ -140,5 +139,9 @@ public:
 
 expr  infer_type(expr const & e, environment const & env, context const & ctx) {
     return infer_type_fn(env)(e, ctx);
+}
+
+level infer_universe(expr const & t, environment const & env, context const & ctx) {
+    return infer_type_fn(env).infer_universe(t, ctx);
 }
 }

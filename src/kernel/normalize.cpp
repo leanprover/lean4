@@ -132,7 +132,16 @@ class normalize_fn {
         switch (a.kind()) {
         case expr_kind::Var:
             return lookup(s, var_idx(a), k);
-        case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
+        case expr_kind::Constant: {
+            environment::object const & obj = m_env.get_object(const_name(a));
+            if (is_definition(obj) && !to_definition(obj).is_opaque()) {
+                return normalize(to_definition(obj).get_value(), value_stack(), 0);
+            }
+            else {
+                return svalue(a);
+            }
+        }
+        case expr_kind::Type: case expr_kind::Value:
             return svalue(a);
         case expr_kind::App: {
             svalue f    = normalize(arg(a, 0), s, k);

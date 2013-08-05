@@ -62,5 +62,6 @@ public:
     };
     friend std::ostream & operator<<(std::ostream & out, sep const & s);
 };
-
+struct name_hash { unsigned operator()(name const & n) const { return n.hash(); } };
+struct name_eq { bool operator()(name const & n1, name const & n2) const { return n1 == n2; } };
 }

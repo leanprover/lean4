@@ -77,6 +77,7 @@ static void tst4() {
 
 static void tst5() {
     environment env;
+    env.add_fact(name("a"), int_type());
     expr e = eq(int_value(3), int_value(4));
     std::cout << e << " --> " << normalize(e, env) << "\n";
     lean_assert(normalize(e, env) == bool_value(false));

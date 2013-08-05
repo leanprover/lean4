@@ -17,7 +17,7 @@ expr normalize(expr const & e) {
     return normalize(e, env);
 }
 
-static void eval(expr const & e) { std::cout << e << " --> " << normalize(e) << "\n"; }
+static void eval(expr const & e, environment & env) { std::cout << e << " --> " << normalize(e, env) << "\n"; }
 static expr t() { return constant("t"); }
 static expr lam(expr const & e) { return lambda("_", t(), e); }
 static expr lam(expr const & t, expr const & e) { return lambda("_", t, e); }
@@ -79,63 +79,77 @@ unsigned count(expr const & a) {
 }
 
 static void tst_church_numbers() {
+    environment env;
+    env.add_fact("t", type(level()));
+    env.add_fact("N", type(level()));
+    env.add_fact("z", constant("N"));
+    env.add_fact("s", constant("N"));
     expr N = constant("N");
     expr z = constant("z");
     expr s = constant("s");
-    std::cout << normalize(app(zero(), N, s, z)) << "\n";
-    std::cout << normalize(app(one(), N, s, z))  << "\n";
-    std::cout << normalize(app(two(), N, s, z)) << "\n";
-    std::cout << normalize(app(four(), N, s, z)) << "\n";
-    std::cout << count(normalize(app(four(), N, s, z))) << "\n";
-    lean_assert(count(normalize(app(four(), N, s, z))) == 4 + 2);
-    std::cout << normalize(app(app(times(), four(), four()), N, s, z)) << "\n";
-    std::cout << normalize(app(app(power(), two(), four()), N, s, z)) << "\n";
-    lean_assert(count(normalize(app(app(power(), two(), four()), N, s, z))) == 16 + 2);
-    std::cout << normalize(app(app(times(), two(), app(power(), two(), four())), N, s, z)) << "\n";
-    std::cout << count(normalize(app(app(times(), two(), app(power(), two(), four())), N, s, z))) << "\n";
-    std::cout << count(normalize(app(app(times(), four(), app(power(), two(), four())), N, s, z))) << "\n";
-    lean_assert(count(normalize(app(app(times(), four(), app(power(), two(), four())), N, s, z))) == 64 + 2);
-    expr big = normalize(app(app(power(), two(), app(power(), two(), three())), N, s, z));
+    std::cout << normalize(app(zero(), N, s, z), env) << "\n";
+    std::cout << normalize(app(one(), N, s, z), env)  << "\n";
+    std::cout << normalize(app(two(), N, s, z), env) << "\n";
+    std::cout << normalize(app(four(), N, s, z), env) << "\n";
+    std::cout << count(normalize(app(four(), N, s, z), env)) << "\n";
+    lean_assert(count(normalize(app(four(), N, s, z), env)) == 4 + 2);
+    std::cout << normalize(app(app(times(), four(), four()), N, s, z), env) << "\n";
+    std::cout << normalize(app(app(power(), two(), four()), N, s, z), env) << "\n";
+    lean_assert(count(normalize(app(app(power(), two(), four()), N, s, z), env)) == 16 + 2);
+    std::cout << normalize(app(app(times(), two(), app(power(), two(), four())), N, s, z), env) << "\n";
+    std::cout << count(normalize(app(app(times(), two(), app(power(), two(), four())), N, s, z), env)) << "\n";
+    std::cout << count(normalize(app(app(times(), four(), app(power(), two(), four())), N, s, z), env)) << "\n";
+    lean_assert(count(normalize(app(app(times(), four(), app(power(), two(), four())), N, s, z), env)) == 64 + 2);
+    expr big = normalize(app(app(power(), two(), app(power(), two(), three())), N, s, z), env);
     std::cout << count(big) << "\n";
     lean_assert(count(big) == 256 + 2);
     expr three = app(plus(), two(), one());
-    lean_assert(count(normalize(app(app(power(), three, three), N, s, z))) == 27 + 2);
-    // expr big2 = normalize(app(app(power(), two(), app(times(), app(plus(), four(), one()), four())), N, s, z));
+    lean_assert(count(normalize(app(app(power(), three, three), N, s, z), env)) == 27 + 2);
+    // expr big2 = normalize(app(app(power(), two(), app(times(), app(plus(), four(), one()), four())), N, s, z), env);
     // std::cout << count(big2) << "\n";
-    std::cout << normalize(lam(lam(app(app(times(), four(), four()), N, var(0), z)))) << "\n";
+    std::cout << normalize(lam(lam(app(app(times(), four(), four()), N, var(0), z))), env) << "\n";
 }
 
 static void tst1() {
+    environment env;
+    env.add_fact("t", type(level()));
+    expr t = type(level());
+    env.add_fact("f", arrow(t, t));
     expr f = constant("f");
+    env.add_fact("a", t);
     expr a = constant("a");
+    env.add_fact("b", t);
     expr b = constant("b");
     expr x = var(0);
     expr y = var(1);
-    expr t = type(level());
-    eval(app(lambda("x", t, x), a));
-    eval(app(lambda("x", t, x), a, b));
-    eval(lambda("x", t, f(x)));
-    eval(lambda("y", t, lambda("x", t, f(y, x))));
+    eval(app(lambda("x", t, x), a), env);
+    eval(app(lambda("x", t, x), a, b), env);
+    eval(lambda("x", t, f(x)), env);
+    eval(lambda("y", t, lambda("x", t, f(y, x))), env);
     eval(app(lambda("x", t,
                     app(lambda("f", t,
                                app(var(0), b)),
                         lambda("g", t, f(var(1))))),
-                 a));
+             a), env);
     expr l01 = lam(v(0)(v(1)));
     expr l12 = lam(lam(v(1)(v(2))));
-    eval(lam(l12(l01)));
-    lean_assert(normalize(lam(l12(l01))) == lam(lam(v(1)(v(1)))));
+    eval(lam(l12(l01)), env);
+    lean_assert(normalize(lam(l12(l01)), env) == lam(lam(v(1)(v(1)))));
 }
 
 static void tst2() {
     environment env;
+    expr t = type(level());
+    env.add_fact("f", arrow(t, t));
     expr f = constant("f");
-    expr h = constant("h");
+    env.add_fact("a", t);
     expr a = constant("a");
+    env.add_fact("b", t);
     expr b = constant("b");
+    env.add_fact("h", arrow(t, t));
+    expr h = constant("h");
     expr x = var(0);
     expr y = var(1);
-    expr t = type(level());
     lean_assert(normalize(f(x,x), env, extend(context(), name("f"), t, f(a))) == f(f(a), f(a)));
     context c1 = extend(extend(context(), name("f"), t, f(a)), name("h"), t, h(x));
     expr F1 = normalize(f(x,f(x)), env, c1);
@@ -166,6 +180,7 @@ static void tst2() {
 
 static void tst3() {
     environment env;
+    env.add_fact("a", bool_type());
     expr t1 = constant("a");
     expr t2 = constant("a");
     expr e = eq(t1, t2);
@@ -175,13 +190,14 @@ static void tst3() {
 
 static void tst4() {
     environment env;
+    env.add_fact("b", type(level()));
     expr t1 = let("a", constant("b"), lambda("c", type(), var(1)(var(0))));
     std::cout << t1 << " --> " << normalize(t1, env) << "\n";
     lean_assert(normalize(t1, env) == lambda("c", type(), constant("b")(var(0))));
 }
 
 int main() {
-    continue_on_violation(true);
+    // continue_on_violation(true);
     tst_church_numbers();
     tst1();
     tst2();

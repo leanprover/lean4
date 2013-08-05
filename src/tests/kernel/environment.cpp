@@ -55,6 +55,7 @@ static void tst2() {
     environment parent = child.parent();
     parent.display_uvars(std::cout);
     lean_assert(parent.has_children());
+    std::cout << "uvar: " << child.get_uvar("u") << "\n";
 }
 
 int main() {

@@ -48,6 +48,7 @@ public:
        Throw an exception if variable is not defined in this environment.
     */
     level get_uvar(name const & n) const;
+    level get_uvar(char const * n) const { return get_uvar(name(n)); }
 
     /**
        \brief Create a child environment. This environment will only allow "read-only" operations until

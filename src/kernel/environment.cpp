@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <limits>
 #include <atomic>
+#include <sstream>
 #include "environment.h"
 #include "exception.h"
 #include "debug.h"
@@ -72,10 +73,10 @@ struct environment::imp {
     }
 
     bool is_ge(level const & l1, level const & l2) {
-        if (!has_parent())
-            return is_ge(l1, l2, 0);
-        else
+        if (has_parent())
             return m_parent->is_ge(l1, l2);
+        else
+            return is_ge(l1, l2, 0);
     }
 
     level add_var(name const & n) {
@@ -130,6 +131,21 @@ struct environment::imp {
         level r = add_var(n);
         add_constraints(uvar_idx(r), l, 0);
         return r;
+    }
+
+    level get_uvar(name const & n) const {
+        if (has_parent()) {
+            return m_parent->get_uvar(n);
+        } else {
+            auto it = std::find_if(m_uvars.begin(), m_uvars.end(), [&](level const & l) { return uvar_name(l) == n; });
+            if (it == m_uvars.end()) {
+                std::ostringstream s;
+                s << "unknown universe variable '" << n << "'";
+                throw exception (s.str());
+            } else {
+                return *it;
+            }
+        }
     }
 
     void init_uvars() {
@@ -214,6 +230,10 @@ bool environment::has_parent() const {
 environment environment::parent() const {
     lean_assert(has_parent());
     return environment(m_imp->m_parent);
+}
+
+level environment::get_uvar(name const & n) const {
+    return m_imp->get_uvar(n);
 }
 
 }

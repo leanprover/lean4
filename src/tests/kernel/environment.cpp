@@ -127,6 +127,33 @@ static void tst5() {
     }
 }
 
+static void tst6() {
+    environment env;
+    level u = env.define_uvar("u", level() + 1);
+    level w = env.define_uvar("w", u + 1);
+    env.add_fact("f", arrow(type(u), type(u)));
+    expr t = app(constant("f"), int_type());
+    std::cout << "type of " << t << " is " << infer_type(t, env) << "\n";
+    try {
+        infer_type(app(constant("f"), type(w)), env);
+        lean_unreachable();
+    } catch (exception ex) {
+        std::cout << "expected error: " << ex.what() << "\n";
+    }
+    try {
+        infer_type(app(constant("f"), type(u)), env);
+        lean_unreachable();
+    } catch (exception ex) {
+        std::cout << "expected error: " << ex.what() << "\n";
+    }
+    t = app(constant("f"), type());
+    std::cout << "type of " << t << " is " << infer_type(t, env) << "\n";
+    std::cout << infer_type(arrow(type(u), type(w)), env) << "\n";
+    lean_assert(infer_type(arrow(type(u), type(w)), env) == type(max(u+1, w+1)));
+    std::cout << infer_type(arrow(int_type(), int_type()), env) << "\n";
+    lean_assert(infer_type(arrow(int_type(), int_type()), env) == type());
+}
+
 int main() {
     enable_trace("is_convertible");
     continue_on_violation(true);
@@ -135,5 +162,6 @@ int main() {
     tst3();
     tst4();
     tst5();
+    tst6();
     return has_violations() ? 1 : 0;
 }

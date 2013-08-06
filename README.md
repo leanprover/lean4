@@ -6,6 +6,8 @@ Requirements
 - C++11 compatible compiler
 - GMP (GNU multiprecision library)
   http://gmplib.org/
+- MPFR (GNU MPFR Library)
+  http://www.mpfr.org/
 - (optional) gperftools
   https://code.google.com/p/gperftools/
 - cmake

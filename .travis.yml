@@ -46,7 +46,7 @@ install:
   - sudo add-apt-repository --yes ppa:h-rayflood/llvm
   - sudo apt-get -qq update
   - if [[ $USE_TCMALLOC == TRUE ]]; then sudo add-apt-repository --yes ppa:agent-8131/ppa && sudo apt-get -qq update && sudo apt-get -qq install libgoogle-perftools-dev; fi
-  - sudo apt-get -qq install libgmp-dev
+  - sudo apt-get -qq install libgmp-dev libmpfr-dev
   - sudo apt-get -qq install cmake
   - sudo apt-get -qq install flex bison++
   - sudo apt-get -qq install libstdc++-4.8-dev

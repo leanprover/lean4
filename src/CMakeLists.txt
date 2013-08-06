@@ -6,6 +6,9 @@ set(LEAN_VERSION_MINOR 1)
 set(CMAKE_COLOR_MAKEFILE ON)
 enable_testing()
 
+# Set Module Path
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+
 # Initialize CXXFLAGS.
 set(CMAKE_CXX_FLAGS                "-Wall -std=c++11")
 set(CMAKE_CXX_FLAGS_DEBUG          "-g -DLEAN_DEBUG -DLEAN_TRACE")
@@ -27,17 +30,18 @@ else ()
 endif ()
 
 # GMP
-include(cmake/FindGMP.cmake)
 set(EXTRA_LIBS ${EXTRA_LIBS} ${GMP_LIBRARIES})
 
+# MPFR
+find_package(MPFR 2.3.0)
+set(EXTRA_LIBS ${EXTRA_LIBS} ${MPFR_LIBRARIES})
+
 # Flex and Bison
-include(cmake/FindBISONPP.cmake)
 find_package(FLEX REQUIRED)
 
 # tcmalloc
 option(tcmalloc "tcmalloc" ON)
 if("${tcmalloc}" MATCHES "ON")
-  include(cmake/FindTcmalloc.cmake)
   if(${TCMALLOC_FOUND})
     set(EXTRA_LIBS ${EXTRA_LIBS} ${TCMALLOC_LIBRARIES})
   endif()

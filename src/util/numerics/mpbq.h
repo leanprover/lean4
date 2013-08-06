@@ -18,6 +18,7 @@ namespace lean {
     \f$   \frac{a}{2^k}  \f$
 */
 class mpbq {
+    friend class mpfp;
     mpz      m_num;
     unsigned m_k;
     void normalize();

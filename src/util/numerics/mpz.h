@@ -18,6 +18,7 @@ class mpq;
 */
 class mpz {
     friend class mpq;
+    friend class mpfp;
     mpz_t m_val;
     mpz(__mpz_struct const * v) { mpz_init_set(m_val, v); }
 public:

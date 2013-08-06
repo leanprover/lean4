@@ -14,6 +14,7 @@ class mpbq;
    \brief Wrapper for GMP rationals
 */
 class mpq {
+    friend class mpfp;
     mpq_t m_val;
     static mpz_t const & zval(mpz const & v) { return v.m_val; }
     static mpz_t & zval(mpz & v) { return v.m_val; }

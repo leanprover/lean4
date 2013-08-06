@@ -17,11 +17,21 @@ namespace lean {
 bool is_convertible_core(expr const & expected, expr const & given, environment const & env) {
     if (expected == given)
         return true;
-    if (is_type(expected) && is_type(given)) {
-        if (env.is_ge(ty_level(expected), ty_level(given)))
-            return true;
+    expr const * e = &expected;
+    expr const * g = &given;
+    while (true) {
+        if (is_type(*e) && is_type(*g)) {
+            if (env.is_ge(ty_level(*e), ty_level(*g)))
+                return true;
+        }
+        if (is_pi(*e) && is_pi(*g) && abst_domain(*e) == abst_domain(*g)) {
+            e = &abst_body(*e);
+            g = &abst_body(*g);
+        }
+        else {
+            return false;
+        }
     }
-    return false;
 }
 
 bool is_convertible(expr const & expected, expr const & given, environment const & env, context const & ctx) {

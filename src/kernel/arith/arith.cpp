@@ -62,16 +62,15 @@ mpz const & int_value_numeral(expr const & e) {
 
 template<char const * Name, unsigned Hash, typename F>
 class int_bin_op : public value {
+    expr m_type;
 public:
     static char const * g_kind;
+    int_bin_op() {
+        m_type = arrow(int_type(), arrow(int_type(), int_type()));
+    }
     virtual ~int_bin_op() {}
     char const * kind() const { return g_kind; }
-    virtual expr get_type() const {
-        static thread_local expr r;
-        if (!r)
-            r = arrow(int_type(), arrow(int_type(), int_type()));
-        return r;
-    }
+    virtual expr get_type() const { return m_type; }
     virtual bool operator==(value const & other) const { return other.kind() == kind(); }
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
         if (num_args == 3 && is_int_value(args[1]) && is_int_value(args[2])) {
@@ -109,16 +108,15 @@ typedef int_bin_op<int_div_name, 61, int_div_eval> int_div_value;
 MK_BUILTIN(int_div, int_div_value);
 
 class int_leq_value : public value {
+    expr m_type;
 public:
     static char const * g_kind;
+    int_leq_value() {
+        m_type = arrow(int_type(), arrow(int_type(), bool_type()));
+    }
     virtual ~int_leq_value() {}
     char const * kind() const { return g_kind; }
-    virtual expr get_type() const {
-        static thread_local expr r;
-        if (!r)
-            r = arrow(int_type(), arrow(int_type(), bool_type()));
-        return r;
-    }
+    virtual expr get_type() const { return m_type; }
     virtual bool operator==(value const & other) const { return other.kind() == kind(); }
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
         if (num_args == 3 && is_int_value(args[1]) && is_int_value(args[2])) {
@@ -141,7 +139,6 @@ MK_CONSTANT(int_gt,  name(name("int"), "gt"));
 
 void add_int_theory(environment & env) {
     expr p = arrow(int_type(), arrow(int_type(), bool_type()));
-    env.add_definition(int_geq_name_obj, p, lambda("x", int_type(), lambda("y", int_type(), app(int_leq(), var(0), var(1)))));
+    env.add_definition(int_geq_name, p, lambda("x", int_type(), lambda("y", int_type(), app(int_leq(), var(0), var(1)))));
 }
-
 }

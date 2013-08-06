@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <thread>
 #include "environment.h"
 #include "type_check.h"
 #include "builtin.h"
@@ -77,11 +78,22 @@ static void tst4() {
 
 static void tst5() {
     environment env;
-    env.add_fact(name("a"), int_type());
+    env.add_var(name("a"), int_type());
     expr e = eq(int_value(3), int_value(4));
     std::cout << e << " --> " << normalize(e, env) << "\n";
     lean_assert(normalize(e, env) == bool_value(false));
     lean_assert(normalize(eq(constant("a"), int_value(3)), env) == eq(constant("a"), int_value(3)));
+}
+
+static void tst6() {
+    std::cout << "tst6\n";
+    std::cout << int_add().raw() << "\n";
+    std::cout << int_add().raw() << "\n";
+    std::thread t1([](){ std::cout << "t1: " << int_add().raw() << "\n"; });
+    t1.join();
+    std::thread t2([](){ std::cout << "t2: " << int_add().raw() << "\n"; });
+    t2.join();
+    std::cout << int_add().raw() << "\n";
 }
 
 int main() {
@@ -91,5 +103,6 @@ int main() {
     tst3();
     tst4();
     tst5();
+    tst6();
     return has_violations() ? 1 : 0;
 }

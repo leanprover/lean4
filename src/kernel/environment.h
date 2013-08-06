@@ -69,7 +69,7 @@ public:
     */
     environment parent() const;
 
-    enum class object_kind { Definition, Fact };
+    enum class object_kind { Definition, Var, Axiom };
 
     /**
         \brief Base class for environment objects
@@ -95,7 +95,7 @@ public:
     public:
         definition(name const & n, expr const & t, expr const & v, bool opaque);
         virtual ~definition();
-        virtual object_kind kind() const;
+        virtual object_kind kind() const { return object_kind::Definition; }
         name const & get_name()  const { return m_name; }
         virtual expr const & get_type()  const { return m_type; }
         expr const & get_value() const { return m_value; }
@@ -104,19 +104,36 @@ public:
     };
 
     class fact : public object {
+    protected:
         name m_name;
         expr m_type;
+        virtual void display_header(std::ostream & out) const = 0;
     public:
         fact(name const & n, expr const & t);
         virtual ~fact();
-        virtual object_kind kind() const;
         name const & get_name()  const { return m_name; }
         virtual expr const & get_type()  const { return m_type; }
         virtual void display(std::ostream & out) const;
     };
 
+    class axiom : public fact {
+        virtual void display_header(std::ostream & out) const { out << "Axiom"; }
+    public:
+        axiom(name const & n, expr const & t):fact(n, t) {}
+        virtual object_kind kind() const { return object_kind::Axiom; }
+    };
+
+    class variable : public fact {
+        virtual void display_header(std::ostream & out) const { out << "Var"; }
+    public:
+        variable(name const & n, expr const & t):fact(n, t) {}
+        virtual object_kind kind() const { return object_kind::Var; }
+    };
+
     friend bool is_definition(object const & o) { return o.kind() == object_kind::Definition; }
-    friend bool is_fact(object const & o) { return o.kind() == object_kind::Fact; }
+    friend bool is_axiom(object const & o) { return o.kind() == object_kind::Axiom; }
+    friend bool is_var(object const & o) { return o.kind() == object_kind::Var; }
+    friend bool is_fact(object const & o) { return is_axiom(o) || is_var(o); }
 
     friend definition const & to_definition(object const & o) { lean_assert(is_definition(o)); return static_cast<definition const &>(o); }
     friend fact const & to_fact(object const & o) { lean_assert(is_fact(o)); return static_cast<fact const &>(o); }
@@ -139,11 +156,13 @@ public:
     void add_definition(char const * n, expr const & v, bool opaque = false) { add_definition(name(n), v, opaque); }
 
     /**
-       \brief Add a new fact to the environment.
+       \brief Add a new fact (Axiom or Fact) to the environment.
        It throws an exception if there is already an object with the given name.
     */
-    void add_fact(name const & n, expr const & t);
-    void add_fact(char const * n, expr const & t) { add_fact(name(n), t); }
+    void add_axiom(name const & n, expr const & t);
+    void add_axiom(char const * n, expr const & t) { add_axiom(name(n), t); }
+    void add_var(name const & n, expr const & t);
+    void add_var(char const * n, expr const & t) { add_var(name(n), t); }
 
     /**
        \brief Return the object with the given name.
@@ -156,5 +175,12 @@ public:
        Return nullptr if there is no object with the given name.
     */
     object const * get_object_ptr(name const & n) const;
+
+    /** \brief Display all objects stored in the environment */
+    void display_objects(std::ostream & out) const;
+
+    /** \brief Display universal variable constraints and objects stored in this environment and its parents. */
+    void display(std::ostream & out) const;
 };
+inline std::ostream & operator<<(std::ostream & out, environment const & env) { env.display(out); return out; }
 }

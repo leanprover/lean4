@@ -28,10 +28,6 @@ environment::definition::definition(name const & n, expr const & t, expr const &
 environment::definition::~definition() {
 }
 
-environment::object_kind environment::definition::kind() const {
-    return object_kind::Definition;
-}
-
 void environment::definition::display(std::ostream & out) const {
     out << "Definition " << m_name << " : " << m_type << " := " << m_value << "\n";
 }
@@ -44,12 +40,9 @@ environment::fact::fact(name const & n, expr const & t):
 environment::fact::~fact() {
 }
 
-environment::object_kind environment::fact::kind() const {
-    return object_kind::Fact;
-}
-
 void environment::fact::display(std::ostream & out) const {
-    out << "Fact " << m_name << " : " << m_type << "\n";
+    display_header(out);
+    out << " " << m_name << " : " << m_type << "\n";
 }
 
 /** \brief Implementation of the Lean environment. */
@@ -196,13 +189,23 @@ struct environment::imp {
         }
     }
 
+    void check_add(name const & n) {
+        check_no_children();
+        check_name(n);
+    }
+
     void add_definition(name const & n, expr const & t, expr const & v, bool opaque) {
         m_objects.push_back(new definition(n, t, v, opaque));
         m_object_dictionary.insert(std::make_pair(n, m_objects.back()));
     }
 
-    void add_fact(name const & n, expr const & t) {
-        m_objects.push_back(new fact(n, t));
+    void add_axiom(name const & n, expr const & t) {
+        m_objects.push_back(new axiom(n, t));
+        m_object_dictionary.insert(std::make_pair(n, m_objects.back()));
+    }
+
+    void add_var(name const & n, expr const & t) {
+        m_objects.push_back(new variable(n, t));
         m_object_dictionary.insert(std::make_pair(n, m_objects.back()));
     }
 
@@ -227,6 +230,20 @@ struct environment::imp {
             s << "unknown object '" << n << "'";
             throw exception (s.str());
         }
+    }
+
+    void display_objects(std::ostream & out) const {
+        for (object const * obj : m_objects) {
+            obj->display(out);
+        }
+    }
+
+    /** \brief Display universal variable constraints and objects stored in this environment and its parents. */
+    void display(std::ostream & out) const {
+        if (has_parent())
+            m_parent->display(out);
+        display_uvars(out);
+        display_objects(out);
     }
 
     imp():
@@ -311,17 +328,21 @@ void environment::add_definition(name const & n, expr const & t, expr const & v,
 }
 
 void environment::add_definition(name const & n, expr const & v, bool opaque) {
-    m_imp->check_no_children();
-    m_imp->check_name(n);
+    m_imp->check_add(n);
     expr v_t = infer_type(v, *this);
     m_imp->add_definition(n, v_t, v, opaque);
 }
 
-void environment::add_fact(name const & n, expr const & t) {
-    m_imp->check_no_children();
-    m_imp->check_name(n);
+void environment::add_axiom(name const & n, expr const & t) {
+    m_imp->check_add(n);
     infer_universe(t, *this);
-    m_imp->add_fact(n, t);
+    m_imp->add_axiom(n, t);
+}
+
+void environment::add_var(name const & n, expr const & t) {
+    m_imp->check_add(n);
+    infer_universe(t, *this);
+    m_imp->add_var(n, t);
 }
 
 environment::object const & environment::get_object(name const & n) const {
@@ -330,5 +351,13 @@ environment::object const & environment::get_object(name const & n) const {
 
 environment::object const * environment::get_object_ptr(name const & n) const {
     return m_imp->get_object_ptr(n);
+}
+
+void environment::display_objects(std::ostream & out) const {
+    m_imp->display_objects(out);
+}
+
+void environment::display(std::ostream & out) const {
+    m_imp->display(out);
 }
 }

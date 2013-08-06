@@ -15,6 +15,7 @@ namespace lean {
 class has_free_vars_fn {
 protected:
     expr_cell_offset_set m_visited;
+    bool                 m_set_closed_flag;
 
     virtual bool process_var(expr const & x, unsigned offset) {
         return var_idx(x) >= offset;
@@ -62,17 +63,18 @@ protected:
             break;
         }
 
-        if (!result)
+        if (m_set_closed_flag && !result)
             e.raw()->set_closed();
 
         return result;
     }
 public:
+    has_free_vars_fn(bool s):m_set_closed_flag(s) {}
     bool operator()(expr const & e) { return apply(e, 0); }
 };
 
 bool has_free_vars(expr const & e) {
-    return has_free_vars_fn()(e);
+    return has_free_vars_fn(true)(e);
 }
 
 /** \brief Functional object for checking whether a kernel expression has a free variable in the range <tt>[low, high)</tt> or not. */
@@ -83,7 +85,10 @@ class has_free_var_in_range_fn : public has_free_vars_fn {
         return var_idx(x) >= offset + m_low && var_idx(x) < offset + m_high;
     }
 public:
-    has_free_var_in_range_fn(unsigned low, unsigned high):m_low(low), m_high(high) {
+    has_free_var_in_range_fn(unsigned low, unsigned high):
+        has_free_vars_fn(false /* We should not set the closed flag since we are only considering a range of free variables */),
+        m_low(low),
+        m_high(high) {
         lean_assert(low < high);
     }
 };

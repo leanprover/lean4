@@ -80,10 +80,10 @@ unsigned count(expr const & a) {
 
 static void tst_church_numbers() {
     environment env;
-    env.add_fact("t", type(level()));
-    env.add_fact("N", type(level()));
-    env.add_fact("z", constant("N"));
-    env.add_fact("s", constant("N"));
+    env.add_var("t", type(level()));
+    env.add_var("N", type(level()));
+    env.add_var("z", constant("N"));
+    env.add_var("s", constant("N"));
     expr N = constant("N");
     expr z = constant("z");
     expr s = constant("s");
@@ -112,13 +112,13 @@ static void tst_church_numbers() {
 
 static void tst1() {
     environment env;
-    env.add_fact("t", type(level()));
+    env.add_var("t", type(level()));
     expr t = type(level());
-    env.add_fact("f", arrow(t, t));
+    env.add_var("f", arrow(t, t));
     expr f = constant("f");
-    env.add_fact("a", t);
+    env.add_var("a", t);
     expr a = constant("a");
-    env.add_fact("b", t);
+    env.add_var("b", t);
     expr b = constant("b");
     expr x = var(0);
     expr y = var(1);
@@ -140,13 +140,13 @@ static void tst1() {
 static void tst2() {
     environment env;
     expr t = type(level());
-    env.add_fact("f", arrow(t, t));
+    env.add_var("f", arrow(t, t));
     expr f = constant("f");
-    env.add_fact("a", t);
+    env.add_var("a", t);
     expr a = constant("a");
-    env.add_fact("b", t);
+    env.add_var("b", t);
     expr b = constant("b");
-    env.add_fact("h", arrow(t, t));
+    env.add_var("h", arrow(t, t));
     expr h = constant("h");
     expr x = var(0);
     expr y = var(1);
@@ -180,7 +180,7 @@ static void tst2() {
 
 static void tst3() {
     environment env;
-    env.add_fact("a", bool_type());
+    env.add_var("a", bool_type());
     expr t1 = constant("a");
     expr t2 = constant("a");
     expr e = eq(t1, t2);
@@ -190,7 +190,7 @@ static void tst3() {
 
 static void tst4() {
     environment env;
-    env.add_fact("b", type(level()));
+    env.add_var("b", type(level()));
     expr t1 = let("a", constant("b"), lambda("c", type(), var(1)(var(0))));
     std::cout << t1 << " --> " << normalize(t1, env) << "\n";
     lean_assert(normalize(t1, env) == lambda("c", type(), constant("b")(var(0))));

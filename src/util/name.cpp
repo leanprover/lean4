@@ -266,5 +266,6 @@ std::ostream & operator<<(std::ostream & out, name::sep const & s) {
     name::imp::display(out, s.m_sep, s.m_name.m_ptr);
     return out;
 }
-
 }
+
+void pp(lean::name const & n) { std::cout << n << std::endl; }

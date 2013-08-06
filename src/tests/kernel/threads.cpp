@@ -19,10 +19,10 @@ using namespace lean;
 
 expr normalize(expr const & e) {
     environment env;
-    env.add_fact("a", int_type());
-    env.add_fact("b", int_type());
-    env.add_fact("f", arrow(int_type(), arrow(int_type(), int_type())));
-    env.add_fact("h", arrow(int_type(), arrow(int_type(), int_type())));
+    env.add_var("a", int_type());
+    env.add_var("b", int_type());
+    env.add_var("f", arrow(int_type(), arrow(int_type(), int_type())));
+    env.add_var("h", arrow(int_type(), arrow(int_type(), int_type())));
     return normalize(e, env);
 }
 

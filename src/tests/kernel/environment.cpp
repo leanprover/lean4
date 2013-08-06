@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "environment.h"
 #include "type_check.h"
+#include "toplevel.h"
 #include "builtin.h"
 #include "arith.h"
 #include "normalize.h"
@@ -98,7 +99,7 @@ static void tst3() {
     lean_assert(normalize(constant("c"), c_env) == int_value(3));
     try {
         expr r = normalize(constant("c"), env);
-        lean_assert(r == int_value(3))
+        lean_assert(r == int_value(3));
         lean_unreachable();
     } catch (exception const & ex) {
         std::cout << "expected error: " << ex.what() << std::endl;
@@ -133,7 +134,7 @@ static void tst6() {
     environment env;
     level u = env.define_uvar("u", level() + 1);
     level w = env.define_uvar("w", u + 1);
-    env.add_fact("f", arrow(type(u), type(u)));
+    env.add_var("f", arrow(type(u), type(u)));
     expr t = app(constant("f"), int_type());
     std::cout << "type of " << t << " is " << infer_type(t, env) << "\n";
     try {
@@ -156,6 +157,16 @@ static void tst6() {
     lean_assert(infer_type(arrow(int_type(), int_type()), env) == type());
 }
 
+static void tst7() {
+    environment env = mk_toplevel();
+    env.add_var("a", int_type());
+    env.add_var("b", int_type());
+    expr t = app(if_fn(), int_type(), bool_value(true), constant("a"), constant("b"));
+    std::cout << t << " --> " << normalize(t, env) << "\n";
+    std::cout << infer_type(t, env) << "\n";
+    std::cout << "Environment\n" << env;
+}
+
 int main() {
     enable_trace("is_convertible");
     continue_on_violation(true);
@@ -165,5 +176,6 @@ int main() {
     tst4();
     tst5();
     tst6();
+    tst7();
     return has_violations() ? 1 : 0;
 }

@@ -149,6 +149,7 @@ MK_CONSTANT(exists_fn, name("exists"));
 
 MK_CONSTANT(refl_fn, name("refl"));
 MK_CONSTANT(subst_fn, name("subst"));
+MK_CONSTANT(eta_fn, name("eta"));
 MK_CONSTANT(symm_fn, name("symm"));
 MK_CONSTANT(trans_fn, name("trans"));
 MK_CONSTANT(xtrans_fn, name("xtrans"));
@@ -188,6 +189,11 @@ void add_basic_theory(environment & env) {
     expr B1 = Const("B1");
     expr a1 = Const("a1");
 
+    expr A_pred = A >> Bool;
+    expr q_type = Pi({A, TypeU}, A_pred >> Bool);
+    expr piABx = Pi({x, A}, B(x));
+    expr A_arrow_u = A >> TypeU;
+
     // and(x, y) = (if bool x y false)
     env.add_definition(and_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, bIf(x, y, True)));
     // or(x, y) = (if bool x true y)
@@ -196,8 +202,6 @@ void add_basic_theory(environment & env) {
     env.add_definition(not_fn_name, p1, Fun({x, Bool}, bIf(x, False, True)));
 
     // forall : Pi (A : Type u), (A -> Bool) -> Bool
-    expr A_pred = A >> Bool;
-    expr q_type = Pi({A, TypeU}, A_pred >> Bool);
     env.add_var(forall_fn_name, q_type);
     env.add_definition(exists_fn_name, q_type, Fun({{A,TypeU}, {P, A_pred}}, Not(Forall(A, Fun({x, A}, Not(P(x)))))));
 
@@ -206,6 +210,9 @@ void add_basic_theory(environment & env) {
 
     // subst : Pi (A : Type u) (P : A -> bool) (a b : A) (H1 : P a) (H2 : a = b), P b
     env.add_axiom(subst_fn_name, Pi({{A, TypeU}, {P, A_pred}, {a, A}, {b, A}, {H1, P(a)}, {H2, Eq(a,b)}}, P(b)));
+
+    // eta : Pi (A : Type u) (B : A -> Type u), f : (Pi x : A, B x), (Fun x : A => f x) = f
+    env.add_axiom(eta_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}}, Eq(Fun({x, A}, f(x)), f)));
 
     // symm : Pi (A : Type u) (a b : A) (H : a = b), b = a :=
     //         Subst A (Fun x : A => x = a) a b (Refl A a) H
@@ -219,15 +226,12 @@ void add_basic_theory(environment & env) {
                     Fun({{A, TypeU}, {a, A}, {b, A}, {c, A}, {H1, Eq(a,b)}, {H2, Eq(b,c)}},
                         Subst(A, Fun({x, A}, Eq(a, x)), b, c, H1, H2)));
 
-
     // xtrans: Pi (A: Type u) (B : Type u) (a : A) (b c : B) (H1 : a = b) (H2 : b = c), a = c :=
     //           Subst B (Fun x : B => a = x) b c H1 H2
     env.add_theorem(xtrans_fn_name, Pi({{A, TypeU}, {B, TypeU}, {a, A}, {b, B}, {c, B}, {H1, Eq(a, b)}, {H2, Eq(b, c)}}, Eq(a, c)),
                     Fun({{A, TypeU}, {B, TypeU}, {a, A}, {b, B}, {c, B}, {H1, Eq(a, b)}, {H2, Eq(b, c)}},
                         Subst(B, Fun({x, B}, Eq(a, x)), b, c, H1, H2)));
 
-    expr piABx = Pi({x, A}, B(x));
-    expr A_arrow_u = A >> TypeU;
     // congr1 : Pi (A : Type u) (B : A -> Type u) (f g: Pi (x : A) B x) (a : A) (H : f = g), f a = g a :=
     //          Subst piABx (Fun h : piABx => f a = h a) f g (Refl piABx f) H
     env.add_theorem(congr1_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {a, A}, {H, Eq(f, g)}}, Eq(f(a), g(a))),

@@ -158,6 +158,16 @@ bool is_truth(expr const & e);
 /** \brief (Theorem) Truth : True */
 #define Truth mk_truth()
 
+expr mk_eqt_elim_fn();
+bool is_eqt_elim(expr const & e);
+// \brief (Theorem) a : Bool, H : a = True |- EqT(a, H) : a
+inline expr EqTElim(expr const & a, expr const & H) { return mk_app(mk_eqt_elim_fn(), a, H); }
+
+expr mk_foralle_fn();
+bool is_foralle_fn(expr const & e);
+// \brief (Theorem) A : Type u, P : A -> Bool, H : (Forall A P), a : A |- Forallelim(A, P, H, a) : P a
+inline expr ForallElim(expr const & A, expr const & P, expr const & H, expr const & a) { return mk_app(mk_foralle_fn(), A, P, H, a); }
+
 expr mk_ext_fn();
 bool is_ext_fn(expr const & e);
 expr mk_foralle_fn();

@@ -202,7 +202,7 @@ void add_basic_theory(environment & env) {
     env.add_definition(not_fn_name, p1, Fun({x, Bool}, bIf(x, False, True)));
 
     // forall : Pi (A : Type u), (A -> Bool) -> Bool
-    env.add_var(forall_fn_name, q_type);
+    env.add_definition(forall_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Eq(P, Fun({x, A}, True))));
     env.add_definition(exists_fn_name, q_type, Fun({{A,TypeU}, {P, A_pred}}, Not(Forall(A, Fun({x, A}, Not(P(x)))))));
 
     // refl : Pi (A : Type u) (a : A), a = a
@@ -265,11 +265,14 @@ void add_basic_theory(environment & env) {
                     Fun({{a, Bool}, {H, Eq(a, True)}},
                         EqMP(True, a, Symm(Bool, a, True, H), Truth)));
 
+    // foralle : Pi (A : Type u) (P : A -> bool) (H : (forall A P)) (a : A), P a
+    env.add_theorem(foralle_fn_name, Pi({{A, TypeU}, {P, A_pred}, {H, mk_forall(A, P)}, {a, A}}, P(a)),
+                    Fun({{A, TypeU}, {P, A_pred}, {H, mk_forall(A, P)}, {a, A}},
+                        EqTElim(P(a), Congr1(A, Fun({x, A}, Bool), P, Fun({x, A}, True), a, H))));
+
     // ext : Pi (A : Type u) (B : A -> Type u) (f g : Pi (x : A) B x) (H : Pi x : A, (f x) = (g x)), f = g
     env.add_axiom(ext_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {H, Pi({x, A}, Eq(f(x), g(x)))}}, Eq(f, g)));
 
-    // foralle : Pi (A : Type u) (P : A -> bool) (H : (forall A P)) (a : A), P a
-    env.add_axiom(foralle_fn_name, Pi({{A, TypeU}, {P, A_pred}, {H, mk_forall(A, P)}, {a, A}}, P(a)));
     // foralli : Pi (A : Type u) (P : A -> bool) (H : Pi (x : A), P x), (forall A P)
     env.add_axiom(foralli_fn_name, Pi({{A, TypeU}, {P, A_pred}, {H, Pi({x, A}, P(x))}}, Forall(A, P)));
 

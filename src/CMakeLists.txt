@@ -30,7 +30,7 @@ else ()
 endif ()
 
 # GMP
-find_package(GMP)
+find_package(GMP 5.0.5)
 set(EXTRA_LIBS ${EXTRA_LIBS} ${GMP_LIBRARIES})
 
 # MPFR

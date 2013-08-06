@@ -28,8 +28,13 @@ environment::definition::definition(name const & n, expr const & t, expr const &
 environment::definition::~definition() {
 }
 
+void environment::definition::display_header(std::ostream & out) const {
+    out << "Definition";
+}
+
 void environment::definition::display(std::ostream & out) const {
-    out << "Definition " << m_name << " : " << m_type << " := " << m_value << "\n";
+    display_header(out);
+    out << " " << m_name << " : " << m_type << " := " << m_value << "\n";
 }
 
 environment::fact::fact(name const & n, expr const & t):
@@ -196,6 +201,11 @@ struct environment::imp {
 
     void add_definition(name const & n, expr const & t, expr const & v, bool opaque) {
         m_objects.push_back(new definition(n, t, v, opaque));
+        m_object_dictionary.insert(std::make_pair(n, m_objects.back()));
+    }
+
+    void add_theorem(name const & n, expr const & t, expr const & v) {
+        m_objects.push_back(new theorem(n, t, v));
         m_object_dictionary.insert(std::make_pair(n, m_objects.back()));
     }
 

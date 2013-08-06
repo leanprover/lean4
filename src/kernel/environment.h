@@ -69,7 +69,7 @@ public:
     */
     environment parent() const;
 
-    enum class object_kind { Definition, Var, Axiom };
+    enum class object_kind { Definition, Theorem, Var, Axiom };
 
     /**
         \brief Base class for environment objects
@@ -92,6 +92,7 @@ public:
         expr m_type;
         expr m_value;
         bool m_opaque;
+        virtual void display_header(std::ostream & out) const;
     public:
         definition(name const & n, expr const & t, expr const & v, bool opaque);
         virtual ~definition();
@@ -101,6 +102,13 @@ public:
         expr const & get_value() const { return m_value; }
         bool         is_opaque() const { return m_opaque; }
         virtual void display(std::ostream & out) const;
+    };
+
+    class theorem : public definition {
+        virtual void display_header(std::ostream & out) const { out << "Theorem"; }
+    public:
+        theorem(name const & n, expr const & t, expr const & v):definition(n, t, v, true) {}
+        virtual object_kind kind() const { return object_kind::Theorem; }
     };
 
     class fact : public object {

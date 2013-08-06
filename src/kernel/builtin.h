@@ -92,6 +92,8 @@ inline expr mk_exists(expr const & A, expr const & P) { return app(exists_fn(), 
 
 expr refl_fn();
 bool is_refl_fn(expr const & e);
+expr subst_fn();
+bool is_subst_fn(expr const & e);
 expr symm_fn();
 bool is_symm_fn(expr const & e);
 expr trans_fn();

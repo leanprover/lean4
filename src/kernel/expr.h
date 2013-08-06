@@ -260,6 +260,12 @@ inline expr app(expr const & e1, expr const & e2) { expr args[2] = {e1, e2}; ret
 inline expr app(expr const & e1, expr const & e2, expr const & e3) { expr args[3] = {e1, e2, e3}; return app(3, args); }
 inline expr app(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { expr args[4] = {e1, e2, e3, e4}; return app(4, args); }
 inline expr app(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { expr args[5] = {e1, e2, e3, e4, e5}; return app(5, args); }
+inline expr app(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) {
+    expr args[6] = {e1, e2, e3, e4, e5, e6}; return app(6, args);
+}
+inline expr app(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6, expr const & e7) {
+    expr args[7] = {e1, e2, e3, e4, e5, e6, e7}; return app(7, args);
+}
 inline expr eq(expr const & l, expr const & r) { return expr(new expr_eq(l, r)); }
 inline expr lambda(name const & n, expr const & t, expr const & e) { return expr(new expr_lambda(n, t, e)); }
 inline expr lambda(char const * n, expr const & t, expr const & e) { return lambda(name(n), t, e); }

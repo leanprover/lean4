@@ -148,6 +148,7 @@ MK_CONSTANT(forall_fn, name("forall"));
 MK_CONSTANT(exists_fn, name("exists"));
 
 MK_CONSTANT(refl_fn, name("refl"));
+MK_CONSTANT(subst_fn, name("subst"));
 MK_CONSTANT(symm_fn, name("symm"));
 MK_CONSTANT(trans_fn, name("trans"));
 MK_CONSTANT(congr_fn, name("congr"));
@@ -156,6 +157,8 @@ MK_CONSTANT(foralle_fn, name("foralle"));
 MK_CONSTANT(foralli_fn, name("foralli"));
 MK_CONSTANT(domain_inj_fn, name("domain_inj"));
 MK_CONSTANT(range_inj_fn, name("range_inj"));
+
+
 
 void add_basic_theory(environment & env) {
     env.define_uvar(uvar_name(m_lvl), level() + LEAN_DEFAULT_LEVEL_SEPARATION);
@@ -195,10 +198,18 @@ void add_basic_theory(environment & env) {
 
     // refl : Pi (A : Type u) (a : A), a = a
     env.add_axiom(refl_fn_name, Fun(A, u_type(), Fun(a, A, eq(a, a))));
-    // symm : Pi (A : Type u) (a b : A) (H : a = b), b = a
-    env.add_axiom(symm_fn_name, Fun(A, u_type(), Fun(a, A, Fun(b, A, Fun(H, eq(a, b), eq(b, a))))));
-    // trans: Pi (A: Type u) (a b c : A) (H1 : a = b) (H2 : b = c), a = c
-    env.add_axiom(trans_fn_name, Fun(A, u_type(), Fun(a, A, Fun(b, A, Fun(c, A, Fun(H1, eq(a, b), Fun(H2, eq(b, c), eq(a, c))))))));
+    // subst : Pi (A : Type u) (P : A -> bool) (a b : A) (H1 : P a) (H2 : a = b), P b
+    env.add_axiom(subst_fn_name, Fun(A, u_type(), Fun(P, A_pred, Fun(a, A, Fun(b, A, Fun(H1, P(a), Fun(H2, eq(a, b), P(b))))))));
+    // symm : Pi (A : Type u) (a b : A) (H : a = b), b = a :=
+    //         subst A (fun x : A => x = a) a b (refl A a) H
+    env.add_definition(symm_fn_name, Fun(A, u_type(), Fun(a, A, Fun(b, A, Fun(H, eq(a, b), eq(b, a))))),
+                       fun(A, u_type(), fun(a, A, fun(b, A, fun(H, eq(a, b), app(subst_fn(), A, fun(x, A, eq(x,a)), a, b, app(refl_fn(), A, a), H))))));
+
+    // trans: Pi (A: Type u) (a b c : A) (H1 : a = b) (H2 : b = c), a = c :=
+    //           subst A (fun x : A => a = x) b c H1 H2
+    env.add_definition(trans_fn_name, Fun(A, u_type(), Fun(a, A, Fun(b, A, Fun(c, A, Fun(H1, eq(a, b), Fun(H2, eq(b, c), eq(a, c))))))),
+                       fun(A, u_type(), fun(a, A, fun(b, A, fun(c, A, fun(H1, eq(a, b), fun(H2, eq(b, c), app(subst_fn(), A, fun(x, A, eq(a, x)), b, c, H1, H2))))))));
+
     // congr : Pi (A : Type u) (B : A -> Type u) (f g : Pi (x : A) B x) (a b : A) (H1 : f = g) (H2 : a = b), f a = g b
     expr piABx = Fun(x, A, B(x));
     expr A_arrow_u = arrow(A, u_type());

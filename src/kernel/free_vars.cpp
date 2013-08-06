@@ -107,7 +107,7 @@ expr lower_free_vars(expr const & e, unsigned d) {
     auto f = [=](expr const & e, unsigned offset) -> expr {
         if (is_var(e) && var_idx(e) >= offset) {
             lean_assert(var_idx(e) >= offset + d);
-            return var(var_idx(e) - d);
+            return mk_var(var_idx(e) - d);
         }
         else {
             return e;
@@ -121,7 +121,7 @@ expr lift_free_vars(expr const & e, unsigned d) {
         return e;
     auto f = [=](expr const & e, unsigned offset) -> expr {
         if (is_var(e) && var_idx(e) >= offset) {
-            return var(var_idx(e) + d);
+            return mk_var(var_idx(e) + d);
         }
         else {
             return e;

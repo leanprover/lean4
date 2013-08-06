@@ -14,33 +14,33 @@ using namespace lean;
 
 expr mk_big(expr f, unsigned depth, unsigned val) {
     if (depth == 1)
-        return constant(name(val));
+        return mk_constant(name(val));
     else
         return f(mk_big(f, depth - 1, val << 1), mk_big(f, depth - 1, (val << 1) + 1));
 }
 
 static void tst1() {
-    expr f = constant("f");
+    expr f = Const("f");
     expr r = mk_big(f, 16, 0);
-    expr n = constant(name(0u));
+    expr n = Const(name(0u));
     for (unsigned i = 0; i < 20; i++) {
         r = abstract(r, n);
     }
 }
 
 static void tst2() {
-    expr r = lambda("x", type(level()), app(var(0), var(1), var(2)));
-    std::cout << instantiate_with_closed(r, constant("a")) << std::endl;
-    lean_assert(instantiate_with_closed(r, constant("a")) == lambda("x", type(level()), app(var(0), constant("a"), var(1))));
-    lean_assert(instantiate_with_closed(instantiate_with_closed(r, constant("a")), constant("b")) ==
-                lambda("x", type(level()), app(var(0), constant("a"), constant("b"))));
-    std::cout << instantiate_with_closed(abst_body(r), constant("a")) << std::endl;
-    lean_assert(instantiate_with_closed(abst_body(r), constant("a")) == app(constant("a"), var(0), var(1)));
-    std::cout << instantiate(r, var(10)) << std::endl;
-    lean_assert(instantiate(r, var(10)) == lambda("x", type(level()), app(var(0), var(11), var(1))));
-    std::cout << pi("_", var(3), var(4)) << std::endl;
-    std::cout << instantiate(pi("_", var(3), var(4)), var(0)) << std::endl;
-    lean_assert(instantiate(pi("_", var(3), var(4)), var(0)) == pi("_", var(2), var(3)));
+    expr r = mk_lambda("x", Type(), mk_app({Var(0), Var(1), Var(2)}));
+    std::cout << instantiate_with_closed(r, Const("a")) << std::endl;
+    lean_assert(instantiate_with_closed(r, Const("a")) == mk_lambda("x", Type(), mk_app({Var(0), Const("a"), Var(1)})));
+    lean_assert(instantiate_with_closed(instantiate_with_closed(r, Const("a")), Const("b")) ==
+                mk_lambda("x", Type(), mk_app({Var(0), Const("a"), Const("b")})));
+    std::cout << instantiate_with_closed(abst_body(r), Const("a")) << std::endl;
+    lean_assert(instantiate_with_closed(abst_body(r), Const("a")) == mk_app({Const("a"), Var(0), Var(1)}));
+    std::cout << instantiate(r, Var(10)) << std::endl;
+    lean_assert(instantiate(r, Var(10)) == mk_lambda("x", Type(), mk_app({Var(0), Var(11), Var(1)})));
+    std::cout << mk_pi("_", Var(3), Var(4)) << std::endl;
+    std::cout << instantiate(mk_pi("_", Var(3), Var(4)), Var(0)) << std::endl;
+    lean_assert(instantiate(mk_pi("_", Var(3), Var(4)), Var(0)) == mk_pi("_", Var(2), Var(3)));
 }
 
 int main() {

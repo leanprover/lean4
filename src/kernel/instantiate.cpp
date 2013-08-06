@@ -19,7 +19,7 @@ expr instantiate_with_closed(expr const & e, unsigned n, expr const * s) {
                 if (vidx < offset + n)
                     return s[n - (vidx - offset) - 1];
                 else
-                    return var(vidx - n);
+                    return mk_var(vidx - n);
             }
         }
         return e;
@@ -34,7 +34,7 @@ expr instantiate(expr const & e, unsigned n, expr const * s) {
                 if (vidx < offset + n)
                     return lift_free_vars(s[n - (vidx - offset) - 1], offset);
                 else
-                    return var(vidx - n);
+                    return mk_var(vidx - n);
             }
         }
         return e;

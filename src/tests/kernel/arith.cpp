@@ -16,84 +16,84 @@ using namespace lean;
 
 static void tst1() {
     environment env;
-    expr e = int_value(mpz(10));
+    expr e = mk_int_value(mpz(10));
     lean_assert(is_int_value(e));
-    lean_assert(infer_type(e, env) == int_type());
+    lean_assert(infer_type(e, env) == Int);
     std::cout << "e: " << e << "\n";
 }
 
 static void tst2() {
     environment env;
-    expr e = app(int_add(), int_value(10), int_value(30));
+    expr e = iAdd(iVal(10), iVal(30));
     std::cout << e << "\n";
     std::cout << normalize(e, env) << "\n";
-    lean_assert(normalize(e, env) == int_value(40));
-    std::cout << infer_type(int_add(), env) << "\n";
-    lean_assert(infer_type(e, env) == int_type());
-    lean_assert(infer_type(app(int_add(), int_value(10)), env) == arrow(int_type(), int_type()));
-    lean_assert(is_int_add(int_add()));
-    lean_assert(!is_int_add(int_mul()));
+    lean_assert(normalize(e, env) == iVal(40));
+    std::cout << infer_type(mk_int_add_fn(), env) << "\n";
+    lean_assert(infer_type(e, env) == Int);
+    lean_assert(infer_type(mk_app(mk_int_add_fn(), iVal(10)), env) == (Int >> Int));
+    lean_assert(is_int_add_fn(mk_int_add_fn()));
+    lean_assert(!is_int_add_fn(mk_int_mul_fn()));
     lean_assert(is_int_value(normalize(e, env)));
-    expr e2 = fun("a", int_type(), app(int_add(), constant("a"), app(int_add(), int_value(10), int_value(30))));
+    expr e2 = Fun("a", Int, iAdd(Const("a"), iAdd(iVal(10), iVal(30))));
     std::cout << e2 << " --> " << normalize(e2, env) << "\n";
-    lean_assert(infer_type(e2, env) == arrow(int_type(), int_type()));
-    lean_assert(normalize(e2, env) == fun("a", int_type(), app(int_add(), constant("a"), int_value(40))));
+    lean_assert(infer_type(e2, env) == arrow(Int, Int));
+    lean_assert(normalize(e2, env) == Fun("a", Int, iAdd(Const("a"), iVal(40))));
 }
 
 static void tst3() {
     environment env;
-    expr e = app(int_mul(), int_value(10), int_value(30));
+    expr e = iMul(iVal(10), iVal(30));
     std::cout << e << "\n";
     std::cout << normalize(e, env) << "\n";
-    lean_assert(normalize(e, env) == int_value(300));
-    std::cout << infer_type(int_mul(), env) << "\n";
-    lean_assert(infer_type(e, env) == int_type());
-    lean_assert(infer_type(app(int_mul(), int_value(10)), env) == arrow(int_type(), int_type()));
-    lean_assert(is_int_mul(int_mul()));
-    lean_assert(!is_int_mul(int_add()));
+    lean_assert(normalize(e, env) == iVal(300));
+    std::cout << infer_type(mk_int_mul_fn(), env) << "\n";
+    lean_assert(infer_type(e, env) == Int);
+    lean_assert(infer_type(mk_app(mk_int_mul_fn(), iVal(10)), env) == arrow(Int, Int));
+    lean_assert(is_int_mul_fn(mk_int_mul_fn()));
+    lean_assert(!is_int_mul_fn(mk_int_add_fn()));
     lean_assert(is_int_value(normalize(e, env)));
-    expr e2 = fun("a", int_type(), app(int_mul(), constant("a"), app(int_mul(), int_value(10), int_value(30))));
+    expr e2 = Fun("a", Int, iMul(Const("a"), iMul(iVal(10), iVal(30))));
     std::cout << e2 << " --> " << normalize(e2, env) << "\n";
-    lean_assert(infer_type(e2, env) == arrow(int_type(), int_type()));
-    lean_assert(normalize(e2, env) == fun("a", int_type(), app(int_mul(), constant("a"), int_value(300))));
+    lean_assert(infer_type(e2, env) == (Int >> Int));
+    lean_assert(normalize(e2, env) == Fun("a", Int, iMul(Const("a"), iVal(300))));
 }
 
 static void tst4() {
     environment env;
-    expr e = app(int_sub(), int_value(10), int_value(30));
+    expr e = iSub(iVal(10), iVal(30));
     std::cout << e << "\n";
     std::cout << normalize(e, env) << "\n";
-    lean_assert(normalize(e, env) == int_value(-20));
-    std::cout << infer_type(int_sub(), env) << "\n";
-    lean_assert(infer_type(e, env) == int_type());
-    lean_assert(infer_type(app(int_sub(), int_value(10)), env) == arrow(int_type(), int_type()));
-    lean_assert(is_int_sub(int_sub()));
-    lean_assert(!is_int_sub(int_add()));
+    lean_assert(normalize(e, env) == iVal(-20));
+    std::cout << infer_type(mk_int_sub_fn(), env) << "\n";
+    lean_assert(infer_type(e, env) == Int);
+    lean_assert(infer_type(mk_app(mk_int_sub_fn(), iVal(10)), env) == arrow(Int, Int));
+    lean_assert(is_int_sub_fn(mk_int_sub_fn()));
+    lean_assert(!is_int_sub_fn(mk_int_add_fn()));
     lean_assert(is_int_value(normalize(e, env)));
-    expr e2 = fun("a", int_type(), app(int_sub(), constant("a"), app(int_sub(), int_value(10), int_value(30))));
+    expr e2 = Fun("a", Int, iSub(Const("a"), iSub(iVal(10), iVal(30))));
     std::cout << e2 << " --> " << normalize(e2, env) << "\n";
-    lean_assert(infer_type(e2, env) == arrow(int_type(), int_type()));
-    lean_assert(normalize(e2, env) == fun("a", int_type(), app(int_sub(), constant("a"), int_value(-20))));
+    lean_assert(infer_type(e2, env) == (Int >> Int));
+    lean_assert(normalize(e2, env) == Fun("a", Int, iSub(Const("a"), iVal(-20))));
 }
 
 static void tst5() {
     environment env;
-    env.add_var(name("a"), int_type());
-    expr e = eq(int_value(3), int_value(4));
+    env.add_var(name("a"), Int);
+    expr e = Eq(iVal(3), iVal(4));
     std::cout << e << " --> " << normalize(e, env) << "\n";
-    lean_assert(normalize(e, env) == bool_value(false));
-    lean_assert(normalize(eq(constant("a"), int_value(3)), env) == eq(constant("a"), int_value(3)));
+    lean_assert(normalize(e, env) == False);
+    lean_assert(normalize(Eq(Const("a"), iVal(3)), env) == Eq(Const("a"), iVal(3)));
 }
 
 static void tst6() {
     std::cout << "tst6\n";
-    std::cout << int_add().raw() << "\n";
-    std::cout << int_add().raw() << "\n";
-    std::thread t1([](){ std::cout << "t1: " << int_add().raw() << "\n"; });
+    std::cout << mk_int_add_fn().raw() << "\n";
+    std::cout << mk_int_add_fn().raw() << "\n";
+    std::thread t1([](){ std::cout << "t1: " << mk_int_add_fn().raw() << "\n"; });
     t1.join();
-    std::thread t2([](){ std::cout << "t2: " << int_add().raw() << "\n"; });
+    std::thread t2([](){ std::cout << "t2: " << mk_int_add_fn().raw() << "\n"; });
     t2.join();
-    std::cout << int_add().raw() << "\n";
+    std::cout << mk_int_add_fn().raw() << "\n";
 }
 
 int main() {

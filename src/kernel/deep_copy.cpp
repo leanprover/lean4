@@ -29,13 +29,13 @@ class deep_copy_fn {
             buffer<expr> new_args;
             for (expr const & old_arg : args(a))
                 new_args.push_back(apply(old_arg));
-            r = app(new_args.size(), new_args.data());
+            r = mk_app(new_args.size(), new_args.data());
             break;
         }
-        case expr_kind::Eq:       r = eq(apply(eq_lhs(a)), apply(eq_rhs(a))); break;
-        case expr_kind::Lambda:   r = lambda(abst_name(a), apply(abst_domain(a)), apply(abst_body(a))); break;
-        case expr_kind::Pi:       r = pi(abst_name(a), apply(abst_domain(a)), apply(abst_body(a))); break;
-        case expr_kind::Let:      r = let(let_name(a), apply(let_value(a)), apply(let_body(a))); break;
+        case expr_kind::Eq:       r = mk_eq(apply(eq_lhs(a)), apply(eq_rhs(a))); break;
+        case expr_kind::Lambda:   r = mk_lambda(abst_name(a), apply(abst_domain(a)), apply(abst_body(a))); break;
+        case expr_kind::Pi:       r = mk_pi(abst_name(a), apply(abst_domain(a)), apply(abst_body(a))); break;
+        case expr_kind::Let:      r = mk_let(let_name(a), apply(let_value(a)), apply(let_body(a))); break;
         }
         if (sh)
             m_cache.insert(std::make_pair(a.raw(), r));

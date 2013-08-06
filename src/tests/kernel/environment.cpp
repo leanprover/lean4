@@ -62,44 +62,44 @@ static void tst2() {
 static void tst3() {
     environment env;
     try {
-        env.add_definition("a", int_type(), constant("a"));
+        env.add_definition("a", Int, Const("a"));
         lean_unreachable();
     } catch (exception const & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
     }
-    env.add_definition("a", int_type(), app(int_add(), int_value(1), int_value(2)));
-    expr t = app(int_add(), constant("a"), int_value(1));
+    env.add_definition("a", Int, iAdd(iVal(1), iVal(2)));
+    expr t = iAdd(Const("a"), iVal(1));
     std::cout << t << " --> " << normalize(t, env) << "\n";
-    lean_assert(normalize(t, env) == int_value(4));
-    env.add_definition("b", int_type(), app(int_mul(), int_value(2), constant("a")));
-    std::cout << "b --> " << normalize(constant("b"), env) << "\n";
-    lean_assert(normalize(constant("b"), env) == int_value(6));
+    lean_assert(normalize(t, env) == iVal(4));
+    env.add_definition("b", Int, iMul(iVal(2), Const("a")));
+    std::cout << "b --> " << normalize(Const("b"), env) << "\n";
+    lean_assert(normalize(Const("b"), env) == iVal(6));
     try {
-        env.add_definition("c", arrow(int_type(), int_type()), constant("a"));
+        env.add_definition("c", arrow(Int, Int), Const("a"));
         lean_unreachable();
     } catch (exception const & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
     }
     try {
-        env.add_definition("a", int_type(), int_value(10));
+        env.add_definition("a", Int, iVal(10));
         lean_unreachable();
     } catch (exception const & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
     }
     environment c_env = env.mk_child();
     try {
-        env.add_definition("c", int_type(), constant("a"));
+        env.add_definition("c", Int, Const("a"));
         lean_unreachable();
     } catch (exception const & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
     }
-    lean_assert(normalize(constant("b"), env) == int_value(6));
-    lean_assert(normalize(constant("b"), c_env) == int_value(6));
-    c_env.add_definition("c", int_type(), constant("a"));
-    lean_assert(normalize(constant("c"), c_env) == int_value(3));
+    lean_assert(normalize(Const("b"), env) == iVal(6));
+    lean_assert(normalize(Const("b"), c_env) == iVal(6));
+    c_env.add_definition("c", Int, Const("a"));
+    lean_assert(normalize(Const("c"), c_env) == iVal(3));
     try {
-        expr r = normalize(constant("c"), env);
-        lean_assert(r == int_value(3));
+        expr r = normalize(Const("c"), env);
+        lean_assert(r == iVal(3));
         lean_unreachable();
     } catch (exception const & ex) {
         std::cout << "expected error: " << ex.what() << std::endl;
@@ -109,21 +109,21 @@ static void tst3() {
 
 static void tst4() {
     environment env;
-    env.add_definition("a", int_type(), int_value(1), true); // add opaque definition
-    expr t = app(int_add(), constant("a"), int_value(1));
+    env.add_definition("a", Int, iVal(1), true); // add opaque definition
+    expr t = iAdd(Const("a"), iVal(1));
     std::cout << t << " --> " << normalize(t, env) << "\n";
     lean_assert(normalize(t, env) == t);
-    env.add_definition("b", int_type(), app(int_add(), constant("a"), int_value(1)));
-    expr t2 = app(int_sub(), constant("b"), int_value(9));
+    env.add_definition("b", Int, iAdd(Const("a"), iVal(1)));
+    expr t2 = iSub(Const("b"), iVal(9));
     std::cout << t2 << " --> " << normalize(t2, env) << "\n";
-    lean_assert(normalize(t2, env) == app(int_sub(), app(int_add(), constant("a"), int_value(1)), int_value(9)));
+    lean_assert(normalize(t2, env) == iSub(iAdd(Const("a"), iVal(1)), iVal(9)));
 }
 
 static void tst5() {
     environment env;
-    env.add_definition("a", int_type(), int_value(1), true); // add opaque definition
+    env.add_definition("a", Int, iVal(1), true); // add opaque definition
     try {
-        std::cout << infer_type(app(int_add(), constant("a"), int_type()), env) << "\n";
+        std::cout << infer_type(iAdd(Const("a"), Int), env) << "\n";
         lean_unreachable();
     } catch (exception const & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
@@ -134,34 +134,34 @@ static void tst6() {
     environment env;
     level u = env.define_uvar("u", level() + 1);
     level w = env.define_uvar("w", u + 1);
-    env.add_var("f", arrow(type(u), type(u)));
-    expr t = app(constant("f"), int_type());
+    env.add_var("f", arrow(Type(u), Type(u)));
+    expr t = Const("f")(Int);
     std::cout << "type of " << t << " is " << infer_type(t, env) << "\n";
     try {
-        infer_type(app(constant("f"), type(w)), env);
+        infer_type(Const("f")(Type(w)), env);
         lean_unreachable();
     } catch (exception const & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
     }
     try {
-        infer_type(app(constant("f"), type(u)), env);
+        infer_type(Const("f")(Type(u)), env);
         lean_unreachable();
     } catch (exception const & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
     }
-    t = app(constant("f"), type());
+    t = Const("f")(Type());
     std::cout << "type of " << t << " is " << infer_type(t, env) << "\n";
-    std::cout << infer_type(arrow(type(u), type(w)), env) << "\n";
-    lean_assert(infer_type(arrow(type(u), type(w)), env) == type(max(u+1, w+1)));
-    std::cout << infer_type(arrow(int_type(), int_type()), env) << "\n";
-    lean_assert(infer_type(arrow(int_type(), int_type()), env) == type());
+    std::cout << infer_type(arrow(Type(u), Type(w)), env) << "\n";
+    lean_assert(infer_type(arrow(Type(u), Type(w)), env) == Type(max(u+1, w+1)));
+    std::cout << infer_type(arrow(Int, Int), env) << "\n";
+    lean_assert(infer_type(arrow(Int, Int), env) == Type());
 }
 
 static void tst7() {
     environment env = mk_toplevel();
-    env.add_var("a", int_type());
-    env.add_var("b", int_type());
-    expr t = app(if_fn(), int_type(), bool_value(true), constant("a"), constant("b"));
+    env.add_var("a", Int);
+    env.add_var("b", Int);
+    expr t = If(Int, True, Const("a"), Const("b"));
     std::cout << t << " --> " << normalize(t, env) << "\n";
     std::cout << infer_type(t, env) << "\n";
     std::cout << "Environment\n" << env;

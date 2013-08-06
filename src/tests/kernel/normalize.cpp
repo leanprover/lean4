@@ -18,10 +18,10 @@ expr normalize(expr const & e) {
 }
 
 static void eval(expr const & e, environment & env) { std::cout << e << " --> " << normalize(e, env) << "\n"; }
-static expr t() { return constant("t"); }
-static expr lam(expr const & e) { return lambda("_", t(), e); }
-static expr lam(expr const & t, expr const & e) { return lambda("_", t, e); }
-static expr v(unsigned i) { return var(i); }
+static expr t() { return Const("t"); }
+static expr lam(expr const & e) { return mk_lambda("_", t(), e); }
+static expr lam(expr const & t, expr const & e) { return mk_lambda("_", t, e); }
+static expr v(unsigned i) { return Var(i); }
 static expr zero() {
     // fun (t : T) (s : t -> t) (z : t) z
     return lam(t(), lam(arrow(v(0), v(0)), lam(v(1), v(0))));
@@ -30,16 +30,16 @@ static expr one()  {
     // fun (t : T) (s : t -> t) s
     return lam(t(), lam(arrow(v(0), v(0)), v(0)));
 }
-static expr num() { return constant("num"); }
+static expr num() { return Const("num"); }
 static expr plus() {
     //  fun (m n : numeral) (A : Type 0) (f : A -> A) (x : A) => m A f (n A f x).
     expr x = v(0), f = v(1), A = v(2), n = v(3), m = v(4);
     expr body = m(A, f, n(A, f, x));
     return lam(num(), lam(num(), lam(t(), lam(arrow(v(0), v(0)), lam(v(1), body)))));
 }
-static expr two() { return app(plus(), one(), one()); }
-static expr three() { return app(plus(), two(), one()); }
-static expr four() { return app(plus(), two(), two()); }
+static expr two() { return mk_app({plus(), one(), one()}); }
+static expr three() { return mk_app({plus(), two(), one()}); }
+static expr four() { return mk_app({plus(), two(), two()}); }
 static expr times() {
     // fun (m n : numeral) (A : Type 0) (f : A -> A) (x : A) => m A (n A f) x.
     expr x = v(0), f = v(1), A = v(2), n = v(3), m = v(4);
@@ -80,56 +80,56 @@ unsigned count(expr const & a) {
 
 static void tst_church_numbers() {
     environment env;
-    env.add_var("t", type(level()));
-    env.add_var("N", type(level()));
-    env.add_var("z", constant("N"));
-    env.add_var("s", constant("N"));
-    expr N = constant("N");
-    expr z = constant("z");
-    expr s = constant("s");
-    std::cout << normalize(app(zero(), N, s, z), env) << "\n";
-    std::cout << normalize(app(one(), N, s, z), env)  << "\n";
-    std::cout << normalize(app(two(), N, s, z), env) << "\n";
-    std::cout << normalize(app(four(), N, s, z), env) << "\n";
-    std::cout << count(normalize(app(four(), N, s, z), env)) << "\n";
-    lean_assert(count(normalize(app(four(), N, s, z), env)) == 4 + 2);
-    std::cout << normalize(app(app(times(), four(), four()), N, s, z), env) << "\n";
-    std::cout << normalize(app(app(power(), two(), four()), N, s, z), env) << "\n";
-    lean_assert(count(normalize(app(app(power(), two(), four()), N, s, z), env)) == 16 + 2);
-    std::cout << normalize(app(app(times(), two(), app(power(), two(), four())), N, s, z), env) << "\n";
-    std::cout << count(normalize(app(app(times(), two(), app(power(), two(), four())), N, s, z), env)) << "\n";
-    std::cout << count(normalize(app(app(times(), four(), app(power(), two(), four())), N, s, z), env)) << "\n";
-    lean_assert(count(normalize(app(app(times(), four(), app(power(), two(), four())), N, s, z), env)) == 64 + 2);
-    expr big = normalize(app(app(power(), two(), app(power(), two(), three())), N, s, z), env);
+    env.add_var("t", Type());
+    env.add_var("N", Type());
+    env.add_var("z", Const("N"));
+    env.add_var("s", Const("N"));
+    expr N = Const("N");
+    expr z = Const("z");
+    expr s = Const("s");
+    std::cout << normalize(mk_app(zero(), N, s, z), env) << "\n";
+    std::cout << normalize(mk_app(one(), N, s, z), env)  << "\n";
+    std::cout << normalize(mk_app(two(), N, s, z), env) << "\n";
+    std::cout << normalize(mk_app(four(), N, s, z), env) << "\n";
+    std::cout << count(normalize(mk_app(four(), N, s, z), env)) << "\n";
+    lean_assert(count(normalize(mk_app(four(), N, s, z), env)) == 4 + 2);
+    std::cout << normalize(mk_app(mk_app(times(), four(), four()), N, s, z), env) << "\n";
+    std::cout << normalize(mk_app(mk_app(power(), two(), four()), N, s, z), env) << "\n";
+    lean_assert(count(normalize(mk_app(mk_app(power(), two(), four()), N, s, z), env)) == 16 + 2);
+    std::cout << normalize(mk_app(mk_app(times(), two(), mk_app(power(), two(), four())), N, s, z), env) << "\n";
+    std::cout << count(normalize(mk_app(mk_app(times(), two(), mk_app(power(), two(), four())), N, s, z), env)) << "\n";
+    std::cout << count(normalize(mk_app(mk_app(times(), four(), mk_app(power(), two(), four())), N, s, z), env)) << "\n";
+    lean_assert(count(normalize(mk_app(mk_app(times(), four(), mk_app(power(), two(), four())), N, s, z), env)) == 64 + 2);
+    expr big = normalize(mk_app(mk_app(power(), two(), mk_app(power(), two(), three())), N, s, z), env);
     std::cout << count(big) << "\n";
     lean_assert(count(big) == 256 + 2);
-    expr three = app(plus(), two(), one());
-    lean_assert(count(normalize(app(app(power(), three, three), N, s, z), env)) == 27 + 2);
-    // expr big2 = normalize(app(app(power(), two(), app(times(), app(plus(), four(), one()), four())), N, s, z), env);
+    expr three = mk_app(plus(), two(), one());
+    lean_assert(count(normalize(mk_app(mk_app(power(), three, three), N, s, z), env)) == 27 + 2);
+    // expr big2 = normalize(mk_app(mk_app(power(), two(), mk_app(times(), mk_app(plus(), four(), one()), four())), N, s, z), env);
     // std::cout << count(big2) << "\n";
-    std::cout << normalize(lam(lam(app(app(times(), four(), four()), N, var(0), z))), env) << "\n";
+    std::cout << normalize(lam(lam(mk_app(mk_app(times(), four(), four()), N, Var(0), z))), env) << "\n";
 }
 
 static void tst1() {
     environment env;
-    env.add_var("t", type(level()));
-    expr t = type(level());
+    env.add_var("t", Type());
+    expr t = Type();
     env.add_var("f", arrow(t, t));
-    expr f = constant("f");
+    expr f = Const("f");
     env.add_var("a", t);
-    expr a = constant("a");
+    expr a = Const("a");
     env.add_var("b", t);
-    expr b = constant("b");
-    expr x = var(0);
-    expr y = var(1);
-    eval(app(lambda("x", t, x), a), env);
-    eval(app(lambda("x", t, x), a, b), env);
-    eval(lambda("x", t, f(x)), env);
-    eval(lambda("y", t, lambda("x", t, f(y, x))), env);
-    eval(app(lambda("x", t,
-                    app(lambda("f", t,
-                               app(var(0), b)),
-                        lambda("g", t, f(var(1))))),
+    expr b = Const("b");
+    expr x = Var(0);
+    expr y = Var(1);
+    eval(mk_app(mk_lambda("x", t, x), a), env);
+    eval(mk_app(mk_lambda("x", t, x), a, b), env);
+    eval(mk_lambda("x", t, f(x)), env);
+    eval(mk_lambda("y", t, mk_lambda("x", t, f(y, x))), env);
+    eval(mk_app(mk_lambda("x", t,
+                    mk_app(mk_lambda("f", t,
+                               mk_app(Var(0), b)),
+                        mk_lambda("g", t, f(Var(1))))),
              a), env);
     expr l01 = lam(v(0)(v(1)));
     expr l12 = lam(lam(v(1)(v(2))));
@@ -139,61 +139,61 @@ static void tst1() {
 
 static void tst2() {
     environment env;
-    expr t = type(level());
+    expr t = Type();
     env.add_var("f", arrow(t, t));
-    expr f = constant("f");
+    expr f = Const("f");
     env.add_var("a", t);
-    expr a = constant("a");
+    expr a = Const("a");
     env.add_var("b", t);
-    expr b = constant("b");
+    expr b = Const("b");
     env.add_var("h", arrow(t, t));
-    expr h = constant("h");
-    expr x = var(0);
-    expr y = var(1);
+    expr h = Const("h");
+    expr x = Var(0);
+    expr y = Var(1);
     lean_assert(normalize(f(x,x), env, extend(context(), name("f"), t, f(a))) == f(f(a), f(a)));
     context c1 = extend(extend(context(), name("f"), t, f(a)), name("h"), t, h(x));
     expr F1 = normalize(f(x,f(x)), env, c1);
     lean_assert(F1 == f(h(f(a)), f(h(f(a)))));
     std::cout << F1 << "\n";
-    expr F2 = normalize(lambda("x", t, f(x, f(y))), env, c1);
+    expr F2 = normalize(mk_lambda("x", t, f(x, f(y))), env, c1);
     std::cout << F2 << "\n";
-    lean_assert(F2 == lambda("x", t, f(x, f(h(f(a))))));
-    expr F3 = normalize(lambda("y", t, lambda("x", t, f(x, f(y)))), env, c1);
+    lean_assert(F2 == mk_lambda("x", t, f(x, f(h(f(a))))));
+    expr F3 = normalize(mk_lambda("y", t, mk_lambda("x", t, f(x, f(y)))), env, c1);
     std::cout << F3 << "\n";
-    lean_assert(F3 == lambda("y", t, lambda("x", t, f(x, f(y)))));
-    context c2 = extend(extend(context(), name("foo"), t, lambda("x", t, f(x, a))), name("bla"), t, lambda("z", t, h(x,y)));
-    expr F4 = normalize(lambda("x", t, f(x, f(y))), env, c2);
+    lean_assert(F3 == mk_lambda("y", t, mk_lambda("x", t, f(x, f(y)))));
+    context c2 = extend(extend(context(), name("foo"), t, mk_lambda("x", t, f(x, a))), name("bla"), t, mk_lambda("z", t, h(x,y)));
+    expr F4 = normalize(mk_lambda("x", t, f(x, f(y))), env, c2);
     std::cout << F4 << "\n";
-    lean_assert(F4 == lambda("x", t, f(x, f(lambda("z", t, h(x,lambda("x", t, f(x, a))))))));
+    lean_assert(F4 == mk_lambda("x", t, f(x, f(mk_lambda("z", t, h(x,mk_lambda("x", t, f(x, a))))))));
     context c3 = extend(context(), name("x"), t);
-    expr f5 = app(lambda("f", t, lambda("z", t, var(1))), lambda("y", t, var(1)));
+    expr f5 = mk_app(mk_lambda("f", t, mk_lambda("z", t, Var(1))), mk_lambda("y", t, Var(1)));
     expr F5 = normalize(f5, env, c3);
     std::cout << f5 << "\n---->\n";
     std::cout << F5 << "\n";
-    lean_assert(F5 == lambda("z", t, lambda("y", t, var(2))));
+    lean_assert(F5 == mk_lambda("z", t, mk_lambda("y", t, Var(2))));
     context c4 = extend(extend(context(), name("x"), t), name("x2"), t);
-    expr F6 = normalize(app(lambda("f", t, lambda("z1", t, lambda("z2", t, app(var(2), constant("a"))))),
-                            lambda("y", t, app(var(1), var(2), var(0)))), env, c4);
+    expr F6 = normalize(mk_app(mk_lambda("f", t, mk_lambda("z1", t, mk_lambda("z2", t, mk_app(Var(2), Const("a"))))),
+                            mk_lambda("y", t, mk_app(Var(1), Var(2), Var(0)))), env, c4);
     std::cout << F6 << "\n";
-    lean_assert(F6 == lambda("z1", t, lambda("z2", t, app(var(2), var(3), constant("a")))));
+    lean_assert(F6 == mk_lambda("z1", t, mk_lambda("z2", t, mk_app(Var(2), Var(3), Const("a")))));
 }
 
 static void tst3() {
     environment env;
-    env.add_var("a", bool_type());
-    expr t1 = constant("a");
-    expr t2 = constant("a");
-    expr e = eq(t1, t2);
+    env.add_var("a", Bool);
+    expr t1 = Const("a");
+    expr t2 = Const("a");
+    expr e = Eq(t1, t2);
     std::cout << e << " --> " << normalize(e, env) << "\n";
-    lean_assert(normalize(e, env) == bool_value(true));
+    lean_assert(normalize(e, env) == True);
 }
 
 static void tst4() {
     environment env;
-    env.add_var("b", type(level()));
-    expr t1 = let("a", constant("b"), lambda("c", type(), var(1)(var(0))));
+    env.add_var("b", Type());
+    expr t1 = mk_let("a", Const("b"), mk_lambda("c", Type(), Var(1)(Var(0))));
     std::cout << t1 << " --> " << normalize(t1, env) << "\n";
-    lean_assert(normalize(t1, env) == lambda("c", type(), constant("b")(var(0))));
+    lean_assert(normalize(t1, env) == mk_lambda("c", Type(), Const("b")(Var(0))));
 }
 
 int main() {

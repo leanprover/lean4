@@ -14,49 +14,49 @@ Author: Leonardo de Moura
 #include "test.h"
 using namespace lean;
 
-expr c(char const * n) { return constant(n); }
+expr c(char const * n) { return mk_constant(n); }
 
 static void tst1() {
     environment env;
-    expr t0 = type(level());
+    expr t0 = Type();
     std::cout << infer_type(t0, env) << "\n";
-    lean_assert(infer_type(t0, env) == type(level()+1));
-    expr f = pi("_", t0, t0);
+    lean_assert(infer_type(t0, env) == Type(level()+1));
+    expr f = mk_pi("_", t0, t0);
     std::cout << infer_type(f, env) << "\n";
-    lean_assert(infer_type(f, env) == type(level()+1));
+    lean_assert(infer_type(f, env) == Type(level()+1));
     level u = env.define_uvar("u", level() + 1);
     level v = env.define_uvar("v", level() + 1);
-    expr g = pi("_", type(u), type(v));
+    expr g = mk_pi("_", Type(u), Type(v));
     std::cout << infer_type(g, env) << "\n";
-    lean_assert(infer_type(g, env) == type(max(u+1, v+1)));
-    std::cout << infer_type(type(u), env) << "\n";
-    lean_assert(infer_type(type(u), env) == type(u+1));
-    std::cout << infer_type(lambda("x", type(u), var(0)), env) << "\n";
-    lean_assert(infer_type(lambda("x", type(u), var(0)), env) == pi("_", type(u), type(u)));
-    std::cout << infer_type(lambda("Nat", type(level()), lambda("n", var(0), var(0))), env) << "\n";
+    lean_assert(infer_type(g, env) == Type(max(u+1, v+1)));
+    std::cout << infer_type(Type(u), env) << "\n";
+    lean_assert(infer_type(Type(u), env) == Type(u+1));
+    std::cout << infer_type(mk_lambda("x", Type(u), Var(0)), env) << "\n";
+    lean_assert(infer_type(mk_lambda("x", Type(u), Var(0)), env) == mk_pi("_", Type(u), Type(u)));
+    std::cout << infer_type(mk_lambda("Nat", Type(), mk_lambda("n", Var(0), Var(0))), env) << "\n";
     expr nat = c("nat");
-    expr T = fun("nat", type(level()),
-             fun("+", arrow(nat, arrow(nat, nat)),
-             fun("m", nat, app(c("+"), c("m"), c("m")))));
+    expr T = Fun("nat", Type(),
+             Fun("+", arrow(nat, arrow(nat, nat)),
+             Fun("m", nat, mk_app({c("+"), c("m"), c("m")}))));
     std::cout << T << "\n";
     std::cout << infer_type(T, env) << "\n";
-    std::cout << Fun("nat", type(level()), arrow(arrow(nat, arrow(nat, nat)), arrow(nat, nat))) << "\n";
-    lean_assert(infer_type(T, env) == Fun("nat", type(level()), arrow(arrow(nat, arrow(nat, nat)), arrow(nat, nat))));
+    std::cout << Pi("nat", Type(), arrow(arrow(nat, arrow(nat, nat)), arrow(nat, nat))) << "\n";
+    lean_assert(infer_type(T, env) == Pi("nat", Type(), arrow(arrow(nat, arrow(nat, nat)), arrow(nat, nat))));
 }
 
 static void tst2() {
     try{
         environment env;
         level l1      = env.define_uvar("l1", level() + 1);
-        expr t0       = type(level());
-        expr t1       = type(l1);
+        expr t0       = Type();
+        expr t1       = Type(l1);
         expr F =
-            fun("Nat", t0,
-            fun("Vec", arrow(c("Nat"), t0),
-            fun("n", c("Nat"),
-            fun("len", arrow(app(c("Vec"), c("n")), c("Nat")),
-            fun("v", app(c("Vec"), c("n")),
-                app(c("len"), c("v")))))));
+            Fun("Nat", t0,
+            Fun("Vec", arrow(c("Nat"), t0),
+            Fun("n", c("Nat"),
+            Fun("len", arrow(mk_app({c("Vec"), c("n")}), c("Nat")),
+            Fun("v", mk_app({c("Vec"), c("n")}),
+                mk_app({c("len"), c("v")}))))));
         std::cout << F << "\n";
         std::cout << infer_type(F, env) << "\n";
     }
@@ -67,17 +67,17 @@ static void tst2() {
 
 static void tst3() {
     environment env;
-    expr f = fun("a", bool_type(), eq(constant("a"), bool_value(true)));
+    expr f = Fun("a", Bool, Eq(Const("a"), True));
     std::cout << infer_type(f, env) << "\n";
-    lean_assert(infer_type(f, env) == arrow(bool_type(), bool_type()));
-    expr t = let("a", bool_value(true), var(0));
+    lean_assert(infer_type(f, env) == arrow(Bool, Bool));
+    expr t = mk_let("a", True, Var(0));
     std::cout << infer_type(t, env) << "\n";
 }
 
 static void tst4() {
     environment env;
-    expr a = eq(int_value(1), int_value(2));
-    expr pr   = lambda("x", a, var(0));
+    expr a = Eq(iVal(1), iVal(2));
+    expr pr   = mk_lambda("x", a, Var(0));
     std::cout << infer_type(pr, env) << "\n";
 }
 

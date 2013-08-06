@@ -19,20 +19,20 @@ using namespace lean;
 
 expr normalize(expr const & e) {
     environment env;
-    env.add_var("a", int_type());
-    env.add_var("b", int_type());
-    env.add_var("f", arrow(int_type(), arrow(int_type(), int_type())));
-    env.add_var("h", arrow(int_type(), arrow(int_type(), int_type())));
+    env.add_var("a", Int);
+    env.add_var("b", Int);
+    env.add_var("f", Int >> (Int >> Int));
+    env.add_var("h", Int >> (Int >> Int));
     return normalize(e, env);
 }
 
 static void mk(expr const & a) {
-    expr b = constant("b");
+    expr b = Const("b");
     for (unsigned i = 0; i < 100; i++) {
-        expr h = constant("h");
+        expr h = Const("h");
         h = h(a);
         for (unsigned j = 0; j < 100; j++)
-            h = app(h, b);
+            h = mk_app(h, b);
         h = max_sharing(h);
         lean_assert(closed(h));
         h = normalize(h);
@@ -43,8 +43,8 @@ static void mk(expr const & a) {
 }
 
 static void tst1() {
-    expr a = constant("a");
-    expr f = constant("f");
+    expr a = Const("a");
+    expr f = Const("f");
     a = f(a, a);
     std::vector<std::thread> ts;
 

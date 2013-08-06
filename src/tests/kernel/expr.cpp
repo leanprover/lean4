@@ -18,45 +18,45 @@ using namespace lean;
 
 void tst1() {
     expr a;
-    a = constant("a");
+    a = Const("a");
     expr f;
-    f = var(0);
+    f = Var(0);
     expr fa = f(a);
-    expr ty = type(level());
+    expr ty = Type();
     std::cout << fa << "\n";
     std::cout << fa(a) << "\n";
     lean_assert(is_eqp(arg(fa, 0), f));
     lean_assert(is_eqp(arg(fa, 1), a));
     lean_assert(!is_eqp(fa, f(a)));
-    lean_assert(app(fa, a) == f(a, a));
+    lean_assert(fa(a) == f(a, a));
     std::cout << fa(fa, fa) << "\n";
-    std::cout << lambda("x", ty, var(0)) << "\n";
+    std::cout << mk_lambda("x", ty, Var(0)) << "\n";
     lean_assert(f(a)(a) == f(a, a));
     lean_assert(f(a(a)) != f(a, a));
-    lean_assert(lambda("x", ty, var(0)) == lambda("y", ty, var(0)));
-    std::cout << pi("x", ty, var(0)) << "\n";
+    lean_assert(mk_lambda("x", ty, Var(0)) == mk_lambda("y", ty, Var(0)));
+    std::cout << mk_pi("x", ty, Var(0)) << "\n";
 }
 
 void tst1_pp() {
     std::cerr << "=============== PP =====================\n";
     expr a;
-    a = constant("a");
+    a = Const("a");
     expr f;
-    f = var(0);
+    f = Var(0);
     expr fa = f(a);
-    expr ty = type(level());
+    expr ty = Type();
     pp(fa(a)); std::cout << "\n";
     pp(fa(fa, fa)); std::cout << "\n";
-    pp(lambda("x", ty, var(0))); std::cout << "\n";
-    pp(pi("x", ty, var(0))); std::cout << "\n";
-    pp(pi("x", ty, lambda("y", ty, var(0)))); std::cout << "\n";
+    pp(mk_lambda("x", ty, Var(0))); std::cout << "\n";
+    pp(mk_pi("x", ty, Var(0))); std::cout << "\n";
+    pp(mk_pi("x", ty, mk_lambda("y", ty, Var(0)))); std::cout << "\n";
     std::cerr << "=============== PP =====================\n";
 }
 
 
 expr mk_dag(unsigned depth, bool _closed = false) {
-    expr f = constant("f");
-    expr a = _closed ? constant("a") : var(0);
+    expr f = Const("f");
+    expr a = _closed ? Const("a") : Var(0);
     while (depth > 0) {
         depth--;
         a = f(a, a);
@@ -151,21 +151,21 @@ void tst2() {
 
 expr mk_big(expr f, unsigned depth, unsigned val) {
     if (depth == 1)
-        return constant(name(val));
+        return Const(name(val));
     else
         return f(mk_big(f, depth - 1, val << 1), mk_big(f, depth - 1, (val << 1) + 1));
 }
 
 void tst3() {
-    expr f = constant("f");
+    expr f = Const("f");
     expr r1 = mk_big(f, 18, 0);
     expr r2 = mk_big(f, 18, 0);
     lean_assert(r1 == r2);
 }
 
 void tst4() {
-    expr f = constant("f");
-    expr a = var(0);
+    expr f = Const("f");
+    expr a = Var(0);
     for (unsigned i = 0; i < 10000; i++) {
         a = f(a);
     }
@@ -173,7 +173,7 @@ void tst4() {
 
 expr mk_redundant_dag(expr f, unsigned depth) {
     if (depth == 0)
-        return var(0);
+        return Var(0);
     else
         return f(mk_redundant_dag(f, depth - 1), mk_redundant_dag(f, depth - 1));
 }
@@ -205,7 +205,7 @@ unsigned count(expr const & a) {
 }
 
 void tst5() {
-    expr f  = constant("f");
+    expr f  = Const("f");
     {
         expr r1 = mk_redundant_dag(f, 5);
         expr r2 = max_sharing(r1);
@@ -227,7 +227,7 @@ void tst5() {
 }
 
 void tst6() {
-    expr f = constant("f");
+    expr f = Const("f");
     expr r = mk_redundant_dag(f, 12);
     for (unsigned i = 0; i < 1000; i++) {
         r = max_sharing(r);
@@ -239,8 +239,8 @@ void tst6() {
 }
 
 void tst7() {
-    expr f  = constant("f");
-    expr v  = var(0);
+    expr f  = Const("f");
+    expr v  = Var(0);
     expr a1 = max_sharing(f(v,v));
     expr a2 = max_sharing(f(v,v));
     lean_assert(!is_eqp(a1, a2));
@@ -249,38 +249,38 @@ void tst7() {
 }
 
 void tst8() {
-    expr f = constant("f");
-    expr x = var(0);
-    expr a = constant("a");
-    expr n = constant("n");
-    expr p = type(level());
-    expr y = var(1);
+    expr f = Const("f");
+    expr x = Var(0);
+    expr a = Const("a");
+    expr n = Const("n");
+    expr p = Type();
+    expr y = Var(1);
     lean_assert(closed(a));
     lean_assert(!closed(x));
     lean_assert(closed(f));
     lean_assert(!closed(f(x)));
-    lean_assert(closed(lambda("x", p, x)));
-    lean_assert(!closed(lambda("x", x, x)));
-    lean_assert(!closed(lambda("x", p, y)));
+    lean_assert(closed(mk_lambda("x", p, x)));
+    lean_assert(!closed(mk_lambda("x", x, x)));
+    lean_assert(!closed(mk_lambda("x", p, y)));
     lean_assert(closed(f(f(f(a)))));
-    lean_assert(closed(lambda("x", p, f(f(f(a))))));
-    lean_assert(closed(pi("x", p, x)));
-    lean_assert(!closed(pi("x", x, x)));
-    lean_assert(!closed(pi("x", p, y)));
-    lean_assert(closed(pi("x", p, f(f(f(a))))));
-    lean_assert(closed(lambda("y", p, lambda("x", p, y))));
-    lean_assert(closed(lambda("y", p, app(lambda("x", p, y), var(0)))));
-    expr r = lambda("y", p, app(lambda("x", p, y), var(0)));
+    lean_assert(closed(mk_lambda("x", p, f(f(f(a))))));
+    lean_assert(closed(mk_pi("x", p, x)));
+    lean_assert(!closed(mk_pi("x", x, x)));
+    lean_assert(!closed(mk_pi("x", p, y)));
+    lean_assert(closed(mk_pi("x", p, f(f(f(a))))));
+    lean_assert(closed(mk_lambda("y", p, mk_lambda("x", p, y))));
+    lean_assert(closed(mk_lambda("y", p, mk_app({mk_lambda("x", p, y), Var(0)}))));
+    expr r = mk_lambda("y", p, mk_app({mk_lambda("x", p, y), Var(0)}));
     lean_assert(closed(r));
     lean_assert(closed(r));
-    r = lambda("y", p, app(lambda("x", p, y), var(1)));
+    r = mk_lambda("y", p, mk_app({mk_lambda("x", p, y), Var(1)}));
     lean_assert(!closed(r));
-    r = lambda("y", p, app(lambda("x", p, var(0)), var(1)));
+    r = mk_lambda("y", p, mk_app({mk_lambda("x", p, Var(0)), Var(1)}));
     lean_assert(!closed(r));
-    lean_assert(closed(lambda("z", p, r)));
+    lean_assert(closed(mk_lambda("z", p, r)));
 
-    pp(lambda("y", p, app(lambda("x", p, y), var(0)))); std::cout << std::endl;
-    pp(pi("x", p, f(f(f(a))))); std::cout << std::endl;
+    pp(mk_lambda("y", p, mk_app({mk_lambda("x", p, y), Var(0)}))); std::cout << std::endl;
+    pp(mk_pi("x", p, f(f(f(a))))); std::cout << std::endl;
 
 }
 
@@ -292,7 +292,7 @@ void tst9() {
 }
 
 void tst10() {
-    expr f = constant("f");
+    expr f = Const("f");
     expr r = mk_big(f, 16, 0);
     for (unsigned i = 0; i < 1000; i++) {
         lean_assert(closed(r));
@@ -309,34 +309,34 @@ inline expr substitute(expr const & e, expr const & s, expr const & t) {
 }
 
 void tst11() {
-    expr f = constant("f");
-    expr a = constant("a");
-    expr b = constant("b");
-    expr x = var(0);
-    expr y = var(1);
-    expr t = type(level());
-    std::cout << instantiate(lambda("x", t, f(f(y, b), f(x, y))), f(a)) << "\n";
-    lean_assert(instantiate(lambda("x", t, f(f(y, b), f(x, y))), f(a)) ==
-                lambda("x", t, f(f(f(a), b), f(x, f(a)))));
-    std::cout << abstract(lambda("x", t, f(a, lambda("y", t, f(b, a)))), constant("a")) << "\n";
-    lean_assert(abstract(lambda("x", t, f(a, lambda("y", t, f(b, a)))), constant("a")) ==
-                lambda("x", t, f(var(1), lambda("y", t, f(b, var(2))))));
-    std::cout << abstract_p(lambda("x", t, f(a, lambda("y", t, f(b, a)))), constant("a")) << "\n";
-    lean_assert(abstract_p(lambda("x", t, f(a, lambda("y", t, f(b, a)))), constant("a")) ==
-                lambda("x", t, f(a, lambda("y", t, f(b, a)))));
-    std::cout << abstract_p(lambda("x", t, f(a, lambda("y", t, f(b, a)))), a) << "\n";
-    lean_assert(abstract_p(lambda("x", t, f(a, lambda("y", t, f(b, a)))), a) ==
-                lambda("x", t, f(var(1), lambda("y", t, f(b, var(2))))));
+    expr f = Const("f");
+    expr a = Const("a");
+    expr b = Const("b");
+    expr x = Var(0);
+    expr y = Var(1);
+    expr t = Type();
+    std::cout << instantiate(mk_lambda("x", t, f(f(y, b), f(x, y))), f(a)) << "\n";
+    lean_assert(instantiate(mk_lambda("x", t, f(f(y, b), f(x, y))), f(a)) ==
+                mk_lambda("x", t, f(f(f(a), b), f(x, f(a)))));
+    std::cout << abstract(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), Const("a")) << "\n";
+    lean_assert(abstract(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), Const("a")) ==
+                mk_lambda("x", t, f(Var(1), mk_lambda("y", t, f(b, Var(2))))));
+    std::cout << abstract_p(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), Const("a")) << "\n";
+    lean_assert(abstract_p(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), Const("a")) ==
+                mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))));
+    std::cout << abstract_p(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), a) << "\n";
+    lean_assert(abstract_p(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), a) ==
+                mk_lambda("x", t, f(Var(1), mk_lambda("y", t, f(b, Var(2))))));
 
     lean_assert(substitute(f(f(f(a))), f(a), b) == f(f(b)));
 }
 
 void tst12() {
-    expr f = constant("f");
-    expr a = constant("a");
-    expr x = var(0);
-    expr t = type(level());
-    expr F = pi("y", t, lambda("x", t, f(f(f(x,a),constant("10")),x)));
+    expr f = Const("f");
+    expr a = Const("a");
+    expr x = Var(0);
+    expr t = Type();
+    expr F = mk_pi("y", t, mk_lambda("x", t, f(f(f(x,a),Const("10")),x)));
     expr G = deep_copy(F);
     lean_assert(F == G);
     lean_assert(!is_eqp(F, G));
@@ -344,8 +344,8 @@ void tst12() {
 }
 
 void tst13() {
-    expr f  = constant("f");
-    expr v  = var(0);
+    expr f  = Const("f");
+    expr v  = Var(0);
     expr a1 = max_sharing(f(v,v));
     expr a2 = max_sharing(f(v,v));
     lean_assert(!is_eqp(a1, a2));
@@ -356,17 +356,17 @@ void tst13() {
 }
 
 void tst14() {
-    expr t0 = type(level());
-    expr t1 = type(level()+1);
+    expr t0 = Type();
+    expr t1 = Type(level()+1);
     lean_assert(ty_level(t1) == level()+1);
     lean_assert(t0 != t1);
     std::cout << t0 << " " << t1 << "\n";
 }
 
 void tst15() {
-    expr t = eq(constant("a"), constant("b"));
+    expr t = Eq(Const("a"), Const("b"));
     std::cout << t << "\n";
-    expr l = let("a", constant("b"), var(0));
+    expr l = mk_let("a", Const("b"), Var(0));
     std::cout << l << "\n";
     lean_assert(closed(l));
 }

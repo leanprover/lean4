@@ -41,7 +41,7 @@ expr_app::~expr_app() {
     for (unsigned i = 0; i < m_num_args; i++)
         (m_args+i)->~expr();
 }
-expr app(unsigned n, expr const * as) {
+expr mk_app(unsigned n, expr const * as) {
     lean_assert(n > 1);
     unsigned new_n;
     unsigned n0 = 0;
@@ -126,10 +126,8 @@ void expr_cell::dealloc() {
     }
 }
 
-expr type() {
-    static thread_local expr r;
-    if (!r)
-        r = type(level());
+expr mk_type() {
+    static thread_local expr r = mk_type(level());
     return r;
 }
 
@@ -223,15 +221,15 @@ std::ostream & operator<<(std::ostream & out, expr const & a) {
 
 expr copy(expr const & a) {
     switch (a.kind()) {
-    case expr_kind::Var:      return var(var_idx(a));
-    case expr_kind::Constant: return constant(const_name(a));
-    case expr_kind::Type:     return type(ty_level(a));
-    case expr_kind::Value:    return to_expr(static_cast<expr_value*>(a.raw())->m_val);
-    case expr_kind::App:      return app(num_args(a), begin_args(a));
-    case expr_kind::Eq:       return eq(eq_lhs(a), eq_rhs(a));
-    case expr_kind::Lambda:   return lambda(abst_name(a), abst_domain(a), abst_body(a));
-    case expr_kind::Pi:       return pi(abst_name(a), abst_domain(a), abst_body(a));
-    case expr_kind::Let:      return let(let_name(a), let_value(a), let_body(a));
+    case expr_kind::Var:      return mk_var(var_idx(a));
+    case expr_kind::Constant: return mk_constant(const_name(a));
+    case expr_kind::Type:     return mk_type(ty_level(a));
+    case expr_kind::Value:    return mk_value(static_cast<expr_value*>(a.raw())->m_val);
+    case expr_kind::App:      return mk_app(num_args(a), begin_args(a));
+    case expr_kind::Eq:       return mk_eq(eq_lhs(a), eq_rhs(a));
+    case expr_kind::Lambda:   return mk_lambda(abst_name(a), abst_domain(a), abst_body(a));
+    case expr_kind::Pi:       return mk_pi(abst_name(a), abst_domain(a), abst_body(a));
+    case expr_kind::Let:      return mk_let(let_name(a), let_value(a), let_body(a));
     }
     lean_unreachable();
     return expr();

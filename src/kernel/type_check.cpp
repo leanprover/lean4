@@ -82,7 +82,7 @@ struct infer_type_fn {
         case expr_kind::Constant:
             return m_env.get_object(const_name(e)).get_type();
         case expr_kind::Var:      return lookup(ctx, var_idx(e));
-        case expr_kind::Type:     return type(ty_level(e) + 1);
+        case expr_kind::Type:     return mk_type(ty_level(e) + 1);
         case expr_kind::App: {
             expr f_t     = infer_pi(arg(e, 0), ctx);
             unsigned i   = 1;
@@ -110,16 +110,16 @@ struct infer_type_fn {
         case expr_kind::Eq:
             infer_type(eq_lhs(e), ctx);
             infer_type(eq_rhs(e), ctx);
-            return bool_type();
+            return mk_bool_type();
         case expr_kind::Lambda: {
             infer_universe(abst_domain(e), ctx);
             expr t = infer_type(abst_body(e), extend(ctx, abst_name(e), abst_domain(e)));
-            return pi(abst_name(e), abst_domain(e), t);
+            return mk_pi(abst_name(e), abst_domain(e), t);
         }
         case expr_kind::Pi: {
             level l1 = infer_universe(abst_domain(e), ctx);
             level l2 = infer_universe(abst_body(e), extend(ctx, abst_name(e), abst_domain(e)));
-            return type(max(l1, l2));
+            return mk_type(max(l1, l2));
         }
         case expr_kind::Let:
             return infer_type(let_body(e), extend(ctx, let_name(e), infer_type(let_value(e), ctx), let_value(e)));

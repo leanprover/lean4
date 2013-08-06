@@ -80,7 +80,7 @@ class normalize_fn {
         lean_assert(is_lambda(a));
         expr new_t = reify(normalize(abst_domain(a), s, k), k);
         expr new_b = reify(normalize(abst_body(a), extend(s, svalue(k)), k+1), k+1);
-        return lambda(abst_name(a), new_t, new_b);
+        return mk_lambda(abst_name(a), new_t, new_b);
 #if 0
         // Eta-reduction + Cumulativity + Set theoretic interpretation is unsound.
         // Example:
@@ -119,7 +119,7 @@ class normalize_fn {
                    if (v.is_bounded_var()) tout << "#" << to_bvar(v); else tout << to_expr(v); tout << "\n";);
         switch (v.kind()) {
         case svalue_kind::Expr:       return to_expr(v);
-        case svalue_kind::BoundedVar: return var(k - to_bvar(v) - 1);
+        case svalue_kind::BoundedVar: return mk_var(k - to_bvar(v) - 1);
         case svalue_kind::Closure:    return reify_closure(to_expr(v), stack_of(v), k);
         }
         lean_unreachable();
@@ -169,7 +169,7 @@ class normalize_fn {
                         if (to_value(new_f).normalize(new_args.size(), new_args.data(), r))
                             return svalue(r);
                     }
-                    return svalue(app(new_args.size(), new_args.data()));
+                    return svalue(mk_app(new_args.size(), new_args.data()));
                 }
             }
         }
@@ -177,11 +177,11 @@ class normalize_fn {
             expr new_l = reify(normalize(eq_lhs(a), s, k), k);
             expr new_r = reify(normalize(eq_rhs(a), s, k), k);
             if (new_l == new_r) {
-                return svalue(bool_value(true));
+                return svalue(mk_bool_value(true));
             } else if (is_value(new_l) && is_value(new_r)) {
-                return svalue(bool_value(false));
+                return svalue(mk_bool_value(false));
             } else {
-                return svalue(eq(new_l, new_r));
+                return svalue(mk_eq(new_l, new_r));
             }
         }
         case expr_kind::Lambda:
@@ -189,7 +189,7 @@ class normalize_fn {
         case expr_kind::Pi: {
             expr new_t = reify(normalize(abst_domain(a), s, k), k);
             expr new_b = reify(normalize(abst_body(a), extend(s, svalue(k)), k+1), k+1);
-            return svalue(pi(abst_name(a), new_t, new_b));
+            return svalue(mk_pi(abst_name(a), new_t, new_b));
         }
         case expr_kind::Let:
             return normalize(let_body(a), extend(s, normalize(let_value(a), s, k)), k+1);

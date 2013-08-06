@@ -93,16 +93,15 @@ public:
 
     operator bool() const { return m_ptr != nullptr; }
 
-    friend expr var(unsigned idx);
-    friend expr constant(name const & n);
-    friend expr to_expr(value & v);
-    friend expr app(unsigned num_args, expr const * args);
-    friend expr app(std::initializer_list<expr> const & l);
-    friend expr eq(expr const & l, expr const & r);
-    friend expr lambda(name const & n, expr const & t, expr const & e);
-    friend expr pi(name const & n, expr const & t, expr const & e);
-    friend expr type(level const & l);
-    friend expr let(name const & n, expr const & v, expr const & e);
+    friend expr mk_var(unsigned idx);
+    friend expr mk_constant(name const & n);
+    friend expr mk_value(value & v);
+    friend expr mk_app(unsigned num_args, expr const * args);
+    friend expr mk_eq(expr const & l, expr const & r);
+    friend expr mk_lambda(name const & n, expr const & t, expr const & e);
+    friend expr mk_pi(name const & n, expr const & t, expr const & e);
+    friend expr mk_type(level const & l);
+    friend expr mk_let(name const & n, expr const & v, expr const & e);
 
     friend bool is_eqp(expr const & a, expr const & b) { return a.m_ptr == b.m_ptr; }
 
@@ -111,6 +110,9 @@ public:
     expr operator()(expr const & a1, expr const & a2) const;
     expr operator()(expr const & a1, expr const & a2, expr const & a3) const;
     expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4) const;
+    expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5) const;
+    expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5, expr const & a6) const;
+    expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5, expr const & a6, expr const & a7) const;
 };
 
 // =======================================
@@ -133,7 +135,7 @@ public:
 class expr_app : public expr_cell {
     unsigned m_num_args;
     expr     m_args[0];
-    friend expr app(unsigned num_args, expr const * args);
+    friend expr mk_app(unsigned num_args, expr const * args);
 public:
     expr_app(unsigned size);
     ~expr_app();
@@ -251,36 +253,43 @@ inline bool is_abstraction(expr const & e) { return is_lambda(e) || is_pi(e); }
 
 // =======================================
 // Constructors
-inline expr var(unsigned idx) { return expr(new expr_var(idx)); }
-inline expr constant(name const & n) { return expr(new expr_const(n)); }
-inline expr constant(char const * n) { return constant(name(n)); }
-inline expr to_expr(value & v) { return expr(new expr_value(v)); }
-       expr app(unsigned num_args, expr const * args);
-inline expr app(expr const & e1, expr const & e2) { expr args[2] = {e1, e2}; return app(2, args); }
-inline expr app(expr const & e1, expr const & e2, expr const & e3) { expr args[3] = {e1, e2, e3}; return app(3, args); }
-inline expr app(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { expr args[4] = {e1, e2, e3, e4}; return app(4, args); }
-inline expr app(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { expr args[5] = {e1, e2, e3, e4, e5}; return app(5, args); }
-inline expr app(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) {
-    expr args[6] = {e1, e2, e3, e4, e5, e6}; return app(6, args);
-}
-inline expr app(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6, expr const & e7) {
-    expr args[7] = {e1, e2, e3, e4, e5, e6, e7}; return app(7, args);
-}
-inline expr eq(expr const & l, expr const & r) { return expr(new expr_eq(l, r)); }
-inline expr lambda(name const & n, expr const & t, expr const & e) { return expr(new expr_lambda(n, t, e)); }
-inline expr lambda(char const * n, expr const & t, expr const & e) { return lambda(name(n), t, e); }
-inline expr pi(name const & n, expr const & t, expr const & e) { return expr(new expr_pi(n, t, e)); }
-inline expr pi(char const * n, expr const & t, expr const & e) { return pi(name(n), t, e); }
-inline expr arrow(expr const & t, expr const & e) { return pi(name("_"), t, e); }
-inline expr let(name const & n, expr const & v, expr const & e) { return expr(new expr_let(n, v, e)); }
-inline expr let(char const * n, expr const & v, expr const & e) { return let(name(n), v, e); }
-inline expr type(level const & l) { return expr(new expr_type(l)); }
-       expr type();
+inline expr mk_var(unsigned idx) { return expr(new expr_var(idx)); }
+inline expr Var(unsigned idx) { return mk_var(idx); }
+inline expr mk_constant(name const & n) { return expr(new expr_const(n)); }
+inline expr mk_constant(char const * n) { return mk_constant(name(n)); }
+inline expr Const(name const & n) { return mk_constant(n); }
+inline expr Const(char const * n) { return mk_constant(n); }
+inline expr mk_value(value & v) { return expr(new expr_value(v)); }
+inline expr to_expr(value & v) { return mk_value(v); }
+       expr mk_app(unsigned num_args, expr const * args);
+inline expr mk_app(std::initializer_list<expr> const & l) { return mk_app(l.size(), l.begin()); }
+inline expr mk_app(expr const & e1, expr const & e2) { return mk_app({e1, e2}); }
+inline expr mk_app(expr const & e1, expr const & e2, expr const & e3) { return mk_app({e1, e2, e3}); }
+inline expr mk_app(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({e1, e2, e3, e4}); }
+inline expr mk_app(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({e1, e2, e3, e4, e5}); }
+inline expr mk_eq(expr const & l, expr const & r) { return expr(new expr_eq(l, r)); }
+inline expr Eq(expr const & l, expr const & r) { return mk_eq(l, r); }
+inline expr mk_lambda(name const & n, expr const & t, expr const & e) { return expr(new expr_lambda(n, t, e)); }
+inline expr mk_lambda(char const * n, expr const & t, expr const & e) { return mk_lambda(name(n), t, e); }
+inline expr mk_pi(name const & n, expr const & t, expr const & e) { return expr(new expr_pi(n, t, e)); }
+inline expr mk_pi(char const * n, expr const & t, expr const & e) { return mk_pi(name(n), t, e); }
+inline expr arrow(expr const & t, expr const & e) { return mk_pi(name("_"), t, e); }
+inline expr operator>>(expr const & t, expr const & e) { return arrow(t, e); }
+inline expr mk_let(name const & n, expr const & v, expr const & e) { return expr(new expr_let(n, v, e)); }
+inline expr mk_let(char const * n, expr const & v, expr const & e) { return mk_let(name(n), v, e); }
+inline expr Let(char const * n, expr const & v, expr const & e) { return mk_let(n, v, e); }
+inline expr mk_type(level const & l) { return expr(new expr_type(l)); }
+       expr mk_type();
+inline expr Type(level const & l) { return mk_type(l); }
+inline expr Type() { return mk_type(); }
 
-inline expr expr::operator()(expr const & a1) const { return app(*this, a1); }
-inline expr expr::operator()(expr const & a1, expr const & a2) const { return app(*this, a1, a2); }
-inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3) const { return app(*this, a1, a2, a3); }
-inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4) const { return app(*this, a1, a2, a3, a4); }
+inline expr expr::operator()(expr const & a1) const { return mk_app({*this, a1}); }
+inline expr expr::operator()(expr const & a1, expr const & a2) const { return mk_app({*this, a1, a2}); }
+inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3) const { return mk_app({*this, a1, a2, a3}); }
+inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4) const { return mk_app({*this, a1, a2, a3, a4}); }
+inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5) const { return mk_app({*this, a1, a2, a3, a4, a5}); }
+inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5, expr const & a6) const { return mk_app({*this, a1, a2, a3, a4, a5, a6}); }
+inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5, expr const & a6, expr const & a7) const { return mk_app({*this, a1, a2, a3, a4, a5, a6, a7}); }
 // =======================================
 
 // =======================================
@@ -418,7 +427,7 @@ template<typename F> expr update_app(expr const & e, F f) {
             modified = true;
     }
     if (modified)
-        return app(new_args.size(), new_args.data());
+        return mk_app(new_args.size(), new_args.data());
     else
         return e;
 }
@@ -431,7 +440,7 @@ template<typename F> expr update_abst(expr const & e, F f) {
     std::pair<expr, expr> p = f(old_t, old_b);
     if (!is_eqp(p.first, old_t) || !is_eqp(p.second, old_b)) {
         name const & n = abst_name(e);
-        return is_pi(e) ? pi(n, p.first, p.second) : lambda(n, p.first, p.second);
+        return is_pi(e) ? mk_pi(n, p.first, p.second) : mk_lambda(n, p.first, p.second);
     }
     else {
         return e;
@@ -445,7 +454,7 @@ template<typename F> expr update_let(expr const & e, F f) {
     expr const & old_b = let_body(e);
     std::pair<expr, expr> p = f(old_v, old_b);
     if (!is_eqp(p.first, old_v) || !is_eqp(p.second, old_b))
-        return let(let_name(e), p.first, p.second);
+        return mk_let(let_name(e), p.first, p.second);
     else
         return e;
 }
@@ -457,7 +466,7 @@ template<typename F> expr update_eq(expr const & e, F f) {
     expr const & old_r = eq_rhs(e);
     std::pair<expr, expr> p = f(old_l, old_r);
     if (!is_eqp(p.first, old_l) || !is_eqp(p.second, old_r))
-        return eq(p.first, p.second);
+        return mk_eq(p.first, p.second);
     else
         return e;
 }

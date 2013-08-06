@@ -30,10 +30,11 @@ else ()
 endif ()
 
 # GMP
+find_package(GMP)
 set(EXTRA_LIBS ${EXTRA_LIBS} ${GMP_LIBRARIES})
 
 # MPFR
-find_package(MPFR 2.3.0)
+find_package(MPFR 3.1.0)
 set(EXTRA_LIBS ${EXTRA_LIBS} ${MPFR_LIBRARIES})
 
 # Flex and Bison

@@ -322,9 +322,7 @@ level environment::get_uvar(name const & n) const {
     return m_imp->get_uvar(n);
 }
 
-void environment::add_definition(name const & n, expr const & t, expr const & v, bool opaque) {
-    m_imp->check_no_children();
-    m_imp->check_name(n);
+void environment::check_type(name const & n, expr const & t, expr const & v) {
     infer_universe(t, *this);
     expr v_t = infer_type(v, *this);
     if (!is_convertible(t, v_t, *this)) {
@@ -334,7 +332,20 @@ void environment::add_definition(name const & n, expr const & t, expr const & v,
                << "given type:\n" << v_t;
         throw exception(buffer.str());
     }
+}
+
+void environment::add_definition(name const & n, expr const & t, expr const & v, bool opaque) {
+    m_imp->check_no_children();
+    m_imp->check_name(n);
+    check_type(n, t, v);
     m_imp->add_definition(n, t, v, opaque);
+}
+
+void environment::add_theorem(name const & n, expr const & t, expr const & v) {
+    m_imp->check_no_children();
+    m_imp->check_name(n);
+    check_type(n, t, v);
+    m_imp->add_theorem(n, t, v);
 }
 
 void environment::add_definition(name const & n, expr const & v, bool opaque) {

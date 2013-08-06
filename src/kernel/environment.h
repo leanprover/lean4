@@ -18,6 +18,7 @@ namespace lean {
 class environment {
     struct imp;
     std::shared_ptr<imp> m_imp;
+    void check_type(name const & n, expr const & t, expr const & v);
     explicit environment(std::shared_ptr<imp> const & ptr);
     explicit environment(imp * new_ptr);
 public:
@@ -154,6 +155,8 @@ public:
     */
     void add_definition(name const & n, expr const & t, expr const & v, bool opaque = false);
     void add_definition(char const * n, expr const & t, expr const & v, bool opaque = false) { add_definition(name(n), t, v, opaque); }
+    void add_theorem(name const & n, expr const & t, expr const & v);
+    void add_theorem(char const * n, expr const & t, expr const & v) { add_theorem(name(n), t, v); }
 
     /**
        \brief Add a new definition n : infer_type(v) := v.

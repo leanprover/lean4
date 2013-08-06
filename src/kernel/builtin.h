@@ -111,10 +111,17 @@ bool is_subst_fn(expr const & e);
 inline expr Subst(expr const & A, expr const & P, expr const & a, expr const & b, expr const & H1, expr const & H2) { return mk_app({mk_subst_fn(), A, P, a, b, H1, H2}); }
 expr mk_symm_fn();
 bool is_symm_fn(expr const & e);
+inline expr Symm(expr const & A, expr const & a, expr const & b, expr const & H) { return mk_app(mk_symm_fn(), A, a, b, H); }
 expr mk_trans_fn();
 bool is_trans_fn(expr const & e);
 expr mk_congr_fn();
 bool is_congr_fn(expr const & e);
+expr mk_eq_mp_fn();
+bool is_eq_mp_fn(expr const & e);
+inline expr EqMP(expr const & a, expr const & b, expr const & H1, expr const & H2) { return mk_app(mk_eq_mp_fn(), a, b, H1, H2); }
+expr mk_truth();
+bool is_truth(expr const & e);
+#define Truth mk_truth()
 expr mk_ext_fn();
 bool is_ext_fn(expr const & e);
 expr mk_foralle_fn();

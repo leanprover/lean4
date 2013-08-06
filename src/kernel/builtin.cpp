@@ -152,6 +152,9 @@ MK_CONSTANT(subst_fn, name("subst"));
 MK_CONSTANT(symm_fn, name("symm"));
 MK_CONSTANT(trans_fn, name("trans"));
 MK_CONSTANT(congr_fn, name("congr"));
+MK_CONSTANT(eq_mp_fn, name("eq_mp"));
+MK_CONSTANT(truth, name("truth"));
+MK_CONSTANT(eqt_elim_fn, name("eqt_elim"));
 MK_CONSTANT(ext_fn, name("ext"));
 MK_CONSTANT(foralle_fn, name("foralle"));
 MK_CONSTANT(foralli_fn, name("foralli"));
@@ -186,7 +189,7 @@ void add_basic_theory(environment & env) {
     // or(x, y) = (if bool x true y)
     env.add_definition(or_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, bIf(x, False, y)));
     // not(x) = (if bool x false true)
-    env.add_definition(not_fn_name, p1, Fun({{x, Bool}}, bIf(x, False, True)));
+    env.add_definition(not_fn_name, p1, Fun({x, Bool}, bIf(x, False, True)));
 
     // forall : Pi (A : Type u), (A -> Bool) -> Bool
     expr A_pred = A >> Bool;
@@ -200,21 +203,36 @@ void add_basic_theory(environment & env) {
     env.add_axiom(subst_fn_name, Pi({{A, TypeU}, {P, A_pred}, {a, A}, {b, A}, {H1, P(a)}, {H2, Eq(a,b)}}, P(b)));
 
     // symm : Pi (A : Type u) (a b : A) (H : a = b), b = a :=
-    //         subst A (fun x : A => x = a) a b (refl A a) H
+    //         Subst A (Fun x : A => x = a) a b (Refl A a) H
     env.add_definition(symm_fn_name, Pi({{A, TypeU}, {a, A}, {b, A}, {H, Eq(a, b)}}, Eq(b, a)),
                        Fun({{A, TypeU}, {a, A}, {b, A}, {H, Eq(a, b)}},
-                           Subst(A, Fun({{x, A}}, Eq(x,a)), a, b, Refl(A, a), H)));
+                           Subst(A, Fun({x, A}, Eq(x,a)), a, b, Refl(A, a), H)));
 
     // trans: Pi (A: Type u) (a b c : A) (H1 : a = b) (H2 : b = c), a = c :=
-    //           subst A (fun x : A => a = x) b c H1 H2
+    //           Subst A (Fun x : A => a = x) b c H1 H2
     env.add_definition(trans_fn_name, Pi({{A, TypeU}, {a, A}, {b, A}, {c, A}, {H1, Eq(a, b)}, {H2, Eq(b, c)}}, Eq(a, c)),
                        Fun({{A, TypeU}, {a, A}, {b, A}, {c, A}, {H1, Eq(a,b)}, {H2, Eq(b,c)}},
-                           Subst(A, Fun({{x, A}}, Eq(a, x)), b, c, H1, H2)));
+                           Subst(A, Fun({x, A}, Eq(a, x)), b, c, H1, H2)));
 
     // congr : Pi (A : Type u) (B : A -> Type u) (f g : Pi (x : A) B x) (a b : A) (H1 : f = g) (H2 : a = b), f a = g b
     expr piABx = Pi({x, A}, B(x));
     expr A_arrow_u = A >> TypeU;
     env.add_axiom(congr_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {a, A}, {b, A}, {H1, Eq(f, g)}, {H2, Eq(a, b)}}, Eq(f(a), g(b))));
+
+    // eq_mp : Pi (a b: Bool) (H1 : a = b) (H2 : a), b :=
+    //          Subst Bool (Fun x : Bool => x) a b H2 H1
+    env.add_definition(eq_mp_fn_name, Pi({{a, Bool}, {b, Bool}, {H1, Eq(a, b)}, {H2, a}}, b),
+                       Fun({{a, Bool}, {b, Bool}, {H1, Eq(a, b)}, {H2, a}},
+                           Subst(Bool, Fun({x, Bool}, x), a, b, H2, H1)));
+
+    // truth : True := Refl Bool True
+    env.add_definition(truth_name, True, Refl(Bool, True));
+
+    // eqt_elim : Pi (a : Bool) (H : a = True), a := EqMP(True, a, Symm(Bool, a, True, H), Truth)
+    env.add_definition(eqt_elim_fn_name, Pi({{a, Bool}, {H, Eq(a, True)}}, a),
+                       Fun({{a, Bool}, {H, Eq(a, True)}},
+                           EqMP(True, a, Symm(Bool, a, True, H), Truth)));
+
     // ext : Pi (A : Type u) (B : A -> Type u) (f g : Pi (x : A) B x) (H : Pi x : A, (f x) = (g x)), f = g
     env.add_axiom(ext_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {H, Pi({x, A}, Eq(f(x), g(x)))}}, Eq(f, g)));
 

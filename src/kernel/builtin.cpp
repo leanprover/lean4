@@ -151,6 +151,9 @@ MK_CONSTANT(refl_fn, name("refl"));
 MK_CONSTANT(subst_fn, name("subst"));
 MK_CONSTANT(symm_fn, name("symm"));
 MK_CONSTANT(trans_fn, name("trans"));
+MK_CONSTANT(xtrans_fn, name("xtrans"));
+MK_CONSTANT(congr1_fn, name("congr1"));
+MK_CONSTANT(congr2_fn, name("congr2"));
 MK_CONSTANT(congr_fn, name("congr"));
 MK_CONSTANT(eq_mp_fn, name("eq_mp"));
 MK_CONSTANT(truth, name("truth"));
@@ -170,13 +173,14 @@ void add_basic_theory(environment & env) {
     expr A  = Const("A");
     expr a  = Const("a");
     expr b  = Const("b");
-    expr c  = Const("a");
+    expr c  = Const("c");
     expr H  = Const("H");
     expr H1 = Const("H1");
     expr H2 = Const("H2");
     expr B  = Const("B");
     expr f  = Const("f");
     expr g  = Const("g");
+    expr h  = Const("h");
     expr x  = Const("x");
     expr y  = Const("y");
     expr P  = Const("P");
@@ -199,6 +203,7 @@ void add_basic_theory(environment & env) {
 
     // refl : Pi (A : Type u) (a : A), a = a
     env.add_axiom(refl_fn_name, Pi({{A, TypeU}, {a, A}}, Eq(a, a)));
+
     // subst : Pi (A : Type u) (P : A -> bool) (a b : A) (H1 : P a) (H2 : a = b), P b
     env.add_axiom(subst_fn_name, Pi({{A, TypeU}, {P, A_pred}, {a, A}, {b, A}, {H1, P(a)}, {H2, Eq(a,b)}}, P(b)));
 
@@ -214,10 +219,33 @@ void add_basic_theory(environment & env) {
                     Fun({{A, TypeU}, {a, A}, {b, A}, {c, A}, {H1, Eq(a,b)}, {H2, Eq(b,c)}},
                         Subst(A, Fun({x, A}, Eq(a, x)), b, c, H1, H2)));
 
-    // congr : Pi (A : Type u) (B : A -> Type u) (f g : Pi (x : A) B x) (a b : A) (H1 : f = g) (H2 : a = b), f a = g b
+
+    // xtrans: Pi (A: Type u) (B : Type u) (a : A) (b c : B) (H1 : a = b) (H2 : b = c), a = c :=
+    //           Subst B (Fun x : B => a = x) b c H1 H2
+    env.add_theorem(xtrans_fn_name, Pi({{A, TypeU}, {B, TypeU}, {a, A}, {b, B}, {c, B}, {H1, Eq(a, b)}, {H2, Eq(b, c)}}, Eq(a, c)),
+                    Fun({{A, TypeU}, {B, TypeU}, {a, A}, {b, B}, {c, B}, {H1, Eq(a, b)}, {H2, Eq(b, c)}},
+                        Subst(B, Fun({x, B}, Eq(a, x)), b, c, H1, H2)));
+
     expr piABx = Pi({x, A}, B(x));
     expr A_arrow_u = A >> TypeU;
-    env.add_axiom(congr_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {a, A}, {b, A}, {H1, Eq(f, g)}, {H2, Eq(a, b)}}, Eq(f(a), g(b))));
+    // congr1 : Pi (A : Type u) (B : A -> Type u) (f g: Pi (x : A) B x) (a : A) (H : f = g), f a = g a :=
+    //          Subst piABx (Fun h : piABx => f a = h a) f g (Refl piABx f) H
+    env.add_theorem(congr1_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {a, A}, {H, Eq(f, g)}}, Eq(f(a), g(a))),
+                    Fun({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {a, A}, {H, Eq(f, g)}},
+                        Subst(piABx, Fun({h, piABx}, Eq(f(a), h(a))), f, g, Refl(piABx, f), H)));
+
+    // congr2 : Pi (A : Type u) (B : A -> Type u) (f : Pi (x : A) B x) (a b : A) (H : a = b), f a = f b :=
+    //           Subst A (Fun x : A => f a = f x) a b (Refl A a) H
+    env.add_theorem(congr2_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {a, A}, {b, A}, {H, Eq(a, b)}}, Eq(f(a), f(b))),
+                    Fun({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {a, A}, {b, A}, {H, Eq(a, b)}},
+                        Subst(A, Fun({x, A}, Eq(f(a), f(x))), a, b, Refl(A, a), H)));
+
+    // congr : Pi (A : Type u) (B : A -> Type u) (f g : Pi (x : A) B x) (a b : A) (H1 : f = g) (H2 : a = b), f a = g b :=
+    //         xTrans (B a) (B b) (f a) (f b) (g b) (congr2 A B f g b H1) (congr1 A B f a b H2)
+    env.add_theorem(congr_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {a, A}, {b, A}, {H1, Eq(f, g)}, {H2, Eq(a, b)}}, Eq(f(a), g(b))),
+                    Fun({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {a, A}, {b, A}, {H1, Eq(f, g)}, {H2, Eq(a, b)}},
+                        xTrans(B(a), B(b), f(a), f(b), g(b),
+                               Congr2(A, B, f, a, b, H2), Congr1(A, B, f, g, b, H1))));
 
     // eq_mp : Pi (a b: Bool) (H1 : a = b) (H2 : a), b :=
     //          Subst Bool (Fun x : Bool => x) a b H2 H1

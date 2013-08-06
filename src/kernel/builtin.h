@@ -105,23 +105,54 @@ inline expr Exists(expr const & A, expr const & P) { return mk_exists(A, P); }
 
 expr mk_refl_fn();
 bool is_refl_fn(expr const & e);
+/** \brief (Axiom) A : Type u, a : A |- Refl(A, a) : a = a */
 inline expr Refl(expr const & A, expr const & a) { return mk_app(mk_refl_fn(), A, a); }
+
 expr mk_subst_fn();
 bool is_subst_fn(expr const & e);
+/** \brief (Axiom) A : Type u, P : A -> Bool, a b : A, H1 : P a, H2 : a = b |- Subst(A, P, a, b, H1, H2) : P b */
 inline expr Subst(expr const & A, expr const & P, expr const & a, expr const & b, expr const & H1, expr const & H2) { return mk_app({mk_subst_fn(), A, P, a, b, H1, H2}); }
+
 expr mk_symm_fn();
 bool is_symm_fn(expr const & e);
+/** \brief (Theorem) A : Type u, a b : A, H : a = b |- Symm(A, a, b, H) : b = a */
 inline expr Symm(expr const & A, expr const & a, expr const & b, expr const & H) { return mk_app(mk_symm_fn(), A, a, b, H); }
+
 expr mk_trans_fn();
 bool is_trans_fn(expr const & e);
+/** \brief (Theorem) A : Type u, a b c : A, H1 : a = b, H2 : b = c |- Trans(A, a, b, c, H1, H2) : a = c */
+inline expr Trans(expr const & A, expr const & a, expr const & b, expr const & c, expr const & H1, expr const & H2) { return mk_app({mk_trans_fn(), A, a, b, c, H1, H2}); }
+
+expr mk_xtrans_fn();
+bool is_xtrans_fn(expr const & e);
+/** \brief (Theorem) A : Type u, B : Type u, a : A, b c : B, H1 : a = b, H2 : b = c |- xTrans(A, B, a, b, c, H1, H2) : a = c */
+inline expr xTrans(expr const & A, expr const & B, expr const & a, expr const & b, expr const & c, expr const & H1, expr const & H2) { return mk_app({mk_xtrans_fn(), A, B, a, b, c, H1, H2}); }
+
+expr mk_congr1_fn();
+bool is_congr1_fn(expr const & e);
+/** \brief (Theorem) A : Type u, B : A -> Type u, f g : (Pi x : A, B x), a : A, H : f = g |- Congr2(A, B, f, g, a, H) : f a = g a */
+inline expr Congr1(expr const & A, expr const & B, expr const & f, expr const & g, expr const & a, expr const & H) { return mk_app({mk_congr1_fn(), A, B, f, g, a, H}); }
+
+expr mk_congr2_fn();
+bool is_congr2_fn(expr const & e);
+/** \brief (Theorem) A : Type u, B : A -> Type u, f : (Pi x : A, B x), a b : A, H : a = b |- Congr1(A, B, f, a, b, H) : f a = f b */
+inline expr Congr2(expr const & A, expr const & B, expr const & f, expr const & a, expr const & b, expr const & H) { return mk_app({mk_congr2_fn(), A, B, f, a, b, H}); }
+
 expr mk_congr_fn();
 bool is_congr_fn(expr const & e);
+/** \brief (Theorem) A : Type u, B : A -> Type u, f g : (Pi x : A, B x), a b : A, H1 : f = g, H2 : a = b |- Congr(A, B, f, g, a, b, H1, H2) : f a = g b */
+inline expr Congr(expr const & A, expr const & B, expr const & f, expr const & g, expr const & a, expr const & b, expr const & H1, expr const & H2) { return mk_app({mk_congr_fn(), A, B, f, g, a, b, H1, H2}); }
+
 expr mk_eq_mp_fn();
 bool is_eq_mp_fn(expr const & e);
+/** \brief (Theorem) a : Bool, b : Bool, H1 : a = b, H2 : a |- EqMP(a, b, H1, H2) : b */
 inline expr EqMP(expr const & a, expr const & b, expr const & H1, expr const & H2) { return mk_app(mk_eq_mp_fn(), a, b, H1, H2); }
+
 expr mk_truth();
 bool is_truth(expr const & e);
+/** \brief (Theorem) Truth : True */
 #define Truth mk_truth()
+
 expr mk_ext_fn();
 bool is_ext_fn(expr const & e);
 expr mk_foralle_fn();

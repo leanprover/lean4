@@ -57,7 +57,7 @@ struct infer_type_fn {
         expr u = normalize(infer_type(t, ctx), m_env, ctx);
         if (is_type(u))
             return ty_level(u);
-        if (is_bool_type(u))
+        if (u == Bool)
             return level();
         std::ostringstream buffer;
         buffer << "type expected, ";

@@ -177,13 +177,14 @@ MK_CONSTANT(not_fn,    name("not"));
 MK_CONSTANT(forall_fn, name("forall"));
 MK_CONSTANT(exists_fn, name("exists"));
 
-MK_CONSTANT(mp_fn,        name("MP"));
-MK_CONSTANT(discharge_fn, name("Discharge"));
-MK_CONSTANT(refl_fn,      name("Refl"));
-MK_CONSTANT(case_fn,      name("Case"));
-MK_CONSTANT(subst_fn,     name("Subst"));
-MK_CONSTANT(eta_fn,       name("Eta"));
-
+// Axioms
+MK_CONSTANT(mp_fn,          name("MP"));
+MK_CONSTANT(discharge_fn,   name("Discharge"));
+MK_CONSTANT(refl_fn,        name("Refl"));
+MK_CONSTANT(case_fn,        name("Case"));
+MK_CONSTANT(subst_fn,       name("Subst"));
+MK_CONSTANT(eta_fn,         name("Eta"));
+MK_CONSTANT(imp_antisym_fn, name("ImpAntisym"));
 
 void add_basic_theory(environment & env) {
     env.define_uvar(uvar_name(m_lvl), level() + LEAN_DEFAULT_LEVEL_SEPARATION);
@@ -237,5 +238,8 @@ void add_basic_theory(environment & env) {
 
     // Eta : Pi (A : Type u) (B : A -> Type u), f : (Pi x : A, B x), (Fun x : A => f x) = f
     env.add_axiom(eta_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}}, Eq(Fun({x, A}, f(x)), f)));
+
+    // ImpliesAntisym : Pi (a b : Bool) (H1 : a => b) (H2 : b => a), a = b
+    env.add_axiom(imp_antisym_fn_name, Pi({{a, Bool}, {b, Bool}, {H1, Implies(a, b)}, {H2, Implies(b, a)}}, Eq(a, b)));
 }
 }

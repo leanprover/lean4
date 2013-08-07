@@ -147,6 +147,12 @@ bool is_eta_fn(expr const & e);
 /** \brief (Axiom) A : Type u, B : A -> Type u, f : (Pi x : A, B x) |- Eta(A, B, f) : ((Fun x : A => f x) = f) */
 inline expr Eta(expr const & A, expr const & B, expr const & f) { return mk_app(mk_eta_fn(), A, B, f); }
 
+/** \brief Implies Anti-symmetry */
+expr mk_imp_antisym_fn();
+bool is_imp_antisym_fn(expr const & e);
+/** \brief (Axiom) a : Bool, b : Bool, H1 : a => b, H2 : b => a |- ImpAntisym(a, b, H1, H2) : a = b */
+inline expr ImpAntisym(expr const & a, expr const & b, expr const & H1, expr const & H2) { return mk_app(mk_imp_antisym_fn(), a, b, H1, H2); }
+
 class environment;
 /** \brief Initialize the environment with basic builtin declarations and axioms */
 void add_basic_theory(environment & env);

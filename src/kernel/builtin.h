@@ -57,6 +57,11 @@ inline expr If(expr const & A, expr const & c, expr const & t, expr const & e) {
 inline expr mk_bool_if(expr const & c, expr const & t, expr const & e) { return mk_if(mk_bool_type(), c, t, e); }
 inline expr bIf(expr const & c, expr const & t, expr const & e) { return mk_bool_if(c, t, e); }
 
+expr mk_implies_fn();
+bool is_implies_fn(expr const & e);
+inline expr mk_implies(expr const & e1, expr const & e2) { return mk_app(mk_implies_fn(), e1, e2); }
+inline expr Implies(expr const & e1, expr const & e2) { return mk_implies(e1, e2); }
+
 /** \brief Return the Lean and operator */
 expr mk_and_fn();
 /** \brief Return true iff \c e is the Lean and operator. */
@@ -102,6 +107,15 @@ bool is_exists_fn(expr const & e);
 inline expr mk_exists(expr const & A, expr const & P) { return mk_app(mk_exists_fn(), A, P); }
 inline expr Exists(expr const & A, expr const & P) { return mk_exists(A, P); }
 
+expr mk_mp_fn();
+bool is_mp_fn(const expr & e);
+/** \brief (Axiom) a : Bool, b : Bool, H1 : a => b, H2 : a |- MP(a, b, H1, H2) : b */
+inline expr MP(expr const & a, expr const & b, expr const & H1, expr const & H2) { return mk_app(mk_mp_fn(), a, b, H1, H2); }
+
+expr mk_discharge_fn();
+bool is_discharge_fn(const expr & e);
+/** \brief (Axiom) a : Bool, b : Bool, H : a -> b |- Discharge(a, b, H) : a => b */
+inline expr Discharge(expr const & a, expr const & b, expr const & H) { return mk_app(mk_discharge_fn(), a, b, H); }
 
 expr mk_refl_fn();
 bool is_refl_fn(expr const & e);
@@ -118,6 +132,16 @@ expr mk_eta_fn();
 bool is_eta_fn(expr const & e);
 /** \brief (Axiom) A : Type u, B : A -> Type u, f : (Pi x : A, B x) |- Eta(A, B, f) : ((Fun x : A => f x) = f) */
 inline expr Eta(expr const & A, expr const & B, expr const & f) { return mk_app(mk_eta_fn(), A, B, f); }
+
+expr mk_absurd_fn();
+bool is_absurd_fn(expr const & e);
+/** \brief (Theorem) a : Bool, H1 : a, H2 : Not(a) |- Absurd(a, H1, H2) : False */
+inline expr Absurd(expr const & a, expr const & H1, expr const & H2) { return mk_app(mk_absurd_fn(), a, H1, H2); }
+
+expr mk_false_elim_fn();
+bool is_false_elim_fn(expr const & e);
+/** \brief (Theorem) a : Bool, H : False |- FalseElim(a, H) : a */
+inline expr FalseElim(expr const & a, expr const & H) { return mk_app(mk_false_elim_fn(), a, H); }
 
 expr mk_symm_fn();
 bool is_symm_fn(expr const & e);

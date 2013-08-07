@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "interval_def.h"
 #include "mpq.h"
+#include "double.h"
 
 namespace lean {
 template class interval<mpq>;

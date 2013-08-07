@@ -223,6 +223,29 @@ public:
     static void reset(mpq & v) { v = 0; }
     // v <- v^k
     static void power(mpq & v, unsigned k) { _power(v, v, k); }
+
+    // Transcendental functions
+    static void exp(mpq & v)   { lean_unreachable(); /* TODO */ }
+    static void exp2(mpq & v)  { lean_unreachable(); /* TODO */ }
+    static void exp10(mpq & v) { lean_unreachable(); /* TODO */ }
+    static void log(mpq & v)   { lean_unreachable(); /* TODO */ }
+    static void log2(mpq & v)  { lean_unreachable(); /* TODO */ }
+    static void log10(mpq & v) { lean_unreachable(); /* TODO */ }
+    static void sin(mpq & v)   { lean_unreachable(); /* TODO */ }
+    static void cos(mpq & v)   { lean_unreachable(); /* TODO */ }
+    static void tan(mpq & v)   { lean_unreachable(); /* TODO */ }
+    static void sec(mpq & v)   { lean_unreachable(); /* TODO */ }
+    static void csc(mpq & v)   { lean_unreachable(); /* TODO */ }
+    static void cot(mpq & v)   { lean_unreachable(); /* TODO */ }
+    static void asin(mpq & v)  { lean_unreachable(); /* TODO */ }
+    static void acos(mpq & v)  { lean_unreachable(); /* TODO */ }
+    static void atan(mpq & v)  { lean_unreachable(); /* TODO */ }
+    static void sinh(mpq & v)  { lean_unreachable(); /* TODO */ }
+    static void cosh(mpq & v)  { lean_unreachable(); /* TODO */ }
+    static void tanh(mpq & v)  { lean_unreachable(); /* TODO */ }
+    static void asinh(mpq & v) { lean_unreachable(); /* TODO */ }
+    static void acosh(mpq & v) { lean_unreachable(); /* TODO */ }
+    static void atanh(mpq & v) { lean_unreachable(); /* TODO */ }
 };
 
 }

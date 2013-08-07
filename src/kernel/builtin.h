@@ -107,6 +107,7 @@ expr mk_refl_fn();
 bool is_refl_fn(expr const & e);
 /** \brief (Axiom) A : Type u, a : A |- Refl(A, a) : a = a */
 inline expr Refl(expr const & A, expr const & a) { return mk_app(mk_refl_fn(), A, a); }
+#define Trivial Refl(Bool, True)
 
 expr mk_subst_fn();
 bool is_subst_fn(expr const & e);
@@ -163,15 +164,13 @@ bool is_eqt_elim(expr const & e);
 // \brief (Theorem) a : Bool, H : a = True |- EqT(a, H) : a
 inline expr EqTElim(expr const & a, expr const & H) { return mk_app(mk_eqt_elim_fn(), a, H); }
 
-expr mk_foralle_fn();
-bool is_foralle_fn(expr const & e);
+expr mk_forall_elim_fn();
+bool is_forall_elim_fn(expr const & e);
 // \brief (Theorem) A : Type u, P : A -> Bool, H : (Forall A P), a : A |- Forallelim(A, P, H, a) : P a
-inline expr ForallElim(expr const & A, expr const & P, expr const & H, expr const & a) { return mk_app(mk_foralle_fn(), A, P, H, a); }
+inline expr ForallElim(expr const & A, expr const & P, expr const & H, expr const & a) { return mk_app(mk_forall_elim_fn(), A, P, H, a); }
 
 expr mk_ext_fn();
 bool is_ext_fn(expr const & e);
-expr mk_foralle_fn();
-bool is_foralle_fn(expr const & e);
 expr mk_foralli_fn();
 bool is_foralli_fn(expr const & e);
 expr mk_domain_inj_fn();

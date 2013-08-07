@@ -166,8 +166,7 @@ bool operator==(name const & a, name const & b) {
         if (i1->m_is_string) {
             if (strcmp(i1->m_str, i2->m_str) != 0)
                 return false;
-        }
-        else {
+        } else {
             if (i1->m_k != i2->m_k)
                 return false;
         }
@@ -194,8 +193,7 @@ int cmp(name::imp * i1, name::imp * i2) {
             int c = strcmp(i1->m_str, i2->m_str);
             if (c != 0)
                 return c;
-        }
-        else if (i1->m_k != i2->m_k) {
+        } else if (i1->m_k != i2->m_k) {
             return i1->m_k < i2->m_k ? -1 : 1;
         }
     }
@@ -227,23 +225,20 @@ static unsigned num_digits(unsigned k) {
 size_t name::size(char const * sep) const {
     if (m_ptr == nullptr) {
         return strlen(anonymous_str);
-    }
-    else {
+    } else {
         imp * i       = m_ptr;
         size_t sep_sz = strlen(sep);
         size_t r      = 0;
         while (true) {
             if (i->m_is_string) {
                 r += strlen(i->m_str);
-            }
-            else {
+            } else {
                 r += num_digits(i->m_k);
             }
             if (i->m_prefix) {
                 r += sep_sz;
                 i  = i->m_prefix;
-            }
-            else {
+            } else {
                 break;
             }
         }

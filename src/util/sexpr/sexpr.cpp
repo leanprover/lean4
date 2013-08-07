@@ -227,13 +227,11 @@ std::ostream & operator<<(std::ostream & out, sexpr const & s) {
             curr = &tail(*curr);
             if (is_nil(*curr)) {
                 break;
-            }
-            else if (!is_cons(*curr)) {
+            } else if (!is_cons(*curr)) {
                 out << " . ";
                 out << *curr;
                 break;
-            }
-            else {
+            } else {
                 out << " ";
             }
         }

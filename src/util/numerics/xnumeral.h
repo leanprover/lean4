@@ -94,12 +94,10 @@ void add(T & r, xnumeral_kind & rk, T const & a, xnumeral_kind ak, T const & b, 
     if (ak != XN_NUMERAL) {
         numeric_traits<T>::reset(r);
         rk = ak;
-    }
-    else if (bk != XN_NUMERAL) {
+    } else if (bk != XN_NUMERAL) {
         numeric_traits<T>::reset(r);
         rk = bk;
-    }
-    else {
+    } else {
         r = a + b;
         rk = XN_NUMERAL;
     }
@@ -113,8 +111,7 @@ void sub(T & r, xnumeral_kind & rk, T const & a, xnumeral_kind ak, T const & b, 
         lean_assert(bk != ak);
         numeric_traits<T>::reset(r);
         rk = ak;
-    }
-    else {
+    } else {
         switch (bk) {
         case XN_MINUS_INFINITY:
             numeric_traits<T>::reset(r);
@@ -137,15 +134,13 @@ void mul(T & r, xnumeral_kind & rk, T const & a, xnumeral_kind ak, T const & b, 
     if (is_zero(a, ak) || is_zero(b, bk)) {
         numeric_traits<T>::reset(r);
         rk = XN_NUMERAL;
-    }
-    else if (is_infinite(ak) || is_infinite(bk)) {
+    } else if (is_infinite(ak) || is_infinite(bk)) {
         if (is_pos(a, ak) == is_pos(b, bk))
             rk = XN_PLUS_INFINITY;
         else
             rk = XN_MINUS_INFINITY;
         numeric_traits<T>::reset(r);
-    }
-    else {
+    } else {
         rk = XN_NUMERAL;
         r = a * b;
     }
@@ -158,21 +153,18 @@ void div(T & r, xnumeral_kind & rk, T const & a, xnumeral_kind ak, T const & b, 
         lean_assert(!is_zero(b, bk));
         numeric_traits<T>::reset(r);
         rk = XN_NUMERAL;
-    }
-    else if (is_infinite(ak)) {
+    } else if (is_infinite(ak)) {
         lean_assert(!is_infinite(bk));
         if (is_pos(a, ak) == is_pos(b, bk))
             rk = XN_PLUS_INFINITY;
         else
             rk = XN_MINUS_INFINITY;
         numeric_traits<T>::reset(r);
-    }
-    else if (is_infinite(bk)) {
+    } else if (is_infinite(bk)) {
         lean_assert(!is_infinite(ak));
         numeric_traits<T>::reset(r);
         rk = XN_NUMERAL;
-    }
-    else {
+    } else {
         rk = XN_NUMERAL;
         r = a / b;
     }
@@ -200,8 +192,7 @@ template<typename T>
 bool eq(T const & a, xnumeral_kind ak, T const & b, xnumeral_kind bk) {
     if (ak == XN_NUMERAL) {
         return bk == XN_NUMERAL && a == b;
-    }
-    else {
+    } else {
         return ak == bk;
     }
 }

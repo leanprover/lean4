@@ -146,8 +146,7 @@ void interval<T>::neg() {
         if (is_upper_inf()) {
             // (-oo, oo) case
             // do nothing
-        }
-        else {
+        } else {
             // (-oo, a| --> |-a, oo)
             swap(m_lower, m_upper);
             neg(m_lower);
@@ -158,8 +157,7 @@ void interval<T>::neg() {
             m_upper_inf  = true;
             m_upper_open = true;
         }
-    }
-    else {
+    } else {
         if (is_upper_inf()) {
             // |a, oo) --> (-oo, -a|
             swap(m_upper, m_lower);
@@ -170,8 +168,7 @@ void interval<T>::neg() {
             reset(m_lower);
             m_lower_inf  = true;
             m_lower_open = true;
-        }
-        else {
+        } else {
             // |a, b| --> |-b, -a|
             swap(m_lower, m_upper);
             neg(m_lower);
@@ -270,8 +267,7 @@ interval<T> & interval<T>::operator*=(interval<T> const & o) {
             mul(new_l_val, new_l_kind, b, b_k, d, d_k);
             round_to_plus_inf();
             mul(new_u_val, new_u_kind, a, a_k, c, c_k);
-        }
-        else if (i2.is_M()) {
+        } else if (i2.is_M()) {
             // a <= x <= b <= 0,  y <= d, d > 0 --> a*d <= x*y (uses the fact that b is not positive)
             // a <= x <= b <= 0,  c <= y, c < 0 --> x*y <= a*c (uses the fact that b is not positive)
             set_is_lower_open(a_o || d_o);
@@ -281,8 +277,7 @@ interval<T> & interval<T>::operator*=(interval<T> const & o) {
             mul(new_l_val, new_l_kind, a, a_k, d, d_k);
             round_to_plus_inf();
             mul(new_u_val, new_u_kind, a, a_k, c, c_k);
-        }
-        else {
+        } else {
             // a <= x <= b <= 0, 0 <= c <= y <= d --> a*d <= x*y (uses the fact that x is neg (b is not positive) or y is pos (c is not negative))
             // x <= b <= 0,  0 <= c <= y --> x*y <= b*c
             lean_assert(i2.is_P());
@@ -296,8 +291,7 @@ interval<T> & interval<T>::operator*=(interval<T> const & o) {
             round_to_plus_inf();
             mul(new_u_val, new_u_kind, b, b_k, c, c_k);
         }
-    }
-    else if (i1.is_M()) {
+    } else if (i1.is_M()) {
         if (i2.is_N()) {
             // b > 0, x <= b,  c <= y <= d <= 0 --> b*c <= x*y (uses the fact that d is not positive)
             // a < 0, a <= x,  c <= y <= d <= 0 --> x*y <= a*c (uses the fact that d is not positive)
@@ -308,8 +302,7 @@ interval<T> & interval<T>::operator*=(interval<T> const & o) {
             mul(new_l_val, new_l_kind, b, b_k, c, c_k);
             round_to_plus_inf();
             mul(new_u_val, new_u_kind, a, a_k, c, c_k);
-        }
-        else if (i2.is_M()) {
+        } else if (i2.is_M()) {
             static thread_local T ad; xnumeral_kind ad_k;
             static thread_local T bc; xnumeral_kind bc_k;
             static thread_local T ac; xnumeral_kind ac_k;
@@ -331,8 +324,7 @@ interval<T> & interval<T>::operator*=(interval<T> const & o) {
                 swap(new_l_val, ad);
                 new_l_kind = ad_k;
                 set_is_lower_open(ad_o);
-            }
-            else {
+            } else {
                 swap(new_l_val, bc);
                 new_l_kind = bc_k;
                 set_is_lower_open(bc_o);
@@ -343,14 +335,12 @@ interval<T> & interval<T>::operator*=(interval<T> const & o) {
                 swap(new_u_val, ac);
                 new_u_kind = ac_k;
                 set_is_upper_open(ac_o);
-            }
-            else {
+            } else {
                 swap(new_u_val, bd);
                 new_u_kind = bd_k;
                 set_is_upper_open(bd_o);
             }
-        }
-        else {
+        } else {
             // a < 0, a <= x, 0 <= c <= y <= d --> a*d <= x*y (uses the fact that c is not negative)
             // b > 0, x <= b, 0 <= c <= y <= d --> x*y <= b*d (uses the fact that c is not negative)
             lean_assert(i2.is_P());
@@ -363,8 +353,7 @@ interval<T> & interval<T>::operator*=(interval<T> const & o) {
             round_to_plus_inf();
             mul(new_u_val, new_u_kind, b, b_k, d, d_k);
         }
-    }
-    else {
+    } else {
         lean_assert(i1.is_P());
         if (i2.is_N()) {
             // 0 <= a <= x <= b,   c <= y <= d <= 0  -->  x*y <= b*c (uses the fact that x is pos (a is not neg) or y is neg (d is not pos))
@@ -378,8 +367,7 @@ interval<T> & interval<T>::operator*=(interval<T> const & o) {
             mul(new_l_val, new_l_kind, b, b_k, c, c_k);
             round_to_plus_inf();
             mul(new_u_val, new_u_kind, a, a_k, d, d_k);
-        }
-        else if (i2.is_M()) {
+        } else if (i2.is_M()) {
             // 0 <= a <= x <= b,  c <= y --> b*c <= x*y (uses the fact that a is not negative)
             // 0 <= a <= x <= b,  y <= d --> x*y <= b*d (uses the fact that a is not negative)
             set_is_lower_open(b_o || c_o);
@@ -389,8 +377,7 @@ interval<T> & interval<T>::operator*=(interval<T> const & o) {
             mul(new_l_val, new_l_kind, b, b_k, c, c_k);
             round_to_plus_inf();
             mul(new_u_val, new_u_kind, b, b_k, d, d_k);
-        }
-        else {
+        } else {
             lean_assert(i2.is_P());
             // 0 <= a <= x, 0 <= c <= y --> a*c <= x*y
             // x <= b, y <= d --> x*y <= b*d (uses the fact that x is pos (a is not negative) or y is pos (c is not negative))
@@ -424,8 +411,7 @@ interval<T> & interval<T>::operator/=(interval<T> const & o) {
     if (i1.is_zero()) {
         // 0/other = 0 if other != 0
         // do nothing
-    }
-    else {
+    } else {
         T const & a = i1.m_lower; xnumeral_kind a_k = i1.lower_kind();
         T const & b = i1.m_upper; xnumeral_kind b_k = i1.upper_kind();
         T const & c = i2.m_lower; xnumeral_kind c_k = i2.lower_kind();
@@ -453,13 +439,11 @@ interval<T> & interval<T>::operator/=(interval<T> const & o) {
                     lean_assert(d_o);
                     reset(new_u_val);
                     new_u_kind = XN_PLUS_INFINITY;
-                }
-                else {
+                } else {
                     round_to_plus_inf();
                     div(new_u_val, new_u_kind, a, a_k, d, d_k);
                 }
-            }
-            else {
+            } else {
                 // a <= x, a < 0,   0 < c <= y       -->  a/c <= x/y
                 // x <= b <= 0,     0 < c <= y <= d  -->         x/y <= b/d
                 lean_assert(i2.is_P1());
@@ -471,16 +455,14 @@ interval<T> & interval<T>::operator/=(interval<T> const & o) {
                     lean_assert(c_o);
                     reset(new_l_val);
                     new_l_kind = XN_MINUS_INFINITY;
-                }
-                else {
+                } else {
                     round_to_minus_inf();
                     div(new_l_val, new_l_kind, a, a_k, c, c_k);
                 }
                 round_to_plus_inf();
                 div(new_u_val, new_u_kind, b, b_k, d, d_k);
             }
-        }
-        else if (i1.is_M()) {
+        } else if (i1.is_M()) {
             if (i2.is_N1()) {
                 // 0 < a <= x <= b < 0,  y <= d < 0   --> b/d <= x/y
                 // 0 < a <= x <= b < 0,  y <= d < 0   -->        x/y <= a/d
@@ -493,15 +475,13 @@ interval<T> & interval<T>::operator/=(interval<T> const & o) {
                     reset(new_u_val);
                     new_l_kind = XN_MINUS_INFINITY;
                     new_u_kind = XN_PLUS_INFINITY;
-                }
-                else {
+                } else {
                     round_to_minus_inf();
                     div(new_l_val, new_l_kind, b, b_k, d, d_k);
                     round_to_plus_inf();
                     div(new_u_val, new_u_kind, a, a_k, d, d_k);
                 }
-            }
-            else {
+            } else {
                 // 0 < a <= x <= b < 0, 0 < c <= y  --> a/c <= x/y
                 // 0 < a <= x <= b < 0, 0 < c <= y  -->        x/y <= b/c
                 lean_assert(i1.is_P1());
@@ -515,16 +495,14 @@ interval<T> & interval<T>::operator/=(interval<T> const & o) {
                     reset(new_u_val);
                     new_l_kind = XN_MINUS_INFINITY;
                     new_u_kind = XN_PLUS_INFINITY;
-                }
-                else {
+                } else {
                     round_to_minus_inf();
                     div(new_l_val, new_l_kind, a, a_k, c, c_k);
                     round_to_plus_inf();
                     div(new_u_val, new_u_kind, b, b_k, c, c_k);
                 }
             }
-        }
-        else {
+        } else {
             lean_assert(i1.is_P());
             if (i2.is_N1()) {
                 // b > 0,    x <= b,   c <= y <= d < 0    -->  b/d <= x/y
@@ -536,15 +514,13 @@ interval<T> & interval<T>::operator/=(interval<T> const & o) {
                     lean_assert(d_o);
                     reset(new_l_val);
                     new_l_kind = XN_MINUS_INFINITY;
-                }
-                else {
+                } else {
                     round_to_minus_inf();
                     div(new_l_val, new_l_kind, b, b_k, d, d_k);
                 }
                 round_to_plus_inf();
                 div(new_u_val, new_u_kind, a, a_k, c, c_k);
-            }
-            else {
+            } else {
                 lean_assert(i2.is_P1());
                 // 0 <= a <= x,      0 < c <= y <= d    -->   a/d <= x/y
                 // b > 0     x <= b, 0 < c <= y         -->          x/y <= b/c
@@ -557,8 +533,7 @@ interval<T> & interval<T>::operator/=(interval<T> const & o) {
                     lean_assert(c_o);
                     reset(new_u_val);
                     new_u_kind = XN_PLUS_INFINITY;
-                }
-                else {
+                } else {
                     round_to_plus_inf();
                     div(new_u_val, new_u_kind, b, b_k, c, c_k);
                 }
@@ -599,8 +574,7 @@ void interval<T>::inv() {
             reset(m_upper);
             set_is_upper_inf(true);
             set_is_upper_open(true);
-        }
-        else {
+        } else {
             round_to_plus_inf();
             new_u_val = m_lower;
             inv(new_u_val);
@@ -612,8 +586,7 @@ void interval<T>::inv() {
         swap(m_lower, new_l_val);
         set_is_lower_inf(false);
         set_is_lower_open(new_l_open);
-    }
-    else if (is_N1()) {
+    } else if (is_N1()) {
         // x <= u < 0 --> 1/u <= 1/x
         // l <= x <= u < 0 --> 1/l <= 1/x (use lower and upper bounds)
         round_to_plus_inf();
@@ -629,8 +602,7 @@ void interval<T>::inv() {
             reset(m_lower);
             set_is_lower_open(true);
             set_is_lower_inf(true);
-        }
-        else {
+        } else {
             round_to_minus_inf();
             new_l_val = m_upper;
             inv(new_l_val);
@@ -642,8 +614,7 @@ void interval<T>::inv() {
         swap(m_upper, new_u_val);
         set_is_upper_inf(false);
         set_is_upper_open(new_u_open);
-    }
-    else {
+    } else {
         lean_unreachable();
     }
     lean_assert(check_invariant());
@@ -657,8 +628,7 @@ void interval<T>::power(unsigned n) {
         // a^1 = a
         // nothing to be done
         return;
-    }
-    else if (n % 2 == 0) {
+    } else if (n % 2 == 0) {
         if (is_lower_pos()) {
             // [l, u]^n = [l^n, u^n] if l > 0
             // 0 < l <= x      --> l^n <= x^n (lower bound guarantees that is positive)
@@ -671,8 +641,7 @@ void interval<T>::power(unsigned n) {
                 round_to_plus_inf();
                 power(m_upper, n);
             }
-        }
-        else if (is_upper_neg()) {
+        } else if (is_upper_neg()) {
             // [l, u]^n = [u^n, l^n] if u < 0
             // l <= x <= u < 0   -->  x^n <= l^n (use lower and upper bound -- need the fact that x is negative)
             // x <= u < 0        -->  u^n <= x^n
@@ -688,15 +657,13 @@ void interval<T>::power(unsigned n) {
 
             if (li) {
                 reset(m_upper);
-            }
-            else {
+            } else {
                 round_to_plus_inf();
                 power(m_upper, n);
             }
             m_upper_inf  = li;
             m_upper_open = lo;
-        }
-        else {
+        } else {
             // [l, u]^n = [0, max{l^n, u^n}] otherwise
             // we need both bounds to justify upper bound
             xnumeral_kind un1_kind = lower_kind();
@@ -713,8 +680,7 @@ void interval<T>::power(unsigned n) {
                 swap(m_upper, un1);
                 m_upper_inf  = (un1_kind == XN_PLUS_INFINITY);
                 m_upper_open = m_lower_open;
-            }
-            else {
+            } else {
                 swap(m_upper, un2);
                 m_upper_inf = (un2_kind == XN_PLUS_INFINITY);
             }
@@ -723,8 +689,7 @@ void interval<T>::power(unsigned n) {
             m_lower_inf  = false;
             m_lower_open = false;
         }
-    }
-    else {
+    } else {
         // Remark: when n is odd x^n is monotonic.
         if (!m_lower_inf)
             power(m_lower, n);
@@ -745,8 +710,7 @@ T a_div_x_n(T a, T const & x, unsigned n, bool to_plus_inf) {
     if (n == 1) {
         numeric_traits<T>::set_rounding(to_plus_inf);
         a /= x;
-    }
-    else {
+    } else {
         static thread_local T tmp;
         numeric_traits<T>::set_rounding(!to_plus_inf);
         tmp = x;
@@ -764,8 +728,7 @@ bool interval<T>::check_invariant() const {
     if (eq(m_lower, lower_kind(), m_upper, upper_kind())) {
         lean_assert(!is_lower_open());
         lean_assert(!is_upper_open());
-    }
-    else {
+    } else {
         lean_assert(lt(m_lower, lower_kind(), m_upper, upper_kind()));
     }
     return true;

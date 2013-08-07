@@ -16,8 +16,7 @@ char const * escaped::end() const {
         if (!m_trim_nl || *it != '\n') {
             ++it;
             e = it;
-        }
-        else {
+        } else {
             ++it;
         }
     }

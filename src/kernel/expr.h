@@ -441,8 +441,7 @@ template<typename F> expr update_abst(expr const & e, F f) {
     if (!is_eqp(p.first, old_t) || !is_eqp(p.second, old_b)) {
         name const & n = abst_name(e);
         return is_pi(e) ? mk_pi(n, p.first, p.second) : mk_lambda(n, p.first, p.second);
-    }
-    else {
+    } else {
         return e;
     }
 }

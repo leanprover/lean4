@@ -14,8 +14,7 @@ bool set(mpbq & a, mpq const & b) {
         numerator(a.m_num, b);
         a.m_k = 0;
         return true;
-    }
-    else {
+    } else {
         static thread_local mpz d;
         denominator(d, b);
         unsigned shift;
@@ -24,8 +23,7 @@ bool set(mpbq & a, mpq const & b) {
             a.m_k = shift;
             lean_assert(a == b);
             return true;
-        }
-        else {
+        } else {
             numerator(a.m_num, b);
             a.m_k = d.log2() + 1;
             return false;
@@ -49,13 +47,12 @@ void mpbq::normalize() {
 
 int cmp(mpbq const & a, mpbq const & b) {
     static thread_local mpz tmp;
-    if (a.m_k == b.m_k)
+    if (a.m_k == b.m_k) {
         return cmp(a.m_num, b.m_num);
-    else if (a.m_k < b.m_k) {
+    } else if (a.m_k < b.m_k) {
         mul2k(tmp, a.m_num, b.m_k - a.m_k);
         return cmp(tmp, b.m_num);
-    }
-    else {
+    } else {
         lean_assert(a.m_k > b.m_k);
         mul2k(tmp, b.m_num, a.m_k - b.m_k);
         return cmp(a.m_num, tmp);
@@ -66,8 +63,7 @@ int cmp(mpbq const & a, mpz const & b) {
     static thread_local mpz tmp;
     if (a.m_k == 0) {
         return cmp(a.m_num, b);
-    }
-    else {
+    } else {
         mul2k(tmp, b, a.m_k);
         return cmp(a.m_num, tmp);
     }
@@ -76,8 +72,7 @@ int cmp(mpbq const & a, mpz const & b) {
 int cmp(mpbq const & a, mpq const & b) {
     if (a.is_integer() && b.is_integer()) {
         return -cmp(b, a.m_num);
-    }
-    else {
+    } else {
         static thread_local mpz tmp1;
         static thread_local mpz tmp2;
         // tmp1 <- numerator(a)*denominator(b)
@@ -91,13 +86,11 @@ int cmp(mpbq const & a, mpq const & b) {
 mpbq & mpbq::operator+=(mpbq const & a) {
     if (m_k == a.m_k) {
         m_num += a.m_num;
-    }
-    else if (m_k < a.m_k) {
+    } else if (m_k < a.m_k) {
         mul2k(m_num, m_num, a.m_k - m_k);
         m_k    = a.m_k;
         m_num += a.m_num;
-    }
-    else {
+    } else {
         lean_assert(m_k > a.m_k);
         static thread_local mpz tmp;
         mul2k(tmp, a.m_num, m_k - a.m_k);
@@ -111,8 +104,7 @@ template<typename T>
 mpbq & mpbq::add_int(T const & a) {
     if (m_k == 0) {
         m_num += a;
-    }
-    else {
+    } else {
         lean_assert(m_k > 0);
         static thread_local mpz tmp;
         tmp = a;
@@ -128,13 +120,11 @@ mpbq & mpbq::operator+=(int a) { return add_int<int>(a); }
 mpbq & mpbq::operator-=(mpbq const & a) {
     if (m_k == a.m_k) {
         m_num -= a.m_num;
-    }
-    else if (m_k < a.m_k) {
+    } else if (m_k < a.m_k) {
         mul2k(m_num, m_num, a.m_k - m_k);
         m_k    = a.m_k;
         m_num -= a.m_num;
-    }
-    else {
+    } else {
         lean_assert(m_k > a.m_k);
         static thread_local mpz tmp;
         mul2k(tmp, a.m_num, m_k - a.m_k);
@@ -148,8 +138,7 @@ template<typename T>
 mpbq & mpbq::sub_int(T const & a) {
     if (m_k == 0) {
         m_num -= a;
-    }
-    else {
+    } else {
         lean_assert(m_k > 0);
         static thread_local mpz tmp;
         tmp = a;
@@ -167,8 +156,7 @@ mpbq & mpbq::operator*=(mpbq const & a) {
     if (m_k == 0 || a.m_k == 0) {
         m_k   += a.m_k;
         normalize();
-    }
-    else {
+    } else {
         m_k   += a.m_k;
     }
     return *this;
@@ -196,11 +184,9 @@ int mpbq::magnitude_lb() const {
     int s = m_num.sgn();
     if (s < 0) {
         return m_num.mlog2() - m_k + 1;
-    }
-    else if (s == 0) {
+    } else if (s == 0) {
         return 0;
-    }
-    else {
+    } else {
         lean_assert(s > 0);
         return m_num.log2() - m_k;
     }
@@ -210,11 +196,9 @@ int mpbq::magnitude_ub() const {
     int s = m_num.sgn();
     if (s < 0) {
         return m_num.mlog2() - m_k;
-    }
-    else if (s == 0) {
+    } else if (s == 0) {
         return 0;
-    }
-    else {
+    } else {
         lean_assert(s > 0);
         return m_num.log2() - m_k + 1;
     }
@@ -223,8 +207,7 @@ int mpbq::magnitude_ub() const {
 void mul2(mpbq & a) {
     if (a.m_k == 0) {
         mul2k(a.m_num, a.m_num, 1);
-    }
-    else {
+    } else {
         a.m_k--;
     }
 }
@@ -235,8 +218,7 @@ void mul2k(mpbq & a, unsigned k) {
     if (a.m_k < k) {
         mul2k(a.m_num, a.m_num, k - a.m_k);
         a.m_k = 0;
-    }
-    else {
+    } else {
         lean_assert(a.m_k >= k);
         a.m_k -= k;
     }
@@ -250,13 +232,11 @@ bool root_lower(mpbq & a, mpbq const & b, unsigned n) {
         a.m_k = b.m_k / n;
         a.normalize();
         return r;
-    }
-    else if (a.m_num.is_neg()) {
+    } else if (a.m_num.is_neg()) {
         a.m_k = b.m_k / n;
         a.normalize();
         return false;
-    }
-    else {
+    } else {
         a.m_k = b.m_k / n;
         a.m_k++;
         a.normalize();
@@ -270,14 +250,12 @@ bool root_upper(mpbq & a, mpbq const & b, unsigned n) {
         a.m_k = b.m_k / n;
         a.normalize();
         return r;
-    }
-    else if (a.m_num.is_neg()) {
+    } else if (a.m_num.is_neg()) {
         a.m_k = b.m_k / n;
         a.m_k++;
         a.normalize();
         return false;
-    }
-    else {
+    } else {
         a.m_k = b.m_k / n;
         a.normalize();
         return false;
@@ -322,8 +300,7 @@ bool lt_1div2k(mpbq const & a, unsigned k) {
     if (a.m_k <= k) {
         // since a.m_num >= 1
         return false;
-    }
-    else {
+    } else {
         lean_assert(a.m_k > k);
         static thread_local mpz tmp;
         tmp = 1;
@@ -335,11 +312,9 @@ bool lt_1div2k(mpbq const & a, unsigned k) {
 std::ostream & operator<<(std::ostream & out, mpbq const & v) {
     if (v.m_k == 0) {
         out << v.m_num;
-    }
-    else if (v.m_k == 1) {
+    } else if (v.m_k == 1) {
         out << v.m_num << "/2";
-    }
-    else {
+    } else {
         out << v.m_num << "/2^" << v.m_k;
     }
     return out;
@@ -349,8 +324,7 @@ void display_decimal(std::ostream & out, mpbq const & a, unsigned prec) {
     if (a.is_integer()) {
         out << a.m_num;
         return;
-    }
-    else {
+    } else {
         mpz two_k;
         mpz n1, v1;
         if (a.is_neg())

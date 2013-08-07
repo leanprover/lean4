@@ -20,8 +20,7 @@ mpq & mpq::operator=(mpbq const & b) {
 int cmp(mpq const & a, mpz const & b) {
     if (a.is_integer()) {
         return mpz_cmp(mpq_numref(a.m_val), mpq::zval(b));
-    }
-    else {
+    } else {
         static thread_local mpz tmp;
         mpz_mul(mpq::zval(tmp), mpq_denref(a.m_val), mpq::zval(b));
         return mpz_cmp(mpq_numref(a.m_val), mpq::zval(tmp));
@@ -79,8 +78,7 @@ extern void display(std::ostream & out, __mpz_struct const * v);
 std::ostream & operator<<(std::ostream & out, mpq const & v) {
     if (v.is_integer()) {
         display(out, mpq_numref(v.m_val));
-    }
-    else {
+    } else {
         display(out, mpq_numref(v.m_val));
         out << "/";
         display(out, mpq_denref(v.m_val));
@@ -113,7 +111,6 @@ void display_decimal(std::ostream & out, mpq const & a, unsigned prec) {
     }
     out << "?";
 }
-
 }
 
 void pp(lean::mpq const & v) { std::cout << v << std::endl; }

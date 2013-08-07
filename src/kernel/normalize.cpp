@@ -157,8 +157,7 @@ class normalize_fn {
                     if (i == n - 1)
                         return f;
                     i++;
-                }
-                else {
+                } else {
                     buffer<expr> new_args;
                     expr new_f = reify(f, k);
                     new_args.push_back(new_f);

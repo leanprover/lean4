@@ -27,8 +27,7 @@ bool is_convertible_core(expr const & expected, expr const & given, environment 
         if (is_pi(*e) && is_pi(*g) && abst_domain(*e) == abst_domain(*g)) {
             e = &abst_body(*e);
             g = &abst_body(*g);
-        }
-        else {
+        } else {
             return false;
         }
     }

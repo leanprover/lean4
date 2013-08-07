@@ -35,8 +35,7 @@ bool mpz::is_power_of_two(unsigned & shift) const {
     if (mpz_popcount(m_val) == 1) {
         shift = log2();
         return true;
-    }
-    else {
+    } else {
         return false;
     }
 }
@@ -64,8 +63,7 @@ void display(std::ostream & out, __mpz_struct const * v) {
         char buffer[1024];
         mpz_get_str(buffer, 10, v);
         out << buffer;
-    }
-    else {
+    } else {
         std::unique_ptr<char> buffer(new char[sz]);
         mpz_get_str(buffer.get(), 10, v);
         out << buffer.get();

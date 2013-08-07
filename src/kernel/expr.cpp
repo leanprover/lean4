@@ -50,8 +50,7 @@ expr mk_app(unsigned n, expr const * as) {
     if (is_app(arg0)) {
         n0    = num_args(arg0);
         new_n = n + n0 - 1;
-    }
-    else {
+    } else {
         new_n = n;
     }
     char * mem   = new char[sizeof(expr_app) + new_n*sizeof(expr)];
@@ -198,20 +197,22 @@ std::ostream & operator<<(std::ostream & out, expr const & a) {
     case expr_kind::Eq:      out << "(" << eq_lhs(a) << " = " << eq_rhs(a) << ")"; break;
     case expr_kind::Lambda:  out << "(fun " << abst_name(a) << " : " << abst_domain(a) << " => " << abst_body(a) << ")"; break;
     case expr_kind::Pi:
-        if (!is_arrow(a))
+        if (!is_arrow(a)) {
             out << "(pi " << abst_name(a) << " : " << abst_domain(a) << ", " << abst_body(a) << ")";
-        else if (!is_arrow(abst_domain(a)))
+        } else if (!is_arrow(abst_domain(a))) {
             out << abst_domain(a) << " -> " << abst_body(a);
-        else
+        } else {
             out << "(" << abst_domain(a) << ") -> " << abst_body(a);
+        }
         break;
     case expr_kind::Let:  out << "(let " << let_name(a) << " := " << let_value(a) << " in " << let_body(a) << ")"; break;
     case expr_kind::Type: {
         level const & l = ty_level(a);
-        if (l == level())
+        if (l == level()) {
             out << "Type";
-        else
+        } else {
             out << "(Type " << ty_level(a) << ")";
+        }
         break;
     }
     case expr_kind::Value: to_value(a).display(out); break;

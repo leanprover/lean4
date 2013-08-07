@@ -96,8 +96,7 @@ void invoke_debugger() {
             buffer << "gdb -nw /proc/" << getpid() << "/exe " << getpid();
             if (system(buffer.str().c_str()) == 0) {
                 std::cerr << "continuing the execution...\n";
-            }
-            else {
+            } else {
                 std::cerr << "ERROR STARTING GDB...\n";
                 // forcing seg fault.
                 int * x = 0;

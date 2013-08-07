@@ -30,8 +30,7 @@ sexpr map(sexpr const & l, F f) {
     lean_assert(is_list(l));
     if (is_nil(l)) {
         return l;
-    }
-    else {
+    } else {
         lean_assert(is_cons(l));
         return sexpr(f(head(l)), map(tail(l), f));
     }
@@ -44,8 +43,7 @@ sexpr filter(sexpr const & l, P p) {
     lean_assert(is_list(l));
     if (is_nil(l)) {
         return l;
-    }
-    else {
+    } else {
         lean_assert(is_cons(l));
         if (p(head(l)))
             return sexpr(head(l), filter(tail(l), p));
@@ -61,8 +59,7 @@ T foldl(sexpr const & l, T init, BOP op) {
     lean_assert(is_list(l));
     if (is_nil(l)) {
         return init;
-    }
-    else {
+    } else {
         lean_assert(is_cons(l));
         return foldl(tail(l), op(init, head(l)), op);
     }
@@ -75,8 +72,7 @@ T foldr(sexpr const & l, T init, BOP op) {
     lean_assert(is_list(l));
     if (is_nil(l)) {
         return init;
-    }
-    else {
+    } else {
         lean_assert(is_cons(l));
         return op(head(l), foldr(tail(l), init, op));
     }
@@ -89,8 +85,7 @@ bool forall(sexpr const & l, P p) {
     lean_assert(is_list(l));
     if (is_nil(l)) {
         return true;
-    }
-    else {
+    } else {
         lean_assert(is_cons(l));
         return p(head(l)) && forall(tail(l), p);
     }
@@ -103,8 +98,7 @@ bool contains(sexpr const & l, P p) {
     lean_assert(is_list(l));
     if (is_nil(l)) {
         return false;
-    }
-    else {
+     } else {
         lean_assert(is_cons(l));
         return p(head(l)) || contains(tail(l), p);
     }

@@ -144,7 +144,50 @@ public:
     friend interval<T> inv(interval<T> o) { o.inv(); return o; }
 
     void power(unsigned n);
+    void exp  ();
+    void exp2 ();
+    void exp10();
+    void log  ();
+    void log2 ();
+    void log10();
+    void sin  ();
+    void cos  ();
+    void tan  ();
+    void sec  ();
+    void csc  ();
+    void cot  ();
+    void asin ();
+    void acos ();
+    void atan ();
+    void sinh ();
+    void cosh ();
+    void tanh ();
+    void asinh();
+    void acosh();
+    void atanh();
+
     friend interval<T> power(interval<T> o, unsigned k) { o.power(k); return o; }
+    friend interval<T> exp  (interval<T> o) { o.exp();   return o; }
+    friend interval<T> exp2 (interval<T> o) { o.exp2();  return o; }
+    friend interval<T> exp10(interval<T> o) { o.exp10(); return o; }
+    friend interval<T> log  (interval<T> o) { o.log();   return o; }
+    friend interval<T> log2 (interval<T> o) { o.log2();  return o; }
+    friend interval<T> log10(interval<T> o) { o.log10(); return o; }
+    friend interval<T> sin  (interval<T> o) { o.sin();   return o; }
+    friend interval<T> cos  (interval<T> o) { o.cos();   return o; }
+    friend interval<T> tan  (interval<T> o) { o.tan();   return o; }
+    friend interval<T> sec  (interval<T> o) { o.sec();   return o; }
+    friend interval<T> csc  (interval<T> o) { o.csc();   return o; }
+    friend interval<T> cot  (interval<T> o) { o.cot();   return o; }
+    friend interval<T> asin (interval<T> o) { o.asin();  return o; }
+    friend interval<T> acos (interval<T> o) { o.acos();  return o; }
+    friend interval<T> atan (interval<T> o) { o.atan();  return o; }
+    friend interval<T> sinh (interval<T> o) { o.sinh();  return o; }
+    friend interval<T> cosh (interval<T> o) { o.cosh();  return o; }
+    friend interval<T> tanh (interval<T> o) { o.tanh();  return o; }
+    friend interval<T> asinh(interval<T> o) { o.asinh(); return o; }
+    friend interval<T> acosh(interval<T> o) { o.acosh(); return o; }
+    friend interval<T> atanh(interval<T> o) { o.atanh(); return o; }
 
     friend interval operator+(interval a, interval const & b) { return a += b; }
     friend interval operator-(interval a, interval const & b) { return a -= b; }

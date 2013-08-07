@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 using namespace lean;
 
 typedef interval<mpq> qi;
+typedef interval<double> di;
 typedef std::vector<qi> qiv;
 
 qiv mk_some_intervals(int low, int hi) {
@@ -85,10 +86,20 @@ static void tst2() {
     lean_assert(power(qi(),2) == qi(false, 0)); // (-oo, oo)^2 == [0, oo)
 }
 
+static void tst3() {
+    di i1(1.0, 2.0);
+    std::cout << "power(" << i1 << ", 3) = " << power(i1, 3) << std::endl;
+    std::cout << "exp(" << i1 << ") = "      << exp(i1) << std::endl;
+    std::cout << "log(" << i1 << ") = "      << log(i1) << std::endl;
+    std::cout << "sin(" << i1 << ") = "      << sin(i1) << std::endl;
+    std::cout << "cos(" << i1 << ") = "      << cos(i1) << std::endl;
+}
+
 int main() {
     continue_on_violation(true);
     enable_trace("numerics");
     tst1();
     tst2();
+    tst3();
     return has_violations() ? 1 : 0;
 }

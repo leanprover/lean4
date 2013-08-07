@@ -246,4 +246,4 @@ bool operator==(sexpr const & a, mpq const & b) { return is_mpq(a) && to_mpq(a) 
 
 }
 
-void pp(lean::sexpr const & n) { std::cout << n << "\n"; }
+void print(lean::sexpr const & n) { std::cout << n << "\n"; }

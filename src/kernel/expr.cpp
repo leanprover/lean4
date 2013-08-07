@@ -297,7 +297,9 @@ lean::format pp_aux(lean::expr const & a) {
     return format();
 }
 
+void print(lean::expr const & a) { std::cout << a << "\n"; }
+
 void pp(lean::expr const & a) {
     lean::format const & f = pp_aux(a);
-    std::cout << f;
+    std::cout << f << "\n";
 }

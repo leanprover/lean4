@@ -350,4 +350,4 @@ void display_decimal(std::ostream & out, mpbq const & a, unsigned prec) {
 
 }
 
-void pp(lean::mpbq const & n) { std::cout << n << std::endl; }
+void print(lean::mpbq const & n) { std::cout << n << std::endl; }

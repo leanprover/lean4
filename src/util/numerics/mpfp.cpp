@@ -118,4 +118,4 @@ std::ostream & operator<<(std::ostream & out, mpfp const & v) {
 
 }
 
-// void pp(lean::mpq const & v) { std::cout << v << std::endl; }
+// void print(lean::mpq const & v) { std::cout << v << std::endl; }

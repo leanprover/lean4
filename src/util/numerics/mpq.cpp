@@ -113,4 +113,4 @@ void display_decimal(std::ostream & out, mpq const & a, unsigned prec) {
 }
 }
 
-void pp(lean::mpq const & v) { std::cout << v << std::endl; }
+void print(lean::mpq const & v) { std::cout << v << std::endl; }

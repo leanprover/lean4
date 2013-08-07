@@ -263,4 +263,4 @@ std::ostream & operator<<(std::ostream & out, name::sep const & s) {
 }
 }
 
-void pp(lean::name const & n) { std::cout << n << std::endl; }
+void print(lean::name const & n) { std::cout << n << std::endl; }

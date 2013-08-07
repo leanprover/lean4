@@ -472,3 +472,4 @@ template<typename F> expr update_eq(expr const & e, F f) {
 // =======================================
 }
 void pp(lean::expr const & a);
+void print(lean::expr const & a);

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include "type_check.h"
+#include "environment.h"
 #include "abstract.h"
 #include "exception.h"
 #include "builtin.h"

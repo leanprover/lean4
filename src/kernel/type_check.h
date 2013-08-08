@@ -6,10 +6,10 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "expr.h"
-#include "environment.h"
 #include "context.h"
 
 namespace lean {
+class environment;
 expr infer_type(expr const & e, environment const & env, context const & ctx = context());
 level infer_universe(expr const & t, environment const & env, context const & ctx = context());
 bool is_convertible(expr const & t1, expr const & t2, environment const & env, context const & ctx = context());

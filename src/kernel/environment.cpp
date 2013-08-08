@@ -383,6 +383,14 @@ environment::object const * environment::get_object_ptr(name const & n) const {
     return m_imp->get_object_ptr(n);
 }
 
+unsigned environment::get_num_objects() const {
+    return m_imp->m_objects.size();
+}
+
+environment::object const & environment::get_object(unsigned i) const {
+    return *(m_imp->m_objects[i]);
+}
+
 void environment::display_objects(std::ostream & out) const {
     m_imp->display_objects(out, *this);
 }

@@ -16,11 +16,16 @@ namespace lean {
    datatypes, universe variables, et.c
 */
 class environment {
+public:
+    class object;
+private:
     struct imp;
     std::shared_ptr<imp> m_imp;
     void check_type(name const & n, expr const & t, expr const & v);
     explicit environment(std::shared_ptr<imp> const & ptr);
     explicit environment(imp * new_ptr);
+    unsigned get_num_objects() const;
+    object const & get_object(unsigned i) const;
 public:
     environment();
     ~environment();
@@ -78,7 +83,6 @@ public:
     */
     class object {
     protected:
-        virtual char const * header() const = 0;
     public:
         object() {}
         object(object const & o) = delete;
@@ -89,6 +93,7 @@ public:
         virtual void display(std::ostream & out) const = 0;
         virtual format pp(environment const &) const = 0;
         virtual expr const & get_type() const = 0;
+        virtual char const * header() const = 0;
     };
 
     class definition : public object {
@@ -96,7 +101,6 @@ public:
         expr m_type;
         expr m_value;
         bool m_opaque;
-        virtual char const * header() const { return "Definition"; }
     public:
         definition(name const & n, expr const & t, expr const & v, bool opaque);
         virtual ~definition();
@@ -107,13 +111,14 @@ public:
         bool         is_opaque() const { return m_opaque; }
         virtual void display(std::ostream & out) const;
         virtual format pp(environment const & env) const;
+        virtual char const * header() const { return "Definition"; }
     };
 
     class theorem : public definition {
-        virtual char const * header() const { return "Theorem"; }
     public:
         theorem(name const & n, expr const & t, expr const & v):definition(n, t, v, true) {}
         virtual object_kind kind() const { return object_kind::Theorem; }
+        virtual char const * header() const { return "Theorem"; }
     };
 
     class fact : public object {
@@ -130,17 +135,17 @@ public:
     };
 
     class axiom : public fact {
-        virtual char const * header() const { return "Axiom"; }
     public:
         axiom(name const & n, expr const & t):fact(n, t) {}
         virtual object_kind kind() const { return object_kind::Axiom; }
+        virtual char const * header() const { return "Axiom"; }
     };
 
     class variable : public fact {
-        virtual char const * header() const { return "Variable"; }
     public:
         variable(name const & n, expr const & t):fact(n, t) {}
         virtual object_kind kind() const { return object_kind::Var; }
+        virtual char const * header() const { return "Variable"; }
     };
 
     friend bool is_definition(object const & o) { return o.kind() == object_kind::Definition; }
@@ -190,6 +195,27 @@ public:
        Return nullptr if there is no object with the given name.
     */
     object const * get_object_ptr(name const & n) const;
+
+    /** \brief Iterator for Lean environment objects. */
+    class object_iterator {
+        environment const & m_env;
+        unsigned            m_idx;
+        friend class environment;
+        object_iterator(environment const & env, unsigned idx):m_env(env), m_idx(idx) {}
+    public:
+        object_iterator(object_iterator const & s):m_env(s.m_env), m_idx(s.m_idx) {}
+        object_iterator & operator++() { ++m_idx; return *this; }
+        object_iterator operator++(int) { object_iterator tmp(*this); operator++(); return tmp; }
+        bool operator==(object_iterator const & s) const { lean_assert(&m_env == &(s.m_env)); return m_idx == s.m_idx; }
+        bool operator!=(object_iterator const & s) const { return !operator==(s); }
+        object const & operator*() { return m_env.get_object(m_idx); }
+    };
+
+    /** \brief Return an iterator to the beginning of the sequence of objects stored in this environment */
+    object_iterator begin_objects() const { return object_iterator(*this, 0); }
+
+    /** \brief Return an iterator to the end of the sequence of objects stored in this environment */
+    object_iterator end_objects() const { return object_iterator(*this, get_num_objects()); }
 
     /** \brief Display all objects stored in the environment */
     void display_objects(std::ostream & out) const;

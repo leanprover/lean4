@@ -8,14 +8,13 @@ Author: Leonardo de Moura
 #include "builtin.h"
 
 namespace lean {
+expr mk_trivial();
+/** \brief (Theorem) Trivial : True */
+#define Trivial mk_trivial()
 
 expr mk_true_ne_false();
 /** \brief (Theorem) TrueNeFalse : Not(True = False) */
 #define TrueNeFalse mk_true_ne_false();
-
-expr mk_truth();
-/** \brief (Theorem) Truth : True */
-#define Truth mk_truth()
 
 expr mk_em_fn();
 /** \brief (Theorem) a : Bool |- EM(a) : Or(a, Not(a)) */

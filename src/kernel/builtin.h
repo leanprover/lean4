@@ -106,7 +106,6 @@ inline expr Discharge(expr const & a, expr const & b, expr const & H) { return m
 expr mk_refl_fn();
 /** \brief (Axiom) A : Type u, a : A |- Refl(A, a) : a = a */
 inline expr Refl(expr const & A, expr const & a) { return mk_app(mk_refl_fn(), A, a); }
-#define Trivial Refl(Bool, True)
 
 /** \brief Case analysis axiom */
 expr mk_case_fn();

@@ -11,8 +11,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 
+MK_CONSTANT(trivial,            name("Trivial"));
 MK_CONSTANT(true_neq_false,     name("TrueNeFalse"));
-MK_CONSTANT(truth,              name("Truth"));
 MK_CONSTANT(false_elim_fn,      name("FalseElim"));
 MK_CONSTANT(absurd_fn,          name("Absurd"));
 MK_CONSTANT(em_fn,              name("EM"));
@@ -73,11 +73,11 @@ void add_basic_thms(environment & env) {
     expr piABx     = Pi({x, A}, B(x));
     expr A_arrow_u = A >> TypeU;
 
+    // Trivial : True
+    env.add_theorem(trivial_name, True, Refl(Bool, True));
+
     // True_neq_False : Not(True = False)
     env.add_theorem(true_neq_false_name, Not(Eq(True, False)), Trivial);
-
-    // Truth : True
-    env.add_theorem(truth_name, True, Trivial);
 
     // EM : Pi (a : Bool), Or(a, Not(a))
     env.add_theorem(em_fn_name, Pi({a, Bool}, Or(a, Not(a))),
@@ -85,7 +85,7 @@ void add_basic_thms(environment & env) {
 
     // FalseElim : Pi (a : Bool) (H : False), a
     env.add_theorem(false_elim_fn_name, Pi({{a, Bool}, {H, False}}, a),
-                    Fun({{a, Bool}, {H, False}}, Case(Fun({x, Bool}, x), Truth, H, a)));
+                    Fun({{a, Bool}, {H, False}}, Case(Fun({x, Bool}, x), Trivial, H, a)));
 
     // Absurd : Pi (a : Bool) (H1 : a) (H2 : Not a), False
     env.add_theorem(absurd_fn_name, Pi({{a, Bool}, {H1, a}, {H2, Not(a)}}, False),
@@ -215,13 +215,13 @@ void add_basic_thms(environment & env) {
     // EqTElim : Pi (a : Bool) (H : a = True), a
     env.add_theorem(eqt_elim_fn_name, Pi({{a, Bool}, {H, Eq(a, True)}}, a),
                     Fun({{a, Bool}, {H, Eq(a, True)}},
-                        EqMP(True, a, Symm(Bool, a, True, H), Truth)));
+                        EqMP(True, a, Symm(Bool, a, True, H), Trivial)));
 
     // EqTIntro : Pi (a : Bool) (H : a), a = True
     env.add_theorem(eqt_intro_fn_name, Pi({{a, Bool}, {H, a}}, Eq(a, True)),
                     Fun({{a, Bool}, {H, a}},
                         ImpAntisym(a, True,
-                                   Discharge(a, True, Fun({H1, a}, Truth)),
+                                   Discharge(a, True, Fun({H1, a}, Trivial)),
                                    Discharge(True, a, Fun({H2, True}, H)))));
 
 

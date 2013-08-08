@@ -10,6 +10,7 @@ Author: Soonho Kong
 #include <algorithm>
 #include <iostream>
 #include <sstream>
+#include "mpz.h"
 
 namespace lean {
 /**
@@ -143,6 +144,7 @@ public:
     explicit format(std::string const & v):m_value(sexpr_text(sexpr(v))) {}
     explicit format(int v):m_value(sexpr_text(sexpr(v))) {}
     explicit format(double v):m_value(sexpr_text(sexpr(v))) {}
+    explicit format(unsigned v):m_value(sexpr_text(sexpr(mpz(v)))) {}
     explicit format(name const & v):m_value(sexpr_text(sexpr(v))) {}
     explicit format(mpz const & v):m_value(sexpr_text(sexpr(v))) {}
     explicit format(mpq const & v):m_value(sexpr_text(sexpr(v))) {}

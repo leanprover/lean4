@@ -14,6 +14,8 @@ Author: Leonardo de Moura
 #include "abstract.h"
 #include "instantiate.h"
 #include "deep_copy.h"
+#include "arith.h"
+#include "pp.h"
 using namespace lean;
 
 void tst1() {
@@ -45,11 +47,11 @@ void tst1_pp() {
     f = Var(0);
     expr fa = f(a);
     expr ty = Type();
-    pp(fa(a)); std::cout << "\n";
-    pp(fa(fa, fa)); std::cout << "\n";
-    pp(mk_lambda("x", ty, Var(0))); std::cout << "\n";
-    pp(mk_pi("x", ty, Var(0))); std::cout << "\n";
-    pp(mk_pi("x", ty, mk_lambda("y", ty, Var(0)))); std::cout << "\n";
+    std::cout << pp(fa(a)) << "\n";
+    std::cout << pp(fa(fa, fa)) << "\n";
+    std::cout << pp(mk_lambda("x", ty, Var(0))) << "\n";
+    std::cout << pp(mk_pi("x", ty, Var(0))) << "\n";
+    std::cout << pp(mk_pi("x", ty, mk_lambda("y", ty, Var(0)))) << "\n";
     std::cerr << "=============== PP =====================\n";
 }
 
@@ -212,11 +214,9 @@ void tst5() {
         std::cout << "count(r1): " << count(r1) << "\n";
         std::cout << "count(r2): " << count(r2) << "\n";
         std::cout << "r1 = " << std::endl;
-        pp(r1);
-        std::cout << std::endl;
+        std::cout << pp(r1) << std::endl;
         std::cout << "r2 = " << std::endl;
-        pp(r2);
-        std::cout << std::endl;
+        std::cout << pp(r2) << std::endl;
         lean_assert(r1 == r2);
     }
     {
@@ -279,8 +279,8 @@ void tst8() {
     lean_assert(!closed(r));
     lean_assert(closed(mk_lambda("z", p, r)));
 
-    pp(mk_lambda("y", p, mk_app({mk_lambda("x", p, y), Var(0)}))); std::cout << std::endl;
-    pp(mk_pi("x", p, f(f(f(a))))); std::cout << std::endl;
+    std::cout << pp(mk_lambda("y", p, mk_app({mk_lambda("x", p, y), Var(0)}))) << std::endl;
+    std::cout << pp(mk_pi("x", p, f(f(f(a))))) << std::endl;
 
 }
 
@@ -371,6 +371,12 @@ void tst15() {
     lean_assert(closed(l));
 }
 
+void tst16() {
+    std::cout << pp(Type() >> ((Int >> Int) >> (Int >> Bool))) << "\n";
+    expr x = Const("x"); expr y = Const("y"); expr f = Const("f");
+    std::cout << pp(Fun({{x, Int}, {y, Int}, {x, Bool}, {f, Pi({x,Bool}, x)}}, f(x, f(Eq(y,Var(3)), iVal(10))))) << "\n";
+}
+
 int main() {
     continue_on_violation(true);
     std::cout << "sizeof(expr):      " << sizeof(expr) << "\n";
@@ -392,6 +398,7 @@ int main() {
     tst13();
     tst14();
     tst15();
+    tst16();
     std::cout << "done" << "\n";
     return has_violations() ? 1 : 0;
 }

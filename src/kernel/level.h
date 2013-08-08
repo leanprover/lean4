@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 #include "name.h"
+#include "format.h"
 
 namespace lean {
 class environment;
@@ -33,6 +34,8 @@ public:
     ~level();
 
     unsigned hash() const;
+
+    bool is_bottom() const;
 
     friend level_kind    kind       (level const & l);
     friend name const &  uvar_name  (level const & l);
@@ -61,4 +64,6 @@ inline bool is_max (level const & l) { return kind(l) == level_kind::Max;  }
 
 inline level const * max_begin_levels(level const & l) { return &max_level(l, 0); }
 inline level const * max_end_levels(level const & l)   { return max_begin_levels(l) + max_size(l); }
+
+format pp(level const & l, char const * sep = default_name_separator);
 }

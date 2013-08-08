@@ -77,6 +77,8 @@ public:
         It is just a place holder at this point.
     */
     class object {
+    protected:
+        virtual char const * header() const = 0;
     public:
         object() {}
         object(object const & o) = delete;
@@ -85,6 +87,7 @@ public:
         virtual ~object() {}
         virtual object_kind kind() const = 0;
         virtual void display(std::ostream & out) const = 0;
+        virtual format pp(environment const &) const = 0;
         virtual expr const & get_type() const = 0;
     };
 
@@ -93,7 +96,7 @@ public:
         expr m_type;
         expr m_value;
         bool m_opaque;
-        virtual void display_header(std::ostream & out) const;
+        virtual char const * header() const { return "Definition"; }
     public:
         definition(name const & n, expr const & t, expr const & v, bool opaque);
         virtual ~definition();
@@ -103,10 +106,11 @@ public:
         expr const & get_value() const { return m_value; }
         bool         is_opaque() const { return m_opaque; }
         virtual void display(std::ostream & out) const;
+        virtual format pp(environment const & env) const;
     };
 
     class theorem : public definition {
-        virtual void display_header(std::ostream & out) const { out << "Theorem"; }
+        virtual char const * header() const { return "Theorem"; }
     public:
         theorem(name const & n, expr const & t, expr const & v):definition(n, t, v, true) {}
         virtual object_kind kind() const { return object_kind::Theorem; }
@@ -116,24 +120,24 @@ public:
     protected:
         name m_name;
         expr m_type;
-        virtual void display_header(std::ostream & out) const = 0;
     public:
         fact(name const & n, expr const & t);
         virtual ~fact();
         name const & get_name()  const { return m_name; }
         virtual expr const & get_type()  const { return m_type; }
         virtual void display(std::ostream & out) const;
+        virtual format pp(environment const &) const;
     };
 
     class axiom : public fact {
-        virtual void display_header(std::ostream & out) const { out << "Axiom"; }
+        virtual char const * header() const { return "Axiom"; }
     public:
         axiom(name const & n, expr const & t):fact(n, t) {}
         virtual object_kind kind() const { return object_kind::Axiom; }
     };
 
     class variable : public fact {
-        virtual void display_header(std::ostream & out) const { out << "Var"; }
+        virtual char const * header() const { return "Variable"; }
     public:
         variable(name const & n, expr const & t):fact(n, t) {}
         virtual object_kind kind() const { return object_kind::Var; }

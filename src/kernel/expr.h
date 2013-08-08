@@ -246,6 +246,7 @@ inline bool is_app(expr const & e)         { return e.kind() == expr_kind::App; 
 inline bool is_eq(expr const & e)          { return e.kind() == expr_kind::Eq; }
 inline bool is_lambda(expr const & e)      { return e.kind() == expr_kind::Lambda; }
 inline bool is_pi(expr const & e)          { return e.kind() == expr_kind::Pi; }
+       bool is_arrow(expr const & e);
 inline bool is_type(expr const & e)        { return e.kind() == expr_kind::Type; }
 inline bool is_let(expr const & e)         { return e.kind() == expr_kind::Let; }
 inline bool is_abstraction(expr const & e) { return is_lambda(e) || is_pi(e); }
@@ -471,5 +472,4 @@ template<typename F> expr update_eq(expr const & e, F f) {
 }
 // =======================================
 }
-void pp(lean::expr const & a);
 void print(lean::expr const & a);

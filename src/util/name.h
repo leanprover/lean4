@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-constexpr char const * default_name_separator = "::";
+constexpr char const * default_name_separator = "\u2055";
 enum class name_kind { ANONYMOUS, STRING, NUMERAL };
 
 /**
@@ -47,6 +47,10 @@ public:
     char const * get_string() const;
     bool is_atomic() const;
     name get_prefix() const;
+    /**
+       \brief Convert this hierarchical name into a string using the given separator to "glue" the different limbs.
+    */
+    std::string to_string(char const * sep = default_name_separator) const;
     /**
        \brief Size of the this name (in characters) when using the given separator.
     */

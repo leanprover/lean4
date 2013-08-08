@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <cstring>
 #include <vector>
 #include <algorithm>
+#include <sstream>
 #include "name.h"
 #include "debug.h"
 #include "rc.h"
@@ -247,7 +248,13 @@ size_t name::size(char const * sep) const {
 }
 
 unsigned name::hash() const {
-    return m_ptr->m_hash;
+    return m_ptr ? m_ptr->m_hash : 11;
+}
+
+std::string name::to_string(char const * sep) const {
+    std::ostringstream s;
+    imp::display(s, sep, m_ptr);
+    return s.str();
 }
 
 std::ostream & operator<<(std::ostream & out, name const & n) {

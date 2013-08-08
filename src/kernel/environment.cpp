@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "safe_arith.h"
 #include "type_check.h"
 #include "exception.h"
+#include "pp.h"
 #include "debug.h"
 
 namespace lean {
@@ -28,13 +29,17 @@ environment::definition::definition(name const & n, expr const & t, expr const &
 environment::definition::~definition() {
 }
 
-void environment::definition::display_header(std::ostream & out) const {
-    out << "Definition";
+void environment::definition::display(std::ostream & out) const {
+    out << header() << " " << m_name << " : " << m_type << " := " << m_value << "\n";
 }
 
-void environment::definition::display(std::ostream & out) const {
-    display_header(out);
-    out << " " << m_name << " : " << m_type << " := " << m_value << "\n";
+format pp_object_kind(char const * n) { return highlight(format(n), format::format_color::BLUE); }
+constexpr unsigned indentation = 2; // TODO: must be option
+
+format environment::definition::pp(environment const & env) const {
+    return nest(indentation,
+                  format{pp_object_kind(header()), format(" "), format(m_name), format(" : "), ::lean::pp(m_type, env), format(" :="),
+                          line(), ::lean::pp(m_value), format(".")});
 }
 
 environment::fact::fact(name const & n, expr const & t):
@@ -45,9 +50,13 @@ environment::fact::fact(name const & n, expr const & t):
 environment::fact::~fact() {
 }
 
+format environment::fact::pp(environment const & env) const {
+    return nest(indentation,
+                format{pp_object_kind(header()), format(" "), format(m_name), format(" : "), ::lean::pp(m_type, env), format(".")});
+}
+
 void environment::fact::display(std::ostream & out) const {
-    display_header(out);
-    out << " " << m_name << " : " << m_type << "\n";
+    out << header() << " " << m_name << " : " << m_type << "\n";
 }
 
 /** \brief Implementation of the Lean environment. */
@@ -242,18 +251,18 @@ struct environment::imp {
         }
     }
 
-    void display_objects(std::ostream & out) const {
+    void display_objects(std::ostream & out, environment const & env) const {
         for (object const * obj : m_objects) {
-            obj->display(out);
+            out << obj->pp(env) << "\n";
         }
     }
 
     /** \brief Display universal variable constraints and objects stored in this environment and its parents. */
-    void display(std::ostream & out) const {
+    void display(std::ostream & out, environment const & env) const {
         if (has_parent())
-            m_parent->display(out);
+            m_parent->display(out, env);
         display_uvars(out);
-        display_objects(out);
+        display_objects(out, env);
     }
 
     imp():
@@ -375,10 +384,10 @@ environment::object const * environment::get_object_ptr(name const & n) const {
 }
 
 void environment::display_objects(std::ostream & out) const {
-    m_imp->display_objects(out);
+    m_imp->display_objects(out, *this);
 }
 
 void environment::display(std::ostream & out) const {
-    m_imp->display(out);
+    m_imp->display(out, *this);
 }
 }

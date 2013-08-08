@@ -32,7 +32,7 @@ MK_CONSTANT(disj2_fn,           name("Disj2"));
 MK_CONSTANT(disj_cases_fn,      name("DisjCases"));
 MK_CONSTANT(symm_fn,            name("Symm"));
 MK_CONSTANT(trans_fn,           name("Trans"));
-MK_CONSTANT(xtrans_fn,          name("xTrans"));
+MK_CONSTANT(trans_ext_fn,       name("TransExt"));
 MK_CONSTANT(congr1_fn,          name("Congr1"));
 MK_CONSTANT(congr2_fn,          name("Congr2"));
 MK_CONSTANT(congr_fn,           name("Congr"));
@@ -207,8 +207,8 @@ void add_basic_thms(environment & env) {
                     Fun({{A, TypeU}, {a, A}, {b, A}, {c, A}, {H1, Eq(a,b)}, {H2, Eq(b,c)}},
                         Subst(A, Fun({x, A}, Eq(a, x)), b, c, H1, H2)));
 
-    // xTrans: Pi (A: Type u) (B : Type u) (a : A) (b c : B) (H1 : a = b) (H2 : b = c), a = c
-    env.add_theorem(xtrans_fn_name, Pi({{A, TypeU}, {B, TypeU}, {a, A}, {b, B}, {c, B}, {H1, Eq(a, b)}, {H2, Eq(b, c)}}, Eq(a, c)),
+    // TransExt: Pi (A: Type u) (B : Type u) (a : A) (b c : B) (H1 : a = b) (H2 : b = c), a = c
+    env.add_theorem(trans_ext_fn_name, Pi({{A, TypeU}, {B, TypeU}, {a, A}, {b, B}, {c, B}, {H1, Eq(a, b)}, {H2, Eq(b, c)}}, Eq(a, c)),
                     Fun({{A, TypeU}, {B, TypeU}, {a, A}, {b, B}, {c, B}, {H1, Eq(a, b)}, {H2, Eq(b, c)}},
                         Subst(B, Fun({x, B}, Eq(a, x)), b, c, H1, H2)));
 
@@ -259,8 +259,8 @@ void add_basic_thms(environment & env) {
     // Congr : Pi (A : Type u) (B : A -> Type u) (f g : Pi (x : A) B x) (a b : A) (H1 : f = g) (H2 : a = b), f a = g b
     env.add_theorem(congr_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {a, A}, {b, A}, {H1, Eq(f, g)}, {H2, Eq(a, b)}}, Eq(f(a), g(b))),
                     Fun({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {a, A}, {b, A}, {H1, Eq(f, g)}, {H2, Eq(a, b)}},
-                        xTrans(B(a), B(b), f(a), f(b), g(b),
-                               Congr2(A, B, f, a, b, H2), Congr1(A, B, f, g, b, H1))));
+                        TransExt(B(a), B(b), f(a), f(b), g(b),
+                                 Congr2(A, B, f, a, b, H2), Congr1(A, B, f, g, b, H1))));
 
 
     // ForallElim : Pi (A : Type u) (P : A -> bool) (H : (forall A P)) (a : A), P a

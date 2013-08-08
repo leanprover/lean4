@@ -165,7 +165,7 @@ public:
     }
     virtual bool operator==(value const & other) const { return other.kind() == kind(); }
     virtual void display(std::ostream & out) const { out << "=>"; }
-    virtual format pp() const { return format("=>"); }
+    virtual format pp() const { return format("implies"); }
     virtual unsigned hash() const { return 23; }
 };
 char const * implies_fn_value::g_kind = "implies";

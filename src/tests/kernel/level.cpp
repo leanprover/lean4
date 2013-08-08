@@ -12,10 +12,13 @@ using namespace lean;
 
 static void tst1() {
     environment env;
-    level l1 = env.define_uvar("l1", level());
+    level l1 = env.define_uvar(name(name("l1"), "suffix"), level());
     level l2 = env.define_uvar("l2", l1 + 10);
     level l3 = env.define_uvar("l3", max(l2, l1 + 3));
     level l4 = env.define_uvar("l4", max(l1 + 8, max(l2 + 2, l3 + 20)));
+    std::cout << pp(max(l1 + 8, max(l2 + 2, l3 + 20))) << "\n";
+    std::cout << pp(level()) << "\n";
+    std::cout << pp(level()+1) << "\n";
     env.display_uvars(std::cout);
     lean_assert(env.is_ge(l4 + 10, l3 + 30));
     lean_assert(!env.is_ge(l4 + 9, l3 + 30));

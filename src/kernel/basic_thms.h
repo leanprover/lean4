@@ -93,9 +93,9 @@ expr mk_trans_fn();
 /** \brief (Theorem) A : Type u, a b c : A, H1 : a = b, H2 : b = c |- Trans(A, a, b, c, H1, H2) : a = c */
 inline expr Trans(expr const & A, expr const & a, expr const & b, expr const & c, expr const & H1, expr const & H2) { return mk_app({mk_trans_fn(), A, a, b, c, H1, H2}); }
 
-expr mk_xtrans_fn();
-/** \brief (Theorem) A : Type u, B : Type u, a : A, b c : B, H1 : a = b, H2 : b = c |- xTrans(A, B, a, b, c, H1, H2) : a = c */
-inline expr xTrans(expr const & A, expr const & B, expr const & a, expr const & b, expr const & c, expr const & H1, expr const & H2) { return mk_app({mk_xtrans_fn(), A, B, a, b, c, H1, H2}); }
+expr mk_trans_ext_fn();
+/** \brief (Theorem) A : Type u, B : Type u, a : A, b c : B, H1 : a = b, H2 : b = c |- TransExt(A, B, a, b, c, H1, H2) : a = c */
+inline expr TransExt(expr const & A, expr const & B, expr const & a, expr const & b, expr const & c, expr const & H1, expr const & H2) { return mk_app({mk_trans_ext_fn(), A, B, a, b, c, H1, H2}); }
 
 expr mk_eqt_elim_fn();
 /** \brief (Theorem) a : Bool, H : a = True |- EqTElim(a, H) : a */

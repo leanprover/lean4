@@ -52,7 +52,8 @@ void level_cell::dealloc() {
     case level_kind::Max:     static_cast<level_max*>(this)->~level_max(); delete[] reinterpret_cast<char*>(this); break;
     }
 }
-level::level():                           m_ptr(new level_uvar(name("bot"))) { lean_assert(uvar_name(*this) == name("bot")); }
+static name g_bot_name("bot");
+level::level():                           m_ptr(new level_uvar(g_bot_name)) { lean_assert(uvar_name(*this) == name("bot")); }
 level::level(name const & n):             m_ptr(new level_uvar(n)) {}
 level::level(level const & l, unsigned k):m_ptr(new level_lift(l, k)) { lean_assert(is_uvar(l)); }
 level::level(level_cell * ptr):           m_ptr(ptr) { lean_assert(m_ptr->get_rc() == 1); }
@@ -79,6 +80,10 @@ unsigned level::hash() const {
     case level_kind::Max:  return ::lean::hash(to_max(m_ptr)->m_size, [&](unsigned i) { return to_max(m_ptr)->m_levels[i].hash(); });
     }
     return 0;
+}
+
+bool level::is_bottom() const {
+    return is_uvar(*this) && uvar_name(*this) == g_bot_name;
 }
 
 level max_core(unsigned sz, level const * ls) {
@@ -185,6 +190,30 @@ std::ostream & operator<<(std::ostream & out, level const & l) {
         return out;
     }
     return out;
+}
+
+format pp(level const & l, char const * sep) {
+    switch (kind(l)) {
+    case level_kind::UVar:
+        if (l.is_bottom())
+            return format(0);
+        else
+            return format(uvar_name(l).to_string(sep));
+    case level_kind::Lift:
+        if (lift_of(l).is_bottom())
+            return format(lift_offset(l));
+        else
+            return format{pp(lift_of(l), sep), format(" + "), format(lift_offset(l))};
+    case level_kind::Max: {
+        format r = pp(max_level(l, 0), sep);
+        for (unsigned i = 1; i < max_size(l); i++) {
+            r += format(" \u2293 ");
+            r += pp(max_level(l, i), sep);
+        }
+        return r;
+    }}
+    lean_unreachable();
+    return format();
 }
 
 level max(std::initializer_list<level> const & l) {

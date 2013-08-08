@@ -127,16 +127,16 @@ public:
             return false;
         }
     }
-    virtual void display(std::ostream & out) const { out << "<="; }
-    virtual format pp() const { return format("<="); }
+    virtual void display(std::ostream & out) const { out << "Le"; }
+    virtual format pp() const { return format("Le"); }
     virtual unsigned hash() const { return 67; }
 };
 char const * int_le_value::g_kind = "<=";
 MK_BUILTIN(int_le_fn, int_le_value);
 
-MK_CONSTANT(int_ge_fn, name(name("int"), "ge"));
-MK_CONSTANT(int_lt_fn, name(name("int"), "lt"));
-MK_CONSTANT(int_gt_fn, name(name("int"), "gt"));
+MK_CONSTANT(int_ge_fn, name(name("int"), "Ge"));
+MK_CONSTANT(int_lt_fn, name(name("int"), "Lt"));
+MK_CONSTANT(int_gt_fn, name(name("int"), "Gt"));
 
 void add_int_theory(environment & env) {
     expr p    = Int >> (Int >> Bool);

@@ -109,8 +109,8 @@ private:
     }
 
     // Functions used inside of pretty printing
-    static bool  fits(int w, sexpr const & s);
-    static sexpr better(unsigned w, unsigned k, sexpr const & s1, sexpr const & s2);
+    static unsigned space_upto_line_break(sexpr const & s, sexpr const & r, bool & found);
+    static unsigned space_upto_line_break_list(sexpr const & r, bool & found);
     static sexpr be(unsigned w, unsigned k, sexpr const & s, sexpr const & r);
     static sexpr best(unsigned w, unsigned k, sexpr const & s);
 

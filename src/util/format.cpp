@@ -126,41 +126,70 @@ format wrap(format const & f1, format const & f2) {
                   choice(format(" "), line()),
                   f2};
 }
-bool format::fits(int w, sexpr const & s) {
-    lean_assert(is_list(s));
-    if (is_nil(s))
-        return true;
-    if (w < 0) {
-        return false;
+
+unsigned format::space_upto_line_break_list(sexpr const & r, bool & found) {
+    // r : list of (int * format)
+    lean_assert(!found);
+    if (is_nil(r)) {
+        found = true;
+        return 0;
+    }
+    return format::space_upto_line_break(cdr(car(r)), cdr(r), found);
+}
+
+unsigned format::space_upto_line_break(sexpr const & s, sexpr const & r, bool & found) {
+    // s : format
+    // r : list of (int * format)
+    lean_assert(!found);
+    if(is_nil(s)) {
+        found = true;
+        return 0;
     }
 
-    sexpr const & x = car(s);
-    switch (sexpr_kind(x)) {
+    switch (sexpr_kind(s)) {
     case format_kind::NIL:
     case format_kind::COLOR_BEGIN:
     case format_kind::COLOR_END:
-        return fits(w, cdr(s));
-    case format_kind::TEXT:
-    {
-        size_t l = sexpr_text_length(x);
-        if(w - static_cast<int>(l) < 0) {
-            return false;
-        }
-        else {
-            return fits(w - static_cast<int>(l), cdr(s));
-        }
-    }
-    case format_kind::LINE:
-        return true;
-
+        return 0 + space_upto_line_break_list(r, found);
     case format_kind::COMPOSE:
-    case format_kind::NEST:
-    case format_kind::CHOICE:
-        lean_unreachable();
-        break;
+    {
+        sexpr list  = sexpr_compose_list(s);
+        unsigned len = 0;
+        while(!is_nil(list) && !found) {
+            sexpr const & h = car(list);
+            list = cdr(list);
+            len += space_upto_line_break(h, nil(), found);
+        }
+        if (found) {
+            return len;
+        } else {
+            return len + space_upto_line_break_list(r, found);
+        }
     }
+    case format_kind::NEST:
+    {
+        sexpr const & x = sexpr_nest_s(s);
+        unsigned len = space_upto_line_break(x, nil(), found);
+        if (found) {
+            return len;
+        } else {
+            return len + space_upto_line_break_list(r, found);
+        }
+    }
+    case format_kind::TEXT:
+        return sexpr_text_length(s) + space_upto_line_break_list(r, found);
+    case format_kind::LINE:
+        found = true;
+        return 0;
+    case format_kind::CHOICE:
+    {
+        sexpr const & x = sexpr_choice_1(s);
+        return space_upto_line_break(x, r, found);
+    }
+    }
+    std::cerr << "!!!!!!!!!!!!!!!" << s << std::endl;
     lean_unreachable();
-    return false;
+    return 0;
 }
 
 sexpr format::be(unsigned w, unsigned k, sexpr const & s, sexpr const & r) {
@@ -210,11 +239,11 @@ sexpr format::be(unsigned w, unsigned k, sexpr const & s, sexpr const & r) {
     {
         sexpr const & x = sexpr_choice_1(v);
         sexpr const & y = sexpr_choice_2(v);;
-        int d = static_cast<int>(w) - static_cast<int>(k);
+        bool found = false;
+        int d = static_cast<int>(w) - static_cast<int>(k) - space_upto_line_break(x, r, found);
         if(d >= 0) {
             sexpr const & s1 = be(w, k, sexpr(sexpr(i, x), z), r);
-            if (fits(d, s1))
-                return s1;
+            return s1;
         }
         sexpr const & s2 = be(w, k, sexpr(sexpr(i, y), z), r);
         return s2;

@@ -756,5 +756,146 @@ void interval<T>::display(std::ostream & out) const {
     out << (m_upper_open ? ")" : "]");
 }
 
+template<typename T> void interval<T>::exp  () {
+    if(is_empty())
+        return;
+    if(m_lower_inf) {
+        numeric_traits<T>::reset(m_lower);
+    } else {
+        numeric_traits<T>::set_rounding(false);
+        numeric_traits<T>::exp(m_lower);
+    }
+    if(m_upper_inf) {
+        // Nothing to do
+    } else {
+        numeric_traits<T>::set_rounding(true);
+        numeric_traits<T>::exp(m_upper);
+    }
+    lean_assert(check_invariant());
+    return;
+}
+template<typename T> void interval<T>::exp2 () {
+    if(is_empty())
+        return;
+    if(m_lower_inf) {
+        numeric_traits<T>::reset(m_lower);
+    } else {
+        numeric_traits<T>::set_rounding(false);
+        numeric_traits<T>::exp2(m_lower);
+    }
+    if(m_upper_inf) {
+        // Nothing to do
+    } else {
+        numeric_traits<T>::set_rounding(true);
+        numeric_traits<T>::exp2(m_upper);
+    }
+    lean_assert(check_invariant());
+    return;
+}
+template<typename T> void interval<T>::exp10() {
+    if(is_empty())
+        return;
+    if(m_lower_inf) {
+        numeric_traits<T>::reset(m_lower);
+    } else {
+        numeric_traits<T>::set_rounding(false);
+        numeric_traits<T>::exp10(m_lower);
+    }
+    if(m_upper_inf) {
+        // Nothing to do
+    } else {
+        numeric_traits<T>::set_rounding(true);
+        numeric_traits<T>::exp10(m_upper);
+    }
+    lean_assert(check_invariant());
+    return;
+}
+template<typename T> void interval<T>::log  () {
+    if(is_empty())
+        return;
+    if(is_N0()) {
+        set_empty();
+        return;
+    }
+    if(is_lower_pos()) {
+        numeric_traits<T>::set_rounding(false);
+        numeric_traits<T>::log(m_lower);
+    } else {
+        numeric_traits<T>::reset(m_lower);
+        m_lower_inf = true;
+    }
+    if(m_upper_inf) {
+        // Nothing to do
+    } else {
+        numeric_traits<T>::set_rounding(true);
+        numeric_traits<T>::log(m_upper);
+    }
+    lean_assert(check_invariant());
+    return;
+}
+template<typename T> void interval<T>::log2 () {
+    if(is_empty())
+        return;
+    if(is_N0()) {
+        set_empty();
+        return;
+    }
+    if(is_lower_pos()) {
+        numeric_traits<T>::set_rounding(false);
+        numeric_traits<T>::log2(m_lower);
+    } else {
+        numeric_traits<T>::reset(m_lower);
+        m_lower_inf = true;
+    }
+    if(m_upper_inf) {
+        // Nothing to do
+    } else {
+        numeric_traits<T>::set_rounding(true);
+        numeric_traits<T>::log2(m_upper);
+    }
+    lean_assert(check_invariant());
+    return;
+}
+template<typename T> void interval<T>::log10() {
+    if(is_empty())
+        return;
+    if(is_N0()) {
+        set_empty();
+        return;
+    }
+    if(is_lower_pos()) {
+        numeric_traits<T>::set_rounding(false);
+        numeric_traits<T>::log10(m_lower);
+    } else {
+        numeric_traits<T>::reset(m_lower);
+        m_lower_inf = true;
+    }
+    if(m_upper_inf) {
+        // Nothing to do
+    } else {
+        numeric_traits<T>::set_rounding(true);
+        numeric_traits<T>::log10(m_upper);
+    }
+    lean_assert(check_invariant());
+    return;
+}
+template<typename T> void interval<T>::sin  () {
+    *this -= numeric_traits<T>::pi_half_lower();
+    cos();
+}
+template<typename T> void interval<T>::cos  () { /* TODO */ lean_unreachable(); return; }
+template<typename T> void interval<T>::tan  () { /* TODO */ lean_unreachable(); return; }
+template<typename T> void interval<T>::sec  () { /* TODO */ lean_unreachable(); return; }
+template<typename T> void interval<T>::csc  () { /* TODO */ lean_unreachable(); return; }
+template<typename T> void interval<T>::cot  () { /* TODO */ lean_unreachable(); return; }
+template<typename T> void interval<T>::asin () { /* TODO */ lean_unreachable(); return; }
+template<typename T> void interval<T>::acos () { /* TODO */ lean_unreachable(); return; }
+template<typename T> void interval<T>::atan () { /* TODO */ lean_unreachable(); return; }
+template<typename T> void interval<T>::sinh () { /* TODO */ lean_unreachable(); return; }
+template<typename T> void interval<T>::cosh () { /* TODO */ lean_unreachable(); return; }
+template<typename T> void interval<T>::tanh () { /* TODO */ lean_unreachable(); return; }
+template<typename T> void interval<T>::asinh() { /* TODO */ lean_unreachable(); return; }
+template<typename T> void interval<T>::acosh() { /* TODO */ lean_unreachable(); return; }
+template<typename T> void interval<T>::atanh() { /* TODO */ lean_unreachable(); return; }
 
 }

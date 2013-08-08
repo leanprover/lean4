@@ -9,10 +9,12 @@ Author: Leonardo de Moura
 #include "test.h"
 #include "trace.h"
 #include "mpq.h"
+#include "mpfp.h"
 using namespace lean;
 
 typedef interval<mpq> qi;
 typedef interval<double> di;
+typedef interval<mpfp> fi;
 typedef std::vector<qi> qiv;
 
 qiv mk_some_intervals(int low, int hi) {
@@ -91,8 +93,6 @@ static void tst3() {
     std::cout << "power(" << i1 << ", 3) = " << power(i1, 3) << std::endl;
     std::cout << "exp(" << i1 << ") = "      << exp(i1) << std::endl;
     std::cout << "log(" << i1 << ") = "      << log(i1) << std::endl;
-    std::cout << "sin(" << i1 << ") = "      << sin(i1) << std::endl;
-    std::cout << "cos(" << i1 << ") = "      << cos(i1) << std::endl;
 }
 
 int main() {

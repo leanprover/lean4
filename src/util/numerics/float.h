@@ -17,15 +17,16 @@ namespace lean {
 void float_power(float & v, unsigned k);
 
 // Macro to implement transcendental functions using MPFR
-#define LEAN_TRANS_FLOAT_FUNC(f, v, rnd)            \
-    static thread_local mpfp t(v, 24);              \
-    t.f(rnd);                                       \
+#define LEAN_TRANS_FLOAT_FUNC(f, v, rnd)        \
+    static thread_local mpfp t(v, 24);          \
+    t = v;                                      \
+    t.f(rnd);                                   \
     v = t.get_float(rnd);
 
 template<>
 class numeric_traits<float> {
 public:
-    static mpfr_rnd_t rnd;
+    static thread_local mpfr_rnd_t rnd;
     static bool precise() { return false; }
     static bool is_zero(float v) { return v == 0.0; }
     static bool is_pos(float v) { return v > 0.0; }
@@ -36,6 +37,20 @@ public:
     static void reset(float & v) { v = 0.0; }
     // v <- v^k
     static void power(float & v, unsigned k) { float_power(v, k); }
+
+    // constants
+    static const  float constexpr pi_l = 13176794.0f/(1<<22);
+    static const  float constexpr pi_n = 13176795.0f/(1<<22);
+    static const  float constexpr pi_u = 13176795.0f/(1<<22);
+    static inline float pi_lower()       { return pi_l;     }
+    static inline float pi()             { return pi_n;     }
+    static inline float pi_upper()       { return pi_u;     }
+    static inline float pi_half_lower()  { return pi_l / 2; }
+    static inline float pi_half()        { return pi_n / 2; }
+    static inline float pi_half_upper()  { return pi_u / 2; }
+    static inline float pi_twice_lower() { return pi_l * 2; }
+    static inline float pi_twice()       { return pi_n * 2; }
+    static inline float pi_twice_upper() { return pi_u * 2; }
 
     // Transcendental functions using MPFR
     static void exp(float & v)   { LEAN_TRANS_FLOAT_FUNC(exp,   v, rnd); }

@@ -9,6 +9,10 @@ Author: Leonardo de Moura
 
 namespace lean {
 
+const mpq numeric_traits<mpq>::pi_l((3373259426.0 + 273688.0 / (1<<21)) / (1<<30));
+const mpq numeric_traits<mpq>::pi_n((3373259426.0 + 273688.0 / (1<<21)) / (1<<30));
+const mpq numeric_traits<mpq>::pi_u((3373259426.0 + 273688.0 / (1<<21)) / (1<<30));
+
 mpq & mpq::operator=(mpbq const & b) {
     *this = 2;
     power(*this, *this, b.get_k());

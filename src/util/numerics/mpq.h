@@ -224,6 +224,20 @@ public:
     // v <- v^k
     static void power(mpq & v, unsigned k) { _power(v, v, k); }
 
+    // constants
+    static const  mpq pi_l;
+    static const  mpq pi_n;
+    static const  mpq pi_u;
+    static inline mpq pi_lower()       { return pi_l;     }
+    static inline mpq pi()             { return pi_n;     }
+    static inline mpq pi_upper()       { return pi_u;     }
+    static inline mpq pi_half_lower()  { return pi_l / 2; }
+    static inline mpq pi_half()        { return pi_n / 2; }
+    static inline mpq pi_half_upper()  { return pi_u / 2; }
+    static inline mpq pi_twice_lower() { return pi_l * 2; }
+    static inline mpq pi_twice()       { return pi_n * 2; }
+    static inline mpq pi_twice_upper() { return pi_u * 2; }
+
     // Transcendental functions
     static void exp(mpq & v)   { lean_unreachable(); /* TODO */ }
     static void exp2(mpq & v)  { lean_unreachable(); /* TODO */ }

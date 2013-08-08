@@ -10,7 +10,7 @@ Author: Soonho Kong
 
 namespace lean {
 
-mpfr_rnd_t numeric_traits<double>::rnd = MPFR_RNDN;
+thread_local mpfr_rnd_t numeric_traits<double>::rnd = MPFR_RNDN;
 
 void double_power(double & v, unsigned k) {
     v = std::pow(v, k);

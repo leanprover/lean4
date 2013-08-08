@@ -22,8 +22,9 @@ struct pp_fn {
     format pp_type_kwd() { return highlight(format("Type"), format::format_color::PINK); }
     format pp_eq_kwd() { return highlight(format(" = "), format::format_color::BLUE); }
     format pp_lambda_kwd() { return pp_keyword("\u03BB "); }
-    format pp_lambda_arrow() { return format(" \u21D2"); }
+    format pp_lambda_sep() { return format(","); }
     format pp_pi_kwd() { return pp_keyword("\u03A0 "); }
+    format pp_pi_sep() { return format(","); }
     format pp_type_arrow() { return format(" \u2192 "); }
     format pp_colon() { return format(" : "); }
     format pp_space() { return format(" "); }
@@ -150,7 +151,7 @@ struct pp_fn {
             expr b = collect_nested(e, e.kind(), nested);
             lean_assert(b.kind() != e.kind());
             format head     = is_lambda(e) ? pp_lambda_kwd() : pp_pi_kwd();
-            format body_sep = is_lambda(e) ? pp_lambda_arrow() : format(",");
+            format body_sep = is_lambda(e) ? pp_lambda_sep() : pp_pi_sep();
 
             if (std::all_of(nested.begin(), nested.end(), [&](expr const & a) { return abst_domain(a) == abst_domain(e); })) {
                 // Domain of all binders is the same

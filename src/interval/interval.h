@@ -107,6 +107,9 @@ public:
     */
     bool contains(interval<T> & b) const;
 
+    bool is_empty() const;
+    void set_empty();
+
     /**
        \brief Return true is the interval contains only one value.
     */

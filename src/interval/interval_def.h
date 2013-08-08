@@ -119,6 +119,19 @@ bool interval<T>::contains(interval<T> & b) const {
 }
 
 template<typename T>
+bool interval<T>::is_empty() const {
+    return m_lower == m_upper && m_lower_open && m_upper_open && !m_lower_inf && !m_upper_inf;
+}
+
+template<typename T>
+void interval<T>::set_empty() {
+    numeric_traits<T>::reset(m_lower);
+    numeric_traits<T>::reset(m_upper);
+    m_lower_open = m_upper_open = true;
+    m_lower_inf  = m_upper_inf  = true;
+}
+
+template<typename T>
 bool interval<T>::is_singleton() const {
     return !m_lower_inf && !m_upper_inf && !m_lower_open && !m_upper_open && m_lower == m_upper;
 }

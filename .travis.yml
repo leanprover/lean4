@@ -42,16 +42,16 @@ after_success:
   - if [[ $BUILD_DOXYGEN == TRUE ]]; then ./script/update_doxygen.sh; fi
 
 install:
-  - until sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test; do echo "retry: add-apt-repository"; done
-  - until sudo add-apt-repository --yes ppa:h-rayflood/llvm; do echo "retry: add-apt-repository"; done
-  - until sudo apt-get -qq update; do echo "retry apt-get update"; done
-  - if [[ $USE_TCMALLOC == TRUE ]]; then until sudo add-apt-repository --yes ppa:agent-8131/ppa && sudo apt-get -qq update && sudo apt-get -qq install libgoogle-perftools-dev; do echo "retry: install tcmalloc"; done; fi
-  - until sudo apt-get -qq install libgmp-dev libmpfr-dev; do echo "retry: install libgmp"; done
-  - until sudo apt-get -qq install cmake; do echo "retry: install cmake"; done
-  - until sudo apt-get -qq install flex bison++; do echo "retry: install flex & bison"; done
-  - until sudo apt-get -qq install libstdc++-4.8-dev; do echo "retry: install libstdc++-4.8"; done
-  - if [[ $CMAKE_CXX_COMPILER == g++-4.8 ]]; then until sudo apt-get -qq install g++-4.8; do echo "retry: install g++-4.8"; done fi
-  - if [[ $CMAKE_CXX_COMPILER == clang++-3.3 ]]; then until sudo apt-get -qq install clang-3.3; do echo "retry: install clang-3.3"; done fi
+  - until sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test; do echo retry; done
+  - until sudo add-apt-repository --yes ppa:h-rayflood/llvm; do echo retry; done
+  - until sudo apt-get -qq update; do echo retry; done
+  - if [[ $USE_TCMALLOC == TRUE ]]; then until sudo add-apt-repository --yes ppa:agent-8131/ppa && sudo apt-get -qq update && sudo apt-get -qq install libgoogle-perftools-dev; do echo retry; done; fi
+  - until sudo apt-get -qq install libgmp-dev libmpfr-dev; do echo retry; done
+  - until sudo apt-get -qq install cmake; do echo retry; done
+  - until sudo apt-get -qq install flex bison++; do echo retry; done
+  - until sudo apt-get -qq install libstdc++-4.8-dev; do echo retry; done
+  - if [[ $CMAKE_CXX_COMPILER == g++-4.8 ]]; then until sudo apt-get -qq install g++-4.8; do echo retry; done fi
+  - if [[ $CMAKE_CXX_COMPILER == clang++-3.3 ]]; then until sudo apt-get -qq install clang-3.3; do echo retry; done fi
 
 notifications:
   email:

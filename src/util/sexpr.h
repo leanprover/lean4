@@ -136,6 +136,7 @@ inline bool operator==(sexpr const & a, bool b) { return is_int(a) && to_bool(a)
 inline bool operator==(sexpr const & a, int b) { return is_int(a) && to_int(a) == b; }
 inline bool operator==(sexpr const & a, double b) { return is_double(a) && to_double(a) == b; }
 inline bool operator==(sexpr const & a, std::string const & b) { return is_string(a) && to_string(a) == b; }
+inline bool operator==(sexpr const & a, char const * b) { return is_string(a) && to_string(a) == b; }
 bool operator==(sexpr const & a, name const & b);
 bool operator==(sexpr const & a, mpz const & b);
 bool operator==(sexpr const & a, mpq const & b);

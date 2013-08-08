@@ -82,7 +82,12 @@ private:
     static inline size_t const sexpr_text_length(sexpr const & s) {
         lean_assert(sexpr_kind(s) == format_kind::TEXT);
         std::stringstream ss;
-        ss << cdr(s);
+        sexpr const & content = cdr(s);
+        if(is_string(content)) {
+            ss << to_string(content);
+        } else {
+            ss << content;
+        }
         return ss.str().length();
     }
     static inline sexpr sexpr_text(std::string const & s) {

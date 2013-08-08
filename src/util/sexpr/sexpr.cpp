@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "name.h"
 #include "mpz.h"
 #include "mpq.h"
+#include "escaped.h"
 
 namespace lean {
 /** \brief Base class used to represent S-expression cells. */
@@ -213,7 +214,7 @@ int cmp(sexpr const & a, sexpr const & b) {
 std::ostream & operator<<(std::ostream & out, sexpr const & s) {
     switch (s.kind()) {
     case sexpr_kind::NIL:         out << "nil"; break;
-    case sexpr_kind::STRING:      out << "\"" << to_string(s) << "\""; break;
+    case sexpr_kind::STRING:      out << "\"" << escaped(to_string(s).c_str()) << "\""; break;
     case sexpr_kind::INT:         out << to_int(s); break;
     case sexpr_kind::DOUBLE:      out << to_double(s); break;
     case sexpr_kind::NAME:        out << to_name(s); break;

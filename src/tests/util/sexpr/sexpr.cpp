@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <sstream>
 #include "sexpr.h"
 #include "sexpr_funcs.h"
 #include "mpq.h"
@@ -154,6 +155,12 @@ static void tst5() {
                 == 987654321);
 }
 
+static void tst6() {
+    std::ostringstream s;
+    sexpr foo("str with \"quote\"");
+    s << foo;
+    lean_assert(s.str() == "\"str with \\\"quote\\\"\"");
+}
 
 int main() {
     continue_on_violation(true);
@@ -162,5 +169,6 @@ int main() {
     tst3();
     tst4();
     tst5();
+    tst6();
     return has_violations() ? 1 : 0;
 }

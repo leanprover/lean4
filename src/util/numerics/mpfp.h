@@ -453,18 +453,68 @@ public:
 
 };
 
+// Macro to implement transcendental functions
+#define LEAN_TRANS_MPFP_FUNC(f, v, rnd) v.f(rnd);
+
 template<>
 class numeric_traits<mpfp> {
 public:
+    static thread_local mpfr_rnd_t rnd;
     static bool precise() { return true; }
     static bool is_zero(mpfp const &  v) { return v.is_zero(); }
     static bool is_pos(mpfp const & v) { return v.is_pos(); }
     static bool is_neg(mpfp const & v) { return v.is_neg(); }
-    static void set_rounding(bool plus_inf) {}
+    static void set_rounding(bool plus_inf) { rnd = plus_inf ? MPFR_RNDU :MPFR_RNDD; }
     static void neg(mpfp & v) { v.neg(); }
 //    static void inv(mpfp & v) { v.inv(); }
 //    static void reset(mpfp & v) { v = 0; }
     // v <- v^k
-//    static void power(mpfp & v, unsigned k) { _power(v, v, k); }
+    static void power(mpfp & v, unsigned k) { v.pow(k); }
+
+    // constants
+    static mpfp pi_l;
+    static mpfp pi_n;
+    static mpfp pi_u;
+    static inline mpfp pi_lower()       {
+        mpfr_const_pi(pi_l.m_val, MPFR_RNDD);
+        return pi_l;
+    }
+    static inline mpfp pi()             {
+        mpfr_const_pi(pi_n.m_val, MPFR_RNDN);
+        return pi_n;
+    }
+    static inline mpfp pi_upper()       {
+        mpfr_const_pi(pi_u.m_val, MPFR_RNDU);
+        return pi_u;
+    }
+    static inline mpfp pi_half_lower()  { return pi_l / 2lu; }
+    static inline mpfp pi_half()        { return pi_n / 2lu; }
+    static inline mpfp pi_half_upper()  { return pi_u / 2lu; }
+    static inline mpfp pi_twice_lower() { return pi_l * 2lu; }
+    static inline mpfp pi_twice()       { return pi_n * 2lu; }
+    static inline mpfp pi_twice_upper() { return pi_u * 2lu; }
+
+    // Transcendental functions
+    static void exp(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(exp,   v, rnd); }
+    static void exp2(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(exp2,  v, rnd); }
+    static void exp10(mpfp & v) { LEAN_TRANS_MPFP_FUNC(exp10, v, rnd); }
+    static void log(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(log,   v, rnd); }
+    static void log2(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(log2,  v, rnd); }
+    static void log10(mpfp & v) { LEAN_TRANS_MPFP_FUNC(log10, v, rnd); }
+    static void sin(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(sin,   v, rnd); }
+    static void cos(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(cos,   v, rnd); }
+    static void tan(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(tan,   v, rnd); }
+    static void sec(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(sec,   v, rnd); }
+    static void csc(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(csc,   v, rnd); }
+    static void cot(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(cot,   v, rnd); }
+    static void asin(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(asin,  v, rnd); }
+    static void acos(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(acos,  v, rnd); }
+    static void atan(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(atan,  v, rnd); }
+    static void sinh(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(sinh,  v, rnd); }
+    static void cosh(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(cosh,  v, rnd); }
+    static void tanh(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(tanh,  v, rnd); }
+    static void asinh(mpfp & v) { LEAN_TRANS_MPFP_FUNC(asinh, v, rnd); }
+    static void acosh(mpfp & v) { LEAN_TRANS_MPFP_FUNC(acosh, v, rnd); }
+    static void atanh(mpfp & v) { LEAN_TRANS_MPFP_FUNC(atanh, v, rnd); }
 };
 }

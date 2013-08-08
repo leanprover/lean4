@@ -117,6 +117,8 @@ struct pp_fn {
 
     template<typename It>
     format pp_bnames(It const & begin, It const & end, bool use_line) {
+        static_assert(std::is_same<typename std::iterator_traits<It>::value_type, expr>::value,
+                      "pp_bnames takes an argument which is not an iterator containing expr.");
         auto it = begin;
         format r = pp_bname(*it);
         ++it;

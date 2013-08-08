@@ -94,17 +94,17 @@ inline expr Exists(expr const & A, expr const & P) { return mk_exists(A, P); }
 
 /** \brief Modus Ponens axiom */
 expr mk_mp_fn();
-/** \brief (Axiom) a : Bool, b : Bool, H1 : a => b, H2 : a |- MP(a, b, H1, H2) : b */
+/** \brief (Axiom) {a : Bool}, {b : Bool}, H1 : a => b, H2 : a |- MP(a, b, H1, H2) : b */
 inline expr MP(expr const & a, expr const & b, expr const & H1, expr const & H2) { return mk_app(mk_mp_fn(), a, b, H1, H2); }
 
 /** \brief Discharge axiom */
 expr mk_discharge_fn();
-/** \brief (Axiom) a : Bool, b : Bool, H : a -> b |- Discharge(a, b, H) : a => b */
+/** \brief (Axiom) {a : Bool}, {b : Bool}, H : a -> b |- Discharge(a, b, H) : a => b */
 inline expr Discharge(expr const & a, expr const & b, expr const & H) { return mk_app(mk_discharge_fn(), a, b, H); }
 
 /** \brief Reflexivity axiom */
 expr mk_refl_fn();
-/** \brief (Axiom) A : Type u, a : A |- Refl(A, a) : a = a */
+/** \brief (Axiom) {A : Type u}, a : A |- Refl(A, a) : a = a */
 inline expr Refl(expr const & A, expr const & a) { return mk_app(mk_refl_fn(), A, a); }
 
 /** \brief Case analysis axiom */
@@ -114,17 +114,17 @@ inline expr Case(expr const & P, expr const & H1, expr const & H2, expr const & 
 
 /** \brief Substitution axiom */
 expr mk_subst_fn();
-/** \brief (Axiom) A : Type u, P : A -> Bool, a b : A, H1 : P a, H2 : a = b |- Subst(A, P, a, b, H1, H2) : P b */
-inline expr Subst(expr const & A, expr const & P, expr const & a, expr const & b, expr const & H1, expr const & H2) { return mk_app({mk_subst_fn(), A, P, a, b, H1, H2}); }
+/** \brief (Axiom) {A : Type u}, {a b : A}, P : A -> Bool, H1 : P a, H2 : a = b |- Subst(A, a, b, P, H1, H2) : P b */
+inline expr Subst(expr const & A, expr const & a, expr const & b, expr const & P, expr const & H1, expr const & H2) { return mk_app({mk_subst_fn(), A, a, b, P, H1, H2}); }
 
 /** \brief Eta conversion axiom */
 expr mk_eta_fn();
-/** \brief (Axiom) A : Type u, B : A -> Type u, f : (Pi x : A, B x) |- Eta(A, B, f) : ((Fun x : A => f x) = f) */
+/** \brief (Axiom) {A : Type u}, {B : A -> Type u}, f : (Pi x : A, B x) |- Eta(A, B, f) : ((Fun x : A => f x) = f) */
 inline expr Eta(expr const & A, expr const & B, expr const & f) { return mk_app(mk_eta_fn(), A, B, f); }
 
 /** \brief Implies Anti-symmetry */
 expr mk_imp_antisym_fn();
-/** \brief (Axiom) a : Bool, b : Bool, H1 : a => b, H2 : b => a |- ImpAntisym(a, b, H1, H2) : a = b */
+/** \brief (Axiom) {a : Bool}, {b : Bool}, H1 : a => b, H2 : b => a |- ImpAntisym(a, b, H1, H2) : a = b */
 inline expr ImpAntisym(expr const & a, expr const & b, expr const & H1, expr const & H2) { return mk_app(mk_imp_antisym_fn(), a, b, H1, H2); }
 
 class environment;

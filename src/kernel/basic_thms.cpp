@@ -99,7 +99,7 @@ void add_basic_thms(environment & env) {
     // DoubleNegElim : Pi (a : Bool) (P : Bool -> Bool) (H : P (Not (Not a))), (P a)
     env.add_theorem(double_neg_elim_fn_name, Pi({{a, Bool}, {P, Bool >> Bool}, {H, P(Not(Not(a)))}}, P(a)),
                     Fun({{a, Bool}, {P, Bool >> Bool}, {H, P(Not(Not(a)))}},
-                        Subst(Bool, P, Not(Not(a)), a, H, DoubleNeg(a))));
+                        Subst(Bool, Not(Not(a)), a, P, H, DoubleNeg(a))));
 
     // ModusTollens : Pi (a b : Bool) (H1 : a => b) (H2 : Not(b)), Not(a)
     env.add_theorem(mt_fn_name, Pi({{a, Bool}, {b, Bool}, {H1, Implies(a, b)}, {H2, Not(b)}}, Not(a)),
@@ -119,7 +119,7 @@ void add_basic_thms(environment & env) {
     // EqMP : Pi (a b: Bool) (H1 : a = b) (H2 : a), b
     env.add_theorem(eq_mp_fn_name, Pi({{a, Bool}, {b, Bool}, {H1, Eq(a, b)}, {H2, a}}, b),
                     Fun({{a, Bool}, {b, Bool}, {H1, Eq(a, b)}, {H2, a}},
-                        Subst(Bool, Fun({x, Bool}, x), a, b, H2, H1)));
+                        Subst(Bool, a, b, Fun({x, Bool}, x), H2, H1)));
 
     // NotImp1 : Pi (a b : Bool) (H : Not(Implies(a, b))), a
     env.add_theorem(not_imp1_fn_name, Pi({{a, Bool}, {b, Bool}, {H, Not(Implies(a, b))}}, a),
@@ -174,9 +174,9 @@ void add_basic_thms(environment & env) {
                         Discharge(Not(a), b, Fun({H1, Not(a)},
                                                  FalseElim(b, Absurd(a, H, H1))))));
 
-    // Disj2 : Pi (a b : Bool) (H : b), Or(a, b)
-    env.add_theorem(disj2_fn_name, Pi({{a, Bool}, {b, Bool}, {H, b}}, Or(a, b)),
-                    Fun({{a, Bool}, {b, Bool}, {H, b}},
+    // Disj2 : Pi (b a : Bool) (H : b), Or(a, b)
+    env.add_theorem(disj2_fn_name, Pi({{b, Bool}, {a, Bool}, {H, b}}, Or(a, b)),
+                    Fun({{b, Bool}, {a, Bool}, {H, b}},
                         // Not(a) => b
                         DoubleNegElim(b, Fun({x, Bool}, Implies(Not(a), x)),
                                       // Not(a) => Not(Not(b))
@@ -200,17 +200,17 @@ void add_basic_thms(environment & env) {
     // Symm : Pi (A : Type u) (a b : A) (H : a = b), b = a
     env.add_theorem(symm_fn_name, Pi({{A, TypeU}, {a, A}, {b, A}, {H, Eq(a, b)}}, Eq(b, a)),
                     Fun({{A, TypeU}, {a, A}, {b, A}, {H, Eq(a, b)}},
-                        Subst(A, Fun({x, A}, Eq(x,a)), a, b, Refl(A, a), H)));
+                        Subst(A, a, b, Fun({x, A}, Eq(x,a)), Refl(A, a), H)));
 
     // Trans: Pi (A: Type u) (a b c : A) (H1 : a = b) (H2 : b = c), a = c
     env.add_theorem(trans_fn_name, Pi({{A, TypeU}, {a, A}, {b, A}, {c, A}, {H1, Eq(a, b)}, {H2, Eq(b, c)}}, Eq(a, c)),
                     Fun({{A, TypeU}, {a, A}, {b, A}, {c, A}, {H1, Eq(a,b)}, {H2, Eq(b,c)}},
-                        Subst(A, Fun({x, A}, Eq(a, x)), b, c, H1, H2)));
+                        Subst(A, b, c, Fun({x, A}, Eq(a, x)), H1, H2)));
 
     // TransExt: Pi (A: Type u) (B : Type u) (a : A) (b c : B) (H1 : a = b) (H2 : b = c), a = c
     env.add_theorem(trans_ext_fn_name, Pi({{A, TypeU}, {B, TypeU}, {a, A}, {b, B}, {c, B}, {H1, Eq(a, b)}, {H2, Eq(b, c)}}, Eq(a, c)),
                     Fun({{A, TypeU}, {B, TypeU}, {a, A}, {b, B}, {c, B}, {H1, Eq(a, b)}, {H2, Eq(b, c)}},
-                        Subst(B, Fun({x, B}, Eq(a, x)), b, c, H1, H2)));
+                        Subst(B, b, c, Fun({x, B}, Eq(a, x)), H1, H2)));
 
     // EqTElim : Pi (a : Bool) (H : a = True), a
     env.add_theorem(eqt_elim_fn_name, Pi({{a, Bool}, {H, Eq(a, True)}}, a),
@@ -249,18 +249,18 @@ void add_basic_thms(environment & env) {
     // Congr1 : Pi (A : Type u) (B : A -> Type u) (f g: Pi (x : A) B x) (a : A) (H : f = g), f a = g a
     env.add_theorem(congr1_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {a, A}, {H, Eq(f, g)}}, Eq(f(a), g(a))),
                     Fun({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {a, A}, {H, Eq(f, g)}},
-                        Subst(piABx, Fun({h, piABx}, Eq(f(a), h(a))), f, g, Refl(piABx, f), H)));
+                        Subst(piABx, f, g, Fun({h, piABx}, Eq(f(a), h(a))), Refl(piABx, f), H)));
 
-    // Congr2 : Pi (A : Type u) (B : A -> Type u) (f : Pi (x : A) B x) (a b : A) (H : a = b), f a = f b
-    env.add_theorem(congr2_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {a, A}, {b, A}, {H, Eq(a, b)}}, Eq(f(a), f(b))),
-                    Fun({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {a, A}, {b, A}, {H, Eq(a, b)}},
-                        Subst(A, Fun({x, A}, Eq(f(a), f(x))), a, b, Refl(A, a), H)));
+    // Congr2 : Pi (A : Type u) (B : A -> Type u)  (a b : A) (f : Pi (x : A) B x) (H : a = b), f a = f b
+    env.add_theorem(congr2_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {a, A}, {b, A}, {f, piABx}, {H, Eq(a, b)}}, Eq(f(a), f(b))),
+                    Fun({{A, TypeU}, {B, A_arrow_u}, {a, A}, {b, A}, {f, piABx}, {H, Eq(a, b)}},
+                        Subst(A, a, b, Fun({x, A}, Eq(f(a), f(x))), Refl(A, a), H)));
 
     // Congr : Pi (A : Type u) (B : A -> Type u) (f g : Pi (x : A) B x) (a b : A) (H1 : f = g) (H2 : a = b), f a = g b
     env.add_theorem(congr_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {a, A}, {b, A}, {H1, Eq(f, g)}, {H2, Eq(a, b)}}, Eq(f(a), g(b))),
                     Fun({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {a, A}, {b, A}, {H1, Eq(f, g)}, {H2, Eq(a, b)}},
                         TransExt(B(a), B(b), f(a), f(b), g(b),
-                                 Congr2(A, B, f, a, b, H2), Congr1(A, B, f, g, b, H1))));
+                                 Congr2(A, B, a, b, f, H2), Congr1(A, B, f, g, b, H1))));
 
 
     // ForallElim : Pi (A : Type u) (P : A -> bool) (H : (forall A P)) (a : A), P a

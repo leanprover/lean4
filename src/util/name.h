@@ -33,6 +33,8 @@ public:
     name & operator=(name && other);
     friend bool operator==(name const & a, name const & b);
     friend bool operator!=(name const & a, name const & b) { return !(a == b); }
+    friend bool operator==(name const & a, char const * b);
+    friend bool operator!=(name const & a, char const * b) { return !(a == b); }
     // total order on hierarchical names.
     friend int cmp(name const & a, name const & b) { return cmp(a.m_ptr, b.m_ptr); }
     friend bool operator<(name const & a, name const & b) { return cmp(a, b) < 0; }

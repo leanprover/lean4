@@ -96,12 +96,14 @@ bool contains(sexpr const & l, P p) {
     static_assert(std::is_same<typename std::result_of<P(sexpr const &)>::type, bool>::value,
                   "contains: return type of p is not bool");
     lean_assert(is_list(l));
-    if (is_nil(l)) {
-        return false;
-     } else {
-        lean_assert(is_cons(l));
-        return p(head(l)) || contains(tail(l), p);
+    sexpr const * h = &l;
+    while (!is_nil(*h)) {
+        lean_assert(is_cons(*h));
+        if (p(head(*h)))
+            return true;
+        h = &tail(*h);
     }
+    return false;
 }
 
 template<typename T>
@@ -114,6 +116,21 @@ bool member(T const & e, sexpr const & l) {
         curr = &tail(*curr);
     }
     return false;
+}
+
+template<typename P>
+sexpr const * find(sexpr const & l, P p) {
+    static_assert(std::is_same<typename std::result_of<P(sexpr const &)>::type, bool>::value,
+                  "find: return type of p is not bool");
+    lean_assert(is_list(l));
+    sexpr const * h = &l;
+    while (!is_nil(*h)) {
+        lean_assert(is_cons(*h));
+        if (p(head(*h)))
+            return &(head(*h));
+        h = &tail(*h);
+    }
+    return nullptr;
 }
 
 sexpr append(sexpr const & l1, sexpr const & l2);

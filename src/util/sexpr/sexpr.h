@@ -13,7 +13,7 @@ class mpq;
 class mpz;
 struct sexpr_cell;
 
-enum class sexpr_kind { NIL, STRING, INT, DOUBLE, NAME, MPZ, MPQ, CONS };
+enum class sexpr_kind { NIL, STRING, BOOL, INT, DOUBLE, NAME, MPZ, MPQ, CONS };
 
 /**
    \brief Simple LISP-like S-expressions.
@@ -30,6 +30,7 @@ public:
     sexpr():m_ptr(nullptr) {}
     explicit sexpr(char const * v);
     explicit sexpr(std::string const & v);
+    explicit sexpr(bool v);
     explicit sexpr(int v);
     explicit sexpr(double v);
     explicit sexpr(name const & v);
@@ -60,6 +61,7 @@ public:
 
     std::string const & get_string() const;
     int get_int() const;
+    bool get_bool() const;
     double get_double() const;
     name const & get_name() const;
     mpz const & get_mpz() const;
@@ -101,6 +103,7 @@ inline bool is_atom(sexpr const & s)   { return s.kind() != sexpr_kind::CONS; }
 /** \brief Return true iff \c s is not a cons cell. */
 inline bool is_cons(sexpr const & s)   { return s.kind() == sexpr_kind::CONS; }
 inline bool is_string(sexpr const & s) { return s.kind() == sexpr_kind::STRING; }
+inline bool is_bool(sexpr const & s)   { return s.kind() == sexpr_kind::BOOL; }
 inline bool is_int(sexpr const & s)    { return s.kind() == sexpr_kind::INT; }
 inline bool is_double(sexpr const & s) { return s.kind() == sexpr_kind::DOUBLE; }
 inline bool is_name(sexpr const & s)   { return s.kind() == sexpr_kind::NAME; }
@@ -108,6 +111,7 @@ inline bool is_mpz(sexpr const & s)    { return s.kind() == sexpr_kind::MPZ; }
 inline bool is_mpq(sexpr const & s)    { return s.kind() == sexpr_kind::MPQ; }
 
 inline std::string const & to_string(sexpr const & s) { return s.get_string(); }
+inline bool to_bool(sexpr const & s) { return s.get_bool(); }
 inline int to_int(sexpr const & s) { return s.get_int(); }
 inline double to_double(sexpr const & s) { return s.get_double(); }
 inline name const & to_name(sexpr const & s) { return s.get_name(); }
@@ -128,6 +132,7 @@ inline unsigned len(sexpr const & s) { return length(s); }
     \warning This is not pointer equality.
 */
 bool operator==(sexpr const & a, sexpr const & b);
+inline bool operator==(sexpr const & a, bool b) { return is_int(a) && to_bool(a) == b; }
 inline bool operator==(sexpr const & a, int b) { return is_int(a) && to_int(a) == b; }
 inline bool operator==(sexpr const & a, double b) { return is_double(a) && to_double(a) == b; }
 inline bool operator==(sexpr const & a, std::string const & b) { return is_string(a) && to_string(a) == b; }

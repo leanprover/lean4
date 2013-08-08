@@ -176,6 +176,10 @@ bool operator==(name const & a, name const & b) {
     }
 }
 
+bool operator==(name const & a, char const * b) {
+    return a.m_ptr->m_is_string && strcmp(a.m_ptr->m_str, b) == 0;
+}
+
 int cmp(name::imp * i1, name::imp * i2) {
     static thread_local std::vector<name::imp *> limbs1;
     static thread_local std::vector<name::imp *> limbs2;

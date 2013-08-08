@@ -43,6 +43,14 @@ struct sexpr_int : public sexpr_cell {
         m_value(v) {}
 };
 
+/** \brief S-expression cell: bool atom */
+struct sexpr_bool : public sexpr_cell {
+    bool m_value;
+    sexpr_bool(bool v):
+        sexpr_cell(sexpr_kind::BOOL, v),
+        m_value(v) {}
+};
+
 /** \brief S-expression cell: double atom */
 struct sexpr_double : public sexpr_cell {
     double m_value;
@@ -89,6 +97,7 @@ void sexpr_cell::dealloc() {
     switch (m_kind) {
     case sexpr_kind::NIL:         lean_unreachable();                      break;
     case sexpr_kind::STRING:      delete static_cast<sexpr_string*>(this); break;
+    case sexpr_kind::BOOL:        delete static_cast<sexpr_bool*>(this);   break;
     case sexpr_kind::INT:         delete static_cast<sexpr_int*>(this);    break;
     case sexpr_kind::DOUBLE:      delete static_cast<sexpr_double*>(this); break;
     case sexpr_kind::NAME:        delete static_cast<sexpr_name*>(this);   break;
@@ -100,6 +109,7 @@ void sexpr_cell::dealloc() {
 
 sexpr::sexpr(char const * v):m_ptr(new sexpr_string(v)) {}
 sexpr::sexpr(std::string const & v):m_ptr(new sexpr_string(v)) {}
+sexpr::sexpr(bool v):m_ptr(new sexpr_bool(v)) {}
 sexpr::sexpr(int v):m_ptr(new sexpr_int(v)) {}
 sexpr::sexpr(double v):m_ptr(new sexpr_double(v)) {}
 sexpr::sexpr(name const & v):m_ptr(new sexpr_name(v)) {}
@@ -122,6 +132,7 @@ sexpr_kind sexpr::kind() const { return m_ptr ? m_ptr->m_kind : sexpr_kind::NIL;
 sexpr const & head(sexpr const & s) { lean_assert(is_cons(s)); return static_cast<sexpr_cons*>(s.m_ptr)->m_head; }
 sexpr const & tail(sexpr const & s) { lean_assert(is_cons(s)); return static_cast<sexpr_cons*>(s.m_ptr)->m_tail; }
 std::string const & sexpr::get_string() const { return static_cast<sexpr_string*>(m_ptr)->m_value; }
+bool sexpr::get_bool() const { return static_cast<sexpr_bool*>(m_ptr)->m_value; }
 int sexpr::get_int() const { return static_cast<sexpr_int*>(m_ptr)->m_value; }
 double sexpr::get_double() const { return static_cast<sexpr_double*>(m_ptr)->m_value; }
 name const & sexpr::get_name() const { return static_cast<sexpr_name*>(m_ptr)->m_value; }
@@ -173,6 +184,7 @@ bool operator==(sexpr const & a, sexpr const & b) {
     switch (ka) {
     case sexpr_kind::NIL:         return true;
     case sexpr_kind::STRING:      return to_string(a) == to_string(b);
+    case sexpr_kind::BOOL:        return to_bool(a) == to_bool(b);
     case sexpr_kind::INT:         return to_int(a) == to_int(b);
     case sexpr_kind::DOUBLE:      return to_double(a) == to_double(b);
     case sexpr_kind::NAME:        return to_name(a) == to_name(b);
@@ -197,6 +209,7 @@ int cmp(sexpr const & a, sexpr const & b) {
     switch (ka) {
     case sexpr_kind::NIL:         return 0;
     case sexpr_kind::STRING:      return strcmp(to_string(a).c_str(), to_string(b).c_str());
+    case sexpr_kind::BOOL:        return to_bool(a) == to_bool(b) ? 0 : (!to_bool(a) && to_bool(b) ? -1 : 1);
     case sexpr_kind::INT:         return to_int(a) == to_int(b) ? 0 : (to_int(a) < to_int(b) ? -1 : 1);
     case sexpr_kind::DOUBLE:      return to_double(a) == to_double(b) ? 0 : (to_double(a) < to_double(b) ? -1 : 1);
     case sexpr_kind::NAME:        return cmp(to_name(a), to_name(b));
@@ -215,6 +228,7 @@ std::ostream & operator<<(std::ostream & out, sexpr const & s) {
     switch (s.kind()) {
     case sexpr_kind::NIL:         out << "nil"; break;
     case sexpr_kind::STRING:      out << "\"" << escaped(to_string(s).c_str()) << "\""; break;
+    case sexpr_kind::BOOL:        out << (to_bool(s) ? "true" : "false"); break;
     case sexpr_kind::INT:         out << to_int(s); break;
     case sexpr_kind::DOUBLE:      out << to_double(s); break;
     case sexpr_kind::NAME:        out << to_name(s); break;

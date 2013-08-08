@@ -109,9 +109,9 @@ private:
     }
 
     // Functions used inside of pretty printing
-    static unsigned space_upto_line_break(sexpr const & s, sexpr const & r, bool & found);
     static unsigned space_upto_line_break_list(sexpr const & r, bool & found);
-    static sexpr be(unsigned w, unsigned k, sexpr const & s, sexpr const & r);
+    static unsigned space_upto_line_break(sexpr const & s, bool & found);
+    static sexpr be(unsigned w, unsigned k, sexpr const & s);
     static sexpr best(unsigned w, unsigned k, sexpr const & s);
 
     static bool is_fnil(format const & f)   {

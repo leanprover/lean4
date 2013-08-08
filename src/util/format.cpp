@@ -127,84 +127,71 @@ format wrap(format const & f1, format const & f2) {
                   f2};
 }
 
-unsigned format::space_upto_line_break_list(sexpr const & r, bool & found) {
+unsigned format::space_upto_line_break_list(sexpr const & r, bool & found_newline) {
     // r : list of (int * format)
-    lean_assert(!found);
-    if (is_nil(r)) {
-        found = true;
-        return 0;
+    lean_assert(is_list(r));
+    sexpr list = r;
+    unsigned len = 0;
+    while (!is_nil(list) && !found_newline) {
+        sexpr const & h = cdr(car(list));
+        len += space_upto_line_break(h, found_newline);
+        list = cdr(list);
     }
-    return format::space_upto_line_break(cdr(car(r)), cdr(r), found);
+    return len;
 }
 
-unsigned format::space_upto_line_break(sexpr const & s, sexpr const & r, bool & found) {
+unsigned format::space_upto_line_break(sexpr const & s, bool & found_newline) {
     // s : format
-    // r : list of (int * format)
-    lean_assert(!found);
-    if(is_nil(s)) {
-        found = true;
-        return 0;
-    }
+    lean_assert(!found_newline);
+    lean_assert(sexpr_kind(s) <= format_kind::COLOR_END);
 
     switch (sexpr_kind(s)) {
     case format_kind::NIL:
     case format_kind::COLOR_BEGIN:
     case format_kind::COLOR_END:
-        return 0 + space_upto_line_break_list(r, found);
+    {
+        return 0;
+    }
     case format_kind::COMPOSE:
     {
         sexpr list  = sexpr_compose_list(s);
         unsigned len = 0;
-        while(!is_nil(list) && !found) {
+        while(!is_nil(list) && !found_newline) {
             sexpr const & h = car(list);
             list = cdr(list);
-            len += space_upto_line_break(h, nil(), found);
+            len += space_upto_line_break(h, found_newline);
         }
-        if (found) {
-            return len;
-        } else {
-            return len + space_upto_line_break_list(r, found);
-        }
+        return len;
     }
     case format_kind::NEST:
     {
         sexpr const & x = sexpr_nest_s(s);
-        unsigned len = space_upto_line_break(x, nil(), found);
-        if (found) {
-            return len;
-        } else {
-            return len + space_upto_line_break_list(r, found);
-        }
+        return space_upto_line_break(x, found_newline);
     }
-    case format_kind::TEXT:
-        return sexpr_text_length(s) + space_upto_line_break_list(r, found);
+    case format_kind::TEXT: {
+        return sexpr_text_length(s);
+    }
     case format_kind::LINE:
-        found = true;
+        found_newline = true;
         return 0;
     case format_kind::CHOICE:
     {
-        sexpr const & x = sexpr_choice_1(s);
-        return space_upto_line_break(x, r, found);
+        sexpr const & x = sexpr_choice_2(s);
+        return space_upto_line_break(x, found_newline);
     }
     }
-    std::cerr << "!!!!!!!!!!!!!!!" << s << std::endl;
     lean_unreachable();
     return 0;
 }
 
-sexpr format::be(unsigned w, unsigned k, sexpr const & s, sexpr const & r) {
-    /* be w k [] = Nil */
+sexpr format::be(unsigned w, unsigned k, sexpr const & s) {
+    /* s = (i, v) :: z, where h has the type int x format */
+    /* ret = list of format */
+
     if(is_nil(s)) {
-        if(is_nil(r)) {
-            // s == Nil && r == Nil
-            return sexpr();
-        } else {
-            // s == Nil && r != Nil
-            return be(w, k, car(r), cdr(r));
-        }
+        return sexpr{};
     }
 
-    /* s = (i, v) :: z, where h has the type int x format */
     sexpr const & h = car(s);
     sexpr const & z = cdr(s);
     int i = to_int(car(h));
@@ -212,40 +199,39 @@ sexpr format::be(unsigned w, unsigned k, sexpr const & s, sexpr const & r) {
 
     switch (sexpr_kind(v)) {
     case format_kind::NIL:
-        return be(w, k, z, r);
+        return be(w, k, z);
     case format_kind::COLOR_BEGIN:
     case format_kind::COLOR_END:
-        return sexpr(v, be(w, k, z, r));
+        return sexpr(v, be(w, k, z));
     case format_kind::COMPOSE:
     {
         sexpr const & list  = sexpr_compose_list(v);
-        sexpr const & list_ = map(list,
-                                  [i](sexpr const & s) {
-                                      return sexpr(i, s);
-                                      });
-        return be(w, k, list_, sexpr(z, r));
+        sexpr const & list_ = foldr(list, z, [i](sexpr const & s, sexpr const & res) {
+                return sexpr(sexpr(i, s), res);
+            });
+        return be(w, k, list_);
     }
     case format_kind::NEST:
     {
         int j = sexpr_nest_i(v);
         sexpr const & x = sexpr_nest_s(v);
-        return be(w, k, sexpr(sexpr(i + j, x), z), r);
+        return be(w, k, sexpr(sexpr(i + j, x), z));
     }
     case format_kind::TEXT:
-        return sexpr(v, be(w, k + sexpr_text_length(v), z, r));
+        return sexpr(v, be(w, k + sexpr_text_length(v), z));
     case format_kind::LINE:
-        return sexpr(v, sexpr(sexpr_text(std::string(i, ' ')), be(w, i, z, r)));
+        return sexpr(v, sexpr(sexpr_text(std::string(i, ' ')), be(w, i, z)));
     case format_kind::CHOICE:
     {
         sexpr const & x = sexpr_choice_1(v);
         sexpr const & y = sexpr_choice_2(v);;
-        bool found = false;
-        int d = static_cast<int>(w) - static_cast<int>(k) - space_upto_line_break(x, r, found);
+        bool found_newline = false;
+        int d = static_cast<int>(w) - static_cast<int>(k) - space_upto_line_break_list(sexpr(sexpr(i, x), z), found_newline);
         if(d >= 0) {
-            sexpr const & s1 = be(w, k, sexpr(sexpr(i, x), z), r);
+            sexpr const & s1 = be(w, k, sexpr(sexpr(i, x), z));
             return s1;
         }
-        sexpr const & s2 = be(w, k, sexpr(sexpr(i, y), z), r);
+        sexpr const & s2 = be(w, k, sexpr(sexpr(i, y), z));
         return s2;
     }
     }
@@ -254,7 +240,7 @@ sexpr format::be(unsigned w, unsigned k, sexpr const & s, sexpr const & r) {
 }
 
 sexpr format::best(unsigned w, unsigned k, sexpr const & s) {
-    return be(w, k, sexpr{sexpr(0, s)}, sexpr());
+    return be(w, k, sexpr{sexpr(0, s)});
 }
 
 std::ostream & operator<<(std::ostream & out, format const & f)

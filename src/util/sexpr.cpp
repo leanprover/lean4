@@ -173,7 +173,7 @@ unsigned length(sexpr const & s) {
 }
 
 bool operator==(sexpr const & a, sexpr const & b) {
-    if (eqp(a, b))
+    if (is_eqp(a, b))
         return true;
     sexpr_kind ka = a.kind();
     sexpr_kind kb = b.kind();
@@ -196,7 +196,7 @@ bool operator==(sexpr const & a, sexpr const & b) {
 }
 
 int cmp(sexpr const & a, sexpr const & b) {
-    if (eqp(a, b))
+    if (is_eqp(a, b))
         return 0;
     sexpr_kind ka = a.kind();
     sexpr_kind kb = b.kind();

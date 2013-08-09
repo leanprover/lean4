@@ -22,7 +22,7 @@ class name {
     explicit name(imp * p);
 public:
     name();
-    explicit name(char const * name);
+    name(char const * name);
     explicit name(unsigned k);
     name(name const & prefix, char const * name);
     name(name const & prefix, unsigned k);

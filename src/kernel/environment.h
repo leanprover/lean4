@@ -38,8 +38,6 @@ public:
     */
     level define_uvar(name const & n, level const & l);
     level define_uvar(name const & n) { return define_uvar(n, level()); }
-    level define_uvar(char const * n, level const & l) { return define_uvar(name(n), l); }
-    level define_uvar(char const * n) { return define_uvar(name(n), level()); }
 
     /**
        \brief Return true iff the constraint l1 >= l2 is implied by the constraints
@@ -55,7 +53,6 @@ public:
        Throw an exception if variable is not defined in this environment.
     */
     level get_uvar(name const & n) const;
-    level get_uvar(char const * n) const { return get_uvar(name(n)); }
 
     /**
        \brief Create a child environment. This environment will only allow "read-only" operations until
@@ -163,9 +160,7 @@ public:
        If opaque == true, then definition is not used by normalizer.
     */
     void add_definition(name const & n, expr const & t, expr const & v, bool opaque = false);
-    void add_definition(char const * n, expr const & t, expr const & v, bool opaque = false) { add_definition(name(n), t, v, opaque); }
     void add_theorem(name const & n, expr const & t, expr const & v);
-    void add_theorem(char const * n, expr const & t, expr const & v) { add_theorem(name(n), t, v); }
 
     /**
        \brief Add a new definition n : infer_type(v) := v.
@@ -173,16 +168,13 @@ public:
        If opaque == true, then definition is not used by normalizer.
     */
     void add_definition(name const & n, expr const & v, bool opaque = false);
-    void add_definition(char const * n, expr const & v, bool opaque = false) { add_definition(name(n), v, opaque); }
 
     /**
        \brief Add a new fact (Axiom or Fact) to the environment.
        It throws an exception if there is already an object with the given name.
     */
     void add_axiom(name const & n, expr const & t);
-    void add_axiom(char const * n, expr const & t) { add_axiom(name(n), t); }
     void add_var(name const & n, expr const & t);
-    void add_var(char const * n, expr const & t) { add_var(name(n), t); }
 
     /**
        \brief Return the object with the given name.

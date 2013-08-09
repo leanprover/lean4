@@ -257,9 +257,7 @@ inline bool is_abstraction(expr const & e) { return is_lambda(e) || is_pi(e); }
 inline expr mk_var(unsigned idx) { return expr(new expr_var(idx)); }
 inline expr Var(unsigned idx) { return mk_var(idx); }
 inline expr mk_constant(name const & n) { return expr(new expr_const(n)); }
-inline expr mk_constant(char const * n) { return mk_constant(name(n)); }
 inline expr Const(name const & n) { return mk_constant(n); }
-inline expr Const(char const * n) { return mk_constant(n); }
 inline expr mk_value(value & v) { return expr(new expr_value(v)); }
 inline expr to_expr(value & v) { return mk_value(v); }
        expr mk_app(unsigned num_args, expr const * args);
@@ -271,14 +269,11 @@ inline expr mk_app(expr const & e1, expr const & e2, expr const & e3, expr const
 inline expr mk_eq(expr const & l, expr const & r) { return expr(new expr_eq(l, r)); }
 inline expr Eq(expr const & l, expr const & r) { return mk_eq(l, r); }
 inline expr mk_lambda(name const & n, expr const & t, expr const & e) { return expr(new expr_lambda(n, t, e)); }
-inline expr mk_lambda(char const * n, expr const & t, expr const & e) { return mk_lambda(name(n), t, e); }
 inline expr mk_pi(name const & n, expr const & t, expr const & e) { return expr(new expr_pi(n, t, e)); }
-inline expr mk_pi(char const * n, expr const & t, expr const & e) { return mk_pi(name(n), t, e); }
 inline expr arrow(expr const & t, expr const & e) { return mk_pi(name("_"), t, e); }
 inline expr operator>>(expr const & t, expr const & e) { return arrow(t, e); }
 inline expr mk_let(name const & n, expr const & v, expr const & e) { return expr(new expr_let(n, v, e)); }
-inline expr mk_let(char const * n, expr const & v, expr const & e) { return mk_let(name(n), v, e); }
-inline expr Let(char const * n, expr const & v, expr const & e) { return mk_let(n, v, e); }
+inline expr Let(name const & n, expr const & v, expr const & e) { return mk_let(n, v, e); }
 inline expr mk_type(level const & l) { return expr(new expr_type(l)); }
        expr mk_type();
 inline expr Type(level const & l) { return mk_type(l); }

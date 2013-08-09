@@ -61,9 +61,16 @@ static void tst2() {
     std::cout << "n1.hash(): " << n1.hash() << "\n";
 }
 
+static void tst3() {
+    name n{"foo", "bla", "tst"};
+    std::cout << n << "\n";
+    lean_assert(n == name(name(name("foo"), "bla"), "tst"));
+}
+
 int main() {
     continue_on_violation(true);
     tst1();
     tst2();
+    tst3();
     return has_violations() ? 1 : 0;
 }

@@ -28,6 +28,7 @@ public:
     name(name const & prefix, unsigned k);
     name(name const & other);
     name(name && other);
+    name(std::initializer_list<char const *> const & l);
     ~name();
     name & operator=(name const & other);
     name & operator=(name && other);

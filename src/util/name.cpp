@@ -124,6 +124,18 @@ name::name(name && other):m_ptr(other.m_ptr) {
     other.m_ptr = nullptr;
 }
 
+name::name(std::initializer_list<char const *> const & l):name() {
+    if (l.size() == 0) {
+        return;
+    } else {
+        auto it = l.begin();
+        *this = name(*it);
+        ++it;
+        for (; it != l.end(); ++it)
+            *this = name(*this, *it);
+    }
+}
+
 name::~name() {
     if (m_ptr)
         m_ptr->dec_ref();

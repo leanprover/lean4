@@ -18,7 +18,7 @@ void double_power(double & v, unsigned k);
 
 // Macro to implement transcendental functions using MPFR
 #define LEAN_TRANS_DOUBLE_FUNC(f, v, rnd)              \
-    static thread_local mpfp t(v, 53);                 \
+    static thread_local mpfp t(53);                    \
     t = v;                                             \
     t.f(rnd);                                          \
     v = t.get_double(rnd);

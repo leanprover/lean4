@@ -18,7 +18,7 @@ void float_power(float & v, unsigned k);
 
 // Macro to implement transcendental functions using MPFR
 #define LEAN_TRANS_FLOAT_FUNC(f, v, rnd)        \
-    static thread_local mpfp t(v, 24);          \
+    static thread_local mpfp t(24);             \
     t = v;                                      \
     t.f(rnd);                                   \
     v = t.get_float(rnd);

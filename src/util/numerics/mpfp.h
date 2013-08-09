@@ -19,12 +19,13 @@ class mpfp {
     friend numeric_traits<mpfp>;
     mpfr_t m_val;
 
-//    static mpfr_t const & zval(mpz const & v) { return v.m_val; }
-//    static mpfr_t & zval(mpz & v) { return v.m_val; }
+    static mpz_t const & zval(mpz const & v) { return v.m_val; }
+    static mpz_t & zval(mpz & v) { return v.m_val; }
+    static mpq_t const & qval(mpq const & v) { return v.m_val; }
+    static mpq_t & qval(mpq & v) { return v.m_val; }
+
 public:
-    // friend void swap(mpfp & a, mpfp & b) { mpfr_swap(a.m_val, b.m_val); }
-    // friend void swap_numerator(mpfp & a, mpz & b) { mpz_swap(mpfr_numref(a.m_val), zval(b)); mpfr_canonicalize(a.m_val); }
-    // friend void swap_denominator(mpfp & a, mpz & b) { mpz_swap(mpfr_denref(a.m_val), zval(b)); mpfr_canonicalize(a.m_val); }
+    friend void swap(mpfp & a, mpfp & b) { mpfr_swap(a.m_val, b.m_val); }
 
     // Setter functions
     mpfp & set(mpfp const & v, mpfr_rnd_t rnd = MPFR_RNDN) {
@@ -82,18 +83,20 @@ public:
 
     // Basic Constructors
     mpfp() { mpfr_init(m_val); } // with default precision
-    mpfp(mpfr_prec_t prec) { mpfr_init2(m_val, prec); }
+    explicit mpfp(int prec)         { mpfr_init2(m_val, prec); }
+    explicit mpfp(unsigned prec)    { mpfr_init2(m_val, prec); }
+    explicit mpfp(mpfr_prec_t prec) { mpfr_init2(m_val, prec); }
 
     // Constructors using the default precision
-    mpfp(float const v      ):mpfp() { set(v); }
-    mpfp(double const v     ):mpfp() { set(v); }
-    mpfp(long double const v):mpfp() { set(v); }
-    mpfp(mpz_t const & v    ):mpfp() { set(v); }
-    mpfp(mpq_t const & v    ):mpfp() { set(v); }
-    mpfp(mpf_t const & v    ):mpfp() { set(v); }
-    mpfp(mpz const & v      ):mpfp() { set(v); }
-    mpfp(mpq const & v      ):mpfp() { set(v); }
-    mpfp(mpbq const & v     ):mpfp() { set(v); }
+    explicit mpfp(float const v      ):mpfp() { set(v); }
+    explicit mpfp(double const v     ):mpfp() { set(v); }
+    explicit mpfp(long double const v):mpfp() { set(v); }
+    explicit mpfp(mpz_t const & v    ):mpfp() { set(v); }
+    explicit mpfp(mpq_t const & v    ):mpfp() { set(v); }
+    explicit mpfp(mpf_t const & v    ):mpfp() { set(v); }
+    explicit mpfp(mpz const & v      ):mpfp() { set(v); }
+    explicit mpfp(mpq const & v      ):mpfp() { set(v); }
+    explicit mpfp(mpbq const & v     ):mpfp() { set(v); }
     mpfp(mpfp const & v     ):mpfp(mpfr_get_prec(v.m_val)) { set(v); }
 
     // Constructors using the provided precision
@@ -120,9 +123,7 @@ public:
     mpfp(mpbq const & v     , mpfr_prec_t p, mpfr_rnd_t rnd):mpfp(p) { set(v, rnd); }
     mpfp(mpfp const & v     , mpfr_prec_t p, mpfr_rnd_t rnd):mpfp(p) { set(v, rnd); }
 
-    // mpfr(mpfp && s):mpfr() { mpfr_swap(m_val, s.m_val); }
-    // template<typename T> explicit mpfr(T const & v):mpfr() { operator=(v); }
-    // mpfr(unsigned long int n, unsigned long int d):mpfr() { mpfr_set_ui(m_val, n, d); mpfr_canonicalize(m_val);}
+    mpfp(mpfp && s):mpfp(mpfr_get_prec(s.m_val)) { mpfr_swap(m_val, s.m_val); }
     ~mpfp() { mpfr_clear(m_val); }
 
     unsigned hash() const { return static_cast<unsigned>(mpfr_get_si(m_val, MPFR_RNDN)); }
@@ -184,15 +185,12 @@ public:
     friend mpfp acosh(mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.acosh(rnd); return a; }
     friend mpfp atanh(mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.atanh(rnd); return a; }
 
-    // void inv() { mpfr_inv(m_val, m_val, MPFR_RNDN); }
-    // friend mpfp inv(mpfp a) { a.inv(); return a; }
+    void inv() { mpfr_d_div(m_val, 1.0, m_val, MPFR_RNDN); }
+    friend mpfp inv(mpfp a) { a.inv(); return a; }
     double get_double(mpfr_rnd_t rnd = MPFR_RNDN) const { return mpfr_get_d(m_val, rnd); }
     float  get_float (mpfr_rnd_t rnd = MPFR_RNDN) const { return mpfr_get_flt(m_val, rnd); }
 
-    // bool is_integer() const { return mpz_cmp_ui(mpfr_denref(m_val), 1u) == 0; }
-
     friend int cmp(mpfp const & a, mpfp const & b           ) { return mpfr_cmp(a.m_val, b.m_val); }
-//    friend int cmp(mpfp const & a, mpz const & b);
     friend int cmp(mpfp const & a, unsigned long int const b) { return mpfr_cmp_ui(a.m_val, b); }
     friend int cmp(mpfp const & a, long int const b         ) { return mpfr_cmp_si(a.m_val, b); }
     friend int cmp(mpfp const & a, double const b           ) { return mpfr_cmp_d (a.m_val, b); }
@@ -200,10 +198,9 @@ public:
     friend int cmp(mpfp const & a, mpz_t const & b          ) { return mpfr_cmp_z (a.m_val, b); }
     friend int cmp(mpfp const & a, mpq_t const & b          ) { return mpfr_cmp_q (a.m_val, b); }
     friend int cmp(mpfp const & a, mpf_t const & b          ) { return mpfr_cmp_f (a.m_val, b); }
-    /* TODO */
-    // friend int cmp(mpfp const & a, mpz const & b) { return mpfr_cmp_(a.m_val, b); }
-    // friend int cmp(mpfp const & a, mpq const & b) { return mpfr_cmp_(a.m_val, b); }
-    // friend int cmp(mpfp const & a, mpbq const & b) { return mpfr_cmp_(a.m_val, b); }
+    friend int cmp(mpfp const & a, mpz const & b            ) { return mpfr_cmp_z (a.m_val, zval(b)); }
+    friend int cmp(mpfp const & a, mpq const & b            ) { return mpfr_cmp_q (a.m_val, qval(b)); }
+    //friend int cmp(mpfp const & a, mpbq const & b) { return mpfr_cmp_(a.m_val, b); }
 
     friend bool operator<(mpfp const & a, mpfp const & b           ) { return cmp(a, b) < 0; }
     friend bool operator<(mpfp const & a, mpz const & b            ) { return cmp(a, b) < 0; }
@@ -282,20 +279,38 @@ public:
     friend bool operator>=(mpf_t const & a          , mpfp const & b) { return cmp(b, a) <= 0; }
 
     friend bool operator==(mpfp const & a, mpfp const & b) { return mpfr_equal_p(a.m_val, b.m_val) != 0; }
-//    friend bool operator==(mpfp const & a, mpz const & b) { return a.is_integer() && mpz_cmp(mpfr_numref(a.m_val), zval(b)) == 0; }
-    // friend bool operator==(mpfp const & a, unsigned int b) { return a.is_integer() && mpz_cmp_ui(mpfr_numref(a.m_val), b) == 0; }
-    // friend bool operator==(mpfp const & a, int b) { return a.is_integer() && mpz_cmp_si(mpfr_numref(a.m_val), b) == 0; }
-    // friend bool operator==(mpz const & a, mpfp const & b) { return operator==(b, a); }
-    // friend bool operator==(unsigned int a, mpfp const & b) { return operator==(b, a); }
-    // friend bool operator==(int a, mpfp const & b) { return operator==(b, a); }
+    friend bool operator==(unsigned long int const a, mpfp const & b) { return cmp(b, a) == 0; }
+    friend bool operator==(long int const a         , mpfp const & b) { return cmp(b, a) == 0; }
+    friend bool operator==(double const a           , mpfp const & b) { return cmp(b, a) == 0; }
+    friend bool operator==(long double const a      , mpfp const & b) { return cmp(b, a) == 0; }
+    friend bool operator==(mpz_t const & a          , mpfp const & b) { return cmp(b, a) == 0; }
+    friend bool operator==(mpq_t const & a          , mpfp const & b) { return cmp(b, a) == 0; }
+    friend bool operator==(mpf_t const & a          , mpfp const & b) { return cmp(b, a) == 0; }
+    friend bool operator==(mpfp const & a, mpz const & b            ) { return cmp(a, b) == 0; }
+    friend bool operator==(mpfp const & a, unsigned long int const b) { return cmp(a, b) == 0; }
+    friend bool operator==(mpfp const & a, long int const b         ) { return cmp(a, b) == 0; }
+    friend bool operator==(mpfp const & a, double const b           ) { return cmp(a, b) == 0; }
+    friend bool operator==(mpfp const & a, long double const b      ) { return cmp(a, b) == 0; }
+    friend bool operator==(mpfp const & a, mpz_t const & b          ) { return cmp(a, b) == 0; }
+    friend bool operator==(mpfp const & a, mpq_t const & b          ) { return cmp(a, b) == 0; }
+    friend bool operator==(mpfp const & a, mpf_t const & b          ) { return cmp(a, b) == 0; }
 
     friend bool operator!=(mpfp const & a, mpfp const & b) { return !operator==(a,b); }
-    // friend bool operator!=(mpfp const & a, mpz const & b) { return !operator==(a,b); }
-    // friend bool operator!=(mpfp const & a, unsigned int b) { return !operator==(a,b); }
-    // friend bool operator!=(mpfp const & a, int b) { return !operator==(a,b); }
-    // friend bool operator!=(mpz const & a, mpfp const & b) { return !operator==(a,b); }
-    // friend bool operator!=(unsigned int a, mpfp const & b) { return !operator==(a,b); }
-    // friend bool operator!=(int a, mpfp const & b) { return !operator==(a,b); }
+    friend bool operator!=(unsigned long int const a, mpfp const & b) { return cmp(b, a) != 0; }
+    friend bool operator!=(long int const a         , mpfp const & b) { return cmp(b, a) != 0; }
+    friend bool operator!=(double const a           , mpfp const & b) { return cmp(b, a) != 0; }
+    friend bool operator!=(long double const a      , mpfp const & b) { return cmp(b, a) != 0; }
+    friend bool operator!=(mpz_t const & a          , mpfp const & b) { return cmp(b, a) != 0; }
+    friend bool operator!=(mpq_t const & a          , mpfp const & b) { return cmp(b, a) != 0; }
+    friend bool operator!=(mpf_t const & a          , mpfp const & b) { return cmp(b, a) != 0; }
+    friend bool operator!=(mpfp const & a, mpz const & b            ) { return cmp(a, b) != 0; }
+    friend bool operator!=(mpfp const & a, unsigned long int const b) { return cmp(a, b) != 0; }
+    friend bool operator!=(mpfp const & a, long int const b         ) { return cmp(a, b) != 0; }
+    friend bool operator!=(mpfp const & a, double const b           ) { return cmp(a, b) != 0; }
+    friend bool operator!=(mpfp const & a, long double const b      ) { return cmp(a, b) != 0; }
+    friend bool operator!=(mpfp const & a, mpz_t const & b          ) { return cmp(a, b) != 0; }
+    friend bool operator!=(mpfp const & a, mpq_t const & b          ) { return cmp(a, b) != 0; }
+    friend bool operator!=(mpfp const & a, mpf_t const & b          ) { return cmp(a, b) != 0; }
 
     mpfp & add(mpfp const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_add(m_val, m_val, o.m_val, rnd); return *this; }
     mpfp & add(unsigned long int const o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_add_ui(m_val, m_val, o, rnd); return *this; }
@@ -423,34 +438,51 @@ public:
     mpfp & operator^=(unsigned long int k) { return pow(k); }
     friend mpfp operator^(mpfp a, unsigned long int k) { return a ^= k; }
 
-    // mpfp & operator++() { return operator+=(1); }
-    // mpfp operator++(int) { mpfp r(*this); ++(*this); return r; }
+    mpfp & operator++() { return operator+=(1lu); }
+    mpfp operator++(int) { mpfp r(*this); ++(*this); return r; }
 
-    // mpfp & operator--() { return operator-=(1); }
-    // mpfp operator--(int) { mpfp r(*this); --(*this); return r; }
+    mpfp & operator--() { return operator-=(1lu); }
+    mpfp operator--(int) { mpfp r(*this); --(*this); return r; }
 
-    // void floor();
-    // friend mpz floor(mpfp const & a);
+    void floor() { mpfr_floor(m_val, m_val); }
+    void ceil () { mpfr_ceil (m_val, m_val); }
+    void round() { mpfr_round(m_val, m_val); }
+    void trunc() { mpfr_trunc(m_val, m_val); }
+    void rfloor(mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_rint_floor(m_val, m_val, rnd); }
+    void rceil (mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_rint_ceil (m_val, m_val, rnd); }
+    void rround(mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_rint_round(m_val, m_val, rnd); }
+    void rtrunc(mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_rint_trunc(m_val, m_val, rnd); }
 
-    // void ceil();
-    // friend mpz ceil(mpfp const & a);
+    friend mpfp floor(mpfp const & a) { static thread_local mpfp tmp; tmp = a; tmp.floor(); return tmp; }
+    friend mpfp ceil (mpfp const & a) { static thread_local mpfp tmp; tmp = a; tmp.ceil();  return tmp; }
+    friend mpfp round(mpfp const & a) { static thread_local mpfp tmp; tmp = a; tmp.round(); return tmp; }
+    friend mpfp trunc(mpfp const & a) { static thread_local mpfp tmp; tmp = a; tmp.trunc(); return tmp; }
+    friend mpfp rfloor(mpfp const & a, mpfr_rnd_t rnd = MPFR_RNDN) {
+        static thread_local mpfp tmp; tmp = a; tmp.rfloor(rnd); return tmp;
+    }
+    friend mpfp rceil (mpfp const & a, mpfr_rnd_t rnd = MPFR_RNDN) {
+        static thread_local mpfp tmp; tmp = a; tmp.rceil(rnd);  return tmp;
+    }
+    friend mpfp rround(mpfp const & a, mpfr_rnd_t rnd = MPFR_RNDN) {
+        static thread_local mpfp tmp; tmp = a; tmp.rround(rnd); return tmp;
+    }
+    friend mpfp rtrunc(mpfp const & a, mpfr_rnd_t rnd = MPFR_RNDN) {
+        static thread_local mpfp tmp; tmp = a; tmp.rtrunc(rnd); return tmp;
+    }
 
-    // friend void power(mpfp & a, mpfp const & b, unsigned k);
-    // friend void _power(mpfp & a, mpfp const & b, unsigned k) { power(a, b, k); }
-    // friend mpfp power(mpfp a, unsigned k) { power(a, a, k); return a; }
+    void power(mpfp const & b, mpfr_rnd_t rnd = MPFR_RNDN)      { mpfr_pow(m_val, m_val, b.m_val, rnd); }
+    void power(unsigned long int b, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_pow_ui(m_val, m_val, b, rnd); }
+    void power(long int b, mpfr_rnd_t rnd = MPFR_RNDN)          { mpfr_pow_si(m_val, m_val, b, rnd); }
+    void power(mpz_t const & b, mpfr_rnd_t rnd = MPFR_RNDN)     { mpfr_pow_z(m_val, m_val, b, rnd); }
+    void power(mpz const & b, mpfr_rnd_t rnd = MPFR_RNDN)       { mpfr_pow_z(m_val, m_val, b.m_val, rnd); }
+
+    friend mpfp power(mpfp a, mpfp const & b, mpfr_rnd_t rnd = MPFR_RNDN) { a.power(b, rnd); return a;; }
+    friend mpfp power(mpfp a, unsigned long int b, mpfr_rnd_t rnd = MPFR_RNDN) { a.power(b, rnd); return a;; }
+    friend mpfp power(mpfp a, long int b, mpfr_rnd_t rnd = MPFR_RNDN)          { a.power(b, rnd); return a;; }
+    friend mpfp power(mpfp a, mpz_t const & b, mpfr_rnd_t rnd = MPFR_RNDN)     { a.power(b, rnd); return a;; }
+    friend mpfp power(mpfp a, mpz const & b, mpfr_rnd_t rnd = MPFR_RNDN)       { a.power(b, rnd); return a;; }
 
     friend std::ostream & operator<<(std::ostream & out, mpfp const & v);
-
-    // friend void display_decimal(std::ostream & out, mpfp const & a, unsigned prec);
-
-    // class decimal {
-    //     mpfp const & m_val;
-    //     unsigned     m_prec;
-    // public:
-    //     decimal(mpfp const & val, unsigned prec = 10):m_val(val), m_prec(prec) {}
-    //     friend std::ostream & operator<<(std::ostream & out, decimal const & d) { display_decimal(out, d.m_val, d.m_prec); return out; }
-    // };
-
 };
 
 // Macro to implement transcendental functions
@@ -467,7 +499,7 @@ public:
     static void set_rounding(bool plus_inf) { rnd = plus_inf ? MPFR_RNDU :MPFR_RNDD; }
     static void neg(mpfp & v) { v.neg(); }
 //    static void inv(mpfp & v) { v.inv(); }
-//    static void reset(mpfp & v) { v = 0; }
+    static void reset(mpfp & v) { v = 0.0; }
     // v <- v^k
     static void power(mpfp & v, unsigned k) { v.pow(k); }
 

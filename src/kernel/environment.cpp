@@ -152,7 +152,7 @@ struct environment::imp {
         lean_unreachable();
     }
 
-    level define_uvar(name const & n, level const & l) {
+    level add_uvar(name const & n, level const & l) {
         if (has_parent())
             throw exception("invalid universe declaration, universe variables can only be declared in top-level environments");
         if (has_children())
@@ -298,18 +298,6 @@ environment::environment(std::shared_ptr<imp> const & ptr):
 environment::~environment() {
 }
 
-level environment::define_uvar(name const & n, level const & l) {
-    return m_imp->define_uvar(n, l);
-}
-
-bool environment::is_ge(level const & l1, level const & l2) const {
-    return m_imp->is_ge(l1, l2);
-}
-
-void environment::display_uvars(std::ostream & out) const {
-    m_imp->display_uvars(out);
-}
-
 environment environment::mk_child() const {
     return environment(new imp(m_imp));
 }
@@ -325,6 +313,18 @@ bool environment::has_parent() const {
 environment environment::parent() const {
     lean_assert(has_parent());
     return environment(m_imp->m_parent);
+}
+
+level environment::add_uvar(name const & n, level const & l) {
+    return m_imp->add_uvar(n, l);
+}
+
+bool environment::is_ge(level const & l1, level const & l2) const {
+    return m_imp->is_ge(l1, l2);
+}
+
+void environment::display_uvars(std::ostream & out) const {
+    m_imp->display_uvars(out);
 }
 
 level environment::get_uvar(name const & n) const {

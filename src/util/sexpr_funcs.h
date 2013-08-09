@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 namespace lean {
 
 template<typename F>
-void foreach(sexpr const & l, F f) {
+void for_each(sexpr const & l, F f) {
     static_assert(std::is_same<typename std::result_of<F(sexpr const &)>::type, void>::value,
                   "foreach: return type of f is not void");
     lean_assert(is_list(l));

@@ -177,7 +177,7 @@ public:
     friend format compose(format const & f1, format const & f2);
     friend format nest(int i, format const & f);
     friend format highlight(format const & f, format::format_color const c = RED);
-    friend format line();
+    friend format mk_line();
 
     friend format group(format const & f);
     friend format above(format const & f1, format const & f2);
@@ -208,7 +208,12 @@ format wrap(format const & f1, format const & f2);
 format compose(format const & f1, format const & f2);
 format nest(int i, format const & f);
 format highlight(format const & f, format::format_color const c);
-format line();
+format const & line();
+format const & space();
+format const & lp();
+format const & rp();
+format const & comma();
+format const & dot();
 format group(format const & f);
 format above(format const & f1, format const & f2);
 format bracket(std::string const l, format const & x, std::string const r);
@@ -275,4 +280,16 @@ format fillwords(InputIterator first, InputIterator last) {
 inline format fillwords(std::initializer_list<std::string> const & l) {
     return fillwords(l.begin(), l.end());
 }
+class options;
+/** \brief Extract indentation from options */
+unsigned get_pp_indent(options const & o);
+
+/** \brief Format a hierarchical name */
+format pp(name const & n, char const * s);
+format pp(name const & n, options const & o);
+format pp(name const & n);
+
+/** \brief Format a S-expression */
+format pp(sexpr const & s, options const & o);
+format pp(sexpr const & s);
 }

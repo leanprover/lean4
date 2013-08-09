@@ -4,12 +4,23 @@
 
   Author: Soonho Kong
 */
+#include <sstream>
 #include "sexpr.h"
 #include "format.h"
+#include "escaped.h"
 #include "sexpr_funcs.h"
+#include "options.h"
+
+#ifndef LEAN_DEFAULT_INDENTATION
+#define LEAN_DEFAULT_INDENTATION 4
+#endif
+
+#ifndef LEAN_DEFAULT_WIDTH
+#define LEAN_DEFAULT_WIDTH 120
+#endif
 
 namespace lean {
-static int default_width = 78;
+static int default_width = LEAN_DEFAULT_WIDTH;
 std::ostream & layout(std::ostream & out, sexpr const & s) {
     lean_assert(!is_nil(s));
     switch (format::sexpr_kind(s)) {
@@ -53,7 +64,7 @@ std::ostream & layout(std::ostream & out, sexpr const & s) {
 }
 
 std::ostream & layout_list(std::ostream & out, sexpr const & s) {
-    foreach(s, [&out](sexpr const & s) {
+    for_each(s, [&out](sexpr const & s) {
             layout(out, s);
         });
     return out;
@@ -68,10 +79,35 @@ format nest(int i, format const & f) {
 format highlight(format const & f, format::format_color const c) {
     return format(format::sexpr_highlight(f.m_value, c));
 }
-format line() {
+// Commonly used format objects
+format mk_line() {
     return format(format::sexpr_line());
 }
-
+static format g_line(mk_line());
+static format g_space(" ");
+static format g_lp("(");
+static format g_rp(")");
+static format g_comma(",");
+static format g_dot(".");
+format const & line() {
+    return g_line;
+}
+format const & space() {
+    return g_space;
+}
+format const & lp() {
+    return g_lp;
+}
+format const & rp() {
+    return g_rp;
+}
+format const & comma() {
+    return g_comma;
+}
+format const & dot() {
+    return g_dot;
+}
+//
 sexpr format::flatten(sexpr const & s) {
     lean_assert(is_cons(s));
     switch (sexpr_kind(s)) {
@@ -243,8 +279,7 @@ sexpr format::best(unsigned w, unsigned k, sexpr const & s) {
     return be(w, k, sexpr{sexpr(0, s)});
 }
 
-std::ostream & operator<<(std::ostream & out, format const & f)
-{
+std::ostream & operator<<(std::ostream & out, format const & f) {
     return pretty(out, default_width, f);
 }
 
@@ -260,4 +295,73 @@ std::ostream & pretty(std::ostream & out, unsigned w, format const & f) {
     sexpr const & b = format::best(w, 0, f.m_value);
     return layout_list(out, b);
 }
+
+static name g_pp_indent{"pp", "indent"};
+
+unsigned get_pp_indent(options const & o) {
+    return o.get_int(g_pp_indent, LEAN_DEFAULT_INDENTATION);
+}
+
+format pp(name const & n, char const * sep) {
+    return format(n.to_string(sep));
+}
+
+format pp(name const & n, options const & o) {
+    return pp(n, get_name_separator(o));
+}
+
+format pp(name const & n) {
+    return pp(n, get_name_separator(options()));
+}
+
+struct sexpr_pp_fn {
+    char const * m_sep;
+
+    format apply(sexpr const & s) {
+        switch (s.kind()) {
+        case sexpr_kind::NIL:         return format("nil");
+        case sexpr_kind::STRING: {
+            std::ostringstream ss;
+            ss << "\"" << escaped(to_string(s).c_str()) << "\"";
+            return format(ss.str());
+        }
+        case sexpr_kind::BOOL:        return format(to_bool(s) ? "true" : "false");
+        case sexpr_kind::INT:         return format(to_int(s));
+        case sexpr_kind::DOUBLE:      return format(to_double(s));
+        case sexpr_kind::NAME:        return pp(to_name(s), m_sep);
+        case sexpr_kind::MPZ:         return format(to_mpz(s));
+        case sexpr_kind::MPQ:         return format(to_mpq(s));
+        case sexpr_kind::CONS: {
+            sexpr const * curr = &s;
+            format r;
+            while (true) {
+                r += apply(head(*curr));
+                curr = &tail(*curr);
+                if (is_nil(*curr)) {
+                    return group(nest(1, format{lp(), r, rp()}));
+                } else if (!is_cons(*curr)) {
+                    return group(nest(1, format{lp(), r, space(), dot(), line(), apply(*curr), rp()}));
+                } else {
+                    r += line();
+                }
+            }
+        }}
+        lean_unreachable();
+        return format();
+    }
+
+    format operator()(sexpr const & s, options const & o) {
+        m_sep    = get_name_separator(o);
+        return apply(s);
+    }
+};
+
+format pp(sexpr const & s, options const & o) {
+    return sexpr_pp_fn()(s, o);
+}
+
+format pp(sexpr const & s) {
+    return pp(s, options());
+}
+
 }

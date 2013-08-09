@@ -10,6 +10,8 @@ Author: Leonardo de Moura
 #include "mpq.h"
 #include "name.h"
 #include "test.h"
+#include "format.h"
+#include "options.h"
 using namespace lean;
 
 static void tst1() {
@@ -116,7 +118,7 @@ static void tst2() {
 
 static void tst3() {
     int sum = 0;
-    foreach(sexpr{0, 1, 2, 3, 4},
+    for_each(sexpr{0, 1, 2, 3, 4},
             [&](sexpr const & e) { sum += to_int(e); });
     lean_assert(sum == 10);
 }
@@ -162,6 +164,13 @@ static void tst6() {
     lean_assert(s.str() == "\"str with \\\"quote\\\"\"");
 }
 
+static void tst7() {
+    sexpr s = sexpr{ sexpr(1,2), sexpr(2,3), sexpr(0,1) };
+    std::cout << pp(sexpr{s, s, s, s, s}) << "\n";
+    std::cout << pp(sexpr{sexpr(name{"test","name"}), sexpr(10), sexpr(10.20)}) << "\n";
+    std::cout << pp(sexpr{sexpr(name{"test","name"}), sexpr(10), sexpr(10.20)}, options(name{"name","separator"}, "-->")) << "\n";
+}
+
 int main() {
     continue_on_violation(true);
     tst1();
@@ -170,5 +179,6 @@ int main() {
     tst4();
     tst5();
     tst6();
+    tst7();
     return has_violations() ? 1 : 0;
 }

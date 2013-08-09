@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-constexpr char const * default_name_separator = "\u2055";
+constexpr char const * default_name_separator = "::";
 enum class name_kind { ANONYMOUS, STRING, NUMERAL };
 
 /**
@@ -53,11 +53,13 @@ public:
     /**
        \brief Convert this hierarchical name into a string using the given separator to "glue" the different limbs.
     */
-    std::string to_string(char const * sep = default_name_separator) const;
+    std::string to_string(char const * sep) const;
+    std::string to_string() const;
     /**
        \brief Size of the this name (in characters) when using the given separator.
     */
-    size_t size(char const * sep = default_name_separator) const;
+    size_t size(char const * sep) const;
+    size_t size() const;
     unsigned hash() const;
     friend std::ostream & operator<<(std::ostream & out, name const & n);
     class sep {
@@ -71,4 +73,8 @@ public:
 };
 struct name_hash { unsigned operator()(name const & n) const { return n.hash(); } };
 struct name_eq { bool operator()(name const & n1, name const & n2) const { return n1 == n2; } };
+
+class options;
+/** \brief Return the separator for hierarchical names */
+char const * get_name_separator(options const & o);
 }

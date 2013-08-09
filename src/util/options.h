@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <algorithm>
 #include "sexpr.h"
 #include "format.h"
 #include "name.h"
@@ -18,6 +19,7 @@ public:
     options() {}
     options(options const & o):m_value(o.m_value) {}
     options(options && o):m_value(std::move(o.m_value)) {}
+    template<typename T> options(name const & n, T const & t) { *this = update(n, t); }
     ~options() {}
 
     options & operator=(options const & o) { m_value = o.m_value; return *this; }
@@ -30,11 +32,13 @@ public:
     bool          get_bool(name const & n, bool default_value=false) const;
     int           get_int(name const & n, int default_value=0) const;
     double        get_double(name const & n, double default_value=0.0) const;
+    char const *  get_string(name const & n, char const * default_value=nullptr) const;
     sexpr const & get_sexpr(name const & n, sexpr const & default_value=sexpr()) const;
 
     bool          get_bool(char const * n, bool default_value=false) const;
     int           get_int(char const * n, int default_value=0) const;
     double        get_double(char const * n, double default_value=0.0) const;
+    char const *  get_string(char const * n, char const * default_value=nullptr) const;
     sexpr const & get_sexpr(char const * n, sexpr const & default_value=sexpr()) const;
 
     options update(name const & n, sexpr const & v) const;

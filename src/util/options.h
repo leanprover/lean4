@@ -29,17 +29,17 @@ public:
     bool contains(name const & n) const;
     bool contains(char const * n) const;
 
-    bool          get_bool(name const & n, bool default_value=false) const;
-    int           get_int(name const & n, int default_value=0) const;
-    double        get_double(name const & n, double default_value=0.0) const;
-    char const *  get_string(name const & n, char const * default_value=nullptr) const;
-    sexpr const & get_sexpr(name const & n, sexpr const & default_value=sexpr()) const;
+    bool         get_bool(name const & n, bool default_value=false) const;
+    int          get_int(name const & n, int default_value=0) const;
+    double       get_double(name const & n, double default_value=0.0) const;
+    char const * get_string(name const & n, char const * default_value=nullptr) const;
+    sexpr        get_sexpr(name const & n, sexpr const & default_value=sexpr()) const;
 
-    bool          get_bool(char const * n, bool default_value=false) const;
-    int           get_int(char const * n, int default_value=0) const;
-    double        get_double(char const * n, double default_value=0.0) const;
-    char const *  get_string(char const * n, char const * default_value=nullptr) const;
-    sexpr const & get_sexpr(char const * n, sexpr const & default_value=sexpr()) const;
+    bool         get_bool(char const * n, bool default_value=false) const;
+    int          get_int(char const * n, int default_value=0) const;
+    double       get_double(char const * n, double default_value=0.0) const;
+    char const * get_string(char const * n, char const * default_value=nullptr) const;
+    sexpr        get_sexpr(char const * n, sexpr const & default_value=sexpr()) const;
 
     options update(name const & n, sexpr const & v) const;
     template<typename T> options update(name const & n, T v) const { return update(n, sexpr(v)); }

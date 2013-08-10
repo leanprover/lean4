@@ -25,7 +25,7 @@ bool options::contains(char const * n) const {
     return ::lean::contains(m_value, [&](sexpr const & p) { return to_name(head(p)) == n; });
 }
 
-sexpr const & options::get_sexpr(name const & n, sexpr const & default_value) const {
+sexpr options::get_sexpr(name const & n, sexpr const & default_value) const {
     sexpr const * r = find(m_value, [&](sexpr const & p) { return to_name(head(p)) == n; });
     return r == nullptr ? default_value : tail(*r);
 }
@@ -50,7 +50,7 @@ char const * options::get_string(name const & n, char const * default_value) con
     return !is_nil(r) && is_string(r) ? to_string(r).c_str() : default_value;
 }
 
-sexpr const & options::get_sexpr(char const * n, sexpr const & default_value) const {
+sexpr options::get_sexpr(char const * n, sexpr const & default_value) const {
     sexpr const * r = find(m_value, [&](sexpr const & p) { return to_name(head(p)) == n; });
     return r == nullptr ? default_value : *r;
 }

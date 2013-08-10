@@ -17,7 +17,7 @@ typedef interval<double> di;
 typedef interval<mpfp> fi;
 typedef std::vector<qi> qiv;
 
-qiv mk_some_intervals(int low, int hi) {
+static qiv mk_some_intervals(int low, int hi) {
     qiv r;
     for (unsigned lo = 0; lo < 2; lo++)
     for (unsigned uo = 0; uo < 2; uo++)

@@ -23,15 +23,18 @@ void double_power(double & v, unsigned k);
     t.f(rnd);                                          \
     v = t.get_double(rnd);
 
+void set_double_rnd(bool plus_inf);
+mpfr_rnd_t get_double_rnd();
+
 template<>
 class numeric_traits<double> {
 public:
-    static thread_local mpfr_rnd_t rnd;
     static bool precise() { return false; }
     static bool is_zero(double v) { return v == 0.0; }
     static bool is_pos(double v) { return v > 0.0; }
     static bool is_neg(double v) { return v < 0.0; }
-    static void set_rounding(bool plus_inf) { rnd = plus_inf ? MPFR_RNDU : MPFR_RNDD; }
+    static mpfr_rnd_t rnd() { return get_double_rnd(); }
+    static void set_rounding(bool plus_inf) { set_double_rnd(plus_inf); }
     static void neg(double & v) { v = -v; }
     static void inv(double & v) { v = 1.0/v; }
     static void reset(double & v) { v = 0.0; }
@@ -53,26 +56,26 @@ public:
     static inline double pi_twice_upper() { return pi_u * 2; }
 
     // Transcendental functions using MPFR
-    static void exp(double & v)   { LEAN_TRANS_DOUBLE_FUNC(exp,   v, rnd); }
-    static void exp2(double & v)  { LEAN_TRANS_DOUBLE_FUNC(exp2,  v, rnd); }
-    static void exp10(double & v) { LEAN_TRANS_DOUBLE_FUNC(exp10, v, rnd); }
-    static void log(double & v)   { LEAN_TRANS_DOUBLE_FUNC(log,   v, rnd); }
-    static void log2(double & v)  { LEAN_TRANS_DOUBLE_FUNC(log2,  v, rnd); }
-    static void log10(double & v) { LEAN_TRANS_DOUBLE_FUNC(log10, v, rnd); }
-    static void sin(double & v)   { LEAN_TRANS_DOUBLE_FUNC(sin,   v, rnd); }
-    static void cos(double & v)   { LEAN_TRANS_DOUBLE_FUNC(cos,   v, rnd); }
-    static void tan(double & v)   { LEAN_TRANS_DOUBLE_FUNC(tan,   v, rnd); }
-    static void sec(double & v)   { LEAN_TRANS_DOUBLE_FUNC(sec,   v, rnd); }
-    static void csc(double & v)   { LEAN_TRANS_DOUBLE_FUNC(csc,   v, rnd); }
-    static void cot(double & v)   { LEAN_TRANS_DOUBLE_FUNC(cot,   v, rnd); }
-    static void asin(double & v)  { LEAN_TRANS_DOUBLE_FUNC(asin,  v, rnd); }
-    static void acos(double & v)  { LEAN_TRANS_DOUBLE_FUNC(acos,  v, rnd); }
-    static void atan(double & v)  { LEAN_TRANS_DOUBLE_FUNC(atan,  v, rnd); }
-    static void sinh(double & v)  { LEAN_TRANS_DOUBLE_FUNC(sinh,  v, rnd); }
-    static void cosh(double & v)  { LEAN_TRANS_DOUBLE_FUNC(cosh,  v, rnd); }
-    static void tanh(double & v)  { LEAN_TRANS_DOUBLE_FUNC(tanh,  v, rnd); }
-    static void asinh(double & v) { LEAN_TRANS_DOUBLE_FUNC(asinh, v, rnd); }
-    static void acosh(double & v) { LEAN_TRANS_DOUBLE_FUNC(acosh, v, rnd); }
-    static void atanh(double & v) { LEAN_TRANS_DOUBLE_FUNC(atanh, v, rnd); }
+    static void exp(double & v)   { LEAN_TRANS_DOUBLE_FUNC(exp,   v, rnd()); }
+    static void exp2(double & v)  { LEAN_TRANS_DOUBLE_FUNC(exp2,  v, rnd()); }
+    static void exp10(double & v) { LEAN_TRANS_DOUBLE_FUNC(exp10, v, rnd()); }
+    static void log(double & v)   { LEAN_TRANS_DOUBLE_FUNC(log,   v, rnd()); }
+    static void log2(double & v)  { LEAN_TRANS_DOUBLE_FUNC(log2,  v, rnd()); }
+    static void log10(double & v) { LEAN_TRANS_DOUBLE_FUNC(log10, v, rnd()); }
+    static void sin(double & v)   { LEAN_TRANS_DOUBLE_FUNC(sin,   v, rnd()); }
+    static void cos(double & v)   { LEAN_TRANS_DOUBLE_FUNC(cos,   v, rnd()); }
+    static void tan(double & v)   { LEAN_TRANS_DOUBLE_FUNC(tan,   v, rnd()); }
+    static void sec(double & v)   { LEAN_TRANS_DOUBLE_FUNC(sec,   v, rnd()); }
+    static void csc(double & v)   { LEAN_TRANS_DOUBLE_FUNC(csc,   v, rnd()); }
+    static void cot(double & v)   { LEAN_TRANS_DOUBLE_FUNC(cot,   v, rnd()); }
+    static void asin(double & v)  { LEAN_TRANS_DOUBLE_FUNC(asin,  v, rnd()); }
+    static void acos(double & v)  { LEAN_TRANS_DOUBLE_FUNC(acos,  v, rnd()); }
+    static void atan(double & v)  { LEAN_TRANS_DOUBLE_FUNC(atan,  v, rnd()); }
+    static void sinh(double & v)  { LEAN_TRANS_DOUBLE_FUNC(sinh,  v, rnd()); }
+    static void cosh(double & v)  { LEAN_TRANS_DOUBLE_FUNC(cosh,  v, rnd()); }
+    static void tanh(double & v)  { LEAN_TRANS_DOUBLE_FUNC(tanh,  v, rnd()); }
+    static void asinh(double & v) { LEAN_TRANS_DOUBLE_FUNC(asinh, v, rnd()); }
+    static void acosh(double & v) { LEAN_TRANS_DOUBLE_FUNC(acosh, v, rnd()); }
+    static void atanh(double & v) { LEAN_TRANS_DOUBLE_FUNC(atanh, v, rnd()); }
 };
 }

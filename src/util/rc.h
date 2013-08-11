@@ -34,9 +34,10 @@ void dec_ref() { if (dec_ref_core()) dealloc(); }
 #define LEAN_COPY_REF(T, Arg)                   \
     if (Arg.m_ptr)                              \
         Arg.m_ptr->inc_ref();                   \
+    auto new_ptr = Arg.m_ptr;                   \
     if (m_ptr)                                  \
         m_ptr->dec_ref();                       \
-    m_ptr = Arg.m_ptr;                          \
+    m_ptr = new_ptr;				\
     return *this;
 
 #define LEAN_MOVE_REF(T, Arg)                   \

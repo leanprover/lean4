@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <sstream>
 #include "type_check.h"
+#include "scoped_map.h"
 #include "normalize.h"
 #include "instantiate.h"
 #include "builtin.h"
@@ -43,7 +44,10 @@ bool is_convertible(expr const & expected, expr const & given, environment const
 }
 
 struct infer_type_fn {
+    typedef scoped_map<expr, expr, expr_hash, expr_eqp> cache;
+
     environment const & m_env;
+    cache               m_cache;
 
     expr lookup(context const & c, unsigned i) {
         context const & def_c = ::lean::lookup(c, i);
@@ -87,11 +91,26 @@ struct infer_type_fn {
 
     expr infer_type(expr const & e, context const & ctx) {
         lean_trace("type_check", tout << "infer type\n" << e << "\n" << ctx << "\n";);
+
+        bool shared = false;
+        if (true && is_shared(e)) {
+            shared = true;
+            auto it = m_cache.find(e);
+            if (it != m_cache.end())
+                return it->second;
+        }
+
+        expr r;
         switch (e.kind()) {
         case expr_kind::Constant:
-            return m_env.get_object(const_name(e)).get_type();
-        case expr_kind::Var:      return lookup(ctx, var_idx(e));
-        case expr_kind::Type:     return mk_type(ty_level(e) + 1);
+            r = m_env.get_object(const_name(e)).get_type();
+            break;
+        case expr_kind::Var:
+            r = lookup(ctx, var_idx(e));
+            break;
+        case expr_kind::Type:
+            r = mk_type(ty_level(e) + 1);
+            break;
         case expr_kind::App: {
             expr f_t     = infer_pi(arg(e, 0), ctx);
             unsigned i   = 1;
@@ -111,32 +130,56 @@ struct infer_type_fn {
                 }
                 f_t = instantiate(abst_body(f_t), c);
                 i++;
-                if (i == num)
-                    return f_t;
+                if (i == num) {
+                    r = f_t;
+                    break;
+                }
                 check_pi(f_t, ctx);
             }
+            break;
         }
         case expr_kind::Eq:
             infer_type(eq_lhs(e), ctx);
             infer_type(eq_rhs(e), ctx);
-            return mk_bool_type();
+            r = mk_bool_type();
+            break;
         case expr_kind::Lambda: {
             infer_universe(abst_domain(e), ctx);
-            expr t = infer_type(abst_body(e), extend(ctx, abst_name(e), abst_domain(e)));
-            return mk_pi(abst_name(e), abst_domain(e), t);
+            expr t;
+            {
+                cache::mk_scope sc(m_cache);
+                t = infer_type(abst_body(e), extend(ctx, abst_name(e), abst_domain(e)));
+            }
+            r = mk_pi(abst_name(e), abst_domain(e), t);
+            break;
         }
         case expr_kind::Pi: {
             level l1 = infer_universe(abst_domain(e), ctx);
-            level l2 = infer_universe(abst_body(e), extend(ctx, abst_name(e), abst_domain(e)));
-            return mk_type(max(l1, l2));
+            level l2;
+            {
+                cache::mk_scope sc(m_cache);
+                l2 = infer_universe(abst_body(e), extend(ctx, abst_name(e), abst_domain(e)));
+            }
+            r = mk_type(max(l1, l2));
+            break;
         }
-        case expr_kind::Let:
-            return infer_type(let_body(e), extend(ctx, let_name(e), infer_type(let_value(e), ctx), let_value(e)));
+        case expr_kind::Let: {
+            expr lt = infer_type(let_value(e), ctx);
+            {
+                cache::mk_scope sc(m_cache);
+                r = infer_type(let_body(e), extend(ctx, let_name(e), lt, let_value(e)));
+            }
+            break;
+        }
         case expr_kind::Value:
-            return to_value(e).get_type();
+            r = to_value(e).get_type();
+            break;
         }
-        lean_unreachable();
-        return e;
+
+        if (shared) {
+            m_cache.insert(e, r);
+        }
+        return r;
     }
 
     infer_type_fn(environment const & env):

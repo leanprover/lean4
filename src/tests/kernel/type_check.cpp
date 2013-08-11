@@ -9,6 +9,8 @@ Author: Leonardo de Moura
 #include "environment.h"
 #include "abstract.h"
 #include "exception.h"
+#include "toplevel.h"
+#include "basic_thms.h"
 #include "builtin.h"
 #include "arith.h"
 #include "trace.h"
@@ -82,12 +84,29 @@ static void tst4() {
     std::cout << infer_type(pr, env) << "\n";
 }
 
+static void tst5() {
+    environment env = mk_toplevel();
+    env.add_var("P", Bool);
+    expr P = Const("P");
+    expr H = Const("H");
+    unsigned n = 500;
+    expr prop = P;
+    expr pr   = H;
+    for (unsigned i = 1; i < n; i++) {
+        pr   = Conj(P, prop, H, pr);
+        prop = And(P, prop);
+    }
+    expr impPr = Discharge(P, prop, Fun({H, P}, pr));
+    expr prop2 = infer_type(impPr, env);
+    lean_assert(Implies(P, prop) == prop2);
+}
+
 int main() {
     continue_on_violation(true);
-    enable_trace("type_check");
     tst1();
     tst2();
     tst3();
     tst4();
+    tst5();
     return has_violations() ? 1 : 0;
 }

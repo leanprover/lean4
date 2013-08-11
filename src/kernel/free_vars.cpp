@@ -63,7 +63,7 @@ protected:
             break;
         }
 
-        if (m_set_closed_flag && !result)
+        if (m_set_closed_flag && !result && offset == 0)
             e.raw()->set_closed();
 
         return result;

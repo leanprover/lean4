@@ -128,7 +128,9 @@ struct infer_type_fn {
                         buffer << "\nin context:\n" << ctx;
                     throw exception(buffer.str());
                 }
-                if (closed(c))
+                if (closed(abst_body(f_t)))
+                    f_t = abst_body(f_t);
+                else if (closed(c))
                     f_t = instantiate_with_closed(abst_body(f_t), c);
                 else
                     f_t = instantiate(abst_body(f_t), c);

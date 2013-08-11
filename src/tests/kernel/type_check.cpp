@@ -89,7 +89,7 @@ static void tst5() {
     env.add_var("P", Bool);
     expr P = Const("P");
     expr H = Const("H");
-    unsigned n = 500;
+    unsigned n = 4000;
     expr prop = P;
     expr pr   = H;
     for (unsigned i = 1; i < n; i++) {

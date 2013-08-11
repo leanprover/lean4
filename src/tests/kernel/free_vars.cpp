@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "free_vars.h"
+#include "abstract.h"
 #include "test.h"
 using namespace lean;
 
@@ -29,8 +30,19 @@ static void tst1() {
     lean_assert(lower_free_vars(mk_lambda("_", t, f(Var(0))), 1) == mk_lambda("_", t, f(Var(0))));
 }
 
+static void tst2() {
+    expr f = Const("f");
+    expr x = Const("x");
+    expr y = Const("y");
+    expr B = Const("Bool");
+    expr t = Fun({x, B}, Fun({y, B}, x));
+    lean_assert(closed(t));
+    lean_assert(!closed(abst_body(t)));
+}
+
 int main() {
     continue_on_violation(true);
     tst1();
+    tst2();
     return has_violations() ? 1 : 0;
 }

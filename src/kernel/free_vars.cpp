@@ -14,12 +14,7 @@ namespace lean {
 /** \brief Functional object for checking whether a kernel expression has free variables or not. */
 class has_free_vars_fn {
 protected:
-    expr_cell_offset_set m_visited;
-    bool                 m_set_closed_flag;
-
-    virtual bool process_var(expr const & x, unsigned offset) {
-        return var_idx(x) >= offset;
-    }
+    expr_cell_offset_set m_cached;
 
     bool apply(expr const & e, unsigned offset) {
         // handle easy cases
@@ -27,7 +22,7 @@ protected:
         case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
             return false;
         case expr_kind::Var:
-            return process_var(e, offset);
+            return var_idx(e) >= offset;
         case expr_kind::App: case expr_kind::Eq: case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Let:
             break;
         }
@@ -35,11 +30,22 @@ protected:
         if (e.raw()->is_closed())
             return false;
 
+        if (offset == 0) {
+            return apply_core(e, 0);
+        } else {
+            // The apply_core(e, 0) may seem redundant, but it allows us to
+            // mark nested closed expressions.
+            return apply_core(e, 0) && apply_core(e, offset);
+        }
+    }
+
+    bool apply_core(expr const & e, unsigned offset) {
+        bool shared = false;
         if (is_shared(e)) {
+            shared = true;
             expr_cell_offset p(e.raw(), offset);
-            if (m_visited.find(p) != m_visited.end())
+            if (m_cached.find(p) != m_cached.end())
                 return false;
-            m_visited.insert(p);
         }
 
         bool result = false;
@@ -63,34 +69,87 @@ protected:
             break;
         }
 
-        if (m_set_closed_flag && !result && offset == 0)
-            e.raw()->set_closed();
+        if (!result) {
+            if (offset == 0)
+                e.raw()->set_closed();
+            if (shared)
+                m_cached.insert(expr_cell_offset(e.raw(), offset));
+        }
 
         return result;
     }
 public:
-    has_free_vars_fn(bool s):m_set_closed_flag(s) {}
+    has_free_vars_fn() {}
     bool operator()(expr const & e) { return apply(e, 0); }
 };
 
 bool has_free_vars(expr const & e) {
-    return has_free_vars_fn(true)(e);
+    return has_free_vars_fn()(e);
 }
 
 /** \brief Functional object for checking whether a kernel expression has a free variable in the range <tt>[low, high)</tt> or not. */
-class has_free_var_in_range_fn : public has_free_vars_fn {
-    unsigned m_low;
-    unsigned m_high;
-    virtual bool process_var(expr const & x, unsigned offset) {
-        return var_idx(x) >= offset + m_low && var_idx(x) < offset + m_high;
+class has_free_var_in_range_fn {
+protected:
+    unsigned             m_low;
+    unsigned             m_high;
+    expr_cell_offset_set m_cached;
+
+    bool apply(expr const & e, unsigned offset) {
+        // handle easy cases
+        switch (e.kind()) {
+        case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
+            return false;
+        case expr_kind::Var:
+            return var_idx(e) >= offset + m_low && var_idx(e) < offset + m_high;
+        case expr_kind::App: case expr_kind::Eq: case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Let:
+            break;
+        }
+
+        if (e.raw()->is_closed())
+            return false;
+
+        bool shared = false;
+        if (is_shared(e)) {
+            shared = true;
+            expr_cell_offset p(e.raw(), offset);
+            if (m_cached.find(p) != m_cached.end())
+                return false;
+        }
+
+        bool result = false;
+
+        switch (e.kind()) {
+        case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value: case expr_kind::Var:
+            // easy cases were already handled
+            lean_unreachable(); return false;
+        case expr_kind::App:
+            result = std::any_of(begin_args(e), end_args(e), [=](expr const & arg){ return apply(arg, offset); });
+            break;
+        case expr_kind::Eq:
+            result = apply(eq_lhs(e), offset) || apply(eq_rhs(e), offset);
+            break;
+        case expr_kind::Lambda:
+        case expr_kind::Pi:
+            result = apply(abst_domain(e), offset) || apply(abst_body(e), offset + 1);
+            break;
+        case expr_kind::Let:
+            result = apply(let_value(e), offset) || apply(let_body(e), offset + 1);
+            break;
+        }
+
+        if (!result && shared) {
+            m_cached.insert(expr_cell_offset(e.raw(), offset));
+        }
+
+        return result;
     }
 public:
     has_free_var_in_range_fn(unsigned low, unsigned high):
-        has_free_vars_fn(false /* We should not set the closed flag since we are only considering a range of free variables */),
         m_low(low),
         m_high(high) {
         lean_assert(low < high);
     }
+    bool operator()(expr const & e) { return apply(e, 0); }
 };
 
 bool has_free_var(expr const & e, unsigned vidx) {

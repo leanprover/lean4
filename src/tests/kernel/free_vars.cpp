@@ -40,9 +40,27 @@ static void tst2() {
     lean_assert(!closed(abst_body(t)));
 }
 
+static void tst3() {
+    unsigned n = 30000;
+    unsigned m = 10;
+    expr f = Const("f");
+    expr a = Const("a");
+    expr r = f(a, Var(m));
+    expr b = Const("Bool");
+    for (unsigned i = 0; i < n; i++)
+        r = mk_lambda(name(), b, r);
+    lean_assert(closed(r));
+    bool flag = true;
+    while (is_lambda(r)) {
+        flag = flag && closed(r);
+        r = abst_body(r);
+    }
+}
+
 int main() {
     continue_on_violation(true);
     tst1();
     tst2();
+    tst3();
     return has_violations() ? 1 : 0;
 }

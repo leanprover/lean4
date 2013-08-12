@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <vector>
 #include "list.h"
 #include "test.h"
 using namespace lean;
@@ -21,8 +22,30 @@ static void tst1() {
     std::cout << l << "\n";
 }
 
+static void tst2() {
+    std::vector<int> a{10, 20, 30};
+    list<int> l = it2list<int>(a.begin(), a.end());
+    std::cout << l << "\n";
+    lean_assert(head(l) == 10);
+    lean_assert(head(tail(l)) == 20);
+    lean_assert(head(tail(tail(l))) == 30);
+    lean_assert(length(l) == 3);
+}
+
+static void tst3() {
+    int a[3] = {10, 20, 30};
+    list<int> l = it2list<int, int*>(a, a+3);
+    std::cout << l << "\n";
+    lean_assert(head(l) == 10);
+    lean_assert(head(tail(l)) == 20);
+    lean_assert(head(tail(tail(l))) == 30);
+    lean_assert(length(l) == 3);
+}
+
 int main() {
     continue_on_violation(true);
     tst1();
+    tst2();
+    tst3();
     return has_violations() ? 1 : 0;
 }

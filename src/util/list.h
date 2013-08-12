@@ -50,6 +50,22 @@ public:
     friend list const & tail(list const & l) { lean_assert(!is_nil(l)); return l.m_ptr->m_tail; }
     friend bool operator==(list const & l1, list const & l2) { return l1.m_ptr == l2.m_ptr; }
     friend bool operator!=(list const & l1, list const & l2) { return l1.m_ptr != l2.m_ptr; }
+
+    class iterator {
+        friend class list;
+        cell const * m_it;
+        iterator(cell const * it):m_it(it) {}
+    public:
+        iterator(iterator const & s):m_it(s.m_it) {}
+        iterator & operator++() { m_it = m_it->m_tail.m_ptr; return *this; }
+        iterator operator++(int) { iterator tmp(*this); operator++(); return tmp; }
+        bool operator==(iterator const & s) const { return m_it == s.m_it; }
+        bool operator!=(iterator const & s) const { return !operator==(s); }
+        T const & operator*() { lean_assert(m_it); return m_it->m_head; }
+    };
+
+    iterator begin() const { return iterator(m_ptr); }
+    iterator end() const { return iterator(nullptr); }
 };
 
 template<typename T> inline list<T>         cons(T const & h, list<T> const & t) { return list<T>(h, t); }
@@ -78,6 +94,16 @@ template<typename T> unsigned length(list<T> const & l) {
     while (*it) {
         r++;
         it = &tail(*it);
+    }
+    return r;
+}
+
+template<typename T, typename It> list<T> it2list(It const & begin, It const & end) {
+    list<T> r;
+    auto it = end;
+    while (it != begin) {
+        --it;
+        r = cons(*it, r);
     }
     return r;
 }

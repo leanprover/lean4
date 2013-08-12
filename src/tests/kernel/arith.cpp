@@ -83,10 +83,13 @@ static void tst6() {
     std::cout << "tst6\n";
     std::cout << mk_int_add_fn().raw() << "\n";
     std::cout << mk_int_add_fn().raw() << "\n";
+
+    #ifndef __APPLE__
     std::thread t1([](){ std::cout << "t1: " << mk_int_add_fn().raw() << "\n"; });
     t1.join();
     std::thread t2([](){ std::cout << "t2: " << mk_int_add_fn().raw() << "\n"; });
     t2.join();
+    #endif
     std::cout << mk_int_add_fn().raw() << "\n";
 }
 

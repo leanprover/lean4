@@ -48,6 +48,7 @@ static void tst1() {
     a = f(a, a);
     std::vector<std::thread> ts;
 
+    #ifndef __APPLE__
     for (unsigned i = 0; i < 8; i++) {
         ts.push_back(std::thread([&](){ mk(a); }));
     }
@@ -55,6 +56,7 @@ static void tst1() {
         ts[i].join();
         std::cout << "finished " << i << "\n";
     }
+    #endif
 }
 
 int main() {

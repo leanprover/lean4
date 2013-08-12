@@ -1,0 +1,55 @@
+language: objective-c
+
+env:
+  matrix:
+   - CMAKE_CXX_COMPILER=g++
+     CMAKE_BUILD_TYPE=DEBUG
+     USE_TCMALLOC=TRUE
+   - CMAKE_CXX_COMPILER=g++
+     CMAKE_BUILD_TYPE=DEBUG
+     USE_TCMALLOC=FALSE
+   - CMAKE_CXX_COMPILER=g++
+     CMAKE_BUILD_TYPE=RELEASE
+     USE_TCMALLOC=TRUE
+   - CMAKE_CXX_COMPILER=g++
+     CMAKE_BUILD_TYPE=RELEASE
+     USE_TCMALLOC=FALSE
+
+before_script:
+  - mkdir -p build
+  - cd build
+  - CPLUS_INCLUDE_PATH=/usr/local/include/c++/4.8.1/:/usr/local/include/c++/4.8.1/x86_64-apple-darwin12.4.0:/usr/local/include/c++/4.8.1/bits/
+  - export CPLUS_INCLUDE_PATH
+  - LIBRARY_PATH=/usr/local/lib
+  - export LIBRARY_PATH
+  - cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=/usr/local/bin/${CMAKE_CXX_COMPILER} ../src -G Ninja
+
+script:
+  - ninja && ctest -T test -VV
+
+install:
+  - if [[ $CMAKE_CXX_COMPILER == g++ ]]; then
+      cd /;
+      wget http://prdownloads.sourceforge.net/hpc/gcc-mlion.tar.gz?download -O /tmp/gcc-mlion.tar.gz;
+      sudo tar xvfz /tmp/gcc-mlion.tar.gz;
+      cd -;
+    fi
+  - sudo chown -R `whoami` /usr/local
+  - brew install cmake ninja
+  - brew link -f cmake
+  - brew link -f ninja
+  - brew install gmp
+  - brew link --overwrite gmp
+  - brew install mpfr
+  - brew link --overwrite mpfr
+  - if [[ $USE_TCMALLOC == TRUE ]]; then
+      brew install google-perftools;
+      brew link --overwrite google-perftools;
+    fi
+
+notifications:
+  email:
+    recipients:
+    - leansmt-dev@googlegroups.com
+    on_success: always
+    on_failure: always

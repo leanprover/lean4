@@ -8,6 +8,8 @@ Author: Soonho Kong
 #include "mpfp.h"
 
 namespace lean {
+thread_local mpfr_rnd_t numeric_traits<mpfp>::rnd = MPFR_RNDN;
+
 /**
     \brief Auxiliary class for invoking mpfr_free_cache before
     exiting and avoiding Valgrind memory leak warnings.

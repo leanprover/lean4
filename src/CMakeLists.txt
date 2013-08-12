@@ -10,7 +10,7 @@ set(LEAN_EXTRA_LINKER_FLAGS "")
 
 # Cygwin: Windows does not support ulimit -s unlimited. So, we reserve a lot of stack space: 100Mb
 if(${CYGWIN})
-  message("-- CYGWIN detected")
+  message(STATUS "-- CYGWIN detected")
   set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -Wl,--stack,104857600")
 endif()
 
@@ -59,7 +59,7 @@ if("${tcmalloc}" MATCHES "ON")
     set(EXTRA_LIBS ${EXTRA_LIBS} ${TCMALLOC_LIBRARIES})
   endif()
 else()
-  message("-- Using standard malloc.")
+  message(STATUS "-- Using standard malloc.")
 endif()
 
 include_directories(${LEAN_SOURCE_DIR}/util)

@@ -242,7 +242,7 @@ interval<T> & interval<T>::operator*=(interval<T> const & o) {
     using std::swap;
     interval<T> const & i1 = *this;
     interval<T> const & i2 = o;
-#if LEAN_DEBUG || LEAN_TRACE
+#if defined(LEAN_DEBUG) || defined(LEAN_TRACE)
     bool i1_contains_zero = i1.contains_zero();
     bool i2_contains_zero = i2.contains_zero();
 #endif

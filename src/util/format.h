@@ -9,6 +9,7 @@ Author: Soonho Kong
 #include "debug.h"
 #include <algorithm>
 #include <iostream>
+#include <numeric>
 #include <sstream>
 #include "mpz.h"
 

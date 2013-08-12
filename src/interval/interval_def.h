@@ -53,7 +53,7 @@ interval<T>::interval():
 }
 
 template<typename T>
-interval<T>::interval(interval const & n):
+interval<T>::interval(interval<T> const & n):
     m_lower(n.m_lower),
     m_upper(n.m_upper),
     m_lower_open(n.m_lower_open),
@@ -64,7 +64,7 @@ interval<T>::interval(interval const & n):
 }
 
 template<typename T>
-interval<T>::interval(interval && n):
+interval<T>::interval(interval<T> && n):
     m_lower(std::move(n.m_lower)),
     m_upper(std::move(n.m_upper)),
     m_lower_open(n.m_lower_open),

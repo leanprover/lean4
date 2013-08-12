@@ -488,15 +488,18 @@ public:
 // Macro to implement transcendental functions
 #define LEAN_TRANS_MPFP_FUNC(f, v, rnd) v.f(rnd);
 
+void set_mpfp_rnd(bool plus_inf);
+mpfr_rnd_t get_mpfp_rnd();
+
 template<>
 class numeric_traits<mpfp> {
 public:
-    static thread_local mpfr_rnd_t rnd;
+    static mpfr_rnd_t rnd() { return get_mpfp_rnd(); }
     static bool precise() { return true; }
     static bool is_zero(mpfp const &  v) { return v.is_zero(); }
     static bool is_pos(mpfp const & v) { return v.is_pos(); }
     static bool is_neg(mpfp const & v) { return v.is_neg(); }
-    static void set_rounding(bool plus_inf) { rnd = plus_inf ? MPFR_RNDU :MPFR_RNDD; }
+    static void set_rounding(bool plus_inf) { set_mpfp_rnd(plus_inf); }
     static void neg(mpfp & v) { v.neg(); }
 //    static void inv(mpfp & v) { v.inv(); }
     static void reset(mpfp & v) { v = 0.0; }
@@ -527,26 +530,26 @@ public:
     static inline mpfp pi_twice_upper() { return pi_u * 2lu; }
 
     // Transcendental functions
-    static void exp(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(exp,   v, rnd); }
-    static void exp2(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(exp2,  v, rnd); }
-    static void exp10(mpfp & v) { LEAN_TRANS_MPFP_FUNC(exp10, v, rnd); }
-    static void log(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(log,   v, rnd); }
-    static void log2(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(log2,  v, rnd); }
-    static void log10(mpfp & v) { LEAN_TRANS_MPFP_FUNC(log10, v, rnd); }
-    static void sin(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(sin,   v, rnd); }
-    static void cos(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(cos,   v, rnd); }
-    static void tan(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(tan,   v, rnd); }
-    static void sec(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(sec,   v, rnd); }
-    static void csc(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(csc,   v, rnd); }
-    static void cot(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(cot,   v, rnd); }
-    static void asin(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(asin,  v, rnd); }
-    static void acos(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(acos,  v, rnd); }
-    static void atan(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(atan,  v, rnd); }
-    static void sinh(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(sinh,  v, rnd); }
-    static void cosh(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(cosh,  v, rnd); }
-    static void tanh(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(tanh,  v, rnd); }
-    static void asinh(mpfp & v) { LEAN_TRANS_MPFP_FUNC(asinh, v, rnd); }
-    static void acosh(mpfp & v) { LEAN_TRANS_MPFP_FUNC(acosh, v, rnd); }
-    static void atanh(mpfp & v) { LEAN_TRANS_MPFP_FUNC(atanh, v, rnd); }
+    static void exp(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(exp,   v, rnd()); }
+    static void exp2(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(exp2,  v, rnd()); }
+    static void exp10(mpfp & v) { LEAN_TRANS_MPFP_FUNC(exp10, v, rnd()); }
+    static void log(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(log,   v, rnd()); }
+    static void log2(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(log2,  v, rnd()); }
+    static void log10(mpfp & v) { LEAN_TRANS_MPFP_FUNC(log10, v, rnd()); }
+    static void sin(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(sin,   v, rnd()); }
+    static void cos(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(cos,   v, rnd()); }
+    static void tan(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(tan,   v, rnd()); }
+    static void sec(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(sec,   v, rnd()); }
+    static void csc(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(csc,   v, rnd()); }
+    static void cot(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(cot,   v, rnd()); }
+    static void asin(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(asin,  v, rnd()); }
+    static void acos(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(acos,  v, rnd()); }
+    static void atan(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(atan,  v, rnd()); }
+    static void sinh(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(sinh,  v, rnd()); }
+    static void cosh(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(cosh,  v, rnd()); }
+    static void tanh(mpfp & v)  { LEAN_TRANS_MPFP_FUNC(tanh,  v, rnd()); }
+    static void asinh(mpfp & v) { LEAN_TRANS_MPFP_FUNC(asinh, v, rnd()); }
+    static void acosh(mpfp & v) { LEAN_TRANS_MPFP_FUNC(acosh, v, rnd()); }
+    static void atanh(mpfp & v) { LEAN_TRANS_MPFP_FUNC(atanh, v, rnd()); }
 };
 }

@@ -8,7 +8,15 @@ Author: Soonho Kong
 #include "mpfp.h"
 
 namespace lean {
-thread_local mpfr_rnd_t numeric_traits<mpfp>::rnd = MPFR_RNDN;
+static thread_local mpfr_rnd_t g_mpfp_rnd = MPFR_RNDN;
+
+void set_mpfp_rnd(bool plus_inf) {
+    g_mpfp_rnd = plus_inf ? MPFR_RNDU : MPFR_RNDD; 
+}
+
+mpfr_rnd_t get_mpfp_rnd() {
+    return g_mpfp_rnd;
+}
 
 /**
     \brief Auxiliary class for invoking mpfr_free_cache before

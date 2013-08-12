@@ -45,9 +45,6 @@ set(EXTRA_LIBS ${EXTRA_LIBS} ${GMP_LIBRARIES})
 find_package(MPFR 3.1.0)
 set(EXTRA_LIBS ${EXTRA_LIBS} ${MPFR_LIBRARIES})
 
-# Flex and Bison
-find_package(FLEX REQUIRED)
-
 # tcmalloc
 option(tcmalloc "tcmalloc" ON)
 if("${tcmalloc}" MATCHES "ON")

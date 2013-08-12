@@ -12,8 +12,6 @@ Requirements
   https://code.google.com/p/gperftools/
 - cmake
   http://www.cmake.org
-- flex++ (lex generator)
-- bison++ (parser generator)
 
 Install Packages on Ubuntu
 --------------------------
@@ -24,14 +22,6 @@ Instructions for installing gperftools on Ubuntu
     sudo apt-get update
     sudo apt-get dist-upgrade
     sudo apt-get install libgoogle-perftools-dev
-
-Instructions for installing flex on Ubuntu
-
-    sudo apt-get install flex
-
-Instructions for installing bison on Ubuntu
-
-    sudo apt-get install bison++
 
 Instructions for installing gcc-4.8 (C++11 compatible) on Ubuntu
 

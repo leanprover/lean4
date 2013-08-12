@@ -5,14 +5,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <vector>
-#include "interval.h"
 #include "test.h"
 #include "trace.h"
+#include "double.h"
 #include "mpq.h"
 #include "mpfp.h"
+#include "interval_def.h"
+
 using namespace lean;
 
-typedef interval<mpq> qi;
+typedef interval<double> qi;
 typedef interval<double> di;
 typedef interval<mpfp> fi;
 typedef std::vector<qi> qiv;
@@ -88,8 +90,15 @@ static void tst2() {
     lean_assert(power(qi(),2) == qi(false, 0)); // (-oo, oo)^2 == [0, oo)
 }
 
-static void tst3() {
+static void double_interval_trans() {
     di i1(1.0, 2.0);
+    std::cout << "power(" << i1 << ", 3) = " << power(i1, 3) << std::endl;
+    std::cout << "exp(" << i1 << ") = "      << exp(i1) << std::endl;
+    std::cout << "log(" << i1 << ") = "      << log(i1) << std::endl;
+}
+
+static void mpfr_interval_trans() {
+    fi i1(1.0, 2.0);
     std::cout << "power(" << i1 << ", 3) = " << power(i1, 3) << std::endl;
     std::cout << "exp(" << i1 << ") = "      << exp(i1) << std::endl;
     std::cout << "log(" << i1 << ") = "      << log(i1) << std::endl;
@@ -100,6 +109,7 @@ int main() {
     enable_trace("numerics");
     tst1();
     tst2();
-    tst3();
+    double_interval_trans();
+    mpfr_interval_trans();
     return has_violations() ? 1 : 0;
 }

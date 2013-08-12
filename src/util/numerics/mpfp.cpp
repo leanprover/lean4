@@ -8,6 +8,15 @@ Author: Soonho Kong
 #include "mpfp.h"
 
 namespace lean {
+/**
+    \brief Auxiliary class for invoking mpfr_free_cache before
+    exiting and avoiding Valgrind memory leak warnings.
+*/
+class mpfr_finalizer {
+public:
+    ~mpfr_finalizer() { mpfr_free_cache(); }
+};
+static mpfr_finalizer g_mpfr_finalizer;
 
 inline unsigned necessary_digits(mpfr_prec_t p) {
     static constexpr double LOG10_2 = 0.30102999566;
@@ -15,11 +24,12 @@ inline unsigned necessary_digits(mpfr_prec_t p) {
 }
 
 std::ostream & operator<<(std::ostream & out, mpfp const & v) {
-    static thread_local char* s = nullptr;
-    static thread_local char format[128];
+    char * s = nullptr;
+    char format[128];
     sprintf(format, "%%.%dRNg", necessary_digits(mpfr_get_prec(v.m_val)));
     mpfr_asprintf(&s, format, v.m_val);
     std::string str = std::string(s);
+    mpfr_free_str(s);
     out << str;
     return out;
 }

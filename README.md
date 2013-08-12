@@ -1,4 +1,8 @@
 [![Build Status](https://travis-ci.org/leodemoura/lean.png?branch=master)](https://travis-ci.org/leodemoura/lean)
+Ubuntu 12.04 LTS 64bit, g++-4.8 | clang++-3.3
+
+[![Build Status](https://travis-ci.org/soonhokong/lean-osx.png?branch=master)](https://travis-ci.org/soonhokong/lean-osx)
+Mac OS X 10.8.2, g++-4.8
 
 Requirements
 ============

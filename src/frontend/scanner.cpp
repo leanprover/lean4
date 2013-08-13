@@ -5,6 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <cstdio>
+#include <string>
+#include <algorithm>
 #include "scanner.h"
 #include "debug.h"
 #include "exception.h"
@@ -16,7 +18,7 @@ static name g_pi_unicode("\u03A0");
 static name g_arrow_unicode("\u2192");
 static name g_lambda_name("fun");
 static name g_type_name("Type");
-static name g_pi_name("pi");
+static name g_pi_name("Pi");
 static name g_arrow_name("->");
 static name g_eq_name("=");
 
@@ -63,6 +65,9 @@ public:
         // new line
         set('\n', '\n');
 
+        // double quotes for strings
+        set('\"', '\"');
+
         // eof
         set(255, -1);
     }
@@ -84,6 +89,14 @@ scanner::scanner(std::istream& stream):
 }
 
 scanner::~scanner() {
+}
+
+void scanner::add_command_keyword(name const & n) {
+    m_commands = cons(n, m_commands);
+}
+
+void scanner::throw_exception(char const * msg) {
+    throw parser_exception(msg, m_line, m_spos);
 }
 
 void scanner::next() {
@@ -122,7 +135,7 @@ void scanner::read_comment() {
             new_line();
             next();
         } else if (curr() == EOF) {
-            throw exception("unexpected end of comment");
+            throw_exception("unexpected end of comment");
         } else {
             next();
         }
@@ -130,7 +143,22 @@ void scanner::read_comment() {
 }
 
 bool scanner::is_command(name const & n) const {
-    return false;
+    return std::any_of(m_commands.begin(), m_commands.end(), [&](name const & c) { return c == n; });
+}
+
+/** \brief Auxiliary function for #read_a_symbol */
+name scanner::mk_name(name const & curr, std::string const & buf, bool only_digits) {
+    if (curr.is_anonymous()) {
+        lean_assert(!only_digits);
+        return name(buf.c_str());
+    } else if (only_digits) {
+        mpz val(buf.c_str());
+        if (!val.is_unsigned_int())
+            throw_exception("invalid hierarchical name, numeral is too big");
+        return name(curr, val.get_unsigned_int());
+    } else {
+        return name(curr, buf.c_str());
+    }
 }
 
 scanner::token scanner::read_a_symbol() {
@@ -139,23 +167,25 @@ scanner::token scanner::read_a_symbol() {
     m_buffer += curr();
     m_name_val = name();
     next();
+    bool only_digits = false;
     while (true) {
         if (normalize(curr()) == 'a') {
+            if (only_digits)
+                throw_exception("invalid hierarchical name, digit expected");
+            m_buffer += curr();
+            next();
+        } else if (normalize(curr()) == '0') {
             m_buffer += curr();
             next();
         } else if (curr() == ':' && check_next(':')) {
             next();
             lean_assert(curr() == ':');
             next();
-            if (m_name_val.is_anonymous())
-                m_name_val = name(m_buffer.c_str());
-            else
-                m_name_val = name(m_name_val, m_buffer.c_str());
+            m_name_val = mk_name(m_name_val, m_buffer, only_digits);
+            m_buffer.clear();
+            only_digits = (normalize(curr()) == '0');
         } else {
-            if (m_name_val.is_anonymous())
-                m_name_val = name(m_buffer.c_str());
-            else
-                m_name_val = name(m_name_val, m_buffer.c_str());
+            m_name_val = mk_name(m_name_val, m_buffer, only_digits);
             if (m_name_val == g_lambda_name)
                 return token::Lambda;
             else if (m_name_val == g_pi_name)
@@ -240,6 +270,32 @@ scanner::token scanner::read_number() {
     return is_decimal ? token::Decimal : token::Int;
 }
 
+scanner::token scanner::read_string() {
+    lean_assert(curr() == '\"');
+    next();
+    m_buffer.clear();
+    while (true) {
+        char c = curr();
+        if (c == EOF) {
+            throw_exception("unexpected end of string");
+        } else if (c == '\"') {
+            next();
+            return token::String;
+        } else if (c == '\n') {
+            new_line();
+        } else if (c == '\\') {
+            next();
+            c = curr();
+            if (c == EOF)
+                throw_exception("unexpected end of string");
+            if (c != '\\' && c != '\"')
+                throw_exception("invalid escape sequence");
+        }
+        m_buffer += c;
+        next();
+    }
+}
+
 scanner::token scanner::scan() {
     while (true) {
         char c = curr();
@@ -264,18 +320,20 @@ scanner::token scanner::scan() {
             } else {
                 return token::LeftParen;
             }
-        case ')': next(); return token::RightParen;
-        case '{': next(); return token::LeftCurlyBracket;
-        case '}': next(); return token::RightCurlyBracket;
-        case 'a': return read_a_symbol();
-        case 'b': return read_b_symbol();
-        case 'c': return read_c_symbol();
-        case '0': return read_number();
-        case -1:  return token::Eof;
-        default: lean_unreachable();
+        case ')':  next(); return token::RightParen;
+        case '{':  next(); return token::LeftCurlyBracket;
+        case '}':  next(); return token::RightCurlyBracket;
+        case 'a':  return read_a_symbol();
+        case 'b':  return read_b_symbol();
+        case 'c':  return read_c_symbol();
+        case '0':  return read_number();
+        case '\"': return read_string();
+        case -1:   return token::Eof;
+        default:   lean_unreachable();
         }
     }
 }
+
 std::ostream & operator<<(std::ostream & out, scanner::token const & t) {
     switch (t) {
     case scanner::token::LeftParen:         out << "("; break;
@@ -292,6 +350,7 @@ std::ostream & operator<<(std::ostream & out, scanner::token const & t) {
     case scanner::token::CommandId:         out << "CId"; break;
     case scanner::token::Int:               out << "Int"; break;
     case scanner::token::Decimal:           out << "Dec"; break;
+    case scanner::token::String:            out << "String"; break;
     case scanner::token::Eq:                out << "="; break;
     case scanner::token::Assign:            out << ":="; break;
     case scanner::token::Type:              out << "Type"; break;

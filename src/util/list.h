@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <iostream>
+#include <iterator>
 #include "rc.h"
 #include "debug.h"
 
@@ -56,6 +57,12 @@ public:
         cell const * m_it;
         iterator(cell const * it):m_it(it) {}
     public:
+        typedef std::forward_iterator_tag iterator_category;
+        typedef T         value_type;
+        typedef unsigned  difference_type;
+        typedef T const * pointer;
+        typedef T const & reference;
+
         iterator(iterator const & s):m_it(s.m_it) {}
         iterator & operator++() { m_it = m_it->m_tail.m_ptr; return *this; }
         iterator operator++(int) { iterator tmp(*this); operator++(); return tmp; }

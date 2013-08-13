@@ -17,7 +17,7 @@ struct pp_fn {
     pp_fn(environment const * env):m_env(env) {}
 
     unsigned indent() const { return 2; }
-    char const * sep() const { return default_name_separator; }
+    char const * sep() const { return LEAN_NAME_SEPARATOR; }
     format pp_keyword(char const * k) { return highlight(format(k), format::format_color::ORANGE); }
     format pp_type_kwd() { return highlight(format("Type"), format::format_color::PINK); }
     format pp_eq_kwd() { return highlight(format(" = "), format::format_color::BLUE); }

@@ -106,4 +106,8 @@ std::ostream & operator<<(std::ostream & out, options const & o) {
     out << g_right_angle_bracket;
     return out;
 }
+static name g_name_separator{"name", "separator"};
+char const * get_name_separator(options const & o) {
+    return o.get_string(g_name_separator, "::");
+}
 }

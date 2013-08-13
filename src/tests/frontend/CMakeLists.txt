@@ -1,3 +1,6 @@
 add_executable(frontend_tst frontend.cpp)
 target_link_libraries(frontend_tst ${EXTRA_LIBS})
 add_test(frontend ${CMAKE_CURRENT_BINARY_DIR}/frontend_tst)
+add_executable(scanner scanner.cpp)
+target_link_libraries(scanner ${EXTRA_LIBS})
+add_test(scanner ${CMAKE_CURRENT_BINARY_DIR}/scanner)

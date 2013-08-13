@@ -13,14 +13,8 @@ Author: Leonardo de Moura
 #include "rc.h"
 #include "hash.h"
 #include "trace.h"
-#include "options.h"
-
-#ifndef LEAN_DEFAULT_NAME_SEPARATOR
-#define LEAN_DEFAULT_NAME_SEPARATOR "::"
-#endif
 
 namespace lean {
-
 constexpr char const * anonymous_str = "[anonymous]";
 
 /**
@@ -269,7 +263,7 @@ size_t name::size(char const * sep) const {
 }
 
 size_t name::size() const {
-    return size(LEAN_DEFAULT_NAME_SEPARATOR);
+    return size(LEAN_NAME_SEPARATOR);
 }
 
 unsigned name::hash() const {
@@ -283,11 +277,11 @@ std::string name::to_string(char const * sep) const {
 }
 
 std::string name::to_string() const {
-    return to_string(LEAN_DEFAULT_NAME_SEPARATOR);
+    return to_string(LEAN_NAME_SEPARATOR);
 }
 
 std::ostream & operator<<(std::ostream & out, name const & n) {
-    name::imp::display(out, LEAN_DEFAULT_NAME_SEPARATOR, n.m_ptr);
+    name::imp::display(out, LEAN_NAME_SEPARATOR, n.m_ptr);
     return out;
 }
 
@@ -296,12 +290,6 @@ name::sep::sep(name const & n, char const * s):m_name(n), m_sep(s) {}
 std::ostream & operator<<(std::ostream & out, name::sep const & s) {
     name::imp::display(out, s.m_sep, s.m_name.m_ptr);
     return out;
-}
-
-static name g_name_separator{"name", "separator"};
-
-char const * get_name_separator(options const & o) {
-    return o.get_string(g_name_separator, LEAN_DEFAULT_NAME_SEPARATOR);
 }
 }
 

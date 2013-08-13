@@ -7,49 +7,52 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 #include <vector>
+#include "mpq.h"
+#include "name.h"
 
 namespace lean {
-constexpr unsigned scanner_buffer_size = 1024;
-
 /**
-    \brief Base class for all scanners in Lean
-
-    It provides basic support for reading streams, buffering, and caching the contents of the input stream.
+    \brief Lean scanner.
 */
 class scanner {
+public:
+    enum class token {
+        LeftParen, RightParen, LeftCurlyBracket, RightCurlyBracket, Colon, Comma, Period, Lambda, Pi, Arrow,
+        Id, CommandId, Int, Decimal, Eq, Assign, Eof
+    };
 protected:
-    bool               m_interactive;
     int                m_spos; // position in the current line of the stream
     char               m_curr;  // current char;
 
     int                m_line;  // line
     int                m_pos;   // start position of the token
+    std::istream &     m_stream;
 
-    char               m_buffer[scanner_buffer_size];
-    unsigned           m_bpos;
-    unsigned           m_bend;
-    std::istream&      m_stream;
-
-    bool               m_cache_input;
-    std::vector<char>  m_cache;
-    std::vector<char>  m_cache_result;
+    mpq                m_num_val;
+    name               m_name_val;
+    std::string        m_buffer;
 
     char curr() const { return m_curr; }
     void new_line() { m_line++; m_spos = 0; }
     void next();
+    bool check_next(char c);
+    void  read_comment();
+    token read_a_symbol();
+    token read_b_symbol();
+    token read_c_symbol();
+    token read_number();
+    bool is_command(name const & n) const;
 
 public:
-    scanner(std::istream& stream, bool interactive = false);
+    scanner(std::istream& stream);
     ~scanner();
 
     int get_line() const { return m_line; }
     int get_pos() const { return m_pos; }
+    token scan();
 
-    void start_caching();
-    void stop_caching();
-    unsigned cache_size() const;
-    void reset_cache();
-    char const * cached_str(unsigned begin, unsigned end);
+    name const & get_name_val() const { return m_name_val; }
+    mpq const & get_num_val() const { return m_num_val; }
 };
-
+std::ostream & operator<<(std::ostream & out, scanner::token const & t);
 }

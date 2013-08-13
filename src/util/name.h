@@ -7,11 +7,12 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 
+#ifndef LEAN_NAME_SEPARATOR
+#define LEAN_NAME_SEPARATOR "::"
+#endif
+
 namespace lean {
-
-constexpr char const * default_name_separator = "::";
 enum class name_kind { ANONYMOUS, STRING, NUMERAL };
-
 /**
    \brief Hierarchical names.
 */
@@ -73,8 +74,4 @@ public:
 };
 struct name_hash { unsigned operator()(name const & n) const { return n.hash(); } };
 struct name_eq { bool operator()(name const & n1, name const & n2) const { return n1 == n2; } };
-
-class options;
-/** \brief Return the separator for hierarchical names */
-char const * get_name_separator(options const & o);
 }

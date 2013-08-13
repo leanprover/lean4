@@ -14,54 +14,57 @@ namespace lean {
 static name g_lambda_unicode("\u03BB");
 static name g_pi_unicode("\u03A0");
 static name g_arrow_unicode("\u2192");
-static char g_normalized[255];
 static name g_lambda_name("fun");
 static name g_type_name("Type");
 static name g_pi_name("pi");
 static name g_arrow_name("->");
 static name g_eq_name("=");
 
+static char g_normalized[256];
+
 class init_normalized_table {
+    void set(int i, char v) { g_normalized[static_cast<unsigned>(i)] = v; }
 public:
     init_normalized_table() {
         // by default all characters are in group c,
         for (int i = 0; i <= 255; i++)
-            g_normalized[i] = 'c';
+            set(i, 'c');
 
         // digits normalize to '0'
         for (int i = '0'; i <= '9'; i++)
-            g_normalized[i] = '0';
+            set(i, '0');
 
         // characters that can be used to create ids of group a
         for (int i = 'a'; i <= 'z'; i++)
-            g_normalized[i] = 'a';
+            set(i, 'a');
         for (int i = 'A'; i <= 'Z'; i++)
-            g_normalized[i] = 'a';
-        g_normalized['_'] = 'a';
+            set(i, 'a');
+
+        set('_', 'a');
 
         // characters that can be used to create ids of group b
         for (unsigned char b : {'=', '<', '>', '@', '^', '|', '&', '~', '+', '-', '*', '/', '$', '%', '?', ';'})
-            g_normalized[b] = 'b';
+            set(b, 'b');
 
         // punctuation
-        g_normalized['('] = '(';
-        g_normalized[')'] = ')';
-        g_normalized['{'] = '{';
-        g_normalized['}'] = '}';
-        g_normalized[':'] = ':';
-        g_normalized['.'] = '.';
-        g_normalized[','] = ',';
+        set('(', '(');
+        set(')', ')');
+        set('{', '{');
+        set('}', '}');
+        set(':', ':');
+        set('.', '.');
+        set(',', ',');
 
         // spaces
-        g_normalized[' ']  = ' ';
-        g_normalized['\t'] = ' ';
-        g_normalized['\r'] = ' ';
+        set(' ',  ' ');
+        set('\t', ' ');
+        set('\r', ' ');
 
         // new line
-        g_normalized['\n'] = '\n';
+        set('\n', '\n');
 
         // eof
-        g_normalized[255] = -1;
+        set(255, -1);
     }
 };
 

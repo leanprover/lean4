@@ -128,7 +128,7 @@ void interval<T>::set_empty() {
     numeric_traits<T>::reset(m_lower);
     numeric_traits<T>::reset(m_upper);
     m_lower_open = m_upper_open = true;
-    m_lower_inf  = m_upper_inf  = true;
+    m_lower_inf  = m_upper_inf  = false;
 }
 
 template<typename T>

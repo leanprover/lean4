@@ -50,5 +50,4 @@ public:
     friend std::ostream & operator<<(std::ostream & out, options const & o);
 };
 template<typename T> options update(options const & o, name const & n, T const & v) { return o.update(n, sexpr(v)); }
-template<typename T> options update(options const & o, char const * n, T const & v) { return o.update(name(n), sexpr(v)); }
 }

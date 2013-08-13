@@ -413,17 +413,6 @@ expr copy(expr const & e);
 // =======================================
 
 // =======================================
-// Expression formatter
-class expr_formatter {
-public:
-    virtual ~expr_formatter() {}
-    virtual format operator()(expr const & e) = 0;
-    virtual options const & get_options() const = 0;
-};
-// =======================================
-
-
-// =======================================
 // Update
 template<typename F> expr update_app(expr const & e, F f) {
     static_assert(std::is_same<typename std::result_of<F(expr const &)>::type, expr>::value,

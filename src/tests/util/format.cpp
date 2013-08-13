@@ -9,7 +9,7 @@ Author: Soonho Kong
 #include "format.h"
 #include "test.h"
 #include "sexpr_funcs.h"
-
+#include "options.h"
 using namespace lean;
 
 using std::cout;
@@ -82,8 +82,6 @@ static void tst1() {
     pretty(cout, 60, spread(sl.begin(), sl.end()));
     cout << endl;
     cout << std::string(40, '=') << endl;
-
-    return;
 }
 
 static void tst2() {
@@ -92,9 +90,18 @@ static void tst2() {
     cout << paren(f4) << "\n";
 }
 
+static void tst3() {
+    format f_atom1("foo");
+    format f_atom2("bar");
+    format f1(highlight(f_atom1), f_atom2);
+    cout << f1 << "\n";
+    cout << mk_pair(f1, options({"pp", "colors"}, false)) << "\n";
+}
+
 int main() {
     continue_on_violation(true);
     tst1();
     tst2();
+    tst3();
     return has_violations() ? 1 : 0;
 }

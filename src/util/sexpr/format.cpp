@@ -11,17 +11,36 @@
 #include "sexpr_funcs.h"
 #include "options.h"
 
-#ifndef LEAN_DEFAULT_INDENTATION
-#define LEAN_DEFAULT_INDENTATION 4
+#ifndef LEAN_DEFAULT_PP_INDENTATION
+#define LEAN_DEFAULT_PP_INDENTATION 4
 #endif
 
-#ifndef LEAN_DEFAULT_WIDTH
-#define LEAN_DEFAULT_WIDTH 120
+#ifndef LEAN_DEFAULT_PP_WIDTH
+#define LEAN_DEFAULT_PP_WIDTH 120
+#endif
+
+#ifndef LEAN_DEFAULT_PP_COLORS
+#define LEAN_DEFAULT_PP_COLORS true
 #endif
 
 namespace lean {
-static int default_width = LEAN_DEFAULT_WIDTH;
-std::ostream & layout(std::ostream & out, sexpr const & s) {
+static name g_pp_indent{"pp", "indent"};
+static name g_pp_colors{"pp", "colors"};
+static name g_pp_width{"pp", "width"};
+
+unsigned get_pp_indent(options const & o) {
+    return o.get_int(g_pp_indent, LEAN_DEFAULT_PP_INDENTATION);
+}
+
+bool get_pp_colors(options const & o) {
+    return o.get_bool(g_pp_colors, LEAN_DEFAULT_PP_COLORS);
+}
+
+unsigned get_pp_width(options const & o) {
+    return o.get_int(g_pp_width, LEAN_DEFAULT_PP_WIDTH);
+}
+
+std::ostream & layout(std::ostream & out, bool colors, sexpr const & s) {
     lean_assert(!is_nil(s));
     switch (format::sexpr_kind(s)) {
     case format::format_kind::NEST:
@@ -50,22 +69,23 @@ std::ostream & layout(std::ostream & out, sexpr const & s) {
     }
 
     case format::format_kind::COLOR_BEGIN:
-    {
-        format::format_color c = static_cast<format::format_color>(to_int(cdr(s)));
-        out << "\e[" << (31 + c % 7) << "m";
+        if (colors) {
+            format::format_color c = static_cast<format::format_color>(to_int(cdr(s)));
+            out << "\e[" << (31 + c % 7) << "m";
+        }
         break;
-    }
-
     case format::format_kind::COLOR_END:
-        out << "\e[0m";
+        if (colors) {
+            out << "\e[0m";
+        }
         break;
     }
     return out;
 }
 
-std::ostream & layout_list(std::ostream & out, sexpr const & s) {
-    for_each(s, [&out](sexpr const & s) {
-            layout(out, s);
+std::ostream & layout_list(std::ostream & out, bool colors, sexpr const & s) {
+    for_each(s, [&](sexpr const & s) {
+            layout(out, colors, s);
         });
     return out;
 }
@@ -279,10 +299,6 @@ sexpr format::best(unsigned w, unsigned k, sexpr const & s) {
     return be(w, k, sexpr{sexpr(0, s)});
 }
 
-std::ostream & operator<<(std::ostream & out, format const & f) {
-    return pretty(out, default_width, f);
-}
-
 format operator+(format const & f1, format const & f2) {
     return format{f1, f2};
 }
@@ -291,15 +307,25 @@ format operator^(format const & f1, format const & f2) {
     return format{f1, format(" "), f2};
 }
 
-std::ostream & pretty(std::ostream & out, unsigned w, format const & f) {
+std::ostream & pretty(std::ostream & out, unsigned w, bool colors, format const & f) {
     sexpr const & b = format::best(w, 0, f.m_value);
-    return layout_list(out, b);
+    return layout_list(out, colors, b);
 }
 
-static name g_pp_indent{"pp", "indent"};
+std::ostream & pretty(std::ostream & out, unsigned w, format const & f) {
+    return pretty(out, w, LEAN_DEFAULT_PP_COLORS, f);
+}
 
-unsigned get_pp_indent(options const & o) {
-    return o.get_int(g_pp_indent, LEAN_DEFAULT_INDENTATION);
+std::ostream & pretty(std::ostream & out, options const & opts, format const & f) {
+    return pretty(out, get_pp_width(opts), get_pp_colors(opts), f);
+}
+
+std::ostream & operator<<(std::ostream & out, format const & f) {
+    return pretty(out, LEAN_DEFAULT_PP_WIDTH, LEAN_DEFAULT_PP_COLORS, f);
+}
+
+std::ostream & operator<<(std::ostream & out, std::pair<format const &, options const &> const & p) {
+    return pretty(out, p.second, p.first);
 }
 
 format pp(name const & n) {

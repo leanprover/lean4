@@ -168,6 +168,10 @@ static void tst7() {
     sexpr s = sexpr{ sexpr(1,2), sexpr(2,3), sexpr(0,1) };
     std::cout << pp(sexpr{s, s, s, s, s}) << "\n";
     std::cout << pp(sexpr{sexpr(name{"test","name"}), sexpr(10), sexpr(10.20)}) << "\n";
+    format f = highlight(pp(sexpr{s, s, s, s, s}));
+    std::cout << f << "\n";
+    std::cout << mk_pair(f, options({"pp", "width"}, 1000)) << "\n";
+    std::cout << mk_pair(f, update(options({"pp", "width"}, 1000), {"pp", "colors"}, false)) << "\n";
 }
 
 int main() {

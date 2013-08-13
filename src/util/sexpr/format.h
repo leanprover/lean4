@@ -12,8 +12,10 @@ Author: Soonho Kong
 #include <numeric>
 #include <sstream>
 #include "mpz.h"
+#include "pair.h"
 
 namespace lean {
+class options;
 /**
    \brief Format
 
@@ -199,10 +201,13 @@ public:
         return *this;
     }
 
-    friend std::ostream & operator<<(std::ostream & out, format const & f);
-
-    friend std::ostream & layout(std::ostream & out, sexpr const & s);
+    friend std::ostream & layout(std::ostream & out, bool colors, sexpr const & s);
+    friend std::ostream & pretty(std::ostream & out, unsigned w, bool colors, format const & f);
     friend std::ostream & pretty(std::ostream & out, unsigned w, format const & f);
+    friend std::ostream & pretty(std::ostream & out, options const & o, format const & f);
+
+    friend std::ostream & operator<<(std::ostream & out, format const & f);
+    friend std::ostream & operator<<(std::ostream & out, std::pair<format const &, options const &> const & p);
 };
 
 format wrap(format const & f1, format const & f2);

@@ -27,7 +27,6 @@ env:
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=RELEASE
      USE_TCMALLOC=FALSE
-   - TRIGGER_OSX=TRUE
 
 before_script:
   - mkdir -p build
@@ -43,14 +42,6 @@ after_success:
   - if [[ $BUILD_DOXYGEN == TRUE ]]; then ./script/update_doxygen.sh; fi
 
 install:
-  - if [[ $TRIGGER_OSX == TRUE ]]; then
-      git remote add osx git@github.com:soonhokong/lean-osx.git;
-      git fetch -q -f --all;
-      cp .travis.osx.yml .travis.yml;
-      git add .travis.yml;
-      git ci -m "Plug-in .travis.osx.yml";
-      git push -qf osx +master;
-    fi
   - until sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test; do echo retry; done
   - until sudo add-apt-repository --yes ppa:h-rayflood/llvm; do echo retry; done
   - until sudo apt-get -qq update; do echo retry; done

@@ -95,8 +95,6 @@ inline operator_info mixfixl(std::initializer_list<name> const & l, unsigned pre
 inline operator_info mixfixr(std::initializer_list<name> const & l, unsigned precedence) { return mixfixr(l.size(), l.begin(), precedence); }
 inline operator_info mixfixc(std::initializer_list<name> const & l, unsigned precedence) { return mixfixc(l.size(), l.begin(), precedence); }
 
-class options;
-format pp(operator_info const & o, options const &);
 format pp(operator_info const & o);
 std::ostream & operator<<(std::ostream & out, operator_info const & o);
 }

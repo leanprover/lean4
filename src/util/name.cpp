@@ -47,11 +47,11 @@ struct name::imp {
 
     imp(bool s, imp * p):m_rc(1), m_is_string(s), m_hash(0), m_prefix(p) { if (p) p->inc_ref(); }
 
-    static void display_core(std::ostream & out, char const * sep, imp * p) {
+    static void display_core(std::ostream & out, imp * p) {
         lean_assert(p != nullptr);
         if (p->m_prefix) {
-            display_core(out, sep, p->m_prefix);
-            out << sep;
+            display_core(out, p->m_prefix);
+            out << lean_name_separator;
         }
         if (p->m_is_string)
             out << p->m_str;
@@ -59,11 +59,11 @@ struct name::imp {
             out << p->m_k;
     }
 
-    static void display(std::ostream & out, char const * sep, imp * p) {
+    static void display(std::ostream & out, imp * p) {
         if (p == nullptr)
             out << anonymous_str;
         else
-            display_core(out, sep, p);
+            display_core(out, p);
     }
 
     friend void copy_limbs(imp * p, std::vector<name::imp *> & limbs) {
@@ -238,12 +238,12 @@ static unsigned num_digits(unsigned k) {
     return r;
 }
 
-size_t name::size(char const * sep) const {
+size_t name::size() const {
     if (m_ptr == nullptr) {
         return strlen(anonymous_str);
     } else {
         imp * i       = m_ptr;
-        size_t sep_sz = strlen(sep);
+        size_t sep_sz = strlen(lean_name_separator);
         size_t r      = 0;
         while (true) {
             if (i->m_is_string) {
@@ -262,33 +262,18 @@ size_t name::size(char const * sep) const {
     }
 }
 
-size_t name::size() const {
-    return size(LEAN_NAME_SEPARATOR);
-}
-
 unsigned name::hash() const {
     return m_ptr ? m_ptr->m_hash : 11;
 }
 
-std::string name::to_string(char const * sep) const {
+std::string name::to_string() const {
     std::ostringstream s;
-    imp::display(s, sep, m_ptr);
+    imp::display(s, m_ptr);
     return s.str();
 }
 
-std::string name::to_string() const {
-    return to_string(LEAN_NAME_SEPARATOR);
-}
-
 std::ostream & operator<<(std::ostream & out, name const & n) {
-    name::imp::display(out, LEAN_NAME_SEPARATOR, n.m_ptr);
-    return out;
-}
-
-name::sep::sep(name const & n, char const * s):m_name(n), m_sep(s) {}
-
-std::ostream & operator<<(std::ostream & out, name::sep const & s) {
-    name::imp::display(out, s.m_sep, s.m_name.m_ptr);
+    name::imp::display(out, n.m_ptr);
     return out;
 }
 }

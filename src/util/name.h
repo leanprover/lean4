@@ -7,11 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 
-#ifndef LEAN_NAME_SEPARATOR
-#define LEAN_NAME_SEPARATOR "::"
-#endif
-
 namespace lean {
+constexpr char const * lean_name_separator = "::";
 enum class name_kind { ANONYMOUS, STRING, NUMERAL };
 /**
    \brief Hierarchical names.
@@ -52,25 +49,15 @@ public:
     bool is_atomic() const;
     name get_prefix() const;
     /**
-       \brief Convert this hierarchical name into a string using the given separator to "glue" the different limbs.
+       \brief Convert this hierarchical name into a string.
     */
-    std::string to_string(char const * sep) const;
     std::string to_string() const;
     /**
-       \brief Size of the this name (in characters) when using the given separator.
+       \brief Size of the this name (in characters).
     */
-    size_t size(char const * sep) const;
     size_t size() const;
     unsigned hash() const;
     friend std::ostream & operator<<(std::ostream & out, name const & n);
-    class sep {
-        name const & m_name;
-        char const * m_sep;
-    public:
-        sep(name const & n, char const * s);
-        friend std::ostream & operator<<(std::ostream & out, sep const & s);
-    };
-    friend std::ostream & operator<<(std::ostream & out, sep const & s);
 };
 struct name_hash { unsigned operator()(name const & n) const { return n.hash(); } };
 struct name_eq { bool operator()(name const & n1, name const & n2) const { return n1 == n2; } };

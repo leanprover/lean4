@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 */
 #include "operator_info.h"
 #include "rc.h"
-#include "options.h"
 
 namespace lean {
 
@@ -87,7 +86,7 @@ operator_info mixfixc(unsigned num_parts, name const * parts, unsigned precedenc
 
 static char const * g_arrow               = "\u21a6";
 
-format pp(operator_info const & o, options const & opt) {
+format pp(operator_info const & o) {
     format r;
     switch (o.get_fixity()) {
     case fixity::Infix:   r = format(o.get_associativity() == associativity::Left ? "Infixl" : "Infixr"); break;
@@ -105,36 +104,31 @@ format pp(operator_info const & o, options const & opt) {
 
     switch (o.get_fixity()) {
     case fixity::Infix: case fixity::Prefix: case fixity::Postfix:
-        r += pp(o.get_op_name(), opt); break;
+        r += pp(o.get_op_name()); break;
     case fixity::Mixfixl:
-        for (auto p : o.get_op_name_parts()) r += format{pp(p, opt), format(" _")};
+        for (auto p : o.get_op_name_parts()) r += format{pp(p), format(" _")};
         break;
     case fixity::Mixfixr:
-        for (auto p : o.get_op_name_parts()) r += format{format("_ "), pp(p, opt)};
+        for (auto p : o.get_op_name_parts()) r += format{format("_ "), pp(p)};
         break;
     case fixity::Mixfixc: {
         bool first = true;
         for (auto p : o.get_op_name_parts()) {
             if (first) first = false; else r += format(" _ ");
-            r += pp(p, opt);
+            r += pp(p);
         }
     }}
 
     list<name> const & l = o.get_internal_names();
     if (!is_nil(l)) {
         r += format{space(), format(g_arrow)};
-        for (auto n : l) r += format{space(), pp(n, opt)};
+        for (auto n : l) r += format{space(), pp(n)};
     }
     return r;
-}
-
-format pp(operator_info const & o) {
-    return pp(o, options());
 }
 
 std::ostream & operator<<(std::ostream & out, operator_info const & o) {
     out << pp(o);
     return out;
 }
-
 }

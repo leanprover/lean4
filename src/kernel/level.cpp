@@ -192,23 +192,23 @@ std::ostream & operator<<(std::ostream & out, level const & l) {
     return out;
 }
 
-format pp(level const & l, char const * sep) {
+format pp(level const & l) {
     switch (kind(l)) {
     case level_kind::UVar:
         if (l.is_bottom())
             return format(0);
         else
-            return format(uvar_name(l).to_string(sep));
+            return pp(uvar_name(l));
     case level_kind::Lift:
         if (lift_of(l).is_bottom())
             return format(lift_offset(l));
         else
-            return format{pp(lift_of(l), sep), format(" + "), format(lift_offset(l))};
+            return format{pp(lift_of(l)), format(" + "), format(lift_offset(l))};
     case level_kind::Max: {
-        format r = pp(max_level(l, 0), sep);
+        format r = pp(max_level(l, 0));
         for (unsigned i = 1; i < max_size(l); i++) {
             r += format(" \u2293 ");
-            r += pp(max_level(l, i), sep);
+            r += pp(max_level(l, i));
         }
         return r;
     }}

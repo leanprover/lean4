@@ -168,7 +168,6 @@ static void tst7() {
     sexpr s = sexpr{ sexpr(1,2), sexpr(2,3), sexpr(0,1) };
     std::cout << pp(sexpr{s, s, s, s, s}) << "\n";
     std::cout << pp(sexpr{sexpr(name{"test","name"}), sexpr(10), sexpr(10.20)}) << "\n";
-    std::cout << pp(sexpr{sexpr(name{"test","name"}), sexpr(10), sexpr(10.20)}, options(name{"name","separator"}, "-->")) << "\n";
 }
 
 int main() {

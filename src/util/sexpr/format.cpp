@@ -302,21 +302,11 @@ unsigned get_pp_indent(options const & o) {
     return o.get_int(g_pp_indent, LEAN_DEFAULT_INDENTATION);
 }
 
-format pp(name const & n, char const * sep) {
-    return format(n.to_string(sep));
-}
-
-format pp(name const & n, options const & o) {
-    return pp(n, get_name_separator(o));
-}
-
 format pp(name const & n) {
-    return pp(n, get_name_separator(options()));
+    return format(n.to_string());
 }
 
 struct sexpr_pp_fn {
-    char const * m_sep;
-
     format apply(sexpr const & s) {
         switch (s.kind()) {
         case sexpr_kind::NIL:         return format("nil");
@@ -328,7 +318,7 @@ struct sexpr_pp_fn {
         case sexpr_kind::BOOL:        return format(to_bool(s) ? "true" : "false");
         case sexpr_kind::INT:         return format(to_int(s));
         case sexpr_kind::DOUBLE:      return format(to_double(s));
-        case sexpr_kind::NAME:        return pp(to_name(s), m_sep);
+        case sexpr_kind::NAME:        return pp(to_name(s));
         case sexpr_kind::MPZ:         return format(to_mpz(s));
         case sexpr_kind::MPQ:         return format(to_mpq(s));
         case sexpr_kind::CONS: {
@@ -350,18 +340,12 @@ struct sexpr_pp_fn {
         return format();
     }
 
-    format operator()(sexpr const & s, options const & o) {
-        m_sep    = get_name_separator(o);
+    format operator()(sexpr const & s) {
         return apply(s);
     }
 };
 
-format pp(sexpr const & s, options const & o) {
-    return sexpr_pp_fn()(s, o);
-}
-
 format pp(sexpr const & s) {
-    return pp(s, options());
+    return sexpr_pp_fn()(s);
 }
-
 }

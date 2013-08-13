@@ -84,14 +84,13 @@ options options::update(name const & n, sexpr const & v) const {
 }
 
 format pp(options const & o) {
-    char const * sep = get_name_separator(o);
     format r;
     bool first = true;
     for_each(o.m_value, [&](sexpr const & p) {
             if (first) { first = false; } else { r += comma(); r += line(); }
             name const & n = to_name(head(p));
-            unsigned sz = n.size(sep);
-            r += group(nest(sz+3, format{pp(head(p), o), space(), format(g_arrow), space(), pp(tail(p), o)}));
+            unsigned sz = n.size();
+            r += group(nest(sz+3, format{pp(head(p)), space(), format(g_arrow), space(), pp(tail(p))}));
         });
     return group(nest(1, format{format(g_left_angle_bracket), r, format(g_right_angle_bracket)}));
 }
@@ -105,9 +104,5 @@ std::ostream & operator<<(std::ostream & out, options const & o) {
         });
     out << g_right_angle_bracket;
     return out;
-}
-static name g_name_separator{"name", "separator"};
-char const * get_name_separator(options const & o) {
-    return o.get_string(g_name_separator, "::");
 }
 }

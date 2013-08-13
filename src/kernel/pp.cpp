@@ -17,7 +17,6 @@ struct pp_fn {
     pp_fn(environment const * env):m_env(env) {}
 
     unsigned indent() const { return 2; }
-    char const * sep() const { return LEAN_NAME_SEPARATOR; }
     format pp_keyword(char const * k) { return highlight(format(k), format::format_color::ORANGE); }
     format pp_type_kwd() { return highlight(format("Type"), format::format_color::PINK); }
     format pp_eq_kwd() { return highlight(format(" = "), format::format_color::BLUE); }
@@ -47,7 +46,7 @@ struct pp_fn {
     }
 
     format pp_constant(expr const & e) {
-        return format(const_name(e).to_string(sep()));
+        return ::lean::pp(const_name(e));
     }
 
     format pp_value(expr const & e) {
@@ -58,7 +57,7 @@ struct pp_fn {
         if (e == Type()) {
             return pp_type_kwd();
         } else {
-            return format{pp_type_kwd(), pp_space(), ::lean::pp(ty_level(e), sep())};
+            return format{pp_type_kwd(), pp_space(), ::lean::pp(ty_level(e))};
         }
     }
 
@@ -112,7 +111,7 @@ struct pp_fn {
     }
 
     format pp_bname(expr const & binder) {
-        return format(abst_name(binder).to_string(sep()));
+        return ::lean::pp(abst_name(binder));
     }
 
     template<typename It>

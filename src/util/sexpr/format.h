@@ -286,8 +286,6 @@ class options;
 unsigned get_pp_indent(options const & o);
 
 /** \brief Format a hierarchical name */
-format pp(name const & n, char const * s);
-format pp(name const & n, options const & o);
 format pp(name const & n);
 
 /** \brief Format a S-expression */

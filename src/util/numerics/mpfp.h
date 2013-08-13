@@ -12,6 +12,10 @@ Author: Soonho Kong
 #include "mpbq.h"
 
 namespace lean {
+
+void set_mpfp_rnd(bool plus_inf);
+mpfr_rnd_t get_mpfp_rnd();
+
 /**
    \brief Wrapper for MPFR
 */
@@ -140,55 +144,55 @@ public:
     friend mpfp neg(mpfp a) { a.neg(); return a; }
 
     // Math functions and theirs friend functions
-    void abs  (mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_abs(m_val, m_val, rnd); }
-    void exp  (mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_exp(m_val, m_val, rnd); }
-    void exp2 (mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_exp2(m_val, m_val, rnd); }
-    void exp10(mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_exp10(m_val, m_val, rnd); }
-    void log  (mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_log(m_val, m_val, rnd); }
-    void log2 (mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_log2(m_val, m_val, rnd); }
-    void log10(mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_log10(m_val, m_val, rnd); }
-    void sin  (mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_sin(m_val, m_val, rnd); }
-    void cos  (mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_cos(m_val, m_val, rnd); }
-    void tan  (mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_tan(m_val, m_val, rnd); }
-    void sec  (mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_sec(m_val, m_val, rnd); }
-    void csc  (mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_csc(m_val, m_val, rnd); }
-    void cot  (mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_cot(m_val, m_val, rnd); }
-    void asin (mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_asin(m_val, m_val, rnd); }
-    void acos (mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_acos(m_val, m_val, rnd); }
-    void atan (mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_atan(m_val, m_val, rnd); }
-    void sinh (mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_sinh(m_val, m_val, rnd); }
-    void cosh (mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_cosh(m_val, m_val, rnd); }
-    void tanh (mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_tanh(m_val, m_val, rnd); }
-    void asinh(mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_asinh(m_val, m_val, rnd); }
-    void acosh(mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_acosh(m_val, m_val, rnd); }
-    void atanh(mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_atanh(m_val, m_val, rnd); }
-    friend mpfp abs  (mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.abs(rnd); return a; }
-    friend mpfp exp  (mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.exp(rnd); return a; }
-    friend mpfp exp2 (mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.exp2(rnd); return a; }
-    friend mpfp exp10(mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.exp10(rnd); return a; }
-    friend mpfp log  (mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.log(rnd); return a; }
-    friend mpfp log2 (mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.log2(rnd); return a; }
-    friend mpfp log10(mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.log10(rnd); return a; }
-    friend mpfp sin  (mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.sin(rnd); return a; }
-    friend mpfp cos  (mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.cos(rnd); return a; }
-    friend mpfp tan  (mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.tan(rnd); return a; }
-    friend mpfp sec  (mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.sec(rnd); return a; }
-    friend mpfp csc  (mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.csc(rnd); return a; }
-    friend mpfp cot  (mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.cot(rnd); return a; }
-    friend mpfp asin (mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.asin(rnd); return a; }
-    friend mpfp acos (mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.acos(rnd); return a; }
-    friend mpfp atan (mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.atan(rnd); return a; }
-    friend mpfp sinh (mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.sinh(rnd); return a; }
-    friend mpfp cosh (mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.cosh(rnd); return a; }
-    friend mpfp tanh (mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.tanh(rnd); return a; }
-    friend mpfp asinh(mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.asinh(rnd); return a; }
-    friend mpfp acosh(mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.acosh(rnd); return a; }
-    friend mpfp atanh(mpfp a, mpfr_rnd_t rnd = MPFR_RNDN) { a.atanh(rnd); return a; }
+    void abs  (mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_abs(m_val, m_val, rnd); }
+    void exp  (mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_exp(m_val, m_val, rnd); }
+    void exp2 (mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_exp2(m_val, m_val, rnd); }
+    void exp10(mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_exp10(m_val, m_val, rnd); }
+    void log  (mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_log(m_val, m_val, rnd); }
+    void log2 (mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_log2(m_val, m_val, rnd); }
+    void log10(mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_log10(m_val, m_val, rnd); }
+    void sin  (mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_sin(m_val, m_val, rnd); }
+    void cos  (mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_cos(m_val, m_val, rnd); }
+    void tan  (mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_tan(m_val, m_val, rnd); }
+    void sec  (mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_sec(m_val, m_val, rnd); }
+    void csc  (mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_csc(m_val, m_val, rnd); }
+    void cot  (mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_cot(m_val, m_val, rnd); }
+    void asin (mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_asin(m_val, m_val, rnd); }
+    void acos (mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_acos(m_val, m_val, rnd); }
+    void atan (mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_atan(m_val, m_val, rnd); }
+    void sinh (mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_sinh(m_val, m_val, rnd); }
+    void cosh (mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_cosh(m_val, m_val, rnd); }
+    void tanh (mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_tanh(m_val, m_val, rnd); }
+    void asinh(mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_asinh(m_val, m_val, rnd); }
+    void acosh(mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_acosh(m_val, m_val, rnd); }
+    void atanh(mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_atanh(m_val, m_val, rnd); }
+    friend mpfp abs  (mpfp a, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.abs(rnd); return a; }
+    friend mpfp exp  (mpfp a, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.exp(rnd); return a; }
+    friend mpfp exp2 (mpfp a, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.exp2(rnd); return a; }
+    friend mpfp exp10(mpfp a, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.exp10(rnd); return a; }
+    friend mpfp log  (mpfp a, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.log(rnd); return a; }
+    friend mpfp log2 (mpfp a, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.log2(rnd); return a; }
+    friend mpfp log10(mpfp a, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.log10(rnd); return a; }
+    friend mpfp sin  (mpfp a, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.sin(rnd); return a; }
+    friend mpfp cos  (mpfp a, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.cos(rnd); return a; }
+    friend mpfp tan  (mpfp a, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.tan(rnd); return a; }
+    friend mpfp sec  (mpfp a, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.sec(rnd); return a; }
+    friend mpfp csc  (mpfp a, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.csc(rnd); return a; }
+    friend mpfp cot  (mpfp a, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.cot(rnd); return a; }
+    friend mpfp asin (mpfp a, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.asin(rnd); return a; }
+    friend mpfp acos (mpfp a, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.acos(rnd); return a; }
+    friend mpfp atan (mpfp a, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.atan(rnd); return a; }
+    friend mpfp sinh (mpfp a, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.sinh(rnd); return a; }
+    friend mpfp cosh (mpfp a, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.cosh(rnd); return a; }
+    friend mpfp tanh (mpfp a, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.tanh(rnd); return a; }
+    friend mpfp asinh(mpfp a, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.asinh(rnd); return a; }
+    friend mpfp acosh(mpfp a, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.acosh(rnd); return a; }
+    friend mpfp atanh(mpfp a, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.atanh(rnd); return a; }
 
     void inv() { mpfr_d_div(m_val, 1.0, m_val, MPFR_RNDN); }
     friend mpfp inv(mpfp a) { a.inv(); return a; }
-    double get_double(mpfr_rnd_t rnd = MPFR_RNDN) const { return mpfr_get_d(m_val, rnd); }
-    float  get_float (mpfr_rnd_t rnd = MPFR_RNDN) const { return mpfr_get_flt(m_val, rnd); }
+    double get_double(mpfr_rnd_t rnd = get_mpfp_rnd()) const { return mpfr_get_d(m_val, rnd); }
+    float  get_float (mpfr_rnd_t rnd = get_mpfp_rnd()) const { return mpfr_get_flt(m_val, rnd); }
 
     friend int cmp(mpfp const & a, mpfp const & b           ) { return mpfr_cmp(a.m_val, b.m_val); }
     friend int cmp(mpfp const & a, unsigned long int const b) { return mpfr_cmp_ui(a.m_val, b); }
@@ -312,14 +316,14 @@ public:
     friend bool operator!=(mpfp const & a, mpq_t const & b          ) { return cmp(a, b) != 0; }
     friend bool operator!=(mpfp const & a, mpf_t const & b          ) { return cmp(a, b) != 0; }
 
-    mpfp & add(mpfp const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_add(m_val, m_val, o.m_val, rnd); return *this; }
-    mpfp & add(unsigned long int const o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_add_ui(m_val, m_val, o, rnd); return *this; }
-    mpfp & add(long int const o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_add_si(m_val, m_val, o, rnd); return *this; }
-    mpfp & add(double const o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_add_d(m_val, m_val, o, rnd); return *this; }
-    mpfp & add(mpz_t const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_add_z(m_val, m_val, o, rnd); return *this; }
-    mpfp & add(mpq_t const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_add_q(m_val, m_val, o, rnd); return *this; }
-    mpfp & add(mpz const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_add_z(m_val, m_val, o.m_val, rnd); return *this; }
-    mpfp & add(mpq const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_add_q(m_val, m_val, o.m_val, rnd); return *this; }
+    mpfp & add(mpfp const & o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_add(m_val, m_val, o.m_val, rnd); return *this; }
+    mpfp & add(unsigned long int const o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_add_ui(m_val, m_val, o, rnd); return *this; }
+    mpfp & add(long int const o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_add_si(m_val, m_val, o, rnd); return *this; }
+    mpfp & add(double const o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_add_d(m_val, m_val, o, rnd); return *this; }
+    mpfp & add(mpz_t const & o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_add_z(m_val, m_val, o, rnd); return *this; }
+    mpfp & add(mpq_t const & o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_add_q(m_val, m_val, o, rnd); return *this; }
+    mpfp & add(mpz const & o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_add_z(m_val, m_val, o.m_val, rnd); return *this; }
+    mpfp & add(mpq const & o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_add_q(m_val, m_val, o.m_val, rnd); return *this; }
     mpfp & operator+=(mpfp const & o) { return add(o); }
     mpfp & operator+=(unsigned long int o) { return add(o); }
     mpfp & operator+=(long int const o) { return add(o); }
@@ -337,19 +341,19 @@ public:
     friend mpfp operator+(mpfp a, mpz const & b) { return a += b; }
     friend mpfp operator+(mpfp a, mpq const & b) { return a += b; }
 
-    mpfp & sub(mpfp const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_sub(m_val, m_val, o.m_val, rnd); return *this; }
-    mpfp & sub(unsigned long int const o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_sub_ui(m_val, m_val, o, rnd); return *this; }
-    mpfp & sub(long int const o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_sub_si(m_val, m_val, o, rnd); return *this; }
-    mpfp & sub(double const o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_sub_d(m_val, m_val, o, rnd); return *this; }
-    mpfp & sub(mpz_t const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_sub_z(m_val, m_val, o, rnd); return *this; }
-    mpfp & sub(mpq_t const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_sub_q(m_val, m_val, o, rnd); return *this; }
-    mpfp & sub(mpz const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_sub_z(m_val, m_val, o.m_val, rnd); return *this; }
-    mpfp & sub(mpq const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_sub_q(m_val, m_val, o.m_val, rnd); return *this; }
-    mpfp & rsub(unsigned long int const o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_ui_sub(m_val, o, m_val, rnd); return *this; }
-    mpfp & rsub(long int const o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_si_sub(m_val, o, m_val, rnd); return *this; }
-    mpfp & rsub(double const o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_d_sub(m_val, o, m_val, rnd); return *this; }
-    mpfp & rsub(mpz_t const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_z_sub(m_val, o, m_val, rnd); return *this; }
-    mpfp & rsub(mpz const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_z_sub(m_val, o.m_val, m_val, rnd); return *this; }
+    mpfp & sub(mpfp const & o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_sub(m_val, m_val, o.m_val, rnd); return *this; }
+    mpfp & sub(unsigned long int const o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_sub_ui(m_val, m_val, o, rnd); return *this; }
+    mpfp & sub(long int const o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_sub_si(m_val, m_val, o, rnd); return *this; }
+    mpfp & sub(double const o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_sub_d(m_val, m_val, o, rnd); return *this; }
+    mpfp & sub(mpz_t const & o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_sub_z(m_val, m_val, o, rnd); return *this; }
+    mpfp & sub(mpq_t const & o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_sub_q(m_val, m_val, o, rnd); return *this; }
+    mpfp & sub(mpz const & o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_sub_z(m_val, m_val, o.m_val, rnd); return *this; }
+    mpfp & sub(mpq const & o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_sub_q(m_val, m_val, o.m_val, rnd); return *this; }
+    mpfp & rsub(unsigned long int const o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_ui_sub(m_val, o, m_val, rnd); return *this; }
+    mpfp & rsub(long int const o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_si_sub(m_val, o, m_val, rnd); return *this; }
+    mpfp & rsub(double const o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_d_sub(m_val, o, m_val, rnd); return *this; }
+    mpfp & rsub(mpz_t const & o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_z_sub(m_val, o, m_val, rnd); return *this; }
+    mpfp & rsub(mpz const & o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_z_sub(m_val, o.m_val, m_val, rnd); return *this; }
     mpfp & operator-=(mpfp const & o) { return sub(o); }
     mpfp & operator-=(unsigned long int o) { return sub(o); }
     mpfp & operator-=(long int const o) { return sub(o); }
@@ -374,14 +378,14 @@ public:
     friend mpfp operator-(mpz const & a, mpfp b) { return b.rsub(a); }
 //    friend mpfp operator-(mpq const & a, mpfp b) { return b.rsub(a); }
 
-    mpfp & mul(mpfp const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_mul(m_val, m_val, o.m_val, rnd); return *this; }
-    mpfp & mul(unsigned long int const o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_mul_ui(m_val, m_val, o, rnd); return *this; }
-    mpfp & mul(long int const o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_mul_si(m_val, m_val, o, rnd); return *this; }
-    mpfp & mul(double const o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_mul_d(m_val, m_val, o, rnd); return *this; }
-    mpfp & mul(mpz_t const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_mul_z(m_val, m_val, o, rnd); return *this; }
-    mpfp & mul(mpq_t const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_mul_q(m_val, m_val, o, rnd); return *this; }
-    mpfp & mul(mpz const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_mul_z(m_val, m_val, o.m_val, rnd); return *this; }
-    mpfp & mul(mpq const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_mul_q(m_val, m_val, o.m_val, rnd); return *this; }
+    mpfp & mul(mpfp const & o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_mul(m_val, m_val, o.m_val, rnd); return *this; }
+    mpfp & mul(unsigned long int const o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_mul_ui(m_val, m_val, o, rnd); return *this; }
+    mpfp & mul(long int const o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_mul_si(m_val, m_val, o, rnd); return *this; }
+    mpfp & mul(double const o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_mul_d(m_val, m_val, o, rnd); return *this; }
+    mpfp & mul(mpz_t const & o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_mul_z(m_val, m_val, o, rnd); return *this; }
+    mpfp & mul(mpq_t const & o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_mul_q(m_val, m_val, o, rnd); return *this; }
+    mpfp & mul(mpz const & o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_mul_z(m_val, m_val, o.m_val, rnd); return *this; }
+    mpfp & mul(mpq const & o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_mul_q(m_val, m_val, o.m_val, rnd); return *this; }
     mpfp & operator*=(mpfp const & o) { return mul(o); }
     mpfp & operator*=(unsigned long int o) { return mul(o); }
     mpfp & operator*=(long int const o) { return mul(o); }
@@ -399,17 +403,17 @@ public:
     friend mpfp operator*(mpfp a, mpz const & b) { return a *= b; }
     friend mpfp operator*(mpfp a, mpq const & b) { return a *= b; }
 
-    mpfp & div(mpfp const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_div(m_val, m_val, o.m_val, rnd); return *this; }
-    mpfp & div(unsigned long int const o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_div_ui(m_val, m_val, o, rnd); return *this; }
-    mpfp & div(long int const o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_div_si(m_val, m_val, o, rnd); return *this; }
-    mpfp & div(double const o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_div_d(m_val, m_val, o, rnd); return *this; }
-    mpfp & div(mpz_t const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_div_z(m_val, m_val, o, rnd); return *this; }
-    mpfp & div(mpq_t const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_div_q(m_val, m_val, o, rnd); return *this; }
-    mpfp & div(mpz const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_div_z(m_val, m_val, o.m_val, rnd); return *this; }
-    mpfp & div(mpq const & o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_div_q(m_val, m_val, o.m_val, rnd); return *this; }
-    mpfp & rdiv(unsigned long int const o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_ui_div(m_val, o, m_val, rnd); return *this; }
-    mpfp & rdiv(long int const o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_si_div(m_val, o, m_val, rnd); return *this; }
-    mpfp & rdiv(double const o, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_d_div(m_val, o, m_val, rnd); return *this; }
+    mpfp & div(mpfp const & o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_div(m_val, m_val, o.m_val, rnd); return *this; }
+    mpfp & div(unsigned long int const o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_div_ui(m_val, m_val, o, rnd); return *this; }
+    mpfp & div(long int const o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_div_si(m_val, m_val, o, rnd); return *this; }
+    mpfp & div(double const o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_div_d(m_val, m_val, o, rnd); return *this; }
+    mpfp & div(mpz_t const & o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_div_z(m_val, m_val, o, rnd); return *this; }
+    mpfp & div(mpq_t const & o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_div_q(m_val, m_val, o, rnd); return *this; }
+    mpfp & div(mpz const & o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_div_z(m_val, m_val, o.m_val, rnd); return *this; }
+    mpfp & div(mpq const & o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_div_q(m_val, m_val, o.m_val, rnd); return *this; }
+    mpfp & rdiv(unsigned long int const o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_ui_div(m_val, o, m_val, rnd); return *this; }
+    mpfp & rdiv(long int const o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_si_div(m_val, o, m_val, rnd); return *this; }
+    mpfp & rdiv(double const o, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_d_div(m_val, o, m_val, rnd); return *this; }
     mpfp & operator/=(mpfp const & o) { return div(o); }
     mpfp & operator/=(unsigned long int o) { return div(o); }
     mpfp & operator/=(long int const o) { return div(o); }
@@ -434,7 +438,7 @@ public:
 //    friend mpfp operator/(mpz const & a, mpfp b) { return a.rdiv(b); }
 //    friend mpfp operator/(mpq const & a, mpfp b) { return a.rdiv(b); }
 
-    mpfp & pow(unsigned long int k, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_pow_ui(m_val, m_val, k, rnd); return *this; }
+    mpfp & pow(unsigned long int k, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_pow_ui(m_val, m_val, k, rnd); return *this; }
     mpfp & operator^=(unsigned long int k) { return pow(k); }
     friend mpfp operator^(mpfp a, unsigned long int k) { return a ^= k; }
 
@@ -448,48 +452,45 @@ public:
     void ceil () { mpfr_ceil (m_val, m_val); }
     void round() { mpfr_round(m_val, m_val); }
     void trunc() { mpfr_trunc(m_val, m_val); }
-    void rfloor(mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_rint_floor(m_val, m_val, rnd); }
-    void rceil (mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_rint_ceil (m_val, m_val, rnd); }
-    void rround(mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_rint_round(m_val, m_val, rnd); }
-    void rtrunc(mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_rint_trunc(m_val, m_val, rnd); }
+    void rfloor(mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_rint_floor(m_val, m_val, rnd); }
+    void rceil (mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_rint_ceil (m_val, m_val, rnd); }
+    void rround(mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_rint_round(m_val, m_val, rnd); }
+    void rtrunc(mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_rint_trunc(m_val, m_val, rnd); }
 
     friend mpfp floor(mpfp const & a) { static thread_local mpfp tmp; tmp = a; tmp.floor(); return tmp; }
     friend mpfp ceil (mpfp const & a) { static thread_local mpfp tmp; tmp = a; tmp.ceil();  return tmp; }
     friend mpfp round(mpfp const & a) { static thread_local mpfp tmp; tmp = a; tmp.round(); return tmp; }
     friend mpfp trunc(mpfp const & a) { static thread_local mpfp tmp; tmp = a; tmp.trunc(); return tmp; }
-    friend mpfp rfloor(mpfp const & a, mpfr_rnd_t rnd = MPFR_RNDN) {
+    friend mpfp rfloor(mpfp const & a, mpfr_rnd_t rnd = get_mpfp_rnd()) {
         static thread_local mpfp tmp; tmp = a; tmp.rfloor(rnd); return tmp;
     }
-    friend mpfp rceil (mpfp const & a, mpfr_rnd_t rnd = MPFR_RNDN) {
+    friend mpfp rceil (mpfp const & a, mpfr_rnd_t rnd = get_mpfp_rnd()) {
         static thread_local mpfp tmp; tmp = a; tmp.rceil(rnd);  return tmp;
     }
-    friend mpfp rround(mpfp const & a, mpfr_rnd_t rnd = MPFR_RNDN) {
+    friend mpfp rround(mpfp const & a, mpfr_rnd_t rnd = get_mpfp_rnd()) {
         static thread_local mpfp tmp; tmp = a; tmp.rround(rnd); return tmp;
     }
-    friend mpfp rtrunc(mpfp const & a, mpfr_rnd_t rnd = MPFR_RNDN) {
+    friend mpfp rtrunc(mpfp const & a, mpfr_rnd_t rnd = get_mpfp_rnd()) {
         static thread_local mpfp tmp; tmp = a; tmp.rtrunc(rnd); return tmp;
     }
 
-    void power(mpfp const & b, mpfr_rnd_t rnd = MPFR_RNDN)      { mpfr_pow(m_val, m_val, b.m_val, rnd); }
-    void power(unsigned long int b, mpfr_rnd_t rnd = MPFR_RNDN) { mpfr_pow_ui(m_val, m_val, b, rnd); }
-    void power(long int b, mpfr_rnd_t rnd = MPFR_RNDN)          { mpfr_pow_si(m_val, m_val, b, rnd); }
-    void power(mpz_t const & b, mpfr_rnd_t rnd = MPFR_RNDN)     { mpfr_pow_z(m_val, m_val, b, rnd); }
-    void power(mpz const & b, mpfr_rnd_t rnd = MPFR_RNDN)       { mpfr_pow_z(m_val, m_val, b.m_val, rnd); }
+    void power(mpfp const & b, mpfr_rnd_t rnd = get_mpfp_rnd())      { mpfr_pow(m_val, m_val, b.m_val, rnd); }
+    void power(unsigned long int b, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_pow_ui(m_val, m_val, b, rnd); }
+    void power(long int b, mpfr_rnd_t rnd = get_mpfp_rnd())          { mpfr_pow_si(m_val, m_val, b, rnd); }
+    void power(mpz_t const & b, mpfr_rnd_t rnd = get_mpfp_rnd())     { mpfr_pow_z(m_val, m_val, b, rnd); }
+    void power(mpz const & b, mpfr_rnd_t rnd = get_mpfp_rnd())       { mpfr_pow_z(m_val, m_val, b.m_val, rnd); }
 
-    friend mpfp power(mpfp a, mpfp const & b, mpfr_rnd_t rnd = MPFR_RNDN) { a.power(b, rnd); return a;; }
-    friend mpfp power(mpfp a, unsigned long int b, mpfr_rnd_t rnd = MPFR_RNDN) { a.power(b, rnd); return a;; }
-    friend mpfp power(mpfp a, long int b, mpfr_rnd_t rnd = MPFR_RNDN)          { a.power(b, rnd); return a;; }
-    friend mpfp power(mpfp a, mpz_t const & b, mpfr_rnd_t rnd = MPFR_RNDN)     { a.power(b, rnd); return a;; }
-    friend mpfp power(mpfp a, mpz const & b, mpfr_rnd_t rnd = MPFR_RNDN)       { a.power(b, rnd); return a;; }
+    friend mpfp power(mpfp a, mpfp const & b, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.power(b, rnd); return a;; }
+    friend mpfp power(mpfp a, unsigned long int b, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.power(b, rnd); return a;; }
+    friend mpfp power(mpfp a, long int b, mpfr_rnd_t rnd = get_mpfp_rnd())          { a.power(b, rnd); return a;; }
+    friend mpfp power(mpfp a, mpz_t const & b, mpfr_rnd_t rnd = get_mpfp_rnd())     { a.power(b, rnd); return a;; }
+    friend mpfp power(mpfp a, mpz const & b, mpfr_rnd_t rnd = get_mpfp_rnd())       { a.power(b, rnd); return a;; }
 
     friend std::ostream & operator<<(std::ostream & out, mpfp const & v);
 };
 
 // Macro to implement transcendental functions
 #define LEAN_TRANS_MPFP_FUNC(f, v, rnd) v.f(rnd);
-
-void set_mpfp_rnd(bool plus_inf);
-mpfr_rnd_t get_mpfp_rnd();
 
 template<>
 class numeric_traits<mpfp> {

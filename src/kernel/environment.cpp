@@ -17,51 +17,10 @@ Author: Leonardo de Moura
 #include "debug.h"
 
 namespace lean {
-constexpr unsigned uninit = std::numeric_limits<int>::max();
-
-environment::definition::definition(name const & n, expr const & t, expr const & v, bool opaque):
-    m_name(n),
-    m_type(t),
-    m_value(v),
-    m_opaque(opaque) {
-}
-
-environment::definition::~definition() {
-}
-
-void environment::definition::display(std::ostream & out) const {
-    out << header() << " " << m_name << " : " << m_type << " := " << m_value << "\n";
-}
-
-format pp_object_kind(char const * n) { return highlight(format(n), format::format_color::BLUE); }
-constexpr unsigned indentation = 2; // TODO: must be option
-
-format environment::definition::pp(environment const & env) const {
-    return nest(indentation,
-                  format{pp_object_kind(header()), format(" "), format(m_name), format(" : "), ::lean::pp(m_type, env), format(" :="),
-                          line(), ::lean::pp(m_value), format(".")});
-}
-
-environment::fact::fact(name const & n, expr const & t):
-    m_name(n),
-    m_type(t) {
-}
-
-environment::fact::~fact() {
-}
-
-format environment::fact::pp(environment const & env) const {
-    return nest(indentation,
-                format{pp_object_kind(header()), format(" "), format(m_name), format(" : "), ::lean::pp(m_type, env), format(".")});
-}
-
-void environment::fact::display(std::ostream & out) const {
-    out << header() << " " << m_name << " : " << m_type << "\n";
-}
-
 /** \brief Implementation of the Lean environment. */
 struct environment::imp {
-    typedef std::unordered_map<name, object *, name_hash, name_eq> object_dictionary;
+    // Remark: only named objects are stored in the dictionary.
+    typedef std::unordered_map<name, named_object *, name_hash, name_eq> object_dictionary;
     typedef std::tuple<level, level, int> constraint;
     // Universe variable management
     std::vector<constraint>              m_constraints;
@@ -73,25 +32,33 @@ struct environment::imp {
     std::vector<object*>                 m_objects;
     object_dictionary                    m_object_dictionary;
 
+    /**
+       \brief Return true iff this environment has children.
+
+       \remark If an environment has children than it cannot be
+       updated. That is, it is read-only.
+    */
     bool has_children() const { return m_num_children > 0; }
     void inc_children() { m_num_children++; }
     void dec_children() { m_num_children--; }
 
+    /** \brief Return true iff this environment has a parent environment */
     bool has_parent() const { return m_parent != nullptr; }
 
-    /** \brief Return true if l1 >= l2 + k is implied by constraints
-        \pre is_uvar(l1) && is_uvar(l2)
-     */
-    bool is_implied(level const & l1, level const & l2, int k) {
-        lean_assert(is_uvar(l1) && is_uvar(l2));
-        if (l1 == l2)
+    /**
+        \brief Return true if u >= v + k is implied by constraints
+        \pre is_uvar(u) && is_uvar(v)
+    */
+    bool is_implied(level const & u, level const & v, int k) {
+        lean_assert(is_uvar(u) && is_uvar(v));
+        if (u == v)
             return k <= 0;
         else
             return std::any_of(m_constraints.begin(), m_constraints.end(),
-                               [&](constraint const & c) { return std::get<0>(c) == l1 && std::get<1>(c) == l2 && std::get<2>(c) >= k; });
+                               [&](constraint const & c) { return std::get<0>(c) == u && std::get<1>(c) == v && std::get<2>(c) >= k; });
     }
 
-    /** \brief Return true iff l1 >= l2 + k */
+    /** \brief Return true iff l1 >= l2 + k by asserted universe constraints. */
     bool is_ge(level const & l1, level const & l2, int k) {
         if (l1 == l2)
             return k == 0;
@@ -109,6 +76,7 @@ struct environment::imp {
         return false;
     }
 
+    /** \brief Return true iff l1 >= l2 is implied by asserted universe constraints. */
     bool is_ge(level const & l1, level const & l2) {
         if (has_parent())
             return m_parent->is_ge(l1, l2);
@@ -116,6 +84,7 @@ struct environment::imp {
             return is_ge(l1, l2, 0);
     }
 
+    /** \brief Add a new universe variable */
     level add_var(name const & n) {
         if (std::any_of(m_uvars.begin(), m_uvars.end(), [&](level const & l){ return uvar_name(l) == n; }))
             throw exception("invalid universe variable declaration, it has already been declared");
@@ -124,24 +93,37 @@ struct environment::imp {
         return r;
     }
 
-    void add_constraint(level const & l1, level const & l2, int d) {
-        if (is_implied(l1, l2, d))
+    /**
+        \brief Add basic constraint u >= v + d, and all basic
+        constraints implied by transitivity.
+
+        \pre is_uvar(u) && is_uvar(v)
+    */
+    void add_constraint(level const & u, level const & v, int d) {
+        lean_assert(is_uvar(u) && is_uvar(v));
+        if (is_implied(u, v, d))
             return; // redundant
         buffer<constraint> to_add;
         for (constraint const & c : m_constraints) {
-            if (std::get<0>(c) == l2) {
+            if (std::get<0>(c) == v) {
                 level const & l3 = std::get<1>(c);
-                int l1_l3_d = safe_add(d, std::get<2>(c));
-                if (!is_implied(l1, l3, l1_l3_d))
-                    to_add.push_back(constraint(l1, l3, l1_l3_d));
+                int u_l3_d = safe_add(d, std::get<2>(c));
+                if (!is_implied(u, l3, u_l3_d))
+                    to_add.push_back(constraint(u, l3, u_l3_d));
             }
         }
-        m_constraints.push_back(constraint(l1, l2, d));
+        m_constraints.push_back(constraint(u, v, d));
         for (constraint const & c: to_add) {
             m_constraints.push_back(c);
         }
     }
 
+    /**
+        \brief Add all basic constraints implied by n >= l + k
+
+        A basic constraint is a constraint of the form u >= v + k
+        where u and v are universe variables.
+    */
     void add_constraints(level const & n, level const & l, int k) {
         lean_assert(is_uvar(n));
         switch (kind(l)) {
@@ -152,6 +134,7 @@ struct environment::imp {
         lean_unreachable();
     }
 
+    /** \brief Add a new universe variable with constraint n >= l */
     level add_uvar(name const & n, level const & l) {
         if (has_parent())
             throw exception("invalid universe declaration, universe variables can only be declared in top-level environments");
@@ -162,6 +145,11 @@ struct environment::imp {
         return r;
     }
 
+    /**
+        \brief Return the universe variable with given name. Throw an
+        exception if the environment and its ancestors do not
+        contain a universe variable named \c n.
+    */
     level get_uvar(name const & n) const {
         if (has_parent()) {
             return m_parent->get_uvar(n);
@@ -177,10 +165,14 @@ struct environment::imp {
         }
     }
 
+    /**
+       \brief Initialize the set of universe variables with bottom
+    */
     void init_uvars() {
         m_uvars.push_back(level());
     }
 
+    /** \brief Display universe variable constraints */
     void display_uvars(std::ostream & out) const {
         for (constraint const & c : m_constraints) {
             out << uvar_name(std::get<0>(c)) << " >= " << uvar_name(std::get<1>(c));
@@ -190,12 +182,16 @@ struct environment::imp {
         }
     }
 
+    /** \brief Throw exception if environment has children. */
     void check_no_children() {
         if (has_children())
             throw exception("invalid object declaration, environment has children environments");
     }
 
-    void check_name(name const & n) {
+    /** \brief Throw exception if environment or its ancestors already have an object with the given name. */
+    void check_name_core(name const & n) {
+        if (has_parent())
+            m_parent->check_name_core(n);
         if (m_object_dictionary.find(n) != m_object_dictionary.end()) {
             std::ostringstream s;
             s << "environment already contains an object with name '" << n << "'";
@@ -203,32 +199,84 @@ struct environment::imp {
         }
     }
 
-    void check_add(name const & n) {
+    void check_name(name const & n) {
         check_no_children();
+        check_name_core(n);
+    }
+
+    /**
+        \brief Throw an exception if \c t is not a type or type of \c
+        v is not convertible to \c t.
+
+        \remark env is the smart pointer of imp. We need it because
+        infer_universe and infer_type expect an environment instead of environment::imp.
+    */
+    void check_type(name const & n, expr const & t, expr const & v, environment const & env) {
+        infer_universe(t, env);
+        expr v_t = infer_type(v, env);
+        if (!is_convertible(t, v_t, env)) {
+            std::ostringstream buffer;
+            buffer << "type mismatch when defining '" << n << "'\n"
+                   << "expected type:\n" << t << "\n"
+                   << "given type:\n" << v_t;
+            throw exception(buffer.str());
+        }
+    }
+
+    /** \brief Throw exception if it is not a valid new definition */
+    void check_new_definition(name const & n, expr const & t, expr const & v, environment const & env) {
         check_name(n);
+        check_type(n, t, v, env);
     }
 
-    void add_definition(name const & n, expr const & t, expr const & v, bool opaque) {
-        m_objects.push_back(new definition(n, t, v, opaque));
-        m_object_dictionary.insert(std::make_pair(n, m_objects.back()));
+    /** \brief Store new named object inside internal data-structures */
+    void register_named_object(named_object * new_obj) {
+        m_objects.push_back(new_obj);
+        m_object_dictionary.insert(std::make_pair(new_obj->get_name(), new_obj));
     }
 
-    void add_theorem(name const & n, expr const & t, expr const & v) {
-        m_objects.push_back(new theorem(n, t, v));
-        m_object_dictionary.insert(std::make_pair(n, m_objects.back()));
+    /** \brief Add new definition. */
+    void add_definition(name const & n, expr const & t, expr const & v, bool opaque, environment const & env) {
+        check_new_definition(n, t, v, env);
+        register_named_object(new definition(n, t, v, opaque));
     }
 
-    void add_axiom(name const & n, expr const & t) {
-        m_objects.push_back(new axiom(n, t));
-        m_object_dictionary.insert(std::make_pair(n, m_objects.back()));
+    /**
+        \brief Add new definition.
+        The type of the new definition is the type of \c v.
+    */
+    void add_definition(name const & n, expr const & v, bool opaque, environment const & env) {
+        check_name(n);
+        expr v_t = infer_type(v, env);
+        register_named_object(new definition(n, v_t, v, opaque));
     }
 
-    void add_var(name const & n, expr const & t) {
-        m_objects.push_back(new variable(n, t));
-        m_object_dictionary.insert(std::make_pair(n, m_objects.back()));
+    /** \brief Add new theorem. */
+    void add_theorem(name const & n, expr const & t, expr const & v, environment const & env) {
+        check_new_definition(n, t, v, env);
+        register_named_object(new theorem(n, t, v));
     }
 
-    object const * get_object_ptr(name const & n) const {
+    /** \brief Add new axiom. */
+    void add_axiom(name const & n, expr const & t, environment const & env) {
+        check_name(n);
+        infer_universe(t, env);
+        register_named_object(new axiom(n, t));
+    }
+
+    /** \brief Add new variable. */
+    void add_var(name const & n, expr const & t, environment const & env) {
+        check_name(n);
+        infer_universe(t, env);
+        register_named_object(new variable(n, t));
+    }
+
+    /**
+        \brief Return the object named \c n in the environment or its
+        ancestors. Return nullptr if there is not object with the
+        given name.
+    */
+    named_object const * get_object_ptr(name const & n) const {
         auto it = m_object_dictionary.find(n);
         if (it == m_object_dictionary.end()) {
             if (has_parent())
@@ -240,8 +288,8 @@ struct environment::imp {
         }
     }
 
-    object const & get_object(name const & n) const {
-        object const * ptr = get_object_ptr(n);
+    named_object const & get_object(name const & n) const {
+        named_object const * ptr = get_object_ptr(n);
         if (ptr) {
             return *ptr;
         } else {
@@ -331,55 +379,31 @@ level environment::get_uvar(name const & n) const {
     return m_imp->get_uvar(n);
 }
 
-void environment::check_type(name const & n, expr const & t, expr const & v) {
-    infer_universe(t, *this);
-    expr v_t = infer_type(v, *this);
-    if (!is_convertible(t, v_t, *this)) {
-        std::ostringstream buffer;
-        buffer << "type mismatch when defining '" << n << "'\n"
-               << "expected type:\n" << t << "\n"
-               << "given type:\n" << v_t;
-        throw exception(buffer.str());
-    }
-}
-
 void environment::add_definition(name const & n, expr const & t, expr const & v, bool opaque) {
-    m_imp->check_no_children();
-    m_imp->check_name(n);
-    check_type(n, t, v);
-    m_imp->add_definition(n, t, v, opaque);
+    m_imp->add_definition(n, t, v, opaque, *this);
 }
 
 void environment::add_theorem(name const & n, expr const & t, expr const & v) {
-    m_imp->check_no_children();
-    m_imp->check_name(n);
-    check_type(n, t, v);
-    m_imp->add_theorem(n, t, v);
+    m_imp->add_theorem(n, t, v, *this);
 }
 
 void environment::add_definition(name const & n, expr const & v, bool opaque) {
-    m_imp->check_add(n);
-    expr v_t = infer_type(v, *this);
-    m_imp->add_definition(n, v_t, v, opaque);
+    m_imp->add_definition(n, v, opaque, *this);
 }
 
 void environment::add_axiom(name const & n, expr const & t) {
-    m_imp->check_add(n);
-    infer_universe(t, *this);
-    m_imp->add_axiom(n, t);
+    m_imp->add_axiom(n, t, *this);
 }
 
 void environment::add_var(name const & n, expr const & t) {
-    m_imp->check_add(n);
-    infer_universe(t, *this);
-    m_imp->add_var(n, t);
+    m_imp->add_var(n, t, *this);
 }
 
-environment::object const & environment::get_object(name const & n) const {
+named_object const & environment::get_object(name const & n) const {
     return m_imp->get_object(n);
 }
 
-environment::object const * environment::get_object_ptr(name const & n) const {
+named_object const * environment::get_object_ptr(name const & n) const {
     return m_imp->get_object_ptr(n);
 }
 
@@ -387,7 +411,7 @@ unsigned environment::get_num_objects() const {
     return m_imp->m_objects.size();
 }
 
-environment::object const & environment::get_object(unsigned i) const {
+object const & environment::get_object(unsigned i) const {
     return *(m_imp->m_objects[i]);
 }
 

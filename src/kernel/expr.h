@@ -79,6 +79,8 @@ public:
     expr(expr && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~expr() { if (m_ptr) m_ptr->dec_ref(); }
 
+    static expr const & null();
+
     friend void swap(expr & a, expr & b) { std::swap(a.m_ptr, b.m_ptr); }
 
     void release() { if (m_ptr) m_ptr->dec_ref(); m_ptr = nullptr; }
@@ -409,6 +411,17 @@ struct args {
 */
 expr copy(expr const & e);
 // =======================================
+
+// =======================================
+// Expression formatter
+class expr_formatter {
+public:
+    virtual ~expr_formatter() {}
+    virtual format operator()(expr const & e) = 0;
+    virtual options const & get_options() const = 0;
+};
+// =======================================
+
 
 // =======================================
 // Update

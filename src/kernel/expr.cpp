@@ -19,6 +19,13 @@ unsigned hash_args(unsigned size, expr const * args) {
     return hash(size, [&args](unsigned i){ return args[i].hash(); });
 }
 
+static expr g_null;
+
+expr const & expr::null() {
+    lean_assert(!g_null);
+    return g_null;
+}
+
 expr_cell::expr_cell(expr_kind k, unsigned h):
     m_kind(static_cast<unsigned>(k)),
     m_flags(0),

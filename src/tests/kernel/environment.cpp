@@ -68,6 +68,7 @@ static void tst3() {
         std::cout << "expected error: " << ex.what() << "\n";
     }
     env.add_definition("a", Int, iAdd(iVal(1), iVal(2)));
+    std::cout << env << "\n";
     expr t = iAdd(Const("a"), iVal(1));
     std::cout << t << " --> " << normalize(t, env) << "\n";
     lean_assert(normalize(t, env) == iVal(4));
@@ -169,7 +170,7 @@ static void tst7() {
 
 int main() {
     enable_trace("is_convertible");
-    continue_on_violation(true);
+    // continue_on_violation(true);
     tst1();
     tst2();
     tst3();

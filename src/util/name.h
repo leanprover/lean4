@@ -28,6 +28,7 @@ public:
     name(name && other);
     name(std::initializer_list<char const *> const & l);
     ~name();
+    static name const & anonymous();
     name & operator=(name const & other);
     name & operator=(name && other);
     friend bool operator==(name const & a, name const & b);

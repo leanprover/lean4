@@ -140,6 +140,13 @@ name::~name() {
         m_ptr->dec_ref();
 }
 
+static name g_anonymous;
+
+name const & name::anonymous() {
+    lean_assert(g_anonymous.is_anonymous());
+    return g_anonymous;
+}
+
 name & name::operator=(name const & other) { LEAN_COPY_REF(name, other); }
 
 name & name::operator=(name && other) { LEAN_MOVE_REF(name, other); }

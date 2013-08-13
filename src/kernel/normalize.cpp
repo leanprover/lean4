@@ -133,9 +133,9 @@ class normalize_fn {
         case expr_kind::Var:
             return lookup(s, var_idx(a), k);
         case expr_kind::Constant: {
-            environment::object const & obj = m_env.get_object(const_name(a));
-            if (is_definition(obj) && !to_definition(obj).is_opaque()) {
-                return normalize(to_definition(obj).get_value(), value_stack(), 0);
+            named_object const & obj = m_env.get_object(const_name(a));
+            if (obj.is_definition() && !obj.is_opaque()) {
+                return normalize(obj.get_value(), value_stack(), 0);
             }
             else {
                 return svalue(a);

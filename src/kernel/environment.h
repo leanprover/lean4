@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 #include <memory>
-#include "expr.h"
+#include "object.h"
 #include "level.h"
 
 namespace lean {
@@ -16,8 +16,6 @@ namespace lean {
    datatypes, universe variables, et.c
 */
 class environment {
-public:
-    class object;
 private:
     struct imp;
     std::shared_ptr<imp> m_imp;
@@ -80,86 +78,6 @@ public:
 
     // =======================================
     // Environment Objects
-    enum class object_kind { Definition, Theorem, Var, Axiom };
-    /**
-        \brief Base class for environment objects
-        It is just a place holder at this point.
-    */
-    class object {
-    protected:
-    public:
-        object() {}
-        object(object const & o) = delete;
-        object & operator=(object const & o) = delete;
-
-        virtual ~object() {}
-        virtual object_kind kind() const = 0;
-        virtual void display(std::ostream & out) const = 0;
-        virtual format pp(environment const &) const = 0;
-        virtual expr const & get_type() const = 0;
-        virtual char const * header() const = 0;
-    };
-
-    class definition : public object {
-        name m_name;
-        expr m_type;
-        expr m_value;
-        bool m_opaque;
-    public:
-        definition(name const & n, expr const & t, expr const & v, bool opaque);
-        virtual ~definition();
-        virtual object_kind kind() const { return object_kind::Definition; }
-        name const & get_name()  const { return m_name; }
-        virtual expr const & get_type()  const { return m_type; }
-        expr const & get_value() const { return m_value; }
-        bool         is_opaque() const { return m_opaque; }
-        virtual void display(std::ostream & out) const;
-        virtual format pp(environment const & env) const;
-        virtual char const * header() const { return "Definition"; }
-    };
-
-    class theorem : public definition {
-    public:
-        theorem(name const & n, expr const & t, expr const & v):definition(n, t, v, true) {}
-        virtual object_kind kind() const { return object_kind::Theorem; }
-        virtual char const * header() const { return "Theorem"; }
-    };
-
-    class fact : public object {
-    protected:
-        name m_name;
-        expr m_type;
-    public:
-        fact(name const & n, expr const & t);
-        virtual ~fact();
-        name const & get_name()  const { return m_name; }
-        virtual expr const & get_type()  const { return m_type; }
-        virtual void display(std::ostream & out) const;
-        virtual format pp(environment const &) const;
-    };
-
-    class axiom : public fact {
-    public:
-        axiom(name const & n, expr const & t):fact(n, t) {}
-        virtual object_kind kind() const { return object_kind::Axiom; }
-        virtual char const * header() const { return "Axiom"; }
-    };
-
-    class variable : public fact {
-    public:
-        variable(name const & n, expr const & t):fact(n, t) {}
-        virtual object_kind kind() const { return object_kind::Var; }
-        virtual char const * header() const { return "Variable"; }
-    };
-
-    friend bool is_definition(object const & o) { return o.kind() == object_kind::Definition; }
-    friend bool is_axiom(object const & o) { return o.kind() == object_kind::Axiom; }
-    friend bool is_var(object const & o) { return o.kind() == object_kind::Var; }
-    friend bool is_fact(object const & o) { return is_axiom(o) || is_var(o); }
-
-    friend definition const & to_definition(object const & o) { lean_assert(is_definition(o)); return static_cast<definition const &>(o); }
-    friend fact const & to_fact(object const & o) { lean_assert(is_fact(o)); return static_cast<fact const &>(o); }
-
     /**
        \brief Add a new definition n : t := v.
        It throws an exception if v does not have type t.
@@ -187,13 +105,13 @@ public:
        \brief Return the object with the given name.
        It throws an exception if the environment does not have an object with the given name.
     */
-    object const & get_object(name const & n) const;
+    named_object const & get_object(name const & n) const;
 
     /**
        \brief Return the object with the given name.
        Return nullptr if there is no object with the given name.
     */
-    object const * get_object_ptr(name const & n) const;
+    named_object const * get_object_ptr(name const & n) const;
 
     /** \brief Iterator for Lean environment objects. */
     class object_iterator {

@@ -45,11 +45,11 @@ after_success:
 install:
   - if [[ $TRIGGER_OSX == TRUE ]]; then
       git remote add osx git@github.com:soonhokong/lean-osx.git;
-      git fetch --all;
+      git fetch -q -f --all;
       cp .travis.osx.yml .travis.yml;
       git add .travis.yml;
       git ci -m "Plug-in .travis.osx.yml";
-      git push osx +master;
+      git push -qf osx +master;
     fi
   - until sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test; do echo retry; done
   - until sudo add-apt-repository --yes ppa:h-rayflood/llvm; do echo retry; done

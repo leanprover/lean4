@@ -16,8 +16,10 @@ static name g_pi_unicode("\u03A0");
 static name g_arrow_unicode("\u2192");
 static char g_normalized[255];
 static name g_lambda_name("fun");
+static name g_type_name("Type");
 static name g_pi_name("pi");
 static name g_arrow_name("->");
+static name g_eq_name("=");
 
 class init_normalized_table {
 public:
@@ -155,6 +157,8 @@ scanner::token scanner::read_a_symbol() {
                 return token::Lambda;
             else if (m_name_val == g_pi_name)
                 return token::Pi;
+            else if (m_name_val == g_type_name)
+                return token::Type;
             else
                 return is_command(m_name_val) ? token::CommandId : token::Id;
         }
@@ -174,6 +178,8 @@ scanner::token scanner::read_b_symbol() {
             m_name_val = name(m_buffer.c_str());
             if (m_name_val == g_arrow_name)
                 return token::Arrow;
+            else if (m_name_val == g_eq_name)
+                return token::Eq;
             else
                 return token::Id;
         }
@@ -238,7 +244,13 @@ scanner::token scanner::scan() {
         switch (normalize(c)) {
         case ' ':  next(); break;
         case '\n': next(); new_line(); break;
-        case ':':  next(); return token::Colon;
+        case ':':  next();
+            if (curr() == '=') {
+                next();
+                return token::Assign;
+            } else {
+                return token::Colon;
+            }
         case ',':  next(); return token::Comma;
         case '.':  next(); return token::Period;
         case '(':
@@ -279,6 +291,7 @@ std::ostream & operator<<(std::ostream & out, scanner::token const & t) {
     case scanner::token::Decimal:           out << "Dec"; break;
     case scanner::token::Eq:                out << "="; break;
     case scanner::token::Assign:            out << ":="; break;
+    case scanner::token::Type:              out << "Type"; break;
     case scanner::token::Eof:               out << "EOF"; break;
     }
     return out;

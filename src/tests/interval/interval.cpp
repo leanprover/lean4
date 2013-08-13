@@ -97,8 +97,76 @@ static void double_interval_trans() {
     std::cout << "log(" << i1 << ") = "      << log(i1) << std::endl;
 }
 
+template<typename T1, typename T2, typename T3>
+void print_result(T1 a, std::string const & op, T2 b, T3 r) {
+    std::cout << a << " " << op << " " << b << " = " << r << std::endl;
+}
+
 static void mpfr_interval_trans() {
     fi i1(1.0, 2.0);
+    fi i2(3.0, 4.0);
+    fi i3(-10.0, -5.0);
+    fi i4(-3.0, +4.0);
+    fi i5(5.0, 8.0);
+
+    mpfp c1(0.6);
+    mpfp c2(3.0);
+    mpfp c3(0.0);
+    mpfp c4(-4.5);
+    mpfp c5(-0.3);
+
+    print_result(i1, "+", c1, i1 + c1);
+    print_result(i2, "+", c2, i2 + c2);
+    print_result(i3, "+", c3, i3 + c3);
+    print_result(i4, "+", c4, i4 + c4);
+    print_result(i5, "+", c5, i5 + c5);
+    print_result(i5, "+", c1, i5 + c1);
+    print_result(i4, "+", c2, i4 + c2);
+    print_result(i2, "+", c4, i2 + c4);
+    print_result(i1, "+", c5, i1 + c5);
+
+    print_result(c1, "+", i1, c1 + i1);
+    print_result(c2, "+", i2, c2 + i2);
+    print_result(c3, "+", i3, c3 + i3);
+    print_result(c4, "+", i4, c4 + i4);
+    print_result(c5, "+", i5, c5 + i5);
+    print_result(c5, "+", i1, c5 + i1);
+    print_result(c4, "+", i2, c4 + i2);
+    print_result(c2, "+", i4, c2 + i4);
+    print_result(c1, "+", i5, c1 + i5);
+
+    print_result(i1, "-", c1, i1 - c1);
+    print_result(i2, "-", c2, i2 - c2);
+    print_result(i3, "-", c3, i3 - c3);
+    print_result(i4, "-", c4, i4 - c4);
+    print_result(i5, "-", c5, i5 - c5);
+    print_result(i5, "-", c1, i5 - c1);
+    print_result(i4, "-", c2, i4 - c2);
+    print_result(i2, "-", c4, i2 - c4);
+    print_result(i1, "-", c5, i1 - c5);
+
+    print_result(i1, "*", c1, i1 * c1);
+    print_result(i2, "*", c2, i2 * c2);
+    print_result(i3, "*", c3, i3 * c3);
+    print_result(i4, "*", c4, i4 * c4);
+    print_result(i5, "*", c5, i5 * c5);
+    print_result(i5, "*", c1, i5 * c1);
+    print_result(i4, "*", c2, i4 * c2);
+    print_result(i2, "*", c4, i2 * c4);
+    print_result(i1, "*", c5, i1 * c5);
+
+    print_result(i1, "+", c1, i1 + c1);
+    print_result(i2, "+", c2, i2 + c2);
+    print_result(i3, "+", c3, i3 + c3);
+    print_result(i4, "+", c4, i4 + c4);
+    print_result(i5, "+", c5, i5 + c5);
+    print_result(i5, "+", c1, i5 + c1);
+    print_result(i4, "+", c2, i4 + c2);
+    print_result(i2, "+", c4, i2 + c4);
+    print_result(i1, "+", c5, i1 + c5);
+
+
+
     std::cout << "power(" << i1 << ", 3) = " << power(i1, 3) << std::endl;
     std::cout << "exp(" << i1 << ") = "      << exp(i1) << std::endl;
     std::cout << "log(" << i1 << ") = "      << log(i1) << std::endl;

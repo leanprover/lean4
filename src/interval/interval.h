@@ -139,13 +139,23 @@ public:
     void neg();
     friend interval<T> neg(interval<T> o) { o.neg(); return o; }
 
-    interval & operator+=(interval const & o);
-    interval & operator-=(interval const & o);
-    interval & operator*=(interval const & o);
-    interval & operator/=(interval const & o);
+    interval & operator+=(interval<T> const & o);
+    interval & operator-=(interval<T> const & o);
+    interval & operator*=(interval<T> const & o);
+    interval & operator/=(interval<T> const & o);
+
+    interval & operator+=(T const & o);
+    interval & operator-=(T const & o);
+    interval & operator*=(T const & o);
+    interval & operator/=(T const & o);
 
     void inv();
     friend interval<T> inv(interval<T> o) { o.inv(); return o; }
+
+    void fmod(interval<T> y);
+    void fmod(T y);
+    friend interval<T> inv(interval<T> o, interval<T> y) { o.fmod(y); return o; }
+    friend interval<T> inv(interval<T> o, T y) { o.fmod(y); return o; }
 
     void power(unsigned n);
     void exp  ();
@@ -193,10 +203,21 @@ public:
     friend interval<T> acosh(interval<T> o) { o.acosh(); return o; }
     friend interval<T> atanh(interval<T> o) { o.atanh(); return o; }
 
-    friend interval operator+(interval a, interval const & b) { return a += b; }
-    friend interval operator-(interval a, interval const & b) { return a -= b; }
-    friend interval operator*(interval a, interval const & b) { return a *= b; }
-    friend interval operator/(interval a, interval const & b) { return a /= b; }
+    friend interval<T> operator+(interval<T> a, interval<T> const & b) { return a += b; }
+    friend interval<T> operator-(interval<T> a, interval<T> const & b) { return a -= b; }
+    friend interval<T> operator*(interval<T> a, interval<T> const & b) { return a *= b; }
+    friend interval<T> operator/(interval<T> a, interval<T> const & b) { return a /= b; }
+
+    friend interval<T> operator+(interval<T> a, T const & b) { return a += b; }
+    friend interval<T> operator-(interval<T> a, T const & b) { return a -= b; }
+    friend interval<T> operator*(interval<T> a, T const & b) { return a *= b; }
+    friend interval<T> operator/(interval<T> a, T const & b) { return a /= b; }
+
+    friend interval<T> operator+(T const & a, interval<T> b) { return b += a; }
+    friend interval<T> operator-(T const & a, interval<T> b) { return b += -a; }
+    friend interval<T> operator*(T const & a, interval<T> b) { return b *= a; }
+    friend interval<T> operator/(T const & a, interval<T> b) { b = b / a; return b; }
+
 
     bool check_invariant() const;
 

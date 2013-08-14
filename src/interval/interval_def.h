@@ -1181,7 +1181,7 @@ template<typename T> void interval<T>::cosh () {
             return;
         }
         // [a,b] where a < 0 < b
-        m_lower = 0.0;
+        m_lower = 1.0;
         m_lower_open = false;
         m_upper = m_upper > m_lower ? m_upper : m_lower;
         numeric_traits<T>::set_rounding(true);
@@ -1190,30 +1190,36 @@ template<typename T> void interval<T>::cosh () {
         return;
     }
     if(lower_kind() == XN_NUMERAL) {
-        m_upper_open = false;
-        m_upper_inf = true;
-        // [-oo, c]
-        if(numeric_traits<T>::is_neg(m_upper)) {
-            m_lower = m_upper;
+        // [c, +oo]
+        lean_assert(upper_kind() == XN_PLUS_INFINITY);
+        if(numeric_traits<T>::is_pos(m_lower)) {
+            // [c, +oo] where 0 < c < +oo
             numeric_traits<T>::set_rounding(false);
             numeric_traits<T>::cosh(m_lower);
             lean_assert(check_invariant());
             return;
         } else {
-            m_lower = 0.0;
+            // [c, +oo] where c <= 0 < +oo
+            m_lower = 1.0;
             m_lower_open = false;
             lean_assert(check_invariant());
             return;
         }
     }
     if(upper_kind() == XN_NUMERAL) {
-        // [c,+oo]
-        if(numeric_traits<T>::is_neg(m_upper)) {
-            m_lower = 0.0;
+        // [-oo,c]
+        lean_assert(lower_kind() == XN_MINUS_INFINITY);
+        m_upper_inf = true;
+        m_upper_open = true;
+        if(numeric_traits<T>::is_pos(m_upper)) {
+            // [-oo, c] where -oo < 0 < c
+            m_lower = 1.0;
             m_lower_open = false;
             lean_assert(check_invariant());
             return;
         } else {
+            // [-oo, c] where -oo < c <= 0
+            m_lower = m_upper;
             numeric_traits<T>::set_rounding(false);
             numeric_traits<T>::cosh(m_lower);
             lean_assert(check_invariant());
@@ -1224,7 +1230,7 @@ template<typename T> void interval<T>::cosh () {
     // cosh((-oo, +oo)) = [0, +oo)
     m_upper_open = true;
     m_upper_inf = true;
-    m_lower = 0.0;
+    m_lower = 1.0;
     m_lower_open = false;
     m_lower_inf = false;
     lean_assert(check_invariant());

@@ -49,8 +49,22 @@ public:
     friend bool is_nil(list const & l) { return l.m_ptr == nullptr; }
     friend T const & head(list const & l) { lean_assert(!is_nil(l)); return l.m_ptr->m_head; }
     friend list const & tail(list const & l) { lean_assert(!is_nil(l)); return l.m_ptr->m_tail; }
-    friend bool operator==(list const & l1, list const & l2) { return l1.m_ptr == l2.m_ptr; }
-    friend bool operator!=(list const & l1, list const & l2) { return l1.m_ptr != l2.m_ptr; }
+
+    friend bool is_eqp(list const & l1, list const & l2) { return l1.m_ptr == l2.m_ptr; }
+    friend bool operator==(list const & l1, list const & l2) {
+        cell * it1 = l1.m_ptr;
+        cell * it2 = l2.m_ptr;
+        while (it1 != nullptr && it2 != nullptr) {
+            if (it1 == it2)
+                return true;
+            if (it1->m_head != it2->m_head)
+                return false;
+            it1 = it1->m_tail.m_ptr;
+            it2 = it2->m_tail.m_ptr;
+        }
+        return it1 == nullptr && it2 == nullptr;
+    }
+    friend bool operator!=(list const & l1, list const & l2) { return !(l1 == l2); }
 
     class iterator {
         friend class list;

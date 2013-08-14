@@ -30,6 +30,15 @@ struct operator_info::imp {
     imp(imp const & s):
         m_rc(1), m_fixity(s.m_fixity), m_assoc(s.m_assoc), m_precedence(s.m_precedence), m_op_parts(s.m_op_parts), m_names(s.m_names) {
     }
+
+    bool is_eq(imp const & other) const {
+        return
+            m_fixity == other.m_fixity &&
+            m_assoc == other.m_assoc &&
+            m_precedence == other.m_precedence &&
+            m_op_parts == other.m_op_parts;
+    }
+
 };
 
 operator_info::operator_info(imp * p):m_ptr(p) {}
@@ -61,6 +70,15 @@ name const & operator_info::get_op_name() const { lean_assert(m_ptr); return car
 list<name> const & operator_info::get_op_name_parts() const { lean_assert(m_ptr); return m_ptr->m_op_parts; }
 
 operator_info operator_info::copy() const { return operator_info(new imp(*m_ptr)); }
+
+bool operator==(operator_info const & op1, operator_info const & op2) {
+    if ((op1.m_ptr == nullptr) != (op2.m_ptr == nullptr))
+        return false;
+    if (op1.m_ptr)
+        return op1.m_ptr->is_eq(*(op2.m_ptr));
+    else
+        return true;
+}
 
 operator_info infixr(name const & op, unsigned precedence) {
     return operator_info(new operator_info::imp(op, fixity::Infix,  associativity::Right, precedence));

@@ -83,6 +83,9 @@ public:
 
     /** \brief Return a copy of the operator. */
     operator_info copy() const;
+
+    friend bool operator==(operator_info const & op1, operator_info const & op2);
+    friend bool operator!=(operator_info const & op1, operator_info const & op2) { return !(op1 == op2); }
 };
 operator_info infixl(name const & op, unsigned precedence);
 operator_info infixr(name const & op, unsigned precedence);

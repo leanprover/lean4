@@ -5,18 +5,22 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <atomic>
+#include <unordered_map>
 #include "frontend.h"
 #include "environment.h"
+#include "operator_info.h"
 
 namespace lean {
-
-static name g_overload_prefix(name(0u), "overload");
-
 /** \brief Implementation of the Lean frontend */
 struct frontend::imp {
+    // Remark: only named objects are stored in the dictionary.
+    typedef std::unordered_map<name, operator_info, name_hash, name_eq> operator_table;
     std::atomic<unsigned> m_num_children;
     std::shared_ptr<imp>  m_parent;
     environment           m_env;
+    operator_table        m_nud; // nud table for Pratt's parser
+    operator_table        m_led; // led table for Pratt's parser
+    operator_table        m_name_to_operator; // map internal names to operators (this is used for pretty printing)
 
     bool has_children() const { return m_num_children > 0; }
     void inc_children() { m_num_children++; }

@@ -17,7 +17,7 @@ static void tst1() {
         l = list<int>(i, l);
         lean_assert(!is_nil(l));
         lean_assert(car(l) == i);
-        lean_assert(cdr(l) == old);
+        lean_assert(is_eqp(cdr(l), old));
     }
     std::cout << l << "\n";
 }
@@ -45,9 +45,22 @@ static void tst3() {
     lean_assert(length(tail(list<int>(10, list<int>()))) == 0);
 }
 
+static void tst4() {
+    list<int> l1{1, 2, 3};
+    list<int> l2{1, 2, 3};
+    lean_assert(l1 == l2);
+    lean_assert(l1 != cons(1, l2));
+    lean_assert(l1 != tail(l1));
+    lean_assert(list<int>() == list<int>());
+    lean_assert(l2 != list<int>());
+    lean_assert(l1 != list<int>({1, 2, 3, 4}));
+    lean_assert(l1 != tail(list<int>{1, 2, 3, 4}));
+}
+
 int main() {
     tst1();
     tst2();
     tst3();
+    tst4();
     return has_violations() ? 1 : 0;
 }

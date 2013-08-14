@@ -3,6 +3,7 @@ Copyright (c) 2013 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
+        Soonho Kong
 */
 #pragma once
 #include <gmp.h>
@@ -11,7 +12,6 @@ Author: Leonardo de Moura
 #include "interval.h"
 #include "trace.h"
 #include "mpz.h"
-
 
 namespace lean {
 
@@ -398,7 +398,7 @@ interval<T> & interval<T>::operator*=(interval<T> const & o) {
             mul(new_u_val, new_u_kind, b, b_k, d, d_k);
         } else {
             lean_assert(i2.is_P());
-            // 0 <= a <= x, 0 <= c <= y --> a*c <= x*y
+            // 0 n<= a <= x, 0 <= c <= y --> a*c <= x*y
             // x <= b, y <= d --> x*y <= b*d (uses the fact that x is pos (a is not negative) or y is pos (c is not negative))
 
             set_is_lower_open((i1.is_P0() || i2.is_P0()) ? false : a_o || c_o);
@@ -1105,14 +1105,144 @@ template<typename T> void interval<T>::tan() {
 template<typename T> void interval<T>::sec  () { /* TODO */ lean_unreachable(); return; }
 template<typename T> void interval<T>::csc  () { /* TODO */ lean_unreachable(); return; }
 template<typename T> void interval<T>::cot  () { /* TODO */ lean_unreachable(); return; }
-template<typename T> void interval<T>::asin () { /* TODO */ lean_unreachable(); return; }
-template<typename T> void interval<T>::acos () { /* TODO */ lean_unreachable(); return; }
-template<typename T> void interval<T>::atan () { /* TODO */ lean_unreachable(); return; }
-template<typename T> void interval<T>::sinh () { /* TODO */ lean_unreachable(); return; }
-template<typename T> void interval<T>::cosh () { /* TODO */ lean_unreachable(); return; }
-template<typename T> void interval<T>::tanh () { /* TODO */ lean_unreachable(); return; }
+template<typename T> void interval<T>::asin () {
+    lean_assert(lower_kind() == XN_NUMERAL && upper_kind() == XN_NUMERAL);
+    lean_assert(-1.0 <= m_lower && m_upper <= 1.0);
+    numeric_traits<T>::set_rounding(false);
+    numeric_traits<T>::asin(m_lower);
+    numeric_traits<T>::set_rounding(true);
+    numeric_traits<T>::asin(m_upper);
+    lean_assert(check_invariant());
+    return;
+}
+template<typename T> void interval<T>::acos () {
+    lean_assert(lower_kind() == XN_NUMERAL && upper_kind() == XN_NUMERAL);
+    lean_assert(-1.0 <= m_lower && m_upper <= 1.0);
+    numeric_traits<T>::set_rounding(true);
+    numeric_traits<T>::acos(m_lower);
+    numeric_traits<T>::set_rounding(false);
+    numeric_traits<T>::acos(m_upper);
+    std::swap(m_lower, m_upper);
+    lean_assert(check_invariant());
+    return;
+}
+template<typename T> void interval<T>::atan () {
+    if(lower_kind() == XN_MINUS_INFINITY) {
+        m_lower = -1.0;
+        m_lower_open = false;
+        m_lower_inf = false;
+    } else {
+        numeric_traits<T>::set_rounding(false);
+        numeric_traits<T>::atan(m_lower);
+    }
+
+    if(upper_kind() == XN_MINUS_INFINITY) {
+        m_upper = 1.0;
+        m_upper_open = false;
+        m_upper_inf = false;
+    } else {
+        numeric_traits<T>::set_rounding(true);
+        numeric_traits<T>::atan(m_upper);
+    }
+    lean_assert(check_invariant());
+    return;
+}
+template<typename T> void interval<T>::sinh () {
+    if(lower_kind() == XN_NUMERAL) {
+        numeric_traits<T>::set_rounding(false);
+        numeric_traits<T>::sinh(m_lower);
+    }
+    if(upper_kind() == XN_NUMERAL) {
+        numeric_traits<T>::set_rounding(true);
+        numeric_traits<T>::sinh(m_upper);
+    }
+    lean_assert(check_invariant());
+    return;
+}
+template<typename T> void interval<T>::cosh () {
+    if(lower_kind() == XN_NUMERAL && upper_kind() == XN_NUMERAL) {
+        if(numeric_traits<T>::is_pos(m_lower) || numeric_traits<T>::is_zero(m_lower)) {
+            // [a, b] where 0 <= a <= b
+            numeric_traits<T>::set_rounding(false);
+            numeric_traits<T>::cosh(m_lower);
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::cosh(m_lower);
+            lean_assert(check_invariant());
+            return;
+        }
+        if(numeric_traits<T>::is_neg(m_upper) || numeric_traits<T>::is_zero(m_upper)) {
+            // [a, b] where a <= b < 0
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::cosh(m_lower);
+            numeric_traits<T>::set_rounding(false);
+            numeric_traits<T>::cosh(m_lower);
+            std::swap(m_lower, m_upper);
+            lean_assert(check_invariant());
+            return;
+        }
+        // [a,b] where a < 0 < b
+        m_lower = 0.0;
+        m_lower_open = false;
+        m_upper = m_upper > m_lower ? m_upper : m_lower;
+        numeric_traits<T>::set_rounding(true);
+        numeric_traits<T>::cosh(m_upper);
+        lean_assert(check_invariant());
+        return;
+    }
+    if(lower_kind() == XN_NUMERAL) {
+        m_upper_open = false;
+        m_upper_inf = true;
+        // [-oo, c]
+        if(numeric_traits<T>::is_neg(m_upper)) {
+            m_lower = m_upper;
+            numeric_traits<T>::set_rounding(false);
+            numeric_traits<T>::cosh(m_lower);
+            lean_assert(check_invariant());
+            return;
+        } else {
+            m_lower = 0.0;
+            m_lower_open = false;
+            lean_assert(check_invariant());
+            return;
+        }
+    }
+    if(upper_kind() == XN_NUMERAL) {
+        // [c,+oo]
+        if(numeric_traits<T>::is_neg(m_upper)) {
+            m_lower = 0.0;
+            m_lower_open = false;
+            lean_assert(check_invariant());
+            return;
+        } else {
+            numeric_traits<T>::set_rounding(false);
+            numeric_traits<T>::cosh(m_lower);
+            lean_assert(check_invariant());
+            return;
+        }
+    }
+    lean_assert(lower_kind() == XN_MINUS_INFINITY && upper_kind() == XN_PLUS_INFINITY);
+    // cosh((-oo, +oo)) = [0, +oo)
+    m_upper_open = true;
+    m_upper_inf = true;
+    m_lower = 0.0;
+    m_lower_open = false;
+    m_lower_inf = false;
+    lean_assert(check_invariant());
+    return;
+}
+template<typename T> void interval<T>::tanh () {
+    if(lower_kind() == XN_NUMERAL) {
+        numeric_traits<T>::set_rounding(false);
+        numeric_traits<T>::tanh(m_lower);
+    }
+    if(upper_kind() == XN_NUMERAL) {
+        numeric_traits<T>::set_rounding(true);
+        numeric_traits<T>::tanh(m_upper);
+    }
+    lean_assert(check_invariant());
+    return;
+}
 template<typename T> void interval<T>::asinh() { /* TODO */ lean_unreachable(); return; }
 template<typename T> void interval<T>::acosh() { /* TODO */ lean_unreachable(); return; }
 template<typename T> void interval<T>::atanh() { /* TODO */ lean_unreachable(); return; }
-
 }

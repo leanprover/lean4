@@ -134,12 +134,12 @@ struct infer_type_fn {
                 expr const & c = arg(e, i);
                 expr c_t       = infer_type(c, ctx);
                 if (!is_convertible(abst_domain(f_t), c_t, m_env, ctx)) {
-                    format msg = format{format("type mismatch at argument "), format(i), format("of"),
+                    format msg = format{format("type mismatch at argument "), format(i), space(), format("of"),
                                         nl_indent(fmt()(e, ctx)), line(),
                                         format("expected type:"),
                                         nl_indent(fmt()(abst_domain(f_t), ctx)), line(),
                                         format("given type:"),
-                                        nl_indent(fmt()(c_t, ctx))};
+                                        nl_indent(fmt()(c_t, ctx)), line()};
                     push_context(msg, ctx);
                     throw_exception(arg(e,i), msg);
                 }

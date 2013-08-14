@@ -115,6 +115,20 @@ static void tst6() {
     }
 }
 
+static void tst7() {
+    environment env = mk_toplevel();
+    expr A = Const(name{"foo", "bla", "bla", "foo"});
+    expr f = Const("f");
+    expr x = Const("x");
+    expr t = Fun({A, Type()}, Fun({f, arrow(Int, arrow(A, arrow(A, arrow(A, arrow(A, arrow(A, A))))))}, Fun({x, Int}, f(x, x))));
+    try {
+        infer_type(t, env);
+        lean_unreachable();
+    } catch (exception & ex) {
+        std::cout << "Error: " << ex.what() << "\n";
+    }
+}
+
 int main() {
     continue_on_violation(true);
     tst1();
@@ -123,5 +137,6 @@ int main() {
     tst4();
     tst5();
     tst6();
+    tst7();
     return has_violations() ? 1 : 0;
 }

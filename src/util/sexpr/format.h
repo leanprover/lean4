@@ -219,6 +219,7 @@ format const & space();
 format const & lp();
 format const & rp();
 format const & comma();
+format const & colon();
 format const & dot();
 format group(format const & f);
 format above(format const & f1, format const & f2);

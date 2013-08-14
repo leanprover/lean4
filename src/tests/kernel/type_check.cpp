@@ -101,6 +101,20 @@ static void tst5() {
     lean_assert(Implies(P, prop) == prop2);
 }
 
+static void tst6() {
+    environment env = mk_toplevel();
+    expr A = Const("A");
+    expr f = Const("f");
+    expr x = Const("x");
+    expr t = Fun({A, Type()}, Fun({f, arrow(Int, A)}, Fun({x, Int}, f(x, x))));
+    try {
+        infer_type(t, env);
+        lean_unreachable();
+    } catch (exception & ex) {
+        std::cout << "Error: " << ex.what() << "\n";
+    }
+}
+
 int main() {
     continue_on_violation(true);
     tst1();
@@ -108,5 +122,6 @@ int main() {
     tst3();
     tst4();
     tst5();
+    tst6();
     return has_violations() ? 1 : 0;
 }

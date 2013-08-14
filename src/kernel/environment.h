@@ -9,6 +9,8 @@ Author: Leonardo de Moura
 #include <memory>
 #include "object.h"
 #include "level.h"
+#include "expr_formatter.h"
+#include "expr_locator.h"
 
 namespace lean {
 /**
@@ -27,6 +29,18 @@ private:
 public:
     environment();
     ~environment();
+
+    /** \brief Set expression formatter. */
+    void set_formatter(std::shared_ptr<expr_formatter> const & formatter);
+
+    /** \brief Return expression formatter. */
+    expr_formatter & get_formatter() const;
+
+    /** \brief Set expression locator. */
+    void set_locator(std::shared_ptr<expr_locator> const & locator);
+
+    /** \brief Return expression locator. */
+    expr_locator & get_locator() const;
 
     // =======================================
     // Parent/Child environment management

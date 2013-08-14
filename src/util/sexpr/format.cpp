@@ -108,6 +108,7 @@ static format g_space(" ");
 static format g_lp("(");
 static format g_rp(")");
 static format g_comma(",");
+static format g_colon(":");
 static format g_dot(".");
 format const & line() {
     return g_line;
@@ -123,6 +124,9 @@ format const & rp() {
 }
 format const & comma() {
     return g_comma;
+}
+format const & colon() {
+    return g_colon;
 }
 format const & dot() {
     return g_dot;

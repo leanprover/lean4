@@ -188,45 +188,6 @@ bool is_arrow(expr const & t) {
     return is_pi(t) && !has_free_var(abst_body(t), 0);
 }
 
-// Low-level pretty printer
-std::ostream & operator<<(std::ostream & out, expr const & a) {
-    switch (a.kind()) {
-    case expr_kind::Var:      out << "#" << var_idx(a); break;
-    case expr_kind::Constant: out << const_name(a);     break;
-    case expr_kind::App:
-        out << "(";
-        for (unsigned i = 0; i < num_args(a); i++) {
-            if (i > 0) out << " ";
-            out << arg(a, i);
-        }
-        out << ")";
-        break;
-    case expr_kind::Eq:      out << "(" << eq_lhs(a) << " = " << eq_rhs(a) << ")"; break;
-    case expr_kind::Lambda:  out << "(fun " << abst_name(a) << " : " << abst_domain(a) << " => " << abst_body(a) << ")"; break;
-    case expr_kind::Pi:
-        if (!is_arrow(a)) {
-            out << "(pi " << abst_name(a) << " : " << abst_domain(a) << ", " << abst_body(a) << ")";
-        } else if (!is_arrow(abst_domain(a))) {
-            out << abst_domain(a) << " -> " << abst_body(a);
-        } else {
-            out << "(" << abst_domain(a) << ") -> " << abst_body(a);
-        }
-        break;
-    case expr_kind::Let:  out << "(let " << let_name(a) << " := " << let_value(a) << " in " << let_body(a) << ")"; break;
-    case expr_kind::Type: {
-        level const & l = ty_level(a);
-        if (l == level()) {
-            out << "Type";
-        } else {
-            out << "(Type " << ty_level(a) << ")";
-        }
-        break;
-    }
-    case expr_kind::Value: to_value(a).display(out); break;
-    }
-    return out;
-}
-
 expr copy(expr const & a) {
     switch (a.kind()) {
     case expr_kind::Var:      return mk_var(var_idx(a));

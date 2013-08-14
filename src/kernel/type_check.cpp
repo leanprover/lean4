@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <sstream>
 #include "type_check.h"
 #include "scoped_map.h"
+#include "environment.h"
 #include "normalize.h"
 #include "instantiate.h"
 #include "builtin.h"
@@ -56,6 +56,20 @@ struct infer_type_fn {
         return lift_free_vars(head(def_c).get_type(), length(c) - (length(def_c) - 1));
     }
 
+    expr_formatter & fmt() { return m_env.get_formatter(); }
+
+    format nl_indent(format const & f) { return fmt().nest(format{line(), f}); }
+
+    void throw_exception(expr const & src, format const & msg) {
+        ::lean::throw_exception(m_env.get_locator(), src, msg);
+    }
+
+    /** \brief Include context (if not empty) in the formatted message */
+    void push_context(format & msg, context const & ctx) {
+        if (!empty(ctx))
+            msg += format{format("in context: "), nl_indent(pp(fmt(), ctx)), line()};
+    }
+
     level infer_universe(expr const & t, context const & ctx) {
         lean_trace("type_check", tout << "infer universe\n" << t << "\n";);
         expr u = normalize(infer_type(t, ctx), m_env, ctx);
@@ -63,30 +77,30 @@ struct infer_type_fn {
             return ty_level(u);
         if (u == Bool)
             return level();
-        std::ostringstream buffer;
-        buffer << "type expected, ";
-        if (!empty(ctx))
-            buffer << "in context:\n" << ctx << "\n";
-        buffer << "got:\n" << t;
-        throw exception(buffer.str());
+        format msg = format("type expected, ");
+        push_context(msg, ctx);
+        msg += format{format("got:"), nl_indent(fmt()(t, ctx))};
+        throw_exception(t, msg);
+        lean_unreachable();
+        return level();
     }
 
-    expr check_pi(expr const & e, context const & ctx) {
+    expr check_pi(expr const & e, expr const & s, context const & ctx) {
         if (is_pi(e))
             return e;
         expr r = normalize(e, m_env, ctx);
         if (is_pi(r))
             return r;
-        std::ostringstream buffer;
-        buffer << "function expected, ";
-        if (!empty(ctx))
-            buffer << "in context:\n" << ctx << "\n";
-        buffer << "got:\n" << e;
-        throw exception(buffer.str());
+        format msg = format("function expected, ");
+        push_context(msg, ctx);
+        msg += format{format("got:"), nl_indent(fmt()(s, ctx))};
+        throw_exception(s, msg);
+        lean_unreachable();
+        return expr();
     }
 
     expr infer_pi(expr const & e, context const & ctx) {
-        return check_pi(infer_type(e, ctx), ctx);
+        return check_pi(infer_type(e, ctx), e, ctx);
     }
 
     expr infer_type(expr const & e, context const & ctx) {
@@ -120,13 +134,14 @@ struct infer_type_fn {
                 expr const & c = arg(e, i);
                 expr c_t       = infer_type(c, ctx);
                 if (!is_convertible(abst_domain(f_t), c_t, m_env, ctx)) {
-                    std::ostringstream buffer;
-                    buffer << "type mismatch at argument " << i << " of\n" << e
-                           << "\nexpected type:\n" << abst_domain(f_t)
-                           << "\ngiven type:\n" << c_t;
-                    if (!empty(ctx))
-                        buffer << "\nin context:\n" << ctx;
-                    throw exception(buffer.str());
+                    format msg = format{format("type mismatch at argument "), format(i), format("of"),
+                                        nl_indent(fmt()(e, ctx)), line(),
+                                        format("expected type:"),
+                                        nl_indent(fmt()(abst_domain(f_t), ctx)), line(),
+                                        format("given type:"),
+                                        nl_indent(fmt()(c_t, ctx))};
+                    push_context(msg, ctx);
+                    throw_exception(arg(e,i), msg);
                 }
                 if (closed(abst_body(f_t)))
                     f_t = abst_body(f_t);
@@ -139,7 +154,7 @@ struct infer_type_fn {
                     r = f_t;
                     break;
                 }
-                check_pi(f_t, ctx);
+                check_pi(f_t, e, ctx);
             }
             break;
         }

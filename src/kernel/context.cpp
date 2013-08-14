@@ -6,19 +6,29 @@ Author: Leonardo de Moura
 */
 #include "context.h"
 #include "exception.h"
+#include "expr_formatter.h"
 
 namespace lean {
-std::ostream & operator<<(std::ostream & out, context const & c) {
+format pp(expr_formatter & fmt, context const & c) {
     if (c) {
+        format r;
         if (tail(c))
-            out << tail(c) << "\n";
+            r = format{pp(fmt, tail(c)), line()};
         context_entry const & e = head(c);
         if (e.get_name().is_anonymous())
-            out << "_";
+            r += format("_");
         else
-            out << e.get_name();
-        out << " : " << e.get_type();
+            r += format(e.get_name());
+        r += format{space(), colon(), space(), fmt(e.get_type(), tail(c))};
+        return r;
+    } else {
+        return format();
     }
+}
+
+std::ostream & operator<<(std::ostream & out, context const & c) {
+    auto fmt = mk_simple_expr_formatter();
+    out << pp(*fmt, c);
     return out;
 }
 

@@ -35,5 +35,7 @@ inline context extend(context const & c, name const & n, expr const & t) {
 inline bool empty(context const & c) {
     return is_nil(c);
 }
+class expr_formatter;
+format pp(expr_formatter & f, context const & c);
 std::ostream & operator<<(std::ostream & out, context const & c);
 }

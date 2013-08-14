@@ -41,11 +41,19 @@ format pp(expr_formatter & fmt, context const & c) {
         if (tail(c))
             r = format{pp(fmt, tail(c)), line()};
         context_entry const & e = head(c);
-        if (e.get_name().is_anonymous())
-            r += format("_");
-        else
-            r += format(e.get_name());
-        r += format{space(), colon(), space(), fmt(e.get_domain(), tail(c))};
+        format new_entry;
+        unsigned name_sz;
+        if (e.get_name().is_anonymous()) {
+            new_entry = format("_");
+            name_sz = 1;
+        } else {
+            new_entry = format(e.get_name());
+            name_sz = e.get_name().size();
+        }
+        new_entry += format{space(), colon(), space(), nest(name_sz + 3, fmt(e.get_domain(), tail(c)))};
+        if (e.get_body())
+            new_entry += format{space(), format(":="), fmt.nest(format{line(), fmt(e.get_body(), tail(c))})};
+        r += group(new_entry);
         return r;
     } else {
         return format();

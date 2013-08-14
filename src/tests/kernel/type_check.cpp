@@ -148,6 +148,25 @@ static void tst8() {
     }
 }
 
+static void tst9() {
+    environment env = mk_toplevel();
+    env.add_var("P", arrow(Int, arrow(Int, Bool)));
+    env.add_var("x", Int);
+    expr P = Const("P");
+    context c;
+    c = extend(c, "P", arrow(Bool, Bool));
+    c = extend(c, "P", Bool, Var(0)(True));
+    c = extend(c, "H", Var(1)(True));
+    c = extend(c, "x", Bool);
+    expr t = P(Const("x"), Var(0));
+    try {
+        infer_type(t, env, c);
+        lean_unreachable();
+    } catch (exception & ex) {
+        std::cout << "Error: " << ex.what() << "\n";
+    }
+}
+
 int main() {
     tst1();
     tst2();
@@ -157,5 +176,6 @@ int main() {
     tst6();
     tst7();
     tst8();
+    tst9();
     return has_violations() ? 1 : 0;
 }

@@ -38,8 +38,19 @@ static void tst1() {
     lean_assert(!occurs(f(b), c));
 }
 
+static void tst2() {
+    expr f = Const("f");
+    expr a = Const("a");
+    expr b = Const("b");
+    context c;
+    c = extend(c, "a", Type());
+    std::cout << sanitize_names(c, f(a)) << "\n";
+    std::cout << sanitize_names(c, f(b)) << "\n";
+}
+
 int main() {
     continue_on_violation(true);
     tst1();
+    tst2();
     return has_violations() ? 1 : 0;
 }

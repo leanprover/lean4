@@ -448,6 +448,8 @@ public:
     mpfp & operator--() { return operator-=(1lu); }
     mpfp operator--(int) { mpfp r(*this); --(*this); return r; }
 
+    mpfp operator-() const { mpfp t = *this; t.neg(); return t; }
+
     void floor() { mpfr_floor(m_val, m_val); }
     void ceil () { mpfr_ceil (m_val, m_val); }
     void round() { mpfr_round(m_val, m_val); }

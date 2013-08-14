@@ -178,6 +178,8 @@ public:
     mpq & operator--() { return operator-=(1); }
     mpq operator--(int) { mpq r(*this); --(*this); return r; }
 
+    mpq operator-() const { mpq t = *this; t.neg(); return t; }
+
     // a <- numerator(b)
     friend void numerator(mpz & a, mpq const & b) { mpz_set(zval(a), mpq_numref(b.m_val)); }
     // a <- denominator(b)

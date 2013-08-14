@@ -135,6 +135,9 @@ static void tst8() {
     env.add_var("x", Int);
     expr P = Const("P");
     context c;
+    c = extend(c, "P", arrow(Bool, Bool));
+    c = extend(c, "P", arrow(Int, Int));
+    c = extend(c, "H", Var(1)(True));
     c = extend(c, "x", Bool);
     expr t = P(Const("x"), Var(0));
     try {

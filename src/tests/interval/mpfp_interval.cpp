@@ -142,8 +142,8 @@ static void mpfp_interval_inf1() {
     cout << i1 << " * " << ozero_pinf << " = " << i1 * ozero_pinf << endl;
     cout << i1 << " * " << czero_ninf << " = " << i1 * czero_ninf << endl;
     cout << i1 << " * " << czero_pinf << " = " << i1 * czero_pinf << endl;
-    lean_assert(i1 * ozero_ninf != ozero_ninf); lean_assert(ozero_ninf * i1 == ozero_ninf);
-    lean_assert(i1 * ozero_pinf != ozero_pinf); lean_assert(ozero_pinf * i1 == ozero_pinf);
+    lean_assert(i1 * ozero_ninf == ozero_ninf); lean_assert(ozero_ninf * i1 == ozero_ninf);
+    lean_assert(i1 * ozero_pinf == ozero_pinf); lean_assert(ozero_pinf * i1 == ozero_pinf);
     lean_assert(i1 * czero_ninf == czero_ninf); lean_assert(czero_ninf * i1 == czero_ninf);
     lean_assert(i1 * czero_pinf == czero_pinf); lean_assert(czero_pinf * i1 == czero_pinf);
 

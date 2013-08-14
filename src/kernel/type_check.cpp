@@ -61,14 +61,41 @@ struct infer_type_fn {
 
     format nl_indent(format const & f) { return fmt().nest(format{line(), f}); }
 
-    void throw_exception(expr const & src, format const & msg) {
-        ::lean::throw_exception(m_env.get_locator(), src, msg);
+    void throw_error [[ noreturn ]] (expr const & src, format const & msg) {
+        throw_exception(m_env.get_locator(), src, msg);
     }
 
     /** \brief Include context (if not empty) in the formatted message */
     void push_context(format & msg, context const & ctx) {
-        if (!empty(ctx))
+        if (!is_empty(ctx)) {
             msg += format{format("in context: "), nl_indent(pp(fmt(), ctx)), line()};
+        }
+    }
+
+    void throw_type_expected_error [[ noreturn ]] (expr const & t, context const & ctx) {
+        context ctx2 = sanitize_names(ctx, t);
+        format msg = format("type expected, ");
+        push_context(msg, ctx2);
+        msg += format{format("got:"), nl_indent(fmt()(t, ctx2))};
+        throw_error(t, msg);
+    }
+
+    void throw_function_expected_error [[ noreturn ]] (expr const & s, context const & ctx) {
+        context ctx2 = sanitize_names(ctx, s);
+        format msg = format("function expected, ");
+        push_context(msg, ctx2);
+        msg += format{format("got:"), nl_indent(fmt()(s, ctx2))};
+        throw_error(s, msg);
+    }
+
+    void throw_type_mismatch_error [[ noreturn ]] (expr const & app, unsigned arg_pos,
+                                                   expr const & expected, expr const & given, context const & ctx) {
+        context ctx2 = sanitize_names(ctx, {app, expected, given});
+        format msg = format{format("type mismatch at argument "), format(arg_pos), space(), format("of"),
+                            nl_indent(fmt()(app, ctx2)), line()};
+        push_context(msg, ctx2);
+        msg += format{format("expected type:"), nl_indent(fmt()(expected, ctx2)), line(), format("given type:"), nl_indent(fmt()(given, ctx2))};
+        throw_error(arg(app, arg_pos), msg);
     }
 
     level infer_universe(expr const & t, context const & ctx) {
@@ -78,12 +105,7 @@ struct infer_type_fn {
             return ty_level(u);
         if (u == Bool)
             return level();
-        format msg = format("type expected, ");
-        push_context(msg, ctx);
-        msg += format{format("got:"), nl_indent(fmt()(t, ctx))};
-        throw_exception(t, msg);
-        lean_unreachable();
-        return level();
+        throw_type_expected_error(t, ctx);
     }
 
     expr check_pi(expr const & e, expr const & s, context const & ctx) {
@@ -92,12 +114,7 @@ struct infer_type_fn {
         expr r = normalize(e, m_env, ctx);
         if (is_pi(r))
             return r;
-        format msg = format("function expected, ");
-        push_context(msg, ctx);
-        msg += format{format("got:"), nl_indent(fmt()(s, ctx))};
-        throw_exception(s, msg);
-        lean_unreachable();
-        return expr();
+        throw_function_expected_error(s, ctx);
     }
 
     expr infer_pi(expr const & e, context const & ctx) {
@@ -134,16 +151,8 @@ struct infer_type_fn {
             while (true) {
                 expr const & c = arg(e, i);
                 expr c_t       = infer_type(c, ctx);
-                if (!is_convertible(abst_domain(f_t), c_t, m_env, ctx)) {
-                    format msg = format{format("type mismatch at argument "), format(i), space(), format("of"),
-                                        nl_indent(fmt()(e, ctx)), line(),
-                                        format("expected type:"),
-                                        nl_indent(fmt()(abst_domain(f_t), ctx)), line(),
-                                        format("given type:"),
-                                        nl_indent(fmt()(c_t, ctx)), line()};
-                    push_context(msg, ctx);
-                    throw_exception(arg(e,i), msg);
-                }
+                if (!is_convertible(abst_domain(f_t), c_t, m_env, ctx))
+                    throw_type_mismatch_error(e, i, abst_domain(f_t), c_t, ctx);
                 if (closed(abst_body(f_t)))
                     f_t = abst_body(f_t);
                 else if (closed(c))

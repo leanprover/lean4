@@ -42,7 +42,7 @@ inline context extend(context const & c, name const & n, expr const & d, expr co
 inline context extend(context const & c, name const & n, expr const & d) {
     return context(context_entry(n, d), c);
 }
-inline bool empty(context const & c) {
+inline bool is_empty(context const & c) {
     return is_nil(c);
 }
 

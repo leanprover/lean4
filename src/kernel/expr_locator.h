@@ -30,6 +30,6 @@ std::shared_ptr<expr_locator> mk_dummy_expr_locator();
    \brief Throw an exception with the given msg, and include location
    of the given expression (if available).
 */
-void throw_exception(expr_locator const & loc, expr const & src, char const * msg);
-void throw_exception(expr_locator const & loc, expr const & src, format const & msg);
+void throw_exception [[noreturn]] (expr_locator const & loc, expr const & src, char const * msg);
+void throw_exception [[noreturn]] (expr_locator const & loc, expr const & src, format const & msg);
 }

@@ -625,6 +625,38 @@ interval<T> & interval<T>::operator*=(T const & o) {
 
 template<typename T>
 interval<T> & interval<T>::operator/=(T const & o) {
+    xnumeral_kind new_l_kind, new_u_kind;
+    static thread_local T tmp1;
+    if (this->is_zero()) {
+        return *this;
+    }
+    if (numeric_traits<T>::is_zero(o)) {
+        numeric_traits<T>::reset(m_lower);
+        numeric_traits<T>::reset(m_upper);
+        m_lower_open = m_upper_open = true;
+        m_lower_inf  = m_upper_inf  = true;
+        return *this;
+    }
+
+    if(numeric_traits<T>::is_pos(o)) {
+        // [a, b] / c = [a/c, b/c] when c > 0
+        round_to_minus_inf();
+        div(m_lower, new_l_kind, m_lower, lower_kind(), o, XN_NUMERAL);
+        round_to_plus_inf();
+        div(m_upper, new_u_kind, m_upper, upper_kind(), o, XN_NUMERAL);
+        m_lower_inf = new_l_kind == XN_MINUS_INFINITY;
+        m_upper_inf = new_u_kind == XN_PLUS_INFINITY;
+    }
+    else {
+        // [a, b] / c = [b/c, a/c] when c < 0
+        round_to_minus_inf();
+        div(tmp1, new_l_kind, m_upper, upper_kind(), o, XN_NUMERAL);
+        round_to_plus_inf();
+        div(m_upper, new_u_kind, m_lower, lower_kind(), o, XN_NUMERAL);
+        m_lower = tmp1;
+        m_lower_inf = new_l_kind == XN_MINUS_INFINITY;
+        m_upper_inf = new_u_kind == XN_PLUS_INFINITY;
+    }
     return *this;
 }
 

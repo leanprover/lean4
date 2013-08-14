@@ -214,9 +214,9 @@ public:
     friend interval<T> operator/(interval<T> a, T const & b) { return a /= b; }
 
     friend interval<T> operator+(T const & a, interval<T> b) { return b += a; }
-    friend interval<T> operator-(T const & a, interval<T> b) { return b += -a; }
+    friend interval<T> operator-(T const & a, interval<T> b) { b.neg(); return b += a; }
     friend interval<T> operator*(T const & a, interval<T> b) { return b *= a; }
-    friend interval<T> operator/(T const & a, interval<T> b) { b = b / a; return b; }
+    friend interval<T> operator/(T const & a, interval<T> b) { b.inv(); return b *= a; }
 
 
     bool check_invariant() const;

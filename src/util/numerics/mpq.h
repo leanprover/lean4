@@ -221,8 +221,11 @@ public:
     static void neg(mpq & v) { v.neg(); }
     static void inv(mpq & v) { v.inv(); }
     static void reset(mpq & v) { v = 0; }
-    // v <- v^k
+
     static void power(mpq & v, unsigned k) { _power(v, v, k); }
+    static void abs(mpq & v) { v.abs(); }
+    static void ceil(mpq & v) { v.ceil(); }
+    static void floor(mpq & v) { v.floor(); }
 
     // constants
     static const  mpq pi_l;

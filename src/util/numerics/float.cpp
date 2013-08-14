@@ -12,7 +12,9 @@ namespace lean {
 
 thread_local mpfr_rnd_t numeric_traits<float>::rnd = MPFR_RNDN;
 
-void float_power(double & v, unsigned k) {
-    v = std::pow(v, k);
-}
+void float_power(float & v, unsigned k) { v = std::pow(v, k); }
+void float_abs(float & v)   { v = std::abs(v); }
+void float_ceil(float & v)  { v = std::ceil(v); }
+void float_floor(float & v) { v = std::floor(v); }
+
 };

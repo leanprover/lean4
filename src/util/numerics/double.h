@@ -15,6 +15,9 @@ namespace lean {
    numeric types.
 */
 void double_power(double & v, unsigned k);
+void double_abs(double & v);
+void double_ceil(double & v);
+void double_floor(double & v);
 
 // Macro to implement transcendental functions using MPFR
 #define LEAN_TRANS_DOUBLE_FUNC(f, v, rnd)              \
@@ -38,8 +41,17 @@ public:
     static void neg(double & v) { v = -v; }
     static void inv(double & v) { v = 1.0/v; }
     static void reset(double & v) { v = 0.0; }
-    // v <- v^k
+
     static void power(double & v, unsigned k) { double_power(v, k); }
+    static void abs(double & v) { double_abs(v); }
+    static void ceil(double & v) { double_ceil(v); }
+    static void floor(double & v) { double_floor(v); }
+    static double const & min(double const & v1, double const & v2) {
+        return v1 < v2 ? v1 : v2;
+    }
+    static double const & max(double const & v1, double const & v2) {
+        return v1 > v2 ? v1 : v2;
+    }
 
     // constants
     static const  double constexpr pi_l = (3373259426.0 + 273688.0 / (1<<21)) / (1<<30);

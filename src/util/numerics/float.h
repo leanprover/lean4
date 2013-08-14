@@ -15,6 +15,9 @@ namespace lean {
    numeric types.
 */
 void float_power(float & v, unsigned k);
+void float_abs(float & v);
+void float_ceil(float & v);
+void float_floor(float & v);
 
 // Macro to implement transcendental functions using MPFR
 #define LEAN_TRANS_FLOAT_FUNC(f, v, rnd)        \
@@ -35,8 +38,18 @@ public:
     static void neg(float & v) { v = -v; }
     static void inv(float & v) { v = 1.0/v; }
     static void reset(float & v) { v = 0.0; }
-    // v <- v^k
+
     static void power(float & v, unsigned k) { float_power(v, k); }
+    static void abs(float & v) { float_abs(v); }
+    static void ceil(float & v) { float_ceil(v); }
+    static void floor(float & v) { float_floor(v); }
+
+    static float const & min(float const & v1, float const & v2) {
+        return v1 < v2 ? v1 : v2;
+    }
+    static float const & max(float const & v1, float const & v2) {
+        return v1 > v2 ? v1 : v2;
+    }
 
     // constants
     static const  float constexpr pi_l = 13176794.0f/(1<<22);

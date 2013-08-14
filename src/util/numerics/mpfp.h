@@ -502,10 +502,13 @@ public:
     static bool is_neg(mpfp const & v) { return v.is_neg(); }
     static void set_rounding(bool plus_inf) { set_mpfp_rnd(plus_inf); }
     static void neg(mpfp & v) { v.neg(); }
-//    static void inv(mpfp & v) { v.inv(); }
+    static void inv(mpfp & v) { v.inv(); }
     static void reset(mpfp & v) { v = 0.0; }
     // v <- v^k
     static void power(mpfp & v, unsigned k) { v.pow(k); }
+    static void abs(mpfp & v) { v.abs(); }
+    static void ceil(mpfp & v) { v.ceil(); }
+    static void floor(mpfp & v) { v.floor(); }
 
     // constants
     static mpfp pi_l;

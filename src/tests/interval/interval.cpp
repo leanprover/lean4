@@ -568,6 +568,23 @@ static void mpfr_interval_trans() {
     std::cout << "cos" << "(" << czero_pinf << ") = " << cos(czero_pinf) << std::endl;
     std::cout << "cos" << "(" << czero_ninf << ") = " << cos(czero_ninf) << std::endl;
     std::cout << "cos" << "(" << inf        << ") = " << cos(inf) << std::endl;
+
+    std::cout << "=====================" << std::endl;
+    std::cout << "tan" << "(" << i1 << ") = " << tan(i1) << std::endl;
+    std::cout << "tan" << "(" << i2 << ") = " << tan(i2) << std::endl;
+    std::cout << "tan" << "(" << i3 << ") = " << tan(i3) << std::endl;
+    std::cout << "tan" << "(" << i4 << ") = " << tan(i4) << std::endl;
+    std::cout << "tan" << "(" << i5 << ") = " << tan(i5) << std::endl;
+    std::cout << "tan" << "(" << oi1 << ") = " << tan(oi1) << std::endl;
+    std::cout << "tan" << "(" << oi2 << ") = " << tan(oi2) << std::endl;
+    std::cout << "tan" << "(" << oi3 << ") = " << tan(oi3) << std::endl;
+    std::cout << "tan" << "(" << oi4 << ") = " << tan(oi4) << std::endl;
+    std::cout << "tan" << "(" << oi5 << ") = " << tan(oi5) << std::endl;
+    std::cout << "tan" << "(" << ozero_pinf << ") = " << tan(ozero_pinf) << std::endl;
+    std::cout << "tan" << "(" << ozero_ninf << ") = " << tan(ozero_ninf) << std::endl;
+    std::cout << "tan" << "(" << czero_pinf << ") = " << tan(czero_pinf) << std::endl;
+    std::cout << "tan" << "(" << czero_ninf << ") = " << tan(czero_ninf) << std::endl;
+    std::cout << "tan" << "(" << inf        << ") = " << tan(inf) << std::endl;
 }
 
 int main() {

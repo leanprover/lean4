@@ -997,17 +997,12 @@ template<typename T> void interval<T>::log10() {
     return;
 }
 template<typename T> void interval<T>::sin() {
-    if(is_empty())
-        return;
-
     *this -= numeric_traits<T>::pi_half_lower();
     cos();
     lean_assert(check_invariant());
     return;
 }
 template<typename T> void interval<T>::cos  () {
-    if(is_empty())
-        return;
     if(m_lower_inf || m_upper_inf) {
         // cos([-oo, c]) = [-1.0, +1.0]
         // cos([c, +oo]) = [-1.0, +1.0]
@@ -1069,9 +1064,45 @@ template<typename T> void interval<T>::cos  () {
     m_upper = 1.0;
     lean_assert(check_invariant());
     return;
- }
+}
 
-template<typename T> void interval<T>::tan  () { /* TODO */ lean_unreachable(); return; }
+template<typename T> void interval<T>::tan() {
+    if(m_lower_inf || m_upper_inf) {
+        // tan([-oo, c]) = [-oo, +oo]
+        // tan([c, +oo]) = [-oo, +oo]
+        numeric_traits<T>::reset(m_lower);
+        numeric_traits<T>::reset(m_upper);
+        m_lower_open = m_upper_open = true;
+        m_lower_inf  = m_upper_inf = true;
+        lean_assert(check_invariant());
+        return;
+    }
+
+    T const pi = numeric_traits<T>::pi();
+    T const pi_half_lower = numeric_traits<T>::pi_half_lower();
+    T const pi_half_upper = numeric_traits<T>::pi_half_upper();
+    fmod(pi);
+
+    if (m_lower >= pi_half_lower) {
+        *this -= pi;
+    }
+    if (m_lower <= - pi_half_lower || m_upper >= pi_half_lower) {
+        numeric_traits<T>::reset(m_lower);
+        numeric_traits<T>::reset(m_upper);
+        m_lower_open = m_upper_open = true;
+        m_lower_inf  = m_upper_inf = true;
+        lean_assert(check_invariant());
+        return;
+    } else {
+        numeric_traits<T>::set_rounding(false);
+        numeric_traits<T>::tan(m_lower);
+        numeric_traits<T>::set_rounding(true);
+        numeric_traits<T>::tan(m_upper);
+        lean_assert(check_invariant());
+        return;
+    }
+}
+
 template<typename T> void interval<T>::sec  () { /* TODO */ lean_unreachable(); return; }
 template<typename T> void interval<T>::csc  () { /* TODO */ lean_unreachable(); return; }
 template<typename T> void interval<T>::cot  () { /* TODO */ lean_unreachable(); return; }

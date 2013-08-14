@@ -44,7 +44,6 @@ static void tst2() {
 }
 
 int main() {
-    continue_on_violation(true);
     tst1();
     tst2();
     std::cout << "done" << "\n";

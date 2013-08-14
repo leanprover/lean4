@@ -25,7 +25,7 @@ before_script:
   - cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=/usr/local/bin/${CMAKE_CXX_COMPILER} ../src -G Ninja
 
 script:
-  - ninja && ctest -T test -VV
+  - ninja && yes "C" | ctest -T test -VV
 
 install:
   - if [[ $CMAKE_CXX_COMPILER == g++ ]]; then

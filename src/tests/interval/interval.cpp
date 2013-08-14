@@ -91,7 +91,6 @@ static void tst2() {
 }
 
 int main() {
-    continue_on_violation(true);
     enable_trace("numerics");
     tst1();
     tst2();

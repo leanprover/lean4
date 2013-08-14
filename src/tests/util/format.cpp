@@ -99,7 +99,6 @@ static void tst3() {
 }
 
 int main() {
-    continue_on_violation(true);
     tst1();
     tst2();
     tst3();

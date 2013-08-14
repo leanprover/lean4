@@ -128,7 +128,6 @@ static void tst5() {
 }
 
 int main() {
-    continue_on_violation(true);
     tst1();
     tst2();
     tst3();

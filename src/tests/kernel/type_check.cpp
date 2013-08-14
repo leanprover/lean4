@@ -130,7 +130,6 @@ static void tst7() {
 }
 
 int main() {
-    continue_on_violation(true);
     tst1();
     tst2();
     tst3();

@@ -28,7 +28,6 @@ void perftest() {
 }
 
 int main() {
-    continue_on_violation(true);
     loop<buffer<int>>(100);
     return has_violations() ? 1 : 0;
 }

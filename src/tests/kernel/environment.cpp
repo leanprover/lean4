@@ -170,7 +170,6 @@ static void tst7() {
 
 int main() {
     enable_trace("is_convertible");
-    // continue_on_violation(true);
     tst1();
     tst2();
     tst3();

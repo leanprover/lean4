@@ -67,7 +67,6 @@ static void tst2() {
 }
 
 int main() {
-    lean::continue_on_violation(true);
     tst1();
     tst2();
     return lean::has_violations() ? 1 : 0;

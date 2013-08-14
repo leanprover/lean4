@@ -504,7 +504,6 @@ static void mpfp_interval_trans() {
 }
 
 int main() {
-    continue_on_violation(true);
     enable_trace("numerics");
     mpfp_interval_arith();
     mpfp_interval_inf1();

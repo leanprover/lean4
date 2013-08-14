@@ -34,8 +34,7 @@ before_script:
   - cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ../src
 
 script:
-  - make
-  - ctest -T test -VV
+  - make && yes "C" | ctest -T test -VV
 
 after_success:
   - cd ..

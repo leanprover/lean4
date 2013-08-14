@@ -54,7 +54,6 @@ static void tst1() {
 }
 
 int main() {
-    continue_on_violation(true);
     tst1();
     return has_violations() ? 1 : 0;
 }

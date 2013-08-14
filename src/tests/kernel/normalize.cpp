@@ -197,7 +197,6 @@ static void tst4() {
 }
 
 int main() {
-    // continue_on_violation(true);
     tst_church_numbers();
     tst1();
     tst2();

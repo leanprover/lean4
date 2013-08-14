@@ -1242,7 +1242,39 @@ template<typename T> void interval<T>::tanh () {
     lean_assert(check_invariant());
     return;
 }
-template<typename T> void interval<T>::asinh() { /* TODO */ lean_unreachable(); return; }
-template<typename T> void interval<T>::acosh() { /* TODO */ lean_unreachable(); return; }
-template<typename T> void interval<T>::atanh() { /* TODO */ lean_unreachable(); return; }
+template<typename T> void interval<T>::asinh() {
+    if(lower_kind() == XN_NUMERAL) {
+        numeric_traits<T>::set_rounding(false);
+        numeric_traits<T>::asinh(m_lower);
+    }
+    if(upper_kind() == XN_NUMERAL) {
+        numeric_traits<T>::set_rounding(true);
+        numeric_traits<T>::asinh(m_upper);
+    }
+    lean_assert(check_invariant());
+    return;
+}
+template<typename T> void interval<T>::acosh() {
+    lean_assert(lower_kind() == XN_NUMERAL && m_lower >= 1.0);
+    numeric_traits<T>::set_rounding(false);
+    numeric_traits<T>::acosh(m_lower);
+    if(upper_kind() == XN_NUMERAL) {
+        numeric_traits<T>::set_rounding(true);
+        numeric_traits<T>::acosh(m_lower);
+    }
+    lean_assert(check_invariant());
+    return;
+}
+template<typename T> void interval<T>::atanh() {
+    if(lower_kind() == XN_NUMERAL) {
+        numeric_traits<T>::set_rounding(false);
+        numeric_traits<T>::atanh(m_lower);
+    }
+    if(upper_kind() == XN_NUMERAL) {
+        numeric_traits<T>::set_rounding(true);
+        numeric_traits<T>::atanh(m_upper);
+    }
+    lean_assert(check_invariant());
+    return;
+}
 }

@@ -526,12 +526,12 @@ public:
         mpfr_const_pi(pi_u.m_val, MPFR_RNDU);
         return pi_u;
     }
-    static inline mpfp pi_half_lower()  { return pi_l / 2lu; }
-    static inline mpfp pi_half()        { return pi_n / 2lu; }
-    static inline mpfp pi_half_upper()  { return pi_u / 2lu; }
-    static inline mpfp pi_twice_lower() { return pi_l * 2lu; }
-    static inline mpfp pi_twice()       { return pi_n * 2lu; }
-    static inline mpfp pi_twice_upper() { return pi_u * 2lu; }
+    static inline mpfp pi_half_lower()  { return pi_lower() / 2lu; }
+    static inline mpfp pi_half()        { return pi() / 2lu; }
+    static inline mpfp pi_half_upper()  { return pi_upper() / 2lu; }
+    static inline mpfp pi_twice_lower() { return pi_lower() * 2lu; }
+    static inline mpfp pi_twice()       { return pi() * 2lu; }
+    static inline mpfp pi_twice_upper() { return pi_upper() * 2lu; }
 
     // Transcendental functions
     static void exp(mpfp & v)   { LEAN_TRANS_MPFP_FUNC(exp,   v, rnd()); }

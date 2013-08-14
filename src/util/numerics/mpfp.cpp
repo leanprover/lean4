@@ -10,8 +10,12 @@ Author: Soonho Kong
 namespace lean {
 static thread_local mpfr_rnd_t g_mpfp_rnd = MPFR_RNDN;
 
+mpfp numeric_traits<mpfp>::pi_l;
+mpfp numeric_traits<mpfp>::pi_n;
+mpfp numeric_traits<mpfp>::pi_u;
+
 void set_mpfp_rnd(bool plus_inf) {
-    g_mpfp_rnd = plus_inf ? MPFR_RNDU : MPFR_RNDD; 
+    g_mpfp_rnd = plus_inf ? MPFR_RNDU : MPFR_RNDD;
 }
 
 mpfr_rnd_t get_mpfp_rnd() {

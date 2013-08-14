@@ -43,8 +43,10 @@ interval<T> & interval<T>::operator=(interval && n) {
 
 template<typename T>
 interval<T>::interval():
-    m_lower(0),
-    m_upper(0) {
+    m_lower(),
+    m_upper() {
+    numeric_traits<T>::reset(m_lower);
+    numeric_traits<T>::reset(m_upper);
     m_lower_inf  = true;
     m_lower_open = true;
     m_upper_inf  = true;

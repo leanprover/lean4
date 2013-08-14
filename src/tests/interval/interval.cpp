@@ -148,22 +148,22 @@ static void mpfr_interval_inf1() {
     std::cerr << czero_pinf << " + " << czero_ninf << " = " << czero_pinf + czero_ninf << std::endl;
     std::cerr << czero_pinf << " + " << czero_pinf << " = " << czero_pinf + czero_pinf << std::endl;
 
-    lean_assert(ozero_ninf + ozero_ninf == ozero_ninf); lean_assert(ozero_ninf + ozero_ninf == ozero_ninf);
-    lean_assert(ozero_ninf + ozero_pinf == inf);        lean_assert(ozero_pinf + ozero_ninf == inf);
-    lean_assert(ozero_ninf + czero_ninf == ozero_ninf); lean_assert(czero_ninf + ozero_ninf == ozero_ninf);
-    lean_assert(ozero_ninf + czero_pinf == inf);        lean_assert(czero_pinf + ozero_ninf == inf);
-    lean_assert(ozero_pinf + ozero_ninf == inf);        lean_assert(ozero_ninf + ozero_pinf == inf);
-    lean_assert(ozero_pinf + ozero_pinf == ozero_pinf); lean_assert(ozero_pinf + ozero_pinf == ozero_pinf);
-    lean_assert(ozero_pinf + czero_ninf == inf);        lean_assert(czero_ninf + ozero_pinf == inf);
-    lean_assert(ozero_pinf + czero_pinf == ozero_pinf); lean_assert(czero_pinf + ozero_pinf == ozero_pinf);
-    lean_assert(czero_ninf + ozero_ninf == ozero_ninf); lean_assert(ozero_ninf + czero_ninf == ozero_ninf);
-    lean_assert(czero_ninf + ozero_pinf == inf);        lean_assert(ozero_pinf + czero_ninf == inf);
-    lean_assert(czero_ninf + czero_ninf == czero_ninf); lean_assert(czero_ninf + czero_ninf == czero_ninf);
-    lean_assert(czero_ninf + czero_pinf == inf);        lean_assert(czero_pinf + czero_ninf == inf);
-    lean_assert(czero_pinf + ozero_ninf == inf);        lean_assert(ozero_ninf + czero_pinf == inf);
-    lean_assert(czero_pinf + ozero_pinf == ozero_pinf); lean_assert(ozero_pinf + czero_pinf == ozero_pinf);
-    lean_assert(czero_pinf + czero_ninf == inf);        lean_assert(czero_ninf + czero_pinf == inf);
-    lean_assert(czero_pinf + czero_pinf == czero_pinf); lean_assert(czero_pinf + czero_pinf == czero_pinf);
+    lean_assert(ozero_ninf + ozero_ninf == ozero_ninf);
+    lean_assert(ozero_ninf + ozero_pinf == inf);
+    lean_assert(ozero_ninf + czero_ninf == ozero_ninf);
+    lean_assert(ozero_ninf + czero_pinf == inf);
+    lean_assert(ozero_pinf + ozero_ninf == inf);
+    lean_assert(ozero_pinf + ozero_pinf == ozero_pinf);
+    lean_assert(ozero_pinf + czero_ninf == inf);
+    lean_assert(ozero_pinf + czero_pinf == ozero_pinf);
+    lean_assert(czero_ninf + ozero_ninf == ozero_ninf);
+    lean_assert(czero_ninf + ozero_pinf == inf);
+    lean_assert(czero_ninf + czero_ninf == czero_ninf);
+    lean_assert(czero_ninf + czero_pinf == inf);
+    lean_assert(czero_pinf + ozero_ninf == inf);
+    lean_assert(czero_pinf + ozero_pinf == ozero_pinf);
+    lean_assert(czero_pinf + czero_ninf == inf);
+    lean_assert(czero_pinf + czero_pinf == czero_pinf);
 
     std::cerr << "=== Subtraction between [0, +oo), (-oo, 0], (0, +oo), (-oo, 0) ===" << std::endl;
     std::cerr << ozero_ninf << " - " << ozero_ninf << " = " << ozero_ninf - ozero_ninf << std::endl;
@@ -183,22 +183,22 @@ static void mpfr_interval_inf1() {
     std::cerr << czero_pinf << " - " << czero_ninf << " = " << czero_pinf - czero_ninf << std::endl;
     std::cerr << czero_pinf << " - " << czero_pinf << " = " << czero_pinf - czero_pinf << std::endl;
 
-    lean_assert(ozero_ninf - ozero_ninf == inf);        lean_assert(ozero_ninf - ozero_ninf == inf);
-    lean_assert(ozero_ninf - ozero_pinf == ozero_ninf); lean_assert(ozero_pinf - ozero_ninf == ozero_pinf);
-    lean_assert(ozero_ninf - czero_ninf == inf);        lean_assert(czero_ninf - ozero_ninf == inf);
-    lean_assert(ozero_ninf - czero_pinf == ozero_ninf); lean_assert(czero_pinf - ozero_ninf == ozero_pinf);
-    lean_assert(ozero_pinf - ozero_ninf == ozero_pinf); lean_assert(ozero_ninf - ozero_pinf == ozero_ninf);
-    lean_assert(ozero_pinf - ozero_pinf == inf);        lean_assert(ozero_pinf - ozero_pinf == inf);
-    lean_assert(ozero_pinf - czero_ninf == ozero_pinf); lean_assert(czero_ninf - ozero_pinf == ozero_ninf);
-    lean_assert(ozero_pinf - czero_pinf == inf);        lean_assert(czero_pinf - ozero_pinf == inf);
-    lean_assert(czero_ninf - ozero_ninf == inf);        lean_assert(ozero_ninf - czero_ninf == inf);
-    lean_assert(czero_ninf - ozero_pinf == ozero_ninf); lean_assert(ozero_pinf - czero_ninf == ozero_pinf);
-    lean_assert(czero_ninf - czero_ninf == inf);        lean_assert(czero_ninf - czero_ninf == inf);
-    lean_assert(czero_ninf - czero_pinf == czero_ninf); lean_assert(czero_pinf - czero_ninf == czero_pinf);
-    lean_assert(czero_pinf - ozero_ninf == ozero_pinf); lean_assert(ozero_ninf - czero_pinf == ozero_ninf);
-    lean_assert(czero_pinf - ozero_pinf == inf);        lean_assert(ozero_pinf - czero_pinf == inf);
-    lean_assert(czero_pinf - czero_ninf == czero_pinf); lean_assert(czero_ninf - czero_pinf == czero_ninf);
-    lean_assert(czero_pinf - czero_pinf == inf);        lean_assert(czero_pinf - czero_pinf == inf);
+    lean_assert(ozero_ninf - ozero_ninf == inf);
+    lean_assert(ozero_ninf - ozero_pinf == ozero_ninf);
+    lean_assert(ozero_ninf - czero_ninf == inf);
+    lean_assert(ozero_ninf - czero_pinf == ozero_ninf);
+    lean_assert(ozero_pinf - ozero_ninf == ozero_pinf);
+    lean_assert(ozero_pinf - ozero_pinf == inf);
+    lean_assert(ozero_pinf - czero_ninf == ozero_pinf);
+    lean_assert(ozero_pinf - czero_pinf == inf);
+    lean_assert(czero_ninf - ozero_ninf == inf);
+    lean_assert(czero_ninf - ozero_pinf == ozero_ninf);
+    lean_assert(czero_ninf - czero_ninf == inf);
+    lean_assert(czero_ninf - czero_pinf == czero_ninf);
+    lean_assert(czero_pinf - ozero_ninf == ozero_pinf);
+    lean_assert(czero_pinf - ozero_pinf == inf);
+    lean_assert(czero_pinf - czero_ninf == czero_pinf);
+    lean_assert(czero_pinf - czero_pinf == inf);
 
     std::cerr << "=== Multiplication between [0, +oo), (-oo, 0], (0, +oo), (-oo, 0) ===" << std::endl;
     std::cerr << ozero_ninf << " * " << ozero_ninf << " = " << ozero_ninf * ozero_ninf << std::endl;
@@ -218,22 +218,41 @@ static void mpfr_interval_inf1() {
     std::cerr << czero_pinf << " * " << czero_ninf << " = " << czero_pinf * czero_ninf << std::endl;
     std::cerr << czero_pinf << " * " << czero_pinf << " = " << czero_pinf * czero_pinf << std::endl;
 
-    lean_assert(ozero_ninf * ozero_ninf == ozero_pinf); lean_assert(ozero_ninf * ozero_ninf == ozero_pinf);
-    lean_assert(ozero_ninf * ozero_pinf == ozero_ninf); lean_assert(ozero_pinf * ozero_ninf == ozero_ninf);
-    lean_assert(ozero_ninf * czero_ninf == czero_pinf); lean_assert(czero_ninf * ozero_ninf == czero_pinf);
-    lean_assert(ozero_ninf * czero_pinf == czero_ninf); lean_assert(czero_pinf * ozero_ninf == czero_ninf);
-    lean_assert(ozero_pinf * ozero_ninf == ozero_ninf); lean_assert(ozero_ninf * ozero_pinf == ozero_ninf);
-    lean_assert(ozero_pinf * ozero_pinf == ozero_pinf); lean_assert(ozero_pinf * ozero_pinf == ozero_pinf);
-    lean_assert(ozero_pinf * czero_ninf == czero_ninf); lean_assert(czero_ninf * ozero_pinf == czero_ninf);
-    lean_assert(ozero_pinf * czero_pinf == czero_pinf); lean_assert(czero_pinf * ozero_pinf == czero_pinf);
-    lean_assert(czero_ninf * ozero_ninf == czero_pinf); lean_assert(ozero_ninf * czero_ninf == czero_pinf);
-    lean_assert(czero_ninf * ozero_pinf == czero_ninf); lean_assert(ozero_pinf * czero_ninf == czero_ninf);
-    lean_assert(czero_ninf * czero_ninf == czero_pinf); lean_assert(czero_ninf * czero_ninf == czero_pinf);
-    lean_assert(czero_ninf * czero_pinf == czero_ninf); lean_assert(czero_pinf * czero_ninf == czero_ninf);
-    lean_assert(czero_pinf * ozero_ninf == czero_ninf); lean_assert(ozero_ninf * czero_pinf == czero_ninf);
-    lean_assert(czero_pinf * ozero_pinf == czero_pinf); lean_assert(ozero_pinf * czero_pinf == czero_pinf);
-    lean_assert(czero_pinf * czero_ninf == czero_ninf); lean_assert(czero_ninf * czero_pinf == czero_ninf);
-    lean_assert(czero_pinf * czero_pinf == czero_pinf); lean_assert(czero_pinf * czero_pinf == czero_pinf);
+    lean_assert(ozero_ninf * ozero_ninf == ozero_pinf);
+    lean_assert(ozero_ninf * ozero_pinf == ozero_ninf);
+    lean_assert(ozero_ninf * czero_ninf == czero_pinf);
+    lean_assert(ozero_ninf * czero_pinf == czero_ninf);
+    lean_assert(ozero_pinf * ozero_ninf == ozero_ninf);
+    lean_assert(ozero_pinf * ozero_pinf == ozero_pinf);
+    lean_assert(ozero_pinf * czero_ninf == czero_ninf);
+    lean_assert(ozero_pinf * czero_pinf == czero_pinf);
+    lean_assert(czero_ninf * ozero_ninf == czero_pinf);
+    lean_assert(czero_ninf * ozero_pinf == czero_ninf);
+    lean_assert(czero_ninf * czero_ninf == czero_pinf);
+    lean_assert(czero_ninf * czero_pinf == czero_ninf);
+    lean_assert(czero_pinf * ozero_ninf == czero_ninf);
+    lean_assert(czero_pinf * ozero_pinf == czero_pinf);
+    lean_assert(czero_pinf * czero_ninf == czero_ninf);
+    lean_assert(czero_pinf * czero_pinf == czero_pinf);
+
+    std::cerr << "=== Division between [0, +oo), (-oo, 0], (0, +oo), (-oo, 0) ===" << std::endl;
+    std::cerr << ozero_ninf << " / " << ozero_ninf << " = " << ozero_ninf / ozero_ninf << std::endl;
+    std::cerr << ozero_ninf << " / " << ozero_pinf << " = " << ozero_ninf / ozero_pinf << std::endl;
+    std::cerr << ozero_pinf << " / " << ozero_ninf << " = " << ozero_pinf / ozero_ninf << std::endl;
+    std::cerr << ozero_pinf << " / " << ozero_pinf << " = " << ozero_pinf / ozero_pinf << std::endl;
+    std::cerr << czero_ninf << " / " << ozero_ninf << " = " << czero_ninf / ozero_ninf << std::endl;
+    std::cerr << czero_ninf << " / " << ozero_pinf << " = " << czero_ninf / ozero_pinf << std::endl;
+    std::cerr << czero_pinf << " / " << ozero_ninf << " = " << czero_pinf / ozero_ninf << std::endl;
+    std::cerr << czero_pinf << " / " << ozero_pinf << " = " << czero_pinf / ozero_pinf << std::endl;
+
+    lean_assert(ozero_ninf / ozero_ninf == ozero_pinf);
+    lean_assert(ozero_ninf / ozero_pinf == ozero_ninf);
+    lean_assert(ozero_pinf / ozero_ninf == ozero_ninf);
+    lean_assert(ozero_pinf / ozero_pinf == ozero_pinf);
+    lean_assert(czero_ninf / ozero_ninf == czero_pinf);
+    lean_assert(czero_ninf / ozero_pinf == czero_ninf);
+    lean_assert(czero_pinf / ozero_ninf == czero_ninf);
+    lean_assert(czero_pinf / ozero_pinf == czero_pinf);
 }
 
 static void mpfr_interval_inf2() {
@@ -391,7 +410,28 @@ static void mpfr_interval_trans() {
     fi i3(-10.0, -5.0);
     fi i4(-3.0, +4.0);
     fi i5(5.0, 8.0);
+    fi oi1(1.0, 2.0);
+    fi oi2(3.0, 4.0);
+    fi oi3(-10.0, -5.0);
+    fi oi4(-3.0, +4.0);
+    fi oi5(5.0, 8.0);
+    oi1.set_is_lower_open(true); oi1.set_is_upper_open(true);
+    oi2.set_is_lower_open(true); oi2.set_is_upper_open(true);
+    oi3.set_is_lower_open(true); oi3.set_is_upper_open(true);
+    oi4.set_is_lower_open(true); oi4.set_is_upper_open(true);
+    oi5.set_is_lower_open(true); oi5.set_is_upper_open(true);
+
     fi inf;
+    fi ozero_pinf;
+    fi ozero_ninf;
+    ozero_pinf.set_is_lower_inf(false);
+    ozero_ninf.set_is_upper_inf(false);
+    fi czero_pinf;
+    fi czero_ninf;
+    czero_pinf.set_is_lower_inf(false);
+    czero_pinf.set_is_lower_open(false);
+    czero_ninf.set_is_upper_inf(false);
+    czero_ninf.set_is_upper_open(false);
 
     mpfp c1(0.6);
     mpfp c2(3.0);
@@ -405,6 +445,16 @@ static void mpfr_interval_trans() {
     std::cout << "power" << "(" << i3 << ", " << 3 << ") = " << power(i3, 3) << std::endl;
     std::cout << "power" << "(" << i4 << ", " << 3 << ") = " << power(i4, 3) << std::endl;
     std::cout << "power" << "(" << i5 << ", " << 3 << ") = " << power(i5, 3) << std::endl;
+    std::cout << "power" << "(" << oi1 << ", " << 3 << ") = " << power(oi1, 3) << std::endl;
+    std::cout << "power" << "(" << oi2 << ", " << 3 << ") = " << power(oi2, 3) << std::endl;
+    std::cout << "power" << "(" << oi3 << ", " << 3 << ") = " << power(oi3, 3) << std::endl;
+    std::cout << "power" << "(" << oi4 << ", " << 3 << ") = " << power(oi4, 3) << std::endl;
+    std::cout << "power" << "(" << oi5 << ", " << 3 << ") = " << power(oi5, 3) << std::endl;
+    std::cout << "power" << "(" << inf << ", " << 3 << ") = " << power(inf, 3) << std::endl;
+    std::cout << "power" << "(" << ozero_ninf << ", " << 3 << ") = " << power(ozero_ninf, 3) << std::endl;
+    std::cout << "power" << "(" << ozero_pinf << ", " << 3 << ") = " << power(ozero_pinf, 3) << std::endl;
+    std::cout << "power" << "(" << czero_ninf << ", " << 3 << ") = " << power(czero_ninf, 3) << std::endl;
+    std::cout << "power" << "(" << czero_pinf << ", " << 3 << ") = " << power(czero_pinf, 3) << std::endl;
 
     std::cout << "=====================" << std::endl;
     std::cout << "exp" << "(" << i1 << ") = " << exp(i1) << std::endl;
@@ -412,11 +462,78 @@ static void mpfr_interval_trans() {
     std::cout << "exp" << "(" << i3 << ") = " << exp(i3) << std::endl;
     std::cout << "exp" << "(" << i4 << ") = " << exp(i4) << std::endl;
     std::cout << "exp" << "(" << i5 << ") = " << exp(i5) << std::endl;
+    std::cout << "exp" << "(" << oi1 << ") = " << exp(oi1) << std::endl;
+    std::cout << "exp" << "(" << oi2 << ") = " << exp(oi2) << std::endl;
+    std::cout << "exp" << "(" << oi3 << ") = " << exp(oi3) << std::endl;
+    std::cout << "exp" << "(" << oi4 << ") = " << exp(oi4) << std::endl;
+    std::cout << "exp" << "(" << oi5 << ") = " << exp(oi5) << std::endl;
+    std::cout << "exp" << "(" << ozero_pinf << ") = " << exp(ozero_pinf) << std::endl;
+    std::cout << "exp" << "(" << ozero_ninf << ") = " << exp(ozero_ninf) << std::endl;
+    std::cout << "exp" << "(" << czero_pinf << ") = " << exp(czero_pinf) << std::endl;
+    std::cout << "exp" << "(" << czero_ninf << ") = " << exp(czero_ninf) << std::endl;
+    std::cout << "exp" << "(" << inf        << ") = " << exp(inf) << std::endl;
+
+    std::cout << "=====================" << std::endl;
+    std::cout << "exp2" << "(" << i1 << ") = " << exp2(i1) << std::endl;
+    std::cout << "exp2" << "(" << i2 << ") = " << exp2(i2) << std::endl;
+    std::cout << "exp2" << "(" << i3 << ") = " << exp2(i3) << std::endl;
+    std::cout << "exp2" << "(" << i4 << ") = " << exp2(i4) << std::endl;
+    std::cout << "exp2" << "(" << i5 << ") = " << exp2(i5) << std::endl;
+    std::cout << "exp2" << "(" << oi1 << ") = " << exp2(oi1) << std::endl;
+    std::cout << "exp2" << "(" << oi2 << ") = " << exp2(oi2) << std::endl;
+    std::cout << "exp2" << "(" << oi3 << ") = " << exp2(oi3) << std::endl;
+    std::cout << "exp2" << "(" << oi4 << ") = " << exp2(oi4) << std::endl;
+    std::cout << "exp2" << "(" << oi5 << ") = " << exp2(oi5) << std::endl;
+    std::cout << "exp2" << "(" << ozero_pinf << ") = " << exp2(ozero_pinf) << std::endl;
+    std::cout << "exp2" << "(" << ozero_ninf << ") = " << exp2(ozero_ninf) << std::endl;
+    std::cout << "exp2" << "(" << czero_pinf << ") = " << exp2(czero_pinf) << std::endl;
+    std::cout << "exp2" << "(" << czero_ninf << ") = " << exp2(czero_ninf) << std::endl;
+    std::cout << "exp2" << "(" << inf        << ") = " << exp2(inf) << std::endl;
+
+    std::cout << "=====================" << std::endl;
+    std::cout << "exp10" << "(" << i1 << ") = " << exp10(i1) << std::endl;
+    std::cout << "exp10" << "(" << i2 << ") = " << exp10(i2) << std::endl;
+    std::cout << "exp10" << "(" << i3 << ") = " << exp10(i3) << std::endl;
+    std::cout << "exp10" << "(" << i4 << ") = " << exp10(i4) << std::endl;
+    std::cout << "exp10" << "(" << i5 << ") = " << exp10(i5) << std::endl;
+    std::cout << "exp10" << "(" << oi1 << ") = " << exp10(oi1) << std::endl;
+    std::cout << "exp10" << "(" << oi2 << ") = " << exp10(oi2) << std::endl;
+    std::cout << "exp10" << "(" << oi3 << ") = " << exp10(oi3) << std::endl;
+    std::cout << "exp10" << "(" << oi4 << ") = " << exp10(oi4) << std::endl;
+    std::cout << "exp10" << "(" << oi5 << ") = " << exp10(oi5) << std::endl;
+    std::cout << "exp10" << "(" << ozero_pinf << ") = " << exp10(ozero_pinf) << std::endl;
+    std::cout << "exp10" << "(" << ozero_ninf << ") = " << exp10(ozero_ninf) << std::endl;
+    std::cout << "exp10" << "(" << czero_pinf << ") = " << exp10(czero_pinf) << std::endl;
+    std::cout << "exp10" << "(" << czero_ninf << ") = " << exp10(czero_ninf) << std::endl;
+    std::cout << "exp10" << "(" << inf        << ") = " << exp10(inf) << std::endl;
+
 
     std::cout << "=====================" << std::endl;
     std::cout << "log" << "(" << i1 << ") = " << log(i1) << std::endl;
     std::cout << "log" << "(" << i2 << ") = " << log(i2) << std::endl;
     std::cout << "log" << "(" << i5 << ") = " << log(i5) << std::endl;
+    std::cout << "log" << "(" << oi1 << ") = " << log(oi1) << std::endl;
+    std::cout << "log" << "(" << oi2 << ") = " << log(oi2) << std::endl;
+    std::cout << "log" << "(" << oi5 << ") = " << log(oi5) << std::endl;
+    std::cout << "log" << "(" << ozero_pinf << ") = " << log(ozero_pinf) << std::endl;
+
+    std::cout << "=====================" << std::endl;
+    std::cout << "log2" << "(" << i1 << ") = " << log2(i1) << std::endl;
+    std::cout << "log2" << "(" << i2 << ") = " << log2(i2) << std::endl;
+    std::cout << "log2" << "(" << i5 << ") = " << log2(i5) << std::endl;
+    std::cout << "log2" << "(" << oi1 << ") = " << log2(oi1) << std::endl;
+    std::cout << "log2" << "(" << oi2 << ") = " << log2(oi2) << std::endl;
+    std::cout << "log2" << "(" << oi5 << ") = " << log2(oi5) << std::endl;
+    std::cout << "log2" << "(" << ozero_pinf << ") = " << log2(ozero_pinf) << std::endl;
+
+    std::cout << "=====================" << std::endl;
+    std::cout << "log10" << "(" << i1 << ") = " << log10(i1) << std::endl;
+    std::cout << "log10" << "(" << i2 << ") = " << log10(i2) << std::endl;
+    std::cout << "log10" << "(" << i5 << ") = " << log10(i5) << std::endl;
+    std::cout << "log10" << "(" << oi1 << ") = " << log10(oi1) << std::endl;
+    std::cout << "log10" << "(" << oi2 << ") = " << log10(oi2) << std::endl;
+    std::cout << "log10" << "(" << oi5 << ") = " << log10(oi5) << std::endl;
+    std::cout << "log10" << "(" << ozero_pinf << ") = " << log10(ozero_pinf) << std::endl;
 
     std::cout << "=====================" << std::endl;
     std::cout << "sin" << "(" << i1 << ") = " << sin(i1) << std::endl;
@@ -424,6 +541,16 @@ static void mpfr_interval_trans() {
     std::cout << "sin" << "(" << i3 << ") = " << sin(i3) << std::endl;
     std::cout << "sin" << "(" << i4 << ") = " << sin(i4) << std::endl;
     std::cout << "sin" << "(" << i5 << ") = " << sin(i5) << std::endl;
+    std::cout << "sin" << "(" << oi1 << ") = " << sin(oi1) << std::endl;
+    std::cout << "sin" << "(" << oi2 << ") = " << sin(oi2) << std::endl;
+    std::cout << "sin" << "(" << oi3 << ") = " << sin(oi3) << std::endl;
+    std::cout << "sin" << "(" << oi4 << ") = " << sin(oi4) << std::endl;
+    std::cout << "sin" << "(" << oi5 << ") = " << sin(oi5) << std::endl;
+    std::cout << "sin" << "(" << ozero_pinf << ") = " << sin(ozero_pinf) << std::endl;
+    std::cout << "sin" << "(" << ozero_ninf << ") = " << sin(ozero_ninf) << std::endl;
+    std::cout << "sin" << "(" << czero_pinf << ") = " << sin(czero_pinf) << std::endl;
+    std::cout << "sin" << "(" << czero_ninf << ") = " << sin(czero_ninf) << std::endl;
+    std::cout << "sin" << "(" << inf        << ") = " << sin(inf) << std::endl;
 
     std::cout << "=====================" << std::endl;
     std::cout << "cos" << "(" << i1 << ") = " << cos(i1) << std::endl;
@@ -431,10 +558,20 @@ static void mpfr_interval_trans() {
     std::cout << "cos" << "(" << i3 << ") = " << cos(i3) << std::endl;
     std::cout << "cos" << "(" << i4 << ") = " << cos(i4) << std::endl;
     std::cout << "cos" << "(" << i5 << ") = " << cos(i5) << std::endl;
+    std::cout << "cos" << "(" << oi1 << ") = " << cos(oi1) << std::endl;
+    std::cout << "cos" << "(" << oi2 << ") = " << cos(oi2) << std::endl;
+    std::cout << "cos" << "(" << oi3 << ") = " << cos(oi3) << std::endl;
+    std::cout << "cos" << "(" << oi4 << ") = " << cos(oi4) << std::endl;
+    std::cout << "cos" << "(" << oi5 << ") = " << cos(oi5) << std::endl;
+    std::cout << "cos" << "(" << ozero_pinf << ") = " << cos(ozero_pinf) << std::endl;
+    std::cout << "cos" << "(" << ozero_ninf << ") = " << cos(ozero_ninf) << std::endl;
+    std::cout << "cos" << "(" << czero_pinf << ") = " << cos(czero_pinf) << std::endl;
+    std::cout << "cos" << "(" << czero_ninf << ") = " << cos(czero_ninf) << std::endl;
+    std::cout << "cos" << "(" << inf        << ") = " << cos(inf) << std::endl;
 }
 
 int main() {
-    continue_on_violation(true);
+    continue_on_violation(false);
     enable_trace("numerics");
     tst1();
     tst2();

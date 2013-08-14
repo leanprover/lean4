@@ -880,8 +880,6 @@ template<typename T> void interval<T>::fmod(T y) {
 }
 
 template<typename T> void interval<T>::exp() {
-    if(is_empty())
-        return;
     if(m_lower_inf) {
         numeric_traits<T>::reset(m_lower);
     } else {
@@ -898,8 +896,6 @@ template<typename T> void interval<T>::exp() {
     return;
 }
 template<typename T> void interval<T>::exp2() {
-    if(is_empty())
-        return;
     if(m_lower_inf) {
         numeric_traits<T>::reset(m_lower);
     } else {
@@ -916,8 +912,6 @@ template<typename T> void interval<T>::exp2() {
     return;
 }
 template<typename T> void interval<T>::exp10() {
-    if(is_empty())
-        return;
     if(m_lower_inf) {
         numeric_traits<T>::reset(m_lower);
     } else {
@@ -934,12 +928,12 @@ template<typename T> void interval<T>::exp10() {
     return;
 }
 template<typename T> void interval<T>::log() {
-    if(is_empty())
-        return;
-    if(is_N0()) {
-        set_empty();
-        return;
-    }
+    lean_assert(lower_kind() == XN_NUMERAL);
+    //  lower_open => lower >= 0
+    lean_assert(!m_lower_open || numeric_traits<T>::is_pos(m_lower) || numeric_traits<T>::is_zero(m_lower));
+    // !lower_open => lower > 0
+    lean_assert( m_lower_open || numeric_traits<T>::is_pos(m_lower));
+
     if(is_lower_pos()) {
         numeric_traits<T>::set_rounding(false);
         numeric_traits<T>::log(m_lower);
@@ -957,12 +951,12 @@ template<typename T> void interval<T>::log() {
     return;
 }
 template<typename T> void interval<T>::log2() {
-    if(is_empty())
-        return;
-    if(is_N0()) {
-        set_empty();
-        return;
-    }
+    lean_assert(lower_kind() == XN_NUMERAL);
+    //  lower_open => lower >= 0
+    lean_assert(!m_lower_open || numeric_traits<T>::is_pos(m_lower) || numeric_traits<T>::is_zero(m_lower));
+    // !lower_open => lower > 0
+    lean_assert( m_lower_open || numeric_traits<T>::is_pos(m_lower));
+
     if(is_lower_pos()) {
         numeric_traits<T>::set_rounding(false);
         numeric_traits<T>::log2(m_lower);
@@ -980,12 +974,12 @@ template<typename T> void interval<T>::log2() {
     return;
 }
 template<typename T> void interval<T>::log10() {
-    if(is_empty())
-        return;
-    if(is_N0()) {
-        set_empty();
-        return;
-    }
+    lean_assert(lower_kind() == XN_NUMERAL);
+    //  lower_open => lower >= 0
+    lean_assert(!m_lower_open || numeric_traits<T>::is_pos(m_lower) || numeric_traits<T>::is_zero(m_lower));
+    // !lower_open => lower > 0
+    lean_assert( m_lower_open || numeric_traits<T>::is_pos(m_lower));
+
     if(is_lower_pos()) {
         numeric_traits<T>::set_rounding(false);
         numeric_traits<T>::log10(m_lower);

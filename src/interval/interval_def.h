@@ -104,7 +104,7 @@ bool interval<T>::contains_zero() const {
 }
 
 template<typename T>
-bool interval<T>::contains(interval<T> & b) const {
+bool interval<T>::contains(interval<T> const & b) const {
     if (!m_lower_inf) {
         if (b.m_lower_inf)
             return false;

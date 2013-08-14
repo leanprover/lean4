@@ -107,7 +107,7 @@ public:
        \brief Return true iff this contains b.
        That is, every value in b is a value of this.
     */
-    bool contains(interval<T> & b) const;
+    bool contains(interval<T> const & b) const;
 
     bool is_empty() const;
     void set_empty();

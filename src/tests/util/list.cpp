@@ -40,6 +40,9 @@ static void tst3() {
     lean_assert(head(tail(l)) == 20);
     lean_assert(head(tail(tail(l))) == 30);
     lean_assert(length(l) == 3);
+    lean_assert(length(list<int>()) == 0);
+    lean_assert(length(list<int>(10, list<int>())) == 1);
+    lean_assert(length(tail(list<int>(10, list<int>()))) == 0);
 }
 
 int main() {

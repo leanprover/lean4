@@ -64,15 +64,13 @@ class normalize_fn {
             --j;
             it1 = &tail(*it1);
         }
-        context const & c = ::lean::lookup(m_ctx, j);
-        if (c) {
-            context_entry const & entry = head(c);
-            if (entry.get_body())
-                return svalue(::lean::normalize(entry.get_body(), m_env, tail(c)));
-            else
-                return svalue(length(c) - 1);
-        }
-        throw exception("unknown free variable");
+        auto p = lookup_ext(m_ctx, j);
+        context_entry const & entry = p.first;
+        context const & entry_c     = p.second;
+        if (entry.get_body())
+            return svalue(::lean::normalize(entry.get_body(), m_env, entry_c));
+        else
+            return svalue(length(entry_c));
     }
 
     /** \brief Convert the closure \c a into an expression using the given stack in a context that contains \c k binders. */

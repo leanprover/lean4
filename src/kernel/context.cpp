@@ -58,11 +58,22 @@ std::ostream & operator<<(std::ostream & out, context const & c) {
     return out;
 }
 
-context const & lookup(context const & c, unsigned i) {
+std::pair<context_entry const &, context const &> lookup_ext(context const & c, unsigned i) {
     context const * it1 = &c;
     while (*it1) {
         if (i == 0)
-            return *it1;
+            return std::pair<context_entry const &, context const &>(head(*it1), tail(*it1));
+        --i;
+        it1 = &tail(*it1);
+    }
+    throw exception("unknown free variable");
+}
+
+context_entry const & lookup(context const & c, unsigned i) {
+    context const * it1 = &c;
+    while (*it1) {
+        if (i == 0)
+            return head(*it1);
         --i;
         it1 = &tail(*it1);
     }

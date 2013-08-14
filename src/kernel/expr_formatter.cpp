@@ -82,8 +82,7 @@ class simple_expr_formatter : public expr_formatter {
         switch (a.kind()) {
         case expr_kind::Var:
             try {
-                context const & c1 = lookup(c, var_idx(a));
-                out() << head(c1).get_name();
+                out() << lookup(c, var_idx(a)).get_name();
             } catch (exception & ex) {
                 out() << "#" << var_idx(a);
             }

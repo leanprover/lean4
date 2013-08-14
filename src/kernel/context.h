@@ -25,7 +25,17 @@ public:
     expr const & get_domain() const { return m_domain; }
     expr const & get_body() const   { return m_body; }
 };
-context const & lookup(context const & c, unsigned i);
+/**
+   \brief Return the context entry for the free variable with de
+   Bruijn index \c i, and the context for this entry.
+*/
+std::pair<context_entry const &, context const &> lookup_ext(context const & c, unsigned i);
+/**
+   \brief Return the context entry for the free variable with de
+   Bruijn index \c i.
+*/
+context_entry const & lookup(context const & c, unsigned i);
+
 inline context extend(context const & c, name const & n, expr const & d, expr const & b) {
     return context(context_entry(n, d, b), c);
 }

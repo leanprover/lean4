@@ -50,10 +50,11 @@ struct infer_type_fn {
     cache               m_cache;
 
     expr lookup(context const & c, unsigned i) {
-        context const & def_c = ::lean::lookup(c, i);
-        lean_assert(length(c) >= length(def_c));
-        lean_assert(length(def_c) > 0);
-        return lift_free_vars(head(def_c).get_domain(), length(c) - (length(def_c) - 1));
+        auto p = lookup_ext(c, i);
+        context_entry const & def = p.first;
+        context const & def_c     = p.second;
+        lean_assert(length(c) > length(def_c));
+        return lift_free_vars(def.get_domain(), length(c) - length(def_c));
     }
 
     expr_formatter & fmt() { return m_env.get_formatter(); }

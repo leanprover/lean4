@@ -5,9 +5,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <gmp.h>
+#include <mpfr.h>
 #include <utility>
 #include "interval.h"
 #include "trace.h"
+#include "mpz.h"
+
 
 namespace lean {
 
@@ -861,10 +865,18 @@ void interval<T>::display(std::ostream & out) const {
 
 
 template<typename T> void interval<T>::fmod(interval<T> y) {
+    T const & yb = numeric_traits<T>::is_neg(m_lower) ? y.m_lower : y.m_upper;
+    static thread_local T n;
+    n = m_lower / yb;
+    numeric_traits<T>::floor(n);
+    *this -= n * y;
 }
 
 template<typename T> void interval<T>::fmod(T y) {
-
+    static thread_local T n;
+    n = m_lower / y;
+    numeric_traits<T>::floor(n);
+    *this -= n * y;
 }
 
 template<typename T> void interval<T>::exp() {
@@ -991,10 +1003,80 @@ template<typename T> void interval<T>::log10() {
     return;
 }
 template<typename T> void interval<T>::sin() {
+    if(is_empty())
+        return;
+
     *this -= numeric_traits<T>::pi_half_lower();
     cos();
+    lean_assert(check_invariant());
+    return;
 }
-template<typename T> void interval<T>::cos  () { /* TODO */ lean_unreachable(); return; }
+template<typename T> void interval<T>::cos  () {
+    if(is_empty())
+        return;
+    if(m_lower_inf || m_upper_inf) {
+        // cos([-oo, c]) = [-1.0, +1.0]
+        // cos([c, +oo]) = [-1.0, +1.0]
+        m_lower = -1.0;
+        m_upper = 1.0;
+        m_lower_open = m_upper_open = false;
+        m_lower_inf  = m_upper_inf = false;
+        lean_assert(check_invariant());
+        return;
+    }
+
+    m_lower_open = m_upper_open = false;
+    m_lower_inf  = m_upper_inf = false;
+    T const pi_twice = numeric_traits<T>::pi_twice();
+    fmod(pi_twice);
+    if(m_upper - m_lower >= pi_twice) {
+        // If the input width is bigger than 2pi,
+        // it covers whole domain and gets [-1.0, 1.0]
+        m_lower = -1.0;
+        m_upper = 1.0;
+        lean_assert(check_invariant());
+        return;
+    }
+    if(m_lower >= numeric_traits<T>::pi_upper()) {
+        // If the input is bigger than pi, we handle it recursively by the fact:
+        // cos(x) = -cos(x - pi)
+        *this -= numeric_traits<T>::pi();
+        cos();
+        neg();
+        lean_assert(check_invariant());
+        return;
+    }
+
+    if (m_upper <= numeric_traits<T>::pi_lower()) {
+        // If the input [a,b] is in [0, pi], use two endpoints
+        numeric_traits<T>::set_rounding(true);
+        numeric_traits<T>::cos(m_lower);
+        numeric_traits<T>::set_rounding(false);
+        numeric_traits<T>::cos(m_upper);
+        std::swap(m_lower, m_upper);
+        lean_assert(check_invariant());
+        return;
+    }
+
+    if (m_upper <= numeric_traits<T>::pi_twice_lower()) {
+        // If the input is [a, b] and a <= pi <= b,
+        // Pick the tmp = min(a, 2pi - b) and return [-1, cos(tmp)]
+        numeric_traits<T>::set_rounding(false);
+        static thread_local T tmp;
+        tmp = numeric_traits<T>::pi_twice_lower() - m_upper;
+        m_upper = tmp < m_lower ? tmp : m_lower;
+        numeric_traits<T>::set_rounding(true);
+        numeric_traits<T>::cos(m_upper);
+        m_lower = -1.0;
+        lean_assert(check_invariant());
+        return;
+    }
+    m_lower = -1.0;
+    m_upper = 1.0;
+    lean_assert(check_invariant());
+    return;
+ }
+
 template<typename T> void interval<T>::tan  () { /* TODO */ lean_unreachable(); return; }
 template<typename T> void interval<T>::sec  () { /* TODO */ lean_unreachable(); return; }
 template<typename T> void interval<T>::csc  () { /* TODO */ lean_unreachable(); return; }

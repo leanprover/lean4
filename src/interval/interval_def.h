@@ -811,10 +811,14 @@ void interval<T>::power(unsigned n) {
         }
     } else {
         // Remark: when n is odd x^n is monotonic.
-        if (!m_lower_inf)
+        if (!m_lower_inf) {
+            round_to_minus_inf();
             power(m_lower, n);
-        if (!m_upper_inf)
+        }
+        if (!m_upper_inf) {
+            round_to_plus_inf();
             power(m_upper, n);
+        }
     }
 }
 

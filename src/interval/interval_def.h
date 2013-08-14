@@ -1080,7 +1080,6 @@ template<typename T> void interval<T>::tan() {
 
     T const pi = numeric_traits<T>::pi();
     T const pi_half_lower = numeric_traits<T>::pi_half_lower();
-    T const pi_half_upper = numeric_traits<T>::pi_half_upper();
     fmod(pi);
 
     if (m_lower >= pi_half_lower) {

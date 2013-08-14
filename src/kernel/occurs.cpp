@@ -13,7 +13,7 @@ void for_each(F & f, context const * c, unsigned sz, expr const * es) {
     for_each_fn<F> visitor(f);
     if (c) {
         for (auto const & e : *c) {
-            visitor(e.get_type());
+            visitor(e.get_domain());
             if (e.get_body())
                 visitor(e.get_body());
         }

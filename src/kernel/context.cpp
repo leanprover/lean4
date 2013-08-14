@@ -19,7 +19,7 @@ format pp(expr_formatter & fmt, context const & c) {
             r += format("_");
         else
             r += format(e.get_name());
-        r += format{space(), colon(), space(), fmt(e.get_type(), tail(c))};
+        r += format{space(), colon(), space(), fmt(e.get_domain(), tail(c))};
         return r;
     } else {
         return format();

@@ -53,7 +53,7 @@ struct infer_type_fn {
         context const & def_c = ::lean::lookup(c, i);
         lean_assert(length(c) >= length(def_c));
         lean_assert(length(def_c) > 0);
-        return lift_free_vars(head(def_c).get_type(), length(c) - (length(def_c) - 1));
+        return lift_free_vars(head(def_c).get_domain(), length(c) - (length(def_c) - 1));
     }
 
     expr_formatter & fmt() { return m_env.get_formatter(); }

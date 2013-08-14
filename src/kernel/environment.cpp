@@ -17,6 +17,24 @@ Author: Leonardo de Moura
 #include "debug.h"
 
 namespace lean {
+/**
+    \brief Create object for tracking universe variable declarations.
+    This object is mainly used for pretty printing.
+*/
+class uvar_declaration : public anonymous_object {
+    name  m_name;
+    level m_level;
+public:
+    uvar_declaration(name const & n, level const & l):m_name(n), m_level(l) {}
+    virtual ~uvar_declaration() {}
+    static char const * g_keyword;
+    virtual char const * keyword() const { return g_keyword; }
+    virtual format pp(environment const &) const {
+        return format{format(keyword()), space(), format(m_name), space(), format("\u2265"), space(), ::lean::pp(m_level)};
+    }
+};
+char const * uvar_declaration::g_keyword = "Universe";
+
 /** \brief Implementation of the Lean environment. */
 struct environment::imp {
     // Remark: only named objects are stored in the dictionary.
@@ -165,6 +183,7 @@ struct environment::imp {
             throw exception("invalid universe declaration, environment has children environments");
         level r = add_var(n);
         add_constraints(r, l, 0);
+        m_objects.push_back(new uvar_declaration(n, l));
         return r;
     }
 
@@ -332,7 +351,6 @@ struct environment::imp {
     void display(std::ostream & out, environment const & env) const {
         if (has_parent())
             m_parent->display(out, env);
-        display_uvars(out);
         display_objects(out, env);
     }
 

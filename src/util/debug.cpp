@@ -18,18 +18,12 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-
-static volatile bool                          g_continue_on_violation = false;
-static volatile bool                          g_has_violations = false;
+static volatile bool                          g_has_violations    = false;
 static volatile bool                          g_enable_assertions = true;
 static std::unique_ptr<std::set<std::string>> g_enabled_debug_tags;
 
 bool has_violations() {
     return g_has_violations;
-}
-
-void continue_on_violation(bool f) {
-    g_continue_on_violation = f;
 }
 
 void enable_assertions(bool f) {
@@ -65,8 +59,6 @@ bool is_debug_enabled(const char * tag) {
 
 void invoke_debugger() {
     g_has_violations = true;
-    if (g_continue_on_violation)
-        return;
     int * x = 0;
     for (;;) {
         #ifdef _WINDOWS

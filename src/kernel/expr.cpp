@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include <sstream>
 #include "expr.h"
 #include "free_vars.h"
-#include "sets.h"
+#include "expr_sets.h"
 #include "hash.h"
 #include "format.h"
 

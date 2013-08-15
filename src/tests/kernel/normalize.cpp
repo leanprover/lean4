@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "builtin.h"
 #include "trace.h"
 #include "test.h"
-#include "sets.h"
+#include "expr_sets.h"
 using namespace lean;
 
 expr normalize(expr const & e) {

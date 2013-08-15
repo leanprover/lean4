@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "expr.h"
-#include "sets.h"
+#include "expr_sets.h"
 
 namespace lean {
 template<typename F>

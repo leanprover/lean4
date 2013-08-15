@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "buffer.h"
 #include "expr.h"
-#include "maps.h"
+#include "expr_maps.h"
 namespace lean {
 /**
    \brief Functional for applying <tt>F</tt> to the subexpressions of a given expression.

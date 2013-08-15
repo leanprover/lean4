@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include "expr.h"
-#include "sets.h"
+#include "expr_sets.h"
 #include "max_sharing.h"
 #include "free_vars.h"
 #include "test.h"

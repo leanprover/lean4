@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include "free_vars.h"
-#include "sets.h"
+#include "expr_sets.h"
 #include "replace.h"
 
 namespace lean {

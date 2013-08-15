@@ -4,10 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Soonho Kong
 */
-#include <vector>
 #include "test.h"
 #include "trace.h"
-#include "double.h"
 #include "mpfp.h"
 #include "interval_def.h"
 #include "check.h"
@@ -17,13 +15,7 @@ using namespace lean;
 using std::cout;
 using std::endl;
 
-typedef interval<double> di;
 typedef interval<mpfp> fi;
-
-template<typename T1, typename T2, typename T3>
-void print_result(T1 a, std::string const & op, T2 b, T3 r) {
-    cout << a << " " << op << " " << b << " = " << r << endl;
-}
 
 static void mpfp_interval_arith() {
     fi i1(1.0, 2.0);

@@ -4,13 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Soonho Kong
 */
-#include <vector>
 #include "test.h"
 #include "trace.h"
 #include "float.h"
 #include "interval_def.h"
 #include "check.h"
-#include <cmath>
 
 using namespace lean;
 
@@ -18,11 +16,6 @@ using std::cout;
 using std::endl;
 
 typedef interval<float> flti;
-
-template<typename T1, typename T2, typename T3>
-void print_result(T1 a, std::string const & op, T2 b, T3 r) {
-    cout << a << " " << op << " " << b << " = " << r << endl;
-}
 
 static void float_interval_arith() {
     flti i1(1.0, 2.0);

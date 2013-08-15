@@ -168,8 +168,8 @@ public:
     void sin  ();
     void cos  ();
     void tan  ();
-    void sec  ();
     void csc  ();
+    void sec  ();
     void cot  ();
     void asin ();
     void acos ();
@@ -191,8 +191,8 @@ public:
     friend interval<T> sin  (interval<T> o) { o.sin();   return o; }
     friend interval<T> cos  (interval<T> o) { o.cos();   return o; }
     friend interval<T> tan  (interval<T> o) { o.tan();   return o; }
-    friend interval<T> sec  (interval<T> o) { o.sec();   return o; }
     friend interval<T> csc  (interval<T> o) { o.csc();   return o; }
+    friend interval<T> sec  (interval<T> o) { o.sec();   return o; }
     friend interval<T> cot  (interval<T> o) { o.cot();   return o; }
     friend interval<T> asin (interval<T> o) { o.asin();  return o; }
     friend interval<T> acos (interval<T> o) { o.acos();  return o; }

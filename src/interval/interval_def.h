@@ -1250,9 +1250,147 @@ template<typename T> void interval<T>::tan() {
     }
 }
 
-template<typename T> void interval<T>::sec  () { /* TODO */ lean_unreachable(); return; }
-template<typename T> void interval<T>::csc  () { /* TODO */ lean_unreachable(); return; }
-template<typename T> void interval<T>::cot  () { /* TODO */ lean_unreachable(); return; }
+template<typename T> void interval<T>::csc  () {
+    // csc(x) = 1 / sin(x)
+    if(m_lower_inf || m_upper_inf || (m_upper - m_lower > numeric_traits<T>::pi())) {
+        // csc([-oo, c]) = [-oo, +oo]
+        // csc([c, +oo]) = [-oo, +oo]
+        // if the width is bigger than pi, then the result is [-oo, +oo]
+        numeric_traits<T>::reset(m_lower);
+        numeric_traits<T>::reset(m_upper);
+        m_lower_open = m_upper_open = true;
+        m_lower_inf  = m_upper_inf = true;
+        lean_assert(check_invariant());
+        return;
+    }
+    fmod(interval<T>(numeric_traits<T>::pi_twice_lower(), numeric_traits<T>::pi_twice_upper()));
+    if(m_upper > numeric_traits<T>::pi_twice() ||
+       (m_lower < numeric_traits<T>::pi() && numeric_traits<T>::pi() < m_upper)) {
+        // l < 2pi < u or l < pi < u
+        // then the result = [-oo, +oo]
+        numeric_traits<T>::reset(m_lower);
+        numeric_traits<T>::reset(m_upper);
+        m_lower_open = m_upper_open = true;
+        m_lower_inf  = m_upper_inf = true;
+        lean_assert(check_invariant());
+        return;
+    }
+
+    if (m_lower <= numeric_traits<T>::pi_half()) {
+        if (m_upper <= numeric_traits<T>::pi_half()) {
+            // l <= u <= 1/2 pi
+            // csc[l, u] = [csc(u), csc(l)]
+            std::swap(m_lower, m_upper);
+            numeric_traits<T>::set_rounding(false);
+            numeric_traits<T>::csc(m_lower);
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::csc(m_upper);
+            lean_assert(check_invariant());
+            return;
+        }
+        if (m_upper <= numeric_traits<T>::pi()) {
+            // l <= 1/2 pi <= u <= pi
+            // csc[l, u] = [1, max(csc(l), csc(u))]
+            //           = [1, csc(l)]     if l + u <= pi
+            //           = [1, csc(u)]     if l + u >= pi
+            if (m_lower + m_upper < numeric_traits<T>::pi()) {
+                m_upper = m_lower;
+            } else {
+                // Nothing
+            }
+            m_lower = 1.0;
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::csc(m_upper);
+            lean_assert(check_invariant());
+            return;
+        }
+        lean_unreachable();
+        return;
+    }
+
+    if (m_lower <= numeric_traits<T>::pi() && m_upper <= numeric_traits<T>::pi()) {
+        // l <= u <= pi
+        // csc[l, u] = [csc(l), csc(u)]
+        numeric_traits<T>::set_rounding(false);
+        numeric_traits<T>::csc(m_lower);
+        numeric_traits<T>::set_rounding(true);
+        numeric_traits<T>::csc(m_upper);
+        lean_assert(check_invariant());
+        return;
+    }
+    if (m_lower <= numeric_traits<T>::pi() + numeric_traits<T>::pi_half()) {
+        if (m_upper <= numeric_traits<T>::pi() + numeric_traits<T>::pi_half()) {
+            // l <= u <= 3/2 pi
+            // csc[l, u] = [csc(l), csc(u)]
+            numeric_traits<T>::set_rounding(false);
+            numeric_traits<T>::csc(m_lower);
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::csc(m_upper);
+            lean_assert(check_invariant());
+            return;
+        }
+        // l <= 3/2 pi <= u <= 2pi
+        // csc[l, u] = [min(csc(l), csc(u)), -1]
+        //           = [csc(l), -1]     if l + u <= 3pi
+        //           = [csc(u), -1]     if l + u >= 3pi
+        if (m_lower + m_upper < numeric_traits<T>::pi() + numeric_traits<T>::pi_twice()) {
+            // Nothing
+        } else {
+            m_lower = m_upper;
+        }
+        m_upper = -1.0;
+        numeric_traits<T>::set_rounding(false);
+        numeric_traits<T>::csc(m_lower);
+        lean_assert(check_invariant());
+        return;
+    }
+    // 3/2pi <= l <= u < 2pi
+    lean_assert(numeric_traits<T>::pi_half() + numeric_traits<T>::pi() < m_lower);
+    lean_assert(m_upper < numeric_traits<T>::pi_twice());
+    std::swap(m_lower, m_upper);
+    numeric_traits<T>::set_rounding(false);
+    numeric_traits<T>::csc(m_lower);
+    numeric_traits<T>::set_rounding(true);
+    numeric_traits<T>::csc(m_upper);
+    lean_assert(check_invariant());
+    return;
+}
+
+template<typename T> void interval<T>::sec  () {
+    *this += numeric_traits<T>::pi_half();
+    csc();
+    return;
+}
+
+template<typename T> void interval<T>::cot  () {
+    if(m_lower_inf || m_upper_inf) {
+        // cot([-oo, c]) = [-oo, +oo]
+        // cot([c, +oo]) = [-oo, +oo]
+        numeric_traits<T>::reset(m_lower);
+        numeric_traits<T>::reset(m_upper);
+        m_lower_open = m_upper_open = true;
+        m_lower_inf  = m_upper_inf = true;
+        lean_assert(check_invariant());
+        return;
+    }
+    fmod(interval<T>(numeric_traits<T>::pi_lower(), numeric_traits<T>::pi_upper()));
+    if (m_upper >= numeric_traits<T>::pi()) {
+        numeric_traits<T>::reset(m_lower);
+        numeric_traits<T>::reset(m_upper);
+        m_lower_open = m_upper_open = true;
+        m_lower_inf  = m_upper_inf = true;
+        lean_assert(check_invariant());
+        return;
+    }
+    std::swap(m_lower, m_upper);
+    numeric_traits<T>::set_rounding(false);
+    numeric_traits<T>::cot(m_lower);
+    numeric_traits<T>::set_rounding(true);
+    numeric_traits<T>::cot(m_upper);
+    lean_assert(check_invariant());
+    return;
+}
+
 template<typename T> void interval<T>::asin () {
     lean_assert(lower_kind() == XN_NUMERAL && upper_kind() == XN_NUMERAL);
     lean_assert(-1.0 <= m_lower && m_upper <= 1.0);

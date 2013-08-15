@@ -184,6 +184,27 @@ static void tst10() {
     std::cout << env.get_object("simp_eq").pp(env) << "\n";
 }
 
+static void tst11() {
+    environment env = mk_toplevel();
+    env.add_var("f", Int >> (Int >> Int));
+    env.add_var("a", Int);
+    unsigned n = 1000;
+    expr f = Const("f");
+    expr a = Const("a");
+    expr t1 = f(a,a);
+    expr b = Const("a");
+    expr t2 = f(a,a);
+    expr t3 = f(b,b);
+    for (unsigned i = 0; i < n; i++) {
+        t1 = f(t1,t1);
+        t2 = mk_let("x", t2, f(Var(0), Var(0)));
+        t3 = f(t3,t3);
+    }
+    lean_assert(t1 != t2);
+    env.add_theorem("eqs1", Eq(t1,t2), Refl(Int, t1));
+    env.add_theorem("eqs2", Eq(t1,t3), Refl(Int, t1));
+}
+
 int main() {
     tst1();
     tst2();
@@ -195,5 +216,6 @@ int main() {
     tst8();
     tst9();
     tst10();
+    tst11();
     return has_violations() ? 1 : 0;
 }

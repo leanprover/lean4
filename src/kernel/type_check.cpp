@@ -125,7 +125,7 @@ struct infer_type_fn {
         lean_trace("type_check", tout << "infer type\n" << e << "\n" << ctx << "\n";);
 
         bool shared = false;
-        if (true && is_shared(e)) {
+        if (is_shared(e)) {
             shared = true;
             auto it = m_cache.find(e);
             if (it != m_cache.end())

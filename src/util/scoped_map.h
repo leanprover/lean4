@@ -98,7 +98,6 @@ public:
                 m_actions.push_back(std::make_pair(action_kind::Replace, *it));
             it->second = v;
         }
-        lean_assert(m_map.find(k)->second == v);
     }
 
     void insert(value_type const & p) {

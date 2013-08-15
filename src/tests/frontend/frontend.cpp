@@ -22,8 +22,7 @@ static void tst2() {
     operator_info op1 = infixl(name("and"), 10);
     operator_info op2 = infixr(name("implies"), 20);
     lean_assert(op1.get_precedence() == 10);
-    lean_assert(op1.get_associativity() == associativity::Left);
-    lean_assert(op1.get_fixity() == fixity::Infix);
+    lean_assert(op1.get_fixity() == fixity::Infixl);
     op1.add_internal_name(name{"Bool","And"});
     operator_info op3 = infixl(name("+"), 10);
     op3.add_internal_name(name{"Int", "plus"});
@@ -35,7 +34,7 @@ static void tst2() {
     std::cout << op4.get_internal_names() << "\n";
     lean_assert(length(op3.get_internal_names()) == 2);
     lean_assert(length(op4.get_internal_names()) == 3);
-    lean_assert(op4.get_fixity() == fixity::Infix);
+    lean_assert(op4.get_fixity() == fixity::Infixl);
     lean_assert(op4.get_op_name() == op3.get_op_name());
     lean_assert(prefix("tst", 20).get_fixity() == fixity::Prefix);
     lean_assert(postfix("!", 20).get_fixity() == fixity::Postfix);
@@ -47,8 +46,16 @@ static void tst2() {
     std::cout << mixfixc({"if", "then", "else", "endif"}, 10) << "\n";
 }
 
+static void tst3() {
+    frontend f;
+    f.add_infixl("+", 10, name{"Int", "add"});
+    f.add_infixl("-", 10, name{"Int", "sub"});
+    std::cout << f;
+}
+
 int main() {
     tst1();
     tst2();
+    tst3();
     return has_violations() ? 1 : 0;
 }

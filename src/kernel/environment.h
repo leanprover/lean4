@@ -158,14 +158,8 @@ public:
     object_iterator end_objects() const { return object_iterator(*this, get_num_objects()); }
     // =======================================
 
-    // =======================================
-    // Pretty printing
-    /** \brief Display all objects stored in the environment */
-    void display_objects(std::ostream & out) const;
-
     /** \brief Display universal variable constraints and objects stored in this environment and its parents. */
     void display(std::ostream & out) const;
-    // =======================================
 };
 inline std::ostream & operator<<(std::ostream & out, environment const & env) { env.display(out); return out; }
 }

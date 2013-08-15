@@ -50,6 +50,16 @@ public:
     level add_uvar(name const & n);
     level get_uvar(name const & n) const;
 
+    // =======================================
+    // Notation
+    void add_infixl(name const & opn, unsigned precedence, name const & n);
+    void add_infixr(name const & opn, unsigned precedence, name const & n);
+    void add_prefix(name const & opn, unsigned precedence, name const & n);
+    void add_postfix(name const & opn, unsigned precedence, name const & n);
+    // =======================================
 
+    /** \brief Display universal variable constraints and objects stored in this environment and its parents. */
+    void display(std::ostream & out) const;
 };
+inline std::ostream & operator<<(std::ostream & out, frontend const & f) { f.display(out); return out; }
 }

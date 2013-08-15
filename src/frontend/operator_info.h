@@ -13,15 +13,14 @@ namespace lean {
 /**
    \brief Operator fixity.
    Prefix:   ID _
-   Infix:    _ ID _    (can be left or right associative)
+   Infixl:    _ ID _    (left associative)
+   Infixr:    _ ID _    (right associative)
    Postfix:  _ ID
    Mixfixl: ID _ ID _ ... ID _       (has at least two parts)
    Mixfixr: _ ID _ ID ... _ ID       (has at least two parts)
    Mixfixc: ID _ ID _ ... ID _ ID    (has at least two parts)
 */
-enum class fixity { Prefix, Infix, Postfix, Mixfixl, Mixfixr, Mixfixc };
-
-enum class associativity { Left, Right, None };
+enum class fixity { Prefix, Infixl, Infixr, Postfix, Mixfixl, Mixfixr, Mixfixc };
 
 /**
    \brief Data-structure for storing user defined operator
@@ -71,9 +70,6 @@ public:
 
     /** \brief Return the operator fixity. */
     fixity get_fixity() const;
-
-    /** \brief Return the operator associativity. */
-    associativity get_associativity() const;
 
     /** \brief Return the operator precedence. */
     unsigned get_precedence() const;

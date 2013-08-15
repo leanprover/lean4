@@ -24,8 +24,23 @@ public:
     static char const * g_keyword;
     virtual char const * keyword() const { return g_keyword; }
     virtual format pp(environment const &) const {
-        // TODO
-        return format();
+        char const * cmd;
+        switch (m_op.get_fixity()) {
+        case fixity::Infixl:    cmd = "Infixl"; break;
+        case fixity::Infixr:    cmd = "Infixr"; break;
+        case fixity::Prefix:    cmd = "Prefix"; break;
+        case fixity::Postfix:   cmd = "Postfix"; break;
+        case fixity::Mixfixl:   cmd = "Mixfixl"; break;
+        case fixity::Mixfixr:   cmd = "Mixfixr"; break;
+        case fixity::Mixfixc:   cmd = "Mixfixc"; break;
+        }
+        format r = highlight_command(format(cmd));
+        if (m_op.get_precedence() != 0)
+            r += format{space(), format(m_op.get_precedence())};
+        for (auto p : m_op.get_op_name_parts())
+            r += format{space(), format(p)};
+        r += format{space(), format(m_name)};
+        return r;
     }
 };
 char const * notation_declaration::g_keyword = "Notation";
@@ -167,6 +182,22 @@ struct frontend::imp {
         m_env.add_anonymous_object(new notation_declaration(new_op, n));
     }
 
+    void add_infixl(name const & opn, unsigned precedence, name const & n) {
+        add_op(infixl(opn, precedence), n, true);
+    }
+
+    void add_infixr(name const & opn, unsigned precedence, name const & n) {
+        add_op(infixr(opn, precedence), n, true);
+    }
+
+    void add_prefix(name const & opn, unsigned precedence, name const & n) {
+        add_op(prefix(opn, precedence), n, false);
+    }
+
+    void add_postfix(name const & opn, unsigned precedence, name const & n) {
+        add_op(postfix(opn, precedence), n, true);
+    }
+
     imp():
         m_num_children(0) {
     }
@@ -221,5 +252,12 @@ environment const & frontend::env() const { return m_imp->m_env; }
 level frontend::add_uvar(name const & n, level const & l) { return m_imp->m_env.add_uvar(n, l); }
 level frontend::add_uvar(name const & n) { return m_imp->m_env.add_uvar(n); }
 level frontend::get_uvar(name const & n) const { return m_imp->m_env.get_uvar(n); }
+
+void frontend::add_infixl(name const & opn, unsigned p, name const & n)  { m_imp->add_infixl(opn, p, n); }
+void frontend::add_infixr(name const & opn, unsigned p, name const & n)  { m_imp->add_infixr(opn, p, n); }
+void frontend::add_prefix(name const & opn, unsigned p, name const & n)  { m_imp->add_prefix(opn, p, n); }
+void frontend::add_postfix(name const & opn, unsigned p, name const & n) { m_imp->add_postfix(opn, p, n); }
+
+void frontend::display(std::ostream & out) const { m_imp->m_env.display(out); }
 }
 

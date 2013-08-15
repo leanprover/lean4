@@ -341,17 +341,13 @@ struct environment::imp {
         }
     }
 
-    void display_objects(std::ostream & out, environment const & env) const {
-        for (object const * obj : m_objects) {
-            out << obj->pp(env) << "\n";
-        }
-    }
-
     /** \brief Display universal variable constraints and objects stored in this environment and its parents. */
     void display(std::ostream & out, environment const & env) const {
         if (has_parent())
             m_parent->display(out, env);
-        display_objects(out, env);
+        for (object const * obj : m_objects) {
+            out << obj->pp(env) << "\n";
+        }
     }
 
     imp():
@@ -478,10 +474,6 @@ unsigned environment::get_num_objects() const {
 
 object const & environment::get_object(unsigned i) const {
     return *(m_imp->m_objects[i]);
-}
-
-void environment::display_objects(std::ostream & out) const {
-    m_imp->display_objects(out, *this);
 }
 
 void environment::display(std::ostream & out) const {

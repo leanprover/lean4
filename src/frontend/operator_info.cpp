@@ -14,27 +14,25 @@ struct operator_info::imp {
     void dealloc() { delete this;  }
     MK_LEAN_RC();
     fixity        m_fixity;
-    associativity m_assoc;  // Relevant only for infix operators.
     unsigned      m_precedence;
     list<name>    m_op_parts;  // operator parts, > 1 only if the operator is mixfix.
     list<name>    m_names;     // internal names, > 1 only if the operator is overloaded.
 
-    imp(name const & op, fixity f, associativity a, unsigned p):
-        m_rc(1), m_fixity(f), m_assoc(a), m_precedence(p), m_op_parts(cons(op, list<name>())) {}
+    imp(name const & op, fixity f, unsigned p):
+        m_rc(1), m_fixity(f), m_precedence(p), m_op_parts(cons(op, list<name>())) {}
 
     imp(unsigned num_parts, name const * parts, fixity f, unsigned p):
-        m_rc(1), m_fixity(f), m_assoc(associativity::None), m_precedence(p), m_op_parts(it2list<name, name const *>(parts, parts + num_parts)) {
+        m_rc(1), m_fixity(f), m_precedence(p), m_op_parts(it2list<name, name const *>(parts, parts + num_parts)) {
         lean_assert(num_parts > 0);
     }
 
     imp(imp const & s):
-        m_rc(1), m_fixity(s.m_fixity), m_assoc(s.m_assoc), m_precedence(s.m_precedence), m_op_parts(s.m_op_parts), m_names(s.m_names) {
+        m_rc(1), m_fixity(s.m_fixity), m_precedence(s.m_precedence), m_op_parts(s.m_op_parts), m_names(s.m_names) {
     }
 
     bool is_eq(imp const & other) const {
         return
             m_fixity == other.m_fixity &&
-            m_assoc == other.m_assoc &&
             m_precedence == other.m_precedence &&
             m_op_parts == other.m_op_parts;
     }
@@ -61,8 +59,6 @@ list<name> const & operator_info::get_internal_names() const { lean_assert(m_ptr
 
 fixity operator_info::get_fixity() const { lean_assert(m_ptr); return m_ptr->m_fixity; }
 
-associativity operator_info::get_associativity() const { lean_assert(m_ptr); return m_ptr->m_assoc; }
-
 unsigned operator_info::get_precedence() const { lean_assert(m_ptr); return m_ptr->m_precedence; }
 
 name const & operator_info::get_op_name() const { lean_assert(m_ptr); return car(m_ptr->m_op_parts); }
@@ -81,16 +77,16 @@ bool operator==(operator_info const & op1, operator_info const & op2) {
 }
 
 operator_info infixr(name const & op, unsigned precedence) {
-    return operator_info(new operator_info::imp(op, fixity::Infix,  associativity::Right, precedence));
+    return operator_info(new operator_info::imp(op, fixity::Infixr, precedence));
 }
 operator_info infixl(name const & op, unsigned precedence) {
-    return operator_info(new operator_info::imp(op, fixity::Infix,  associativity::Left, precedence));
+    return operator_info(new operator_info::imp(op, fixity::Infixl, precedence));
 }
 operator_info prefix(name const & op, unsigned precedence) {
-    return operator_info(new operator_info::imp(op, fixity::Prefix, associativity::None, precedence));
+    return operator_info(new operator_info::imp(op, fixity::Prefix, precedence));
 }
 operator_info postfix(name const & op, unsigned precedence) {
-    return operator_info(new operator_info::imp(op, fixity::Postfix, associativity::None, precedence));
+    return operator_info(new operator_info::imp(op, fixity::Postfix, precedence));
 }
 operator_info mixfixl(unsigned num_parts, name const * parts, unsigned precedence) {
     lean_assert(num_parts > 1); return operator_info(new operator_info::imp(num_parts, parts, fixity::Mixfixl, precedence));
@@ -107,7 +103,8 @@ static char const * g_arrow               = "\u21a6";
 format pp(operator_info const & o) {
     format r;
     switch (o.get_fixity()) {
-    case fixity::Infix:   r = format(o.get_associativity() == associativity::Left ? "Infixl" : "Infixr"); break;
+    case fixity::Infixl:  r = format("Infixl"); break;
+    case fixity::Infixr:  r = format("Infixr"); break;
     case fixity::Prefix:  r = format("Prefix");  break;
     case fixity::Postfix: r = format("Postfix"); break;
     case fixity::Mixfixl:
@@ -121,7 +118,7 @@ format pp(operator_info const & o) {
         r += format{format(o.get_precedence()), space()};
 
     switch (o.get_fixity()) {
-    case fixity::Infix: case fixity::Prefix: case fixity::Postfix:
+    case fixity::Infixl: case fixity::Infixr: case fixity::Prefix: case fixity::Postfix:
         r += pp(o.get_op_name()); break;
     case fixity::Mixfixl:
         for (auto p : o.get_op_name_parts()) r += format{pp(p), format(" _")};

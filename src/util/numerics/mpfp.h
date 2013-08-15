@@ -438,8 +438,7 @@ public:
 //    friend mpfp operator/(mpz const & a, mpfp b) { return a.rdiv(b); }
 //    friend mpfp operator/(mpq const & a, mpfp b) { return a.rdiv(b); }
 
-    mpfp & pow(unsigned long int k, mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_pow_ui(m_val, m_val, k, rnd); return *this; }
-    mpfp & operator^=(unsigned long int k) { return pow(k); }
+    mpfp & operator^=(unsigned long int k) { power(k); return *this; }
     friend mpfp operator^(mpfp a, unsigned long int k) { return a ^= k; }
 
     mpfp & operator++() { return operator+=(1lu); }
@@ -507,7 +506,7 @@ public:
     static void inv(mpfp & v) { v.inv(); }
     static void reset(mpfp & v) { v = 0.0; }
     // v <- v^k
-    static void power(mpfp & v, unsigned k) { v.pow(k); }
+    static void power(mpfp & v, unsigned k) { v.power(static_cast<unsigned long>(k)); }
     static void abs(mpfp & v) { v.abs(); }
     static void ceil(mpfp & v) { v.ceil(); }
     static void floor(mpfp & v) { v.floor(); }

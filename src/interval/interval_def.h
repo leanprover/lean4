@@ -1001,11 +1001,156 @@ template<typename T> void interval<T>::log10() {
     return;
 }
 template<typename T> void interval<T>::sin() {
-    *this -= numeric_traits<T>::pi_half_lower();
-    cos();
+    if(m_lower_inf || m_upper_inf) {
+        // sin([-oo, c]) = [-1.0, +1.0]
+        // sin([c, +oo]) = [-1.0, +1.0]
+        m_lower_open = m_upper_open = false;
+        m_lower_inf  = m_upper_inf = false;
+        m_lower = -1.0;
+        m_upper = 1.0;
+        lean_assert(check_invariant());
+        return;
+    }
+
+    m_lower_open = m_upper_open = false;
+    m_lower_inf  = m_upper_inf = false;
+
+    T const pi_twice = numeric_traits<T>::pi_twice();
+    fmod(interval<T>(numeric_traits<T>::pi_twice_lower(), numeric_traits<T>::pi_twice_upper()));
+    if(m_upper - m_lower >= pi_twice) {
+        // If the input width is bigger than 2pi,
+        // it covers whole domain and gets [-1.0, 1.0]
+        m_lower = -1.0;
+        m_upper = 1.0;
+        lean_assert(check_invariant());
+        return;
+    }
+
+    // Use sin(x - pi) = - sin(x)
+    // l \in [-pi, pi]
+    *this -= interval<T>(numeric_traits<T>::pi_lower(), numeric_traits<T>::pi_upper());
+
+    if(m_lower <= - numeric_traits<T>::pi_half()) {
+        if(m_upper <= - numeric_traits<T>::pi_half()) {
+            // 1. -pi <= l' <= u' <= -1/2 pi
+            // sin(x - pi) = [sin(u'), sin(l')]
+            // sin(x)      = [-sin(l'), -sin(u')]
+            // sin(x)      = [sin(-l'), sin(-u')]
+            m_lower = -m_lower;
+            numeric_traits<T>::set_rounding(false);
+            numeric_traits<T>::sin(m_lower);
+            m_upper = -m_upper;
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::sin(m_upper);
+            lean_assert(check_invariant());
+            return;
+        }
+        if(m_upper <= numeric_traits<T>::pi_half()) {
+            // 2. -pi <= l' <= -1/2 pi <= u' <= 1/2 pi
+            // sin(x - pi) = [-1, max(sin(l'), sin(u'))]
+            //             = [-1, sin(l')]  if l' + u' <= - pi
+            //             = [-1, sin(u')]  if l' + u' >= - pi
+            // sin(x)      = [sin(-l'), 1]  if l' + u' <= - pi
+            //             = [sin(-u'), 1]  if l' + u' >= - pi
+            if(m_lower + m_upper <= - numeric_traits<T>::pi()) {
+                m_lower = - m_lower;
+            } else {
+                m_lower = - m_upper;
+            }
+            numeric_traits<T>::set_rounding(false);
+            numeric_traits<T>::sin(m_lower);
+            m_upper = 1.0;
+            lean_assert(check_invariant());
+            return;
+        }
+        // 3. -pi <= l' <= -1/2 pi <= 1/2 pi <= u'
+        // sin(x - pi) = [-1, 1]
+        m_lower = -1.0;
+        m_upper = 1.0;
+        lean_assert(check_invariant());
+        return;
+    }
+    if(m_lower <= numeric_traits<T>::pi_half()) {
+        if(m_upper <= numeric_traits<T>::pi_half()) {
+            // 4. -1/2 pi <= l' <= u' <= 1/2 pi
+            // sin(x - pi) = [sin(l'), sin(u')]
+            // sin(x)      = [-sin(u'), -sin(l')]
+            //             = [sin(-u'), sin(-l')]
+            std::swap(m_lower, m_upper);
+            m_lower = -m_lower;
+            m_upper = -m_upper;
+            numeric_traits<T>::set_rounding(false);
+            numeric_traits<T>::sin(m_lower);
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::sin(m_upper);
+            lean_assert(check_invariant());
+            return;
+        }
+        if(m_upper <= numeric_traits<T>::pi_half() + numeric_traits<T>::pi()) {
+            // 5. -1/2 pi <= l' <= 1/2pi <= u' <= 3/2pi
+            // sin(x - pi) = [min(sin(l'), sin(u')), 1]
+            //             = [sin(l'), 1]                 if l' + u' <= pi
+            //             = [sin(u'), 1]                 if l' + u' >= pi
+            // sin(x)      = [-1, sin(-l')]               if l' + u' <= pi
+            //             = [-1, sin(-u')]               if l' + u' >= pi
+            if(m_lower + m_upper <= numeric_traits<T>::pi()) {
+                m_upper = - m_lower;
+            } else {
+                m_upper = - m_upper;
+            }
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::sin(m_upper);
+            m_lower = -1.0;
+            lean_assert(check_invariant());
+            return;
+        }
+        // 6. -1/2 pi <= l' <= 1/2pi <= 3/2pi <= u'
+        // sin(x - pi) = [-1, 1]
+        m_lower = -1.0;
+        m_upper = 1.0;
+        lean_assert(check_invariant());
+        return;
+    }
+    lean_assert(numeric_traits<T>::pi_half() <= m_lower);
+    if(m_upper <= numeric_traits<T>::pi_half() + numeric_traits<T>::pi()) {
+        // 7. 1/2pi <= l' <= u' <= 3/2 pi
+        // sin(x - pi) = [sin(u'), sin(l')]
+        // sin(x)      = [sin(-l'), sin(-u')]
+        m_lower = -m_lower;
+        m_upper = -m_upper;
+        numeric_traits<T>::set_rounding(false);
+        numeric_traits<T>::sin(m_lower);
+        numeric_traits<T>::set_rounding(true);
+        numeric_traits<T>::sin(m_upper);
+        lean_assert(check_invariant());
+        return;
+    }
+    if(m_upper <= numeric_traits<T>::pi_half() + numeric_traits<T>::pi_twice()) {
+        // 8. 1/2pi <= l' <= 3/2pi <= u' <= 5/2 pi
+        // sin(x - pi) = [-1, max(sin(l'), sin(u')]
+        //             = [-1, sin(l')]                 if l' + u' <= 3pi
+        //             = [-1, sin(u')]                 if l' + u' >= 3pi
+        // sin(x)      = [sin(-l'), 1]                 if l' + u' <= 3pi
+        //             = [sin(-u'), 1]                 if l' + u' >= 3pi
+        if(m_lower + m_upper <= numeric_traits<T>::pi() + numeric_traits<T>::pi_twice()) {
+            m_lower = - m_lower;
+        } else {
+            m_lower = - m_upper;
+        }
+        numeric_traits<T>::set_rounding(false);
+        numeric_traits<T>::sin(m_lower);
+        m_upper = 1.0;
+        lean_assert(check_invariant());
+        return;
+    }
+    // 9. 1/2pi <= l' <= 5/2pi <= u'
+    // sin(x - pi) = [-1, 1]
+    m_lower = -1.0;
+    m_upper = 1.0;
     lean_assert(check_invariant());
     return;
 }
+
 template<typename T> void interval<T>::cos  () {
     if(m_lower_inf || m_upper_inf) {
         // cos([-oo, c]) = [-1.0, +1.0]
@@ -1082,12 +1227,11 @@ template<typename T> void interval<T>::tan() {
         return;
     }
 
-    T const pi = numeric_traits<T>::pi();
     T const pi_half_lower = numeric_traits<T>::pi_half_lower();
-    fmod(pi);
+    fmod(interval<T>(numeric_traits<T>::pi_lower(), numeric_traits<T>::pi_upper()));
 
     if (m_lower >= pi_half_lower) {
-        *this -= pi;
+        *this -= interval<T>(numeric_traits<T>::pi_lower(), numeric_traits<T>::pi_upper());
     }
     if (m_lower <= - pi_half_lower || m_upper >= pi_half_lower) {
         numeric_traits<T>::reset(m_lower);

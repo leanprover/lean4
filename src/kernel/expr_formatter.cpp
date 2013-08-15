@@ -117,7 +117,7 @@ class simple_expr_formatter : public expr_formatter {
             break;
         case expr_kind::Let:
             out() << "let " << let_name(a) << " := ";
-            print_child(let_value(a), c);
+            print(let_value(a), c);
             out() << " in ";
             print_child(let_body(a), extend(c, let_name(a), let_value(a)));
             break;

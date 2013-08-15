@@ -275,7 +275,6 @@ inline expr mk_pi(name const & n, expr const & t, expr const & e) { return expr(
 inline expr arrow(expr const & t, expr const & e) { return mk_pi(name("_"), t, e); }
 inline expr operator>>(expr const & t, expr const & e) { return arrow(t, e); }
 inline expr mk_let(name const & n, expr const & v, expr const & e) { return expr(new expr_let(n, v, e)); }
-inline expr Let(name const & n, expr const & v, expr const & e) { return mk_let(n, v, e); }
 inline expr mk_type(level const & l) { return expr(new expr_type(l)); }
        expr mk_type();
 inline expr Type(level const & l) { return mk_type(l); }

@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "basic_thms.h"
 #include "builtin.h"
 #include "arith.h"
+#include "normalize.h"
 #include "trace.h"
 #include "test.h"
 using namespace lean;
@@ -167,6 +168,22 @@ static void tst9() {
     }
 }
 
+static void tst10() {
+    environment env = mk_toplevel();
+    env.add_var("f", arrow(Int, Int));
+    env.add_var("b", Int);
+    expr f = Const("f");
+    expr a = Const("a");
+    expr b = Const("b");
+    expr t1 = Let({{a, f(b)}, {a, f(a)}}, f(a));
+    expr t2 = f(f(f(b)));
+    std::cout << t1 << " --> " << normalize(t1, env) << "\n";
+    expr prop  = Eq(t1, t2);
+    expr proof = Refl(Int, t1);
+    env.add_theorem("simp_eq", prop, proof);
+    std::cout << env.get_object("simp_eq").pp(env) << "\n";
+}
+
 int main() {
     tst1();
     tst2();
@@ -177,5 +194,6 @@ int main() {
     tst7();
     tst8();
     tst9();
+    tst10();
     return has_violations() ? 1 : 0;
 }

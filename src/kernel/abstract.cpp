@@ -40,24 +40,19 @@ expr abstract_p(expr const & e, unsigned n, expr const * s) {
 
     return replace_fn<decltype(f)>(f)(e);
 }
-expr Fun(std::initializer_list<std::pair<expr const &, expr const &>> const & l, expr const & b) {
-    expr r = b;
-    auto it = l.end();
-    while (it != l.begin()) {
-        --it;
-        auto const & p = *it;
-        r = Fun(p.first, p.second, r);
-    }
-    return r;
+#define MkBinder(FName)                                                 \
+expr FName(std::initializer_list<std::pair<expr const &, expr const &>> const & l, expr const & b) { \
+    expr r = b;                                                         \
+    auto it = l.end();                                                  \
+    while (it != l.begin()) {                                           \
+        --it;                                                           \
+        auto const & p = *it;                                           \
+        r = FName(p.first, p.second, r);                                \
+    }                                                                   \
+    return r;                                                           \
 }
-expr Pi(std::initializer_list<std::pair<expr const &, expr const &>> const & l, expr const & b) {
-    expr r = b;
-    auto it = l.end();
-    while (it != l.begin()) {
-        --it;
-        auto const & p = *it;
-        r = Pi(p.first, p.second, r);
-    }
-    return r;
-}
+
+MkBinder(Fun);
+MkBinder(Pi);
+MkBinder(Let);
 }

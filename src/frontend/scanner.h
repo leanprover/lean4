@@ -55,6 +55,7 @@ public:
 
     /** \brief Register a new command keyword. */
     void add_command_keyword(name const & n);
+    void set_command_keywords(list<name> const & l) { m_commands = l; }
 
     int get_line() const { return m_line; }
     int get_pos() const { return m_pos; }

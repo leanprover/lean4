@@ -460,6 +460,10 @@ void environment::add_var(name const & n, expr const & t) {
     m_imp->add_var(n, t, *this);
 }
 
+void environment::add_anonymous_object(anonymous_object * o) {
+    m_imp->m_objects.push_back(o);
+}
+
 named_object const & environment::get_object(name const & n) const {
     return m_imp->get_object(n);
 }

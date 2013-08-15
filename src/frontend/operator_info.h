@@ -34,6 +34,7 @@ class operator_info {
     imp * m_ptr;
     explicit operator_info(imp * p);
 public:
+    operator_info():m_ptr(nullptr) {}
     operator_info(operator_info const & info);
     operator_info(operator_info && info);
     ~operator_info();
@@ -42,6 +43,8 @@ public:
     operator_info & operator=(operator_info && o);
 
     friend void swap(operator_info & o1, operator_info & o2) { std::swap(o1.m_ptr, o2.m_ptr); }
+
+    friend bool is_nil(operator_info const & o) { return o.m_ptr == nullptr; }
 
     friend operator_info infixl(name const & op, unsigned precedence);
     friend operator_info infixr(name const & op, unsigned precedence);

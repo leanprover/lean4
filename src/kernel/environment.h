@@ -116,6 +116,12 @@ public:
     void add_var(name const & n, expr const & t);
 
     /**
+       \brief Register the given unanymous object in this environment.
+       The environment assume the object ownership.
+    */
+    void add_anonymous_object(anonymous_object * o);
+
+    /**
        \brief Return the object with the given name.
        It throws an exception if the environment does not have an object with the given name.
     */
@@ -126,6 +132,9 @@ public:
        Return nullptr if there is no object with the given name.
     */
     named_object const * get_object_ptr(name const & n) const;
+
+    /** \brief Return true iff the environment has an object with the given name */
+    bool has_object(name const & n) const { return get_object_ptr(n) != nullptr; }
 
     /** \brief Iterator for Lean environment objects. */
     class object_iterator {

@@ -1166,7 +1166,7 @@ template<typename T> void interval<T>::cos  () {
     m_lower_open = m_upper_open = false;
     m_lower_inf  = m_upper_inf = false;
     T const pi_twice = numeric_traits<T>::pi_twice();
-    fmod(pi_twice);
+    fmod(interval<T>(numeric_traits<T>::pi_twice_lower(), numeric_traits<T>::pi_twice_upper()));
     if(m_upper - m_lower >= pi_twice) {
         // If the input width is bigger than 2pi,
         // it covers whole domain and gets [-1.0, 1.0]
@@ -1178,7 +1178,7 @@ template<typename T> void interval<T>::cos  () {
     if(m_lower >= numeric_traits<T>::pi_upper()) {
         // If the input is bigger than pi, we handle it recursively by the fact:
         // cos(x) = -cos(x - pi)
-        *this -= numeric_traits<T>::pi();
+        *this -= interval<T>(numeric_traits<T>::pi_lower(), numeric_traits<T>::pi_upper());
         cos();
         neg();
         lean_assert(check_invariant());

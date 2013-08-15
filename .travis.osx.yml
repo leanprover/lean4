@@ -36,15 +36,12 @@ install:
     fi
   - sudo chown -R `whoami` /usr/local
   - brew install cmake ninja
-  - brew link -f cmake
-  - brew link -f ninja
   - brew install gmp
   - brew link --overwrite gmp
   - brew install mpfr
   - brew link --overwrite mpfr
   - if [[ $USE_TCMALLOC == TRUE ]]; then
       brew install google-perftools;
-      brew link --overwrite google-perftools;
     fi
 
 notifications:

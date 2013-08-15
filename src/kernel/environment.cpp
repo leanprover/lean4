@@ -341,6 +341,26 @@ struct environment::imp {
         }
     }
 
+    unsigned get_num_objects(bool local) const {
+        if (local || !has_parent()) {
+            return m_objects.size();
+        } else {
+            return m_objects.size() + m_parent->get_num_objects(false);
+        }
+    }
+
+    object const & get_object(unsigned i, bool local) const {
+        if (local || !has_parent()) {
+            return *(m_objects[i]);
+        } else {
+            unsigned num_parent_objects = m_parent->get_num_objects(false);
+            if (i >= num_parent_objects)
+                return *(m_objects[i - num_parent_objects]);
+            else
+                return m_parent->get_object(i, false);
+        }
+    }
+
     /** \brief Display universal variable constraints and objects stored in this environment and its parents. */
     void display(std::ostream & out, environment const & env) const {
         if (has_parent())
@@ -468,12 +488,12 @@ named_object const * environment::get_object_ptr(name const & n) const {
     return m_imp->get_object_ptr(n);
 }
 
-unsigned environment::get_num_objects() const {
-    return m_imp->m_objects.size();
+unsigned environment::get_num_objects(bool local) const {
+    return m_imp->get_num_objects(local);
 }
 
-object const & environment::get_object(unsigned i) const {
-    return *(m_imp->m_objects[i]);
+object const & environment::get_object(unsigned i, bool local) const {
+    return m_imp->get_object(i, local);
 }
 
 void environment::display(std::ostream & out) const {

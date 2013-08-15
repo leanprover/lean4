@@ -168,6 +168,30 @@ static void tst7() {
     std::cout << "Environment\n" << env;
 }
 
+static void tst8() {
+    environment env;
+    std::cout << "=======================\n";
+    env.add_var("a", Type());
+    env.add_var("b", Type());
+    environment env2 = env.mk_child();
+    env2.add_var("c", Type());
+    env2.add_var("d", Type());
+    env2.add_var("e", Type());
+    unsigned counter = 0;
+    std::for_each(env2.begin_local_objects(), env2.end_local_objects(), [&](object const & obj) { std::cout << obj.pp(env2) << "\n"; counter++; });
+    lean_assert(counter == 3);
+    std::cout << "=======================\n";
+    counter = 0;
+    std::for_each(env2.begin_objects(), env2.end_objects(), [&](object const & obj) { std::cout << obj.pp(env2) << "\n"; counter++; });
+    lean_assert(counter == 5);
+    environment env3 = env2.mk_child();
+    env3.add_var("f", Type() >> Type());
+    std::cout << "=======================\n";
+    counter = 0;
+    std::for_each(env3.begin_objects(), env3.end_objects(), [&](object const & obj) { std::cout << obj.pp(env3) << "\n"; counter++; });
+    lean_assert(counter == 6);
+}
+
 int main() {
     enable_trace("is_convertible");
     tst1();
@@ -177,5 +201,6 @@ int main() {
     tst5();
     tst6();
     tst7();
+    tst8();
     return has_violations() ? 1 : 0;
 }

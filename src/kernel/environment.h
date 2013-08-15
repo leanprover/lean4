@@ -24,8 +24,8 @@ private:
     void check_type(name const & n, expr const & t, expr const & v);
     explicit environment(std::shared_ptr<imp> const & ptr);
     explicit environment(imp * new_ptr);
-    unsigned get_num_objects() const;
-    object const & get_object(unsigned i) const;
+    unsigned get_num_objects(bool local) const;
+    object const & get_object(unsigned i, bool local) const;
 public:
     environment();
     ~environment();
@@ -140,22 +140,49 @@ public:
     class object_iterator {
         environment const & m_env;
         unsigned            m_idx;
+        bool                m_local;
         friend class environment;
-        object_iterator(environment const & env, unsigned idx):m_env(env), m_idx(idx) {}
+        object_iterator(environment const & env, unsigned idx, bool local):m_env(env), m_idx(idx), m_local(local) {}
     public:
-        object_iterator(object_iterator const & s):m_env(s.m_env), m_idx(s.m_idx) {}
+        object_iterator(object_iterator const & s):m_env(s.m_env), m_idx(s.m_idx), m_local(s.m_local) {}
         object_iterator & operator++() { ++m_idx; return *this; }
         object_iterator operator++(int) { object_iterator tmp(*this); operator++(); return tmp; }
         bool operator==(object_iterator const & s) const { lean_assert(&m_env == &(s.m_env)); return m_idx == s.m_idx; }
         bool operator!=(object_iterator const & s) const { return !operator==(s); }
-        object const & operator*() { return m_env.get_object(m_idx); }
+        object const & operator*() { return m_env.get_object(m_idx, m_local); }
     };
 
-    /** \brief Return an iterator to the beginning of the sequence of objects stored in this environment */
-    object_iterator begin_objects() const { return object_iterator(*this, 0); }
+    /**
+        \brief Return an iterator to the beginning of the sequence of
+        objects stored in this environment.
 
-    /** \brief Return an iterator to the end of the sequence of objects stored in this environment */
-    object_iterator end_objects() const { return object_iterator(*this, get_num_objects()); }
+        \remark The objects in this environment and ancestor
+        environments are considered
+    */
+    object_iterator begin_objects() const { return object_iterator(*this, 0, false); }
+
+    /**
+        \brief Return an iterator to the end of the sequence of
+        objects stored in this environment.
+
+        \remark The objects in this environment and ancestor
+        environments are considered
+    */
+    object_iterator end_objects() const { return object_iterator(*this, get_num_objects(false), false); }
+
+    /**
+        \brief Return an iterator to the beginning of the sequence of
+        objects stored in this environment (objects in ancestor
+        environments are ingored).
+    */
+    object_iterator begin_local_objects() const { return object_iterator(*this, 0, true); }
+
+    /**
+        \brief Return an iterator to the end of the sequence of
+        objects stored in this environment (objects in ancestor
+        environments are ingored).
+    */
+    object_iterator end_local_objects() const { return object_iterator(*this, get_num_objects(true), true); }
     // =======================================
 
     /** \brief Display universal variable constraints and objects stored in this environment and its parents. */

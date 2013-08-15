@@ -10,7 +10,14 @@ Author: Soonho Kong
 
 namespace lean {
 
-thread_local mpfr_rnd_t numeric_traits<float>::rnd = MPFR_RNDN;
+static thread_local mpfr_rnd_t g_rnd;
+void set_float_rnd(bool plus_inf) {
+    g_rnd = plus_inf ? MPFR_RNDU : MPFR_RNDD;
+}
+
+mpfr_rnd_t get_float_rnd() {
+    return g_rnd;
+}
 
 void float_power(float & v, unsigned k) { v = std::pow(v, k); }
 void float_abs(float & v)   { v = std::abs(v); }

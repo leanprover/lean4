@@ -23,6 +23,18 @@
 #define LEAN_DEFAULT_PP_COLORS true
 #endif
 
+#ifndef LEAN_KEYWORD_HIGHLIGHT_COLOR
+#define LEAN_KEYWORD_HIGHLIGHT_COLOR format::ORANGE
+#endif
+
+#ifndef LEAN_BUILTIN_HIGHLIGHT_COLOR
+#define LEAN_BUILTIN_HIGHLIGHT_COLOR format::CYAN
+#endif
+
+#ifndef LEAN_COMMAND_HIGHLIGHT_COLOR
+#define LEAN_COMMAND_HIGHLIGHT_COLOR format::BLUE
+#endif
+
 namespace lean {
 static name g_pp_indent{"pp", "indent"};
 static name g_pp_colors{"pp", "colors"};
@@ -98,6 +110,15 @@ format nest(int i, format const & f) {
 }
 format highlight(format const & f, format::format_color const c) {
     return format(format::sexpr_highlight(f.m_value, c));
+}
+format highlight_keyword(format const & f) {
+    return highlight(f, LEAN_KEYWORD_HIGHLIGHT_COLOR);
+}
+format highlight_builtin(format const & f) {
+    return highlight(f, LEAN_BUILTIN_HIGHLIGHT_COLOR);
+}
+format highlight_command(format const & f) {
+    return highlight(f, LEAN_COMMAND_HIGHLIGHT_COLOR);
 }
 // Commonly used format objects
 format mk_line() {

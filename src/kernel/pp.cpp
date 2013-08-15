@@ -17,9 +17,9 @@ struct pp_fn {
     pp_fn(environment const * env):m_env(env) {}
 
     unsigned indent() const { return 2; }
-    format pp_keyword(char const * k) { return highlight(format(k), format::format_color::ORANGE); }
-    format pp_type_kwd() { return highlight(format("Type"), format::format_color::PINK); }
-    format pp_eq_kwd() { return highlight(format(" = "), format::format_color::BLUE); }
+    format pp_keyword(char const * k) { return highlight_keyword(format(k)); }
+    format pp_type_kwd() { return highlight_builtin(format("Type")); }
+    format pp_eq_kwd() { return format(" = "); }
     format pp_lambda_kwd() { return pp_keyword("\u03BB "); }
     format pp_lambda_sep() { return format(","); }
     format pp_pi_kwd() { return pp_keyword("\u03A0 "); }

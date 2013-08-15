@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 // TODO: delete hardcoded
-format pp_object_kind(char const * n) { return highlight(format(n), format::format_color::BLUE); }
+format pp_object_kind(char const * n) { return highlight_command(format(n)); }
 constexpr unsigned indentation = 2; // TODO: must be option
 //
 

@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include <string>
 
 namespace lean {
-
+/** \brief Base class for all Lean exceptions */
 class exception : public std::exception {
 protected:
     std::string m_msg;
@@ -20,7 +20,7 @@ public:
     virtual ~exception() noexcept;
     virtual char const * what() const noexcept;
 };
-
+/** \brief Exception produced by a Lean parser. */
 class parser_exception : public exception {
 protected:
     unsigned m_line;

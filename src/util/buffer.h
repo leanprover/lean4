@@ -10,7 +10,12 @@ Author: Leonardo de Moura
 #include "debug.h"
 
 namespace lean {
-
+/**
+    \brief Very similar to std::vector, but stores elements on the
+    system stack when collection has less than \c INITIAL_SIZE.
+    This collection is useful when writing functions that need
+    temporary storage.
+*/
 template<typename T, unsigned INITIAL_SIZE=16>
 class buffer {
 protected:

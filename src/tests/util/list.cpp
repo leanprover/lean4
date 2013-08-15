@@ -24,7 +24,7 @@ static void tst1() {
 
 static void tst2() {
     std::vector<int> a{10, 20, 30};
-    list<int> l = it2list<int>(a.begin(), a.end());
+    list<int> l = copy_to_list(a.begin(), a.end());
     std::cout << l << "\n";
     lean_assert(head(l) == 10);
     lean_assert(head(tail(l)) == 20);
@@ -34,7 +34,7 @@ static void tst2() {
 
 static void tst3() {
     int a[3] = {10, 20, 30};
-    list<int> l = it2list<int, int*>(a, a+3);
+    list<int> l = copy_to_list<int*, int>(a, a+3);
     std::cout << l << "\n";
     lean_assert(head(l) == 10);
     lean_assert(head(tail(l)) == 20);

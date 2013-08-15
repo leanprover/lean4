@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "rc.h"
 
 namespace lean {
-
+/** \brief Actual implementation of operator_info */
 struct operator_info::imp {
     void dealloc() { delete this;  }
     MK_LEAN_RC();
@@ -22,7 +22,7 @@ struct operator_info::imp {
         m_rc(1), m_fixity(f), m_precedence(p), m_op_parts(cons(op, list<name>())) {}
 
     imp(unsigned num_parts, name const * parts, fixity f, unsigned p):
-        m_rc(1), m_fixity(f), m_precedence(p), m_op_parts(it2list<name, name const *>(parts, parts + num_parts)) {
+        m_rc(1), m_fixity(f), m_precedence(p), m_op_parts(copy_to_list<name const *, name>(parts, parts + num_parts)) {
         lean_assert(num_parts > 0);
     }
 

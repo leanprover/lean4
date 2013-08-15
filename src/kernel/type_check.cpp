@@ -43,6 +43,7 @@ bool is_convertible(expr const & expected, expr const & given, environment const
     return is_convertible_core(e_n, g_n, env);
 }
 
+/** \brief Auxiliary functional object used to implement infer_type. */
 struct infer_type_fn {
     typedef scoped_map<expr, expr, expr_hash, expr_eqp> cache;
 

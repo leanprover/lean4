@@ -9,8 +9,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 /**
-   \brief Return unit if <tt>num_args == 0<\tt>, args[0] if <tt>num_args == 1<\tt>, and
-   <tt>(op args[0] (op args[1] (op ... )))<\tt>
+   \brief Return unit if <tt>num_args == 0</tt>, args[0] if <tt>num_args == 1</tt>, and
+   <tt>(op args[0] (op args[1] (op ... )))</tt>
 */
 expr mk_bin_op(expr const & op, expr const & unit, unsigned num_args, expr const * args);
 expr mk_bin_op(expr const & op, expr const & unit, std::initializer_list<expr> const & l);
@@ -80,13 +80,13 @@ expr mk_not_fn();
 inline expr mk_not(expr const & e) { return mk_app(mk_not_fn(), e); }
 inline expr Not(expr const & e) { return mk_not(e); }
 
-/** \brief Return the Lean forall operator. It has type: <tt>Pi (A : Type), (A -> bool) -> Bool<\tt> */
+/** \brief Return the Lean forall operator. It has type: <tt>Pi (A : Type), (A -> bool) -> Bool</tt> */
 expr mk_forall_fn();
 /** \brief Return the term (Forall A P), where A is a type and P : A -> bool */
 inline expr mk_forall(expr const & A, expr const & P) { return mk_app(mk_forall_fn(), A, P); }
 inline expr Forall(expr const & A, expr const & P) { return mk_forall(A, P); }
 
-/** \brief Return the Lean exists operator. It has type: <tt>Pi (A : Type), (A -> Bool) -> Bool<\tt> */
+/** \brief Return the Lean exists operator. It has type: <tt>Pi (A : Type), (A -> Bool) -> Bool</tt> */
 expr mk_exists_fn();
 /** \brief Return the term (exists A P), where A is a type and P : A -> bool */
 inline expr mk_exists(expr const & A, expr const & P) { return mk_app(mk_exists_fn(), A, P); }

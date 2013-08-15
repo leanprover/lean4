@@ -65,7 +65,6 @@ public:
     expr_kind kind() const { return static_cast<expr_kind>(m_kind); }
     unsigned  hash() const { return m_hash; }
 };
-
 /**
    \brief Exprs for encoding formulas/expressions, types and proofs.
 */
@@ -197,9 +196,7 @@ public:
     ~expr_type();
     level const & get_level() const { return m_level; }
 };
-/**
-   \brief Base class for semantic attachment cells.
-*/
+/** \brief Base class for semantic attachment cells. */
 class value {
     void dealloc() { delete this; }
     MK_LEAN_RC();
@@ -214,7 +211,6 @@ public:
     virtual format pp() const = 0;
     virtual unsigned hash() const = 0;
 };
-
 /** \brief Semantic attachments */
 class expr_value : public expr_cell {
     value & m_val;
@@ -332,9 +328,13 @@ inline name const &  let_name(expr_cell * e)             { return to_let(e)->get
 inline expr const &  let_value(expr_cell * e)            { return to_let(e)->get_value(); }
 inline expr const &  let_body(expr_cell * e)             { return to_let(e)->get_body(); }
 
+/** \brief Return the reference counter of the given expression. */
 inline unsigned      get_rc(expr const &  e)              { return e.raw()->get_rc(); }
+/** \brief Return true iff the reference counter of the given expression is greater than 1. */
 inline bool          is_shared(expr const & e)            { return get_rc(e) > 1; }
+/** \brief Return the de Bruijn index of the given expression. \pre is_var(e) */
 inline unsigned      var_idx(expr const & e)              { return to_var(e)->get_vidx(); }
+/** \brief Return true iff the given expression is a variable with de Bruijn index equal to \c i. */
 inline bool          is_var(expr const & e, unsigned i)   { return is_var(e) && var_idx(e) == i; }
 inline name const &  const_name(expr const & e)           { return to_constant(e)->get_name(); }
 inline value const & to_value(expr const & e)             { return to_value(e.raw()); }

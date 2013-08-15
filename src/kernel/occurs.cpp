@@ -22,7 +22,10 @@ void for_each(F & f, context const * c, unsigned sz, expr const * es) {
         visitor(es[i]);
 }
 
-namespace occurs_ns { struct found {}; }
+namespace occurs_ns {
+/** \brief Auxiliary struct used to sign (as an exception) that an occurrence was found. */
+struct found {};
+}
 bool occurs(name const & n, context const * c, unsigned sz, expr const * es) {
     auto visitor = [&](expr const & e, unsigned offset) -> void {
         if (is_constant(e)) {

@@ -24,6 +24,7 @@ static name g_eq_name("=");
 
 static char g_normalized[256];
 
+/** \brief Auxiliary class for initializing global variable \c g_normalized. */
 class init_normalized_table {
     void set(int i, char v) { g_normalized[static_cast<unsigned>(i)] = v; }
 public:

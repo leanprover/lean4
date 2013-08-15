@@ -13,8 +13,6 @@ Author: Leonardo de Moura
 namespace lean {
 /**
    \brief Basic list template.
-
-   Remark: == is pointer equality.
 */
 template<typename T>
 class list {
@@ -66,6 +64,7 @@ public:
     }
     friend bool operator!=(list const & l1, list const & l2) { return !(l1 == l2); }
 
+    /** \brief List iterator object. */
     class iterator {
         friend class list;
         cell const * m_it;
@@ -119,7 +118,8 @@ template<typename T> unsigned length(list<T> const & l) {
     return r;
 }
 
-template<typename T, typename It> list<T> it2list(It const & begin, It const & end) {
+/** \brief Return a list containing the elements in the subrange <tt>[begin, end)</tt>. */
+template<typename It, typename T = typename It::value_type> list<T> copy_to_list(It const & begin, It const & end) {
     list<T> r;
     auto it = end;
     while (it != begin) {

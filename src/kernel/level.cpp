@@ -13,21 +13,25 @@ Author: Leonardo de Moura
 #include "hash.h"
 
 namespace lean {
+/** \brief Base class for representing universe level cells. */
 struct level_cell {
     void dealloc();
     MK_LEAN_RC()
     level_kind m_kind;
     level_cell(level_kind k):m_rc(1), m_kind(k) {}
 };
+/** \brief Cell for universe variables. */
 struct level_uvar : public level_cell {
     name m_name;
     level_uvar(name const & n):level_cell(level_kind::UVar), m_name(n) {}
 };
+/** \brief Cell for representing the universe <tt>l + k</tt>, where \c l is a level and \c k a unsigned integer. */
 struct level_lift : public level_cell {
     level    m_l;
     unsigned m_k;
     level_lift(level const & l, unsigned k):level_cell(level_kind::Lift), m_l(l), m_k(k) {}
 };
+/** \brief Cell for representing the universe <tt>max l_1 ... l_n</tt>, where <tt>n == m_size</tt>. */
 struct level_max : public level_cell {
     unsigned m_size;
     level    m_levels[0];

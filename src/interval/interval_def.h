@@ -1314,17 +1314,17 @@ template<typename T> void interval<T>::cosh () {
             numeric_traits<T>::set_rounding(false);
             numeric_traits<T>::cosh(m_lower);
             numeric_traits<T>::set_rounding(true);
-            numeric_traits<T>::cosh(m_lower);
+            numeric_traits<T>::cosh(m_upper);
             lean_assert(check_invariant());
             return;
         }
         if(numeric_traits<T>::is_neg(m_upper) || numeric_traits<T>::is_zero(m_upper)) {
             // [a, b] where a <= b < 0
-            numeric_traits<T>::set_rounding(true);
-            numeric_traits<T>::cosh(m_lower);
+            std::swap(m_lower, m_upper);
             numeric_traits<T>::set_rounding(false);
             numeric_traits<T>::cosh(m_lower);
-            std::swap(m_lower, m_upper);
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::cosh(m_upper);
             lean_assert(check_invariant());
             return;
         }

@@ -5,13 +5,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "type_check.h"
-#include "scoped_map.h"
 #include "environment.h"
+#include "kernel_exception.h"
 #include "normalize.h"
 #include "instantiate.h"
+#include "scoped_map.h"
 #include "builtin.h"
 #include "free_vars.h"
-#include "exception.h"
 #include "trace.h"
 
 namespace lean {
@@ -58,47 +58,6 @@ struct infer_type_fn {
         return lift_free_vars(def.get_domain(), length(c) - length(def_c));
     }
 
-    expr_formatter & fmt() { return m_env.get_formatter(); }
-
-    format nl_indent(format const & f) { return fmt().nest(format{line(), f}); }
-
-    void throw_error [[ noreturn ]] (expr const & src, format const & msg) {
-        throw_exception(m_env.get_locator(), src, msg);
-    }
-
-    /** \brief Include context (if not empty) in the formatted message */
-    void push_context(format & msg, context const & ctx) {
-        if (!is_empty(ctx)) {
-            msg += format{format("in context: "), nl_indent(pp(fmt(), ctx)), line()};
-        }
-    }
-
-    void throw_type_expected_error [[ noreturn ]] (expr const & t, context const & ctx) {
-        context ctx2 = sanitize_names(ctx, t);
-        format msg = format("type expected, ");
-        push_context(msg, ctx2);
-        msg += format{format("got:"), nl_indent(fmt()(t, ctx2))};
-        throw_error(t, msg);
-    }
-
-    void throw_function_expected_error [[ noreturn ]] (expr const & s, context const & ctx) {
-        context ctx2 = sanitize_names(ctx, s);
-        format msg = format("function expected, ");
-        push_context(msg, ctx2);
-        msg += format{format("got:"), nl_indent(fmt()(s, ctx2))};
-        throw_error(s, msg);
-    }
-
-    void throw_type_mismatch_error [[ noreturn ]] (expr const & app, unsigned arg_pos,
-                                                   expr const & expected, expr const & given, context const & ctx) {
-        context ctx2 = sanitize_names(ctx, {app, expected, given});
-        format msg = format{format("type mismatch at argument "), format(arg_pos), space(), format("of"),
-                            nl_indent(fmt()(app, ctx2)), line()};
-        push_context(msg, ctx2);
-        msg += format{format("expected type:"), nl_indent(fmt()(expected, ctx2)), line(), format("given type:"), nl_indent(fmt()(given, ctx2))};
-        throw_error(arg(app, arg_pos), msg);
-    }
-
     level infer_universe(expr const & t, context const & ctx) {
         lean_trace("type_check", tout << "infer universe\n" << t << "\n";);
         expr u = normalize(infer_type(t, ctx), m_env, ctx);
@@ -106,7 +65,7 @@ struct infer_type_fn {
             return ty_level(u);
         if (u == Bool)
             return level();
-        throw_type_expected_error(t, ctx);
+        throw type_expected_exception(m_env, ctx, t);
     }
 
     expr check_pi(expr const & e, expr const & s, context const & ctx) {
@@ -115,7 +74,7 @@ struct infer_type_fn {
         expr r = normalize(e, m_env, ctx);
         if (is_pi(r))
             return r;
-        throw_function_expected_error(s, ctx);
+        throw function_expected_exception(m_env, ctx, s);
     }
 
     expr infer_pi(expr const & e, context const & ctx) {
@@ -153,7 +112,7 @@ struct infer_type_fn {
                 expr const & c = arg(e, i);
                 expr c_t       = infer_type(c, ctx);
                 if (!is_convertible(abst_domain(f_t), c_t, m_env, ctx))
-                    throw_type_mismatch_error(e, i, abst_domain(f_t), c_t, ctx);
+                    throw app_type_mismatch_exception(m_env, ctx, e, i, abst_domain(f_t), c_t);
                 if (closed(abst_body(f_t)))
                     f_t = abst_body(f_t);
                 else if (closed(c))

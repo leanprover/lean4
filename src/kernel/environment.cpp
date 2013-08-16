@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <atomic>
 #include <sstream>
 #include <unordered_map>
+#include "kernel_exception.h"
 #include "environment.h"
 #include "safe_arith.h"
 #include "type_check.h"
@@ -50,7 +51,6 @@ struct environment::imp {
     object_dictionary                    m_object_dictionary;
     // Expression formatter && locator
     std::shared_ptr<expr_formatter>      m_formatter;
-    std::shared_ptr<expr_locator>        m_locator;
 
     expr_formatter & get_formatter() {
         if (m_formatter) {
@@ -59,16 +59,6 @@ struct environment::imp {
             // root environments always have a formatter.
             lean_assert(has_parent());
             return m_parent->get_formatter();
-        }
-    }
-
-    expr_locator & get_locator() {
-        if (m_locator) {
-            return *m_locator;
-        } else {
-            // root environments always have a locator.
-            lean_assert(has_parent());
-            return m_parent->get_locator();
         }
     }
 
@@ -125,9 +115,9 @@ struct environment::imp {
     }
 
     /** \brief Add a new universe variable */
-    level add_var(name const & n) {
+    level add_var(name const & n, environment const & env) {
         if (std::any_of(m_uvars.begin(), m_uvars.end(), [&](level const & l){ return uvar_name(l) == n; }))
-            throw exception("invalid universe variable declaration, it has already been declared");
+            throw already_declared_universe_exception(env, n);
         level r(n);
         m_uvars.push_back(r);
         return r;
@@ -175,12 +165,12 @@ struct environment::imp {
     }
 
     /** \brief Add a new universe variable with constraint n >= l */
-    level add_uvar(name const & n, level const & l) {
+    level add_uvar(name const & n, level const & l, environment const & env) {
         if (has_parent())
-            throw exception("invalid universe declaration, universe variables can only be declared in top-level environments");
+            throw kernel_exception(env, "invalid universe declaration, universe variables can only be declared in top-level environments");
         if (has_children())
-            throw exception("invalid universe declaration, environment has children environments");
-        level r = add_var(n);
+            throw read_only_environment_exception(env);
+        level r = add_var(n, env);
         add_constraints(r, l, 0);
         m_objects.push_back(new uvar_declaration(n, l));
         return r;
@@ -191,18 +181,15 @@ struct environment::imp {
         exception if the environment and its ancestors do not
         contain a universe variable named \c n.
     */
-    level get_uvar(name const & n) const {
+    level get_uvar(name const & n, environment const & env) const {
         if (has_parent()) {
-            return m_parent->get_uvar(n);
+            return m_parent->get_uvar(n, env);
         } else {
             auto it = std::find_if(m_uvars.begin(), m_uvars.end(), [&](level const & l) { return uvar_name(l) == n; });
-            if (it == m_uvars.end()) {
-                std::ostringstream s;
-                s << "unknown universe variable '" << n << "'";
-                throw exception (s.str());
-            } else {
+            if (it == m_uvars.end())
+                throw unknown_universe_variable_exception(env, n);
+            else
                 return *it;
-            }
         }
     }
 
@@ -223,26 +210,18 @@ struct environment::imp {
         }
     }
 
-    /** \brief Throw exception if environment has children. */
-    void check_no_children() {
-        if (has_children())
-            throw exception("invalid object declaration, environment has children environments");
-    }
-
     /** \brief Throw exception if environment or its ancestors already have an object with the given name. */
-    void check_name_core(name const & n) {
+    void check_name_core(name const & n, environment const & env) {
         if (has_parent())
-            m_parent->check_name_core(n);
-        if (m_object_dictionary.find(n) != m_object_dictionary.end()) {
-            std::ostringstream s;
-            s << "environment already contains an object with name '" << n << "'";
-            throw exception (s.str());
-        }
+            m_parent->check_name_core(n, env);
+        if (m_object_dictionary.find(n) != m_object_dictionary.end())
+            throw already_declared_object_exception(env, n);
     }
 
-    void check_name(name const & n) {
-        check_no_children();
-        check_name_core(n);
+    void check_name(name const & n, environment const & env) {
+        if (has_children())
+            throw read_only_environment_exception(env);
+        check_name_core(n, env);
     }
 
     /**
@@ -255,18 +234,13 @@ struct environment::imp {
     void check_type(name const & n, expr const & t, expr const & v, environment const & env) {
         infer_universe(t, env);
         expr v_t = infer_type(v, env);
-        if (!is_convertible(t, v_t, env)) {
-            std::ostringstream buffer;
-            buffer << "type mismatch when defining '" << n << "'\n"
-                   << "expected type:\n" << t << "\n"
-                   << "given type:\n" << v_t;
-            throw exception(buffer.str());
-        }
+        if (!is_convertible(t, v_t, env))
+            throw def_type_mismatch_exception(env, n, t, v, v_t);
     }
 
     /** \brief Throw exception if it is not a valid new definition */
     void check_new_definition(name const & n, expr const & t, expr const & v, environment const & env) {
-        check_name(n);
+        check_name(n, env);
         check_type(n, t, v, env);
     }
 
@@ -287,7 +261,7 @@ struct environment::imp {
         The type of the new definition is the type of \c v.
     */
     void add_definition(name const & n, expr const & v, bool opaque, environment const & env) {
-        check_name(n);
+        check_name(n, env);
         expr v_t = infer_type(v, env);
         register_named_object(new definition(n, v_t, v, opaque));
     }
@@ -300,14 +274,14 @@ struct environment::imp {
 
     /** \brief Add new axiom. */
     void add_axiom(name const & n, expr const & t, environment const & env) {
-        check_name(n);
+        check_name(n, env);
         infer_universe(t, env);
         register_named_object(new axiom(n, t));
     }
 
     /** \brief Add new variable. */
     void add_var(name const & n, expr const & t, environment const & env) {
-        check_name(n);
+        check_name(n, env);
         infer_universe(t, env);
         register_named_object(new variable(n, t));
     }
@@ -329,15 +303,12 @@ struct environment::imp {
         }
     }
 
-    named_object const & get_object(name const & n) const {
+    named_object const & get_object(name const & n, environment const & env) const {
         named_object const * ptr = get_object_ptr(n);
-        if (ptr) {
+        if (ptr)
             return *ptr;
-        } else {
-            std::ostringstream s;
-            s << "unknown object '" << n << "'";
-            throw exception (s.str());
-        }
+        else
+            throw unknown_object_exception(env, n);
     }
 
     unsigned get_num_objects(bool local) const {
@@ -373,7 +344,6 @@ struct environment::imp {
         m_num_children(0) {
         init_uvars();
         m_formatter = mk_simple_expr_formatter();
-        m_locator   = mk_dummy_expr_locator();
     }
 
     explicit imp(std::shared_ptr<imp> const & parent):
@@ -413,15 +383,6 @@ expr_formatter & environment::get_formatter() const {
     return m_imp->get_formatter();
 }
 
-void environment::set_locator(std::shared_ptr<expr_locator> const & locator) {
-    lean_assert(locator);
-    m_imp->m_locator = locator;
-}
-
-expr_locator & environment::get_locator() const {
-    return m_imp->get_locator();
-}
-
 environment environment::mk_child() const {
     return environment(new imp(m_imp));
 }
@@ -440,7 +401,7 @@ environment environment::parent() const {
 }
 
 level environment::add_uvar(name const & n, level const & l) {
-    return m_imp->add_uvar(n, l);
+    return m_imp->add_uvar(n, l, *this);
 }
 
 bool environment::is_ge(level const & l1, level const & l2) const {
@@ -452,7 +413,7 @@ void environment::display_uvars(std::ostream & out) const {
 }
 
 level environment::get_uvar(name const & n) const {
-    return m_imp->get_uvar(n);
+    return m_imp->get_uvar(n, *this);
 }
 
 void environment::add_definition(name const & n, expr const & t, expr const & v, bool opaque) {
@@ -480,7 +441,7 @@ void environment::add_anonymous_object(anonymous_object * o) {
 }
 
 named_object const & environment::get_object(name const & n) const {
-    return m_imp->get_object(n);
+    return m_imp->get_object(n, *this);
 }
 
 named_object const * environment::get_object_ptr(name const & n) const {

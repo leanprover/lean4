@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "kernel_exception.h"
 #include "environment.h"
 #include "type_check.h"
 #include "toplevel.h"
@@ -192,6 +193,19 @@ static void tst8() {
     lean_assert(counter == 6);
 }
 
+static void tst9() {
+    try {
+        environment env;
+        env.add_uvar("u1", level());
+        env.add_uvar("u2", level());
+        env.add_uvar("u1", level("u2"));
+    } catch (already_declared_universe_exception & ex) {
+        std::cout << ex.what() << "\n";
+        level l = ex.get_environment().get_uvar(ex.get_name());
+        std::cout << l << "\n";
+    }
+}
+
 int main() {
     enable_trace("is_convertible");
     tst1();
@@ -202,5 +216,6 @@ int main() {
     tst6();
     tst7();
     tst8();
+    tst9();
     return has_violations() ? 1 : 0;
 }

@@ -13,6 +13,7 @@ namespace lean {
 class exception : public std::exception {
 protected:
     std::string m_msg;
+    exception() {}
 public:
     exception(char const * msg);
     exception(std::string const & msg);

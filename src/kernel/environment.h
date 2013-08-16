@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "object.h"
 #include "level.h"
 #include "expr_formatter.h"
-#include "expr_locator.h"
 
 namespace lean {
 /**
@@ -35,12 +34,6 @@ public:
 
     /** \brief Return expression formatter. */
     expr_formatter & get_formatter() const;
-
-    /** \brief Set expression locator. */
-    void set_locator(std::shared_ptr<expr_locator> const & locator);
-
-    /** \brief Return expression locator. */
-    expr_locator & get_locator() const;
 
     // =======================================
     // Parent/Child environment management

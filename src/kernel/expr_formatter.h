@@ -16,6 +16,11 @@ public:
     virtual ~expr_formatter() {}
     /** \brief Convert expression in the given context into a format object. */
     virtual format operator()(expr const & e, context const & c = context()) = 0;
+    /** \brief format a definition. */
+    virtual format operator()(char const * kwd, name const & n, expr const & t, expr const & v);
+    /** \brief format a postulate. */
+    virtual format operator()(char const * kwd, name const & n, expr const & t);
+
     /** \brief Return options for pretty printing. */
     virtual options get_options() const = 0;
 

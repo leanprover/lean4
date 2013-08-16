@@ -8,6 +8,18 @@ Author: Leonardo de Moura
 #include "exception.h"
 
 namespace lean {
+
+format expr_formatter::operator()(char const * kwd, name const & n, expr const & t, expr const & v) {
+    format def = format{highlight_command(format(kwd)), space(), format(n), space(), colon(), space(),
+                        operator()(t), format(" :="), line(), operator()(v)};
+    return group(nest(def));
+}
+
+format expr_formatter::operator()(char const * kwd, name const & n, expr const & t) {
+    format def = format{highlight_command(format(kwd)), space(), format(n), space(), colon(), space(), operator()(t)};
+    return group(nest(def));
+}
+
 void expr_formatter::pp(std::ostream & out, expr const & e, context const & c) {
     out << mk_pair(operator()(e, c), get_options());
 }

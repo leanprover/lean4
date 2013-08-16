@@ -36,9 +36,7 @@ bool         definition::is_opaque() const     { return m_opaque; }
 expr const & definition::get_value() const     { return m_value; }
 format       definition::pp(environment const & env) const {
     expr_formatter & fmt = env.get_formatter();
-    format def = format{highlight_command(format(keyword())), space(), format(get_name()), space(), colon(), space(),
-                        fmt(get_type()), format(" :="), line(), fmt(get_value())};
-    return group(fmt.nest(def));
+    return fmt(keyword(), get_name(), get_type(), get_value());
 }
 
 char const * theorem::g_keyword = "Theorem";
@@ -53,8 +51,7 @@ bool         fact::is_opaque() const     { lean_unreachable(); return false; }
 expr const & fact::get_value() const     { lean_unreachable(); return expr::null(); }
 format fact::pp(environment const & env) const {
     expr_formatter & fmt = env.get_formatter();
-    format def = format{highlight_command(format(keyword())), space(), format(get_name()), space(), colon(), space(), fmt(get_type())};
-    return group(fmt.nest(def));
+    return fmt(keyword(), get_name(), get_type());
 }
 
 char const * axiom::g_keyword = "Axiom";

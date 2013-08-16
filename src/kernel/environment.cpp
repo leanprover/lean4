@@ -29,7 +29,7 @@ public:
     static char const * g_keyword;
     virtual char const * keyword() const { return g_keyword; }
     virtual format pp(environment const &) const {
-        return format{format(keyword()), space(), format(m_name), space(), format("\u2265"), space(), ::lean::pp(m_level)};
+        return format{highlight_command(format(keyword())), space(), format(m_name), space(), format("\u2265"), space(), ::lean::pp(m_level)};
     }
 };
 char const * uvar_declaration::g_keyword = "Universe";

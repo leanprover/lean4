@@ -48,8 +48,7 @@ static void tst2() {
 
 static void tst3() {
     frontend f;
-    f.add_infixl("+", 10, name{"Int", "add"});
-    f.add_infixl("-", 10, name{"Int", "sub"});
+    std::cout << "====================\n";
     std::cout << f;
 }
 

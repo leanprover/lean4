@@ -195,8 +195,7 @@ struct frontend::imp {
     void add_mixfixc(unsigned sz, name const * opns, unsigned p, name const & n) { add_op(mixfixc(sz, opns, p), n, false); }
 
     imp(frontend & fe):
-        m_num_children(0),
-        m_env(mk_toplevel()) {
+        m_num_children(0) {
     }
 
     explicit imp(std::shared_ptr<imp> const & parent):
@@ -214,6 +213,7 @@ struct frontend::imp {
 
 frontend::frontend():m_imp(new imp(*this)) {
     init_builtin_notation(*this);
+    init_toplevel(m_imp->m_env);
     m_imp->m_env.set_formatter(mk_pp_expr_formatter(*this, options()));
 }
 frontend::frontend(imp * new_ptr):m_imp(new_ptr) {}

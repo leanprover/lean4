@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 namespace lean {
+constexpr unsigned g_eq_precedence = 50;
 class frontend;
 void init_builtin_notation(frontend & fe);
 }

@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "expr_formatter.h"
 #include "occurs.h"
 #include "instantiate.h"
+#include "builtin_notation.h"
 #include "options.h"
 
 #ifndef LEAN_DEFAULT_PP_MAX_DEPTH
@@ -40,7 +41,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 static format g_Type_fmt     = highlight_builtin(format("Type"));
-static unsigned g_eq_prec    = 20;
 static format g_eq_fmt       = format("=");
 static char const * g_eq_sym = "eq";
 static unsigned g_eq_sz      = strlen(g_eq_sym);
@@ -466,7 +466,7 @@ class pp_fn {
             return pp(e, depth + 1);
         } else {
             operator_info op_child = get_operator(e);
-            if (op_child && g_eq_prec < op_child.get_precedence())
+            if (op_child && g_eq_precedence < op_child.get_precedence())
                 return pp(e, depth + 1);
             else
                 return pp_child_with_paren(e, depth);

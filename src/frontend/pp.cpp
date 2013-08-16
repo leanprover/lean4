@@ -320,7 +320,7 @@ struct pp_fn {
        \remark The argument B is only relevant when processing
        condensed definitions. \see pp_abstraction_core.
     */
-    std::pair<expr, expr> collect_nested(expr const & e, expr B, expr_kind k, buffer<std::pair<name, expr>> & r) {
+    std::pair<expr, expr> collect_nested(expr const & e, expr T, expr_kind k, buffer<std::pair<name, expr>> & r) {
         if (e.kind() == k) {
             name const & n = abst_name(e);
             name n1    = n;
@@ -331,11 +331,11 @@ struct pp_fn {
             }
             r.push_back(mk_pair(n1, abst_domain(e)));
             expr b = instantiate_with_closed(abst_body(e), mk_constant(n1));
-            if (B)
-                B = instantiate_with_closed(B, mk_constant(n1));
-            return collect_nested(b, B, k, r);
+            if (T)
+                T = instantiate_with_closed(abst_body(T), mk_constant(n1));
+            return collect_nested(b, T, k, r);
         } else {
-            return mk_pair(e, B);
+            return mk_pair(e, T);
         }
     }
 
@@ -370,40 +370,42 @@ struct pp_fn {
 
     /**
        \brief Pretty print Lambdas, Pis and compact definitions.
-       When B != 0, it is a compact definition.
+       When T != 0, it is a compact definition.
        A compact definition is of the form
 
-       Defintion Name Pi(x : A), B := Lambda (x : A), T
+       Defintion Name Pi(x : A), B := Lambda (x : A), C
 
        it is printed as
 
-       Defintion Name (x : A) : B := T
+       Defintion Name (x : A) : B := C
 
        This method only generates the
-          (x : A) : B := T
+          (x : A) : B := C
        for compact definitions.
+
+       \remark if T != 0, then T is Pi(x : A), B
     */
-    result pp_abstraction_core(expr const & e, unsigned depth, expr B) {
+    result pp_abstraction_core(expr const & e, unsigned depth, expr T) {
         if (is_arrow(e)) {
-            lean_assert(!B);
+            lean_assert(!T);
             result p_lhs    = pp_child(abst_domain(e), depth);
             result p_rhs    = pp_arrow_body(abst_body(e), depth);
             format r_format = group(format{p_lhs.first, space(), g_arrow_fmt, line(), p_rhs.first});
             return mk_result(r_format, std::max(p_lhs.second, p_rhs.second) + 1);
         } else {
             buffer<std::pair<name, expr>> nested;
-            auto p = collect_nested(e, B, e.kind(), nested);
+            auto p = collect_nested(e, T, e.kind(), nested);
             expr b = p.first;
-            B = p.second;
+            T = p.second;
             lean_assert(b.kind() != e.kind());
             format head;
-            if (!B) {
+            if (!T) {
                 head = is_lambda(e) ? g_lambda_fmt : g_Pi_fmt;
             }
             format body_sep;
-            if (B) {
-                format B_f = pp(B, 0).first;
-                body_sep = format{space(), colon(), space(), B_f, space(), highlight_keyword(format(":="))};
+            if (T) {
+                format T_f = pp(T, 0).first;
+                body_sep = format{space(), colon(), space(), T_f, space(), highlight_keyword(format(":="))};
             } else {
                 body_sep = comma();
             }
@@ -414,7 +416,7 @@ struct pp_fn {
                 result p_domain = pp_scoped_child(domain0, depth);
                 result p_body   = pp_scoped_child(b, depth);
                 format sig      = format{names, space(), colon(), space(), p_domain.first};
-                if (B)
+                if (T)
                     sig = format{lp(), sig, rp()};
                 format r_format = group(nest(m_indent, format{head, space(), sig, body_sep, line(), p_body.first}));
                 return mk_result(r_format, std::max(p_domain.second, p_body.second)+1);
@@ -583,7 +585,7 @@ public:
             return expr_formatter::operator()(kwd, n, t, v);
         } else {
             lean_assert(is_lambda(v));
-            format def = pp_fn(m_frontend, context(), m_options).pp_abstraction_core(v, 0, it1).first;
+            format def = pp_fn(m_frontend, context(), m_options).pp_abstraction_core(v, 0, t).first;
             return format{highlight_command(format(kwd)), space(), format(n), def};
         }
     }

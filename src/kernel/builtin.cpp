@@ -13,8 +13,7 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-
-expr mk_bin_op(expr const & op, expr const & unit, unsigned num_args, expr const * args) {
+expr mk_bin_rop(expr const & op, expr const & unit, unsigned num_args, expr const * args) {
     if (num_args == 0) {
         return unit;
     } else {
@@ -27,71 +26,28 @@ expr mk_bin_op(expr const & op, expr const & unit, unsigned num_args, expr const
         return r;
     }
 }
-
-expr mk_bin_op(expr const & op, expr const & unit, std::initializer_list<expr> const & l) {
-    return mk_bin_op(op, unit, l.size(), l.begin());
+expr mk_bin_rop(expr const & op, expr const & unit, std::initializer_list<expr> const & l) {
+    return mk_bin_rop(op, unit, l.size(), l.begin());
 }
 
-class bool_type_value : public value {
-public:
-    static char const * g_kind;
-    virtual ~bool_type_value() {}
-    char const * kind() const { return g_kind; }
-    virtual expr get_type() const { return Type(); }
-    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const { return false; }
-    virtual bool operator==(value const & other) const { return other.kind() == kind(); }
-    virtual void display(std::ostream & out) const { out << "bool"; }
-    virtual format pp() const { return format("bool"); }
-    virtual unsigned hash() const { return 17; }
-};
-
-char const * bool_type_value::g_kind = "bool";
-
-MK_BUILTIN(bool_type, bool_type_value);
-
-class bool_value_value : public value {
-    bool m_val;
-public:
-    static char const * g_kind;
-    bool_value_value(bool v):m_val(v) {}
-    virtual ~bool_value_value() {}
-    char const * kind() const { return g_kind; }
-    virtual expr get_type() const { return Bool; }
-    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const { return false; }
-    virtual bool operator==(value const & other) const {
-        return other.kind() == kind() && m_val == static_cast<bool_value_value const &>(other).m_val;
+expr mk_bin_lop(expr const & op, expr const & unit, unsigned num_args, expr const * args) {
+    if (num_args == 0) {
+        return unit;
+    } else {
+        expr r = args[0];
+        for (unsigned i = 1; i < num_args; i++) {
+            r = mk_app({op, r, args[i]});
+        }
+        return r;
     }
-    virtual void display(std::ostream & out) const { out << (m_val ? "true" : "false"); }
-    virtual format pp() const { return format(m_val ? "true" : "false"); }
-    virtual unsigned hash() const { return m_val ? 3 : 5; }
-    bool get_val() const { return m_val; }
-};
-
-char const * bool_value_value::g_kind = "bool_value";
-
-expr mk_bool_value(bool v) {
-    static thread_local expr true_val  = mk_value(*(new bool_value_value(true)));
-    static thread_local expr false_val = mk_value(*(new bool_value_value(false)));
-    return v ? true_val : false_val;
+}
+expr mk_bin_lop(expr const & op, expr const & unit, std::initializer_list<expr> const & l) {
+    return mk_bin_lop(op, unit, l.size(), l.begin());
 }
 
-bool is_bool_value(expr const & e) {
-    return is_value(e) && to_value(e).kind() == bool_value_value::g_kind;
-}
 
-bool to_bool(expr const & e) {
-    lean_assert(is_bool_value(e));
-    return static_cast<bool_value_value const &>(to_value(e)).get_val();
-}
-
-bool is_true(expr const & e) {
-    return is_bool_value(e) && to_bool(e);
-}
-
-bool is_false(expr const & e) {
-    return is_bool_value(e) && !to_bool(e);
-}
-
+// =======================================
+// Bultin universe variables m and u
 static level m_lvl(name("m"));
 static level u_lvl(name("u"));
 
@@ -104,17 +60,86 @@ expr mk_type_u() {
     static thread_local expr r = Type(u_lvl);
     return r;
 }
+// =======================================
 
-class if_fn_value : public value {
+// =======================================
+// Boolean Type
+static char const * g_Bool_str = "Bool";
+static format g_Bool_fmt(g_Bool_str);
+class bool_type_value : public value {
+public:
+    static char const * g_kind;
+    virtual ~bool_type_value() {}
+    char const * kind() const { return g_kind; }
+    virtual expr get_type() const { return Type(); }
+    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const { return false; }
+    virtual bool operator==(value const & other) const { return other.kind() == kind(); }
+    virtual void display(std::ostream & out) const { out << g_Bool_str; }
+    virtual format pp() const { return g_Bool_fmt; }
+    virtual unsigned hash() const { return 17; }
+};
+char const * bool_type_value::g_kind = g_Bool_str;
+MK_BUILTIN(bool_type, bool_type_value);
+// =======================================
+
+// =======================================
+// Boolean values True and False
+static char const * g_true_str  = "\u22A4";
+static char const * g_false_str = "\u22A5";
+static format g_true_fmt(g_true_str);
+static format g_false_fmt(g_false_str);
+class bool_value_value : public value {
+    bool m_val;
+public:
+    static char const * g_kind;
+    bool_value_value(bool v):m_val(v) {}
+    virtual ~bool_value_value() {}
+    char const * kind() const { return g_kind; }
+    virtual expr get_type() const { return Bool; }
+    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const { return false; }
+    virtual bool operator==(value const & other) const {
+        return other.kind() == kind() && m_val == static_cast<bool_value_value const &>(other).m_val;
+    }
+    virtual void display(std::ostream & out) const { out << (m_val ? g_true_str : g_false_str); }
+    virtual format pp() const { return m_val ? g_true_fmt : g_false_fmt; }
+    virtual unsigned hash() const { return m_val ? 3 : 5; }
+    bool get_val() const { return m_val; }
+};
+char const * bool_value_value::g_kind = "BoolValue";
+expr mk_bool_value(bool v) {
+    static thread_local expr true_val  = mk_value(*(new bool_value_value(true)));
+    static thread_local expr false_val = mk_value(*(new bool_value_value(false)));
+    return v ? true_val : false_val;
+}
+bool is_bool_value(expr const & e) {
+    return is_value(e) && to_value(e).kind() == bool_value_value::g_kind;
+}
+bool to_bool(expr const & e) {
+    lean_assert(is_bool_value(e));
+    return static_cast<bool_value_value const &>(to_value(e)).get_val();
+}
+bool is_true(expr const & e) {
+    return is_bool_value(e) && to_bool(e);
+}
+bool is_false(expr const & e) {
+    return is_bool_value(e) && !to_bool(e);
+}
+// =======================================
+
+// =======================================
+// If-then-else builtin operator
+static name   g_ite_name = name{"builtin", "if"};
+static format g_ite_fmt(g_ite_name);
+class ite_fn_value : public value {
     expr m_type;
 public:
     static char const * g_kind;
-    if_fn_value() {
+    ite_fn_value() {
         expr A    = Const("A");
         // Pi (A: Type), bool -> A -> A -> A
         m_type = Pi({A, TypeU}, Bool >> (A >> (A >> A)));
     }
-    virtual ~if_fn_value() {}
+    virtual ~ite_fn_value() {}
     char const * kind() const { return g_kind; }
     virtual expr get_type() const { return m_type; }
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
@@ -132,50 +157,21 @@ public:
         }
     }
     virtual bool operator==(value const & other) const { return other.kind() == kind(); }
-    virtual void display(std::ostream & out) const { out << "if"; }
-    virtual format pp() const { return format("if"); }
+    virtual void display(std::ostream & out) const { out << g_ite_name; }
+    virtual format pp() const { return g_ite_fmt; }
     virtual unsigned hash() const { return 27; }
 };
-char const * if_fn_value::g_kind = "if";
+char const * ite_fn_value::g_kind = "builtin::if";
+MK_BUILTIN(ite_fn, ite_fn_value);
+// =======================================
 
-MK_BUILTIN(if_fn, if_fn_value);
-
-class implies_fn_value : public value {
-    expr m_type;
-public:
-    static char const * g_kind;
-    implies_fn_value() {
-        m_type = Bool >> (Bool >> Bool);
-    }
-    virtual ~implies_fn_value() {}
-    char const * kind() const { return g_kind; }
-    virtual expr get_type() const { return m_type; }
-    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
-        if (num_args == 3) {
-            if ((is_bool_value(args[1]) && is_false(args[1])) ||
-                (is_bool_value(args[2]) && is_true(args[2]))) {
-                r = True;
-                return true;
-            } else if (is_bool_value(args[1]) && is_bool_value(args[2]) && is_true(args[1]) && is_false(args[2])) {
-                r = False;
-                return true;
-            }
-        }
-        return false;
-    }
-    virtual bool operator==(value const & other) const { return other.kind() == kind(); }
-    virtual void display(std::ostream & out) const { out << "=>"; }
-    virtual format pp() const { return format("implies"); }
-    virtual unsigned hash() const { return 23; }
-};
-char const * implies_fn_value::g_kind = "implies";
-
-MK_BUILTIN(implies_fn, implies_fn_value);
-MK_CONSTANT(and_fn,    name("and"));
-MK_CONSTANT(or_fn,     name("or"));
-MK_CONSTANT(not_fn,    name("not"));
-MK_CONSTANT(forall_fn, name("forall"));
-MK_CONSTANT(exists_fn, name("exists"));
+MK_CONSTANT(if_fn,      name("if"));
+MK_CONSTANT(implies_fn, name("implies"));
+MK_CONSTANT(and_fn,     name("and"));
+MK_CONSTANT(or_fn,      name("or"));
+MK_CONSTANT(not_fn,     name("not"));
+MK_CONSTANT(forall_fn,  name("forall"));
+MK_CONSTANT(exists_fn,  name("exists"));
 
 // Axioms
 MK_CONSTANT(mp_fn,          name("MP"));
@@ -206,14 +202,21 @@ void add_basic_theory(environment & env) {
     expr H         = Const("H");
     expr H1        = Const("H1");
     expr H2        = Const("H2");
+    expr ite       = mk_ite_fn();
 
-    // not(x) = (x => False)
-    env.add_definition(not_fn_name, p1, Fun({x, Bool}, Implies(x, False)));
+    // if(A, x, y, z) := ite A x y z
+    env.add_definition(if_fn_name, to_value(ite).get_type(), ite);
 
-    // or(x, y) = Not(x) => y
+    // implies(x, y) := ite x y True
+    env.add_definition(implies_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, bIf(x, y, True)));
+
+    // not(x) := ite x False True
+    env.add_definition(not_fn_name, p1, Fun({x, Bool}, bIf(x, False, True)));
+
+    // or(x, y) := Not(x) => y
     env.add_definition(or_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, Implies(Not(x), y)));
 
-    // and(x, y) = Not(x => Not(y))
+    // and(x, y) := Not(x => Not(y))
     env.add_definition(and_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, Not(Implies(x, Not(y)))));
 
     // forall : Pi (A : Type u), (A -> Bool) -> Bool

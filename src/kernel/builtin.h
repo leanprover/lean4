@@ -12,8 +12,15 @@ namespace lean {
    \brief Return unit if <tt>num_args == 0</tt>, args[0] if <tt>num_args == 1</tt>, and
    <tt>(op args[0] (op args[1] (op ... )))</tt>
 */
-expr mk_bin_op(expr const & op, expr const & unit, unsigned num_args, expr const * args);
-expr mk_bin_op(expr const & op, expr const & unit, std::initializer_list<expr> const & l);
+expr mk_bin_rop(expr const & op, expr const & unit, unsigned num_args, expr const * args);
+expr mk_bin_rop(expr const & op, expr const & unit, std::initializer_list<expr> const & l);
+
+/**
+   \brief Return unit if <tt>num_args == 0</tt>, args[0] if <tt>num_args == 1</tt>, and
+   <tt>(op ... (op (op args[0] args[1]) args[2]) ...)</tt>
+*/
+expr mk_bin_lop(expr const & op, expr const & unit, unsigned num_args, expr const * args);
+expr mk_bin_lop(expr const & op, expr const & unit, std::initializer_list<expr> const & l);
 
 /** \brief Return (Type m)  m >= bottom + Offset */
 expr mk_type_m();
@@ -56,13 +63,15 @@ inline expr bIf(expr const & c, expr const & t, expr const & e) { return mk_bool
 expr mk_implies_fn();
 /** \brief Return the term (e1 => e2) */
 inline expr mk_implies(expr const & e1, expr const & e2) { return mk_app(mk_implies_fn(), e1, e2); }
+inline expr mk_implies(unsigned num_args, expr const * args) { lean_assert(num_args>=2); return mk_bin_rop(mk_implies_fn(), False, num_args, args); }
 inline expr Implies(expr const & e1, expr const & e2) { return mk_implies(e1, e2); }
+inline expr Implies(std::initializer_list<expr> const & l) { return mk_implies(l.size(), l.begin()); }
 
 /** \brief Return the Lean And operator */
 expr mk_and_fn();
 /** \brief Return (e1 and e2) */
 inline expr mk_and(expr const & e1, expr const & e2) { return mk_app(mk_and_fn(), e1, e2); }
-inline expr mk_and(unsigned num_args, expr const * args) { return mk_bin_op(mk_and_fn(), True, num_args, args); }
+inline expr mk_and(unsigned num_args, expr const * args) { return mk_bin_rop(mk_and_fn(), True, num_args, args); }
 inline expr And(expr const & e1, expr const & e2) { return mk_and(e1, e2); }
 inline expr And(std::initializer_list<expr> const & l) { return mk_and(l.size(), l.begin()); }
 
@@ -70,7 +79,7 @@ inline expr And(std::initializer_list<expr> const & l) { return mk_and(l.size(),
 expr mk_or_fn();
 /** \brief Return (e1 Or e2) */
 inline expr mk_or(expr const & e1, expr const & e2) { return mk_app(mk_or_fn(), e1, e2); }
-inline expr mk_or(unsigned num_args, expr const * args) { return mk_bin_op(mk_or_fn(), False, num_args, args); }
+inline expr mk_or(unsigned num_args, expr const * args) { return mk_bin_rop(mk_or_fn(), False, num_args, args); }
 inline expr Or(expr const & e1, expr const & e2) { return mk_or(e1, e2); }
 inline expr Or(std::initializer_list<expr> const & l) { return mk_or(l.size(), l.begin()); }
 

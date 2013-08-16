@@ -20,7 +20,7 @@ namespace lean {
    Mixfixr: _ ID _ ID ... _ ID       (has at least two parts)
    Mixfixc: ID _ ID _ ... ID _ ID    (has at least two parts)
 */
-enum class fixity { Prefix, Infixl, Infixr, Postfix, Mixfixl, Mixfixr, Mixfixc };
+enum class fixity { Prefix, Infix, Infixl, Infixr, Postfix, Mixfixl, Mixfixr, Mixfixc };
 
 /**
    \brief Data-structure for storing user defined operator
@@ -43,8 +43,9 @@ public:
 
     friend void swap(operator_info & o1, operator_info & o2) { std::swap(o1.m_ptr, o2.m_ptr); }
 
-    friend bool is_nil(operator_info const & o) { return o.m_ptr == nullptr; }
+    operator bool() const { return m_ptr != nullptr; }
 
+    friend operator_info infix(name const & op, unsigned precedence);
     friend operator_info infixl(name const & op, unsigned precedence);
     friend operator_info infixr(name const & op, unsigned precedence);
     friend operator_info prefix(name const & op, unsigned precedence);
@@ -86,6 +87,7 @@ public:
     friend bool operator==(operator_info const & op1, operator_info const & op2);
     friend bool operator!=(operator_info const & op1, operator_info const & op2) { return !(op1 == op2); }
 };
+operator_info infix(name const & op, unsigned precedence);
 operator_info infixl(name const & op, unsigned precedence);
 operator_info infixr(name const & op, unsigned precedence);
 operator_info prefix(name const & op, unsigned precedence);

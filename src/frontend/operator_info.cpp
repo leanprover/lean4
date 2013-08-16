@@ -76,6 +76,9 @@ bool operator==(operator_info const & op1, operator_info const & op2) {
         return true;
 }
 
+operator_info infix(name const & op, unsigned precedence) {
+    return operator_info(new operator_info::imp(op, fixity::Infix, precedence));
+}
 operator_info infixr(name const & op, unsigned precedence) {
     return operator_info(new operator_info::imp(op, fixity::Infixr, precedence));
 }
@@ -103,6 +106,7 @@ static char const * g_arrow               = "\u21a6";
 format pp(operator_info const & o) {
     format r;
     switch (o.get_fixity()) {
+    case fixity::Infix:   r = format("Infix"); break;
     case fixity::Infixl:  r = format("Infixl"); break;
     case fixity::Infixr:  r = format("Infixr"); break;
     case fixity::Prefix:  r = format("Prefix");  break;
@@ -118,7 +122,7 @@ format pp(operator_info const & o) {
         r += format{format(o.get_precedence()), space()};
 
     switch (o.get_fixity()) {
-    case fixity::Infixl: case fixity::Infixr: case fixity::Prefix: case fixity::Postfix:
+    case fixity::Infix: case fixity::Infixl: case fixity::Infixr: case fixity::Prefix: case fixity::Postfix:
         r += pp(o.get_op_name()); break;
     case fixity::Mixfixl:
         for (auto p : o.get_op_name_parts()) r += format{pp(p), format(" _")};

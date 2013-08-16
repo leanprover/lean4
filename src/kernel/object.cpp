@@ -6,14 +6,8 @@ Author: Leonardo de Moura
 */
 #include "object.h"
 #include "environment.h"
-#include "pp.h" // TODO: move to front-end
 
 namespace lean {
-// TODO: delete hardcoded
-format pp_object_kind(char const * n) { return highlight_command(format(n)); }
-constexpr unsigned indentation = 2; // TODO: must be option
-//
-
 object::~object() {}
 void object::display(std::ostream & out, environment const & env) const { out << pp(env); }
 
@@ -41,9 +35,10 @@ bool         definition::is_definition() const { return true; }
 bool         definition::is_opaque() const     { return m_opaque; }
 expr const & definition::get_value() const     { return m_value; }
 format       definition::pp(environment const & env) const {
-    return nest(indentation,
-                format{pp_object_kind(keyword()), format(" "), format(get_name()), format(" : "), ::lean::pp(get_type(), env), format(" :="),
-                        line(), ::lean::pp(get_value()), format(".")});
+    expr_formatter & fmt = env.get_formatter();
+    format def = format{highlight_command(format(keyword())), space(), format(get_name()), space(), colon(), space(),
+                        fmt(get_type()), format(" :="), line(), fmt(get_value())};
+    return group(fmt.nest(def));
 }
 
 char const * theorem::g_keyword = "Theorem";
@@ -57,8 +52,9 @@ bool         fact::is_definition() const { return false; }
 bool         fact::is_opaque() const     { lean_unreachable(); return false; }
 expr const & fact::get_value() const     { lean_unreachable(); return expr::null(); }
 format fact::pp(environment const & env) const {
-    return nest(indentation,
-                format{pp_object_kind(keyword()), format(" "), format(get_name()), format(" : "), ::lean::pp(get_type(), env), format(".")});
+    expr_formatter & fmt = env.get_formatter();
+    format def = format{highlight_command(format(keyword())), space(), format(get_name()), space(), colon(), space(), fmt(get_type())};
+    return group(fmt.nest(def));
 }
 
 char const * axiom::g_keyword = "Axiom";

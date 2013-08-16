@@ -41,7 +41,7 @@ static name g_pp_colors{"pp", "colors"};
 static name g_pp_width{"pp", "width"};
 
 unsigned get_pp_indent(options const & o) {
-    return o.get_int(g_pp_indent, LEAN_DEFAULT_PP_INDENTATION);
+    return o.get_unsigned(g_pp_indent, LEAN_DEFAULT_PP_INDENTATION);
 }
 
 bool get_pp_colors(options const & o) {
@@ -49,7 +49,7 @@ bool get_pp_colors(options const & o) {
 }
 
 unsigned get_pp_width(options const & o) {
-    return o.get_int(g_pp_width, LEAN_DEFAULT_PP_WIDTH);
+    return o.get_unsigned(g_pp_width, LEAN_DEFAULT_PP_WIDTH);
 }
 
 std::ostream & layout(std::ostream & out, bool colors, sexpr const & s) {

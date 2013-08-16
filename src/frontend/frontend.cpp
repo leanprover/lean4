@@ -9,6 +9,9 @@ Author: Leonardo de Moura
 #include "frontend.h"
 #include "environment.h"
 #include "operator_info.h"
+#include "toplevel.h"
+#include "builtin_notation.h"
+#include "pp.h"
 
 namespace lean {
 /**
@@ -26,9 +29,10 @@ public:
     virtual format pp(environment const &) const {
         char const * cmd;
         switch (m_op.get_fixity()) {
-        case fixity::Infixl:    cmd = "Infixl"; break;
-        case fixity::Infixr:    cmd = "Infixr"; break;
-        case fixity::Prefix:    cmd = "Prefix"; break;
+        case fixity::Infix:     cmd = "Infix";   break;
+        case fixity::Infixl:    cmd = "Infixl";  break;
+        case fixity::Infixr:    cmd = "Infixr";  break;
+        case fixity::Prefix:    cmd = "Prefix";  break;
         case fixity::Postfix:   cmd = "Postfix"; break;
         case fixity::Mixfixl:   cmd = "Mixfixl"; break;
         case fixity::Mixfixr:   cmd = "Mixfixr"; break;
@@ -132,7 +136,7 @@ struct frontend::imp {
     /** \brief Remove all internal operators that are associated with the given operator symbol (aka notation) */
     void remove_bindings(operator_info const & op) {
         for (name const & n : op.get_internal_names()) {
-            if (has_parent() && !is_nil(m_parent->find_op_for(n))) {
+            if (has_parent() && m_parent->find_op_for(n)) {
                 // parent has a binding for n... we must hide it.
                 insert(m_name_to_operator, n, operator_info());
             } else {
@@ -162,7 +166,7 @@ struct frontend::imp {
     void add_op(operator_info new_op, name const & n, bool led) {
         name const & opn = new_op.get_op_name();
         operator_info old_op = find_op(opn, led);
-        if (is_nil(old_op)) {
+        if (!old_op) {
             register_new_op(new_op, n, led);
         } else if (old_op == new_op) {
             // overload
@@ -182,24 +186,17 @@ struct frontend::imp {
         m_env.add_anonymous_object(new notation_declaration(new_op, n));
     }
 
-    void add_infixl(name const & opn, unsigned precedence, name const & n) {
-        add_op(infixl(opn, precedence), n, true);
-    }
+    void add_infixl(name const & opn, unsigned p, name const & n) { add_op(infixl(opn, p), n, true); }
+    void add_infixr(name const & opn, unsigned p, name const & n) { add_op(infixr(opn, p), n, true); }
+    void add_prefix(name const & opn, unsigned p, name const & n) { add_op(prefix(opn, p), n, false); }
+    void add_postfix(name const & opn, unsigned p, name const & n) { add_op(postfix(opn, p), n, true); }
+    void add_mixfixl(unsigned sz, name const * opns, unsigned p, name const & n) { add_op(mixfixl(sz, opns, p), n, false); }
+    void add_mixfixr(unsigned sz, name const * opns, unsigned p, name const & n) { add_op(mixfixr(sz, opns, p), n, true);  }
+    void add_mixfixc(unsigned sz, name const * opns, unsigned p, name const & n) { add_op(mixfixc(sz, opns, p), n, false); }
 
-    void add_infixr(name const & opn, unsigned precedence, name const & n) {
-        add_op(infixr(opn, precedence), n, true);
-    }
-
-    void add_prefix(name const & opn, unsigned precedence, name const & n) {
-        add_op(prefix(opn, precedence), n, false);
-    }
-
-    void add_postfix(name const & opn, unsigned precedence, name const & n) {
-        add_op(postfix(opn, precedence), n, true);
-    }
-
-    imp():
-        m_num_children(0) {
+    imp(frontend & fe):
+        m_num_children(0),
+        m_env(mk_toplevel()) {
     }
 
     explicit imp(std::shared_ptr<imp> const & parent):
@@ -215,37 +212,18 @@ struct frontend::imp {
     }
 };
 
-frontend::frontend():
-    m_imp(new imp()) {
+frontend::frontend():m_imp(new imp(*this)) {
+    init_builtin_notation(*this);
+    m_imp->m_env.set_formatter(mk_pp_expr_formatter(*this, options()));
 }
+frontend::frontend(imp * new_ptr):m_imp(new_ptr) {}
+frontend::frontend(std::shared_ptr<imp> const & ptr):m_imp(ptr) {}
+frontend::~frontend() {}
 
-frontend::frontend(imp * new_ptr):
-    m_imp(new_ptr) {
-}
-
-frontend::frontend(std::shared_ptr<imp> const & ptr):
-    m_imp(ptr) {
-}
-
-frontend::~frontend() {
-}
-
-frontend frontend::mk_child() const {
-    return frontend(new imp(m_imp));
-}
-
-bool frontend::has_children() const {
-    return m_imp->has_children();
-}
-
-bool frontend::has_parent() const {
-    return m_imp->has_parent();
-}
-
-frontend frontend::parent() const {
-    lean_assert(has_parent());
-    return frontend(m_imp->m_parent);
-}
+frontend frontend::mk_child() const { return frontend(new imp(m_imp)); }
+bool frontend::has_children() const { return m_imp->has_children(); }
+bool frontend::has_parent() const { return m_imp->has_parent(); }
+frontend frontend::parent() const { lean_assert(has_parent()); return frontend(m_imp->m_parent); }
 
 environment const & frontend::env() const { return m_imp->m_env; }
 
@@ -257,6 +235,10 @@ void frontend::add_infixl(name const & opn, unsigned p, name const & n)  { m_imp
 void frontend::add_infixr(name const & opn, unsigned p, name const & n)  { m_imp->add_infixr(opn, p, n); }
 void frontend::add_prefix(name const & opn, unsigned p, name const & n)  { m_imp->add_prefix(opn, p, n); }
 void frontend::add_postfix(name const & opn, unsigned p, name const & n) { m_imp->add_postfix(opn, p, n); }
+void frontend::add_mixfixl(unsigned sz, name const * opns, unsigned p, name const & n) { m_imp->add_mixfixl(sz, opns, p, n); }
+void frontend::add_mixfixr(unsigned sz, name const * opns, unsigned p, name const & n) { m_imp->add_mixfixr(sz, opns, p, n); }
+void frontend::add_mixfixc(unsigned sz, name const * opns, unsigned p, name const & n) { m_imp->add_mixfixc(sz, opns, p, n); }
+operator_info frontend::find_op_for(name const & n) const { return m_imp->find_op_for(n); }
 
 void frontend::display(std::ostream & out) const { m_imp->m_env.display(out); }
 }

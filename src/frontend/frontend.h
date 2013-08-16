@@ -6,10 +6,10 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
-#include "level.h"
+#include "environment.h"
+#include "operator_info.h"
 
 namespace lean {
-class environment;
 /**
    \brief Object for managing the environment, parser, pretty printer,
    elaborator, etc.
@@ -56,6 +56,17 @@ public:
     void add_infixr(name const & opn, unsigned precedence, name const & n);
     void add_prefix(name const & opn, unsigned precedence, name const & n);
     void add_postfix(name const & opn, unsigned precedence, name const & n);
+    void add_mixfixl(unsigned sz, name const * opns, unsigned precedence, name const & n);
+    void add_mixfixr(unsigned sz, name const * opns, unsigned precedence, name const & n);
+    void add_mixfixc(unsigned sz, name const * opns, unsigned precedence, name const & n);
+    /**
+        \brief Return the operator (if it exists) associated with the
+        given internal name.
+
+        \remark If an operator is not associated with \c n, then
+        return the nil operator.
+    */
+    operator_info find_op_for(name const & n) const;
     // =======================================
 
     /** \brief Display universal variable constraints and objects stored in this environment and its parents. */

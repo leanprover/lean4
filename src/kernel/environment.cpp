@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include "safe_arith.h"
 #include "type_check.h"
 #include "exception.h"
-#include "pp.h"
 #include "debug.h"
 
 namespace lean {

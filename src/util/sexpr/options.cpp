@@ -35,6 +35,11 @@ int options::get_int(name const & n, int default_value) const {
     return !is_nil(r) && is_int(r) ? to_int(r) : default_value;
 }
 
+unsigned options::get_unsigned(name const & n, unsigned default_value) const {
+    sexpr const & r = get_sexpr(n);
+    return !is_nil(r) && is_int(r) ? static_cast<unsigned>(to_int(r)) : default_value;
+}
+
 bool options::get_bool(name const & n, bool default_value) const {
     sexpr const & r = get_sexpr(n);
     return !is_nil(r) && is_bool(r) ? to_bool(r) != 0 : default_value;
@@ -58,6 +63,11 @@ sexpr options::get_sexpr(char const * n, sexpr const & default_value) const {
 int options::get_int(char const * n, int default_value) const {
     sexpr const & r = get_sexpr(n);
     return !is_nil(r) && is_int(r) ? to_int(r) : default_value;
+}
+
+unsigned options::get_unsigned(char const * n, unsigned default_value) const {
+    sexpr const & r = get_sexpr(n);
+    return !is_nil(r) && is_int(r) ? static_cast<unsigned>(to_int(r)) : default_value;
 }
 
 bool options::get_bool(char const * n, bool default_value) const {

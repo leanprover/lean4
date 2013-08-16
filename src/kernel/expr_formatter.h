@@ -15,7 +15,7 @@ class expr_formatter {
 public:
     virtual ~expr_formatter() {}
     /** \brief Convert expression in the given context into a format object. */
-    virtual format operator()(expr const & e, context const & c) = 0;
+    virtual format operator()(expr const & e, context const & c = context()) = 0;
     /** \brief Return options for pretty printing. */
     virtual options get_options() const = 0;
 

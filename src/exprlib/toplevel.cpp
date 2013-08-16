@@ -10,11 +10,14 @@ Author: Leonardo de Moura
 #include "arith.h"
 
 namespace lean {
+void init_toplevel(environment & env) {
+    add_basic_theory(env);
+    add_basic_thms(env);
+    add_int_theory(env);
+}
 environment mk_toplevel() {
     environment r;
-    add_basic_theory(r);
-    add_basic_thms(r);
-    add_int_theory(r);
+    init_toplevel(r);
     return r;
 }
 }

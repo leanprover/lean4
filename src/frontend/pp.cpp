@@ -67,7 +67,7 @@ bool     get_pp_extra_lets(options const & opts)      { return opts.get_bool(g_p
 unsigned get_pp_alias_min_depth(options const & opts) { return opts.get_unsigned(g_pp_alias_min_depth, LEAN_DEFAULT_PP_ALIAS_MIN_DEPTH); }
 
 /** \brief Functional object for pretty printing expressions */
-struct pp_fn {
+class pp_fn {
     typedef scoped_map<expr, name, expr_hash, expr_eqp> aliases;
     typedef std::vector<std::pair<name, format>>        aliases_defs;
     frontend const & m_frontend;
@@ -423,7 +423,7 @@ struct pp_fn {
             } else {
                 auto it  = nested.begin();
                 auto end = nested.end();
-                unsigned r_depth;
+                unsigned r_depth = 0;
                 // PP binders in blocks (names ... : type)
                 bool first = true;
                 format bindings;
@@ -515,6 +515,7 @@ struct pp_fn {
             case expr_kind::Let:        r = pp_let(e, depth);         break;
             }
             if (m_extra_lets && is_shared(e) && r.second > m_alias_min_depth) {
+                lean_unreachable(); // TODO: remove
                 std::cout << "DEPTH: " << r.second << "\n";
                 name new_aux = name(m_aux, m_aliases.size());
                 m_aliases.insert(e, new_aux);
@@ -534,6 +535,14 @@ struct pp_fn {
         m_alias_min_depth = get_pp_alias_min_depth(opts);
     }
 
+    void init() {
+        m_aliases.clear();
+        m_aliases_defs.clear();
+        m_num_steps = 0;
+        m_aux = name("aux"); // TODO: find non used prefix
+    }
+
+public:
     pp_fn(frontend const & fe, context const & ctx, options const & opts):
         m_frontend(fe),
         m_context(ctx) {
@@ -541,11 +550,14 @@ struct pp_fn {
     }
 
     format operator()(expr const & e) {
-        m_aliases.clear();
-        m_aliases_defs.clear();
-        m_num_steps = 0;
-        m_aux = name("aux"); // TODO: find non used prefix
+        init();
         return pp(e, 0).first;
+    }
+
+    format pp_definition(expr const & v, expr const & t) {
+        init();
+        expr T(t);
+        return pp_abstraction_core(v, 0, T).first;
     }
 };
 
@@ -585,7 +597,7 @@ public:
             return expr_formatter::operator()(kwd, n, t, v);
         } else {
             lean_assert(is_lambda(v));
-            format def = pp_fn(m_frontend, context(), m_options).pp_abstraction_core(v, 0, t).first;
+            format def = pp_fn(m_frontend, context(), m_options).pp_definition(v, t);
             return format{highlight_command(format(kwd)), space(), format(n), def};
         }
     }

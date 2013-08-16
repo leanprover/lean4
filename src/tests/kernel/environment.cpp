@@ -41,7 +41,7 @@ static void tst1() {
     std::cout << "tst1 checkpoint" << std::endl;
     level o = env.add_uvar("o", w + 1);
     lean_assert(!env.has_children());
-    env.display_uvars(std::cout);
+    std::cout << env;
 }
 
 static environment mk_child() {
@@ -55,7 +55,7 @@ static void tst2() {
     lean_assert(child.has_parent());
     lean_assert(!child.has_children());
     environment parent = child.parent();
-    parent.display_uvars(std::cout);
+    std::cout << parent;
     lean_assert(parent.has_children());
     std::cout << "uvar: " << child.get_uvar("u") << "\n";
 }
@@ -179,17 +179,17 @@ static void tst8() {
     env2.add_var("d", Type());
     env2.add_var("e", Type());
     unsigned counter = 0;
-    std::for_each(env2.begin_local_objects(), env2.end_local_objects(), [&](object const & obj) { std::cout << obj.pp(env2) << "\n"; counter++; });
+    std::for_each(env2.begin_local_objects(), env2.end_local_objects(), [&](object const & obj) { std::cout << obj.keyword() << " " << obj.get_name() << "\n"; counter++; });
     lean_assert(counter == 3);
     std::cout << "=======================\n";
     counter = 0;
-    std::for_each(env2.begin_objects(), env2.end_objects(), [&](object const & obj) { std::cout << obj.pp(env2) << "\n"; counter++; });
+    std::for_each(env2.begin_objects(), env2.end_objects(), [&](object const & obj) { std::cout << obj.keyword() << " " << obj.get_name() << "\n"; counter++; });
     lean_assert(counter == 5);
     environment env3 = env2.mk_child();
     env3.add_var("f", Type() >> Type());
     std::cout << "=======================\n";
     counter = 0;
-    std::for_each(env3.begin_objects(), env3.end_objects(), [&](object const & obj) { std::cout << obj.pp(env3) << "\n"; counter++; });
+    std::for_each(env3.begin_objects(), env3.end_objects(), [&](object const & obj) { std::cout << obj.keyword() << " " << obj.get_name() << "\n"; counter++; });
     lean_assert(counter == 6);
 }
 
@@ -199,7 +199,7 @@ static void tst9() {
         env.add_uvar("u1", level());
         env.add_uvar("u2", level());
         env.add_uvar("u1", level("u2"));
-    } catch (already_declared_universe_exception & ex) {
+    } catch (already_declared_exception & ex) {
         std::cout << ex.what() << "\n";
         level l = ex.get_environment().get_uvar(ex.get_name());
         std::cout << l << "\n";

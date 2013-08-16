@@ -73,9 +73,6 @@ public:
     */
     bool is_ge(level const & l1, level const & l2) const;
 
-    /** \brief Display universal variables, and their constraints */
-    void display_uvars(std::ostream & out) const;
-
     /**
        \brief Return universal variable with the given name.
        Throw an exception if variable is not defined in this environment.
@@ -112,22 +109,16 @@ public:
        \brief Register the given unanymous object in this environment.
        The environment assume the object ownership.
     */
-    void add_anonymous_object(anonymous_object * o);
+    void add_neutral_object(neutral_object_cell * o);
 
     /**
        \brief Return the object with the given name.
        It throws an exception if the environment does not have an object with the given name.
     */
-    named_object const & get_object(name const & n) const;
-
-    /**
-       \brief Return the object with the given name.
-       Return nullptr if there is no object with the given name.
-    */
-    named_object const * get_object_ptr(name const & n) const;
+    object const & get_object(name const & n) const;
 
     /** \brief Return true iff the environment has an object with the given name */
-    bool has_object(name const & n) const { return get_object_ptr(n) != nullptr; }
+    bool has_object(name const & n) const { return get_object(n); }
 
     /** \brief Iterator for Lean environment objects. */
     class object_iterator {

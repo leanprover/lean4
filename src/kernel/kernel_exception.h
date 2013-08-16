@@ -45,26 +45,13 @@ public:
     virtual char const * what() const noexcept { return "unknown object"; }
 };
 
-/** \brief Base class for already declared universe or object. */
+/** \brief Base class for already declared object. */
 class already_declared_exception : public kernel_exception {
     name m_name;
 public:
     already_declared_exception(environment const & env, name const & n):kernel_exception(env), m_name(n) {}
     virtual ~already_declared_exception() noexcept {}
     name const & get_name() const { return m_name; }
-};
-
-/** \brief Exception used to report that a universe variable has already been declared in a given environment. */
-class already_declared_universe_exception : public already_declared_exception {
-public:
-    already_declared_universe_exception(environment const & env, name const & n):already_declared_exception(env, n) {}
-    virtual char const * what() const noexcept { return "invalid universe variable declaration, it has already been declared"; }
-};
-
-/** \brief Exception used to report that an object has already been declared in a given environment. */
-class already_declared_object_exception : public already_declared_exception {
-public:
-    already_declared_object_exception(environment const & env, name const & n):already_declared_exception(env, n) {}
     virtual char const * what() const noexcept { return "invalid object declaration, environment already has an object the given name"; }
 };
 

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "expr.h"
+#include "rc.h"
 
 /*
   Kernel objects.
@@ -14,19 +15,17 @@ Author: Leonardo de Moura
   frontend may need to create new objects for bookkeeping.
 */
 namespace lean {
-class environment;
+enum class object_kind { UVarDeclaration, Definition, Postulate, Neutral };
 
-/**
-   \brief Abstract class used to represent kernel objects (i.e.,
-   definitions, theorems, axioms, recursive definitions, etc)
-*/
-class object {
-protected:
+class object_cell {
+    void dealloc() { delete this; }
+    MK_LEAN_RC();
+    object_kind m_kind;
 public:
-    object() {}
-    object(object const & o) = delete;
-    object & operator=(object const & o) = delete;
-    virtual ~object();
+    object_cell(object_kind k):m_rc(1), m_kind(k) {}
+    virtual ~object_cell() {}
+
+    object_kind kind() const { return m_kind; }
 
     /**
         \brief Return the keyword used to define this object in a Lean
@@ -34,43 +33,43 @@ public:
     */
     virtual char const * keyword() const = 0;
 
-    /** \brief Pretty print this object. */
-    virtual format pp(environment const &) const = 0;
-
-    /** \brief Display the object in the standard output. */
-    virtual void display(std::ostream & out, environment const &) const;
-
     /** \brief Return true iff object has a name. */
     virtual bool has_name() const = 0;
-
     /** \brief Return object name. \pre has_name() */
     virtual name const & get_name() const = 0;
 
+    /** \brief Has constraint level associated with it (for universal variables). */
+    virtual bool has_cnstr_level() const = 0;
+    /** \brief Return the constraint level associated with the object. */
+    virtual level get_cnstr_level() const = 0;
+
     /** \brief Return true iff object has a type. */
     virtual bool has_type() const = 0;
-
     /** \brief Return object type. \pre has_type() */
     virtual expr const & get_type() const = 0;
 
     /** \brief Return true iff object is a definition */
     virtual bool is_definition() const = 0;
-
     /** \brief Return true iff the definition is opaque. \pre is_definition() */
     virtual bool is_opaque() const = 0;
-
     /** \brief Return object value. \pre is_definition() */
     virtual expr const & get_value() const = 0;
 };
 
 /**
-   \brief Anonymous objects are mainly used for bookkeeping.
+   \brief Neutral objects are mainly used for bookkeeping in
+   kernel frontends.
 */
-class anonymous_object : public object {
+class neutral_object_cell : public object_cell {
 public:
-    virtual ~anonymous_object();
+    neutral_object_cell();
+    virtual ~neutral_object_cell();
 
     virtual bool has_name() const;
     virtual name const & get_name() const;
+
+    virtual bool has_cnstr_level() const;
+    virtual level get_cnstr_level() const;
 
     virtual bool has_type() const;
     virtual expr const & get_type() const;
@@ -81,91 +80,53 @@ public:
 };
 
 /**
-   \brief Named (and typed) kernel objects.
+   \brief Environment objects: definitions, theorems, axioms, universe
+   variable declarations, etc.
 */
-class named_object : public object {
-    name m_name;
-    expr m_type;
+class object {
+    object_cell * m_ptr;
+    explicit object(object_cell * ptr):m_ptr(ptr) {}
 public:
-    named_object(name const & n, expr const & t);
-    virtual ~named_object();
+    object():m_ptr(nullptr) {}
+    object(object const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
+    object(object && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
+    ~object() { if (m_ptr) m_ptr->dec_ref(); }
 
-    virtual bool has_name() const;
-    virtual name const & get_name() const;
+    static object const & null();
 
-    virtual bool has_type() const;
-    virtual expr const & get_type() const;
+    friend void swap(object & a, object & b) { std::swap(a.m_ptr, b.m_ptr); }
+
+    void release() { if (m_ptr) m_ptr->dec_ref(); m_ptr = nullptr; }
+
+    object & operator=(object const & s) { LEAN_COPY_REF(object, s); }
+    object & operator=(object && s) { LEAN_MOVE_REF(object, s); }
+
+    operator bool() const { return m_ptr != nullptr; }
+
+    object_kind kind() const { return m_ptr->kind(); }
+
+    friend object mk_uvar_decl(name const & n, level const & l);
+    friend object mk_definition(name const & n, expr const & t, expr const & v, bool opaque);
+    friend object mk_theorem(name const & n, expr const & t, expr const & v);
+    friend object mk_axiom(name const & n, expr const & t);
+    friend object mk_var_decl(name const & n, expr const & t);
+    friend object mk_neutral(neutral_object_cell * c);
+
+    char const * keyword() const { return m_ptr->keyword(); }
+    bool has_name() const { return m_ptr->has_name(); }
+    name const & get_name() const { return m_ptr->get_name(); }
+    bool has_type() const { return m_ptr->has_type(); }
+    bool has_cnstr_level() const { return m_ptr->has_cnstr_level(); }
+    level get_cnstr_level() const { return m_ptr->get_cnstr_level(); }
+    expr const & get_type() const { return m_ptr->get_type(); }
+    bool is_definition() const { return m_ptr->is_definition(); }
+    bool is_opaque() const { return m_ptr->is_opaque(); }
+    expr const & get_value() const { return m_ptr->get_value(); }
 };
-
-/**
-   \brief Non-recursive definitions.
-*/
-class definition : public named_object {
-    expr m_value;
-    bool m_opaque; // Opaque definitions are ignored by definitional equality.
-public:
-    definition(name const & n, expr const & t, expr const & v, bool opaque);
-    virtual ~definition();
-
-    static char const * g_keyword;
-    virtual char const * keyword() const;
-
-    virtual bool is_definition() const;
-    virtual bool is_opaque() const;
-    virtual expr const & get_value() const;
-
-    virtual format pp(environment const & env) const;
-};
-
-/**
-   \brief A theorem is essentially an opaque definition.
-*/
-class theorem : public definition {
-public:
-    theorem(name const & n, expr const & t, expr const & v);
-    virtual ~theorem();
-
-    static char const * g_keyword;
-    virtual char const * keyword() const;
-};
-
-/**
-   \brief Base class for named objects that are not definitions.
-*/
-class fact : public named_object {
-public:
-    fact(name const & n, expr const & t);
-    virtual ~fact();
-
-    virtual bool is_definition() const;
-    virtual bool is_opaque() const;
-    virtual expr const & get_value() const;
-
-    virtual format pp(environment const & env) const;
-};
-
-/**
-   \brief Axioms
-*/
-class axiom : public fact {
-public:
-    axiom(name const & n, expr const & t);
-    virtual ~axiom();
-
-    static char const * g_keyword;
-    virtual char const * keyword() const;
-};
-
-/**
-   \brief Variable postulate. It is like an axiom since we are
-   essentially postulating that a type is inhabited.
-*/
-class variable : public fact {
-public:
-    variable(name const & n, expr const & t);
-    virtual ~variable();
-
-    static char const * g_keyword;
-    virtual char const * keyword() const;
-};
+object mk_uvar_decl(name const & n, level const & l);
+object mk_definition(name const & n, expr const & t, expr const & v, bool opaque);
+object mk_theorem(name const & n, expr const & t, expr const & v);
+object mk_axiom(name const & n, expr const & t);
+object mk_var_decl(name const & n, expr const & t);
+inline object mk_neutral(neutral_object_cell * c) { lean_assert(c->get_rc() == 1); return object(c); }
 }

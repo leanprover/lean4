@@ -18,7 +18,7 @@ namespace lean {
     \brief Create object for tracking notation/operator declarations.
     This object is mainly used for pretty printing.
 */
-class notation_declaration : public anonymous_object {
+class notation_declaration : public neutral_object_cell {
     operator_info m_op;
     name          m_name;
 public:
@@ -183,7 +183,7 @@ struct frontend::imp {
             remove_bindings(old_op);
             register_new_op(new_op, n, led);
         }
-        m_env.add_anonymous_object(new notation_declaration(new_op, n));
+        m_env.add_neutral_object(new notation_declaration(new_op, n));
     }
 
     void add_infixl(name const & opn, unsigned p, name const & n) { add_op(infixl(opn, p), n, true); }

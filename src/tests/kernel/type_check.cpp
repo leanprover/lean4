@@ -181,7 +181,7 @@ static void tst10() {
     expr prop  = Eq(t1, t2);
     expr proof = Refl(Int, t1);
     env.add_theorem("simp_eq", prop, proof);
-    std::cout << env.get_object("simp_eq").pp(env) << "\n";
+    std::cout << env.get_object("simp_eq").get_name() << "\n";
 }
 
 static void tst11() {

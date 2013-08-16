@@ -19,7 +19,7 @@ static void tst1() {
     std::cout << pp(max(l1 + 8, max(l2 + 2, l3 + 20))) << "\n";
     std::cout << pp(level()) << "\n";
     std::cout << pp(level()+1) << "\n";
-    env.display_uvars(std::cout);
+    std::cout << env;
     lean_assert(env.is_ge(l4 + 10, l3 + 30));
     lean_assert(!env.is_ge(l4 + 9, l3 + 30));
 }
@@ -74,7 +74,7 @@ static void tst4() {
     lean_assert(env.is_ge(max(l6, l5), max(l2+3, l1+1)));
     lean_assert(!env.is_ge(max(l6, l5), max(l2, l1+1)+3));
     lean_assert(env.is_ge(max(l6+1, l5), max(l2, l1+1)+3));
-    env.display_uvars(std::cout);
+    std::cout << env;
 }
 
 static void tst5() {

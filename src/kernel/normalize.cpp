@@ -147,7 +147,7 @@ class normalize_fn {
             r = lookup(s, var_idx(a), k);
             break;
         case expr_kind::Constant: {
-            named_object const & obj = m_env.get_object(const_name(a));
+            object const & obj = m_env.get_object(const_name(a));
             if (obj.is_definition() && !obj.is_opaque()) {
                 r = normalize(obj.get_value(), value_stack(), 0);
             }

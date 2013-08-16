@@ -316,8 +316,11 @@ struct pp_fn {
        variables with unused names. Store in \c r the selected names
        and associated domains. Return the body of the sequence of
        Lambda (of Pis).
+
+       \remark The argument B is only relevant when processing
+       condensed definitions. \see pp_abstraction_core.
     */
-    expr collect_nested(expr const & e, expr_kind k, buffer<std::pair<name, expr>> & r) {
+    std::pair<expr, expr> collect_nested(expr const & e, expr B, expr_kind k, buffer<std::pair<name, expr>> & r) {
         if (e.kind() == k) {
             name const & n = abst_name(e);
             name n1    = n;
@@ -328,9 +331,11 @@ struct pp_fn {
             }
             r.push_back(mk_pair(n1, abst_domain(e)));
             expr b = instantiate_with_closed(abst_body(e), mk_constant(n1));
-            return collect_nested(b, k, r);
+            if (B)
+                B = instantiate_with_closed(B, mk_constant(n1));
+            return collect_nested(b, B, k, r);
         } else {
-            return e;
+            return mk_pair(e, B);
         }
     }
 
@@ -363,26 +368,55 @@ struct pp_fn {
         return r;
     }
 
-    result pp_abstraction(expr const & e, unsigned depth) {
+    /**
+       \brief Pretty print Lambdas, Pis and compact definitions.
+       When B != 0, it is a compact definition.
+       A compact definition is of the form
+
+       Defintion Name Pi(x : A), B := Lambda (x : A), T
+
+       it is printed as
+
+       Defintion Name (x : A) : B := T
+
+       This method only generates the
+          (x : A) : B := T
+       for compact definitions.
+    */
+    result pp_abstraction_core(expr const & e, unsigned depth, expr B) {
         if (is_arrow(e)) {
+            lean_assert(!B);
             result p_lhs    = pp_child(abst_domain(e), depth);
             result p_rhs    = pp_arrow_body(abst_body(e), depth);
             format r_format = group(format{p_lhs.first, space(), g_arrow_fmt, line(), p_rhs.first});
             return mk_result(r_format, std::max(p_lhs.second, p_rhs.second) + 1);
         } else {
             buffer<std::pair<name, expr>> nested;
-            expr b = collect_nested(e, e.kind(), nested);
+            auto p = collect_nested(e, B, e.kind(), nested);
+            expr b = p.first;
+            B = p.second;
             lean_assert(b.kind() != e.kind());
-            format head     = is_lambda(e) ? g_lambda_fmt : g_Pi_fmt;
-            format body_sep = comma();
-
+            format head;
+            if (!B) {
+                head = is_lambda(e) ? g_lambda_fmt : g_Pi_fmt;
+            }
+            format body_sep;
+            if (B) {
+                format B_f = pp(B, 0).first;
+                body_sep = format{space(), colon(), space(), B_f, space(), format(":=")};
+            } else {
+                body_sep = comma();
+            }
             expr domain0 = nested[0].second;
             if (std::all_of(nested.begin() + 1, nested.end(), [&](std::pair<name, expr> const & p) { return p.second == domain0; })) {
                 // Domain of all binders is the same
                 format names    = pp_bnames(nested.begin(), nested.end(), false);
                 result p_domain = pp_scoped_child(domain0, depth);
                 result p_body   = pp_scoped_child(b, depth);
-                format r_format = group(nest(m_indent, format{head, space(), names, space(), colon(), space(), p_domain.first, body_sep, line(), p_body.first}));
+                format sig      = format{names, space(), colon(), space(), p_domain.first};
+                if (B)
+                    sig = format{lp(), sig, rp()};
+                format r_format = group(nest(m_indent, format{head, space(), sig, body_sep, line(), p_body.first}));
                 return mk_result(r_format, std::max(p_domain.second, p_body.second)+1);
             } else {
                 auto it  = nested.begin();
@@ -413,6 +447,10 @@ struct pp_fn {
                 return mk_result(r_format, std::max(r_depth, p_body.second)+1);
             }
         }
+    }
+
+    result pp_abstraction(expr const & e, unsigned depth) {
+        return pp_abstraction_core(e, depth, expr());
     }
 
     result pp_let(expr const & e, unsigned depth) {
@@ -530,6 +568,24 @@ public:
     // before pretty-printing it.
     virtual format operator()(expr const & e, context const & c) {
         return pp_fn(m_frontend, c, m_options)(e);
+    }
+
+    virtual format operator()(char const * kwd, name const & n, expr const & t, expr const & v) {
+        expr it1 = t;
+        expr it2 = v;
+        while (is_pi(it1) && is_lambda(it2)) {
+            if (abst_domain(it1) != abst_domain(it2))
+                return expr_formatter::operator()(kwd, n, t, v);
+            it1 = abst_body(it1);
+            it2 = abst_body(it2);
+        }
+        if (!is_lambda(v) || is_pi(it1) || is_lambda(it2)) {
+            return expr_formatter::operator()(kwd, n, t, v);
+        } else {
+            lean_assert(is_lambda(v));
+            format def = pp_fn(m_frontend, context(), m_options).pp_abstraction_core(v, 0, it1).first;
+            return format{highlight_command(format(kwd)), space(), format(n), def};
+        }
     }
 };
 

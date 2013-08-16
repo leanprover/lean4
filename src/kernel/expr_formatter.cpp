@@ -11,7 +11,7 @@ namespace lean {
 
 format expr_formatter::operator()(char const * kwd, name const & n, expr const & t, expr const & v) {
     format def = format{highlight_command(format(kwd)), space(), format(n), space(), colon(), space(),
-                        operator()(t), format(" :="), line(), operator()(v)};
+                        operator()(t), space(), highlight_keyword(format(":=")), line(), operator()(v)};
     return group(nest(def));
 }
 

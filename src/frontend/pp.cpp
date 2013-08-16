@@ -403,7 +403,7 @@ struct pp_fn {
             format body_sep;
             if (B) {
                 format B_f = pp(B, 0).first;
-                body_sep = format{space(), colon(), space(), B_f, space(), format(":=")};
+                body_sep = format{space(), colon(), space(), B_f, space(), highlight_keyword(format(":="))};
             } else {
                 body_sep = comma();
             }

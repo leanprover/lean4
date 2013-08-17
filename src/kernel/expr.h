@@ -387,7 +387,6 @@ struct expr_cell_offset_eqp { unsigned operator()(expr_cell_offset const & p1, e
 
 // =======================================
 // Miscellaneous
-std::ostream & operator<<(std::ostream & out, expr const & a);
 /**
    \brief Wrapper for iterating over application arguments.
 
@@ -468,4 +467,3 @@ template<typename F> expr update_eq(expr const & e, F f) {
 }
 // =======================================
 }
-void print(lean::expr const & a);

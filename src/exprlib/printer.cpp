@@ -171,3 +171,7 @@ std::ostream & operator<<(std::ostream & out, environment const & env) {
     return out;
 }
 }
+void print(lean::expr const & a) { std::cout << a << std::endl; }
+void print(lean::expr const & a, lean::context const & c) { std::cout << mk_pair(a, c) << std::endl; }
+void print(lean::context const & c) { std::cout << c << std::endl; }
+void print(lean::environment const & e) { std::cout << e << std::endl; }

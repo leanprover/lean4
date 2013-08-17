@@ -11,10 +11,8 @@ Author: Leonardo de Moura
 #include "free_vars.h"
 #include "expr_sets.h"
 #include "hash.h"
-#include "format.h"
 
 namespace lean {
-
 unsigned hash_args(unsigned size, expr const * args) {
     return hash(size, [&args](unsigned i){ return args[i].hash(); });
 }
@@ -204,4 +202,3 @@ expr copy(expr const & a) {
     return expr();
 }
 }
-void print(lean::expr const & a) { std::cout << a << "\n"; }

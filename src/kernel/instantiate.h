@@ -21,5 +21,4 @@ inline expr instantiate_with_closed(expr const & e, expr const & s) { return ins
 */
 expr instantiate(expr const & e, unsigned n, expr const * s);
 inline expr instantiate(expr const & e, expr const & s) { return instantiate(e, 1, &s); }
-
 }

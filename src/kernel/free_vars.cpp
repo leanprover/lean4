@@ -186,5 +186,4 @@ expr lift_free_vars(expr const & e, unsigned d) {
     };
     return replace_fn<decltype(f)>(f)(e);
 }
-
 }

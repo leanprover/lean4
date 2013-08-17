@@ -7,14 +7,11 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <vector>
 #include <atomic>
-#include <sstream>
 #include <unordered_map>
 #include "kernel_exception.h"
 #include "environment.h"
 #include "safe_arith.h"
 #include "type_check.h"
-#include "exception.h"
-#include "debug.h"
 
 namespace lean {
 

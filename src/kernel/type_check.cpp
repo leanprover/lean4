@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "scoped_map.h"
 #include "builtin.h"
 #include "free_vars.h"
-#include "trace.h"
 
 namespace lean {
 bool is_convertible_core(expr const & expected, expr const & given, environment const & env) {
@@ -58,7 +57,6 @@ struct infer_type_fn {
     }
 
     level infer_universe(expr const & t, context const & ctx) {
-        lean_trace("type_check", tout << "infer universe\n" << t << "\n";);
         expr u = normalize(infer_type(t, ctx), m_env, ctx);
         if (is_type(u))
             return ty_level(u);

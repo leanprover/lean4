@@ -58,7 +58,8 @@ public:
 
 /**
    \brief Neutral objects are mainly used for bookkeeping in
-   kernel frontends.
+   frontends built on top of the kernel.
+   The kernel does *not* create neutral objects.
 */
 class neutral_object_cell : public object_cell {
 public:
@@ -122,6 +123,8 @@ public:
     bool is_definition() const { return m_ptr->is_definition(); }
     bool is_opaque() const { return m_ptr->is_opaque(); }
     expr const & get_value() const { return m_ptr->get_value(); }
+
+    object_cell const * cell() const { return m_ptr; }
 };
 object mk_uvar_decl(name const & n, level const & l);
 object mk_definition(name const & n, expr const & t, expr const & v, bool opaque);

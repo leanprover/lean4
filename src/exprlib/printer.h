@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 namespace lean {
 std::ostream & operator<<(std::ostream & out, context const & ctx);
 std::ostream & operator<<(std::ostream & out, expr const & e);
-std::ostream & operator<<(std::ostream & out, std::pair<context const &, expr const &> const & p);
+std::ostream & operator<<(std::ostream & out, std::pair<expr const &, context const &> const & p);
 class environment;
 std::ostream & operator<<(std::ostream & out, environment const & env);
 }

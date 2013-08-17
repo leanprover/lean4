@@ -14,41 +14,6 @@ Author: Leonardo de Moura
 #include "pp.h"
 
 namespace lean {
-/**
-    \brief Create object for tracking notation/operator declarations.
-    This object is mainly used for pretty printing.
-*/
-class notation_declaration : public neutral_object_cell {
-    operator_info m_op;
-    name          m_name;
-public:
-    notation_declaration(operator_info const & op, name const & n):m_op(op), m_name(n) {}
-    virtual ~notation_declaration() {}
-    static char const * g_keyword;
-    virtual char const * keyword() const { return g_keyword; }
-    virtual format pp(environment const &) const {
-        char const * cmd;
-        switch (m_op.get_fixity()) {
-        case fixity::Infix:     cmd = "Infix";   break;
-        case fixity::Infixl:    cmd = "Infixl";  break;
-        case fixity::Infixr:    cmd = "Infixr";  break;
-        case fixity::Prefix:    cmd = "Prefix";  break;
-        case fixity::Postfix:   cmd = "Postfix"; break;
-        case fixity::Mixfixl:   cmd = "Mixfixl"; break;
-        case fixity::Mixfixr:   cmd = "Mixfixr"; break;
-        case fixity::Mixfixc:   cmd = "Mixfixc"; break;
-        }
-        format r = highlight_command(format(cmd));
-        if (m_op.get_precedence() != 0)
-            r += format{space(), format(m_op.get_precedence())};
-        for (auto p : m_op.get_op_name_parts())
-            r += format{space(), format(p)};
-        r += format{space(), format(m_name)};
-        return r;
-    }
-};
-char const * notation_declaration::g_keyword = "Notation";
-
 /** \brief Implementation of the Lean frontend */
 struct frontend::imp {
     // Remark: only named objects are stored in the dictionary.

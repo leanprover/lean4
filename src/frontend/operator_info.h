@@ -8,11 +8,13 @@ Author: Leonardo de Moura
 #include "name.h"
 #include "list.h"
 #include "format.h"
+#include "object.h"
 
 namespace lean {
 /**
    \brief Operator fixity.
    Prefix:   ID _
+   Infixl:    _ ID _
    Infixl:    _ ID _    (left associative)
    Infixr:    _ ID _    (right associative)
    Postfix:  _ ID
@@ -101,4 +103,22 @@ inline operator_info mixfixc(std::initializer_list<name> const & l, unsigned pre
 
 format pp(operator_info const & o);
 std::ostream & operator<<(std::ostream & out, operator_info const & o);
+
+/**
+    \brief Create object for tracking notation/operator declarations.
+    This object is mainly used for recording the declaration.
+*/
+class notation_declaration : public neutral_object_cell {
+    operator_info m_op;
+    name          m_name;
+public:
+    notation_declaration(operator_info const & op, name const & n):m_op(op), m_name(n) {}
+    virtual ~notation_declaration() {}
+    virtual char const * keyword() const;
+    operator_info get_op() const { return m_op; }
+    name const & get_internal_name() const { return m_name; }
+};
+
+format pp(notation_declaration const & n);
+std::ostream & operator<<(std::ostream & out, notation_declaration const & n);
 }

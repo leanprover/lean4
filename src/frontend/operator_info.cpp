@@ -101,53 +101,46 @@ operator_info mixfixc(unsigned num_parts, name const * parts, unsigned precedenc
     lean_assert(num_parts > 1); return operator_info(new operator_info::imp(num_parts, parts, fixity::Mixfixc, precedence));
 }
 
-static char const * g_arrow               = "\u21a6";
+char const * to_string(fixity f) {
+    switch (f) {
+    case fixity::Infix:   return "Infix";
+    case fixity::Infixl:  return "Infixl";
+    case fixity::Infixr:  return "Infixr";
+    case fixity::Prefix:  return "Prefix";
+    case fixity::Postfix: return "Postfix";
+    case fixity::Mixfixl: return "Mixfixl";
+    case fixity::Mixfixr: return "Mixfixr";
+    case fixity::Mixfixc: return "Mixfixc";
+    }
+    lean_unreachable();
+    return 0;
+}
 
 format pp(operator_info const & o) {
     format r;
-    switch (o.get_fixity()) {
-    case fixity::Infix:   r = format("Infix"); break;
-    case fixity::Infixl:  r = format("Infixl"); break;
-    case fixity::Infixr:  r = format("Infixr"); break;
-    case fixity::Prefix:  r = format("Prefix");  break;
-    case fixity::Postfix: r = format("Postfix"); break;
-    case fixity::Mixfixl:
-    case fixity::Mixfixr:
-    case fixity::Mixfixc: r = format("Mixfix"); break;
-    }
-
-    r += space();
-
+    r = format(to_string(o.get_fixity()));
     if (o.get_precedence() != 0)
-        r += format{format(o.get_precedence()), space()};
-
-    switch (o.get_fixity()) {
-    case fixity::Infix: case fixity::Infixl: case fixity::Infixr: case fixity::Prefix: case fixity::Postfix:
-        r += pp(o.get_op_name()); break;
-    case fixity::Mixfixl:
-        for (auto p : o.get_op_name_parts()) r += format{pp(p), format(" _")};
-        break;
-    case fixity::Mixfixr:
-        for (auto p : o.get_op_name_parts()) r += format{format("_ "), pp(p)};
-        break;
-    case fixity::Mixfixc: {
-        bool first = true;
-        for (auto p : o.get_op_name_parts()) {
-            if (first) first = false; else r += format(" _ ");
-            r += pp(p);
-        }
-    }}
-
-    list<name> const & l = o.get_internal_names();
-    if (!is_nil(l)) {
-        r += format{space(), format(g_arrow)};
-        for (auto n : l) r += format{space(), pp(n)};
-    }
+        r += format{space(), format(o.get_precedence())};
+    for (auto p : o.get_op_name_parts())
+        r += format{space(), format(p)};
     return r;
+}
+
+char const * notation_declaration::keyword() const {
+    return to_string(m_op.get_fixity());
 }
 
 std::ostream & operator<<(std::ostream & out, operator_info const & o) {
     out << pp(o);
+    return out;
+}
+
+format pp(notation_declaration const & n) {
+    return format{pp(n.get_op()), space(), format(n.get_internal_name())};
+}
+
+std::ostream & operator<<(std::ostream & out, notation_declaration const & n) {
+    out << pp(n);
     return out;
 }
 }

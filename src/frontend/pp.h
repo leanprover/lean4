@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "context.h"
 
 namespace lean {
+
 class frontend;
 class expr_formatter {
 public:
@@ -28,5 +29,5 @@ public:
     /** \brief Nest the given format object using the setting provided by get_options. */
     format nest(format const & f);
 };
-std::shared_ptr<expr_formatter> mk_pp_expr_formatter(frontend const & fe, options const & opts);
+std::shared_ptr<expr_formatter> mk_pp_formatter(frontend const & fe, options const & opts);
 }

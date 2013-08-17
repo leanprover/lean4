@@ -11,6 +11,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 class frontend;
-std::shared_ptr<formatter> mk_pp_formatter(frontend const & fe, options const & opts = options());
+formatter mk_pp_formatter(frontend const & fe, options const & opts = options());
 std::ostream & operator<<(std::ostream & out, frontend const & fe);
 }

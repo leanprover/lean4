@@ -14,9 +14,9 @@ class object;
 /**
    \brief API for formatting expressions, contexts and environments.
 */
-class formatter {
+class formatter_cell {
 public:
-    virtual ~formatter() {}
+    virtual ~formatter_cell() {}
     /** \brief Format the given expression. */
     virtual format operator()(expr const & e) = 0;
     /** \brief Format the given context. */
@@ -34,8 +34,18 @@ public:
     /** \brief Format the given environment */
     virtual format operator()(environment const & env) = 0;
 };
-/**
-   \brief Return simple expression formatter that just uses printer module.
-*/
-std::shared_ptr<formatter> mk_simple_formatter();
+
+class formatter {
+    std::shared_ptr<formatter_cell> m_cell;
+public:
+    formatter(formatter_cell * c):m_cell(c) {}
+    formatter(std::shared_ptr<formatter_cell> const & c):m_cell(c) {}
+    format operator()(expr const & e) { return (*m_cell)(e); }
+    format operator()(context const & c) { return (*m_cell)(c); }
+    format operator()(context const & c, expr const & e, bool format_ctx = false) { return (*m_cell)(c, e, format_ctx); }
+    format operator()(object const & obj) { return (*m_cell)(obj); }
+    format operator()(environment const & env) { return (*m_cell)(env); }
+};
+
+formatter mk_simple_formatter();
 }

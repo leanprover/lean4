@@ -56,8 +56,7 @@ static void tst3() {
 
 static void tst4() {
     frontend f;
-    std::shared_ptr<formatter> fmt_ptr = mk_pp_formatter(f);
-    formatter & fmt = *fmt_ptr;
+    formatter fmt = mk_pp_formatter(f);
     expr Bool = Const("Bool");
     context c;
     c = extend(c, "x", Bool);
@@ -72,8 +71,7 @@ static void tst4() {
 static void tst5() {
     std::cout << "=================\n";
     frontend f;
-    std::shared_ptr<formatter> fmt_ptr = mk_pp_formatter(f);
-    formatter & fmt = *fmt_ptr;
+    formatter fmt = mk_pp_formatter(f);
     f.add_var("A", Type());
     f.add_var("x", Const("A"));
     object const & obj = f.find_object("x");
@@ -103,8 +101,7 @@ static void tst6() {
     frontend f;
     environment env;
     env.add_neutral_object(new alien_cell());
-    std::shared_ptr<formatter> fmt_ptr = mk_pp_formatter(f);
-    formatter & fmt = *fmt_ptr;
+    formatter fmt = mk_pp_formatter(f);
     std::cout << fmt(env) << "\n";
 }
 

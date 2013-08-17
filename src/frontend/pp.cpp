@@ -573,7 +573,7 @@ public:
     }
 };
 
-class pp_formatter : public formatter {
+class pp_formatter_cell : public formatter_cell {
     frontend const & m_frontend;
     options          m_options;
     unsigned         m_indent;
@@ -652,13 +652,13 @@ class pp_formatter : public formatter {
     }
 
 public:
-    pp_formatter(frontend const & fe, options const & opts):
+    pp_formatter_cell(frontend const & fe, options const & opts):
         m_frontend(fe),
         m_options(opts) {
         m_indent = get_pp_indent(opts);
     }
 
-    virtual ~pp_formatter() {
+    virtual ~pp_formatter_cell() {
     }
 
     virtual format operator()(expr const & e) {
@@ -714,13 +714,13 @@ public:
     }
 };
 
-std::shared_ptr<formatter> mk_pp_formatter(frontend const & fe, options const & opts) {
-    return std::shared_ptr<formatter>(new pp_formatter(fe, opts));
+formatter mk_pp_formatter(frontend const & fe, options const & opts) {
+    return formatter(new pp_formatter_cell(fe, opts));
 }
 
 std::ostream & operator<<(std::ostream & out, frontend const & fe) {
-    auto pp = mk_pp_formatter(fe, options());
-    out << (*pp)(fe.get_environment());
+    formatter fmt = mk_pp_formatter(fe, options());
+    out << fmt(fe.get_environment());
     return out;
 }
 }

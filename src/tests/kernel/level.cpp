@@ -11,6 +11,20 @@ Author: Leonardo de Moura
 #include "test.h"
 using namespace lean;
 
+static void tst0() {
+    environment env;
+    lean_assert(env.begin_objects() == env.end_objects());
+    std::for_each(env.begin_objects(), env.end_objects(), [&](object const & obj) {
+            std::cout << obj.keyword() << "\n";
+        });
+    level l1 = env.add_uvar(name(name("l1"), "suffix"), level());
+    lean_assert(env.begin_objects() != env.end_objects());
+    std::for_each(env.begin_objects(), env.end_objects(), [&](object const & obj) {
+            std::cout << obj.keyword() << "\n";
+        });
+    std::cout << env;
+}
+
 static void tst1() {
     environment env;
     level l1 = env.add_uvar(name(name("l1"), "suffix"), level());
@@ -94,6 +108,7 @@ static void tst5() {
 }
 
 int main() {
+    tst0();
     tst1();
     tst2();
     tst3();

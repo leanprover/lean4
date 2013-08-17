@@ -134,6 +134,7 @@ public:
         bool operator==(object_iterator const & s) const { lean_assert(&m_env == &(s.m_env)); return m_idx == s.m_idx; }
         bool operator!=(object_iterator const & s) const { return !operator==(s); }
         object const & operator*() { return m_env.get_object(m_idx, m_local); }
+        object const * operator->() { return &(m_env.get_object(m_idx, m_local)); }
     };
 
     /**

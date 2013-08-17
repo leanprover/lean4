@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "printer.h"
 
 namespace lean {
-class simple_formatter : public formatter {
+class simple_formatter_cell : public formatter_cell {
 public:
     virtual format operator()(expr const & e) {
         std::ostringstream s; s << e; return format(s.str());
@@ -31,7 +31,7 @@ public:
         std::ostringstream s; s << env; return format(s.str());
     }
 };
-std::shared_ptr<formatter> mk_simple_formatter() {
-    return std::shared_ptr<formatter>(new simple_formatter());
+formatter mk_simple_formatter() {
+    return formatter(new simple_formatter_cell());
 }
 }

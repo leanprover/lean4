@@ -163,6 +163,7 @@ std::ostream & operator<<(std::ostream & out, object const & obj) {
     case object_kind::Neutral:
         break;
     }
+    return out;
 }
 
 std::ostream & operator<<(std::ostream & out, environment const & env) {

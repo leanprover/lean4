@@ -51,9 +51,6 @@ static void tst2() {
     auto p = lookup_ext(c, 0);
     lean_assert(p.first.get_name() == "a");
     lean_assert(length(p.second) == 0);
-    std::cout << sanitize_names(c, f(a));
-    lean_assert(lookup(sanitize_names(c, f(a)), 0).get_name() != name("a"));
-    std::cout << sanitize_names(c, f(b));
 }
 
 int main() {

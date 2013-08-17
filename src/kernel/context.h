@@ -45,16 +45,4 @@ inline context extend(context const & c, name const & n, expr const & d) {
 inline bool is_empty(context const & c) {
     return is_nil(c);
 }
-
-/**
-    \brief Return a new context where the names used in the context
-    entries of \c c do not shadow constants occurring in \c c and \c es[sz].
-
-    Recall that the names in context entries are just "suggestions".
-    These names are used to name free variables in \c es[sz] (and
-    dependent entries in \c c).
-*/
-context sanitize_names(context const & c, unsigned sz, expr const * es);
-inline context sanitize_names(context const & c, expr const & e) { return sanitize_names(c, 1, &e); }
-inline context sanitize_names(context const & c, std::initializer_list<expr> const & l) { return sanitize_names(c, l.size(), l.begin()); }
 }

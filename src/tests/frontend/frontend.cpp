@@ -115,6 +115,13 @@ static void tst7() {
     std::cout << fmt(And(Const("x"), Const("y"))) << "\n";
 }
 
+static void tst8() {
+    frontend fe;
+    formatter fmt = mk_pp_formatter(fe);
+    fe.add_infixl("<-$->", 10, const_name(mk_refl_fn()));
+    std::cout << fmt(fe.find_object("Trivial")) << "\n";
+}
+
 int main() {
     tst1();
     tst2();
@@ -123,5 +130,6 @@ int main() {
     tst5();
     tst6();
     tst7();
+    tst8();
     return has_violations() ? 1 : 0;
 }

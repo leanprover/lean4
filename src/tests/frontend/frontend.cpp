@@ -69,10 +69,9 @@ static void tst4() {
 }
 
 int main() {
-    tst4();
-    return 0;
     tst1();
     tst2();
     tst3();
+    tst4();
     return has_violations() ? 1 : 0;
 }

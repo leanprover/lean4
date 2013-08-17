@@ -82,6 +82,7 @@ public:
         bool operator==(iterator const & s) const { return m_it == s.m_it; }
         bool operator!=(iterator const & s) const { return !operator==(s); }
         T const & operator*() { lean_assert(m_it); return m_it->m_head; }
+        T const * operator->() { lean_assert(m_it); return &(m_it->m_head); }
     };
 
     iterator begin() const { return iterator(m_ptr); }

@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include "context.h"
 #include "occurs.h"
 #include "exception.h"
-#include "expr_formatter.h"
 
 namespace lean {
 context sanitize_names_core(context const & c, context const & r, unsigned sz, expr const * es) {
@@ -33,37 +32,6 @@ context sanitize_names_core(context const & c, context const & r, unsigned sz, e
 
 context sanitize_names(context const & c, unsigned sz, expr const * es) {
     return sanitize_names_core(c, c, sz, es);
-}
-
-format pp(expr_formatter & fmt, context const & c) {
-    if (c) {
-        format r;
-        if (tail(c))
-            r = format{pp(fmt, tail(c)), line()};
-        context_entry const & e = head(c);
-        format new_entry;
-        unsigned name_sz;
-        if (e.get_name().is_anonymous()) {
-            new_entry = format("_");
-            name_sz = 1;
-        } else {
-            new_entry = format(e.get_name());
-            name_sz = e.get_name().size();
-        }
-        new_entry += format{space(), colon(), space(), nest(name_sz + 3, fmt(e.get_domain(), tail(c)))};
-        if (e.get_body())
-            new_entry += format{space(), format(":="), fmt.nest(format{line(), fmt(e.get_body(), tail(c))})};
-        r += group(new_entry);
-        return r;
-    } else {
-        return format();
-    }
-}
-
-std::ostream & operator<<(std::ostream & out, context const & c) {
-    auto fmt = mk_simple_expr_formatter();
-    out << pp(*fmt, c);
-    return out;
 }
 
 std::pair<context_entry const &, context const &> lookup_ext(context const & c, unsigned i) {

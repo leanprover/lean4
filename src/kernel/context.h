@@ -57,8 +57,4 @@ inline bool is_empty(context const & c) {
 context sanitize_names(context const & c, unsigned sz, expr const * es);
 inline context sanitize_names(context const & c, expr const & e) { return sanitize_names(c, 1, &e); }
 inline context sanitize_names(context const & c, std::initializer_list<expr> const & l) { return sanitize_names(c, l.size(), l.begin()); }
-
-class expr_formatter;
-format pp(expr_formatter & f, context const & c);
-std::ostream & operator<<(std::ostream & out, context const & c);
 }

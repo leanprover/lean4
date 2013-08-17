@@ -35,7 +35,6 @@ bool is_convertible_core(expr const & expected, expr const & given, environment 
 }
 
 bool is_convertible(expr const & expected, expr const & given, environment const & env, context const & ctx) {
-    lean_trace("is_convertible", tout << expected << "\n" << given << "\n" << ctx << "\n";);
     if (is_convertible_core(expected, given, env))
         return true;
     expr e_n = normalize(expected, env, ctx);
@@ -82,8 +81,6 @@ struct infer_type_fn {
     }
 
     expr infer_type(expr const & e, context const & ctx) {
-        lean_trace("type_check", tout << "infer type\n" << e << "\n" << ctx << "\n";);
-
         bool shared = false;
         if (is_shared(e)) {
             shared = true;

@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <locale>
 #include "environment.h"
 #include "exception.h"
+#include "printer.h"
 #include "test.h"
 using namespace lean;
 

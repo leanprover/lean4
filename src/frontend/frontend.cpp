@@ -214,7 +214,6 @@ struct frontend::imp {
 frontend::frontend():m_imp(new imp(*this)) {
     init_builtin_notation(*this);
     init_toplevel(m_imp->m_env);
-    m_imp->m_env.set_formatter(mk_pp_expr_formatter(*this, options()));
 }
 frontend::frontend(imp * new_ptr):m_imp(new_ptr) {}
 frontend::frontend(std::shared_ptr<imp> const & ptr):m_imp(ptr) {}

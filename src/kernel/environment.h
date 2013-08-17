@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include <memory>
 #include "object.h"
 #include "level.h"
-#include "expr_formatter.h"
 
 namespace lean {
 /**
@@ -28,13 +27,6 @@ private:
 public:
     environment();
     ~environment();
-
-    /** \brief Set expression formatter. */
-    void set_formatter(std::shared_ptr<expr_formatter> const & formatter);
-
-    /** \brief Return expression formatter. */
-    expr_formatter & get_formatter() const;
-
     // =======================================
     // Parent/Child environment management
     /**
@@ -172,5 +164,4 @@ public:
     /** \brief Display universal variable constraints and objects stored in this environment and its parents. */
     void display(std::ostream & out) const;
 };
-inline std::ostream & operator<<(std::ostream & out, environment const & env) { env.display(out); return out; }
 }

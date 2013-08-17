@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "kernel_exception.h"
 #include "environment.h"
 #include "type_check.h"
+#include "printer.h"
 #include "toplevel.h"
 #include "builtin.h"
 #include "arith.h"

@@ -4,34 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "expr_formatter.h"
+#include <algorithm>
+#include "printer.h"
+#include "environment.h"
 #include "exception.h"
 
 namespace lean {
-
-format expr_formatter::operator()(char const * kwd, name const & n, expr const & t, expr const & v) {
-    format def = format{highlight_command(format(kwd)), space(), format(n), space(), colon(), space(),
-                        operator()(t), space(), highlight_keyword(format(":=")), line(), operator()(v)};
-    return group(nest(def));
-}
-
-format expr_formatter::operator()(char const * kwd, name const & n, expr const & t) {
-    format def = format{highlight_command(format(kwd)), space(), format(n), space(), colon(), space(), operator()(t)};
-    return group(nest(def));
-}
-
-void expr_formatter::pp(std::ostream & out, expr const & e, context const & c) {
-    out << mk_pair(operator()(e, c), get_options());
-}
-
-void expr_formatter::pp(std::ostream & out, expr const & e) {
-    pp(out, e, context());
-}
-
-format expr_formatter::nest(format const & f) {
-    return ::lean::nest(get_pp_indent(get_options()), f);
-}
-
 bool is_atomic(expr const & e) {
     switch (e.kind()) {
     case expr_kind::Var: case expr_kind::Constant: case expr_kind::Value: case expr_kind::Type:
@@ -42,10 +20,10 @@ bool is_atomic(expr const & e) {
     return false;
 }
 
-class simple_expr_formatter : public expr_formatter {
-    static thread_local std::ostream * m_out;
+struct print_expr_fn {
+    std::ostream & m_out;
 
-    std::ostream & out() { return *m_out; }
+    std::ostream & out() { return m_out; }
 
     void print_child(expr const & a, context const & c) {
         if (is_atomic(a)) {
@@ -142,42 +120,54 @@ class simple_expr_formatter : public expr_formatter {
         }
     }
 
-public:
-    virtual ~simple_expr_formatter() {}
+    print_expr_fn(std::ostream & out):m_out(out) {}
 
-    virtual format operator()(expr const & e, context const & c) {
-        std::ostringstream s;
-        m_out = &s;
+    void operator()(expr const & e, context const & c) {
         print(e, c);
-        return format(s.str());
-    }
-
-    virtual bool has_location(expr const & e) const { return false; }
-
-    virtual std::pair<unsigned, unsigned> get_location(expr const & e) const { return mk_pair(0,0); }
-
-    virtual options get_options() const { return options(); }
-
-    void print(std::ostream & out, expr const & a, context const & c) {
-        m_out = &out;
-        print(a, c);
     }
 };
-thread_local std::ostream * simple_expr_formatter::m_out = 0;
 
-std::shared_ptr<expr_formatter> mk_simple_expr_formatter() {
-    return std::shared_ptr<expr_formatter>(new simple_expr_formatter());
-}
-
-std::ostream & operator<<(std::ostream & out, std::pair<expr_formatter &, expr const &> const & p) {
-    p.first.pp(out, p.second);
+std::ostream & operator<<(std::ostream & out, expr const & e) {
+    print_expr_fn pr(out);
+    pr(e, context());
     return out;
 }
 
-static simple_expr_formatter g_simple_formatter;
+std::ostream & operator<<(std::ostream & out, std::pair<expr const &, context const &> const & p) {
+    print_expr_fn pr(out);
+    pr(p.first, p.second);
+    return out;
+}
 
-std::ostream & operator<<(std::ostream & out, expr const & a) {
-    g_simple_formatter.print(out, a, context());
+std::ostream & operator<<(std::ostream & out, context const & ctx) {
+    if (ctx) {
+        out << tail(ctx);
+        out << head(ctx).get_name() << " : " << head(ctx).get_domain();
+        if (head(ctx).get_body()) {
+            out << " := " << head(ctx).get_body();
+        }
+        out << "\n";
+    }
+    return out;
+}
+
+std::ostream & operator<<(std::ostream & out, environment const & env) {
+    std::for_each(env.begin_objects(),
+                  env.end_objects(),
+                  [&](object const & obj) {
+                      out << obj.keyword() << " ";
+                      switch (obj.kind()) {
+                      case object_kind::UVarDeclaration:
+                          out << obj.get_name() << " >= " << obj.get_cnstr_level(); break;
+                      case object_kind::Postulate:
+                          out << obj.get_name() << " : " << obj.get_type(); break;
+                      case object_kind::Definition:
+                          out << obj.get_name() << " : " << obj.get_type() << " :=\n    " << obj.get_value(); break;
+                      case object_kind::Neutral:
+                          break;
+                      }
+                      out << "\n";
+                  });
     return out;
 }
 }

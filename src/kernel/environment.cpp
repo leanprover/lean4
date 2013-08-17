@@ -32,18 +32,6 @@ struct environment::imp {
     // Object management
     std::vector<object>                  m_objects;
     object_dictionary                    m_object_dictionary;
-    // Expression formatter && locator
-    std::shared_ptr<expr_formatter>      m_formatter;
-
-    expr_formatter & get_formatter() {
-        if (m_formatter) {
-            return *m_formatter;
-        } else {
-            // root environments always have a formatter.
-            lean_assert(has_parent());
-            return m_parent->get_formatter();
-        }
-    }
 
     /**
        \brief Return true iff this environment has children.
@@ -317,7 +305,6 @@ struct environment::imp {
     imp():
         m_num_children(0) {
         init_uvars();
-        m_formatter = mk_simple_expr_formatter();
     }
 
     explicit imp(std::shared_ptr<imp> const & parent):
@@ -345,15 +332,6 @@ environment::environment(std::shared_ptr<imp> const & ptr):
 }
 
 environment::~environment() {
-}
-
-void environment::set_formatter(std::shared_ptr<expr_formatter> const & formatter) {
-    lean_assert(formatter);
-    m_imp->m_formatter = formatter;
-}
-
-expr_formatter & environment::get_formatter() const {
-    return m_imp->get_formatter();
 }
 
 environment environment::mk_child() const {

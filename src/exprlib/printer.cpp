@@ -151,23 +151,24 @@ std::ostream & operator<<(std::ostream & out, context const & ctx) {
     return out;
 }
 
+std::ostream & operator<<(std::ostream & out, object const & obj) {
+    out << obj.keyword() << " ";
+    switch (obj.kind()) {
+    case object_kind::UVarDeclaration:
+        out << obj.get_name() << " >= " << obj.get_cnstr_level(); break;
+    case object_kind::Postulate:
+        out << obj.get_name() << " : " << obj.get_type(); break;
+    case object_kind::Definition:
+        out << obj.get_name() << " : " << obj.get_type() << " :=\n    " << obj.get_value(); break;
+    case object_kind::Neutral:
+        break;
+    }
+}
+
 std::ostream & operator<<(std::ostream & out, environment const & env) {
     std::for_each(env.begin_objects(),
                   env.end_objects(),
-                  [&](object const & obj) {
-                      out << obj.keyword() << " ";
-                      switch (obj.kind()) {
-                      case object_kind::UVarDeclaration:
-                          out << obj.get_name() << " >= " << obj.get_cnstr_level(); break;
-                      case object_kind::Postulate:
-                          out << obj.get_name() << " : " << obj.get_type(); break;
-                      case object_kind::Definition:
-                          out << obj.get_name() << " : " << obj.get_type() << " :=\n    " << obj.get_value(); break;
-                      case object_kind::Neutral:
-                          break;
-                      }
-                      out << "\n";
-                  });
+                  [&](object const & obj) { out << obj << "\n"; });
     return out;
 }
 }

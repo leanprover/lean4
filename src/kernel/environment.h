@@ -109,8 +109,16 @@ public:
     */
     object const & get_object(name const & n) const;
 
+    /**
+       \brief Find a given object in the environment. Return the null
+       object if there is no object with the given name.
+
+       \remark Object implements operator bool(), and the null object returns false.
+    */
+    object const & find_object(name const & n) const;
+
     /** \brief Return true iff the environment has an object with the given name */
-    bool has_object(name const & n) const { return get_object(n); }
+    bool has_object(name const & n) const { return find_object(n); }
 
     /** \brief Iterator for Lean environment objects. */
     class object_iterator {

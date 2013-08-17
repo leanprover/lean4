@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 class environment;
+class object;
 /**
    \brief API for formatting expressions, contexts and environments.
 */
@@ -28,6 +29,8 @@ public:
         for the free variables
     */
     virtual format operator()(context const & c, expr const & e, bool format_ctx = false) = 0;
+    /** \brief Format the given object */
+    virtual format operator()(object const & obj) = 0;
     /** \brief Format the given environment */
     virtual format operator()(environment const & env) = 0;
 };

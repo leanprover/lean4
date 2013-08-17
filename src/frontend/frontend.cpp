@@ -195,6 +195,17 @@ level frontend::add_uvar(name const & n, level const & l) { return m_imp->m_env.
 level frontend::add_uvar(name const & n) { return m_imp->m_env.add_uvar(n); }
 level frontend::get_uvar(name const & n) const { return m_imp->m_env.get_uvar(n); }
 
+void frontend::add_definition(name const & n, expr const & t, expr const & v, bool opaque) {
+    return m_imp->m_env.add_definition(n, t, v, opaque);
+}
+void frontend::add_theorem(name const & n, expr const & t, expr const & v) { return m_imp->m_env.add_theorem(n, t, v); }
+void frontend::add_definition(name const & n, expr const & v, bool opaque) { return m_imp->m_env.add_definition(n, v, opaque); }
+void frontend::add_axiom(name const & n, expr const & t) { return m_imp->m_env.add_axiom(n, t); }
+void frontend::add_var(name const & n, expr const & t) { return m_imp->m_env.add_var(n, t); }
+object const & frontend::get_object(name const & n) const { return m_imp->m_env.get_object(n); }
+object const & frontend::find_object(name const & n) const { return m_imp->m_env.find_object(n); }
+bool frontend::has_object(name const & n) const { return m_imp->m_env.has_object(n); }
+
 void frontend::add_infixl(name const & opn, unsigned p, name const & n)  { m_imp->add_infixl(opn, p, n); }
 void frontend::add_infixr(name const & opn, unsigned p, name const & n)  { m_imp->add_infixr(opn, p, n); }
 void frontend::add_prefix(name const & opn, unsigned p, name const & n)  { m_imp->add_prefix(opn, p, n); }
@@ -204,4 +215,3 @@ void frontend::add_mixfixr(unsigned sz, name const * opns, unsigned p, name cons
 void frontend::add_mixfixc(unsigned sz, name const * opns, unsigned p, name const & n) { m_imp->add_mixfixc(sz, opns, p, n); }
 operator_info frontend::find_op_for(name const & n) const { return m_imp->find_op_for(n); }
 }
-

@@ -24,6 +24,9 @@ public:
         s << mk_pair(e,c);
         return format(s.str());
     }
+    virtual format operator()(object const & obj) {
+        std::ostringstream s; s << obj; return format(s.str());
+    }
     virtual format operator()(environment const & env) {
         std::ostringstream s; s << env; return format(s.str());
     }

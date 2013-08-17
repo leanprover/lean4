@@ -46,9 +46,20 @@ public:
     environment const & get_environment() const;
     operator environment const &() const { return get_environment(); }
 
+    // =======================================
+    // Environment API
     level add_uvar(name const & n, level const & l);
     level add_uvar(name const & n);
     level get_uvar(name const & n) const;
+    void add_definition(name const & n, expr const & t, expr const & v, bool opaque = false);
+    void add_theorem(name const & n, expr const & t, expr const & v);
+    void add_definition(name const & n, expr const & v, bool opaque = false);
+    void add_axiom(name const & n, expr const & t);
+    void add_var(name const & n, expr const & t);
+    object const & get_object(name const & n) const;
+    object const & find_object(name const & n) const;
+    bool has_object(name const & n) const;
+    // =======================================
 
     // =======================================
     // Notation
@@ -64,7 +75,7 @@ public:
         given internal name.
 
         \remark If an operator is not associated with \c n, then
-        return the nil operator.
+        return the null operator.
     */
     operator_info find_op_for(name const & n) const;
     // =======================================

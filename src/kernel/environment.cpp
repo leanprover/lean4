@@ -388,6 +388,10 @@ object const & environment::get_object(name const & n) const {
     return m_imp->get_object(n, *this);
 }
 
+object const & environment::find_object(name const & n) const {
+    return m_imp->get_object_core(n);
+}
+
 unsigned environment::get_num_objects(bool local) const {
     return m_imp->get_num_objects(local);
 }

@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #pragma once
 #include "expr.h"
 #include "rc.h"
-
 /*
   Kernel objects.
 

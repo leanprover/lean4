@@ -683,6 +683,18 @@ public:
         }
     }
 
+    virtual format operator()(object const & obj) {
+        switch (obj.kind()) {
+        case object_kind::UVarDeclaration:  return pp_uvar_decl(obj);
+        case object_kind::Postulate:        return pp_postulate(obj);
+        case object_kind::Definition:       return pp_definition(obj);
+        case object_kind::Neutral:
+            return pp_notation_decl(obj);
+        }
+        lean_unreachable();
+        return format();
+    }
+
     virtual format operator()(environment const & env) {
         format r;
         bool first = true;
@@ -690,12 +702,7 @@ public:
                       env.end_objects(),
                       [&](object const & obj) {
                           if (first) first = false; else r += line();
-                          switch (obj.kind()) {
-                          case object_kind::UVarDeclaration:  r += pp_uvar_decl(obj); break;
-                          case object_kind::Postulate:        r += pp_postulate(obj); break;
-                          case object_kind::Definition:       r += pp_definition(obj); break;
-                          case object_kind::Neutral:          r += pp_notation_decl(obj); break;
-                          }
+                          r += operator()(obj);
                       });
         return r;
     }

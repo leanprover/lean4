@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "frontend.h"
 #include "environment.h"
 #include "operator_info.h"
+#include "kernel_exception.h"
 #include "pp.h"
 #include "test.h"
 using namespace lean;
@@ -68,10 +69,32 @@ static void tst4() {
     std::cout << fmt(c) << "\n";
 }
 
+static void tst5() {
+    std::cout << "=================\n";
+    frontend f;
+    std::shared_ptr<formatter> fmt_ptr = mk_pp_formatter(f);
+    formatter & fmt = *fmt_ptr;
+    f.add_var("A", Type());
+    f.add_var("x", Const("A"));
+    object const & obj = f.find_object("x");
+    lean_assert(obj);
+    lean_assert(obj.get_name() == "x");
+    std::cout << fmt(obj) << "\n";
+    object const & obj2 = f.find_object("y");
+    lean_assert(!obj2);
+    try {
+        f.get_object("y");
+        lean_unreachable();
+    } catch (unknown_name_exception & ex) {
+        std::cout << ex.what() << " " << ex.get_name() << "\n";
+    }
+}
+
 int main() {
     tst1();
     tst2();
     tst3();
     tst4();
+    tst5();
     return has_violations() ? 1 : 0;
 }

@@ -90,11 +90,30 @@ static void tst5() {
     }
 }
 
+class alien_cell : public neutral_object_cell {
+    unsigned m_data[128];
+public:
+    alien_cell() {}
+    unsigned & get_data(unsigned i) { return m_data[i]; }
+    virtual char const * keyword() const { return "alien"; }
+};
+
+static void tst6() {
+    std::cout << "=================\n";
+    frontend f;
+    environment env;
+    env.add_neutral_object(new alien_cell());
+    std::shared_ptr<formatter> fmt_ptr = mk_pp_formatter(f);
+    formatter & fmt = *fmt_ptr;
+    std::cout << fmt(env) << "\n";
+}
+
 int main() {
     tst1();
     tst2();
     tst3();
     tst4();
     tst5();
+    tst6();
     return has_violations() ? 1 : 0;
 }

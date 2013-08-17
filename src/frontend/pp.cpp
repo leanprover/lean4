@@ -689,7 +689,13 @@ public:
         case object_kind::Postulate:        return pp_postulate(obj);
         case object_kind::Definition:       return pp_definition(obj);
         case object_kind::Neutral:
-            return pp_notation_decl(obj);
+            if (dynamic_cast<notation_declaration const *>(obj.cell())) {
+                // If the object is not notation, then the object was
+                // created in different frontend, and we ignore it.
+                return pp_notation_decl(obj);
+            } else {
+                return format("Unknown neutral object");
+            }
         }
         lean_unreachable();
         return format();

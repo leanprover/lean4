@@ -43,8 +43,8 @@ public:
     // =======================================
 
     /** \brief Coercion frontend -> environment. */
-    environment const & env() const;
-    operator environment const &() const { return env(); }
+    environment const & get_environment() const;
+    operator environment const &() const { return get_environment(); }
 
     level add_uvar(name const & n, level const & l);
     level add_uvar(name const & n);
@@ -68,9 +68,5 @@ public:
     */
     operator_info find_op_for(name const & n) const;
     // =======================================
-
-    /** \brief Display universal variable constraints and objects stored in this environment and its parents. */
-    void display(std::ostream & out) const;
 };
-inline std::ostream & operator<<(std::ostream & out, frontend const & f) { f.display(out); return out; }
 }

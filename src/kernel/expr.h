@@ -337,6 +337,10 @@ inline unsigned      var_idx(expr const & e)              { return to_var(e)->ge
 /** \brief Return true iff the given expression is a variable with de Bruijn index equal to \c i. */
 inline bool          is_var(expr const & e, unsigned i)   { return is_var(e) && var_idx(e) == i; }
 inline name const &  const_name(expr const & e)           { return to_constant(e)->get_name(); }
+/** \brief Return true iff the given expression is a constant with name \c n. */
+inline bool          is_constant(expr const & e, name const & n) {
+    return is_constant(e) && const_name(e) == n;
+}
 inline value const & to_value(expr const & e)             { return to_value(e.raw()); }
 inline unsigned      num_args(expr const & e)             { return to_app(e)->get_num_args(); }
 inline expr const &  arg(expr const & e, unsigned idx)    { return to_app(e)->get_arg(idx); }

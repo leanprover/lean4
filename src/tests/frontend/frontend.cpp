@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "frontend.h"
 #include "environment.h"
 #include "operator_info.h"
+#include "pp.h"
 #include "test.h"
 using namespace lean;
 
@@ -15,7 +16,7 @@ static void tst1() {
     f.add_uvar("tst");
     frontend c = f.mk_child();
     lean_assert(c.get_uvar("tst") == f.get_uvar("tst"));
-    lean_assert(f.env().has_children());
+    lean_assert(f.get_environment().has_children());
 }
 
 static void tst2() {
@@ -49,10 +50,27 @@ static void tst2() {
 static void tst3() {
     frontend f;
     std::cout << "====================\n";
-    std::cout << f;
+    std::cout << f << "\n";
+}
+
+static void tst4() {
+    frontend f;
+    std::shared_ptr<formatter> fmt_ptr = mk_pp_formatter(f);
+    formatter & fmt = *fmt_ptr;
+    expr Bool = Const("Bool");
+    context c;
+    c = extend(c, "x", Bool);
+    c = extend(c, "y", Bool);
+    c = extend(c, "x", Bool, Var(1));
+    c = extend(c, "x", Bool, Var(2));
+    c = extend(c, "z", Bool, Var(1));
+    c = extend(c, "x", Bool, Var(4));
+    std::cout << fmt(c) << "\n";
 }
 
 int main() {
+    tst4();
+    return 0;
     tst1();
     tst2();
     tst3();

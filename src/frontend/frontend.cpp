@@ -189,7 +189,7 @@ bool frontend::has_children() const { return m_imp->has_children(); }
 bool frontend::has_parent() const { return m_imp->has_parent(); }
 frontend frontend::parent() const { lean_assert(has_parent()); return frontend(m_imp->m_parent); }
 
-environment const & frontend::env() const { return m_imp->m_env; }
+environment const & frontend::get_environment() const { return m_imp->m_env; }
 
 level frontend::add_uvar(name const & n, level const & l) { return m_imp->m_env.add_uvar(n, l); }
 level frontend::add_uvar(name const & n) { return m_imp->m_env.add_uvar(n); }
@@ -203,7 +203,5 @@ void frontend::add_mixfixl(unsigned sz, name const * opns, unsigned p, name cons
 void frontend::add_mixfixr(unsigned sz, name const * opns, unsigned p, name const & n) { m_imp->add_mixfixr(sz, opns, p, n); }
 void frontend::add_mixfixc(unsigned sz, name const * opns, unsigned p, name const & n) { m_imp->add_mixfixc(sz, opns, p, n); }
 operator_info frontend::find_op_for(name const & n) const { return m_imp->find_op_for(n); }
-
-void frontend::display(std::ostream & out) const { m_imp->m_env.display(out); }
 }
 

@@ -118,7 +118,7 @@ char const * to_string(fixity f) {
 
 format pp(operator_info const & o) {
     format r;
-    r = format(to_string(o.get_fixity()));
+    r = highlight_command(format(to_string(o.get_fixity())));
     if (o.get_precedence() != 0)
         r += format{space(), format(o.get_precedence())};
     for (auto p : o.get_op_name_parts())

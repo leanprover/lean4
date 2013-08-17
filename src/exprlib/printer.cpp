@@ -144,7 +144,7 @@ std::ostream & operator<<(std::ostream & out, context const & ctx) {
         out << tail(ctx);
         out << head(ctx).get_name() << " : " << head(ctx).get_domain();
         if (head(ctx).get_body()) {
-            out << " := " << head(ctx).get_body();
+            out << " := " << mk_pair(head(ctx).get_body(), tail(ctx));
         }
         out << "\n";
     }

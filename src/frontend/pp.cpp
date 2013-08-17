@@ -574,9 +574,9 @@ public:
 };
 
 class pp_formatter_cell : public formatter_cell {
-    frontend const & m_frontend;
-    options          m_options;
-    unsigned         m_indent;
+    frontend  m_frontend;
+    options   m_options;
+    unsigned  m_indent;
 
     format pp(expr const & e) {
         return pp_fn(m_frontend, m_options)(e);

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "environment.h"
 #include "operator_info.h"
 #include "kernel_exception.h"
+#include "builtin.h"
 #include "pp.h"
 #include "test.h"
 using namespace lean;
@@ -57,7 +58,6 @@ static void tst3() {
 static void tst4() {
     frontend f;
     formatter fmt = mk_pp_formatter(f);
-    expr Bool = Const("Bool");
     context c;
     c = extend(c, "x", Bool);
     c = extend(c, "y", Bool);
@@ -105,6 +105,16 @@ static void tst6() {
     std::cout << fmt(env) << "\n";
 }
 
+static formatter mk() {
+    frontend f;
+    return mk_pp_formatter(f);
+}
+
+static void tst7() {
+    formatter fmt = mk();
+    std::cout << fmt(And(Const("x"), Const("y"))) << "\n";
+}
+
 int main() {
     tst1();
     tst2();
@@ -112,5 +122,6 @@ int main() {
     tst4();
     tst5();
     tst6();
+    tst7();
     return has_violations() ? 1 : 0;
 }

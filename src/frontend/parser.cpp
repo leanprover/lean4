@@ -128,6 +128,7 @@ struct parser_fn {
     }
 
     [[ noreturn ]] void not_implemented_yet() {
+        // TODO
         throw parser_error("not implemented yet");
     }
 

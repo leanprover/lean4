@@ -13,8 +13,11 @@ namespace lean {
 */
 void init_builtin_notation(frontend & f) {
     f.add_prefix("\u00ac", 40, const_name(mk_not_fn()));
+    f.add_infixr("&&", 35, const_name(mk_and_fn()));
     f.add_infixr("\u2227", 35, const_name(mk_and_fn()));
+    f.add_infixr("||", 30, const_name(mk_or_fn()));
     f.add_infixr("\u2228", 30, const_name(mk_or_fn()));
+    f.add_infixr("=>", 25, const_name(mk_implies_fn()));
     f.add_infixr("\u21D2", 25, const_name(mk_implies_fn()));
 }
 }

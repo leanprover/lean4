@@ -59,6 +59,11 @@ public:
     object const & get_object(name const & n) const;
     object const & find_object(name const & n) const;
     bool has_object(name const & n) const;
+    typedef environment::object_iterator object_iterator;
+    object_iterator begin_objects() const;
+    object_iterator end_objects() const;
+    object_iterator begin_local_objects() const;
+    object_iterator end_local_objects() const;
     // =======================================
 
     // =======================================
@@ -78,6 +83,10 @@ public:
         return the null operator.
     */
     operator_info find_op_for(name const & n) const;
+
+    operator_info find_nud(name const & n) const;
+
+    operator_info find_led(name const & n) const;
     // =======================================
 };
 }

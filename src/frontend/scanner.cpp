@@ -268,7 +268,7 @@ scanner::token scanner::read_number() {
     }
     if (is_decimal)
         m_num_val /= q;
-    return is_decimal ? token::Decimal : token::Int;
+    return is_decimal ? token::DecimalVal : token::IntVal;
 }
 
 scanner::token scanner::read_string() {
@@ -281,7 +281,7 @@ scanner::token scanner::read_string() {
             throw_exception("unexpected end of string");
         } else if (c == '\"') {
             next();
-            return token::String;
+            return token::StringVal;
         } else if (c == '\n') {
             new_line();
         } else if (c == '\\') {
@@ -349,9 +349,9 @@ std::ostream & operator<<(std::ostream & out, scanner::token const & t) {
     case scanner::token::Arrow:             out << g_arrow_unicode; break;
     case scanner::token::Id:                out << "Id"; break;
     case scanner::token::CommandId:         out << "CId"; break;
-    case scanner::token::Int:               out << "Int"; break;
-    case scanner::token::Decimal:           out << "Dec"; break;
-    case scanner::token::String:            out << "String"; break;
+    case scanner::token::IntVal:            out << "Int"; break;
+    case scanner::token::DecimalVal:        out << "Dec"; break;
+    case scanner::token::StringVal:         out << "String"; break;
     case scanner::token::Eq:                out << "="; break;
     case scanner::token::Assign:            out << ":="; break;
     case scanner::token::Type:              out << "Type"; break;

@@ -24,9 +24,9 @@ static void scan(char const * str, list<name> const & cmds = list<name>()) {
         std::cout << t;
         if (t == st::Id || t == st::CommandId)
             std::cout << "[" << s.get_name_val() << "]";
-        else if (t == st::Int || t == st::Decimal)
+        else if (t == st::IntVal || t == st::DecimalVal)
             std::cout << "[" << s.get_num_val() << "]";
-        else if (t == st::String)
+        else if (t == st::StringVal)
             std::cout << "[\"" << escaped(s.get_str_val().c_str()) << "\"]";
         std::cout << " ";
     }
@@ -77,12 +77,12 @@ static void tst2() {
     check("+++", {st::Id});
     check("x+y", {st::Id, st::Id, st::Id});
     check("(* testing *)", {});
-    check(" 2.31  ", {st::Decimal});
-    check(" 333 22", {st::Int, st::Int});
+    check(" 2.31  ", {st::DecimalVal});
+    check(" 333 22", {st::IntVal, st::IntVal});
     check("Int -> Int", {st::Id, st::Arrow, st::Id});
     check("Int --> Int", {st::Id, st::Id, st::Id});
-    check("x := 10", {st::Id, st::Assign, st::Int});
-    check("(x+1):Int", {st::LeftParen, st::Id, st::Id, st::Int, st::RightParen, st::Colon, st::Id});
+    check("x := 10", {st::Id, st::Assign, st::IntVal});
+    check("(x+1):Int", {st::LeftParen, st::Id, st::Id, st::IntVal, st::RightParen, st::Colon, st::Id});
     check("{x}", {st::LeftCurlyBracket, st::Id, st::RightCurlyBracket});
     check("\u03BB \u03A0 \u2192", {st::Lambda, st::Pi, st::Arrow});
     scan("++\u2295++x\u2296\u2296");
@@ -91,7 +91,7 @@ static void tst2() {
     check_name("x10", name("x10"));
     check_name("x::10", name(name("x"), 10));
     check_name("x::10::bla::0", name(name(name(name("x"), 10), "bla"), 0u));
-    check("0::1", {st::Int, st::Colon, st::Colon, st::Int});
+    check("0::1", {st::IntVal, st::Colon, st::Colon, st::IntVal});
     check_name("\u2296\u2296", name("\u2296\u2296"));
     try {
         scan("x::1000000000000000000");
@@ -102,7 +102,7 @@ static void tst2() {
     scan("Theorem a : Bool Axiom b : Int", list<name>({"Theorem", "Axiom"}));
     check("Theorem a : Bool Axiom b : Int", {st::CommandId, st::Id, st::Colon, st::Id, st::CommandId, st::Id, st::Colon, st::Id}, list<name>({"Theorem", "Axiom"}));
     scan("foo \"tst\\\"\" : Int");
-    check("foo \"tst\\\"\" : Int", {st::Id, st::String, st::Colon, st::Id});
+    check("foo \"tst\\\"\" : Int", {st::Id, st::StringVal, st::Colon, st::Id});
     try {
         scan("\"foo");
         lean_unreachable();

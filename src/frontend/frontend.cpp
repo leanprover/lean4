@@ -205,6 +205,10 @@ void frontend::add_var(name const & n, expr const & t) { return m_imp->m_env.add
 object const & frontend::get_object(name const & n) const { return m_imp->m_env.get_object(n); }
 object const & frontend::find_object(name const & n) const { return m_imp->m_env.find_object(n); }
 bool frontend::has_object(name const & n) const { return m_imp->m_env.has_object(n); }
+frontend::object_iterator frontend::begin_objects() const { return m_imp->m_env.begin_objects(); }
+frontend::object_iterator frontend::end_objects() const { return m_imp->m_env.end_objects(); }
+frontend::object_iterator frontend::begin_local_objects() const { return m_imp->m_env.begin_local_objects(); }
+frontend::object_iterator frontend::end_local_objects() const { return m_imp->m_env.end_local_objects(); }
 
 void frontend::add_infixl(name const & opn, unsigned p, name const & n)  { m_imp->add_infixl(opn, p, n); }
 void frontend::add_infixr(name const & opn, unsigned p, name const & n)  { m_imp->add_infixr(opn, p, n); }
@@ -214,4 +218,6 @@ void frontend::add_mixfixl(unsigned sz, name const * opns, unsigned p, name cons
 void frontend::add_mixfixr(unsigned sz, name const * opns, unsigned p, name const & n) { m_imp->add_mixfixr(sz, opns, p, n); }
 void frontend::add_mixfixc(unsigned sz, name const * opns, unsigned p, name const & n) { m_imp->add_mixfixc(sz, opns, p, n); }
 operator_info frontend::find_op_for(name const & n) const { return m_imp->find_op_for(n); }
+operator_info frontend::find_nud(name const & n) const { return m_imp->find_nud(n); }
+operator_info frontend::find_led(name const & n) const { return m_imp->find_led(n); }
 }

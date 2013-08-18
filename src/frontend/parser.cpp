@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "exception.h"
 #include "normalize.h"
 #include "type_check.h"
+#include "free_vars.h"
 #include "builtin_notation.h"
 #include "pp.h"
 #include "builtin.h"
@@ -78,10 +79,13 @@ struct parser_fn {
     }
 
     bool curr_is_identifier() const { return curr() == scanner::token::Id; }
+    bool curr_is_lparen() const { return curr() == scanner::token::LeftParen; }
 
     void check_identifier(char const * msg) { if (!curr_is_identifier()) throw parser_error(msg); }
     name check_identifier_next(char const * msg) { check_identifier(msg); name r = curr_name(); next(); return r; }
     void check_colon_next(char const * msg) { check_next(scanner::token::Colon, msg); }
+    void check_comma_next(char const * msg) { check_next(scanner::token::Comma, msg); }
+    void check_lparen_next(char const * msg) { check_next(scanner::token::LeftParen, msg); }
     void check_rparen_next(char const * msg) { check_next(scanner::token::RightParen, msg); }
     void check_name(name const & op, char const * msg) { if(!curr_is_identifier() || curr_name() != op) throw parser_error(msg); }
     void check_name_next(name const & op, char const * msg) { check_name(op, msg); next(); }
@@ -268,12 +272,73 @@ struct parser_fn {
         return r;
     }
 
+    void parse_names(buffer<name> & result) {
+        while (curr_is_identifier()) {
+            result.push_back(curr_name());
+            next();
+        }
+    }
+
+    void register_binding(name const & n) {
+        m_local_decls.insert(n, m_local_decls.size());
+    }
+
+    void parse_simple_bindings(buffer<std::pair<name, expr>> & result) {
+        // ID ... ID : type
+        buffer<name> names;
+        parse_names(names);
+        check_colon_next("invalid binder, ':' expected");
+        unsigned sz = result.size();
+        result.resize(sz + names.size());
+        expr type = parse_expr();
+        for (name const & n : names) register_binding(n);
+        unsigned i = names.size();
+        while (i > 0) {
+            --i;
+            result[sz + i] = mk_pair(names[i], lift_free_vars(type, i));
+        }
+    }
+
+    void parse_bindings(buffer<std::pair<name, expr>> & result) {
+        if (curr_is_identifier()) {
+            parse_simple_bindings(result);
+        } else {
+            // (ID ... ID : type) ... (ID ... ID : type)
+            check_lparen_next("invalid binder, '(' or identifier expected");
+            parse_simple_bindings(result);
+            check_rparen_next("invalid binder, ')' expected");
+            while (curr_is_lparen()) {
+                next();
+                parse_simple_bindings(result);
+                check_rparen_next("invalid binder, ')' expected");
+            }
+        }
+    }
+
+    expr parse_abstraction(bool is_lambda) {
+        next();
+        local_decls::mk_scope scope(m_local_decls);
+        buffer<std::pair<name, expr>> bindings;
+        parse_bindings(bindings);
+        check_comma_next("invalid abstraction, ',' expected");
+        expr result = parse_expr();
+        unsigned i = bindings.size();
+        while (i > 0) {
+            --i;
+            if (is_lambda)
+                result = mk_lambda(bindings[i].first, bindings[i].second, result);
+            else
+                result = mk_pi(bindings[i].first, bindings[i].second, result);
+        }
+        return result;
+    }
+
     expr parse_lambda() {
-        not_implemented_yet();
+        return parse_abstraction(true);
     }
 
     expr parse_pi() {
-        not_implemented_yet();
+        return parse_abstraction(false);
     }
 
     expr parse_int() {

@@ -80,6 +80,7 @@ struct parser_fn {
 
     bool curr_is_identifier() const { return curr() == scanner::token::Id; }
     bool curr_is_lparen() const { return curr() == scanner::token::LeftParen; }
+    bool curr_is_colon() const { return curr() == scanner::token::Colon; }
 
     void check_identifier(char const * msg) { if (!curr_is_identifier()) throw parser_error(msg); }
     name check_identifier_next(char const * msg) { check_identifier(msg); name r = curr_name(); next(); return r; }
@@ -87,6 +88,7 @@ struct parser_fn {
     void check_comma_next(char const * msg) { check_next(scanner::token::Comma, msg); }
     void check_lparen_next(char const * msg) { check_next(scanner::token::LeftParen, msg); }
     void check_rparen_next(char const * msg) { check_next(scanner::token::RightParen, msg); }
+    void check_assign_next(char const * msg) { check_next(scanner::token::Assign, msg); }
     void check_name(name const & op, char const * msg) { if(!curr_is_identifier() || curr_name() != op) throw parser_error(msg); }
     void check_name_next(name const & op, char const * msg) { check_name(op, msg); next(); }
 
@@ -315,13 +317,8 @@ struct parser_fn {
         }
     }
 
-    expr parse_abstraction(bool is_lambda) {
-        next();
-        local_decls::mk_scope scope(m_local_decls);
-        buffer<std::pair<name, expr>> bindings;
-        parse_bindings(bindings);
-        check_comma_next("invalid abstraction, ',' expected");
-        expr result = parse_expr();
+    expr mk_abstraction(bool is_lambda, buffer<std::pair<name, expr>> const & bindings, expr const & body) {
+        expr result = body;
         unsigned i = bindings.size();
         while (i > 0) {
             --i;
@@ -331,6 +328,16 @@ struct parser_fn {
                 result = mk_pi(bindings[i].first, bindings[i].second, result);
         }
         return result;
+    }
+
+    expr parse_abstraction(bool is_lambda) {
+        next();
+        local_decls::mk_scope scope(m_local_decls);
+        buffer<std::pair<name, expr>> bindings;
+        parse_bindings(bindings);
+        check_comma_next("invalid abstraction, ',' expected");
+        expr result = parse_expr();
+        return mk_abstraction(is_lambda, bindings, result);
     }
 
     expr parse_lambda() {
@@ -426,11 +433,38 @@ struct parser_fn {
         return e;
     }
 
-    void parse_definition() {
+    void parse_def_core(bool is_definition) {
         next();
+        expr type, val;
         name id = check_identifier_next("invalid definition, identifier expected");
-        check_colon_next("invalid definition, ':' expected");
-        // TODO
+        if (curr_is_colon()) {
+            next();
+            type = elaborate(parse_expr());
+            check_assign_next("invalid definition, ':=' expected");
+            val  = elaborate(parse_expr());
+        } else {
+            local_decls::mk_scope scope(m_local_decls);
+            buffer<std::pair<name, expr>> bindings;
+            parse_bindings(bindings);
+            check_colon_next("invalid definition, ':' expected");
+            expr type_body = parse_expr();
+            check_assign_next("invalid definition, ':=' expected");
+            expr val_body  = parse_expr();
+            type = elaborate(mk_abstraction(false, bindings, type_body));
+            val  = elaborate(mk_abstraction(true, bindings, val_body));
+        }
+        if (is_definition)
+            m_frontend.add_definition(id, type, val);
+        else
+            m_frontend.add_theorem(id, type, val);
+    }
+
+    void parse_definition() {
+        parse_def_core(true);
+    }
+
+    void parse_theorem() {
+        parse_def_core(false);
     }
 
     void parse_variable() {
@@ -439,10 +473,6 @@ struct parser_fn {
         check_colon_next("invalid variable declaration, ':' expected");
         expr type = elaborate(parse_expr());
         m_frontend.add_var(id, type);
-    }
-
-    void parse_theorem() {
-        // TODO
     }
 
     void parse_axiom() {

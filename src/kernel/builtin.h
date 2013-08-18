@@ -67,6 +67,14 @@ inline expr mk_implies(unsigned num_args, expr const * args) { lean_assert(num_a
 inline expr Implies(expr const & e1, expr const & e2) { return mk_implies(e1, e2); }
 inline expr Implies(std::initializer_list<expr> const & l) { return mk_implies(l.size(), l.begin()); }
 
+/** \brief Return the Lean Iff operator */
+expr mk_iff_fn();
+/** \brief Return (e1 iff e2) */
+inline expr mk_iff(expr const & e1, expr const & e2) { return mk_app(mk_iff_fn(), e1, e2); }
+inline expr mk_iff(unsigned num_args, expr const * args) { return mk_bin_rop(mk_iff_fn(), True, num_args, args); }
+inline expr Iff(expr const & e1, expr const & e2) { return mk_iff(e1, e2); }
+inline expr Iff(std::initializer_list<expr> const & l) { return mk_iff(l.size(), l.begin()); }
+
 /** \brief Return the Lean And operator */
 expr mk_and_fn();
 /** \brief Return (e1 and e2) */

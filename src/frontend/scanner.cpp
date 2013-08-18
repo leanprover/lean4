@@ -19,6 +19,8 @@ static name g_arrow_unicode("\u2192");
 static name g_lambda_name("fun");
 static name g_type_name("Type");
 static name g_pi_name("Pi");
+static name g_let_name("let");
+static name g_in_name("in");
 static name g_arrow_name("->");
 static name g_eq_name("=");
 
@@ -193,6 +195,10 @@ scanner::token scanner::read_a_symbol() {
                 return token::Pi;
             else if (m_name_val == g_type_name)
                 return token::Type;
+            else if (m_name_val == g_let_name)
+                return token::Let;
+            else if (m_name_val == g_in_name)
+                return token::In;
             else
                 return is_command(m_name_val) ? token::CommandId : token::Id;
         }
@@ -347,6 +353,8 @@ std::ostream & operator<<(std::ostream & out, scanner::token const & t) {
     case scanner::token::Lambda:            out << g_lambda_unicode; break;
     case scanner::token::Pi:                out << g_pi_unicode; break;
     case scanner::token::Arrow:             out << g_arrow_unicode; break;
+    case scanner::token::Let:               out << "let"; break;
+    case scanner::token::In:                out << "in"; break;
     case scanner::token::Id:                out << "Id"; break;
     case scanner::token::CommandId:         out << "CId"; break;
     case scanner::token::IntVal:            out << "Int"; break;

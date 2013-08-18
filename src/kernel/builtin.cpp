@@ -167,6 +167,7 @@ MK_BUILTIN(ite_fn, ite_fn_value);
 
 MK_CONSTANT(if_fn,      name("if"));
 MK_CONSTANT(implies_fn, name("implies"));
+MK_CONSTANT(iff_fn,     name("iff"));
 MK_CONSTANT(and_fn,     name("and"));
 MK_CONSTANT(or_fn,      name("or"));
 MK_CONSTANT(not_fn,     name("not"));
@@ -209,6 +210,9 @@ void add_basic_theory(environment & env) {
 
     // implies(x, y) := ite x y True
     env.add_definition(implies_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, bIf(x, y, True)));
+
+    // iff(x, y) := x = y
+    env.add_definition(iff_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, Eq(x, y)));
 
     // not(x) := ite x False True
     env.add_definition(not_fn_name, p1, Fun({x, Bool}, bIf(x, False, True)));

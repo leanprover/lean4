@@ -13,9 +13,10 @@ Author: Leonardo de Moura
 #include "type_check.h"
 #include "free_vars.h"
 #include "builtin_notation.h"
-#include "pp.h"
 #include "builtin.h"
 #include "arith.h"
+#include "pp.h"
+#include "printer.h"
 
 namespace lean {
 static name g_definition_kwd("Definition");
@@ -81,6 +82,8 @@ struct parser_fn {
     bool curr_is_identifier() const { return curr() == scanner::token::Id; }
     bool curr_is_lparen() const { return curr() == scanner::token::LeftParen; }
     bool curr_is_colon() const { return curr() == scanner::token::Colon; }
+    bool curr_is_comma() const { return curr() == scanner::token::Comma; }
+    bool curr_is_in() const { return curr() == scanner::token::In; }
 
     void check_identifier(char const * msg) { if (!curr_is_identifier()) throw parser_error(msg); }
     name check_identifier_next(char const * msg) { check_identifier(msg); name r = curr_name(); next(); return r; }
@@ -348,6 +351,31 @@ struct parser_fn {
         return parse_abstraction(false);
     }
 
+    expr parse_let() {
+        next();
+        local_decls::mk_scope scope(m_local_decls);
+        buffer<std::pair<name, expr>> bindings;
+        while (true) {
+            name id  = check_identifier_next("invalid let expression, identifier expected");
+            check_assign_next("invalid let expression, ':=' expected");
+            expr val = parse_expr();
+            register_binding(id);
+            bindings.push_back(mk_pair(id, val));
+            if (curr_is_in()) {
+                next();
+                expr r = parse_expr();
+                unsigned i = bindings.size();
+                while (i > 0) {
+                    --i;
+                    r = mk_let(bindings[i].first, bindings[i].second, r);
+                }
+                return r;
+            } else {
+                check_comma_next("invalid let expression, ',' or 'in' expected");
+            }
+        }
+    }
+
     expr parse_int() {
         expr r = mk_int_value(m_scanner.get_num_val().get_numerator());
         next();
@@ -374,6 +402,7 @@ struct parser_fn {
         case scanner::token::LeftParen:  return parse_lparen();
         case scanner::token::Lambda:     return parse_lambda();
         case scanner::token::Pi:         return parse_pi();
+        case scanner::token::Let:        return parse_let();
         case scanner::token::IntVal:     return parse_int();
         case scanner::token::DecimalVal: return parse_decimal();
         case scanner::token::StringVal:  return parse_string();

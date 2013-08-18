@@ -9,6 +9,10 @@ Author: Leonardo de Moura
 #include "scanner.h"
 #include "scoped_map.h"
 #include "exception.h"
+#include "normalize.h"
+#include "type_check.h"
+#include "builtin_notation.h"
+#include "pp.h"
 #include "builtin.h"
 #include "arith.h"
 
@@ -20,6 +24,8 @@ static name g_axiom_kwd("Axiom");
 static name g_universe_kwd("Universe");
 static name g_eval_kwd("Eval");
 static name g_show_kwd("Show");
+static name g_check_kwd("Check");
+static name g_env_kwd("Environment");
 static name g_infix_kwd("Infix");
 static name g_infixl_kwd("Infixl");
 static name g_infixr_kwd("Infixr");
@@ -32,7 +38,7 @@ static name g_mixfixc_kwd("Mixfixc");
 static name g_overload_name(name(name(name(0u), "parser"), "overload"));
 static expr g_overload = mk_constant(g_overload_name);
 
-static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd, g_show_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_prefix_kwd, g_postfix_kwd, g_mixfixl_kwd, g_mixfixr_kwd, g_mixfixc_kwd};
+static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd, g_show_kwd, g_check_kwd, g_env_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_prefix_kwd, g_postfix_kwd, g_mixfixl_kwd, g_mixfixr_kwd, g_mixfixc_kwd};
 
 /** \brief Functional object for parsing */
 struct parser_fn {
@@ -40,6 +46,8 @@ struct parser_fn {
     typedef std::unordered_map<name, expr, name_hash, name_eq>  builtins;
     frontend       m_frontend;
     scanner        m_scanner;
+    formatter      m_formatter;
+    std::ostream * m_out;
     std::ostream * m_err;
     scanner::token m_curr;
     bool           m_use_exceptions;
@@ -60,6 +68,7 @@ struct parser_fn {
             next();
     }
     name const & curr_name() const { return m_scanner.get_name_val(); }
+    mpq const & curr_num() const { return m_scanner.get_num_val(); }
 
     void check_next(scanner::token t, char const * msg) {
         if (curr() == t)
@@ -74,6 +83,8 @@ struct parser_fn {
     name check_identifier_next(char const * msg) { check_identifier(msg); name r = curr_name(); next(); return r; }
     void check_colon_next(char const * msg) { check_next(scanner::token::Colon, msg); }
     void check_rparen_next(char const * msg) { check_next(scanner::token::RightParen, msg); }
+    void check_name(name const & op, char const * msg) { if(!curr_is_identifier() || curr_name() != op) throw parser_error(msg); }
+    void check_name_next(name const & op, char const * msg) { check_name(op, msg); next(); }
 
     void init_builtins() {
         m_builtins["Bool"]   = Bool;
@@ -84,9 +95,11 @@ struct parser_fn {
         m_builtins["Int"]    = Int;
     }
 
-    parser_fn(frontend & fe, std::istream & in, std::ostream * err, bool use_exceptions):
+    parser_fn(frontend & fe, std::istream & in, std::ostream * out, std::ostream * err, bool use_exceptions):
         m_frontend(fe),
         m_scanner(in),
+        m_formatter(mk_pp_formatter(fe)),
+        m_out(out),
         m_err(err),
         m_use_exceptions(use_exceptions) {
         m_found_errors = false;
@@ -134,16 +147,50 @@ struct parser_fn {
         return mk_app(mk_fun(op), left, right);
     }
 
+    void check_op_part(name const & op_part) {
+        check_name_next(op_part, "invalid expression, identifier expected");
+    }
+
+    void parse_mixfix_args(list<name> const & ops, unsigned prec, buffer<expr> & args) {
+        auto it = ops.begin();
+        ++it;
+        while (it != ops.end()) {
+            check_op_part(*it);
+            args.push_back(parse_expr(prec));
+            ++it;
+        }
+    }
+
     expr parse_mixfixl(operator_info const & op) {
-        not_implemented_yet();
+        buffer<expr> args;
+        args.push_back(mk_fun(op));
+        args.push_back(parse_expr(op.get_precedence()));
+        parse_mixfix_args(op.get_op_name_parts(), op.get_precedence(), args);
+        return mk_app(args.size(), args.data());
     }
 
     expr parse_mixfixr(expr const & left, operator_info const & op) {
-        not_implemented_yet();
+        buffer<expr> args;
+        args.push_back(mk_fun(op));
+        args.push_back(left);
+        parse_mixfix_args(op.get_op_name_parts(), op.get_precedence(), args);
+        return mk_app(args.size(), args.data());
     }
 
     expr parse_mixfixc(operator_info const & op) {
-        not_implemented_yet();
+        buffer<expr> args;
+        args.push_back(mk_fun(op));
+        args.push_back(parse_expr(op.get_precedence()));
+        list<name> const & ops = op.get_op_name_parts();
+        auto it = ops.begin();
+        ++it;
+        while (true) {
+            check_op_part(*it);
+            ++it;
+            if (it == ops.end())
+                return mk_app(args.size(), args.data());
+            args.push_back(parse_expr(op.get_precedence()));
+        }
     }
 
     expr get_name_ref(name const & id) {
@@ -208,6 +255,12 @@ struct parser_fn {
         }
     }
 
+    expr parse_eq(expr const & left) {
+        next();
+        expr right = parse_expr(g_eq_precedence);
+        return mk_eq(left, right);
+    }
+
     expr parse_lparen() {
         next();
         expr r = parse_expr();
@@ -261,6 +314,7 @@ struct parser_fn {
     expr parse_led(expr const & left) {
         switch (curr()) {
         case scanner::token::Id:         return parse_led_id(left);
+        case scanner::token::Eq:         return parse_eq(left);
         case scanner::token::LeftParen:  return mk_app(left, parse_lparen());
         case scanner::token::IntVal:     return mk_app(left, parse_int());
         case scanner::token::DecimalVal: return mk_app(left, parse_decimal());
@@ -285,6 +339,7 @@ struct parser_fn {
                     return 1;
             }
         }
+        case scanner::token::Eq : return g_eq_precedence;
         case scanner::token::LeftParen: case scanner::token::IntVal: case scanner::token::DecimalVal:
         case scanner::token::StringVal: case scanner::token::Type:
             return 1;
@@ -334,19 +389,80 @@ struct parser_fn {
     }
 
     void parse_eval() {
-        // TODO
+        next();
+        expr v = elaborate(parse_expr());
+        expr r = normalize(v, m_frontend);
+        (*m_out) << m_formatter(r) << std::endl;
     }
 
     void parse_show() {
-        // TODO
+        next();
+        expr v = elaborate(parse_expr());
+        (*m_out) << m_formatter(v) << std::endl;
+    }
+
+    void parse_check() {
+        next();
+        expr v = elaborate(parse_expr());
+        expr t = infer_type(v, m_frontend);
+        (*m_out) << m_formatter(t) << std::endl;
+    }
+
+    void parse_env() {
+        next();
+        (*m_out) << m_frontend << std::endl;
+    }
+
+    unsigned parse_precision() {
+        if (curr() == scanner::token::IntVal) {
+            mpz pval = curr_num().get_numerator();
+            if (!pval.is_unsigned_int())
+                throw parser_error("invalid operator definition, precedence does not fit in a machine integer");
+            unsigned r = pval.get_unsigned_int();
+            next();
+            return r;
+        } else {
+            return 0;
+        }
+    }
+
+    name parse_op_id() {
+        return check_identifier_next("invalid operator definition, identifier expected");
     }
 
     void parse_op(fixity fx) {
-        // TODO
+        next();
+        unsigned prec = parse_precision();
+        name op_id = parse_op_id();
+        name id    = parse_op_id();
+        switch (fx) {
+        case fixity::Prefix:  m_frontend.add_prefix(op_id, prec, id); break;
+        case fixity::Postfix: m_frontend.add_postfix(op_id, prec, id); break;
+        case fixity::Infix:   m_frontend.add_infix(op_id, prec, id); break;
+        case fixity::Infixl:  m_frontend.add_infixl(op_id, prec, id); break;
+        case fixity::Infixr:  m_frontend.add_infixr(op_id, prec, id); break;
+        default: lean_unreachable(); break;
+        }
     }
 
     void parse_mixfix_op(fixity fx) {
-        // TODO
+        next();
+        unsigned prec = parse_precision();
+        buffer<name> parts;
+        parts.push_back(parse_op_id());
+        parts.push_back(parse_op_id());
+        name id = parse_op_id();
+        while (curr_is_identifier()) {
+            parts.push_back(id);
+            id = curr_name();
+            next();
+        }
+        switch (fx) {
+        case fixity::Mixfixl:  m_frontend.add_mixfixl(parts.size(), parts.data(), prec, id); break;
+        case fixity::Mixfixr:  m_frontend.add_mixfixr(parts.size(), parts.data(), prec, id); break;
+        case fixity::Mixfixc:  m_frontend.add_mixfixc(parts.size(), parts.data(), prec, id); break;
+        default: lean_unreachable(); break;
+        }
     }
 
     void parse_command() {
@@ -357,6 +473,8 @@ struct parser_fn {
         else if (cmd_id == g_axiom_kwd)    parse_axiom();
         else if (cmd_id == g_eval_kwd)     parse_eval();
         else if (cmd_id == g_show_kwd)     parse_show();
+        else if (cmd_id == g_check_kwd)    parse_check();
+        else if (cmd_id == g_env_kwd)      parse_env();
         else if (cmd_id == g_infix_kwd)    parse_op(fixity::Infix);
         else if (cmd_id == g_infixl_kwd)   parse_op(fixity::Infixl);
         else if (cmd_id == g_infixr_kwd)   parse_op(fixity::Infixr);
@@ -383,6 +501,7 @@ struct parser_fn {
             try {
                 switch (curr()) {
                 case scanner::token::CommandId: parse_command(); break;
+                case scanner::token::Period: next(); break;
                 case scanner::token::Eof: return !m_found_errors;
                 default:
                     throw parser_error("Command expected");
@@ -407,17 +526,17 @@ struct parser_fn {
 
     expr parse_expr_main() {
         try {
-            return parse_expr();
+            return elaborate(parse_expr());
         } catch (parser_error & ex) {
             throw parser_exception(ex.what(), m_scanner.get_line(), m_scanner.get_pos());
         }
     }
 
 };
-bool parse_commands(frontend & fe, std::istream & in, std::ostream & err, bool use_exceptions) {
-    return parser_fn(fe, in, &err, use_exceptions).parse_commands();
+bool parse_commands(frontend & fe, std::istream & in, std::ostream & out, std::ostream & err, bool use_exceptions) {
+    return parser_fn(fe, in, &out, &err, use_exceptions).parse_commands();
 }
 expr parse_expr(frontend const & fe, std::istream & in) {
-    return parser_fn(const_cast<frontend&>(fe), in, nullptr, true).parse_expr_main();
+    return parser_fn(const_cast<frontend&>(fe), in, nullptr, nullptr, true).parse_expr_main();
 }
 }

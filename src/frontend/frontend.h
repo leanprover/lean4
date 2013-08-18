@@ -68,6 +68,7 @@ public:
 
     // =======================================
     // Notation
+    void add_infix(name const & opn, unsigned precedence, name const & n);
     void add_infixl(name const & opn, unsigned precedence, name const & n);
     void add_infixr(name const & opn, unsigned precedence, name const & n);
     void add_prefix(name const & opn, unsigned precedence, name const & n);

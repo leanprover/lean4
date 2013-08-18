@@ -30,6 +30,10 @@ static void parse(frontend & fe, char const * str) {
 static void tst1() {
     frontend fe;
     parse(fe, "Variable x : Bool Variable y : Bool Axiom H : x && y || x => x");
+    parse(fe, "Eval true && true");
+    parse(fe, "Show true && false Eval true && false");
+    parse(fe, "Infixl 35 & and Show true & false & false Eval true & false");
+    parse(fe, "Mixfixc 100 if then fi implies Show if true then false fi");
 }
 
 static void check(frontend const & fe, char const * str, expr const & expected) {
@@ -56,6 +60,7 @@ static void tst2() {
     check(fe, "x ∨ y ∨ x ∧ z ⇒ x ∧ y", Implies(Or(x, Or(y, And(x, z))), And(x, y)));
     check(fe, "x⇒y⇒z⇒x", Implies(x, Implies(y, Implies(z, x))));
     check(fe, "x=>y=>z=>x", Implies(x, Implies(y, Implies(z, x))));
+    check(fe, "x=>(y=>z)=>x", Implies(x, Implies(Implies(y, z), x)));
 }
 
 int main() {

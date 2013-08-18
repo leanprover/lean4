@@ -151,6 +151,7 @@ struct frontend::imp {
         m_env.add_neutral_object(new notation_declaration(new_op, n));
     }
 
+    void add_infix(name const & opn, unsigned p, name const & n)  { add_op(infix(opn, p), n, true); }
     void add_infixl(name const & opn, unsigned p, name const & n) { add_op(infixl(opn, p), n, true); }
     void add_infixr(name const & opn, unsigned p, name const & n) { add_op(infixr(opn, p), n, true); }
     void add_prefix(name const & opn, unsigned p, name const & n) { add_op(prefix(opn, p), n, false); }
@@ -210,6 +211,7 @@ frontend::object_iterator frontend::end_objects() const { return m_imp->m_env.en
 frontend::object_iterator frontend::begin_local_objects() const { return m_imp->m_env.begin_local_objects(); }
 frontend::object_iterator frontend::end_local_objects() const { return m_imp->m_env.end_local_objects(); }
 
+void frontend::add_infix(name const & opn, unsigned p, name const & n)  { m_imp->add_infix(opn, p, n); }
 void frontend::add_infixl(name const & opn, unsigned p, name const & n)  { m_imp->add_infixl(opn, p, n); }
 void frontend::add_infixr(name const & opn, unsigned p, name const & n)  { m_imp->add_infixr(opn, p, n); }
 void frontend::add_prefix(name const & opn, unsigned p, name const & n)  { m_imp->add_prefix(opn, p, n); }

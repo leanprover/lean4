@@ -40,7 +40,7 @@ struct parser_fn {
     typedef std::unordered_map<name, expr, name_hash, name_eq>  builtins;
     frontend       m_frontend;
     scanner        m_scanner;
-    std::ostream & m_err;
+    std::ostream * m_err;
     scanner::token m_curr;
     bool           m_use_exceptions;
     bool           m_found_errors;
@@ -84,7 +84,7 @@ struct parser_fn {
         m_builtins["Int"]    = Int;
     }
 
-    parser_fn(frontend & fe, std::istream & in, std::ostream & err, bool use_exceptions):
+    parser_fn(frontend & fe, std::istream & in, std::ostream * err, bool use_exceptions):
         m_frontend(fe),
         m_scanner(in),
         m_err(err),
@@ -369,7 +369,8 @@ struct parser_fn {
     }
 
     void error(char const * msg, unsigned line, unsigned pos) {
-        m_err << "Error (line: " << line << ", pos: " << pos << ") " << msg << std::endl;
+        lean_assert(m_err);
+        (*m_err) << "Error (line: " << line << ", pos: " << pos << ") " << msg << std::endl;
     }
 
     void error(char const * msg) {
@@ -403,8 +404,20 @@ struct parser_fn {
             }
         }
     }
+
+    expr parse_expr_main() {
+        try {
+            return parse_expr();
+        } catch (parser_error & ex) {
+            throw parser_exception(ex.what(), m_scanner.get_line(), m_scanner.get_pos());
+        }
+    }
+
 };
 bool parse_commands(frontend & fe, std::istream & in, std::ostream & err, bool use_exceptions) {
-    return parser_fn(fe, in, err, use_exceptions).parse_commands();
+    return parser_fn(fe, in, &err, use_exceptions).parse_commands();
+}
+expr parse_expr(frontend const & fe, std::istream & in) {
+    return parser_fn(const_cast<frontend&>(fe), in, nullptr, true).parse_expr_main();
 }
 }

@@ -10,4 +10,5 @@ Author: Leonardo de Moura
 
 namespace lean {
 bool parse_commands(frontend & fe, std::istream & in, std::ostream & err = std::cerr, bool use_exceptions = false);
+expr parse_expr(frontend const & fe, std::istream & in);
 }

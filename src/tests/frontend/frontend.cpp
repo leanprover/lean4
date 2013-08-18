@@ -122,6 +122,39 @@ static void tst8() {
     std::cout << fmt(fe.find_object("Trivial")) << "\n";
 }
 
+static void tst9() {
+    frontend f;
+    lean_assert(!f.has_children());
+    {
+        frontend c = f.mk_child();
+        lean_assert(f.has_children());
+        lean_assert(c.parent().has_children());
+    }
+    lean_assert(!f.has_children());
+    f.add_uvar("l", level()+1);
+    lean_assert(f.get_uvar("l") == level("l"));
+    try { f.get_uvar("l2"); lean_unreachable(); }
+    catch (exception &) {}
+    f.add_definition("x", Bool, True);
+    object const & obj = f.get_object("x");
+    lean_assert(obj.get_name() == "x");
+    lean_assert(obj.get_type() == Bool);
+    lean_assert(obj.get_value() == True);
+    try { f.get_object("y"); lean_unreachable(); }
+    catch (exception &) {}
+    lean_assert(!f.find_object("y"));
+    f.add_definition("y", False);
+    lean_assert(f.find_object("y").get_type() == Bool);
+    lean_assert(f.has_object("y"));
+    lean_assert(!f.has_object("z"));
+    bool found = false;
+    std::for_each(f.begin_objects(), f.end_objects(), [&](object const & obj) { if (obj.has_name() && obj.get_name() == "y") found = true; });
+    lean_assert(found);
+    f.add_postfix("!", 10, "factorial");
+    name parts[] = {"if", "then", "else"};
+    f.add_mixfixl(3, parts, 10, "if");
+}
+
 int main() {
     tst1();
     tst2();
@@ -131,5 +164,6 @@ int main() {
     tst6();
     tst7();
     tst8();
+    tst9();
     return has_violations() ? 1 : 0;
 }

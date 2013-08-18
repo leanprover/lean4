@@ -113,11 +113,11 @@ public:
 
     mpz & operator+=(mpz const & o) { mpz_add(m_val, m_val, o.m_val); return *this; }
     mpz & operator+=(unsigned u) { mpz_add_ui(m_val, m_val, u); return *this; }
-    mpz & operator+=(int u) { if (u >= 0) mpz_add_ui(m_val, m_val, u); else mpz_sub_ui(m_val, m_val, u); return *this; }
+    mpz & operator+=(int u) { if (u >= 0) mpz_add_ui(m_val, m_val, u); else mpz_sub_ui(m_val, m_val, -u); return *this; }
 
     mpz & operator-=(mpz const & o) { mpz_sub(m_val, m_val, o.m_val); return *this; }
     mpz & operator-=(unsigned u) { mpz_sub_ui(m_val, m_val, u); return *this; }
-    mpz & operator-=(int u) { if (u >= 0) mpz_sub_ui(m_val, m_val, u); else mpz_add_ui(m_val, m_val, u); return *this; }
+    mpz & operator-=(int u) { if (u >= 0) mpz_sub_ui(m_val, m_val, u); else mpz_add_ui(m_val, m_val, -u); return *this; }
 
     mpz & operator*=(mpz const & o) { mpz_mul(m_val, m_val, o.m_val); return *this; }
     mpz & operator*=(unsigned u) { mpz_mul_ui(m_val, m_val, u); return *this; }

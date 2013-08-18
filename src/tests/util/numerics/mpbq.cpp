@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <iostream>
+#include <sstream>
 #include "test.h"
 #include "mpbq.h"
 #include "mpq.h"
@@ -38,7 +39,56 @@ static void tst1() {
     }
 }
 
+static void tst2() {
+    mpbq num(2);
+    std::ostringstream out;
+    out << num;
+    lean_assert(out.str() == "2");
+    mpbq a(-1,2);
+    std::ostringstream out2;
+    display_decimal(out2, a, 10);
+    lean_assert(out2.str() == "-0.25");
+    lean_assert(lt_1div2k(a, 8));
+    mul2(a);
+    lean_assert(a == mpbq(-1,1));
+    mul2k(a, 3);
+    lean_assert(a == mpbq(-4));
+    mul2k(a, 0);
+    lean_assert(a == mpbq(-4));
+    mul2k(a, 2);
+    lean_assert(a == mpbq(-16));
+    lean_assert(cmp(mpbq(1,2), mpbq(1,4)) == 1);
+    lean_assert(cmp(mpbq(1,2), mpbq(1,2)) == 0);
+    lean_assert(cmp(mpbq(1,2), mpbq(3,2)) == -1);
+    lean_assert(cmp(mpbq(3,2), mpbq(3,4)) == 1);
+    lean_assert(cmp(mpbq(15,2), mpbq(3,1)) == 1);
+    lean_assert(cmp(mpbq(7,1), mpz(3)) == 1);
+    lean_assert(cmp(mpbq(3,0), mpz(3)) == 0);
+    lean_assert(cmp(mpbq(2,0), mpz(3)) == -1);
+    lean_assert(cmp(mpbq(7,4), mpz(10)) == -1);
+    lean_assert(mpbq(0,1) == mpz(0));
+    set(a, mpq(1,4));
+    lean_assert(cmp(a, mpbq(1,2)) == 0);
+    set(a, mpq(0));
+    lean_assert(a.is_zero());
+    a += 3u;
+    lean_assert(a == 3);
+    a += -2;
+    lean_assert(a == 1);
+    div2k(a, 2);
+    lean_assert(a == mpq(1,4));
+    a += 3u;
+    lean_assert(a == mpq(13,4));
+    a += -2;
+    lean_assert(a == mpq(5,4));
+    a -= 1u;
+    lean_assert(a == mpq(1,4));
+    a -= -2;
+    lean_assert(a == mpq(9,4));
+}
+
 int main() {
     tst1();
+    tst2();
     return has_violations() ? 1 : 0;
 }

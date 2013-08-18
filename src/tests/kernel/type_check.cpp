@@ -40,12 +40,12 @@ static void tst1() {
     std::cout << infer_type(mk_lambda("Nat", Type(), mk_lambda("n", Var(0), Var(0))), env) << "\n";
     expr nat = c("nat");
     expr T = Fun("nat", Type(),
-             Fun("+", arrow(nat, arrow(nat, nat)),
+             Fun("+", mk_arrow(nat, mk_arrow(nat, nat)),
              Fun("m", nat, mk_app({c("+"), c("m"), c("m")}))));
     std::cout << T << "\n";
     std::cout << infer_type(T, env) << "\n";
-    std::cout << Pi("nat", Type(), arrow(arrow(nat, arrow(nat, nat)), arrow(nat, nat))) << "\n";
-    lean_assert(infer_type(T, env) == Pi("nat", Type(), arrow(arrow(nat, arrow(nat, nat)), arrow(nat, nat))));
+    std::cout << Pi("nat", Type(), mk_arrow(mk_arrow(nat, mk_arrow(nat, nat)), mk_arrow(nat, nat))) << "\n";
+    lean_assert(infer_type(T, env) == Pi("nat", Type(), mk_arrow(mk_arrow(nat, mk_arrow(nat, nat)), mk_arrow(nat, nat))));
 }
 
 static void tst2() {
@@ -56,9 +56,9 @@ static void tst2() {
         expr t1       = Type(l1);
         expr F =
             Fun("Nat", t0,
-            Fun("Vec", arrow(c("Nat"), t0),
+            Fun("Vec", mk_arrow(c("Nat"), t0),
             Fun("n", c("Nat"),
-            Fun("len", arrow(mk_app({c("Vec"), c("n")}), c("Nat")),
+            Fun("len", mk_arrow(mk_app({c("Vec"), c("n")}), c("Nat")),
             Fun("v", mk_app({c("Vec"), c("n")}),
                 mk_app({c("len"), c("v")}))))));
         std::cout << F << "\n";
@@ -73,7 +73,7 @@ static void tst3() {
     environment env;
     expr f = Fun("a", Bool, Eq(Const("a"), True));
     std::cout << infer_type(f, env) << "\n";
-    lean_assert(infer_type(f, env) == arrow(Bool, Bool));
+    lean_assert(infer_type(f, env) == mk_arrow(Bool, Bool));
     expr t = mk_let("a", True, Var(0));
     std::cout << infer_type(t, env) << "\n";
 }
@@ -107,7 +107,7 @@ static void tst6() {
     expr A = Const("A");
     expr f = Const("f");
     expr x = Const("x");
-    expr t = Fun({A, Type()}, Fun({f, arrow(Int, A)}, Fun({x, Int}, f(x, x))));
+    expr t = Fun({A, Type()}, Fun({f, mk_arrow(Int, A)}, Fun({x, Int}, f(x, x))));
     try {
         infer_type(t, env);
         lean_unreachable();
@@ -121,7 +121,7 @@ static void tst7() {
     expr A = Const(name{"foo", "bla", "bla", "foo"});
     expr f = Const("f");
     expr x = Const("x");
-    expr t = Fun({A, Type()}, Fun({f, arrow(Int, arrow(A, arrow(A, arrow(A, arrow(A, arrow(A, A))))))}, Fun({x, Int}, f(x, x))));
+    expr t = Fun({A, Type()}, Fun({f, mk_arrow(Int, mk_arrow(A, mk_arrow(A, mk_arrow(A, mk_arrow(A, mk_arrow(A, A))))))}, Fun({x, Int}, f(x, x))));
     try {
         infer_type(t, env);
         lean_unreachable();
@@ -132,12 +132,12 @@ static void tst7() {
 
 static void tst8() {
     environment env = mk_toplevel();
-    env.add_var("P", arrow(Int, arrow(Int, Bool)));
+    env.add_var("P", mk_arrow(Int, mk_arrow(Int, Bool)));
     env.add_var("x", Int);
     expr P = Const("P");
     context c;
-    c = extend(c, "P", arrow(Bool, Bool));
-    c = extend(c, "P", arrow(Int, Int));
+    c = extend(c, "P", mk_arrow(Bool, Bool));
+    c = extend(c, "P", mk_arrow(Int, Int));
     c = extend(c, "H", Var(1)(True));
     c = extend(c, "x", Bool);
     expr t = P(Const("x"), Var(0));
@@ -151,11 +151,11 @@ static void tst8() {
 
 static void tst9() {
     environment env = mk_toplevel();
-    env.add_var("P", arrow(Int, arrow(Int, Bool)));
+    env.add_var("P", mk_arrow(Int, mk_arrow(Int, Bool)));
     env.add_var("x", Int);
     expr P = Const("P");
     context c;
-    c = extend(c, "P", arrow(Bool, Bool));
+    c = extend(c, "P", mk_arrow(Bool, Bool));
     c = extend(c, "P", Bool, Var(0)(True));
     c = extend(c, "H", Var(1)(True));
     c = extend(c, "x", Bool);
@@ -170,7 +170,7 @@ static void tst9() {
 
 static void tst10() {
     environment env = mk_toplevel();
-    env.add_var("f", arrow(Int, Int));
+    env.add_var("f", mk_arrow(Int, Int));
     env.add_var("b", Int);
     expr f = Const("f");
     expr a = Const("a");

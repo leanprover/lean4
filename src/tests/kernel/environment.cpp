@@ -78,7 +78,7 @@ static void tst3() {
     std::cout << "b --> " << normalize(Const("b"), env) << "\n";
     lean_assert(normalize(Const("b"), env) == iVal(6));
     try {
-        env.add_definition("c", arrow(Int, Int), Const("a"));
+        env.add_definition("c", mk_arrow(Int, Int), Const("a"));
         lean_unreachable();
     } catch (exception const & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
@@ -137,7 +137,7 @@ static void tst6() {
     environment env;
     level u = env.add_uvar("u", level() + 1);
     level w = env.add_uvar("w", u + 1);
-    env.add_var("f", arrow(Type(u), Type(u)));
+    env.add_var("f", mk_arrow(Type(u), Type(u)));
     expr t = Const("f")(Int);
     std::cout << "type of " << t << " is " << infer_type(t, env) << "\n";
     try {
@@ -154,10 +154,10 @@ static void tst6() {
     }
     t = Const("f")(Type());
     std::cout << "type of " << t << " is " << infer_type(t, env) << "\n";
-    std::cout << infer_type(arrow(Type(u), Type(w)), env) << "\n";
-    lean_assert(infer_type(arrow(Type(u), Type(w)), env) == Type(max(u+1, w+1)));
-    std::cout << infer_type(arrow(Int, Int), env) << "\n";
-    lean_assert(infer_type(arrow(Int, Int), env) == Type());
+    std::cout << infer_type(mk_arrow(Type(u), Type(w)), env) << "\n";
+    lean_assert(infer_type(mk_arrow(Type(u), Type(w)), env) == Type(max(u+1, w+1)));
+    std::cout << infer_type(mk_arrow(Int, Int), env) << "\n";
+    lean_assert(infer_type(mk_arrow(Int, Int), env) == Type());
 }
 
 static void tst7() {

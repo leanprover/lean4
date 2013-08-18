@@ -268,8 +268,8 @@ inline expr mk_eq(expr const & l, expr const & r) { return expr(new expr_eq(l, r
 inline expr Eq(expr const & l, expr const & r) { return mk_eq(l, r); }
 inline expr mk_lambda(name const & n, expr const & t, expr const & e) { return expr(new expr_lambda(n, t, e)); }
 inline expr mk_pi(name const & n, expr const & t, expr const & e) { return expr(new expr_pi(n, t, e)); }
-inline expr arrow(expr const & t, expr const & e) { return mk_pi(name("_"), t, e); }
-inline expr operator>>(expr const & t, expr const & e) { return arrow(t, e); }
+inline expr mk_arrow(expr const & t, expr const & e) { return mk_pi(name("_"), t, e); }
+inline expr operator>>(expr const & t, expr const & e) { return mk_arrow(t, e); }
 inline expr mk_let(name const & n, expr const & v, expr const & e) { return expr(new expr_let(n, v, e)); }
 inline expr mk_type(level const & l) { return expr(new expr_type(l)); }
        expr mk_type();

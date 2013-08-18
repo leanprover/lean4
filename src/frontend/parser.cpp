@@ -280,6 +280,12 @@ struct parser_fn {
         return mk_eq(left, right);
     }
 
+    expr parse_arrow(expr const & left) {
+        next();
+        expr right = parse_expr(g_arrow_precedence-1);
+        return mk_arrow(left, right);
+    }
+
     expr parse_lparen() {
         next();
         expr r = parse_expr();
@@ -429,6 +435,7 @@ struct parser_fn {
         switch (curr()) {
         case scanner::token::Id:         return parse_led_id(left);
         case scanner::token::Eq:         return parse_eq(left);
+        case scanner::token::Arrow:      return parse_arrow(left);
         case scanner::token::LeftParen:  return mk_app(left, parse_lparen());
         case scanner::token::IntVal:     return mk_app(left, parse_int());
         case scanner::token::DecimalVal: return mk_app(left, parse_decimal());
@@ -454,6 +461,7 @@ struct parser_fn {
             }
         }
         case scanner::token::Eq : return g_eq_precedence;
+        case scanner::token::Arrow : return g_arrow_precedence;
         case scanner::token::LeftParen: case scanner::token::IntVal: case scanner::token::DecimalVal:
         case scanner::token::StringVal: case scanner::token::Type:
             return 1;

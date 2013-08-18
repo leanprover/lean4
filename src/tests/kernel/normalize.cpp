@@ -24,18 +24,18 @@ static expr lam(expr const & t, expr const & e) { return mk_lambda("_", t, e); }
 static expr v(unsigned i) { return Var(i); }
 static expr zero() {
     // fun (t : T) (s : t -> t) (z : t) z
-    return lam(t(), lam(arrow(v(0), v(0)), lam(v(1), v(0))));
+    return lam(t(), lam(mk_arrow(v(0), v(0)), lam(v(1), v(0))));
 }
 static expr one()  {
     // fun (t : T) (s : t -> t) s
-    return lam(t(), lam(arrow(v(0), v(0)), v(0)));
+    return lam(t(), lam(mk_arrow(v(0), v(0)), v(0)));
 }
 static expr num() { return Const("num"); }
 static expr plus() {
     //  fun (m n : numeral) (A : Type 0) (f : A -> A) (x : A) => m A f (n A f x).
     expr x = v(0), f = v(1), A = v(2), n = v(3), m = v(4);
     expr body = m(A, f, n(A, f, x));
-    return lam(num(), lam(num(), lam(t(), lam(arrow(v(0), v(0)), lam(v(1), body)))));
+    return lam(num(), lam(num(), lam(t(), lam(mk_arrow(v(0), v(0)), lam(v(1), body)))));
 }
 static expr two() { return mk_app({plus(), one(), one()}); }
 static expr three() { return mk_app({plus(), two(), one()}); }
@@ -44,13 +44,13 @@ static expr times() {
     // fun (m n : numeral) (A : Type 0) (f : A -> A) (x : A) => m A (n A f) x.
     expr x = v(0), f = v(1), A = v(2), n = v(3), m = v(4);
     expr body = m(A, n(A, f), x);
-    return lam(num(), lam(num(), lam(t(), lam(arrow(v(0), v(0)), lam(v(1), body)))));
+    return lam(num(), lam(num(), lam(t(), lam(mk_arrow(v(0), v(0)), lam(v(1), body)))));
 }
 static expr power() {
     // fun (m n : numeral) (A : Type 0) => m (A -> A) (n A).
     expr A = v(0), n = v(1), m = v(2);
-    expr body = n(arrow(A, A), m(A));
-    return lam(num(), lam(num(), lam(arrow(v(0), v(0)), body)));
+    expr body = n(mk_arrow(A, A), m(A));
+    return lam(num(), lam(num(), lam(mk_arrow(v(0), v(0)), body)));
 }
 
 unsigned count_core(expr const & a, expr_set & s) {
@@ -114,7 +114,7 @@ static void tst1() {
     environment env;
     env.add_var("t", Type());
     expr t = Type();
-    env.add_var("f", arrow(t, t));
+    env.add_var("f", mk_arrow(t, t));
     expr f = Const("f");
     env.add_var("a", t);
     expr a = Const("a");
@@ -140,13 +140,13 @@ static void tst1() {
 static void tst2() {
     environment env;
     expr t = Type();
-    env.add_var("f", arrow(t, t));
+    env.add_var("f", mk_arrow(t, t));
     expr f = Const("f");
     env.add_var("a", t);
     expr a = Const("a");
     env.add_var("b", t);
     expr b = Const("b");
-    env.add_var("h", arrow(t, t));
+    env.add_var("h", mk_arrow(t, t));
     expr h = Const("h");
     expr x = Var(0);
     expr y = Var(1);

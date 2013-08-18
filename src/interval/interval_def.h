@@ -1600,12 +1600,14 @@ template<typename T> void interval<T>::acosh() {
     numeric_traits<T>::acosh(m_lower);
     if(upper_kind() == XN_NUMERAL) {
         numeric_traits<T>::set_rounding(true);
-        numeric_traits<T>::acosh(m_lower);
+        numeric_traits<T>::acosh(m_upper);
     }
     lean_assert(check_invariant());
     return;
 }
 template<typename T> void interval<T>::atanh() {
+    lean_assert(lower_kind() == XN_NUMERAL && m_lower >= -1.0);
+    lean_assert(upper_kind() == XN_NUMERAL && m_upper <= 1.0);
     if(lower_kind() == XN_NUMERAL) {
         numeric_traits<T>::set_rounding(true);
         m_lower = -m_lower;

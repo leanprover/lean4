@@ -966,6 +966,68 @@ static void double_interval_trans() {
     check_uop(double, cot, ozero_ninf);
     check_uop(double, cot, czero_pinf);
     check_uop(double, cot, czero_ninf);
+
+    cout << "=====================" << endl;
+    check_uop(double, asinh, i1);
+    check_uop(double, asinh, i2);
+    check_uop(double, asinh, i3);
+    check_uop(double, asinh, i4);
+    check_uop(double, asinh, i5);
+    check_uop(double, asinh, i6);
+    check_uop(double, asinh, i7);
+    check_uop(double, asinh, i8);
+    check_uop(double, asinh, i9);
+    check_uop(double, asinh, i10);
+    check_uop(double, asinh, i11);
+    check_uop(double, asinh, i12);
+    check_uop(double, asinh, i13);
+    check_uop(double, asinh, i14);
+    check_uop(double, asinh, i15);
+    check_uop(double, asinh, oi1);
+    check_uop(double, asinh, oi2);
+    check_uop(double, asinh, oi3);
+    check_uop(double, asinh, oi4);
+    check_uop(double, asinh, oi5);
+    check_uop(double, asinh, oi6);
+    check_uop(double, asinh, oi7);
+    check_uop(double, asinh, oi8);
+    check_uop(double, asinh, oi9);
+    check_uop(double, asinh, oi10);
+    check_uop(double, asinh, oi11);
+    check_uop(double, asinh, oi12);
+    check_uop(double, asinh, oi13);
+    check_uop(double, asinh, oi14);
+    check_uop(double, asinh, oi15);
+    check_uop(double, asinh, inf);
+    check_uop(double, asinh, ozero_pinf);
+    check_uop(double, asinh, ozero_ninf);
+    check_uop(double, asinh, czero_pinf);
+    check_uop(double, asinh, czero_ninf);
+
+    cout << "=====================" << endl;
+    check_uop(double, acosh, i1);
+    check_uop(double, acosh, i2);
+    check_uop(double, acosh, i5);
+    check_uop(double, acosh, i7);
+    check_uop(double, acosh, i8);
+    check_uop(double, acosh, oi1);
+    check_uop(double, acosh, oi2);
+    check_uop(double, acosh, oi5);
+    check_uop(double, acosh, oi7);
+    check_uop(double, acosh, oi8);
+
+    cout << "=====================" << endl;
+    check_uop(double, atanh, i10);
+    check_uop(double, atanh, i11);
+    check_uop(double, atanh, i12);
+    check_uop(double, atanh, i13);
+    check_uop(double, atanh, i14);
+    check_uop(double, atanh, i15);
+    check_uop(double, atanh, oi11);
+    check_uop(double, atanh, oi12);
+    check_uop(double, atanh, oi13);
+    check_uop(double, atanh, oi14);
+    check_uop(double, atanh, oi15);
 }
 
 int main() {

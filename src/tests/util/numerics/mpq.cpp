@@ -9,6 +9,12 @@ Author: Leonardo de Moura
 #include "mpq.h"
 using namespace lean;
 
+static void tst0() {
+    lean::mpq n1("10000000000000000000000000000000000000000");
+    lean::mpq n2(317, 511);
+    std::cout << n1*n2 << "\n";
+}
+
 static void tst1() {
     mpq a(2,3), b(4,3);
     b = a / b;
@@ -128,6 +134,7 @@ static void tst5() {
 }
 
 int main() {
+    tst0();
     tst1();
     tst2();
     tst3();

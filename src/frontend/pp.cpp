@@ -304,6 +304,7 @@ class pp_fn {
                 for (unsigned i = 1; i < num_args(e); i++) {
                     result p_arg = pp_mixfix_child(op, arg(e, i), depth);
                     unsigned sz  = it->size();
+                    if (i > 1) r_format += space();
                     r_format    += format{format(*it), nest(sz+1, format{line(), p_arg.first})};
                     r_depth      = std::max(r_depth, p_arg.second);
                     ++it;

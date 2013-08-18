@@ -71,15 +71,16 @@ bool     get_pp_extra_lets(options const & opts)      { return opts.get_bool(g_p
 unsigned get_pp_alias_min_depth(options const & opts) { return opts.get_unsigned(g_pp_alias_min_depth, LEAN_DEFAULT_PP_ALIAS_MIN_DEPTH); }
 
 /**
-   \brief Return a fresh name for the given abstraction.
+   \brief Return a fresh name for the given abstraction or let.
    By fresh, we mean a name that is not used for any constant in abst_body(e).
    The resultant name is based on abst_name(e).
 */
 name get_unused_name(expr const & e) {
-    name const & n = abst_name(e);
+    name const & n = is_abstraction(e) ? abst_name(e) : let_name(e);
     name n1    = n;
     unsigned i = 1;
-    while (occurs(n1, abst_body(e))) {
+    expr const & b = is_abstraction(e) ? abst_body(e) : let_body(e);
+    while (occurs(n1, b)) {
         n1 = name(n, i);
         i++;
     }
@@ -469,9 +470,36 @@ class pp_fn {
         return pp_abstraction_core(e, depth, expr());
     }
 
+    expr collect_nested_let(expr const & e, buffer<std::pair<name, expr>> & bindings) {
+        if (is_let(e)) {
+            name n1    = get_unused_name(e);
+            bindings.push_back(mk_pair(n1, let_value(e)));
+            expr b = instantiate_with_closed(let_body(e), mk_constant(n1));
+            return collect_nested_let(b, bindings);
+        } else {
+            return e;
+        }
+    }
+
     result pp_let(expr const & e, unsigned depth) {
-        // TODO
-        return mk_result(format("TODO"), 1);
+        buffer<std::pair<name, expr>> bindings;
+        expr body = collect_nested_let(e, bindings);
+        unsigned r_depth = 0;
+        format r_format = g_let_fmt;
+        unsigned sz = bindings.size();
+        for (unsigned i = 0; i < sz; i++) {
+            auto b = bindings[i];
+            name const & n = b.first;
+            result p_def = pp(b.second, depth+1);
+            format beg = i == 0 ? space() : line();
+            format sep = i < sz - 1 ? comma() : format();
+            r_format += nest(3 + 1, format{beg, format(n), space(), g_assign_fmt, nest(n.size() + 1 + 2 + 1, format{space(), p_def.first, sep})});
+            r_depth = std::max(r_depth, p_def.second);
+        }
+        result p_body = pp(body, depth+1);
+        r_depth = std::max(r_depth, p_body.second);
+        r_format += format{line(), g_in_fmt, space(), nest(2 + 1, p_body.first)};
+        return mk_pair(group(r_format), r_depth);
     }
 
     /** \brief Pretty print the child of an equality. */

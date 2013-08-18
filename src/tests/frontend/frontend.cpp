@@ -9,7 +9,9 @@ Author: Leonardo de Moura
 #include "operator_info.h"
 #include "kernel_exception.h"
 #include "builtin.h"
+#include "abstract.h"
 #include "pp.h"
+#include "printer.h"
 #include "test.h"
 using namespace lean;
 
@@ -155,6 +157,17 @@ static void tst9() {
     f.add_mixfixl(3, parts, 10, "if");
 }
 
+static void tst10() {
+    frontend f;
+    formatter fmt = mk_pp_formatter(f);
+    expr x = Const("xxxxxxxxxxxx");
+    expr y = Const("y");
+    expr z = Const("foo");
+    expr e = Let({{x, True}, {y, And({x,x,x,x,x,x,x,x})}, {z, And(x, y)}}, Or({x, x, x, x, x, x, x, x, x, z, z, z, z, z, z, z}));
+    std::cout << e << "\n";
+    std::cout << fmt(e) << "\n";
+}
+
 int main() {
     tst1();
     tst2();
@@ -165,5 +178,6 @@ int main() {
     tst7();
     tst8();
     tst9();
+    tst10();
     return has_violations() ? 1 : 0;
 }

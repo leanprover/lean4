@@ -55,11 +55,20 @@ struct parser_fn {
     bool           m_use_exceptions;
     bool           m_found_errors;
     local_decls    m_local_decls;
+    unsigned       m_num_local_decls;
     builtins       m_builtins;
 
     /** \brief Exception used to track parsing erros, it does not leak outside of this class. */
     struct parser_error : public exception {
         parser_error(char const * msg):exception(msg) {}
+    };
+
+    struct mk_scope {
+        parser_fn &           m_fn;
+        local_decls::mk_scope m_scope;
+        unsigned              m_old_num_local_decls;
+        mk_scope(parser_fn & fn):m_fn(fn), m_scope(fn.m_local_decls), m_old_num_local_decls(fn.m_num_local_decls) {}
+        ~mk_scope() { m_fn.m_num_local_decls = m_old_num_local_decls; }
     };
 
     void scan() { m_curr = m_scanner.scan(); }
@@ -112,6 +121,7 @@ struct parser_fn {
         m_err(err),
         m_use_exceptions(use_exceptions) {
         m_found_errors = false;
+        m_num_local_decls = 0;
         m_scanner.set_command_keywords(g_command_keywords);
         init_builtins();
         scan();
@@ -226,7 +236,7 @@ struct parser_fn {
         next();
         auto it = m_local_decls.find(id);
         if (it != m_local_decls.end()) {
-            return mk_var(m_local_decls.size() - it->second - 1);
+            return mk_var(m_num_local_decls - it->second - 1);
         } else {
             operator_info op = m_frontend.find_nud(id);
             if (op) {
@@ -247,7 +257,7 @@ struct parser_fn {
         next();
         auto it = m_local_decls.find(id);
         if (it != m_local_decls.end()) {
-            return mk_app(left, mk_var(m_local_decls.size() - it->second - 1));
+            return mk_app(left, mk_var(m_num_local_decls - it->second - 1));
         } else {
             operator_info op = m_frontend.find_led(id);
             if (op) {
@@ -285,7 +295,10 @@ struct parser_fn {
     }
 
     void register_binding(name const & n) {
-        m_local_decls.insert(n, m_local_decls.size());
+        unsigned lvl = m_num_local_decls;
+        m_local_decls.insert(n, lvl);
+        m_num_local_decls++;
+        lean_assert(m_local_decls.find(n)->second == lvl);
     }
 
     void parse_simple_bindings(buffer<std::pair<name, expr>> & result) {
@@ -335,7 +348,7 @@ struct parser_fn {
 
     expr parse_abstraction(bool is_lambda) {
         next();
-        local_decls::mk_scope scope(m_local_decls);
+        mk_scope scope(*this);
         buffer<std::pair<name, expr>> bindings;
         parse_bindings(bindings);
         check_comma_next("invalid abstraction, ',' expected");
@@ -353,7 +366,7 @@ struct parser_fn {
 
     expr parse_let() {
         next();
-        local_decls::mk_scope scope(m_local_decls);
+        mk_scope scope(*this);
         buffer<std::pair<name, expr>> bindings;
         while (true) {
             name id  = check_identifier_next("invalid let expression, identifier expected");
@@ -472,7 +485,7 @@ struct parser_fn {
             check_assign_next("invalid definition, ':=' expected");
             val  = elaborate(parse_expr());
         } else {
-            local_decls::mk_scope scope(m_local_decls);
+            mk_scope scope(*this);
             buffer<std::pair<name, expr>> bindings;
             parse_bindings(bindings);
             check_colon_next("invalid definition, ':' expected");

@@ -128,7 +128,7 @@ bool is_false(expr const & e) {
 
 // =======================================
 // If-then-else builtin operator
-static name   g_ite_name = name{"builtin", "if"};
+static name   g_ite_name("ite");
 static format g_ite_fmt(g_ite_name);
 class ite_fn_value : public value {
     expr m_type;
@@ -161,7 +161,7 @@ public:
     virtual format pp() const { return g_ite_fmt; }
     virtual unsigned hash() const { return 27; }
 };
-char const * ite_fn_value::g_kind = "builtin::if";
+char const * ite_fn_value::g_kind = "ite";
 MK_BUILTIN(ite_fn, ite_fn_value);
 // =======================================
 

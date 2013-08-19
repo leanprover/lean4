@@ -193,6 +193,22 @@ class pp_fn {
             return operator_info();
     }
 
+    /**
+       \brief Return the precedence of the given expression
+    */
+    unsigned get_operator_precedence(expr const & e) {
+        if (is_constant(e)) {
+            operator_info op = get_operator(e);
+            return op ? op.get_precedence() : 0;
+        } else if (is_eq(e)) {
+            return g_eq_precedence;
+        } else if (is_arrow(e)) {
+            return g_arrow_precedence;
+        } else {
+            return 0;
+        }
+    }
+
     /** \brief Return true if the application \c e has the number of arguments expected by the operator \c op. */
     bool has_expected_num_args(expr const & e, operator_info const & op) {
         switch (op.get_fixity()) {
@@ -244,8 +260,7 @@ class pp_fn {
         if (is_atomic(e)) {
             return pp(e, depth + 1);
         } else {
-            operator_info op_child = get_operator(e);
-            if (op_child && op.get_precedence() < op_child.get_precedence())
+            if (op.get_precedence() < get_operator_precedence(e))
                 return pp(e, depth + 1);
             else
                 return pp_child_with_paren(e, depth);
@@ -260,8 +275,7 @@ class pp_fn {
         if (is_atomic(e)) {
             return pp(e, depth + 1);
         } else {
-            operator_info op_child = get_operator(e);
-            if (op_child && (op == op_child || op.get_precedence() < op_child.get_precedence()))
+            if (op.get_precedence() < get_operator_precedence(e) || op == get_operator(e))
                 return pp(e, depth + 1);
             else
                 return pp_child_with_paren(e, depth);
@@ -543,8 +557,7 @@ class pp_fn {
         if (is_atomic(e)) {
             return pp(e, depth + 1);
         } else {
-            operator_info op_child = get_operator(e);
-            if (op_child && g_eq_precedence < op_child.get_precedence())
+            if (g_eq_precedence < get_operator_precedence(e))
                 return pp(e, depth + 1);
             else
                 return pp_child_with_paren(e, depth);

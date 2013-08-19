@@ -581,6 +581,35 @@ class parser_fn {
         return parse_abstraction(false);
     }
 
+    /** \brief Parse forall/exists */
+    expr parse_quantifier(bool is_forall) {
+        next();
+        mk_scope scope(*this);
+        buffer<std::pair<name, expr>> bindings;
+        parse_bindings(bindings);
+        check_comma_next("invalid quantifier, ',' expected");
+        expr result = parse_expr();
+        unsigned i = bindings.size();
+        while (i > 0) {
+            --i;
+            if (is_forall)
+                result = mk_forall(bindings[i].second, mk_lambda(bindings[i].first, bindings[i].second, result));
+            else
+                result = mk_exists(bindings[i].second, mk_lambda(bindings[i].first, bindings[i].second, result));
+        }
+        return result;
+    }
+
+    /** \brief Parse <tt>'forall' bindings ',' expr</tt>. */
+    expr parse_forall() {
+        return parse_quantifier(true);
+    }
+
+    /** \brief Parse <tt>'exists' bindings ',' expr</tt>. */
+    expr parse_exists() {
+        return parse_quantifier(false);
+    }
+
     /** \brief Parse Let expression. */
     expr parse_let() {
         next();
@@ -641,6 +670,8 @@ class parser_fn {
         case scanner::token::LeftParen:  return parse_lparen();
         case scanner::token::Lambda:     return parse_lambda();
         case scanner::token::Pi:         return parse_pi();
+        case scanner::token::Forall:     return parse_forall();
+        case scanner::token::Exists:     return parse_exists();
         case scanner::token::Let:        return parse_let();
         case scanner::token::IntVal:     return parse_int();
         case scanner::token::DecimalVal: return parse_decimal();

@@ -23,6 +23,12 @@ static name g_let_name("let");
 static name g_in_name("in");
 static name g_arrow_name("->");
 static name g_eq_name("=");
+static name g_forall_name("forall");
+static name g_forall_unicode("\u2201");
+static name g_forall_unicode2("∀");
+static name g_exists_name("exists");
+static name g_exists_unicode("\u2203");
+static name g_exists_unicode2("∃");
 
 static char g_normalized[256];
 
@@ -193,6 +199,10 @@ scanner::token scanner::read_a_symbol() {
                 return token::Lambda;
             else if (m_name_val == g_pi_name)
                 return token::Pi;
+            else if (m_name_val == g_forall_name)
+                return token::Forall;
+            else if (m_name_val == g_exists_name)
+                return token::Exists;
             else if (m_name_val == g_type_name)
                 return token::Type;
             else if (m_name_val == g_let_name)
@@ -243,6 +253,10 @@ scanner::token scanner::read_c_symbol() {
                 return token::Lambda;
             else if (m_name_val == g_pi_unicode)
                 return token::Pi;
+            else if (m_name_val == g_forall_unicode || m_name_val == g_forall_unicode2)
+                return token::Forall;
+            else if (m_name_val == g_exists_unicode || m_name_val == g_exists_unicode2)
+                return token::Exists;
             else
                 return token::Id;
         }
@@ -352,6 +366,8 @@ std::ostream & operator<<(std::ostream & out, scanner::token const & t) {
     case scanner::token::Period:            out << "."; break;
     case scanner::token::Lambda:            out << g_lambda_unicode; break;
     case scanner::token::Pi:                out << g_pi_unicode; break;
+    case scanner::token::Forall:            out << g_forall_unicode; break;
+    case scanner::token::Exists:            out << g_exists_unicode; break;
     case scanner::token::Arrow:             out << g_arrow_unicode; break;
     case scanner::token::Let:               out << "let"; break;
     case scanner::token::In:                out << "in"; break;

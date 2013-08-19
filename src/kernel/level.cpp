@@ -127,7 +127,7 @@ level max_core(level_max * l1, level_max * l2) { return max_core(l1->m_size, l1-
 level max(level const & l1, level const & l2) {
     if (is_max(l1)) {
         if (is_max(l2))
-            return max_core(to_max(l1), to_max(l1));
+            return max_core(to_max(l1), to_max(l2));
         else
             return max_core(to_max(l1), l2);
     } else {

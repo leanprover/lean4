@@ -31,6 +31,8 @@ public:
     static name const & anonymous();
     name & operator=(name const & other);
     name & operator=(name && other);
+    /** \brief Return true iff \c n1 is a prefix of \c n2. */
+    friend bool is_prefix_of(name const & n1, name const & n2);
     friend bool operator==(name const & a, name const & b);
     friend bool operator!=(name const & a, name const & b) { return !(a == b); }
     friend bool operator==(name const & a, char const * b);

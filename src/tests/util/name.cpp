@@ -67,9 +67,25 @@ static void tst3() {
     lean_assert(n == name(name(name("foo"), "bla"), "tst"));
 }
 
+static void tst4() {
+    lean_assert(is_prefix_of(name{"foo", "bla"}, name{"foo", "bla"}));
+    lean_assert(is_prefix_of(name{"foo", "bla"}, name{"foo", "bla", "foo"}));
+    lean_assert(is_prefix_of(name{"foo"}, name{"foo", "bla", "foo"}));
+    lean_assert(!is_prefix_of(name{"foo"}, name{"fo", "bla", "foo"}));
+    lean_assert(!is_prefix_of(name{"foo", "bla", "foo"}, name{"foo", "bla"}));
+    lean_assert(is_prefix_of(name{"foo", "bla"}, name(name{"foo", "bla"}, 0u)));
+    lean_assert(is_prefix_of(name(name(0u), 1u), name(name(0u), 1u)));
+    lean_assert(!is_prefix_of(name(name(0u), 3u), name(name(0u), 1u)));
+    lean_assert(is_prefix_of(name(name(0u), 1u), name(name(name(0u), 1u), "foo")));
+    lean_assert(!is_prefix_of(name(name(2u), 1u), name(name(name(0u), 1u), "foo")));
+    lean_assert(!is_prefix_of(name(name(0u), 3u), name(name(name(0u), 1u), "foo")));
+    lean_assert(!is_prefix_of(name(name("bla"), 1u), name(name(name(0u), 1u), "foo")));
+}
+
 int main() {
     tst1();
     tst2();
     tst3();
+    tst4();
     return has_violations() ? 1 : 0;
 }

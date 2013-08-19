@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "name.h"
 #include "debug.h"
 #include "rc.h"
+#include "buffer.h"
 #include "hash.h"
 #include "trace.h"
 
@@ -66,7 +67,7 @@ struct name::imp {
             display_core(out, p);
     }
 
-    friend void copy_limbs(imp * p, std::vector<name::imp *> & limbs) {
+    friend void copy_limbs(imp * p, buffer<name::imp *> & limbs) {
         limbs.clear();
         while (p != nullptr) {
             limbs.push_back(p);
@@ -194,13 +195,41 @@ bool operator==(name const & a, name const & b) {
     }
 }
 
+bool is_prefix_of(name const & n1, name const & n2) {
+    buffer<name::imp*> limbs1, limbs2;
+    name::imp* i1 = n1.m_ptr;
+    name::imp* i2 = n2.m_ptr;
+    copy_limbs(i1, limbs1);
+    copy_limbs(i2, limbs2);
+    unsigned sz1 = limbs1.size();
+    unsigned sz2 = limbs2.size();
+    if (sz1 > sz2)
+        return false;
+    else if (sz1 == sz2 && n1.hash() != n2.hash())
+        return false;
+    auto it1 = limbs1.begin();
+    auto it2 = limbs2.begin();
+    for (; it1 != limbs1.end(); ++it1, ++it2) {
+        i1 = *it1;
+        i2 = *it2;
+        if (i1->m_is_string != i2->m_is_string)
+            return false;
+        if (i1->m_is_string) {
+            if (strcmp(i1->m_str, i2->m_str) != 0)
+                return false;
+        } else if (i1->m_k != i2->m_k) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool operator==(name const & a, char const * b) {
     return a.m_ptr->m_is_string && strcmp(a.m_ptr->m_str, b) == 0;
 }
 
 int cmp(name::imp * i1, name::imp * i2) {
-    static thread_local std::vector<name::imp *> limbs1;
-    static thread_local std::vector<name::imp *> limbs2;
+    buffer<name::imp *> limbs1, limbs2;
     copy_limbs(i1, limbs1);
     copy_limbs(i2, limbs2);
     auto it1 = limbs1.begin();

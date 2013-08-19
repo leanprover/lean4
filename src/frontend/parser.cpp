@@ -19,6 +19,8 @@ Author: Leonardo de Moura
 #include "printer.h"
 
 namespace lean {
+// ==========================================
+// Builtin commands
 static name g_definition_kwd("Definition");
 static name g_variable_kwd("Variable");
 static name g_theorem_kwd("Theorem");
@@ -36,6 +38,11 @@ static name g_postfix_kwd("Postfix");
 static name g_mixfixl_kwd("Mixfixl");
 static name g_mixfixr_kwd("Mixfixr");
 static name g_mixfixc_kwd("Mixfixc");
+/** \brief Table/List with all builtin command keywords */
+static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
+                                        g_show_kwd, g_check_kwd, g_env_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_prefix_kwd,
+                                        g_postfix_kwd, g_mixfixl_kwd, g_mixfixr_kwd, g_mixfixc_kwd};
+// ==========================================
 
 // ==========================================
 // Support for parsing levels
@@ -46,13 +53,22 @@ static unsigned g_level_plus_prec = 10;
 static unsigned g_level_cup_prec  = 5;
 // ==========================================
 
+// ==========================================
+// Auxiliary constant used to mark applications of overloaded operators.
 static name g_overload_name(name(name(name(0u), "parser"), "overload"));
 static expr g_overload = mk_constant(g_overload_name);
+// ==========================================
 
-static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd, g_show_kwd, g_check_kwd, g_env_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_prefix_kwd, g_postfix_kwd, g_mixfixl_kwd, g_mixfixr_kwd, g_mixfixc_kwd};
+/**
+    \brief Functional object for parsing
 
-/** \brief Functional object for parsing */
-struct parser_fn {
+    \remark It is an instance of a Pratt parser
+    (http://en.wikipedia.org/wiki/Pratt_parser) described in the paper
+    "Top down operator precedence". This algorithm is super simple,
+    and it is easy to support user-defined infix/prefix/postfix/mixfix
+    operators.
+*/
+class parser_fn {
     typedef scoped_map<name, unsigned, name_hash, name_eq> local_decls;
     typedef std::unordered_map<name, expr, name_hash, name_eq>  builtins;
     frontend       m_frontend;
@@ -72,6 +88,10 @@ struct parser_fn {
         parser_error(char const * msg):exception(msg) {}
     };
 
+    /**
+        \brief Auxiliar struct for creating/destroying a new scope for
+        local declarations.
+    */
     struct mk_scope {
         parser_fn &           m_fn;
         local_decls::mk_scope m_scope;
@@ -80,16 +100,27 @@ struct parser_fn {
         ~mk_scope() { m_fn.m_num_local_decls = m_old_num_local_decls; }
     };
 
+    /** \brief Read the next token. */
     void scan() { m_curr = m_scanner.scan(); }
+    /** \brief Return the current token */
     scanner::token curr() const { return m_curr; }
+    /** \brief Read the next token if the current one is not End-of-file. */
     void next() { if (m_curr != scanner::token::Eof) scan(); }
+    /** \brief Keep consume tokens until we find a Command or End-of-file. */
     void sync() {
         while (curr() != scanner::token::CommandId && curr() != scanner::token::Eof)
             next();
     }
+
+    /** \brief Return the name associated with the current token. */
     name const & curr_name() const { return m_scanner.get_name_val(); }
+    /** \brief Return the numeral associated with the current token. */
     mpq const & curr_num() const { return m_scanner.get_num_val(); }
 
+    /**
+        \brief Check if the current token is \c t, and move to the
+        next one. If the current token is not \c t, it throws a parser error.
+    */
     void check_next(scanner::token t, char const * msg) {
         if (curr() == t)
             next();
@@ -97,23 +128,42 @@ struct parser_fn {
             throw parser_error(msg);
     }
 
+    /** \brief Return true iff the current toke is an identifier */
     bool curr_is_identifier() const { return curr() == scanner::token::Id; }
+    /** \brief Return true iff the current toke is an integer */
     bool curr_is_int() const { return curr() == scanner::token::IntVal; }
+    /** \brief Return true iff the current toke is a '(' */
     bool curr_is_lparen() const { return curr() == scanner::token::LeftParen; }
+    /** \brief Return true iff the current toke is a ':' */
     bool curr_is_colon() const { return curr() == scanner::token::Colon; }
+    /** \brief Return true iff the current toke is a ',' */
     bool curr_is_comma() const { return curr() == scanner::token::Comma; }
+    /** \brief Return true iff the current toke is an 'in' token */
     bool curr_is_in() const { return curr() == scanner::token::In; }
 
+    /** \brief Throws a parser error if the current token is not an identifier. */
     void check_identifier(char const * msg) { if (!curr_is_identifier()) throw parser_error(msg); }
+    /**
+        \brief Throws a parser error if the current token is not an
+        identifier. If it is, move to the next token.
+    */
     name check_identifier_next(char const * msg) { check_identifier(msg); name r = curr_name(); next(); return r; }
+    /** \brief Throws a parser error if the current token is not ':'. If it is, move to the next token. */
     void check_colon_next(char const * msg) { check_next(scanner::token::Colon, msg); }
+    /** \brief Throws a parser error if the current token is not ','. If it is, move to the next token. */
     void check_comma_next(char const * msg) { check_next(scanner::token::Comma, msg); }
+    /** \brief Throws a parser error if the current token is not '('. If it is, move to the next token. */
     void check_lparen_next(char const * msg) { check_next(scanner::token::LeftParen, msg); }
+    /** \brief Throws a parser error if the current token is not ')'. If it is, move to the next token. */
     void check_rparen_next(char const * msg) { check_next(scanner::token::RightParen, msg); }
+    /** \brief Throws a parser error if the current token is not ':='. If it is, move to the next token. */
     void check_assign_next(char const * msg) { check_next(scanner::token::Assign, msg); }
+    /** \brief Throws a parser error if the current token is not an identifier named \c op. */
     void check_name(name const & op, char const * msg) { if(!curr_is_identifier() || curr_name() != op) throw parser_error(msg); }
+    /** \brief Throws a parser error if the current token is not an identifier named \c op. If it is, move to the next token. */
     void check_name_next(name const & op, char const * msg) { check_name(op, msg); next(); }
 
+    /** \brief Initialize \c m_builtins table with Lean builtin symbols that do not have notation associated with them. */
     void init_builtins() {
         m_builtins["Bool"]   = Bool;
         m_builtins["true"]   = True;
@@ -123,27 +173,15 @@ struct parser_fn {
         m_builtins["Int"]    = Int;
     }
 
-    parser_fn(frontend & fe, std::istream & in, std::ostream * out, std::ostream * err, bool use_exceptions):
-        m_frontend(fe),
-        m_scanner(in),
-        m_formatter(mk_pp_formatter(fe)),
-        m_out(out),
-        m_err(err),
-        m_use_exceptions(use_exceptions) {
-        m_found_errors = false;
-        m_num_local_decls = 0;
-        m_scanner.set_command_keywords(g_command_keywords);
-        init_builtins();
-        scan();
-    }
-
     [[ noreturn ]] void not_implemented_yet() {
         // TODO
         throw parser_error("not implemented yet");
     }
 
-    // ==========================================
-    // Universe Level parsing
+    /**
+       @name Parse Universe levels
+    */
+    /*@{*/
     level parse_level_max() {
         next();
         buffer<level> lvls;
@@ -221,6 +259,7 @@ struct parser_fn {
         }
     }
 
+    /** \brief Parse a universe level */
     level parse_level(unsigned rbp = 0) {
         level left = parse_level_nud();
         while (rbp < curr_level_lbp()) {
@@ -228,8 +267,21 @@ struct parser_fn {
         }
         return left;
     }
-    // ==========================================
+    /*@}*/
 
+    /**
+       @name Parse Expressions
+    */
+    /*@{*/
+
+    /**
+       \brief Return the function associated with the given operator.
+       If the operator has been overloaded, it returns an expression
+       of the form (overload f_k ... (overload f_2 f_1) ...)
+       where f_i's are different options.
+       After we finish parsing, the procedure #elaborate will
+       resolve/decide which f_i should be used.
+    */
     expr mk_fun(operator_info const & op) {
         list<name> const & fs = op.get_internal_names();
         lean_assert(!is_nil(fs));
@@ -237,38 +289,49 @@ struct parser_fn {
         expr r = mk_constant(*it);
         ++it;
         for (; it != fs.end(); ++it)
-            r = mk_app(g_overload, r, mk_constant(*it));
+            r = mk_app(g_overload, mk_constant(*it), r);
         return r;
     }
 
+    /** \brief Parse a user defined prefix operator. */
     expr parse_prefix(operator_info const & op) {
         expr arg = parse_expr(op.get_precedence());
         return mk_app(mk_fun(op), arg);
     }
 
+    /** \brief Parse a user defined postfix operator. */
     expr parse_postfix(expr const & left, operator_info const & op) {
         return mk_app(mk_fun(op), left);
     }
 
+    /** \brief Parse a user defined infix operator. */
     expr parse_infix(expr const & left, operator_info const & op) {
         expr right = parse_expr(op.get_precedence()+1);
         return mk_app(mk_fun(op), left, right);
     }
 
+    /** \brief Parse a user defined infix-left operator. */
     expr parse_infixl(expr const & left, operator_info const & op) {
         expr right = parse_expr(op.get_precedence());
         return mk_app(mk_fun(op), left, right);
     }
 
+    /** \brief Parse a user defined infix-right operator. */
     expr parse_infixr(expr const & left, operator_info const & op) {
         expr right = parse_expr(op.get_precedence()-1);
         return mk_app(mk_fun(op), left, right);
     }
 
+    /**
+        \brief Throws an error if the current token is not an identifier named \c op_part.
+        If it is, move to the next toke. The error message assumes
+        this method has been used when parsing mixfix operators.
+    */
     void check_op_part(name const & op_part) {
-        check_name_next(op_part, "invalid expression, identifier expected");
+        check_name_next(op_part, "invalid mixfix operator application, identifier expected");
     }
 
+    /** \brief Auxiliary function for #parse_mixfixl and #parse_mixfixr */
     void parse_mixfix_args(list<name> const & ops, unsigned prec, buffer<expr> & args) {
         auto it = ops.begin();
         ++it;
@@ -279,6 +342,7 @@ struct parser_fn {
         }
     }
 
+    /** \brief Parse user defined mixfixl operator. It has the form: ID _ ... ID _ */
     expr parse_mixfixl(operator_info const & op) {
         buffer<expr> args;
         args.push_back(mk_fun(op));
@@ -287,6 +351,7 @@ struct parser_fn {
         return mk_app(args.size(), args.data());
     }
 
+    /** \brief Parse user defined mixfixr operator. It has the form: _ ID ... _ ID */
     expr parse_mixfixr(expr const & left, operator_info const & op) {
         buffer<expr> args;
         args.push_back(mk_fun(op));
@@ -295,6 +360,7 @@ struct parser_fn {
         return mk_app(args.size(), args.data());
     }
 
+    /** \brief Parse user defined mixfixc operator. It has the form: ID _ ID ... _ ID */
     expr parse_mixfixc(operator_info const & op) {
         buffer<expr> args;
         args.push_back(mk_fun(op));
@@ -311,6 +377,11 @@ struct parser_fn {
         }
     }
 
+    /**
+       \brief Try to find an object (Definition or Postulate) named \c
+       id in the frontend/environment. If there isn't one, then tries
+       to check if \c id is a builtin symbol. If it is not throws an error.
+    */
     expr get_name_ref(name const & id) {
         object const & obj = m_frontend.find_object(id);
         if (obj) {
@@ -330,6 +401,14 @@ struct parser_fn {
         }
     }
 
+    /**
+        \brief Parse an identifier that has a "null denotation" (See
+        paper: "Top down operator precedence"). A nud identifier is a
+        token that appears at the beginning of a language construct.
+        In Lean, local declarations (i.e., local functions), user
+        defined prefix, mixfixl and mixfixc operators, and global
+        functions can begin a language construct.
+    */
     expr parse_nud_id() {
         name id = curr_name();
         next();
@@ -351,6 +430,15 @@ struct parser_fn {
         }
     }
 
+    /**
+        \brief Parse an identifier that has a "left denotation" (See
+        paper: "Top down operator precedence"). A left identifier is a
+        token that appears inside of a construct (to left of the rest
+        of the construct). In Lean, local declarations (i.e., function
+        application arguments), user defined infix, infixl, infixr,
+        mixfixr and global values (as function application arguments)
+        can appear inside of a construct.
+    */
     expr parse_led_id(expr const & left) {
         name id = curr_name();
         next();
@@ -373,18 +461,22 @@ struct parser_fn {
         }
     }
 
+    /** \brief Parse <tt>expr '=' expr</tt>. */
     expr parse_eq(expr const & left) {
         next();
         expr right = parse_expr(g_eq_precedence);
         return mk_eq(left, right);
     }
 
+    /** \brief Parse <tt>expr '->' expr</tt>. */
     expr parse_arrow(expr const & left) {
         next();
+        // The -1 is a trick to get right associativity in Pratt's parsers
         expr right = parse_expr(g_arrow_precedence-1);
         return mk_arrow(left, right);
     }
 
+    /** \brief Parse <tt>'(' expr ')'</tt>. */
     expr parse_lparen() {
         next();
         expr r = parse_expr();
@@ -392,6 +484,10 @@ struct parser_fn {
         return r;
     }
 
+    /**
+        \brief Parse a sequence of identifiers <tt>ID*</tt>. Store the
+        result in \c result.
+    */
     void parse_names(buffer<name> & result) {
         while (curr_is_identifier()) {
             result.push_back(curr_name());
@@ -399,6 +495,7 @@ struct parser_fn {
         }
     }
 
+    /** \brief Register the name \c n as a local declaration. */
     void register_binding(name const & n) {
         unsigned lvl = m_num_local_decls;
         m_local_decls.insert(n, lvl);
@@ -406,8 +503,11 @@ struct parser_fn {
         lean_assert(m_local_decls.find(n)->second == lvl);
     }
 
+    /**
+        \brief Parse <tt>ID ... ID ':' expr</tt>, where the expression
+        represents the type of the identifiers.
+    */
     void parse_simple_bindings(buffer<std::pair<name, expr>> & result) {
-        // ID ... ID : type
         buffer<name> names;
         parse_names(names);
         check_colon_next("invalid binder, ':' expected");
@@ -422,6 +522,11 @@ struct parser_fn {
         }
     }
 
+    /**
+        \brief Parse a sequence of <tt>'(' ID ... ID ':' expr ')'</tt>.
+
+        This is used when parsing lambda, Pi, forall/exists expressions and definitions.
+    */
     void parse_bindings(buffer<std::pair<name, expr>> & result) {
         if (curr_is_identifier()) {
             parse_simple_bindings(result);
@@ -438,6 +543,10 @@ struct parser_fn {
         }
     }
 
+    /**
+        \brief Create a lambda/Pi abstraction, using the giving binders
+        and body.
+    */
     expr mk_abstraction(bool is_lambda, buffer<std::pair<name, expr>> const & bindings, expr const & body) {
         expr result = body;
         unsigned i = bindings.size();
@@ -451,6 +560,7 @@ struct parser_fn {
         return result;
     }
 
+    /** \brief Parse lambda/Pi abstraction. */
     expr parse_abstraction(bool is_lambda) {
         next();
         mk_scope scope(*this);
@@ -461,14 +571,17 @@ struct parser_fn {
         return mk_abstraction(is_lambda, bindings, result);
     }
 
+    /** \brief Parse lambda abstraction. */
     expr parse_lambda() {
         return parse_abstraction(true);
     }
 
+    /** \brief Parse Pi abstraction. */
     expr parse_pi() {
         return parse_abstraction(false);
     }
 
+    /** \brief Parse Let expression. */
     expr parse_let() {
         next();
         mk_scope scope(*this);
@@ -494,6 +607,7 @@ struct parser_fn {
         }
     }
 
+    /** \brief Parse an integer value. */
     expr parse_int() {
         expr r = mk_int_value(m_scanner.get_num_val().get_numerator());
         next();
@@ -508,6 +622,7 @@ struct parser_fn {
         not_implemented_yet();
     }
 
+    /** \brief Parse <tt>'Type'</tt> and <tt>'Type' level</tt> expressions. */
     expr parse_type() {
         next();
         if (curr_is_identifier() || curr_is_int()) {
@@ -517,6 +632,9 @@ struct parser_fn {
         }
     }
 
+    /**
+       \brief Auxiliary method used when processing the beginning of an expression.
+    */
     expr parse_nud() {
         switch (curr()) {
         case scanner::token::Id:         return parse_nud_id();
@@ -533,6 +651,9 @@ struct parser_fn {
         }
     }
 
+    /**
+       \brief Auxiliary method used when processing the 'inside' of an expression.
+    */
     expr parse_led(expr const & left) {
         switch (curr()) {
         case scanner::token::Id:         return parse_led_id(left);
@@ -547,6 +668,7 @@ struct parser_fn {
         }
     }
 
+    /** \brief Return the binding power of the current token (when parsing expression). */
     unsigned curr_lbp() {
         switch (curr()) {
         case scanner::token::Id: {
@@ -572,6 +694,7 @@ struct parser_fn {
         }
     }
 
+    /** \brief Parse an expression */
     expr parse_expr(unsigned rbp = 0) {
         expr left = parse_nud();
         while (rbp < curr_lbp()) {
@@ -579,12 +702,18 @@ struct parser_fn {
         }
         return left;
     }
+    /*@}*/
 
     expr elaborate(expr const & e) {
         // TODO
         return e;
     }
 
+    /**
+       @name Parse Commands
+    */
+    /*@{*/
+    /** \brief Auxiliary method used for parsing definitions and theorems. */
     void parse_def_core(bool is_definition) {
         next();
         expr type, val;
@@ -611,14 +740,29 @@ struct parser_fn {
             m_frontend.add_theorem(id, type, val);
     }
 
+    /**
+        \brief Parse a Definition. It has one of the following two forms:
+
+        1) 'Definition' ID ':' expr ':=' expr
+
+        2) 'Definition' ID bindings ':' expr ':=' expr
+    */
     void parse_definition() {
         parse_def_core(true);
     }
 
+    /**
+        \brief Parse a Theorem. It has one of the following two forms:
+
+        1) 'Theorem' ID ':' expr ':=' expr
+
+        2) 'Theorem' ID bindings ':' expr ':=' expr
+    */
     void parse_theorem() {
         parse_def_core(false);
     }
 
+    /** \brief Parse 'Variable' ID ':' expr */
     void parse_variable() {
         next();
         name id = check_identifier_next("invalid variable declaration, identifier expected");
@@ -627,6 +771,7 @@ struct parser_fn {
         m_frontend.add_var(id, type);
     }
 
+    /** \brief Parse 'Axiom' ID ':' expr */
     void parse_axiom() {
         next();
         name id = check_identifier_next("invalid axiom, identifier expected");
@@ -635,6 +780,7 @@ struct parser_fn {
         m_frontend.add_axiom(id, type);
     }
 
+    /** \brief Parse 'Eval' expr */
     void parse_eval() {
         next();
         expr v = elaborate(parse_expr());
@@ -642,12 +788,14 @@ struct parser_fn {
         (*m_out) << m_formatter(r) << std::endl;
     }
 
+    /** \brief Parse 'Show' expr */
     void parse_show() {
         next();
         expr v = elaborate(parse_expr());
         (*m_out) << m_formatter(v) << std::endl;
     }
 
+    /** \brief Parse 'Check' expr */
     void parse_check() {
         next();
         expr v = elaborate(parse_expr());
@@ -655,12 +803,14 @@ struct parser_fn {
         (*m_out) << m_formatter(t) << std::endl;
     }
 
+    /** \brief Parse 'Environment' */
     void parse_env() {
         next();
         (*m_out) << m_frontend << std::endl;
     }
 
-    unsigned parse_precision() {
+    /** \brief Return the (optional) precedence of a user-defined operator. */
+    unsigned parse_precedence() {
         if (curr() == scanner::token::IntVal) {
             mpz pval = curr_num().get_numerator();
             if (!pval.is_unsigned_int())
@@ -673,13 +823,20 @@ struct parser_fn {
         }
     }
 
+    /** \brief Throw an error if the current token is not an identifier. If it is, move to next token. */
     name parse_op_id() {
         return check_identifier_next("invalid operator definition, identifier expected");
     }
 
+    /**
+        \brief Parse prefix/postfix/infix/infixl/infixr user operator
+        definitions. These definitions have the form:
+
+           - fixity [Num] ID ID
+    */
     void parse_op(fixity fx) {
         next();
-        unsigned prec = parse_precision();
+        unsigned prec = parse_precedence();
         name op_id = parse_op_id();
         name id    = parse_op_id();
         switch (fx) {
@@ -692,9 +849,15 @@ struct parser_fn {
         }
     }
 
+    /**
+        \brief Parse mixfix/mixfixl/mixfixr user operator definition.
+        These definitions have the form:
+
+        - fixity [NUM] ID ID+ ID
+    */
     void parse_mixfix_op(fixity fx) {
         next();
-        unsigned prec = parse_precision();
+        unsigned prec = parse_precedence();
         buffer<name> parts;
         parts.push_back(parse_op_id());
         parts.push_back(parse_op_id());
@@ -712,6 +875,7 @@ struct parser_fn {
         }
     }
 
+    /** \brief Parse a Lean command. */
     void parse_command() {
         name const & cmd_id = curr_name();
         if (cmd_id == g_definition_kwd)    parse_definition();
@@ -732,6 +896,7 @@ struct parser_fn {
         else if (cmd_id == g_mixfixc_kwd)  parse_mixfix_op(fixity::Mixfixc);
         else { lean_unreachable(); }
     }
+    /*@}*/
 
     void error(char const * msg, unsigned line, unsigned pos) {
         lean_assert(m_err);
@@ -743,6 +908,22 @@ struct parser_fn {
         sync();
     }
 
+public:
+    parser_fn(frontend & fe, std::istream & in, std::ostream * out, std::ostream * err, bool use_exceptions):
+        m_frontend(fe),
+        m_scanner(in),
+        m_formatter(mk_pp_formatter(fe)),
+        m_out(out),
+        m_err(err),
+        m_use_exceptions(use_exceptions) {
+        m_found_errors = false;
+        m_num_local_decls = 0;
+        m_scanner.set_command_keywords(g_command_keywords);
+        init_builtins();
+        scan();
+    }
+
+    /** \brief Parse a sequence of commands. This method also perform error management. */
     bool parse_commands() {
         while (true) {
             try {
@@ -771,6 +952,7 @@ struct parser_fn {
         }
     }
 
+    /** \brief Parse an expression. */
     expr parse_expr_main() {
         try {
             return elaborate(parse_expr());

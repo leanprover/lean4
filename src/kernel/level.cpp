@@ -210,7 +210,7 @@ format pp(level const & l) {
     case level_kind::Max: {
         format r = pp(max_level(l, 0));
         for (unsigned i = 1; i < max_size(l); i++) {
-            r += format(" \u2293 ");
+            r += format{space(), format("\u2294"), space()};
             r += pp(max_level(l, i));
         }
         return r;

@@ -40,7 +40,7 @@ static name g_mixfixc_kwd("Mixfixc");
 // ==========================================
 // Support for parsing levels
 static name g_max_name("max");
-static name g_cup_name("\u2293");
+static name g_cup_name("\u2294");
 static name g_plus_name("+");
 static unsigned g_level_plus_prec = 10;
 static unsigned g_level_cup_prec  = 5;

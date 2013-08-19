@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "instantiate.h"
 #include "builtin_notation.h"
 #include "context_to_lambda.h"
-#include "printer.h"
+#include "for_each.h"
 #include "options.h"
 
 #ifndef LEAN_DEFAULT_PP_MAX_DEPTH
@@ -37,8 +37,8 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PP_EXTRA_LETS true
 #endif
 
-#ifndef LEAN_DEFAULT_PP_ALIAS_MIN_DEPTH
-#define LEAN_DEFAULT_PP_ALIAS_MIN_DEPTH 1000 //TODO: fix to reasonable value
+#ifndef LEAN_DEFAULT_PP_ALIAS_MIN_WEIGHT
+#define LEAN_DEFAULT_PP_ALIAS_MIN_WEIGHT 20
 #endif
 
 namespace lean {
@@ -61,14 +61,21 @@ static name g_pp_max_steps       {"pp", "max_steps"};
 static name g_pp_implicit        {"pp", "implicit"};
 static name g_pp_notation        {"pp", "notation"};
 static name g_pp_extra_lets      {"pp", "extra_lets"};
-static name g_pp_alias_min_depth {"pp", "alias_min_depth"};
+static name g_pp_alias_min_weight{"pp", "alias_min_weight"};
 
-unsigned get_pp_max_depth(options const & opts)       { return opts.get_unsigned(g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH); }
-unsigned get_pp_max_steps(options const & opts)       { return opts.get_unsigned(g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS); }
-bool     get_pp_implicit(options const & opts)        { return opts.get_bool(g_pp_implicit, LEAN_DEFAULT_PP_IMPLICIT); }
-bool     get_pp_notation(options const & opts)        { return opts.get_bool(g_pp_notation, LEAN_DEFAULT_PP_NOTATION); }
-bool     get_pp_extra_lets(options const & opts)      { return opts.get_bool(g_pp_extra_lets, LEAN_DEFAULT_PP_EXTRA_LETS); }
-unsigned get_pp_alias_min_depth(options const & opts) { return opts.get_unsigned(g_pp_alias_min_depth, LEAN_DEFAULT_PP_ALIAS_MIN_DEPTH); }
+unsigned get_pp_max_depth(options const & opts)        { return opts.get_unsigned(g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH); }
+unsigned get_pp_max_steps(options const & opts)        { return opts.get_unsigned(g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS); }
+bool     get_pp_implicit(options const & opts)         { return opts.get_bool(g_pp_implicit, LEAN_DEFAULT_PP_IMPLICIT); }
+bool     get_pp_notation(options const & opts)         { return opts.get_bool(g_pp_notation, LEAN_DEFAULT_PP_NOTATION); }
+bool     get_pp_extra_lets(options const & opts)       { return opts.get_bool(g_pp_extra_lets, LEAN_DEFAULT_PP_EXTRA_LETS); }
+unsigned get_pp_alias_min_weight(options const & opts) { return opts.get_unsigned(g_pp_alias_min_weight, LEAN_DEFAULT_PP_ALIAS_MIN_WEIGHT); }
+
+// =======================================
+// Prefixes for naming aliases (auxiliary local decls)
+static name g_kappa("\u03BA");
+static name g_pho("\u03C1");
+static name g_nu("\u03BD");
+// =======================================
 
 /**
    \brief Return a fresh name for the given abstraction or let.
@@ -102,9 +109,9 @@ class pp_fn {
     unsigned         m_max_depth;
     unsigned         m_max_steps;
     bool             m_implict;
-    bool             m_notation;        //!< if true use notation
-    bool             m_extra_lets;      //!< introduce extra let-expression to cope with sharing.
-    unsigned         m_alias_min_depth; //!< minimal depth to create an alias
+    bool             m_notation;         //!< if true use notation
+    bool             m_extra_lets;       //!< introduce extra let-expression to cope with sharing.
+    unsigned         m_alias_min_weight; //!< minimal weight for creating an alias
 
     // Create a scope for local definitions
     struct mk_scope {
@@ -203,11 +210,19 @@ class pp_fn {
     }
 
     /**
-       \brief Pretty print given expression and put parenthesis around it.
+       \brief Pretty print given expression and put parenthesis around
+       it IF the pp of the expression is not a simple name.
     */
     result pp_child_with_paren(expr const & e, unsigned depth) {
         result r = pp(e, depth + 1);
-        return mk_result(format{lp(), r.first, rp()}, r.second);
+        if (is_name(r.first)) {
+            // We do not add a parenthis if the format object is just
+            // a name. This can happen when \c e is a complicated
+            // expression, but an alias is created for it.
+            return r;
+        } else {
+            return mk_result(format{lp(), nest(1, format{r.first, rp()})}, r.second);
+        }
     }
 
     /**
@@ -254,9 +269,9 @@ class pp_fn {
     }
 
     result mk_infix(operator_info const & op, result const & lhs, result const & rhs) {
-        unsigned r_depth  = std::max(lhs.second, rhs.second) + 1;
+        unsigned r_weight = lhs.second + rhs.second + 1;
         format   r_format = group(format{lhs.first, space(), format(op.get_op_name()), line(), rhs.first});
-        return mk_result(r_format, r_depth);
+        return mk_result(r_format, r_weight);
     }
 
     /**
@@ -268,7 +283,7 @@ class pp_fn {
             result   p_arg;
             format   r_format;
             unsigned sz;
-            unsigned r_depth = 0;
+            unsigned r_weight = 1;
             switch (op.get_fixity()) {
             case fixity::Infix:
                 return mk_infix(op, pp_mixfix_child(op, arg(e, 1), depth), pp_mixfix_child(op, arg(e, 2), depth));
@@ -292,10 +307,10 @@ class pp_fn {
                 for (unsigned i = 1; i < num_args(e); i++) {
                     result p_arg = pp_mixfix_child(op, arg(e, i), depth);
                     r_format += format{p_arg.first, space(), format(*it), line()};
-                    r_depth   = std::max(r_depth, p_arg.second);
+                    r_weight += p_arg.second;
                     ++it;
                 }
-                return mk_result(group(r_format), r_depth + 1);
+                return mk_result(group(r_format), r_weight);
             }
             case fixity::Mixfixl: case fixity::Mixfixc: {
                 // ID _ ... _
@@ -307,28 +322,30 @@ class pp_fn {
                     unsigned sz  = it->size();
                     if (i > 1) r_format += space();
                     r_format    += format{format(*it), nest(sz+1, format{line(), p_arg.first})};
-                    r_depth      = std::max(r_depth, p_arg.second);
+                    r_weight    += p_arg.second;
                     ++it;
                 }
                 if (it != parts.end()) {
                     // it is Mixfixc
                     r_format += format{space(), format(*it)};
                 }
-                return mk_result(group(r_format), r_depth + 1);
+                return mk_result(group(r_format), r_weight);
             }}
             lean_unreachable();
             return mk_result(format(), 0);
         } else {
             // standard function application
-            result p = pp_child(arg(e, 0), depth);
+            result p    = pp_child(arg(e, 0), depth);
+            bool simple = is_constant(arg(e, 0)) && const_name(arg(e, 0)).size() <= m_indent + 4;
+            unsigned indent = simple ? const_name(arg(e, 0)).size()+1 : m_indent;
             format   r_format = p.first;
-            unsigned r_depth  = p.second;
+            unsigned r_weight = p.second;
             for (unsigned i = 1; i < num_args(e); i++) {
                 result p_arg = pp_child(arg(e, i), depth);
-                r_format += format{line(), p_arg.first};
-                r_depth   = std::max(r_depth, p_arg.second);
+                r_format += format{i == 1 && simple ? space() : line(), p_arg.first};
+                r_weight += p_arg.second;
             }
-            return mk_result(group(nest(m_indent, r_format)), r_depth + 1);
+            return mk_result(group(nest(indent, r_format)), r_weight);
         }
     }
 
@@ -356,11 +373,30 @@ class pp_fn {
 
     result pp_scoped_child(expr const & e, unsigned depth) {
         if (is_atomic(e)) {
-            return pp(e, depth + 1);
+            return pp(e, depth + 1, true);
         } else {
             mk_scope s(*this);
-            // TODO: create Let with new aliases
-            return pp(e, depth+1);
+            result r = pp(e, depth + 1, true);
+            if (m_aliases_defs.size() == s.m_old_size) {
+                return r;
+            } else {
+                format r_format   = g_let_fmt;
+                unsigned r_weight = 2;
+                unsigned begin    = s.m_old_size;
+                unsigned end      = m_aliases_defs.size();
+                for (unsigned i = begin; i < end; i++) {
+                    auto b = m_aliases_defs[i];
+                    name const & n = b.first;
+                    format beg = i == begin ? space() : line();
+                    format sep = i < end - 1 ? comma() : format();
+                    r_format += nest(3 + 1, format{beg, format(n), space(), g_assign_fmt, nest(n.size() + 1 + 2 + 1, format{space(), b.second, sep})});
+                    // we do not store the alias definitin real weight. We know it is at least m_alias_min_weight
+                    r_weight += m_alias_min_weight + 1;
+                }
+                r_format += format{line(), g_in_fmt, space(), nest(2 + 1, r.first)};
+                r_weight += r.second;
+                return mk_pair(group(r_format), r_weight);
+            }
         }
     }
 
@@ -406,7 +442,7 @@ class pp_fn {
             result p_lhs    = pp_child(abst_domain(e), depth);
             result p_rhs    = pp_arrow_body(abst_body(e), depth);
             format r_format = group(format{p_lhs.first, space(), g_arrow_fmt, line(), p_rhs.first});
-            return mk_result(r_format, std::max(p_lhs.second, p_rhs.second) + 1);
+            return mk_result(r_format, p_lhs.second + p_rhs.second + 1);
         } else {
             buffer<std::pair<name, expr>> nested;
             auto p = collect_nested(e, T, e.kind(), nested);
@@ -434,11 +470,11 @@ class pp_fn {
                 if (T)
                     sig = format{lp(), sig, rp()};
                 format r_format = group(nest(m_indent, format{head, space(), sig, body_sep, line(), p_body.first}));
-                return mk_result(r_format, std::max(p_domain.second, p_body.second)+1);
+                return mk_result(r_format, p_domain.second + p_body.second + 1);
             } else {
                 auto it  = nested.begin();
                 auto end = nested.end();
-                unsigned r_depth = 0;
+                unsigned r_weight = 1;
                 // PP binders in blocks (names ... : type)
                 bool first = true;
                 format bindings;
@@ -449,7 +485,7 @@ class pp_fn {
                         ++it2;
                     }
                     result p_domain = pp_scoped_child(it->second, depth);
-                    r_depth = std::max(r_depth, p_domain.second);
+                    r_weight += p_domain.second;
                     format block = group(nest(m_indent, format{lp(), pp_bnames(it, it2, true), space(), colon(), space(), p_domain.first, rp()}));
                     if (first) {
                         bindings = block;
@@ -461,7 +497,7 @@ class pp_fn {
                 }
                 result p_body   = pp_scoped_child(b, depth);
                 format r_format = group(nest(m_indent, format{head, space(), group(bindings), body_sep, line(), p_body.first}));
-                return mk_result(r_format, std::max(r_depth, p_body.second)+1);
+                return mk_result(r_format, r_weight + p_body.second);
             }
         }
     }
@@ -484,7 +520,7 @@ class pp_fn {
     result pp_let(expr const & e, unsigned depth) {
         buffer<std::pair<name, expr>> bindings;
         expr body = collect_nested_let(e, bindings);
-        unsigned r_depth = 0;
+        unsigned r_weight = 2;
         format r_format = g_let_fmt;
         unsigned sz = bindings.size();
         for (unsigned i = 0; i < sz; i++) {
@@ -494,12 +530,12 @@ class pp_fn {
             format beg = i == 0 ? space() : line();
             format sep = i < sz - 1 ? comma() : format();
             r_format += nest(3 + 1, format{beg, format(n), space(), g_assign_fmt, nest(n.size() + 1 + 2 + 1, format{space(), p_def.first, sep})});
-            r_depth = std::max(r_depth, p_def.second);
+            r_weight += p_def.second;
         }
         result p_body = pp(body, depth+1);
-        r_depth = std::max(r_depth, p_body.second);
+        r_weight += p_body.second;
         r_format += format{line(), g_in_fmt, space(), nest(2 + 1, p_body.first)};
-        return mk_pair(group(r_format), r_depth);
+        return mk_pair(group(r_format), r_weight);
     }
 
     /** \brief Pretty print the child of an equality. */
@@ -531,10 +567,10 @@ class pp_fn {
                                                        format{line(), p_arg1.first,
                                                               line(), p_arg2.first})});
         }
-        return mk_result(r_format, std::max(p_arg1.second, p_arg2.second) + 1);
+        return mk_result(r_format, p_arg1.second + p_arg2.second + 1);
     }
 
-    result pp(expr const & e, unsigned depth) {
+    result pp(expr const & e, unsigned depth, bool main = false) {
         if (m_num_steps > m_max_steps || depth > m_max_depth) {
             return pp_ellipsis();
         } else {
@@ -556,11 +592,10 @@ class pp_fn {
             case expr_kind::Eq:         r = pp_eq(e, depth);          break;
             case expr_kind::Let:        r = pp_let(e, depth);         break;
             }
-            if (m_extra_lets && is_shared(e) && r.second > m_alias_min_depth) {
-                lean_unreachable(); // TODO: remove
-                std::cout << "DEPTH: " << r.second << "\n";
-                name new_aux = name(m_aux, m_aliases.size());
+            if (!main && m_extra_lets && is_shared(e) && r.second > m_alias_min_weight) {
+                name new_aux = name(m_aux, m_aliases_defs.size()+1);
                 m_aliases.insert(e, new_aux);
+                m_aliases_defs.push_back(mk_pair(new_aux, r.first));
                 return mk_result(format(new_aux), 1);
             }
             return r;
@@ -568,20 +603,57 @@ class pp_fn {
     }
 
     void set_options(options const & opts) {
-        m_indent          = get_pp_indent(opts);
-        m_max_depth       = get_pp_max_depth(opts);
-        m_max_steps       = get_pp_max_steps(opts);
-        m_implict         = get_pp_implicit(opts);
-        m_notation        = get_pp_notation(opts);
-        m_extra_lets      = get_pp_extra_lets(opts);
-        m_alias_min_depth = get_pp_alias_min_depth(opts);
+        m_indent           = get_pp_indent(opts);
+        m_max_depth        = get_pp_max_depth(opts);
+        m_max_steps        = get_pp_max_steps(opts);
+        m_implict          = get_pp_implicit(opts);
+        m_notation         = get_pp_notation(opts);
+        m_extra_lets       = get_pp_extra_lets(opts);
+        m_alias_min_weight = get_pp_alias_min_weight(opts);
     }
 
-    void init() {
+
+    struct found_prefix {};
+    bool uses_prefix(expr const & e, name const & prefix) {
+        auto f = [&](expr const & e, unsigned offset) {
+            if (is_constant(e)) {
+                if (is_prefix_of(prefix, const_name(e))) throw found_prefix();
+            } else if (is_abstraction(e)) {
+                if (is_prefix_of(prefix, abst_name(e))) throw found_prefix();
+            } else if (is_let(e)) {
+                if (is_prefix_of(prefix, let_name(e))) throw found_prefix();
+            }
+        };
+        try {
+            for_each_fn<decltype(f)> visitor(f);
+            visitor(e);
+            return false;
+        } catch (found_prefix) {
+            return true;
+        }
+    }
+
+    name find_unused_prefix(expr const & e) {
+        if (!uses_prefix(e, g_kappa))
+            return g_kappa;
+        else if (!uses_prefix(e, g_pho))
+            return g_pho;
+        else {
+            unsigned i = 1;
+            name n(g_nu, i);
+            while (uses_prefix(e, n)) {
+                i++;
+                n = name(g_nu, i);
+            }
+            return n;
+        }
+    }
+
+    void init(expr const & e) {
         m_aliases.clear();
         m_aliases_defs.clear();
         m_num_steps = 0;
-        m_aux = name("aux"); // TODO: find non used prefix
+        m_aux = find_unused_prefix(e);
     }
 
 public:
@@ -591,12 +663,12 @@ public:
     }
 
     format operator()(expr const & e) {
-        init();
-        return pp(e, 0).first;
+        init(e);
+        return pp_scoped_child(e, 0).first;
     }
 
     format pp_definition(expr const & v, expr const & t) {
-        init();
+        init(mk_app(v, t));
         expr T(t);
         return pp_abstraction_core(v, 0, T).first;
     }

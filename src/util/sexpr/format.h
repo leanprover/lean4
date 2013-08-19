@@ -208,6 +208,9 @@ public:
 
     friend std::ostream & operator<<(std::ostream & out, format const & f);
     friend std::ostream & operator<<(std::ostream & out, std::pair<format const &, options const &> const & p);
+
+    /** \brief Return true iff f is just a name */
+    friend bool is_name(format const & f) { return format::is_text(f) && ::lean::is_name(cdr(f.m_value)); }
 };
 
 format wrap(format const & f1, format const & f2);

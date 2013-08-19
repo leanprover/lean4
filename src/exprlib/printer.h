@@ -18,3 +18,7 @@ std::ostream & operator<<(std::ostream & out, object const & obj);
 class environment;
 std::ostream & operator<<(std::ostream & out, environment const & env);
 }
+void print(lean::expr const & a);
+void print(lean::expr const & a, lean::context const & c);
+void print(lean::context const & c);
+void print(lean::environment const & e);

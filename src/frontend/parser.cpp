@@ -37,6 +37,15 @@ static name g_mixfixl_kwd("Mixfixl");
 static name g_mixfixr_kwd("Mixfixr");
 static name g_mixfixc_kwd("Mixfixc");
 
+// ==========================================
+// Support for parsing levels
+static name g_max_name("max");
+static name g_cup_name("\u2293");
+static name g_plus_name("+");
+static unsigned g_level_plus_prec = 10;
+static unsigned g_level_cup_prec  = 5;
+// ==========================================
+
 static name g_overload_name(name(name(name(0u), "parser"), "overload"));
 static expr g_overload = mk_constant(g_overload_name);
 
@@ -89,6 +98,7 @@ struct parser_fn {
     }
 
     bool curr_is_identifier() const { return curr() == scanner::token::Id; }
+    bool curr_is_int() const { return curr() == scanner::token::IntVal; }
     bool curr_is_lparen() const { return curr() == scanner::token::LeftParen; }
     bool curr_is_colon() const { return curr() == scanner::token::Colon; }
     bool curr_is_comma() const { return curr() == scanner::token::Comma; }
@@ -131,6 +141,94 @@ struct parser_fn {
         // TODO
         throw parser_error("not implemented yet");
     }
+
+    // ==========================================
+    // Universe Level parsing
+    level parse_level_max() {
+        next();
+        buffer<level> lvls;
+        while (curr_is_identifier() || curr_is_int()) {
+            lvls.push_back(parse_level());
+        }
+        if (lvls.size() < 2)
+            throw parser_error("invalid level expression, max must have at least two arguments");
+        level r = lvls[0];
+        for (unsigned i = 1; i < lvls.size(); i++)
+            r = max(r, lvls[i]);
+        return r;
+    }
+
+    level parse_level_nud_id() {
+        name id = curr_name();
+        if (id == g_max_name) {
+            return parse_level_max();
+        } else {
+            next();
+            return m_frontend.get_uvar(id);
+        }
+    }
+
+    level parse_level_nud_int() {
+        mpz val = curr_num().get_numerator();
+        next();
+        if (!val.is_unsigned_int())
+            throw parser_error("invalid level expression, value does not fit in a machine integer");
+        return level() + val.get_unsigned_int();
+    }
+
+    level parse_level_nud() {
+        switch (curr()) {
+        case scanner::token::Id:        return parse_level_nud_id();
+        case scanner::token::IntVal:    return parse_level_nud_int();
+        default:
+            throw parser_error("invalid level expression");
+        }
+    }
+
+    level parse_level_led_plus(level const & left) {
+        next();
+        level right = parse_level(g_level_plus_prec);
+        if (!is_lift(right) || !lift_of(right).is_bottom())
+            throw parser_error("invalid level expression, right hand side of '+' (aka universe lift operator) must be a numeral");
+        return left + lift_offset(right);
+    }
+
+    level parse_level_led_cup(level const & left) {
+        next();
+        level right = parse_level(g_level_cup_prec);
+        return max(left, right);
+    }
+
+    level parse_level_led(level const & left) {
+        switch (curr()) {
+        case scanner::token::Id:
+            if (curr_name() == g_plus_name)     return parse_level_led_plus(left);
+            else if (curr_name() == g_cup_name) return parse_level_led_cup(left);
+        default:
+            throw parser_error("invalid level expression");
+        }
+    }
+
+    unsigned curr_level_lbp() {
+        switch (curr()) {
+        case scanner::token::Id: {
+            name const & id = curr_name();
+            if (id == g_plus_name) return g_level_plus_prec;
+            else if (id == g_cup_name) return g_level_cup_prec;
+            else return 0;
+        }
+        default: return 0;
+        }
+    }
+
+    level parse_level(unsigned rbp = 0) {
+        level left = parse_level_nud();
+        while (rbp < curr_level_lbp()) {
+            left = parse_level_led(left);
+        }
+        return left;
+    }
+    // ==========================================
 
     expr mk_fun(operator_info const & op) {
         list<name> const & fs = op.get_internal_names();
@@ -412,8 +510,11 @@ struct parser_fn {
 
     expr parse_type() {
         next();
-        // TODO universe
-        return Type();
+        if (curr_is_identifier() || curr_is_int()) {
+            return mk_type(parse_level());
+        } else {
+            return Type();
+        }
     }
 
     expr parse_nud() {

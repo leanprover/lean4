@@ -67,3 +67,4 @@ inline level const * max_end_levels(level const & l)   { return max_begin_levels
 
 format pp(level const & l);
 }
+void print(lean::level const & l);

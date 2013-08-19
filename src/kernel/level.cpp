@@ -143,7 +143,6 @@ level operator+(level const & l, unsigned k)  {
     case level_kind::UVar: return level(l, k);
     case level_kind::Lift: return level(lift_of(l), safe_add(lift_offset(l), k));
     case level_kind::Max: {
-        std::cout << l << "\n";
         buffer<level> new_lvls;
         for (unsigned i = 0; i < max_size(l); i++)
             new_lvls.push_back(max_level(l, i) + k);
@@ -207,7 +206,7 @@ format pp(level const & l) {
         if (lift_of(l).is_bottom())
             return format(lift_offset(l));
         else
-            return format{pp(lift_of(l)), format(" + "), format(lift_offset(l))};
+            return format{pp(lift_of(l)), format("+"), format(lift_offset(l))};
     case level_kind::Max: {
         format r = pp(max_level(l, 0));
         for (unsigned i = 1; i < max_size(l); i++) {
@@ -226,3 +225,4 @@ level max(std::initializer_list<level> const & l) {
     return max_core(l.size(), l.begin());
 }
 }
+void print(lean::level const & l) { std::cout << l << std::endl; }

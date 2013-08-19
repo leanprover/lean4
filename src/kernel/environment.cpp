@@ -104,7 +104,7 @@ struct environment::imp {
     /** \brief Return true iff l1 >= l2 + k by asserted universe constraints. */
     bool is_ge(level const & l1, level const & l2, int k) {
         if (l1 == l2)
-            return k == 0;
+            return k <= 0;
         switch (kind(l2)) {
         case level_kind::UVar:
             switch (kind(l1)) {

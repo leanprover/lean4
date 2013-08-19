@@ -2,7 +2,9 @@
 #include <fstream>
 #include "version.h"
 #include "parser.h"
+#include "printer.h"
 using namespace lean;
+
 
 int main(int argc, char ** argv) {
     std::cout << "Lean (version " << LEAN_VERSION_MAJOR << "." << LEAN_VERSION_MINOR << ")\n";

@@ -12,7 +12,9 @@ Author: Leonardo de Moura
 #include "scoped_map.h"
 #include "occurs.h"
 #include "instantiate.h"
+#include "builtin.h"
 #include "builtin_notation.h"
+#include "free_vars.h"
 #include "context_to_lambda.h"
 #include "for_each.h"
 #include "options.h"
@@ -50,6 +52,8 @@ static format g_eq_sym_fmt    = format(g_eq_sym);
 static format g_lambda_fmt    = highlight_keyword(format("\u03BB"));
 static format g_Pi_fmt        = highlight_keyword(format("\u03A0"));
 static format g_arrow_fmt     = highlight_keyword(format("\u2192"));
+static format g_forall_fmt    = highlight_keyword(format("\u2200"));
+static format g_exists_fmt    = highlight_keyword(format("\u2203"));
 static format g_ellipsis_fmt  = highlight(format("\u2026"));
 static format g_let_fmt       = highlight_keyword(format("let"));
 static format g_in_fmt        = highlight_keyword(format("in"));
@@ -288,6 +292,102 @@ class pp_fn {
         return mk_result(r_format, r_weight);
     }
 
+    bool is_forall_expr(expr const & e) {
+        return is_app(e) && arg(e, 0) == mk_forall_fn() && num_args(e) == 3;
+    }
+
+    bool is_exists_expr(expr const & e) {
+        return is_app(e) && arg(e, 0) == mk_exists_fn() && num_args(e) == 3;
+    }
+
+    bool is_quant_expr(expr const & e, bool is_forall) {
+        return is_forall ? is_forall_expr(e) : is_exists_expr(e);
+    }
+
+    /**
+       \brief Collect nested quantifiers, and instantiate
+       variables with unused names. Store in \c r the selected names
+       and associated domains. Return the body of the sequence of
+       nested quantifiers.
+    */
+    expr collect_nested_quantifiers(expr const & e, bool is_forall, buffer<std::pair<name, expr>> & r) {
+        lean_assert(is_quant_expr(e, is_forall));
+        if (is_lambda(arg(e, 2))) {
+            expr lambda = arg(e, 2);
+            name n1 = get_unused_name(lambda);
+            r.push_back(mk_pair(n1, abst_domain(lambda)));
+            expr b  = instantiate_with_closed(abst_body(lambda), mk_constant(n1));
+            if (is_quant_expr(b, is_forall))
+                return collect_nested_quantifiers(b, is_forall, r);
+            else
+                return b;
+        } else {
+            // Quantifier is not in normal form. That is, it might be
+            //   (forall t p)  or (exists t p)  where p is not a lambda
+            //   abstraction
+            // So, we put it in normal form
+            //   (forall t (fun x : t, p x))
+            //   or
+            //   (exists t (fun x : t, p x))
+            expr new_body = mk_lambda("x", arg(e, 1), mk_app(lift_free_vars(arg(e, 2), 1), mk_var(0)));
+            expr normal_form = mk_app(arg(e, 0), arg(e, 1), new_body);
+            return collect_nested_quantifiers(normal_form, is_forall, r);
+        }
+    }
+
+    result pp_quantifier(expr const & e, unsigned depth, bool is_forall) {
+        buffer<std::pair<name, expr>> nested;
+        expr b = collect_nested_quantifiers(e, is_forall, nested);
+        format head = is_forall ? g_forall_fmt : g_exists_fmt;
+        format sep  = comma();
+        expr domain0 = nested[0].second;
+        // TODO: the following code is very similar to pp_abstraction
+        if (std::all_of(nested.begin() + 1, nested.end(), [&](std::pair<name, expr> const & p) { return p.second == domain0; })) {
+            // Domain of all binders is the same
+            format names    = pp_bnames(nested.begin(), nested.end(), false);
+            result p_domain = pp_scoped_child(domain0, depth);
+            result p_body   = pp_scoped_child(b, depth);
+            format sig      = format{names, space(), colon(), space(), p_domain.first};
+            format r_format = group(nest(m_indent, format{head, space(), sig, sep, line(), p_body.first}));
+            return mk_result(r_format, p_domain.second + p_body.second + 1);
+        } else {
+            auto it  = nested.begin();
+            auto end = nested.end();
+            unsigned r_weight = 1;
+            // PP binders in blocks (names ... : type)
+            bool first = true;
+            format bindings;
+            while (it != end) {
+                auto it2 = it;
+                ++it2;
+                while (it2 != end && it2->second == it->second) {
+                    ++it2;
+                }
+                result p_domain = pp_scoped_child(it->second, depth);
+                r_weight += p_domain.second;
+                format block = group(nest(m_indent, format{lp(), pp_bnames(it, it2, true), space(), colon(), space(), p_domain.first, rp()}));
+                if (first) {
+                    bindings = block;
+                    first = false;
+                } else {
+                    bindings += compose(line(), block);
+                }
+                it = it2;
+            }
+            result p_body   = pp_scoped_child(b, depth);
+            format r_format = group(nest(m_indent, format{head, space(), group(bindings), sep, line(), p_body.first}));
+            return mk_result(r_format, r_weight + p_body.second);
+        }
+    }
+
+    result pp_forall(expr const & e, unsigned depth) {
+        return pp_quantifier(e, depth, true);
+    }
+
+    result pp_exists(expr const & e, unsigned depth) {
+        return pp_quantifier(e, depth, false);
+    }
+
     /**
        \brief Pretty print an application.
     */
@@ -347,6 +447,10 @@ class pp_fn {
             }}
             lean_unreachable();
             return mk_result(format(), 0);
+        } else if (m_notation && is_forall_expr(e)) {
+            return pp_forall(e, depth);
+        } else if (m_notation && is_exists_expr(e)) {
+            return pp_exists(e, depth);
         } else {
             // standard function application
             result p    = pp_child(arg(e, 0), depth);

@@ -24,11 +24,9 @@ static name g_in_name("in");
 static name g_arrow_name("->");
 static name g_eq_name("=");
 static name g_forall_name("forall");
-static name g_forall_unicode("\u2201");
-static name g_forall_unicode2("∀");
+static name g_forall_unicode("\u2200");
 static name g_exists_name("exists");
 static name g_exists_unicode("\u2203");
-static name g_exists_unicode2("∃");
 
 static char g_normalized[256];
 
@@ -253,9 +251,9 @@ scanner::token scanner::read_c_symbol() {
                 return token::Lambda;
             else if (m_name_val == g_pi_unicode)
                 return token::Pi;
-            else if (m_name_val == g_forall_unicode || m_name_val == g_forall_unicode2)
+            else if (m_name_val == g_forall_unicode)
                 return token::Forall;
-            else if (m_name_val == g_exists_unicode || m_name_val == g_exists_unicode2)
+            else if (m_name_val == g_exists_unicode)
                 return token::Exists;
             else
                 return token::Id;

@@ -59,6 +59,11 @@ static name g_overload_name(name(name(name(0u), "parser"), "overload"));
 static expr g_overload = mk_constant(g_overload_name);
 // ==========================================
 
+// A name that can't be created by the user.
+// It is used as placeholder for parsing A -> B expressions which
+// are syntax sugar for (Pi (_ : A), B)
+static name g_unused(name(0u), "parser");
+
 /**
     \brief Functional object for parsing
 
@@ -471,6 +476,8 @@ class parser_fn {
     /** \brief Parse <tt>expr '->' expr</tt>. */
     expr parse_arrow(expr const & left) {
         next();
+        mk_scope scope(*this);
+        register_binding(g_unused);
         // The -1 is a trick to get right associativity in Pratt's parsers
         expr right = parse_expr(g_arrow_precedence-1);
         return mk_arrow(left, right);

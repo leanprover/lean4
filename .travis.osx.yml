@@ -3,12 +3,12 @@ env:
   global:
   - secure: "W8vou0KRJOOboZXP9q+D/9Wl6LlBeVS2T85MHWPz7EwCMQbJq5xWnGzYLE6FmC0iILcZkXyP63vqoYMFo5MJaEQeALGx2RuIiW7XgrD+7Bn4Vfsp6BLT7K9/AJETGGTQnLs8oZJJCXHGtzbc8EPFIZd/ZPPrve4jhEE5ZNhXnRc="
   matrix:
-  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG USE_TCMALLOC=FALSE LCOV=TRUE
-  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG USE_TCMALLOC=FALSE DOXYGEN=TRUE
-  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG USE_TCMALLOC=TRUE NORMAL=TRUE
-  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG USE_TCMALLOC=FALSE NORMAL=TRUE
-  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE USE_TCMALLOC=TRUE NORMAL=TRUE
-  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE USE_TCMALLOC=FALSE NORMAL=TRUE
+  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG   USE_TCMALLOC=FALSE LCOV=TRUE
+  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG   USE_TCMALLOC=FALSE DOXYGEN=TRUE
+  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG   USE_TCMALLOC=TRUE
+  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG   USE_TCMALLOC=FALSE
+  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE USE_TCMALLOC=TRUE  UPLOAD=osx
+  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE USE_TCMALLOC=FALSE UPLOAD=osx_tcmalloc
 
 before_script:
 - mkdir -p build
@@ -21,13 +21,15 @@ before_script:
 - cd ..
 
 script:
-- if [[ $NORMAL == TRUE ]]; then
+- if [[ -z $LCOV && -z $DOXYGEN ]]; then
       cd build;
       ninja && yes "C" | ctest -T test -VV;
       cd ..;
   fi
+
+after_script:
 - if [[ $DOXYGEN == TRUE ]]; then
-      brew install doxygen;
+      brew install doxygen graphviz;
       script/doxygen.sh;
       brew install python;
       pip install dropbox;
@@ -40,19 +42,24 @@ script:
       pip install dropbox;
       script/dropbox_upload.py build/testcov/lcov /Public/lcov ${DROPBOX_KEY};
   fi
+- if [[ $UPLOAD ]]; then
+      UPLOAD_DIR=bin;
+      BINARY=lean_${UPLOAD};
+      mkdir ${UPLOAD_DIR};
+      cp build/shell/lean ${UPLOAD_DIR}/${BINARY};
+      brew install python; pip install dropbox;
+      script/dropbox_upload.py ${UPLOAD_DIR} /Public/${UPLOAD_DIR} ${DROPBOX_KEY};
+  fi
 
 install:
 - if [[ $CMAKE_CXX_COMPILER == g++ ]]; then
       cd /;
-      wget http://prdownloads.sourceforge.net/hpc/gcc-mlion.tar.gz?download -O /tmp/gcc-mlion.tar.gz;
-      sudo tar xvfz /tmp/gcc-mlion.tar.gz; cd -;
+      wget https://dl.dropboxusercontent.com/u/203889738/gcc/gcc-4.8.1_gmp-5.1.2_mpfr-3.1.2.tar.gz -O /tmp/gcc-mlion.tar.gz;
+      sudo tar xvfz /tmp/gcc-mlion.tar.gz;
+      cd -;
   fi
 - sudo chown -R `whoami` /usr/local
 - brew install cmake ninja
-- brew install gmp
-- brew link --overwrite gmp
-- brew install mpfr
-- brew link --overwrite mpfr
 - if [[ $USE_TCMALLOC == TRUE ]]; then brew install google-perftools; fi
 
 notifications:

@@ -20,7 +20,7 @@ def copy_file_with_retry(fullpath, targetpath, max_try):
     print("==> " + targetpath)
     try:
         handle = open(fullpath)
-        response = client.put_file(targetpath, handle)
+        response = client.put_file(targetpath, handle, True)
     except:
         handle.close()
         print("FAILED: " + targetpath)
@@ -47,5 +47,5 @@ def remove_dir_from_dropbox(serverDir):
         print (serverDir + " not exists")
 
 print ("Copy: " + local_path + " ==> " + server_path)
-remove_dir_from_dropbox(server_path)
+#remove_dir_from_dropbox(server_path)
 upload_dir_to_dropbox(local_path, server_path)

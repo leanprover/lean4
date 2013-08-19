@@ -1057,7 +1057,7 @@ template<typename T> void interval<T>::sin() {
             // sin(x)      = [-sin(l'), 1]  if l' + u' <= - pi
             //             = [-sin(u'), 1]  if l' + u' >= - pi
             if(m_lower + m_upper <= - pi) {
-                m_lower = m_lower;
+                // Nothing
             } else {
                 m_lower = m_upper;
             }

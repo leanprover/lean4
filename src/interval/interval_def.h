@@ -16,6 +16,9 @@ Author: Leonardo de Moura
 namespace lean {
 
 template<typename T>
+interval_deps interval<T>::dummy;
+
+template<typename T>
 void interval<T>::set_closed_endpoints() {
     m_lower_open = false;
     m_upper_open = false;
@@ -159,51 +162,79 @@ bool interval<T>::before(interval<T> const & b) const {
 }
 
 template<typename T>
-void interval<T>::neg() {
+template<bool compute_intv, bool compute_deps>
+void interval<T>::neg(interval_deps & deps) {
     using std::swap;
     if (is_lower_inf()) {
         if (is_upper_inf()) {
             // (-oo, oo) case
             // do nothing
+            if(compute_deps) {
+                deps.m_lower_deps = 0;
+                deps.m_upper_deps = 0;
+            }
         } else {
             // (-oo, a| --> |-a, oo)
-            swap(m_lower, m_upper);
-            neg(m_lower);
-            m_lower_inf  = false;
-            m_lower_open = m_upper_open;
-
-            reset(m_upper);
-            m_upper_inf  = true;
-            m_upper_open = true;
+            if(compute_intv) {
+                swap(m_lower, m_upper);
+                neg(m_lower);
+                m_lower_inf  = false;
+                m_lower_open = m_upper_open;
+                reset(m_upper);
+                m_upper_inf  = true;
+                m_upper_open = true;
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_UPPER1;
+                deps.m_upper_deps = 0;
+            }
         }
     } else {
         if (is_upper_inf()) {
             // |a, oo) --> (-oo, -a|
-            swap(m_upper, m_lower);
-            neg(m_upper);
-            m_upper_inf  = false;
-            m_upper_open = m_lower_open;
+            if(compute_intv) {
+                swap(m_upper, m_lower);
+                neg(m_upper);
+                m_upper_inf  = false;
+                m_upper_open = m_lower_open;
 
-            reset(m_lower);
-            m_lower_inf  = true;
-            m_lower_open = true;
+                reset(m_lower);
+                m_lower_inf  = true;
+                m_lower_open = true;
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = 0;
+                deps.m_upper_deps = DEP_IN_LOWER1;
+            }
         } else {
             // |a, b| --> |-b, -a|
-            swap(m_lower, m_upper);
-            neg(m_lower);
-            neg(m_upper);
+            if(compute_intv) {
+                swap(m_lower, m_upper);
+                neg(m_lower);
+                neg(m_upper);
 
-            unsigned lo  = m_lower_open;
-            unsigned li  = m_lower_inf;
-            m_lower_open = m_upper_open;
-            m_lower_inf  = m_upper_inf;
-            m_upper_open = lo;
-            m_upper_inf  = li;
+                unsigned lo  = m_lower_open;
+                unsigned li  = m_lower_inf;
+                m_lower_open = m_upper_open;
+                m_lower_inf  = m_upper_inf;
+                m_upper_open = lo;
+                m_upper_inf  = li;
+            }
+            if(compute_deps) {
+                deps.m_upper_deps = DEP_IN_LOWER1;
+                deps.m_lower_deps = DEP_IN_UPPER1;
+            }
         }
     }
-    lean_assert(check_invariant());
+    if(compute_intv) {
+        lean_assert(check_invariant());
+    }
 }
 
+template<typename T> void interval<T>::neg_jst(interval_deps & deps) {
+    neg<false, true>(deps);
+    return;
+}
 
 template<typename T>
 interval<T> & interval<T>::operator+=(interval<T> const & o) {
@@ -885,132 +916,260 @@ template<typename T> void interval<T>::fmod(T y) {
     *this -= n * y;
 }
 
-template<typename T> void interval<T>::exp() {
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+void interval<T>::exp(interval_deps & deps) {
     if(m_lower_inf) {
-        numeric_traits<T>::reset(m_lower);
+        if(compute_intv) {
+            numeric_traits<T>::reset(m_lower);
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = 0;
+        }
     } else {
-        numeric_traits<T>::set_rounding(false);
-        numeric_traits<T>::exp(m_lower);
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(false);
+            numeric_traits<T>::exp(m_lower);
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = DEP_IN_LOWER1;
+        }
     }
     if(m_upper_inf) {
-        // Nothing to do
+        if(compute_deps) {
+            deps.m_lower_deps = 0;
+        }
     } else {
-        numeric_traits<T>::set_rounding(true);
-        numeric_traits<T>::exp(m_upper);
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::exp(m_upper);
+        }
+        if(compute_deps) {
+            deps.m_upper_deps = DEP_IN_UPPER1;
+        }
     }
     lean_assert(check_invariant());
     return;
 }
-template<typename T> void interval<T>::exp2() {
+
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+void interval<T>::exp2(interval_deps & deps) {
     if(m_lower_inf) {
-        numeric_traits<T>::reset(m_lower);
+        if(compute_intv) {
+            numeric_traits<T>::reset(m_lower);
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = 0;
+        }
     } else {
-        numeric_traits<T>::set_rounding(false);
-        numeric_traits<T>::exp2(m_lower);
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(false);
+            numeric_traits<T>::exp2(m_lower);
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = DEP_IN_LOWER1;
+        }
     }
     if(m_upper_inf) {
-        // Nothing to do
+        if(compute_deps) {
+            deps.m_lower_deps = 0;
+        }
     } else {
-        numeric_traits<T>::set_rounding(true);
-        numeric_traits<T>::exp2(m_upper);
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::exp2(m_upper);
+        }
+        if(compute_deps) {
+            deps.m_upper_deps = DEP_IN_UPPER1;
+        }
     }
     lean_assert(check_invariant());
     return;
 }
-template<typename T> void interval<T>::exp10() {
+
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+void interval<T>::exp10(interval_deps & deps) {
     if(m_lower_inf) {
-        numeric_traits<T>::reset(m_lower);
+        if(compute_intv) {
+            numeric_traits<T>::reset(m_lower);
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = 0;
+        }
     } else {
-        numeric_traits<T>::set_rounding(false);
-        numeric_traits<T>::exp10(m_lower);
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(false);
+            numeric_traits<T>::exp10(m_lower);
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = DEP_IN_LOWER1;
+        }
     }
     if(m_upper_inf) {
-        // Nothing to do
+        if(compute_deps) {
+            deps.m_lower_deps = 0;
+        }
     } else {
-        numeric_traits<T>::set_rounding(true);
-        numeric_traits<T>::exp10(m_upper);
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::exp10(m_upper);
+        }
+        if(compute_deps) {
+            deps.m_upper_deps = DEP_IN_UPPER1;
+        }
     }
     lean_assert(check_invariant());
     return;
 }
-template<typename T> void interval<T>::log() {
+
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+void interval<T>::log(interval_deps & deps) {
     lean_assert(lower_kind() == XN_NUMERAL);
     //  lower_open => lower >= 0
     lean_assert(!m_lower_open || numeric_traits<T>::is_pos(m_lower) || numeric_traits<T>::is_zero(m_lower));
     // !lower_open => lower > 0
     lean_assert( m_lower_open || numeric_traits<T>::is_pos(m_lower));
-
     if(is_lower_pos()) {
-        numeric_traits<T>::set_rounding(false);
-        numeric_traits<T>::log(m_lower);
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(false);
+            numeric_traits<T>::log(m_lower);
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = DEP_IN_LOWER1;
+        }
     } else {
-        numeric_traits<T>::reset(m_lower);
-        m_lower_inf = true;
+        if(compute_intv) {
+            numeric_traits<T>::reset(m_lower);
+            m_lower_inf = true;
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = 0;
+        }
     }
     if(m_upper_inf) {
         // Nothing to do
+        if(compute_deps) {
+            deps.m_upper_deps = 0;
+        }
     } else {
-        numeric_traits<T>::set_rounding(true);
-        numeric_traits<T>::log(m_upper);
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::log(m_upper);
+        }
+        if(compute_deps) {
+            deps.m_upper_deps = DEP_IN_UPPER1;
+        }
     }
     lean_assert(check_invariant());
     return;
 }
-template<typename T> void interval<T>::log2() {
+
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+void interval<T>::log2(interval_deps & deps) {
     lean_assert(lower_kind() == XN_NUMERAL);
     //  lower_open => lower >= 0
     lean_assert(!m_lower_open || numeric_traits<T>::is_pos(m_lower) || numeric_traits<T>::is_zero(m_lower));
     // !lower_open => lower > 0
     lean_assert( m_lower_open || numeric_traits<T>::is_pos(m_lower));
-
     if(is_lower_pos()) {
-        numeric_traits<T>::set_rounding(false);
-        numeric_traits<T>::log2(m_lower);
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(false);
+            numeric_traits<T>::log2(m_lower);
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = DEP_IN_LOWER1;
+        }
     } else {
-        numeric_traits<T>::reset(m_lower);
-        m_lower_inf = true;
+        if(compute_intv) {
+            numeric_traits<T>::reset(m_lower);
+            m_lower_inf = true;
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = 0;
+        }
     }
     if(m_upper_inf) {
         // Nothing to do
+        if(compute_deps) {
+            deps.m_upper_deps = 0;
+        }
     } else {
-        numeric_traits<T>::set_rounding(true);
-        numeric_traits<T>::log2(m_upper);
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::log2(m_upper);
+        }
+        if(compute_deps) {
+            deps.m_upper_deps = DEP_IN_UPPER1;
+        }
     }
     lean_assert(check_invariant());
     return;
 }
-template<typename T> void interval<T>::log10() {
+
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+void interval<T>::log10(interval_deps & deps) {
     lean_assert(lower_kind() == XN_NUMERAL);
     //  lower_open => lower >= 0
     lean_assert(!m_lower_open || numeric_traits<T>::is_pos(m_lower) || numeric_traits<T>::is_zero(m_lower));
     // !lower_open => lower > 0
     lean_assert( m_lower_open || numeric_traits<T>::is_pos(m_lower));
-
     if(is_lower_pos()) {
-        numeric_traits<T>::set_rounding(false);
-        numeric_traits<T>::log10(m_lower);
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(false);
+            numeric_traits<T>::log10(m_lower);
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = DEP_IN_LOWER1;
+        }
     } else {
-        numeric_traits<T>::reset(m_lower);
-        m_lower_inf = true;
+        if(compute_intv) {
+            numeric_traits<T>::reset(m_lower);
+            m_lower_inf = true;
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = 0;
+        }
     }
     if(m_upper_inf) {
         // Nothing to do
+        if(compute_deps) {
+            deps.m_upper_deps = 0;
+        }
     } else {
-        numeric_traits<T>::set_rounding(true);
-        numeric_traits<T>::log10(m_upper);
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::log10(m_upper);
+        }
+        if(compute_deps) {
+            deps.m_upper_deps = DEP_IN_UPPER1;
+        }
     }
     lean_assert(check_invariant());
     return;
 }
-template<typename T> void interval<T>::sin() {
+
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+void interval<T>::sin(interval_deps & deps) {
     if(m_lower_inf || m_upper_inf) {
         // sin([-oo, c]) = [-1.0, +1.0]
         // sin([c, +oo]) = [-1.0, +1.0]
-        m_lower_open = m_upper_open = false;
-        m_lower_inf  = m_upper_inf = false;
-        m_lower = -1.0;
-        m_upper = 1.0;
-        lean_assert(check_invariant());
+        if(compute_intv) {
+            m_lower_open = m_upper_open = false;
+            m_lower_inf  = m_upper_inf = false;
+            m_lower = -1.0;
+            m_upper = 1.0;
+            lean_assert(check_invariant());
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = 0;
+            deps.m_upper_deps = 0;
+        }
         return;
     }
 
@@ -1022,9 +1181,15 @@ template<typename T> void interval<T>::sin() {
     if(m_upper - m_lower >= pi_twice) {
         // If the input width is bigger than 2pi,
         // it covers whole domain and gets [-1.0, 1.0]
-        m_lower = -1.0;
-        m_upper = 1.0;
-        lean_assert(check_invariant());
+        if(compute_intv) {
+            m_lower = -1.0;
+            m_upper = 1.0;
+            lean_assert(check_invariant());
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = 0;
+            deps.m_upper_deps = 0;
+        }
         return;
     }
 
@@ -1041,12 +1206,18 @@ template<typename T> void interval<T>::sin() {
             // sin(x - pi) = [sin(u'), sin(l')]
             // sin(x)      = [-sin(l'), -sin(u')]
             // sin(x)      = [-sin(l'), sin(-u')]
-            numeric_traits<T>::set_rounding(true);
-            numeric_traits<T>::sin(m_lower);
-            m_lower = -m_lower;
-            m_upper = -m_upper;
-            numeric_traits<T>::sin(m_upper);
-            lean_assert(check_invariant());
+            if(compute_intv) {
+                numeric_traits<T>::set_rounding(true);
+                numeric_traits<T>::sin(m_lower);
+                m_lower = -m_lower;
+                m_upper = -m_upper;
+                numeric_traits<T>::sin(m_upper);
+                lean_assert(check_invariant());
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_LOWER1;
+                deps.m_lower_deps = DEP_IN_UPPER1;
+            }
             return;
         }
         if(m_upper <= pi_half) {
@@ -1058,21 +1229,37 @@ template<typename T> void interval<T>::sin() {
             //             = [-sin(u'), 1]  if l' + u' >= - pi
             if(m_lower + m_upper <= - pi) {
                 // Nothing
+                if(compute_deps) {
+                    deps.m_lower_deps = DEP_IN_LOWER1;
+                }
             } else {
-                m_lower = m_upper;
+                if(compute_intv) {
+                    m_lower = m_upper;
+                }
+                if(compute_deps) {
+                    deps.m_lower_deps = DEP_IN_UPPER1;
+                }
             }
-            numeric_traits<T>::set_rounding(true);
-            numeric_traits<T>::sin(m_lower);
-            m_lower = - m_lower;
-            m_upper = 1.0;
-            lean_assert(check_invariant());
+            if(compute_intv) {
+                numeric_traits<T>::set_rounding(true);
+                numeric_traits<T>::sin(m_lower);
+                m_lower = - m_lower;
+                m_upper = 1.0;
+                lean_assert(check_invariant());
+            }
             return;
         }
         // 3. -pi <= l' <= -1/2 pi <= 1/2 pi <= u'
         // sin(x - pi) = [-1, 1]
-        m_lower = -1.0;
-        m_upper = 1.0;
-        lean_assert(check_invariant());
+        if(compute_deps) {
+            deps.m_lower_deps = 0;
+            deps.m_upper_deps = 0;
+        }
+        if(compute_intv) {
+            m_lower = -1.0;
+            m_upper = 1.0;
+            lean_assert(check_invariant());
+        }
         return;
     }
     if(m_lower <= pi_half) {
@@ -1081,13 +1268,19 @@ template<typename T> void interval<T>::sin() {
             // sin(x - pi) = [sin(l'), sin(u')]
             // sin(x)      = [-sin(u'), -sin(l')]
             //             = [-sin(u'), sin(-l')]
-            std::swap(m_lower, m_upper);
-            m_upper = -m_upper;
-            numeric_traits<T>::set_rounding(true);
-            numeric_traits<T>::sin(m_lower);
-            numeric_traits<T>::sin(m_upper);
-            m_lower = -m_lower;
-            lean_assert(check_invariant());
+            if(compute_intv) {
+                std::swap(m_lower, m_upper);
+                m_upper = -m_upper;
+                numeric_traits<T>::set_rounding(true);
+                numeric_traits<T>::sin(m_lower);
+                numeric_traits<T>::sin(m_upper);
+                m_lower = -m_lower;
+                lean_assert(check_invariant());
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_UPPER1;
+                deps.m_upper_deps = DEP_IN_LOWER1;
+            }
             return;
         }
         if(m_upper <= pi_half + pi) {
@@ -1098,21 +1291,42 @@ template<typename T> void interval<T>::sin() {
             // sin(x)      = [-1, sin(-l')]               if l' + u' <= pi
             //             = [-1, sin(-u')]               if l' + u' >= pi
             if(m_lower + m_upper <= pi) {
-                m_upper = - m_lower;
+                if(compute_intv) {
+                    m_upper = - m_lower;
+                }
+                if(compute_deps) {
+                    deps.m_upper_deps = DEP_IN_LOWER1;
+                }
             } else {
-                m_upper = - m_upper;
+                if(compute_intv) {
+                    m_upper = - m_upper;
+                }
+                if(compute_deps) {
+                    deps.m_upper_deps = DEP_IN_UPPER1;
+                }
             }
-            numeric_traits<T>::set_rounding(true);
-            numeric_traits<T>::sin(m_upper);
-            m_lower = -1.0;
-            lean_assert(check_invariant());
+            if(compute_intv) {
+                numeric_traits<T>::set_rounding(true);
+                numeric_traits<T>::sin(m_upper);
+                m_lower = -1.0;
+                lean_assert(check_invariant());
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = 0;
+            }
             return;
         }
         // 6. -1/2 pi <= l' <= 1/2pi <= 3/2pi <= u'
         // sin(x - pi) = [-1, 1]
-        m_lower = -1.0;
-        m_upper = 1.0;
-        lean_assert(check_invariant());
+        if(compute_intv) {
+            m_lower = -1.0;
+            m_upper = 1.0;
+            lean_assert(check_invariant());
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = 0;
+            deps.m_upper_deps = 0;
+        }
         return;
     }
     lean_assert(pi_half <= m_lower);
@@ -1120,12 +1334,18 @@ template<typename T> void interval<T>::sin() {
         // 7. 1/2pi <= l' <= u' <= 3/2 pi
         // sin(x - pi) = [sin(u'), sin(l')]
         // sin(x)      = [-sin(l'), sin(-u')]
-        m_upper = -m_upper;
-        numeric_traits<T>::set_rounding(true);
-        numeric_traits<T>::sin(m_lower);
-        numeric_traits<T>::sin(m_upper);
-        m_lower = -m_lower;
-        lean_assert(check_invariant());
+        if(compute_intv) {
+            m_upper = -m_upper;
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::sin(m_lower);
+            numeric_traits<T>::sin(m_upper);
+            m_lower = -m_lower;
+            lean_assert(check_invariant());
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = DEP_IN_LOWER1;
+            deps.m_upper_deps = DEP_IN_UPPER1;
+        }
         return;
     }
     if(m_upper <= pi_half + pi_twice) {
@@ -1137,33 +1357,60 @@ template<typename T> void interval<T>::sin() {
         //             = [-sin(u'), 1]                 if l' + u' >= 3pi
         if(m_lower + m_upper <= pi + pi_twice) {
             // Nothing
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_LOWER1;
+            }
         } else {
-            m_lower = m_upper;
+            if(compute_intv) {
+                m_lower = m_upper;
+            }
+            if(compute_deps) {
+                deps.m_upper_deps = DEP_IN_UPPER1;
+            }
         }
-        numeric_traits<T>::set_rounding(true);
-        numeric_traits<T>::sin(m_lower);
-        m_lower = - m_lower;
-        m_upper = 1.0;
-        lean_assert(check_invariant());
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::sin(m_lower);
+            m_lower = - m_lower;
+            m_upper = 1.0;
+            lean_assert(check_invariant());
+        }
+        if(compute_deps) {
+            deps.m_upper_deps = 0;
+        }
         return;
     }
     // 9. 1/2pi <= l' <= 5/2pi <= u'
     // sin(x - pi) = [-1, 1]
-    m_lower = -1.0;
-    m_upper = 1.0;
-    lean_assert(check_invariant());
+    if(compute_intv) {
+        m_lower = -1.0;
+        m_upper = 1.0;
+        lean_assert(check_invariant());
+    }
+    if(compute_deps) {
+        deps.m_lower_deps = 0;
+        deps.m_upper_deps = 0;
+    }
     return;
 }
 
-template<typename T> void interval<T>::cos  () {
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+void interval<T>::cos  (interval_deps & deps) {
     if(m_lower_inf || m_upper_inf) {
         // cos([-oo, c]) = [-1.0, +1.0]
         // cos([c, +oo]) = [-1.0, +1.0]
-        m_lower = -1.0;
-        m_upper = 1.0;
-        m_lower_open = m_upper_open = false;
-        m_lower_inf  = m_upper_inf = false;
-        lean_assert(check_invariant());
+        if(compute_intv) {
+            m_lower = -1.0;
+            m_upper = 1.0;
+            m_lower_open = m_upper_open = false;
+            m_lower_inf  = m_upper_inf = false;
+            lean_assert(check_invariant());
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = 0;
+            deps.m_upper_deps = 0;
+        }
         return;
     }
 
@@ -1174,17 +1421,28 @@ template<typename T> void interval<T>::cos  () {
     if(m_upper - m_lower >= pi_twice) {
         // If the input width is bigger than 2pi,
         // it covers whole domain and gets [-1.0, 1.0]
-        m_lower = -1.0;
-        m_upper = 1.0;
-        lean_assert(check_invariant());
+        if(compute_intv) {
+            m_lower = -1.0;
+            m_upper = 1.0;
+            lean_assert(check_invariant());
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = 0;
+            deps.m_upper_deps = 0;
+        }
         return;
     }
     if(m_lower >= numeric_traits<T>::pi_upper()) {
         // If the input is bigger than pi, we handle it recursively by the fact:
         // cos(x) = -cos(x - pi)
-        *this -= interval<T>(numeric_traits<T>::pi_lower(), numeric_traits<T>::pi_upper());
-        cos();
-        neg();
+        if(compute_intv) {
+            *this -= interval<T>(numeric_traits<T>::pi_lower(), numeric_traits<T>::pi_upper());
+        }
+        cos<compute_intv, compute_deps>(deps);
+        neg<compute_intv, false>();
+        if(compute_deps) {
+            std::swap(deps.m_lower_deps, deps.m_upper_deps);
+        }
         lean_assert(check_invariant());
         return;
     }
@@ -1192,43 +1450,75 @@ template<typename T> void interval<T>::cos  () {
     if (m_upper <= numeric_traits<T>::pi_lower()) {
         // 0 <= l <= u <= pi
         // cos([l, u]) = [cos_d(u), cos_u(l)]
-        std::swap(m_lower, m_upper);
-        numeric_traits<T>::set_rounding(false);
-        numeric_traits<T>::cos(m_lower);
-        numeric_traits<T>::set_rounding(true);
-        numeric_traits<T>::cos(m_upper);
-        lean_assert(check_invariant());
+        if(compute_intv) {
+            std::swap(m_lower, m_upper);
+            numeric_traits<T>::set_rounding(false);
+            numeric_traits<T>::cos(m_lower);
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::cos(m_upper);
+            lean_assert(check_invariant());
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = DEP_IN_UPPER1;
+            deps.m_upper_deps = DEP_IN_LOWER1;
+        }
         return;
     }
 
     if (m_upper <= numeric_traits<T>::pi_twice_lower()) {
         // If the input is [a, b] and a <= pi <= b,
         // Pick the tmp = min(a, 2pi - b) and return [-1, cos(tmp)]
-        numeric_traits<T>::set_rounding(false);
-        static thread_local T tmp;
-        tmp = numeric_traits<T>::pi_twice_lower() - m_upper;
-        m_upper = tmp < m_lower ? tmp : m_lower;
-        numeric_traits<T>::set_rounding(true);
-        numeric_traits<T>::cos(m_upper);
-        m_lower = -1.0;
-        lean_assert(check_invariant());
+        if(m_lower + m_upper < numeric_traits<T>::pi_twice()) {
+            if(compute_intv) {
+                m_upper = m_lower;
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = 0;
+                deps.m_upper_deps = DEP_IN_LOWER1;
+            }
+        } else {
+            // Nothing
+            if(compute_deps) {
+                deps.m_lower_deps = 0;
+                deps.m_upper_deps = DEP_IN_UPPER1;
+            }
+        }
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::cos(m_upper);
+            m_lower = -1.0;
+            lean_assert(check_invariant());
+        }
         return;
     }
-    m_lower = -1.0;
-    m_upper = 1.0;
-    lean_assert(check_invariant());
+    if(compute_intv) {
+        m_lower = -1.0;
+        m_upper = 1.0;
+        lean_assert(check_invariant());
+    }
+    if(compute_deps) {
+        deps.m_lower_deps = 0;
+        deps.m_upper_deps = 0;
+    }
     return;
 }
 
-template<typename T> void interval<T>::tan() {
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+void interval<T>::tan(interval_deps & deps) {
     if(m_lower_inf || m_upper_inf) {
         // tan([-oo, c]) = [-oo, +oo]
         // tan([c, +oo]) = [-oo, +oo]
-        numeric_traits<T>::reset(m_lower);
-        numeric_traits<T>::reset(m_upper);
-        m_lower_open = m_upper_open = true;
-        m_lower_inf  = m_upper_inf = true;
-        lean_assert(check_invariant());
+        if(compute_intv) {
+            numeric_traits<T>::reset(m_lower);
+            numeric_traits<T>::reset(m_upper);
+            m_lower_open = m_upper_open = true;
+            m_lower_inf  = m_upper_inf = true;
+            lean_assert(check_invariant());
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = deps.m_upper_deps = 0;
+        }
         return;
     }
 
@@ -1239,37 +1529,57 @@ template<typename T> void interval<T>::tan() {
         *this -= interval<T>(numeric_traits<T>::pi_lower(), numeric_traits<T>::pi_upper());
     }
     if (m_lower <= - pi_half_lower || m_upper >= pi_half_lower) {
-        numeric_traits<T>::reset(m_lower);
-        numeric_traits<T>::reset(m_upper);
-        m_lower_open = m_upper_open = true;
-        m_lower_inf  = m_upper_inf = true;
-        lean_assert(check_invariant());
+        if(compute_intv) {
+            numeric_traits<T>::reset(m_lower);
+            numeric_traits<T>::reset(m_upper);
+            m_lower_open = m_upper_open = true;
+            m_lower_inf  = m_upper_inf = true;
+            lean_assert(check_invariant());
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = deps.m_upper_deps = 0;
+        }
         return;
     } else {
-        numeric_traits<T>::set_rounding(false);
-        numeric_traits<T>::tan(m_lower);
-        numeric_traits<T>::set_rounding(true);
-        numeric_traits<T>::tan(m_upper);
-        lean_assert(check_invariant());
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(false);
+            numeric_traits<T>::tan(m_lower);
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::tan(m_upper);
+            lean_assert(check_invariant());
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = DEP_IN_LOWER1;
+            deps.m_upper_deps = DEP_IN_UPPER1;
+        }
         return;
     }
 }
 
-template<typename T> void interval<T>::csc  () {
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+void interval<T>::csc  (interval_deps & deps) {
     static thread_local T l;
     static thread_local T u;
-    l = m_lower;
-    u = m_upper;
+    if(compute_intv) {
+        l = m_lower;
+        u = m_upper;
+    }
     // csc(x) = 1 / sin(x)
     if(m_lower_inf || m_upper_inf || (m_upper - m_lower > numeric_traits<T>::pi())) {
         // csc([-oo, c]) = [-oo, +oo]
         // csc([c, +oo]) = [-oo, +oo]
         // if the width is bigger than pi, then the result is [-oo, +oo]
-        numeric_traits<T>::reset(m_lower);
-        numeric_traits<T>::reset(m_upper);
-        m_lower_open = m_upper_open = true;
-        m_lower_inf  = m_upper_inf = true;
-        lean_assert(check_invariant());
+        if(compute_intv) {
+            numeric_traits<T>::reset(m_lower);
+            numeric_traits<T>::reset(m_upper);
+            m_lower_open = m_upper_open = true;
+            m_lower_inf  = m_upper_inf = true;
+            lean_assert(check_invariant());
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = deps.m_upper_deps = 0;
+        }
         return;
     }
     T const pi_half = numeric_traits<T>::pi_half();
@@ -1279,11 +1589,16 @@ template<typename T> void interval<T>::csc  () {
        (m_lower < pi && pi < m_upper)) {
         // l < 2pi < u or l < pi < u
         // then the result = [-oo, +oo]
-        numeric_traits<T>::reset(m_lower);
-        numeric_traits<T>::reset(m_upper);
-        m_lower_open = m_upper_open = true;
-        m_lower_inf  = m_upper_inf = true;
-        lean_assert(check_invariant());
+        if(compute_intv) {
+            numeric_traits<T>::reset(m_lower);
+            numeric_traits<T>::reset(m_upper);
+            m_lower_open = m_upper_open = true;
+            m_lower_inf  = m_upper_inf = true;
+            lean_assert(check_invariant());
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = deps.m_upper_deps = 0;
+        }
         return;
     }
 
@@ -1292,13 +1607,19 @@ template<typename T> void interval<T>::csc  () {
             // l <= u <= 1/2 pi
             // csc[l, u] = [csc(u), csc(l)]
             //           = [-csc(-u), csc(l)]
-            m_lower = -u;
-            m_upper = l;
-            numeric_traits<T>::set_rounding(true);
-            numeric_traits<T>::csc(m_lower);
-            numeric_traits<T>::csc(m_upper);
-            m_lower = -m_lower;
-            lean_assert(check_invariant());
+            if(compute_intv) {
+                m_lower = -u;
+                m_upper = l;
+                numeric_traits<T>::set_rounding(true);
+                numeric_traits<T>::csc(m_lower);
+                numeric_traits<T>::csc(m_upper);
+                m_lower = -m_lower;
+                lean_assert(check_invariant());
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_UPPER1;
+                deps.m_upper_deps = DEP_IN_LOWER1;
+            }
             return;
         }
         if (m_upper <= pi) {
@@ -1307,15 +1628,33 @@ template<typename T> void interval<T>::csc  () {
             //           = [1, csc(l)]     if l + u <= pi
             //           = [1, csc(u)]     if l + u >= pi
             if (m_lower + m_upper < pi) {
-                m_upper = l;
+                if(compute_intv) {
+                    m_upper = l;
+                }
+                if(compute_deps) {
+                    deps.m_lower_deps = 0;
+                    deps.m_upper_deps = DEP_IN_LOWER1;
+                }
             } else {
                 // Nothing
-                m_upper = u;
+                if(compute_intv) {
+                    m_upper = u;
+                }
+                if(compute_deps) {
+                    deps.m_lower_deps = 0;
+                    deps.m_upper_deps = DEP_IN_UPPER1;
+                }
             }
-            m_lower = 1.0;
-            numeric_traits<T>::set_rounding(true);
-            numeric_traits<T>::csc(m_upper);
-            lean_assert(check_invariant());
+            if(compute_intv) {
+                m_lower = 1.0;
+                numeric_traits<T>::set_rounding(true);
+                numeric_traits<T>::csc(m_upper);
+                lean_assert(check_invariant());
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = 0;
+                deps.m_upper_deps = DEP_IN_UPPER1;
+            }
             return;
         }
         lean_unreachable();
@@ -1326,20 +1665,7 @@ template<typename T> void interval<T>::csc  () {
         // l <= u <= pi
         // csc[l, u] = [csc(l), csc(u)]
         //           = [-csc(-l), csc(u)]
-        m_lower = -l;
-        m_upper = u;
-        numeric_traits<T>::set_rounding(true);
-        numeric_traits<T>::csc(m_lower);
-        numeric_traits<T>::csc(m_upper);
-        m_lower = -m_lower;
-        lean_assert(check_invariant());
-        return;
-    }
-    if (m_lower <= pi + pi_half) {
-        if (m_upper <= pi + pi_half) {
-            // l <= u <= 3/2 pi
-            // csc[l, u] = [csc(l), csc(u)]
-            //           = [-csc(-l), csc(u)]
+        if(compute_intv) {
             m_lower = -l;
             m_upper = u;
             numeric_traits<T>::set_rounding(true);
@@ -1347,6 +1673,31 @@ template<typename T> void interval<T>::csc  () {
             numeric_traits<T>::csc(m_upper);
             m_lower = -m_lower;
             lean_assert(check_invariant());
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = DEP_IN_LOWER1;
+            deps.m_upper_deps = DEP_IN_UPPER1;
+        }
+        return;
+    }
+    if (m_lower <= pi + pi_half) {
+        if (m_upper <= pi + pi_half) {
+            // l <= u <= 3/2 pi
+            // csc[l, u] = [csc(l), csc(u)]
+            //           = [-csc(-l), csc(u)]
+            if(compute_intv) {
+                m_lower = -l;
+                m_upper = u;
+                numeric_traits<T>::set_rounding(true);
+                numeric_traits<T>::csc(m_lower);
+                numeric_traits<T>::csc(m_upper);
+                m_lower = -m_lower;
+                lean_assert(check_invariant());
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_LOWER1;
+                deps.m_upper_deps = DEP_IN_UPPER1;
+            }
             return;
         }
         // l <= 3/2 pi <= u <= 2pi
@@ -1358,165 +1709,296 @@ template<typename T> void interval<T>::csc  () {
         //           = [-csc(-u), -1]     if l + u >= 3pi
         if (m_lower + m_upper < pi + numeric_traits<T>::pi_twice()) {
             // Nothing
-            m_lower = -l;
+            if(compute_intv) {
+                m_lower = -l;
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_LOWER1;
+            }
         } else {
-            m_lower = -u;
+            if(compute_intv) {
+                m_lower = -u;
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_UPPER1;
+            }
         }
-        m_upper = -1.0;
-        numeric_traits<T>::set_rounding(true);
-        numeric_traits<T>::csc(m_lower);
-        m_lower = -m_lower;
-        lean_assert(check_invariant());
+        if(compute_intv) {
+            m_upper = -1.0;
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::csc(m_lower);
+            m_lower = -m_lower;
+            lean_assert(check_invariant());
+        }
+        if(compute_deps) {
+            deps.m_upper_deps = 0;
+        }
         return;
     }
     // 3/2pi <= l <= u < 2pi
     // csc[l, u] = [csc(u), csc(l)]
     //           = [-csc(-u), csc(l)]
-    m_lower = -u;
-    m_upper = l;
-    numeric_traits<T>::set_rounding(true);
-    numeric_traits<T>::csc(m_lower);
-    numeric_traits<T>::csc(m_upper);
-    m_lower = -m_lower;
-    lean_assert(check_invariant());
+    if(compute_intv) {
+        m_lower = -u;
+        m_upper = l;
+        numeric_traits<T>::set_rounding(true);
+        numeric_traits<T>::csc(m_lower);
+        numeric_traits<T>::csc(m_upper);
+        m_lower = -m_lower;
+        lean_assert(check_invariant());
+    }
+    if(compute_deps) {
+        deps.m_lower_deps = DEP_IN_UPPER1;
+        deps.m_upper_deps = DEP_IN_LOWER1;
+    }
     return;
 }
 
-template<typename T> void interval<T>::sec  () {
-    *this += interval<T>(numeric_traits<T>::pi_half_lower(), numeric_traits<T>::pi_half_upper());
-    csc();
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+void interval<T>::sec  (interval_deps & deps) {
+    if(compute_intv) {
+        *this += interval<T>(numeric_traits<T>::pi_half_lower(), numeric_traits<T>::pi_half_upper());
+    }
+    csc<compute_intv, compute_deps>(deps);
     return;
 }
 
-template<typename T> void interval<T>::cot  () {
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+void interval<T>::cot  (interval_deps & deps) {
     static thread_local T l;
     static thread_local T u;
-    l = m_lower;
-    u = m_upper;
+    if(compute_intv) {
+        l = m_lower;
+        u = m_upper;
+    }
     if(m_lower_inf || m_upper_inf) {
         // cot([-oo, c]) = [-oo, +oo]
         // cot([c, +oo]) = [-oo, +oo]
-        numeric_traits<T>::reset(m_lower);
-        numeric_traits<T>::reset(m_upper);
-        m_lower_open = m_upper_open = true;
-        m_lower_inf  = m_upper_inf = true;
-        lean_assert(check_invariant());
+        if(compute_intv) {
+            numeric_traits<T>::reset(m_lower);
+            numeric_traits<T>::reset(m_upper);
+            m_lower_open = m_upper_open = true;
+            m_lower_inf  = m_upper_inf = true;
+            lean_assert(check_invariant());
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = deps.m_upper_deps = 0;
+        }
         return;
     }
     fmod(interval<T>(numeric_traits<T>::pi_lower(), numeric_traits<T>::pi_upper()));
-//    fmod(numeric_traits<T>::pi_lower());
     if (m_upper >= numeric_traits<T>::pi()) {
-        numeric_traits<T>::reset(m_lower);
-        numeric_traits<T>::reset(m_upper);
-        m_lower_open = m_upper_open = true;
-        m_lower_inf  = m_upper_inf = true;
-        lean_assert(check_invariant());
+        if(compute_intv) {
+            numeric_traits<T>::reset(m_lower);
+            numeric_traits<T>::reset(m_upper);
+            m_lower_open = m_upper_open = true;
+            m_lower_inf  = m_upper_inf = true;
+            lean_assert(check_invariant());
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = deps.m_upper_deps = 0;
+        }
         return;
     }
 
     // cot([l, u]) = [cot_d(u), cot_u(l)]
     //            = [-cot_u(-u), cot_u(l)]
-    m_lower = - u;
-    m_upper = l;
-    numeric_traits<T>::set_rounding(true);
-    numeric_traits<T>::cot(m_lower);
-    numeric_traits<T>::cot(m_upper);
-    m_lower = - m_lower;
-
-    lean_assert(check_invariant());
+    if(compute_intv) {
+        m_lower = - u;
+        m_upper = l;
+        numeric_traits<T>::set_rounding(true);
+        numeric_traits<T>::cot(m_lower);
+        numeric_traits<T>::cot(m_upper);
+        m_lower = - m_lower;
+        lean_assert(check_invariant());
+    }
+    if(compute_deps) {
+        deps.m_lower_deps = DEP_IN_UPPER1;
+        deps.m_upper_deps = DEP_IN_LOWER1;
+    }
     return;
 }
 
-template<typename T> void interval<T>::asin () {
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+void interval<T>::asin (interval_deps & deps) {
     lean_assert(lower_kind() == XN_NUMERAL && upper_kind() == XN_NUMERAL);
     lean_assert(-1.0 <= m_lower && m_upper <= 1.0);
 
     // aisn([l, u]) = [asin_d(l), asin_u(u)]
     //              = [-asin_u(-l), asin_u(u)]
-    numeric_traits<T>::set_rounding(true);
-    numeric_traits<T>::asin(m_upper);
-    m_lower = -m_lower;
-    numeric_traits<T>::asin(m_lower);
-    m_lower = -m_lower;
-    lean_assert(check_invariant());
+    if(compute_intv) {
+        numeric_traits<T>::set_rounding(true);
+        numeric_traits<T>::asin(m_upper);
+        m_lower = -m_lower;
+        numeric_traits<T>::asin(m_lower);
+        m_lower = -m_lower;
+        lean_assert(check_invariant());
+    }
+    if(compute_deps) {
+        deps.m_lower_deps = DEP_IN_LOWER1;
+        deps.m_upper_deps = DEP_IN_UPPER1;
+    }
     return;
 }
-template<typename T> void interval<T>::acos () {
+
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+void interval<T>::acos (interval_deps & deps) {
     lean_assert(lower_kind() == XN_NUMERAL && upper_kind() == XN_NUMERAL);
     lean_assert(-1.0 <= m_lower && m_upper <= 1.0);
-    numeric_traits<T>::set_rounding(true);
-    numeric_traits<T>::acos(m_lower);
-    numeric_traits<T>::set_rounding(false);
-    numeric_traits<T>::acos(m_upper);
-    std::swap(m_lower, m_upper);
-    lean_assert(check_invariant());
+    if(compute_intv) {
+        numeric_traits<T>::set_rounding(true);
+        numeric_traits<T>::acos(m_lower);
+        numeric_traits<T>::set_rounding(false);
+        numeric_traits<T>::acos(m_upper);
+        std::swap(m_lower, m_upper);
+        lean_assert(check_invariant());
+    }
+    if(compute_deps) {
+        deps.m_lower_deps = DEP_IN_UPPER1;
+        deps.m_upper_deps = DEP_IN_LOWER1;
+    }
     return;
 }
-template<typename T> void interval<T>::atan () {
+
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+void interval<T>::atan (interval_deps & deps) {
     if(lower_kind() == XN_MINUS_INFINITY) {
-        m_lower = -1.0;
-        m_lower_open = false;
-        m_lower_inf = false;
+        if(compute_intv) {
+            m_lower = -1.0;
+            m_lower_open = false;
+            m_lower_inf = false;
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = 0;
+        }
     } else {
-        numeric_traits<T>::set_rounding(true);
-        m_lower = -m_lower;
-        numeric_traits<T>::atan(m_lower);
-        m_lower = -m_lower;
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(true);
+            m_lower = -m_lower;
+            numeric_traits<T>::atan(m_lower);
+            m_lower = -m_lower;
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = DEP_IN_LOWER1;
+        }
     }
 
     if(upper_kind() == XN_MINUS_INFINITY) {
-        m_upper = 1.0;
-        m_upper_open = false;
-        m_upper_inf = false;
+        if(compute_intv) {
+            m_upper = 1.0;
+            m_upper_open = false;
+            m_upper_inf = false;
+        }
+        if(compute_deps) {
+            deps.m_upper_deps = 0;
+        }
     } else {
-        numeric_traits<T>::set_rounding(true);
-        numeric_traits<T>::atan(m_upper);
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::atan(m_upper);
+        }
+        if(compute_deps) {
+            deps.m_upper_deps = DEP_IN_UPPER1;
+        }
     }
-    lean_assert(check_invariant());
+    if(compute_intv) {
+        lean_assert(check_invariant());
+    }
     return;
 }
-template<typename T> void interval<T>::sinh () {
+
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+void interval<T>::sinh (interval_deps & deps) {
     if(lower_kind() == XN_NUMERAL) {
-        numeric_traits<T>::set_rounding(true);
-        m_lower = -m_lower;
-        numeric_traits<T>::sinh(m_lower);
-        m_lower = -m_lower;
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(true);
+            m_lower = -m_lower;
+            numeric_traits<T>::sinh(m_lower);
+            m_lower = -m_lower;
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = DEP_IN_LOWER1;
+        }
     }
     if(upper_kind() == XN_NUMERAL) {
-        numeric_traits<T>::set_rounding(true);
-        numeric_traits<T>::sinh(m_upper);
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::sinh(m_upper);
+        }
+        if(compute_deps) {
+            deps.m_upper_deps = DEP_IN_UPPER1;
+        }
     }
-    lean_assert(check_invariant());
+    if(compute_intv) {
+        lean_assert(check_invariant());
+    }
     return;
 }
-template<typename T> void interval<T>::cosh () {
+
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+void interval<T>::cosh (interval_deps & deps) {
     if(lower_kind() == XN_NUMERAL && upper_kind() == XN_NUMERAL) {
         if(numeric_traits<T>::is_pos(m_lower) || numeric_traits<T>::is_zero(m_lower)) {
             // [a, b] where 0 <= a <= b
-            numeric_traits<T>::set_rounding(false);
-            numeric_traits<T>::cosh(m_lower);
-            numeric_traits<T>::set_rounding(true);
-            numeric_traits<T>::cosh(m_upper);
-            lean_assert(check_invariant());
+            if(compute_intv) {
+                numeric_traits<T>::set_rounding(false);
+                numeric_traits<T>::cosh(m_lower);
+                numeric_traits<T>::set_rounding(true);
+                numeric_traits<T>::cosh(m_upper);
+                lean_assert(check_invariant());
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_LOWER1;
+                deps.m_upper_deps = DEP_IN_UPPER1;
+            }
             return;
         }
         if(numeric_traits<T>::is_neg(m_upper) || numeric_traits<T>::is_zero(m_upper)) {
             // [a, b] where a <= b < 0
-            std::swap(m_lower, m_upper);
-            numeric_traits<T>::set_rounding(false);
-            numeric_traits<T>::cosh(m_lower);
-            numeric_traits<T>::set_rounding(true);
-            numeric_traits<T>::cosh(m_upper);
-            lean_assert(check_invariant());
+            if(compute_intv) {
+                std::swap(m_lower, m_upper);
+                numeric_traits<T>::set_rounding(false);
+                numeric_traits<T>::cosh(m_lower);
+                numeric_traits<T>::set_rounding(true);
+                numeric_traits<T>::cosh(m_upper);
+                lean_assert(check_invariant());
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_UPPER1;
+                deps.m_upper_deps = DEP_IN_LOWER1;
+            }
             return;
         }
         // [a,b] where a < 0 < b
-        m_lower = 1.0;
-        m_lower_open = false;
-        m_upper = m_upper > m_lower ? m_upper : m_lower;
-        numeric_traits<T>::set_rounding(true);
-        numeric_traits<T>::cosh(m_upper);
-        lean_assert(check_invariant());
+        if(m_lower + m_upper < 0.0) {
+            if(compute_intv) {
+                m_upper = m_lower;
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = 0;
+                deps.m_upper_deps = DEP_IN_LOWER1;
+            }
+        } else {
+            // Nothing
+            if(compute_deps) {
+                deps.m_upper_deps = 0;
+                deps.m_upper_deps = DEP_IN_UPPER1;
+            }
+        }
+        if(compute_intv) {
+            m_lower = 1.0;
+            m_lower_open = false;
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::cosh(m_upper);
+            lean_assert(check_invariant());
+        }
         return;
     }
     if(lower_kind() == XN_NUMERAL) {
@@ -1524,101 +2006,279 @@ template<typename T> void interval<T>::cosh () {
         lean_assert(upper_kind() == XN_PLUS_INFINITY);
         if(numeric_traits<T>::is_pos(m_lower)) {
             // [c, +oo] where 0 < c < +oo
-            numeric_traits<T>::set_rounding(false);
-            numeric_traits<T>::cosh(m_lower);
-            lean_assert(check_invariant());
+            if(compute_intv) {
+                numeric_traits<T>::set_rounding(false);
+                numeric_traits<T>::cosh(m_lower);
+                lean_assert(check_invariant());
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_LOWER1;
+                deps.m_upper_deps = 0;
+            }
             return;
         } else {
             // [c, +oo] where c <= 0 < +oo
-            m_lower = 1.0;
-            m_lower_open = false;
-            lean_assert(check_invariant());
+            if(compute_intv) {
+                m_lower = 1.0;
+                m_lower_open = false;
+                lean_assert(check_invariant());
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = deps.m_upper_deps = 0;
+            }
             return;
         }
     }
     if(upper_kind() == XN_NUMERAL) {
         // [-oo,c]
         lean_assert(lower_kind() == XN_MINUS_INFINITY);
-        m_upper_inf = true;
-        m_upper_open = true;
+        if(compute_intv) {
+            m_upper_inf = true;
+            m_upper_open = true;
+        }
         if(numeric_traits<T>::is_pos(m_upper)) {
             // [-oo, c] where -oo < 0 < c
-            m_lower = 1.0;
-            m_lower_open = false;
-            lean_assert(check_invariant());
+            if(compute_intv) {
+                m_lower = 1.0;
+                m_lower_open = false;
+                lean_assert(check_invariant());
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = deps.m_upper_deps = 0;
+            }
             return;
         } else {
             // [-oo, c] where -oo < c <= 0
-            m_lower = m_upper;
-            numeric_traits<T>::set_rounding(false);
-            numeric_traits<T>::cosh(m_lower);
-            lean_assert(check_invariant());
+            if(compute_intv) {
+                m_lower = m_upper;
+                numeric_traits<T>::set_rounding(false);
+                numeric_traits<T>::cosh(m_lower);
+                lean_assert(check_invariant());
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_UPPER1;
+                deps.m_upper_deps = 0;
+            }
             return;
         }
     }
     lean_assert(lower_kind() == XN_MINUS_INFINITY && upper_kind() == XN_PLUS_INFINITY);
-    // cosh((-oo, +oo)) = [0, +oo)
-    m_upper_open = true;
-    m_upper_inf = true;
-    m_lower = 1.0;
-    m_lower_open = false;
-    m_lower_inf = false;
-    lean_assert(check_invariant());
+    // cosh((-oo, +oo)) = [1.0, +oo)
+    if(compute_intv) {
+        m_upper_open = true;
+        m_upper_inf = true;
+        m_lower = 1.0;
+        m_lower_open = false;
+        m_lower_inf = false;
+        lean_assert(check_invariant());
+    }
+    if(compute_deps) {
+        deps.m_lower_deps = 0;
+        deps.m_upper_deps = 0;
+    }
     return;
 }
-template<typename T> void interval<T>::tanh () {
+
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+void interval<T>::tanh (interval_deps & deps) {
+    if(compute_deps) {
+        deps.m_lower_deps = deps.m_upper_deps = 0;
+    }
+
     if(lower_kind() == XN_NUMERAL) {
-        numeric_traits<T>::set_rounding(true);
-        m_lower = -m_lower;
-        numeric_traits<T>::tanh(m_lower);
-        m_lower = -m_lower;
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(true);
+            m_lower = -m_lower;
+            numeric_traits<T>::tanh(m_lower);
+            m_lower = -m_lower;
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = DEP_IN_LOWER1;
+        }
     }
     if(upper_kind() == XN_NUMERAL) {
-        numeric_traits<T>::set_rounding(true);
-        numeric_traits<T>::tanh(m_upper);
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::tanh(m_upper);
+        }
+        if(compute_deps) {
+            deps.m_upper_deps = DEP_IN_UPPER1;
+        }
     }
-    lean_assert(check_invariant());
+    if(compute_intv) {
+        lean_assert(check_invariant());
+    }
     return;
 }
-template<typename T> void interval<T>::asinh() {
+
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+void interval<T>::asinh(interval_deps & deps) {
+    if(compute_deps) {
+        deps.m_lower_deps = deps.m_upper_deps = 0;
+    }
     if(lower_kind() == XN_NUMERAL) {
-        numeric_traits<T>::set_rounding(true);
-        m_lower = -m_lower;
-        numeric_traits<T>::asinh(m_lower);
-        m_lower = -m_lower;
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(true);
+            m_lower = -m_lower;
+            numeric_traits<T>::asinh(m_lower);
+            m_lower = -m_lower;
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = DEP_IN_LOWER1;
+        }
     }
     if(upper_kind() == XN_NUMERAL) {
-        numeric_traits<T>::set_rounding(true);
-        numeric_traits<T>::asinh(m_upper);
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::asinh(m_upper);
+        }
+        if(compute_deps) {
+            deps.m_upper_deps = DEP_IN_UPPER1;
+        }
     }
-    lean_assert(check_invariant());
+    if(compute_intv) {
+        lean_assert(check_invariant());
+    }
     return;
 }
-template<typename T> void interval<T>::acosh() {
+
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+void interval<T>::acosh(interval_deps & deps) {
     lean_assert(lower_kind() == XN_NUMERAL && m_lower >= 1.0);
-    numeric_traits<T>::set_rounding(false);
-    numeric_traits<T>::acosh(m_lower);
-    if(upper_kind() == XN_NUMERAL) {
-        numeric_traits<T>::set_rounding(true);
-        numeric_traits<T>::acosh(m_upper);
+    if(compute_intv) {
+        numeric_traits<T>::set_rounding(false);
+        numeric_traits<T>::acosh(m_lower);
     }
-    lean_assert(check_invariant());
+    if(compute_deps) {
+        deps.m_lower_deps = DEP_IN_LOWER1;
+    }
+    if(upper_kind() == XN_NUMERAL) {
+        if(compute_intv) {
+            numeric_traits<T>::set_rounding(true);
+            numeric_traits<T>::acosh(m_upper);
+        }
+        if(compute_deps) {
+            deps.m_upper_deps = DEP_IN_UPPER1;
+        }
+    } else {
+        // upper_kind() == +oo
+        if(compute_deps) {
+            deps.m_upper_deps = 0;
+        }
+    }
+    if(compute_intv) {
+        lean_assert(check_invariant());
+    }
     return;
 }
-template<typename T> void interval<T>::atanh() {
+
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+void interval<T>::atanh(interval_deps & deps) {
     lean_assert(lower_kind() == XN_NUMERAL && m_lower >= -1.0);
     lean_assert(upper_kind() == XN_NUMERAL && m_upper <= 1.0);
-    if(lower_kind() == XN_NUMERAL) {
+
+    if(compute_intv) {
         numeric_traits<T>::set_rounding(true);
         m_lower = -m_lower;
         numeric_traits<T>::atanh(m_lower);
         m_lower = -m_lower;
-    }
-    if(upper_kind() == XN_NUMERAL) {
         numeric_traits<T>::set_rounding(true);
         numeric_traits<T>::atanh(m_upper);
+        lean_assert(check_invariant());
     }
-    lean_assert(check_invariant());
+    if(compute_deps) {
+        deps.m_lower_deps = DEP_IN_LOWER1;
+        deps.m_upper_deps = DEP_IN_UPPER1;
+    }
+    return;
+}
+
+template<typename T> void interval<T>::exp_jst(interval_deps & deps) {
+    exp<false, true>(deps);
+    return;
+}
+template<typename T> void interval<T>::exp2_jst(interval_deps & deps) {
+    exp2<false, true>(deps);
+    return;
+}
+template<typename T> void interval<T>::exp10_jst(interval_deps & deps) {
+    exp10<false, true>(deps);
+    return;
+}
+template<typename T> void interval<T>::log_jst(interval_deps & deps) {
+    log<false, true>(deps);
+    return;
+}
+template<typename T> void interval<T>::log2_jst(interval_deps & deps) {
+    log2<false, true>(deps);
+    return;
+}
+template<typename T> void interval<T>::log10_jst(interval_deps & deps) {
+    log10<false, true>(deps);
+    return;
+}
+template<typename T> void interval<T>::sin_jst(interval_deps & deps) {
+    sin<false, true>(deps);
+    return;
+}
+template<typename T> void interval<T>::cos_jst(interval_deps & deps) {
+    cos<false, true>(deps);
+    return;
+}
+template<typename T> void interval<T>::tan_jst(interval_deps & deps) {
+    tan<false, true>(deps);
+    return;
+}
+template<typename T> void interval<T>::csc_jst(interval_deps & deps) {
+    csc<false, true>(deps);
+    return;
+}
+template<typename T> void interval<T>::sec_jst(interval_deps & deps) {
+    sec<false, true>(deps);
+    return;
+}
+template<typename T> void interval<T>::cot_jst(interval_deps & deps) {
+    cot<false, true>(deps);
+    return;
+}
+template<typename T> void interval<T>::asin_jst(interval_deps & deps) {
+    asin<false, true>(deps);
+    return;
+}
+template<typename T> void interval<T>::acos_jst(interval_deps & deps) {
+    acos<false, true>(deps);
+    return;
+}
+template<typename T> void interval<T>::atan_jst(interval_deps & deps) {
+    atan<false, true>(deps);
+    return;
+}
+template<typename T> void interval<T>::sinh_jst(interval_deps & deps) {
+    sinh<false, true>(deps);
+    return;
+}
+template<typename T> void interval<T>::cosh_jst(interval_deps & deps) {
+    cosh<false, true>(deps);
+    return;
+}
+template<typename T> void interval<T>::tanh_jst(interval_deps & deps) {
+    tanh<false, true>(deps);
+    return;
+}
+template<typename T> void interval<T>::asinh_jst(interval_deps & deps) {
+    asinh<false, true>(deps);
+    return;
+}
+template<typename T> void interval<T>::acosh_jst(interval_deps & deps) {
+    acosh<false, true>(deps);
+    return;
+}
+template<typename T> void interval<T>::atanh_jst(interval_deps & deps) {
+    atanh<false, true>(deps);
     return;
 }
 }

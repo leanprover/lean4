@@ -307,8 +307,10 @@ scanner::token scanner::read_string() {
             c = curr();
             if (c == EOF)
                 throw_exception("unexpected end of string");
-            if (c != '\\' && c != '\"')
+            if (c != '\\' && c != '\"' && c != 'n')
                 throw_exception("invalid escape sequence");
+            if (c == 'n')
+                c = '\n';
         }
         m_buffer += c;
         next();

@@ -38,10 +38,11 @@ static name g_postfix_kwd("Postfix");
 static name g_mixfixl_kwd("Mixfixl");
 static name g_mixfixr_kwd("Mixfixr");
 static name g_mixfixc_kwd("Mixfixc");
+static name g_echo_kwd("Echo");
 /** \brief Table/List with all builtin command keywords */
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
                                         g_show_kwd, g_check_kwd, g_env_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_prefix_kwd,
-                                        g_postfix_kwd, g_mixfixl_kwd, g_mixfixr_kwd, g_mixfixc_kwd};
+                                        g_postfix_kwd, g_mixfixl_kwd, g_mixfixr_kwd, g_mixfixc_kwd, g_echo_kwd};
 // ==========================================
 
 // ==========================================
@@ -121,6 +122,8 @@ class parser_fn {
     name const & curr_name() const { return m_scanner.get_name_val(); }
     /** \brief Return the numeral associated with the current token. */
     mpq const & curr_num() const { return m_scanner.get_num_val(); }
+    /** \brief Return the string associated with the current token. */
+    std::string const & curr_string() const { return m_scanner.get_str_val(); }
 
     /**
         \brief Check if the current token is \c t, and move to the
@@ -167,6 +170,11 @@ class parser_fn {
     void check_name(name const & op, char const * msg) { if(!curr_is_identifier() || curr_name() != op) throw parser_error(msg); }
     /** \brief Throws a parser error if the current token is not an identifier named \c op. If it is, move to the next token. */
     void check_name_next(name const & op, char const * msg) { check_name(op, msg); next(); }
+    /**
+        \brief Throws a parser error if the current token is not a
+        string. If it is, move to the next token.
+    */
+    std::string check_string_next(char const * msg) { if (curr() != scanner::token::StringVal) throw parser_error(msg); std::string r = curr_string(); next(); return r; }
 
     /** \brief Initialize \c m_builtins table with Lean builtin symbols that do not have notation associated with them. */
     void init_builtins() {
@@ -914,6 +922,12 @@ class parser_fn {
         }
     }
 
+    void parse_echo() {
+        next();
+        std::string msg = check_string_next("invalid echo command, string expected");
+        (*m_out) << msg << std::endl;
+    }
+
     /** \brief Parse a Lean command. */
     void parse_command() {
         name const & cmd_id = curr_name();
@@ -933,6 +947,7 @@ class parser_fn {
         else if (cmd_id == g_mixfixl_kwd)  parse_mixfix_op(fixity::Mixfixl);
         else if (cmd_id == g_mixfixr_kwd)  parse_mixfix_op(fixity::Mixfixr);
         else if (cmd_id == g_mixfixc_kwd)  parse_mixfix_op(fixity::Mixfixc);
+        else if (cmd_id == g_echo_kwd)     parse_echo();
         else { lean_unreachable(); }
     }
     /*@}*/

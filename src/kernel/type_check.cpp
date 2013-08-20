@@ -20,6 +20,7 @@ class type_checker::imp {
 
     environment     m_env;
     cache           m_cache;
+    normalizer      m_normalizer;
     volatile bool   m_interrupted;
 
     expr lookup(context const & c, unsigned i) {
@@ -33,7 +34,7 @@ class type_checker::imp {
     expr check_pi(expr const & e, expr const & s, context const & ctx) {
         if (is_pi(e))
             return e;
-        expr r = normalize(e, m_env, ctx);
+        expr r = m_normalizer(e, ctx);
         if (is_pi(r))
             return r;
         throw function_expected_exception(m_env, ctx, s);
@@ -45,12 +46,13 @@ class type_checker::imp {
 
 public:
     imp(environment const & env):
-        m_env(env) {
+        m_env(env),
+        m_normalizer(env) {
         m_interrupted = false;
     }
 
     level infer_universe(expr const & t, context const & ctx) {
-        expr u = normalize(infer_type(t, ctx), m_env, ctx);
+        expr u = m_normalizer(infer_type(t, ctx), ctx);
         if (is_type(u))
             return ty_level(u);
         if (u == Bool)
@@ -88,7 +90,7 @@ public:
             while (true) {
                 expr const & c = arg(e, i);
                 expr c_t       = infer_type(c, ctx);
-                if (!is_convertible(abst_domain(f_t), c_t, m_env, ctx))
+                if (!m_normalizer.is_convertible(abst_domain(f_t), c_t, ctx))
                     throw app_type_mismatch_exception(m_env, ctx, e, i, abst_domain(f_t), c_t);
                 if (closed(abst_body(f_t)))
                     f_t = abst_body(f_t);
@@ -151,10 +153,12 @@ public:
 
     void set_interrupt(bool flag) {
         m_interrupted = true;
+        m_normalizer.set_interrupt(flag);
     }
 
     void clear() {
         m_cache.clear();
+        m_normalizer.clear();
     }
 };
 

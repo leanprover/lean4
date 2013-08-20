@@ -3,8 +3,6 @@ env:
   global:
   - secure: "W8vou0KRJOOboZXP9q+D/9Wl6LlBeVS2T85MHWPz7EwCMQbJq5xWnGzYLE6FmC0iILcZkXyP63vqoYMFo5MJaEQeALGx2RuIiW7XgrD+7Bn4Vfsp6BLT7K9/AJETGGTQnLs8oZJJCXHGtzbc8EPFIZd/ZPPrve4jhEE5ZNhXnRc="
   matrix:
-  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG   USE_TCMALLOC=FALSE LCOV=TRUE
-  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG   USE_TCMALLOC=FALSE DOXYGEN=TRUE
   - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG   USE_TCMALLOC=TRUE
   - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG   USE_TCMALLOC=FALSE
   - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE USE_TCMALLOC=TRUE  UPLOAD=osx
@@ -13,7 +11,7 @@ env:
 before_script:
 - mkdir -p build
 - cd build
-- CPLUS_INCLUDE_PATH=/usr/local/include/c++/4.8.1/:/usr/local/include/c++/4.8.1/x86_64-apple-darwin12.4.0:/usr/local/include/c++/4.8.1/bits/
+- CPLUS_INCLUDE_PATH=/usr/local/include/c++/4.9.0/:/usr/local/include/c++/4.9.0/x86_64-apple-darwin12.4.0:/usr/local/include/c++/4.9.0/bits/
 - export CPLUS_INCLUDE_PATH
 - LIBRARY_PATH=/usr/local/lib
 - export LIBRARY_PATH
@@ -21,46 +19,34 @@ before_script:
 - cd ..
 
 script:
-- if [[ -z $LCOV && -z $DOXYGEN ]]; then
-      cd build;
-      ninja && yes "C" | ctest -T test -VV;
-      cd ..;
-  fi
+- cd build
+- ninja && yes "C" | ctest -T test -VV
+- cd ..
 
 after_script:
-- if [[ $DOXYGEN == TRUE ]]; then
-      brew install doxygen graphviz;
-      script/doxygen.sh;
-      brew install python;
-      pip install dropbox;
-      script/dropbox_upload.py doc /Public/doc ${DROPBOX_KEY};
-  fi
-- if [[ $LCOV == TRUE ]]; then
-      brew install lcov;
-      script/lcov.sh;
-      brew install python;
-      pip install dropbox;
-      script/dropbox_upload.py build/testcov/lcov /Public/lcov ${DROPBOX_KEY};
-  fi
 - if [[ $UPLOAD ]]; then
       UPLOAD_DIR=bin;
       BINARY=lean_${UPLOAD};
       mkdir ${UPLOAD_DIR};
       cp build/shell/lean ${UPLOAD_DIR}/${BINARY};
-      brew install python; pip install dropbox;
       script/dropbox_upload.py ${UPLOAD_DIR} /Public/${UPLOAD_DIR} ${DROPBOX_KEY};
   fi
 
 install:
 - if [[ $CMAKE_CXX_COMPILER == g++ ]]; then
       cd /;
-      wget https://dl.dropboxusercontent.com/u/203889738/gcc/gcc-4.8.1_gmp-5.1.2_mpfr-3.1.2.tar.gz -O /tmp/gcc-mlion.tar.gz;
+      wget http://dl.dropboxusercontent.com/u/203889738/gcc/gcc-4.9.0_OSX.tar.gz -O /tmp/gcc-mlion.tar.gz;
       sudo tar xvfz /tmp/gcc-mlion.tar.gz;
       cd -;
+      sudo chown -R `whoami` /usr/local;
+      brew install gmp; brew link --overwrite gmp;
+      brew install mpfr; brew link --overwrite mpfr;
   fi
-- sudo chown -R `whoami` /usr/local
 - brew install cmake ninja
 - if [[ $USE_TCMALLOC == TRUE ]]; then brew install google-perftools; fi
+- if [[ $UPLOAD ]]; then
+      brew install python; pip install dropbox;
+  fi
 
 notifications:
   email:

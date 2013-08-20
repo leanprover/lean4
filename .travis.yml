@@ -1,11 +1,29 @@
 language: cpp
 
 env:
+  global:
+   # BBTOKEN
+   - secure: "gBp3VTkChQflgWBoEnHhA2y7+KCdHS8u+uqij6kh4v+I5bj/Bu7uEeqMDZwmRRoTkrDu6eYHxCJQOr9ODAVc2BP4Y8zUFWuVKUrkvP9Qeeqe/X+7WFuQSHMy3yC5ESb8LVdiy4aAQuSt0sHC0M3BdnBMTZ9Ergkcc9lmW6bu9XQ="
+   # GH_TOKEN
+   - secure: "Zdab8c1wnKcwYWEVBvtaClCzw7sYmFPZ47urG4jSeO5FL+M4MiR6c7STeoW7wge9k3uUyMTAodD/bJ0RhskBp0wbvg0UoYQaFRm+RwsDiM7CNj+fYM8wnV0cvTJj869NsqQ92zde6L5gFEHNDrVUwC6PJpIC4JxRRfzIA4/qH5A="
+   # DROPBOX_KEY
+   - secure: "b9qdjrlr2khvQclMg12Fjg0DF3Chv46SdNRymK7cPukAhIaqaPn8g0FL4K9xW/asXRXdWcd3dYBoarjkqX43mNV9nl5Hl2VwV7T6KeGAxQSRqdYioMugIY0P8xrj4i5dwuvt8aqSlCctSozE1e/th8EWjjy6TWi890MJB//NGRE="
+
   matrix:
+   - CMAKE_CXX_COMPILER=g++-4.8
+     CMAKE_BUILD_TYPE=TESTCOV
+     TESTCOV_TOOL=gcov-4.8
+     USE_TCMALLOC=TRUE
+     DROPBOX=TRUE
+     TRIGGER_BB=TRUE
+     TRIGGER_OSX=TRUE
+   - CMAKE_CXX_COMPILER=g++-4.8
+     CMAKE_BUILD_TYPE=DOXYGEN
+     BUILD_DOXYGEN=TRUE
+     DROPBOX=TRUE
    - CMAKE_CXX_COMPILER=clang++-3.3
      CMAKE_BUILD_TYPE=DEBUG
      USE_TCMALLOC=TRUE
-     BUILD_DOXYGEN=FALSE
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=DEBUG
      USE_TCMALLOC=TRUE
@@ -15,6 +33,8 @@ env:
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=RELEASE
      USE_TCMALLOC=TRUE
+     DROPBOX=TRUE
+     UPLOAD=linux_tcmalloc
    - CMAKE_CXX_COMPILER=clang++-3.3
      CMAKE_BUILD_TYPE=DEBUG
      USE_TCMALLOC=FALSE
@@ -27,18 +47,24 @@ env:
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=RELEASE
      USE_TCMALLOC=FALSE
+     DROPBOX=TRUE
+     UPLOAD=linux
 
 before_script:
-  - mkdir -p build
-  - cd build
-  - cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ../src
-
-script:
-  - make && yes "C" | ctest -T test -VV
-
-after_success:
-  - cd ..
-  - if [[ $BUILD_DOXYGEN == TRUE ]]; then ./script/update_doxygen.sh; fi
+  - if [[ $TRIGGER_BB == TRUE ]]; then
+        git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/soonhok/lean.git +master;
+    fi
+  - if [[ $TRIGGER_OSX == TRUE ]]; then
+        MSG=`git log --pretty=oneline --abbrev-commit -n 1 | cut -d ' ' -f 2-`;
+        cp .travis.yml /tmp/.travis.temp.yml;
+        cp .travis.osx.yml .travis.yml;
+        git config --global user.email "notifications@travis-ci.org";
+        git config --global user.name "Travis CI";
+        git add .travis.yml;
+        git commit -m "$MSG";
+        git push -q https://soonhokong:${GH_TOKEN}@github.com/soonhokong/lean-osx.git +HEAD:master;
+        mv /tmp/.travis.temp.yml .travis.yml;
+    fi
 
 install:
   - until sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test; do echo retry; done
@@ -51,6 +77,48 @@ install:
   - until sudo apt-get -qq install libstdc++-4.8-dev; do echo retry; done
   - if [[ $CMAKE_CXX_COMPILER == g++-4.8 ]]; then until sudo apt-get -qq install g++-4.8; do echo retry; done fi
   - if [[ $CMAKE_CXX_COMPILER == clang++-3.3 ]]; then until sudo apt-get -qq install clang-3.3; do echo retry; done fi
+  - if [[ $CMAKE_BUILD_TYPE == TESTCOV ]]; then
+       wget http://downloads.sourceforge.net/ltp/lcov-1.10.tar.gz;
+       tar xvfz lcov-1.10.tar.gz;
+       mkdir ~/bin;
+       cp -v lcov-1.10/bin/{lcov,genpng,gendesc,genhtml,geninfo} ~/bin/;
+       rm -rf lcov-1.10.tar.gz lcov-1.10;
+    fi
+  - if [[ $DROPBOX == TRUE ]]; then
+       sudo apt-get -qq install python python-pip;
+       sudo pip install dropbox;
+    fi
+  - if [[ $BUILD_DOXYGEN == TRUE ]]; then
+       sudo apt-get -qq install doxygen graphviz;
+    fi
+
+script:
+  - if [[ $CMAKE_BUILD_TYPE == DEBUG || $CMAKE_BUILD_TYPE == RELEASE ]]; then
+        mkdir -p build;
+        cd build;
+        cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ../src;
+        make && yes "C" | ctest -T test -VV;
+    fi
+
+after_script:
+- if [[ $CMAKE_BUILD_TYPE == DEBUG ]] || [[ $CMAKE_BUILD_TYPE == RELEASE ]]; then
+      cd ..;
+  fi
+- if [[ $BUILD_DOXYGEN == TRUE ]]; then
+      script/doxygen.sh;
+      script/dropbox_upload.py doc /Public/doc ${DROPBOX_KEY};
+  fi
+- if [[ $CMAKE_BUILD_TYPE == TESTCOV ]]; then
+      script/lcov.sh ${CMAKE_CXX_COMPILER} ${TESTCOV_TOOL};
+      script/dropbox_upload.py build/testcov/lcov /Public/lcov ${DROPBOX_KEY};
+  fi
+- if [[ $UPLOAD ]]; then
+      UPLOAD_DIR=bin;
+      BINARY=lean_${UPLOAD};
+      mkdir ${UPLOAD_DIR};
+      cp build/shell/lean ${UPLOAD_DIR}/${BINARY};
+      script/dropbox_upload.py ${UPLOAD_DIR} /Public/${UPLOAD_DIR} ${DROPBOX_KEY};
+  fi
 
 notifications:
   email:

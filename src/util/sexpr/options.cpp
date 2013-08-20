@@ -91,7 +91,7 @@ static char const * g_arrow               = "\u21a6";
 
 options options::update(name const & n, sexpr const & v) const {
     if (contains(n)) {
-        return map(m_value, [&](sexpr const & p) {
+        return map(m_value, [&](sexpr p) {
                 if (to_name(car(p)) == n)
                     return cons(car(p), v);
                 else

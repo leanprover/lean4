@@ -14,7 +14,7 @@ namespace lean {
 class environment;
 /** \brief Functional object for normalizing expressions */
 class normalizer {
-    struct imp;
+    class imp;
     std::unique_ptr<imp> m_ptr;
 public:
     normalizer(environment const & env);

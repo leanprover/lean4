@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 namespace lean {
 class environment;
 class type_checker {
-    struct imp;
+    class imp;
     std::unique_ptr<imp> m_ptr;
 public:
     type_checker(environment const & env);

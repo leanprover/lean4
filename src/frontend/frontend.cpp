@@ -19,12 +19,13 @@ struct frontend::imp {
     // Remark: only named objects are stored in the dictionary.
     typedef std::unordered_map<name, operator_info, name_hash, name_eq> operator_table;
     typedef std::unordered_map<name, unsigned, name_hash, name_eq> implicit_table;
+    typedef std::unordered_map<expr, operator_info, expr_hash, std::equal_to<expr>> expr_to_operator;
     std::atomic<unsigned> m_num_children;
     std::shared_ptr<imp>  m_parent;
     environment           m_env;
     operator_table        m_nud; // nud table for Pratt's parser
     operator_table        m_led; // led table for Pratt's parser
-    operator_table        m_name_to_operator; // map internal names to operators (this is used for pretty printing)
+    expr_to_operator      m_expr_to_operator; // map denotations to operators (this is used for pretty printing)
     implicit_table        m_implicit_table; // track the number of implicit arguments for a symbol.
 
     bool has_children() const { return m_num_children > 0; }
@@ -79,13 +80,13 @@ struct frontend::imp {
             insert(m_nud, op.get_op_name(), op);
     }
 
-    /** \brief Find the operator that is used as notation for the given internal symbol. */
-    operator_info find_op_for(name const & n) const {
-        auto it = m_name_to_operator.find(n);
-        if (it != m_name_to_operator.end())
+    /** \brief Find the operator that is used as notation for the given expression. */
+    operator_info find_op_for(expr const & e) const {
+        auto it = m_expr_to_operator.find(e);
+        if (it != m_expr_to_operator.end())
             return it->second;
         else if (has_parent())
-            return m_parent->find_op_for(n);
+            return m_parent->find_op_for(e);
         else
             return operator_info();
     }
@@ -98,23 +99,23 @@ struct frontend::imp {
         // TODO
     }
 
-    /** \brief Remove all internal operators that are associated with the given operator symbol (aka notation) */
+    /** \brief Remove all internal denotations that are associated with the given operator symbol (aka notation) */
     void remove_bindings(operator_info const & op) {
-        for (name const & n : op.get_internal_names()) {
-            if (has_parent() && m_parent->find_op_for(n)) {
-                // parent has a binding for n... we must hide it.
-                insert(m_name_to_operator, n, operator_info());
+        for (expr const & d : op.get_exprs()) {
+            if (has_parent() && m_parent->find_op_for(d)) {
+                // parent has an association for d... we must hide it.
+                insert(m_expr_to_operator, d, operator_info());
             } else {
-                m_name_to_operator.erase(n);
+                m_expr_to_operator.erase(d);
             }
         }
     }
 
     /** \brief Register the new operator in the tables for parsing and pretty printing. */
-    void register_new_op(operator_info new_op, name const & n, bool led) {
-        new_op.add_internal_name(n);
+    void register_new_op(operator_info new_op, expr const & d, bool led) {
+        new_op.add_expr(d);
         insert_op(new_op, led);
-        insert(m_name_to_operator, n, new_op);
+        insert(m_expr_to_operator, d, new_op);
     }
 
     /**
@@ -128,37 +129,37 @@ struct frontend::imp {
         2) It is a real conflict, and report the issue in the
         diagnostic channel, and override the existing operator (aka notation).
     */
-    void add_op(operator_info new_op, name const & n, bool led) {
+    void add_op(operator_info new_op, expr const & d, bool led) {
         name const & opn = new_op.get_op_name();
         operator_info old_op = find_op(opn, led);
         if (!old_op) {
-            register_new_op(new_op, n, led);
+            register_new_op(new_op, d, led);
         } else if (old_op == new_op) {
             // overload
             if (defined_here(old_op, led)) {
-                old_op.add_internal_name(n);
+                old_op.add_expr(d);
             } else {
                 // we must copy the operator because it was defined in
                 // a parent frontend.
                 new_op = old_op.copy();
-                register_new_op(new_op, n, led);
+                register_new_op(new_op, d, led);
             }
         } else {
             report_op_redefined(old_op, new_op);
             remove_bindings(old_op);
-            register_new_op(new_op, n, led);
+            register_new_op(new_op, d, led);
         }
-        m_env.add_neutral_object(new notation_declaration(new_op, n));
+        m_env.add_neutral_object(new notation_declaration(new_op, d));
     }
 
-    void add_infix(name const & opn, unsigned p, name const & n)  { add_op(infix(opn, p), n, true); }
-    void add_infixl(name const & opn, unsigned p, name const & n) { add_op(infixl(opn, p), n, true); }
-    void add_infixr(name const & opn, unsigned p, name const & n) { add_op(infixr(opn, p), n, true); }
-    void add_prefix(name const & opn, unsigned p, name const & n) { add_op(prefix(opn, p), n, false); }
-    void add_postfix(name const & opn, unsigned p, name const & n) { add_op(postfix(opn, p), n, true); }
-    void add_mixfixl(unsigned sz, name const * opns, unsigned p, name const & n) { add_op(mixfixl(sz, opns, p), n, false); }
-    void add_mixfixr(unsigned sz, name const * opns, unsigned p, name const & n) { add_op(mixfixr(sz, opns, p), n, true);  }
-    void add_mixfixc(unsigned sz, name const * opns, unsigned p, name const & n) { add_op(mixfixc(sz, opns, p), n, false); }
+    void add_infix(name const & opn, unsigned p, expr const & d)  { add_op(infix(opn, p), d, true); }
+    void add_infixl(name const & opn, unsigned p, expr const & d) { add_op(infixl(opn, p), d, true); }
+    void add_infixr(name const & opn, unsigned p, expr const & d) { add_op(infixr(opn, p), d, true); }
+    void add_prefix(name const & opn, unsigned p, expr const & d) { add_op(prefix(opn, p), d, false); }
+    void add_postfix(name const & opn, unsigned p, expr const & d) { add_op(postfix(opn, p), d, true); }
+    void add_mixfixl(unsigned sz, name const * opns, unsigned p, expr const & d) { add_op(mixfixl(sz, opns, p), d, false); }
+    void add_mixfixr(unsigned sz, name const * opns, unsigned p, expr const & d) { add_op(mixfixr(sz, opns, p), d, true);  }
+    void add_mixfixc(unsigned sz, name const * opns, unsigned p, expr const & d) { add_op(mixfixc(sz, opns, p), d, false); }
 
     imp(frontend & fe):
         m_num_children(0) {
@@ -211,15 +212,15 @@ frontend::object_iterator frontend::end_objects() const { return m_imp->m_env.en
 frontend::object_iterator frontend::begin_local_objects() const { return m_imp->m_env.begin_local_objects(); }
 frontend::object_iterator frontend::end_local_objects() const { return m_imp->m_env.end_local_objects(); }
 
-void frontend::add_infix(name const & opn, unsigned p, name const & n)  { m_imp->add_infix(opn, p, n); }
-void frontend::add_infixl(name const & opn, unsigned p, name const & n)  { m_imp->add_infixl(opn, p, n); }
-void frontend::add_infixr(name const & opn, unsigned p, name const & n)  { m_imp->add_infixr(opn, p, n); }
-void frontend::add_prefix(name const & opn, unsigned p, name const & n)  { m_imp->add_prefix(opn, p, n); }
-void frontend::add_postfix(name const & opn, unsigned p, name const & n) { m_imp->add_postfix(opn, p, n); }
-void frontend::add_mixfixl(unsigned sz, name const * opns, unsigned p, name const & n) { m_imp->add_mixfixl(sz, opns, p, n); }
-void frontend::add_mixfixr(unsigned sz, name const * opns, unsigned p, name const & n) { m_imp->add_mixfixr(sz, opns, p, n); }
-void frontend::add_mixfixc(unsigned sz, name const * opns, unsigned p, name const & n) { m_imp->add_mixfixc(sz, opns, p, n); }
-operator_info frontend::find_op_for(name const & n) const { return m_imp->find_op_for(n); }
+void frontend::add_infix(name const & opn, unsigned p, expr const & d)  { m_imp->add_infix(opn, p, d); }
+void frontend::add_infixl(name const & opn, unsigned p, expr const & d)  { m_imp->add_infixl(opn, p, d); }
+void frontend::add_infixr(name const & opn, unsigned p, expr const & d)  { m_imp->add_infixr(opn, p, d); }
+void frontend::add_prefix(name const & opn, unsigned p, expr const & d)  { m_imp->add_prefix(opn, p, d); }
+void frontend::add_postfix(name const & opn, unsigned p, expr const & d) { m_imp->add_postfix(opn, p, d); }
+void frontend::add_mixfixl(unsigned sz, name const * opns, unsigned p, expr const & d) { m_imp->add_mixfixl(sz, opns, p, d); }
+void frontend::add_mixfixr(unsigned sz, name const * opns, unsigned p, expr const & d) { m_imp->add_mixfixr(sz, opns, p, d); }
+void frontend::add_mixfixc(unsigned sz, name const * opns, unsigned p, expr const & d) { m_imp->add_mixfixc(sz, opns, p, d); }
+operator_info frontend::find_op_for(expr const & n) const { return m_imp->find_op_for(n); }
 operator_info frontend::find_nud(name const & n) const { return m_imp->find_nud(n); }
 operator_info frontend::find_led(name const & n) const { return m_imp->find_led(n); }
 }

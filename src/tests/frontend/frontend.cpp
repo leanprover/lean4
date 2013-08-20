@@ -28,17 +28,17 @@ static void tst2() {
     operator_info op2 = infixr(name("implies"), 20);
     lean_assert(op1.get_precedence() == 10);
     lean_assert(op1.get_fixity() == fixity::Infixl);
-    op1.add_internal_name(name{"Bool","And"});
+    op1.add_expr(mk_and_fn());
     operator_info op3 = infixl(name("+"), 10);
-    op3.add_internal_name(name{"Int", "plus"});
-    op3.add_internal_name(name{"Real", "plus"});
-    std::cout << op3.get_internal_names() << "\n";
-    lean_assert(length(op3.get_internal_names()) == 2);
+    op3.add_expr(Const(name{"Int", "plus"}));
+    op3.add_expr(Const(name{"Real", "plus"}));
+    std::cout << op3.get_exprs() << "\n";
+    lean_assert(length(op3.get_exprs()) == 2);
     operator_info op4 = op3.copy();
-    op4.add_internal_name(name{"Complex", "plus"});
-    std::cout << op4.get_internal_names() << "\n";
-    lean_assert(length(op3.get_internal_names()) == 2);
-    lean_assert(length(op4.get_internal_names()) == 3);
+    op4.add_expr(Const(name{"Complex", "plus"}));
+    std::cout << op4.get_exprs() << "\n";
+    lean_assert(length(op3.get_exprs()) == 2);
+    lean_assert(length(op4.get_exprs()) == 3);
     lean_assert(op4.get_fixity() == fixity::Infixl);
     lean_assert(op4.get_op_name() == op3.get_op_name());
     lean_assert(prefix("tst", 20).get_fixity() == fixity::Prefix);
@@ -120,7 +120,7 @@ static void tst7() {
 static void tst8() {
     frontend fe;
     formatter fmt = mk_pp_formatter(fe);
-    fe.add_infixl("<-$->", 10, const_name(mk_refl_fn()));
+    fe.add_infixl("<-$->", 10, mk_refl_fn());
     std::cout << fmt(fe.find_object("Trivial")) << "\n";
 }
 
@@ -152,9 +152,9 @@ static void tst9() {
     bool found = false;
     std::for_each(f.begin_objects(), f.end_objects(), [&](object const & obj) { if (obj.has_name() && obj.get_name() == "y") found = true; });
     lean_assert(found);
-    f.add_postfix("!", 10, "factorial");
+    f.add_postfix("!", 10, Const("factorial"));
     name parts[] = {"if", "then", "else"};
-    f.add_mixfixl(3, parts, 10, "if");
+    f.add_mixfixl(3, parts, 10, Const("if"));
 }
 
 static void tst10() {

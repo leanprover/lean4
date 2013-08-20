@@ -28,7 +28,6 @@ enum class fixity { Prefix, Infix, Infixl, Infixr, Postfix, Mixfixl, Mixfixr, Mi
    \brief Data-structure for storing user defined operator
    information. This information is used during parsing and
    pretty-printing.
-
 */
 class operator_info {
     struct imp;
@@ -56,20 +55,19 @@ public:
     friend operator_info mixfixr(unsigned num_parts, name const * parts, unsigned precedence);
     friend operator_info mixfixc(unsigned num_parts, name const * parts, unsigned precedence);
 
-    /** \brief Associate an internal name for this operator. */
-    void add_internal_name(name const & n);
+    /** \brief Associate a denotation (expression) with this operator. */
+    void add_expr(expr const & n);
 
     /** \brief Return true iff the operator is overloaded. */
     bool is_overloaded() const;
 
     /**
-       \brief Return the list of internal names for this operator.
+       \brief Return the list of expressions for this operator.
        The list has size greater than 1 iff the operator has been
        overloaded.
-       Internal names are the real names used to identify the operator
-       in the kernel.
+       These are the possible interpretations for the operator.
     */
-    list<name> const & get_internal_names() const;
+    list<expr> const & get_exprs() const;
 
     /** \brief Return the operator fixity. */
     fixity get_fixity() const;
@@ -110,15 +108,12 @@ std::ostream & operator<<(std::ostream & out, operator_info const & o);
 */
 class notation_declaration : public neutral_object_cell {
     operator_info m_op;
-    name          m_name;
+    expr          m_expr;
 public:
-    notation_declaration(operator_info const & op, name const & n):m_op(op), m_name(n) {}
+    notation_declaration(operator_info const & op, expr const & n):m_op(op), m_expr(n) {}
     virtual ~notation_declaration() {}
     virtual char const * keyword() const;
     operator_info get_op() const { return m_op; }
-    name const & get_internal_name() const { return m_name; }
+    expr const & get_expr() const { return m_expr; }
 };
-
-format pp(notation_declaration const & n);
-std::ostream & operator<<(std::ostream & out, notation_declaration const & n);
 }

@@ -23,8 +23,10 @@ public:
     frontend();
     ~frontend();
 
-    // =======================================
-    // Parent/Child frontend management
+    /**
+       @name Parent/Child frontend management.
+    */
+    /*@{*/
     /**
         \brief Create a child environment. This frontend object will
         only allow "read-only" operations until all children frontend
@@ -40,14 +42,16 @@ public:
 
     /** \brief Return parent frontend */
     frontend parent() const;
-    // =======================================
+    /*@}*/
 
+    /**
+       @name Environment API
+    */
+    /*@{*/
     /** \brief Coercion frontend -> environment. */
     environment const & get_environment() const;
     operator environment const &() const { return get_environment(); }
 
-    // =======================================
-    // Environment API
     level add_uvar(name const & n, level const & l);
     level add_uvar(name const & n);
     level get_uvar(name const & n) const;
@@ -64,30 +68,50 @@ public:
     object_iterator end_objects() const;
     object_iterator begin_local_objects() const;
     object_iterator end_local_objects() const;
-    // =======================================
+    /*@}*/
 
-    // =======================================
-    // Notation
-    void add_infix(name const & opn, unsigned precedence, name const & n);
-    void add_infixl(name const & opn, unsigned precedence, name const & n);
-    void add_infixr(name const & opn, unsigned precedence, name const & n);
-    void add_prefix(name const & opn, unsigned precedence, name const & n);
-    void add_postfix(name const & opn, unsigned precedence, name const & n);
-    void add_mixfixl(unsigned sz, name const * opns, unsigned precedence, name const & n);
-    void add_mixfixr(unsigned sz, name const * opns, unsigned precedence, name const & n);
-    void add_mixfixc(unsigned sz, name const * opns, unsigned precedence, name const & n);
     /**
-        \brief Return the operator (if it exists) associated with the
-        given internal name.
-
-        \remark If an operator is not associated with \c n, then
-        return the null operator.
+       @name Notation for parsing and pretty printing.
     */
-    operator_info find_op_for(name const & n) const;
+    /*@{*/
+    void add_infix(name const & opn, unsigned precedence, expr const & d);
+    void add_infixl(name const & opn, unsigned precedence, expr const & d);
+    void add_infixr(name const & opn, unsigned precedence, expr const & d);
+    void add_prefix(name const & opn, unsigned precedence, expr const & d);
+    void add_postfix(name const & opn, unsigned precedence, expr const & d);
+    void add_mixfixl(unsigned sz, name const * opns, unsigned precedence, expr const & d);
+    void add_mixfixr(unsigned sz, name const * opns, unsigned precedence, expr const & d);
+    void add_mixfixc(unsigned sz, name const * opns, unsigned precedence, expr const & d);
+    /**
+        \brief Return the operator (if one exists) associated with the
+        given expression.
 
+        \remark If an operator is not associated with \c e, then
+        return the null operator.
+
+        \remark This is used for pretty printing.
+    */
+    operator_info find_op_for(expr const & e) const;
+    /**
+       \brief Return the operator (if one exists) that can appear at
+       the beginning of a language construct.
+
+        \remark If there isn't a nud operator starting with \c n, then
+        return the null operator.
+
+        \remark This is used for parsing.
+    */
     operator_info find_nud(name const & n) const;
+    /**
+       \brief Return the operator (if one exists) that can appear
+       inside of a language construct.
 
+        \remark If there isn't a led operator starting with \c n, then
+        return the null operator.
+
+        \remark This is used for parsing.
+    */
     operator_info find_led(name const & n) const;
-    // =======================================
+    /*@}*/
 };
 }

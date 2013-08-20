@@ -16,7 +16,7 @@ struct operator_info::imp {
     fixity        m_fixity;
     unsigned      m_precedence;
     list<name>    m_op_parts;  // operator parts, > 1 only if the operator is mixfix.
-    list<name>    m_names;     // internal names, > 1 only if the operator is overloaded.
+    list<expr>    m_exprs;     // possible interpretations for the operator.
 
     imp(name const & op, fixity f, unsigned p):
         m_rc(1), m_fixity(f), m_precedence(p), m_op_parts(cons(op, list<name>())) {}
@@ -27,7 +27,7 @@ struct operator_info::imp {
     }
 
     imp(imp const & s):
-        m_rc(1), m_fixity(s.m_fixity), m_precedence(s.m_precedence), m_op_parts(s.m_op_parts), m_names(s.m_names) {
+        m_rc(1), m_fixity(s.m_fixity), m_precedence(s.m_precedence), m_op_parts(s.m_op_parts), m_exprs(s.m_exprs) {
     }
 
     bool is_eq(imp const & other) const {
@@ -51,11 +51,11 @@ operator_info & operator_info::operator=(operator_info const & s) { LEAN_COPY_RE
 
 operator_info & operator_info::operator=(operator_info && s) { LEAN_MOVE_REF(operator_info, s); }
 
-void operator_info::add_internal_name(name const & n) { lean_assert(m_ptr); m_ptr->m_names = cons(n, m_ptr->m_names); }
+void operator_info::add_expr(expr const & d) { lean_assert(m_ptr); m_ptr->m_exprs = cons(d, m_ptr->m_exprs); }
 
-bool operator_info::is_overloaded() const { return m_ptr && !is_nil(m_ptr->m_names) && !is_nil(cdr(m_ptr->m_names)); }
+bool operator_info::is_overloaded() const { return m_ptr && !is_nil(m_ptr->m_exprs) && !is_nil(cdr(m_ptr->m_exprs)); }
 
-list<name> const & operator_info::get_internal_names() const { lean_assert(m_ptr); return m_ptr->m_names; }
+list<expr> const & operator_info::get_exprs() const { lean_assert(m_ptr); return m_ptr->m_exprs; }
 
 fixity operator_info::get_fixity() const { lean_assert(m_ptr); return m_ptr->m_fixity; }
 
@@ -132,15 +132,6 @@ char const * notation_declaration::keyword() const {
 
 std::ostream & operator<<(std::ostream & out, operator_info const & o) {
     out << pp(o);
-    return out;
-}
-
-format pp(notation_declaration const & n) {
-    return format{pp(n.get_op()), space(), format(n.get_internal_name())};
-}
-
-std::ostream & operator<<(std::ostream & out, notation_declaration const & n) {
-    out << pp(n);
     return out;
 }
 }

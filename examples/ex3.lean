@@ -1,5 +1,5 @@
 Definition xor (x y : Bool) : Bool := (not x) = y
-Infixr 50 ⊕ xor
+Infixr 50 ⊕ : xor
 Show xor true false
 Eval xor true true
 Eval xor true false

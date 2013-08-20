@@ -288,13 +288,13 @@ class parser_fn {
        resolve/decide which f_i should be used.
     */
     expr mk_fun(operator_info const & op) {
-        list<name> const & fs = op.get_internal_names();
+        list<expr> const & fs = op.get_exprs();
         lean_assert(!is_nil(fs));
         auto it = fs.begin();
-        expr r = mk_constant(*it);
+        expr r = *it;
         ++it;
         for (; it != fs.end(); ++it)
-            r = mk_app(g_overload, mk_constant(*it), r);
+            r = mk_app(g_overload, *it, r);
         return r;
     }
 
@@ -870,19 +870,20 @@ class parser_fn {
         \brief Parse prefix/postfix/infix/infixl/infixr user operator
         definitions. These definitions have the form:
 
-           - fixity [Num] ID ID
+           - fixity [Num] ID ':' expr
     */
     void parse_op(fixity fx) {
         next();
         unsigned prec = parse_precedence();
         name op_id = parse_op_id();
-        name id    = parse_op_id();
+        check_colon_next("invalid operator definition, ':' expected");
+        expr d     = parse_expr();
         switch (fx) {
-        case fixity::Prefix:  m_frontend.add_prefix(op_id, prec, id); break;
-        case fixity::Postfix: m_frontend.add_postfix(op_id, prec, id); break;
-        case fixity::Infix:   m_frontend.add_infix(op_id, prec, id); break;
-        case fixity::Infixl:  m_frontend.add_infixl(op_id, prec, id); break;
-        case fixity::Infixr:  m_frontend.add_infixr(op_id, prec, id); break;
+        case fixity::Prefix:  m_frontend.add_prefix(op_id, prec, d); break;
+        case fixity::Postfix: m_frontend.add_postfix(op_id, prec, d); break;
+        case fixity::Infix:   m_frontend.add_infix(op_id, prec, d); break;
+        case fixity::Infixl:  m_frontend.add_infixl(op_id, prec, d); break;
+        case fixity::Infixr:  m_frontend.add_infixr(op_id, prec, d); break;
         default: lean_unreachable(); break;
         }
     }
@@ -891,7 +892,7 @@ class parser_fn {
         \brief Parse mixfix/mixfixl/mixfixr user operator definition.
         These definitions have the form:
 
-        - fixity [NUM] ID ID+ ID
+        - fixity [NUM] ID ID+ ':' ID
     */
     void parse_mixfix_op(fixity fx) {
         next();
@@ -899,16 +900,16 @@ class parser_fn {
         buffer<name> parts;
         parts.push_back(parse_op_id());
         parts.push_back(parse_op_id());
-        name id = parse_op_id();
-        while (curr_is_identifier()) {
-            parts.push_back(id);
-            id = curr_name();
-            next();
+        while (!curr_is_colon()) {
+            parts.push_back(parse_op_id());
         }
+        lean_assert(curr_is_colon());
+        next();
+        expr d = parse_expr();
         switch (fx) {
-        case fixity::Mixfixl:  m_frontend.add_mixfixl(parts.size(), parts.data(), prec, id); break;
-        case fixity::Mixfixr:  m_frontend.add_mixfixr(parts.size(), parts.data(), prec, id); break;
-        case fixity::Mixfixc:  m_frontend.add_mixfixc(parts.size(), parts.data(), prec, id); break;
+        case fixity::Mixfixl:  m_frontend.add_mixfixl(parts.size(), parts.data(), prec, d); break;
+        case fixity::Mixfixr:  m_frontend.add_mixfixr(parts.size(), parts.data(), prec, d); break;
+        case fixity::Mixfixc:  m_frontend.add_mixfixc(parts.size(), parts.data(), prec, d); break;
         default: lean_unreachable(); break;
         }
     }

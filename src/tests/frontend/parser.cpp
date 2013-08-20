@@ -32,8 +32,8 @@ static void tst1() {
     parse(fe, "Variable x : Bool Variable y : Bool Axiom H : x && y || x => x");
     parse(fe, "Eval true && true");
     parse(fe, "Show true && false Eval true && false");
-    parse(fe, "Infixl 35 & and Show true & false & false Eval true & false");
-    parse(fe, "Mixfixc 100 if then fi implies Show if true then false fi");
+    parse(fe, "Infixl 35 & : and Show true & false & false Eval true & false");
+    parse(fe, "Mixfixc 100 if then fi : implies Show if true then false fi");
     parse(fe, "Show Pi (A : Type), A -> A");
     parse(fe, "Check Pi (A : Type), A -> A");
 }

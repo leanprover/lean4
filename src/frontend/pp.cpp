@@ -179,20 +179,21 @@ class pp_fn {
 
     /**
        \brief Return the operator associated with \c e.
-       Return the nil operator if there is none.
+       Return the null operator if there is none.
 
        We say \c e has an operator associated with it, if:
 
-       1) It is a constant and there is an operator associated with it.
+       1) \c e is associated with an operator.
 
-       2) It is an application, and the function is a constant \c c with an
-       operator associated with \c c.
+       2) It is an application, and the function is associated with an
+       operator.
     */
     operator_info get_operator(expr const & e) {
-        if (is_constant(e))
-            return m_frontend.find_op_for(const_name(e));
-        else if (is_app(e) && is_constant(arg(e, 0)))
-            return m_frontend.find_op_for(const_name(arg(e, 0)));
+        operator_info op = m_frontend.find_op_for(e);
+        if (op)
+            return op;
+        else if (is_app(e))
+            return m_frontend.find_op_for(arg(e, 0));
         else
             return operator_info();
     }
@@ -866,7 +867,8 @@ class pp_formatter_cell : public formatter_cell {
     }
 
     format pp_notation_decl(object const & obj) {
-        return ::lean::pp(*(static_cast<notation_declaration const *>(obj.cell())));
+        notation_declaration const & n = *(static_cast<notation_declaration const *>(obj.cell()));
+        return format{::lean::pp(n.get_op()), space(), colon(), space(), pp(n.get_expr())};
     }
 
 public:

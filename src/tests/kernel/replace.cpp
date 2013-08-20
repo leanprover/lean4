@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "abstract.h"
 #include "instantiate.h"
 #include "deep_copy.h"
+#include "printer.h"
 #include "name.h"
 #include "test.h"
 using namespace lean;

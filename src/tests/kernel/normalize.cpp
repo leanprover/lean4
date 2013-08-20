@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "trace.h"
 #include "test.h"
 #include "expr_sets.h"
+#include "printer.h"
 using namespace lean;
 
 expr normalize(expr const & e) {

@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "test.h"
 #include "abstract.h"
 #include "instantiate.h"
+#include "printer.h"
 #include "deep_copy.h"
 #include "arith.h"
 using namespace lean;

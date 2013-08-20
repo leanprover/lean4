@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "arith.h"
 #include "normalize.h"
 #include "abstract.h"
+#include "printer.h"
 #include "test.h"
 using namespace lean;
 

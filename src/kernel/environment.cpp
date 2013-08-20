@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "environment.h"
 #include "safe_arith.h"
 #include "type_check.h"
+#include "normalize.h"
 
 namespace lean {
 

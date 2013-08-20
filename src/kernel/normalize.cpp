@@ -14,11 +14,9 @@ Author: Leonardo de Moura
 #include "free_vars.h"
 #include "list.h"
 #include "buffer.h"
-#include "trace.h"
 #include "exception.h"
 
 namespace lean {
-
 class svalue;
 typedef list<svalue> value_stack; //!< Normalization stack
 enum class svalue_kind { Expr, Closure, BoundedVar };
@@ -53,12 +51,24 @@ unsigned            to_bvar(svalue const & v)  { return v.get_var_idx(); }
 value_stack extend(value_stack const & s, svalue const & v) { return cons(v, s); }
 
 /** \brief Expression normalizer. */
-class normalize_fn {
+class normalizer::imp {
     typedef scoped_map<expr, svalue, expr_hash, expr_eqp> cache;
 
-    environment const & m_env;
-    context     const & m_ctx;
-    cache               m_cache;
+    environment   m_env;
+    context       m_ctx;
+    cache         m_cache;
+    volatile bool m_interrupted;
+
+    /**
+        \brief Auxiliary object for saving the current context.
+        We need this to be able to process values in the context.
+    */
+    struct save_context {
+        imp &           m_imp;
+        context         m_old_ctx;
+        save_context(imp & imp):m_imp(imp), m_old_ctx(m_imp.m_ctx) { m_imp.m_cache.clear(); }
+        ~save_context() { m_imp.m_ctx = m_old_ctx; }
+    };
 
     svalue lookup(value_stack const & s, unsigned i, unsigned k) {
         unsigned j = i;
@@ -72,10 +82,14 @@ class normalize_fn {
         auto p = lookup_ext(m_ctx, j);
         context_entry const & entry = p.first;
         context const & entry_c     = p.second;
-        if (entry.get_body())
-            return svalue(::lean::normalize(entry.get_body(), m_env, entry_c));
-        else
+        if (entry.get_body()) {
+            save_context save(*this); // it restores the context and cache
+            m_ctx = entry_c;
+            unsigned k = length(m_ctx);
+            return svalue(reify(normalize(entry.get_body(), value_stack(), k), k));
+        } else {
             return svalue(length(entry_c));
+        }
     }
 
     /** \brief Convert the closure \c a into an expression using the given stack in a context that contains \c k binders. */
@@ -84,42 +98,10 @@ class normalize_fn {
         expr new_t = reify(normalize(abst_domain(a), s, k), k);
         expr new_b = reify(normalize(abst_body(a), extend(s, svalue(k)), k+1), k+1);
         return mk_lambda(abst_name(a), new_t, new_b);
-#if 0
-        // Eta-reduction + Cumulativity + Set theoretic interpretation is unsound.
-        // Example:
-        //   f : (Type 2) -> (Type 2)
-        //   (lambda (x : (Type 1)) (f x)) : (Type 1) -> (Type 2)
-        // The domains of these two terms are different. So, they must have different denotations.
-        // However, by eta-reduction, we have:
-        //     (lambda (x : (Type 1)) (f x)) == f
-        // For now, we will disable it.
-        // REMARK: we can workaround this problem by applying only when the domain of f is equal
-        // to the domain of the lambda abstraction.
-        //
-        if (is_app(new_b)) {
-            // (lambda (x:T) (app f ... (var 0)))
-            // check eta-rule applicability
-            unsigned n = num_args(new_b);
-            if (is_var(arg(new_b, n - 1), 0) &&
-                std::all_of(begin_args(new_b),
-                            end_args(new_b) - 1,
-                            [](expr const & arg) { return !has_free_var(arg, 0); })) {
-                if (n == 2)
-                    return lower_free_vars(arg(new_b, 0), 1);
-                else
-                    return lower_free_vars(app(n - 1, begin_args(new_b)), 1);
-            }
-            return lambda(abst_name(a), new_t, new_b);
-        } else {
-            return lambda(abst_name(a), new_t, new_b);
-        }
-#endif
     }
 
     /** \brief Convert the value \c v back into an expression in a context that contains \c k binders. */
     expr reify(svalue const & v, unsigned k) {
-        lean_trace("normalize", tout << "Reify kind: " << static_cast<unsigned>(v.kind()) << "\n";
-                   if (v.is_bounded_var()) tout << "#" << to_bvar(v); else tout << to_expr(v); tout << "\n";);
         switch (v.kind()) {
         case svalue_kind::Expr:       return to_expr(v);
         case svalue_kind::BoundedVar: return mk_var(k - to_bvar(v) - 1);
@@ -131,7 +113,8 @@ class normalize_fn {
 
     /** \brief Normalize the expression \c a in a context composed of stack \c s and \c k binders. */
     svalue normalize(expr const & a, value_stack const & s, unsigned k) {
-        lean_trace("normalize", tout << "Normalize, k: " << k << "\n" << a << "\n";);
+        if (m_interrupted)
+            throw interrupted();
 
         bool shared = false;
         if (is_shared(a)) {
@@ -167,7 +150,6 @@ class normalize_fn {
                 if (f.is_closure()) {
                     // beta reduction
                     expr const & fv = to_expr(f);
-                    lean_trace("normalize", tout << "beta reduction...\n" << fv << "\n";);
                     {
                         cache::mk_scope sc(m_cache);
                         value_stack new_s = extend(stack_of(f), normalize(arg(a, i), s, k));
@@ -236,19 +218,92 @@ class normalize_fn {
         return r;
     }
 
-public:
-    normalize_fn(environment const & env, context const & ctx):
-        m_env(env),
-        m_ctx(ctx) {
+    bool is_convertible_core(expr const & expected, expr const & given) {
+        if (expected == given) {
+            return true;
+        } else {
+            expr const * e = &expected;
+            expr const * g = &given;
+            while (true) {
+                if (is_type(*e) && is_type(*g)) {
+                    if (m_env.is_ge(ty_level(*e), ty_level(*g)))
+                        return true;
+                }
+                if (is_pi(*e) && is_pi(*g) && abst_domain(*e) == abst_domain(*g)) {
+                    e = &abst_body(*e);
+                    g = &abst_body(*g);
+                } else {
+                    return false;
+                }
+            }
+        }
     }
 
-    expr operator()(expr const & e) {
+    void set_ctx(context const & ctx) {
+        if (!is_eqp(ctx, m_ctx)) {
+            m_ctx = ctx;
+            m_cache.clear();
+        }
+    }
+
+public:
+    imp(environment const & env):
+        m_env(env) {
+        m_interrupted = false;
+    }
+
+    expr operator()(expr const & e, context const & ctx) {
+        set_ctx(ctx);
         unsigned k = length(m_ctx);
         return reify(normalize(e, value_stack(), k), k);
     }
+
+    bool is_convertible(expr const & expected, expr const & given, context const & ctx) {
+        if (is_convertible_core(expected, given))
+            return true;
+        set_ctx(ctx);
+        unsigned k = length(m_ctx);
+        expr e_n = reify(normalize(expected, value_stack(), k), k);
+        expr g_n = reify(normalize(given, value_stack(), k), k);
+        return is_convertible_core(e_n, g_n);
+    }
+
+    void clear() { m_ctx = context(); m_cache.clear(); }
+    void set_interrupt(bool flag) { m_interrupted = flag; }
 };
 
+normalizer::normalizer(environment const & env):m_ptr(new imp(env)) {}
+normalizer::~normalizer() {}
+expr normalizer::operator()(expr const & e, context const & ctx) { return (*m_ptr)(e, ctx); }
+bool normalizer::is_convertible(expr const & t1, expr const & t2, context const & ctx) { return m_ptr->is_convertible(t1, t2, ctx); }
+void normalizer::clear() { m_ptr->clear(); }
+void normalizer::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
+
 expr normalize(expr const & e, environment const & env, context const & ctx) {
-    return normalize_fn(env, ctx)(e);
+    return normalizer(env)(e, ctx);
+}
+bool is_convertible(expr const & expected, expr const & given, environment const & env, context const & ctx) {
+    return normalizer(env).is_convertible(expected, given, ctx);
 }
 }
+
+/*
+  Remark:
+
+  Eta-reduction + Cumulativity + Set theoretic interpretation is unsound.
+  Example:
+     f : (Type 2) -> (Type 2)
+     (fun (x : (Type 1)) (f x)) : (Type 1) -> (Type 2)
+     The domains of these two terms are different. So, they must have different denotations.
+
+     However, by eta-reduction, we have:
+     (fun (x : (Type 1)) (f x)) == f
+
+     For now, we will disable it.
+     REMARK: we can workaround this problem by applying only when the domain of f is equal
+     to the domain of the lambda abstraction.
+
+  Cody Roux suggested we use Eta-expanded normal forms.
+
+  Remark: The source code for eta-reduction can be found in the commit 519a290f320c6a
+*/

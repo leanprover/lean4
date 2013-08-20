@@ -14,33 +14,6 @@ Author: Leonardo de Moura
 #include "free_vars.h"
 
 namespace lean {
-bool is_convertible_core(expr const & expected, expr const & given, environment const & env) {
-    if (expected == given)
-        return true;
-    expr const * e = &expected;
-    expr const * g = &given;
-    while (true) {
-        if (is_type(*e) && is_type(*g)) {
-            if (env.is_ge(ty_level(*e), ty_level(*g)))
-                return true;
-        }
-        if (is_pi(*e) && is_pi(*g) && abst_domain(*e) == abst_domain(*g)) {
-            e = &abst_body(*e);
-            g = &abst_body(*g);
-        } else {
-            return false;
-        }
-    }
-}
-
-bool is_convertible(expr const & expected, expr const & given, environment const & env, context const & ctx) {
-    if (is_convertible_core(expected, given, env))
-        return true;
-    expr e_n = normalize(expected, env, ctx);
-    expr g_n = normalize(given, env, ctx);
-    return is_convertible_core(e_n, g_n, env);
-}
-
 /** \brief Auxiliary functional object used to implement infer_type. */
 class type_checker::imp {
     typedef scoped_map<expr, expr, expr_hash, expr_eqp> cache;

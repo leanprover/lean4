@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include "environment.h"
 #include "operator_info.h"
+#include "state.h"
 
 namespace lean {
 /**
@@ -112,6 +113,17 @@ public:
         \remark This is used for parsing.
     */
     operator_info find_led(name const & n) const;
+    /*@}*/
+
+    /**
+       @name State management.
+    */
+    /*@{*/
+    state const & get_state() const;
+    operator state const &() const { return get_state(); }
+    void set_options(options const & opts);
+    void set_regular_channel(std::shared_ptr<output_channel> const & out);
+    void set_diagnostic_channel(std::shared_ptr<output_channel> const & out);
     /*@}*/
 };
 }

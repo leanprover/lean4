@@ -11,23 +11,23 @@ Author: Leonardo de Moura
 namespace lean {
 class simple_formatter_cell : public formatter_cell {
 public:
-    virtual format operator()(expr const & e) {
+    virtual format operator()(expr const & e, options const & opts) {
         std::ostringstream s; s << e; return format(s.str());
     }
-    virtual format operator()(context const & c) {
+    virtual format operator()(context const & c, options const & opts) {
         std::ostringstream s; s << c; return format(s.str());
     }
-    virtual format operator()(context const & c, expr const & e, bool format_ctx) {
+    virtual format operator()(context const & c, expr const & e, bool format_ctx, options const & opts) {
         std::ostringstream s;
         if (format_ctx)
             s << c << "|-\n";
         s << mk_pair(e,c);
         return format(s.str());
     }
-    virtual format operator()(object const & obj) {
+    virtual format operator()(object const & obj, options const & opts) {
         std::ostringstream s; s << obj; return format(s.str());
     }
-    virtual format operator()(environment const & env) {
+    virtual format operator()(environment const & env, options const & opts) {
         std::ostringstream s; s << env; return format(s.str());
     }
 };

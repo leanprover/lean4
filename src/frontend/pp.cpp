@@ -793,23 +793,22 @@ public:
 
 class pp_formatter_cell : public formatter_cell {
     frontend  m_frontend;
-    options   m_options;
-    unsigned  m_indent;
 
-    format pp(expr const & e) {
-        return pp_fn(m_frontend, m_options)(e);
+    format pp(expr const & e, options const & opts) {
+        return pp_fn(m_frontend, opts)(e);
     }
 
-    format pp(context const & c, expr const & e, bool include_e) {
+    format pp(context const & c, expr const & e, bool include_e, options const & opts) {
+        unsigned indent = get_pp_indent(opts);
         format r;
         bool first = true;
         expr c2   = context_to_lambda(c, e);
         while (is_fake_context(c2)) {
             name n1 = get_unused_name(c2);
-            format entry = format{format(n1), space(), colon(), space(), pp(fake_context_domain(c2))};
+            format entry = format{format(n1), space(), colon(), space(), pp(fake_context_domain(c2), opts)};
             expr val = fake_context_value(c2);
             if (val)
-                entry += format{space(), g_assign_fmt, nest(m_indent, format{line(), pp(val)})};
+                entry += format{space(), g_assign_fmt, nest(indent, format{line(), pp(val, opts)})};
             if (first) {
                 r = group(entry);
                 first = false;
@@ -820,77 +819,77 @@ class pp_formatter_cell : public formatter_cell {
         }
         if (include_e) {
             if (first)
-                r += format{line(), pp(c2)};
+                r += format{line(), pp(c2, opts)};
             else
-                r = pp(c2);
+                r = pp(c2, opts);
         } else {
             return r;
         }
         return r;
     }
 
-    format pp_definition(char const * kwd, name const & n, expr const & t, expr const & v) {
+    format pp_definition(char const * kwd, name const & n, expr const & t, expr const & v, options const & opts) {
+        unsigned indent = get_pp_indent(opts);
         format def = format{highlight_command(format(kwd)), space(), format(n), space(), colon(), space(),
-                            pp(t), space(), g_assign_fmt, line(), pp(v)};
-        return group(nest(m_indent, def));
+                            pp(t, opts), space(), g_assign_fmt, line(), pp(v, opts)};
+        return group(nest(indent, def));
     }
 
-    format pp_compact_definition(char const * kwd, name const & n, expr const & t, expr const & v) {
+    format pp_compact_definition(char const * kwd, name const & n, expr const & t, expr const & v, options const & opts) {
         expr it1 = t;
         expr it2 = v;
         while (is_pi(it1) && is_lambda(it2)) {
             if (abst_domain(it1) != abst_domain(it2))
-                return pp_definition(kwd, n, t, v);
+                return pp_definition(kwd, n, t, v, opts);
             it1 = abst_body(it1);
             it2 = abst_body(it2);
         }
         if (!is_lambda(v) || is_pi(it1)) {
-            return pp_definition(kwd, n, t, v);
+            return pp_definition(kwd, n, t, v, opts);
         } else {
+
             lean_assert(is_lambda(v));
-            format def = pp_fn(m_frontend, m_options).pp_definition(v, t);
+            format def = pp_fn(m_frontend, opts).pp_definition(v, t);
             return format{highlight_command(format(kwd)), space(), format(n), def};
         }
     }
 
-    format pp_uvar_decl(object const & obj) {
+    format pp_uvar_decl(object const & obj, options const & opts) {
         return format{highlight_command(format(obj.keyword())), space(), format(obj.get_name()), space(), format("\u2265"), space(), ::lean::pp(obj.get_cnstr_level())};
     }
 
-    format pp_postulate(object const & obj) {
-        return format{highlight_command(format(obj.keyword())), space(), format(obj.get_name()), space(), colon(), space(), pp(obj.get_type())};
+    format pp_postulate(object const & obj, options const & opts) {
+        return format{highlight_command(format(obj.keyword())), space(), format(obj.get_name()), space(), colon(), space(), pp(obj.get_type(), opts)};
     }
 
-    format pp_definition(object const & obj) {
-        return pp_compact_definition(obj.keyword(), obj.get_name(), obj.get_type(), obj.get_value());
+    format pp_definition(object const & obj, options const & opts) {
+        return pp_compact_definition(obj.keyword(), obj.get_name(), obj.get_type(), obj.get_value(), opts);
     }
 
-    format pp_notation_decl(object const & obj) {
+    format pp_notation_decl(object const & obj, options const & opts) {
         notation_declaration const & n = *(static_cast<notation_declaration const *>(obj.cell()));
-        return format{::lean::pp(n.get_op()), space(), colon(), space(), pp(n.get_expr())};
+        return format{::lean::pp(n.get_op()), space(), colon(), space(), pp(n.get_expr(), opts)};
     }
 
 public:
-    pp_formatter_cell(frontend const & fe, options const & opts):
-        m_frontend(fe),
-        m_options(opts) {
-        m_indent = get_pp_indent(opts);
+    pp_formatter_cell(frontend const & fe):
+        m_frontend(fe) {
     }
 
     virtual ~pp_formatter_cell() {
     }
 
-    virtual format operator()(expr const & e) {
-        return pp(e);
+    virtual format operator()(expr const & e, options const & opts) {
+        return pp(e, opts);
     }
 
-    virtual format operator()(context const & c) {
-        return pp(c, Type(), false);
+    virtual format operator()(context const & c, options const & opts) {
+        return pp(c, Type(), false, opts);
     }
 
-    virtual format operator()(context const & c, expr const & e, bool format_ctx) {
+    virtual format operator()(context const & c, expr const & e, bool format_ctx, options const & opts) {
         if (format_ctx) {
-            return pp(c, e, true);
+            return pp(c, e, true, opts);
         } else {
             expr c2   = context_to_lambda(c, e);
             while (is_fake_context(c2)) {
@@ -898,20 +897,20 @@ public:
                 name n1 = get_unused_name(rest);
                 c2 = instantiate_with_closed(rest, mk_constant(n1));
             }
-            return pp(c2);
+            return pp(c2, opts);
         }
     }
 
-    virtual format operator()(object const & obj) {
+    virtual format operator()(object const & obj, options const & opts) {
         switch (obj.kind()) {
-        case object_kind::UVarDeclaration:  return pp_uvar_decl(obj);
-        case object_kind::Postulate:        return pp_postulate(obj);
-        case object_kind::Definition:       return pp_definition(obj);
+        case object_kind::UVarDeclaration:  return pp_uvar_decl(obj, opts);
+        case object_kind::Postulate:        return pp_postulate(obj, opts);
+        case object_kind::Definition:       return pp_definition(obj, opts);
         case object_kind::Neutral:
             if (dynamic_cast<notation_declaration const *>(obj.cell())) {
                 // If the object is not notation, then the object was
                 // created in different frontend, and we ignore it.
-                return pp_notation_decl(obj);
+                return pp_notation_decl(obj, opts);
             } else {
                 return format("Unknown neutral object");
             }
@@ -920,25 +919,25 @@ public:
         return format();
     }
 
-    virtual format operator()(environment const & env) {
+    virtual format operator()(environment const & env, options const & opts) {
         format r;
         bool first = true;
         std::for_each(env.begin_objects(),
                       env.end_objects(),
                       [&](object const & obj) {
                           if (first) first = false; else r += line();
-                          r += operator()(obj);
+                          r += operator()(obj, opts);
                       });
         return r;
     }
 };
 
-formatter mk_pp_formatter(frontend const & fe, options const & opts) {
-    return formatter(new pp_formatter_cell(fe, opts));
+formatter mk_pp_formatter(frontend const & fe) {
+    return formatter(new pp_formatter_cell(fe));
 }
 
 std::ostream & operator<<(std::ostream & out, frontend const & fe) {
-    formatter fmt = mk_pp_formatter(fe, options());
+    formatter fmt = mk_pp_formatter(fe);
     out << fmt(fe.get_environment());
     return out;
 }

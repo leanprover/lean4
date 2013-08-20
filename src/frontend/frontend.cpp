@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "operator_info.h"
 #include "toplevel.h"
 #include "builtin_notation.h"
+#include "state.h"
 #include "pp.h"
 
 namespace lean {
@@ -27,6 +28,7 @@ struct frontend::imp {
     operator_table        m_led; // led table for Pratt's parser
     expr_to_operator      m_expr_to_operator; // map denotations to operators (this is used for pretty printing)
     implicit_table        m_implicit_table; // track the number of implicit arguments for a symbol.
+    state                 m_state;
 
     bool has_children() const { return m_num_children > 0; }
     void inc_children() { m_num_children++; }
@@ -168,7 +170,8 @@ struct frontend::imp {
     explicit imp(std::shared_ptr<imp> const & parent):
         m_num_children(0),
         m_parent(parent),
-        m_env(m_parent->m_env.mk_child()) {
+        m_env(m_parent->m_env.mk_child()),
+        m_state(m_parent->m_state) {
         m_parent->inc_children();
     }
 
@@ -181,8 +184,11 @@ struct frontend::imp {
 frontend::frontend():m_imp(new imp(*this)) {
     init_builtin_notation(*this);
     init_toplevel(m_imp->m_env);
+    m_imp->m_state.set_formatter(mk_pp_formatter(*this));
 }
-frontend::frontend(imp * new_ptr):m_imp(new_ptr) {}
+frontend::frontend(imp * new_ptr):m_imp(new_ptr) {
+    m_imp->m_state.set_formatter(mk_pp_formatter(*this));
+}
 frontend::frontend(std::shared_ptr<imp> const & ptr):m_imp(ptr) {}
 frontend::~frontend() {}
 
@@ -223,4 +229,9 @@ void frontend::add_mixfixc(unsigned sz, name const * opns, unsigned p, expr cons
 operator_info frontend::find_op_for(expr const & n) const { return m_imp->find_op_for(n); }
 operator_info frontend::find_nud(name const & n) const { return m_imp->find_nud(n); }
 operator_info frontend::find_led(name const & n) const { return m_imp->find_led(n); }
+
+state const & frontend::get_state() const { return m_imp->m_state; }
+void frontend::set_options(options const & opts) { return m_imp->m_state.set_options(opts); }
+void frontend::set_regular_channel(std::shared_ptr<output_channel> const & out) { return m_imp->m_state.set_regular_channel(out); }
+void frontend::set_diagnostic_channel(std::shared_ptr<output_channel> const & out) { return m_imp->m_state.set_diagnostic_channel(out); }
 }

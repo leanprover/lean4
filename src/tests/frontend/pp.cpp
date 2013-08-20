@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "frontend.h"
 #include "printer.h"
 #include "abstract.h"
+#include "builtin.h"
 #include "pp.h"
 #include "test.h"
 using namespace lean;
@@ -36,8 +37,8 @@ static void tst2() {
     expr t = Fun({a, Type()}, mk_shared_expr(10));
     expr g = Const("g");
     std::cout << fmt(g(t, t, t)) << std::endl;
-    formatter fmt2 = mk_pp_formatter(f, options({"pp", "alias_min_weight"}, 100));
-    std::cout << fmt2(g(t, t, t)) << std::endl;
+    formatter fmt2 = mk_pp_formatter(f);
+    std::cout << fmt2(g(t, t, t), options({"pp", "alias_min_weight"}, 100)) << std::endl;
 }
 
 static void tst3() {
@@ -56,9 +57,18 @@ static void tst3() {
     std::cout << fmt(g(d, c, b, t)) << "\n";
 }
 
+static void tst4() {
+    frontend f;
+    state const & s = f.get_state();
+    regular(s) << And(Const("a"), Const("b")) << "\n";
+    regular(f) << And(Const("a"), Const("b")) << "\n";
+    diagnostic(f) << And(Const("a"), Const("b")) << "\n";
+}
+
 int main() {
     tst1();
     tst2();
     tst3();
+    tst4();
     return has_violations() ? 1 : 0;
 }

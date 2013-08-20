@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <memory>
 #include "context.h"
+#include "options.h"
 
 namespace lean {
 class environment;
@@ -18,9 +19,9 @@ class formatter_cell {
 public:
     virtual ~formatter_cell() {}
     /** \brief Format the given expression. */
-    virtual format operator()(expr const & e) = 0;
+    virtual format operator()(expr const & e, options const & opts) = 0;
     /** \brief Format the given context. */
-    virtual format operator()(context const & c) = 0;
+    virtual format operator()(context const & c, options const & opts) = 0;
     /**
         \brief Format the given expression with respect to the given
         context.
@@ -28,11 +29,11 @@ public:
         \remark If format_ctx == false, then the context is not formatted. It just provides names
         for the free variables
     */
-    virtual format operator()(context const & c, expr const & e, bool format_ctx = false) = 0;
+    virtual format operator()(context const & c, expr const & e, bool format_ctx, options const & opts) = 0;
     /** \brief Format the given object */
-    virtual format operator()(object const & obj) = 0;
+    virtual format operator()(object const & obj, options const & opts) = 0;
     /** \brief Format the given environment */
-    virtual format operator()(environment const & env) = 0;
+    virtual format operator()(environment const & env, options const & opts) = 0;
 };
 
 class formatter {
@@ -40,11 +41,11 @@ class formatter {
 public:
     formatter(formatter_cell * c):m_cell(c) {}
     formatter(std::shared_ptr<formatter_cell> const & c):m_cell(c) {}
-    format operator()(expr const & e) { return (*m_cell)(e); }
-    format operator()(context const & c) { return (*m_cell)(c); }
-    format operator()(context const & c, expr const & e, bool format_ctx = false) { return (*m_cell)(c, e, format_ctx); }
-    format operator()(object const & obj) { return (*m_cell)(obj); }
-    format operator()(environment const & env) { return (*m_cell)(env); }
+    format operator()(expr const & e, options const & opts = options()) { return (*m_cell)(e, opts); }
+    format operator()(context const & c, options const & opts = options()) { return (*m_cell)(c, opts); }
+    format operator()(context const & c, expr const & e, bool format_ctx = false, options const & opts = options()) { return (*m_cell)(c, e, format_ctx, opts); }
+    format operator()(object const & obj, options const & opts = options()) { return (*m_cell)(obj, opts); }
+    format operator()(environment const & env, options const & opts = options()) { return (*m_cell)(env, opts); }
 };
 
 formatter mk_simple_formatter();

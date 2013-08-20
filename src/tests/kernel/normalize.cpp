@@ -5,6 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
+#include <thread>
+#include <chrono>
+#include "exception.h"
 #include "normalize.h"
 #include "builtin.h"
 #include "trace.h"
@@ -197,11 +200,44 @@ static void tst4() {
     lean_assert(normalize(t1, env) == mk_lambda("c", Type(), Const("b")(Var(0))));
 }
 
+static expr mk_big(unsigned depth) {
+    if (depth == 0)
+        return Const("a");
+    else
+        return Const("f")(mk_big(depth - 1), mk_big(depth - 1));
+}
+
+static void tst5() {
+#ifndef __APPLE__
+    expr t = mk_big(18);
+    environment env;
+    env.add_var("f", Bool >> (Bool >> Bool));
+    env.add_var("a", Bool);
+    normalizer proc(env);
+    std::chrono::milliseconds dura(50);
+    std::thread thread([&]() {
+            try {
+                proc(t);
+                // Remark: if the following code is reached, we
+                // should decrease dura.
+                lean_unreachable();
+            } catch (interrupted & it) {
+                std::cout << "interrupted\n";
+            }
+        });
+    std::this_thread::sleep_for(dura);
+    proc.interrupt();
+    thread.join();
+#endif
+}
+
+
 int main() {
     tst_church_numbers();
     tst1();
     tst2();
     tst3();
     tst4();
+    tst5();
     return has_violations() ? 1 : 0;
 }

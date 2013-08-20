@@ -478,7 +478,7 @@ class pp_fn {
        condensed definitions. \see pp_abstraction_core.
     */
     std::pair<expr, expr> collect_nested(expr const & e, expr T, expr_kind k, buffer<std::pair<name, expr>> & r) {
-        if (e.kind() == k) {
+        if (e.kind() == k && (!T || is_abstraction(T))) {
             name n1    = get_unused_name(e);
             r.push_back(mk_pair(n1, abst_domain(e)));
             expr b = instantiate_with_closed(abst_body(e), mk_constant(n1));
@@ -567,7 +567,6 @@ class pp_fn {
             auto p = collect_nested(e, T, e.kind(), nested);
             expr b = p.first;
             T = p.second;
-            lean_assert(b.kind() != e.kind());
             format head;
             if (!T) {
                 head = is_lambda(e) ? g_lambda_fmt : g_Pi_fmt;
@@ -845,7 +844,7 @@ class pp_formatter_cell : public formatter_cell {
             it1 = abst_body(it1);
             it2 = abst_body(it2);
         }
-        if (!is_lambda(v) || is_pi(it1) || is_lambda(it2)) {
+        if (!is_lambda(v) || is_pi(it1)) {
             return pp_definition(kwd, n, t, v);
         } else {
             lean_assert(is_lambda(v));

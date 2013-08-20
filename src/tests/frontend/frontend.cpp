@@ -107,13 +107,9 @@ static void tst6() {
     std::cout << fmt(env) << "\n";
 }
 
-static formatter mk() {
-    frontend f;
-    return mk_pp_formatter(f);
-}
-
 static void tst7() {
-    formatter fmt = mk();
+    frontend f;
+    formatter fmt = mk_pp_formatter(f);
     std::cout << fmt(And(Const("x"), Const("y"))) << "\n";
 }
 

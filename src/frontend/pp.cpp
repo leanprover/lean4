@@ -792,7 +792,7 @@ public:
 };
 
 class pp_formatter_cell : public formatter_cell {
-    frontend  m_frontend;
+    frontend const & m_frontend;
 
     format pp(expr const & e, options const & opts) {
         return pp_fn(m_frontend, opts)(e);

@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 namespace lean {
 /**
@@ -41,6 +42,14 @@ public:
     file_output_channel(char const * fname):m_out(fname) {}
     virtual ~file_output_channel() {}
     virtual std::ostream & get_stream() { return m_out; }
+};
+class string_output_channel : public output_channel {
+    std::ostringstream m_out;
+public:
+    string_output_channel() {}
+    virtual ~string_output_channel() {}
+    virtual std::ostream & get_stream() { return m_out; }
+    std::string str() const { return m_out.str(); }
 };
 template<typename T>
 output_channel & operator<<(output_channel & out, T const & v) {

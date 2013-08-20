@@ -90,7 +90,25 @@ static char const * g_right_angle_bracket = "\u27E9";
 static char const * g_arrow               = "\u21a6";
 
 options options::update(name const & n, sexpr const & v) const {
-    return options(cons(cons(sexpr(n), v), m_value));
+    if (contains(n)) {
+        return map(m_value, [&](sexpr const & p) {
+                if (to_name(car(p)) == n)
+                    return cons(car(p), v);
+                else
+                    return p;
+            });
+    } else {
+        return options(cons(cons(sexpr(n), v), m_value));
+    }
+}
+
+options join(options const & opts1, options const & opts2) {
+    sexpr r = opts2.m_value;
+    for_each(opts1.m_value, [&](sexpr const & p) {
+            if (!opts2.contains(to_name(car(p))))
+                r = cons(p, r);
+        });
+    return options(r);
 }
 
 format pp(options const & o) {

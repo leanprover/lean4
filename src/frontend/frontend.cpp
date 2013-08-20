@@ -231,6 +231,7 @@ operator_info frontend::find_nud(name const & n) const { return m_imp->find_nud(
 operator_info frontend::find_led(name const & n) const { return m_imp->find_led(n); }
 
 state const & frontend::get_state() const { return m_imp->m_state; }
+state & frontend::get_state_core() { return m_imp->m_state; }
 void frontend::set_options(options const & opts) { return m_imp->m_state.set_options(opts); }
 void frontend::set_regular_channel(std::shared_ptr<output_channel> const & out) { return m_imp->m_state.set_regular_channel(out); }
 void frontend::set_diagnostic_channel(std::shared_ptr<output_channel> const & out) { return m_imp->m_state.set_diagnostic_channel(out); }

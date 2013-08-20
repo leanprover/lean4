@@ -23,11 +23,13 @@ state::state(options const & opts, formatter const & fmt):
 state::~state() {}
 
 void state::set_regular_channel(std::shared_ptr<output_channel> const & out) {
-    m_regular_channel = out;
+    if (out)
+        m_regular_channel = out;
 }
 
 void state::set_diagnostic_channel(std::shared_ptr<output_channel> const & out) {
-    m_diagnostic_channel = out;
+    if (out)
+        m_diagnostic_channel = out;
 }
 
 void state::set_options(options const & opts) {

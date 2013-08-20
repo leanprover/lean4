@@ -36,6 +36,9 @@ public:
     void set_diagnostic_channel(std::shared_ptr<output_channel> const & out);
     void set_options(options const & opts);
     void set_formatter(formatter const & f);
+    template<typename T> void set_option(name const & n, T const & v) {
+        set_options(get_options().update(n, v));
+    }
 };
 
 struct regular {
@@ -61,12 +64,14 @@ inline diagnostic const & operator<<(diagnostic const & out, T const & t) {
 }
 
 inline regular const & operator<<(regular const & out, expr const & e) {
-    out.m_state.get_regular_channel().get_stream() << out.m_state.get_formatter()(e, out.m_state.get_options());
+    options const & opts = out.m_state.get_options();
+    out.m_state.get_regular_channel().get_stream() << mk_pair(out.m_state.get_formatter()(e, opts), opts);
     return out;
 }
 
 inline diagnostic const & operator<<(diagnostic const & out, expr const & e) {
-    out.m_state.get_diagnostic_channel().get_stream() << out.m_state.get_formatter()(e, out.m_state.get_options());
+    options const & opts = out.m_state.get_options();
+    out.m_state.get_diagnostic_channel().get_stream() << mk_pair(out.m_state.get_formatter()(e, opts), opts);
     return out;
 }
 }

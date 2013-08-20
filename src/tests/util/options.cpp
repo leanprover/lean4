@@ -28,8 +28,20 @@ static void tst2() {
     std::cout << pp(opt) << "\n";
 }
 
+static void tst3() {
+    options opt;
+    opt = update(opt, name{"test", "foo"}, 10);
+    opt = update(opt, name{"color"}, 20);
+    std::cout << pp(opt) << "\n";
+    opt = update(opt, name{"color"}, 20);
+    std::cout << pp(opt) << "\n";
+    opt = update(opt, name{"color"}, 30);
+    std::cout << pp(opt) << "\n";
+}
+
 int main() {
     tst1();
     tst2();
+    tst3();
     return has_violations() ? 1 : 0;
 }

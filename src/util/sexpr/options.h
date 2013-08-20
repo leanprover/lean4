@@ -48,6 +48,12 @@ public:
     options update(char const * n, sexpr const & v) const { return update(name(n), v); }
     template<typename T> options update(char const * n, T v) const { return update(n, sexpr(v)); }
 
+    /**
+       \brief Combine the options opts1 and opts2. The assignment in
+       opts2 overrides the ones in opts1.
+    */
+    friend options join(options const & opts1, options const & opts2);
+
     friend format pp(options const & o);
     friend std::ostream & operator<<(std::ostream & out, options const & o);
 };

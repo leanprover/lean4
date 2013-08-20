@@ -59,10 +59,44 @@ static void tst3() {
 
 static void tst4() {
     frontend f;
-    state const & s = f.get_state();
-    regular(s) << And(Const("a"), Const("b")) << "\n";
+    state const & s1 = f.get_state();
+    state s2 = f.get_state();
+    regular(s1) << And(Const("a"), Const("b")) << "\n";
     regular(f) << And(Const("a"), Const("b")) << "\n";
     diagnostic(f) << And(Const("a"), Const("b")) << "\n";
+    f.set_option(name{"pp", "notation"}, false);
+    regular(f) << And(Const("a"), Const("b")) << "\n";
+    regular(s1) << And(Const("a"), Const("b")) << "\n";
+    regular(s2) << And(Const("a"), Const("b")) << "\n";
+}
+
+static void tst5() {
+    frontend f;
+    std::shared_ptr<string_output_channel> out(new string_output_channel());
+    f.set_regular_channel(out);
+    regular(f) << And(Const("a"), Const("b"));
+    lean_assert(out->str() == "a ∧ b");
+    f.set_option(name{"pp", "notation"}, false);
+    regular(f) << " " << And(Const("a"), Const("b"));
+    lean_assert(out->str() == "a ∧ b and a b");
+}
+
+static expr mk_deep(unsigned depth) {
+    if (depth == 0)
+        return Const("a");
+    else
+        return Const("f")(mk_deep(depth - 1));
+}
+
+static void tst6() {
+    frontend f;
+    std::shared_ptr<string_output_channel> out(new string_output_channel());
+    f.set_regular_channel(out);
+    expr t = mk_deep(10);
+    f.set_option(name{"pp", "max_depth"}, 5);
+    f.set_option(name{"pp", "colors"}, false);
+    regular(f) << t;
+    lean_assert(out->str() == "f (f (f (f (f (…)))))");
 }
 
 int main() {
@@ -70,5 +104,7 @@ int main() {
     tst2();
     tst3();
     tst4();
+    tst5();
+    tst6();
     return has_violations() ? 1 : 0;
 }

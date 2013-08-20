@@ -20,6 +20,7 @@ class frontend {
     std::shared_ptr<imp> m_imp;
     explicit frontend(imp * new_ptr);
     explicit frontend(std::shared_ptr<imp> const & ptr);
+    state & get_state_core();
 public:
     frontend();
     ~frontend();
@@ -122,6 +123,7 @@ public:
     state const & get_state() const;
     operator state const &() const { return get_state(); }
     void set_options(options const & opts);
+    template<typename T> void set_option(name const & n, T const & v) { get_state_core().set_option(n, v); }
     void set_regular_channel(std::shared_ptr<output_channel> const & out);
     void set_diagnostic_channel(std::shared_ptr<output_channel> const & out);
     /*@}*/

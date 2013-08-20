@@ -35,4 +35,11 @@ public:
     unsigned get_line() const { return m_line; }
     unsigned get_pos() const { return m_pos; }
 };
+/** \brief Exception used to sign that a computation was interrupted */
+class interrupted : public exception {
+public:
+    interrupted() {}
+    virtual ~interrupted() noexcept {}
+    virtual char const * what() const noexcept { return "interrupted"; }
+};
 }

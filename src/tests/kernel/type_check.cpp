@@ -5,6 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <iostream>
+#include <thread>
+#include <chrono>
 #include "type_check.h"
 #include "environment.h"
 #include "abstract.h"
@@ -14,6 +16,7 @@ Author: Leonardo de Moura
 #include "builtin.h"
 #include "arith.h"
 #include "normalize.h"
+#include "printer.h"
 #include "trace.h"
 #include "test.h"
 using namespace lean;
@@ -205,6 +208,37 @@ static void tst11() {
     env.add_theorem("eqs2", Eq(t1,t3), Refl(Int, t1));
 }
 
+static expr mk_big(unsigned depth) {
+    if (depth == 0)
+        return Const("a");
+    else
+        return Const("f")(mk_big(depth - 1), mk_big(depth - 1));
+}
+
+static void tst12() {
+#ifndef __APPLE__
+    expr t = mk_big(18);
+    environment env;
+    env.add_var("f", Int >> (Int >> Int));
+    env.add_var("a", Int);
+    type_checker checker(env);
+    std::chrono::milliseconds dura(100);
+    std::thread thread([&]() {
+            try {
+                std::cout << checker.infer_type(t) << "\n";
+                // Remark: if the following code is reached, we
+                // should decrease dura.
+                lean_unreachable();
+            } catch (interrupted & it) {
+                std::cout << "interrupted\n";
+            }
+        });
+    std::this_thread::sleep_for(dura);
+    checker.interrupt();
+    thread.join();
+#endif
+}
+
 int main() {
     tst1();
     tst2();
@@ -217,5 +251,6 @@ int main() {
     tst9();
     tst10();
     tst11();
+    tst12();
     return has_violations() ? 1 : 0;
 }

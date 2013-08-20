@@ -42,11 +42,12 @@ bool is_convertible(expr const & expected, expr const & given, environment const
 }
 
 /** \brief Auxiliary functional object used to implement infer_type. */
-struct infer_type_fn {
+class type_checker::imp {
     typedef scoped_map<expr, expr, expr_hash, expr_eqp> cache;
 
-    environment const & m_env;
-    cache               m_cache;
+    environment     m_env;
+    cache           m_cache;
+    volatile bool   m_interrupted;
 
     expr lookup(context const & c, unsigned i) {
         auto p = lookup_ext(c, i);
@@ -54,15 +55,6 @@ struct infer_type_fn {
         context const & def_c     = p.second;
         lean_assert(length(c) > length(def_c));
         return lift_free_vars(def.get_domain(), length(c) - length(def_c));
-    }
-
-    level infer_universe(expr const & t, context const & ctx) {
-        expr u = normalize(infer_type(t, ctx), m_env, ctx);
-        if (is_type(u))
-            return ty_level(u);
-        if (u == Bool)
-            return level();
-        throw type_expected_exception(m_env, ctx, t);
     }
 
     expr check_pi(expr const & e, expr const & s, context const & ctx) {
@@ -78,7 +70,24 @@ struct infer_type_fn {
         return check_pi(infer_type(e, ctx), e, ctx);
     }
 
+public:
+    imp(environment const & env):
+        m_env(env) {
+        m_interrupted = false;
+    }
+
+    level infer_universe(expr const & t, context const & ctx) {
+        expr u = normalize(infer_type(t, ctx), m_env, ctx);
+        if (is_type(u))
+            return ty_level(u);
+        if (u == Bool)
+            return level();
+        throw type_expected_exception(m_env, ctx, t);
+    }
+
     expr infer_type(expr const & e, context const & ctx) {
+        if (m_interrupted)
+            throw interrupted();
         bool shared = false;
         if (is_shared(e)) {
             shared = true;
@@ -167,20 +176,27 @@ struct infer_type_fn {
         return r;
     }
 
-    infer_type_fn(environment const & env):
-        m_env(env) {
+    void set_interrupt(bool flag) {
+        m_interrupted = true;
     }
 
-    expr operator()(expr const & e, context const & ctx) {
-        return infer_type(e, ctx);
+    void clear() {
+        m_cache.clear();
     }
 };
 
+type_checker::type_checker(environment const & env):m_ptr(new imp(env)) {}
+type_checker::~type_checker() {}
+expr type_checker::infer_type(expr const & e, context const & ctx) { return m_ptr->infer_type(e, ctx); }
+level type_checker::infer_universe(expr const & e, context const & ctx) { return m_ptr->infer_universe(e, ctx); }
+void type_checker::clear() { m_ptr->clear(); }
+void type_checker::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
+
 expr  infer_type(expr const & e, environment const & env, context const & ctx) {
-    return infer_type_fn(env)(e, ctx);
+    return type_checker(env).infer_type(e, ctx);
 }
 
 level infer_universe(expr const & t, environment const & env, context const & ctx) {
-    return infer_type_fn(env).infer_universe(t, ctx);
+    return type_checker(env).infer_universe(t, ctx);
 }
 }

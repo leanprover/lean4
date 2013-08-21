@@ -238,44 +238,77 @@ template<typename T> void interval<T>::neg_jst(interval_deps & deps) {
 
 template<typename T>
 interval<T> & interval<T>::operator+=(interval<T> const & o) {
-    xnumeral_kind new_l_kind, new_u_kind;
-    round_to_minus_inf();
-    add(m_lower, new_l_kind, m_lower, lower_kind(), o.m_lower, o.lower_kind());
-    round_to_plus_inf();
-    add(m_upper, new_u_kind, m_upper, upper_kind(), o.m_upper, o.upper_kind());
-    m_lower_inf = new_l_kind == XN_MINUS_INFINITY;
-    m_upper_inf = new_u_kind == XN_PLUS_INFINITY;
-    m_lower_open = m_lower_open || o.m_lower_open;
-    m_upper_open = m_upper_open || o.m_upper_open;
-    lean_assert(check_invariant());
-    return *this;
+    return add(o);
 }
 
 template<typename T>
 interval<T> & interval<T>::operator-=(interval<T> const & o) {
-    using std::swap;
-    static thread_local T new_l_val;
-    static thread_local T new_u_val;
-    xnumeral_kind new_l_kind, new_u_kind;
-    lean_trace("numerics", tout << "this: " << *this << " o: " << o << "\n";);
-    round_to_minus_inf();
-    sub(new_l_val, new_l_kind, m_lower, lower_kind(), o.m_upper, o.upper_kind());
-    round_to_plus_inf();
-    sub(new_u_val, new_u_kind, m_upper, upper_kind(), o.m_lower, o.lower_kind());
-    lean_trace("numerics", tout << "new: " << new_l_val << " " << new_u_val << "\n";);
-    swap(new_l_val, m_lower);
-    swap(new_u_val, m_upper);
-    m_lower_inf = new_l_kind == XN_MINUS_INFINITY;
-    m_upper_inf = new_u_kind == XN_PLUS_INFINITY;
-    bool o_l = o.m_lower_open;
-    m_lower_open = m_lower_open || o.m_upper_open;
-    m_upper_open = m_upper_open || o_l;
-    lean_assert(check_invariant());
-    return *this;
+    return sub(o);
 }
 
 template<typename T>
 interval<T> & interval<T>::operator*=(interval<T> const & o) {
+    return mul(o);
+}
+
+template<typename T>
+interval<T> & interval<T>::operator/=(interval<T> const & o) {
+    return div(o);
+}
+
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+interval<T> & interval<T>::add(interval<T> const & o, interval_deps & deps) {
+    if(compute_intv) {
+        xnumeral_kind new_l_kind, new_u_kind;
+        round_to_minus_inf();
+        lean::add(m_lower, new_l_kind, m_lower, lower_kind(), o.m_lower, o.lower_kind());
+        round_to_plus_inf();
+        lean::add(m_upper, new_u_kind, m_upper, upper_kind(), o.m_upper, o.upper_kind());
+        m_lower_inf = new_l_kind == XN_MINUS_INFINITY;
+        m_upper_inf = new_u_kind == XN_PLUS_INFINITY;
+        m_lower_open = m_lower_open || o.m_lower_open;
+        m_upper_open = m_upper_open || o.m_upper_open;
+        lean_assert(check_invariant());
+    }
+    if(compute_deps) {
+        deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_LOWER2;
+        deps.m_upper_deps = DEP_IN_UPPER1 | DEP_IN_UPPER2;
+    }
+    return *this;
+}
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+interval<T> & interval<T>::sub(interval<T> const & o, interval_deps & deps) {
+    if(compute_intv) {
+        using std::swap;
+        static thread_local T new_l_val;
+        static thread_local T new_u_val;
+        xnumeral_kind new_l_kind, new_u_kind;
+        lean_trace("numerics", tout << "this: " << *this << " o: " << o << "\n";);
+        round_to_minus_inf();
+        lean::sub(new_l_val, new_l_kind, m_lower, lower_kind(), o.m_upper, o.upper_kind());
+        round_to_plus_inf();
+        lean::sub(new_u_val, new_u_kind, m_upper, upper_kind(), o.m_lower, o.lower_kind());
+        lean_trace("numerics", tout << "new: " << new_l_val << " " << new_u_val << "\n";);
+        swap(new_l_val, m_lower);
+        swap(new_u_val, m_upper);
+        m_lower_inf = new_l_kind == XN_MINUS_INFINITY;
+        m_upper_inf = new_u_kind == XN_PLUS_INFINITY;
+        bool o_l = o.m_lower_open;
+        m_lower_open = m_lower_open || o.m_upper_open;
+        m_upper_open = m_upper_open || o_l;
+        lean_assert(check_invariant());
+    }
+    if(compute_deps) {
+        deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER2;
+        deps.m_upper_deps = DEP_IN_UPPER1 | DEP_IN_LOWER2;
+    }
+    return *this;
+}
+template<typename T>
+template<bool compute_intv, bool compute_deps>
+interval<T> & interval<T>::mul(interval<T> const & o, interval_deps & deps) {
     using std::swap;
     interval<T> const & i1 = *this;
     interval<T> const & i2 = o;
@@ -284,10 +317,20 @@ interval<T> & interval<T>::operator*=(interval<T> const & o) {
     bool i2_contains_zero = i2.contains_zero();
 #endif
     if (i1.is_zero()) {
+        if(compute_deps) {
+            deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
+            deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
+        }
         return *this;
     }
     if (i2.is_zero()) {
-        *this = i2;
+        if(compute_intv) {
+            *this = i2;
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
+            deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
+        }
         return *this;
     }
 
@@ -308,50 +351,78 @@ interval<T> & interval<T>::operator*=(interval<T> const & o) {
     if (i1.is_N()) {
         if (i2.is_N()) {
             // x <= b <= 0, y <= d <= 0 --> b*d <= x*y
-            // a <= x <= b <= 0, c <= y <= d <= 0 --> x*y <= a*c  (we can use the fact that x or y is always negative (i.e., b is neg or d is neg))
-            set_is_lower_open((i1.is_N0() || i2.is_N0()) ? false : (b_o || d_o));
-            set_is_upper_open(a_o || c_o);
-            // if b = 0 (and the interval is closed), then the lower bound is closed
+            // a <= x <= b <= 0, c <= y <= d <= 0 --> x*y <= a*c  (we
+            // can use the fact that x or y is always negative (i.e.,
+            // b is neg or d is neg))
+            if(compute_intv) {
+                set_is_lower_open((i1.is_N0() || i2.is_N0()) ? false : (b_o || d_o));
+                set_is_upper_open(a_o || c_o);
+                // if b = 0 (and the interval is closed), then the lower bound is closed
 
-            round_to_minus_inf();
-            mul(new_l_val, new_l_kind, b, b_k, d, d_k);
-            round_to_plus_inf();
-            mul(new_u_val, new_u_kind, a, a_k, c, c_k);
+                round_to_minus_inf();
+                lean::mul(new_l_val, new_l_kind, b, b_k, d, d_k);
+                round_to_plus_inf();
+                lean::mul(new_u_val, new_u_kind, a, a_k, c, c_k);
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_UPPER1 | DEP_IN_UPPER2;
+                deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_LOWER2 | DEP_IN_UPPER1; // we can replace DEP_IN_UPPER1 with DEP_IN_UPPER2
+            }
         } else if (i2.is_M()) {
             // a <= x <= b <= 0,  y <= d, d > 0 --> a*d <= x*y (uses the fact that b is not positive)
-            // a <= x <= b <= 0,  c <= y, c < 0 --> x*y <= a*c (uses the fact that b is not positive)
-            set_is_lower_open(a_o || d_o);
-            set_is_upper_open(a_o || c_o);
+            // a <= x <= b <= 0,  c <= y, c < 0 --> x*y <= a*c (uses
+            // the fact that b is not positive)
+            if(compute_intv) {
+                set_is_lower_open(a_o || d_o);
+                set_is_upper_open(a_o || c_o);
 
-            round_to_minus_inf();
-            mul(new_l_val, new_l_kind, a, a_k, d, d_k);
-            round_to_plus_inf();
-            mul(new_u_val, new_u_kind, a, a_k, c, c_k);
+                round_to_minus_inf();
+                lean::mul(new_l_val, new_l_kind, a, a_k, d, d_k);
+                round_to_plus_inf();
+                lean::mul(new_u_val, new_u_kind, a, a_k, c, c_k);
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER2 | DEP_IN_UPPER1;
+                deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_LOWER2 | DEP_IN_UPPER1;
+            }
         } else {
             // a <= x <= b <= 0, 0 <= c <= y <= d --> a*d <= x*y (uses the fact that x is neg (b is not positive) or y is pos (c is not negative))
             // x <= b <= 0,  0 <= c <= y --> x*y <= b*c
             lean_assert(i2.is_P());
 
             // must update upper_is_open first, since value of is_N0(i1) and is_P0(i2) may be affected by update
-            set_is_upper_open((i1.is_N0() || i2.is_P0()) ? false : (b_o || c_o));
-            set_is_lower_open(a_o || d_o);
+            if(compute_intv) {
+                set_is_upper_open((i1.is_N0() || i2.is_P0()) ? false : (b_o || c_o));
+                set_is_lower_open(a_o || d_o);
 
-            round_to_minus_inf();
-            mul(new_l_val, new_l_kind, a, a_k, d, d_k);
-            round_to_plus_inf();
-            mul(new_u_val, new_u_kind, b, b_k, c, c_k);
+                round_to_minus_inf();
+                lean::mul(new_l_val, new_l_kind, a, a_k, d, d_k);
+                round_to_plus_inf();
+                lean::mul(new_u_val, new_u_kind, b, b_k, c, c_k);
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER2 | DEP_IN_UPPER1; // we can replace DEP_IN_UPPER1 with DEP_IN_UPPER2
+                deps.m_upper_deps = DEP_IN_UPPER1 | DEP_IN_LOWER2;
+            }
         }
     } else if (i1.is_M()) {
         if (i2.is_N()) {
             // b > 0, x <= b,  c <= y <= d <= 0 --> b*c <= x*y (uses the fact that d is not positive)
-            // a < 0, a <= x,  c <= y <= d <= 0 --> x*y <= a*c (uses the fact that d is not positive)
-            set_is_lower_open(b_o || c_o);
-            set_is_upper_open(a_o || c_o);
+            // a < 0, a <= x,  c <= y <= d <= 0 --> x*y <= a*c (uses
+            // the fact that d is not positive)
+            if(compute_intv) {
+                set_is_lower_open(b_o || c_o);
+                set_is_upper_open(a_o || c_o);
 
-            round_to_minus_inf();
-            mul(new_l_val, new_l_kind, b, b_k, c, c_k);
-            round_to_plus_inf();
-            mul(new_u_val, new_u_kind, a, a_k, c, c_k);
+                round_to_minus_inf();
+                lean::mul(new_l_val, new_l_kind, b, b_k, c, c_k);
+                round_to_plus_inf();
+                lean::mul(new_u_val, new_u_kind, a, a_k, c, c_k);
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_UPPER1 | DEP_IN_LOWER2 | DEP_IN_UPPER2;
+                deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_LOWER2 | DEP_IN_UPPER2;
+            }
         } else if (i2.is_M()) {
             static thread_local T ad; xnumeral_kind ad_k;
             static thread_local T bc; xnumeral_kind bc_k;
@@ -363,45 +434,62 @@ interval<T> & interval<T>::operator*=(interval<T> const & o) {
             bool  ac_o = a_o || c_o;
             bool  bd_o = b_o || d_o;
 
-            round_to_minus_inf();
-            mul(ad, ad_k, a, a_k, d, d_k);
-            mul(bc, bc_k, b, b_k, c, c_k);
-            round_to_plus_inf();
-            mul(ac, ac_k, a, a_k, c, c_k);
-            mul(bd, bd_k, b, b_k, d, d_k);
-
-            if (lt(ad, ad_k, bc, bc_k) || (eq(ad, ad_k, bc, bc_k) && !ad_o && bc_o)) {
-                swap(new_l_val, ad);
-                new_l_kind = ad_k;
-                set_is_lower_open(ad_o);
-            } else {
-                swap(new_l_val, bc);
-                new_l_kind = bc_k;
-                set_is_lower_open(bc_o);
+            if(compute_intv) {
+                round_to_minus_inf();
+                lean::mul(ad, ad_k, a, a_k, d, d_k);
+                lean::mul(bc, bc_k, b, b_k, c, c_k);
+                round_to_plus_inf();
+                lean::mul(ac, ac_k, a, a_k, c, c_k);
+                lean::mul(bd, bd_k, b, b_k, d, d_k);
             }
-
-
-            if (gt(ac, ac_k, bd, bd_k) || (eq(ac, ac_k, bd, bd_k) && !ac_o && bd_o)) {
-                swap(new_u_val, ac);
-                new_u_kind = ac_k;
-                set_is_upper_open(ac_o);
+            if (lt(ad, ad_k, bc, bc_k) || (eq(ad, ad_k, bc, bc_k) && !ad_o && bc_o)) {
+                if(compute_intv) {
+                    swap(new_l_val, ad);
+                    new_l_kind = ad_k;
+                    set_is_lower_open(ad_o);
+                }
             } else {
-                swap(new_u_val, bd);
-                new_u_kind = bd_k;
-                set_is_upper_open(bd_o);
+                if(compute_intv) {
+                    swap(new_l_val, bc);
+                    new_l_kind = bc_k;
+                    set_is_lower_open(bc_o);
+                }
+            }
+            if (gt(ac, ac_k, bd, bd_k) || (eq(ac, ac_k, bd, bd_k) && !ac_o && bd_o)) {
+                if(compute_intv) {
+                    swap(new_u_val, ac);
+                    new_u_kind = ac_k;
+                    set_is_upper_open(ac_o);
+                }
+            } else {
+                if(compute_intv) {
+                    swap(new_u_val, bd);
+                    new_u_kind = bd_k;
+                    set_is_upper_open(bd_o);
+                }
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1 | DEP_IN_LOWER2 | DEP_IN_UPPER2;
+                deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1 | DEP_IN_LOWER2 | DEP_IN_UPPER2;
             }
         } else {
             // a < 0, a <= x, 0 <= c <= y <= d --> a*d <= x*y (uses the fact that c is not negative)
             // b > 0, x <= b, 0 <= c <= y <= d --> x*y <= b*d (uses the fact that c is not negative)
             lean_assert(i2.is_P());
 
-            set_is_lower_open(a_o || d_o);
-            set_is_upper_open(b_o || d_o);
+            if(compute_intv) {
+                set_is_lower_open(a_o || d_o);
+                set_is_upper_open(b_o || d_o);
 
-            round_to_minus_inf();
-            mul(new_l_val, new_l_kind, a, a_k, d, d_k);
-            round_to_plus_inf();
-            mul(new_u_val, new_u_kind, b, b_k, d, d_k);
+                round_to_minus_inf();
+                lean::mul(new_l_val, new_l_kind, a, a_k, d, d_k);
+                round_to_plus_inf();
+                lean::mul(new_u_val, new_u_kind, b, b_k, d, d_k);
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER2 | DEP_IN_LOWER2;
+                deps.m_upper_deps = DEP_IN_UPPER1 | DEP_IN_UPPER2 | DEP_IN_LOWER2;
+            }
         }
     } else {
         lean_assert(i1.is_P());
@@ -410,49 +498,68 @@ interval<T> & interval<T>::operator*=(interval<T> const & o) {
             // 0 <= a <= x,  y <= d <= 0  --> a*d <= x*y
 
             // must update upper_is_open first, since value of is_P0(i1) and is_N0(i2) may be affected by update
-            set_is_upper_open((i1.is_P0() || i2.is_N0()) ? false : a_o || d_o);
-            set_is_lower_open(b_o || c_o);
+            if(compute_intv) {
+                set_is_upper_open((i1.is_P0() || i2.is_N0()) ? false : a_o || d_o);
+                set_is_lower_open(b_o || c_o);
 
-            round_to_minus_inf();
-            mul(new_l_val, new_l_kind, b, b_k, c, c_k);
-            round_to_plus_inf();
-            mul(new_u_val, new_u_kind, a, a_k, d, d_k);
+                round_to_minus_inf();
+                lean::mul(new_l_val, new_l_kind, b, b_k, c, c_k);
+                round_to_plus_inf();
+                lean::mul(new_u_val, new_u_kind, a, a_k, d, d_k);
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_UPPER1 | DEP_IN_LOWER2 | DEP_IN_LOWER1; // we can replace DEP_IN_LOWER1 with DEP_IN_UPPER2
+                deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER2;
+            }
         } else if (i2.is_M()) {
             // 0 <= a <= x <= b,  c <= y --> b*c <= x*y (uses the fact that a is not negative)
-            // 0 <= a <= x <= b,  y <= d --> x*y <= b*d (uses the fact that a is not negative)
-            set_is_lower_open(b_o || c_o);
-            set_is_upper_open(b_o || d_o);
+            // 0 <= a <= x <= b,  y <= d --> x*y <= b*d (uses the fact
+            // that a is not negative)
+            if(compute_intv) {
+                set_is_lower_open(b_o || c_o);
+                set_is_upper_open(b_o || d_o);
 
-            round_to_minus_inf();
-            mul(new_l_val, new_l_kind, b, b_k, c, c_k);
-            round_to_plus_inf();
-            mul(new_u_val, new_u_kind, b, b_k, d, d_k);
+                round_to_minus_inf();
+                lean::mul(new_l_val, new_l_kind, b, b_k, c, c_k);
+                round_to_plus_inf();
+                lean::mul(new_u_val, new_u_kind, b, b_k, d, d_k);
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_UPPER1 | DEP_IN_LOWER2 | DEP_IN_LOWER1;
+                deps.m_upper_deps = DEP_IN_UPPER1 | DEP_IN_UPPER2 | DEP_IN_LOWER1;
+            }
         } else {
             lean_assert(i2.is_P());
             // 0 n<= a <= x, 0 <= c <= y --> a*c <= x*y
             // x <= b, y <= d --> x*y <= b*d (uses the fact that x is pos (a is not negative) or y is pos (c is not negative))
+            if(compute_intv) {
+                set_is_lower_open((i1.is_P0() || i2.is_P0()) ? false : a_o || c_o);
+                set_is_upper_open(b_o || d_o);
 
-            set_is_lower_open((i1.is_P0() || i2.is_P0()) ? false : a_o || c_o);
-            set_is_upper_open(b_o || d_o);
-
-            round_to_minus_inf();
-            mul(new_l_val, new_l_kind, a, a_k, c, c_k);
-            round_to_plus_inf();
-            mul(new_u_val, new_u_kind, b, b_k, d, d_k);
+                round_to_minus_inf();
+                lean::mul(new_l_val, new_l_kind, a, a_k, c, c_k);
+                round_to_plus_inf();
+                lean::mul(new_u_val, new_u_kind, b, b_k, d, d_k);
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_LOWER2;
+                deps.m_upper_deps = DEP_IN_UPPER1 | DEP_IN_UPPER2 | DEP_IN_LOWER1;
+            }
         }
     }
-
-    swap(m_lower, new_l_val);
-    swap(m_upper, new_u_val);
-    set_is_lower_inf(new_l_kind == XN_MINUS_INFINITY);
-    set_is_upper_inf(new_u_kind == XN_PLUS_INFINITY);
-    lean_assert(!(i1_contains_zero || i2_contains_zero) || contains_zero());
-    lean_assert(check_invariant());
+    if(compute_intv) {
+        swap(m_lower, new_l_val);
+        swap(m_upper, new_u_val);
+        set_is_lower_inf(new_l_kind == XN_MINUS_INFINITY);
+        set_is_upper_inf(new_u_kind == XN_PLUS_INFINITY);
+        lean_assert(!(i1_contains_zero || i2_contains_zero) || contains_zero());
+        lean_assert(check_invariant());
+    }
     return *this;
 }
-
 template<typename T>
-interval<T> & interval<T>::operator/=(interval<T> const & o) {
+template<bool compute_intv, bool compute_deps>
+interval<T> & interval<T>::div(interval<T> const & o, interval_deps & deps) {
     using std::swap;
     interval<T> const & i1 = *this;
     interval<T> const & i2 = o;
@@ -461,6 +568,16 @@ interval<T> & interval<T>::operator/=(interval<T> const & o) {
     if (i1.is_zero()) {
         // 0/other = 0 if other != 0
         // do nothing
+        if(compute_deps) {
+            if (i2.is_P1()) {
+                deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_LOWER2;
+                deps.m_upper_deps = DEP_IN_UPPER1 | DEP_IN_LOWER2;
+            }
+            else {
+                deps.m_lower_deps = DEP_IN_UPPER1 | DEP_IN_UPPER2;
+                deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER2;
+            }
+        }
     } else {
         T const & a = i1.m_lower; xnumeral_kind a_k = i1.lower_kind();
         T const & b = i1.m_upper; xnumeral_kind b_k = i1.upper_kind();
@@ -480,76 +597,101 @@ interval<T> & interval<T>::operator/=(interval<T> const & o) {
             if (i2.is_N1()) {
                 // x <= b <= 0,      c <= y <= d < 0 --> b/c <= x/y
                 // a <= x <= b <= 0,      y <= d < 0 -->        x/y <= a/d
-                set_is_lower_open(i1.is_N0() ? false : b_o || c_o);
-                set_is_upper_open(a_o || d_o);
 
-                round_to_minus_inf();
-                div(new_l_val, new_l_kind, b, b_k, c, c_k);
-                if (is_zero(d)) {
-                    lean_assert(d_o);
-                    reset(new_u_val);
-                    new_u_kind = XN_PLUS_INFINITY;
-                } else {
-                    round_to_plus_inf();
-                    div(new_u_val, new_u_kind, a, a_k, d, d_k);
+                if(compute_intv) {
+                    set_is_lower_open(i1.is_N0() ? false : b_o || c_o);
+                    set_is_upper_open(a_o || d_o);
+
+                    round_to_minus_inf();
+                    lean::div(new_l_val, new_l_kind, b, b_k, c, c_k);
+                    if (is_zero(d)) {
+                        lean_assert(d_o);
+                        reset(new_u_val);
+                        new_u_kind = XN_PLUS_INFINITY;
+                    } else {
+                        round_to_plus_inf();
+                        lean::div(new_u_val, new_u_kind, a, a_k, d, d_k);
+                    }
+                }
+                if(compute_deps) {
+                    deps.m_lower_deps = DEP_IN_UPPER1 | DEP_IN_LOWER2 | DEP_IN_UPPER2;
+                    deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER2;
                 }
             } else {
                 // a <= x, a < 0,   0 < c <= y       -->  a/c <= x/y
                 // x <= b <= 0,     0 < c <= y <= d  -->         x/y <= b/d
                 lean_assert(i2.is_P1());
 
-                set_is_upper_open(i1.is_N0() ? false : (b_o || d_o));
-                set_is_lower_open(a_o || c_o);
+                if(compute_intv) {
+                    set_is_upper_open(i1.is_N0() ? false : (b_o || d_o));
+                    set_is_lower_open(a_o || c_o);
 
-                if (is_zero(c)) {
-                    lean_assert(c_o);
-                    reset(new_l_val);
-                    new_l_kind = XN_MINUS_INFINITY;
-                } else {
-                    round_to_minus_inf();
-                    div(new_l_val, new_l_kind, a, a_k, c, c_k);
+                    if (is_zero(c)) {
+                        lean_assert(c_o);
+                        reset(new_l_val);
+                        new_l_kind = XN_MINUS_INFINITY;
+                    } else {
+                        round_to_minus_inf();
+                        lean::div(new_l_val, new_l_kind, a, a_k, c, c_k);
+                    }
+                    round_to_plus_inf();
+                    lean::div(new_u_val, new_u_kind, b, b_k, d, d_k);
                 }
-                round_to_plus_inf();
-                div(new_u_val, new_u_kind, b, b_k, d, d_k);
+                if(compute_deps) {
+                    deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_LOWER2;
+                    deps.m_upper_deps = DEP_IN_UPPER1 | DEP_IN_LOWER2 | DEP_IN_UPPER2;
+                }
             }
         } else if (i1.is_M()) {
             if (i2.is_N1()) {
                 // 0 < a <= x <= b < 0,  y <= d < 0   --> b/d <= x/y
                 // 0 < a <= x <= b < 0,  y <= d < 0   -->        x/y <= a/d
-                set_is_lower_open(b_o || d_o);
-                set_is_upper_open(a_o || d_o);
 
-                if (is_zero(d)) {
-                    lean_assert(d_o);
-                    reset(new_l_val);
-                    reset(new_u_val);
-                    new_l_kind = XN_MINUS_INFINITY;
-                    new_u_kind = XN_PLUS_INFINITY;
-                } else {
-                    round_to_minus_inf();
-                    div(new_l_val, new_l_kind, b, b_k, d, d_k);
-                    round_to_plus_inf();
-                    div(new_u_val, new_u_kind, a, a_k, d, d_k);
+                if(compute_intv) {
+                    set_is_lower_open(b_o || d_o);
+                    set_is_upper_open(a_o || d_o);
+
+                    if (is_zero(d)) {
+                        lean_assert(d_o);
+                        reset(new_l_val);
+                        reset(new_u_val);
+                        new_l_kind = XN_MINUS_INFINITY;
+                        new_u_kind = XN_PLUS_INFINITY;
+                    } else {
+                        round_to_minus_inf();
+                        lean::div(new_l_val, new_l_kind, b, b_k, d, d_k);
+                        round_to_plus_inf();
+                        lean::div(new_u_val, new_u_kind, a, a_k, d, d_k);
+                    }
+                }
+                if(compute_deps) {
+                    deps.m_lower_deps = DEP_IN_UPPER1 | DEP_IN_UPPER2;
+                    deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER2;
                 }
             } else {
                 // 0 < a <= x <= b < 0, 0 < c <= y  --> a/c <= x/y
                 // 0 < a <= x <= b < 0, 0 < c <= y  -->        x/y <= b/c
                 lean_assert(i1.is_P1());
+                if(compute_intv) {
+                    set_is_lower_open(a_o || c_o);
+                    set_is_upper_open(b_o || c_o);
 
-                set_is_lower_open(a_o || c_o);
-                set_is_upper_open(b_o || c_o);
-
-                if (is_zero(c)) {
-                    lean_assert(c_o);
-                    reset(new_l_val);
-                    reset(new_u_val);
-                    new_l_kind = XN_MINUS_INFINITY;
-                    new_u_kind = XN_PLUS_INFINITY;
-                } else {
-                    round_to_minus_inf();
-                    div(new_l_val, new_l_kind, a, a_k, c, c_k);
-                    round_to_plus_inf();
-                    div(new_u_val, new_u_kind, b, b_k, c, c_k);
+                    if (is_zero(c)) {
+                        lean_assert(c_o);
+                        reset(new_l_val);
+                        reset(new_u_val);
+                        new_l_kind = XN_MINUS_INFINITY;
+                        new_u_kind = XN_PLUS_INFINITY;
+                    } else {
+                        round_to_minus_inf();
+                        lean::div(new_l_val, new_l_kind, a, a_k, c, c_k);
+                        round_to_plus_inf();
+                        lean::div(new_u_val, new_u_kind, b, b_k, c, c_k);
+                    }
+                }
+                if(compute_deps) {
+                    deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_LOWER2;
+                    deps.m_upper_deps = DEP_IN_UPPER1 | DEP_IN_LOWER2;
                 }
             }
         } else {
@@ -557,53 +699,83 @@ interval<T> & interval<T>::operator/=(interval<T> const & o) {
             if (i2.is_N1()) {
                 // b > 0,    x <= b,   c <= y <= d < 0    -->  b/d <= x/y
                 // 0 <= a <= x,        c <= y <= d < 0    -->         x/y  <= a/c
-                set_is_upper_open(i1.is_P0() ? false : a_o || c_o);
-                set_is_lower_open(b_o || d_o);
+                if(compute_intv) {
+                    set_is_upper_open(i1.is_P0() ? false : a_o || c_o);
+                    set_is_lower_open(b_o || d_o);
 
-                if (is_zero(d)) {
-                    lean_assert(d_o);
-                    reset(new_l_val);
-                    new_l_kind = XN_MINUS_INFINITY;
-                } else {
-                    round_to_minus_inf();
-                    div(new_l_val, new_l_kind, b, b_k, d, d_k);
+                    if (is_zero(d)) {
+                        lean_assert(d_o);
+                        reset(new_l_val);
+                        new_l_kind = XN_MINUS_INFINITY;
+                    } else {
+                        round_to_minus_inf();
+                        lean::div(new_l_val, new_l_kind, b, b_k, d, d_k);
+                    }
+                    round_to_plus_inf();
+                    lean::div(new_u_val, new_u_kind, a, a_k, c, c_k);
                 }
-                round_to_plus_inf();
-                div(new_u_val, new_u_kind, a, a_k, c, c_k);
+                if(compute_deps) {
+                    deps.m_lower_deps = DEP_IN_UPPER1 | DEP_IN_UPPER2;
+                    deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_LOWER2 | DEP_IN_UPPER2;
+                }
             } else {
                 lean_assert(i2.is_P1());
                 // 0 <= a <= x,      0 < c <= y <= d    -->   a/d <= x/y
                 // b > 0     x <= b, 0 < c <= y         -->          x/y <= b/c
-                set_is_lower_open(i1.is_P0() ? false : a_o || d_o);
-                set_is_upper_open(b_o || c_o);
+                if(compute_intv) {
+                    set_is_lower_open(i1.is_P0() ? false : a_o || d_o);
+                    set_is_upper_open(b_o || c_o);
 
-                round_to_minus_inf();
-                div(new_l_val, new_l_kind, a, a_k, d, d_k);
-                if (is_zero(c)) {
-                    lean_assert(c_o);
-                    reset(new_u_val);
-                    new_u_kind = XN_PLUS_INFINITY;
-                } else {
-                    round_to_plus_inf();
-                    div(new_u_val, new_u_kind, b, b_k, c, c_k);
+                    round_to_minus_inf();
+                    lean::div(new_l_val, new_l_kind, a, a_k, d, d_k);
+                    if (is_zero(c)) {
+                        lean_assert(c_o);
+                        reset(new_u_val);
+                        new_u_kind = XN_PLUS_INFINITY;
+                    } else {
+                        round_to_plus_inf();
+                        lean::div(new_u_val, new_u_kind, b, b_k, c, c_k);
+                    }
+                }
+                if(compute_deps) {
+                    deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_LOWER2 | DEP_IN_UPPER2;
+                    deps.m_upper_deps = DEP_IN_UPPER1 | DEP_IN_LOWER2;
                 }
             }
         }
-        swap(m_lower, new_l_val);
-        swap(m_upper, new_u_val);
-        m_lower_inf = (new_l_kind == XN_MINUS_INFINITY);
-        m_upper_inf = (new_u_kind == XN_PLUS_INFINITY);
+        if(compute_intv) {
+            swap(m_lower, new_l_val);
+            swap(m_upper, new_u_val);
+            m_lower_inf = (new_l_kind == XN_MINUS_INFINITY);
+            m_upper_inf = (new_u_kind == XN_PLUS_INFINITY);
+        }
     }
     return *this;
+}
+template<typename T> void interval<T>::add_jst(interval<T> const & o, interval_deps & deps) {
+    add<false, true>(o, deps);
+    return;
+}
+template<typename T> void interval<T>::sub_jst(interval<T> const & o, interval_deps & deps) {
+    sub<false, true>(o, deps);
+    return;
+}
+template<typename T> void interval<T>::mul_jst(interval<T> const & o, interval_deps & deps) {
+    mul<false, true>(o, deps);
+    return;
+}
+template<typename T> void interval<T>::div_jst(interval<T> const & o, interval_deps & deps) {
+    div<false, true>(o, deps);
+    return;
 }
 
 template<typename T>
 interval<T> & interval<T>::operator+=(T const & o) {
     xnumeral_kind new_l_kind, new_u_kind;
     round_to_minus_inf();
-    add(m_lower, new_l_kind, m_lower, lower_kind(), o, XN_NUMERAL);
+    lean::add(m_lower, new_l_kind, m_lower, lower_kind(), o, XN_NUMERAL);
     round_to_plus_inf();
-    add(m_upper, new_u_kind, m_upper, upper_kind(), o, XN_NUMERAL);
+    lean::add(m_upper, new_u_kind, m_upper, upper_kind(), o, XN_NUMERAL);
     m_lower_inf = new_l_kind == XN_MINUS_INFINITY;
     m_upper_inf = new_u_kind == XN_PLUS_INFINITY;
     lean_assert(check_invariant());
@@ -614,9 +786,9 @@ template<typename T>
 interval<T> & interval<T>::operator-=(T const & o) {
     xnumeral_kind new_l_kind, new_u_kind;
     round_to_minus_inf();
-    sub(m_lower, new_l_kind, m_lower, lower_kind(), o, XN_NUMERAL);
+    lean::sub(m_lower, new_l_kind, m_lower, lower_kind(), o, XN_NUMERAL);
     round_to_plus_inf();
-    sub(m_upper, new_u_kind, m_upper, upper_kind(), o, XN_NUMERAL);
+    lean::sub(m_upper, new_u_kind, m_upper, upper_kind(), o, XN_NUMERAL);
     m_lower_inf = new_l_kind == XN_MINUS_INFINITY;
     m_upper_inf = new_u_kind == XN_PLUS_INFINITY;
     lean_assert(check_invariant());
@@ -641,18 +813,18 @@ interval<T> & interval<T>::operator*=(T const & o) {
     if(numeric_traits<T>::is_pos(o)) {
         // [a, b] * c = [a*c, b*c] when c > 0
         round_to_minus_inf();
-        mul(m_lower, new_l_kind, m_lower, lower_kind(), o, XN_NUMERAL);
+        lean::mul(m_lower, new_l_kind, m_lower, lower_kind(), o, XN_NUMERAL);
         round_to_plus_inf();
-        mul(m_upper, new_u_kind, m_upper, upper_kind(), o, XN_NUMERAL);
+        lean::mul(m_upper, new_u_kind, m_upper, upper_kind(), o, XN_NUMERAL);
         m_lower_inf = new_l_kind == XN_MINUS_INFINITY;
         m_upper_inf = new_u_kind == XN_PLUS_INFINITY;
     }
     else {
         // [a, b] * c = [b*c, a*c] when c < 0
         round_to_minus_inf();
-        mul(tmp1, new_l_kind, m_upper, upper_kind(), o, XN_NUMERAL);
+        lean::mul(tmp1, new_l_kind, m_upper, upper_kind(), o, XN_NUMERAL);
         round_to_plus_inf();
-        mul(m_upper, new_u_kind, m_lower, lower_kind(), o, XN_NUMERAL);
+        lean::mul(m_upper, new_u_kind, m_lower, lower_kind(), o, XN_NUMERAL);
         m_lower = tmp1;
         m_lower_inf = new_l_kind == XN_MINUS_INFINITY;
         m_upper_inf = new_u_kind == XN_PLUS_INFINITY;
@@ -678,18 +850,18 @@ interval<T> & interval<T>::operator/=(T const & o) {
     if(numeric_traits<T>::is_pos(o)) {
         // [a, b] / c = [a/c, b/c] when c > 0
         round_to_minus_inf();
-        div(m_lower, new_l_kind, m_lower, lower_kind(), o, XN_NUMERAL);
+        lean::div(m_lower, new_l_kind, m_lower, lower_kind(), o, XN_NUMERAL);
         round_to_plus_inf();
-        div(m_upper, new_u_kind, m_upper, upper_kind(), o, XN_NUMERAL);
+        lean::div(m_upper, new_u_kind, m_upper, upper_kind(), o, XN_NUMERAL);
         m_lower_inf = new_l_kind == XN_MINUS_INFINITY;
         m_upper_inf = new_u_kind == XN_PLUS_INFINITY;
     }
     else {
         // [a, b] / c = [b/c, a/c] when c < 0
         round_to_minus_inf();
-        div(tmp1, new_l_kind, m_upper, upper_kind(), o, XN_NUMERAL);
+        lean::div(tmp1, new_l_kind, m_upper, upper_kind(), o, XN_NUMERAL);
         round_to_plus_inf();
-        div(m_upper, new_u_kind, m_lower, lower_kind(), o, XN_NUMERAL);
+        lean::div(m_upper, new_u_kind, m_lower, lower_kind(), o, XN_NUMERAL);
         m_lower = tmp1;
         m_lower_inf = new_l_kind == XN_MINUS_INFINITY;
         m_upper_inf = new_u_kind == XN_PLUS_INFINITY;
@@ -697,9 +869,14 @@ interval<T> & interval<T>::operator/=(T const & o) {
     return *this;
 }
 
+template<typename T> void interval<T>::inv_jst(interval_deps & deps) {
+    inv<false, true>(deps);
+    return;
+}
 
 template<typename T>
-void interval<T>::inv() {
+template<bool compute_intv, bool compute_deps>
+void interval<T>::inv(interval_deps & deps) {
     // If the interval [l,u] does not contain 0, then 1/[l,u] = [1/u, 1/l]
     lean_assert(!contains_zero());
 
@@ -712,59 +889,70 @@ void interval<T>::inv() {
     if (is_P1()) {
         // 0 < l <= x --> 1/x <= 1/l
         // 0 < l <= x <= u --> 1/u <= 1/x (use lower and upper bounds)
+        if(compute_intv) {
+            round_to_minus_inf();
+            new_l_val  = m_upper;
+            new_l_kind = upper_kind();
+            ::lean::inv(new_l_val, new_l_kind);
+            lean_assert(new_l_kind == XN_NUMERAL);
+            bool new_l_open = is_upper_open();
 
-        round_to_minus_inf();
-        new_l_val  = m_upper;
-        new_l_kind = upper_kind();
-        ::lean::inv(new_l_val, new_l_kind);
-        lean_assert(new_l_kind == XN_NUMERAL);
-        bool new_l_open = is_upper_open();
+            if (is_lower_zero()) {
+                lean_assert(is_lower_open());
+                reset(m_upper);
+                set_is_upper_inf(true);
+                set_is_upper_open(true);
+            } else {
+                round_to_plus_inf();
+                new_u_val = m_lower;
+                inv(new_u_val);
+                swap(m_upper, new_u_val);
+                set_is_upper_inf(false);
+                set_is_upper_open(is_lower_open());
+            }
 
-        if (is_lower_zero()) {
-            lean_assert(is_lower_open());
-            reset(m_upper);
-            set_is_upper_inf(true);
-            set_is_upper_open(true);
-        } else {
-            round_to_plus_inf();
-            new_u_val = m_lower;
-            inv(new_u_val);
-            swap(m_upper, new_u_val);
-            set_is_upper_inf(false);
-            set_is_upper_open(is_lower_open());
+            swap(m_lower, new_l_val);
+            set_is_lower_inf(false);
+            set_is_lower_open(new_l_open);
         }
-
-        swap(m_lower, new_l_val);
-        set_is_lower_inf(false);
-        set_is_lower_open(new_l_open);
+        if(compute_deps) {
+            deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
+            deps.m_upper_deps = DEP_IN_LOWER1;
+        }
     } else if (is_N1()) {
         // x <= u < 0 --> 1/u <= 1/x
         // l <= x <= u < 0 --> 1/l <= 1/x (use lower and upper bounds)
-        round_to_plus_inf();
-        new_u_val  = m_lower;
-        new_u_kind = lower_kind();
-        ::lean::inv(new_u_val, new_u_kind);
-        lean_assert(new_u_kind == XN_NUMERAL);
+        if(compute_intv) {
+            round_to_plus_inf();
+            new_u_val  = m_lower;
+            new_u_kind = lower_kind();
+            ::lean::inv(new_u_val, new_u_kind);
+            lean_assert(new_u_kind == XN_NUMERAL);
 
-        bool new_u_open = is_lower_open();
+            bool new_u_open = is_lower_open();
 
-        if (is_upper_zero()) {
-            lean_assert(is_upper_open());
-            reset(m_lower);
-            set_is_lower_open(true);
-            set_is_lower_inf(true);
-        } else {
-            round_to_minus_inf();
-            new_l_val = m_upper;
-            inv(new_l_val);
-            swap(m_lower, new_l_val);
-            set_is_lower_inf(false);
-            set_is_lower_open(is_upper_open());
+            if (is_upper_zero()) {
+                lean_assert(is_upper_open());
+                reset(m_lower);
+                set_is_lower_open(true);
+                set_is_lower_inf(true);
+            } else {
+                round_to_minus_inf();
+                new_l_val = m_upper;
+                inv(new_l_val);
+                swap(m_lower, new_l_val);
+                set_is_lower_inf(false);
+                set_is_lower_open(is_upper_open());
+            }
+
+            swap(m_upper, new_u_val);
+            set_is_upper_inf(false);
+            set_is_upper_open(new_u_open);
         }
-
-        swap(m_upper, new_u_val);
-        set_is_upper_inf(false);
-        set_is_upper_open(new_u_open);
+        if(compute_deps) {
+            deps.m_lower_deps = DEP_IN_UPPER1;
+            deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
+        }
     } else {
         lean_unreachable();
     }
@@ -772,12 +960,17 @@ void interval<T>::inv() {
 }
 
 template<typename T>
-void interval<T>::power(unsigned n) {
+template<bool compute_intv, bool compute_deps>
+void interval<T>::power(unsigned n, interval_deps & deps) {
     using std::swap;
     lean_assert(n > 0);
     if (n == 1) {
         // a^1 = a
         // nothing to be done
+        if(compute_deps) {
+            deps.m_lower_deps = DEP_IN_LOWER1;
+            deps.m_upper_deps = DEP_IN_UPPER1;
+        }
         return;
     } else if (n % 2 == 0) {
         if (is_lower_pos()) {
@@ -785,35 +978,65 @@ void interval<T>::power(unsigned n) {
             // 0 < l <= x      --> l^n <= x^n (lower bound guarantees that is positive)
             // 0 < l <= x <= u --> x^n <= u^n (use lower and upper bound -- need the fact that x is positive)
             lean_assert(!is_lower_inf());
-            round_to_minus_inf();
-            power(m_lower, n);
+            if(compute_intv) {
+                round_to_minus_inf();
+                power(m_lower, n);
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_LOWER1;
+            }
 
             if (!m_upper_inf) {
-                round_to_plus_inf();
-                power(m_upper, n);
+                if(compute_intv) {
+                    round_to_plus_inf();
+                    power(m_upper, n);
+                }
+                if(compute_deps) {
+                    deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
+                }
+            } else {
+                deps.m_upper_deps = 0;
             }
         } else if (is_upper_neg()) {
             // [l, u]^n = [u^n, l^n] if u < 0
             // l <= x <= u < 0   -->  x^n <= l^n (use lower and upper bound -- need the fact that x is negative)
             // x <= u < 0        -->  u^n <= x^n
             lean_assert(!is_upper_inf());
-            bool lo = m_lower_open;
-            bool li = m_lower_inf;
+            const bool lo = m_lower_open;
+            const bool li = m_lower_inf;
 
-            swap(m_lower, m_upper);
-            round_to_minus_inf();
-            power(m_lower, n);
-            m_lower_open = m_upper_open;
-            m_lower_inf  = false;
+            if(compute_intv) {
+                swap(m_lower, m_upper);
+                round_to_minus_inf();
+                power(m_lower, n);
+                m_lower_open = m_upper_open;
+                m_lower_inf  = false;
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_UPPER1;
+            }
 
             if (li) {
-                reset(m_upper);
+                if(compute_intv) {
+                    reset(m_upper);
+                }
+                if(compute_deps) {
+                    deps.m_upper_deps = 0;
+                }
             } else {
-                round_to_plus_inf();
-                power(m_upper, n);
+                if(compute_intv) {
+                    round_to_plus_inf();
+                    power(m_upper, n);
+                }
+                if(compute_deps) {
+                    deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
+                    deps.m_lower_deps = 0;
+                }
             }
-            m_upper_inf  = li;
-            m_upper_open = lo;
+            if(compute_intv) {
+                m_upper_inf  = li;
+                m_upper_open = lo;
+            }
         } else {
             // [l, u]^n = [0, max{l^n, u^n}] otherwise
             // we need both bounds to justify upper bound
@@ -821,36 +1044,63 @@ void interval<T>::power(unsigned n) {
             xnumeral_kind un2_kind = upper_kind();
             static thread_local T un1;
             static thread_local T un2;
-            swap(un1, m_lower);
-            swap(un2, m_upper);
-            round_to_plus_inf();
-            ::lean::power(un1, un1_kind, n);
-            ::lean::power(un2, un2_kind, n);
+            if(compute_intv) {
+                swap(un1, m_lower);
+                swap(un2, m_upper);
+                round_to_plus_inf();
+                ::lean::power(un1, un1_kind, n);
+                ::lean::power(un2, un2_kind, n);
+                if (gt(un1, un1_kind, un2, un2_kind) || (eq(un1, un1_kind, un2, un2_kind) && !m_lower_open && m_upper_open)) {
+                    swap(m_upper, un1);
+                    m_upper_inf  = (un1_kind == XN_PLUS_INFINITY);
+                    m_upper_open = m_lower_open;
+                } else {
+                    swap(m_upper, un2);
+                    m_upper_inf = (un2_kind == XN_PLUS_INFINITY);
+                }
 
-            if (gt(un1, un1_kind, un2, un2_kind) || (eq(un1, un1_kind, un2, un2_kind) && !m_lower_open && m_upper_open)) {
-                swap(m_upper, un1);
-                m_upper_inf  = (un1_kind == XN_PLUS_INFINITY);
-                m_upper_open = m_lower_open;
-            } else {
-                swap(m_upper, un2);
-                m_upper_inf = (un2_kind == XN_PLUS_INFINITY);
+                reset(m_lower);
+                m_lower_inf  = false;
+                m_lower_open = false;
             }
-
-            reset(m_lower);
-            m_lower_inf  = false;
-            m_lower_open = false;
+            if(compute_deps) {
+                deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
+                deps.m_lower_deps = 0;
+            }
         }
     } else {
         // Remark: when n is odd x^n is monotonic.
         if (!m_lower_inf) {
-            round_to_minus_inf();
-            power(m_lower, n);
+            if(compute_intv) {
+                round_to_minus_inf();
+                power(m_lower, n);
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_LOWER1;
+            }
+        } else {
+            if(compute_deps) {
+                deps.m_lower_deps = 0;
+            }
         }
         if (!m_upper_inf) {
-            round_to_plus_inf();
-            power(m_upper, n);
+            if(compute_intv) {
+                round_to_plus_inf();
+                power(m_upper, n);
+            }
+            if(compute_deps) {
+                deps.m_upper_deps = DEP_IN_UPPER1;
+            }
+        } else {
+            if(compute_deps) {
+                deps.m_upper_deps = 0;
+            }
         }
     }
+}
+template<typename T> void interval<T>::power_jst(unsigned n, interval_deps & deps) {
+    power<false, true>(n, deps);
+    return;
 }
 
 /**
@@ -1215,8 +1465,8 @@ void interval<T>::sin(interval_deps & deps) {
                 lean_assert(check_invariant());
             }
             if(compute_deps) {
-                deps.m_lower_deps = DEP_IN_LOWER1;
-                deps.m_lower_deps = DEP_IN_UPPER1;
+                deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
+                deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
             }
             return;
         }
@@ -1229,15 +1479,9 @@ void interval<T>::sin(interval_deps & deps) {
             //             = [-sin(u'), 1]  if l' + u' >= - pi
             if(m_lower + m_upper <= - pi) {
                 // Nothing
-                if(compute_deps) {
-                    deps.m_lower_deps = DEP_IN_LOWER1;
-                }
             } else {
                 if(compute_intv) {
                     m_lower = m_upper;
-                }
-                if(compute_deps) {
-                    deps.m_lower_deps = DEP_IN_UPPER1;
                 }
             }
             if(compute_intv) {
@@ -1246,6 +1490,10 @@ void interval<T>::sin(interval_deps & deps) {
                 m_lower = - m_lower;
                 m_upper = 1.0;
                 lean_assert(check_invariant());
+            }
+            if(compute_deps) {
+                deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
+                deps.m_upper_deps = 0;
             }
             return;
         }
@@ -1278,8 +1526,8 @@ void interval<T>::sin(interval_deps & deps) {
                 lean_assert(check_invariant());
             }
             if(compute_deps) {
-                deps.m_lower_deps = DEP_IN_UPPER1;
-                deps.m_upper_deps = DEP_IN_LOWER1;
+                deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
+                deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
             }
             return;
         }
@@ -1294,15 +1542,9 @@ void interval<T>::sin(interval_deps & deps) {
                 if(compute_intv) {
                     m_upper = - m_lower;
                 }
-                if(compute_deps) {
-                    deps.m_upper_deps = DEP_IN_LOWER1;
-                }
             } else {
                 if(compute_intv) {
                     m_upper = - m_upper;
-                }
-                if(compute_deps) {
-                    deps.m_upper_deps = DEP_IN_UPPER1;
                 }
             }
             if(compute_intv) {
@@ -1313,6 +1555,7 @@ void interval<T>::sin(interval_deps & deps) {
             }
             if(compute_deps) {
                 deps.m_lower_deps = 0;
+                deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
             }
             return;
         }
@@ -1343,8 +1586,8 @@ void interval<T>::sin(interval_deps & deps) {
             lean_assert(check_invariant());
         }
         if(compute_deps) {
-            deps.m_lower_deps = DEP_IN_LOWER1;
-            deps.m_upper_deps = DEP_IN_UPPER1;
+            deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
+            deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
         }
         return;
     }
@@ -1357,15 +1600,9 @@ void interval<T>::sin(interval_deps & deps) {
         //             = [-sin(u'), 1]                 if l' + u' >= 3pi
         if(m_lower + m_upper <= pi + pi_twice) {
             // Nothing
-            if(compute_deps) {
-                deps.m_lower_deps = DEP_IN_LOWER1;
-            }
         } else {
             if(compute_intv) {
                 m_lower = m_upper;
-            }
-            if(compute_deps) {
-                deps.m_upper_deps = DEP_IN_UPPER1;
             }
         }
         if(compute_intv) {
@@ -1376,6 +1613,7 @@ void interval<T>::sin(interval_deps & deps) {
             lean_assert(check_invariant());
         }
         if(compute_deps) {
+            deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
             deps.m_upper_deps = 0;
         }
         return;
@@ -1440,9 +1678,6 @@ void interval<T>::cos  (interval_deps & deps) {
         }
         cos<compute_intv, compute_deps>(deps);
         neg<compute_intv, false>();
-        if(compute_deps) {
-            std::swap(deps.m_lower_deps, deps.m_upper_deps);
-        }
         lean_assert(check_invariant());
         return;
     }
@@ -1459,8 +1694,8 @@ void interval<T>::cos  (interval_deps & deps) {
             lean_assert(check_invariant());
         }
         if(compute_deps) {
-            deps.m_lower_deps = DEP_IN_UPPER1;
-            deps.m_upper_deps = DEP_IN_LOWER1;
+            deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
+            deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
         }
         return;
     }
@@ -1472,22 +1707,18 @@ void interval<T>::cos  (interval_deps & deps) {
             if(compute_intv) {
                 m_upper = m_lower;
             }
-            if(compute_deps) {
-                deps.m_lower_deps = 0;
-                deps.m_upper_deps = DEP_IN_LOWER1;
-            }
         } else {
             // Nothing
-            if(compute_deps) {
-                deps.m_lower_deps = 0;
-                deps.m_upper_deps = DEP_IN_UPPER1;
-            }
         }
         if(compute_intv) {
             numeric_traits<T>::set_rounding(true);
             numeric_traits<T>::cos(m_upper);
             m_lower = -1.0;
             lean_assert(check_invariant());
+        }
+        if(compute_deps) {
+            deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
+            deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
         }
         return;
     }
@@ -1542,15 +1773,16 @@ void interval<T>::tan(interval_deps & deps) {
         return;
     } else {
         if(compute_intv) {
-            numeric_traits<T>::set_rounding(false);
-            numeric_traits<T>::tan(m_lower);
             numeric_traits<T>::set_rounding(true);
+            m_lower = -m_lower;
+            numeric_traits<T>::tan(m_lower);
+            m_lower = -m_lower;
             numeric_traits<T>::tan(m_upper);
             lean_assert(check_invariant());
         }
         if(compute_deps) {
-            deps.m_lower_deps = DEP_IN_LOWER1;
-            deps.m_upper_deps = DEP_IN_UPPER1;
+            deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
+            deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
         }
         return;
     }
@@ -1617,8 +1849,8 @@ void interval<T>::csc  (interval_deps & deps) {
                 lean_assert(check_invariant());
             }
             if(compute_deps) {
-                deps.m_lower_deps = DEP_IN_UPPER1;
-                deps.m_upper_deps = DEP_IN_LOWER1;
+                deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
+                deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
             }
             return;
         }
@@ -1631,18 +1863,10 @@ void interval<T>::csc  (interval_deps & deps) {
                 if(compute_intv) {
                     m_upper = l;
                 }
-                if(compute_deps) {
-                    deps.m_lower_deps = 0;
-                    deps.m_upper_deps = DEP_IN_LOWER1;
-                }
             } else {
                 // Nothing
                 if(compute_intv) {
                     m_upper = u;
-                }
-                if(compute_deps) {
-                    deps.m_lower_deps = 0;
-                    deps.m_upper_deps = DEP_IN_UPPER1;
                 }
             }
             if(compute_intv) {
@@ -1653,7 +1877,7 @@ void interval<T>::csc  (interval_deps & deps) {
             }
             if(compute_deps) {
                 deps.m_lower_deps = 0;
-                deps.m_upper_deps = DEP_IN_UPPER1;
+                deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
             }
             return;
         }
@@ -1675,8 +1899,8 @@ void interval<T>::csc  (interval_deps & deps) {
             lean_assert(check_invariant());
         }
         if(compute_deps) {
-            deps.m_lower_deps = DEP_IN_LOWER1;
-            deps.m_upper_deps = DEP_IN_UPPER1;
+            deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
+            deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
         }
         return;
     }
@@ -1695,8 +1919,8 @@ void interval<T>::csc  (interval_deps & deps) {
                 lean_assert(check_invariant());
             }
             if(compute_deps) {
-                deps.m_lower_deps = DEP_IN_LOWER1;
-                deps.m_upper_deps = DEP_IN_UPPER1;
+                deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
+                deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
             }
             return;
         }
@@ -1712,15 +1936,9 @@ void interval<T>::csc  (interval_deps & deps) {
             if(compute_intv) {
                 m_lower = -l;
             }
-            if(compute_deps) {
-                deps.m_lower_deps = DEP_IN_LOWER1;
-            }
         } else {
             if(compute_intv) {
                 m_lower = -u;
-            }
-            if(compute_deps) {
-                deps.m_lower_deps = DEP_IN_UPPER1;
             }
         }
         if(compute_intv) {
@@ -1731,6 +1949,7 @@ void interval<T>::csc  (interval_deps & deps) {
             lean_assert(check_invariant());
         }
         if(compute_deps) {
+            deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
             deps.m_upper_deps = 0;
         }
         return;
@@ -1748,8 +1967,8 @@ void interval<T>::csc  (interval_deps & deps) {
         lean_assert(check_invariant());
     }
     if(compute_deps) {
-        deps.m_lower_deps = DEP_IN_UPPER1;
-        deps.m_upper_deps = DEP_IN_LOWER1;
+        deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
+        deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
     }
     return;
 }
@@ -1815,8 +2034,8 @@ void interval<T>::cot  (interval_deps & deps) {
         lean_assert(check_invariant());
     }
     if(compute_deps) {
-        deps.m_lower_deps = DEP_IN_UPPER1;
-        deps.m_upper_deps = DEP_IN_LOWER1;
+        deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
+        deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
     }
     return;
 }
@@ -1955,8 +2174,9 @@ void interval<T>::cosh (interval_deps & deps) {
                 lean_assert(check_invariant());
             }
             if(compute_deps) {
+                // cos([a,b]) = [cosh(a), cos(b)]
                 deps.m_lower_deps = DEP_IN_LOWER1;
-                deps.m_upper_deps = DEP_IN_UPPER1;
+                deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
             }
             return;
         }
@@ -1971,7 +2191,7 @@ void interval<T>::cosh (interval_deps & deps) {
                 lean_assert(check_invariant());
             }
             if(compute_deps) {
-                deps.m_lower_deps = DEP_IN_UPPER1;
+                deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
                 deps.m_upper_deps = DEP_IN_LOWER1;
             }
             return;
@@ -1981,16 +2201,8 @@ void interval<T>::cosh (interval_deps & deps) {
             if(compute_intv) {
                 m_upper = m_lower;
             }
-            if(compute_deps) {
-                deps.m_lower_deps = 0;
-                deps.m_upper_deps = DEP_IN_LOWER1;
-            }
         } else {
             // Nothing
-            if(compute_deps) {
-                deps.m_upper_deps = 0;
-                deps.m_upper_deps = DEP_IN_UPPER1;
-            }
         }
         if(compute_intv) {
             m_lower = 1.0;
@@ -1998,6 +2210,10 @@ void interval<T>::cosh (interval_deps & deps) {
             numeric_traits<T>::set_rounding(true);
             numeric_traits<T>::cosh(m_upper);
             lean_assert(check_invariant());
+        }
+        if(compute_deps) {
+            deps.m_upper_deps = 0;
+            deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
         }
         return;
     }

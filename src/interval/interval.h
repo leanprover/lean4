@@ -178,20 +178,38 @@ public:
     interval & operator*=(interval<T> const & o);
     interval & operator/=(interval<T> const & o);
 
+    template<bool compute_intv = true, bool compute_deps = false>
+    interval & add(interval<T> const & o, interval_deps & deps = dummy);
+    template<bool compute_intv = true, bool compute_deps = false>
+    interval & sub(interval<T> const & o, interval_deps & deps = dummy);
+    template<bool compute_intv = true, bool compute_deps = false>
+    interval & mul(interval<T> const & o, interval_deps & deps = dummy);
+    template<bool compute_intv = true, bool compute_deps = false>
+    interval & div(interval<T> const & o, interval_deps & deps = dummy);
+
+    void add_jst (interval<T> const & o, interval_deps & deps);
+    void sub_jst (interval<T> const & o, interval_deps & deps);
+    void mul_jst (interval<T> const & o, interval_deps & deps);
+    void div_jst (interval<T> const & o, interval_deps & deps);
+
     interval & operator+=(T const & o);
     interval & operator-=(T const & o);
     interval & operator*=(T const & o);
     interval & operator/=(T const & o);
 
-    void inv();
+    template<bool compute_intv = true, bool compute_deps = false> void inv(interval_deps & deps = dummy);
+    void inv_jst (interval_deps & deps);
     friend interval<T> inv(interval<T> o) { o.inv(); return o; }
 
     void fmod(interval<T> y);
     void fmod(T y);
-    friend interval<T> inv(interval<T> o, interval<T> y) { o.fmod(y); return o; }
-    friend interval<T> inv(interval<T> o, T y) { o.fmod(y); return o; }
+    friend interval<T> fmod(interval<T> o, interval<T> y) { o.fmod(y); return o; }
+    friend interval<T> fmod(interval<T> o, T y) { o.fmod(y); return o; }
 
-    void power(unsigned n);
+    template<bool compute_intv = true, bool compute_deps = false>
+    void power(unsigned n, interval_deps & deps = dummy);
+    void power_jst(unsigned n, interval_deps & deps);
+    friend interval<T> power(interval<T> o, unsigned k) { o.power(k); return o; }
 
     template<bool compute_intv = true, bool compute_deps = false> void exp(interval_deps & deps = dummy);
     template<bool compute_intv = true, bool compute_deps = false> void exp2(interval_deps & deps = dummy);
@@ -236,8 +254,6 @@ public:
     void asinh_jst(interval_deps & deps);
     void acosh_jst(interval_deps & deps);
     void atanh_jst(interval_deps & deps);
-
-    friend interval<T> power(interval<T> o, unsigned k) { o.power(k); return o; }
 
     friend interval<T> exp  (interval<T> o) { o.exp();   return o; }
     friend interval<T> exp  (interval<T> o, interval_deps & deps) { o.exp(deps);   return o; }

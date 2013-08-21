@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "arith.h"
 #include "printer.h"
 #include "state.h"
+#include "option_declarations.h"
 #include "lean_frontend.h"
 #include "lean_parser.h"
 #include "lean_scanner.h"
@@ -44,11 +45,12 @@ static name g_set_kwd("Set");
 static name g_options_kwd("Options");
 static name g_env_kwd("Environment");
 static name g_import_kwd("Import");
+static name g_help_kwd("Help");
 /** \brief Table/List with all builtin command keywords */
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
                                         g_show_kwd, g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_prefix_kwd,
                                         g_postfix_kwd, g_mixfixl_kwd, g_mixfixr_kwd, g_mixfixc_kwd, g_echo_kwd,
-                                        g_set_kwd, g_env_kwd, g_options_kwd, g_import_kwd};
+                                        g_set_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd};
 // ==========================================
 
 // ==========================================
@@ -799,10 +801,13 @@ class parser_fn {
             type = elaborate(mk_abstraction(false, bindings, type_body));
             val  = elaborate(mk_abstraction(true, bindings, val_body));
         }
-        if (is_definition)
+        if (is_definition) {
             m_frontend.add_definition(id, type, val);
-        else
+            regular(m_frontend) << "  Defined: " << id << endl;
+        } else {
             m_frontend.add_theorem(id, type, val);
+            regular(m_frontend) << "  Proved: " << id << endl;
+        }
     }
 
     /**
@@ -834,6 +839,7 @@ class parser_fn {
         check_colon_next("invalid variable declaration, ':' expected");
         expr type = elaborate(parse_expr());
         m_frontend.add_var(id, type);
+        regular(m_frontend) << "  Assumed: " << id << endl;
     }
 
     /** \brief Parse 'Axiom' ID ':' expr */
@@ -843,6 +849,7 @@ class parser_fn {
         check_colon_next("invalid axiom, ':' expected");
         expr type = elaborate(parse_expr());
         m_frontend.add_axiom(id, type);
+        regular(m_frontend) << "  Assumed: " << id << endl;
     }
 
     /** \brief Parse 'Eval' expr */
@@ -966,27 +973,40 @@ class parser_fn {
     void parse_set() {
         next();
         name id = check_identifier_next("invalid set options, identifier (i.e., option name) expected");
+        auto decl_it = get_option_declarations().find(id);
+        if (decl_it == get_option_declarations().end())
+            throw parser_error("unknown option, type 'Help Options.' for list of available options");
+        option_kind k = decl_it->second.kind();
         switch (curr()) {
         case scanner::token::Id:
+            if (k != BoolOption)
+                throw parser_error("invalid option value, given option is not Boolean");
             if (curr_name() == "true")
                 m_frontend.set_option(id, true);
             else if (curr_name() == "false")
                 m_frontend.set_option(id, false);
             else
-                throw parser_error("invalid option value, 'true', 'false', string, integer or decimal value expected");
+                throw parser_error("invalid Boolean option value, 'true' or 'false' expected");
             break;
         case scanner::token::StringVal:
+            if (k != StringOption)
+                throw parser_error("invalid option value, given option is not a string");
             m_frontend.set_option(id, curr_string());
             break;
         case scanner::token::IntVal:
+            if (k != IntOption && k != UnsignedOption)
+                throw parser_error("invalid option value, given option is not an integer");
             m_frontend.set_option(id, parse_unsigned("invalid option value, value does not fit in a machine integer"));
             break;
         case scanner::token::DecimalVal:
+            if (k != DoubleOption)
+                throw parser_error("invalid option value, given option is not floating point value");
             m_frontend.set_option(id, parse_double());
             break;
         default:
             throw parser_error("invalid option value, 'true', 'false', string, integer or decimal value expected");
         }
+        regular(m_frontend) << "  Set option: " << id << endl;
         next();
     }
 
@@ -997,6 +1017,43 @@ class parser_fn {
         if (!in.is_open())
             throw parser_error("invalid import command, failed to open file");
         ::lean::parse_commands(m_frontend, in, m_use_exceptions);
+    }
+
+    void parse_help() {
+        next();
+        if (curr() == scanner::token::CommandId) {
+            name opt_id = curr_name();
+            next();
+            if (opt_id == g_options_kwd) {
+                regular(m_frontend) << "Available options:" << endl;
+                for (auto p : get_option_declarations()) {
+                    auto opt = p.second;
+                    regular(m_frontend) << "  " << opt.get_name() << " (" << opt.kind() << ") " << opt.get_description() << " (default: " << opt.get_default_value() << ")" << endl;
+                }
+            } else {
+                throw parser_error("invalid help command");
+            }
+        } else {
+            regular(m_frontend) << "Available commands:" << endl
+                                << "  Axiom [id] : [type]    assert/postulate a new axiom" << endl
+                                << "  Check [expr]           type check the given expression" << endl
+                                << "  Definition [id] : [type] := [expr]   define a new element" << endl
+                                << "  Theorem [id] : [type] := [expr]      define a new theorem" << endl
+                                << "  Echo [string]          display the given string" << endl
+                                << "  Eval [expr]            evaluate the given expression" << endl
+                                << "  Help                   display this message" << endl
+                                << "  Help Options           display available options" << endl
+                                << "  Help Notation          describe commands for defining infix,mixfix,postfix operators" << endl
+                                << "  Import [string]        load the given file" << endl
+                                << "  Set [id] [value]       set option [id] with value [value]" << endl
+                                << "  Show [expr]            pretty print the given expression" << endl
+                                << "  Show Options           show current the set of assigned options" << endl
+                                << "  Show Environment       show objects in the environment, if [Num] provided, then show only the last [Num] objects" << endl
+                                << "  Show Environment [num] show the last num objects in the environment" << endl
+                                << "  Variable [id] : [type] declare/postulate an element of the given type" << endl
+                                << "  Universe [id] [level]  declare a new universe variable that is >= the given level" << endl
+                                << "Type Ctrl-D to exit" << endl;
+        }
     }
 
     /** \brief Parse a Lean command. */
@@ -1020,6 +1077,7 @@ class parser_fn {
         else if (cmd_id == g_echo_kwd)     parse_echo();
         else if (cmd_id == g_set_kwd)      parse_set();
         else if (cmd_id == g_import_kwd)   parse_import();
+        else if (cmd_id == g_help_kwd)     parse_help();
         else { next(); throw parser_error("invalid command"); }
     }
     /*@}*/

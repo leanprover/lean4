@@ -52,7 +52,7 @@ struct diagnostic {
 };
 
 // hack for using std::endl with channels
-struct endl_class {};
+struct endl_class { endl_class() {} };
 const endl_class endl;
 inline regular const & operator<<(regular const & out, endl_class) {
     out.m_state.get_regular_channel().get_stream() << std::endl;

@@ -11,6 +11,9 @@ Author: Leonardo de Moura
 #include "name.h"
 
 namespace lean {
+enum option_kind { BoolOption, IntOption, UnsignedOption, DoubleOption, StringOption, SExprOption };
+std::ostream & operator<<(std::ostream & out, option_kind k);
+
 /** \brief Configuration options. */
 class options {
     sexpr m_value;
@@ -59,4 +62,16 @@ public:
     friend std::ostream & operator<<(std::ostream & out, options const & o);
 };
 template<typename T> options update(options const & o, name const & n, T const & v) { return o.update(n, sexpr(v)); }
+
+struct mk_option_declaration {
+    mk_option_declaration(name const & n, option_kind k, char const * default_value, char const * description);
+};
+
+#define LEAN_MAKE_OPTION_NAME_CORE(LINE) LEAN_OPTION_ ## LINE
+#define LEAN_MAKE_OPTION_NAME(LINE) LEAN_MAKE_OPTION_NAME_CORE(LINE)
+#define LEAN_OPTION_UNIQUE_NAME LEAN_MAKE_OPTION_NAME(__LINE__)
+#define RegisterOption(N,K,D,DESC) ::lean::mk_option_declaration LEAN_OPTION_UNIQUE_NAME(N,K,D,DESC)
+#define RegisterOptionCore(N,K,D,DESC) RegisterOption(N,K,#D,DESC)
+#define RegisterBoolOption(N,D,DESC) RegisterOptionCore(N, BoolOption, D, DESC);
+#define RegisterUnsignedOption(N,D,DESC) RegisterOptionCore(N, UnsignedOption, D, DESC);
 }

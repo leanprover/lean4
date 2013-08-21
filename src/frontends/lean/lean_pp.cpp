@@ -63,12 +63,19 @@ static format g_in_fmt        = highlight_keyword(format("in"));
 static format g_assign_fmt    = highlight_keyword(format(":="));
 static format g_geq_fmt       = format("\u2265");
 
-static name g_pp_max_depth       {"pp", "max_depth"};
-static name g_pp_max_steps       {"pp", "max_steps"};
-static name g_pp_implicit        {"pp", "implicit"};
-static name g_pp_notation        {"pp", "notation"};
-static name g_pp_extra_lets      {"pp", "extra_lets"};
-static name g_pp_alias_min_weight{"pp", "alias_min_weight"};
+static name g_pp_max_depth       {"pp", "lean", "max_depth"};
+static name g_pp_max_steps       {"pp", "lean", "max_steps"};
+static name g_pp_implicit        {"pp", "lean", "implicit"};
+static name g_pp_notation        {"pp", "lean", "notation"};
+static name g_pp_extra_lets      {"pp", "lean", "extra_lets"};
+static name g_pp_alias_min_weight{"pp", "lean", "alias_min_weight"};
+
+RegisterUnsignedOption(g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH, "(lean pretty printer) maximum expression depth, after that it will use ellipsis");
+RegisterUnsignedOption(g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS, "(lean pretty printer) maximum number of visited expressions, after that it will use ellipsis");
+RegisterBoolOption(g_pp_implicit,  LEAN_DEFAULT_PP_IMPLICIT, "(lean pretty printer) display implicit parameters");
+RegisterBoolOption(g_pp_notation,  LEAN_DEFAULT_PP_NOTATION, "(lean pretty printer) disable/enable notation (infix, mixfix, postfix operators and unicode characters)");
+RegisterBoolOption(g_pp_extra_lets,  LEAN_DEFAULT_PP_EXTRA_LETS, "(lean pretty printer) introduce extra let expressions when displaying shared terms");
+RegisterUnsignedOption(g_pp_alias_min_weight,  LEAN_DEFAULT_PP_ALIAS_MIN_WEIGHT, "(lean pretty printer) mimimal weight (approx. size) of a term to be considered a shared term");
 
 unsigned get_pp_max_depth(options const & opts)        { return opts.get_unsigned(g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH); }
 unsigned get_pp_max_steps(options const & opts)        { return opts.get_unsigned(g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS); }

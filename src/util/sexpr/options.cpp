@@ -4,10 +4,39 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <memory>
 #include "options.h"
+#include "option_declarations.h"
 #include "sexpr_funcs.h"
 
 namespace lean {
+std::ostream & operator<<(std::ostream & out, option_kind k) {
+    switch (k) {
+    case BoolOption: out << "Bool"; break;
+    case IntOption:  out << "Int"; break;
+    case UnsignedOption: out << "Unsigned Int"; break;
+    case DoubleOption: out << "Double"; break;
+    case StringOption: out << "String"; break;
+    case SExprOption: out << "S-Expression"; break;
+    }
+    return out;
+}
+
+static std::unique_ptr<option_declarations> g_option_declarations;
+
+option_declarations & get_option_declarations_core() {
+    if (!g_option_declarations)
+        g_option_declarations.reset(new option_declarations());
+    return *g_option_declarations;
+}
+
+option_declarations const & get_option_declarations() {
+    return get_option_declarations_core();
+}
+
+mk_option_declaration::mk_option_declaration(name const & n, option_kind k, char const * default_value, char const * description) {
+    get_option_declarations_core().insert(mk_pair(n, option_declaration(n, k, default_value, description)));
+}
 
 bool options::empty() const {
     return is_nil(m_value);

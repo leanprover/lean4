@@ -40,6 +40,10 @@ static name g_pp_indent{"pp", "indent"};
 static name g_pp_colors{"pp", "colors"};
 static name g_pp_width{"pp", "width"};
 
+RegisterUnsignedOption(g_pp_indent, LEAN_DEFAULT_PP_INDENTATION, "(pretty printer) default indentation");
+RegisterBoolOption(g_pp_colors, LEAN_DEFAULT_PP_COLORS, "(pretty printer) use colors");
+RegisterUnsignedOption(g_pp_width, LEAN_DEFAULT_PP_WIDTH, "(pretty printer) line width");
+
 unsigned get_pp_indent(options const & o) {
     return o.get_unsigned(g_pp_indent, LEAN_DEFAULT_PP_INDENTATION);
 }

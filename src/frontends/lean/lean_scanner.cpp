@@ -119,6 +119,14 @@ bool scanner::check_next(char c) {
     return r;
 }
 
+bool scanner::check_next_is_digit() {
+    lean_assert(m_curr != EOF);
+    char c = m_stream.get();
+    bool r = '0' <= c && c <= '9';
+    m_stream.unget();
+    return r;
+}
+
 void scanner::read_comment() {
     lean_assert(curr() == '*');
     next();
@@ -276,10 +284,15 @@ scanner::token scanner::read_number() {
                 q *= 10;
             next();
         } else if (c == '.') {
-            if (is_decimal)
+            // Num. is not a decimal. It should be at least Num.0
+            if (check_next_is_digit()) {
+                if (is_decimal)
+                    break;
+                is_decimal = true;
+                next();
+            } else {
                 break;
-            is_decimal = true;
-            next();
+            }
         } else {
             break;
         }

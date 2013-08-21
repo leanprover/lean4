@@ -40,6 +40,7 @@ protected:
     void  new_line() { m_line++; m_spos = 0; }
     void  next();
     bool  check_next(char c);
+    bool  check_next_is_digit();
     void  read_comment();
     name  mk_name(name const & curr, std::string const & buf, bool only_digits);
     token read_a_symbol();

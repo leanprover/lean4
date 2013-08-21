@@ -46,15 +46,18 @@ Author: Leonardo de Moura
 namespace lean {
 static format g_Type_fmt      = highlight_builtin(format("Type"));
 static format g_eq_fmt        = format("=");
-static char const * g_eq_sym  = "eq";
-static unsigned g_eq_sz       = strlen(g_eq_sym);
-static format g_eq_sym_fmt    = format(g_eq_sym);
-static format g_lambda_fmt    = highlight_keyword(format("\u03BB"));
-static format g_Pi_fmt        = highlight_keyword(format("\u03A0"));
-static format g_arrow_fmt     = highlight_keyword(format("\u2192"));
-static format g_forall_fmt    = highlight_keyword(format("\u2200"));
-static format g_exists_fmt    = highlight_keyword(format("\u2203"));
-static format g_ellipsis_fmt  = highlight(format("\u2026"));
+static format g_lambda_n_fmt  = highlight_keyword(format("\u03BB"));
+static format g_Pi_n_fmt      = highlight_keyword(format("\u03A0"));
+static format g_lambda_fmt    = highlight_keyword(format("fun"));
+static format g_Pi_fmt        = highlight_keyword(format("Pi"));
+static format g_arrow_n_fmt   = highlight_keyword(format("\u2192"));
+static format g_arrow_fmt     = highlight_keyword(format("->"));
+static format g_forall_n_fmt  = highlight_keyword(format("\u2200"));
+static format g_exists_n_fmt  = highlight_keyword(format("\u2203"));
+static format g_forall_fmt    = highlight_keyword(format("forall"));
+static format g_exists_fmt    = highlight_keyword(format("exists"));
+static format g_ellipsis_n_fmt= highlight(format("\u2026"));
+static format g_ellipsis_fmt  = highlight(format("..."));
 static format g_let_fmt       = highlight_keyword(format("let"));
 static format g_in_fmt        = highlight_keyword(format("in"));
 static format g_assign_fmt    = highlight_keyword(format(":="));
@@ -153,7 +156,7 @@ class pp_fn {
     }
 
     result pp_ellipsis() {
-        return mk_result(g_ellipsis_fmt, 1);
+        return mk_result(m_notation ? g_ellipsis_n_fmt : g_ellipsis_fmt, 1);
     }
 
     result pp_var(expr const & e) {
@@ -166,7 +169,7 @@ class pp_fn {
     }
 
     result pp_value(expr const & e) {
-        return mk_result(to_value(e).pp(), 1);
+        return mk_result(to_value(e).pp(m_notation), 1);
     }
 
     result pp_type(expr const & e) {
@@ -339,7 +342,11 @@ class pp_fn {
     result pp_quantifier(expr const & e, unsigned depth, bool is_forall) {
         buffer<std::pair<name, expr>> nested;
         expr b = collect_nested_quantifiers(e, is_forall, nested);
-        format head = is_forall ? g_forall_fmt : g_exists_fmt;
+        format head;
+        if (m_notation)
+            head = is_forall ? g_forall_n_fmt : g_exists_n_fmt;
+        else
+            head = is_forall ? g_forall_fmt : g_exists_fmt;
         format sep  = comma();
         expr domain0 = nested[0].second;
         // TODO: the following code is very similar to pp_abstraction
@@ -560,7 +567,7 @@ class pp_fn {
             lean_assert(!T);
             result p_lhs    = pp_child(abst_domain(e), depth);
             result p_rhs    = pp_arrow_body(abst_body(e), depth);
-            format r_format = group(format{p_lhs.first, space(), g_arrow_fmt, line(), p_rhs.first});
+            format r_format = group(format{p_lhs.first, space(), m_notation ? g_arrow_n_fmt : g_arrow_fmt, line(), p_rhs.first});
             return mk_result(r_format, p_lhs.second + p_rhs.second + 1);
         } else {
             buffer<std::pair<name, expr>> nested;
@@ -569,7 +576,10 @@ class pp_fn {
             T = p.second;
             format head;
             if (!T) {
-                head = is_lambda(e) ? g_lambda_fmt : g_Pi_fmt;
+                if (m_notation)
+                    head = is_lambda(e) ? g_lambda_n_fmt : g_Pi_n_fmt;
+                else
+                    head = is_lambda(e) ? g_lambda_fmt : g_Pi_fmt;
             }
             format body_sep;
             if (T) {
@@ -672,18 +682,9 @@ class pp_fn {
     result pp_eq(expr const & e, unsigned depth) {
         result p_arg1, p_arg2;
         format r_format;
-        if (m_notation) {
-            p_arg1 = pp_eq_child(eq_lhs(e), depth);
-            p_arg2 = pp_eq_child(eq_rhs(e), depth);
-            r_format = group(format{p_arg1.first, space(), g_eq_fmt, line(), p_arg2.first});
-
-        } else {
-            p_arg1 = pp_child(eq_lhs(e), depth);
-            p_arg2 = pp_child(eq_rhs(e), depth);
-            r_format = group(format{g_eq_sym_fmt, nest(g_eq_sz + 1,
-                                                       format{line(), p_arg1.first,
-                                                              line(), p_arg2.first})});
-        }
+        p_arg1 = pp_eq_child(eq_lhs(e), depth);
+        p_arg2 = pp_eq_child(eq_rhs(e), depth);
+        r_format = group(format{p_arg1.first, space(), g_eq_fmt, line(), p_arg2.first});
         return mk_result(r_format, p_arg1.second + p_arg2.second + 1);
     }
 
@@ -937,8 +938,9 @@ formatter mk_pp_formatter(frontend const & fe) {
 }
 
 std::ostream & operator<<(std::ostream & out, frontend const & fe) {
+    options const & opts = fe.get_state().get_options();
     formatter fmt = mk_pp_formatter(fe);
-    out << fmt(fe.get_environment());
+    out << mk_pair(fmt(fe, opts), opts);
     return out;
 }
 }

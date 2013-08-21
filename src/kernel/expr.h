@@ -209,6 +209,7 @@ public:
     virtual bool operator==(value const & other) const = 0;
     virtual void display(std::ostream & out) const = 0;
     virtual format pp() const = 0;
+    virtual format pp(bool unicode) const { return pp(); }
     virtual unsigned hash() const = 0;
 };
 /** \brief Semantic attachments */

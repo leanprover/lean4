@@ -84,8 +84,12 @@ MK_BUILTIN(bool_type, bool_type_value);
 
 // =======================================
 // Boolean values True and False
-static char const * g_true_str  = "\u22A4";
-static char const * g_false_str = "\u22A5";
+static char const * g_true_u_str  = "\u22A4";
+static char const * g_false_u_str = "\u22A5";
+static format g_true_u_fmt(g_true_u_str);
+static format g_false_u_fmt(g_false_u_str);
+static char const * g_true_str  = "true";
+static char const * g_false_str = "false";
 static format g_true_fmt(g_true_str);
 static format g_false_fmt(g_false_str);
 class bool_value_value : public value {
@@ -101,7 +105,13 @@ public:
         return other.kind() == kind() && m_val == static_cast<bool_value_value const &>(other).m_val;
     }
     virtual void display(std::ostream & out) const { out << (m_val ? g_true_str : g_false_str); }
-    virtual format pp() const { return m_val ? g_true_fmt : g_false_fmt; }
+    virtual format pp(bool unicode) const {
+        if (unicode)
+            return m_val ? g_true_u_fmt : g_false_u_fmt;
+        else
+            return m_val ? g_true_fmt : g_false_fmt;
+    }
+    virtual format pp() const { return pp(true); }
     virtual unsigned hash() const { return m_val ? 3 : 5; }
     bool get_val() const { return m_val; }
 };

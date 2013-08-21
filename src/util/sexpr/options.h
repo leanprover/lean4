@@ -45,6 +45,7 @@ public:
 
     options update(name const & n, sexpr const & v) const;
     template<typename T> options update(name const & n, T v) const { return update(n, sexpr(v)); }
+    options update(name const & n, unsigned v) const { return update(n, sexpr(static_cast<int>(v))); }
     options update(char const * n, sexpr const & v) const { return update(name(n), v); }
     template<typename T> options update(char const * n, T v) const { return update(n, sexpr(v)); }
 

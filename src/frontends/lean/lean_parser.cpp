@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "builtin.h"
 #include "arith.h"
 #include "printer.h"
+#include "state.h"
 #include "lean_frontend.h"
 #include "lean_scanner.h"
 #include "lean_notation.h"
@@ -29,7 +30,6 @@ static name g_universe_kwd("Universe");
 static name g_eval_kwd("Eval");
 static name g_show_kwd("Show");
 static name g_check_kwd("Check");
-static name g_env_kwd("Environment");
 static name g_infix_kwd("Infix");
 static name g_infixl_kwd("Infixl");
 static name g_infixr_kwd("Infixr");
@@ -39,10 +39,14 @@ static name g_mixfixl_kwd("Mixfixl");
 static name g_mixfixr_kwd("Mixfixr");
 static name g_mixfixc_kwd("Mixfixc");
 static name g_echo_kwd("Echo");
+static name g_set_kwd("Set");
+static name g_options_kwd("Options");
+static name g_env_kwd("Environment");
 /** \brief Table/List with all builtin command keywords */
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
-                                        g_show_kwd, g_check_kwd, g_env_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_prefix_kwd,
-                                        g_postfix_kwd, g_mixfixl_kwd, g_mixfixr_kwd, g_mixfixc_kwd, g_echo_kwd};
+                                        g_show_kwd, g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_prefix_kwd,
+                                        g_postfix_kwd, g_mixfixl_kwd, g_mixfixr_kwd, g_mixfixc_kwd, g_echo_kwd,
+                                        g_set_kwd, g_env_kwd, g_options_kwd};
 // ==========================================
 
 // ==========================================
@@ -79,9 +83,6 @@ class parser_fn {
     typedef std::unordered_map<name, expr, name_hash, name_eq>  builtins;
     frontend       m_frontend;
     scanner        m_scanner;
-    formatter      m_formatter;
-    std::ostream * m_out;
-    std::ostream * m_err;
     scanner::token m_curr;
     bool           m_use_exceptions;
     bool           m_found_errors;
@@ -184,6 +185,22 @@ class parser_fn {
         m_builtins["\u22A4"] = True;
         m_builtins["\u22A5"] = False;
         m_builtins["Int"]    = Int;
+    }
+
+    unsigned parse_unsigned(char const * msg) {
+        lean_assert(curr_is_int());
+        mpz pval = curr_num().get_numerator();
+        if (!pval.is_unsigned_int()) {
+            throw parser_error(msg);
+        } else {
+            unsigned r = pval.get_unsigned_int();
+            next();
+            return r;
+        }
+    }
+
+    double parse_double() {
+        return 0.0;
     }
 
     [[ noreturn ]] void not_implemented_yet() {
@@ -831,14 +848,41 @@ class parser_fn {
         next();
         expr v = elaborate(parse_expr());
         expr r = normalize(v, m_frontend);
-        (*m_out) << m_formatter(r) << std::endl;
+        regular(m_frontend) << r << endl;
     }
 
-    /** \brief Parse 'Show' expr */
+    /** \brief Parse
+           'Show' expr
+           'Show' Environment [num]
+           'Show' Options
+    */
     void parse_show() {
         next();
-        expr v = elaborate(parse_expr());
-        (*m_out) << m_formatter(v) << std::endl;
+        if (curr() == scanner::token::CommandId) {
+            name opt_id = curr_name();
+            next();
+            if (opt_id == g_env_kwd) {
+                if (curr_is_int()) {
+                    unsigned i = parse_unsigned("invalid argument, value does not fit in a machine integer");
+                    auto it  = m_frontend.end_objects();
+                    auto beg = m_frontend.begin_objects();
+                    while (it != beg && i != 0) {
+                        --i;
+                        --it;
+                        regular(m_frontend) << *it << endl;
+                    }
+                } else {
+                    regular(m_frontend) << m_frontend << endl;
+                }
+            } else if (opt_id == g_options_kwd) {
+                regular(m_frontend) << m_frontend.get_state().get_options() << endl;
+            } else {
+                throw parser_error("invalid Show command, expression, 'Options' or 'Environment' expected");
+            }
+        } else {
+            expr v = elaborate(parse_expr());
+            regular(m_frontend) << v << endl;
+        }
     }
 
     /** \brief Parse 'Check' expr */
@@ -846,24 +890,13 @@ class parser_fn {
         next();
         expr v = elaborate(parse_expr());
         expr t = infer_type(v, m_frontend);
-        (*m_out) << m_formatter(t) << std::endl;
-    }
-
-    /** \brief Parse 'Environment' */
-    void parse_env() {
-        next();
-        (*m_out) << m_frontend << std::endl;
+        regular(m_frontend) << t << endl;
     }
 
     /** \brief Return the (optional) precedence of a user-defined operator. */
     unsigned parse_precedence() {
-        if (curr() == scanner::token::IntVal) {
-            mpz pval = curr_num().get_numerator();
-            if (!pval.is_unsigned_int())
-                throw parser_error("invalid operator definition, precedence does not fit in a machine integer");
-            unsigned r = pval.get_unsigned_int();
-            next();
-            return r;
+        if (curr_is_int()) {
+            return parse_unsigned("invalid operator definition, precedence does not fit in a machine integer");
         } else {
             return 0;
         }
@@ -925,7 +958,34 @@ class parser_fn {
     void parse_echo() {
         next();
         std::string msg = check_string_next("invalid echo command, string expected");
-        (*m_out) << msg << std::endl;
+        regular(m_frontend) << msg << endl;
+    }
+
+    void parse_set() {
+        next();
+        name id = check_identifier_next("invalid set options, identifier (i.e., option name) expected");
+        switch (curr()) {
+        case scanner::token::Id:
+            if (curr_name() == "true")
+                m_frontend.set_option(id, true);
+            else if (curr_name() == "false")
+                m_frontend.set_option(id, false);
+            else
+                throw parser_error("invalid option value, 'true', 'false', string, integer or decimal value expected");
+            break;
+        case scanner::token::StringVal:
+            m_frontend.set_option(id, curr_string());
+            break;
+        case scanner::token::IntVal:
+            m_frontend.set_option(id, parse_unsigned("invalid option value, value does not fit in a machine integer"));
+            break;
+        case scanner::token::DecimalVal:
+            m_frontend.set_option(id, parse_double());
+            break;
+        default:
+            throw parser_error("invalid option value, 'true', 'false', string, integer or decimal value expected");
+        }
+        next();
     }
 
     /** \brief Parse a Lean command. */
@@ -938,7 +998,6 @@ class parser_fn {
         else if (cmd_id == g_eval_kwd)     parse_eval();
         else if (cmd_id == g_show_kwd)     parse_show();
         else if (cmd_id == g_check_kwd)    parse_check();
-        else if (cmd_id == g_env_kwd)      parse_env();
         else if (cmd_id == g_infix_kwd)    parse_op(fixity::Infix);
         else if (cmd_id == g_infixl_kwd)   parse_op(fixity::Infixl);
         else if (cmd_id == g_infixr_kwd)   parse_op(fixity::Infixr);
@@ -948,13 +1007,13 @@ class parser_fn {
         else if (cmd_id == g_mixfixr_kwd)  parse_mixfix_op(fixity::Mixfixr);
         else if (cmd_id == g_mixfixc_kwd)  parse_mixfix_op(fixity::Mixfixc);
         else if (cmd_id == g_echo_kwd)     parse_echo();
-        else { lean_unreachable(); }
+        else if (cmd_id == g_set_kwd)      parse_set();
+        else { next(); throw parser_error("invalid command"); }
     }
     /*@}*/
 
     void error(char const * msg, unsigned line, unsigned pos) {
-        lean_assert(m_err);
-        (*m_err) << "Error (line: " << line << ", pos: " << pos << ") " << msg << std::endl;
+        regular(m_frontend) << "Error (line: " << line << ", pos: " << pos << ") " << msg << endl;
     }
 
     void error(char const * msg) {
@@ -963,12 +1022,9 @@ class parser_fn {
     }
 
 public:
-    parser_fn(frontend & fe, std::istream & in, std::ostream * out, std::ostream * err, bool use_exceptions):
+    parser_fn(frontend & fe, std::istream & in, bool use_exceptions):
         m_frontend(fe),
         m_scanner(in),
-        m_formatter(mk_pp_formatter(fe)),
-        m_out(out),
-        m_err(err),
         m_use_exceptions(use_exceptions) {
         m_found_errors = false;
         m_num_local_decls = 0;
@@ -1016,10 +1072,10 @@ public:
     }
 
 };
-bool parse_commands(frontend & fe, std::istream & in, std::ostream & out, std::ostream & err, bool use_exceptions) {
-    return parser_fn(fe, in, &out, &err, use_exceptions).parse_commands();
+bool parse_commands(frontend & fe, std::istream & in, bool use_exceptions) {
+    return parser_fn(fe, in, use_exceptions).parse_commands();
 }
 expr parse_expr(frontend const & fe, std::istream & in) {
-    return parser_fn(const_cast<frontend&>(fe), in, nullptr, nullptr, true).parse_expr_main();
+    return parser_fn(const_cast<frontend&>(fe), in, true).parse_expr_main();
 }
 }

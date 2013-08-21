@@ -51,15 +51,15 @@ struct diagnostic {
     diagnostic(state const & s):m_state(s) {}
 };
 
-template<typename T>
-inline regular const & operator<<(regular const & out, T const & t) {
-    out.m_state.get_regular_channel().get_stream() << t;
+// hack for using std::endl with channels
+struct endl_class {};
+const endl_class endl;
+inline regular const & operator<<(regular const & out, endl_class) {
+    out.m_state.get_regular_channel().get_stream() << std::endl;
     return out;
 }
-
-template<typename T>
-inline diagnostic const & operator<<(diagnostic const & out, T const & t) {
-    out.m_state.get_diagnostic_channel().get_stream() << t;
+inline diagnostic const & operator<<(diagnostic const & out, endl_class) {
+    out.m_state.get_diagnostic_channel().get_stream() << std::endl;
     return out;
 }
 
@@ -72,6 +72,30 @@ inline regular const & operator<<(regular const & out, expr const & e) {
 inline diagnostic const & operator<<(diagnostic const & out, expr const & e) {
     options const & opts = out.m_state.get_options();
     out.m_state.get_diagnostic_channel().get_stream() << mk_pair(out.m_state.get_formatter()(e, opts), opts);
+    return out;
+}
+
+inline regular const & operator<<(regular const & out, object const & obj) {
+    options const & opts = out.m_state.get_options();
+    out.m_state.get_regular_channel().get_stream() << mk_pair(out.m_state.get_formatter()(obj, opts), opts);
+    return out;
+}
+
+inline diagnostic const & operator<<(diagnostic const & out, object const & obj) {
+    options const & opts = out.m_state.get_options();
+    out.m_state.get_diagnostic_channel().get_stream() << mk_pair(out.m_state.get_formatter()(obj, opts), opts);
+    return out;
+}
+
+template<typename T>
+inline regular const & operator<<(regular const & out, T const & t) {
+    out.m_state.get_regular_channel().get_stream() << t;
+    return out;
+}
+
+template<typename T>
+inline diagnostic const & operator<<(diagnostic const & out, T const & t) {
+    out.m_state.get_diagnostic_channel().get_stream() << t;
     return out;
 }
 }

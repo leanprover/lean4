@@ -10,3 +10,6 @@ add_test(lean5 ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../examples/
 add_test(lean6 ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../examples/ex6.lean")
 add_test(lean7 ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../examples/ex7.lean")
 add_test(lean8 ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../examples/ex8.lean")
+add_test(lean9 ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../examples/ex9.lean")
+add_test(lean10 ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../examples/ex10.lean")
+add_test(lean11 ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../examples/ex11.lean")

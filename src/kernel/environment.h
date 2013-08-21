@@ -131,6 +131,8 @@ public:
         object_iterator(object_iterator const & s):m_env(s.m_env), m_idx(s.m_idx), m_local(s.m_local) {}
         object_iterator & operator++() { ++m_idx; return *this; }
         object_iterator operator++(int) { object_iterator tmp(*this); operator++(); return tmp; }
+        object_iterator & operator--() { --m_idx; return *this; }
+        object_iterator operator--(int) { object_iterator tmp(*this); operator--(); return tmp; }
         bool operator==(object_iterator const & s) const { lean_assert(&m_env == &(s.m_env)); return m_idx == s.m_idx; }
         bool operator!=(object_iterator const & s) const { return !operator==(s); }
         object const & operator*() { return m_env.get_object(m_idx, m_local); }

@@ -424,10 +424,10 @@ interval<T> & interval<T>::mul(interval<T> const & o, interval_deps & deps) {
                 deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_LOWER2 | DEP_IN_UPPER2;
             }
         } else if (i2.is_M()) {
-            static thread_local T ad; xnumeral_kind ad_k;
-            static thread_local T bc; xnumeral_kind bc_k;
-            static thread_local T ac; xnumeral_kind ac_k;
-            static thread_local T bd; xnumeral_kind bd_k;
+            static thread_local T ad; static thread_local xnumeral_kind ad_k;
+            static thread_local T bc; static thread_local xnumeral_kind bc_k;
+            static thread_local T ac; static thread_local xnumeral_kind ac_k;
+            static thread_local T bd; static thread_local xnumeral_kind bd_k;
 
             bool  ad_o = a_o || d_o;
             bool  bc_o = b_o || c_o;

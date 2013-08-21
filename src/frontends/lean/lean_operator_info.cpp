@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "operator_info.h"
+#include "lean_operator_info.h"
 #include "rc.h"
 
 namespace lean {

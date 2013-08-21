@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <cstdio>
 #include <string>
 #include <algorithm>
-#include "scanner.h"
+#include "lean_scanner.h"
 #include "debug.h"
 #include "exception.h"
 

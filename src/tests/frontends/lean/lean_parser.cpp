@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #include <sstream>
 #include "builtin.h"
-#include "parser.h"
-#include "pp.h"
+#include "lean_parser.h"
+#include "lean_pp.h"
 #include "printer.h"
 #include "exception.h"
 #include "test.h"

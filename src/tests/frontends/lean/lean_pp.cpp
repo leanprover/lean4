@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "frontend.h"
 #include "printer.h"
 #include "abstract.h"
 #include "builtin.h"
-#include "pp.h"
+#include "lean_frontend.h"
+#include "lean_pp.h"
 #include "test.h"
 using namespace lean;
 

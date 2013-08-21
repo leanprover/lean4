@@ -4,14 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "frontend.h"
 #include "environment.h"
-#include "operator_info.h"
 #include "kernel_exception.h"
 #include "builtin.h"
-#include "abstract.h"
-#include "pp.h"
 #include "printer.h"
+#include "abstract.h"
+#include "lean_frontend.h"
+#include "lean_operator_info.h"
+#include "lean_pp.h"
 #include "test.h"
 using namespace lean;
 

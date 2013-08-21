@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <iostream>
-#include "frontend.h"
+#include "lean_frontend.h"
 
 namespace lean {
 bool parse_commands(frontend & fe, std::istream & in,

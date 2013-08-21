@@ -1,8 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include "version.h"
-#include "parser.h"
 #include "printer.h"
+#include "lean_parser.h"
 using namespace lean;
 
 

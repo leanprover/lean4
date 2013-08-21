@@ -6,18 +6,18 @@ Author: Leonardo de Moura
 */
 #include <limits>
 #include <memory>
-#include "pp.h"
-#include "frontend.h"
 #include "context.h"
 #include "scoped_map.h"
-#include "occurs.h"
+#include "for_each.h"
 #include "instantiate.h"
+#include "occurs.h"
 #include "builtin.h"
-#include "builtin_notation.h"
 #include "free_vars.h"
 #include "context_to_lambda.h"
-#include "for_each.h"
 #include "options.h"
+#include "lean_notation.h"
+#include "lean_pp.h"
+#include "lean_frontend.h"
 
 #ifndef LEAN_DEFAULT_PP_MAX_DEPTH
 #define LEAN_DEFAULT_PP_MAX_DEPTH std::numeric_limits<unsigned>::max()

@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include <memory>
 #include "environment.h"
-#include "operator_info.h"
 #include "state.h"
+#include "lean_operator_info.h"
 
 namespace lean {
 /**

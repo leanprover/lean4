@@ -5,14 +5,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <atomic>
-#include "map.h"
-#include "frontend.h"
 #include "environment.h"
-#include "operator_info.h"
 #include "toplevel.h"
-#include "builtin_notation.h"
+#include "map.h"
 #include "state.h"
-#include "pp.h"
+#include "lean_operator_info.h"
+#include "lean_frontend.h"
+#include "lean_notation.h"
+#include "lean_pp.h"
 
 namespace lean {
 /** \brief Implementation of the Lean frontend */

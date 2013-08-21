@@ -5,18 +5,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <unordered_map>
-#include "frontend.h"
-#include "scanner.h"
 #include "scoped_map.h"
 #include "exception.h"
 #include "normalize.h"
 #include "type_check.h"
 #include "free_vars.h"
-#include "builtin_notation.h"
 #include "builtin.h"
 #include "arith.h"
-#include "pp.h"
 #include "printer.h"
+#include "lean_frontend.h"
+#include "lean_scanner.h"
+#include "lean_notation.h"
+#include "lean_pp.h"
 
 namespace lean {
 // ==========================================

@@ -14,7 +14,7 @@ namespace lean {
 /**
    \brief Operator fixity.
    Prefix:   ID _
-   Infixl:    _ ID _
+   Infix:    _ ID _
    Infixl:    _ ID _    (left associative)
    Infixr:    _ ID _    (right associative)
    Postfix:  _ ID

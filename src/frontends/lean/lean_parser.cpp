@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "printer.h"
 #include "state.h"
 #include "lean_frontend.h"
+#include "lean_parser.h"
 #include "lean_scanner.h"
 #include "lean_notation.h"
 #include "lean_pp.h"
@@ -42,11 +43,12 @@ static name g_echo_kwd("Echo");
 static name g_set_kwd("Set");
 static name g_options_kwd("Options");
 static name g_env_kwd("Environment");
+static name g_import_kwd("Import");
 /** \brief Table/List with all builtin command keywords */
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
                                         g_show_kwd, g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_prefix_kwd,
                                         g_postfix_kwd, g_mixfixl_kwd, g_mixfixr_kwd, g_mixfixc_kwd, g_echo_kwd,
-                                        g_set_kwd, g_env_kwd, g_options_kwd};
+                                        g_set_kwd, g_env_kwd, g_options_kwd, g_import_kwd};
 // ==========================================
 
 // ==========================================
@@ -988,6 +990,15 @@ class parser_fn {
         next();
     }
 
+    void parse_import() {
+        next();
+        std::string fname = check_string_next("invalid import command, string (i.e., file name) expected");
+        std::ifstream in(fname);
+        if (!in.is_open())
+            throw parser_error("invalid import command, failed to open file");
+        ::lean::parse_commands(m_frontend, in, m_use_exceptions);
+    }
+
     /** \brief Parse a Lean command. */
     void parse_command() {
         name const & cmd_id = curr_name();
@@ -1008,6 +1019,7 @@ class parser_fn {
         else if (cmd_id == g_mixfixc_kwd)  parse_mixfix_op(fixity::Mixfixc);
         else if (cmd_id == g_echo_kwd)     parse_echo();
         else if (cmd_id == g_set_kwd)      parse_set();
+        else if (cmd_id == g_import_kwd)   parse_import();
         else { next(); throw parser_error("invalid command"); }
     }
     /*@}*/

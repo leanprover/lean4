@@ -574,12 +574,16 @@ class pp_fn {
             auto p = collect_nested(e, T, e.kind(), nested);
             expr b = p.first;
             T = p.second;
+            unsigned head_indent = m_indent;
             format head;
             if (!T) {
-                if (m_notation)
+                if (m_notation) {
                     head = is_lambda(e) ? g_lambda_n_fmt : g_Pi_n_fmt;
-                else
+                    head_indent = 2;
+                } else {
                     head = is_lambda(e) ? g_lambda_fmt : g_Pi_fmt;
+                    head_indent = is_lambda(e) ? 4 : 3;
+                }
             }
             format body_sep;
             if (T) {
@@ -597,7 +601,7 @@ class pp_fn {
                 format sig      = format{names, space(), colon(), space(), p_domain.first};
                 if (T)
                     sig = format{lp(), sig, rp()};
-                format r_format = group(nest(m_indent, format{head, space(), sig, body_sep, line(), p_body.first}));
+                format r_format = group(nest(head_indent, format{head, space(), sig, body_sep, line(), p_body.first}));
                 return mk_result(r_format, p_domain.second + p_body.second + 1);
             } else {
                 auto it  = nested.begin();
@@ -624,7 +628,7 @@ class pp_fn {
                     it = it2;
                 }
                 result p_body   = pp_scoped_child(b, depth);
-                format r_format = group(nest(m_indent, format{head, space(), group(bindings), body_sep, line(), p_body.first}));
+                format r_format = group(nest(head_indent, format{head, space(), group(bindings), body_sep, line(), p_body.first}));
                 return mk_result(r_format, r_weight + p_body.second);
             }
         }

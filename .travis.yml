@@ -17,6 +17,7 @@ env:
      DROPBOX=TRUE
      TRIGGER_BB=TRUE
      TRIGGER_OSX=TRUE
+     TRIGGER_WIN=TRUE
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=DOXYGEN
      BUILD_DOXYGEN=TRUE
@@ -50,22 +51,6 @@ env:
      DROPBOX=TRUE
      UPLOAD=linux
 
-before_script:
-  - if [[ $TRIGGER_BB == TRUE ]]; then
-        git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/soonhok/lean.git +master;
-    fi
-  - if [[ $TRIGGER_OSX == TRUE ]]; then
-        MSG=`git log --pretty=oneline --abbrev-commit -n 1 | cut -d ' ' -f 2-`;
-        cp .travis.yml /tmp/.travis.temp.yml;
-        cp .travis.osx.yml .travis.yml;
-        git config --global user.email "notifications@travis-ci.org";
-        git config --global user.name "Travis CI";
-        git add .travis.yml;
-        git commit -m "$MSG";
-        git push -q https://soonhokong:${GH_TOKEN}@github.com/soonhokong/lean-osx.git +HEAD:master;
-        mv /tmp/.travis.temp.yml .travis.yml;
-    fi
-
 install:
   - until sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test; do echo retry; done
   - until sudo add-apt-repository --yes ppa:h-rayflood/llvm; do echo retry; done
@@ -88,9 +73,6 @@ install:
        sudo apt-get -qq install python python-pip;
        sudo pip install dropbox;
     fi
-  - if [[ $BUILD_DOXYGEN == TRUE ]]; then
-       sudo apt-get -qq install doxygen graphviz;
-    fi
 
 script:
   - if [[ $CMAKE_BUILD_TYPE == DEBUG || $CMAKE_BUILD_TYPE == RELEASE ]]; then
@@ -101,10 +83,39 @@ script:
     fi
 
 after_script:
+- if [[ $TRIGGER_BB == TRUE ]]; then
+      git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/soonhok/lean.git +master;
+  fi
+- if [[ $TRIGGER_OSX == TRUE ]]; then
+      MSG=`git log --pretty=oneline --abbrev-commit -n 1 | cut -d ' ' -f 2-`;
+      cp .travis.yml /tmp/.travis.temp.yml;
+      cp .travis.osx.yml .travis.yml;
+      git config --global user.email "notifications@travis-ci.org";
+      git config --global user.name "Travis CI";
+      git add .travis.yml;
+      git commit -m "$MSG";
+      git push -q https://soonhokong:${GH_TOKEN}@github.com/soonhokong/lean-osx.git +HEAD:master;
+      mv /tmp/.travis.temp.yml .travis.yml;
+      git reset --hard HEAD~;
+  fi
+- if [[ $TRIGGER_WIN == TRUE ]]; then
+      MSG=`git log --pretty=oneline --abbrev-commit -n 1 | cut -d ' ' -f 2-`;
+      cp .travis.yml /tmp/.travis.temp.yml;
+      cp .travis.windows.yml .travis.yml;
+      git config --global user.email "notifications@travis-ci.org";
+      git config --global user.name "Travis CI";
+      git add .travis.yml;
+      git commit -m "$MSG";
+      git push -q https://soonhokong:${GH_TOKEN}@github.com/soonhokong/lean-win.git +HEAD:master;
+      mv /tmp/.travis.temp.yml .travis.yml;
+      git reset --hard HEAD~;
+  fi
 - if [[ $CMAKE_BUILD_TYPE == DEBUG ]] || [[ $CMAKE_BUILD_TYPE == RELEASE ]]; then
       cd ..;
   fi
 - if [[ $BUILD_DOXYGEN == TRUE ]]; then
+      sudo apt-get -qq install doxygen;
+      sudo apt-get -qq install graphviz;
       script/doxygen.sh;
       script/dropbox_upload.py doc /Public/doc ${DROPBOX_KEY};
   fi

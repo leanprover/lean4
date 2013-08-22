@@ -157,6 +157,9 @@ format const & colon() {
 format const & dot() {
     return g_dot;
 }
+// Auxiliary flag used to mark whether flatten
+// produce a different sexpr
+static bool thread_local g_diff_flatten = false;
 //
 sexpr format::flatten(sexpr const & s) {
     lean_assert(is_cons(s));
@@ -175,8 +178,10 @@ sexpr format::flatten(sexpr const & s) {
                                       }));
     case format_kind::CHOICE:
         /* flatten (x <|> y) = flatten x */
+        g_diff_flatten = true;
         return flatten(sexpr_choice_1(s));
     case format_kind::LINE:
+        g_diff_flatten = true;
         return sexpr_text(sexpr(" "));
     case format_kind::FLAT_COMPOSE:
     case format_kind::TEXT:
@@ -191,7 +196,15 @@ format format::flatten(format const & f){
     return format(flatten(f.m_value));
 }
 format group(format const & f) {
-    return choice(format::flatten(f), f);
+    g_diff_flatten = false;
+    format flat_f = format::flatten(f);
+    if (g_diff_flatten) {
+        return choice(flat_f, f);
+    } else {
+        // flat_f and f are essentially the same format object.
+        // So, we don't need to create a choice.
+        return flat_f;
+    }
 }
 format above(format const & f1, format const & f2) {
     return format{f1, line(), f2};

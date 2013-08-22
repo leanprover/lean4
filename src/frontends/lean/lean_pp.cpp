@@ -63,12 +63,12 @@ static format g_in_fmt        = highlight_keyword(format("in"));
 static format g_assign_fmt    = highlight_keyword(format(":="));
 static format g_geq_fmt       = format("\u2265");
 
-static name g_pp_max_depth       {"pp", "lean", "max_depth"};
-static name g_pp_max_steps       {"pp", "lean", "max_steps"};
-static name g_pp_implicit        {"pp", "lean", "implicit"};
-static name g_pp_notation        {"pp", "lean", "notation"};
-static name g_pp_extra_lets      {"pp", "lean", "extra_lets"};
-static name g_pp_alias_min_weight{"pp", "lean", "alias_min_weight"};
+static name g_pp_max_depth       {"lean", "pp", "max_depth"};
+static name g_pp_max_steps       {"lean", "pp", "max_steps"};
+static name g_pp_implicit        {"lean", "pp", "implicit"};
+static name g_pp_notation        {"lean", "pp", "notation"};
+static name g_pp_extra_lets      {"lean", "pp", "extra_lets"};
+static name g_pp_alias_min_weight{"lean", "pp", "alias_min_weight"};
 
 RegisterUnsignedOption(g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH, "(lean pretty printer) maximum expression depth, after that it will use ellipsis");
 RegisterUnsignedOption(g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS, "(lean pretty printer) maximum number of visited expressions, after that it will use ellipsis");

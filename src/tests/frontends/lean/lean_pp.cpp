@@ -38,7 +38,7 @@ static void tst2() {
     expr g = Const("g");
     std::cout << fmt(g(t, t, t)) << std::endl;
     formatter fmt2 = mk_pp_formatter(f);
-    std::cout << fmt2(g(t, t, t), options({"pp", "lean", "alias_min_weight"}, 100)) << std::endl;
+    std::cout << fmt2(g(t, t, t), options({"lean", "pp", "alias_min_weight"}, 100)) << std::endl;
 }
 
 static void tst3() {
@@ -64,7 +64,7 @@ static void tst4() {
     regular(s1) << And(Const("a"), Const("b")) << "\n";
     regular(f) << And(Const("a"), Const("b")) << "\n";
     diagnostic(f) << And(Const("a"), Const("b")) << "\n";
-    f.set_option(name{"pp", "lean", "notation"}, false);
+    f.set_option(name{"lean", "pp", "notation"}, false);
     regular(f) << And(Const("a"), Const("b")) << "\n";
     regular(s1) << And(Const("a"), Const("b")) << "\n";
     regular(s2) << And(Const("a"), Const("b")) << "\n";
@@ -76,7 +76,7 @@ static void tst5() {
     f.set_regular_channel(out);
     regular(f) << And(Const("a"), Const("b"));
     lean_assert(out->str() == "a ∧ b");
-    f.set_option(name{"pp", "lean", "notation"}, false);
+    f.set_option(name{"lean", "pp", "notation"}, false);
     regular(f) << " " << And(Const("a"), Const("b"));
     lean_assert(out->str() == "a ∧ b and a b");
 }
@@ -93,7 +93,7 @@ static void tst6() {
     std::shared_ptr<string_output_channel> out(new string_output_channel());
     f.set_regular_channel(out);
     expr t = mk_deep(10);
-    f.set_option(name{"pp", "lean", "max_depth"}, 5);
+    f.set_option(name{"lean", "pp", "max_depth"}, 5);
     f.set_option(name{"pp", "colors"}, false);
     regular(f) << t;
     lean_assert(out->str() == "f (f (f (f (f (…)))))");

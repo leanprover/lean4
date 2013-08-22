@@ -42,7 +42,7 @@ bool options::empty() const {
     return is_nil(m_value);
 }
 
-bool options::size() const {
+unsigned options::size() const {
     return length(m_value);
 }
 
@@ -86,7 +86,7 @@ char const * options::get_string(name const & n, char const * default_value) con
 
 sexpr options::get_sexpr(char const * n, sexpr const & default_value) const {
     sexpr const * r = find(m_value, [&](sexpr const & p) { return to_name(head(p)) == n; });
-    return r == nullptr ? default_value : *r;
+    return r == nullptr ? default_value : tail(*r);
 }
 
 int options::get_int(char const * n, int default_value) const {

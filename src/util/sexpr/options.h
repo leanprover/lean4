@@ -28,7 +28,7 @@ public:
     options & operator=(options const & o) { m_value = o.m_value; return *this; }
 
     bool empty() const;
-    bool size() const;
+    unsigned size() const;
     bool contains(name const & n) const;
     bool contains(char const * n) const;
 

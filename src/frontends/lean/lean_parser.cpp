@@ -1176,10 +1176,9 @@ bool parse_commands_from_stdin(frontend & fe) {
         input = readline("# ");
         if (!input)
             return errors;
+        add_history(input);
         std::istringstream strm(input);
-        if (parse_commands(fe, strm, false, false))
-            add_history(input);
-        else
+        if (!parse_commands(fe, strm, false, false))
             errors = true;
         free(input);
     }

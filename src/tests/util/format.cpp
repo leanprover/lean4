@@ -6,10 +6,12 @@ Author: Soonho Kong
 */
 #include <vector>
 #include <algorithm>
+#include <sstream>
 #include "format.h"
 #include "test.h"
 #include "sexpr_funcs.h"
 #include "options.h"
+#include "mpq.h"
 using namespace lean;
 
 using std::cout;
@@ -98,9 +100,24 @@ static void tst3() {
     cout << mk_pair(f1, options({"pp", "colors"}, false)) << "\n";
 }
 
+static void tst4() {
+    std::ostringstream s;
+    s << "(" << format() << ") ";
+    s << "(" << (format("foo") ^ format("bar")) << ") ";
+    s << pp(sexpr()) << " ";
+    s << pp(sexpr("test")) << " ";
+    sexpr s1(mpz(100));
+    sexpr s2(mpq(1,2));
+    sexpr s3{s1, s2};
+    s << pp(s3);
+    std::cout << s.str() << "\n";
+    lean_assert(s.str() == "() (foo bar) nil \"test\" (100 1/2)");
+}
+
 int main() {
     tst1();
     tst2();
     tst3();
+    tst4();
     return has_violations() ? 1 : 0;
 }

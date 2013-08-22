@@ -25,7 +25,7 @@ static std::unique_ptr<std::set<std::string>> g_enabled_debug_tags;
 bool has_violations() {
     return g_has_violations;
 }
-
+// LCOV_EXCL_START
 void enable_assertions(bool f) {
     g_enable_assertions = f;
 }
@@ -102,5 +102,5 @@ void invoke_debugger() {
         }
     }
 }
-
+// LCOV_EXCL_STOP
 }

@@ -4,8 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "name.h"
+#include <cstring>
+#include <sstream>
 #include "test.h"
+#include "name.h"
 using namespace lean;
 
 static void tst1() {
@@ -82,10 +84,35 @@ static void tst4() {
     lean_assert(!is_prefix_of(name(name("bla"), 1u), name(name(name(0u), 1u), "foo")));
 }
 
+static void tst5() {
+    name n(0u);
+    lean_assert(n.size() == 1);
+    lean_assert(name().size() > 0);
+    lean_assert(name({"foo", "bla", "boing"}).get_prefix() == name({"foo", "bla"}));
+    lean_assert(!name({"foo", "bla", "boing"}).is_atomic());
+    lean_assert(name({"foo"}).is_atomic());
+    lean_assert(strcmp(name({"foo", "bla", "boing"}).get_string(), "boing") == 0);
+    lean_assert(name(name(0u), 1u).get_numeral() == 1u);
+    lean_assert(name(2u).get_numeral() == 2u);
+    lean_assert(name::anonymous().is_anonymous());
+    name n1("foo");
+    name n2 = n1;
+    lean_assert(n2 == n1);
+    std::cout << name::anonymous() << "\n";
+    std::cout << name({"foo", "bla", "boing"}).get_prefix() << "\n";
+    lean_assert(name("foo").is_string());
+    lean_assert(name(0u).is_numeral());
+    lean_assert(name(name(0u), "foo").is_string());
+    lean_assert(name(name("foo"), 0u).is_numeral());
+    lean_assert(name(name(0u), "foo").get_prefix().is_numeral());
+    lean_assert(name(name("foo"), 0u).get_prefix().is_string());
+}
+
 int main() {
     tst1();
     tst2();
     tst3();
     tst4();
+    tst5();
     return has_violations() ? 1 : 0;
 }

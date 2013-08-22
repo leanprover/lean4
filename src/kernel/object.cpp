@@ -129,7 +129,7 @@ class theorem_object_cell : public definition_object_cell {
 public:
     theorem_object_cell(name const & n, expr const & t, expr const & v):
         definition_object_cell(n, t, v, true) {}
-    virtual char const * keyword() const { return "Definition"; }
+    virtual char const * keyword() const { return "Theorem"; }
 };
 
 object mk_uvar_decl(name const & n, level const & l) { return object(new uvar_declaration_object_cell(n, l)); }

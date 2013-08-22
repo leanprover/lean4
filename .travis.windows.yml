@@ -9,23 +9,26 @@ env:
   - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG
 
 install:
-#  - sudo add-apt-repository --yes ppa:ubuntu-wine/ppa; do echo retry; done
-#  - sudo sh -c "echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections"
-#  - sudo apt-get -qq update
-#  - sudo apt-get -qq install wine-1.6
+  - sudo add-apt-repository --yes ppa:purplekarrot/cmake
+  - sudo apt-get -qq update
   - sudo apt-get -qq install cmake make
   - if [[ $DROPBOX == TRUE ]]; then
        sudo apt-get -qq install python python-pip;
        sudo pip install dropbox;
     fi
-  - wget http://dl.dropboxusercontent.com/u/203889738/gcc/mxe-gcc-4.8.1.tar.bz2 -O /tmp/gcc.tar.bz2;
-  - tar xvfj /tmp/gcc.tar.gz2
+  - mkdir -p /tmp/mxe
+  - cd /tmp/mxe
+  - wget http://dl.dropboxusercontent.com/u/203889738/gcc/mxe-gcc-4.8.1.tar.bz2
+  - tar xfj mxe-gcc-4.8.1.tar.bz2
+  - cd -
 
 script:
   - mkdir -p build
+  - LEAN_ROOT=`pwd`
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ../src -DCMAKE_TOOLCHAIN_FILE=../usr/x86_64-w64-mingw32/share/cmake/mxe-conf.cmake
+  - cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ../src -DCMAKE_TOOLCHAIN_FILE=/tmp/mxe/usr/x86_64-w64-mingw32/share/cmake/mxe-conf.cmake
   - make
+  - cd ..
 
 after_script:
 - if [[ $UPLOAD ]]; then
@@ -39,6 +42,6 @@ after_script:
 notifications:
   email:
     recipients:
-      - soonho.kong@gmail.com
+    - leansmt-dev@googlegroups.com
     on_success: always
     on_failure: always

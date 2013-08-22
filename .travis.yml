@@ -17,7 +17,7 @@ env:
      DROPBOX=TRUE
      TRIGGER_BB=TRUE
      TRIGGER_OSX=TRUE
-     TRIGGER_WIN=TRUE
+     TRIGGER_WINDOWS=TRUE
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=DOXYGEN
      BUILD_DOXYGEN=TRUE
@@ -98,7 +98,7 @@ after_script:
       mv /tmp/.travis.temp.yml .travis.yml;
       git reset --hard HEAD~;
   fi
-- if [[ $TRIGGER_WIN == TRUE ]]; then
+- if [[ $TRIGGER_WINDOWS == TRUE ]]; then
       MSG=`git log --pretty=oneline --abbrev-commit -n 1 | cut -d ' ' -f 2-`;
       cp .travis.yml /tmp/.travis.temp.yml;
       cp .travis.windows.yml .travis.yml;
@@ -106,7 +106,7 @@ after_script:
       git config --global user.name "Travis CI";
       git add .travis.yml;
       git commit -m "$MSG";
-      git push -q https://soonhokong:${GH_TOKEN}@github.com/soonhokong/lean-win.git +HEAD:master;
+      git push -q https://soonhokong:${GH_TOKEN}@github.com/soonhokong/lean-windows.git +HEAD:master;
       mv /tmp/.travis.temp.yml .travis.yml;
       git reset --hard HEAD~;
   fi

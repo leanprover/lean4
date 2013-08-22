@@ -96,7 +96,7 @@ void display_decimal(std::ostream & out, mpq const & a, unsigned prec) {
     denominator(d1, a);
     if (a.is_neg()) {
         out << "-";
-        neg(n1);
+        n1.neg();
     }
     v1 = n1 / d1;
     out << v1;

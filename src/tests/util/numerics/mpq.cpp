@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <iostream>
+#include <sstream>
 #include "test.h"
 #include "mpq.h"
 using namespace lean;
@@ -133,6 +134,45 @@ static void tst5() {
     lean_assert(mpz(10) == a);
 }
 
+static void check_dec(mpq const & q, char const * expected, unsigned prec = 10) {
+    std::ostringstream s;
+    display_decimal(s, q, prec);
+    std::cout << s.str() << "\n";
+    lean_assert(s.str() == expected);
+}
+
+static void tst6() {
+    mpq v1(1);
+    v1.floor();
+    lean_assert(v1 == 1);
+    v1.ceil();
+    lean_assert(v1 == 1);
+    v1 = mpq(1,2);
+    v1.floor();
+    lean_assert(v1 == 0);
+    v1 = mpq(1,2);
+    v1.ceil();
+    lean_assert(v1 == 1);
+    v1 -= 2u;
+    lean_assert(v1 == -1);
+    v1 = mpq(-1,2);
+    v1.floor();
+    lean_assert(v1 == -1);
+    v1 = mpq(-1,2);
+    v1.ceil();
+    lean_assert(v1 == 0);
+    check_dec(mpq(-1,2), "-0.5");
+    check_dec(mpq(1,3),  "0.33333?", 5);
+    check_dec(mpq(3),    "3");
+    check_dec(mpq(-2,1), "-2");
+    check_dec(mpq(-1,3),  "-0.33333?", 5);
+    check_dec(mpq(-1,7),  "-0.14285?", 5);
+
+    lean_assert(cmp(mpq(1,2), mpz(1)) < 0);
+    lean_assert(cmp(mpq(3,2), mpz(1)) > 0);
+    lean_assert(cmp(mpq(-3,2), mpz(-1)) < 0);
+}
+
 int main() {
     tst0();
     tst1();
@@ -140,5 +180,6 @@ int main() {
     tst3();
     tst4();
     tst5();
+    tst6();
     return has_violations() ? 1 : 0;
 }

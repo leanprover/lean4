@@ -9,7 +9,10 @@ Author: Leonardo de Moura
 #include "max_sharing.h"
 
 namespace lean {
-
+/**
+   \brief Implementation of the functional object for creating expressions with maximally
+   shared sub-expressions.
+*/
 struct max_sharing_fn::imp {
     struct expr_struct_eq { unsigned operator()(expr const & e1, expr const & e2) const { return e1 == e2; }};
     typedef typename std::unordered_set<expr, expr_hash, expr_struct_eq> expr_cache;
@@ -62,7 +65,6 @@ struct max_sharing_fn::imp {
     expr operator()(expr const & a) { return apply(a); }
 };
 
-
 max_sharing_fn::max_sharing_fn():m_imp(new imp) {}
 max_sharing_fn::~max_sharing_fn() {}
 expr max_sharing_fn::operator()(expr const & a) { return (*m_imp)(a); }
@@ -74,5 +76,4 @@ expr max_sharing(expr const & a) {
     else
         return max_sharing_fn::imp()(a);
 }
-
 } // namespace lean

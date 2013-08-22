@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <sstream>
 #include "test.h"
 #include "options.h"
+#include "option_declarations.h"
 using namespace lean;
 
 static void tst1() {
@@ -46,6 +47,7 @@ static void tst4() {
     lean_assert(opt.empty());
     lean_assert(opt.size() == 0);
     opt = update(opt, "color", 10);
+    opt = opt.update(name("color"), 10u);
     lean_assert(!opt.empty());
     lean_assert(opt.size() == 1);
     lean_assert(opt.contains("color"));
@@ -108,10 +110,25 @@ static void tst4() {
     lean_assert(s.str() == "Bool Int Unsigned Int Double String S-Expression");
 }
 
+RegisterBoolOption("fakeopt", false, "fake option");
+
+static void tst5() {
+    option_declarations const & decls = get_option_declarations();
+    auto it = decls.find("fakeopt");
+    lean_assert(it != decls.end());
+    auto decl = it->second;
+    lean_assert(decl.get_name() == "fakeopt");
+    lean_assert(decl.get_default_value() == "false");
+    lean_assert(decl.get_description() == "fake option");
+    auto it2 = decls.find("fakeopt2");
+    lean_assert(it2 == decls.end());
+}
+
 int main() {
     tst1();
     tst2();
     tst3();
     tst4();
+    tst5();
     return has_violations() ? 1 : 0;
 }

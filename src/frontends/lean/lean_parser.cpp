@@ -89,6 +89,7 @@ class parser_fn {
     scanner        m_scanner;
     scanner::token m_curr;
     bool           m_use_exceptions;
+    bool           m_interactive;
     bool           m_found_errors;
     local_decls    m_local_decls;
     unsigned       m_num_local_decls;
@@ -873,11 +874,14 @@ class parser_fn {
             if (opt_id == g_env_kwd) {
                 if (curr_is_int()) {
                     unsigned i = parse_unsigned("invalid argument, value does not fit in a machine integer");
-                    auto it  = m_frontend.end_objects();
+                    auto end = m_frontend.end_objects();
                     auto beg = m_frontend.begin_objects();
+                    auto it  = end;
                     while (it != beg && i != 0) {
                         --i;
                         --it;
+                    }
+                    for (; it != end; ++it) {
                         regular(m_frontend) << *it << endl;
                     }
                 } else {
@@ -1016,7 +1020,7 @@ class parser_fn {
         std::ifstream in(fname);
         if (!in.is_open())
             throw parser_error("invalid import command, failed to open file");
-        ::lean::parse_commands(m_frontend, in, m_use_exceptions);
+        ::lean::parse_commands(m_frontend, in, m_use_exceptions, false);
     }
 
     void parse_help() {
@@ -1092,15 +1096,27 @@ class parser_fn {
     }
 
 public:
-    parser_fn(frontend & fe, std::istream & in, bool use_exceptions):
+    parser_fn(frontend & fe, std::istream & in, bool use_exceptions, bool interactive):
         m_frontend(fe),
         m_scanner(in),
-        m_use_exceptions(use_exceptions) {
+        m_use_exceptions(use_exceptions),
+        m_interactive(interactive) {
         m_found_errors = false;
         m_num_local_decls = 0;
         m_scanner.set_command_keywords(g_command_keywords);
         init_builtins();
         scan();
+    }
+
+    static void show_prompt(bool interactive, frontend const & fe) {
+        if (interactive) {
+            regular(fe) << "# ";
+            regular(fe).flush();
+        }
+    }
+
+    void show_prompt() {
+        show_prompt(m_interactive, m_frontend);
     }
 
     /** \brief Parse a sequence of commands. This method also perform error management. */
@@ -1109,7 +1125,7 @@ public:
             try {
                 switch (curr()) {
                 case scanner::token::CommandId: parse_command(); break;
-                case scanner::token::Period: next(); break;
+                case scanner::token::Period: show_prompt(); next(); break;
                 case scanner::token::Eof: return !m_found_errors;
                 default:
                     throw parser_error("Command expected");
@@ -1142,10 +1158,11 @@ public:
     }
 
 };
-bool parse_commands(frontend & fe, std::istream & in, bool use_exceptions) {
-    return parser_fn(fe, in, use_exceptions).parse_commands();
+bool parse_commands(frontend & fe, std::istream & in, bool use_exceptions, bool interactive) {
+    parser_fn::show_prompt(interactive, fe);
+    return parser_fn(fe, in, use_exceptions, interactive).parse_commands();
 }
 expr parse_expr(frontend const & fe, std::istream & in) {
-    return parser_fn(const_cast<frontend&>(fe), in, true).parse_expr_main();
+    return parser_fn(const_cast<frontend&>(fe), in, true, false).parse_expr_main();
 }
 }

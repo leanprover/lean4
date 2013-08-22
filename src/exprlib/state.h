@@ -44,11 +44,13 @@ public:
 struct regular {
     state const & m_state;
     regular(state const & s):m_state(s) {}
+    void flush() { m_state.get_regular_channel().get_stream().flush(); }
 };
 
 struct diagnostic {
     state const & m_state;
     diagnostic(state const & s):m_state(s) {}
+    void flush() { m_state.get_diagnostic_channel().get_stream().flush(); }
 };
 
 // hack for using std::endl with channels

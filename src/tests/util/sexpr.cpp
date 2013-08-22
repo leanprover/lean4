@@ -174,6 +174,34 @@ static void tst7() {
     std::cout << mk_pair(f, update(options({"pp", "width"}, 1000), {"pp", "colors"}, false)) << "\n";
 }
 
+static void tst8() {
+    lean_assert(!(sexpr("foo") == sexpr(10)));
+    lean_assert(sexpr() == sexpr());
+    lean_assert(sexpr(true) == sexpr(true));
+    lean_assert(sexpr(false) != sexpr(true));
+    sexpr s1(10);
+    sexpr s2 = s1;
+    lean_assert(cmp(s1, s2) == 0);
+    lean_assert(cmp(s1, sexpr(20)) < 0);
+    lean_assert(cmp(sexpr(), sexpr()) == 0);
+    lean_assert(cmp(sexpr("aaa"), sexpr("aaa")) == 0);
+    lean_assert(cmp(sexpr("bbb"), sexpr("aaa")) > 0);
+    lean_assert(cmp(sexpr(true), sexpr(true)) == 0);
+    lean_assert(cmp(sexpr(true), sexpr(false)) > 0);
+    lean_assert(cmp(sexpr(false), sexpr(true)) < 0);
+    lean_assert(cmp(sexpr(1.0), sexpr(2.0)) < 0);
+    lean_assert(cmp(sexpr(name("aaa")), sexpr(name("aaa"))) == 0);
+    lean_assert(cmp(sexpr(name("aaa")), sexpr(name("bbb"))) < 0);
+    lean_assert(cmp(sexpr(mpz(10)), sexpr(mpz(10))) == 0);
+    lean_assert(cmp(sexpr(mpz(20)), sexpr(mpz(10))) > 0);
+    lean_assert(cmp(sexpr(mpq(1,2)), sexpr(mpq(1,2))) == 0);
+    lean_assert(cmp(sexpr(mpq(1,3)), sexpr(mpq(1,2))) < 0);
+    std::ostringstream s;
+    s << sexpr() << " " << sexpr(mpq(1,2));
+    std::cout << s.str() << "\n";
+    lean_assert(s.str() == "nil 1/2");
+}
+
 int main() {
     tst1();
     tst2();
@@ -182,5 +210,6 @@ int main() {
     tst5();
     tst6();
     tst7();
+    tst8();
     return has_violations() ? 1 : 0;
 }

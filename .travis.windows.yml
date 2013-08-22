@@ -1,0 +1,44 @@
+language: cpp
+
+env:
+  global:
+  # DROPBOX_KEY
+  - secure: "H1aUwvee839ZPVievqm8Fwl9hBHx5/JW6+J66+ORYL2IHHPjfOgLKRYU2rcTcbxnZO88NJRGeiI431rEadBU2Ie5aS8WpKM5orvRmdd6bLcCvzqN+hS8JCmCVygQtgpKYYUk8iDWhX9YCgPVs0RlRz3UCjwUpqdkmL+w74lIZMM="
+  matrix:
+  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE UPLOAD=windows DROPBOX=TRUE
+  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG
+
+install:
+#  - sudo add-apt-repository --yes ppa:ubuntu-wine/ppa; do echo retry; done
+#  - sudo sh -c "echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections"
+#  - sudo apt-get -qq update
+#  - sudo apt-get -qq install wine-1.6
+  - sudo apt-get -qq install cmake make
+  - if [[ $DROPBOX == TRUE ]]; then
+       sudo apt-get -qq install python python-pip;
+       sudo pip install dropbox;
+    fi
+  - wget http://dl.dropboxusercontent.com/u/203889738/gcc/mxe-gcc-4.8.1.tar.bz2 -O /tmp/gcc.tar.bz2;
+  - tar xvfj /tmp/gcc.tar.gz2
+
+script:
+  - mkdir -p build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ../src -DCMAKE_TOOLCHAIN_FILE=../usr/x86_64-w64-mingw32/share/cmake/mxe-conf.cmake
+  - make
+
+after_script:
+- if [[ $UPLOAD ]]; then
+      UPLOAD_DIR=bin;
+      BINARY=lean_${UPLOAD}.exe;
+      mkdir ${UPLOAD_DIR};
+      cp build/shell/lean.exe ${UPLOAD_DIR}/${BINARY};
+      script/dropbox_upload.py ${UPLOAD_DIR} /Public/${UPLOAD_DIR} ${DROPBOX_KEY};
+  fi
+
+notifications:
+  email:
+    recipients:
+      - soonho.kong@gmail.com
+    on_success: always
+    on_failure: always

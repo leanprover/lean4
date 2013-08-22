@@ -67,6 +67,7 @@ static void tst4() {
     opt = update(opt, "name", "Leo");
     lean_assert(opt.size() == 3);
     lean_assert(strcmp(opt.get_string("name", ""), "Leo") == 0);
+    lean_assert(strcmp(opt.get_string(name("name"), ""), "Leo") == 0);
     lean_assert(strcmp(opt.get_string("name2", ""), "Leo") != 0);
     lean_assert(strcmp(opt.get_string("name2", ""), "") == 0);
     opt = update(opt, "name", "Soon Ho");

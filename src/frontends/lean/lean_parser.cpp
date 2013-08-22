@@ -20,6 +20,13 @@ Author: Leonardo de Moura
 #include "lean_scanner.h"
 #include "lean_notation.h"
 #include "lean_pp.h"
+#ifdef LEAN_USE_READLINE
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <readline/readline.h>
+#include <readline/history.h>
+#endif
 
 namespace lean {
 // ==========================================
@@ -1156,11 +1163,29 @@ public:
             throw parser_exception(ex.what(), m_scanner.get_line(), m_scanner.get_pos());
         }
     }
-
 };
 bool parse_commands(frontend & fe, std::istream & in, bool use_exceptions, bool interactive) {
     parser_fn::show_prompt(interactive, fe);
     return parser_fn(fe, in, use_exceptions, interactive).parse_commands();
+}
+bool parse_commands_from_stdin(frontend & fe) {
+#ifdef LEAN_USE_READLINE
+    bool errors = false;
+    char * input;
+    while (true) {
+        input = readline("# ");
+        if (!input)
+            return errors;
+        std::istringstream strm(input);
+        if (parse_commands(fe, strm, false, false))
+            add_history(input);
+        else
+            errors = true;
+        free(input);
+    }
+#else
+    return parse_commands(fe, std::cin, false, true) ? 0 : 1;
+#endif
 }
 expr parse_expr(frontend const & fe, std::istream & in) {
     return parser_fn(const_cast<frontend&>(fe), in, true, false).parse_expr_main();

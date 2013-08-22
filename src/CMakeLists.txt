@@ -51,13 +51,23 @@ find_package(MPFR 3.1.0)
 set(EXTRA_LIBS ${EXTRA_LIBS} ${MPFR_LIBRARIES})
 
 # tcmalloc
-option(tcmalloc "tcmalloc" ON)
-if("${tcmalloc}" MATCHES "ON")
+option(TCMALLOC "TCMALLOC" ON)
+if("${TCMALLOC}" MATCHES "ON")
   if(${TCMALLOC_FOUND})
     set(EXTRA_LIBS ${EXTRA_LIBS} ${TCMALLOC_LIBRARIES})
   endif()
+  message(STATUS "Using tcmalloc.")
 else()
   message(STATUS "Using standard malloc.")
+endif()
+
+# Readline
+option(READLINE "READLINE" OFF)
+if("${READLINE}" MATCHES "ON")
+  find_package(Readline)
+  set(EXTRA_LIBS ${EXTRA_LIBS} ${READLINE_LIBRARY})
+  message(STATUS "Using GNU readline")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DLEAN_USE_READLINE")
 endif()
 
 include_directories(${LEAN_SOURCE_DIR}/util)

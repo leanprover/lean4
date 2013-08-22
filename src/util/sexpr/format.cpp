@@ -62,6 +62,7 @@ std::ostream & layout(std::ostream & out, bool colors, sexpr const & s) {
     case format::format_kind::NEST:
     case format::format_kind::CHOICE:
     case format::format_kind::COMPOSE:
+    case format::format_kind::FLAT_COMPOSE:
         lean_unreachable();
         break;
 
@@ -168,15 +169,16 @@ sexpr format::flatten(sexpr const & s) {
         return flatten(sexpr_nest_s(s));
     case format_kind::COMPOSE:
         /* flatten (s_1 <> ... <> s_n ) = flatten s_1 <> ... <> flatten s_n */
-        return sexpr_compose(map(sexpr_compose_list(s),
-                                 [](sexpr const & s) {
-                                     return flatten(s);
-                                 }));
+        return sexpr_flat_compose(map(sexpr_compose_list(s),
+                                      [](sexpr const & s) {
+                                          return flatten(s);
+                                      }));
     case format_kind::CHOICE:
         /* flatten (x <|> y) = flatten x */
         return flatten(sexpr_choice_1(s));
     case format_kind::LINE:
         return sexpr_text(sexpr(" "));
+    case format_kind::FLAT_COMPOSE:
     case format_kind::TEXT:
     case format_kind::COLOR_BEGIN:
     case format_kind::COLOR_END:
@@ -212,20 +214,33 @@ format wrap(format const & f1, format const & f2) {
                   f2};
 }
 
-unsigned format::space_upto_line_break_list(sexpr const & r, bool & found_newline) {
+struct space_exceeded {};
+
+// Return true iff the space upto line break fits in the available space.
+bool format::space_upto_line_break_list_exceeded(sexpr const & r, int available) {
     // r : list of (int * format)
-    lean_assert(is_list(r));
-    sexpr list = r;
-    unsigned len = 0;
-    while (!is_nil(list) && !found_newline) {
-        sexpr const & h = cdr(car(list));
-        len += space_upto_line_break(h, found_newline);
-        list = cdr(list);
+    try {
+        lean_assert(is_list(r));
+        sexpr list = r;
+        bool found_newline = false;
+        while (!is_nil(list) && !found_newline) {
+            if (available < 0)
+                return true;
+            sexpr const & h = cdr(car(list));
+            available -= space_upto_line_break(h, available, found_newline);
+            list = cdr(list);
+        }
+        return available < 0;
+    } catch (space_exceeded) {
+        return true;
     }
-    return len;
+    return false;
 }
 
-unsigned format::space_upto_line_break(sexpr const & s, bool & found_newline) {
+/**
+   \brief Return the space upto line break. If the space exceeds available, then throw an exception.
+*/
+int format::space_upto_line_break(sexpr const & s, int available, bool & found_newline) {
     // s : format
     lean_assert(!found_newline);
     lean_assert(sexpr_kind(s) <= format_kind::COLOR_END);
@@ -238,20 +253,23 @@ unsigned format::space_upto_line_break(sexpr const & s, bool & found_newline) {
         return 0;
     }
     case format_kind::COMPOSE:
+    case format_kind::FLAT_COMPOSE:
     {
         sexpr list  = sexpr_compose_list(s);
-        unsigned len = 0;
+        int len = 0;
         while(!is_nil(list) && !found_newline) {
             sexpr const & h = car(list);
             list = cdr(list);
-            len += space_upto_line_break(h, found_newline);
+            len += space_upto_line_break(h, available, found_newline);
+            if (len > available)
+                throw space_exceeded();
         }
         return len;
     }
     case format_kind::NEST:
     {
         sexpr const & x = sexpr_nest_s(s);
-        return space_upto_line_break(x, found_newline);
+        return space_upto_line_break(x, available, found_newline);
     }
     case format_kind::TEXT: {
         return sexpr_text_length(s);
@@ -262,7 +280,7 @@ unsigned format::space_upto_line_break(sexpr const & s, bool & found_newline) {
     case format_kind::CHOICE:
     {
         sexpr const & x = sexpr_choice_2(s);
-        return space_upto_line_break(x, found_newline);
+        return space_upto_line_break(x, available, found_newline);
     }
     }
     lean_unreachable();
@@ -289,6 +307,7 @@ sexpr format::be(unsigned w, unsigned k, sexpr const & s) {
     case format_kind::COLOR_END:
         return sexpr(v, be(w, k, z));
     case format_kind::COMPOSE:
+    case format_kind::FLAT_COMPOSE:
     {
         sexpr const & list  = sexpr_compose_list(v);
         sexpr const & list_ = foldr(list, z, [i](sexpr const & s, sexpr const & res) {
@@ -310,14 +329,14 @@ sexpr format::be(unsigned w, unsigned k, sexpr const & s) {
     {
         sexpr const & x = sexpr_choice_1(v);
         sexpr const & y = sexpr_choice_2(v);;
-        bool found_newline = false;
-        int d = static_cast<int>(w) - static_cast<int>(k) - space_upto_line_break_list(sexpr(sexpr(i, x), z), found_newline);
-        if(d >= 0) {
+        int available = static_cast<int>(w) - static_cast<int>(k);
+        if (!space_upto_line_break_list_exceeded(sexpr(sexpr(i, x), z), available)) {
             sexpr const & s1 = be(w, k, sexpr(sexpr(i, x), z));
             return s1;
+        } else {
+            sexpr const & s2 = be(w, k, sexpr(sexpr(i, y), z));
+            return s2;
         }
-        sexpr const & s2 = be(w, k, sexpr(sexpr(i, y), z));
-        return s2;
     }
     }
     lean_unreachable();

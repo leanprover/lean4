@@ -32,7 +32,7 @@ class options;
 
 class format {
 public:
-    enum format_kind { NIL, NEST, COMPOSE, CHOICE, LINE, TEXT, COLOR_BEGIN, COLOR_END};
+    enum format_kind { NIL, NEST, COMPOSE, FLAT_COMPOSE, CHOICE, LINE, TEXT, COLOR_BEGIN, COLOR_END};
     enum format_color {RED, GREEN, ORANGE, BLUE, PINK, CYAN, GREY};
 private:
     sexpr m_value;
@@ -48,11 +48,15 @@ private:
         lean_assert(is_list(l));
         return sexpr(sexpr(format_kind::COMPOSE), l);
     }
+    static inline sexpr sexpr_flat_compose(sexpr const & l) {
+        lean_assert(is_list(l));
+        return sexpr(sexpr(format_kind::FLAT_COMPOSE), l);
+    }
     static inline sexpr sexpr_compose(std::initializer_list<sexpr> const & l) {
         return sexpr_compose(sexpr(l));
     }
     static inline sexpr const & sexpr_compose_list(sexpr const & s) {
-        lean_assert(sexpr_kind(s) == format_kind::COMPOSE);
+        lean_assert(sexpr_kind(s) == format_kind::COMPOSE || sexpr_kind(s) == format_kind::FLAT_COMPOSE);
         return cdr(s);
     }
     static inline sexpr sexpr_choice(sexpr const & s1, sexpr const & s2) {
@@ -117,8 +121,8 @@ private:
     }
 
     // Functions used inside of pretty printing
-    static unsigned space_upto_line_break_list(sexpr const & r, bool & found);
-    static unsigned space_upto_line_break(sexpr const & s, bool & found);
+    static bool space_upto_line_break_list_exceeded(sexpr const & r, int available);
+    static int space_upto_line_break(sexpr const & s, int available, bool & found);
     static sexpr be(unsigned w, unsigned k, sexpr const & s);
     static sexpr best(unsigned w, unsigned k, sexpr const & s);
 
@@ -127,6 +131,9 @@ private:
     }
     static bool is_compose(format const & f)   {
         return to_int(car(f.m_value)) == format_kind::COMPOSE;
+    }
+    static bool is_flat_compose(format const & f)   {
+        return to_int(car(f.m_value)) == format_kind::FLAT_COMPOSE;
     }
     static bool is_nest(format const & f) {
         return to_int(car(f.m_value)) == format_kind::NEST;

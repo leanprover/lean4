@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "builtin.h"
 #include "free_vars.h"
 #include "list.h"
+#include "flet.h"
 #include "buffer.h"
 #include "exception.h"
 
@@ -57,6 +58,7 @@ class normalizer::imp {
     environment   m_env;
     context       m_ctx;
     cache         m_cache;
+    unsigned      m_depth;
     volatile bool m_interrupted;
 
     /**
@@ -113,6 +115,7 @@ class normalizer::imp {
 
     /** \brief Normalize the expression \c a in a context composed of stack \c s and \c k binders. */
     svalue normalize(expr const & a, value_stack const & s, unsigned k) {
+        flet<unsigned> l(m_depth, m_depth+1);
         if (m_interrupted)
             throw interrupted();
 
@@ -250,6 +253,7 @@ public:
     imp(environment const & env):
         m_env(env) {
         m_interrupted = false;
+        m_depth       = 0;
     }
 
     expr operator()(expr const & e, context const & ctx) {

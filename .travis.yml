@@ -115,7 +115,6 @@ after_script:
   fi
 - if [[ $BUILD_DOXYGEN == TRUE ]]; then
       sudo apt-get -qq install doxygen;
-      sudo apt-get -qq install graphviz;
       script/doxygen.sh;
       script/dropbox_upload.py doc /Public/doc ${DROPBOX_KEY};
   fi

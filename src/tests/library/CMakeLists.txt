@@ -1,3 +1,6 @@
+add_executable(implicit_args implicit_args.cpp)
+target_link_libraries(implicit_args ${EXTRA_LIBS})
+add_test(implicit_args ${CMAKE_CURRENT_BINARY_DIR}/implicit_args)
 add_executable(beta beta.cpp)
 target_link_libraries(beta ${EXTRA_LIBS})
 add_test(beta ${CMAKE_CURRENT_BINARY_DIR}/beta)

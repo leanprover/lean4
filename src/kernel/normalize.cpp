@@ -15,9 +15,20 @@ Author: Leonardo de Moura
 #include "list.h"
 #include "flet.h"
 #include "buffer.h"
-#include "exception.h"
+#include "kernel_exception.h"
+#include "options.h"
+
+#ifndef LEAN_KERNEL_NORMALIZER_MAX_DEPTH
+#define LEAN_KERNEL_NORMALIZER_MAX_DEPTH std::numeric_limits<unsigned>::max()
+#endif
 
 namespace lean {
+static name g_kernel_normalizer_max_depth       {"kernel", "normalizer", "max_depth"};
+RegisterUnsignedOption(g_kernel_normalizer_max_depth, LEAN_KERNEL_NORMALIZER_MAX_DEPTH, "(kernel) maximum recursion depth for expression normalizer");
+unsigned get_normalizer_max_depth(options const & opts) {
+    return opts.get_unsigned(g_kernel_normalizer_max_depth, LEAN_KERNEL_NORMALIZER_MAX_DEPTH);
+}
+
 class svalue;
 typedef list<svalue> value_stack; //!< Normalization stack
 enum class svalue_kind { Expr, Closure, BoundedVar };
@@ -58,6 +69,7 @@ class normalizer::imp {
     environment   m_env;
     context       m_ctx;
     cache         m_cache;
+    unsigned      m_max_depth;
     unsigned      m_depth;
     volatile bool m_interrupted;
 
@@ -118,7 +130,8 @@ class normalizer::imp {
         flet<unsigned> l(m_depth, m_depth+1);
         if (m_interrupted)
             throw interrupted();
-
+        if (m_depth > m_max_depth)
+            throw kernel_exception(m_env, "normalizer maximum recursion depth exceeded");
         bool shared = false;
         if (is_shared(a)) {
             shared = true;
@@ -250,9 +263,10 @@ class normalizer::imp {
     }
 
 public:
-    imp(environment const & env):
+    imp(environment const & env, unsigned max_depth):
         m_env(env) {
         m_interrupted = false;
+        m_max_depth   = max_depth;
         m_depth       = 0;
     }
 
@@ -276,7 +290,9 @@ public:
     void set_interrupt(bool flag) { m_interrupted = flag; }
 };
 
-normalizer::normalizer(environment const & env):m_ptr(new imp(env)) {}
+normalizer::normalizer(environment const & env, unsigned max_depth):m_ptr(new imp(env, max_depth)) {}
+normalizer::normalizer(environment const & env):normalizer(env, std::numeric_limits<unsigned>::max()) {}
+normalizer::normalizer(environment const & env, options const & opts):normalizer(env, get_normalizer_max_depth(opts)) {}
 normalizer::~normalizer() {}
 expr normalizer::operator()(expr const & e, context const & ctx) { return (*m_ptr)(e, ctx); }
 bool normalizer::is_convertible(expr const & t1, expr const & t2, context const & ctx) { return m_ptr->is_convertible(t1, t2, ctx); }

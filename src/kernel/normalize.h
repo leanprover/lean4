@@ -12,12 +12,15 @@ Author: Leonardo de Moura
 
 namespace lean {
 class environment;
+class options;
 /** \brief Functional object for normalizing expressions */
 class normalizer {
     class imp;
     std::unique_ptr<imp> m_ptr;
 public:
     normalizer(environment const & env);
+    normalizer(environment const & env, unsigned max_depth);
+    normalizer(environment const & env, options const & opts);
     ~normalizer();
 
     expr operator()(expr const & e, context const & ctx = context());

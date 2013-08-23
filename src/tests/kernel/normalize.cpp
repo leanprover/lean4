@@ -13,6 +13,8 @@ Author: Leonardo de Moura
 #include "trace.h"
 #include "test.h"
 #include "expr_sets.h"
+#include "abstract.h"
+#include "kernel_exception.h"
 #include "printer.h"
 using namespace lean;
 
@@ -231,6 +233,18 @@ static void tst5() {
 #endif
 }
 
+void tst6() {
+    environment env;
+    expr x = Const("x");
+    expr t = Fun({x, Type()}, mk_app(x, x));
+    expr omega = mk_app(t, t);
+    normalizer proc(env, 512);
+    try {
+        proc(omega);
+    } catch (kernel_exception & ex) {
+        std::cout << ex.what() << "\n";
+    }
+}
 
 int main() {
     tst_church_numbers();

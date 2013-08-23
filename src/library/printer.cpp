@@ -139,15 +139,22 @@ std::ostream & operator<<(std::ostream & out, std::pair<expr const &, context co
     return out;
 }
 
-std::ostream & operator<<(std::ostream & out, context const & ctx) {
+static void display_context_core(std::ostream & out, context const & ctx) {
     if (ctx) {
-        out << tail(ctx);
+        display_context_core(out, tail(ctx));
+        if (tail(ctx))
+            out << "; ";
         out << head(ctx).get_name() << " : " << head(ctx).get_domain();
         if (head(ctx).get_body()) {
             out << " := " << mk_pair(head(ctx).get_body(), tail(ctx));
         }
-        out << "\n";
     }
+}
+
+std::ostream & operator<<(std::ostream & out, context const & ctx) {
+    out << "[";
+    display_context_core(out, ctx);
+    out << "]";
     return out;
 }
 

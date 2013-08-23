@@ -8,9 +8,9 @@ enable_testing()
 
 set(LEAN_EXTRA_LINKER_FLAGS "")
 
-# Cygwin: Windows does not support ulimit -s unlimited. So, we reserve a lot of stack space: 100Mb
-if(${CYGWIN})
-  message(STATUS "CYGWIN detected")
+# Windows does not support ulimit -s unlimited. So, we reserve a lot of stack space: 100Mb
+if((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
+  message(STATUS "Windows detected")
   set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -Wl,--stack,104857600")
 endif()
 

@@ -109,7 +109,8 @@ class parser_fn {
 
     /** \brief Exception used to track parsing erros, it does not leak outside of this class. */
     struct parser_error : public exception {
-        parser_error(char const * msg):exception(msg) {}
+        pos_info m_pos;
+        parser_error(char const * msg, pos_info const & p):exception(msg), m_pos(p) {}
     };
 
     /**
@@ -166,7 +167,7 @@ class parser_fn {
         if (curr() == t)
             next();
         else
-            throw parser_error(msg);
+            throw parser_error(msg, pos());
     }
 
     /** \brief Return true iff the current toke is an identifier */
@@ -183,7 +184,7 @@ class parser_fn {
     bool curr_is_in() const { return curr() == scanner::token::In; }
 
     /** \brief Throws a parser error if the current token is not an identifier. */
-    void check_identifier(char const * msg) { if (!curr_is_identifier()) throw parser_error(msg); }
+    void check_identifier(char const * msg) { if (!curr_is_identifier()) throw parser_error(msg, pos()); }
     /**
         \brief Throws a parser error if the current token is not an
         identifier. If it is, move to the next token.
@@ -200,14 +201,20 @@ class parser_fn {
     /** \brief Throws a parser error if the current token is not ':='. If it is, move to the next token. */
     void check_assign_next(char const * msg) { check_next(scanner::token::Assign, msg); }
     /** \brief Throws a parser error if the current token is not an identifier named \c op. */
-    void check_name(name const & op, char const * msg) { if(!curr_is_identifier() || curr_name() != op) throw parser_error(msg); }
+    void check_name(name const & op, char const * msg) { if(!curr_is_identifier() || curr_name() != op) throw parser_error(msg, pos()); }
     /** \brief Throws a parser error if the current token is not an identifier named \c op. If it is, move to the next token. */
     void check_name_next(name const & op, char const * msg) { check_name(op, msg); next(); }
     /**
         \brief Throws a parser error if the current token is not a
         string. If it is, move to the next token.
     */
-    std::string check_string_next(char const * msg) { if (curr() != scanner::token::StringVal) throw parser_error(msg); std::string r = curr_string(); next(); return r; }
+    std::string check_string_next(char const * msg) {
+        if (curr() != scanner::token::StringVal)
+            throw parser_error(msg, pos());
+        std::string r = curr_string();
+        next();
+        return r;
+    }
 
     /** \brief Initialize \c m_builtins table with Lean builtin symbols that do not have notation associated with them. */
     void init_builtins() {
@@ -223,7 +230,7 @@ class parser_fn {
         lean_assert(curr_is_int());
         mpz pval = curr_num().get_numerator();
         if (!pval.is_unsigned_int()) {
-            throw parser_error(msg);
+            throw parser_error(msg, pos());
         } else {
             unsigned r = pval.get_unsigned_int();
             next();
@@ -237,7 +244,7 @@ class parser_fn {
 
     [[ noreturn ]] void not_implemented_yet() {
         // TODO
-        throw parser_error("not implemented yet");
+        throw parser_error("not implemented yet", pos());
     }
 
     /**
@@ -245,13 +252,14 @@ class parser_fn {
     */
     /*@{*/
     level parse_level_max() {
+        auto p = pos();
         next();
         buffer<level> lvls;
         while (curr_is_identifier() || curr_is_int()) {
             lvls.push_back(parse_level());
         }
         if (lvls.size() < 2)
-            throw parser_error("invalid level expression, max must have at least two arguments");
+            throw parser_error("invalid level expression, max must have at least two arguments", p);
         level r = lvls[0];
         for (unsigned i = 1; i < lvls.size(); i++)
             r = max(r, lvls[i]);
@@ -269,10 +277,11 @@ class parser_fn {
     }
 
     level parse_level_nud_int() {
+        auto p  = pos();
         mpz val = curr_num().get_numerator();
         next();
         if (!val.is_unsigned_int())
-            throw parser_error("invalid level expression, value does not fit in a machine integer");
+            throw parser_error("invalid level expression, value does not fit in a machine integer", p);
         return level() + val.get_unsigned_int();
     }
 
@@ -281,15 +290,16 @@ class parser_fn {
         case scanner::token::Id:        return parse_level_nud_id();
         case scanner::token::IntVal:    return parse_level_nud_int();
         default:
-            throw parser_error("invalid level expression");
+            throw parser_error("invalid level expression", pos());
         }
     }
 
     level parse_level_led_plus(level const & left) {
+        auto p = pos();
         next();
         level right = parse_level(g_level_plus_prec);
         if (!is_lift(right) || !lift_of(right).is_bottom())
-            throw parser_error("invalid level expression, right hand side of '+' (aka universe lift operator) must be a numeral");
+            throw parser_error("invalid level expression, right hand side of '+' (aka universe lift operator) must be a numeral", p);
         return left + lift_offset(right);
     }
 
@@ -305,7 +315,7 @@ class parser_fn {
             if (curr_name() == g_plus_name)     return parse_level_led_plus(left);
             else if (curr_name() == g_cup_name) return parse_level_led_cup(left);
         default:
-            throw parser_error("invalid level expression");
+            throw parser_error("invalid level expression", pos());
         }
     }
 
@@ -460,21 +470,21 @@ class parser_fn {
        id in the frontend/environment. If there isn't one, then tries
        to check if \c id is a builtin symbol. If it is not throws an error.
     */
-    expr get_name_ref(name const & id) {
+    expr get_name_ref(name const & id, pos_info const & p) {
         object const & obj = m_frontend.find_object(id);
         if (obj) {
             object_kind k      = obj.kind();
             if (k == object_kind::Definition || k == object_kind::Postulate)
                 return mk_constant(obj.get_name());
             else
-                throw parser_error("invalid object reference, object is not an expression.");
+                throw parser_error("invalid object reference, object is not an expression.", p);
         }
         else {
             auto it = m_builtins.find(id);
             if (it != m_builtins.end()) {
                 return it->second;
             } else {
-                throw parser_error("unknown identifier");
+                throw parser_error("unknown identifier", p);
             }
         }
     }
@@ -504,7 +514,7 @@ class parser_fn {
                 default: lean_unreachable(); return expr();
                 }
             } else {
-                return save(get_name_ref(id), p);
+                return save(get_name_ref(id, p), p);
             }
         }
     }
@@ -537,7 +547,7 @@ class parser_fn {
                 default: lean_unreachable(); return expr();
                 }
             } else {
-                return save(mk_app(left, save(get_name_ref(id), p)), p2);
+                return save(mk_app(left, save(get_name_ref(id, p), p)), p2);
             }
         }
     }
@@ -771,7 +781,7 @@ class parser_fn {
         case scanner::token::StringVal:  return parse_string();
         case scanner::token::Type:       return parse_type();
         default:
-            throw parser_error("invalid expression, unexpected token");
+            throw parser_error("invalid expression, unexpected token", pos());
         }
     }
 
@@ -946,7 +956,7 @@ class parser_fn {
             } else if (opt_id == g_options_kwd) {
                 regular(m_frontend) << m_frontend.get_state().get_options() << endl;
             } else {
-                throw parser_error("invalid Show command, expression, 'Options' or 'Environment' expected");
+                throw parser_error("invalid Show command, expression, 'Options' or 'Environment' expected", m_last_cmd_pos);
             }
         } else {
             expr v = elaborate(parse_expr());
@@ -1032,39 +1042,40 @@ class parser_fn {
 
     void parse_set() {
         next();
+        auto id_pos = pos();
         name id = check_identifier_next("invalid set options, identifier (i.e., option name) expected");
         auto decl_it = get_option_declarations().find(id);
         if (decl_it == get_option_declarations().end())
-            throw parser_error("unknown option, type 'Help Options.' for list of available options");
+            throw parser_error("unknown option, type 'Help Options.' for list of available options", id_pos);
         option_kind k = decl_it->second.kind();
         switch (curr()) {
         case scanner::token::Id:
             if (k != BoolOption)
-                throw parser_error("invalid option value, given option is not Boolean");
+                throw parser_error("invalid option value, given option is not Boolean", pos());
             if (curr_name() == "true")
                 m_frontend.set_option(id, true);
             else if (curr_name() == "false")
                 m_frontend.set_option(id, false);
             else
-                throw parser_error("invalid Boolean option value, 'true' or 'false' expected");
+                throw parser_error("invalid Boolean option value, 'true' or 'false' expected", pos());
             break;
         case scanner::token::StringVal:
             if (k != StringOption)
-                throw parser_error("invalid option value, given option is not a string");
+                throw parser_error("invalid option value, given option is not a string", pos());
             m_frontend.set_option(id, curr_string());
             break;
         case scanner::token::IntVal:
             if (k != IntOption && k != UnsignedOption)
-                throw parser_error("invalid option value, given option is not an integer");
+                throw parser_error("invalid option value, given option is not an integer", pos());
             m_frontend.set_option(id, parse_unsigned("invalid option value, value does not fit in a machine integer"));
             break;
         case scanner::token::DecimalVal:
             if (k != DoubleOption)
-                throw parser_error("invalid option value, given option is not floating point value");
+                throw parser_error("invalid option value, given option is not floating point value", pos());
             m_frontend.set_option(id, parse_double());
             break;
         default:
-            throw parser_error("invalid option value, 'true', 'false', string, integer or decimal value expected");
+            throw parser_error("invalid option value, 'true', 'false', string, integer or decimal value expected", pos());
         }
         regular(m_frontend) << "  Set option: " << id << endl;
         next();
@@ -1075,7 +1086,7 @@ class parser_fn {
         std::string fname = check_string_next("invalid import command, string (i.e., file name) expected");
         std::ifstream in(fname);
         if (!in.is_open())
-            throw parser_error("invalid import command, failed to open file");
+            throw parser_error("invalid import command, failed to open file", m_last_cmd_pos);
         ::lean::parse_commands(m_frontend, in, m_use_exceptions, false);
     }
 
@@ -1091,7 +1102,7 @@ class parser_fn {
                     regular(m_frontend) << "  " << opt.get_name() << " (" << opt.kind() << ") " << opt.get_description() << " (default: " << opt.get_default_value() << ")" << endl;
                 }
             } else {
-                throw parser_error("invalid help command");
+                throw parser_error("invalid help command", m_last_cmd_pos);
             }
         } else {
             regular(m_frontend) << "Available commands:" << endl
@@ -1140,17 +1151,17 @@ class parser_fn {
         else if (cmd_id == g_set_kwd)      parse_set();
         else if (cmd_id == g_import_kwd)   parse_import();
         else if (cmd_id == g_help_kwd)     parse_help();
-        else { next(); throw parser_error("invalid command"); }
+        else { next(); throw parser_error("invalid command", m_last_cmd_pos); }
     }
     /*@}*/
 
     void error(char const * msg, unsigned line, unsigned pos) {
         regular(m_frontend) << "Error (line: " << line << ", pos: " << pos << ") " << msg << endl;
+        sync();
     }
 
     void error(char const * msg) {
         error(msg, m_scanner.get_line(), m_scanner.get_pos());
-        sync();
     }
 
 public:
@@ -1186,14 +1197,14 @@ public:
                 case scanner::token::Period: show_prompt(); next(); break;
                 case scanner::token::Eof: return !m_found_errors;
                 default:
-                    throw parser_error("Command expected");
+                    throw parser_error("Command expected", pos());
                 }
             } catch (parser_error & ex) {
                 m_found_errors = true;
                 if (m_use_exceptions) {
-                    throw parser_exception(ex.what(), m_scanner.get_line(), m_scanner.get_pos());
+                    throw parser_exception(ex.what(), ex.m_pos.first, ex.m_pos.second);
                 } else {
-                    error(ex.what());
+                    error(ex.what(), ex.m_pos.first, ex.m_pos.second);
                 }
             } catch (exception & ex) {
                 m_found_errors = true;
@@ -1211,7 +1222,7 @@ public:
         try {
             return elaborate(parse_expr());
         } catch (parser_error & ex) {
-            throw parser_exception(ex.what(), m_scanner.get_line(), m_scanner.get_pos());
+            throw parser_exception(ex.what(), ex.m_pos.first, ex.m_pos.second);
         }
     }
 };

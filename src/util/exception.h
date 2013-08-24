@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <string>
 
 namespace lean {
+class sstream;
 /** \brief Base class for all Lean exceptions */
 class exception : public std::exception {
 protected:
@@ -17,6 +18,7 @@ protected:
 public:
     exception(char const * msg);
     exception(std::string const & msg);
+    exception(sstream const & strm);
     exception(exception const & ex);
     virtual ~exception() noexcept;
     virtual char const * what() const noexcept;
@@ -29,6 +31,7 @@ protected:
 public:
     parser_exception(char const * msg, unsigned l, unsigned p);
     parser_exception(std::string const & msg, unsigned l, unsigned p);
+    parser_exception(sstream const & strm, unsigned l, unsigned p);
     parser_exception(parser_exception const & ex);
     virtual ~parser_exception() noexcept;
     virtual char const * what() const noexcept;

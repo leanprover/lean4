@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "state.h"
 #include "option_declarations.h"
 #include "expr_maps.h"
+#include "sstream.h"
 #include "lean_frontend.h"
 #include "lean_parser.h"
 #include "lean_scanner.h"
@@ -111,6 +112,7 @@ class parser_fn {
     struct parser_error : public exception {
         pos_info m_pos;
         parser_error(char const * msg, pos_info const & p):exception(msg), m_pos(p) {}
+        parser_error(sstream const & msg, pos_info const & p):exception(msg), m_pos(p) {}
     };
 
     /**
@@ -477,14 +479,14 @@ class parser_fn {
             if (k == object_kind::Definition || k == object_kind::Postulate)
                 return mk_constant(obj.get_name());
             else
-                throw parser_error("invalid object reference, object is not an expression.", p);
+                throw parser_error(sstream() << "invalid object reference, object '" << id << "' is not an expression.", p);
         }
         else {
             auto it = m_builtins.find(id);
             if (it != m_builtins.end()) {
                 return it->second;
             } else {
-                throw parser_error("unknown identifier", p);
+                throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
             }
         }
     }
@@ -1046,12 +1048,12 @@ class parser_fn {
         name id = check_identifier_next("invalid set options, identifier (i.e., option name) expected");
         auto decl_it = get_option_declarations().find(id);
         if (decl_it == get_option_declarations().end())
-            throw parser_error("unknown option, type 'Help Options.' for list of available options", id_pos);
+            throw parser_error(sstream() << "unknown option '" << id << "', type 'Help Options.' for list of available options", id_pos);
         option_kind k = decl_it->second.kind();
         switch (curr()) {
         case scanner::token::Id:
             if (k != BoolOption)
-                throw parser_error("invalid option value, given option is not Boolean", pos());
+                throw parser_error(sstream() << "invalid option value, given option is not Boolean", pos());
             if (curr_name() == "true")
                 m_frontend.set_option(id, true);
             else if (curr_name() == "false")
@@ -1086,7 +1088,7 @@ class parser_fn {
         std::string fname = check_string_next("invalid import command, string (i.e., file name) expected");
         std::ifstream in(fname);
         if (!in.is_open())
-            throw parser_error("invalid import command, failed to open file", m_last_cmd_pos);
+            throw parser_error(sstream() << "invalid import command, failed to open file '" << fname << "'", m_last_cmd_pos);
         ::lean::parse_commands(m_frontend, in, m_use_exceptions, false);
     }
 
@@ -1151,7 +1153,7 @@ class parser_fn {
         else if (cmd_id == g_set_kwd)      parse_set();
         else if (cmd_id == g_import_kwd)   parse_import();
         else if (cmd_id == g_help_kwd)     parse_help();
-        else { next(); throw parser_error("invalid command", m_last_cmd_pos); }
+        else { next(); throw parser_error(sstream() << "invalid command '" << cmd_id << "'", m_last_cmd_pos); }
     }
     /*@}*/
 

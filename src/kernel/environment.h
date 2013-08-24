@@ -174,5 +174,9 @@ public:
 
     /** \brief Display universal variable constraints and objects stored in this environment and its parents. */
     void display(std::ostream & out) const;
+
+    void set_interrupt(bool flag);
+    void interrupt() { set_interrupt(true); }
+    void reset_interrupt() { set_interrupt(false); }
 };
 }

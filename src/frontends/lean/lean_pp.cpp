@@ -15,6 +15,8 @@ Author: Leonardo de Moura
 #include "free_vars.h"
 #include "context_to_lambda.h"
 #include "options.h"
+#include "interruptable_ptr.h"
+#include "exception.h"
 #include "lean_notation.h"
 #include "lean_pp.h"
 #include "lean_frontend.h"
@@ -126,6 +128,8 @@ class pp_fn {
     bool             m_notation;         //!< if true use notation
     bool             m_extra_lets;       //!< introduce extra let-expression to cope with sharing.
     unsigned         m_alias_min_weight; //!< minimal weight for creating an alias
+    volatile bool    m_interrupted;
+
 
     // Create a scope for local definitions
     struct mk_scope {
@@ -700,6 +704,8 @@ class pp_fn {
     }
 
     result pp(expr const & e, unsigned depth, bool main = false) {
+        if (m_interrupted)
+            throw interrupted();
         if (!is_atomic(e) && (m_num_steps > m_max_steps || depth > m_max_depth)) {
             return pp_ellipsis();
         } else {
@@ -789,6 +795,7 @@ public:
     pp_fn(frontend const & fe, options const & opts):
         m_frontend(fe) {
         set_options(opts);
+        m_interrupted = false;
     }
 
     format operator()(expr const & e) {
@@ -801,13 +808,20 @@ public:
         expr T(t);
         return pp_abstraction_core(v, 0, T).first;
     }
+
+    void set_interrupt(bool flag) {
+        m_interrupted = flag;
+    }
 };
 
 class pp_formatter_cell : public formatter_cell {
-    frontend const & m_frontend;
+    frontend const &         m_frontend;
+    interruptable_ptr<pp_fn> m_pp_fn;
 
     format pp(expr const & e, options const & opts) {
-        return pp_fn(m_frontend, opts)(e);
+        pp_fn fn(m_frontend, opts);
+        scoped_set_interruptable_ptr<pp_fn> set(m_pp_fn, &fn);
+        return fn(e);
     }
 
     format pp(context const & c, expr const & e, bool include_e, options const & opts) {
@@ -859,9 +873,10 @@ class pp_formatter_cell : public formatter_cell {
         if (!is_lambda(v) || is_pi(it1)) {
             return pp_definition(kwd, n, t, v, opts);
         } else {
-
             lean_assert(is_lambda(v));
-            format def = pp_fn(m_frontend, opts).pp_definition(v, t);
+            pp_fn fn(m_frontend, opts);
+            scoped_set_interruptable_ptr<pp_fn> set(m_pp_fn, &fn);
+            format def = fn.pp_definition(v, t);
             return format{highlight_command(format(kwd)), space(), format(n), def};
         }
     }
@@ -941,6 +956,10 @@ public:
                           r += operator()(obj, opts);
                       });
         return r;
+    }
+
+    virtual void set_interrupt(bool flag) {
+        m_pp_fn.set_interrupt(flag);
     }
 };
 

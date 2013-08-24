@@ -39,6 +39,7 @@ public:
     template<typename T> void set_option(name const & n, T const & v) {
         set_options(get_options().update(n, v));
     }
+    void set_interrupt(bool flag) { m_formatter.set_interrupt(flag); }
 };
 
 struct regular {

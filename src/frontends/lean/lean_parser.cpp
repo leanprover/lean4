@@ -1132,6 +1132,7 @@ class parser_fn {
 
     /** \brief Parse a Lean command. */
     void parse_command() {
+        m_frontend.reset_interrupt();
         m_expr_pos_info.clear();
         m_last_cmd_pos = pos();
         name const & cmd_id = curr_name();
@@ -1233,6 +1234,13 @@ public:
                     throw;
                 } else {
                     display_error(ex);
+                }
+            } catch (interrupted & ex) {
+                if (m_use_exceptions) {
+                    throw;
+                } else {
+                    regular(m_frontend) << "\n!!!Interrupted!!!" << endl;
+                    sync();
                 }
             } catch (exception & ex) {
                 m_found_errors = true;

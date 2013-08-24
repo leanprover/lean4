@@ -127,5 +127,13 @@ public:
     void set_regular_channel(std::shared_ptr<output_channel> const & out);
     void set_diagnostic_channel(std::shared_ptr<output_channel> const & out);
     /*@}*/
+
+    /**
+       @name Interrupts.
+    */
+    void set_interrupt(bool flag);
+    void interrupt() { set_interrupt(true); }
+    void reset_interrupt() { set_interrupt(false); }
+    /*@}*/
 };
 }

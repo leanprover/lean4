@@ -21,6 +21,7 @@ public:
     expr infer_type(expr const & e, context const & ctx = context());
     level infer_universe(expr const & e, context const & ctx = context());
     void check(expr const & e, context const & ctx = context()) { infer_type(e, ctx); }
+    bool is_convertible(expr const & t1, expr const & t2, context const & ctx = context());
 
     void clear();
 

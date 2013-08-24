@@ -30,6 +30,7 @@ struct environment::imp {
     // Object management
     std::vector<object>                  m_objects;
     object_dictionary                    m_object_dictionary;
+    type_checker                         m_type_checker;
 
     /**
        \brief Return true iff this environment has children.
@@ -221,9 +222,9 @@ struct environment::imp {
         infer_universe and infer_type expect an environment instead of environment::imp.
     */
     void check_type(name const & n, expr const & t, expr const & v, environment const & env) {
-        infer_universe(t, env);
-        expr v_t = infer_type(v, env);
-        if (!is_convertible(t, v_t, env))
+        m_type_checker.infer_universe(t);
+        expr v_t = m_type_checker.infer_type(v);
+        if (!m_type_checker.is_convertible(t, v_t))
             throw def_type_mismatch_exception(env, n, t, v, v_t);
     }
 
@@ -245,7 +246,7 @@ struct environment::imp {
     */
     void add_definition(name const & n, expr const & v, bool opaque, environment const & env) {
         check_name(n, env);
-        expr v_t = infer_type(v, env);
+        expr v_t = m_type_checker.infer_type(v);
         register_named_object(mk_definition(n, v_t, v, opaque));
     }
 
@@ -300,14 +301,20 @@ struct environment::imp {
         }
     }
 
-    imp():
-        m_num_children(0) {
+    void set_interrupt(bool flag) {
+        m_type_checker.set_interrupt(flag);
+    }
+
+    imp(environment const & env):
+        m_num_children(0),
+        m_type_checker(env) {
         init_uvars();
     }
 
-    explicit imp(std::shared_ptr<imp> const & parent):
+    imp(std::shared_ptr<imp> const & parent, environment const & env):
         m_num_children(0),
-        m_parent(parent) {
+        m_parent(parent),
+        m_type_checker(env) {
         m_parent->inc_children();
     }
 
@@ -318,13 +325,15 @@ struct environment::imp {
 };
 
 environment::environment():
-    m_imp(new imp()) {
+    m_imp(new imp(*this)) {
 }
 
+// used when creating a new child environment
 environment::environment(imp * new_ptr):
     m_imp(new_ptr) {
 }
 
+// used when creating a reference to the parent environment
 environment::environment(std::shared_ptr<imp> const & ptr):
     m_imp(ptr) {
 }
@@ -333,7 +342,7 @@ environment::~environment() {
 }
 
 environment environment::mk_child() const {
-    return environment(new imp(m_imp));
+    return environment(new imp(m_imp, *this));
 }
 
 bool environment::has_children() const {
@@ -403,5 +412,9 @@ object const & environment::get_object(unsigned i, bool local) const {
 
 void environment::display(std::ostream & out) const {
     m_imp->display(out, *this);
+}
+
+void environment::set_interrupt(bool flag) {
+    m_imp->set_interrupt(flag);
 }
 }

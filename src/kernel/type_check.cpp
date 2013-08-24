@@ -18,10 +18,10 @@ namespace lean {
 class type_checker::imp {
     typedef scoped_map<expr, expr, expr_hash, expr_eqp> cache;
 
-    environment     m_env;
-    cache           m_cache;
-    normalizer      m_normalizer;
-    volatile bool   m_interrupted;
+    environment const & m_env;
+    cache               m_cache;
+    normalizer          m_normalizer;
+    volatile bool       m_interrupted;
 
     expr lookup(context const & c, unsigned i) {
         auto p = lookup_ext(c, i);
@@ -151,8 +151,12 @@ public:
         return r;
     }
 
+    bool is_convertible(expr const & t1, expr const & t2, context const & ctx) {
+        return m_normalizer.is_convertible(t1, t2, ctx);
+    }
+
     void set_interrupt(bool flag) {
-        m_interrupted = true;
+        m_interrupted = flag;
         m_normalizer.set_interrupt(flag);
     }
 
@@ -168,6 +172,9 @@ expr type_checker::infer_type(expr const & e, context const & ctx) { return m_pt
 level type_checker::infer_universe(expr const & e, context const & ctx) { return m_ptr->infer_universe(e, ctx); }
 void type_checker::clear() { m_ptr->clear(); }
 void type_checker::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
+bool type_checker::is_convertible(expr const & t1, expr const & t2, context const & ctx) {
+    return m_ptr->is_convertible(t1, t2, ctx);
+}
 
 expr  infer_type(expr const & e, environment const & env, context const & ctx) {
     return type_checker(env).infer_type(e, ctx);

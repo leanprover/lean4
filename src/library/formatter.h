@@ -34,6 +34,8 @@ public:
     virtual format operator()(object const & obj, options const & opts) = 0;
     /** \brief Format the given environment */
     virtual format operator()(environment const & env, options const & opts) = 0;
+    /** \brief Request interruption */
+    virtual void set_interrupt(bool flag) {}
 };
 class kernel_exception;
 class formatter {
@@ -48,6 +50,7 @@ public:
     format operator()(environment const & env, options const & opts = options()) { return (*m_cell)(env, opts); }
     /** \brief Pretty print a kernel exception using the this formatter */
     format operator()(kernel_exception const & ex, options const & opts = options());
+    void set_interrupt(bool flag) { m_cell->set_interrupt(flag); }
 };
 
 formatter mk_simple_formatter();

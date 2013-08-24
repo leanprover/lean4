@@ -66,12 +66,12 @@ value_stack extend(value_stack const & s, svalue const & v) { return cons(v, s);
 class normalizer::imp {
     typedef scoped_map<expr, svalue, expr_hash, expr_eqp> cache;
 
-    environment   m_env;
-    context       m_ctx;
-    cache         m_cache;
-    unsigned      m_max_depth;
-    unsigned      m_depth;
-    volatile bool m_interrupted;
+    environment const & m_env;
+    context             m_ctx;
+    cache               m_cache;
+    unsigned            m_max_depth;
+    unsigned            m_depth;
+    volatile bool       m_interrupted;
 
     /**
         \brief Auxiliary object for saving the current context.

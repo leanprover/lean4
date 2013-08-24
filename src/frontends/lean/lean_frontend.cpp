@@ -163,6 +163,11 @@ struct frontend::imp {
     void add_mixfixr(unsigned sz, name const * opns, unsigned p, expr const & d) { add_op(mixfixr(sz, opns, p), d, true);  }
     void add_mixfixc(unsigned sz, name const * opns, unsigned p, expr const & d) { add_op(mixfixc(sz, opns, p), d, false); }
 
+    void set_interrupt(bool flag) {
+        m_env.set_interrupt(flag);
+        m_state.set_interrupt(flag);
+    }
+
     imp(frontend & fe):
         m_num_children(0) {
     }
@@ -235,4 +240,6 @@ state & frontend::get_state_core() { return m_imp->m_state; }
 void frontend::set_options(options const & opts) { return m_imp->m_state.set_options(opts); }
 void frontend::set_regular_channel(std::shared_ptr<output_channel> const & out) { return m_imp->m_state.set_regular_channel(out); }
 void frontend::set_diagnostic_channel(std::shared_ptr<output_channel> const & out) { return m_imp->m_state.set_diagnostic_channel(out); }
+
+void frontend::set_interrupt(bool flag) { m_imp->set_interrupt(flag); }
 }

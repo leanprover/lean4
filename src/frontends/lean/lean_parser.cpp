@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "option_declarations.h"
 #include "expr_maps.h"
 #include "sstream.h"
+#include "kernel_exception.h"
 #include "lean_frontend.h"
 #include "lean_parser.h"
 #include "lean_scanner.h"
@@ -1157,13 +1158,31 @@ class parser_fn {
     }
     /*@}*/
 
-    void error(char const * msg, unsigned line, unsigned pos) {
-        regular(m_frontend) << "Error (line: " << line << ", pos: " << pos << ") " << msg << endl;
+    void display_error_pos(unsigned line, unsigned pos) { regular(m_frontend) << "Error (line: " << line << ", pos: " << pos << ")"; }
+    void display_error_pos(pos_info const & p) { display_error_pos(p.first, p.second); }
+    void display_error_pos(expr const & e) {
+        if (e) {
+            auto it = m_expr_pos_info.find(e);
+            if (it == m_expr_pos_info.end())
+                return display_error_pos(m_last_cmd_pos);
+            else
+                return display_error_pos(it->second);
+        } else {
+            return display_error_pos(m_last_cmd_pos);
+        }
+    }
+    void display_error(char const * msg, unsigned line, unsigned pos) {
+        display_error_pos(line, pos);
+        regular(m_frontend) << " " << msg << endl;
         sync();
     }
-
-    void error(char const * msg) {
-        error(msg, m_scanner.get_line(), m_scanner.get_pos());
+    void display_error(char const * msg) {
+        display_error(msg, m_scanner.get_line(), m_scanner.get_pos());
+    }
+    void display_error(kernel_exception const & ex) {
+        display_error_pos(ex.get_main_expr());
+        regular(m_frontend) << " " << ex << endl;
+        sync();
     }
 
 public:
@@ -1206,14 +1225,21 @@ public:
                 if (m_use_exceptions) {
                     throw parser_exception(ex.what(), ex.m_pos.first, ex.m_pos.second);
                 } else {
-                    error(ex.what(), ex.m_pos.first, ex.m_pos.second);
+                    display_error(ex.what(), ex.m_pos.first, ex.m_pos.second);
+                }
+            } catch (kernel_exception & ex) {
+                m_found_errors = true;
+                if (m_use_exceptions) {
+                    throw;
+                } else {
+                    display_error(ex);
                 }
             } catch (exception & ex) {
                 m_found_errors = true;
                 if (m_use_exceptions) {
                     throw;
                 } else {
-                    error(ex.what());
+                    display_error(ex.what());
                 }
             }
         }

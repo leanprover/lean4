@@ -20,6 +20,12 @@ public:
     kernel_exception(environment const & env, char const * msg):exception(msg), m_env(env) {}
     virtual ~kernel_exception() noexcept {}
     environment const & get_environment() const { return m_env; }
+    /**
+        \brief Return a reference to the main expression associated with this exception.
+        Return the null expression if there is none. This information is used to provide
+        better error messages.
+    */
+    virtual expr const & get_main_expr() const { return expr::null(); }
 };
 
 /** \brief Base class for unknown universe or object exceptions. */
@@ -96,6 +102,7 @@ public:
     virtual ~app_type_mismatch_exception() {}
     context const & get_context() const { return m_context; }
     expr const & get_application() const { return m_app; }
+    virtual expr const & get_main_expr() const { return get_application(); }
     unsigned get_arg_pos() const { return m_arg_pos; }
     expr const & get_expected_type() const { return m_expected_type; }
     expr const & get_given_type() const { return m_given_type; }
@@ -119,6 +126,7 @@ public:
     virtual ~function_expected_exception() {}
     context const & get_context() const { return m_context; }
     expr const & get_expr() const { return m_expr; }
+    virtual expr const & get_main_expr() const { return get_expr(); }
     virtual char const * what() const noexcept { return "function expected"; }
 };
 
@@ -139,6 +147,7 @@ public:
     virtual ~type_expected_exception() {}
     context const & get_context() const { return m_context; }
     expr const & get_expr() const { return m_expr; }
+    virtual expr const & get_main_expr() const { return get_expr(); }
     virtual char const * what() const noexcept { return "type expected"; }
 };
 

@@ -35,7 +35,7 @@ public:
     /** \brief Format the given environment */
     virtual format operator()(environment const & env, options const & opts) = 0;
 };
-
+class kernel_exception;
 class formatter {
     std::shared_ptr<formatter_cell> m_cell;
 public:
@@ -46,6 +46,8 @@ public:
     format operator()(context const & c, expr const & e, bool format_ctx = false, options const & opts = options()) { return (*m_cell)(c, e, format_ctx, opts); }
     format operator()(object const & obj, options const & opts = options()) { return (*m_cell)(obj, opts); }
     format operator()(environment const & env, options const & opts = options()) { return (*m_cell)(env, opts); }
+    /** \brief Pretty print a kernel exception using the this formatter */
+    format operator()(kernel_exception const & ex, options const & opts = options());
 };
 
 formatter mk_simple_formatter();

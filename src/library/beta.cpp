@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "beta.h"
 #include "instantiate.h"
+#include "environment.h"
 
 namespace lean {
 bool is_head_beta(expr const & e) {
@@ -37,5 +38,21 @@ expr head_beta(expr const & e) {
             return mk_app(args.size(), args.data());
         }
     }
+}
+
+expr head_reduce(expr const & e, environment const & env, name_set const * defs) {
+    if (is_head_beta(e)) {
+        return head_beta(e);
+    } else if (is_let(e)) {
+        return instantiate(let_body(e), let_value(e));
+    } else if (is_constant(e)) {
+        name const & n = const_name(e);
+        if (defs == nullptr || defs->find(n) != defs->end()) {
+            object const & obj = env.find_object(n);
+            if (obj && obj.is_definition() && !obj.is_opaque())
+                return obj.get_value();
+        }
+    }
+    return e;
 }
 }

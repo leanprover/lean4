@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "printer.h"
 #include "state.h"
 #include "option_declarations.h"
+#include "expr_maps.h"
 #include "lean_frontend.h"
 #include "lean_parser.h"
 #include "lean_scanner.h"
@@ -92,6 +93,8 @@ static name g_unused(name(0u), "parser");
 class parser_fn {
     typedef scoped_map<name, unsigned, name_hash, name_eq> local_decls;
     typedef std::unordered_map<name, expr, name_hash, name_eq>  builtins;
+    typedef std::pair<unsigned, unsigned> pos_info;
+    typedef expr_map<pos_info> expr_pos_info;
     frontend       m_frontend;
     scanner        m_scanner;
     scanner::token m_curr;
@@ -101,6 +104,8 @@ class parser_fn {
     local_decls    m_local_decls;
     unsigned       m_num_local_decls;
     builtins       m_builtins;
+    expr_pos_info  m_expr_pos_info;
+    pos_info       m_last_cmd_pos;
 
     /** \brief Exception used to track parsing erros, it does not leak outside of this class. */
     struct parser_error : public exception {
@@ -118,6 +123,21 @@ class parser_fn {
         mk_scope(parser_fn & fn):m_fn(fn), m_scope(fn.m_local_decls), m_old_num_local_decls(fn.m_num_local_decls) {}
         ~mk_scope() { m_fn.m_num_local_decls = m_old_num_local_decls; }
     };
+
+    /** \brief Return the current position information */
+    pos_info pos() const { return mk_pair(m_scanner.get_line(), m_scanner.get_pos()); }
+
+    /** \brief Return the position associated with \c e. If there is none, then return \c default_pos. */
+    pos_info pos_of(expr const & e, pos_info default_pos) {
+        auto it = m_expr_pos_info.find(e);
+        if (it == m_expr_pos_info.end())
+            return default_pos;
+        else
+            return it->second;
+    }
+
+    /** \brief Associate position \c p with \c e and return \c e */
+    expr save(expr const & e, pos_info p) { m_expr_pos_info[e] = p; return e; }
 
     /** \brief Read the next token. */
     void scan() { m_curr = m_scanner.scan(); }
@@ -337,31 +357,41 @@ class parser_fn {
 
     /** \brief Parse a user defined prefix operator. */
     expr parse_prefix(operator_info const & op) {
+        auto p = pos();
+        expr f = save(mk_fun(op), p);
         expr arg = parse_expr(op.get_precedence());
-        return mk_app(mk_fun(op), arg);
+        return save(mk_app(f, arg), p);
     }
 
     /** \brief Parse a user defined postfix operator. */
     expr parse_postfix(expr const & left, operator_info const & op) {
-        return mk_app(mk_fun(op), left);
+        auto p = pos();
+        expr f = save(mk_fun(op), p);
+        return save(mk_app(f, left), p);
     }
 
     /** \brief Parse a user defined infix operator. */
     expr parse_infix(expr const & left, operator_info const & op) {
+        auto p = pos();
+        expr f = save(mk_fun(op), p);
         expr right = parse_expr(op.get_precedence()+1);
-        return mk_app(mk_fun(op), left, right);
+        return save(mk_app(f, left, right), p);
     }
 
     /** \brief Parse a user defined infix-left operator. */
     expr parse_infixl(expr const & left, operator_info const & op) {
+        auto p = pos();
+        expr f = save(mk_fun(op), p);
         expr right = parse_expr(op.get_precedence());
-        return mk_app(mk_fun(op), left, right);
+        return save(mk_app(f, left, right), p);
     }
 
     /** \brief Parse a user defined infix-right operator. */
     expr parse_infixr(expr const & left, operator_info const & op) {
+        auto p = pos();
+        expr f = save(mk_fun(op), p);
         expr right = parse_expr(op.get_precedence()-1);
-        return mk_app(mk_fun(op), left, right);
+        return save(mk_app(f, left, right), p);
     }
 
     /**
@@ -386,26 +416,32 @@ class parser_fn {
 
     /** \brief Parse user defined mixfixl operator. It has the form: ID _ ... ID _ */
     expr parse_mixfixl(operator_info const & op) {
+        auto p = pos();
+        expr f = save(mk_fun(op), p);
         buffer<expr> args;
-        args.push_back(mk_fun(op));
+        args.push_back(f);
         args.push_back(parse_expr(op.get_precedence()));
         parse_mixfix_args(op.get_op_name_parts(), op.get_precedence(), args);
-        return mk_app(args.size(), args.data());
+        return save(mk_app(args.size(), args.data()), p);
     }
 
     /** \brief Parse user defined mixfixr operator. It has the form: _ ID ... _ ID */
     expr parse_mixfixr(expr const & left, operator_info const & op) {
+        auto p = pos();
+        expr f = save(mk_fun(op), p);
         buffer<expr> args;
-        args.push_back(mk_fun(op));
+        args.push_back(f);
         args.push_back(left);
         parse_mixfix_args(op.get_op_name_parts(), op.get_precedence(), args);
-        return mk_app(args.size(), args.data());
+        return save(mk_app(args.size(), args.data()), p);
     }
 
     /** \brief Parse user defined mixfixc operator. It has the form: ID _ ID ... _ ID */
     expr parse_mixfixc(operator_info const & op) {
+        auto p = pos();
+        expr f = save(mk_fun(op), p);
         buffer<expr> args;
-        args.push_back(mk_fun(op));
+        args.push_back(f);
         args.push_back(parse_expr(op.get_precedence()));
         list<name> const & ops = op.get_op_name_parts();
         auto it = ops.begin();
@@ -414,7 +450,7 @@ class parser_fn {
             check_op_part(*it);
             ++it;
             if (it == ops.end())
-                return mk_app(args.size(), args.data());
+                return save(mk_app(args.size(), args.data()), p);
             args.push_back(parse_expr(op.get_precedence()));
         }
     }
@@ -452,11 +488,12 @@ class parser_fn {
         functions can begin a language construct.
     */
     expr parse_nud_id() {
+        auto p = pos();
         name id = curr_name();
         next();
         auto it = m_local_decls.find(id);
         if (it != m_local_decls.end()) {
-            return mk_var(m_num_local_decls - it->second - 1);
+            return save(mk_var(m_num_local_decls - it->second - 1), p);
         } else {
             operator_info op = m_frontend.find_nud(id);
             if (op) {
@@ -467,7 +504,7 @@ class parser_fn {
                 default: lean_unreachable(); return expr();
                 }
             } else {
-                return get_name_ref(id);
+                return save(get_name_ref(id), p);
             }
         }
     }
@@ -482,11 +519,13 @@ class parser_fn {
         can appear inside of a construct.
     */
     expr parse_led_id(expr const & left) {
+        auto p  = pos();
+        auto p2 = pos_of(left, p);
         name id = curr_name();
         next();
         auto it = m_local_decls.find(id);
         if (it != m_local_decls.end()) {
-            return mk_app(left, mk_var(m_num_local_decls - it->second - 1));
+            return save(mk_app(left, save(mk_var(m_num_local_decls - it->second - 1), p)), p2);
         } else {
             operator_info op = m_frontend.find_led(id);
             if (op) {
@@ -498,32 +537,35 @@ class parser_fn {
                 default: lean_unreachable(); return expr();
                 }
             } else {
-                return mk_app(left, get_name_ref(id));
+                return save(mk_app(left, save(get_name_ref(id), p)), p2);
             }
         }
     }
 
     /** \brief Parse <tt>expr '=' expr</tt>. */
     expr parse_eq(expr const & left) {
+        auto p = pos();
         next();
         expr right = parse_expr(g_eq_precedence);
-        return mk_eq(left, right);
+        return save(mk_eq(left, right), p);
     }
 
     /** \brief Parse <tt>expr '->' expr</tt>. */
     expr parse_arrow(expr const & left) {
+        auto p = pos();
         next();
         mk_scope scope(*this);
         register_binding(g_unused);
         // The -1 is a trick to get right associativity in Pratt's parsers
         expr right = parse_expr(g_arrow_precedence-1);
-        return mk_arrow(left, right);
+        return save(mk_arrow(left, right), p);
     }
 
     /** \brief Parse <tt>'(' expr ')'</tt>. */
     expr parse_lparen() {
+        auto p = pos();
         next();
-        expr r = parse_expr();
+        expr r = save(parse_expr(), p);
         check_rparen_next("invalid expression, ')' expected");
         return r;
     }
@@ -532,9 +574,9 @@ class parser_fn {
         \brief Parse a sequence of identifiers <tt>ID*</tt>. Store the
         result in \c result.
     */
-    void parse_names(buffer<name> & result) {
+    void parse_names(buffer<std::pair<pos_info, name>> & result) {
         while (curr_is_identifier()) {
-            result.push_back(curr_name());
+            result.push_back(mk_pair(pos(), curr_name()));
             next();
         }
     }
@@ -551,18 +593,18 @@ class parser_fn {
         \brief Parse <tt>ID ... ID ':' expr</tt>, where the expression
         represents the type of the identifiers.
     */
-    void parse_simple_bindings(buffer<std::pair<name, expr>> & result) {
-        buffer<name> names;
+    void parse_simple_bindings(buffer<std::tuple<pos_info, name, expr>> & result) {
+        buffer<std::pair<pos_info, name>> names;
         parse_names(names);
         check_colon_next("invalid binder, ':' expected");
         unsigned sz = result.size();
         result.resize(sz + names.size());
         expr type = parse_expr();
-        for (name const & n : names) register_binding(n);
+        for (std::pair<pos_info, name> const & n : names) register_binding(n.second);
         unsigned i = names.size();
         while (i > 0) {
             --i;
-            result[sz + i] = mk_pair(names[i], lift_free_vars(type, i));
+            result[sz + i] = std::make_tuple(names[i].first, names[i].second, lift_free_vars(type, i));
         }
     }
 
@@ -571,7 +613,7 @@ class parser_fn {
 
         This is used when parsing lambda, Pi, forall/exists expressions and definitions.
     */
-    void parse_bindings(buffer<std::pair<name, expr>> & result) {
+    void parse_bindings(buffer<std::tuple<pos_info, name, expr>> & result) {
         if (curr_is_identifier()) {
             parse_simple_bindings(result);
         } else {
@@ -591,15 +633,16 @@ class parser_fn {
         \brief Create a lambda/Pi abstraction, using the giving binders
         and body.
     */
-    expr mk_abstraction(bool is_lambda, buffer<std::pair<name, expr>> const & bindings, expr const & body) {
+    expr mk_abstraction(bool is_lambda, buffer<std::tuple<pos_info, name, expr>> const & bindings, expr const & body) {
         expr result = body;
         unsigned i = bindings.size();
         while (i > 0) {
             --i;
+            pos_info p = std::get<0>(bindings[i]);
             if (is_lambda)
-                result = mk_lambda(bindings[i].first, bindings[i].second, result);
+                result = save(mk_lambda(std::get<1>(bindings[i]), std::get<2>(bindings[i]), result), p);
             else
-                result = mk_pi(bindings[i].first, bindings[i].second, result);
+                result = save(mk_pi(std::get<1>(bindings[i]), std::get<2>(bindings[i]), result), p);
         }
         return result;
     }
@@ -608,7 +651,7 @@ class parser_fn {
     expr parse_abstraction(bool is_lambda) {
         next();
         mk_scope scope(*this);
-        buffer<std::pair<name, expr>> bindings;
+        buffer<std::tuple<pos_info, name, expr>> bindings;
         parse_bindings(bindings);
         check_comma_next("invalid abstraction, ',' expected");
         expr result = parse_expr();
@@ -629,17 +672,19 @@ class parser_fn {
     expr parse_quantifier(bool is_forall) {
         next();
         mk_scope scope(*this);
-        buffer<std::pair<name, expr>> bindings;
+        buffer<std::tuple<pos_info, name, expr>> bindings;
         parse_bindings(bindings);
         check_comma_next("invalid quantifier, ',' expected");
         expr result = parse_expr();
         unsigned i = bindings.size();
         while (i > 0) {
             --i;
+            pos_info p = std::get<0>(bindings[i]);
+            expr lambda = save(mk_lambda(std::get<1>(bindings[i]), std::get<2>(bindings[i]), result), p);
             if (is_forall)
-                result = mk_forall(bindings[i].second, mk_lambda(bindings[i].first, bindings[i].second, result));
+                result = save(mk_forall(std::get<2>(bindings[i]), lambda), p);
             else
-                result = mk_exists(bindings[i].second, mk_lambda(bindings[i].first, bindings[i].second, result));
+                result = save(mk_exists(std::get<2>(bindings[i]), lambda), p);
         }
         return result;
     }
@@ -658,20 +703,22 @@ class parser_fn {
     expr parse_let() {
         next();
         mk_scope scope(*this);
-        buffer<std::pair<name, expr>> bindings;
+        buffer<std::tuple<pos_info, name, expr>> bindings;
         while (true) {
+            auto p   = pos();
             name id  = check_identifier_next("invalid let expression, identifier expected");
             check_assign_next("invalid let expression, ':=' expected");
             expr val = parse_expr();
             register_binding(id);
-            bindings.push_back(mk_pair(id, val));
+            bindings.push_back(std::make_tuple(p, id, val));
             if (curr_is_in()) {
                 next();
                 expr r = parse_expr();
                 unsigned i = bindings.size();
                 while (i > 0) {
                     --i;
-                    r = mk_let(bindings[i].first, bindings[i].second, r);
+                    auto p = std::get<0>(bindings[i]);
+                    r = save(mk_let(std::get<1>(bindings[i]), std::get<2>(bindings[i]), r), p);
                 }
                 return r;
             } else {
@@ -682,7 +729,8 @@ class parser_fn {
 
     /** \brief Parse an integer value. */
     expr parse_int() {
-        expr r = mk_int_value(m_scanner.get_num_val().get_numerator());
+        auto p = pos();
+        expr r = save(mk_int_value(m_scanner.get_num_val().get_numerator()), p);
         next();
         return r;
     }
@@ -697,9 +745,10 @@ class parser_fn {
 
     /** \brief Parse <tt>'Type'</tt> and <tt>'Type' level</tt> expressions. */
     expr parse_type() {
+        auto p = pos();
         next();
         if (curr_is_identifier() || curr_is_int()) {
-            return mk_type(parse_level());
+            return save(mk_type(parse_level()), p);
         } else {
             return Type();
         }
@@ -800,7 +849,7 @@ class parser_fn {
             val  = elaborate(parse_expr());
         } else {
             mk_scope scope(*this);
-            buffer<std::pair<name, expr>> bindings;
+            buffer<std::tuple<pos_info, name, expr>> bindings;
             parse_bindings(bindings);
             check_colon_next("invalid definition, ':' expected");
             expr type_body = parse_expr();
@@ -1069,6 +1118,8 @@ class parser_fn {
 
     /** \brief Parse a Lean command. */
     void parse_command() {
+        m_expr_pos_info.clear();
+        m_last_cmd_pos = pos();
         name const & cmd_id = curr_name();
         if (cmd_id == g_definition_kwd)    parse_definition();
         else if (cmd_id == g_variable_kwd) parse_variable();

@@ -14,8 +14,8 @@ namespace lean {
    the value of implicit arguments.
 */
 class elaborator {
-    environment & m_env;
-    metavar_env   m_metaenv;
+    environment const & m_env;
+    metavar_env         m_metaenv;
 
     expr lookup(context const & c, unsigned i);
     void unify(expr const & e1, expr const & e2, context const & ctx);
@@ -24,8 +24,20 @@ class elaborator {
     expr process(expr const & e, context const & ctx);
 
 public:
-    elaborator(environment & env);
+    elaborator(environment const & env);
     metavar_env & menv() { return m_metaenv; }
+
     expr operator()(expr const & e);
+
+    void clear() { m_metaenv.clear(); }
+
+    void set_interrupt(bool flag) { m_metaenv.set_interrupt(flag); }
+    void interrupt() { set_interrupt(true); }
+    void reset_interrupt() { set_interrupt(false); }
 };
+
+/** \brief Return true iff \c e is a special constant used to mark application of overloads. */
+bool is_overload_marker(expr const & e);
+/** \brief Return the overload marker */
+expr mk_overload_marker();
 }

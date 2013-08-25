@@ -12,6 +12,16 @@ Author: Leonardo de Moura
 #include "exception.h"
 
 namespace lean {
+static name g_overload_name(name(name(name(0u), "library"), "overload"));
+static expr g_overload = mk_constant(g_overload_name);
+
+bool is_overload_marker(expr const & e) {
+    return e == g_overload;
+}
+
+expr mk_overload_marker() {
+    return g_overload;
+}
 
 expr elaborator::lookup(context const & c, unsigned i) {
     auto p = lookup_ext(c, i);
@@ -21,7 +31,7 @@ expr elaborator::lookup(context const & c, unsigned i) {
     return lift_free_vars(def.get_domain(), length(c) - length(def_c));
 }
 
-elaborator::elaborator(environment & env):
+elaborator::elaborator(environment const & env):
     m_env(env), m_metaenv(env) {
 }
 

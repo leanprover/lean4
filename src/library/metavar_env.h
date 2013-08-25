@@ -146,6 +146,11 @@ public:
     */
     context const & get_context(expr const & m);
 
+    /**
+       \brief Clear/Reset the state.
+    */
+    void clear();
+
     void set_interrupt(bool flag);
 
     void display(std::ostream & out) const;

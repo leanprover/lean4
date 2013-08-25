@@ -445,6 +445,10 @@ void metavar_env::set_interrupt(bool flag) {
     m_interrupted = flag;
 }
 
+void metavar_env::clear() {
+    m_cells.clear();
+}
+
 void metavar_env::display(std::ostream & out) const {
     for (unsigned i = 0; i < m_cells.size(); i++) {
         out << "?" << i << " --> ";

@@ -27,6 +27,7 @@ static name g_forall_name("forall");
 static name g_forall_unicode("\u2200");
 static name g_exists_name("exists");
 static name g_exists_unicode("\u2203");
+static name g_placeholder_name("_");
 
 static char g_normalized[256];
 
@@ -215,6 +216,8 @@ scanner::token scanner::read_a_symbol() {
                 return token::Let;
             else if (m_name_val == g_in_name)
                 return token::In;
+            else if (m_name_val == g_placeholder_name)
+                return token::Placeholder;
             else
                 return is_command(m_name_val) ? token::CommandId : token::Id;
         }
@@ -392,6 +395,7 @@ std::ostream & operator<<(std::ostream & out, scanner::token const & t) {
     case scanner::token::Eq:                out << "="; break;
     case scanner::token::Assign:            out << ":="; break;
     case scanner::token::Type:              out << "Type"; break;
+    case scanner::token::Placeholder:       out << "_"; break;
     case scanner::token::Eof:               out << "EOF"; break;
     }
     return out;

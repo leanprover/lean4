@@ -127,7 +127,8 @@ class parser::imp {
     pos_info       m_last_cmd_pos;
     // Reference to temporary parser used to process import command.
     // We need this reference to be able to interrupt it.
-    interruptable_ptr<parser> m_import_parser;
+    interruptable_ptr<parser>     m_import_parser;
+    interruptable_ptr<normalizer> m_normalizer;
 
     bool           m_verbose;
     bool           m_show_errors;
@@ -980,7 +981,9 @@ class parser::imp {
     void parse_eval() {
         next();
         expr v = elaborate(parse_expr());
-        expr r = normalize(v, m_frontend);
+        normalizer norm(m_frontend);
+        scoped_set_interruptable_ptr<normalizer> set(m_normalizer, &norm);
+        expr r = norm(v);
         regular(m_frontend) << r << endl;
     }
 
@@ -1345,6 +1348,7 @@ public:
         m_frontend.set_interrupt(flag);
         m_elaborator.set_interrupt(flag);
         m_import_parser.set_interrupt(flag);
+        m_normalizer.set_interrupt(flag);
     }
 
     void reset_interrupt() {

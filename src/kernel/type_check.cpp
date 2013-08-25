@@ -61,8 +61,7 @@ public:
     }
 
     expr infer_type(expr const & e, context const & ctx) {
-        if (m_interrupted)
-            throw interrupted();
+        check_interrupted(m_interrupted);
         bool shared = false;
         if (is_shared(e)) {
             shared = true;

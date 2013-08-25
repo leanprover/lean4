@@ -391,8 +391,7 @@ bool metavar_env::is_simple_ho_match(expr const & e1, expr const & e2, context c
    \c e2 when none of them are metavariables.
 */
 void metavar_env::unify_core(expr const & e1, expr const & e2, context const & ctx) {
-    if (m_interrupted)
-        throw interrupted();
+    check_interrupted(m_interrupted);
     lean_assert(!is_metavar(e1));
     lean_assert(!is_metavar(e2));
     if (e1 == e2) {

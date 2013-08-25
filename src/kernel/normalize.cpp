@@ -128,8 +128,7 @@ class normalizer::imp {
     /** \brief Normalize the expression \c a in a context composed of stack \c s and \c k binders. */
     svalue normalize(expr const & a, value_stack const & s, unsigned k) {
         flet<unsigned> l(m_depth, m_depth+1);
-        if (m_interrupted)
-            throw interrupted();
+        check_interrupted(m_interrupted);
         if (m_depth > m_max_depth)
             throw kernel_exception(m_env, "normalizer maximum recursion depth exceeded");
         bool shared = false;

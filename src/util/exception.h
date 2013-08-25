@@ -45,4 +45,9 @@ public:
     virtual ~interrupted() noexcept {}
     virtual char const * what() const noexcept { return "interrupted"; }
 };
+/** \brief Throw interrupted exception iff flag is true. */
+inline void check_interrupted(bool flag) {
+    if (flag)
+        throw interrupted();
+}
 }

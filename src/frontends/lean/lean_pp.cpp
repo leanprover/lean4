@@ -704,8 +704,7 @@ class pp_fn {
     }
 
     result pp(expr const & e, unsigned depth, bool main = false) {
-        if (m_interrupted)
-            throw interrupted();
+        check_interrupted(m_interrupted);
         if (!is_atomic(e) && (m_num_steps > m_max_steps || depth > m_max_depth)) {
             return pp_ellipsis();
         } else {
@@ -817,6 +816,7 @@ public:
 class pp_formatter_cell : public formatter_cell {
     frontend const &         m_frontend;
     interruptable_ptr<pp_fn> m_pp_fn;
+    volatile bool            m_interrupted;
 
     format pp(expr const & e, options const & opts) {
         pp_fn fn(m_frontend, opts);
@@ -830,6 +830,7 @@ class pp_formatter_cell : public formatter_cell {
         bool first = true;
         expr c2   = context_to_lambda(c, e);
         while (is_fake_context(c2)) {
+            check_interrupted(m_interrupted);
             name n1 = get_unused_name(c2);
             format entry = format{format(n1), space(), colon(), space(), pp(fake_context_domain(c2), opts)};
             expr val = fake_context_value(c2);
@@ -865,6 +866,7 @@ class pp_formatter_cell : public formatter_cell {
         expr it1 = t;
         expr it2 = v;
         while (is_pi(it1) && is_lambda(it2)) {
+            check_interrupted(m_interrupted);
             if (abst_domain(it1) != abst_domain(it2))
                 return pp_definition(kwd, n, t, v, opts);
             it1 = abst_body(it1);
@@ -901,6 +903,7 @@ class pp_formatter_cell : public formatter_cell {
 public:
     pp_formatter_cell(frontend const & fe):
         m_frontend(fe) {
+        m_interrupted = false;
     }
 
     virtual ~pp_formatter_cell() {
@@ -920,6 +923,7 @@ public:
         } else {
             expr c2   = context_to_lambda(c, e);
             while (is_fake_context(c2)) {
+                check_interrupted(m_interrupted);
                 expr const & rest = fake_context_rest(c2);
                 name n1 = get_unused_name(rest);
                 c2 = instantiate_with_closed(rest, mk_constant(n1));
@@ -952,6 +956,7 @@ public:
         std::for_each(env.begin_objects(),
                       env.end_objects(),
                       [&](object const & obj) {
+                          check_interrupted(m_interrupted);
                           if (first) first = false; else r += line();
                           r += operator()(obj, opts);
                       });
@@ -960,6 +965,7 @@ public:
 
     virtual void set_interrupt(bool flag) {
         m_pp_fn.set_interrupt(flag);
+        m_interrupted = flag;
     }
 };
 

@@ -27,6 +27,8 @@ public:
     elaborator(environment const & env);
     expr operator()(expr const & e);
 
+    metavar_env & menv() { return m_metaenv; }
+
     void clear() { m_metaenv.clear(); }
     expr mk_metavar(context const & ctx) { return m_metaenv.mk_metavar(ctx); }
 

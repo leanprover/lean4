@@ -25,15 +25,16 @@ class elaborator {
 
 public:
     elaborator(environment const & env);
-    metavar_env & menv() { return m_metaenv; }
-
     expr operator()(expr const & e);
 
     void clear() { m_metaenv.clear(); }
+    expr mk_metavar(context const & ctx) { return m_metaenv.mk_metavar(ctx); }
 
     void set_interrupt(bool flag) { m_metaenv.set_interrupt(flag); }
     void interrupt() { set_interrupt(true); }
     void reset_interrupt() { set_interrupt(false); }
+
+    void display(std::ostream & out) const { m_metaenv.display(out); }
 };
 
 /** \brief Return true iff \c e is a special constant used to mark application of overloads. */

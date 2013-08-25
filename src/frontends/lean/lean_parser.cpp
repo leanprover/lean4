@@ -121,6 +121,7 @@ class parser::imp {
     bool           m_found_errors;
     local_decls    m_local_decls;
     unsigned       m_num_local_decls;
+    context        m_context;
     builtins       m_builtins;
     expr_pos_info  m_expr_pos_info;
     pos_info       m_last_cmd_pos;
@@ -146,8 +147,17 @@ class parser::imp {
         imp &                 m_fn;
         local_decls::mk_scope m_scope;
         unsigned              m_old_num_local_decls;
-        mk_scope(imp & fn):m_fn(fn), m_scope(fn.m_local_decls), m_old_num_local_decls(fn.m_num_local_decls) {}
-        ~mk_scope() { m_fn.m_num_local_decls = m_old_num_local_decls; }
+        context               m_old_context;
+        mk_scope(imp & fn):
+            m_fn(fn),
+            m_scope(fn.m_local_decls),
+            m_old_num_local_decls(fn.m_num_local_decls),
+            m_old_context(fn.m_context) {
+        }
+        ~mk_scope() {
+            m_fn.m_num_local_decls = m_old_num_local_decls;
+            m_fn.m_context = m_old_context;
+        }
     };
 
     /** \brief Return the current position information */
@@ -585,7 +595,7 @@ class parser::imp {
         auto p = pos();
         next();
         mk_scope scope(*this);
-        register_binding(g_unused);
+        register_binding(g_unused, expr());
         // The -1 is a trick to get right associativity in Pratt's parsers
         expr right = parse_expr(g_arrow_precedence-1);
         return save(mk_arrow(left, right), p);
@@ -612,8 +622,12 @@ class parser::imp {
     }
 
     /** \brief Register the name \c n as a local declaration. */
-    void register_binding(name const & n) {
+    void register_binding(name const & n, expr const & type, expr const & val = expr()) {
         unsigned lvl = m_num_local_decls;
+        if (val)
+            m_context = extend(m_context, n, expr(), val);
+        else
+            m_context = extend(m_context, n, type);
         m_local_decls.insert(n, lvl);
         m_num_local_decls++;
         lean_assert(m_local_decls.find(n)->second == lvl);
@@ -630,7 +644,7 @@ class parser::imp {
         unsigned sz = result.size();
         result.resize(sz + names.size());
         expr type = parse_expr();
-        for (std::pair<pos_info, name> const & n : names) register_binding(n.second);
+        for (std::pair<pos_info, name> const & n : names) register_binding(n.second, type);
         unsigned i = names.size();
         while (i > 0) {
             --i;
@@ -739,7 +753,7 @@ class parser::imp {
             name id  = check_identifier_next("invalid let expression, identifier expected");
             check_assign_next("invalid let expression, ':=' expected");
             expr val = parse_expr();
-            register_binding(id);
+            register_binding(id, expr(), val);
             bindings.push_back(std::make_tuple(p, id, val));
             if (curr_is_in()) {
                 next();
@@ -786,8 +800,7 @@ class parser::imp {
 
     /** \brief Create a fresh metavariable. */
     expr mk_metavar() {
-        // TODO
-        return expr();
+        return m_elaborator.mk_metavar(m_context);
     }
 
     /** \brief Parse \c _ a hole that must be filled by the elaborator. */
@@ -856,7 +869,7 @@ class parser::imp {
         case scanner::token::Eq : return g_eq_precedence;
         case scanner::token::Arrow : return g_arrow_precedence;
         case scanner::token::LeftParen: case scanner::token::IntVal: case scanner::token::DecimalVal:
-        case scanner::token::StringVal: case scanner::token::Type:
+        case scanner::token::StringVal: case scanner::token::Type: case scanner::token::Placeholder:
             return 1;
         default:
             return 0;
@@ -874,8 +887,13 @@ class parser::imp {
     /*@}*/
 
     expr elaborate(expr const & e) {
-        // TODO
-        return e;
+        if (has_metavar(e)) {
+            // TODO fix
+            m_elaborator.display(std::cerr);
+            throw parser_error("expression contains metavariables... not implemented yet.", m_last_cmd_pos);
+        } else {
+            return e;
+        }
     }
 
     /**

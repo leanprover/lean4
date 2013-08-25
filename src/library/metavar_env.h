@@ -60,6 +60,7 @@ class metavar_env {
     // If m_available_definitions != nullptr, then only the
     // definitions in m_available_definitions are unfolded during unification.
     name_set const *    m_available_definitions;
+    bool                m_modified;
     volatile bool       m_interrupted;
 
     bool is_root(unsigned midx) const;
@@ -68,15 +69,14 @@ class metavar_env {
     cell const & root_cell(unsigned midx) const;
     cell & root_cell(expr const & m);
     cell const & root_cell(expr const & m) const;
-    friend struct root_fn;
     unsigned new_rank(unsigned r1, unsigned r2);
-    void assign_term(expr const & m, expr const & s);
+    void assign_term(expr const & m, expr s, context const & ctx);
     [[noreturn]] void failed_to_unify();
     void ensure_same_length(context & ctx1, context & ctx2);
     void unify_ctx_prefix(context const & ctx1, context const & ctx2);
     void unify_ctx_entries(context const & ctx1, context const & ctx2);
-    bool is_simple_ho_match_core(expr const & e1, expr const & e2, context const & ctx);
     bool is_simple_ho_match(expr const & e1, expr const & e2, context const & ctx);
+    void unify_simple_ho_match(expr const & e1, expr const & e2, context const & ctx);
     void unify_core(expr const & e1, expr const & e2, context const & ctx);
 
 public:
@@ -98,19 +98,26 @@ public:
     /**
         \brief If the given expression is a metavariable, then return the root
         of the equivalence class. Otherwise, return itself.
+
+        If the the metavariable was defined in smaller context, we lift the
+        free variables to match the size of the given context.
     */
-    expr const & root(expr const & e) const;
+    expr root_at(expr const & m, context const & ctx) const { return root_at(m, length(ctx)); }
+    /**
+       \brief Similar to the previous function, but the context is given.
+    */
+    expr root_at(expr const & m, unsigned ctx_size) const;
+
+    /**
+        \brief If the given expression is a metavariable, then return the root
+        of the equivalence class. Otherwise, return itself.
+    */
+    // expr const & root(expr const & e) const
 
     /**
        \brief Assign m <- s
     */
-    void assign(expr const & m, expr const & s);
-
-    /**
-        \brief Return true iff \c e1 is structurally equal to \c e2
-        modulo the union find table.
-    */
-    bool is_modulo_eq(expr const & e1, expr const & e2);
+    void assign(expr const & m, expr const & s, context const & ctx = context());
 
     /**
        \brief Replace the metavariables occurring in \c e with the
@@ -150,6 +157,9 @@ public:
        \brief Clear/Reset the state.
     */
     void clear();
+
+    bool modified() const { return m_modified; }
+    void reset_modified() { m_modified = false; }
 
     void set_interrupt(bool flag);
 

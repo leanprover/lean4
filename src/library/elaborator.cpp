@@ -37,7 +37,6 @@ elaborator::elaborator(environment const & env):
 
 void elaborator::unify(expr const & e1, expr const & e2, context const & ctx) {
     if (has_metavar(e1) || has_metavar(e2)) {
-        // std::cout << "UNIFY: " << e1 << " <--> " << e2 << "\n";
         m_metaenv.unify(e1, e2, ctx);
     }
 }
@@ -97,7 +96,12 @@ expr elaborator::process(expr const & e, context const & ctx) {
     switch (e.kind()) {
     case expr_kind::Constant:
         if (is_metavar(e)) {
-            return expr();
+            expr r = m_metaenv.root_at(e, ctx);
+            if (is_metavar(r)) {
+                return expr();
+            } else {
+                return process(r, ctx);
+            }
         } else {
             return m_env.get_object(const_name(e)).get_type();
         }
@@ -150,7 +154,12 @@ expr elaborator::process(expr const & e, context const & ctx) {
 }
 
 expr elaborator::operator()(expr const & e) {
-    expr t = process(e, context());
+    while (true) {
+        process(e, context());
+        if (!m_metaenv.modified())
+            break;
+        m_metaenv.reset_modified();
+    }
     return m_metaenv.instantiate_metavars(e);
 }
 }

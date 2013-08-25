@@ -8,9 +8,9 @@ Author: Leonardo de Moura
 #include <iomanip>
 #include "metavar_env.h"
 #include "name_set.h"
+#include "free_vars.h"
 #include "exception.h"
 #include "for_each.h"
-#include "expr_eq.h"
 #include "replace.h"
 #include "printer.h"
 #include "beta.h"
@@ -94,23 +94,6 @@ metavar_env::cell const & metavar_env::root_cell(expr const & m) const {
     return root_cell(metavar_idx(m));
 }
 
-/**
-   \brief Functional object expr -> expr
-   If the input expression is a (assigned) metavariable, then
-   return its substitution. Otherwise, return the input expression.
-*/
-struct root_fn {
-    metavar_env const & m_uf;
-    root_fn(metavar_env const & uf):m_uf(uf) {}
-
-    expr const & operator()(expr const & e) const {
-        if (is_metavar(e))
-            return m_uf.root(e);
-        else
-            return e;
-    }
-};
-
 /** \brief Auxiliary function for computing the new rank of an equivalence class. */
 unsigned metavar_env::new_rank(unsigned r1, unsigned r2) {
     if (r1 == r2) return r1 + 1;
@@ -135,13 +118,25 @@ unsigned metavar_env::new_rank(unsigned r1, unsigned r2) {
    3) The context of every metavariable in s is unifiable with the
    context of m.
 */
-void metavar_env::assign_term(expr const & m, expr const & s) {
+void metavar_env::assign_term(expr const & m, expr s, context const & ctx) {
     lean_assert(is_metavar(m));
     lean_assert(!is_assigned(m));
     lean_assert(!is_metavar(s));
     cell & mc             = root_cell(m);
-    unsigned len_mc       = mc.m_context;
-    unsigned fv_range     = 0; // s may contain variables between [0, fv_range)
+    unsigned len_mc       = length(mc.m_context);
+    unsigned len_ctx      = length(ctx);
+    if (len_ctx < len_mc) {
+        // mc is used in a context with len_mc variables,
+        // but s free variables are references to a smaller context.
+        // So, we must lift s free variables.
+        s = lift_free_vars(s, len_mc - len_ctx);
+    } else if (len_ctx > len_mc) {
+        // s must only contain free variables that are available in mc.m_context
+        if (has_free_var(s, 0, len_ctx - len_mc))
+            failed_to_unify();
+        s = lower_free_vars(s, len_ctx - len_mc);
+    }
+    unsigned fv_range = 0;
     auto proc = [&](expr const & n, unsigned offset) {
         if (is_var(n)) {
             unsigned vidx = var_idx(n);
@@ -194,6 +189,7 @@ metavar_env::metavar_env(environment const & env, name_set const * available_def
     m_max_depth = max_depth;
     m_depth     = 0;
     m_interrupted = false;
+    m_modified    = false;
 }
 
 metavar_env::metavar_env(environment const & env, name_set const * available_defs):
@@ -204,6 +200,7 @@ metavar_env::metavar_env(environment const & env):metavar_env(env, nullptr) {
 }
 
 expr metavar_env::mk_metavar(context const & ctx) {
+    m_modified    = true;
     unsigned vidx = m_cells.size();
     expr m = ::lean::mk_metavar(vidx);
     m_cells.push_back(cell(m, ctx, vidx));
@@ -211,18 +208,34 @@ expr metavar_env::mk_metavar(context const & ctx) {
 }
 
 bool metavar_env::is_assigned(expr const & m) const {
-    return !is_metavar(root(m));
+    return !is_metavar(root_cell(m).m_expr);
 }
 
-expr const & metavar_env::root(expr const & e) const {
-    return is_metavar(e) ? root_cell(e).m_expr : e;
+expr metavar_env::root_at(expr const & e, unsigned ctx_size) const {
+    if (is_metavar(e)) {
+        cell const & c = root_cell(e);
+        if (is_metavar(c.m_expr)) {
+            return c.m_expr;
+        } else {
+            unsigned len_c = length(c.m_context);
+            lean_assert(len_c <= ctx_size);
+            if (len_c < ctx_size) {
+                return lift_free_vars(c.m_expr, ctx_size - len_c);
+            } else {
+                return c.m_expr;
+            }
+        }
+    } else {
+        return e;
+    }
 }
 
-void metavar_env::assign(expr const & m, expr const & s) {
+void metavar_env::assign(expr const & m, expr const & s, context const & ctx) {
     lean_assert(is_metavar(m));
     lean_assert(!is_assigned(m));
     if (m == s)
         return;
+    m_modified = true;
     cell & mc = root_cell(m);
     lean_assert(is_metavar(mc.m_expr));
     lean_assert(metavar_idx(mc.m_expr) == mc.m_find);
@@ -244,14 +257,9 @@ void metavar_env::assign(expr const & m, expr const & s) {
             mc.m_find  = sc.m_find;
         }
     } else {
-        assign_term(m, _s);
+        assign_term(m, _s, ctx);
     }
     lean_assert(check_invariant());
-}
-
-bool metavar_env::is_modulo_eq(expr const & e1, expr const & e2) {
-    expr_eq_fn<root_fn, false> proc(root_fn(*this));
-    return proc(e1, e2);
 }
 
 expr metavar_env::instantiate_metavars(expr const & e) {
@@ -268,10 +276,13 @@ expr metavar_env::instantiate_metavars(expr const & e) {
                         rc.m_state = state::Processing;
                         rc.m_expr  = instantiate_metavars(rc.m_expr);
                         rc.m_state = state::Processed;
-                        return rc.m_expr;
+                        lean_assert(length(rc.m_context) <= offset);
+                        return lift_free_vars(rc.m_expr, offset - length(rc.m_context));
                     }
                     case state::Processing: throw exception("cycle detected");
-                    case state::Processed:  return rc.m_expr;
+                    case state::Processed:
+                        lean_assert(length(rc.m_context) <= offset);
+                        return lift_free_vars(rc.m_expr, offset - length(rc.m_context));
                     }
                 }
             }
@@ -347,7 +358,7 @@ void metavar_env::unify_ctx_entries(context const & ctx1, context const & ctx2) 
     auto it1  = ctx1.begin();
     auto end1 = ctx1.end();
     auto it2  = ctx2.begin();
-    for (; it1 != end1; ++it1) {
+    for (; it1 != end1; ++it1, ++it2) {
         context_entry const & e1 = *it1;
         context_entry const & e2 = *it2;
 
@@ -371,9 +382,8 @@ void metavar_env::unify_ctx_entries(context const & ctx1, context const & ctx2) 
 
 // Little hack for matching (?m #0) with t
 // TODO: implement some support for higher order unification.
-bool metavar_env::is_simple_ho_match_core(expr const & e1, expr const & e2, context const & ctx) {
-    if (is_app(e1) && is_metavar(arg(e1,0)) && !is_assigned(arg(e1,0)) && is_var(arg(e1,1), 0) && num_args(e1) == 2 && length(ctx) > 0) {
-        assign(arg(e1,0), mk_lambda(car(ctx).get_name(), car(ctx).get_domain(), e2));
+bool metavar_env::is_simple_ho_match(expr const & e1, expr const & e2, context const & ctx) {
+    if (is_app(e1) && is_metavar(arg(e1,0)) && is_var(arg(e1,1), 0) && num_args(e1) == 2 && length(ctx) > 0) {
         return true;
     } else {
         return false;
@@ -382,8 +392,8 @@ bool metavar_env::is_simple_ho_match_core(expr const & e1, expr const & e2, cont
 
 // Little hack for matching (?m #0) with t
 // TODO: implement some support for higher order unification.
-bool metavar_env::is_simple_ho_match(expr const & e1, expr const & e2, context const & ctx) {
-    return is_simple_ho_match_core(e1, e2, ctx) || is_simple_ho_match_core(e2, e1, ctx);
+void metavar_env::unify_simple_ho_match(expr const & e1, expr const & e2, context const & ctx) {
+    unify(arg(e1,0), mk_lambda(car(ctx).get_name(), car(ctx).get_domain(), e2), ctx);
 }
 
 /**
@@ -396,6 +406,8 @@ void metavar_env::unify_core(expr const & e1, expr const & e2, context const & c
     lean_assert(!is_metavar(e2));
     if (e1 == e2) {
         return;
+    } else if (is_type(e1) && is_type(e2)) {
+        return; // ignoring type universe levels. We let the kernel check that
     } else if (is_abstraction(e1) && is_abstraction(e2)) {
         unify(abst_domain(e1), abst_domain(e2), ctx);
         unify(abst_body(e1),   abst_body(e2), extend(ctx, abst_name(e1), abst_domain(e1)));
@@ -413,7 +425,9 @@ void metavar_env::unify_core(expr const & e1, expr const & e2, context const & c
                 unify(arg(e1, i), arg(e2, i), ctx);
             }
         } else if (is_simple_ho_match(e1, e2, ctx)) {
-            // done
+            unify_simple_ho_match(e1, e2, ctx);
+        } else if (is_simple_ho_match(e2, e1, ctx)) {
+            unify_simple_ho_match(e2, e1, ctx);
         } else {
             failed_to_unify();
         }
@@ -422,13 +436,15 @@ void metavar_env::unify_core(expr const & e1, expr const & e2, context const & c
 
 void metavar_env::unify(expr const & e1, expr const & e2, context const & ctx) {
     flet<unsigned> l(m_depth, m_depth+1);
-    expr const & r1 = root(e1);
-    expr const & r2 = root(e2);
+    if (m_depth > m_max_depth)
+        throw exception("unifier maximum recursion depth exceeded");
+    expr const & r1 = root_at(e1, ctx);
+    expr const & r2 = root_at(e2, ctx);
     if (is_metavar(r1)) {
-        assign(r1, r2);
+        assign(r1, r2, ctx);
     } else {
         if (is_metavar(r2)) {
-            assign(r2, r1);
+            assign(r2, r1, ctx);
         } else {
             unify_core(r1, r2, ctx);
         }
@@ -472,3 +488,4 @@ bool metavar_env::check_invariant() const {
     return true;
 }
 }
+void print(lean::metavar_env const & env) { env.display(std::cout); }

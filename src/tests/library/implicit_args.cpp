@@ -12,10 +12,11 @@ Author: Leonardo de Moura
 #include "abstract.h"
 #include "toplevel.h"
 #include "basic_thms.h"
+#include "type_check.h"
 #include "kernel_exception.h"
 using namespace lean;
 
-static name g_placeholder_name(name(name(name(0u), "library"), "placeholder"));
+static name g_placeholder_name("_");
 /** \brief Return a new placeholder expression. To be able to track location,
     a new constant for each placeholder.
 */
@@ -77,7 +78,8 @@ expr replace_placeholders_with_metavars(expr const & e, metavar_env & menv) {
     return replace(e, context(), menv);
 }
 
-expr elaborate(elaborator & elb, expr const & e) {
+expr elaborate(expr const & e, environment const & env) {
+    elaborator elb(env);
     expr new_e = replace_placeholders_with_metavars(e, elb.menv());
     return elb(new_e);
 }
@@ -112,13 +114,11 @@ static void tst2() {
     expr t1 = f(m1, m2);
     expr t2 = f(m1, m1);
     lean_assert(t1 != t2);
-    lean_assert(!u.is_modulo_eq(t1, t2));
     // m1 <- m2
     u.assign(m1, m2);
     std::cout << u << "\n";
-    lean_assert(u.root(m2) == m2);
-    lean_assert(u.root(m1) == m2);
-    lean_assert(u.is_modulo_eq(t1, t2));
+    lean_assert(u.root_at(m2, 0) == m2);
+    lean_assert(u.root_at(m1, 0) == m2);
     expr a = Const("a");
     expr b = Const("b");
     expr g = Const("g");
@@ -127,15 +127,8 @@ static void tst2() {
     expr t5 = f(a, a);
     lean_assert(t3 != t4);
     lean_assert(t4 != t5);
-    lean_assert(!u.is_modulo_eq(t3, t4));
-    lean_assert(!u.is_modulo_eq(t4, t5));
     u.assign(m2, a);
-    lean_assert(u.is_modulo_eq(t3, t4));
-    lean_assert(u.is_modulo_eq(t4, t5));
-    lean_assert(u.is_modulo_eq(g(t3, m1), g(t4, a)));
-    lean_assert(!u.is_modulo_eq(g(t3, m3), g(t4, b)));
     u.assign(m3, b);
-    lean_assert(u.is_modulo_eq(g(t3, m3), g(t4, b)));
     std::cout << u << "\n";
     expr m4 = u.mk_metavar();
     std::cout << u << "\n";
@@ -214,10 +207,10 @@ static void tst5() {
     metavar_env uenv2(uenv);
     uenv2.unify(t1, t2);
     std::cout << uenv2 << "\n";
-    lean_assert(uenv2.root(m1) == g(a, b));
-    lean_assert(uenv2.root(m2) == a);
-    lean_assert(uenv2.root(m3) == A);
-    lean_assert(uenv2.root(m4) == B);
+    lean_assert(uenv2.root_at(m1,0) == g(a, b));
+    lean_assert(uenv2.root_at(m2,0) == a);
+    lean_assert(uenv2.root_at(m3,0) == A);
+    lean_assert(uenv2.root_at(m4,0) == B);
     lean_assert(uenv2.instantiate_metavars(t1) == f(g(a, b), g(a, F)));
     lean_assert(uenv2.instantiate_metavars(t2) == f(g(a, b), Id(g(a, A >> B))));
     metavar_env uenv3(uenv);
@@ -251,7 +244,7 @@ static void tst6() {
     expr t2 = f(g(m3), Var(0));
     std::cout << "----------------\n";
     std::cout << uenv << "\n";
-    uenv.unify(t1, t2);
+    uenv.unify(t1, t2, ctx2);
     std::cout << uenv << "\n";
     std::cout << uenv.instantiate_metavars(t1) << "\n";
     std::cout << uenv.instantiate_metavars(t2) << "\n";
@@ -306,9 +299,30 @@ static void tst7() {
     std::cout << uenv.instantiate_metavars(t2) << "\n";
 }
 
+// Check elaborator success
+static void success(expr const & e, expr const & expected, environment const & env) {
+    std::cout << "\n" << e << "\n------>\n" << elaborate(e, env) << "\n";
+    lean_assert(elaborate(e, env) == expected);
+    std::cout << infer_type(elaborate(e, env), env) << "\n";
+}
+
+// Check elaborator failure
+static void fails(expr const & e, environment const & env) {
+    try {
+        elaborate(e, env);
+        lean_unreachable();
+    } catch (exception &) {
+    }
+}
+
+// Check elaborator partial success (i.e., result still contain some metavariables */
+static void unsolved(expr const & e, environment const & env) {
+    std::cout << "\n" << e << "\n------>\n" << elaborate(e, env) << "\n";
+    lean_assert(has_metavar(elaborate(e, env)));
+}
+
 static void tst8() {
     environment env;
-    elaborator  elb(env);
     expr A = Const("A");
     expr B = Const("B");
     expr F = Const("F");
@@ -320,17 +334,15 @@ static void tst8() {
     env.add_var("Real", Type());
     env.add_var("F", Pi({{A, Type()}, {B, Type()}, {g, A >> B}}, A));
     env.add_var("f", Nat >> Real);
-    std::cout << "--------------------\n" << env << "\n";
     expr _ = mk_placholder();
     expr f = Const("f");
-    expr t = F(_,_,f);
-    std::cout << elaborate(elb, t) << "\n";
-    lean_assert(elaborate(elb, t) == F(Nat, Real, f));
+    success(F(_,_,f), F(Nat, Real, f), env);
+    fails(F(_,Bool,f), env);
+    success(F(_,_,Fun({a, Nat},a)), F(Nat,Nat,Fun({a,Nat},a)), env);
 }
 
 static void tst9() {
     environment env = mk_toplevel();
-    elaborator  elb(env);
     expr a  = Const("a");
     expr b  = Const("b");
     expr c  = Const("c");
@@ -342,15 +354,20 @@ static void tst9() {
     env.add_axiom("H1", Eq(a, b));
     env.add_axiom("H2", Eq(b, c));
     expr _ = mk_placholder();
-    expr t = Trans(_,_,_,_,H1,H2);
-    expr new_t = elb(elaborate(elb, t));
-    std::cout << new_t << "\n";
-    lean_assert(new_t == Trans(Bool,a,b,c,H1,H2));
+    success(Trans(_,_,_,_,H1,H2), Trans(Bool,a,b,c,H1,H2), env);
+    success(Trans(_,_,_,_,Symm(_,_,_,H2),Symm(_,_,_,H1)),
+            Trans(Bool,c,b,a,Symm(Bool,b,c,H2),Symm(Bool,a,b,H1)), env);
+    success(Symm(_,_,_,Trans(_,_,_,_,Symm(_,_,_,H2),Symm(_,_,_,H1))),
+            Symm(Bool,c,a,Trans(Bool,c,b,a,Symm(Bool,b,c,H2),Symm(Bool,a,b,H1))), env);
+    env.add_axiom("H3", a);
+    expr H3 = Const("H3");
+    success(EqTIntro(_, EqMP(_,_,Symm(_,_,_,Trans(_,_,_,_,Symm(_,_,_,H2),Symm(_,_,_,H1))), H3)),
+            EqTIntro(c, EqMP(a,c,Symm(Bool,c,a,Trans(Bool,c,b,a,Symm(Bool,b,c,H2),Symm(Bool,a,b,H1))), H3)),
+            env);
 }
 
 static void tst10() {
     environment env = mk_toplevel();
-    elaborator  elb(env);
     expr Nat = Const("Nat");
     env.add_var("Nat", Type());
     env.add_var("vec", Nat >> Type());
@@ -367,14 +384,21 @@ static void tst10() {
     env.add_definition("fact", Bool, Eq(a, b));
     env.add_axiom("H", fact);
     expr _ = mk_placholder();
-    expr t = Congr2(_,_,_,_,f,H);
-    std::cout << elaborate(elb, t) << "\n";
-    lean_assert(elaborate(elb,t) == Congr2(Nat, Fun({n,Nat}, vec(n) >> Nat), a, b, f, H));
+    success(Congr2(_,_,_,_,f,H),
+            Congr2(Nat, Fun({n,Nat}, vec(n) >> Nat), a, b, f, H), env);
+    env.add_var("g", Pi({n, Nat}, vec(n) >> Nat));
+    expr g = Const("g");
+    env.add_axiom("H2", Eq(f, g));
+    expr H2 = Const("H2");
+    success(Congr(_,_,_,_,_,_,H2,H),
+            Congr(Nat, Fun({n,Nat}, vec(n) >> Nat), f, g, a, b, H2, H), env);
+    success(Congr(_,_,_,_,_,_,Refl(_,f),H),
+            Congr(Nat, Fun({n,Nat}, vec(n) >> Nat), f, f, a, b, Refl(Pi({n, Nat}, vec(n) >> Nat),f), H), env);
+    success(Refl(_,a), Refl(Nat,a), env);
 }
 
 static void tst11() {
     environment env;
-    elaborator  elb(env);
     expr Nat = Const("Nat");
     env.add_var("Nat", Type());
     expr R   = Const("R");
@@ -385,15 +409,19 @@ static void tst11() {
     env.add_var("f", Nat >> ((R >> Nat) >> R));
     expr x   = Const("x");
     expr y   = Const("y");
+    expr z   = Const("z");
     expr _ = mk_placholder();
-    expr t = Fun({{x,_},{y,_}}, f(x, y));
-    std::cout << t << "\n";
-    std::cout << elaborate(elb, t) << "\n";
+    success(Fun({{x,_},{y,_}}, f(x, y)),
+            Fun({{x,Nat},{y,R >> Nat}}, f(x, y)), env);
+    success(Fun({{x,_},{y,_},{z,_}}, Eq(f(x, y), f(x, z))),
+            Fun({{x,Nat},{y,R >> Nat},{z,R >> Nat}}, Eq(f(x, y), f(x, z))), env);
+    expr A   = Const("A");
+    success(Fun({{A,Type()},{x,_},{y,_},{z,_}}, Eq(f(x, y), f(x, z))),
+            Fun({{A,Type()},{x,Nat},{y,R >> Nat},{z,R >> Nat}}, Eq(f(x, y), f(x, z))), env);
 }
 
 static void tst12() {
     environment env;
-    elaborator  elb(env);
     expr A = Const("A");
     expr B = Const("B");
     expr a = Const("a");
@@ -405,14 +433,12 @@ static void tst12() {
     env.add_var("f", Pi({{A,Type()},{a,A},{b,A}}, A));
     env.add_var("g", Nat >> Nat);
     expr _ = mk_placholder();
-    expr t = Fun({{a,_},{b,_}},g(f(_,a,b)));
-    std::cout << elaborate(elb, t) << "\n";
-    lean_assert(elaborate(elb, t) == Fun({{a,Nat},{b,Nat}},g(f(Nat,a,b))));
+    success(Fun({{a,_},{b,_}},g(f(_,a,b))),
+            Fun({{a,Nat},{b,Nat}},g(f(Nat,a,b))), env);
 }
 
 static void tst13() {
     environment env;
-    elaborator  elb(env);
     expr lst  = Const("list");
     expr nil  = Const("nil");
     expr cons = Const("cons");
@@ -427,24 +453,108 @@ static void tst13() {
     env.add_var("cons", Pi({{A, Type()}, {a, A}, {l, lst(A)}}, lst(A)));
     env.add_var("f", lst(N>>N) >> Bool);
     expr _ = mk_placholder();
-    expr t = Fun({a,_}, f(cons(_, a, cons(_, a, nil(_)))));
-    std::cout << elaborate(elb, t) << "\n";
+    success(Fun({a,_}, f(cons(_, a, cons(_, a, nil(_))))),
+            Fun({a,N>>N}, f(cons(N>>N, a, cons(N>>N, a, nil(N>>N))))), env);
 }
 
 static void tst14() {
     environment env;
-    elaborator  elb(env);
     expr x = Const("x");
     expr _ = mk_placholder();
     expr omega = mk_app(Fun({x,_}, x(x)), Fun({x,_}, x(x)));
-    try {
-        elaborate(elb, omega);
-        lean_unreachable();
-    } catch (exception ex) {
-    }
+    fails(omega, env);
+}
+
+static void tst15() {
+    environment env;
+    expr B = Const("B");
+    expr A = Const("A");
+    expr x = Const("x");
+    expr f = Const("f");
+    expr _ = mk_placholder();
+    env.add_var("f", Pi({B, Type()}, B >> B));
+    fails(Fun({{x,_}, {A,Type()}}, f(A, x)), env);
+    success(Fun({{A,Type()}, {x,_}}, f(A, x)),
+            Fun({{A,Type()}, {x,A}}, f(A, x)), env);
+    success(Fun({{A,Type()}, {B,Type()}, {x,_}}, f(A, x)),
+            Fun({{A,Type()}, {B,Type()}, {x,A}}, f(A, x)), env);
+    success(Fun({{A,Type()}, {B,Type()}, {x,_}}, f(B, x)),
+            Fun({{A,Type()}, {B,Type()}, {x,B}}, f(B, x)), env);
+    success(Fun({{A,Type()}, {B,Type()}, {x,_}}, Eq(f(B, x), f(_,x))),
+            Fun({{A,Type()}, {B,Type()}, {x,B}}, Eq(f(B, x), f(B,x))), env);
+    success(Fun({{A,Type()}, {B,_}, {x,_}}, Eq(f(B, x), f(_,x))),
+            Fun({{A,Type()}, {B,Type()}, {x,B}}, Eq(f(B, x), f(B,x))), env);
+    unsolved(Fun({{A,_}, {B,_}, {x,_}}, Eq(f(B, x), f(_,x))), env);
+}
+
+static void tst16() {
+    environment env = mk_toplevel();
+    expr A = Const("A");
+    expr B = Const("B");
+    expr f = Const("f");
+    expr g = Const("g");
+    expr x = Const("x");
+    expr y = Const("y");
+    env.add_var("N", Type());
+    env.add_var("f", Pi({A,Type()}, A >> A));
+    expr N = Const("N");
+    expr _ = mk_placholder();
+    success(Fun({g, Pi({A, Type()}, A >> (A >> Bool))}, g(_, True, False)),
+            Fun({g, Pi({A, Type()}, A >> (A >> Bool))}, g(Bool, True, False)),
+            env);
+    success(Fun({g, Pi({A, TypeU}, A >> (A >> Bool))}, g(_, Bool, Bool)),
+            Fun({g, Pi({A, TypeU}, A >> (A >> Bool))}, g(Type(), Bool, Bool)),
+            env);
+    success(Fun({g, Pi({A, TypeU}, A >> (A >> Bool))}, g(_, Bool, N)),
+            Fun({g, Pi({A, TypeU}, A >> (A >> Bool))}, g(Type(), Bool, N)),
+            env);
+    success(Fun({g, Pi({A, Type()}, A >> (A >> Bool))},
+                g(_,
+                  Fun({{x,_},{y,_}}, Eq(f(_, x), f(_, y))),
+                  Fun({{x,N},{y,Bool}}, True))),
+            Fun({g, Pi({A, Type()}, A >> (A >> Bool))},
+                g((N >> (Bool >> Bool)),
+                  Fun({{x,N},{y,Bool}}, Eq(f(N, x), f(Bool, y))),
+                  Fun({{x,N},{y,Bool}}, True))), env);
+
+    success(Fun({g, Pi({A, Type()}, A >> (A >> Bool))},
+                g(_,
+                  Fun({{x,N},{y,_}}, Eq(f(_, x), f(_, y))),
+                  Fun({{x,_},{y,Bool}}, True))),
+            Fun({g, Pi({A, Type()}, A >> (A >> Bool))},
+                g((N >> (Bool >> Bool)),
+                  Fun({{x,N},{y,Bool}}, Eq(f(N, x), f(Bool, y))),
+                  Fun({{x,N},{y,Bool}}, True))), env);
+}
+
+static void tst17() {
+    environment env = mk_toplevel();
+    expr A = Const("A");
+    expr B = Const("B");
+    expr C = Const("C");
+    expr a = Const("a");
+    expr b = Const("b");
+    expr eq = Const("eq");
+    expr _ = mk_placholder();
+    env.add_var("eq", Pi({A, Type()}, A >> (A >> Bool)));
+    success(Fun({{A, Type()},{B,Type()},{a,_},{b,B}}, eq(_,a,b)),
+            Fun({{A, Type()},{B,Type()},{a,B},{b,B}}, eq(B,a,b)), env);
+    success(Fun({{A, Type()},{B,Type()},{a,_},{b,A}}, eq(_,a,b)),
+            Fun({{A, Type()},{B,Type()},{a,A},{b,A}}, eq(A,a,b)), env);
+    success(Fun({{A, Type()},{B,Type()},{a,A},{b,_}}, eq(_,a,b)),
+            Fun({{A, Type()},{B,Type()},{a,A},{b,A}}, eq(A,a,b)), env);
+    success(Fun({{A, Type()},{B,Type()},{a,B},{b,_}}, eq(_,a,b)),
+            Fun({{A, Type()},{B,Type()},{a,B},{b,B}}, eq(B,a,b)), env);
+    success(Fun({{A, Type()},{B,Type()},{a,B},{b,_},{C,Type()}}, eq(_,a,b)),
+            Fun({{A, Type()},{B,Type()},{a,B},{b,B},{C,Type()}}, eq(B,a,b)), env);
+    fails(Fun({{A, Type()},{B,Type()},{a,_},{b,_},{C,Type()}}, eq(C,a,b)), env);
+    success(Fun({{A, Type()},{B,Type()},{a,_},{b,_},{C,Type()}}, eq(B,a,b)),
+            Fun({{A, Type()},{B,Type()},{a,B},{b,B},{C,Type()}}, eq(B,a,b)), env);
 }
 
 int main() {
+    tst17();
+    return 0;
     tst1();
     tst2();
     tst3();
@@ -459,5 +569,7 @@ int main() {
     tst12();
     tst13();
     tst14();
+    tst15();
+    tst16();
     return has_violations() ? 1 : 0;
 }

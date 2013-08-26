@@ -35,8 +35,8 @@ after_script:
 install:
 - if [[ $CMAKE_CXX_COMPILER == g++ ]]; then
       cd /;
-      wget http://dl.dropboxusercontent.com/u/203889738/gcc/gcc-4.9.0_OSX.tar.gz -O /tmp/gcc-mlion.tar.gz;
-      sudo tar xvfz /tmp/gcc-mlion.tar.gz;
+      wget http://dl.dropboxusercontent.com/u/203889738/gcc/gcc-4.9.0_OSX.tar.bz2 -O /tmp/gcc-mlion.tar.bz2;
+      sudo tar xfj /tmp/gcc-mlion.tar.bz2;
       cd -;
       sudo chown -R `whoami` /usr/local;
       brew install gmp; brew link --overwrite gmp;

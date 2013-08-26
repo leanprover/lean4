@@ -207,6 +207,8 @@ class parser::imp {
     bool curr_is_int() const { return curr() == scanner::token::IntVal; }
     /** \brief Return true iff the current toke is a '(' */
     bool curr_is_lparen() const { return curr() == scanner::token::LeftParen; }
+    /** \brief Return true iff the current toke is a '{' */
+    bool curr_is_lcurly() const { return curr() == scanner::token::LeftCurlyBracket; }
     /** \brief Return true iff the current toke is a ':' */
     bool curr_is_colon() const { return curr() == scanner::token::Colon; }
     /** \brief Return true iff the current toke is a ',' */
@@ -229,6 +231,8 @@ class parser::imp {
     void check_lparen_next(char const * msg) { check_next(scanner::token::LeftParen, msg); }
     /** \brief Throws a parser error if the current token is not ')'. If it is, move to the next token. */
     void check_rparen_next(char const * msg) { check_next(scanner::token::RightParen, msg); }
+    /** \brief Throws a parser error if the current token is not '}'. If it is, move to the next token. */
+    void check_rcurly_next(char const * msg) { check_next(scanner::token::RightCurlyBracket, msg); }
     /** \brief Throws a parser error if the current token is not ':='. If it is, move to the next token. */
     void check_assign_next(char const * msg) { check_next(scanner::token::Assign, msg); }
     /** \brief Throws a parser error if the current token is not an identifier named \c op. */
@@ -496,6 +500,17 @@ class parser::imp {
         }
     }
 
+    /** \brief Return true iff all implicit arguments occur in the beginning. */
+    bool is_imp_arg_prefix(std::vector<unsigned> const & imp_args) {
+        for (unsigned i = 0; i < imp_args.size(); i++) {
+            // Remark: I'm using the fact that the implicit argument
+            // positions are sorted.
+            if (imp_args[i] != i)
+                return false;
+        }
+        return true;
+    }
+
     /**
        \brief Try to find an object (Definition or Postulate) named \c
        id in the frontend/environment. If there isn't one, then tries
@@ -505,10 +520,37 @@ class parser::imp {
         object const & obj = m_frontend.find_object(id);
         if (obj) {
             object_kind k      = obj.kind();
-            if (k == object_kind::Definition || k == object_kind::Postulate)
-                return mk_constant(obj.get_name());
-            else
+            if (k == object_kind::Definition || k == object_kind::Postulate) {
+                if (m_frontend.has_implicit_arguments(obj.get_name())) {
+                    std::vector<unsigned> const & imp_args = m_frontend.get_implicit_arguments(obj.get_name());
+                    unsigned sz = imp_args.size();
+                    lean_assert(sz > 1);
+                    buffer<expr> args;
+                    args.push_back(mk_constant(obj.get_name()));
+                    if (is_imp_arg_prefix(imp_args)) {
+                        for (unsigned i = 0; i < sz; i++) {
+                            args.push_back(save(mk_metavar(), pos()));
+                        }
+                    } else {
+                        // implicit arguments for id are not just a prefix.
+                        // So, we also parse all explicit arguments
+                        // that occur between implicit arguments.
+                        unsigned last_imp_arg = imp_args[sz-1];
+                        for (unsigned i = 0; i <= last_imp_arg; i++) {
+                            if (std::find(imp_args.begin(), imp_args.end(), i) != imp_args.end()) {
+                                args.push_back(save(mk_metavar(), pos()));
+                            } else {
+                                args.push_back(parse_expr(1));
+                            }
+                        }
+                    }
+                    return mk_app(args.size(), args.data());
+                } else {
+                    return mk_constant(obj.get_name());
+                }
+            } else {
                 throw parser_error(sstream() << "invalid object reference, object '" << id << "' is not an expression.", p);
+            }
         }
         else {
             auto it = m_builtins.find(id);
@@ -638,7 +680,7 @@ class parser::imp {
         \brief Parse <tt>ID ... ID ':' expr</tt>, where the expression
         represents the type of the identifiers.
     */
-    void parse_simple_bindings(buffer<std::tuple<pos_info, name, expr>> & result) {
+    void parse_simple_bindings(buffer<std::tuple<pos_info, name, expr, bool>> & result, bool implicit) {
         buffer<std::pair<pos_info, name>> names;
         parse_names(names);
         check_colon_next("invalid binder, ':' expected");
@@ -649,7 +691,7 @@ class parser::imp {
         unsigned i = names.size();
         while (i > 0) {
             --i;
-            result[sz + i] = std::make_tuple(names[i].first, names[i].second, lift_free_vars(type, i));
+            result[sz + i] = std::make_tuple(names[i].first, names[i].second, lift_free_vars(type, i), implicit);
         }
     }
 
@@ -658,18 +700,33 @@ class parser::imp {
 
         This is used when parsing lambda, Pi, forall/exists expressions and definitions.
     */
-    void parse_bindings(buffer<std::tuple<pos_info, name, expr>> & result) {
+    void parse_bindings(buffer<std::tuple<pos_info, name, expr, bool>> & result, bool allow_implicit = false) {
         if (curr_is_identifier()) {
-            parse_simple_bindings(result);
+            parse_simple_bindings(result, false);
         } else {
             // (ID ... ID : type) ... (ID ... ID : type)
-            check_lparen_next("invalid binder, '(' or identifier expected");
-            parse_simple_bindings(result);
-            check_rparen_next("invalid binder, ')' expected");
-            while (curr_is_lparen()) {
-                next();
-                parse_simple_bindings(result);
+            if (allow_implicit) {
+                if (!curr_is_lparen() && !curr_is_lcurly())
+                    throw parser_error("invalid binder, '(', '{' or identifier expected", pos());
+            } else {
+                if (!curr_is_lparen())
+                    throw parser_error("invalid binder, '(' or identifier expected", pos());
+            }
+            bool implicit = curr_is_lcurly();
+            next();
+            parse_simple_bindings(result, implicit);
+            if (!implicit)
                 check_rparen_next("invalid binder, ')' expected");
+            else
+                check_rcurly_next("invalid binder, '}' expected");
+            while (curr_is_lparen() || (allow_implicit && curr_is_lcurly())) {
+                bool implicit = curr_is_lcurly();
+                next();
+                parse_simple_bindings(result, implicit);
+                if (!implicit)
+                    check_rparen_next("invalid binder, ')' expected");
+                else
+                    check_rcurly_next("invalid binder, '}' expected");
             }
         }
     }
@@ -678,7 +735,7 @@ class parser::imp {
         \brief Create a lambda/Pi abstraction, using the giving binders
         and body.
     */
-    expr mk_abstraction(bool is_lambda, buffer<std::tuple<pos_info, name, expr>> const & bindings, expr const & body) {
+    expr mk_abstraction(bool is_lambda, buffer<std::tuple<pos_info, name, expr, bool>> const & bindings, expr const & body) {
         expr result = body;
         unsigned i = bindings.size();
         while (i > 0) {
@@ -696,7 +753,7 @@ class parser::imp {
     expr parse_abstraction(bool is_lambda) {
         next();
         mk_scope scope(*this);
-        buffer<std::tuple<pos_info, name, expr>> bindings;
+        buffer<std::tuple<pos_info, name, expr, bool>> bindings;
         parse_bindings(bindings);
         check_comma_next("invalid abstraction, ',' expected");
         expr result = parse_expr();
@@ -717,7 +774,7 @@ class parser::imp {
     expr parse_quantifier(bool is_forall) {
         next();
         mk_scope scope(*this);
-        buffer<std::tuple<pos_info, name, expr>> bindings;
+        buffer<std::tuple<pos_info, name, expr, bool>> bindings;
         parse_bindings(bindings);
         check_comma_next("invalid quantifier, ',' expected");
         expr result = parse_expr();
@@ -890,7 +947,7 @@ class parser::imp {
     expr elaborate(expr const & e) {
         if (has_metavar(e)) {
             // TODO fix
-            m_elaborator.display(std::cerr);
+            regular(m_frontend) << e << endl;
             throw parser_error("expression contains metavariables... not implemented yet.", m_last_cmd_pos);
         } else {
             return e;
@@ -901,11 +958,28 @@ class parser::imp {
        @name Parse Commands
     */
     /*@{*/
+
+    /**
+        \brief Register implicit arguments for the definition or
+        postulate named \c n. The fourth element in the tuple bindings
+        is a flag indiciating whether the argument is implicit or not.
+    */
+    void register_implicit_arguments(name const & n, buffer<std::tuple<pos_info, name, expr,bool>> & bindings) {
+        buffer<unsigned> imp_args;
+        for (unsigned i = 0; i < bindings.size(); i++) {
+            if (std::get<3>(bindings[i]))
+                imp_args.push_back(i);
+        }
+        if (!imp_args.empty())
+            m_frontend.mark_implicit_arguments(n, imp_args.size(), imp_args.data());
+    }
+
     /** \brief Auxiliary method used for parsing definitions and theorems. */
     void parse_def_core(bool is_definition) {
         next();
         expr type, val;
         name id = check_identifier_next("invalid definition, identifier expected");
+        buffer<std::tuple<pos_info, name, expr,bool>> bindings;
         if (curr_is_colon()) {
             next();
             type = elaborate(parse_expr());
@@ -913,8 +987,7 @@ class parser::imp {
             val  = elaborate(parse_expr());
         } else {
             mk_scope scope(*this);
-            buffer<std::tuple<pos_info, name, expr>> bindings;
-            parse_bindings(bindings);
+            parse_bindings(bindings, true);
             check_colon_next("invalid definition, ':' expected");
             expr type_body = parse_expr();
             check_assign_next("invalid definition, ':=' expected");
@@ -931,6 +1004,7 @@ class parser::imp {
             if (m_verbose)
                 regular(m_frontend) << "  Proved: " << id << endl;
         }
+        register_implicit_arguments(id, bindings);
     }
 
     /**
@@ -955,26 +1029,49 @@ class parser::imp {
         parse_def_core(false);
     }
 
-    /** \brief Parse 'Variable' ID ':' expr */
-    void parse_variable() {
+    /** \brief Auxiliary method for parsing Variable and axiom declarations. */
+    void parse_variable_core(bool is_var) {
         next();
-        name id = check_identifier_next("invalid variable declaration, identifier expected");
-        check_colon_next("invalid variable declaration, ':' expected");
-        expr type = elaborate(parse_expr());
-        m_frontend.add_var(id, type);
+        name id = check_identifier_next("invalid variable/axiom declaration, identifier expected");
+        buffer<std::tuple<pos_info, name, expr,bool>> bindings;
+        expr type;
+        if (curr_is_colon()) {
+            next();
+            type = elaborate(parse_expr());
+        } else {
+            mk_scope scope(*this);
+            parse_bindings(bindings, true);
+            check_colon_next("invalid variable/axiom declaration, ':' expected");
+            expr type_body = parse_expr();
+            type = elaborate(mk_abstraction(false, bindings, type_body));
+        }
+        if (is_var)
+            m_frontend.add_var(id, type);
+        else
+            m_frontend.add_axiom(id, type);
         if (m_verbose)
             regular(m_frontend) << "  Assumed: " << id << endl;
+        register_implicit_arguments(id, bindings);
     }
 
-    /** \brief Parse 'Axiom' ID ':' expr */
+    /** \brief Parse one of the two forms:
+
+        1) 'Variable' ID ':' type
+
+        2) 'Variable' ID bindings ':' type
+    */
+    void parse_variable() {
+        parse_variable_core(true);
+    }
+
+    /** \brief Parse one of the two forms:
+
+        1) 'Axiom' ID ':' type
+
+        2) 'Axiom' ID bindings ':' type
+    */
     void parse_axiom() {
-        next();
-        name id = check_identifier_next("invalid axiom, identifier expected");
-        check_colon_next("invalid axiom, ':' expected");
-        expr type = elaborate(parse_expr());
-        m_frontend.add_axiom(id, type);
-        if (m_verbose)
-            regular(m_frontend) << "  Assumed: " << id << endl;
+        parse_variable_core(false);
     }
 
     /** \brief Parse 'Eval' expr */

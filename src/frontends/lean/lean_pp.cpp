@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "context_to_lambda.h"
 #include "options.h"
 #include "interruptable_ptr.h"
+#include "metavar_env.h"
 #include "exception.h"
 #include "lean_notation.h"
 #include "lean_pp.h"
@@ -176,7 +177,11 @@ class pp_fn {
     }
 
     result pp_constant(expr const & e) {
-        return mk_result(::lean::pp(const_name(e)), 1);
+        if (is_metavar(e)) {
+            return mk_result(format("_"), 1);
+        } else {
+            return mk_result(::lean::pp(const_name(e)), 1);
+        }
     }
 
     result pp_value(expr const & e) {

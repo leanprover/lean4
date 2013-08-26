@@ -9,17 +9,21 @@ Author: Leonardo de Moura
 #include "toplevel.h"
 #include "map.h"
 #include "state.h"
+#include "sstream.h"
+#include "exception.h"
 #include "lean_operator_info.h"
 #include "lean_frontend.h"
 #include "lean_notation.h"
 #include "lean_pp.h"
 
 namespace lean {
+static std::vector<unsigned> g_empty_vector;
 /** \brief Implementation of the Lean frontend */
 struct frontend::imp {
+    typedef std::pair<std::vector<unsigned>, name> implicit_info;
     // Remark: only named objects are stored in the dictionary.
     typedef std::unordered_map<name, operator_info, name_hash, name_eq> operator_table;
-    typedef std::unordered_map<name, unsigned, name_hash, name_eq> implicit_table;
+    typedef std::unordered_map<name, implicit_info, name_hash, name_eq> implicit_table;
     typedef std::unordered_map<expr, operator_info, expr_hash, std::equal_to<expr>> expr_to_operator;
     std::atomic<unsigned> m_num_children;
     std::shared_ptr<imp>  m_parent;
@@ -163,6 +167,67 @@ struct frontend::imp {
     void add_mixfixr(unsigned sz, name const * opns, unsigned p, expr const & d) { add_op(mixfixr(sz, opns, p), d, true);  }
     void add_mixfixc(unsigned sz, name const * opns, unsigned p, expr const & d) { add_op(mixfixc(sz, opns, p), d, false); }
 
+    void mark_implicit_arguments(name const & n, unsigned sz, unsigned * implicit) {
+        if (has_children())
+            throw exception(sstream() << "failed to mark implicit arguments, frontend object is read-only");
+        object const & obj = m_env.get_object(n);
+        if (obj.kind() != object_kind::Definition && obj.kind() != object_kind::Postulate)
+            throw exception(sstream() << "failed to mark implicit arguments, the object '" << n << "' is not a definition or postulate");
+        if (has_implicit_arguments(n))
+            throw exception(sstream() << "the object '" << n << "' already has implicit argument information associated with it");
+        name explicit_version(n, "explicit");
+        if (m_env.find_object(explicit_version))
+            throw exception(sstream() << "failed to mark implicit arguments for '" << n << "', the frontend already has an object named '" << explicit_version << "'");
+        expr const & type = obj.get_type();
+        unsigned num_args = 0;
+        expr it = type;
+        while (is_pi(it)) { num_args++; it = abst_body(it); }
+        std::vector<unsigned> v;
+        for (unsigned i = 0; i < sz; i++) {
+            if (implicit[i] >= num_args)
+                throw exception(sstream() << "failed to mark implicit arguments for '" << n << "', object has only " << num_args << " arguments, but trying to mark argument " << implicit[i]+1 << " as implicit");
+            v.push_back(implicit[i]);
+        }
+        m_implicit_table[n] = mk_pair(v, explicit_version);
+        if (obj.is_axiom() || obj.is_theorem()) {
+            m_env.add_theorem(explicit_version, type, mk_constant(n));
+        } else {
+            m_env.add_definition(explicit_version, type, mk_constant(n));
+        }
+    }
+
+    bool has_implicit_arguments(name const & n) {
+        if (m_implicit_table.find(n) != m_implicit_table.end()) {
+            return true;
+        } else if (has_parent()) {
+            return m_parent->has_implicit_arguments(n);
+        } else {
+            return false;
+        }
+    }
+
+    std::vector<unsigned> const & get_implicit_arguments(name const & n) {
+        auto it = m_implicit_table.find(n);
+        if (it != m_implicit_table.end()) {
+            return it->second.first;
+        } else if (has_parent()) {
+            return m_parent->get_implicit_arguments(n);
+        } else {
+            return g_empty_vector;
+        }
+    }
+
+    name const & get_explicit_version(name const & n) {
+        auto it = m_implicit_table.find(n);
+        if (it != m_implicit_table.end()) {
+            return it->second.second;
+        } else if (has_parent()) {
+            return m_parent->get_explicit_version(n);
+        } else {
+            return name::anonymous();
+        }
+    }
+
     void set_interrupt(bool flag) {
         m_env.set_interrupt(flag);
         m_state.set_interrupt(flag);
@@ -234,6 +299,17 @@ void frontend::add_mixfixc(unsigned sz, name const * opns, unsigned p, expr cons
 operator_info frontend::find_op_for(expr const & n) const { return m_imp->find_op_for(n); }
 operator_info frontend::find_nud(name const & n) const { return m_imp->find_nud(n); }
 operator_info frontend::find_led(name const & n) const { return m_imp->find_led(n); }
+
+void frontend::mark_implicit_arguments(name const & n, unsigned num) {
+    buffer<unsigned> tmp;
+    for (unsigned i = 0; i < num; i++) tmp.push_back(i);
+    mark_implicit_arguments(n, tmp.size(), tmp.data());
+}
+void frontend::mark_implicit_arguments(name const & n, unsigned sz, unsigned * implicit) { m_imp->mark_implicit_arguments(n, sz, implicit); }
+bool frontend::has_implicit_arguments(name const & n) { return m_imp->has_implicit_arguments(n); }
+std::vector<unsigned> const & frontend::get_implicit_arguments(name const & n) { return m_imp->get_implicit_arguments(n); }
+name const & frontend::get_explicit_version(name const & n) { return m_imp->get_explicit_version(n); }
+
 
 state const & frontend::get_state() const { return m_imp->m_state; }
 state & frontend::get_state_core() { return m_imp->m_state; }

@@ -53,6 +53,10 @@ public:
     virtual bool is_opaque() const = 0;
     /** \brief Return object value. \pre is_definition() */
     virtual expr const & get_value() const = 0;
+
+    virtual bool is_axiom() const { return false; }
+    virtual bool is_theorem() const { return false; }
+    virtual bool is_var_decl() const { return false; }
 };
 
 /**
@@ -122,6 +126,10 @@ public:
     bool is_definition() const { return m_ptr->is_definition(); }
     bool is_opaque() const { return m_ptr->is_opaque(); }
     expr const & get_value() const { return m_ptr->get_value(); }
+
+    bool is_axiom() const { return m_ptr->is_axiom(); }
+    bool is_theorem() const { return m_ptr->is_theorem(); }
+    bool is_var_decl() const { return m_ptr->is_var_decl(); }
 
     object_cell const * cell() const { return m_ptr; }
 };

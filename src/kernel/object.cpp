@@ -94,6 +94,7 @@ class axiom_object_cell : public postulate_object_cell {
 public:
     axiom_object_cell(name const & n, expr const & t):postulate_object_cell(n, t) {}
     virtual char const * keyword() const { return "Axiom"; }
+    virtual bool is_axiom() const { return true; }
 };
 
 /**
@@ -103,6 +104,7 @@ class variable_decl_object_cell : public postulate_object_cell {
 public:
     variable_decl_object_cell(name const & n, expr const & t):postulate_object_cell(n, t) {}
     virtual char const * keyword() const { return "Variable"; }
+    virtual bool is_var_decl() const { return true; }
 };
 
 /**
@@ -130,6 +132,7 @@ public:
     theorem_object_cell(name const & n, expr const & t, expr const & v):
         definition_object_cell(n, t, v, true) {}
     virtual char const * keyword() const { return "Theorem"; }
+    virtual bool is_theorem() const { return true; }
 };
 
 object mk_uvar_decl(name const & n, level const & l) { return object(new uvar_declaration_object_cell(n, l)); }

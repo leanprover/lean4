@@ -164,6 +164,46 @@ static void tst10() {
     std::cout << fmt(e) << "\n";
 }
 
+static void tst11() {
+    frontend f;
+    expr A = Const("A");
+    f.add_var("g", Pi({A, Type()}, A >> (A >> A)));
+    lean_assert(!f.has_implicit_arguments("g"))
+    f.mark_implicit_arguments("g", 1);
+    lean_assert(f.has_implicit_arguments("g"))
+    name gexp = f.get_explicit_version("g");
+    lean_assert(f.find_object(gexp));
+    lean_assert(f.find_object("g").get_type() == f.find_object(gexp).get_type());
+    lean_assert(f.get_implicit_arguments("g") == std::vector<unsigned>{0});
+    try {
+        f.mark_implicit_arguments("g", 1);
+        lean_unreachable();
+    } catch (exception & ex) {
+        std::cout << "Expected error: " << ex.what() << std::endl;
+    }
+    f.add_var("s", Pi({A, Type()}, A >> (A >> A)));
+    try {
+        f.mark_implicit_arguments("s", 4);
+        lean_unreachable();
+    } catch (exception & ex) {
+        std::cout << "Expected error: " << ex.what() << std::endl;
+    }
+    f.add_var(name{"h","explicit"}, Pi({A, Type()}, A >> (A >> A)));
+    f.add_var("h", Pi({A, Type()}, A >> (A >> A)));
+    try {
+        f.mark_implicit_arguments("h", 1);
+        lean_unreachable();
+    } catch (exception & ex) {
+        std::cout << "Expected error: " << ex.what() << std::endl;
+    }
+    try {
+        f.mark_implicit_arguments("u", 1);
+        lean_unreachable();
+    } catch (exception & ex) {
+        std::cout << "Expected error: " << ex.what() << std::endl;
+    }
+}
+
 int main() {
     tst1();
     tst2();
@@ -175,5 +215,6 @@ int main() {
     tst8();
     tst9();
     tst10();
+    tst11();
     return has_violations() ? 1 : 0;
 }

@@ -123,7 +123,7 @@ public:
        \brief Replace the metavariables occurring in \c e with the
        substitutions in this metaenvironment.
     */
-    expr instantiate_metavars(expr const & e);
+    expr instantiate_metavars(expr const & e, unsigned outer_offset = 0);
 
     /**
         \brief Return true iff the given expression is an available

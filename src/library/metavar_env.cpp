@@ -239,7 +239,7 @@ void metavar_env::assign(expr const & m, expr const & s, context const & ctx) {
     cell & mc = root_cell(m);
     lean_assert(is_metavar(mc.m_expr));
     lean_assert(metavar_idx(mc.m_expr) == mc.m_find);
-    expr _s = instantiate_metavars(s);
+    expr _s = instantiate_metavars(s, length(ctx));
     if (is_metavar(_s)) {
         // both are unassigned meta-variables...
         lean_assert(!is_assigned(_s));
@@ -262,7 +262,7 @@ void metavar_env::assign(expr const & m, expr const & s, context const & ctx) {
     lean_assert(check_invariant());
 }
 
-expr metavar_env::instantiate_metavars(expr const & e) {
+expr metavar_env::instantiate_metavars(expr const & e, unsigned outer_offset) {
     auto it = [&](expr const & c, unsigned offset) -> expr {
         if (is_metavar(c)) {
             unsigned midx = metavar_idx(c);
@@ -274,15 +274,18 @@ expr metavar_env::instantiate_metavars(expr const & e) {
                     switch (rc.m_state) {
                     case state::Unprocessed: {
                         rc.m_state = state::Processing;
-                        rc.m_expr  = instantiate_metavars(rc.m_expr);
+                        unsigned rc_len = length(rc.m_context);
+                        rc.m_expr  = instantiate_metavars(rc.m_expr, rc_len);
                         rc.m_state = state::Processed;
-                        lean_assert(length(rc.m_context) <= offset);
-                        return lift_free_vars(rc.m_expr, offset - length(rc.m_context));
+                        lean_assert(rc_len <= offset + outer_offset);
+                        return lift_free_vars(rc.m_expr, offset + outer_offset - rc_len);
                     }
                     case state::Processing: throw exception("cycle detected");
-                    case state::Processed:
-                        lean_assert(length(rc.m_context) <= offset);
-                        return lift_free_vars(rc.m_expr, offset - length(rc.m_context));
+                    case state::Processed: {
+                        unsigned rc_len = length(rc.m_context);
+                        lean_assert(rc_len <= offset + outer_offset);
+                        return lift_free_vars(rc.m_expr, offset + outer_offset - rc_len);
+                    }
                     }
                 }
             }

@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "test.h"
 #include "metavar_env.h"
 #include "elaborator.h"
+#include "free_vars.h"
 #include "printer.h"
 #include "occurs.h"
 #include "abstract.h"
@@ -246,10 +247,10 @@ static void tst6() {
     std::cout << uenv << "\n";
     uenv.unify(t1, t2, ctx2);
     std::cout << uenv << "\n";
-    std::cout << uenv.instantiate_metavars(t1) << "\n";
-    std::cout << uenv.instantiate_metavars(t2) << "\n";
-    lean_assert(uenv.instantiate_metavars(t1) == uenv.instantiate_metavars(t2));
-    lean_assert(uenv.instantiate_metavars(t2) == f(g(Var(0)), Var(0)));
+    std::cout << uenv.instantiate_metavars(t1,2) << "\n";
+    std::cout << uenv.instantiate_metavars(t2,1) << "\n";
+    lean_assert(uenv.instantiate_metavars(t1,2) == lift_free_vars(uenv.instantiate_metavars(t2,1),1));
+    lean_assert(uenv.instantiate_metavars(t2,1) == f(g(Var(0)),Var(0)));
     lean_assert(uenv.instantiate_metavars(m1) == A >> A);
     expr t3 = f(m2);
     expr t4 = f(m3);
@@ -552,9 +553,44 @@ static void tst17() {
             Fun({{A, Type()},{B,Type()},{a,B},{b,B},{C,Type()}}, eq(B,a,b)), env);
 }
 
+
+static void tst18() {
+    environment env = mk_toplevel();
+    expr a  = Const("a");
+    expr b  = Const("b");
+    expr c  = Const("c");
+    expr H1 = Const("H1");
+    expr H2 = Const("H2");
+    env.add_var("a", Bool);
+    env.add_var("b", Bool);
+    env.add_var("c", Bool);
+    expr _ = mk_placholder();
+    success(Fun({{H1, Eq(a,b)},{H2,Eq(b,c)}},
+                Trans(_,_,_,_,H1,H2)),
+            Fun({{H1, Eq(a,b)},{H2,Eq(b,c)}},
+                Trans(Bool,a,b,c,H1,H2)),
+            env);
+    expr H3 = Const("H3");
+    success(Fun({{H1, Eq(a,b)},{H2,Eq(b,c)},{H3,a}},
+                EqTIntro(_, EqMP(_,_,Symm(_,_,_,Trans(_,_,_,_,Symm(_,_,_,H2),Symm(_,_,_,H1))), H3))),
+            Fun({{H1, Eq(a,b)},{H2,Eq(b,c)},{H3,a}},
+                EqTIntro(c, EqMP(a,c,Symm(Bool,c,a,Trans(Bool,c,b,a,Symm(Bool,b,c,H2),Symm(Bool,a,b,H1))), H3))),
+            env);
+    environment env2 = mk_toplevel();
+    success(Fun({{a,Bool},{b,Bool},{c,Bool},{H1, Eq(a,b)},{H2,Eq(b,c)},{H3,a}},
+                EqTIntro(_, EqMP(_,_,Symm(_,_,_,Trans(_,_,_,_,Symm(_,_,_,H2),Symm(_,_,_,H1))), H3))),
+            Fun({{a,Bool},{b,Bool},{c,Bool},{H1, Eq(a,b)},{H2,Eq(b,c)},{H3,a}},
+                EqTIntro(c, EqMP(a,c,Symm(Bool,c,a,Trans(Bool,c,b,a,Symm(Bool,b,c,H2),Symm(Bool,a,b,H1))), H3))),
+            env2);
+    expr A = Const("A");
+    success(Fun({{A,Type()},{a,A},{b,A},{c,A},{H1, Eq(a,b)},{H2,Eq(b,c)}},
+                Symm(_,_,_,Trans(_,_,_,_,Symm(_,_,_,H2),Symm(_,_,_,H1)))),
+            Fun({{A,Type()},{a,A},{b,A},{c,A},{H1, Eq(a,b)},{H2,Eq(b,c)}},
+                Symm(A,c,a,Trans(A,c,b,a,Symm(A,b,c,H2),Symm(A,a,b,H1)))),
+            env2);
+}
+
 int main() {
-    tst17();
-    return 0;
     tst1();
     tst2();
     tst3();
@@ -571,5 +607,7 @@ int main() {
     tst14();
     tst15();
     tst16();
+    tst17();
+    tst18();
     return has_violations() ? 1 : 0;
 }

@@ -66,23 +66,17 @@ static name g_check_kwd("Check");
 static name g_infix_kwd("Infix");
 static name g_infixl_kwd("Infixl");
 static name g_infixr_kwd("Infixr");
-static name g_prefix_kwd("Prefix");
-static name g_postfix_kwd("Postfix");
-static name g_mixfixl_kwd("Mixfixl");
-static name g_mixfixr_kwd("Mixfixr");
-static name g_mixfixc_kwd("Mixfixc");
+static name g_notation_kwd("Notation");
 static name g_echo_kwd("Echo");
 static name g_set_kwd("Set");
 static name g_options_kwd("Options");
 static name g_env_kwd("Environment");
 static name g_import_kwd("Import");
 static name g_help_kwd("Help");
-static name g_notation_kwd("Notation");
 /** \brief Table/List with all builtin command keywords */
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
-                                        g_show_kwd, g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_prefix_kwd,
-                                        g_postfix_kwd, g_mixfixl_kwd, g_mixfixr_kwd, g_mixfixc_kwd, g_echo_kwd,
-                                        g_set_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd, g_notation_kwd};
+                                        g_show_kwd, g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_notation_kwd, g_echo_kwd,
+                                        g_set_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd};
 // ==========================================
 
 // ==========================================
@@ -1188,38 +1182,9 @@ class parser::imp {
         name name_id = check_identifier_next("invalid operator definition, identifier expected");
         expr d     = mk_constant(name_id);
         switch (fx) {
-        case fixity::Prefix:  m_frontend.add_prefix(op_id, prec, d); break;
-        case fixity::Postfix: m_frontend.add_postfix(op_id, prec, d); break;
         case fixity::Infix:   m_frontend.add_infix(op_id, prec, d); break;
         case fixity::Infixl:  m_frontend.add_infixl(op_id, prec, d); break;
         case fixity::Infixr:  m_frontend.add_infixr(op_id, prec, d); break;
-        default: lean_unreachable(); break;
-        }
-    }
-
-    /**
-        \brief Parse mixfix/mixfixl/mixfixr user operator definition.
-        These definitions have the form:
-
-        - fixity [NUM] ID ID+ ':' ID
-    */
-    void parse_mixfix_op(fixity fx) {
-        next();
-        unsigned prec = parse_precedence();
-        buffer<name> parts;
-        parts.push_back(parse_op_id());
-        parts.push_back(parse_op_id());
-        while (!curr_is_colon()) {
-            parts.push_back(parse_op_id());
-        }
-        lean_assert(curr_is_colon());
-        next();
-        name name_id = check_identifier_next("invalid operator definition, identifier expected");
-        expr d     = mk_constant(name_id);
-        switch (fx) {
-        case fixity::Mixfixl:  m_frontend.add_mixfixl(parts.size(), parts.data(), prec, d); break;
-        case fixity::Mixfixr:  m_frontend.add_mixfixr(parts.size(), parts.data(), prec, d); break;
-        case fixity::Mixfixc:  m_frontend.add_mixfixc(parts.size(), parts.data(), prec, d); break;
         default: lean_unreachable(); break;
         }
     }
@@ -1421,11 +1386,6 @@ class parser::imp {
         else if (cmd_id == g_infix_kwd)    parse_op(fixity::Infix);
         else if (cmd_id == g_infixl_kwd)   parse_op(fixity::Infixl);
         else if (cmd_id == g_infixr_kwd)   parse_op(fixity::Infixr);
-        else if (cmd_id == g_prefix_kwd)   parse_op(fixity::Prefix);
-        else if (cmd_id == g_postfix_kwd)  parse_op(fixity::Postfix);
-        else if (cmd_id == g_mixfixl_kwd)  parse_mixfix_op(fixity::Mixfixl);
-        else if (cmd_id == g_mixfixr_kwd)  parse_mixfix_op(fixity::Mixfixr);
-        else if (cmd_id == g_mixfixc_kwd)  parse_mixfix_op(fixity::Mixfixc);
         else if (cmd_id == g_notation_kwd) parse_notation_decl();
         else if (cmd_id == g_echo_kwd)     parse_echo();
         else if (cmd_id == g_set_kwd)      parse_set();

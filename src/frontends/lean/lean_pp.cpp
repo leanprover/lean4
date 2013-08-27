@@ -495,9 +495,11 @@ class pp_fn {
         case fixity::Prefix: case fixity::Postfix:
             return app.get_num_args() == 1;
         case fixity::Mixfixl: case fixity::Mixfixr:
-            return app.get_num_args() == length(op.get_op_name_parts()) + 1;
-        case fixity::Mixfixc:
             return app.get_num_args() == length(op.get_op_name_parts());
+        case fixity::Mixfixc:
+            return app.get_num_args() == length(op.get_op_name_parts()) - 1;
+        case fixity::Mixfixo:
+            return app.get_num_args() == length(op.get_op_name_parts()) + 1;
         }
         lean_unreachable();
         return false;
@@ -530,14 +532,22 @@ class pp_fn {
                 p_arg = pp_mixfix_child(op, app.get_arg(0), depth);
                 return mk_result(group(format{p_arg.first, space(), format(op.get_op_name())}),
                                  p_arg.second + 1);
-            case fixity::Mixfixr: {
+            case fixity::Mixfixr: case fixity::Mixfixo: {
                 // _ ID ... _ ID
+                // _ ID ... _ ID _
                 list<name> parts = op.get_op_name_parts();
                 auto it = parts.begin();
                 unsigned num = app.get_num_args();
                 for (unsigned i = 0; i < num; i++) {
                     result p_arg = pp_mixfix_child(op, app.get_arg(i), depth);
-                    r_format += format{p_arg.first, space(), format(*it), line()};
+                    if (i == num - 1) {
+                        if (op.get_fixity() == fixity::Mixfixo)
+                            r_format += p_arg.first;
+                        else
+                            r_format += format{p_arg.first, space(), format(*it)};
+                    } else {
+                        r_format += format{p_arg.first, space(), format(*it), line()};
+                    }
                     r_weight += p_arg.second;
                     ++it;
                 }

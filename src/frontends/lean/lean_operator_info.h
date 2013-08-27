@@ -21,8 +21,9 @@ namespace lean {
    Mixfixl: ID _ ID _ ... ID _       (has at least two parts)
    Mixfixr: _ ID _ ID ... _ ID       (has at least two parts)
    Mixfixc: ID _ ID _ ... ID _ ID    (has at least two parts)
+   Mixfixo:  _ ID _ ... ID _         (has at least two parts)
 */
-enum class fixity { Prefix, Infix, Infixl, Infixr, Postfix, Mixfixl, Mixfixr, Mixfixc };
+enum class fixity { Prefix, Infix, Infixl, Infixr, Postfix, Mixfixl, Mixfixr, Mixfixc, Mixfixo };
 
 /**
    \brief Data-structure for storing user defined operator
@@ -54,6 +55,7 @@ public:
     friend operator_info mixfixl(unsigned num_parts, name const * parts, unsigned precedence);
     friend operator_info mixfixr(unsigned num_parts, name const * parts, unsigned precedence);
     friend operator_info mixfixc(unsigned num_parts, name const * parts, unsigned precedence);
+    friend operator_info mixfixo(unsigned num_parts, name const * parts, unsigned precedence);
 
     /** \brief Associate a denotation (expression) with this operator. */
     void add_expr(expr const & n);
@@ -95,9 +97,11 @@ operator_info postfix(name const & op, unsigned precedence);
 operator_info mixfixl(unsigned num_parts, name const * parts, unsigned precedence);
 operator_info mixfixr(unsigned num_parts, name const * parts, unsigned precedence);
 operator_info mixfixc(unsigned num_parts, name const * parts, unsigned precedence);
+operator_info mixfixo(unsigned num_parts, name const * parts, unsigned precedence);
 inline operator_info mixfixl(std::initializer_list<name> const & l, unsigned precedence) { return mixfixl(l.size(), l.begin(), precedence); }
 inline operator_info mixfixr(std::initializer_list<name> const & l, unsigned precedence) { return mixfixr(l.size(), l.begin(), precedence); }
 inline operator_info mixfixc(std::initializer_list<name> const & l, unsigned precedence) { return mixfixc(l.size(), l.begin(), precedence); }
+inline operator_info mixfixo(std::initializer_list<name> const & l, unsigned precedence) { return mixfixo(l.size(), l.begin(), precedence); }
 
 format pp(operator_info const & o);
 std::ostream & operator<<(std::ostream & out, operator_info const & o);

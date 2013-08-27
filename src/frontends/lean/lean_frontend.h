@@ -84,6 +84,7 @@ public:
     void add_mixfixl(unsigned sz, name const * opns, unsigned precedence, expr const & d);
     void add_mixfixr(unsigned sz, name const * opns, unsigned precedence, expr const & d);
     void add_mixfixc(unsigned sz, name const * opns, unsigned precedence, expr const & d);
+    void add_mixfixo(unsigned sz, name const * opns, unsigned precedence, expr const & d);
     /**
         \brief Return the operator (if one exists) associated with the
         given expression.

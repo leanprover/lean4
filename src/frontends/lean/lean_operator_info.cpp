@@ -100,6 +100,9 @@ operator_info mixfixr(unsigned num_parts, name const * parts, unsigned precedenc
 operator_info mixfixc(unsigned num_parts, name const * parts, unsigned precedence) {
     lean_assert(num_parts > 1); return operator_info(new operator_info::imp(num_parts, parts, fixity::Mixfixc, precedence));
 }
+operator_info mixfixo(unsigned num_parts, name const * parts, unsigned precedence) {
+    lean_assert(num_parts > 1); return operator_info(new operator_info::imp(num_parts, parts, fixity::Mixfixo, precedence));
+}
 
 char const * to_string(fixity f) {
     switch (f) {
@@ -111,6 +114,7 @@ char const * to_string(fixity f) {
     case fixity::Mixfixl: return "Mixfixl";
     case fixity::Mixfixr: return "Mixfixr";
     case fixity::Mixfixc: return "Mixfixc";
+    case fixity::Mixfixo: return "Mixfixo";
     }
     lean_unreachable();
     return 0;

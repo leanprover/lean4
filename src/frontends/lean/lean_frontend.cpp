@@ -192,6 +192,7 @@ struct frontend::imp {
     void add_mixfixl(unsigned sz, name const * opns, unsigned p, expr const & d) { add_op(mixfixl(sz, opns, p), d, false); }
     void add_mixfixr(unsigned sz, name const * opns, unsigned p, expr const & d) { add_op(mixfixr(sz, opns, p), d, true);  }
     void add_mixfixc(unsigned sz, name const * opns, unsigned p, expr const & d) { add_op(mixfixc(sz, opns, p), d, false); }
+    void add_mixfixo(unsigned sz, name const * opns, unsigned p, expr const & d) { add_op(mixfixo(sz, opns, p), d, false); }
 
     void mark_implicit_arguments(name const & n, unsigned sz, bool const * implicit) {
         if (has_children())
@@ -326,6 +327,7 @@ void frontend::add_postfix(name const & opn, unsigned p, expr const & d) { m_imp
 void frontend::add_mixfixl(unsigned sz, name const * opns, unsigned p, expr const & d) { m_imp->add_mixfixl(sz, opns, p, d); }
 void frontend::add_mixfixr(unsigned sz, name const * opns, unsigned p, expr const & d) { m_imp->add_mixfixr(sz, opns, p, d); }
 void frontend::add_mixfixc(unsigned sz, name const * opns, unsigned p, expr const & d) { m_imp->add_mixfixc(sz, opns, p, d); }
+void frontend::add_mixfixo(unsigned sz, name const * opns, unsigned p, expr const & d) { m_imp->add_mixfixo(sz, opns, p, d); }
 operator_info frontend::find_op_for(expr const & n) const { return m_imp->find_op_for(n); }
 operator_info frontend::find_nud(name const & n) const { return m_imp->find_nud(n); }
 operator_info frontend::find_led(name const & n) const { return m_imp->find_led(n); }

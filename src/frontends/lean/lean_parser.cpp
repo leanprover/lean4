@@ -477,7 +477,11 @@ class parser::imp {
         check_name_next(op_part, "invalid mixfix operator application, identifier expected");
     }
 
-    /** \brief Auxiliary function for #parse_mixfixl and #parse_mixfixr */
+    /**
+        \brief Auxiliary function for #parse_mixfixl and #parse_mixfixr
+
+        It parses (ID _)*
+    */
     void parse_mixfix_args(list<name> const & ops, unsigned prec, buffer<expr> & args) {
         auto it = ops.begin();
         ++it;
@@ -499,6 +503,15 @@ class parser::imp {
 
     /** \brief Parse user defined mixfixr operator. It has the form: _ ID ... _ ID */
     expr parse_mixfixr(expr const & left, operator_info const & op) {
+        auto p = pos();
+        buffer<expr> args;
+        args.push_back(left);
+        parse_mixfix_args(op.get_op_name_parts(), op.get_precedence(), args);
+        return mk_application(op, p, args);
+    }
+
+    /** \brief Parse user defined mixfixr operator. It has the form: _ ID ... _ ID _ */
+    expr parse_mixfixo(expr const & left, operator_info const & op) {
         auto p = pos();
         buffer<expr> args;
         args.push_back(left);
@@ -619,6 +632,7 @@ class parser::imp {
                 case fixity::Infixl:  return parse_infixl(left, op);
                 case fixity::Infixr:  return parse_infixr(left, op);
                 case fixity::Mixfixr: return parse_mixfixr(left, op);
+                case fixity::Mixfixo: return parse_mixfixo(left, op);
                 default: lean_unreachable(); return expr();
                 }
             } else {

@@ -32,13 +32,13 @@ static void tst2() {
     operator_info op3 = infixl(name("+"), 10);
     op3.add_expr(Const(name{"Int", "plus"}));
     op3.add_expr(Const(name{"Real", "plus"}));
-    std::cout << op3.get_exprs() << "\n";
-    lean_assert(length(op3.get_exprs()) == 2);
+    std::cout << op3.get_denotations() << "\n";
+    lean_assert(length(op3.get_denotations()) == 2);
     operator_info op4 = op3.copy();
     op4.add_expr(Const(name{"Complex", "plus"}));
-    std::cout << op4.get_exprs() << "\n";
-    lean_assert(length(op3.get_exprs()) == 2);
-    lean_assert(length(op4.get_exprs()) == 3);
+    std::cout << op4.get_denotations() << "\n";
+    lean_assert(length(op3.get_denotations()) == 2);
+    lean_assert(length(op4.get_denotations()) == 3);
     lean_assert(op4.get_fixity() == fixity::Infixl);
     lean_assert(op4.get_op_name() == op3.get_op_name());
     lean_assert(prefix("tst", 20).get_fixity() == fixity::Prefix);

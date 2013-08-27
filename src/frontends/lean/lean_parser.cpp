@@ -390,7 +390,7 @@ class parser::imp {
        resolve/decide which f_i should be used.
     */
     expr mk_fun(operator_info const & op) {
-        list<expr> const & fs = op.get_exprs();
+        list<expr> const & fs = op.get_denotations();
         lean_assert(!is_nil(fs));
         auto it = fs.begin();
         expr r = *it;
@@ -410,7 +410,7 @@ class parser::imp {
         new_args.push_back(f);
         // I'm using the fact that all denotations are compatible.
         // See lean_frontend.cpp for the definition of compatible denotations.
-        expr const & d = head(op.get_exprs());
+        expr const & d = head(op.get_denotations());
         if (is_constant(d) && m_frontend.has_implicit_arguments(const_name(d))) {
             std::vector<bool> const & imp_args = m_frontend.get_implicit_arguments(const_name(d));
             unsigned i = 0;

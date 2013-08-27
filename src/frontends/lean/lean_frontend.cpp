@@ -99,7 +99,7 @@ struct frontend::imp {
 
     /** \brief Remove all internal denotations that are associated with the given operator symbol (aka notation) */
     void remove_bindings(operator_info const & op) {
-        for (expr const & d : op.get_exprs()) {
+        for (expr const & d : op.get_denotations()) {
             if (has_parent() && m_parent->find_op_for(d)) {
                 // parent has an association for d... we must hide it.
                 insert(m_expr_to_operator, d, operator_info());
@@ -141,7 +141,7 @@ struct frontend::imp {
         arguments should occur in the same positions.
     */
     bool compatible_denotations(operator_info const & op, expr const & d) {
-        return std::all_of(op.get_exprs().begin(), op.get_exprs().end(), [&](expr const & prev_d) { return compatible_denotation(prev_d, d); });
+        return std::all_of(op.get_denotations().begin(), op.get_denotations().end(), [&](expr const & prev_d) { return compatible_denotation(prev_d, d); });
     }
 
     /**

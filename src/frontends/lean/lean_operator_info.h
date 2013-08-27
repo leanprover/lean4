@@ -62,12 +62,12 @@ public:
     bool is_overloaded() const;
 
     /**
-       \brief Return the list of expressions for this operator.
+       \brief Return the list of denotations for this operator.
        The list has size greater than 1 iff the operator has been
        overloaded.
        These are the possible interpretations for the operator.
     */
-    list<expr> const & get_exprs() const;
+    list<expr> const & get_denotations() const;
 
     /** \brief Return the operator fixity. */
     fixity get_fixity() const;

@@ -55,7 +55,7 @@ void operator_info::add_expr(expr const & d) { lean_assert(m_ptr); m_ptr->m_expr
 
 bool operator_info::is_overloaded() const { return m_ptr && !is_nil(m_ptr->m_exprs) && !is_nil(cdr(m_ptr->m_exprs)); }
 
-list<expr> const & operator_info::get_exprs() const { lean_assert(m_ptr); return m_ptr->m_exprs; }
+list<expr> const & operator_info::get_denotations() const { lean_assert(m_ptr); return m_ptr->m_exprs; }
 
 fixity operator_info::get_fixity() const { lean_assert(m_ptr); return m_ptr->m_fixity; }
 

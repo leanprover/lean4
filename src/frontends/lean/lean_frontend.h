@@ -134,9 +134,9 @@ public:
     */
     void mark_implicit_arguments(name const & n, unsigned sz, unsigned * implicit);
     /** \brief Return true iff \c n has implicit arguments */
-    bool has_implicit_arguments(name const & n);
+    bool has_implicit_arguments(name const & n) const;
     /** \brief Return the position of the arguments that are implicit. */
-    std::vector<unsigned> const & get_implicit_arguments(name const & n);
+    std::vector<unsigned> const & get_implicit_arguments(name const & n) const;
     /**
         \brief This frontend associates an definition with each
         definition (or postulate) that has implicit arguments. The
@@ -145,7 +145,7 @@ public:
         frontend can't figure out the value for the implicit
         arguments.
     */
-    name const & get_explicit_version(name const & n);
+    name const & get_explicit_version(name const & n) const;
     /*@}*/
 
     /**

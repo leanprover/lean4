@@ -100,6 +100,7 @@ static name g_nu("\u03BD");
    The resultant name is based on abst_name(e).
 */
 name get_unused_name(expr const & e) {
+    lean_assert(is_abstraction(e) || is_let(e));
     name const & n = is_abstraction(e) ? abst_name(e) : let_name(e);
     name n1    = n;
     unsigned i = 1;
@@ -561,6 +562,10 @@ class pp_fn {
         return r;
     }
 
+    bool is_implicit(std::vector<unsigned> const * implicit_args, unsigned arg_pos) {
+        return implicit_args && std::find(implicit_args->begin(), implicit_args->end(), arg_pos) != implicit_args->end();
+    }
+
     /**
        \brief Pretty print Lambdas, Pis and compact definitions.
        When T != 0, it is a compact definition.
@@ -578,8 +583,8 @@ class pp_fn {
 
        \remark if T != 0, then T is Pi(x : A), B
     */
-    result pp_abstraction_core(expr const & e, unsigned depth, expr T) {
-        if (is_arrow(e)) {
+    result pp_abstraction_core(expr const & e, unsigned depth, expr T, std::vector<unsigned> const * implicit_args = nullptr) {
+        if (is_arrow(e) && !implicit_args) {
             lean_assert(!T);
             result p_lhs    = pp_child(abst_domain(e), depth);
             result p_rhs    = pp_arrow_body(abst_body(e), depth);
@@ -592,7 +597,7 @@ class pp_fn {
             T = p.second;
             unsigned head_indent = m_indent;
             format head;
-            if (!T) {
+            if (!T && !implicit_args) {
                 if (m_notation) {
                     head = is_lambda(e) ? g_lambda_n_fmt : g_Pi_n_fmt;
                     head_indent = 2;
@@ -605,11 +610,15 @@ class pp_fn {
             if (T) {
                 format T_f = pp(T, 0).first;
                 body_sep = format{space(), colon(), space(), T_f, space(), g_assign_fmt};
+            } else if (implicit_args) {
+                // This is a little hack to pretty print Variable and
+                // Axiom declarations that contain implicit arguments
+                body_sep = compose(space(), colon());
             } else {
                 body_sep = comma();
             }
             expr domain0 = nested[0].second;
-            if (std::all_of(nested.begin() + 1, nested.end(), [&](std::pair<name, expr> const & p) { return p.second == domain0; })) {
+            if (std::all_of(nested.begin() + 1, nested.end(), [&](std::pair<name, expr> const & p) { return p.second == domain0; }) && !implicit_args) {
                 // Domain of all binders is the same
                 format names    = pp_bnames(nested.begin(), nested.end(), false);
                 result p_domain = pp_scoped_child(domain0, depth);
@@ -623,18 +632,24 @@ class pp_fn {
                 auto it  = nested.begin();
                 auto end = nested.end();
                 unsigned r_weight = 1;
+                unsigned arg_pos  = 0;
                 // PP binders in blocks (names ... : type)
                 bool first = true;
                 format bindings;
                 while (it != end) {
                     auto it2 = it;
                     ++it2;
-                    while (it2 != end && it2->second == it->second) {
+                    bool implicit = is_implicit(implicit_args, arg_pos);
+                    ++arg_pos;
+                    while (it2 != end && it2->second == it->second && implicit == is_implicit(implicit_args, arg_pos)) {
                         ++it2;
+                        ++arg_pos;
                     }
                     result p_domain = pp_scoped_child(it->second, depth);
                     r_weight += p_domain.second;
-                    format block = group(nest(m_indent, format{lp(), pp_bnames(it, it2, true), space(), colon(), space(), p_domain.first, rp()}));
+                    format const & par_open  = implicit ? lcurly() : lp();
+                    format const & par_close = implicit ? rcurly() : rp();
+                    format block = group(nest(m_indent, format{par_open, pp_bnames(it, it2, true), space(), colon(), space(), p_domain.first, par_close}));
                     if (first) {
                         bindings = block;
                         first = false;
@@ -807,10 +822,15 @@ public:
         return pp_scoped_child(e, 0).first;
     }
 
-    format pp_definition(expr const & v, expr const & t) {
+    format pp_definition(expr const & v, expr const & t, std::vector<unsigned> const * implicit_args) {
         init(mk_app(v, t));
         expr T(t);
-        return pp_abstraction_core(v, 0, T).first;
+        return pp_abstraction_core(v, 0, T, implicit_args).first;
+    }
+
+    format pp_pi_with_implicit_args(expr const & e, std::vector<unsigned> const & implicit_args) {
+        init(e);
+        return pp_abstraction_core(e, 0, expr(), &implicit_args).first;
     }
 
     void set_interrupt(bool flag) {
@@ -881,9 +901,12 @@ class pp_formatter_cell : public formatter_cell {
             return pp_definition(kwd, n, t, v, opts);
         } else {
             lean_assert(is_lambda(v));
+            std::vector<unsigned> const * implicit_args = nullptr;
+            if (m_frontend.has_implicit_arguments(n))
+                implicit_args = &(m_frontend.get_implicit_arguments(n));
             pp_fn fn(m_frontend, opts);
             scoped_set_interruptable_ptr<pp_fn> set(m_pp_fn, &fn);
-            format def = fn.pp_definition(v, t);
+            format def = fn.pp_definition(v, t, implicit_args);
             return format{highlight_command(format(kwd)), space(), format(n), def};
         }
     }
@@ -893,7 +916,17 @@ class pp_formatter_cell : public formatter_cell {
     }
 
     format pp_postulate(object const & obj, options const & opts) {
-        return format{highlight_command(format(obj.keyword())), space(), format(obj.get_name()), space(), colon(), space(), pp(obj.get_type(), opts)};
+        char const * kwd = obj.keyword();
+        name const & n = obj.get_name();
+        format r = format{highlight_command(format(kwd)), space(), format(n)};
+        if (m_frontend.has_implicit_arguments(n)) {
+            pp_fn fn(m_frontend, opts);
+            scoped_set_interruptable_ptr<pp_fn> set(m_pp_fn, &fn);
+            r += fn.pp_pi_with_implicit_args(obj.get_type(), m_frontend.get_implicit_arguments(n));
+        } else {
+            r += format{space(), colon(), space(), pp(obj.get_type(), opts)};
+        }
+        return r;
     }
 
     format pp_definition(object const & obj, options const & opts) {
@@ -929,8 +962,8 @@ public:
             expr c2   = context_to_lambda(c, e);
             while (is_fake_context(c2)) {
                 check_interrupted(m_interrupted);
+                name n1 = get_unused_name(c2);
                 expr const & rest = fake_context_rest(c2);
-                name n1 = get_unused_name(rest);
                 c2 = instantiate_with_closed(rest, mk_constant(n1));
             }
             return pp(c2, opts);

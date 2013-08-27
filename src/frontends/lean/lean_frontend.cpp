@@ -306,10 +306,9 @@ void frontend::mark_implicit_arguments(name const & n, unsigned num) {
     mark_implicit_arguments(n, tmp.size(), tmp.data());
 }
 void frontend::mark_implicit_arguments(name const & n, unsigned sz, unsigned * implicit) { m_imp->mark_implicit_arguments(n, sz, implicit); }
-bool frontend::has_implicit_arguments(name const & n) { return m_imp->has_implicit_arguments(n); }
-std::vector<unsigned> const & frontend::get_implicit_arguments(name const & n) { return m_imp->get_implicit_arguments(n); }
-name const & frontend::get_explicit_version(name const & n) { return m_imp->get_explicit_version(n); }
-
+bool frontend::has_implicit_arguments(name const & n) const { return m_imp->has_implicit_arguments(n); }
+std::vector<unsigned> const & frontend::get_implicit_arguments(name const & n) const { return m_imp->get_implicit_arguments(n); }
+name const & frontend::get_explicit_version(name const & n) const { return m_imp->get_explicit_version(n); }
 
 state const & frontend::get_state() const { return m_imp->m_state; }
 state & frontend::get_state_core() { return m_imp->m_state; }

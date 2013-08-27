@@ -133,30 +133,20 @@ static format g_line(mk_line());
 static format g_space(" ");
 static format g_lp("(");
 static format g_rp(")");
+static format g_lcurly("{");
+static format g_rcurly("}");
 static format g_comma(",");
 static format g_colon(":");
 static format g_dot(".");
-format const & line() {
-    return g_line;
-}
-format const & space() {
-    return g_space;
-}
-format const & lp() {
-    return g_lp;
-}
-format const & rp() {
-    return g_rp;
-}
-format const & comma() {
-    return g_comma;
-}
-format const & colon() {
-    return g_colon;
-}
-format const & dot() {
-    return g_dot;
-}
+format const & line() { return g_line; }
+format const & space() { return g_space; }
+format const & lp() { return g_lp; }
+format const & rp() { return g_rp; }
+format const & lcurly() { return g_lcurly; }
+format const & rcurly() { return g_rcurly; }
+format const & comma() { return g_comma; }
+format const & colon() { return g_colon; }
+format const & dot() { return g_dot; }
 // Auxiliary flag used to mark whether flatten
 // produce a different sexpr
 static bool thread_local g_diff_flatten = false;

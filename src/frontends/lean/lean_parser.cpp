@@ -1298,8 +1298,6 @@ class parser::imp {
 
     /** \brief Parse a Lean command. */
     void parse_command() {
-        if (m_interactive && !m_use_exceptions)
-            reset_interrupt();
         m_elaborator.clear();
         m_expr_pos_info.clear();
         m_last_cmd_pos = pos();
@@ -1419,6 +1417,7 @@ public:
             } catch (interrupted & ex) {
                 if (m_verbose)
                     regular(m_frontend) << "\n!!!Interrupted!!!" << endl;
+                reset_interrupt();
                 sync();
                 if (m_use_exceptions)
                     throw;

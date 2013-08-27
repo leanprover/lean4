@@ -120,23 +120,15 @@ public:
        @name Implicit arguments.
     */
     /**
-       \brief Mark the first \c num arguments of the definition (or
-       postulate) named \c n as implicit.
-
-       It throws an exception if \c n already has implicit arguments
-       markups; or if \c n is not a definition or postulate; or if
-       the number of arguments of \c n is less than \c num.
-    */
-    void mark_implicit_arguments(name const & n, unsigned num);
-    /**
        \brief Mark the given arguments of \c n as implicit.
-       The array specify the position of the implicit arguments.
+       The bit-vector array specify the position of the implicit arguments.
     */
-    void mark_implicit_arguments(name const & n, unsigned sz, unsigned * implicit);
+    void mark_implicit_arguments(name const & n, unsigned sz, bool const * mask);
+    void mark_implicit_arguments(name const & n, std::initializer_list<bool> const & l);
     /** \brief Return true iff \c n has implicit arguments */
     bool has_implicit_arguments(name const & n) const;
     /** \brief Return the position of the arguments that are implicit. */
-    std::vector<unsigned> const & get_implicit_arguments(name const & n) const;
+    std::vector<bool> const & get_implicit_arguments(name const & n) const;
     /**
         \brief This frontend associates an definition with each
         definition (or postulate) that has implicit arguments. The

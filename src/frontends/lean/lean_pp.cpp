@@ -178,10 +178,13 @@ class pp_fn {
     }
 
     result pp_constant(expr const & e) {
+        name const & n = const_name(e);
         if (is_metavar(e)) {
             return mk_result(format("_"), 1);
+        } else if (m_frontend.has_implicit_arguments(n)) {
+            return mk_result(format(m_frontend.get_explicit_version(n)), 1);
         } else {
-            return mk_result(::lean::pp(const_name(e)), 1);
+            return mk_result(format(n), 1);
         }
     }
 
@@ -478,15 +481,47 @@ class pp_fn {
             return pp_exists(e, depth);
         } else {
             // standard function application
-            result p    = pp_child(arg(e, 0), depth);
-            bool simple = is_constant(arg(e, 0)) && const_name(arg(e, 0)).size() <= m_indent + 4;
-            unsigned indent = simple ? const_name(arg(e, 0)).size()+1 : m_indent;
-            format   r_format = p.first;
-            unsigned r_weight = p.second;
+            expr f = arg(e, 0);
+            std::vector<bool> const * implicit_args = nullptr;
+            format   r_format;
+            unsigned r_weight;
+            bool simple     = false;
+            unsigned indent = m_indent;
+            if (is_constant(f)) {
+                name const & n = const_name(f);
+                simple = const_name(f).size() <= m_indent + 4;
+                indent = simple ? const_name(f).size()+1 : m_indent;
+                if (m_frontend.has_implicit_arguments(n)) {
+                    implicit_args = &(m_frontend.get_implicit_arguments(n));
+                    lean_assert(implicit_args->size() != 0);
+                    if (m_implict || num_args(e) - 1 < implicit_args->size()) {
+                        // If implicit arguments should be displayed, or
+                        // If we do not have enough arguments, then
+                        // we use the explicit representation
+                        implicit_args = nullptr;
+                        // we should use the explicit version of the
+                        // definition, since we are not hiding implicit arguments
+                        r_format = format(m_frontend.get_explicit_version(n));
+                        simple   = false;
+                        indent   = m_indent;
+                    } else {
+                        r_format = format(n);
+                    }
+                } else {
+                    r_format = format(n);
+                }
+                r_weight = 1;
+            } else {
+                result p = pp_child(f, depth);
+                r_format = p.first;
+                r_weight = p.second;
+            }
             for (unsigned i = 1; i < num_args(e); i++) {
-                result p_arg = pp_child(arg(e, i), depth);
-                r_format += format{i == 1 && simple ? space() : line(), p_arg.first};
-                r_weight += p_arg.second;
+                if (!is_implicit(implicit_args, i-1)) {
+                    result p_arg = pp_child(arg(e, i), depth);
+                    r_format += format{i == 1 && simple ? space() : line(), p_arg.first};
+                    r_weight += p_arg.second;
+                }
             }
             return mk_result(group(nest(indent, r_format)), r_weight);
         }
@@ -562,8 +597,8 @@ class pp_fn {
         return r;
     }
 
-    bool is_implicit(std::vector<unsigned> const * implicit_args, unsigned arg_pos) {
-        return implicit_args && std::find(implicit_args->begin(), implicit_args->end(), arg_pos) != implicit_args->end();
+    bool is_implicit(std::vector<bool> const * implicit_args, unsigned arg_pos) {
+        return implicit_args && (*implicit_args)[arg_pos];
     }
 
     /**
@@ -583,7 +618,7 @@ class pp_fn {
 
        \remark if T != 0, then T is Pi(x : A), B
     */
-    result pp_abstraction_core(expr const & e, unsigned depth, expr T, std::vector<unsigned> const * implicit_args = nullptr) {
+    result pp_abstraction_core(expr const & e, unsigned depth, expr T, std::vector<bool> const * implicit_args = nullptr) {
         if (is_arrow(e) && !implicit_args) {
             lean_assert(!T);
             result p_lhs    = pp_child(abst_domain(e), depth);
@@ -822,13 +857,13 @@ public:
         return pp_scoped_child(e, 0).first;
     }
 
-    format pp_definition(expr const & v, expr const & t, std::vector<unsigned> const * implicit_args) {
+    format pp_definition(expr const & v, expr const & t, std::vector<bool> const * implicit_args) {
         init(mk_app(v, t));
         expr T(t);
         return pp_abstraction_core(v, 0, T, implicit_args).first;
     }
 
-    format pp_pi_with_implicit_args(expr const & e, std::vector<unsigned> const & implicit_args) {
+    format pp_pi_with_implicit_args(expr const & e, std::vector<bool> const & implicit_args) {
         init(e);
         return pp_abstraction_core(e, 0, expr(), &implicit_args).first;
     }
@@ -901,7 +936,7 @@ class pp_formatter_cell : public formatter_cell {
             return pp_definition(kwd, n, t, v, opts);
         } else {
             lean_assert(is_lambda(v));
-            std::vector<unsigned> const * implicit_args = nullptr;
+            std::vector<bool> const * implicit_args = nullptr;
             if (m_frontend.has_implicit_arguments(n))
                 implicit_args = &(m_frontend.get_implicit_arguments(n));
             pp_fn fn(m_frontend, opts);

@@ -31,7 +31,7 @@ int main(int argc, char ** argv) {
         frontend f;
         for (int i = 1; i < argc; i++) {
             std::ifstream in(argv[i]);
-            parser p(f, in);
+            parser p(f, in, false, false);
             if (!p())
                 ok = false;
         }

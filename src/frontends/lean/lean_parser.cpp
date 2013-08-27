@@ -522,26 +522,16 @@ class parser::imp {
             object_kind k      = obj.kind();
             if (k == object_kind::Definition || k == object_kind::Postulate) {
                 if (m_frontend.has_implicit_arguments(obj.get_name())) {
-                    std::vector<unsigned> const & imp_args = m_frontend.get_implicit_arguments(obj.get_name());
-                    unsigned sz = imp_args.size();
-                    lean_assert(sz > 1);
+                    std::vector<bool> const & imp_args = m_frontend.get_implicit_arguments(obj.get_name());
                     buffer<expr> args;
-                    args.push_back(mk_constant(obj.get_name()));
-                    if (is_imp_arg_prefix(imp_args)) {
-                        for (unsigned i = 0; i < sz; i++) {
+                    args.push_back(save(mk_constant(obj.get_name()), pos()));
+                    // We parse all the arguments to make sure we
+                    // get all explicit arguments.
+                    for (unsigned i = 0; i < imp_args.size(); i++) {
+                        if (imp_args[i]) {
                             args.push_back(save(mk_metavar(), pos()));
-                        }
-                    } else {
-                        // implicit arguments for id are not just a prefix.
-                        // So, we also parse all explicit arguments
-                        // that occur between implicit arguments.
-                        unsigned last_imp_arg = imp_args[sz-1];
-                        for (unsigned i = 0; i <= last_imp_arg; i++) {
-                            if (std::find(imp_args.begin(), imp_args.end(), i) != imp_args.end()) {
-                                args.push_back(save(mk_metavar(), pos()));
-                            } else {
-                                args.push_back(parse_expr(1));
-                            }
+                        } else {
+                            args.push_back(parse_expr(1));
                         }
                     }
                     return mk_app(args.size(), args.data());
@@ -965,12 +955,14 @@ class parser::imp {
         is a flag indiciating whether the argument is implicit or not.
     */
     void register_implicit_arguments(name const & n, buffer<std::tuple<pos_info, name, expr,bool>> & bindings) {
-        buffer<unsigned> imp_args;
+        bool found = false;
+        buffer<bool> imp_args;
         for (unsigned i = 0; i < bindings.size(); i++) {
-            if (std::get<3>(bindings[i]))
-                imp_args.push_back(i);
+            imp_args.push_back(std::get<3>(bindings[i]));
+            if (imp_args.back())
+                found = true;
         }
-        if (!imp_args.empty())
+        if (found)
             m_frontend.mark_implicit_arguments(n, imp_args.size(), imp_args.data());
     }
 

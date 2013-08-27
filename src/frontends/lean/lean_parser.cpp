@@ -400,43 +400,72 @@ class parser::imp {
         return r;
     }
 
+    /**
+       \brief Create an application for the given operator and
+       (explicit) arguments.
+    */
+    expr mk_application(operator_info const & op, pos_info const & pos, unsigned num_args, expr const * args) {
+        buffer<expr> new_args;
+        expr f = save(mk_fun(op), pos);
+        new_args.push_back(f);
+        // I'm using the fact that all denotations are compatible.
+        // See lean_frontend.cpp for the definition of compatible denotations.
+        expr const & d = head(op.get_exprs());
+        if (is_constant(d) && m_frontend.has_implicit_arguments(const_name(d))) {
+            std::vector<bool> const & imp_args = m_frontend.get_implicit_arguments(const_name(d));
+            unsigned i = 0;
+            for (unsigned j = 0; j < imp_args.size(); j++) {
+                if (imp_args[j]) {
+                    new_args.push_back(save(mk_metavar(), pos));
+                } else {
+                    if (i >= num_args)
+                        throw parser_error(sstream() << "unexpected number of arguments for denotation with implicit arguments, it expects " << num_args << " explicit argument(s)", pos);
+                    new_args.push_back(args[i]);
+                    i++;
+                }
+            }
+        } else {
+            new_args.append(num_args, args);
+        }
+        return save(mk_app(new_args.size(), new_args.data()), pos);
+    }
+    expr mk_application(operator_info const & op, pos_info const & pos, std::initializer_list<expr> const & l) {
+        return mk_application(op, pos, l.size(), l.begin());
+    }
+    expr mk_application(operator_info const & op, pos_info const & pos, expr const & arg) {
+        return mk_application(op, pos, 1, &arg);
+    }
+    expr mk_application(operator_info const & op, pos_info const & pos, buffer<expr> const & args) {
+        return mk_application(op, pos, args.size(), args.data());
+    }
+
     /** \brief Parse a user defined prefix operator. */
     expr parse_prefix(operator_info const & op) {
         auto p = pos();
-        expr f = save(mk_fun(op), p);
-        expr arg = parse_expr(op.get_precedence());
-        return save(mk_app(f, arg), p);
+        return mk_application(op, p, parse_expr(op.get_precedence()));
     }
 
     /** \brief Parse a user defined postfix operator. */
     expr parse_postfix(expr const & left, operator_info const & op) {
-        auto p = pos();
-        expr f = save(mk_fun(op), p);
-        return save(mk_app(f, left), p);
+        return mk_application(op, pos(), left);
     }
 
     /** \brief Parse a user defined infix operator. */
     expr parse_infix(expr const & left, operator_info const & op) {
         auto p = pos();
-        expr f = save(mk_fun(op), p);
-        expr right = parse_expr(op.get_precedence()+1);
-        return save(mk_app(f, left, right), p);
+        return mk_application(op, p, {left, parse_expr(op.get_precedence()+1)});
     }
 
     /** \brief Parse a user defined infix-left operator. */
     expr parse_infixl(expr const & left, operator_info const & op) {
         auto p = pos();
-        expr f = save(mk_fun(op), p);
-        expr right = parse_expr(op.get_precedence());
-        return save(mk_app(f, left, right), p);
+        return mk_application(op, p, {left, parse_expr(op.get_precedence())});
     }
 
     /** \brief Parse a user defined infix-right operator. */
     expr parse_infixr(expr const & left, operator_info const & op) {
         auto p = pos();
-        expr f = save(mk_fun(op), p);
-        expr right = parse_expr(op.get_precedence()-1);
-        return save(mk_app(f, left, right), p);
+        return mk_application(op, p, {left, parse_expr(op.get_precedence()-1)});
     }
 
     /**
@@ -462,31 +491,25 @@ class parser::imp {
     /** \brief Parse user defined mixfixl operator. It has the form: ID _ ... ID _ */
     expr parse_mixfixl(operator_info const & op) {
         auto p = pos();
-        expr f = save(mk_fun(op), p);
         buffer<expr> args;
-        args.push_back(f);
         args.push_back(parse_expr(op.get_precedence()));
         parse_mixfix_args(op.get_op_name_parts(), op.get_precedence(), args);
-        return save(mk_app(args.size(), args.data()), p);
+        return mk_application(op, p, args);
     }
 
     /** \brief Parse user defined mixfixr operator. It has the form: _ ID ... _ ID */
     expr parse_mixfixr(expr const & left, operator_info const & op) {
         auto p = pos();
-        expr f = save(mk_fun(op), p);
         buffer<expr> args;
-        args.push_back(f);
         args.push_back(left);
         parse_mixfix_args(op.get_op_name_parts(), op.get_precedence(), args);
-        return save(mk_app(args.size(), args.data()), p);
+        return mk_application(op, p, args);
     }
 
     /** \brief Parse user defined mixfixc operator. It has the form: ID _ ID ... _ ID */
     expr parse_mixfixc(operator_info const & op) {
         auto p = pos();
-        expr f = save(mk_fun(op), p);
         buffer<expr> args;
-        args.push_back(f);
         args.push_back(parse_expr(op.get_precedence()));
         list<name> const & ops = op.get_op_name_parts();
         auto it = ops.begin();
@@ -495,20 +518,9 @@ class parser::imp {
             check_op_part(*it);
             ++it;
             if (it == ops.end())
-                return save(mk_app(args.size(), args.data()), p);
+                return mk_application(op, p, args);
             args.push_back(parse_expr(op.get_precedence()));
         }
-    }
-
-    /** \brief Return true iff all implicit arguments occur in the beginning. */
-    bool is_imp_arg_prefix(std::vector<unsigned> const & imp_args) {
-        for (unsigned i = 0; i < imp_args.size(); i++) {
-            // Remark: I'm using the fact that the implicit argument
-            // positions are sorted.
-            if (imp_args[i] != i)
-                return false;
-        }
-        return true;
     }
 
     /**
@@ -1146,7 +1158,8 @@ class parser::imp {
         unsigned prec = parse_precedence();
         name op_id = parse_op_id();
         check_colon_next("invalid operator definition, ':' expected");
-        expr d     = parse_expr();
+        name name_id = check_identifier_next("invalid operator definition, identifier expected");
+        expr d     = mk_constant(name_id);
         switch (fx) {
         case fixity::Prefix:  m_frontend.add_prefix(op_id, prec, d); break;
         case fixity::Postfix: m_frontend.add_postfix(op_id, prec, d); break;
@@ -1174,7 +1187,8 @@ class parser::imp {
         }
         lean_assert(curr_is_colon());
         next();
-        expr d = parse_expr();
+        name name_id = check_identifier_next("invalid operator definition, identifier expected");
+        expr d     = mk_constant(name_id);
         switch (fx) {
         case fixity::Mixfixl:  m_frontend.add_mixfixl(parts.size(), parts.data(), prec, d); break;
         case fixity::Mixfixr:  m_frontend.add_mixfixr(parts.size(), parts.data(), prec, d); break;

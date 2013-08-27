@@ -201,59 +201,6 @@ class pp_fn {
     }
 
     /**
-       \brief Return the operator associated with \c e.
-       Return the null operator if there is none.
-
-       We say \c e has an operator associated with it, if:
-
-       1) \c e is associated with an operator.
-
-       2) It is an application, and the function is associated with an
-       operator.
-    */
-    operator_info get_operator(expr const & e) {
-        operator_info op = m_frontend.find_op_for(e);
-        if (op)
-            return op;
-        else if (is_app(e))
-            return m_frontend.find_op_for(arg(e, 0));
-        else
-            return operator_info();
-    }
-
-    /**
-       \brief Return the precedence of the given expression
-    */
-    unsigned get_operator_precedence(expr const & e) {
-        if (is_constant(e)) {
-            operator_info op = get_operator(e);
-            return op ? op.get_precedence() : 0;
-        } else if (is_eq(e)) {
-            return g_eq_precedence;
-        } else if (is_arrow(e)) {
-            return g_arrow_precedence;
-        } else {
-            return 0;
-        }
-    }
-
-    /** \brief Return true if the application \c e has the number of arguments expected by the operator \c op. */
-    bool has_expected_num_args(expr const & e, operator_info const & op) {
-        switch (op.get_fixity()) {
-        case fixity::Infix: case fixity::Infixl: case fixity::Infixr:
-            return num_args(e) == 3;
-        case fixity::Prefix: case fixity::Postfix:
-            return num_args(e) == 2;
-        case fixity::Mixfixl: case fixity::Mixfixr:
-            return num_args(e) == length(op.get_op_name_parts()) + 1;
-        case fixity::Mixfixc:
-            return num_args(e) == length(op.get_op_name_parts());
-        }
-        lean_unreachable();
-        return false;
-    }
-
-    /**
        \brief Pretty print given expression and put parenthesis around
        it IF the pp of the expression is not a simple name.
     */
@@ -278,42 +225,6 @@ class pp_fn {
             return pp(e, depth + 1);
         else
             return pp_child_with_paren(e, depth);
-    }
-
-    /**
-        \brief Pretty print the child of an infix, prefix, postfix or
-        mixfix operator. It will add parethesis when needed.
-    */
-    result pp_mixfix_child(operator_info const & op, expr const & e, unsigned depth) {
-        if (is_atomic(e)) {
-            return pp(e, depth + 1);
-        } else {
-            if (op.get_precedence() < get_operator_precedence(e))
-                return pp(e, depth + 1);
-            else
-                return pp_child_with_paren(e, depth);
-        }
-    }
-
-    /**
-        \brief Pretty print the child of an associative infix
-        operator. It will add parethesis when needed.
-    */
-    result pp_infix_child(operator_info const & op, expr const & e, unsigned depth) {
-        if (is_atomic(e)) {
-            return pp(e, depth + 1);
-        } else {
-            if (op.get_precedence() < get_operator_precedence(e) || op == get_operator(e))
-                return pp(e, depth + 1);
-            else
-                return pp_child_with_paren(e, depth);
-        }
-    }
-
-    result mk_infix(operator_info const & op, result const & lhs, result const & rhs) {
-        unsigned r_weight = lhs.second + rhs.second + 1;
-        format   r_format = group(format{lhs.first, space(), format(op.get_op_name()), line(), rhs.first});
-        return mk_result(r_format, r_weight);
     }
 
     bool is_forall_expr(expr const & e) {
@@ -359,6 +270,8 @@ class pp_fn {
         }
     }
 
+    /** \brief Auxiliary function for pretty printing exists and
+        forall formulas */
     result pp_quantifier(expr const & e, unsigned depth, bool is_forall) {
         buffer<std::pair<name, expr>> nested;
         expr b = collect_nested_quantifiers(e, is_forall, nested);
@@ -417,37 +330,213 @@ class pp_fn {
     }
 
     /**
+       \brief Return the operator associated with \c e.
+       Return the null operator if there is none.
+
+       We say \c e has an operator associated with it, if:
+
+       1) \c e is associated with an operator.
+
+       2) It is an application, and the function is associated with an
+       operator.
+    */
+    operator_info get_operator(expr const & e) {
+        operator_info op = m_frontend.find_op_for(e);
+        if (op)
+            return op;
+        else if (is_app(e))
+            return m_frontend.find_op_for(arg(e, 0));
+        else
+            return operator_info();
+    }
+
+    /**
+       \brief Return the precedence of the given expression
+    */
+    unsigned get_operator_precedence(expr const & e) {
+        if (is_constant(e)) {
+            operator_info op = get_operator(e);
+            return op ? op.get_precedence() : 0;
+        } else if (is_eq(e)) {
+            return g_eq_precedence;
+        } else if (is_arrow(e)) {
+            return g_arrow_precedence;
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+        \brief Pretty print the child of an infix, prefix, postfix or
+        mixfix operator. It will add parethesis when needed.
+    */
+    result pp_mixfix_child(operator_info const & op, expr const & e, unsigned depth) {
+        if (is_atomic(e)) {
+            return pp(e, depth + 1);
+        } else {
+            if (op.get_precedence() < get_operator_precedence(e))
+                return pp(e, depth + 1);
+            else
+                return pp_child_with_paren(e, depth);
+        }
+    }
+
+    /**
+        \brief Pretty print the child of an associative infix
+        operator. It will add parethesis when needed.
+    */
+    result pp_infix_child(operator_info const & op, expr const & e, unsigned depth) {
+        if (is_atomic(e)) {
+            return pp(e, depth + 1);
+        } else {
+            if (op.get_precedence() < get_operator_precedence(e) || op == get_operator(e))
+                return pp(e, depth + 1);
+            else
+                return pp_child_with_paren(e, depth);
+        }
+    }
+
+    result mk_infix(operator_info const & op, result const & lhs, result const & rhs) {
+        unsigned r_weight = lhs.second + rhs.second + 1;
+        format   r_format = group(format{lhs.first, space(), format(op.get_op_name()), line(), rhs.first});
+        return mk_result(r_format, r_weight);
+    }
+
+    /**
+       \brief Wrapper for accessing the explicit arguments of an
+       application and its function.
+
+       \remark If show_implicit is true, then we show the explicit
+       arguments even if the function has implicit arguments.
+
+       \remark We also show the implicit arguments, if the
+       application does not have the necessary number of
+       arguments.
+
+       \remark When we expose the implicit arguments, we use the
+       explicit version of the function. So, the user can
+       understand the pretty printed term.
+    */
+    struct application {
+        expr const & m_app;
+        expr         m_f;
+        std::vector<bool> const * m_implicit_args;
+        bool         m_notation_enabled;
+
+        application(expr const & e, frontend const & fe, bool show_implicit):m_app(e) {
+            expr const & f = arg(e,0);
+            if (is_constant(f) && fe.has_implicit_arguments(const_name(f))) {
+                m_implicit_args = &(fe.get_implicit_arguments(const_name(f)));
+                if (show_implicit || num_args(e) - 1 < m_implicit_args->size()) {
+                    // we are showing implicit arguments, thus we do
+                    // not need the bit-mask for implicit arguments
+                    m_implicit_args = nullptr;
+                    // we use the explicit name of f, to make it clear
+                    // that we are exposing implicit arguments
+                    m_f = mk_constant(fe.get_explicit_version(const_name(f)));
+                    m_notation_enabled = false;
+                } else {
+                    m_f = f;
+                    m_notation_enabled = true;
+                }
+            } else {
+                m_f = f;
+                m_implicit_args = nullptr;
+                m_notation_enabled = true;
+            }
+        }
+
+        unsigned get_num_args() const {
+            if (m_implicit_args) {
+                unsigned r = 0;
+                for (unsigned i = 0; i < num_args(m_app) - 1; i++) {
+                    if (!(*m_implicit_args)[i])
+                        r++;
+                }
+                return r;
+            } else {
+                return num_args(m_app) - 1;
+            }
+        }
+
+        expr const & get_arg(unsigned i) const {
+            lean_assert(i < get_num_args());
+            if (m_implicit_args) {
+                unsigned n = num_args(m_app);
+                for (unsigned j = 1; j < n; j++) {
+                    if (!(*m_implicit_args)[j-1]) {
+                        // explicit argument found
+                        if (i == 0)
+                            return arg(m_app, j);
+                        --i;
+                    }
+                }
+                lean_unreachable();
+                return arg(m_app, n - 1);
+            } else {
+                return arg(m_app, i + 1);
+            }
+        }
+
+        expr const & get_function() const {
+            return m_f;
+        }
+
+        bool notation_enabled() const {
+            return m_notation_enabled;
+        }
+    };
+
+    /** \brief Return true if the application \c app has the number of arguments expected by the operator \c op. */
+    bool has_expected_num_args(application const & app, operator_info const & op) {
+        switch (op.get_fixity()) {
+        case fixity::Infix: case fixity::Infixl: case fixity::Infixr:
+            return app.get_num_args() == 2;
+        case fixity::Prefix: case fixity::Postfix:
+            return app.get_num_args() == 1;
+        case fixity::Mixfixl: case fixity::Mixfixr:
+            return app.get_num_args() == length(op.get_op_name_parts()) + 1;
+        case fixity::Mixfixc:
+            return app.get_num_args() == length(op.get_op_name_parts());
+        }
+        lean_unreachable();
+        return false;
+    }
+
+    /**
        \brief Pretty print an application.
     */
     result pp_app(expr const & e, unsigned depth) {
+        application app(e, m_frontend, m_implict);
         operator_info op;
-        if (m_notation && (op = get_operator(e)) && has_expected_num_args(e, op)) {
+        if (m_notation && app.notation_enabled() && (op = get_operator(e)) && has_expected_num_args(app, op)) {
             result   p_arg;
             format   r_format;
             unsigned sz;
             unsigned r_weight = 1;
             switch (op.get_fixity()) {
             case fixity::Infix:
-                return mk_infix(op, pp_mixfix_child(op, arg(e, 1), depth), pp_mixfix_child(op, arg(e, 2), depth));
+                return mk_infix(op, pp_mixfix_child(op, app.get_arg(0), depth), pp_mixfix_child(op, app.get_arg(1), depth));
             case fixity::Infixr:
-                return mk_infix(op, pp_mixfix_child(op, arg(e, 1), depth), pp_infix_child(op, arg(e, 2), depth));
+                return mk_infix(op, pp_mixfix_child(op, app.get_arg(0), depth), pp_infix_child(op, app.get_arg(1), depth));
             case fixity::Infixl:
-                return mk_infix(op, pp_infix_child(op, arg(e, 1), depth),  pp_mixfix_child(op, arg(e, 2), depth));
+                return mk_infix(op, pp_infix_child(op, app.get_arg(0), depth),  pp_mixfix_child(op, app.get_arg(1), depth));
             case fixity::Prefix:
-                p_arg = pp_infix_child(op, arg(e, 1), depth);
+                p_arg = pp_infix_child(op, app.get_arg(0), depth);
                 sz  = op.get_op_name().size();
                 return mk_result(group(format{format(op.get_op_name()), nest(sz+1, format{line(), p_arg.first})}),
                                  p_arg.second + 1);
             case fixity::Postfix:
-                p_arg = pp_mixfix_child(op, arg(e, 1), depth);
+                p_arg = pp_mixfix_child(op, app.get_arg(0), depth);
                 return mk_result(group(format{p_arg.first, space(), format(op.get_op_name())}),
                                  p_arg.second + 1);
             case fixity::Mixfixr: {
                 // _ ID ... _ ID
                 list<name> parts = op.get_op_name_parts();
                 auto it = parts.begin();
-                for (unsigned i = 1; i < num_args(e); i++) {
-                    result p_arg = pp_mixfix_child(op, arg(e, i), depth);
+                unsigned num = app.get_num_args();
+                for (unsigned i = 0; i < num; i++) {
+                    result p_arg = pp_mixfix_child(op, app.get_arg(i), depth);
                     r_format += format{p_arg.first, space(), format(*it), line()};
                     r_weight += p_arg.second;
                     ++it;
@@ -459,8 +548,9 @@ class pp_fn {
                 // ID _ ... _ ID
                 list<name> parts = op.get_op_name_parts();
                 auto it = parts.begin();
-                for (unsigned i = 1; i < num_args(e); i++) {
-                    result p_arg = pp_mixfix_child(op, arg(e, i), depth);
+                unsigned num = app.get_num_args();
+                for (unsigned i = 0; i < num; i++) {
+                    result p_arg = pp_mixfix_child(op, app.get_arg(i), depth);
                     unsigned sz  = it->size();
                     if (i > 1) r_format += space();
                     r_format    += format{format(*it), nest(sz+1, format{line(), p_arg.first})};
@@ -481,47 +571,17 @@ class pp_fn {
             return pp_exists(e, depth);
         } else {
             // standard function application
-            expr f = arg(e, 0);
-            std::vector<bool> const * implicit_args = nullptr;
-            format   r_format;
-            unsigned r_weight;
-            bool simple     = false;
-            unsigned indent = m_indent;
-            if (is_constant(f)) {
-                name const & n = const_name(f);
-                simple = const_name(f).size() <= m_indent + 4;
-                indent = simple ? const_name(f).size()+1 : m_indent;
-                if (m_frontend.has_implicit_arguments(n)) {
-                    implicit_args = &(m_frontend.get_implicit_arguments(n));
-                    lean_assert(implicit_args->size() != 0);
-                    if (m_implict || num_args(e) - 1 < implicit_args->size()) {
-                        // If implicit arguments should be displayed, or
-                        // If we do not have enough arguments, then
-                        // we use the explicit representation
-                        implicit_args = nullptr;
-                        // we should use the explicit version of the
-                        // definition, since we are not hiding implicit arguments
-                        r_format = format(m_frontend.get_explicit_version(n));
-                        simple   = false;
-                        indent   = m_indent;
-                    } else {
-                        r_format = format(n);
-                    }
-                } else {
-                    r_format = format(n);
-                }
-                r_weight = 1;
-            } else {
-                result p = pp_child(f, depth);
-                r_format = p.first;
-                r_weight = p.second;
-            }
-            for (unsigned i = 1; i < num_args(e); i++) {
-                if (!is_implicit(implicit_args, i-1)) {
-                    result p_arg = pp_child(arg(e, i), depth);
-                    r_format += format{i == 1 && simple ? space() : line(), p_arg.first};
-                    r_weight += p_arg.second;
-                }
+            expr const & f  = app.get_function();
+            result p        = is_constant(f) ? mk_result(format(const_name(f)),1) : pp_child(f, depth);
+            bool simple     = is_constant(f) && const_name(f).size() <= m_indent + 4;
+            unsigned indent = simple ? const_name(f).size()+1 : m_indent;
+            format   r_format = p.first;
+            unsigned r_weight = p.second;
+            unsigned num      = app.get_num_args();
+            for (unsigned i = 0; i < num; i++) {
+                result p_arg = pp_child(app.get_arg(i), depth);
+                r_format += format{i == 0 && simple ? space() : line(), p_arg.first};
+                r_weight += p_arg.second;
             }
             return mk_result(group(nest(indent, r_format)), r_weight);
         }
@@ -970,7 +1030,9 @@ class pp_formatter_cell : public formatter_cell {
 
     format pp_notation_decl(object const & obj, options const & opts) {
         notation_declaration const & n = *(static_cast<notation_declaration const *>(obj.cell()));
-        return format{::lean::pp(n.get_op()), space(), colon(), space(), pp(n.get_expr(), opts)};
+        expr const & d = n.get_expr();
+        format d_fmt   = is_constant(d) ? format(const_name(d)) : pp(d, opts);
+        return format{::lean::pp(n.get_op()), space(), colon(), space(), d_fmt};
     }
 
 public:

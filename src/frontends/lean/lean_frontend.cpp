@@ -97,14 +97,6 @@ struct frontend::imp {
             return operator_info();
     }
 
-    void diagnostic_msg(char const * msg) {
-        // TODO
-    }
-
-    void report_op_redefined(operator_info const & old_op, operator_info const & new_op) {
-        // TODO
-    }
-
     /** \brief Remove all internal denotations that are associated with the given operator symbol (aka notation) */
     void remove_bindings(operator_info const & op) {
         for (expr const & d : op.get_exprs()) {
@@ -125,6 +117,34 @@ struct frontend::imp {
     }
 
     /**
+        \brief Two operator (aka notation) denotations are compatible
+        iff one of the following holds:
+
+        1) Both do not have implicit arguments
+
+        2) Both have implicit arguments, and the implicit arguments
+        occur in the same positions.
+
+    */
+    bool compatible_denotation(expr const & d1, expr const & d2) {
+        return get_implicit_arguments(d1) == get_implicit_arguments(d2);
+    }
+
+    /**
+        \brief Return true iff the existing denotations (aka
+        overloads) for an operator op are compatible with the new
+        denotation d.
+
+        The compatibility is only an issue if implicit arguments are
+        used. If one of the denotations has implicit arguments, then
+        all of them should have implicit arguments, and the implicit
+        arguments should occur in the same positions.
+    */
+    bool compatible_denotations(operator_info const & op, expr const & d) {
+        return std::all_of(op.get_exprs().begin(), op.get_exprs().end(), [&](expr const & prev_d) { return compatible_denotation(prev_d, d); });
+    }
+
+    /**
         \brief Add a new operator and save information as object.
 
         If the new operator does not conflict with existing operators,
@@ -141,17 +161,23 @@ struct frontend::imp {
         if (!old_op) {
             register_new_op(new_op, d, led);
         } else if (old_op == new_op) {
-            // overload
-            if (defined_here(old_op, led)) {
-                old_op.add_expr(d);
+            if (compatible_denotations(old_op, d)) {
+                // overload
+                if (defined_here(old_op, led)) {
+                    old_op.add_expr(d);
+                } else {
+                    // we must copy the operator because it was defined in
+                    // a parent frontend.
+                    new_op = old_op.copy();
+                    register_new_op(new_op, d, led);
+                }
             } else {
-                // we must copy the operator because it was defined in
-                // a parent frontend.
-                new_op = old_op.copy();
+                diagnostic(m_state) << "The denotation(s) for the existing notation:\n  " << old_op << "\nhave been replaced with the new denotation:\n  " << d << "\nbecause they conflict on how implicit arguments are used.\n";
+                remove_bindings(old_op);
                 register_new_op(new_op, d, led);
             }
         } else {
-            report_op_redefined(old_op, new_op);
+            diagnostic(m_state) << "Notation has been redefined, the existing notation:\n  " << old_op << "\nhas been replaced with:\n  " << new_op << "\nbecause they conflict with each other.\n";
             remove_bindings(old_op);
             register_new_op(new_op, d, led);
         }
@@ -212,6 +238,13 @@ struct frontend::imp {
         } else {
             return g_empty_vector;
         }
+    }
+
+    std::vector<bool> const & get_implicit_arguments(expr const & n) {
+        if (is_constant(n))
+            return get_implicit_arguments(const_name(n));
+        else
+            return g_empty_vector;
     }
 
     name const & get_explicit_version(name const & n) {

@@ -192,7 +192,7 @@ struct frontend::imp {
     void add_mixfixl(unsigned sz, name const * opns, unsigned p, expr const & d) { add_op(mixfixl(sz, opns, p), d, false); }
     void add_mixfixr(unsigned sz, name const * opns, unsigned p, expr const & d) { add_op(mixfixr(sz, opns, p), d, true);  }
     void add_mixfixc(unsigned sz, name const * opns, unsigned p, expr const & d) { add_op(mixfixc(sz, opns, p), d, false); }
-    void add_mixfixo(unsigned sz, name const * opns, unsigned p, expr const & d) { add_op(mixfixo(sz, opns, p), d, false); }
+    void add_mixfixo(unsigned sz, name const * opns, unsigned p, expr const & d) { add_op(mixfixo(sz, opns, p), d, true); }
 
     void mark_implicit_arguments(name const & n, unsigned sz, bool const * implicit) {
         if (has_children())

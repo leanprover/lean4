@@ -122,12 +122,56 @@ char const * to_string(fixity f) {
 
 format pp(operator_info const & o) {
     format r;
-    r = highlight_command(format(to_string(o.get_fixity())));
-    if (o.get_precedence() != 0)
-        r += format{space(), format(o.get_precedence())};
-    for (auto p : o.get_op_name_parts())
-        r += format{space(), format(p)};
-    return r;
+    switch (o.get_fixity()) {
+    case fixity::Infix:
+    case fixity::Infixl:
+    case fixity::Infixr:
+        r = highlight_command(format(to_string(o.get_fixity())));
+        if (o.get_precedence() > 1)
+            r += format{space(), format(o.get_precedence())};
+        r += format{space(), format(o.get_op_name())};
+        return r;
+    case fixity::Prefix:
+    case fixity::Postfix:
+    case fixity::Mixfixl:
+    case fixity::Mixfixr:
+    case fixity::Mixfixc:
+    case fixity::Mixfixo:
+        r = highlight_command(format("Notation"));
+        if (o.get_precedence() > 1)
+            r += format{space(), format(o.get_precedence())};
+        switch (o.get_fixity()) {
+        case fixity::Prefix:
+            r += format{space(), format(o.get_op_name()), space(), format("_")};
+            return r;
+        case fixity::Postfix:
+            r += format{space(), format("_"), space(), format(o.get_op_name())};
+            return r;
+        case fixity::Mixfixl:
+            for (auto p : o.get_op_name_parts())
+                r += format{space(), format(p), space(), format("_")};
+            return r;
+        case fixity::Mixfixr:
+            for (auto p : o.get_op_name_parts())
+                r += format{space(), format("_"), space(), format(p)};
+            return r;
+        case fixity::Mixfixc: {
+            auto parts = o.get_op_name_parts();
+            r += format{space(), format(head(parts))};
+            for (auto p : tail(parts))
+                r += format{space(), format("_"), space(), format(p)};
+            return r;
+        }
+        case fixity::Mixfixo:
+            for (auto p : o.get_op_name_parts())
+                r += format{space(), format("_"), space(), format(p)};
+            r += format{space(), format("_")};
+            return r;
+        default: lean_unreachable(); break;
+        }
+    }
+    lean_unreachable();
+    return format();
 }
 
 char const * notation_declaration::keyword() const {

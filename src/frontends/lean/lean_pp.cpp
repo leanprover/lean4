@@ -354,9 +354,9 @@ class pp_fn {
        \brief Return the precedence of the given expression
     */
     unsigned get_operator_precedence(expr const & e) {
-        if (is_constant(e)) {
-            operator_info op = get_operator(e);
-            return op ? op.get_precedence() : 0;
+        operator_info op = get_operator(e);
+        if (op) {
+            return op.get_precedence();
         } else if (is_eq(e)) {
             return g_eq_precedence;
         } else if (is_arrow(e)) {
@@ -547,9 +547,9 @@ class pp_fn {
                             r_format += format{p_arg.first, space(), format(*it)};
                     } else {
                         r_format += format{p_arg.first, space(), format(*it), line()};
+                        ++it;
                     }
                     r_weight += p_arg.second;
-                    ++it;
                 }
                 return mk_result(group(r_format), r_weight);
             }
@@ -562,7 +562,7 @@ class pp_fn {
                 for (unsigned i = 0; i < num; i++) {
                     result p_arg = pp_mixfix_child(op, app.get_arg(i), depth);
                     unsigned sz  = it->size();
-                    if (i > 1) r_format += space();
+                    if (i > 0) r_format += space();
                     r_format    += format{format(*it), nest(sz+1, format{line(), p_arg.first})};
                     r_weight    += p_arg.second;
                     ++it;

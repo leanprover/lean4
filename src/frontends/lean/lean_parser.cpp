@@ -77,11 +77,12 @@ static name g_options_kwd("Options");
 static name g_env_kwd("Environment");
 static name g_import_kwd("Import");
 static name g_help_kwd("Help");
+static name g_notation_kwd("Notation");
 /** \brief Table/List with all builtin command keywords */
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
                                         g_show_kwd, g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_prefix_kwd,
                                         g_postfix_kwd, g_mixfixl_kwd, g_mixfixr_kwd, g_mixfixc_kwd, g_echo_kwd,
-                                        g_set_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd};
+                                        g_set_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd, g_notation_kwd};
 // ==========================================
 
 // ==========================================
@@ -201,19 +202,21 @@ class parser::imp {
             throw parser_error(msg, pos());
     }
 
-    /** \brief Return true iff the current toke is an identifier */
+    /** \brief Return true iff the current token is an identifier */
     bool curr_is_identifier() const { return curr() == scanner::token::Id; }
-    /** \brief Return true iff the current toke is an integer */
+    /** \brief Return true iff the current token is a '_" */
+    bool curr_is_placeholder() const { return curr() == scanner::token::Placeholder; }
+    /** \brief Return true iff the current token is an integer */
     bool curr_is_int() const { return curr() == scanner::token::IntVal; }
-    /** \brief Return true iff the current toke is a '(' */
+    /** \brief Return true iff the current token is a '(' */
     bool curr_is_lparen() const { return curr() == scanner::token::LeftParen; }
-    /** \brief Return true iff the current toke is a '{' */
+    /** \brief Return true iff the current token is a '{' */
     bool curr_is_lcurly() const { return curr() == scanner::token::LeftCurlyBracket; }
-    /** \brief Return true iff the current toke is a ':' */
+    /** \brief Return true iff the current token is a ':' */
     bool curr_is_colon() const { return curr() == scanner::token::Colon; }
-    /** \brief Return true iff the current toke is a ',' */
+    /** \brief Return true iff the current token is a ',' */
     bool curr_is_comma() const { return curr() == scanner::token::Comma; }
-    /** \brief Return true iff the current toke is an 'in' token */
+    /** \brief Return true iff the current token is an 'in' token */
     bool curr_is_in() const { return curr() == scanner::token::In; }
 
     /** \brief Throws a parser error if the current token is not an identifier. */
@@ -223,6 +226,8 @@ class parser::imp {
         identifier. If it is, move to the next token.
     */
     name check_identifier_next(char const * msg) { check_identifier(msg); name r = curr_name(); next(); return r; }
+    /** \brief Throws a parser error if the current token is not '_'. If it is, move to the next token. */
+    void check_placeholder_next(char const * msg) { check_next(scanner::token::Placeholder, msg); }
     /** \brief Throws a parser error if the current token is not ':'. If it is, move to the next token. */
     void check_colon_next(char const * msg) { check_next(scanner::token::Colon, msg); }
     /** \brief Throws a parser error if the current token is not ','. If it is, move to the next token. */
@@ -235,10 +240,7 @@ class parser::imp {
     void check_rcurly_next(char const * msg) { check_next(scanner::token::RightCurlyBracket, msg); }
     /** \brief Throws a parser error if the current token is not ':='. If it is, move to the next token. */
     void check_assign_next(char const * msg) { check_next(scanner::token::Assign, msg); }
-    /** \brief Throws a parser error if the current token is not an identifier named \c op. */
-    void check_name(name const & op, char const * msg) { if(!curr_is_identifier() || curr_name() != op) throw parser_error(msg, pos()); }
-    /** \brief Throws a parser error if the current token is not an identifier named \c op. If it is, move to the next token. */
-    void check_name_next(name const & op, char const * msg) { check_name(op, msg); next(); }
+
     /**
         \brief Throws a parser error if the current token is not a
         string. If it is, move to the next token.
@@ -474,11 +476,13 @@ class parser::imp {
         this method has been used when parsing mixfix operators.
     */
     void check_op_part(name const & op_part) {
-        check_name_next(op_part, "invalid mixfix operator application, identifier expected");
+        if(!curr_is_identifier() || curr_name() != op_part)
+            throw parser_error(sstream() << "invalid mixfix operator application, '" << op_part << "' expected", pos());
+        next();
     }
 
     /**
-        \brief Auxiliary function for #parse_mixfixl and #parse_mixfixr
+        \brief Auxiliary function for #parse_mixfixl and #parse_mixfixo
 
         It parses (ID _)*
     */
@@ -506,7 +510,14 @@ class parser::imp {
         auto p = pos();
         buffer<expr> args;
         args.push_back(left);
-        parse_mixfix_args(op.get_op_name_parts(), op.get_precedence(), args);
+        auto parts = op.get_op_name_parts();
+        auto it = parts.begin();
+        ++it;
+        while (it != parts.end()) {
+            args.push_back(parse_expr(op.get_precedence()));
+            check_op_part(*it);
+            ++it;
+        }
         return mk_application(op, p, args);
     }
 
@@ -515,6 +526,7 @@ class parser::imp {
         auto p = pos();
         buffer<expr> args;
         args.push_back(left);
+        args.push_back(parse_expr(op.get_precedence()));
         parse_mixfix_args(op.get_op_name_parts(), op.get_precedence(), args);
         return mk_application(op, p, args);
     }
@@ -633,6 +645,7 @@ class parser::imp {
                 case fixity::Infixr:  return parse_infixr(left, op);
                 case fixity::Mixfixr: return parse_mixfixr(left, op);
                 case fixity::Mixfixo: return parse_mixfixo(left, op);
+                case fixity::Postfix: return parse_postfix(left, op);
                 default: lean_unreachable(); return expr();
                 }
             } else {
@@ -1165,7 +1178,7 @@ class parser::imp {
         \brief Parse prefix/postfix/infix/infixl/infixr user operator
         definitions. These definitions have the form:
 
-           - fixity [Num] ID ':' expr
+           - fixity [Num] ID ':' ID
     */
     void parse_op(fixity fx) {
         next();
@@ -1211,12 +1224,88 @@ class parser::imp {
         }
     }
 
+    /**
+       \brief Parse notation declaration unified format
+
+       'Notation' [Num] parts ':' ID
+    */
+    void parse_notation_decl() {
+        next();
+        unsigned prec = parse_precedence();
+        bool first             = true;
+        bool prev_placeholder  = false;
+        bool first_placeholder = false;
+        buffer<name> parts;
+        while (true) {
+            if (first) {
+                if (curr_is_placeholder()) {
+                    prev_placeholder  = true;
+                    first_placeholder = true;
+                    next();
+                } else {
+                    parts.push_back(check_identifier_next("invalid notation declaration, identifier or '_' expected"));
+                    prev_placeholder  = false;
+                    first_placeholder = false;
+                }
+                first = false;
+            } else {
+                if (curr_is_colon()) {
+                    next();
+                    if (parts.size() == 0) {
+                        throw parser_error("invalid notation declaration, it must have at least one identifier", pos());
+                    }
+                    name name_id = check_identifier_next("invalid notation declaration, identifier expected");
+                    expr d     = mk_constant(name_id);
+                    if (parts.size() == 1) {
+                        if (first_placeholder && prev_placeholder) {
+                            // infix: _ ID _
+                            m_frontend.add_infix(parts[0], prec, d);
+                        } else if (first_placeholder) {
+                            // postfix: _ ID
+                            m_frontend.add_postfix(parts[0], prec, d);
+                        } else if (prev_placeholder) {
+                            // prefix: ID _
+                            m_frontend.add_prefix(parts[0], prec, d);
+                        } else {
+                            lean_unreachable();
+                        }
+                    } else {
+                        if (first_placeholder && prev_placeholder) {
+                            // mixfixo: _ ID ... ID _
+                            m_frontend.add_mixfixo(parts.size(), parts.data(), prec, d);
+                        } else if (first_placeholder) {
+                            // mixfixr: _ ID ... ID
+                            m_frontend.add_mixfixr(parts.size(), parts.data(), prec, d);
+                        } else if (prev_placeholder) {
+                            // mixfixl: ID _ ... ID _
+                            m_frontend.add_mixfixl(parts.size(), parts.data(), prec, d);
+                        } else {
+                            // mixfixc: ID _ ... _ ID
+                            m_frontend.add_mixfixc(parts.size(), parts.data(), prec, d);
+                        }
+                    }
+                    return;
+                } else {
+                    if (prev_placeholder) {
+                        parts.push_back(check_identifier_next("invalid notation declaration, identifier or ':' expected"));
+                        prev_placeholder = false;
+                    } else {
+                        check_placeholder_next("invalid notation declaration, '_' or ':' expected");
+                        prev_placeholder = true;
+                    }
+                }
+            }
+        }
+    }
+
+    /** Parse 'Echo' [string] */
     void parse_echo() {
         next();
         std::string msg = check_string_next("invalid echo command, string expected");
         regular(m_frontend) << msg << endl;
     }
 
+    /** Parse 'Set' [id] [value] */
     void parse_set() {
         next();
         auto id_pos = pos();
@@ -1337,6 +1426,7 @@ class parser::imp {
         else if (cmd_id == g_mixfixl_kwd)  parse_mixfix_op(fixity::Mixfixl);
         else if (cmd_id == g_mixfixr_kwd)  parse_mixfix_op(fixity::Mixfixr);
         else if (cmd_id == g_mixfixc_kwd)  parse_mixfix_op(fixity::Mixfixc);
+        else if (cmd_id == g_notation_kwd) parse_notation_decl();
         else if (cmd_id == g_echo_kwd)     parse_echo();
         else if (cmd_id == g_set_kwd)      parse_set();
         else if (cmd_id == g_import_kwd)   parse_import();

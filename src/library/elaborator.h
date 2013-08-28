@@ -30,7 +30,7 @@ public:
     metavar_env & menv() { return m_metaenv; }
 
     void clear() { m_metaenv.clear(); }
-    expr mk_metavar(context const & ctx) { return m_metaenv.mk_metavar(ctx); }
+    expr mk_metavar(unsigned ctx_sz) { return m_metaenv.mk_metavar(ctx_sz); }
 
     void set_interrupt(bool flag) { m_metaenv.set_interrupt(flag); }
     void interrupt() { set_interrupt(true); }

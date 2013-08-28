@@ -33,25 +33,11 @@ class metavar_env {
     enum class state { Unprocessed, Processing, Processed };
     struct cell {
         expr     m_expr;
-        context  m_context;
+        unsigned m_ctx_size; // size of the context where the metavariable is defined
         unsigned m_find;
         unsigned m_rank;
         state    m_state;
-        cell(expr const & e, context const & ctx, unsigned find);
-        /*
-          Basic properties for metavariable contexts:
-          1) A metavariable does not occur in its own context.
-
-          2) If a metavariable ?m1 occurs in context ctx2 of
-          metavariable ?m2, then context ctx1 of ?m1 must be a prefix of ctx2.
-          This is by construction.
-          Here is an example:
-             (fun (A : Type) (?m1 : A) (?m2 : B), C)
-             The context of ?m1 is [A : Type]
-             The context of ?m2 is [A : Type, ?m1 : A]
-
-          Remark: these conditions are not enforced by this module.
-        */
+        cell(expr const & e, unsigned ctx_size, unsigned find);
     };
     environment const & m_env;
     std::vector<cell>   m_cells;
@@ -70,22 +56,20 @@ class metavar_env {
     cell & root_cell(expr const & m);
     cell const & root_cell(expr const & m) const;
     unsigned new_rank(unsigned r1, unsigned r2);
-    void assign_term(expr const & m, expr s, context const & ctx);
     [[noreturn]] void failed_to_unify();
-    void ensure_same_length(context & ctx1, context & ctx2);
-    void unify_ctx_prefix(context const & ctx1, context const & ctx2);
-    void unify_ctx_entries(context const & ctx1, context const & ctx2);
     bool is_simple_ho_match(expr const & e1, expr const & e2, context const & ctx);
-    void unify_simple_ho_match(expr const & e1, expr const & e2, context const & ctx);
-    void unify_core(expr const & e1, expr const & e2, context const & ctx);
+    void unify_simple_ho_match(expr const & e1, expr const & e2, unsigned ctx_size, context const & ctx);
+    void unify_core(expr const & e1, expr const & e2, unsigned ctx_size, context const & ctx);
+    void reduce_metavars_ctx_size(expr const & s, unsigned ctx_size);
+    void unify(expr const & e1, expr const & e2, unsigned ctx_size, context const & ctx);
 
 public:
     metavar_env(environment const & env, name_set const * available_defs, unsigned max_depth);
     metavar_env(environment const & env, name_set const * available_defs);
     metavar_env(environment const & env);
 
-    /** \brief Create a new meta-variable with the given context. */
-    expr mk_metavar(context const & ctx = context());
+    /** \brief Create a new meta-variable for a context of size ctx_sz. */
+    expr mk_metavar(unsigned ctx_sz = 0);
 
     /**
        \brief Return true iff the given metavariable representative is
@@ -102,28 +86,30 @@ public:
         If the the metavariable was defined in smaller context, we lift the
         free variables to match the size of the given context.
     */
-    expr root_at(expr const & m, context const & ctx) const { return root_at(m, length(ctx)); }
-    /**
-       \brief Similar to the previous function, but the context is given.
-    */
     expr root_at(expr const & m, unsigned ctx_size) const;
-
-    /**
-        \brief If the given expression is a metavariable, then return the root
-        of the equivalence class. Otherwise, return itself.
-    */
-    // expr const & root(expr const & e) const
+    expr root_at(expr const & m, context const & ctx) const {
+        return root_at(m, length(ctx));
+    }
 
     /**
        \brief Assign m <- s
+
+       \remark s is a term that occurs in a context of size \c
+       ctx_size. We need this information to adjust \c s to the
+       metavariable \c m, since \c m maybe was created in context of
+       different size, or was unified with another metavariable
+       created in a smaller context.
+
+       \pre is_metavar(m)
+
     */
-    void assign(expr const & m, expr const & s, context const & ctx = context());
+    void assign(expr const & m, expr const & s, unsigned ctx_size);
 
     /**
        \brief Replace the metavariables occurring in \c e with the
        substitutions in this metaenvironment.
     */
-    expr instantiate_metavars(expr const & e, unsigned outer_offset = 0);
+    expr instantiate_metavars(expr const & e, unsigned ctx_size = 0);
 
     /**
         \brief Return true iff the given expression is an available
@@ -146,14 +132,6 @@ public:
     void unify(expr const & e1, expr const & e2, context const & ctx = context());
 
     /**
-       \brief Return the context associated with the given
-       meta-variable.
-
-       \pre is_metavar(m)
-    */
-    context const & get_context(expr const & m);
-
-    /**
        \brief Clear/Reset the state.
     */
     void clear();
@@ -164,7 +142,6 @@ public:
     void set_interrupt(bool flag);
 
     void display(std::ostream & out) const;
-
     bool check_invariant() const;
 };
 }

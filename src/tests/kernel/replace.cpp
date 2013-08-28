@@ -8,6 +8,8 @@ Author: Leonardo de Moura
 #include "abstract.h"
 #include "instantiate.h"
 #include "deep_copy.h"
+#include "expr_maps.h"
+#include "replace.h"
 #include "printer.h"
 #include "name.h"
 #include "test.h"
@@ -44,9 +46,63 @@ static void tst2() {
     lean_assert(instantiate(mk_pi("_", Var(3), Var(4)), Var(0)) == mk_pi("_", Var(2), Var(3)));
 }
 
+class tracer {
+    expr_map<expr> & m_trace;
+public:
+    tracer(expr_map<expr> & trace):m_trace(trace) {}
+
+    void operator()(expr const & old_e, expr const & new_e) {
+        if (!is_eqp(new_e, old_e)) {
+            m_trace[new_e] = old_e;
+        }
+    }
+};
+
+static void tst3() {
+    expr f = Const("f");
+    expr x = Const("x");
+    expr y = Const("y");
+    expr c = Const("c");
+    expr d = Const("d");
+    expr A = Const("A");
+    expr_map<expr> trace;
+    auto proc = [&](expr const & x, unsigned offset) -> expr {
+        if (is_var(x)) {
+            unsigned vidx = var_idx(x);
+            if (vidx == offset)
+                return c;
+            else if (vidx > offset)
+                return mk_var(vidx-1);
+            else
+                return x;
+        } else {
+            return x;
+        }
+    };
+    replace_fn<decltype(proc), tracer> replacer(proc, tracer(trace));
+    expr t = Fun({{x, A}, {y, A}}, f(x, f(f(f(x,x), f(y, d)), f(d, d))));
+    expr b = abst_body(t);
+    expr r = replacer(b);
+    std::cout << r << "\n";
+    lean_assert(r == Fun({y, A}, f(c, f(f(f(c,c), f(y, d)), f(d, d)))));
+    for (auto p : trace) {
+        std::cout << p.first << " --> " << p.second << "\n";
+    }
+    lean_assert(trace[c] == Var(1));
+    std::cout << arg(arg(abst_body(r), 2), 2) << "\n";
+    lean_assert(arg(arg(abst_body(r), 2), 2) == f(d,d));
+    lean_assert(trace.find(arg(arg(abst_body(r), 2), 2)) == trace.end());
+    lean_assert(trace.find(abst_body(r)) != trace.end());
+    lean_assert(trace.find(arg(abst_body(r), 2)) != trace.end());
+    lean_assert(trace.find(arg(arg(abst_body(r), 2), 1)) != trace.end());
+    lean_assert(trace.find(arg(arg(arg(abst_body(r), 2), 1), 1)) != trace.end());
+    lean_assert(trace.find(arg(arg(arg(abst_body(r), 2), 1), 2)) == trace.end());
+}
+
 int main() {
     tst1();
     tst2();
+    tst3();
     std::cout << "done" << "\n";
     return has_violations() ? 1 : 0;
 }

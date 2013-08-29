@@ -6,6 +6,8 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "expr.h"
+#include "environment.h"
+#include "name_set.h"
 
 namespace lean {
 /**
@@ -71,6 +73,18 @@ expr lower_free_vars_mmv(expr const & e, unsigned s, unsigned n);
    the expression \c v.
 */
 expr instantiate_metavar(expr const & e, unsigned midx, expr const & v);
+
+/**
+   \brief Try to reduce the head of the given expression.
+   The following reductions are tried:
+   1- Beta reduction
+   2- Constant unfolding (if constant is defined in env, and defs ==
+   nullptr or it contains constant).
+   3- Let expansion
+
+   \remark The expression \c e may contain metavariables.
+*/
+expr head_reduce_mmv(expr const & e, environment const & env, name_set const * defs = nullptr);
 
 /**
    \brief Return true iff \c e is a delayed substitution expression

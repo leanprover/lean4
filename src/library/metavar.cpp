@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "metavar.h"
 #include "replace.h"
 #include "for_each.h"
+#include "environment.h"
 
 namespace lean {
 static name g_metavar_prefix(name(name(name(0u), "library"), "metavar"));
@@ -259,4 +260,38 @@ expr instantiate_metavar(expr const & e, unsigned midx, expr const & v) {
     };
     return replace_fn<decltype(f)>(f)(e);
 }
+
+expr head_reduce_mmv(expr const & e, environment const & env, name_set const * defs) {
+    if (is_app(e) && is_lambda(arg(e, 0))) {
+        expr r = arg(e,0);
+        unsigned num = num_args(e);
+        unsigned i = 1;
+        while (i < num) {
+            r = instantiate_free_var_mmv(abst_body(r), 0, arg(e,i));
+            i = i + 1;
+            if (!is_lambda(r))
+                break;
+        }
+        if (i == num) {
+            return r;
+        } else {
+            buffer<expr> args;
+            args.push_back(r);
+            for (; i < num; i++)
+                args.push_back(arg(e,i));
+            return mk_app(args.size(), args.data());
+        }
+    } else if (is_let(e)) {
+        return instantiate_free_var_mmv(let_body(e), 0, let_value(e));
+    } else if (is_constant(e)) {
+        name const & n = const_name(e);
+        if (defs == nullptr || defs->find(n) != defs->end()) {
+            object const & obj = env.find_object(n);
+            if (obj && obj.is_definition() && !obj.is_opaque())
+                return obj.get_value();
+        }
+    }
+    return e;
+}
+
 }

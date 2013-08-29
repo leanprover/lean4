@@ -91,12 +91,29 @@ static void tst5() {
     lean_assert(r == f(g(f(h(Var(2)))), Fun({x, N}, f(g(f(h(Var(3)))), h(Var(3)), x, Fun({y, N}, f(g(f(h(Var(4)))), x, y))))));
 }
 
+static void tst6() {
+    environment env;
+    expr N  = Const("N");
+    expr f  = Const("f");
+    expr a  = Const("a");
+    expr x  = Const("x");
+    expr m1 = mk_metavar(1);
+    expr t  = mk_app(Fun({x,N}, m1), a);
+    expr s1 = instantiate_metavar(head_reduce_mmv(t, env), 1, Var(0));
+    expr s2 = head_reduce_mmv(instantiate_metavar(t, 1, Var(0)), env);
+    std::cout << instantiate_metavar(t, 1, Var(0)) << "\n";
+    std::cout << s1 << "\n";
+    std::cout << s2 << "\n";
+    lean_assert(s1 == s2);
+}
+
 int main() {
     tst1();
     tst2();
     tst3();
     tst4();
     tst5();
+    tst6();
     return has_violations() ? 1 : 0;
 }
 

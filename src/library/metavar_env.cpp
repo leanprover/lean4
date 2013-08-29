@@ -17,52 +17,6 @@ Author: Leonardo de Moura
 #include "flet.h"
 
 namespace lean {
-static name g_metavar_prefix(name(name(name(0u), "library"), "metavar"));
-
-expr mk_metavar(unsigned idx) {
-    return mk_constant(name(g_metavar_prefix, idx));
-}
-
-bool is_metavar(expr const & n) {
-    return is_constant(n) && !const_name(n).is_atomic() && const_name(n).get_prefix() == g_metavar_prefix;
-}
-
-unsigned metavar_idx(expr const & n) {
-    lean_assert(is_metavar(n));
-    return const_name(n).get_numeral();
-}
-
-struct found_metavar {};
-
-bool has_metavar(expr const & e) {
-    auto f = [](expr const & c, unsigned offset) {
-        if (is_metavar(c))
-            throw found_metavar();
-    };
-    try {
-        for_each_fn<decltype(f)> proc(f);
-        proc(e);
-        return false;
-    } catch (found_metavar) {
-        return true;
-    }
-}
-
-/** \brief Return true iff \c e contains a metavariable with index midx */
-bool has_metavar(expr const & e, unsigned midx) {
-    auto f = [=](expr const & m, unsigned offset) {
-        if (is_metavar(m) && metavar_idx(m) == midx)
-            throw found_metavar();
-    };
-    try {
-        for_each_fn<decltype(f)> proc(f);
-        proc(e);
-        return false;
-    } catch (found_metavar) {
-        return true;
-    }
-}
-
 metavar_env::cell::cell(expr const & e, unsigned ctx_size, unsigned find):
     m_expr(e),
     m_ctx_size(ctx_size),

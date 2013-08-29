@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include "printer.h"
+#include "metavar.h"
 #include "environment.h"
 #include "exception.h"
 
@@ -54,10 +55,20 @@ struct print_expr_fn {
     }
 
     void print_app(expr const & a, context const & c) {
-        print_child(arg(a, 0), c);
-        for (unsigned i = 1; i < num_args(a); i++) {
-            out() << " ";
-            print_child(arg(a, i), c);
+        unsigned i, s, n;
+        expr v;
+        if (is_lower(a, s, n)) {
+            out() << "lower:" << s << ":" << n << " "; print_child(arg(a, 1), c);
+        } else if (is_lift(a, s, n)) {
+            out() << "lift:" << s << ":" << n << " "; print_child(arg(a, 1), c);
+        } else if (is_subst(a, i, v)) {
+            out() << "subst:" << i << " "; print_child(arg(a, 1), c); out() << " "; print_child(v, context());
+        } else {
+            print_child(arg(a, 0), c);
+            for (unsigned i = 1; i < num_args(a); i++) {
+                out() << " ";
+                print_child(arg(a, i), c);
+            }
         }
     }
 
@@ -78,7 +89,11 @@ struct print_expr_fn {
             }
             break;
         case expr_kind::Constant:
-            out() << const_name(a);
+            if (is_metavar(a)) {
+                out() << "?M:" << metavar_idx(a);
+            } else {
+                out() << const_name(a);
+            }
             break;
         case expr_kind::App:
             print_app(a, c);

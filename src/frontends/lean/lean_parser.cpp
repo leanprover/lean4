@@ -962,9 +962,9 @@ class parser::imp {
 
     expr elaborate(expr const & e) {
         if (has_metavar(e)) {
-            // TODO fix
-            regular(m_frontend) << e << endl;
-            throw parser_error("expression contains metavariables... not implemented yet.", m_last_cmd_pos);
+            expr r = m_elaborator(e);
+            m_elaborator.clear();
+            return r;
         } else {
             return e;
         }

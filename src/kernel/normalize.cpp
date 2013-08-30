@@ -244,6 +244,10 @@ class normalizer::imp {
                     if (m_env.is_ge(ty_level(*e), ty_level(*g)))
                         return true;
                 }
+
+                if (is_type(*e) && *g == mk_bool_type())
+                    return true;
+
                 if (is_pi(*e) && is_pi(*g) && abst_domain(*e) == abst_domain(*g)) {
                     e = &abst_body(*e);
                     g = &abst_body(*g);

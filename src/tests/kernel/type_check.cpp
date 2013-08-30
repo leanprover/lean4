@@ -239,6 +239,14 @@ static void tst12() {
 #endif
 }
 
+static void tst13() {
+    environment env = mk_toplevel();
+    env.add_var("f", Type() >> Type());
+    expr f = Const("f");
+    std::cout << infer_type(f(Bool), env) << "\n";
+    std::cout << infer_type(f(Eq(True,False)), env) << "\n";
+}
+
 int main() {
     tst1();
     tst2();
@@ -252,5 +260,6 @@ int main() {
     tst10();
     tst11();
     tst12();
+    tst13();
     return has_violations() ? 1 : 0;
 }

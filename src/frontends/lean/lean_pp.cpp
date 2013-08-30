@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 #include "context_to_lambda.h"
 #include "options.h"
 #include "interruptable_ptr.h"
-#include "metavar_env.h"
+#include "metavar.h"
 #include "exception.h"
 #include "lean_notation.h"
 #include "lean_pp.h"

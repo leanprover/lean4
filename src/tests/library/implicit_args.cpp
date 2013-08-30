@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "test.h"
-#include "metavar_env.h"
+#include "metavar.h"
 #include "elaborator.h"
 #include "free_vars.h"
 #include "printer.h"
@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "basic_thms.h"
 #include "type_check.h"
 #include "kernel_exception.h"
+#include "elaborator_exception.h"
 using namespace lean;
 
 static name g_placeholder_name("_");
@@ -35,36 +36,34 @@ bool has_placeholder(expr const & e) {
     return occurs(mk_placholder(), e);
 }
 
-std::ostream & operator<<(std::ostream & out, metavar_env const & uf) { uf.display(out); return out; }
-
 /**
    \brief Auxiliary function for #replace_placeholders_with_metavars
 */
-static expr replace(expr const & e, context const & ctx, metavar_env & menv) {
+static expr replace(expr const & e, context const & ctx, elaborator & elb) {
     switch (e.kind()) {
     case expr_kind::Constant:
         if (is_placeholder(e)) {
-            return menv.mk_metavar(length(ctx));
+            return elb.mk_metavar();
         } else {
             return e;
         }
     case expr_kind::Var: case expr_kind::Type: case expr_kind::Value:
         return e;
     case expr_kind::App:
-        return update_app(e, [&](expr const & c) { return replace(c, ctx, menv); });
+        return update_app(e, [&](expr const & c) { return replace(c, ctx, elb); });
     case expr_kind::Eq:
-        return update_eq(e, [&](expr const & l, expr const & r) { return mk_pair(replace(l, ctx, menv), replace(r, ctx, menv)); });
+        return update_eq(e, [&](expr const & l, expr const & r) { return mk_pair(replace(l, ctx, elb), replace(r, ctx, elb)); });
     case expr_kind::Lambda:
     case expr_kind::Pi:
         return update_abst(e, [&](expr const & d, expr const & b) {
-                expr new_d = replace(d, ctx, menv);
-                expr new_b = replace(b, extend(ctx, abst_name(e), new_d), menv);
+                expr new_d = replace(d, ctx, elb);
+                expr new_b = replace(b, extend(ctx, abst_name(e), new_d), elb);
                 return mk_pair(new_d, new_b);
             });
     case expr_kind::Let:
         return update_let(e, [&](expr const & v, expr const & b) {
-                expr new_v = replace(v, ctx, menv);
-                expr new_b = replace(b, extend(ctx, abst_name(e), expr(), new_v), menv);
+                expr new_v = replace(v, ctx, elb);
+                expr new_b = replace(b, extend(ctx, let_name(e), expr(), new_v), elb);
                 return mk_pair(new_v, new_b);
             });
     }
@@ -75,27 +74,47 @@ static expr replace(expr const & e, context const & ctx, metavar_env & menv) {
 /**
    \brief Replace placeholders with fresh meta-variables.
 */
-expr replace_placeholders_with_metavars(expr const & e, metavar_env & menv) {
-    return replace(e, context(), menv);
+expr replace_placeholders_with_metavars(expr const & e, elaborator & elb) {
+    return replace(e, context(), elb);
 }
 
 expr elaborate(expr const & e, environment const & env) {
     elaborator elb(env);
-    expr new_e = replace_placeholders_with_metavars(e, elb.menv());
+    expr new_e = replace_placeholders_with_metavars(e, elb);
     return elb(new_e);
 }
 
 // Check elaborator success
 static void success(expr const & e, expr const & expected, environment const & env) {
-    std::cout << "\n" << e << "\n------>\n" << elaborate(e, env) << "\n";
+    std::cout << "\n" << e << "\n------>\n";
+    try {
+        std::cout << elaborate(e, env) << "\n";
+    } catch (unification_app_mismatch_exception & ex) {
+        std::cout << "Error at argumet " << ex.get_arg_pos() << " of " << mk_pair(ex.get_expr(), ex.get_context()) << "\n";
+    } catch (unification_type_mismatch_exception & ex) {
+        std::cout << "Error at " << mk_pair(ex.get_expr(), ex.get_context()) << " " << ex.what() << "\n";
+        std::cout << "Elaborator:\n"; ex.get_elaborator().display(std::cout); std::cout << "-----------------\n";
+    }
     lean_assert(elaborate(e, env) == expected);
-    std::cout << infer_type(elaborate(e, env), env) << "\n";
+    try {
+        std::cout << infer_type(elaborate(e, env), env) << "\n";
+    } catch (app_type_mismatch_exception & ex) {
+        context const & ctx = ex.get_context();
+        std::cout << "Application type mismatch at argument " << ex.get_arg_pos() << "\n"
+                  << "  " << mk_pair(ex.get_application(), ctx) << "\n"
+                  << "expected type\n"
+                  << "  " << mk_pair(ex.get_expected_type(), ctx) << "\n"
+                  << "given type\n"
+                  << "  " << mk_pair(ex.get_given_type(), ctx) << "\n";
+        lean_unreachable();
+    }
 }
 
 // Check elaborator failure
 static void fails(expr const & e, environment const & env) {
     try {
-        elaborate(e, env);
+        expr new_e = elaborate(e, env);
+        std::cout << "new_e: " << new_e << std::endl;
         lean_unreachable();
     } catch (exception &) {
     }
@@ -123,7 +142,7 @@ static void tst1() {
     expr _ = mk_placholder();
     expr f = Const("f");
     success(F(_,_,f), F(Nat, Real, f), env);
-    fails(F(_,Bool,f), env);
+    // fails(F(_,Bool,f), env);
     success(F(_,_,Fun({a, Nat},a)), F(Nat,Nat,Fun({a,Nat},a)), env);
 }
 
@@ -389,6 +408,45 @@ void tst12() {
             env);
 }
 
+void tst13() {
+    environment env = mk_toplevel();
+    expr A  = Const("A");
+    expr h  = Const("h");
+    expr f  = Const("f");
+    expr a  = Const("a");
+    expr _  = mk_placholder();
+    env.add_var("h", Pi({A, Type()}, A) >> Bool);
+    success(Fun({{f, Pi({A, Type()}, _)}, {a, Bool}}, h(f)),
+            Fun({{f, Pi({A, Type()}, A)}, {a, Bool}}, h(f)),
+            env);
+}
+
+void tst14() {
+    environment env = mk_toplevel();
+    expr R  = Const("R");
+    expr A  = Const("A");
+    expr r  = Const("r");
+    expr eq = Const("eq");
+    expr f  = Const("f");
+    expr g  = Const("g");
+    expr h  = Const("h");
+    expr D  = Const("D");
+    expr _  = mk_placholder();
+    env.add_var("R", Type() >> Bool);
+    env.add_var("r", Pi({A, Type()},R(A)));
+    env.add_var("h", Pi({A, Type()}, R(A)) >> Bool);
+    env.add_var("eq", Pi({A, Type(level()+1)}, A >> (A >> Bool)));
+    success(Let({{f, Fun({A, Type()}, r(_))},
+                 {g, Fun({A, Type()}, r(_))},
+                 {D, Fun({A, Type()}, eq(_, f(A), g(_)))}},
+                h(f)),
+            Let({{f, Fun({A, Type()}, r(A))},
+                 {g, Fun({A, Type()}, r(A))},
+                 {D, Fun({A, Type()}, eq(R(A), f(A), g(A)))}},
+                h(f)),
+            env);
+}
+
 int main() {
     tst1();
     tst2();
@@ -402,5 +460,7 @@ int main() {
     tst10();
     tst11();
     tst12();
+    tst13();
+    tst14();
     return has_violations() ? 1 : 0;
 }

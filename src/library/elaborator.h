@@ -5,7 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "metavar_env.h"
+#include <memory>
+#include "environment.h"
 
 namespace lean {
 /**
@@ -14,31 +15,26 @@ namespace lean {
    the value of implicit arguments.
 */
 class elaborator {
-    environment const & m_env;
-    metavar_env         m_metaenv;
-
-    expr lookup(context const & c, unsigned i);
-    void unify(expr const & e1, expr const & e2, context const & ctx);
-    expr check_pi(expr const & e, context const & ctx);
-    level check_universe(expr const & e, context const & ctx);
-    expr process(expr const & e, context const & ctx);
-
+    class imp;
+    std::shared_ptr<imp> m_ptr;
 public:
-    elaborator(environment const & env);
+    explicit elaborator(environment const & env);
+    ~elaborator();
+
+    expr mk_metavar();
+
     expr operator()(expr const & e);
 
-    metavar_env & menv() { return m_metaenv; }
-
-    void clear() { m_metaenv.clear(); }
-    expr mk_metavar(unsigned ctx_sz) { return m_metaenv.mk_metavar(ctx_sz); }
-
-    void set_interrupt(bool flag) { m_metaenv.set_interrupt(flag); }
+    void set_interrupt(bool flag);
     void interrupt() { set_interrupt(true); }
     void reset_interrupt() { set_interrupt(false); }
 
-    void display(std::ostream & out) const { m_metaenv.display(out); }
-};
+    void clear();
 
+    environment const & get_environment() const;
+
+    void display(std::ostream & out) const;
+};
 /** \brief Return true iff \c e is a special constant used to mark application of overloads. */
 bool is_overload_marker(expr const & e);
 /** \brief Return the overload marker */

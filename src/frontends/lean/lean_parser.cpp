@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "expr_maps.h"
 #include "sstream.h"
 #include "kernel_exception.h"
+#include "metavar.h"
 #include "elaborator.h"
 #include "lean_frontend.h"
 #include "lean_parser.h"
@@ -873,7 +874,7 @@ class parser::imp {
 
     /** \brief Create a fresh metavariable. */
     expr mk_metavar() {
-        return m_elaborator.mk_metavar(m_num_local_decls);
+        return m_elaborator.mk_metavar();
     }
 
     /** \brief Parse \c _ a hole that must be filled by the elaborator. */

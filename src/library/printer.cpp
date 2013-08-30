@@ -54,21 +54,11 @@ struct print_expr_fn {
         print_child(eq_rhs(a), c);
     }
 
-    void print_app(expr const & a, context const & c) {
-        unsigned i, s, n;
-        expr v;
-        if (is_lower(a, s, n)) {
-            out() << "lower:" << s << ":" << n << " "; print_child(arg(a, 1), c);
-        } else if (is_lift(a, s, n)) {
-            out() << "lift:" << s << ":" << n << " "; print_child(arg(a, 1), c);
-        } else if (is_subst(a, i, v)) {
-            out() << "subst:" << i << " "; print_child(arg(a, 1), c); out() << " "; print_child(v, context());
-        } else {
-            print_child(arg(a, 0), c);
-            for (unsigned i = 1; i < num_args(a); i++) {
-                out() << " ";
-                print_child(arg(a, i), c);
-            }
+    void print_app(expr const & e, context const & c) {
+        print_child(arg(e, 0), c);
+        for (unsigned i = 1; i < num_args(e); i++) {
+            out() << " ";
+            print_child(arg(e, i), c);
         }
     }
 
@@ -80,58 +70,68 @@ struct print_expr_fn {
     }
 
     void print(expr const & a, context const & c) {
-        switch (a.kind()) {
-        case expr_kind::Var:
-            try {
-                out() << lookup(c, var_idx(a)).get_name();
-            } catch (exception & ex) {
-                out() << "#" << var_idx(a);
-            }
-            break;
-        case expr_kind::Constant:
-            if (is_metavar(a)) {
-                out() << "?M:" << metavar_idx(a);
-            } else {
-                out() << const_name(a);
-            }
-            break;
-        case expr_kind::App:
-            print_app(a, c);
-            break;
-        case expr_kind::Eq:
-            print_eq(a, c);
-            break;
-        case expr_kind::Lambda:
-            out() << "fun " << abst_name(a) << " : ";
-            print_child(abst_domain(a), c);
-            out() << ", ";
-            print_child(abst_body(a), extend(c, abst_name(a), abst_domain(a)));
-            break;
-        case expr_kind::Pi:
-            if (!is_arrow(a)) {
-                out() << "Pi " << abst_name(a) << " : ";
+        unsigned i, s, n;
+        expr v, ch;
+        if (is_lower(a, ch, s, n)) {
+            out() << "lower:" << s << ":" << n << " "; print_child(ch, c);
+        } else if (is_lift(a, ch, s, n)) {
+            out() << "lift:" << s << ":" << n << " "; print_child(ch, c);
+        } else if (is_subst(a, ch, i, v)) {
+            out() << "subst:" << i << " "; print_child(ch, c); out() << " "; print_child(v, context());
+        } else {
+            switch (a.kind()) {
+            case expr_kind::Var:
+                try {
+                    out() << lookup(c, var_idx(a)).get_name();
+                } catch (exception & ex) {
+                    out() << "#" << var_idx(a);
+                }
+                break;
+            case expr_kind::Constant:
+                if (is_metavar(a)) {
+                    out() << "?M:" << metavar_idx(a);
+                } else {
+                    out() << const_name(a);
+                }
+                break;
+            case expr_kind::App:
+                print_app(a, c);
+                break;
+            case expr_kind::Eq:
+                print_eq(a, c);
+                break;
+            case expr_kind::Lambda:
+                out() << "fun " << abst_name(a) << " : ";
                 print_child(abst_domain(a), c);
                 out() << ", ";
                 print_child(abst_body(a), extend(c, abst_name(a), abst_domain(a)));
                 break;
-            } else {
-                print_child(abst_domain(a), c);
-                out() << " -> ";
-                print_arrow_body(abst_body(a), extend(c, abst_name(a), abst_domain(a)));
+            case expr_kind::Pi:
+                if (!is_arrow(a)) {
+                    out() << "Pi " << abst_name(a) << " : ";
+                    print_child(abst_domain(a), c);
+                    out() << ", ";
+                    print_child(abst_body(a), extend(c, abst_name(a), abst_domain(a)));
+                    break;
+                } else {
+                    print_child(abst_domain(a), c);
+                    out() << " -> ";
+                    print_arrow_body(abst_body(a), extend(c, abst_name(a), abst_domain(a)));
+                }
+                break;
+            case expr_kind::Let:
+                out() << "let " << let_name(a) << " := ";
+                print(let_value(a), c);
+                out() << " in ";
+                print_child(let_body(a), extend(c, let_name(a), let_value(a)));
+                break;
+            case expr_kind::Type:
+                print_type(a);
+                break;
+            case expr_kind::Value:
+                print_value(a);
+                break;
             }
-            break;
-        case expr_kind::Let:
-            out() << "let " << let_name(a) << " := ";
-            print(let_value(a), c);
-            out() << " in ";
-            print_child(let_body(a), extend(c, let_name(a), let_value(a)));
-            break;
-        case expr_kind::Type:
-            print_type(a);
-            break;
-        case expr_kind::Value:
-            print_value(a);
-            break;
         }
     }
 

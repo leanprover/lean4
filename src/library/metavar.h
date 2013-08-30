@@ -91,7 +91,7 @@ expr head_reduce_mmv(expr const & e, environment const & env, name_set const * d
    of the form (subst:i c v). The meaning of the expression is
    substitute free variable \c i in \c c with expression \c v.
 */
-bool is_subst(expr const & e, unsigned & i, expr & v);
+bool is_subst(expr const & e, expr & c, unsigned & i, expr & v);
 
 /**
     \brief Return true iff \c e is a delayed substitution expression.
@@ -103,7 +103,7 @@ bool is_subst(expr const & e);
     form (lift:s:n c). The meaning of the expression is lift the free
     variables >= \c s by \c n in \c c.
 */
-bool is_lift(expr const & e, unsigned & s, unsigned & n);
+bool is_lift(expr const & e, expr & c, unsigned & s, unsigned & n);
 
 /**
     \brief Return true iff \c e is a delayed lift expression.
@@ -115,7 +115,7 @@ bool is_lift(expr const & e);
     form (lower:s:n c). The meaning of the expression is lower the free
     variables >= \c s by \c n in \c c.
 */
-bool is_lower(expr const & e, unsigned & s, unsigned & n);
+bool is_lower(expr const & e, expr & c, unsigned & s, unsigned & n);
 
 /**
     \brief Return true iff \c e is a delayed lower expression.
@@ -128,5 +128,11 @@ bool is_lower(expr const & e);
     delayed lower expression.
 */
 bool is_meta(expr const & e);
-}
 
+/**
+   \brief Return nested metavar in \c e
+
+   \pre is_meta(e)
+*/
+expr get_metavar(expr const & e);
+}

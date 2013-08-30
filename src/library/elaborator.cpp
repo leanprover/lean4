@@ -417,7 +417,7 @@ class elaborator::imp {
     }
 
     expr instantiate(expr const & e) {
-        auto proc = [&](expr const & n, unsigned offset) {
+        auto proc = [&](expr const & n, unsigned offset) -> expr {
             if (is_meta(n)) {
                 expr const & m = get_metavar(n);
                 unsigned midx = metavar_idx(m);

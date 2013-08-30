@@ -5,7 +5,7 @@ Eval xor true true
 Eval xor true false
 Variable a : Bool
 Show a ⊕ a ⊕ a
-Check Subst
+Check Subst::explicit
 Theorem EM2 (a : Bool) : a \/ (not a) :=
    Case (fun x : Bool, x \/ (not x)) Trivial Trivial a
 Check EM2

@@ -21,6 +21,6 @@ Eval true => a
 (* Simple proof *)
 Axiom H1 : a
 Axiom H2 : a => b
-Check MP
-Show MP a b H2 H1
-Check MP a b H2 H1
+Check MP::explicit
+Show MP H2 H1
+Check MP H2 H1

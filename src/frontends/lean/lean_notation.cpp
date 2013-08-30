@@ -12,6 +12,10 @@ namespace lean {
    \brief Initialize builtin notation.
 */
 void init_builtin_notation(frontend & f) {
+    f.mark_implicit_arguments("heq", {true, false, false});
+    f.add_infix("==", 50, mk_homo_eq_fn());
+    f.add_infix("≃",  50, mk_homo_eq_fn());
+
     f.add_prefix("\u00ac", 40, mk_not_fn());     // "¬"
     f.add_infixr("&&", 35, mk_and_fn());         // "&&"
     f.add_infixr("/\\", 35, mk_and_fn());        // "/\"

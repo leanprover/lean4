@@ -183,6 +183,7 @@ MK_CONSTANT(or_fn,      name("or"));
 MK_CONSTANT(not_fn,     name("not"));
 MK_CONSTANT(forall_fn,  name("forall"));
 MK_CONSTANT(exists_fn,  name("exists"));
+MK_CONSTANT(homo_eq_fn, name("heq"));
 
 // Axioms
 MK_CONSTANT(mp_fn,          name("MP"));
@@ -237,6 +238,9 @@ void add_basic_theory(environment & env) {
     env.add_definition(forall_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Eq(P, Fun({x, A}, True))));
     // TODO: introduce epsilon
     env.add_definition(exists_fn_name, q_type, Fun({{A,TypeU}, {P, A_pred}}, Not(Forall(A, Fun({x, A}, Not(P(x)))))));
+
+    // homogeneous equality
+    env.add_definition(homo_eq_fn_name, Pi({A,TypeU}, A >> (A >> Bool)), Fun({{A,TypeU}, {x,A}, {y,A}}, Eq(x, y)));
 
     // MP : Pi (a b : Bool) (H1 : a => b) (H2 : a), b
     env.add_axiom(mp_fn_name, Pi({{a, Bool}, {b, Bool}, {H1, Implies(a, b)}, {H2, a}}, b));

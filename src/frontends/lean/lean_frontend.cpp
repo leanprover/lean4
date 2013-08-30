@@ -283,8 +283,8 @@ struct frontend::imp {
 };
 
 frontend::frontend():m_imp(new imp(*this)) {
-    init_builtin_notation(*this);
     init_toplevel(m_imp->m_env);
+    init_builtin_notation(*this);
     m_imp->m_state.set_formatter(mk_pp_formatter(*this));
 }
 frontend::frontend(imp * new_ptr):m_imp(new_ptr) {

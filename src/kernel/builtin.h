@@ -109,6 +109,12 @@ expr mk_exists_fn();
 inline expr mk_exists(expr const & A, expr const & P) { return mk_app(mk_exists_fn(), A, P); }
 inline expr Exists(expr const & A, expr const & P) { return mk_exists(A, P); }
 
+/** \brief Homogeneous equality. It has type: <tt>Pi (A : Type), A -> A -> Bool */
+expr mk_homo_eq_fn();
+/** \brief Return the term (homo_eq A l r) */
+inline expr mk_homo_eq(expr const & A, expr const & l, expr const & r) { return mk_app(mk_homo_eq_fn(), A, l, r); }
+inline expr hEq(expr const & A, expr const & l, expr const & r) { return mk_homo_eq(A, l, r); }
+
 /** \brief Modus Ponens axiom */
 expr mk_mp_fn();
 /** \brief (Axiom) {a : Bool}, {b : Bool}, H1 : a => b, H2 : a |- MP(a, b, H1, H2) : b */

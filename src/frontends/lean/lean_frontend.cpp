@@ -194,6 +194,19 @@ struct frontend::imp {
     void add_mixfixc(unsigned sz, name const * opns, unsigned p, expr const & d) { add_op(mixfixc(sz, opns, p), d, false); }
     void add_mixfixo(unsigned sz, name const * opns, unsigned p, expr const & d) { add_op(mixfixo(sz, opns, p), d, true); }
 
+    expr mk_explicit_definition_body(expr type, name const & n, unsigned i, unsigned sz) {
+        if (i == sz) {
+            buffer<expr> args;
+            args.push_back(mk_constant(n));
+            unsigned j = sz;
+            while (j > 0) { --j; args.push_back(mk_var(j)); }
+            return mk_app(args.size(), args.data());
+        } else {
+            lean_assert(is_pi(type));
+            return mk_lambda(abst_name(type), abst_domain(type), mk_explicit_definition_body(abst_body(type), n, i+1, sz));
+        }
+    }
+
     void mark_implicit_arguments(name const & n, unsigned sz, bool const * implicit) {
         if (has_children())
             throw exception(sstream() << "failed to mark implicit arguments, frontend object is read-only");
@@ -213,10 +226,11 @@ struct frontend::imp {
             throw exception(sstream() << "failed to mark implicit arguments for '" << n << "', object has only " << num_args << " arguments, but trying to mark " << sz << " arguments");
         std::vector<bool> v(implicit, implicit+sz);
         m_implicit_table[n] = mk_pair(v, explicit_version);
+        expr body = mk_explicit_definition_body(type, n, 0, sz);
         if (obj.is_axiom() || obj.is_theorem()) {
-            m_env.add_theorem(explicit_version, type, mk_constant(n));
+            m_env.add_theorem(explicit_version, type, body);
         } else {
-            m_env.add_definition(explicit_version, type, mk_constant(n));
+            m_env.add_definition(explicit_version, type, body);
         }
     }
 

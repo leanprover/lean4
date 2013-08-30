@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include "context.h"
 #include "scoped_map.h"
+#include "scoped_set.h"
 #include "for_each.h"
 #include "instantiate.h"
 #include "occurs.h"
@@ -96,16 +97,19 @@ static name g_nu("\u03BD");
 
 /**
    \brief Return a fresh name for the given abstraction or let.
-   By fresh, we mean a name that is not used for any constant in abst_body(e).
+   By fresh, we mean a name that is not used for any constant in
+   abst_body(e). If fe != nullptr, then the resultant name also does
+   not clash with the name of any object defined in fe.
+
    The resultant name is based on abst_name(e).
 */
-name get_unused_name(expr const & e) {
+name get_unused_name(expr const & e, frontend const * fe = nullptr) {
     lean_assert(is_abstraction(e) || is_let(e));
     name const & n = is_abstraction(e) ? abst_name(e) : let_name(e);
     name n1    = n;
     unsigned i = 1;
     expr const & b = is_abstraction(e) ? abst_body(e) : let_body(e);
-    while (occurs(n1, b)) {
+    while (occurs(n1, b) || (fe != nullptr && fe->find_object(n1))) {
         n1 = name(n, i);
         i++;
     }
@@ -116,10 +120,12 @@ name get_unused_name(expr const & e) {
 class pp_fn {
     typedef scoped_map<expr, name, expr_hash, expr_eqp> aliases;
     typedef std::vector<std::pair<name, format>>        aliases_defs;
+    typedef scoped_set<name, name_hash, name_eq>        local_names;
     frontend const & m_frontend;
     // State
     aliases          m_aliases;
     aliases_defs     m_aliases_defs;
+    local_names      m_local_names;
     unsigned         m_num_steps;
     name             m_aux;
     // Configuration
@@ -177,11 +183,15 @@ class pp_fn {
         return mk_result(compose(format("#"), format(vidx)), 1);
     }
 
+    bool has_implicit_arguments(name const & n) const {
+        return m_frontend.has_implicit_arguments(n) && m_local_names.find(n) == m_local_names.end();
+    }
+
     result pp_constant(expr const & e) {
         name const & n = const_name(e);
         if (is_metavar(e)) {
             return mk_result(format("_"), 1);
-        } else if (m_frontend.has_implicit_arguments(n)) {
+        } else if (has_implicit_arguments(n)) {
             return mk_result(format(m_frontend.get_explicit_version(n)), 1);
         } else {
             return mk_result(format(n), 1);
@@ -250,6 +260,7 @@ class pp_fn {
         if (is_lambda(arg(e, 2))) {
             expr lambda = arg(e, 2);
             name n1 = get_unused_name(lambda);
+            m_local_names.insert(n1);
             r.push_back(mk_pair(n1, abst_domain(lambda)));
             expr b  = instantiate_with_closed(abst_body(lambda), mk_constant(n1));
             if (is_quant_expr(b, is_forall))
@@ -274,6 +285,7 @@ class pp_fn {
         forall formulas */
     result pp_quantifier(expr const & e, unsigned depth, bool is_forall) {
         buffer<std::pair<name, expr>> nested;
+        local_names::mk_scope mk(m_local_names);
         expr b = collect_nested_quantifiers(e, is_forall, nested);
         format head;
         if (m_notation)
@@ -329,6 +341,13 @@ class pp_fn {
         return pp_quantifier(e, depth, false);
     }
 
+    operator_info find_op_for(expr const & e) const {
+        if (is_constant(e) && m_local_names.find(const_name(e)) != m_local_names.end())
+            return operator_info();
+        else
+            return m_frontend.find_op_for(e);
+    }
+
     /**
        \brief Return the operator associated with \c e.
        Return the null operator if there is none.
@@ -341,11 +360,11 @@ class pp_fn {
        operator.
     */
     operator_info get_operator(expr const & e) {
-        operator_info op = m_frontend.find_op_for(e);
+        operator_info op = find_op_for(e);
         if (op)
             return op;
         else if (is_app(e))
-            return m_frontend.find_op_for(arg(e, 0));
+            return find_op_for(arg(e, 0));
         else
             return operator_info();
     }
@@ -423,9 +442,10 @@ class pp_fn {
         std::vector<bool> const * m_implicit_args;
         bool         m_notation_enabled;
 
-        application(expr const & e, frontend const & fe, bool show_implicit):m_app(e) {
+        application(expr const & e, pp_fn const & owner, bool show_implicit):m_app(e) {
+            frontend const & fe = owner.m_frontend;
             expr const & f = arg(e,0);
-            if (is_constant(f) && fe.has_implicit_arguments(const_name(f))) {
+            if (is_constant(f) && owner.has_implicit_arguments(const_name(f))) {
                 m_implicit_args = &(fe.get_implicit_arguments(const_name(f)));
                 if (show_implicit || num_args(e) - 1 < m_implicit_args->size()) {
                     // we are showing implicit arguments, thus we do
@@ -509,7 +529,7 @@ class pp_fn {
        \brief Pretty print an application.
     */
     result pp_app(expr const & e, unsigned depth) {
-        application app(e, m_frontend, m_implict);
+        application app(e, *this, m_implict);
         operator_info op;
         if (m_notation && app.notation_enabled() && (op = get_operator(e)) && has_expected_num_args(app, op)) {
             result   p_arg;
@@ -609,6 +629,7 @@ class pp_fn {
     std::pair<expr, expr> collect_nested(expr const & e, expr T, expr_kind k, buffer<std::pair<name, expr>> & r) {
         if (e.kind() == k && (!T || is_abstraction(T))) {
             name n1    = get_unused_name(e);
+            m_local_names.insert(n1);
             r.push_back(mk_pair(n1, abst_domain(e)));
             expr b = instantiate_with_closed(abst_body(e), mk_constant(n1));
             if (T)
@@ -689,6 +710,7 @@ class pp_fn {
        \remark if T != 0, then T is Pi(x : A), B
     */
     result pp_abstraction_core(expr const & e, unsigned depth, expr T, std::vector<bool> const * implicit_args = nullptr) {
+        local_names::mk_scope mk(m_local_names);
         if (is_arrow(e) && !implicit_args) {
             lean_assert(!T);
             result p_lhs    = pp_child(abst_domain(e), depth);
@@ -777,6 +799,7 @@ class pp_fn {
     expr collect_nested_let(expr const & e, buffer<std::pair<name, expr>> & bindings) {
         if (is_let(e)) {
             name n1    = get_unused_name(e);
+            m_local_names.insert(n1);
             bindings.push_back(mk_pair(n1, let_value(e)));
             expr b = instantiate_with_closed(let_body(e), mk_constant(n1));
             return collect_nested_let(b, bindings);
@@ -786,6 +809,7 @@ class pp_fn {
     }
 
     result pp_let(expr const & e, unsigned depth) {
+        local_names::mk_scope mk(m_local_names);
         buffer<std::pair<name, expr>> bindings;
         expr body = collect_nested_let(e, bindings);
         unsigned r_weight = 2;
@@ -961,7 +985,7 @@ class pp_formatter_cell : public formatter_cell {
         expr c2   = context_to_lambda(c, e);
         while (is_fake_context(c2)) {
             check_interrupted(m_interrupted);
-            name n1 = get_unused_name(c2);
+            name n1 = get_unused_name(c2, &m_frontend);
             format entry = format{format(n1), space(), colon(), space(), pp(fake_context_domain(c2), opts)};
             expr val = fake_context_value(c2);
             if (val)
@@ -1069,7 +1093,7 @@ public:
             expr c2   = context_to_lambda(c, e);
             while (is_fake_context(c2)) {
                 check_interrupted(m_interrupted);
-                name n1 = get_unused_name(c2);
+                name n1 = get_unused_name(c2, &m_frontend);
                 expr const & rest = fake_context_rest(c2);
                 c2 = instantiate_with_closed(rest, mk_constant(n1));
             }

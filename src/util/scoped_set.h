@@ -113,5 +113,12 @@ public:
     const_iterator end() const {
         return m_set.end();
     }
+
+    class mk_scope {
+        scoped_set & m_set;
+    public:
+        mk_scope(scoped_set & s):m_set(s) { m_set.push(); }
+        ~mk_scope() { m_set.pop(); }
+    };
 };
 }

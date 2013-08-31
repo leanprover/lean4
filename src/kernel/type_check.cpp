@@ -135,7 +135,7 @@ public:
             expr lt = infer_type(let_value(e), ctx);
             {
                 cache::mk_scope sc(m_cache);
-                r = infer_type(let_body(e), extend(ctx, let_name(e), lt, let_value(e)));
+                r = lower_free_vars(infer_type(let_body(e), extend(ctx, let_name(e), lt, let_value(e))), 1);
             }
             break;
         }

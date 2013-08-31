@@ -123,6 +123,8 @@ class elaborator::imp {
             return level();
         } else if (is_type(e)) {
             return ty_level(e);
+        } else if (e == Bool) {
+            return level();
         } else {
             expr r = head_reduce_mmv(e, m_env, m_available_defs);
             if (!is_eqp(r, e)) {

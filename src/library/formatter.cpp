@@ -8,6 +8,9 @@ Author: Leonardo de Moura
 #include "formatter.h"
 #include "printer.h"
 #include "kernel_exception.h"
+#include "elaborator_exception.h"
+#include "elaborator.h"
+
 namespace lean {
 class simple_formatter_cell : public formatter_cell {
 public:
@@ -75,5 +78,15 @@ format formatter::operator()(kernel_exception const & ex, options const & opts) 
     } else {
         return format(ex.what());
     }
+}
+
+format formatter::operator()(elaborator_exception const & ex, options const & opts) {
+    unsigned indent = get_pp_indent(opts);
+    format expr_f = operator()(ex.get_context(), ex.get_expr(), false, opts);
+    format elb_f  = ex.get_elaborator().pp(*this, opts);
+    return format({format(ex.what()), space(), format("at term"),
+                nest(indent, compose(line(), expr_f)),
+                line(), format("Elaborator state"),
+                nest(indent, compose(line(), elb_f))});
 }
 }

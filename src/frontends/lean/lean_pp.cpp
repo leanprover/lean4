@@ -66,6 +66,10 @@ static format g_let_fmt       = highlight_keyword(format("let"));
 static format g_in_fmt        = highlight_keyword(format("in"));
 static format g_assign_fmt    = highlight_keyword(format(":="));
 static format g_geq_fmt       = format("\u2265");
+static format g_lift_fmt      = highlight_keyword(format("lift"));
+static format g_lower_fmt     = highlight_keyword(format("lower"));
+static format g_subst_fmt     = highlight_keyword(format("subst"));
+
 
 static name g_pp_max_depth       {"lean", "pp", "max_depth"};
 static name g_pp_max_steps       {"lean", "pp", "max_steps"};
@@ -98,18 +102,17 @@ static name g_nu("\u03BD");
 /**
    \brief Return a fresh name for the given abstraction or let.
    By fresh, we mean a name that is not used for any constant in
-   abst_body(e). If fe != nullptr, then the resultant name also does
-   not clash with the name of any object defined in fe.
+   abst_body(e).
 
    The resultant name is based on abst_name(e).
 */
-name get_unused_name(expr const & e, frontend const * fe = nullptr) {
+name get_unused_name(expr const & e) {
     lean_assert(is_abstraction(e) || is_let(e));
     name const & n = is_abstraction(e) ? abst_name(e) : let_name(e);
     name n1    = n;
     unsigned i = 1;
     expr const & b = is_abstraction(e) ? abst_body(e) : let_body(e);
-    while (occurs(n1, b) || (fe != nullptr && fe->find_object(n1))) {
+    while (occurs(n1, b)) {
         n1 = name(n, i);
         i++;
     }
@@ -190,7 +193,7 @@ class pp_fn {
     result pp_constant(expr const & e) {
         name const & n = const_name(e);
         if (is_metavar(e)) {
-            return mk_result(format("_"), 1);
+            return mk_result(format{format("?M"), format(metavar_idx(e))}, 1);
         } else if (has_implicit_arguments(n)) {
             return mk_result(format(m_frontend.get_explicit_version(n)), 1);
         } else {
@@ -852,6 +855,32 @@ class pp_fn {
         return mk_result(r_format, p_arg1.second + p_arg2.second + 1);
     }
 
+    result pp_lower(expr const & e, unsigned depth) {
+        expr arg; unsigned s, n;
+        is_lower(e, arg, s, n);
+        result p_arg = pp_child(arg, depth);
+        format r_format = format{g_lower_fmt, colon(), format(s), colon(), format(s), nest(m_indent, compose(line(), p_arg.first))};
+        return mk_result(r_format, p_arg.second + 1);
+     }
+
+     result pp_lift(expr const & e, unsigned depth) {
+        expr arg; unsigned s, n;
+        is_lift(e, arg, s, n);
+        result p_arg = pp_child(arg, depth);
+        format r_format = format{g_lift_fmt, colon(), format(s), colon(), format(s), nest(m_indent, compose(line(), p_arg.first))};
+        return mk_result(r_format, p_arg.second + 1);
+    }
+
+    result pp_subst(expr const & e, unsigned depth) {
+        expr arg, v; unsigned i;
+        is_subst(e, arg, i, v);
+        result p_arg = pp_child(arg, depth);
+        result p_v   = pp_child(v, depth);
+        format r_format = format{g_subst_fmt, colon(), format(i),
+                                 nest(m_indent, format{line(), p_arg.first, line(), p_v.first})};
+        return mk_result(r_format, p_arg.second + p_v.second + 1);
+    }
+
     result pp(expr const & e, unsigned depth, bool main = false) {
         check_interrupted(m_interrupted);
         if (!is_atomic(e) && (m_num_steps > m_max_steps || depth > m_max_depth)) {
@@ -864,16 +893,24 @@ class pp_fn {
                     return mk_result(format(it->second), 1);
             }
             result r;
-            switch (e.kind()) {
-            case expr_kind::Var:        r = pp_var(e);                break;
-            case expr_kind::Constant:   r = pp_constant(e);           break;
-            case expr_kind::Value:      r = pp_value(e);              break;
-            case expr_kind::App:        r = pp_app(e, depth);         break;
-            case expr_kind::Lambda:
-            case expr_kind::Pi:         r = pp_abstraction(e, depth); break;
-            case expr_kind::Type:       r = pp_type(e);               break;
-            case expr_kind::Eq:         r = pp_eq(e, depth);          break;
-            case expr_kind::Let:        r = pp_let(e, depth);         break;
+            if (is_lower(e)) {
+                r = pp_lower(e, depth);
+            } else if (is_lift(e)) {
+                r = pp_lift(e, depth);
+            } else if (is_subst(e)) {
+                r = pp_subst(e, depth);
+            } else {
+                switch (e.kind()) {
+                case expr_kind::Var:        r = pp_var(e);                break;
+                case expr_kind::Constant:   r = pp_constant(e);           break;
+                case expr_kind::Value:      r = pp_value(e);              break;
+                case expr_kind::App:        r = pp_app(e, depth);         break;
+                case expr_kind::Lambda:
+                case expr_kind::Pi:         r = pp_abstraction(e, depth); break;
+                case expr_kind::Type:       r = pp_type(e);               break;
+                case expr_kind::Eq:         r = pp_eq(e, depth);          break;
+                case expr_kind::Let:        r = pp_let(e, depth);         break;
+                }
             }
             if (!main && m_extra_lets && is_shared(e) && r.second > m_alias_min_weight) {
                 name new_aux = name(m_aux, m_aliases_defs.size()+1);
@@ -965,6 +1002,10 @@ public:
     void set_interrupt(bool flag) {
         m_interrupted = flag;
     }
+
+    void register_local(name const & n) {
+        m_local_names.insert(n);
+    }
 };
 
 class pp_formatter_cell : public formatter_cell {
@@ -979,17 +1020,20 @@ class pp_formatter_cell : public formatter_cell {
     }
 
     format pp(context const & c, expr const & e, bool include_e, options const & opts) {
+        pp_fn fn(m_frontend, opts);
+        scoped_set_interruptable_ptr<pp_fn> set(m_pp_fn, &fn);
         unsigned indent = get_pp_indent(opts);
         format r;
         bool first = true;
         expr c2   = context_to_lambda(c, e);
         while (is_fake_context(c2)) {
             check_interrupted(m_interrupted);
-            name n1 = get_unused_name(c2, &m_frontend);
-            format entry = format{format(n1), space(), colon(), space(), pp(fake_context_domain(c2), opts)};
+            name n1 = get_unused_name(c2);
+            fn.register_local(n1);
+            format entry = format{format(n1), space(), colon(), space(), fn(fake_context_domain(c2))};
             expr val = fake_context_value(c2);
             if (val)
-                entry += format{space(), g_assign_fmt, nest(indent, format{line(), pp(val, opts)})};
+                entry += format{space(), g_assign_fmt, nest(indent, format{line(), fn(val)})};
             if (first) {
                 r = group(entry);
                 first = false;
@@ -1000,9 +1044,9 @@ class pp_formatter_cell : public formatter_cell {
         }
         if (include_e) {
             if (first)
-                r += format{line(), pp(c2, opts)};
+                r += format{line(), fn(c2)};
             else
-                r = pp(c2, opts);
+                r = fn(c2);
         } else {
             return r;
         }
@@ -1090,14 +1134,17 @@ public:
         if (format_ctx) {
             return pp(c, e, true, opts);
         } else {
+            pp_fn fn(m_frontend, opts);
+            scoped_set_interruptable_ptr<pp_fn> set(m_pp_fn, &fn);
             expr c2   = context_to_lambda(c, e);
             while (is_fake_context(c2)) {
                 check_interrupted(m_interrupted);
-                name n1 = get_unused_name(c2, &m_frontend);
+                name n1 = get_unused_name(c2);
+                fn.register_local(n1);
                 expr const & rest = fake_context_rest(c2);
                 c2 = instantiate_with_closed(rest, mk_constant(n1));
             }
-            return pp(c2, opts);
+            return fn(c2);
         }
     }
 

@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <memory>
 #include "environment.h"
+#include "formatter.h"
 
 namespace lean {
 /**
@@ -26,6 +27,13 @@ public:
 
     expr operator()(expr const & e);
 
+    /**
+        \brief If \c e is an expression instantiated by the elaborator, then it
+        returns the expression (the one with "holes") used to generate \c e.
+        Otherwise, it just returns \c e.
+    */
+    expr const & get_original(expr const & e) const;
+
     void set_interrupt(bool flag);
     void interrupt() { set_interrupt(true); }
     void reset_interrupt() { set_interrupt(false); }
@@ -35,6 +43,7 @@ public:
     environment const & get_environment() const;
 
     void display(std::ostream & out) const;
+    format pp(formatter & f, options const & o) const;
 };
 /** \brief Return true iff \c e is a special constant used to mark application of overloads. */
 bool is_overload_marker(expr const & e);

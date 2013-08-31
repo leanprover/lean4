@@ -37,7 +37,7 @@ public:
 class unsolved_placeholder_exception : public elaborator_exception {
 public:
     unsolved_placeholder_exception(elaborator const & elb, context const & ctx, expr const & e):elaborator_exception(elb, ctx, e) {}
-    virtual char const * what() const noexcept { return "unsolved placeholder, system could not fill this placeholder"; }
+    virtual char const * what() const noexcept { return "unsolved placeholder"; }
 };
 
 class unification_app_mismatch_exception : public elaborator_exception {
@@ -45,12 +45,12 @@ class unification_app_mismatch_exception : public elaborator_exception {
 public:
     unification_app_mismatch_exception(elaborator const & elb, context const & ctx, expr const & s, unsigned pos):elaborator_exception(elb, ctx, s), m_arg_pos(pos) {}
     unsigned get_arg_pos() const { return m_arg_pos; }
-    virtual char const * what() const noexcept { return "failed to solve unification problem during elaboration"; }
+    virtual char const * what() const noexcept { return "application type mismatch during term elaboration"; }
 };
 
 class unification_type_mismatch_exception : public elaborator_exception {
 public:
     unification_type_mismatch_exception(elaborator const & elb, context const & ctx, expr const & s):elaborator_exception(elb, ctx, s) {}
-    virtual char const * what() const noexcept { return "failed to solve unification problem during elaboration"; }
+    virtual char const * what() const noexcept { return "type mismatch during term elaboration"; }
 };
 }

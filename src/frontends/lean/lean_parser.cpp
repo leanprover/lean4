@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "expr_maps.h"
 #include "sstream.h"
 #include "kernel_exception.h"
+#include "elaborator_exception.h"
 #include "metavar.h"
 #include "elaborator.h"
 #include "lean_frontend.h"
@@ -552,7 +553,8 @@ class parser::imp {
                 if (m_frontend.has_implicit_arguments(obj.get_name())) {
                     std::vector<bool> const & imp_args = m_frontend.get_implicit_arguments(obj.get_name());
                     buffer<expr> args;
-                    args.push_back(save(mk_constant(obj.get_name()), pos()));
+                    pos_info p = pos();
+                    args.push_back(save(mk_constant(obj.get_name()), p));
                     // We parse all the arguments to make sure we
                     // get all explicit arguments.
                     for (unsigned i = 0; i < imp_args.size(); i++) {
@@ -907,6 +909,15 @@ class parser::imp {
     }
 
     /**
+       \brief Create a new application and associate position of left with the resultant expression.
+    */
+    expr mk_app_left(expr const & left, expr const & arg) {
+        auto it = m_expr_pos_info.find(left);
+        lean_assert(it != m_expr_pos_info.end());
+        return save(mk_app(left, arg), it->second);
+    }
+
+    /**
        \brief Auxiliary method used when processing the 'inside' of an expression.
     */
     expr parse_led(expr const & left) {
@@ -914,12 +925,12 @@ class parser::imp {
         case scanner::token::Id:          return parse_led_id(left);
         case scanner::token::Eq:          return parse_eq(left);
         case scanner::token::Arrow:       return parse_arrow(left);
-        case scanner::token::LeftParen:   return mk_app(left, parse_lparen());
-        case scanner::token::IntVal:      return mk_app(left, parse_int());
-        case scanner::token::DecimalVal:  return mk_app(left, parse_decimal());
-        case scanner::token::StringVal:   return mk_app(left, parse_string());
-        case scanner::token::Placeholder: return mk_app(left, parse_placeholder());
-        case scanner::token::Type:        return mk_app(left, parse_type());
+        case scanner::token::LeftParen:   return mk_app_left(left, parse_lparen());
+        case scanner::token::IntVal:      return mk_app_left(left, parse_int());
+        case scanner::token::DecimalVal:  return mk_app_left(left, parse_decimal());
+        case scanner::token::StringVal:   return mk_app_left(left, parse_string());
+        case scanner::token::Placeholder: return mk_app_left(left, parse_placeholder());
+        case scanner::token::Type:        return mk_app_left(left, parse_type());
         default:                          return left;
         }
     }
@@ -961,13 +972,7 @@ class parser::imp {
     /*@}*/
 
     expr elaborate(expr const & e) {
-        if (has_metavar(e)) {
-            expr r = m_elaborator(e);
-            m_elaborator.clear();
-            return r;
-        } else {
-            return e;
-        }
+        return m_elaborator(e);
     }
 
     /**
@@ -1410,7 +1415,12 @@ class parser::imp {
         display_error(msg, m_scanner.get_line(), m_scanner.get_pos());
     }
     void display_error(kernel_exception const & ex) {
-        display_error_pos(ex.get_main_expr());
+        display_error_pos(m_elaborator.get_original(ex.get_main_expr()));
+        regular(m_frontend) << " " << ex << endl;
+        sync();
+    }
+    void display_error(elaborator_exception const & ex) {
+        display_error_pos(m_elaborator.get_original(ex.get_expr()));
         regular(m_frontend) << " " << ex << endl;
         sync();
     }
@@ -1472,6 +1482,12 @@ public:
                     throw parser_exception(ex.what(), ex.m_pos.first, ex.m_pos.second);
                 }
             } catch (kernel_exception & ex) {
+                m_found_errors = true;
+                if (m_show_errors)
+                    display_error(ex);
+                if (m_use_exceptions)
+                    throw;
+            } catch (elaborator_exception & ex) {
                 m_found_errors = true;
                 if (m_show_errors)
                     display_error(ex);

@@ -19,6 +19,8 @@ Author: Leonardo de Moura
 namespace lean {
 static name g_overload_name(name(name(name(0u), "library"), "overload"));
 static expr g_overload = mk_constant(g_overload_name);
+static format g_assignment_fmt  = format(":=");
+static format g_unification_fmt = format("\u2248");
 
 bool is_overload_marker(expr const & e) {
     return e == g_overload;
@@ -65,11 +67,18 @@ class elaborator::imp {
     environment const & m_env;
     name_set const *    m_available_defs;
     elaborator const *  m_owner;
+    expr                m_root;
 
     constraint_queue    m_constraints;
     metavars            m_metavars;
 
     bool                m_add_constraints;
+
+    // The following mapping is used to store the relationship
+    // between elaborated expressions and non-elaborated expressions.
+    // We need that because a frontend may associate line number information
+    // with the original non-elaborated expressions.
+    expr_map<expr>      m_trace;
 
     volatile bool       m_interrupted;
 
@@ -434,7 +443,14 @@ class elaborator::imp {
             }
             return n;
         };
-        replace_fn<decltype(proc)> replacer(proc);
+
+        auto tracer = [&](expr const & old_e, expr const & new_e) {
+            if (!is_eqp(new_e, old_e)) {
+                m_trace[new_e] = old_e;
+            }
+        };
+
+        replace_fn<decltype(proc), decltype(tracer)> replacer(proc, tracer);
         return replacer(e);
     }
 
@@ -444,14 +460,14 @@ class elaborator::imp {
             solve_core();
             bool cont     = false;
             bool progress = false;
-            unsigned unsolved_midx = 0;
+            // unsigned unsolved_midx = 0;
             for (unsigned midx = 0; midx < num_meta; midx++) {
                 if (m_metavars[midx].m_assignment) {
                     if (has_assigned_metavar(m_metavars[midx].m_assignment)) {
                         m_metavars[midx].m_assignment = instantiate(m_metavars[midx].m_assignment);
                     }
                     if (has_metavar(m_metavars[midx].m_assignment)) {
-                        unsolved_midx = midx;
+                        // unsolved_midx = midx;
                         cont = true; // must continue
                     } else {
                         if (m_metavars[midx].m_type && !m_metavars[midx].m_type_cnstr) {
@@ -473,7 +489,7 @@ class elaborator::imp {
             if (!cont)
                 return;
             if (!progress)
-                throw unsolved_placeholder_exception(*m_owner, m_metavars[unsolved_midx].m_ctx, m_metavars[unsolved_midx].m_mvar);
+                throw unsolved_placeholder_exception(*m_owner, context(), m_root);
         }
     }
 
@@ -494,8 +510,7 @@ public:
     }
 
     void clear() {
-        m_constraints.clear();
-        m_metavars.clear();
+        m_trace.clear();
     }
 
     void set_interrupt(bool flag) {
@@ -524,23 +539,69 @@ public:
         return m_env;
     }
 
+    struct resetter {
+        imp & m_ref;
+        resetter(imp & r):m_ref(r) {}
+        ~resetter() { m_ref.m_constraints.clear(); m_ref.m_metavars.clear(); }
+    };
+
     expr operator()(expr const & e, elaborator const & elb) {
-        // std::cout << "ELABORATIMG: " << e << "\n";
-        m_owner = &elb;
-        unsigned num_meta = m_metavars.size();
-        m_add_constraints = true;
-        infer(e, context());
-        solve(num_meta);
-        return instantiate(e);
+        if (has_metavar(e)) {
+            resetter r(*this);
+            m_owner = &elb;
+            m_root  = e;
+            unsigned num_meta = m_metavars.size();
+            m_add_constraints = true;
+            infer(e, context());
+            solve(num_meta);
+            return instantiate(e);
+        } else {
+            return e;
+        }
+    }
+
+    expr const & get_original(expr const & e) const {
+        expr const * r = &e;
+        while (true) {
+            auto it = m_trace.find(*r);
+            if (it == m_trace.end()) {
+                return *r;
+            } else {
+                r = &(it->second);
+            }
+        }
+    }
+
+    format pp(formatter & f, options const & o) const {
+        format r;
+        bool first = true;
+        for (unsigned i = 0; i < m_metavars.size(); i++) {
+            metavar_info const & info = m_metavars[i];
+            expr m = ::lean::mk_metavar(i);
+            if (first) first = false; else r += line();
+            format r_assignment;
+            if (info.m_assignment)
+                r_assignment = f(info.m_assignment, o);
+            else
+                r_assignment = highlight(format("[unassigned]"));
+            r += group(format{f(m,o), space(), g_assignment_fmt, line(), r_assignment});
+        }
+        for (auto c : m_constraints) {
+            if (first) first = false; else r += line();
+            r += group(format{f(c.m_lhs, o), space(), g_unification_fmt, line(), f(c.m_rhs, o)});
+        }
+        return r;
     }
 };
 elaborator::elaborator(environment const & env):m_ptr(new imp(env, nullptr)) {}
 elaborator::~elaborator() {}
 expr elaborator::mk_metavar() { return m_ptr->mk_metavar(); }
 expr elaborator::operator()(expr const & e) { return (*m_ptr)(e, *this); }
+expr const & elaborator::get_original(expr const & e) const { return m_ptr->get_original(e); }
 void elaborator::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
 void elaborator::clear() { m_ptr->clear(); }
 environment const & elaborator::get_environment() const { return m_ptr->get_environment(); }
 void elaborator::display(std::ostream & out) const { m_ptr->display(out); }
+format elaborator::pp(formatter & f, options const & o) const { return m_ptr->pp(f,o); }
 void elaborator::print(imp * ptr) { ptr->display(std::cout); }
 }

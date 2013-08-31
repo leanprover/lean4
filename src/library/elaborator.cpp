@@ -211,7 +211,7 @@ class elaborator::imp {
         }
         case expr_kind::Let: {
             expr lt = infer(let_value(e), ctx);
-            return infer(let_body(e), extend(ctx, let_name(e), lt, let_value(e)));
+            return lower_free_vars_mmv(infer(let_body(e), extend(ctx, let_name(e), lt, let_value(e))), 1, 1);
         }}
         lean_unreachable();
         return expr();
@@ -462,7 +462,8 @@ class elaborator::imp {
                                                                    m_metavars[midx].m_mvar, m_metavars[midx].m_ctx, static_cast<unsigned>(-1)));
                                 progress = true;
                             } catch (exception&) {
-                                // std::cout << "Failed to infer: " << m_metavars[midx].m_assignment << "\nAT\n" << m_metavars[midx].m_ctx << "\n";
+                                // std::cout << "Failed to infer type of: ?M" << midx << "\n"
+                                //          << m_metavars[midx].m_assignment << "\nAT\n" << m_metavars[midx].m_ctx << "\n";
                                 throw unification_type_mismatch_exception(*m_owner, m_metavars[midx].m_ctx, m_metavars[midx].m_mvar);
                             }
                         }
@@ -524,6 +525,7 @@ public:
     }
 
     expr operator()(expr const & e, elaborator const & elb) {
+        // std::cout << "ELABORATIMG: " << e << "\n";
         m_owner = &elb;
         unsigned num_meta = m_metavars.size();
         m_add_constraints = true;

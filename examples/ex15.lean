@@ -1,4 +1,3 @@
-
 Variable N : Type
 Variable h : N -> N -> N
 
@@ -42,6 +41,18 @@ Theorem Example3 (a b c d e : N) (H: (a = b ∧ b = e ∧ b = c) ∨ (a = d ∧ 
                    CongrH (Trans (Conjunct1 H1) (Conjunct2 (Conjunct2 H1))) (Refl b))
               (fun H1 : _,
                    CongrH (Trans (Conjunct1 H1) (Conjunct2 H1)) (Refl b))
+
+Set lean::pp::implicit false
+Show Environment 1
+
+Theorem Example4 (a b c d e : N) (H: (a = b ∧ b = e ∧ b = c) ∨ (a = d ∧ d = c)) : (h a c) = (h c a) :=
+    DisjCases H
+              (fun H1 : _,
+                   let AeqC := Trans (Conjunct1 H1) (Conjunct2 (Conjunct2 H1))
+                   in CongrH AeqC (Symm AeqC))
+              (fun H1 : _,
+                   let AeqC := Trans (Conjunct1 H1) (Conjunct2 H1)
+                   in CongrH AeqC (Symm AeqC))
 
 Set lean::pp::implicit false
 Show Environment 1

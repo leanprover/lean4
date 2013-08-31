@@ -51,9 +51,11 @@ class elaborator::imp {
         expr    m_type;
         expr    m_mvar;
         context m_ctx;
-        bool    m_mark; // for implementing occurs check
+        bool    m_mark;       // for implementing occurs check
+        bool    m_type_cnstr; // true when type constraint was already generated
         metavar_info() {
             m_mark = false;
+            m_type_cnstr = false;
         }
     };
 
@@ -452,9 +454,10 @@ class elaborator::imp {
                         unsolved_midx = midx;
                         cont = true; // must continue
                     } else {
-                        if (m_metavars[midx].m_type) {
+                        if (m_metavars[midx].m_type && !m_metavars[midx].m_type_cnstr) {
                             try {
                                 expr t = infer(m_metavars[midx].m_assignment, m_metavars[midx].m_ctx);
+                                m_metavars[midx].m_type_cnstr = true;
                                 m_constraints.push_back(constraint(m_metavars[midx].m_type, t, m_metavars[midx].m_ctx,
                                                                    m_metavars[midx].m_mvar, m_metavars[midx].m_ctx, static_cast<unsigned>(-1)));
                                 progress = true;
@@ -537,4 +540,5 @@ void elaborator::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
 void elaborator::clear() { m_ptr->clear(); }
 environment const & elaborator::get_environment() const { return m_ptr->get_environment(); }
 void elaborator::display(std::ostream & out) const { m_ptr->display(out); }
+void elaborator::print(imp * ptr) { ptr->display(std::cout); }
 }

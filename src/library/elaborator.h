@@ -17,6 +17,7 @@ namespace lean {
 class elaborator {
     class imp;
     std::shared_ptr<imp> m_ptr;
+    static void print(imp * ptr);
 public:
     explicit elaborator(environment const & env);
     ~elaborator();

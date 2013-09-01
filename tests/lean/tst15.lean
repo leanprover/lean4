@@ -1,3 +1,4 @@
+Set pp::colors false
 Variable x : Type max u+1+2 m+1 m+2 3
 Check x
 Variable f : Type u+10 -> Type

@@ -1,3 +1,4 @@
+Set pp::colors false
 Variable f : Pi (A : Type), A -> Bool
 Show fun (A B : Type) (a : _), f B a
 (* The following one should produce an error *)

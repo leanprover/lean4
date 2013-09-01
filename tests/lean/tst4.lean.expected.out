@@ -6,9 +6,10 @@
 f::explicit N n1 n2
 f::explicit ((N [33m→[0m N) [33m→[0m N [33m→[0m N) ([33mλ[0m x : N [33m→[0m N, x) ([33mλ[0m y : N [33m→[0m N, y)
   Assumed: EqNice
+  Set option: pp::colors
 EqNice::explicit N n1 n2
 N
-[33mΠ[0m (A : [36mType[0m u) (B : A [33m→[0m [36mType[0m u) (f g : [33mΠ[0m x : A, B x) (a b : A) (H1 : f = g) (H2 : a = b), (f a) = (g b)
+Π (A : Type u) (B : A → Type u) (f g : Π x : A, B x) (a b : A) (H1 : f = g) (H2 : a = b), (f a) = (g b)
 f::explicit N n1 n2
   Assumed: a
   Assumed: b
@@ -16,13 +17,13 @@ f::explicit N n1 n2
   Assumed: g
   Assumed: H1
   Proved: Pr
-[34mAxiom[0m H1 : a = b ∧ b = c
-[34mTheorem[0m Pr : (g a) = (g c) [33m:=[0m
-    [33mlet[0m κ::1 [33m:=[0m Trans::explicit
+Axiom H1 : a = b ∧ b = c
+Theorem Pr : (g a) = (g c) :=
+    let κ::1 := Trans::explicit
                      N
                      a
                      b
                      c
                      (Conjunct1::explicit (a = b) (b = c) H1)
                      (Conjunct2::explicit (a = b) (b = c) H1)
-    [33min[0m Congr::explicit N ([33mλ[0m x : N, N) g g a c (Refl::explicit (N [33m→[0m N) g) κ::1
+    in Congr::explicit N (λ x : N, N) g g a c (Refl::explicit (N → N) g) κ::1

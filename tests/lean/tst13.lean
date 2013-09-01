@@ -1,3 +1,4 @@
+Set pp::colors false
 Show fun x : Bool, (fun x : Bool, x).
 Show let x := true,
          y := true

@@ -1,20 +1,21 @@
+  Set option: pp::colors
 ⊤
   Set option: lean::pp::notation
 and true false
   Assumed: a
-Error (line: 7, pos: 0) invalid object declaration, environment already has an object named 'a'
+Error (line: 8, pos: 0) invalid object declaration, environment already has an object named 'a'
   Assumed: b
 and a b
   Assumed: A
-Error (line: 11, pos: 11) type mismatch at application argument 2 of
+Error (line: 12, pos: 11) type mismatch at application argument 2 of
     and a A
 expected type
     Bool
 given type
-    [36mType[0m
-[34mVariable[0m A : [36mType[0m
-⟨lean::pp::notation ↦ false⟩
-Error (line: 14, pos: 4) unknown option 'lean::p::notation', type 'Help Options.' for list of available options
-Error (line: 15, pos: 23) invalid option value, given option is not an integer
+    Type
+Variable A : Type
+⟨lean::pp::notation ↦ false, pp::colors ↦ false⟩
+Error (line: 15, pos: 4) unknown option 'lean::p::notation', type 'Help Options.' for list of available options
+Error (line: 16, pos: 23) invalid option value, given option is not an integer
   Set option: lean::pp::notation
 a ∧ b

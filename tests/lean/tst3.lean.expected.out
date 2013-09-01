@@ -1,8 +1,9 @@
-[34mNotation[0m 10 if _ then _ : implies
+  Set option: pp::colors
+Notation 10 if _ then _ : implies
 if ⊤ then ⊥
 if ⊤ then (if a then ⊥)
 implies true (implies a false)
-[34mNotation[0m 100 _ |- _ ; _ : f
+Notation 100 _ |- _ ; _ : f
 f c d e
 c |- d ; e
 (a !) !
@@ -10,7 +11,7 @@ fact (fact a)
 [ c ; d ]
 [ c ; ([ d ; e ]) ]
 g c (g d e)
-[34mNotation[0m 40 _ << _ end : h
+Notation 40 _ << _ end : h
 d << e end
 [ c ; d << e end ]
 g c (h d e)

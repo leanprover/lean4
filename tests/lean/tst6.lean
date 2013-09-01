@@ -1,3 +1,4 @@
+Set pp::colors false
 Variable N : Type
 Variable h : N -> N -> N
 

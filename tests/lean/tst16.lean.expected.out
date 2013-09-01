@@ -1,14 +1,15 @@
+  Set option: pp::colors
   Assumed: f
-[33m∀[0m a b : [36mType[0m, (f a) = (f b)
+∀ a b : Type, (f a) = (f b)
   Assumed: g
-[33m∀[0m (a b : [36mType[0m) (c : Bool), g c ((f a) = (f b))
-[33m∃[0m (a b : [36mType[0m) (c : Bool), g c ((f a) = (f b))
-[33m∀[0m (a b : [36mType[0m) (c : Bool), (g c (f a)) = (f b) ⇒ (f a)
+∀ (a b : Type) (c : Bool), g c ((f a) = (f b))
+∃ (a b : Type) (c : Bool), g c ((f a) = (f b))
+∀ (a b : Type) (c : Bool), (g c (f a)) = (f b) ⇒ (f a)
 Bool
-[33m∀[0m (a b : [36mType[0m) (c : Bool), g c ((f a) = (f b))
-[33m∀[0m a b : [36mType[0m, (f a) = (f b)
-[33m∃[0m a b : [36mType[0m, (f a) = (f b) ∧ (f a)
-[33m∃[0m a b : [36mType[0m, (f a) = (f b) ∨ (f b)
+∀ (a b : Type) (c : Bool), g c ((f a) = (f b))
+∀ a b : Type, (f a) = (f b)
+∃ a b : Type, (f a) = (f b) ∧ (f a)
+∃ a b : Type, (f a) = (f b) ∨ (f b)
   Assumed: a
 (f a) ∨ (f a)
 (f a) = a ∨ (f a)

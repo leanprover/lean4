@@ -1,3 +1,4 @@
+Set pp::colors false
 (* Define a "fake" type to simulate the natural numbers. This is just a test. *)
 Variable N : Type
 Variable lt : N -> N -> Bool

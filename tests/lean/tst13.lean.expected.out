@@ -1,2 +1,3 @@
-[33mλ[0m x x : Bool, x
-[33mlet[0m x [33m:=[0m ⊤, y [33m:=[0m ⊤, z [33m:=[0m x ∧ y, f [33m:=[0m [33mλ[0m x y : Bool, x ∧ y ⇔ y ∧ x ⇔ x ∨ y ∨ y [33min[0m (f x y) ∨ z
+  Set option: pp::colors
+λ x x : Bool, x
+let x := ⊤, y := ⊤, z := x ∧ y, f := λ x y : Bool, x ∧ y ⇔ y ∧ x ⇔ x ∨ y ∨ y in (f x y) ∨ z

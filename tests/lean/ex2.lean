@@ -1,5 +1,6 @@
 (* comment *)
 (* (* nested comment *) *)
+Set pp::colors false
 Show true
 Set lean::pp::notation false
 Show true && false

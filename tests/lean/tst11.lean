@@ -1,3 +1,4 @@
+Set pp::colors false
 Definition xor (x y : Bool) : Bool := (not x) = y
 Infixr 50 ⊕ : xor
 Show xor true false

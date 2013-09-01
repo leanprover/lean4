@@ -1,10 +1,11 @@
+  Set option: pp::colors
   Defined: xor
 ⊤ ⊕ ⊥
 ⊥
 ⊤
   Assumed: a
 a ⊕ a ⊕ a
-[33mΠ[0m (A : [36mType[0m u) (a b : A) (P : A [33m→[0m Bool) (H1 : P a) (H2 : a = b), P b
+Π (A : Type u) (a b : A) (P : A → Bool) (H1 : P a) (H2 : a = b), P b
   Proved: EM2
-[33mΠ[0m a : Bool, a ∨ ¬ a
+Π a : Bool, a ∨ ¬ a
 a ∨ ¬ a

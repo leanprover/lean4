@@ -1,3 +1,4 @@
+Set pp::colors false
 Variable a : Bool
 Variable b : Bool
 (* Conjunctions *)

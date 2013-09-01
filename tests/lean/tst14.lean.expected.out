@@ -1,5 +1,6 @@
-Int [33m→[0m Int [33m→[0m Int
+  Set option: pp::colors
+Int → Int → Int
   Assumed: f
 f 0
-Int [33m→[0m Int
+Int → Int
 Int

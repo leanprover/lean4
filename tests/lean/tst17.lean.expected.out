@@ -1,8 +1,9 @@
+  Set option: pp::colors
   Assumed: f
   Assumed: g
-[33m∀[0m a b : [36mType[0m, [33m∃[0m c : [36mType[0m, (g a b) = (f c)
+∀ a b : Type, ∃ c : Type, (g a b) = (f c)
 Bool
-([33mλ[0m a : [36mType[0m,
-   ([33mλ[0m b : [36mType[0m, ite Bool (([33mλ[0m x : [36mType[0m, ite Bool ((g a b) = (f x)) ⊥ ⊤) = ([33mλ[0m x : [36mType[0m, ⊤)) ⊥ ⊤) =
-   ([33mλ[0m x : [36mType[0m, ⊤)) =
-([33mλ[0m x : [36mType[0m, ⊤)
+(λ a : Type,
+   (λ b : Type, ite Bool ((λ x : Type, ite Bool ((g a b) = (f x)) ⊥ ⊤) = (λ x : Type, ⊤)) ⊥ ⊤) =
+   (λ x : Type, ⊤)) =
+(λ x : Type, ⊤)

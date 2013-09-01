@@ -1,3 +1,4 @@
+  Set option: pp::colors
   Assumed: N
   Assumed: lt
   Assumed: zero
@@ -10,38 +11,38 @@
   Defined: update
   Defined: select
   Defined: map
-[34mAxiom[0m two_lt_three : two < three
-[34mDefinition[0m vector (A : [36mType[0m) (n : N) : [36mType[0m [33m:=[0m [33mΠ[0m (i : N) (H : i < n), A
-[34mDefinition[0m const {A : [36mType[0m} (n : N) (d : A) : vector A n [33m:=[0m [33mλ[0m (i : N) (H : i < n), d
-[34mDefinition[0m const::explicit (A : [36mType[0m) (n : N) (d : A) : vector A n [33m:=[0m const n d
-[34mDefinition[0m update {A : [36mType[0m} {n : N} (v : vector A n) (i : N) (d : A) : vector A n [33m:=[0m
-    [33mλ[0m (j : N) (H : j < n), if A (j = i) d (v j H)
-[34mDefinition[0m update::explicit (A : [36mType[0m) (n : N) (v : vector A n) (i : N) (d : A) : vector A n [33m:=[0m update v i d
-[34mDefinition[0m select {A : [36mType[0m} {n : N} (v : vector A n) (i : N) (H : i < n) : A [33m:=[0m v i H
-[34mDefinition[0m select::explicit (A : [36mType[0m) (n : N) (v : vector A n) (i : N) (H : i < n) : A [33m:=[0m select v i H
-[34mDefinition[0m map {A B C : [36mType[0m} {n : N} (f : A [33m→[0m B [33m→[0m C) (v1 : vector A n) (v2 : vector B n) : vector C n [33m:=[0m
-    [33mλ[0m (i : N) (H : i < n), f (v1 i H) (v2 i H)
-[34mDefinition[0m map::explicit (A B C : [36mType[0m) (n : N) (f : A [33m→[0m B [33m→[0m C) (v1 : vector A n) (v2 : vector B n) : vector C n [33m:=[0m
+Axiom two_lt_three : two < three
+Definition vector (A : Type) (n : N) : Type := Π (i : N) (H : i < n), A
+Definition const {A : Type} (n : N) (d : A) : vector A n := λ (i : N) (H : i < n), d
+Definition const::explicit (A : Type) (n : N) (d : A) : vector A n := const n d
+Definition update {A : Type} {n : N} (v : vector A n) (i : N) (d : A) : vector A n :=
+    λ (j : N) (H : j < n), if A (j = i) d (v j H)
+Definition update::explicit (A : Type) (n : N) (v : vector A n) (i : N) (d : A) : vector A n := update v i d
+Definition select {A : Type} {n : N} (v : vector A n) (i : N) (H : i < n) : A := v i H
+Definition select::explicit (A : Type) (n : N) (v : vector A n) (i : N) (H : i < n) : A := select v i H
+Definition map {A B C : Type} {n : N} (f : A → B → C) (v1 : vector A n) (v2 : vector B n) : vector C n :=
+    λ (i : N) (H : i < n), f (v1 i H) (v2 i H)
+Definition map::explicit (A B C : Type) (n : N) (f : A → B → C) (v1 : vector A n) (v2 : vector B n) : vector C n :=
     map f v1 v2
 Bool
 ⊤
 vector Bool three
 
 --------
-[33mΠ[0m (A : [36mType[0m) (n : N) (v : vector A n) (i : N) (H : i < n), A
+Π (A : Type) (n : N) (v : vector A n) (i : N) (H : i < n), A
 
 map type ---> 
-[33mΠ[0m (A B C : [36mType[0m) (n : N) (f : A [33m→[0m B [33m→[0m C) (v1 : vector A n) (v2 : vector B n), vector C n
+Π (A B C : Type) (n : N) (f : A → B → C) (v1 : vector A n) (v2 : vector B n), vector C n
 
 map normal form --> 
-[33mλ[0m (A B C : [36mType[0m)
+λ (A B C : Type)
   (n : N)
-  (f : A [33m→[0m B [33m→[0m C)
-  (v1 : [33mΠ[0m (i : N) (H : i < n), A)
-  (v2 : [33mΠ[0m (i : N) (H : i < n), B)
+  (f : A → B → C)
+  (v1 : Π (i : N) (H : i < n), A)
+  (v2 : Π (i : N) (H : i < n), B)
   (i : N)
   (H : i < n),
   f (v1 i H) (v2 i H)
 
 update normal form --> 
-[33mλ[0m (A : [36mType[0m) (n : N) (v : [33mΠ[0m (i : N) (H : i < n), A) (i : N) (d : A) (j : N) (H : j < n), ite A (j = i) d (v j H)
+λ (A : Type) (n : N) (v : Π (i : N) (H : i < n), A) (i : N) (d : A) (j : N) (H : j < n), ite A (j = i) d (v j H)

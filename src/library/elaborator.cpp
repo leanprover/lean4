@@ -493,6 +493,23 @@ class elaborator::imp {
         }
     }
 
+    expr mk_metavars(expr const & e) {
+        // replace placeholders with fresh metavars
+        auto proc = [&](expr const & n, unsigned offset) -> expr {
+            if (is_placeholder(n)) {
+                return mk_metavar();
+            } else {
+                return n;
+            }
+        };
+        auto tracer = [&](expr const & old_e, expr const & new_e) {
+            if (!is_eqp(new_e, old_e)) {
+                m_trace[new_e] = old_e;
+            }
+        };
+        replace_fn<decltype(proc), decltype(tracer)> replacer(proc, tracer);
+        return replacer(e);
+    }
 
 public:
     imp(environment const & env, name_set const * defs):
@@ -539,22 +556,17 @@ public:
         return m_env;
     }
 
-    struct resetter {
-        imp & m_ref;
-        resetter(imp & r):m_ref(r) {}
-        ~resetter() { m_ref.m_constraints.clear(); m_ref.m_metavars.clear(); }
-    };
-
     expr operator()(expr const & e, elaborator const & elb) {
-        if (has_metavar(e)) {
-            resetter r(*this);
+        if (has_placeholder(e)) {
+            m_constraints.clear();
+            m_metavars.clear();
+            m_root  = mk_metavars(e);
             m_owner = &elb;
-            m_root  = e;
             unsigned num_meta = m_metavars.size();
             m_add_constraints = true;
-            infer(e, context());
+            infer(m_root, context());
             solve(num_meta);
-            return instantiate(e);
+            return instantiate(m_root);
         } else {
             return e;
         }

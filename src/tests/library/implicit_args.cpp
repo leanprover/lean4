@@ -18,70 +18,9 @@ Author: Leonardo de Moura
 #include "elaborator_exception.h"
 using namespace lean;
 
-static name g_placeholder_name("_");
-/** \brief Return a new placeholder expression. To be able to track location,
-    a new constant for each placeholder.
-*/
-expr mk_placholder() {
-    return mk_constant(g_placeholder_name);
-}
-
-/** \brief Return true iff the given expression is a placeholder. */
-bool is_placeholder(expr const & e) {
-    return is_constant(e) && const_name(e) == g_placeholder_name;
-}
-
-/** \brief Return true iff the given expression contains placeholders. */
-bool has_placeholder(expr const & e) {
-    return occurs(mk_placholder(), e);
-}
-
-/**
-   \brief Auxiliary function for #replace_placeholders_with_metavars
-*/
-static expr replace(expr const & e, context const & ctx, elaborator & elb) {
-    switch (e.kind()) {
-    case expr_kind::Constant:
-        if (is_placeholder(e)) {
-            return elb.mk_metavar();
-        } else {
-            return e;
-        }
-    case expr_kind::Var: case expr_kind::Type: case expr_kind::Value:
-        return e;
-    case expr_kind::App:
-        return update_app(e, [&](expr const & c) { return replace(c, ctx, elb); });
-    case expr_kind::Eq:
-        return update_eq(e, [&](expr const & l, expr const & r) { return mk_pair(replace(l, ctx, elb), replace(r, ctx, elb)); });
-    case expr_kind::Lambda:
-    case expr_kind::Pi:
-        return update_abst(e, [&](expr const & d, expr const & b) {
-                expr new_d = replace(d, ctx, elb);
-                expr new_b = replace(b, extend(ctx, abst_name(e), new_d), elb);
-                return mk_pair(new_d, new_b);
-            });
-    case expr_kind::Let:
-        return update_let(e, [&](expr const & v, expr const & b) {
-                expr new_v = replace(v, ctx, elb);
-                expr new_b = replace(b, extend(ctx, let_name(e), expr(), new_v), elb);
-                return mk_pair(new_v, new_b);
-            });
-    }
-    lean_unreachable();
-    return e;
-}
-
-/**
-   \brief Replace placeholders with fresh meta-variables.
-*/
-expr replace_placeholders_with_metavars(expr const & e, elaborator & elb) {
-    return replace(e, context(), elb);
-}
-
 expr elaborate(expr const & e, environment const & env) {
     elaborator elb(env);
-    expr new_e = replace_placeholders_with_metavars(e, elb);
-    return elb(new_e);
+    return elb(e);
 }
 
 // Check elaborator success
@@ -126,6 +65,8 @@ static void unsolved(expr const & e, environment const & env) {
     lean_assert(has_metavar(elaborate(e, env)));
 }
 
+#define _ mk_placholder()
+
 static void tst1() {
     environment env;
     expr A = Const("A");
@@ -139,7 +80,6 @@ static void tst1() {
     env.add_var("Real", Type());
     env.add_var("F", Pi({{A, Type()}, {B, Type()}, {g, A >> B}}, A));
     env.add_var("f", Nat >> Real);
-    expr _ = mk_placholder();
     expr f = Const("f");
     success(F(_,_,f), F(Nat, Real, f), env);
     // fails(F(_,Bool,f), env);
@@ -158,7 +98,6 @@ static void tst2() {
     env.add_var("c", Bool);
     env.add_axiom("H1", Eq(a, b));
     env.add_axiom("H2", Eq(b, c));
-    expr _ = mk_placholder();
     success(Trans(_,_,_,_,H1,H2), Trans(Bool,a,b,c,H1,H2), env);
     success(Trans(_,_,_,_,Symm(_,_,_,H2),Symm(_,_,_,H1)),
             Trans(Bool,c,b,a,Symm(Bool,b,c,H2),Symm(Bool,a,b,H1)), env);
@@ -188,7 +127,6 @@ static void tst3() {
     env.add_var("b", Nat);
     env.add_definition("fact", Bool, Eq(a, b));
     env.add_axiom("H", fact);
-    expr _ = mk_placholder();
     success(Congr2(_,_,_,_,f,H),
             Congr2(Nat, Fun({n,Nat}, vec(n) >> Nat), a, b, f, H), env);
     env.add_var("g", Pi({n, Nat}, vec(n) >> Nat));
@@ -215,7 +153,6 @@ static void tst4() {
     expr x   = Const("x");
     expr y   = Const("y");
     expr z   = Const("z");
-    expr _ = mk_placholder();
     success(Fun({{x,_},{y,_}}, f(x, y)),
             Fun({{x,Nat},{y,R >> Nat}}, f(x, y)), env);
     success(Fun({{x,_},{y,_},{z,_}}, Eq(f(x, y), f(x, z))),
@@ -237,7 +174,6 @@ static void tst5() {
     env.add_var("Nat", Type());
     env.add_var("f", Pi({{A,Type()},{a,A},{b,A}}, A));
     env.add_var("g", Nat >> Nat);
-    expr _ = mk_placholder();
     success(Fun({{a,_},{b,_}},g(f(_,a,b))),
             Fun({{a,Nat},{b,Nat}},g(f(Nat,a,b))), env);
 }
@@ -257,7 +193,6 @@ static void tst6() {
     env.add_var("nil", Pi({A, Type()}, lst(A)));
     env.add_var("cons", Pi({{A, Type()}, {a, A}, {l, lst(A)}}, lst(A)));
     env.add_var("f", lst(N>>N) >> Bool);
-    expr _ = mk_placholder();
     success(Fun({a,_}, f(cons(_, a, cons(_, a, nil(_))))),
             Fun({a,N>>N}, f(cons(N>>N, a, cons(N>>N, a, nil(N>>N))))), env);
 }
@@ -265,7 +200,6 @@ static void tst6() {
 static void tst7() {
     environment env;
     expr x = Const("x");
-    expr _ = mk_placholder();
     expr omega = mk_app(Fun({x,_}, x(x)), Fun({x,_}, x(x)));
     fails(omega, env);
 }
@@ -276,7 +210,6 @@ static void tst8() {
     expr A = Const("A");
     expr x = Const("x");
     expr f = Const("f");
-    expr _ = mk_placholder();
     env.add_var("f", Pi({B, Type()}, B >> B));
     success(Fun({{A,Type()}, {B,Type()}, {x,_}}, f(B, x)),
             Fun({{A,Type()}, {B,Type()}, {x,B}}, f(B, x)), env);
@@ -303,7 +236,6 @@ static void tst9() {
     env.add_var("N", Type());
     env.add_var("f", Pi({A,Type()}, A >> A));
     expr N = Const("N");
-    expr _ = mk_placholder();
     success(Fun({g, Pi({A, Type()}, A >> (A >> Bool))}, g(_, True, False)),
             Fun({g, Pi({A, Type()}, A >> (A >> Bool))}, g(Bool, True, False)),
             env);
@@ -340,7 +272,6 @@ static void tst10() {
     expr a = Const("a");
     expr b = Const("b");
     expr eq = Const("eq");
-    expr _ = mk_placholder();
     env.add_var("eq", Pi({A, Type()}, A >> (A >> Bool)));
     success(Fun({{A, Type()},{B,Type()},{a,_},{b,B}}, eq(_,a,b)),
             Fun({{A, Type()},{B,Type()},{a,B},{b,B}}, eq(B,a,b)), env);
@@ -368,7 +299,6 @@ static void tst11() {
     env.add_var("a", Bool);
     env.add_var("b", Bool);
     env.add_var("c", Bool);
-    expr _ = mk_placholder();
     success(Fun({{H1, Eq(a,b)},{H2,Eq(b,c)}},
                 Trans(_,_,_,_,H1,H2)),
             Fun({{H1, Eq(a,b)},{H2,Eq(b,c)}},
@@ -401,7 +331,6 @@ void tst12() {
     expr a  = Const("a");
     expr b  = Const("b");
     expr eq = Const("eq");
-    expr _ = mk_placholder();
     env.add_var("eq", Pi({A, Type(level()+1)}, A >> (A >> Bool)));
     success(eq(_, Fun({{A, Type()}, {a, _}}, a), Fun({{B, Type()}, {b, B}}, b)),
             eq(Pi({A, Type()}, A >> A), Fun({{A, Type()}, {a, A}}, a), Fun({{B, Type()}, {b, B}}, b)),
@@ -414,7 +343,6 @@ void tst13() {
     expr h  = Const("h");
     expr f  = Const("f");
     expr a  = Const("a");
-    expr _  = mk_placholder();
     env.add_var("h", Pi({A, Type()}, A) >> Bool);
     success(Fun({{f, Pi({A, Type()}, _)}, {a, Bool}}, h(f)),
             Fun({{f, Pi({A, Type()}, A)}, {a, Bool}}, h(f)),
@@ -431,7 +359,6 @@ void tst14() {
     expr g  = Const("g");
     expr h  = Const("h");
     expr D  = Const("D");
-    expr _  = mk_placholder();
     env.add_var("R", Type() >> Bool);
     env.add_var("r", Pi({A, Type()},R(A)));
     env.add_var("h", Pi({A, Type()}, R(A)) >> Bool);

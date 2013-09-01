@@ -8,14 +8,27 @@ Author: Leonardo de Moura
 #include "replace.h"
 #include "for_each.h"
 #include "environment.h"
-
+#include "occurs.h"
 #include "printer.h"
 
 namespace lean {
+static name g_placeholder_name("_");
 static name g_metavar_prefix(name(name(name(0u), "library"), "metavar"));
 static name g_subst_prefix(name(name(name(0u), "library"), "subst"));
 static name g_lift_prefix(name(name(name(0u), "library"), "lift"));
 static name g_lower_prefix(name(name(name(0u), "library"), "lower"));
+
+expr mk_placholder() {
+    return mk_constant(g_placeholder_name);
+}
+
+bool is_placeholder(expr const & e) {
+    return is_constant(e) && const_name(e) == g_placeholder_name;
+}
+
+bool has_placeholder(expr const & e) {
+    return occurs(mk_placholder(), e);
+}
 
 expr mk_metavar(unsigned idx) {
     return mk_constant(name(g_metavar_prefix, idx));

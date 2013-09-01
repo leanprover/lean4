@@ -410,7 +410,7 @@ class parser::imp {
             unsigned i = 0;
             for (unsigned j = 0; j < imp_args.size(); j++) {
                 if (imp_args[j]) {
-                    new_args.push_back(save(mk_metavar(), pos));
+                    new_args.push_back(save(mk_placholder(), pos));
                 } else {
                     if (i >= num_args)
                         throw parser_error(sstream() << "unexpected number of arguments for denotation with implicit arguments, it expects " << num_args << " explicit argument(s)", pos);
@@ -559,7 +559,7 @@ class parser::imp {
                     // get all explicit arguments.
                     for (unsigned i = 0; i < imp_args.size(); i++) {
                         if (imp_args[i]) {
-                            args.push_back(save(mk_metavar(), pos()));
+                            args.push_back(save(mk_placholder(), pos()));
                         } else {
                             args.push_back(parse_expr(1));
                         }
@@ -874,16 +874,11 @@ class parser::imp {
         }
     }
 
-    /** \brief Create a fresh metavariable. */
-    expr mk_metavar() {
-        return m_elaborator.mk_metavar();
-    }
-
     /** \brief Parse \c _ a hole that must be filled by the elaborator. */
     expr parse_placeholder() {
         auto p = pos();
         next();
-        return save(mk_metavar(), p);
+        return save(mk_placholder(), p);
     }
 
     /**

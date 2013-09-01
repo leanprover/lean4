@@ -192,7 +192,9 @@ class pp_fn {
 
     result pp_constant(expr const & e) {
         name const & n = const_name(e);
-        if (is_metavar(e)) {
+        if (is_placeholder(e)) {
+            return mk_result(format("_"), 1);
+        } else if (is_metavar(e)) {
             return mk_result(format{format("?M"), format(metavar_idx(e))}, 1);
         } else if (has_implicit_arguments(n)) {
             return mk_result(format(m_frontend.get_explicit_version(n)), 1);

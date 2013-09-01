@@ -11,6 +11,22 @@ Author: Leonardo de Moura
 
 namespace lean {
 /**
+    \brief Return a new placeholder expression. To be able to track location,
+    a new constant for each placeholder.
+*/
+expr mk_placholder();
+
+/**
+    \brief Return true iff the given expression is a placeholder.
+*/
+bool is_placeholder(expr const & e);
+
+/**
+    \brief Return true iff the given expression contains placeholders.
+*/
+bool has_placeholder(expr const & e);
+
+/**
     \brief Create a new metavariable with index \c idx.
 */
 expr mk_metavar(unsigned idx);

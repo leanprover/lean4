@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "for_each.h"
 #include "environment.h"
 #include "occurs.h"
+#include "update_expr.h"
 #include "printer.h"
 
 namespace lean {
@@ -337,12 +338,8 @@ expr head_reduce_mmv(expr const & e, environment const & env, name_set const * d
         return r;
     } else if (is_app(e) && is_constant(arg(e, 0))) {
         expr def = get_def_value(const_name(arg(e, 0)), env, defs);
-        if (def) {
-            buffer<expr> new_args;
-            new_args.push_back(def);
-            new_args.append(num_args(e)-1, &arg(e,1));
-            return mk_app(new_args.size(), new_args.data());
-        }
+        if (def)
+            return update_app(e, 0, def);
     } else if (is_let(e)) {
         return instantiate_free_var_mmv(let_body(e), 0, let_value(e));
     } else if (is_constant(e)) {

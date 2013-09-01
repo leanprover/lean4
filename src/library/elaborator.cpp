@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "builtin.h"
 #include "free_vars.h"
 #include "for_each.h"
+#include "update_expr.h"
 #include "replace.h"
 #include "flet.h"
 #include "elaborator_exception.h"
@@ -95,6 +96,12 @@ class elaborator::imp {
     expr_map<expr>      m_trace;
 
     volatile bool       m_interrupted;
+
+    void add_trace(expr const & old_e, expr const & new_e) {
+        if (!is_eqp(old_e, new_e)) {
+            m_trace[new_e] = old_e;
+        }
+    }
 
     expr mk_metavar(context const & ctx) {
         unsigned midx = m_metavars.size();
@@ -317,49 +324,33 @@ class elaborator::imp {
         case expr_kind::Eq: {
             auto lhs_p = process(eq_lhs(e), ctx);
             auto rhs_p = process(eq_rhs(e), ctx);
-            if (is_eqp(lhs_p.first, eq_lhs(e)) && is_eqp(rhs_p.first, eq_rhs(e))) {
-                return expr_pair(e, mk_bool_type());
-            } else {
-                expr new_e = mk_eq(lhs_p.first, rhs_p.first);
-                m_trace[new_e] = e;
-                return expr_pair(new_e, mk_bool_type());
-            }
+            expr new_e = update_eq(e, lhs_p.first, rhs_p.first);
+            add_trace(e, new_e);
+            return expr_pair(new_e, mk_bool_type());
         }
         case expr_kind::Pi: {
             auto d_p = process(abst_domain(e), ctx);
             auto b_p = process(abst_body(e), extend(ctx, abst_name(e), d_p.first));
             expr t   = mk_type(max(check_universe(d_p.second, ctx, e, ctx), check_universe(b_p.second, ctx, e, ctx)));
-            if (is_eqp(d_p.first, abst_domain(e)) && is_eqp(b_p.first, abst_body(e))) {
-                return expr_pair(e, t);
-            } else {
-                expr new_e = mk_pi(abst_name(e), d_p.first, b_p.first);
-                m_trace[new_e] = e;
-                return expr_pair(new_e, t);
-            }
+            expr new_e = update_pi(e, d_p.first, b_p.first);
+            add_trace(e, new_e);
+            return expr_pair(new_e, t);
         }
         case expr_kind::Lambda: {
             auto d_p = process(abst_domain(e), ctx);
             auto b_p = process(abst_body(e), extend(ctx, abst_name(e), d_p.first));
             expr t   = mk_pi(abst_name(e), d_p.first, b_p.second);
-            if (is_eqp(d_p.first, abst_domain(e)) && is_eqp(b_p.first, abst_body(e))) {
-                return expr_pair(e, t);
-            } else {
-                expr new_e = mk_lambda(abst_name(e), d_p.first, b_p.first);
-                m_trace[new_e] = e;
-                return expr_pair(new_e, t);
-            }
+            expr new_e = update_lambda(e, d_p.first, b_p.first);
+            add_trace(e, new_e);
+            return expr_pair(new_e, t);
         }
         case expr_kind::Let: {
             auto v_p = process(let_value(e), ctx);
             auto b_p = process(let_body(e), extend(ctx, let_name(e), v_p.second, v_p.first));
             expr t   = lower_free_vars_mmv(b_p.second, 1, 1);
-            if (is_eqp(v_p.first, let_value(e)) && is_eqp(b_p.first, let_body(e))) {
-                return expr_pair(e, t);
-            } else {
-                expr new_e = mk_let(let_name(e), v_p.first, b_p.first);
-                m_trace[new_e] = e;
-                return expr_pair(new_e, t);
-            }
+            expr new_e = update_let(e, v_p.first, b_p.first);
+            add_trace(e, new_e);
+            return expr_pair(new_e, t);
         }}
         lean_unreachable();
         return expr_pair(expr(), expr());
@@ -588,9 +579,7 @@ class elaborator::imp {
         };
 
         auto tracer = [&](expr const & old_e, expr const & new_e) {
-            if (!is_eqp(new_e, old_e)) {
-                m_trace[new_e] = old_e;
-            }
+            add_trace(old_e, new_e);
         };
 
         replace_fn<decltype(proc), decltype(tracer)> replacer(proc, tracer);

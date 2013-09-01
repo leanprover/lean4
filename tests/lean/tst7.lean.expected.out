@@ -5,7 +5,7 @@ Error (line: 4, pos: 40) application type mismatch during term elaboration at te
 Elaborator state
     ?M0 := [31m[unassigned][0m
     ?M1 := [31m[unassigned][0m
-    #0 ≈ [33mlift[0m:0:0 ?M0
+    #0 ≈ [33mlift[0m:0:2 ?M0
   Assumed: myeq
 myeq ([33mΠ[0m (A : [36mType[0m) (a : A), A) ([33mλ[0m (A : [36mType[0m) (a : A), a) ([33mλ[0m (B : [36mType[0m) (b : B), b)
 Bool

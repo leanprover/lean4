@@ -23,8 +23,6 @@ public:
     explicit elaborator(environment const & env);
     ~elaborator();
 
-    expr mk_metavar();
-
     expr operator()(expr const & e);
 
     /**
@@ -45,8 +43,30 @@ public:
     void display(std::ostream & out) const;
     format pp(formatter & f, options const & o) const;
 };
-/** \brief Return true iff \c e is a special constant used to mark application of overloads. */
-bool is_overload_marker(expr const & e);
-/** \brief Return the overload marker */
-expr mk_overload_marker();
+/**
+    \brief Create a choice expression for the given functions.
+    It is used to mark which functions can be used in a particular application.
+    The elaborator decides which one should be used based on the type of the arguments.
+
+    \pre num_fs >= 2
+*/
+expr mk_choice(unsigned num_fs, expr const * fs);
+/**
+    \brief Return true iff \c e is an expression created using \c mk_choice.
+*/
+bool is_choice(expr const & e);
+/**
+   \brief Return the number of alternatives in a choice expression.
+   We have that <tt>get_num_choices(mk_choice(n, fs)) == n</tt>.
+
+   \pre is_choice(e)
+*/
+unsigned get_num_choices(expr const & e);
+/**
+   \brief Return the (i+1)-th alternative of a choice expression.
+
+   \pre is_choice(e)
+   \pre i < get_num_choices(e)
+*/
+expr const & get_choice(expr const & e, unsigned i);
 }

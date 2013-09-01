@@ -377,9 +377,8 @@ class parser::imp {
 
     /**
        \brief Return the function associated with the given operator.
-       If the operator has been overloaded, it returns an expression
-       of the form (overload f_k ... (overload f_2 f_1) ...)
-       where f_i's are different options.
+       If the operator has been overloaded, it returns a choice expression
+       of the form <tt>(choice f_1 f_2 ... f_k)</tt> where f_i's are different options.
        After we finish parsing, the procedure #elaborate will
        resolve/decide which f_i should be used.
     */
@@ -389,9 +388,15 @@ class parser::imp {
         auto it = fs.begin();
         expr r = *it;
         ++it;
-        for (; it != fs.end(); ++it)
-            r = mk_app(mk_overload_marker(), *it, r);
-        return r;
+        if (it == fs.end()) {
+            return r;
+        } else {
+            buffer<expr> alternatives;
+            alternatives.push_back(r);
+            for (; it != fs.end(); ++it)
+                alternatives.push_back(*it);
+            return mk_choice(alternatives.size(), alternatives.data());
+        }
     }
 
     /**

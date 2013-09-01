@@ -107,6 +107,7 @@ bool is_subst(expr const & e) {
 }
 
 expr mk_lift_fn(unsigned s, unsigned n) {
+    lean_assert(n > 0);
     return mk_constant(name(name(g_lift_prefix, s), n));
 }
 

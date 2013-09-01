@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "for_each.h"
 #include "update_expr.h"
 #include "replace.h"
+#include "expr_pair.h"
 #include "flet.h"
 #include "elaborator_exception.h"
 
@@ -237,8 +238,6 @@ class elaborator::imp {
             throw exception("ambiguous overload");
         }
     }
-
-    typedef std::pair<expr, expr> expr_pair;
 
     /**
        \brief Traverse the expression \c e, and compute

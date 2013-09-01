@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 class environment;
+class normalizer;
 class type_checker {
     class imp;
     std::unique_ptr<imp> m_ptr;
@@ -28,6 +29,8 @@ public:
     void set_interrupt(bool flag);
     void interrupt() { set_interrupt(true); }
     void reset_interrupt() { set_interrupt(false); }
+
+    normalizer & get_normalizer();
 };
 
 expr infer_type(expr const & e, environment const & env, context const & ctx = context());

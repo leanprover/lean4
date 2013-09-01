@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 #include <memory>
+#include "context.h"
 #include "object.h"
 #include "level.h"
 
@@ -119,6 +120,16 @@ public:
 
     /** \brief Return true iff the environment has an object with the given name */
     bool has_object(name const & n) const { return find_object(n); }
+
+    /**
+       \brief Return the type of \c e in the given context and this environment.
+    */
+    expr infer_type(expr const & e, context const & ctx = context());
+
+    /**
+       \brief Normalize \c e in the given context and this environment.
+    */
+    expr normalize(expr const & e, context const & ctx = context());
 
     /** \brief Iterator for Lean environment objects. */
     class object_iterator {

@@ -5,13 +5,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <atomic>
+#include <unordered_set>
 #include "environment.h"
 #include "toplevel.h"
 #include "map.h"
 #include "state.h"
 #include "sstream.h"
 #include "exception.h"
+#include "expr_pair.h"
 #include "lean_operator_info.h"
+#include "lean_coercion.h"
 #include "lean_frontend.h"
 #include "lean_notation.h"
 #include "lean_pp.h"
@@ -25,6 +28,9 @@ struct frontend::imp {
     typedef std::unordered_map<name, operator_info, name_hash, name_eq> operator_table;
     typedef std::unordered_map<name, implicit_info, name_hash, name_eq> implicit_table;
     typedef std::unordered_map<expr, operator_info, expr_hash, std::equal_to<expr>> expr_to_operator;
+    typedef std::unordered_map<expr_pair, expr, expr_pair_hash, expr_pair_eq> coercion_map;
+    typedef std::unordered_set<expr, expr_hash, std::equal_to<expr>> coercion_set;
+
     std::atomic<unsigned> m_num_children;
     std::shared_ptr<imp>  m_parent;
     environment           m_env;
@@ -32,6 +38,8 @@ struct frontend::imp {
     operator_table        m_led; // led table for Pratt's parser
     expr_to_operator      m_expr_to_operator; // map denotations to operators (this is used for pretty printing)
     implicit_table        m_implicit_table; // track the number of implicit arguments for a symbol.
+    coercion_map          m_coercion_map; // mapping from (given_type, expected_type) -> coercion
+    coercion_set          m_coercion_set; // Set of coercions
     state                 m_state;
 
     bool has_children() const { return m_num_children > 0; }
@@ -273,6 +281,37 @@ struct frontend::imp {
         }
     }
 
+    void add_coercion(expr const & f) {
+        expr type      = m_env.infer_type(f);
+        expr norm_type = m_env.normalize(type);
+        if (!is_arrow(norm_type))
+            throw exception("invalid coercion declaration, a coercion must have an arrow type (i.e., a non-dependent functional type)");
+        expr from      = abst_domain(norm_type);
+        expr to        = abst_body(norm_type);
+        if (from == to)
+            throw exception("invalid coercion declaration, 'from' and 'to' types are the same");
+        if (get_coercion(from, to))
+            throw exception("invalid coercion declaration, frontend already has a coercion for the given types");
+        m_coercion_map[expr_pair(from, to)] = f;
+        m_coercion_set.insert(f);
+        m_env.add_neutral_object(new coercion_declaration(f));
+    }
+
+    expr get_coercion(expr const & given_type, expr const & expected_type) {
+        expr_pair p(given_type, expected_type);
+        auto it = m_coercion_map.find(p);
+        if (it != m_coercion_map.end())
+            return it->second;
+        else if (has_parent())
+            return m_parent->get_coercion(given_type, expected_type);
+        else
+            return expr();
+    }
+
+    bool is_coercion(expr const & f) {
+        return m_coercion_set.find(f) != m_coercion_set.end();
+    }
+
     void set_interrupt(bool flag) {
         m_env.set_interrupt(flag);
         m_state.set_interrupt(flag);
@@ -351,6 +390,10 @@ void frontend::mark_implicit_arguments(name const & n, std::initializer_list<boo
 bool frontend::has_implicit_arguments(name const & n) const { return m_imp->has_implicit_arguments(n); }
 std::vector<bool> const & frontend::get_implicit_arguments(name const & n) const { return m_imp->get_implicit_arguments(n); }
 name const & frontend::get_explicit_version(name const & n) const { return m_imp->get_explicit_version(n); }
+
+void frontend::add_coercion(expr const & f) { m_imp->add_coercion(f); }
+expr frontend::get_coercion(expr const & given_type, expr const & expected_type) { return m_imp->get_coercion(given_type, expected_type); }
+bool frontend::is_coercion(expr const & f) { return m_imp->is_coercion(f); }
 
 state const & frontend::get_state() const { return m_imp->m_state; }
 state & frontend::get_state_core() { return m_imp->m_state; }

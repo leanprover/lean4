@@ -290,6 +290,14 @@ struct environment::imp {
         }
     }
 
+    expr infer_type(expr const & e, context const & ctx) {
+        return m_type_checker.infer_type(e, ctx);
+    }
+
+    expr normalize(expr const & e, context const & ctx) {
+        return m_type_checker.get_normalizer()(e, ctx);
+    }
+
     /** \brief Display universal variable constraints and objects stored in this environment and its parents. */
     void display(std::ostream & out, environment const & env) const {
         if (has_parent())
@@ -408,6 +416,14 @@ unsigned environment::get_num_objects(bool local) const {
 
 object const & environment::get_object(unsigned i, bool local) const {
     return m_imp->get_object(i, local);
+}
+
+expr environment::infer_type(expr const & e, context const & ctx) {
+    return m_imp->infer_type(e, ctx);
+}
+
+expr environment::normalize(expr const & e, context const & ctx) {
+    return m_imp->normalize(e, ctx);
 }
 
 void environment::display(std::ostream & out) const {

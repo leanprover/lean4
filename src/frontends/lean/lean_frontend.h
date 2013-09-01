@@ -143,6 +143,35 @@ public:
     /*@}*/
 
     /**
+       @name Coercions
+
+       We support a very basic form of coercion. It is an expression
+       with type T1 -> T2. This expression can be used to convert
+       an expression of type T1 into an expression of type T2 whenever
+       T2 is expected, but T1 was provided.
+    */
+    /**
+       \brief Add a new coercion to the frontend.
+       It throws an exception if f does not have type T1 -> T2, or if there is already a
+       coercion from T1 to T2.
+    */
+    void add_coercion(expr const & f);
+    /**
+        \brief Return a coercion from given_type to expected_type if it exists.
+        Return the null expression if there is no coercion from \c given_type to
+        \c expected_type.
+
+        \pre The expressions \c given_type and \c expected_type are normalized
+    */
+    expr get_coercion(expr const & given_type, expr const & expected_type);
+    /**
+       \brief Return true iff the given expression is a coercion. That is, it was added using
+       \c add_coercion.
+    */
+    bool is_coercion(expr const & f);
+    /*@}*/
+
+    /**
        @name State management.
     */
     /*@{*/

@@ -163,6 +163,10 @@ public:
         m_cache.clear();
         m_normalizer.clear();
     }
+
+    normalizer & get_normalizer() {
+        return m_normalizer;
+    }
 };
 
 type_checker::type_checker(environment const & env):m_ptr(new imp(env)) {}
@@ -171,9 +175,8 @@ expr type_checker::infer_type(expr const & e, context const & ctx) { return m_pt
 level type_checker::infer_universe(expr const & e, context const & ctx) { return m_ptr->infer_universe(e, ctx); }
 void type_checker::clear() { m_ptr->clear(); }
 void type_checker::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
-bool type_checker::is_convertible(expr const & t1, expr const & t2, context const & ctx) {
-    return m_ptr->is_convertible(t1, t2, ctx);
-}
+bool type_checker::is_convertible(expr const & t1, expr const & t2, context const & ctx) { return m_ptr->is_convertible(t1, t2, ctx); }
+normalizer & type_checker::get_normalizer() { return m_ptr->get_normalizer(); }
 
 expr  infer_type(expr const & e, environment const & env, context const & ctx) {
     return type_checker(env).infer_type(e, ctx);

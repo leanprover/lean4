@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "lean_notation.h"
 #include "lean_pp.h"
 #include "lean_frontend.h"
+#include "lean_coercion.h"
 
 #ifndef LEAN_DEFAULT_PP_MAX_DEPTH
 #define LEAN_DEFAULT_PP_MAX_DEPTH std::numeric_limits<unsigned>::max()
@@ -1109,10 +1110,17 @@ class pp_formatter_cell : public formatter_cell {
     }
 
     format pp_notation_decl(object const & obj, options const & opts) {
-        notation_declaration const & n = *(static_cast<notation_declaration const *>(obj.cell()));
+        notation_declaration const & n = *static_cast<notation_declaration const *>(obj.cell());
         expr const & d = n.get_expr();
         format d_fmt   = is_constant(d) ? format(const_name(d)) : pp(d, opts);
         return format{::lean::pp(n.get_op()), space(), colon(), space(), d_fmt};
+    }
+
+    format pp_coercion_decl(object const & obj, options const & opts) {
+        unsigned indent = get_pp_indent(opts);
+        coercion_declaration const & n = *static_cast<coercion_declaration const *>(obj.cell());
+        expr const & c = n.get_coercion();
+        return group(format{highlight_command(format(n.keyword())), nest(indent, format({line(), pp(c, opts)}))});
     }
 
 public:
@@ -1157,10 +1165,13 @@ public:
         case object_kind::Definition:       return pp_definition(obj, opts);
         case object_kind::Neutral:
             if (dynamic_cast<notation_declaration const *>(obj.cell())) {
-                // If the object is not notation, then the object was
-                // created in different frontend, and we ignore it.
                 return pp_notation_decl(obj, opts);
+            } else if (dynamic_cast<coercion_declaration const *>(obj.cell())) {
+                return pp_coercion_decl(obj, opts);
             } else {
+                // If the object is not notation or coercion
+                // declaration, then the object was created in
+                // different frontend, and we ignore it.
                 return format("Unknown neutral object");
             }
         }

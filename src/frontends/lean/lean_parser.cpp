@@ -75,10 +75,11 @@ static name g_options_kwd("Options");
 static name g_env_kwd("Environment");
 static name g_import_kwd("Import");
 static name g_help_kwd("Help");
+static name g_coercion_kwd("Coercion");
 /** \brief Table/List with all builtin command keywords */
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
                                         g_show_kwd, g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_notation_kwd, g_echo_kwd,
-                                        g_set_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd};
+                                        g_set_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd, g_coercion_kwd};
 // ==========================================
 
 // ==========================================
@@ -1369,6 +1370,15 @@ class parser::imp {
         }
     }
 
+    /** \brief Parse 'Coercion' expr */
+    void parse_coercion() {
+        next();
+        expr coercion = parse_expr();
+        m_frontend.add_coercion(coercion);
+        if (m_verbose)
+            regular(m_frontend) << "  Coercion " << coercion << endl;
+    }
+
     /** \brief Parse a Lean command. */
     void parse_command() {
         m_elaborator.clear();
@@ -1390,6 +1400,7 @@ class parser::imp {
         else if (cmd_id == g_set_kwd)      parse_set();
         else if (cmd_id == g_import_kwd)   parse_import();
         else if (cmd_id == g_help_kwd)     parse_help();
+        else if (cmd_id == g_coercion_kwd) parse_coercion();
         else { next(); throw parser_error(sstream() << "invalid command '" << cmd_id << "'", m_last_cmd_pos); }
     }
     /*@}*/

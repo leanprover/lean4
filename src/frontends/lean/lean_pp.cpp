@@ -861,7 +861,7 @@ class pp_fn {
         expr arg; unsigned s, n;
         is_lower(e, arg, s, n);
         result p_arg = pp_child(arg, depth);
-        format r_format = format{g_lower_fmt, colon(), format(s), colon(), format(s), nest(m_indent, compose(line(), p_arg.first))};
+        format r_format = format{g_lower_fmt, colon(), format(s), colon(), format(n), nest(m_indent, compose(line(), p_arg.first))};
         return mk_result(r_format, p_arg.second + 1);
      }
 
@@ -869,7 +869,7 @@ class pp_fn {
         expr arg; unsigned s, n;
         is_lift(e, arg, s, n);
         result p_arg = pp_child(arg, depth);
-        format r_format = format{g_lift_fmt, colon(), format(s), colon(), format(s), nest(m_indent, compose(line(), p_arg.first))};
+        format r_format = format{g_lift_fmt, colon(), format(s), colon(), format(n), nest(m_indent, compose(line(), p_arg.first))};
         return mk_result(r_format, p_arg.second + 1);
     }
 

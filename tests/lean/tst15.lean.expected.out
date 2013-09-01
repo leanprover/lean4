@@ -1,0 +1,20 @@
+  Assumed: x
+[36mType[0m u+3 ⊔ m+2 ⊔ 3
+  Assumed: f
+[36mType[0m u+10 [33m→[0m [36mType[0m
+[36mType[0m
+[36mType[0m 5
+[36mType[0m u+3 ⊔ m+2 ⊔ 3
+[36mType[0m u+1 ⊔ m+1
+[36mType[0m u+3
+[36mType[0m u+4
+[36mType[0m u+1 ⊔ m+1
+[36mType[0m u+1 ⊔ m+1 ⊔ 4
+[36mType[0m u+1 ⊔ m ⊔ 3
+[36mType[0m u+2 ⊔ m+1 ⊔ 4
+[36mType[0m u [33m→[0m [36mType[0m 5
+[36mType[0m u+1 ⊔ 6
+[36mType[0m m+1 ⊔ 4 ⊔ u+6
+[36mType[0m m ⊔ 3 [33m→[0m [36mType[0m u [33m→[0m [36mType[0m 5
+[36mType[0m m+1 ⊔ 6 ⊔ u+1
+[36mType[0m u

@@ -1,5 +1,3 @@
-
-
 Set lean::parser::verbose false.
 Notation 10 if _ then _ : implies.
 Show Environment 1.

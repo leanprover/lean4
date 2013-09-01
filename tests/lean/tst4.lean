@@ -1,4 +1,3 @@
-
 Variable f {A : Type} (a b : A) : A
 Variable N : Type
 Variable n1 : N
@@ -20,5 +19,3 @@ Axiom H1 : a = b && b = c
 Theorem Pr : (g a) = (g c) :=
     Congr (Refl g) (Trans (Conjunct1 H1) (Conjunct2 H1))
 Show Environment 2
-
-

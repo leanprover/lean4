@@ -1,0 +1,14 @@
+  Assumed: f
+[33mλ[0m (A B : [36mType[0m) (a : B), f B a
+Error (line: 4, pos: 40) application type mismatch during term elaboration at term
+    f B a
+Elaborator state
+    ?M0 := [31m[unassigned][0m
+    ?M1 := [31m[unassigned][0m
+    #0 ≈ [33mlift[0m:0:0 ?M0
+  Assumed: myeq
+myeq ([33mΠ[0m (A : [36mType[0m) (a : A), A) ([33mλ[0m (A : [36mType[0m) (a : A), a) ([33mλ[0m (B : [36mType[0m) (b : B), b)
+Bool
+  Assumed: R
+  Assumed: h
+Bool [33m→[0m ([33mΠ[0m (f1 g1 : [33mΠ[0m A : [36mType[0m, R A) (G : [33mΠ[0m A : [36mType[0m, myeq (R A) (f1 A) (g1 A)), Bool)

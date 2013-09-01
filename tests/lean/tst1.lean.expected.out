@@ -1,0 +1,47 @@
+  Assumed: N
+  Assumed: lt
+  Assumed: zero
+  Assumed: one
+  Assumed: two
+  Assumed: three
+  Assumed: two_lt_three
+  Defined: vector
+  Defined: const
+  Defined: update
+  Defined: select
+  Defined: map
+[34mAxiom[0m two_lt_three : two < three
+[34mDefinition[0m vector (A : [36mType[0m) (n : N) : [36mType[0m [33m:=[0m [33mΠ[0m (i : N) (H : i < n), A
+[34mDefinition[0m const {A : [36mType[0m} (n : N) (d : A) : vector A n [33m:=[0m [33mλ[0m (i : N) (H : i < n), d
+[34mDefinition[0m const::explicit (A : [36mType[0m) (n : N) (d : A) : vector A n [33m:=[0m const n d
+[34mDefinition[0m update {A : [36mType[0m} {n : N} (v : vector A n) (i : N) (d : A) : vector A n [33m:=[0m
+    [33mλ[0m (j : N) (H : j < n), if A (j = i) d (v j H)
+[34mDefinition[0m update::explicit (A : [36mType[0m) (n : N) (v : vector A n) (i : N) (d : A) : vector A n [33m:=[0m update v i d
+[34mDefinition[0m select {A : [36mType[0m} {n : N} (v : vector A n) (i : N) (H : i < n) : A [33m:=[0m v i H
+[34mDefinition[0m select::explicit (A : [36mType[0m) (n : N) (v : vector A n) (i : N) (H : i < n) : A [33m:=[0m select v i H
+[34mDefinition[0m map {A B C : [36mType[0m} {n : N} (f : A [33m→[0m B [33m→[0m C) (v1 : vector A n) (v2 : vector B n) : vector C n [33m:=[0m
+    [33mλ[0m (i : N) (H : i < n), f (v1 i H) (v2 i H)
+[34mDefinition[0m map::explicit (A B C : [36mType[0m) (n : N) (f : A [33m→[0m B [33m→[0m C) (v1 : vector A n) (v2 : vector B n) : vector C n [33m:=[0m
+    map f v1 v2
+Bool
+⊤
+vector Bool three
+
+--------
+[33mΠ[0m (A : [36mType[0m) (n : N) (v : vector A n) (i : N) (H : i < n), A
+
+map type ---> 
+[33mΠ[0m (A B C : [36mType[0m) (n : N) (f : A [33m→[0m B [33m→[0m C) (v1 : vector A n) (v2 : vector B n), vector C n
+
+map normal form --> 
+[33mλ[0m (A B C : [36mType[0m)
+  (n : N)
+  (f : A [33m→[0m B [33m→[0m C)
+  (v1 : [33mΠ[0m (i : N) (H : i < n), A)
+  (v2 : [33mΠ[0m (i : N) (H : i < n), B)
+  (i : N)
+  (H : i < n),
+  f (v1 i H) (v2 i H)
+
+update normal form --> 
+[33mλ[0m (A : [36mType[0m) (n : N) (v : [33mΠ[0m (i : N) (H : i < n), A) (i : N) (d : A) (j : N) (H : j < n), ite A (j = i) d (v j H)

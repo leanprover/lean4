@@ -1,0 +1,106 @@
+  Assumed: N
+  Assumed: h
+  Proved: CongrH
+  Set option: lean::pp::implicit
+[34mTheorem[0m CongrH {a1 a2 b1 b2 : N} (H1 : a1 = b1) (H2 : a2 = b2) : (h a1 a2) = (h b1 b2) [33m:=[0m
+    Congr::explicit
+        N
+        ([33mλ[0m x : N, N)
+        (h a1)
+        (h b1)
+        a2
+        b2
+        (Congr::explicit N ([33mλ[0m x : N, N [33m→[0m N) h h a1 b1 (Refl::explicit (N [33m→[0m N [33m→[0m N) h) H1)
+        H2
+[34mTheorem[0m CongrH::explicit (a1 a2 b1 b2 : N) (H1 : a1 = b1) (H2 : a2 = b2) : (h a1 a2) = (h b1 b2) [33m:=[0m
+    CongrH::explicit a1 a2 b1 b2 H1 H2
+  Set option: lean::pp::implicit
+[34mTheorem[0m CongrH {a1 a2 b1 b2 : N} (H1 : a1 = b1) (H2 : a2 = b2) : (h a1 a2) = (h b1 b2) [33m:=[0m Congr (Congr (Refl h) H1) H2
+[34mTheorem[0m CongrH::explicit (a1 a2 b1 b2 : N) (H1 : a1 = b1) (H2 : a2 = b2) : (h a1 a2) = (h b1 b2) [33m:=[0m CongrH H1 H2
+  Proved: Example1
+  Set option: lean::pp::implicit
+[34mTheorem[0m Example1 (a b c d : N) (H : a = b ∧ b = c ∨ a = d ∧ d = c) : (h a b) = (h c b) [33m:=[0m
+    DisjCases::explicit
+        (a = b ∧ b = c)
+        (a = d ∧ d = c)
+        ((h a b) = (h c b))
+        H
+        ([33mλ[0m H1 : a = b ∧ b = c,
+           CongrH::explicit
+               a
+               b
+               c
+               b
+               (Trans::explicit
+                    N
+                    a
+                    b
+                    c
+                    (Conjunct1::explicit (a = b) (b = c) H1)
+                    (Conjunct2::explicit (a = b) (b = c) H1))
+               (Refl::explicit N b))
+        ([33mλ[0m H1 : a = d ∧ d = c,
+           CongrH::explicit
+               a
+               b
+               c
+               b
+               (Trans::explicit
+                    N
+                    a
+                    d
+                    c
+                    (Conjunct1::explicit (a = d) (d = c) H1)
+                    (Conjunct2::explicit (a = d) (d = c) H1))
+               (Refl::explicit N b))
+  Proved: Example2
+  Set option: lean::pp::implicit
+[34mTheorem[0m Example2 (a b c d : N) (H : a = b ∧ b = c ∨ a = d ∧ d = c) : (h a b) = (h c b) [33m:=[0m
+    DisjCases::explicit
+        (a = b ∧ b = c)
+        (a = d ∧ d = c)
+        ((h a b) = (h c b))
+        H
+        ([33mλ[0m H1 : a = b ∧ b = c,
+           CongrH::explicit
+               a
+               b
+               c
+               b
+               (Trans::explicit
+                    N
+                    a
+                    b
+                    c
+                    (Conjunct1::explicit (a = b) (b = c) H1)
+                    (Conjunct2::explicit (a = b) (b = c) H1))
+               (Refl::explicit N b))
+        ([33mλ[0m H1 : a = d ∧ d = c,
+           CongrH::explicit
+               a
+               b
+               c
+               b
+               (Trans::explicit
+                    N
+                    a
+                    d
+                    c
+                    (Conjunct1::explicit (a = d) (d = c) H1)
+                    (Conjunct2::explicit (a = d) (d = c) H1))
+               (Refl::explicit N b))
+  Proved: Example3
+  Set option: lean::pp::implicit
+[34mTheorem[0m Example3 (a b c d e : N) (H : a = b ∧ b = e ∧ b = c ∨ a = d ∧ d = c) : (h a b) = (h c b) [33m:=[0m
+    DisjCases
+        H
+        ([33mλ[0m H1 : a = b ∧ b = e ∧ b = c, CongrH (Trans (Conjunct1 H1) (Conjunct2 (Conjunct2 H1))) (Refl b))
+        ([33mλ[0m H1 : a = d ∧ d = c, CongrH (Trans (Conjunct1 H1) (Conjunct2 H1)) (Refl b))
+  Proved: Example4
+  Set option: lean::pp::implicit
+[34mTheorem[0m Example4 (a b c d e : N) (H : a = b ∧ b = e ∧ b = c ∨ a = d ∧ d = c) : (h a c) = (h c a) [33m:=[0m
+    DisjCases
+        H
+        ([33mλ[0m H1 : a = b ∧ b = e ∧ b = c,
+           [33mlet[0m AeqC [33m:=[0m Trans (Conjunct1 H1) (Conjunct2 (Conjunct2 H1)) [33min[0m CongrH AeqC (Symm AeqC))
+        ([33mλ[0m H1 : a = d ∧ d = c, [33mlet[0m AeqC [33m:=[0m Trans (Conjunct1 H1) (Conjunct2 H1) [33min[0m CongrH AeqC (Symm AeqC))

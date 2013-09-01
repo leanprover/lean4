@@ -19,8 +19,8 @@ public:
     virtual expr get_type() const { return Type(); }
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const { return false; }
     virtual bool operator==(value const & other) const { return other.kind() == kind(); }
-    virtual void display(std::ostream & out) const { out << "int"; }
-    virtual format pp() const { return format("int"); }
+    virtual void display(std::ostream & out) const { out << "Int"; }
+    virtual format pp() const { return format("Int"); }
     virtual unsigned hash() const { return 41; }
 };
 

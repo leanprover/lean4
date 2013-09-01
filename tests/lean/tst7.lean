@@ -1,7 +1,7 @@
 Variable f : Pi (A : Type), A -> Bool
 Show fun (A B : Type) (a : _), f B a
 (* The following one should produce an error *)
-(* Show fun (A : Type) (a : _) (B : Type), f B a *)
+Show fun (A : Type) (a : _) (B : Type), f B a
 
 Variable myeq : Pi (A : Type u), A -> A -> Bool
 Show  myeq _ (fun (A : Type) (a : _), a) (fun (B : Type) (b : B), b)

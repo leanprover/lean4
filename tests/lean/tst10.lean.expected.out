@@ -1,0 +1,22 @@
+  Assumed: a
+  Assumed: b
+a ∧ b
+a ∧ b ∧ a
+a ∧ b
+a ∧ b
+a ∧ b
+a ∧ b
+a ∨ b
+a ∨ b
+a ∨ b
+a ∨ b
+a ∨ a ∨ b
+a ⇒ b ⇒ a
+Bool
+ite Bool a a ⊤
+a
+  Assumed: H1
+  Assumed: H2
+[33mΠ[0m (a b : Bool) (H1 : a ⇒ b) (H2 : a), b
+MP H2 H1
+b

@@ -1,0 +1,9 @@
+  Assumed: N
+  Assumed: a
+  Assumed: b
+a ≃ b
+Bool
+  Set option: lean::pp::implicit
+heq::explicit N a b
+heq::explicit [36mType[0m 2 [36mType[0m 1 [36mType[0m 1
+heq::explicit Bool ⊤ ⊥

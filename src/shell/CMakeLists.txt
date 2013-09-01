@@ -19,3 +19,6 @@ add_test(lean14 ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../examples
 add_test(lean15 ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../examples/ex15.lean")
 add_test(lean16 ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../examples/ex16.lean")
 add_test(lean17 ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../examples/ex17.lean")
+add_test(NAME leantests
+         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
+         COMMAND "./test.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")

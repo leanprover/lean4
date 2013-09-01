@@ -11,11 +11,11 @@ else
 fi
 NUM_ERRORS=0
 for f in `ls *.lean`; do
-    echo $f
+    echo "-- testing $f"
     $LEAN $f > $f.produced.out
     if test -f $f.expected.out; then
         if diff $f.produced.out $f.expected.out; then
-            echo "-- $f checked"
+            echo "-- checked"
         else
             echo "ERROR: file $f.produced.out does not match $f.expected.out"
             NUM_ERRORS=$(($NUM_ERRORS+1))

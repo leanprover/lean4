@@ -1,5 +1,6 @@
 *~
 .lean_trace
+*.produced.out
 a.out
 build
 GPATH
@@ -9,4 +10,3 @@ GTAGS
 Makefile
 *.cmake
 CMakeFiles/
-

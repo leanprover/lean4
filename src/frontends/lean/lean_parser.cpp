@@ -1282,11 +1282,13 @@ class parser::imp {
                 m_frontend.set_option(id, false);
             else
                 throw parser_error("invalid Boolean option value, 'true' or 'false' expected", pos());
+            next();
             break;
         case scanner::token::StringVal:
             if (k != StringOption)
                 throw parser_error("invalid option value, given option is not a string", pos());
             m_frontend.set_option(id, curr_string());
+            next();
             break;
         case scanner::token::IntVal:
             if (k != IntOption && k != UnsignedOption)
@@ -1304,7 +1306,6 @@ class parser::imp {
         updt_options();
         if (m_verbose)
             regular(m_frontend) << "  Set option: " << id << endl;
-        next();
     }
 
     void parse_import() {

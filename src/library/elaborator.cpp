@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <deque>
 #include "elaborator.h"
+#include "normalize.h"
 #include "metavar.h"
 #include "printer.h"
 #include "context.h"
@@ -82,6 +83,8 @@ class elaborator::imp {
 
     constraint_queue    m_constraints;
     metavars            m_metavars;
+
+    normalizer          m_normalizer;
 
     bool                m_add_constraints;
 
@@ -177,9 +180,54 @@ class elaborator::imp {
         }
     }
 
+    bool is_convertible(expr const & t1, expr const & t2, context const & ctx) {
+        return m_normalizer.is_convertible(t1, t2, ctx);
+    }
+
     void add_constraint(expr const & t1, expr const & t2, context const & ctx, expr const & s, unsigned arg_pos) {
         if (has_metavar(t1) || has_metavar(t2)) {
             m_constraints.push_back(constraint(t1, t2, ctx, s, ctx, arg_pos));
+        }
+    }
+
+    void choose(buffer<expr> const & f_choices, buffer<expr> const & f_choice_types,
+                buffer<expr> & args, buffer<expr> & types,
+                context const & ctx, expr const & src) {
+        lean_assert(f_choices.size() == f_choice_types.size());
+        buffer<unsigned> good_choices;
+        unsigned num_choices = f_choices.size();
+        unsigned num_args    = args.size();
+        for (unsigned j = 0; j < num_choices; j++) {
+            expr f_t = f_choice_types[j];
+            try {
+                unsigned i = 1;
+                for (; i < num_args; i++) {
+                    f_t = check_pi(f_t, ctx, src, ctx);
+                    expr const & expected = abst_domain(f_t);
+                    if (!has_metavar(expected) && !has_metavar(types[i])) {
+                        if (!is_convertible(expected, types[i], ctx)) {
+                            break;
+                        }
+                    }
+                    f_t = instantiate_free_var_mmv(abst_body(f_t), 0, args[i]);
+                }
+                if (i == num_args) {
+                    good_choices.push_back(j);
+                }
+            } catch (exception & ex) {
+                // candidate failed
+                // do nothing
+            }
+        }
+        if (good_choices.size() == 0) {
+            // TODO add information to the exception
+            throw exception("none of the overloads are good");
+        } else if (good_choices.size() == 1) {
+            args[0]  = f_choices[good_choices[0]];
+            types[0] = f_choice_types[good_choices[0]];
+        } else {
+            // TODO add information to the exception
+            throw exception("ambiguous overload");
         }
     }
 
@@ -247,7 +295,10 @@ class elaborator::imp {
                 args.push_back(p.first);
                 types.push_back(p.second);
             }
-            // TODO: choose an f from f_choices
+            if (!f_choices.empty()) {
+                // choose one of the functions (overloads) based on the types in types
+                choose(f_choices, f_choice_types, args, types, ctx, e);
+            }
             expr f_t = types[0];
             for (unsigned i = 1; i < num; i++) {
                 f_t = check_pi(f_t, ctx, e, ctx);
@@ -589,17 +640,20 @@ class elaborator::imp {
 public:
     imp(environment const & env, name_set const * defs):
         m_env(env),
-        m_available_defs(defs) {
+        m_available_defs(defs),
+        m_normalizer(env) {
         m_interrupted = false;
         m_owner = nullptr;
     }
 
     void clear() {
         m_trace.clear();
+        m_normalizer.clear();
     }
 
     void set_interrupt(bool flag) {
         m_interrupted = flag;
+        m_normalizer.set_interrupt(flag);
     }
 
     void display(std::ostream & out) {
@@ -625,16 +679,16 @@ public:
     }
 
     expr operator()(expr const & e, elaborator const & elb) {
-        if (has_placeholder(e)) {
-            m_constraints.clear();
-            m_metavars.clear();
-            m_owner = &elb;
-            m_add_constraints = true;
-            m_root = process(e, context()).first;
+        m_constraints.clear();
+        m_metavars.clear();
+        m_owner = &elb;
+        m_add_constraints = true;
+        m_root = process(e, context()).first;
+        if (has_metavar(m_root)) {
             solve();
             return instantiate(m_root);
         } else {
-            return e;
+            return m_root;
         }
     }
 

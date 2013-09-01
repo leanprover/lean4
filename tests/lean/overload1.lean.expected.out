@@ -1,0 +1,10 @@
+  Assumed: N
+  Assumed: f
+  Assumed: g
+⊤ ++ ⊥ ++ ⊤
+  Set option: lean::pp::notation
+f (f true false) true
+  Assumed: a
+  Assumed: b
+g (g a b) a
+f (f true false) false

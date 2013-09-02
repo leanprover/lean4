@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "formatter.h"
 
 namespace lean {
+class frontend;
 /**
    \brief Expression elaborator, it is responsible for "filling" holes
    in terms left by the user. This is the main module resposible for computing
@@ -20,7 +21,7 @@ class elaborator {
     std::shared_ptr<imp> m_ptr;
     static void print(imp * ptr);
 public:
-    explicit elaborator(environment const & env);
+    explicit elaborator(frontend const & fe);
     ~elaborator();
 
     expr operator()(expr const & e);

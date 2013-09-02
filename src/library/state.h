@@ -102,18 +102,6 @@ inline diagnostic const & operator<<(diagnostic const & out, kernel_exception co
     return out;
 }
 
-inline regular const & operator<<(regular const & out, elaborator_exception const & ex) {
-    options const & opts = out.m_state.get_options();
-    out.m_state.get_regular_channel().get_stream() << mk_pair(out.m_state.get_formatter()(ex, opts), opts);
-    return out;
-}
-
-inline diagnostic const & operator<<(diagnostic const & out, elaborator_exception const & ex) {
-    options const & opts = out.m_state.get_options();
-    out.m_state.get_diagnostic_channel().get_stream() << mk_pair(out.m_state.get_formatter()(ex, opts), opts);
-    return out;
-}
-
 template<typename T>
 inline regular const & operator<<(regular const & out, T const & t) {
     out.m_state.get_regular_channel().get_stream() << t;

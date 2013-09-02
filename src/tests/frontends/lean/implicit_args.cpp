@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include "test.h"
 #include "metavar.h"
-#include "elaborator.h"
 #include "free_vars.h"
 #include "printer.h"
 #include "occurs.h"
@@ -15,16 +14,18 @@ Author: Leonardo de Moura
 #include "basic_thms.h"
 #include "type_check.h"
 #include "kernel_exception.h"
-#include "elaborator_exception.h"
+#include "lean_frontend.h"
+#include "lean_elaborator.h"
+#include "lean_elaborator_exception.h"
 using namespace lean;
 
-expr elaborate(expr const & e, environment const & env) {
+expr elaborate(expr const & e, frontend const & env) {
     elaborator elb(env);
     return elb(e);
 }
 
 // Check elaborator success
-static void success(expr const & e, expr const & expected, environment const & env) {
+static void success(expr const & e, expr const & expected, frontend const & env) {
     std::cout << "\n" << e << "\n------>\n";
     try {
         std::cout << elaborate(e, env) << "\n";
@@ -50,7 +51,7 @@ static void success(expr const & e, expr const & expected, environment const & e
 }
 
 // Check elaborator failure
-static void fails(expr const & e, environment const & env) {
+static void fails(expr const & e, frontend const & env) {
     try {
         expr new_e = elaborate(e, env);
         std::cout << "new_e: " << new_e << std::endl;
@@ -60,7 +61,7 @@ static void fails(expr const & e, environment const & env) {
 }
 
 // Check elaborator partial success (i.e., result still contain some metavariables */
-static void unsolved(expr const & e, environment const & env) {
+static void unsolved(expr const & e, frontend const & env) {
     std::cout << "\n" << e << "\n------>\n" << elaborate(e, env) << "\n";
     lean_assert(has_metavar(elaborate(e, env)));
 }
@@ -68,7 +69,7 @@ static void unsolved(expr const & e, environment const & env) {
 #define _ mk_placholder()
 
 static void tst1() {
-    environment env;
+    frontend env;
     expr A = Const("A");
     expr B = Const("B");
     expr F = Const("F");
@@ -87,7 +88,7 @@ static void tst1() {
 }
 
 static void tst2() {
-    environment env = mk_toplevel();
+    frontend env;
     expr a  = Const("a");
     expr b  = Const("b");
     expr c  = Const("c");
@@ -111,7 +112,7 @@ static void tst2() {
 }
 
 static void tst3() {
-    environment env = mk_toplevel();
+    frontend env;
     expr Nat = Const("Nat");
     env.add_var("Nat", Type());
     env.add_var("vec", Nat >> Type());
@@ -141,7 +142,7 @@ static void tst3() {
 }
 
 static void tst4() {
-    environment env;
+    frontend env;
     expr Nat = Const("Nat");
     env.add_var("Nat", Type());
     expr R   = Const("R");
@@ -163,7 +164,7 @@ static void tst4() {
 }
 
 static void tst5() {
-    environment env;
+    frontend env;
     expr A = Const("A");
     expr B = Const("B");
     expr a = Const("a");
@@ -179,7 +180,7 @@ static void tst5() {
 }
 
 static void tst6() {
-    environment env;
+    frontend env;
     expr lst  = Const("list");
     expr nil  = Const("nil");
     expr cons = Const("cons");
@@ -198,14 +199,14 @@ static void tst6() {
 }
 
 static void tst7() {
-    environment env;
+    frontend env;
     expr x = Const("x");
     expr omega = mk_app(Fun({x,_}, x(x)), Fun({x,_}, x(x)));
     fails(omega, env);
 }
 
 static void tst8() {
-    environment env;
+    frontend env;
     expr B = Const("B");
     expr A = Const("A");
     expr x = Const("x");
@@ -226,7 +227,7 @@ static void tst8() {
 }
 
 static void tst9() {
-    environment env = mk_toplevel();
+    frontend env;
     expr A = Const("A");
     expr B = Const("B");
     expr f = Const("f");
@@ -265,7 +266,7 @@ static void tst9() {
 }
 
 static void tst10() {
-    environment env = mk_toplevel();
+    frontend env;
     expr A = Const("A");
     expr B = Const("B");
     expr C = Const("C");
@@ -290,7 +291,7 @@ static void tst10() {
 
 
 static void tst11() {
-    environment env = mk_toplevel();
+    frontend env;
     expr a  = Const("a");
     expr b  = Const("b");
     expr c  = Const("c");
@@ -310,7 +311,7 @@ static void tst11() {
             Fun({{H1, Eq(a,b)},{H2,Eq(b,c)},{H3,a}},
                 EqTIntro(c, EqMP(a,c,Symm(Bool,c,a,Trans(Bool,c,b,a,Symm(Bool,b,c,H2),Symm(Bool,a,b,H1))), H3))),
             env);
-    environment env2 = mk_toplevel();
+    frontend env2;
     success(Fun({{a,Bool},{b,Bool},{c,Bool},{H1, Eq(a,b)},{H2,Eq(b,c)},{H3,a}},
                 EqTIntro(_, EqMP(_,_,Symm(_,_,_,Trans(_,_,_,_,Symm(_,_,_,H2),Symm(_,_,_,H1))), H3))),
             Fun({{a,Bool},{b,Bool},{c,Bool},{H1, Eq(a,b)},{H2,Eq(b,c)},{H3,a}},
@@ -325,7 +326,7 @@ static void tst11() {
 }
 
 void tst12() {
-    environment env;
+    frontend env;
     expr A  = Const("A");
     expr B  = Const("B");
     expr a  = Const("a");
@@ -338,7 +339,7 @@ void tst12() {
 }
 
 void tst13() {
-    environment env = mk_toplevel();
+    frontend env;
     expr A  = Const("A");
     expr h  = Const("h");
     expr f  = Const("f");
@@ -350,7 +351,7 @@ void tst13() {
 }
 
 void tst14() {
-    environment env = mk_toplevel();
+    frontend env;
     expr R  = Const("R");
     expr A  = Const("A");
     expr r  = Const("r");

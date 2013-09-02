@@ -38,7 +38,6 @@ public:
     virtual void set_interrupt(bool flag) {}
 };
 class kernel_exception;
-class elaborator_exception;
 class formatter {
     std::shared_ptr<formatter_cell> m_cell;
 public:
@@ -51,8 +50,6 @@ public:
     format operator()(environment const & env, options const & opts = options()) { return (*m_cell)(env, opts); }
     /** \brief Pretty print a kernel exception using the this formatter */
     format operator()(kernel_exception const & ex, options const & opts = options());
-    /** \brief Pretty print a elaborator exception using the this formatter */
-    format operator()(elaborator_exception const & ex, options const & opts = options());
     void set_interrupt(bool flag) { m_cell->set_interrupt(flag); }
 };
 

@@ -5,8 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "elaborator.h"
+#include "lean_elaborator.h"
 #include "kernel_exception.h"
+#include "state.h"
 
 namespace lean {
 /**
@@ -53,4 +54,8 @@ public:
     unification_type_mismatch_exception(elaborator const & elb, context const & ctx, expr const & s):elaborator_exception(elb, ctx, s) {}
     virtual char const * what() const noexcept { return "type mismatch during term elaboration"; }
 };
+
+format pp(formatter fmt, elaborator_exception const & ex, options const & opts);
+regular const & operator<<(regular const & out, elaborator_exception const & ex);
+diagnostic const & operator<<(diagnostic const & out, elaborator_exception const & ex);
 }

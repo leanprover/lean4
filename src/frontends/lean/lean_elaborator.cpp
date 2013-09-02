@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <deque>
-#include "elaborator.h"
 #include "normalize.h"
 #include "metavar.h"
 #include "printer.h"
@@ -17,7 +16,9 @@ Author: Leonardo de Moura
 #include "replace.h"
 #include "expr_pair.h"
 #include "flet.h"
-#include "elaborator_exception.h"
+#include "lean_frontend.h"
+#include "lean_elaborator.h"
+#include "lean_elaborator_exception.h"
 
 namespace lean {
 static name g_choice_name(name(name(name(0u), "library"), "choice"));
@@ -78,6 +79,7 @@ class elaborator::imp {
     typedef std::deque<constraint>    constraint_queue;
     typedef std::vector<metavar_info> metavars;
 
+    frontend  const &   m_frontend;
     environment const & m_env;
     name_set const *    m_available_defs;
     elaborator const *  m_owner;
@@ -626,10 +628,11 @@ class elaborator::imp {
     }
 
 public:
-    imp(environment const & env, name_set const * defs):
-        m_env(env),
+    imp(frontend const & fe, name_set const * defs):
+        m_frontend(fe),
+        m_env(fe.get_environment()),
         m_available_defs(defs),
-        m_normalizer(env) {
+        m_normalizer(m_env) {
         m_interrupted = false;
         m_owner = nullptr;
     }
@@ -713,7 +716,7 @@ public:
         return r;
     }
 };
-elaborator::elaborator(environment const & env):m_ptr(new imp(env, nullptr)) {}
+elaborator::elaborator(frontend const & fe):m_ptr(new imp(fe, nullptr)) {}
 elaborator::~elaborator() {}
 expr elaborator::operator()(expr const & e) { return (*m_ptr)(e, *this); }
 expr const & elaborator::get_original(expr const & e) const { return m_ptr->get_original(e); }

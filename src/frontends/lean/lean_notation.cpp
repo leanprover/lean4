@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "builtin.h"
 #include "basic_thms.h"
 #include "lean_frontend.h"
+#include "arith.h"
 
 namespace lean {
 /**
@@ -28,6 +29,28 @@ void init_builtin_notation(frontend & f) {
     f.add_infixr("\u21D2", 25, mk_implies_fn()); // "⇒"
     f.add_infixr("<=>", 25, mk_iff_fn());        // "<=>"
     f.add_infixr("\u21D4", 25, mk_iff_fn());     // "⇔"
+
+    f.add_infixl("+", 65, mk_nat_add_fn());
+    f.add_infixl("*", 70, mk_nat_mul_fn());
+    f.add_infix("<=", 50, mk_nat_le_fn());
+    f.add_infix("\u2264", 50, mk_nat_le_fn());  // ≤
+    f.add_infix(">=", 50, mk_nat_ge_fn());
+    f.add_infix("\u2265", 50, mk_nat_ge_fn());  // ≥
+    f.add_infix("<", 50, mk_nat_lt_fn());
+    f.add_infix(">", 50, mk_nat_gt_fn());
+
+    f.add_infixl("+", 65, mk_int_add_fn());
+    f.add_infixl("-", 65, mk_int_sub_fn());
+    f.add_infixl("*", 70, mk_int_mul_fn());
+    f.add_infixl("/", 70, mk_int_div_fn());
+    f.add_infix("<=", 50, mk_int_le_fn());
+    f.add_infix("\u2264", 50, mk_int_le_fn());  // ≤
+    f.add_infix(">=", 50, mk_int_ge_fn());
+    f.add_infix("\u2265", 50, mk_int_ge_fn());  // ≥
+    f.add_infix("<", 50, mk_int_lt_fn());
+    f.add_infix(">", 50, mk_int_gt_fn());
+
+    f.add_coercion(mk_nat_to_int_fn());
 
     // implicit arguments for builtin axioms
     f.mark_implicit_arguments(mk_mp_fn(), {true, true, false, false});

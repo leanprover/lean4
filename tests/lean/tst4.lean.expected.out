@@ -9,7 +9,7 @@ f::explicit ((N [33m→[0m N) [33m→[0m N [33m→[0m N) ([33mλ[0m x : 
   Set option: pp::colors
 EqNice::explicit N n1 n2
 N
-Π (A : Type u) (B : A → Type u) (f g : Π x : A, B x) (a b : A) (H1 : f = g) (H2 : a = b), (f a) = (g b)
+Π (A : Type U) (B : A → Type U) (f g : Π x : A, B x) (a b : A) (H1 : f = g) (H2 : a = b), (f a) = (g b)
 f::explicit N n1 n2
   Assumed: a
   Assumed: b

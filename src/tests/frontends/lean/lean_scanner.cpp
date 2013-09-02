@@ -24,7 +24,7 @@ static void scan(char const * str, list<name> const & cmds = list<name>()) {
         std::cout << t;
         if (t == st::Id || t == st::CommandId)
             std::cout << "[" << s.get_name_val() << "]";
-        else if (t == st::IntVal || t == st::DecimalVal)
+        else if (t == st::NatVal || t == st::DecimalVal)
             std::cout << "[" << s.get_num_val() << "]";
         else if (t == st::StringVal)
             std::cout << "[\"" << escaped(s.get_str_val().c_str()) << "\"]";
@@ -78,11 +78,11 @@ static void tst2() {
     check("x+y", {st::Id, st::Id, st::Id});
     check("(* testing *)", {});
     check(" 2.31  ", {st::DecimalVal});
-    check(" 333 22", {st::IntVal, st::IntVal});
+    check(" 333 22", {st::NatVal, st::NatVal});
     check("Int -> Int", {st::Id, st::Arrow, st::Id});
     check("Int --> Int", {st::Id, st::Id, st::Id});
-    check("x := 10", {st::Id, st::Assign, st::IntVal});
-    check("(x+1):Int", {st::LeftParen, st::Id, st::Id, st::IntVal, st::RightParen, st::Colon, st::Id});
+    check("x := 10", {st::Id, st::Assign, st::NatVal});
+    check("(x+1):Int", {st::LeftParen, st::Id, st::Id, st::NatVal, st::RightParen, st::Colon, st::Id});
     check("{x}", {st::LeftCurlyBracket, st::Id, st::RightCurlyBracket});
     check("\u03BB \u03A0 \u2192", {st::Lambda, st::Pi, st::Arrow});
     scan("++\u2295++x\u2296\u2296");
@@ -91,7 +91,7 @@ static void tst2() {
     check_name("x10", name("x10"));
     check_name("x::10", name(name("x"), 10));
     check_name("x::10::bla::0", name(name(name(name("x"), 10), "bla"), 0u));
-    check("0::1", {st::IntVal, st::Colon, st::Colon, st::IntVal});
+    check("0::1", {st::NatVal, st::Colon, st::Colon, st::NatVal});
     check_name("\u2296\u2296", name("\u2296\u2296"));
     try {
         scan("x::1000000000000000000");

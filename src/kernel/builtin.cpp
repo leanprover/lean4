@@ -48,8 +48,8 @@ expr mk_bin_lop(expr const & op, expr const & unit, std::initializer_list<expr> 
 
 // =======================================
 // Bultin universe variables m and u
-static level m_lvl(name("m"));
-static level u_lvl(name("u"));
+static level m_lvl(name("M"));
+static level u_lvl(name("U"));
 expr const TypeM = Type(m_lvl);
 expr const TypeU = Type(u_lvl);
 // =======================================
@@ -57,6 +57,7 @@ expr const TypeU = Type(u_lvl);
 // =======================================
 // Boolean Type
 static char const * g_Bool_str = "Bool";
+static name g_Bool_name(g_Bool_str);
 static format g_Bool_fmt(g_Bool_str);
 class bool_type_value : public value {
 public:
@@ -64,9 +65,9 @@ public:
     virtual expr get_type() const { return Type(); }
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const { return false; }
     virtual bool operator==(value const & other) const { return dynamic_cast<bool_type_value const*>(&other) != nullptr; }
-    virtual void display(std::ostream & out) const { out << g_Bool_str; }
+    virtual void display(std::ostream & out) const { out << g_Bool_name; }
     virtual format pp() const { return g_Bool_fmt; }
-    virtual unsigned hash() const { return 17; }
+    virtual unsigned hash() const { return g_Bool_name.hash(); }
 };
 expr const Bool = mk_value(*(new bool_type_value()));
 expr mk_bool_type() { return Bool; }
@@ -155,7 +156,7 @@ public:
     virtual bool operator==(value const & other) const { return dynamic_cast<ite_fn_value const*>(&other) != nullptr; }
     virtual void display(std::ostream & out) const { out << g_ite_name; }
     virtual format pp() const { return g_ite_fmt; }
-    virtual unsigned hash() const { return 27; }
+    virtual unsigned hash() const { return g_ite_name.hash(); }
 };
 MK_BUILTIN(ite_fn, ite_fn_value);
 // =======================================

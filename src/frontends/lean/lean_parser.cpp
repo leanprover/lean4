@@ -199,8 +199,8 @@ class parser::imp {
     bool curr_is_identifier() const { return curr() == scanner::token::Id; }
     /** \brief Return true iff the current token is a '_" */
     bool curr_is_placeholder() const { return curr() == scanner::token::Placeholder; }
-    /** \brief Return true iff the current token is an integer */
-    bool curr_is_int() const { return curr() == scanner::token::IntVal; }
+    /** \brief Return true iff the current token is a natural number */
+    bool curr_is_nat() const { return curr() == scanner::token::NatVal; }
     /** \brief Return true iff the current token is a '(' */
     bool curr_is_lparen() const { return curr() == scanner::token::LeftParen; }
     /** \brief Return true iff the current token is a '{' */
@@ -254,10 +254,11 @@ class parser::imp {
         m_builtins["\u22A4"] = True;
         m_builtins["\u22A5"] = False;
         m_builtins["Int"]    = Int;
+        m_builtins["Nat"]    = Nat;
     }
 
     unsigned parse_unsigned(char const * msg) {
-        lean_assert(curr_is_int());
+        lean_assert(curr_is_nat());
         mpz pval = curr_num().get_numerator();
         if (!pval.is_unsigned_int()) {
             throw parser_error(msg, pos());
@@ -285,7 +286,7 @@ class parser::imp {
         auto p = pos();
         next();
         buffer<level> lvls;
-        while (curr_is_identifier() || curr_is_int()) {
+        while (curr_is_identifier() || curr_is_nat()) {
             lvls.push_back(parse_level());
         }
         if (lvls.size() < 2)
@@ -318,7 +319,7 @@ class parser::imp {
     level parse_level_nud() {
         switch (curr()) {
         case scanner::token::Id:        return parse_level_nud_id();
-        case scanner::token::IntVal:    return parse_level_nud_int();
+        case scanner::token::NatVal:    return parse_level_nud_int();
         default:
             throw parser_error("invalid level expression", pos());
         }
@@ -853,10 +854,10 @@ class parser::imp {
         }
     }
 
-    /** \brief Parse an integer value. */
-    expr parse_int() {
+    /** \brief Parse a natural number value. */
+    expr parse_nat() {
         auto p = pos();
-        expr r = save(mk_int_value(m_scanner.get_num_val().get_numerator()), p);
+        expr r = save(mk_nat_value(m_scanner.get_num_val().get_numerator()), p);
         next();
         return r;
     }
@@ -873,7 +874,7 @@ class parser::imp {
     expr parse_type() {
         auto p = pos();
         next();
-        if (curr_is_identifier() || curr_is_int()) {
+        if (curr_is_identifier() || curr_is_nat()) {
             return save(mk_type(parse_level()), p);
         } else {
             return Type();
@@ -899,7 +900,7 @@ class parser::imp {
         case scanner::token::Forall:      return parse_forall();
         case scanner::token::Exists:      return parse_exists();
         case scanner::token::Let:         return parse_let();
-        case scanner::token::IntVal:      return parse_int();
+        case scanner::token::NatVal:      return parse_nat();
         case scanner::token::DecimalVal:  return parse_decimal();
         case scanner::token::StringVal:   return parse_string();
         case scanner::token::Placeholder: return parse_placeholder();
@@ -927,7 +928,7 @@ class parser::imp {
         case scanner::token::Eq:          return parse_eq(left);
         case scanner::token::Arrow:       return parse_arrow(left);
         case scanner::token::LeftParen:   return mk_app_left(left, parse_lparen());
-        case scanner::token::IntVal:      return mk_app_left(left, parse_int());
+        case scanner::token::NatVal:      return mk_app_left(left, parse_nat());
         case scanner::token::DecimalVal:  return mk_app_left(left, parse_decimal());
         case scanner::token::StringVal:   return mk_app_left(left, parse_string());
         case scanner::token::Placeholder: return mk_app_left(left, parse_placeholder());
@@ -954,7 +955,7 @@ class parser::imp {
         }
         case scanner::token::Eq : return g_eq_precedence;
         case scanner::token::Arrow : return g_arrow_precedence;
-        case scanner::token::LeftParen: case scanner::token::IntVal: case scanner::token::DecimalVal:
+        case scanner::token::LeftParen: case scanner::token::NatVal: case scanner::token::DecimalVal:
         case scanner::token::StringVal: case scanner::token::Type: case scanner::token::Placeholder:
             return 1;
         default:
@@ -1119,7 +1120,7 @@ class parser::imp {
             name opt_id = curr_name();
             next();
             if (opt_id == g_env_kwd) {
-                if (curr_is_int()) {
+                if (curr_is_nat()) {
                     unsigned i = parse_unsigned("invalid argument, value does not fit in a machine integer");
                     auto end = m_frontend.end_objects();
                     auto beg = m_frontend.begin_objects();
@@ -1155,7 +1156,7 @@ class parser::imp {
 
     /** \brief Return the (optional) precedence of a user-defined operator. */
     unsigned parse_precedence() {
-        if (curr_is_int()) {
+        if (curr_is_nat()) {
             return parse_unsigned("invalid operator definition, precedence does not fit in a machine integer");
         } else {
             return 0;
@@ -1296,7 +1297,7 @@ class parser::imp {
             m_frontend.set_option(id, curr_string());
             next();
             break;
-        case scanner::token::IntVal:
+        case scanner::token::NatVal:
             if (k != IntOption && k != UnsignedOption)
                 throw parser_error("invalid option value, given option is not an integer", pos());
             m_frontend.set_option(id, parse_unsigned("invalid option value, value does not fit in a machine integer"));
@@ -1450,7 +1451,7 @@ class parser::imp {
     }
 
 public:
-    imp(frontend & fe, std::istream & in, bool use_exceptions, bool interactive):
+    imp(frontend const & fe, std::istream & in, bool use_exceptions, bool interactive):
         m_frontend(fe),
         m_scanner(in),
         m_elaborator(fe),
@@ -1543,7 +1544,7 @@ public:
     }
 };
 
-parser::parser(frontend fe, std::istream & in, bool use_exceptions, bool interactive) {
+parser::parser(frontend const & fe, std::istream & in, bool use_exceptions, bool interactive) {
     parser::imp::show_prompt(interactive, fe);
     m_ptr.reset(new imp(fe, in, use_exceptions, interactive));
 }
@@ -1563,7 +1564,7 @@ expr parser::parse_expr() {
     return m_ptr->parse_expr_main();
 }
 
-shell::shell(frontend & fe):m_frontend(fe) {
+shell::shell(frontend const & fe):m_frontend(fe) {
 }
 
 shell::~shell() {

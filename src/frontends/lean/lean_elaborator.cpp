@@ -201,42 +201,50 @@ class elaborator::imp {
         buffer<unsigned> good_choices;
         unsigned num_choices = f_choices.size();
         unsigned num_args    = args.size();
-        for (unsigned j = 0; j < num_choices; j++) {
-            expr f_t = f_choice_types[j];
-            try {
-                unsigned i = 1;
-                for (; i < num_args; i++) {
-                    f_t = check_pi(f_t, ctx, src, ctx);
-                    expr expected = abst_domain(f_t);
-                    expr given    = types[i];
-                    if (!has_metavar(expected) && !has_metavar(given)) {
-                        if (!is_convertible(expected, given, ctx) &&
-                            !m_frontend.get_coercion(given, expected))
-                            break; // failed to use this overload
+        for (unsigned round = 0; round < 2; round++) {
+            // In the first round we only select perfect matches without considering
+            // overloads. This is the same approach used in C++.
+            // If a perfect match does not exist, then we try again using coercions.
+            for (unsigned j = 0; j < num_choices; j++) {
+                expr f_t = f_choice_types[j];
+                try {
+                    unsigned i = 1;
+                    for (; i < num_args; i++) {
+                        f_t = check_pi(f_t, ctx, src, ctx);
+                        expr expected = abst_domain(f_t);
+                        expr given    = types[i];
+                        if (!has_metavar(expected) && !has_metavar(given)) {
+                            if (!is_convertible(expected, given, ctx) &&
+                                // remark, we only consider coercions in the second round
+                                (round == 0 || !m_frontend.get_coercion(given, expected)))
+                                break; // failed to use this overload
+                        }
+                        f_t = instantiate_free_var_mmv(abst_body(f_t), 0, args[i]);
                     }
-                    f_t = instantiate_free_var_mmv(abst_body(f_t), 0, args[i]);
-                }
-                if (i == num_args) {
-                    if (good_choices.empty()) {
-                        // first good choice
-                        args[0]  = f_choices[j];
-                        types[0] = f_choice_types[j];
+                    if (i == num_args) {
+                        if (good_choices.empty()) {
+                            // first good choice
+                            args[0]  = f_choices[j];
+                            types[0] = f_choice_types[j];
+                        }
+                        good_choices.push_back(j);
                     }
-                    good_choices.push_back(j);
+                } catch (exception & ex) {
+                    // candidate failed
+                    // do nothing
                 }
-            } catch (exception & ex) {
-                // candidate failed
-                // do nothing
             }
-        }
-        if (good_choices.size() == 0) {
-            // TODO add information to the exception
-            throw exception("none of the overloads are good");
-        } else if (good_choices.size() == 1) {
-            // found overload
-        } else {
-            // TODO add information to the exception
-            throw exception("ambiguous overload");
+            if (good_choices.size() == 0) {
+                // TODO add information to the exception
+                if (round == 1)
+                    throw exception("none of the overloads are good");
+            } else if (good_choices.size() == 1) {
+                // found overload
+                return;
+            } else {
+                // TODO add information to the exception
+                throw exception("ambiguous overload");
+            }
         }
     }
 

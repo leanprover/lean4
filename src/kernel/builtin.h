@@ -160,9 +160,6 @@ expr mk_##Name() {                                                      \
     static thread_local expr r = mk_value(*(new ClassName()));          \
     return r;                                                           \
 }                                                                       \
-bool is_##Name(expr const & e) {                                        \
-    return is_value(e) && dynamic_cast<ClassName const *>(&to_value(e)) != nullptr; \
-}
 
 /**
    \brief Helper macro for generating "defined" constants.

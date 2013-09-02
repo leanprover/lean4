@@ -302,7 +302,7 @@ scanner::token scanner::read_number() {
     }
     if (is_decimal)
         m_num_val /= q;
-    return is_decimal ? token::DecimalVal : token::IntVal;
+    return is_decimal ? token::DecimalVal : token::NatVal;
 }
 
 scanner::token scanner::read_string() {
@@ -389,7 +389,7 @@ std::ostream & operator<<(std::ostream & out, scanner::token const & t) {
     case scanner::token::In:                out << "in"; break;
     case scanner::token::Id:                out << "Id"; break;
     case scanner::token::CommandId:         out << "CId"; break;
-    case scanner::token::IntVal:            out << "Int"; break;
+    case scanner::token::NatVal:            out << "Nat"; break;
     case scanner::token::DecimalVal:        out << "Dec"; break;
     case scanner::token::StringVal:         out << "String"; break;
     case scanner::token::Eq:                out << "="; break;

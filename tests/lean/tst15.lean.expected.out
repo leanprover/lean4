@@ -1,21 +1,21 @@
   Set option: pp::colors
   Assumed: x
-Type u+3 ⊔ m+2 ⊔ 3
+Type U+3 ⊔ M+2 ⊔ 3
   Assumed: f
-Type u+10 → Type
+Type U+10 → Type
 Type
 Type 5
-Type u+3 ⊔ m+2 ⊔ 3
-Type u+1 ⊔ m+1
-Type u+3
-Type u+4
-Type u+1 ⊔ m+1
-Type u+1 ⊔ m+1 ⊔ 4
-Type u+1 ⊔ m ⊔ 3
-Type u+2 ⊔ m+1 ⊔ 4
-Type u → Type 5
-Type u+1 ⊔ 6
-Type m+1 ⊔ 4 ⊔ u+6
-Type m ⊔ 3 → Type u → Type 5
-Type m+1 ⊔ 6 ⊔ u+1
-Type u
+Type U+3 ⊔ M+2 ⊔ 3
+Type U+1 ⊔ M+1
+Type U+3
+Type U+4
+Type U+1 ⊔ M+1
+Type U+1 ⊔ M+1 ⊔ 4
+Type U+1 ⊔ M ⊔ 3
+Type U+2 ⊔ M+1 ⊔ 4
+Type U → Type 5
+Type U+1 ⊔ 6
+Type M+1 ⊔ 4 ⊔ U+6
+Type M ⊔ 3 → Type U → Type 5
+Type M+1 ⊔ 6 ⊔ U+1
+Type U

@@ -15,7 +15,7 @@ class parser {
     class imp;
     std::unique_ptr<imp> m_ptr;
 public:
-    parser(frontend fe, std::istream & in, bool use_exceptions = true, bool interactive = false);
+    parser(frontend const & fe, std::istream & in, bool use_exceptions = true, bool interactive = false);
     ~parser();
 
     /** \brief Parse a sequence of commands */
@@ -34,7 +34,7 @@ class shell {
     frontend                  m_frontend;
     interruptable_ptr<parser> m_parser;
 public:
-    shell(frontend & fe);
+    shell(frontend const & fe);
     ~shell();
 
     bool operator()();

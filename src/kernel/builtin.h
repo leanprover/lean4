@@ -23,21 +23,19 @@ expr mk_bin_lop(expr const & op, expr const & unit, unsigned num_args, expr cons
 expr mk_bin_lop(expr const & op, expr const & unit, std::initializer_list<expr> const & l);
 
 /** \brief Return (Type m)  m >= bottom + Offset */
-expr mk_type_m();
-#define TypeM mk_type_m()
+extern expr const TypeM;
 
 /** \brief Return (Type u)  u >= m + Offset */
-expr mk_type_u();
-#define TypeU mk_type_u()
+extern expr const TypeU;
 
 /** \brief Return the Lean Boolean type. */
 expr mk_bool_type();
-#define Bool mk_bool_type()
+extern expr const Bool;
 
 /** \brief Create a Lean Boolean value (true/false) */
 expr mk_bool_value(bool v);
-#define True  mk_bool_value(true)
-#define False mk_bool_value(false)
+extern expr const True;
+extern expr const False;
 /** \brief Return true iff \c e is a Lean Boolean value. */
 bool is_bool_value(expr const & e);
 /**

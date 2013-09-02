@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 expr mk_int_type();
-#define Int mk_int_type()
+extern expr const Int;
 
 expr mk_int_value(mpz const & v);
 inline expr mk_int_value(int v) { return mk_int_value(mpz(v)); }

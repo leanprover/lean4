@@ -25,8 +25,8 @@ public:
 };
 
 char const * int_type_value::g_kind = "int";
-
-MK_BUILTIN(int_type, int_type_value);
+expr const Int = mk_value(*(new int_type_value()));
+expr mk_int_type() { return Int; }
 
 class int_value_value : public value {
     mpz m_val;

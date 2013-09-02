@@ -50,16 +50,8 @@ expr mk_bin_lop(expr const & op, expr const & unit, std::initializer_list<expr> 
 // Bultin universe variables m and u
 static level m_lvl(name("m"));
 static level u_lvl(name("u"));
-
-expr mk_type_m() {
-    static thread_local expr r = Type(m_lvl);
-    return r;
-}
-
-expr mk_type_u() {
-    static thread_local expr r = Type(u_lvl);
-    return r;
-}
+expr const TypeM = Type(m_lvl);
+expr const TypeU = Type(u_lvl);
 // =======================================
 
 // =======================================
@@ -79,7 +71,8 @@ public:
     virtual unsigned hash() const { return 17; }
 };
 char const * bool_type_value::g_kind = g_Bool_str;
-MK_BUILTIN(bool_type, bool_type_value);
+expr const Bool = mk_value(*(new bool_type_value()));
+expr mk_bool_type() { return Bool; }
 // =======================================
 
 // =======================================
@@ -116,10 +109,10 @@ public:
     bool get_val() const { return m_val; }
 };
 char const * bool_value_value::g_kind = "BoolValue";
+expr const True  = mk_value(*(new bool_value_value(true)));
+expr const False = mk_value(*(new bool_value_value(false)));
 expr mk_bool_value(bool v) {
-    static thread_local expr true_val  = mk_value(*(new bool_value_value(true)));
-    static thread_local expr false_val = mk_value(*(new bool_value_value(false)));
-    return v ? true_val : false_val;
+    return v ? True : False;
 }
 bool is_bool_value(expr const & e) {
     return is_value(e) && to_value(e).kind() == bool_value_value::g_kind;

@@ -123,9 +123,9 @@ public:
 };
 MK_BUILTIN(nat_le_fn, nat_le_value);
 
-MK_CONSTANT(nat_ge_fn, name(name("Nat"), "ge"));
-MK_CONSTANT(nat_lt_fn, name(name("Nat"), "lt"));
-MK_CONSTANT(nat_gt_fn, name(name("Nat"), "gt"));
+MK_CONSTANT(nat_ge_fn, name({"Nat", "ge"}));
+MK_CONSTANT(nat_lt_fn, name({"Nat", "lt"}));
+MK_CONSTANT(nat_gt_fn, name({"Nat", "gt"}));
 // =======================================
 
 // =======================================
@@ -198,15 +198,12 @@ struct int_add_eval { mpz operator()(mpz const & v1, mpz const & v2) { return v1
 typedef int_bin_op<int_add_name, int_add_eval> int_add_value;
 MK_BUILTIN(int_add_fn, int_add_value);
 
-constexpr char int_sub_name[] = "sub";
-struct int_sub_eval { mpz operator()(mpz const & v1, mpz const & v2) { return v1 - v2; }; };
-typedef int_bin_op<int_sub_name, int_sub_eval> int_sub_value;
-MK_BUILTIN(int_sub_fn, int_sub_value);
-
 constexpr char int_mul_name[] = "mul";
 struct int_mul_eval { mpz operator()(mpz const & v1, mpz const & v2) { return v1 * v2; }; };
 typedef int_bin_op<int_mul_name, int_mul_eval> int_mul_value;
 MK_BUILTIN(int_mul_fn, int_mul_value);
+
+MK_CONSTANT(int_sub_fn, name({"Int", "sub"}));
 
 constexpr char int_div_name[] = "div";
 struct int_div_eval {
@@ -244,9 +241,9 @@ public:
     virtual unsigned hash() const { return m_name.hash(); }
 };
 MK_BUILTIN(int_le_fn, int_le_value);
-MK_CONSTANT(int_ge_fn, name(name("Int"), "ge"));
-MK_CONSTANT(int_lt_fn, name(name("Int"), "lt"));
-MK_CONSTANT(int_gt_fn, name(name("Int"), "gt"));
+MK_CONSTANT(int_ge_fn, name({"Int", "ge"}));
+MK_CONSTANT(int_lt_fn, name({"Int", "lt"}));
+MK_CONSTANT(int_gt_fn, name({"Int", "gt"}));
 // =======================================
 
 // =======================================
@@ -319,15 +316,12 @@ struct real_add_eval { mpq operator()(mpq const & v1, mpq const & v2) { return v
 typedef real_bin_op<real_add_name, real_add_eval> real_add_value;
 MK_BUILTIN(real_add_fn, real_add_value);
 
-constexpr char real_sub_name[] = "sub";
-struct real_sub_eval { mpq operator()(mpq const & v1, mpq const & v2) { return v1 - v2; }; };
-typedef real_bin_op<real_sub_name, real_sub_eval> real_sub_value;
-MK_BUILTIN(real_sub_fn, real_sub_value);
-
 constexpr char real_mul_name[] = "mul";
 struct real_mul_eval { mpq operator()(mpq const & v1, mpq const & v2) { return v1 * v2; }; };
 typedef real_bin_op<real_mul_name, real_mul_eval> real_mul_value;
 MK_BUILTIN(real_mul_fn, real_mul_value);
+
+MK_CONSTANT(real_sub_fn, name({"Real", "sub"}));
 
 constexpr char real_div_name[] = "div";
 struct real_div_eval {
@@ -365,9 +359,9 @@ public:
     virtual unsigned hash() const { return m_name.hash(); }
 };
 MK_BUILTIN(real_le_fn, real_le_value);
-MK_CONSTANT(real_ge_fn, name(name("Real"), "ge"));
-MK_CONSTANT(real_lt_fn, name(name("Real"), "lt"));
-MK_CONSTANT(real_gt_fn, name(name("Real"), "gt"));
+MK_CONSTANT(real_ge_fn, name({"Real", "ge"}));
+MK_CONSTANT(real_lt_fn, name({"Real", "lt"}));
+MK_CONSTANT(real_gt_fn, name({"Real", "gt"}));
 // =======================================
 
 // =======================================
@@ -425,23 +419,27 @@ MK_CONSTANT(nat_to_real_fn, name("nat_to_real"));
 // =======================================
 
 void add_arith_theory(environment & env) {
-    expr p_nn = Nat >> (Nat >> Bool);
-    expr p_ii = Int >> (Int >> Bool);
-    expr p_rr = Real >> (Real >> Bool);
+    expr nn_b = Nat >> (Nat >> Bool);
+    expr ii_b = Int >> (Int >> Bool);
+    expr ii_i = Int >> (Int >> Int);
+    expr rr_b = Real >> (Real >> Bool);
+    expr rr_r = Real >> (Real >> Real);
     expr x    = Const("x");
     expr y    = Const("y");
 
-    env.add_definition(nat_ge_fn_name, p_nn, Fun({{x, Nat}, {y, Nat}}, nLe(y, x)));
-    env.add_definition(nat_lt_fn_name, p_nn, Fun({{x, Nat}, {y, Nat}}, Not(nLe(y, x))));
-    env.add_definition(nat_gt_fn_name, p_nn, Fun({{x, Nat}, {y, Nat}}, Not(nLe(x, y))));
+    env.add_definition(nat_ge_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, nLe(y, x)));
+    env.add_definition(nat_lt_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, Not(nLe(y, x))));
+    env.add_definition(nat_gt_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, Not(nLe(x, y))));
 
-    env.add_definition(int_ge_fn_name, p_ii, Fun({{x, Int}, {y, Int}}, iLe(y, x)));
-    env.add_definition(int_lt_fn_name, p_ii, Fun({{x, Int}, {y, Int}}, Not(iLe(y, x))));
-    env.add_definition(int_gt_fn_name, p_ii, Fun({{x, Int}, {y, Int}}, Not(iLe(x, y))));
+    env.add_definition(int_sub_fn_name, ii_i, Fun({{x, Int}, {y, Int}}, iAdd(x, iMul(mk_int_value(-1), y))));
+    env.add_definition(int_ge_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, iLe(y, x)));
+    env.add_definition(int_lt_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, Not(iLe(y, x))));
+    env.add_definition(int_gt_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, Not(iLe(x, y))));
 
-    env.add_definition(real_ge_fn_name, p_rr, Fun({{x, Real}, {y, Real}}, rLe(y, x)));
-    env.add_definition(real_lt_fn_name, p_rr, Fun({{x, Real}, {y, Real}}, Not(rLe(y, x))));
-    env.add_definition(real_gt_fn_name, p_rr, Fun({{x, Real}, {y, Real}}, Not(rLe(x, y))));
+    env.add_definition(real_sub_fn_name, rr_r, Fun({{x, Real}, {y, Real}}, rAdd(x, rMul(mk_real_value(-1), y))));
+    env.add_definition(real_ge_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, rLe(y, x)));
+    env.add_definition(real_lt_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, Not(rLe(y, x))));
+    env.add_definition(real_gt_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, Not(rLe(x, y))));
 
     env.add_definition(nat_to_real_fn_name, Nat >> Real, Fun({x, Nat}, i2r(n2i(x))));
 }

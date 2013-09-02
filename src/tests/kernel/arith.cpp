@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "builtin.h"
 #include "arith.h"
 #include "normalizer.h"
+#include "toplevel.h"
 #include "abstract.h"
 #include "printer.h"
 #include "test.h"
@@ -56,7 +57,7 @@ static void tst3() {
 }
 
 static void tst4() {
-    environment env;
+    environment env = mk_toplevel();
     expr e = iSub(iVal(10), iVal(30));
     std::cout << e << "\n";
     std::cout << normalize(e, env) << "\n";
@@ -68,7 +69,7 @@ static void tst4() {
     expr e2 = Fun("a", Int, iSub(Const("a"), iSub(iVal(10), iVal(30))));
     std::cout << e2 << " --> " << normalize(e2, env) << "\n";
     lean_assert(infer_type(e2, env) == (Int >> Int));
-    lean_assert(normalize(e2, env) == Fun("a", Int, iSub(Const("a"), iVal(-20))));
+    lean_assert(normalize(e2, env) == Fun("a", Int, iAdd(Const("a"), iVal(20))));
 }
 
 static void tst5() {

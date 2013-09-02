@@ -111,7 +111,7 @@ static void tst3() {
 }
 
 static void tst4() {
-    environment env;
+    environment env = mk_toplevel();
     env.add_definition("a", Int, iVal(1), true); // add opaque definition
     expr t = iAdd(Const("a"), iVal(1));
     std::cout << t << " --> " << normalize(t, env) << "\n";
@@ -119,7 +119,7 @@ static void tst4() {
     env.add_definition("b", Int, iAdd(Const("a"), iVal(1)));
     expr t2 = iSub(Const("b"), iVal(9));
     std::cout << t2 << " --> " << normalize(t2, env) << "\n";
-    lean_assert(normalize(t2, env) == iSub(iAdd(Const("a"), iVal(1)), iVal(9)));
+    lean_assert(normalize(t2, env) == iAdd(iAdd(Const("a"), iVal(1)), iVal(-9)));
 }
 
 static void tst5() {

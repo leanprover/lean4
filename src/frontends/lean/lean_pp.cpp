@@ -32,12 +32,16 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PP_MAX_STEPS std::numeric_limits<unsigned>::max()
 #endif
 
+#ifndef LEAN_DEFAULT_PP_NOTATION
+#define LEAN_DEFAULT_PP_NOTATION true
+#endif
+
 #ifndef LEAN_DEFAULT_PP_IMPLICIT
 #define LEAN_DEFAULT_PP_IMPLICIT false
 #endif
 
-#ifndef LEAN_DEFAULT_PP_NOTATION
-#define LEAN_DEFAULT_PP_NOTATION true
+#ifndef LEAN_DEFAULT_PP_COERCION
+#define LEAN_DEFAULT_PP_COERCION false
 #endif
 
 #ifndef LEAN_DEFAULT_PP_EXTRA_LETS
@@ -78,11 +82,13 @@ static name g_pp_implicit        {"lean", "pp", "implicit"};
 static name g_pp_notation        {"lean", "pp", "notation"};
 static name g_pp_extra_lets      {"lean", "pp", "extra_lets"};
 static name g_pp_alias_min_weight{"lean", "pp", "alias_min_weight"};
+static name g_pp_coercion        {"lean", "pp", "coercion"};
 
 RegisterUnsignedOption(g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH, "(lean pretty printer) maximum expression depth, after that it will use ellipsis");
 RegisterUnsignedOption(g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS, "(lean pretty printer) maximum number of visited expressions, after that it will use ellipsis");
 RegisterBoolOption(g_pp_implicit,  LEAN_DEFAULT_PP_IMPLICIT, "(lean pretty printer) display implicit parameters");
 RegisterBoolOption(g_pp_notation,  LEAN_DEFAULT_PP_NOTATION, "(lean pretty printer) disable/enable notation (infix, mixfix, postfix operators and unicode characters)");
+RegisterBoolOption(g_pp_coercion,  LEAN_DEFAULT_PP_COERCION, "(lean pretty printer) display coercions");
 RegisterBoolOption(g_pp_extra_lets,  LEAN_DEFAULT_PP_EXTRA_LETS, "(lean pretty printer) introduce extra let expressions when displaying shared terms");
 RegisterUnsignedOption(g_pp_alias_min_weight,  LEAN_DEFAULT_PP_ALIAS_MIN_WEIGHT, "(lean pretty printer) mimimal weight (approx. size) of a term to be considered a shared term");
 
@@ -90,6 +96,7 @@ unsigned get_pp_max_depth(options const & opts)        { return opts.get_unsigne
 unsigned get_pp_max_steps(options const & opts)        { return opts.get_unsigned(g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS); }
 bool     get_pp_implicit(options const & opts)         { return opts.get_bool(g_pp_implicit, LEAN_DEFAULT_PP_IMPLICIT); }
 bool     get_pp_notation(options const & opts)         { return opts.get_bool(g_pp_notation, LEAN_DEFAULT_PP_NOTATION); }
+bool     get_pp_coercion(options const & opts)         { return opts.get_bool(g_pp_coercion, LEAN_DEFAULT_PP_COERCION); }
 bool     get_pp_extra_lets(options const & opts)       { return opts.get_bool(g_pp_extra_lets, LEAN_DEFAULT_PP_EXTRA_LETS); }
 unsigned get_pp_alias_min_weight(options const & opts) { return opts.get_unsigned(g_pp_alias_min_weight, LEAN_DEFAULT_PP_ALIAS_MIN_WEIGHT); }
 
@@ -136,7 +143,8 @@ class pp_fn {
     unsigned         m_indent;
     unsigned         m_max_depth;
     unsigned         m_max_steps;
-    bool             m_implict;
+    bool             m_implict;          //!< if true show implicit arguments
+    bool             m_coercion;         //!< if true show coercions
     bool             m_notation;         //!< if true use notation
     bool             m_extra_lets;       //!< introduce extra let-expression to cope with sharing.
     unsigned         m_alias_min_weight; //!< minimal weight for creating an alias
@@ -535,6 +543,8 @@ class pp_fn {
        \brief Pretty print an application.
     */
     result pp_app(expr const & e, unsigned depth) {
+        if (!m_coercion && num_args(e) == 2 && m_frontend.is_coercion(arg(e,0)))
+            return pp(arg(e,1), depth);
         application app(e, *this, m_implict);
         operator_info op;
         if (m_notation && app.notation_enabled() && (op = get_operator(e)) && has_expected_num_args(app, op)) {
@@ -930,6 +940,7 @@ class pp_fn {
         m_max_depth        = get_pp_max_depth(opts);
         m_max_steps        = get_pp_max_steps(opts);
         m_implict          = get_pp_implicit(opts);
+        m_coercion         = get_pp_coercion(opts);
         m_notation         = get_pp_notation(opts);
         m_extra_lets       = get_pp_extra_lets(opts);
         m_alias_min_weight = get_pp_alias_min_weight(opts);

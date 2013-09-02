@@ -6,8 +6,8 @@ implies true (implies a false)
 Notation 100 _ |- _ ; _ : f
 f c d e
 c |- d ; e
-(a !) !
-fact (fact a)
+(c !) !
+fact (fact c)
 [ c ; d ]
 [ c ; ([ d ; e ]) ]
 g c (g d e)

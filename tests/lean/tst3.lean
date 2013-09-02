@@ -19,9 +19,9 @@ Set lean::pp::notation true.
 Show c |- d ; e.
 Variable fact : A -> A.
 Notation 20 _ ! : fact.
-Show a! !.
+Show c! !.
 Set lean::pp::notation false.
-Show a! !.
+Show c! !.
 Set lean::pp::notation true.
 Variable g : A -> A -> A.
 Notation 30 [ _ ; _ ] : g

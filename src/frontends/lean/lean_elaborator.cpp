@@ -90,7 +90,7 @@ class elaborator::imp {
 
     normalizer          m_normalizer;
 
-    bool                m_add_constraints;
+    bool                m_processing_root;
 
     // The following mapping is used to store the relationship
     // between elaborated expressions and non-elaborated expressions.
@@ -194,12 +194,6 @@ class elaborator::imp {
         return m_normalizer.is_convertible(t1, t2, ctx);
     }
 
-    void add_constraint(expr const & t1, expr const & t2, context const & ctx, expr const & s, unsigned arg_pos) {
-        if (has_metavar(t1) || has_metavar(t2)) {
-            m_constraints.push_back(constraint(t1, t2, ctx, s, ctx, arg_pos));
-        }
-    }
-
     void choose(buffer<expr> const & f_choices, buffer<expr> const & f_choice_types,
                 buffer<expr> & args, buffer<expr> & types,
                 context const & ctx, expr const & src) {
@@ -213,15 +207,21 @@ class elaborator::imp {
                 unsigned i = 1;
                 for (; i < num_args; i++) {
                     f_t = check_pi(f_t, ctx, src, ctx);
-                    expr const & expected = abst_domain(f_t);
-                    if (!has_metavar(expected) && !has_metavar(types[i])) {
-                        if (!is_convertible(expected, types[i], ctx)) {
-                            break;
-                        }
+                    expr expected = abst_domain(f_t);
+                    expr given    = types[i];
+                    if (!has_metavar(expected) && !has_metavar(given)) {
+                        if (!is_convertible(expected, given, ctx) &&
+                            !m_frontend.get_coercion(given, expected))
+                            break; // failed to use this overload
                     }
                     f_t = instantiate_free_var_mmv(abst_body(f_t), 0, args[i]);
                 }
                 if (i == num_args) {
+                    if (good_choices.empty()) {
+                        // first good choice
+                        args[0]  = f_choices[j];
+                        types[0] = f_choice_types[j];
+                    }
                     good_choices.push_back(j);
                 }
             } catch (exception & ex) {
@@ -233,8 +233,7 @@ class elaborator::imp {
             // TODO add information to the exception
             throw exception("none of the overloads are good");
         } else if (good_choices.size() == 1) {
-            args[0]  = f_choices[good_choices[0]];
-            types[0] = f_choice_types[good_choices[0]];
+            // found overload
         } else {
             // TODO add information to the exception
             throw exception("ambiguous overload");
@@ -310,8 +309,23 @@ class elaborator::imp {
             expr f_t = types[0];
             for (unsigned i = 1; i < num; i++) {
                 f_t = check_pi(f_t, ctx, e, ctx);
-                if (m_add_constraints)
-                    add_constraint(abst_domain(f_t), types[i], ctx, e, i);
+                if (m_processing_root) {
+                    expr expected = abst_domain(f_t);
+                    expr given    = types[i];
+                    if (has_metavar(expected) || has_metavar(given)) {
+                        m_constraints.push_back(constraint(expected, given, ctx, e, ctx, i));
+                    } else {
+                        if (!is_convertible(expected, given, ctx)) {
+                            expr coercion = m_frontend.get_coercion(given, expected);
+                            if (coercion) {
+                                modified = true;
+                                args[i] = mk_app(coercion, args[i]);
+                            } else {
+                                throw app_type_mismatch_exception(m_env, ctx, e, i, expected, given);
+                            }
+                        }
+                    }
+                }
                 f_t = instantiate_free_var_mmv(abst_body(f_t), 0, args[i]);
             }
             if (modified) {
@@ -589,7 +603,7 @@ class elaborator::imp {
 
     void solve() {
         unsigned num_meta = m_metavars.size();
-        m_add_constraints = false;
+        m_processing_root = false;
         while (true) {
             solve_core();
             bool cont     = false;
@@ -673,7 +687,7 @@ public:
         m_constraints.clear();
         m_metavars.clear();
         m_owner = &elb;
-        m_add_constraints = true;
+        m_processing_root = true;
         m_root = process(e, context()).first;
         if (has_metavar(m_root)) {
             solve();

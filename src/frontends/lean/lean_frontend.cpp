@@ -173,6 +173,7 @@ struct frontend::imp {
                 // overload
                 if (defined_here(old_op, led)) {
                     old_op.add_expr(d);
+                    insert(m_expr_to_operator, d, old_op);
                 } else {
                     // we must copy the operator because it was defined in
                     // a parent frontend.
@@ -180,12 +181,15 @@ struct frontend::imp {
                     register_new_op(new_op, d, led);
                 }
             } else {
-                diagnostic(m_state) << "The denotation(s) for the existing notation:\n  " << old_op << "\nhave been replaced with the new denotation:\n  " << d << "\nbecause they conflict on how implicit arguments are used.\n";
+                diagnostic(m_state) << "The denotation(s) for the existing notation:\n  " << old_op
+                                    << "\nhave been replaced with the new denotation:\n  " << d
+                                    << "\nbecause they conflict on how implicit arguments are used.\n";
                 remove_bindings(old_op);
                 register_new_op(new_op, d, led);
             }
         } else {
-            diagnostic(m_state) << "Notation has been redefined, the existing notation:\n  " << old_op << "\nhas been replaced with:\n  " << new_op << "\nbecause they conflict with each other.\n";
+            diagnostic(m_state) << "Notation has been redefined, the existing notation:\n  " << old_op
+                                << "\nhas been replaced with:\n  " << new_op << "\nbecause they conflict with each other.\n";
             remove_bindings(old_op);
             register_new_op(new_op, d, led);
         }
@@ -290,22 +294,28 @@ struct frontend::imp {
         expr to        = abst_body(norm_type);
         if (from == to)
             throw exception("invalid coercion declaration, 'from' and 'to' types are the same");
-        if (get_coercion(from, to))
+        if (get_coercion_core(from, to))
             throw exception("invalid coercion declaration, frontend already has a coercion for the given types");
         m_coercion_map[expr_pair(from, to)] = f;
         m_coercion_set.insert(f);
         m_env.add_neutral_object(new coercion_declaration(f));
     }
 
-    expr get_coercion(expr const & given_type, expr const & expected_type) {
+    expr get_coercion_core(expr const & given_type, expr const & expected_type) {
         expr_pair p(given_type, expected_type);
         auto it = m_coercion_map.find(p);
         if (it != m_coercion_map.end())
             return it->second;
         else if (has_parent())
-            return m_parent->get_coercion(given_type, expected_type);
+            return m_parent->get_coercion_core(given_type, expected_type);
         else
             return expr();
+    }
+
+    expr get_coercion(expr const & given_type, expr const & expected_type) {
+        expr norm_given_type    = m_env.normalize(given_type);
+        expr norm_expected_type = m_env.normalize(expected_type);
+        return get_coercion_core(norm_given_type, norm_expected_type);
     }
 
     bool is_coercion(expr const & f) {
@@ -392,8 +402,8 @@ std::vector<bool> const & frontend::get_implicit_arguments(name const & n) const
 name const & frontend::get_explicit_version(name const & n) const { return m_imp->get_explicit_version(n); }
 
 void frontend::add_coercion(expr const & f) { m_imp->add_coercion(f); }
-expr frontend::get_coercion(expr const & given_type, expr const & expected_type) { return m_imp->get_coercion(given_type, expected_type); }
-bool frontend::is_coercion(expr const & f) { return m_imp->is_coercion(f); }
+expr frontend::get_coercion(expr const & given_type, expr const & expected_type) const { return m_imp->get_coercion(given_type, expected_type); }
+bool frontend::is_coercion(expr const & f) const { return m_imp->is_coercion(f); }
 
 state const & frontend::get_state() const { return m_imp->m_state; }
 state & frontend::get_state_core() { return m_imp->m_state; }

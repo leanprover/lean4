@@ -3,7 +3,7 @@
   Assumed: g
   Assumed: a
 Error (line: 5, pos: 6) type mismatch at application argument 1 of
-    g ⊤ (f N a a)
+    g ⊤ (f _ a a)
 expected type
     N
 given type

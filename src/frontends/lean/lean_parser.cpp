@@ -253,8 +253,9 @@ class parser::imp {
         m_builtins["false"]  = False;
         m_builtins["\u22A4"] = True;
         m_builtins["\u22A5"] = False;
-        m_builtins["Int"]    = Int;
         m_builtins["Nat"]    = Nat;
+        m_builtins["Int"]    = Int;
+        m_builtins["Real"]   = Real;
     }
 
     unsigned parse_unsigned(char const * msg) {

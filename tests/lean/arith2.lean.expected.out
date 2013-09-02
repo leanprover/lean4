@@ -1,0 +1,14 @@
+1 / 2
+2/3
+3 div 2
+  Assumed: x
+  Assumed: i
+  Assumed: n
+x + i + 1 + n
+  Set: lean::pp::coercion
+x + (int_to_real i) + (nat_to_real 1) + (nat_to_real n)
+x * (int_to_real i) + x
+x - (int_to_real i) + x - x ≥ (nat_to_real 0)
+x < x
+x ≤ x
+x > x

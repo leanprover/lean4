@@ -169,6 +169,10 @@ class pp_fn {
 
     typedef std::pair<format, unsigned> result;
 
+    bool is_coercion(expr const & e) {
+        return is_app(e) && num_args(e) == 2 && m_frontend.is_coercion(arg(e,0));
+    }
+
     /**
        \brief Return true iff \c e is an atomic operation.
     */
@@ -176,7 +180,12 @@ class pp_fn {
         switch (e.kind()) {
         case expr_kind::Var: case expr_kind::Constant: case expr_kind::Value: case expr_kind::Type:
             return true;
-        case expr_kind::App: case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Eq: case expr_kind::Let:
+        case expr_kind::App:
+            if (!m_coercion && is_coercion(e))
+                return is_atomic(arg(e,1));
+            else
+                return false;
+        case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Eq: case expr_kind::Let:
             return false;
         }
         return false;
@@ -400,6 +409,22 @@ class pp_fn {
     }
 
     /**
+       \brief Return true iff the given expression has the given fixity.
+    */
+    bool has_fixity(expr const & e, fixity fx) {
+        operator_info op = get_operator(e);
+        if (op) {
+            return op.get_fixity() == fx;
+        } else if (is_eq(e)) {
+            return fixity::Infix == fx;
+        } else if (is_arrow(e)) {
+            return fixity::Infixr == fx;
+        } else {
+            return false;
+        }
+    }
+
+    /**
         \brief Pretty print the child of an infix, prefix, postfix or
         mixfix operator. It will add parethesis when needed.
     */
@@ -418,11 +443,14 @@ class pp_fn {
         \brief Pretty print the child of an associative infix
         operator. It will add parethesis when needed.
     */
-    result pp_infix_child(operator_info const & op, expr const & e, unsigned depth) {
+    result pp_infix_child(operator_info const & op, expr const & e, unsigned depth, fixity fx) {
         if (is_atomic(e)) {
             return pp(e, depth + 1);
         } else {
-            if (op.get_precedence() < get_operator_precedence(e) || op == get_operator(e))
+            unsigned e_prec = get_operator_precedence(e);
+            if (op.get_precedence() < e_prec)
+                return pp(e, depth + 1);
+            else if (op.get_precedence() == e_prec && has_fixity(e, fx))
                 return pp(e, depth + 1);
             else
                 return pp_child_with_paren(e, depth);
@@ -543,7 +571,7 @@ class pp_fn {
        \brief Pretty print an application.
     */
     result pp_app(expr const & e, unsigned depth) {
-        if (!m_coercion && num_args(e) == 2 && m_frontend.is_coercion(arg(e,0)))
+        if (!m_coercion && is_coercion(e))
             return pp(arg(e,1), depth);
         application app(e, *this, m_implict);
         operator_info op;
@@ -556,11 +584,11 @@ class pp_fn {
             case fixity::Infix:
                 return mk_infix(op, pp_mixfix_child(op, app.get_arg(0), depth), pp_mixfix_child(op, app.get_arg(1), depth));
             case fixity::Infixr:
-                return mk_infix(op, pp_mixfix_child(op, app.get_arg(0), depth), pp_infix_child(op, app.get_arg(1), depth));
+                return mk_infix(op, pp_mixfix_child(op, app.get_arg(0), depth), pp_infix_child(op, app.get_arg(1), depth, fixity::Infixr));
             case fixity::Infixl:
-                return mk_infix(op, pp_infix_child(op, app.get_arg(0), depth),  pp_mixfix_child(op, app.get_arg(1), depth));
+                return mk_infix(op, pp_infix_child(op, app.get_arg(0), depth, fixity::Infixl),  pp_mixfix_child(op, app.get_arg(1), depth));
             case fixity::Prefix:
-                p_arg = pp_infix_child(op, app.get_arg(0), depth);
+                p_arg = pp_infix_child(op, app.get_arg(0), depth, fixity::Prefix);
                 sz  = op.get_op_name().size();
                 return mk_result(group(format{format(op.get_op_name()), nest(sz+1, format{line(), p_arg.first})}),
                                  p_arg.second + 1);

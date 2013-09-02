@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "abstract.h"
 #include "toplevel.h"
 #include "basic_thms.h"
-#include "type_check.h"
+#include "type_checker.h"
 #include "kernel_exception.h"
 #include "lean_frontend.h"
 #include "lean_elaborator.h"

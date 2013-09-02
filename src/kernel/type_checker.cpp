@@ -4,10 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "type_check.h"
+#include "type_checker.h"
 #include "environment.h"
 #include "kernel_exception.h"
-#include "normalize.h"
+#include "normalizer.h"
 #include "instantiate.h"
 #include "scoped_map.h"
 #include "builtin.h"

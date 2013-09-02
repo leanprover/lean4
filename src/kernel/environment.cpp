@@ -11,8 +11,8 @@ Author: Leonardo de Moura
 #include "kernel_exception.h"
 #include "environment.h"
 #include "safe_arith.h"
-#include "type_check.h"
-#include "normalize.h"
+#include "type_checker.h"
+#include "normalizer.h"
 
 namespace lean {
 

@@ -6,10 +6,10 @@ Author: Leonardo de Moura
 */
 #include <thread>
 #include "environment.h"
-#include "type_check.h"
+#include "type_checker.h"
 #include "builtin.h"
 #include "arith.h"
-#include "normalize.h"
+#include "normalizer.h"
 #include "abstract.h"
 #include "printer.h"
 #include "test.h"

@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <thread>
 #include <chrono>
-#include "type_check.h"
+#include "type_checker.h"
 #include "environment.h"
 #include "abstract.h"
 #include "exception.h"
@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "basic_thms.h"
 #include "builtin.h"
 #include "arith.h"
-#include "normalize.h"
+#include "normalizer.h"
 #include "printer.h"
 #include "trace.h"
 #include "test.h"

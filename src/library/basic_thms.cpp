@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "basic_thms.h"
 #include "environment.h"
 #include "abstract.h"
-#include "type_check.h"
+#include "type_checker.h"
 
 namespace lean {
 

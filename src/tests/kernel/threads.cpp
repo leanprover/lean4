@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "free_vars.h"
 #include "deep_copy.h"
 #include "abstract.h"
-#include "normalize.h"
+#include "normalizer.h"
 #include "arith.h"
 #include "test.h"
 using namespace lean;

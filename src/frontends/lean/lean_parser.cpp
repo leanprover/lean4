@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #include <unordered_map>
 #include "scoped_map.h"
 #include "exception.h"
-#include "normalize.h"
-#include "type_check.h"
+#include "normalizer.h"
+#include "type_checker.h"
 #include "free_vars.h"
 #include "builtin.h"
 #include "arith.h"

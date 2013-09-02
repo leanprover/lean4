@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <thread>
 #include <chrono>
 #include "exception.h"
-#include "normalize.h"
+#include "normalizer.h"
 #include "builtin.h"
 #include "trace.h"
 #include "test.h"

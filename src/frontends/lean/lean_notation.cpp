@@ -41,8 +41,10 @@ void init_builtin_notation(frontend & f) {
 
     f.add_infixl("+", 65, mk_int_add_fn());
     f.add_infixl("-", 65, mk_int_sub_fn());
+    f.add_prefix("-", 75, mk_int_neg_fn());
     f.add_infixl("*", 70, mk_int_mul_fn());
     f.add_infixl("div", 70, mk_int_div_fn());
+    f.add_infixl("mod", 70, mk_int_mod_fn());
     f.add_infix("<=", 50, mk_int_le_fn());
     f.add_infix("\u2264", 50, mk_int_le_fn());  // ≤
     f.add_infix(">=", 50, mk_int_ge_fn());
@@ -52,6 +54,7 @@ void init_builtin_notation(frontend & f) {
 
     f.add_infixl("+", 65, mk_real_add_fn());
     f.add_infixl("-", 65, mk_real_sub_fn());
+    f.add_prefix("-", 75, mk_real_neg_fn());
     f.add_infixl("*", 70, mk_real_mul_fn());
     f.add_infixl("/", 70, mk_real_div_fn());
     f.add_infix("<=", 50, mk_real_le_fn());

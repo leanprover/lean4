@@ -60,11 +60,17 @@ inline expr iAdd(expr const & e1, expr const & e2) { return mk_app(mk_int_add_fn
 expr mk_int_sub_fn();
 inline expr iSub(expr const & e1, expr const & e2) { return mk_app(mk_int_sub_fn(), e1, e2); }
 
+expr mk_int_neg_fn();
+inline expr iNeg(expr const & e) { return mk_app(mk_int_neg_fn(), e); }
+
 expr mk_int_mul_fn();
 inline expr iMul(expr const & e1, expr const & e2) { return mk_app(mk_int_mul_fn(), e1, e2); }
 
 expr mk_int_div_fn();
 inline expr iDiv(expr const & e1, expr const & e2) { return mk_app(mk_int_div_fn(), e1, e2); }
+
+expr mk_int_mod_fn();
+inline expr iMod(expr const & e1, expr const & e2) { return mk_app(mk_int_mod_fn(), e1, e2); }
 
 expr mk_int_le_fn();
 inline expr iLe(expr const & e1, expr const & e2) { return mk_app(mk_int_le_fn(), e1, e2); }
@@ -97,6 +103,9 @@ inline expr rAdd(expr const & e1, expr const & e2) { return mk_app(mk_real_add_f
 
 expr mk_real_sub_fn();
 inline expr rSub(expr const & e1, expr const & e2) { return mk_app(mk_real_sub_fn(), e1, e2); }
+
+expr mk_real_neg_fn();
+inline expr rNeg(expr const & e) { return mk_app(mk_real_neg_fn(), e); }
 
 expr mk_real_mul_fn();
 inline expr rMul(expr const & e1, expr const & e2) { return mk_app(mk_real_mul_fn(), e1, e2); }

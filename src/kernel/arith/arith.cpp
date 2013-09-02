@@ -203,8 +203,6 @@ struct int_mul_eval { mpz operator()(mpz const & v1, mpz const & v2) { return v1
 typedef int_bin_op<int_mul_name, int_mul_eval> int_mul_value;
 MK_BUILTIN(int_mul_fn, int_mul_value);
 
-MK_CONSTANT(int_sub_fn, name({"Int", "sub"}));
-
 constexpr char int_div_name[] = "div";
 struct int_div_eval {
     mpz operator()(mpz const & v1, mpz const & v2) {
@@ -241,6 +239,10 @@ public:
     virtual unsigned hash() const { return m_name.hash(); }
 };
 MK_BUILTIN(int_le_fn, int_le_value);
+
+MK_CONSTANT(int_sub_fn, name({"Int", "sub"}));
+MK_CONSTANT(int_neg_fn, name({"Int", "neg"}));
+MK_CONSTANT(int_mod_fn, name({"Int", "mod"}));
 MK_CONSTANT(int_ge_fn, name({"Int", "ge"}));
 MK_CONSTANT(int_lt_fn, name({"Int", "lt"}));
 MK_CONSTANT(int_gt_fn, name({"Int", "gt"}));
@@ -321,8 +323,6 @@ struct real_mul_eval { mpq operator()(mpq const & v1, mpq const & v2) { return v
 typedef real_bin_op<real_mul_name, real_mul_eval> real_mul_value;
 MK_BUILTIN(real_mul_fn, real_mul_value);
 
-MK_CONSTANT(real_sub_fn, name({"Real", "sub"}));
-
 constexpr char real_div_name[] = "div";
 struct real_div_eval {
     mpq operator()(mpq const & v1, mpq const & v2) {
@@ -359,6 +359,9 @@ public:
     virtual unsigned hash() const { return m_name.hash(); }
 };
 MK_BUILTIN(real_le_fn, real_le_value);
+
+MK_CONSTANT(real_sub_fn, name({"Real", "sub"}));
+MK_CONSTANT(real_neg_fn, name({"Real", "neg"}));
 MK_CONSTANT(real_ge_fn, name({"Real", "ge"}));
 MK_CONSTANT(real_lt_fn, name({"Real", "lt"}));
 MK_CONSTANT(real_gt_fn, name({"Real", "gt"}));
@@ -424,6 +427,8 @@ void add_arith_theory(environment & env) {
     expr ii_i = Int >> (Int >> Int);
     expr rr_b = Real >> (Real >> Bool);
     expr rr_r = Real >> (Real >> Real);
+    expr i_i  = Int >> Int;
+    expr r_r  = Real >> Real;
     expr x    = Const("x");
     expr y    = Const("y");
 
@@ -432,11 +437,14 @@ void add_arith_theory(environment & env) {
     env.add_definition(nat_gt_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, Not(nLe(x, y))));
 
     env.add_definition(int_sub_fn_name, ii_i, Fun({{x, Int}, {y, Int}}, iAdd(x, iMul(mk_int_value(-1), y))));
+    env.add_definition(int_neg_fn_name, i_i, Fun({x, Int}, iMul(mk_int_value(-1), x)));
+    env.add_definition(int_mod_fn_name, ii_i, Fun({{x, Int}, {y, Int}}, iSub(x, iMul(y, iDiv(x, y)))));
     env.add_definition(int_ge_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, iLe(y, x)));
     env.add_definition(int_lt_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, Not(iLe(y, x))));
     env.add_definition(int_gt_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, Not(iLe(x, y))));
 
     env.add_definition(real_sub_fn_name, rr_r, Fun({{x, Real}, {y, Real}}, rAdd(x, rMul(mk_real_value(-1), y))));
+    env.add_definition(real_neg_fn_name, r_r, Fun({x, Real}, rMul(mk_real_value(-1), x)));
     env.add_definition(real_ge_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, rLe(y, x)));
     env.add_definition(real_lt_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, Not(rLe(y, x))));
     env.add_definition(real_gt_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, Not(rLe(x, y))));

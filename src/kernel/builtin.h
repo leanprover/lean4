@@ -161,7 +161,7 @@ expr mk_##Name() {                                                      \
     return r;                                                           \
 }                                                                       \
 bool is_##Name(expr const & e) {                                        \
-    return is_value(e) && to_value(e).kind() == ClassName::g_kind;      \
+    return is_value(e) && dynamic_cast<ClassName const *>(&to_value(e)) != nullptr; \
 }
 
 /**

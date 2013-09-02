@@ -203,7 +203,6 @@ class value {
 public:
     value():m_rc(0) {}
     virtual ~value() {}
-    virtual char const * kind() const = 0;
     virtual expr get_type() const = 0;
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const = 0;
     virtual bool operator==(value const & other) const = 0;

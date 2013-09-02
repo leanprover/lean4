@@ -60,17 +60,14 @@ static char const * g_Bool_str = "Bool";
 static format g_Bool_fmt(g_Bool_str);
 class bool_type_value : public value {
 public:
-    static char const * g_kind;
     virtual ~bool_type_value() {}
-    char const * kind() const { return g_kind; }
     virtual expr get_type() const { return Type(); }
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const { return false; }
-    virtual bool operator==(value const & other) const { return other.kind() == kind(); }
+    virtual bool operator==(value const & other) const { return dynamic_cast<bool_type_value const*>(&other) != nullptr; }
     virtual void display(std::ostream & out) const { out << g_Bool_str; }
     virtual format pp() const { return g_Bool_fmt; }
     virtual unsigned hash() const { return 17; }
 };
-char const * bool_type_value::g_kind = g_Bool_str;
 expr const Bool = mk_value(*(new bool_type_value()));
 expr mk_bool_type() { return Bool; }
 // =======================================
@@ -88,14 +85,13 @@ static format g_false_fmt(g_false_str);
 class bool_value_value : public value {
     bool m_val;
 public:
-    static char const * g_kind;
     bool_value_value(bool v):m_val(v) {}
     virtual ~bool_value_value() {}
-    char const * kind() const { return g_kind; }
     virtual expr get_type() const { return Bool; }
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const { return false; }
     virtual bool operator==(value const & other) const {
-        return other.kind() == kind() && m_val == static_cast<bool_value_value const &>(other).m_val;
+        bool_value_value const * _other = dynamic_cast<bool_value_value const*>(&other);
+        return _other && _other->m_val == m_val;
     }
     virtual void display(std::ostream & out) const { out << (m_val ? g_true_str : g_false_str); }
     virtual format pp(bool unicode) const {
@@ -108,14 +104,13 @@ public:
     virtual unsigned hash() const { return m_val ? 3 : 5; }
     bool get_val() const { return m_val; }
 };
-char const * bool_value_value::g_kind = "BoolValue";
 expr const True  = mk_value(*(new bool_value_value(true)));
 expr const False = mk_value(*(new bool_value_value(false)));
 expr mk_bool_value(bool v) {
     return v ? True : False;
 }
 bool is_bool_value(expr const & e) {
-    return is_value(e) && to_value(e).kind() == bool_value_value::g_kind;
+    return is_value(e) && dynamic_cast<bool_value_value const *>(&to_value(e)) != nullptr;
 }
 bool to_bool(expr const & e) {
     lean_assert(is_bool_value(e));
@@ -136,14 +131,12 @@ static format g_ite_fmt(g_ite_name);
 class ite_fn_value : public value {
     expr m_type;
 public:
-    static char const * g_kind;
     ite_fn_value() {
         expr A    = Const("A");
         // Pi (A: Type), bool -> A -> A -> A
         m_type = Pi({A, TypeU}, Bool >> (A >> (A >> A)));
     }
     virtual ~ite_fn_value() {}
-    char const * kind() const { return g_kind; }
     virtual expr get_type() const { return m_type; }
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
         if (num_args == 5 && is_bool_value(args[2])) {
@@ -159,12 +152,11 @@ public:
             return false;
         }
     }
-    virtual bool operator==(value const & other) const { return other.kind() == kind(); }
+    virtual bool operator==(value const & other) const { return dynamic_cast<ite_fn_value const*>(&other) != nullptr; }
     virtual void display(std::ostream & out) const { out << g_ite_name; }
     virtual format pp() const { return g_ite_fmt; }
     virtual unsigned hash() const { return 27; }
 };
-char const * ite_fn_value::g_kind = "ite";
 MK_BUILTIN(ite_fn, ite_fn_value);
 // =======================================
 

@@ -13,32 +13,27 @@ namespace lean {
 
 class int_type_value : public value {
 public:
-    static char const * g_kind;
     virtual ~int_type_value() {}
-    char const * kind() const { return g_kind; }
     virtual expr get_type() const { return Type(); }
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const { return false; }
-    virtual bool operator==(value const & other) const { return other.kind() == kind(); }
+    virtual bool operator==(value const & other) const { return dynamic_cast<int_type_value const*>(&other) != nullptr; }
     virtual void display(std::ostream & out) const { out << "Int"; }
     virtual format pp() const { return format("Int"); }
     virtual unsigned hash() const { return 41; }
 };
-
-char const * int_type_value::g_kind = "int";
 expr const Int = mk_value(*(new int_type_value()));
 expr mk_int_type() { return Int; }
 
 class int_value_value : public value {
     mpz m_val;
 public:
-    static char const * g_kind;
     int_value_value(mpz const & v):m_val(v) {}
     virtual ~int_value_value() {}
-    char const * kind() const { return g_kind; }
     virtual expr get_type() const { return Int; }
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const { return false; }
     virtual bool operator==(value const & other) const {
-        return other.kind() == kind() && m_val == static_cast<int_value_value const &>(other).m_val;
+        int_value_value const * _other = dynamic_cast<int_value_value const*>(&other);
+        return _other && _other->m_val == m_val;
     }
     virtual void display(std::ostream & out) const { out << m_val; }
     virtual format pp() const { return format(m_val); }
@@ -46,14 +41,12 @@ public:
     mpz const & get_num() const { return m_val; }
 };
 
-char const * int_value_value::g_kind = "int_num";
-
 expr mk_int_value(mpz const & v) {
     return mk_value(*(new int_value_value(v)));
 }
 
 bool is_int_value(expr const & e) {
-    return is_value(e) && to_value(e).kind() == int_value_value::g_kind;
+    return is_value(e) && dynamic_cast<int_value_value const *>(&to_value(e)) != nullptr;
 }
 
 mpz const & int_value_numeral(expr const & e) {
@@ -65,14 +58,12 @@ template<char const * Name, unsigned Hash, typename F>
 class int_bin_op : public value {
     expr m_type;
 public:
-    static char const * g_kind;
     int_bin_op() {
         m_type = Int >> (Int >> Int);
     }
     virtual ~int_bin_op() {}
-    char const * kind() const { return g_kind; }
     virtual expr get_type() const { return m_type; }
-    virtual bool operator==(value const & other) const { return other.kind() == kind(); }
+    virtual bool operator==(value const & other) const { return dynamic_cast<int_bin_op const*>(&other) != nullptr; }
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
         if (num_args == 3 && is_int_value(args[1]) && is_int_value(args[2])) {
             r = mk_int_value(F()(int_value_numeral(args[1]), int_value_numeral(args[2])));
@@ -85,8 +76,6 @@ public:
     virtual format pp() const { return format(Name); }
     virtual unsigned hash() const { return Hash; }
 };
-
-template<char const * Name, unsigned Hash, typename F> char const * int_bin_op<Name, Hash, F>::g_kind = Name;
 
 constexpr char int_add_name[] = "+";
 struct int_add_eval { mpz operator()(mpz const & v1, mpz const & v2) { return v1 + v2; }; };
@@ -111,14 +100,12 @@ MK_BUILTIN(int_div_fn, int_div_value);
 class int_le_value : public value {
     expr m_type;
 public:
-    static char const * g_kind;
     int_le_value() {
         m_type = Int >> (Int >> Bool);
     }
     virtual ~int_le_value() {}
-    char const * kind() const { return g_kind; }
     virtual expr get_type() const { return m_type; }
-    virtual bool operator==(value const & other) const { return other.kind() == kind(); }
+    virtual bool operator==(value const & other) const { return dynamic_cast<int_le_value const*>(&other) != nullptr; }
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
         if (num_args == 3 && is_int_value(args[1]) && is_int_value(args[2])) {
             r = mk_bool_value(int_value_numeral(args[1]) <= int_value_numeral(args[2]));
@@ -131,7 +118,6 @@ public:
     virtual format pp() const { return format("Le"); }
     virtual unsigned hash() const { return 67; }
 };
-char const * int_le_value::g_kind = "<=";
 MK_BUILTIN(int_le_fn, int_le_value);
 
 MK_CONSTANT(int_ge_fn, name(name("int"), "Ge"));

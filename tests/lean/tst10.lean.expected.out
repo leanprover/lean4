@@ -1,4 +1,4 @@
-  Set option: pp::colors
+  Set: pp::colors
   Assumed: a
   Assumed: b
 a ∧ b

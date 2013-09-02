@@ -2,11 +2,11 @@
   Assumed: a
   Assumed: b
 a ∧ b
-  Set option: lean::pp::notation
+  Set: lean::pp::notation
 ⟨lean::pp::notation ↦ false⟩
 and a b
 [34mVariable[0m a : Bool
 [34mVariable[0m b : Bool
-  Set option: lean::pp::notation
+  Set: lean::pp::notation
 ⟨lean::pp::notation ↦ true⟩
 a ∧ b

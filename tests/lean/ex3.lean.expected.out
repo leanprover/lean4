@@ -9,7 +9,7 @@ expected type
 given type
     T
   Assumed: myeq2
-  Set option: lean::pp::implicit
+  Set: lean::pp::implicit
 Error (line: 9, pos: 15) type mismatch at application argument 3 of
     myeq2::explicit Bool ⊤ a
 expected type

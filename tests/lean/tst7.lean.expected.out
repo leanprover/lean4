@@ -1,4 +1,4 @@
-  Set option: pp::colors
+  Set: pp::colors
   Assumed: f
 λ (A B : Type) (a : B), f B a
 Error (line: 5, pos: 40) application type mismatch during term elaboration at term

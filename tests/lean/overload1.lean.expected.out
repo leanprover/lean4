@@ -2,7 +2,7 @@
   Assumed: f
   Assumed: g
 ⊤ ++ ⊥ ++ ⊤
-  Set option: lean::pp::notation
+  Set: lean::pp::notation
 f (f true false) true
   Assumed: a
   Assumed: b

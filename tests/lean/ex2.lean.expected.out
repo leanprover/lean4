@@ -1,6 +1,6 @@
-  Set option: pp::colors
+  Set: pp::colors
 ⊤
-  Set option: lean::pp::notation
+  Set: lean::pp::notation
 and true false
   Assumed: a
 Error (line: 8, pos: 0) invalid object declaration, environment already has an object named 'a'
@@ -17,5 +17,5 @@ Variable A : Type
 ⟨lean::pp::notation ↦ false, pp::colors ↦ false⟩
 Error (line: 15, pos: 4) unknown option 'lean::p::notation', type 'Help Options.' for list of available options
 Error (line: 16, pos: 23) invalid option value, given option is not an integer
-  Set option: lean::pp::notation
+  Set: lean::pp::notation
 a ∧ b

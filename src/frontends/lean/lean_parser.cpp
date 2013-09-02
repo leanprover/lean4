@@ -1312,7 +1312,7 @@ class parser::imp {
         }
         updt_options();
         if (m_verbose)
-            regular(m_frontend) << "  Set option: " << id << endl;
+            regular(m_frontend) << "  Set: " << id << endl;
     }
 
     void parse_import() {

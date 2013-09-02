@@ -1,4 +1,4 @@
-  Set option: pp::colors
+  Set: pp::colors
 λ x y : Bool, x ∧ y
 let x := ⊤,
     y := ⊤,

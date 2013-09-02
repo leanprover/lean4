@@ -1,4 +1,4 @@
-  Set option: pp::colors
+  Set: pp::colors
   Assumed: f
 ∀ a b : Type, (f a) = (f b)
   Assumed: g

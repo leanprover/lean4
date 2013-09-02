@@ -1,4 +1,4 @@
-  Set option: pp::colors
+  Set: pp::colors
 Int → Int → Int
   Assumed: f
 f 0

@@ -1,4 +1,4 @@
-  Set option: pp::colors
+  Set: pp::colors
 Notation 10 if _ then _ : implies
 if ⊤ then ⊥
 if ⊤ then (if a then ⊥)

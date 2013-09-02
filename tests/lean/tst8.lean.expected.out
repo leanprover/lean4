@@ -1,4 +1,4 @@
-  Set option: pp::colors
+  Set: pp::colors
 Π (A : Type) (a : A), A
   Assumed: g
   Defined: f

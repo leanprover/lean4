@@ -28,7 +28,7 @@ class value;
           |   Eq            expr expr         (heterogeneous equality)
           |   Let           name expr expr
 
-TODO: add meta-variables, and match expressions.
+TODO: match expressions.
 
 The main API is divided in the following sections
 - Testers

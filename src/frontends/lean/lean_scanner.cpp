@@ -33,7 +33,7 @@ static char g_normalized[256];
 
 /** \brief Auxiliary class for initializing global variable \c g_normalized. */
 class init_normalized_table {
-    void set(int i, char v) { g_normalized[static_cast<unsigned>(i)] = v; }
+    void set(int i, char v) { g_normalized[static_cast<unsigned char>(i)] = v; }
 public:
     init_normalized_table() {
         // by default all characters are in group c,

@@ -117,6 +117,7 @@ char const * options::get_string(char const * n, char const * default_value) con
 static char const * g_left_angle_bracket  = "\u27E8";
 static char const * g_right_angle_bracket = "\u27E9";
 static char const * g_arrow               = "\u21a6";
+static char const * g_assign              = ":=";
 
 options options::update(name const & n, sexpr const & v) const {
     if (contains(n)) {
@@ -141,25 +142,31 @@ options join(options const & opts1, options const & opts2) {
 }
 
 format pp(options const & o) {
+    bool unicode = get_pp_unicode(o);
     format r;
     bool first = true;
+    char const * arrow = unicode ? g_arrow : g_assign;
     for_each(o.m_value, [&](sexpr const & p) {
             if (first) { first = false; } else { r += comma(); r += line(); }
             name const & n = to_name(head(p));
             unsigned sz = n.size();
-            r += group(nest(sz+3, format{pp(head(p)), space(), format(g_arrow), space(), pp(tail(p))}));
+            unsigned indent = unicode ? sz+3 : sz+4;
+            r += group(nest(indent, format{pp(head(p)), space(), format(arrow), space(), pp(tail(p))}));
         });
-    return group(nest(1, format{format(g_left_angle_bracket), r, format(g_right_angle_bracket)}));
+    format open  = unicode ? format(g_left_angle_bracket) : lp();
+    format close = unicode ? format(g_right_angle_bracket) : rp();
+    return group(nest(1, format{open, r, close}));
 }
 
 std::ostream & operator<<(std::ostream & out, options const & o) {
-    out << g_left_angle_bracket;
+    bool unicode = get_pp_unicode(o);
+    out << (unicode ? g_left_angle_bracket : "(");
     bool first = true;
     for_each(o.m_value, [&](sexpr const & p) {
             if (first) first = false; else out << ", ";
-            out << head(p) << " " << g_arrow << " " << tail(p);
+            out << head(p) << " " << (unicode ? g_arrow : g_assign) << " " << tail(p);
         });
-    out << g_right_angle_bracket;
+    out << (unicode ? g_right_angle_bracket : ")");
     return out;
 }
 }

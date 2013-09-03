@@ -55,11 +55,11 @@ public:
        \brief Convert this hierarchical name into a string.
     */
     std::string to_string() const;
-    /**
-       \brief Size of the this name (in characters).
-    */
+    /** \brief Size of the this name (in characters). */
     size_t size() const;
     unsigned hash() const;
+    /** \brief Return true iff the name contains only safe ASCII chars */
+    bool is_safe_ascii() const;
     friend std::ostream & operator<<(std::ostream & out, name const & n);
 };
 struct name_hash { unsigned operator()(name const & n) const { return n.hash(); } };

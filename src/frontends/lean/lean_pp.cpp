@@ -145,6 +145,7 @@ class pp_fn {
     unsigned         m_max_depth;
     unsigned         m_max_steps;
     bool             m_implict;          //!< if true show implicit arguments
+    bool             m_unicode;          //!< if true use unicode chars
     bool             m_coercion;         //!< if true show coercions
     bool             m_notation;         //!< if true use notation
     bool             m_extra_lets;       //!< introduce extra let-expression to cope with sharing.
@@ -197,7 +198,7 @@ class pp_fn {
     }
 
     result pp_ellipsis() {
-        return mk_result(m_notation ? g_ellipsis_n_fmt : g_ellipsis_fmt, 1);
+        return mk_result(m_unicode ? g_ellipsis_n_fmt : g_ellipsis_fmt, 1);
     }
 
     result pp_var(expr const & e) {
@@ -223,14 +224,14 @@ class pp_fn {
     }
 
     result pp_value(expr const & e) {
-        return mk_result(to_value(e).pp(m_notation), 1);
+        return mk_result(to_value(e).pp(m_unicode), 1);
     }
 
     result pp_type(expr const & e) {
         if (e == Type()) {
             return mk_result(g_Type_fmt, 1);
         } else {
-            return mk_result(format{g_Type_fmt, space(), ::lean::pp(ty_level(e))}, 1);
+            return mk_result(format{g_Type_fmt, space(), ::lean::pp(ty_level(e), m_unicode)}, 1);
         }
     }
 
@@ -312,7 +313,7 @@ class pp_fn {
         local_names::mk_scope mk(m_local_names);
         expr b = collect_nested_quantifiers(e, is_forall, nested);
         format head;
-        if (m_notation)
+        if (m_unicode)
             head = is_forall ? g_forall_n_fmt : g_exists_n_fmt;
         else
             head = is_forall ? g_forall_fmt : g_exists_fmt;
@@ -369,7 +370,7 @@ class pp_fn {
         if (is_constant(e) && m_local_names.find(const_name(e)) != m_local_names.end())
             return operator_info();
         else
-            return m_frontend.find_op_for(e);
+            return m_frontend.find_op_for(e, m_unicode);
     }
 
     /**
@@ -760,7 +761,7 @@ class pp_fn {
             lean_assert(!T);
             result p_lhs    = pp_child(abst_domain(e), depth);
             result p_rhs    = pp_arrow_body(abst_body(e), depth);
-            format r_format = group(format{p_lhs.first, space(), m_notation ? g_arrow_n_fmt : g_arrow_fmt, line(), p_rhs.first});
+            format r_format = group(format{p_lhs.first, space(), m_unicode ? g_arrow_n_fmt : g_arrow_fmt, line(), p_rhs.first});
             return mk_result(r_format, p_lhs.second + p_rhs.second + 1);
         } else {
             buffer<std::pair<name, expr>> nested;
@@ -770,7 +771,7 @@ class pp_fn {
             unsigned head_indent = m_indent;
             format head;
             if (!T && !implicit_args) {
-                if (m_notation) {
+                if (m_unicode) {
                     head = is_lambda(e) ? g_lambda_n_fmt : g_Pi_n_fmt;
                     head_indent = 2;
                 } else {
@@ -987,6 +988,7 @@ class pp_fn {
         m_max_depth        = get_pp_max_depth(opts);
         m_max_steps        = get_pp_max_steps(opts);
         m_implict          = get_pp_implicit(opts);
+        m_unicode          = get_pp_unicode(opts);
         m_coercion         = get_pp_coercion(opts);
         m_notation         = get_pp_notation(opts);
         m_extra_lets       = get_pp_extra_lets(opts);
@@ -1146,7 +1148,8 @@ class pp_formatter_cell : public formatter_cell {
     }
 
     format pp_uvar_decl(object const & obj, options const & opts) {
-        return format{highlight_command(format(obj.keyword())), space(), format(obj.get_name()), space(), format("\u2265"), space(), ::lean::pp(obj.get_cnstr_level())};
+        bool unicode = get_pp_unicode(opts);
+        return format{highlight_command(format(obj.keyword())), space(), format(obj.get_name()), space(), format(unicode ? "\u2265" : ">="), space(), ::lean::pp(obj.get_cnstr_level(), unicode)};
     }
 
     format pp_postulate(object const & obj, options const & opts) {

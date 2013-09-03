@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "buffer.h"
 #include "hash.h"
 #include "trace.h"
+#include "ascii.h"
 
 namespace lean {
 constexpr char const * anonymous_str = "[anonymous]";
@@ -300,6 +301,18 @@ size_t name::size() const {
 
 unsigned name::hash() const {
     return m_ptr ? m_ptr->m_hash : 11;
+}
+
+bool name::is_safe_ascii() const {
+    imp * i       = m_ptr;
+    while (i) {
+        if (i->m_is_string) {
+            if (!::lean::is_safe_ascii(i->m_str))
+                return false;
+        }
+        i  = i->m_prefix;
+    }
+    return true;
 }
 
 std::string name::to_string() const {

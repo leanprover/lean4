@@ -70,7 +70,7 @@ struct mk_option_declaration {
 #define LEAN_MAKE_OPTION_NAME_CORE(LINE) LEAN_OPTION_ ## LINE
 #define LEAN_MAKE_OPTION_NAME(LINE) LEAN_MAKE_OPTION_NAME_CORE(LINE)
 #define LEAN_OPTION_UNIQUE_NAME LEAN_MAKE_OPTION_NAME(__LINE__)
-#define RegisterOption(N,K,D,DESC) ::lean::mk_option_declaration LEAN_OPTION_UNIQUE_NAME(N,K,D,DESC)
+#define RegisterOption(N,K,D,DESC) static ::lean::mk_option_declaration LEAN_OPTION_UNIQUE_NAME(N,K,D,DESC)
 #define RegisterOptionCore(N,K,D,DESC) RegisterOption(N,K,#D,DESC)
 #define RegisterBoolOption(N,D,DESC) RegisterOptionCore(N, BoolOption, D, DESC);
 #define RegisterUnsignedOption(N,D,DESC) RegisterOptionCore(N, UnsignedOption, D, DESC);

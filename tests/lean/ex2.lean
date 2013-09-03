@@ -4,6 +4,8 @@ Set pp::colors false
 Show true
 Set lean::pp::notation false
 Show true && false
+Set pp::unicode false
+Show true && false
 Variable a : Bool
 Variable a : Bool
 Variable b : Bool

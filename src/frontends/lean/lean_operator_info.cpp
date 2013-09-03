@@ -65,6 +65,11 @@ name const & operator_info::get_op_name() const { lean_assert(m_ptr); return car
 
 list<name> const & operator_info::get_op_name_parts() const { lean_assert(m_ptr); return m_ptr->m_op_parts; }
 
+bool operator_info::is_safe_ascii() const {
+    auto l = get_op_name_parts();
+    return std::all_of(l.begin(), l.end(), [](name const & p) { return p.is_safe_ascii(); });
+}
+
 operator_info operator_info::copy() const { return operator_info(new imp(*m_ptr)); }
 
 bool operator==(operator_info const & op1, operator_info const & op2) {

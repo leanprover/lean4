@@ -1,0 +1,9 @@
+  Set: pp::colors
+⊤ ∧ ⊥
+  Set: pp::unicode
+true /\ false
+  Set: pp::unicode
+  Set: lean::pp::notation
+and ⊤ ⊥
+  Set: pp::unicode
+and true false

@@ -108,11 +108,21 @@ static void tst5() {
     lean_assert(name(name("foo"), 0u).get_prefix().is_string());
 }
 
+static void tst6() {
+    lean_assert(name({"foo", "bla"}).is_safe_ascii());
+    lean_assert(name(123u).is_safe_ascii());
+    lean_assert(name(name(name(230u), "bla"), "foo").is_safe_ascii());
+    lean_assert(!name({"foo", "b\u2200aaa"}).is_safe_ascii());
+    lean_assert(!name({"\u2200", "boo"}).is_safe_ascii());
+    lean_assert(!name(name(name(230u), "bla\u2200"), "foo").is_safe_ascii());
+}
+
 int main() {
     tst1();
     tst2();
     tst3();
     tst4();
     tst5();
+    tst6();
     return has_violations() ? 1 : 0;
 }

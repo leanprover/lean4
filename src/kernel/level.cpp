@@ -195,7 +195,7 @@ std::ostream & operator<<(std::ostream & out, level const & l) {
     return out;
 }
 
-format pp(level const & l) {
+format pp(level const & l, bool unicode) {
     switch (kind(l)) {
     case level_kind::UVar:
         if (l.is_bottom())
@@ -206,17 +206,28 @@ format pp(level const & l) {
         if (lift_of(l).is_bottom())
             return format(lift_offset(l));
         else
-            return format{pp(lift_of(l)), format("+"), format(lift_offset(l))};
+            return format{pp(lift_of(l), unicode), format("+"), format(lift_offset(l))};
     case level_kind::Max: {
-        format r = pp(max_level(l, 0));
-        for (unsigned i = 1; i < max_size(l); i++) {
-            r += format{space(), format("\u2294"), space()};
-            r += pp(max_level(l, i));
+        if (unicode) {
+            format r = pp(max_level(l, 0), unicode);
+            for (unsigned i = 1; i < max_size(l); i++) {
+                r += format{space(), format("\u2294"), line()};
+                r += pp(max_level(l, i), unicode);
+            }
+            return group(r);
+        } else {
+            format r = format("max");
+            for (unsigned i = 0; i < max_size(l); i++)
+                r += format{line(), pp(max_level(l, i), unicode)};
+            return group(nest(1, format{lp(), r, rp()}));
         }
-        return r;
     }}
     lean_unreachable();
     return format();
+}
+
+format pp(level const & l, options const & opts) {
+    return pp(l, get_pp_unicode(opts));
 }
 
 level max(std::initializer_list<level> const & l) {

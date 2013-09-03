@@ -1,8 +1,9 @@
-Error (line: 1, pos: 10) application type mismatch, none of the overloads can be used
+  Set: pp::colors
+Error (line: 2, pos: 9) application type mismatch, none of the overloads can be used
 Candidates:
-    Real::add : Real [33m→[0m Real [33m→[0m Real
-    Int::add : Int [33m→[0m Int [33m→[0m Int
-    Nat::add : Nat [33m→[0m Nat [33m→[0m Nat
+    Real::add : Real → Real → Real
+    Int::add : Int → Int → Int
+    Nat::add : Nat → Nat → Nat
 Arguments:
     1 : Nat
     ⊤ : Bool
@@ -23,8 +24,8 @@ f (r2t b) (t2r a)
 f a b
 Error (line: 20, pos: 10) ambiguous overloads
 Candidates:
-    g : R [33m->[0m T [33m->[0m R
-    f : T [33m->[0m R [33m->[0m T
+    g : R → T → R
+    f : T → R → T
 Arguments:
     b : R
     a : T

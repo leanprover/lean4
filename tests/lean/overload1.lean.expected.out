@@ -3,8 +3,8 @@
   Assumed: g
 ⊤ ++ ⊥ ++ ⊤
   Set: lean::pp::notation
-f (f true false) true
+f (f ⊤ ⊥) ⊤
   Assumed: a
   Assumed: b
 g (g a b) a
-f (f true false) false
+f (f ⊤ ⊥) ⊥

@@ -93,8 +93,11 @@ public:
         return the null operator.
 
         \remark This is used for pretty printing.
+
+        \remark If unicode is false, then only operators containing
+        safe ASCII chars are considered.
     */
-    operator_info find_op_for(expr const & e) const;
+    operator_info find_op_for(expr const & e, bool unicode) const;
     /**
        \brief Return the operator (if one exists) that can appear at
        the beginning of a language construct.

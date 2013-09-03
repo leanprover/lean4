@@ -2,7 +2,7 @@
 Notation 10 if _ then _ : implies
 if ⊤ then ⊥
 if ⊤ then (if a then ⊥)
-implies true (implies a false)
+implies ⊤ (implies a ⊥)
 Notation 100 _ |- _ ; _ : f
 f c d e
 c |- d ; e

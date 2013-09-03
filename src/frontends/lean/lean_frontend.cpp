@@ -27,7 +27,7 @@ struct frontend::imp {
     // Remark: only named objects are stored in the dictionary.
     typedef std::unordered_map<name, operator_info, name_hash, name_eq> operator_table;
     typedef std::unordered_map<name, implicit_info, name_hash, name_eq> implicit_table;
-    typedef std::unordered_map<expr, operator_info, expr_hash, std::equal_to<expr>> expr_to_operator;
+    typedef std::unordered_map<expr, list<operator_info>, expr_hash, std::equal_to<expr>> expr_to_operators;
     typedef std::unordered_map<expr_pair, expr, expr_pair_hash, expr_pair_eq> coercion_map;
     typedef std::unordered_set<expr, expr_hash, std::equal_to<expr>> coercion_set;
 
@@ -36,7 +36,7 @@ struct frontend::imp {
     environment           m_env;
     operator_table        m_nud; // nud table for Pratt's parser
     operator_table        m_led; // led table for Pratt's parser
-    expr_to_operator      m_expr_to_operator; // map denotations to operators (this is used for pretty printing)
+    expr_to_operators     m_expr_to_operators; // map denotations to operators (this is used for pretty printing)
     implicit_table        m_implicit_table; // track the number of implicit arguments for a symbol.
     coercion_map          m_coercion_map; // mapping from (given_type, expected_type) -> coercion
     coercion_set          m_coercion_set; // Set of coercions
@@ -95,12 +95,18 @@ struct frontend::imp {
     }
 
     /** \brief Find the operator that is used as notation for the given expression. */
-    operator_info find_op_for(expr const & e) const {
-        auto it = m_expr_to_operator.find(e);
-        if (it != m_expr_to_operator.end())
-            return it->second;
-        else if (has_parent())
-            return m_parent->find_op_for(e);
+    operator_info find_op_for(expr const & e, bool unicode) const {
+        auto it = m_expr_to_operators.find(e);
+        if (it != m_expr_to_operators.end()) {
+            auto l = it->second;
+            for (auto op : l) {
+                if (unicode || op.is_safe_ascii())
+                    return op;
+            }
+        }
+
+        if (has_parent())
+            return m_parent->find_op_for(e, unicode);
         else
             return operator_info();
     }
@@ -108,20 +114,26 @@ struct frontend::imp {
     /** \brief Remove all internal denotations that are associated with the given operator symbol (aka notation) */
     void remove_bindings(operator_info const & op) {
         for (expr const & d : op.get_denotations()) {
-            if (has_parent() && m_parent->find_op_for(d)) {
+            if (has_parent() && m_parent->find_op_for(d, true)) {
                 // parent has an association for d... we must hide it.
-                insert(m_expr_to_operator, d, operator_info());
+                insert(m_expr_to_operators, d, list<operator_info>(operator_info()));
             } else {
-                m_expr_to_operator.erase(d);
+                m_expr_to_operators.erase(d);
             }
         }
+    }
+
+    /** \brief Add a new entry d -> op in the mapping m_expr_to_operators */
+    void insert_expr_to_operator_entry(expr const & d, operator_info const & op) {
+        list<operator_info> & l = m_expr_to_operators[d];
+        l = cons(op, l);
     }
 
     /** \brief Register the new operator in the tables for parsing and pretty printing. */
     void register_new_op(operator_info new_op, expr const & d, bool led) {
         new_op.add_expr(d);
         insert_op(new_op, led);
-        insert(m_expr_to_operator, d, new_op);
+        insert_expr_to_operator_entry(d, new_op);
     }
 
     /**
@@ -173,7 +185,7 @@ struct frontend::imp {
                 // overload
                 if (defined_here(old_op, led)) {
                     old_op.add_expr(d);
-                    insert(m_expr_to_operator, d, old_op);
+                    insert_expr_to_operator_entry(d, old_op);
                 } else {
                     // we must copy the operator because it was defined in
                     // a parent frontend.
@@ -391,7 +403,7 @@ void frontend::add_mixfixl(unsigned sz, name const * opns, unsigned p, expr cons
 void frontend::add_mixfixr(unsigned sz, name const * opns, unsigned p, expr const & d) { m_imp->add_mixfixr(sz, opns, p, d); }
 void frontend::add_mixfixc(unsigned sz, name const * opns, unsigned p, expr const & d) { m_imp->add_mixfixc(sz, opns, p, d); }
 void frontend::add_mixfixo(unsigned sz, name const * opns, unsigned p, expr const & d) { m_imp->add_mixfixo(sz, opns, p, d); }
-operator_info frontend::find_op_for(expr const & n) const { return m_imp->find_op_for(n); }
+operator_info frontend::find_op_for(expr const & n, bool unicode) const { return m_imp->find_op_for(n, unicode); }
 operator_info frontend::find_nud(name const & n) const { return m_imp->find_nud(n); }
 operator_info frontend::find_led(name const & n) const { return m_imp->find_led(n); }
 

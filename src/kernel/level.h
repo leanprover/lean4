@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include "name.h"
 #include "format.h"
+#include "options.h"
 
 namespace lean {
 class environment;
@@ -65,6 +66,7 @@ inline bool is_max (level const & l) { return kind(l) == level_kind::Max;  }
 inline level const * max_begin_levels(level const & l) { return &max_level(l, 0); }
 inline level const * max_end_levels(level const & l)   { return max_begin_levels(l) + max_size(l); }
 
-format pp(level const & l);
+format pp(level const & l, bool unicode);
+format pp(level const & l, options const & opts = options());
 }
 void print(lean::level const & l);

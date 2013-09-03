@@ -83,6 +83,9 @@ public:
     /** \brief Return the operators parts. */
     list<name> const & get_op_name_parts() const;
 
+    /** \brief Return true if all parts of the operator use only safe ASCII characters */
+    bool is_safe_ascii() const;
+
     /** \brief Return a copy of the operator. */
     operator_info copy() const;
 

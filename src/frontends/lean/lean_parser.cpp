@@ -1137,7 +1137,7 @@ class parser::imp {
                     regular(m_frontend) << m_frontend << endl;
                 }
             } else if (opt_id == g_options_kwd) {
-                regular(m_frontend) << m_frontend.get_state().get_options() << endl;
+                regular(m_frontend) << pp(m_frontend.get_state().get_options()) << endl;
             } else {
                 throw parser_error("invalid Show command, expression, 'Options' or 'Environment' expected", m_last_cmd_pos);
             }

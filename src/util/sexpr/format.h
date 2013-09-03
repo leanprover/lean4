@@ -305,6 +305,8 @@ inline format fillwords(std::initializer_list<std::string> const & l) {
 class options;
 /** \brief Extract indentation from options */
 unsigned get_pp_indent(options const & o);
+/** \brief Return unicode characters flag */
+bool get_pp_unicode(options const & o);
 
 /** \brief Format a hierarchical name */
 format pp(name const & n);

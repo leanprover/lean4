@@ -1,5 +1,5 @@
+Set pp::colors false
 Show 1 + true
-
 Variable R : Type
 Variable T : Type
 Variable r2t : R -> T

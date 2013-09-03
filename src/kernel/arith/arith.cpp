@@ -365,6 +365,10 @@ MK_CONSTANT(real_neg_fn, name({"Real", "neg"}));
 MK_CONSTANT(real_ge_fn, name({"Real", "ge"}));
 MK_CONSTANT(real_lt_fn, name({"Real", "lt"}));
 MK_CONSTANT(real_gt_fn, name({"Real", "gt"}));
+
+MK_CONSTANT(exp_fn, name("exp"));
+MK_CONSTANT(log_fn, name("log"));
+
 MK_CONSTANT(real_pi, name("\u03C0")); // lower case pi
 MK_CONSTANT(sin_fn, name("sin"));
 MK_CONSTANT(cos_fn, name("cos"));
@@ -372,6 +376,13 @@ MK_CONSTANT(tan_fn, name("tan"));
 MK_CONSTANT(cot_fn, name("cot"));
 MK_CONSTANT(sec_fn, name("sec"));
 MK_CONSTANT(csc_fn, name("csc"));
+
+MK_CONSTANT(sinh_fn, name("sinh"));
+MK_CONSTANT(cosh_fn, name("cosh"));
+MK_CONSTANT(tanh_fn, name("tanh"));
+MK_CONSTANT(coth_fn, name("coth"));
+MK_CONSTANT(sech_fn, name("sech"));
+MK_CONSTANT(csch_fn, name("csch"));
 // =======================================
 
 // =======================================
@@ -456,6 +467,9 @@ void add_arith_theory(environment & env) {
     env.add_definition(real_lt_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, Not(rLe(y, x))));
     env.add_definition(real_gt_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, Not(rLe(x, y))));
 
+    env.add_var(exp_fn_name, r_r);
+    env.add_var(log_fn_name, r_r);
+
     env.add_var(real_pi_name, Real);
     env.add_definition(name("pi"), Real, mk_real_pi()); // alias for pi
     env.add_var(sin_fn_name, r_r);
@@ -464,6 +478,15 @@ void add_arith_theory(environment & env) {
     env.add_definition(cot_fn_name, r_r, Fun({x,Real}, rDiv(Cos(x), Sin(x))));
     env.add_definition(sec_fn_name, r_r, Fun({x,Real}, rDiv(mk_real_value(1), Cos(x))));
     env.add_definition(csc_fn_name, r_r, Fun({x,Real}, rDiv(mk_real_value(1), Sin(x))));
+
+    env.add_definition(sinh_fn_name, r_r, Fun({x, Real}, rDiv(rSub(mk_real_value(1), Exp(rMul(mk_real_value(-2), x))),
+                                                              rMul(mk_real_value(2), Exp(rNeg(x))))));
+    env.add_definition(cosh_fn_name, r_r, Fun({x, Real}, rDiv(rAdd(mk_real_value(1), Exp(rMul(mk_real_value(-2), x))),
+                                                              rMul(mk_real_value(2), Exp(rNeg(x))))));
+    env.add_definition(tanh_fn_name, r_r, Fun({x,Real}, rDiv(Sinh(x), Cosh(x))));
+    env.add_definition(coth_fn_name, r_r, Fun({x,Real}, rDiv(Cosh(x), Sinh(x))));
+    env.add_definition(sech_fn_name, r_r, Fun({x,Real}, rDiv(mk_real_value(1), Cosh(x))));
+    env.add_definition(csch_fn_name, r_r, Fun({x,Real}, rDiv(mk_real_value(1), Sinh(x))));
 
     env.add_definition(nat_to_real_fn_name, Nat >> Real, Fun({x, Nat}, i2r(n2i(x))));
 }

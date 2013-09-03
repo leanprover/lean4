@@ -126,6 +126,12 @@ expr mk_real_gt_fn();
 inline expr rGt(expr const & e1, expr const & e2) { return mk_app(mk_real_gt_fn(), e1, e2); }
 
 inline expr rIf(expr const & c, expr const & t, expr const & e) { return mk_if(Real, c, t, e); }
+
+expr mk_exp_fn();
+inline expr Exp(expr const & e) { return mk_app(mk_exp_fn(), e); }
+
+expr mk_log_fn();
+inline expr Log(expr const & e) { return mk_app(mk_log_fn(), e); }
 // =======================================
 
 // =======================================
@@ -149,6 +155,24 @@ inline expr Sec(expr const & e) { return mk_app(mk_sec_fn(), e); }
 
 expr mk_csc_fn();
 inline expr Csc(expr const & e) { return mk_app(mk_csc_fn(), e); }
+
+expr mk_sinh_fn();
+inline expr Sinh(expr const & e) { return mk_app(mk_sinh_fn(), e); }
+
+expr mk_cosh_fn();
+inline expr Cosh(expr const & e) { return mk_app(mk_cosh_fn(), e); }
+
+expr mk_tanh_fn();
+inline expr Tanh(expr const & e) { return mk_app(mk_tanh_fn(), e); }
+
+expr mk_coth_fn();
+inline expr Coth(expr const & e) { return mk_app(mk_coth_fn(), e); }
+
+expr mk_sech_fn();
+inline expr Sech(expr const & e) { return mk_app(mk_sech_fn(), e); }
+
+expr mk_csch_fn();
+inline expr Csch(expr const & e) { return mk_app(mk_csch_fn(), e); }
 // =======================================
 
 // =======================================

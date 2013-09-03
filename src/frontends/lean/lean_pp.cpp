@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "lean_pp.h"
 #include "lean_frontend.h"
 #include "lean_coercion.h"
+#include "lean_elaborator.h"
 
 #ifndef LEAN_DEFAULT_PP_MAX_DEPTH
 #define LEAN_DEFAULT_PP_MAX_DEPTH std::numeric_limits<unsigned>::max()
@@ -922,6 +923,22 @@ class pp_fn {
         return mk_result(r_format, p_arg.second + p_v.second + 1);
     }
 
+    result pp_choice(expr const & e, unsigned depth) {
+        lean_assert(is_choice(e));
+        unsigned num = get_num_choices(e);
+        format r_format;
+        unsigned r_weight;
+        for (unsigned i = 0; i < num; i++) {
+            if (i > 0)
+                r_format += format{space(), format("|"), line()};
+            expr const & c = get_choice(e, i);
+            result p_c     = pp_child(c, depth);
+            r_weight      += p_c.second;
+            r_format      += p_c.first;
+        }
+        return mk_result(r_format, r_weight+1);
+    }
+
     result pp(expr const & e, unsigned depth, bool main = false) {
         check_interrupted(m_interrupted);
         if (!is_atomic(e) && (m_num_steps > m_max_steps || depth > m_max_depth)) {
@@ -934,7 +951,9 @@ class pp_fn {
                     return mk_result(format(it->second), 1);
             }
             result r;
-            if (is_lower(e)) {
+            if (is_choice(e)) {
+                return pp_choice(e, depth);
+            } if (is_lower(e)) {
                 r = pp_lower(e, depth);
             } else if (is_lift(e)) {
                 r = pp_lift(e, depth);

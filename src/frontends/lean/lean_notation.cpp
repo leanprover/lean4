@@ -31,6 +31,8 @@ void init_builtin_notation(frontend & f) {
     f.add_infixr("\u21D4", 25, mk_iff_fn());     // "⇔"
 
     f.add_infixl("+", 65, mk_nat_add_fn());
+    f.add_infixl("-", 65, mk_nat_sub_fn());
+    f.add_prefix("-", 75, mk_nat_neg_fn());
     f.add_infixl("*", 70, mk_nat_mul_fn());
     f.add_infix("<=", 50, mk_nat_le_fn());
     f.add_infix("\u2264", 50, mk_nat_le_fn());  // ≤

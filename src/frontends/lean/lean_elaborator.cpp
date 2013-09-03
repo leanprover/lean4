@@ -230,6 +230,7 @@ class elaborator::imp {
                         args[0]  = f_choices[j];
                         types[0] = f_choice_types[j];
                         good_choices.clear();
+                        best_num_coercions = num_coercions;
                     }
                     good_choices.push_back(j);
                 }
@@ -239,14 +240,20 @@ class elaborator::imp {
             }
         }
         if (good_choices.size() == 0) {
-            // TODO add information to the exception
-            throw exception("none of the overloads are good");
+            throw no_overload_exception(*m_owner, ctx, src, f_choices.size(), f_choices.data(), f_choice_types.data(),
+                                        args.size() - 1, args.data() + 1, types.data() + 1);
         } else if (good_choices.size() == 1) {
             // found overload
             return;
         } else {
-            // TODO add information to the exception
-            throw exception("ambiguous overload");
+            buffer<expr> good_f_choices;
+            buffer<expr> good_f_choice_types;
+            for (unsigned j : good_choices) {
+                good_f_choices.push_back(f_choices[j]);
+                good_f_choice_types.push_back(f_choice_types[j]);
+            }
+            throw ambiguous_overload_exception(*m_owner, ctx, src, good_f_choices.size(), good_f_choices.data(), good_f_choice_types.data(),
+                                               args.size() - 1, args.data() + 1, types.data() + 1);
         }
     }
 

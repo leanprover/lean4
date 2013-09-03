@@ -5,8 +5,8 @@
   Assumed: a
 Error (line: 6, pos: 6) type mismatch at application
     g ⊤ (f _ a a)
-function type
+Function type:
     N → N → Bool
-arguments types
+Arguments types:
     Bool
     ?M0

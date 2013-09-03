@@ -126,6 +126,8 @@ MK_BUILTIN(nat_le_fn, nat_le_value);
 MK_CONSTANT(nat_ge_fn, name({"Nat", "ge"}));
 MK_CONSTANT(nat_lt_fn, name({"Nat", "lt"}));
 MK_CONSTANT(nat_gt_fn, name({"Nat", "gt"}));
+MK_CONSTANT(nat_sub_fn, name({"Nat", "sub"}));
+MK_CONSTANT(nat_neg_fn, name({"Nat", "neg"}));
 // =======================================
 
 // =======================================
@@ -460,6 +462,9 @@ void add_arith_theory(environment & env) {
     env.add_definition(int_ge_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, iLe(y, x)));
     env.add_definition(int_lt_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, Not(iLe(y, x))));
     env.add_definition(int_gt_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, Not(iLe(x, y))));
+
+    env.add_definition(nat_sub_fn_name, Nat >> (Nat >> Int), Fun({{x, Nat}, {y, Nat}}, iSub(n2i(x), n2i(y))));
+    env.add_definition(nat_neg_fn_name, Nat >> Int, Fun({x, Nat}, iNeg(n2i(x))));
 
     env.add_definition(real_sub_fn_name, rr_r, Fun({{x, Real}, {y, Real}}, rAdd(x, rMul(mk_real_value(-1), y))));
     env.add_definition(real_neg_fn_name, r_r, Fun({x, Real}, rMul(mk_real_value(-1), x)));

@@ -8,14 +8,37 @@ Author: Leonardo de Moura
 #include "lean_elaborator.h"
 
 namespace lean {
+format pp(formatter fmt, context const & ctx, std::vector<expr> const & exprs, std::vector<expr> const & types, options const & opts) {
+    unsigned indent = get_pp_indent(opts);
+    lean_assert(exprs.size() == types.size());
+    auto it1 = exprs.begin();
+    auto it2 = types.begin();
+    format r;
+    for (; it1 != exprs.end(); ++it1, ++it2) {
+        r += nest(indent, compose(line(), group(format{fmt(ctx, *it1, false, opts), space(), colon(),
+                                                       nest(indent, format{line(), fmt(ctx, *it2, false, opts)})})));
+    }
+    return r;
+}
+
 format pp(formatter fmt, elaborator_exception const & ex, options const & opts) {
     unsigned indent = get_pp_indent(opts);
-    format expr_f = fmt(ex.get_context(), ex.get_expr(), false, opts);
-    format elb_f  = ex.get_elaborator().pp(fmt, opts);
-    return format({format(ex.what()), space(), format("at term"),
-                nest(indent, compose(line(), expr_f)),
-                line(), format("Elaborator state"),
-                nest(indent, compose(line(), elb_f))});
+    context const & ctx = ex.get_context();
+    if (overload_exception const * _ex = dynamic_cast<overload_exception const *>(&ex)) {
+        format r;
+        r += format{format(ex.what()), line(), format("Candidates:")};
+        r += pp(fmt, ctx, _ex->get_fs(), _ex->get_f_types(), opts);
+        r += format{line(), format("Arguments:")};
+        r += pp(fmt, ctx, _ex->get_args(), _ex->get_arg_types(), opts);
+        return r;
+    } else {
+        format expr_f = fmt(ctx, ex.get_expr(), false, opts);
+        format elb_f  = ex.get_elaborator().pp(fmt, opts);
+        return format({format(ex.what()), space(), format("at term"),
+                    nest(indent, compose(line(), expr_f)),
+                    line(), format("Elaborator state"),
+                    nest(indent, compose(line(), elb_f))});
+    }
 }
 
 regular const & operator<<(regular const & out, elaborator_exception const & ex) {

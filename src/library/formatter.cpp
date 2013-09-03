@@ -56,12 +56,12 @@ format formatter::operator()(kernel_exception const & ex, options const & opts) 
         }
         format arg_type_msg;
         if (arg_types.size() > 2)
-            arg_type_msg = format("arguments types");
+            arg_type_msg = format("Arguments types:");
         else
-            arg_type_msg = format("argument type");
+            arg_type_msg = format("Argument type:");
         return format({format("type mismatch at application"),
                     nest(indent, compose(line(), app_f)),
-                    line(), format("function type"),
+                    line(), format("Function type:"),
                     nest(indent, compose(line(), f_type_fmt)),
                     line(), arg_type_msg,
                     arg_types_fmt});
@@ -82,7 +82,7 @@ format formatter::operator()(kernel_exception const & ex, options const & opts) 
         format value_f = operator()(_ex->get_value_type(), opts);
         return format({format("type mismatch at definition '"), name_f, format("', expected type"),
                     nest(indent, compose(line(), type_f)),
-                    line(), format("given type"),
+                    line(), format("Given type:"),
                     nest(indent, compose(line(), value_f))});
     } else {
         return format(ex.what());

@@ -5,9 +5,9 @@ myeq Bool ⊤ ⊥
   Assumed: a
 Error (line: 6, pos: 6) type mismatch at application
     myeq Bool ⊤ a
-function type
+Function type:
     Π (A : Type) (_ _ : A), Bool
-arguments types
+Arguments types:
     Type
     Bool
     T
@@ -15,9 +15,9 @@ arguments types
   Set: lean::pp::implicit
 Error (line: 10, pos: 15) type mismatch at application
     myeq2::explicit Bool ⊤ a
-function type
+Function type:
     Π (A : Type) (a b : A), Bool
-arguments types
+Arguments types:
     Type
     Bool
     T

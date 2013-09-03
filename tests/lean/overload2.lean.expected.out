@@ -1,0 +1,30 @@
+Error (line: 1, pos: 10) application type mismatch, none of the overloads can be used
+Candidates:
+    Real::add : Real [33m→[0m Real [33m→[0m Real
+    Int::add : Int [33m→[0m Int [33m→[0m Int
+    Nat::add : Nat [33m→[0m Nat [33m→[0m Nat
+Arguments:
+    1 : Nat
+    ⊤ : Bool
+  Assumed: R
+  Assumed: T
+  Assumed: r2t
+  Coercion r2t
+  Assumed: t2r
+  Coercion t2r
+  Assumed: f
+  Assumed: a
+  Assumed: b
+  Set: lean::pp::coercion
+  Set: lean::pp::notation
+f a b
+f (r2t b) (t2r a)
+  Assumed: g
+f a b
+Error (line: 20, pos: 10) ambiguous overloads
+Candidates:
+    g : R [33m->[0m T [33m->[0m R
+    f : T [33m->[0m R [33m->[0m T
+Arguments:
+    b : R
+    a : T

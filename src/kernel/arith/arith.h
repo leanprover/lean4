@@ -22,21 +22,35 @@ inline expr nVal(unsigned v) { return mk_nat_value(v); }
 bool is_nat_value(expr const & e);
 mpz const & nat_value_numeral(expr const & e);
 
+/** \brief Nat::add : Nat -> Nat -> Nat */
 expr mk_nat_add_fn();
 inline expr nAdd(expr const & e1, expr const & e2) { return mk_app(mk_nat_add_fn(), e1, e2); }
 
+/** \brief Nat::sub : Nat -> Nat -> Int */
+expr mk_nat_sub_fn();
+inline expr nSub(expr const & e1, expr const & e2) { return mk_app(mk_nat_sub_fn(), e1, e2); }
+
+/** \brief Nat::neg : Nat -> Int */
+expr mk_nat_neg_fn();
+inline expr nNeg(expr const & e1, expr const & e2) { return mk_app(mk_nat_neg_fn(), e1, e2); }
+
+/** \brief Nat::mul : Nat -> Nat -> Nat */
 expr mk_nat_mul_fn();
 inline expr nMul(expr const & e1, expr const & e2) { return mk_app(mk_nat_mul_fn(), e1, e2); }
 
+/** \brief Nat::le : Nat -> Nat -> Bool */
 expr mk_nat_le_fn();
 inline expr nLe(expr const & e1, expr const & e2) { return mk_app(mk_nat_le_fn(), e1, e2); }
 
+/** \brief Nat::ge : Nat -> Nat -> Bool */
 expr mk_nat_ge_fn();
 inline expr nGe(expr const & e1, expr const & e2) { return mk_app(mk_nat_ge_fn(), e1, e2); }
 
+/** \brief Nat::lt : Nat -> Nat -> Bool */
 expr mk_nat_lt_fn();
 inline expr nLt(expr const & e1, expr const & e2) { return mk_app(mk_nat_lt_fn(), e1, e2); }
 
+/** \brief Nat::gt : Nat -> Nat -> Bool */
 expr mk_nat_gt_fn();
 inline expr nGt(expr const & e1, expr const & e2) { return mk_app(mk_nat_gt_fn(), e1, e2); }
 

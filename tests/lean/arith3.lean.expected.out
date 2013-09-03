@@ -1,9 +1,10 @@
+  Set: pp::colors
 2
 2
 2
 1
 - 8 mod 3
   Set: lean::pp::notation
-Int::mod (Int::neg 8) 3
+Int::mod (Nat::neg 8) 3
 -2
 -8

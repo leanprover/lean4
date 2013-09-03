@@ -9,9 +9,9 @@ and a b
   Assumed: A
 Error (line: 12, pos: 11) type mismatch at application
     and a A
-function type
+Function type:
     Bool -> Bool -> Bool
-arguments types
+Arguments types:
     Bool
     Type
 Variable A : Type

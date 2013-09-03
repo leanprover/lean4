@@ -20,8 +20,8 @@ Requirements
 - cmake
   http://www.cmake.org
 
-Install Packages on Ubuntu
---------------------------
+Install Packages on Ubuntu 12.04 LTS
+------------------------------------
 
 Instructions for installing gperftools on Ubuntu
 
@@ -56,8 +56,23 @@ option. For example
 
 [1]: http://clang.llvm.org/cxx_status.html
 
-Install Packages on OS X
-------------------------
+Install Packages on Fedora 19
+-----------------------------
+
+Instructions for installing git, cmake, mpfr, gmp, gperftools on Fedora
+
+    sudo yum install -y git cmake mpfr-devel gmp-devel gperftools-devel
+
+Instructions for installing gcc-4.8 (C++11 compatible) on Fedora
+
+    sudo yum install -y gcc-c++
+
+Instructions for installing clang-3.3 (C++11 compatible) on Fedora
+
+    sudo yum install -y clang-devel
+
+Install Packages on OS X 10.8
+-----------------------------
 We assume that you are using [homebrew][homebrew], "The missing package manager for OS X".
 
 [homebrew]: http://brew.sh

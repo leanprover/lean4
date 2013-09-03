@@ -1,4 +1,3 @@
-Set pp::colors false
 Show true /\ false
 Set pp::unicode false
 Show true /\ false

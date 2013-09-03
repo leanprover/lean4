@@ -1,4 +1,3 @@
-Set pp::colors false
 Variable T : Type
 Variable R : Type
 Variable f : T -> R

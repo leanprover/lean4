@@ -74,6 +74,8 @@ static void tst5() {
     frontend f;
     std::shared_ptr<string_output_channel> out(new string_output_channel());
     f.set_regular_channel(out);
+    f.set_option(name{"pp", "unicode"}, true);
+    f.set_option(name{"lean", "pp", "notation"}, true);
     regular(f) << And(Const("a"), Const("b"));
     lean_assert(out->str() == "a ∧ b");
     f.set_option(name{"lean", "pp", "notation"}, false);
@@ -95,8 +97,9 @@ static void tst6() {
     expr t = mk_deep(10);
     f.set_option(name{"lean", "pp", "max_depth"}, 5);
     f.set_option(name{"pp", "colors"}, false);
+    f.set_option(name{"pp", "unicode"}, false);
     regular(f) << t;
-    lean_assert(out->str() == "f (f (f (f (f (…)))))");
+    lean_assert(out->str() == "f (f (f (f (f (...)))))");
 }
 
 int main() {

@@ -1,4 +1,3 @@
-Set pp::colors false
 Variable N : Type
 Variable a : N
 Variable b : N

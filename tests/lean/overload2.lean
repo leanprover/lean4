@@ -1,4 +1,3 @@
-Set pp::colors false
 Show 1 + true
 Variable R : Type
 Variable T : Type

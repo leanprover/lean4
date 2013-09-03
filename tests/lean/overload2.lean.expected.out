@@ -1,5 +1,6 @@
   Set: pp::colors
-Error (line: 2, pos: 9) application type mismatch, none of the overloads can be used
+  Set: pp::unicode
+Error (line: 1, pos: 10) application type mismatch, none of the overloads can be used
 Candidates:
     Real::add : Real → Real → Real
     Int::add : Int → Int → Int
@@ -22,7 +23,7 @@ f a b
 f (r2t b) (t2r a)
   Assumed: g
 f a b
-Error (line: 20, pos: 10) ambiguous overloads
+Error (line: 19, pos: 10) ambiguous overloads
 Candidates:
     g : R → T → R
     f : T → R → T

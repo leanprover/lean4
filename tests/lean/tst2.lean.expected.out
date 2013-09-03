@@ -1,12 +1,14 @@
-⟨⟩
+  Set: pp::colors
+  Set: pp::unicode
+⟨pp::unicode ↦ true, pp::colors ↦ false⟩
   Assumed: a
   Assumed: b
 a ∧ b
   Set: lean::pp::notation
-⟨lean::pp::notation ↦ false⟩
+⟨lean::pp::notation ↦ false, pp::unicode ↦ true, pp::colors ↦ false⟩
 and a b
-[34mVariable[0m a : Bool
-[34mVariable[0m b : Bool
+Variable a : Bool
+Variable b : Bool
   Set: lean::pp::notation
-⟨lean::pp::notation ↦ true⟩
+⟨lean::pp::notation ↦ true, pp::unicode ↦ true, pp::colors ↦ false⟩
 a ∧ b

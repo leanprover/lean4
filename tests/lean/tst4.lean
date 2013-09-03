@@ -7,7 +7,6 @@ Show f n1 n2
 Show f (fun x : N -> N, x) (fun y : _, y)
 Variable EqNice {A : Type} (lhs rhs : A) : Bool
 Infix 50 === : EqNice
-Set pp::colors false
 Show n1 === n2
 Check f n1 n2
 Check Congr::explicit

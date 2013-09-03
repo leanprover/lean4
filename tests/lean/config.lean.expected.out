@@ -1,3 +1,4 @@
   Set: pp::colors
   Set: pp::unicode
-test
+  Set: pp::colors
+  Set: pp::unicode

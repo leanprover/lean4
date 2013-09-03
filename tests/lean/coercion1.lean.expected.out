@@ -1,4 +1,5 @@
   Set: pp::colors
+  Set: pp::unicode
   Assumed: T
   Assumed: R
   Assumed: f
@@ -6,12 +7,12 @@
 Variable f : T → R
 Coercion f
   Assumed: g
-Error (line: 9, pos: 0) invalid coercion declaration, frontend already has a coercion for the given types
+Error (line: 8, pos: 0) invalid coercion declaration, frontend already has a coercion for the given types
   Assumed: h
-Error (line: 11, pos: 0) invalid coercion declaration, a coercion must have an arrow type (i.e., a non-dependent functional type)
+Error (line: 10, pos: 0) invalid coercion declaration, a coercion must have an arrow type (i.e., a non-dependent functional type)
   Defined: T2
   Defined: R2
   Assumed: f2
-Error (line: 15, pos: 0) invalid coercion declaration, frontend already has a coercion for the given types
+Error (line: 14, pos: 0) invalid coercion declaration, frontend already has a coercion for the given types
   Assumed: id
-Error (line: 17, pos: 0) invalid coercion declaration, 'from' and 'to' types are the same
+Error (line: 16, pos: 0) invalid coercion declaration, 'from' and 'to' types are the same

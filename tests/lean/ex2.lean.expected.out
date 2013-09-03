@@ -1,15 +1,16 @@
   Set: pp::colors
+  Set: pp::unicode
 ⊤
   Set: lean::pp::notation
 and ⊤ ⊥
   Set: pp::unicode
 and true false
   Assumed: a
-Error (line: 10, pos: 0) invalid object declaration, environment already has an object named 'a'
+Error (line: 9, pos: 0) invalid object declaration, environment already has an object named 'a'
   Assumed: b
 and a b
   Assumed: A
-Error (line: 14, pos: 11) type mismatch at application
+Error (line: 13, pos: 11) type mismatch at application
     and a A
 Function type:
     Bool -> Bool -> Bool
@@ -17,8 +18,8 @@ Arguments types:
     Bool
     Type
 Variable A : Type
-(pp::unicode := false, lean::pp::notation := false, pp::colors := false)
-Error (line: 17, pos: 4) unknown option 'lean::p::notation', type 'Help Options.' for list of available options
-Error (line: 18, pos: 23) invalid option value, given option is not an integer
+(lean::pp::notation := false, pp::unicode := false, pp::colors := false)
+Error (line: 16, pos: 4) unknown option 'lean::p::notation', type 'Help Options.' for list of available options
+Error (line: 17, pos: 23) invalid option value, given option is not an integer
   Set: lean::pp::notation
 a /\ b

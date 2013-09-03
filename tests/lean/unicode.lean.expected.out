@@ -1,4 +1,5 @@
   Set: pp::colors
+  Set: pp::unicode
 ⊤ ∧ ⊥
   Set: pp::unicode
 true /\ false

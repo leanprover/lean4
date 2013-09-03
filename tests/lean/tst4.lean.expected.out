@@ -1,12 +1,13 @@
+  Set: pp::colors
+  Set: pp::unicode
   Assumed: f
   Assumed: N
   Assumed: n1
   Assumed: n2
   Set: lean::pp::implicit
 f::explicit N n1 n2
-f::explicit ((N [33m→[0m N) [33m→[0m N [33m→[0m N) ([33mλ[0m x : N [33m→[0m N, x) ([33mλ[0m y : N [33m→[0m N, y)
+f::explicit ((N → N) → N → N) (λ x : N → N, x) (λ y : N → N, y)
   Assumed: EqNice
-  Set: pp::colors
 EqNice::explicit N n1 n2
 N
 Π (A : Type U) (B : A → Type U) (f g : Π x : A, B x) (a b : A) (H1 : f = g) (H2 : a = b), (f a) = (g b)

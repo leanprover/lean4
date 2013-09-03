@@ -1,4 +1,3 @@
-Set pp::colors false
 Variable f : Type -> Bool
 Show forall a b : Type, (f a) = (f b)
 Variable g : Bool -> Bool -> Bool

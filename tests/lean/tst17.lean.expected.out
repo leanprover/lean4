@@ -1,4 +1,5 @@
   Set: pp::colors
+  Set: pp::unicode
   Assumed: f
   Assumed: g
 ∀ a b : Type, ∃ c : Type, (g a b) = (f c)

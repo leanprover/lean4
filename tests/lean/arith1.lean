@@ -1,4 +1,3 @@
-Set pp::colors false
 Check 10 + 20
 Check 10
 Check 10 - 20

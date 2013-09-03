@@ -117,6 +117,16 @@ static void tst6() {
     lean_assert(!name(name(name(230u), "bla\u2200"), "foo").is_safe_ascii());
 }
 
+static void tst7() {
+    lean_assert(name("foo") + name("bla") == name({"foo", "bla"}));
+    lean_assert(name("foo") + name({"bla", "test"}) == name({"foo", "bla", "test"}));
+    lean_assert(name({"foo", "hello"}) + name({"bla", "test"}) == name({"foo", "hello", "bla", "test"}));
+    lean_assert(name("foo") + (name(10u) + name({"bla", "test"})) == name(name(name(name("foo"), 10u), "bla"), "test"));
+    lean_assert(name() + name({"bla", "test"}) == name({"bla", "test"}));
+    lean_assert(name({"bla", "test"}) + name() == name({"bla", "test"}));
+    lean_assert(name(10u) + name(20u) == name(name(10u), 20u));
+}
+
 int main() {
     tst1();
     tst2();
@@ -124,5 +134,6 @@ int main() {
     tst4();
     tst5();
     tst6();
+    tst7();
     return has_violations() ? 1 : 0;
 }

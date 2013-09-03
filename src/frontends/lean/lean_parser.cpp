@@ -1277,8 +1277,16 @@ class parser::imp {
         auto id_pos = pos();
         name id = check_identifier_next("invalid set options, identifier (i.e., option name) expected");
         auto decl_it = get_option_declarations().find(id);
-        if (decl_it == get_option_declarations().end())
-            throw parser_error(sstream() << "unknown option '" << id << "', type 'Help Options.' for list of available options", id_pos);
+        if (decl_it == get_option_declarations().end()) {
+            // add "lean" prefix
+            name lean_id = name("lean") + id;
+            decl_it = get_option_declarations().find(lean_id);
+            if (decl_it == get_option_declarations().end()) {
+                throw parser_error(sstream() << "unknown option '" << id << "', type 'Help Options.' for list of available options", id_pos);
+            } else {
+                id = lean_id;
+            }
+        }
         option_kind k = decl_it->second.kind();
         switch (curr()) {
         case scanner::token::Id:

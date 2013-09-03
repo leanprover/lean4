@@ -61,6 +61,8 @@ public:
     /** \brief Return true iff the name contains only safe ASCII chars */
     bool is_safe_ascii() const;
     friend std::ostream & operator<<(std::ostream & out, name const & n);
+    /** \brief Concatenate the two given names. */
+    friend name operator+(name const & n1, name const & n2);
 };
 struct name_hash { unsigned operator()(name const & n) const { return n.hash(); } };
 struct name_eq { bool operator()(name const & n1, name const & n2) const { return n1 == n2; } };

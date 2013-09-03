@@ -325,6 +325,21 @@ std::ostream & operator<<(std::ostream & out, name const & n) {
     name::imp::display(out, n.m_ptr);
     return out;
 }
-}
 
+name operator+(name const & n1, name const & n2) {
+    if (n2.is_anonymous()) {
+        return n1;
+    } else {
+        name prefix;
+        if (!n2.is_atomic())
+            prefix = n1 + name(n2.m_ptr->m_prefix);
+        else
+            prefix = n1;
+        if (n2.m_ptr->m_is_string)
+            return name(prefix, n2.m_ptr->m_str);
+        else
+            return name(prefix, n2.m_ptr->m_k);
+    }
+}
+}
 void print(lean::name const & n) { std::cout << n << std::endl; }

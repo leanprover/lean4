@@ -40,10 +40,6 @@ class type_checker::imp {
         throw function_expected_exception(m_env, ctx, s);
     }
 
-    expr infer_pi(expr const & e, context const & ctx) {
-        return check_pi(infer_type(e, ctx), e, ctx);
-    }
-
 public:
     imp(environment const & env):
         m_env(env),
@@ -82,15 +78,19 @@ public:
             r = mk_type(ty_level(e) + 1);
             break;
         case expr_kind::App: {
-            expr f_t     = infer_pi(arg(e, 0), ctx);
-            unsigned i   = 1;
             unsigned num = num_args(e);
             lean_assert(num >= 2);
+            buffer<expr> arg_types;
+            for (unsigned i = 0; i < num; i++) {
+                arg_types.push_back(infer_type(arg(e, i), ctx));
+            }
+            expr f_t     = check_pi(arg_types[0], e, ctx);
+            unsigned i   = 1;
             while (true) {
-                expr const & c = arg(e, i);
-                expr c_t       = infer_type(c, ctx);
+                expr const & c   = arg(e, i);
+                expr const & c_t = arg_types[i];
                 if (!m_normalizer.is_convertible(abst_domain(f_t), c_t, ctx))
-                    throw app_type_mismatch_exception(m_env, ctx, e, i, abst_domain(f_t), c_t);
+                    throw app_type_mismatch_exception(m_env, ctx, e, arg_types.size(), arg_types.data());
                 if (closed(abst_body(f_t)))
                     f_t = abst_body(f_t);
                 else if (closed(c))

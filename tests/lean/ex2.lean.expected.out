@@ -7,11 +7,12 @@ Error (line: 8, pos: 0) invalid object declaration, environment already has an o
   Assumed: b
 and a b
   Assumed: A
-Error (line: 12, pos: 11) type mismatch at application argument 2 of
+Error (line: 12, pos: 11) type mismatch at application
     and a A
-expected type
+function type
+    Bool -> Bool -> Bool
+arguments types
     Bool
-given type
     Type
 Variable A : Type
 ⟨lean::pp::notation ↦ false, pp::colors ↦ false⟩

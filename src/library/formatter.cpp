@@ -45,15 +45,26 @@ format formatter::operator()(kernel_exception const & ex, options const & opts) 
     } else if (app_type_mismatch_exception const * _ex = dynamic_cast<app_type_mismatch_exception const *>(&ex)) {
         unsigned indent = get_pp_indent(opts);
         format app_f = operator()(_ex->get_context(), _ex->get_application(), false, opts);
-        format given_f = operator()(_ex->get_context(), _ex->get_given_type(), false, opts);
-        format expected_f = operator()(_ex->get_context(), _ex->get_expected_type(), false, opts);
-        unsigned arg_pos = _ex->get_arg_pos();
-        return format({format("type mismatch at application argument"), space(), format(arg_pos), space(), format("of"),
+        std::vector<expr> const & arg_types = _ex->get_arg_types();
+        auto it = arg_types.begin();
+        format f_type_fmt = operator()(_ex->get_context(), *it, false, opts);
+        format arg_types_fmt;
+        ++it;
+        for (; it != arg_types.end(); ++it) {
+            format arg_type_fmt = operator()(_ex->get_context(), *it, false, opts);
+            arg_types_fmt += nest(indent, compose(line(), arg_type_fmt));
+        }
+        format arg_type_msg;
+        if (arg_types.size() > 2)
+            arg_type_msg = format("arguments types");
+        else
+            arg_type_msg = format("argument type");
+        return format({format("type mismatch at application"),
                     nest(indent, compose(line(), app_f)),
-                    line(), format("expected type"),
-                    nest(indent, compose(line(), expected_f)),
-                    line(), format("given type"),
-                    nest(indent, compose(line(), given_f))});
+                    line(), format("function type"),
+                    nest(indent, compose(line(), f_type_fmt)),
+                    line(), arg_type_msg,
+                    arg_types_fmt});
     } else if (function_expected_exception const * _ex = dynamic_cast<function_expected_exception const *>(&ex)) {
         unsigned indent = get_pp_indent(opts);
         format expr_f = operator()(_ex->get_context(), _ex->get_expr(), false, opts);

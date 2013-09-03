@@ -331,7 +331,7 @@ class elaborator::imp {
                                 modified = true;
                                 args[i] = mk_app(coercion, args[i]);
                             } else {
-                                throw app_type_mismatch_exception(m_env, ctx, e, i, expected, given);
+                                throw app_type_mismatch_exception(m_env, ctx, e, types.size(), types.data());
                             }
                         }
                     }
@@ -722,17 +722,6 @@ public:
     format pp(formatter & f, options const & o) const {
         format r;
         bool first = true;
-        for (unsigned i = 0; i < m_metavars.size(); i++) {
-            metavar_info const & info = m_metavars[i];
-            expr m = ::lean::mk_metavar(i);
-            if (first) first = false; else r += line();
-            format r_assignment;
-            if (info.m_assignment)
-                r_assignment = f(info.m_assignment, o);
-            else
-                r_assignment = highlight(format("[unassigned]"));
-            r += group(format{f(m,o), space(), g_assignment_fmt, line(), r_assignment});
-        }
         for (auto c : m_constraints) {
             if (first) first = false; else r += line();
             r += group(format{f(c.m_lhs, o), space(), g_unification_fmt, line(), f(c.m_rhs, o)});

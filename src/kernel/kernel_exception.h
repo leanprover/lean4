@@ -90,22 +90,17 @@ public:
     have type get_expected_type().
 */
 class app_type_mismatch_exception : public type_checker_exception {
-    context  m_context;
-    expr     m_app;
-    unsigned m_arg_pos;
-    expr     m_expected_type;
-    expr     m_given_type;
+    context           m_context;
+    expr              m_app;
+    std::vector<expr> m_arg_types;
 public:
-    app_type_mismatch_exception(environment const & env, context const & ctx, expr const & app, unsigned pos, expr const & expected, expr const & given):
-        type_checker_exception(env), m_context(ctx), m_app(app), m_arg_pos(pos),
-        m_expected_type(expected), m_given_type(given) {}
+    app_type_mismatch_exception(environment const & env, context const & ctx, expr const & app, unsigned num, expr const * arg_types):
+        type_checker_exception(env), m_context(ctx), m_app(app), m_arg_types(arg_types, arg_types+num) {}
     virtual ~app_type_mismatch_exception() {}
     context const & get_context() const { return m_context; }
     expr const & get_application() const { return m_app; }
     virtual expr const & get_main_expr() const { return get_application(); }
-    unsigned get_arg_pos() const { return m_arg_pos; }
-    expr const & get_expected_type() const { return m_expected_type; }
-    expr const & get_given_type() const { return m_given_type; }
+    std::vector<expr> const & get_arg_types() const { return m_arg_types; }
     virtual char const * what() const noexcept { return "application argument type mismatch"; }
 };
 

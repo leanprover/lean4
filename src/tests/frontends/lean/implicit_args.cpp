@@ -40,12 +40,8 @@ static void success(expr const & e, expr const & expected, frontend const & env)
         std::cout << infer_type(elaborate(e, env), env) << "\n";
     } catch (app_type_mismatch_exception & ex) {
         context const & ctx = ex.get_context();
-        std::cout << "Application type mismatch at argument " << ex.get_arg_pos() << "\n"
-                  << "  " << mk_pair(ex.get_application(), ctx) << "\n"
-                  << "expected type\n"
-                  << "  " << mk_pair(ex.get_expected_type(), ctx) << "\n"
-                  << "given type\n"
-                  << "  " << mk_pair(ex.get_given_type(), ctx) << "\n";
+        std::cout << "Application type mismatch at\n"
+                  << "  " << mk_pair(ex.get_application(), ctx) << "\n";
         lean_unreachable();
     }
 }

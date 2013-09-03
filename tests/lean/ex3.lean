@@ -1,3 +1,4 @@
+Set pp::colors false
 Variable myeq : Pi (A : Type), A -> A -> Bool
 Show myeq _ true false
 Variable T : Type

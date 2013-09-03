@@ -129,6 +129,29 @@ inline expr rIf(expr const & c, expr const & t, expr const & e) { return mk_if(R
 // =======================================
 
 // =======================================
+// Transcendental and Hyperbolic
+expr mk_real_pi();
+
+expr mk_sin_fn();
+inline expr Sin(expr const & e) { return mk_app(mk_sin_fn(), e); }
+
+expr mk_cos_fn();
+inline expr Cos(expr const & e) { return mk_app(mk_cos_fn(), e); }
+
+expr mk_tan_fn();
+inline expr Tan(expr const & e) { return mk_app(mk_tan_fn(), e); }
+
+expr mk_cot_fn();
+inline expr Cot(expr const & e) { return mk_app(mk_cot_fn(), e); }
+
+expr mk_sec_fn();
+inline expr Sec(expr const & e) { return mk_app(mk_sec_fn(), e); }
+
+expr mk_csc_fn();
+inline expr Csc(expr const & e) { return mk_app(mk_csc_fn(), e); }
+// =======================================
+
+// =======================================
 // Coercions
 expr mk_nat_to_int_fn();
 inline expr n2i(expr const & e) { return mk_app(mk_nat_to_int_fn(), e); }

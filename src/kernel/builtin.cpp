@@ -226,7 +226,7 @@ void add_basic_theory(environment & env) {
     env.add_definition(exists_fn_name, q_type, Fun({{A,TypeU}, {P, A_pred}}, Not(Forall(A, Fun({x, A}, Not(P(x)))))));
 
     // homogeneous equality
-    env.add_definition(homo_eq_fn_name, Pi({A,TypeU}, A >> (A >> Bool)), Fun({{A,TypeU}, {x,A}, {y,A}}, Eq(x, y)));
+    env.add_definition(homo_eq_fn_name, Pi({{A,TypeU},{x,A},{y,A}}, Bool), Fun({{A,TypeU}, {x,A}, {y,A}}, Eq(x, y)));
 
     // MP : Pi (a b : Bool) (H1 : a => b) (H2 : a), b
     env.add_axiom(mp_fn_name, Pi({{a, Bool}, {b, Bool}, {H1, Implies(a, b)}, {H2, a}}, b));

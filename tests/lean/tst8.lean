@@ -8,3 +8,6 @@ Definition f (A: Type) (a : A) : A :=
    let b := g A a,
        c := g A b
    in c
+
+Show f _ 10.
+Show f _ (- 10).

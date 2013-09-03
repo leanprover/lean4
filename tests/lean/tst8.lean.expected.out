@@ -3,3 +3,5 @@
 Π (A : Type) (a : A), A
   Assumed: g
   Defined: f
+f Nat 10
+f Int (- 10)

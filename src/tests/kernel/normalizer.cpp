@@ -233,7 +233,7 @@ static void tst5() {
 #endif
 }
 
-void tst6() {
+static void tst6() {
     environment env;
     expr x = Const("x");
     expr t = Fun({x, Type()}, mk_app(x, x));
@@ -253,5 +253,6 @@ int main() {
     tst3();
     tst4();
     tst5();
+    tst6();
     return has_violations() ? 1 : 0;
 }

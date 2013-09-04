@@ -86,7 +86,8 @@ script:
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ../src
   - if [[ $CMAKE_BUILD_TYPE == DEBUG || $CMAKE_BUILD_TYPE == RELEASE || $CMAKE_BUILD_TYPE == TESTCOV ]]; then
-       ctest -D ExperimentalBuild;
+       ctest -D ExperimentalConfigure;
+       ctest -D ExperimentalBuild -VV;
        yes "C" | ctest -D ExperimentalTest -VV;
     fi
   - if [[ $CMAKE_BUILD_TYPE == TESTCOV ]]; then

@@ -13,17 +13,18 @@ before_script:
 - cd build
 - CPLUS_INCLUDE_PATH=/usr/local/include/c++/4.9.0/:/usr/local/include/c++/4.9.0/x86_64-apple-darwin12.4.0:/usr/local/include/c++/4.9.0/bits/
 - export CPLUS_INCLUDE_PATH
-- LIBRARY_PATH=/usr/local/lib
+- LIBRARY_PATH=/usr/local/lib:/local/lib/gcc/x86_64-apple-darwin12.4.0/4.9.0/
 - export LIBRARY_PATH
 - cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=/usr/local/bin/${CMAKE_CXX_COMPILER} ../src -G Ninja
 - cd ..
 
 script:
 - cd build
-- ctest -D ExperimentalBuild
+- ctest -D ExperimentalConfigure
+- ctest -D ExperimentalBuild -VV
 - yes "C" | ctest -D ExperimentalTest -VV
 - if [[ $MEMCHECK == TRUE ]]; then
-       ctest -D ExperimentalMemCheck;
+     ctest -D ExperimentalMemCheck;
   fi
 - if [[ $PUSH_TO_CDASH == TRUE ]]; then
     ctest -D ExperimentalSubmit;

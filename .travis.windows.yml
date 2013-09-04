@@ -27,7 +27,8 @@ script:
   - LEAN_ROOT=`pwd`
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ../src -DCMAKE_TOOLCHAIN_FILE=/tmp/mxe/usr/x86_64-w64-mingw32/share/cmake/mxe-conf.cmake
-  - ctest -D ExperimentalBuild
+  - ctest -D ExperimentalConfigure
+  - ctest -D ExperimentalBuild -VV
   - if [[ $PUSH_TO_CDASH == TRUE ]]; then
        ctest -D ExperimentalSubmit;
     fi

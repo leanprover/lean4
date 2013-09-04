@@ -8,6 +8,8 @@ env:
    - secure: "Zdab8c1wnKcwYWEVBvtaClCzw7sYmFPZ47urG4jSeO5FL+M4MiR6c7STeoW7wge9k3uUyMTAodD/bJ0RhskBp0wbvg0UoYQaFRm+RwsDiM7CNj+fYM8wnV0cvTJj869NsqQ92zde6L5gFEHNDrVUwC6PJpIC4JxRRfzIA4/qH5A="
    # DROPBOX_KEY
    - secure: "b9qdjrlr2khvQclMg12Fjg0DF3Chv46SdNRymK7cPukAhIaqaPn8g0FL4K9xW/asXRXdWcd3dYBoarjkqX43mNV9nl5Hl2VwV7T6KeGAxQSRqdYioMugIY0P8xrj4i5dwuvt8aqSlCctSozE1e/th8EWjjy6TWi890MJB//NGRE="
+   # LEANREPO
+   - secure: "KsbUsMxTFDbUaObKOTxfWSu0gGzbUWlJr52nI1ITMqLxswettUR9bYAa1HTA+7hXXCT1W5I+RjxeWi74C+w/eTJGPGePX0irtzjNF/XVhP1ADoJJVQCF64yv02GNBeeUzGSDiW4bmO8ZLxTzvFr2ZskJDe/bIytQd3pJAlU6M0w="
 
   matrix:
    - CMAKE_CXX_COMPILER=g++-4.8
@@ -67,17 +69,17 @@ install:
   - until sudo apt-get -qq install libstdc++-4.8-dev; do echo retry; done
   - if [[ $CMAKE_CXX_COMPILER == g++-4.8 ]]; then until sudo apt-get -qq install g++-4.8; do echo retry; done fi
   - if [[ $CMAKE_CXX_COMPILER == clang++-3.3 ]]; then until sudo apt-get -qq install clang-3.3; do echo retry; done fi
-  - if [[ $MEMCHECK == TRUE ]]; then
+  - if [[ $LEANREPO == BLESSED && $MEMCHECK == TRUE ]]; then
        sudo apt-get -qq install valgrind;
     fi
-  - if [[ $CMAKE_BUILD_TYPE == TESTCOV ]]; then
+  - if [[ $LEANREPO == BLESSED && $CMAKE_BUILD_TYPE == TESTCOV ]]; then
        wget http://downloads.sourceforge.net/ltp/lcov-1.10.tar.gz;
        tar xvfz lcov-1.10.tar.gz;
        mkdir ~/bin;
        cp -v lcov-1.10/bin/{lcov,genpng,gendesc,genhtml,geninfo} ~/bin/;
        rm -rf lcov-1.10.tar.gz lcov-1.10;
     fi
-  - if [[ $DROPBOX == TRUE ]]; then
+  - if [[ $LEANREPO == BLESSED && $DROPBOX == TRUE ]]; then
        sudo apt-get -qq install python python-pip;
        sudo pip install dropbox;
     fi
@@ -90,9 +92,6 @@ script:
        ctest -D ExperimentalConfigure;
        ctest -D ExperimentalBuild -VV;
        yes "C" | ctest -D ExperimentalTest -VV;
-    fi
-  - if [[ $CMAKE_BUILD_TYPE == TESTCOV ]]; then
-       ctest -D ExperimentalCoverage;
     fi
   - cd ..
 after_script:
@@ -124,23 +123,26 @@ after_script:
       git reset --hard HEAD~;
   fi
 - cd build
-- if [[ $MEMCHECK == TRUE ]]; then
+- if [[ $LEANREPO == BLESSED && $CMAKE_BUILD_TYPE == TESTCOV ]]; then
+     ctest -D ExperimentalCoverage;
+  fi
+- if [[ $LEANREPO == BLESSED && $MEMCHECK == TRUE ]]; then
      ctest -D ExperimentalMemCheck;
   fi
-- if [[ $PUSH_TO_CDASH == TRUE ]]; then
+- if [[ $LEANREPO == BLESSED && $PUSH_TO_CDASH == TRUE ]]; then
       ctest -D ExperimentalSubmit;
   fi
 - cd ..
-- if [[ $BUILD_DOXYGEN == TRUE ]]; then
+- if [[ $LEANREPO == BLESSED && $BUILD_DOXYGEN == TRUE ]]; then
       sudo apt-get -qq install doxygen;
       script/doxygen.sh;
       script/dropbox_upload.py doc /Public/doc ${DROPBOX_KEY};
   fi
-- if [[ $CMAKE_BUILD_TYPE == TESTCOV ]]; then
+- if [[ $LEANREPO == BLESSED && $CMAKE_BUILD_TYPE == TESTCOV ]]; then
       script/lcov.sh ${CMAKE_CXX_COMPILER} ${TESTCOV_TOOL};
       script/dropbox_upload.py build/testcov/lcov /Public/lcov ${DROPBOX_KEY};
   fi
-- if [[ $UPLOAD ]]; then
+- if [[ $LEANREPO == BLESSED && $UPLOAD ]]; then
       UPLOAD_DIR=bin;
       BINARY=lean_${UPLOAD};
       mkdir ${UPLOAD_DIR};

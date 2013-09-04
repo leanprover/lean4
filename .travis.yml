@@ -18,6 +18,8 @@ env:
      TRIGGER_BB=TRUE
      TRIGGER_OSX=TRUE
      TRIGGER_WINDOWS=TRUE
+     MEMCHECK=TRUE
+     PUSH_TO_CDASH=TRUE
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=DOXYGEN
      BUILD_DOXYGEN=TRUE
@@ -25,6 +27,7 @@ env:
    - CMAKE_CXX_COMPILER=clang++-3.3
      CMAKE_BUILD_TYPE=DEBUG
      USE_TCMALLOC=TRUE
+     PUSH_TO_CDASH=TRUE
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=DEBUG
      USE_TCMALLOC=TRUE
@@ -62,6 +65,9 @@ install:
   - until sudo apt-get -qq install libstdc++-4.8-dev; do echo retry; done
   - if [[ $CMAKE_CXX_COMPILER == g++-4.8 ]]; then until sudo apt-get -qq install g++-4.8; do echo retry; done fi
   - if [[ $CMAKE_CXX_COMPILER == clang++-3.3 ]]; then until sudo apt-get -qq install clang-3.3; do echo retry; done fi
+  - if [[ $MEMCHECK == TRUE ]]; then
+       sudo apt-get -qq install valgrind;
+    fi
   - if [[ $CMAKE_BUILD_TYPE == TESTCOV ]]; then
        wget http://downloads.sourceforge.net/ltp/lcov-1.10.tar.gz;
        tar xvfz lcov-1.10.tar.gz;
@@ -75,13 +81,22 @@ install:
     fi
 
 script:
-  - if [[ $CMAKE_BUILD_TYPE == DEBUG || $CMAKE_BUILD_TYPE == RELEASE ]]; then
-        mkdir -p build;
-        cd build;
-        cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ../src;
-        make && yes "C" | ctest -T test -VV;
+  - mkdir -p build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ../src
+  - if [[ $CMAKE_BUILD_TYPE == DEBUG || $CMAKE_BUILD_TYPE == RELEASE || $CMAKE_BUILD_TYPE == TESTCOV ]]; then
+       ctest -D ExperimentalBuild;
+       yes "C" | ctest -D ExperimentalTest -VV;
     fi
-
+  - if [[ $CMAKE_BUILD_TYPE == TESTCOV ]]; then
+       ctest -D ExperimentalCoverage;
+  - if [[ $MEMCHECK == TRUE ]]; then
+       ctest -D ExperimentalMemCheck;
+    fi
+  - if [[ $PUSH_TO_CDASH == TRUE ]]; then
+        ctest -D ExperimentalSubmit;
+    fi
+  - cd ..
 after_script:
 - if [[ $TRIGGER_BB == TRUE ]]; then
       git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/soonhok/lean.git +master;
@@ -109,9 +124,6 @@ after_script:
       git push -q https://soonhokong:${GH_TOKEN}@github.com/soonhokong/lean-windows.git +HEAD:master;
       mv /tmp/.travis.temp.yml .travis.yml;
       git reset --hard HEAD~;
-  fi
-- if [[ $CMAKE_BUILD_TYPE == DEBUG ]] || [[ $CMAKE_BUILD_TYPE == RELEASE ]]; then
-      cd ..;
   fi
 - if [[ $BUILD_DOXYGEN == TRUE ]]; then
       sudo apt-get -qq install doxygen;

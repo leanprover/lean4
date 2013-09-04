@@ -6,6 +6,11 @@ set(LEAN_VERSION_MINOR 1)
 set(CMAKE_COLOR_MAKEFILE ON)
 enable_testing()
 
+# Added for CTest
+INCLUDE(CTest)
+CONFIGURE_FILE(${LEAN_SOURCE_DIR}/CTestCustom.cmake.in
+  ${LEAN_BINARY_DIR}/CTestCustom.cmake @ONLY)
+
 set(LEAN_EXTRA_LINKER_FLAGS "")
 set(LEAN_EXTRA_CXX_FLAGS "")
 

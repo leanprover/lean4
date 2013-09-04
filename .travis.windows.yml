@@ -5,7 +5,7 @@ env:
   # DROPBOX_KEY
   - secure: "H1aUwvee839ZPVievqm8Fwl9hBHx5/JW6+J66+ORYL2IHHPjfOgLKRYU2rcTcbxnZO88NJRGeiI431rEadBU2Ie5aS8WpKM5orvRmdd6bLcCvzqN+hS8JCmCVygQtgpKYYUk8iDWhX9YCgPVs0RlRz3UCjwUpqdkmL+w74lIZMM="
   matrix:
-  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE UPLOAD=windows DROPBOX=TRUE
+  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE UPLOAD=windows DROPBOX=TRUE PUSH_TO_CDASH=TRUE
   - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG
 
 install:
@@ -27,7 +27,10 @@ script:
   - LEAN_ROOT=`pwd`
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ../src -DCMAKE_TOOLCHAIN_FILE=/tmp/mxe/usr/x86_64-w64-mingw32/share/cmake/mxe-conf.cmake
-  - make
+  - ctest -D ExperimentalBuild
+ - if [[ $PUSH_TO_CDASH == TRUE ]]; then
+       ctest -D ExperimentalSubmit;
+   fi
   - cd ..
 
 after_script:

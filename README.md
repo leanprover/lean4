@@ -7,6 +7,10 @@ Mac OS X 10.8.2, g++-4.8
 [![Build Status](https://travis-ci.org/soonhokong/lean-windows.png?branch=master)](https://travis-ci.org/soonhokong/lean-windows)
 Windows, x86_64-w64-mingw32-g++-4.8.1
 
+[[Result of Build/UnitTest/Coverage/Dynamic Analysis]][cdash]
+
+[cdash]: http://my.cdash.org/index.php?project=Lean&date=
+
 Requirements
 ============
 
@@ -46,15 +50,15 @@ Instructions for installing clang-3.3 (C++11 compatible) on Ubuntu
     sudo apt-get dist-upgrade
     sudo apt-get install clang-3.3 clang-3.3-doc
 
-Note that you [still need][1] to have g++-4.8's C++ runtime library to
-support some C++11 features that we are using.
+Note that you [still need][clang_cxx_status] to have g++-4.8's C++
+runtime library to support some C++11 features that we are using.
 
 You can specify the C++ compiler to use by using ``-DCMAKE_CXX_COMPILER``
 option. For example
 
     cmake -DCMAKE_BUILD_TYPE=DEBUG -DCMAKE_CXX_COMPILER=clang++-3.3 ../../src
 
-[1]: http://clang.llvm.org/cxx_status.html
+[clang_cxx_status]: http://clang.llvm.org/cxx_status.html
 
 Install Packages on Fedora 19
 -----------------------------
@@ -117,10 +121,11 @@ Instructions for RELEASE build
 Using [CMake][cmake] + [Ninja][ninja]
 -------------------------------
 [CMake 2.8.11][cmake] supports [Ninja][ninja] build system using
-``-G`` option. [Some people report][1] that using [Ninja][ninja] can
-reduce the build time, esp when a build is incremental.
+``-G`` option. [Some people report][ninja_work] that using
+[Ninja][ninja] can reduce the build time, esp when a build is
+incremental.
 
-[1]: https://plus.google.com/108996039294665965197/posts/SfhrFAhRyyd
+[ninja_work]: https://plus.google.com/108996039294665965197/posts/SfhrFAhRyyd
 
 Instructions for DEBUG build
 

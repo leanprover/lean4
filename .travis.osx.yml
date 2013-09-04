@@ -3,7 +3,7 @@ env:
   global:
   - secure: "W8vou0KRJOOboZXP9q+D/9Wl6LlBeVS2T85MHWPz7EwCMQbJq5xWnGzYLE6FmC0iILcZkXyP63vqoYMFo5MJaEQeALGx2RuIiW7XgrD+7Bn4Vfsp6BLT7K9/AJETGGTQnLs8oZJJCXHGtzbc8EPFIZd/ZPPrve4jhEE5ZNhXnRc="
   matrix:
-  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG   USE_TCMALLOC=TRUE
+  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG   USE_TCMALLOC=TRUE  MEMCHECK=TRUE PUSH_TO_CDASH=TRUE
   - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG   USE_TCMALLOC=FALSE
   - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE USE_TCMALLOC=TRUE  UPLOAD=osx
   - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE USE_TCMALLOC=FALSE UPLOAD=osx_tcmalloc
@@ -20,7 +20,14 @@ before_script:
 
 script:
 - cd build
-- ninja && yes "C" | ctest -T test -VV
+- ctest -D ExperimentalBuild
+- yes "C" | ctest -D ExperimentalTest -VV
+ - if [[ $MEMCHECK == TRUE ]]; then
+       ctest -D ExperimentalMemCheck;
+   fi
+- if [[ $PUSH_TO_CDASH == TRUE ]]; then
+    ctest -D ExperimentalSubmit;
+  fi
 - cd ..
 
 after_script:
@@ -43,6 +50,9 @@ install:
       brew install mpfr; brew link --overwrite mpfr;
   fi
 - brew install cmake ninja
+- if [[ $MEMCHECK == TRUE ]]; then
+      brew install valgrind;
+  fi
 - if [[ $USE_TCMALLOC == TRUE ]]; then brew install google-perftools; fi
 - if [[ $UPLOAD ]]; then
       brew install python; pip install dropbox;

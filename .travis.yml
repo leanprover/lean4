@@ -94,12 +94,6 @@ script:
   - if [[ $CMAKE_BUILD_TYPE == TESTCOV ]]; then
        ctest -D ExperimentalCoverage;
     fi
-  - if [[ $MEMCHECK == TRUE ]]; then
-       ctest -D ExperimentalMemCheck;
-    fi
-  - if [[ $PUSH_TO_CDASH == TRUE ]]; then
-        ctest -D ExperimentalSubmit;
-    fi
   - cd ..
 after_script:
 - if [[ $TRIGGER_BB == TRUE ]]; then
@@ -129,6 +123,14 @@ after_script:
       mv /tmp/.travis.temp.yml .travis.yml;
       git reset --hard HEAD~;
   fi
+- cd build
+- if [[ $MEMCHECK == TRUE ]]; then
+     ctest -D ExperimentalMemCheck;
+  fi
+- if [[ $PUSH_TO_CDASH == TRUE ]]; then
+      ctest -D ExperimentalSubmit;
+  fi
+- cd ..
 - if [[ $BUILD_DOXYGEN == TRUE ]]; then
       sudo apt-get -qq install doxygen;
       script/doxygen.sh;

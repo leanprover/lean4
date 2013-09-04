@@ -23,12 +23,6 @@ script:
 - ctest -D ExperimentalConfigure
 - ctest -D ExperimentalBuild -VV
 - yes "C" | ctest -D ExperimentalTest -VV
-- if [[ $MEMCHECK == TRUE ]]; then
-     ctest -D ExperimentalMemCheck;
-  fi
-- if [[ $PUSH_TO_CDASH == TRUE ]]; then
-    ctest -D ExperimentalSubmit;
-  fi
 - cd ..
 
 after_script:
@@ -39,6 +33,14 @@ after_script:
       cp build/shell/lean ${UPLOAD_DIR}/${BINARY};
       script/dropbox_upload.py ${UPLOAD_DIR} /Public/${UPLOAD_DIR} ${DROPBOX_KEY};
   fi
+- cd build
+- if [[ $MEMCHECK == TRUE ]]; then
+     ctest -D ExperimentalMemCheck -VV;
+  fi
+- if [[ $PUSH_TO_CDASH == TRUE ]]; then
+    ctest -D ExperimentalSubmit;
+  fi
+- cd ..
 
 install:
 - if [[ $CMAKE_CXX_COMPILER == g++ ]]; then

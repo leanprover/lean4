@@ -20,3 +20,4 @@ set(CTEST_DROP_LOCATION "/CDash-2-0-2/submit.php?project=Lean")
 set(CTEST_DROP_SITE_CDASH TRUE)
 
 set(UPDATE_COMMAND "git")
+set(COVERAGE_COMMAND "gcov-4.8")

@@ -4,3 +4,8 @@
 SET(CTEST_CUSTOM_MEMCHECK_IGNORE ${CTEST_CUSTOM_MEMCHECK_IGNORE} "leantests")
 # Regular expression for excluding files from coverage testing
 SET(CTEST_CUSTOM_COVERAGE_EXCLUDE ${CTEST_CUSTOM_COVERAGE_EXCLUDE} "tests/*")
+
+# Suppress warnings from OSX/Travis
+SET(CTEST_CUSTOM_WARNING_EXCEPTION
+    ${CTEST_CUSTOM_WARNING_EXCEPTION}
+    "ld: warning: ignoring file /usr/local/lib/gcc/x86_64-apple-darwin12.4.0/4.9.0/libgcc.a.*")

@@ -56,6 +56,8 @@ static void tst1() {
         ts[i].join();
         std::cout << "finished " << i << "\n";
     }
+    #else
+    mk(a);
     #endif
 }
 

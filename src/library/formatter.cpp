@@ -44,15 +44,18 @@ format formatter::operator()(kernel_exception const & ex, options const & opts) 
                 format(_ex->get_name()), format("'")};
     } else if (app_type_mismatch_exception const * _ex = dynamic_cast<app_type_mismatch_exception const *>(&ex)) {
         unsigned indent = get_pp_indent(opts);
-        format app_f = operator()(_ex->get_context(), _ex->get_application(), false, opts);
+        context const & ctx = _ex->get_context();
+        expr const & app    = _ex->get_application();
+        format app_fmt      = operator()(ctx, app, false, opts);
         std::vector<expr> const & arg_types = _ex->get_arg_types();
         auto it = arg_types.begin();
-        format f_type_fmt = operator()(_ex->get_context(), *it, false, opts);
+        format f_type_fmt   = operator()(ctx, *it, false, opts);
         format arg_types_fmt;
         ++it;
-        for (; it != arg_types.end(); ++it) {
-            format arg_type_fmt = operator()(_ex->get_context(), *it, false, opts);
-            arg_types_fmt += nest(indent, compose(line(), arg_type_fmt));
+        for (unsigned i = 1; it != arg_types.end(); ++it, ++i) {
+            format arg_fmt      = operator()(ctx, arg(app, i), false, opts);
+            format arg_type_fmt = operator()(ctx, *it, false, opts);
+            arg_types_fmt += nest(indent, compose(line(), group(format{arg_fmt, space(), colon(), nest(indent, format{line(), arg_type_fmt})})));
         }
         format arg_type_msg;
         if (arg_types.size() > 2)
@@ -60,7 +63,7 @@ format formatter::operator()(kernel_exception const & ex, options const & opts) 
         else
             arg_type_msg = format("Argument type:");
         return format({format("type mismatch at application"),
-                    nest(indent, compose(line(), app_f)),
+                    nest(indent, compose(line(), app_fmt)),
                     line(), format("Function type:"),
                     nest(indent, compose(line(), f_type_fmt)),
                     line(), arg_type_msg,

@@ -9,9 +9,9 @@ Error (line: 5, pos: 6) type mismatch at application
 Function type:
     Π (A : Type) (_ _ : A), Bool
 Arguments types:
-    Type
-    Bool
-    T
+    Bool : Type
+    ⊤ : Bool
+    a : T
   Assumed: myeq2
   Set: lean::pp::implicit
 Error (line: 9, pos: 15) type mismatch at application
@@ -19,6 +19,6 @@ Error (line: 9, pos: 15) type mismatch at application
 Function type:
     Π (A : Type) (a b : A), Bool
 Arguments types:
-    Type
-    Bool
-    T
+    Bool : Type
+    ⊤ : Bool
+    a : T

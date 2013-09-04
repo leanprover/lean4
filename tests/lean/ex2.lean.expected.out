@@ -15,8 +15,8 @@ Error (line: 13, pos: 11) type mismatch at application
 Function type:
     Bool -> Bool -> Bool
 Arguments types:
-    Bool
-    Type
+    a : Bool
+    A : Type
 Variable A : Type
 (lean::pp::notation := false, pp::unicode := false, pp::colors := false)
 Error (line: 16, pos: 4) unknown option 'lean::p::notation', type 'Help Options.' for list of available options

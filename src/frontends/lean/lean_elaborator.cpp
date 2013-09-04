@@ -543,8 +543,8 @@ class elaborator::imp {
                     }
                 }
             } else if (is_type(lhs) && is_type(rhs)) {
+                // ignoring type universe levels. We let the kernel check that
                 delayed = 0;
-                return; // ignoring type universe levels. We let the kernel check that
             } else if (is_abstraction(lhs) && is_abstraction(rhs)) {
                 delayed = 0;
                 m_constraints.push_back(constraint(abst_domain(lhs), abst_domain(rhs), c));

@@ -47,6 +47,7 @@ void init_builtin_notation(frontend & f) {
     f.add_infixl("*", 70, mk_int_mul_fn());
     f.add_infixl("div", 70, mk_int_div_fn());
     f.add_infixl("mod", 70, mk_int_mod_fn());
+    f.add_infix("|", 50, mk_int_divides_fn());
     f.add_infix("<=", 50, mk_int_le_fn());
     f.add_infix("\u2264", 50, mk_int_le_fn());  // ≤
     f.add_infix(">=", 50, mk_int_ge_fn());

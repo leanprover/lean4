@@ -86,6 +86,9 @@ inline expr iDiv(expr const & e1, expr const & e2) { return mk_app(mk_int_div_fn
 expr mk_int_mod_fn();
 inline expr iMod(expr const & e1, expr const & e2) { return mk_app(mk_int_mod_fn(), e1, e2); }
 
+expr mk_int_divides_fn();
+inline expr iDivides(expr const & e1, expr const & e2) { return mk_app(mk_int_divides_fn(), e1, e2); }
+
 expr mk_int_le_fn();
 inline expr iLe(expr const & e1, expr const & e2) { return mk_app(mk_int_le_fn(), e1, e2); }
 

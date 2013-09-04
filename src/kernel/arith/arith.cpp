@@ -245,6 +245,7 @@ MK_BUILTIN(int_le_fn, int_le_value);
 MK_CONSTANT(int_sub_fn, name({"Int", "sub"}));
 MK_CONSTANT(int_neg_fn, name({"Int", "neg"}));
 MK_CONSTANT(int_mod_fn, name({"Int", "mod"}));
+MK_CONSTANT(int_divides_fn, name({"Int", "divides"}));
 MK_CONSTANT(int_ge_fn, name({"Int", "ge"}));
 MK_CONSTANT(int_lt_fn, name({"Int", "lt"}));
 MK_CONSTANT(int_gt_fn, name({"Int", "gt"}));
@@ -459,6 +460,7 @@ void add_arith_theory(environment & env) {
     env.add_definition(int_sub_fn_name, ii_i, Fun({{x, Int}, {y, Int}}, iAdd(x, iMul(mk_int_value(-1), y))));
     env.add_definition(int_neg_fn_name, i_i, Fun({x, Int}, iMul(mk_int_value(-1), x)));
     env.add_definition(int_mod_fn_name, ii_i, Fun({{x, Int}, {y, Int}}, iSub(x, iMul(y, iDiv(x, y)))));
+    env.add_definition(int_divides_fn_name, ii_b, Fun({{x, Int}, {y, Int}}, Eq(iMod(y, x), mk_int_value(0))));
     env.add_definition(int_ge_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, iLe(y, x)));
     env.add_definition(int_lt_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, Not(iLe(y, x))));
     env.add_definition(int_gt_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, Not(iLe(x, y))));

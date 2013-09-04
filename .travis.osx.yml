@@ -22,9 +22,9 @@ script:
 - cd build
 - ctest -D ExperimentalBuild
 - yes "C" | ctest -D ExperimentalTest -VV
- - if [[ $MEMCHECK == TRUE ]]; then
+- if [[ $MEMCHECK == TRUE ]]; then
        ctest -D ExperimentalMemCheck;
-   fi
+  fi
 - if [[ $PUSH_TO_CDASH == TRUE ]]; then
     ctest -D ExperimentalSubmit;
   fi

@@ -57,6 +57,7 @@ env:
 install:
   - until sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test; do echo retry; done
   - until sudo add-apt-repository --yes ppa:h-rayflood/llvm; do echo retry; done
+  - until sudo add-apt-repository --yes ppa:kalakris/cmake; do echo retry; done
   - until sudo apt-get -qq update; do echo retry; done
   - if [[ $USE_TCMALLOC == TRUE ]]; then until sudo add-apt-repository --yes ppa:agent-8131/ppa && sudo apt-get -qq update && sudo apt-get -qq install libgoogle-perftools-dev; do echo retry; done; fi
   - until sudo apt-get -qq install libgmp-dev libmpfr-dev; do echo retry; done
@@ -90,6 +91,7 @@ script:
     fi
   - if [[ $CMAKE_BUILD_TYPE == TESTCOV ]]; then
        ctest -D ExperimentalCoverage;
+    fi
   - if [[ $MEMCHECK == TRUE ]]; then
        ctest -D ExperimentalMemCheck;
     fi

@@ -128,6 +128,7 @@ MK_CONSTANT(nat_lt_fn, name({"Nat", "lt"}));
 MK_CONSTANT(nat_gt_fn, name({"Nat", "gt"}));
 MK_CONSTANT(nat_sub_fn, name({"Nat", "sub"}));
 MK_CONSTANT(nat_neg_fn, name({"Nat", "neg"}));
+MK_CONSTANT(nat_id_fn, name({"Nat", "id"}));
 // =======================================
 
 // =======================================
@@ -246,6 +247,7 @@ MK_CONSTANT(int_sub_fn, name({"Int", "sub"}));
 MK_CONSTANT(int_neg_fn, name({"Int", "neg"}));
 MK_CONSTANT(int_mod_fn, name({"Int", "mod"}));
 MK_CONSTANT(int_divides_fn, name({"Int", "divides"}));
+MK_CONSTANT(int_abs_fn, name({"Int", "abs"}));
 MK_CONSTANT(int_ge_fn, name({"Int", "ge"}));
 MK_CONSTANT(int_lt_fn, name({"Int", "lt"}));
 MK_CONSTANT(int_gt_fn, name({"Int", "gt"}));
@@ -365,6 +367,7 @@ MK_BUILTIN(real_le_fn, real_le_value);
 
 MK_CONSTANT(real_sub_fn, name({"Real", "sub"}));
 MK_CONSTANT(real_neg_fn, name({"Real", "neg"}));
+MK_CONSTANT(real_abs_fn, name({"Real", "abs"}));
 MK_CONSTANT(real_ge_fn, name({"Real", "ge"}));
 MK_CONSTANT(real_lt_fn, name({"Real", "lt"}));
 MK_CONSTANT(real_gt_fn, name({"Real", "gt"}));
@@ -456,20 +459,23 @@ void add_arith_theory(environment & env) {
     env.add_definition(nat_ge_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, nLe(y, x)));
     env.add_definition(nat_lt_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, Not(nLe(y, x))));
     env.add_definition(nat_gt_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, Not(nLe(x, y))));
+    env.add_definition(nat_id_fn_name, Nat >> Nat, Fun({x, Nat}, x));
 
-    env.add_definition(int_sub_fn_name, ii_i, Fun({{x, Int}, {y, Int}}, iAdd(x, iMul(mk_int_value(-1), y))));
-    env.add_definition(int_neg_fn_name, i_i, Fun({x, Int}, iMul(mk_int_value(-1), x)));
+    env.add_definition(int_sub_fn_name, ii_i, Fun({{x, Int}, {y, Int}}, iAdd(x, iMul(iVal(-1), y))));
+    env.add_definition(int_neg_fn_name, i_i, Fun({x, Int}, iMul(iVal(-1), x)));
     env.add_definition(int_mod_fn_name, ii_i, Fun({{x, Int}, {y, Int}}, iSub(x, iMul(y, iDiv(x, y)))));
-    env.add_definition(int_divides_fn_name, ii_b, Fun({{x, Int}, {y, Int}}, Eq(iMod(y, x), mk_int_value(0))));
+    env.add_definition(int_divides_fn_name, ii_b, Fun({{x, Int}, {y, Int}}, Eq(iMod(y, x), iVal(0))));
     env.add_definition(int_ge_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, iLe(y, x)));
     env.add_definition(int_lt_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, Not(iLe(y, x))));
     env.add_definition(int_gt_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, Not(iLe(x, y))));
+    env.add_definition(int_abs_fn_name, i_i, Fun({x, Int}, iIf(iLe(iVal(0), x), x, iNeg(x))));
 
     env.add_definition(nat_sub_fn_name, Nat >> (Nat >> Int), Fun({{x, Nat}, {y, Nat}}, iSub(n2i(x), n2i(y))));
     env.add_definition(nat_neg_fn_name, Nat >> Int, Fun({x, Nat}, iNeg(n2i(x))));
 
-    env.add_definition(real_sub_fn_name, rr_r, Fun({{x, Real}, {y, Real}}, rAdd(x, rMul(mk_real_value(-1), y))));
-    env.add_definition(real_neg_fn_name, r_r, Fun({x, Real}, rMul(mk_real_value(-1), x)));
+    env.add_definition(real_sub_fn_name, rr_r, Fun({{x, Real}, {y, Real}}, rAdd(x, rMul(rVal(-1), y))));
+    env.add_definition(real_neg_fn_name, r_r, Fun({x, Real}, rMul(rVal(-1), x)));
+    env.add_definition(real_abs_fn_name, r_r, Fun({x, Real}, rIf(rLe(rVal(0), x), x, rNeg(x))));
     env.add_definition(real_ge_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, rLe(y, x)));
     env.add_definition(real_lt_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, Not(rLe(y, x))));
     env.add_definition(real_gt_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, Not(rLe(x, y))));
@@ -480,20 +486,20 @@ void add_arith_theory(environment & env) {
     env.add_var(real_pi_name, Real);
     env.add_definition(name("pi"), Real, mk_real_pi()); // alias for pi
     env.add_var(sin_fn_name, r_r);
-    env.add_definition(cos_fn_name, r_r, Fun({x,Real}, Sin(rSub(x, rDiv(mk_real_pi(), mk_real_value(2))))));
+    env.add_definition(cos_fn_name, r_r, Fun({x,Real}, Sin(rSub(x, rDiv(mk_real_pi(), rVal(2))))));
     env.add_definition(tan_fn_name, r_r, Fun({x,Real}, rDiv(Sin(x), Cos(x))));
     env.add_definition(cot_fn_name, r_r, Fun({x,Real}, rDiv(Cos(x), Sin(x))));
-    env.add_definition(sec_fn_name, r_r, Fun({x,Real}, rDiv(mk_real_value(1), Cos(x))));
-    env.add_definition(csc_fn_name, r_r, Fun({x,Real}, rDiv(mk_real_value(1), Sin(x))));
+    env.add_definition(sec_fn_name, r_r, Fun({x,Real}, rDiv(rVal(1), Cos(x))));
+    env.add_definition(csc_fn_name, r_r, Fun({x,Real}, rDiv(rVal(1), Sin(x))));
 
-    env.add_definition(sinh_fn_name, r_r, Fun({x, Real}, rDiv(rSub(mk_real_value(1), Exp(rMul(mk_real_value(-2), x))),
-                                                              rMul(mk_real_value(2), Exp(rNeg(x))))));
-    env.add_definition(cosh_fn_name, r_r, Fun({x, Real}, rDiv(rAdd(mk_real_value(1), Exp(rMul(mk_real_value(-2), x))),
-                                                              rMul(mk_real_value(2), Exp(rNeg(x))))));
+    env.add_definition(sinh_fn_name, r_r, Fun({x, Real}, rDiv(rSub(rVal(1), Exp(rMul(rVal(-2), x))),
+                                                              rMul(rVal(2), Exp(rNeg(x))))));
+    env.add_definition(cosh_fn_name, r_r, Fun({x, Real}, rDiv(rAdd(rVal(1), Exp(rMul(rVal(-2), x))),
+                                                              rMul(rVal(2), Exp(rNeg(x))))));
     env.add_definition(tanh_fn_name, r_r, Fun({x,Real}, rDiv(Sinh(x), Cosh(x))));
     env.add_definition(coth_fn_name, r_r, Fun({x,Real}, rDiv(Cosh(x), Sinh(x))));
-    env.add_definition(sech_fn_name, r_r, Fun({x,Real}, rDiv(mk_real_value(1), Cosh(x))));
-    env.add_definition(csch_fn_name, r_r, Fun({x,Real}, rDiv(mk_real_value(1), Sinh(x))));
+    env.add_definition(sech_fn_name, r_r, Fun({x,Real}, rDiv(rVal(1), Cosh(x))));
+    env.add_definition(csch_fn_name, r_r, Fun({x,Real}, rDiv(rVal(1), Sinh(x))));
 
     env.add_definition(nat_to_real_fn_name, Nat >> Real, Fun({x, Nat}, i2r(n2i(x))));
 }

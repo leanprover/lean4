@@ -85,6 +85,10 @@ public:
     void add_mixfixr(unsigned sz, name const * opns, unsigned precedence, expr const & d);
     void add_mixfixc(unsigned sz, name const * opns, unsigned precedence, expr const & d);
     void add_mixfixo(unsigned sz, name const * opns, unsigned precedence, expr const & d);
+    void add_mixfixl(std::initializer_list<name> const & l, unsigned p, expr const & d) { add_mixfixl(l.size(), l.begin(), p, d); }
+    void add_mixfixr(std::initializer_list<name> const & l, unsigned p, expr const & d) { add_mixfixr(l.size(), l.begin(), p, d); }
+    void add_mixfixc(std::initializer_list<name> const & l, unsigned p, expr const & d) { add_mixfixc(l.size(), l.begin(), p, d); }
+    void add_mixfixo(std::initializer_list<name> const & l, unsigned p, expr const & d) { add_mixfixo(l.size(), l.begin(), p, d); }
     /**
         \brief Return the operator (if one exists) associated with the
         given expression.

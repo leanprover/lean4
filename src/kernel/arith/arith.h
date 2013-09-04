@@ -54,6 +54,9 @@ inline expr nLt(expr const & e1, expr const & e2) { return mk_app(mk_nat_lt_fn()
 expr mk_nat_gt_fn();
 inline expr nGt(expr const & e1, expr const & e2) { return mk_app(mk_nat_gt_fn(), e1, e2); }
 
+expr mk_nat_id_fn();
+inline expr nId(expr const & e) { return mk_app(mk_nat_id_fn(), e); }
+
 inline expr nIf(expr const & c, expr const & t, expr const & e) { return mk_if(Nat, c, t, e); }
 // =======================================
 
@@ -88,6 +91,9 @@ inline expr iMod(expr const & e1, expr const & e2) { return mk_app(mk_int_mod_fn
 
 expr mk_int_divides_fn();
 inline expr iDivides(expr const & e1, expr const & e2) { return mk_app(mk_int_divides_fn(), e1, e2); }
+
+expr mk_int_abs_fn();
+inline expr iAbs(expr const & e) { return mk_app(mk_int_abs_fn(), e); }
 
 expr mk_int_le_fn();
 inline expr iLe(expr const & e1, expr const & e2) { return mk_app(mk_int_le_fn(), e1, e2); }
@@ -129,6 +135,9 @@ inline expr rMul(expr const & e1, expr const & e2) { return mk_app(mk_real_mul_f
 
 expr mk_real_div_fn();
 inline expr rDiv(expr const & e1, expr const & e2) { return mk_app(mk_real_div_fn(), e1, e2); }
+
+expr mk_real_abs_fn();
+inline expr rAbs(expr const & e) { return mk_app(mk_real_abs_fn(), e); }
 
 expr mk_real_le_fn();
 inline expr rLe(expr const & e1, expr const & e2) { return mk_app(mk_real_le_fn(), e1, e2); }

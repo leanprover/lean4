@@ -648,8 +648,8 @@ class pp_fn {
         } else {
             // standard function application
             expr const & f  = app.get_function();
-            result p        = is_constant(f) ? mk_result(format(const_name(f)),1) : pp_child(f, depth);
-            bool simple     = is_constant(f) && const_name(f).size() <= m_indent + 4;
+            result p        = is_constant(f) && !is_metavar(f) ? mk_result(format(const_name(f)),1) : pp_child(f, depth);
+            bool simple     = is_constant(f) && !is_metavar(f) && const_name(f).size() <= m_indent + 4;
             unsigned indent = simple ? const_name(f).size()+1 : m_indent;
             format   r_format = p.first;
             unsigned r_weight = p.second;

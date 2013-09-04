@@ -1,7 +1,11 @@
 # Complete list of options is available at http://cmake.org/Wiki/CMake/Testing_With_CTest
 
 # List of tests to ignore during the MemCheck stage
-SET(CTEST_CUSTOM_MEMCHECK_IGNORE ${CTEST_CUSTOM_MEMCHECK_IGNORE} "leantests")
+SET(CTEST_CUSTOM_MEMCHECK_IGNORE ${CTEST_CUSTOM_MEMCHECK_IGNORE} 
+    "leantests"
+    "threads"
+    )
+    
 # Regular expression for excluding files from coverage testing
 SET(CTEST_CUSTOM_COVERAGE_EXCLUDE ${CTEST_CUSTOM_COVERAGE_EXCLUDE} "tests/*")
 

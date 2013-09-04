@@ -25,6 +25,7 @@ public:
     ~elaborator();
 
     expr operator()(expr const & e);
+    expr operator()(expr const & e, expr const & expected_type);
 
     /**
         \brief If \c e is an expression instantiated by the elaborator, then it

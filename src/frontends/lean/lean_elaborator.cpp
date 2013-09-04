@@ -570,8 +570,22 @@ class elaborator::imp {
                 } else if (is_simple_ho_match(new_rhs, new_lhs, c.m_ctx)) {
                     delayed = 0;
                     unify_simple_ho_match(new_rhs, new_lhs, c);
+                } else if (has_assigned_metavar(new_lhs)) {
+                    delayed = 0;
+                    m_constraints.push_back(constraint(instantiate(new_lhs), new_rhs, c));
+                } else if (has_assigned_metavar(new_rhs)) {
+                    delayed = 0;
+                    m_constraints.push_back(constraint(new_lhs, instantiate(new_rhs), c));
                 } else {
-                    throw_unification_exception(c);
+                    m_constraints.push_back(c);
+                    if (delayed == 0) {
+                        last_num_constraints = m_constraints.size();
+                        delayed++;
+                    } else if (delayed > last_num_constraints) {
+                        throw_unification_exception(c);
+                    } else {
+                        delayed++;
+                    }
                 }
             }
         }
@@ -700,12 +714,18 @@ public:
         return m_env;
     }
 
-    expr operator()(expr const & e, elaborator const & elb) {
+    expr operator()(expr const & e, expr const & expected_type, elaborator const & elb) {
         m_constraints.clear();
         m_metavars.clear();
         m_owner = &elb;
         m_processing_root = true;
-        m_root = process(e, context()).first;
+        auto p = process(e, context());
+        m_root = p.first;
+        expr given_type = p.second;
+        if (expected_type) {
+            if (has_metavar(given_type))
+                m_constraints.push_back(constraint(expected_type, given_type, context(), e, context(), static_cast<unsigned>(-1)));
+        }
         if (has_metavar(m_root)) {
             solve();
             return instantiate(m_root);
@@ -738,7 +758,8 @@ public:
 };
 elaborator::elaborator(frontend const & fe):m_ptr(new imp(fe, nullptr)) {}
 elaborator::~elaborator() {}
-expr elaborator::operator()(expr const & e) { return (*m_ptr)(e, *this); }
+expr elaborator::operator()(expr const & e) { return (*m_ptr)(e, expr(), *this); }
+expr elaborator::operator()(expr const & e, expr const & expected_type) { return (*m_ptr)(e, expected_type, *this); }
 expr const & elaborator::get_original(expr const & e) const { return m_ptr->get_original(e); }
 void elaborator::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
 void elaborator::clear() { m_ptr->clear(); }

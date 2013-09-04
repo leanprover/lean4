@@ -382,7 +382,7 @@ class parser::imp {
        \brief Return the function associated with the given operator.
        If the operator has been overloaded, it returns a choice expression
        of the form <tt>(choice f_1 f_2 ... f_k)</tt> where f_i's are different options.
-       After we finish parsing, the procedure #elaborate will
+       After we finish parsing, the elaborator
        resolve/decide which f_i should be used.
     */
     expr mk_fun(operator_info const & op) {
@@ -1009,10 +1009,6 @@ class parser::imp {
     }
     /*@}*/
 
-    expr elaborate(expr const & e) {
-        return m_elaborator(e);
-    }
-
     /**
        @name Parse Commands
     */
@@ -1043,9 +1039,9 @@ class parser::imp {
         buffer<std::tuple<pos_info, name, expr,bool>> bindings;
         if (curr_is_colon()) {
             next();
-            type = elaborate(parse_expr());
+            type = m_elaborator(parse_expr());
             check_assign_next("invalid definition, ':=' expected");
-            val  = elaborate(parse_expr());
+            val  = m_elaborator(parse_expr(), type);
         } else {
             mk_scope scope(*this);
             parse_object_bindings(bindings);
@@ -1053,8 +1049,8 @@ class parser::imp {
             expr type_body = parse_expr();
             check_assign_next("invalid definition, ':=' expected");
             expr val_body  = parse_expr();
-            type = elaborate(mk_abstraction(false, bindings, type_body));
-            val  = elaborate(mk_abstraction(true, bindings, val_body));
+            type = m_elaborator(mk_abstraction(false, bindings, type_body));
+            val  = m_elaborator(mk_abstraction(true, bindings, val_body), type);
         }
         if (is_definition) {
             m_frontend.add_definition(id, type, val);
@@ -1098,13 +1094,13 @@ class parser::imp {
         expr type;
         if (curr_is_colon()) {
             next();
-            type = elaborate(parse_expr());
+            type = m_elaborator(parse_expr());
         } else {
             mk_scope scope(*this);
             parse_object_bindings(bindings);
             check_colon_next("invalid variable/axiom declaration, ':' expected");
             expr type_body = parse_expr();
-            type = elaborate(mk_abstraction(false, bindings, type_body));
+            type = m_elaborator(mk_abstraction(false, bindings, type_body));
         }
         if (is_var)
             m_frontend.add_var(id, type);
@@ -1138,7 +1134,7 @@ class parser::imp {
     /** \brief Parse 'Eval' expr */
     void parse_eval() {
         next();
-        expr v = elaborate(parse_expr());
+        expr v = m_elaborator(parse_expr());
         normalizer norm(m_frontend);
         scoped_set_interruptable_ptr<normalizer> set(m_normalizer, &norm);
         expr r = norm(v);
@@ -1177,7 +1173,7 @@ class parser::imp {
                 throw parser_error("invalid Show command, expression, 'Options' or 'Environment' expected", m_last_cmd_pos);
             }
         } else {
-            expr v = elaborate(parse_expr());
+            expr v = m_elaborator(parse_expr());
             regular(m_frontend) << v << endl;
         }
     }
@@ -1185,7 +1181,7 @@ class parser::imp {
     /** \brief Parse 'Check' expr */
     void parse_check() {
         next();
-        expr v = elaborate(parse_expr());
+        expr v = m_elaborator(parse_expr());
         expr t = infer_type(v, m_frontend);
         regular(m_frontend) << t << endl;
     }
@@ -1570,7 +1566,7 @@ public:
     /** \brief Parse an expression. */
     expr parse_expr_main() {
         try {
-            return elaborate(parse_expr());
+            return m_elaborator(parse_expr());
         } catch (parser_error & ex) {
             throw parser_exception(ex.what(), ex.m_pos.first, ex.m_pos.second);
         }

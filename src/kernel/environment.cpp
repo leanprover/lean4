@@ -235,11 +235,17 @@ struct environment::imp {
     }
 
     /** \brief Add a new builtin value to this environment */
-    void add_builtin(expr const & n, environment const & env) {
-        if (!is_value(n))
-            throw invalid_builtin_value_declaration(env, n);
-        check_name(to_value(n).get_name(), env);
-        register_named_object(mk_builtin(n));
+    void add_builtin(expr const & v, environment const & env) {
+        if (!is_value(v))
+            throw invalid_builtin_value_declaration(env, v);
+        name const & n = to_value(v).get_name();
+        check_name(n, env);
+        name const & u = to_value(v).get_unicode_name();
+        check_name(u, env);
+        register_named_object(mk_builtin(v));
+        if (u != n) {
+            add_definition(u, to_value(v).get_type(), mk_constant(n), false, env);
+        }
     }
 
     /** \brief Add a new builtin value set to this environment */

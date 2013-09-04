@@ -33,6 +33,7 @@ public:
     }
     virtual void display(std::ostream & out) const { out << m_val; }
     virtual format pp() const { return format(m_val); }
+    virtual format pp(bool unicode) const { return pp(); }
     virtual unsigned hash() const { return m_val.hash(); }
     mpz const & get_num() const { return m_val; }
 };
@@ -118,6 +119,7 @@ public:
     }
     virtual void display(std::ostream & out) const { out << m_val; }
     virtual format pp() const { return format(m_val); }
+    virtual format pp(bool unicode) const { return pp(); }
     virtual unsigned hash() const { return m_val.hash(); }
     mpz const & get_num() const { return m_val; }
 };
@@ -217,6 +219,7 @@ public:
     }
     virtual void display(std::ostream & out) const { out << m_val; }
     virtual format pp() const { return format(m_val); }
+    virtual format pp(bool unicode) const { return pp(); }
     virtual unsigned hash() const { return m_val.hash(); }
     mpq const & get_num() const { return m_val; }
 };

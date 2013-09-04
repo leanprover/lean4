@@ -70,14 +70,10 @@ expr mk_bool_type() { return Bool; }
 
 // =======================================
 // Boolean values True and False
-static char const * g_true_u_str  = "\u22A4";
-static char const * g_false_u_str = "\u22A5";
-static format g_true_u_fmt(g_true_u_str);
-static format g_false_u_fmt(g_false_u_str);
 static name g_true_name("true");
 static name g_false_name("false");
-static format g_true_fmt(g_true_name);
-static format g_false_fmt(g_false_name);
+static name g_true_u_name("\u22A4"); // ⊤
+static name g_false_u_name("\u22A5"); // ⊥
 class bool_value_value : public value {
     bool m_val;
 public:
@@ -85,17 +81,11 @@ public:
     virtual ~bool_value_value() {}
     virtual expr get_type() const { return Bool; }
     virtual name get_name() const { return m_val ? g_true_name : g_false_name; }
+    virtual name get_unicode_name() const { return m_val ? g_true_u_name : g_false_u_name; }
     virtual bool operator==(value const & other) const {
         bool_value_value const * _other = dynamic_cast<bool_value_value const*>(&other);
         return _other && _other->m_val == m_val;
     }
-    virtual format pp(bool unicode) const {
-        if (unicode)
-            return m_val ? g_true_u_fmt : g_false_u_fmt;
-        else
-            return m_val ? g_true_fmt : g_false_fmt;
-    }
-    virtual format pp() const { return pp(true); }
     bool get_val() const { return m_val; }
 };
 expr const True  = mk_value(*(new bool_value_value(true)));

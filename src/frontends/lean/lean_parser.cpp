@@ -119,7 +119,6 @@ class parser::imp {
     bool           m_found_errors;
     local_decls    m_local_decls;
     unsigned       m_num_local_decls;
-    builtins       m_builtins;
     expr_pos_info  m_expr_pos_info;
     pos_info       m_last_cmd_pos;
     // Reference to temporary parser used to process import command.
@@ -244,12 +243,6 @@ class parser::imp {
         std::string r = curr_string();
         next();
         return r;
-    }
-
-    /** \brief Initialize \c m_builtins table with Lean builtin symbols that do not have notation associated with them. */
-    void init_builtins() {
-        m_builtins["\u22A4"] = True;
-        m_builtins["\u22A5"] = False;
     }
 
     unsigned parse_unsigned(char const * msg) {
@@ -577,12 +570,7 @@ class parser::imp {
             }
         }
         else {
-            auto it = m_builtins.find(id);
-            if (it != m_builtins.end()) {
-                return it->second;
-            } else {
-                throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
-            }
+            throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
         }
     }
 
@@ -1497,7 +1485,6 @@ public:
         m_found_errors = false;
         m_num_local_decls = 0;
         m_scanner.set_command_keywords(g_command_keywords);
-        init_builtins();
         scan();
     }
 

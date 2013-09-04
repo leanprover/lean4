@@ -205,6 +205,7 @@ public:
     virtual ~value() {}
     virtual expr get_type() const = 0;
     virtual name get_name() const = 0;
+    virtual name get_unicode_name() const;
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const;
     virtual bool operator==(value const & other) const;
     virtual void display(std::ostream & out) const;

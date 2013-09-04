@@ -1,7 +1,7 @@
   Set: pp::colors
   Set: pp::unicode
-Int → Int → Int
+ℤ → ℤ → ℤ
   Assumed: f
 f 0
-Int → Int
-Int
+ℤ → ℤ
+ℤ

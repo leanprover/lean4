@@ -2,11 +2,11 @@
   Set: pp::unicode
 Error (line: 1, pos: 10) application type mismatch, none of the overloads can be used
 Candidates:
-    Real::add : Real → Real → Real
-    Int::add : Int → Int → Int
-    Nat::add : Nat → Nat → Nat
+    Real::add : ℝ → ℝ → ℝ
+    Int::add : ℤ → ℤ → ℤ
+    Nat::add : ℕ → ℕ → ℕ
 Arguments:
-    1 : Nat
+    1 : ℕ
     ⊤ : Bool
   Assumed: R
   Assumed: T

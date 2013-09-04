@@ -1,11 +1,11 @@
   Set: pp::colors
   Set: pp::unicode
-Nat
-Nat
-Int
+ℕ
+ℕ
+ℤ
 -10
 5
-Int
+ℤ
   Assumed: x
   Assumed: n
   Assumed: m

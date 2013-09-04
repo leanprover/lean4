@@ -1,30 +1,30 @@
   Set: pp::colors
   Set: pp::unicode
   Assumed: f
-∀ a : Int, (f a a) > 0
-∀ a b : Int, (f a b) > 0
+∀ a : ℤ, (f a a) > 0
+∀ a b : ℤ, (f a b) > 0
   Assumed: g
-∀ (a : Int) (b : Real), (g a b) > 0
-∀ a b : Int, (g a (f a b)) > 0
+∀ (a : ℤ) (b : ℝ), (g a b) > 0
+∀ a b : ℤ, (g a (f a b)) > 0
   Set: lean::pp::coercion
-∀ a b : Int, (g a (int_to_real (f a b))) > (nat_to_int 0)
-λ a : Nat, a + 1
+∀ a b : ℤ, (g a (int_to_real (f a b))) > (nat_to_int 0)
+λ a : ℕ, a + 1
 Error (line: 10, pos: 18) ambiguous overloads
 Candidates:
-    Real::add : Real → Real → Real
-    Int::add : Int → Int → Int
-    Nat::add : Nat → Nat → Nat
+    Real::add : ℝ → ℝ → ℝ
+    Int::add : ℤ → ℤ → ℤ
+    Nat::add : ℕ → ℕ → ℕ
 Arguments:
     a : lift:0:2 ?M0
     b : lift:0:1 ?M2
-λ a b c : Int, a + c + b
+λ a b c : ℤ, a + c + b
 Error (line: 17, pos: 19) ambiguous overloads
 Candidates:
-    Real::add : Real → Real → Real
-    Int::add : Int → Int → Int
-    Nat::add : Nat → Nat → Nat
+    Real::add : ℝ → ℝ → ℝ
+    Int::add : ℤ → ℤ → ℤ
+    Nat::add : ℕ → ℕ → ℕ
 Arguments:
     a : lift:0:2 ?M0
     b : lift:0:1 ?M2
   Assumed: x
-λ a b : Int, a + x + b
+λ a b : ℤ, a + x + b

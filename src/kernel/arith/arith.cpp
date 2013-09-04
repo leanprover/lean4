@@ -11,11 +11,19 @@ Author: Leonardo de Moura
 #include "environment.h"
 
 namespace lean {
+class num_type_value : public type_value {
+    name m_unicode;
+public:
+    num_type_value(name const & n, name const & u):type_value(n), m_unicode(u) {}
+    virtual ~num_type_value() {}
+    virtual name get_unicode_name() const { return m_unicode; }
+};
+
 // =======================================
 // Natural numbers
-class nat_type_value : public type_value {
+class nat_type_value : public num_type_value {
 public:
-    nat_type_value():type_value("Nat") {}
+    nat_type_value():num_type_value("Nat", "\u2115") /* ℕ */ {}
 };
 expr const Nat = mk_value(*(new nat_type_value()));
 expr mk_nat_type() { return Nat; }
@@ -99,9 +107,9 @@ MK_CONSTANT(nat_id_fn, name({"Nat", "id"}));
 
 // =======================================
 // Integers
-class int_type_value : public type_value {
+class int_type_value : public num_type_value {
 public:
-    int_type_value():type_value("Int") {}
+    int_type_value():num_type_value("Int", "\u2124") /* ℤ */ {}
 };
 expr const Int = mk_value(*(new int_type_value()));
 expr mk_int_type() { return Int; }
@@ -199,9 +207,9 @@ MK_CONSTANT(int_gt_fn, name({"Int", "gt"}));
 
 // =======================================
 // Reals
-class real_type_value : public type_value {
+class real_type_value : public num_type_value {
 public:
-    real_type_value():type_value("Real") {}
+    real_type_value():num_type_value("Real", "\u211D") /* ℝ */ {}
 };
 expr const Real = mk_value(*(new real_type_value()));
 expr mk_real_type() { return Real; }

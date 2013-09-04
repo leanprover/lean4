@@ -80,33 +80,33 @@ expr_eq::expr_eq(expr const & lhs, expr const & rhs):
     m_lhs(lhs),
     m_rhs(rhs) {
 }
-expr_eq::~expr_eq() {
-}
+expr_eq::~expr_eq() {}
 expr_abstraction::expr_abstraction(expr_kind k, name const & n, expr const & t, expr const & b):
     expr_cell(k, ::lean::hash(t.hash(), b.hash())),
     m_name(n),
     m_domain(t),
     m_body(b) {
 }
-expr_lambda::expr_lambda(name const & n, expr const & t, expr const & e):
-    expr_abstraction(expr_kind::Lambda, n, t, e) {}
-expr_pi::expr_pi(name const & n, expr const & t, expr const & e):
-    expr_abstraction(expr_kind::Pi, n, t, e) {}
-
+expr_lambda::expr_lambda(name const & n, expr const & t, expr const & e):expr_abstraction(expr_kind::Lambda, n, t, e) {}
+expr_pi::expr_pi(name const & n, expr const & t, expr const & e):expr_abstraction(expr_kind::Pi, n, t, e) {}
 expr_type::expr_type(level const & l):
     expr_cell(expr_kind::Type, l.hash()),
     m_level(l) {
 }
-expr_type::~expr_type() {
-}
+expr_type::~expr_type() {}
 expr_let::expr_let(name const & n, expr const & v, expr const & b):
     expr_cell(expr_kind::Let, ::lean::hash(v.hash(), b.hash())),
     m_name(n),
     m_value(v),
     m_body(b) {
 }
-expr_let::~expr_let() {
-}
+expr_let::~expr_let() {}
+bool value::normalize(unsigned num_args, expr const * args, expr & r) const { return false; }
+void value::display(std::ostream & out) const { out << get_name(); }
+bool value::operator==(value const & other) const { return typeid(*this) == typeid(other); }
+format value::pp() const { return format(get_name()); }
+format value::pp(bool unicode) const { return pp(); }
+unsigned value::hash() const { return get_name().hash(); }
 expr_value::expr_value(value & v):
     expr_cell(expr_kind::Value, v.hash()),
     m_val(v) {

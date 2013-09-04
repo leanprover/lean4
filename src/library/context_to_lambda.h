@@ -23,14 +23,12 @@ namespace lean {
    value V_i, then we just use (fake T_i).
 */
 expr context_to_lambda(context const & c, expr const & e);
-
 /**
    \brief Return true if \c e is a fake context created using
    context_to_lambda.
    (lambda (n_1 : (fake T_1 V_1)) ... (lambda (n_k : (fake T_k V_k)) e))
 */
 bool is_fake_context(expr const & e);
-
 /**
    \brief Return the name n_1 of the head of the (fake) context
    (lambda (n_1 : (fake T_1 V_1)) ... (lambda (n_k : (fake T_k V_k)) e))
@@ -38,7 +36,6 @@ bool is_fake_context(expr const & e);
    \pre is_fake_context(e)
 */
 name const & fake_context_name(expr const & e);
-
 /**
    \brief Return the domain T_1 of the head of the (fake) context
    (lambda (n_1 : (fake T_1 V_1)) ... (lambda (n_k : (fake T_k V_k)) e))
@@ -46,7 +43,6 @@ name const & fake_context_name(expr const & e);
    \pre is_fake_context(e)
 */
 expr const & fake_context_domain(expr const & e);
-
 /**
    \brief Return the value V_1 of the head of the (fake) context
    (lambda (n_1 : (fake T_1 V_1)) ... (lambda (n_k : (fake T_k V_k)) e))

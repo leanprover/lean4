@@ -21,6 +21,10 @@ bool is_atomic(expr const & e) {
     return false;
 }
 
+/**
+   \brief Very basic printer for expressions.
+   It is mainly used when debugging code.
+*/
 struct print_expr_fn {
     std::ostream & m_out;
 

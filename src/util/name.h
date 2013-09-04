@@ -26,6 +26,11 @@ public:
     name(name const & prefix, unsigned k);
     name(name const & other);
     name(name && other);
+    /**
+       \brief Create a hierarchical name using the given strings.
+       Example: <code>name{"foo", "bla", "tst"}</code> creates the hierarchical
+       name <tt>foo::bla::tst</tt>.
+    */
     name(std::initializer_list<char const *> const & l);
     ~name();
     static name const & anonymous();
@@ -37,7 +42,9 @@ public:
     friend bool operator!=(name const & a, name const & b) { return !(a == b); }
     friend bool operator==(name const & a, char const * b);
     friend bool operator!=(name const & a, char const * b) { return !(a == b); }
-    // total order on hierarchical names.
+    /**
+        \brief Total order on hierarchical names.
+    */
     friend int cmp(name const & a, name const & b) { return cmp(a.m_ptr, b.m_ptr); }
     friend bool operator<(name const & a, name const & b) { return cmp(a, b) < 0; }
     friend bool operator>(name const & a, name const & b) { return cmp(a, b) > 0; }
@@ -48,12 +55,18 @@ public:
     bool is_string() const    { return kind() == name_kind::STRING; }
     bool is_numeral() const   { return kind() == name_kind::NUMERAL; }
     unsigned get_numeral() const;
+    /**
+       \brief If the tail of the given hierarchical name is a string, then it returns this string.
+       \pre is_string()
+    */
     char const * get_string() const;
     bool is_atomic() const;
-    name get_prefix() const;
     /**
-       \brief Convert this hierarchical name into a string.
+        \brief Return the prefix of a hierarchical name
+        \pre !is_atomic()
     */
+    name get_prefix() const;
+    /** \brief Convert this hierarchical name into a string. */
     std::string to_string() const;
     /** \brief Size of the this name (in characters). */
     size_t size() const;

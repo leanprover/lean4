@@ -204,12 +204,13 @@ public:
     value():m_rc(0) {}
     virtual ~value() {}
     virtual expr get_type() const = 0;
-    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const = 0;
-    virtual bool operator==(value const & other) const = 0;
-    virtual void display(std::ostream & out) const = 0;
-    virtual format pp() const = 0;
-    virtual format pp(bool unicode) const { return pp(); }
-    virtual unsigned hash() const = 0;
+    virtual name get_name() const = 0;
+    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const;
+    virtual bool operator==(value const & other) const;
+    virtual void display(std::ostream & out) const;
+    virtual format pp() const;
+    virtual format pp(bool unicode) const;
+    virtual unsigned hash() const;
 };
 /** \brief Semantic attachments */
 class expr_value : public expr_cell {
@@ -222,7 +223,6 @@ public:
     value const & get_value() const { return m_val; }
 };
 // =======================================
-
 
 // =======================================
 // Testers

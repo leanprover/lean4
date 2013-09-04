@@ -63,10 +63,13 @@ inline bool is_uvar(level const & l) { return kind(l) == level_kind::UVar;  }
 inline bool is_lift(level const & l) { return kind(l) == level_kind::Lift; }
 inline bool is_max (level const & l) { return kind(l) == level_kind::Max;  }
 
+/** \brief Return a */
 inline level const * max_begin_levels(level const & l) { return &max_level(l, 0); }
 inline level const * max_end_levels(level const & l)   { return max_begin_levels(l) + max_size(l); }
 
+/** \brief Pretty print the given level expression, unicode characters are used if \c unicode is \c true. */
 format pp(level const & l, bool unicode);
+/** \brief Pretty print the given level expression using the given configuration options. */
 format pp(level const & l, options const & opts = options());
 }
 void print(lean::level const & l);

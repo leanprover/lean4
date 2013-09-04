@@ -63,11 +63,7 @@ class bool_type_value : public value {
 public:
     virtual ~bool_type_value() {}
     virtual expr get_type() const { return Type(); }
-    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const { return false; }
-    virtual bool operator==(value const & other) const { return dynamic_cast<bool_type_value const*>(&other) != nullptr; }
-    virtual void display(std::ostream & out) const { out << g_Bool_name; }
-    virtual format pp() const { return g_Bool_fmt; }
-    virtual unsigned hash() const { return g_Bool_name.hash(); }
+    virtual name get_name() const { return g_Bool_name; }
 };
 expr const Bool = mk_value(*(new bool_type_value()));
 expr mk_bool_type() { return Bool; }
@@ -79,22 +75,21 @@ static char const * g_true_u_str  = "\u22A4";
 static char const * g_false_u_str = "\u22A5";
 static format g_true_u_fmt(g_true_u_str);
 static format g_false_u_fmt(g_false_u_str);
-static char const * g_true_str  = "true";
-static char const * g_false_str = "false";
-static format g_true_fmt(g_true_str);
-static format g_false_fmt(g_false_str);
+static name g_true_name("true");
+static name g_false_name("false");
+static format g_true_fmt(g_true_name);
+static format g_false_fmt(g_false_name);
 class bool_value_value : public value {
     bool m_val;
 public:
     bool_value_value(bool v):m_val(v) {}
     virtual ~bool_value_value() {}
     virtual expr get_type() const { return Bool; }
-    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const { return false; }
+    virtual name get_name() const { return m_val ? g_true_name : g_false_name; }
     virtual bool operator==(value const & other) const {
         bool_value_value const * _other = dynamic_cast<bool_value_value const*>(&other);
         return _other && _other->m_val == m_val;
     }
-    virtual void display(std::ostream & out) const { out << (m_val ? g_true_str : g_false_str); }
     virtual format pp(bool unicode) const {
         if (unicode)
             return m_val ? g_true_u_fmt : g_false_u_fmt;
@@ -102,7 +97,6 @@ public:
             return m_val ? g_true_fmt : g_false_fmt;
     }
     virtual format pp() const { return pp(true); }
-    virtual unsigned hash() const { return m_val ? 3 : 5; }
     bool get_val() const { return m_val; }
 };
 expr const True  = mk_value(*(new bool_value_value(true)));
@@ -139,6 +133,7 @@ public:
     }
     virtual ~ite_fn_value() {}
     virtual expr get_type() const { return m_type; }
+    virtual name get_name() const { return g_ite_name; }
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
         if (num_args == 5 && is_bool_value(args[2])) {
             if (to_bool(args[2]))
@@ -153,10 +148,6 @@ public:
             return false;
         }
     }
-    virtual bool operator==(value const & other) const { return dynamic_cast<ite_fn_value const*>(&other) != nullptr; }
-    virtual void display(std::ostream & out) const { out << g_ite_name; }
-    virtual format pp() const { return g_ite_fmt; }
-    virtual unsigned hash() const { return g_ite_name.hash(); }
 };
 MK_BUILTIN(ite_fn, ite_fn_value);
 // =======================================

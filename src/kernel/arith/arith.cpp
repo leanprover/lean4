@@ -7,28 +7,15 @@ Author: Leonardo de Moura
 #include "builtin.h"
 #include "arith.h"
 #include "abstract.h"
+#include "value.h"
 #include "environment.h"
 
 namespace lean {
-/** \brief Base class for Nat, Int and Real types */
-class num_type_value : public value {
-    name m_name;
-public:
-    num_type_value(char const * name):m_name(name) {}
-    virtual ~num_type_value() {}
-    virtual expr get_type() const { return Type(); }
-    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const { return false; }
-    virtual void display(std::ostream & out) const { out << m_name; }
-    virtual format pp() const { return format(m_name); }
-    virtual unsigned hash() const { return m_name.hash(); }
-};
-
 // =======================================
 // Natural numbers
-class nat_type_value : public num_type_value {
+class nat_type_value : public type_value {
 public:
-    nat_type_value():num_type_value("Nat") {}
-    virtual bool operator==(value const & other) const { return dynamic_cast<nat_type_value const*>(&other) != nullptr; }
+    nat_type_value():type_value("Nat") {}
 };
 expr const Nat = mk_value(*(new nat_type_value()));
 expr mk_nat_type() { return Nat; }
@@ -39,7 +26,7 @@ public:
     nat_value_value(mpz const & v):m_val(v) { lean_assert(v >= 0); }
     virtual ~nat_value_value() {}
     virtual expr get_type() const { return Nat; }
-    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const { return false; }
+    virtual name get_name() const { return name{"Nat", "numeral"}; }
     virtual bool operator==(value const & other) const {
         nat_value_value const * _other = dynamic_cast<nat_value_value const*>(&other);
         return _other && _other->m_val == m_val;
@@ -64,17 +51,9 @@ mpz const & nat_value_numeral(expr const & e) {
 }
 
 template<char const * Name, typename F>
-class nat_bin_op : public value {
-    expr     m_type;
-    name     m_name;
+class nat_bin_op : public const_value {
 public:
-    nat_bin_op() {
-        m_type = Nat >> (Nat >> Nat);
-        m_name = name("Nat", Name);
-    }
-    virtual ~nat_bin_op() {}
-    virtual expr get_type() const { return m_type; }
-    virtual bool operator==(value const & other) const { return dynamic_cast<nat_bin_op const*>(&other) != nullptr; }
+    nat_bin_op():const_value(name("Nat", Name), Nat >> (Nat >> Nat)) {}
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
         if (num_args == 3 && is_nat_value(args[1]) && is_nat_value(args[2])) {
             r = mk_nat_value(F()(nat_value_numeral(args[1]), nat_value_numeral(args[2])));
@@ -83,9 +62,6 @@ public:
             return false;
         }
     }
-    virtual void display(std::ostream & out) const { out << m_name; }
-    virtual format pp() const { return format(m_name); }
-    virtual unsigned hash() const { return m_name.hash(); }
 };
 
 constexpr char nat_add_name[] = "add";
@@ -98,17 +74,9 @@ struct nat_mul_eval { mpz operator()(mpz const & v1, mpz const & v2) { return v1
 typedef nat_bin_op<nat_mul_name, nat_mul_eval> nat_mul_value;
 MK_BUILTIN(nat_mul_fn, nat_mul_value);
 
-class nat_le_value : public value {
-    expr m_type;
-    name m_name;
+class nat_le_value : public const_value {
 public:
-    nat_le_value() {
-        m_type = Nat >> (Nat >> Bool);
-        m_name = name{"Nat", "le"};
-    }
-    virtual ~nat_le_value() {}
-    virtual expr get_type() const { return m_type; }
-    virtual bool operator==(value const & other) const { return dynamic_cast<nat_le_value const*>(&other) != nullptr; }
+    nat_le_value():const_value(name{"Nat", "le"}, Nat >> (Nat >> Bool)) {}
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
         if (num_args == 3 && is_nat_value(args[1]) && is_nat_value(args[2])) {
             r = mk_bool_value(nat_value_numeral(args[1]) <= nat_value_numeral(args[2]));
@@ -117,9 +85,6 @@ public:
             return false;
         }
     }
-    virtual void display(std::ostream & out) const { out << m_name; }
-    virtual format pp() const { return format(m_name); }
-    virtual unsigned hash() const { return m_name.hash(); }
 };
 MK_BUILTIN(nat_le_fn, nat_le_value);
 
@@ -133,10 +98,9 @@ MK_CONSTANT(nat_id_fn, name({"Nat", "id"}));
 
 // =======================================
 // Integers
-class int_type_value : public num_type_value {
+class int_type_value : public type_value {
 public:
-    int_type_value():num_type_value("Int") {}
-    virtual bool operator==(value const & other) const { return dynamic_cast<int_type_value const*>(&other) != nullptr; }
+    int_type_value():type_value("Int") {}
 };
 expr const Int = mk_value(*(new int_type_value()));
 expr mk_int_type() { return Int; }
@@ -147,7 +111,7 @@ public:
     int_value_value(mpz const & v):m_val(v) {}
     virtual ~int_value_value() {}
     virtual expr get_type() const { return Int; }
-    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const { return false; }
+    virtual name get_name() const { return name{"Int", "numeral"}; }
     virtual bool operator==(value const & other) const {
         int_value_value const * _other = dynamic_cast<int_value_value const*>(&other);
         return _other && _other->m_val == m_val;
@@ -172,17 +136,9 @@ mpz const & int_value_numeral(expr const & e) {
 }
 
 template<char const * Name, typename F>
-class int_bin_op : public value {
-    expr     m_type;
-    name     m_name;
+class int_bin_op : public const_value {
 public:
-    int_bin_op() {
-        m_type = Int >> (Int >> Int);
-        m_name = name("Int", Name);
-    }
-    virtual ~int_bin_op() {}
-    virtual expr get_type() const { return m_type; }
-    virtual bool operator==(value const & other) const { return dynamic_cast<int_bin_op const*>(&other) != nullptr; }
+    int_bin_op():const_value(name("Int", Name), Int >> (Int >> Int)) {}
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
         if (num_args == 3 && is_int_value(args[1]) && is_int_value(args[2])) {
             r = mk_int_value(F()(int_value_numeral(args[1]), int_value_numeral(args[2])));
@@ -191,9 +147,6 @@ public:
             return false;
         }
     }
-    virtual void display(std::ostream & out) const { out << m_name; }
-    virtual format pp() const { return format(m_name); }
-    virtual unsigned hash() const { return m_name.hash(); }
 };
 
 constexpr char int_add_name[] = "add";
@@ -218,17 +171,9 @@ struct int_div_eval {
 typedef int_bin_op<int_div_name, int_div_eval> int_div_value;
 MK_BUILTIN(int_div_fn, int_div_value);
 
-class int_le_value : public value {
-    expr m_type;
-    name m_name;
+class int_le_value : public const_value {
 public:
-    int_le_value() {
-        m_type = Int >> (Int >> Bool);
-        m_name = name{"Int", "le"};
-    }
-    virtual ~int_le_value() {}
-    virtual expr get_type() const { return m_type; }
-    virtual bool operator==(value const & other) const { return dynamic_cast<int_le_value const*>(&other) != nullptr; }
+    int_le_value():const_value(name{"Int", "le"}, Int >> (Int >> Bool)) {}
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
         if (num_args == 3 && is_int_value(args[1]) && is_int_value(args[2])) {
             r = mk_bool_value(int_value_numeral(args[1]) <= int_value_numeral(args[2]));
@@ -237,9 +182,6 @@ public:
             return false;
         }
     }
-    virtual void display(std::ostream & out) const { out << m_name; }
-    virtual format pp() const { return format(m_name); }
-    virtual unsigned hash() const { return m_name.hash(); }
 };
 MK_BUILTIN(int_le_fn, int_le_value);
 
@@ -255,10 +197,9 @@ MK_CONSTANT(int_gt_fn, name({"Int", "gt"}));
 
 // =======================================
 // Reals
-class real_type_value : public num_type_value {
+class real_type_value : public type_value {
 public:
-    real_type_value():num_type_value("Real") {}
-    virtual bool operator==(value const & other) const { return dynamic_cast<real_type_value const*>(&other) != nullptr; }
+    real_type_value():type_value("Real") {}
 };
 expr const Real = mk_value(*(new real_type_value()));
 expr mk_real_type() { return Real; }
@@ -269,7 +210,7 @@ public:
     real_value_value(mpq const & v):m_val(v) {}
     virtual ~real_value_value() {}
     virtual expr get_type() const { return Real; }
-    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const { return false; }
+    virtual name get_name() const { return name{"Real", "numeral"}; }
     virtual bool operator==(value const & other) const {
         real_value_value const * _other = dynamic_cast<real_value_value const*>(&other);
         return _other && _other->m_val == m_val;
@@ -294,17 +235,9 @@ mpq const & real_value_numeral(expr const & e) {
 }
 
 template<char const * Name, typename F>
-class real_bin_op : public value {
-    expr     m_type;
-    name     m_name;
+class real_bin_op : public const_value {
 public:
-    real_bin_op() {
-        m_type = Real >> (Real >> Real);
-        m_name = name("Real", Name);
-    }
-    virtual ~real_bin_op() {}
-    virtual expr get_type() const { return m_type; }
-    virtual bool operator==(value const & other) const { return dynamic_cast<real_bin_op const*>(&other) != nullptr; }
+    real_bin_op():const_value(name("Real", Name), Real >> (Real >> Real)) {}
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
         if (num_args == 3 && is_real_value(args[1]) && is_real_value(args[2])) {
             r = mk_real_value(F()(real_value_numeral(args[1]), real_value_numeral(args[2])));
@@ -313,9 +246,6 @@ public:
             return false;
         }
     }
-    virtual void display(std::ostream & out) const { out << m_name; }
-    virtual format pp() const { return format(m_name); }
-    virtual unsigned hash() const { return m_name.hash(); }
 };
 
 constexpr char real_add_name[] = "add";
@@ -340,17 +270,9 @@ struct real_div_eval {
 typedef real_bin_op<real_div_name, real_div_eval> real_div_value;
 MK_BUILTIN(real_div_fn, real_div_value);
 
-class real_le_value : public value {
-    expr m_type;
-    name m_name;
+class real_le_value : public const_value {
 public:
-    real_le_value() {
-        m_type = Real >> (Real >> Bool);
-        m_name = name{"Real", "le"};
-    }
-    virtual ~real_le_value() {}
-    virtual expr get_type() const { return m_type; }
-    virtual bool operator==(value const & other) const { return dynamic_cast<real_le_value const*>(&other) != nullptr; }
+    real_le_value():const_value(name{"Real", "le"}, Real >> (Real >> Bool)) {}
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
         if (num_args == 3 && is_real_value(args[1]) && is_real_value(args[2])) {
             r = mk_bool_value(real_value_numeral(args[1]) <= real_value_numeral(args[2]));
@@ -359,9 +281,6 @@ public:
             return false;
         }
     }
-    virtual void display(std::ostream & out) const { out << m_name; }
-    virtual format pp() const { return format(m_name); }
-    virtual unsigned hash() const { return m_name.hash(); }
 };
 MK_BUILTIN(real_le_fn, real_le_value);
 
@@ -393,17 +312,9 @@ MK_CONSTANT(csch_fn, name("csch"));
 
 // =======================================
 // Coercions
-class nat_to_int_value : public value {
-    expr m_type;
-    name m_name;
+class nat_to_int_value : public const_value {
 public:
-    nat_to_int_value() {
-        m_type = Nat >> Int;
-        m_name = "nat_to_int";
-    }
-    virtual ~nat_to_int_value() {}
-    virtual expr get_type() const { return m_type; }
-    virtual bool operator==(value const & other) const { return dynamic_cast<nat_to_int_value const*>(&other) != nullptr; }
+    nat_to_int_value():const_value("nat_to_int", Nat >> Int) {}
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
         if (num_args == 2 && is_nat_value(args[1])) {
             r = mk_int_value(nat_value_numeral(args[1]));
@@ -412,23 +323,12 @@ public:
             return false;
         }
     }
-    virtual void display(std::ostream & out) const { out << m_name; }
-    virtual format pp() const { return format(m_name); }
-    virtual unsigned hash() const { return m_name.hash(); }
 };
 MK_BUILTIN(nat_to_int_fn, nat_to_int_value);
 
-class int_to_real_value : public value {
-    expr m_type;
-    name m_name;
+class int_to_real_value : public const_value {
 public:
-    int_to_real_value() {
-        m_type = Int >> Real;
-        m_name = "int_to_real";
-    }
-    virtual ~int_to_real_value() {}
-    virtual expr get_type() const { return m_type; }
-    virtual bool operator==(value const & other) const { return dynamic_cast<int_to_real_value const*>(&other) != nullptr; }
+    int_to_real_value():const_value("int_to_real", Int >> Real) {}
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
         if (num_args == 2 && is_int_value(args[1])) {
             r = mk_real_value(mpq(int_value_numeral(args[1])));
@@ -437,9 +337,6 @@ public:
             return false;
         }
     }
-    virtual void display(std::ostream & out) const { out << m_name; }
-    virtual format pp() const { return format(m_name); }
-    virtual unsigned hash() const { return m_name.hash(); }
 };
 MK_BUILTIN(int_to_real_fn,  int_to_real_value);
 MK_CONSTANT(nat_to_real_fn, name("nat_to_real"));

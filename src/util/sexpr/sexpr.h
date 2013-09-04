@@ -144,6 +144,9 @@ template<typename T> inline bool operator==(T const & a, sexpr const & b) { retu
 inline bool operator!=(sexpr const & a, sexpr const & b) { return !(a == b); }
 template<typename T> inline bool operator!=(sexpr const & a, T const & b) { return !(a == b); }
 template<typename T> inline bool operator!=(T const & a, sexpr const & b) { return !(a == b); }
+/**
+   \brief Total order on S-expressions.
+*/
 int cmp(sexpr const & a, sexpr const & b);
 inline bool operator<(sexpr const & a, sexpr const & b) { return cmp(a, b) < 0; }
 inline bool operator>(sexpr const & a, sexpr const & b) { return cmp(a, b) > 0; }

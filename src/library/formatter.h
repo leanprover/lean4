@@ -38,6 +38,9 @@ public:
     virtual void set_interrupt(bool flag) {}
 };
 class kernel_exception;
+/**
+   \brief Smart-pointer for the actual formatter object (aka \c formatter_cell).
+*/
 class formatter {
     std::shared_ptr<formatter_cell> m_cell;
 public:
@@ -52,6 +55,8 @@ public:
     format operator()(kernel_exception const & ex, options const & opts = options());
     void set_interrupt(bool flag) { m_cell->set_interrupt(flag); }
 };
-
+/**
+   \brief Create a simple formatter object based on #printer class.
+*/
 formatter mk_simple_formatter();
 }

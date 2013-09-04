@@ -43,13 +43,16 @@ public:
     list & operator=(list const & s) { LEAN_COPY_REF(list, s); }
     list & operator=(list && s) { LEAN_MOVE_REF(list, s); }
 
+    /** \brief Return true iff it is not the empty/nil list. */
     operator bool() const { return m_ptr != nullptr; }
 
     friend bool is_nil(list const & l) { return l.m_ptr == nullptr; }
     friend T const & head(list const & l) { lean_assert(!is_nil(l)); return l.m_ptr->m_head; }
     friend list const & tail(list const & l) { lean_assert(!is_nil(l)); return l.m_ptr->m_tail; }
 
+    /** \brief Pointer equality. Return true iff \c l1 and \c l2 point to the same memory location. */
     friend bool is_eqp(list const & l1, list const & l2) { return l1.m_ptr == l2.m_ptr; }
+    /** \brief Structural equality. */
     friend bool operator==(list const & l1, list const & l2) {
         cell * it1 = l1.m_ptr;
         cell * it2 = l2.m_ptr;

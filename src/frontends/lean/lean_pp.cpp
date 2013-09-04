@@ -928,7 +928,7 @@ class pp_fn {
         lean_assert(is_choice(e));
         unsigned num = get_num_choices(e);
         format r_format;
-        unsigned r_weight;
+        unsigned r_weight = 0;
         for (unsigned i = 0; i < num; i++) {
             if (i > 0)
                 r_format += format{space(), format("|"), line()};

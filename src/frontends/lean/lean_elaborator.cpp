@@ -121,7 +121,8 @@ class elaborator::imp {
         if (m_metavars[midx].m_type) {
             return m_metavars[midx].m_type;
         } else {
-            expr t = mk_metavar(m_metavars[midx].m_ctx);
+            context ctx = m_metavars[midx].m_ctx;
+            expr t = mk_metavar(ctx);
             m_metavars[midx].m_type = t;
             return t;
         }

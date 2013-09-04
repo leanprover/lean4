@@ -46,20 +46,65 @@ expr const & get_choice(expr const & e, unsigned i) {
 }
 
 class elaborator::imp {
+    // Information for producing error messages regarding application type mismatch during elaboration
+    struct app_mismatch_info {
+        expr              m_app;     // original application
+        context           m_ctx; // context where application occurs
+        std::vector<expr> m_args;    // arguments after processing
+        std::vector<expr> m_types;   // inferred types of the arguments
+        app_mismatch_info(expr const & app, context const & ctx, unsigned sz, expr const * args, expr const * types):
+            m_app(app), m_ctx(ctx), m_args(args, args+sz), m_types(types, types+sz) {}
+    };
+
+    // Information for producing error messages regarding expected type mismatch during elaboration
+    struct expected_type_info {
+        expr              m_expr;  // original expression
+        expr              m_processed_expr; // expression after processing
+        expr              m_expected;  // expected type
+        expr              m_given;  // inferred type of the processed expr.
+        context           m_ctx;
+        expected_type_info(expr const & e, expr const & p, expr const & exp, expr const & given, context const & ctx):
+            m_expr(e), m_processed_expr(p), m_expected(exp), m_given(given), m_ctx(ctx) {}
+    };
+
+    enum class info_kind { AppMismatchInfo, ExpectedTypeInfo };
+
+    typedef std::pair<info_kind, unsigned> info_ref;
+
+    std::vector<app_mismatch_info>  m_app_mismatch_info;
+    std::vector<expected_type_info> m_expected_type_info;
+
+    info_ref mk_app_mismatch_info(expr const & app, context const & ctx, unsigned sz, expr const * args, expr const * types) {
+        unsigned idx = m_app_mismatch_info.size();
+        m_app_mismatch_info.push_back(app_mismatch_info(app, ctx, sz, args, types));
+        return mk_pair(info_kind::AppMismatchInfo, idx);
+    }
+
+    info_ref mk_expected_type_info(expr const & e, expr const & p, expr const & exp, expr const & g, context const & ctx) {
+        unsigned idx = m_expected_type_info.size();
+        m_expected_type_info.push_back(expected_type_info(e, p, exp, g, ctx));
+        return mk_pair(info_kind::ExpectedTypeInfo, idx);
+    }
+
+    context get_context(info_ref const & r) const {
+        if (r.first == info_kind::AppMismatchInfo)
+            return m_app_mismatch_info[r.second].m_ctx;
+        else
+            return m_expected_type_info[r.second].m_ctx;
+    }
+
     // unification constraint lhs == second
     struct constraint {
         expr     m_lhs;
         expr     m_rhs;
         context  m_ctx;
-        expr     m_source;     // auxiliary field used for producing error msgs
-        context  m_source_ctx; // auxiliary field used for producing error msgs
-        unsigned m_arg_pos;    // auxiliary field used for producing error msgs
-        constraint(expr const & lhs, expr const & rhs, context const & ctx, expr const & src, context const & src_ctx, unsigned arg_pos):
-            m_lhs(lhs), m_rhs(rhs), m_ctx(ctx), m_source(src), m_source_ctx(src_ctx), m_arg_pos(arg_pos) {}
+        info_ref m_info;
+        constraint(expr const & lhs, expr const & rhs, context const & ctx, info_ref const & r):
+            m_lhs(lhs), m_rhs(rhs), m_ctx(ctx), m_info(r) {}
         constraint(expr const & lhs, expr const & rhs, constraint const & c):
-            m_lhs(lhs), m_rhs(rhs), m_ctx(c.m_ctx), m_source(c.m_source), m_source_ctx(c.m_source_ctx), m_arg_pos(c.m_arg_pos) {}
+            m_lhs(lhs), m_rhs(rhs), m_ctx(c.m_ctx), m_info(c.m_info) {}
         constraint(expr const & lhs, expr const & rhs, context const & ctx, constraint const & c):
-            m_lhs(lhs), m_rhs(rhs), m_ctx(ctx), m_source(c.m_source), m_source_ctx(c.m_source_ctx), m_arg_pos(c.m_arg_pos) {}
+            m_lhs(lhs), m_rhs(rhs), m_ctx(ctx), m_info(c.m_info) {}
     };
 
     // information associated with the metavariable
@@ -331,7 +376,8 @@ class elaborator::imp {
                     expr expected = abst_domain(f_t);
                     expr given    = types[i];
                     if (has_metavar(expected) || has_metavar(given)) {
-                        m_constraints.push_back(constraint(expected, given, ctx, e, ctx, i));
+                        info_ref r = mk_app_mismatch_info(e, ctx, args.size(), args.data(), types.data());
+                        m_constraints.push_back(constraint(expected, given, ctx, r));
                     } else {
                         if (!is_convertible(expected, given, ctx)) {
                             expr coercion = m_frontend.get_coercion(given, expected);
@@ -439,10 +485,21 @@ class elaborator::imp {
     [[noreturn]] void throw_unification_exception(constraint const & c) {
         // display(std::cout);
         m_constraints.push_back(c);
-        if (c.m_arg_pos != static_cast<unsigned>(-1)) {
-            throw unification_app_mismatch_exception(*m_owner, c.m_source_ctx, c.m_source, c.m_arg_pos);
+        info_ref const & r = c.m_info;
+        if (r.first == info_kind::AppMismatchInfo) {
+            app_mismatch_info & info = m_app_mismatch_info[r.second];
+            for (expr & arg : info.m_args)
+                arg = instantiate(arg);
+            for (expr & type : info.m_types)
+                type = instantiate(type);
+            throw unification_app_mismatch_exception(*m_owner, info.m_ctx, info.m_app, info.m_args, info.m_types);
         } else {
-            throw unification_type_mismatch_exception(*m_owner, c.m_source_ctx, c.m_source);
+            expected_type_info & info = m_expected_type_info[r.second];
+            info.m_processed_expr = instantiate(info.m_processed_expr);
+            info.m_given          = instantiate(info.m_given);
+            info.m_expected       = instantiate(info.m_expected);
+            throw unification_type_mismatch_exception(*m_owner, info.m_ctx, info.m_expr, info.m_processed_expr,
+                                                      info.m_expected, info.m_given);
         }
     }
 
@@ -651,25 +708,31 @@ class elaborator::imp {
                         cont = true; // must continue
                     } else {
                         if (m_metavars[midx].m_type && !m_metavars[midx].m_type_cnstr) {
+                            context ctx = m_metavars[midx].m_ctx;
                             try {
-                                expr t = infer(m_metavars[midx].m_assignment, m_metavars[midx].m_ctx);
+                                expr t = infer(m_metavars[midx].m_assignment, ctx);
                                 m_metavars[midx].m_type_cnstr = true;
-                                m_constraints.push_back(constraint(m_metavars[midx].m_type, t, m_metavars[midx].m_ctx,
-                                                                   m_metavars[midx].m_mvar, m_metavars[midx].m_ctx, static_cast<unsigned>(-1)));
+                                info_ref r = mk_expected_type_info(m_metavars[midx].m_mvar, m_metavars[midx].m_mvar,
+                                                                   m_metavars[midx].m_type, t, ctx);
+                                m_constraints.push_back(constraint(m_metavars[midx].m_type, t, ctx, r));
                                 progress = true;
                             } catch (exception&) {
                                 // std::cout << "Failed to infer type of: ?M" << midx << "\n"
                                 //          << m_metavars[midx].m_assignment << "\nAT\n" << m_metavars[midx].m_ctx << "\n";
-                                throw unification_type_mismatch_exception(*m_owner, m_metavars[midx].m_ctx, m_metavars[midx].m_mvar);
+                                expr null_given_type; // failed to infer given type.
+                                throw unification_type_mismatch_exception(*m_owner, ctx, m_metavars[midx].m_mvar, m_metavars[midx].m_mvar,
+                                                                          m_metavars[midx].m_type, null_given_type);
                             }
                         }
                     }
+                } else {
+                    cont = true;
                 }
             }
             if (!cont)
                 return;
             if (!progress)
-                throw unsolved_placeholder_exception(*m_owner, context(), m_root);
+                return;
         }
     }
 
@@ -716,20 +779,27 @@ public:
     }
 
     expr operator()(expr const & e, expr const & expected_type, elaborator const & elb) {
+        m_owner = &elb;
         m_constraints.clear();
         m_metavars.clear();
-        m_owner = &elb;
+        m_app_mismatch_info.clear();
+        m_expected_type_info.clear();
         m_processing_root = true;
         auto p = process(e, context());
         m_root = p.first;
         expr given_type = p.second;
         if (expected_type) {
-            if (has_metavar(given_type))
-                m_constraints.push_back(constraint(expected_type, given_type, context(), e, context(), static_cast<unsigned>(-1)));
+            if (has_metavar(given_type)) {
+                info_ref r = mk_expected_type_info(e, m_root, expected_type, given_type, context());
+                m_constraints.push_back(constraint(expected_type, given_type, context(), r));
+            }
         }
         if (has_metavar(m_root)) {
             solve();
-            return instantiate(m_root);
+            expr r = instantiate(m_root);
+            if (has_metavar(r))
+                throw unsolved_placeholder_exception(elb, context(), m_root);
+            return r;
         } else {
             return m_root;
         }
@@ -756,6 +826,8 @@ public:
         }
         return r;
     }
+
+    bool has_constraints() const { return !m_constraints.empty(); }
 };
 elaborator::elaborator(frontend const & fe):m_ptr(new imp(fe, nullptr)) {}
 elaborator::~elaborator() {}
@@ -768,4 +840,5 @@ environment const & elaborator::get_environment() const { return m_ptr->get_envi
 void elaborator::display(std::ostream & out) const { m_ptr->display(out); }
 format elaborator::pp(formatter & f, options const & o) const { return m_ptr->pp(f,o); }
 void elaborator::print(imp * ptr) { ptr->display(std::cout); }
+bool elaborator::has_constraints() const { return m_ptr->has_constraints(); }
 }

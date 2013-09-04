@@ -1,0 +1,81 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: f
+Error (line: 4, pos: 6) type mismatch at application
+    f 10 ⊤
+Function type:
+    Π (A : Type) (a b : A), A
+Arguments types:
+    ℕ : Type
+    10 : ℕ
+    ⊤ : Bool
+  Assumed: g
+Error (line: 7, pos: 6) unsolved placeholder at term
+    g 10
+  Assumed: h
+Error (line: 11, pos: 27) application type mismatch during term elaboration
+    h A x
+Function type:
+    Π (A : Type) (_ : A), A
+Arguments types:
+    A : Type
+    x : lift:0:2 ?M0
+Elaborator state
+    #0 ≈ lift:0:2 ?M0
+  Assumed: eq
+Error (line: 15, pos: 51) application type mismatch during term elaboration
+    eq C a b
+Function type:
+    Π (A : Type) (_ _ : A), Bool
+Arguments types:
+    C : Type
+    a : lift:0:3 ?M0
+    b : lift:0:2 ?M2
+Elaborator state
+    #0 ≈ lift:0:2 ?M2
+    #0 ≈ lift:0:3 ?M0
+  Assumed: a
+  Assumed: b
+  Assumed: H
+Error (line: 20, pos: 18) type mismatch during term elaboration
+    Discharge (λ H1 : _, Conj H1 (Conjunct1 H))
+Term after elaboration:
+    Discharge (λ H1 : ?M4, Conj H1 (Conjunct1 H))
+Expected type:
+    b
+Got:
+    ?M4 ⇒ ?M2
+Elaborator state
+    lift:0:1 ?M2 ≈ lift:0:1 ?M4 ∧ a
+    b ≈ if Bool ?M4 ?M2 ⊤
+    b ≈ if Bool ?M4 ?M2 ⊤
+Error (line: 22, pos: 22) type mismatch at application
+    Trans (Refl a) (Refl b)
+Function type:
+    Π (A : Type U) (a b c : A) (H1 : a = b) (H2 : b = c), a = c
+Arguments types:
+    Bool : Type
+    a : Bool
+    a : Bool
+    b : Bool
+    Refl a : a = a
+    Refl b : b = b
+Error (line: 24, pos: 6) type mismatch at application
+    f Bool Bool
+Function type:
+    Π (A : Type) (a b : A), A
+Arguments types:
+    Type : Type 1
+    Bool : Type
+    Bool : Type
+Error (line: 27, pos: 21) type mismatch at application
+    DisjCases (EM a) (λ H_a : a, H) (λ H_na : ¬ a, NotImp1 (MT H H_na))
+Function type:
+    Π (a b c : Bool) (H1 : a ∨ b) (H2 : a → c) (H3 : b → c), c
+Arguments types:
+    a : Bool
+    ¬ a : Bool
+    a : Bool
+    EM a : a ∨ ¬ a
+    (λ H_a : a, H) : a → ((a ⇒ b) ⇒ a)
+    (λ H_na : ¬ a, NotImp1 (MT H H_na)) : (¬ a) → a

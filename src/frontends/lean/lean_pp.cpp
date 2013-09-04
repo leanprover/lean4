@@ -247,7 +247,7 @@ class pp_fn {
             // expression, but an alias is created for it.
             return r;
         } else {
-            return mk_result(format{lp(), nest(1, format{r.first, rp()})}, r.second);
+            return mk_result(paren(r.first), r.second);
         }
     }
 

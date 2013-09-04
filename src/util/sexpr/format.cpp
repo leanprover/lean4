@@ -216,7 +216,7 @@ format bracket(std::string const l, format const & x, std::string const r) {
                  format(r)});
 }
 format paren(format const & x) {
-    return bracket("(", x, ")");
+    return group(nest(1, format{lp(), x, rp()}));
 }
 
 // wrap = <+/>
@@ -415,7 +415,7 @@ struct sexpr_pp_fn {
                 r += apply(head(*curr));
                 curr = &tail(*curr);
                 if (is_nil(*curr)) {
-                    return group(nest(1, format{lp(), r, rp()}));
+                    return paren(r);
                 } else if (!is_cons(*curr)) {
                     return group(nest(1, format{lp(), r, space(), dot(), line(), apply(*curr), rp()}));
                 } else {

@@ -2,8 +2,13 @@
   Set: pp::unicode
   Assumed: f
 λ (A B : Type) (a : B), f B a
-Error (line: 4, pos: 40) application type mismatch during term elaboration at term
+Error (line: 4, pos: 40) application type mismatch during term elaboration
     f B a
+Function type:
+    Π (A : Type) (_ : A), Bool
+Arguments types:
+    B : Type
+    a : lift:0:2 ?M0
 Elaborator state
     #0 ≈ lift:0:2 ?M0
   Assumed: myeq

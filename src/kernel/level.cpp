@@ -219,7 +219,7 @@ format pp(level const & l, bool unicode) {
             format r = format("max");
             for (unsigned i = 0; i < max_size(l); i++)
                 r += format{line(), pp(max_level(l, i), unicode)};
-            return group(nest(1, format{lp(), r, rp()}));
+            return paren(r);
         }
     }}
     lean_unreachable();

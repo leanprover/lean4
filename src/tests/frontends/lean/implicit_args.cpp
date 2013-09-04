@@ -30,7 +30,7 @@ static void success(expr const & e, expr const & expected, frontend const & env)
     try {
         std::cout << elaborate(e, env) << "\n";
     } catch (unification_app_mismatch_exception & ex) {
-        std::cout << "Error at argumet " << ex.get_arg_pos() << " of " << mk_pair(ex.get_expr(), ex.get_context()) << "\n";
+        std::cout << "Error at " << mk_pair(ex.get_expr(), ex.get_context()) << "\n";
     } catch (unification_type_mismatch_exception & ex) {
         std::cout << "Error at " << mk_pair(ex.get_expr(), ex.get_context()) << " " << ex.what() << "\n";
         std::cout << "Elaborator:\n"; ex.get_elaborator().display(std::cout); std::cout << "-----------------\n";
@@ -58,8 +58,11 @@ static void fails(expr const & e, frontend const & env) {
 
 // Check elaborator partial success (i.e., result still contain some metavariables */
 static void unsolved(expr const & e, frontend const & env) {
-    std::cout << "\n" << e << "\n------>\n" << elaborate(e, env) << "\n";
-    lean_assert(has_metavar(elaborate(e, env)));
+    try {
+        std::cout << "\n" << e << "\n------>\n" << elaborate(e, env) << "\n";
+        lean_unreachable();
+    } catch (unsolved_placeholder_exception) {
+    }
 }
 
 #define _ mk_placholder()

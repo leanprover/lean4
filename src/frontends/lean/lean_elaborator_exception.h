@@ -42,16 +42,32 @@ public:
 };
 
 class unification_app_mismatch_exception : public elaborator_exception {
-    unsigned m_arg_pos;
+    std::vector<expr> m_args;
+    std::vector<expr> m_types;
 public:
-    unification_app_mismatch_exception(elaborator const & elb, context const & ctx, expr const & s, unsigned pos):elaborator_exception(elb, ctx, s), m_arg_pos(pos) {}
-    unsigned get_arg_pos() const { return m_arg_pos; }
+    unification_app_mismatch_exception(elaborator const & elb, context const & ctx, expr const & s,
+                                       std::vector<expr> const & args, std::vector<expr> const & types):
+        elaborator_exception(elb, ctx, s),
+        m_args(args),
+        m_types(types) {}
+    virtual ~unification_app_mismatch_exception() {}
+    std::vector<expr> const & get_args() const { return m_args; }
+    std::vector<expr> const & get_types() const { return m_types; }
     virtual char const * what() const noexcept { return "application type mismatch during term elaboration"; }
 };
 
 class unification_type_mismatch_exception : public elaborator_exception {
+    expr m_processed_expr;
+    expr m_expected_type;
+    expr m_given_type;
 public:
-    unification_type_mismatch_exception(elaborator const & elb, context const & ctx, expr const & s):elaborator_exception(elb, ctx, s) {}
+    unification_type_mismatch_exception(elaborator const & elb, context const & ctx, expr const & s,
+                                        expr const & processed, expr const & expected, expr const & given):
+        elaborator_exception(elb, ctx, s), m_processed_expr(processed), m_expected_type(expected), m_given_type(given) {}
+    virtual ~unification_type_mismatch_exception() {}
+    expr const & get_processed_expr() const { return m_processed_expr; }
+    expr const & get_expected_type() const { return m_expected_type; }
+    expr const & get_given_type() const { return m_given_type; }
     virtual char const * what() const noexcept { return "type mismatch during term elaboration"; }
 };
 

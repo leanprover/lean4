@@ -44,6 +44,8 @@ public:
 
     void display(std::ostream & out) const;
     format pp(formatter & f, options const & o) const;
+
+    bool has_constraints() const;
 };
 /**
     \brief Create a choice expression for the given functions.

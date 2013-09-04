@@ -43,7 +43,7 @@ format formatter::operator()(kernel_exception const & ex, options const & opts) 
         return format{format("invalid object declaration, environment already has an object named '"),
                 format(_ex->get_name()), format("'")};
     } else if (app_type_mismatch_exception const * _ex = dynamic_cast<app_type_mismatch_exception const *>(&ex)) {
-        unsigned indent = get_pp_indent(opts);
+        unsigned indent     = get_pp_indent(opts);
         context const & ctx = _ex->get_context();
         expr const & app    = _ex->get_application();
         format app_fmt      = operator()(ctx, app, false, opts);
@@ -53,7 +53,10 @@ format formatter::operator()(kernel_exception const & ex, options const & opts) 
         format arg_types_fmt;
         ++it;
         for (unsigned i = 1; it != arg_types.end(); ++it, ++i) {
-            format arg_fmt      = operator()(ctx, arg(app, i), false, opts);
+            expr const & a    = arg(app, i);
+            format arg_fmt    = operator()(ctx, a, false, opts);
+            if (is_pi(a) || is_lambda(a) || is_let(a))
+                arg_fmt = paren(arg_fmt);
             format arg_type_fmt = operator()(ctx, *it, false, opts);
             arg_types_fmt += nest(indent, compose(line(), group(format{arg_fmt, space(), colon(), nest(indent, format{line(), arg_type_fmt})})));
         }

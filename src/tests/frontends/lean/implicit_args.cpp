@@ -71,10 +71,10 @@ static void tst1() {
     expr F = Const("F");
     expr g = Const("g");
     expr a = Const("a");
-    expr Nat  = Const("Nat");
-    expr Real = Const("Real");
-    env.add_var("Nat", Type());
-    env.add_var("Real", Type());
+    expr Nat  = Const("N");
+    expr Real = Const("R");
+    env.add_var("N", Type());
+    env.add_var("R", Type());
     env.add_var("F", Pi({{A, Type()}, {B, Type()}, {g, A >> B}}, A));
     env.add_var("f", Nat >> Real);
     expr f = Const("f");
@@ -109,8 +109,8 @@ static void tst2() {
 
 static void tst3() {
     frontend env;
-    expr Nat = Const("Nat");
-    env.add_var("Nat", Type());
+    expr Nat = Const("N");
+    env.add_var("N", Type());
     env.add_var("vec", Nat >> Type());
     expr n   = Const("n");
     expr vec = Const("vec");
@@ -139,8 +139,8 @@ static void tst3() {
 
 static void tst4() {
     frontend env;
-    expr Nat = Const("Nat");
-    env.add_var("Nat", Type());
+    expr Nat = Const("N");
+    env.add_var("N", Type());
     expr R   = Const("R");
     env.add_var("R", Type());
     env.add_var("a", Nat);
@@ -167,8 +167,8 @@ static void tst5() {
     expr b = Const("b");
     expr f = Const("f");
     expr g = Const("g");
-    expr Nat = Const("Nat");
-    env.add_var("Nat", Type());
+    expr Nat = Const("N");
+    env.add_var("N", Type());
     env.add_var("f", Pi({{A,Type()},{a,A},{b,A}}, A));
     env.add_var("g", Nat >> Nat);
     success(Fun({{a,_},{b,_}},g(f(_,a,b))),

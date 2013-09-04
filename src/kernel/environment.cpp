@@ -234,6 +234,22 @@ struct environment::imp {
         check_type(n, t, v, env);
     }
 
+    /** \brief Add a new builtin value to this environment */
+    void add_builtin(expr const & n, environment const & env) {
+        if (!is_value(n))
+            throw invalid_builtin_value_declaration(env, n);
+        check_name(to_value(n).get_name(), env);
+        register_named_object(mk_builtin(n));
+    }
+
+    /** \brief Add a new builtin value set to this environment */
+    void add_builtin_set(expr const & r, environment const & env) {
+        if (!is_value(r))
+            throw invalid_builtin_value_declaration(env, r);
+        check_name(to_value(r).get_name(), env);
+        register_named_object(mk_builtin_set(r));
+    }
+
     /** \brief Add new definition. */
     void add_definition(name const & n, expr const & t, expr const & v, bool opaque, environment const & env) {
         check_new_definition(n, t, v, env);
@@ -376,6 +392,14 @@ bool environment::is_ge(level const & l1, level const & l2) const {
 
 level environment::get_uvar(name const & n) const {
     return m_imp->get_uvar(n, *this);
+}
+
+void environment::add_builtin(expr const & v) {
+    return m_imp->add_builtin(v, *this);
+}
+
+void environment::add_builtin_set(expr const & r) {
+    return m_imp->add_builtin_set(r, *this);
 }
 
 void environment::add_definition(name const & n, expr const & t, expr const & v, bool opaque) {

@@ -184,8 +184,10 @@ std::ostream & operator<<(std::ostream & out, object const & obj) {
         out << obj.get_name() << " >= " << obj.get_cnstr_level(); break;
     case object_kind::Postulate:
         out << obj.get_name() << " : " << obj.get_type(); break;
-    case object_kind::Definition:
+    case object_kind::Definition: case object_kind::Builtin:
         out << obj.get_name() << " : " << obj.get_type() << " :=\n    " << obj.get_value(); break;
+    case object_kind::BuiltinSet:
+        out << obj.get_name(); break;
     case object_kind::Neutral:
         break;
     }

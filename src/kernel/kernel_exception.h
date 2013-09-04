@@ -170,4 +170,27 @@ public:
     expr const & get_value_type() const { return m_value_type; }
     virtual char const * what() const noexcept { return "definition type mismatch"; }
 };
+
+/**
+    \brief Invalid builtin value declaration.
+*/
+class invalid_builtin_value_declaration : public kernel_exception {
+    expr m_expr;
+public:
+    invalid_builtin_value_declaration(environment const & env, expr const & e):kernel_exception(env), m_expr(e) {}
+    virtual ~invalid_builtin_value_declaration() {}
+    virtual char const * what() const noexcept { return "invalid builtin value declaration, expression is not a builtin value"; }
+};
+
+/**
+    \brief Exception used to report that a builtin value is not
+    declared in the environment.
+*/
+class invalid_builtin_value_reference : public kernel_exception {
+    expr m_expr;
+public:
+    invalid_builtin_value_reference(environment const & env, expr const & e):kernel_exception(env), m_expr(e) {}
+    virtual ~invalid_builtin_value_reference() {}
+    virtual char const * what() const noexcept { return "invalid builtin value reference, this kind of builtin value was not declared in the environment"; }
+};
 }

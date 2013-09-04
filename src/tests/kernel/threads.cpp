@@ -13,12 +13,13 @@ Author: Leonardo de Moura
 #include "deep_copy.h"
 #include "abstract.h"
 #include "normalizer.h"
+#include "toplevel.h"
 #include "arith.h"
 #include "test.h"
 using namespace lean;
 
 expr normalize(expr const & e) {
-    environment env;
+    environment env = mk_toplevel();
     env.add_var("a", Int);
     env.add_var("b", Int);
     env.add_var("f", Int >> (Int >> Int));

@@ -1166,6 +1166,12 @@ class pp_formatter_cell : public formatter_cell {
         return r;
     }
 
+    format pp_builtin_set(object const & obj, options const & opts) {
+        char const * kwd = obj.keyword();
+        name const & n = obj.get_name();
+        return format{highlight_command(format(kwd)), space(), format(n)};
+    }
+
     format pp_definition(object const & obj, options const & opts) {
         return pp_compact_definition(obj.keyword(), obj.get_name(), obj.get_type(), obj.get_value(), opts);
     }
@@ -1224,6 +1230,8 @@ public:
         case object_kind::UVarDeclaration:  return pp_uvar_decl(obj, opts);
         case object_kind::Postulate:        return pp_postulate(obj, opts);
         case object_kind::Definition:       return pp_definition(obj, opts);
+        case object_kind::Builtin:          return pp_postulate(obj, opts);
+        case object_kind::BuiltinSet:       return pp_builtin_set(obj, opts);
         case object_kind::Neutral:
             if (dynamic_cast<notation_declaration const *>(obj.cell())) {
                 return pp_notation_decl(obj, opts);

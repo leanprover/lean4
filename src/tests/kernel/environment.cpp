@@ -62,7 +62,7 @@ static void tst2() {
 }
 
 static void tst3() {
-    environment env;
+    environment env = mk_toplevel();
     try {
         env.add_definition("a", Int, Const("a"));
         lean_unreachable();
@@ -123,7 +123,7 @@ static void tst4() {
 }
 
 static void tst5() {
-    environment env;
+    environment env = mk_toplevel();
     env.add_definition("a", Int, iVal(1), true); // add opaque definition
     try {
         std::cout << infer_type(iAdd(Const("a"), Int), env) << "\n";
@@ -134,7 +134,7 @@ static void tst5() {
 }
 
 static void tst6() {
-    environment env;
+    environment env = mk_toplevel();
     level u = env.add_uvar("u", level() + 1);
     level w = env.add_uvar("w", u + 1);
     env.add_var("f", mk_arrow(Type(u), Type(u)));

@@ -45,7 +45,6 @@ expr mk_bin_lop(expr const & op, expr const & unit, std::initializer_list<expr> 
     return mk_bin_lop(op, unit, l.size(), l.begin());
 }
 
-
 // =======================================
 // Bultin universe variables m and u
 static level m_lvl(name("M"));
@@ -121,19 +120,19 @@ bool is_false(expr const & e) {
 
 // =======================================
 // If-then-else builtin operator
-static name   g_ite_name("ite");
-static format g_ite_fmt(g_ite_name);
-class ite_fn_value : public value {
+static name   g_if_name("if");
+static format g_if_fmt(g_if_name);
+class if_fn_value : public value {
     expr m_type;
 public:
-    ite_fn_value() {
+    if_fn_value() {
         expr A    = Const("A");
         // Pi (A: Type), bool -> A -> A -> A
         m_type = Pi({A, TypeU}, Bool >> (A >> (A >> A)));
     }
-    virtual ~ite_fn_value() {}
+    virtual ~if_fn_value() {}
     virtual expr get_type() const { return m_type; }
-    virtual name get_name() const { return g_ite_name; }
+    virtual name get_name() const { return g_if_name; }
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
         if (num_args == 5 && is_bool_value(args[2])) {
             if (to_bool(args[2]))
@@ -149,10 +148,9 @@ public:
         }
     }
 };
-MK_BUILTIN(ite_fn, ite_fn_value);
+MK_BUILTIN(if_fn, if_fn_value);
 // =======================================
 
-MK_CONSTANT(if_fn,      name("if"));
 MK_CONSTANT(implies_fn, name("implies"));
 MK_CONSTANT(iff_fn,     name("iff"));
 MK_CONSTANT(and_fn,     name("and"));
@@ -174,6 +172,7 @@ MK_CONSTANT(imp_antisym_fn, name("ImpAntisym"));
 void add_basic_theory(environment & env) {
     env.add_uvar(uvar_name(m_lvl), level() + LEAN_DEFAULT_LEVEL_SEPARATION);
     env.add_uvar(uvar_name(u_lvl), m_lvl + LEAN_DEFAULT_LEVEL_SEPARATION);
+
     expr p1        = Bool >> Bool;
     expr p2        = Bool >> p1;
     expr f         = Const("f");
@@ -191,18 +190,19 @@ void add_basic_theory(environment & env) {
     expr H         = Const("H");
     expr H1        = Const("H1");
     expr H2        = Const("H2");
-    expr ite       = mk_ite_fn();
 
-    // if(A, x, y, z) := ite A x y z
-    env.add_definition(if_fn_name, to_value(ite).get_type(), ite);
+    env.add_builtin(mk_bool_type());
+    env.add_builtin(mk_bool_value(true));
+    env.add_builtin(mk_bool_value(false));
+    env.add_builtin(mk_if_fn());
 
-    // implies(x, y) := ite x y True
+    // implies(x, y) := if x y True
     env.add_definition(implies_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, bIf(x, y, True)));
 
     // iff(x, y) := x = y
     env.add_definition(iff_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, Eq(x, y)));
 
-    // not(x) := ite x False True
+    // not(x) := if x False True
     env.add_definition(not_fn_name, p1, Fun({x, Bool}, bIf(x, False, True)));
 
     // or(x, y) := Not(x) => y

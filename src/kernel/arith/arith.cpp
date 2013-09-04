@@ -353,6 +353,29 @@ void add_arith_theory(environment & env) {
     expr x    = Const("x");
     expr y    = Const("y");
 
+    env.add_builtin(Nat);
+    env.add_builtin_set(nVal(0));
+    env.add_builtin(mk_nat_add_fn());
+    env.add_builtin(mk_nat_mul_fn());
+    env.add_builtin(mk_nat_le_fn());
+
+    env.add_builtin(Int);
+    env.add_builtin_set(iVal(0));
+    env.add_builtin(mk_int_add_fn());
+    env.add_builtin(mk_int_mul_fn());
+    env.add_builtin(mk_int_div_fn());
+    env.add_builtin(mk_int_le_fn());
+
+    env.add_builtin(Real);
+    env.add_builtin_set(rVal(0));
+    env.add_builtin(mk_real_add_fn());
+    env.add_builtin(mk_real_mul_fn());
+    env.add_builtin(mk_real_div_fn());
+    env.add_builtin(mk_real_le_fn());
+
+    env.add_builtin(mk_nat_to_int_fn());
+    env.add_builtin(mk_int_to_real_fn());
+
     env.add_definition(nat_ge_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, nLe(y, x)));
     env.add_definition(nat_lt_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, Not(nLe(y, x))));
     env.add_definition(nat_gt_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, Not(nLe(x, y))));

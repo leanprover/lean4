@@ -73,7 +73,7 @@ static void tst2() {
 }
 
 static void tst3() {
-    environment env;
+    environment env = mk_toplevel();
     expr f = Fun("a", Bool, Eq(Const("a"), True));
     std::cout << infer_type(f, env) << "\n";
     lean_assert(infer_type(f, env) == mk_arrow(Bool, Bool));
@@ -82,7 +82,7 @@ static void tst3() {
 }
 
 static void tst4() {
-    environment env;
+    environment env = mk_toplevel();
     expr a = Eq(iVal(1), iVal(2));
     expr pr   = mk_lambda("x", a, Var(0));
     std::cout << infer_type(pr, env) << "\n";
@@ -218,7 +218,7 @@ static expr mk_big(unsigned depth) {
 static void tst12() {
 #ifndef __APPLE__
     expr t = mk_big(18);
-    environment env;
+    environment env = mk_toplevel();
     env.add_var("f", Int >> (Int >> Int));
     env.add_var("a", Int);
     type_checker checker(env);

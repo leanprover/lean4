@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "expr_sets.h"
 #include "abstract.h"
 #include "kernel_exception.h"
+#include "toplevel.h"
 #include "printer.h"
 using namespace lean;
 
@@ -185,7 +186,7 @@ static void tst2() {
 }
 
 static void tst3() {
-    environment env;
+    environment env = mk_toplevel();
     env.add_var("a", Bool);
     expr t1 = Const("a");
     expr t2 = Const("a");
@@ -212,7 +213,7 @@ static expr mk_big(unsigned depth) {
 static void tst5() {
 #ifndef __APPLE__
     expr t = mk_big(18);
-    environment env;
+    environment env = mk_toplevel();
     env.add_var("f", Bool >> (Bool >> Bool));
     env.add_var("a", Bool);
     normalizer proc(env);

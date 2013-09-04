@@ -14,7 +14,7 @@ Author: Leonardo de Moura
   frontend may need to create new objects for bookkeeping.
 */
 namespace lean {
-enum class object_kind { UVarDeclaration, Definition, Postulate, Neutral };
+enum class object_kind { UVarDeclaration, Definition, Postulate, Builtin, BuiltinSet, Neutral };
 
 class object_cell {
     void dealloc() { delete this; }
@@ -33,30 +33,34 @@ public:
     virtual char const * keyword() const = 0;
 
     /** \brief Return true iff object has a name. */
-    virtual bool has_name() const = 0;
+    virtual bool has_name() const { return false; }
     /** \brief Return object name. \pre has_name() */
-    virtual name const & get_name() const = 0;
+    virtual name get_name() const { lean_unreachable(); return name(); }
 
     /** \brief Has constraint level associated with it (for universal variables). */
-    virtual bool has_cnstr_level() const = 0;
+    virtual bool has_cnstr_level() const { return false; }
     /** \brief Return the constraint level associated with the object. */
-    virtual level get_cnstr_level() const = 0;
+    virtual level get_cnstr_level() const { lean_unreachable(); return level(); }
 
     /** \brief Return true iff object has a type. */
-    virtual bool has_type() const = 0;
+    virtual bool has_type() const { return false; }
     /** \brief Return object type. \pre has_type() */
-    virtual expr const & get_type() const = 0;
+    virtual expr get_type() const { lean_unreachable(); return expr(); }
 
     /** \brief Return true iff object is a definition */
-    virtual bool is_definition() const = 0;
+    virtual bool is_definition() const { return false; }
     /** \brief Return true iff the definition is opaque. \pre is_definition() */
-    virtual bool is_opaque() const = 0;
+    virtual bool is_opaque() const { lean_unreachable(); return false; }
     /** \brief Return object value. \pre is_definition() */
-    virtual expr const & get_value() const = 0;
+    virtual expr get_value() const { lean_unreachable(); return expr(); }
 
     virtual bool is_axiom() const { return false; }
+    virtual bool is_builtin() const { return false; }
+    virtual bool is_builtin_set() const { return false; }
     virtual bool is_theorem() const { return false; }
     virtual bool is_var_decl() const { return false; }
+
+    virtual bool in_builtin_set(expr const & v) const { return false; }
 };
 
 /**
@@ -67,20 +71,6 @@ public:
 class neutral_object_cell : public object_cell {
 public:
     neutral_object_cell();
-    virtual ~neutral_object_cell();
-
-    virtual bool has_name() const;
-    virtual name const & get_name() const;
-
-    virtual bool has_cnstr_level() const;
-    virtual level get_cnstr_level() const;
-
-    virtual bool has_type() const;
-    virtual expr const & get_type() const;
-
-    virtual bool is_definition() const;
-    virtual bool is_opaque() const;
-    virtual expr const & get_value() const;
 };
 
 /**
@@ -115,25 +105,32 @@ public:
     friend object mk_axiom(name const & n, expr const & t);
     friend object mk_var_decl(name const & n, expr const & t);
     friend object mk_neutral(neutral_object_cell * c);
+    friend object mk_builtin(expr const & v);
+    friend object mk_builtin_set(expr const & r);
 
     char const * keyword() const { return m_ptr->keyword(); }
     bool has_name() const { return m_ptr->has_name(); }
-    name const & get_name() const { return m_ptr->get_name(); }
+    name get_name() const { return m_ptr->get_name(); }
     bool has_type() const { return m_ptr->has_type(); }
     bool has_cnstr_level() const { return m_ptr->has_cnstr_level(); }
     level get_cnstr_level() const { return m_ptr->get_cnstr_level(); }
-    expr const & get_type() const { return m_ptr->get_type(); }
+    expr get_type() const { return m_ptr->get_type(); }
     bool is_definition() const { return m_ptr->is_definition(); }
     bool is_opaque() const { return m_ptr->is_opaque(); }
-    expr const & get_value() const { return m_ptr->get_value(); }
+    expr get_value() const { return m_ptr->get_value(); }
 
     bool is_axiom() const { return m_ptr->is_axiom(); }
     bool is_theorem() const { return m_ptr->is_theorem(); }
     bool is_var_decl() const { return m_ptr->is_var_decl(); }
+    bool is_builtin() const { return m_ptr->is_builtin(); }
+    bool is_builtin_set() const { return m_ptr->is_builtin_set(); }
+    bool in_builtin_set(expr const & e) const { return m_ptr->in_builtin_set(e); }
 
     object_cell const * cell() const { return m_ptr; }
 };
 object mk_uvar_decl(name const & n, level const & l);
+object mk_builtin(expr const & v);
+object mk_builtin_set(expr const & r);
 object mk_definition(name const & n, expr const & t, expr const & v, bool opaque);
 object mk_theorem(name const & n, expr const & t, expr const & v);
 object mk_axiom(name const & n, expr const & t);

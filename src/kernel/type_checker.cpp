@@ -139,9 +139,17 @@ public:
             }
             break;
         }
-        case expr_kind::Value:
-            r = to_value(e).get_type();
+        case expr_kind::Value: {
+            // Check if the builtin value (or its set) is declared in the environment.
+            name const & n = to_value(e).get_name();
+            object const & obj = m_env.get_object(n);
+            if (obj && ((obj.is_builtin() && obj.get_value() == e) || (obj.is_builtin_set() && obj.in_builtin_set(e)))) {
+                r = to_value(e).get_type();
+            } else {
+                throw invalid_builtin_value_reference(m_env, e);
+            }
             break;
+        }
         }
 
         if (shared) {

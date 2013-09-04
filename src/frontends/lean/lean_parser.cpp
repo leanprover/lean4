@@ -248,14 +248,8 @@ class parser::imp {
 
     /** \brief Initialize \c m_builtins table with Lean builtin symbols that do not have notation associated with them. */
     void init_builtins() {
-        m_builtins["Bool"]   = Bool;
-        m_builtins["true"]   = True;
-        m_builtins["false"]  = False;
         m_builtins["\u22A4"] = True;
         m_builtins["\u22A5"] = False;
-        m_builtins["Nat"]    = Nat;
-        m_builtins["Int"]    = Int;
-        m_builtins["Real"]   = Real;
     }
 
     unsigned parse_unsigned(char const * msg) {
@@ -576,6 +570,8 @@ class parser::imp {
                 } else {
                     return mk_constant(obj.get_name());
                 }
+            } if (k == object_kind::Builtin) {
+                return obj.get_value();
             } else {
                 throw parser_error(sstream() << "invalid object reference, object '" << id << "' is not an expression.", p);
             }

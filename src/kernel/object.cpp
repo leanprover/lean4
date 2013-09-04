@@ -9,16 +9,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 neutral_object_cell::neutral_object_cell():object_cell(object_kind::Neutral) {}
-neutral_object_cell::~neutral_object_cell() {}
-bool         neutral_object_cell::has_name() const        { return false; }
-name const & neutral_object_cell::get_name() const        { lean_unreachable(); return name::anonymous(); }
-bool         neutral_object_cell::has_cnstr_level() const { return false; }
-level        neutral_object_cell::get_cnstr_level() const { lean_unreachable(); return level(); }
-bool         neutral_object_cell::has_type() const        { return false; }
-expr const & neutral_object_cell::get_type() const        { lean_unreachable(); return expr::null(); }
-bool         neutral_object_cell::is_definition() const   { return false; }
-bool         neutral_object_cell::is_opaque() const       { lean_unreachable(); return false; }
-expr const & neutral_object_cell::get_value() const       { lean_unreachable(); return expr::null(); }
 
 /**
    \brief Named kernel objects.
@@ -31,8 +21,8 @@ public:
     named_object_cell(object_kind k, name const & n):object_cell(k), m_name(n) {}
     virtual ~named_object_cell() {}
 
-    virtual bool has_name() const          { return true; }
-    virtual name const & get_name() const  { return m_name; }
+    virtual bool has_name() const { return true; }
+    virtual name get_name() const { return m_name; }
 };
 
 /**
@@ -45,16 +35,53 @@ public:
         named_object_cell(object_kind::UVarDeclaration, n), m_level(l) {}
     virtual ~uvar_declaration_object_cell() {}
 
-    virtual bool has_cnstr_level() const   { return true; }
-    virtual level get_cnstr_level() const  { return m_level; }
-
-    bool has_type() const          { return false; }
-    expr const & get_type() const  { lean_unreachable(); return expr::null(); }
-    bool is_definition() const     { return false; }
-    bool is_opaque() const         { lean_unreachable(); return false; }
-    expr const & get_value() const { lean_unreachable(); return expr::null(); }
-
+    virtual bool has_cnstr_level() const { return true; }
+    virtual level get_cnstr_level() const { return m_level; }
     virtual char const * keyword() const { return "Universe"; }
+};
+
+/**
+   \brief Base class for Axioms and Variable declarations.
+*/
+class builtin_object_cell : public object_cell {
+    expr m_value;
+public:
+    builtin_object_cell(expr const & v):
+        object_cell(object_kind::Builtin), m_value(v) { lean_assert(is_value(v)); }
+    virtual ~builtin_object_cell() {}
+    virtual bool has_name() const { return true; }
+    virtual name get_name() const { return to_value(m_value).get_name(); }
+    virtual bool has_type() const { return true; }
+    virtual expr get_type() const { return to_value(m_value).get_type(); }
+    virtual bool is_definition() const { return true; }
+    virtual bool is_opaque() const { return false; }
+    virtual expr get_value() const { return m_value; }
+    virtual char const * keyword() const { return "Builtin"; }
+    virtual bool is_builtin() const { return true; }
+};
+
+/**
+   \brief Base class for capturing a set of builtin objects such as
+      a) the natural numbers 0, 1, 2, ...
+      b) the integers 0, -1, 1, -2, 2, ...
+      c) the reals
+      d) ...
+   This object represents an infinite set of declarations.
+   This is just a markup to sign that an environment depends on a
+   particular builtin set of values.
+*/
+class builtin_set_object_cell : public object_cell {
+    // The representative is only used to test if a builtin value
+    // is in the same C++ class of the representative.
+    expr m_representative;
+public:
+    builtin_set_object_cell(expr const & r):object_cell(object_kind::BuiltinSet), m_representative(r) { lean_assert(is_value(r)); }
+    virtual ~builtin_set_object_cell() {}
+    virtual bool has_name() const { return true; }
+    virtual name get_name() const { return to_value(m_representative).get_name(); }
+    virtual bool is_builtin_set() const { return true; }
+    virtual bool in_builtin_set(expr const & v) const { return is_value(v) && typeid(to_value(v)) == typeid(to_value(m_representative)); }
+    virtual char const * keyword() const { return "BuiltinSet"; }
 };
 
 /**
@@ -67,11 +94,8 @@ public:
         named_object_cell(k, n), m_type(t) {}
     virtual ~named_typed_object_cell() {}
 
-    virtual bool has_type() const          { return true; }
-    virtual expr const & get_type() const  { return m_type; }
-
-    virtual bool has_cnstr_level() const   { return false; }
-    virtual level get_cnstr_level() const  { lean_unreachable(); return level(); }
+    virtual bool has_type() const { return true; }
+    virtual expr get_type() const { return m_type; }
 };
 
 /**
@@ -81,10 +105,6 @@ class postulate_object_cell : public named_typed_object_cell {
 public:
     postulate_object_cell(name const & n, expr const & t):
         named_typed_object_cell(object_kind::Postulate, n, t) {}
-
-    bool is_definition() const     { return false; }
-    bool is_opaque() const         { lean_unreachable(); return false; }
-    expr const & get_value() const { lean_unreachable(); return expr::null(); }
 };
 
 /**
@@ -118,9 +138,9 @@ public:
         named_typed_object_cell(object_kind::Definition, n, t), m_value(v), m_opaque(opaque) {}
     virtual ~definition_object_cell() {}
 
-    bool is_definition() const     { return true; }
-    bool is_opaque() const         { return m_opaque; }
-    expr const & get_value() const { return m_value; }
+    virtual bool is_definition() const     { return true; }
+    virtual bool is_opaque() const         { return m_opaque; }
+    virtual expr get_value() const { return m_value; }
     virtual char const * keyword() const { return "Definition"; }
 };
 
@@ -140,6 +160,8 @@ object mk_definition(name const & n, expr const & t, expr const & v, bool opaque
 object mk_theorem(name const & n, expr const & t, expr const & v) { return object(new theorem_object_cell(n, t, v)); }
 object mk_axiom(name const & n, expr const & t) { return object(new axiom_object_cell(n, t)); }
 object mk_var_decl(name const & n, expr const & t) { return object(new variable_decl_object_cell(n, t)); }
+object mk_builtin(expr const & v) { return object(new builtin_object_cell(v)); }
+object mk_builtin_set(expr const & r) { return object(new builtin_set_object_cell(r)); }
 
 static object g_null_object;
 

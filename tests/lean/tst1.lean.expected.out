@@ -46,4 +46,4 @@ map normal form -->
   f (v1 i H) (v2 i H)
 
 update normal form --> 
-λ (A : Type) (n : N) (v : Π (i : N) (H : i < n), A) (i : N) (d : A) (j : N) (H : j < n), ite A (j = i) d (v j H)
+λ (A : Type) (n : N) (v : Π (i : N) (H : i < n), A) (i : N) (d : A) (j : N) (H : j < n), if A (j = i) d (v j H)

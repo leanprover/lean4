@@ -17,7 +17,7 @@ Author: Leonardo de Moura
 using namespace lean;
 
 static void tst1() {
-    environment env;
+    environment env = mk_toplevel();
     expr e = mk_int_value(mpz(10));
     lean_assert(is_int_value(e));
     lean_assert(infer_type(e, env) == Int);
@@ -25,7 +25,7 @@ static void tst1() {
 }
 
 static void tst2() {
-    environment env;
+    environment env = mk_toplevel();
     expr e = iAdd(iVal(10), iVal(30));
     std::cout << e << "\n";
     std::cout << normalize(e, env) << "\n";
@@ -41,7 +41,7 @@ static void tst2() {
 }
 
 static void tst3() {
-    environment env;
+    environment env = mk_toplevel();
     expr e = iMul(iVal(10), iVal(30));
     std::cout << e << "\n";
     std::cout << normalize(e, env) << "\n";
@@ -73,7 +73,7 @@ static void tst4() {
 }
 
 static void tst5() {
-    environment env;
+    environment env = mk_toplevel();
     env.add_var(name("a"), Int);
     expr e = Eq(iVal(3), iVal(4));
     std::cout << e << " --> " << normalize(e, env) << "\n";

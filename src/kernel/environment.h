@@ -75,6 +75,27 @@ public:
 
     // =======================================
     // Environment Objects
+
+    /**
+        \brief Add builtin value to the environment.
+
+        \pre is_value(v)
+    */
+    void add_builtin(expr const & v);
+
+    /**
+       \brief Add a builtin value set to the environment.
+
+       The set is registered by providing a representative of the set.
+       Each builtin set of values is implemented by a C++ class.
+       The environment will only accept object of the same class of
+       the representative. This functionality is used to support
+       infinite set of builtin values such as the natural numbers.
+
+       \pre is_value(r);
+    */
+    void add_builtin_set(expr const & r);
+
     /**
        \brief Add a new definition n : t := v.
        It throws an exception if v does not have type t.

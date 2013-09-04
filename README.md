@@ -9,7 +9,7 @@ Windows, x86_64-w64-mingw32-g++-4.8.1
 
 [[Result of Build/UnitTest/Coverage/Dynamic Analysis]][cdash]
 
-[cdash]: http://my.cdash.org/index.php?project=Lean&date=
+[cdash]: http://cmacslab2.modck.cs.cmu.edu/CDash-2-0-2/index.php?project=Lean
 
 Requirements
 ============

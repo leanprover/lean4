@@ -705,33 +705,58 @@ class parser::imp {
     /**
         \brief Parse <tt>ID ... ID ':' expr</tt>, where the expression
         represents the type of the identifiers.
+
+        \remark If \c implicit_decl is true, then the bindings should be
+        marked as implicit. This flag is set to true, for example,
+        when we are parsing definitions such as:
+        <code> Definition f {A : Type} (a b : A), A := ... </code>
+        The <code>{A : Type}</code> is considered an implicit argument declaration.
+
+        \remark If \c suppress_type is true, then the type doesn't
+        need to be provided. That is, we automatically include a placeholder.
     */
-    void parse_simple_bindings(buffer<std::tuple<pos_info, name, expr, bool>> & result, bool implicit) {
+    void parse_simple_bindings(buffer<std::tuple<pos_info, name, expr, bool>> & result, bool implicit_decl, bool supress_type) {
         buffer<std::pair<pos_info, name>> names;
         parse_names(names);
-        check_colon_next("invalid binder, ':' expected");
+        expr type;
+        if (curr_is_colon()) {
+            next();
+            type = parse_expr();
+        }
         unsigned sz = result.size();
         result.resize(sz + names.size());
-        expr type = parse_expr();
         for (std::pair<pos_info, name> const & n : names) register_binding(n.second);
         unsigned i = names.size();
         while (i > 0) {
             --i;
-            result[sz + i] = std::make_tuple(names[i].first, names[i].second, lift_free_vars(type, i), implicit);
+            expr arg_type;
+            if (type)
+                arg_type = lift_free_vars(type, i);
+            else
+                arg_type = mk_placholder();
+            result[sz + i] = std::make_tuple(names[i].first, names[i].second, arg_type, implicit_decl);
         }
     }
 
     /**
         \brief Parse a sequence of <tt>'(' ID ... ID ':' expr ')'</tt>.
 
-        This is used when parsing lambda, Pi, forall/exists expressions and definitions.
+        This is used when parsing lambda, Pi, forall/exists expressions and
+        definitions.
+
+        \remark If implicit_decls is true, then we allow declarations
+        with curly braces. These declarations are used to tag implicit
+        arguments. Such as:
+        <code> Definition f {A : Type} (a b : A), A := ... </code>
+
+        \see parse_simple_bindings
     */
-    void parse_bindings(buffer<std::tuple<pos_info, name, expr, bool>> & result, bool allow_implicit = false) {
+    void parse_bindings(buffer<std::tuple<pos_info, name, expr, bool>> & result, bool implicit_decls, bool suppress_type) {
         if (curr_is_identifier()) {
-            parse_simple_bindings(result, false);
+            parse_simple_bindings(result, false, suppress_type);
         } else {
             // (ID ... ID : type) ... (ID ... ID : type)
-            if (allow_implicit) {
+            if (implicit_decls) {
                 if (!curr_is_lparen() && !curr_is_lcurly())
                     throw parser_error("invalid binder, '(', '{' or identifier expected", pos());
             } else {
@@ -740,21 +765,31 @@ class parser::imp {
             }
             bool implicit = curr_is_lcurly();
             next();
-            parse_simple_bindings(result, implicit);
+            parse_simple_bindings(result, implicit, suppress_type);
             if (!implicit)
                 check_rparen_next("invalid binder, ')' expected");
             else
                 check_rcurly_next("invalid binder, '}' expected");
-            while (curr_is_lparen() || (allow_implicit && curr_is_lcurly())) {
+            while (curr_is_lparen() || (implicit_decls && curr_is_lcurly())) {
                 bool implicit = curr_is_lcurly();
                 next();
-                parse_simple_bindings(result, implicit);
+                parse_simple_bindings(result, implicit, suppress_type);
                 if (!implicit)
                     check_rparen_next("invalid binder, ')' expected");
                 else
                     check_rcurly_next("invalid binder, '}' expected");
             }
         }
+    }
+
+    /** \brief Parse bindings for object such as: definitions, theorems, axioms, variables ... */
+    void parse_object_bindings(buffer<std::tuple<pos_info, name, expr, bool>> & result) {
+        parse_bindings(result, true, false);
+    }
+
+    /** \brief Parse bindings for expressions such as: lambda, pi, forall, exists */
+    void parse_expr_bindings(buffer<std::tuple<pos_info, name, expr, bool>> & result) {
+        parse_bindings(result, false, true);
     }
 
     /**
@@ -780,7 +815,7 @@ class parser::imp {
         next();
         mk_scope scope(*this);
         buffer<std::tuple<pos_info, name, expr, bool>> bindings;
-        parse_bindings(bindings);
+        parse_expr_bindings(bindings);
         check_comma_next("invalid abstraction, ',' expected");
         expr result = parse_expr();
         return mk_abstraction(is_lambda, bindings, result);
@@ -801,7 +836,7 @@ class parser::imp {
         next();
         mk_scope scope(*this);
         buffer<std::tuple<pos_info, name, expr, bool>> bindings;
-        parse_bindings(bindings);
+        parse_expr_bindings(bindings);
         check_comma_next("invalid quantifier, ',' expected");
         expr result = parse_expr();
         unsigned i = bindings.size();
@@ -1013,7 +1048,7 @@ class parser::imp {
             val  = elaborate(parse_expr());
         } else {
             mk_scope scope(*this);
-            parse_bindings(bindings, true);
+            parse_object_bindings(bindings);
             check_colon_next("invalid definition, ':' expected");
             expr type_body = parse_expr();
             check_assign_next("invalid definition, ':=' expected");
@@ -1066,7 +1101,7 @@ class parser::imp {
             type = elaborate(parse_expr());
         } else {
             mk_scope scope(*this);
-            parse_bindings(bindings, true);
+            parse_object_bindings(bindings);
             check_colon_next("invalid variable/axiom declaration, ':' expected");
             expr type_body = parse_expr();
             type = elaborate(mk_abstraction(false, bindings, type_body));

@@ -30,6 +30,7 @@ script:
   - ctest -D ExperimentalConfigure
   - ctest -D ExperimentalBuild -VV
   - if [[ $PUSH_TO_CDASH == TRUE ]]; then
+       find Testing -type f -exec sed -i 's/OSName=\"Linux\"/OSName=\"Windows\"/g' {} \; ;
        ctest -D ExperimentalSubmit;
     fi
   - cd ..

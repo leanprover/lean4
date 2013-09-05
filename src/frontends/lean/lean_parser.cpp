@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "expr_maps.h"
 #include "sstream.h"
 #include "kernel_exception.h"
+#include "kernel_exception_formatter.h"
 #include "metavar.h"
 #include "lean_frontend.h"
 #include "lean_elaborator.h"

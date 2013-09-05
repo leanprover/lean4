@@ -37,7 +37,6 @@ public:
     /** \brief Request interruption */
     virtual void set_interrupt(bool flag) {}
 };
-class kernel_exception;
 /**
    \brief Smart-pointer for the actual formatter object (aka \c formatter_cell).
 */
@@ -46,13 +45,11 @@ class formatter {
 public:
     formatter(formatter_cell * c):m_cell(c) {}
     formatter(std::shared_ptr<formatter_cell> const & c):m_cell(c) {}
-    format operator()(expr const & e, options const & opts = options()) { return (*m_cell)(e, opts); }
-    format operator()(context const & c, options const & opts = options()) { return (*m_cell)(c, opts); }
-    format operator()(context const & c, expr const & e, bool format_ctx = false, options const & opts = options()) { return (*m_cell)(c, e, format_ctx, opts); }
-    format operator()(object const & obj, options const & opts = options()) { return (*m_cell)(obj, opts); }
-    format operator()(environment const & env, options const & opts = options()) { return (*m_cell)(env, opts); }
-    /** \brief Pretty print a kernel exception using the this formatter */
-    format operator()(kernel_exception const & ex, options const & opts = options());
+    format operator()(expr const & e, options const & opts = options()) const { return (*m_cell)(e, opts); }
+    format operator()(context const & c, options const & opts = options()) const { return (*m_cell)(c, opts); }
+    format operator()(context const & c, expr const & e, bool format_ctx = false, options const & opts = options()) const { return (*m_cell)(c, e, format_ctx, opts); }
+    format operator()(object const & obj, options const & opts = options()) const { return (*m_cell)(obj, opts); }
+    format operator()(environment const & env, options const & opts = options()) const { return (*m_cell)(env, opts); }
     void set_interrupt(bool flag) { m_cell->set_interrupt(flag); }
 };
 /**

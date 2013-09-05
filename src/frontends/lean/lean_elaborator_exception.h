@@ -27,6 +27,7 @@ public:
     elaborator const & get_elaborator() const { return m_elb; }
     expr const & get_expr() const { return m_expr; }
     context const & get_context() const { return m_context; }
+    virtual format pp(formatter const & fmt, options const & opts) const;
 };
 
 class invalid_placeholder_exception : public elaborator_exception {
@@ -54,6 +55,7 @@ public:
     std::vector<expr> const & get_args() const { return m_args; }
     std::vector<expr> const & get_types() const { return m_types; }
     virtual char const * what() const noexcept { return "application type mismatch during term elaboration"; }
+    virtual format pp(formatter const & fmt, options const & opts) const;
 };
 
 class unification_type_mismatch_exception : public elaborator_exception {
@@ -69,6 +71,7 @@ public:
     expr const & get_expected_type() const { return m_expected_type; }
     expr const & get_given_type() const { return m_given_type; }
     virtual char const * what() const noexcept { return "type mismatch during term elaboration"; }
+    virtual format pp(formatter const & fmt, options const & opts) const;
 };
 
 class overload_exception : public elaborator_exception {
@@ -91,6 +94,7 @@ public:
     std::vector<expr> const & get_f_types() const { return m_f_types; }
     std::vector<expr> const & get_args() const { return m_args; }
     std::vector<expr> const & get_arg_types() const { return m_arg_types; }
+    virtual format pp(formatter const & fmt, options const & opts) const;
 };
 
 class no_overload_exception : public overload_exception {
@@ -111,7 +115,6 @@ public:
     virtual char const * what() const noexcept { return "ambiguous overloads"; }
 };
 
-format pp(formatter fmt, elaborator_exception const & ex, options const & opts);
 regular const & operator<<(regular const & out, elaborator_exception const & ex);
 diagnostic const & operator<<(diagnostic const & out, elaborator_exception const & ex);
 }

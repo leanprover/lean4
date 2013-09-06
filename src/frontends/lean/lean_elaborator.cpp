@@ -24,7 +24,8 @@ namespace lean {
 static name g_choice_name(name(name(name(0u), "library"), "choice"));
 static expr g_choice = mk_constant(g_choice_name);
 static format g_assignment_fmt  = format(":=");
-static format g_unification_fmt = format("\u2248");
+static format g_unification_u_fmt = format("\u2248");
+static format g_unification_fmt = format("=?=");
 
 expr mk_choice(unsigned num_fs, expr const * fs) {
     lean_assert(num_fs >= 2);
@@ -818,11 +819,12 @@ public:
     }
 
     format pp(formatter & f, options const & o) const {
+        bool unicode = get_pp_unicode(o);
         format r;
         bool first = true;
         for (auto c : m_constraints) {
             if (first) first = false; else r += line();
-            r += group(format{f(c.m_lhs, o), space(), g_unification_fmt, line(), f(c.m_rhs, o)});
+            r += group(format{f(c.m_lhs, o), space(), unicode ? g_unification_u_fmt : g_unification_fmt, line(), f(c.m_rhs, o)});
         }
         return r;
     }

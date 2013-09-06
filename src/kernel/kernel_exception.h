@@ -175,6 +175,7 @@ public:
     expr const & get_type() const { return m_type; }
     expr const & get_value() const { return m_value; }
     expr const & get_value_type() const { return m_value_type; }
+    virtual expr const & get_main_expr() const { return m_value; }
     virtual char const * what() const noexcept { return "definition type mismatch"; }
 };
 

@@ -262,7 +262,7 @@ class elaborator::imp {
                     if (!has_metavar(expected) && !has_metavar(given)) {
                         if (is_convertible(expected, given, ctx)) {
                             // compatible
-                        } else if (m_frontend.get_coercion(given, expected)) {
+                        } else if (m_frontend.get_coercion(given, expected, ctx)) {
                             // compatible if using coercion
                             num_coercions++;
                         } else {
@@ -381,7 +381,7 @@ class elaborator::imp {
                         m_constraints.push_back(constraint(expected, given, ctx, r));
                     } else {
                         if (!is_convertible(expected, given, ctx)) {
-                            expr coercion = m_frontend.get_coercion(given, expected);
+                            expr coercion = m_frontend.get_coercion(given, expected, ctx);
                             if (coercion) {
                                 modified = true;
                                 args[i] = mk_app(coercion, args[i]);
@@ -437,7 +437,7 @@ class elaborator::imp {
                     m_constraints.push_back(constraint(expected, given, ctx, r));
                 } else {
                     if (!is_convertible(expected, given, ctx)) {
-                        expr coercion = m_frontend.get_coercion(given, expected);
+                        expr coercion = m_frontend.get_coercion(given, expected, ctx);
                         if (coercion) {
                             v_p.first = mk_app(coercion, v_p.first);
                         } else {
@@ -447,7 +447,7 @@ class elaborator::imp {
                 }
             }
             auto b_p = process(let_body(e), extend(ctx, let_name(e), t_p.first ? t_p.first : v_p.second, v_p.first));
-            expr t   = lower_free_vars_mmv(b_p.second, 1, 1);
+            expr t   = instantiate_free_var_mmv(b_p.second, 0, v_p.first);
             expr new_e = update_let(e, t_p.first, v_p.first, b_p.first);
             add_trace(e, new_e);
             return expr_pair(new_e, t);

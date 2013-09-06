@@ -168,7 +168,7 @@ public:
         Return the null expression if there is no coercion from \c given_type to
         \c expected_type.
     */
-    expr get_coercion(expr const & given_type, expr const & expected_type) const;
+    expr get_coercion(expr const & given_type, expr const & expected_type, context const & ctx) const;
     /**
        \brief Return true iff the given expression is a coercion. That is, it was added using
        \c add_coercion.

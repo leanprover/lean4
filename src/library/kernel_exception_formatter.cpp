@@ -88,14 +88,15 @@ format pp(formatter const & fmt, type_expected_exception const & ex, options con
 }
 
 format pp(formatter const & fmt, def_type_mismatch_exception const & ex, options const & opts) {
-    unsigned indent  = get_pp_indent(opts);
+    unsigned indent     = get_pp_indent(opts);
+    context const & ctx = ex.get_context();
     format r;
     r += format("type mismatch at definition '");
     r += format(ex.get_name());
     r += format("', expected type");
-    r += nest(indent, compose(line(), fmt(ex.get_type(), opts)));
+    r += nest(indent, compose(line(), fmt(ctx, ex.get_type(), false, opts)));
     r += compose(line(), format("Given type:"));
-    r += nest(indent, compose(line(), fmt(ex.get_value_type(), opts)));
+    r += nest(indent, compose(line(), fmt(ctx, ex.get_value_type(), false, opts)));
     return r;
 }
 

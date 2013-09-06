@@ -884,10 +884,14 @@ class parser::imp {
     }
 
     expr parse_decimal() {
-        not_implemented_yet();
+        auto p = pos();
+        expr r = save(mk_real_value(m_scanner.get_num_val()), p);
+        next();
+        return r;
     }
 
     expr parse_string() {
+        // TODO
         not_implemented_yet();
     }
 

@@ -60,6 +60,7 @@ bool     get_parser_show_errors(options const & opts)  { return opts.get_bool(g_
 // Builtin commands
 static name g_definition_kwd("Definition");
 static name g_variable_kwd("Variable");
+static name g_variables_kwd("Variables");
 static name g_theorem_kwd("Theorem");
 static name g_axiom_kwd("Axiom");
 static name g_universe_kwd("Universe");
@@ -78,7 +79,7 @@ static name g_import_kwd("Import");
 static name g_help_kwd("Help");
 static name g_coercion_kwd("Coercion");
 /** \brief Table/List with all builtin command keywords */
-static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
+static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_variables_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
                                         g_show_kwd, g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_notation_kwd, g_echo_kwd,
                                         g_set_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd, g_coercion_kwd};
 // ==========================================
@@ -111,6 +112,7 @@ class parser::imp {
     typedef std::unordered_map<name, expr, name_hash, name_eq>  builtins;
     typedef std::pair<unsigned, unsigned> pos_info;
     typedef expr_map<pos_info> expr_pos_info;
+    typedef buffer<std::tuple<pos_info, name, expr, bool>> bindings_buffer;
     frontend       m_frontend;
     scanner        m_scanner;
     elaborator     m_elaborator;
@@ -700,7 +702,7 @@ class parser::imp {
         \remark If \c suppress_type is true, then the type doesn't
         need to be provided. That is, we automatically include a placeholder.
     */
-    void parse_simple_bindings(buffer<std::tuple<pos_info, name, expr, bool>> & result, bool implicit_decl, bool supress_type) {
+    void parse_simple_bindings(bindings_buffer & result, bool implicit_decl, bool supress_type) {
         buffer<std::pair<pos_info, name>> names;
         parse_names(names);
         expr type;
@@ -736,7 +738,7 @@ class parser::imp {
 
         \see parse_simple_bindings
     */
-    void parse_bindings(buffer<std::tuple<pos_info, name, expr, bool>> & result, bool implicit_decls, bool suppress_type) {
+    void parse_bindings(bindings_buffer & result, bool implicit_decls, bool suppress_type) {
         if (curr_is_identifier()) {
             parse_simple_bindings(result, false, suppress_type);
         } else {
@@ -768,12 +770,12 @@ class parser::imp {
     }
 
     /** \brief Parse bindings for object such as: definitions, theorems, axioms, variables ... */
-    void parse_object_bindings(buffer<std::tuple<pos_info, name, expr, bool>> & result) {
+    void parse_object_bindings(bindings_buffer & result) {
         parse_bindings(result, true, false);
     }
 
     /** \brief Parse bindings for expressions such as: lambda, pi, forall, exists */
-    void parse_expr_bindings(buffer<std::tuple<pos_info, name, expr, bool>> & result) {
+    void parse_expr_bindings(bindings_buffer & result) {
         parse_bindings(result, false, true);
     }
 
@@ -781,7 +783,7 @@ class parser::imp {
         \brief Create a lambda/Pi abstraction, using the giving binders
         and body.
     */
-    expr mk_abstraction(bool is_lambda, buffer<std::tuple<pos_info, name, expr, bool>> const & bindings, expr const & body) {
+    expr mk_abstraction(bool is_lambda, bindings_buffer const & bindings, expr const & body) {
         expr result = body;
         unsigned i = bindings.size();
         while (i > 0) {
@@ -799,7 +801,7 @@ class parser::imp {
     expr parse_abstraction(bool is_lambda) {
         next();
         mk_scope scope(*this);
-        buffer<std::tuple<pos_info, name, expr, bool>> bindings;
+        bindings_buffer bindings;
         parse_expr_bindings(bindings);
         check_comma_next("invalid abstraction, ',' expected");
         expr result = parse_expr();
@@ -820,7 +822,7 @@ class parser::imp {
     expr parse_quantifier(bool is_forall) {
         next();
         mk_scope scope(*this);
-        buffer<std::tuple<pos_info, name, expr, bool>> bindings;
+        bindings_buffer bindings;
         parse_expr_bindings(bindings);
         check_comma_next("invalid quantifier, ',' expected");
         expr result = parse_expr();
@@ -1008,7 +1010,7 @@ class parser::imp {
         postulate named \c n. The fourth element in the tuple bindings
         is a flag indiciating whether the argument is implicit or not.
     */
-    void register_implicit_arguments(name const & n, buffer<std::tuple<pos_info, name, expr,bool>> & bindings) {
+    void register_implicit_arguments(name const & n, bindings_buffer & bindings) {
         bool found = false;
         buffer<bool> imp_args;
         for (unsigned i = 0; i < bindings.size(); i++) {
@@ -1025,7 +1027,7 @@ class parser::imp {
         next();
         expr type, val;
         name id = check_identifier_next("invalid definition, identifier expected");
-        buffer<std::tuple<pos_info, name, expr,bool>> bindings;
+        bindings_buffer bindings;
         if (curr_is_colon()) {
             next();
             type = m_elaborator(parse_expr());
@@ -1079,7 +1081,7 @@ class parser::imp {
     void parse_variable_core(bool is_var) {
         next();
         name id = check_identifier_next("invalid variable/axiom declaration, identifier expected");
-        buffer<std::tuple<pos_info, name, expr,bool>> bindings;
+        bindings_buffer bindings;
         expr type;
         if (curr_is_colon()) {
             next();
@@ -1108,6 +1110,28 @@ class parser::imp {
     */
     void parse_variable() {
         parse_variable_core(true);
+    }
+
+    /** \brief Parse the form:
+        'Variables' ID+ ':' type
+    */
+    void parse_variables() {
+        next();
+        mk_scope scope(*this);
+        bindings_buffer bindings;
+        parse_simple_bindings(bindings, false, false);
+        for (auto b : bindings) {
+            name const & id = std::get<1>(b);
+            if (m_frontend.find_object(id))
+                throw already_declared_exception(m_frontend, id);
+        }
+        for (auto b : bindings) {
+            name const & id = std::get<1>(b);
+            expr const & type = std::get<2>(b);
+            m_frontend.add_var(id, type);
+            if (m_verbose)
+                regular(m_frontend) << "  Assumed: " << id << endl;
+        }
     }
 
     /** \brief Parse one of the two forms:
@@ -1415,22 +1439,23 @@ class parser::imp {
         m_expr_pos_info.clear();
         m_last_cmd_pos = pos();
         name const & cmd_id = curr_name();
-        if (cmd_id == g_definition_kwd)    parse_definition();
-        else if (cmd_id == g_variable_kwd) parse_variable();
-        else if (cmd_id == g_theorem_kwd)  parse_theorem();
-        else if (cmd_id == g_axiom_kwd)    parse_axiom();
-        else if (cmd_id == g_eval_kwd)     parse_eval();
-        else if (cmd_id == g_show_kwd)     parse_show();
-        else if (cmd_id == g_check_kwd)    parse_check();
-        else if (cmd_id == g_infix_kwd)    parse_op(fixity::Infix);
-        else if (cmd_id == g_infixl_kwd)   parse_op(fixity::Infixl);
-        else if (cmd_id == g_infixr_kwd)   parse_op(fixity::Infixr);
-        else if (cmd_id == g_notation_kwd) parse_notation_decl();
-        else if (cmd_id == g_echo_kwd)     parse_echo();
-        else if (cmd_id == g_set_kwd)      parse_set();
-        else if (cmd_id == g_import_kwd)   parse_import();
-        else if (cmd_id == g_help_kwd)     parse_help();
-        else if (cmd_id == g_coercion_kwd) parse_coercion();
+        if (cmd_id == g_definition_kwd)     parse_definition();
+        else if (cmd_id == g_variable_kwd)  parse_variable();
+        else if (cmd_id == g_variables_kwd) parse_variables();
+        else if (cmd_id == g_theorem_kwd)   parse_theorem();
+        else if (cmd_id == g_axiom_kwd)     parse_axiom();
+        else if (cmd_id == g_eval_kwd)      parse_eval();
+        else if (cmd_id == g_show_kwd)      parse_show();
+        else if (cmd_id == g_check_kwd)     parse_check();
+        else if (cmd_id == g_infix_kwd)     parse_op(fixity::Infix);
+        else if (cmd_id == g_infixl_kwd)    parse_op(fixity::Infixl);
+        else if (cmd_id == g_infixr_kwd)    parse_op(fixity::Infixr);
+        else if (cmd_id == g_notation_kwd)  parse_notation_decl();
+        else if (cmd_id == g_echo_kwd)      parse_echo();
+        else if (cmd_id == g_set_kwd)       parse_set();
+        else if (cmd_id == g_import_kwd)    parse_import();
+        else if (cmd_id == g_help_kwd)      parse_help();
+        else if (cmd_id == g_coercion_kwd)  parse_coercion();
         else { next(); throw parser_error(sstream() << "invalid command '" << cmd_id << "'", m_last_cmd_pos); }
     }
     /*@}*/

@@ -345,7 +345,7 @@ void tst14() {
 void tst15() {
     expr t = Eq(Const("a"), Const("b"));
     std::cout << t << "\n";
-    expr l = mk_let("a", Const("b"), Var(0));
+    expr l = mk_let("a", expr(), Const("b"), Var(0));
     std::cout << l << "\n";
     lean_assert(closed(l));
 }

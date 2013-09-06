@@ -42,6 +42,8 @@ class for_each_fn {
             apply(abst_body(e), offset + 1);
             return;
         case expr_kind::Let:
+            if (let_type(e))
+                apply(let_type(e), offset);
             apply(let_value(e), offset);
             apply(let_body(e), offset + 1);
             return;

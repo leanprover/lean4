@@ -65,7 +65,10 @@ class replace_fn {
                 r = update_abst(e, [=](expr const & t, expr const & b) { return std::make_pair(apply(t, offset), apply(b, offset+1)); });
                 break;
             case expr_kind::Let:
-                r = update_let(e, [=](expr const & v, expr const & b) { return std::make_pair(apply(v, offset), apply(b, offset+1)); });
+                r = update_let(e, [=](expr const & t, expr const & v, expr const & b) {
+                        expr new_t = t ? apply(t, offset) : expr();
+                        return std::make_tuple(new_t, apply(v, offset), apply(b, offset+1));
+                    });
                 break;
             }
         }

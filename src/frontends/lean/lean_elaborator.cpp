@@ -425,10 +425,30 @@ class elaborator::imp {
             return expr_pair(new_e, t);
         }
         case expr_kind::Let: {
+            expr_pair t_p;
+            if (let_type(e))
+                 t_p = process(let_type(e), ctx);
             auto v_p = process(let_value(e), ctx);
-            auto b_p = process(let_body(e), extend(ctx, let_name(e), v_p.second, v_p.first));
+            if (let_type(e)) {
+                expr const & expected = t_p.first;
+                expr const & given    = v_p.second;
+                if (has_metavar(expected) || has_metavar(given)) {
+                    info_ref r = mk_expected_type_info(let_value(e), v_p.first, expected, given, ctx);
+                    m_constraints.push_back(constraint(expected, given, ctx, r));
+                } else {
+                    if (!is_convertible(expected, given, ctx)) {
+                        expr coercion = m_frontend.get_coercion(given, expected);
+                        if (coercion) {
+                            v_p.first = mk_app(coercion, v_p.first);
+                        } else {
+                            throw def_type_mismatch_exception(m_env, ctx, let_name(e), let_type(e), v_p.first, v_p.second);
+                        }
+                    }
+                }
+            }
+            auto b_p = process(let_body(e), extend(ctx, let_name(e), t_p.first ? t_p.first : v_p.second, v_p.first));
             expr t   = lower_free_vars_mmv(b_p.second, 1, 1);
-            expr new_e = update_let(e, v_p.first, b_p.first);
+            expr new_e = update_let(e, t_p.first, v_p.first, b_p.first);
             add_trace(e, new_e);
             return expr_pair(new_e, t);
         }}

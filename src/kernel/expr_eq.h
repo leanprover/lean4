@@ -55,7 +55,14 @@ class expr_eq_fn {
         case expr_kind::Pi:       return apply(abst_domain(a), abst_domain(b)) && apply(abst_body(a), abst_body(b));
         case expr_kind::Type:     return ty_level(a) == ty_level(b);
         case expr_kind::Value:    return to_value(a) == to_value(b);
-        case expr_kind::Let:      return apply(let_value(a), let_value(b)) && apply(let_body(a), let_body(b));
+        case expr_kind::Let:
+            if (let_type(a) && let_type(b)) {
+                if (!apply(let_type(a), let_type(b)))
+                    return false;
+            } else if (let_type(a) || let_type(b)) {
+                return false;
+            }
+            return apply(let_value(a), let_value(b)) && apply(let_body(a), let_body(b));
         }
         lean_unreachable();  // LCOV_EXCL_LINE
         return false;        // LCOV_EXCL_LINE

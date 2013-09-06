@@ -26,7 +26,7 @@ class value;
           |   Pi            name expr expr
           |   Type          universe
           |   Eq            expr expr         (heterogeneous equality)
-          |   Let           name expr expr
+          |   Let           name expr expr expr
 
 TODO: match expressions.
 
@@ -102,7 +102,7 @@ public:
     friend expr mk_lambda(name const & n, expr const & t, expr const & e);
     friend expr mk_pi(name const & n, expr const & t, expr const & e);
     friend expr mk_type(level const & l);
-    friend expr mk_let(name const & n, expr const & v, expr const & e);
+    friend expr mk_let(name const & n, expr const & t, expr const & v, expr const & e);
 
     friend bool is_eqp(expr const & a, expr const & b) { return a.m_ptr == b.m_ptr; }
 
@@ -179,12 +179,14 @@ public:
 /** \brief Let expressions */
 class expr_let : public expr_cell {
     name     m_name;
+    expr     m_type;
     expr     m_value;
     expr     m_body;
 public:
-    expr_let(name const & n, expr const & v, expr const & b);
+    expr_let(name const & n, expr const & t, expr const & v, expr const & b);
     ~expr_let();
     name const & get_name() const  { return m_name; }
+    expr const & get_type() const  { return m_type; }
     expr const & get_value() const { return m_value; }
     expr const & get_body() const  { return m_body; }
 };
@@ -271,7 +273,7 @@ inline expr mk_lambda(name const & n, expr const & t, expr const & e) { return e
 inline expr mk_pi(name const & n, expr const & t, expr const & e) { return expr(new expr_pi(n, t, e)); }
 inline expr mk_arrow(expr const & t, expr const & e) { return mk_pi(name("_"), t, e); }
 inline expr operator>>(expr const & t, expr const & e) { return mk_arrow(t, e); }
-inline expr mk_let(name const & n, expr const & v, expr const & e) { return expr(new expr_let(n, v, e)); }
+inline expr mk_let(name const & n, expr const & t, expr const & v, expr const & e) { return expr(new expr_let(n, t, v, e)); }
 inline expr mk_type(level const & l) { return expr(new expr_type(l)); }
        expr mk_type();
 inline expr Type(level const & l) { return mk_type(l); }
@@ -327,6 +329,7 @@ inline expr const &  abst_body(expr_cell * e)            { return to_abstraction
 inline level const & ty_level(expr_cell * e)             { return to_type(e)->get_level(); }
 inline name const &  let_name(expr_cell * e)             { return to_let(e)->get_name(); }
 inline expr const &  let_value(expr_cell * e)            { return to_let(e)->get_value(); }
+inline expr const &  let_type(expr_cell * e)             { return to_let(e)->get_type(); }
 inline expr const &  let_body(expr_cell * e)             { return to_let(e)->get_body(); }
 
 /** \brief Return the reference counter of the given expression. */
@@ -354,6 +357,7 @@ inline expr const &  abst_domain(expr const & e)          { return to_abstractio
 inline expr const &  abst_body(expr const & e)            { return to_abstraction(e)->get_body(); }
 inline level const & ty_level(expr const & e)             { return to_type(e)->get_level(); }
 inline name const &  let_name(expr const & e)             { return to_let(e)->get_name(); }
+inline expr const &  let_type(expr const & e)             { return to_let(e)->get_type(); }
 inline expr const &  let_value(expr const & e)            { return to_let(e)->get_value(); }
 inline expr const &  let_body(expr const & e)             { return to_let(e)->get_body(); }
 // =======================================
@@ -447,14 +451,15 @@ template<typename F> expr update_abst(expr const & e, F f) {
     }
 }
 template<typename F> expr update_let(expr const & e, F f) {
-    static_assert(std::is_same<typename std::result_of<F(expr const &, expr const &)>::type,
-                  std::pair<expr, expr>>::value,
+    static_assert(std::is_same<typename std::result_of<F(expr const &, expr const &, expr const &)>::type,
+                  std::tuple<expr, expr, expr>>::value,
                   "update_let: return type of f is not pair<expr, expr>");
+    expr const & old_t = let_type(e);
     expr const & old_v = let_value(e);
     expr const & old_b = let_body(e);
-    std::pair<expr, expr> p = f(old_v, old_b);
-    if (!is_eqp(p.first, old_v) || !is_eqp(p.second, old_b))
-        return mk_let(let_name(e), p.first, p.second);
+    std::tuple<expr, expr, expr> t = f(old_t, old_v, old_b);
+    if (!is_eqp(std::get<0>(t), old_t) || !is_eqp(std::get<1>(t), old_v) || !is_eqp(std::get<2>(t), old_b))
+        return mk_let(let_name(e), std::get<0>(t), std::get<1>(t), std::get<2>(t));
     else
         return e;
 }

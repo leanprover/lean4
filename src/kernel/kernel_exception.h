@@ -154,17 +154,24 @@ public:
     get_name(), type get_type() and value get_value() is incorrect
     because the value has type get_value_type() and it not matches
     the given type get_type().
+
+    This exception is also used to sign declaration mismatches in
+    let declarations.
 */
 class def_type_mismatch_exception : public type_checker_exception {
-    name m_name;
-    expr m_type;
-    expr m_value;
-    expr m_value_type;
+    context m_context;
+    name    m_name;
+    expr    m_type;
+    expr    m_value;
+    expr    m_value_type;
 public:
+    def_type_mismatch_exception(environment const & env, context const & ctx, name const & n, expr const & type, expr const & val, expr const & val_type):
+        type_checker_exception(env), m_context(ctx), m_name(n), m_type(type), m_value(val), m_value_type(val_type) {}
     def_type_mismatch_exception(environment const & env, name const & n, expr const & type, expr const & val, expr const & val_type):
         type_checker_exception(env), m_name(n), m_type(type), m_value(val), m_value_type(val_type) {}
     virtual ~def_type_mismatch_exception() {}
     name const & get_name() const { return m_name; }
+    context const & get_context() const { return m_context; }
     expr const & get_type() const { return m_type; }
     expr const & get_value() const { return m_value; }
     expr const & get_value_type() const { return m_value_type; }

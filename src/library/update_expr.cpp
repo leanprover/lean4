@@ -38,11 +38,11 @@ expr update_pi(expr const & pi, expr const & d, expr const & b) {
         return mk_pi(abst_name(pi), d, b);
 }
 
-expr update_let(expr const & let, expr const & v, expr const & b) {
-    if (is_eqp(let_value(let), v) && is_eqp(let_body(let), b))
+expr update_let(expr const & let, expr const & t, expr const & v, expr const & b) {
+    if (is_eqp(let_type(let), t) && is_eqp(let_value(let), v) && is_eqp(let_body(let), b))
         return let;
     else
-        return mk_let(let_name(let), v, b);
+        return mk_let(let_name(let), t, v, b);
 }
 
 expr update_eq(expr const & eq, expr const & l, expr const & r) {

@@ -842,11 +842,11 @@ class pp_fn {
         return pp_abstraction_core(e, depth, expr());
     }
 
-    expr collect_nested_let(expr const & e, buffer<std::pair<name, expr>> & bindings) {
+    expr collect_nested_let(expr const & e, buffer<std::tuple<name, expr, expr>> & bindings) {
         if (is_let(e)) {
             name n1    = get_unused_name(e);
             m_local_names.insert(n1);
-            bindings.push_back(mk_pair(n1, let_value(e)));
+            bindings.push_back(std::make_tuple(n1, let_type(e), let_value(e)));
             expr b = instantiate_with_closed(let_body(e), mk_constant(n1));
             return collect_nested_let(b, bindings);
         } else {
@@ -856,19 +856,28 @@ class pp_fn {
 
     result pp_let(expr const & e, unsigned depth) {
         local_names::mk_scope mk(m_local_names);
-        buffer<std::pair<name, expr>> bindings;
+        buffer<std::tuple<name, expr, expr>> bindings;
         expr body = collect_nested_let(e, bindings);
         unsigned r_weight = 2;
         format r_format = g_let_fmt;
         unsigned sz = bindings.size();
         for (unsigned i = 0; i < sz; i++) {
             auto b = bindings[i];
-            name const & n = b.first;
-            result p_def = pp(b.second, depth+1);
+            name const & n = std::get<0>(b);
             format beg = i == 0 ? space() : line();
             format sep = i < sz - 1 ? comma() : format();
-            r_format += nest(3 + 1, format{beg, format(n), space(), g_assign_fmt, nest(n.size() + 1 + 2 + 1, format{space(), p_def.first, sep})});
-            r_weight += p_def.second;
+            result p_def = pp(std::get<2>(b), depth+1);
+            expr type = std::get<1>(b);
+            if (type) {
+                result p_type = pp(type, depth+1);
+                r_format += nest(3 + 1, compose(beg, group(format{format(n), space(),
+                                    colon(), nest(n.size() + 1 + 1 + 1, compose(space(), p_type.first)), space(), g_assign_fmt,
+                                    nest(m_indent, format{line(), p_def.first, sep})})));
+                r_weight += p_type.second + p_def.second;
+            } else {
+                r_format += nest(3 + 1, format{beg, format(n), space(), g_assign_fmt, nest(n.size() + 1 + 2 + 1, format{space(), p_def.first, sep})});
+                r_weight += p_def.second;
+            }
         }
         result p_body = pp(body, depth+1);
         r_weight += p_body.second;

@@ -133,6 +133,11 @@ public:
         }
         case expr_kind::Let: {
             expr lt = infer_type(let_value(e), ctx);
+            if (let_type(e)) {
+                infer_universe(let_type(e), ctx); // check if it is really a type
+                if (!m_normalizer.is_convertible(let_type(e), lt, ctx))
+                    throw def_type_mismatch_exception(m_env, ctx, let_name(e), let_type(e), let_value(e), lt);
+            }
             {
                 cache::mk_scope sc(m_cache);
                 r = lower_free_vars(infer_type(let_body(e), extend(ctx, let_name(e), lt, let_value(e))), 1);

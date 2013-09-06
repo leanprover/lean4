@@ -94,9 +94,10 @@ expr_type::expr_type(level const & l):
     m_level(l) {
 }
 expr_type::~expr_type() {}
-expr_let::expr_let(name const & n, expr const & v, expr const & b):
+expr_let::expr_let(name const & n, expr const & t, expr const & v, expr const & b):
     expr_cell(expr_kind::Let, ::lean::hash(v.hash(), b.hash())),
     m_name(n),
+    m_type(t),
     m_value(v),
     m_body(b) {
 }
@@ -154,7 +155,7 @@ expr copy(expr const & a) {
     case expr_kind::Eq:       return mk_eq(eq_lhs(a), eq_rhs(a));
     case expr_kind::Lambda:   return mk_lambda(abst_name(a), abst_domain(a), abst_body(a));
     case expr_kind::Pi:       return mk_pi(abst_name(a), abst_domain(a), abst_body(a));
-    case expr_kind::Let:      return mk_let(let_name(a), let_value(a), let_body(a));
+    case expr_kind::Let:      return mk_let(let_name(a), let_type(a), let_value(a), let_body(a));
     }
     lean_unreachable();
     return expr();

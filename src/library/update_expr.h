@@ -27,11 +27,11 @@ expr update_lambda(expr const & lambda, expr const & d, expr const & b);
 */
 expr update_pi(expr const & pi, expr const & d, expr const & b);
 /**
-   \brief Return a let expression based on \c let with value \c v and \c body b.
+   \brief Return a let expression based on \c let with type \c t value \c v and \c body b.
 
    \remark Return \c let if the given value and body are (pointer) equal to the ones in \c let.
 */
-expr update_let(expr const & let, expr const & v, expr const & b);
+expr update_let(expr const & let, expr const & t, expr const & v, expr const & b);
 /**
    \brief Return a new equality with lhs \c l and rhs \c r.
 

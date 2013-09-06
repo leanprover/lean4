@@ -65,7 +65,7 @@ protected:
             result = apply(abst_domain(e), offset) || apply(abst_body(e), offset + 1);
             break;
         case expr_kind::Let:
-            result = apply(let_value(e), offset) || apply(let_body(e), offset + 1);
+            result = (let_type(e) && apply(let_type(e), offset)) || apply(let_value(e), offset) || apply(let_body(e), offset + 1);
             break;
         }
 
@@ -133,7 +133,7 @@ protected:
             result = apply(abst_domain(e), offset) || apply(abst_body(e), offset + 1);
             break;
         case expr_kind::Let:
-            result = apply(let_value(e), offset) || apply(let_body(e), offset + 1);
+            result = (let_type(e) && apply(let_type(e), offset)) || apply(let_value(e), offset) || apply(let_body(e), offset + 1);
             break;
         }
 

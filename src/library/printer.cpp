@@ -124,7 +124,10 @@ struct print_expr_fn {
                 }
                 break;
             case expr_kind::Let:
-                out() << "let " << let_name(a) << " := ";
+                out() << "let " << let_name(a);
+                if (let_type(a))
+                    out() << " : " << let_type(a);
+                out() << " := ";
                 print(let_value(a), c);
                 out() << " in ";
                 print_child(let_body(a), extend(c, let_name(a), let_value(a)));

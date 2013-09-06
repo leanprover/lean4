@@ -853,14 +853,19 @@ class parser::imp {
     expr parse_let() {
         next();
         mk_scope scope(*this);
-        buffer<std::tuple<pos_info, name, expr>> bindings;
+        buffer<std::tuple<pos_info, name, expr, expr>> bindings;
         while (true) {
             auto p   = pos();
             name id  = check_identifier_next("invalid let expression, identifier expected");
+            expr type;
+            if (curr_is_colon()) {
+                next();
+                type = parse_expr();
+            }
             check_assign_next("invalid let expression, ':=' expected");
             expr val = parse_expr();
             register_binding(id);
-            bindings.push_back(std::make_tuple(p, id, val));
+            bindings.push_back(std::make_tuple(p, id, type, val));
             if (curr_is_in()) {
                 next();
                 expr r = parse_expr();
@@ -868,7 +873,7 @@ class parser::imp {
                 while (i > 0) {
                     --i;
                     auto p = std::get<0>(bindings[i]);
-                    r = save(mk_let(std::get<1>(bindings[i]), std::get<2>(bindings[i]), r), p);
+                    r = save(mk_let(std::get<1>(bindings[i]), std::get<2>(bindings[i]), std::get<3>(bindings[i]), r), p);
                 }
                 return r;
             } else {

@@ -55,7 +55,10 @@ struct max_sharing_fn::imp {
             return r;
         }
         case expr_kind::Let: {
-            expr r = update_let(a, [=](expr const & v, expr const & b) { return std::make_pair(apply(v), apply(b)); });
+            expr r = update_let(a, [=](expr const & t, expr const & v, expr const & b) {
+                    expr new_t = t ? apply(t) : expr();
+                    return std::make_tuple(new_t, apply(v), apply(b));
+                });
             cache(r);
             return r;
         }}

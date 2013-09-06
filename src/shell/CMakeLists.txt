@@ -8,3 +8,6 @@ add_test(example3 ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../exampl
 add_test(NAME leantests
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
          COMMAND "./test.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
+add_test(NAME leanslowtests
+         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/slow"
+         COMMAND "../test.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")

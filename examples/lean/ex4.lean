@@ -3,4 +3,4 @@ Definition a : Nat := 10
 Theorem T1 : a > 0 := Trivial
 Theorem T2 : a - 5 > 3 := Trivial
 (* The next one fails *)
-Theorem T3- : a > 11 := Trivial
+Theorem T3 : a > 11 := Trivial

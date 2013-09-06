@@ -21,7 +21,7 @@ before_script:
 script:
 - cd build
 - SITE=OSX10.8.2@Travis
-- GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`
+- GIT_COMMIT=`git log HEAD~ --oneline -n 1 | cut -d ' ' -f 1`
 - if [[ $CMAKE_BUILD_TYPE == RELEASE ]]; then
       BUILD_TYPE=Release;
   else
@@ -29,11 +29,11 @@ script:
   fi
 - BUILD_NAME=${TRAVIS_BRANCH}_${GIT_COMMIT}_g++-4.9.0_${BUILD_TYPE}
 - CONFIG_FILE=DartConfiguration.tcl
-- sed -i "s/^Site:.*/Site:$SITE/" $CONFIG_FILE
-- sed -i "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE
+- sed -i "" "s/^Site:.*/Site:$SITE/" $CONFIG_FILE
+- sed -i "" "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE
 - ctest -D ExperimentalConfigure
-- sed -i "s/^Site:.*/Site:$SITE/" $CONFIG_FILE
-- sed -i "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE
+- sed -i "" "s/^Site:.*/Site:$SITE/" $CONFIG_FILE
+- sed -i "" "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE
 - ctest -D ExperimentalBuild -VV
 - yes "C" | ctest -D ExperimentalTest -VV
 - cd ..

@@ -28,7 +28,7 @@ script:
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ../src -DCMAKE_TOOLCHAIN_FILE=/tmp/mxe/usr/x86_64-w64-mingw32/share/cmake/mxe-conf.cmake
   - SITE=Windows@Travis
-  - GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`
+  - GIT_COMMIT=`git log HEAD~ --oneline -n 1 | cut -d ' ' -f 1`
   - if [[ $CMAKE_BUILD_TYPE == RELEASE ]]; then
         BUILD_TYPE=Release;
     else

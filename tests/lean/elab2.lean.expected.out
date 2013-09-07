@@ -1,0 +1,12 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: C
+  Assumed: D
+  Assumed: R
+  Proved: R2
+Theorem R2 (A A' B B' : Type) (H : A → B = A' → B') (a : A) : B = B' := R A A' (λ x : A, B) (λ x : A', B') H a
+  Proved: R3
+  Proved: R4
+  Proved: R5
+Theorem R5 (A1 A2 B1 B2 : Type) (H : A1 → B1 = A2 → B2) (a : A1) : B1 = B2 :=
+    R A1 A2 (λ a : A1, B1) (λ _ : A2, B2) H a

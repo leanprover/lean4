@@ -50,7 +50,8 @@ public:
         for (int i = 'A'; i <= 'Z'; i++)
             set(i, 'a');
 
-        set('_', 'a');
+        set('_',  'a');
+        set('\'', 'a');
 
         // characters that can be used to create ids of group b
         for (unsigned char b : {'=', '<', '>', '@', '^', '|', '&', '~', '+', '-', '*', '/', '\\', '$', '%', '?', ';', '[', ']'})

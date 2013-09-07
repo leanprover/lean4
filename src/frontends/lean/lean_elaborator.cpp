@@ -470,7 +470,9 @@ class elaborator::imp {
 
     void unify_simple_ho_match(expr const & e1, expr const & e2, constraint const & c) {
         context const & ctx = c.m_ctx;
-        m_constraints.push_back(constraint(arg(e1,0), mk_lambda(car(ctx).get_name(), car(ctx).get_domain(), e2), c));
+        m_constraints.push_back(constraint(arg(e1,0), mk_lambda(car(ctx).get_name(),
+                                                           lift_free_vars_mmv(car(ctx).get_domain(), 1, 1),
+                                                           lift_free_vars_mmv(e2, 1, 1)), c));
     }
 
     struct cycle_detected {};

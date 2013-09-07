@@ -8,18 +8,21 @@ Author: Leonardo de Moura
 
 namespace lean {
 static expr g_fake = Const(name(name(0u), "context_to_lambda"));
-expr context_to_lambda(context const & c, expr const & e) {
-    if (!c) {
+expr context_to_lambda(context::iterator it, context::iterator const & end, expr const & e) {
+    if (it == end) {
         return e;
     } else {
-        context_entry const & entry = head(c);
+        context_entry const & entry = *it;
         expr t;
         if (entry.get_body())
             t = mk_app(g_fake, entry.get_domain(), entry.get_body());
         else
             t = mk_app(g_fake, entry.get_domain());
-        return context_to_lambda(tail(c), mk_lambda(entry.get_name(), t, e));
+        return context_to_lambda(++it, end, mk_lambda(entry.get_name(), t, e));
     }
+}
+expr context_to_lambda(context const & c, expr const & e) {
+    return context_to_lambda(c.begin(), c.end(), e);
 }
 bool is_fake_context(expr const & e) {
     return is_lambda(e) && is_app(abst_domain(e)) && arg(abst_domain(e),0) == g_fake;

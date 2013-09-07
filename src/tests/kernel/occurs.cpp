@@ -47,11 +47,11 @@ static void tst2() {
     context c;
     c = extend(c, "a", Type());
     std::cout << c;
-    lean_assert(length(c) == 1);
+    lean_assert(c.size() == 1);
     lean_assert(lookup(c, 0).get_name() == "a");
     auto p = lookup_ext(c, 0);
     lean_assert(p.first.get_name() == "a");
-    lean_assert(length(p.second) == 0);
+    lean_assert(p.second.size() == 0);
 }
 
 int main() {

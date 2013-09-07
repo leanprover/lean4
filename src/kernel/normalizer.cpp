@@ -99,10 +99,10 @@ class normalizer::imp {
         if (entry.get_body()) {
             save_context save(*this); // it restores the context and cache
             m_ctx = entry_c;
-            unsigned k = length(m_ctx);
+            unsigned k = m_ctx.size();
             return svalue(reify(normalize(entry.get_body(), value_stack(), k), k));
         } else {
-            return svalue(length(entry_c));
+            return svalue(entry_c.size());
         }
     }
 
@@ -275,7 +275,7 @@ public:
 
     expr operator()(expr const & e, context const & ctx) {
         set_ctx(ctx);
-        unsigned k = length(m_ctx);
+        unsigned k = m_ctx.size();
         return reify(normalize(e, value_stack(), k), k);
     }
 
@@ -283,7 +283,7 @@ public:
         if (is_convertible_core(expected, given))
             return true;
         set_ctx(ctx);
-        unsigned k = length(m_ctx);
+        unsigned k = m_ctx.size();
         expr e_n = reify(normalize(expected, value_stack(), k), k);
         expr g_n = reify(normalize(given, value_stack(), k), k);
         return is_convertible_core(e_n, g_n);

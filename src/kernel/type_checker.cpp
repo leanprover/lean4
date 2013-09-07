@@ -27,8 +27,8 @@ class type_checker::imp {
         auto p = lookup_ext(c, i);
         context_entry const & def = p.first;
         context const & def_c     = p.second;
-        lean_assert(length(c) > length(def_c));
-        return lift_free_vars(def.get_domain(), length(c) - length(def_c));
+        lean_assert(c.size() > def_c.size());
+        return lift_free_vars(def.get_domain(), c.size() - def_c.size());
     }
 
     expr check_pi(expr const & e, expr const & s, context const & ctx) {

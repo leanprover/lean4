@@ -178,8 +178,8 @@ class elaborator::imp {
         auto p = lookup_ext(c, i);
         context_entry const & def = p.first;
         context const & def_c     = p.second;
-        lean_assert(length(c) > length(def_c));
-        return lift_free_vars_mmv(def.get_domain(), 0, length(c) - length(def_c));
+        lean_assert(c.size() > def_c.size());
+        return lift_free_vars_mmv(def.get_domain(), 0, c.size() - def_c.size());
     }
 
     expr check_pi(expr const & e, context const & ctx, expr const & s, context const & s_ctx) {
@@ -196,7 +196,7 @@ class elaborator::imp {
                     context_entry const & entry = p.first;
                     context const & entry_ctx   = p.second;
                     if (entry.get_body()) {
-                        return lift_free_vars_mmv(check_pi(entry.get_body(), entry_ctx, s, s_ctx), 0, length(ctx) - length(entry_ctx));
+                        return lift_free_vars_mmv(check_pi(entry.get_body(), entry_ctx, s, s_ctx), 0, ctx.size() - entry_ctx.size());
                     }
                 } catch (exception&) {
                     // this can happen if we access a variable out of scope
@@ -477,7 +477,7 @@ class elaborator::imp {
     }
 
     bool is_simple_ho_match(expr const & e1, expr const & e2, context const & ctx) {
-        if (is_app(e1) && is_meta(arg(e1,0)) && is_var(arg(e1,1), 0) && num_args(e1) == 2 && length(ctx) > 0) {
+        if (is_app(e1) && is_meta(arg(e1,0)) && is_var(arg(e1,1), 0) && num_args(e1) == 2 && !is_empty(ctx)) {
             return true;
         } else {
             return false;
@@ -486,8 +486,9 @@ class elaborator::imp {
 
     void unify_simple_ho_match(expr const & e1, expr const & e2, constraint const & c) {
         context const & ctx = c.m_ctx;
-        m_constraints.push_back(constraint(arg(e1,0), mk_lambda(car(ctx).get_name(),
-                                                           lift_free_vars_mmv(car(ctx).get_domain(), 1, 1),
+        context_entry const & head = ::lean::lookup(ctx, 0);
+        m_constraints.push_back(constraint(arg(e1,0), mk_lambda(head.get_name(),
+                                                           lift_free_vars_mmv(head.get_domain(), 1, 1),
                                                            lift_free_vars_mmv(e2, 1, 1)), c));
     }
 

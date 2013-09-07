@@ -162,13 +162,16 @@ std::ostream & operator<<(std::ostream & out, std::pair<expr const &, context co
 }
 
 static void display_context_core(std::ostream & out, context const & ctx) {
-    if (ctx) {
-        display_context_core(out, tail(ctx));
-        if (tail(ctx))
+    if (!is_empty(ctx)) {
+        auto p = lookup_ext(ctx, 0);
+        context_entry const & head  = p.first;
+        context const & tail_ctx    = p.second;
+        display_context_core(out, tail_ctx);
+        if (!is_empty(tail_ctx))
             out << "; ";
-        out << head(ctx).get_name() << " : " << head(ctx).get_domain();
-        if (head(ctx).get_body()) {
-            out << " := " << mk_pair(head(ctx).get_body(), tail(ctx));
+        out << head.get_name() << " : " << head.get_domain();
+        if (head.get_body()) {
+            out << " := " << mk_pair(head.get_body(), tail_ctx);
         }
     }
 }

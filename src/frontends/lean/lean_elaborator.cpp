@@ -202,6 +202,20 @@ class elaborator::imp {
                     // this can happen if we access a variable out of scope
                     throw function_expected_exception(m_env, s_ctx, s);
                 }
+            } else if (has_assigned_metavar(e)) {
+                return check_pi(instantiate(e), ctx, s, s_ctx);
+            } else if (is_metavar(e)) {
+                // e is a unassigned metavariable that must be a Pi,
+                // then we can assign it to (Pi x : A, B x), where
+                // A and B are fresh metavariables
+                unsigned midx = metavar_idx(e);
+                expr A = mk_metavar(ctx);
+                name x("x");
+                context ctx2 = extend(ctx, x, A);
+                expr B = mk_metavar(ctx2);
+                expr type = mk_pi(x, A, B(Var(0)));
+                m_metavars[midx].m_assignment = type;
+                return type;
             }
             throw function_expected_exception(m_env, s_ctx, s);
         }

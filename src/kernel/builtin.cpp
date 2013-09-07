@@ -159,12 +159,7 @@ MK_CONSTANT(subst_fn,       name("Subst"));
 MK_CONSTANT(eta_fn,         name("Eta"));
 MK_CONSTANT(imp_antisym_fn, name("ImpAntisym"));
 
-// Basic theorems
-MK_CONSTANT(symm_fn,            name("Symm"));
-MK_CONSTANT(trans_fn,           name("Trans"));
-MK_CONSTANT(trans_ext_fn,       name("TransExt"));
-
-void add_basic_theory(environment & env) {
+void import_basiclib(environment & env) {
     env.add_uvar(uvar_name(m_lvl), level() + LEAN_DEFAULT_LEVEL_SEPARATION);
     env.add_uvar(uvar_name(u_lvl), m_lvl + LEAN_DEFAULT_LEVEL_SEPARATION);
 
@@ -173,7 +168,6 @@ void add_basic_theory(environment & env) {
     expr f         = Const("f");
     expr a         = Const("a");
     expr b         = Const("b");
-    expr c         = Const("c");
     expr x         = Const("x");
     expr y         = Const("y");
     expr A         = Const("A");
@@ -235,20 +229,5 @@ void add_basic_theory(environment & env) {
 
     // ImpliesAntisym : Pi (a b : Bool) (H1 : a => b) (H2 : b => a), a = b
     env.add_axiom(imp_antisym_fn_name, Pi({{a, Bool}, {b, Bool}, {H1, Implies(a, b)}, {H2, Implies(b, a)}}, Eq(a, b)));
-
-    // Symm : Pi (A : Type u) (a b : A) (H : a = b), b = a
-    env.add_theorem(symm_fn_name, Pi({{A, TypeU}, {a, A}, {b, A}, {H, Eq(a, b)}}, Eq(b, a)),
-                    Fun({{A, TypeU}, {a, A}, {b, A}, {H, Eq(a, b)}},
-                        Subst(A, a, b, Fun({x, A}, Eq(x,a)), Refl(A, a), H)));
-
-    // Trans: Pi (A: Type u) (a b c : A) (H1 : a = b) (H2 : b = c), a = c
-    env.add_theorem(trans_fn_name, Pi({{A, TypeU}, {a, A}, {b, A}, {c, A}, {H1, Eq(a, b)}, {H2, Eq(b, c)}}, Eq(a, c)),
-                    Fun({{A, TypeU}, {a, A}, {b, A}, {c, A}, {H1, Eq(a,b)}, {H2, Eq(b,c)}},
-                        Subst(A, b, c, Fun({x, A}, Eq(a, x)), H1, H2)));
-
-    // TransExt: Pi (A: Type u) (B : Type u) (a : A) (b c : B) (H1 : a = b) (H2 : b = c), a = c
-    env.add_theorem(trans_ext_fn_name, Pi({{A, TypeU}, {B, TypeU}, {a, A}, {b, B}, {c, B}, {H1, Eq(a, b)}, {H2, Eq(b, c)}}, Eq(a, c)),
-                    Fun({{A, TypeU}, {B, TypeU}, {a, A}, {b, B}, {c, B}, {H1, Eq(a, b)}, {H2, Eq(b, c)}},
-                        Subst(B, b, c, Fun({x, B}, Eq(a, x)), H1, H2)));
 }
 }

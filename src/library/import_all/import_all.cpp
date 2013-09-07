@@ -12,10 +12,10 @@ Author: Leonardo de Moura
 
 namespace lean {
 void import_all(environment & env) {
-    add_basic_theory(env);
-    add_basic_thms(env);
-    import_arithlibs(env);
+    import_basiclib(env);
+    import_basicthms(env);
     import_castlib(env);
+    import_arithlibs(env);
 }
 environment mk_toplevel() {
     environment r;

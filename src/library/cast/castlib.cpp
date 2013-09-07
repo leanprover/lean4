@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "castlib.h"
 #include "environment.h"
 #include "abstract.h"
+#include "basic_thms.h"
 #include "builtin.h"
 
 namespace lean {

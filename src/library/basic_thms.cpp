@@ -30,6 +30,9 @@ MK_CONSTANT(conjunct2_fn,       name("Conjunct2"));
 MK_CONSTANT(disj1_fn,           name("Disj1"));
 MK_CONSTANT(disj2_fn,           name("Disj2"));
 MK_CONSTANT(disj_cases_fn,      name("DisjCases"));
+MK_CONSTANT(symm_fn,            name("Symm"));
+MK_CONSTANT(trans_fn,           name("Trans"));
+MK_CONSTANT(trans_ext_fn,       name("TransExt"));
 MK_CONSTANT(congr1_fn,          name("Congr1"));
 MK_CONSTANT(congr2_fn,          name("Congr2"));
 MK_CONSTANT(congr_fn,           name("Congr"));
@@ -44,7 +47,7 @@ MK_CONSTANT(domain_inj_fn,     name("domain_inj"));
 MK_CONSTANT(range_inj_fn,      name("range_inj"));
 #endif
 
-void add_basic_thms(environment & env) {
+void import_basicthms(environment & env) {
     expr A  = Const("A");
     expr a  = Const("a");
     expr b  = Const("b");
@@ -194,6 +197,21 @@ void add_basic_thms(environment & env) {
                                                         MT(a, c, Discharge(a, c, H2), H))),
                                                   H))))));
 
+    // Symm : Pi (A : Type u) (a b : A) (H : a = b), b = a
+    env.add_theorem(symm_fn_name, Pi({{A, TypeU}, {a, A}, {b, A}, {H, Eq(a, b)}}, Eq(b, a)),
+                    Fun({{A, TypeU}, {a, A}, {b, A}, {H, Eq(a, b)}},
+                        Subst(A, a, b, Fun({x, A}, Eq(x,a)), Refl(A, a), H)));
+
+    // Trans: Pi (A: Type u) (a b c : A) (H1 : a = b) (H2 : b = c), a = c
+    env.add_theorem(trans_fn_name, Pi({{A, TypeU}, {a, A}, {b, A}, {c, A}, {H1, Eq(a, b)}, {H2, Eq(b, c)}}, Eq(a, c)),
+                    Fun({{A, TypeU}, {a, A}, {b, A}, {c, A}, {H1, Eq(a,b)}, {H2, Eq(b,c)}},
+                        Subst(A, b, c, Fun({x, A}, Eq(a, x)), H1, H2)));
+
+    // TransExt: Pi (A: Type u) (B : Type u) (a : A) (b c : B) (H1 : a = b) (H2 : b = c), a = c
+    env.add_theorem(trans_ext_fn_name, Pi({{A, TypeU}, {B, TypeU}, {a, A}, {b, B}, {c, B}, {H1, Eq(a, b)}, {H2, Eq(b, c)}}, Eq(a, c)),
+                    Fun({{A, TypeU}, {B, TypeU}, {a, A}, {b, B}, {c, B}, {H1, Eq(a, b)}, {H2, Eq(b, c)}},
+                        Subst(B, b, c, Fun({x, B}, Eq(a, x)), H1, H2)));
+
     // EqTElim : Pi (a : Bool) (H : a = True), a
     env.add_theorem(eqt_elim_fn_name, Pi({{a, Bool}, {H, Eq(a, True)}}, a),
                     Fun({{a, Bool}, {H, Eq(a, True)}},
@@ -226,7 +244,6 @@ void add_basic_thms(environment & env) {
                              Case(Fun({y, Bool}, Eq(Or(Or(False, y), c), Or(False, Or(y, c)))),
                                   Case(Fun({z, Bool}, Eq(Or(Or(False, True), z), Or(False, Or(True, z)))), Trivial, Trivial, c),
                                   Case(Fun({z, Bool}, Eq(Or(Or(False, False), z), Or(False, Or(False, z)))), Trivial, Trivial, c), b), a)));
-
 
     // Congr1 : Pi (A : Type u) (B : A -> Type u) (f g: Pi (x : A) B x) (a : A) (H : f = g), f a = g a
     env.add_theorem(congr1_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {a, A}, {H, Eq(f, g)}}, Eq(f(a), g(a))),

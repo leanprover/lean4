@@ -1,0 +1,16 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: vector
+  Assumed: N0
+  Proved: V0
+  Assumed: f
+  Assumed: m
+  Assumed: v1
+Error (line: 12, pos: 6) type mismatch at application
+    f m v1
+Function type:
+    Π (n : ℕ) (v : vector ℤ n), ℤ
+Arguments types:
+    m : ℕ
+    v1 : vector ℤ (m + 0)
+ℤ

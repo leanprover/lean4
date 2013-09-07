@@ -1291,7 +1291,13 @@ formatter mk_pp_formatter(frontend const & fe) {
 std::ostream & operator<<(std::ostream & out, frontend const & fe) {
     options const & opts = fe.get_state().get_options();
     formatter fmt = mk_pp_formatter(fe);
-    out << mk_pair(fmt(fe, opts), opts);
+    bool first = true;
+    std::for_each(fe.begin_objects(),
+                  fe.end_objects(),
+                  [&](object const & obj) {
+                      if (first) first = false; else out << "\n";
+                      out << mk_pair(fmt(obj, opts), opts);
+                  });
     return out;
 }
 }

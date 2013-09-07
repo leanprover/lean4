@@ -149,6 +149,7 @@ MK_CONSTANT(not_fn,     name("not"));
 MK_CONSTANT(forall_fn,  name("forall"));
 MK_CONSTANT(exists_fn,  name("exists"));
 MK_CONSTANT(homo_eq_fn, name("heq"));
+MK_CONSTANT(cast_fn,    name("cast"));
 
 // Axioms
 MK_CONSTANT(mp_fn,          name("MP"));
@@ -158,6 +159,8 @@ MK_CONSTANT(case_fn,        name("Case"));
 MK_CONSTANT(subst_fn,       name("Subst"));
 MK_CONSTANT(eta_fn,         name("Eta"));
 MK_CONSTANT(imp_antisym_fn, name("ImpAntisym"));
+MK_CONSTANT(dom_inj_fn,     name("DomInj"));
+MK_CONSTANT(ran_inj_fn,     name("RanInj"));
 
 void add_basic_theory(environment & env) {
     env.add_uvar(uvar_name(m_lvl), level() + LEAN_DEFAULT_LEVEL_SEPARATION);
@@ -171,10 +174,13 @@ void add_basic_theory(environment & env) {
     expr x         = Const("x");
     expr y         = Const("y");
     expr A         = Const("A");
+    expr Ap        = Const("A'");
     expr A_pred    = A >> Bool;
     expr B         = Const("B");
+    expr Bp        = Const("B'");
     expr q_type    = Pi({A, TypeU}, A_pred >> Bool);
     expr piABx     = Pi({x, A}, B(x));
+    expr piApBpx   = Pi({x, Ap}, Bp(x));
     expr A_arrow_u = A >> TypeU;
     expr P         = Const("P");
     expr H         = Const("H");
@@ -209,6 +215,9 @@ void add_basic_theory(environment & env) {
     // homogeneous equality
     env.add_definition(homo_eq_fn_name, Pi({{A,TypeU},{x,A},{y,A}}, Bool), Fun({{A,TypeU}, {x,A}, {y,A}}, Eq(x, y)));
 
+    // Cast: Pi (A : Type u) (B : Type u) (H : A = B) (a : A), B
+    env.add_var(cast_fn_name, Pi({{A, TypeU}, {B, TypeU}, {H, Eq(A,B)}, {a, A}}, B));
+
     // MP : Pi (a b : Bool) (H1 : a => b) (H2 : a), b
     env.add_axiom(mp_fn_name, Pi({{a, Bool}, {b, Bool}, {H1, Implies(a, b)}, {H2, a}}, b));
 
@@ -229,5 +238,13 @@ void add_basic_theory(environment & env) {
 
     // ImpliesAntisym : Pi (a b : Bool) (H1 : a => b) (H2 : b => a), a = b
     env.add_axiom(imp_antisym_fn_name, Pi({{a, Bool}, {b, Bool}, {H1, Implies(a, b)}, {H2, Implies(b, a)}}, Eq(a, b)));
+
+    // DomInj : Pi (A A': Type u) (B : A -> Type u) (B' : A' -> Type u) (H : (Pi x : A, B x) = (Pi x : A', B' x)), A = A'
+    env.add_axiom(dom_inj_fn_name, Pi({{A, TypeU}, {Ap, TypeU}, {B, A >> TypeU}, {Bp, Ap >> TypeU}, {H, Eq(piABx, piApBpx)}}, Eq(A, Ap)));
+
+    // RanInj : Pi (A A': Type u) (B : A -> Type u) (B' : A' -> Type u) (H : (Pi x : A, B x) = (Pi x : A', B' x)) (a : A),
+    //                     B a = B' (cast A A' (DomInj A A' B B' H) a)
+    env.add_axiom(ran_inj_fn_name, Pi({{A, TypeU}, {Ap, TypeU}, {B, A >> TypeU}, {Bp, Ap >> TypeU}, {H, Eq(piABx, piApBpx)}, {a, A}},
+                                      Eq(B(a), Bp(Cast(A, Ap, DomInj(A, Ap, B, Bp, H), a)))));
 }
 }

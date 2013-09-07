@@ -1,0 +1,13 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: A
+  Assumed: B
+  Assumed: A'
+  Assumed: B'
+  Assumed: H
+  Assumed: a
+A = A'
+  Proved: BeqB'
+  Set: lean::pp::implicit
+DomInj::explicit A A' (λ x : A, B) (λ x : A', B') H
+RanInj::explicit A A' (λ x : A, B) (λ x : A', B') H a

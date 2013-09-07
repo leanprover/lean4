@@ -75,12 +75,15 @@ void init_builtin_notation(frontend & f) {
     f.add_coercion(mk_nat_to_real_fn());
 
     // implicit arguments for builtin axioms
+    f.mark_implicit_arguments(mk_cast_fn(), {true, true, false, false});
     f.mark_implicit_arguments(mk_mp_fn(), {true, true, false, false});
     f.mark_implicit_arguments(mk_discharge_fn(), {true, true, false});
     f.mark_implicit_arguments(mk_refl_fn(), {true, false});
     f.mark_implicit_arguments(mk_subst_fn(), {true, true, true, false, false, false});
     f.mark_implicit_arguments(mk_eta_fn(), {true, true, false});
     f.mark_implicit_arguments(mk_imp_antisym_fn(), {true, true, false, false});
+    f.mark_implicit_arguments(mk_dom_inj_fn(), {true, true, true, true, false});
+    f.mark_implicit_arguments(mk_ran_inj_fn(), {true, true, true, true, false, false});
 
     // implicit arguments for basic theorems
     f.mark_implicit_arguments(mk_absurd_fn(), {true, false, false});

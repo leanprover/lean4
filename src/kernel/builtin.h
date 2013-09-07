@@ -113,6 +113,12 @@ expr mk_homo_eq_fn();
 inline expr mk_homo_eq(expr const & A, expr const & l, expr const & r) { return mk_app(mk_homo_eq_fn(), A, l, r); }
 inline expr hEq(expr const & A, expr const & l, expr const & r) { return mk_homo_eq(A, l, r); }
 
+/** \brief Type Cast. It has type <tt>Pi (A : Type u) (B : Type u) (H : A = B) (a : A), B</tt> */
+expr mk_cast_fn();
+/** \brief Return the term (cast A B H a) */
+inline expr mk_cast(expr const & A, expr const & B, expr const & H, expr const & a) { return mk_app(mk_cast_fn(), A, B, H, a); }
+inline expr Cast(expr const & A, expr const & B, expr const & H, expr const & a) { return mk_cast(A, B, H, a); }
+
 /** \brief Modus Ponens axiom */
 expr mk_mp_fn();
 /** \brief (Axiom) {a : Bool}, {b : Bool}, H1 : a => b, H2 : a |- MP(a, b, H1, H2) : b */
@@ -147,6 +153,20 @@ inline expr Eta(expr const & A, expr const & B, expr const & f) { return mk_app(
 expr mk_imp_antisym_fn();
 /** \brief (Axiom) {a : Bool}, {b : Bool}, H1 : a => b, H2 : b => a |- ImpAntisym(a, b, H1, H2) : a = b */
 inline expr ImpAntisym(expr const & a, expr const & b, expr const & H1, expr const & H2) { return mk_app(mk_imp_antisym_fn(), a, b, H1, H2); }
+
+/** \brief Domain Injectivity. It has type <tt>Pi (A A': Type u) (B : A -> Type u) (B' : A' -> Type u) (H : (Pi x : A, B x) = (Pi x : A', B' x)), A = A' </tt> */
+expr mk_dom_inj_fn();
+/** \brief Return the term (DomInj A A' B B' H) */
+inline expr mk_dom_inj(expr const & A, expr const & Ap, expr const & B, expr const & Bp, expr const & H) { return mk_app({mk_dom_inj_fn(), A, Ap, B, Bp, H}); }
+inline expr DomInj(expr const & A, expr const & Ap, expr const & B, expr const & Bp, expr const & H) { return mk_dom_inj(A, Ap, B, Bp, H); }
+
+/** \brief Range Injectivity. It has type <tt>Pi (A A': Type u) (B : A -> Type u) (B' : A' -> Type u) (H : (Pi x : A, B x) = (Pi x : A', B' x)) (a : A),
+                                                 B a = B' (cast A A' (DomInj A A' B B' H) a)</tt>
+*/
+expr mk_ran_inj_fn();
+/** \brief Return the term (RanInj A A' B B' H) */
+inline expr mk_ran_inj(expr const & A, expr const & Ap, expr const & B, expr const & Bp, expr const & H, expr const & a) { return mk_app({mk_ran_inj_fn(), A, Ap, B, Bp, H, a}); }
+inline expr RanInj(expr const & A, expr const & Ap, expr const & B, expr const & Bp, expr const & H, expr const & a) { return mk_ran_inj(A, Ap, B, Bp, H, a); }
 
 class environment;
 /** \brief Initialize the environment with basic builtin declarations and axioms */

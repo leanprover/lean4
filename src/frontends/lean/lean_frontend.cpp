@@ -297,6 +297,10 @@ struct frontend::imp {
         }
     }
 
+    bool is_explicit(name const & n) {
+        return !n.is_atomic() && get_explicit_version(n.get_prefix()) == n;
+    }
+
     void add_coercion(expr const & f) {
         expr type      = m_env.infer_type(f);
         expr norm_type = m_env.normalize(type);
@@ -412,6 +416,7 @@ void frontend::mark_implicit_arguments(name const & n, std::initializer_list<boo
 bool frontend::has_implicit_arguments(name const & n) const { return m_imp->has_implicit_arguments(n); }
 std::vector<bool> const & frontend::get_implicit_arguments(name const & n) const { return m_imp->get_implicit_arguments(n); }
 name const & frontend::get_explicit_version(name const & n) const { return m_imp->get_explicit_version(n); }
+bool frontend::is_explicit(name const & n) const { return m_imp->is_explicit(n); }
 
 void frontend::add_coercion(expr const & f) { m_imp->add_coercion(f); }
 expr frontend::get_coercion(expr const & given_type, expr const & expected_type, context const & ctx) const {

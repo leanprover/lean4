@@ -1,0 +1,23 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: C
+  Assumed: D
+  Assumed: R
+  Proved: R2
+  Set: lean::pp::implicit
+Variable C {A B : Type} (H : A = B) (a : A) : B
+Definition C::explicit (A B : Type) (H : A = B) (a : A) : B := C H a
+Variable D {A A' : Type} {B : A → Type} {B' : A' → Type} (H : (Π x : A, B x) = (Π x : A', B' x)) : A = A'
+Definition D::explicit (A A' : Type) (B : A → Type) (B' : A' → Type) (H : (Π x : A, B x) = (Π x : A', B' x)) : A =
+    A' :=
+    D H
+Variable R {A A' : Type} {B : A → Type} {B' : A' → Type} (H : (Π x : A, B x) = (Π x : A', B' x)) (a : A) :
+    (B a) = (B' (C::explicit A A' (D::explicit A A' B B' H) a))
+Definition R::explicit (A A' : Type)
+    (B : A → Type)
+    (B' : A' → Type)
+    (H : (Π x : A, B x) = (Π x : A', B' x))
+    (a : A) : (B a) = (B' (C (D H) a)) :=
+    R H a
+Theorem R2 (A1 A2 B1 B2 : Type) (H : A1 → B1 = A2 → B2) (a : A1) : B1 = B2 :=
+    R::explicit A1 A2 (λ a : A1, B1) (λ _ : A2, B2) H a

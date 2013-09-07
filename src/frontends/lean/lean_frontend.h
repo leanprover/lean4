@@ -147,6 +147,11 @@ public:
         arguments.
     */
     name const & get_explicit_version(name const & n) const;
+    /**
+       \brief Return true iff \c n is the name of the "explicit"
+       version of an object with implicit arguments
+    */
+    bool is_explicit(name const & n) const;
     /*@}*/
 
     /**

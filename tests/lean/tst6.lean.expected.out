@@ -14,8 +14,7 @@ Theorem CongrH {a1 a2 b1 b2 : N} (H1 : a1 = b1) (H2 : a2 = b2) : (h a1 a2) = (h 
         b2
         (Congr::explicit N (λ x : N, N → N) h h a1 b1 (Refl::explicit (N → N → N) h) H1)
         H2
-Theorem CongrH::explicit (a1 a2 b1 b2 : N) (H1 : a1 = b1) (H2 : a2 = b2) : (h a1 a2) = (h b1 b2) :=
-    CongrH::explicit a1 a2 b1 b2 H1 H2
+Theorem CongrH::explicit (a1 a2 b1 b2 : N) (H1 : a1 = b1) (H2 : a2 = b2) : (h a1 a2) = (h b1 b2) := CongrH H1 H2
   Set: lean::pp::implicit
 Theorem CongrH {a1 a2 b1 b2 : N} (H1 : a1 = b1) (H2 : a2 = b2) : (h a1 a2) = (h b1 b2) := Congr (Congr (Refl h) H1) H2
 Theorem CongrH::explicit (a1 a2 b1 b2 : N) (H1 : a1 = b1) (H2 : a2 = b2) : (h a1 a2) = (h b1 b2) := CongrH H1 H2

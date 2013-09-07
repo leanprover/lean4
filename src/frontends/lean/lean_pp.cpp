@@ -1182,7 +1182,15 @@ class pp_formatter_cell : public formatter_cell {
     }
 
     format pp_definition(object const & obj, options const & opts) {
-        return pp_compact_definition(obj.keyword(), obj.get_name(), obj.get_type(), obj.get_value(), opts);
+        if (m_frontend.is_explicit(obj.get_name())) {
+            // Hide implicit arguments when pretty printing the
+            // explicit version on an object.
+            // We do that because otherwise it looks like a recursive definition.
+            options new_opts = update(opts, g_pp_implicit, false);
+            return pp_compact_definition(obj.keyword(), obj.get_name(), obj.get_type(), obj.get_value(), new_opts);
+        } else {
+            return pp_compact_definition(obj.keyword(), obj.get_name(), obj.get_type(), obj.get_value(), opts);
+        }
     }
 
     format pp_notation_decl(object const & obj, options const & opts) {

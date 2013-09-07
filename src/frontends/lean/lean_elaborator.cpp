@@ -232,6 +232,8 @@ class elaborator::imp {
                     // this can happen if we access a variable out of scope
                     throw type_expected_exception(m_env, s_ctx, s);
                 }
+            } else if (has_assigned_metavar(e)) {
+                return check_universe(instantiate(e), ctx, s, s_ctx);
             }
             throw type_expected_exception(m_env, s_ctx, s);
         }
@@ -735,16 +737,16 @@ class elaborator::imp {
                             try {
                                 expr t = infer(m_metavars[midx].m_assignment, ctx);
                                 m_metavars[midx].m_type_cnstr = true;
-                                info_ref r = mk_expected_type_info(m_metavars[midx].m_mvar, m_metavars[midx].m_mvar,
+                                info_ref r = mk_expected_type_info(m_metavars[midx].m_mvar, m_metavars[midx].m_assignment,
                                                                    m_metavars[midx].m_type, t, ctx);
                                 m_constraints.push_back(constraint(m_metavars[midx].m_type, t, ctx, r));
                                 progress = true;
                             } catch (exception&) {
                                 // std::cout << "Failed to infer type of: ?M" << midx << "\n"
-                                //          << m_metavars[midx].m_assignment << "\nAT\n" << m_metavars[midx].m_ctx << "\n";
+                                //           << m_metavars[midx].m_assignment << "\nAT\n" << m_metavars[midx].m_ctx << "\n";
                                 expr null_given_type; // failed to infer given type.
-                                throw unification_type_mismatch_exception(*m_owner, ctx, m_metavars[midx].m_mvar, m_metavars[midx].m_mvar,
-                                                                          m_metavars[midx].m_type, null_given_type);
+                                throw unification_type_mismatch_exception(*m_owner, ctx, m_metavars[midx].m_mvar, m_metavars[midx].m_assignment,
+                                                                          instantiate(m_metavars[midx].m_type), null_given_type);
                             }
                         }
                     }

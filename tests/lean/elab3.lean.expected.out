@@ -1,0 +1,8 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: C
+  Assumed: D
+  Assumed: R
+  Proved: R2
+Theorem R2 (A1 A2 B1 B2 : Type) (H : A1 → B1 = A2 → B2) (a : A1) : B1 = B2 :=
+    R A1 A2 (λ a : A1, B1) (λ _ : A2, B2) H a

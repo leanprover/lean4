@@ -84,18 +84,6 @@ expr mk_disj_cases_fn();
 /** \brief (Theorem) {a b c : Bool}, H1 : Or(a,b), H2 : a -> c, H3 : b -> c |- DisjCases(a, b, c, H1, H2, H3) : c */
 inline expr DisjCases(expr const & a, expr const & b, expr const & c, expr const & H1, expr const & H2, expr const & H3) { return mk_app({mk_disj_cases_fn(), a, b, c, H1, H2, H3}); }
 
-expr mk_symm_fn();
-/** \brief (Theorem) {A : Type u}, {a b : A}, H : a = b |- Symm(A, a, b, H) : b = a */
-inline expr Symm(expr const & A, expr const & a, expr const & b, expr const & H) { return mk_app(mk_symm_fn(), A, a, b, H); }
-
-expr mk_trans_fn();
-/** \brief (Theorem) {A : Type u}, {a b c : A}, H1 : a = b, H2 : b = c |- Trans(A, a, b, c, H1, H2) : a = c */
-inline expr Trans(expr const & A, expr const & a, expr const & b, expr const & c, expr const & H1, expr const & H2) { return mk_app({mk_trans_fn(), A, a, b, c, H1, H2}); }
-
-expr mk_trans_ext_fn();
-/** \brief (Theorem) {A : Type u}, {B : Type u}, {a : A}, {b c : B}, H1 : a = b, H2 : b = c |- TransExt(A, B, a, b, c, H1, H2) : a = c */
-inline expr TransExt(expr const & A, expr const & B, expr const & a, expr const & b, expr const & c, expr const & H1, expr const & H2) { return mk_app({mk_trans_ext_fn(), A, B, a, b, c, H1, H2}); }
-
 expr mk_eqt_elim_fn();
 /** \brief (Theorem) {a : Bool}, H : a = True |- EqTElim(a, H) : a */
 inline expr EqTElim(expr const & a, expr const & H) { return mk_app(mk_eqt_elim_fn(), a, H); }

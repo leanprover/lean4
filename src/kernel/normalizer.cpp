@@ -184,7 +184,7 @@ class normalizer::imp {
                     if (is_value(new_f)) {
                         expr m;
                         if (to_value(new_f).normalize(new_args.size(), new_args.data(), m)) {
-                            r = svalue(m);
+                            r = normalize(m, s, k);
                             break;
                         }
                     }

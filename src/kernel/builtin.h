@@ -168,6 +168,19 @@ expr mk_ran_inj_fn();
 inline expr mk_ran_inj(expr const & A, expr const & Ap, expr const & B, expr const & Bp, expr const & H, expr const & a) { return mk_app({mk_ran_inj_fn(), A, Ap, B, Bp, H, a}); }
 inline expr RanInj(expr const & A, expr const & Ap, expr const & B, expr const & Bp, expr const & H, expr const & a) { return mk_ran_inj(A, Ap, B, Bp, H, a); }
 
+expr mk_symm_fn();
+/** \brief (Theorem) {A : Type u}, {a b : A}, H : a = b |- Symm(A, a, b, H) : b = a */
+inline expr Symm(expr const & A, expr const & a, expr const & b, expr const & H) { return mk_app(mk_symm_fn(), A, a, b, H); }
+
+expr mk_trans_fn();
+/** \brief (Theorem) {A : Type u}, {a b c : A}, H1 : a = b, H2 : b = c |- Trans(A, a, b, c, H1, H2) : a = c */
+inline expr Trans(expr const & A, expr const & a, expr const & b, expr const & c, expr const & H1, expr const & H2) { return mk_app({mk_trans_fn(), A, a, b, c, H1, H2}); }
+
+expr mk_trans_ext_fn();
+/** \brief (Theorem) {A : Type u}, {B : Type u}, {a : A}, {b c : B}, H1 : a = b, H2 : b = c |- TransExt(A, B, a, b, c, H1, H2) : a = c */
+inline expr TransExt(expr const & A, expr const & B, expr const & a, expr const & b, expr const & c, expr const & H1, expr const & H2) { return mk_app({mk_trans_ext_fn(), A, B, a, b, c, H1, H2}); }
+
+
 class environment;
 /** \brief Initialize the environment with basic builtin declarations and axioms */
 void add_basic_theory(environment & env);

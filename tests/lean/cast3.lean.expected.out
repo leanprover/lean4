@@ -1,0 +1,27 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: A
+  Assumed: A'
+  Assumed: B
+  Assumed: B'
+  Assumed: x
+x
+⊤
+  Assumed: b
+  Defined: f
+  Assumed: H
+  Assumed: a'
+b
+  Assumed: H2
+  Defined: g
+0
+ℕ
+Cast B B' (RanInj H2 (Cast A' A (Symm (DomInj H2)) a')) b
+  Assumed: A1
+  Assumed: A2
+  Assumed: A3
+  Assumed: Ha
+  Assumed: Hb
+  Assumed: a
+Cast A1 A3 (Trans Hb Ha) a
+A3

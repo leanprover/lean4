@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "basic_thms.h"
 #include "lean_frontend.h"
 #include "arithlibs.h"
+#include "castlib.h"
 
 namespace lean {
 /**

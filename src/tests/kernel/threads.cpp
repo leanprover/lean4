@@ -18,8 +18,7 @@ Author: Leonardo de Moura
 #include "test.h"
 using namespace lean;
 
-expr normalize(expr const & e) {
-    environment env = mk_toplevel();
+expr norm(expr const & e, environment & env) {
     env.add_var("a", Int);
     env.add_var("b", Int);
     env.add_var("f", Int >> (Int >> Int));
@@ -28,6 +27,7 @@ expr normalize(expr const & e) {
 }
 
 static void mk(expr const & a) {
+    environment env = mk_toplevel();
     expr b = Const("b");
     for (unsigned i = 0; i < 100; i++) {
         expr h = Const("h");
@@ -36,7 +36,8 @@ static void mk(expr const & a) {
             h = mk_app(h, b);
         h = max_sharing(h);
         lean_assert(closed(h));
-        h = normalize(h);
+        environment env2 = env.mk_child();
+        h = norm(h, env2);
         h = abstract(h, a);
         lean_assert(!closed(h));
         h = deep_copy(h);

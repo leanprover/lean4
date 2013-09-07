@@ -8,12 +8,14 @@ Author: Leonardo de Moura
 #include "builtin.h"
 #include "basic_thms.h"
 #include "arithlibs.h"
+#include "castlib.h"
 
 namespace lean {
 void import_all(environment & env) {
     add_basic_theory(env);
     add_basic_thms(env);
     import_arithlibs(env);
+    import_castlib(env);
 }
 environment mk_toplevel() {
     environment r;

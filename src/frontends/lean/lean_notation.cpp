@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "builtin.h"
 #include "basic_thms.h"
 #include "lean_frontend.h"
-#include "arith.h"
+#include "arithlibs.h"
 
 namespace lean {
 /**

@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <atomic>
 #include <unordered_set>
 #include "environment.h"
-#include "toplevel.h"
+#include "import_all.h"
 #include "map.h"
 #include "state.h"
 #include "sstream.h"
@@ -362,7 +362,7 @@ struct frontend::imp {
 };
 
 frontend::frontend():m_imp(new imp(*this)) {
-    init_toplevel(m_imp->m_env);
+    import_all(m_imp->m_env);
     init_builtin_notation(*this);
     m_imp->m_state.set_formatter(mk_pp_formatter(*this));
 }

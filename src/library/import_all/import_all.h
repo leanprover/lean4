@@ -8,8 +8,8 @@ Author: Leonardo de Moura
 #include "environment.h"
 
 namespace lean {
-/** \brief Initialize environment with builtin objects and basic theorems. */
-void init_toplevel(environment & env);
-/** \brief Create top-level environment with builtin objects and basic theorems. */
+/** \brief Import all builtin libraries and theorems */
+void import_all(environment & env);
+/** \brief Create top-level environment with all builtin libraries and theorems */
 environment mk_toplevel();
 }

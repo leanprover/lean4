@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "type_checker.h"
 #include "free_vars.h"
 #include "builtin.h"
-#include "arith.h"
+#include "arithlibs.h"
 #include "printer.h"
 #include "state.h"
 #include "option_declarations.h"

@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "printer.h"
 #include "occurs.h"
 #include "abstract.h"
-#include "toplevel.h"
+#include "import_all.h"
 #include "basic_thms.h"
 #include "type_checker.h"
 #include "kernel_exception.h"

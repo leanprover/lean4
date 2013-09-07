@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "instantiate.h"
 #include "printer.h"
 #include "deep_copy.h"
-#include "arith.h"
+#include "arithlibs.h"
 using namespace lean;
 
 void tst1() {

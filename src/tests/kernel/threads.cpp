@@ -13,8 +13,8 @@ Author: Leonardo de Moura
 #include "deep_copy.h"
 #include "abstract.h"
 #include "normalizer.h"
-#include "toplevel.h"
-#include "arith.h"
+#include "import_all.h"
+#include "arithlibs.h"
 #include "test.h"
 using namespace lean;
 

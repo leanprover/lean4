@@ -4,20 +4,20 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "toplevel.h"
+#include "import_all.h"
 #include "builtin.h"
 #include "basic_thms.h"
-#include "arith.h"
+#include "arithlibs.h"
 
 namespace lean {
-void init_toplevel(environment & env) {
+void import_all(environment & env) {
     add_basic_theory(env);
     add_basic_thms(env);
-    add_arith_theory(env);
+    import_arithlibs(env);
 }
 environment mk_toplevel() {
     environment r;
-    init_toplevel(r);
+    import_all(r);
     return r;
 }
 }

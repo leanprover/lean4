@@ -686,14 +686,17 @@ class pp_fn {
         }
     }
 
-    result pp_scoped_child(expr const & e, unsigned depth) {
+    result pp_scoped_child(expr const & e, unsigned depth, unsigned prec = 0) {
         if (is_atomic(e)) {
             return pp(e, depth + 1, true);
         } else {
             mk_scope s(*this);
             result r = pp(e, depth + 1, true);
             if (m_aliases_defs.size() == s.m_old_size) {
-                return r;
+                if (prec <= get_operator_precedence(e))
+                    return r;
+                else
+                    return mk_result(paren(r.first), r.second);
             } else {
                 format r_format   = g_let_fmt;
                 unsigned r_weight = 2;
@@ -715,12 +718,12 @@ class pp_fn {
         }
     }
 
+    result pp_arrow_child(expr const & e, unsigned depth) {
+        return pp_scoped_child(e, depth, g_arrow_precedence + 1);
+    }
+
     result pp_arrow_body(expr const & e, unsigned depth) {
-        if (is_atomic(e) || is_arrow(e)) {
-            return pp(e, depth + 1);
-        } else {
-            return pp_child_with_paren(e, depth);
-        }
+        return pp_scoped_child(e, depth, g_arrow_precedence);
     }
 
     template<typename It>
@@ -736,6 +739,44 @@ class pp_fn {
 
     bool is_implicit(std::vector<bool> const * implicit_args, unsigned arg_pos) {
         return implicit_args && (*implicit_args)[arg_pos];
+    }
+
+    /**
+       \brief Auxiliary method for computing where Pi can be pretty printed as an arrow.
+       Examples:
+       Pi x : Int, Pi y : Int, Int        ===> return 0
+       Pi A : Type, Pi x : A, Pi y : A, A ===> return 1
+       Pi A : Type, Pi x : Int, A         ===> return 1
+       Pi A : Type, Pi x : Int, x > 0     ===> return UINT_MAX (there is no tail that can be printed as a arrow)
+
+       If \c e is not Pi, it returns UINT_MAX
+    */
+    unsigned get_arrow_starting_at(expr e) {
+        if (!is_pi(e))
+            return std::numeric_limits<unsigned>::max();
+        unsigned pos = 0;
+        while (is_pi(e)) {
+            expr e2 = abst_body(e);
+            unsigned num_vars = 1;
+            bool ok = true;
+            while (true) {
+                if (has_free_var(e2, 0, num_vars)) {
+                    ok = false;
+                    break;
+                }
+                if (is_pi(e2)) {
+                    e2 = abst_body(e2);
+                } else {
+                    break;
+                }
+            }
+            if (ok) {
+                return pos;
+            }
+            e = abst_body(e);
+            pos++;
+        }
+        return std::numeric_limits<unsigned>::max();
     }
 
     /**
@@ -759,11 +800,12 @@ class pp_fn {
         local_names::mk_scope mk(m_local_names);
         if (is_arrow(e) && !implicit_args) {
             lean_assert(!T);
-            result p_lhs    = pp_child(abst_domain(e), depth);
+            result p_lhs    = pp_arrow_child(abst_domain(e), depth);
             result p_rhs    = pp_arrow_body(abst_body(e), depth);
             format r_format = group(format{p_lhs.first, space(), m_unicode ? g_arrow_n_fmt : g_arrow_fmt, line(), p_rhs.first});
             return mk_result(r_format, p_lhs.second + p_rhs.second + 1);
         } else {
+            unsigned arrow_starting_at = get_arrow_starting_at(e);
             buffer<std::pair<name, expr>> nested;
             auto p = collect_nested(e, T, e.kind(), nested);
             expr b = p.first;
@@ -814,6 +856,37 @@ class pp_fn {
                     ++it2;
                     bool implicit = is_implicit(implicit_args, arg_pos);
                     ++arg_pos;
+                    if (!implicit && !is_lambda(e) && arg_pos > arrow_starting_at) {
+                        // the rest is an arrow, but we must check if we are not missing implicit annotations.
+                        auto it2_aux = it2;
+                        unsigned arg_pos_aux = arg_pos;
+                        while (it2_aux != end && !is_implicit(implicit_args, arg_pos_aux)) {
+                            ++arg_pos_aux;
+                            ++it2_aux;
+                        }
+                        if (it2_aux == end) {
+                            // the rest is a sequence of arrows.
+                            format block;
+                            bool first_domain = true;
+                            for (; it != end; ++it) {
+                                result p_domain = pp_arrow_child(it->second, depth);
+                                r_weight += p_domain.second;
+                                if (first_domain) {
+                                    first_domain = false;
+                                    block = p_domain.first;
+                                } else {
+                                    block += format{space(), m_unicode ? g_arrow_n_fmt : g_arrow_fmt, line(), p_domain.first};
+                                }
+                            }
+                            result p_body = pp_arrow_child(b, depth);
+                            r_weight += p_body.second;
+                            block += format{space(), m_unicode ? g_arrow_n_fmt : g_arrow_fmt, line(), p_body.first};
+                            block = group(block);
+                            format r_format = group(nest(head_indent, format{head, space(), group(bindings), body_sep, line(), block}));
+                            return mk_result(r_format, r_weight);
+                        }
+                    }
+                    // Continue with standard encoding
                     while (it2 != end && it2->second == it->second && implicit == is_implicit(implicit_args, arg_pos)) {
                         ++it2;
                         ++arg_pos;

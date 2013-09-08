@@ -4,7 +4,7 @@
 Error (line: 4, pos: 6) type mismatch at application
     f 10 ⊤
 Function type:
-    Π (A : Type) (a b : A), A
+    Π (A : Type), A → A → A
 Arguments types:
     ℕ : Type
     10 : ℕ
@@ -16,7 +16,7 @@ Error (line: 7, pos: 6) unsolved placeholder at term
 Error (line: 11, pos: 27) application type mismatch during term elaboration
     h A x
 Function type:
-    Π (A : Type) (_ : A), A
+    Π (A : Type), A → A
 Arguments types:
     A : Type
     x : lift:0:2 ?M0
@@ -26,7 +26,7 @@ Elaborator state
 Error (line: 15, pos: 51) application type mismatch during term elaboration
     eq C a b
 Function type:
-    Π (A : Type) (_ _ : A), Bool
+    Π (A : Type), A → A → Bool
 Arguments types:
     C : Type
     a : lift:0:3 ?M0
@@ -52,7 +52,7 @@ Elaborator state
 Error (line: 22, pos: 22) type mismatch at application
     Trans (Refl a) (Refl b)
 Function type:
-    Π (A : Type U) (a b c : A) (H1 : a = b) (H2 : b = c), a = c
+    Π (A : Type U) (a b c : A), (a = b) → (b = c) → (a = c)
 Arguments types:
     Bool : Type
     a : Bool
@@ -63,7 +63,7 @@ Arguments types:
 Error (line: 24, pos: 6) type mismatch at application
     f Bool Bool
 Function type:
-    Π (A : Type) (a b : A), A
+    Π (A : Type), A → A → A
 Arguments types:
     Type : Type 1
     Bool : Type
@@ -71,7 +71,7 @@ Arguments types:
 Error (line: 27, pos: 21) type mismatch at application
     DisjCases (EM a) (λ H_a : a, H) (λ H_na : ¬ a, NotImp1 (MT H H_na))
 Function type:
-    Π (a b c : Bool) (H1 : a ∨ b) (H2 : a → c) (H3 : b → c), c
+    Π (a b c : Bool), (a ∨ b) → (a → c) → (b → c) → c
 Arguments types:
     a : Bool
     ¬ a : Bool

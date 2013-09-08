@@ -13,7 +13,7 @@
   Defined: select
   Defined: map
 Axiom two_lt_three : two < three
-Definition vector (A : Type) (n : N) : Type := Π (i : N) (H : i < n), A
+Definition vector (A : Type) (n : N) : Type := Π (i : N), (i < n) → A
 Definition const {A : Type} (n : N) (d : A) : vector A n := λ (i : N) (H : i < n), d
 Definition const::explicit (A : Type) (n : N) (d : A) : vector A n := const n d
 Definition update {A : Type} {n : N} (v : vector A n) (i : N) (d : A) : vector A n :=
@@ -30,20 +30,20 @@ Bool
 vector Bool three
 
 --------
-Π (A : Type) (n : N) (v : vector A n) (i : N) (H : i < n), A
+Π (A : Type) (n : N) (v : vector A n) (i : N), (i < n) → A
 
 map type ---> 
-Π (A B C : Type) (n : N) (f : A → B → C) (v1 : vector A n) (v2 : vector B n), vector C n
+Π (A B C : Type) (n : N), (A → B → C) → (vector A n) → (vector B n) → (vector C n)
 
 map normal form --> 
 λ (A B C : Type)
   (n : N)
   (f : A → B → C)
-  (v1 : Π (i : N) (H : i < n), A)
-  (v2 : Π (i : N) (H : i < n), B)
+  (v1 : Π (i : N), (i < n) → A)
+  (v2 : Π (i : N), (i < n) → B)
   (i : N)
   (H : i < n),
   f (v1 i H) (v2 i H)
 
 update normal form --> 
-λ (A : Type) (n : N) (v : Π (i : N) (H : i < n), A) (i : N) (d : A) (j : N) (H : j < n), if A (j = i) d (v j H)
+λ (A : Type) (n : N) (v : Π (i : N), (i < n) → A) (i : N) (d : A) (j : N) (H : j < n), if A (j = i) d (v j H)

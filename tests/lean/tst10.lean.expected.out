@@ -19,6 +19,6 @@ if Bool a a ⊤
 a
   Assumed: H1
   Assumed: H2
-Π (a b : Bool) (H1 : a ⇒ b) (H2 : a), b
+Π (a b : Bool), (a ⇒ b) → a → b
 MP H2 H1
 b

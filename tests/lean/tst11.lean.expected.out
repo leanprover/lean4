@@ -6,7 +6,7 @@
 ⊤
   Assumed: a
 a ⊕ a ⊕ a
-Π (A : Type U) (a b : A) (P : A → Bool) (H1 : P a) (H2 : a = b), P b
+Π (A : Type U) (a b : A) (P : A → Bool), (P a) → (a = b) → (P b)
   Proved: EM2
 Π a : Bool, a ∨ ¬ a
 a ∨ ¬ a

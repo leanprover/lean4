@@ -5,9 +5,9 @@
   Assumed: R
   Proved: R2
   Set: lean::pp::implicit
-Variable C {A B : Type} (H : A = B) (a : A) : B
+Variable C {A B : Type} : (A = B) → A → B
 Definition C::explicit (A B : Type) (H : A = B) (a : A) : B := C H a
-Variable D {A A' : Type} {B : A → Type} {B' : A' → Type} (H : (Π x : A, B x) = (Π x : A', B' x)) : A = A'
+Variable D {A A' : Type} {B : A → Type} {B' : A' → Type} : ((Π x : A, B x) = (Π x : A', B' x)) → (A = A')
 Definition D::explicit (A A' : Type) (B : A → Type) (B' : A' → Type) (H : (Π x : A, B x) = (Π x : A', B' x)) : A =
     A' :=
     D H

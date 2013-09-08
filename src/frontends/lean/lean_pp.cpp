@@ -856,35 +856,27 @@ class pp_fn {
                     ++it2;
                     bool implicit = is_implicit(implicit_args, arg_pos);
                     ++arg_pos;
-                    if (!implicit && !is_lambda(e) && arg_pos > arrow_starting_at) {
-                        // the rest is an arrow, but we must check if we are not missing implicit annotations.
-                        auto it2_aux = it2;
-                        unsigned arg_pos_aux = arg_pos;
-                        while (it2_aux != end && !is_implicit(implicit_args, arg_pos_aux)) {
-                            ++arg_pos_aux;
-                            ++it2_aux;
-                        }
-                        if (it2_aux == end) {
-                            // the rest is a sequence of arrows.
-                            format block;
-                            bool first_domain = true;
-                            for (; it != end; ++it) {
-                                result p_domain = pp_arrow_child(it->second, depth);
-                                r_weight += p_domain.second;
-                                if (first_domain) {
-                                    first_domain = false;
-                                    block = p_domain.first;
-                                } else {
-                                    block += format{space(), m_unicode ? g_arrow_n_fmt : g_arrow_fmt, line(), p_domain.first};
-                                }
+                    if (!implicit_args && arg_pos > arrow_starting_at) {
+                        // The rest is an arrow
+                        // We do not use arrow pp when implicit_args marks are used.
+                        format block;
+                        bool first_domain = true;
+                        for (; it != end; ++it) {
+                            result p_domain = pp_arrow_child(it->second, depth);
+                            r_weight += p_domain.second;
+                            if (first_domain) {
+                                first_domain = false;
+                                block = p_domain.first;
+                            } else {
+                                block += format{space(), m_unicode ? g_arrow_n_fmt : g_arrow_fmt, line(), p_domain.first};
                             }
-                            result p_body = pp_arrow_child(b, depth);
-                            r_weight += p_body.second;
-                            block += format{space(), m_unicode ? g_arrow_n_fmt : g_arrow_fmt, line(), p_body.first};
-                            block = group(block);
-                            format r_format = group(nest(head_indent, format{head, space(), group(bindings), body_sep, line(), block}));
-                            return mk_result(r_format, r_weight);
                         }
+                        result p_body = pp_arrow_child(b, depth);
+                        r_weight += p_body.second;
+                        block += format{space(), m_unicode ? g_arrow_n_fmt : g_arrow_fmt, line(), p_body.first};
+                        block = group(block);
+                        format r_format = group(nest(head_indent, format{head, space(), group(bindings), body_sep, line(), block}));
+                        return mk_result(r_format, r_weight);
                     }
                     // Continue with standard encoding
                     while (it2 != end && it2->second == it->second && implicit == is_implicit(implicit_args, arg_pos)) {

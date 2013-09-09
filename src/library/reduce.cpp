@@ -74,8 +74,7 @@ expr head_reduce(expr const & t, environment const & e, context const & c, name_
             if (obj && obj.is_definition() && !obj.is_opaque())
                 return obj.get_value();
         }
-    } else {
-        return t;
     }
+    return t;
 }
 }

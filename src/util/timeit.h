@@ -22,7 +22,7 @@ public:
     }
     ~timeit() {
         clock_t end = clock();
-        std::cout << m_msg << " " << ((static_cast<double>(end) - static_cast<double>(m_start)) / CLOCKS_PER_SEC) << " secs\n";
+        m_out << m_msg << " " << ((static_cast<double>(end) - static_cast<double>(m_start)) / CLOCKS_PER_SEC) << " secs\n";
     }
 };
 }

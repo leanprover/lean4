@@ -1,11 +1,11 @@
   Set: pp::colors
   Set: pp::unicode
-ℕ
-ℕ
-ℤ
+10 + 20 : ℕ
+10 : ℕ
+10 - 20 : ℤ
 -10
 5
-ℤ
+15 + 10 - 20 : ℤ
   Assumed: x
   Assumed: n
   Assumed: m

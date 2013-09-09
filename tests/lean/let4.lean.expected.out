@@ -6,15 +6,15 @@ Given type:
     Bool
   Assumed: vector
   Assumed: const
-vector Bool 10
+let a := 10, v1 := const a ⊤, v2 := v1 in v2 : vector Bool 10
 let a := 10, v1 : vector Bool a := const a ⊤, v2 : vector Bool a := v1 in v2
-vector Bool 10
+let a := 10, v1 : vector Bool a := const a ⊤, v2 : vector Bool a := v1 in v2 : vector Bool 10
 Error (line: 31, pos: 26) type mismatch at definition 'v2', expected type
     vector ℤ a
 Given type:
     vector Bool a
   Assumed: foo
   Coercion foo
-vector ℤ 10
+let a := 10, v1 : vector Bool a := const a ⊤, v2 : vector ℤ a := v1 in v2 : vector ℤ 10
   Set: lean::pp::coercion
 let a := 10, v1 : vector Bool a := const a ⊤, v2 : vector ℤ a := foo v1 in v2

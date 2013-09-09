@@ -15,7 +15,7 @@ b
   Assumed: H2
   Defined: g
 0
-ℕ
+g (cast H2 f a') : ℕ
 Cast B B' (RanInj H2 (Cast A' A (Symm (DomInj H2)) a')) b
   Assumed: A1
   Assumed: A2
@@ -24,4 +24,4 @@ Cast B B' (RanInj H2 (Cast A' A (Symm (DomInj H2)) a')) b
   Assumed: Hb
   Assumed: a
 Cast A1 A3 (Trans Hb Ha) a
-A3
+cast Hb (cast Ha a) : A3

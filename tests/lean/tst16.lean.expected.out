@@ -6,7 +6,7 @@
 ∀ (a b : Type) (c : Bool), g c ((f a) = (f b))
 ∃ (a b : Type) (c : Bool), g c ((f a) = (f b))
 ∀ (a b : Type) (c : Bool), (g c (f a)) = (f b) ⇒ (f a)
-Bool
+∀ (a b : Type) (c : Bool), g c ((f a) = (f b)) : Bool
 ∀ (a b : Type) (c : Bool), g c ((f a) = (f b))
 ∀ a b : Type, (f a) = (f b)
 ∃ a b : Type, (f a) = (f b) ∧ (f a)

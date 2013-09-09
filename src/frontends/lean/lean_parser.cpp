@@ -1201,7 +1201,11 @@ class parser::imp {
         next();
         expr v = m_elaborator(parse_expr());
         expr t = infer_type(v, m_frontend);
-        regular(m_frontend) << t << endl;
+        formatter fmt = m_frontend.get_state().get_formatter();
+        options opts  = m_frontend.get_state().get_options();
+        unsigned indent = get_pp_indent(opts);
+        format r = group(format{fmt(v), space(), colon(), nest(indent, compose(line(), fmt(t)))});
+        regular(m_frontend) << mk_pair(r, opts) << endl;
     }
 
     /** \brief Return the (optional) precedence of a user-defined operator. */

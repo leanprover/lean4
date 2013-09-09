@@ -25,15 +25,15 @@ Definition map {A B C : Type} {n : N} (f : A → B → C) (v1 : vector A n) (v2 
     λ (i : N) (H : i < n), f (v1 i H) (v2 i H)
 Definition map::explicit (A B C : Type) (n : N) (f : A → B → C) (v1 : vector A n) (v2 : vector B n) : vector C n :=
     map f v1 v2
-Bool
+select (update (const three ⊥) two ⊤) two two_lt_three : Bool
 ⊤
-vector Bool three
+update (const three ⊥) two ⊤ : vector Bool three
 
 --------
-Π (A : Type) (n : N) (v : vector A n) (i : N), (i < n) → A
+select::explicit : Π (A : Type) (n : N) (v : vector A n) (i : N), (i < n) → A
 
 map type ---> 
-Π (A B C : Type) (n : N), (A → B → C) → (vector A n) → (vector B n) → (vector C n)
+map::explicit : Π (A B C : Type) (n : N), (A → B → C) → (vector A n) → (vector B n) → (vector C n)
 
 map normal form --> 
 λ (A B C : Type)

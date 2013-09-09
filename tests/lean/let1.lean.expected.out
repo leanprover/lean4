@@ -6,9 +6,9 @@ let a : ℕ := 1000000000000000000,
     c : ℕ := 3000000000000000000,
     d : ℕ := 4000000000000000000
 in a + b + c + d
-ℕ
+let a : ℕ := 10 in a + 1 : ℕ
 30
 30
-ℤ
+let a : ℤ := 20 in a + 10 : ℤ
   Set: lean::pp::coercion
 let a : ℤ := nat_to_int 20 in a + (nat_to_int 10)

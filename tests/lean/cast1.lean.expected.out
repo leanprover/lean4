@@ -13,4 +13,4 @@ Function type:
 Arguments types:
     m : ℕ
     v1 : vector ℤ (m + 0)
-ℤ
+f m (cast (V0 ℤ m) v1) : ℤ

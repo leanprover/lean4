@@ -9,8 +9,9 @@ f::explicit N n1 n2
 f::explicit ((N → N) → N → N) (λ x : N → N, x) (λ y : N → N, y)
   Assumed: EqNice
 EqNice::explicit N n1 n2
-N
-Π (A : Type U) (B : A → Type U) (f g : Π x : A, B x) (a b : A), (f = g) → (a = b) → ((f a) = (g b))
+f n1 n2 : N
+Congr::explicit :
+    Π (A : Type U) (B : A → Type U) (f g : Π x : A, B x) (a b : A), (f = g) → (a = b) → ((f a) = (g b))
 f::explicit N n1 n2
   Assumed: a
   Assumed: b

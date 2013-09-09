@@ -22,8 +22,8 @@ g b (t2r a)
   Set: lean::pp::notation
 g (g a b) a
 h (h r s) r
-R
-S
+a ++ b ++ a : R
+r ++ s ++ r : S
   Set: lean::pp::coercion
 g (g (t2r a) b) (t2r a)
 h (h r s) r

@@ -142,7 +142,7 @@ after_script:
      ctest -D ExperimentalCoverage;
   fi
 - if [[ $LEANREPO == BLESSED && $MEMCHECK == TRUE ]]; then
-     yes "C" | ctest -D ExperimentalMemCheck;
+     yes "C" | ctest -D ExperimentalMemCheck -VV;
   fi
 - if [[ $LEANREPO == BLESSED && $PUSH_TO_CDASH == TRUE ]]; then
       ctest -D ExperimentalSubmit;

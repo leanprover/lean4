@@ -1204,7 +1204,7 @@ class parser::imp {
         formatter fmt = m_frontend.get_state().get_formatter();
         options opts  = m_frontend.get_state().get_options();
         unsigned indent = get_pp_indent(opts);
-        format r = group(format{fmt(v), space(), colon(), nest(indent, compose(line(), fmt(t)))});
+        format r = group(format{fmt(v, opts), space(), colon(), nest(indent, compose(line(), fmt(t, opts)))});
         regular(m_frontend) << mk_pair(r, opts) << endl;
     }
 

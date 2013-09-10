@@ -9,10 +9,11 @@
 set(CTEST_PROJECT_NAME "Lean")
 set(CTEST_NIGHTLY_START_TIME "00:00:00 EST")
 
-# Specify MEMCHECK Option.
+# Specify MEMCHECK Option: http://valgrind.org/docs/manual/mc-manual.html
 # Note: We use "--trace-children=yes" to valgrind-ise child processes (follow execve)
-SET (VALGRIND_COMMAND_OPTIONS "-q --tool=memcheck --leak-check=yes --show-reachable=yes --workaround-gcc296-bugs=yes --num-callers=50 --trace-children=yes")
-SET (CTEST_MEMORYCHECK_COMMAND_OPTIONS "-q --tool=memcheck --leak-check=yes --show-reachable=yes --workaround-gcc296-bugs=yes --num-callers=50 --trace-children=yes")
+# Note: We turn off "--show-reachable=yes" option.
+SET (VALGRIND_COMMAND_OPTIONS "-q --tool=memcheck --leak-check=yes --workaround-gcc296-bugs=yes --num-callers=50 --trace-children=yes")
+SET (CTEST_MEMORYCHECK_COMMAND_OPTIONS "-q --tool=memcheck --leak-check=yes --workaround-gcc296-bugs=yes --num-callers=50 --trace-children=yes")
 
 set(CTEST_DROP_METHOD "http")
 set(CTEST_DROP_SITE "cmacslab2.modck.cs.cmu.edu")

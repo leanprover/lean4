@@ -48,7 +48,7 @@ after_script:
   fi
 - cd build
 - if [[ $MEMCHECK == TRUE ]]; then
-     ctest -D ExperimentalMemCheck -VV;
+     yes "C" | ctest -D ExperimentalMemCheck -VV;
   fi
 - if [[ $PUSH_TO_CDASH == TRUE ]]; then
     ctest -D ExperimentalSubmit;

@@ -128,7 +128,7 @@ public:
     mpfp(mpfp const & v     , mpfr_prec_t p, mpfr_rnd_t rnd):mpfp(p) { set(v, rnd); }
 
     mpfp(mpfp && s):mpfp(mpfr_get_prec(s.m_val)) { mpfr_swap(m_val, s.m_val); }
-    ~mpfp() { mpfr_clear(m_val); }
+    ~mpfp() { mpfr_clear(m_val); mpfr_free_cache(); }
 
     unsigned hash() const { return static_cast<unsigned>(mpfr_get_si(m_val, MPFR_RNDN)); }
 

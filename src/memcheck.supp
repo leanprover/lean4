@@ -1,4 +1,5 @@
 # Suppress warnings produced by Valgrind.
+# http://wiki.wxwidgets.org/Valgrind_Suppression_File_Howto
 {
    # This warning is due to a memory-leak bug in the g++ compiler.
    # Soonho reported the problem. Gcc team said this a known problem, and will be fixed

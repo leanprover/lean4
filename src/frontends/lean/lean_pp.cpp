@@ -514,7 +514,24 @@ class pp_fn {
             if (m_implicit_args) {
                 unsigned r = 0;
                 for (unsigned i = 0; i < num_args(m_app) - 1; i++) {
-                    if (!(*m_implicit_args)[i])
+                    // Remark: we need the test i >= m_implicit_args because the application
+                    // m_app may contain more arguments than the declaration of m_f.
+                    // Example:
+                    // m_f was declared as
+                    //     Pi {A : Type} (a : A) : A
+                    // Thus m_implicit_args has size 2, and contains {true, false}
+                    // indicating that the first argument is implicit.
+                    // Then, the actuall application is:
+                    //    f (Int -> Int) g 10
+                    // Assuming g has type Int -> Int.
+                    // This application is fine and has type Int.
+                    // We should not print the argument (Int -> Int) since it is
+                    // implicit.
+                    // We should view the application above as:
+                    //   (f (Int -> Int) g) 10
+                    // So, the arguments at position >= m_implicit_args->size()
+                    // are explicit by default.
+                    if (i >= m_implicit_args->size() || !(*m_implicit_args)[i])
                         r++;
                 }
                 return r;
@@ -528,7 +545,8 @@ class pp_fn {
             if (m_implicit_args) {
                 unsigned n = num_args(m_app);
                 for (unsigned j = 1; j < n; j++) {
-                    if (!(*m_implicit_args)[j-1]) {
+                    // See comment in get_num_args()
+                    if (j - 1 >= m_implicit_args->size() || !(*m_implicit_args)[j-1]) {
                         // explicit argument found
                         if (i == 0)
                             return arg(m_app, j);

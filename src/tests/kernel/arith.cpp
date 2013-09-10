@@ -82,6 +82,10 @@ static void tst5() {
 }
 
 static void tst6() {
+#if 0
+    // Disabling test to avoid memory leak error message produced by Valgrind.
+    // The memory leak is due to a bug in the g++ compiler.
+    // Soonho reported the problem. Gcc team said this a known problem, and will be fixed
     std::cout << "tst6\n";
     std::cout << mk_int_add_fn().raw() << "\n";
     std::cout << mk_int_add_fn().raw() << "\n";
@@ -93,6 +97,7 @@ static void tst6() {
     t2.join();
     #endif
     std::cout << mk_int_add_fn().raw() << "\n";
+#endif
 }
 
 int main() {

@@ -2,6 +2,7 @@
 
 # List of tests to ignore during the MemCheck stage
 SET(CTEST_CUSTOM_MEMCHECK_IGNORE ${CTEST_CUSTOM_MEMCHECK_IGNORE}
+    # The following tests are disabled since they take too much time on travis-ci
     "leanslowtests"
     "threads"
     )

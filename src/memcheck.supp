@@ -18,3 +18,17 @@
    fun:start_thread
    fun:clone
 }
+
+{
+   Suppress_Bash_Memory_Leak_on_Fedora19
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+   fun:make_if_command
+   fun:yyparse
+   fun:parse_command
+   fun:read_command
+   fun:reader_loop
+   fun:main
+}
+

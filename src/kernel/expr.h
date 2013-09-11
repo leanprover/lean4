@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 #include <limits>
+#include <atomic>
 #include "rc.h"
 #include "name.h"
 #include "level.h"

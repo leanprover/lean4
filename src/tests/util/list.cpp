@@ -71,8 +71,7 @@ static void tst5() {
         auto p = split(l);
         list<int> l2 = append(p.first, p.second);
         lean_assert(l2 == l);
-        int diff = static_cast<int>(length(p.first)) - static_cast<int>(length(p.second));
-        lean_assert(-1 <= diff && diff <= 1);
+        lean_assert(-1 <= static_cast<int>(length(p.first)) - static_cast<int>(length(p.second)) && static_cast<int>(length(p.first)) - static_cast<int>(length(p.second)) <= 1);
     }
 }
 

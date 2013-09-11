@@ -86,30 +86,7 @@ install:
        sudo pip install dropbox;
     fi
 
-script:
-  - mkdir -p build
-  - cd build
-  - cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ../src
-  - if [[ $CMAKE_BUILD_TYPE == DEBUG || $CMAKE_BUILD_TYPE == RELEASE || $CMAKE_BUILD_TYPE == TESTCOV ]]; then
-       SITE=Ubuntu12.04@Travis;
-       GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`;
-       if [[ $CMAKE_BUILD_TYPE == RELEASE ]]; then
-           BUILD_TYPE=Release;
-       else
-           BUILD_TYPE=Debug;
-       fi;
-       BUILD_NAME=${TRAVIS_BRANCH}_${GIT_COMMIT}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE};
-       CONFIG_FILE=DartConfiguration.tcl;
-       sed -i "s/^Site:.*/Site:$SITE/" $CONFIG_FILE;
-       sed -i "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE;
-       ctest -D ExperimentalConfigure;
-       sed -i "s/^Site:.*/Site:$SITE/" $CONFIG_FILE;
-       sed -i "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE;
-       ctest -D ExperimentalBuild -VV;
-       yes "C" | ctest -D ExperimentalTest -VV;
-    fi
-  - cd ..
-after_script:
+before_script:
 - if [[ $TRIGGER_BB == TRUE ]]; then
       git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/soonhok/lean.git +master;
   fi
@@ -137,6 +114,32 @@ after_script:
       mv /tmp/.travis.temp.yml .travis.yml;
       git reset --hard HEAD~;
   fi
+
+script:
+  - mkdir -p build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ../src
+  - if [[ $CMAKE_BUILD_TYPE == DEBUG || $CMAKE_BUILD_TYPE == RELEASE || $CMAKE_BUILD_TYPE == TESTCOV ]]; then
+       SITE=Ubuntu12.04@Travis;
+       GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`;
+       if [[ $CMAKE_BUILD_TYPE == RELEASE ]]; then
+           BUILD_TYPE=Release;
+       else
+           BUILD_TYPE=Debug;
+       fi;
+       BUILD_NAME=${TRAVIS_BRANCH}_${GIT_COMMIT}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE};
+       CONFIG_FILE=DartConfiguration.tcl;
+       sed -i "s/^Site:.*/Site:$SITE/" $CONFIG_FILE;
+       sed -i "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE;
+       ctest -D ExperimentalConfigure;
+       sed -i "s/^Site:.*/Site:$SITE/" $CONFIG_FILE;
+       sed -i "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE;
+       ctest -D ExperimentalBuild -VV;
+       yes "C" | ctest -D ExperimentalTest -VV;
+    fi
+  - cd ..
+
+after_script:
 - cd build
 - if [[ $LEANREPO == BLESSED && $CMAKE_BUILD_TYPE == TESTCOV ]]; then
      ctest -D ExperimentalCoverage;
@@ -153,15 +156,19 @@ after_script:
       script/doxygen.sh;
       script/dropbox_upload.py doc /Public/doc ${DROPBOX_KEY};
   fi
-- if [[ $LEANREPO == BLESSED && $CMAKE_BUILD_TYPE == TESTCOV ]]; then
-      script/lcov.sh ${CMAKE_CXX_COMPILER} ${TESTCOV_TOOL};
-      script/dropbox_upload.py build/testcov/lcov /Public/lcov ${DROPBOX_KEY};
-  fi
 - if [[ $LEANREPO == BLESSED && $UPLOAD ]]; then
       UPLOAD_DIR=bin;
       BINARY=lean_${UPLOAD};
+      NOW=`date +"%Y%m%d_%H%M"`;
+      GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`;
+      OS=linux;
+      ARCHIVE_BINARY=${NOW}_${TRAVIS_BRANCH}_${GIT_COMMIT}_${OS}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE};
+      if [[ $USE_TCMALLOC ]]; then
+          ARCHIVE_BINARY=${ARCHIVE_BINARY}_tcmalloc;
+      fi;
       mkdir ${UPLOAD_DIR};
       cp build/shell/lean ${UPLOAD_DIR}/${BINARY};
+      cp build/shell/lean ${UPLOAD_DIR}/${ARCHIVE_BINARY};
       script/dropbox_upload.py ${UPLOAD_DIR} /Public/${UPLOAD_DIR} ${DROPBOX_KEY};
   fi
 

@@ -3,7 +3,7 @@ language: cpp
 env:
   global:
   # DROPBOX_KEY
-  - secure: "H1aUwvee839ZPVievqm8Fwl9hBHx5/JW6+J66+ORYL2IHHPjfOgLKRYU2rcTcbxnZO88NJRGeiI431rEadBU2Ie5aS8WpKM5orvRmdd6bLcCvzqN+hS8JCmCVygQtgpKYYUk8iDWhX9YCgPVs0RlRz3UCjwUpqdkmL+w74lIZMM="
+  - secure: "c9wddhUaDt9SLzsT7R15j0Qey0JSZ0C602w2cu6IU88N84bDJK2wZ1wPEd0BGxy+hYamkJsNK34+XLZFBxQ5eriyxTZnAugpqk+PCnTy7Ct03y6f4zFGADGkXyYiTrnU/A1IxAk+lQV0BYGYagGMJfgtrxKofjukVqx6qEHQSKk="
   matrix:
   - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE UPLOAD=windows DROPBOX=TRUE PUSH_TO_CDASH=TRUE
   - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG PUSH_TO_CDASH=TRUE
@@ -51,9 +51,17 @@ script:
 after_script:
 - if [[ $UPLOAD ]]; then
       UPLOAD_DIR=bin;
-      BINARY=lean_${UPLOAD}.exe;
+      BINARY=lean_${UPLOAD};
+      NOW=`date +"%Y%m%d_%H%M"`;
+      GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`;
+      OS=windows;
+      ARCHIVE_BINARY=${NOW}_${TRAVIS_BRANCH}_${GIT_COMMIT}_${OS}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE};
+      if [[ $USE_TCMALLOC ]]; then
+          ARCHIVE_BINARY=${ARCHIVE_BINARY}_tcmalloc;
+      fi;
       mkdir ${UPLOAD_DIR};
-      cp build/shell/lean.exe ${UPLOAD_DIR}/${BINARY};
+      cp build/shell/lean.exe ${UPLOAD_DIR}/${BINARY}.exe;
+      cp build/shell/lean.exe ${UPLOAD_DIR}/${ARCHIVE_BINARY}.exe;
       script/dropbox_upload.py ${UPLOAD_DIR} /Public/${UPLOAD_DIR} ${DROPBOX_KEY};
   fi
 

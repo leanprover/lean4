@@ -42,8 +42,16 @@ after_script:
 - if [[ $UPLOAD ]]; then
       UPLOAD_DIR=bin;
       BINARY=lean_${UPLOAD};
+      NOW=`date +"%Y%m%d_%H%M"`;
+      GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`;
+      OS=osx;
+      ARCHIVE_BINARY=${NOW}_${TRAVIS_BRANCH}_${GIT_COMMIT}_${OS}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE};
+      if [[ $USE_TCMALLOC ]]; then
+          ARCHIVE_BINARY=${ARCHIVE_BINARY}_tcmalloc;
+      fi;
       mkdir ${UPLOAD_DIR};
       cp build/shell/lean ${UPLOAD_DIR}/${BINARY};
+      cp build/shell/lean ${UPLOAD_DIR}/${ARCHIVE_BINARY};
       script/dropbox_upload.py ${UPLOAD_DIR} /Public/${UPLOAD_DIR} ${DROPBOX_KEY};
   fi
 - cd build

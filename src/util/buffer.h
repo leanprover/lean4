@@ -73,6 +73,18 @@ public:
         return *this;
     }
 
+    bool operator==(buffer const & other) {
+        if (size() != other.size()) {
+            return false;
+        } else {
+            for (unsigned i = 0; i < size(); i++) {
+                if (operator[](i) != other[i])
+                    return false;
+            }
+            return true;
+        }
+    }
+
     T const & back() const { lean_assert(!empty() && m_pos > 0); return m_buffer[m_pos - 1]; }
     T & back() { lean_assert(!empty() && m_pos > 0); return m_buffer[m_pos - 1]; }
     T & operator[](unsigned idx) { lean_assert(idx < size());  return m_buffer[idx]; }

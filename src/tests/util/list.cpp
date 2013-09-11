@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include "list.h"
+#include "list_fn.h"
 #include "test.h"
 using namespace lean;
 
@@ -24,7 +25,7 @@ static void tst1() {
 
 static void tst2() {
     std::vector<int> a{10, 20, 30};
-    list<int> l = copy_to_list(a.begin(), a.end());
+    list<int> l = to_list(a.begin(), a.end());
     std::cout << l << "\n";
     lean_assert(head(l) == 10);
     lean_assert(head(tail(l)) == 20);
@@ -34,7 +35,7 @@ static void tst2() {
 
 static void tst3() {
     int a[3] = {10, 20, 30};
-    list<int> l = copy_to_list<int*, int>(a, a+3);
+    list<int> l = to_list<int*>(a, a+3);
     std::cout << l << "\n";
     lean_assert(head(l) == 10);
     lean_assert(head(tail(l)) == 20);
@@ -57,10 +58,29 @@ static void tst4() {
     lean_assert(l1 != tail(list<int>{1, 2, 3, 4}));
 }
 
+static void tst5() {
+    for (unsigned n = 0; n < 16; n++) {
+        buffer<int> tmp;
+        for (unsigned i = 0; i < n; i++) { tmp.push_back(i); }
+        buffer<int> tmp2;
+        to_buffer(to_list(tmp.begin(), tmp.end()), tmp2);
+        lean_assert(tmp2 == tmp);
+        list<int> l = to_list(tmp.begin(), tmp.end());
+        lean_assert(n == 0 || car(reverse(l)) == n - 1);
+        lean_assert(reverse(reverse(l)) == l);
+        auto p = split(l);
+        list<int> l2 = append(p.first, p.second);
+        lean_assert(l2 == l);
+        int diff = static_cast<int>(length(p.first)) - static_cast<int>(length(p.second));
+        lean_assert(-1 <= diff && diff <= 1);
+    }
+}
+
 int main() {
     tst1();
     tst2();
     tst3();
     tst4();
+    tst5();
     return has_violations() ? 1 : 0;
 }

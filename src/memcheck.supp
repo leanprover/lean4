@@ -11,7 +11,7 @@
    fun:*_thread_atexit
    fun:*
    fun:*
-   fun:*_Bind_simple*_invokeIIEEE*_Index_tuple*
+   fun:*_Bind_simple*_invoke*_Index_tuple*
    fun:*_Bind_simple*
    fun:*_Bind_simple*
    obj:*/libstdc++.so*

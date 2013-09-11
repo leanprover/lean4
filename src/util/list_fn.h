@@ -61,6 +61,26 @@ std::pair<list<T>, list<T>> split(list<T> const & l) {
 }
 
 /**
+   \brief Return two lists \c l1 and \c l2 of approximately the same size s.t.
+   <tt>append(l1, reverse(l2)) == l</tt>
+*/
+template<typename T>
+std::pair<list<T>, list<T>> split_reverse_second(list<T> const & l) {
+    if (is_nil(l)) {
+        return mk_pair(l, l);
+    } else if (is_nil(cdr(l))) {
+        return mk_pair(l, list<T>());
+    } else {
+        buffer<T> tmp;
+        to_buffer(l, tmp);
+        unsigned mid = tmp.size() / 2;
+        auto beg = tmp.begin();
+        lean_assert(beg + mid <= tmp.end());
+        return mk_pair(to_list(beg, beg + mid), reverse_to_list(beg+mid, tmp.end()));
+    }
+}
+
+/**
    \brief Append two lists
 */
 template<typename T>

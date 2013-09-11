@@ -133,4 +133,12 @@ template<typename It> list<typename std::iterator_traits<It>::value_type> to_lis
     }
     return r;
 }
+
+/** \brief Return <tt>reverse(to_list(begin, end))</tt> */
+template<typename It> list<typename std::iterator_traits<It>::value_type> reverse_to_list(It const & begin, It const & end) {
+    list<typename std::iterator_traits<It>::value_type> r;
+    for (auto it = begin; it != end; ++it)
+        r = cons(*it, r);
+    return r;
+}
 }

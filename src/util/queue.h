@@ -45,8 +45,7 @@ public:
             if (is_nil(cdr(q.m_rear))) {
                 return mk_pair(queue(), car(q.m_rear));
             } else {
-                auto p = split(q.m_rear);
-                p.second = reverse(p.second);
+                auto p = split_reverse_second(q.m_rear);
                 return mk_pair(queue(cdr(p.second), p.first), car(p.second));
             }
         } else {
@@ -66,8 +65,7 @@ public:
             if (is_nil(cdr(q.m_front))) {
                 return mk_pair(queue(), car(q.m_front));
             } else {
-                auto p = split(q.m_front);
-                p.second = reverse(p.second);
+                auto p = split_reverse_second(q.m_front);
                 return mk_pair(queue(p.first, cdr(p.second)), car(p.second));
             }
         } else {

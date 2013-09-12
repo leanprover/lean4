@@ -28,10 +28,10 @@ public:
     unsigned size() const { return length(m_front) + length(m_rear); }
 
     /** \brief Return the queue <tt>(v :: q)</tt> (complexity O(1)) */
-    friend queue push_front(queue const & q, T const & v) { return queue(cons(v, q.m_front), q.m_rear); }
+    friend queue push_front(queue<T> const & q, T const & v) { return queue(cons(v, q.m_front), q.m_rear); }
 
     /** \brief Return the queue <tt>(q :: v)</tt> (complexity O(1)) */
-    friend queue push_back(queue const & q, T const & v) { return queue(q.m_front, cons(v, q.m_rear)); }
+    friend queue push_back(queue<T> const & q, T const & v) { return queue(q.m_front, cons(v, q.m_rear)); }
 
     /**
         \brief Return the pair <tt>(q, v)</tt> for a queue <tt>(v :: q)</tt>.
@@ -39,7 +39,7 @@ public:
 
         \pre !is_empty(q)
     */
-    friend std::pair<queue, T> pop_front(queue const & q) {
+    friend std::pair<queue<T>, T> pop_front(queue<T> const & q) {
         lean_assert(!q.is_empty());
         if (is_nil(q.m_front)) {
             if (is_nil(cdr(q.m_rear))) {
@@ -59,7 +59,7 @@ public:
 
         \pre !is_empty(q)
     */
-    friend std::pair<queue, T> pop_back(queue const & q) {
+    friend std::pair<queue<T>, T> pop_back(queue<T> const & q) {
         lean_assert(!q.is_empty());
         if (is_nil(q.m_rear)) {
             if (is_nil(cdr(q.m_front))) {

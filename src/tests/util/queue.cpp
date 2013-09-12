@@ -122,9 +122,89 @@ static void tst3() {
     lean_assert(pop_back(pop_back(q).first).second == 3);
 }
 
+// #define QUEUE_PERF_TEST
+#ifdef QUEUE_PERF_TEST
+#include "timeit.h"
+
+static void perf_deque(unsigned n) {
+    std::deque<int> q;
+    for (unsigned i = 0; i < n; i++) {
+        q.push_back(i);
+    }
+    for (unsigned i = 0; i < n; i++) {
+        q.pop_front();
+    }
+}
+
+static void perf_queue(unsigned n) {
+    queue<int> q;
+    for (unsigned i = 0; i < n; i++) {
+        q = push_back(q, i);
+    }
+    for (unsigned i = 0; i < n; i++) {
+        q = pop_front(q).first;
+    }
+}
+
+static void tst4() {
+    unsigned N = 100000;
+    unsigned M = 100;
+    {
+        timeit t(std::cout, "deque time");
+        for (unsigned i = 0; i < N; i++) perf_deque(M);
+    }
+    {
+        timeit t(std::cout, "queue time");
+        for (unsigned i = 0; i < N; i++) perf_queue(M);
+    }
+}
+
+
+static void perf_deque2(std::deque<int> q, unsigned n) {
+    for (unsigned i = 0; i < n; i++) {
+        q.push_back(i);
+    }
+    for (unsigned i = 0; i < n; i++) {
+        q.pop_front();
+    }
+}
+
+static void perf_queue2(queue<int> q, unsigned n) {
+    for (unsigned i = 0; i < n; i++) {
+        q = push_back(q, i);
+    }
+    for (unsigned i = 0; i < n; i++) {
+        q = pop_front(q).first;
+    }
+}
+
+static void tst5() {
+    unsigned N = 100000;
+    unsigned SZ1 = 10000;
+    unsigned M   = 5;
+    {
+        timeit t(std::cout, "deque time");
+        std::deque<int> q;
+        for (unsigned i = 0; i < SZ1; i++) { q.push_back(i); }
+        for (unsigned i = 0; i < N; i++) perf_deque2(q, M);
+    }
+    {
+        timeit t(std::cout, "queue time");
+        queue<int> q;
+        for (unsigned i = 0; i < SZ1 + 1; i++) { q = push_back(q, i); }
+        q = pop_front(q).first;
+        for (unsigned i = 0; i < N; i++) perf_queue2(q, M);
+    }
+}
+#endif
+
 int main() {
     tst1();
     tst2();
     tst3();
+#ifdef QUEUE_PERF_TEST
+    tst4();
+    tst5();
+#endif
     return has_violations() ? 1 : 0;
 }

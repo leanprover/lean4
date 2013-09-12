@@ -66,7 +66,7 @@ static void tst5() {
         to_buffer(to_list(tmp.begin(), tmp.end()), tmp2);
         lean_assert(tmp2 == tmp);
         list<int> l = to_list(tmp.begin(), tmp.end());
-        lean_assert(n == 0 || car(reverse(l)) == n - 1);
+        lean_assert(n == 0 || car(reverse(l)) == static_cast<int>(n - 1));
         lean_assert(reverse(reverse(l)) == l);
         auto p = split(l);
         list<int> l2 = append(p.first, p.second);

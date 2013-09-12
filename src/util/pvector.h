@@ -229,7 +229,7 @@ public:
         \brief Access specified element
         \pre i < size()
     */
-    T const & operator[](unsigned i) const {
+    T const & get(unsigned i) const {
         lean_assert(i < size());
         cell const * it = m_ptr;
         unsigned cost = 0;
@@ -240,7 +240,7 @@ public:
                     if (const_cast<pvector*>(this)->update_quota_on_read(cost))
                         return to_push(it).m_val;
                     else
-                        return operator[](i); // representation was changed, \c it may have been deleted
+                        return get(i); // representation was changed, \c it may have been deleted
                 }
                 break;
             case cell_kind::PopBack:
@@ -250,14 +250,14 @@ public:
                     if (const_cast<pvector*>(this)->update_quota_on_read(cost))
                         return to_set(it).m_val;
                     else
-                        return operator[](i); // representation was changed, \c it may have been deleted
+                        return get(i); // representation was changed, \c it may have been deleted
                 }
                 break;
             case cell_kind::Root:
                 if (const_cast<pvector*>(this)->update_quota_on_read(cost))
                     return to_root(it).m_vector[i];
                 else
-                    return operator[](i); // representation was changed, \c it may have been deleted
+                    return get(i); // representation was changed, \c it may have been deleted
             }
             it = static_cast<delta_cell const *>(it)->m_prev;
             cost++;
@@ -343,6 +343,19 @@ public:
             break;
         }
     }
+
+    class ref {
+        pvector  & m_vector;
+        unsigned   m_idx;
+    public:
+        ref(pvector & v, unsigned i):m_vector(v), m_idx(i) {}
+        ref & operator=(T const & a) { m_vector.set(m_idx, a); return *this; }
+        operator T const &() const { return m_vector.get(m_idx); }
+    };
+
+    T const & operator[](unsigned i) const { return get(i); }
+
+    ref operator[](unsigned i) { return ref(*this, i); }
 
     class iterator {
         friend class pvector;

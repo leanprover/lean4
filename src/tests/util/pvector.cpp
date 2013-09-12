@@ -61,7 +61,7 @@ bool operator==(pvector<T> v1, pvector<T> v2) {
     return true;
 }
 
-static void driver(unsigned max_sz, unsigned max_val, unsigned num_ops, double push_freq, double copy_freq) {
+static void driver(unsigned max_sz, unsigned max_val, unsigned num_ops, double updt_freq, double copy_freq) {
     std::vector<int> v1;
     pvector<int>     v2;
     pvector<int>     v3;
@@ -79,14 +79,23 @@ static void driver(unsigned max_sz, unsigned max_val, unsigned num_ops, double p
                 lean_assert(v3[idx] == v1[idx]);
             }
         }
-        if (f < push_freq) {
+        if (f < updt_freq) {
             if (v1.size() >= max_sz)
                 continue;
             int a = std::rand() % max_val;
-            v1.push_back(a);
-            v2.push_back(a);
-            v3 = push_back(v3, a);
-            lean_assert(back(v3) == a);
+            if (!empty(v2) && rand()%2 == 0) {
+                unsigned idx = rand() % size(v2);
+                v1[idx] = a;
+                v2[idx] = a;
+                v3[idx] = a;
+                lean_assert(v1[idx] == v2[idx]);
+                lean_assert(v1[idx] == v3[idx]);
+            } else {
+                v1.push_back(a);
+                v2.push_back(a);
+                v3 = push_back(v3, a);
+                lean_assert(back(v3) == a);
+            }
         } else {
             if (v1.size() == 0)
                 continue;
@@ -173,6 +182,22 @@ static void tst5() {
     }
 }
 
+static void tst6() {
+    pvector<int> v;
+    v.push_back(0);
+    v.push_back(1);
+    pvector<int> v2 = v;
+    v2[0] = 10;
+    lean_assert(v2[0] == 10);
+    lean_assert(v[0] == 0);
+    v[0] = 5;
+    lean_assert(v2[0] == 10);
+    lean_assert(v[0] == 5);
+    v2[1] = 20;
+    lean_assert(v2[0] == 10);
+    lean_assert(v2[1] == 20);
+}
+
 #ifdef PVECTOR_PERF_TEST
 static void perf_vector(unsigned n) {
     std::vector<int> q;
@@ -250,6 +275,7 @@ int main() {
     tst3();
     tst4();
     tst5();
+    tst6();
 #ifdef PVECTOR_PERF_TEST
     tst_perf1();
     tst_perf2();

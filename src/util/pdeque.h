@@ -264,7 +264,7 @@ public:
         \brief Access specified element
         \pre i < size()
     */
-    T const & operator[](unsigned i) const {
+    T const & get(unsigned i) const {
         lean_assert(i < size());
         cell const * it = m_ptr;
         unsigned input_i = i;
@@ -276,7 +276,7 @@ public:
                     if (const_cast<pdeque*>(this)->update_quota_on_read(cost))
                         return to_push_back(it).m_val;
                     else
-                        return operator[](input_i); // representation was updated
+                        return get(input_i); // representation was updated
                 }
                 break;
             case cell_kind::PushFront:
@@ -284,7 +284,7 @@ public:
                     if (const_cast<pdeque*>(this)->update_quota_on_read(cost))
                         return to_push_front(it).m_val;
                     else
-                        return operator[](input_i); // representation was updated
+                        return get(input_i); // representation was updated
                 } else {
                     i--;
                 }
@@ -299,14 +299,14 @@ public:
                     if (const_cast<pdeque*>(this)->update_quota_on_read(cost))
                         return to_set(it).m_val;
                     else
-                        return operator[](input_i); // representation was updated
+                        return get(input_i); // representation was updated
                 }
                 break;
             case cell_kind::Root:
                 if (const_cast<pdeque*>(this)->update_quota_on_read(cost))
                     return to_root(it).m_deque[i];
                 else
-                    return operator[](input_i); // representation was updated
+                    return get(input_i); // representation was updated
             }
             it = static_cast<delta_cell const *>(it)->m_prev;
             cost++;
@@ -432,6 +432,8 @@ public:
         switch (m_ptr->kind()) {
         case cell_kind::PushBack:
         case cell_kind::PopBack:
+        case cell_kind::PushFront:
+        case cell_kind::PopFront:
             set_core(i, v);
             break;
         case cell_kind::Set:
@@ -448,6 +450,19 @@ public:
             break;
         }
     }
+
+    class ref {
+        pdeque  &  m_deque;
+        unsigned   m_idx;
+    public:
+        ref(pdeque & v, unsigned i):m_deque(v), m_idx(i) {}
+        ref & operator=(T const & a) { m_deque.set(m_idx, a); return *this; }
+        operator T const &() const { return m_deque.get(m_idx); }
+    };
+
+    T const & operator[](unsigned i) const { return get(i); }
+
+    ref operator[](unsigned i) { return ref(*this, i); }
 
     class iterator {
         friend class pdeque;

@@ -67,7 +67,7 @@ static void tst1() {
     lean_assert(pop_back(push_back(q, 3)) == q);
 }
 
-static void driver(unsigned max_sz, unsigned max_val, unsigned num_ops, double push_freq, double copy_freq) {
+static void driver(unsigned max_sz, unsigned max_val, unsigned num_ops, double updt_freq, double copy_freq) {
     std::deque<int> q1;
     pdeque<int>     q2;
     pdeque<int>     q3;
@@ -84,18 +84,31 @@ static void driver(unsigned max_sz, unsigned max_val, unsigned num_ops, double p
             }
         }
         f = static_cast<double>(std::rand() % 10000) / 10000.0;
-        if (f < push_freq) {
+        if (f < updt_freq) {
             if (q1.size() >= max_sz)
                 continue;
             int v = std::rand() % max_val;
-            if (std::rand() % 2 == 0) {
+            switch (std::rand() % 3) {
+            case 0:
                 q1.push_front(v);
                 q2 = push_front(q2, v);
                 q3.push_front(v);
-            } else {
+                break;
+            case 1:
                 q1.push_back(v);
                 q2 = push_back(q2, v);
                 q3.push_back(v);
+                break;
+            default:
+                if (!empty(q2)) {
+                    unsigned idx = rand() % size(q2);
+                    q1[idx] = v;
+                    q2[idx] = v;
+                    q3[idx] = v;
+                    lean_assert(q1[idx] == q2[idx]);
+                    lean_assert(q1[idx] == q3[idx]);
+                }
+                break;
             }
         } else {
             if (q1.size() == 0)

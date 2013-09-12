@@ -30,6 +30,7 @@ class pvector {
         cell_kind m_kind;
         MK_LEAN_RC();
         cell(cell_kind k):m_kind(k), m_rc(0) {}
+        cell(cell const & c):m_kind(c.m_kind), m_rc(0) {}
         void dealloc();
         unsigned size() const;
         /**
@@ -59,6 +60,10 @@ class pvector {
             lean_assert(m_prev);
             m_prev->inc_ref();
         }
+        delta_cell(delta_cell const & c):cell(c), m_size(c.m_size), m_quota(c.m_quota), m_prev(c.m_prev) {
+            lean_assert(m_prev);
+            m_prev->inc_ref();
+        }
         ~delta_cell() { lean_assert(m_prev); m_prev->dec_ref(); }
     };
 
@@ -68,6 +73,7 @@ class pvector {
     */
     struct pop_cell : public delta_cell {
         pop_cell(cell * prev):delta_cell(cell_kind::PopBack, prev->size() - 1, prev) {}
+        pop_cell(pop_cell const & c):delta_cell(c) {}
     };
 
     /**
@@ -77,6 +83,7 @@ class pvector {
     struct push_cell : public delta_cell {
         T m_val;
         push_cell(T const & v, cell * prev):delta_cell(cell_kind::PushBack, prev->size() + 1, prev), m_val(v) {}
+        push_cell(push_cell const & c):delta_cell(c), m_val(c.m_val) {}
     };
 
     /**
@@ -87,6 +94,7 @@ class pvector {
         unsigned m_idx;
         T        m_val;
         set_cell(unsigned i, T const & v, cell * prev):delta_cell(cell_kind::Set, prev->size(), prev), m_idx(i), m_val(v) {}
+        set_cell(set_cell const & c):delta_cell(c), m_idx(c.m_idx), m_val(c.m_val) {}
     };
 
     static push_cell & to_push(cell * c) { lean_assert(c->kind() == cell_kind::PushBack); return *static_cast<push_cell*>(c); }
@@ -101,6 +109,9 @@ class pvector {
     cell * m_ptr;
     pvector(cell * d):m_ptr(d) { lean_assert(m_ptr); m_ptr->inc_ref(); }
 
+    /** \brief Return true iff the cell associated with this vector is shared */
+    bool is_shared() const { return m_ptr->get_rc() > 1; }
+
     /** \brief Update the cell (and reference counters) of this vector */
     void update_cell(cell * new_cell) {
         lean_assert(new_cell);
@@ -110,35 +121,44 @@ class pvector {
         m_ptr = new_cell;
     }
 
-    /** \brief Return true iff the cell associated with this vector is shared */
-    bool is_shared() const { return m_ptr->get_rc() > 1; }
-
     /**
-       \brief Auxiliary method for \c flat_if_needed.
-       Given an empty vector \c r, then <tt>flat(c, r)</tt> will
+       \brief Auxiliary method for \c flat
+       Given an empty vector \c r, then <tt>flat_core(c, r)</tt> will
        store in r the vector represented by cell \c c.
        That is, the vector obtained after finding the root cell (aka wrapper for std::vector),
        and applying all deltas.
     */
-    static void flat(cell * c, std::vector<T> & r) {
+    static void flat_core(cell * c, std::vector<T> & r) {
         lean_assert(r.empty());
         switch(c->kind()) {
         case cell_kind::PushBack:
-            flat(to_push(c).m_prev, r);
+            flat_core(to_push(c).m_prev, r);
             r.push_back(to_push(c).m_val);
             break;
         case cell_kind::PopBack:
-            flat(to_pop(c).m_prev, r);
+            flat_core(to_pop(c).m_prev, r);
             r.pop_back();
             break;
         case cell_kind::Set:
-            flat(to_set(c).m_prev, r);
+            flat_core(to_set(c).m_prev, r);
             r[to_set(c).m_idx] = to_set(c).m_val;
             break;
         case cell_kind::Root:
             r = to_root(c).m_vector;
             break;
         }
+    }
+
+    /**
+       \brief Change the representation to a root cell.
+    */
+    void flat() {
+        lean_assert(m_ptr->kind() != cell_kind::Root);
+        std::vector<T> r;
+        flat_core(m_ptr, r);
+        update_cell(new root_cell());
+        to_root(m_ptr).m_vector.swap(r);
+        lean_assert(!is_shared());
     }
 
     /**
@@ -149,11 +169,29 @@ class pvector {
     void flat_if_needed() {
         lean_assert(m_ptr->kind() != cell_kind::Root);
         if (static_cast<delta_cell*>(m_ptr)->m_quota == 0) {
-            std::vector<T> r;
-            flat(m_ptr, r);
-            update_cell(new root_cell());
-            to_root(m_ptr).m_vector.swap(r);
-            lean_assert(!is_shared());
+            flat();
+        }
+    }
+
+    /** \brief Update quota based on the cost of a read */
+    void update_quota_on_read(unsigned cost) {
+        cost /= 2; // reads are cheaper than writes
+        if (cost > 0) {
+            if (cost >= m_ptr->quota()) {
+                flat();
+            } else {
+                if (is_shared()) {
+                    switch (m_ptr->kind()) {
+                    case cell_kind::PushBack: update_cell(new push_cell(to_push(m_ptr))); break;
+                    case cell_kind::PopBack:  update_cell(new pop_cell(to_pop(m_ptr))); break;
+                    case cell_kind::Set:      update_cell(new set_cell(to_set(m_ptr))); break;
+                    case cell_kind::Root:     lean_unreachable(); break;
+                    }
+                }
+                lean_assert(!is_shared());
+                lean_assert(cost < static_cast<delta_cell*>(m_ptr)->m_quota);
+                static_cast<delta_cell*>(m_ptr)->m_quota -= cost;
+            }
         }
     }
 
@@ -183,30 +221,33 @@ public:
     /**
         \brief Access specified element
         \pre i < size()
-
-        TODO: Consider if we should reduce m_quota
-        reading. Another possibility is to
-        have a maximum number of delta_cells
     */
     T const & operator[](unsigned i) const {
         lean_assert(i < size());
         cell const * it = m_ptr;
+        unsigned cost = 0;
         while (true) {
             switch (it->kind()) {
             case cell_kind::PushBack:
-                if (i + 1 == to_push(it).m_size)
+                if (i + 1 == to_push(it).m_size) {
+                    const_cast<pvector*>(this)->update_quota_on_read(cost);
                     return to_push(it).m_val;
+                }
                 break;
             case cell_kind::PopBack:
                 break;
             case cell_kind::Set:
-                if (to_set(it).m_idx == i)
+                if (to_set(it).m_idx == i) {
+                    const_cast<pvector*>(this)->update_quota_on_read(cost);
                     return to_set(it).m_val;
+                }
                 break;
             case cell_kind::Root:
+                const_cast<pvector*>(this)->update_quota_on_read(cost);
                 return to_root(it).m_vector[i];
             }
             it = static_cast<delta_cell const *>(it)->m_prev;
+            cost++;
         }
     }
 

@@ -8,7 +8,10 @@ Author: Leonardo de Moura
 #include <cstdlib>
 #include "test.h"
 #include "pvector.h"
+#include "timeit.h"
 using namespace lean;
+
+// #define PVECTOR_PERF_TEST
 
 static void tst1() {
     pvector<int> v;
@@ -96,10 +99,21 @@ static void tst2() {
     driver(128, 1000, 10000, 0.2, 0.1);
 }
 
-// #define PVECTOR_PERF_TEST
-#ifdef PVECTOR_PERF_TEST
-#include "timeit.h"
+static void tst3() {
+    timeit t(std::cout, "tst3");
+    unsigned N = 20000;
+    unsigned M = 20000;
+    pvector<int> v;
+    for (unsigned i = 0; i < N; i++) v.push_back(i);
+    pvector<int> v2 = v;
+    for (unsigned i = 0; i < N / 2; i++) v2.push_back(i);
+    // v2 has a long trail of deltas
+    // Now, we only read v2
+    unsigned s = 0;
+    for (unsigned i = 0; i < M; i++) { s += v2[i % v2.size()]; }
+}
 
+#ifdef PVECTOR_PERF_TEST
 static void perf_vector(unsigned n) {
     std::vector<int> q;
     for (unsigned i = 0; i < n; i++) {
@@ -173,6 +187,7 @@ static void tst_perf2() {
 int main() {
     tst1();
     tst2();
+    tst3();
 #ifdef PVECTOR_PERF_TEST
     tst_perf1();
     tst_perf2();

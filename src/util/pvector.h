@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <iostream>
 #include <vector>
 #include "rc.h"
 
@@ -173,12 +174,17 @@ class pvector {
         }
     }
 
-    /** \brief Update quota based on the cost of a read */
-    void update_quota_on_read(unsigned cost) {
+    /**
+        \brief Update quota based on the cost of a read
+        Return true if the quota was updated, and false
+        if the representation had to be updated.
+    */
+    bool update_quota_on_read(unsigned cost) {
         cost /= 2; // reads are cheaper than writes
         if (cost > 0) {
             if (cost >= m_ptr->quota()) {
                 flat();
+                return false;
             } else {
                 if (is_shared()) {
                     switch (m_ptr->kind()) {
@@ -193,6 +199,7 @@ class pvector {
                 static_cast<delta_cell*>(m_ptr)->m_quota -= cost;
             }
         }
+        return true;
     }
 
     void pop_back_core() { update_cell(new pop_cell(m_ptr)); }
@@ -230,21 +237,27 @@ public:
             switch (it->kind()) {
             case cell_kind::PushBack:
                 if (i + 1 == to_push(it).m_size) {
-                    const_cast<pvector*>(this)->update_quota_on_read(cost);
-                    return to_push(it).m_val;
+                    if (const_cast<pvector*>(this)->update_quota_on_read(cost))
+                        return to_push(it).m_val;
+                    else
+                        return operator[](i); // representation was changed, \c it may have been deleted
                 }
                 break;
             case cell_kind::PopBack:
                 break;
             case cell_kind::Set:
                 if (to_set(it).m_idx == i) {
-                    const_cast<pvector*>(this)->update_quota_on_read(cost);
-                    return to_set(it).m_val;
+                    if (const_cast<pvector*>(this)->update_quota_on_read(cost))
+                        return to_set(it).m_val;
+                    else
+                        return operator[](i); // representation was changed, \c it may have been deleted
                 }
                 break;
             case cell_kind::Root:
-                const_cast<pvector*>(this)->update_quota_on_read(cost);
-                return to_root(it).m_vector[i];
+                if (const_cast<pvector*>(this)->update_quota_on_read(cost))
+                    return to_root(it).m_vector[i];
+                else
+                    return operator[](i); // representation was changed, \c it may have been deleted
             }
             it = static_cast<delta_cell const *>(it)->m_prev;
             cost++;
@@ -332,6 +345,7 @@ public:
     }
 
     class iterator {
+        friend class pvector;
         pvector const & m_vector;
         unsigned        m_it;
         iterator(pvector const & v, unsigned it):m_vector(v), m_it(it) {}
@@ -341,8 +355,8 @@ public:
         iterator operator++(int) { iterator tmp(*this); operator++(); return tmp; }
         bool operator==(iterator const & s) const { lean_assert(&m_vector == &(s.m_vector)); return m_it == s.m_it; }
         bool operator!=(iterator const & s) const { return !operator==(s); }
-        T const & operator*() { lean_assert(m_it); return m_vector[m_it]; }
-        T const * operator->() { lean_assert(m_it); return &(m_vector[m_it]); }
+        T const & operator*() const { return m_vector[m_it]; }
+        T const * operator->() const { return &(m_vector[m_it]); }
     };
 
     /** \brief Return an iterator to the beginning */
@@ -405,4 +419,23 @@ T const & back(pvector<T> const & s) { return s.back(); }
 /** \brief Return true iff \c s is empty. */
 template<typename T>
 bool empty(pvector<T> const & s) { return s.empty(); }
+/** \brief Return the size of \c s. */
+template<typename T>
+unsigned size(pvector<T> const & s) { return s.size(); }
+
+template<typename T> inline std::ostream & operator<<(std::ostream & out, pvector<T> const & d) {
+    out << "[";
+    bool first = true;
+    auto it  = d.begin();
+    auto end = d.end();
+    for (; it != end; ++it) {
+        if (first)
+            first = false;
+        else
+            out << ", ";
+        out << *it;
+    }
+    out << "]";
+    return out;
+}
 }

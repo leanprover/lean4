@@ -50,29 +50,53 @@ bool operator==(pvector<T> v1, std::vector<T> const & v2) {
     return true;
 }
 
+template<typename T>
+bool operator==(pvector<T> v1, pvector<T> v2) {
+    if (v1.size() != v2.size())
+        return false;
+    for (unsigned i = 0; i < v1.size(); i++) {
+        if (v1[i] != v2[i])
+            return false;
+    }
+    return true;
+}
+
 static void driver(unsigned max_sz, unsigned max_val, unsigned num_ops, double push_freq, double copy_freq) {
     std::vector<int> v1;
     pvector<int>     v2;
+    pvector<int>     v3;
     std::vector<pvector<int>> copies;
     for (unsigned i = 0; i < num_ops; i++) {
         double f = static_cast<double>(std::rand() % 10000) / 10000.0;
-        if (f < copy_freq)
+        if (f < copy_freq) {
             copies.push_back(v2);
+        }
         f = static_cast<double>(std::rand() % 10000) / 10000.0;
+        // read random positions of v3
+        if (!empty(v3)) {
+            for (unsigned j = 0; j < rand() % 5; j++) {
+                unsigned idx = rand() % size(v3);
+                lean_assert(v3[idx] == v1[idx]);
+            }
+        }
         if (f < push_freq) {
             if (v1.size() >= max_sz)
                 continue;
             int a = std::rand() % max_val;
             v1.push_back(a);
             v2.push_back(a);
+            v3 = push_back(v3, a);
+            lean_assert(back(v3) == a);
         } else {
             if (v1.size() == 0)
                 continue;
             lean_assert(v1.back() == v2.back());
             v1.pop_back();
             v2.pop_back();
+            v3 = pop_back(v3);
         }
         lean_assert(v2 == v1);
+        lean_assert(v3 == v1);
     }
     std::cout << "Copies created: " << copies.size() << "\n";
 }
@@ -111,6 +135,42 @@ static void tst3() {
     // Now, we only read v2
     unsigned s = 0;
     for (unsigned i = 0; i < M; i++) { s += v2[i % v2.size()]; }
+}
+
+static void tst4() {
+    pvector<int> v;
+    lean_assert(empty(v));
+    lean_assert(size(v) == 0);
+    v = push_back(v, 1);
+    lean_assert(size(v) == 1);
+    std::cout << "v: " << v << "\n";
+    lean_assert(back(v) == 1);
+    lean_assert(!empty(v));
+    v = push_back(v, 2);
+    lean_assert(back(v) == 2);
+    std::cout << "v: " << v << "\n";
+    v = push_back(v, 3);
+    std::cout << "v: " << v << "\n";
+    lean_assert(size(v) == 3);
+    lean_assert(v[0] == 1);
+    lean_assert(back(v) == 3);
+    lean_assert(size(pop_back(v)) == 2);
+    lean_assert(back(pop_back(v)) == 2);
+    lean_assert(pop_back(pop_back(v))[0] == 1);
+    lean_assert(empty(pop_back(pop_back(pop_back(v)))));
+    lean_assert(pop_back(push_back(v, 3)) == v);
+}
+
+static void tst5() {
+    pvector<int> v;
+    v.push_back(0);
+    pvector<int> v2 = v;
+    for (unsigned i = 1; i < 100; i++) {
+        lean_assert(v2[0] == 0);
+        v2.push_back(i);
+        lean_assert(v2[0] == 0);
+        v = pvector<int>();
+    }
 }
 
 #ifdef PVECTOR_PERF_TEST
@@ -188,6 +248,8 @@ int main() {
     tst1();
     tst2();
     tst3();
+    tst4();
+    tst5();
 #ifdef PVECTOR_PERF_TEST
     tst_perf1();
     tst_perf2();

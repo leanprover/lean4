@@ -533,7 +533,7 @@ template<typename T>
 unsigned size(pdeque<T> const & s) { return s.size(); }
 
 template<typename T> inline std::ostream & operator<<(std::ostream & out, pdeque<T> const & d) {
-    out << "[";
+    out << "[[";
     bool first = true;
     auto it  = d.begin();
     auto end = d.end();
@@ -541,10 +541,10 @@ template<typename T> inline std::ostream & operator<<(std::ostream & out, pdeque
         if (first)
             first = false;
         else
-            out << " ";
+            out << ", ";
         out << *it;
     }
-    out << "]";
+    out << "]]";
     return out;
 }
 }

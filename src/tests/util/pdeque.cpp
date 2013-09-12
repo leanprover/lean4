@@ -78,7 +78,7 @@ static void driver(unsigned max_sz, unsigned max_val, unsigned num_ops, double u
             copies.push_back(q3);
         // read random positions of q3
         if (!empty(q3)) {
-            for (unsigned j = 0; j < rand() % 5; j++) {
+            for (int j = 0; j < rand() % 5; j++) {
                 unsigned idx = rand() % size(q3);
                 lean_assert(q3[idx] == q1[idx]);
             }

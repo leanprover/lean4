@@ -74,7 +74,7 @@ static void driver(unsigned max_sz, unsigned max_val, unsigned num_ops, double u
         f = static_cast<double>(std::rand() % 10000) / 10000.0;
         // read random positions of v3
         if (!empty(v3)) {
-            for (unsigned j = 0; j < rand() % 5; j++) {
+            for (int j = 0; j < rand() % 5; j++) {
                 unsigned idx = rand() % size(v3);
                 lean_assert(v3[idx] == v1[idx]);
             }

@@ -268,7 +268,7 @@ class parser::imp {
     }
 
     [[ noreturn ]] void not_implemented_yet() {
-        // TODO
+        // TODO(Leo)
         throw parser_error("not implemented yet", pos());
     }
 
@@ -901,7 +901,7 @@ class parser::imp {
     }
 
     expr parse_string() {
-        // TODO
+        // TODO(Leo)
         not_implemented_yet();
     }
 

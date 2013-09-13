@@ -203,7 +203,7 @@ void import_basic(environment & env) {
 
     // forall : Pi (A : Type u), (A -> Bool) -> Bool
     env.add_definition(forall_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Eq(P, Fun({x, A}, True))));
-    // TODO: introduce epsilon
+    // TODO(Leo): introduce epsilon
     env.add_definition(exists_fn_name, q_type, Fun({{A,TypeU}, {P, A_pred}}, Not(Forall(A, Fun({x, A}, Not(P(x)))))));
 
     // homogeneous equality

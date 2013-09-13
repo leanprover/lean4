@@ -321,7 +321,7 @@ class pp_fn {
             head = is_forall ? g_forall_fmt : g_exists_fmt;
         format sep  = comma();
         expr domain0 = nested[0].second;
-        // TODO: the following code is very similar to pp_abstraction
+        // TODO(Leo): the following code is very similar to pp_abstraction
         if (std::all_of(nested.begin() + 1, nested.end(), [&](std::pair<name, expr> const & p) { return p.second == domain0; })) {
             // Domain of all binders is the same
             format names    = pp_bnames(nested.begin(), nested.end(), false);

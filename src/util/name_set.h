@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <unordered_set>
-#include "name.h"
+#include "util/name.h"
 namespace lean {
 typedef std::unordered_set<name, name_hash, name_eq> name_set;
 }

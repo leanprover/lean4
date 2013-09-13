@@ -5,9 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "list.h"
-#include "buffer.h"
-#include "pair.h"
+#include <utility>
+#include "util/list.h"
+#include "util/buffer.h"
+#include "util/pair.h"
 
 namespace lean {
 /**

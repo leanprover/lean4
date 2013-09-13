@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "context.h"
+#include "kernel/context.h"
 
 namespace lean {
 /** \brief Return true iff \c n occurs in \c m */

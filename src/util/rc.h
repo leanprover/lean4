@@ -7,9 +7,6 @@ Author: Leonardo de Moura
 #pragma once
 
 // Goodies for reference counting
-
-#include "debug.h"
-
 #ifdef LEAN_THREAD_UNSAFE_REF_COUNT
 #define MK_LEAN_RC()                                                    \
 private:                                                                \
@@ -30,6 +27,7 @@ void inc_ref() { std::atomic_fetch_add_explicit(&m_rc, 1u, std::memory_order_rel
 bool dec_ref_core() { lean_assert(get_rc() > 0); return std::atomic_fetch_sub_explicit(&m_rc, 1u, std::memory_order_relaxed) == 1u; } \
 void dec_ref() { if (dec_ref_core()) dealloc(); }
 #endif
+#include "util/debug.h"
 
 #define LEAN_COPY_REF(T, Arg)                   \
     if (Arg.m_ptr)                              \

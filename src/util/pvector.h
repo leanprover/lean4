@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 #include <vector>
-#include "rc.h"
+#include "util/rc.h"
 
 #ifndef LEAN_PVECTOR_MIN_QUOTA
 #define LEAN_PVECTOR_MIN_QUOTA 16

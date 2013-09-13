@@ -5,10 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 
-#include "trace.h"
 #include <set>
 #include <string>
 #include <memory>
+#include "util/trace.h"
 
 #ifndef LEAN_TRACE_OUT
 #define LEAN_TRACE_OUT ".lean_trace"

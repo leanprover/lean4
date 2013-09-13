@@ -9,6 +9,8 @@ Author: Soonho Kong
 #include <iostream>
 #include <numeric>
 #include <sstream>
+#include <utility>
+#include <string>
 #include "util/pair.h"
 #include "util/debug.h"
 #include "util/numerics/mpz.h"

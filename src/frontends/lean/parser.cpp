@@ -4,7 +4,17 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#ifdef LEAN_USE_READLINE
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <readline/readline.h>
+#include <readline/history.h>
+#endif
 #include <unordered_map>
+#include <utility>
+#include <string>
+#include <vector>
 #include "util/scoped_map.h"
 #include "util/exception.h"
 #include "util/sstream.h"
@@ -27,13 +37,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/notation.h"
 #include "frontends/lean/pp.h"
-#ifdef LEAN_USE_READLINE
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <readline/readline.h>
-#include <readline/history.h>
-#endif
 
 #ifndef LEAN_DEFAULT_PARSER_SHOW_ERRORS
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true

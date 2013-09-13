@@ -5,9 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <memory>
-#include "options.h"
-#include "option_declarations.h"
-#include "sexpr_fn.h"
+#include <string>
+#include "util/sexpr/options.h"
+#include "util/sexpr/option_declarations.h"
+#include "util/sexpr/sexpr_fn.h"
 
 namespace lean {
 std::ostream & operator<<(std::ostream & out, option_kind k) {

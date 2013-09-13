@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <string>
 
 namespace lean {
 /**

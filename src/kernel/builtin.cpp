@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "builtin.h"
-#include "environment.h"
-#include "abstract.h"
+#include "kernel/builtin.h"
+#include "kernel/environment.h"
+#include "kernel/abstract.h"
 
 #ifndef LEAN_DEFAULT_LEVEL_SEPARATION
 #define LEAN_DEFAULT_LEVEL_SEPARATION 512

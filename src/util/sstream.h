@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <sstream>
+#include <string>
 
 namespace lean {
 /** \brief Wrapper for std::ostringstream */

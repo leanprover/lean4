@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <cstring>
+#include <string>
 #include "util/rc.h"
 #include "util/hash.h"
 #include "util/name.h"

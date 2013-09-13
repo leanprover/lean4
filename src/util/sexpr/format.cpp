@@ -5,6 +5,8 @@
   Author: Soonho Kong
 */
 #include <sstream>
+#include <string>
+#include <utility>
 #include "util/escaped.h"
 #include "util/sexpr/sexpr.h"
 #include "util/sexpr/format.h"
@@ -365,7 +367,7 @@ format operator+(format const & f1, format const & f2) {
 }
 
 format operator^(format const & f1, format const & f2) {
-    return format{f1, format(" "), f2};
+    return format {f1, format(" "), f2};
 }
 
 std::ostream & pretty(std::ostream & out, unsigned w, bool colors, format const & f) {

@@ -6,6 +6,8 @@ Author: Leonardo de Moura
 */
 #include <limits>
 #include <memory>
+#include <utility>
+#include <vector>
 #include "util/scoped_map.h"
 #include "util/exception.h"
 #include "util/scoped_set.h"

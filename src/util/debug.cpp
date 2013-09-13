@@ -4,18 +4,17 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "debug.h"
 #include <iostream>
 #include <sstream>
 #include <set>
 #include <string>
 #include <memory>
 #include <cstdlib>
-
 #ifndef _WINDOWS
 // Support for pid
 #include<unistd.h>
 #endif
+#include "util/debug.h"
 
 namespace lean {
 static volatile bool                          g_has_violations    = false;

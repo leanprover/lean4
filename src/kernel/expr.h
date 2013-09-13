@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <limits>
 #include <atomic>
+#include <utility>
 #include "util/rc.h"
 #include "util/name.h"
 #include "util/hash.h"

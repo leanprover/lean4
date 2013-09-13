@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "sexpr_fn.h"
+#include "util/sexpr/sexpr_fn.h"
 
 namespace lean {
 

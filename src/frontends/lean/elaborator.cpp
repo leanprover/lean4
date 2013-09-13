@@ -5,6 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <deque>
+#include <limits>
+#include <utility>
+#include <vector>
 #include "util/flet.h"
 #include "kernel/normalizer.h"
 #include "kernel/context.h"

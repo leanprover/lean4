@@ -8,13 +8,14 @@ Author: Leonardo de Moura
 #include <vector>
 #include <algorithm>
 #include <sstream>
-#include "name.h"
-#include "debug.h"
-#include "rc.h"
-#include "buffer.h"
-#include "hash.h"
-#include "trace.h"
-#include "ascii.h"
+#include <string>
+#include "util/name.h"
+#include "util/debug.h"
+#include "util/rc.h"
+#include "util/buffer.h"
+#include "util/hash.h"
+#include "util/trace.h"
+#include "util/ascii.h"
 
 namespace lean {
 constexpr char const * anonymous_str = "[anonymous]";

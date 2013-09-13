@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 #include <vector>
+#include <string>
 #include "util/name.h"
 #include "util/list.h"
 #include "util/numerics/mpq.h"

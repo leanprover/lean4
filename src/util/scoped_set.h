@@ -7,7 +7,9 @@ Author: Leonardo de Moura
 #pragma once
 #include <unordered_set>
 #include <vector>
-#include "debug.h"
+#include <utility>
+#include <functional>
+#include "util/debug.h"
 
 #ifndef LEAN_SCOPED_SET_INITIAL_BUCKET_SIZE
 #define LEAN_SCOPED_SET_INITIAL_BUCKET_SIZE 8

@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 #include <iterator>
-#include "rc.h"
-#include "debug.h"
+#include "util/rc.h"
+#include "util/debug.h"
 
 namespace lean {
 /**

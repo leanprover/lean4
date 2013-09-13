@@ -5,8 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include <iostream>
 #include <time.h>
+#include <string>
+#include <iostream>
 
 namespace lean {
 /**

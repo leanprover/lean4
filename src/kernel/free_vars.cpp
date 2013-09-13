@@ -5,9 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
-#include "free_vars.h"
-#include "expr_sets.h"
-#include "replace.h"
+#include "kernel/free_vars.h"
+#include "kernel/expr_sets.h"
+#include "kernel/replace.h"
 
 namespace lean {
 

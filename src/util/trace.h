@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 
 #ifdef LEAN_TRACE
-#include <fstream>
 #include <mutex>
+#include <fstream>
 namespace lean {
 extern std::ofstream tout;
 extern std::mutex    trace_mutex;

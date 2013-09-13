@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <algorithm>
 #include <cstring>
-#include "debug.h"
+#include "util/debug.h"
 
 namespace lean {
 /**

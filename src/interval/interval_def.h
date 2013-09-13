@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <gmp.h>
 #include <mpfr.h>
 #include <utility>
+#include <algorithm>
 #include "util/trace.h"
 #include "util/numerics/mpz.h"
 #include "interval/interval.h"

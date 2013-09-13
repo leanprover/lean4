@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <unordered_set>
+#include <utility>
 #include "util/hash.h"
 #include "kernel/expr.h"
 

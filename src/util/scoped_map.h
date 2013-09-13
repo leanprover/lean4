@@ -8,7 +8,9 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <unordered_map>
 #include <vector>
-#include "debug.h"
+#include <utility>
+#include <functional>
+#include "util/debug.h"
 
 #ifndef LEAN_SCOPED_MAP_INITIAL_BUCKET_SIZE
 #define LEAN_SCOPED_MAP_INITIAL_BUCKET_SIZE 8

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <iostream>
+#include <utility>
 #include "kernel/expr.h"
 #include "kernel/context.h"
 

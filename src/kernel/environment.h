@@ -7,9 +7,9 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 #include <memory>
-#include "context.h"
-#include "object.h"
-#include "level.h"
+#include "kernel/context.h"
+#include "kernel/object.h"
+#include "kernel/level.h"
 
 namespace lean {
 /**

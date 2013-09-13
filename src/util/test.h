@@ -9,4 +9,4 @@ Author: Leonardo de Moura
 #ifndef LEAN_DEBUG
 #define LEAN_DEBUG
 #endif
-#include "debug.h"
+#include "util/debug.h"

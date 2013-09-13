@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 */
 #include <cfenv>
 #include <cmath>
-#include "numeric_traits.h"
+#include "util/numerics/numeric_traits.h"
 
 namespace lean {
 

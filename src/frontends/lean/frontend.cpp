@@ -6,6 +6,10 @@ Author: Leonardo de Moura
 */
 #include <atomic>
 #include <unordered_set>
+#include <vector>
+#include <utility>
+#include <functional>
+
 #include "util/map.h"
 #include "util/sstream.h"
 #include "util/exception.h"

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <vector>
 #include "kernel/kernel_exception.h"
 #include "library/state.h"
 #include "frontends/lean/elaborator.h"

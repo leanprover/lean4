@@ -42,19 +42,19 @@ void import_special_fn(environment & env) {
     env.add_var(real_pi_name, Real);
     env.add_definition(name("pi"), Real, mk_real_pi()); // alias for pi
     env.add_var(sin_fn_name, r_r);
-    env.add_definition(cos_fn_name, r_r, Fun({x,Real}, Sin(rSub(x, rDiv(mk_real_pi(), rVal(2))))));
-    env.add_definition(tan_fn_name, r_r, Fun({x,Real}, rDiv(Sin(x), Cos(x))));
-    env.add_definition(cot_fn_name, r_r, Fun({x,Real}, rDiv(Cos(x), Sin(x))));
-    env.add_definition(sec_fn_name, r_r, Fun({x,Real}, rDiv(rVal(1), Cos(x))));
-    env.add_definition(csc_fn_name, r_r, Fun({x,Real}, rDiv(rVal(1), Sin(x))));
+    env.add_definition(cos_fn_name, r_r, Fun({x, Real}, Sin(rSub(x, rDiv(mk_real_pi(), rVal(2))))));
+    env.add_definition(tan_fn_name, r_r, Fun({x, Real}, rDiv(Sin(x), Cos(x))));
+    env.add_definition(cot_fn_name, r_r, Fun({x, Real}, rDiv(Cos(x), Sin(x))));
+    env.add_definition(sec_fn_name, r_r, Fun({x, Real}, rDiv(rVal(1), Cos(x))));
+    env.add_definition(csc_fn_name, r_r, Fun({x, Real}, rDiv(rVal(1), Sin(x))));
 
     env.add_definition(sinh_fn_name, r_r, Fun({x, Real}, rDiv(rSub(rVal(1), Exp(rMul(rVal(-2), x))),
                                                               rMul(rVal(2), Exp(rNeg(x))))));
     env.add_definition(cosh_fn_name, r_r, Fun({x, Real}, rDiv(rAdd(rVal(1), Exp(rMul(rVal(-2), x))),
                                                               rMul(rVal(2), Exp(rNeg(x))))));
-    env.add_definition(tanh_fn_name, r_r, Fun({x,Real}, rDiv(Sinh(x), Cosh(x))));
-    env.add_definition(coth_fn_name, r_r, Fun({x,Real}, rDiv(Cosh(x), Sinh(x))));
-    env.add_definition(sech_fn_name, r_r, Fun({x,Real}, rDiv(rVal(1), Cosh(x))));
-    env.add_definition(csch_fn_name, r_r, Fun({x,Real}, rDiv(rVal(1), Sinh(x))));
+    env.add_definition(tanh_fn_name, r_r, Fun({x, Real}, rDiv(Sinh(x), Cosh(x))));
+    env.add_definition(coth_fn_name, r_r, Fun({x, Real}, rDiv(Cosh(x), Sinh(x))));
+    env.add_definition(sech_fn_name, r_r, Fun({x, Real}, rDiv(rVal(1), Cosh(x))));
+    env.add_definition(csch_fn_name, r_r, Fun({x, Real}, rDiv(rVal(1), Sinh(x))));
 }
 }

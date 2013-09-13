@@ -22,7 +22,7 @@ public:
         std::ostringstream s;
         if (format_ctx)
             s << c << "|-\n";
-        s << mk_pair(e,c);
+        s << mk_pair(e, c);
         return format(s.str());
     }
     virtual format operator()(object const & obj, options const & opts) {

@@ -184,9 +184,9 @@ void import_basic_thms(environment & env) {
                                                 Discharge(Not(b), a, Fun({H1, Not(b)},
                                                                          FalseElim(a, Absurd(b, H, H1))))))));
 
-    // DisjCases : Pi (a b c: Bool) (H1 : Or(a,b)) (H2 : a -> c) (H3 : b -> c), c */
-    env.add_theorem(disj_cases_fn_name, Pi({{a, Bool}, {b, Bool}, {c, Bool}, {H1, Or(a,b)}, {H2, a >> c}, {H3, b >> c}}, c),
-                    Fun({{a, Bool}, {b, Bool}, {c, Bool}, {H1, Or(a,b)}, {H2, a >> c}, {H3, b >> c}},
+    // DisjCases : Pi (a b c: Bool) (H1 : Or(a, b)) (H2 : a -> c) (H3 : b -> c), c */
+    env.add_theorem(disj_cases_fn_name, Pi({{a, Bool}, {b, Bool}, {c, Bool}, {H1, Or(a, b)}, {H2, a >> c}, {H3, b >> c}}, c),
+                    Fun({{a, Bool}, {b, Bool}, {c, Bool}, {H1, Or(a, b)}, {H2, a >> c}, {H3, b >> c}},
                         EqMP(Not(Not(c)), c, DoubleNeg(c),
                              Discharge(Not(c), False,
                                        Fun({H, Not(c)},
@@ -200,11 +200,11 @@ void import_basic_thms(environment & env) {
     // Symm : Pi (A : Type u) (a b : A) (H : a = b), b = a
     env.add_theorem(symm_fn_name, Pi({{A, TypeU}, {a, A}, {b, A}, {H, Eq(a, b)}}, Eq(b, a)),
                     Fun({{A, TypeU}, {a, A}, {b, A}, {H, Eq(a, b)}},
-                        Subst(A, a, b, Fun({x, A}, Eq(x,a)), Refl(A, a), H)));
+                        Subst(A, a, b, Fun({x, A}, Eq(x, a)), Refl(A, a), H)));
 
     // Trans: Pi (A: Type u) (a b c : A) (H1 : a = b) (H2 : b = c), a = c
     env.add_theorem(trans_fn_name, Pi({{A, TypeU}, {a, A}, {b, A}, {c, A}, {H1, Eq(a, b)}, {H2, Eq(b, c)}}, Eq(a, c)),
-                    Fun({{A, TypeU}, {a, A}, {b, A}, {c, A}, {H1, Eq(a,b)}, {H2, Eq(b,c)}},
+                    Fun({{A, TypeU}, {a, A}, {b, A}, {c, A}, {H1, Eq(a, b)}, {H2, Eq(b, c)}},
                         Subst(A, b, c, Fun({x, A}, Eq(a, x)), H1, H2)));
 
     // TransExt: Pi (A: Type u) (B : Type u) (a : A) (b c : B) (H1 : a = b) (H2 : b = c), a = c

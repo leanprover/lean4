@@ -84,10 +84,10 @@ static void tst2() {
     lean_assert(power(qi(-3, -2), 2) == qi(4, 9));
     std::cout << power(qi(false, -3, -2, true), 2) << " --> " << qi(true, 4, 9, false) << "\n";
     lean_assert(power(qi(false, -3, -2, true), 2) == qi(true, 4, 9, false));
-    lean_assert(power(qi(-3,-1), 3) == qi(-27, -1));
+    lean_assert(power(qi(-3, -1), 3) == qi(-27, -1));
     lean_assert(power(qi(-3, 4), 3) == qi(-27, 64));
-    lean_assert(power(qi(),3) == qi());
-    lean_assert(power(qi(),2) == qi(false, 0)); // (-oo, oo)^2 == [0, oo)
+    lean_assert(power(qi(), 3) == qi());
+    lean_assert(power(qi(), 2) == qi(false, 0)); // (-oo, oo)^2 == [0, oo)
 }
 
 int main() {

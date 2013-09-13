@@ -319,11 +319,11 @@ static expr get_def_value(name const & n, environment const & env, name_set cons
 
 expr head_reduce_mmv(expr const & e, environment const & env, name_set const * defs) {
     if (is_app(e) && is_lambda(arg(e, 0))) {
-        expr r = arg(e,0);
+        expr r = arg(e, 0);
         unsigned num = num_args(e);
         unsigned i = 1;
         while (i < num) {
-            r = instantiate_free_var_mmv(abst_body(r), 0, arg(e,i));
+            r = instantiate_free_var_mmv(abst_body(r), 0, arg(e, i));
             i = i + 1;
             if (!is_lambda(r))
                 break;
@@ -332,7 +332,7 @@ expr head_reduce_mmv(expr const & e, environment const & env, name_set const * d
             buffer<expr> args;
             args.push_back(r);
             for (; i < num; i++)
-                args.push_back(arg(e,i));
+                args.push_back(arg(e, i));
             r = mk_app(args.size(), args.data());
         }
         return r;

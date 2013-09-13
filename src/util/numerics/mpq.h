@@ -121,13 +121,13 @@ public:
     friend bool operator==(unsigned int a, mpq const & b) { return operator==(b, a); }
     friend bool operator==(int a, mpq const & b) { return operator==(b, a); }
 
-    friend bool operator!=(mpq const & a, mpq const & b) { return !operator==(a,b); }
-    friend bool operator!=(mpq const & a, mpz const & b) { return !operator==(a,b); }
-    friend bool operator!=(mpq const & a, unsigned int b) { return !operator==(a,b); }
-    friend bool operator!=(mpq const & a, int b) { return !operator==(a,b); }
-    friend bool operator!=(mpz const & a, mpq const & b) { return !operator==(a,b); }
-    friend bool operator!=(unsigned int a, mpq const & b) { return !operator==(a,b); }
-    friend bool operator!=(int a, mpq const & b) { return !operator==(a,b); }
+    friend bool operator!=(mpq const & a, mpq const & b) { return !operator==(a, b); }
+    friend bool operator!=(mpq const & a, mpz const & b) { return !operator==(a, b); }
+    friend bool operator!=(mpq const & a, unsigned int b) { return !operator==(a, b); }
+    friend bool operator!=(mpq const & a, int b) { return !operator==(a, b); }
+    friend bool operator!=(mpz const & a, mpq const & b) { return !operator==(a, b); }
+    friend bool operator!=(unsigned int a, mpq const & b) { return !operator==(a, b); }
+    friend bool operator!=(int a, mpq const & b) { return !operator==(a, b); }
 
     mpq & operator+=(mpq const & o) { mpq_add(m_val, m_val, o.m_val); return *this; }
     mpq & operator+=(mpz const & o) { mpz_addmul(mpq_numref(m_val), mpq_denref(m_val), o.m_val); mpq_canonicalize(m_val); return *this; }

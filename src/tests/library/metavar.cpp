@@ -51,7 +51,7 @@ static void tst3() {
     expr r = instantiate_free_var_mmv(t, 0, a);
     r = instantiate_metavar(r, 1, g(Var(0), Var(1)));
     std::cout << r << std::endl;
-    lean_assert(r == f(g(a,Var(0)), a, Var(1)));
+    lean_assert(r == f(g(a, Var(0)), a, Var(1)));
 }
 
 static void tst4() {
@@ -66,7 +66,7 @@ static void tst4() {
     std::cout << r << std::endl;
     r = instantiate_metavar(r, 1, g(Var(0), Var(1)));
     std::cout << r << std::endl;
-    lean_assert(r == f(g(a,Var(2)), Var(2), Var(3)));
+    lean_assert(r == f(g(a, Var(2)), Var(2), Var(3)));
 }
 
 static void tst5() {
@@ -98,7 +98,7 @@ static void tst6() {
     expr a  = Const("a");
     expr x  = Const("x");
     expr m1 = mk_metavar(1);
-    expr t  = mk_app(Fun({x,N}, m1), a);
+    expr t  = mk_app(Fun({x, N}, m1), a);
     expr s1 = instantiate_metavar(head_reduce_mmv(t, env), 1, Var(0));
     expr s2 = head_reduce_mmv(instantiate_metavar(t, 1, Var(0)), env);
     std::cout << instantiate_metavar(t, 1, Var(0)) << "\n";

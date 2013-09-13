@@ -194,18 +194,18 @@ static void tst11() {
     unsigned n = 1000;
     expr f = Const("f");
     expr a = Const("a");
-    expr t1 = f(a,a);
+    expr t1 = f(a, a);
     expr b = Const("a");
-    expr t2 = f(a,a);
-    expr t3 = f(b,b);
+    expr t2 = f(a, a);
+    expr t3 = f(b, b);
     for (unsigned i = 0; i < n; i++) {
-        t1 = f(t1,t1);
+        t1 = f(t1, t1);
         t2 = mk_let("x", expr(), t2, f(Var(0), Var(0)));
-        t3 = f(t3,t3);
+        t3 = f(t3, t3);
     }
     lean_assert(t1 != t2);
-    env.add_theorem("eqs1", Eq(t1,t2), Refl(Int, t1));
-    env.add_theorem("eqs2", Eq(t1,t3), Refl(Int, t1));
+    env.add_theorem("eqs1", Eq(t1, t2), Refl(Int, t1));
+    env.add_theorem("eqs2", Eq(t1, t3), Refl(Int, t1));
 }
 
 static expr mk_big(unsigned depth) {
@@ -244,7 +244,7 @@ static void tst13() {
     env.add_var("f", Type() >> Type());
     expr f = Const("f");
     std::cout << infer_type(f(Bool), env) << "\n";
-    std::cout << infer_type(f(Eq(True,False)), env) << "\n";
+    std::cout << infer_type(f(Eq(True, False)), env) << "\n";
 }
 
 int main() {

@@ -878,7 +878,7 @@ template<typename T> void interval<T>::inv_jst(interval_deps & deps) {
 template<typename T>
 template<bool compute_intv, bool compute_deps>
 void interval<T>::inv(interval_deps & deps) {
-    // If the interval [l,u] does not contain 0, then 1/[l,u] = [1/u, 1/l]
+    // If the interval [l, u] does not contain 0, then 1/[l, u] = [1/u, 1/l]
     lean_assert(!contains_zero());
 
     using std::swap;
@@ -2175,7 +2175,7 @@ void interval<T>::cosh (interval_deps & deps) {
                 lean_assert(check_invariant());
             }
             if(compute_deps) {
-                // cos([a,b]) = [cosh(a), cos(b)]
+                // cos([a, b]) = [cosh(a), cos(b)]
                 deps.m_lower_deps = DEP_IN_LOWER1;
                 deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
             }
@@ -2197,7 +2197,7 @@ void interval<T>::cosh (interval_deps & deps) {
             }
             return;
         }
-        // [a,b] where a < 0 < b
+        // [a, b] where a < 0 < b
         if(m_lower + m_upper < 0.0) {
             if(compute_intv) {
                 m_upper = m_lower;
@@ -2247,7 +2247,7 @@ void interval<T>::cosh (interval_deps & deps) {
         }
     }
     if(upper_kind() == XN_NUMERAL) {
-        // [-oo,c]
+        // [-oo, c]
         lean_assert(lower_kind() == XN_MINUS_INFINITY);
         if(compute_intv) {
             m_upper_inf = true;

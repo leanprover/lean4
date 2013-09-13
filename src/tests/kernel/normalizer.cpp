@@ -157,9 +157,9 @@ static void tst2() {
     expr h = Const("h");
     expr x = Var(0);
     expr y = Var(1);
-    lean_assert(normalize(f(x,x), env, extend(context(), name("f"), t, f(a))) == f(f(a), f(a)));
+    lean_assert(normalize(f(x, x), env, extend(context(), name("f"), t, f(a))) == f(f(a), f(a)));
     context c1 = extend(extend(context(), name("f"), t, f(a)), name("h"), t, h(x));
-    expr F1 = normalize(f(x,f(x)), env, c1);
+    expr F1 = normalize(f(x, f(x)), env, c1);
     lean_assert(F1 == f(h(f(a)), f(h(f(a)))));
     std::cout << F1 << "\n";
     expr F2 = normalize(mk_lambda("x", t, f(x, f(y))), env, c1);
@@ -168,10 +168,10 @@ static void tst2() {
     expr F3 = normalize(mk_lambda("y", t, mk_lambda("x", t, f(x, f(y)))), env, c1);
     std::cout << F3 << "\n";
     lean_assert(F3 == mk_lambda("y", t, mk_lambda("x", t, f(x, f(y)))));
-    context c2 = extend(extend(context(), name("foo"), t, mk_lambda("x", t, f(x, a))), name("bla"), t, mk_lambda("z", t, h(x,y)));
+    context c2 = extend(extend(context(), name("foo"), t, mk_lambda("x", t, f(x, a))), name("bla"), t, mk_lambda("z", t, h(x, y)));
     expr F4 = normalize(mk_lambda("x", t, f(x, f(y))), env, c2);
     std::cout << F4 << "\n";
-    lean_assert(F4 == mk_lambda("x", t, f(x, f(mk_lambda("z", t, h(x,mk_lambda("x", t, f(x, a))))))));
+    lean_assert(F4 == mk_lambda("x", t, f(x, f(mk_lambda("z", t, h(x, mk_lambda("x", t, f(x, a))))))));
     context c3 = extend(context(), name("x"), t);
     expr f5 = mk_app(mk_lambda("f", t, mk_lambda("z", t, Var(1))), mk_lambda("y", t, Var(1)));
     expr F5 = normalize(f5, env, c3);
@@ -180,7 +180,7 @@ static void tst2() {
     lean_assert(F5 == mk_lambda("z", t, mk_lambda("y", t, Var(2))));
     context c4 = extend(extend(context(), name("x"), t), name("x2"), t);
     expr F6 = normalize(mk_app(mk_lambda("f", t, mk_lambda("z1", t, mk_lambda("z2", t, mk_app(Var(2), Const("a"))))),
-                            mk_lambda("y", t, mk_app(Var(1), Var(2), Var(0)))), env, c4);
+                               mk_lambda("y", t, mk_app(Var(1), Var(2), Var(0)))), env, c4);
     std::cout << F6 << "\n";
     lean_assert(F6 == mk_lambda("z1", t, mk_lambda("z2", t, mk_app(Var(2), Var(3), Const("a")))));
 }

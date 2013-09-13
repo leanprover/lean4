@@ -186,7 +186,7 @@ void power(T & a, xnumeral_kind & ak, unsigned n) {
 }
 
 /**
-   \brief Return true if (a,ak) == (b,bk).
+   \brief Return true if (a, ak) == (b, bk).
 */
 template<typename T>
 bool eq(T const & a, xnumeral_kind ak, T const & b, xnumeral_kind bk) {

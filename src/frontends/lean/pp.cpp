@@ -174,7 +174,7 @@ class pp_fn {
     typedef std::pair<format, unsigned> result;
 
     bool is_coercion(expr const & e) {
-        return is_app(e) && num_args(e) == 2 && m_frontend.is_coercion(arg(e,0));
+        return is_app(e) && num_args(e) == 2 && m_frontend.is_coercion(arg(e, 0));
     }
 
     /**
@@ -186,7 +186,7 @@ class pp_fn {
             return true;
         case expr_kind::App:
             if (!m_coercion && is_coercion(e))
-                return is_atomic(arg(e,1));
+                return is_atomic(arg(e, 1));
             else
                 return false;
         case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Eq: case expr_kind::Let:
@@ -490,7 +490,7 @@ class pp_fn {
 
         application(expr const & e, pp_fn const & owner, bool show_implicit):m_app(e) {
             frontend const & fe = owner.m_frontend;
-            expr const & f = arg(e,0);
+            expr const & f = arg(e, 0);
             if (is_constant(f) && owner.has_implicit_arguments(const_name(f))) {
                 m_implicit_args = &(fe.get_implicit_arguments(const_name(f)));
                 if (show_implicit || num_args(e) - 1 < m_implicit_args->size()) {
@@ -594,7 +594,7 @@ class pp_fn {
     */
     result pp_app(expr const & e, unsigned depth) {
         if (!m_coercion && is_coercion(e))
-            return pp(arg(e,1), depth);
+            return pp(arg(e, 1), depth);
         application app(e, *this, m_implict);
         operator_info op;
         if (m_notation && app.notation_enabled() && (op = get_operator(e)) && has_expected_num_args(app, op)) {
@@ -668,7 +668,7 @@ class pp_fn {
         } else {
             // standard function application
             expr const & f  = app.get_function();
-            result p        = is_constant(f) && !is_metavar(f) ? mk_result(format(const_name(f)),1) : pp_child(f, depth);
+            result p        = is_constant(f) && !is_metavar(f) ? mk_result(format(const_name(f)), 1) : pp_child(f, depth);
             bool simple     = is_constant(f) && !is_metavar(f) && const_name(f).size() <= m_indent + 4;
             unsigned indent = simple ? const_name(f).size()+1 : m_indent;
             format   r_format = p.first;

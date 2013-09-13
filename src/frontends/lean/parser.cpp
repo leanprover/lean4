@@ -1423,7 +1423,7 @@ class parser::imp {
                                 << "  Eval [expr]            evaluate the given expression" << endl
                                 << "  Help                   display this message" << endl
                                 << "  Help Options           display available options" << endl
-                                << "  Help Notation          describe commands for defining infix,mixfix,postfix operators" << endl
+                                << "  Help Notation          describe commands for defining infix, mixfix, postfix operators" << endl
                                 << "  Import [string]        load the given file" << endl
                                 << "  Set [id] [value]       set option [id] with value [value]" << endl
                                 << "  Show [expr]            pretty print the given expression" << endl

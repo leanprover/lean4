@@ -22,7 +22,7 @@ public:
         expr A    = Const("A");
         expr B    = Const("B");
         // Cast: Pi (A : Type u) (B : Type u) (H : A = B) (a : A), B
-        m_type = Pi({{A, TypeU}, {B, TypeU}}, Eq(A,B) >> (A >> B));
+        m_type = Pi({{A, TypeU}, {B, TypeU}}, Eq(A, B) >> (A >> B));
     }
     virtual ~cast_fn_value() {}
     virtual expr get_type() const { return m_type; }
@@ -122,7 +122,7 @@ void import_cast(environment & env) {
 
     // Alias for Cast operator. We create the alias to be able to mark
     // implicit arguments.
-    env.add_definition(cast_fn_name, Pi({{A, TypeU}, {B, TypeU}}, Eq(A,B) >> (A >> B)), mk_Cast_fn());
+    env.add_definition(cast_fn_name, Pi({{A, TypeU}, {B, TypeU}}, Eq(A, B) >> (A >> B)), mk_Cast_fn());
 
     // DomInj : Pi (A A': Type u) (B : A -> Type u) (B' : A' -> Type u) (H : (Pi x : A, B x) = (Pi x : A', B' x)), A = A'
     env.add_axiom(dom_inj_fn_name, Pi({{A, TypeU}, {Ap, TypeU}, {B, A >> TypeU}, {Bp, Ap >> TypeU}, {H, Eq(piABx, piApBpx)}}, Eq(A, Ap)));

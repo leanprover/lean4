@@ -299,7 +299,7 @@ public:
     friend bool operator==(mpfp const & a, mpq_t const & b          ) { return cmp(a, b) == 0; }
     friend bool operator==(mpfp const & a, mpf_t const & b          ) { return cmp(a, b) == 0; }
 
-    friend bool operator!=(mpfp const & a, mpfp const & b) { return !operator==(a,b); }
+    friend bool operator!=(mpfp const & a, mpfp const & b) { return !operator==(a, b); }
     friend bool operator!=(unsigned long int const a, mpfp const & b) { return cmp(b, a) != 0; }
     friend bool operator!=(long int const a         , mpfp const & b) { return cmp(b, a) != 0; }
     friend bool operator!=(double const a           , mpfp const & b) { return cmp(b, a) != 0; }

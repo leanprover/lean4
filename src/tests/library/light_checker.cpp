@@ -24,10 +24,10 @@ static void tst1() {
     expr b = Const("b");
     expr A = Const("A");
     env.add_var("f", Int >> (Int >> Int));
-    lean_assert(type_of(f(a,a)) == Int);
+    lean_assert(type_of(f(a, a)) == Int);
     lean_assert(type_of(f(a)) == Int >> Int);
     lean_assert(type_of(And(a, f(a))) == Bool);
-    lean_assert(type_of(Fun({a, Int}, iAdd(a,iVal(1)))) == Int >> Int);
+    lean_assert(type_of(Fun({a, Int}, iAdd(a, iVal(1)))) == Int >> Int);
     lean_assert(type_of(Let({a, iVal(10)}, iAdd(a, b))) == Int);
     lean_assert(type_of(Type()) == Type(level() + 1));
     lean_assert(type_of(Bool) == Type());

@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 /**
-   \brief Replace the free variables with indices 0,...,n-1 with s[n-1],...,s[0] in e.
+   \brief Replace the free variables with indices 0, ..., n-1 with s[n-1], ..., s[0] in e.
 
    \pre s[0], ..., s[n-1] must be closed expressions (i.e., no free variables).
 */
@@ -17,7 +17,7 @@ expr instantiate_with_closed(expr const & e, unsigned n, expr const * s);
 inline expr instantiate_with_closed(expr const & e, expr const & s) { return instantiate_with_closed(e, 1, &s); }
 
 /**
-   \brief Replace the free variables with indices 0,...,n-1 with s[n-1],...,s[0] in e.
+   \brief Replace the free variables with indices 0, ..., n-1 with s[n-1], ..., s[0] in e.
 */
 expr instantiate(expr const & e, unsigned n, expr const * s);
 inline expr instantiate(expr const & e, expr const & s) { return instantiate(e, 1, &s); }

@@ -480,7 +480,7 @@ class elaborator::imp {
     }
 
     bool is_simple_ho_match(expr const & e1, expr const & e2, context const & ctx) {
-        if (is_app(e1) && is_meta(arg(e1,0)) && is_var(arg(e1,1), 0) && num_args(e1) == 2 && !is_empty(ctx)) {
+        if (is_app(e1) && is_meta(arg(e1, 0)) && is_var(arg(e1, 1), 0) && num_args(e1) == 2 && !is_empty(ctx)) {
             return true;
         } else {
             return false;
@@ -490,7 +490,7 @@ class elaborator::imp {
     void unify_simple_ho_match(expr const & e1, expr const & e2, constraint const & c) {
         context const & ctx = c.m_ctx;
         context_entry const & head = ::lean::lookup(ctx, 0);
-        m_constraints.push_back(constraint(arg(e1,0), mk_lambda(head.get_name(),
+        m_constraints.push_back(constraint(arg(e1, 0), mk_lambda(head.get_name(),
                                                            lift_free_vars_mmv(head.get_domain(), 1, 1),
                                                            lift_free_vars_mmv(e2, 1, 1)), c));
     }
@@ -882,7 +882,7 @@ void elaborator::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
 void elaborator::clear() { m_ptr->clear(); }
 environment const & elaborator::get_environment() const { return m_ptr->get_environment(); }
 void elaborator::display(std::ostream & out) const { m_ptr->display(out); }
-format elaborator::pp(formatter & f, options const & o) const { return m_ptr->pp(f,o); }
+format elaborator::pp(formatter & f, options const & o) const { return m_ptr->pp(f, o); }
 void elaborator::print(imp * ptr) { ptr->display(std::cout); }
 bool elaborator::has_constraints() const { return m_ptr->has_constraints(); }
 }

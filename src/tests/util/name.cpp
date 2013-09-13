@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <sstream>
 #include "util/test.h"
 #include "util/name.h"
-using namespace lean;
+ using namespace lean;
 
 static void tst1() {
     name n("foo");
@@ -27,7 +27,7 @@ static void tst1() {
     lean_assert(name(name(), "foo") == name("foo"));
 
     lean_assert(name(n, 1) < name(n, 2));
-    std::cout << "cmp(" << name(n, 1) << ", " << name(n, 2) << ") = " << cmp(name(n,1), name(n, 2)) << "\n";
+    std::cout << "cmp(" << name(n, 1) << ", " << name(n, 2) << ") = " << cmp(name(n, 1), name(n, 2)) << "\n";
     lean_assert(!(name(n, 1) >= name(n, 2)));
     lean_assert(name(n, 1) < name(name(n, 1), 1));
     lean_assert(n < name(n, 1));

@@ -159,7 +159,7 @@ static void tst10() {
     expr x = Const("xxxxxxxxxxxx");
     expr y = Const("y");
     expr z = Const("foo");
-    expr e = Let({{x, True}, {y, And({x,x,x,x,x,x,x,x})}, {z, And(x, y)}}, Or({x, x, x, x, x, x, x, x, x, z, z, z, z, z, z, z}));
+    expr e = Let({{x, True}, {y, And({x, x, x, x, x, x, x, x})}, {z, And(x, y)}}, Or({x, x, x, x, x, x, x, x, x, z, z, z, z, z, z, z}));
     std::cout << e << "\n";
     std::cout << fmt(e) << "\n";
 }
@@ -188,7 +188,7 @@ static void tst11() {
     } catch (exception & ex) {
         std::cout << "Expected error: " << ex.what() << std::endl;
     }
-    f.add_var(name{"h","explicit"}, Pi({A, Type()}, A >> (A >> A)));
+    f.add_var(name{"h", "explicit"}, Pi({A, Type()}, A >> (A >> A)));
     f.add_var("h", Pi({A, Type()}, A >> (A >> A)));
     try {
         f.mark_implicit_arguments("h", {true, false, false});

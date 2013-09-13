@@ -73,18 +73,18 @@ public:
 
     // (-oo, oo)
     interval();
-    // [n,n]
+    // [n, n]
     template<typename T2> interval(T2 const & n):m_lower(n), m_upper(n) { set_closed_endpoints();}
     // copy constructor
     interval(interval<T> const & n);
     // move constructor
     interval(interval<T> && src);
 
-    // [l,u], (l,u], [l,u), (l,u)
+    // [l, u], (l, u], [l, u), (l, u)
     template<typename T2> interval(T2 const & l, T2 const & u, bool l_open = false, bool u_open = false):m_lower(l), m_upper(u) {
         m_lower_open = l_open; m_upper_open = u_open; m_lower_inf  = false; m_upper_inf  = false;
     }
-    // [l,u], (l,u], [l,u), (l,u)
+    // [l, u], (l, u], [l, u), (l, u)
     template<typename T2> interval(bool l_open, T2 const & l, T2 const & u, bool u_open):interval(l, u, l_open, u_open) {}
     // (-oo, u], (-oo, u]
     template<typename T2> interval(T2 const & u, bool u_open):m_upper(u) {
@@ -129,7 +129,7 @@ public:
     bool is_N1() const { return is_upper_neg() || (is_upper_zero() && is_upper_open()); }
     // lower is negative and upper is positive
     bool is_M() const { return is_lower_neg() && is_upper_pos(); }
-    // [0,0]
+    // [0, 0]
     bool is_zero() const { return is_lower_zero() && is_upper_zero(); }
 
     // Interval contains the value zero

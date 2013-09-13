@@ -49,9 +49,9 @@ static void tst1() {
     lean_assert(is_list(sexpr{10.2}));
     lean_assert(len(sexpr{10.2}) == 1);
     // list of pairs
-    std::cout << sexpr{ sexpr(1,2), sexpr(2,3), sexpr(0,1) } << "\n";
+    std::cout << sexpr{ sexpr(1, 2), sexpr(2, 3), sexpr(0, 1) } << "\n";
     // list of lists
-    std::cout << sexpr{ sexpr{1,2}, sexpr{2,3}, sexpr{0,1} } << "\n";
+    std::cout << sexpr{ sexpr{1, 2}, sexpr{2, 3}, sexpr{0, 1} } << "\n";
     lean_assert(reverse(sexpr{1, 2, 3}) == (sexpr{3, 2, 1}));
     sexpr l = map(sexpr{1, 2, 3},
                   [](sexpr e) {
@@ -67,11 +67,11 @@ static void tst1() {
     lean_assert(member(3, sexpr{10, 2, 3, 1}));
     lean_assert(!member(3, nil()));
     lean_assert(!member(3, sexpr{10, 2, 1}));
-    lean_assert(append(sexpr{1,2}, sexpr{3,4}) == (sexpr{1,2,3,4}));
+    lean_assert(append(sexpr{1, 2}, sexpr{3, 4}) == (sexpr{1, 2, 3, 4}));
     lean_assert(append(l, nil()) == l);
     lean_assert(append(nil(), l) == l);
-    lean_assert(contains(sexpr{10,20,-2,0,10}, [](sexpr e) { return to_int(e) < 0; }));
-    lean_assert(!contains(sexpr{10,20,-2,0,10}, [](sexpr e) { return to_int(e) < -10; }));
+    lean_assert(contains(sexpr{10, 20, -2, 0, 10}, [](sexpr e) { return to_int(e) < 0; }));
+    lean_assert(!contains(sexpr{10, 20, -2, 0, 10}, [](sexpr e) { return to_int(e) < -10; }));
     lean_assert(is_eqp(s1, s1));
     sexpr s3 = s1;
     lean_assert(is_eqp(s1, s3));
@@ -101,12 +101,12 @@ static void tst2() {
     lean_assert(a == sexpr(name(name("foo"), 1)));
     lean_assert(a == name(name("foo"), 1));
     lean_assert(name(name("foo"), 1) == a);
-    a = mpq(1,3);
-    lean_assert(a == sexpr(mpq(1,3)));
-    lean_assert(a == mpq(1,3));
+    a = mpq(1, 3);
+    lean_assert(a == sexpr(mpq(1, 3)));
+    lean_assert(a == mpq(1, 3));
     lean_assert(mpq(1, 3) == a);
     lean_assert(mpq(2, 3) != a);
-    a = power(mpz(2),100);
+    a = power(mpz(2), 100);
     lean_assert(a == sexpr(power(mpz(2), 100)));
     lean_assert(a == power(mpz(2), 100));
     lean_assert(power(mpz(2), 100) == a);
@@ -142,14 +142,14 @@ static void tst4() {
 }
 
 static void tst5() {
-    lean_assert(foldl(sexpr{1,2,3,4,5,6,7,8,9},
+    lean_assert(foldl(sexpr{1, 2, 3, 4, 5, 6, 7, 8, 9},
                       0,
                       [](int result, sexpr const & s) {
                           return result * 10 + to_int(s);
                       })
                 == 123456789);
 
-    lean_assert(foldr(sexpr{1,2,3,4,5,6,7,8,9},
+    lean_assert(foldr(sexpr{1, 2, 3, 4, 5, 6, 7, 8, 9},
                       0,
                       [](sexpr const & s, int result) {
                           return result * 10 + to_int(s);
@@ -165,9 +165,9 @@ static void tst6() {
 }
 
 static void tst7() {
-    sexpr s = sexpr{ sexpr(1,2), sexpr(2,3), sexpr(0,1) };
+    sexpr s = sexpr{ sexpr(1, 2), sexpr(2, 3), sexpr(0, 1) };
     std::cout << pp(sexpr{s, s, s, s, s}) << "\n";
-    std::cout << pp(sexpr{sexpr(name{"test","name"}), sexpr(10), sexpr(10.20)}) << "\n";
+    std::cout << pp(sexpr{sexpr(name{"test", "name"}), sexpr(10), sexpr(10.20)}) << "\n";
     format f = highlight(pp(sexpr{s, s, s, s, s}));
     std::cout << f << "\n";
     std::cout << mk_pair(f, options({"pp", "width"}, 1000)) << "\n";
@@ -194,10 +194,10 @@ static void tst8() {
     lean_assert(cmp(sexpr(name("aaa")), sexpr(name("bbb"))) < 0);
     lean_assert(cmp(sexpr(mpz(10)), sexpr(mpz(10))) == 0);
     lean_assert(cmp(sexpr(mpz(20)), sexpr(mpz(10))) > 0);
-    lean_assert(cmp(sexpr(mpq(1,2)), sexpr(mpq(1,2))) == 0);
-    lean_assert(cmp(sexpr(mpq(1,3)), sexpr(mpq(1,2))) < 0);
+    lean_assert(cmp(sexpr(mpq(1, 2)), sexpr(mpq(1, 2))) == 0);
+    lean_assert(cmp(sexpr(mpq(1, 3)), sexpr(mpq(1, 2))) < 0);
     std::ostringstream s;
-    s << sexpr() << " " << sexpr(mpq(1,2));
+    s << sexpr() << " " << sexpr(mpq(1, 2));
     std::cout << s.str() << "\n";
     lean_assert(s.str() == "nil 1/2");
 }

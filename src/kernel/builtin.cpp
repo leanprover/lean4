@@ -204,10 +204,10 @@ void import_basic(environment & env) {
     // forall : Pi (A : Type u), (A -> Bool) -> Bool
     env.add_definition(forall_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Eq(P, Fun({x, A}, True))));
     // TODO(Leo): introduce epsilon
-    env.add_definition(exists_fn_name, q_type, Fun({{A,TypeU}, {P, A_pred}}, Not(Forall(A, Fun({x, A}, Not(P(x)))))));
+    env.add_definition(exists_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Not(Forall(A, Fun({x, A}, Not(P(x)))))));
 
     // homogeneous equality
-    env.add_definition(homo_eq_fn_name, Pi({{A,TypeU},{x,A},{y,A}}, Bool), Fun({{A,TypeU}, {x,A}, {y,A}}, Eq(x, y)));
+    env.add_definition(homo_eq_fn_name, Pi({{A, TypeU}, {x, A}, {y, A}}, Bool), Fun({{A, TypeU}, {x, A}, {y, A}}, Eq(x, y)));
 
     // MP : Pi (a b : Bool) (H1 : a => b) (H2 : a), b
     env.add_axiom(mp_fn_name, Pi({{a, Bool}, {b, Bool}, {H1, Implies(a, b)}, {H2, a}}, b));
@@ -222,7 +222,7 @@ void import_basic(environment & env) {
     env.add_axiom(case_fn_name, Pi({{P, Bool >> Bool}, {H1, P(True)}, {H2, P(False)}, {a, Bool}}, P(a)));
 
     // Subst : Pi (A : Type u) (a b : A) (P : A -> bool) (H1 : P a) (H2 : a = b), P b
-    env.add_axiom(subst_fn_name, Pi({{A, TypeU}, {a, A}, {b, A}, {P, A_pred}, {H1, P(a)}, {H2, Eq(a,b)}}, P(b)));
+    env.add_axiom(subst_fn_name, Pi({{A, TypeU}, {a, A}, {b, A}, {P, A_pred}, {H1, P(a)}, {H2, Eq(a, b)}}, P(b)));
 
     // Eta : Pi (A : Type u) (B : A -> Type u), f : (Pi x : A, B x), (Fun x : A => f x) = f
     env.add_axiom(eta_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}}, Eq(Fun({x, A}, f(x)), f)));

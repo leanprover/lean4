@@ -80,17 +80,17 @@ static void tst3() {
         }
     };
     replace_fn<decltype(proc), tracer> replacer(proc, tracer(trace));
-    expr t = Fun({{x, A}, {y, A}}, f(x, f(f(f(x,x), f(y, d)), f(d, d))));
+    expr t = Fun({{x, A}, {y, A}}, f(x, f(f(f(x, x), f(y, d)), f(d, d))));
     expr b = abst_body(t);
     expr r = replacer(b);
     std::cout << r << "\n";
-    lean_assert(r == Fun({y, A}, f(c, f(f(f(c,c), f(y, d)), f(d, d)))));
+    lean_assert(r == Fun({y, A}, f(c, f(f(f(c, c), f(y, d)), f(d, d)))));
     for (auto p : trace) {
         std::cout << p.first << " --> " << p.second << "\n";
     }
     lean_assert(trace[c] == Var(1));
     std::cout << arg(arg(abst_body(r), 2), 2) << "\n";
-    lean_assert(arg(arg(abst_body(r), 2), 2) == f(d,d));
+    lean_assert(arg(arg(abst_body(r), 2), 2) == f(d, d));
     lean_assert(trace.find(arg(arg(abst_body(r), 2), 2)) == trace.end());
     lean_assert(trace.find(abst_body(r)) != trace.end());
     lean_assert(trace.find(arg(abst_body(r), 2)) != trace.end());

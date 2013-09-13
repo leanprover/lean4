@@ -30,7 +30,7 @@ class value;
           |   Eq            expr expr         (heterogeneous equality)
           |   Let           name expr expr expr
 
-TODO: match expressions.
+TODO(Leo): match expressions.
 
 The main API is divided in the following sections
 - Testers
@@ -386,11 +386,11 @@ struct expr_eqp { bool operator()(expr const & e1, expr const & e2) const { retu
 struct expr_cell_hash { unsigned operator()(expr_cell * e) const { return e->hash(); } };
 /** \brief Functional object for testing pointer equality between kernel cell expressions. */
 struct expr_cell_eqp { bool operator()(expr_cell * e1, expr_cell * e2) const { return e1 == e2; } };
-/** \brief Functional object for hashing a pair (n,k) where n is a kernel expressions, and k is an offset. */
+/** \brief Functional object for hashing a pair (n, k) where n is a kernel expressions, and k is an offset. */
 struct expr_offset_hash { unsigned operator()(expr_offset const & p) const { return hash(p.first.hash(), p.second); } };
 /** \brief Functional object for comparing pairs (expression, offset). */
 struct expr_offset_eqp { unsigned operator()(expr_offset const & p1, expr_offset const & p2) const { return is_eqp(p1.first, p2.first) && p1.second == p2.second; } };
-/** \brief Functional object for hashing a pair (n,k) where n is a kernel cell expressions, and k is an offset. */
+/** \brief Functional object for hashing a pair (n, k) where n is a kernel cell expressions, and k is an offset. */
 struct expr_cell_offset_hash { unsigned operator()(expr_cell_offset const & p) const { return hash(p.first->hash(), p.second); } };
 /** \brief Functional object for comparing pairs (expression cell, offset). */
 struct expr_cell_offset_eqp { unsigned operator()(expr_cell_offset const & p1, expr_cell_offset const & p2) const { return p1 == p2; } };

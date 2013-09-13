@@ -17,9 +17,9 @@ static void tst0() {
 }
 
 static void tst1() {
-    mpq a(2,3), b(4,3);
+    mpq a(2, 3), b(4, 3);
     b = a / b;
-    lean_assert(b == mpq(1,2));
+    lean_assert(b == mpq(1, 2));
     a = mpq(2);
     a.inv();
     lean_assert(a == b);
@@ -30,7 +30,7 @@ static void tst1() {
 }
 
 static void tst2() {
-    mpq a(2,3);
+    mpq a(2, 3);
     lean_assert(floor(a) == 0);
     lean_assert(ceil(a) == 1);
     mpq b(-2, 3);
@@ -58,35 +58,35 @@ static void tst3() {
 }
 
 static void tst4() {
-    mpq a(8,6);
-    lean_assert(a == mpq(4,3));
-    lean_assert(mpq(1,2)+mpq(1,2) == mpq(1));
+    mpq a(8, 6);
+    lean_assert(a == mpq(4, 3));
+    lean_assert(mpq(1, 2)+mpq(1, 2) == mpq(1));
     lean_assert(mpq("1/2") < mpq("2/3"));
-    lean_assert(mpq(-1,2).is_neg());
-    lean_assert(mpq(-1,2).is_nonpos());
-    lean_assert(!mpq(-1,2).is_zero());
-    lean_assert(mpq(1,2) > mpq());
+    lean_assert(mpq(-1, 2).is_neg());
+    lean_assert(mpq(-1, 2).is_nonpos());
+    lean_assert(!mpq(-1, 2).is_zero());
+    lean_assert(mpq(1, 2) > mpq());
     lean_assert(mpq().is_zero());
-    lean_assert(mpq(2,3) + mpq(4,3) == mpq(2));
-    lean_assert(mpq(1,2) >= mpq(1,3));
-    lean_assert(mpq(3,4).get_denominator() == 4);
-    lean_assert(mpq(3,4).get_numerator() == 3);
-    lean_assert(mpq(1,2) / mpq(5,4) == mpq(2,5));
-    lean_assert(mpq(1,2) - mpq(2,3) == mpq(-1,6));
-    lean_assert(mpq(3,4) * mpq(2,3) == mpq(1,2));
+    lean_assert(mpq(2, 3) + mpq(4, 3) == mpq(2));
+    lean_assert(mpq(1, 2) >= mpq(1, 3));
+    lean_assert(mpq(3, 4).get_denominator() == 4);
+    lean_assert(mpq(3, 4).get_numerator() == 3);
+    lean_assert(mpq(1, 2) / mpq(5, 4) == mpq(2, 5));
+    lean_assert(mpq(1, 2) - mpq(2, 3) == mpq(-1, 6));
+    lean_assert(mpq(3, 4) * mpq(2, 3) == mpq(1, 2));
     a *= 3;
     lean_assert(a == 4);
     a /= 2;
     lean_assert(a == 2);
     lean_assert(a.is_integer());
     a /= 5;
-    lean_assert(a == mpq(2,5));
+    lean_assert(a == mpq(2, 5));
     lean_assert(!a.is_integer());
-    mpq b(3,7);
+    mpq b(3, 7);
     a *= b;
-    lean_assert(a == mpq(6,35));
+    lean_assert(a == mpq(6, 35));
     a /= b;
-    lean_assert(a == mpq(2,5));
+    lean_assert(a == mpq(2, 5));
     mpz c(5);
     a *= c;
     lean_assert(a == 2);
@@ -95,7 +95,7 @@ static void tst4() {
     a -= c;
     lean_assert(a == 2);
     a /= c;
-    lean_assert(a == mpq(2,5));
+    lean_assert(a == mpq(2, 5));
 }
 
 static void tst5() {
@@ -123,7 +123,7 @@ static void tst5() {
     lean_assert(1u >= a);
     lean_assert(2u > a);
     a = "1/3";
-    lean_assert(a == mpq(1,3));
+    lean_assert(a == mpq(1, 3));
     a = 2.0;
     lean_assert(a == mpq(2));
     a = mpz(10);
@@ -147,30 +147,30 @@ static void tst6() {
     lean_assert(v1 == 1);
     v1.ceil();
     lean_assert(v1 == 1);
-    v1 = mpq(1,2);
+    v1 = mpq(1, 2);
     v1.floor();
     lean_assert(v1 == 0);
-    v1 = mpq(1,2);
+    v1 = mpq(1, 2);
     v1.ceil();
     lean_assert(v1 == 1);
     v1 -= 2u;
     lean_assert(v1 == -1);
-    v1 = mpq(-1,2);
+    v1 = mpq(-1, 2);
     v1.floor();
     lean_assert(v1 == -1);
-    v1 = mpq(-1,2);
+    v1 = mpq(-1, 2);
     v1.ceil();
     lean_assert(v1 == 0);
-    check_dec(mpq(-1,2), "-0.5");
-    check_dec(mpq(1,3),  "0.33333?", 5);
+    check_dec(mpq(-1, 2), "-0.5");
+    check_dec(mpq(1, 3),  "0.33333?", 5);
     check_dec(mpq(3),    "3");
-    check_dec(mpq(-2,1), "-2");
-    check_dec(mpq(-1,3),  "-0.33333?", 5);
-    check_dec(mpq(-1,7),  "-0.14285?", 5);
+    check_dec(mpq(-2, 1), "-2");
+    check_dec(mpq(-1, 3),  "-0.33333?", 5);
+    check_dec(mpq(-1, 7),  "-0.14285?", 5);
 
-    lean_assert(cmp(mpq(1,2), mpz(1)) < 0);
-    lean_assert(cmp(mpq(3,2), mpz(1)) > 0);
-    lean_assert(cmp(mpq(-3,2), mpz(-1)) < 0);
+    lean_assert(cmp(mpq(1, 2), mpz(1)) < 0);
+    lean_assert(cmp(mpq(3, 2), mpz(1)) > 0);
+    lean_assert(cmp(mpq(-3, 2), mpz(-1)) < 0);
 }
 
 int main() {

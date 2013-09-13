@@ -107,7 +107,7 @@ static void tst4() {
     s << pp(sexpr()) << " ";
     s << pp(sexpr("test")) << " ";
     sexpr s1(mpz(100));
-    sexpr s2(mpq(1,2));
+    sexpr s2(mpq(1, 2));
     sexpr s3{s1, s2};
     s << pp(s3);
     std::cout << s.str() << "\n";

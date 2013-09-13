@@ -224,8 +224,8 @@ void tst6() {
 void tst7() {
     expr f  = Const("f");
     expr v  = Var(0);
-    expr a1 = max_sharing(f(v,v));
-    expr a2 = max_sharing(f(v,v));
+    expr a1 = max_sharing(f(v, v));
+    expr a2 = max_sharing(f(v, v));
     lean_assert(!is_eqp(a1, a2));
     expr b  = max_sharing(f(a1, a2));
     lean_assert(is_eqp(arg(b, 1), arg(b, 2)));
@@ -315,7 +315,7 @@ void tst12() {
     expr a = Const("a");
     expr x = Var(0);
     expr t = Type();
-    expr F = mk_pi("y", t, mk_lambda("x", t, f(f(f(x,a),Const("10")),x)));
+    expr F = mk_pi("y", t, mk_lambda("x", t, f(f(f(x, a), Const("10")), x)));
     expr G = deep_copy(F);
     lean_assert(F == G);
     lean_assert(!is_eqp(F, G));
@@ -325,12 +325,12 @@ void tst12() {
 void tst13() {
     expr f  = Const("f");
     expr v  = Var(0);
-    expr a1 = max_sharing(f(v,v));
-    expr a2 = max_sharing(f(v,v));
+    expr a1 = max_sharing(f(v, v));
+    expr a2 = max_sharing(f(v, v));
     lean_assert(!is_eqp(a1, a2));
     lean_assert(a1 == a2);
     max_sharing_fn M;
-    lean_assert(is_eqp(M(f(v,v)), M(f(v,v))));
+    lean_assert(is_eqp(M(f(v, v)), M(f(v, v))));
     lean_assert(is_eqp(M(a1), M(a2)));
 }
 

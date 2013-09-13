@@ -124,15 +124,15 @@ public:
     friend bool operator==(unsigned int a, mpbq const & b) { return operator==(b, a); }
     friend bool operator==(int a, mpbq const & b) { return operator==(b, a); }
 
-    friend bool operator!=(mpbq const & a, mpbq const & b) { return !operator==(a,b); }
-    friend bool operator!=(mpbq const & a, mpz const & b) { return !operator==(a,b); }
-    friend bool operator!=(mpbq const & a, mpq const & b) { return !operator==(a,b); }
-    friend bool operator!=(mpbq const & a, unsigned int b) { return !operator==(a,b); }
-    friend bool operator!=(mpbq const & a, int b) { return !operator==(a,b); }
-    friend bool operator!=(mpz const & a, mpbq const & b) { return !operator==(a,b); }
-    friend bool operator!=(mpq const & a, mpbq const & b) { return !operator==(a,b); }
-    friend bool operator!=(unsigned int a, mpbq const & b) { return !operator==(a,b); }
-    friend bool operator!=(int a, mpbq const & b) { return !operator==(a,b); }
+    friend bool operator!=(mpbq const & a, mpbq const & b) { return !operator==(a, b); }
+    friend bool operator!=(mpbq const & a, mpz const & b) { return !operator==(a, b); }
+    friend bool operator!=(mpbq const & a, mpq const & b) { return !operator==(a, b); }
+    friend bool operator!=(mpbq const & a, unsigned int b) { return !operator==(a, b); }
+    friend bool operator!=(mpbq const & a, int b) { return !operator==(a, b); }
+    friend bool operator!=(mpz const & a, mpbq const & b) { return !operator==(a, b); }
+    friend bool operator!=(mpq const & a, mpbq const & b) { return !operator==(a, b); }
+    friend bool operator!=(unsigned int a, mpbq const & b) { return !operator==(a, b); }
+    friend bool operator!=(int a, mpbq const & b) { return !operator==(a, b); }
 
     mpbq & operator+=(mpbq const & a);
     mpbq & operator+=(unsigned a);

@@ -25,7 +25,7 @@ expr context_to_lambda(context const & c, expr const & e) {
     return context_to_lambda(c.begin(), c.end(), e);
 }
 bool is_fake_context(expr const & e) {
-    return is_lambda(e) && is_app(abst_domain(e)) && arg(abst_domain(e),0) == g_fake;
+    return is_lambda(e) && is_app(abst_domain(e)) && arg(abst_domain(e), 0) == g_fake;
 }
 name const & fake_context_name(expr const & e) {
     lean_assert(is_fake_context(e));

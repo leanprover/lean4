@@ -81,7 +81,7 @@ expr mk_disj2_fn();
 inline expr Disj2(expr const & b, expr const & a, expr const & H) { return mk_app(mk_disj2_fn(), b, a, H); }
 
 expr mk_disj_cases_fn();
-/** \brief (Theorem) {a b c : Bool}, H1 : Or(a,b), H2 : a -> c, H3 : b -> c |- DisjCases(a, b, c, H1, H2, H3) : c */
+/** \brief (Theorem) {a b c : Bool}, H1 : Or(a, b), H2 : a -> c, H3 : b -> c |- DisjCases(a, b, c, H1, H2, H3) : c */
 inline expr DisjCases(expr const & a, expr const & b, expr const & c, expr const & H1, expr const & H2, expr const & H3) { return mk_app({mk_disj_cases_fn(), a, b, c, H1, H2, H3}); }
 
 expr mk_symm_fn();

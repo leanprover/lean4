@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "mpq.h"
-#include "mpbq.h"
+#include "util/numerics/mpq.h"
+#include "util/numerics/mpbq.h"
 
 namespace lean {
 

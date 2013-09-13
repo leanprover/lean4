@@ -6,16 +6,16 @@ Author: Leonardo de Moura
         Soonho Kong
 */
 #include <algorithm>
-#include "expr.h"
-#include "expr_sets.h"
-#include "max_sharing.h"
-#include "free_vars.h"
-#include "test.h"
-#include "abstract.h"
-#include "instantiate.h"
-#include "printer.h"
-#include "deep_copy.h"
-#include "arithlibs.h"
+#include "util/test.h"
+#include "kernel/expr.h"
+#include "kernel/expr_sets.h"
+#include "kernel/free_vars.h"
+#include "kernel/abstract.h"
+#include "kernel/instantiate.h"
+#include "library/max_sharing.h"
+#include "library/deep_copy.h"
+#include "library/printer.h"
+#include "library/arith/arithlibs.h"
 using namespace lean;
 
 void tst1() {

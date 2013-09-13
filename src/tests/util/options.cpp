@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 */
 #include <cstring>
 #include <sstream>
-#include "test.h"
-#include "options.h"
-#include "option_declarations.h"
+#include "util/test.h"
+#include "util/sexpr/options.h"
+#include "util/sexpr/option_declarations.h"
 using namespace lean;
 
 static void tst1() {

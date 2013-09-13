@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
-#include "environment.h"
-#include "state.h"
-#include "lean_operator_info.h"
+#include "kernel/environment.h"
+#include "library/state.h"
+#include "frontends/lean/lean_operator_info.h"
 
 namespace lean {
 /**

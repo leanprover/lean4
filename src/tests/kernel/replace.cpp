@@ -4,15 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "expr.h"
-#include "abstract.h"
-#include "instantiate.h"
-#include "deep_copy.h"
-#include "expr_maps.h"
-#include "replace.h"
-#include "printer.h"
-#include "name.h"
-#include "test.h"
+#include "util/test.h"
+#include "util/name.h"
+#include "kernel/expr.h"
+#include "kernel/abstract.h"
+#include "kernel/instantiate.h"
+#include "kernel/expr_maps.h"
+#include "kernel/replace.h"
+#include "library/deep_copy.h"
+#include "library/printer.h"
 using namespace lean;
 
 expr mk_big(expr f, unsigned depth, unsigned val) {

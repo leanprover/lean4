@@ -7,9 +7,9 @@ Author: Leonardo de Moura
 #include <cstdio>
 #include <string>
 #include <algorithm>
-#include "lean_scanner.h"
-#include "debug.h"
-#include "exception.h"
+#include "util/debug.h"
+#include "util/exception.h"
+#include "frontends/lean/lean_scanner.h"
 
 namespace lean {
 

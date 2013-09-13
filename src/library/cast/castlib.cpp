@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "castlib.h"
-#include "environment.h"
-#include "abstract.h"
-#include "basic_thms.h"
-#include "builtin.h"
+#include "kernel/environment.h"
+#include "kernel/abstract.h"
+#include "kernel/builtin.h"
+#include "library/basic_thms.h"
+#include "library/cast/castlib.h"
 
 namespace lean {
 // Cast builtin operator

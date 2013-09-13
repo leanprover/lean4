@@ -7,10 +7,10 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include <sstream>
-#include "expr.h"
-#include "free_vars.h"
-#include "expr_eq.h"
-#include "hash.h"
+#include "util/hash.h"
+#include "kernel/expr.h"
+#include "kernel/free_vars.h"
+#include "kernel/expr_eq.h"
 
 namespace lean {
 unsigned hash_args(unsigned size, expr const * args) {

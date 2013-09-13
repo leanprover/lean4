@@ -7,18 +7,18 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <thread>
 #include <chrono>
-#include "type_checker.h"
-#include "environment.h"
-#include "abstract.h"
-#include "exception.h"
-#include "import_all.h"
-#include "basic_thms.h"
-#include "builtin.h"
-#include "arithlibs.h"
-#include "normalizer.h"
-#include "printer.h"
-#include "trace.h"
-#include "test.h"
+#include "util/test.h"
+#include "util/trace.h"
+#include "util/exception.h"
+#include "kernel/type_checker.h"
+#include "kernel/environment.h"
+#include "kernel/abstract.h"
+#include "kernel/builtin.h"
+#include "kernel/normalizer.h"
+#include "library/printer.h"
+#include "library/import_all/import_all.h"
+#include "library/basic_thms.h"
+#include "library/arith/arithlibs.h"
 using namespace lean;
 
 expr c(char const * n) { return mk_constant(n); }

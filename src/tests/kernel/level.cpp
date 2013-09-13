@@ -5,10 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <locale>
-#include "environment.h"
-#include "exception.h"
-#include "printer.h"
-#include "test.h"
+#include "util/test.h"
+#include "util/exception.h"
+#include "kernel/environment.h"
+#include "library/printer.h"
 using namespace lean;
 
 static void tst0() {

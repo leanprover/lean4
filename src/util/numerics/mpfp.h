@@ -7,9 +7,9 @@ Author: Soonho Kong
 #pragma once
 #include <stdint.h>
 #include <mpfr.h>
-#include "mpz.h"
-#include "mpq.h"
-#include "mpbq.h"
+#include "util/numerics/mpz.h"
+#include "util/numerics/mpq.h"
+#include "util/numerics/mpbq.h"
 
 namespace lean {
 

@@ -6,7 +6,7 @@ Author: Soonho Kong
 */
 #pragma once
 #include <mpfr.h>
-#include "mpfp.h"
+#include "util/numerics/mpfp.h"
 
 namespace lean {
 

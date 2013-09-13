@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "expr.h"
-#include "hash.h"
+#include "util/hash.h"
+#include "kernel/expr.h"
 
 namespace lean {
 typedef std::pair<expr, expr> expr_pair;

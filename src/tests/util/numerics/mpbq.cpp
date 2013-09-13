@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include <sstream>
-#include "test.h"
-#include "mpbq.h"
-#include "mpq.h"
+#include "util/test.h"
+#include "util/numerics/mpbq.h"
+#include "util/numerics/mpq.h"
 using namespace lean;
 
 static void tst1() {

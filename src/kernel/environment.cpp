@@ -8,11 +8,11 @@ Author: Leonardo de Moura
 #include <vector>
 #include <atomic>
 #include <unordered_map>
-#include "kernel_exception.h"
-#include "environment.h"
-#include "safe_arith.h"
-#include "type_checker.h"
-#include "normalizer.h"
+#include "util/safe_arith.h"
+#include "kernel/kernel_exception.h"
+#include "kernel/environment.h"
+#include "kernel/type_checker.h"
+#include "kernel/normalizer.h"
 
 namespace lean {
 

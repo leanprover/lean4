@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "context.h"
+#include "kernel/context.h"
 namespace lean {
 /**
    \brief Given the context (n_1 : T_1 [:= V_1]) ... (n_k : T_k [:= V_k]) and expression e into,

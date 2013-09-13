@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "lean_operator_info.h"
-#include "rc.h"
+#include "util/rc.h"
+#include "frontends/lean/lean_operator_info.h"
 
 namespace lean {
 /** \brief Actual implementation of operator_info */

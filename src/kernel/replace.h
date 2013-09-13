@@ -5,9 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "buffer.h"
-#include "expr.h"
-#include "expr_maps.h"
+#include "util/buffer.h"
+#include "kernel/expr.h"
+#include "kernel/expr_maps.h"
+
 namespace lean {
 /**
    \brief Default replace_fn postprocessor functional object. It is a

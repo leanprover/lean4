@@ -5,11 +5,11 @@
   Author: Soonho Kong
 */
 #include <sstream>
-#include "sexpr.h"
-#include "format.h"
-#include "escaped.h"
-#include "sexpr_fn.h"
-#include "options.h"
+#include "util/escaped.h"
+#include "util/sexpr/sexpr.h"
+#include "util/sexpr/format.h"
+#include "util/sexpr/sexpr_fn.h"
+#include "util/sexpr/options.h"
 
 #ifndef LEAN_DEFAULT_PP_INDENTATION
 #define LEAN_DEFAULT_PP_INDENTATION 4

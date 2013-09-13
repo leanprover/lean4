@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "intlib.h"
-#include "natlib.h"
-#include "numtype.h"
-#include "abstract.h"
-#include "environment.h"
+#include "kernel/abstract.h"
+#include "kernel/environment.h"
+#include "library/arith/intlib.h"
+#include "library/arith/natlib.h"
+#include "library/arith/numtype.h"
 
 namespace lean {
 class int_type_value : public num_type_value {

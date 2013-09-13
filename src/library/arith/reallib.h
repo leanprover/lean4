@@ -5,9 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "expr.h"
-#include "builtin.h"
-#include "mpq.h"
+#include "util/numerics/mpq.h"
+#include "kernel/expr.h"
+#include "kernel/builtin.h"
 
 namespace lean {
 /** \brief Real numbers type */

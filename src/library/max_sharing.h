@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
-#include "expr.h"
+#include "kernel/expr.h"
 
 namespace lean {
 /**

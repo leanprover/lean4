@@ -8,8 +8,8 @@ Author: Leonardo de Moura
 #include <cstdlib>
 #include <deque>
 #include <vector>
-#include "test.h"
-#include "pdeque.h"
+#include "util/test.h"
+#include "util/pdeque.h"
 using namespace lean;
 
 // #define PDEQUE_PERF_TEST

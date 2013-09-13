@@ -5,10 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <sstream>
-#include "test.h"
-#include "lean_scanner.h"
-#include "exception.h"
-#include "escaped.h"
+#include "util/test.h"
+#include "util/exception.h"
+#include "util/escaped.h"
+#include "frontends/lean/lean_scanner.h"
 using namespace lean;
 
 #define st scanner::token

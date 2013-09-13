@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <unordered_set>
-#include "expr.h"
-#include "hash.h"
+#include "util/hash.h"
+#include "kernel/expr.h"
 
 namespace lean {
 

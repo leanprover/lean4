@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Soonho Kong
 */
-#include "test.h"
-#include "trace.h"
-#include "float.h"
-#include "interval_def.h"
-#include "check.h"
+#include "util/test.h"
+#include "util/trace.h"
+#include "util/numerics/float.h"
+#include "interval/interval_def.h"
+#include "tests/interval/check.h"
 
 using namespace lean;
 

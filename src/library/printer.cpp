@@ -5,10 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
-#include "printer.h"
-#include "metavar.h"
-#include "environment.h"
-#include "exception.h"
+#include "util/exception.h"
+#include "library/printer.h"
+#include "library/metavar.h"
+#include "kernel/environment.h"
 
 namespace lean {
 bool is_atomic(expr const & e) {

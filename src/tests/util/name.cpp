@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #include <cstring>
 #include <sstream>
-#include "test.h"
-#include "name.h"
+#include "util/test.h"
+#include "util/name.h"
 using namespace lean;
 
 static void tst1() {

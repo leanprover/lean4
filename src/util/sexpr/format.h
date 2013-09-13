@@ -5,14 +5,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Soonho Kong
 */
 #pragma once
-#include "sexpr.h"
-#include "debug.h"
 #include <algorithm>
 #include <iostream>
 #include <numeric>
 #include <sstream>
-#include "mpz.h"
-#include "pair.h"
+#include "util/pair.h"
+#include "util/debug.h"
+#include "util/numerics/mpz.h"
+#include "util/sexpr/sexpr.h"
 
 namespace lean {
 class options;

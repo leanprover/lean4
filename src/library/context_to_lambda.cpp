@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "context_to_lambda.h"
+#include "library/context_to_lambda.h"
 
 namespace lean {
 static expr g_fake = Const(name(name(0u), "context_to_lambda"));

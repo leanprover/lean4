@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "context.h"
-#include "exception.h"
+#include "util/exception.h"
+#include "kernel/context.h"
 
 namespace lean {
 std::pair<context_entry const &, context> context::lookup_ext(unsigned i) const {

@@ -7,11 +7,11 @@ Author: Soonho Kong
 #include <vector>
 #include <algorithm>
 #include <sstream>
-#include "format.h"
-#include "test.h"
-#include "sexpr_fn.h"
-#include "options.h"
-#include "mpq.h"
+#include "util/test.h"
+#include "util/numerics/mpq.h"
+#include "util/sexpr/format.h"
+#include "util/sexpr/sexpr_fn.h"
+#include "util/sexpr/options.h"
 using namespace lean;
 
 using std::cout;

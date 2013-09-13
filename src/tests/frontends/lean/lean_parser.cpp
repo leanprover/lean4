@@ -5,12 +5,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <sstream>
-#include "builtin.h"
-#include "lean_parser.h"
-#include "lean_pp.h"
-#include "printer.h"
-#include "exception.h"
-#include "test.h"
+#include "util/test.h"
+#include "util/exception.h"
+#include "kernel/builtin.h"
+#include "library/printer.h"
+#include "frontends/lean/lean_parser.h"
+#include "frontends/lean/lean_pp.h"
 using namespace lean;
 
 static void parse(frontend & fe, char const * str) {

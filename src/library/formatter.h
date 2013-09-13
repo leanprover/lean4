@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
-#include "context.h"
-#include "options.h"
+#include "util/sexpr/options.h"
+#include "kernel/context.h"
 
 namespace lean {
 class environment;

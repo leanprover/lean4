@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "interval_def.h"
-#include "mpq.h"
-#include "double.h"
+#include "util/numerics/mpq.h"
+#include "util/numerics/double.h"
+#include "interval/interval_def.h"
 
 namespace lean {
 template class interval<mpq>;

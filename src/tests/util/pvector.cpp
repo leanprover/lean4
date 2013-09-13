@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include <cstdlib>
-#include "test.h"
-#include "pvector.h"
-#include "timeit.h"
+#include "util/test.h"
+#include "util/pvector.h"
+#include "util/timeit.h"
 using namespace lean;
 
 // #define PVECTOR_PERF_TEST

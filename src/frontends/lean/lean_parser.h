@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <iostream>
-#include "lean_frontend.h"
-#include "interruptable_ptr.h"
+#include "util/interruptable_ptr.h"
+#include "frontends/lean/lean_frontend.h"
 
 namespace lean {
 /** \brief Functional object for parsing commands and expressions */

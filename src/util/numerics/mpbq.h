@@ -5,9 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "mpz.h"
-#include "mpq.h"
-#include "bit_tricks.h"
+#include "util/bit_tricks.h"
+#include "util/numerics/mpz.h"
+#include "util/numerics/mpq.h"
 
 namespace lean {
 

@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "free_vars.h"
-#include "abstract.h"
-#include "test.h"
+#include "util/test.h"
+#include "kernel/free_vars.h"
+#include "kernel/abstract.h"
 using namespace lean;
 
 static void tst1() {

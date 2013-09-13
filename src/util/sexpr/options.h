@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <algorithm>
-#include "sexpr.h"
-#include "format.h"
-#include "name.h"
+#include "util/name.h"
+#include "util/sexpr/sexpr.h"
+#include "util/sexpr/format.h"
 
 namespace lean {
 enum option_kind { BoolOption, IntOption, UnsignedOption, DoubleOption, StringOption, SExprOption };

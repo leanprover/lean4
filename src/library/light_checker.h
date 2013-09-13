@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
-#include "expr.h"
-#include "context.h"
+#include "kernel/expr.h"
+#include "kernel/context.h"
 
 namespace lean {
 class environment;

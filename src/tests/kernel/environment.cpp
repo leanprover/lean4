@@ -4,18 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "kernel_exception.h"
-#include "environment.h"
-#include "type_checker.h"
-#include "printer.h"
-#include "import_all.h"
-#include "builtin.h"
-#include "arithlibs.h"
-#include "normalizer.h"
-#include "abstract.h"
-#include "exception.h"
-#include "trace.h"
-#include "test.h"
+#include "util/test.h"
+#include "util/exception.h"
+#include "util/trace.h"
+#include "kernel/kernel_exception.h"
+#include "kernel/environment.h"
+#include "kernel/type_checker.h"
+#include "kernel/builtin.h"
+#include "kernel/normalizer.h"
+#include "kernel/abstract.h"
+#include "library/printer.h"
+#include "library/arith/arithlibs.h"
+#include "library/import_all/import_all.h"
 using namespace lean;
 
 static void tst1() {

@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "expr.h"
+#include "kernel/expr.h"
 
 namespace lean {
 /** \brief Type Cast. It has type <tt>Pi (A : Type u) (B : Type u) (H : A = B) (a : A), B</tt> */

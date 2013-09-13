@@ -4,15 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "test.h"
-#include "light_checker.h"
-#include "type_checker.h"
-#include "environment.h"
-#include "arithlibs.h"
-#include "import_all.h"
-#include "abstract.h"
-#include "printer.h"
-#include "timeit.h"
+#include "util/test.h"
+#include "util/timeit.h"
+#include "kernel/type_checker.h"
+#include "kernel/environment.h"
+#include "kernel/abstract.h"
+#include "library/arith/arithlibs.h"
+#include "library/import_all/import_all.h"
+#include "library/light_checker.h"
+#include "library/printer.h"
 using namespace lean;
 
 static void tst1() {

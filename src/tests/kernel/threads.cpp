@@ -7,15 +7,15 @@ Author: Leonardo de Moura
 #include <thread>
 #include <mutex>
 #include <vector>
-#include "expr.h"
-#include "max_sharing.h"
-#include "free_vars.h"
-#include "deep_copy.h"
-#include "abstract.h"
-#include "normalizer.h"
-#include "import_all.h"
-#include "arithlibs.h"
-#include "test.h"
+#include "util/test.h"
+#include "kernel/expr.h"
+#include "kernel/free_vars.h"
+#include "kernel/abstract.h"
+#include "kernel/normalizer.h"
+#include "library/max_sharing.h"
+#include "library/deep_copy.h"
+#include "library/import_all/import_all.h"
+#include "library/arith/arithlibs.h"
 using namespace lean;
 
 expr norm(expr const & e, environment & env) {

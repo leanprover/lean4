@@ -4,14 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "type_checker.h"
-#include "environment.h"
-#include "kernel_exception.h"
-#include "normalizer.h"
-#include "instantiate.h"
-#include "scoped_map.h"
-#include "builtin.h"
-#include "free_vars.h"
+#include "util/scoped_map.h"
+#include "kernel/type_checker.h"
+#include "kernel/environment.h"
+#include "kernel/kernel_exception.h"
+#include "kernel/normalizer.h"
+#include "kernel/instantiate.h"
+#include "kernel/builtin.h"
+#include "kernel/free_vars.h"
 
 namespace lean {
 /** \brief Auxiliary functional object used to implement infer_type. */

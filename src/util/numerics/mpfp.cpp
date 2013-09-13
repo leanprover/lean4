@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Soonho Kong
 */
 #include <cmath>
-#include "mpfp.h"
+#include "util/numerics/mpfp.h"
 
 namespace lean {
 static thread_local mpfr_rnd_t g_mpfp_rnd = MPFR_RNDN;

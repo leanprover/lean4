@@ -1,10 +1,16 @@
+/*
+Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Leonardo de Moura
+*/
 #include <iostream>
 #include <fstream>
 #include <signal.h>
+#include "util/interruptable_ptr.h"
+#include "library/printer.h"
+#include "frontends/lean/lean_parser.h"
 #include "version.h"
-#include "printer.h"
-#include "interruptable_ptr.h"
-#include "lean_parser.h"
 using namespace lean;
 
 static interruptable_ptr<shell> g_lean_shell;

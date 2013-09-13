@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "lean_elaborator_exception.h"
-#include "lean_elaborator.h"
+#include "frontends/lean/lean_elaborator_exception.h"
+#include "frontends/lean/lean_elaborator.h"
 
 namespace lean {
 format pp_elaborator_state(formatter fmt, elaborator const & elb, options const & opts) {

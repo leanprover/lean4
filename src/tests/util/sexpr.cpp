@@ -5,13 +5,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <sstream>
-#include "sexpr.h"
-#include "sexpr_fn.h"
-#include "mpq.h"
-#include "name.h"
-#include "test.h"
-#include "format.h"
-#include "options.h"
+#include "util/name.h"
+#include "util/test.h"
+#include "util/numerics/mpq.h"
+#include "util/sexpr/sexpr.h"
+#include "util/sexpr/sexpr_fn.h"
+#include "util/sexpr/format.h"
+#include "util/sexpr/options.h"
 using namespace lean;
 
 static void tst1() {

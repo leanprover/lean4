@@ -4,10 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "basic_thms.h"
-#include "environment.h"
-#include "abstract.h"
-#include "type_checker.h"
+#include "kernel/environment.h"
+#include "kernel/abstract.h"
+#include "kernel/type_checker.h"
+#include "library/basic_thms.h"
 
 namespace lean {
 

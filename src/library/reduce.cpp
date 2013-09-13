@@ -4,12 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "context.h"
-#include "instantiate.h"
-#include "environment.h"
-#include "name_set.h"
-#include "update_expr.h"
-#include "free_vars.h"
+#include "util/name_set.h"
+#include "kernel/context.h"
+#include "kernel/instantiate.h"
+#include "kernel/environment.h"
+#include "kernel/free_vars.h"
+#include "library/update_expr.h"
 
 namespace lean {
 bool is_head_beta(expr const & t) {

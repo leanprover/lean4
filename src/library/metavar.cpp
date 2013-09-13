@@ -4,13 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "metavar.h"
-#include "replace.h"
-#include "for_each.h"
-#include "environment.h"
-#include "occurs.h"
-#include "update_expr.h"
-#include "printer.h"
+#include "kernel/replace.h"
+#include "kernel/for_each.h"
+#include "kernel/environment.h"
+#include "kernel/occurs.h"
+#include "library/update_expr.h"
+#include "library/printer.h"
+#include "library/metavar.h"
 
 namespace lean {
 static name g_placeholder_name("_");

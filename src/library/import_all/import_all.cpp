@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "import_all.h"
-#include "builtin.h"
-#include "basic_thms.h"
-#include "arithlibs.h"
-#include "castlib.h"
+#include "kernel/builtin.h"
+#include "library/basic_thms.h"
+#include "library/arith/arithlibs.h"
+#include "library/cast/castlib.h"
+#include "library/import_all/import_all.h"
 
 namespace lean {
 void import_all(environment & env) {

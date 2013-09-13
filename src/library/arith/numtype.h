@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "expr.h"
-#include "value.h"
+#include "kernel/expr.h"
+#include "kernel/value.h"
 
 namespace lean {
 /** \brief Base class for numeric types */

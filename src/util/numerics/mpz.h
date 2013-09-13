@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 #include <gmp.h>
-#include "debug.h"
-#include "numeric_traits.h"
+#include "util/debug.h"
+#include "util/numerics/numeric_traits.h"
 
 namespace lean {
 class mpq;

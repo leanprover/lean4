@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <unordered_set>
-#include "buffer.h"
-#include "max_sharing.h"
+#include "util/buffer.h"
+#include "library/max_sharing.h"
 
 namespace lean {
 /**

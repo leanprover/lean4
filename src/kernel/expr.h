@@ -8,12 +8,12 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <limits>
 #include <atomic>
-#include "rc.h"
-#include "name.h"
-#include "level.h"
-#include "hash.h"
-#include "buffer.h"
-#include "format.h"
+#include "util/rc.h"
+#include "util/name.h"
+#include "util/hash.h"
+#include "util/buffer.h"
+#include "util/sexpr/format.h"
+#include "kernel/level.h"
 
 namespace lean {
 class value;

@@ -4,19 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "test.h"
-#include "metavar.h"
-#include "free_vars.h"
-#include "printer.h"
-#include "occurs.h"
-#include "abstract.h"
-#include "import_all.h"
-#include "basic_thms.h"
-#include "type_checker.h"
-#include "kernel_exception.h"
-#include "lean_frontend.h"
-#include "lean_elaborator.h"
-#include "lean_elaborator_exception.h"
+#include "util/test.h"
+#include "kernel/type_checker.h"
+#include "kernel/kernel_exception.h"
+#include "kernel/occurs.h"
+#include "kernel/abstract.h"
+#include "kernel/free_vars.h"
+#include "library/metavar.h"
+#include "library/printer.h"
+#include "library/basic_thms.h"
+#include "library/import_all/import_all.h"
+#include "frontends/lean/lean_frontend.h"
+#include "frontends/lean/lean_elaborator.h"
+#include "frontends/lean/lean_elaborator_exception.h"
 using namespace lean;
 
 expr elaborate(expr const & e, frontend const & env) {

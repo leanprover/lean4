@@ -4,10 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "specialfnlib.h"
-#include "reallib.h"
-#include "abstract.h"
-#include "environment.h"
+#include "kernel/environment.h"
+#include "kernel/abstract.h"
+#include "library/arith/specialfnlib.h"
+#include "library/arith/reallib.h"
 
 namespace lean {
 MK_CONSTANT(exp_fn, name("exp"));

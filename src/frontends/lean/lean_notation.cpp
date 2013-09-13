@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "builtin.h"
-#include "basic_thms.h"
-#include "lean_frontend.h"
-#include "arithlibs.h"
-#include "castlib.h"
+#include "kernel/builtin.h"
+#include "library/basic_thms.h"
+#include "library/arith/arithlibs.h"
+#include "library/cast/castlib.h"
+#include "frontends/lean/lean_frontend.h"
 
 namespace lean {
 /**

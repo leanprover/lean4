@@ -4,12 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "printer.h"
-#include "abstract.h"
-#include "builtin.h"
-#include "lean_frontend.h"
-#include "lean_pp.h"
-#include "test.h"
+#include "util/test.h"
+#include "kernel/abstract.h"
+#include "kernel/builtin.h"
+#include "library/printer.h"
+#include "frontends/lean/lean_frontend.h"
+#include "frontends/lean/lean_pp.h"
 using namespace lean;
 
 static expr mk_shared_expr(unsigned depth) {

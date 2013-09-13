@@ -7,16 +7,16 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <thread>
 #include <chrono>
-#include "exception.h"
-#include "normalizer.h"
-#include "builtin.h"
-#include "trace.h"
-#include "test.h"
-#include "expr_sets.h"
-#include "abstract.h"
-#include "kernel_exception.h"
-#include "import_all.h"
-#include "printer.h"
+#include "util/test.h"
+#include "util/trace.h"
+#include "util/exception.h"
+#include "kernel/normalizer.h"
+#include "kernel/builtin.h"
+#include "kernel/expr_sets.h"
+#include "kernel/abstract.h"
+#include "kernel/kernel_exception.h"
+#include "library/printer.h"
+#include "library/import_all/import_all.h"
 using namespace lean;
 
 expr normalize(expr const & e) {

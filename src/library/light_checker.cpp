@@ -4,15 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "light_checker.h"
-#include "environment.h"
-#include "reduce.h"
-#include "scoped_map.h"
-#include "normalizer.h"
-#include "builtin.h"
-#include "kernel_exception.h"
-#include "instantiate.h"
-#include "free_vars.h"
+#include "util/scoped_map.h"
+#include "kernel/environment.h"
+#include "kernel/normalizer.h"
+#include "kernel/builtin.h"
+#include "kernel/kernel_exception.h"
+#include "kernel/instantiate.h"
+#include "kernel/free_vars.h"
+#include "library/reduce.h"
+#include "library/light_checker.h"
 
 namespace lean {
 class light_checker::imp {

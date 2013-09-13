@@ -9,9 +9,9 @@ Author: Leonardo de Moura
 #include <gmp.h>
 #include <mpfr.h>
 #include <utility>
-#include "interval.h"
-#include "trace.h"
-#include "mpz.h"
+#include "util/trace.h"
+#include "util/numerics/mpz.h"
+#include "interval/interval.h"
 
 namespace lean {
 

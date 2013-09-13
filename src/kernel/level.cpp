@@ -5,12 +5,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
-#include "safe_arith.h"
-#include "level.h"
-#include "buffer.h"
-#include "rc.h"
-#include "debug.h"
-#include "hash.h"
+#include "util/safe_arith.h"
+#include "util/buffer.h"
+#include "util/rc.h"
+#include "util/debug.h"
+#include "util/hash.h"
+#include "kernel/level.h"
 
 namespace lean {
 /** \brief Base class for representing universe level cells. */

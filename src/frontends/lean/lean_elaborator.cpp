@@ -5,20 +5,20 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <deque>
-#include "normalizer.h"
-#include "metavar.h"
-#include "printer.h"
-#include "context.h"
-#include "builtin.h"
-#include "free_vars.h"
-#include "for_each.h"
-#include "update_expr.h"
-#include "replace.h"
-#include "expr_pair.h"
-#include "flet.h"
-#include "lean_frontend.h"
-#include "lean_elaborator.h"
-#include "lean_elaborator_exception.h"
+#include "util/flet.h"
+#include "kernel/normalizer.h"
+#include "kernel/context.h"
+#include "kernel/builtin.h"
+#include "kernel/free_vars.h"
+#include "kernel/for_each.h"
+#include "kernel/replace.h"
+#include "library/metavar.h"
+#include "library/printer.h"
+#include "library/update_expr.h"
+#include "library/expr_pair.h"
+#include "frontends/lean/lean_frontend.h"
+#include "frontends/lean/lean_elaborator.h"
+#include "frontends/lean/lean_elaborator_exception.h"
 
 namespace lean {
 static name g_choice_name(name(name(name(0u), "library"), "choice"));

@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <iostream>
-#include "name.h"
-#include "format.h"
-#include "options.h"
+#include "util/name.h"
+#include "util/sexpr/format.h"
+#include "util/sexpr/options.h"
 
 namespace lean {
 class environment;

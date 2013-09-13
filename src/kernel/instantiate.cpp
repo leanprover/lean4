@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
-#include "free_vars.h"
-#include "replace.h"
+#include "kernel/free_vars.h"
+#include "kernel/replace.h"
 
 namespace lean {
 expr instantiate_with_closed(expr const & e, unsigned n, expr const * s) {

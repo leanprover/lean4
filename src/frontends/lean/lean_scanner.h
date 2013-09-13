@@ -7,9 +7,9 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 #include <vector>
-#include "mpq.h"
-#include "name.h"
-#include "list.h"
+#include "util/name.h"
+#include "util/list.h"
+#include "util/numerics/mpq.h"
 
 namespace lean {
 /**

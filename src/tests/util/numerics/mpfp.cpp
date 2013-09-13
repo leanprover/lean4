@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Soonho Kong
 */
 #include <iostream>
-#include "test.h"
-#include "mpfp.h"
+#include "util/test.h"
+#include "util/numerics/mpfp.h"
 using namespace lean;
 
 static void tst1() {

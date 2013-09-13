@@ -6,8 +6,8 @@ Author: Leonardo de Moura
         Soonho Kong
 */
 #pragma once
-#include "numeric_traits.h"
-#include "xnumeral.h"
+#include "util/numerics/numeric_traits.h"
+#include "util/numerics/xnumeral.h"
 
 namespace lean {
 

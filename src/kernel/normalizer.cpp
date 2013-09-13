@@ -5,18 +5,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
-#include "normalizer.h"
-#include "expr.h"
-#include "context.h"
-#include "environment.h"
-#include "scoped_map.h"
-#include "builtin.h"
-#include "free_vars.h"
-#include "list.h"
-#include "flet.h"
-#include "buffer.h"
-#include "kernel_exception.h"
-#include "options.h"
+#include "util/scoped_map.h"
+#include "util/list.h"
+#include "util/flet.h"
+#include "util/buffer.h"
+#include "util/sexpr/options.h"
+#include "kernel/normalizer.h"
+#include "kernel/expr.h"
+#include "kernel/context.h"
+#include "kernel/environment.h"
+#include "kernel/builtin.h"
+#include "kernel/free_vars.h"
+#include "kernel/kernel_exception.h"
 
 #ifndef LEAN_KERNEL_NORMALIZER_MAX_DEPTH
 #define LEAN_KERNEL_NORMALIZER_MAX_DEPTH std::numeric_limits<unsigned>::max()

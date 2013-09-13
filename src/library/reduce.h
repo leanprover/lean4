@@ -5,9 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "context.h"
-#include "environment.h"
-#include "name_set.h"
+#include "util/name_set.h"
+#include "kernel/context.h"
+#include "kernel/environment.h"
 
 namespace lean {
 bool is_head_beta(expr const & t);

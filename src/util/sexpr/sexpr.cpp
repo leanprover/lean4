@@ -5,13 +5,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <cstring>
-#include "rc.h"
-#include "hash.h"
-#include "sexpr.h"
-#include "name.h"
-#include "mpz.h"
-#include "mpq.h"
-#include "escaped.h"
+#include "util/rc.h"
+#include "util/hash.h"
+#include "util/name.h"
+#include "util/escaped.h"
+#include "util/numerics/mpz.h"
+#include "util/numerics/mpq.h"
+#include "util/sexpr/sexpr.h"
 
 namespace lean {
 /** \brief Base class used to represent S-expression cells. */

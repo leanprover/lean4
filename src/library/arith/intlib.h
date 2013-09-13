@@ -5,9 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "expr.h"
-#include "builtin.h"
-#include "mpz.h"
+#include "util/numerics/mpz.h"
+#include "kernel/expr.h"
+#include "kernel/builtin.h"
 
 namespace lean {
 /** \brief Integer numbers type */

@@ -6,18 +6,18 @@ Author: Leonardo de Moura
 */
 #include <atomic>
 #include <unordered_set>
-#include "environment.h"
-#include "import_all.h"
-#include "map.h"
-#include "state.h"
-#include "sstream.h"
-#include "exception.h"
-#include "expr_pair.h"
-#include "lean_operator_info.h"
-#include "lean_coercion.h"
-#include "lean_frontend.h"
-#include "lean_notation.h"
-#include "lean_pp.h"
+#include "util/map.h"
+#include "util/sstream.h"
+#include "util/exception.h"
+#include "kernel/environment.h"
+#include "library/expr_pair.h"
+#include "library/import_all/import_all.h"
+#include "library/state.h"
+#include "frontends/lean/lean_operator_info.h"
+#include "frontends/lean/lean_coercion.h"
+#include "frontends/lean/lean_frontend.h"
+#include "frontends/lean/lean_notation.h"
+#include "frontends/lean/lean_pp.h"
 
 namespace lean {
 static std::vector<bool> g_empty_vector;

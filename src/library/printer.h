@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <iostream>
-#include "expr.h"
-#include "context.h"
+#include "kernel/expr.h"
+#include "kernel/context.h"
 
 namespace lean {
 std::ostream & operator<<(std::ostream & out, context const & ctx);

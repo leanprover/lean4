@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "expr.h"
-#include "expr_maps.h"
-#include "buffer.h"
+#include "util/buffer.h"
+#include "kernel/expr.h"
+#include "kernel/expr_maps.h"
 
 namespace lean {
 /** \brief Implements deep copy of kernel expressions. */

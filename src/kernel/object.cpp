@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "object.h"
-#include "environment.h"
+#include "kernel/object.h"
+#include "kernel/environment.h"
 
 namespace lean {
 neutral_object_cell::neutral_object_cell():object_cell(object_kind::Neutral) {}

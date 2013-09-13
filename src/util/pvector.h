@@ -131,7 +131,7 @@ class pvector {
     */
     static void flat_core(cell * c, std::vector<T> & r) {
         lean_assert(r.empty());
-        switch(c->kind()) {
+        switch (c->kind()) {
         case cell_kind::PushBack:
             flat_core(to_push(c).m_prev, r);
             r.push_back(to_push(c).m_val);
@@ -390,7 +390,7 @@ void pvector<T>::cell::dealloc() {
 
 template<typename T>
 unsigned pvector<T>::cell::size() const {
-    switch(kind()) {
+    switch (kind()) {
     case cell_kind::PushBack: case cell_kind::PopBack: case cell_kind::Set:
         return static_cast<delta_cell const *>(this)->m_size;
     case cell_kind::Root:
@@ -402,7 +402,7 @@ unsigned pvector<T>::cell::size() const {
 
 template<typename T>
 unsigned pvector<T>::cell::quota() const {
-    switch(kind()) {
+    switch (kind()) {
     case cell_kind::PushBack: case cell_kind::PopBack: case cell_kind::Set:
         return static_cast<delta_cell const *>(this)->m_quota;
     case cell_kind::Root: {

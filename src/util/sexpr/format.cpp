@@ -89,7 +89,7 @@ std::ostream & layout(std::ostream & out, bool colors, sexpr const & s) {
     case format::format_kind::TEXT:
     {
         sexpr const & v = cdr(s);
-        if(is_string(v)) {
+        if (is_string(v)) {
             out << to_string(v);
         } else {
             out << v;
@@ -277,7 +277,7 @@ int format::space_upto_line_break(sexpr const & s, int available, bool & found_n
     {
         sexpr list  = sexpr_compose_list(s);
         int len = 0;
-        while(!is_nil(list) && !found_newline) {
+        while (!is_nil(list) && !found_newline) {
             sexpr const & h = car(list);
             list = cdr(list);
             len += space_upto_line_break(h, available, found_newline);
@@ -311,7 +311,7 @@ sexpr format::be(unsigned w, unsigned k, sexpr const & s) {
     /* s = (i, v) :: z, where h has the type int x format */
     /* ret = list of format */
 
-    if(is_nil(s)) {
+    if (is_nil(s)) {
         return sexpr{};
     }
 

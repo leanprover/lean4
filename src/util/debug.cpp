@@ -67,7 +67,7 @@ void invoke_debugger() {
         #endif
         char result;
         std::cin >> result;
-        switch(result) {
+        switch (result) {
         case 'C':
         case 'c':
             return;

@@ -91,7 +91,7 @@ name::name() {
 
 name::name(name const & prefix, char const * name) {
     size_t sz  = strlen(name);
-    lean_assert(sz < 1u<<31);
+    lean_assert(sz < (1u << 31));
     char * mem = new char[sizeof(imp) + sz + 1];
     m_ptr      = new (mem) imp(true, prefix.m_ptr);
     std::memcpy(mem + sizeof(imp), name, sz + 1);

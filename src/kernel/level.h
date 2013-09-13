@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <iostream>
+#include <algorithm>
 #include "util/name.h"
 #include "util/sexpr/format.h"
 #include "util/sexpr/options.h"

@@ -6,6 +6,8 @@ Author: Leonardo de Moura
         Soonho Kong
 */
 #include <algorithm>
+#include <utility>
+#include <vector>
 #include "util/test.h"
 #include "kernel/expr.h"
 #include "kernel/expr_sets.h"

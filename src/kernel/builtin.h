@@ -61,7 +61,7 @@ inline expr bIf(expr const & c, expr const & t, expr const & e) { return mk_bool
 expr mk_implies_fn();
 /** \brief Return the term (e1 => e2) */
 inline expr mk_implies(expr const & e1, expr const & e2) { return mk_app(mk_implies_fn(), e1, e2); }
-inline expr mk_implies(unsigned num_args, expr const * args) { lean_assert(num_args>=2); return mk_bin_rop(mk_implies_fn(), False, num_args, args); }
+inline expr mk_implies(unsigned num_args, expr const * args) { lean_assert(num_args >= 2); return mk_bin_rop(mk_implies_fn(), False, num_args, args); }
 inline expr Implies(expr const & e1, expr const & e2) { return mk_implies(e1, e2); }
 inline expr Implies(std::initializer_list<expr> const & l) { return mk_implies(l.size(), l.begin()); }
 

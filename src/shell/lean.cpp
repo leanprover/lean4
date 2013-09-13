@@ -11,11 +11,16 @@ Author: Leonardo de Moura
 #include "library/printer.h"
 #include "frontends/lean/parser.h"
 #include "version.h"
-using namespace lean;
+
+using lean::interruptable_ptr;
+using lean::shell;
+using lean::frontend;
+using lean::scoped_set_interruptable_ptr;
+using lean::parser;
 
 static interruptable_ptr<shell> g_lean_shell;
 
-static void on_ctrl_c(int) {
+static void on_ctrl_c(int i) {
     g_lean_shell.set_interrupt(true);
 }
 

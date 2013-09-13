@@ -1,3 +1,9 @@
+/*
+Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Soonho Kong
+*/
 #include <string>
 
 using std::cout;
@@ -9,7 +15,7 @@ template <typename T1, typename T2, typename F>
 void check_interval_bop(std::string const & fname, std::string const & varname, interval<T1> i, T2 c, interval<T1> r, F f) {
     cout << fname << "(" << varname << " " << i << ", " << c << ") = ";
     cout << r << endl;
-    if(!i.is_lower_inf()) {
+    if (!i.is_lower_inf()) {
         T1 ll = i.lower();
         T1 lu = i.lower();
         numeric_traits<T1>::set_rounding(false);
@@ -22,7 +28,7 @@ void check_interval_bop(std::string const & fname, std::string const & varname, 
         lean_assert(r.is_lower_inf() ||
                     ((r.lower() <= lu) && (r.is_upper_inf() || (lu <= r.upper()))));
     }
-    if(!i.is_upper_inf()) {
+    if (!i.is_upper_inf()) {
         T1 ul = i.upper();
         T1 uu = i.upper();
         numeric_traits<T1>::set_rounding(false);
@@ -42,7 +48,7 @@ void check_interval_uop(std::string const & fname, std::string const & varname, 
     cout.precision(30);
     cout << fname << "(" << varname << " " << i << ") = ";
     cout << r << endl;
-    if(!i.is_lower_inf()) {
+    if (!i.is_lower_inf()) {
         T ll = i.lower();
         T lu = i.lower();
         numeric_traits<T>::set_rounding(false);
@@ -55,7 +61,7 @@ void check_interval_uop(std::string const & fname, std::string const & varname, 
         lean_assert(r.is_lower_inf() ||
                     ((r.lower() <= lu) && (r.is_upper_inf() || (lu <= r.upper()))));
     }
-    if(!i.is_upper_inf()) {
+    if (!i.is_upper_inf()) {
         T ul = i.upper();
         T uu = i.upper();
         numeric_traits<T>::set_rounding(false);

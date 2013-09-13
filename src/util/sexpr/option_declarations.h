@@ -6,7 +6,8 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <map>
-#include "options.h"
+#include <string>
+#include "util/sexpr/options.h"
 
 namespace lean {
 /**

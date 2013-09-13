@@ -83,7 +83,6 @@ public:
     friend bool is_eqp(sexpr const & a, sexpr const & b) { return a.m_ptr == b.m_ptr; }
 
     friend std::ostream & operator<<(std::ostream & out, sexpr const & s);
-
 };
 
 /** \brief Return the nil S-expression */

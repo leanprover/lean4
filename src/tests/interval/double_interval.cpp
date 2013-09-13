@@ -301,16 +301,16 @@ static void double_interval_inf2() {
     lean_assert(c4 - inf == inf);   lean_assert(inf - c4 == inf);
     lean_assert(zero - inf == inf); lean_assert(inf - zero == inf);
 
-    lean_assert(i1 * inf == inf);   lean_assert(inf * i1 == inf);
-    lean_assert(i2 * inf == inf);   lean_assert(inf * i2 == inf);
-    lean_assert(i3 * inf == inf);   lean_assert(inf * i3 == inf);
-    lean_assert(i4 * inf == inf);   lean_assert(inf * i4 == inf);
-    lean_assert(i5 * inf == inf);   lean_assert(inf * i5 == inf);
-    lean_assert(c1 * inf == inf);   lean_assert(inf * c1 == inf);
-    lean_assert(c2 * inf == inf);   lean_assert(inf * c2 == inf);
-    lean_assert(c3 * inf == inf);   lean_assert(inf * c3 == inf);
-    lean_assert(c4 * inf == inf);   lean_assert(inf * c4 == inf);
-    lean_assert(zero * inf == zero);lean_assert(inf * zero == zero);
+    lean_assert(i1 * inf == inf);    lean_assert(inf * i1 == inf);
+    lean_assert(i2 * inf == inf);    lean_assert(inf * i2 == inf);
+    lean_assert(i3 * inf == inf);    lean_assert(inf * i3 == inf);
+    lean_assert(i4 * inf == inf);    lean_assert(inf * i4 == inf);
+    lean_assert(i5 * inf == inf);    lean_assert(inf * i5 == inf);
+    lean_assert(c1 * inf == inf);    lean_assert(inf * c1 == inf);
+    lean_assert(c2 * inf == inf);    lean_assert(inf * c2 == inf);
+    lean_assert(c3 * inf == inf);    lean_assert(inf * c3 == inf);
+    lean_assert(c4 * inf == inf);    lean_assert(inf * c4 == inf);
+    lean_assert(zero * inf == zero); lean_assert(inf * zero == zero);
 }
 
 static void double_interval_trans() {

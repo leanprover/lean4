@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <sstream>
 #include "util/test.h"
 #include "util/name.h"
- using namespace lean;
+using namespace lean;
 
 static void tst1() {
     name n("foo");

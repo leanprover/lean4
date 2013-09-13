@@ -469,7 +469,7 @@ class parser::imp {
         this method has been used when parsing mixfix operators.
     */
     void check_op_part(name const & op_part) {
-        if(!curr_is_identifier() || curr_name() != op_part)
+        if (!curr_is_identifier() || curr_name() != op_part)
             throw parser_error(sstream() << "invalid mixfix operator application, '" << op_part << "' expected", pos());
         next();
     }
@@ -569,7 +569,7 @@ class parser::imp {
                 } else {
                     return mk_constant(obj.get_name());
                 }
-            } if (k == object_kind::Builtin) {
+            } else if (k == object_kind::Builtin) {
                 return obj.get_value();
             } else {
                 throw parser_error(sstream() << "invalid object reference, object '" << id << "' is not an expression.", p);

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include <cstdlib>
+#include <vector>
 #include "util/test.h"
 #include "util/pvector.h"
 #include "util/timeit.h"
@@ -65,26 +66,27 @@ static void driver(unsigned max_sz, unsigned max_val, unsigned num_ops, double u
     std::vector<int> v1;
     pvector<int>     v2;
     pvector<int>     v3;
+    unsigned int     seed;
     std::vector<pvector<int>> copies;
     for (unsigned i = 0; i < num_ops; i++) {
-        double f = static_cast<double>(std::rand() % 10000) / 10000.0;
+        double f = static_cast<double>(rand_r(&seed) % 10000) / 10000.0;
         if (f < copy_freq) {
             copies.push_back(v2);
         }
-        f = static_cast<double>(std::rand() % 10000) / 10000.0;
+        f = static_cast<double>(rand_r(&seed) % 10000) / 10000.0;
         // read random positions of v3
         if (!empty(v3)) {
-            for (int j = 0; j < rand() % 5; j++) {
-                unsigned idx = rand() % size(v3);
+            for (int j = 0; j < rand_r(&seed) % 5; j++) {
+                unsigned idx = rand_r(&seed) % size(v3);
                 lean_assert(v3[idx] == v1[idx]);
             }
         }
         if (f < updt_freq) {
             if (v1.size() >= max_sz)
                 continue;
-            int a = std::rand() % max_val;
-            if (!empty(v2) && rand()%2 == 0) {
-                unsigned idx = rand() % size(v2);
+            int a = rand_r(&seed) % max_val;
+            if (!empty(v2) && rand_r(&seed)%2 == 0) {
+                unsigned idx = rand_r(&seed) % size(v2);
                 v1[idx] = a;
                 v2[idx] = a;
                 v3[idx] = a;

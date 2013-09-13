@@ -1048,7 +1048,7 @@ class pp_fn {
             result r;
             if (is_choice(e)) {
                 return pp_choice(e, depth);
-            } if (is_lower(e)) {
+            } else if (is_lower(e)) {
                 r = pp_lower(e, depth);
             } else if (is_lift(e)) {
                 r = pp_lift(e, depth);

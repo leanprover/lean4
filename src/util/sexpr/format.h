@@ -92,7 +92,7 @@ private:
         lean_assert(sexpr_kind(s) == format_kind::TEXT);
         std::stringstream ss;
         sexpr const & content = cdr(s);
-        if(is_string(content)) {
+        if (is_string(content)) {
             ss << to_string(content);
         } else {
             ss << content;
@@ -177,8 +177,7 @@ public:
         m_value = std::accumulate(it, l.end(), m_value,
                                   [](sexpr const & result, const format f) {
                                       return sexpr_compose({result, f.m_value});
-                                  }
-            );
+                                  });
     }
 
     format_kind kind() const {
@@ -246,14 +245,12 @@ format wrap(format const & f1, format const & f2);
 
 // is_iterator
 template<typename T, typename = void>
-struct is_iterator
-{
-   static constexpr bool value = false;
+struct is_iterator {
+    static constexpr bool value = false;
 };
 template<typename T>
-struct is_iterator<T, typename std::enable_if<!std::is_same<typename std::iterator_traits<T>::value_type, void>::value>::type>
-{
-   static constexpr bool value = true;
+struct is_iterator<T, typename std::enable_if<!std::is_same<typename std::iterator_traits<T>::value_type, void>::value>::type> {
+    static constexpr bool value = true;
 };
 
 template <class InputIterator, typename F>
@@ -264,7 +261,7 @@ format folddoc(InputIterator first, InputIterator last, F f) {
     static_assert(std::is_same<typename std::result_of<F(typename std::iterator_traits<InputIterator>::value_type,
                                                          format)>::type, format>::value,
                   "folddoc: return type of f is not format");
-    if(first == last) { return format(); }
+    if (first == last) { return format(); }
     return f(*first, folddoc(first + 1, last, f));
 }
 template <class InputIterator>

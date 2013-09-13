@@ -156,7 +156,7 @@ class pdeque {
     */
     static void flat_core(cell * c, std::deque<T> & r) {
         lean_assert(r.empty());
-        switch(c->kind()) {
+        switch (c->kind()) {
         case cell_kind::PushBack:
             flat_core(to_push_back(c).m_prev, r);
             r.push_back(to_push_back(c).m_val);

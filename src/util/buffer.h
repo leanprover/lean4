@@ -16,7 +16,7 @@ namespace lean {
     This collection is useful when writing functions that need
     temporary storage.
 */
-template<typename T, unsigned INITIAL_SIZE=16>
+template<typename T, unsigned INITIAL_SIZE = 16>
 class buffer {
 protected:
     T *      m_buffer;
@@ -116,13 +116,12 @@ public:
             push_back(elems[i]);
     }
 
-    void resize(unsigned nsz, T const & elem=T()) {
+    void resize(unsigned nsz, T const & elem = T()) {
         unsigned sz = size();
         if (nsz > sz) {
             for (unsigned i = sz; i < nsz; i++)
                 push_back(elem);
-        }
-        else if (nsz < sz) {
+        } else if (nsz < sz) {
             for (unsigned i = nsz; i < sz; i++)
                 pop_back();
         }

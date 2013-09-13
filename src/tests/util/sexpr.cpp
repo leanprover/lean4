@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <sstream>
+#include <string>
 #include "util/name.h"
 #include "util/test.h"
 #include "util/numerics/mpq.h"

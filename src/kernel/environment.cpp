@@ -157,7 +157,7 @@ struct environment::imp {
             }
         }
         m_constraints.push_back(constraint(u, v, d));
-        for (constraint const & c: to_add) {
+        for (constraint const & c : to_add) {
             m_constraints.push_back(c);
         }
     }

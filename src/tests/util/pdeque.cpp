@@ -71,24 +71,25 @@ static void driver(unsigned max_sz, unsigned max_val, unsigned num_ops, double u
     std::deque<int> q1;
     pdeque<int>     q2;
     pdeque<int>     q3;
+    unsigned int    seed;
     std::vector<pdeque<int>> copies;
     for (unsigned i = 0; i < num_ops; i++) {
-        double f = static_cast<double>(std::rand() % 10000) / 10000.0;
+        double f = static_cast<double>(rand_r(&seed) % 10000) / 10000.0;
         if (f < copy_freq)
             copies.push_back(q3);
         // read random positions of q3
         if (!empty(q3)) {
-            for (int j = 0; j < rand() % 5; j++) {
-                unsigned idx = rand() % size(q3);
+            for (int j = 0; j < rand_r(&seed) % 5; j++) {
+                unsigned idx = rand_r(&seed) % size(q3);
                 lean_assert(q3[idx] == q1[idx]);
             }
         }
-        f = static_cast<double>(std::rand() % 10000) / 10000.0;
+        f = static_cast<double>(rand_r(&seed) % 10000) / 10000.0;
         if (f < updt_freq) {
             if (q1.size() >= max_sz)
                 continue;
-            int v = std::rand() % max_val;
-            switch (std::rand() % 3) {
+            int v = rand_r(&seed) % max_val;
+            switch (rand_r(&seed) % 3) {
             case 0:
                 q1.push_front(v);
                 q2 = push_front(q2, v);
@@ -101,7 +102,7 @@ static void driver(unsigned max_sz, unsigned max_val, unsigned num_ops, double u
                 break;
             default:
                 if (!empty(q2)) {
-                    unsigned idx = rand() % size(q2);
+                    unsigned idx = rand_r(&seed) % size(q2);
                     q1[idx] = v;
                     q2[idx] = v;
                     q3[idx] = v;
@@ -113,7 +114,7 @@ static void driver(unsigned max_sz, unsigned max_val, unsigned num_ops, double u
         } else {
             if (q1.size() == 0)
                 continue;
-            if (std::rand() % 2 == 0) {
+            if (rand_r(&seed) % 2 == 0) {
                 lean_assert(front(q2) == q1.front());
                 lean_assert(front(q3) == q1.front());
                 q1.pop_front();
@@ -159,7 +160,7 @@ static void tst2() {
 }
 
 #ifdef PDEQUE_PERF_TEST
-#include "timeit.h"
+#include "util/timeit.h"
 
 static void perf_deque(unsigned n) {
     std::deque<int> q;

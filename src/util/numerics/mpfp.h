@@ -204,7 +204,7 @@ public:
     friend int cmp(mpfp const & a, mpf_t const & b          ) { return mpfr_cmp_f (a.m_val, b); }
     friend int cmp(mpfp const & a, mpz const & b            ) { return mpfr_cmp_z (a.m_val, zval(b)); }
     friend int cmp(mpfp const & a, mpq const & b            ) { return mpfr_cmp_q (a.m_val, qval(b)); }
-    //friend int cmp(mpfp const & a, mpbq const & b) { return mpfr_cmp_(a.m_val, b); }
+    // friend int cmp(mpfp const & a, mpbq const & b) { return mpfr_cmp_(a.m_val, b); }
 
     friend bool operator<(mpfp const & a, mpfp const & b           ) { return cmp(a, b) < 0; }
     friend bool operator<(mpfp const & a, mpz const & b            ) { return cmp(a, b) < 0; }

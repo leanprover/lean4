@@ -7,6 +7,8 @@ Author: Soonho Kong
 #include <vector>
 #include <algorithm>
 #include <sstream>
+#include <utility>
+#include <string>
 #include "util/test.h"
 #include "util/numerics/mpq.h"
 #include "util/sexpr/format.h"

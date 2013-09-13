@@ -32,7 +32,7 @@ public:
    P is a "post-processing" functional object that is applied to each
    pair (old, new)
 */
-template<typename F, typename P=default_replace_postprocessor>
+template<typename F, typename P = default_replace_postprocessor>
 class replace_fn {
     static_assert(std::is_same<typename std::result_of<F(expr const &, unsigned)>::type, expr>::value,
                   "replace_fn: return type of F is not expr");

@@ -192,9 +192,9 @@ static void tst6() {
     env.add_var("list", Type() >> Type());
     env.add_var("nil", Pi({A, Type()}, lst(A)));
     env.add_var("cons", Pi({{A, Type()}, {a, A}, {l, lst(A)}}, lst(A)));
-    env.add_var("f", lst(N>>N) >> Bool);
+    env.add_var("f", lst(N >> N) >> Bool);
     success(Fun({a, _}, f(cons(_, a, cons(_, a, nil(_))))),
-            Fun({a, N>>N}, f(cons(N>>N, a, cons(N>>N, a, nil(N>>N))))), env);
+            Fun({a, N >> N}, f(cons(N >> N, a, cons(N >> N, a, nil(N >> N))))), env);
 }
 
 static void tst7() {

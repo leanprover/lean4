@@ -218,7 +218,6 @@ public:
         decimal(mpq const & val, unsigned prec = 10):m_val(val), m_prec(prec) {}
         friend std::ostream & operator<<(std::ostream & out, decimal const & d) { display_decimal(out, d.m_val, d.m_prec); return out; }
     };
-
 };
 
 template<>

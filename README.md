@@ -7,9 +7,9 @@ Mac OS X 10.8.2, g++-4.9
 [![Build Status](https://travis-ci.org/soonhokong/lean-windows.png?branch=master)](https://travis-ci.org/soonhokong/lean-windows)
 Windows, x86_64-w64-mingw32-g++-4.8.1
 
-[[Result of Build/UnitTest/Coverage/Dynamic Analysis]][cdash]
+[[Result of Build/UnitTest/Coverage/Dynamic Analysis]][build]
 
-[cdash]: http://cmacslab2.modck.cs.cmu.edu/CDash-2-0-2/index.php?project=Lean
+[build]: http://build.leanprover.net
 
 Requirements
 ============

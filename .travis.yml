@@ -12,52 +12,76 @@ env:
    - secure: "KsbUsMxTFDbUaObKOTxfWSu0gGzbUWlJr52nI1ITMqLxswettUR9bYAa1HTA+7hXXCT1W5I+RjxeWi74C+w/eTJGPGePX0irtzjNF/XVhP1ADoJJVQCF64yv02GNBeeUzGSDiW4bmO8ZLxTzvFr2ZskJDe/bIytQd3pJAlU6M0w="
 
   matrix:
-   - CMAKE_CXX_COMPILER=g++-4.8
-     CMAKE_BUILD_TYPE=TESTCOV
-     TESTCOV_TOOL=gcov-4.8
-     USE_TCMALLOC=TRUE
-     DROPBOX=TRUE
-     MEMCHECK=TRUE
-     PUSH_TO_CDASH=TRUE
-   - CMAKE_CXX_COMPILER=g++-4.8
-     CMAKE_BUILD_TYPE=DOXYGEN
-     BUILD_DOXYGEN=TRUE
-     DROPBOX=TRUE
+   # =======================================================
+   # DEBUG Build
+   # =======================================================
+   # D1. clang++-3.3  | DEBUG   | TCMALLOC       | CDASH
    - CMAKE_CXX_COMPILER=clang++-3.3
      CMAKE_BUILD_TYPE=DEBUG
      USE_TCMALLOC=TRUE
-     MEMCHECK=TRUE
      PUSH_TO_CDASH=TRUE
+   # D2. g++-4.8     | DEBUG    | TCMALLOC       | CDASH + TRIGGERS
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=DEBUG
      TRIGGER_BB=TRUE
      TRIGGER_OSX=TRUE
      TRIGGER_WINDOWS=TRUE
      USE_TCMALLOC=TRUE
+     PUSH_TO_CDASH=TRUE
+   # D3. clang++-3.3 | DEBUG
+   - CMAKE_CXX_COMPILER=clang++-3.3
+     CMAKE_BUILD_TYPE=DEBUG
+   # D4. g++-4.8     | DEBUG
+   - CMAKE_CXX_COMPILER=g++-4.8
+     CMAKE_BUILD_TYPE=DEBUG
+   # =======================================================
+   # RELEASE Build
+   # =======================================================
+   # R1. clang++-3.3 | RELEASE | TCMALLOC        | CDASH
    - CMAKE_CXX_COMPILER=clang++-3.3
      CMAKE_BUILD_TYPE=RELEASE
      USE_TCMALLOC=TRUE
      PUSH_TO_CDASH=TRUE
+   # R2. g++-4.8     | RELEASE | TCMALLOC        | CDASH + UPLOAD=>DROPBOX
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=RELEASE
      USE_TCMALLOC=TRUE
-     DROPBOX=TRUE
      UPLOAD=linux_tcmalloc
      PUSH_TO_CDASH=TRUE
-   - CMAKE_CXX_COMPILER=clang++-3.3
-     CMAKE_BUILD_TYPE=DEBUG
-     USE_TCMALLOC=FALSE
-   - CMAKE_CXX_COMPILER=g++-4.8
-     CMAKE_BUILD_TYPE=DEBUG
-     USE_TCMALLOC=FALSE
+   # R3. clang++-3.3 | RELEASE
    - CMAKE_CXX_COMPILER=clang++-3.3
      CMAKE_BUILD_TYPE=RELEASE
-     USE_TCMALLOC=FALSE
+   # R4. g++-4.8    | RELEASE                    | UPLOAD=>DROPBOX
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=RELEASE
-     USE_TCMALLOC=FALSE
-     DROPBOX=TRUE
      UPLOAD=linux
+   # =======================================================
+   # MEMCHECK Build
+   # =======================================================
+   # M1. clang++-3.3 | DEBUG    | MEMCHECK       | CDASH
+   - CMAKE_CXX_COMPILER=clang++-3.3
+     CMAKE_BUILD_TYPE=DEBUG
+     MEMCHECK=TRUE
+     PUSH_TO_CDASH=TRUE
+   # M2. g++-4.8     | DEBUG    | MEMCHECK       | CDASH
+   - CMAKE_CXX_COMPILER=g++-4.8
+     CMAKE_BUILD_TYPE=DEBUG
+     MEMCHECK=TRUE
+     PUSH_TO_CDASH=TRUE
+   # =======================================================
+   # DOXYGEN Build
+   # =======================================================
+   # DOC. g++-4.8      | DEBUG   | TCMALLOC      | DOXYGEN=>DROPBOX
+   - CMAKE_CXX_COMPILER=g++-4.8
+     CMAKE_BUILD_TYPE=DEBUG
+     BUILD_DOXYGEN=TRUE
+   # =======================================================
+   # TESTCOV Build
+   # =======================================================
+   # TC. g++-4.8      | DEBUG                   | CDASH
+   - CMAKE_CXX_COMPILER=g++-4.8
+     CMAKE_BUILD_TYPE=TESTCOV
+     PUSH_TO_CDASH=TRUE
 
 install:
   - until sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test; do echo retry; done
@@ -67,21 +91,13 @@ install:
   - if [[ $USE_TCMALLOC == TRUE ]]; then until sudo add-apt-repository --yes ppa:agent-8131/ppa && sudo apt-get -qq update && sudo apt-get -qq install libgoogle-perftools-dev; do echo retry; done; fi
   - until sudo apt-get -qq install libgmp-dev libmpfr-dev; do echo retry; done
   - until sudo apt-get -qq install cmake; do echo retry; done
-  - until sudo apt-get -qq install flex bison++; do echo retry; done
   - until sudo apt-get -qq install libstdc++-4.8-dev; do echo retry; done
   - if [[ $CMAKE_CXX_COMPILER == g++-4.8 ]]; then until sudo apt-get -qq install g++-4.8; do echo retry; done fi
   - if [[ $CMAKE_CXX_COMPILER == clang++-3.3 ]]; then until sudo apt-get -qq install clang-3.3; do echo retry; done fi
   - if [[ $LEANREPO == BLESSED && $MEMCHECK == TRUE ]]; then
        sudo apt-get -qq install valgrind;
     fi
-  - if [[ $LEANREPO == BLESSED && $CMAKE_BUILD_TYPE == TESTCOV ]]; then
-       wget http://downloads.sourceforge.net/ltp/lcov-1.10.tar.gz;
-       tar xvfz lcov-1.10.tar.gz;
-       mkdir ~/bin;
-       cp -v lcov-1.10/bin/{lcov,genpng,gendesc,genhtml,geninfo} ~/bin/;
-       rm -rf lcov-1.10.tar.gz lcov-1.10;
-    fi
-  - if [[ $LEANREPO == BLESSED && $DROPBOX == TRUE ]]; then
+  - if [[ $LEANREPO == BLESSED && ($UPLOAD == TRUE || $BUILD_DOXYGEN == TRUE) ]]; then
        sudo apt-get -qq install python python-pip;
        sudo pip install dropbox;
     fi
@@ -131,11 +147,15 @@ script:
        CONFIG_FILE=DartConfiguration.tcl;
        sed -i "s/^Site:.*/Site:$SITE/" $CONFIG_FILE;
        sed -i "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE;
-       ctest -D ExperimentalConfigure;
-       sed -i "s/^Site:.*/Site:$SITE/" $CONFIG_FILE;
-       sed -i "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE;
-       ctest -D ExperimentalBuild -VV;
-       yes "C" | ctest -D ExperimentalTest -VV;
+       if [[ $MEMCHECK == TRUE ]]; then
+           make;
+       else
+           ctest -D ExperimentalConfigure;
+           sed -i "s/^Site:.*/Site:$SITE/" $CONFIG_FILE;
+           sed -i "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE;
+           ctest -D ExperimentalBuild -VV;
+           yes "C" | ctest -D ExperimentalTest -VV;
+       fi;
     fi
   - cd ..
 
@@ -167,8 +187,8 @@ after_script:
           ARCHIVE_BINARY=${ARCHIVE_BINARY}_tcmalloc;
       fi;
       mkdir ${UPLOAD_DIR};
-      cp build/shell/lean ${UPLOAD_DIR}/${BINARY};
-      cp build/shell/lean ${UPLOAD_DIR}/${ARCHIVE_BINARY};
+      cp -v build/shell/lean ${UPLOAD_DIR}/${BINARY};
+      cp -v build/shell/lean ${UPLOAD_DIR}/${ARCHIVE_BINARY};
       script/dropbox_upload.py ${UPLOAD_DIR} /Public/${UPLOAD_DIR} ${DROPBOX_KEY};
   fi
 

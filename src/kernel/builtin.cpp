@@ -130,7 +130,7 @@ public:
             else
                 r = args[4]; // if A false a b --> b
             return true;
-        } if (num_args == 5 && args[3] == args[4]) {
+        } else if (num_args == 5 && args[3] == args[4]) {
             r = args[3];     // if A c a a --> a
             return true;
         } else {

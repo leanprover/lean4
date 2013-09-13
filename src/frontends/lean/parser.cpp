@@ -574,8 +574,7 @@ class parser::imp {
             } else {
                 throw parser_error(sstream() << "invalid object reference, object '" << id << "' is not an expression.", p);
             }
-        }
-        else {
+        } else {
             throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
         }
     }
@@ -1451,24 +1450,44 @@ class parser::imp {
         m_expr_pos_info.clear();
         m_last_cmd_pos = pos();
         name const & cmd_id = curr_name();
-        if (cmd_id == g_definition_kwd)     parse_definition();
-        else if (cmd_id == g_variable_kwd)  parse_variable();
-        else if (cmd_id == g_variables_kwd) parse_variables();
-        else if (cmd_id == g_theorem_kwd)   parse_theorem();
-        else if (cmd_id == g_axiom_kwd)     parse_axiom();
-        else if (cmd_id == g_eval_kwd)      parse_eval();
-        else if (cmd_id == g_show_kwd)      parse_show();
-        else if (cmd_id == g_check_kwd)     parse_check();
-        else if (cmd_id == g_infix_kwd)     parse_op(fixity::Infix);
-        else if (cmd_id == g_infixl_kwd)    parse_op(fixity::Infixl);
-        else if (cmd_id == g_infixr_kwd)    parse_op(fixity::Infixr);
-        else if (cmd_id == g_notation_kwd)  parse_notation_decl();
-        else if (cmd_id == g_echo_kwd)      parse_echo();
-        else if (cmd_id == g_set_kwd)       parse_set();
-        else if (cmd_id == g_import_kwd)    parse_import();
-        else if (cmd_id == g_help_kwd)      parse_help();
-        else if (cmd_id == g_coercion_kwd)  parse_coercion();
-        else { next(); throw parser_error(sstream() << "invalid command '" << cmd_id << "'", m_last_cmd_pos); }
+        if (cmd_id == g_definition_kwd) {
+            parse_definition();
+        } else if (cmd_id == g_variable_kwd) {
+            parse_variable();
+        } else if (cmd_id == g_variables_kwd) {
+            parse_variables();
+        } else if (cmd_id == g_theorem_kwd) {
+            parse_theorem();
+        } else if (cmd_id == g_axiom_kwd) {
+            parse_axiom();
+        } else if (cmd_id == g_eval_kwd) {
+            parse_eval();
+        } else if (cmd_id == g_show_kwd) {
+            parse_show();
+        } else if (cmd_id == g_check_kwd) {
+            parse_check();
+        } else if (cmd_id == g_infix_kwd) {
+            parse_op(fixity::Infix);
+        } else if (cmd_id == g_infixl_kwd) {
+            parse_op(fixity::Infixl);
+        } else if (cmd_id == g_infixr_kwd) {
+            parse_op(fixity::Infixr);
+        } else if (cmd_id == g_notation_kwd) {
+            parse_notation_decl();
+        } else if (cmd_id == g_echo_kwd) {
+            parse_echo();
+        } else if (cmd_id == g_set_kwd) {
+            parse_set();
+        } else if (cmd_id == g_import_kwd) {
+            parse_import();
+        } else if (cmd_id == g_help_kwd) {
+            parse_help();
+        } else if (cmd_id == g_coercion_kwd) {
+            parse_coercion();
+        } else {
+            next();
+            throw parser_error(sstream() << "invalid command '" << cmd_id << "'", m_last_cmd_pos);
+        }
     }
     /*@}*/
 

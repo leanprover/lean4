@@ -149,8 +149,7 @@ class normalizer::imp {
             object const & obj = m_env.get_object(const_name(a));
             if (obj.is_definition() && !obj.is_opaque()) {
                 r = normalize(obj.get_value(), value_stack(), 0);
-            }
-            else {
+            } else {
                 r = svalue(a);
             }
             break;

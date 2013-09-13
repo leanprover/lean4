@@ -1111,11 +1111,11 @@ class pp_fn {
     }
 
     name find_unused_prefix(expr const & e) {
-        if (!uses_prefix(e, g_kappa))
+        if (!uses_prefix(e, g_kappa)) {
             return g_kappa;
-        else if (!uses_prefix(e, g_pho))
+        } else if (!uses_prefix(e, g_pho)) {
             return g_pho;
-        else {
+        } else {
             unsigned i = 1;
             name n(g_nu, i);
             while (uses_prefix(e, n)) {

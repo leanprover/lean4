@@ -573,8 +573,7 @@ interval<T> & interval<T>::div(interval<T> const & o, interval_deps & deps) {
             if (i2.is_P1()) {
                 deps.m_lower_deps = DEP_IN_LOWER1 | DEP_IN_LOWER2;
                 deps.m_upper_deps = DEP_IN_UPPER1 | DEP_IN_LOWER2;
-            }
-            else {
+            } else {
                 deps.m_lower_deps = DEP_IN_UPPER1 | DEP_IN_UPPER2;
                 deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER2;
             }
@@ -811,7 +810,7 @@ interval<T> & interval<T>::operator*=(T const & o) {
         return *this;
     }
 
-    if(numeric_traits<T>::is_pos(o)) {
+    if (numeric_traits<T>::is_pos(o)) {
         // [a, b] * c = [a*c, b*c] when c > 0
         round_to_minus_inf();
         lean::mul(m_lower, new_l_kind, m_lower, lower_kind(), o, XN_NUMERAL);
@@ -819,8 +818,7 @@ interval<T> & interval<T>::operator*=(T const & o) {
         lean::mul(m_upper, new_u_kind, m_upper, upper_kind(), o, XN_NUMERAL);
         m_lower_inf = new_l_kind == XN_MINUS_INFINITY;
         m_upper_inf = new_u_kind == XN_PLUS_INFINITY;
-    }
-    else {
+    } else {
         // [a, b] * c = [b*c, a*c] when c < 0
         round_to_minus_inf();
         lean::mul(tmp1, new_l_kind, m_upper, upper_kind(), o, XN_NUMERAL);
@@ -848,7 +846,7 @@ interval<T> & interval<T>::operator/=(T const & o) {
         return *this;
     }
 
-    if(numeric_traits<T>::is_pos(o)) {
+    if (numeric_traits<T>::is_pos(o)) {
         // [a, b] / c = [a/c, b/c] when c > 0
         round_to_minus_inf();
         lean::div(m_lower, new_l_kind, m_lower, lower_kind(), o, XN_NUMERAL);
@@ -856,8 +854,7 @@ interval<T> & interval<T>::operator/=(T const & o) {
         lean::div(m_upper, new_u_kind, m_upper, upper_kind(), o, XN_NUMERAL);
         m_lower_inf = new_l_kind == XN_MINUS_INFINITY;
         m_upper_inf = new_u_kind == XN_PLUS_INFINITY;
-    }
-    else {
+    } else {
         // [a, b] / c = [b/c, a/c] when c < 0
         round_to_minus_inf();
         lean::div(tmp1, new_l_kind, m_upper, upper_kind(), o, XN_NUMERAL);

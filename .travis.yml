@@ -87,10 +87,10 @@ install:
     fi
 
 before_script:
-- if [[ $TRIGGER_BB == TRUE ]]; then
+- if [[ $LEANREPO == BLESSED && $TRIGGER_BB == TRUE ]]; then
       git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/soonhok/lean.git +master;
   fi
-- if [[ $TRIGGER_OSX == TRUE ]]; then
+- if [[ $LEANREPO == BLESSED && $TRIGGER_OSX == TRUE ]]; then
       MSG=`git log --pretty=oneline --abbrev-commit -n 1 | cut -d ' ' -f 2-`;
       cp .travis.yml /tmp/.travis.temp.yml;
       cp .travis.osx.yml .travis.yml;
@@ -102,7 +102,7 @@ before_script:
       mv /tmp/.travis.temp.yml .travis.yml;
       git reset --hard HEAD~;
   fi
-- if [[ $TRIGGER_WINDOWS == TRUE ]]; then
+- if [[ $LEANREPO == BLESSED && $TRIGGER_WINDOWS == TRUE ]]; then
       MSG=`git log --pretty=oneline --abbrev-commit -n 1 | cut -d ' ' -f 2-`;
       cp .travis.yml /tmp/.travis.temp.yml;
       cp .travis.windows.yml .travis.yml;

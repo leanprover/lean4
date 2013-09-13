@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "library/arith/int.h"
 #include "library/arith/nat.h"
-#include "library/arith/numtype.h"
+#include "library/arith/num_type.h"
 
 namespace lean {
 class int_type_value : public num_type_value {

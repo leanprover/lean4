@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/environment.h"
 #include "library/arith/nat.h"
-#include "library/arith/numtype.h"
+#include "library/arith/num_type.h"
 
 namespace lean {
 class nat_type_value : public num_type_value {

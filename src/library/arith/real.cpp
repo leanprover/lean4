@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "library/arith/real.h"
 #include "library/arith/int.h"
 #include "library/arith/nat.h"
-#include "library/arith/numtype.h"
+#include "library/arith/num_type.h"
 
 namespace lean {
 class real_type_value : public num_type_value {

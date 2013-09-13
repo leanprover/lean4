@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/builtin.h"
 #include "library/basic_thms.h"
 #include "library/arith/arith.h"
-#include "library/cast/castlib.h"
+#include "library/cast/cast.h"
 #include "frontends/lean/frontend.h"
 
 namespace lean {

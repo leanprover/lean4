@@ -1,2 +1,2 @@
-add_library(castlib castlib.cpp)
+add_library(castlib cast.cpp)
 target_link_libraries(castlib ${LEAN_LIBS})

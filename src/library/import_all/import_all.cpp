@@ -7,14 +7,14 @@ Author: Leonardo de Moura
 #include "kernel/builtin.h"
 #include "library/basic_thms.h"
 #include "library/arith/arith.h"
-#include "library/cast/castlib.h"
+#include "library/cast/cast.h"
 #include "library/import_all/import_all.h"
 
 namespace lean {
 void import_all(environment & env) {
-    import_basiclib(env);
-    import_basicthms(env);
-    import_castlib(env);
+    import_basic(env);
+    import_basic_thms(env);
+    import_cast(env);
     import_arith(env);
 }
 environment mk_toplevel() {

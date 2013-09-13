@@ -150,7 +150,7 @@ inline expr ImpAntisym(expr const & a, expr const & b, expr const & H1, expr con
 
 class environment;
 /** \brief Initialize the environment with basic builtin declarations and axioms */
-void import_basiclib(environment & env);
+void import_basic(environment & env);
 
 /**
    \brief Helper macro for defining constants such as bool_type, int_type, int_add, etc.

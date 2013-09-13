@@ -47,7 +47,7 @@ MK_CONSTANT(domain_inj_fn,     name("domain_inj"));
 MK_CONSTANT(range_inj_fn,      name("range_inj"));
 #endif
 
-void import_basicthms(environment & env) {
+void import_basic_thms(environment & env) {
     expr A  = Const("A");
     expr a  = Const("a");
     expr b  = Const("b");

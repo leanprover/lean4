@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/builtin.h"
 #include "library/basic_thms.h"
-#include "library/cast/castlib.h"
+#include "library/cast/cast.h"
 
 namespace lean {
 // Cast builtin operator
@@ -104,7 +104,7 @@ MK_CONSTANT(cast_fn,    name("cast"));
 MK_CONSTANT(dom_inj_fn, name("DomInj"));
 MK_CONSTANT(ran_inj_fn, name("RanInj"));
 
-void import_castlib(environment & env) {
+void import_cast(environment & env) {
     if (env.find_object(to_value(mk_Cast_fn()).get_name()))
         return;
     expr x         = Const("x");

@@ -159,7 +159,7 @@ MK_CONSTANT(subst_fn,       name("Subst"));
 MK_CONSTANT(eta_fn,         name("Eta"));
 MK_CONSTANT(imp_antisym_fn, name("ImpAntisym"));
 
-void import_basiclib(environment & env) {
+void import_basic(environment & env) {
     env.add_uvar(uvar_name(m_lvl), level() + LEAN_DEFAULT_LEVEL_SEPARATION);
     env.add_uvar(uvar_name(u_lvl), m_lvl + LEAN_DEFAULT_LEVEL_SEPARATION);
 

@@ -121,7 +121,7 @@ expr mk_forall_elim_fn();
 inline expr ForallElim(expr const & A, expr const & P, expr const & H, expr const & a) { return mk_app(mk_forall_elim_fn(), A, P, H, a); }
 
 /** \brief Add basic theorems to Environment */
-void import_basicthms(environment & env);
+void import_basic_thms(environment & env);
 
 #if 0
 expr mk_ext_fn();

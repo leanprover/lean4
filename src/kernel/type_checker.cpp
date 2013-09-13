@@ -68,6 +68,11 @@ public:
 
         expr r;
         switch (e.kind()) {
+        case expr_kind::MetaVar:
+            // TODO(Leo) The following code should be unreachable in the current implementation.
+            // It will be needed when we implement the new elaborator.
+            lean_unreachable();
+            return e;
         case expr_kind::Constant:
             r = m_env.get_object(const_name(e)).get_type();
             break;

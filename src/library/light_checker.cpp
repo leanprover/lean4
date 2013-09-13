@@ -63,6 +63,11 @@ public:
     expr infer_type(expr const & e, context const & ctx) {
         // cheap cases, we do not cache results
         switch (e.kind()) {
+        case expr_kind::MetaVar:
+            // TODO(Leo) The following code should be unreachable in the current implementation.
+            // It will be needed when we implement the new elaborator.
+            lean_unreachable();
+            return e;
         case expr_kind::Constant: {
             object const & obj = m_env.get_object(const_name(e));
             if (obj.has_type())
@@ -103,6 +108,7 @@ public:
         switch (e.kind()) {
         case expr_kind::Constant: case expr_kind::Eq:
         case expr_kind::Value:    case expr_kind::Type:
+        case expr_kind::MetaVar:
             lean_unreachable();
             break;
         case expr_kind::Var: {

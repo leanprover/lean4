@@ -28,15 +28,18 @@ bool has_free_var(expr const & e, unsigned i);
 bool has_free_var(expr const & e, unsigned low, unsigned high);
 
 /**
-   \brief Lower the free variables in \c e by d. That is, a free variable <tt>(var i)</tt> is mapped into <tt>(var i-d)</tt>.
+   \brief Lower the free variables >= s in \c e by d. That is, a free variable <tt>(var i)</tt> s.t.
+   <tt>i >= s</tt> is mapped into <tt>(var i-d)</tt>.
 
    \pre d > 0
    \pre !has_free_var(e, 0, d)
 */
-expr lower_free_vars(expr const & e, unsigned d);
+expr lower_free_vars(expr const & e, unsigned s, unsigned d);
+inline expr lower_free_vars(expr const & e, unsigned d) { return lower_free_vars(e, 0, d); }
 
 /**
-   \brief Lift free variables in \c e by d.
+   \brief Lift free variables >= s in \c e by d.
 */
-expr lift_free_vars(expr const & e, unsigned d);
+expr lift_free_vars(expr const & e, unsigned s, unsigned d);
+inline expr lift_free_vars(expr const & e, unsigned d) { return lift_free_vars(e, 0, d); }
 }

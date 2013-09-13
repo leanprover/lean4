@@ -91,4 +91,32 @@ list<T> append(list<T> const & l1, list<T> const & l2) {
     to_buffer(l2, tmp);
     return to_list(tmp.begin(), tmp.end());
 }
+
+/**
+   \brief Given list <tt>(a_0, ..., a_k)</tt>, return list <tt>(f(a_0), ..., f(a_k))</tt>.
+*/
+template<typename T, typename F>
+list<T> map(list<T> const & l, F f) {
+    if (is_nil(l)) {
+        return l;
+    } else {
+        return list<T>(f(head(l)), map(tail(l), f));
+    }
+}
+
+/**
+   \brief Compare two lists using the binary predicate p.
+*/
+template<typename T, typename P>
+bool compare(list<T> const & l1, list<T> const & l2, P p) {
+    auto it1 = l1.begin();
+    auto it2 = l2.begin();
+    auto end1 = l1.end();
+    auto end2 = l2.end();
+    for (; it1 != end1 && it2 != end2; ++it1, ++it2) {
+        if (!p(*it1, *it2))
+            return false;
+    }
+    return it1 == end1 && it2 == end2;
+}
 }

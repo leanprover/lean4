@@ -35,7 +35,8 @@ class for_each_fn {
         m_f(e, offset);
 
         switch (e.kind()) {
-        case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value: case expr_kind::Var:
+        case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
+        case expr_kind::Var: case expr_kind::MetaVar:
             return;
         case expr_kind::App:
             std::for_each(begin_args(e), end_args(e), [=](expr const & arg){ return apply(arg, offset); });

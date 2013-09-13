@@ -9,14 +9,18 @@ Author: Leonardo de Moura
 #include <utility>
 #include <vector>
 #include "util/flet.h"
+#include "util/name_set.h"
 #include "kernel/normalizer.h"
 #include "kernel/context.h"
 #include "kernel/builtin.h"
 #include "kernel/free_vars.h"
 #include "kernel/for_each.h"
 #include "kernel/replace.h"
-#include "library/metavar.h"
+#include "kernel/instantiate.h"
+#include "kernel/metavar.h"
 #include "library/printer.h"
+#include "library/placeholder.h"
+#include "library/reduce.h"
 #include "library/update_expr.h"
 #include "library/expr_pair.h"
 #include "frontends/lean/frontend.h"
@@ -182,7 +186,7 @@ class elaborator::imp {
         context_entry const & def = p.first;
         context const & def_c     = p.second;
         lean_assert(c.size() > def_c.size());
-        return lift_free_vars_mmv(def.get_domain(), 0, c.size() - def_c.size());
+        return lift_free_vars(def.get_domain(), 0, c.size() - def_c.size());
     }
 
     expr check_pi(expr const & e, context const & ctx, expr const & s, context const & s_ctx) {
@@ -190,7 +194,7 @@ class elaborator::imp {
         if (is_pi(e)) {
             return e;
         } else {
-            expr r = head_reduce_mmv(e, m_env, m_available_defs);
+            expr r = head_reduce(e, m_env, ctx, m_available_defs);
             if (!is_eqp(r, e)) {
                 return check_pi(r, ctx, s, s_ctx);
             } else if (is_var(e)) {
@@ -199,7 +203,7 @@ class elaborator::imp {
                     context_entry const & entry = p.first;
                     context const & entry_ctx   = p.second;
                     if (entry.get_body()) {
-                        return lift_free_vars_mmv(check_pi(entry.get_body(), entry_ctx, s, s_ctx), 0, ctx.size() - entry_ctx.size());
+                        return lift_free_vars(check_pi(entry.get_body(), entry_ctx, s, s_ctx), 0, ctx.size() - entry_ctx.size());
                     }
                 } catch (exception&) {
                     // this can happen if we access a variable out of scope
@@ -207,7 +211,7 @@ class elaborator::imp {
                 }
             } else if (has_assigned_metavar(e)) {
                 return check_pi(instantiate(e), ctx, s, s_ctx);
-            } else if (is_metavar(e)) {
+            } else if (is_metavar(e) && !has_context(e)) {
                 // e is a unassigned metavariable that must be a Pi,
                 // then we can assign it to (Pi x : A, B x), where
                 // A and B are fresh metavariables
@@ -234,7 +238,7 @@ class elaborator::imp {
         } else if (e == Bool) {
             return level();
         } else {
-            expr r = head_reduce_mmv(e, m_env, m_available_defs);
+            expr r = head_reduce(e, m_env, ctx, m_available_defs);
             if (!is_eqp(r, e)) {
                 return check_universe(r, ctx, s, s_ctx);
             } else if (is_var(e)) {
@@ -288,7 +292,7 @@ class elaborator::imp {
                             break; // failed
                         }
                     }
-                    f_t = instantiate_free_var_mmv(abst_body(f_t), 0, args[i]);
+                    f_t = ::lean::instantiate(abst_body(f_t), args[i]);
                 }
                 if (i == num_args) {
                     if (num_coercions < best_num_coercions) {
@@ -338,13 +342,13 @@ class elaborator::imp {
     expr_pair process(expr const & e, context const & ctx) {
         check_interrupted(m_interrupted);
         switch (e.kind()) {
+        case expr_kind::MetaVar:
+            return expr_pair(e, metavar_type(e));
         case expr_kind::Constant:
             if (is_placeholder(e)) {
                 expr m = mk_metavar(ctx);
                 m_trace[m] = e;
                 return expr_pair(m, metavar_type(m));
-            } else if (is_metavar(e)) {
-                return expr_pair(e, metavar_type(e));
             } else {
                 return expr_pair(e, m_env.get_object(const_name(e)).get_type());
             }
@@ -410,7 +414,7 @@ class elaborator::imp {
                         }
                     }
                 }
-                f_t = instantiate_free_var_mmv(abst_body(f_t), 0, args[i]);
+                f_t = ::lean::instantiate(abst_body(f_t), args[i]);
             }
             if (modified) {
                 expr new_e = mk_app(args.size(), args.data());
@@ -466,7 +470,7 @@ class elaborator::imp {
                 }
             }
             auto b_p = process(let_body(e), extend(ctx, let_name(e), t_p.first ? t_p.first : v_p.second, v_p.first));
-            expr t   = instantiate_free_var_mmv(b_p.second, 0, v_p.first);
+            expr t   = ::lean::instantiate(b_p.second, v_p.first);
             expr new_e = update_let(e, t_p.first, v_p.first, b_p.first);
             add_trace(e, new_e);
             return expr_pair(new_e, t);
@@ -480,7 +484,7 @@ class elaborator::imp {
     }
 
     bool is_simple_ho_match(expr const & e1, expr const & e2, context const & ctx) {
-        if (is_app(e1) && is_meta(arg(e1, 0)) && is_var(arg(e1, 1), 0) && num_args(e1) == 2 && !is_empty(ctx)) {
+        if (is_app(e1) && is_metavar(arg(e1, 0)) && is_var(arg(e1, 1), 0) && num_args(e1) == 2 && !empty(ctx)) {
             return true;
         } else {
             return false;
@@ -491,8 +495,8 @@ class elaborator::imp {
         context const & ctx = c.m_ctx;
         context_entry const & head = ::lean::lookup(ctx, 0);
         m_constraints.push_back(constraint(arg(e1, 0), mk_lambda(head.get_name(),
-                                                           lift_free_vars_mmv(head.get_domain(), 1, 1),
-                                                           lift_free_vars_mmv(e2, 1, 1)), c));
+                                                           lift_free_vars(head.get_domain(), 1, 1),
+                                                           lift_free_vars(e2, 1, 1)), c));
     }
 
     struct cycle_detected {};
@@ -547,7 +551,7 @@ class elaborator::imp {
     }
 
     void solve_mvar(expr const & m, expr const & t, constraint const & c) {
-        lean_assert(is_metavar(m));
+        lean_assert(is_metavar(m) && !has_context(m));
         unsigned midx = metavar_idx(m);
         if (m_metavars[midx].m_assignment) {
             m_constraints.push_back(constraint(m_metavars[midx].m_assignment, t, c));
@@ -558,9 +562,72 @@ class elaborator::imp {
         }
     }
 
+    /**
+       \brief Temporary hack until we build the new elaborator.
+    */
+    expr instantiate_metavar(expr const & e, unsigned midx, expr const & v) {
+        metavar_env menv;
+        while (!menv.contains(midx))
+            menv.mk_metavar();
+        menv.assign(midx, v);
+        return instantiate_metavars(e, menv);
+    }
+
+    /**
+       \brief Temporary hack until we build the new elaborator.
+    */
+    bool is_lower_lift_core(meta_entry_kind k, expr const & e, expr & c, unsigned & s, unsigned & n) {
+        if (!is_metavar(e) || !has_context(e))
+            return false;
+        meta_ctx const & ctx = metavar_ctx(e);
+        meta_entry const & entry = head(ctx);
+        if (entry.kind() == k) {
+            c = ::lean::mk_metavar(metavar_idx(e), tail(ctx));
+            add_trace(e, c);
+            s = entry.s();
+            n = entry.n();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+       \brief Temporary hack until we build the new elaborator.
+    */
+    bool is_lower(expr const & e, expr & c, unsigned & s, unsigned & n) {
+        return is_lower_lift_core(meta_entry_kind::Lower, e, c, s, n);
+    }
+
+    /**
+       \brief Temporary hack until we build the new elaborator.
+    */
+    bool is_lift(expr const & e, expr & c, unsigned & s, unsigned & n) {
+        return is_lower_lift_core(meta_entry_kind::Lift, e, c, s, n);
+    }
+
+    /**
+       \brief Temporary hack until we build the new elaborator.
+    */
+    bool is_subst(expr const & e, expr & c, unsigned & s, expr & v) {
+        if (!is_metavar(e) || !has_context(e))
+            return false;
+        meta_ctx const & ctx = metavar_ctx(e);
+        meta_entry const & entry = head(ctx);
+        if (entry.kind() == meta_entry_kind::Subst) {
+            c = ::lean::mk_metavar(metavar_idx(e), tail(ctx));
+            add_trace(e, c);
+            s = entry.s();
+            v = entry.v();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     bool solve_meta(expr const & e, expr const & t, constraint const & c) {
-        lean_assert(!is_metavar(e));
-        expr const & m = get_metavar(e);
+        lean_assert(has_context(e));
+        expr const & m = e;
         unsigned midx  = metavar_idx(m);
         unsigned i, s, n;
         expr v, a, b;
@@ -573,13 +640,13 @@ class elaborator::imp {
 
         if (!has_metavar(t)) {
             if (is_lower(e, a, s, n)) {
-                m_constraints.push_back(constraint(a, lift_free_vars_mmv(t, s-n, n), c));
+                m_constraints.push_back(constraint(a, lift_free_vars(t, s-n, n), c));
                 return true;
             }
 
             if (is_lift(e, a, s, n)) {
                 if (!has_free_var(t, s, s+n)) {
-                    m_constraints.push_back(constraint(a, lower_free_vars_mmv(t, s+n, n), c));
+                    m_constraints.push_back(constraint(a, lower_free_vars(t, s+n, n), c));
                     return true;
                 } else {
                     // display(std::cout);
@@ -620,16 +687,16 @@ class elaborator::imp {
             if (lhs == rhs || (!has_metavar(lhs) && !has_metavar(rhs))) {
                 // do nothing
                 delayed = 0;
-            } else if (is_metavar(lhs)) {
+            } else if (is_metavar(lhs) && !has_context(lhs)) {
                 delayed = 0;
                 solve_mvar(lhs, rhs, c);
-            } else if (is_metavar(rhs)) {
+            } else if (is_metavar(rhs) && !has_context(rhs)) {
                 delayed = 0;
                 solve_mvar(rhs, lhs, c);
-            } else if (is_meta(lhs) || is_meta(rhs)) {
-                if (is_meta(lhs) && solve_meta(lhs, rhs, c)) {
+            } else if (is_metavar(lhs) || is_metavar(rhs)) {
+                if (is_metavar(lhs) && solve_meta(lhs, rhs, c)) {
                     delayed = 0;
-                } else if (is_meta(rhs) && solve_meta(rhs, lhs, c)) {
+                } else if (is_metavar(rhs) && solve_meta(rhs, lhs, c)) {
                     delayed = 0;
                 } else {
                     m_constraints.push_back(c);
@@ -654,8 +721,8 @@ class elaborator::imp {
                 m_constraints.push_back(constraint(eq_lhs(lhs), eq_lhs(rhs), c));
                 m_constraints.push_back(constraint(eq_rhs(lhs), eq_rhs(rhs), c));
             } else {
-                expr new_lhs = head_reduce_mmv(lhs, m_env, m_available_defs);
-                expr new_rhs = head_reduce_mmv(rhs, m_env, m_available_defs);
+                expr new_lhs = head_reduce(lhs, m_env, c.m_ctx, m_available_defs);
+                expr new_rhs = head_reduce(rhs, m_env, c.m_ctx, m_available_defs);
                 if (!is_eqp(lhs, new_lhs) || !is_eqp(rhs, new_rhs)) {
                     delayed = 0;
                     m_constraints.push_back(constraint(new_lhs, new_rhs, c));
@@ -712,8 +779,8 @@ class elaborator::imp {
 
     expr instantiate(expr const & e) {
         auto proc = [&](expr const & n, unsigned offset) -> expr {
-            if (is_meta(n)) {
-                expr const & m = get_metavar(n);
+            if (is_metavar(n)) {
+                expr const & m = n;
                 unsigned midx = metavar_idx(m);
                 if (m_metavars[midx].m_assignment) {
                     if (has_assigned_metavar(m_metavars[midx].m_assignment)) {

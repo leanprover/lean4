@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/occurs.h"
 #include "kernel/abstract.h"
 #include "kernel/free_vars.h"
-#include "library/metavar.h"
+#include "library/placeholder.h"
 #include "library/printer.h"
 #include "library/basic_thms.h"
 #include "library/all/all.h"

@@ -38,7 +38,7 @@ public:
     context(context const & c, name const & n, expr const & d, expr const & b):m_list(context_entry(n, d, b), c.m_list) {}
     context_entry const & lookup(unsigned vidx) const;
     std::pair<context_entry const &, context> lookup_ext(unsigned vidx) const;
-    bool is_empty() const { return is_nil(m_list); }
+    bool empty() const { return is_nil(m_list); }
     unsigned size() const { return length(m_list); }
     typedef list<context_entry>::iterator iterator;
     iterator begin() const { return m_list.begin(); }
@@ -58,5 +58,5 @@ inline std::pair<context_entry const &, context> lookup_ext(context const & c, u
 inline context_entry const & lookup(context const & c, unsigned i) { return c.lookup(i); }
 inline context extend(context const & c, name const & n, expr const & d, expr const & b) { return context(c, n, d, b); }
 inline context extend(context const & c, name const & n, expr const & d) { return context(c, n, d); }
-inline bool is_empty(context const & c) { return c.is_empty(); }
+inline bool empty(context const & c) { return c.empty(); }
 }

@@ -20,7 +20,7 @@ Author: Leonardo de Moura
 #include "kernel/builtin.h"
 #include "kernel/free_vars.h"
 #include "library/context_to_lambda.h"
-#include "library/metavar.h"
+#include "library/placeholder.h"
 #include "frontends/lean/notation.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/frontend.h"
@@ -77,7 +77,6 @@ static format g_geq_fmt       = format("\u2265");
 static format g_lift_fmt      = highlight_keyword(format("lift"));
 static format g_lower_fmt     = highlight_keyword(format("lower"));
 static format g_subst_fmt     = highlight_keyword(format("subst"));
-
 
 static name g_pp_max_depth       {"lean", "pp", "max_depth"};
 static name g_pp_max_steps       {"lean", "pp", "max_steps"};
@@ -184,6 +183,8 @@ class pp_fn {
         switch (e.kind()) {
         case expr_kind::Var: case expr_kind::Constant: case expr_kind::Value: case expr_kind::Type:
             return true;
+        case expr_kind::MetaVar:
+            return !metavar_ctx(e);
         case expr_kind::App:
             if (!m_coercion && is_coercion(e))
                 return is_atomic(arg(e, 1));
@@ -216,8 +217,6 @@ class pp_fn {
         name const & n = const_name(e);
         if (is_placeholder(e)) {
             return mk_result(format("_"), 1);
-        } else if (is_metavar(e)) {
-            return mk_result(format{format("?M"), format(metavar_idx(e))}, 1);
         } else if (has_implicit_arguments(n)) {
             return mk_result(format(m_frontend.get_explicit_version(n)), 1);
         } else {
@@ -668,8 +667,8 @@ class pp_fn {
         } else {
             // standard function application
             expr const & f  = app.get_function();
-            result p        = is_constant(f) && !is_metavar(f) ? mk_result(format(const_name(f)), 1) : pp_child(f, depth);
-            bool simple     = is_constant(f) && !is_metavar(f) && const_name(f).size() <= m_indent + 4;
+            result p        = is_constant(f) ? mk_result(format(const_name(f)), 1) : pp_child(f, depth);
+            bool simple     = is_constant(f) && const_name(f).size() <= m_indent + 4;
             unsigned indent = simple ? const_name(f).size()+1 : m_indent;
             format   r_format = p.first;
             unsigned r_weight = p.second;
@@ -992,32 +991,6 @@ class pp_fn {
         return mk_result(r_format, p_arg1.second + p_arg2.second + 1);
     }
 
-    result pp_lower(expr const & e, unsigned depth) {
-        expr arg; unsigned s, n;
-        is_lower(e, arg, s, n);
-        result p_arg = pp_child(arg, depth);
-        format r_format = format{g_lower_fmt, colon(), format(s), colon(), format(n), nest(m_indent, compose(line(), p_arg.first))};
-        return mk_result(r_format, p_arg.second + 1);
-     }
-
-     result pp_lift(expr const & e, unsigned depth) {
-        expr arg; unsigned s, n;
-        is_lift(e, arg, s, n);
-        result p_arg = pp_child(arg, depth);
-        format r_format = format{g_lift_fmt, colon(), format(s), colon(), format(n), nest(m_indent, compose(line(), p_arg.first))};
-        return mk_result(r_format, p_arg.second + 1);
-    }
-
-    result pp_subst(expr const & e, unsigned depth) {
-        expr arg, v; unsigned i;
-        is_subst(e, arg, i, v);
-        result p_arg = pp_child(arg, depth);
-        result p_v   = pp_child(v, depth);
-        format r_format = format{g_subst_fmt, colon(), format(i),
-                                 nest(m_indent, format{line(), p_arg.first, line(), p_v.first})};
-        return mk_result(r_format, p_arg.second + p_v.second + 1);
-    }
-
     result pp_choice(expr const & e, unsigned depth) {
         lean_assert(is_choice(e));
         unsigned num = get_num_choices(e);
@@ -1034,6 +1007,36 @@ class pp_fn {
         return mk_result(r_format, r_weight+1);
     }
 
+    result pp_metavar(expr const & a, unsigned depth) {
+        format mv_fmt = compose(format("?M"), format(metavar_idx(a)));
+        if (metavar_ctx(a)) {
+            format ctx_fmt;
+            bool first = true;
+            unsigned r_weight = 1;
+            for (meta_entry const & e : metavar_ctx(a)) {
+                format e_fmt;
+                switch (e.kind()) {
+                case meta_entry_kind::Lift:   e_fmt = format{g_lift_fmt, colon(), format(e.s()), colon(), format(e.n())}; break;
+                case meta_entry_kind::Lower:  e_fmt = format{g_lower_fmt, colon(), format(e.s()), colon(), format(e.n())}; break;
+                case meta_entry_kind::Subst:   {
+                    auto p_e = pp_child_with_paren(e.v(), depth);
+                    r_weight += p_e.second;
+                    e_fmt = format{g_subst_fmt, colon(), format(e.s()), space(), nest(m_indent, p_e.first)};
+                    break;
+                }}
+                if (first) {
+                    ctx_fmt = e_fmt;
+                    first = false;
+                } else {
+                    ctx_fmt += compose(line(), e_fmt);
+                }
+            }
+            return mk_result(group(compose(mv_fmt, nest(m_indent, format{lsb(), ctx_fmt, rsb()}))), r_weight);
+        } else {
+            return mk_result(mv_fmt, 1);
+        }
+    }
+
     result pp(expr const & e, unsigned depth, bool main = false) {
         check_interrupted(m_interrupted);
         if (!is_atomic(e) && (m_num_steps > m_max_steps || depth > m_max_depth)) {
@@ -1048,12 +1051,6 @@ class pp_fn {
             result r;
             if (is_choice(e)) {
                 return pp_choice(e, depth);
-            } else if (is_lower(e)) {
-                r = pp_lower(e, depth);
-            } else if (is_lift(e)) {
-                r = pp_lift(e, depth);
-            } else if (is_subst(e)) {
-                r = pp_subst(e, depth);
             } else {
                 switch (e.kind()) {
                 case expr_kind::Var:        r = pp_var(e);                break;
@@ -1065,6 +1062,7 @@ class pp_fn {
                 case expr_kind::Type:       r = pp_type(e);               break;
                 case expr_kind::Eq:         r = pp_eq(e, depth);          break;
                 case expr_kind::Let:        r = pp_let(e, depth);         break;
+                case expr_kind::MetaVar:    r = pp_metavar(e, depth);     break;
                 }
             }
             if (!main && m_extra_lets && is_shared(e) && r.second > m_alias_min_weight) {

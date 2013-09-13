@@ -19,9 +19,9 @@ Function type:
     Π (A : Type), A → A
 Arguments types:
     A : Type
-    x : lift:0:2 ?M0
+    x : ?M0
 Elaborator state
-    #0 ≈ lift:0:2 ?M0
+    #0 ≈ ?M0[lift:0:2]
   Assumed: eq
 Error (line: 15, pos: 51) application type mismatch during term elaboration
     eq C a b
@@ -29,11 +29,11 @@ Function type:
     Π (A : Type), A → A → Bool
 Arguments types:
     C : Type
-    a : lift:0:3 ?M0
-    b : lift:0:2 ?M2
+    a : ?M0[lower:5:5 lift:0:3 subst:0 B subst:1 A]
+    b : ?M2[lower:5:5 lift:0:2 subst:0 a subst:1 B subst:2 A]
 Elaborator state
-    #0 ≈ lift:0:2 ?M2
-    #0 ≈ lift:0:3 ?M0
+    #0 ≈ ?M2[lift:0:2]
+    #0 ≈ ?M0[lift:0:3]
   Assumed: a
   Assumed: b
   Assumed: H
@@ -46,7 +46,7 @@ Expected type:
 Got:
     ?M4 ⇒ ?M2
 Elaborator state
-    lift:0:1 ?M2 ≈ lift:0:1 ?M4 ∧ a
+    ?M2[lift:0:1] ≈ (?M4[lift:0:1]) ∧ a
     b ≈ if Bool ?M4 ?M2 ⊤
     b ≈ if Bool ?M4 ?M2 ⊤
 Error (line: 22, pos: 22) type mismatch at application

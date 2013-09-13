@@ -8,10 +8,15 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/expr_sets.h"
 #include "kernel/replace.h"
+#include "kernel/metavar.h"
 
 namespace lean {
+/**
+    \brief Functional object for checking whether a kernel expression has free variables or not.
 
-/** \brief Functional object for checking whether a kernel expression has free variables or not. */
+    \remark We assume that a metavariable contains free variables.
+    This is an approximation, since we don't know how the metavariable will be instantiated.
+*/
 class has_free_vars_fn {
 protected:
     expr_cell_offset_set m_cached;
@@ -21,6 +26,8 @@ protected:
         switch (e.kind()) {
         case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
             return false;
+        case expr_kind::MetaVar:
+            return true;
         case expr_kind::Var:
             return var_idx(e) >= offset;
         case expr_kind::App: case expr_kind::Eq: case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Let:
@@ -51,7 +58,7 @@ protected:
         bool result = false;
 
         switch (e.kind()) {
-        case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value: case expr_kind::Var:
+        case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value: case expr_kind::Var: case expr_kind::MetaVar:
             // easy cases were already handled
             lean_unreachable(); return false;
         case expr_kind::App:
@@ -87,7 +94,12 @@ bool has_free_vars(expr const & e) {
     return has_free_vars_fn()(e);
 }
 
-/** \brief Functional object for checking whether a kernel expression has a free variable in the range <tt>[low, high)</tt> or not. */
+/**
+    \brief Functional object for checking whether a kernel expression has a free variable in the range <tt>[low, high)</tt> or not.
+
+    \remark We assume that a metavariable contains free variables.
+    This is an approximation, since we don't know how the metavariable will be instantiated.
+*/
 class has_free_var_in_range_fn {
 protected:
     unsigned             m_low;
@@ -99,6 +111,8 @@ protected:
         switch (e.kind()) {
         case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
             return false;
+        case expr_kind::MetaVar:
+            return true;
         case expr_kind::Var:
             return var_idx(e) >= offset + m_low && var_idx(e) < offset + m_high;
         case expr_kind::App: case expr_kind::Eq: case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Let:
@@ -119,7 +133,7 @@ protected:
         bool result = false;
 
         switch (e.kind()) {
-        case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value: case expr_kind::Var:
+        case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value: case expr_kind::Var: case expr_kind::MetaVar:
             // easy cases were already handled
             lean_unreachable(); return false;
         case expr_kind::App:
@@ -160,13 +174,14 @@ bool has_free_var(expr const & e, unsigned low, unsigned high) {
     return has_free_var_in_range_fn(low, high)(e);
 }
 
-expr lower_free_vars(expr const & e, unsigned d) {
+expr lower_free_vars(expr const & e, unsigned s, unsigned d) {
     lean_assert(d > 0);
-    lean_assert(!has_free_var(e, 0, d));
     auto f = [=](expr const & e, unsigned offset) -> expr {
-        if (is_var(e) && var_idx(e) >= offset) {
+        if (is_var(e) && var_idx(e) >= s + offset) {
             lean_assert(var_idx(e) >= offset + d);
             return mk_var(var_idx(e) - d);
+        } else if (is_metavar(e)) {
+            return add_lower(e, s + offset, d);
         } else {
             return e;
         }
@@ -174,12 +189,14 @@ expr lower_free_vars(expr const & e, unsigned d) {
     return replace_fn<decltype(f)>(f)(e);
 }
 
-expr lift_free_vars(expr const & e, unsigned d) {
+expr lift_free_vars(expr const & e, unsigned s, unsigned d) {
     if (d == 0)
         return e;
     auto f = [=](expr const & e, unsigned offset) -> expr {
-        if (is_var(e) && var_idx(e) >= offset) {
+        if (is_var(e) && var_idx(e) >= s + offset) {
             return mk_var(var_idx(e) + d);
+        } else if (is_metavar(e)) {
+            return add_lift(e, s + offset, d);
         } else {
             return e;
         }

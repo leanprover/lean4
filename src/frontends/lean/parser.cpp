@@ -29,7 +29,7 @@ Author: Leonardo de Moura
 #include "library/printer.h"
 #include "library/state.h"
 #include "library/kernel_exception_formatter.h"
-#include "library/metavar.h"
+#include "library/placeholder.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/elaborator_exception.h"

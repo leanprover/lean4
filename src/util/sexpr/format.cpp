@@ -145,6 +145,8 @@ static format g_line(mk_line());
 static format g_space(" ");
 static format g_lp("(");
 static format g_rp(")");
+static format g_lsb("[");
+static format g_rsb("]");
 static format g_lcurly("{");
 static format g_rcurly("}");
 static format g_comma(",");
@@ -154,6 +156,8 @@ format const & line() { return g_line; }
 format const & space() { return g_space; }
 format const & lp() { return g_lp; }
 format const & rp() { return g_rp; }
+format const & lsb() { return g_lsb; }
+format const & rsb() { return g_rsb; }
 format const & lcurly() { return g_lcurly; }
 format const & rcurly() { return g_rcurly; }
 format const & comma() { return g_comma; }
@@ -212,10 +216,7 @@ format above(format const & f1, format const & f2) {
     return format{f1, line(), f2};
 }
 format bracket(std::string const l, format const & x, std::string const r) {
-    return group(format{format(l),
-                 nest(2, format(line(), x)),
-                 line(),
-                 format(r)});
+    return group(nest(l.size(), format{format(l), x, format(r)}));
 }
 format paren(format const & x) {
     return group(nest(1, format{lp(), x, rp()}));

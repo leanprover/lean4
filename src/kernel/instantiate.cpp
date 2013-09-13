@@ -7,38 +7,55 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include "kernel/free_vars.h"
 #include "kernel/replace.h"
+#include "kernel/metavar.h"
 
 namespace lean {
-expr instantiate_with_closed(expr const & e, unsigned n, expr const * s) {
+expr instantiate_with_closed(expr const & a, unsigned n, expr const * s) {
     lean_assert(std::all_of(s, s+n, closed));
 
-    auto f = [=](expr const & e, unsigned offset) -> expr {
-        if (is_var(e)) {
-            unsigned vidx = var_idx(e);
+    auto f = [=](expr const & m, unsigned offset) -> expr {
+        if (is_var(m)) {
+            unsigned vidx = var_idx(m);
             if (vidx >= offset) {
                 if (vidx < offset + n)
                     return s[n - (vidx - offset) - 1];
                 else
                     return mk_var(vidx - n);
+            } else {
+                return m;
             }
+        } else if (is_metavar(m)) {
+            expr r = m;
+            for (unsigned i = 0; i < n; i++)
+                r = add_subst(r, offset + i, s[n - i - 1]);
+            return add_lower(r, offset + n, n);
+        } else {
+            return m;
         }
-        return e;
     };
-    return replace_fn<decltype(f)>(f)(e);
+    return replace_fn<decltype(f)>(f)(a);
 }
-expr instantiate(expr const & e, unsigned n, expr const * s) {
-    auto f = [=](expr const & e, unsigned offset) -> expr {
-        if (is_var(e)) {
-            unsigned vidx = var_idx(e);
+expr instantiate(expr const & a, unsigned n, expr const * s) {
+    auto f = [=](expr const & m, unsigned offset) -> expr {
+        if (is_var(m)) {
+            unsigned vidx = var_idx(m);
             if (vidx >= offset) {
                 if (vidx < offset + n)
                     return lift_free_vars(s[n - (vidx - offset) - 1], offset);
                 else
                     return mk_var(vidx - n);
+            } else {
+                return m;
             }
+        } else if (is_metavar(m)) {
+            expr r = m;
+            for (unsigned i = 0; i < n; i++)
+                r = add_subst(r, offset + i, lift_free_vars(s[n - i - 1], offset + n));
+            return add_lower(r, offset + n, n);
+        } else {
+            return m;
         }
-        return e;
     };
-    return replace_fn<decltype(f)>(f)(e);
+    return replace_fn<decltype(f)>(f)(a);
 }
 }

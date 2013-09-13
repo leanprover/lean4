@@ -61,6 +61,16 @@ struct max_sharing_fn::imp {
                 });
             cache(r);
             return r;
+        }
+        case expr_kind::MetaVar: {
+            expr r = update_metavar(a, [=](meta_entry const & e) -> meta_entry {
+                    if (e.is_subst())
+                        return mk_subst(e.s(), apply(e.v()));
+                    else
+                        return e;
+                });
+            cache(r);
+            return r;
         }}
         lean_unreachable();
         return a;

@@ -142,6 +142,11 @@ class normalizer::imp {
 
         svalue r;
         switch (a.kind()) {
+        case expr_kind::MetaVar:
+            // TODO(Leo) The following code should be unreachable in the current implementation.
+            // It will be needed when we implement the new elaborator.
+            lean_unreachable();
+            return svalue(a);
         case expr_kind::Var:
             r = lookup(s, var_idx(a), k);
             break;

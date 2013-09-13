@@ -8,15 +8,16 @@ Author: Leonardo de Moura
 #include <utility>
 #include "util/exception.h"
 #include "library/printer.h"
-#include "library/metavar.h"
 #include "kernel/environment.h"
 
 namespace lean {
 bool is_atomic(expr const & e) {
     switch (e.kind()) {
-    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Value: case expr_kind::Type:
+    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Value:
+    case expr_kind::Type: case expr_kind::MetaVar:
         return true;
-    case expr_kind::App: case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Eq: case expr_kind::Let:
+    case expr_kind::App: case expr_kind::Lambda: case expr_kind::Pi:
+    case expr_kind::Eq: case expr_kind::Let:
         return false;
     }
     return false;
@@ -74,72 +75,78 @@ struct print_expr_fn {
             return print_child(a, c);
     }
 
+    void print_metavar(expr const & a, context const & c) {
+        out() << "?M" << metavar_idx(a);
+        if (metavar_ctx(a)) {
+            out() << "[";
+            bool first = true;
+            for (meta_entry const & e : metavar_ctx(a)) {
+                if (first) first = false; else out() << ", ";
+                switch (e.kind()) {
+                case meta_entry_kind::Lift:  out() << "lift:" << e.s() << ":" << e.n(); break;
+                case meta_entry_kind::Lower: out() << "lower:" << e.s() << ":" << e.n(); break;
+                case meta_entry_kind::Subst: out() << "subst:" << e.s() << " "; print_child(e.v(), c); break;
+                }
+            }
+            out() << "]";
+        }
+    }
+
     void print(expr const & a, context const & c) {
-        unsigned i, s, n;
-        expr v, ch;
-        if (is_lower(a, ch, s, n)) {
-            out() << "lower:" << s << ":" << n << " "; print_child(ch, c);
-        } else if (is_lift(a, ch, s, n)) {
-            out() << "lift:" << s << ":" << n << " "; print_child(ch, c);
-        } else if (is_subst(a, ch, i, v)) {
-            out() << "subst:" << i << " "; print_child(ch, c); out() << " "; print_child(v, context());
-        } else {
-            switch (a.kind()) {
-            case expr_kind::Var:
-                try {
-                    out() << lookup(c, var_idx(a)).get_name();
-                } catch (exception & ex) {
-                    out() << "#" << var_idx(a);
-                }
-                break;
-            case expr_kind::Constant:
-                if (is_metavar(a)) {
-                    out() << "?M:" << metavar_idx(a);
-                } else {
-                    out() << const_name(a);
-                }
-                break;
-            case expr_kind::App:
-                print_app(a, c);
-                break;
-            case expr_kind::Eq:
-                print_eq(a, c);
-                break;
-            case expr_kind::Lambda:
-                out() << "fun " << abst_name(a) << " : ";
+        switch (a.kind()) {
+        case expr_kind::MetaVar:
+            print_metavar(a, c);
+            break;
+        case expr_kind::Var:
+            try {
+                out() << lookup(c, var_idx(a)).get_name();
+            } catch (exception & ex) {
+                out() << "#" << var_idx(a);
+            }
+            break;
+        case expr_kind::Constant:
+            out() << const_name(a);
+            break;
+        case expr_kind::App:
+            print_app(a, c);
+            break;
+        case expr_kind::Eq:
+            print_eq(a, c);
+            break;
+        case expr_kind::Lambda:
+            out() << "fun " << abst_name(a) << " : ";
+            print_child(abst_domain(a), c);
+            out() << ", ";
+            print_child(abst_body(a), extend(c, abst_name(a), abst_domain(a)));
+            break;
+        case expr_kind::Pi:
+            if (!is_arrow(a)) {
+                out() << "Pi " << abst_name(a) << " : ";
                 print_child(abst_domain(a), c);
                 out() << ", ";
                 print_child(abst_body(a), extend(c, abst_name(a), abst_domain(a)));
                 break;
-            case expr_kind::Pi:
-                if (!is_arrow(a)) {
-                    out() << "Pi " << abst_name(a) << " : ";
-                    print_child(abst_domain(a), c);
-                    out() << ", ";
-                    print_child(abst_body(a), extend(c, abst_name(a), abst_domain(a)));
-                    break;
-                } else {
-                    print_child(abst_domain(a), c);
-                    out() << " -> ";
-                    print_arrow_body(abst_body(a), extend(c, abst_name(a), abst_domain(a)));
-                }
-                break;
-            case expr_kind::Let:
-                out() << "let " << let_name(a);
-                if (let_type(a))
-                    out() << " : " << let_type(a);
-                out() << " := ";
-                print(let_value(a), c);
-                out() << " in ";
-                print_child(let_body(a), extend(c, let_name(a), let_value(a)));
-                break;
-            case expr_kind::Type:
-                print_type(a);
-                break;
-            case expr_kind::Value:
-                print_value(a);
-                break;
+            } else {
+                print_child(abst_domain(a), c);
+                out() << " -> ";
+                print_arrow_body(abst_body(a), extend(c, abst_name(a), abst_domain(a)));
             }
+            break;
+        case expr_kind::Let:
+            out() << "let " << let_name(a);
+            if (let_type(a))
+                out() << " : " << let_type(a);
+            out() << " := ";
+            print(let_value(a), c);
+            out() << " in ";
+            print_child(let_body(a), extend(c, let_name(a), let_value(a)));
+            break;
+        case expr_kind::Type:
+            print_type(a);
+            break;
+        case expr_kind::Value:
+            print_value(a);
+            break;
         }
     }
 
@@ -163,12 +170,12 @@ std::ostream & operator<<(std::ostream & out, std::pair<expr const &, context co
 }
 
 static void display_context_core(std::ostream & out, context const & ctx) {
-    if (!is_empty(ctx)) {
+    if (!empty(ctx)) {
         auto p = lookup_ext(ctx, 0);
         context_entry const & head  = p.first;
         context const & tail_ctx    = p.second;
         display_context_core(out, tail_ctx);
-        if (!is_empty(tail_ctx))
+        if (!empty(tail_ctx))
             out << "; ";
         out << head.get_name() << " : " << head.get_domain();
         if (head.get_body()) {

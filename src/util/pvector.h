@@ -351,6 +351,7 @@ public:
         ref(pvector & v, unsigned i):m_vector(v), m_idx(i) {}
         ref & operator=(T const & a) { m_vector.set(m_idx, a); return *this; }
         operator T const &() const { return m_vector.get(m_idx); }
+        T const * operator->() const { return &(m_vector.get(m_idx)); }
     };
 
     T const & operator[](unsigned i) const { return get(i); }

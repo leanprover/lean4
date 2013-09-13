@@ -63,6 +63,16 @@ class expr_eq_fn {
                 return false;
             }
             return apply(let_value(a), let_value(b)) && apply(let_body(a), let_body(b));
+        case expr_kind::MetaVar:
+            return metavar_idx(a) == metavar_idx(b) &&
+                compare(metavar_ctx(a), metavar_ctx(b), [&](meta_entry const & e1, meta_entry const & e2) {
+                        if (e1.kind() != e2.kind() || e1.s() != e2.s())
+                            return false;
+                        if (e1.is_subst())
+                            return apply(e1.v(), e2.v());
+                        else
+                            return e1.n() == e2.n();
+                    });
         }
         lean_unreachable();  // LCOV_EXCL_LINE
         return false;        // LCOV_EXCL_LINE

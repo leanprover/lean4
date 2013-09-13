@@ -53,7 +53,8 @@ expr mk_dag(unsigned depth, bool _closed = false) {
 
 unsigned depth1(expr const & e) {
     switch (e.kind()) {
-    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
+    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type:
+    case expr_kind::Value: case expr_kind::MetaVar:
         return 1;
     case expr_kind::App: {
         unsigned m = 0;
@@ -74,7 +75,8 @@ unsigned depth1(expr const & e) {
 // This is the fastest depth implementation in this file.
 unsigned depth2(expr const & e) {
     switch (e.kind()) {
-    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
+    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type:
+    case expr_kind::Value: case expr_kind::MetaVar:
         return 1;
     case expr_kind::App:
         return
@@ -102,7 +104,8 @@ unsigned depth3(expr const & e) {
         unsigned c     = p.second + 1;
         todo.pop_back();
         switch (e.kind()) {
-        case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
+        case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type:
+        case expr_kind::Value: case expr_kind::MetaVar:
             m = std::max(c, m);
             break;
         case expr_kind::App: {
@@ -171,7 +174,8 @@ unsigned count_core(expr const & a, expr_set & s) {
         return 0;
     s.insert(a);
     switch (a.kind()) {
-    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
+    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type:
+    case expr_kind::Value: case expr_kind::MetaVar:
         return 1;
     case expr_kind::App:
         return std::accumulate(begin_args(a), end_args(a), 1,
@@ -352,6 +356,35 @@ void tst15() {
     lean_assert(closed(l));
 }
 
+void tst16() {
+    expr f = Const("f");
+    expr x = Var(0);
+    expr a = Const("a");
+    expr m = mk_metavar(0);
+    lean_assert(has_metavar(m));
+    lean_assert(has_metavar(f(m)));
+    lean_assert(!has_metavar(f(a)));
+    lean_assert(!has_metavar(f(x)));
+    lean_assert(!has_metavar(Pi({a, Type()}, a)));
+    lean_assert(!has_metavar(Type()));
+    lean_assert(!has_metavar(Fun({a, Type()}, a)));
+    lean_assert(has_metavar(Pi({a, Type()}, m)));
+    lean_assert(has_metavar(Pi({a, m}, a)));
+    lean_assert(has_metavar(Fun({a, Type()}, m)));
+    lean_assert(has_metavar(Fun({a, m}, a)));
+    lean_assert(!has_metavar(Let({a, Type()}, a)));
+    lean_assert(!has_metavar(mk_let(name("a"), Type(), f(x), f(f(x)))));
+    lean_assert(has_metavar(mk_let(name("a"), m, f(x), f(f(x)))));
+    lean_assert(has_metavar(mk_let(name("a"), Type(), f(m), f(f(x)))));
+    lean_assert(has_metavar(mk_let(name("a"), Type(), f(x), f(f(m)))));
+    lean_assert(has_metavar(f(a, a, m)));
+    lean_assert(has_metavar(f(a, m, a, a)));
+    lean_assert(!has_metavar(f(a, a, a, a)));
+    lean_assert(!has_metavar(Eq(a, f(a))));
+    lean_assert(has_metavar(Eq(m, f(a))));
+    lean_assert(has_metavar(Eq(a, f(m))));
+}
+
 int main() {
     std::cout << "sizeof(expr):      " << sizeof(expr) << "\n";
     std::cout << "sizeof(expr_app):  " << sizeof(expr_app) << "\n";
@@ -371,6 +404,7 @@ int main() {
     tst13();
     tst14();
     tst15();
+    tst16();
     std::cout << "done" << "\n";
     return has_violations() ? 1 : 0;
 }

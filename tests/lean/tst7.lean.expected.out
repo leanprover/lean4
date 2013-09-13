@@ -8,9 +8,9 @@ Function type:
     Π (A : Type), A → Bool
 Arguments types:
     B : Type
-    a : lift:0:2 ?M0
+    a : ?M0[lower:3:3 lift:0:2 subst:0 A]
 Elaborator state
-    #0 ≈ lift:0:2 ?M0
+    #0 ≈ ?M0[lift:0:2]
   Assumed: myeq
 myeq (Π (A : Type), A → A) (λ (A : Type) (a : A), a) (λ (B : Type) (b : B), b)
 myeq (Π (A : Type), A → A) (λ (A : Type) (a : A), a) (λ (B : Type) (b : B), b) : Bool

@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "util/name.h"
 #include "util/hash.h"
 #include "util/buffer.h"
+#include "util/list_fn.h"
 #include "util/sexpr/format.h"
 #include "kernel/level.h"
 
@@ -30,6 +31,13 @@ class value;
           |   Type          universe
           |   Eq            expr expr         (heterogeneous equality)
           |   Let           name expr expr expr
+          |   Metavar       idx meta_ctx
+
+   meta_ctx ::= [meta_entry]
+
+   meta_entry ::=  lift idx idx
+                |  lower idx idx
+                |  subst idx expr
 
 TODO(Leo): match expressions.
 
@@ -39,7 +47,13 @@ The main API is divided in the following sections
 - Accessors
 - Miscellaneous
 ======================================= */
-enum class expr_kind { Var, Constant, Value, App, Lambda, Pi, Type, Eq, Let };
+enum class expr_kind { Var, Constant, Value, App, Lambda, Pi, Type, Eq, Let, MetaVar };
+class meta_entry;
+/**
+   \brief A metavariable context is just a list of meta_entries.
+   \see meta_entry
+*/
+typedef list<meta_entry> meta_ctx;
 
 /**
     \brief Base class used to represent expressions.
@@ -64,9 +78,10 @@ protected:
     void set_closed() { m_flags |= 2; }
     friend class has_free_var_fn;
 public:
-    expr_cell(expr_kind k, unsigned h);
+    expr_cell(expr_kind k, unsigned h, bool has_mv);
     expr_kind kind() const { return static_cast<expr_kind>(m_kind); }
     unsigned  hash() const { return m_hash; }
+    bool has_metavar() const { return (m_flags & 4) != 0; }
 };
 /**
    \brief Exprs for encoding formulas/expressions, types and proofs.
@@ -92,6 +107,7 @@ public:
 
     expr_kind kind() const { return m_ptr->kind(); }
     unsigned  hash() const { return m_ptr ? m_ptr->hash() : 23; }
+    bool has_metavar() const { return m_ptr->has_metavar(); }
 
     expr_cell * raw() const { return m_ptr; }
 
@@ -106,6 +122,7 @@ public:
     friend expr mk_pi(name const & n, expr const & t, expr const & e);
     friend expr mk_type(level const & l);
     friend expr mk_let(name const & n, expr const & t, expr const & v, expr const & e);
+    friend expr mk_metavar(unsigned idx, meta_ctx const & ctx);
 
     friend bool is_eqp(expr const & a, expr const & b) { return a.m_ptr == b.m_ptr; }
 
@@ -141,7 +158,7 @@ class expr_app : public expr_cell {
     expr     m_args[0];
     friend expr mk_app(unsigned num_args, expr const * args);
 public:
-    expr_app(unsigned size);
+    expr_app(unsigned size, bool has_mv);
     ~expr_app();
     unsigned     get_num_args() const        { return m_num_args; }
     expr const & get_arg(unsigned idx) const { lean_assert(idx < m_num_args); return m_args[idx]; }
@@ -228,6 +245,78 @@ public:
 
     value const & get_value() const { return m_val; }
 };
+/**
+   \see meta_entry
+*/
+enum class meta_entry_kind { Lift, Lower, Subst };
+/**
+    \brief An entry in a metavariable context.
+    It represents objects of the form:
+    <code>
+           | Lift s n
+           | Lower s n
+           | Subst s v
+    </code>
+    where \c s and \c n are unsigned integers, and
+    \c v is an expression
+
+    The meaning of <tt>Lift s n</tt> is: lift the free variables greater than or equal to \c s by \c n.
+    The meaning of <tt>Lower s n</tt> is: lower the free variables greater than or equal to \c s by \c n.
+    The meaning of <tt>Subst s v</tt> is: substitute the free variable \c s with the expression \c v.
+
+    The metavariable context records operations that must be applied
+    whenever we substitute a metavariable with an actual expression.
+    For example, let ?M be a metavariable with context
+    <code>
+       [ Lower 1 1, Subst 0 a, Lift 1 2 ]
+    </code>
+    Now, assume we want to instantiate \c ?M with <tt>f #0 (g #2)</tt>.
+    Then, we apply the metavariable entries from right to left.
+    Thus, first we apply <tt>(Lift 1 2)</tt> and obtain the term
+    <code>
+       f #0 (g #4)
+    </code>
+    Then, we apply <tt>(Subst 0 a)</tt> and produce
+    <code>
+       f a (g #4)
+    </code>
+    Finally, we apply <tt>(Lower 1 1)</tt> and get the final result
+    <code>
+       f a (g #3)
+   </code>
+*/
+class meta_entry {
+    meta_entry_kind m_kind;
+    unsigned        m_s;
+    unsigned        m_n;
+    expr            m_v;
+    meta_entry(meta_entry_kind k, unsigned s, unsigned n);
+    meta_entry(unsigned s, expr const & v);
+public:
+    ~meta_entry();
+    friend meta_entry mk_lift(unsigned s, unsigned n);
+    friend meta_entry mk_lower(unsigned s, unsigned n);
+    friend meta_entry mk_subst(unsigned s, expr const & v);
+    meta_entry_kind kind() const { return m_kind; }
+    bool is_subst() const { return kind() == meta_entry_kind::Subst; }
+    unsigned s() const { return m_s; }
+    unsigned n() const { lean_assert(kind() != meta_entry_kind::Subst); return m_n; }
+    expr const & v() const { lean_assert(kind() == meta_entry_kind::Subst); return m_v; }
+};
+inline meta_entry mk_lift(unsigned s, unsigned n) { return meta_entry(meta_entry_kind::Lift, s, n); }
+inline meta_entry mk_lower(unsigned s, unsigned n) { return meta_entry(meta_entry_kind::Lower, s, n); }
+inline meta_entry mk_subst(unsigned s, expr const & v) { return meta_entry(s, v); }
+
+/** \brief Metavariables */
+class expr_metavar : public expr_cell {
+    unsigned      m_midx;
+    meta_ctx      m_ctx;
+public:
+    expr_metavar(unsigned i, meta_ctx const & c);
+    ~expr_metavar();
+    unsigned get_midx() const { return m_midx; }
+    meta_ctx const & get_ctx() const { return m_ctx; }
+};
 // =======================================
 
 // =======================================
@@ -241,6 +330,7 @@ inline bool is_lambda(expr_cell * e)      { return e->kind() == expr_kind::Lambd
 inline bool is_pi(expr_cell * e)          { return e->kind() == expr_kind::Pi; }
 inline bool is_type(expr_cell * e)        { return e->kind() == expr_kind::Type; }
 inline bool is_let(expr_cell * e)         { return e->kind() == expr_kind::Let; }
+inline bool is_metavar(expr_cell * e)     { return e->kind() == expr_kind::MetaVar; }
 inline bool is_abstraction(expr_cell * e) { return is_lambda(e) || is_pi(e); }
 
 inline bool is_var(expr const & e)         { return e.kind() == expr_kind::Var; }
@@ -253,6 +343,7 @@ inline bool is_pi(expr const & e)          { return e.kind() == expr_kind::Pi; }
        bool is_arrow(expr const & e);
 inline bool is_type(expr const & e)        { return e.kind() == expr_kind::Type; }
 inline bool is_let(expr const & e)         { return e.kind() == expr_kind::Let; }
+inline bool is_metavar(expr const & e)     { return e.kind() == expr_kind::MetaVar; }
 inline bool is_abstraction(expr const & e) { return is_lambda(e) || is_pi(e); }
 // =======================================
 
@@ -281,6 +372,7 @@ inline expr mk_type(level const & l) { return expr(new expr_type(l)); }
        expr mk_type();
 inline expr Type(level const & l) { return mk_type(l); }
 inline expr Type() { return mk_type(); }
+inline expr mk_metavar(unsigned idx, meta_ctx const & ctx = meta_ctx()) { return expr(new expr_metavar(idx, ctx)); }
 
 inline expr expr::operator()(expr const & a1) const { return mk_app({*this, a1}); }
 inline expr expr::operator()(expr const & a1, expr const & a2) const { return mk_app({*this, a1, a2}); }
@@ -302,6 +394,7 @@ inline expr_lambda *      to_lambda(expr_cell * e)      { lean_assert(is_lambda(
 inline expr_pi *          to_pi(expr_cell * e)          { lean_assert(is_pi(e));          return static_cast<expr_pi*>(e); }
 inline expr_type *        to_type(expr_cell * e)        { lean_assert(is_type(e));        return static_cast<expr_type*>(e); }
 inline expr_let *         to_let(expr_cell * e)         { lean_assert(is_let(e));         return static_cast<expr_let*>(e); }
+inline expr_metavar *     to_metavar(expr_cell * e)     { lean_assert(is_metavar(e));     return static_cast<expr_metavar*>(e); }
 
 inline expr_var *         to_var(expr const & e)         { return to_var(e.raw()); }
 inline expr_const *       to_constant(expr const & e)    { return to_constant(e.raw()); }
@@ -312,6 +405,8 @@ inline expr_lambda *      to_lambda(expr const & e)      { return to_lambda(e.ra
 inline expr_pi *          to_pi(expr const & e)          { return to_pi(e.raw()); }
 inline expr_let *         to_let(expr const & e)         { return to_let(e.raw()); }
 inline expr_type *        to_type(expr const & e)        { return to_type(e.raw()); }
+inline expr_metavar *     to_metavar(expr const & e)     { return to_metavar(e.raw()); }
+
 // =======================================
 
 // =======================================
@@ -334,6 +429,8 @@ inline name const &  let_name(expr_cell * e)             { return to_let(e)->get
 inline expr const &  let_value(expr_cell * e)            { return to_let(e)->get_value(); }
 inline expr const &  let_type(expr_cell * e)             { return to_let(e)->get_type(); }
 inline expr const &  let_body(expr_cell * e)             { return to_let(e)->get_body(); }
+inline unsigned      metavar_idx(expr_cell * e)          { return to_metavar(e)->get_midx(); }
+inline meta_ctx const & metavar_ctx(expr_cell * e)       { return to_metavar(e)->get_ctx(); }
 
 /** \brief Return the reference counter of the given expression. */
 inline unsigned      get_rc(expr const &  e)              { return e.raw()->get_rc(); }
@@ -363,6 +460,10 @@ inline name const &  let_name(expr const & e)             { return to_let(e)->ge
 inline expr const &  let_type(expr const & e)             { return to_let(e)->get_type(); }
 inline expr const &  let_value(expr const & e)            { return to_let(e)->get_value(); }
 inline expr const &  let_body(expr const & e)             { return to_let(e)->get_body(); }
+inline unsigned      metavar_idx(expr const & e)          { return to_metavar(e)->get_midx(); }
+inline meta_ctx const & metavar_ctx(expr const & e)       { return to_metavar(e)->get_ctx(); }
+
+inline bool has_metavar(expr const & e) { return e.has_metavar(); }
 // =======================================
 
 // =======================================
@@ -477,6 +578,29 @@ template<typename F> expr update_eq(expr const & e, F f) {
         return mk_eq(p.first, p.second);
     else
         return e;
+}
+template<typename F> expr update_metavar(expr const & e, unsigned i, F f) {
+    buffer<meta_entry> new_entries;
+    bool modified = (i != metavar_idx(e));
+    for (meta_entry const & me : metavar_ctx(e)) {
+        meta_entry new_me = f(me);
+        if (new_me.kind() != me.kind() || new_me.s() != me.s()) {
+            modified = true;
+        } else if (new_me.is_subst()) {
+            if (!is_eqp(new_me.v(), me.v()))
+                modified = true;
+        } else if (new_me.n() != me.n()) {
+            modified = true;
+        }
+        new_entries.push_back(new_me);
+    }
+    if (modified)
+        return mk_metavar(i, to_list(new_entries.begin(), new_entries.end()));
+    else
+        return e;
+}
+template<typename F> expr update_metavar(expr const & e, F f) {
+    return update_metavar(e, metavar_idx(e), f);
 }
 // =======================================
 }

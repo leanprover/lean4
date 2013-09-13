@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "library/metavar.h"
 #include "library/printer.h"
 #include "library/basic_thms.h"
-#include "library/import_all/import_all.h"
+#include "library/all/all.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/elaborator_exception.h"

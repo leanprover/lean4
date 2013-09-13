@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "library/basic_thms.h"
 #include "library/arith/arith.h"
 #include "library/cast/cast.h"
-#include "library/import_all/import_all.h"
+#include "library/all/all.h"
 
 namespace lean {
 void import_all(environment & env) {

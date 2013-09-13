@@ -16,9 +16,9 @@ Author: Leonardo de Moura
 #include "kernel/builtin.h"
 #include "kernel/normalizer.h"
 #include "library/printer.h"
-#include "library/import_all/import_all.h"
 #include "library/basic_thms.h"
 #include "library/arith/arith.h"
+#include "library/all/all.h"
 using namespace lean;
 
 expr c(char const * n) { return mk_constant(n); }

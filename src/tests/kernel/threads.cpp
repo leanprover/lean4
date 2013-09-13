@@ -14,8 +14,8 @@ Author: Leonardo de Moura
 #include "kernel/normalizer.h"
 #include "library/max_sharing.h"
 #include "library/deep_copy.h"
-#include "library/import_all/import_all.h"
 #include "library/arith/arith.h"
+#include "library/all/all.h"
 using namespace lean;
 
 expr norm(expr const & e, environment & env) {

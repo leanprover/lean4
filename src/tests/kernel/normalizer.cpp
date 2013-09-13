@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/kernel_exception.h"
 #include "library/printer.h"
-#include "library/import_all/import_all.h"
+#include "library/all/all.h"
 using namespace lean;
 
 expr normalize(expr const & e) {

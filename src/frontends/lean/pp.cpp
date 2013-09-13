@@ -19,11 +19,11 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "library/context_to_lambda.h"
 #include "library/metavar.h"
-#include "frontends/lean/lean_notation.h"
-#include "frontends/lean/lean_pp.h"
-#include "frontends/lean/lean_frontend.h"
-#include "frontends/lean/lean_coercion.h"
-#include "frontends/lean/lean_elaborator.h"
+#include "frontends/lean/notation.h"
+#include "frontends/lean/pp.h"
+#include "frontends/lean/frontend.h"
+#include "frontends/lean/coercion.h"
+#include "frontends/lean/elaborator.h"
 
 #ifndef LEAN_DEFAULT_PP_MAX_DEPTH
 #define LEAN_DEFAULT_PP_MAX_DEPTH std::numeric_limits<unsigned>::max()

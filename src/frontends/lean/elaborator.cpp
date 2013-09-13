@@ -16,9 +16,9 @@ Author: Leonardo de Moura
 #include "library/printer.h"
 #include "library/update_expr.h"
 #include "library/expr_pair.h"
-#include "frontends/lean/lean_frontend.h"
-#include "frontends/lean/lean_elaborator.h"
-#include "frontends/lean/lean_elaborator_exception.h"
+#include "frontends/lean/frontend.h"
+#include "frontends/lean/elaborator.h"
+#include "frontends/lean/elaborator_exception.h"
 
 namespace lean {
 static name g_choice_name(name(name(name(0u), "library"), "choice"));

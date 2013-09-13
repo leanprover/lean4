@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include "util/debug.h"
 #include "util/exception.h"
-#include "frontends/lean/lean_scanner.h"
+#include "frontends/lean/scanner.h"
 
 namespace lean {
 

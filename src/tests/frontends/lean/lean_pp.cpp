@@ -8,8 +8,8 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/builtin.h"
 #include "library/printer.h"
-#include "frontends/lean/lean_frontend.h"
-#include "frontends/lean/lean_pp.h"
+#include "frontends/lean/frontend.h"
+#include "frontends/lean/pp.h"
 using namespace lean;
 
 static expr mk_shared_expr(unsigned depth) {

@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include "kernel/environment.h"
 #include "library/state.h"
-#include "frontends/lean/lean_operator_info.h"
+#include "frontends/lean/operator_info.h"
 
 namespace lean {
 /**

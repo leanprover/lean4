@@ -13,11 +13,11 @@ Author: Leonardo de Moura
 #include "library/expr_pair.h"
 #include "library/import_all/import_all.h"
 #include "library/state.h"
-#include "frontends/lean/lean_operator_info.h"
-#include "frontends/lean/lean_coercion.h"
-#include "frontends/lean/lean_frontend.h"
-#include "frontends/lean/lean_notation.h"
-#include "frontends/lean/lean_pp.h"
+#include "frontends/lean/operator_info.h"
+#include "frontends/lean/coercion.h"
+#include "frontends/lean/frontend.h"
+#include "frontends/lean/notation.h"
+#include "frontends/lean/pp.h"
 
 namespace lean {
 static std::vector<bool> g_empty_vector;

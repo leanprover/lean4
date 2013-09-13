@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include <signal.h>
 #include "util/interruptable_ptr.h"
 #include "library/printer.h"
-#include "frontends/lean/lean_parser.h"
+#include "frontends/lean/parser.h"
 #include "version.h"
 using namespace lean;
 

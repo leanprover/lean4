@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "util/exception.h"
 #include "util/escaped.h"
-#include "frontends/lean/lean_scanner.h"
+#include "frontends/lean/scanner.h"
 using namespace lean;
 
 #define st scanner::token

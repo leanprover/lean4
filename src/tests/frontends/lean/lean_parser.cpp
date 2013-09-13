@@ -9,8 +9,8 @@ Author: Leonardo de Moura
 #include "util/exception.h"
 #include "kernel/builtin.h"
 #include "library/printer.h"
-#include "frontends/lean/lean_parser.h"
-#include "frontends/lean/lean_pp.h"
+#include "frontends/lean/parser.h"
+#include "frontends/lean/pp.h"
 using namespace lean;
 
 static void parse(frontend & fe, char const * str) {

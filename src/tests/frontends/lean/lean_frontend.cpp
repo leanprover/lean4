@@ -10,9 +10,9 @@ Author: Leonardo de Moura
 #include "kernel/builtin.h"
 #include "kernel/abstract.h"
 #include "library/printer.h"
-#include "frontends/lean/lean_frontend.h"
-#include "frontends/lean/lean_operator_info.h"
-#include "frontends/lean/lean_pp.h"
+#include "frontends/lean/frontend.h"
+#include "frontends/lean/operator_info.h"
+#include "frontends/lean/pp.h"
 using namespace lean;
 
 static void tst1() {

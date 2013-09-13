@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/kernel_exception.h"
 #include "library/state.h"
-#include "frontends/lean/lean_elaborator.h"
+#include "frontends/lean/elaborator.h"
 
 namespace lean {
 /**

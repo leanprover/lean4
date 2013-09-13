@@ -14,9 +14,9 @@ Author: Leonardo de Moura
 #include "library/printer.h"
 #include "library/basic_thms.h"
 #include "library/import_all/import_all.h"
-#include "frontends/lean/lean_frontend.h"
-#include "frontends/lean/lean_elaborator.h"
-#include "frontends/lean/lean_elaborator_exception.h"
+#include "frontends/lean/frontend.h"
+#include "frontends/lean/elaborator.h"
+#include "frontends/lean/elaborator_exception.h"
 using namespace lean;
 
 expr elaborate(expr const & e, frontend const & env) {

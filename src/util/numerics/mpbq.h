@@ -249,6 +249,11 @@ public:
 
     friend void display_decimal(std::ostream & out, mpbq const & a, unsigned prec);
 
+    /**
+       \brief Auxiliary wrapper object to used control how a mpbq number is displayed in
+       a stream. When wrapped with this object, the numberal will be displayed in decimal
+       notation using at most \c m_prec decimal digits.
+    */
     class decimal {
         mpbq const & m_val;
         unsigned     m_prec;

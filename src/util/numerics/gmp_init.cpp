@@ -28,6 +28,11 @@ extern "C" void cxx_free(void * p, size_t) {
     free(p);
 }
 
+/**
+   \brief Auxiliary class for initializing the GMP memory allocation
+   functions. We overhide the default ones because we want to sign
+   the C++ exception std::bad_alloc when we run out-of-memory.
+*/
 class gmp_init {
 public:
     gmp_init() {

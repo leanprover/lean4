@@ -44,6 +44,10 @@ unsigned metavar_idx(expr const & n) {
     return const_name(n).get_numeral();
 }
 
+/**
+   \brief Auxiliary exception used to sign that a metavariable was
+   found in an expression.
+*/
 struct found_metavar {};
 
 bool has_metavar(expr const & e) {

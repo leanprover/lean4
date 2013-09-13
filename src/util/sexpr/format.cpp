@@ -229,6 +229,11 @@ format wrap(format const & f1, format const & f2) {
                   f2};
 }
 
+/**
+   \brief Auxiliary exception used to sign that the amount of
+   available space was exhausted. It is used in \c space_upto_line_break and
+   \c space_upto_line_break_list_exceeded
+*/
 struct space_exceeded {};
 
 // Return true iff the space upto line break fits in the available space.

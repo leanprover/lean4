@@ -136,6 +136,10 @@ public:
         return m_map.end();
     }
 
+    /**
+       \brief Auxiliary class for automatically performing a \c push
+       in the constructor and a \c pop in the destructor.
+    */
     class mk_scope {
         scoped_map & m_map;
     public:

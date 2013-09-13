@@ -19,6 +19,11 @@ public:
 expr const Real = mk_value(*(new real_type_value()));
 expr mk_real_type() { return Real; }
 
+/**
+   \brief Semantic attachment for "Real" values.
+   It is actually for rational values. We should eventually rename it to
+   rat_value_value
+*/
 class real_value_value : public value {
     mpq m_val;
 public:
@@ -50,6 +55,10 @@ mpq const & real_value_numeral(expr const & e) {
     return static_cast<real_value_value const &>(to_value(e)).get_num();
 }
 
+/**
+   \brief Template for semantic attachments that are binary operators of
+   the form Real -> Real -> Real
+*/
 template<char const * Name, typename F>
 class real_bin_op : public const_value {
 public:
@@ -65,16 +74,19 @@ public:
 };
 
 constexpr char real_add_name[] = "add";
+/** \brief Evaluator for + : Real -> Real -> Real */
 struct real_add_eval { mpq operator()(mpq const & v1, mpq const & v2) { return v1 + v2; }; };
 typedef real_bin_op<real_add_name, real_add_eval> real_add_value;
 MK_BUILTIN(real_add_fn, real_add_value);
 
 constexpr char real_mul_name[] = "mul";
+/** \brief Evaluator for * : Real -> Real -> Real */
 struct real_mul_eval { mpq operator()(mpq const & v1, mpq const & v2) { return v1 * v2; }; };
 typedef real_bin_op<real_mul_name, real_mul_eval> real_mul_value;
 MK_BUILTIN(real_mul_fn, real_mul_value);
 
 constexpr char real_div_name[] = "div";
+/** \brief Evaluator for / : Real -> Real -> Real */
 struct real_div_eval {
     mpq operator()(mpq const & v1, mpq const & v2) {
         if (v2.is_zero())
@@ -86,6 +98,10 @@ struct real_div_eval {
 typedef real_bin_op<real_div_name, real_div_eval> real_div_value;
 MK_BUILTIN(real_div_fn, real_div_value);
 
+/**
+   \brief Semantic attachment for less than or equal to operator with type
+   <code>Real -> Real -> Bool</code>
+*/
 class real_le_value : public const_value {
 public:
     real_le_value():const_value(name{"Real", "le"}, Real >> (Real >> Bool)) {}

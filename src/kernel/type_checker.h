@@ -12,6 +12,10 @@ Author: Leonardo de Moura
 namespace lean {
 class environment;
 class normalizer;
+/**
+   \brief Lean Type Checker. It can also be used to infer types, universes and check whether a
+   type \c A is convertible to a type \c B.
+*/
 class type_checker {
     class imp;
     std::unique_ptr<imp> m_ptr;

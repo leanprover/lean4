@@ -7,7 +7,9 @@ Author: Leonardo de Moura
 #include <initializer_list>
 namespace lean {
 static char g_safe_ascii[256];
-
+/**
+   \brief Initializer for the \c g_safe_ascii table of "safe" ASCII characters.
+*/
 class init_safe_ascii {
     void set(int i, bool v) { g_safe_ascii[static_cast<unsigned char>(i)] = v; }
 public:

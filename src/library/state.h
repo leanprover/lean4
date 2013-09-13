@@ -42,12 +42,20 @@ public:
     void set_interrupt(bool flag) { m_formatter.set_interrupt(flag); }
 };
 
+/**
+   \brief Wrapper for the state object that provides access to the
+   state's regular channel
+*/
 struct regular {
     state const & m_state;
     regular(state const & s):m_state(s) {}
     void flush() { m_state.get_regular_channel().get_stream().flush(); }
 };
 
+/**
+   \brief Wrapper for the state object that provides access to the
+   state's diagnostic channel
+*/
 struct diagnostic {
     state const & m_state;
     diagnostic(state const & s):m_state(s) {}

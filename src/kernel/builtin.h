@@ -107,7 +107,7 @@ expr mk_exists_fn();
 inline expr mk_exists(expr const & A, expr const & P) { return mk_app(mk_exists_fn(), A, P); }
 inline expr Exists(expr const & A, expr const & P) { return mk_exists(A, P); }
 
-/** \brief Homogeneous equality. It has type: <tt>Pi (A : Type), A -> A -> Bool */
+/** \brief Homogeneous equality. It has type: <tt>Pi (A : Type), A -> A -> Bool</tt> */
 expr mk_homo_eq_fn();
 /** \brief Return the term (homo_eq A l r) */
 inline expr mk_homo_eq(expr const & A, expr const & l, expr const & r) { return mk_app(mk_homo_eq_fn(), A, l, r); }

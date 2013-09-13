@@ -74,6 +74,9 @@ static name g_true_name("true");
 static name g_false_name("false");
 static name g_true_u_name("\u22A4"); // ⊤
 static name g_false_u_name("\u22A5"); // ⊥
+/**
+   \brief Semantic attachments for Boolean values.
+*/
 class bool_value_value : public value {
     bool m_val;
 public:
@@ -112,6 +115,10 @@ bool is_false(expr const & e) {
 // If-then-else builtin operator
 static name   g_if_name("if");
 static format g_if_fmt(g_if_name);
+/**
+   \brief Semantic attachment for if-then-else operator with type
+   <code>Pi (A : Type), Bool -> A -> A -> A</code>
+*/
 class if_fn_value : public value {
     expr m_type;
 public:

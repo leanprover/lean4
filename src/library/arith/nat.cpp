@@ -10,6 +10,9 @@ Author: Leonardo de Moura
 #include "library/arith/num_type.h"
 
 namespace lean {
+/**
+   \brief Semantic attachment for Nat type
+*/
 class nat_type_value : public num_type_value {
 public:
     nat_type_value():num_type_value("Nat", "\u2115") /* ℕ */ {}
@@ -48,6 +51,10 @@ mpz const & nat_value_numeral(expr const & e) {
     return static_cast<nat_value_value const &>(to_value(e)).get_num();
 }
 
+/**
+   \brief Template for semantic attachments that are binary operators of
+   the form Nat -> Nat -> Nat
+*/
 template<char const * Name, typename F>
 class nat_bin_op : public const_value {
 public:
@@ -63,15 +70,21 @@ public:
 };
 
 constexpr char nat_add_name[] = "add";
+/** \brief Evaluator for + : Nat -> Nat -> Nat */
 struct nat_add_eval { mpz operator()(mpz const & v1, mpz const & v2) { return v1 + v2; }; };
 typedef nat_bin_op<nat_add_name, nat_add_eval> nat_add_value;
 MK_BUILTIN(nat_add_fn, nat_add_value);
 
 constexpr char nat_mul_name[] = "mul";
+/** \brief Evaluator for * : Nat -> Nat -> Nat */
 struct nat_mul_eval { mpz operator()(mpz const & v1, mpz const & v2) { return v1 * v2; }; };
 typedef nat_bin_op<nat_mul_name, nat_mul_eval> nat_mul_value;
 MK_BUILTIN(nat_mul_fn, nat_mul_value);
 
+/**
+   \brief Semantic attachment for less than or equal to operator with type
+   <code>Nat -> Nat -> Bool</code>
+*/
 class nat_le_value : public const_value {
 public:
     nat_le_value():const_value(name{"Nat", "le"}, Nat >> (Nat >> Bool)) {}

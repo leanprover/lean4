@@ -11,6 +11,9 @@ Author: Leonardo de Moura
 #include "library/arith/num_type.h"
 
 namespace lean {
+/**
+   \brief Semantic attachment for Int type.
+*/
 class int_type_value : public num_type_value {
 public:
     int_type_value():num_type_value("Int", "\u2124") /* ℤ */ {}
@@ -49,6 +52,10 @@ mpz const & int_value_numeral(expr const & e) {
     return static_cast<int_value_value const &>(to_value(e)).get_num();
 }
 
+/**
+   \brief Template for semantic attachments that are binary operators of
+   the form Int -> Int -> Int
+*/
 template<char const * Name, typename F>
 class int_bin_op : public const_value {
 public:
@@ -108,6 +115,9 @@ MK_CONSTANT(int_ge_fn, name({"Int", "ge"}));
 MK_CONSTANT(int_lt_fn, name({"Int", "lt"}));
 MK_CONSTANT(int_gt_fn, name({"Int", "gt"}));
 
+/**
+   \brief Semantic attachment for the Nat to Int coercion.
+*/
 class nat_to_int_value : public const_value {
 public:
     nat_to_int_value():const_value("nat_to_int", Nat >> Int) {}

@@ -8,7 +8,9 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
-// Some value subclasses that capture common implementation patterns.
+/**
+   \brief Base class for values that have a hierarchical attached to it.
+*/
 class named_value : public value {
     name m_name;
 public:
@@ -17,6 +19,10 @@ public:
     virtual name get_name() const { return m_name; }
 };
 
+/**
+   \brief Base class for values that have a hierarchical name and a type
+   attached to it.
+*/
 class const_value : public named_value {
     expr m_type;
 public:
@@ -25,6 +31,10 @@ public:
     virtual expr get_type() const { return m_type; }
 };
 
+/**
+   \brief Base class for values that have a hierarchical name attached to it, and
+   have type Type().
+*/
 class type_value : public named_value {
 public:
     type_value(name const & n):named_value(n) {}

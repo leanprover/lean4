@@ -53,7 +53,7 @@ public:
     void set_interrupt(bool flag) { m_cell->set_interrupt(flag); }
 };
 /**
-   \brief Create a simple formatter object based on #printer class.
+   \brief Create a simple formatter object based on \c print function.
 */
 formatter mk_simple_formatter();
 }

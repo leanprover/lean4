@@ -9,6 +9,14 @@ Author: Leonardo de Moura
 #include "kernel/expr_sets.h"
 
 namespace lean {
+/**
+   \brief Template for implementing expression visitors.
+   The argument \c F must be a function object containing the method
+   <code>
+   void operator()(expr const & e, unsigned offset)
+   </code>
+   The \c offset is the number of binders under which \c e occurs.
+*/
 template<typename F>
 class for_each_fn {
     expr_cell_offset_set m_visited;

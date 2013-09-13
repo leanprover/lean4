@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include "options.h"
 #include "option_declarations.h"
-#include "sexpr_funcs.h"
+#include "sexpr_fn.h"
 
 namespace lean {
 std::ostream & operator<<(std::ostream & out, option_kind k) {

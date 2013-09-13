@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <sstream>
 #include "sexpr.h"
-#include "sexpr_funcs.h"
+#include "sexpr_fn.h"
 #include "mpq.h"
 #include "name.h"
 #include "test.h"

@@ -9,7 +9,7 @@ Author: Soonho Kong
 #include <sstream>
 #include "format.h"
 #include "test.h"
-#include "sexpr_funcs.h"
+#include "sexpr_fn.h"
 #include "options.h"
 #include "mpq.h"
 using namespace lean;

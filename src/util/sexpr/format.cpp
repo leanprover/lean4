@@ -8,7 +8,7 @@
 #include "sexpr.h"
 #include "format.h"
 #include "escaped.h"
-#include "sexpr_funcs.h"
+#include "sexpr_fn.h"
 #include "options.h"
 
 #ifndef LEAN_DEFAULT_PP_INDENTATION

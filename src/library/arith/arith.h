@@ -5,15 +5,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "library/arith/natlib.h"
-#include "library/arith/intlib.h"
-#include "library/arith/reallib.h"
-#include "library/arith/specialfnlib.h"
+#include "library/arith/nat.h"
+#include "library/arith/int.h"
+#include "library/arith/real.h"
+#include "library/arith/special_fn.h"
 
 namespace lean {
 class environment;
 /**
    \brief Import all arithmetic related builtin libraries.
 */
-void import_arithlibs(environment & env);
+void import_arith(environment & env);
 }

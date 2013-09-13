@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 */
 #include "kernel/abstract.h"
 #include "kernel/environment.h"
-#include "library/arith/reallib.h"
-#include "library/arith/intlib.h"
-#include "library/arith/natlib.h"
+#include "library/arith/real.h"
+#include "library/arith/int.h"
+#include "library/arith/nat.h"
 #include "library/arith/numtype.h"
 
 namespace lean {
@@ -107,7 +107,7 @@ MK_CONSTANT(real_ge_fn, name({"Real", "ge"}));
 MK_CONSTANT(real_lt_fn, name({"Real", "lt"}));
 MK_CONSTANT(real_gt_fn, name({"Real", "gt"}));
 
-void import_reallib(environment & env) {
+void import_real(environment & env) {
     if (env.find_object(to_value(Real).get_name()))
         return;
     expr rr_b = Real >> (Real >> Bool);
@@ -149,8 +149,8 @@ MK_CONSTANT(nat_to_real_fn, name("nat_to_real"));
 void import_int_to_real_coercions(environment & env) {
     if (env.find_object(to_value(mk_int_to_real_fn()).get_name()))
         return;
-    import_intlib(env);
-    import_reallib(env);
+    import_int(env);
+    import_real(env);
 
     env.add_builtin(mk_int_to_real_fn());
     expr x    = Const("x");

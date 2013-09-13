@@ -25,7 +25,7 @@ Author: Leonardo de Moura
 #include "kernel/builtin.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/expr_maps.h"
-#include "library/arith/arithlibs.h"
+#include "library/arith/arith.h"
 #include "library/printer.h"
 #include "library/state.h"
 #include "library/kernel_exception_formatter.h"

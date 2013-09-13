@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/normalizer.h"
 #include "kernel/abstract.h"
 #include "library/printer.h"
-#include "library/arith/arithlibs.h"
+#include "library/arith/arith.h"
 #include "library/import_all/import_all.h"
 using namespace lean;
 

@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/abstract.h"
 #include "kernel/environment.h"
-#include "library/arith/natlib.h"
+#include "library/arith/nat.h"
 #include "library/arith/numtype.h"
 
 namespace lean {
@@ -91,7 +91,7 @@ MK_CONSTANT(nat_lt_fn,  name({"Nat", "lt"}));
 MK_CONSTANT(nat_gt_fn,  name({"Nat", "gt"}));
 MK_CONSTANT(nat_id_fn,  name({"Nat", "id"}));
 
-void import_natlib(environment & env) {
+void import_nat(environment & env) {
     if (env.find_object(to_value(Nat).get_name()))
         return;
     expr nn_b = Nat >> (Nat >> Bool);

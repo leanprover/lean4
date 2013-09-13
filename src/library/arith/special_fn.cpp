@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #include "kernel/environment.h"
 #include "kernel/abstract.h"
-#include "library/arith/specialfnlib.h"
-#include "library/arith/reallib.h"
+#include "library/arith/special_fn.h"
+#include "library/arith/real.h"
 
 namespace lean {
 MK_CONSTANT(exp_fn, name("exp"));
@@ -28,10 +28,10 @@ MK_CONSTANT(coth_fn, name("coth"));
 MK_CONSTANT(sech_fn, name("sech"));
 MK_CONSTANT(csch_fn, name("csch"));
 
-void import_specialfnlib(environment & env) {
+void import_special_fn(environment & env) {
     if (env.find_object(const_name(mk_exp_fn())))
         return;
-    import_reallib(env);
+    import_real(env);
 
     expr r_r  = Real >> Real;
     expr x    = Const("x");

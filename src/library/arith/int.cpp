@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #include "kernel/abstract.h"
 #include "kernel/environment.h"
-#include "library/arith/intlib.h"
-#include "library/arith/natlib.h"
+#include "library/arith/int.h"
+#include "library/arith/nat.h"
 #include "library/arith/numtype.h"
 
 namespace lean {
@@ -125,10 +125,10 @@ MK_BUILTIN(nat_to_int_fn, nat_to_int_value);
 MK_CONSTANT(nat_sub_fn, name({"Nat", "sub"}));
 MK_CONSTANT(nat_neg_fn, name({"Nat", "neg"}));
 
-void import_intlib(environment & env) {
+void import_int(environment & env) {
     if (env.find_object(to_value(Int).get_name()))
         return;
-    import_natlib(env);
+    import_nat(env);
     expr i_i  = Int >> Int;
     expr ii_b = Int >> (Int >> Bool);
     expr ii_i = Int >> (Int >> Int);

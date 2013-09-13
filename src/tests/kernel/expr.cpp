@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "library/max_sharing.h"
 #include "library/deep_copy.h"
 #include "library/printer.h"
-#include "library/arith/arithlibs.h"
+#include "library/arith/arith.h"
 using namespace lean;
 
 void tst1() {

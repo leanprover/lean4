@@ -4,14 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "library/arith/arithlibs.h"
+#include "library/arith/arith.h"
 
 namespace lean {
-void import_arithlibs(environment & env) {
-    import_natlib(env);
-    import_intlib(env);
-    import_reallib(env);
+void import_arith(environment & env) {
+    import_nat(env);
+    import_int(env);
+    import_real(env);
     import_int_to_real_coercions(env);
-    import_specialfnlib(env);
+    import_special_fn(env);
 }
 }

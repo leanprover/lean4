@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/environment.h"
 #include "kernel/abstract.h"
-#include "library/arith/arithlibs.h"
+#include "library/arith/arith.h"
 #include "library/import_all/import_all.h"
 #include "library/light_checker.h"
 #include "library/printer.h"

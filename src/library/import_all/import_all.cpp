@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/builtin.h"
 #include "library/basic_thms.h"
-#include "library/arith/arithlibs.h"
+#include "library/arith/arith.h"
 #include "library/cast/castlib.h"
 #include "library/import_all/import_all.h"
 
@@ -15,7 +15,7 @@ void import_all(environment & env) {
     import_basiclib(env);
     import_basicthms(env);
     import_castlib(env);
-    import_arithlibs(env);
+    import_arith(env);
 }
 environment mk_toplevel() {
     environment r;

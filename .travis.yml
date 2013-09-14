@@ -74,7 +74,7 @@ env:
    # DOC. g++-4.8      | DEBUG   | TCMALLOC      | DOXYGEN=>DROPBOX
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=DEBUG
-     BUILD_DOXYGEN=TRUE
+   # BUILD_DOXYGEN=TRUE [turn it off temporarily]
    # =======================================================
    # TESTCOV Build
    # =======================================================

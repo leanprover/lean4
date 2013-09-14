@@ -113,7 +113,9 @@ add_subdirectory(tests/frontends/lean)
 # Include style check
 include(StyleCheck)
 file(GLOB_RECURSE LEAN_SOURCES
-         RELATIVE ${LEAN_SOURCE_DIR}
+         ${LEAN_SOURCE_DIR}
          ${LEAN_SOURCE_DIR}/*.cpp
          ${LEAN_SOURCE_DIR}/*.h)
 add_style_check_target(style "${LEAN_SOURCES}")
+add_test(NAME style_check
+  COMMAND ${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py ${LEAN_SOURCES})

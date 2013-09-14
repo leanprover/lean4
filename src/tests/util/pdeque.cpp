@@ -71,7 +71,7 @@ static void driver(unsigned max_sz, unsigned max_val, unsigned num_ops, double u
     std::deque<int> q1;
     pdeque<int>     q2;
     pdeque<int>     q3;
-    unsigned int    seed;
+    unsigned int    seed = static_cast<unsigned int>(time(0));
     std::vector<pdeque<int>> copies;
     for (unsigned i = 0; i < num_ops; i++) {
         double f = static_cast<double>(rand_r(&seed) % 10000) / 10000.0;

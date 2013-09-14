@@ -66,7 +66,7 @@ static void driver(unsigned max_sz, unsigned max_val, unsigned num_ops, double u
     std::vector<int> v1;
     pvector<int>     v2;
     pvector<int>     v3;
-    unsigned int     seed;
+    unsigned int     seed = static_cast<unsigned int>(time(0));
     std::vector<pvector<int>> copies;
     for (unsigned i = 0; i < num_ops; i++) {
         double f = static_cast<double>(rand_r(&seed) % 10000) / 10000.0;

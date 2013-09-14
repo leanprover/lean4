@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <cstdlib>
 #include <vector>
+#include <ctime>
 #include "util/test.h"
 #include "util/pvector.h"
 #include "util/timeit.h"

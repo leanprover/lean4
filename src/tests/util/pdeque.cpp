@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <cstdlib>
 #include <deque>
 #include <vector>
+#include <ctime>
 #include "util/test.h"
 #include "util/pdeque.h"
 using namespace lean;

@@ -49,3 +49,4 @@ Miscellaneous
 - [Testing and Code Coverage](doc/make/coverage.md)
 - Building Doxygen Documentation: `doxygen src/Doxyfile`
 - [Coding style](doc/style.md)
+- [Automatic builds](doc/make/travis.md)

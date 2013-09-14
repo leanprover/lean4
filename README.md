@@ -21,7 +21,7 @@ About
 Requirements
 ------------
 
-- C++11 compatible compiler
+- C++11 compatible compiler: [g++](http://gcc.gnu.org/) (version >= 4.8.1), or [clang++](http://clang.llvm.org/cxx_status.html) (version >= 3.3)
 - [CMake](http://www.cmake.org)
 - [GMP (GNU multiprecision library)](http://gmplib.org/)
 - [MPFR (GNU MPFR Library)](http://www.mpfr.org/)

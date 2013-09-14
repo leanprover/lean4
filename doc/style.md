@@ -154,5 +154,33 @@ The macro `lean_assert` is extensively used when writing unit tests.
 We write `a == b` instead of `a==b`.
 Similarly, we write `x < y + 1` instead of `x<y+1`.
 
+Google's C++ Style Guide
+------------------------
 
+We are using a modified version of
+[Google's C++ Style Guide][google-style]. Here is a list of checks
+that we *disabled*:
 
+ - Namespace should be terminated with "namespace"  [readability/namespace]
+ - At least two spaces is best between code and comments
+ - Do not use ``dynamic_cast<>``.  If you need to cast within a class
+   hierarchy, use ``static_cast<>`` to upcast.  Google doesn't support
+   RTTI.
+ - "public:" should be preceded by a blank line  [whitespace/blank_line]
+ - Missing space before ``{``  [whitespace/braces]
+ - Found C system header after C++ system header. Should be:
+   environment.h, c system, c++ system, other.  [build/include_order]
+   [4]
+ - Labels should always be indented at least one space.  If this is
+   a member-initializer list in a constructor or the base class list in
+   a class definition, the colon should be on the following line.
+   [whitespace/labels]
+ - You don't need a ``;`` after a ``}``  [readability/braces]
+ - No ``#ifndef`` header guard found
+ - Streams are highly discouraged.
+ - Extra space before ``(`` in function call  [whitespace/parens]
+ - Else clause should never be on same line as else [whitespace/newline]
+ - Extra space before ``)``  [whitespace/parens]
+ - Is this a non-const reference? If so, make const or use a pointer. [runtime/references]
+
+[google-style]: http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml

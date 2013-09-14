@@ -3095,7 +3095,6 @@ def CheckIncludeLine(filename, clean_lines, linenum, include_state, error):
   # Modified by Soonho Kong, 2013/09/12
   include_new_style_exceptions = ["#include \"version.h\""]
   if _RE_PATTERN_INCLUDE_NEW_STYLE.search(line) and not line in include_new_style_exceptions:
-    print "|" + line + "|"
     error(filename, linenum, 'build/include', 4,
           'Include the directory when naming .h files')
 

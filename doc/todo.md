@@ -13,7 +13,7 @@ To Do List
 - Module for reading [OpenTheory](http://www.gilith.com/research/opentheory/) proofs.
 - Higher-Order unification and matching.
 - Rewriter (and Rewriter Combinators).
-- MCSat framework.
+- [MCSat](http://leodemoura.github.io/files/fmcad2013.pdf) framework.
 - Implement independent type checker using a different programming language (e.g., OCaml).
 - Add `match` construct in `expr`.
 - Add inductive datatype (families) in the environment. It will be a new kind of object.

@@ -41,3 +41,5 @@ with the following content:
    argument unused during compilation:" warning.
  - ``-fcolor-diagnostics`` option is used to enable clang's colored
    diagnostic messages.
+
+Reference: http://petereisentraut.blogspot.com/2011/05/ccache-and-clang.html

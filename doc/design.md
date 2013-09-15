@@ -11,28 +11,28 @@ Building objects such as definitions and theorems without any form of automation
 
 In Lean, we allow users to provide partially specified objects such as definitions and theorems. A partially specified object is an object with **holes**. Holes mark the parts that must be automatically constructed by Lean. In a nutshell, Lean can be viewed as a system for synthesizing proofs, terms, types, etc. Here is a simple example:
 
-      Variable a : Nat
-      Axiom a > 0
-      Theorem T : a >= 1 := _
+    Variable a : Nat
+    Axiom a > 0
+    Theorem T : a >= 1 := _
 
 We use `_` to denote holes. In the simple example above, the "whole proof" must be automatically computed by Lean. Here is another simple example:
 
-     Variable f : Pi (A : Type), A -> A -> A
-     Definition f00 : Nat := f _ 0 0
+    Variable f : Pi (A : Type), A -> A -> A
+    Definition f00 : Nat := f _ 0 0
 
 In this example, Lean will automatically fill the hole with `Nat` (the type of the natural numbers).
 Here is another example with multiple holes.
 
-     Variable g : Pi (A : Type), A -> A
-     Variable a : Nat
-     Variable b : Nat
-     Axiom H1 : a = b
-     Axiom H2 : (g _ a) > 0
-     Theorem T1 : (g _ b) > 0 := _
+    Variable g : Pi (A : Type), A -> A
+    Variable a : Nat
+    Variable b : Nat
+    Axiom H1 : a = b
+    Axiom H2 : (g _ a) > 0
+    Theorem T1 : (g _ b) > 0 := _
 
 Lean supports multiple frontends. The default frontend provides several features that automatically create holes for users. For example, we can write:
 
-     Variable g {A : Type} (a : A) : A
+    Variable g {A : Type} (a : A) : A
 
 `g` is a function with two arguments. The curly braces are used to mark _implicit arguments_.
 Then, whenever we write `g a`, the system automatically creates `g _ a`.
@@ -46,15 +46,15 @@ When we provide an object with holes to the elaborator, one of the following out
 
 3) The elaborator fails to fill the holes, and produces a new environment that demonstrates that it is impossible to fill the holes. We can view the new environment as a counter-example. Moreover, the new environment provides definitions and theorems for all user defined variables and axioms. Here is an example:
 
-        Variable a : Nat
-        Axiom H : a > 0
-        Theorem T : a >= 2 := _
+    Variable a : Nat
+    Axiom H : a > 0
+    Theorem T : a >= 2 := _
 
 In this example, the Lean elaborator will provide a new environment containing
 
-        Definition a : Nat := 1
-        Theorem H : a > 0 := Trivial
-        Theorem T : not a >= 2 := Trivial
+    Definition a : Nat := 1
+    Theorem H : a > 0 := Trivial
+    Theorem T : not a >= 2 := Trivial
 
 The `Trivial` denotes a proof by evaluation. That is, if we replace `a` with `1` in `a > 0` and evaluate we prove the theorem `a > 0`. The new environment does not contain any variables or axioms. Thus, it is trivially consistent. It also contains a proof for the negation of `a >= 2` (the theorem we were trying to prove).
 
@@ -63,18 +63,18 @@ Users may react by filling some of the holes themselves, or realizing that it is
 
 In Lean, we provide a frontend for the SMT 2.0 standard. It is very straightforward to map the SMT constructs into the framework above. For example, the SMT commands
 
-         (declare-fun a () Int)
-         (declare-fun b () Int)
-         (assert (> a 0))
-         (assert (< b a))
-         (check-sat)
+    (declare-fun a () Int)
+    (declare-fun b () Int)
+    (assert (> a 0))
+    (assert (< b a))
+    (check-sat)
 
 are mapped to
 
-       Variable a : Int
-       Variable b : Int
-       Axiom H1 : a > 0
-       Axiom H2 : b < a
-       Theorem U : false := _
+    Variable a : Int
+    Variable b : Int
+    Axiom H1 : a > 0
+    Axiom H2 : b < a
+    Theorem U : false := _
 
 If Lean can prove `false`, then it produces a proof that demonstrates that the set of SMT assertions is unsatisfiable. If the set of assertions is satisfiable, then it produces a new environment that provides definitions for `a` and `b` and theorems for each assertion. Of course, as we discussed above, Lean may also fail and return a trace describing why it failed.

@@ -52,8 +52,8 @@ after_script:
 - if [[ $UPLOAD ]]; then
       UPLOAD_DIR=bin;
       BINARY=lean_${UPLOAD};
-      NOW=`date +"%Y%m%d_%H%M"`;
-      GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`;
+      NOW=`TZ='America/Los_Angeles' date +"%Y%m%d_%H%M"`;
+      GIT_COMMIT=`git log HEAD~ --oneline -n 1 | cut -d ' ' -f 1`;
       OS=windows;
       ARCHIVE_BINARY=${NOW}_${TRAVIS_BRANCH}_${GIT_COMMIT}_${OS}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE};
       if [[ $USE_TCMALLOC ]]; then
@@ -61,7 +61,7 @@ after_script:
       fi;
       mkdir ${UPLOAD_DIR};
       cp build/shell/lean.exe ${UPLOAD_DIR}/${BINARY}.exe;
-      cp build/shell/lean.exe ${UPLOAD_DIR}/${ARCHIVE_BINARY}.exe;
+      tar cvfz ${UPLOAD_DIR}/${ARCHIVE_BINARY}.tar.gz ${UPLOAD_DIR}/${BINARY}.exe;
       script/dropbox_upload.py --srcpath ${UPLOAD_DIR} --destpath /Public/${UPLOAD_DIR} --dropbox-token ${DROPBOX_KEY};
   fi
 

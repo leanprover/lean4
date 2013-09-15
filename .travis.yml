@@ -97,7 +97,7 @@ install:
   - if [[ $LEANREPO == BLESSED && $MEMCHECK == TRUE ]]; then
        sudo apt-get -qq install valgrind;
     fi
-  - if [[ $LEANREPO == BLESSED && ($UPLOAD == TRUE || $BUILD_DOXYGEN == TRUE) ]]; then
+  - if [[ $LEANREPO == BLESSED && ($UPLOAD || $BUILD_DOXYGEN == TRUE) ]]; then
        sudo apt-get -qq install python python-pip;
        sudo pip install dropbox;
     fi
@@ -187,7 +187,7 @@ after_script:
 - if [[ $LEANREPO == BLESSED && $UPLOAD ]]; then
       UPLOAD_DIR=bin;
       BINARY=lean_${UPLOAD};
-      NOW=`date +"%Y%m%d_%H%M"`;
+      NOW=`TZ='America/Los_Angeles' date +"%Y%m%d_%H%M"`;
       GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`;
       OS=linux;
       ARCHIVE_BINARY=${NOW}_${TRAVIS_BRANCH}_${GIT_COMMIT}_${OS}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE};
@@ -196,7 +196,7 @@ after_script:
       fi;
       mkdir ${UPLOAD_DIR};
       cp -v build/shell/lean ${UPLOAD_DIR}/${BINARY};
-      cp -v build/shell/lean ${UPLOAD_DIR}/${ARCHIVE_BINARY};
+      tar cvfz ${UPLOAD_DIR}/${ARCHIVE_BINARY}.tar.gz ${UPLOAD_DIR}/${BINARY};
       script/dropbox_upload.py --srcpath ${UPLOAD_DIR} --destpath /Public/${UPLOAD_DIR} --dropbox-token ${DROPBOX_KEY};
   fi
 

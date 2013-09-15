@@ -37,7 +37,7 @@ with the following content:
     #!/bin/sh
     ccache clang++ -Qunused-arguments -fcolor-diagnostics "$@"
 
- - ``-Qunused-arguments`` option is used to supprress "clang: warning:
+ - ``-Qunused-arguments`` option is used to suppress "clang: warning:
    argument unused during compilation:" warning.
  - ``-fcolor-diagnostics`` option is used to enable clang's colored
    diagnostic messages.

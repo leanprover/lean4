@@ -42,7 +42,7 @@ inline unsigned necessary_digits(mpfr_prec_t p) {
 std::ostream & operator<<(std::ostream & out, mpfp const & v) {
     char * s = nullptr;
     char format[128];
-    snprintf(format, sizeof(format), "%%.%dRNg", necessary_digits(mpfr_get_prec(v.m_val)));
+    sprintf(format, "%%.%dRNg", necessary_digits(mpfr_get_prec(v.m_val))); // NOLINT
     mpfr_asprintf(&s, format, v.m_val);
     std::string str = std::string(s);
     mpfr_free_str(s);

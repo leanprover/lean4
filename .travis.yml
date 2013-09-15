@@ -90,8 +90,20 @@ install:
   - until sudo apt-get -qq update; do echo retry; done
   - if [[ $USE_TCMALLOC == TRUE ]]; then until sudo add-apt-repository --yes ppa:agent-8131/ppa && sudo apt-get -qq update && sudo apt-get -qq install libgoogle-perftools-dev; do echo retry; done; fi
   - until sudo apt-get -qq install libgmp-dev libmpfr-dev; do echo retry; done
-  - until sudo apt-get -qq install cmake python; do echo retry; done
-  - wget http://dl.dropboxusercontent.com/u/203889738/gcc/ninja.tar.gz; tar xfz ninja.tar.gz; cd ninja; ./bootstrap.py; sudo cp -v ninja /usr/bin/; cd ..
+  - wget http://www.cmake.org/files/v2.8/cmake-2.8.11.2.tar.gz;
+    tar xvfz cmake-2.8.11.2.tar.gz;
+    cd cmake-2.8.11.2;
+    ./configure;
+    make;
+    sudo make install;
+    cd ..;
+  - until sudo apt-get -qq install python; do echo retry; done
+  - wget http://dl.dropboxusercontent.com/u/203889738/gcc/ninja.tar.gz;
+    tar xfz ninja.tar.gz;
+    cd ninja;
+    ./bootstrap.py;
+    sudo cp -v ninja /usr/bin/;
+    cd ..;
   - until sudo apt-get -qq install libstdc++-4.8-dev; do echo retry; done
   - if [[ $CMAKE_CXX_COMPILER == g++-4.8 ]]; then until sudo apt-get -qq install g++-4.8; do echo retry; done fi
   - if [[ $CMAKE_CXX_COMPILER == clang++-3.3 ]]; then until sudo apt-get -qq install clang-3.3; do echo retry; done fi
@@ -135,11 +147,7 @@ before_script:
 script:
   - mkdir -p build
   - cd build
-  - if [[ $MEMCHECK == TRUE ]]; then
-        cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -G Ninja ../src;
-    else
-        cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ../src;
-    fi
+  - cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -G Ninja ../src;
   - if [[ $CMAKE_BUILD_TYPE == DEBUG || $CMAKE_BUILD_TYPE == RELEASE || $CMAKE_BUILD_TYPE == TESTCOV ]]; then
        SITE=Ubuntu12.04@Travis;
        GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`;

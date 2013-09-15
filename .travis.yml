@@ -73,7 +73,7 @@ env:
    # =======================================================
    # DOC. g++-4.8      | DEBUG   | TCMALLOC      | DOXYGEN=>DROPBOX
    - CMAKE_CXX_COMPILER=g++-4.8
-     CMAKE_BUILD_TYPE=DEBUG
+     CMAKE_BUILD_TYPE=DOXYGEN
      BUILD_DOXYGEN=TRUE
    # =======================================================
    # TESTCOV Build
@@ -181,8 +181,8 @@ after_script:
       comm -23 doxygen_shasum.txt doxygen_shasum_old.txt | cut -d ' ' -f 3 > doxygen_new_files.txt;
       echo "${DOXYGEN_DIR}/doxygen_shasum.txt" >> doxygen_new_files.txt;
       comm -13 doxygen_shasum.txt doxygen_shasum_old.txt | cut -d ' ' -f 3 > doxygen_delete_files.txt;
-      script/dropbox_upload --destpath /Public --dropbox-token ${DROPBOX_KEY} --deletelist doxygen_delete_files.txt;
-      script/dropbox_upload --destpath /Public --dropbox-token ${DROPBOX_KEY} --copylist doxygen_new_files.txt;
+      script/dropbox_upload.py --destpath /Public --dropbox-token ${DROPBOX_KEY} --deletelist doxygen_delete_files.txt;
+      script/dropbox_upload.py --destpath /Public --dropbox-token ${DROPBOX_KEY} --copylist doxygen_new_files.txt;
   fi
 - if [[ $LEANREPO == BLESSED && $UPLOAD ]]; then
       UPLOAD_DIR=bin;

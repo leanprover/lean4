@@ -145,9 +145,9 @@ script:
   - cd build
   - if [[ $CMAKE_BUILD_TYPE == RELEASE && $CMAKE_CXX_COMPILER=clang++-3.3 ]];
     then
-       cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ../src;
+       /usr/bin/cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ../src;
     else
-       cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -G Ninja ../src;
+       /usr/bin/cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -G Ninja ../src;
     fi
   - if [[ $CMAKE_BUILD_TYPE == DEBUG || $CMAKE_BUILD_TYPE == RELEASE || $CMAKE_BUILD_TYPE == TESTCOV ]]; then
        SITE=Ubuntu12.04@Travis;
@@ -195,7 +195,6 @@ after_script:
       comm -23 doxygen_shasum.txt doxygen_shasum_old.txt | cut -d ' ' -f 3 > doxygen_new_files.txt;
       echo "${DOXYGEN_DIR}/doxygen_shasum.txt" >> doxygen_new_files.txt;
       comm -13 doxygen_shasum.txt doxygen_shasum_old.txt | cut -d ' ' -f 3 > doxygen_delete_files.txt;
-      script/dropbox_upload.py --destpath /Public --dropbox-token ${DROPBOX_KEY} --deletelist doxygen_delete_files.txt;
       script/dropbox_upload.py --destpath /Public --dropbox-token ${DROPBOX_KEY} --copylist doxygen_new_files.txt;
   fi
 - if [[ $LEANREPO == BLESSED && $UPLOAD ]]; then

@@ -52,7 +52,7 @@ after_script:
       mkdir ${UPLOAD_DIR};
       cp build/shell/lean ${UPLOAD_DIR}/${BINARY};
       cp build/shell/lean ${UPLOAD_DIR}/${ARCHIVE_BINARY};
-      script/dropbox_upload.py ${UPLOAD_DIR} /Public/${UPLOAD_DIR} ${DROPBOX_KEY};
+      script/dropbox_upload.py --srcpath ${UPLOAD_DIR} --destpath /Public/${UPLOAD_DIR} --dropbox-token ${DROPBOX_KEY};
   fi
 - cd build
 - if [[ $MEMCHECK == TRUE ]]; then

@@ -1,18 +1,40 @@
 #!/usr/bin/env python
+#
+# Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+# Released under Apache 2.0 license as described in the file LICENSE.
+#
+# Author: Soonho Kong
+#
+
 import dropbox
 import os
-import sys
+import argparse
 
-# Paths
-local_path = sys.argv[1]
-server_path = sys.argv[2]
+parser = argparse.ArgumentParser()
+parser.add_argument('--dropbox-token', type=str, help='Dropbox token for authentication', required=True)
+parser.add_argument('--destpath',      type=str, help='Destination in Dropbox', required=True)
+parser.add_argument('--srcpath',       type=str, help='Local directory to copy')
+parser.add_argument('--copylist',      type=str, help='File containing a list of files to copy')
+parser.add_argument('--deletelist',    type=str, help='File containing a list of files to delete')
+args = parser.parse_args()
 
-# AUTH INFO
-access_token = sys.argv[3]
+if not args.srcpath and not args.copylist and not args.deletelist:
+    print "You need to specify one of the following options:"
+    print "    --srcpath,"
+    print "    --copylist,"
+    print "    --deletelist"
+    exit(1)
+
+access_token = args.dropbox_token
+server_path = args.destpath
 
 # Connect DROPBOX
-client = dropbox.client.DropboxClient(access_token)
-print(client.account_info())
+try:
+    client = dropbox.client.DropboxClient(access_token)
+    client.account_info()
+except:
+    print "Failed to connect to Dropbox. Please check the access token."
+    exit(1)
 
 count = 0
 def copy_file_with_retry(fullpath, targetpath, max_try):
@@ -20,6 +42,11 @@ def copy_file_with_retry(fullpath, targetpath, max_try):
     print("==> " + targetpath)
     try:
         handle = open(fullpath)
+    except:
+        print("FAILED: " + targetpath + " not found")
+        return
+
+    try:
         response = client.put_file(targetpath, handle, True)
     except:
         handle.close()
@@ -40,12 +67,40 @@ def upload_dir_to_dropbox(localDir, serverDir):
             targetpath = os.path.normpath(serverDir + "/" + fullpath[len(localDir):])
             copy_file_with_retry(fullpath, targetpath, 5)
 
-def remove_dir_from_dropbox(serverDir):
+def remove_from_dropbox(p):
     try:
-        client.file_delete(serverDir)
+        client.file_delete(p)
+        print (p + " deleted from Dropbox")
     except dropbox.rest.ErrorResponse:
-        print (serverDir + " not exists")
+        print (p + " not exists")
 
-print ("Copy: " + local_path + " ==> " + server_path)
-#remove_dir_from_dropbox(server_path)
-upload_dir_to_dropbox(local_path, server_path)
+if args.srcpath:
+    local_path = args.srcpath
+    print ("Copy: " + local_path + " ==> " + server_path)
+    upload_dir_to_dropbox(local_path, server_path)
+    exit(0)
+
+if args.copylist:
+    copylist = args.copylist
+    print ("Copy files in " + copylist + " ==> " + server_path)
+    try:
+        copylist_handle = open(copylist, "r")
+    except IOError:
+        print 'Failed to open ' + copylist
+    for line in copylist_handle:
+        fullpath = os.path.normpath(line.strip())
+        copy_file_with_retry(fullpath, os.path.normpath(server_path + "/" + fullpath), 5)
+    exit(0)
+
+if args.deletelist:
+    deletelist = args.deletelist
+    print ("Delete files in " + deletelist + " from Dropbox " + server_path)
+    try:
+        deletelist_handle = open(deletelist, "r")
+    except IOError:
+        print 'Failed to open ' + deletelist
+    deletelist_handle = open(deletelist, "r")
+    for line in deletelist_handle:
+        fullpath = os.path.normpath(line.strip())
+        remove_from_dropbox(os.path.normpath(server_path + "/" + fullpath))
+    exit(0)

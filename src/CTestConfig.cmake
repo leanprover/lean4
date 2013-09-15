@@ -12,8 +12,9 @@ set(CTEST_NIGHTLY_START_TIME "00:00:00 EST")
 # Specify MEMCHECK Option: http://valgrind.org/docs/manual/mc-manual.html
 # Note: We use "--trace-children=yes" to valgrind-ise child processes (follow execve)
 # Note: We turn off "--show-reachable=yes" option.
-SET (VALGRIND_COMMAND_OPTIONS "-q --tool=memcheck --leak-check=yes --workaround-gcc296-bugs=yes --num-callers=50 --trace-children=yes --leak-check=full --track-origins=yes")
 SET (MEMORYCHECK_SUPPRESSIONS_FILE "${CMAKE_SOURCE_DIR}/memcheck.supp")
+SET (VALGRIND_COMMAND_OPTIONS "-q --tool=memcheck --leak-check=yes --workaround-gcc296-bugs=yes --num-callers=50 --trace-children=yes --leak-check=full --track-origins=yes")
+SET (MEMORYCHECK_COMMAND_OPTIONS "-q --tool=memcheck --leak-check=yes --workaround-gcc296-bugs=yes --num-callers=50 --trace-children=yes --leak-check=full --track-origins=yes")
 
 set(CTEST_DROP_METHOD "http")
 set(CTEST_DROP_SITE "cmacslab2.modck.cs.cmu.edu")

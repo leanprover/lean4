@@ -5,10 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <iostream>
-#include <cstdlib>
 #include <deque>
 #include <vector>
 #include <ctime>
+#include <random>
 #include "util/test.h"
 #include "util/pdeque.h"
 using namespace lean;
@@ -72,25 +72,29 @@ static void driver(unsigned max_sz, unsigned max_val, unsigned num_ops, double u
     std::deque<int> q1;
     pdeque<int>     q2;
     pdeque<int>     q3;
-    unsigned int    seed = static_cast<unsigned int>(time(0));
+    std::mt19937    rng; // the Mersenne Twister Random Number Generator with a popular choice of parameters
+
+    rng.seed(static_cast<unsigned int>(time(0)));
+    std::uniform_int_distribution<unsigned int> uint_dist;
+
     std::vector<pdeque<int>> copies;
     for (unsigned i = 0; i < num_ops; i++) {
-        double f = static_cast<double>(rand_r(&seed) % 10000) / 10000.0;
+        double f = static_cast<double>(uint_dist(rng) % 10000) / 10000.0;
         if (f < copy_freq)
             copies.push_back(q3);
         // read random positions of q3
         if (!empty(q3)) {
-            for (int j = 0; j < rand_r(&seed) % 5; j++) {
-                unsigned idx = rand_r(&seed) % size(q3);
+            for (unsigned int j = 0; j < uint_dist(rng) % 5; j++) {
+                unsigned idx = uint_dist(rng) % size(q3);
                 lean_assert(q3[idx] == q1[idx]);
             }
         }
-        f = static_cast<double>(rand_r(&seed) % 10000) / 10000.0;
+        f = static_cast<double>(uint_dist(rng) % 10000) / 10000.0;
         if (f < updt_freq) {
             if (q1.size() >= max_sz)
                 continue;
-            int v = rand_r(&seed) % max_val;
-            switch (rand_r(&seed) % 3) {
+            int v = uint_dist(rng) % max_val;
+            switch (uint_dist(rng) % 3) {
             case 0:
                 q1.push_front(v);
                 q2 = push_front(q2, v);
@@ -103,7 +107,7 @@ static void driver(unsigned max_sz, unsigned max_val, unsigned num_ops, double u
                 break;
             default:
                 if (!empty(q2)) {
-                    unsigned idx = rand_r(&seed) % size(q2);
+                    unsigned idx = uint_dist(rng) % size(q2);
                     q1[idx] = v;
                     q2[idx] = v;
                     q3[idx] = v;
@@ -115,7 +119,7 @@ static void driver(unsigned max_sz, unsigned max_val, unsigned num_ops, double u
         } else {
             if (q1.size() == 0)
                 continue;
-            if (rand_r(&seed) % 2 == 0) {
+            if (uint_dist(rng) % 2 == 0) {
                 lean_assert(front(q2) == q1.front());
                 lean_assert(front(q3) == q1.front());
                 q1.pop_front();

@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <iostream>
-#include <cstdlib>
 #include <vector>
+#include <random>
 #include <ctime>
 #include "util/test.h"
 #include "util/pvector.h"
@@ -67,27 +67,31 @@ static void driver(unsigned max_sz, unsigned max_val, unsigned num_ops, double u
     std::vector<int> v1;
     pvector<int>     v2;
     pvector<int>     v3;
-    unsigned int     seed = static_cast<unsigned int>(time(0));
+    std::mt19937     rng; // the Mersenne Twister Random Number Generator with a popular choice of parameters
+
+    rng.seed(static_cast<unsigned int>(time(0)));
+    std::uniform_int_distribution<unsigned int> uint_dist;
+
     std::vector<pvector<int>> copies;
     for (unsigned i = 0; i < num_ops; i++) {
-        double f = static_cast<double>(rand_r(&seed) % 10000) / 10000.0;
+        double f = static_cast<double>(uint_dist(rng) % 10000) / 10000.0;
         if (f < copy_freq) {
             copies.push_back(v2);
         }
-        f = static_cast<double>(rand_r(&seed) % 10000) / 10000.0;
+        f = static_cast<double>(uint_dist(rng) % 10000) / 10000.0;
         // read random positions of v3
         if (!empty(v3)) {
-            for (int j = 0; j < rand_r(&seed) % 5; j++) {
-                unsigned idx = rand_r(&seed) % size(v3);
+            for (unsigned int j = 0; j < uint_dist(rng) % 5; j++) {
+                unsigned idx = uint_dist(rng) % size(v3);
                 lean_assert(v3[idx] == v1[idx]);
             }
         }
         if (f < updt_freq) {
             if (v1.size() >= max_sz)
                 continue;
-            int a = rand_r(&seed) % max_val;
-            if (!empty(v2) && rand_r(&seed)%2 == 0) {
-                unsigned idx = rand_r(&seed) % size(v2);
+            int a = uint_dist(rng) % max_val;
+            if (!empty(v2) && uint_dist(rng) % 2 == 0) {
+                unsigned idx = uint_dist(rng) % size(v2);
                 v1[idx] = a;
                 v2[idx] = a;
                 v3[idx] = a;

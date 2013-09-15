@@ -136,6 +136,8 @@ script:
   - mkdir -p build
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -G Ninja ../src
+  - CONFIG_FILE=DartConfiguration.tcl;
+    sed -i "s/^MakeCommand:\(.*\)/MakeCommand:\1 -j 1/" $CONFIG_FILE;
   - if [[ $CMAKE_BUILD_TYPE == DEBUG || $CMAKE_BUILD_TYPE == RELEASE || $CMAKE_BUILD_TYPE == TESTCOV ]]; then
        SITE=Ubuntu12.04@Travis;
        GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`;
@@ -149,7 +151,7 @@ script:
        sed -i "s/^Site:.*/Site:$SITE/" $CONFIG_FILE;
        sed -i "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE;
        if [[ $MEMCHECK == TRUE ]]; then
-           ninja;
+           ninja -j 1;
        else
            ctest -D ExperimentalConfigure;
            sed -i "s/^Site:.*/Site:$SITE/" $CONFIG_FILE;

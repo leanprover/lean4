@@ -43,7 +43,7 @@ def copy_file_with_retry(fullpath, targetpath, max_try):
     try:
         handle = open(fullpath)
     except:
-        print("FAILED: " + targetpath + " not found")
+        print("FAILED: " + fullpath + " not found")
         return
 
     try:

@@ -249,6 +249,14 @@ static void tst11() {
 }
 
 static void tst12() {
+    metavar_env menv;
+    expr m = menv.mk_metavar();
+    expr f = Const("f");
+    std::cout << instantiate(f(m), {Var(0), Var(1)}) << "\n";
+    std::cout << instantiate(f(m), {Var(1), Var(0)}) << "\n";
+}
+
+static void tst13() {
     environment env;
     metavar_env menv;
     expr m = menv.mk_metavar();
@@ -262,6 +270,119 @@ static void tst12() {
     expr F = Fun({x, N}, f(m))(a);
     normalizer norm(env);
     std::cout << norm(F) << "\n";
+    menv.assign(0, Var(0));
+    std::cout << norm(instantiate_metavars(F, menv)) << "\n";
+    lean_assert(norm(instantiate_metavars(F, menv)) ==
+                instantiate_metavars(norm(F), menv));
+}
+
+static void tst14() {
+    environment env;
+    metavar_env menv;
+    expr m1 = menv.mk_metavar();
+    expr m2 = menv.mk_metavar();
+    expr N = Const("N");
+    expr f = Const("f");
+    expr h = Const("h");
+    expr a = Const("a");
+    expr b = Const("b");
+    expr x = Const("x");
+    expr y = Const("y");
+    env.add_var("h", Pi({N, Type()}, N >> (N >> N)));
+    expr F1 = Fun({{N, Type()}, {a, N}, {f, N >> N}},
+                  (Fun({{x, N}, {y, N}}, Eq(f(m1), y)))(a));
+    metavar_env menv2 = menv;
+    menv2.assign(0, h(Var(4), Var(1), Var(3)));
+    normalizer norm(env);
+    env.add_var("M", Type());
+    expr M = Const("M");
+    std::cout << norm(F1) << "\n";
+    std::cout << instantiate_metavars(norm(F1), menv2) << "\n";
+    std::cout << instantiate_metavars(F1, menv2) << "\n";
+    std::cout << norm(instantiate_metavars(F1, menv2)) << "\n";
+    lean_assert(instantiate_metavars(norm(F1), menv2) ==
+                norm(instantiate_metavars(F1, menv2)));
+    expr F2 = (Fun({{N, Type()}, {f, N >> N}, {a, N}, {b, N}},
+                   (Fun({{x, N}, {y, N}}, Eq(f(m1), y)))(a, m2)))(M);
+    std::cout << norm(F2) << "\n";
+    expr F3 = (Fun({{N, Type()}, {f, N >> N}, {a, N}, {b, N}},
+                   (Fun({{x, N}, {y, N}}, Eq(f(m1), y)))(b, m2)))(M);
+    std::cout << norm(F3) << "\n";
+}
+
+static void tst15() {
+    environment env;
+    metavar_env menv;
+    normalizer  norm(env);
+    expr m1 = menv.mk_metavar();
+    expr f = Const("f");
+    expr x = Const("x");
+    expr y = Const("y");
+    expr z = Const("z");
+    expr N = Const("N");
+    env.add_var("N", Type());
+    env.add_var("f", Type() >> Type());
+    expr F = Fun({z, Type()}, Fun({{x, Type()}, {y, Type()}}, f(m1))(N, N));
+    menv.assign(0, Var(2));
+    std::cout << norm(F) << "\n";
+    std::cout << instantiate_metavars(norm(F), menv) << "\n";
+    std::cout << norm(instantiate_metavars(F, menv)) << "\n";
+    lean_assert(instantiate_metavars(norm(F), menv) ==
+                norm(instantiate_metavars(F, menv)));
+}
+
+static void tst16() {
+    environment env;
+    metavar_env menv;
+    normalizer  norm(env);
+    context ctx;
+    ctx = extend(ctx, "w", Type());
+    expr m1 = menv.mk_metavar();
+    expr f = Const("f");
+    expr x = Const("x");
+    expr y = Const("y");
+    expr z = Const("z");
+    expr N = Const("N");
+    env.add_var("N", Type());
+    expr F = Fun({z, Type()}, Fun({{x, Type()}, {y, Type()}}, m1)(N, N));
+    menv.assign(0, Var(3));
+    std::cout << norm(F, ctx) << "\n";
+    std::cout << instantiate_metavars(norm(F, ctx), menv) << "\n";
+    std::cout << norm(instantiate_metavars(F, menv), ctx) << "\n";
+}
+
+static void tst17() {
+    environment env;
+    metavar_env menv;
+    normalizer  norm(env);
+    context ctx;
+    ctx = extend(ctx, "w1", Type());
+    ctx = extend(ctx, "w2", Type());
+    ctx = extend(ctx, "w3", Type());
+    ctx = extend(ctx, "w4", Type());
+    expr m1 = menv.mk_metavar();
+    expr f = Const("f");
+    expr x = Const("x");
+    expr y = Const("y");
+    expr z = Const("z");
+    expr N = Const("N");
+    env.add_var("N", Type());
+    expr F = Fun({z, Type()}, Fun({{x, Type()}, {y, Type()}}, m1)(N, N));
+    metavar_env menv2 = menv;
+    menv.assign(0, Var(3));
+    std::cout << norm(F, ctx) << "\n";
+    std::cout << instantiate_metavars(norm(F, ctx), menv) << "\n";
+    std::cout << norm(instantiate_metavars(F, menv), ctx) << "\n";
+    F = Fun({z, Type()}, Fun({{x, Type()}, {y, Type()}, {x, Type()}, {y, Type()}, {x, Type()}}, m1)(N, N, N, N, N));
+    lean_assert(instantiate_metavars(norm(F, ctx), menv) ==
+                norm(instantiate_metavars(F, menv), ctx));
+    std::cout << "----------------------\n";
+    menv2.assign(0, Var(8));
+    std::cout << norm(F, ctx) << "\n";
+    std::cout << instantiate_metavars(norm(F, ctx), menv2) << "\n";
+    std::cout << norm(instantiate_metavars(F, menv2), ctx) << "\n";
+    lean_assert(instantiate_metavars(norm(F, ctx), menv2) ==
+                norm(instantiate_metavars(F, menv2), ctx));
 }
 
 int main() {
@@ -277,5 +398,11 @@ int main() {
     tst10();
     tst11();
     tst12();
+    tst13();
+    tst14();
+    tst15();
+    tst16();
+    tst17();
     return has_violations() ? 1 : 0;
 }
+

@@ -135,8 +135,12 @@ expr instantiate_metavars(expr const & e, metavar_env const & env) {
     return replace_fn<decltype(f)>(f)(e);
 }
 
+meta_ctx add_lift(meta_ctx const & ctx, unsigned s, unsigned n) {
+    return cons(mk_lift(s, n), ctx);
+}
+
 expr add_lift(expr const & m, unsigned s, unsigned n) {
-    return mk_metavar(metavar_idx(m), cons(mk_lift(s, n), metavar_ctx(m)));
+    return mk_metavar(metavar_idx(m), add_lift(metavar_ctx(m), s, n));
 }
 
 meta_ctx add_lower(meta_ctx const & ctx, unsigned s2, unsigned n2) {

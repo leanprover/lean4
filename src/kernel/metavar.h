@@ -151,6 +151,11 @@ public:
 expr instantiate_metavars(expr const & e, metavar_env const & env);
 
 /**
+    \brief Extend the context \c ctx with the entry <tt>lift:s:n</tt>
+*/
+meta_ctx add_lift(meta_ctx const & ctx, unsigned s, unsigned n);
+
+/**
    \brief Add a lift:s:n operation to the context of the given metavariable.
 
    \pre is_metavar(m)
@@ -166,12 +171,23 @@ expr add_lift(expr const & m, unsigned s, unsigned n);
 expr add_lower(expr const & m, unsigned s, unsigned n);
 
 /**
+    \brief Extend the context \c ctx with the entry <tt>lower:s:n</tt>
+*/
+meta_ctx add_lower(meta_ctx const & ctx, unsigned s, unsigned n);
+
+/**
    \brief Add a subst:s:v operation to the context of the given metavariable.
 
    \pre is_metavar(m)
    \pre !occurs(m, v)
 */
 expr add_subst(expr const & m, unsigned s, expr const & v);
+
+
+/**
+   \brief Extend the context \c ctx with the entry <tt>subst:s v</tt>
+*/
+meta_ctx add_subst(meta_ctx const & ctx, unsigned s, expr const & v);
 
 /**
    \brief Return true iff the given metavariable has a non-empty

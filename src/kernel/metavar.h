@@ -5,35 +5,29 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include <utility>
-#include <vector>
 #include "util/pair.h"
 #include "util/pvector.h"
 #include "kernel/expr.h"
+#include "kernel/context.h"
 
 namespace lean {
 /**
    \brief Set of unification problems that need to be solved.
    It store two kinds of problems:
-   1. <tt>lhs == rhs</tt>
-   2. <tt>typeof(n) == t</tt>
+   1. <tt>ctx |- lhs == rhs</tt>
+   2. <tt>ctx |- typeof(n) == t</tt>
 */
 class unification_problems {
-    std::vector<std::pair<expr, expr>> m_eqs;
-    std::vector<std::pair<expr, expr>> m_type_of_eqs;
 public:
+    virtual ~unification_problems() {}
     /**
-       \brief Add a new unification problem of the form <tt>lhs == rhs</tt>
+       \brief Add a new unification problem of the form <tt>ctx |- lhs == rhs</tt>
     */
-    void add_eq(expr const & lhs, expr const & rhs) { m_eqs.push_back(mk_pair(lhs, rhs)); }
-
+    virtual void add_eq(context const & ctx, expr const & lhs, expr const & rhs) = 0;
     /**
-       \brief Add a new unification problem of the form <tt>typeof(n) == t</tt>
+       \brief Add a new unification problem of the form <tt>ctx |- typeof(n) == t</tt>
     */
-    void add_type_of_eq(expr const & n, expr const & t) { m_type_of_eqs.push_back(mk_pair(n, t)); }
-
-    std::vector<std::pair<expr, expr>> const & eqs() const { return m_eqs; }
-    std::vector<std::pair<expr, expr>> const & type_of_eqs() const { return m_type_of_eqs; }
+    virtual void add_type_of_eq(context const & ctx, expr const & n, expr const & t) = 0;
 };
 
 /**
@@ -41,12 +35,19 @@ public:
    from metavariables to assignments and types.
 */
 class metavar_env {
-    pvector<std::pair<expr, expr>> m_env;
+    struct data {
+        expr    m_subst;
+        expr    m_type;
+        context m_ctx;
+        data(context const & ctx):m_ctx(ctx) {}
+        data(expr const & s, expr const & t, context const & ctx):m_subst(s), m_type(t), m_ctx(ctx) {}
+    };
+    pvector<data> m_env;
 public:
     /**
        \brief Create new metavariable in this environment.
     */
-    expr mk_metavar();
+    expr mk_metavar(context const & ctx = context());
 
     /**
        \brief Return true if this environment contains a metavariable

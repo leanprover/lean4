@@ -12,9 +12,9 @@ Author: Leonardo de Moura
 #include "kernel/for_each.h"
 
 namespace lean {
-expr metavar_env::mk_metavar() {
+expr metavar_env::mk_metavar(context const & ctx) {
     unsigned midx = m_env.size();
-    m_env.push_back(mk_pair(expr(), expr()));
+    m_env.push_back(data(ctx));
     return ::lean::mk_metavar(midx);
 }
 
@@ -23,34 +23,34 @@ bool metavar_env::contains(unsigned midx) const {
 }
 
 bool metavar_env::is_assigned(unsigned midx) const {
-    return m_env[midx].first;
+    return m_env[midx].m_subst;
 }
 
 expr metavar_env::get_subst(unsigned midx) const {
-    return m_env[midx].first;
+    return m_env[midx].m_subst;
 }
 
 expr metavar_env::get_type(unsigned midx, unification_problems & up) {
     auto p = m_env[midx];
-    expr t = p->second;
+    expr t = p->m_type;
     if (t) {
         return t;
     } else {
         t = mk_metavar();
-        expr s = p->first;
-        m_env[midx] = mk_pair(s, t);
+        expr s = p->m_subst;
+        m_env[midx] = data(s, t, p->m_ctx);
         if (s)
-            up.add_type_of_eq(s, t);
+            up.add_type_of_eq(p->m_ctx, s, t);
         else
-            up.add_type_of_eq(::lean::mk_metavar(midx), t);
+            up.add_type_of_eq(p->m_ctx, ::lean::mk_metavar(midx), t);
         return t;
     }
 }
 
-void metavar_env::assign(unsigned midx, expr const & t) {
+void metavar_env::assign(unsigned midx, expr const & v) {
     lean_assert(!is_assigned(midx));
     auto p = m_env[midx];
-    m_env[midx] = mk_pair(t, p->second);
+    m_env[midx] = data(v, p->m_type, p->m_ctx);
 }
 
 expr subst(expr const & a, unsigned i, expr const & c) {

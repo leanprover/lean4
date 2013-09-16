@@ -5,6 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
+#include <vector>
+#include <utility>
 #include "util/test.h"
 #include "kernel/metavar.h"
 #include "kernel/instantiate.h"
@@ -13,8 +15,20 @@ Author: Leonardo de Moura
 #include "library/printer.h"
 using namespace lean;
 
+class unification_problems_dbg : public unification_problems {
+    std::vector<std::pair<expr, expr>> m_eqs;
+    std::vector<std::pair<expr, expr>> m_type_of_eqs;
+public:
+    unification_problems_dbg() {}
+    virtual ~unification_problems_dbg() {}
+    virtual void add_eq(context const &, expr const & lhs, expr const & rhs) { m_eqs.push_back(mk_pair(lhs, rhs)); }
+    virtual void add_type_of_eq(context const &, expr const & n, expr const & t) { m_type_of_eqs.push_back(mk_pair(n, t)); }
+    std::vector<std::pair<expr, expr>> const & eqs() const { return m_eqs; }
+    std::vector<std::pair<expr, expr>> const & type_of_eqs() const { return m_type_of_eqs; }
+};
+
 static void tst1() {
-    unification_problems u;
+    unification_problems_dbg u;
     metavar_env          menv;
     expr m1 = menv.mk_metavar();
     lean_assert(!menv.is_assigned(m1));

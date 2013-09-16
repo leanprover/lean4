@@ -43,7 +43,17 @@ class metavar_env {
         data(expr const & s, expr const & t, context const & ctx):m_subst(s), m_type(t), m_ctx(ctx) {}
     };
     pvector<data> m_env;
+    unsigned      m_timestamp;
+    void inc_timestamp();
 public:
+    metavar_env();
+
+    /**
+       \brief The timestamp is increased whenever the environment is updated by
+       \c mk_metavar or \c assign.
+    */
+    unsigned get_timestamp() const { return m_timestamp; }
+
     /**
        \brief Create new metavariable in this environment.
     */

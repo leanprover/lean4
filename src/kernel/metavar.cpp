@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <limits>
+#include "util/exception.h"
 #include "kernel/metavar.h"
 #include "kernel/replace.h"
 #include "kernel/free_vars.h"
@@ -12,7 +13,18 @@ Author: Leonardo de Moura
 #include "kernel/for_each.h"
 
 namespace lean {
+void metavar_env::inc_timestamp() {
+    if (m_timestamp == std::numeric_limits<unsigned>::max()) {
+        // This should not happen in real examples. We add it just to be safe.
+        throw exception("metavar_env timestamp overflow");
+    }
+    m_timestamp++;
+}
+
+metavar_env::metavar_env():m_timestamp(0) {}
+
 expr metavar_env::mk_metavar(context const & ctx) {
+    inc_timestamp();
     unsigned midx = m_env.size();
     m_env.push_back(data(ctx));
     return ::lean::mk_metavar(midx);
@@ -48,6 +60,7 @@ expr metavar_env::get_type(unsigned midx, unification_problems & up) {
 }
 
 void metavar_env::assign(unsigned midx, expr const & v) {
+    inc_timestamp();
     lean_assert(!is_assigned(midx));
     auto p = m_env[midx];
     m_env[midx] = data(v, p->m_type, p->m_ctx);

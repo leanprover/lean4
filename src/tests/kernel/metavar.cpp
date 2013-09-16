@@ -234,6 +234,18 @@ static void tst10() {
     lean_assert(r == f(g(f(h(Var(2)))), Fun({x, N}, f(g(f(h(Var(3)))), h(Var(3)), x, Fun({y, N}, f(g(f(h(Var(4)))), x, y))))));
 }
 
+static void tst11() {
+    metavar_env menv;
+    unsigned t1 = menv.get_timestamp();
+    expr m = menv.mk_metavar();
+    unsigned t2 = menv.get_timestamp();
+    lean_assert(t2 > t1);
+    lean_assert(!menv.is_assigned(m));
+    lean_assert(menv.get_timestamp() == t2);
+    menv.assign(m, Const("a"));
+    lean_assert(menv.get_timestamp() > t2);
+}
+
 int main() {
     tst1();
     tst2();
@@ -245,5 +257,6 @@ int main() {
     tst8();
     tst9();
     tst10();
+    tst11();
     return has_violations() ? 1 : 0;
 }

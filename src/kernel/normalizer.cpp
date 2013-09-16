@@ -83,9 +83,17 @@ class normalizer::imp {
     */
     struct save_context {
         imp &           m_imp;
-        context         m_old_ctx;
-        save_context(imp & imp):m_imp(imp), m_old_ctx(m_imp.m_ctx) { m_imp.m_cache.clear(); }
-        ~save_context() { m_imp.m_ctx = m_old_ctx; }
+        context         m_saved_ctx;
+        cache           m_saved_cache;
+        save_context(imp & imp):
+            m_imp(imp),
+            m_saved_ctx(m_imp.m_ctx) {
+            m_imp.m_cache.swap(m_saved_cache);
+        }
+        ~save_context() {
+            m_imp.m_ctx = m_saved_ctx;
+            m_imp.m_cache.swap(m_saved_cache);
+        }
     };
 
     svalue lookup(value_stack const & s, unsigned i, unsigned k) {
@@ -114,7 +122,11 @@ class normalizer::imp {
     expr reify_closure(expr const & a, value_stack const & s, unsigned k) {
         lean_assert(is_lambda(a));
         expr new_t = reify(normalize(abst_domain(a), s, k), k);
-        expr new_b = reify(normalize(abst_body(a), extend(s, svalue(k)), k+1), k+1);
+        expr new_b;
+        {
+            cache::mk_scope sc(m_cache);
+            new_b = reify(normalize(abst_body(a), extend(s, svalue(k)), k+1), k+1);
+        }
         return mk_lambda(abst_name(a), new_t, new_b);
     }
 

@@ -26,7 +26,7 @@ class scoped_map {
     typedef typename map::size_type                    size_type;
     typedef typename map::value_type                   value_type;
     enum class action_kind { Insert, Replace, Erase };
-    map                                      m_map;
+    map                                             m_map;
     std::vector<std::pair<action_kind, value_type>> m_actions;
     std::vector<unsigned>                           m_scopes;
 public:
@@ -34,6 +34,12 @@ public:
                         const Hash& hash = Hash(),
                         const KeyEqual& equal = KeyEqual()):
         m_map(bucket_count, hash, equal) {}
+
+    void swap(scoped_map & other) {
+        m_map.swap(other.m_map);
+        m_actions.swap(other.m_actions);
+        m_scopes.swap(other.m_scopes);
+    }
 
     /** \brief Return the number of scopes. */
     unsigned num_scopes() const {

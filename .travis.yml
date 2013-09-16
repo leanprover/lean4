@@ -193,9 +193,9 @@ after_script:
       find $DOXYGEN_DIR -type f | xargs shasum | sort > doxygen_shasum.txt;
       cp doxygen_shasum.txt $DOXYGEN_DIR/;
       wget http://dl.dropboxusercontent.com/u/203889738/${DOXYGEN_DIR}/doxygen_shasum.txt -O doxygen_shasum_old.txt;
-      comm -23 doxygen_shasum.txt doxygen_shasum_old.txt | cut -d ' ' -f 3 | split -l 100 - doxygen_new_files.txt.
+      comm -23 doxygen_shasum.txt doxygen_shasum_old.txt | cut -d ' ' -f 3 | split -l 100 - doxygen_new_files.txt.;
       echo "${DOXYGEN_DIR}/doxygen_shasum.txt" >> doxygen_new_files.txt.aa;
-      comm -13 doxygen_shasum.txt doxygen_shasum_old.txt | cut -d ' ' -f 3 | split -l 100 - doxygen_old_files.txt.
+      comm -13 doxygen_shasum.txt doxygen_shasum_old.txt | cut -d ' ' -f 3 | split -l 100 - doxygen_old_files.txt.;
       ls -1 doxygen_old_files.txt.* | parallel -u -j 10 'script/dropbox_upload.py --destpath "/Public" --dropbox-token "${DROPBOX_KEY}" --deletelist "{}"';
       ls -1 doxygen_new_files.txt.* | parallel -u -j 10 'script/dropbox_upload.py --destpath "/Public" --dropbox-token "${DROPBOX_KEY}" --copylist "{}"';
   fi

@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/context.h"
 #include "kernel/environment.h"
 #include "kernel/builtin.h"
+#include "kernel/metavar.h"
 #include "kernel/free_vars.h"
 #include "kernel/kernel_exception.h"
 
@@ -69,6 +70,8 @@ class normalizer::imp {
 
     environment const & m_env;
     context             m_ctx;
+    metavar_env const * m_menv;
+    unsigned            m_menv_timestamp;
     cache               m_cache;
     unsigned            m_max_depth;
     unsigned            m_depth;
@@ -143,10 +146,13 @@ class normalizer::imp {
         svalue r;
         switch (a.kind()) {
         case expr_kind::MetaVar:
-            // TODO(Leo) The following code should be unreachable in the current implementation.
-            // It will be needed when we implement the new elaborator.
-            lean_unreachable();
-            return svalue(a);
+            if (m_menv && m_menv->contains(a) && m_menv->is_assigned(a)) {
+                r = normalize(m_menv->get_subst(a), s, k);
+            } else {
+                // TODO(Leo) We must store in the metavariable the implicit substitution stored in value_stack.
+                r = svalue(a);
+            }
+            break;
         case expr_kind::Var:
             r = lookup(s, var_idx(a), k);
             break;
@@ -270,16 +276,33 @@ class normalizer::imp {
         }
     }
 
+    void set_menv(metavar_env const * menv) {
+        if (m_menv == menv) {
+            // Check whether m_menv has been updated since the last time the normalizer has been invoked
+            if (m_menv && m_menv->get_timestamp() > m_menv_timestamp) {
+                m_menv_timestamp = m_menv->get_timestamp();
+                m_cache.clear();
+            }
+        } else {
+            m_menv = menv;
+            m_cache.clear();
+            m_menv_timestamp = m_menv ? m_menv->get_timestamp() : 0;
+        }
+    }
+
 public:
     imp(environment const & env, unsigned max_depth):
         m_env(env) {
-        m_interrupted = false;
-        m_max_depth   = max_depth;
-        m_depth       = 0;
+        m_interrupted    = false;
+        m_max_depth      = max_depth;
+        m_depth          = 0;
+        m_menv           = nullptr;
+        m_menv_timestamp = 0;
     }
 
-    expr operator()(expr const & e, context const & ctx) {
+    expr operator()(expr const & e, context const & ctx, metavar_env const * menv) {
         set_ctx(ctx);
+        set_menv(menv);
         unsigned k = m_ctx.size();
         return reify(normalize(e, value_stack(), k), k);
     }
@@ -294,7 +317,7 @@ public:
         return is_convertible_core(e_n, g_n);
     }
 
-    void clear() { m_ctx = context(); m_cache.clear(); }
+    void clear() { m_ctx = context(); m_cache.clear(); m_menv = nullptr; m_menv_timestamp = 0; }
     void set_interrupt(bool flag) { m_interrupted = flag; }
 };
 
@@ -302,13 +325,13 @@ normalizer::normalizer(environment const & env, unsigned max_depth):m_ptr(new im
 normalizer::normalizer(environment const & env):normalizer(env, std::numeric_limits<unsigned>::max()) {}
 normalizer::normalizer(environment const & env, options const & opts):normalizer(env, get_normalizer_max_depth(opts)) {}
 normalizer::~normalizer() {}
-expr normalizer::operator()(expr const & e, context const & ctx) { return (*m_ptr)(e, ctx); }
+expr normalizer::operator()(expr const & e, context const & ctx, metavar_env const * menv) { return (*m_ptr)(e, ctx, menv); }
 bool normalizer::is_convertible(expr const & t1, expr const & t2, context const & ctx) { return m_ptr->is_convertible(t1, t2, ctx); }
 void normalizer::clear() { m_ptr->clear(); }
 void normalizer::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
 
-expr normalize(expr const & e, environment const & env, context const & ctx) {
-    return normalizer(env)(e, ctx);
+expr normalize(expr const & e, environment const & env, context const & ctx, metavar_env const * menv) {
+    return normalizer(env)(e, ctx, menv);
 }
 bool is_convertible(expr const & expected, expr const & given, environment const & env, context const & ctx) {
     return normalizer(env).is_convertible(expected, given, ctx);

@@ -12,6 +12,8 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/free_vars.h"
+#include "kernel/normalizer.h"
+#include "kernel/environment.h"
 #include "library/printer.h"
 using namespace lean;
 
@@ -246,6 +248,22 @@ static void tst11() {
     lean_assert(menv.get_timestamp() > t2);
 }
 
+static void tst12() {
+    environment env;
+    metavar_env menv;
+    expr m = menv.mk_metavar();
+    env.add_var("N", Type());
+    expr N = Const("N");
+    env.add_var("f", N >> N);
+    expr f = Const("f");
+    env.add_var("a", N);
+    expr a = Const("a");
+    expr x = Const("x");
+    expr F = Fun({x, N}, f(m))(a);
+    normalizer norm(env);
+    std::cout << norm(F) << "\n";
+}
+
 int main() {
     tst1();
     tst2();
@@ -258,5 +276,6 @@ int main() {
     tst9();
     tst10();
     tst11();
+    tst12();
     return has_violations() ? 1 : 0;
 }

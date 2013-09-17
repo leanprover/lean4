@@ -362,16 +362,22 @@ public:
         expr new_given    = given;
         expr new_expected = expected;
         if (has_metavar(new_given) || has_metavar(new_expected)) {
-            expr new_given    = instantiate_metavars(new_given, *menv);
-            expr new_expected = instantiate_metavars(new_expected, *menv);
+            if (!menv)
+                return false;
+            new_given    = instantiate_metavars(new_given, *menv);
+            new_expected = instantiate_metavars(new_expected, *menv);
             if (is_convertible_core(new_given, new_expected))
                 return true;
             if (has_metavar(new_given) || has_metavar(new_expected)) {
                 // Very conservative approach, just postpone the problem.
                 // We may also try to normalize new_given and new_expected even if
                 // they contain metavariables.
-                up->add_is_convertible(ctx, new_given, new_expected);
-                return true;
+                if (up) {
+                    up->add_is_convertible(ctx, new_given, new_expected);
+                    return true;
+                } else {
+                    return false;
+                }
             }
         }
         set_menv(menv);

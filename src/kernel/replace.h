@@ -23,10 +23,10 @@ public:
    \brief Functional for applying <tt>F</tt> to the subexpressions of a given expression.
 
    The signature of \c F is
-   unsigned, expr -> expr
+   expr const &, unsigned -> expr
 
    F is invoked for each subexpression \c s of the input expression e.
-   In a call <tt>F(n, s)</tt>, n is the scope level, i.e., the number of
+   In a call <tt>F(s, n)</tt>, n is the scope level, i.e., the number of
    bindings operators that enclosing \c s.
 
    P is a "post-processing" functional object that is applied to each

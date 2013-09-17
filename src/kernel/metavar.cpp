@@ -67,6 +67,10 @@ void metavar_env::assign(unsigned midx, expr const & v) {
     m_env[midx] = data(v, p->m_type, p->m_ctx);
 }
 
+context const & metavar_env::get_context(unsigned midx) const {
+    return m_env[midx].m_ctx;
+}
+
 expr instantiate(expr const & s, meta_ctx const & ctx, metavar_env const & env) {
     if (ctx) {
         expr r = instantiate(s, tail(ctx), env);

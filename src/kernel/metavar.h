@@ -111,6 +111,11 @@ public:
     void assign(unsigned midx, expr const & t);
 
     /**
+       \brief Return the context associated with a metavariable.
+    */
+    context const & get_context(unsigned midx) const;
+
+    /**
        \brief Return true if this environment contains the given metavariable
 
        \pre is_metavar(m)

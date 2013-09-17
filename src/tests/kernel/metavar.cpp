@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <iostream>
 #include <algorithm>
 #include <vector>
 #include <utility>
@@ -14,22 +15,35 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/normalizer.h"
 #include "kernel/environment.h"
+#include "kernel/type_checker.h"
 #include "library/printer.h"
+#include "library/placeholder.h"
 using namespace lean;
 
 class unification_problems_dbg : public unification_problems {
-    std::vector<std::pair<expr, expr>> m_eqs;
-    std::vector<std::pair<expr, expr>> m_type_of_eqs;
-    std::vector<std::pair<expr, expr>> m_is_convertible_cnstrs;
+    typedef std::tuple<context, expr, expr> constraint;
+    typedef std::vector<constraint>         constraints;
+    constraints m_eqs;
+    constraints m_type_of_eqs;
+    constraints m_is_convertible_cnstrs;
 public:
     unification_problems_dbg() {}
     virtual ~unification_problems_dbg() {}
-    virtual void add_eq(context const &, expr const & lhs, expr const & rhs) { m_eqs.push_back(mk_pair(lhs, rhs)); }
-    virtual void add_type_of_eq(context const &, expr const & n, expr const & t) { m_type_of_eqs.push_back(mk_pair(n, t)); }
-    virtual void add_is_convertible(context const &, expr const & t1, expr const & t2) { m_is_convertible_cnstrs.push_back(mk_pair(t1, t2)); }
-    std::vector<std::pair<expr, expr>> const & eqs() const { return m_eqs; }
-    std::vector<std::pair<expr, expr>> const & type_of_eqs() const { return m_type_of_eqs; }
-    std::vector<std::pair<expr, expr>> const & is_convertible_cnstrs() const { return m_is_convertible_cnstrs; }
+    virtual void add_eq(context const & ctx, expr const & lhs, expr const & rhs) { m_eqs.push_back(constraint(ctx, lhs, rhs)); }
+    virtual void add_type_of_eq(context const & ctx, expr const & n, expr const & t) { m_type_of_eqs.push_back(constraint(ctx, n, t)); }
+    virtual void add_is_convertible(context const & ctx, expr const & t1, expr const & t2) { m_is_convertible_cnstrs.push_back(constraint(ctx, t1, t2)); }
+    constraints const & eqs() const { return m_eqs; }
+    constraints const & type_of_eqs() const { return m_type_of_eqs; }
+    constraints const & is_convertible_cnstrs() const { return m_is_convertible_cnstrs; }
+    friend std::ostream & operator<<(std::ostream & out, unification_problems_dbg const & up) {
+        for (auto c : up.m_eqs)
+            std::cout << std::get<0>(c) << " |- " << std::get<1>(c) << " == " << std::get<2>(c) << "\n";
+        for (auto c : up.m_type_of_eqs)
+            std::cout << std::get<0>(c) << " |- typeof(" << std::get<1>(c) << ") == " << std::get<2>(c) << "\n";
+        for (auto c : up.m_is_convertible_cnstrs)
+            std::cout << std::get<0>(c) << " |- " << std::get<1>(c) << " --> " << std::get<2>(c) << "\n";
+        return out;
+    }
 };
 
 static void tst1() {
@@ -56,7 +70,7 @@ static void tst1() {
     lean_assert(u.eqs().empty());
     lean_assert(u.type_of_eqs().size() == 2);
     for (auto p : u.type_of_eqs()) {
-        std::cout << "typeof(" << p.first << ") == " << p.second << "\n";
+        std::cout << "typeof(" << std::get<1>(p) << ") == " << std::get<2>(p) << "\n";
     }
     expr f = Const("f");
     expr a = Const("a");
@@ -446,6 +460,43 @@ static void tst21() {
                 add_lift(m1, 1, 7));
 }
 
+#define _ mk_placholder()
+
+static void tst22() {
+    metavar_env menv;
+    expr f = Const("f");
+    expr x = Const("x");
+    expr N = Const("N");
+    expr F = f(Fun({x, N}, f(_, x)), _);
+    std::cout << F << "\n";
+    std::cout << replace_placeholders_with_metavars(F, menv) << "\n";
+    lean_assert(menv.contains(0));
+    lean_assert(menv.contains(1));
+    lean_assert(!menv.contains(2));
+    lean_assert(menv.get_context(0).size() == 1);
+    lean_assert(lookup(menv.get_context(0), 0).get_domain() == N);
+    lean_assert(menv.get_context(1).size() == 0);
+}
+
+static void tst23() {
+    environment env;
+    metavar_env menv;
+    unification_problems_dbg up;
+    type_checker checker(env);
+    expr N  = Const("N");
+    expr f  = Const("f");
+    expr a  = Const("a");
+    env.add_var("N", Type());
+    env.add_var("f", N >> (N >> N));
+    env.add_var("a", N);
+    expr x  = Const("x");
+    expr F0 = f(Fun({x, N}, f(_, x))(a), _);
+    expr F1 = replace_placeholders_with_metavars(F0, menv);
+    std::cout << F1 << "\n";
+    std::cout << checker.infer_type(F1, context(), &menv, &up) << "\n";
+    std::cout << up << "\n";
+}
+
 int main() {
     tst1();
     tst2();
@@ -468,5 +519,7 @@ int main() {
     tst19();
     tst20();
     tst21();
+    tst22();
+    tst23();
     return has_violations() ? 1 : 0;
 }

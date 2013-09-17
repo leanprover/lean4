@@ -12,6 +12,8 @@ Author: Leonardo de Moura
 namespace lean {
 class environment;
 class normalizer;
+class metavar_env;
+class unification_problems;
 /**
    \brief Lean Type Checker. It can also be used to infer types, universes and check whether a
    type \c A is convertible to a type \c B.
@@ -23,10 +25,19 @@ public:
     type_checker(environment const & env);
     ~type_checker();
 
-    expr infer_type(expr const & e, context const & ctx = context());
-    level infer_universe(expr const & e, context const & ctx = context());
-    void check(expr const & e, context const & ctx = context()) { infer_type(e, ctx); }
-    bool is_convertible(expr const & t1, expr const & t2, context const & ctx = context());
+    expr infer_type(expr const & e, context const & ctx = context(),
+                    metavar_env * menv = nullptr, unification_problems * up = nullptr);
+
+    level infer_universe(expr const & e, context const & ctx = context(),
+                         metavar_env * menv = nullptr, unification_problems * up = nullptr);
+
+    void check(expr const & e, context const & ctx = context(),
+               metavar_env * menv = nullptr, unification_problems * up = nullptr) {
+        infer_type(e, ctx, menv, up);
+    }
+
+    bool is_convertible(expr const & t1, expr const & t2, context const & ctx = context(),
+                        metavar_env * menv = nullptr, unification_problems * up = nullptr);
 
     void clear();
 

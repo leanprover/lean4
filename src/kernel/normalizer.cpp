@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "kernel/builtin.h"
 #include "kernel/metavar.h"
 #include "kernel/free_vars.h"
+#include "kernel/instantiate.h"
 #include "kernel/kernel_exception.h"
 
 #ifndef LEAN_KERNEL_NORMALIZER_MAX_DEPTH
@@ -141,6 +142,44 @@ class normalizer::imp {
         return expr();
     }
 
+    /** \brief Return true iff the value_stack does affect the context of a metavariable */
+    bool is_identity_stack(value_stack const & s, unsigned k) {
+        if (length(s) != k)
+            return false;
+        unsigned i = 0;
+        for (auto e : s) {
+            if (e.kind() != svalue_kind::BoundedVar || k - to_bvar(e) - 1 != i)
+                return false;
+            ++i;
+        }
+        return true;
+    }
+
+    /**
+       \brief Update the metavariable context for \c m based on the
+       value_stack \c s and the number of binders \c k.
+       \pre is_metavar(m)
+    */
+    expr updt_metavar(expr const & m, value_stack const & s, unsigned k) {
+        lean_assert(is_metavar(m));
+        if (is_identity_stack(s, k))
+            return m; // nothing to be done
+        meta_ctx mctx    = metavar_ctx(m);
+        unsigned midx    = metavar_idx(m);
+        unsigned len_s   = length(s);
+        unsigned len_ctx = m_ctx.size();
+        lean_assert(k >= len_ctx);
+        if (k > len_ctx)
+            mctx = add_lift(mctx, len_s, k - len_ctx);
+        expr r = mk_metavar(midx, mctx);
+        buffer<expr> subst;
+        for (auto e : s) {
+            subst.push_back(reify(e, k));
+        }
+        std::reverse(subst.begin(), subst.end());
+        return instantiate(r, subst.size(), subst.data());
+    }
+
     /** \brief Normalize the expression \c a in a context composed of stack \c s and \c k binders. */
     svalue normalize(expr const & a, value_stack const & s, unsigned k) {
         flet<unsigned> l(m_depth, m_depth+1);
@@ -161,8 +200,7 @@ class normalizer::imp {
             if (m_menv && m_menv->contains(a) && m_menv->is_assigned(a)) {
                 r = normalize(m_menv->get_subst(a), s, k);
             } else {
-                // TODO(Leo): update metavariable
-                r = svalue(a);
+                r = svalue(updt_metavar(a, s, k));
             }
             break;
         case expr_kind::Var:

@@ -355,112 +355,112 @@ struct environment::imp {
 };
 
 environment::environment():
-    m_imp(new imp(*this)) {
+    m_ptr(new imp(*this)) {
 }
 
 // used when creating a new child environment
 environment::environment(std::shared_ptr<imp> const & parent, bool):
-    m_imp(new imp(parent, *this)) {
+    m_ptr(new imp(parent, *this)) {
 }
 
 // used when creating a reference to the parent environment
 environment::environment(std::shared_ptr<imp> const & ptr):
-    m_imp(ptr) {
+    m_ptr(ptr) {
 }
 
 environment::~environment() {
 }
 
 environment environment::mk_child() const {
-    return environment(m_imp, true);
+    return environment(m_ptr, true);
 }
 
 bool environment::has_children() const {
-    return m_imp->has_children();
+    return m_ptr->has_children();
 }
 
 bool environment::has_parent() const {
-    return m_imp->has_parent();
+    return m_ptr->has_parent();
 }
 
 environment environment::parent() const {
     lean_assert(has_parent());
-    return environment(m_imp->m_parent);
+    return environment(m_ptr->m_parent);
 }
 
 level environment::add_uvar(name const & n, level const & l) {
-    return m_imp->add_uvar(n, l, *this);
+    return m_ptr->add_uvar(n, l, *this);
 }
 
 bool environment::is_ge(level const & l1, level const & l2) const {
-    return m_imp->is_ge(l1, l2);
+    return m_ptr->is_ge(l1, l2);
 }
 
 level environment::get_uvar(name const & n) const {
-    return m_imp->get_uvar(n, *this);
+    return m_ptr->get_uvar(n, *this);
 }
 
 void environment::add_builtin(expr const & v) {
-    return m_imp->add_builtin(v, *this);
+    return m_ptr->add_builtin(v, *this);
 }
 
 void environment::add_builtin_set(expr const & r) {
-    return m_imp->add_builtin_set(r, *this);
+    return m_ptr->add_builtin_set(r, *this);
 }
 
 void environment::add_definition(name const & n, expr const & t, expr const & v, bool opaque) {
-    m_imp->add_definition(n, t, v, opaque, *this);
+    m_ptr->add_definition(n, t, v, opaque, *this);
 }
 
 void environment::add_theorem(name const & n, expr const & t, expr const & v) {
-    m_imp->add_theorem(n, t, v, *this);
+    m_ptr->add_theorem(n, t, v, *this);
 }
 
 void environment::add_definition(name const & n, expr const & v, bool opaque) {
-    m_imp->add_definition(n, v, opaque, *this);
+    m_ptr->add_definition(n, v, opaque, *this);
 }
 
 void environment::add_axiom(name const & n, expr const & t) {
-    m_imp->add_axiom(n, t, *this);
+    m_ptr->add_axiom(n, t, *this);
 }
 
 void environment::add_var(name const & n, expr const & t) {
-    m_imp->add_var(n, t, *this);
+    m_ptr->add_var(n, t, *this);
 }
 
 void environment::add_neutral_object(neutral_object_cell * o) {
-    m_imp->m_objects.push_back(mk_neutral(o));
+    m_ptr->m_objects.push_back(mk_neutral(o));
 }
 
 object const & environment::get_object(name const & n) const {
-    return m_imp->get_object(n, *this);
+    return m_ptr->get_object(n, *this);
 }
 
 object const & environment::find_object(name const & n) const {
-    return m_imp->get_object_core(n);
+    return m_ptr->get_object_core(n);
 }
 
 unsigned environment::get_num_objects(bool local) const {
-    return m_imp->get_num_objects(local);
+    return m_ptr->get_num_objects(local);
 }
 
 object const & environment::get_object(unsigned i, bool local) const {
-    return m_imp->get_object(i, local);
+    return m_ptr->get_object(i, local);
 }
 
 expr environment::infer_type(expr const & e, context const & ctx) {
-    return m_imp->infer_type(e, ctx);
+    return m_ptr->infer_type(e, ctx);
 }
 
 expr environment::normalize(expr const & e, context const & ctx) {
-    return m_imp->normalize(e, ctx);
+    return m_ptr->normalize(e, ctx);
 }
 
 void environment::display(std::ostream & out) const {
-    m_imp->display(out, *this);
+    m_ptr->display(out, *this);
 }
 
 void environment::set_interrupt(bool flag) {
-    m_imp->set_interrupt(flag);
+    m_ptr->set_interrupt(flag);
 }
 }

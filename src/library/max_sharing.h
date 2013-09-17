@@ -16,7 +16,7 @@ namespace lean {
 class max_sharing_fn {
     struct imp;
     friend expr max_sharing(expr const & a);
-    std::unique_ptr<imp> m_imp;
+    std::unique_ptr<imp> m_ptr;
 public:
     max_sharing_fn();
     ~max_sharing_fn();

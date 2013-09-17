@@ -18,7 +18,7 @@ namespace lean {
 */
 class frontend {
     struct imp;
-    std::shared_ptr<imp> m_imp;
+    std::shared_ptr<imp> m_ptr;
     explicit frontend(imp * new_ptr);
     explicit frontend(std::shared_ptr<imp> const & ptr);
     state & get_state_core();

@@ -78,10 +78,10 @@ struct max_sharing_fn::imp {
     expr operator()(expr const & a) { return apply(a); }
 };
 
-max_sharing_fn::max_sharing_fn():m_imp(new imp) {}
+max_sharing_fn::max_sharing_fn():m_ptr(new imp) {}
 max_sharing_fn::~max_sharing_fn() {}
-expr max_sharing_fn::operator()(expr const & a) { return (*m_imp)(a); }
-void max_sharing_fn::clear() { m_imp->m_cache.clear(); }
+expr max_sharing_fn::operator()(expr const & a) { return (*m_ptr)(a); }
+void max_sharing_fn::clear() { m_ptr->m_cache.clear(); }
 
 expr max_sharing(expr const & a) {
     if (a.raw()->max_shared())

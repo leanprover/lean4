@@ -19,7 +19,7 @@ namespace lean {
 class environment {
 private:
     struct imp;
-    std::shared_ptr<imp> m_imp;
+    std::shared_ptr<imp> m_ptr;
     void check_type(name const & n, expr const & t, expr const & v);
     environment(std::shared_ptr<imp> const & parent, bool);
     explicit environment(std::shared_ptr<imp> const & ptr);

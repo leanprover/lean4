@@ -365,74 +365,74 @@ struct frontend::imp {
     }
 };
 
-frontend::frontend():m_imp(new imp(*this)) {
-    import_all(m_imp->m_env);
+frontend::frontend():m_ptr(new imp(*this)) {
+    import_all(m_ptr->m_env);
     init_builtin_notation(*this);
-    m_imp->m_state.set_formatter(mk_pp_formatter(*this));
+    m_ptr->m_state.set_formatter(mk_pp_formatter(*this));
 }
-frontend::frontend(imp * new_ptr):m_imp(new_ptr) {
-    m_imp->m_state.set_formatter(mk_pp_formatter(*this));
+frontend::frontend(imp * new_ptr):m_ptr(new_ptr) {
+    m_ptr->m_state.set_formatter(mk_pp_formatter(*this));
 }
-frontend::frontend(std::shared_ptr<imp> const & ptr):m_imp(ptr) {}
+frontend::frontend(std::shared_ptr<imp> const & ptr):m_ptr(ptr) {}
 frontend::~frontend() {}
 
-frontend frontend::mk_child() const { return frontend(new imp(m_imp)); }
-bool frontend::has_children() const { return m_imp->has_children(); }
-bool frontend::has_parent() const { return m_imp->has_parent(); }
-frontend frontend::parent() const { lean_assert(has_parent()); return frontend(m_imp->m_parent); }
+frontend frontend::mk_child() const { return frontend(new imp(m_ptr)); }
+bool frontend::has_children() const { return m_ptr->has_children(); }
+bool frontend::has_parent() const { return m_ptr->has_parent(); }
+frontend frontend::parent() const { lean_assert(has_parent()); return frontend(m_ptr->m_parent); }
 
-environment const & frontend::get_environment() const { return m_imp->m_env; }
+environment const & frontend::get_environment() const { return m_ptr->m_env; }
 
-level frontend::add_uvar(name const & n, level const & l) { return m_imp->m_env.add_uvar(n, l); }
-level frontend::add_uvar(name const & n) { return m_imp->m_env.add_uvar(n); }
-level frontend::get_uvar(name const & n) const { return m_imp->m_env.get_uvar(n); }
+level frontend::add_uvar(name const & n, level const & l) { return m_ptr->m_env.add_uvar(n, l); }
+level frontend::add_uvar(name const & n) { return m_ptr->m_env.add_uvar(n); }
+level frontend::get_uvar(name const & n) const { return m_ptr->m_env.get_uvar(n); }
 
 void frontend::add_definition(name const & n, expr const & t, expr const & v, bool opaque) {
-    return m_imp->m_env.add_definition(n, t, v, opaque);
+    return m_ptr->m_env.add_definition(n, t, v, opaque);
 }
-void frontend::add_theorem(name const & n, expr const & t, expr const & v) { return m_imp->m_env.add_theorem(n, t, v); }
-void frontend::add_definition(name const & n, expr const & v, bool opaque) { return m_imp->m_env.add_definition(n, v, opaque); }
-void frontend::add_axiom(name const & n, expr const & t) { return m_imp->m_env.add_axiom(n, t); }
-void frontend::add_var(name const & n, expr const & t) { return m_imp->m_env.add_var(n, t); }
-object const & frontend::get_object(name const & n) const { return m_imp->m_env.get_object(n); }
-object const & frontend::find_object(name const & n) const { return m_imp->m_env.find_object(n); }
-bool frontend::has_object(name const & n) const { return m_imp->m_env.has_object(n); }
-frontend::object_iterator frontend::begin_objects() const { return m_imp->m_env.begin_objects(); }
-frontend::object_iterator frontend::end_objects() const { return m_imp->m_env.end_objects(); }
-frontend::object_iterator frontend::begin_local_objects() const { return m_imp->m_env.begin_local_objects(); }
-frontend::object_iterator frontend::end_local_objects() const { return m_imp->m_env.end_local_objects(); }
+void frontend::add_theorem(name const & n, expr const & t, expr const & v) { return m_ptr->m_env.add_theorem(n, t, v); }
+void frontend::add_definition(name const & n, expr const & v, bool opaque) { return m_ptr->m_env.add_definition(n, v, opaque); }
+void frontend::add_axiom(name const & n, expr const & t) { return m_ptr->m_env.add_axiom(n, t); }
+void frontend::add_var(name const & n, expr const & t) { return m_ptr->m_env.add_var(n, t); }
+object const & frontend::get_object(name const & n) const { return m_ptr->m_env.get_object(n); }
+object const & frontend::find_object(name const & n) const { return m_ptr->m_env.find_object(n); }
+bool frontend::has_object(name const & n) const { return m_ptr->m_env.has_object(n); }
+frontend::object_iterator frontend::begin_objects() const { return m_ptr->m_env.begin_objects(); }
+frontend::object_iterator frontend::end_objects() const { return m_ptr->m_env.end_objects(); }
+frontend::object_iterator frontend::begin_local_objects() const { return m_ptr->m_env.begin_local_objects(); }
+frontend::object_iterator frontend::end_local_objects() const { return m_ptr->m_env.end_local_objects(); }
 
-void frontend::add_infix(name const & opn, unsigned p, expr const & d)  { m_imp->add_infix(opn, p, d); }
-void frontend::add_infixl(name const & opn, unsigned p, expr const & d)  { m_imp->add_infixl(opn, p, d); }
-void frontend::add_infixr(name const & opn, unsigned p, expr const & d)  { m_imp->add_infixr(opn, p, d); }
-void frontend::add_prefix(name const & opn, unsigned p, expr const & d)  { m_imp->add_prefix(opn, p, d); }
-void frontend::add_postfix(name const & opn, unsigned p, expr const & d) { m_imp->add_postfix(opn, p, d); }
-void frontend::add_mixfixl(unsigned sz, name const * opns, unsigned p, expr const & d) { m_imp->add_mixfixl(sz, opns, p, d); }
-void frontend::add_mixfixr(unsigned sz, name const * opns, unsigned p, expr const & d) { m_imp->add_mixfixr(sz, opns, p, d); }
-void frontend::add_mixfixc(unsigned sz, name const * opns, unsigned p, expr const & d) { m_imp->add_mixfixc(sz, opns, p, d); }
-void frontend::add_mixfixo(unsigned sz, name const * opns, unsigned p, expr const & d) { m_imp->add_mixfixo(sz, opns, p, d); }
-operator_info frontend::find_op_for(expr const & n, bool unicode) const { return m_imp->find_op_for(n, unicode); }
-operator_info frontend::find_nud(name const & n) const { return m_imp->find_nud(n); }
-operator_info frontend::find_led(name const & n) const { return m_imp->find_led(n); }
+void frontend::add_infix(name const & opn, unsigned p, expr const & d)  { m_ptr->add_infix(opn, p, d); }
+void frontend::add_infixl(name const & opn, unsigned p, expr const & d)  { m_ptr->add_infixl(opn, p, d); }
+void frontend::add_infixr(name const & opn, unsigned p, expr const & d)  { m_ptr->add_infixr(opn, p, d); }
+void frontend::add_prefix(name const & opn, unsigned p, expr const & d)  { m_ptr->add_prefix(opn, p, d); }
+void frontend::add_postfix(name const & opn, unsigned p, expr const & d) { m_ptr->add_postfix(opn, p, d); }
+void frontend::add_mixfixl(unsigned sz, name const * opns, unsigned p, expr const & d) { m_ptr->add_mixfixl(sz, opns, p, d); }
+void frontend::add_mixfixr(unsigned sz, name const * opns, unsigned p, expr const & d) { m_ptr->add_mixfixr(sz, opns, p, d); }
+void frontend::add_mixfixc(unsigned sz, name const * opns, unsigned p, expr const & d) { m_ptr->add_mixfixc(sz, opns, p, d); }
+void frontend::add_mixfixo(unsigned sz, name const * opns, unsigned p, expr const & d) { m_ptr->add_mixfixo(sz, opns, p, d); }
+operator_info frontend::find_op_for(expr const & n, bool unicode) const { return m_ptr->find_op_for(n, unicode); }
+operator_info frontend::find_nud(name const & n) const { return m_ptr->find_nud(n); }
+operator_info frontend::find_led(name const & n) const { return m_ptr->find_led(n); }
 
-void frontend::mark_implicit_arguments(name const & n, unsigned sz, bool const * implicit) { m_imp->mark_implicit_arguments(n, sz, implicit); }
+void frontend::mark_implicit_arguments(name const & n, unsigned sz, bool const * implicit) { m_ptr->mark_implicit_arguments(n, sz, implicit); }
 void frontend::mark_implicit_arguments(name const & n, std::initializer_list<bool> const & l) { mark_implicit_arguments(n, l.size(), l.begin()); }
-bool frontend::has_implicit_arguments(name const & n) const { return m_imp->has_implicit_arguments(n); }
-std::vector<bool> const & frontend::get_implicit_arguments(name const & n) const { return m_imp->get_implicit_arguments(n); }
-name const & frontend::get_explicit_version(name const & n) const { return m_imp->get_explicit_version(n); }
-bool frontend::is_explicit(name const & n) const { return m_imp->is_explicit(n); }
+bool frontend::has_implicit_arguments(name const & n) const { return m_ptr->has_implicit_arguments(n); }
+std::vector<bool> const & frontend::get_implicit_arguments(name const & n) const { return m_ptr->get_implicit_arguments(n); }
+name const & frontend::get_explicit_version(name const & n) const { return m_ptr->get_explicit_version(n); }
+bool frontend::is_explicit(name const & n) const { return m_ptr->is_explicit(n); }
 
-void frontend::add_coercion(expr const & f) { m_imp->add_coercion(f); }
+void frontend::add_coercion(expr const & f) { m_ptr->add_coercion(f); }
 expr frontend::get_coercion(expr const & given_type, expr const & expected_type, context const & ctx) const {
-    return m_imp->get_coercion(given_type, expected_type, ctx);
+    return m_ptr->get_coercion(given_type, expected_type, ctx);
 }
-bool frontend::is_coercion(expr const & f) const { return m_imp->is_coercion(f); }
+bool frontend::is_coercion(expr const & f) const { return m_ptr->is_coercion(f); }
 
-state const & frontend::get_state() const { return m_imp->m_state; }
-state & frontend::get_state_core() { return m_imp->m_state; }
-void frontend::set_options(options const & opts) { return m_imp->m_state.set_options(opts); }
-void frontend::set_regular_channel(std::shared_ptr<output_channel> const & out) { return m_imp->m_state.set_regular_channel(out); }
-void frontend::set_diagnostic_channel(std::shared_ptr<output_channel> const & out) { return m_imp->m_state.set_diagnostic_channel(out); }
+state const & frontend::get_state() const { return m_ptr->m_state; }
+state & frontend::get_state_core() { return m_ptr->m_state; }
+void frontend::set_options(options const & opts) { return m_ptr->m_state.set_options(opts); }
+void frontend::set_regular_channel(std::shared_ptr<output_channel> const & out) { return m_ptr->m_state.set_regular_channel(out); }
+void frontend::set_diagnostic_channel(std::shared_ptr<output_channel> const & out) { return m_ptr->m_state.set_diagnostic_channel(out); }
 
-void frontend::set_interrupt(bool flag) { m_imp->set_interrupt(flag); }
+void frontend::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
 }

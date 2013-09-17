@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include "util/trace.h"
 #include "util/numerics/mpz.h"
-#include "interval/interval.h"
+#include "util/interval/interval.h"
 
 namespace lean {
 

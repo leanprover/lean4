@@ -7,7 +7,7 @@ Author: Soonho Kong
 #include "util/test.h"
 #include "util/trace.h"
 #include "util/numerics/double.h"
-#include "interval/interval_def.h"
+#include "util/interval/interval_def.h"
 #include "tests/interval/check.h"
 
 using namespace lean;

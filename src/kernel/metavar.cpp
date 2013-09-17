@@ -119,10 +119,17 @@ expr instantiate_metavars(expr const & e, metavar_env const & env) {
 }
 
 meta_ctx add_lift(meta_ctx const & ctx, unsigned s, unsigned n) {
-    if (n == 0)
+    if (n == 0) {
         return ctx;
-    else
-        return cons(mk_lift(s, n), ctx);
+    } else if (ctx) {
+        meta_entry e = head(ctx);
+        // Simplification rule
+        //    lift:(s1+n1):n2 lift:s1:n1 --->  lift:s1:n1+n2
+        if (e.is_lift() && s == e.s() + e.n()) {
+            return add_lift(tail(ctx), e.s(), e.n() + n);
+        }
+    }
+    return cons(mk_lift(s, n), ctx);
 }
 
 expr add_lift(expr const & m, unsigned s, unsigned n) {

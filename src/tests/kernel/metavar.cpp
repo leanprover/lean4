@@ -432,6 +432,17 @@ static void tst20() {
     std::cout << norm(F, ctx) << "\n";
 }
 
+static void tst21() {
+    metavar_env menv;
+    expr m1 = menv.mk_metavar();
+    lean_assert(add_lift(add_lift(m1, 0, 1), 1, 1) ==
+                add_lift(m1, 0, 2));
+    lean_assert(add_lift(add_lift(m1, 1, 2), 3, 4) ==
+                add_lift(m1, 1, 6));
+    lean_assert(add_lift(add_lift(m1, 1, 3), 3, 4) !=
+                add_lift(m1, 1, 7));
+}
+
 int main() {
     tst1();
     tst2();
@@ -453,5 +464,6 @@ int main() {
     tst18();
     tst19();
     tst20();
+    tst21();
     return has_violations() ? 1 : 0;
 }

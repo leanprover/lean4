@@ -163,31 +163,16 @@ meta_ctx add_lift(meta_ctx const & ctx, unsigned s, unsigned n);
 expr add_lift(expr const & m, unsigned s, unsigned n);
 
 /**
-   \brief Add a lower:s:n operation to the context of the given metavariable.
+   \brief Add an inst:s:v operation to the context of the given metavariable.
 
    \pre is_metavar(m)
-   \pre n <= s
 */
-expr add_lower(expr const & m, unsigned s, unsigned n);
+expr add_inst(expr const & m, unsigned s, expr const & v);
 
 /**
-    \brief Extend the context \c ctx with the entry <tt>lower:s:n</tt>
+   \brief Extend the context \c ctx with the entry <tt>inst:s v</tt>
 */
-meta_ctx add_lower(meta_ctx const & ctx, unsigned s, unsigned n);
-
-/**
-   \brief Add a subst:s:v operation to the context of the given metavariable.
-
-   \pre is_metavar(m)
-   \pre !occurs(m, v)
-*/
-expr add_subst(expr const & m, unsigned s, expr const & v);
-
-
-/**
-   \brief Extend the context \c ctx with the entry <tt>subst:s v</tt>
-*/
-meta_ctx add_subst(meta_ctx const & ctx, unsigned s, expr const & v);
+meta_ctx add_inst(meta_ctx const & ctx, unsigned s, expr const & v);
 
 /**
    \brief Return true iff the given metavariable has a non-empty

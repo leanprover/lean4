@@ -42,8 +42,8 @@ class deep_copy_fn {
         }
         case expr_kind::MetaVar:
             r = update_metavar(a, [&](meta_entry const & e) -> meta_entry {
-                    if (e.is_subst())
-                        return mk_subst(e.s(), apply(e.v()));
+                    if (e.is_inst())
+                        return mk_inst(e.s(), apply(e.v()));
                     else
                         return e;
                 });

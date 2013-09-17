@@ -15,8 +15,8 @@ Candidates:
     Int::add : ℤ → ℤ → ℤ
     Nat::add : ℕ → ℕ → ℕ
 Arguments:
-    a : ?M0
-    b : ?M2[lower:2:2 lift:0:1 subst:0 a]
+    a : ?M0[lift:0:2]
+    b : ?M2[lift:0:1]
 λ a b c : ℤ, a + c + b
 Error (line: 17, pos: 19) ambiguous overloads
 Candidates:
@@ -24,7 +24,7 @@ Candidates:
     Int::add : ℤ → ℤ → ℤ
     Nat::add : ℕ → ℕ → ℕ
 Arguments:
-    a : ?M0
-    b : ?M2[lower:2:2 lift:0:1 subst:0 a]
+    a : ?M0[lift:0:2]
+    b : ?M2[lift:0:1]
   Assumed: x
 λ a b : ℤ, a + x + b

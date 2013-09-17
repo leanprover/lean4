@@ -8,7 +8,7 @@ Function type:
     Π (A : Type), A → Bool
 Arguments types:
     B : Type
-    a : ?M0[lower:3:3 lift:0:2 subst:0 A]
+    a : ?M0[lift:0:2]
 Elaborator state
     #0 ≈ ?M0[lift:0:2]
   Assumed: myeq

@@ -35,7 +35,7 @@ bool has_free_var(expr const & e, unsigned low, unsigned high);
    \pre !has_free_var(e, 0, d)
 */
 expr lower_free_vars(expr const & e, unsigned s, unsigned d);
-inline expr lower_free_vars(expr const & e, unsigned d) { return lower_free_vars(e, 0, d); }
+inline expr lower_free_vars(expr const & e, unsigned d) { return lower_free_vars(e, d, d); }
 
 /**
    \brief Lift free variables >= s in \c e by d.

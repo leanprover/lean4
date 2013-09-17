@@ -13,8 +13,8 @@ Author: Leonardo de Moura
 #include "kernel/expr_eq.h"
 
 namespace lean {
-meta_entry::meta_entry(meta_entry_kind k, unsigned s, unsigned n):m_kind(k), m_s(s), m_n(n) {}
-meta_entry::meta_entry(unsigned s, expr const & v):m_kind(meta_entry_kind::Subst), m_s(s), m_v(v) {}
+meta_entry::meta_entry(unsigned s, unsigned n):m_kind(meta_entry_kind::Lift), m_s(s), m_n(n) {}
+meta_entry::meta_entry(unsigned s, expr const & v):m_kind(meta_entry_kind::Inst), m_s(s), m_v(v) {}
 meta_entry::~meta_entry() {}
 
 unsigned hash_args(unsigned size, expr const * args) {

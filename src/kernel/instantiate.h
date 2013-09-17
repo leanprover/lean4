@@ -25,4 +25,8 @@ inline expr instantiate_with_closed(expr const & e, expr const & s) { return ins
 expr instantiate(expr const & e, unsigned n, expr const * s);
 inline expr instantiate(expr const & e, std::initializer_list<expr> const & l) { return instantiate(e, l.size(), l.begin()); }
 inline expr instantiate(expr const & e, expr const & s) { return instantiate(e, 1, &s); }
+/**
+   \brief Replace free variable \c i with \c s in \c e.
+*/
+expr instantiate(expr const & e, unsigned i, expr const & s);
 }

@@ -35,9 +35,8 @@ class value;
 
    meta_ctx ::= [meta_entry]
 
-   meta_entry ::=  lift idx idx
-                |  lower idx idx
-                |  subst idx expr
+   meta_entry ::=  lift  idx idx
+                |  inst  idx expr
 
 TODO(Leo): match expressions.
 
@@ -248,27 +247,26 @@ public:
 /**
    \see meta_entry
 */
-enum class meta_entry_kind { Lift, Lower, Subst };
+enum class meta_entry_kind { Lift, Inst };
 /**
     \brief An entry in a metavariable context.
     It represents objects of the form:
     <code>
            | Lift s n
-           | Lower s n
-           | Subst s v
+           | Inst s v
     </code>
     where \c s and \c n are unsigned integers, and
     \c v is an expression
 
     The meaning of <tt>Lift s n</tt> is: lift the free variables greater than or equal to \c s by \c n.
-    The meaning of <tt>Lower s n</tt> is: lower the free variables greater than or equal to \c s by \c n.
-    The meaning of <tt>Subst s v</tt> is: substitute the free variable \c s with the expression \c v.
+    The meaning of <tt>Inst s v</tt> is: instantiate free variable \c s with the expression \c v, and
+                                         lower free variables greater than \c s.
 
     The metavariable context records operations that must be applied
     whenever we substitute a metavariable with an actual expression.
     For example, let ?M be a metavariable with context
     <code>
-       [ Lower 1 1, Subst 0 a, Lift 1 2 ]
+       [ Inst 0 a, Lift 1 2 ]
     </code>
     Now, assume we want to instantiate \c ?M with <tt>f #0 (g #2)</tt>.
     Then, we apply the metavariable entries from right to left.
@@ -276,36 +274,30 @@ enum class meta_entry_kind { Lift, Lower, Subst };
     <code>
        f #0 (g #4)
     </code>
-    Then, we apply <tt>(Subst 0 a)</tt> and produce
-    <code>
-       f a (g #4)
-    </code>
-    Finally, we apply <tt>(Lower 1 1)</tt> and get the final result
+    Then, we apply <tt>(Inst 0 a)</tt> and produce
     <code>
        f a (g #3)
-   </code>
+    </code>
 */
 class meta_entry {
     meta_entry_kind m_kind;
     unsigned        m_s;
     unsigned        m_n;
     expr            m_v;
-    meta_entry(meta_entry_kind k, unsigned s, unsigned n);
+    meta_entry(unsigned s, unsigned n);
     meta_entry(unsigned s, expr const & v);
 public:
     ~meta_entry();
     friend meta_entry mk_lift(unsigned s, unsigned n);
-    friend meta_entry mk_lower(unsigned s, unsigned n);
-    friend meta_entry mk_subst(unsigned s, expr const & v);
+    friend meta_entry mk_inst(unsigned s, expr const & v);
     meta_entry_kind kind() const { return m_kind; }
-    bool is_subst() const { return kind() == meta_entry_kind::Subst; }
+    bool is_inst() const { return kind() == meta_entry_kind::Inst; }
     unsigned s() const { return m_s; }
-    unsigned n() const { lean_assert(kind() != meta_entry_kind::Subst); return m_n; }
-    expr const & v() const { lean_assert(kind() == meta_entry_kind::Subst); return m_v; }
+    unsigned n() const { lean_assert(kind() == meta_entry_kind::Lift); return m_n; }
+    expr const & v() const { lean_assert(kind() == meta_entry_kind::Inst); return m_v; }
 };
-inline meta_entry mk_lift(unsigned s, unsigned n) { return meta_entry(meta_entry_kind::Lift, s, n); }
-inline meta_entry mk_lower(unsigned s, unsigned n) { return meta_entry(meta_entry_kind::Lower, s, n); }
-inline meta_entry mk_subst(unsigned s, expr const & v) { return meta_entry(s, v); }
+inline meta_entry mk_lift(unsigned s, unsigned n) { return meta_entry(s, n); }
+inline meta_entry mk_inst(unsigned s, expr const & v) { return meta_entry(s, v); }
 
 /** \brief Metavariables */
 class expr_metavar : public expr_cell {
@@ -586,7 +578,7 @@ template<typename F> expr update_metavar(expr const & e, unsigned i, F f) {
         meta_entry new_me = f(me);
         if (new_me.kind() != me.kind() || new_me.s() != me.s()) {
             modified = true;
-        } else if (new_me.is_subst()) {
+        } else if (new_me.is_inst()) {
             if (!is_eqp(new_me.v(), me.v()))
                 modified = true;
         } else if (new_me.n() != me.n()) {

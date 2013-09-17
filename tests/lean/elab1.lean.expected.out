@@ -19,7 +19,7 @@ Function type:
     Π (A : Type), A → A
 Arguments types:
     A : Type
-    x : ?M0
+    x : ?M0[lift:0:2]
 Elaborator state
     #0 ≈ ?M0[lift:0:2]
   Assumed: eq
@@ -29,8 +29,8 @@ Function type:
     Π (A : Type), A → A → Bool
 Arguments types:
     C : Type
-    a : ?M0[lower:5:5 lift:0:3 subst:0 B subst:1 A]
-    b : ?M2[lower:5:5 lift:0:2 subst:0 a subst:1 B subst:2 A]
+    a : ?M0[lift:0:3]
+    b : ?M2[lift:0:2]
 Elaborator state
     #0 ≈ ?M2[lift:0:2]
     #0 ≈ ?M0[lift:0:3]

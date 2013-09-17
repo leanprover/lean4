@@ -15,10 +15,10 @@ Author: Leonardo de Moura
 #include "util/interruptable_ptr.h"
 #include "kernel/context.h"
 #include "kernel/for_each.h"
-#include "kernel/instantiate.h"
 #include "kernel/occurs.h"
 #include "kernel/builtin.h"
 #include "kernel/free_vars.h"
+#include "kernel/replace.h"
 #include "library/context_to_lambda.h"
 #include "library/placeholder.h"
 #include "frontends/lean/notation.h"
@@ -75,8 +75,7 @@ static format g_in_fmt        = highlight_keyword(format("in"));
 static format g_assign_fmt    = highlight_keyword(format(":="));
 static format g_geq_fmt       = format("\u2265");
 static format g_lift_fmt      = highlight_keyword(format("lift"));
-static format g_lower_fmt     = highlight_keyword(format("lower"));
-static format g_subst_fmt     = highlight_keyword(format("subst"));
+static format g_inst_fmt      = highlight_keyword(format("inst"));
 
 static name g_pp_max_depth       {"lean", "pp", "max_depth"};
 static name g_pp_max_steps       {"lean", "pp", "max_steps"};
@@ -127,6 +126,24 @@ name get_unused_name(expr const & e) {
         i++;
     }
     return n1;
+}
+
+/**
+   \brief Replace free variable \c 0 in \c a with the name \c n.
+
+   \remark Metavariable context is ignored.
+*/
+expr replace_var_with_name(expr const & a, name const & n) {
+    expr c = mk_constant(n);
+    auto f = [=](expr const & m, unsigned offset) -> expr {
+        if (is_var(m)) {
+            unsigned vidx = var_idx(m);
+            if (vidx >= offset)
+                return vidx == offset ? c : mk_var(vidx - 1);
+        }
+        return m;
+    };
+    return replace_fn<decltype(f)>(f)(a);
 }
 
 /** \brief Functional object for pretty printing expressions */
@@ -288,7 +305,7 @@ class pp_fn {
             name n1 = get_unused_name(lambda);
             m_local_names.insert(n1);
             r.push_back(mk_pair(n1, abst_domain(lambda)));
-            expr b  = instantiate_with_closed(abst_body(lambda), mk_constant(n1));
+            expr b  = replace_var_with_name(abst_body(lambda), n1);
             if (is_quant_expr(b, is_forall))
                 return collect_nested_quantifiers(b, is_forall, r);
             else
@@ -696,9 +713,9 @@ class pp_fn {
             name n1    = get_unused_name(e);
             m_local_names.insert(n1);
             r.push_back(mk_pair(n1, abst_domain(e)));
-            expr b = instantiate_with_closed(abst_body(e), mk_constant(n1));
+            expr b = replace_var_with_name(abst_body(e), n1);
             if (T)
-                T = instantiate_with_closed(abst_body(T), mk_constant(n1));
+                T = replace_var_with_name(abst_body(T), n1);
             return collect_nested(b, T, k, r);
         } else {
             return mk_pair(e, T);
@@ -931,7 +948,7 @@ class pp_fn {
             name n1    = get_unused_name(e);
             m_local_names.insert(n1);
             bindings.push_back(std::make_tuple(n1, let_type(e), let_value(e)));
-            expr b = instantiate_with_closed(let_body(e), mk_constant(n1));
+            expr b = replace_var_with_name(let_body(e), n1);
             return collect_nested_let(b, bindings);
         } else {
             return e;
@@ -1017,18 +1034,17 @@ class pp_fn {
                 format e_fmt;
                 switch (e.kind()) {
                 case meta_entry_kind::Lift:   e_fmt = format{g_lift_fmt, colon(), format(e.s()), colon(), format(e.n())}; break;
-                case meta_entry_kind::Lower:  e_fmt = format{g_lower_fmt, colon(), format(e.s()), colon(), format(e.n())}; break;
-                case meta_entry_kind::Subst:   {
+                case meta_entry_kind::Inst:   {
                     auto p_e = pp_child_with_paren(e.v(), depth);
                     r_weight += p_e.second;
-                    e_fmt = format{g_subst_fmt, colon(), format(e.s()), space(), nest(m_indent, p_e.first)};
+                    e_fmt = format{g_inst_fmt, colon(), format(e.s()), space(), nest(m_indent, p_e.first)};
                     break;
                 }}
                 if (first) {
                     ctx_fmt = e_fmt;
                     first = false;
                 } else {
-                    ctx_fmt += compose(line(), e_fmt);
+                    ctx_fmt += format{comma(), line(), e_fmt};
                 }
             }
             return mk_result(group(compose(mv_fmt, nest(m_indent, format{lsb(), ctx_fmt, rsb()}))), r_weight);
@@ -1195,7 +1211,7 @@ class pp_formatter_cell : public formatter_cell {
             } else {
                 r += format{line(), group(entry)};
             }
-            c2 = instantiate_with_closed(fake_context_rest(c2), mk_constant(n1));
+            c2 = replace_var_with_name(fake_context_rest(c2), n1);
         }
         if (include_e) {
             if (first)
@@ -1319,7 +1335,7 @@ public:
                 name n1 = get_unused_name(c2);
                 fn.register_local(n1);
                 expr const & rest = fake_context_rest(c2);
-                c2 = instantiate_with_closed(rest, mk_constant(n1));
+                c2 = replace_var_with_name(rest, n1);
             }
             return fn(c2);
         }

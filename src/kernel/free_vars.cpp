@@ -175,13 +175,15 @@ bool has_free_var(expr const & e, unsigned low, unsigned high) {
 }
 
 expr lower_free_vars(expr const & e, unsigned s, unsigned d) {
-    lean_assert(d > 0);
+    lean_assert(s >= d);
+    lean_assert(!has_free_var(e, s-d, s));
     auto f = [=](expr const & e, unsigned offset) -> expr {
         if (is_var(e) && var_idx(e) >= s + offset) {
             lean_assert(var_idx(e) >= offset + d);
             return mk_var(var_idx(e) - d);
         } else if (is_metavar(e)) {
-            return add_lower(e, s + offset, d);
+            lean_unreachable();
+            return e;
         } else {
             return e;
         }

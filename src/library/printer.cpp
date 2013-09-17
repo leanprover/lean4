@@ -84,8 +84,7 @@ struct print_expr_fn {
                 if (first) first = false; else out() << ", ";
                 switch (e.kind()) {
                 case meta_entry_kind::Lift:  out() << "lift:" << e.s() << ":" << e.n(); break;
-                case meta_entry_kind::Lower: out() << "lower:" << e.s() << ":" << e.n(); break;
-                case meta_entry_kind::Subst: out() << "subst:" << e.s() << " "; print_child(e.v(), c); break;
+                case meta_entry_kind::Inst:  out() << "inst:" << e.s() << " "; print_child(e.v(), c); break;
                 }
             }
             out() << "]";

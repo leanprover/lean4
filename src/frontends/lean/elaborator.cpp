@@ -576,12 +576,12 @@ class elaborator::imp {
     /**
        \brief Temporary hack until we build the new elaborator.
     */
-    bool is_lower_lift_core(meta_entry_kind k, expr const & e, expr & c, unsigned & s, unsigned & n) {
+    bool is_lift(expr const & e, expr & c, unsigned & s, unsigned & n) {
         if (!is_metavar(e) || !has_context(e))
             return false;
         meta_ctx const & ctx = metavar_ctx(e);
         meta_entry const & entry = head(ctx);
-        if (entry.kind() == k) {
+        if (entry.kind() == meta_entry_kind::Lift) {
             c = ::lean::mk_metavar(metavar_idx(e), tail(ctx));
             add_trace(e, c);
             s = entry.s();
@@ -595,26 +595,12 @@ class elaborator::imp {
     /**
        \brief Temporary hack until we build the new elaborator.
     */
-    bool is_lower(expr const & e, expr & c, unsigned & s, unsigned & n) {
-        return is_lower_lift_core(meta_entry_kind::Lower, e, c, s, n);
-    }
-
-    /**
-       \brief Temporary hack until we build the new elaborator.
-    */
-    bool is_lift(expr const & e, expr & c, unsigned & s, unsigned & n) {
-        return is_lower_lift_core(meta_entry_kind::Lift, e, c, s, n);
-    }
-
-    /**
-       \brief Temporary hack until we build the new elaborator.
-    */
-    bool is_subst(expr const & e, expr & c, unsigned & s, expr & v) {
+    bool is_inst(expr const & e, expr & c, unsigned & s, expr & v) {
         if (!is_metavar(e) || !has_context(e))
             return false;
         meta_ctx const & ctx = metavar_ctx(e);
         meta_entry const & entry = head(ctx);
-        if (entry.kind() == meta_entry_kind::Subst) {
+        if (entry.kind() == meta_entry_kind::Inst) {
             c = ::lean::mk_metavar(metavar_idx(e), tail(ctx));
             add_trace(e, c);
             s = entry.s();
@@ -639,11 +625,6 @@ class elaborator::imp {
         }
 
         if (!has_metavar(t)) {
-            if (is_lower(e, a, s, n)) {
-                m_constraints.push_back(constraint(a, lift_free_vars(t, s-n, n), c));
-                return true;
-            }
-
             if (is_lift(e, a, s, n)) {
                 if (!has_free_var(t, s, s+n)) {
                     m_constraints.push_back(constraint(a, lower_free_vars(t, s+n, n), c));
@@ -660,9 +641,9 @@ class elaborator::imp {
             return true;
         }
 
-        if (is_subst(e, a, i, v) && is_lift(a, b, s, n) && has_free_var(t, s, s+n)) {
+        if (is_inst(e, a, i, v) && is_lift(a, b, s, n) && !has_free_var(t, s, s+n)) {
             // subst (lift b s n) i v  ==  t
-            // (lift b s n) does not have free-variables in the range [s, s+n)
+            // t does not have free-variables in the range [s, s+n)
             // Thus, if t has a free variables in [s, s+n), then the only possible solution is
             //    (lift b s n) == i
             //    v == t
@@ -670,7 +651,6 @@ class elaborator::imp {
             m_constraints.push_back(constraint(v, t, c));
             return true;
         }
-
         return false;
     }
 

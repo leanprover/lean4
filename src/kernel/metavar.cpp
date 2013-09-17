@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/metavar.h"
 #include "kernel/replace.h"
 #include "kernel/free_vars.h"
+#include "kernel/instantiate.h"
 #include "kernel/occurs.h"
 #include "kernel/for_each.h"
 
@@ -66,31 +67,13 @@ void metavar_env::assign(unsigned midx, expr const & v) {
     m_env[midx] = data(v, p->m_type, p->m_ctx);
 }
 
-expr subst(expr const & a, unsigned i, expr const & c) {
-    auto f = [&](expr const & e, unsigned offset) -> expr {
-        if (is_var(e)) {
-            unsigned vidx = var_idx(e);
-            if (vidx == offset + i)
-                return lift_free_vars(c, 0, offset);
-            else
-                return e;
-        } else if (is_metavar(e)) {
-            return add_subst(e, offset, lift_free_vars(c, 0, offset));
-        } else {
-            return e;
-        }
-    };
-    return replace_fn<decltype(f)>(f)(a);
-}
-
 expr instantiate(expr const & s, meta_ctx const & ctx, metavar_env const & env) {
     if (ctx) {
         expr r = instantiate(s, tail(ctx), env);
         meta_entry const & e = head(ctx);
         switch (e.kind()) {
         case meta_entry_kind::Lift:   return lift_free_vars(r, e.s(), e.n());
-        case meta_entry_kind::Lower:  return lower_free_vars(r, e.s(), e.n());
-        case meta_entry_kind::Subst:  return subst(r, e.s(), instantiate_metavars(e.v(), env));
+        case meta_entry_kind::Inst:   return ::lean::instantiate(r, e.s(), instantiate_metavars(e.v(), env));
         }
         lean_unreachable();
         return s;
@@ -143,69 +126,23 @@ expr add_lift(expr const & m, unsigned s, unsigned n) {
     return mk_metavar(metavar_idx(m), add_lift(metavar_ctx(m), s, n));
 }
 
-meta_ctx add_lower(meta_ctx const & ctx, unsigned s2, unsigned n2) {
+meta_ctx add_inst(meta_ctx const & ctx, unsigned s, expr const & v) {
     if (ctx) {
         meta_entry e = head(ctx);
-        unsigned s1, n1;
-        switch (e.kind()) {
-        case meta_entry_kind::Lift:
-            s1 = e.s();
-            n1 = e.n();
-            if (s1 <= s2 && s2 <= s1 + n1) {
-                if (n1 == n2)
-                    return tail(ctx);
-                else if (n1 > n2)
-                    return cons(mk_lift(s1, n1 - n2), tail(ctx));
-            }
-            break;
-        case meta_entry_kind::Lower:
-            s1 = e.s();
-            n1 = e.n();
-            if (s2 == s1 - n1)
-                return add_lower(tail(ctx), s1, n1 + n2);
-            break;
-        case meta_entry_kind::Subst:
-            break;
-        }
-    }
-    return cons(mk_lower(s2, n2), ctx);
-}
-
-expr add_lower(expr const & m, unsigned s, unsigned n) {
-    return mk_metavar(metavar_idx(m), add_lower(metavar_ctx(m), s, n));
-}
-
-meta_ctx add_subst(meta_ctx const & ctx, unsigned s, expr const & v) {
-    if (ctx) {
-        meta_entry e = head(ctx);
-        switch (e.kind()) {
-        case meta_entry_kind::Subst:
-            return cons(mk_subst(s, v), ctx);
-        case meta_entry_kind::Lower:
-            if (s >= e.s())
-                return cons(e, add_subst(tail(ctx), s + e.n(), lift_free_vars(v, e.s(), e.n())));
-            else
-                return cons(e, add_subst(tail(ctx), s, lift_free_vars(v, e.s(), e.n())));
-        case meta_entry_kind::Lift:
+        if (e.kind() == meta_entry_kind::Lift) {
             if (e.s() <= s && s < e.s() + e.n()) {
-                return ctx;
-            } else if (s < e.s() && !has_free_var(v, e.s(), std::numeric_limits<unsigned>::max())) {
-                return cons(e, add_subst(tail(ctx), s, v));
-            } else if (s >= e.s() + e.n() && !has_free_var(v, e.s(), std::numeric_limits<unsigned>::max())) {
-                return cons(e, add_subst(tail(ctx), s - e.n(), v));
-            } else {
-                return cons(mk_subst(s, v), ctx);
+                if (e.n() == 1)
+                    return tail(ctx);
+                else
+                    return add_lift(tail(ctx), e.s(), e.n() - 1);
             }
         }
-        lean_unreachable();
-        return ctx;
-    } else {
-        return cons(mk_subst(s, v), ctx);
     }
+    return cons(mk_inst(s, v), ctx);
 }
 
-expr add_subst(expr const & m, unsigned s, expr const & v) {
-    return mk_metavar(metavar_idx(m), add_subst(metavar_ctx(m), s, v));
+expr add_inst(expr const & m, unsigned s, expr const & v) {
+    return mk_metavar(metavar_idx(m), add_inst(metavar_ctx(m), s, v));
 }
 
 bool has_context(expr const & m) {

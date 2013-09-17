@@ -68,7 +68,7 @@ class expr_eq_fn {
                 compare(metavar_ctx(a), metavar_ctx(b), [&](meta_entry const & e1, meta_entry const & e2) {
                         if (e1.kind() != e2.kind() || e1.s() != e2.s())
                             return false;
-                        if (e1.is_subst())
+                        if (e1.is_inst())
                             return apply(e1.v(), e2.v());
                         else
                             return e1.n() == e2.n();

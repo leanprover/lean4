@@ -141,46 +141,6 @@ class normalizer::imp {
         return expr();
     }
 
-
-    bool is_identity_stack(value_stack const & s, unsigned k) {
-        if (length(s) != k)
-            return false;
-        unsigned i = 0;
-        for (auto e : s) {
-            if (e.kind() != svalue_kind::BoundedVar || k - to_bvar(e) - 1 != i)
-                return false;
-            ++i;
-        }
-        return true;
-    }
-
-    /**
-       \brief Update the metavariable context for \c m based on the
-       value_stack \c s and the number of binders \c k.
-
-       \pre is_metavar(m)
-    */
-    expr updt_metavar(expr const & m, value_stack const & s, unsigned k) {
-        lean_assert(is_metavar(m));
-        if (is_identity_stack(s, k))
-            return m;
-        meta_ctx ctx   = metavar_ctx(m);
-        unsigned midx  = metavar_idx(m);
-        unsigned s_len = length(s);
-        unsigned i     = 0;
-        ctx = add_lift(ctx, s_len, s_len);
-        for (auto e : s) {
-            ctx = add_subst(ctx, i, lift_free_vars(reify(e, k), s_len));
-            ++i;
-        }
-        ctx = add_lower(ctx, s_len, s_len);
-        unsigned m_ctx_len = m_ctx.size();
-        lean_assert(s_len + m_ctx_len >= k);
-        if (s_len + m_ctx_len > k)
-            ctx = add_lower(ctx, s_len, s_len + m_ctx_len - k);
-        return mk_metavar(midx, ctx);
-    }
-
     /** \brief Normalize the expression \c a in a context composed of stack \c s and \c k binders. */
     svalue normalize(expr const & a, value_stack const & s, unsigned k) {
         flet<unsigned> l(m_depth, m_depth+1);
@@ -201,7 +161,8 @@ class normalizer::imp {
             if (m_menv && m_menv->contains(a) && m_menv->is_assigned(a)) {
                 r = normalize(m_menv->get_subst(a), s, k);
             } else {
-                r = svalue(updt_metavar(a, s, k));
+                // TODO(Leo): update metavariable
+                r = svalue(a);
             }
             break;
         case expr_kind::Var:

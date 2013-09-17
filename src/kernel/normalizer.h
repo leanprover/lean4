@@ -14,6 +14,7 @@ namespace lean {
 class environment;
 class options;
 class metavar_env;
+class unification_problems;
 /** \brief Functional object for normalizing expressions */
 class normalizer {
     class imp;
@@ -25,7 +26,8 @@ public:
     ~normalizer();
 
     expr operator()(expr const & e, context const & ctx = context(), metavar_env const * menv = nullptr);
-    bool is_convertible(expr const & t1, expr const & t2, context const & ctx = context());
+    bool is_convertible(expr const & t1, expr const & t2, context const & ctx = context(),
+                        metavar_env * menv = nullptr, unification_problems * up = nullptr);
 
     void clear();
 
@@ -35,5 +37,6 @@ public:
 };
 /** \brief Normalize \c e using the environment \c env and context \c ctx */
 expr normalize(expr const & e, environment const & env, context const & ctx = context(), metavar_env const * menv = nullptr);
-bool is_convertible(expr const & t1, expr const & t2, environment const & env, context const & ctx = context());
+bool is_convertible(expr const & t1, expr const & t2, environment const & env, context const & ctx = context(),
+                    metavar_env * menv = nullptr, unification_problems * up = nullptr);
 }

@@ -224,7 +224,7 @@ struct environment::imp {
     void check_type(name const & n, expr const & t, expr const & v, environment const & env) {
         m_type_checker.infer_universe(t);
         expr v_t = m_type_checker.infer_type(v);
-        if (!m_type_checker.is_convertible(t, v_t))
+        if (!m_type_checker.is_convertible(v_t, t))
             throw def_type_mismatch_exception(env, n, t, v, v_t);
     }
 

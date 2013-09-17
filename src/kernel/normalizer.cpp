@@ -292,12 +292,12 @@ class normalizer::imp {
         return r;
     }
 
-    bool is_convertible_core(expr const & expected, expr const & given) {
-        if (expected == given) {
+    bool is_convertible_core(expr const & given, expr const & expected) {
+        if (given == expected) {
             return true;
         } else {
-            expr const * e = &expected;
             expr const * g = &given;
+            expr const * e = &expected;
             while (true) {
                 if (is_type(*e) && is_type(*g)) {
                     if (m_env.is_ge(ty_level(*e), ty_level(*g)))
@@ -308,8 +308,8 @@ class normalizer::imp {
                     return true;
 
                 if (is_pi(*e) && is_pi(*g) && abst_domain(*e) == abst_domain(*g)) {
-                    e = &abst_body(*e);
                     g = &abst_body(*g);
+                    e = &abst_body(*e);
                 } else {
                     return false;
                 }
@@ -355,14 +355,31 @@ public:
         return reify(normalize(e, value_stack(), k), k);
     }
 
-    bool is_convertible(expr const & expected, expr const & given, context const & ctx) {
-        if (is_convertible_core(expected, given))
+    bool is_convertible(expr const & given, expr const & expected, context const & ctx,
+                        metavar_env * menv, unification_problems * up) {
+        if (is_convertible_core(given, expected))
             return true;
+        expr new_given    = given;
+        expr new_expected = expected;
+        if (has_metavar(new_given) || has_metavar(new_expected)) {
+            expr new_given    = instantiate_metavars(new_given, *menv);
+            expr new_expected = instantiate_metavars(new_expected, *menv);
+            if (is_convertible_core(new_given, new_expected))
+                return true;
+            if (has_metavar(new_given) || has_metavar(new_expected)) {
+                // Very conservative approach, just postpone the problem.
+                // We may also try to normalize new_given and new_expected even if
+                // they contain metavariables.
+                up->add_is_convertible(ctx, new_given, new_expected);
+                return true;
+            }
+        }
+        set_menv(menv);
         set_ctx(ctx);
-        unsigned k = m_ctx.size();
-        expr e_n = reify(normalize(expected, value_stack(), k), k);
-        expr g_n = reify(normalize(given, value_stack(), k), k);
-        return is_convertible_core(e_n, g_n);
+        unsigned k   = m_ctx.size();
+        new_given    = reify(normalize(new_given, value_stack(), k), k);
+        new_expected = reify(normalize(new_expected, value_stack(), k), k);
+        return is_convertible_core(new_given, new_expected);
     }
 
     void clear() { m_ctx = context(); m_cache.clear(); m_menv = nullptr; m_menv_timestamp = 0; }
@@ -374,15 +391,19 @@ normalizer::normalizer(environment const & env):normalizer(env, std::numeric_lim
 normalizer::normalizer(environment const & env, options const & opts):normalizer(env, get_normalizer_max_depth(opts)) {}
 normalizer::~normalizer() {}
 expr normalizer::operator()(expr const & e, context const & ctx, metavar_env const * menv) { return (*m_ptr)(e, ctx, menv); }
-bool normalizer::is_convertible(expr const & t1, expr const & t2, context const & ctx) { return m_ptr->is_convertible(t1, t2, ctx); }
+bool normalizer::is_convertible(expr const & t1, expr const & t2, context const & ctx,
+                                metavar_env * menv, unification_problems * up) {
+    return m_ptr->is_convertible(t1, t2, ctx, menv, up);
+}
 void normalizer::clear() { m_ptr->clear(); }
 void normalizer::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
 
 expr normalize(expr const & e, environment const & env, context const & ctx, metavar_env const * menv) {
     return normalizer(env)(e, ctx, menv);
 }
-bool is_convertible(expr const & expected, expr const & given, environment const & env, context const & ctx) {
-    return normalizer(env).is_convertible(expected, given, ctx);
+bool is_convertible(expr const & given, expr const & expected, environment const & env, context const & ctx,
+                    metavar_env * menv, unification_problems * up) {
+    return normalizer(env).is_convertible(given, expected, ctx, menv, up);
 }
 }
 

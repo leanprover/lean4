@@ -16,6 +16,7 @@ namespace lean {
    It store two kinds of problems:
    1. <tt>ctx |- lhs == rhs</tt>
    2. <tt>ctx |- typeof(n) == t</tt>
+   3. <tt>ctx |- t1 is_convertible_to t2</tt>
 */
 class unification_problems {
 public:
@@ -28,6 +29,12 @@ public:
        \brief Add a new unification problem of the form <tt>ctx |- typeof(n) == t</tt>
     */
     virtual void add_type_of_eq(context const & ctx, expr const & n, expr const & t) = 0;
+    /**
+       \brief Add a new problem of the form <tt>ctx |- t1 is_convertible_to t2</tt>
+
+       \remark <tt>ctx |- t1 == t2</tt> implies <tt>ctx |- t1 is_convertible_to t2</tt>
+    */
+    virtual void add_is_convertible(context const & ctx, expr const & t1, expr const & t2) = 0;
 };
 
 /**

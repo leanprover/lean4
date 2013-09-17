@@ -94,7 +94,7 @@ public:
             while (true) {
                 expr const & c   = arg(e, i);
                 expr const & c_t = arg_types[i];
-                if (!m_normalizer.is_convertible(abst_domain(f_t), c_t, ctx))
+                if (!m_normalizer.is_convertible(c_t, abst_domain(f_t), ctx))
                     throw app_type_mismatch_exception(m_env, ctx, e, arg_types.size(), arg_types.data());
                 if (closed(abst_body(f_t)))
                     f_t = abst_body(f_t);
@@ -140,7 +140,7 @@ public:
             expr lt = infer_type(let_value(e), ctx);
             if (let_type(e)) {
                 infer_universe(let_type(e), ctx); // check if it is really a type
-                if (!m_normalizer.is_convertible(let_type(e), lt, ctx))
+                if (!m_normalizer.is_convertible(lt, let_type(e), ctx))
                     throw def_type_mismatch_exception(m_env, ctx, let_name(e), let_type(e), let_value(e), lt);
             }
             {

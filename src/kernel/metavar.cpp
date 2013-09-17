@@ -107,15 +107,19 @@ void metavar_env::assign(expr const & m, expr const & t) {
 }
 
 expr instantiate_metavars(expr const & e, metavar_env const & env) {
-    auto f = [=](expr const & m, unsigned offset) -> expr {
-        if (is_metavar(m) && env.contains(m)) {
-            expr s = env.get_subst(m);
-            return s ? s : m;
-        } else {
-            return m;
-        }
-    };
-    return replace_fn<decltype(f)>(f)(e);
+    if (!has_metavar(e)) {
+        return e;
+    } else {
+        auto f = [=](expr const & m, unsigned offset) -> expr {
+            if (is_metavar(m) && env.contains(m)) {
+                expr s = env.get_subst(m);
+                return s ? s : m;
+            } else {
+                return m;
+            }
+        };
+        return replace_fn<decltype(f)>(f)(e);
+    }
 }
 
 meta_ctx add_lift(meta_ctx const & ctx, unsigned s, unsigned n) {

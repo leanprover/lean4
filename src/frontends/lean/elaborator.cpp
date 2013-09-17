@@ -283,7 +283,7 @@ class elaborator::imp {
                     expr expected = abst_domain(f_t);
                     expr given    = types[i];
                     if (!has_metavar(expected) && !has_metavar(given)) {
-                        if (is_convertible(expected, given, ctx)) {
+                        if (is_convertible(given, expected, ctx)) {
                             // compatible
                         } else if (m_frontend.get_coercion(given, expected, ctx)) {
                             // compatible if using coercion
@@ -403,7 +403,7 @@ class elaborator::imp {
                         info_ref r = mk_app_mismatch_info(e, ctx, args.size(), args.data(), types.data());
                         m_constraints.push_back(constraint(expected, given, ctx, r));
                     } else {
-                        if (!is_convertible(expected, given, ctx)) {
+                        if (!is_convertible(given, expected, ctx)) {
                             expr coercion = m_frontend.get_coercion(given, expected, ctx);
                             if (coercion) {
                                 modified = true;
@@ -459,7 +459,7 @@ class elaborator::imp {
                     info_ref r = mk_expected_type_info(let_value(e), v_p.first, expected, given, ctx);
                     m_constraints.push_back(constraint(expected, given, ctx, r));
                 } else {
-                    if (!is_convertible(expected, given, ctx)) {
+                    if (!is_convertible(given, expected, ctx)) {
                         expr coercion = m_frontend.get_coercion(given, expected, ctx);
                         if (coercion) {
                             v_p.first = mk_app(coercion, v_p.first);

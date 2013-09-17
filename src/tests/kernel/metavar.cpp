@@ -20,13 +20,16 @@ using namespace lean;
 class unification_problems_dbg : public unification_problems {
     std::vector<std::pair<expr, expr>> m_eqs;
     std::vector<std::pair<expr, expr>> m_type_of_eqs;
+    std::vector<std::pair<expr, expr>> m_is_convertible_cnstrs;
 public:
     unification_problems_dbg() {}
     virtual ~unification_problems_dbg() {}
     virtual void add_eq(context const &, expr const & lhs, expr const & rhs) { m_eqs.push_back(mk_pair(lhs, rhs)); }
     virtual void add_type_of_eq(context const &, expr const & n, expr const & t) { m_type_of_eqs.push_back(mk_pair(n, t)); }
+    virtual void add_is_convertible(context const &, expr const & t1, expr const & t2) { m_is_convertible_cnstrs.push_back(mk_pair(t1, t2)); }
     std::vector<std::pair<expr, expr>> const & eqs() const { return m_eqs; }
     std::vector<std::pair<expr, expr>> const & type_of_eqs() const { return m_type_of_eqs; }
+    std::vector<std::pair<expr, expr>> const & is_convertible_cnstrs() const { return m_is_convertible_cnstrs; }
 };
 
 static void tst1() {

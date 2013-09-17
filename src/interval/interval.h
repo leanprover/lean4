@@ -16,7 +16,7 @@ namespace lean {
 #define DEP_IN_LOWER2 4
 #define DEP_IN_UPPER2 8
 
-typedef short bound_deps;
+typedef unsigned short bound_deps;
 inline bool dep_in_lower1(bound_deps d) { return (d & DEP_IN_LOWER1) != 0; }
 inline bool dep_in_lower2(bound_deps d) { return (d & DEP_IN_LOWER2) != 0; }
 inline bool dep_in_upper1(bound_deps d) { return (d & DEP_IN_UPPER1) != 0; }

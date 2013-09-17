@@ -82,9 +82,12 @@ struct print_expr_fn {
             bool first = true;
             for (meta_entry const & e : metavar_ctx(a)) {
                 if (first) first = false; else out() << ", ";
-                switch (e.kind()) {
-                case meta_entry_kind::Lift:  out() << "lift:" << e.s() << ":" << e.n(); break;
-                case meta_entry_kind::Inst:  out() << "inst:" << e.s() << " "; print_child(e.v(), c); break;
+                if (e.is_lift()) {
+                    out() << "lift:" << e.s() << ":" << e.n();
+                } else {
+                    lean_assert(e.is_inst());
+                    out() << "inst:" << e.s() << " ";
+                    print_child(e.v(), c);
                 }
             }
             out() << "]";

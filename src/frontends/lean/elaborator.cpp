@@ -581,7 +581,7 @@ class elaborator::imp {
             return false;
         meta_ctx const & ctx = metavar_ctx(e);
         meta_entry const & entry = head(ctx);
-        if (entry.kind() == meta_entry_kind::Lift) {
+        if (entry.is_lift()) {
             c = ::lean::mk_metavar(metavar_idx(e), tail(ctx));
             add_trace(e, c);
             s = entry.s();
@@ -600,7 +600,7 @@ class elaborator::imp {
             return false;
         meta_ctx const & ctx = metavar_ctx(e);
         meta_entry const & entry = head(ctx);
-        if (entry.kind() == meta_entry_kind::Inst) {
+        if (entry.is_inst()) {
             c = ::lean::mk_metavar(metavar_idx(e), tail(ctx));
             add_trace(e, c);
             s = entry.s();

@@ -1032,14 +1032,14 @@ class pp_fn {
             unsigned r_weight = 1;
             for (meta_entry const & e : metavar_ctx(a)) {
                 format e_fmt;
-                switch (e.kind()) {
-                case meta_entry_kind::Lift:   e_fmt = format{g_lift_fmt, colon(), format(e.s()), colon(), format(e.n())}; break;
-                case meta_entry_kind::Inst:   {
+                if (e.is_lift()) {
+                    e_fmt = format{g_lift_fmt, colon(), format(e.s()), colon(), format(e.n())};
+                } else {
+                    lean_assert(e.is_inst());
                     auto p_e = pp_child_with_paren(e.v(), depth);
                     r_weight += p_e.second;
                     e_fmt = format{g_inst_fmt, colon(), format(e.s()), space(), nest(m_indent, p_e.first)};
-                    break;
-                }}
+                }
                 if (first) {
                     ctx_fmt = e_fmt;
                     first = false;

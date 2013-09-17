@@ -292,9 +292,10 @@ public:
     friend meta_entry mk_inst(unsigned s, expr const & v);
     meta_entry_kind kind() const { return m_kind; }
     bool is_inst() const { return kind() == meta_entry_kind::Inst; }
+    bool is_lift() const { return kind() == meta_entry_kind::Lift; }
     unsigned s() const { return m_s; }
-    unsigned n() const { lean_assert(kind() == meta_entry_kind::Lift); return m_n; }
-    expr const & v() const { lean_assert(kind() == meta_entry_kind::Inst); return m_v; }
+    unsigned n() const { lean_assert(is_lift()); return m_n; }
+    expr const & v() const { lean_assert(is_inst()); return m_v; }
 };
 inline meta_entry mk_lift(unsigned s, unsigned n) { return meta_entry(s, n); }
 inline meta_entry mk_inst(unsigned s, expr const & v) { return meta_entry(s, v); }

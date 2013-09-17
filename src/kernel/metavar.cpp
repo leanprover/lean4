@@ -71,12 +71,12 @@ expr instantiate(expr const & s, meta_ctx const & ctx, metavar_env const & env) 
     if (ctx) {
         expr r = instantiate(s, tail(ctx), env);
         meta_entry const & e = head(ctx);
-        switch (e.kind()) {
-        case meta_entry_kind::Lift:   return lift_free_vars(r, e.s(), e.n());
-        case meta_entry_kind::Inst:   return ::lean::instantiate(r, e.s(), instantiate_metavars(e.v(), env));
+        if (e.is_lift()) {
+            return lift_free_vars(r, e.s(), e.n());
+        } else {
+            lean_assert(e.is_inst());
+            return ::lean::instantiate(r, e.s(), instantiate_metavars(e.v(), env));
         }
-        lean_unreachable();
-        return s;
     } else {
         return s;
     }
@@ -129,13 +129,11 @@ expr add_lift(expr const & m, unsigned s, unsigned n) {
 meta_ctx add_inst(meta_ctx const & ctx, unsigned s, expr const & v) {
     if (ctx) {
         meta_entry e = head(ctx);
-        if (e.kind() == meta_entry_kind::Lift) {
-            if (e.s() <= s && s < e.s() + e.n()) {
-                if (e.n() == 1)
-                    return tail(ctx);
-                else
-                    return add_lift(tail(ctx), e.s(), e.n() - 1);
-            }
+        if (e.is_lift() && e.s() <= s && s < e.s() + e.n()) {
+            if (e.n() == 1)
+                return tail(ctx);
+            else
+                return add_lift(tail(ctx), e.s(), e.n() - 1);
         }
     }
     return cons(mk_inst(s, v), ctx);

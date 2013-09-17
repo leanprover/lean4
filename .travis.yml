@@ -91,9 +91,6 @@ install:
   - if [[ $USE_TCMALLOC == TRUE ]]; then until sudo add-apt-repository --yes ppa:agent-8131/ppa && sudo apt-get -qq update && sudo apt-get -qq install libgoogle-perftools-dev; do echo retry; done; fi
   - until sudo apt-get -qq install libgmp-dev libmpfr-dev; do echo retry; done
   - until sudo apt-get -qq install cmake python; do echo retry; done
-  - wget https://dl.dropboxusercontent.com/u/203889738/gcc/cmake-bin.tar.gz;
-    tar xfz cmake-bin.tar.gz;
-    sudo cp -v cmake-bin/* /usr/bin;
   - wget http://dl.dropboxusercontent.com/u/203889738/gcc/ninja.tar.gz;
     tar xfz ninja.tar.gz;
     cd ninja;
@@ -179,6 +176,9 @@ after_script:
      ctest -D ExperimentalCoverage;
   fi
 - if [[ $LEANREPO == BLESSED && $MEMCHECK == TRUE ]]; then
+     MEMCHECK_SUPP=`readlink -f ../src/memcheck.supp`;
+     CONFIG_FILE=DartConfiguration.tcl;
+     sed -i "s,^MemoryCheckSuppressionFile:\W*$,MemoryCheckSuppressionFile: $MEMCHECK_SUPP," $CONFIG_FILE;
      yes "C" | ctest -D ExperimentalMemCheck -VV;
   fi
 - if [[ $LEANREPO == BLESSED && $PUSH_TO_CDASH == TRUE ]]; then

@@ -87,7 +87,7 @@ struct print_expr_fn {
                 } else {
                     lean_assert(e.is_inst());
                     out() << "inst:" << e.s() << " ";
-                    print_child(e.v(), c);
+                    print_child(e.v(), context());
                 }
             }
             out() << "]";

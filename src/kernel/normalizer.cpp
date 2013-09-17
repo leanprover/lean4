@@ -144,8 +144,6 @@ class normalizer::imp {
 
     /** \brief Return true iff the value_stack does affect the context of a metavariable */
     bool is_identity_stack(value_stack const & s, unsigned k) {
-        if (length(s) != k)
-            return false;
         unsigned i = 0;
         for (auto e : s) {
             if (e.kind() != svalue_kind::BoundedVar || k - to_bvar(e) - 1 != i)

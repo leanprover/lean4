@@ -392,6 +392,22 @@ static void tst18() {
                 Fun({{z, Type()}, {x, N}}, g(z, x, h(Var(2), z))));
 }
 
+static void tst19() {
+    environment env;
+    metavar_env menv;
+    normalizer  norm(env);
+    context ctx;
+    ctx = extend(ctx, "w1", Type());
+    ctx = extend(ctx, "w2", Type());
+    expr m1 = menv.mk_metavar();
+    expr x = Const("x");
+    expr y = Const("y");
+    expr N = Const("N");
+    expr F = Fun({{N, Type()}, {x, N}, {y, N}}, m1);
+    std::cout << norm(F) << "\n";
+    std::cout << norm(F, ctx) << "\n";
+}
+
 int main() {
     tst1();
     tst2();
@@ -411,5 +427,6 @@ int main() {
     tst16();
     tst17();
     tst18();
+    tst19();
     return has_violations() ? 1 : 0;
 }

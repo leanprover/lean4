@@ -38,5 +38,4 @@ public:
 };
 
 expr infer_type(expr const & e, environment const & env, context const & ctx = context());
-level infer_universe(expr const & t, environment const & env, context const & ctx = context());
 }

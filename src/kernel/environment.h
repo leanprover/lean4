@@ -21,6 +21,7 @@ private:
     struct imp;
     std::shared_ptr<imp> m_imp;
     void check_type(name const & n, expr const & t, expr const & v);
+    environment(std::shared_ptr<imp> const & parent, bool);
     explicit environment(std::shared_ptr<imp> const & ptr);
     explicit environment(imp * new_ptr);
     unsigned get_num_objects(bool local) const;

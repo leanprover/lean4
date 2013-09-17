@@ -281,14 +281,14 @@ struct environment::imp {
     /** \brief Add new axiom. */
     void add_axiom(name const & n, expr const & t, environment const & env) {
         check_name(n, env);
-        infer_universe(t, env);
+        m_type_checker.infer_universe(t);
         register_named_object(mk_axiom(n, t));
     }
 
     /** \brief Add new variable. */
     void add_var(name const & n, expr const & t, environment const & env) {
         check_name(n, env);
-        infer_universe(t, env);
+        m_type_checker.infer_universe(t);
         register_named_object(mk_var_decl(n, t));
     }
 
@@ -359,8 +359,8 @@ environment::environment():
 }
 
 // used when creating a new child environment
-environment::environment(imp * new_ptr):
-    m_imp(new_ptr) {
+environment::environment(std::shared_ptr<imp> const & parent, bool):
+    m_imp(new imp(parent, *this)) {
 }
 
 // used when creating a reference to the parent environment
@@ -372,7 +372,7 @@ environment::~environment() {
 }
 
 environment environment::mk_child() const {
-    return environment(new imp(m_imp, *this));
+    return environment(m_imp, true);
 }
 
 bool environment::has_children() const {

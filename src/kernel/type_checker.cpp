@@ -200,8 +200,4 @@ normalizer & type_checker::get_normalizer() { return m_ptr->get_normalizer(); }
 expr  infer_type(expr const & e, environment const & env, context const & ctx) {
     return type_checker(env).infer_type(e, ctx);
 }
-
-level infer_universe(expr const & t, environment const & env, context const & ctx) {
-    return type_checker(env).infer_universe(t, ctx);
-}
 }

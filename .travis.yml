@@ -178,7 +178,7 @@ after_script:
 - if [[ $LEANREPO == BLESSED && $MEMCHECK == TRUE ]]; then
      MEMCHECK_SUPP=`readlink -f ../src/memcheck.supp`;
      CONFIG_FILE=DartConfiguration.tcl;
-     sed -i "s,^MemoryCheckSuppressionFile:\W*$,MemoryCheckSuppressionFile: $MEMCHECK_SUPP," $CONFIG_FILE;
+     sed -i "s,^MemoryCheckSuppressionFile:\W*$,MemoryCheckSuppressionFile:$MEMCHECK_SUPP," $CONFIG_FILE;
      yes "C" | ctest -D ExperimentalMemCheck -VV;
   fi
 - if [[ $LEANREPO == BLESSED && $PUSH_TO_CDASH == TRUE ]]; then

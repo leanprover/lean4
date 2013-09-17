@@ -9,6 +9,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 void check_int_overflow(long long n) {
+    static_assert(sizeof(long long) > sizeof(int),
+                  "sizeof(long long) is not bigger than sizeof(int).");
     if (n < std::numeric_limits<int>::min())
         throw exception("integer underflow");
     if (n > std::numeric_limits<int>::max())

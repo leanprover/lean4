@@ -406,6 +406,30 @@ static void tst19() {
     expr F = Fun({{N, Type()}, {x, N}, {y, N}}, m1);
     std::cout << norm(F) << "\n";
     std::cout << norm(F, ctx) << "\n";
+    lean_assert(norm(F) == F);
+    lean_assert(norm(F, ctx) == F);
+}
+
+static void tst20() {
+    environment env;
+    metavar_env menv;
+    normalizer  norm(env);
+    context ctx;
+    ctx = extend(ctx, "w1", Type());
+    ctx = extend(ctx, "w2", Type());
+    expr m1 = menv.mk_metavar();
+    expr x = Const("x");
+    expr y = Const("y");
+    expr z = Const("z");
+    expr N = Const("N");
+    expr a = Const("a");
+    expr b = Const("b");
+    env.add_var("N", Type());
+    env.add_var("a", N);
+    env.add_var("b", N);
+    expr F = Fun({{x, N}, {y, N}, {z, N}}, Fun({{x, N}, {y, N}}, m1)(a, b));
+    std::cout << norm(F) << "\n";
+    std::cout << norm(F, ctx) << "\n";
 }
 
 int main() {
@@ -428,5 +452,6 @@ int main() {
     tst17();
     tst18();
     tst19();
+    tst20();
     return has_violations() ? 1 : 0;
 }

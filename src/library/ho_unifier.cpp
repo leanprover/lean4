@@ -83,24 +83,8 @@ class ho_unifier::imp {
         add_constraint(ctx, l, r);
     }
 
-    metavar_env cleanup_subst(metavar_env const & s, unsigned num_input_metavars) {
-        // eliminate auxiliary metavariables
-        if (!m_ho) {
-            return s;
-        } else {
-            metavar_env new_s;
-            for (unsigned i = 0; i < num_input_metavars; i++) {
-                new_s.mk_metavar(s.get_type(i), s.get_context(i));
-                expr subst = s.get_subst(i);
-                if (subst)
-                    new_s.assign(i, subst);
-            }
-            return new_s;
-        }
-    }
-
-    list<result> save_result(list<result> const & r, metavar_env const & s, residue const & rs, unsigned num_input_metavars) {
-        return cons(result(cleanup_subst(s, num_input_metavars), rs), r);
+    list<result> save_result(list<result> const & r, metavar_env const & s, residue const & rs) {
+        return cons(result(s, rs), r);
     }
 
     /**
@@ -419,7 +403,6 @@ public:
     }
 
     list<result> unify(context const & ctx, expr const & a, expr const & b, metavar_env const & menv) {
-        unsigned num_metavars = menv.size();
         init(ctx, a, b, menv);
         list<result> r;
         while (!m_state_stack.empty()) {
@@ -429,7 +412,7 @@ public:
             unsigned cq_size  = cq.size();
             if (cq.empty()) {
                 // no constraints left to be solved
-                r = save_result(r, subst_of(top_state), residue(), num_metavars);
+                r = save_result(r, subst_of(top_state), residue());
                 m_state_stack.pop_back();
             } else {
                 // try cq_sz times to find a constraint that can be processed
@@ -447,7 +430,7 @@ public:
                     residue rs;
                     for (auto c : cq)
                         rs = cons(c, rs);
-                    r = save_result(r, subst_of(top_state), rs, num_metavars);
+                    r = save_result(r, subst_of(top_state), rs);
                     reset_delayed();
                     m_state_stack.pop_back();
                 }

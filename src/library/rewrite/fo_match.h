@@ -7,6 +7,7 @@ Author: Soonho Kong
 #pragma once
 #include <unordered_map>
 #include "kernel/expr.h"
+#include "kernel/expr_maps.h"
 #include "kernel/context.h"
 #include "util/list.h"
 #include "library/all/all.h"
@@ -16,21 +17,22 @@ Author: Soonho Kong
 
 namespace lean {
 
-typedef std::unordered_map<unsigned, expr const &> subst_map;
+typedef expr_map<expr> subst_map;
 
 class fo_match {
 private:
-    bool match_var(context & ctx, expr const & p, expr const & t, subst_map & s);
-    bool match_constant(context & ctx, expr const & p, expr const & t, subst_map & s);
-    bool match_value(context & ctx, expr const & p, expr const & t, subst_map & s);
-    bool match_app(context & ctx, expr const & p, expr const & t, subst_map & s);
-    bool match_lambda(context & ctx, expr const & p, expr const & t, subst_map & s);
-    bool match_pi(context & ctx, expr const & p, expr const & t, subst_map & s);
-    bool match_type(context & ctx, expr const & p, expr const & t, subst_map & s);
-    bool match_eq(context & ctx, expr const & p, expr const & t, subst_map & s);
-    bool match_let(context & ctx, expr const & p, expr const & t, subst_map & s);
-    bool match_metavar(context & ctx, expr const & p, expr const & t, subst_map & s);
+    bool match_var(expr const & p, expr const & t, unsigned o, subst_map & s);
+    bool match_constant(expr const & p, expr const & t, unsigned o, subst_map & s);
+    bool match_value(expr const & p, expr const & t, unsigned o, subst_map & s);
+    bool match_app(expr const & p, expr const & t, unsigned o, subst_map & s);
+    bool match_lambda(expr const & p, expr const & t, unsigned o, subst_map & s);
+    bool match_pi(expr const & p, expr const & t, unsigned o, subst_map & s);
+    bool match_type(expr const & p, expr const & t, unsigned o, subst_map & s);
+    bool match_eq(expr const & p, expr const & t, unsigned o, subst_map & s);
+    bool match_let(expr const & p, expr const & t, unsigned o, subst_map & s);
+    bool match_metavar(expr const & p, expr const & t, unsigned o, subst_map & s);
+
 public:
-    bool match(context & ctx, expr const & p, expr const & t, subst_map & s);
+    bool match(expr const & p, expr const & t, unsigned o, subst_map & s);
 };
 }

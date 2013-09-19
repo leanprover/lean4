@@ -316,8 +316,8 @@ class ho_unifier::imp {
         } else if (is_abstraction(b)) {
             // Imitation for lambdas and Pis
             // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), fun (x_b : (?h_1 x_1 ... x_{num_a-1})), (?h_2 x_1 ... x_{num_a-1} x_b)
-            // New constraints (h_1 a_1 ... a_{num_a-1}) == abst_domain(x)
-            //                 (h_2 a_1 ... a_{num_a-1} x_b) == abst_body(x)
+            // New constraints (h_1 a_1 ... a_{num_a-1}) == abst_domain(b)
+            //                 (h_2 a_1 ... a_{num_a-1} x_b) == abst_body(b)
             expr h_1 = new_s.mk_metavar(ctx);
             expr h_2 = new_s.mk_metavar(ctx);
             expr imitation = mk_lambda(arg_types, mk_lambda(abst_name(b), mk_app_vars(h_1, num_a - 1), mk_app_vars(h_2, num_a)));

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/environment.h"
 #include "kernel/free_vars.h"
+#include "kernel/replace.h"
 #include "library/update_expr.h"
 
 namespace lean {
@@ -40,6 +41,22 @@ expr head_beta_reduce(expr const & t) {
                 args.push_back(arg(t, m));
             return mk_app(args.size(), args.data());
         }
+    }
+}
+
+expr beta_reduce(expr t) {
+    auto f = [=](expr const & m, unsigned offset) -> expr {
+        if (is_head_beta(m))
+            return head_beta_reduce(m);
+        else
+            return m;
+    };
+    while (true) {
+        expr new_t = replace_fn<decltype(f)>(f)(t);
+        if (new_t == t)
+            return new_t;
+        else
+            t = new_t;
     }
 }
 

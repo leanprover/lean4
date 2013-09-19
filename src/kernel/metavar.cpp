@@ -24,11 +24,15 @@ void metavar_env::inc_timestamp() {
 
 metavar_env::metavar_env():m_timestamp(0) {}
 
-expr metavar_env::mk_metavar(context const & ctx) {
+expr metavar_env::mk_metavar(expr const & type, context const & ctx) {
     inc_timestamp();
     unsigned midx = m_env.size();
-    m_env.push_back(data(ctx));
+    m_env.push_back(data(type, ctx));
     return ::lean::mk_metavar(midx);
+}
+
+expr metavar_env::mk_metavar(context const & ctx) {
+    return mk_metavar(expr(), ctx);
 }
 
 bool metavar_env::contains(unsigned midx) const {
@@ -39,8 +43,21 @@ bool metavar_env::is_assigned(unsigned midx) const {
     return m_env[midx].m_subst;
 }
 
-expr metavar_env::get_subst(unsigned midx) const {
+expr metavar_env::get_subst_core(unsigned midx) const {
     return m_env[midx].m_subst;
+}
+
+expr metavar_env::get_subst(unsigned midx) const {
+    expr r = m_env[midx].m_subst;
+    if (r && has_assigned_metavar(r, *this)) {
+        r = instantiate_metavars(r, *this);
+        expr t      = m_env[midx].m_type;
+        context ctx = m_env[midx].m_ctx;
+        const_cast<metavar_env*>(this)->m_env[midx] = data(r, t, ctx);
+        return r;
+    } else {
+        return r;
+    }
 }
 
 expr metavar_env::get_type(unsigned midx, unification_problems & up) {
@@ -58,6 +75,10 @@ expr metavar_env::get_type(unsigned midx, unification_problems & up) {
             up.add_type_of_eq(p->m_ctx, ::lean::mk_metavar(midx), t);
         return t;
     }
+}
+
+expr metavar_env::get_type(unsigned midx) const {
+    return m_env[midx].m_type;
 }
 
 void metavar_env::assign(unsigned midx, expr const & v) {
@@ -96,13 +117,7 @@ expr metavar_env::get_subst(expr const & m) const {
 
 expr metavar_env::get_type(expr const & m, unification_problems & up) {
     expr s = get_type(metavar_idx(m), up);
-    lean_assert(is_metavar(s));
-    lean_assert(!metavar_ctx(s));
-    meta_ctx const & ctx = metavar_ctx(m);
-    if (ctx)
-        return ::lean::mk_metavar(metavar_idx(s), ctx);
-    else
-        return s;
+    return instantiate(s, metavar_ctx(m), *this);
 }
 
 void metavar_env::assign(expr const & m, expr const & t) {
@@ -166,13 +181,32 @@ expr add_inst(expr const & m, unsigned s, expr const & v) {
     return mk_metavar(metavar_idx(m), add_inst(metavar_ctx(m), s, v));
 }
 
-bool has_context(expr const & m) {
+bool has_meta_context(expr const & m) {
     return metavar_ctx(m);
 }
 
-expr pop_context(expr const & m) {
-    lean_assert(has_context(m));
+expr pop_meta_context(expr const & m) {
+    lean_assert(has_meta_context(m));
     return mk_metavar(metavar_idx(m), tail(metavar_ctx(m)));
+}
+
+struct found_assigned {};
+bool has_assigned_metavar(expr const & e, metavar_env const & menv) {
+    if (!has_metavar(e)) {
+        return false;
+    } else {
+        auto proc = [&](expr const & n, unsigned offset) {
+            if (is_metavar(n) && menv.contains(n) && menv.is_assigned(n))
+                throw found_assigned();
+        };
+        for_each_fn<decltype(proc)> visitor(proc);
+        try {
+            visitor(e);
+            return false;
+        } catch (found_assigned&) {
+            return true;
+        }
+    }
 }
 
 /**

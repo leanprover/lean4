@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/flet.h"
 #include "util/scoped_map.h"
 #include "kernel/environment.h"
 #include "kernel/normalizer.h"
@@ -11,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/instantiate.h"
 #include "kernel/free_vars.h"
+#include "kernel/metavar.h"
 #include "library/reduce.h"
 #include "library/light_checker.h"
 
@@ -18,10 +20,13 @@ namespace lean {
 class light_checker::imp {
     typedef scoped_map<expr, expr, expr_hash, expr_eqp> cache;
 
-    environment    m_env;
-    cache          m_cache;
-    normalizer     m_normalizer;
-    volatile bool  m_interrupted;
+    environment            m_env;
+    metavar_env *          m_menv;
+    unsigned               m_menv_timestamp;
+    unification_problems * m_up;
+    normalizer             m_normalizer;
+    cache                  m_cache;
+    volatile bool          m_interrupted;
 
     level infer_universe(expr const & t, context const & ctx) {
         expr u = m_normalizer(infer_type(t, ctx), ctx);
@@ -53,21 +58,29 @@ class light_checker::imp {
             return instantiate(t, num_args(e)-1, &arg(e, 1));
     }
 
-public:
-    imp(environment const & env):
-        m_env(env),
-        m_normalizer(env) {
-        m_interrupted = false;
+    void set_menv(metavar_env * menv) {
+        if (m_menv == menv) {
+            // Check whether m_menv has been updated since the last time the normalizer has been invoked
+            if (m_menv && m_menv->get_timestamp() > m_menv_timestamp) {
+                m_menv_timestamp = m_menv->get_timestamp();
+                m_cache.clear();
+            }
+        } else {
+            m_menv = menv;
+            m_cache.clear();
+            m_menv_timestamp = m_menv ? m_menv->get_timestamp() : 0;
+        }
     }
 
     expr infer_type(expr const & e, context const & ctx) {
         // cheap cases, we do not cache results
         switch (e.kind()) {
         case expr_kind::MetaVar:
-            // TODO(Leo) The following code should be unreachable in the current implementation.
-            // It will be needed when we implement the new elaborator.
-            lean_unreachable();
-            return e;
+            if (m_menv && m_up) {
+                return m_menv->get_type(e, *m_up);
+            } else {
+                throw kernel_exception(m_env, "unexpected metavariable occurrence");
+            }
         case expr_kind::Constant: {
             object const & obj = m_env.get_object(const_name(e));
             if (obj.has_type())
@@ -152,6 +165,22 @@ public:
         return r;
     }
 
+public:
+    imp(environment const & env):
+        m_env(env),
+        m_normalizer(env) {
+        m_interrupted = false;
+        m_menv           = nullptr;
+        m_menv_timestamp = 0;
+        m_up             = nullptr;
+    }
+
+    expr operator()(expr const & e, context const & ctx, metavar_env * menv, unification_problems * up) {
+        set_menv(menv);
+        flet<unification_problems*> set(m_up, up);
+        return infer_type(e, ctx);
+    }
+
     void set_interrupt(bool flag) {
         m_interrupted = flag;
         m_normalizer.set_interrupt(flag);
@@ -160,11 +189,15 @@ public:
     void clear() {
         m_cache.clear();
         m_normalizer.clear();
+        m_menv = nullptr;
+        m_menv_timestamp = 0;
     }
 };
 light_checker::light_checker(environment const & env):m_ptr(new imp(env)) {}
 light_checker::~light_checker() {}
-expr light_checker::operator()(expr const & e, context const & ctx) { return m_ptr->infer_type(e, ctx); }
+expr light_checker::operator()(expr const & e, context const & ctx, metavar_env * menv, unification_problems * up) {
+    return m_ptr->operator()(e, ctx, menv, up);
+}
 void light_checker::clear() { m_ptr->clear(); }
 void light_checker::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
 }

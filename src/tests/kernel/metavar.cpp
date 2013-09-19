@@ -497,6 +497,18 @@ static void tst23() {
     std::cout << up << "\n";
 }
 
+static void tst24() {
+    metavar_env menv;
+    expr m1 = menv.mk_metavar();
+    expr m2 = menv.mk_metavar();
+    expr f  = Const("f");
+    expr a  = Const("a");
+    menv.assign(m1, f(m2));
+    menv.assign(m2, a);
+    lean_assert(instantiate_metavars(f(m1), menv) == f(f(a)));
+    std::cout << instantiate_metavars(f(m1), menv) << "\n";
+}
+
 int main() {
     tst1();
     tst2();
@@ -521,5 +533,6 @@ int main() {
     tst21();
     tst22();
     tst23();
+    tst24();
     return has_violations() ? 1 : 0;
 }

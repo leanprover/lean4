@@ -12,5 +12,6 @@ Author: Leonardo de Moura
 namespace lean {
 bool is_head_beta(expr const & t);
 expr head_beta_reduce(expr const & t);
+expr beta_reduce(expr t);
 expr head_reduce(expr const & t, environment const & e, context const & c = context(), name_set const * defs = nullptr);
 }

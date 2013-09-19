@@ -46,7 +46,7 @@ class metavar_env {
         expr    m_subst;
         expr    m_type;
         context m_ctx;
-        data(context const & ctx):m_ctx(ctx) {}
+        data(expr const & t, context const & ctx):m_type(t), m_ctx(ctx) {}
         data(expr const & s, expr const & t, context const & ctx):m_subst(s), m_type(t), m_ctx(ctx) {}
     };
     pvector<data> m_env;
@@ -62,9 +62,19 @@ public:
     unsigned get_timestamp() const { return m_timestamp; }
 
     /**
+       \brief Return the number of metavariables in this metavar_env.
+    */
+    unsigned size() const { return m_env.size(); }
+
+    /**
        \brief Create new metavariable in this environment.
     */
     expr mk_metavar(context const & ctx = context());
+
+    /**
+       \brief Create a new metavariable with the given type and context.
+    */
+    expr mk_metavar(expr const & type, context const & ctx = context());
 
     /**
        \brief Return true if this environment contains a metavariable
@@ -91,6 +101,8 @@ public:
     */
     expr get_subst(unsigned midx) const;
 
+    expr get_subst_core(unsigned midx) const;
+
     /**
        \brief Return the type of the metavariable with id \c midx in this environment.
 
@@ -102,6 +114,12 @@ public:
        \pre contains(midx)
     */
     expr get_type(unsigned midx, unification_problems & up);
+
+    /**
+       \brief Return type of the metavariable with id \c midx in this environment.
+       If the metavariable is not associated with any type, then return the null expression.
+    */
+    expr get_type(unsigned midx) const;
 
     /**
        \brief Assign the metavariable with id \c midx to the term \c t.
@@ -192,19 +210,27 @@ meta_ctx add_inst(meta_ctx const & ctx, unsigned s, expr const & v);
 
    \pre is_metavar(m)
 */
-bool has_context(expr const & m);
+bool has_meta_context(expr const & m);
 
 /**
    \brief Return the same metavariable, but the head of the context is removed.
 
    \pre is_metavar(m)
-   \pre has_context(m)
+   \pre has_meta_context(m)
 */
-expr pop_context(expr const & m);
+expr pop_meta_context(expr const & m);
+
+/**
+   \brief Return true iff \c e has a metavariable that is assigned in menv.
+*/
+bool has_assigned_metavar(expr const & e, metavar_env const & menv);
 
 /**
    \brief Return true iff \c e contains the metavariable with index \c midx.
    The substitutions in \c menv are taken into account.
 */
 bool has_metavar(expr const & e, unsigned midx, metavar_env const & menv = metavar_env());
+inline bool has_metavar(expr const & e, expr const & m, metavar_env const & menv = metavar_env()) {
+    return has_metavar(e, metavar_idx(m), menv);
+}
 }

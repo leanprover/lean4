@@ -6,6 +6,8 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
+#include <utility>
+#include "util/list.h"
 #include "kernel/metavar.h"
 
 namespace lean {
@@ -17,24 +19,21 @@ public:
     ho_unifier(environment const & env);
     ~ho_unifier();
 
+    typedef list<std::tuple<context, expr, expr>> residue;
+    typedef std::pair<metavar_env, residue> result;
+
     /**
-        \brief Try to unify \c l and \c r in the context \c ctx using the substitution \c menv.
+        \brief Try to unify \c l and \c r in the context \c ctx using the input substitution \c menv.
         By unification, we mean we have to find an assignment for the unassigned metavariables in
         \c l and \c r s.t. \c l and \c r become definitionally equal.
-        The unifier may produce a residue: a set of unification problems that could not be solved,
-        and were postponed. This set of problems is stored in \c up. The caller should try to instantiate
-        the metavariables in the residue using other constraints, and then try to continue the unification.
-        Return true if the unification succeeded (modulo residue), and false if the terms can't be unified.
-
-        @param[in] ctx The context for \c l and \c r
-        @param[in] l   Expression to be unified with \c r
-        @param[in] r   Expression to be unified with \c l
-        @param[in,out] menv  Metavariable substitution. \c menv may already contain some instantiated variables when this method is invoked.
-        @param[out]    up Delayed unification problems (aka residue), that could not be solved by the unifier.
+        The unifier may produce a residue: a set of unification problems
+        that could not be solved, and were postponed. The unifier postpones unification problems of the form
+        <tt>(?M1 ...) == (?M2 ...)</tt> where \c M1 and \c M2 are unassigned metavariables.
+        The result is a list of pairs: substitution (in the form of \c metavar_env) and residue.
+        Each pair is a possible solution. The resultant \c metavar_env may contain new metavariables.
+        The empty list represents failure.
     */
-    bool operator()(context const & ctx, expr const & l, expr const & r, metavar_env & menv, unification_problems & up);
-
-    void clear();
+    list<result> operator()(context const & ctx, expr const & l, expr const & r, metavar_env const & menv);
 
     void set_interrupt(bool flag);
     void interrupt() { set_interrupt(true); }

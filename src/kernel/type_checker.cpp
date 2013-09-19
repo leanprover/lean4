@@ -50,7 +50,7 @@ class type_checker::imp {
             expr A = m_menv->mk_metavar(ctx);
             expr B = m_menv->mk_metavar(ctx);
             expr p = mk_pi(g_x_name, A, B(Var(0)));
-            if (has_context(r)) {
+            if (has_meta_context(r)) {
                 // r contains lift/inst operations, so we put the constraint in m_up
                 m_up->add_eq(ctx, r, p);
             } else {
@@ -75,7 +75,7 @@ class type_checker::imp {
             // A better solution is consists in creating a fresh universe level k and
             // associate the constraint that u == Type k.
             // Later the constraint must be solved in the elaborator.
-            if (has_context(u))
+            if (has_meta_context(u))
                 m_up->add_eq(ctx, u, Type());
             else
                 m_menv->assign(u, Type());
@@ -252,6 +252,8 @@ public:
     void clear() {
         m_cache.clear();
         m_normalizer.clear();
+        m_menv           = nullptr;
+        m_menv_timestamp = 0;
     }
 
     normalizer & get_normalizer() {

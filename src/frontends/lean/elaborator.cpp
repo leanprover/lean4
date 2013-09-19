@@ -211,7 +211,7 @@ class elaborator::imp {
                 }
             } else if (has_assigned_metavar(e)) {
                 return check_pi(instantiate(e), ctx, s, s_ctx);
-            } else if (is_metavar(e) && !has_context(e)) {
+            } else if (is_metavar(e) && !has_meta_context(e)) {
                 // e is a unassigned metavariable that must be a Pi,
                 // then we can assign it to (Pi x : A, B x), where
                 // A and B are fresh metavariables
@@ -551,7 +551,7 @@ class elaborator::imp {
     }
 
     void solve_mvar(expr const & m, expr const & t, constraint const & c) {
-        lean_assert(is_metavar(m) && !has_context(m));
+        lean_assert(is_metavar(m) && !has_meta_context(m));
         unsigned midx = metavar_idx(m);
         if (m_metavars[midx].m_assignment) {
             m_constraints.push_back(constraint(m_metavars[midx].m_assignment, t, c));
@@ -577,7 +577,7 @@ class elaborator::imp {
        \brief Temporary hack until we build the new elaborator.
     */
     bool is_lift(expr const & e, expr & c, unsigned & s, unsigned & n) {
-        if (!is_metavar(e) || !has_context(e))
+        if (!is_metavar(e) || !has_meta_context(e))
             return false;
         meta_ctx const & ctx = metavar_ctx(e);
         meta_entry const & entry = head(ctx);
@@ -596,7 +596,7 @@ class elaborator::imp {
        \brief Temporary hack until we build the new elaborator.
     */
     bool is_inst(expr const & e, expr & c, unsigned & s, expr & v) {
-        if (!is_metavar(e) || !has_context(e))
+        if (!is_metavar(e) || !has_meta_context(e))
             return false;
         meta_ctx const & ctx = metavar_ctx(e);
         meta_entry const & entry = head(ctx);
@@ -612,7 +612,7 @@ class elaborator::imp {
     }
 
     bool solve_meta(expr const & e, expr const & t, constraint const & c) {
-        lean_assert(has_context(e));
+        lean_assert(has_meta_context(e));
         expr const & m = e;
         unsigned midx  = metavar_idx(m);
         unsigned i, s, n;
@@ -667,10 +667,10 @@ class elaborator::imp {
             if (lhs == rhs || (!has_metavar(lhs) && !has_metavar(rhs))) {
                 // do nothing
                 delayed = 0;
-            } else if (is_metavar(lhs) && !has_context(lhs)) {
+            } else if (is_metavar(lhs) && !has_meta_context(lhs)) {
                 delayed = 0;
                 solve_mvar(lhs, rhs, c);
-            } else if (is_metavar(rhs) && !has_context(rhs)) {
+            } else if (is_metavar(rhs) && !has_meta_context(rhs)) {
                 delayed = 0;
                 solve_mvar(rhs, lhs, c);
             } else if (is_metavar(lhs) || is_metavar(rhs)) {

@@ -42,8 +42,24 @@
    fun:*_thread_atexit
    fun:*
    fun:*_Bind_simple*
-   obj:/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.18
+   obj:*/libstdc++.so*
    fun:start_thread
+   fun:clone
+}
+
+{
+   # This warning is due to a memory-leak bug in the g++ compiler.
+   # Soonho reported the problem. Gcc team said this a known problem, and will be fixed
+   # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=58142
+   Suppress_GCC-4.8_Memory_Leak_Bug_in_Thread_32Bit_Ubuntu
+   Memcheck:Leak
+   fun:*nothrow_t
+   fun:*_thread_atexit
+   fun:*
+   fun:*_Bind_simple*
+   fun:*_Bind_simple*
+   fun:*_Bind_simple*
+   obj:*/libstdc++.so*
    fun:clone
 }
 

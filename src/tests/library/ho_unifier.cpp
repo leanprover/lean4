@@ -6,6 +6,8 @@ Author: Leonardo de Moura
 */
 #include "util/test.h"
 #include "kernel/environment.h"
+#include "kernel/builtin.h"
+#include "kernel/abstract.h"
 #include "library/ho_unifier.h"
 #include "library/printer.h"
 #include "library/reduce.h"
@@ -27,7 +29,6 @@ void tst1() {
     expr a  = Const("a");
     expr b  = Const("b");
     expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
     expr l = m1(b, a);
     expr r = f(b, f(a, b));
     for (auto sol : unify(context(), l, r, menv)) {
@@ -38,7 +39,34 @@ void tst1() {
     }
 }
 
+void tst2() {
+    environment env;
+    import_basic(env);
+    metavar_env menv;
+    ho_unifier  unify(env);
+    expr N  = Const("N");
+    expr M  = Const("M");
+    env.add_var("N", Type());
+    env.add_var("f", N >> (Bool >> N));
+    env.add_var("a", N);
+    env.add_var("b", N);
+    expr f  = Const("f");
+    expr x  = Const("x");
+    expr a  = Const("a");
+    expr b  = Const("b");
+    expr m1 = menv.mk_metavar();
+    expr l = m1(b, a);
+    expr r = Fun({x, N}, f(x, Eq(a, b)));
+    for (auto sol : unify(context(), l, r, menv)) {
+        std::cout << m1 << " -> " << beta_reduce(sol.first.get_subst(m1)) << "\n";
+        std::cout << beta_reduce(instantiate_metavars(l, sol.first)) << "\n";
+        lean_assert(beta_reduce(instantiate_metavars(l, sol.first)) == r);
+        std::cout << "--------------\n";
+    }
+}
+
 int main() {
     tst1();
+    tst2();
     return has_violations() ? 1 : 0;
 }

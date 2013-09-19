@@ -38,7 +38,6 @@ class ho_unifier::imp {
     state_stack    m_state_stack;
     unsigned       m_delayed;
     unsigned       m_next_state_id;
-    bool           m_ho; // true if used higher-order
     volatile bool  m_interrupted;
 
     static metavar_env & subst_of(state & s) { return s.m_subst; }
@@ -77,7 +76,6 @@ class ho_unifier::imp {
 
     void init(context const & ctx, expr const & l, expr const & r, metavar_env const & menv) {
         m_next_state_id = 0;
-        m_ho = false;
         m_state_stack.clear();
         m_state_stack.push_back(mk_state(menv, cqueue()));
         add_constraint(ctx, l, r);
@@ -222,7 +220,7 @@ class ho_unifier::imp {
 
     /**
        \brief Create the term (fun (x_0 : types[0]) ... (x_{n-1} : types[n-1]) body)
-     */
+    */
     expr mk_lambda(buffer<expr> const & types, expr const & body) {
         expr r = body;
         unsigned i = types.size();
@@ -234,6 +232,20 @@ class ho_unifier::imp {
     }
 
     /**
+       \brief Return (f x_{num_vars - 1} ... x_0)
+    */
+    expr mk_app_vars(expr const & f, unsigned num_vars) {
+        buffer<expr> args;
+        args.push_back(f);
+        unsigned i = num_vars;
+        while (i > 0) {
+            --i;
+            args.push_back(mk_var(i));
+        }
+        return mk_app(args.size(), args.data());
+    }
+
+    /**
        \brief Process a constraint <tt>ctx |- a = b</tt> where \c a is of the form <tt>(?m ...)</tt>.
        We perform a "case split" using "projection" or "imitation". See Huet&Lang's paper on higher order matching
        for further details.
@@ -241,7 +253,6 @@ class ho_unifier::imp {
     bool process_meta_app(context const & ctx, expr const & a, expr const & b) {
         lean_assert(is_meta_app(a));
         lean_assert(!is_meta_app(b));
-        m_ho = true; // using higher-order matching
         expr f_a          = arg(a, 0);
         lean_assert(is_metavar(f_a));
         state top_state   = m_state_stack.back();
@@ -254,13 +265,14 @@ class ho_unifier::imp {
         for (unsigned i = 1; i < num_a; i++) {
             arg_types.push_back(m_type_infer(arg(a, i), ctx, &s, &upw));
         }
-        // clear the cache since we don't want a reference to s inside of m_type_infer
+        // Clear m_type_infer cache since we don't want a reference to s inside of m_type_infer
         m_type_infer.clear();
         if (upw.failed())
             return false;
         m_state_stack.pop_back();
-        // add projections
+        // Add projections
         for (unsigned i = 1; i < num_a; i++) {
+            // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), x_i
             cqueue new_q = q;
             new_q.push_front(constraint(ctx, arg(a, i), b));
             metavar_env new_s = s;
@@ -268,37 +280,39 @@ class ho_unifier::imp {
             new_s.assign(midx, proj);
             m_state_stack.push_back(mk_state(new_s, new_q));
         }
-        // add imitation
+        // Add imitation
         metavar_env new_s = s;
         cqueue  new_q     = q;
         if (is_app(b)) {
+            // Imitation for applications
             expr f_b          = arg(b, 0);
             unsigned num_b    = num_args(b);
+            // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), f_b (h_1 x_1 ... x_{num_a-1}) ... (h_{num_b-1} x_1 ... x_{num_a-1})
             buffer<expr> imitation_args; // arguments for the imitation
             imitation_args.push_back(f_b);
             for (unsigned i = 1; i < num_b; i++) {
                 expr h_i = new_s.mk_metavar(ctx);
-                buffer<expr> h_app_var_args;
-                buffer<expr> h_app_subst_args;
-                h_app_var_args.push_back(h_i);
-                h_app_subst_args.push_back(h_i);
-                for (unsigned j = 1; j < num_a; j++) {
-                    h_app_var_args.push_back(mk_var(num_a - j - 1));
-                    h_app_subst_args.push_back(arg(a, j));
-                }
-                imitation_args.push_back(mk_app(h_app_var_args.size(), h_app_var_args.data()));
-                new_q.push_front(constraint(ctx, mk_app(h_app_subst_args.size(), h_app_subst_args.data()), arg(b, i)));
+                imitation_args.push_back(mk_app_vars(h_i, num_a - 1));
+                new_q.push_front(constraint(ctx, update_app(a, 0, h_i), arg(b, i)));
             }
             expr imitation = mk_lambda(arg_types, mk_app(imitation_args.size(), imitation_args.data()));
             new_s.assign(midx, imitation);
-            m_state_stack.push_back(mk_state(new_s, new_q));
+        } else if (is_eq(b)) {
+            // Imitation for equality
+            // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), (h_1 x_1 ... x_{num_a-1}) = (h_2 x_1 ... x_{num_a-1})
+            expr h_1 = new_s.mk_metavar(ctx);
+            expr h_2 = new_s.mk_metavar(ctx);
+            expr imitation = mk_lambda(arg_types, mk_eq(mk_app_vars(h_1, num_a - 1), mk_app_vars(h_2, num_a - 1)));
+            new_s.assign(midx, imitation);
+            new_q.push_front(constraint(ctx, update_app(a, 0, h_1), eq_lhs(b)));
+            new_q.push_front(constraint(ctx, update_app(a, 0, h_2), eq_rhs(b)));
         } else {
-            // TODO(Leo) handle eq like we handle applications
-            // make f_a the constant function
+            // "Dump imitation" aka the constant function
+            // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), b
             expr imitation = mk_lambda(arg_types, lift_free_vars(b, 0, num_a - 1));
             new_s.assign(midx, imitation);
-            m_state_stack.push_back(mk_state(new_s, new_q));
         }
+        m_state_stack.push_back(mk_state(new_s, new_q));
         reset_delayed();
         return true;
     }

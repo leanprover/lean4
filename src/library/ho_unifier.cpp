@@ -237,6 +237,19 @@ class ho_unifier::imp {
     };
 
     /**
+       \brief Create the term (fun (x_0 : types[0]) ... (x_{n-1} : types[n-1]) body)
+     */
+    expr mk_lambda(buffer<expr> const & types, expr const & body) {
+        expr r = body;
+        unsigned i = types.size();
+        while (i > 0) {
+            --i;
+            r = ::lean::mk_lambda(name(g_x_name, i), types[i], r);
+        }
+        return r;
+    }
+
+    /**
        \brief Process a constraint <tt>ctx |- a = b</tt> where \c a is of the form <tt>(?m ...)</tt>.
        We perform a "case split" using "projection" or "imitation". See Huet&Lang's paper on higher order matching
        for further details.
@@ -264,12 +277,10 @@ class ho_unifier::imp {
         m_state_stack.pop_back();
         // add projections
         for (unsigned i = 1; i < num_a; i++) {
-            expr proj = mk_var(i - 1);
-            for (unsigned j = 1; j < num_a; j++)
-                proj = mk_lambda(name(g_x_name, j), arg_types[j - 1], proj);
             cqueue new_q = q;
             new_q.push_front(constraint(ctx, arg(a, i), b));
             metavar_env new_s = s;
+            expr proj         = mk_lambda(arg_types, mk_var(num_a - i - 1));
             new_s.assign(midx, proj);
             m_state_stack.push_back(mk_state(new_s, new_q));
         }
@@ -294,17 +305,13 @@ class ho_unifier::imp {
                 imitation_args.push_back(mk_app(h_app_var_args.size(), h_app_var_args.data()));
                 new_q.push_front(constraint(ctx, mk_app(h_app_subst_args.size(), h_app_subst_args.data()), arg(b, i)));
             }
-            expr imitation = mk_app(imitation_args.size(), imitation_args.data());
-            for (unsigned j = 1; j < num_a; j++)
-                imitation = mk_lambda(name(g_x_name, j), arg_types[j - 1], imitation);
+            expr imitation = mk_lambda(arg_types, mk_app(imitation_args.size(), imitation_args.data()));
             new_s.assign(midx, imitation);
             m_state_stack.push_back(mk_state(new_s, new_q));
         } else {
             // TODO(Leo) handle eq like we handle applications
             // make f_a the constant function
-            expr imitation = lift_free_vars(b, 0, num_a - 1);
-            for (unsigned j = 1; j < num_a; j++)
-                imitation = mk_lambda(name(g_x_name, j), arg_types[j - 1], imitation);
+            expr imitation = mk_lambda(arg_types, lift_free_vars(b, 0, num_a - 1));
             new_s.assign(midx, imitation);
             m_state_stack.push_back(mk_state(new_s, new_q));
         }

@@ -6,6 +6,7 @@ Preparing working environment on Ubuntu 12.04
     sudo apt-get install git
     sudo apt-get install libgmp-dev
     sudo apt-get install libmpfr-dev
+    sudo add-apt-repository ppa:kalakris/cmake -y
     sudo apt-get install cmake
 
     sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y

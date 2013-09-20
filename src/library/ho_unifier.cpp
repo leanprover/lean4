@@ -285,12 +285,12 @@ class ho_unifier::imp {
     }
 
     /** \brief Creates a subproblem based on the application arguments */
-    bool process_app_args(context const & ctx, expr const & a, expr const & b, unsigned) {
+    bool process_app_args(context const & ctx, expr const & a, expr const & b, unsigned start) {
         lean_assert(is_app(a) && is_app(b));
         if (num_args(a) != num_args(b)) {
             return false;
         } else {
-            for (unsigned i = 1; i < num_args(a); i++) {
+            for (unsigned i = start; i < num_args(a); i++) {
                 add_constraint(ctx, arg(a, i), arg(b, i));
             }
             return true;

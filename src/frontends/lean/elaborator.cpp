@@ -483,7 +483,7 @@ class elaborator::imp {
         return process(e, ctx).second;
     }
 
-    bool is_simple_ho_match(expr const & e1, expr const & e2, context const & ctx) {
+    bool is_simple_ho_match(expr const & e1, context const & ctx) {
         if (is_app(e1) && is_metavar(arg(e1, 0)) && is_var(arg(e1, 1), 0) && num_args(e1) == 2 && !empty(ctx)) {
             return true;
         } else {
@@ -712,10 +712,10 @@ class elaborator::imp {
                     for (unsigned i = 0; i < num; i++) {
                         m_constraints.push_back(constraint(arg(new_lhs, i), arg(new_rhs, i), c));
                     }
-                } else if (is_simple_ho_match(new_lhs, new_rhs, c.m_ctx)) {
+                } else if (is_simple_ho_match(new_lhs, c.m_ctx)) {
                     delayed = 0;
                     unify_simple_ho_match(new_lhs, new_rhs, c);
-                } else if (is_simple_ho_match(new_rhs, new_lhs, c.m_ctx)) {
+                } else if (is_simple_ho_match(new_rhs, c.m_ctx)) {
                     delayed = 0;
                     unify_simple_ho_match(new_rhs, new_lhs, c);
                 } else if (has_assigned_metavar(new_lhs)) {

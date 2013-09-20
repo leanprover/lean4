@@ -97,7 +97,7 @@ class normalizer::imp {
         }
     };
 
-    svalue lookup(value_stack const & s, unsigned i, unsigned k) {
+    svalue lookup(value_stack const & s, unsigned i) {
         unsigned j = i;
         value_stack const * it1 = &s;
         while (*it1) {
@@ -202,7 +202,7 @@ class normalizer::imp {
             }
             break;
         case expr_kind::Var:
-            r = lookup(s, var_idx(a), k);
+            r = lookup(s, var_idx(a));
             break;
         case expr_kind::Constant: {
             object const & obj = m_env.get_object(const_name(a));

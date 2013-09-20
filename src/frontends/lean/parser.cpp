@@ -708,7 +708,10 @@ class parser::imp {
         buffer<std::pair<pos_info, name>> names;
         parse_names(names);
         expr type;
-        if (curr_is_colon()) {
+        if (!suppress_type) {
+            check_colon_next("invalid binder, ':' expected");
+            type = parse_expr();
+        } else if (curr_is_colon()) {
             next();
             type = parse_expr();
         }

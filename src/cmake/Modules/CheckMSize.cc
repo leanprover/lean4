@@ -15,11 +15,11 @@ int main() {
     for (unsigned i = 1; i < MAX_SZ; i++) {
         void * p = malloc(i);
         size_t r = _msize(p);
-        if (r < i || r > 2*(i + 8)) {
-            fprintf(stderr, "Unexpected _msize behavior");
-            return 0;
+        if (r < i || ((i > 128) && (r > 2 * i))) {
+            fprintf(stderr, "Unexpected _msize behavior: i = %d, r = %d\n", i, int(r));
+            return 1;
         }
         free(p);
     }
-    return 1;
+    return 0;
 }

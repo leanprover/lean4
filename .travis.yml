@@ -18,7 +18,7 @@ env:
    # D1. clang++-3.3  | DEBUG   | TCMALLOC       | CDASH
    - CMAKE_CXX_COMPILER=clang++-3.3
      CMAKE_BUILD_TYPE=DEBUG
-     USE_TCMALLOC=TRUE
+     TCMALLOC=ON
      PUSH_TO_CDASH=TRUE
    # D2. g++-4.8     | DEBUG    | TCMALLOC       | CDASH + TRIGGERS
    - CMAKE_CXX_COMPILER=g++-4.8
@@ -26,34 +26,38 @@ env:
      TRIGGER_BB=TRUE
      TRIGGER_OSX=TRUE
      TRIGGER_WINDOWS=TRUE
-     USE_TCMALLOC=TRUE
+     TCMALLOC=ON
      PUSH_TO_CDASH=TRUE
    # D3. clang++-3.3 | DEBUG
    - CMAKE_CXX_COMPILER=clang++-3.3
      CMAKE_BUILD_TYPE=DEBUG
+     TCMALLOC=OFF
    # D4. g++-4.8     | DEBUG
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=DEBUG
+     TCMALLOC=OFF
    # =======================================================
    # RELEASE Build
    # =======================================================
    # R1. clang++-3.3 | RELEASE | TCMALLOC        | CDASH
    - CMAKE_CXX_COMPILER=clang++-3.3
      CMAKE_BUILD_TYPE=RELEASE
-     USE_TCMALLOC=TRUE
+     TCMALLOC=ON
      PUSH_TO_CDASH=TRUE
    # R2. g++-4.8     | RELEASE | TCMALLOC        | CDASH + UPLOAD=>DROPBOX
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=RELEASE
-     USE_TCMALLOC=TRUE
+     TCMALLOC=ON
      UPLOAD=linux_tcmalloc
      PUSH_TO_CDASH=TRUE
    # R3. clang++-3.3 | RELEASE
    - CMAKE_CXX_COMPILER=clang++-3.3
      CMAKE_BUILD_TYPE=RELEASE
+     TCMALLOC=OFF
    # R4. g++-4.8    | RELEASE                    | UPLOAD=>DROPBOX
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=RELEASE
+     TCMALLOC=OFF
      UPLOAD=linux
    # =======================================================
    # MEMCHECK Build
@@ -61,11 +65,13 @@ env:
    # M1. clang++-3.3 | DEBUG    | MEMCHECK       | CDASH
    - CMAKE_CXX_COMPILER=clang++-3.3
      CMAKE_BUILD_TYPE=DEBUG
+     TCMALLOC=OFF
      MEMCHECK=TRUE
      PUSH_TO_CDASH=TRUE
    # M2. g++-4.8     | DEBUG    | MEMCHECK       | CDASH
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=DEBUG
+     TCMALLOC=ON
      MEMCHECK=TRUE
      PUSH_TO_CDASH=TRUE
    # =======================================================
@@ -75,6 +81,7 @@ env:
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=DOXYGEN
      BUILD_DOXYGEN=TRUE
+     TCMALLOC=OFF
    # =======================================================
    # TESTCOV Build
    # =======================================================
@@ -82,13 +89,14 @@ env:
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=TESTCOV
      PUSH_TO_CDASH=TRUE
+     TCMALLOC=OFF
 
 install:
   - until sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test; do echo retry; done
   - until sudo add-apt-repository --yes ppa:h-rayflood/llvm; do echo retry; done
   - until sudo add-apt-repository --yes ppa:kalakris/cmake; do echo retry; done
   - until sudo apt-get -qq update; do echo retry; done
-  - if [[ $USE_TCMALLOC == TRUE ]]; then until sudo add-apt-repository --yes ppa:agent-8131/ppa && sudo apt-get -qq update && sudo apt-get -qq install libgoogle-perftools-dev; do echo retry; done; fi
+  - if [[ $TCMALLOC == ON ]]; then until sudo add-apt-repository --yes ppa:agent-8131/ppa && sudo apt-get -qq update && sudo apt-get -qq install libgoogle-perftools-dev; do echo retry; done; fi
   - until sudo apt-get -qq install libgmp-dev libmpfr-dev; do echo retry; done
   - until sudo apt-get -qq install cmake python; do echo retry; done
   - wget http://dl.dropboxusercontent.com/u/203889738/gcc/ninja.tar.gz;
@@ -142,9 +150,9 @@ script:
   - cd build
   - if [[ $CMAKE_BUILD_TYPE == RELEASE && $CMAKE_CXX_COMPILER=clang++-3.3 ]];
     then
-       /usr/bin/cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ../src;
+       /usr/bin/cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DTCMALLOC=${TCMALLOC} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ../src;
     else
-       /usr/bin/cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -G Ninja ../src;
+       /usr/bin/cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DTCMALLOC=${TCMALLOC} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -G Ninja ../src;
     fi
   - if [[ $CMAKE_BUILD_TYPE == DEBUG || $CMAKE_BUILD_TYPE == RELEASE || $CMAKE_BUILD_TYPE == TESTCOV ]]; then
        SITE=Ubuntu12.04@Travis;
@@ -206,7 +214,7 @@ after_script:
       GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`;
       OS=linux;
       ARCHIVE_BINARY=${NOW}_${TRAVIS_BRANCH}_${GIT_COMMIT}_${OS}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE};
-      if [[ $USE_TCMALLOC ]]; then
+      if [[ $TCMALLOC == ON ]]; then
           ARCHIVE_BINARY=${ARCHIVE_BINARY}_tcmalloc;
       fi;
       mkdir ${UPLOAD_DIR};

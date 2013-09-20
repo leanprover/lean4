@@ -118,6 +118,7 @@ MAX_COLUMN = 2180
 #  - [x] Else clause should never be on same line as else (use 2 lines)  [whitespace/newline] [4]
 #  - [x] Extra space before )  [whitespace/parens] []2
 #  - [x] Is this a non-const reference? If so, make const or use a pointer.  [runtime/references] [2]
+#  - [x] All parameters should be named in a function
 
 # ===================================================
 # Modified:
@@ -3559,15 +3560,18 @@ def CheckCStyleCast(filename, linenum, line, raw_line, cast_type, pattern,
   # Right now, this will only catch cases where there's a single argument, and
   # it's unnamed.  It should probably be expanded to check for multiple
   # arguments with some unnamed.
-  function_match = Match(r'\s*(\)|=|(const)?\s*(;|\{|throw\(\)|>))', remainder)
-  if function_match:
-    if (not function_match.group(3) or
-        function_match.group(3) == ';' or
-        ('MockCallback<' not in raw_line and
-         '/*' not in raw_line)):
-      error(filename, linenum, 'readability/function', 3,
-            'All parameters should be named in a function')
-    return True
+  #
+  # Disabled by Soonho Kong, 2013/09/19
+  #
+  # function_match = Match(r'\s*(\)|=|(const)?\s*(;|\{|throw\(\)|>))', remainder)
+  # if function_match:
+  #   if (not function_match.group(3) or
+  #       function_match.group(3) == ';' or
+  #       ('MockCallback<' not in raw_line and
+  #        '/*' not in raw_line)):
+  #     error(filename, linenum, 'readability/function', 3,
+  #           'All parameters should be named in a function')
+  #   return True
 
   # At this point, all that should be left is actual casts.
   error(filename, linenum, 'readability/casting', 4,

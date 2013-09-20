@@ -23,6 +23,10 @@ Author: Leonardo de Moura
 #define LEAN_LIBRARY_HO_UNIFIER_MAX_SOLUTIONS std::numeric_limits<unsigned>::max()
 #endif
 
+#ifndef LEAN_LIBRARY_HO_UNIFIER_REMOVE_DUPLICATES
+#define LEAN_LIBRARY_HO_UNIFIER_REMOVE_DUPLICATES true
+#endif
+
 #ifndef LEAN_LIBRARY_HO_UNIFIER_USE_NORMALIZER
 #define LEAN_LIBRARY_HO_UNIFIER_USE_NORMALIZER true
 #endif
@@ -32,12 +36,15 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-static name g_library_ho_unifier_max_solutions  {"library", "ho_unifier", "max_solutions"};
-static name g_library_ho_unifier_use_normalizer {"library", "ho_unifier", "use_normalizer"};
-static name g_library_ho_unifier_use_beta       {"library", "ho_unifier", "use_beta"};
+static name g_library_ho_unifier_max_solutions     {"library", "ho_unifier", "max_solutions"};
+static name g_library_ho_unifier_remove_duplicates {"library", "ho_unifier", "remove_duplicates"};
+static name g_library_ho_unifier_use_normalizer    {"library", "ho_unifier", "use_normalizer"};
+static name g_library_ho_unifier_use_beta          {"library", "ho_unifier", "use_beta"};
 
 RegisterUnsignedOption(g_library_ho_unifier_max_solutions, LEAN_LIBRARY_HO_UNIFIER_MAX_SOLUTIONS,
                        "maximum number of solutions for each invocation of the higher-order unifier");
+RegisterBoolOption(g_library_ho_unifier_remove_duplicates, LEAN_LIBRARY_HO_UNIFIER_REMOVE_DUPLICATES,
+                   "remove duplicate solutions in the higher-order unification module");
 RegisterBoolOption(g_library_ho_unifier_use_normalizer, LEAN_LIBRARY_HO_UNIFIER_USE_NORMALIZER,
                    "use normalizer in the higher-order unification module");
 RegisterBoolOption(g_library_ho_unifier_use_beta, LEAN_LIBRARY_HO_UNIFIER_USE_BETA,
@@ -45,6 +52,10 @@ RegisterBoolOption(g_library_ho_unifier_use_beta, LEAN_LIBRARY_HO_UNIFIER_USE_BE
 
 unsigned get_ho_unifier_max_solutions(options const & opts) {
     return opts.get_unsigned(g_library_ho_unifier_max_solutions, LEAN_LIBRARY_HO_UNIFIER_MAX_SOLUTIONS);
+}
+
+bool get_ho_unifier_remove_duplicates(options const & opts) {
+    return opts.get_bool(g_library_ho_unifier_remove_duplicates, LEAN_LIBRARY_HO_UNIFIER_REMOVE_DUPLICATES);
 }
 
 bool get_ho_unifier_use_normalizer(options const & opts) {
@@ -74,9 +85,11 @@ class ho_unifier::imp {
     state_stack    m_state_stack;
     unsigned       m_delayed;
     unsigned       m_next_state_id;
+    bool           m_ho;
     volatile bool  m_interrupted;
     // options
     unsigned       m_max_solutions;
+    bool           m_remove_duplicates;
     bool           m_use_normalizer;
     bool           m_use_beta;
 
@@ -116,13 +129,76 @@ class ho_unifier::imp {
 
     void init(context const & ctx, expr const & l, expr const & r, metavar_env const & menv) {
         m_next_state_id = 0;
+        m_ho            = false;
         m_state_stack.clear();
         m_state_stack.push_back(mk_state(menv, cqueue()));
         add_constraint(ctx, l, r);
     }
 
-    list<result> save_result(list<result> const & r, metavar_env const & s, residue const & rs) {
-        return cons(result(s, rs), r);
+    /**
+       \brief Return true iff \c r already contains the solution (s, rs).
+
+       \remark We only check if \c rs is empty.
+
+       \remark \c ini_s is the initial substitution set. \c s is an extension of \c ini_s
+    */
+    bool contains_solution(list<result> const & r, metavar_env const & s, residue const & rs, metavar_env const & ini_s) {
+        return
+            empty(rs) &&
+            std::any_of(r.begin(), r.end(), [&](result const & prev) {
+                    if (!empty(prev.second))
+                        return false;
+                    metavar_env const & prev_s = prev.first;
+                    // Remark, prev_s and s are extensions of ini_s
+                    for (unsigned i = 0; i < ini_s.size(); i++) {
+                        if (!ini_s.is_assigned(i) && prev_s.get_subst(i) != s.get_subst(i))
+                            return false;
+                    }
+                    return true;
+                });
+    }
+
+    /**
+       \brief Cleanup the result (remove auxiliary metavariables created by higher-order matching)
+
+       \remark \c ini_s is the initial substitution set. \c s is an extension of \c ini_s
+    */
+    metavar_env cleanup_subst(metavar_env const & s, metavar_env const & ini_s) {
+        metavar_env new_s;
+        for (unsigned i = 0; i < ini_s.size(); i++) {
+            new_s.mk_metavar(s.get_type(i), s.get_context(i));
+            expr subst = s.get_subst(i);
+            if (subst) {
+                if (m_use_beta && !ini_s.is_assigned(i)) {
+                    // beta-reduce the substitution in order to simplify expressions built using
+                    // higher-order matching
+                    subst = beta_reduce(subst);
+                }
+                new_s.assign(i, subst);
+            }
+        }
+        return new_s;
+    }
+
+    /**
+       \brief Store a result (s, rs) into r.
+       If m_remove_duplicates is true, then we check if r does not already contains the solution (s, rs).
+       In the current implementation, we only perform the check when rs is empty.
+
+       \remark \c ini_s is the initial substitution set. \c s is an extension of \c ini_s
+    */
+    list<result> save_result(list<result> const & r, metavar_env s, residue const & rs, metavar_env const & ini_s) {
+        if (empty(rs) && m_ho) {
+            // We only do the cleanup when we don't have a residue.
+            // If we have a residue, we can only remove auxiliary metavariables that do not occur in rs
+            s = cleanup_subst(s, ini_s);
+        }
+
+        if (m_remove_duplicates && contains_solution(r, s, rs, ini_s)) {
+            return r;
+        } else {
+            return cons(result(s, rs), r);
+        }
     }
 
     /**
@@ -297,6 +373,7 @@ class ho_unifier::imp {
     bool process_meta_app(context const & ctx, expr const & a, expr const & b) {
         lean_assert(is_meta_app(a));
         lean_assert(!is_meta_app(b));
+        m_ho              = true; // mark that higher-order matching was used
         expr f_a          = arg(a, 0);
         lean_assert(is_metavar(f_a));
         state top_state   = m_state_stack.back();
@@ -490,11 +567,12 @@ public:
         m_env(env),
         m_normalizer(env, opts),
         m_type_infer(env) {
-        m_interrupted    = false;
-        m_delayed        = 0;
-        m_max_solutions  = get_ho_unifier_max_solutions(opts);
-        m_use_normalizer = get_ho_unifier_use_normalizer(opts);
-        m_use_beta       = get_ho_unifier_use_beta(opts);
+        m_interrupted       = false;
+        m_delayed           = 0;
+        m_max_solutions     = get_ho_unifier_max_solutions(opts);
+        m_remove_duplicates = get_ho_unifier_remove_duplicates(opts);
+        m_use_normalizer    = get_ho_unifier_use_normalizer(opts);
+        m_use_beta          = get_ho_unifier_use_beta(opts);
     }
 
     list<result> unify(context const & ctx, expr const & a, expr const & b, metavar_env const & menv) {
@@ -510,7 +588,7 @@ public:
             unsigned cq_size  = cq.size();
             if (cq.empty()) {
                 // no constraints left to be solved
-                r = save_result(r, subst_of(top_state), residue());
+                r = save_result(r, subst_of(top_state), residue(), menv);
                 num_solutions++;
                 m_state_stack.pop_back();
             } else {
@@ -529,7 +607,7 @@ public:
                     residue rs;
                     for (auto c : cq)
                         rs = cons(c, rs);
-                    r = save_result(r, subst_of(top_state), rs);
+                    r = save_result(r, subst_of(top_state), rs, menv);
                     num_solutions++;
                     reset_delayed();
                     m_state_stack.pop_back();

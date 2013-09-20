@@ -47,6 +47,7 @@ public:
     operator bool() const { return m_ptr != nullptr; }
 
     friend bool is_nil(list const & l) { return l.m_ptr == nullptr; }
+    friend bool empty(list const & l) { return is_nil(l); }
     friend T const & head(list const & l) { lean_assert(!is_nil(l)); return l.m_ptr->m_head; }
     friend list const & tail(list const & l) { lean_assert(!is_nil(l)); return l.m_ptr->m_tail; }
 

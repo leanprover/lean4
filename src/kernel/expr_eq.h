@@ -29,6 +29,7 @@ class expr_eq_fn {
 
     bool apply(expr const & a0, expr const & b0) {
         if (is_eqp(a0, b0))                    return true;
+        if (!a0 || !b0)                        return false;
         if (UseHash && a0.hash() != b0.hash()) return false;
         expr const & a = m_norm(a0);
         expr const & b = m_norm(b0);

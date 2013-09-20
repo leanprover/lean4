@@ -227,7 +227,7 @@ public:
     static bool is_zero(mpz const & v) { return v.is_zero(); }
     static bool is_pos(mpz const & v) { return v.is_pos(); }
     static bool is_neg(mpz const & v) { return v.is_neg(); }
-    static void set_rounding(bool plus_inf) {}
+    static void set_rounding(bool ) {}
     static void neg(mpz & v) { v.neg(); }
     static void reset(mpz & v) { v = 0; }
     // v <- v^k

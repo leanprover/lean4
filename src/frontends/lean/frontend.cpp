@@ -347,7 +347,7 @@ struct frontend::imp {
         m_state.set_interrupt(flag);
     }
 
-    imp(frontend & fe):
+    imp(frontend &):
         m_num_children(0) {
     }
 

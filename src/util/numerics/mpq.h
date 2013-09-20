@@ -227,7 +227,7 @@ public:
     static bool is_zero(mpq const &  v) { return v.is_zero(); }
     static bool is_pos(mpq const & v) { return v.is_pos(); }
     static bool is_neg(mpq const & v) { return v.is_neg(); }
-    static void set_rounding(bool plus_inf) {}
+    static void set_rounding(bool ) {}
     static void neg(mpq & v) { v.neg(); }
     static void inv(mpq & v) { v.inv(); }
     static void reset(mpq & v) { v = 0; }
@@ -252,27 +252,27 @@ public:
     static inline mpq pi_twice_upper() { return pi_u * 2; }
 
     // Transcendental functions
-    static void exp(mpq & v)   { lean_unreachable(); }
-    static void exp2(mpq & v)  { lean_unreachable(); }
-    static void exp10(mpq & v) { lean_unreachable(); }
-    static void log(mpq & v)   { lean_unreachable(); }
-    static void log2(mpq & v)  { lean_unreachable(); }
-    static void log10(mpq & v) { lean_unreachable(); }
-    static void sin(mpq & v)   { lean_unreachable(); }
-    static void cos(mpq & v)   { lean_unreachable(); }
-    static void tan(mpq & v)   { lean_unreachable(); }
-    static void sec(mpq & v)   { lean_unreachable(); }
-    static void csc(mpq & v)   { lean_unreachable(); }
-    static void cot(mpq & v)   { lean_unreachable(); }
-    static void asin(mpq & v)  { lean_unreachable(); }
-    static void acos(mpq & v)  { lean_unreachable(); }
-    static void atan(mpq & v)  { lean_unreachable(); }
-    static void sinh(mpq & v)  { lean_unreachable(); }
-    static void cosh(mpq & v)  { lean_unreachable(); }
-    static void tanh(mpq & v)  { lean_unreachable(); }
-    static void asinh(mpq & v) { lean_unreachable(); }
-    static void acosh(mpq & v) { lean_unreachable(); }
-    static void atanh(mpq & v) { lean_unreachable(); }
+    static void exp(mpq & )   { lean_unreachable(); }
+    static void exp2(mpq & )  { lean_unreachable(); }
+    static void exp10(mpq & ) { lean_unreachable(); }
+    static void log(mpq & )   { lean_unreachable(); }
+    static void log2(mpq & )  { lean_unreachable(); }
+    static void log10(mpq & ) { lean_unreachable(); }
+    static void sin(mpq & )   { lean_unreachable(); }
+    static void cos(mpq & )   { lean_unreachable(); }
+    static void tan(mpq & )   { lean_unreachable(); }
+    static void sec(mpq & )   { lean_unreachable(); }
+    static void csc(mpq & )   { lean_unreachable(); }
+    static void cot(mpq & )   { lean_unreachable(); }
+    static void asin(mpq & )  { lean_unreachable(); }
+    static void acos(mpq & )  { lean_unreachable(); }
+    static void atan(mpq & )  { lean_unreachable(); }
+    static void sinh(mpq & )  { lean_unreachable(); }
+    static void cosh(mpq & )  { lean_unreachable(); }
+    static void tanh(mpq & )  { lean_unreachable(); }
+    static void asinh(mpq & ) { lean_unreachable(); }
+    static void acosh(mpq & ) { lean_unreachable(); }
+    static void atanh(mpq & ) { lean_unreachable(); }
 };
 
 }

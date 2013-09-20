@@ -27,7 +27,7 @@ namespace occurs_ns {
 struct found {};
 }
 bool occurs(name const & n, context const * c, unsigned sz, expr const * es) {
-    auto visitor = [&](expr const & e, unsigned offset) -> void {
+    auto visitor = [&](expr const & e, unsigned) -> void {
         if (is_constant(e)) {
             if (const_name(e) == n)
                 throw occurs_ns::found();
@@ -42,7 +42,7 @@ bool occurs(name const & n, context const * c, unsigned sz, expr const * es) {
 }
 
 bool occurs(expr const & n, context const * c, unsigned sz, expr const * es) {
-    auto visitor = [&](expr const & e, unsigned offset) -> void {
+    auto visitor = [&](expr const & e, unsigned) -> void {
         if (e == n)
             throw occurs_ns::found();
     };

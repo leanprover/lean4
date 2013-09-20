@@ -321,7 +321,7 @@ public:
 
     friend interval<T> cosh (interval<T> o) { o.cosh();  return o; }
     friend interval<T> cosh (interval<T> o, interval_deps & deps) { o.cosh(deps);  return o; }
-    friend interval<T> cosh_jst(interval<T> o, interval_deps & deps) { o.cosh();  return o; }
+    friend interval<T> cosh_jst(interval<T> o, interval_deps & deps) { o.cosh_jst(deps);  return o; }
 
     friend interval<T> tanh (interval<T> o) { o.tanh();  return o; }
     friend interval<T> tanh (interval<T> o, interval_deps & deps) { o.tanh(deps);  return o; }

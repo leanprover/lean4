@@ -502,7 +502,7 @@ class elaborator::imp {
     struct cycle_detected {};
     void occ_core(expr const & t) {
         check_interrupted(m_interrupted);
-        auto proc = [&](expr const & e, unsigned offset) {
+        auto proc = [&](expr const & e, unsigned) {
             if (is_metavar(e)) {
                 unsigned midx = metavar_idx(e);
                 if (m_metavars[midx].m_mark)
@@ -741,7 +741,7 @@ class elaborator::imp {
 
     struct found_assigned {};
     bool has_assigned_metavar(expr const & e) {
-        auto proc = [&](expr const & n, unsigned offset) {
+        auto proc = [&](expr const & n, unsigned) {
             if (is_metavar(n)) {
                 unsigned midx = metavar_idx(n);
                 if (m_metavars[midx].m_assignment)
@@ -758,7 +758,7 @@ class elaborator::imp {
     }
 
     expr instantiate(expr const & e) {
-        auto proc = [&](expr const & n, unsigned offset) -> expr {
+        auto proc = [&](expr const & n, unsigned) -> expr {
             if (is_metavar(n)) {
                 expr const & m = n;
                 unsigned midx = metavar_idx(m);

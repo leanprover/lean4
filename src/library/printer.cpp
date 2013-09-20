@@ -75,7 +75,7 @@ struct print_expr_fn {
             return print_child(a, c);
     }
 
-    void print_metavar(expr const & a, context const & c) {
+    void print_metavar(expr const & a, context const &) {
         out() << "?M" << metavar_idx(a);
         if (metavar_ctx(a)) {
             out() << "[";

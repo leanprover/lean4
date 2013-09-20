@@ -108,7 +108,7 @@ expr_let::expr_let(name const & n, expr const & t, expr const & v, expr const & 
 }
 expr_let::~expr_let() {}
 name value::get_unicode_name() const { return get_name(); }
-bool value::normalize(unsigned num_args, expr const * args, expr & r) const { return false; }
+bool value::normalize(unsigned, expr const *, expr &) const { return false; }
 void value::display(std::ostream & out) const { out << get_name(); }
 bool value::operator==(value const & other) const { return typeid(*this) == typeid(other); }
 format value::pp() const { return format(get_name()); }

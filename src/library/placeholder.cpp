@@ -26,7 +26,7 @@ bool has_placeholder(expr const & e) {
 }
 
 expr replace_placeholders_with_metavars(expr const & e, metavar_env & menv, expr_map<expr> * trace) {
-    auto f = [&](expr const & e, context const & ctx, unsigned offset) -> expr {
+    auto f = [&](expr const & e, context const & ctx, unsigned) -> expr {
         if (is_placeholder(e)) {
             return menv.mk_metavar(ctx);
         } else {

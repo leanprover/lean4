@@ -90,7 +90,6 @@ void invoke_debugger() {
             } else {
                 std::cerr << "ERROR STARTING GDB...\n";
                 // forcing seg fault.
-                int * x = 0;
                 *x = 0;
             }
             return;

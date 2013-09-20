@@ -35,7 +35,7 @@ public:
     /** \brief Format the given environment */
     virtual format operator()(environment const & env, options const & opts) = 0;
     /** \brief Request interruption */
-    virtual void set_interrupt(bool flag) {}
+    virtual void set_interrupt(bool ) {}
 };
 /**
    \brief Smart-pointer for the actual formatter object (aka \c formatter_cell).

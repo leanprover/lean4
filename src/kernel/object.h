@@ -61,7 +61,7 @@ public:
     virtual bool is_theorem() const { return false; }
     virtual bool is_var_decl() const { return false; }
 
-    virtual bool in_builtin_set(expr const & v) const { return false; }
+    virtual bool in_builtin_set(expr const &) const { return false; }
 };
 
 /**

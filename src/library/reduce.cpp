@@ -45,7 +45,7 @@ expr head_beta_reduce(expr const & t) {
 }
 
 expr beta_reduce(expr t) {
-    auto f = [=](expr const & m, unsigned offset) -> expr {
+    auto f = [=](expr const & m, unsigned) -> expr {
         if (is_head_beta(m))
             return head_beta_reduce(m);
         else

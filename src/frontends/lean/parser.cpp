@@ -704,7 +704,7 @@ class parser::imp {
         \remark If \c suppress_type is true, then the type doesn't
         need to be provided. That is, we automatically include a placeholder.
     */
-    void parse_simple_bindings(bindings_buffer & result, bool implicit_decl, bool supress_type) {
+    void parse_simple_bindings(bindings_buffer & result, bool implicit_decl, bool suppress_type) {
         buffer<std::pair<pos_info, name>> names;
         parse_names(names);
         expr type;

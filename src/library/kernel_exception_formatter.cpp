@@ -30,11 +30,11 @@ format pp(formatter const & fmt, kernel_exception const & ex, options const & op
         return format(ex.what());
 }
 
-format pp(unknown_name_exception const & ex, options const & opts) {
+format pp(unknown_name_exception const & ex, options const &) {
     return format{format("unknown object '"), format(ex.get_name()), format("'")};
 }
 
-format pp(already_declared_exception const & ex, options const & opts) {
+format pp(already_declared_exception const & ex, options const &) {
     return format{format("invalid object declaration, environment already has an object named '"), format(ex.get_name()), format("'")};
 }
 

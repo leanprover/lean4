@@ -1106,7 +1106,7 @@ class pp_fn {
 
     struct found_prefix {};
     bool uses_prefix(expr const & e, name const & prefix) {
-        auto f = [&](expr const & e, unsigned offset) {
+        auto f = [&](expr const & e, unsigned) {
             if (is_constant(e)) {
                 if (is_prefix_of(prefix, const_name(e))) throw found_prefix();
             } else if (is_abstraction(e)) {
@@ -1274,7 +1274,7 @@ class pp_formatter_cell : public formatter_cell {
         return r;
     }
 
-    format pp_builtin_set(object const & obj, options const & opts) {
+    format pp_builtin_set(object const & obj, options const &) {
         char const * kwd = obj.keyword();
         name const & n = obj.get_name();
         return format{highlight_command(format(kwd)), space(), format(n)};

@@ -20,7 +20,7 @@ using lean::parser;
 
 static interruptable_ptr<shell> g_lean_shell;
 
-static void on_ctrl_c(int i) {
+static void on_ctrl_c(int ) {
     g_lean_shell.set_interrupt(true);
 }
 

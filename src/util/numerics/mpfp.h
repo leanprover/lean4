@@ -33,37 +33,37 @@ public:
 
     // Setter functions
     mpfp & set(mpfp const & v, mpfr_rnd_t rnd = MPFR_RNDN) {
-        mpfr_set(m_val, v.m_val, MPFR_RNDN); return *this;
+        mpfr_set(m_val, v.m_val, rnd); return *this;
     }
     mpfp & set(unsigned long int const v, mpfr_rnd_t rnd = MPFR_RNDN) {
-        mpfr_set_ui(m_val, v, MPFR_RNDN); return *this;
+        mpfr_set_ui(m_val, v, rnd); return *this;
     }
     mpfp & set(long int const v, mpfr_rnd_t rnd = MPFR_RNDN) {
-        mpfr_set_si(m_val, v, MPFR_RNDN); return *this;
+        mpfr_set_si(m_val, v, rnd); return *this;
     }
     mpfp & set(float const v, mpfr_rnd_t rnd = MPFR_RNDN) {
-        mpfr_set_flt(m_val, v, MPFR_RNDN); return *this;
+        mpfr_set_flt(m_val, v, rnd); return *this;
     }
     mpfp & set(double const v, mpfr_rnd_t rnd = MPFR_RNDN) {
-        mpfr_set_d(m_val, v, MPFR_RNDN); return *this;
+        mpfr_set_d(m_val, v, rnd); return *this;
     }
     mpfp & set(long double const v, mpfr_rnd_t rnd = MPFR_RNDN) {
-        mpfr_set_ld(m_val, v, MPFR_RNDN); return *this;
+        mpfr_set_ld(m_val, v, rnd); return *this;
     }
     mpfp & set(mpz_t const & v, mpfr_rnd_t rnd = MPFR_RNDN) {
-        mpfr_set_z(m_val, v, MPFR_RNDN); return *this;
+        mpfr_set_z(m_val, v, rnd); return *this;
     }
     mpfp & set(mpq_t const & v, mpfr_rnd_t rnd = MPFR_RNDN) {
-        mpfr_set_q(m_val, v, MPFR_RNDN); return *this;
+        mpfr_set_q(m_val, v, rnd); return *this;
     }
     mpfp & set(mpf_t const & v, mpfr_rnd_t rnd = MPFR_RNDN) {
-        mpfr_set_f(m_val, v, MPFR_RNDN); return *this;
+        mpfr_set_f(m_val, v, rnd); return *this;
     }
     mpfp & set(mpz   const & v, mpfr_rnd_t rnd = MPFR_RNDN) {
-        mpfr_set_z(m_val, v.m_val, MPFR_RNDN); return *this;
+        mpfr_set_z(m_val, v.m_val, rnd); return *this;
     }
     mpfp & set(mpq   const & v, mpfr_rnd_t rnd = MPFR_RNDN) {
-        mpfr_set_q(m_val, v.m_val, MPFR_RNDN); return *this;
+        mpfr_set_q(m_val, v.m_val, rnd); return *this;
     }
     mpfp & set(mpbq  const & v, mpfr_rnd_t rnd = MPFR_RNDN) {
         mpfr_set_z(m_val, v.m_num.m_val, rnd);   // this = m_num

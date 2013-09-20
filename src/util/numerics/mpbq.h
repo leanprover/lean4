@@ -280,27 +280,27 @@ public:
     static void power(mpbq & v, unsigned k) { _power(v, v, k); }
 
     // Transcendental functions
-    static void exp(mpbq & v)   { lean_unreachable(); }
-    static void exp2(mpbq & v)  { lean_unreachable(); }
-    static void exp10(mpbq & v) { lean_unreachable(); }
-    static void log(mpbq & v)   { lean_unreachable(); }
-    static void log2(mpbq & v)  { lean_unreachable(); }
-    static void log10(mpbq & v) { lean_unreachable(); }
-    static void sin(mpbq & v)   { lean_unreachable(); }
-    static void cos(mpbq & v)   { lean_unreachable(); }
-    static void tan(mpbq & v)   { lean_unreachable(); }
-    static void sec(mpbq & v)   { lean_unreachable(); }
-    static void csc(mpbq & v)   { lean_unreachable(); }
-    static void cot(mpbq & v)   { lean_unreachable(); }
-    static void asin(mpbq & v)  { lean_unreachable(); }
-    static void acos(mpbq & v)  { lean_unreachable(); }
-    static void atan(mpbq & v)  { lean_unreachable(); }
-    static void sinh(mpbq & v)  { lean_unreachable(); }
-    static void cosh(mpbq & v)  { lean_unreachable(); }
-    static void tanh(mpbq & v)  { lean_unreachable(); }
-    static void asinh(mpbq & v) { lean_unreachable(); }
-    static void acosh(mpbq & v) { lean_unreachable(); }
-    static void atanh(mpbq & v) { lean_unreachable(); }
+    static void exp(mpbq & )   { lean_unreachable(); }
+    static void exp2(mpbq & )  { lean_unreachable(); }
+    static void exp10(mpbq & ) { lean_unreachable(); }
+    static void log(mpbq & )   { lean_unreachable(); }
+    static void log2(mpbq & )  { lean_unreachable(); }
+    static void log10(mpbq & ) { lean_unreachable(); }
+    static void sin(mpbq & )   { lean_unreachable(); }
+    static void cos(mpbq & )   { lean_unreachable(); }
+    static void tan(mpbq & )   { lean_unreachable(); }
+    static void sec(mpbq & )   { lean_unreachable(); }
+    static void csc(mpbq & )   { lean_unreachable(); }
+    static void cot(mpbq & )   { lean_unreachable(); }
+    static void asin(mpbq & )  { lean_unreachable(); }
+    static void acos(mpbq & )  { lean_unreachable(); }
+    static void atan(mpbq & )  { lean_unreachable(); }
+    static void sinh(mpbq & )  { lean_unreachable(); }
+    static void cosh(mpbq & )  { lean_unreachable(); }
+    static void tanh(mpbq & )  { lean_unreachable(); }
+    static void asinh(mpbq & ) { lean_unreachable(); }
+    static void acosh(mpbq & ) { lean_unreachable(); }
+    static void atanh(mpbq & ) { lean_unreachable(); }
 };
 
 }

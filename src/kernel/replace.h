@@ -16,7 +16,7 @@ namespace lean {
 */
 class default_replace_postprocessor {
 public:
-    void operator()(expr const & old_e, expr const & new_e) {}
+    void operator()(expr const &, expr const &) {}
 };
 
 /**

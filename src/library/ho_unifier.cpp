@@ -285,7 +285,7 @@ class ho_unifier::imp {
     }
 
     /** \brief Creates a subproblem based on the application arguments */
-    bool process_app_args(context const & ctx, expr const & a, expr const & b, unsigned start) {
+    bool process_app_args(context const & ctx, expr const & a, expr const & b, unsigned) {
         lean_assert(is_app(a) && is_app(b));
         if (num_args(a) != num_args(b)) {
             return false;
@@ -328,9 +328,9 @@ class ho_unifier::imp {
         bool m_failed;
     public:
         unification_problems_wrapper():m_failed(false) {}
-        virtual void add_eq(context const & ctx, expr const & lhs, expr const & rhs) { m_failed = true; }
-        virtual void add_type_of_eq(context const & ctx, expr const & n, expr const & t) { m_failed = true; }
-        virtual void add_is_convertible(context const & ctx, expr const & t1, expr const & t2) { m_failed = true; }
+        virtual void add_eq(context const &, expr const &, expr const &) { m_failed = true; }
+        virtual void add_type_of_eq(context const &, expr const &, expr const &) { m_failed = true; }
+        virtual void add_is_convertible(context const &, expr const &, expr const &) { m_failed = true; }
         bool failed() const { return m_failed; }
     };
 

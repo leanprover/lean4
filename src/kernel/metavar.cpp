@@ -129,7 +129,7 @@ expr instantiate_metavars(expr const & e, metavar_env const & env) {
     if (!has_metavar(e)) {
         return e;
     } else {
-        auto f = [=](expr const & m, unsigned offset) -> expr {
+        auto f = [=](expr const & m, unsigned) -> expr {
             if (is_metavar(m) && env.contains(m)) {
                 expr s = env.get_subst(m);
                 return s ? s : m;
@@ -195,7 +195,7 @@ bool has_assigned_metavar(expr const & e, metavar_env const & menv) {
     if (!has_metavar(e)) {
         return false;
     } else {
-        auto proc = [&](expr const & n, unsigned offset) {
+        auto proc = [&](expr const & n, unsigned) {
             if (is_metavar(n) && menv.contains(n) && menv.is_assigned(n))
                 throw found_assigned();
         };
@@ -216,7 +216,7 @@ bool has_assigned_metavar(expr const & e, metavar_env const & menv) {
 struct found_metavar {};
 
 bool has_metavar(expr const & e, unsigned midx, metavar_env const & menv) {
-    auto f = [&](expr const & m, unsigned offset) {
+    auto f = [&](expr const & m, unsigned) {
         if (is_metavar(m)) {
             unsigned midx2 = metavar_idx(m);
             if (midx2 == midx)

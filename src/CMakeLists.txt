@@ -6,6 +6,8 @@ set(LEAN_VERSION_MINOR 1)
 set(CMAKE_COLOR_MAKEFILE ON)
 enable_testing()
 
+option(TRACK_MEMORY_USAGE "TRACK_MEMORY_USAGE" ON)
+
 # Added for CTest
 INCLUDE(CTest)
 CONFIGURE_FILE(${LEAN_SOURCE_DIR}/CTestCustom.cmake.in
@@ -57,6 +59,11 @@ set(EXTRA_LIBS ${EXTRA_LIBS} ${GMP_LIBRARIES})
 find_package(MPFR 3.1.0)
 set(EXTRA_LIBS ${EXTRA_LIBS} ${MPFR_LIBRARIES})
 
+# TRACK_MEMORY_USAGE
+if("${TRACK_MEMORY_USAGE}" MATCHES "ON")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D LEAN_TRACK_MEMORY")
+endif()
+
 # tcmalloc
 option(TCMALLOC "TCMALLOC" ON)
 if("${TCMALLOC}" MATCHES "ON")
@@ -64,6 +71,7 @@ if("${TCMALLOC}" MATCHES "ON")
   if(${TCMALLOC_FOUND})
     set(EXTRA_LIBS ${EXTRA_LIBS} ${TCMALLOC_LIBRARIES})
     message(STATUS "Using tcmalloc.")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D HAS_TCMALLOC")
   else()
     message(WARNING "FAILED to find tcmalloc, using standard malloc.")
   endif()
@@ -78,6 +86,12 @@ if("${READLINE}" MATCHES "ON")
   set(EXTRA_LIBS ${EXTRA_LIBS} ${READLINE_LIBRARY})
   message(STATUS "Using GNU readline")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DLEAN_USE_READLINE")
+endif()
+
+# Check malloc_usable_size
+if(NOT "${TCMALLOC_FOUND}" AND "${TRACK_MEMORY_USAGE}" MATCHES "ON")
+  find_package(MallocUsableSize)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I ${MALLOC_DIR} -D HAS_MALLOC_USABLE_SIZE")
 endif()
 
 include_directories(${LEAN_SOURCE_DIR})

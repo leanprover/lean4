@@ -5,28 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <gmp.h>
-#include <new>
-#include <cstdlib>
+#include "util/memory.h"
 
-extern "C" void * cxx_malloc(size_t size) {
-    void * p = malloc(size);
-    if (p != 0 || size == 0)
-        return p;
-
-    throw std::bad_alloc();
-}
-
-extern "C" void * cxx_realloc(void * q, size_t, size_t new_size) {
-    void* p = realloc(q, new_size);
-    if (p != 0 || new_size == 0)
-        return p;
-
-    throw std::bad_alloc();
-}
-
-extern "C" void cxx_free(void * p, size_t) {
-    free(p);
-}
+extern "C" void * cxx_malloc(size_t size) { return lean::malloc(size); }
+extern "C" void * cxx_realloc(void * q, size_t, size_t new_size) { return lean::realloc(q, new_size); }
+extern "C" void cxx_free(void * p, size_t) { return lean::free(p); }
 
 /**
    \brief Auxiliary class for initializing the GMP memory allocation

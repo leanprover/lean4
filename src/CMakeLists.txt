@@ -60,6 +60,7 @@ set(EXTRA_LIBS ${EXTRA_LIBS} ${MPFR_LIBRARIES})
 # tcmalloc
 option(TCMALLOC "TCMALLOC" ON)
 if("${TCMALLOC}" MATCHES "ON")
+  find_package(Tcmalloc)
   if(${TCMALLOC_FOUND})
     set(EXTRA_LIBS ${EXTRA_LIBS} ${TCMALLOC_LIBRARIES})
     message(STATUS "Using tcmalloc.")

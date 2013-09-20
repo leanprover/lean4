@@ -33,7 +33,10 @@ unsigned hash_str(unsigned length, char const * str, unsigned init_value) {
         a += reinterpret_cast<unsigned const *>(str)[0];
         b += reinterpret_cast<unsigned const *>(str)[1];
         c += reinterpret_cast<unsigned const *>(str)[2];
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wextra"
         mix(a, b, c);
+#pragma GCC diagnostic pop
         str += 12; len -= 12;
     }
 
@@ -55,7 +58,10 @@ unsigned hash_str(unsigned length, char const * str, unsigned init_value) {
     case 1 :  a+=str[0];
         /* case 0: nothing left to add */
     }
-    mix(a, b, c);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wextra"
+        mix(a, b, c);
+#pragma GCC diagnostic pop
     /*-------------------------------------------- report the result */
     return c;
 }

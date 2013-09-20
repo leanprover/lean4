@@ -25,7 +25,7 @@ endif()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 # Initialize CXXFLAGS.
-set(CMAKE_CXX_FLAGS                "-Wall -Wunused-parameter -std=c++11 ${LEAN_EXTRA_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS                "-Wall -Wextra -std=c++11 ${LEAN_EXTRA_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS_DEBUG          "-g -DLEAN_DEBUG -DLEAN_TRACE")
 set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")

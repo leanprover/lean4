@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include <utility>
 #include "util/list.h"
+#include "util/sexpr/options.h"
 #include "kernel/metavar.h"
 
 namespace lean {
@@ -16,7 +17,7 @@ class ho_unifier {
     class imp;
     std::unique_ptr<imp> m_ptr;
 public:
-    ho_unifier(environment const & env);
+    ho_unifier(environment const & env, options const & opts = options());
     ~ho_unifier();
 
     typedef list<std::tuple<context, expr, expr>> residue;

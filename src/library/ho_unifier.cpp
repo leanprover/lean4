@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/pvector.h"
 #include "util/pdeque.h"
 #include "util/exception.h"
+#include "util/sexpr/options.h"
 #include "kernel/environment.h"
 #include "kernel/free_vars.h"
 #include "kernel/instantiate.h"
@@ -18,7 +19,42 @@ Author: Leonardo de Moura
 #include "library/ho_unifier.h"
 #include "library/printer.h"
 
+#ifndef LEAN_LIBRARY_HO_UNIFIER_MAX_SOLUTIONS
+#define LEAN_LIBRARY_HO_UNIFIER_MAX_SOLUTIONS std::numeric_limits<unsigned>::max()
+#endif
+
+#ifndef LEAN_LIBRARY_HO_UNIFIER_USE_NORMALIZER
+#define LEAN_LIBRARY_HO_UNIFIER_USE_NORMALIZER true
+#endif
+
+#ifndef LEAN_LIBRARY_HO_UNIFIER_USE_BETA
+#define LEAN_LIBRARY_HO_UNIFIER_USE_BETA true
+#endif
+
 namespace lean {
+static name g_library_ho_unifier_max_solutions  {"library", "ho_unifier", "max_solutions"};
+static name g_library_ho_unifier_use_normalizer {"library", "ho_unifier", "use_normalizer"};
+static name g_library_ho_unifier_use_beta       {"library", "ho_unifier", "use_beta"};
+
+RegisterUnsignedOption(g_library_ho_unifier_max_solutions, LEAN_LIBRARY_HO_UNIFIER_MAX_SOLUTIONS,
+                       "maximum number of solutions for each invocation of the higher-order unifier");
+RegisterBoolOption(g_library_ho_unifier_use_normalizer, LEAN_LIBRARY_HO_UNIFIER_USE_NORMALIZER,
+                   "use normalizer in the higher-order unification module");
+RegisterBoolOption(g_library_ho_unifier_use_beta, LEAN_LIBRARY_HO_UNIFIER_USE_BETA,
+                   "use beta-reduction in the higher-order unification module");
+
+unsigned get_ho_unifier_max_solutions(options const & opts) {
+    return opts.get_unsigned(g_library_ho_unifier_max_solutions, LEAN_LIBRARY_HO_UNIFIER_MAX_SOLUTIONS);
+}
+
+bool get_ho_unifier_use_normalizer(options const & opts) {
+    return opts.get_bool(g_library_ho_unifier_use_normalizer, LEAN_LIBRARY_HO_UNIFIER_USE_NORMALIZER);
+}
+
+bool get_ho_unifier_use_beta(options const & opts) {
+    return opts.get_bool(g_library_ho_unifier_use_beta, LEAN_LIBRARY_HO_UNIFIER_USE_BETA);
+}
+
 static name g_x_name("x");
 class ho_unifier::imp {
     typedef std::tuple<context, expr, expr> constraint;
@@ -39,6 +75,10 @@ class ho_unifier::imp {
     unsigned       m_delayed;
     unsigned       m_next_state_id;
     volatile bool  m_interrupted;
+    // options
+    unsigned       m_max_solutions;
+    bool           m_use_normalizer;
+    bool           m_use_beta;
 
     static metavar_env & subst_of(state & s) { return s.m_subst; }
     static cqueue & queue_of(state & s) { return s.m_queue; }
@@ -315,7 +355,8 @@ class ho_unifier::imp {
             new_q.push_front(constraint(ctx, update_app(a, 0, h_2), eq_rhs(b)));
         } else if (is_abstraction(b)) {
             // Imitation for lambdas and Pis
-            // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), fun (x_b : (?h_1 x_1 ... x_{num_a-1})), (?h_2 x_1 ... x_{num_a-1} x_b)
+            // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}),
+            //                        fun (x_b : (?h_1 x_1 ... x_{num_a-1})), (?h_2 x_1 ... x_{num_a-1} x_b)
             // New constraints (h_1 a_1 ... a_{num_a-1}) == abst_domain(b)
             //                 (h_2 a_1 ... a_{num_a-1} x_b) == abst_body(b)
             expr h_1 = new_s.mk_metavar(ctx);
@@ -365,8 +406,10 @@ class ho_unifier::imp {
             add_constraint(ctx, a, b);
             return true;
         }
-        a = head_beta_reduce(a);
-        b = head_beta_reduce(b);
+        if (m_use_beta) {
+            a = head_beta_reduce(a);
+            b = head_beta_reduce(b);
+        }
         if ((is_metavar(a) && has_meta_context(a)) ||
             (is_metavar(b) && has_meta_context(b))) {
             // a or b is a metavariable that has a metavariable context associated with it.
@@ -407,44 +450,68 @@ class ho_unifier::imp {
             return process_meta_app(ctx, b, a);
         }
 
-        if (!is_eqp(a, old_a) || !is_eqp(b, old_b)) {
-            // some progress was made
-            add_constraint(ctx, a, b);
-            return true;
-        }
+        if (m_use_normalizer) {
+            if (!is_eqp(a, old_a) || !is_eqp(b, old_b)) {
+                // some progress was made
+                add_constraint(ctx, a, b);
+                return true;
+            }
 
-        expr norm_a = m_normalizer(a, ctx, &s);
-        expr norm_b = m_normalizer(b, ctx, &s);
-        if (norm_a.kind() != norm_b.kind())
-            return false;
-        if (is_app(norm_a)) {
-            return process_app_args(ctx, norm_a, norm_b, 0);
-        } else if (a == norm_a && b == norm_b) {
-            return false;
+            expr norm_a = m_normalizer(a, ctx, &s);
+            expr norm_b = m_normalizer(b, ctx, &s);
+            if (norm_a.kind() != norm_b.kind())
+                return false;
+            if (is_app(norm_a)) {
+                return process_app_args(ctx, norm_a, norm_b, 0);
+            } else if (a == norm_a && b == norm_b) {
+                return false;
+            } else {
+                // some progress was made
+                add_constraint(ctx, norm_a, norm_b);
+                return true;
+            }
         } else {
-            // some progress was made
-            add_constraint(ctx, norm_a, norm_b);
-            return true;
+            if (a.kind() != b.kind())
+                return false;
+            if (is_app(a)) {
+                return process_app_args(ctx, a, b, 0);
+            } else if (!is_eqp(a, old_a) || !is_eqp(b, old_b)) {
+                // some progress was made
+                add_constraint(ctx, a, b);
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 
 public:
-    imp(environment const & env):m_env(env), m_normalizer(env), m_type_infer(env) {
-        m_interrupted = false;
-        m_delayed     = 0;
+    imp(environment const & env, options const & opts):
+        m_env(env),
+        m_normalizer(env, opts),
+        m_type_infer(env) {
+        m_interrupted    = false;
+        m_delayed        = 0;
+        m_max_solutions  = get_ho_unifier_max_solutions(opts);
+        m_use_normalizer = get_ho_unifier_use_normalizer(opts);
+        m_use_beta       = get_ho_unifier_use_beta(opts);
     }
 
     list<result> unify(context const & ctx, expr const & a, expr const & b, metavar_env const & menv) {
         init(ctx, a, b, menv);
         list<result> r;
+        unsigned num_solutions = 0;
         while (!m_state_stack.empty()) {
             check_interrupted(m_interrupted);
+            if (num_solutions > m_max_solutions)
+                return r;
             state & top_state = m_state_stack.back();
             cqueue & cq       = queue_of(top_state);
             unsigned cq_size  = cq.size();
             if (cq.empty()) {
                 // no constraints left to be solved
                 r = save_result(r, subst_of(top_state), residue());
+                num_solutions++;
                 m_state_stack.pop_back();
             } else {
                 // try cq_sz times to find a constraint that can be processed
@@ -463,6 +530,7 @@ public:
                     for (auto c : cq)
                         rs = cons(c, rs);
                     r = save_result(r, subst_of(top_state), rs);
+                    num_solutions++;
                     reset_delayed();
                     m_state_stack.pop_back();
                 }
@@ -478,7 +546,7 @@ public:
     }
 };
 
-ho_unifier::ho_unifier(environment const & env):m_ptr(new imp(env)) {}
+ho_unifier::ho_unifier(environment const & env, options const & opts):m_ptr(new imp(env, opts)) {}
 ho_unifier::~ho_unifier() {}
 void ho_unifier::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
 list<ho_unifier::result> ho_unifier::operator()(context const & ctx, expr const & l, expr const & r, metavar_env const & menv) {

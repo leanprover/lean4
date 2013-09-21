@@ -21,7 +21,7 @@ public:
     virtual format operator()(context const & c, expr const & e, bool format_ctx, options const &) {
         std::ostringstream s;
         if (format_ctx)
-            s << c << "|-\n";
+            s << c << " |- ";
         s << mk_pair(e, c);
         return format(s.str());
     }

@@ -3,8 +3,8 @@ env:
   global:
   - secure: "W8vou0KRJOOboZXP9q+D/9Wl6LlBeVS2T85MHWPz7EwCMQbJq5xWnGzYLE6FmC0iILcZkXyP63vqoYMFo5MJaEQeALGx2RuIiW7XgrD+7Bn4Vfsp6BLT7K9/AJETGGTQnLs8oZJJCXHGtzbc8EPFIZd/ZPPrve4jhEE5ZNhXnRc="
   matrix:
-  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG   USE_TCMALLOC=FALSE            PUSH_TO_CDASH=TRUE
-  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE USE_TCMALLOC=FALSE UPLOAD=osx PUSH_TO_CDASH=TRUE
+  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG   TCMALLOC=OFF            PUSH_TO_CDASH=TRUE
+  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF UPLOAD=osx PUSH_TO_CDASH=TRUE
 
 # Turn off tcmalloc on OSX due to segmentation fault.
 # Soonho filed a bug report for this:
@@ -17,7 +17,7 @@ before_script:
 - export CPLUS_INCLUDE_PATH
 - LIBRARY_PATH=/usr/local/lib:/local/lib/gcc/x86_64-apple-darwin12.4.0/4.9.0/
 - export LIBRARY_PATH
-- cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=/usr/local/bin/${CMAKE_CXX_COMPILER} ../src -G Ninja
+- cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DTCMALLOC=${TCMALLOC} -DCMAKE_CXX_COMPILER=/usr/local/bin/${CMAKE_CXX_COMPILER} ../src -G Ninja
 - cd ..
 
 script:
@@ -48,7 +48,7 @@ after_script:
       GIT_COMMIT=`git log HEAD~ --oneline -n 1 | cut -d ' ' -f 1`;
       OS=osx;
       ARCHIVE_BINARY=${NOW}_${TRAVIS_BRANCH}_${GIT_COMMIT}_${OS}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE};
-      if [[ $USE_TCMALLOC ]]; then
+      if [[ $TCMALLOC == ON ]]; then
           ARCHIVE_BINARY=${ARCHIVE_BINARY}_tcmalloc;
       fi;
       mkdir ${UPLOAD_DIR};

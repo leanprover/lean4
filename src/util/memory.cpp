@@ -88,8 +88,8 @@ void * save_alloc_size(void * ptr, size_t sz) {
     }
 }
 inline size_t malloc_size(void * ptr)             { return static_cast<size_t*>(ptr)[-1]; }
-inline void * malloc_core(size_t sz)              { return save_alloc_size(::malloc(sz + sizeof(size_t)), sz); }
-inline void * realloc_core(void * ptr, size_t sz) { return save_alloc_size(::realloc(static_cast<size_t*>(ptr) - 1, sz + sizeof(size_t)), sz); }
+inline void * malloc_core(size_t sz)              { return save_alloc_size(::malloc(sz + sizeof(sz)), sz); }
+inline void * realloc_core(void * ptr, size_t sz) { return save_alloc_size(::realloc(static_cast<size_t*>(ptr) - 1, sz + sizeof(sz)), sz); }
 inline void   free_core(void * ptr)               { ::free(static_cast<size_t*>(ptr) - 1); }
 }
 #endif

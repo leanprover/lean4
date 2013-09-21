@@ -27,6 +27,10 @@ expr update_lambda(expr const & lambda, expr const & d, expr const & b);
 */
 expr update_pi(expr const & pi, expr const & d, expr const & b);
 /**
+   \brief Return a lambda/pi expression based on \c abst with domain \c d and \c body b.
+*/
+expr update_abstraction(expr const & abst, expr const & d, expr const & b);
+/**
    \brief Return a let expression based on \c let with type \c t value \c v and \c body b.
 
    \remark Return \c let if the given value and body are (pointer) equal to the ones in \c let.

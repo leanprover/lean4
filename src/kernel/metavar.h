@@ -174,6 +174,8 @@ public:
     void assign(expr const & m, expr const & t);
 };
 
+expr instantiate(expr const & s, meta_ctx const & ctx, metavar_env const & env);
+
 /**
    \brief Instantiate the metavariables occurring in \c e with the substitutions
    provided by \c env.

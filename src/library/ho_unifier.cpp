@@ -85,7 +85,7 @@ class ho_unifier::imp {
     state_stack    m_state_stack;
     unsigned       m_delayed;
     unsigned       m_next_state_id;
-    bool           m_ho;
+    bool           m_used_aux_vars;
     volatile bool  m_interrupted;
     // options
     unsigned       m_max_solutions;
@@ -129,7 +129,7 @@ class ho_unifier::imp {
 
     void init(context const & ctx, expr const & l, expr const & r, metavar_env const & menv) {
         m_next_state_id = 0;
-        m_ho            = false;
+        m_used_aux_vars = false;
         m_state_stack.clear();
         m_state_stack.push_back(mk_state(menv, cqueue()));
         add_constraint(ctx, l, r);
@@ -188,7 +188,7 @@ class ho_unifier::imp {
        \remark \c ini_s is the initial substitution set. \c s is an extension of \c ini_s
     */
     list<result> save_result(list<result> const & r, metavar_env s, residue const & rs, metavar_env const & ini_s) {
-        if (empty(rs) && m_ho) {
+        if (empty(rs) && m_used_aux_vars) {
             // We only do the cleanup when we don't have a residue.
             // If we have a residue, we can only remove auxiliary metavariables that do not occur in rs
             s = cleanup_subst(s, ini_s);
@@ -314,6 +314,16 @@ class ho_unifier::imp {
         return is_app(a) && is_metavar(arg(a, 0));
     }
 
+    /** \brief Return true iff \c a is a metavariable and has a meta context. */
+    bool is_metavar_with_context(expr const & a) {
+        return is_metavar(a) && has_meta_context(a);
+    }
+
+    /** \brief Return true if \c a is of the form <tt>(?m[...] ...)</tt> */
+    bool is_meta_app_with_context(expr const & a) {
+        return is_meta_app(a) && has_meta_context(arg(a, 0));
+    }
+
     /**
        Auxiliary class for invoking m_type_infer.
        If it creates a new unfication problem we mark m_failed to true.
@@ -372,8 +382,9 @@ class ho_unifier::imp {
     */
     bool process_meta_app(context const & ctx, expr const & a, expr const & b) {
         lean_assert(is_meta_app(a));
+        lean_assert(!has_meta_context(arg(a, 0)));
         lean_assert(!is_meta_app(b));
-        m_ho              = true; // mark that higher-order matching was used
+        m_used_aux_vars   = true;
         expr f_a          = arg(a, 0);
         lean_assert(is_metavar(f_a));
         state top_state   = m_state_stack.back();
@@ -438,7 +449,7 @@ class ho_unifier::imp {
             //                 (h_2 a_1 ... a_{num_a-1} x_b) == abst_body(b)
             expr h_1 = new_s.mk_metavar(ctx);
             expr h_2 = new_s.mk_metavar(ctx);
-            expr imitation = mk_lambda(arg_types, mk_lambda(abst_name(b), mk_app_vars(h_1, num_a - 1), mk_app_vars(h_2, num_a)));
+            expr imitation = mk_lambda(arg_types, update_abstraction(b, mk_app_vars(h_1, num_a - 1), mk_app_vars(h_2, num_a)));
             new_s.assign(midx, imitation);
             new_q.push_front(constraint(ctx, update_app(a, 0, h_1), abst_domain(b)));
             new_q.push_front(constraint(extend(ctx, abst_name(b), abst_domain(b)), mk_app(update_app(a, 0, h_2), Var(0)), abst_body(b)));
@@ -451,6 +462,73 @@ class ho_unifier::imp {
         m_state_stack.push_back(mk_state(new_s, new_q));
         reset_delayed();
         return true;
+    }
+
+    /** \brief Return true if \c a is of the form ?m[inst:i t, ...] */
+    bool is_metavar_inst(expr const & a) const {
+        return is_metavar(a) && has_meta_context(a) && head(metavar_ctx(a)).is_inst();
+    }
+
+    /**
+       \brief Process a constraint <tt>ctx |- a = b</tt> where \c a is of the form <tt>?m[(inst:i t), ...]</tt>.
+       We perform a "case split",
+       Case 1) ?m == #i and t == b
+       Case 2) imitate b
+    */
+    void process_metavar_inst(context const & ctx, expr const & a, expr const & b) {
+        lean_assert(is_metavar_inst(a));
+        lean_assert(!is_metavar_inst(b));
+        lean_assert(!is_meta_app(b));
+        m_used_aux_vars   = true;
+        meta_ctx  mctx    = metavar_ctx(a);
+        unsigned midx     = metavar_idx(a);
+        unsigned i        = head(mctx).s();
+        expr t            = head(mctx).v();
+        state top_state   = m_state_stack.back();
+        cqueue q          = queue_of(top_state);
+        metavar_env s     = subst_of(top_state);
+        m_state_stack.pop_back();
+        {
+            // Case 1
+            metavar_env new_s = s;
+            new_s.assign(midx, mk_var(i));
+            cqueue new_q = q;
+            new_q.push_front(constraint(ctx, t, b));
+            m_state_stack.push_back(mk_state(new_s, new_q));
+        }
+        {
+            // Case 2
+            metavar_env new_s = s;
+            cqueue new_q      = q;
+            if (is_app(b)) {
+                // Imitation for applications b == f(s_1, ..., s_k)
+                // midx <- f(?h_1, ..., ?h_k)
+                expr f_b          = arg(b, 0);
+                unsigned num_b    = num_args(b);
+                buffer<expr> imitation;
+                imitation.push_back(f_b);
+                for (unsigned i = 1; i < num_b; i++)
+                    imitation.push_back(new_s.mk_metavar(ctx));
+                new_s.assign(midx, mk_app(imitation.size(), imitation.data()));
+            } else if (is_eq(b)) {
+                // Imitation for equality b == Eq(s1, s2)
+                // midx <- Eq(?h_1, ?h_2)
+                expr h_1 = new_s.mk_metavar(ctx);
+                expr h_2 = new_s.mk_metavar(ctx);
+                new_s.assign(midx, mk_eq(h_1, h_2));
+            } else if (is_abstraction(b)) {
+                // Lambdas and Pis
+                // Imitation for Lambdas and Pis, b == Fun(x:T) B
+                // midx <- Fun (x:?h_1) ?h_2 x)
+                expr h_1 = new_s.mk_metavar(ctx);
+                expr h_2 = new_s.mk_metavar(ctx);
+                new_s.assign(midx, update_abstraction(b, h_1, mk_app(h_2, Var(0))));
+            } else {
+                new_q.push_front(constraint(ctx, pop_meta_context(a), lift_free_vars(b, i, 1)));
+            }
+            m_state_stack.push_back(mk_state(new_s, new_q));
+            reset_delayed();
+        }
     }
 
     /**
@@ -487,8 +565,16 @@ class ho_unifier::imp {
             a = head_beta_reduce(a);
             b = head_beta_reduce(b);
         }
-        if ((is_metavar(a) && has_meta_context(a)) ||
-            (is_metavar(b) && has_meta_context(b))) {
+        if (is_metavar_inst(a) && (!is_metavar_inst(b) && !is_meta_app(b))) {
+            process_metavar_inst(ctx, a, b);
+            return true;
+        }
+        if (is_metavar_inst(b) && (!is_metavar_inst(a) && !is_meta_app(a))) {
+            process_metavar_inst(ctx, b, a);
+            return true;
+        }
+        if (is_metavar_with_context(a)  || is_metavar_with_context(b) ||
+            is_meta_app_with_context(a) || is_meta_app_with_context(b)) {
             // a or b is a metavariable that has a metavariable context associated with it.
             // postpone
             postpone_constraint(ctx, a, b);
@@ -499,7 +585,7 @@ class ho_unifier::imp {
                 return false;
             switch (a.kind()) {
             case expr_kind::Constant: case expr_kind::Var: case expr_kind::Value: case expr_kind::Type:
-                return false;
+                return a == b;
             case expr_kind::Eq:
                 add_constraint(ctx, eq_lhs(a), eq_lhs(b));
                 add_constraint(ctx, eq_rhs(a), eq_rhs(b));

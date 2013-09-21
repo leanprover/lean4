@@ -38,6 +38,13 @@ expr update_pi(expr const & pi, expr const & d, expr const & b) {
         return mk_pi(abst_name(pi), d, b);
 }
 
+expr update_abstraction(expr const & abst, expr const & d, expr const & b) {
+    if (is_lambda(abst))
+        return update_lambda(abst, d, b);
+    else
+        return update_pi(abst, d, b);
+}
+
 expr update_let(expr const & let, expr const & t, expr const & v, expr const & b) {
     if (is_eqp(let_type(let), t) && is_eqp(let_value(let), v) && is_eqp(let_body(let), b))
         return let;

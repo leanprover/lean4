@@ -89,6 +89,7 @@ if("${READLINE}" MATCHES "ON")
 endif()
 
 # Check malloc_usable_size
+set(MALLOC_DIR "")
 if(NOT "${TCMALLOC_FOUND}" AND "${TRACK_MEMORY_USAGE}" MATCHES "ON")
   find_package(MallocUsableSize)
   if("${MUS_FOUND}" MATCHES "TRUE")
@@ -148,3 +149,4 @@ file(GLOB_RECURSE LEAN_SOURCES
 add_style_check_target(style "${LEAN_SOURCES}")
 add_test(NAME style_check
   COMMAND ${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py ${LEAN_SOURCES})
+

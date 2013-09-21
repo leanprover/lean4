@@ -8,16 +8,16 @@ Author: Leonardo de Moura
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <malloc.h>
+#include <malloc/malloc.h>
 
 #define MAX_SZ 1024
 
 int main() {
     for (unsigned i = 1; i < MAX_SZ; i++) {
         void * p = malloc(i);
-        size_t r = malloc_usable_size(p);
+        size_t r = malloc_size(p);
         if (r < i || ((i > 128) && (r > 2 * i))) {
-            fprintf(stderr, "Unexpected malloc_usable_size behavior: i = %d, r = %d\n", i, int(r));
+            fprintf(stderr, "Unexpected malloc_size behavior: i = %d, r = %d\n", i, int(r));
             return 1;
         }
         free(p);

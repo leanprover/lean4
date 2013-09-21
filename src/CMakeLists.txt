@@ -89,7 +89,6 @@ if("${READLINE}" MATCHES "ON")
 endif()
 
 # Check malloc_usable_size
-set(MALLOC_DIR "")
 if(NOT "${TCMALLOC_FOUND}" AND "${TRACK_MEMORY_USAGE}" MATCHES "ON")
   find_package(MallocUsableSize)
   if("${MUS_FOUND}" MATCHES "TRUE")

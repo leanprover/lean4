@@ -61,18 +61,18 @@ expr metavar_env::get_subst(unsigned midx) const {
 }
 
 expr metavar_env::get_type(unsigned midx, unification_problems & up) {
-    auto p = m_env[midx];
-    expr t = p->m_type;
+    data const & d = m_env[midx];
+    expr t = d.m_type;
     if (t) {
         return t;
     } else {
         t = mk_metavar();
-        expr s = p->m_subst;
-        m_env[midx] = data(s, t, p->m_ctx);
+        expr s = d.m_subst;
+        m_env[midx] = data(s, t, d.m_ctx);
         if (s)
-            up.add_type_of_eq(p->m_ctx, s, t);
+            up.add_type_of_eq(d.m_ctx, s, t);
         else
-            up.add_type_of_eq(p->m_ctx, ::lean::mk_metavar(midx), t);
+            up.add_type_of_eq(d.m_ctx, ::lean::mk_metavar(midx), t);
         return t;
     }
 }
@@ -84,8 +84,8 @@ expr metavar_env::get_type(unsigned midx) const {
 void metavar_env::assign(unsigned midx, expr const & v) {
     inc_timestamp();
     lean_assert(!is_assigned(midx));
-    auto p = m_env[midx];
-    m_env[midx] = data(v, p->m_type, p->m_ctx);
+    data const & d = m_env[midx];
+    m_env[midx] = data(v, d.m_type, d.m_ctx);
 }
 
 context const & metavar_env::get_context(unsigned midx) const {

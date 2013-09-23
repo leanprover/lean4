@@ -43,18 +43,17 @@ class type_checker::imp {
         expr r = m_normalizer(e, ctx);
         if (is_pi(r))
             return r;
-        if (is_metavar(r) && m_menv && m_up) {
-            lean_assert(!m_menv->is_assigned(r));
+        if (has_metavar(r) && m_menv && m_up) {
             // Create two fresh variables A and B,
             // and assign r == (Pi(x : A), B x)
             expr A = m_menv->mk_metavar(ctx);
             expr B = m_menv->mk_metavar(ctx);
             expr p = mk_pi(g_x_name, A, B(Var(0)));
-            if (has_meta_context(r)) {
-                // r contains lift/inst operations, so we put the constraint in m_up
-                m_up->add_eq(ctx, r, p);
-            } else {
+            if (is_metavar(r) && !has_meta_context(r)) {
+                // cheap case
                 m_menv->assign(r, p);
+            } else {
+                m_up->add_eq(ctx, r, p);
             }
             return p;
         }
@@ -67,18 +66,19 @@ class type_checker::imp {
             return ty_level(u);
         if (u == Bool)
             return level();
-        if (is_metavar(u) && m_up) {
-            lean_assert(!m_menv->is_assigned(u));
+        if (has_metavar(u) && m_menv && m_up) {
             // Remark: in the current implementation we don't have level constraints and variables
             // in the unification problem set. So, we assume the metavariable is in level 0.
             // This is a crude approximation that works most of the time.
             // A better solution is consists in creating a fresh universe level k and
             // associate the constraint that u == Type k.
             // Later the constraint must be solved in the elaborator.
-            if (has_meta_context(u))
-                m_up->add_eq(ctx, u, Type());
-            else
+            if (is_metavar(u) && !has_meta_context(u)) {
+                // cheap case
                 m_menv->assign(u, Type());
+            } else {
+                m_up->add_eq(ctx, u, Type());
+            }
             return level();
         }
         throw type_expected_exception(m_env, ctx, t);
@@ -136,7 +136,7 @@ class type_checker::imp {
                     r = f_t;
                     break;
                 }
-                check_pi(f_t, e, ctx);
+                f_t = check_pi(f_t, e, ctx);
             }
             break;
         }

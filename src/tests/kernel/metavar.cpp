@@ -39,12 +39,23 @@ public:
         for (auto c : up.m_eqs)
             std::cout << std::get<0>(c) << " |- " << std::get<1>(c) << " == " << std::get<2>(c) << "\n";
         for (auto c : up.m_type_of_eqs)
-            std::cout << std::get<0>(c) << " |- typeof(" << std::get<1>(c) << ") == " << std::get<2>(c) << "\n";
+            std::cout << std::get<0>(c) << " |- " << std::get<1>(c) << " : " << std::get<2>(c) << "\n";
         for (auto c : up.m_is_convertible_cnstrs)
-            std::cout << std::get<0>(c) << " |- " << std::get<1>(c) << " --> " << std::get<2>(c) << "\n";
+            std::cout << std::get<0>(c) << " |- " << std::get<1>(c) << " == " << std::get<2>(c) << "\n";
         return out;
     }
 };
+
+std::ostream & operator<<(std::ostream & out, metavar_env const & env) {
+    bool first = true;
+    for (unsigned i = 0; i < env.size(); i++) {
+        if (env.is_assigned(i)) {
+            if (first) first = false; else out << "\n";
+            out << "?M" << i << " <- " << env.get_subst(i);
+        }
+    }
+    return out;
+}
 
 static void tst1() {
     unification_problems_dbg u;
@@ -509,6 +520,24 @@ static void tst24() {
     std::cout << instantiate_metavars(f(m1), menv) << "\n";
 }
 
+static void tst25() {
+    environment env;
+    metavar_env menv;
+    unification_problems_dbg up;
+    type_checker checker(env);
+    expr N = Const("N");
+    expr a = Const("a");
+    expr b = Const("b");
+    env.add_var("N", Type());
+    env.add_var("a", N);
+    env.add_var("b", N);
+    expr m = menv.mk_metavar();
+    expr F = m(a, b);
+    std::cout << checker.infer_type(F, context(), &menv, &up) << "\n";
+    std::cout << menv << "\n";
+    std::cout << up << "\n";
+}
+
 int main() {
     tst1();
     tst2();
@@ -534,5 +563,6 @@ int main() {
     tst22();
     tst23();
     tst24();
+    tst25();
     return has_violations() ? 1 : 0;
 }

@@ -61,7 +61,7 @@ expr metavar_env::get_subst(unsigned midx) const {
 }
 
 expr metavar_env::get_type(unsigned midx, unification_problems & up) {
-    data const & d = m_env[midx];
+    data d = m_env[midx];
     expr t = d.m_type;
     if (t) {
         return t;

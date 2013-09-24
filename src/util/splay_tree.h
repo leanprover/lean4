@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <iostream>
+#include <algorithm>
 #include <utility>
 #include <vector>
 #include "util/rc.h"
@@ -14,7 +15,22 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 
 namespace lean {
+/**
+   \brief Splay trees (see http://en.wikipedia.org/wiki/Splay_tree)
 
+   It uses a O(1) copy operation. Different tree can share nodes.
+   The sharing is thread-safe.
+
+   \c CMP is a functional object for comparing values of type T.
+   It must have a method
+   <code>
+         int operator()(T const & v1, T const & v2) const;
+   </code>
+   The method must return
+   - -1 if <tt>v1 < v2</tt>,
+   - 0  if <tt>v1 == v2</tt>,
+   - 1  if <tt>v1 > v2</tt>
+*/
 template<typename T, typename CMP>
 class splay_tree : public CMP {
     struct node {
@@ -183,6 +199,7 @@ class splay_tree : public CMP {
             child->inc_ref();
             entry const & last = path.back();
             node * parent = last.m_node;
+            lean_assert(!parent->is_shared());
             if (last.m_right) {
                 node::dec_ref(parent->m_right);
                 parent->m_right = child;
@@ -201,24 +218,21 @@ class splay_tree : public CMP {
         }
     }
 
-public:
-    splay_tree(CMP const & cmp = CMP()):CMP(cmp), m_ptr(nullptr) {}
-    splay_tree(splay_tree const & s):CMP(s), m_ptr(s.m_ptr) { node::inc_ref(m_ptr); }
-    splay_tree(splay_tree && s):CMP(s), m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
-    ~splay_tree() { node::dec_ref(m_ptr); }
-
-    splay_tree & operator=(splay_tree const & s) { LEAN_COPY_REF(splay_tree, s); }
-    splay_tree & operator=(splay_tree && s) { LEAN_MOVE_REF(splay_tree, s); }
-
-    bool empty() const { return m_ptr == nullptr; }
-
-    void insert(T const & v) {
+    bool insert_pull(T const & v, bool is_insert) {
         static thread_local std::vector<entry> path;
-        node * n    = m_ptr;
+        node * n   = m_ptr;
+        bool found = false;
         while (true) {
             if (n == nullptr) {
-                n = new node(v);
-                update_parent(path, n);
+                if (is_insert) {
+                    n = new node(v);
+                    update_parent(path, n);
+                } else {
+                    if (path.empty())
+                        return false;
+                    n = path.back().m_node;
+                    path.pop_back();
+                }
                 break;
             } else {
                 if (n->is_shared()) {
@@ -234,39 +248,159 @@ public:
                     path.push_back(entry(true, n));
                     n = n->m_right;
                 } else {
-                    n->m_value = v;
+                    if (is_insert)
+                        n->m_value = v;
+                    found      = true;
                     break;
                 }
             }
         }
         splay_to_top(path, n);
         m_ptr = n;
-        lean_assert(check_invariant())
+        lean_assert(check_invariant());
+        return found;
     }
 
-    bool contains(T const & v) const {
+    bool pull(T const & v) {
+        return insert_pull(v, false);
+    }
+
+    void pull_max() {
+        if (!m_ptr) return;
+        static thread_local std::vector<entry> path;
+        node * n   = m_ptr;
+        while (true) {
+            lean_assert(n);
+            if (n->is_shared()) {
+                n = new node(*n);
+                update_parent(path, n);
+            }
+            if (n->m_right) {
+                path.push_back(entry(true, n));
+                n = n->m_right;
+            } else {
+                splay_to_top(path, n);
+                m_ptr = n;
+                lean_assert(check_invariant());
+                return;
+            }
+        }
+    }
+
+    static unsigned size(node const * n) {
+        if (n)
+            return 1 + size(n->m_left) + size(n->m_right);
+        else
+            return 0;
+    }
+
+    splay_tree(splay_tree const & s, node * new_root):CMP(s), m_ptr(new_root) { node::inc_ref(m_ptr); }
+
+public:
+    splay_tree(CMP const & cmp = CMP()):CMP(cmp), m_ptr(nullptr) {}
+    splay_tree(splay_tree const & s):CMP(s), m_ptr(s.m_ptr) { node::inc_ref(m_ptr); }
+    splay_tree(splay_tree && s):CMP(s), m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
+    ~splay_tree() { node::dec_ref(m_ptr); }
+
+    /** \brief O(1) copy */
+    splay_tree & operator=(splay_tree const & s) { LEAN_COPY_REF(splay_tree, s); }
+    /** \brief O(1) move */
+    splay_tree & operator=(splay_tree && s) { LEAN_MOVE_REF(splay_tree, s); }
+
+    void swap(splay_tree & t) { std::swap(m_ptr, t.m_ptr); }
+
+    /** \brief Return true iff this splay tree is empty. */
+    bool empty() const { return m_ptr == nullptr; }
+
+    /** \brief Remove all elements from the splay tree. */
+    void clear() { node::dec_ref(m_ptr); m_ptr = nullptr; }
+
+    /** \brief Return true iff this splay tree and \c t point to the same node */
+    bool is_eqp(splay_tree const & t) const { return m_ptr == t.m_ptr; }
+
+    /** \brief Return the size of the splay tree */
+    unsigned size() const { return size(m_ptr); }
+
+    /** \brief Insert \c v in this splay tree. */
+    void insert(T const & v) {
+        insert_pull(v, true);
+    }
+
+    /**
+        \brief Return a pointer to a value equal to \c v that is stored in this splay tree.
+        If the splay tree does not contain any value equal to \c v, then return \c nullptr.
+
+        \remark <tt>find(v) != nullptr</tt> iff <tt>contains(v)</tt>
+    */
+    T const * find(T const & v) const {
         node const * n = m_ptr;
         while (true) {
             if (n == nullptr)
-                return false;
+                return nullptr;
             int c = cmp(v, n->m_value);
             if (c < 0)
                 n = n->m_left;
             else if (c > 0)
                 n = n->m_right;
             else
-                return true;
+                return &(n->m_value);
         }
     }
 
+    /** \brief Return true iff the splay tree contains an element equal to \c v. */
+    bool contains(T const & v) const {
+        return find(v);
+    }
+
+    /**
+        \brief Similar to \c find, but the splay tree is reorganized.
+        If <tt>find(v)</tt> is invoked after <tt>find_memoize(v)</tt>, then the cost will be O(1).
+        The idea is to move recently accessed elements close to the root.
+    */
+    T const * find_memoize(T const & v) {
+        if (pull(v)) {
+            lean_assert(cmp(m_ptr->m_value, v) == 0);
+            return &(m_ptr->m_value);
+        } else {
+            return nullptr;
+        }
+    }
+
+    /** \brief Remove \c v from this splay tree. Actually, it removes an element that is equal to \c v. */
+    void erase(T const & v) {
+        if (pull(v)) {
+            lean_assert(cmp(m_ptr->m_value, v) == 0);
+            splay_tree left(*this, m_ptr->m_left);
+            splay_tree right(*this, m_ptr->m_right);
+            if (left.empty()) {
+                swap(right);
+            } else if (right.empty()) {
+                swap(left);
+            } else {
+                clear();
+                left.pull_max();
+                lean_assert(left.m_ptr->m_right == nullptr);
+                right.m_ptr->inc_ref();
+                left.m_ptr->m_right = right.m_ptr;
+                swap(left);
+            }
+        }
+    }
+
+    /** \brief (For debugging) Check whether this splay tree is well formed. */
     bool check_invariant() const {
         return check_invariant(m_ptr);
     }
 
+    /**
+        \brief Copy the contents of this splay tree to the given buffer.
+        The elements will be stored in increasing order.
+    */
     void to_buffer(buffer<T> & r) const {
         to_buffer(m_ptr, r);
     }
 
+    /** \brief (For debugging) Display the content of this splay tree. */
     friend std::ostream & operator<<(std::ostream & out, splay_tree const & t) {
         node::display(out, t.m_ptr);
         return out;
@@ -274,4 +408,6 @@ public:
 };
 template<typename T, typename CMP>
 splay_tree<T, CMP> insert(splay_tree<T, CMP> & t, T const & v) { splay_tree<T, CMP> r(t); r.insert(v); return r; }
+template<typename T, typename CMP>
+splay_tree<T, CMP> erase(splay_tree<T, CMP> & t, T const & v) { splay_tree<T, CMP> r(t); r.erase(v); return r; }
 }

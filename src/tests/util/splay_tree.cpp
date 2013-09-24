@@ -60,14 +60,17 @@ void tst1() {
     lean_assert(s.contains(3));
     lean_assert(s.contains(20));
     std::cout << s << "\n";
-    std::cout << "BEFORE CONSTR\n";
     int_splay_tree s2(s);
-    std::cout << "AFTER CONSTR\n";
     std::cout << s2 << "\n";
     s.insert(34);
     std::cout << s2 << "\n";
     std::cout << s << "\n";
-    std::cout << "END\n";
+    int const * v = s.find_memoize(11);
+    lean_assert(*v == 11);
+    std::cout << s << "\n";
+    lean_assert(!s.empty());
+    s.clear();
+    lean_assert(s.empty());
 }
 
 bool operator==(int_set const & v1, int_splay_tree const & v2) {
@@ -89,12 +92,13 @@ static void driver(unsigned max_sz, unsigned max_val, unsigned num_ops, double i
     int_splay_tree v2;
     int_splay_tree v3;
     std::mt19937   rng;
-
+    size_t acc_sz = 0;
     rng.seed(static_cast<unsigned int>(time(0)));
     std::uniform_int_distribution<unsigned int> uint_dist;
 
     std::vector<int_splay_tree> copies;
     for (unsigned i = 0; i < num_ops; i++) {
+        acc_sz += v1.size();
         double f = static_cast<double>(uint_dist(rng) % 10000) / 10000.0;
         if (f < copy_freq) {
             copies.push_back(v2);
@@ -113,17 +117,26 @@ static void driver(unsigned max_sz, unsigned max_val, unsigned num_ops, double i
             v2.insert(a);
             v3 = insert(v3, a);
         } else {
-            // TODO(Leo): erase operation for splay_trees
+            int a = uint_dist(rng) % max_val;
+            v1.erase(a);
+            v2.erase(a);
+            v3 = erase(v3, a);
         }
         lean_assert(v1 == v2);
         lean_assert(v1 == v3);
+        lean_assert(v1.size() == v2.size());
     }
+    std::cout << "\n";
     std::cout << "Copies created: " << copies.size() << "\n";
+    std::cout << "Average size:   " << static_cast<double>(acc_sz) / static_cast<double>(num_ops) << "\n";
 }
 
 static void tst2() {
     driver(4,  32, 10000, 0.5, 0.01);
     driver(4,  10000, 10000, 0.5, 0.01);
+    driver(16, 16, 10000, 0.5, 0.1);
+    driver(128, 64, 10000, 0.5, 0.1);
+    driver(128, 64, 10000, 0.4, 0.1);
     driver(128, 1000, 10000, 0.5, 0.5);
     driver(128, 1000, 10000, 0.5, 0.01);
 }

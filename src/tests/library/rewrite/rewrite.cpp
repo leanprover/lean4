@@ -8,7 +8,6 @@ Author: Soonho Kong
 #include "kernel/abstract.h"
 #include "kernel/context.h"
 #include "kernel/expr.h"
-#include "kernel/type_checker.h"
 #include "library/all/all.h"
 #include "library/arith/arith.h"
 #include "library/arith/nat.h"
@@ -44,7 +43,7 @@ static void theorem_rewrite1_tst() {
     // Rewriting
     theorem_rewrite add_comm_thm_rewriter(add_comm_thm_type, add_comm_thm_body);
     context ctx;
-    pair<expr, expr> result = add_comm_thm_rewriter(ctx, a_plus_b, Nat);
+    pair<expr, expr> result = add_comm_thm_rewriter(ctx, a_plus_b, env);
     expr concl = mk_eq(a_plus_b, result.first);
     expr proof = result.second;
 
@@ -75,7 +74,7 @@ static void theorem_rewrite2_tst() {
     // Rewriting
     theorem_rewrite add_id_thm_rewriter(add_id_thm_type, add_id_thm_body);
     context ctx;
-    pair<expr, expr> result = add_id_thm_rewriter(ctx, a_plus_zero, Nat);
+    pair<expr, expr> result = add_id_thm_rewriter(ctx, a_plus_zero, env);
     expr concl = mk_eq(a_plus_zero, result.first);
     expr proof = result.second;
 
@@ -116,7 +115,7 @@ static void then_rewrite1_tst() {
     theorem_rewrite add_id_thm_rewriter(add_id_thm_type, add_id_thm_body);
     then_rewrite    then_rewriter1(add_comm_thm_rewriter, add_id_thm_rewriter);
     context ctx;
-    pair<expr, expr> result = then_rewriter1(ctx, zero_plus_a, Nat);
+    pair<expr, expr> result = then_rewriter1(ctx, zero_plus_a, env);
     expr concl = mk_eq(zero_plus_a, result.first);
     expr proof = result.second;
 
@@ -175,7 +174,7 @@ static void then_rewrite2_tst() {
     then_rewrite    then_rewriter2(then_rewrite(add_assoc_thm_rewriter, add_id_thm_rewriter),
                                    then_rewrite(add_comm_thm_rewriter, add_id_thm_rewriter));
     context ctx;
-    pair<expr, expr> result = then_rewriter2(ctx, zero_plus_a_plus_zero, Nat);
+    pair<expr, expr> result = then_rewriter2(ctx, zero_plus_a_plus_zero, env);
     expr concl = mk_eq(zero_plus_a_plus_zero, result.first);
     expr proof = result.second;
     cout << "Theorem: " << add_assoc_thm_type << " := " << add_assoc_thm_body << endl;
@@ -227,7 +226,7 @@ static void orelse_rewrite1_tst() {
     theorem_rewrite add_comm_thm_rewriter(add_comm_thm_type, add_comm_thm_body);
     orelse_rewrite  add_assoc_or_comm_thm_rewriter(add_assoc_thm_rewriter, add_comm_thm_rewriter);
     context ctx;
-    pair<expr, expr> result = add_assoc_or_comm_thm_rewriter(ctx, a_plus_b, Nat);
+    pair<expr, expr> result = add_assoc_or_comm_thm_rewriter(ctx, a_plus_b, env);
     expr concl = mk_eq(a_plus_b, result.first);
     expr proof = result.second;
 

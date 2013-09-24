@@ -14,19 +14,7 @@
 #include "library/printer.h"
 #include "library/rewrite/fo_match.h"
 #include "library/rewrite/rewrite.h"
-
-// Term Rewriting
-// ORELSE
-// APP_RW
-// LAMBDA_RW
-// PI_RW
-// LET_RW
-// DEPTH_RW
-// THEOREM2RW
-// TRIVIAL_RW
-// FORALL
-// FAIL
-// FAIL_IF
+#include "library/light_checker.h"
 
 using std::cout;
 using std::endl;
@@ -57,7 +45,7 @@ theorem_rewrite::theorem_rewrite(expr const & type, expr const & body)
     lean_trace("rewrite", tout << "Number of Arg = " << num_args << endl;);
 }
 
-pair<expr, expr> theorem_rewrite::operator()(context & ctx, expr const & v, expr const & ) const throw(rewrite_exception) {
+pair<expr, expr> theorem_rewrite::operator()(context & ctx, expr const & v, environment const & ) const throw(rewrite_exception) {
     lean_trace("rewrite", tout << "Context = " << ctx << endl;);
     lean_trace("rewrite", tout << "Term = " << v << endl;);
     lean_trace("rewrite", tout << "Pattern = " << pattern << endl;);
@@ -97,18 +85,75 @@ pair<expr, expr> theorem_rewrite::operator()(context & ctx, expr const & v, expr
     return make_pair(new_rhs, proof);
 }
 
-pair<expr, expr> orelse_rewrite::operator()(context & ctx, expr const & v, expr const & t) const throw(rewrite_exception) {
+pair<expr, expr> orelse_rewrite::operator()(context & ctx, expr const & v, environment const & env) const throw(rewrite_exception) {
     try {
-        return rewrite1(ctx, v, t);
+        return rw1(ctx, v, env);
     } catch (rewrite_exception & ) {
-        return rewrite2(ctx, v, t);
+        return rw2(ctx, v, env);
     }
 }
 
-pair<expr, expr> then_rewrite::operator()(context & ctx, expr const & v, expr const & t) const throw(rewrite_exception) {
-    pair<expr, expr> result1 = rewrite1(ctx, v, t);
-    pair<expr, expr> result2 = rewrite2(ctx, result1.first, t);
+pair<expr, expr> then_rewrite::operator()(context & ctx, expr const & v, environment const & env) const throw(rewrite_exception) {
+    pair<expr, expr> result1 = rw1(ctx, v, env);
+    pair<expr, expr> result2 = rw2(ctx, result1.first, env);
+    expr const & t = light_checker(env)(v, ctx);
     return make_pair(result2.first,
                      Trans(t, v, result1.first, result2.first, result1.second, result2.second));
+}
+
+pair<expr, expr> app_rewrite::operator()(context & ctx, expr const & v, environment const & env) const throw(rewrite_exception) {
+    if (!is_app(v))
+        throw rewrite_exception();
+
+    unsigned n = num_args(v);
+    for (unsigned i = 0; i < n; i++) {
+        auto result = rw(ctx, arg(v, i), env);
+    }
+
+    // TODO(soonhok)
+    throw rewrite_exception();
+}
+
+pair<expr, expr> lambda_rewrite::operator()(context & ctx, expr const & v, environment const & env) const throw(rewrite_exception) {
+    if (!is_lambda(v))
+        throw rewrite_exception();
+    expr const & domain = abst_domain(v);
+    expr const & body   = abst_body(v);
+
+    auto result_domain = rw(ctx, domain, env);
+    auto result_body   = rw(ctx, body,   env); // TODO(soonhok): add to context!
+
+    // TODO(soonhok)
+    throw rewrite_exception();
+}
+
+pair<expr, expr> pi_rewrite::operator()(context & ctx, expr const & v, environment const & env) const throw(rewrite_exception) {
+    if (!is_pi(v))
+        throw rewrite_exception();
+
+    expr const & domain = abst_domain(v);
+    expr const & body   = abst_body(v);
+
+    auto result_domain = rw(ctx, domain, env);
+    auto result_body   = rw(ctx, body,   env); // TODO(soonhok): add to context!
+
+    // TODO(soonhok)
+    throw rewrite_exception();
+}
+
+pair<expr, expr> let_rewrite::operator()(context & ctx, expr const & v, environment const & env) const throw(rewrite_exception) {
+    if (!is_let(v))
+        throw rewrite_exception();
+
+    expr const & ty    = let_type(v);
+    expr const & value = let_value(v);
+    expr const & body  = let_body(v);
+
+    auto result_ty    = rw(ctx, ty,    env);
+    auto result_value = rw(ctx, value, env);
+    auto result_body  = rw(ctx, body,  env); // TODO(soonhok): add to context!
+
+    // TODO(soonhok)
+    throw rewrite_exception();
 }
 }

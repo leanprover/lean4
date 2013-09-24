@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Soonho Kong
 */
 #include <utility>
+#include "util/trace.h"
 #include "kernel/expr.h"
 #include "kernel/context.h"
 #include "library/all/all.h"
@@ -30,64 +31,45 @@ std::ostream & operator<<(std::ostream & out, subst_map & s) {
 }
 
 bool fo_match::match_var(expr const & p, expr const & t, unsigned o, subst_map & s) {
-    cout << "match_var : ("
-         << p << ", "
-         << t << ", "
-         << o << ", "
-         << s << ")"
-         << endl;
-
+    lean_trace("fo_match", tout << "match_var : (" << p << ", " << t << ", " << o << ", " << s << ")" << endl;);
     unsigned idx = var_idx(p);
     if (idx < o) {
         // Current variable is the one created by lambda inside of pattern
-        // and it is not a target of pattern matching.
+        // and it is *not* a target of pattern matching.
         return p == t;
     } else {
-        auto it = s.find(p);
+        auto it = s.find(idx);
         if (it != s.end()) {
             // This variable already has an entry in the substitution
             // map. We need to make sure that 't' and s[idx] are the
             // same
-            cout << "match_var exist:" << p << " |-> " << it->second << endl;
+            lean_trace("fo_match", tout << "match_var exist:" << idx << " |-> " << it->second << endl;);
             return it->second == t;
         }
         // This variable has no entry in the substituition map. Let's
         // add one.
-        s.insert(std::make_pair(p, t));
-        cout << "match_var MATCHED : " << s << endl;
+        s.insert(std::make_pair(idx, t));
+        lean_trace("fo_match", tout << "match_var MATCHED : " << s << endl;);
         return true;
     }
 }
 
 bool fo_match::match_constant(expr const & p, expr const & t, unsigned o, subst_map & s) {
-    cout << "match_constant : ("
-         << p << ", "
-         << t << ", "
-         << o << ", "
-         << s << ")"
-         << endl;
+    lean_trace("fo_match", tout << "match_constant : (" << p << ", " << t << ", " << o << ", " << s << ")" << endl;);
     return p == t;
 }
 
 bool fo_match::match_value(expr const & p, expr const & t, unsigned o, subst_map & s) {
-    cout << "match_value : ("
-         << p << ", "
-         << t << ", "
-         << o << ", "
-         << s << ")"
-         << endl;
+    lean_trace("fo_match", tout << "match_value : (" << p << ", " << t << ", " << o << ", " << s << ")" << endl;);
     return p == t;
 }
 
 bool fo_match::match_app(expr const & p, expr const & t, unsigned o, subst_map & s) {
-    cout << "match_app : ("
-         << p << ", "
-         << t << ", "
-         << o << ", "
-         << s << ")"
-         << endl;
+    lean_trace("fo_match", tout << "match_app : (" << p << ", " << t << ", " << o << ", " << s << ")" << endl;);
+    if (!is_app(t))
+        return false;
     unsigned num_p = num_args(p);
-    unsigned num_t = num_args(p);
+    unsigned num_t = num_args(t);
     if (num_p != num_t) {
         return false;
     }
@@ -100,15 +82,8 @@ bool fo_match::match_app(expr const & p, expr const & t, unsigned o, subst_map &
 }
 
 bool fo_match::match_lambda(expr const & p, expr const & t, unsigned o, subst_map & s) {
-    cout << "match_lambda : ("
-         << p << ", "
-         << t << ", "
-         << o << ", "
-         << s << ")"
-         << endl;
-    cout << "fun (" << abst_name(p)
-         << " : " << abst_domain(p)
-         << "), " << abst_body(p) << endl;
+    lean_trace("fo_match", tout << "match_lambda : (" << p << ", " << t << ", " << o << ", " << s << ")" << endl;);
+    lean_trace("fo_match", tout << "fun (" << abst_name(p) << " : " << abst_domain(p) << "), " << abst_body(p) << endl;);
     if (!is_lambda(t)) {
         return false;
     } else {
@@ -126,16 +101,8 @@ bool fo_match::match_lambda(expr const & p, expr const & t, unsigned o, subst_ma
 }
 
 bool fo_match::match_pi(expr const & p, expr const & t, unsigned o, subst_map & s) {
-    cout << "match_pi : ("
-         << p << ", "
-         << t << ", "
-         << o << ", "
-         << s << ")"
-         << endl;
-    cout << "Pi (" << abst_name(p)
-         << " : " << abst_domain(p)
-         << "), " << abst_body(p) << endl;
-
+    lean_trace("fo_match", tout << "match_pi : (" << p << ", " << t << ", " << o << ", " << s << ")" << endl;);
+    lean_trace("fo_match", tout << "Pi (" << abst_name(p) << " : " << abst_domain(p) << "), " << abst_body(p) << endl;);
     if (!is_pi(t)) {
         return false;
     } else {
@@ -153,33 +120,19 @@ bool fo_match::match_pi(expr const & p, expr const & t, unsigned o, subst_map & 
 }
 
 bool fo_match::match_type(expr const & p, expr const & t, unsigned o, subst_map & s) {
-    cout << "match_type : ("
-         << p << ", "
-         << t << ", "
-         << o << ", "
-         << s << ")"
-         << endl;
+    lean_trace("fo_match", tout << "match_type : (" << p << ", " << t << ", " << o << ", " << s << ")" << endl;);
     return p == t;
 }
 
 bool fo_match::match_eq(expr const & p, expr const & t, unsigned o, subst_map & s) {
-    cout << "match_eq : ("
-         << p << ", "
-         << t << ", "
-         << o << ", "
-         << s << ")"
-         << endl;
+    lean_trace("fo_match", tout << "match_eq : (" << p << ", " << t << ", " << o << ", " << s << ")" << endl;);
+    if (!is_eq(t))
+        return false;
     return match(eq_lhs(p), eq_lhs(t), o, s) && match(eq_rhs(p), eq_rhs(t), o, s);
 }
 
 bool fo_match::match_let(expr const & p, expr const & t, unsigned o, subst_map & s) {
-    cout << "match_let : ("
-         << p << ", "
-         << t << ", "
-         << o << ", "
-         << s << ")"
-         << endl;
-
+    lean_trace("fo_match", tout << "match_let : (" << p << ", " << t << ", " << o << ", " << s << ")" << endl;);
     if (!is_let(t)) {
         return false;
     } else {
@@ -202,23 +155,12 @@ bool fo_match::match_let(expr const & p, expr const & t, unsigned o, subst_map &
     }
 }
 bool fo_match::match_metavar(expr const & p, expr const & t, unsigned o, subst_map & s) {
-    cout << "match_meta : ("
-         << p << ", "
-         << t << ", "
-         << o << ", "
-         << s << ")"
-         << endl;
+    lean_trace("fo_match", tout << "match_meta : (" << p << ", " << t << ", " << o << ", " << s << ")" << endl;);
     return p == t;
 }
 
 bool fo_match::match(expr const & p, expr const & t, unsigned o, subst_map & s) {
-    cout << "match : ("
-         << p << ", "
-         << t << ", "
-         << o << ", "
-         << s << ")"
-         << endl;
-
+    lean_trace("fo_match", tout << "match : (" << p << ", " << t << ", " << o << ", " << s << ")" << endl;);
     switch (p.kind()) {
     case expr_kind::Var:
         return match_var(p, t, o, s);

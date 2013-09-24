@@ -17,7 +17,7 @@ Author: Soonho Kong
 
 namespace lean {
 
-typedef expr_map<expr> subst_map;
+using subst_map = std::unordered_map<unsigned, expr>;
 
 class fo_match {
 private:

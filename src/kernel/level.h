@@ -51,6 +51,7 @@ public:
 
     friend bool operator==(level const & l1, level const & l2);
     friend bool operator!=(level const & l1, level const & l2) { return !operator==(l1, l2); }
+    friend bool operator<(level const & l1, level const & l2);
     friend void swap(level & l1, level & l2) { std::swap(l1, l2); }
 
     friend std::ostream & operator<<(std::ostream & out, level const & l);

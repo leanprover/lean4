@@ -22,6 +22,10 @@ expr mk_nat_type() { return Nat; }
 
 class nat_value_value : public value {
     mpz m_val;
+protected:
+    virtual bool lt(value const & other) const {
+        return m_val < static_cast<nat_value_value const &>(other).m_val;
+    }
 public:
     nat_value_value(mpz const & v):m_val(v) { lean_assert(v >= 0); }
     virtual ~nat_value_value() {}

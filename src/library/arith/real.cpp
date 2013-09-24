@@ -26,6 +26,10 @@ expr mk_real_type() { return Real; }
 */
 class real_value_value : public value {
     mpq m_val;
+protected:
+    virtual bool lt(value const & other) const {
+        return m_val < static_cast<real_value_value const &>(other).m_val;
+    }
 public:
     real_value_value(mpq const & v):m_val(v) {}
     virtual ~real_value_value() {}

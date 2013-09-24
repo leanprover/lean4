@@ -181,6 +181,27 @@ bool operator==(level const & l1, level const & l2) {
     return false;
 }
 
+bool operator<(level const & l1, level const & l2) {
+    if (kind(l1) != kind(l2)) return kind(l1) < kind(l2);
+    switch (kind(l1)) {
+    case level_kind::UVar: return uvar_name(l1) < uvar_name(l2);
+    case level_kind::Lift:
+        if (lift_of(l1)  != lift_of(l2))
+            return lift_of(l1) < lift_of(l2);
+        else
+            return lift_offset(l1) < lift_offset(l2);
+    case level_kind::Max:
+        if (max_size(l1) != max_size(l2))
+            return max_size(l1) < max_size(l2);
+        for (unsigned i = 0; i < max_size(l1); i++)
+            if (max_level(l1, i) != max_level(l2, i))
+                return max_level(l1, i) < max_level(l2, i);
+        return false;
+    }
+    lean_unreachable();
+    return false;
+}
+
 std::ostream & operator<<(std::ostream & out, level const & l) {
     switch (kind(l)) {
     case level_kind::UVar: out << uvar_name(l);                        return out;

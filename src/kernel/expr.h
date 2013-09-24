@@ -221,6 +221,13 @@ public:
 class value {
     void dealloc() { delete this; }
     MK_LEAN_RC();
+protected:
+    /**
+        \brief Auxiliary method used for implementing a total order on semantic
+        attachments. It is invoked by operator<, and it is only invoked when
+        <tt>get_name() == other.get_name()</tt>
+    */
+    virtual bool lt(value const &) const { return false; }
 public:
     value():m_rc(0) {}
     virtual ~value() {}
@@ -229,6 +236,7 @@ public:
     virtual name get_unicode_name() const;
     virtual bool normalize(unsigned num_args, expr const * args, expr & r) const;
     virtual bool operator==(value const & other) const;
+    bool operator<(value const & other) const;
     virtual void display(std::ostream & out) const;
     virtual format pp() const;
     virtual format pp(bool unicode) const;

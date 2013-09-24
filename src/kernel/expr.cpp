@@ -111,6 +111,12 @@ name value::get_unicode_name() const { return get_name(); }
 bool value::normalize(unsigned, expr const *, expr &) const { return false; }
 void value::display(std::ostream & out) const { out << get_name(); }
 bool value::operator==(value const & other) const { return typeid(*this) == typeid(other); }
+bool value::operator<(value const & other) const {
+    if (get_name() == other.get_name())
+        return lt(other);
+    else
+        return get_name() < other.get_name();
+}
 format value::pp() const { return format(get_name()); }
 format value::pp(bool unicode) const { return unicode ? format(get_unicode_name()) : pp(); }
 unsigned value::hash() const { return get_name().hash(); }

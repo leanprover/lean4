@@ -23,6 +23,10 @@ expr mk_int_type() { return Int; }
 
 class int_value_value : public value {
     mpz m_val;
+protected:
+    virtual bool lt(value const & other) const {
+        return m_val < static_cast<int_value_value const &>(other).m_val;
+    }
 public:
     int_value_value(mpz const & v):m_val(v) {}
     virtual ~int_value_value() {}

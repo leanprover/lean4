@@ -141,7 +141,7 @@ void tst2() {
 
 expr mk_big(expr f, unsigned depth, unsigned val) {
     if (depth == 1)
-        return Const(name(val));
+        return Const(name(name("foo"), val));
     else
         return f(mk_big(f, depth - 1, val << 1), mk_big(f, depth - 1, (val << 1) + 1));
 }

@@ -17,7 +17,7 @@ using namespace lean;
 
 expr mk_big(expr f, unsigned depth, unsigned val) {
     if (depth == 1)
-        return mk_constant(name(val));
+        return mk_constant(name(name("foo"), val));
     else
         return f(mk_big(f, depth - 1, val << 1), mk_big(f, depth - 1, (val << 1) + 1));
 }
@@ -25,7 +25,7 @@ expr mk_big(expr f, unsigned depth, unsigned val) {
 static void tst1() {
     expr f = Const("f");
     expr r = mk_big(f, 16, 0);
-    expr n = Const(name(0u));
+    expr n = Const(name("foo"));
     for (unsigned i = 0; i < 20; i++) {
         r = abstract(r, n);
     }

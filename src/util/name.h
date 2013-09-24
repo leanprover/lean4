@@ -19,10 +19,12 @@ class name {
     friend int cmp(imp * i1, imp * i2);
     imp * m_ptr;
     explicit name(imp * p);
+    explicit name(unsigned k);
+    // the parameter bool is only used to distinguish this constructor from the public one.
+    name(name const & prefix, unsigned k, bool);
 public:
     name();
     name(char const * name);
-    explicit name(unsigned k);
     name(name const & prefix, char const * name);
     name(name const & prefix, unsigned k);
     name(name const & other);
@@ -35,6 +37,20 @@ public:
     name(std::initializer_list<char const *> const & l);
     ~name();
     static name const & anonymous();
+    /**
+        \brief Create a unique internal name that is not meant to exposed
+        to the user. Different modules require a unique name.
+        The unique name is created using a numeric prefix.
+        A module that needs to create several unique names should
+        the following idiom:
+        <code>
+            name unique_prefix = name::mk_internal_unique_name();
+            name unique_name_1(unique_prefix, 1);
+            ...
+            name unique_name_k(unique_prefix, k);
+        </code>
+    */
+    static name mk_internal_unique_name();
     name & operator=(name const & other);
     name & operator=(name && other);
     /** \brief Return true iff \c n1 is a prefix of \c n2. */

@@ -28,7 +28,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/elaborator_exception.h"
 
 namespace lean {
-static name g_choice_name(name(name(name(0u), "library"), "choice"));
+static name g_choice_name = name::mk_internal_unique_name();
 static expr g_choice = mk_constant(g_choice_name);
 static format g_assignment_fmt  = format(":=");
 static format g_unification_u_fmt = format("\u2248");

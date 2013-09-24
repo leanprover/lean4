@@ -99,7 +99,7 @@ static unsigned g_level_cup_prec  = 5;
 // A name that can't be created by the user.
 // It is used as placeholder for parsing A -> B expressions which
 // are syntax sugar for (Pi (_ : A), B)
-static name g_unused(name(0u), "parser");
+static name g_unused = name::mk_internal_unique_name();
 
 /**
     \brief Actual implementation for the parser functional object

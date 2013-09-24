@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "library/context_to_lambda.h"
 
 namespace lean {
-static expr g_fake = Const(name(name(0u), "context_to_lambda"));
+static expr g_fake = Const(name::mk_internal_unique_name());
 expr context_to_lambda(context::iterator it, context::iterator const & end, expr const & e) {
     if (it == end) {
         return e;

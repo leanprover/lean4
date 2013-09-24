@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <sstream>
 #include <string>
+#include <atomic>
 #include "util/name.h"
 #include "util/debug.h"
 #include "util/rc.h"
@@ -102,7 +103,7 @@ name::name(name const & prefix, char const * name) {
         m_ptr->m_hash = hash_str(sz, name, 0);
 }
 
-name::name(name const & prefix, unsigned k) {
+name::name(name const & prefix, unsigned k, bool) {
     m_ptr      = new imp(false, prefix.m_ptr);
     m_ptr->m_k = k;
     if (m_ptr->m_prefix)
@@ -111,10 +112,14 @@ name::name(name const & prefix, unsigned k) {
         m_ptr->m_hash = k;
 }
 
+name::name(name const & prefix, unsigned k):name(prefix, k, true) {
+    lean_assert(prefix.m_ptr);
+}
+
 name::name(char const * n):name(name(), n) {
 }
 
-name::name(unsigned k):name(name(), k) {
+name::name(unsigned k):name(name(), k, true) {
 }
 
 name::name(name const & other):m_ptr(other.m_ptr) {
@@ -148,6 +153,13 @@ static name g_anonymous;
 name const & name::anonymous() {
     lean_assert(g_anonymous.is_anonymous());
     return g_anonymous;
+}
+
+static std::atomic<unsigned> g_next_id(0);
+
+name name::mk_internal_unique_name() {
+    unsigned id = std::atomic_fetch_add(&g_next_id, 1u);
+    return name(id);
 }
 
 name & name::operator=(name const & other) { LEAN_COPY_REF(name, other); }

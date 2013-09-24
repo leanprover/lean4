@@ -41,7 +41,7 @@ static void theorem_rewrite1_tst() {
     env.add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
 
     // Rewriting
-    theorem_rewrite add_comm_thm_rewriter(add_comm_thm_type, add_comm_thm_body);
+    rewrite add_comm_thm_rewriter = mk_theorem_rewrite(add_comm_thm_type, add_comm_thm_body);
     context ctx;
     pair<expr, expr> result = add_comm_thm_rewriter(ctx, a_plus_b, env);
     expr concl = mk_eq(a_plus_b, result.first);
@@ -72,7 +72,7 @@ static void theorem_rewrite2_tst() {
     env.add_axiom("ADD_ID", add_id_thm_type); // ADD_ID : Pi (x : N), x = x + 0
 
     // Rewriting
-    theorem_rewrite add_id_thm_rewriter(add_id_thm_type, add_id_thm_body);
+    rewrite add_id_thm_rewriter = mk_theorem_rewrite(add_id_thm_type, add_id_thm_body);
     context ctx;
     pair<expr, expr> result = add_id_thm_rewriter(ctx, a_plus_zero, env);
     expr concl = mk_eq(a_plus_zero, result.first);
@@ -111,9 +111,9 @@ static void then_rewrite1_tst() {
     env.add_axiom("ADD_ID", add_id_thm_type); // ADD_ID : Pi (x : N), x = x + 0
 
     // Rewriting
-    theorem_rewrite add_comm_thm_rewriter(add_comm_thm_type, add_comm_thm_body);
-    theorem_rewrite add_id_thm_rewriter(add_id_thm_type, add_id_thm_body);
-    then_rewrite    then_rewriter1(add_comm_thm_rewriter, add_id_thm_rewriter);
+    rewrite add_comm_thm_rewriter = mk_theorem_rewrite(add_comm_thm_type, add_comm_thm_body);
+    rewrite add_id_thm_rewriter = mk_theorem_rewrite(add_id_thm_type, add_id_thm_body);
+    rewrite then_rewriter1 = mk_then_rewrite(add_comm_thm_rewriter, add_id_thm_rewriter);
     context ctx;
     pair<expr, expr> result = then_rewriter1(ctx, zero_plus_a, env);
     expr concl = mk_eq(zero_plus_a, result.first);
@@ -168,11 +168,11 @@ static void then_rewrite2_tst() {
     env.add_axiom("ADD_ID", add_id_thm_type);       // ADD_ID    : Pi (x : N), x = x + 0
 
     // Rewriting
-    theorem_rewrite add_assoc_thm_rewriter(add_assoc_thm_type, add_assoc_thm_body);
-    theorem_rewrite add_comm_thm_rewriter(add_comm_thm_type, add_comm_thm_body);
-    theorem_rewrite add_id_thm_rewriter(add_id_thm_type, add_id_thm_body);
-    then_rewrite    then_rewriter2(then_rewrite(add_assoc_thm_rewriter, add_id_thm_rewriter),
-                                   then_rewrite(add_comm_thm_rewriter, add_id_thm_rewriter));
+    rewrite add_assoc_thm_rewriter = mk_theorem_rewrite(add_assoc_thm_type, add_assoc_thm_body);
+    rewrite add_comm_thm_rewriter = mk_theorem_rewrite(add_comm_thm_type, add_comm_thm_body);
+    rewrite add_id_thm_rewriter = mk_theorem_rewrite(add_id_thm_type, add_id_thm_body);
+    rewrite then_rewriter2 = mk_then_rewrite(mk_then_rewrite(add_assoc_thm_rewriter, add_id_thm_rewriter),
+                                             mk_then_rewrite(add_comm_thm_rewriter, add_id_thm_rewriter));
     context ctx;
     pair<expr, expr> result = then_rewriter2(ctx, zero_plus_a_plus_zero, env);
     expr concl = mk_eq(zero_plus_a_plus_zero, result.first);
@@ -222,9 +222,9 @@ static void orelse_rewrite1_tst() {
     env.add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
 
     // Rewriting
-    theorem_rewrite add_assoc_thm_rewriter(add_assoc_thm_type, add_assoc_thm_body);
-    theorem_rewrite add_comm_thm_rewriter(add_comm_thm_type, add_comm_thm_body);
-    orelse_rewrite  add_assoc_or_comm_thm_rewriter(add_assoc_thm_rewriter, add_comm_thm_rewriter);
+    rewrite add_assoc_thm_rewriter = mk_theorem_rewrite(add_assoc_thm_type, add_assoc_thm_body);
+    rewrite add_comm_thm_rewriter = mk_theorem_rewrite(add_comm_thm_type, add_comm_thm_body);
+    rewrite add_assoc_or_comm_thm_rewriter = mk_orelse_rewrite(add_assoc_thm_rewriter, add_comm_thm_rewriter);
     context ctx;
     pair<expr, expr> result = add_assoc_or_comm_thm_rewriter(ctx, a_plus_b, env);
     expr concl = mk_eq(a_plus_b, result.first);

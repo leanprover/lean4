@@ -23,61 +23,74 @@ using std::make_pair;
 
 namespace lean {
 
-theorem_rewrite::theorem_rewrite(expr const & type, expr const & body)
-    : thm_type(type), thm_body(body), num_args(0) {
-    lean_trace("rewrite", tout << "Type = " << thm_type << endl;);
-    lean_trace("rewrite", tout << "Body = " << thm_body << endl;);
+void rewrite_cell::dealloc() {
+    delete this;
+}
+rewrite_cell::rewrite_cell(rewrite_kind k):m_kind(k), m_rc(1) { }
+rewrite_cell::~rewrite_cell() {
+}
+
+// Theorem Rewrite
+theorem_rewrite_cell::theorem_rewrite_cell(expr const & type, expr const & body)
+    : rewrite_cell(rewrite_kind::Theorem), m_type(type), m_body(body), m_num_args(0) {
+    lean_trace("rewrite", tout << "Type = " << m_type << endl;);
+    lean_trace("rewrite", tout << "Body = " << m_body << endl;);
 
     // We expect the theorem is in the form of
     // Pi (x_1 : t_1 ... x_n : t_n), pattern = rhs
-    pattern = type;
-    while (is_pi(pattern)) {
-        pattern = abst_body(pattern);
-        num_args++;
+    m_pattern = m_type;
+    while (is_pi(m_pattern)) {
+        m_pattern = abst_body(m_pattern);
+        m_num_args++;
     }
-    if (!is_eq(pattern)) {
-        lean_trace("rewrite", tout << "Theorem " << thm_type << " is not in the form of "
+    if (!is_eq(m_pattern)) {
+        lean_trace("rewrite", tout << "Theorem " << m_type << " is not in the form of "
                    << "Pi (x_1 : t_1 ... x_n : t_n), pattern = rhs" << endl;);
     }
-    rhs = eq_rhs(pattern);
-    pattern = eq_lhs(pattern);
+    m_rhs = eq_rhs(m_pattern);
+    m_pattern = eq_lhs(m_pattern);
 
-    lean_trace("rewrite", tout << "Number of Arg = " << num_args << endl;);
+    lean_trace("rewrite", tout << "Number of Arg = " << m_num_args << endl;);
 }
-
-pair<expr, expr> theorem_rewrite::operator()(context & ctx, expr const & v, environment const & ) const throw(rewrite_exception) {
-    lean_trace("rewrite", tout << "Context = " << ctx << endl;);
+theorem_rewrite_cell::~theorem_rewrite_cell() { }
+pair<expr, expr> theorem_rewrite_cell::operator()(context &, expr const & v, environment const & ) const throw(rewrite_exception) {
+    // lean_trace("rewrite", tout << "Context = " << ctx << endl;);
     lean_trace("rewrite", tout << "Term = " << v << endl;);
-    lean_trace("rewrite", tout << "Pattern = " << pattern << endl;);
-    lean_trace("rewrite", tout << "Num Args = " << num_args << endl;);
+    lean_trace("rewrite", tout << "Pattern = " << m_pattern << endl;);
+    lean_trace("rewrite", tout << "Num Args = " << m_num_args << endl;);
 
     fo_match fm;
     subst_map s;
-    if (!fm.match(pattern, v, 0, s)) {
+    if (!fm.match(m_pattern, v, 0, s)) {
         throw rewrite_exception();
     }
 
     // apply s to rhs
     auto f = [&s](expr const & e, unsigned offset) -> expr {
-        if (is_var(e)) {
-            lean_trace("rewrite", tout << "Inside of apply : offset = " << offset
-                       << ", e = " << e
-                       << ", idx = " << var_idx(e)  << endl;);
-            unsigned idx = var_idx(e);
-            auto it = s.find(idx);
-            if (it != s.end()) {
-                lean_trace("rewrite", tout << "Inside of apply : s[" << idx << "] = " << s[idx] << endl;);
-                return s[idx];
-            }
+        if (!is_var(e)) {
+            return e;
+        }
+        unsigned idx = var_idx(e);
+        if (idx < offset) {
+            return e;
+        }
+
+        lean_trace("rewrite", tout << "Inside of apply : offset = " << offset
+                   << ", e = " << e
+                   << ", idx = " << var_idx(e)  << endl;);
+        auto it = s.find(idx);
+        if (it != s.end()) {
+            lean_trace("rewrite", tout << "Inside of apply : s[" << idx << "] = " << s[idx] << endl;);
+            return s[idx];
         }
         return e;
     };
 
-    expr new_rhs = replace_fn<decltype(f)>(f)(rhs);
+    expr new_rhs = replace_fn<decltype(f)>(f)(m_rhs);
     lean_trace("rewrite", tout << "New RHS = " << new_rhs << endl;);
 
-    expr proof = thm_body;
-    for (int i = num_args -1 ; i >= 0; i--) {
+    expr proof = m_body;
+    for (int i = m_num_args -1 ; i >= 0; i--) {
         proof = mk_app(proof, s[i]);
         lean_trace("rewrite", tout << "proof: " << i << "\t" << s[i] << "\t" << proof << endl;);
     }
@@ -85,63 +98,88 @@ pair<expr, expr> theorem_rewrite::operator()(context & ctx, expr const & v, envi
     return make_pair(new_rhs, proof);
 }
 
-pair<expr, expr> orelse_rewrite::operator()(context & ctx, expr const & v, environment const & env) const throw(rewrite_exception) {
+// OrElse Rewrite
+orelse_rewrite_cell::orelse_rewrite_cell(rewrite const & rw1, rewrite const & rw2)
+    :rewrite_cell(rewrite_kind::OrElse), m_rw1(rw1), m_rw2(rw2) { }
+orelse_rewrite_cell::~orelse_rewrite_cell() { }
+pair<expr, expr> orelse_rewrite_cell::operator()(context & ctx, expr const & v, environment const & env) const throw(rewrite_exception) {
     try {
-        return rw1(ctx, v, env);
+        return m_rw1(ctx, v, env);
     } catch (rewrite_exception & ) {
-        return rw2(ctx, v, env);
+        return m_rw2(ctx, v, env);
     }
 }
 
-pair<expr, expr> then_rewrite::operator()(context & ctx, expr const & v, environment const & env) const throw(rewrite_exception) {
-    pair<expr, expr> result1 = rw1(ctx, v, env);
-    pair<expr, expr> result2 = rw2(ctx, result1.first, env);
-    expr const & t = light_checker(env)(v, ctx);
+// Then Rewrite
+then_rewrite_cell::then_rewrite_cell(rewrite const & rw1, rewrite const & rw2)
+    :rewrite_cell(rewrite_kind::Then), m_rw1(rw1), m_rw2(rw2) { }
+then_rewrite_cell::~then_rewrite_cell() { }
+pair<expr, expr> then_rewrite_cell::operator()(context & ctx, expr const & v, environment const & env) const throw(rewrite_exception) {
+    pair<expr, expr> result1 = m_rw1(ctx, v, env);
+    pair<expr, expr> result2 = m_rw2(ctx, result1.first, env);
+    light_checker lc(env);
+    expr const & t = lc(v, ctx);
     return make_pair(result2.first,
                      Trans(t, v, result1.first, result2.first, result1.second, result2.second));
 }
 
-pair<expr, expr> app_rewrite::operator()(context & ctx, expr const & v, environment const & env) const throw(rewrite_exception) {
+// App Rewrite
+app_rewrite_cell::app_rewrite_cell(rewrite const & rw)
+    :rewrite_cell(rewrite_kind::App), m_rw(rw) { }
+app_rewrite_cell::~app_rewrite_cell() { }
+pair<expr, expr> app_rewrite_cell::operator()(context & ctx, expr const & v, environment const & env) const throw(rewrite_exception) {
     if (!is_app(v))
         throw rewrite_exception();
 
     unsigned n = num_args(v);
     for (unsigned i = 0; i < n; i++) {
-        auto result = rw(ctx, arg(v, i), env);
+        auto result = m_rw(ctx, arg(v, i), env);
     }
 
     // TODO(soonhok)
     throw rewrite_exception();
 }
 
-pair<expr, expr> lambda_rewrite::operator()(context & ctx, expr const & v, environment const & env) const throw(rewrite_exception) {
+// Lambda Rewrite
+lambda_rewrite_cell::lambda_rewrite_cell(rewrite const & rw)
+    :rewrite_cell(rewrite_kind::Lambda), m_rw(rw) { }
+lambda_rewrite_cell::~lambda_rewrite_cell() { }
+
+pair<expr, expr> lambda_rewrite_cell::operator()(context & ctx, expr const & v, environment const & env) const throw(rewrite_exception) {
     if (!is_lambda(v))
         throw rewrite_exception();
     expr const & domain = abst_domain(v);
     expr const & body   = abst_body(v);
 
-    auto result_domain = rw(ctx, domain, env);
-    auto result_body   = rw(ctx, body,   env); // TODO(soonhok): add to context!
+    auto result_domain = m_rw(ctx, domain, env);
+    auto result_body   = m_rw(ctx, body,   env); // TODO(soonhok): add to context!
 
     // TODO(soonhok)
     throw rewrite_exception();
 }
 
-pair<expr, expr> pi_rewrite::operator()(context & ctx, expr const & v, environment const & env) const throw(rewrite_exception) {
+pi_rewrite_cell::pi_rewrite_cell(rewrite const & rw)
+    :rewrite_cell(rewrite_kind::Pi), m_rw(rw) { }
+pi_rewrite_cell::~pi_rewrite_cell() { }
+pair<expr, expr> pi_rewrite_cell::operator()(context & ctx, expr const & v, environment const & env) const throw(rewrite_exception) {
     if (!is_pi(v))
         throw rewrite_exception();
 
     expr const & domain = abst_domain(v);
     expr const & body   = abst_body(v);
 
-    auto result_domain = rw(ctx, domain, env);
-    auto result_body   = rw(ctx, body,   env); // TODO(soonhok): add to context!
+    auto result_domain = m_rw(ctx, domain, env);
+    auto result_body   = m_rw(ctx, body,   env); // TODO(soonhok): add to context!
 
     // TODO(soonhok)
     throw rewrite_exception();
 }
 
-pair<expr, expr> let_rewrite::operator()(context & ctx, expr const & v, environment const & env) const throw(rewrite_exception) {
+let_rewrite_cell::let_rewrite_cell(rewrite const & rw)
+    :rewrite_cell(rewrite_kind::Let), m_rw(rw) { }
+let_rewrite_cell::~let_rewrite_cell() { }
+
+pair<expr, expr> let_rewrite_cell::operator()(context & ctx, expr const & v, environment const & env) const throw(rewrite_exception) {
     if (!is_let(v))
         throw rewrite_exception();
 
@@ -149,11 +187,22 @@ pair<expr, expr> let_rewrite::operator()(context & ctx, expr const & v, environm
     expr const & value = let_value(v);
     expr const & body  = let_body(v);
 
-    auto result_ty    = rw(ctx, ty,    env);
-    auto result_value = rw(ctx, value, env);
-    auto result_body  = rw(ctx, body,  env); // TODO(soonhok): add to context!
+    auto result_ty    = m_rw(ctx, ty,    env);
+    auto result_value = m_rw(ctx, value, env);
+    auto result_body  = m_rw(ctx, body,  env); // TODO(soonhok): add to context!
 
     // TODO(soonhok)
     throw rewrite_exception();
 }
+
+rewrite mk_theorem_rewrite(expr const & type, expr const & body) {
+    return rewrite(new theorem_rewrite_cell(type, body));
+}
+rewrite mk_then_rewrite(rewrite const & rw1, rewrite const & rw2) {
+    return rewrite(new then_rewrite_cell(rw1, rw2));
+}
+rewrite mk_orelse_rewrite(rewrite const & rw1, rewrite const & rw2) {
+    return rewrite(new orelse_rewrite_cell(rw1, rw2));
+}
+
 }

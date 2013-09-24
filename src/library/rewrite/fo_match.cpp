@@ -54,13 +54,13 @@ bool fo_match::match_var(expr const & p, expr const & t, unsigned o, subst_map &
     }
 }
 
-bool fo_match::match_constant(expr const & p, expr const & t, unsigned o, subst_map & s) {
-    lean_trace("fo_match", tout << "match_constant : (" << p << ", " << t << ", " << o << ", " << s << ")" << endl;);
+bool fo_match::match_constant(expr const & p, expr const & t, unsigned, subst_map &) {
+    lean_trace("fo_match", tout << "match_constant : (" << p << ", " << t << ")" << endl;);
     return p == t;
 }
 
-bool fo_match::match_value(expr const & p, expr const & t, unsigned o, subst_map & s) {
-    lean_trace("fo_match", tout << "match_value : (" << p << ", " << t << ", " << o << ", " << s << ")" << endl;);
+bool fo_match::match_value(expr const & p, expr const & t, unsigned, subst_map &) {
+    lean_trace("fo_match", tout << "match_value : (" << p << ", " << t << ")" << endl;);
     return p == t;
 }
 
@@ -119,8 +119,8 @@ bool fo_match::match_pi(expr const & p, expr const & t, unsigned o, subst_map & 
     }
 }
 
-bool fo_match::match_type(expr const & p, expr const & t, unsigned o, subst_map & s) {
-    lean_trace("fo_match", tout << "match_type : (" << p << ", " << t << ", " << o << ", " << s << ")" << endl;);
+bool fo_match::match_type(expr const & p, expr const & t, unsigned, subst_map &) {
+    lean_trace("fo_match", tout << "match_type : (" << p << ", " << t << ")" << endl;);
     return p == t;
 }
 
@@ -154,8 +154,8 @@ bool fo_match::match_let(expr const & p, expr const & t, unsigned o, subst_map &
         return match(p_body, t_body, o + 1, s);
     }
 }
-bool fo_match::match_metavar(expr const & p, expr const & t, unsigned o, subst_map & s) {
-    lean_trace("fo_match", tout << "match_meta : (" << p << ", " << t << ", " << o << ", " << s << ")" << endl;);
+bool fo_match::match_metavar(expr const & p, expr const & t, unsigned, subst_map &) {
+    lean_trace("fo_match", tout << "match_meta : (" << p << ", " << t << ")" << endl;);
     return p == t;
 }
 

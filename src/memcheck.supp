@@ -77,28 +77,21 @@
 }
 
 {
-   # This entry suppresses the warning caused by a bug in tcmalloc-2.0.
-   # Using tcmalloc-2.1 solves this problem. 
-   TCMalloc_2.0_Bug
+   # This entry suppresses the warning caused by a bug in tcmalloc
+   TCMalloc_Bug
    Memcheck:Param
    msync(start)
    fun:__msync_nocancel
-   obj:*/libunwind.so.8.0.0
-   obj:*/libunwind.so.8.0.0
-   obj:*/libunwind.so.8.0.0
-   obj:*/libunwind.so.8.0.0
+   obj:*/libunwind.so.*
+   ...
    fun:_UL*_step
    fun:*GetStackTrace*
    fun:*PageHeap*GrowHeap*
    fun:*PageHeap*New*
    fun:*CentralFreeList*Populate*
    fun:*CentralFreeList*FetchFromSpansSafe*
-   fun:*CentralFreeList11RemoveRange*
+   fun:*CentralFreeList*RemoveRange*
    fun:*ThreadCache*FetchFromCentralCache*
    fun:malloc
-   fun:*TCMallocGuard*
-   obj:*/libtcmalloc.so.*
-   fun:call_init.*
-   fun:_dl_init
-   obj:*/ld-2.*
+   ...
 }

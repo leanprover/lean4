@@ -126,8 +126,8 @@ add_subdirectory(library/cast)
 set(LEAN_LIBS ${LEAN_LIBS} castlib)
 add_subdirectory(library/all)
 set(LEAN_LIBS ${LEAN_LIBS} alllib)
-add_subdirectory(library/rewrite)
-set(LEAN_LIBS ${LEAN_LIBS} rewrite)
+add_subdirectory(library/rewriter)
+set(LEAN_LIBS ${LEAN_LIBS} rewriter)
 add_subdirectory(frontends/lean)
 set(LEAN_LIBS ${LEAN_LIBS} lean_frontend)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread ${LEAN_EXTRA_LINKER_FLAGS}")
@@ -139,7 +139,7 @@ add_subdirectory(tests/util/numerics)
 add_subdirectory(tests/interval)
 add_subdirectory(tests/kernel)
 add_subdirectory(tests/library)
-add_subdirectory(tests/library/rewrite)
+add_subdirectory(tests/library/rewriter)
 add_subdirectory(tests/frontends/lean)
 
 # Include style check
@@ -151,4 +151,3 @@ file(GLOB_RECURSE LEAN_SOURCES
 add_style_check_target(style "${LEAN_SOURCES}")
 add_test(NAME style_check
   COMMAND ${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py ${LEAN_SOURCES})
-

@@ -11,8 +11,8 @@ Author: Soonho Kong
 #include "library/all/all.h"
 #include "library/arith/arith.h"
 #include "library/arith/nat.h"
-#include "library/rewrite/fo_match.h"
-#include "library/rewrite/rewrite.h"
+#include "library/rewriter/fo_match.h"
+#include "library/rewriter/rewriter.h"
 #include "library/basic_thms.h"
 #include "library/printer.h"
 using namespace lean;
@@ -21,8 +21,8 @@ using std::cout;
 using std::pair;
 using std::endl;
 
-static void theorem_rewrite1_tst() {
-    cout << "=== theorem_rewrite1_tst() ===" << endl;
+static void theorem_rewriter1_tst() {
+    cout << "=== theorem_rewriter1_tst() ===" << endl;
     // Theorem:     Pi(x y : N), x + y = y + x := ADD_COMM x y
     // Term   :     a + b
     // Result :     (b + a, ADD_COMM a b)
@@ -41,9 +41,9 @@ static void theorem_rewrite1_tst() {
     env.add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
 
     // Rewriting
-    rewrite add_comm_thm_rewriter = mk_theorem_rewrite(add_comm_thm_type, add_comm_thm_body);
+    rewriter add_comm_thm_rewriter = mk_theorem_rewriter(add_comm_thm_type, add_comm_thm_body);
     context ctx;
-    pair<expr, expr> result = add_comm_thm_rewriter(ctx, a_plus_b, env);
+    pair<expr, expr> result = add_comm_thm_rewriter(env, ctx, a_plus_b);
     expr concl = mk_eq(a_plus_b, result.first);
     expr proof = result.second;
 
@@ -55,8 +55,8 @@ static void theorem_rewrite1_tst() {
     env.add_theorem("New_theorem1", concl, proof);
 }
 
-static void theorem_rewrite2_tst() {
-    cout << "=== theorem_rewrite2_tst() ===" << endl;
+static void theorem_rewriter2_tst() {
+    cout << "=== theorem_rewriter2_tst() ===" << endl;
     // Theorem:     Pi(x : N), x + 0 = x := ADD_ID x
     // Term   :     a + 0
     // Result :     (a, ADD_ID a)
@@ -72,9 +72,9 @@ static void theorem_rewrite2_tst() {
     env.add_axiom("ADD_ID", add_id_thm_type); // ADD_ID : Pi (x : N), x = x + 0
 
     // Rewriting
-    rewrite add_id_thm_rewriter = mk_theorem_rewrite(add_id_thm_type, add_id_thm_body);
+    rewriter add_id_thm_rewriter = mk_theorem_rewriter(add_id_thm_type, add_id_thm_body);
     context ctx;
-    pair<expr, expr> result = add_id_thm_rewriter(ctx, a_plus_zero, env);
+    pair<expr, expr> result = add_id_thm_rewriter(env, ctx, a_plus_zero);
     expr concl = mk_eq(a_plus_zero, result.first);
     expr proof = result.second;
 
@@ -86,8 +86,8 @@ static void theorem_rewrite2_tst() {
     env.add_theorem("New_theorem2", concl, proof);
 }
 
-static void then_rewrite1_tst() {
-    cout << "=== then_rewrite1_tst() ===" << endl;
+static void then_rewriter1_tst() {
+    cout << "=== then_rewriter1_tst() ===" << endl;
     // Theorem1:     Pi(x y : N), x + y = y + x := ADD_COMM x y
     // Theorem2:     Pi(x : N)  , x + 0 = x     := ADD_ID x
     // Term    :     0 + a
@@ -111,11 +111,11 @@ static void then_rewrite1_tst() {
     env.add_axiom("ADD_ID", add_id_thm_type); // ADD_ID : Pi (x : N), x = x + 0
 
     // Rewriting
-    rewrite add_comm_thm_rewriter = mk_theorem_rewrite(add_comm_thm_type, add_comm_thm_body);
-    rewrite add_id_thm_rewriter = mk_theorem_rewrite(add_id_thm_type, add_id_thm_body);
-    rewrite then_rewriter1 = mk_then_rewrite(add_comm_thm_rewriter, add_id_thm_rewriter);
+    rewriter add_comm_thm_rewriter = mk_theorem_rewriter(add_comm_thm_type, add_comm_thm_body);
+    rewriter add_id_thm_rewriter = mk_theorem_rewriter(add_id_thm_type, add_id_thm_body);
+    rewriter then_rewriter1 = mk_then_rewriter(add_comm_thm_rewriter, add_id_thm_rewriter);
     context ctx;
-    pair<expr, expr> result = then_rewriter1(ctx, zero_plus_a, env);
+    pair<expr, expr> result = then_rewriter1(env, ctx, zero_plus_a);
     expr concl = mk_eq(zero_plus_a, result.first);
     expr proof = result.second;
 
@@ -130,8 +130,8 @@ static void then_rewrite1_tst() {
     env.add_theorem("New_theorem3", concl, proof);
 }
 
-static void then_rewrite2_tst() {
-    cout << "=== then_rewrite2_tst() ===" << endl;
+static void then_rewriter2_tst() {
+    cout << "=== then_rewriter2_tst() ===" << endl;
     // Theorem1:     Pi(x y z: N), x + (y + z) = (x + y) + z := ADD_ASSOC x y z
     // Theorem2:     Pi(x y : N),  x + y       = y + x       := ADD_COMM x y
     // Theorem3:     Pi(x : N),    x + 0       = x           := ADD_ID x
@@ -168,13 +168,13 @@ static void then_rewrite2_tst() {
     env.add_axiom("ADD_ID", add_id_thm_type);       // ADD_ID    : Pi (x : N), x = x + 0
 
     // Rewriting
-    rewrite add_assoc_thm_rewriter = mk_theorem_rewrite(add_assoc_thm_type, add_assoc_thm_body);
-    rewrite add_comm_thm_rewriter = mk_theorem_rewrite(add_comm_thm_type, add_comm_thm_body);
-    rewrite add_id_thm_rewriter = mk_theorem_rewrite(add_id_thm_type, add_id_thm_body);
-    rewrite then_rewriter2 = mk_then_rewrite(mk_then_rewrite(add_assoc_thm_rewriter, add_id_thm_rewriter),
-                                             mk_then_rewrite(add_comm_thm_rewriter, add_id_thm_rewriter));
+    rewriter add_assoc_thm_rewriter = mk_theorem_rewriter(add_assoc_thm_type, add_assoc_thm_body);
+    rewriter add_comm_thm_rewriter = mk_theorem_rewriter(add_comm_thm_type, add_comm_thm_body);
+    rewriter add_id_thm_rewriter = mk_theorem_rewriter(add_id_thm_type, add_id_thm_body);
+    rewriter then_rewriter2 = mk_then_rewriter(mk_then_rewriter(add_assoc_thm_rewriter, add_id_thm_rewriter),
+                                             mk_then_rewriter(add_comm_thm_rewriter, add_id_thm_rewriter));
     context ctx;
-    pair<expr, expr> result = then_rewriter2(ctx, zero_plus_a_plus_zero, env);
+    pair<expr, expr> result = then_rewriter2(env, ctx, zero_plus_a_plus_zero);
     expr concl = mk_eq(zero_plus_a_plus_zero, result.first);
     expr proof = result.second;
     cout << "Theorem: " << add_assoc_thm_type << " := " << add_assoc_thm_body << endl;
@@ -195,8 +195,8 @@ static void then_rewrite2_tst() {
 }
 
 
-static void orelse_rewrite1_tst() {
-    cout << "=== orelse_rewrite1_tst() ===" << endl;
+static void orelse_rewriter1_tst() {
+    cout << "=== orelse_rewriter1_tst() ===" << endl;
     // Theorem1:     Pi(x y z: N), x + (y + z) = (x + y) + z := ADD_ASSOC x y z
     // Theorem2:     Pi(x y : N),  x + y       = y + x       := ADD_COMM x y
     // Term   :     a + b
@@ -222,11 +222,11 @@ static void orelse_rewrite1_tst() {
     env.add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
 
     // Rewriting
-    rewrite add_assoc_thm_rewriter = mk_theorem_rewrite(add_assoc_thm_type, add_assoc_thm_body);
-    rewrite add_comm_thm_rewriter = mk_theorem_rewrite(add_comm_thm_type, add_comm_thm_body);
-    rewrite add_assoc_or_comm_thm_rewriter = mk_orelse_rewrite(add_assoc_thm_rewriter, add_comm_thm_rewriter);
+    rewriter add_assoc_thm_rewriter = mk_theorem_rewriter(add_assoc_thm_type, add_assoc_thm_body);
+    rewriter add_comm_thm_rewriter = mk_theorem_rewriter(add_comm_thm_type, add_comm_thm_body);
+    rewriter add_assoc_or_comm_thm_rewriter = mk_orelse_rewriter(add_assoc_thm_rewriter, add_comm_thm_rewriter);
     context ctx;
-    pair<expr, expr> result = add_assoc_or_comm_thm_rewriter(ctx, a_plus_b, env);
+    pair<expr, expr> result = add_assoc_or_comm_thm_rewriter(env, ctx, a_plus_b);
     expr concl = mk_eq(a_plus_b, result.first);
     expr proof = result.second;
 
@@ -240,10 +240,10 @@ static void orelse_rewrite1_tst() {
 }
 
 int main() {
-    theorem_rewrite1_tst();
-    theorem_rewrite2_tst();
-    then_rewrite1_tst();
-    then_rewrite2_tst();
-    orelse_rewrite1_tst();
+    theorem_rewriter1_tst();
+    theorem_rewriter2_tst();
+    then_rewriter1_tst();
+    then_rewriter2_tst();
+    orelse_rewriter1_tst();
     return has_violations() ? 1 : 0;
 }

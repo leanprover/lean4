@@ -11,8 +11,8 @@ Author: Soonho Kong
 #include "library/all/all.h"
 #include "library/arith/nat.h"
 #include "library/arith/arith.h"
-#include "library/rewrite/fo_match.h"
-#include "library/rewrite/rewrite.h"
+#include "library/rewriter/fo_match.h"
+#include "library/rewriter/rewriter.h"
 #include "library/printer.h"
 
 using std::cout;

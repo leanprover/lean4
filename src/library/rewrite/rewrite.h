@@ -6,6 +6,7 @@ Author: Soonho Kong
 */
 #pragma once
 #include <utility>
+#include <algorithm>
 #include "util/exception.h"
 #include "kernel/environment.h"
 

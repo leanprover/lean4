@@ -158,6 +158,7 @@ pair<expr, expr> lambda_rewrite_cell::operator()(context & ctx, expr const & v, 
     throw rewrite_exception();
 }
 
+// Pi Rewrite
 pi_rewrite_cell::pi_rewrite_cell(rewrite const & rw)
     :rewrite_cell(rewrite_kind::Pi), m_rw(rw) { }
 pi_rewrite_cell::~pi_rewrite_cell() { }
@@ -175,10 +176,10 @@ pair<expr, expr> pi_rewrite_cell::operator()(context & ctx, expr const & v, envi
     throw rewrite_exception();
 }
 
+// Let rewrite
 let_rewrite_cell::let_rewrite_cell(rewrite const & rw)
     :rewrite_cell(rewrite_kind::Let), m_rw(rw) { }
 let_rewrite_cell::~let_rewrite_cell() { }
-
 pair<expr, expr> let_rewrite_cell::operator()(context & ctx, expr const & v, environment const & env) const throw(rewrite_exception) {
     if (!is_let(v))
         throw rewrite_exception();
@@ -195,6 +196,36 @@ pair<expr, expr> let_rewrite_cell::operator()(context & ctx, expr const & v, env
     throw rewrite_exception();
 }
 
+// Fail rewrite
+fail_rewrite_cell::fail_rewrite_cell():rewrite_cell(rewrite_kind::Fail) { }
+fail_rewrite_cell::~fail_rewrite_cell() { }
+pair<expr, expr> fail_rewrite_cell::operator()(context &, expr const &, environment const &) const throw(rewrite_exception) {
+    throw rewrite_exception();
+}
+
+// Success rewrite (trivial)
+success_rewrite_cell::success_rewrite_cell():rewrite_cell(rewrite_kind::Success) { }
+success_rewrite_cell::~success_rewrite_cell() { }
+pair<expr, expr> success_rewrite_cell::operator()(context &, expr const & v, environment const &) const throw(rewrite_exception) {
+    return make_pair(v, mk_app(Const("Refl"), v));
+}
+
+// Repeat rewrite
+repeat_rewrite_cell::repeat_rewrite_cell(rewrite const & rw):rewrite_cell(rewrite_kind::Repeat), m_rw(rw) { }
+repeat_rewrite_cell::~repeat_rewrite_cell() { }
+pair<expr, expr> repeat_rewrite_cell::operator()(context & ctx, expr const & v, environment const & env) const throw(rewrite_exception) {
+    pair<expr, expr> result = mk_success_rewrite()(ctx, v, env);
+    // TODO(soonhok) fix
+    try {
+        while (true) {
+            result = m_rw(ctx, result.first, env);
+        }
+    }
+    catch (rewrite_exception & ) {
+        return result;
+    }
+}
+
 rewrite mk_theorem_rewrite(expr const & type, expr const & body) {
     return rewrite(new theorem_rewrite_cell(type, body));
 }
@@ -204,5 +235,25 @@ rewrite mk_then_rewrite(rewrite const & rw1, rewrite const & rw2) {
 rewrite mk_orelse_rewrite(rewrite const & rw1, rewrite const & rw2) {
     return rewrite(new orelse_rewrite_cell(rw1, rw2));
 }
-
+rewrite mk_app_rewrite(rewrite const & rw) {
+    return rewrite(new app_rewrite_cell(rw));
+}
+rewrite mk_lambda_rewrite(rewrite const & rw) {
+    return rewrite(new lambda_rewrite_cell(rw));
+}
+rewrite mk_pi_rewrite(rewrite const & rw) {
+    return rewrite(new pi_rewrite_cell(rw));
+}
+rewrite mk_let_rewrite(rewrite const & rw) {
+    return rewrite(new let_rewrite_cell(rw));
+}
+rewrite mk_fail_rewrite() {
+    return rewrite(new fail_rewrite_cell());
+}
+rewrite mk_success_rewrite() {
+    return rewrite(new success_rewrite_cell());
+}
+rewrite mk_repeat_rewrite(rewrite const & rw) {
+    return rewrite(new repeat_rewrite_cell(rw));
+}
 }

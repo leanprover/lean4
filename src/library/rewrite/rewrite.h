@@ -26,7 +26,7 @@ namespace lean {
 class rewrite_exception : public exception {
 };
 
-enum class rewrite_kind { Theorem, OrElse, Then, App, Lambda, Pi, Let };
+enum class rewrite_kind {Theorem, OrElse, Then, App, Lambda, Pi, Let, Fail, Success, Repeat};
 
 class rewrite;
 
@@ -136,10 +136,25 @@ public:
 
 class fail_rewrite_cell : public rewrite_cell {
 public:
-    fail_rewrite_cell(rewrite const & rw1, rewrite const & rw2);
-    std::pair<expr, expr> operator()(context &, expr const &) const throw(rewrite_exception) {
-        throw rewrite_exception();
-    }
+    fail_rewrite_cell();
+    ~fail_rewrite_cell();
+    std::pair<expr, expr> operator()(context &, expr const &, environment const &) const throw(rewrite_exception);
+};
+
+class success_rewrite_cell : public rewrite_cell {
+public:
+    success_rewrite_cell();
+    ~success_rewrite_cell();
+    std::pair<expr, expr> operator()(context &, expr const &, environment const & env) const throw(rewrite_exception);
+};
+
+class repeat_rewrite_cell : public rewrite_cell {
+private:
+    rewrite m_rw;
+public:
+    repeat_rewrite_cell(rewrite const & rw);
+    ~repeat_rewrite_cell();
+    std::pair<expr, expr> operator()(context &, expr const &, environment const & env) const throw(rewrite_exception);
 };
 
 rewrite mk_theorem_rewrite(expr const & type, expr const & body);
@@ -150,4 +165,6 @@ rewrite mk_lambda_rewrite(rewrite const & rw);
 rewrite mk_pi_rewrite(rewrite const & rw);
 rewrite mk_let_rewrite(rewrite const & rw);
 rewrite mk_fail_rewrite();
+rewrite mk_success_rewrite();
+rewrite mk_repeat_rewrite(rewrite const & rw);
 }

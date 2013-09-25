@@ -187,7 +187,7 @@ public:
 
     friend format compose(format const & f1, format const & f2);
     friend format nest(int i, format const & f);
-    friend format highlight(format const & f, format::format_color const c = RED);
+    friend format highlight(format const & f, format::format_color const c);
     friend format mk_line();
 
     friend format group(format const & f);
@@ -224,7 +224,7 @@ public:
 format wrap(format const & f1, format const & f2);
 format compose(format const & f1, format const & f2);
 format nest(int i, format const & f);
-format highlight(format const & f, format::format_color const c);
+format highlight(format const & f, format::format_color const c = format::RED);
 format highlight_keyword(format const & f);
 format highlight_builtin(format const & f);
 format highlight_command(format const & f);

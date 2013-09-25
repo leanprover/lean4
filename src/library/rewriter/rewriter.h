@@ -80,20 +80,20 @@ public:
 
 class orelse_rewriter_cell : public rewriter_cell {
 private:
-    rewriter m_rw1;
-    rewriter m_rw2;
+    list<rewriter> m_rwlist;
 public:
     orelse_rewriter_cell(rewriter const & rw1, rewriter const & rw2);
+    orelse_rewriter_cell(std::initializer_list<rewriter> const & l);
     ~orelse_rewriter_cell();
     std::pair<expr, expr> operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception);
 };
 
 class then_rewriter_cell : public rewriter_cell {
 private:
-    rewriter m_rw1;
-    rewriter m_rw2;
+    list<rewriter> m_rwlist;
 public:
     then_rewriter_cell(rewriter const & rw1, rewriter const & rw2);
+    then_rewriter_cell(std::initializer_list<rewriter> const & l);
     ~then_rewriter_cell();
     std::pair<expr, expr> operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception);
 };
@@ -159,7 +159,9 @@ public:
 
 rewriter mk_theorem_rewriter(expr const & type, expr const & body);
 rewriter mk_then_rewriter(rewriter const & rw1, rewriter const & rw2);
+rewriter mk_then_rewriter(std::initializer_list<rewriter> const & l);
 rewriter mk_orelse_rewriter(rewriter const & rw1, rewriter const & rw2);
+rewriter mk_orelse_rewriter(std::initializer_list<rewriter> const & l);
 rewriter mk_app_rewriter(rewriter const & rw);
 rewriter mk_lambda_rewriter(rewriter const & rw);
 rewriter mk_pi_rewriter(rewriter const & rw);

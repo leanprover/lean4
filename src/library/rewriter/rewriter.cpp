@@ -100,27 +100,42 @@ pair<expr, expr> theorem_rewriter_cell::operator()(environment const &, context 
 
 // OrElse Rewriter
 orelse_rewriter_cell::orelse_rewriter_cell(rewriter const & rw1, rewriter const & rw2)
-    :rewriter_cell(rewriter_kind::OrElse), m_rw1(rw1), m_rw2(rw2) { }
+    :rewriter_cell(rewriter_kind::OrElse), m_rwlist({rw1, rw2}) { }
+orelse_rewriter_cell::orelse_rewriter_cell(std::initializer_list<rewriter> const & l)
+    :rewriter_cell(rewriter_kind::OrElse), m_rwlist(l) {
+    lean_assert(l.size() >= 2);
+}
 orelse_rewriter_cell::~orelse_rewriter_cell() { }
 pair<expr, expr> orelse_rewriter_cell::operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception) {
-    try {
-        return m_rw1(env, ctx, v);
-    } catch (rewriter_exception & ) {
-        return m_rw2(env, ctx, v);
+    for (rewriter const & rw : m_rwlist) {
+        try {
+            return rw(env, ctx, v);
+        } catch (rewriter_exception & ) {
+            // Do nothing
+        }
     }
+    // If the execution reaches here, it means every rewriter failed.
+    throw rewriter_exception();
 }
 
 // Then Rewriter
 then_rewriter_cell::then_rewriter_cell(rewriter const & rw1, rewriter const & rw2)
-    :rewriter_cell(rewriter_kind::Then), m_rw1(rw1), m_rw2(rw2) { }
+    :rewriter_cell(rewriter_kind::Then), m_rwlist({rw1, rw2}) { }
+then_rewriter_cell::then_rewriter_cell(std::initializer_list<rewriter> const & l)
+    :rewriter_cell(rewriter_kind::Then), m_rwlist(l) {
+    lean_assert(l.size() >= 2);
+}
 then_rewriter_cell::~then_rewriter_cell() { }
 pair<expr, expr> then_rewriter_cell::operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception) {
-    pair<expr, expr> result1 = m_rw1(env, ctx, v);
-    pair<expr, expr> result2 = m_rw2(env, ctx, result1.first);
-    light_checker lc(env);
-    expr const & t = lc(v, ctx);
-    return make_pair(result2.first,
-                     Trans(t, v, result1.first, result2.first, result1.second, result2.second));
+    pair<expr, expr> result = car(m_rwlist)(env, ctx, v);
+    pair<expr, expr> new_result = result;
+    for (rewriter const & rw : cdr(m_rwlist)) {
+        new_result = rw(env, ctx, result.first);
+        expr const & t = light_checker(env)(v, ctx);
+        result = make_pair(new_result.first,
+                         Trans(t, v, result.first, new_result.first, result.second, new_result.second));
+    }
+    return result;
 }
 
 // App Rewriter
@@ -232,8 +247,14 @@ rewriter mk_theorem_rewriter(expr const & type, expr const & body) {
 rewriter mk_then_rewriter(rewriter const & rw1, rewriter const & rw2) {
     return rewriter(new then_rewriter_cell(rw1, rw2));
 }
+rewriter mk_then_rewriter(std::initializer_list<rewriter> const & l) {
+    return rewriter(new then_rewriter_cell(l));
+}
 rewriter mk_orelse_rewriter(rewriter const & rw1, rewriter const & rw2) {
     return rewriter(new orelse_rewriter_cell(rw1, rw2));
+}
+rewriter mk_orelse_rewriter(std::initializer_list<rewriter> const & l) {
+    return rewriter(new orelse_rewriter_cell(l));
 }
 rewriter mk_app_rewriter(rewriter const & rw) {
     return rewriter(new app_rewriter_cell(rw));

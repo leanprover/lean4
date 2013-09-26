@@ -59,4 +59,8 @@ inline context_entry const & lookup(context const & c, unsigned i) { return c.lo
 inline context extend(context const & c, name const & n, expr const & d, expr const & b) { return context(c, n, d, b); }
 inline context extend(context const & c, name const & n, expr const & d) { return context(c, n, d); }
 inline bool empty(context const & c) { return c.empty(); }
+
+// Remark: the implementation is at library/printer.cpp
+// We add the definition here to prevent the compiler from using the coercion to bool.
+std::ostream & operator<<(std::ostream & out, context const & ctx);
 }

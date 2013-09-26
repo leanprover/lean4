@@ -604,4 +604,8 @@ template<typename F> expr update_metavar(expr const & e, F f) {
     return update_metavar(e, metavar_idx(e), f);
 }
 // =======================================
+
+// Remark: the implementation is at library/printer.cpp
+// We add the definition here to prevent the compiler from using the coercion to bool.
+std::ostream & operator<<(std::ostream & out, expr const & e);
 }

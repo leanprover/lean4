@@ -21,12 +21,15 @@ static void tst1() {
     lean_assert(lean::get_allocated_memory() >= old_mem + N * 2 * sizeof(N));
     std::cout << "Total: "  << static_cast<size_t>(lean::get_allocated_memory()) << "\n";
     std::cout << "Thread: " << static_cast<size_t>(lean::get_thread_allocated_memory()) << "\n";
-    lean_assert(lean::get_allocated_memory() == static_cast<size_t>(lean::get_thread_allocated_memory()));
+#if !defined(HAS_TCMALLOC)
+    // When TCMALLOC is used, there is a problem during initialization, and the value of get_thread_allocated_memory is off.
+    lean_assert_eq(lean::get_allocated_memory(), static_cast<size_t>(lean::get_thread_allocated_memory()));
+#endif
     for (int i = 0; i < N; i++) {
         lean_assert(a[i] == i);
     }
     lean::free(a);
-    lean_assert(old_mem == lean::get_allocated_memory());
+    lean_assert_eq(old_mem, lean::get_allocated_memory());
 }
 
 int main() {

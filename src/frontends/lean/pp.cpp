@@ -572,7 +572,6 @@ class pp_fn {
                     }
                 }
                 lean_unreachable();
-                return arg(m_app, n - 1);
             } else {
                 return arg(m_app, i + 1);
             }
@@ -602,7 +601,6 @@ class pp_fn {
             return app.get_num_args() == length(op.get_op_name_parts()) + 1;
         }
         lean_unreachable();
-        return false;
     }
 
     /**
@@ -676,7 +674,6 @@ class pp_fn {
                 return mk_result(group(r_format), r_weight);
             }}
             lean_unreachable();
-            return mk_result(format(), 0);
         } else if (m_notation && is_forall_expr(e)) {
             return pp_forall(e, depth);
         } else if (m_notation && is_exists_expr(e)) {
@@ -1361,7 +1358,6 @@ public:
             }
         }
         lean_unreachable();
-        return format();
     }
 
     virtual format operator()(environment const & env, options const & opts) {

@@ -1880,7 +1880,6 @@ void interval<T>::csc  (interval_deps & deps) {
             return;
         }
         lean_unreachable();
-        return;
     }
 
     if (m_lower <= pi && m_upper <= pi) {

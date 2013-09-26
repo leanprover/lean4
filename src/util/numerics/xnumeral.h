@@ -217,13 +217,11 @@ bool lt(T const & a, xnumeral_kind ak, T const & b, xnumeral_kind bk) {
             return true;
         default:
             lean_unreachable();
-            return false;
         }
     case XN_PLUS_INFINITY:
         return false;
     default:
         lean_unreachable();
-        return false;
     }
 }
 

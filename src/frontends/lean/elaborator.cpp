@@ -476,7 +476,6 @@ class elaborator::imp {
             return expr_pair(new_e, t);
         }}
         lean_unreachable();
-        return expr_pair(expr(), expr());
     }
 
     expr infer(expr const & e, context const & ctx) {

@@ -73,7 +73,6 @@ struct max_sharing_fn::imp {
             return r;
         }}
         lean_unreachable();
-        return a;
     }
     expr operator()(expr const & a) { return apply(a); }
 };

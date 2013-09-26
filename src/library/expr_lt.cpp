@@ -16,7 +16,7 @@ bool is_lt(expr const & a, expr const & b) {
     if (is_var(a))            return var_idx(a) < var_idx(b);
     switch (a.kind()) {
     case expr_kind::Var:
-        lean_unreachable(); return true; // LCOV_EXCL_LINE
+        lean_unreachable();
     case expr_kind::Constant:
         return const_name(a) < const_name(b);
     case expr_kind::App:
@@ -74,7 +74,6 @@ bool is_lt(expr const & a, expr const & b) {
             return false;
         }
     }
-    lean_unreachable();  // LCOV_EXCL_LINE
-    return false;        // LCOV_EXCL_LINE
+    lean_unreachable();
 }
 }

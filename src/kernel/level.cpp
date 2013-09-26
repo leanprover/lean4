@@ -149,7 +149,6 @@ level operator+(level const & l, unsigned k)  {
         return max_core(new_lvls.size(), new_lvls.data());
     }}
     lean_unreachable();
-    return level();
 }
 
 level_kind    kind       (level const & l) { lean_assert(l.m_ptr); return l.m_ptr->m_kind; }
@@ -178,7 +177,6 @@ bool operator==(level const & l1, level const & l2) {
         }
     }
     lean_unreachable();
-    return false;
 }
 
 bool operator<(level const & l1, level const & l2) {
@@ -199,7 +197,6 @@ bool operator<(level const & l1, level const & l2) {
         return false;
     }
     lean_unreachable();
-    return false;
 }
 
 std::ostream & operator<<(std::ostream & out, level const & l) {
@@ -244,7 +241,6 @@ format pp(level const & l, bool unicode) {
         }
     }}
     lean_unreachable();
-    return format();
 }
 
 format pp(level const & l, options const & opts) {

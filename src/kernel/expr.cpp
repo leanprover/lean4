@@ -175,6 +175,5 @@ expr copy(expr const & a) {
     case expr_kind::MetaVar:  return mk_metavar(metavar_idx(a), metavar_ctx(a));
     }
     lean_unreachable();
-    return expr();
 }
 }

@@ -120,7 +120,6 @@ char const * to_string(fixity f) {
     case fixity::Mixfixo: return "Mixfixo";
     }
     lean_unreachable();
-    return 0;
 }
 
 format pp(operator_info const & o) {
@@ -170,11 +169,10 @@ format pp(operator_info const & o) {
                 r += format{space(), format("_"), space(), format(p)};
             r += format{space(), format("_")};
             return r;
-        default: lean_unreachable(); break;
+        default: lean_unreachable();
         }
     }
     lean_unreachable();
-    return format();
 }
 
 char const * notation_declaration::keyword() const {

@@ -96,7 +96,7 @@ struct sexpr_cons : public sexpr_cell {
 
 void sexpr_cell::dealloc() {
     switch (m_kind) {
-    case sexpr_kind::NIL:         lean_unreachable();                      break; // LCOV_EXCL_LINE
+    case sexpr_kind::NIL:         lean_unreachable();
     case sexpr_kind::STRING:      delete static_cast<sexpr_string*>(this); break;
     case sexpr_kind::BOOL:        delete static_cast<sexpr_bool*>(this);   break;
     case sexpr_kind::INT:         delete static_cast<sexpr_int*>(this);    break;
@@ -193,8 +193,7 @@ bool operator==(sexpr const & a, sexpr const & b) {
     case sexpr_kind::MPQ:         return to_mpq(a) == to_mpq(b);
     case sexpr_kind::CONS:        return head(a) == head(b) && tail(a) == tail(b);
     }
-    lean_unreachable(); // LCOV_EXCL_LINE
-    return false;       // LCOV_EXCL_LINE
+    lean_unreachable();
 }
 
 int cmp(sexpr const & a, sexpr const & b) {
@@ -223,8 +222,7 @@ int cmp(sexpr const & a, sexpr const & b) {
             return r;
         return cmp(tail(a), tail(b));
     }}
-    lean_unreachable(); // LCOV_EXCL_LINE
-    return 0;           // LCOV_EXCL_LINE
+    lean_unreachable();
 }
 
 std::ostream & operator<<(std::ostream & out, sexpr const & s) {

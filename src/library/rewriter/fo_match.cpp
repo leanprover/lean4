@@ -184,6 +184,5 @@ bool fo_match::match(expr const & p, expr const & t, unsigned o, subst_map & s) 
         return match_metavar(p, t, o, s);
     }
     lean_unreachable();
-    return false;
 }
 }

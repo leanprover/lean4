@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <iostream>
+#include "util/exception.h"
 
 #ifndef __has_builtin
 #define __has_builtin(x) 0
@@ -17,11 +18,7 @@ Author: Leonardo de Moura
 #define DEBUG_CODE(CODE)
 #endif
 
-#if __has_builtin(__builtin_unreachable)
-#define lean_unreachable() __builtin_unreachable()
-#else
-#define lean_unreachable() DEBUG_CODE({lean::notify_assertion_violation(__FILE__, __LINE__, "UNREACHABLE CODE WAS REACHED."); lean::invoke_debugger();})
-#endif
+#define lean_unreachable() DEBUG_CODE({lean::notify_assertion_violation(__FILE__, __LINE__, "UNREACHABLE CODE WAS REACHED."); lean::invoke_debugger();}) throw unreachable_reached();
 
 #ifdef LEAN_DEBUG
 #define lean_verify(COND) if (!(COND)) { lean::notify_assertion_violation(__FILE__, __LINE__, #COND); lean::invoke_debugger(); }
@@ -100,6 +97,13 @@ void disable_debug(char const * tag);
 bool is_debug_enabled(char const * tag);
 void invoke_debugger();
 bool has_violations();
+/** \brief Exception used to sign that unreachable code was reached */
+class unreachable_reached : public exception {
+public:
+    unreachable_reached() {}
+    virtual ~unreachable_reached() noexcept {}
+    virtual char const * what() const noexcept { return "'unreachable' code was reached"; }
+};
 namespace debug {
 template<typename T> void display_var(char const * name, T const & value) { std::cerr << name << " := " << value << "\n"; }
 }

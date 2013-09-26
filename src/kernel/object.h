@@ -36,24 +36,24 @@ public:
     /** \brief Return true iff object has a name. */
     virtual bool has_name() const { return false; }
     /** \brief Return object name. \pre has_name() */
-    virtual name get_name() const { lean_unreachable(); return name(); }
+    virtual name get_name() const { lean_unreachable(); }
 
     /** \brief Has constraint level associated with it (for universal variables). */
     virtual bool has_cnstr_level() const { return false; }
     /** \brief Return the constraint level associated with the object. */
-    virtual level get_cnstr_level() const { lean_unreachable(); return level(); }
+    virtual level get_cnstr_level() const { lean_unreachable(); }
 
     /** \brief Return true iff object has a type. */
     virtual bool has_type() const { return false; }
     /** \brief Return object type. \pre has_type() */
-    virtual expr get_type() const { lean_unreachable(); return expr(); }
+    virtual expr get_type() const { lean_unreachable(); }
 
     /** \brief Return true iff object is a definition */
     virtual bool is_definition() const { return false; }
     /** \brief Return true iff the definition is opaque. \pre is_definition() */
-    virtual bool is_opaque() const { lean_unreachable(); return false; }
+    virtual bool is_opaque() const { lean_unreachable(); }
     /** \brief Return object value. \pre is_definition() */
-    virtual expr get_value() const { lean_unreachable(); return expr(); }
+    virtual expr get_value() const { lean_unreachable(); }
 
     virtual bool is_axiom() const { return false; }
     virtual bool is_builtin() const { return false; }

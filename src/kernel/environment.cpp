@@ -118,7 +118,6 @@ struct environment::imp {
         case level_kind::Max:  return std::all_of(max_begin_levels(l2), max_end_levels(l2), [&](level const & l) { return is_ge(l1, l, k); });
         }
         lean_unreachable();
-        return false;
     }
 
     /** \brief Return true iff l1 >= l2 is implied by asserted universe constraints. */

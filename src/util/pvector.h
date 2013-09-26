@@ -191,7 +191,7 @@ class pvector {
                     case cell_kind::PushBack: update_cell(new push_cell(to_push(m_ptr))); break;
                     case cell_kind::PopBack:  update_cell(new pop_cell(to_pop(m_ptr))); break;
                     case cell_kind::Set:      update_cell(new set_cell(to_set(m_ptr))); break;
-                    case cell_kind::Root:     lean_unreachable(); break;
+                    case cell_kind::Root:     lean_unreachable();
                     }
                 }
                 lean_assert(!is_shared());
@@ -397,7 +397,6 @@ unsigned pvector<T>::cell::size() const {
         return static_cast<root_cell const *>(this)->m_vector.size();
     }
     lean_unreachable();
-    return 0;
 }
 
 template<typename T>
@@ -414,7 +413,6 @@ unsigned pvector<T>::cell::quota() const {
     }
     }
     lean_unreachable();
-    return 0;
 }
 
 /** \brief Non-destructive push_back. It is simulated using O(1) copy. */

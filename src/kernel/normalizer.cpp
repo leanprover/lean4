@@ -139,7 +139,6 @@ class normalizer::imp {
         case svalue_kind::Closure:    return reify_closure(to_expr(v), stack_of(v), k);
         }
         lean_unreachable();
-        return expr();
     }
 
     /** \brief Return true iff the value_stack does affect the context of a metavariable */

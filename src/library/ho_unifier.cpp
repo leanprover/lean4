@@ -596,7 +596,6 @@ class ho_unifier::imp {
                 return true;
             case expr_kind::Let: case expr_kind::MetaVar: case expr_kind::App:
                 lean_unreachable();
-                return false;
             }
         }
 

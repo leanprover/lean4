@@ -23,10 +23,10 @@ void check_interval_bop(std::string const & fname, std::string const & varname, 
         numeric_traits<T1>::set_rounding(true);
         f(lu, c);
         cout << "\t" << fname << "(" << i.lower() << ", " << c << ") = [" << ll << ", " << lu << "]"<< endl;
-        lean_assert((r.is_lower_inf() || r.lower() <= ll) &&
-                    (r.is_upper_inf() || ll <= r.upper()));
-        lean_assert(r.is_lower_inf() ||
-                    ((r.lower() <= lu) && (r.is_upper_inf() || (lu <= r.upper()))));
+        lean_assert(r.is_lower_inf() || r.lower() <= ll, r, ll);
+        lean_assert(r.is_lower_inf() || r.lower() <= lu, r, lu);
+        lean_assert(r.is_upper_inf() || ll <= r.upper(), r, ll);
+        lean_assert(r.is_upper_inf() || lu <= r.upper(), r, lu);
     }
     if (!i.is_upper_inf()) {
         T1 ul = i.upper();
@@ -36,10 +36,10 @@ void check_interval_bop(std::string const & fname, std::string const & varname, 
         numeric_traits<T1>::set_rounding(true);
         f(uu, c);
         cout << "\t" << fname << "(" << i.upper() << ", " << c << ") = [" << ul << ", " << uu << "]" << endl;
-        lean_assert((r.is_lower_inf() || r.lower() <= ul) &&
-                    (r.is_upper_inf() || ul <= r.upper()));
-        lean_assert((r.is_lower_inf() || r.lower() <= uu) &&
-                    (r.is_upper_inf() || uu <= r.upper()));
+        lean_assert(r.is_lower_inf() || r.lower() <= ul, r, ul);
+        lean_assert(r.is_lower_inf() || r.lower() <= uu, r, uu);
+        lean_assert(r.is_upper_inf() || ul <= r.upper(), r, ul);
+        lean_assert(r.is_upper_inf() || uu <= r.upper(), r, uu);
     }
 }
 
@@ -56,10 +56,10 @@ void check_interval_uop(std::string const & fname, std::string const & varname, 
         numeric_traits<T>::set_rounding(true);
         f(lu);
         cout << "\t" << fname << "(" << i.lower() << ") = [" << ll << ", " << lu << "]"<< endl;
-        lean_assert((r.is_lower_inf() || r.lower() <= ll) &&
-                    (r.is_upper_inf() || ll <= r.upper()));
-        lean_assert(r.is_lower_inf() ||
-                    ((r.lower() <= lu) && (r.is_upper_inf() || (lu <= r.upper()))));
+        lean_assert(r.is_lower_inf() || r.lower() <= ll, r, ll);
+        lean_assert(r.is_lower_inf() || r.lower() <= lu, r, lu);
+        lean_assert(r.is_upper_inf() || ll <= r.upper(), r, ll);
+        lean_assert(r.is_upper_inf() || lu <= r.upper(), r, lu);
     }
     if (!i.is_upper_inf()) {
         T ul = i.upper();
@@ -69,10 +69,10 @@ void check_interval_uop(std::string const & fname, std::string const & varname, 
         numeric_traits<T>::set_rounding(true);
         f(uu);
         cout << "\t" << fname << "(" << i.upper() << ") = [" << ul << ", " << uu << "]" << endl;
-        lean_assert((r.is_lower_inf() || r.lower() <= ul) &&
-                    (r.is_upper_inf() || ul <= r.upper()));
-        lean_assert((r.is_lower_inf() || r.lower() <= uu) &&
-                    (r.is_upper_inf() || uu <= r.upper()));
+        lean_assert(r.is_lower_inf() || r.lower() <= ul, r, ul);
+        lean_assert(r.is_lower_inf() || r.lower() <= uu, r, uu);
+        lean_assert(r.is_upper_inf() || ul <= r.upper(), r, ul);
+        lean_assert(r.is_upper_inf() || uu <= r.upper(), r, uu);
     }
 }
 

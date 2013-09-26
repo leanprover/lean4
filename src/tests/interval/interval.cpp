@@ -39,18 +39,18 @@ static void tst1() {
     qi t(1, 3);
     std::cout << t + qi(2, 4, false, true) << "\n";
     std::cout << t << " --> " << inv(t) << "\n";
-    lean_assert(neg(t) == qi(-3, -1));
-    lean_assert(neg(neg(t)) == t);
-    lean_assert(qi(1, 2) + qi(2, 3) == qi(3, 5));
-    lean_assert(qi(1, 5) + qi(-2, -3) == qi(-1, 2));
+    lean_assert_eq(neg(t), qi(-3, -1));
+    lean_assert_eq(neg(neg(t)), t);
+    lean_assert_eq(qi(1, 2) + qi(2, 3), qi(3, 5));
+    lean_assert_eq(qi(1, 5) + qi(-2, -3), qi(-1, 2));
     for (auto i1 : mk_some_intervals(-2, 2))
         for (auto i2 : mk_some_intervals(-2, 2)) {
             auto r = i1 + i2;
             auto s = i1;
             s += i2;
-            lean_assert(r == s);
-            lean_assert(r.lower() == i1.lower() + i2.lower());
-            lean_assert(r.upper() == i1.upper() + i2.upper());
+            lean_assert_eq(r, s);
+            lean_assert_eq(r.lower(), i1.lower() + i2.lower());
+            lean_assert_eq(r.upper(), i1.upper() + i2.upper());
             lean_assert(r.is_lower_open() == i1.is_lower_open() || i2.is_lower_open());
             lean_assert(r.is_upper_open() == i1.is_upper_open() || i2.is_upper_open());
             r -= i2;
@@ -58,9 +58,9 @@ static void tst1() {
             r = i1 - i2;
             s = i1;
             s -= i2;
-            lean_assert(r == s);
-            lean_assert(r.lower() == i1.lower() - i2.upper());
-            lean_assert(r.upper() == i1.upper() - i2.lower());
+            lean_assert_eq(r, s);
+            lean_assert_eq(r.lower(), i1.lower() - i2.upper());
+            lean_assert_eq(r.upper(), i1.upper() - i2.lower());
             lean_assert(r.is_lower_open() == i1.is_lower_open() || i2.is_upper_open());
             lean_assert(r.is_upper_open() == i1.is_upper_open() || i2.is_lower_open());
             r -= r;
@@ -68,9 +68,9 @@ static void tst1() {
             r = i1 * i2;
             s = i1;
             s *= i2;
-            lean_assert(r == s);
-            lean_assert(r.lower() == std::min(i1.lower()*i2.lower(), std::min(i1.lower()*i2.upper(), std::min(i1.upper()*i2.lower(), i1.upper()*i2.upper()))));
-            lean_assert(r.upper() == std::max(i1.lower()*i2.lower(), std::max(i1.lower()*i2.upper(), std::max(i1.upper()*i2.lower(), i1.upper()*i2.upper()))));
+            lean_assert_eq(r, s);
+            lean_assert_eq(r.lower(), std::min(i1.lower()*i2.lower(), std::min(i1.lower()*i2.upper(), std::min(i1.upper()*i2.lower(), i1.upper()*i2.upper()))));
+            lean_assert_eq(r.upper(), std::max(i1.lower()*i2.lower(), std::max(i1.lower()*i2.upper(), std::max(i1.upper()*i2.lower(), i1.upper()*i2.upper()))));
         }
     lean_assert(qi(1, 3).before(qi(4, 6)));
     lean_assert(!qi(1, 3).before(qi(3, 6)));
@@ -78,17 +78,17 @@ static void tst1() {
 }
 
 static void tst2() {
-    lean_assert(power(qi(2, 3), 2) == qi(4, 9));
-    lean_assert(power(qi(-2, 3), 2) == qi(0, 9));
-    lean_assert(power(qi(true, -2, 3, true), 2) == qi(false, 0, 9, true));
-    lean_assert(power(qi(true, -4, 3, true), 2) == qi(false, 0, 16, true));
-    lean_assert(power(qi(-3, -2), 2) == qi(4, 9));
+    lean_assert_eq(power(qi(2, 3), 2), qi(4, 9));
+    lean_assert_eq(power(qi(-2, 3), 2), qi(0, 9));
+    lean_assert_eq(power(qi(true, -2, 3, true), 2), qi(false, 0, 9, true));
+    lean_assert_eq(power(qi(true, -4, 3, true), 2), qi(false, 0, 16, true));
+    lean_assert_eq(power(qi(-3, -2), 2), qi(4, 9));
     std::cout << power(qi(false, -3, -2, true), 2) << " --> " << qi(true, 4, 9, false) << "\n";
-    lean_assert(power(qi(false, -3, -2, true), 2) == qi(true, 4, 9, false));
-    lean_assert(power(qi(-3, -1), 3) == qi(-27, -1));
-    lean_assert(power(qi(-3, 4), 3) == qi(-27, 64));
-    lean_assert(power(qi(), 3) == qi());
-    lean_assert(power(qi(), 2) == qi(false, 0)); // (-oo, oo)^2 == [0, oo)
+    lean_assert_eq(power(qi(false, -3, -2, true), 2), qi(true, 4, 9, false));
+    lean_assert_eq(power(qi(-3, -1), 3), qi(-27, -1));
+    lean_assert_eq(power(qi(-3, 4), 3), qi(-27, 64));
+    lean_assert_eq(power(qi(), 3), qi());
+    lean_assert_eq(power(qi(), 2), qi(false, 0)); // (-oo, oo)^2 == [0, oo)
 }
 
 int main() {

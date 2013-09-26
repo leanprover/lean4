@@ -20,14 +20,32 @@ static void loop(int n) {
         loop<C>(n-1);
 }
 
-void perftest() {
-    for (unsigned i = 0; i < 10000; i++)
-        loop<buffer<int>>(10000);
-//    for (unsigned i = 0; i < 10000; i++)
-//        loop<std::vector<int>>(10000);
+static void tst1() {
+    buffer<int> b1;
+    buffer<int> b2;
+    b1.push_back(10);
+    lean_assert(b1 != b2);
+    b2.push_back(20);
+    lean_assert(b1 != b2);
+    b2.pop_back();
+    b2.push_back(10);
+    lean_assert(b1 == b2);
+    b2.push_back(20);
+    b2.push_back(20);
+    lean_assert(b1 != b2);
+    b2.shrink(1);
+    lean_assert(b1 == b2);
+    b2.push_back(100);
+    lean_assert(b1 != b2);
+    b2 = b1;
+    lean_assert(b1 == b2);
+    buffer<int> b3(b1);
+    lean_assert(b3 == b1);
+    lean_assert(b1.back() == 10);
 }
 
 int main() {
     loop<buffer<int>>(100);
+    tst1();
     return has_violations() ? 1 : 0;
 }

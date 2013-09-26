@@ -73,7 +73,7 @@ public:
         return *this;
     }
 
-    bool operator==(buffer const & other) {
+    bool operator==(buffer const & other) const {
         if (size() != other.size()) {
             return false;
         } else {
@@ -83,6 +83,10 @@ public:
             }
             return true;
         }
+    }
+
+    bool operator!=(buffer const & other) const {
+        return !operator==(other);
     }
 
     T const & back() const { lean_assert(!empty() && m_pos > 0); return m_buffer[m_pos - 1]; }

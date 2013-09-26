@@ -34,9 +34,18 @@ static void tst3() {
     }
 }
 
+static void tst4() {
+    try {
+        throw interrupted();
+    } catch (exception & ex) {
+        lean_assert(std::string("interrupted") == ex.what());
+    }
+}
+
 int main() {
     tst1();
     tst2();
     tst3();
+    tst4();
     return has_violations() ? 1 : 0;
 }

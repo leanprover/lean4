@@ -19,10 +19,10 @@ struct id_expr_fn {
    The parameter N is a normalization function that can be used
    to normalize sub-expressions before comparing them.
    The hashcode of expressions is used to optimize the comparison when
-   parameter UseHash == true. We usually set UseHash to false when N
+   parameter UseHash == true. We should set UseHash to false when N
    is not the identity function.
 */
-template<typename N = id_expr_fn, bool UseHash = false>
+template<typename N = id_expr_fn, bool UseHash = true>
 class expr_eq_fn {
     expr_cell_pair_set m_eq_visited;
     N                  m_norm;

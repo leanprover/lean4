@@ -14,9 +14,9 @@ Author: Leonardo de Moura
 using namespace lean;
 
 static void lt(expr const & e1, expr const & e2, bool expected) {
-    lean_assert((e1 < e2) == expected);
-    lean_assert((e1 < e2) == !(e1 == e2 || e1 > e2));
-    lean_assert((e1 < e2) == (e2 > e1));
+    lean_assert(is_lt(e1, e2, false) == expected);
+    lean_assert(is_lt(e1, e2, false) == !(e1 == e2 || (is_lt(e2, e1, false))));
+    lean_assert(!(e1.hash() < e2.hash()) || (e1 < e2))
 }
 
 static void tst1() {
@@ -39,6 +39,8 @@ static void tst1() {
     lt(Eq(Var(1), Var(0)), Eq(Var(1), Var(1)), true);
     lt(Eq(Var(1), Var(1)), Eq(Var(1), Var(1)), false);
     lt(Eq(Var(2), Var(1)), Eq(Var(1), Var(1)), false);
+    lt(Const("f")(Var(0)), Const("f")(Var(0), Const("a")), true);
+    lt(Const("f")(Var(0), Const("a"), Const("b")), Const("f")(Var(0), Const("a")), false);
     lt(Const("f")(Var(0), Const("a")), Const("g")(Var(0), Const("a")), true);
     lt(Const("f")(Var(0), Const("a")), Const("f")(Var(1), Const("a")), true);
     lt(Const("f")(Var(0), Const("a")), Const("f")(Var(0), Const("b")), true);
@@ -63,6 +65,17 @@ static void tst1() {
     lt(mk_pi("x", Int, Int), mk_pi("y", Real, Bool), true);
     lt(mk_pi("x", Int, Int), mk_pi("y", Int, Real), true);
     lt(mk_pi("x", Int, Int), mk_pi("y", Int, Int), false);
+    meta_ctx ctx1{mk_lift(0, 1), mk_inst(0, Const("a"))};
+    meta_ctx ctx2{mk_lift(0, 1), mk_inst(0, Const("b"))};
+    meta_ctx ctx3{mk_lift(3, 1), mk_inst(0, Const("a"))};
+    meta_ctx ctx4{mk_lift(0, 1), mk_inst(0, Const("a")), mk_inst(0, Const("b"))};
+    meta_ctx ctx5{mk_inst(0, Const("a")), mk_inst(0, Const("a"))};
+    lt(mk_metavar(0, ctx1), mk_metavar(1, ctx1), true);
+    lt(mk_metavar(0, ctx1), mk_metavar(0, ctx2), true);
+    lt(mk_metavar(0, ctx1), mk_metavar(0, ctx3), true);
+    lt(mk_metavar(0, ctx1), mk_metavar(0, ctx4), true);
+    lt(mk_metavar(0, ctx1), mk_metavar(0, ctx5), true);
+    lt(mk_metavar(0, ctx1), mk_metavar(0, ctx1), false);
 }
 
 int main() {

@@ -7,13 +7,14 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
-bool is_lt(expr const & a, expr const & b) {
-    if (is_eqp(a, b))         return false;
-    if (!a && b)              return true;  // the null expression is the smallest one
-    if (a && !b)              return false;
-    if (a.kind() != b.kind()) return a.kind() < b.kind();
-    if (a == b)               return false;
-    if (is_var(a))            return var_idx(a) < var_idx(b);
+bool is_lt(expr const & a, expr const & b, bool use_hash) {
+    if (is_eqp(a, b))                    return false;
+    if (!a && b)                         return true;  // the null expression is the smallest one
+    if (a && !b)                         return false;
+    if (a.kind() != b.kind())            return a.kind() < b.kind();
+    if (use_hash && a.hash() < b.hash()) return true;
+    if (a == b)                          return false;
+    if (is_var(a))                       return var_idx(a) < var_idx(b);
     switch (a.kind()) {
     case expr_kind::Var:
         lean_unreachable();
@@ -24,31 +25,31 @@ bool is_lt(expr const & a, expr const & b) {
             return num_args(a) < num_args(b);
         for (unsigned i = 0; i < num_args(a); i++) {
             if (arg(a, i) != arg(b, i))
-                return is_lt(arg(a, i), arg(b, i));
+                return is_lt(arg(a, i), arg(b, i), use_hash);
         }
-        return false;
+        lean_unreachable();
     case expr_kind::Eq:
         if (eq_lhs(a) != eq_lhs(b))
-            return is_lt(eq_lhs(a), eq_lhs(b));
+            return is_lt(eq_lhs(a), eq_lhs(b), use_hash);
         else
-            return is_lt(eq_rhs(a), eq_rhs(b));
+            return is_lt(eq_rhs(a), eq_rhs(b), use_hash);
     case expr_kind::Lambda:   // Remark: we ignore get_abs_name because we want alpha-equivalence
     case expr_kind::Pi:
         if (abst_domain(a) != abst_domain(b))
-            return is_lt(abst_domain(a), abst_domain(b));
+            return is_lt(abst_domain(a), abst_domain(b), use_hash);
         else
-            return is_lt(abst_body(a), abst_body(b));
+            return is_lt(abst_body(a), abst_body(b), use_hash);
     case expr_kind::Type:
         return ty_level(a) < ty_level(b);
     case expr_kind::Value:
         return to_value(a) < to_value(b);
     case expr_kind::Let:
         if (let_type(a) != let_type(b)) {
-            return is_lt(let_type(a), let_type(b));
+            return is_lt(let_type(a), let_type(b), use_hash);
         } else if (let_value(a) != let_value(b)){
-            return is_lt(let_value(a), let_value(b));
+            return is_lt(let_value(a), let_value(b), use_hash);
         } else {
-            return is_lt(let_body(a), let_body(b));
+            return is_lt(let_body(a), let_body(b), use_hash);
         }
     case expr_kind::MetaVar:
         if (metavar_idx(a) != metavar_idx(b)) {
@@ -65,13 +66,13 @@ bool is_lt(expr const & a, expr const & b) {
                     return it1->s() < it2->s();
                 } else if (it1->is_inst()) {
                     if (it1->v() != it2->v())
-                        return is_lt(it1->v(), it2->v());
+                        return is_lt(it1->v(), it2->v(), use_hash);
                 } else {
                     if (it1->n() != it2->n())
                         return it1->n() < it2->n();
                 }
             }
-            return false;
+            return it1 == end1 && it2 != end2;
         }
     }
     lean_unreachable();

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <iostream>
+#include <sstream>
 #include "util/test.h"
 #include "util/splay_map.h"
 #include "util/name.h"
@@ -31,7 +32,19 @@ static void tst0() {
     lean_assert(m2.size() == 3);
 }
 
+static void tst1() {
+    int2name m;
+    m[10] = name("t1");
+    m[20] = name("t2");
+    lean_assert(fold(m, [](int k, name const &, int a) { return k + a; }, 0) == 30);
+    std::ostringstream out;
+    for_each(m, [&](int, name const & v) { out << v << " "; });
+    std::cout << out.str() << "\n";
+    lean_assert(out.str() == "t1 t2 ");
+}
+
 int main() {
     tst0();
+    tst1();
     return has_violations() ? 1 : 0;
 }

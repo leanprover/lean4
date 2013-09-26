@@ -57,5 +57,37 @@ public:
        performing an insertion if such key does not already exist.
     */
     ref operator[](K const & k) { return ref(*this, k); }
+
+    template<typename F, typename R>
+    R fold(F f, R r) const {
+        auto f_prime = [&](entry const & e, R r) -> R { return f(e.first, e.second, r); };
+        return m_map.fold(f_prime, r);
+    }
+
+    template<typename F>
+    void for_each(F f) const {
+        auto f_prime = [&](entry const & e) { f(e.first, e.second); };
+        return m_map.for_each(f_prime);
+    }
 };
+template<typename K, typename T, typename CMP>
+splay_map<K, T, CMP> insert(splay_map<K, T, CMP> const & m, K const & k, T const & v) {
+    auto r = m;
+    r.insert(k, v);
+    return r;
+}
+template<typename K, typename T, typename CMP>
+splay_map<K, T, CMP> erase(splay_map<K, T, CMP> const & m, K const & k) {
+    auto r = m;
+    r.erase(k);
+    return r;
+}
+template<typename K, typename T, typename CMP, typename F, typename R>
+R fold(splay_map<K, T, CMP> const & m, F f, R r) {
+    return m.fold(f, r);
+}
+template<typename K, typename T, typename CMP, typename F>
+void for_each(splay_map<K, T, CMP> const & m, F f) {
+    return m.for_each(f);
+}
 }

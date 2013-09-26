@@ -287,11 +287,24 @@ class splay_tree : public CMP {
         }
     }
 
-    static unsigned size(node const * n) {
-        if (n)
-            return 1 + size(n->m_left) + size(n->m_right);
-        else
-            return 0;
+    template<typename F, typename R>
+    static R fold(node const * n, F & f, R r) {
+        if (n) {
+            r = fold(n->m_left, f, r);
+            r = f(n->m_value, r);
+            return fold(n->m_right, f, r);
+        } else {
+            return r;
+        }
+    }
+
+    template<typename F>
+    static void for_each(node const * n, F & f) {
+        if (n) {
+            for_each(n->m_left, f);
+            f(n->m_value);
+            for_each(n->m_right, f);
+        }
     }
 
     splay_tree(splay_tree const & s, node * new_root):CMP(s), m_ptr(new_root) { node::inc_ref(m_ptr); }
@@ -319,7 +332,7 @@ public:
     bool is_eqp(splay_tree const & t) const { return m_ptr == t.m_ptr; }
 
     /** \brief Return the size of the splay tree */
-    unsigned size() const { return size(m_ptr); }
+    unsigned size() const { return fold([](T const &, unsigned a) { return a + 1; }, 0); }
 
     /** \brief Insert \c v in this splay tree. */
     void insert(T const & v) {
@@ -405,9 +418,34 @@ public:
         node::display(out, t.m_ptr);
         return out;
     }
+
+    /**
+       \brief Return <tt>f(a_k, ..., f(a_1, f(a_0, r)) ...)</tt>, where
+       <tt>a_0, a_1, ... a_k</tt> are the elements is stored in the splay tree.
+    */
+    template<typename F, typename R>
+    R fold(F f, R r) const {
+        return fold(m_ptr, f, r);
+    }
+
+    /**
+       \brief Apply \c f to each value stored in the splay tree.
+    */
+    template<typename F>
+    void for_each(F f) const {
+        for_each(m_ptr, f);
+    }
 };
 template<typename T, typename CMP>
 splay_tree<T, CMP> insert(splay_tree<T, CMP> & t, T const & v) { splay_tree<T, CMP> r(t); r.insert(v); return r; }
 template<typename T, typename CMP>
 splay_tree<T, CMP> erase(splay_tree<T, CMP> & t, T const & v) { splay_tree<T, CMP> r(t); r.erase(v); return r; }
+template<typename T, typename CMP, typename F, typename R>
+R fold(splay_tree<T, CMP> const & t, F f, R r) {
+    return t.fold(f, r);
+}
+template<typename T, typename CMP, typename F>
+void for_each(splay_tree<T, CMP> const & t, F f) {
+    return t.for_each(f);
+}
 }

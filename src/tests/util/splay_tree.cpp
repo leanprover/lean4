@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <random>
 #include <ctime>
 #include <unordered_set>
+#include <sstream>
 #include "util/test.h"
 #include "util/splay_tree.h"
 #include "util/timeit.h"
@@ -19,7 +20,7 @@ struct int_lt { int operator()(int i1, int i2) const { return i1 < i2 ? -1 : (i1
 typedef splay_tree<int, int_lt> int_splay_tree;
 typedef std::unordered_set<int> int_set;
 
-void tst0() {
+static void tst0() {
     int_splay_tree s;
     s.insert(10);
     s.insert(11);
@@ -32,7 +33,7 @@ void tst0() {
     s.insert(15);
 }
 
-void tst1() {
+static void tst1() {
     int_splay_tree s;
     s.insert(10);
     s.insert(3);
@@ -73,7 +74,7 @@ void tst1() {
     lean_assert(s.empty());
 }
 
-bool operator==(int_set const & v1, int_splay_tree const & v2) {
+static bool operator==(int_set const & v1, int_splay_tree const & v2) {
     buffer<int> b;
     // std::cout << v2 << "\n";
     // std::for_each(v1.begin(), v1.end(), [](int v) { std::cout << v << " "; }); std::cout << "\n";
@@ -141,9 +142,23 @@ static void tst2() {
     driver(128, 1000, 10000, 0.5, 0.01);
 }
 
+static void tst3() {
+    int_splay_tree v;
+    v.insert(10);
+    v.insert(5);
+    v.insert(1);
+    v.insert(3);
+    lean_assert_eq(fold(v, [](int a, int b) { return a + b; }, 0), 19);
+    std::ostringstream out;
+    for_each(v, [&](int a) { out << a << " "; });
+    std::cout << out.str() << "\n";
+    lean_assert(out.str() == "1 3 5 10 ");
+}
+
 int main() {
     tst0();
     tst1();
     tst2();
+    tst3();
     return has_violations() ? 1 : 0;
 }

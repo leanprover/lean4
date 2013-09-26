@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "util/scoped_map.h"
 #include "util/test.h"
+#include "util/scoped_map.h"
 using namespace lean;
 
 static void tst1() {

@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #include <sstream>
 #include <string>
-#include "util/name.h"
 #include "util/test.h"
+#include "util/name.h"
 #include "util/numerics/mpq.h"
 #include "util/sexpr/sexpr.h"
 #include "util/sexpr/sexpr_fn.h"

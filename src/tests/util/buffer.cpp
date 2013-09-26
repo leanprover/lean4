@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <vector>
-#include "util/buffer.h"
 #include "util/test.h"
+#include "util/buffer.h"
 using namespace lean;
 
 template<typename C>

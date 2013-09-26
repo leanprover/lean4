@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <sstream>
 #include "util/test.h"
 #include "util/name.h"
+#include "util/name_generator.h"
 using namespace lean;
 
 static void tst1() {
@@ -112,6 +113,17 @@ static void tst8() {
     std::cout << u1 << " " << u2 << "\n";
 }
 
+static void tst9() {
+    name_generator g("a");
+    lean_assert(g.prefix() == "a");
+    name n0 = g.next();
+    name n1 = g.next();
+    name a0(name("a"), 0u);
+    name a1(name("a"), 1u);
+    lean_assert(n0 == a0);
+    lean_assert(n1 == a1);
+}
+
 int main() {
     tst1();
     tst2();
@@ -121,5 +133,6 @@ int main() {
     tst6();
     tst7();
     tst8();
+    tst9();
     return has_violations() ? 1 : 0;
 }

@@ -24,6 +24,11 @@ static void tst0() {
     lean_assert(m1[20] == name("t2"));
     lean_assert(m2[10] == name("t3"));
     lean_assert(m2[20] == name("t2"));
+    lean_assert(m2.size() == 2);
+    lean_assert(m2[100] == name());
+    lean_assert(m2.size() == 3);
+    lean_assert(m2[100] == name());
+    lean_assert(m2.size() == 3);
 }
 
 int main() {

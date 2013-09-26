@@ -113,7 +113,7 @@ static void tst4() {
     sexpr s3{s1, s2};
     s << pp(s3);
     std::cout << s.str() << "\n";
-    lean_assert(s.str() == "() (foo bar) nil \"test\" (100 1/2)");
+    lean_assert_eq(s.str(), "() (foo bar) nil \"test\" (100 1/2)");
 }
 
 int main() {

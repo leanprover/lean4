@@ -135,10 +135,11 @@ void * malloc(size_t sz)  {
 void * realloc(void * ptr, size_t sz) {
     size_t old_sz = malloc_size(ptr);
     g_global_memory.dec(old_sz);
-    g_global_memory.inc(sz);
     g_thread_memory.dec(old_sz);
-    g_thread_memory.inc(sz);
     void * r = realloc_core(ptr, sz);
+    size_t new_sz = malloc_size(r);
+    g_global_memory.inc(new_sz);
+    g_thread_memory.inc(new_sz);
     if (r || sz == 0)
         return r;
     else

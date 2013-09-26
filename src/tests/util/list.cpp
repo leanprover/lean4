@@ -75,11 +75,24 @@ static void tst5() {
     }
 }
 
+static void tst6() {
+    lean_assert(list<int>(10) == list<int>{10});
+}
+
+static void tst7() {
+    list<int> l{10, 20};
+    list<int> l2(30, l);
+    list<int> l3(30, l);
+    lean_assert(l2 == l3);
+}
+
 int main() {
     tst1();
     tst2();
     tst3();
     tst4();
     tst5();
+    tst6();
+    tst7();
     return has_violations() ? 1 : 0;
 }

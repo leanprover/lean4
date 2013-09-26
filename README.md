@@ -49,4 +49,5 @@ Miscellaneous
 - [Testing and Code Coverage](doc/make/coverage.md)
 - Building Doxygen Documentation: `doxygen src/Doxyfile`
 - [Coding style](doc/coding_style.md)
+- [Git Commit Convention](doc/commit_convention.md)
 - [Automatic builds](doc/make/travis.md)

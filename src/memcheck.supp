@@ -78,7 +78,7 @@
 
 {
    # This entry suppresses the warning caused by a bug in tcmalloc
-   TCMalloc_Bug
+   TCMalloc_Bug1
    Memcheck:Param
    msync(start)
    fun:__msync_nocancel
@@ -95,3 +95,24 @@
    fun:malloc
    ...
 }
+
+{
+   # This entry suppresses the warning caused by a bug in tcmalloc
+   TCMalloc_Bug2
+   Memcheck:Param
+   msync(start)
+   obj:*/libpthread-2.15.*
+   obj:*/libunwind.so.*
+   ...
+   fun:_UL*_step
+   fun:*GetStackTrace*
+   fun:*PageHeap*GrowHeap*
+   fun:*PageHeap*New*
+   fun:*CentralFreeList*Populate*
+   fun:*CentralFreeList*FetchFromSpansSafe*
+   fun:*CentralFreeList*RemoveRange*
+   fun:*ThreadCache*FetchFromCentralCache*
+   fun:malloc
+   ...
+}
+

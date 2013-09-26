@@ -14,6 +14,7 @@ class deep_copy_fn {
     expr_cell_map<expr> m_cache;
 
     expr apply(expr const & a) {
+        if (!a) return a;
         bool sh = false;
         if (is_shared(a)) {
             auto r = m_cache.find(a.raw());
@@ -35,11 +36,7 @@ class deep_copy_fn {
         case expr_kind::Eq:       r = mk_eq(apply(eq_lhs(a)), apply(eq_rhs(a))); break;
         case expr_kind::Lambda:   r = mk_lambda(abst_name(a), apply(abst_domain(a)), apply(abst_body(a))); break;
         case expr_kind::Pi:       r = mk_pi(abst_name(a), apply(abst_domain(a)), apply(abst_body(a))); break;
-        case expr_kind::Let:      {
-            expr new_t = let_type(a) ? apply(let_type(a)) : expr();
-            r = mk_let(let_name(a), new_t, apply(let_value(a)), apply(let_body(a)));
-            break;
-        }
+        case expr_kind::Let:      r = mk_let(let_name(a), apply(let_type(a)), apply(let_value(a)), apply(let_body(a))); break;
         case expr_kind::MetaVar:
             r = update_metavar(a, [&](meta_entry const & e) -> meta_entry {
                     if (e.is_inst())

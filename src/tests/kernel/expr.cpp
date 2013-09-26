@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "library/max_sharing.h"
-#include "library/deep_copy.h"
 #include "library/printer.h"
 #include "library/arith/arith.h"
 using namespace lean;
@@ -317,18 +316,6 @@ void tst11() {
 }
 
 void tst12() {
-    expr f = Const("f");
-    expr a = Const("a");
-    expr x = Var(0);
-    expr t = Type();
-    expr F = mk_pi("y", t, mk_lambda("x", t, f(f(f(x, a), Const("10")), x)));
-    expr G = deep_copy(F);
-    lean_assert(F == G);
-    lean_assert(!is_eqp(F, G));
-    lean_assert(count(F) == count(G));
-}
-
-void tst13() {
     expr f  = Const("f");
     expr v  = Var(0);
     expr a1 = max_sharing(f(v, v));
@@ -340,7 +327,7 @@ void tst13() {
     lean_assert(is_eqp(M(a1), M(a2)));
 }
 
-void tst14() {
+void tst13() {
     expr t0 = Type();
     expr t1 = Type(level()+1);
     lean_assert(ty_level(t1) == level()+1);
@@ -348,7 +335,7 @@ void tst14() {
     std::cout << t0 << " " << t1 << "\n";
 }
 
-void tst15() {
+void tst14() {
     expr t = Eq(Const("a"), Const("b"));
     std::cout << t << "\n";
     expr l = mk_let("a", expr(), Const("b"), Var(0));
@@ -356,7 +343,7 @@ void tst15() {
     lean_assert(closed(l));
 }
 
-void tst16() {
+void tst15() {
     expr f = Const("f");
     expr x = Var(0);
     expr a = Const("a");
@@ -404,7 +391,6 @@ int main() {
     tst13();
     tst14();
     tst15();
-    tst16();
     std::cout << "done" << "\n";
     return has_violations() ? 1 : 0;
 }

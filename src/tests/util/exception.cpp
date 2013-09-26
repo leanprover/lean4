@@ -1,0 +1,42 @@
+/*
+Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Leonardo de Moura
+*/
+#include <string>
+#include "util/test.h"
+#include "util/exception.h"
+#include "util/sstream.h"
+using namespace lean;
+
+static void tst1() {
+    try {
+        throw exception(std::string("foo"));
+    } catch (exception & ex) {
+        lean_assert(std::string("foo") == ex.what());
+    }
+}
+
+static void tst2() {
+    try {
+        throw parser_exception(std::string("foo"), 10, 100);
+    } catch (parser_exception & ex) {
+        lean_assert(std::string("(line: 10, pos: 100) foo") == ex.what());
+    }
+}
+
+static void tst3() {
+    try {
+        throw parser_exception(sstream() << "msg " << 10 << " " << 20, 10, 100);
+    } catch (parser_exception & ex) {
+        lean_assert(std::string("(line: 10, pos: 100) msg 10 20") == ex.what());
+    }
+}
+
+int main() {
+    tst1();
+    tst2();
+    tst3();
+    return has_violations() ? 1 : 0;
+}

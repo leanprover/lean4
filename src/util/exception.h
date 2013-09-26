@@ -19,7 +19,6 @@ public:
     exception(char const * msg);
     exception(std::string const & msg);
     exception(sstream const & strm);
-    exception(exception const & ex);
     virtual ~exception() noexcept;
     virtual char const * what() const noexcept;
 };
@@ -32,7 +31,6 @@ public:
     parser_exception(char const * msg, unsigned l, unsigned p);
     parser_exception(std::string const & msg, unsigned l, unsigned p);
     parser_exception(sstream const & strm, unsigned l, unsigned p);
-    parser_exception(parser_exception const & ex);
     virtual ~parser_exception() noexcept;
     virtual char const * what() const noexcept;
     unsigned get_line() const { return m_line; }

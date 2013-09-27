@@ -7,8 +7,10 @@ Author: Leonardo de Moura
 #include <sstream>
 #include "util/test.h"
 #include "util/exception.h"
+#include "util/numerics/mpq.h"
 #include "kernel/builtin.h"
 #include "library/printer.h"
+#include "library/arith/arith.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/pp.h"
 using namespace lean;
@@ -24,6 +26,15 @@ static void parse(frontend & fe, char const * str) {
                           std::cout << fmt(obj) << "\n";
                           std::cout << obj << "\n";
                       });
+    }
+}
+
+static void parse_error(frontend & fe, char const * str) {
+    try {
+        parse(fe, str);
+        lean_unreachable();
+    } catch (exception & ex) {
+        std::cout << "expected error: " << ex.what() << "\n";
     }
 }
 
@@ -65,8 +76,36 @@ static void tst2() {
     check(fe, "x=>(y=>z)=>x", Implies(x, Implies(Implies(y, z), x)));
 }
 
+static void tst3() {
+    frontend fe;
+    parse(fe, "Help");
+    parse(fe, "Help Options");
+    parse_error(fe, "Help Echo");
+    check(fe, "10.3", mk_real_value(mpq(103, 10)));
+    parse(fe, "Variable f : Real -> Real. Check f 10.3.");
+    parse(fe, "Variable g : Type 1 -> Type. Check g Type");
+    parse_error(fe, "Check fun .");
+    parse_error(fe, "Definition foo .");
+    parse_error(fe, "Check a");
+    parse_error(fe, "Check U");
+    parse(fe, "Variable h : Real -> Real -> Real. Notation 10 [ _ ; _ ] : h. Check [ 10.3 ; 20.1 ].");
+    parse_error(fe, "Variable h : Real -> Real -> Real. Notation 10 [ _ ; _ ] : h. Check [ 10.3 | 20.1 ].");
+    parse_error(fe, "Set pp::indent true");
+    parse(fe, "Set pp::indent 10");
+    parse_error(fe, "Set pp::colors foo");
+    parse_error(fe, "Set pp::colors \"foo\"");
+    parse(fe, "Set pp::colors true");
+    parse_error(fe, "Notation 10 : Int::add");
+    parse_error(fe, "Notation 10 _ : Int::add");
+    parse(fe, "Notation 10 _ ++ _ : Int::add. Eval 10 ++ 20.");
+    parse(fe, "Notation 10 _ -- : Int::neg. Eval 10 --");
+    parse(fe, "Notation 30 -- _ : Int::neg. Eval -- 10");
+    parse_error(fe, "10 + 30");
+}
+
 int main() {
     tst1();
     tst2();
+    tst3();
     return has_violations() ? 1 : 0;
 }

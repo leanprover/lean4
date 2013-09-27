@@ -32,10 +32,12 @@ env:
    - CMAKE_CXX_COMPILER=clang++-3.3
      CMAKE_BUILD_TYPE=DEBUG
      TCMALLOC=OFF
+     PUSH_TO_CDASH=TRUE
    # D4. g++-4.8     | DEBUG
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=DEBUG
      TCMALLOC=OFF
+     PUSH_TO_CDASH=TRUE
    # =======================================================
    # RELEASE Build
    # =======================================================
@@ -54,11 +56,13 @@ env:
    - CMAKE_CXX_COMPILER=clang++-3.3
      CMAKE_BUILD_TYPE=RELEASE
      TCMALLOC=OFF
+     PUSH_TO_CDASH=TRUE
    # R4. g++-4.8    | RELEASE                    | UPLOAD=>DROPBOX
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=RELEASE
      TCMALLOC=OFF
      UPLOAD=linux
+     PUSH_TO_CDASH=TRUE
    # =======================================================
    # MEMCHECK Build
    # =======================================================

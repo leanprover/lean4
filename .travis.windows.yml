@@ -33,7 +33,7 @@ script:
     else
         BUILD_TYPE=Debug;
     fi
-  - BUILD_NAME=${TRAVIS_BRANCH}_${GIT_COMMIT}_w64-mingw32-g++-4.8.1_${BUILD_TYPE}
+  - BUILD_NAME=${TRAVIS_BRANCH}_w64-mingw32-g++-4.8.1_${BUILD_TYPE}
   - if [[ $TCMALLOC == ON ]]; then
         BUILD_NAME=${BUILD_NAME}_TC;
     fi;

@@ -142,6 +142,16 @@ public:
         return m_map.end();
     }
 
+    /** \brief (For debugging) Display the content of this scoped map. */
+    friend std::ostream & operator<<(std::ostream & out, scoped_map const & m) {
+        out << "{";
+        for (auto e : m) {
+            out << e.first << " |-> " << e.second << "; ";
+        };
+        out << "}";
+        return out;
+    }
+
     /**
        \brief Auxiliary class for automatically performing a \c push
        in the constructor and a \c pop in the destructor.

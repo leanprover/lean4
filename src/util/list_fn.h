@@ -86,10 +86,21 @@ std::pair<list<T>, list<T>> split_reverse_second(list<T> const & l) {
 */
 template<typename T>
 list<T> append(list<T> const & l1, list<T> const & l2) {
-    buffer<T> tmp;
-    to_buffer(l1, tmp);
-    to_buffer(l2, tmp);
-    return to_list(tmp.begin(), tmp.end());
+    if (!l1) {
+        return l2;
+    } else if (!l2) {
+        return l1;
+    } else {
+        buffer<T> tmp;
+        list<T> r = l2;
+        to_buffer(l1, tmp);
+        unsigned i = tmp.size();
+        while (i > 0) {
+            --i;
+            r = cons(tmp[i], r);
+        }
+        return r;
+    }
 }
 
 /**

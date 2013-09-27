@@ -1,24 +1,19 @@
 Instructions for Testing and Measuring Code Coverage
 ====================================================
 
-To measure [code coverage][cover], compile TESTCOV build using g++:
+To measure code coverage, compile TESTCOV build using g++:
 
     mkdir -p build/testcov
     cd build/testcov
-    cmake -DCMAKE_BUILD_TYPE=TESTCOV -DCMAKE_CXX_COMPILER=g++-4.8 -G Ninja ../../src
-    ninja
+    cmake -DCMAKE_BUILD_TYPE=Debug -DTESTCOV=ON -DCMAKE_CXX_COMPILER=g++-4.8 -G Ninja ../../src
 
-and run test cases:
+and run:
 
-    ctest
-
-and collect coverage data using [lcov][lcov] and [gcov][gcov]:
-
-    lcov -c -b ../../src -d . -o cov.info --no-external --gcov-tool gcov-4.8
-
-and generate HTML output:
-
-    genhtml cov.info --output-directory lcov
+    ninja cov
+    
+It will build the project, run testcases, and compute code-coverage. 
+In the end, you have ``build/testcov/coverage`` directory containing
+a code-coverage report in HTML format.
 
 Note: make sure that the version of ``gcov`` matches with the one of
 ``g++``. Also try to use the latest ``lcov`` if you have a problem
@@ -26,4 +21,3 @@ with the existing one.
 
 [gcov]: http://gcc.gnu.org/onlinedocs/gcc/Gcov.html
 [lcov]: http://ltp.sourceforge.net/coverage/lcov.php
-[cover]: https://dl.dropboxusercontent.com/u/203889738/lcov/index.html

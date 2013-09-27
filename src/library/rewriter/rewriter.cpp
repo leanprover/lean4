@@ -8,6 +8,7 @@
 #include "kernel/abstract.h"
 #include "kernel/builtin.h"
 #include "kernel/context.h"
+#include "kernel/expr.h"
 #include "kernel/environment.h"
 #include "kernel/replace.h"
 #include "library/basic_thms.h"
@@ -80,8 +81,8 @@ pair<expr, expr> theorem_rewriter_cell::operator()(environment const &, context 
                    << ", idx = " << var_idx(e)  << endl;);
         auto it = s.find(idx);
         if (it != s.end()) {
-            lean_trace("rewriter", tout << "Inside of apply : s[" << idx << "] = " << s[idx] << endl;);
-            return s[idx];
+            lean_trace("rewriter", tout << "Inside of apply : s[" << idx << "] = " << it->second << endl;);
+            return it->second;
         }
         return e;
     };
@@ -91,8 +92,10 @@ pair<expr, expr> theorem_rewriter_cell::operator()(environment const &, context 
 
     expr proof = m_body;
     for (int i = m_num_args -1 ; i >= 0; i--) {
-        proof = mk_app(proof, s[i]);
-        lean_trace("rewriter", tout << "proof: " << i << "\t" << s[i] << "\t" << proof << endl;);
+        auto it = s.find(i);
+        lean_assert(it != s.end());
+        proof = mk_app(proof, it->second);
+        lean_trace("rewriter", tout << "proof: " << i << "\t" << it->second << "\t" << proof << endl;);
     }
     lean_trace("rewriter", tout << "Proof   = " << proof << endl;);
     return make_pair(new_rhs, proof);

@@ -41,7 +41,7 @@ public:
     public:
         ref(splay_map & m, K const & k):m_map(m), m_key(k) {}
         ref & operator=(T const & v) { m_map.insert(m_key, v); return *this; }
-        operator T const &() {
+        operator T const &() const {
             entry const * e = m_map.find(m_key);
             if (e) {
                 return e->second;

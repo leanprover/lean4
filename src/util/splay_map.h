@@ -69,6 +69,16 @@ public:
         auto f_prime = [&](entry const & e) { f(e.first, e.second); };
         return m_map.for_each(f_prime);
     }
+
+    /** \brief (For debugging) Display the content of this splay map. */
+    friend std::ostream & operator<<(std::ostream & out, splay_map const & m) {
+        out << "{";
+        m.for_each([&out](K const & k, T const & v) {
+                out << k << " |-> " << v << "; ";
+            });
+        out << "}";
+        return out;
+    }
 };
 template<typename K, typename T, typename CMP>
 splay_map<K, T, CMP> insert(splay_map<K, T, CMP> const & m, K const & k, T const & v) {

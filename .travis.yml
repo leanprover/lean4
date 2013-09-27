@@ -116,6 +116,12 @@ install:
        sudo apt-get -qq install python python-pip;
        sudo pip install dropbox;
     fi
+  - if [[ $TESTCOV == ON ]]; then
+       wget http://downloads.sourceforge.net/ltp/lcov-1.10.tar.gz;
+       tar xvfz lcov-1.10.tar.gz;
+       cp -v lcov-1.10/bin/{lcov,genpng,gendesc,genhtml,geninfo} /usr/bin/;
+       rm -rf lcov-1.10.tar.gz lcov-1.10;
+    fi
 
 before_script:
 - if [[ $LEANREPO == BLESSED && $TRIGGER_BB == TRUE ]]; then

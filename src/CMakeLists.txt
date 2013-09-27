@@ -35,8 +35,10 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
 # Test coverage
 if("${TESTCOV}" MATCHES "ON")
+  include(CodeCoverage)
   message(STATUS "Enable test-coverage")
   set(CMAKE_CXX_FLAGS_DEBUG        "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fprofile-arcs -ftest-coverage")
+  setup_target_for_coverage(cov ${LEAN_SOURCE_DIR}/../script/run_tests.sh coverage)
 endif()
 
 # Compiler-specific C++11 activation.
@@ -154,9 +156,4 @@ file(GLOB_RECURSE LEAN_SOURCES
          ${LEAN_SOURCE_DIR}/[A-Za-z]*.cpp
          ${LEAN_SOURCE_DIR}/[A-Za-z]*.h)
 add_style_check_target(style "${LEAN_SOURCES}")
-add_test(NAME style_check
-  COMMAND ${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py ${LEAN_SOURCES})
-
-# Include Code Coverage
-include(CodeCoverage)
-setup_target_for_coverage(cov ${LEAN_SOURCE_DIR}/../script/run_tests.sh coverage)
+add_test(NAME style_check COMMAND ${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py ${LEAN_SOURCES})

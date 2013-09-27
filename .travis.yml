@@ -87,7 +87,8 @@ env:
    # =======================================================
    # TC. g++-4.8      | DEBUG                   | CDASH
    - CMAKE_CXX_COMPILER=g++-4.8
-     CMAKE_BUILD_TYPE=TESTCOV
+     CMAKE_BUILD_TYPE=Debug
+     TESTCOV=ON
      PUSH_TO_CDASH=TRUE
      TCMALLOC=OFF
 
@@ -154,7 +155,7 @@ script:
     else
        /usr/bin/cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DTCMALLOC=${TCMALLOC} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -G Ninja ../src;
     fi
-  - if [[ $CMAKE_BUILD_TYPE == DEBUG || $CMAKE_BUILD_TYPE == RELEASE || $CMAKE_BUILD_TYPE == TESTCOV ]]; then
+  - if [[ $CMAKE_BUILD_TYPE == DEBUG || $CMAKE_BUILD_TYPE == RELEASE || $TESTCOV == ON ]]; then
        SITE=Ubuntu12.04@Travis;
        GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`;
        if [[ $CMAKE_BUILD_TYPE == RELEASE ]]; then
@@ -180,7 +181,7 @@ script:
 
 after_script:
 - cd build
-- if [[ $LEANREPO == BLESSED && $CMAKE_BUILD_TYPE == TESTCOV ]]; then
+- if [[ $LEANREPO == BLESSED && $TESTCOV == ON ]]; then
      ctest -D ExperimentalCoverage;
   fi
 - if [[ $LEANREPO == BLESSED && $MEMCHECK == TRUE ]]; then

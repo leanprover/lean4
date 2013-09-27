@@ -11,8 +11,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 class environment;
-class metavar_env;
-class unification_problems;
+class substitution;
+class unification_constraints;
 /**
    \brief Functional object for "quickly" inferring the type of expressions.
    It does not check whether the input expression is type correct or not.
@@ -30,7 +30,7 @@ public:
     light_checker(environment const & env);
     ~light_checker();
 
-    expr operator()(expr const & e, context const & ctx = context(), metavar_env * menv = nullptr, unification_problems * up = nullptr);
+    expr operator()(expr const & e, context const & ctx = context(), substitution * subst = nullptr, unification_constraints * uc = nullptr);
 
     void clear();
 

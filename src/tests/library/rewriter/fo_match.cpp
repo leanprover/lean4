@@ -8,6 +8,7 @@ Author: Soonho Kong
 #include "util/trace.h"
 #include "kernel/abstract.h"
 #include "kernel/expr.h"
+#include "kernel/metavar.h"
 #include "library/all/all.h"
 #include "library/arith/arith.h"
 #include "library/arith/nat.h"
@@ -398,8 +399,9 @@ static void match_eq_tst3() {
 
 static void match_metavar_tst1() {
     cout << "--- match_metavar_tst1() ---" << endl;
-    expr m1 = mk_metavar(0);
-    expr m2 = mk_metavar(1);
+    metavar_generator gen;
+    expr m1 = gen.mk();
+    expr m2 = gen.mk();
     expr f = Const("f");
     subst_map s;
     bool result = test_match(m1, m1, 0, s);
@@ -409,8 +411,9 @@ static void match_metavar_tst1() {
 
 static void match_metavar_tst2() {
     cout << "--- match_metavar_tst2() ---" << endl;
-    expr m1 = mk_metavar(0);
-    expr m2 = mk_metavar(1);
+    metavar_generator gen;
+    expr m1 = gen.mk();
+    expr m2 = gen.mk();
     expr f = Const("f");
     subst_map s;
     bool result = test_match(m1, m2, 0, s);
@@ -420,7 +423,8 @@ static void match_metavar_tst2() {
 
 static void match_metavar_tst3() {
     cout << "--- match_metavar_tst3() ---" << endl;
-    expr m1 = mk_metavar(0);
+    metavar_generator gen;
+    expr m1 = gen.mk();
     expr f = Const("f");
     subst_map s;
     bool result = test_match(m1, f, 0, s);

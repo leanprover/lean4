@@ -96,4 +96,5 @@ public:
 };
 struct name_hash { unsigned operator()(name const & n) const { return n.hash(); } };
 struct name_eq { bool operator()(name const & n1, name const & n2) const { return n1 == n2; } };
+struct name_cmp { int operator()(name const & n1, name const & n2) const { return cmp(n1, n2); } };
 }

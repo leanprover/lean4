@@ -38,7 +38,7 @@ class deep_copy_fn {
         case expr_kind::Pi:       r = mk_pi(abst_name(a), apply(abst_domain(a)), apply(abst_body(a))); break;
         case expr_kind::Let:      r = mk_let(let_name(a), apply(let_type(a)), apply(let_value(a)), apply(let_body(a))); break;
         case expr_kind::MetaVar:
-            r = update_metavar(a, [&](meta_entry const & e) -> meta_entry {
+            r = update_metavar(a, [&](local_entry const & e) -> local_entry {
                     if (e.is_inst())
                         return mk_inst(e.s(), apply(e.v()));
                     else

@@ -15,7 +15,9 @@ namespace lean {
 */
 template<typename K, typename T, typename CMP>
 class splay_map : public CMP {
+public:
     typedef std::pair<K, T> entry;
+private:
     struct entry_cmp : public CMP {
         entry_cmp(CMP const & c):CMP(c) {}
         int operator()(entry const & e1, entry const & e2) const { return CMP::operator()(e1.first, e2.first); }

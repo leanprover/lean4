@@ -69,14 +69,14 @@ value_stack extend(value_stack const & s, svalue const & v) { return cons(v, s);
 class normalizer::imp {
     typedef scoped_map<expr, svalue, expr_hash, expr_eqp> cache;
 
-    environment const & m_env;
-    context             m_ctx;
-    metavar_env const * m_menv;
-    unsigned            m_menv_timestamp;
-    cache               m_cache;
-    unsigned            m_max_depth;
-    unsigned            m_depth;
-    volatile bool       m_interrupted;
+    environment const &  m_env;
+    context              m_ctx;
+    substitution const * m_subst;
+    unsigned             m_subst_timestamp;
+    cache                m_cache;
+    unsigned             m_max_depth;
+    unsigned             m_depth;
+    volatile bool        m_interrupted;
 
     /**
         \brief Auxiliary object for saving the current context.
@@ -161,14 +161,13 @@ class normalizer::imp {
         lean_assert(is_metavar(m));
         if (is_identity_stack(s, k))
             return m; // nothing to be done
-        meta_ctx mctx    = metavar_ctx(m);
-        unsigned midx    = metavar_idx(m);
-        unsigned len_s   = length(s);
-        unsigned len_ctx = m_ctx.size();
+        local_context lctx = metavar_lctx(m);
+        unsigned len_s     = length(s);
+        unsigned len_ctx   = m_ctx.size();
         lean_assert(k >= len_ctx);
         if (k > len_ctx)
-            mctx = add_lift(mctx, len_s, k - len_ctx);
-        expr r = mk_metavar(midx, mctx);
+            lctx = add_lift(lctx, len_s, k - len_ctx);
+        expr r = update_metavar(m, lctx);
         buffer<expr> subst;
         for (auto e : s) {
             subst.push_back(reify(e, k));
@@ -194,8 +193,8 @@ class normalizer::imp {
         svalue r;
         switch (a.kind()) {
         case expr_kind::MetaVar:
-            if (m_menv && m_menv->contains(a) && m_menv->is_assigned(a)) {
-                r = normalize(m_menv->get_subst(a), s, k);
+            if (m_subst && m_subst->is_assigned(a)) {
+                r = normalize(m_subst->get_subst(a), s, k);
             } else {
                 r = svalue(updt_metavar(a, s, k));
             }
@@ -323,63 +322,63 @@ class normalizer::imp {
         }
     }
 
-    void set_menv(metavar_env const * menv) {
-        if (m_menv == menv) {
-            // Check whether m_menv has been updated since the last time the normalizer has been invoked
-            if (m_menv && m_menv->get_timestamp() > m_menv_timestamp) {
-                m_menv_timestamp = m_menv->get_timestamp();
+    void set_subst(substitution const * subst) {
+        if (m_subst == subst) {
+            // Check whether m_subst has been updated since the last time the normalizer has been invoked
+            if (m_subst && m_subst->get_timestamp() > m_subst_timestamp) {
+                m_subst_timestamp = m_subst->get_timestamp();
                 m_cache.clear();
             }
         } else {
-            m_menv = menv;
+            m_subst = subst;
             m_cache.clear();
-            m_menv_timestamp = m_menv ? m_menv->get_timestamp() : 0;
+            m_subst_timestamp = m_subst ? m_subst->get_timestamp() : 0;
         }
     }
 
 public:
     imp(environment const & env, unsigned max_depth):
         m_env(env) {
-        m_interrupted    = false;
-        m_max_depth      = max_depth;
-        m_depth          = 0;
-        m_menv           = nullptr;
-        m_menv_timestamp = 0;
+        m_interrupted     = false;
+        m_max_depth       = max_depth;
+        m_depth           = 0;
+        m_subst           = nullptr;
+        m_subst_timestamp = 0;
     }
 
-    expr operator()(expr const & e, context const & ctx, metavar_env const * menv) {
+    expr operator()(expr const & e, context const & ctx, substitution const * subst) {
         set_ctx(ctx);
-        set_menv(menv);
+        set_subst(subst);
         unsigned k = m_ctx.size();
         return reify(normalize(e, value_stack(), k), k);
     }
 
     bool is_convertible(expr const & given, expr const & expected, context const & ctx,
-                        metavar_env * menv, unification_problems * up) {
+                        substitution * subst, unification_constraints * uc) {
         if (is_convertible_core(given, expected))
             return true;
         expr new_given    = given;
         expr new_expected = expected;
         if (has_metavar(new_given) || has_metavar(new_expected)) {
-            if (!menv)
+            if (!subst)
                 return false;
-            new_given    = instantiate_metavars(new_given, *menv);
-            new_expected = instantiate_metavars(new_expected, *menv);
+            new_given    = instantiate_metavars(new_given, *subst);
+            new_expected = instantiate_metavars(new_expected, *subst);
             if (is_convertible_core(new_given, new_expected))
                 return true;
             if (has_metavar(new_given) || has_metavar(new_expected)) {
                 // Very conservative approach, just postpone the problem.
                 // We may also try to normalize new_given and new_expected even if
                 // they contain metavariables.
-                if (up) {
-                    up->add_is_convertible(ctx, new_given, new_expected);
+                if (uc) {
+                    uc->add(ctx, new_expected, new_given);
                     return true;
                 } else {
                     return false;
                 }
             }
         }
-        set_menv(menv);
+        set_subst(subst);
         set_ctx(ctx);
         unsigned k   = m_ctx.size();
         new_given    = reify(normalize(new_given, value_stack(), k), k);
@@ -387,7 +386,7 @@ public:
         return is_convertible_core(new_given, new_expected);
     }
 
-    void clear() { m_ctx = context(); m_cache.clear(); m_menv = nullptr; m_menv_timestamp = 0; }
+    void clear() { m_ctx = context(); m_cache.clear(); m_subst = nullptr; m_subst_timestamp = 0; }
     void set_interrupt(bool flag) { m_interrupted = flag; }
 };
 
@@ -395,20 +394,20 @@ normalizer::normalizer(environment const & env, unsigned max_depth):m_ptr(new im
 normalizer::normalizer(environment const & env):normalizer(env, std::numeric_limits<unsigned>::max()) {}
 normalizer::normalizer(environment const & env, options const & opts):normalizer(env, get_normalizer_max_depth(opts)) {}
 normalizer::~normalizer() {}
-expr normalizer::operator()(expr const & e, context const & ctx, metavar_env const * menv) { return (*m_ptr)(e, ctx, menv); }
+expr normalizer::operator()(expr const & e, context const & ctx, substitution const * subst) { return (*m_ptr)(e, ctx, subst); }
 bool normalizer::is_convertible(expr const & t1, expr const & t2, context const & ctx,
-                                metavar_env * menv, unification_problems * up) {
-    return m_ptr->is_convertible(t1, t2, ctx, menv, up);
+                                substitution * subst, unification_constraints * uc) {
+    return m_ptr->is_convertible(t1, t2, ctx, subst, uc);
 }
 void normalizer::clear() { m_ptr->clear(); }
 void normalizer::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
 
-expr normalize(expr const & e, environment const & env, context const & ctx, metavar_env const * menv) {
-    return normalizer(env)(e, ctx, menv);
+expr normalize(expr const & e, environment const & env, context const & ctx, substitution const * subst) {
+    return normalizer(env)(e, ctx, subst);
 }
 bool is_convertible(expr const & given, expr const & expected, environment const & env, context const & ctx,
-                    metavar_env * menv, unification_problems * up) {
-    return normalizer(env).is_convertible(given, expected, ctx, menv, up);
+                    substitution * subst, unification_constraints * uc) {
+    return normalizer(env).is_convertible(given, expected, ctx, subst, uc);
 }
 }
 

@@ -65,17 +65,17 @@ static void tst1() {
     lt(mk_pi("x", Int, Int), mk_pi("y", Real, Bool), true);
     lt(mk_pi("x", Int, Int), mk_pi("y", Int, Real), true);
     lt(mk_pi("x", Int, Int), mk_pi("y", Int, Int), false);
-    meta_ctx ctx1{mk_lift(0, 1), mk_inst(0, Const("a"))};
-    meta_ctx ctx2{mk_lift(0, 1), mk_inst(0, Const("b"))};
-    meta_ctx ctx3{mk_lift(3, 1), mk_inst(0, Const("a"))};
-    meta_ctx ctx4{mk_lift(0, 1), mk_inst(0, Const("a")), mk_inst(0, Const("b"))};
-    meta_ctx ctx5{mk_inst(0, Const("a")), mk_inst(0, Const("a"))};
-    lt(mk_metavar(0, ctx1), mk_metavar(1, ctx1), true);
-    lt(mk_metavar(0, ctx1), mk_metavar(0, ctx2), true);
-    lt(mk_metavar(0, ctx1), mk_metavar(0, ctx3), true);
-    lt(mk_metavar(0, ctx1), mk_metavar(0, ctx4), true);
-    lt(mk_metavar(0, ctx1), mk_metavar(0, ctx5), true);
-    lt(mk_metavar(0, ctx1), mk_metavar(0, ctx1), false);
+    local_context lctx1{mk_lift(0, 1), mk_inst(0, Const("a"))};
+    local_context lctx2{mk_lift(0, 1), mk_inst(0, Const("b"))};
+    local_context lctx3{mk_lift(3, 1), mk_inst(0, Const("a"))};
+    local_context lctx4{mk_lift(0, 1), mk_inst(0, Const("a")), mk_inst(0, Const("b"))};
+    local_context lctx5{mk_inst(0, Const("a")), mk_inst(0, Const("a"))};
+    lt(mk_metavar("a", expr(), lctx1), mk_metavar("b", expr(), lctx1), true);
+    lt(mk_metavar("a", expr(), lctx1), mk_metavar("a", expr(), lctx2), true);
+    lt(mk_metavar("a", expr(), lctx1), mk_metavar("a", expr(), lctx3), true);
+    lt(mk_metavar("a", expr(), lctx1), mk_metavar("a", expr(), lctx4), true);
+    lt(mk_metavar("a", expr(), lctx1), mk_metavar("a", expr(), lctx5), true);
+    lt(mk_metavar("a", expr(), lctx1), mk_metavar("a", expr(), lctx1), false);
 }
 
 int main() {

@@ -6,186 +6,131 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "util/pair.h"
-#include "util/pvector.h"
+#include "util/splay_map.h"
+#include "util/name_generator.h"
 #include "kernel/expr.h"
 #include "kernel/context.h"
 
 namespace lean {
 /**
-   \brief Set of unification problems that need to be solved.
-   It store two kinds of problems:
-   1. <tt>ctx |- lhs == rhs</tt>
-   2. <tt>ctx |- typeof(n) == t</tt>
-   3. <tt>ctx |- t1 is_convertible_to t2</tt>
+   \brief Metavariable substitution. It is essentially a mapping from
+   metavariables to expressions.
 */
-class unification_problems {
-public:
-    virtual ~unification_problems() {}
-    /**
-       \brief Add a new unification problem of the form <tt>ctx |- lhs == rhs</tt>
-    */
-    virtual void add_eq(context const & ctx, expr const & lhs, expr const & rhs) = 0;
-    /**
-       \brief Add a new unification problem of the form <tt>ctx |- typeof(n) == t</tt>
-    */
-    virtual void add_type_of_eq(context const & ctx, expr const & n, expr const & t) = 0;
-    /**
-       \brief Add a new problem of the form <tt>ctx |- t1 is_convertible_to t2</tt>
+class substitution {
+    typedef splay_map<name, expr, name_cmp> name2expr;
+    name2expr m_subst;
+    unsigned  m_size;
+    unsigned  m_timestamp;
 
-       \remark <tt>ctx |- t1 == t2</tt> implies <tt>ctx |- t1 is_convertible_to t2</tt>
-    */
-    virtual void add_is_convertible(context const & ctx, expr const & t1, expr const & t2) = 0;
-};
-
-/**
-   \brief Metavariable environment. It is essentially a mapping
-   from metavariables to assignments and types.
-*/
-class metavar_env {
-    struct data {
-        expr    m_subst;
-        expr    m_type;
-        context m_ctx;
-        data(expr const & t, context const & ctx):m_type(t), m_ctx(ctx) {}
-        data(expr const & s, expr const & t, context const & ctx):m_subst(s), m_type(t), m_ctx(ctx) {}
-    };
-    pvector<data> m_env;
-    unsigned      m_timestamp;
     void inc_timestamp();
 public:
-    metavar_env();
+    substitution();
 
     /**
-       \brief The timestamp is increased whenever the environment is updated by
+       \brief The timestamp is increased whenever the substitution is updated by
        \c mk_metavar or \c assign.
     */
     unsigned get_timestamp() const { return m_timestamp; }
 
     /**
-       \brief Return the number of metavariables in this metavar_env.
+       \brief Return the number of assigned metavariables in this substitution.
     */
-    unsigned size() const { return m_env.size(); }
+    unsigned size() const { return m_size; }
 
     /**
-       \brief Create new metavariable in this environment.
+       \brief Return true iff the metavariable named \c m is assigned in this substitution.
     */
-    expr mk_metavar(context const & ctx = context());
+    bool is_assigned(name const & m) const;
 
     /**
-       \brief Create a new metavariable with the given type and context.
-    */
-    expr mk_metavar(expr const & type, context const & ctx = context());
-
-    /**
-       \brief Return true if this environment contains a metavariable
-       with id \c midx. That is, it has an entry of the form
-       <tt>midx -> (s, t)</tt>.
-    */
-    bool contains(unsigned midx) const;
-
-    /**
-       \brief Return true if the metavariable with id \c midx is assigned in
-       this environment.
-
-       \pre contains(midx)
-    */
-    bool is_assigned(unsigned midx) const;
-
-    /**
-       \brief Return the substitution associated with the metavariable with id \c midx
-       in this environment.
-       If the metavariable is not assigned in this environment, then it returns the null
-       expression.
-
-       \pre contains(midx)
-    */
-    expr get_subst(unsigned midx) const;
-
-    expr get_subst_core(unsigned midx) const;
-
-    /**
-       \brief Return the type of the metavariable with id \c midx in this environment.
-
-       \remark A new metavariable may be created to represent the type of the input
-       metavariable. When this happens, a new unification problem of the form
-       <tt>typeof(m) = t</tt> is added to \c up, where \c m is the metavariable
-       with id \c midx, and \c t is the result of this method.
-
-       \pre contains(midx)
-    */
-    expr get_type(unsigned midx, unification_problems & up);
-
-    /**
-       \brief Return type of the metavariable with id \c midx in this environment.
-       If the metavariable is not associated with any type, then return the null expression.
-    */
-    expr get_type(unsigned midx) const;
-
-    /**
-       \brief Assign the metavariable with id \c midx to the term \c t.
-
-       \pre !is_assigned(midx)
-    */
-    void assign(unsigned midx, expr const & t);
-
-    /**
-       \brief Return the context associated with a metavariable.
-    */
-    context const & get_context(unsigned midx) const;
-
-    /**
-       \brief Return true if this environment contains the given metavariable
+       \brief Return true if the given metavariable is assigned in this
+       substitution.
 
        \pre is_metavar(m)
     */
-    bool contains(expr const & m) const { return contains(metavar_idx(m)); }
+    bool is_assigned(expr const & m) const;
 
     /**
-       \pre contains(m)
+       \brief Assign metavariable named \c m.
+
+       \pre !is_assigned(m)
     */
-    bool is_assigned(expr const & m) const { return is_assigned(metavar_idx(m)); }
+    void assign(name const & m, expr const & t);
 
     /**
-       \brief Return the substitution associated with the metavariable \c m.
-       If \c m has a context ctx associated with it, then the substitution is
-       'moved' to ctx.
+       \brief Assign metavariable \c m to \c t.
 
-       \pre contains(m)
-    */
-    expr get_subst(expr const & m) const;
-
-    /**
-       \brief Return the type of the given metavariable.
-       If \c m has a context ctx associated with it, then the type is
-       'moved' to ctx.
-
-       \pre contains(m)
-    */
-    expr get_type(expr const & m, unification_problems & up);
-
-    /**
-       \brief Assign the metavariable \c m to \c t.
-       The metavariable must not have a context associated with it.
-
-       \pre contains(m)
-       \pre !metavar_ctx(m)
+       \pre is_metavar(m)
+       \pre !has_meta_context(m)
        \pre !is_assigned(m)
     */
     void assign(expr const & m, expr const & t);
+
+    /**
+       \brief Return the substitution associated with the given metavariable
+       in this substitution.
+
+       If the metavariable is not assigned in this substitution, then it returns the null
+       expression.
+
+       \pre is_metavar(m)
+    */
+    expr get_subst(expr const & m) const;
+
+    bool operator==(substitution const & s) const;
+    bool operator!=(substitution const & s) const { return !operator==(s); }
+
+    /**
+       \brief Apply f to each entry in this substitution.
+    */
+    template<typename F>
+    void for_each(F f) const { m_subst.for_each(f); }
+
+    // TODO(Leo) metavar
+    expr mk_metavar(context const & = context()) { return expr(); }
 };
 
-expr instantiate(expr const & s, meta_ctx const & ctx, metavar_env const & env);
+/**
+   \brief Metavar generator.
+*/
+class metavar_generator {
+    name_generator m_gen;
+public:
+    metavar_generator(name const & prefix);
+    metavar_generator();
+
+    /**
+       \brief Return the prefix used to create metavariables in this generator.
+    */
+    name const & prefix() const { return m_gen.prefix(); }
+
+    /**
+       \brief Create a metavariable with the given type.
+    */
+    expr mk(expr const & t);
+
+    /**
+       \brief Create a metavariable where the type is another
+       metavariable. The type of the type is a null expression.
+    */
+    expr mk();
+};
+
+/**
+   \brief Apply the changes in \c lctx to \c a.
+*/
+expr apply_local_context(expr const & a, local_context const & lctx);
 
 /**
    \brief Instantiate the metavariables occurring in \c e with the substitutions
-   provided by \c env.
+   provided by \c s.
 */
-expr instantiate_metavars(expr const & e, metavar_env const & env);
+expr instantiate_metavars(expr const & e, substitution const & s);
 
 /**
-    \brief Extend the context \c ctx with the entry <tt>lift:s:n</tt>
+    \brief Extend the local context \c lctx with the entry <tt>lift:s:n</tt>
 */
-meta_ctx add_lift(meta_ctx const & ctx, unsigned s, unsigned n);
+local_context add_lift(local_context const & lctx, unsigned s, unsigned n);
 
 /**
    \brief Add a lift:s:n operation to the context of the given metavariable.
@@ -202,17 +147,17 @@ expr add_lift(expr const & m, unsigned s, unsigned n);
 expr add_inst(expr const & m, unsigned s, expr const & v);
 
 /**
-   \brief Extend the context \c ctx with the entry <tt>inst:s v</tt>
+   \brief Extend the local context \c lctx with the entry <tt>inst:s v</tt>
 */
-meta_ctx add_inst(meta_ctx const & ctx, unsigned s, expr const & v);
+local_context add_inst(local_context const & lctx, unsigned s, expr const & v);
 
 /**
    \brief Return true iff the given metavariable has a non-empty
-   context associated with it.
+   local context associated with it.
 
    \pre is_metavar(m)
 */
-bool has_meta_context(expr const & m);
+bool has_local_context(expr const & m);
 
 /**
    \brief Return the same metavariable, but the head of the context is removed.
@@ -223,16 +168,37 @@ bool has_meta_context(expr const & m);
 expr pop_meta_context(expr const & m);
 
 /**
-   \brief Return true iff \c e has a metavariable that is assigned in menv.
+   \brief Return true iff \c e has a metavariable that is assigned in \c s.
 */
-bool has_assigned_metavar(expr const & e, metavar_env const & menv);
+bool has_assigned_metavar(expr const & e, substitution const & s);
 
 /**
-   \brief Return true iff \c e contains the metavariable with index \c midx.
-   The substitutions in \c menv are taken into account.
+   \brief Return true iff \c e contains the metavariable \c m.
+   The substitutions in \c s are taken into account.
+
+   \brief is_metavar(m)
 */
-bool has_metavar(expr const & e, unsigned midx, metavar_env const & menv = metavar_env());
-inline bool has_metavar(expr const & e, expr const & m, metavar_env const & menv = metavar_env()) {
-    return has_metavar(e, metavar_idx(m), menv);
-}
+bool has_metavar(expr const & e, expr const & m, substitution const & s = substitution());
+
+
+/**
+   \brief Set of unification constraints that need to be solved.
+   It store two kinds of problems:
+   1. <tt>ctx |- lhs == rhs</tt>
+   2. <tt>ctx |- n : t</tt>
+*/
+class unification_constraints {
+public:
+    virtual ~unification_constraints() {}
+    /**
+       \brief Add a new unification problem of the form <tt>ctx |- lhs == rhs</tt>
+       It means that rhs is convertible to lhs.
+       If rhs and lhs are not types, then this is just equality (modulo normalization).
+    */
+    virtual void add(context const & ctx, expr const & lhs, expr const & rhs) = 0;
+    /**
+       \brief Add a new unification problem of the form <tt>ctx |- n : t</tt>
+    */
+    virtual void add_type_of(context const & ctx, expr const & n, expr const & t) = 0;
+};
 }

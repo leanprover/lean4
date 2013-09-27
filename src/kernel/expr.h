@@ -31,12 +31,12 @@ class value;
           |   Type          universe
           |   Eq            expr expr         (heterogeneous equality)
           |   Let           name expr expr expr
-          |   Metavar       idx meta_ctx
+          |   Metavar       name expr? local_context  (the expression is the type of the metavariable)
 
-   meta_ctx ::= [meta_entry]
+   local_context ::= [local_entry]
 
-   meta_entry ::=  lift  idx idx
-                |  inst  idx expr
+   local_entry ::=  lift  idx idx
+                 |  inst  idx expr
 
 TODO(Leo): match expressions.
 
@@ -47,12 +47,12 @@ The main API is divided in the following sections
 - Miscellaneous
 ======================================= */
 enum class expr_kind { Var, Constant, Value, App, Lambda, Pi, Type, Eq, Let, MetaVar };
-class meta_entry;
+class local_entry;
 /**
-   \brief A metavariable context is just a list of meta_entries.
-   \see meta_entry
+   \brief A metavariable local context is just a list of local_entries.
+   \see local_entry
 */
-typedef list<meta_entry> meta_ctx;
+typedef list<local_entry> local_context;
 
 /**
     \brief Base class used to represent expressions.
@@ -121,7 +121,7 @@ public:
     friend expr mk_pi(name const & n, expr const & t, expr const & e);
     friend expr mk_type(level const & l);
     friend expr mk_let(name const & n, expr const & t, expr const & v, expr const & e);
-    friend expr mk_metavar(unsigned idx, meta_ctx const & ctx);
+    friend expr mk_metavar(name const & n, expr const & t, local_context const & ctx);
 
     friend bool is_eqp(expr const & a, expr const & b) { return a.m_ptr == b.m_ptr; }
 
@@ -254,9 +254,9 @@ public:
     value const & get_value() const { return m_val; }
 };
 /**
-   \see meta_entry
+   \see local_entry
 */
-enum class meta_entry_kind { Lift, Inst };
+enum class local_entry_kind { Lift, Inst };
 /**
     \brief An entry in a metavariable context.
     It represents objects of the form:
@@ -288,36 +288,42 @@ enum class meta_entry_kind { Lift, Inst };
        f a (g #3)
     </code>
 */
-class meta_entry {
-    meta_entry_kind m_kind;
-    unsigned        m_s;
-    unsigned        m_n;
-    expr            m_v;
-    meta_entry(unsigned s, unsigned n);
-    meta_entry(unsigned s, expr const & v);
+class local_entry {
+    local_entry_kind m_kind;
+    unsigned         m_s;
+    unsigned         m_n;
+    expr             m_v;
+    local_entry(unsigned s, unsigned n);
+    local_entry(unsigned s, expr const & v);
 public:
-    ~meta_entry();
-    friend meta_entry mk_lift(unsigned s, unsigned n);
-    friend meta_entry mk_inst(unsigned s, expr const & v);
-    meta_entry_kind kind() const { return m_kind; }
-    bool is_inst() const { return kind() == meta_entry_kind::Inst; }
-    bool is_lift() const { return kind() == meta_entry_kind::Lift; }
+    ~local_entry();
+    friend local_entry mk_lift(unsigned s, unsigned n);
+    friend local_entry mk_inst(unsigned s, expr const & v);
+    local_entry_kind kind() const { return m_kind; }
+    bool is_inst() const { return kind() == local_entry_kind::Inst; }
+    bool is_lift() const { return kind() == local_entry_kind::Lift; }
     unsigned s() const { return m_s; }
     unsigned n() const { lean_assert(is_lift()); return m_n; }
+    bool operator==(local_entry const & e) const;
+    bool operator!=(local_entry const & e) const { return !operator==(e); }
     expr const & v() const { lean_assert(is_inst()); return m_v; }
 };
-inline meta_entry mk_lift(unsigned s, unsigned n) { return meta_entry(s, n); }
-inline meta_entry mk_inst(unsigned s, expr const & v) { return meta_entry(s, v); }
+inline local_entry mk_lift(unsigned s, unsigned n) { return local_entry(s, n); }
+inline local_entry mk_inst(unsigned s, expr const & v) { return local_entry(s, v); }
 
 /** \brief Metavariables */
 class expr_metavar : public expr_cell {
-    unsigned      m_midx;
-    meta_ctx      m_ctx;
+    name          m_name;
+    expr          m_type;
+    local_context m_lctx;
 public:
-    expr_metavar(unsigned i, meta_ctx const & c);
+    expr_metavar(name const & n, expr const & t, local_context const & lctx);
     ~expr_metavar();
-    unsigned get_midx() const { return m_midx; }
-    meta_ctx const & get_ctx() const { return m_ctx; }
+    name const & get_name() const { return m_name; }
+    expr const & get_raw_type() const { return m_type; }
+    /* \brief Return the type of the metavariable modulo the associated local context */
+    expr get_type() const;
+    local_context const & get_lctx() const { return m_lctx; }
 };
 // =======================================
 
@@ -374,7 +380,9 @@ inline expr mk_type(level const & l) { return expr(new expr_type(l)); }
        expr mk_type();
 inline expr Type(level const & l) { return mk_type(l); }
 inline expr Type() { return mk_type(); }
-inline expr mk_metavar(unsigned idx, meta_ctx const & ctx = meta_ctx()) { return expr(new expr_metavar(idx, ctx)); }
+inline expr mk_metavar(name const & n, expr const & t = expr(), local_context const & ctx = local_context()) {
+    return expr(new expr_metavar(n, t, ctx));
+}
 
 inline expr expr::operator()(expr const & a1) const { return mk_app({*this, a1}); }
 inline expr expr::operator()(expr const & a1, expr const & a2) const { return mk_app({*this, a1, a2}); }
@@ -432,8 +440,10 @@ inline name const &  let_name(expr_cell * e)             { return to_let(e)->get
 inline expr const &  let_value(expr_cell * e)            { return to_let(e)->get_value(); }
 inline expr const &  let_type(expr_cell * e)             { return to_let(e)->get_type(); }
 inline expr const &  let_body(expr_cell * e)             { return to_let(e)->get_body(); }
-inline unsigned      metavar_idx(expr_cell * e)          { return to_metavar(e)->get_midx(); }
-inline meta_ctx const & metavar_ctx(expr_cell * e)       { return to_metavar(e)->get_ctx(); }
+inline name const &  metavar_name(expr_cell * e)         { return to_metavar(e)->get_name(); }
+inline expr const &  metavar_raw_type(expr_cell * e)     { return to_metavar(e)->get_raw_type(); }
+inline expr          metavar_type(expr_cell * e)         { return to_metavar(e)->get_type(); }
+inline local_context const & metavar_lctx(expr_cell * e) { return to_metavar(e)->get_lctx(); }
 
 /** \brief Return the reference counter of the given expression. */
 inline unsigned      get_rc(expr const &  e)              { return e.raw()->get_rc(); }
@@ -463,8 +473,10 @@ inline name const &  let_name(expr const & e)             { return to_let(e)->ge
 inline expr const &  let_type(expr const & e)             { return to_let(e)->get_type(); }
 inline expr const &  let_value(expr const & e)            { return to_let(e)->get_value(); }
 inline expr const &  let_body(expr const & e)             { return to_let(e)->get_body(); }
-inline unsigned      metavar_idx(expr const & e)          { return to_metavar(e)->get_midx(); }
-inline meta_ctx const & metavar_ctx(expr const & e)       { return to_metavar(e)->get_ctx(); }
+inline name const &  metavar_name(expr const & e)         { return to_metavar(e)->get_name(); }
+inline expr const &  metavar_raw_type(expr const & e)     { return to_metavar(e)->get_raw_type(); }
+inline expr          metavar_type(expr const & e)         { return to_metavar(e)->get_type(); }
+inline local_context const & metavar_lctx(expr const & e) { return to_metavar(e)->get_lctx(); }
 
 inline bool has_metavar(expr const & e) { return e.has_metavar(); }
 // =======================================
@@ -582,14 +594,11 @@ template<typename F> expr update_eq(expr const & e, F f) {
     else
         return e;
 }
-template<typename F> expr update_metavar(expr const & e, unsigned i, F f) {
-    static_assert(std::is_same<typename std::result_of<F(meta_entry const &)>::type,
-                               meta_entry>::value,
-                  "update_metavar: return type of f(meta_entry) is not meta_entry");
-    buffer<meta_entry> new_entries;
-    bool modified = (i != metavar_idx(e));
-    for (meta_entry const & me : metavar_ctx(e)) {
-        meta_entry new_me = f(me);
+template<typename F> expr update_metavar(expr const & e, name const & n, expr const & t, F f) {
+    buffer<local_entry> new_entries;
+    bool modified = (n != metavar_name(e) || t != metavar_raw_type(e));
+    for (local_entry const & me : metavar_lctx(e)) {
+        local_entry new_me = f(me);
         if (new_me.kind() != me.kind() || new_me.s() != me.s()) {
             modified = true;
         } else if (new_me.is_inst()) {
@@ -601,15 +610,18 @@ template<typename F> expr update_metavar(expr const & e, unsigned i, F f) {
         new_entries.push_back(new_me);
     }
     if (modified)
-        return mk_metavar(i, to_list(new_entries.begin(), new_entries.end()));
+        return mk_metavar(n, t, to_list(new_entries.begin(), new_entries.end()));
     else
         return e;
 }
 template<typename F> expr update_metavar(expr const & e, F f) {
-    static_assert(std::is_same<typename std::result_of<F(meta_entry const &)>::type,
-                               meta_entry>::value,
-                  "update_metavar: return type of f(meta_entry) is not meta_entry");
-    return update_metavar(e, metavar_idx(e), f);
+    return update_metavar(e, metavar_name(e), metavar_raw_type(e), f);
+}
+inline expr update_metavar(expr const & e, local_context const & lctx) {
+    if (metavar_lctx(e) != lctx)
+        return mk_metavar(metavar_name(e), metavar_raw_type(e), lctx);
+    else
+        return e;
 }
 // =======================================
 

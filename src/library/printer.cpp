@@ -76,11 +76,11 @@ struct print_expr_fn {
     }
 
     void print_metavar(expr const & a, context const &) {
-        out() << "?M" << metavar_idx(a);
-        if (metavar_ctx(a)) {
+        out() << "?M" << metavar_name(a);
+        if (metavar_lctx(a)) {
             out() << "[";
             bool first = true;
-            for (meta_entry const & e : metavar_ctx(a)) {
+            for (local_entry const & e : metavar_lctx(a)) {
                 if (first) first = false; else out() << ", ";
                 if (e.is_lift()) {
                     out() << "lift:" << e.s() << ":" << e.n();

@@ -11,11 +11,20 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "kernel/free_vars.h"
 #include "kernel/expr_eq.h"
+#include "kernel/metavar.h"
 
 namespace lean {
-meta_entry::meta_entry(unsigned s, unsigned n):m_kind(meta_entry_kind::Lift), m_s(s), m_n(n) {}
-meta_entry::meta_entry(unsigned s, expr const & v):m_kind(meta_entry_kind::Inst), m_s(s), m_v(v) {}
-meta_entry::~meta_entry() {}
+local_entry::local_entry(unsigned s, unsigned n):m_kind(local_entry_kind::Lift), m_s(s), m_n(n) {}
+local_entry::local_entry(unsigned s, expr const & v):m_kind(local_entry_kind::Inst), m_s(s), m_v(v) {}
+local_entry::~local_entry() {}
+bool local_entry::operator==(local_entry const & e) const {
+    if (m_kind != e.m_kind || m_s != e.m_s)
+        return false;
+    if (is_inst())
+        return m_v == e.m_v;
+    else
+        return m_n == e.m_n;
+}
 
 unsigned hash_args(unsigned size, expr const * args) {
     return hash(size, [&args](unsigned i){ return args[i].hash(); });
@@ -128,10 +137,21 @@ expr_value::expr_value(value & v):
 expr_value::~expr_value() {
     m_val.dec_ref();
 }
-expr_metavar::expr_metavar(unsigned i, meta_ctx const & c):
-    expr_cell(expr_kind::MetaVar, i, true),
-    m_midx(i), m_ctx(c) {}
+expr_metavar::expr_metavar(name const & n, expr const & t, local_context const & lctx):
+    expr_cell(expr_kind::MetaVar, n.hash(), true),
+    m_name(n), m_type(t), m_lctx(lctx) {}
 expr_metavar::~expr_metavar() {}
+expr expr_metavar::get_type() const {
+    if (m_type && get_lctx()) {
+        if (is_metavar(m_type)) {
+            return update_metavar(m_type, append(get_lctx(), metavar_lctx(m_type)));
+        } else {
+            return apply_local_context(m_type, get_lctx());
+        }
+    } else {
+        return m_type;
+    }
+}
 
 void expr_cell::dealloc() {
     switch (kind()) {
@@ -172,7 +192,7 @@ expr copy(expr const & a) {
     case expr_kind::Lambda:   return mk_lambda(abst_name(a), abst_domain(a), abst_body(a));
     case expr_kind::Pi:       return mk_pi(abst_name(a), abst_domain(a), abst_body(a));
     case expr_kind::Let:      return mk_let(let_name(a), let_type(a), let_value(a), let_body(a));
-    case expr_kind::MetaVar:  return mk_metavar(metavar_idx(a), metavar_ctx(a));
+    case expr_kind::MetaVar:  return mk_metavar(metavar_name(a), metavar_raw_type(a), metavar_lctx(a));
     }
     lean_unreachable();
 }

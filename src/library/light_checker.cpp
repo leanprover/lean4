@@ -20,14 +20,15 @@ namespace lean {
 class light_checker::imp {
     typedef scoped_map<expr, expr, expr_hash, expr_eqp> cache;
 
-    environment            m_env;
-    context                m_ctx;
-    metavar_env *          m_menv;
-    unsigned               m_menv_timestamp;
-    unification_problems * m_up;
-    normalizer             m_normalizer;
-    cache                  m_cache;
-    volatile bool          m_interrupted;
+    environment               m_env;
+    context                   m_ctx;
+    substitution *            m_subst;
+    unsigned                  m_subst_timestamp;
+    unification_constraints * m_uc;
+    normalizer                m_normalizer;
+    cache                     m_cache;
+    volatile bool             m_interrupted;
+
 
     level infer_universe(expr const & t, context const & ctx) {
         expr u = m_normalizer(infer_type(t, ctx), ctx);
@@ -59,29 +60,29 @@ class light_checker::imp {
             return instantiate(t, num_args(e)-1, &arg(e, 1));
     }
 
-    void set_menv(metavar_env * menv) {
-        if (m_menv == menv) {
-            // Check whether m_menv has been updated since the last time the normalizer has been invoked
-            if (m_menv && m_menv->get_timestamp() > m_menv_timestamp) {
-                m_menv_timestamp = m_menv->get_timestamp();
+    void set_subst(substitution * subst) {
+        if (m_subst == subst) {
+            // Check whether m_subst has been updated since the last time the normalizer has been invoked
+            if (m_subst && m_subst->get_timestamp() > m_subst_timestamp) {
+                m_subst_timestamp = m_subst->get_timestamp();
                 m_cache.clear();
             }
         } else {
-            m_menv = menv;
+            m_subst = subst;
             m_cache.clear();
-            m_menv_timestamp = m_menv ? m_menv->get_timestamp() : 0;
+            m_subst_timestamp = m_subst ? m_subst->get_timestamp() : 0;
         }
     }
 
     expr infer_type(expr const & e, context const & ctx) {
         // cheap cases, we do not cache results
         switch (e.kind()) {
-        case expr_kind::MetaVar:
-            if (m_menv && m_up) {
-                return m_menv->get_type(e, *m_up);
-            } else {
-                throw kernel_exception(m_env, "unexpected metavariable occurrence");
-            }
+        case expr_kind::MetaVar: {
+            expr r = metavar_type(e);
+            if (!r)
+                throw kernel_exception(m_env, "metavariable does not have a type associated with it");
+            return r;
+        }
         case expr_kind::Constant: {
             object const & obj = m_env.get_object(const_name(e));
             if (obj.has_type())
@@ -176,16 +177,16 @@ public:
     imp(environment const & env):
         m_env(env),
         m_normalizer(env) {
-        m_interrupted = false;
-        m_menv           = nullptr;
-        m_menv_timestamp = 0;
-        m_up             = nullptr;
+        m_interrupted     = false;
+        m_subst           = nullptr;
+        m_subst_timestamp = 0;
+        m_uc              = nullptr;
     }
 
-    expr operator()(expr const & e, context const & ctx, metavar_env * menv, unification_problems * up) {
+    expr operator()(expr const & e, context const & ctx, substitution * subst, unification_constraints * uc) {
         set_ctx(ctx);
-        set_menv(menv);
-        flet<unification_problems*> set(m_up, up);
+        set_subst(subst);
+        flet<unification_constraints*> set(m_uc, uc);
         return infer_type(e, ctx);
     }
 
@@ -198,14 +199,14 @@ public:
         m_cache.clear();
         m_normalizer.clear();
         m_ctx            = context();
-        m_menv           = nullptr;
-        m_menv_timestamp = 0;
+        m_subst = nullptr;
+        m_subst_timestamp = 0;
     }
 };
 light_checker::light_checker(environment const & env):m_ptr(new imp(env)) {}
 light_checker::~light_checker() {}
-expr light_checker::operator()(expr const & e, context const & ctx, metavar_env * menv, unification_problems * up) {
-    return m_ptr->operator()(e, ctx, menv, up);
+expr light_checker::operator()(expr const & e, context const & ctx, substitution * subst, unification_constraints * uc) {
+    return m_ptr->operator()(e, ctx, subst, uc);
 }
 void light_checker::clear() { m_ptr->clear(); }
 void light_checker::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }

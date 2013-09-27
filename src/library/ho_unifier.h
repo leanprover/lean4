@@ -21,7 +21,7 @@ public:
     ~ho_unifier();
 
     typedef list<std::tuple<context, expr, expr>> residue;
-    typedef std::pair<metavar_env, residue> result;
+    typedef std::pair<substitution, residue> result;
 
     /**
         \brief Try to unify \c l and \c r in the context \c ctx using the input substitution \c menv.
@@ -34,7 +34,7 @@ public:
         Each pair is a possible solution. The resultant \c metavar_env may contain new metavariables.
         The empty list represents failure.
     */
-    list<result> operator()(context const & ctx, expr const & l, expr const & r, metavar_env const & menv);
+    list<result> operator()(context const & ctx, expr const & l, expr const & r, substitution const & menv);
 
     void set_interrupt(bool flag);
     void interrupt() { set_interrupt(true); }

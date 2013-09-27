@@ -71,11 +71,11 @@ class ho_unifier::imp {
     typedef std::tuple<context, expr, expr> constraint;
     typedef pdeque<constraint>              cqueue; // constraint queue
     struct state {
-        unsigned    m_id;
-        metavar_env m_subst;
-        cqueue      m_queue;
-        state(unsigned id, metavar_env const & menv, cqueue const & q):
-            m_id(id), m_subst(menv), m_queue(q) {}
+        unsigned      m_id;
+        substitution  m_subst;
+        cqueue        m_queue;
+        state(unsigned id, substitution const & subst, cqueue const & q):
+            m_id(id), m_subst(subst), m_queue(q) {}
     };
     typedef std::vector<state>              state_stack;
 
@@ -93,10 +93,10 @@ class ho_unifier::imp {
     bool           m_use_normalizer;
     bool           m_use_beta;
 
-    static metavar_env & subst_of(state & s) { return s.m_subst; }
+    static substitution & subst_of(state & s) { return s.m_subst; }
     static cqueue & queue_of(state & s) { return s.m_queue; }
 
-    state mk_state(metavar_env const & s, cqueue const & q) {
+    state mk_state(substitution const & s, cqueue const & q) {
         unsigned id = m_next_state_id;
         m_next_state_id++;
         return state(id, s, q);
@@ -127,11 +127,11 @@ class ho_unifier::imp {
         m_delayed++;
     }
 
-    void init(context const & ctx, expr const & l, expr const & r, metavar_env const & menv) {
+    void init(context const & ctx, expr const & l, expr const & r, substitution const & subst) {
         m_next_state_id = 0;
         m_used_aux_vars = false;
         m_state_stack.clear();
-        m_state_stack.push_back(mk_state(menv, cqueue()));
+        m_state_stack.push_back(mk_state(subst, cqueue()));
         add_constraint(ctx, l, r);
     }
 
@@ -142,19 +142,18 @@ class ho_unifier::imp {
 
        \remark \c ini_s is the initial substitution set. \c s is an extension of \c ini_s
     */
-    bool contains_solution(list<result> const & r, metavar_env const & s, residue const & rs, metavar_env const & ini_s) {
+    bool contains_solution(list<result> const & r, substitution const & s, residue const & rs, substitution const & ini_s) {
         return
             empty(rs) &&
             std::any_of(r.begin(), r.end(), [&](result const & prev) {
                     if (!empty(prev.second))
                         return false;
-                    metavar_env const & prev_s = prev.first;
-                    // Remark, prev_s and s are extensions of ini_s
-                    for (unsigned i = 0; i < ini_s.size(); i++) {
-                        if (!ini_s.is_assigned(i) && prev_s.get_subst(i) != s.get_subst(i))
-                            return false;
-                    }
-                    return true;
+                    // TODO(Leo) metavar
+                    // substitution const & prev_s = prev.first;
+                    // if (s != prev_s)
+                    //    return false;
+                    // return true;
+                    return false;
                 });
     }
 
@@ -163,7 +162,8 @@ class ho_unifier::imp {
 
        \remark \c ini_s is the initial substitution set. \c s is an extension of \c ini_s
     */
-    metavar_env cleanup_subst(metavar_env const & s, metavar_env const & ini_s) {
+    substitution cleanup_subst(substitution const & s, substitution const & ini_s) {
+#if 0  // TODO(Leo) metavar
         metavar_env new_s;
         for (unsigned i = 0; i < ini_s.size(); i++) {
             new_s.mk_metavar(s.get_type(i), s.get_context(i));
@@ -178,6 +178,9 @@ class ho_unifier::imp {
             }
         }
         return new_s;
+#else
+        return s;
+#endif
     }
 
     /**
@@ -187,7 +190,7 @@ class ho_unifier::imp {
 
        \remark \c ini_s is the initial substitution set. \c s is an extension of \c ini_s
     */
-    list<result> save_result(list<result> const & r, metavar_env s, residue const & rs, metavar_env const & ini_s) {
+    list<result> save_result(list<result> const & r, substitution s, residue const & rs, substitution const & ini_s) {
         if (empty(rs) && m_used_aux_vars) {
             // We only do the cleanup when we don't have a residue.
             // If we have a residue, we can only remove auxiliary metavariables that do not occur in rs
@@ -210,12 +213,12 @@ class ho_unifier::imp {
        4- \c a is an application of the form <tt>(?m ...)</tt> where ?m is an assigned metavariable.
     */
     enum status { Solved, Failed, Continue };
-    status process_metavar(expr & a, expr & b, metavar_env & s) {
+    status process_metavar(expr & a, expr & b, substitution & s) {
         if (is_metavar(a)) {
             if (s.is_assigned(a)) {
                 // Case 1
                 a = s.get_subst(a);
-            } else if (!has_meta_context(a)) {
+            } else if (!has_local_context(a)) {
                 // Case 2
                 if (has_metavar(b, a, s)) {
                     return Failed;
@@ -225,7 +228,7 @@ class ho_unifier::imp {
                     return Solved;
                 }
             } else {
-                meta_entry const & me = head(metavar_ctx(a));
+                local_entry const & me = head(metavar_lctx(a));
                 if (me.is_lift() && !has_free_var(b, me.s(), me.s() + me.n())) {
                     // Case 3
                     b = lower_free_vars(b, me.s() + me.n(), me.n());
@@ -316,12 +319,12 @@ class ho_unifier::imp {
 
     /** \brief Return true iff \c a is a metavariable and has a meta context. */
     bool is_metavar_with_context(expr const & a) {
-        return is_metavar(a) && has_meta_context(a);
+        return is_metavar(a) && has_local_context(a);
     }
 
     /** \brief Return true if \c a is of the form <tt>(?m[...] ...)</tt> */
     bool is_meta_app_with_context(expr const & a) {
-        return is_meta_app(a) && has_meta_context(arg(a, 0));
+        return is_meta_app(a) && has_local_context(arg(a, 0));
     }
 
     /**
@@ -334,13 +337,12 @@ class ho_unifier::imp {
        One possible workaround it o make sure that every metavariable has an associated type
        before invoking ho_unifier.
     */
-    class unification_problems_wrapper : public unification_problems {
+    class unification_constraints_wrapper : public unification_constraints {
         bool m_failed;
     public:
-        unification_problems_wrapper():m_failed(false) {}
-        virtual void add_eq(context const &, expr const &, expr const &) { m_failed = true; }
-        virtual void add_type_of_eq(context const &, expr const &, expr const &) { m_failed = true; }
-        virtual void add_is_convertible(context const &, expr const &, expr const &) { m_failed = true; }
+        unification_constraints_wrapper():m_failed(false) {}
+        virtual void add(context const &, expr const &, expr const &) { m_failed = true; }
+        virtual void add_type_of(context const &, expr const &, expr const &) { m_failed = true; }
         bool failed() const { return m_failed; }
     };
 
@@ -382,24 +384,24 @@ class ho_unifier::imp {
     */
     bool process_meta_app(context const & ctx, expr const & a, expr const & b) {
         lean_assert(is_meta_app(a));
-        lean_assert(!has_meta_context(arg(a, 0)));
+        lean_assert(!has_local_context(arg(a, 0)));
         lean_assert(!is_meta_app(b));
-        m_used_aux_vars   = true;
-        expr f_a          = arg(a, 0);
+        m_used_aux_vars    = true;
+        expr f_a           = arg(a, 0);
         lean_assert(is_metavar(f_a));
-        state top_state   = m_state_stack.back();
-        cqueue q          = queue_of(top_state);
-        metavar_env s     = subst_of(top_state);
-        unsigned midx     = metavar_idx(f_a);
-        unsigned num_a    = num_args(a);
-        unification_problems_wrapper upw;
+        state top_state    = m_state_stack.back();
+        cqueue q           = queue_of(top_state);
+        substitution s    = subst_of(top_state);
+        name const & mname = metavar_name(f_a);
+        unsigned num_a     = num_args(a);
+        unification_constraints_wrapper ucw;
         buffer<expr> arg_types;
         for (unsigned i = 1; i < num_a; i++) {
-            arg_types.push_back(m_type_infer(arg(a, i), ctx, &s, &upw));
+            arg_types.push_back(m_type_infer(arg(a, i), ctx, &s, &ucw));
         }
         // Clear m_type_infer cache since we don't want a reference to s inside of m_type_infer
         m_type_infer.clear();
-        if (upw.failed())
+        if (ucw.failed())
             return false;
         m_state_stack.pop_back();
         // Add projections
@@ -407,14 +409,14 @@ class ho_unifier::imp {
             // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), x_i
             cqueue new_q = q;
             new_q.push_front(constraint(ctx, arg(a, i), b));
-            metavar_env new_s = s;
-            expr proj         = mk_lambda(arg_types, mk_var(num_a - i - 1));
-            new_s.assign(midx, proj);
+            substitution new_s = s;
+            expr proj           = mk_lambda(arg_types, mk_var(num_a - i - 1));
+            new_s.assign(mname, proj);
             m_state_stack.push_back(mk_state(new_s, new_q));
         }
         // Add imitation
-        metavar_env new_s = s;
-        cqueue  new_q     = q;
+        substitution new_s = s;
+        cqueue        new_q = q;
         if (is_app(b)) {
             // Imitation for applications
             expr f_b          = arg(b, 0);
@@ -429,7 +431,7 @@ class ho_unifier::imp {
                 new_q.push_front(constraint(ctx, update_app(a, 0, h_i), arg(b, i)));
             }
             expr imitation = mk_lambda(arg_types, mk_app(imitation_args.size(), imitation_args.data()));
-            new_s.assign(midx, imitation);
+            new_s.assign(mname, imitation);
         } else if (is_eq(b)) {
             // Imitation for equality
             // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), (h_1 x_1 ... x_{num_a-1}) = (h_2 x_1 ... x_{num_a-1})
@@ -438,7 +440,7 @@ class ho_unifier::imp {
             expr h_1 = new_s.mk_metavar(ctx);
             expr h_2 = new_s.mk_metavar(ctx);
             expr imitation = mk_lambda(arg_types, mk_eq(mk_app_vars(h_1, num_a - 1), mk_app_vars(h_2, num_a - 1)));
-            new_s.assign(midx, imitation);
+            new_s.assign(mname, imitation);
             new_q.push_front(constraint(ctx, update_app(a, 0, h_1), eq_lhs(b)));
             new_q.push_front(constraint(ctx, update_app(a, 0, h_2), eq_rhs(b)));
         } else if (is_abstraction(b)) {
@@ -450,14 +452,14 @@ class ho_unifier::imp {
             expr h_1 = new_s.mk_metavar(ctx);
             expr h_2 = new_s.mk_metavar(ctx);
             expr imitation = mk_lambda(arg_types, update_abstraction(b, mk_app_vars(h_1, num_a - 1), mk_app_vars(h_2, num_a)));
-            new_s.assign(midx, imitation);
+            new_s.assign(mname, imitation);
             new_q.push_front(constraint(ctx, update_app(a, 0, h_1), abst_domain(b)));
             new_q.push_front(constraint(extend(ctx, abst_name(b), abst_domain(b)), mk_app(update_app(a, 0, h_2), Var(0)), abst_body(b)));
         } else {
             // "Dumb imitation" aka the constant function
             // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), b
             expr imitation = mk_lambda(arg_types, lift_free_vars(b, 0, num_a - 1));
-            new_s.assign(midx, imitation);
+            new_s.assign(mname, imitation);
         }
         m_state_stack.push_back(mk_state(new_s, new_q));
         reset_delayed();
@@ -466,7 +468,7 @@ class ho_unifier::imp {
 
     /** \brief Return true if \c a is of the form ?m[inst:i t, ...] */
     bool is_metavar_inst(expr const & a) const {
-        return is_metavar(a) && has_meta_context(a) && head(metavar_ctx(a)).is_inst();
+        return is_metavar(a) && has_local_context(a) && head(metavar_lctx(a)).is_inst();
     }
 
     /**
@@ -479,50 +481,50 @@ class ho_unifier::imp {
         lean_assert(is_metavar_inst(a));
         lean_assert(!is_metavar_inst(b));
         lean_assert(!is_meta_app(b));
-        m_used_aux_vars   = true;
-        meta_ctx  mctx    = metavar_ctx(a);
-        unsigned midx     = metavar_idx(a);
-        unsigned i        = head(mctx).s();
-        expr t            = head(mctx).v();
-        state top_state   = m_state_stack.back();
-        cqueue q          = queue_of(top_state);
-        metavar_env s     = subst_of(top_state);
+        m_used_aux_vars     = true;
+        local_context  lctx = metavar_lctx(a);
+        name const & mname  = metavar_name(a);
+        unsigned i          = head(lctx).s();
+        expr t              = head(lctx).v();
+        state top_state     = m_state_stack.back();
+        cqueue q            = queue_of(top_state);
+        substitution s     = subst_of(top_state);
         m_state_stack.pop_back();
         {
             // Case 1
-            metavar_env new_s = s;
-            new_s.assign(midx, mk_var(i));
+            substitution new_s = s;
+            new_s.assign(mname, mk_var(i));
             cqueue new_q = q;
             new_q.push_front(constraint(ctx, t, b));
             m_state_stack.push_back(mk_state(new_s, new_q));
         }
         {
             // Case 2
-            metavar_env new_s = s;
-            cqueue new_q      = q;
+            substitution new_s = s;
+            cqueue        new_q = q;
             if (is_app(b)) {
                 // Imitation for applications b == f(s_1, ..., s_k)
-                // midx <- f(?h_1, ..., ?h_k)
+                // mname <- f(?h_1, ..., ?h_k)
                 expr f_b          = arg(b, 0);
                 unsigned num_b    = num_args(b);
                 buffer<expr> imitation;
                 imitation.push_back(f_b);
                 for (unsigned i = 1; i < num_b; i++)
                     imitation.push_back(new_s.mk_metavar(ctx));
-                new_s.assign(midx, mk_app(imitation.size(), imitation.data()));
+                new_s.assign(mname, mk_app(imitation.size(), imitation.data()));
             } else if (is_eq(b)) {
                 // Imitation for equality b == Eq(s1, s2)
-                // midx <- Eq(?h_1, ?h_2)
+                // mname <- Eq(?h_1, ?h_2)
                 expr h_1 = new_s.mk_metavar(ctx);
                 expr h_2 = new_s.mk_metavar(ctx);
-                new_s.assign(midx, mk_eq(h_1, h_2));
+                new_s.assign(mname, mk_eq(h_1, h_2));
             } else if (is_abstraction(b)) {
                 // Lambdas and Pis
                 // Imitation for Lambdas and Pis, b == Fun(x:T) B
-                // midx <- Fun (x:?h_1) ?h_2 x)
+                // mname <- Fun (x:?h_1) ?h_2 x)
                 expr h_1 = new_s.mk_metavar(ctx);
                 expr h_2 = new_s.mk_metavar(ctx);
-                new_s.assign(midx, update_abstraction(b, h_1, mk_app(h_2, Var(0))));
+                new_s.assign(mname, update_abstraction(b, h_1, mk_app(h_2, Var(0))));
             } else {
                 new_q.push_front(constraint(ctx, pop_meta_context(a), lift_free_vars(b, i, 1)));
             }
@@ -535,7 +537,7 @@ class ho_unifier::imp {
        \brief Process the constraint \c c. Return true if the constraint was processed or postponed, and false
        if it failed to solve the constraint.
     */
-    bool process(constraint const & c, metavar_env & s) {
+    bool process(constraint const & c, substitution & s) {
         context ctx = std::get<0>(c);
         expr const & old_a = std::get<1>(c);
         expr const & old_b = std::get<2>(c);
@@ -660,8 +662,8 @@ public:
         m_use_beta          = get_ho_unifier_use_beta(opts);
     }
 
-    list<result> unify(context const & ctx, expr const & a, expr const & b, metavar_env const & menv) {
-        init(ctx, a, b, menv);
+    list<result> unify(context const & ctx, expr const & a, expr const & b, substitution const & subst) {
+        init(ctx, a, b, subst);
         list<result> r;
         unsigned num_solutions = 0;
         while (!m_state_stack.empty()) {
@@ -673,7 +675,7 @@ public:
             unsigned cq_size  = cq.size();
             if (cq.empty()) {
                 // no constraints left to be solved
-                r = save_result(r, subst_of(top_state), residue(), menv);
+                r = save_result(r, subst_of(top_state), residue(), subst);
                 num_solutions++;
                 m_state_stack.pop_back();
             } else {
@@ -692,7 +694,7 @@ public:
                     residue rs;
                     for (auto c : cq)
                         rs = cons(c, rs);
-                    r = save_result(r, subst_of(top_state), rs, menv);
+                    r = save_result(r, subst_of(top_state), rs, subst);
                     num_solutions++;
                     reset_delayed();
                     m_state_stack.pop_back();
@@ -712,7 +714,7 @@ public:
 ho_unifier::ho_unifier(environment const & env, options const & opts):m_ptr(new imp(env, opts)) {}
 ho_unifier::~ho_unifier() {}
 void ho_unifier::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
-list<ho_unifier::result> ho_unifier::operator()(context const & ctx, expr const & l, expr const & r, metavar_env const & menv) {
-    return m_ptr->unify(ctx, l, r, menv);
+list<ho_unifier::result> ho_unifier::operator()(context const & ctx, expr const & l, expr const & r, substitution const & subst) {
+    return m_ptr->unify(ctx, l, r, subst);
 }
 }

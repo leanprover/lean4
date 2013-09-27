@@ -9,7 +9,8 @@ Author: Leonardo de Moura
 #include "kernel/expr_maps.h"
 
 namespace lean {
-class metavar_env;
+class substitution;
+class metavar_generator;
 /**
     \brief Return a new placeholder expression. To be able to track location,
     a new constant for each placeholder.
@@ -27,9 +28,9 @@ bool is_placeholder(expr const & e);
 bool has_placeholder(expr const & e);
 
 /**
-   \brief Replace the placeholders in \c e with fresh metavariables from menv.
+   \brief Replace the placeholders in \c e with fresh metavariables from \c mgen.
    if \c trace is not null, then for each new expression \c t created based on
    \c s, we store <tt>(*trace)[t] = s</tt>. We say this is traceability information.
 */
-expr replace_placeholders_with_metavars(expr const & e, metavar_env & menv, expr_map<expr> * trace = nullptr);
+expr replace_placeholders_with_metavars(expr const & e, metavar_generator & mgen, expr_map<expr> * trace = nullptr);
 }

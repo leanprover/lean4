@@ -21,14 +21,16 @@ static name g_x_name("x");
 class type_checker::imp {
     typedef scoped_map<expr, expr, expr_hash, expr_eqp> cache;
 
-    environment const &    m_env;
-    cache                  m_cache;
-    normalizer             m_normalizer;
-    context                m_ctx;
-    metavar_env *          m_menv;
-    unsigned               m_menv_timestamp;
-    unification_problems * m_up;
-    volatile bool          m_interrupted;
+    environment const &       m_env;
+    cache                     m_cache;
+    normalizer                m_normalizer;
+    context                   m_ctx;
+    substitution *            m_subst;
+    unsigned                  m_subst_timestamp;
+    metavar_generator *       m_mgen;
+    unification_constraints * m_uc;
+    volatile bool             m_interrupted;
+
 
     expr lookup(context const & c, unsigned i) {
         auto p = lookup_ext(c, i);
@@ -44,17 +46,17 @@ class type_checker::imp {
         expr r = m_normalizer(e, ctx);
         if (is_pi(r))
             return r;
-        if (has_metavar(r) && m_menv && m_up) {
+        if (has_metavar(r) && m_subst && m_uc && m_mgen) {
             // Create two fresh variables A and B,
             // and assign r == (Pi(x : A), B x)
-            expr A = m_menv->mk_metavar(ctx);
-            expr B = m_menv->mk_metavar(ctx);
+            expr A = m_mgen->mk();
+            expr B = m_mgen->mk();
             expr p = mk_pi(g_x_name, A, B(Var(0)));
-            if (is_metavar(r) && !has_meta_context(r)) {
+            if (is_metavar(r) && !has_local_context(r)) {
                 // cheap case
-                m_menv->assign(r, p);
+                m_subst->assign(r, p);
             } else {
-                m_up->add_eq(ctx, r, p);
+                m_uc->add(ctx, r, p);
             }
             return p;
         }
@@ -67,18 +69,18 @@ class type_checker::imp {
             return ty_level(u);
         if (u == Bool)
             return level();
-        if (has_metavar(u) && m_menv && m_up) {
+        if (has_metavar(u) && m_subst && m_uc) {
             // Remark: in the current implementation we don't have level constraints and variables
             // in the unification problem set. So, we assume the metavariable is in level 0.
             // This is a crude approximation that works most of the time.
             // A better solution is consists in creating a fresh universe level k and
             // associate the constraint that u == Type k.
             // Later the constraint must be solved in the elaborator.
-            if (is_metavar(u) && !has_meta_context(u)) {
+            if (is_metavar(u) && !has_local_context(u)) {
                 // cheap case
-                m_menv->assign(u, Type());
+                m_subst->assign(u, Type());
             } else {
-                m_up->add_eq(ctx, u, Type());
+                m_uc->add(ctx, u, Type());
             }
             return level();
         }
@@ -98,11 +100,10 @@ class type_checker::imp {
         expr r;
         switch (e.kind()) {
         case expr_kind::MetaVar:
-            if (m_menv && m_up) {
-                return m_menv->get_type(e, *m_up);
-            } else {
-                throw kernel_exception(m_env, "unexpected metavariable occurrence");
-            }
+            r = metavar_type(e);
+            if (!r)
+                throw kernel_exception(m_env, "metavariable does not have a type associated with it");
+            break;
         case expr_kind::Constant:
             r = m_env.get_object(const_name(e)).get_type();
             break;
@@ -200,7 +201,7 @@ class type_checker::imp {
     }
 
     bool is_convertible_core(expr const & t1, expr const & t2, context const & ctx) {
-        return m_normalizer.is_convertible(t1, t2, ctx, m_menv, m_up);
+        return m_normalizer.is_convertible(t1, t2, ctx, m_subst, m_uc);
     }
 
     void set_ctx(context const & ctx) {
@@ -210,17 +211,17 @@ class type_checker::imp {
         }
     }
 
-    void set_menv(metavar_env * menv) {
-        if (m_menv == menv) {
-            // Check whether m_menv has been updated since the last time the normalizer has been invoked
-            if (m_menv && m_menv->get_timestamp() > m_menv_timestamp) {
+    void set_subst(substitution * subst) {
+        if (m_subst == subst) {
+            // Check whether m_subst has been updated since the last time the normalizer has been invoked
+            if (m_subst && m_subst->get_timestamp() > m_subst_timestamp) {
                 clear();
-                m_menv_timestamp = m_menv->get_timestamp();
+                m_subst_timestamp = m_subst->get_timestamp();
             }
         } else {
             clear();
-            m_menv = menv;
-            m_menv_timestamp = m_menv ? m_menv->get_timestamp() : 0;
+            m_subst = subst;
+            m_subst_timestamp = m_subst ? m_subst->get_timestamp() : 0;
         }
     }
 
@@ -228,30 +229,33 @@ public:
     imp(environment const & env):
         m_env(env),
         m_normalizer(env) {
-        m_menv           = nullptr;
-        m_menv_timestamp = 0;
-        m_up             = nullptr;
-        m_interrupted    = false;
+        m_subst           = nullptr;
+        m_subst_timestamp = 0;
+        m_mgen            = nullptr;
+        m_uc              = nullptr;
+        m_interrupted     = false;
     }
 
-    level infer_universe(expr const & t, context const & ctx, metavar_env * menv, unification_problems * up) {
+    level infer_universe(expr const & t, context const & ctx, substitution * subst, metavar_generator * mgen, unification_constraints * uc) {
         set_ctx(ctx);
-        set_menv(menv);
-        flet<unification_problems*> set(m_up, up);
+        set_subst(subst);
+        flet<unification_constraints*> set_uc(m_uc, uc);
+        flet<metavar_generator*>       set_mgen(m_mgen, mgen);
         return infer_universe_core(t, ctx);
     }
 
-    expr infer_type(expr const & e, context const & ctx, metavar_env * menv, unification_problems * up) {
+    expr infer_type(expr const & e, context const & ctx, substitution * subst, metavar_generator * mgen, unification_constraints * uc) {
         set_ctx(ctx);
-        set_menv(menv);
-        flet<unification_problems*> set(m_up, up);
+        set_subst(subst);
+        flet<unification_constraints*> set_uc(m_uc, uc);
+        flet<metavar_generator*>       set_mgen(m_mgen, mgen);
         return infer_type_core(e, ctx);
     }
 
-    bool is_convertible(expr const & t1, expr const & t2, context const & ctx, metavar_env * menv, unification_problems * up) {
+    bool is_convertible(expr const & t1, expr const & t2, context const & ctx, substitution * subst, unification_constraints * uc) {
         set_ctx(ctx);
-        set_menv(menv);
-        flet<unification_problems*> set(m_up, up);
+        set_subst(subst);
+        flet<unification_constraints*> set_uc(m_uc, uc);
         return is_convertible_core(t1, t2, ctx);
     }
 
@@ -264,8 +268,8 @@ public:
         m_cache.clear();
         m_normalizer.clear();
         m_ctx            = context();
-        m_menv           = nullptr;
-        m_menv_timestamp = 0;
+        m_subst           = nullptr;
+        m_subst_timestamp = 0;
     }
 
     normalizer & get_normalizer() {
@@ -275,16 +279,16 @@ public:
 
 type_checker::type_checker(environment const & env):m_ptr(new imp(env)) {}
 type_checker::~type_checker() {}
-expr type_checker::infer_type(expr const & e, context const & ctx, metavar_env * menv, unification_problems * up) {
-    return m_ptr->infer_type(e, ctx, menv, up);
+expr type_checker::infer_type(expr const & e, context const & ctx, substitution * subst, metavar_generator * mgen, unification_constraints * uc) {
+    return m_ptr->infer_type(e, ctx, subst, mgen, uc);
 }
-level type_checker::infer_universe(expr const & e, context const & ctx, metavar_env * menv, unification_problems * up) {
-    return m_ptr->infer_universe(e, ctx, menv, up);
+level type_checker::infer_universe(expr const & e, context const & ctx, substitution * subst, metavar_generator * mgen, unification_constraints * uc) {
+    return m_ptr->infer_universe(e, ctx, subst, mgen, uc);
 }
 void type_checker::clear() { m_ptr->clear(); }
 void type_checker::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
-bool type_checker::is_convertible(expr const & t1, expr const & t2, context const & ctx, metavar_env * menv, unification_problems * up) {
-    return m_ptr->is_convertible(t1, t2, ctx, menv, up);
+bool type_checker::is_convertible(expr const & t1, expr const & t2, context const & ctx, substitution * subst, unification_constraints * uc) {
+    return m_ptr->is_convertible(t1, t2, ctx, subst, uc);
 }
 normalizer & type_checker::get_normalizer() { return m_ptr->get_normalizer(); }
 

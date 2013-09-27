@@ -29,9 +29,9 @@ static void tst1() {
     std::cout << F2 << "\n";
     lean_assert(is_eqp(arg(F2, 1), arg(F2, 2)));
     max_fn.clear();
-    meta_ctx ctx{mk_lift(1, 1), mk_inst(0, a1)};
-    expr m1 = mk_metavar(0, ctx);
-    expr m2 = mk_metavar(0, ctx);
+    local_context lctx{mk_lift(1, 1), mk_inst(0, a1)};
+    expr m1 = mk_metavar("m1", expr(), lctx);
+    expr m2 = mk_metavar("m1", expr(), lctx);
     F1 = f(m1, m2);
     lean_assert(!is_eqp(arg(F1, 1), arg(F1, 2)));
     F2 = max_fn(F1);

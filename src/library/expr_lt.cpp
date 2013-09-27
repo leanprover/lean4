@@ -52,13 +52,13 @@ bool is_lt(expr const & a, expr const & b, bool use_hash) {
             return is_lt(let_body(a), let_body(b), use_hash);
         }
     case expr_kind::MetaVar:
-        if (metavar_idx(a) != metavar_idx(b)) {
-            return metavar_idx(a) < metavar_idx(b);
+        if (metavar_name(a) != metavar_name(b)) {
+            return metavar_name(a) < metavar_name(b);
         } else {
-            auto it1  = metavar_ctx(a).begin();
-            auto it2  = metavar_ctx(b).begin();
-            auto end1 = metavar_ctx(a).end();
-            auto end2 = metavar_ctx(b).end();
+            auto it1  = metavar_lctx(a).begin();
+            auto it2  = metavar_lctx(b).begin();
+            auto end1 = metavar_lctx(a).end();
+            auto end2 = metavar_lctx(b).end();
             for (; it1 != end1 && it2 != end2; ++it1, ++it2) {
                 if (it1->kind() != it2->kind()) {
                     return it1->kind() < it2->kind();

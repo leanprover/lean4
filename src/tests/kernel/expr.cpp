@@ -347,7 +347,7 @@ void tst15() {
     expr f = Const("f");
     expr x = Var(0);
     expr a = Const("a");
-    expr m = mk_metavar(0);
+    expr m = mk_metavar("m");
     lean_assert(has_metavar(m));
     lean_assert(has_metavar(f(m)));
     lean_assert(!has_metavar(f(a)));

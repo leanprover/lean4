@@ -63,7 +63,7 @@ struct max_sharing_fn::imp {
             return r;
         }
         case expr_kind::MetaVar: {
-            expr r = update_metavar(a, [=](meta_entry const & e) -> meta_entry {
+            expr r = update_metavar(a, [=](local_entry const & e) -> local_entry {
                     if (e.is_inst())
                         return mk_inst(e.s(), apply(e.v()));
                     else

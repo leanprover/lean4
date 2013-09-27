@@ -16,7 +16,7 @@ using namespace lean;
 
 void tst1() {
     environment env;
-    metavar_env menv;
+    substitution subst;
     ho_unifier  unify(env);
     expr N  = Const("N");
     expr M  = Const("M");
@@ -29,10 +29,10 @@ void tst1() {
     expr x  = Const("x");
     expr a  = Const("a");
     expr b  = Const("b");
-    expr m1 = menv.mk_metavar();
+    expr m1 = subst.mk_metavar();
     expr l = m1(b, a);
     expr r = f(b, f(a, b));
-    for (auto sol : unify(context(), l, r, menv)) {
+    for (auto sol : unify(context(), l, r, subst)) {
         std::cout << m1 << " -> " << beta_reduce(sol.first.get_subst(m1)) << "\n";
         std::cout << beta_reduce(instantiate_metavars(l, sol.first)) << "\n";
         lean_assert(beta_reduce(instantiate_metavars(l, sol.first)) == r);
@@ -43,7 +43,7 @@ void tst1() {
 void tst2() {
     environment env;
     import_basic(env);
-    metavar_env menv;
+    substitution subst;
     ho_unifier  unify(env);
     expr N  = Const("N");
     expr M  = Const("M");
@@ -55,10 +55,10 @@ void tst2() {
     expr x  = Const("x");
     expr a  = Const("a");
     expr b  = Const("b");
-    expr m1 = menv.mk_metavar();
+    expr m1 = subst.mk_metavar();
     expr l = m1(b, a);
     expr r = Fun({x, N}, f(x, Eq(a, b)));
-    for (auto sol : unify(context(), l, r, menv)) {
+    for (auto sol : unify(context(), l, r, subst)) {
         std::cout << m1 << " -> " << beta_reduce(sol.first.get_subst(m1)) << "\n";
         std::cout << beta_reduce(instantiate_metavars(l, sol.first)) << "\n";
         lean_assert(beta_reduce(instantiate_metavars(l, sol.first)) == r);
@@ -70,24 +70,24 @@ void tst3() {
     environment env;
     import_basic(env);
     import_arith(env);
-    metavar_env menv;
+    substitution subst;
     ho_unifier  unify(env);
     expr N  = Const("N");
     env.add_var("N", Type());
     env.add_var("f", N >> (Int >> N));
     env.add_var("a", N);
     env.add_var("b", N);
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
-    expr m3 = menv.mk_metavar();
-    expr t1 = menv.get_type(m1);
-    expr t2 = menv.get_type(m2);
+    expr m1 = subst.mk_metavar();
+    expr m2 = subst.mk_metavar();
+    expr m3 = subst.mk_metavar();
+    expr t1 = metavar_type(m1);
+    expr t2 = metavar_type(m2);
     expr f  = Const("f");
     expr a  = Const("a");
     expr b  = Const("b");
     expr l = f(m1(a), iAdd(m3, iAdd(iVal(1), iVal(1))));
     expr r = f(m2(b), iAdd(iVal(1), iVal(2)));
-    for (auto sol : unify(context(), l, r, menv)) {
+    for (auto sol : unify(context(), l, r, subst)) {
         std::cout << m3 << " -> " << sol.first.get_subst(m3) << "\n";
         lean_assert(sol.first.get_subst(m3) == iVal(1));
         lean_assert(length(sol.second) == 1);
@@ -99,19 +99,19 @@ void tst3() {
 
 void tst4() {
     environment env;
-    metavar_env menv;
+    substitution subst;
     ho_unifier  unify(env);
     expr N  = Const("N");
     env.add_var("N", Type());
     env.add_var("f", N >> (N >> N));
-    expr x = Const("x");
-    expr y = Const("y");
-    expr f = Const("f");
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
-    expr l = Fun({{x, N}, {y, N}}, Eq(y, f(x, m1)));
-    expr r = Fun({{x, N}, {y, N}}, Eq(m2, f(m1, x)));
-    auto sols = unify(context(), l, r, menv);
+    expr x  = Const("x");
+    expr y  = Const("y");
+    expr f  = Const("f");
+    expr m1 = subst.mk_metavar();
+    expr m2 = subst.mk_metavar();
+    expr l  = Fun({{x, N}, {y, N}}, Eq(y, f(x, m1)));
+    expr r  = Fun({{x, N}, {y, N}}, Eq(m2, f(m1, x)));
+    auto sols = unify(context(), l, r, subst);
     lean_assert(length(sols) == 1);
     for (auto sol : sols) {
         std::cout << m1 << " -> " << sol.first.get_subst(m1) << "\n";
@@ -124,33 +124,33 @@ void tst4() {
 
 void tst5() {
     environment env;
-    metavar_env menv;
+    substitution subst;
     ho_unifier  unify(env);
     expr N  = Const("N");
     env.add_var("N", Type());
     env.add_var("f", N >> (N >> N));
-    expr f = Const("f");
-    expr m1 = menv.mk_metavar();
-    expr l = f(f(m1));
-    expr r = f(m1);
-    auto sols = unify(context(), l, r, menv);
+    expr f  = Const("f");
+    expr m1 = subst.mk_metavar();
+    expr l  = f(f(m1));
+    expr r  = f(m1);
+    auto sols = unify(context(), l, r, subst);
     lean_assert(length(sols) == 0);
 }
 
 void tst6() {
     environment env;
-    metavar_env menv;
+    substitution subst;
     ho_unifier  unify(env);
     expr N  = Const("N");
     env.add_var("N", Type());
     env.add_var("f", N >> (N >> N));
-    expr x = Const("x");
-    expr y = Const("y");
-    expr f = Const("f");
-    expr m1 = menv.mk_metavar();
-    expr l = Fun({x, N}, Fun({y, N}, f(m1, y))(x));
-    expr r = Fun({x, N}, f(x, x));
-    auto sols = unify(context(), l, r, menv);
+    expr x  = Const("x");
+    expr y  = Const("y");
+    expr f  = Const("f");
+    expr m1 = subst.mk_metavar();
+    expr l  = Fun({x, N}, Fun({y, N}, f(m1, y))(x));
+    expr r  = Fun({x, N}, f(x, x));
+    auto sols = unify(context(), l, r, subst);
     lean_assert(length(sols) == 2);
     for (auto sol : sols) {
         std::cout << m1 << " -> " << sol.first.get_subst(m1) << "\n";

@@ -201,7 +201,7 @@ class pp_fn {
         case expr_kind::Var: case expr_kind::Constant: case expr_kind::Value: case expr_kind::Type:
             return true;
         case expr_kind::MetaVar:
-            return !metavar_ctx(e);
+            return !metavar_lctx(e);
         case expr_kind::App:
             if (!m_coercion && is_coercion(e))
                 return is_atomic(arg(e, 1));
@@ -1022,12 +1022,12 @@ class pp_fn {
     }
 
     result pp_metavar(expr const & a, unsigned depth) {
-        format mv_fmt = compose(format("?M"), format(metavar_idx(a)));
-        if (metavar_ctx(a)) {
+        format mv_fmt = compose(format("?M"), format(metavar_name(a)));
+        if (metavar_lctx(a)) {
             format ctx_fmt;
             bool first = true;
             unsigned r_weight = 1;
-            for (meta_entry const & e : metavar_ctx(a)) {
+            for (local_entry const & e : metavar_lctx(a)) {
                 format e_fmt;
                 if (e.is_lift()) {
                     e_fmt = format{g_lift_fmt, colon(), format(e.s()), colon(), format(e.n())};

@@ -37,7 +37,7 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 if("${TESTCOV}" MATCHES "ON")
   include(CodeCoverage)
   message(STATUS "Enable test-coverage")
-  set(CMAKE_CXX_FLAGS_DEBUG        "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fprofile-arcs -ftest-coverage")
+  set(CMAKE_CXX_FLAGS_DEBUG        "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fprofile-arcs -ftest-coverage --coverage")
   setup_target_for_coverage(cov ${LEAN_SOURCE_DIR}/../script/run_tests.sh coverage)
 endif()
 

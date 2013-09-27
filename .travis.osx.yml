@@ -23,13 +23,15 @@ before_script:
 script:
 - cd build
 - SITE=OSX10.8.2@Travis
-- GIT_COMMIT=`git log HEAD~ --oneline -n 1 | cut -d ' ' -f 1`
 - if [[ $CMAKE_BUILD_TYPE == RELEASE ]]; then
       BUILD_TYPE=Release;
   else
       BUILD_TYPE=Debug;
   fi
-- BUILD_NAME=${TRAVIS_BRANCH}_${GIT_COMMIT}_g++-4.9.0_${BUILD_TYPE}
+- BUILD_NAME=${TRAVIS_BRANCH}_g++-4.9.0_${BUILD_TYPE}
+- if [[ $TCMALLOC == ON ]]; then
+      BUILD_NAME=${BUILD_NAME}_TC;
+  fi;
 - CONFIG_FILE=DartConfiguration.tcl
 - sed -i "" "s/^Site:.*/Site:$SITE/" $CONFIG_FILE
 - sed -i "" "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE
@@ -61,6 +63,11 @@ after_script:
      yes "C" | ctest -D ExperimentalMemCheck -VV;
   fi
 - if [[ $PUSH_TO_CDASH == TRUE ]]; then
+    GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`;
+    GIT_SUBJECT=`git log --oneline -n 1 | cut -d ' ' -f 2-`;
+    GIT_SUBJECT=${GIT_SUBJECT//\"/};
+    GIT_SUBJECT=$(echo -e $(printf '%q' "$GIT_SUBJECT"));
+    find Testing -name "*.xml" -exec sed -i "" "s/Generator=\".*\"/Generator=\"${GIT_COMMIT}###${GIT_SUBJECT}\"/" {} ";";
     ctest -D ExperimentalSubmit;
   fi
 - cd ..

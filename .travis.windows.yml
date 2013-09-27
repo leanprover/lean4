@@ -28,13 +28,15 @@ script:
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ../src -DTCMALLOC=OFF -DCMAKE_TOOLCHAIN_FILE=/tmp/mxe/usr/x86_64-w64-mingw32/share/cmake/mxe-conf.cmake
   - SITE=Windows@Travis
-  - GIT_COMMIT=`git log HEAD~ --oneline -n 1 | cut -d ' ' -f 1`
   - if [[ $CMAKE_BUILD_TYPE == RELEASE ]]; then
         BUILD_TYPE=Release;
     else
         BUILD_TYPE=Debug;
     fi
   - BUILD_NAME=${TRAVIS_BRANCH}_${GIT_COMMIT}_w64-mingw32-g++-4.8.1_${BUILD_TYPE}
+  - if [[ $TCMALLOC == ON ]]; then
+        BUILD_NAME=${BUILD_NAME}_TC;
+    fi;
   - CONFIG_FILE=DartConfiguration.tcl
   - sed -i "s/^Site:.*/Site:$SITE/" $CONFIG_FILE
   - sed -i "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE
@@ -43,6 +45,11 @@ script:
   - sed -i "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE
   - ctest -D ExperimentalBuild -VV
   - if [[ $PUSH_TO_CDASH == TRUE ]]; then
+       GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`;
+       GIT_SUBJECT=`git log --oneline -n 1 | cut -d ' ' -f 2-`;
+       GIT_SUBJECT=${GIT_SUBJECT//\"/};
+       GIT_SUBJECT=$(echo -e $(printf '%q' "$GIT_SUBJECT"));
+       find Testing -name "*.xml" -exec sed -i "s/Generator=\".*\"/Generator=\"${GIT_COMMIT}###${GIT_SUBJECT}\"/" {} ";";
        find Testing -type f -name "*.xml" -exec sed -i 's/OSName=\"Linux\"/OSName=\"Windows\"/' {} \; ;
        ctest -D ExperimentalSubmit;
     fi

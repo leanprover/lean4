@@ -39,6 +39,8 @@ static void tst1() {
     check(fmt(ctx), "[x : f a; y : f x (N -> N); z : N := y = x]");
     check(fmt(ctx, f(Var(0), Var(2))), "f z x");
     check(fmt(ctx, f(Var(0), Var(2)), true), "[x : f a; y : f x (N -> N); z : N := y = x] |- f z x");
+    fmt.set_interrupt(true);
+    fmt.set_interrupt(false);
 }
 
 int main() {

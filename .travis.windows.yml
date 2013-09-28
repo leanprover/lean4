@@ -45,11 +45,12 @@ script:
   - sed -i "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE
   - ctest -D ExperimentalBuild -VV
   - if [[ $PUSH_TO_CDASH == TRUE ]]; then
-       GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`;
-       GIT_SUBJECT=`git log --oneline -n 1 | cut -d ' ' -f 2-`;
-       GIT_SUBJECT=${GIT_SUBJECT//\"/};
+       GIT_COMMIT=`git log HEAD~ --oneline -n 1 | cut -d ' ' -f 1`;
+       GIT_SUBJECT=`git log HEAD~ --oneline -n 1 | cut -d ' ' -f 2-`;
+       GIT_SUBJECT=${GIT_SUBJECT//\"/\\\"};
+       GIT_SUBJECT=${GIT_SUBJECT//,/\,};
        GIT_SUBJECT=$(echo -e $(printf '%q' "$GIT_SUBJECT"));
-       find Testing -name "*.xml" -exec sed -i "s/Generator=\".*\"/Generator=\"${GIT_COMMIT}###${GIT_SUBJECT}\"/" {} ";";
+       find Testing -name "*.xml" -exec sed -i "s,Generator=\".*\",Generator=\"${GIT_COMMIT}###${GIT_SUBJECT}\"," {} ";";
        find Testing -type f -name "*.xml" -exec sed -i 's/OSName=\"Linux\"/OSName=\"Windows\"/' {} \; ;
        ctest -D ExperimentalSubmit;
     fi

@@ -210,9 +210,10 @@ after_script:
 - if [[ $LEANREPO == BLESSED && $PUSH_TO_CDASH == TRUE ]]; then
       GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`;
       GIT_SUBJECT=`git log --oneline -n 1 | cut -d ' ' -f 2-`;
-      GIT_SUBJECT=${GIT_SUBJECT//\"/};
+      GIT_SUBJECT=${GIT_SUBJECT//\"/\\\"};
+      GIT_SUBJECT=${GIT_SUBJECT//,/\,};
       GIT_SUBJECT=$(echo -e $(printf '%q' "$GIT_SUBJECT"));
-      find Testing -name "*.xml" -exec sed -i "s/Generator=\".*\"/Generator=\"${GIT_COMMIT}###${GIT_SUBJECT}\"/" {} ";";
+      find Testing -name "*.xml" -exec sed -i "s,Generator=\".*\",Generator=\"${GIT_COMMIT}###${GIT_SUBJECT}\"," {} ";";
       ctest -D ExperimentalSubmit;
   fi
 - cd ..

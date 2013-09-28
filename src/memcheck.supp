@@ -101,7 +101,7 @@
    TCMalloc_Bug2
    Memcheck:Param
    msync(start)
-   obj:*/libpthread-2.15.*
+   obj:*/libpthread-2.*.*
    obj:*/libunwind.so.*
    ...
    fun:_UL*_step

@@ -28,7 +28,7 @@ static void tst1() {
     lean_assert_eq(a/8, mpbq(1, 5));
     lean_assert_eq(3*a/8, mpbq(3, 5));
     mpbq l(0), u(1);
-    mpq v(1, 3);
+    mpq v(21, 91);
     while (true) {
         lean_assert_lt(l, v);
         lean_assert_lt(v, u);
@@ -182,11 +182,63 @@ static void tst7() {
 }
 
 static void tst8() {
-    // TODO(soonhok): root_lower
+    mpbq x1(36, 4);
+    mpbq x2(3932, 11);
+    mpbq x3(-68, 9);
+    mpbq x4(-69048, 15);
+    mpbq x5(0, 4);
+    mpbq x6(74, 5);
+    mpbq n1;
+    mpbq n2;
+    mpbq n3;
+    mpbq n4;
+    mpbq n5;
+    mpbq n6;
+    lean_assert_eq(root_lower(n1, x1, 2), true);
+    lean_assert_eq(n1, mpbq(3, 1));
+    lean_assert_eq(root_lower(n2, x2, 3), false);
+    lean_assert_eq(n2, mpbq(1, 0));
+    lean_assert_eq(root_lower(n3, x3, 3), false);
+    lean_assert_eq(n3, mpbq(-3, 2));
+    lean_assert_eq(root_lower(n4, x4, 3), false);
+    lean_assert_eq(n4, mpbq(-21, 4));
+    lean_assert_eq(root_lower(n5, x5, 3), true);
+    lean_assert_eq(n5, mpbq(0, 0));
+    lean_assert_eq(root_lower(n6, x6, 3), false);
+    lean_assert_eq(n6, mpbq(1, 1));
 }
 
 static void tst9() {
-    // TODO(soonhok): root_upper
+    mpbq x1(36, 4);
+    mpbq x2(3932, 11);
+    mpbq x3(-68, 9);
+    mpbq x4(-69048, 15);
+    mpbq x5(0, 4);
+    mpbq x6(74, 5);
+    mpbq n1;
+    mpbq n2;
+    mpbq n3;
+    mpbq n4;
+    mpbq n5;
+    mpbq n6;
+    lean_assert_eq(root_upper(n1, x1, 2), true);
+    lean_assert_eq(n1, mpbq(3, 1));
+    lean_assert_eq(root_upper(n2, x2, 3), false);
+    lean_assert_eq(n2, mpbq(9, 3));
+    lean_assert_eq(root_upper(n3, x3, 3), false);
+    lean_assert_eq(n3, mpbq(-1, 2));
+    lean_assert_eq(root_upper(n4, x4, 3), false);
+    lean_assert_eq(n4, mpbq(-5, 2));
+    lean_assert_eq(root_upper(n5, x5, 3), true);
+    lean_assert_eq(n5, mpbq(0, 0));
+    lean_assert_eq(root_upper(n6, x6, 3), false);
+    lean_assert_eq(n6, mpbq(3, 1));
+}
+
+static void tst10() {
+    mpbq b(4, 5);
+    b.neg();
+    lean_assert_eq(b, mpbq(-4, 5));
 }
 
 int main() {
@@ -199,5 +251,6 @@ int main() {
     tst7();
     tst8();
     tst9();
+    tst10();
     return has_violations() ? 1 : 0;
 }

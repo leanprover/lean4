@@ -215,14 +215,11 @@ bool lt(T const & a, xnumeral_kind ak, T const & b, xnumeral_kind bk) {
             return a < b;
         case XN_PLUS_INFINITY:
             return true;
-        default:
-            lean_unreachable();
         }
     case XN_PLUS_INFINITY:
         return false;
-    default:
-        lean_unreachable();
     }
+    lean_unreachable(); // LCOV_EXEC_LINE
 }
 
 template<typename T>

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <iostream>
+#include <typeinfo>
 #include "util/exception.h"
 
 #ifndef __has_builtin
@@ -106,6 +107,9 @@ public:
     virtual char const * what() const noexcept { return "'unreachable' code was reached"; }
 };
 namespace debug {
-template<typename T> void display_var(char const * name, T const & value) { std::cerr << name << " := " << value << "\n"; }
+template<typename T> void display_var(char const * name, T const & value) {
+    std::cerr << name << " : " << typeid(value).name() << " := "
+              << std::boolalpha << value << std::noboolalpha
+              << std::endl; }
 }
 }

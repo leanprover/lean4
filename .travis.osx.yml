@@ -69,6 +69,7 @@ after_script:
     GIT_SUBJECT=${GIT_SUBJECT//,/\,};
     GIT_SUBJECT=$(echo -e $(printf '%q' "$GIT_SUBJECT"));
     find Testing -name "*.xml" -exec sed -i "" "s,Generator=\".*\",Generator=\"${GIT_COMMIT}###${GIT_SUBJECT}\"," {} ";";
+      find Testing \( -name "LastTest_*.log" -o -name "LastDynamicAnalysis_*.log" \) -exec sh -c 'TMP=`mktemp /tmp/ctesttmp_XXXX`; cat {} | c++filt > $TMP; mv -v $TMP {}' ";";
     ctest -D ExperimentalSubmit;
   fi
 - cd ..

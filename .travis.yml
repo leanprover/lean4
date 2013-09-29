@@ -190,7 +190,7 @@ script:
            sed -i "s/^Site:.*/Site:$SITE/" $CONFIG_FILE;
            sed -i "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE;
            ctest -D ExperimentalBuild -VV;
-           yes "C" | ctest -D ExperimentalTest -VV;
+           yes "C" | ctest -D ExperimentalTest -VV | c++filt --types;
        fi;
     fi
   - cd ..
@@ -205,7 +205,7 @@ after_script:
      CONFIG_FILE=DartConfiguration.tcl;
      sed -i "s,^MemoryCheckSuppressionFile:\W*$,MemoryCheckSuppressionFile:$MEMCHECK_SUPP," $CONFIG_FILE;
      ulimit -s unlimited;
-     yes "C" | ctest -D ExperimentalMemCheck -VV;
+     yes "C" | ctest -D ExperimentalMemCheck -VV | c++filt --types;
   fi
 - if [[ $LEANREPO == BLESSED && $PUSH_TO_CDASH == TRUE ]]; then
       GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`;
@@ -214,6 +214,7 @@ after_script:
       GIT_SUBJECT=${GIT_SUBJECT//,/\,};
       GIT_SUBJECT=$(echo -e $(printf '%q' "$GIT_SUBJECT"));
       find Testing -name "*.xml" -exec sed -i "s,Generator=\".*\",Generator=\"${GIT_COMMIT}###${GIT_SUBJECT}\"," {} ";";
+      find Testing \( -name "LastTest_*.log" -o -name "LastDynamicAnalysis_*.log" \) -exec sh -c 'TMP=`mktemp /tmp/ctesttmp_XXXX`; cat {} | c++filt --types > $TMP; mv -v $TMP {}' ";";
       ctest -D ExperimentalSubmit;
   fi
 - cd ..

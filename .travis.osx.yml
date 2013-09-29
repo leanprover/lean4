@@ -39,7 +39,7 @@ script:
 - sed -i "" "s/^Site:.*/Site:$SITE/" $CONFIG_FILE
 - sed -i "" "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE
 - ctest -D ExperimentalBuild -VV
-- yes "C" | ctest -D ExperimentalTest -VV
+- yes "C" | ctest -D ExperimentalTest -VV | ../script/demangle_cpptype.py;
 - cd ..
 
 after_script:
@@ -60,7 +60,7 @@ after_script:
   fi
 - cd build
 - if [[ $MEMCHECK == TRUE ]]; then
-     yes "C" | ctest -D ExperimentalMemCheck -VV;
+     yes "C" | ctest -D ExperimentalMemCheck -VV | ../script/demangle_cpptype.py;
   fi
 - if [[ $PUSH_TO_CDASH == TRUE ]]; then
     GIT_COMMIT=`git log HEAD~ --oneline -n 1 | cut -d ' ' -f 1`;
@@ -69,7 +69,7 @@ after_script:
     GIT_SUBJECT=${GIT_SUBJECT//,/\,};
     GIT_SUBJECT=$(echo -e $(printf '%q' "$GIT_SUBJECT"));
     find Testing -name "*.xml" -exec sed -i "" "s,Generator=\".*\",Generator=\"${GIT_COMMIT}###${GIT_SUBJECT}\"," {} ";";
-      find Testing \( -name "LastTest_*.log" -o -name "LastDynamicAnalysis_*.log" \) -exec sh -c 'TMP=`mktemp /tmp/ctesttmp_XXXX`; cat {} | c++filt > $TMP; mv -v $TMP {}' ";";
+    find Testing \( -name "LastTest_*.log" -o -name "LastDynamicAnalysis_*.log" \) -exec sh -c 'TMP=`mktemp /tmp/ctesttmp_XXXX`; ../script/demangle_cpptype.py {} > $TMP; mv -v $TMP {}' ";";
     ctest -D ExperimentalSubmit;
   fi
 - cd ..

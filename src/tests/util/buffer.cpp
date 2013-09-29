@@ -44,8 +44,23 @@ static void tst1() {
     lean_assert(b1.back() == 10);
 }
 
+static void tst2() {
+    buffer<int> b1;
+    buffer<int> b2;
+    b1.push_back(1); b1.push_back(2); b1.push_back(3);
+    b2 = b1;
+    lean_assert(b1.size() == 3);
+    b2.resize(2);
+    lean_assert(b2.size() == 2);
+    b2.resize(10, 0);
+    lean_assert(b2.size() == 10);
+    b2.resize(1);
+    lean_assert(b2.size() == 1);
+}
+
 int main() {
     loop<buffer<int>>(100);
     tst1();
+    tst2();
     return has_violations() ? 1 : 0;
 }

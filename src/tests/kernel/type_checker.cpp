@@ -19,6 +19,8 @@ Author: Leonardo de Moura
 #include "library/basic_thms.h"
 #include "library/arith/arith.h"
 #include "library/all/all.h"
+#include "library/state.h"
+#include "library/kernel_exception_formatter.h"
 using namespace lean;
 
 expr c(char const * n) { return mk_constant(n); }
@@ -247,6 +249,24 @@ static void tst13() {
     std::cout << infer_type(f(Eq(True, False)), env) << "\n";
 }
 
+static void tst14() {
+    environment env;
+    import_all(env);
+    expr f = Const("f");
+    expr a = Const("a");
+    env.add_var("f", Int >> Int);
+    env.add_var("a", Real);
+    expr F = f(a);
+    type_checker checker(env);
+    formatter fmt = mk_simple_formatter();
+    state st(options(), fmt);
+    try {
+        std::cout << checker.infer_type(F) << "\n";
+    } catch (kernel_exception & ex) {
+        regular(st) << ex << "\n";
+    }
+}
+
 int main() {
     tst1();
     tst2();
@@ -261,5 +281,6 @@ int main() {
     tst11();
     tst12();
     tst13();
+    tst14();
     return has_violations() ? 1 : 0;
 }

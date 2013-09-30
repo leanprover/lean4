@@ -457,7 +457,6 @@ int main() {
     match_let_tst7();
     match_let_tst8();
     match_let_tst9();
-    enable_trace("fo_match");
     match_eq_tst1();
     match_eq_tst2();
     match_eq_tst3();

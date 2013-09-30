@@ -18,6 +18,8 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/printer.h"
 #include "library/placeholder.h"
+#include "library/arith/arith.h"
+#include "library/all/all.h"
 using namespace lean;
 
 class unification_constraints_dbg : public unification_constraints {
@@ -540,6 +542,88 @@ static void tst25() {
     std::cout << up << "\n";
 }
 
+static void tst26() {
+    /*
+      Encoding the following problem
+
+      Variable list : Type -> Type
+      Variable nil  {A : Type} : list A
+      Variable cons {A : Type} (head : A) (tail : list A) : list A
+      Variables a b : Int
+      Variables n m : Nat
+      Definition l2 : list Int := cons a (cons n (cons b nil))
+    */
+    std::cout << "\ntst26\n";
+    environment  env;
+    import_all(env);
+    substitution subst;
+    unification_constraints_dbg up;
+    metavar_generator gen;
+    type_checker checker(env);
+    expr list = Const("list");
+    expr nil  = Const("nil");
+    expr cons = Const("cons");
+    expr A    = Const("A");
+    env.add_var("list", Type() >> Type());
+    env.add_var("nil", Pi({A, Type()}, list(A)));
+    env.add_var("cons", Pi({A, Type()}, A >> (list(A) >> list(A))));
+    env.add_var("a", Int);
+    env.add_var("b", Int);
+    env.add_var("n", Nat);
+    env.add_var("m", Nat);
+    expr a  = Const("a");
+    expr b  = Const("b");
+    expr n  = Const("n");
+    expr m  = Const("m");
+    expr m1 = gen.mk();
+    expr m2 = gen.mk();
+    expr m3 = gen.mk();
+    expr A1 = gen.mk();
+    expr A2 = gen.mk();
+    expr A3 = gen.mk();
+    expr A4 = gen.mk();
+    expr F  = cons(A1, m1(a), cons(A2, m2(n), cons(A3, m3(b), nil(A4))));
+    std::cout << F << "\n";
+    std::cout << checker.infer_type(F, context(), &subst, &gen, &up) << "\n";
+    std::cout << subst << "\n";
+    std::cout << up << "\n";
+}
+
+static void tst27() {
+    /*
+      Variable f {A : Type} (a b : A) : Bool
+      Variable a : Int
+      Variable b : Real
+      Definition tst : Bool := (fun x y, f x y) a b
+    */
+    std::cout << "\ntst27\n";
+    environment  env;
+    import_all(env);
+    substitution subst;
+    unification_constraints_dbg up;
+    metavar_generator gen;
+    type_checker checker(env);
+    expr A    = Const("A");
+    expr f    = Const("f");
+    expr a    = Const("a");
+    expr b    = Const("b");
+    expr x    = Const("x");
+    expr y    = Const("y");
+    env.add_var("f", Pi({A, Type()}, A >> (A >> Bool)));
+    env.add_var("a", Int);
+    env.add_var("b", Real);
+    expr T1 = gen.mk();
+    expr T2 = gen.mk();
+    expr A1 = gen.mk();
+    expr m1 = gen.mk();
+    expr m2 = gen.mk();
+    expr F = Fun({{x, T1}, {y, T2}}, f(A1, x, y))(m1(a), m2(b));
+    std::cout << F << "\n";
+    std::cout << checker.infer_type(F, context(), &subst, &gen, &up) << "\n";
+    std::cout << subst << "\n";
+    std::cout << up << "\n";
+}
+
 int main() {
     tst1();
     tst2();
@@ -566,5 +650,7 @@ int main() {
     tst23();
     tst24();
     tst25();
+    tst26();
+    tst27();
     return has_violations() ? 1 : 0;
 }

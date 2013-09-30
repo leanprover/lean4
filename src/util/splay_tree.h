@@ -367,10 +367,10 @@ public:
 
     /**
         \brief Similar to \c find, but the splay tree is reorganized.
-        If <tt>find(v)</tt> is invoked after <tt>find_memoize(v)</tt>, then the cost will be O(1).
+        If <tt>find(v)</tt> is invoked after <tt>splay_find(v)</tt>, then the cost will be O(1).
         The idea is to move recently accessed elements close to the root.
     */
-    T const * find_memoize(T const & v) {
+    T const * splay_find(T const & v) {
         if (pull(v)) {
             lean_assert(cmp(m_ptr->m_value, v) == 0);
             return &(m_ptr->m_value);

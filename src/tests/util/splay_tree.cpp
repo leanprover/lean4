@@ -66,7 +66,7 @@ static void tst1() {
     s.insert(34);
     std::cout << s2 << "\n";
     std::cout << s << "\n";
-    int const * v = s.find_memoize(11);
+    int const * v = s.splay_find(11);
     lean_assert(*v == 11);
     std::cout << s << "\n";
     lean_assert(!s.empty());
@@ -155,10 +155,20 @@ static void tst3() {
     lean_assert(out.str() == "1 3 5 10 ");
 }
 
+static void tst4() {
+    int_splay_tree s;
+    s.insert(10);
+    s.insert(20);
+    lean_assert(s.splay_find(30) == nullptr);
+    lean_assert(*(s.splay_find(20)) == 20);
+    lean_assert(*(s.splay_find(10)) == 10);
+}
+
 int main() {
     tst0();
     tst1();
     tst2();
     tst3();
+    tst4();
     return has_violations() ? 1 : 0;
 }

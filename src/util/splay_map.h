@@ -32,7 +32,7 @@ public:
     void insert(K const & k, T const & v) { m_map.insert(mk_pair(k, v)); }
     entry const * find(K const & k) const { return m_map.find(mk_pair(k, T())); }
     bool contains(K const & k) const { return m_map.contains(mk_pair(k, T())); }
-    entry const * find_memoize(K const & k) { return m_map.contains(mk_pair(k, T())); }
+    entry const * splay_find(K const & k) { return m_map.contains(mk_pair(k, T())); }
     void erase(K const & k) { m_map.erase(mk_pair(k, T())); }
 
     class ref {

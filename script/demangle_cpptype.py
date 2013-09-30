@@ -17,6 +17,7 @@
 # It calls "c++filt" to do the work.
 #
 import re
+import sys
 import subprocess
 import fileinput
 
@@ -25,7 +26,7 @@ pattern = re.compile(pattern_str)
 cppfilt = "c++filt"
 cppfilt_option = "--types"
 
-for line in fileinput.input():
+def process_line(line):
     result = pattern.match(line);
     if result == None:
         print line,
@@ -36,3 +37,13 @@ for line in fileinput.input():
         retval= p.wait()
         new_str = re.sub(pattern_str, r"\1" + ty + r"\3", line);
         print new_str,
+
+if len(sys.argv) > 1:
+    for line in fileinput.input():
+        process_line(line)
+else:
+    while True:
+        line = sys.stdin.readline()
+        if not line:
+            break
+        process_line(line)

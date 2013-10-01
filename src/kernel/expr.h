@@ -133,6 +133,7 @@ public:
     expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5) const;
     expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5, expr const & a6) const;
     expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5, expr const & a6, expr const & a7) const;
+    expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5, expr const & a6, expr const & a7, expr const & a8) const;
 };
 
 // =======================================
@@ -382,6 +383,7 @@ inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, 
 inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5) const { return mk_app({*this, a1, a2, a3, a4, a5}); }
 inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5, expr const & a6) const { return mk_app({*this, a1, a2, a3, a4, a5, a6}); }
 inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5, expr const & a6, expr const & a7) const { return mk_app({*this, a1, a2, a3, a4, a5, a6, a7}); }
+inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5, expr const & a6, expr const & a7, expr const & a8) const { return mk_app({*this, a1, a2, a3, a4, a5, a6, a7, a8}); }
 // =======================================
 
 // =======================================

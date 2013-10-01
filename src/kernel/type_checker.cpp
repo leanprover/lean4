@@ -31,6 +31,9 @@ class type_checker::imp {
     unification_constraints * m_uc;
     volatile bool             m_interrupted;
 
+    expr normalize(expr const & e, context const & ctx) {
+        return m_normalizer(e, ctx, m_subst);
+    }
 
     expr lookup(context const & c, unsigned i) {
         auto p = lookup_ext(c, i);
@@ -43,7 +46,7 @@ class type_checker::imp {
     expr check_pi(expr const & e, expr const & s, context const & ctx) {
         if (is_pi(e))
             return e;
-        expr r = m_normalizer(e, ctx);
+        expr r = normalize(e, ctx);
         if (is_pi(r))
             return r;
         if (has_metavar(r) && m_subst && m_uc && m_mgen) {
@@ -64,7 +67,7 @@ class type_checker::imp {
     }
 
     level infer_universe_core(expr const & t, context const & ctx) {
-        expr u = m_normalizer(infer_type_core(t, ctx), ctx);
+        expr u = normalize(infer_type_core(t, ctx), ctx);
         if (is_type(u))
             return ty_level(u);
         if (u == Bool)
@@ -125,7 +128,7 @@ class type_checker::imp {
             while (true) {
                 expr const & c   = arg(e, i);
                 expr const & c_t = arg_types[i];
-                if (!is_convertible_core(c_t, abst_domain(f_t), ctx))
+                if (!is_convertible(c_t, abst_domain(f_t), ctx))
                     throw app_type_mismatch_exception(m_env, ctx, e, arg_types.size(), arg_types.data());
                 if (closed(abst_body(f_t)))
                     f_t = abst_body(f_t);
@@ -171,7 +174,7 @@ class type_checker::imp {
             expr lt = infer_type_core(let_value(e), ctx);
             if (let_type(e)) {
                 infer_universe_core(let_type(e), ctx); // check if it is really a type
-                if (!is_convertible_core(lt, let_type(e), ctx))
+                if (!is_convertible(lt, let_type(e), ctx))
                     throw def_type_mismatch_exception(m_env, ctx, let_name(e), let_type(e), let_value(e), lt);
             }
             {
@@ -200,8 +203,58 @@ class type_checker::imp {
         return r;
     }
 
-    bool is_convertible_core(expr const & t1, expr const & t2, context const & ctx) {
-        return m_normalizer.is_convertible(t1, t2, ctx, m_subst, m_uc);
+    bool is_convertible_core(expr const & given, expr const & expected) {
+        if (given == expected) {
+            return true;
+        } else {
+            expr const * g = &given;
+            expr const * e = &expected;
+            while (true) {
+                if (is_type(*e) && is_type(*g)) {
+                    if (m_env.is_ge(ty_level(*e), ty_level(*g)))
+                        return true;
+                }
+
+                if (is_type(*e) && *g == mk_bool_type())
+                    return true;
+
+                if (is_pi(*e) && is_pi(*g) && abst_domain(*e) == abst_domain(*g)) {
+                    g = &abst_body(*g);
+                    e = &abst_body(*e);
+                } else {
+                    return false;
+                }
+            }
+        }
+    }
+
+    bool is_convertible(expr const & given, expr const & expected, context const & ctx) {
+        if (is_convertible_core(given, expected))
+            return true;
+        expr new_given    = given;
+        expr new_expected = expected;
+        if (has_metavar(new_given) || has_metavar(new_expected)) {
+            if (!m_subst)
+                return false;
+            new_given    = instantiate_metavars(new_given, *m_subst);
+            new_expected = instantiate_metavars(new_expected, *m_subst);
+            if (is_convertible_core(new_given, new_expected))
+                return true;
+            if (has_metavar(new_given) || has_metavar(new_expected)) {
+                // Very conservative approach, just postpone the problem.
+                // We may also try to normalize new_given and new_expected even if
+                // they contain metavariables.
+                if (m_uc) {
+                    m_uc->add(ctx, new_expected, new_given);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        new_given    = normalize(new_given, ctx);
+        new_expected = normalize(new_expected, ctx);
+        return is_convertible_core(new_given, new_expected);
     }
 
     void set_ctx(context const & ctx) {
@@ -256,7 +309,7 @@ public:
         set_ctx(ctx);
         set_subst(subst);
         flet<unification_constraints*> set_uc(m_uc, uc);
-        return is_convertible_core(t1, t2, ctx);
+        return is_convertible(t1, t2, ctx);
     }
 
     void set_interrupt(bool flag) {
@@ -294,5 +347,9 @@ normalizer & type_checker::get_normalizer() { return m_ptr->get_normalizer(); }
 
 expr  infer_type(expr const & e, environment const & env, context const & ctx) {
     return type_checker(env).infer_type(e, ctx);
+}
+bool is_convertible(expr const & given, expr const & expected, environment const & env, context const & ctx,
+                    substitution * subst, unification_constraints * uc) {
+    return type_checker(env).is_convertible(given, expected, ctx, subst, uc);
 }
 }

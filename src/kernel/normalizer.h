@@ -26,8 +26,6 @@ public:
     ~normalizer();
 
     expr operator()(expr const & e, context const & ctx = context(), substitution const * subst = nullptr);
-    bool is_convertible(expr const & t1, expr const & t2, context const & ctx = context(),
-                        substitution * menv = nullptr, unification_constraints * uc = nullptr);
 
     void clear();
 
@@ -37,6 +35,4 @@ public:
 };
 /** \brief Normalize \c e using the environment \c env and context \c ctx */
 expr normalize(expr const & e, environment const & env, context const & ctx = context(), substitution const * subst = nullptr);
-bool is_convertible(expr const & t1, expr const & t2, environment const & env, context const & ctx = context(),
-                    substitution * subst = nullptr, unification_constraints * uc = nullptr);
 }

@@ -290,31 +290,6 @@ class normalizer::imp {
         return r;
     }
 
-    bool is_convertible_core(expr const & given, expr const & expected) {
-        if (given == expected) {
-            return true;
-        } else {
-            expr const * g = &given;
-            expr const * e = &expected;
-            while (true) {
-                if (is_type(*e) && is_type(*g)) {
-                    if (m_env.is_ge(ty_level(*e), ty_level(*g)))
-                        return true;
-                }
-
-                if (is_type(*e) && *g == mk_bool_type())
-                    return true;
-
-                if (is_pi(*e) && is_pi(*g) && abst_domain(*e) == abst_domain(*g)) {
-                    g = &abst_body(*g);
-                    e = &abst_body(*e);
-                } else {
-                    return false;
-                }
-            }
-        }
-    }
-
     void set_ctx(context const & ctx) {
         if (!is_eqp(ctx, m_ctx)) {
             m_ctx = ctx;
@@ -353,39 +328,6 @@ public:
         return reify(normalize(e, value_stack(), k), k);
     }
 
-    bool is_convertible(expr const & given, expr const & expected, context const & ctx,
-                        substitution * subst, unification_constraints * uc) {
-        if (is_convertible_core(given, expected))
-            return true;
-        expr new_given    = given;
-        expr new_expected = expected;
-        if (has_metavar(new_given) || has_metavar(new_expected)) {
-            if (!subst)
-                return false;
-            new_given    = instantiate_metavars(new_given, *subst);
-            new_expected = instantiate_metavars(new_expected, *subst);
-            if (is_convertible_core(new_given, new_expected))
-                return true;
-            if (has_metavar(new_given) || has_metavar(new_expected)) {
-                // Very conservative approach, just postpone the problem.
-                // We may also try to normalize new_given and new_expected even if
-                // they contain metavariables.
-                if (uc) {
-                    uc->add(ctx, new_expected, new_given);
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-        set_subst(subst);
-        set_ctx(ctx);
-        unsigned k   = m_ctx.size();
-        new_given    = reify(normalize(new_given, value_stack(), k), k);
-        new_expected = reify(normalize(new_expected, value_stack(), k), k);
-        return is_convertible_core(new_given, new_expected);
-    }
-
     void clear() { m_ctx = context(); m_cache.clear(); m_subst = nullptr; m_subst_timestamp = 0; }
     void set_interrupt(bool flag) { m_interrupted = flag; }
 };
@@ -395,19 +337,11 @@ normalizer::normalizer(environment const & env):normalizer(env, std::numeric_lim
 normalizer::normalizer(environment const & env, options const & opts):normalizer(env, get_normalizer_max_depth(opts)) {}
 normalizer::~normalizer() {}
 expr normalizer::operator()(expr const & e, context const & ctx, substitution const * subst) { return (*m_ptr)(e, ctx, subst); }
-bool normalizer::is_convertible(expr const & t1, expr const & t2, context const & ctx,
-                                substitution * subst, unification_constraints * uc) {
-    return m_ptr->is_convertible(t1, t2, ctx, subst, uc);
-}
 void normalizer::clear() { m_ptr->clear(); }
 void normalizer::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
 
 expr normalize(expr const & e, environment const & env, context const & ctx, substitution const * subst) {
     return normalizer(env)(e, ctx, subst);
-}
-bool is_convertible(expr const & given, expr const & expected, environment const & env, context const & ctx,
-                    substitution * subst, unification_constraints * uc) {
-    return normalizer(env).is_convertible(given, expected, ctx, subst, uc);
 }
 }
 

@@ -62,4 +62,6 @@ public:
 };
 
 expr infer_type(expr const & e, environment const & env, context const & ctx = context());
+bool is_convertible(expr const & t1, expr const & t2, environment const & env, context const & ctx = context(),
+                    substitution * subst = nullptr, unification_constraints * uc = nullptr);
 }

@@ -42,6 +42,10 @@ class splay_tree : public CMP {
         static void dec_ref(node * n) { if (n) n->dec_ref(); }
         explicit node(T const & v, node * left = nullptr, node * right = nullptr):
             m_left(left), m_right(right), m_value(v), m_rc(0) {
+            // the return type of CMP()(t1, 2) should be int
+            static_assert(std::is_same<typename std::result_of<decltype(std::declval<CMP>())(T const &, T const &)>::type,
+                                       int>::value,
+                          "The return type of CMP()(t1, t2) is not int.");
             inc_ref(m_left);
             inc_ref(m_right);
         }
@@ -289,6 +293,8 @@ class splay_tree : public CMP {
 
     template<typename F, typename R>
     static R fold(node const * n, F & f, R r) {
+        static_assert(std::is_same<typename std::result_of<F(T const &, R)>::type, R>::value,
+                      "fold: return type of f(t : T, r : R) is not R");
         if (n) {
             r = fold(n->m_left, f, r);
             r = f(n->m_value, r);
@@ -300,6 +306,8 @@ class splay_tree : public CMP {
 
     template<typename F>
     static void for_each(node const * n, F & f) {
+        static_assert(std::is_same<typename std::result_of<F(T const &)>::type, void>::value,
+                      "for_each: return type of f is not void");
         if (n) {
             for_each(n->m_left, f);
             f(n->m_value);
@@ -332,7 +340,7 @@ public:
     bool is_eqp(splay_tree const & t) const { return m_ptr == t.m_ptr; }
 
     /** \brief Return the size of the splay tree */
-    unsigned size() const { return fold([](T const &, unsigned a) { return a + 1; }, 0); }
+    unsigned size() const { return fold([](T const &, unsigned a) { return a + 1; }, 0u); }
 
     /** \brief Insert \c v in this splay tree. */
     void insert(T const & v) {
@@ -425,6 +433,8 @@ public:
     */
     template<typename F, typename R>
     R fold(F f, R r) const {
+        static_assert(std::is_same<typename std::result_of<F(T const &, R)>::type, R>::value,
+                      "fold: return type of f(t : T, r : R) is not R");
         return fold(m_ptr, f, r);
     }
 
@@ -433,6 +443,8 @@ public:
     */
     template<typename F>
     void for_each(F f) const {
+        static_assert(std::is_same<typename std::result_of<F(T const &)>::type, void>::value,
+                      "for_each: return type of f is not void");
         for_each(m_ptr, f);
     }
 };
@@ -442,10 +454,14 @@ template<typename T, typename CMP>
 splay_tree<T, CMP> erase(splay_tree<T, CMP> & t, T const & v) { splay_tree<T, CMP> r(t); r.erase(v); return r; }
 template<typename T, typename CMP, typename F, typename R>
 R fold(splay_tree<T, CMP> const & t, F f, R r) {
+    static_assert(std::is_same<typename std::result_of<F(T const &, R)>::type, R>::value,
+                  "fold: return type of f(t : T, r : R) is not R");
     return t.fold(f, r);
 }
 template<typename T, typename CMP, typename F>
 void for_each(splay_tree<T, CMP> const & t, F f) {
+    static_assert(std::is_same<typename std::result_of<F(T const &)>::type, void>::value,
+                  "for_each: return type of f is not void");
     return t.for_each(f);
 }
 }

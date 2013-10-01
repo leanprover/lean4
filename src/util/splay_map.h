@@ -22,8 +22,12 @@ class splay_map : public CMP {
     };
     splay_tree<entry, entry_cmp> m_map;
 public:
-    splay_map(CMP const & cmp = CMP()):m_map(entry_cmp(cmp)) {}
-
+    splay_map(CMP const & cmp = CMP()):m_map(entry_cmp(cmp)) {
+        // the return type of CMP()(k1, k2) should be int
+        static_assert(std::is_same<typename std::result_of<decltype(std::declval<CMP>())(K const &, K const &)>::type,
+                                   int>::value,
+                      "The return type of CMP()(k1, k2) is not int.");
+    }
     void swap(splay_map & m) { m_map.swap(m.m_map); }
     bool empty() const { return m_map.empty(); }
     void clear() { m_map.clear(); }
@@ -60,12 +64,16 @@ public:
 
     template<typename F, typename R>
     R fold(F f, R r) const {
+        static_assert(std::is_same<typename std::result_of<F(K const &, T const &, R const &)>::type, R>::value,
+                      "fold: return type of f(k : K, t : T, r : R) is not R");
         auto f_prime = [&](entry const & e, R r) -> R { return f(e.first, e.second, r); };
         return m_map.fold(f_prime, r);
     }
 
     template<typename F>
     void for_each(F f) const {
+        static_assert(std::is_same<typename std::result_of<F(K const &, T const &)>::type, void>::value,
+                      "for_each: return type of f is not void");
         auto f_prime = [&](entry const & e) { f(e.first, e.second); };
         return m_map.for_each(f_prime);
     }
@@ -94,10 +102,14 @@ splay_map<K, T, CMP> erase(splay_map<K, T, CMP> const & m, K const & k) {
 }
 template<typename K, typename T, typename CMP, typename F, typename R>
 R fold(splay_map<K, T, CMP> const & m, F f, R r) {
+    static_assert(std::is_same<typename std::result_of<F(K const &, T const &, R const &)>::type, R>::value,
+                  "fold: return type of f(k : K, t : T, r : R) is not R");
     return m.fold(f, r);
 }
 template<typename K, typename T, typename CMP, typename F>
 void for_each(splay_map<K, T, CMP> const & m, F f) {
+    static_assert(std::is_same<typename std::result_of<F(K const &, T const &)>::type, void>::value,
+                  "for_each: return type of f is not void");
     return m.for_each(f);
 }
 }

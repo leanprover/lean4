@@ -31,7 +31,16 @@ public:
     explicit scoped_set(size_type bucket_count = LEAN_SCOPED_SET_INITIAL_BUCKET_SIZE,
                         const Hash& hash = Hash(),
                         const KeyEqual& equal = KeyEqual()):
-        m_set(bucket_count, hash, equal) {}
+        m_set(bucket_count, hash, equal) {
+        // the return type of Hash()(k) should be convertible to size_t
+        static_assert(std::is_convertible<typename std::result_of<decltype(std::declval<Hash>())(Key const &)>::type,
+                                          std::size_t>::value,
+                      "The return type of hash function is not convertible to std::size_t");
+        // the return type of KeyEqual()(k1, k2) should be bool
+        static_assert(std::is_same<typename std::result_of<decltype(std::declval<KeyEqual>())(Key const &, Key const &)>::type,
+                                   bool>::value,
+                      "The return type of KeyEqual()(k1, k2) is not bool");
+    }
 
     /** \brief Return the number of scopes. */
     unsigned num_scopes() const {

@@ -26,7 +26,11 @@ namespace lean {
 class rewriter_exception : public exception {
 };
 
-enum class rewriter_kind {Theorem, OrElse, Then, App, Lambda, Pi, Let, Fail, Success, Repeat};
+enum class rewriter_kind { Theorem, OrElse, Then, Try, App,
+        LambdaType, LambdaBody, Lambda,
+        PiType, PiBody, Pi,
+        LetType, LetValue, LetBody, Let,
+        Fail, Success, Repeat };
 
 class rewriter;
 
@@ -35,12 +39,14 @@ protected:
     rewriter_kind m_kind;
     MK_LEAN_RC();
     void dealloc();
+    virtual std::ostream & display(std::ostream & out) const = 0;
 public:
     rewriter_cell(rewriter_kind k);
     virtual ~rewriter_cell();
     rewriter_kind kind() const { return m_kind; }
 //    unsigned hash() const { return m_hash; }
     virtual std::pair<expr, expr> operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception) = 0;
+    friend std::ostream & operator<<(std::ostream & out, rewriter_cell const & rw);
 };
 
 class rewriter {
@@ -62,6 +68,7 @@ public:
     std::pair<expr, expr> operator()(environment const & env, context & ctx, expr const & v) const {
         return (*m_ptr)(env, ctx, v);
     }
+    friend std::ostream & operator<<(std::ostream & out, rewriter const & rw);
 };
 
 class theorem_rewriter_cell : public rewriter_cell {
@@ -71,6 +78,7 @@ private:
     expr m_pattern;
     expr m_rhs;
     unsigned m_num_args;
+    std::ostream & display(std::ostream & out) const;
 
 public:
     theorem_rewriter_cell(expr const & type, expr const & body);
@@ -81,6 +89,7 @@ public:
 class orelse_rewriter_cell : public rewriter_cell {
 private:
     list<rewriter> m_rwlist;
+    std::ostream & display(std::ostream & out) const;
 public:
     orelse_rewriter_cell(rewriter const & rw1, rewriter const & rw2);
     orelse_rewriter_cell(std::initializer_list<rewriter> const & l);
@@ -91,6 +100,7 @@ public:
 class then_rewriter_cell : public rewriter_cell {
 private:
     list<rewriter> m_rwlist;
+    std::ostream & display(std::ostream & out) const;
 public:
     then_rewriter_cell(rewriter const & rw1, rewriter const & rw2);
     then_rewriter_cell(std::initializer_list<rewriter> const & l);
@@ -98,36 +108,122 @@ public:
     std::pair<expr, expr> operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception);
 };
 
+class try_rewriter_cell : public rewriter_cell {
+private:
+    list<rewriter> m_rwlist;
+    std::ostream & display(std::ostream & out) const;
+public:
+    try_rewriter_cell(rewriter const & rw1, rewriter const & rw2);
+    try_rewriter_cell(std::initializer_list<rewriter> const & l);
+    ~try_rewriter_cell();
+    std::pair<expr, expr> operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception);
+};
+
 class app_rewriter_cell : public rewriter_cell {
 private:
     rewriter m_rw;
+    std::ostream & display(std::ostream & out) const;
 public:
     app_rewriter_cell(rewriter const & rw);
     ~app_rewriter_cell();
     std::pair<expr, expr> operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception);
 };
 
+class lambda_type_rewriter_cell : public rewriter_cell {
+private:
+    rewriter m_rw;
+    std::ostream & display(std::ostream & out) const;
+public:
+    lambda_type_rewriter_cell(rewriter const & rw);
+    ~lambda_type_rewriter_cell();
+    std::pair<expr, expr> operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception);
+};
+
+class lambda_body_rewriter_cell : public rewriter_cell {
+private:
+    rewriter m_rw;
+    std::ostream & display(std::ostream & out) const;
+public:
+    lambda_body_rewriter_cell(rewriter const & rw);
+    ~lambda_body_rewriter_cell();
+    std::pair<expr, expr> operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception);
+};
+
 class lambda_rewriter_cell : public rewriter_cell {
 private:
     rewriter m_rw;
+    std::ostream & display(std::ostream & out) const;
 public:
     lambda_rewriter_cell(rewriter const & rw);
     ~lambda_rewriter_cell();
     std::pair<expr, expr> operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception);
 };
 
+class pi_type_rewriter_cell : public rewriter_cell {
+private:
+    rewriter m_rw;
+    std::ostream & display(std::ostream & out) const;
+public:
+    pi_type_rewriter_cell(rewriter const & rw);
+    ~pi_type_rewriter_cell();
+    std::pair<expr, expr> operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception);
+};
+
+class pi_body_rewriter_cell : public rewriter_cell {
+private:
+    rewriter m_rw;
+    std::ostream & display(std::ostream & out) const;
+public:
+    pi_body_rewriter_cell(rewriter const & rw);
+    ~pi_body_rewriter_cell();
+    std::pair<expr, expr> operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception);
+};
+
 class pi_rewriter_cell : public rewriter_cell {
 private:
     rewriter m_rw;
+    std::ostream & display(std::ostream & out) const;
 public:
     pi_rewriter_cell(rewriter const & rw);
     ~pi_rewriter_cell();
     std::pair<expr, expr> operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception);
 };
 
+
+class let_type_rewriter_cell : public rewriter_cell {
+private:
+    rewriter m_rw;
+    std::ostream & display(std::ostream & out) const;
+public:
+    let_type_rewriter_cell(rewriter const & rw);
+    ~let_type_rewriter_cell();
+    std::pair<expr, expr> operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception);
+};
+
+class let_value_rewriter_cell : public rewriter_cell {
+private:
+    rewriter m_rw;
+    std::ostream & display(std::ostream & out) const;
+public:
+    let_value_rewriter_cell(rewriter const & rw);
+    ~let_value_rewriter_cell();
+    std::pair<expr, expr> operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception);
+};
+
+class let_body_rewriter_cell : public rewriter_cell {
+private:
+    rewriter m_rw;
+    std::ostream & display(std::ostream & out) const;
+public:
+    let_body_rewriter_cell(rewriter const & rw);
+    ~let_body_rewriter_cell();
+    std::pair<expr, expr> operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception);
+};
+
 class let_rewriter_cell : public rewriter_cell {
 private:
     rewriter m_rw;
+    std::ostream & display(std::ostream & out) const;
 public:
     let_rewriter_cell(rewriter const & rw);
     ~let_rewriter_cell();
@@ -135,6 +231,8 @@ public:
 };
 
 class fail_rewriter_cell : public rewriter_cell {
+private:
+    std::ostream & display(std::ostream & out) const;
 public:
     fail_rewriter_cell();
     ~fail_rewriter_cell();
@@ -142,6 +240,8 @@ public:
 };
 
 class success_rewriter_cell : public rewriter_cell {
+private:
+    std::ostream & display(std::ostream & out) const;
 public:
     success_rewriter_cell();
     ~success_rewriter_cell();
@@ -151,20 +251,35 @@ public:
 class repeat_rewriter_cell : public rewriter_cell {
 private:
     rewriter m_rw;
+    std::ostream & display(std::ostream & out) const;
 public:
     repeat_rewriter_cell(rewriter const & rw);
     ~repeat_rewriter_cell();
     std::pair<expr, expr> operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception);
 };
 
+/** \brief (For debugging) Display the content of this rewriter */
+inline std::ostream & operator<<(std::ostream & out, rewriter_cell const & rc) { rc.display(out); return out; }
+inline std::ostream & operator<<(std::ostream & out, rewriter const & rw) { out << *(rw.m_ptr); return out; }
+
 rewriter mk_theorem_rewriter(expr const & type, expr const & body);
 rewriter mk_then_rewriter(rewriter const & rw1, rewriter const & rw2);
 rewriter mk_then_rewriter(std::initializer_list<rewriter> const & l);
+rewriter mk_try_rewriter(rewriter const & rw);
+rewriter mk_try_rewriter(rewriter const & rw1, rewriter const & rw2);
+rewriter mk_try_rewriter(std::initializer_list<rewriter> const & l);
 rewriter mk_orelse_rewriter(rewriter const & rw1, rewriter const & rw2);
 rewriter mk_orelse_rewriter(std::initializer_list<rewriter> const & l);
 rewriter mk_app_rewriter(rewriter const & rw);
+rewriter mk_lambda_type_rewriter(rewriter const & rw);
+rewriter mk_lambda_body_rewriter(rewriter const & rw);
 rewriter mk_lambda_rewriter(rewriter const & rw);
+rewriter mk_pi_type_rewriter(rewriter const & rw);
+rewriter mk_pi_body_rewriter(rewriter const & rw);
 rewriter mk_pi_rewriter(rewriter const & rw);
+rewriter mk_let_type_rewriter(rewriter const & rw);
+rewriter mk_let_value_rewriter(rewriter const & rw);
+rewriter mk_let_body_rewriter(rewriter const & rw);
 rewriter mk_let_rewriter(rewriter const & rw);
 rewriter mk_fail_rewriter();
 rewriter mk_success_rewriter();

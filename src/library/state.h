@@ -49,7 +49,7 @@ public:
 struct regular {
     state const & m_state;
     regular(state const & s):m_state(s) {}
-    void flush() { m_state.get_regular_channel().get_stream().flush(); }
+    void flush();
 };
 
 /**
@@ -59,44 +59,23 @@ struct regular {
 struct diagnostic {
     state const & m_state;
     diagnostic(state const & s):m_state(s) {}
-    void flush() { m_state.get_diagnostic_channel().get_stream().flush(); }
+    void flush();
 };
 
 // hack for using std::endl with channels
 struct endl_class { endl_class() {} };
 const endl_class endl;
-inline regular const & operator<<(regular const & out, endl_class) {
-    out.m_state.get_regular_channel().get_stream() << std::endl;
-    return out;
-}
-inline diagnostic const & operator<<(diagnostic const & out, endl_class) {
-    out.m_state.get_diagnostic_channel().get_stream() << std::endl;
-    return out;
-}
 
-inline regular const & operator<<(regular const & out, expr const & e) {
-    options const & opts = out.m_state.get_options();
-    out.m_state.get_regular_channel().get_stream() << mk_pair(out.m_state.get_formatter()(e, opts), opts);
-    return out;
-}
+class kernel_exception;
 
-inline diagnostic const & operator<<(diagnostic const & out, expr const & e) {
-    options const & opts = out.m_state.get_options();
-    out.m_state.get_diagnostic_channel().get_stream() << mk_pair(out.m_state.get_formatter()(e, opts), opts);
-    return out;
-}
-
-inline regular const & operator<<(regular const & out, object const & obj) {
-    options const & opts = out.m_state.get_options();
-    out.m_state.get_regular_channel().get_stream() << mk_pair(out.m_state.get_formatter()(obj, opts), opts);
-    return out;
-}
-
-inline diagnostic const & operator<<(diagnostic const & out, object const & obj) {
-    options const & opts = out.m_state.get_options();
-    out.m_state.get_diagnostic_channel().get_stream() << mk_pair(out.m_state.get_formatter()(obj, opts), opts);
-    return out;
-}
+regular const &    operator<<(regular const & out,    endl_class);
+diagnostic const & operator<<(diagnostic const & out, endl_class);
+regular const &    operator<<(regular const & out,    expr const & e);
+diagnostic const & operator<<(diagnostic const & out, expr const & e);
+regular const &    operator<<(regular const & out,    object const & obj);
+diagnostic const & operator<<(diagnostic const & out, object const & obj);
+regular const &    operator<<(regular const & out,    kernel_exception const & ex);
+diagnostic const & operator<<(diagnostic const & out, kernel_exception const & ex);
 
 template<typename T>
 inline regular const & operator<<(regular const & out, T const & t) {

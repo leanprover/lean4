@@ -7,8 +7,10 @@ Author: Leonardo de Moura
 #pragma once
 #include <vector>
 #include "util/exception.h"
+#include "util/sexpr/options.h"
 #include "kernel/context.h"
 #include "kernel/environment.h"
+#include "kernel/formatter.h"
 
 namespace lean {
 class environment;
@@ -27,6 +29,7 @@ public:
         better error messages.
     */
     virtual expr const & get_main_expr() const { return expr::null(); }
+    virtual format pp(formatter const & fmt, options const & opts) const;
 };
 
 /** \brief Base class for unknown universe or object exceptions. */
@@ -36,6 +39,7 @@ public:
     unknown_name_exception(environment const & env, name const & n):kernel_exception(env), m_name(n) {}
     virtual ~unknown_name_exception() {}
     name const & get_name() const { return m_name; }
+    virtual format pp(formatter const & fmt, options const & opts) const;
 };
 
 /** \brief Exception used to report that a universe variable is not known in a given environment. */
@@ -60,6 +64,7 @@ public:
     virtual ~already_declared_exception() noexcept {}
     name const & get_name() const { return m_name; }
     virtual char const * what() const noexcept { return "invalid object declaration, environment already has an object the given name"; }
+    virtual format pp(formatter const & fmt, options const & opts) const;
 };
 
 /**
@@ -103,6 +108,7 @@ public:
     virtual expr const & get_main_expr() const { return get_application(); }
     std::vector<expr> const & get_arg_types() const { return m_arg_types; }
     virtual char const * what() const noexcept { return "application argument type mismatch"; }
+    virtual format pp(formatter const & fmt, options const & opts) const;
 };
 
 /**
@@ -124,6 +130,7 @@ public:
     expr const & get_expr() const { return m_expr; }
     virtual expr const & get_main_expr() const { return get_expr(); }
     virtual char const * what() const noexcept { return "function expected"; }
+    virtual format pp(formatter const & fmt, options const & opts) const;
 };
 
 /**
@@ -145,6 +152,7 @@ public:
     expr const & get_expr() const { return m_expr; }
     virtual expr const & get_main_expr() const { return get_expr(); }
     virtual char const * what() const noexcept { return "type expected"; }
+    virtual format pp(formatter const & fmt, options const & opts) const;
 };
 
 /**
@@ -178,6 +186,7 @@ public:
     expr const & get_value_type() const { return m_value_type; }
     virtual expr const & get_main_expr() const { return m_value; }
     virtual char const * what() const noexcept { return "definition type mismatch"; }
+    virtual format pp(formatter const & fmt, options const & opts) const;
 };
 
 /**

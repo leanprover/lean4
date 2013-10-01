@@ -16,11 +16,11 @@ Author: Leonardo de Moura
 #include "kernel/builtin.h"
 #include "kernel/normalizer.h"
 #include "kernel/printer.h"
+#include "kernel/kernel_exception.h"
 #include "library/basic_thms.h"
 #include "library/arith/arith.h"
 #include "library/all/all.h"
 #include "library/state.h"
-#include "library/kernel_exception_formatter.h"
 using namespace lean;
 
 expr c(char const * n) { return mk_constant(n); }

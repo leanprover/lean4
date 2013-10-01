@@ -28,7 +28,6 @@ Author: Leonardo de Moura
 #include "kernel/printer.h"
 #include "library/arith/arith.h"
 #include "library/state.h"
-#include "library/kernel_exception_formatter.h"
 #include "library/placeholder.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/elaborator.h"

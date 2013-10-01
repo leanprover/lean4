@@ -46,7 +46,7 @@ static void tst2() {
         level l2 = env.add_uvar("l1", level());
         lean_unreachable();
     }
-    catch (exception ex) {
+    catch (exception & ex) {
         std::cout << "ok\n";
     }
 }
@@ -59,7 +59,7 @@ static void tst3() {
         level l3 = env.add_uvar("l3", l2 + (1<<30));
         lean_unreachable();
     }
-    catch (exception ex) {
+    catch (exception & ex) {
         std::cout << "ok\n";
     }
 }

@@ -69,7 +69,7 @@ static void tst2() {
         std::cout << F << "\n";
         std::cout << infer_type(F, env) << "\n";
     }
-    catch (exception ex) {
+    catch (exception & ex) {
         std::cout << "Error: " << ex.what() << "\n";
     }
 }

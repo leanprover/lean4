@@ -213,7 +213,7 @@ format group(format const & f) {
 format above(format const & f1, format const & f2) {
     return format{f1, line(), f2};
 }
-format bracket(std::string const l, format const & x, std::string const r) {
+format bracket(std::string const & l, format const & x, std::string const & r) {
     return group(nest(l.size(), format{format(l), x, format(r)}));
 }
 format paren(format const & x) {

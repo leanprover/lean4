@@ -27,7 +27,7 @@ char const * parser_exception::what() const noexcept {
         s << "(line: " << m_line << ", pos: " << m_pos << ") " << m_msg;
         buffer = s.str();
         return buffer.c_str();
-    } catch (std::exception ex) {
+    } catch (std::exception & ex) {
         // failed to generate extended message
         return m_msg.c_str();
     }

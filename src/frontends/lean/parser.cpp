@@ -212,8 +212,6 @@ class parser::imp {
     bool curr_is_lcurly() const { return curr() == scanner::token::LeftCurlyBracket; }
     /** \brief Return true iff the current token is a ':' */
     bool curr_is_colon() const { return curr() == scanner::token::Colon; }
-    /** \brief Return true iff the current token is a ',' */
-    bool curr_is_comma() const { return curr() == scanner::token::Comma; }
     /** \brief Return true iff the current token is an 'in' token */
     bool curr_is_in() const { return curr() == scanner::token::In; }
 
@@ -230,8 +228,6 @@ class parser::imp {
     void check_colon_next(char const * msg) { check_next(scanner::token::Colon, msg); }
     /** \brief Throws a parser error if the current token is not ','. If it is, move to the next token. */
     void check_comma_next(char const * msg) { check_next(scanner::token::Comma, msg); }
-    /** \brief Throws a parser error if the current token is not '('. If it is, move to the next token. */
-    void check_lparen_next(char const * msg) { check_next(scanner::token::LeftParen, msg); }
     /** \brief Throws a parser error if the current token is not ')'. If it is, move to the next token. */
     void check_rparen_next(char const * msg) { check_next(scanner::token::RightParen, msg); }
     /** \brief Throws a parser error if the current token is not '}'. If it is, move to the next token. */
@@ -1660,9 +1656,8 @@ shell::~shell() {
 bool shell::operator()() {
 #ifdef LEAN_USE_READLINE
     bool errors = false;
-    char * input;
     while (true) {
-        input = readline("# ");
+        char * input = readline("# ");
         if (!input)
             return errors;
         add_history(input);

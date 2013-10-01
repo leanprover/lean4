@@ -192,7 +192,7 @@ public:
 
     friend format group(format const & f);
     friend format above(format const & f1, format const & f2);
-    friend format bracket(std::string const l, format const & x, std::string const r);
+    friend format bracket(std::string const & l, format const & x, std::string const & r);
     friend format wrap(format const & f1, format const & f2);
 
     // x + y = x <> y
@@ -241,7 +241,7 @@ format const & colon();
 format const & dot();
 format group(format const & f);
 format above(format const & f1, format const & f2);
-format bracket(std::string const l, format const & x, std::string const r);
+format bracket(std::string const & l, format const & x, std::string const & r);
 format paren(format const & x);
 format wrap(format const & f1, format const & f2);
 

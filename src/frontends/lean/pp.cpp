@@ -1149,6 +1149,7 @@ public:
         m_frontend(fe) {
         set_options(opts);
         m_interrupted = false;
+        m_num_steps   = 0;
     }
 
     format operator()(expr const & e) {

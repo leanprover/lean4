@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/sexpr/options.h"
 #include "kernel/context.h"
-#include "library/formatter.h"
+#include "kernel/formatter.h"
 
 namespace lean {
 class frontend;

@@ -9,8 +9,8 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/environment.h"
 #include "kernel/abstract.h"
+#include "kernel/printer.h"
 #include "library/light_checker.h"
-#include "library/printer.h"
 #include "library/arith/arith.h"
 #include "library/all/all.h"
 using namespace lean;

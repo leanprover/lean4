@@ -625,7 +625,5 @@ inline expr update_metavar(expr const & e, local_context const & lctx) {
 }
 // =======================================
 
-// Remark: the implementation is at library/printer.cpp
-// We add the definition here to prevent the compiler from using the coercion to bool.
 std::ostream & operator<<(std::ostream & out, expr const & e);
 }

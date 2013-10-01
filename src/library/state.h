@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/output_channel.h"
 #include "util/sexpr/options.h"
-#include "library/formatter.h"
+#include "kernel/formatter.h"
 
 namespace lean {
 /**

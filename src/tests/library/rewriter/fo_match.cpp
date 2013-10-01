@@ -9,13 +9,13 @@ Author: Soonho Kong
 #include "kernel/abstract.h"
 #include "kernel/expr.h"
 #include "kernel/metavar.h"
+#include "kernel/printer.h"
 #include "library/all/all.h"
 #include "library/arith/arith.h"
 #include "library/arith/nat.h"
 #include "library/rewriter/fo_match.h"
 #include "library/rewriter/rewriter.h"
 #include "library/basic_thms.h"
-#include "library/printer.h"
 using namespace lean;
 
 using std::cout;

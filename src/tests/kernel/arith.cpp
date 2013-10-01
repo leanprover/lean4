@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/builtin.h"
 #include "kernel/normalizer.h"
 #include "kernel/abstract.h"
-#include "library/printer.h"
+#include "kernel/printer.h"
 #include "library/arith/arith.h"
 #include "library/all/all.h"
 using namespace lean;

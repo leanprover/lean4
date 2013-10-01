@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/builtin.h"
 #include "kernel/abstract.h"
-#include "library/printer.h"
+#include "kernel/printer.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/operator_info.h"
 #include "frontends/lean/pp.h"

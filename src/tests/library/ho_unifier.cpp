@@ -8,8 +8,8 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/builtin.h"
 #include "kernel/abstract.h"
+#include "kernel/printer.h"
 #include "library/ho_unifier.h"
-#include "library/printer.h"
 #include "library/reduce.h"
 #include "library/arith/arith.h"
 using namespace lean;

@@ -13,11 +13,11 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/instantiate.h"
 #include "kernel/normalizer.h"
+#include "kernel/printer.h"
 #include "library/light_checker.h"
 #include "library/reduce.h"
 #include "library/update_expr.h"
 #include "library/ho_unifier.h"
-#include "library/printer.h"
 
 #ifndef LEAN_LIBRARY_HO_UNIFIER_MAX_SOLUTIONS
 #define LEAN_LIBRARY_HO_UNIFIER_MAX_SOLUTIONS std::numeric_limits<unsigned>::max()

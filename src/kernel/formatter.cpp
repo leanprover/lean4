@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #include <sstream>
 #include "kernel/kernel_exception.h"
-#include "library/printer.h"
-#include "library/formatter.h"
+#include "kernel/printer.h"
+#include "kernel/formatter.h"
 
 namespace lean {
 class simple_formatter_cell : public formatter_cell {

@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "util/exception.h"
 #include "util/numerics/mpq.h"
 #include "kernel/builtin.h"
-#include "library/printer.h"
+#include "kernel/printer.h"
 #include "library/arith/arith.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/pp.h"

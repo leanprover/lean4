@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <memory>
 #include "kernel/environment.h"
-#include "library/formatter.h"
+#include "kernel/formatter.h"
 
 namespace lean {
 class frontend;

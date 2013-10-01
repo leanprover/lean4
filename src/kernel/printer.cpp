@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <utility>
 #include "util/exception.h"
-#include "library/printer.h"
+#include "kernel/printer.h"
 #include "kernel/environment.h"
 
 namespace lean {

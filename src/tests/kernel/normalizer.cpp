@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "kernel/expr_sets.h"
 #include "kernel/abstract.h"
 #include "kernel/kernel_exception.h"
-#include "library/printer.h"
+#include "kernel/printer.h"
 #include "library/all/all.h"
 using namespace lean;
 

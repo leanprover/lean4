@@ -17,7 +17,7 @@ Author: Leonardo de Moura
 #include "kernel/replace.h"
 #include "kernel/instantiate.h"
 #include "kernel/metavar.h"
-#include "library/printer.h"
+#include "kernel/printer.h"
 #include "library/placeholder.h"
 #include "library/reduce.h"
 #include "library/update_expr.h"

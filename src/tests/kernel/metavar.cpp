@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/normalizer.h"
 #include "kernel/environment.h"
 #include "kernel/type_checker.h"
-#include "library/printer.h"
+#include "kernel/printer.h"
 #include "library/placeholder.h"
 #include "library/arith/arith.h"
 #include "library/all/all.h"

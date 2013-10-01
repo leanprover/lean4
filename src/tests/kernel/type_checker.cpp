@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/builtin.h"
 #include "kernel/normalizer.h"
-#include "library/printer.h"
+#include "kernel/printer.h"
 #include "library/basic_thms.h"
 #include "library/arith/arith.h"
 #include "library/all/all.h"

@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "util/exception.h"
 #include "kernel/environment.h"
-#include "library/printer.h"
+#include "kernel/printer.h"
 using namespace lean;
 
 static void tst0() {

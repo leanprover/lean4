@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <fstream>
 #include <signal.h>
 #include "util/interruptable_ptr.h"
-#include "library/printer.h"
+#include "kernel/printer.h"
 #include "frontends/lean/parser.h"
 #include "version.h"
 

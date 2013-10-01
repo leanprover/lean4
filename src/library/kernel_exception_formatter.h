@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/kernel_exception.h"
-#include "library/formatter.h"
+#include "kernel/formatter.h"
 #include "library/state.h"
 
 namespace lean {

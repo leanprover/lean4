@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "kernel/abstract.h"
 #include "kernel/builtin.h"
-#include "library/printer.h"
+#include "kernel/printer.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/pp.h"
 using namespace lean;

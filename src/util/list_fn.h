@@ -119,12 +119,12 @@ list<T> map(list<T> const & l, F f) {
    \brief Given list <tt>(a_0, ..., a_k)</tt>, exec f(a_0); f(a_1); ... f(a_k)</tt>.
 */
 template<typename T, typename F>
-void iter(list<T> const & l, F f) {
+void for_each(list<T> const & l, F f) {
     if (is_nil(l)) {
         return;
     } else {
         f(head(l));
-        return iter(tail(l), f);
+        return for_each(tail(l), f);
     }
 }
 

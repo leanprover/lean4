@@ -130,7 +130,7 @@ pair<expr, expr> orelse_rewriter_cell::operator()(environment const & env, conte
 }
 std::ostream & orelse_rewriter_cell::display(std::ostream & out) const {
     out << "Or_RW({";
-    iter(m_rwlist, [&out](rewriter const & rw) {
+    for_each(m_rwlist, [&out](rewriter const & rw) {
             out << rw << "; ";
         });
     out << "})";
@@ -160,7 +160,7 @@ pair<expr, expr> then_rewriter_cell::operator()(environment const & env, context
 }
 std::ostream & then_rewriter_cell::display(std::ostream & out) const {
     out << "Then_RW({";
-    iter(m_rwlist, [&out](rewriter const & rw) {
+    for_each(m_rwlist, [&out](rewriter const & rw) {
             out << rw << "; ";
         });
     out << "})";
@@ -189,7 +189,7 @@ pair<expr, expr> try_rewriter_cell::operator()(environment const & env, context 
 }
 std::ostream & try_rewriter_cell::display(std::ostream & out) const {
     out << "Try_RW({";
-    iter(m_rwlist, [&out](rewriter const & rw) {
+    for_each(m_rwlist, [&out](rewriter const & rw) {
             out << rw << "; ";
         });
     out << "})";

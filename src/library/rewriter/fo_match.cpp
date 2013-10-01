@@ -56,11 +56,15 @@ bool fo_match::match_value(expr const & p, expr const & t, unsigned, subst_map &
 
 bool fo_match::match_app(expr const & p, expr const & t, unsigned o, subst_map & s) {
     lean_trace("fo_match", tout << "match_app : (" << p << ", " << t << ", " << o << ", " << s << ")" << endl;); // LCOV_EXCL_LINE
-    if (!is_app(t))
+    if (!is_app(t)) {
+        lean_trace("fo_match", tout << "match_app : " << t << " is not app." << endl;); // LCOV_EXCL_LINE
         return false;
+    }
     unsigned num_p = num_args(p);
     unsigned num_t = num_args(t);
     if (num_p != num_t) {
+        lean_trace("fo_match", tout << "match_app : number of arguments does not match"
+                                    << "(" << num_p << " <> " << num_t << ")" << endl;); // LCOV_EXCL_LINE
         return false;
     }
 

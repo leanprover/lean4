@@ -108,6 +108,8 @@ list<T> append(list<T> const & l1, list<T> const & l2) {
 */
 template<typename T, typename F>
 list<T> map(list<T> const & l, F f) {
+    static_assert(std::is_same<typename std::result_of<F(T const &)>::type, T>::value,
+                  "map: return type of f is not sxpr");
     if (is_nil(l)) {
         return l;
     } else {
@@ -120,6 +122,8 @@ list<T> map(list<T> const & l, F f) {
 */
 template<typename T, typename F>
 void for_each(list<T> const & l, F f) {
+    static_assert(std::is_same<typename std::result_of<F(T const &)>::type, void>::value,
+                  "for_each: return type of f is not void");
     if (is_nil(l)) {
         return;
     } else {
@@ -133,6 +137,8 @@ void for_each(list<T> const & l, F f) {
 */
 template<typename T, typename P>
 bool compare(list<T> const & l1, list<T> const & l2, P p) {
+    static_assert(std::is_same<typename std::result_of<P(T const &, T const &)>::type, bool>::value,
+                  "compare: return type of f is not bool");
     auto it1 = l1.begin();
     auto it2 = l2.begin();
     auto end1 = l1.end();

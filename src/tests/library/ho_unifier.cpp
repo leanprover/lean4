@@ -29,7 +29,7 @@ void tst1() {
     expr x  = Const("x");
     expr a  = Const("a");
     expr b  = Const("b");
-    expr m1 = subst.mk_metavar();
+    expr m1; // = subst.mk_metavar();
     expr l = m1(b, a);
     expr r = f(b, f(a, b));
     for (auto sol : unify(context(), l, r, subst)) {
@@ -55,7 +55,7 @@ void tst2() {
     expr x  = Const("x");
     expr a  = Const("a");
     expr b  = Const("b");
-    expr m1 = subst.mk_metavar();
+    expr m1; // = subst.mk_metavar();
     expr l = m1(b, a);
     expr r = Fun({x, N}, f(x, Eq(a, b)));
     for (auto sol : unify(context(), l, r, subst)) {
@@ -77,9 +77,9 @@ void tst3() {
     env.add_var("f", N >> (Int >> N));
     env.add_var("a", N);
     env.add_var("b", N);
-    expr m1 = subst.mk_metavar();
-    expr m2 = subst.mk_metavar();
-    expr m3 = subst.mk_metavar();
+    expr m1; // = subst.mk_metavar();
+    expr m2; // = subst.mk_metavar();
+    expr m3; // = subst.mk_metavar();
     expr t1 = metavar_type(m1);
     expr t2 = metavar_type(m2);
     expr f  = Const("f");
@@ -107,8 +107,8 @@ void tst4() {
     expr x  = Const("x");
     expr y  = Const("y");
     expr f  = Const("f");
-    expr m1 = subst.mk_metavar();
-    expr m2 = subst.mk_metavar();
+    expr m1; // = subst.mk_metavar();
+    expr m2; // = subst.mk_metavar();
     expr l  = Fun({{x, N}, {y, N}}, Eq(y, f(x, m1)));
     expr r  = Fun({{x, N}, {y, N}}, Eq(m2, f(m1, x)));
     auto sols = unify(context(), l, r, subst);
@@ -130,7 +130,7 @@ void tst5() {
     env.add_var("N", Type());
     env.add_var("f", N >> (N >> N));
     expr f  = Const("f");
-    expr m1 = subst.mk_metavar();
+    expr m1; // = subst.mk_metavar();
     expr l  = f(f(m1));
     expr r  = f(m1);
     auto sols = unify(context(), l, r, subst);
@@ -147,7 +147,7 @@ void tst6() {
     expr x  = Const("x");
     expr y  = Const("y");
     expr f  = Const("f");
-    expr m1 = subst.mk_metavar();
+    expr m1; // = subst.mk_metavar();
     expr l  = Fun({x, N}, Fun({y, N}, f(m1, y))(x));
     expr r  = Fun({x, N}, f(x, x));
     auto sols = unify(context(), l, r, subst);

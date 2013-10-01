@@ -85,9 +85,99 @@ public:
     */
     template<typename F>
     void for_each(F f) const { m_subst.for_each(f); }
+};
 
-    // TODO(Leo) metavar
-    expr mk_metavar(context const & = context()) { return expr(); }
+/**
+   \brief Metavar environment. It is an auxiliary datastructure used for:
+
+   1- Creating metavariables.
+   2- Storing their types and the contexts where they were created.
+   3- Storing substitutions.
+   4- Collecting constraints
+*/
+class metavar_env {
+    typedef splay_map<name, expr, name_cmp> name2expr;
+    typedef splay_map<name, context, name_cmp> name2context;
+
+    name_generator m_name_generator;
+    substitution   m_substitution;
+    name2expr      m_metavar_types;
+    name2context   m_metavar_contexts;
+    unsigned       m_timestamp;
+
+    void inc_timestamp();
+public:
+    metavar_env();
+
+    /**
+       \brief The timestamp is increased whenever this environment is
+       updated.
+    */
+    unsigned get_timestamp() const { return m_timestamp; }
+
+    /**
+       \brief Create a new metavariable in the given context and with the given type.
+    */
+    expr mk_metavar(context const & ctx = context(), expr const & type = expr());
+
+    /**
+       \brief Return the context where the given metavariable was created.
+       \pre is_metavar(m)
+    */
+    context get_context(expr const & m);
+    context get_context(name const & m);
+
+    /**
+       \brief Return the type of the given metavariable.
+       \pre is_metavar(m)
+    */
+    expr get_type(expr const & m);
+    expr get_type(name const & m);
+
+    /**
+       \brief Return true iff the metavariable named \c m is assigned in this substitution.
+    */
+    bool is_assigned(name const & m) const;
+
+    /**
+       \brief Return true if the given metavariable is assigned in this
+       substitution.
+
+       \pre is_metavar(m)
+    */
+    bool is_assigned(expr const & m) const;
+
+    /**
+       \brief Assign metavariable named \c m.
+
+       \pre !is_assigned(m)
+    */
+    void assign(name const & m, expr const & t);
+
+    /**
+       \brief Assign metavariable \c m to \c t.
+
+       \pre is_metavar(m)
+       \pre !has_meta_context(m)
+       \pre !is_assigned(m)
+    */
+    void assign(expr const & m, expr const & t);
+
+    /**
+       \brief Return the set of substitutions.
+    */
+    substitution const & get_substitutions() const;
+
+    /**
+       \brief Return the substitution associated with the given metavariable
+       in this substitution.
+
+       If the metavariable is not assigned in this substitution, then it returns the null
+       expression.
+
+       \pre is_metavar(m)
+    */
+    expr get_subst(expr const & m) const;
 };
 
 /**

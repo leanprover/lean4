@@ -142,7 +142,7 @@ class ho_unifier::imp {
 
        \remark \c ini_s is the initial substitution set. \c s is an extension of \c ini_s
     */
-    bool contains_solution(list<result> const & r, substitution const & s, residue const & rs, substitution const & ini_s) {
+    bool contains_solution(list<result> const & r, substitution const & /* s */, residue const & rs, substitution const & /* ini_s */ ) {
         return
             empty(rs) &&
             std::any_of(r.begin(), r.end(), [&](result const & prev) {
@@ -162,7 +162,7 @@ class ho_unifier::imp {
 
        \remark \c ini_s is the initial substitution set. \c s is an extension of \c ini_s
     */
-    substitution cleanup_subst(substitution const & s, substitution const & ini_s) {
+    substitution cleanup_subst(substitution const & s, substitution const & /* ini_s */) {
 #if 0  // TODO(Leo) metavar
         metavar_env new_s;
         for (unsigned i = 0; i < ini_s.size(); i++) {
@@ -426,7 +426,7 @@ class ho_unifier::imp {
             buffer<expr> imitation_args; // arguments for the imitation
             imitation_args.push_back(f_b);
             for (unsigned i = 1; i < num_b; i++) {
-                expr h_i = new_s.mk_metavar(ctx);
+                expr h_i; // = new_s.mk_metavar(ctx);
                 imitation_args.push_back(mk_app_vars(h_i, num_a - 1));
                 new_q.push_front(constraint(ctx, update_app(a, 0, h_i), arg(b, i)));
             }
@@ -437,8 +437,8 @@ class ho_unifier::imp {
             // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), (h_1 x_1 ... x_{num_a-1}) = (h_2 x_1 ... x_{num_a-1})
             // New constraints (h_1 a_1 ... a_{num_a-1}) == eq_lhs(b)
             //                 (h_2 a_1 ... a_{num_a-1}) == eq_rhs(b)
-            expr h_1 = new_s.mk_metavar(ctx);
-            expr h_2 = new_s.mk_metavar(ctx);
+            expr h_1; // = new_s.mk_metavar(ctx);
+            expr h_2; // = new_s.mk_metavar(ctx);
             expr imitation = mk_lambda(arg_types, mk_eq(mk_app_vars(h_1, num_a - 1), mk_app_vars(h_2, num_a - 1)));
             new_s.assign(mname, imitation);
             new_q.push_front(constraint(ctx, update_app(a, 0, h_1), eq_lhs(b)));
@@ -449,8 +449,8 @@ class ho_unifier::imp {
             //                        fun (x_b : (?h_1 x_1 ... x_{num_a-1})), (?h_2 x_1 ... x_{num_a-1} x_b)
             // New constraints (h_1 a_1 ... a_{num_a-1}) == abst_domain(b)
             //                 (h_2 a_1 ... a_{num_a-1} x_b) == abst_body(b)
-            expr h_1 = new_s.mk_metavar(ctx);
-            expr h_2 = new_s.mk_metavar(ctx);
+            expr h_1; // = new_s.mk_metavar(ctx);
+            expr h_2; // = new_s.mk_metavar(ctx);
             expr imitation = mk_lambda(arg_types, update_abstraction(b, mk_app_vars(h_1, num_a - 1), mk_app_vars(h_2, num_a)));
             new_s.assign(mname, imitation);
             new_q.push_front(constraint(ctx, update_app(a, 0, h_1), abst_domain(b)));
@@ -510,20 +510,20 @@ class ho_unifier::imp {
                 buffer<expr> imitation;
                 imitation.push_back(f_b);
                 for (unsigned i = 1; i < num_b; i++)
-                    imitation.push_back(new_s.mk_metavar(ctx));
+                    imitation.push_back(expr()); // new_s.mk_metavar(ctx));
                 new_s.assign(mname, mk_app(imitation.size(), imitation.data()));
             } else if (is_eq(b)) {
                 // Imitation for equality b == Eq(s1, s2)
                 // mname <- Eq(?h_1, ?h_2)
-                expr h_1 = new_s.mk_metavar(ctx);
-                expr h_2 = new_s.mk_metavar(ctx);
+                expr h_1; // = new_s.mk_metavar(ctx);
+                expr h_2; // = new_s.mk_metavar(ctx);
                 new_s.assign(mname, mk_eq(h_1, h_2));
             } else if (is_abstraction(b)) {
                 // Lambdas and Pis
                 // Imitation for Lambdas and Pis, b == Fun(x:T) B
                 // mname <- Fun (x:?h_1) ?h_2 x)
-                expr h_1 = new_s.mk_metavar(ctx);
-                expr h_2 = new_s.mk_metavar(ctx);
+                expr h_1; // = new_s.mk_metavar(ctx);
+                expr h_2; // = new_s.mk_metavar(ctx);
                 new_s.assign(mname, update_abstraction(b, h_1, mk_app(h_2, Var(0))));
             } else {
                 new_q.push_front(constraint(ctx, pop_meta_context(a), lift_free_vars(b, i, 1)));

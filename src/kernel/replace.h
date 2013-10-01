@@ -36,6 +36,11 @@ template<typename F, typename P = default_replace_postprocessor>
 class replace_fn {
     static_assert(std::is_same<typename std::result_of<F(expr const &, unsigned)>::type, expr>::value,
                   "replace_fn: return type of F is not expr");
+    // the return type of P()(e1, e2) should be void
+    static_assert(std::is_same<typename std::result_of<decltype(std::declval<P>())(expr const &, expr const &)>::type,
+                  void>::value,
+                  "The return type of P()(e1, e2) is not void");
+
     expr_cell_offset_map<expr> m_cache;
     F                          m_f;
     P                          m_post;

@@ -583,6 +583,9 @@ template<typename F> expr update_eq(expr const & e, F f) {
         return e;
 }
 template<typename F> expr update_metavar(expr const & e, unsigned i, F f) {
+    static_assert(std::is_same<typename std::result_of<F(meta_entry const &)>::type,
+                               meta_entry>::value,
+                  "update_metavar: return type of f(meta_entry) is not meta_entry");
     buffer<meta_entry> new_entries;
     bool modified = (i != metavar_idx(e));
     for (meta_entry const & me : metavar_ctx(e)) {
@@ -603,6 +606,9 @@ template<typename F> expr update_metavar(expr const & e, unsigned i, F f) {
         return e;
 }
 template<typename F> expr update_metavar(expr const & e, F f) {
+    static_assert(std::is_same<typename std::result_of<F(meta_entry const &)>::type,
+                               meta_entry>::value,
+                  "update_metavar: return type of f(meta_entry) is not meta_entry");
     return update_metavar(e, metavar_idx(e), f);
 }
 // =======================================

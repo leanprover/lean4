@@ -71,7 +71,12 @@ class expr_eq_fn {
         lean_unreachable();
     }
 public:
-    expr_eq_fn(N const & norm = N()):m_norm(norm) {}
+    expr_eq_fn(N const & norm = N()):m_norm(norm) {
+        // the return type of N()(e) should be expr const &
+        static_assert(std::is_same<typename std::result_of<decltype(std::declval<N>())(expr const &)>::type,
+                      expr const &>::value,
+                      "The return type of CMP()(k1, k2) is not int.");
+    }
     bool operator()(expr const & a, expr const & b) {
         return apply(a, b);
     }

@@ -10,6 +10,8 @@ Author: Leonardo de Moura
 #include "util/rc.h"
 #include "util/buffer.h"
 #include "util/sexpr/format.h"
+#include "kernel/expr.h"
+#include "kernel/formatter.h"
 
 namespace lean {
 class trace;
@@ -23,9 +25,11 @@ class trace_cell {
     MK_LEAN_RC();
     void dealloc() { delete this; }
 public:
+    trace_cell():m_rc(0) {}
     virtual ~trace_cell() {}
-    virtual format pp() const = 0;
+    virtual format pp(formatter const & fmt, options const & opts) const = 0;
     virtual void get_children(buffer<trace> & r) const = 0;
+    virtual expr const & get_main_expr() const { return expr::null(); }
 };
 
 /**
@@ -33,9 +37,9 @@ public:
 */
 class trace {
     trace_cell * m_ptr;
-    explicit trace(trace_cell * ptr):m_ptr(ptr) {}
 public:
     trace():m_ptr(nullptr) {}
+    trace(trace_cell * ptr):m_ptr(ptr) { if (m_ptr) m_ptr->inc_ref(); }
     trace(trace const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     trace(trace && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~trace() { if (m_ptr) m_ptr->dec_ref(); }
@@ -48,15 +52,9 @@ public:
 
     trace & operator=(trace const & s) { LEAN_COPY_REF(trace, s); }
     trace & operator=(trace && s) { LEAN_MOVE_REF(trace, s); }
-    format pp() const { lean_assert(m_ptr); return m_ptr->pp(); }
+    format pp(formatter const & fmt, options const & opts) const { lean_assert(m_ptr); return m_ptr->pp(fmt, opts); }
+    expr const & get_main_expr() const { return m_ptr ? m_ptr->get_main_expr() : expr::null(); }
     void get_children(buffer<trace> & r) const { if (m_ptr) m_ptr->get_children(r); }
     bool has_children() const;
 };
-
-inline unsigned get_rc(trace const & t)    { return t.raw()->get_rc(); }
-inline bool     is_shared(trace const & t) { return get_rc(t) > 1; }
-inline format   pp(trace const & t)        { return t.pp(); }
-inline void     get_children(trace const & t, buffer<trace> & r) {
-    return t.get_children(r);
-}
 }

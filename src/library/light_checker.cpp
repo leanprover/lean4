@@ -21,6 +21,7 @@ class light_checker::imp {
     typedef scoped_map<expr, expr, expr_hash, expr_eqp> cache;
 
     environment            m_env;
+    context                m_ctx;
     metavar_env *          m_menv;
     unsigned               m_menv_timestamp;
     unification_problems * m_up;
@@ -164,6 +165,13 @@ class light_checker::imp {
         return r;
     }
 
+    void set_ctx(context const & ctx) {
+        if (!is_eqp(m_ctx, ctx)) {
+            clear();
+            m_ctx = ctx;
+        }
+    }
+
 public:
     imp(environment const & env):
         m_env(env),
@@ -175,6 +183,7 @@ public:
     }
 
     expr operator()(expr const & e, context const & ctx, metavar_env * menv, unification_problems * up) {
+        set_ctx(ctx);
         set_menv(menv);
         flet<unification_problems*> set(m_up, up);
         return infer_type(e, ctx);
@@ -188,7 +197,8 @@ public:
     void clear() {
         m_cache.clear();
         m_normalizer.clear();
-        m_menv = nullptr;
+        m_ctx            = context();
+        m_menv           = nullptr;
         m_menv_timestamp = 0;
     }
 };

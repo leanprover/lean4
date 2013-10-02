@@ -67,8 +67,38 @@ static void tst2() {
     }
 }
 
+static void tst3() {
+    environment env;
+    import_all(env);
+    context ctx1, ctx2;
+    expr A = Const("A");
+    expr vec1 = Const("vec1");
+    expr vec2 = Const("vec2");
+    env.add_var("vec1", Int  >> (Type() >> Type()));
+    env.add_var("vec2", Real >> (Type() >> Type()));
+    ctx1 = extend(ctx1, "x", Int,  iVal(1));
+    ctx1 = extend(ctx1, "f", Pi({A, Int}, vec1(A, Int)));
+    ctx2 = extend(ctx2, "x", Real, rVal(2));
+    ctx2 = extend(ctx2, "f", Pi({A, Real}, vec2(A, Real)));
+    expr F = Var(0)(Var(1));
+    expr F_copy = F;
+    light_checker infer(env);
+    std::cout << infer(F, ctx1) << "\n";
+    lean_assert_eq(infer(F, ctx1), vec1(Var(1), Int));
+    lean_assert_eq(infer(F, ctx2), vec2(Var(1), Real));
+    lean_assert(is_eqp(infer(F, ctx2), infer(F, ctx2)));
+    lean_assert(is_eqp(infer(F, ctx1), infer(F, ctx1)));
+    expr r = infer(F, ctx1);
+    infer.clear();
+    lean_assert(!is_eqp(r, infer(F, ctx1)));
+    r = infer(F, ctx1);
+    lean_assert(is_eqp(r, infer(F, ctx1)));
+}
+
+
 int main() {
     tst1();
     tst2();
+    tst3();
     return has_violations() ? 1 : 0;
 }

@@ -11,7 +11,7 @@ To Do List
    - We use an off-the-shelf embedded language such as [Lua](http://www.lua.org).
    - We use Lean itself.
 - Module for reading [OpenTheory](http://www.gilith.com/research/opentheory/) proofs.
-- Higher-Order unification and matching.
+- ~~Higher-Order unification and matching~~.
 - Rewriter (and Rewriter Combinators).
 - [MCSat](http://leodemoura.github.io/files/fmcad2013.pdf) framework.
 - Implement independent type checker using a different programming language (e.g., OCaml).

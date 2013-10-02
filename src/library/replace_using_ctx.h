@@ -32,6 +32,7 @@ class replace_using_ctx_fn {
                   "The return type of P()(e1, e2) is not void");
     typedef scoped_map<expr, expr, expr_hash, expr_eqp> cache;
     cache                      m_cache;
+    context                    m_ctx;
     F                          m_f;
     P                          m_post;
 
@@ -90,6 +91,13 @@ class replace_using_ctx_fn {
         return r;
     }
 
+    void set_ctx(context const & ctx) {
+        if (!is_eqp(m_ctx, ctx)) {
+            m_ctx = ctx;
+            m_cache.clear();
+        }
+    }
+
 public:
     replace_using_ctx_fn(F const & f, P const & p = P()):
         m_f(f),
@@ -97,7 +105,13 @@ public:
     }
 
     expr operator()(expr const & e, context const & ctx = context()) {
+        set_ctx(ctx);
         return apply(e, ctx, ctx.size());
+    }
+
+    void clear() {
+        m_ctx = context();
+        m_cache.clear();
     }
 };
 }

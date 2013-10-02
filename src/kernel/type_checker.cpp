@@ -24,6 +24,7 @@ class type_checker::imp {
     environment const &    m_env;
     cache                  m_cache;
     normalizer             m_normalizer;
+    context                m_ctx;
     metavar_env *          m_menv;
     unsigned               m_menv_timestamp;
     unification_problems * m_up;
@@ -202,6 +203,13 @@ class type_checker::imp {
         return m_normalizer.is_convertible(t1, t2, ctx, m_menv, m_up);
     }
 
+    void set_ctx(context const & ctx) {
+        if (!is_eqp(m_ctx, ctx)) {
+            clear();
+            m_ctx = ctx;
+        }
+    }
+
     void set_menv(metavar_env * menv) {
         if (m_menv == menv) {
             // Check whether m_menv has been updated since the last time the normalizer has been invoked
@@ -227,18 +235,21 @@ public:
     }
 
     level infer_universe(expr const & t, context const & ctx, metavar_env * menv, unification_problems * up) {
+        set_ctx(ctx);
         set_menv(menv);
         flet<unification_problems*> set(m_up, up);
         return infer_universe_core(t, ctx);
     }
 
     expr infer_type(expr const & e, context const & ctx, metavar_env * menv, unification_problems * up) {
+        set_ctx(ctx);
         set_menv(menv);
         flet<unification_problems*> set(m_up, up);
         return infer_type_core(e, ctx);
     }
 
     bool is_convertible(expr const & t1, expr const & t2, context const & ctx, metavar_env * menv, unification_problems * up) {
+        set_ctx(ctx);
         set_menv(menv);
         flet<unification_problems*> set(m_up, up);
         return is_convertible_core(t1, t2, ctx);
@@ -252,6 +263,7 @@ public:
     void clear() {
         m_cache.clear();
         m_normalizer.clear();
+        m_ctx            = context();
         m_menv           = nullptr;
         m_menv_timestamp = 0;
     }

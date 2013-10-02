@@ -14,24 +14,8 @@ Author: Leonardo de Moura
 #include "kernel/for_each.h"
 
 namespace lean {
-void substitution::inc_timestamp() {
-    if (m_timestamp == std::numeric_limits<unsigned>::max()) {
-        // This should not happen in real examples. We add it just to be safe.
-        throw exception("metavar_env timestamp overflow");
-    }
-    m_timestamp++;
-}
-
 substitution::substitution():
-    m_size(0),
-    m_timestamp(0) {
-}
-
-bool substitution::operator==(substitution const & s) const {
-    if (size() != s.size())
-        return false;
-    // TODO(Leo)
-    return true;
+    m_size(0) {
 }
 
 bool substitution::is_assigned(name const & m) const {
@@ -45,7 +29,6 @@ bool substitution::is_assigned(expr const & m) const {
 void substitution::assign(name const & m, expr const & t) {
     lean_assert(!is_assigned(m));
     m_subst.insert(m, t);
-    inc_timestamp();
     m_size++;
 }
 
@@ -93,20 +76,94 @@ expr substitution::get_subst(expr const & m) const {
 
 static name g_unique_name = name::mk_internal_unique_name();
 
-metavar_generator::metavar_generator(name const & prefix):
-    m_gen(prefix) {
+void metavar_env::inc_timestamp() {
+    if (m_timestamp == std::numeric_limits<unsigned>::max()) {
+        // This should not happen in real examples. We add it just to be safe.
+        throw exception("metavar_env timestamp overflow");
+    }
+    m_timestamp++;
 }
 
-metavar_generator::metavar_generator():
-    m_gen(g_unique_name) {
+metavar_env::metavar_env(name const & prefix):
+    m_name_generator(prefix),
+    m_timestamp(0) {
 }
 
-expr metavar_generator::mk(expr const & t) {
-    return mk_metavar(m_gen.next(), t, local_context());
+metavar_env::metavar_env():
+    metavar_env(g_unique_name) {
 }
 
-expr metavar_generator::mk() {
-    return mk(mk(expr()));
+expr metavar_env::mk_metavar(context const & ctx, expr const & type) {
+    inc_timestamp();
+    name m = m_name_generator.next();
+    expr r = ::lean::mk_metavar(m);
+    if (ctx)
+        m_metavar_contexts.insert(m, ctx);
+    if (type)
+        m_metavar_types.insert(m, type);
+    return r;
+}
+
+context metavar_env::get_context(expr const & m) const {
+    lean_assert(is_metavar(m));
+    lean_assert(!has_local_context(m));
+    return get_context(metavar_name(m));
+}
+
+context metavar_env::get_context(name const & m) const {
+    auto e = const_cast<metavar_env*>(this)->m_metavar_contexts.splay_find(m);
+    if (e)
+        return e->second;
+    else
+        return context();
+}
+
+expr metavar_env::get_type(expr const & m) {
+    lean_assert(is_metavar(m));
+    expr t = get_type(metavar_name(m));
+    if (has_local_context(m)) {
+        if (is_metavar(t)) {
+            return update_metavar(t, append(metavar_lctx(m), metavar_lctx(t)));
+        } else {
+            return apply_local_context(t, metavar_lctx(m));
+        }
+    } else {
+        return t;
+    }
+}
+
+expr metavar_env::get_type(name const & m) {
+    auto e = const_cast<metavar_env*>(this)->m_metavar_types.splay_find(m);
+    if (e) {
+        return e->second;
+    } else {
+        expr t = mk_metavar(get_context(m));
+        m_metavar_types.insert(m, t);
+        return t;
+    }
+}
+
+bool metavar_env::is_assigned(name const & m) const {
+    return m_substitution.is_assigned(m);
+}
+
+bool metavar_env::is_assigned(expr const & m) const {
+    lean_assert(is_metavar(m));
+    return is_assigned(metavar_name(m));
+}
+
+void metavar_env::assign(name const & m, expr const & t, trace const & tr) {
+    lean_assert(!is_assigned(m));
+    inc_timestamp();
+    m_substitution.assign(m, t);
+    if (tr)
+        m_metavar_traces.insert(m, tr);
+}
+
+void metavar_env::assign(expr const & m, expr const & t, trace const & tr) {
+    lean_assert(is_metavar(m));
+    lean_assert(!has_local_context(m));
+    assign(metavar_name(m), t, tr);
 }
 
 expr instantiate_metavars(expr const & e, substitution const & s) {

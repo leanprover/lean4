@@ -71,8 +71,8 @@ class normalizer::imp {
 
     environment const &  m_env;
     context              m_ctx;
-    substitution const * m_subst;
-    unsigned             m_subst_timestamp;
+    metavar_env const *  m_menv;
+    unsigned             m_menv_timestamp;
     cache                m_cache;
     unsigned             m_max_depth;
     unsigned             m_depth;
@@ -193,8 +193,8 @@ class normalizer::imp {
         svalue r;
         switch (a.kind()) {
         case expr_kind::MetaVar:
-            if (m_subst && m_subst->is_assigned(a)) {
-                r = normalize(m_subst->get_subst(a), s, k);
+            if (m_menv && m_menv->is_assigned(a)) {
+                r = normalize(m_menv->get_subst(a), s, k);
             } else {
                 r = svalue(updt_metavar(a, s, k));
             }
@@ -297,38 +297,38 @@ class normalizer::imp {
         }
     }
 
-    void set_subst(substitution const * subst) {
-        if (m_subst == subst) {
-            // Check whether m_subst has been updated since the last time the normalizer has been invoked
-            if (m_subst && m_subst->get_timestamp() > m_subst_timestamp) {
-                m_subst_timestamp = m_subst->get_timestamp();
+    void set_menv(metavar_env const * menv) {
+        if (m_menv == menv) {
+            // Check whether m_menv has been updated since the last time the normalizer has been invoked
+            if (m_menv && m_menv->get_timestamp() > m_menv_timestamp) {
+                m_menv_timestamp = m_menv->get_timestamp();
                 m_cache.clear();
             }
         } else {
-            m_subst = subst;
+            m_menv = menv;
             m_cache.clear();
-            m_subst_timestamp = m_subst ? m_subst->get_timestamp() : 0;
+            m_menv_timestamp = m_menv ? m_menv->get_timestamp() : 0;
         }
     }
 
 public:
     imp(environment const & env, unsigned max_depth):
         m_env(env) {
-        m_interrupted     = false;
-        m_max_depth       = max_depth;
-        m_depth           = 0;
-        m_subst           = nullptr;
-        m_subst_timestamp = 0;
+        m_interrupted    = false;
+        m_max_depth      = max_depth;
+        m_depth          = 0;
+        m_menv           = nullptr;
+        m_menv_timestamp = 0;
     }
 
-    expr operator()(expr const & e, context const & ctx, substitution const * subst) {
+    expr operator()(expr const & e, context const & ctx, metavar_env const * menv) {
         set_ctx(ctx);
-        set_subst(subst);
+        set_menv(menv);
         unsigned k = m_ctx.size();
         return reify(normalize(e, value_stack(), k), k);
     }
 
-    void clear() { m_ctx = context(); m_cache.clear(); m_subst = nullptr; m_subst_timestamp = 0; }
+    void clear() { m_ctx = context(); m_cache.clear(); m_menv = nullptr; m_menv_timestamp = 0; }
     void set_interrupt(bool flag) { m_interrupted = flag; }
 };
 
@@ -336,12 +336,12 @@ normalizer::normalizer(environment const & env, unsigned max_depth):m_ptr(new im
 normalizer::normalizer(environment const & env):normalizer(env, std::numeric_limits<unsigned>::max()) {}
 normalizer::normalizer(environment const & env, options const & opts):normalizer(env, get_normalizer_max_depth(opts)) {}
 normalizer::~normalizer() {}
-expr normalizer::operator()(expr const & e, context const & ctx, substitution const * subst) { return (*m_ptr)(e, ctx, subst); }
+expr normalizer::operator()(expr const & e, context const & ctx, metavar_env const * menv) { return (*m_ptr)(e, ctx, menv); }
 void normalizer::clear() { m_ptr->clear(); }
 void normalizer::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
 
-expr normalize(expr const & e, environment const & env, context const & ctx, substitution const * subst) {
-    return normalizer(env)(e, ctx, subst);
+expr normalize(expr const & e, environment const & env, context const & ctx, metavar_env const * menv) {
+    return normalizer(env)(e, ctx, menv);
 }
 }
 

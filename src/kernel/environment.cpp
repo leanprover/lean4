@@ -235,7 +235,7 @@ struct environment::imp {
         infer_universe and infer_type expect an environment instead of environment::imp.
     */
     void check_type(name const & n, expr const & t, expr const & v, environment const & env) {
-        m_type_checker.infer_universe(t);
+        m_type_checker.check_type(t);
         expr v_t = m_type_checker.infer_type(v);
         if (!m_type_checker.is_convertible(v_t, t))
             throw def_type_mismatch_exception(env, n, t, v, v_t);
@@ -296,14 +296,14 @@ struct environment::imp {
     /** \brief Add new axiom. */
     void add_axiom(name const & n, expr const & t, environment const & env) {
         check_name(n, env);
-        m_type_checker.infer_universe(t);
+        m_type_checker.check_type(t);
         register_named_object(mk_axiom(n, t));
     }
 
     /** \brief Add new variable. */
     void add_var(name const & n, expr const & t, environment const & env) {
         check_name(n, env);
-        m_type_checker.infer_universe(t);
+        m_type_checker.check_type(t);
         register_named_object(mk_var_decl(n, t));
     }
 

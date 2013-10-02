@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/name_generator.h"
 #include "kernel/expr.h"
 #include "kernel/context.h"
+#include "kernel/trace.h"
 
 namespace lean {
 /**
@@ -20,17 +21,8 @@ class substitution {
     typedef splay_map<name, expr, name_cmp> name2expr;
     name2expr m_subst;
     unsigned  m_size;
-    unsigned  m_timestamp;
-
-    void inc_timestamp();
 public:
     substitution();
-
-    /**
-       \brief The timestamp is increased whenever the substitution is updated by
-       \c mk_metavar or \c assign.
-    */
-    unsigned get_timestamp() const { return m_timestamp; }
 
     /**
        \brief Return the number of assigned metavariables in this substitution.
@@ -77,9 +69,6 @@ public:
     */
     expr get_subst(expr const & m) const;
 
-    bool operator==(substitution const & s) const;
-    bool operator!=(substitution const & s) const { return !operator==(s); }
-
     /**
        \brief Apply f to each entry in this substitution.
     */
@@ -96,17 +85,20 @@ public:
    4- Collecting constraints
 */
 class metavar_env {
-    typedef splay_map<name, expr, name_cmp> name2expr;
+    typedef splay_map<name, expr, name_cmp>    name2expr;
     typedef splay_map<name, context, name_cmp> name2context;
+    typedef splay_map<name, trace, name_cmp>   name2trace;
 
     name_generator m_name_generator;
     substitution   m_substitution;
     name2expr      m_metavar_types;
     name2context   m_metavar_contexts;
+    name2trace     m_metavar_traces;
     unsigned       m_timestamp;
 
     void inc_timestamp();
 public:
+    metavar_env(name const & prefix);
     metavar_env();
 
     /**
@@ -123,13 +115,19 @@ public:
     /**
        \brief Return the context where the given metavariable was created.
        \pre is_metavar(m)
+       \pre !has_local_context(m)
     */
-    context get_context(expr const & m);
-    context get_context(name const & m);
+    context get_context(expr const & m) const;
+    context get_context(name const & m) const;
 
     /**
        \brief Return the type of the given metavariable.
        \pre is_metavar(m)
+
+       \remark If \c m does not have a type associated with it, then a new
+       metavariable is created to represent the type of \c m.
+
+       \remark If \c m has a local context, then the local context is applied.
     */
     expr get_type(expr const & m);
     expr get_type(name const & m);
@@ -152,7 +150,7 @@ public:
 
        \pre !is_assigned(m)
     */
-    void assign(name const & m, expr const & t);
+    void assign(name const & m, expr const & t, trace const & tr = trace());
 
     /**
        \brief Assign metavariable \c m to \c t.
@@ -161,12 +159,14 @@ public:
        \pre !has_meta_context(m)
        \pre !is_assigned(m)
     */
-    void assign(expr const & m, expr const & t);
+    void assign(expr const & m, expr const & t, trace const & tr = trace());
 
     /**
        \brief Return the set of substitutions.
     */
-    substitution const & get_substitutions() const;
+    substitution const & get_substitutions() const { return m_substitution; }
+
+    operator substitution const &() const { return get_substitutions(); }
 
     /**
        \brief Return the substitution associated with the given metavariable
@@ -177,33 +177,7 @@ public:
 
        \pre is_metavar(m)
     */
-    expr get_subst(expr const & m) const;
-};
-
-/**
-   \brief Metavar generator.
-*/
-class metavar_generator {
-    name_generator m_gen;
-public:
-    metavar_generator(name const & prefix);
-    metavar_generator();
-
-    /**
-       \brief Return the prefix used to create metavariables in this generator.
-    */
-    name const & prefix() const { return m_gen.prefix(); }
-
-    /**
-       \brief Create a metavariable with the given type.
-    */
-    expr mk(expr const & t);
-
-    /**
-       \brief Create a metavariable where the type is another
-       metavariable. The type of the type is a null expression.
-    */
-    expr mk();
+    expr get_subst(expr const & m) const { return m_substitution.get_subst(m); }
 };
 
 /**
@@ -269,26 +243,4 @@ bool has_assigned_metavar(expr const & e, substitution const & s);
    \brief is_metavar(m)
 */
 bool has_metavar(expr const & e, expr const & m, substitution const & s = substitution());
-
-
-/**
-   \brief Set of unification constraints that need to be solved.
-   It store two kinds of problems:
-   1. <tt>ctx |- lhs == rhs</tt>
-   2. <tt>ctx |- n : t</tt>
-*/
-class unification_constraints {
-public:
-    virtual ~unification_constraints() {}
-    /**
-       \brief Add a new unification problem of the form <tt>ctx |- lhs == rhs</tt>
-       It means that rhs is convertible to lhs.
-       If rhs and lhs are not types, then this is just equality (modulo normalization).
-    */
-    virtual void add(context const & ctx, expr const & lhs, expr const & rhs) = 0;
-    /**
-       \brief Add a new unification problem of the form <tt>ctx |- n : t</tt>
-    */
-    virtual void add_type_of(context const & ctx, expr const & n, expr const & t) = 0;
-};
 }

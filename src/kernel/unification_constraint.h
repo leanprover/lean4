@@ -34,6 +34,7 @@ enum class unification_constraint_kind { Eq, Convertible, Max, Choice };
    \brief Base class for all Lean unification constraints.
 */
 class unification_constraint_cell {
+protected:
     unification_constraint_kind m_kind;
     context                     m_ctx;
     trace                       m_trace; //!< justification for this constraint
@@ -41,9 +42,11 @@ class unification_constraint_cell {
     void dealloc();
 public:
     unification_constraint_cell(unification_constraint_kind k, context const & c, trace const & t);
+    virtual ~unification_constraint_cell();
     unification_constraint_kind kind() const { return m_kind; }
     trace const & get_trace() const { return m_trace; }
     context const & get_context() const { return m_ctx; }
+    virtual format pp(formatter const & fmt, options const & opts, bool include_trace = false) const = 0;
 };
 
 class unification_constraint {
@@ -66,6 +69,11 @@ public:
 
     operator bool() const { return m_ptr != nullptr; }
 
+    format pp(formatter const & fmt, options const & opts, bool include_trace = false) const {
+        lean_assert(m_ptr);
+        return m_ptr->pp(fmt, opts, include_trace);
+    }
+
     friend unification_constraint mk_eq_constraint(context const & c, expr const & lhs, expr const & rhs, trace const & t);
     friend unification_constraint mk_convertible_constraint(context const & c, expr const & from, expr const & to, trace const & t);
     friend unification_constraint mk_max_constraint(context const & c, expr const & lhs1, expr const & lhs2, expr const & rhs, trace const & t);
@@ -80,8 +88,10 @@ class unification_constraint_eq : public unification_constraint_cell {
     expr m_rhs;
 public:
     unification_constraint_eq(context const & c, expr const & lhs, expr const & rhs, trace const & t);
+    virtual ~unification_constraint_eq();
     expr const & get_lhs() const { return m_lhs; }
     expr const & get_rhs() const { return m_rhs; }
+    virtual format pp(formatter const & fmt, options const & opts, bool include_trace = false) const;
 };
 
 /**
@@ -94,8 +104,10 @@ class unification_constraint_convertible : public unification_constraint_cell {
     expr m_to;
 public:
     unification_constraint_convertible(context const & c, expr const & from, expr const & to, trace const & t);
+    virtual ~unification_constraint_convertible();
     expr const & get_from() const { return m_from; }
     expr const & get_to() const   { return m_to; }
+    virtual format pp(formatter const & fmt, options const & opts, bool include_trace = false) const;
 };
 
 /**
@@ -107,9 +119,11 @@ class unification_constraint_max : public unification_constraint_cell {
     expr m_rhs;
 public:
     unification_constraint_max(context const & c, expr const & lhs1, expr const & lhs2, expr const & rhs, trace const & t);
+    virtual ~unification_constraint_max();
     expr const & get_lhs1() const { return m_lhs1; }
     expr const & get_lhs2() const { return m_lhs2; }
     expr const & get_rhs() const  { return m_rhs; }
+    virtual format pp(formatter const & fmt, options const & opts, bool include_trace = false) const;
 };
 
 /**
@@ -122,11 +136,13 @@ class unification_constraint_choice : public unification_constraint_cell {
     friend unification_constraint mk_choice_constraint(context const & c, expr const & mvar, unsigned num, expr const * choices, trace const & t);
 public:
     unification_constraint_choice(context const & c, expr const & mvar, unsigned num, trace const & t);
+    virtual ~unification_constraint_choice();
     expr const & get_mvar() const               { return m_mvar; }
     unsigned     get_num_choices() const        { return m_num_choices; }
     expr const & get_choice(unsigned idx) const { lean_assert(idx < m_num_choices); return m_choices[idx]; }
     expr const * begin_choices() const          { return m_choices; }
     expr const * end_choices() const            { return m_choices + m_num_choices; }
+    virtual format pp(formatter const & fmt, options const & opts, bool include_trace = false) const;
 };
 
 unification_constraint mk_eq_constraint(context const & c, expr const & lhs, expr const & rhs, trace const & t);
@@ -145,16 +161,16 @@ inline unification_constraint_convertible * to_convertible(unification_constrain
 inline unification_constraint_max *         to_max(unification_constraint const & c)         { lean_assert(is_max(c)); return static_cast<unification_constraint_max*>(c.raw()); }
 inline unification_constraint_choice *      to_choice(unification_constraint const & c)      { lean_assert(is_choice(c)); return static_cast<unification_constraint_choice*>(c.raw()); }
 
-context const & get_context(unification_constraint const & c) { return c.raw()->get_context(); }
-trace   const & get_trace(unification_constraint const & c) { return c.raw()->get_trace(); }
-expr const & eq_lhs(unification_constraint const & c) { return to_eq(c)->get_lhs(); }
-expr const & eq_rhs(unification_constraint const & c) { return to_eq(c)->get_rhs(); }
-expr const & convertible_from(unification_constraint const & c) { return to_convertible(c)->get_from(); }
-expr const & convertible_to(unification_constraint const & c) { return to_convertible(c)->get_to(); }
-expr const & max_lhs1(unification_constraint const & c) { return to_max(c)->get_lhs1(); }
-expr const & max_lhs2(unification_constraint const & c) { return to_max(c)->get_lhs2(); }
-expr const & max_rhs(unification_constraint const & c) { return to_max(c)->get_rhs(); }
-expr const & choice_mvar(unification_constraint const & c) { return to_choice(c)->get_mvar(); }
-unsigned     choice_size(unification_constraint const & c) { return to_choice(c)->get_num_choices(); }
-expr const & choice_ith(unification_constraint const & c, unsigned i) { return to_choice(c)->get_choice(i); }
+inline context const & get_context(unification_constraint const & c) { return c.raw()->get_context(); }
+inline trace   const & get_trace(unification_constraint const & c) { return c.raw()->get_trace(); }
+inline expr const & eq_lhs(unification_constraint const & c) { return to_eq(c)->get_lhs(); }
+inline expr const & eq_rhs(unification_constraint const & c) { return to_eq(c)->get_rhs(); }
+inline expr const & convertible_from(unification_constraint const & c) { return to_convertible(c)->get_from(); }
+inline expr const & convertible_to(unification_constraint const & c) { return to_convertible(c)->get_to(); }
+inline expr const & max_lhs1(unification_constraint const & c) { return to_max(c)->get_lhs1(); }
+inline expr const & max_lhs2(unification_constraint const & c) { return to_max(c)->get_lhs2(); }
+inline expr const & max_rhs(unification_constraint const & c) { return to_max(c)->get_rhs(); }
+inline expr const & choice_mvar(unification_constraint const & c) { return to_choice(c)->get_mvar(); }
+inline unsigned     choice_size(unification_constraint const & c) { return to_choice(c)->get_num_choices(); }
+inline expr const & choice_ith(unification_constraint const & c, unsigned i) { return to_choice(c)->get_choice(i); }
 }

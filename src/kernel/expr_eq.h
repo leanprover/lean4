@@ -60,7 +60,6 @@ class expr_eq_fn {
         case expr_kind::MetaVar:
             return
                 metavar_name(a) == metavar_name(b) &&
-                metavar_raw_type(a) == metavar_raw_type(b) &&
                 compare(metavar_lctx(a), metavar_lctx(b), [&](local_entry const & e1, local_entry const & e2) {
                         if (e1.kind() != e2.kind() || e1.s() != e2.s())
                             return false;

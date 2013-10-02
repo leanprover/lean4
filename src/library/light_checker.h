@@ -6,13 +6,14 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
+#include "util/buffer.h"
 #include "kernel/expr.h"
 #include "kernel/context.h"
+#include "kernel/unification_constraint.h"
 
 namespace lean {
 class environment;
-class substitution;
-class unification_constraints;
+class metavar_env;
 /**
    \brief Functional object for "quickly" inferring the type of expressions.
    It does not check whether the input expression is type correct or not.
@@ -30,7 +31,8 @@ public:
     light_checker(environment const & env);
     ~light_checker();
 
-    expr operator()(expr const & e, context const & ctx = context(), substitution * subst = nullptr, unification_constraints * uc = nullptr);
+    expr operator()(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> & uc);
+    expr operator()(expr const & e, context const & ctx = context());
 
     void clear();
 

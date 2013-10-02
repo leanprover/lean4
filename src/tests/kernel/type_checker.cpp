@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <string>
 #include "util/test.h"
 #include "util/trace.h"
 #include "util/exception.h"

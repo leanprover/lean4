@@ -13,8 +13,7 @@ Author: Leonardo de Moura
 namespace lean {
 class environment;
 class options;
-class substitution;
-class unification_constraints;
+class metavar_env;
 /** \brief Functional object for normalizing expressions */
 class normalizer {
     class imp;
@@ -25,7 +24,7 @@ public:
     normalizer(environment const & env, options const & opts);
     ~normalizer();
 
-    expr operator()(expr const & e, context const & ctx = context(), substitution const * subst = nullptr);
+    expr operator()(expr const & e, context const & ctx = context(), metavar_env const * menv = nullptr);
 
     void clear();
 
@@ -34,5 +33,5 @@ public:
     void reset_interrupt() { set_interrupt(false); }
 };
 /** \brief Normalize \c e using the environment \c env and context \c ctx */
-expr normalize(expr const & e, environment const & env, context const & ctx = context(), substitution const * subst = nullptr);
+expr normalize(expr const & e, environment const & env, context const & ctx = context(), metavar_env const * menv = nullptr);
 }

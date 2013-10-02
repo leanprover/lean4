@@ -137,21 +137,10 @@ expr_value::expr_value(value & v):
 expr_value::~expr_value() {
     m_val.dec_ref();
 }
-expr_metavar::expr_metavar(name const & n, expr const & t, local_context const & lctx):
+expr_metavar::expr_metavar(name const & n, local_context const & lctx):
     expr_cell(expr_kind::MetaVar, n.hash(), true),
-    m_name(n), m_type(t), m_lctx(lctx) {}
+    m_name(n), m_lctx(lctx) {}
 expr_metavar::~expr_metavar() {}
-expr expr_metavar::get_type() const {
-    if (m_type && get_lctx()) {
-        if (is_metavar(m_type)) {
-            return update_metavar(m_type, append(get_lctx(), metavar_lctx(m_type)));
-        } else {
-            return apply_local_context(m_type, get_lctx());
-        }
-    } else {
-        return m_type;
-    }
-}
 
 void expr_cell::dealloc() {
     switch (kind()) {
@@ -192,7 +181,7 @@ expr copy(expr const & a) {
     case expr_kind::Lambda:   return mk_lambda(abst_name(a), abst_domain(a), abst_body(a));
     case expr_kind::Pi:       return mk_pi(abst_name(a), abst_domain(a), abst_body(a));
     case expr_kind::Let:      return mk_let(let_name(a), let_type(a), let_value(a), let_body(a));
-    case expr_kind::MetaVar:  return mk_metavar(metavar_name(a), metavar_raw_type(a), metavar_lctx(a));
+    case expr_kind::MetaVar:  return mk_metavar(metavar_name(a), metavar_lctx(a));
     }
     lean_unreachable();
 }

@@ -8,13 +8,12 @@ Author: Leonardo de Moura
 #include <memory>
 #include "kernel/expr.h"
 #include "kernel/context.h"
+#include "kernel/unification_constraint.h"
+#include "kernel/metavar.h"
 
 namespace lean {
 class environment;
 class normalizer;
-class substitution;
-class metavar_generator;
-class unification_constraints;
 /**
    \brief Lean Type Checker. It can also be used to infer types, universes and check whether a
    type \c A is convertible to a type \c B.
@@ -26,42 +25,46 @@ public:
     type_checker(environment const & env);
     ~type_checker();
 
-    expr infer_type(expr const & e,
-                    context const & ctx = context(),
-                    substitution * subst = nullptr,
-                    metavar_generator * mgen = nullptr,
-                    unification_constraints * uc = nullptr);
+    /**
+       \brief Return the type of \c e in the context \c ctx.
 
-    level infer_universe(expr const & e,
-                         context const & ctx = context(),
-                         substitution * subst = nullptr,
-                         metavar_generator * mgen = nullptr,
-                         unification_constraints * uc = nullptr);
+       \remark This method throws an exception if \c e is not type correct.
 
-    void check(expr const & e,
-               context const & ctx = context(),
-               substitution * subst = nullptr,
-               metavar_generator * mgen = nullptr,
-               unification_constraints * uc = nullptr) {
-        infer_type(e, ctx, subst, mgen, uc);
-    }
+       \remark If \c menv is not nullptr, then \c e may contain metavariables.
+       New metavariables and unification constraints may be created by the type checker.
+       The new unification constraints are stored in \c new_constraints.
+    */
+    expr infer_type(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> & new_constraints);
 
-    bool is_convertible(expr const & t1,
-                        expr const & t2,
-                        context const & ctx = context(),
-                        substitution * subst = nullptr,
-                        unification_constraints * uc = nullptr);
+    /**
+        \brief Return the type of \c e in the context \c ctx.
 
+        \remark This method throws an exception if \c e is not type
+        correct, or if \c e contains metavariables.
+    */
+    expr infer_type(expr const & e, context const & ctx = context());
+
+    /** \brief Throw an exception if \c e is not type correct in the context \c ctx. */
+    void check(expr const & e, context const & ctx = context()) { infer_type(e, ctx); }
+
+    /** \brief Throw an exception if \c e is not a type in the context \c ctx. */
+    void check_type(expr const & e, context const & ctx = context());
+
+    /** \brief Return true iff \c t1 is convertible to \c t2 in the context \c ctx. */
+    bool is_convertible(expr const & t1, expr const & t2, context const & ctx = context());
+
+    /** \brief Reset internal caches */
     void clear();
 
+    /** \brief Interrupt type checker */
     void set_interrupt(bool flag);
     void interrupt() { set_interrupt(true); }
     void reset_interrupt() { set_interrupt(false); }
 
+    /** \brief Return reference to the normalizer used by this type checker. */
     normalizer & get_normalizer();
 };
 
 expr infer_type(expr const & e, environment const & env, context const & ctx = context());
-bool is_convertible(expr const & t1, expr const & t2, environment const & env, context const & ctx = context(),
-                    substitution * subst = nullptr, unification_constraints * uc = nullptr);
+bool is_convertible(expr const & t1, expr const & t2, environment const & env, context const & ctx = context());
 }

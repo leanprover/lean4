@@ -327,25 +327,6 @@ class ho_unifier::imp {
         return is_meta_app(a) && has_local_context(arg(a, 0));
     }
 
-    /**
-       Auxiliary class for invoking m_type_infer.
-       If it creates a new unfication problem we mark m_failed to true.
-       add_eq can be easily supported, but we need to extend ho_unifier API to be able
-       to support add_type_of_eq and add_is_convertible.
-       The m_type_infer only invokes add_type_of_eq when it needs to ask for the type
-       of a metavariable that does not have a type yet.
-       One possible workaround it o make sure that every metavariable has an associated type
-       before invoking ho_unifier.
-    */
-    class unification_constraints_wrapper : public unification_constraints {
-        bool m_failed;
-    public:
-        unification_constraints_wrapper():m_failed(false) {}
-        virtual void add(context const &, expr const &, expr const &) { m_failed = true; }
-        virtual void add_type_of(context const &, expr const &, expr const &) { m_failed = true; }
-        bool failed() const { return m_failed; }
-    };
-
     expr mk_lambda(name const & n, expr const & d, expr const & b) {
         return ::lean::mk_lambda(n, d, b);
     }
@@ -382,7 +363,9 @@ class ho_unifier::imp {
        We perform a "case split" using "projection" or "imitation". See Huet&Lang's paper on higher order matching
        for further details.
     */
-    bool process_meta_app(context const & ctx, expr const & a, expr const & b) {
+    bool process_meta_app(context const & /* ctx */, expr const & /* a */, expr const & /* b */) {
+        return true;
+#if 0
         lean_assert(is_meta_app(a));
         lean_assert(!has_local_context(arg(a, 0)));
         lean_assert(!is_meta_app(b));
@@ -394,7 +377,7 @@ class ho_unifier::imp {
         substitution s    = subst_of(top_state);
         name const & mname = metavar_name(f_a);
         unsigned num_a     = num_args(a);
-        unification_constraints_wrapper ucw;
+        // unification_constraints_wrapper ucw;
         buffer<expr> arg_types;
         for (unsigned i = 1; i < num_a; i++) {
             arg_types.push_back(m_type_infer(arg(a, i), ctx, &s, &ucw));
@@ -464,6 +447,7 @@ class ho_unifier::imp {
         m_state_stack.push_back(mk_state(new_s, new_q));
         reset_delayed();
         return true;
+#endif
     }
 
     /** \brief Return true if \c a is of the form ?m[inst:i t, ...] */
@@ -621,8 +605,8 @@ class ho_unifier::imp {
                 return true;
             }
 
-            expr norm_a = m_normalizer(a, ctx, &s);
-            expr norm_b = m_normalizer(b, ctx, &s);
+            expr norm_a; // = m_normalizer(a, ctx, &s);
+            expr norm_b; //  = m_normalizer(b, ctx, &s);
             if (norm_a.kind() != norm_b.kind())
                 return false;
             if (is_app(norm_a)) {

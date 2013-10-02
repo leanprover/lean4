@@ -70,12 +70,12 @@ static void tst1() {
     local_context lctx3{mk_lift(3, 1), mk_inst(0, Const("a"))};
     local_context lctx4{mk_lift(0, 1), mk_inst(0, Const("a")), mk_inst(0, Const("b"))};
     local_context lctx5{mk_inst(0, Const("a")), mk_inst(0, Const("a"))};
-    lt(mk_metavar("a", expr(), lctx1), mk_metavar("b", expr(), lctx1), true);
-    lt(mk_metavar("a", expr(), lctx1), mk_metavar("a", expr(), lctx2), true);
-    lt(mk_metavar("a", expr(), lctx1), mk_metavar("a", expr(), lctx3), true);
-    lt(mk_metavar("a", expr(), lctx1), mk_metavar("a", expr(), lctx4), true);
-    lt(mk_metavar("a", expr(), lctx1), mk_metavar("a", expr(), lctx5), true);
-    lt(mk_metavar("a", expr(), lctx1), mk_metavar("a", expr(), lctx1), false);
+    lt(mk_metavar("a", lctx1), mk_metavar("b", lctx1), true);
+    lt(mk_metavar("a", lctx1), mk_metavar("a", lctx2), true);
+    lt(mk_metavar("a", lctx1), mk_metavar("a", lctx3), true);
+    lt(mk_metavar("a", lctx1), mk_metavar("a", lctx4), true);
+    lt(mk_metavar("a", lctx1), mk_metavar("a", lctx5), true);
+    lt(mk_metavar("a", lctx1), mk_metavar("a", lctx1), false);
 }
 
 int main() {

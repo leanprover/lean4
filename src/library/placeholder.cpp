@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/occurs.h"
 #include "kernel/metavar.h"
 #include "kernel/expr_maps.h"
-#include "kernel/replace.h"
+#include "library/replace_using_ctx.h"
 #include "library/placeholder.h"
 
 namespace lean {
@@ -24,18 +24,18 @@ bool has_placeholder(expr const & e) {
     return occurs(mk_placholder(), e);
 }
 
-expr replace_placeholders_with_metavars(expr const & e, metavar_generator & mgen, expr_map<expr> * trace) {
-    auto f = [&](expr const & e, unsigned) -> expr {
+expr replace_placeholders_with_metavars(expr const & e, metavar_env & menv, expr_map<expr> * new2old) {
+    auto f = [&](expr const & e, context const & c, unsigned) -> expr {
         if (is_placeholder(e)) {
-            return mgen.mk();
+            return menv.mk_metavar(c);
         } else {
             return e;
         }
     };
     auto p = [&](expr const & s, expr const & t) {
-        if (trace)
-            (*trace)[t] = s;
+        if (new2old)
+            (*new2old)[t] = s;
     };
-    return replace_fn<decltype(f), decltype(p)>(f, p)(e);
+    return replace_using_ctx_fn<decltype(f), decltype(p)>(f, p)(e);
 }
 }

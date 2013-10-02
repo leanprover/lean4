@@ -80,8 +80,8 @@ void tst3() {
     expr m1; // = subst.mk_metavar();
     expr m2; // = subst.mk_metavar();
     expr m3; // = subst.mk_metavar();
-    expr t1 = metavar_type(m1);
-    expr t2 = metavar_type(m2);
+    expr t1; //  = metavar_type(m1);
+    expr t2; // = metavar_type(m2);
     expr f  = Const("f");
     expr a  = Const("a");
     expr b  = Const("b");

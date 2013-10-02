@@ -57,7 +57,7 @@ void level_cell::dealloc() {
     }
 }
 static name g_bot_name("bot");
-level::level():                           m_ptr(new level_uvar(g_bot_name)) { lean_assert(uvar_name(*this) == name("bot")); }
+level::level():                           m_ptr(new level_uvar(g_bot_name)) { lean_assert_eq(uvar_name(*this), name("bot")); }
 level::level(name const & n):             m_ptr(new level_uvar(n)) {}
 level::level(level const & l, unsigned k):m_ptr(new level_lift(l, k)) { lean_assert(is_uvar(l)); }
 level::level(level_cell * ptr):           m_ptr(ptr) { lean_assert(m_ptr->get_rc() == 1); }

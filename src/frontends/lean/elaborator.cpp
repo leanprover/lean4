@@ -59,8 +59,10 @@ expr elaborator::operator()(expr const & e, expr const & /* expected_type */) { 
 expr const & elaborator::get_original(expr const & e) const { return e; }
 void elaborator::set_interrupt(bool ) {}
 void elaborator::clear() {}
-environment g_env;
-environment const & elaborator::get_environment() const { return g_env; }
+environment const & elaborator::get_environment() const {
+    static thread_local environment g_env;
+    return g_env;
+}
 void elaborator::display(std::ostream & ) const {}
 format elaborator::pp(formatter &, options const &) const { return format(); }
 void elaborator::print(imp * ptr) { lean_assert(ptr); }

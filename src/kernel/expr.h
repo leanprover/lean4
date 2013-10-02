@@ -587,6 +587,8 @@ template<typename F> expr update_eq(expr const & e, F f) {
         return e;
 }
 template<typename F> expr update_metavar(expr const & e, name const & n, F f) {
+    static_assert(std::is_same<typename std::result_of<F(local_entry const &)>::type, local_entry>::value,
+                  "update_metavar: return type of f(local_entry) is not local_entry");
     buffer<local_entry> new_entries;
     bool modified = n != metavar_name(e);
     for (local_entry const & me : metavar_lctx(e)) {
@@ -607,6 +609,8 @@ template<typename F> expr update_metavar(expr const & e, name const & n, F f) {
         return e;
 }
 template<typename F> expr update_metavar(expr const & e, F f) {
+    static_assert(std::is_same<typename std::result_of<F(local_entry const &)>::type, local_entry>::value,
+                  "update_metavar: return type of f(local_entry) is not local_entry");
     return update_metavar(e, metavar_name(e), f);
 }
 inline expr update_metavar(expr const & e, local_context const & lctx) {

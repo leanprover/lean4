@@ -52,19 +52,19 @@ expr const & get_choice(expr const & e, unsigned i) {
     return arg(eq_rhs(e), i);
 }
 
-elaborator::elaborator(frontend const & ) {}
-elaborator::~elaborator() {}
-expr elaborator::operator()(expr const & e) { return e; }
-expr elaborator::operator()(expr const & e, expr const & /* expected_type */) { return e; }
-expr const & elaborator::get_original(expr const & e) const { return e; }
-void elaborator::set_interrupt(bool ) {}
-void elaborator::clear() {}
-environment const & elaborator::get_environment() const {
+old_elaborator::old_elaborator(frontend const & ) {}
+old_elaborator::~old_elaborator() {}
+expr old_elaborator::operator()(expr const & e) { return e; }
+expr old_elaborator::operator()(expr const & e, expr const & /* expected_type */) { return e; }
+expr const & old_elaborator::get_original(expr const & e) const { return e; }
+void old_elaborator::set_interrupt(bool ) {}
+void old_elaborator::clear() {}
+environment const & old_elaborator::get_environment() const {
     static thread_local environment g_env;
     return g_env;
 }
-void elaborator::display(std::ostream & ) const {}
-format elaborator::pp(formatter &, options const &) const { return format(); }
-void elaborator::print(imp * ptr) { lean_assert(ptr); }
-bool elaborator::has_constraints() const { return false; }
+void old_elaborator::display(std::ostream & ) const {}
+format old_elaborator::pp(formatter &, options const &) const { return format(); }
+void old_elaborator::print(imp * ptr) { lean_assert(ptr); }
+bool old_elaborator::has_constraints() const { return false; }
 }

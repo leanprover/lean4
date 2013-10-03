@@ -16,13 +16,13 @@ class frontend;
    in terms left by the user. This is the main module resposible for computing
    the value of implicit arguments.
 */
-class elaborator {
+class old_elaborator {
     class imp;
     std::shared_ptr<imp> m_ptr;
     static void print(imp * ptr);
 public:
-    explicit elaborator(frontend const & fe);
-    ~elaborator();
+    explicit old_elaborator(frontend const & fe);
+    ~old_elaborator();
 
     expr operator()(expr const & e);
     expr operator()(expr const & e, expr const & expected_type);

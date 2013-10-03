@@ -17,39 +17,39 @@ namespace lean {
     \remark We reuse kernel exceptions to sign type errors during
     elaboration. Perhaps we should wrap them as elaborator exceptions.
 */
-class elaborator_exception : public exception {
+class old_elaborator_exception : public exception {
 protected:
-    elaborator m_elb;
+    old_elaborator m_elb;
     context    m_context;
     expr       m_expr;
 public:
-    elaborator_exception(elaborator const & elb, context const & ctx, expr const & e):m_elb(elb), m_context(ctx), m_expr(e) {}
-    virtual ~elaborator_exception() noexcept {}
-    elaborator const & get_elaborator() const { return m_elb; }
+    old_elaborator_exception(old_elaborator const & elb, context const & ctx, expr const & e):m_elb(elb), m_context(ctx), m_expr(e) {}
+    virtual ~old_elaborator_exception() noexcept {}
+    old_elaborator const & get_elaborator() const { return m_elb; }
     expr const & get_expr() const { return m_expr; }
     context const & get_context() const { return m_context; }
     virtual format pp(formatter const & fmt, options const & opts) const;
 };
 
-class invalid_placeholder_exception : public elaborator_exception {
+class invalid_placeholder_exception : public old_elaborator_exception {
 public:
-    invalid_placeholder_exception(elaborator const & elb, context const & ctx, expr const & e):elaborator_exception(elb, ctx, e) {}
+    invalid_placeholder_exception(old_elaborator const & elb, context const & ctx, expr const & e):old_elaborator_exception(elb, ctx, e) {}
     virtual char const * what() const noexcept { return "invalid placeholder occurrence, placeholder cannot be used as application head"; }
 };
 
-class unsolved_placeholder_exception : public elaborator_exception {
+class unsolved_placeholder_exception : public old_elaborator_exception {
 public:
-    unsolved_placeholder_exception(elaborator const & elb, context const & ctx, expr const & e):elaborator_exception(elb, ctx, e) {}
+    unsolved_placeholder_exception(old_elaborator const & elb, context const & ctx, expr const & e):old_elaborator_exception(elb, ctx, e) {}
     virtual char const * what() const noexcept { return "unsolved placeholder"; }
 };
 
-class unification_app_mismatch_exception : public elaborator_exception {
+class unification_app_mismatch_exception : public old_elaborator_exception {
     std::vector<expr> m_args;
     std::vector<expr> m_types;
 public:
-    unification_app_mismatch_exception(elaborator const & elb, context const & ctx, expr const & s,
+    unification_app_mismatch_exception(old_elaborator const & elb, context const & ctx, expr const & s,
                                        std::vector<expr> const & args, std::vector<expr> const & types):
-        elaborator_exception(elb, ctx, s),
+        old_elaborator_exception(elb, ctx, s),
         m_args(args),
         m_types(types) {}
     virtual ~unification_app_mismatch_exception() {}
@@ -59,14 +59,14 @@ public:
     virtual format pp(formatter const & fmt, options const & opts) const;
 };
 
-class unification_type_mismatch_exception : public elaborator_exception {
+class unification_type_mismatch_exception : public old_elaborator_exception {
     expr m_processed_expr;
     expr m_expected_type;
     expr m_given_type;
 public:
-    unification_type_mismatch_exception(elaborator const & elb, context const & ctx, expr const & s,
+    unification_type_mismatch_exception(old_elaborator const & elb, context const & ctx, expr const & s,
                                         expr const & processed, expr const & expected, expr const & given):
-        elaborator_exception(elb, ctx, s), m_processed_expr(processed), m_expected_type(expected), m_given_type(given) {}
+        old_elaborator_exception(elb, ctx, s), m_processed_expr(processed), m_expected_type(expected), m_given_type(given) {}
     virtual ~unification_type_mismatch_exception() {}
     expr const & get_processed_expr() const { return m_processed_expr; }
     expr const & get_expected_type() const { return m_expected_type; }
@@ -75,16 +75,16 @@ public:
     virtual format pp(formatter const & fmt, options const & opts) const;
 };
 
-class overload_exception : public elaborator_exception {
+class overload_exception : public old_elaborator_exception {
     std::vector<expr> m_fs;
     std::vector<expr> m_f_types;
     std::vector<expr> m_args;
     std::vector<expr> m_arg_types;
 public:
-    overload_exception(elaborator const & elb, context const & ctx, expr const & s,
+    overload_exception(old_elaborator const & elb, context const & ctx, expr const & s,
                           unsigned num_fs, expr const * fs, expr const * ftypes,
                           unsigned num_args, expr const * args, expr const * argtypes):
-        elaborator_exception(elb, ctx, s),
+        old_elaborator_exception(elb, ctx, s),
         m_fs(fs, fs + num_fs),
         m_f_types(ftypes, ftypes + num_fs),
         m_args(args, args + num_args),
@@ -100,7 +100,7 @@ public:
 
 class no_overload_exception : public overload_exception {
 public:
-    no_overload_exception(elaborator const & elb, context const & ctx, expr const & s,
+    no_overload_exception(old_elaborator const & elb, context const & ctx, expr const & s,
                           unsigned num_fs, expr const * fs, expr const * ftypes,
                           unsigned num_args, expr const * args, expr const * argtypes):
         overload_exception(elb, ctx, s, num_fs, fs, ftypes, num_args, args, argtypes) {}
@@ -109,13 +109,13 @@ public:
 
 class ambiguous_overload_exception : public overload_exception {
 public:
-    ambiguous_overload_exception(elaborator const & elb, context const & ctx, expr const & s,
+    ambiguous_overload_exception(old_elaborator const & elb, context const & ctx, expr const & s,
                                  unsigned num_fs, expr const * fs, expr const * ftypes,
                                  unsigned num_args, expr const * args, expr const * argtypes):
         overload_exception(elb, ctx, s, num_fs, fs, ftypes, num_args, args, argtypes) {}
     virtual char const * what() const noexcept { return "ambiguous overloads"; }
 };
 
-regular const & operator<<(regular const & out, elaborator_exception const & ex);
-diagnostic const & operator<<(diagnostic const & out, elaborator_exception const & ex);
+regular const & operator<<(regular const & out, old_elaborator_exception const & ex);
+diagnostic const & operator<<(diagnostic const & out, old_elaborator_exception const & ex);
 }

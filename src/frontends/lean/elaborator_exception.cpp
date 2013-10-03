@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/elaborator.h"
 
 namespace lean {
-format pp_elaborator_state(formatter fmt, elaborator const & elb, options const & opts) {
+format pp_elaborator_state(formatter fmt, old_elaborator const & elb, options const & opts) {
     unsigned indent     = get_pp_indent(opts);
     format r;
     if (elb.has_constraints()) {
@@ -33,7 +33,7 @@ format pp(formatter fmt, context const & ctx, std::vector<expr> const & exprs, s
     return r;
 }
 
-format elaborator_exception::pp(formatter const & fmt, options const & opts) const {
+format old_elaborator_exception::pp(formatter const & fmt, options const & opts) const {
     unsigned indent  = get_pp_indent(opts);
     format expr_fmt  = fmt(get_context(), get_expr(), false, opts);
     format r;
@@ -102,13 +102,13 @@ format unification_type_mismatch_exception::pp(formatter const & fmt, options co
     return r;
 }
 
-regular const & operator<<(regular const & out, elaborator_exception const & ex) {
+regular const & operator<<(regular const & out, old_elaborator_exception const & ex) {
     options const & opts = out.m_state.get_options();
     out.m_state.get_regular_channel().get_stream() << mk_pair(ex.pp(out.m_state.get_formatter(), opts), opts);
     return out;
 }
 
-diagnostic const & operator<<(diagnostic const & out, elaborator_exception const & ex) {
+diagnostic const & operator<<(diagnostic const & out, old_elaborator_exception const & ex) {
     options const & opts = out.m_state.get_options();
     out.m_state.get_diagnostic_channel().get_stream() << mk_pair(ex.pp(out.m_state.get_formatter(), opts), opts);
     return out;

@@ -20,7 +20,7 @@ Author: Leonardo de Moura
 using namespace lean;
 
 expr elaborate(expr const & e, frontend const & env) {
-    elaborator elb(env);
+    old_elaborator elb(env);
     return elb(e);
 }
 

@@ -24,7 +24,7 @@ static format add_context(formatter const & fmt, options const & opts, context c
 }
 
 static format add_trace(formatter const & fmt, options const & opts, format const & body, trace const & tr, bool include_trace) {
-    if (include_trace) {
+    if (tr && include_trace) {
         unsigned indent  = get_pp_indent(opts);
         return format{body, line(), format("Trace:"), nest(indent, compose(line(), tr.pp(fmt, opts)))};
     } else {

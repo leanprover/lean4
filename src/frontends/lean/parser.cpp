@@ -117,7 +117,7 @@ class parser::imp {
     typedef buffer<std::tuple<pos_info, name, expr, bool>> bindings_buffer;
     frontend       m_frontend;
     scanner        m_scanner;
-    elaborator     m_elaborator;
+    old_elaborator m_elaborator;
     scanner::token m_curr;
     bool           m_use_exceptions;
     bool           m_interactive;
@@ -1502,20 +1502,24 @@ class parser::imp {
             return display_error_pos(m_last_cmd_pos);
         }
     }
+
     void display_error(char const * msg, unsigned line, unsigned pos) {
         display_error_pos(line, pos);
         regular(m_frontend) << " " << msg << endl;
         sync();
     }
+
     void display_error(char const * msg) {
         display_error(msg, m_scanner.get_line(), m_scanner.get_pos());
     }
+
     void display_error(kernel_exception const & ex) {
         display_error_pos(m_elaborator.get_original(ex.get_main_expr()));
         regular(m_frontend) << " " << ex << endl;
         sync();
     }
-    void display_error(elaborator_exception const & ex) {
+
+    void display_error(old_elaborator_exception const & ex) {
         display_error_pos(m_elaborator.get_original(ex.get_expr()));
         regular(m_frontend) << " " << ex << endl;
         sync();
@@ -1582,7 +1586,7 @@ public:
                     display_error(ex);
                 if (m_use_exceptions)
                     throw;
-            } catch (elaborator_exception & ex) {
+            } catch (old_elaborator_exception & ex) {
                 m_found_errors = true;
                 if (m_show_errors)
                     display_error(ex);

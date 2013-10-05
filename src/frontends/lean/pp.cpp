@@ -198,8 +198,10 @@ class pp_fn {
     */
     bool is_atomic(expr const & e) {
         switch (e.kind()) {
-        case expr_kind::Var: case expr_kind::Constant: case expr_kind::Value: case expr_kind::Type:
+        case expr_kind::Var: case expr_kind::Constant: case expr_kind::Value:
             return true;
+        case expr_kind::Type:
+            return e == Type();
         case expr_kind::MetaVar:
             return !metavar_lctx(e);
         case expr_kind::App:

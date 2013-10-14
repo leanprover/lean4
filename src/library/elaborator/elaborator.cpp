@@ -4,21 +4,36 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/pdeque.h"
+#include "kernel/formatter.h"
 #include "library/elaborator/elaborator.h"
 
 namespace lean {
 class elaborator::imp {
+    typedef pdeque<unification_constraint> cnstr_queue;
+
+    struct state {
+        unsigned    m_id;
+        metavar_env m_menv;
+        cnstr_queue m_queue;
+    };
+
     environment const &                m_env;
     std::shared_ptr<synthesizer>       m_synthesizer;
     std::shared_ptr<elaborator_plugin> m_plugin;
     bool                               m_interrupted;
 public:
-    imp(environment const & env, metavar_env const &, unsigned, unification_constraint const *,
+    imp(environment const & env, metavar_env const &, unsigned num_cnstrs, unification_constraint const * cnstrs,
         std::shared_ptr<synthesizer> const & s, std::shared_ptr<elaborator_plugin> const & p):
         m_env(env),
         m_synthesizer(s),
         m_plugin(p) {
         m_interrupted = false;
+
+        formatter fmt = mk_simple_formatter();
+        for (unsigned i = 0; i < num_cnstrs; i++) {
+            std::cout << cnstrs[i].pp(fmt, options(), true) << "\n";
+        }
     }
 
     substitution next() {

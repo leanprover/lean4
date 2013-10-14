@@ -112,7 +112,7 @@ format unification_constraint_choice::pp(formatter const & fmt, options const & 
     format or_op    = unicode ? format("\u2295") : format("OR");
     format body;
     for (unsigned i = 0; i < m_num_choices; i++) {
-        body += format{m_fmt, eq_op, fmt(m_ctx, m_choices[i], false, opts)};
+        body += group(paren(format{m_fmt, space(), eq_op, compose(line(), fmt(m_ctx, m_choices[i], false, opts))}));
         if (i + 1 < m_num_choices)
             body += format{space(), or_op, line()};
     }

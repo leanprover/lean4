@@ -8,13 +8,24 @@ Author: Leonardo de Moura
 
 namespace lean {
 
+void add_pos_info(format & r, expr const & e, pos_info_provider const * p) {
+    if (!p)
+        return;
+    format f = p->pp(e);
+    if (!f)
+        return;
+    r += f;
+    r += space();
+}
+
 function_expected_trace_cell::~function_expected_trace_cell() {
 }
 
-format function_expected_trace_cell::pp(formatter const & fmt, options const & opts) const {
+format function_expected_trace_cell::pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool) const {
     unsigned indent = get_pp_indent(opts);
     format expr_fmt = fmt(m_ctx, m_app, false, opts);
     format r;
+    add_pos_info(r, get_main_expr(), p);
     r += format("Function expected at");
     r += nest(indent, compose(line(), expr_fmt));
     return r;
@@ -30,9 +41,10 @@ expr const & function_expected_trace_cell::get_main_expr() const {
 app_type_match_trace_cell::~app_type_match_trace_cell() {
 }
 
-format app_type_match_trace_cell::pp(formatter const & fmt, options const & opts) const {
+format app_type_match_trace_cell::pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool) const {
     unsigned indent = get_pp_indent(opts);
     format r;
+    add_pos_info(r, get_main_expr(), p);
     r += format("Type of argument ");
     r += format(m_i);
     r += format(" must be convertible to the expected type in the application of");
@@ -58,10 +70,11 @@ expr const & app_type_match_trace_cell::get_main_expr() const {
 type_expected_trace_cell::~type_expected_trace_cell() {
 }
 
-format type_expected_trace_cell::pp(formatter const & fmt, options const & opts) const {
+format type_expected_trace_cell::pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool) const {
     unsigned indent = get_pp_indent(opts);
     format expr_fmt = fmt(m_ctx, m_type, false, opts);
     format r;
+    add_pos_info(r, get_main_expr(), p);
     r += format("Type expected at");
     r += nest(indent, compose(line(), expr_fmt));
     return r;
@@ -77,8 +90,9 @@ expr const & type_expected_trace_cell::get_main_expr() const {
 def_type_match_trace_cell::~def_type_match_trace_cell() {
 }
 
-format def_type_match_trace_cell::pp(formatter const &, options const &) const {
+format def_type_match_trace_cell::pp(formatter const &, options const &, pos_info_provider const * p, bool) const {
     format r;
+    add_pos_info(r, get_main_expr(), p);
     r += format("Type of definition '");
     r += format(get_name());
     r += format("' must be convertible to expected type.");

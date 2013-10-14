@@ -32,7 +32,7 @@ public:
 
         formatter fmt = mk_simple_formatter();
         for (unsigned i = 0; i < num_cnstrs; i++) {
-            std::cout << cnstrs[i].pp(fmt, options(), true) << "\n";
+            std::cout << cnstrs[i].pp(fmt, options(), nullptr, true) << "\n";
         }
     }
 

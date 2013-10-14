@@ -185,6 +185,8 @@ public:
     }
     unsigned hash() const { return m_value.hash(); }
 
+    operator bool() const { return m_value; }
+
     friend format compose(format const & f1, format const & f2);
     friend format nest(int i, format const & f);
     friend format highlight(format const & f, format::format_color const c);

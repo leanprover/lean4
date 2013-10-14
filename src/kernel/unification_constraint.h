@@ -46,7 +46,7 @@ public:
     unification_constraint_kind kind() const { return m_kind; }
     trace const & get_trace() const { return m_trace; }
     context const & get_context() const { return m_ctx; }
-    virtual format pp(formatter const & fmt, options const & opts, bool include_trace = false) const = 0;
+    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_trace) const = 0;
 };
 
 class unification_constraint {
@@ -69,9 +69,9 @@ public:
 
     operator bool() const { return m_ptr != nullptr; }
 
-    format pp(formatter const & fmt, options const & opts, bool include_trace = false) const {
+    format pp(formatter const & fmt, options const & opts, pos_info_provider const * p = nullptr, bool include_trace = false) const {
         lean_assert(m_ptr);
-        return m_ptr->pp(fmt, opts, include_trace);
+        return m_ptr->pp(fmt, opts, p, include_trace);
     }
 
     friend unification_constraint mk_eq_constraint(context const & c, expr const & lhs, expr const & rhs, trace const & t);
@@ -91,7 +91,7 @@ public:
     virtual ~unification_constraint_eq();
     expr const & get_lhs() const { return m_lhs; }
     expr const & get_rhs() const { return m_rhs; }
-    virtual format pp(formatter const & fmt, options const & opts, bool include_trace = false) const;
+    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_trace) const;
 };
 
 /**
@@ -107,7 +107,7 @@ public:
     virtual ~unification_constraint_convertible();
     expr const & get_from() const { return m_from; }
     expr const & get_to() const   { return m_to; }
-    virtual format pp(formatter const & fmt, options const & opts, bool include_trace = false) const;
+    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_trace) const;
 };
 
 /**
@@ -123,7 +123,7 @@ public:
     expr const & get_lhs1() const { return m_lhs1; }
     expr const & get_lhs2() const { return m_lhs2; }
     expr const & get_rhs() const  { return m_rhs; }
-    virtual format pp(formatter const & fmt, options const & opts, bool include_trace = false) const;
+    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_trace) const;
 };
 
 /**
@@ -142,7 +142,7 @@ public:
     expr const & get_choice(unsigned idx) const { lean_assert(idx < m_num_choices); return m_choices[idx]; }
     expr const * begin_choices() const          { return m_choices; }
     expr const * end_choices() const            { return m_choices + m_num_choices; }
-    virtual format pp(formatter const & fmt, options const & opts, bool include_trace = false) const;
+    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_trace) const;
 };
 
 unification_constraint mk_eq_constraint(context const & c, expr const & lhs, expr const & rhs, trace const & t);

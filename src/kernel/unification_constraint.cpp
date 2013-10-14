@@ -23,10 +23,10 @@ static format add_context(formatter const & fmt, options const & opts, context c
     return group(format{ctx_fmt, space(), turnstile, line(), body});
 }
 
-static format add_trace(formatter const & fmt, options const & opts, format const & body, trace const & tr, bool include_trace) {
+static format add_trace(formatter const & fmt, options const & opts, format const & body, trace const & tr, pos_info_provider const * p, bool include_trace) {
     if (tr && include_trace) {
         unsigned indent  = get_pp_indent(opts);
-        return format{body, line(), format("Trace:"), nest(indent, compose(line(), tr.pp(fmt, opts)))};
+        return format{body, line(), format("Trace:"), nest(indent, compose(line(), tr.pp(fmt, opts, p)))};
     } else {
         return body;
     }
@@ -52,11 +52,11 @@ unification_constraint_eq::unification_constraint_eq(context const & c, expr con
 unification_constraint_eq::~unification_constraint_eq() {
 }
 
-format unification_constraint_eq::pp(formatter const & fmt, options const & opts, bool include_trace) const {
+format unification_constraint_eq::pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_trace) const {
     format op   = mk_unification_op(opts);
     format body = mk_binary(fmt, opts, m_ctx, m_lhs, m_rhs, op);
     body = add_context(fmt, opts, m_ctx, body);
-    return add_trace(fmt, opts, body, m_trace, include_trace);
+    return add_trace(fmt, opts, body, m_trace, p, include_trace);
 }
 
 unification_constraint_convertible::unification_constraint_convertible(context const & c, expr const & from, expr const & to, trace const & t):
@@ -68,12 +68,12 @@ unification_constraint_convertible::unification_constraint_convertible(context c
 unification_constraint_convertible::~unification_constraint_convertible() {
 }
 
-format unification_constraint_convertible::pp(formatter const & fmt, options const & opts, bool include_trace) const {
+format unification_constraint_convertible::pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_trace) const {
     bool unicode = get_pp_unicode(opts);
     format op    = unicode ? format("\u227A") /* ≺ */ : format("<<");
     format body  = mk_binary(fmt, opts, m_ctx, m_from, m_to, op);
     body = add_context(fmt, opts, m_ctx, body);
-    return add_trace(fmt, opts, body, m_trace, include_trace);
+    return add_trace(fmt, opts, body, m_trace, p, include_trace);
 }
 
 unification_constraint_max::unification_constraint_max(context const & c, expr const & lhs1, expr const & lhs2, expr const & rhs, trace const & t):
@@ -86,14 +86,14 @@ unification_constraint_max::unification_constraint_max(context const & c, expr c
 unification_constraint_max::~unification_constraint_max() {
 }
 
-format unification_constraint_max::pp(formatter const & fmt, options const & opts, bool include_trace) const {
+format unification_constraint_max::pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_trace) const {
     format op       = mk_unification_op(opts);
     format lhs1_fmt = fmt(m_ctx, m_lhs1, false, opts);
     format lhs2_fmt = fmt(m_ctx, m_lhs2, false, opts);
     format rhs_fmt  = fmt(m_ctx, m_rhs, false, opts);
     format body     = group(format{format("max"), lp(), lhs1_fmt, comma(), nest(4, compose(line(), lhs2_fmt)), space(), op, line(), rhs_fmt});
     body = add_context(fmt, opts, m_ctx, body);
-    return add_trace(fmt, opts, body, m_trace, include_trace);
+    return add_trace(fmt, opts, body, m_trace, p, include_trace);
 }
 
 unification_constraint_choice::unification_constraint_choice(context const & c, expr const & mvar, unsigned num, trace const & t):
@@ -105,7 +105,7 @@ unification_constraint_choice::unification_constraint_choice(context const & c, 
 unification_constraint_choice::~unification_constraint_choice() {
 }
 
-format unification_constraint_choice::pp(formatter const & fmt, options const & opts, bool include_trace) const {
+format unification_constraint_choice::pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_trace) const {
     bool unicode    = get_pp_unicode(opts);
     format m_fmt    = fmt(m_ctx, m_mvar, false, opts);
     format eq_op    = mk_unification_op(opts);
@@ -118,7 +118,7 @@ format unification_constraint_choice::pp(formatter const & fmt, options const & 
     }
     body = group(body);
     body = add_context(fmt, opts, m_ctx, body);
-    return add_trace(fmt, opts, body, m_trace, include_trace);
+    return add_trace(fmt, opts, body, m_trace, p, include_trace);
 }
 
 unification_constraint mk_eq_constraint(context const & c, expr const & lhs, expr const & rhs, trace const & t) {

@@ -36,7 +36,7 @@ std::ostream & operator<<(std::ostream & out, substitution const & env) {
 std::ostream & operator<<(std::ostream & out, buffer<unification_constraint> const & uc) {
     formatter fmt = mk_simple_formatter();
     for (auto c : uc) {
-        out << c.pp(fmt, options(), true) << "\n";
+        out << c.pp(fmt, options(), nullptr, true) << "\n";
     }
     return out;
 }

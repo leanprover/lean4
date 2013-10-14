@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "util/sexpr/format.h"
 #include "kernel/expr.h"
 #include "kernel/formatter.h"
+#include "kernel/pos_info_provider.h"
 
 namespace lean {
 class trace;
@@ -27,7 +28,7 @@ class trace_cell {
 public:
     trace_cell():m_rc(0) {}
     virtual ~trace_cell() {}
-    virtual format pp(formatter const & fmt, options const & opts) const = 0;
+    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool display_children) const = 0;
     virtual void get_children(buffer<trace_cell*> & r) const = 0;
     virtual expr const & get_main_expr() const { return expr::null(); }
     bool is_shared() const { return get_rc() > 1; }
@@ -53,7 +54,10 @@ public:
 
     trace & operator=(trace const & s) { LEAN_COPY_REF(trace, s); }
     trace & operator=(trace && s) { LEAN_MOVE_REF(trace, s); }
-    format pp(formatter const & fmt, options const & opts) const { lean_assert(m_ptr); return m_ptr->pp(fmt, opts); }
+    format pp(formatter const & fmt, options const & opts, pos_info_provider const * p = nullptr, bool display_children = true) const {
+        lean_assert(m_ptr);
+        return m_ptr->pp(fmt, opts, p, display_children);
+    }
     expr const & get_main_expr() const { return m_ptr ? m_ptr->get_main_expr() : expr::null(); }
     void get_children(buffer<trace_cell*> & r) const { if (m_ptr) m_ptr->get_children(r); }
     bool has_children() const;

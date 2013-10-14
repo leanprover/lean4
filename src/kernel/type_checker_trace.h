@@ -27,7 +27,7 @@ class function_expected_trace_cell : public trace_cell {
 public:
     function_expected_trace_cell(context const & c, expr const & app):m_ctx(c), m_app(app) {}
     virtual ~function_expected_trace_cell();
-    virtual format pp(formatter const & fmt, options const & opts) const;
+    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool display_children) const;
     virtual void get_children(buffer<trace_cell*> &) const;
     virtual expr const & get_main_expr() const;
     context const & get_context() const { return m_ctx; }
@@ -52,7 +52,7 @@ class app_type_match_trace_cell : public trace_cell {
 public:
     app_type_match_trace_cell(context const & c, expr const & a, unsigned i):m_ctx(c), m_app(a), m_i(i) {}
     virtual ~app_type_match_trace_cell();
-    virtual format pp(formatter const & fmt, options const & opts) const;
+    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool display_children) const;
     virtual void get_children(buffer<trace_cell*> &) const;
     virtual expr const & get_main_expr() const;
     context const & get_context() const { return m_ctx; }
@@ -75,7 +75,7 @@ class type_expected_trace_cell : public trace_cell {
 public:
     type_expected_trace_cell(context const & c, expr const & t):m_ctx(c), m_type(t) {}
     virtual ~type_expected_trace_cell();
-    virtual format pp(formatter const & fmt, options const & opts) const;
+    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool display_children) const;
     virtual void get_children(buffer<trace_cell*> &) const;
     virtual expr const & get_main_expr() const;
     context const & get_context() const { return m_ctx; }
@@ -112,7 +112,7 @@ class def_type_match_trace_cell : public trace_cell {
 public:
     def_type_match_trace_cell(context const & c, name const & n, expr const & v):m_ctx(c), m_name(n), m_value(v) {}
     virtual ~def_type_match_trace_cell();
-    virtual format pp(formatter const & fmt, options const & opts) const;
+    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool display_children) const;
     virtual void get_children(buffer<trace_cell*> &) const;
     virtual expr const & get_main_expr() const;
     context const & get_context() const { return m_ctx; }

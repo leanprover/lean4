@@ -43,11 +43,13 @@ public:
     static void inv(float & v) { v = 1.0/v; }
     static void reset(float & v) { v = 0.0; }
     static float const & zero();
+    static float const & one();
 
     static void power(float & v, unsigned k) { float_power(v, k); }
     static void abs(float & v) { float_abs(v); }
     static void ceil(float & v) { float_ceil(v); }
     static void floor(float & v) { float_floor(v); }
+    static double get_double(float const & d) { return static_cast<double>(d); }
 
     static float const & min(float const & v1, float const & v2) {
         return v1 < v2 ? v1 : v2;

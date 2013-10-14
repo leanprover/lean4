@@ -28,4 +28,9 @@ static float g_zero = 0.0;
 float const & numeric_traits<float>::zero() {
     return g_zero;
 }
+
+static float g_one = 1.0;
+float const & numeric_traits<float>::one() {
+    return g_one;
+}
 };

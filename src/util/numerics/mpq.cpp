@@ -137,6 +137,11 @@ mpq const & numeric_traits<mpq>::zero() {
     return *g_zero;
 }
 
+static mpq * g_one = nullptr;
+mpq const & numeric_traits<mpq>::one() {
+    return *g_one;
+}
+
 serializer & operator<<(serializer & s, mpq const & n) {
     std::ostringstream out;
     out << n;
@@ -146,12 +151,14 @@ serializer & operator<<(serializer & s, mpq const & n) {
 
 void initialize_mpq() {
     g_zero = new mpq();
+    g_one  = new mpq(1);
     numeric_traits<mpq>::initialize();
 }
 
 void finalize_mpq() {
     numeric_traits<mpq>::finalize();
     delete g_zero;
+    delete g_one;
 }
 
 mpq read_mpq(deserializer & d) {

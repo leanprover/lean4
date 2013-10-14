@@ -239,11 +239,13 @@ public:
     static void inv(mpq & v) { v.inv(); }
     static void reset(mpq & v) { v = 0; }
     static mpq const & zero();
+    static mpq const & one();
 
     static void power(mpq & v, unsigned k) { _power(v, v, k); }
     static void abs(mpq & v) { v.abs(); }
     static void ceil(mpq & v) { v.ceil(); }
     static void floor(mpq & v) { v.floor(); }
+    static double get_double(mpq const & d) { return d.get_double(); }
 
     // constants
     static inline mpq pi_lower()       { return *pi_l;     }

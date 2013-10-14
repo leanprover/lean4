@@ -412,6 +412,7 @@ add_subdirectory(tests/shell)
 if (NOT("${CROSS_COMPILE}" MATCHES "ON"))
   add_subdirectory(tests/shared)
 endif()
+add_subdirectory(tests/util/lp)
 
 # Include style check
 if (NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows"))

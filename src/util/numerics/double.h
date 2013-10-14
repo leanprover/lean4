@@ -42,8 +42,10 @@ public:
     static void neg(double & v) { v = -v; }
     static void inv(double & v) { v = 1.0/v; }
     static void reset(double & v) { v = 0.0; }
-    static double const & zero();
-
+    static double g_zero;
+    static double const & zero() { return g_zero; }
+    static double g_one;
+    static double const & one() { return g_one; }
     static void power(double & v, unsigned k) { double_power(v, k); }
     static void abs(double & v) { double_abs(v); }
     static void ceil(double & v) { double_ceil(v); }
@@ -54,6 +56,8 @@ public:
     static double const & max(double const & v1, double const & v2) {
         return v1 > v2 ? v1 : v2;
     }
+
+    static double const & get_double(double const & d) { return d;}
 
     // constants
     static const  double constexpr pi_l = (3373259426.0 + 273688.0 / (1<<21)) / (1<<30);

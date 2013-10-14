@@ -28,7 +28,7 @@ public:
     function_expected_trace_cell(context const & c, expr const & app):m_ctx(c), m_app(app) {}
     virtual ~function_expected_trace_cell();
     virtual format pp(formatter const & fmt, options const & opts) const;
-    virtual void get_children(buffer<trace> &) const;
+    virtual void get_children(buffer<trace_cell*> &) const;
     virtual expr const & get_main_expr() const;
     context const & get_context() const { return m_ctx; }
     expr const & get_app() const { return m_app; }
@@ -53,7 +53,7 @@ public:
     app_type_match_trace_cell(context const & c, expr const & a, unsigned i):m_ctx(c), m_app(a), m_i(i) {}
     virtual ~app_type_match_trace_cell();
     virtual format pp(formatter const & fmt, options const & opts) const;
-    virtual void get_children(buffer<trace> &) const;
+    virtual void get_children(buffer<trace_cell*> &) const;
     virtual expr const & get_main_expr() const;
     context const & get_context() const { return m_ctx; }
     expr const & get_app() const { return m_app; }
@@ -76,7 +76,7 @@ public:
     type_expected_trace_cell(context const & c, expr const & t):m_ctx(c), m_type(t) {}
     virtual ~type_expected_trace_cell();
     virtual format pp(formatter const & fmt, options const & opts) const;
-    virtual void get_children(buffer<trace> &) const;
+    virtual void get_children(buffer<trace_cell*> &) const;
     virtual expr const & get_main_expr() const;
     context const & get_context() const { return m_ctx; }
     expr const & get_type() const { return m_type; }
@@ -113,7 +113,7 @@ public:
     def_type_match_trace_cell(context const & c, name const & n, expr const & v):m_ctx(c), m_name(n), m_value(v) {}
     virtual ~def_type_match_trace_cell();
     virtual format pp(formatter const & fmt, options const & opts) const;
-    virtual void get_children(buffer<trace> &) const;
+    virtual void get_children(buffer<trace_cell*> &) const;
     virtual expr const & get_main_expr() const;
     context const & get_context() const { return m_ctx; }
     name const & get_name() const { return m_name; }

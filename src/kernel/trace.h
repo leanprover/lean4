@@ -28,8 +28,9 @@ public:
     trace_cell():m_rc(0) {}
     virtual ~trace_cell() {}
     virtual format pp(formatter const & fmt, options const & opts) const = 0;
-    virtual void get_children(buffer<trace> & r) const = 0;
+    virtual void get_children(buffer<trace_cell*> & r) const = 0;
     virtual expr const & get_main_expr() const { return expr::null(); }
+    bool is_shared() const { return get_rc() > 1; }
 };
 
 /**
@@ -54,7 +55,13 @@ public:
     trace & operator=(trace && s) { LEAN_MOVE_REF(trace, s); }
     format pp(formatter const & fmt, options const & opts) const { lean_assert(m_ptr); return m_ptr->pp(fmt, opts); }
     expr const & get_main_expr() const { return m_ptr ? m_ptr->get_main_expr() : expr::null(); }
-    void get_children(buffer<trace> & r) const { if (m_ptr) m_ptr->get_children(r); }
+    void get_children(buffer<trace_cell*> & r) const { if (m_ptr) m_ptr->get_children(r); }
     bool has_children() const;
 };
+
+/**
+   \brief Return true iff \c t depends on \c d.
+   That is \c t is a descendant of \c d.
+*/
+bool depends_on(trace const & t, trace const & d);
 }

@@ -20,7 +20,7 @@ format function_expected_trace_cell::pp(formatter const & fmt, options const & o
     return r;
 }
 
-void function_expected_trace_cell::get_children(buffer<trace> &) const {
+void function_expected_trace_cell::get_children(buffer<trace_cell*> &) const {
 }
 
 expr const & function_expected_trace_cell::get_main_expr() const {
@@ -48,7 +48,7 @@ format app_type_match_trace_cell::pp(formatter const & fmt, options const & opts
     return r;
 }
 
-void app_type_match_trace_cell::get_children(buffer<trace> &) const {
+void app_type_match_trace_cell::get_children(buffer<trace_cell*> &) const {
 }
 
 expr const & app_type_match_trace_cell::get_main_expr() const {
@@ -67,7 +67,7 @@ format type_expected_trace_cell::pp(formatter const & fmt, options const & opts)
     return r;
 }
 
-void type_expected_trace_cell::get_children(buffer<trace> &) const {
+void type_expected_trace_cell::get_children(buffer<trace_cell*> &) const {
 }
 
 expr const & type_expected_trace_cell::get_main_expr() const {
@@ -85,7 +85,7 @@ format def_type_match_trace_cell::pp(formatter const &, options const &) const {
     return r;
 }
 
-void def_type_match_trace_cell::get_children(buffer<trace> &) const {
+void def_type_match_trace_cell::get_children(buffer<trace_cell*> &) const {
 }
 
 expr const & def_type_match_trace_cell::get_main_expr() const {

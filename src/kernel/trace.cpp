@@ -4,12 +4,42 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <set>
+#include "util/buffer.h"
 #include "kernel/trace.h"
 
 namespace lean {
 bool trace::has_children() const {
-    buffer<trace> r;
+    buffer<trace_cell *> r;
     get_children(r);
     return !r.empty();
+}
+
+bool depends_on(trace const & t, trace const & d) {
+    buffer<trace_cell *>   todo;
+    std::set<trace_cell *> visited;
+    buffer<trace_cell *>   children;
+    todo.push_back(t.raw());
+    while (todo.empty()) {
+        trace_cell * curr = todo.back();
+        todo.pop_back();
+        if (curr == d.raw()) {
+            return true;
+        } else {
+            children.clear();
+            curr->get_children(children);
+            for (trace_cell * child : children) {
+                if (child->is_shared()) {
+                    if (visited.find(child) == visited.end()) {
+                        visited.insert(child);
+                        todo.push_back(child);
+                    }
+                } else {
+                    todo.push_back(child);
+                }
+            }
+        }
+    }
+    return false;
 }
 }

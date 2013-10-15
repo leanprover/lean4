@@ -207,6 +207,22 @@ static void tst9() {
     }
 }
 
+static void tst10() {
+    environment env;
+    import_all(env);
+    env.add_definition("a", Int, iVal(1));
+    lean_assert(env.get_object("a").get_weight() == 1);
+    expr a = Const("a");
+    expr b = Const("b");
+    expr c = Const("c");
+    env.add_definition("b", Int, iAdd(a, a));
+    lean_assert(env.get_object("b").get_weight() == 2);
+    env.add_definition("c", Int, iAdd(a, b));
+    lean_assert(env.get_object("c").get_weight() == 3);
+    env.add_definition("d", Int, iAdd(b, b));
+    lean_assert(env.get_object("d").get_weight() == 3);
+}
+
 int main() {
     enable_trace("is_convertible");
     tst1();
@@ -218,5 +234,6 @@ int main() {
     tst7();
     tst8();
     tst9();
+    tst10();
     return has_violations() ? 1 : 0;
 }

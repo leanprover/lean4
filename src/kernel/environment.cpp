@@ -9,13 +9,13 @@ Author: Leonardo de Moura
 #include <atomic>
 #include <unordered_map>
 #include "util/safe_arith.h"
+#include "kernel/for_each.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/environment.h"
 #include "kernel/type_checker.h"
 #include "kernel/normalizer.h"
 
 namespace lean {
-
 /** \brief Implementation of the Lean environment. */
 struct environment::imp {
     // Remark: only named objects are stored in the dictionary.
@@ -31,6 +31,20 @@ struct environment::imp {
     std::vector<object>                  m_objects;
     object_dictionary                    m_object_dictionary;
     type_checker                         m_type_checker;
+
+    unsigned get_max_weight(expr const & e) {
+        unsigned w = 0;
+        auto proc = [&](expr const & c, unsigned) {
+            if (is_constant(c)) {
+                object const & obj = get_object_core(const_name(c));
+                if (obj)
+                    w = std::max(w, obj.get_weight());
+            }
+        };
+        for_each_fn<decltype(proc)> visitor(proc);
+        visitor(e);
+        return w;
+    }
 
     /**
        \brief Return true iff this environment has children.
@@ -258,7 +272,8 @@ struct environment::imp {
     /** \brief Add new definition. */
     void add_definition(name const & n, expr const & t, expr const & v, bool opaque, environment const & env) {
         check_new_definition(n, t, v, env);
-        register_named_object(mk_definition(n, t, v, opaque));
+        unsigned w = get_max_weight(v) + 1;
+        register_named_object(mk_definition(n, t, v, opaque, w));
     }
 
     /**
@@ -268,7 +283,8 @@ struct environment::imp {
     void add_definition(name const & n, expr const & v, bool opaque, environment const & env) {
         check_name(n, env);
         expr v_t = m_type_checker.infer_type(v);
-        register_named_object(mk_definition(n, v_t, v, opaque));
+        unsigned w = get_max_weight(v) + 1;
+        register_named_object(mk_definition(n, v_t, v, opaque, w));
     }
 
     /** \brief Add new theorem. */

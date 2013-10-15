@@ -131,17 +131,19 @@ public:
    \brief Base class for definitions: theorems and definitions.
 */
 class definition_object_cell : public named_typed_object_cell {
-    expr m_value;
-    bool m_opaque;
+    expr     m_value;
+    bool     m_opaque;
+    unsigned m_weight;
 public:
-    definition_object_cell(name const & n, expr const & t, expr const & v, bool opaque):
-        named_typed_object_cell(object_kind::Definition, n, t), m_value(v), m_opaque(opaque) {}
+    definition_object_cell(name const & n, expr const & t, expr const & v, bool opaque, unsigned weight):
+        named_typed_object_cell(object_kind::Definition, n, t), m_value(v), m_opaque(opaque), m_weight(weight) {}
     virtual ~definition_object_cell() {}
 
-    virtual bool is_definition() const     { return true; }
-    virtual bool is_opaque() const         { return m_opaque; }
-    virtual expr get_value() const { return m_value; }
+    virtual bool is_definition() const   { return true; }
+    virtual bool is_opaque() const       { return m_opaque; }
+    virtual expr get_value() const       { return m_value; }
     virtual char const * keyword() const { return "Definition"; }
+    virtual unsigned get_weight() const  { return m_weight; }
 };
 
 /**
@@ -150,13 +152,13 @@ public:
 class theorem_object_cell : public definition_object_cell {
 public:
     theorem_object_cell(name const & n, expr const & t, expr const & v):
-        definition_object_cell(n, t, v, true) {}
+        definition_object_cell(n, t, v, true, 0) {}
     virtual char const * keyword() const { return "Theorem"; }
     virtual bool is_theorem() const { return true; }
 };
 
 object mk_uvar_decl(name const & n, level const & l) { return object(new uvar_declaration_object_cell(n, l)); }
-object mk_definition(name const & n, expr const & t, expr const & v, bool opaque) { return object(new definition_object_cell(n, t, v, opaque)); }
+object mk_definition(name const & n, expr const & t, expr const & v, bool opaque, unsigned weight) { return object(new definition_object_cell(n, t, v, opaque, weight)); }
 object mk_theorem(name const & n, expr const & t, expr const & v) { return object(new theorem_object_cell(n, t, v)); }
 object mk_axiom(name const & n, expr const & t) { return object(new axiom_object_cell(n, t)); }
 object mk_var_decl(name const & n, expr const & t) { return object(new variable_decl_object_cell(n, t)); }

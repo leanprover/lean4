@@ -62,6 +62,8 @@ public:
     virtual bool is_var_decl() const { return false; }
 
     virtual bool in_builtin_set(expr const &) const { return false; }
+
+    virtual unsigned get_weight() const { return 0; }
 };
 
 /**
@@ -101,7 +103,7 @@ public:
     object_kind kind() const { return m_ptr->kind(); }
 
     friend object mk_uvar_decl(name const & n, level const & l);
-    friend object mk_definition(name const & n, expr const & t, expr const & v, bool opaque);
+    friend object mk_definition(name const & n, expr const & t, expr const & v, bool opaque, unsigned weight);
     friend object mk_theorem(name const & n, expr const & t, expr const & v);
     friend object mk_axiom(name const & n, expr const & t);
     friend object mk_var_decl(name const & n, expr const & t);
@@ -119,6 +121,7 @@ public:
     bool is_definition() const { return m_ptr->is_definition(); }
     bool is_opaque() const { return m_ptr->is_opaque(); }
     expr get_value() const { return m_ptr->get_value(); }
+    unsigned get_weight() const { return m_ptr->get_weight(); }
 
     bool is_axiom() const { return m_ptr->is_axiom(); }
     bool is_theorem() const { return m_ptr->is_theorem(); }
@@ -132,7 +135,7 @@ public:
 object mk_uvar_decl(name const & n, level const & l);
 object mk_builtin(expr const & v);
 object mk_builtin_set(expr const & r);
-object mk_definition(name const & n, expr const & t, expr const & v, bool opaque);
+object mk_definition(name const & n, expr const & t, expr const & v, bool opaque, unsigned weight);
 object mk_theorem(name const & n, expr const & t, expr const & v);
 object mk_axiom(name const & n, expr const & t);
 object mk_var_decl(name const & n, expr const & t);

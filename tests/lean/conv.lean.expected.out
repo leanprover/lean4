@@ -1,0 +1,19 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Defined: id
+  Assumed: p
+λ x : id ℤ, x : (id ℤ) → (id ℤ)
+  Assumed: f
+p f : Bool
+  Defined: c
+  Assumed: g
+  Assumed: a
+g a : Bool
+  Defined: c2
+  Assumed: b
+c2::explicit : Π (T : Type), Type 3 → T → Type 3
+  Assumed: g2
+g2 : (c2 Type 2 b) → Bool
+  Assumed: a2
+g2 a2 : Bool
+λ x : c2 Type 1 b, g2 x : (c2 Type 1 b) → Bool

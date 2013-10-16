@@ -23,5 +23,10 @@ public:
 
     /** \brief Return a unique name modulo \c prefix. */
     name next() { name r(m_prefix, m_next_idx); m_next_idx++; return r; }
+
+    friend void swap(name_generator & a, name_generator & b) {
+        swap(a.m_prefix, b.m_prefix);
+        std::swap(a.m_next_idx, b.m_next_idx);
+    }
 };
 }

@@ -47,6 +47,7 @@ public:
     trace const & get_trace() const { return m_trace; }
     context const & get_context() const { return m_ctx; }
     virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_trace) const = 0;
+    void set_trace(trace const & t) { lean_assert(!m_trace); m_trace = t; }
 };
 
 class unification_constraint {
@@ -73,6 +74,9 @@ public:
         lean_assert(m_ptr);
         return m_ptr->pp(fmt, opts, p, include_trace);
     }
+
+    trace const & get_trace() const { lean_assert(m_ptr); return m_ptr->get_trace(); }
+    void set_trace(trace const & t) { lean_assert(!get_trace()); lean_assert(m_ptr); m_ptr->set_trace(t); }
 
     friend unification_constraint mk_eq_constraint(context const & c, expr const & lhs, expr const & rhs, trace const & t);
     friend unification_constraint mk_convertible_constraint(context const & c, expr const & from, expr const & to, trace const & t);

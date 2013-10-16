@@ -71,6 +71,7 @@ public:
     bool is_anonymous() const { return kind() == name_kind::ANONYMOUS; }
     bool is_string() const    { return kind() == name_kind::STRING; }
     bool is_numeral() const   { return kind() == name_kind::NUMERAL; }
+    operator bool() const     { return !is_anonymous(); }
     unsigned get_numeral() const;
     /**
        \brief If the tail of the given hierarchical name is a string, then it returns this string.
@@ -93,6 +94,10 @@ public:
     friend std::ostream & operator<<(std::ostream & out, name const & n);
     /** \brief Concatenate the two given names. */
     friend name operator+(name const & n1, name const & n2);
+
+    friend void swap(name & a, name & b) {
+        std::swap(a.m_ptr, b.m_ptr);
+    }
 };
 struct name_hash { unsigned operator()(name const & n) const { return n.hash(); } };
 struct name_eq { bool operator()(name const & n1, name const & n2) const { return n1 == n2; } };

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include "util/sexpr/options.h"
 #include "kernel/expr.h"
 #include "kernel/environment.h"
 #include "kernel/metavar.h"
@@ -41,21 +42,23 @@ public:
                metavar_env const & menv,
                unsigned num_cnstrs,
                unification_constraint const * cnstrs,
+               options const & opts = options(),
                std::shared_ptr<synthesizer> const & s = std::shared_ptr<synthesizer>(),
                std::shared_ptr<elaborator_plugin> const & p = std::shared_ptr<elaborator_plugin>());
 
     elaborator(environment const & env,
                metavar_env const & menv,
                std::initializer_list<unification_constraint> const & cnstrs,
+               options const & opts = options(),
                std::shared_ptr<synthesizer> const & s = std::shared_ptr<synthesizer>(),
                std::shared_ptr<elaborator_plugin> const & p = std::shared_ptr<elaborator_plugin>()):
-        elaborator(env, menv, cnstrs.size(), cnstrs.begin(), s, p) {}
+        elaborator(env, menv, cnstrs.size(), cnstrs.begin(), opts, s, p) {}
 
     elaborator(environment const & env,
                metavar_env const & menv,
                context const & ctx, expr const & lhs, expr const & rhs);
 
-   ~elaborator();
+    ~elaborator();
 
     substitution next();
     void interrupt();

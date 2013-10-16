@@ -166,6 +166,21 @@ void metavar_env::assign(expr const & m, expr const & t, trace const & tr) {
     assign(metavar_name(m), t, tr);
 }
 
+struct found_unassigned{};
+name metavar_env::find_unassigned_metavar() const {
+    name r;
+    try {
+        m_metavar_types.for_each([&](name const & m, expr const &) {
+                if (!m_substitution.is_assigned(m)) {
+                    r = m;
+                    throw found_unassigned();
+                }
+            });
+    } catch (found_unassigned &) {
+    }
+    return r;
+}
+
 expr instantiate_metavars(expr const & e, substitution const & s) {
     if (!has_metavar(e)) {
         return e;

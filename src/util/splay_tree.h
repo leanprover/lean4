@@ -328,7 +328,7 @@ public:
     /** \brief O(1) move */
     splay_tree & operator=(splay_tree && s) { LEAN_MOVE_REF(splay_tree, s); }
 
-    void swap(splay_tree & t) { std::swap(m_ptr, t.m_ptr); }
+    friend void swap(splay_tree & t1, splay_tree & t2) { std::swap(t1.m_ptr, t2.m_ptr); }
 
     /** \brief Return true iff this splay tree is empty. */
     bool empty() const { return m_ptr == nullptr; }
@@ -394,16 +394,16 @@ public:
             splay_tree left(*this, m_ptr->m_left);
             splay_tree right(*this, m_ptr->m_right);
             if (left.empty()) {
-                swap(right);
+                swap(*this, right);
             } else if (right.empty()) {
-                swap(left);
+                swap(*this, left);
             } else {
                 clear();
                 left.pull_max();
                 lean_assert(left.m_ptr->m_right == nullptr);
                 right.m_ptr->inc_ref();
                 left.m_ptr->m_right = right.m_ptr;
-                swap(left);
+                swap(*this, left);
             }
         }
     }

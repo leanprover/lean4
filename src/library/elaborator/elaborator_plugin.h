@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
+#include <utility>
 #include "util/list.h"
 #include "kernel/environment.h"
 #include "kernel/context.h"
@@ -16,7 +17,7 @@ class elaborator_plugin {
 public:
     virtual ~elaborator_plugin() {}
 
-   /** \brief The plugin produces a "result" object that can generates the sequence of possible solutions. */
+    /** \brief The plugin produces a "result" object that can generates the sequence of possible solutions. */
     class result {
     public:
         virtual ~result() {}
@@ -26,7 +27,7 @@ public:
             Each result is represented by a pair: the new metavariable
             environment and a new list of constraints to be solved.
         */
-        virtual std::pair<metavar_env, list<unification_constraint>> next() = 0;
+        virtual std::pair<metavar_env, list<unification_constraint>> next(trace const & assumption) = 0;
         /** \brief Interrupt the computation for the next solution. */
         virtual void interrupt() = 0;
     };

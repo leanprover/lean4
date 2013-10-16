@@ -21,4 +21,6 @@ public:
     virtual char const * what() const noexcept { return "elaborator exception"; }
     trace const & get_trace() const { return m_trace; }
 };
+
+
 }

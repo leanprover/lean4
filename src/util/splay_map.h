@@ -30,7 +30,7 @@ public:
                                    int>::value,
                       "The return type of CMP()(k1, k2) is not int.");
     }
-    void swap(splay_map & m) { m_map.swap(m.m_map); }
+    friend void swap(splay_map & a, splay_map & b) { swap(a.m_map, b.m_map); }
     bool empty() const { return m_map.empty(); }
     void clear() { m_map.clear(); }
     bool is_eqp(splay_map const & m) const { return m_map.is_eqp(m); }

@@ -9,6 +9,31 @@ Author: Leonardo de Moura
 #include "kernel/trace.h"
 
 namespace lean {
+void trace_cell::add_pos_info(format & r, expr const & e, pos_info_provider const * p) {
+    if (!p || !e)
+        return;
+    format f = p->pp(e);
+    if (!f)
+        return;
+    r += f;
+    r += space();
+}
+
+format trace_cell::pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool display_children) const {
+    format r;
+    add_pos_info(r, get_main_expr(), p);
+    r += pp_header(fmt, opts);
+    if (display_children) {
+        buffer<trace_cell *> children;
+        get_children(children);
+        unsigned indent = get_pp_indent(opts);
+        for (trace_cell * child : children) {
+            r += nest(indent, compose(line(), child->pp(fmt, opts, p, display_children)));
+        }
+    }
+    return r;
+}
+
 bool trace::has_children() const {
     buffer<trace_cell *> r;
     get_children(r);

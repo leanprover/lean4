@@ -25,10 +25,13 @@ class trace;
 class trace_cell {
     MK_LEAN_RC();
     void dealloc() { delete this; }
+protected:
+    static void add_pos_info(format & r, expr const & e, pos_info_provider const * p);
 public:
     trace_cell():m_rc(0) {}
     virtual ~trace_cell() {}
-    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool display_children) const = 0;
+    virtual format pp_header(formatter const & fmt, options const & opts) const = 0;
+    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool display_children) const;
     virtual void get_children(buffer<trace_cell*> & r) const = 0;
     virtual expr const & get_main_expr() const { return expr::null(); }
     bool is_shared() const { return get_rc() > 1; }

@@ -24,6 +24,11 @@ class substitution {
 public:
     substitution();
 
+    friend void swap(substitution & s1, substitution & s2) {
+        swap(s1.m_subst, s2.m_subst);
+        std::swap(s1.m_size, s2.m_size);
+    }
+
     /**
        \brief Return the number of assigned metavariables in this substitution.
     */
@@ -100,6 +105,15 @@ class metavar_env {
 public:
     metavar_env(name const & prefix);
     metavar_env();
+
+    friend void swap(metavar_env & a, metavar_env & b) {
+        swap(a.m_name_generator,   b.m_name_generator);
+        swap(a.m_substitution,     b.m_substitution);
+        swap(a.m_metavar_types,    b.m_metavar_types);
+        swap(a.m_metavar_contexts, b.m_metavar_contexts);
+        swap(a.m_metavar_traces,   b.m_metavar_traces);
+        std::swap(a.m_timestamp,   b.m_timestamp);
+    }
 
     /**
        \brief The timestamp is increased whenever this environment is
@@ -178,6 +192,13 @@ public:
        \pre is_metavar(m)
     */
     expr get_subst(expr const & m) const { return m_substitution.get_subst(m); }
+
+    /**
+       \brief Return a unassigned metavariable (if one exists). Only metavariables
+       that have types are considered. Return the anonymous name if all metavariables (with types)
+       are assigned.
+    */
+    name find_unassigned_metavar() const;
 };
 
 /**

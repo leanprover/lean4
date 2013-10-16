@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <limits>
+#include <algorithm>
 #include "util/exception.h"
 #include "kernel/metavar.h"
 #include "kernel/replace.h"
@@ -14,6 +15,11 @@ Author: Leonardo de Moura
 #include "kernel/for_each.h"
 
 namespace lean {
+void swap(substitution & s1, substitution & s2) {
+    swap(s1.m_subst, s2.m_subst);
+    std::swap(s1.m_size, s2.m_size);
+}
+
 substitution::substitution():
     m_size(0) {
 }
@@ -75,6 +81,15 @@ expr substitution::get_subst(expr const & m) const {
 }
 
 static name g_unique_name = name::mk_internal_unique_name();
+
+void swap(metavar_env & a, metavar_env & b) {
+    swap(a.m_name_generator,   b.m_name_generator);
+    swap(a.m_substitution,     b.m_substitution);
+    swap(a.m_metavar_types,    b.m_metavar_types);
+    swap(a.m_metavar_contexts, b.m_metavar_contexts);
+    swap(a.m_metavar_traces,   b.m_metavar_traces);
+    std::swap(a.m_timestamp,   b.m_timestamp);
+}
 
 void metavar_env::inc_timestamp() {
     if (m_timestamp == std::numeric_limits<unsigned>::max()) {
@@ -140,6 +155,31 @@ expr metavar_env::get_type(name const & m) {
         expr t = mk_metavar(get_context(m));
         m_metavar_types.insert(m, t);
         return t;
+    }
+}
+
+bool metavar_env::has_type(name const & m) const {
+    auto e = const_cast<metavar_env*>(this)->m_metavar_types.splay_find(m);
+    return e;
+}
+
+bool metavar_env::has_type(expr const & m) const {
+    lean_assert(is_metavar(m));
+    return has_type(metavar_name(m));
+}
+
+
+trace metavar_env::get_trace(expr const & m) const {
+    lean_assert(is_metavar(m));
+    return get_trace(metavar_name(m));
+}
+
+trace metavar_env::get_trace(name const & m) const {
+    auto e = const_cast<metavar_env*>(this)->m_metavar_traces.splay_find(m);
+    if (e) {
+        return e->second;
+    } else {
+        return trace();
     }
 }
 

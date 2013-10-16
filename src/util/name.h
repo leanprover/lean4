@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <string>
 #include <iostream>
+#include <algorithm>
 
 namespace lean {
 constexpr char const * lean_name_separator = "::";

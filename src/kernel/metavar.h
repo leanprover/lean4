@@ -24,10 +24,7 @@ class substitution {
 public:
     substitution();
 
-    friend void swap(substitution & s1, substitution & s2) {
-        swap(s1.m_subst, s2.m_subst);
-        std::swap(s1.m_size, s2.m_size);
-    }
+    friend void swap(substitution & s1, substitution & s2);
 
     /**
        \brief Return the number of assigned metavariables in this substitution.
@@ -81,6 +78,8 @@ public:
     void for_each(F f) const { m_subst.for_each(f); }
 };
 
+void swap(substitution & s1, substitution & s2);
+
 /**
    \brief Metavar environment. It is an auxiliary datastructure used for:
 
@@ -106,14 +105,7 @@ public:
     metavar_env(name const & prefix);
     metavar_env();
 
-    friend void swap(metavar_env & a, metavar_env & b) {
-        swap(a.m_name_generator,   b.m_name_generator);
-        swap(a.m_substitution,     b.m_substitution);
-        swap(a.m_metavar_types,    b.m_metavar_types);
-        swap(a.m_metavar_contexts, b.m_metavar_contexts);
-        swap(a.m_metavar_traces,   b.m_metavar_traces);
-        std::swap(a.m_timestamp,   b.m_timestamp);
-    }
+    friend void swap(metavar_env & a, metavar_env & b);
 
     /**
        \brief The timestamp is increased whenever this environment is
@@ -145,6 +137,22 @@ public:
     */
     expr get_type(expr const & m);
     expr get_type(name const & m);
+
+    /**
+        \brief Return true iff \c m has a type associated with it.
+        \pre is_metavar(m)
+    */
+    bool has_type(expr const & m) const;
+    bool has_type(name const & m) const;
+
+    /**
+       \brief Return the trace/justification for an assigned metavariable.
+       \pre is_metavar(m)
+       \pre is_assigned(m)
+    */
+    trace get_trace(expr const & m) const;
+    trace get_trace(name const & m) const;
+
 
     /**
        \brief Return true iff the metavariable named \c m is assigned in this substitution.
@@ -200,6 +208,8 @@ public:
     */
     name find_unassigned_metavar() const;
 };
+
+void swap(metavar_env & a, metavar_env & b);
 
 /**
    \brief Apply the changes in \c lctx to \c a.

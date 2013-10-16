@@ -75,6 +75,12 @@ std::ostream & operator<<(std::ostream & out, mpz const & v) {
     return out;
 }
 
+static mpz g_zero;
+
+mpz const & numeric_traits<mpz>::zero() {
+    lean_assert(is_zero(g_zero));
+    return g_zero;
+}
 }
 
 void print(lean::mpz const & n) { std::cout << n << std::endl; }

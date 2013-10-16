@@ -231,6 +231,7 @@ public:
     static void neg(mpq & v) { v.neg(); }
     static void inv(mpq & v) { v.inv(); }
     static void reset(mpq & v) { v = 0; }
+    static mpq const & zero();
 
     static void power(mpq & v, unsigned k) { _power(v, v, k); }
     static void abs(mpq & v) { v.abs(); }

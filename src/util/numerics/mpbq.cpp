@@ -348,6 +348,11 @@ void display_decimal(std::ostream & out, mpbq const & a, unsigned prec) {
     }
 }
 
+static mpbq g_zero;
+mpbq const & numeric_traits<mpbq>::zero() {
+    lean_assert(is_zero(g_zero));
+    return g_zero;
+}
 }
 
 void print(lean::mpbq const & n) { std::cout << n << std::endl; }

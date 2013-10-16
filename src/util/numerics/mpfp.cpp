@@ -49,6 +49,12 @@ std::ostream & operator<<(std::ostream & out, mpfp const & v) {
     out << str;
     return out;
 }
+
+static mpfp g_zero(0.0);
+mpfp const & numeric_traits<mpfp>::zero() {
+    lean_assert(is_zero(g_zero));
+    return g_zero;
+}
 }
 
 void print(lean::mpfp const & v) { std::cout << v << std::endl; }

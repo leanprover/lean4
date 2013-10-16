@@ -497,7 +497,7 @@ template<>
 class numeric_traits<mpfp> {
 public:
     static mpfr_rnd_t rnd() { return get_mpfp_rnd(); }
-    static bool precise() { return true; }
+    static bool precise() { return false; }
     static bool is_zero(mpfp const &  v) { return v.is_zero(); }
     static bool is_pos(mpfp const & v) { return v.is_pos(); }
     static bool is_neg(mpfp const & v) { return v.is_neg(); }
@@ -505,6 +505,8 @@ public:
     static void neg(mpfp & v) { v.neg(); }
     static void inv(mpfp & v) { v.inv(); }
     static void reset(mpfp & v) { v = 0.0; }
+    static mpfp const & zero();
+
     // v <- v^k
     static void power(mpfp & v, unsigned k) { v.power(static_cast<unsigned long>(k)); }
     static void abs(mpfp & v) { v.abs(); }

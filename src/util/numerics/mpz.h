@@ -232,6 +232,6 @@ public:
     static void reset(mpz & v) { v = 0; }
     // v <- v^k
     static void power(mpz & v, unsigned k) { _power(v, v, k); }
+    static mpz const & zero();
 };
-
 }

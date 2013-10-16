@@ -41,6 +41,7 @@ public:
     static void neg(double & v) { v = -v; }
     static void inv(double & v) { v = 1.0/v; }
     static void reset(double & v) { v = 0.0; }
+    static double const & zero();
 
     static void power(double & v, unsigned k) { double_power(v, k); }
     static void abs(double & v) { double_abs(v); }

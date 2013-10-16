@@ -24,5 +24,8 @@ void double_abs(double & v)   { v = std::abs(v); }
 void double_ceil(double & v)  { v = std::ceil(v); }
 void double_floor(double & v) { v = std::floor(v); }
 
-
+static double g_zero = 0.0;
+double const & numeric_traits<double>::zero() {
+    return g_zero;
+}
 };

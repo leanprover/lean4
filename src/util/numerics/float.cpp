@@ -24,4 +24,8 @@ void float_abs(float & v)   { v = std::abs(v); }
 void float_ceil(float & v)  { v = std::ceil(v); }
 void float_floor(float & v) { v = std::floor(v); }
 
+static float g_zero = 0.0;
+float const & zero() {
+    return g_zero;
+}
 };

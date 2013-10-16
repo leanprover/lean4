@@ -276,6 +276,7 @@ public:
     static void set_rounding(bool plus_inf) { rnd = plus_inf; }
     static void neg(mpbq & v) { v.neg(); }
     static void reset(mpbq & v) { v = 0; }
+    static mpbq const & zero();
     // v <- v^k
     static void power(mpbq & v, unsigned k) { _power(v, v, k); }
 

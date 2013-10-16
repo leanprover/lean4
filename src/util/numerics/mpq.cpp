@@ -115,6 +115,13 @@ void display_decimal(std::ostream & out, mpq const & a, unsigned prec) {
     }
     out << "?";
 }
+
+static mpq g_zero;
+
+mpq const & numeric_traits<mpq>::zero() {
+    lean_assert(is_zero(g_zero));
+    return g_zero;
+}
 }
 
 void print(lean::mpq const & v) { std::cout << v << std::endl; }

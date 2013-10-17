@@ -106,4 +106,21 @@ uint64 prime_iterator::next() {
         return g_prime_generator(idx);
     }
 }
+
+bool is_prime(uint64 p) {
+    // Naive is_prime implementation that tests for divisors up to sqrt(p),
+    // and skips multiples of 2 and 3
+    if (p == 2 || p == 3)
+        return true;
+    uint64 i = 5;
+    while (i*i <= p) {
+        if (p % i == 0)
+            return false;
+        i += 2;
+        if (p % i == 0)
+            return false;
+        i += 3;
+    }
+    return true;
+}
 }

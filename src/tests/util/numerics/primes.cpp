@@ -24,8 +24,20 @@ static void tst1() {
     std::cout << "\n";
 }
 
+static void tst2() {
+    prime_iterator it;
+    for (unsigned i = 0; i < 100000; i++) {
+        uint64 p = it.next();
+        lean_assert(is_prime(p));
+        if (i % 1000 == 0)
+            std::cout << p << " "; std::cout.flush();
+    }
+    std::cout << "\n";
+}
+
 int main() {
     tst1();
+    tst2();
     return has_violations() ? 1 : 0;
 }
 

@@ -15,24 +15,19 @@ static void tst1(unsigned num_tests, unsigned max_val) {
     std::mt19937 rng;
     std::uniform_int_distribution<unsigned int> uint_dist;
     for (unsigned i = 0; i < num_tests; i++) {
-        int val1 = uint_dist(rng) % max_val;
-        int val2 = uint_dist(rng) % max_val;
+        int val1;
+        int val2;
+        do {
+            val1 = uint_dist(rng) % max_val;
+            val2 = uint_dist(rng) % max_val;
+        } while (val1 == 0 || val2 == 0 || val1 == val2);
         int g, a, b;
         gcdext(g, a, b, val1, val2);
         mpz _g, _a, _b;
         gcdext(_g, _a, _b, mpz(val1), mpz(val2));
         lean_assert_eq(_g.get_int(), g);
-        if (val1 != val2) {
-            lean_assert_eq(_a.get_int(), a);
-            lean_assert_eq(_b.get_int(), b);
-        } else {
-            if (_a.get_int() == a) {
-                lean_assert_eq(_b.get_int(), b);
-            } else {
-                lean_assert_eq(_a.get_int(), b);
-                lean_assert_eq(_b.get_int(), a);
-            }
-        }
+        lean_assert_eq(_a.get_int(), a);
+        lean_assert_eq(_b.get_int(), b);
     }
 }
 

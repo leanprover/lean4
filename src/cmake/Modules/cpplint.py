@@ -3534,12 +3534,13 @@ def CheckCStyleCast(filename, linenum, line, raw_line, cast_type, pattern,
   if not match:
     return False
 
+  # Disabled by Leonardo de Moura, 2013/10/16
   # e.g., sizeof(int)
-  sizeof_match = Match(r'.*sizeof\s*$', line[0:match.start(1) - 1])
-  if sizeof_match:
-    error(filename, linenum, 'runtime/sizeof', 1,
-          'Using sizeof(type).  Use sizeof(varname) instead if possible')
-    return True
+  # sizeof_match = Match(r'.*sizeof\s*$', line[0:match.start(1) - 1])
+  # if sizeof_match:
+  #  error(filename, linenum, 'runtime/sizeof', 1,
+  #        'Using sizeof(type).  Use sizeof(varname) instead if possible')
+  #  return True
 
   # operator++(int) and operator--(int)
   if (line[0:match.start(1) - 1].endswith(' operator++') or

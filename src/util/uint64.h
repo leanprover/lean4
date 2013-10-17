@@ -6,5 +6,5 @@ Author: Leonardo de Moura
 */
 namespace lean {
 typedef unsigned long long uint64;
-static_assert(sizeof(uint64) == 8, "unexpected uint64 size");
+static_assert(sizeof(uint64 ) == 8, "unexpected uint64 size");
 }

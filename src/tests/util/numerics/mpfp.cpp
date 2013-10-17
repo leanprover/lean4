@@ -43,7 +43,6 @@ static void tst1() {
     std::cout << "exp(d, UP  ) = |" << exp(d, MPFR_RNDU) << "|" << std::endl;
     std::cout << "exp(d, NEAR) = |" << exp(d, MPFR_RNDN) << "|" << std::endl;
     std::cout << "exp(d, DOWN) = |" << exp(d, MPFR_RNDD) << "|" << std::endl;
-
 }
 
 static void tst2() {

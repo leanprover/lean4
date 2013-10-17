@@ -24,7 +24,7 @@ void tst_num(T const & a) {
 }
 
 static void tst1() {
-    tst_num(mpq(1,2));
+    tst_num(mpq(1, 2));
     tst_num(mpq(0));
     tst_num(mpz(3));
     tst_num(mpz(0));

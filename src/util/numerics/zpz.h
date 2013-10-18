@@ -9,6 +9,8 @@ Author: Leonardo de Moura
 #include "util/int64.h"
 #include "util/numerics/remainder.h"
 #include "util/numerics/primes.h"
+#include "util/numerics/power.h"
+#include "util/numerics/numeric_traits.h"
 
 namespace lean {
 /**
@@ -97,5 +99,20 @@ public:
     friend zpz operator/(unsigned a, zpz b)    { b.inv(); return b *= a; }
 
     friend std::ostream & operator<<(std::ostream & out, zpz const & z) { out << z.m_value; return out; }
+};
+
+template<>
+class numeric_traits<zpz> {
+public:
+    static bool precise() { return true; }
+    static bool is_zero(zpz const & v) { return v == 0; }
+    static bool is_pos(zpz const & v)  { return v > 0; }
+    static bool is_neg(zpz const & )  { return false; }
+    static void set_rounding(bool ) {}
+    static void neg(zpz & v)   { v.neg(); }
+    static void reset(zpz & v) { v = 0; }
+    // v <- v^k
+    static void power(zpz & v, unsigned k) { v = lean::power(v, k); }
+    static zpz const & zero();
 };
 }

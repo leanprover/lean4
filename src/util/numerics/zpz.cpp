@@ -18,4 +18,9 @@ void zpz::inv() {
     gcdext(g, a, b, static_cast<int64>(m_value), static_cast<int64>(m_p));
     m_value = remainder(a, static_cast<int64>(m_p));
 }
+
+static zpz g_zero;
+zpz const & numeric_traits<zpz>::zero() {
+    return g_zero;
+}
 }

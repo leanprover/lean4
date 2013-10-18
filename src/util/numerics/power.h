@@ -12,8 +12,9 @@ namespace lean {
 template<typename T>
 T power(T const & a, unsigned k) {
     unsigned mask = 1;
-    T power = a;
-    T b     = 1;
+    T power(a);
+    T b(a);
+    b = 1;
     while (mask <= k) {
         if (mask & k)
             b *= power;

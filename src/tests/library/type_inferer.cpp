@@ -10,14 +10,14 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/abstract.h"
 #include "kernel/printer.h"
-#include "library/light_checker.h"
+#include "library/type_inferer.h"
 #include "library/arith/arith.h"
 #include "library/all/all.h"
 using namespace lean;
 
 static void tst1() {
     environment env = mk_toplevel();
-    light_checker type_of(env);
+    type_inferer type_of(env);
     expr f = Const("f");
     expr g = Const("g");
     expr a = Const("a");
@@ -48,7 +48,7 @@ static expr mk_big(unsigned val, unsigned depth) {
 
 static void tst2() {
     environment env = mk_toplevel();
-    light_checker type_of(env);
+    type_inferer type_of(env);
     type_checker  type_of_slow(env);
     expr t = mk_big(0, 10);
     {
@@ -82,7 +82,7 @@ static void tst3() {
     ctx2 = extend(ctx2, "f", Pi({A, Real}, vec2(A, Real)));
     expr F = Var(0)(Var(1));
     expr F_copy = F;
-    light_checker infer(env);
+    type_inferer infer(env);
     std::cout << infer(F, ctx1) << "\n";
     lean_assert_eq(infer(F, ctx1), vec1(Var(1), Int));
     lean_assert_eq(infer(F, ctx2), vec2(Var(1), Real));

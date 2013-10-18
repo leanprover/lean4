@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/normalizer.h"
 #include "kernel/instantiate.h"
 #include "kernel/builtin.h"
-#include "library/light_checker.h"
+#include "library/type_inferer.h"
 #include "library/update_expr.h"
 #include "library/reduce.h"
 #include "library/elaborator/elaborator.h"
@@ -128,7 +128,7 @@ class elaborator::imp {
     };
 
     environment const &                      m_env;
-    light_checker                            m_type_infer;
+    type_inferer                             m_type_inferer;
     normalizer                               m_normalizer;
     state                                    m_state;
     std::vector<std::unique_ptr<case_split>> m_case_splits;
@@ -656,7 +656,7 @@ class elaborator::imp {
         // unification_constraints_wrapper ucw;
         buffer<expr> arg_types;
         for (unsigned i = 1; i < num_a; i++) {
-            arg_types.push_back(m_type_infer(arg(a, i), ctx, &s, &ucw));
+            arg_types.push_back(m_type_inferer(arg(a, i), ctx, &s, &ucw));
         }
 #endif
         return true;
@@ -682,7 +682,7 @@ public:
     imp(environment const & env, metavar_env const & menv, unsigned num_cnstrs, unification_constraint const * cnstrs,
         options const & opts, std::shared_ptr<synthesizer> const & s, std::shared_ptr<elaborator_plugin> const & p):
         m_env(env),
-        m_type_infer(env),
+        m_type_inferer(env),
         m_normalizer(env),
         m_state(menv, num_cnstrs, cnstrs),
         m_synthesizer(s),
@@ -733,7 +733,7 @@ public:
 
     void interrupt() {
         m_interrupted = true;
-        m_type_infer.set_interrupt(true);
+        m_type_inferer.set_interrupt(true);
         m_normalizer.set_interrupt(true);
     }
 

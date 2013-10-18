@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/normalizer.h"
 #include "kernel/printer.h"
-#include "library/light_checker.h"
+#include "library/type_inferer.h"
 #include "library/reduce.h"
 #include "library/update_expr.h"
 #include "library/ho_unifier.h"
@@ -81,7 +81,7 @@ class ho_unifier::imp {
 
     environment    m_env;
     normalizer     m_normalizer;
-    light_checker  m_type_infer;
+    type_inferer   m_type_inferer;
     state_stack    m_state_stack;
     unsigned       m_delayed;
     unsigned       m_next_state_id;
@@ -380,10 +380,10 @@ class ho_unifier::imp {
         // unification_constraints_wrapper ucw;
         buffer<expr> arg_types;
         for (unsigned i = 1; i < num_a; i++) {
-            arg_types.push_back(m_type_infer(arg(a, i), ctx, &s, &ucw));
+            arg_types.push_back(m_type_inferer(arg(a, i), ctx, &s, &ucw));
         }
         // Clear m_type_infer cache since we don't want a reference to s inside of m_type_infer
-        m_type_infer.clear();
+        m_type_inferer.clear();
         if (ucw.failed())
             return false;
         m_state_stack.pop_back();
@@ -637,7 +637,7 @@ public:
     imp(environment const & env, options const & opts):
         m_env(env),
         m_normalizer(env, opts),
-        m_type_infer(env) {
+        m_type_inferer(env) {
         m_interrupted       = false;
         m_delayed           = 0;
         m_max_solutions     = get_ho_unifier_max_solutions(opts);
@@ -691,7 +691,7 @@ public:
     void set_interrupt(bool flag) {
         m_interrupted = flag;
         m_normalizer.set_interrupt(flag);
-        m_type_infer.set_interrupt(flag);
+        m_type_inferer.set_interrupt(flag);
     }
 };
 

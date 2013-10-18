@@ -24,12 +24,12 @@ class metavar_env;
    That is, they are not meant for external users, but to sign that the
    type could not be inferred.
 */
-class light_checker {
+class type_inferer {
     class imp;
     std::unique_ptr<imp> m_ptr;
 public:
-    light_checker(environment const & env);
-    ~light_checker();
+    type_inferer(environment const & env);
+    ~type_inferer();
 
     expr operator()(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> & uc);
     expr operator()(expr const & e, context const & ctx = context());

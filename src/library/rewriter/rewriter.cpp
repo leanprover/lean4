@@ -12,7 +12,7 @@
 #include "kernel/replace.h"
 #include "kernel/printer.h"
 #include "library/basic_thms.h"
-#include "library/light_checker.h"
+#include "library/type_inferer.h"
 #include "library/rewriter/fo_match.h"
 #include "library/rewriter/rewriter.h"
 #include "util/buffer.h"
@@ -150,7 +150,7 @@ pair<expr, expr> then_rewriter_cell::operator()(environment const & env, context
     pair<expr, expr> new_result = result;
     for (rewriter const & rw : cdr(m_rwlist)) {
         new_result = rw(env, ctx, result.first);
-        expr const & ty = light_checker(env)(v, ctx);
+        expr const & ty = type_inferer(env)(v, ctx);
         if (v != new_result.first) {
             result = make_pair(new_result.first,
                                Trans(ty, v, result.first, new_result.first, result.second, new_result.second));
@@ -184,7 +184,7 @@ pair<expr, expr> try_rewriter_cell::operator()(environment const & env, context 
         }
     }
     // If the execution reaches here, it means every rewriter failed.
-    expr const & t = light_checker(env)(v, ctx);
+    expr const & t = type_inferer(env)(v, ctx);
     return make_pair(v, Refl(t, v));
 }
 std::ostream & try_rewriter_cell::display(std::ostream & out) const {
@@ -215,7 +215,7 @@ pair<expr, expr> app_rewriter_cell::operator()(environment const & env, context 
         // Information about f
         new_f = result.first;
         expr proof_f = result.second;
-        light_checker lc(env);
+        type_inferer lc(env);
         expr const & f_ty = lc(f, ctx);
         lean_assert(is_pi(f_ty));
         expr f_ty_domain = abst_domain(f_ty); // A
@@ -292,7 +292,7 @@ pair<expr, expr> lambda_type_rewriter_cell::operator()(environment const & env, 
     expr const & ty = abst_domain(v);
     pair<expr, expr> result = m_rw(env, ctx, ty);
     expr const & new_ty = result.first;
-    light_checker lc(env);
+    type_inferer lc(env);
     expr const & ty_of_v = lc(v, ctx);
     if (ty != new_ty) {
         expr const & new_v = mk_lambda(abst_name(v), new_ty, abst_body(v));
@@ -326,7 +326,7 @@ pair<expr, expr> lambda_body_rewriter_cell::operator()(environment const & env, 
     expr const & ty = abst_domain(v);
     context new_ctx = extend(ctx, n, ty);
     pair<expr, expr> result = m_rw(env, new_ctx, body);
-    light_checker lc(env);
+    type_inferer lc(env);
     expr const & ty_of_v = lc(v, ctx);
     expr const & new_body = result.first;
     if (body != new_body) {
@@ -376,7 +376,7 @@ pair<expr, expr> pi_type_rewriter_cell::operator()(environment const & env, cont
     expr const & ty = abst_domain(v);
     pair<expr, expr> result = m_rw(env, ctx, ty);
     expr const & new_ty = result.first;
-    light_checker lc(env);
+    type_inferer lc(env);
     expr const & ty_of_v = lc(v, ctx);
     if (ty != new_ty) {
         expr const & new_v = mk_pi(abst_name(v), new_ty, abst_body(v));
@@ -410,7 +410,7 @@ pair<expr, expr> pi_body_rewriter_cell::operator()(environment const & env, cont
     expr const & ty = abst_domain(v);
     context new_ctx = extend(ctx, n, ty);
     pair<expr, expr> result = m_rw(env, new_ctx, body);
-    light_checker lc(env);
+    type_inferer lc(env);
     expr const & ty_of_v = lc(v, ctx);
     expr const & new_body = result.first;
     if (body != new_body) {
@@ -458,7 +458,7 @@ pair<expr, expr> let_type_rewriter_cell::operator()(environment const & env, con
     expr const & ty = let_type(v);
     pair<expr, expr> result = m_rw(env, ctx, ty);
     expr const & new_ty = result.first;
-    light_checker lc(env);
+    type_inferer lc(env);
     expr const & ty_of_v = lc(v, ctx);
     if (ty != new_ty) {
         expr const & new_v = mk_let(let_name(v), new_ty, let_value(v), let_body(v));
@@ -489,7 +489,7 @@ pair<expr, expr> let_value_rewriter_cell::operator()(environment const & env, co
     expr const & val = let_value(v);
     pair<expr, expr> result = m_rw(env, ctx, val);
     expr const & new_val = result.first;
-    light_checker lc(env);
+    type_inferer lc(env);
     expr const & ty_of_v = lc(v, ctx);
     if (val != new_val) {
         expr const & new_v = mk_let(let_name(v), let_type(v), new_val, let_body(v));
@@ -524,7 +524,7 @@ pair<expr, expr> let_body_rewriter_cell::operator()(environment const & env, con
     expr const & val = let_value(v);
     context new_ctx = extend(ctx, n, ty);
     pair<expr, expr> result = m_rw(env, new_ctx, body);
-    light_checker lc(env);
+    type_inferer lc(env);
     expr const & ty_of_v = lc(v, ctx);
     expr const & new_body = result.first;
     if (body != new_body) {
@@ -578,7 +578,7 @@ std::ostream & fail_rewriter_cell::display(std::ostream & out) const {
 success_rewriter_cell::success_rewriter_cell():rewriter_cell(rewriter_kind::Success) { }
 success_rewriter_cell::~success_rewriter_cell() { }
 pair<expr, expr> success_rewriter_cell::operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception) {
-    expr const & t = light_checker(env)(v, ctx);
+    expr const & t = type_inferer(env)(v, ctx);
     return make_pair(v, Refl(t, v));
 }
 std::ostream & success_rewriter_cell::display(std::ostream & out) const {
@@ -591,7 +591,7 @@ repeat_rewriter_cell::repeat_rewriter_cell(rewriter const & rw):rewriter_cell(re
 repeat_rewriter_cell::~repeat_rewriter_cell() { }
 pair<expr, expr> repeat_rewriter_cell::operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception) {
     pair<expr, expr> result = mk_success_rewriter()(env, ctx, v);
-    light_checker lc(env);
+    type_inferer lc(env);
     try {
         while (true) {
             pair<expr, expr> new_result = m_rw(env, ctx, result.first);

@@ -14,10 +14,10 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/metavar.h"
 #include "library/reduce.h"
-#include "library/light_checker.h"
+#include "library/type_inferer.h"
 
 namespace lean {
-class light_checker::imp {
+class type_inferer::imp {
     typedef scoped_map<expr, expr, expr_hash, expr_eqp> cache;
     typedef buffer<unification_constraint> unification_constraints;
 
@@ -209,15 +209,15 @@ public:
         m_menv_timestamp = 0;
     }
 };
-light_checker::light_checker(environment const & env):m_ptr(new imp(env)) {}
-light_checker::~light_checker() {}
-expr light_checker::operator()(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> & uc) {
+type_inferer::type_inferer(environment const & env):m_ptr(new imp(env)) {}
+type_inferer::~type_inferer() {}
+expr type_inferer::operator()(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> & uc) {
     return m_ptr->operator()(e, ctx, menv, uc);
 }
-expr light_checker::operator()(expr const & e, context const & ctx) {
+expr type_inferer::operator()(expr const & e, context const & ctx) {
     buffer<unification_constraint> uc;
     return operator()(e, ctx, nullptr, uc);
 }
-void light_checker::clear() { m_ptr->clear(); }
-void light_checker::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
+void type_inferer::clear() { m_ptr->clear(); }
+void type_inferer::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
 }

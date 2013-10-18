@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include <mutex>
-#include "util/uint64.h"
+#include "util/int64.h"
 #include "util/debug.h"
 #include "util/exception.h"
 #include "util/numerics/primes.h"

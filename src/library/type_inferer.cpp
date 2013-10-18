@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/normalizer.h"
 #include "kernel/builtin.h"
 #include "kernel/kernel_exception.h"
+#include "kernel/type_checker_trace.h"
 #include "kernel/instantiate.h"
 #include "kernel/free_vars.h"
 #include "kernel/metavar.h"
@@ -17,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/type_inferer.h"
 
 namespace lean {
+static name g_x_name("x");
 class type_inferer::imp {
     typedef scoped_map<expr, expr, expr_hash, expr_eqp> cache;
     typedef buffer<unification_constraint> unification_constraints;
@@ -30,15 +32,26 @@ class type_inferer::imp {
     cache                     m_cache;
     volatile bool             m_interrupted;
 
+    expr normalize(expr const & e, context const & ctx) {
+        return m_normalizer(e, ctx, m_menv);
+    }
 
-    level infer_universe(expr const & t, context const & ctx) {
-        expr u = m_normalizer(infer_type(t, ctx), ctx, m_menv);
+    expr check_type(expr const & e, expr const & s, context const & ctx) {
+        if (is_type(e))
+            return e;
+        if (e == Bool)
+            return Type();
+        expr u = normalize(e, ctx);
         if (is_type(u))
-            return ty_level(u);
+            return u;
         if (u == Bool)
-            return level();
-        // TODO(Leo): case when u has metavariables
-        throw type_expected_exception(m_env, ctx, t);
+            return Type();
+        if (has_metavar(u) && m_menv) {
+            trace tr = mk_type_expected_trace(ctx, s);
+            m_uc->push_back(mk_convertible_constraint(ctx, u, TypeU, tr));
+            return u;
+        }
+        throw type_expected_exception(m_env, ctx, s);
     }
 
     expr get_range(expr t, expr const & e, context const & ctx) {
@@ -51,8 +64,16 @@ class type_inferer::imp {
                 t = m_normalizer(t, ctx);
                 if (is_pi(t)) {
                     t = abst_body(t);
+                } else if (has_metavar(t) && m_menv) {
+                    // Create two fresh variables A and B,
+                    // and assign r == (Pi(x : A), B x)
+                    expr A   = m_menv->mk_metavar(ctx);
+                    expr B   = m_menv->mk_metavar(ctx);
+                    expr p   = mk_pi(g_x_name, A, B(Var(0)));
+                    trace tr = mk_function_expected_trace(ctx, e);
+                    m_uc->push_back(mk_eq_constraint(ctx, t, p, tr));
+                    t        = abst_body(p);
                 } else {
-                    // TODO(Leo): case when t has metavariables
                     throw function_expected_exception(m_env, ctx, e);
                 }
             }
@@ -151,13 +172,21 @@ class type_inferer::imp {
             break;
         }
         case expr_kind::Pi: {
-            level l1 = infer_universe(abst_domain(e), ctx);
-            level l2;
+            expr t1  = check_type(infer_type(abst_domain(e), ctx), abst_domain(e), ctx);
+            expr t2;
             {
                 cache::mk_scope sc(m_cache);
-                l2 = infer_universe(abst_body(e), extend(ctx, abst_name(e), abst_domain(e)));
+                context new_ctx = extend(ctx, abst_name(e), abst_domain(e));
+                t2 = check_type(infer_type(abst_body(e), new_ctx), abst_body(e), new_ctx);
             }
-            r = mk_type(max(l1, l2));
+            if (is_type(t1) && is_type(t2)) {
+                r = mk_type(max(ty_level(t1), ty_level(t2)));
+            } else {
+                lean_assert(m_uc);
+                trace tr = mk_max_type_trace(ctx, e);
+                r = m_menv->mk_metavar(ctx);
+                m_uc->push_back(mk_max_constraint(ctx, t1, t2, r, tr));
+            }
             break;
         }
         case expr_kind::Let: {

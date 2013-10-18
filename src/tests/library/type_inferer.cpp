@@ -15,6 +15,14 @@ Author: Leonardo de Moura
 #include "library/all/all.h"
 using namespace lean;
 
+static std::ostream & operator<<(std::ostream & out, buffer<unification_constraint> const & uc) {
+    formatter fmt = mk_simple_formatter();
+    for (auto c : uc) {
+        out << c.pp(fmt, options(), nullptr, true) << "\n";
+    }
+    return out;
+}
+
 static void tst1() {
     environment env = mk_toplevel();
     type_inferer type_of(env);
@@ -95,10 +103,44 @@ static void tst3() {
     lean_assert(is_eqp(r, infer(F, ctx1)));
 }
 
+static void tst4() {
+    environment  env;
+    import_all(env);
+    metavar_env menv;
+    buffer<unification_constraint> uc;
+    type_inferer inferer(env);
+    expr list = Const("list");
+    expr nil  = Const("nil");
+    expr cons = Const("cons");
+    expr A    = Const("A");
+    env.add_var("list", Type() >> Type());
+    env.add_var("nil", Pi({A, Type()}, list(A)));
+    env.add_var("cons", Pi({A, Type()}, A >> (list(A) >> list(A))));
+    env.add_var("a", Int);
+    env.add_var("b", Int);
+    env.add_var("n", Nat);
+    env.add_var("m", Nat);
+    expr a  = Const("a");
+    expr b  = Const("b");
+    expr n  = Const("n");
+    expr m  = Const("m");
+    expr m1 = menv.mk_metavar();
+    expr m2 = menv.mk_metavar();
+    expr m3 = menv.mk_metavar();
+    expr A1 = menv.mk_metavar();
+    expr A2 = menv.mk_metavar();
+    expr A3 = menv.mk_metavar();
+    expr A4 = menv.mk_metavar();
+    expr F  = cons(A1, m1(a), cons(A2, m2(n), cons(A3, m3(b), nil(A4))));
+    std::cout << F << "\n";
+    std::cout << inferer(F, context(), &menv, uc) << "\n";
+    std::cout << uc << "\n";
+}
 
 int main() {
     tst1();
     tst2();
     tst3();
+    tst4();
     return has_violations() ? 1 : 0;
 }

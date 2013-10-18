@@ -24,7 +24,7 @@ Author: Leonardo de Moura
 #include "library/all/all.h"
 using namespace lean;
 
-std::ostream & operator<<(std::ostream & out, substitution const & env) {
+static std::ostream & operator<<(std::ostream & out, substitution const & env) {
     bool first = true;
     env.for_each([&](name const & n, expr const & v) {
             if (first) first = false; else out << "\n";
@@ -33,7 +33,7 @@ std::ostream & operator<<(std::ostream & out, substitution const & env) {
     return out;
 }
 
-std::ostream & operator<<(std::ostream & out, buffer<unification_constraint> const & uc) {
+static std::ostream & operator<<(std::ostream & out, buffer<unification_constraint> const & uc) {
     formatter fmt = mk_simple_formatter();
     for (auto c : uc) {
         out << c.pp(fmt, options(), nullptr, true) << "\n";

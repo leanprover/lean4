@@ -48,9 +48,8 @@ expr const & propagation_trace::get_main_expr() const {
 }
 format propagation_trace::pp_header(formatter const & fmt, options const & opts) const {
     format r;
-    unsigned indent = get_pp_indent(opts);
     r += format(get_prop_name());
-    r += nest(indent, compose(line(), get_constraint().pp(fmt, opts, nullptr, false)));
+    r += compose(line(), get_constraint().pp(fmt, opts, nullptr, false));
     return r;
 }
 
@@ -91,6 +90,36 @@ multi_substitution_trace::~multi_substitution_trace() {
 void multi_substitution_trace::get_children(buffer<trace_cell*> & r) const {
     propagation_trace::get_children(r);
     append(r, m_assignment_traces);
+}
+
+// -------------------------
+// typeof metavar trace
+// -------------------------
+typeof_mvar_trace::typeof_mvar_trace(context const & ctx, expr const & m, expr const & tm, expr const & t, trace const & tr):
+    m_context(ctx),
+    m_mvar(m),
+    m_typeof_mvar(tm),
+    m_type(t),
+    m_trace(tr) {
+}
+typeof_mvar_trace::~typeof_mvar_trace() {
+}
+format typeof_mvar_trace::pp_header(formatter const & fmt, options const & opts) const {
+    format r;
+    unsigned indent = get_pp_indent(opts);
+    r += format("Propagate type,");
+    {
+        format body;
+        body += fmt(m_context, m_mvar, false, opts);
+        body += space();
+        body += colon();
+        body += nest(indent, compose(line(), fmt(m_context, m_typeof_mvar, false, opts)));
+        r += nest(indent, compose(line(), body));
+    }
+    return group(r);
+}
+void typeof_mvar_trace::get_children(buffer<trace_cell*> & r) const {
+    push_back(r, m_trace);
 }
 
 // -------------------------

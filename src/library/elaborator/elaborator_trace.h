@@ -131,6 +131,23 @@ public:
 };
 
 /**
+   \brief Trace object used to justify a <tt>typeof(m) == t</tt> constraint generated when
+   we assign a metavariable \c m.
+*/
+class typeof_mvar_trace : public trace_cell {
+    context m_context;
+    expr    m_mvar;
+    expr    m_typeof_mvar;
+    expr    m_type;
+    trace   m_trace;
+public:
+    typeof_mvar_trace(context const & ctx, expr const & m, expr const & mt, expr const & t, trace const & tr);
+    virtual ~typeof_mvar_trace();
+    virtual format pp_header(formatter const &, options const &) const;
+    virtual void get_children(buffer<trace_cell*> & r) const;
+};
+
+/**
    \brief Base class for synthesis_failure_trace and synthesized_assignment_trace
 */
 class synthesis_trace : public trace_cell {

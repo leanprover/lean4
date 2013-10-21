@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/normalizer.h"
 #include "kernel/instantiate.h"
+#include "kernel/replace.h"
 #include "kernel/builtin.h"
 #include "library/type_inferer.h"
 #include "library/update_expr.h"
@@ -165,6 +166,11 @@ class elaborator::imp {
         m_state.m_queue.push_front(c);
     }
 
+    /** \brief Add given constraint to the end of the current constraint queue */
+    void push_back(unification_constraint const & c) {
+        m_state.m_queue.push_back(c);
+    }
+
     /** \brief Return true iff \c m is an assigned metavariable in the current state */
     bool is_assigned(expr const & m) const {
         lean_assert(is_metavar(m));
@@ -197,6 +203,14 @@ class elaborator::imp {
     */
     bool has_metavar(expr const & e, expr const & m) const {
         return ::lean::has_metavar(e, m, m_state.m_menv.get_substitutions());
+    }
+
+    /**
+       \brief Return true iff \c e contains an assigned metavariable in
+       the current state.
+    */
+    bool has_assigned_metavar(expr const & e) const {
+        return ::lean::has_assigned_metavar(e, m_state.m_menv.get_substitutions());
     }
 
     /**
@@ -291,12 +305,17 @@ class elaborator::imp {
     /**
        \brief Assign \c v to \c m with justification \c tr in the current state.
     */
-    void assign(expr const & m, expr const & v, trace const & tr) {
+    void assign(expr const & m, expr const & v, context const & ctx, trace const & tr) {
         lean_assert(is_metavar(m));
         metavar_env & menv = m_state.m_menv;
         m_state.m_menv.assign(m, v, tr);
         if (menv.has_type(m)) {
-
+            buffer<unification_constraint> ucs;
+            expr tv = m_type_inferer(v, ctx, &menv, ucs);
+            for (auto c : ucs)
+                push_front(c);
+            trace new_trace(new typeof_mvar_trace(ctx, m, menv.get_type(m), tv, tr));
+            push_front(mk_eq_constraint(ctx, menv.get_type(m), tv, new_trace));
         }
     }
 
@@ -342,7 +361,7 @@ class elaborator::imp {
                     m_conflict = trace(new unification_failure_trace(c));
                     return Failed;
                 } else if (allow_assignment) {
-                    assign(a, b, trace(new assignment_trace(c)));
+                    assign(a, b, get_context(c), trace(new assignment_trace(c)));
                     reset_quota();
                     return Processed;
                 }
@@ -350,7 +369,7 @@ class elaborator::imp {
                 local_entry const & me = head(metavar_lctx(a));
                 if (me.is_lift() && !has_free_var(b, me.s(), me.s() + me.n())) {
                     // Case 3
-                    trace new_tr(new substitution_trace(c, get_mvar_trace(a)));
+                    trace new_tr(new normalize_trace(c));
                     expr new_a = pop_meta_context(a);
                     expr new_b = lower_free_vars(b, me.s() + me.n(), me.n());
                     if (!is_lhs)
@@ -371,6 +390,48 @@ class elaborator::imp {
         return Continue;
     }
 
+    trace mk_subst_trace(unification_constraint const & c, buffer<trace> const & subst_traces) {
+        if (subst_traces.size() == 1) {
+            return trace(new substitution_trace(c, subst_traces[0]));
+        } else {
+            return trace(new multi_substitution_trace(c, subst_traces.size(), subst_traces.data()));
+        }
+    }
+
+    /**
+       \brief Return true iff \c a contains instantiated variables. If this is the case,
+       then constraint \c c is updated with a new \c a s.t. all metavariables of \c a
+       are instantiated.
+
+       \remark if \c is_lhs is true, then we are considering the left-hand-side of the constraint \c c.
+    */
+    bool instantiate_metavars(bool is_lhs, expr const & a, unification_constraint const & c) {
+        lean_assert(is_eq(c) || is_convertible(c));
+        lean_assert(!is_eq(c) || !is_lhs || is_eqp(eq_lhs(c), a));
+        lean_assert(!is_eq(c) ||  is_lhs || is_eqp(eq_rhs(c), a));
+        lean_assert(!is_convertible(c) || !is_lhs || is_eqp(convertible_from(c), a));
+        lean_assert(!is_convertible(c) ||  is_lhs || is_eqp(convertible_to(c), a));
+        if (has_assigned_metavar(a)) {
+            metavar_env & menv = m_state.m_menv;
+            buffer<trace> traces;
+            auto f = [&](expr const & m, unsigned) -> expr {
+                if (is_metavar(m) && menv.is_assigned(m)) {
+                    trace t = menv.get_trace(m);
+                    if (t)
+                        traces.push_back(t);
+                    return menv.get_subst(m);
+                } else {
+                    return m;
+                }
+            };
+            expr new_a   = replace_fn<decltype(f)>(f)(a);
+            trace new_tr = mk_subst_trace(c, traces);
+            push_updated_constraint(c, is_lhs, new_a, new_tr);
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     /** \brief Unfold let-expression */
     void process_let(expr & a) {
@@ -512,6 +573,41 @@ class elaborator::imp {
         }
     }
 
+    /** \brief Return true iff the variable with id \c vidx has a body/definition in the context \c ctx. */
+    static bool has_body(context const & ctx, unsigned vidx) {
+        try {
+            context_entry const & e = lookup(ctx, vidx);
+            if (e.get_body())
+                return true;
+        } catch (exception&) {
+        }
+        return false;
+    }
+
+    /**
+        \brief Return true iff ctx |- a == b is a "simple" higher-order matching constraint. By simple, we mean
+        a constraint of the form
+               ctx |- (?m x) == c
+        The constraint is solved by assigning ?m to (fun (x : T), c).
+    */
+    bool process_simple_ho_match(context const & ctx, expr const & a, expr const & b, bool is_lhs, unification_constraint const & c) {
+        // Solve constraint of the form
+        //    ctx |- (?m x) == c
+        // using imitation
+        if (is_eq(c) && is_meta_app(a) && is_var(arg(a, 1)) && !has_body(ctx, var_idx(arg(a, 1))) && closed(b)) {
+            expr m = arg(a, 0);
+            expr t = lookup(ctx, var_idx(arg(a, 1))).get_domain();
+            trace new_trace(new destruct_trace(c));
+            expr s = mk_lambda(g_x_name, t, b);
+            if (!is_lhs)
+                swap(m, s);
+            push_front(mk_eq_constraint(ctx, m, s, new_trace));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     bool process_eq_convertible(context const & ctx, expr const & a, expr const & b, unification_constraint const & c) {
         bool eq = is_eq(c);
         if (a == b) {
@@ -532,10 +628,19 @@ class elaborator::imp {
         r = process_metavar(c, b, a, false, !is_type(a) && !is_meta(a) && a != Bool);
         if (r != Continue) { return r == Processed; }
 
+        if (process_simple_ho_match(ctx, a, b, true, c) ||
+            process_simple_ho_match(ctx, b, a, false, c))
+            return true;
+
         if (a.kind() == b.kind()) {
             switch (a.kind()) {
             case expr_kind::Constant: case expr_kind::Var: case expr_kind::Value:
-                return a == b;
+                if (a == b) {
+                    return true;
+                } else {
+                    m_conflict = trace(new unification_failure_trace(c));
+                    return false;
+                }
             case expr_kind::Type:
                 if ((!eq && m_env.is_ge(ty_level(b), ty_level(a))) || (eq && a == b)) {
                     return true;
@@ -586,10 +691,18 @@ class elaborator::imp {
             }
         }
 
-        if (!is_meta(a) && !is_meta(b) && a.kind() != b.kind())
+        if (!is_meta(a) && !is_meta(b) && a.kind() != b.kind()) {
+            m_conflict = trace(new unification_failure_trace(c));
             return false;
+        }
+
+        if (instantiate_metavars(true, a, c) ||
+            instantiate_metavars(false, b, c)) {
+            return true;
+        }
 
         std::cout << "Postponed: "; display(std::cout, c);
+        push_back(c);
 
         return true;
     }
@@ -600,15 +713,24 @@ class elaborator::imp {
         return true;
     }
 
-    bool process_choice(unification_constraint const &) {
-        // TODO(Leo)
-        return true;
+    bool process_choice(unification_constraint const & c) {
+        std::unique_ptr<case_split> new_cs(new choice_case_split(c, m_state));
+        bool r = new_cs->next(*this);
+        lean_assert(r);
+        m_case_splits.push_back(std::move(new_cs));
+        return r;
     }
 
     void resolve_conflict() {
         lean_assert(m_conflict);
+
+        std::cout << "Resolve conflict, num case_splits: " << m_case_splits.size() << "\n";
+        formatter fmt = mk_simple_formatter();
+        std::cout << m_conflict.pp(fmt, options(), nullptr, true) << "\n";
+
         while (!m_case_splits.empty()) {
             std::unique_ptr<case_split> & d = m_case_splits.back();
+            std::cout << "Assumption " << d->m_curr_assumption.pp(fmt, options(), nullptr, true) << "\n";
             if (depends_on(m_conflict, d->m_curr_assumption)) {
                 d->m_failed_traces.push_back(m_conflict);
                 if (d->next(*this)) {
@@ -630,7 +752,6 @@ class elaborator::imp {
             s.m_curr_assumption = mk_assumption();
             m_state = s.m_prev_state;
             push_front(mk_eq_constraint(get_context(choice), choice_mvar(choice), choice_ith(choice, idx), s.m_curr_assumption));
-            s.m_idx++;
             return true;
         } else {
             m_conflict = trace(new unification_failure_by_cases_trace(choice, s.m_failed_traces.size(), s.m_failed_traces.data()));
@@ -710,7 +831,7 @@ public:
         while (true) {
             check_interrupted(m_interrupted);
             cnstr_queue & q = m_state.m_queue;
-            if (q.empty()) {
+            if (q.empty() || m_quota < -static_cast<int>(q.size())) {
                 name m = find_unassigned_metavar();
                 std::cout << "Queue is empty\n"; display(std::cout);
                 if (m) {
@@ -722,7 +843,7 @@ public:
                 }
             } else {
                 unification_constraint c = q.front();
-                std::cout << "Processing "; display(std::cout, c);
+                std::cout << "Processing, quota: " << m_quota << " "; display(std::cout, c);
                 q.pop_front();
                 if (!process(c)) {
                     resolve_conflict();

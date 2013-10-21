@@ -45,7 +45,7 @@ bool depends_on(trace const & t, trace const & d) {
     std::set<trace_cell *> visited;
     buffer<trace_cell *>   children;
     todo.push_back(t.raw());
-    while (todo.empty()) {
+    while (!todo.empty()) {
         trace_cell * curr = todo.back();
         todo.pop_back();
         if (curr == d.raw()) {

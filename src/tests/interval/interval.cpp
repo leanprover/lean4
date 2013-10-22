@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "util/numerics/double.h"
 #include "util/numerics/mpq.h"
 #include "util/numerics/mpfp.h"
-#include "util/interval/interval_def.h"
+#include "util/interval/interval.h"
 
 using namespace lean;
 

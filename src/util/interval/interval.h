@@ -76,9 +76,9 @@ public:
     // [n, n]
     template<typename T2> interval(T2 const & n):m_lower(n), m_upper(n) { set_closed_endpoints();}
     // copy constructor
-    interval(interval<T> const & n);
+    interval(interval const & n);
     // move constructor
-    interval(interval<T> && src);
+    interval(interval && src);
 
     // [l, u], (l, u], [l, u), (l, u)
     template<typename T2> interval(T2 const & l, T2 const & u, bool l_open = false, bool u_open = false):m_lower(l), m_upper(u) {
@@ -97,7 +97,7 @@ public:
 
     ~interval();
 
-    friend void swap(interval<T> & a, interval<T> & b) { a._swap(b); }
+    friend void swap(interval & a, interval & b) { a._swap(b); }
 
     T const & lower() const { return m_lower; }
     T const & upper() const { return m_upper; }
@@ -138,7 +138,7 @@ public:
        \brief Return true iff this contains b.
        That is, every value in b is a value of this.
     */
-    bool contains(interval<T> const & b) const;
+    bool contains(interval const & b) const;
 
     bool is_empty() const;
     void set_empty();
@@ -153,8 +153,8 @@ public:
     template<typename T2> bool is_singleton(T2 const & v) const { return is_singleton() && m_lower == v; }
 
 
-    friend bool operator==(interval<T> const & a, interval<T> const & b) { return a._eq(b); }
-    friend bool operator!=(interval<T> const & a, interval<T> const & b) { return !operator==(a, b); }
+    friend bool operator==(interval const & a, interval const & b) { return a._eq(b); }
+    friend bool operator!=(interval const & a, interval const & b) { return !operator==(a, b); }
 
     /**
        \brief Return true if all values in this are less than all values in 'b'.
@@ -169,28 +169,28 @@ public:
     void set_is_upper_inf(bool v) { m_upper_inf = v; }
 
     template<bool compute_intv = true, bool compute_deps = false> void neg(interval_deps & deps = dummy);
-    void neg_jst(interval_deps & deps);
-    friend interval<T> neg(interval<T> o) { o.neg(); return o; }
-    friend interval<T> neg_jst(interval<T> o, interval_deps & deps) { o.neg(deps); return o; }
+    void neg_jst(interval_deps & deps) { neg<false, true>(deps); }
+    friend interval neg(interval o) { o.neg(); return o; }
+    friend interval neg_jst(interval o, interval_deps & deps) { o.neg(deps); return o; }
 
-    interval & operator+=(interval<T> const & o);
-    interval & operator-=(interval<T> const & o);
-    interval & operator*=(interval<T> const & o);
-    interval & operator/=(interval<T> const & o);
+    interval & operator+=(interval const & o);
+    interval & operator-=(interval const & o);
+    interval & operator*=(interval const & o);
+    interval & operator/=(interval const & o);
 
     template<bool compute_intv = true, bool compute_deps = false>
-    interval & add(interval<T> const & o, interval_deps & deps = dummy);
+    interval & add(interval const & o, interval_deps & deps = dummy);
     template<bool compute_intv = true, bool compute_deps = false>
-    interval & sub(interval<T> const & o, interval_deps & deps = dummy);
+    interval & sub(interval const & o, interval_deps & deps = dummy);
     template<bool compute_intv = true, bool compute_deps = false>
-    interval & mul(interval<T> const & o, interval_deps & deps = dummy);
+    interval & mul(interval const & o, interval_deps & deps = dummy);
     template<bool compute_intv = true, bool compute_deps = false>
-    interval & div(interval<T> const & o, interval_deps & deps = dummy);
+    interval & div(interval const & o, interval_deps & deps = dummy);
 
-    void add_jst (interval<T> const & o, interval_deps & deps);
-    void sub_jst (interval<T> const & o, interval_deps & deps);
-    void mul_jst (interval<T> const & o, interval_deps & deps);
-    void div_jst (interval<T> const & o, interval_deps & deps);
+    void add_jst (interval const & o, interval_deps & deps);
+    void sub_jst (interval const & o, interval_deps & deps);
+    void mul_jst (interval const & o, interval_deps & deps);
+    void div_jst (interval const & o, interval_deps & deps);
 
     interval & operator+=(T const & o);
     interval & operator-=(T const & o);
@@ -198,18 +198,19 @@ public:
     interval & operator/=(T const & o);
 
     template<bool compute_intv = true, bool compute_deps = false> void inv(interval_deps & deps = dummy);
-    void inv_jst (interval_deps & deps);
-    friend interval<T> inv(interval<T> o) { o.inv(); return o; }
+    void inv_jst (interval_deps & deps) { inv<false, true>(deps); }
+    friend interval inv(interval o) { o.inv(); return o; }
+    friend interval inv_jst(interval o, interval_deps & deps) { o.inv(deps); return o; }
 
-    void fmod(interval<T> y);
+    void fmod(interval y);
     void fmod(T y);
-    friend interval<T> fmod(interval<T> o, interval<T> y) { o.fmod(y); return o; }
-    friend interval<T> fmod(interval<T> o, T y) { o.fmod(y); return o; }
+    friend interval fmod(interval o, interval y) { o.fmod(y); return o; }
+    friend interval fmod(interval o, T y) { o.fmod(y); return o; }
 
     template<bool compute_intv = true, bool compute_deps = false>
     void power(unsigned n, interval_deps & deps = dummy);
     void power_jst(unsigned n, interval_deps & deps);
-    friend interval<T> power(interval<T> o, unsigned k) { o.power(k); return o; }
+    friend interval power(interval o, unsigned k) { o.power(k); return o; }
 
     template<bool compute_intv = true, bool compute_deps = false> void exp(interval_deps & deps = dummy);
     template<bool compute_intv = true, bool compute_deps = false> void exp2(interval_deps & deps = dummy);
@@ -255,104 +256,104 @@ public:
     void acosh_jst(interval_deps & deps);
     void atanh_jst(interval_deps & deps);
 
-    friend interval<T> exp  (interval<T> o) { o.exp();   return o; }
-    friend interval<T> exp  (interval<T> o, interval_deps & deps) { o.exp(deps);   return o; }
-    friend interval<T> exp_jst(interval<T> o, interval_deps & deps) { o.exp_jst(deps); return o; }
+    friend interval exp  (interval o) { o.exp();   return o; }
+    friend interval exp  (interval o, interval_deps & deps) { o.exp(deps);   return o; }
+    friend interval exp_jst(interval o, interval_deps & deps) { o.exp_jst(deps); return o; }
 
-    friend interval<T> exp2 (interval<T> o) { o.exp2();  return o; }
-    friend interval<T> exp2 (interval<T> o, interval_deps & deps) { o.exp2(deps);  return o; }
-    friend interval<T> exp2_jst(interval<T> o, interval_deps & deps) { o.exp2_jst(deps); return o; }
+    friend interval exp2 (interval o) { o.exp2();  return o; }
+    friend interval exp2 (interval o, interval_deps & deps) { o.exp2(deps);  return o; }
+    friend interval exp2_jst(interval o, interval_deps & deps) { o.exp2_jst(deps); return o; }
 
-    friend interval<T> exp10(interval<T> o) { o.exp10(); return o; }
-    friend interval<T> exp10(interval<T> o, interval_deps & deps) { o.exp10(deps); return o; }
-    friend interval<T> exp10_jst(interval<T> o, interval_deps & deps) { o.exp10(deps); return o; }
+    friend interval exp10(interval o) { o.exp10(); return o; }
+    friend interval exp10(interval o, interval_deps & deps) { o.exp10(deps); return o; }
+    friend interval exp10_jst(interval o, interval_deps & deps) { o.exp10(deps); return o; }
 
-    friend interval<T> log  (interval<T> o) { o.log();   return o; }
-    friend interval<T> log  (interval<T> o, interval_deps & deps) { o.log(deps);   return o; }
-    friend interval<T> log_jst(interval<T> o, interval_deps & deps) { o.log_jst(deps); return o; }
+    friend interval log  (interval o) { o.log();   return o; }
+    friend interval log  (interval o, interval_deps & deps) { o.log(deps);   return o; }
+    friend interval log_jst(interval o, interval_deps & deps) { o.log_jst(deps); return o; }
 
-    friend interval<T> log2 (interval<T> o) { o.log2();  return o; }
-    friend interval<T> log2 (interval<T> o, interval_deps & deps) { o.log2(deps);  return o; }
-    friend interval<T> log2_jst(interval<T> o, interval_deps & deps) { o.log2_jst(deps); return o; }
+    friend interval log2 (interval o) { o.log2();  return o; }
+    friend interval log2 (interval o, interval_deps & deps) { o.log2(deps);  return o; }
+    friend interval log2_jst(interval o, interval_deps & deps) { o.log2_jst(deps); return o; }
 
-    friend interval<T> log10(interval<T> o) { o.log10(); return o; }
-    friend interval<T> log10(interval<T> o, interval_deps & deps) { o.log10(deps); return o; }
-    friend interval<T> log10_jst(interval<T> o, interval_deps & deps) { o.log10_jst(deps); return o; }
+    friend interval log10(interval o) { o.log10(); return o; }
+    friend interval log10(interval o, interval_deps & deps) { o.log10(deps); return o; }
+    friend interval log10_jst(interval o, interval_deps & deps) { o.log10_jst(deps); return o; }
 
-    friend interval<T> sin  (interval<T> o) { o.sin();   return o; }
-    friend interval<T> sin  (interval<T> o, interval_deps & deps) { o.sin(deps);   return o; }
-    friend interval<T> sin_jst(interval<T> o, interval_deps & deps) { o.sin_jst(deps); return o; }
+    friend interval sin  (interval o) { o.sin();   return o; }
+    friend interval sin  (interval o, interval_deps & deps) { o.sin(deps);   return o; }
+    friend interval sin_jst(interval o, interval_deps & deps) { o.sin_jst(deps); return o; }
 
-    friend interval<T> cos  (interval<T> o) { o.cos();   return o; }
-    friend interval<T> cos  (interval<T> o, interval_deps & deps) { o.cos(deps);   return o; }
-    friend interval<T> cos_jst(interval<T> o, interval_deps & deps) { o.cos_jst(deps); return o; }
+    friend interval cos  (interval o) { o.cos();   return o; }
+    friend interval cos  (interval o, interval_deps & deps) { o.cos(deps);   return o; }
+    friend interval cos_jst(interval o, interval_deps & deps) { o.cos_jst(deps); return o; }
 
-    friend interval<T> tan  (interval<T> o) { o.tan();   return o; }
-    friend interval<T> tan  (interval<T> o, interval_deps & deps) { o.tan(deps);   return o; }
-    friend interval<T> tan_jst(interval<T> o, interval_deps & deps) { o.tan_jst(deps); return o; }
+    friend interval tan  (interval o) { o.tan();   return o; }
+    friend interval tan  (interval o, interval_deps & deps) { o.tan(deps);   return o; }
+    friend interval tan_jst(interval o, interval_deps & deps) { o.tan_jst(deps); return o; }
 
-    friend interval<T> csc  (interval<T> o) { o.csc();   return o; }
-    friend interval<T> csc  (interval<T> o, interval_deps & deps) { o.csc(deps);   return o; }
-    friend interval<T> csc_jst(interval<T> o, interval_deps & deps) { o.csc_jst(deps); return o; }
+    friend interval csc  (interval o) { o.csc();   return o; }
+    friend interval csc  (interval o, interval_deps & deps) { o.csc(deps);   return o; }
+    friend interval csc_jst(interval o, interval_deps & deps) { o.csc_jst(deps); return o; }
 
-    friend interval<T> sec  (interval<T> o) { o.sec();   return o; }
-    friend interval<T> sec  (interval<T> o, interval_deps & deps) { o.sec(deps);   return o; }
-    friend interval<T> sec_jst(interval<T> o, interval_deps & deps) { o.sec_jst(deps); return o; }
+    friend interval sec  (interval o) { o.sec();   return o; }
+    friend interval sec  (interval o, interval_deps & deps) { o.sec(deps);   return o; }
+    friend interval sec_jst(interval o, interval_deps & deps) { o.sec_jst(deps); return o; }
 
-    friend interval<T> cot  (interval<T> o) { o.cot();   return o; }
-    friend interval<T> cot  (interval<T> o, interval_deps & deps) { o.cot(deps);   return o; }
-    friend interval<T> cot_jst(interval<T> o, interval_deps & deps) { o.cot_jst(deps); return o; }
+    friend interval cot  (interval o) { o.cot();   return o; }
+    friend interval cot  (interval o, interval_deps & deps) { o.cot(deps);   return o; }
+    friend interval cot_jst(interval o, interval_deps & deps) { o.cot_jst(deps); return o; }
 
-    friend interval<T> asin (interval<T> o) { o.asin();  return o; }
-    friend interval<T> asin (interval<T> o, interval_deps & deps) { o.asin(deps);  return o; }
-    friend interval<T> asin_jst(interval<T> o, interval_deps & deps) { o.asin_jst(deps); return o; }
+    friend interval asin (interval o) { o.asin();  return o; }
+    friend interval asin (interval o, interval_deps & deps) { o.asin(deps);  return o; }
+    friend interval asin_jst(interval o, interval_deps & deps) { o.asin_jst(deps); return o; }
 
-    friend interval<T> acos (interval<T> o) { o.acos();  return o; }
-    friend interval<T> acos (interval<T> o, interval_deps & deps) { o.acos(deps);  return o; }
-    friend interval<T> acos_jst(interval<T> o, interval_deps & deps) { o.acos_jst(deps); return o; }
+    friend interval acos (interval o) { o.acos();  return o; }
+    friend interval acos (interval o, interval_deps & deps) { o.acos(deps);  return o; }
+    friend interval acos_jst(interval o, interval_deps & deps) { o.acos_jst(deps); return o; }
 
-    friend interval<T> atan (interval<T> o) { o.atan();  return o; }
-    friend interval<T> atan (interval<T> o, interval_deps & deps) { o.atan(deps);  return o; }
-    friend interval<T> atan_jst(interval<T> o, interval_deps & deps) { o.atan_jst(deps); return o; }
+    friend interval atan (interval o) { o.atan();  return o; }
+    friend interval atan (interval o, interval_deps & deps) { o.atan(deps);  return o; }
+    friend interval atan_jst(interval o, interval_deps & deps) { o.atan_jst(deps); return o; }
 
-    friend interval<T> sinh (interval<T> o) { o.sinh();  return o; }
-    friend interval<T> sinh (interval<T> o, interval_deps & deps) { o.sinh(deps);  return o; }
-    friend interval<T> sinh_jst(interval<T> o, interval_deps & deps) { o.sinh_jst(deps); return o; }
+    friend interval sinh (interval o) { o.sinh();  return o; }
+    friend interval sinh (interval o, interval_deps & deps) { o.sinh(deps);  return o; }
+    friend interval sinh_jst(interval o, interval_deps & deps) { o.sinh_jst(deps); return o; }
 
-    friend interval<T> cosh (interval<T> o) { o.cosh();  return o; }
-    friend interval<T> cosh (interval<T> o, interval_deps & deps) { o.cosh(deps);  return o; }
-    friend interval<T> cosh_jst(interval<T> o, interval_deps & deps) { o.cosh_jst(deps);  return o; }
+    friend interval cosh (interval o) { o.cosh();  return o; }
+    friend interval cosh (interval o, interval_deps & deps) { o.cosh(deps);  return o; }
+    friend interval cosh_jst(interval o, interval_deps & deps) { o.cosh_jst(deps);  return o; }
 
-    friend interval<T> tanh (interval<T> o) { o.tanh();  return o; }
-    friend interval<T> tanh (interval<T> o, interval_deps & deps) { o.tanh(deps);  return o; }
-    friend interval<T> tanh_jst(interval<T> o, interval_deps & deps) { o.tanh_jst(deps); return o; }
+    friend interval tanh (interval o) { o.tanh();  return o; }
+    friend interval tanh (interval o, interval_deps & deps) { o.tanh(deps);  return o; }
+    friend interval tanh_jst(interval o, interval_deps & deps) { o.tanh_jst(deps); return o; }
 
-    friend interval<T> asinh(interval<T> o) { o.asinh(); return o; }
-    friend interval<T> asinh(interval<T> o, interval_deps & deps) { o.asinh(deps); return o; }
-    friend interval<T> asinh_jst(interval<T> o, interval_deps & deps) { o.asinh_jst(deps); return o; }
+    friend interval asinh(interval o) { o.asinh(); return o; }
+    friend interval asinh(interval o, interval_deps & deps) { o.asinh(deps); return o; }
+    friend interval asinh_jst(interval o, interval_deps & deps) { o.asinh_jst(deps); return o; }
 
-    friend interval<T> acosh(interval<T> o) { o.acosh(); return o; }
-    friend interval<T> acosh(interval<T> o, interval_deps & deps) { o.acosh(deps); return o; }
-    friend interval<T> acosh_jst(interval<T> o, interval_deps & deps) { o.acosh_jst(deps); return o; }
+    friend interval acosh(interval o) { o.acosh(); return o; }
+    friend interval acosh(interval o, interval_deps & deps) { o.acosh(deps); return o; }
+    friend interval acosh_jst(interval o, interval_deps & deps) { o.acosh_jst(deps); return o; }
 
-    friend interval<T> atanh(interval<T> o) { o.atanh(); return o; }
-    friend interval<T> atanh(interval<T> o, interval_deps & deps) { o.atanh(deps); return o; }
-    friend interval<T> atanh_jst(interval<T> o, interval_deps & deps) { o.atanh_jst(deps); return o; }
+    friend interval atanh(interval o) { o.atanh(); return o; }
+    friend interval atanh(interval o, interval_deps & deps) { o.atanh(deps); return o; }
+    friend interval atanh_jst(interval o, interval_deps & deps) { o.atanh_jst(deps); return o; }
 
-    friend interval<T> operator+(interval<T> a, interval<T> const & b) { return a += b; }
-    friend interval<T> operator-(interval<T> a, interval<T> const & b) { return a -= b; }
-    friend interval<T> operator*(interval<T> a, interval<T> const & b) { return a *= b; }
-    friend interval<T> operator/(interval<T> a, interval<T> const & b) { return a /= b; }
+    friend interval operator+(interval a, interval const & b) { return a += b; }
+    friend interval operator-(interval a, interval const & b) { return a -= b; }
+    friend interval operator*(interval a, interval const & b) { return a *= b; }
+    friend interval operator/(interval a, interval const & b) { return a /= b; }
 
-    friend interval<T> operator+(interval<T> a, T const & b) { return a += b; }
-    friend interval<T> operator-(interval<T> a, T const & b) { return a -= b; }
-    friend interval<T> operator*(interval<T> a, T const & b) { return a *= b; }
-    friend interval<T> operator/(interval<T> a, T const & b) { return a /= b; }
+    friend interval operator+(interval a, T const & b) { return a += b; }
+    friend interval operator-(interval a, T const & b) { return a -= b; }
+    friend interval operator*(interval a, T const & b) { return a *= b; }
+    friend interval operator/(interval a, T const & b) { return a /= b; }
 
-    friend interval<T> operator+(T const & a, interval<T> b) { return b += a; }
-    friend interval<T> operator-(T const & a, interval<T> b) { b.neg(); return b += a; }
-    friend interval<T> operator*(T const & a, interval<T> b) { return b *= a; }
-    friend interval<T> operator/(T const & a, interval<T> b) { b.inv(); return b *= a; }
+    friend interval operator+(T const & a, interval b) { return b += a; }
+    friend interval operator-(T const & a, interval b) { b.neg(); return b += a; }
+    friend interval operator*(T const & a, interval b) { return b *= a; }
+    friend interval operator/(T const & a, interval b) { b.inv(); return b *= a; }
 
 
     bool check_invariant() const;

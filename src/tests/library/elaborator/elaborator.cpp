@@ -8,7 +8,10 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"
+#include "kernel/kernel_exception.h"
+#include "library/basic_thms.h"
 #include "library/reduce.h"
+#include "library/placeholder.h"
 #include "library/arith/arith.h"
 #include "library/all/all.h"
 #include "library/elaborator/elaborator.h"
@@ -262,6 +265,103 @@ static void tst6() {
     std::cout << beta_reduce(instantiate_metavars(V, s)) << "\n";
 }
 
+#define _ mk_placholder()
+
+static expr elaborate(expr const & e, environment const & env) {
+    metavar_env menv;
+    buffer<unification_constraint> ucs;
+    type_checker checker(env);
+    expr e2 = replace_placeholders_with_metavars(e, menv);
+    checker.infer_type(e2, context(), &menv, ucs);
+    elaborator elb(env, menv, ucs.size(), ucs.data());
+    substitution s = elb.next();
+    return beta_reduce(instantiate_metavars(e2, s));
+}
+
+// Check elaborator success
+static void success(expr const & e, expr const & expected, environment const & env) {
+    std::cout << "\n" << e << "\n------>\n";
+    expr r = elaborate(e, env);
+    std::cout << r << "\n";
+    lean_assert(r == expected);
+}
+
+static void tst7() {
+    environment env;
+    import_all(env);
+    expr A = Const("A");
+    expr B = Const("B");
+    expr F = Const("F");
+    expr g = Const("g");
+    expr a = Const("a");
+    expr Nat  = Const("N");
+    expr Real = Const("R");
+    env.add_var("N", Type());
+    env.add_var("R", Type());
+    env.add_var("F", Pi({{A, Type()}, {B, Type()}, {g, A >> B}}, A));
+    env.add_var("f", Nat >> Real);
+    expr f = Const("f");
+    success(F(_, _, f), F(Nat, Real, f), env);
+    // fails(F(_, Bool, f), env);
+    success(F(_, _, Fun({a, Nat}, a)), F(Nat, Nat, Fun({a, Nat}, a)), env);
+}
+
+static void tst8() {
+    environment env;
+    import_all(env);
+    expr a  = Const("a");
+    expr b  = Const("b");
+    expr c  = Const("c");
+    expr H1 = Const("H1");
+    expr H2 = Const("H2");
+    env.add_var("a", Bool);
+    env.add_var("b", Bool);
+    env.add_var("c", Bool);
+    env.add_axiom("H1", Eq(a, b));
+    env.add_axiom("H2", Eq(b, c));
+    success(Trans(_, _, _, _, H1, H2), Trans(Bool, a, b, c, H1, H2), env);
+    success(Trans(_, _, _, _, Symm(_, _, _, H2), Symm(_, _, _, H1)),
+            Trans(Bool, c, b, a, Symm(Bool, b, c, H2), Symm(Bool, a, b, H1)), env);
+    success(Symm(_, _, _, Trans(_, _ , _ , _ , Symm(_, _, _, H2), Symm(_, _, _, H1))),
+            Symm(Bool, c, a, Trans(Bool, c, b, a, Symm(Bool, b, c, H2), Symm(Bool, a, b, H1))), env);
+    env.add_axiom("H3", a);
+    expr H3 = Const("H3");
+    success(EqTIntro(_, EqMP(_, _, Symm(_, _, _, Trans(_, _, _, _, Symm(_, _, _, H2), Symm(_, _, _, H1))), H3)),
+            EqTIntro(c, EqMP(a, c, Symm(Bool, c, a, Trans(Bool, c, b, a, Symm(Bool, b, c, H2), Symm(Bool, a, b, H1))), H3)),
+            env);
+}
+
+static void tst9() {
+    environment env;
+    import_all(env);
+    expr Nat = Const("N");
+    env.add_var("N", Type());
+    env.add_var("vec", Nat >> Type());
+    expr n   = Const("n");
+    expr vec = Const("vec");
+    env.add_var("f", Pi({n, Nat}, vec(n) >> Nat));
+    expr f = Const("f");
+    expr a = Const("a");
+    expr b = Const("b");
+    expr H = Const("H");
+    expr fact = Const("fact");
+    env.add_var("a", Nat);
+    env.add_var("b", Nat);
+    env.add_definition("fact", Bool, Eq(a, b));
+    env.add_axiom("H", fact);
+    success(Congr2(_, _, _, _, f, H),
+            Congr2(Nat, Fun({n, Nat}, vec(n) >> Nat), a, b, f, H), env);
+    env.add_var("g", Pi({n, Nat}, vec(n) >> Nat));
+    expr g = Const("g");
+    env.add_axiom("H2", Eq(f, g));
+    expr H2 = Const("H2");
+    success(Congr(_, _, _, _, _, _, H2, H),
+            Congr(Nat, Fun({n, Nat}, vec(n) >> Nat), f, g, a, b, H2, H), env);
+    success(Congr(_, _, _, _, _, _, Refl(_, f), H),
+            Congr(Nat, Fun({n, Nat}, vec(n) >> Nat), f, f, a, b, Refl(Pi({n, Nat}, vec(n) >> Nat), f), H), env);
+    success(Refl(_, a), Refl(Nat, a), env);
+}
+
 int main() {
     tst1();
     tst2();
@@ -269,6 +369,8 @@ int main() {
     tst4();
     tst5();
     tst6();
+    tst7();
+    tst8();
     return has_violations() ? 1 : 0;
 }
 

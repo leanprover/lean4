@@ -45,6 +45,12 @@ public:
     iterator begin() const { return m_list.begin(); }
     iterator end() const { return m_list.end(); }
     friend bool is_eqp(context const & c1, context const & c2) { return is_eqp(c1.m_list, c2.m_list); }
+    /**
+       \brief Return a new context where the entries at positions [s, s+n) were removed.
+
+       \pre size() >= s + n
+    */
+    context remove(unsigned s, unsigned n) const;
 };
 
 /**

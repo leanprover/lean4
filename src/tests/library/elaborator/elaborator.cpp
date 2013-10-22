@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"
+#include "library/reduce.h"
 #include "library/arith/arith.h"
 #include "library/all/all.h"
 #include "library/elaborator/elaborator.h"
@@ -258,6 +259,7 @@ static void tst6() {
     ucs.push_back(mk_eq_constraint(context(), expected, given, trace()));
     elaborator elb(env, menv, ucs.size(), ucs.data());
     substitution s = elb.next();
+    std::cout << beta_reduce(instantiate_metavars(V, s)) << "\n";
 }
 
 int main() {

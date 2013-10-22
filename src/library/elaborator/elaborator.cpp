@@ -298,6 +298,15 @@ class elaborator::imp {
 
     /**
        \brief Auxiliary method for pushing a new constraint to the current constraint queue.
+       If \c is_eq is true, then a equality constraint is created, otherwise a convertability constraint is created.
+    */
+    void push_new_constraint(bool is_eq, context const & new_ctx, expr const & new_a, expr const & new_b, trace const & new_tr) {
+        reset_quota();
+        push_new_constraint(m_state.m_queue, is_eq, new_ctx, new_a, new_b, new_tr);
+    }
+
+    /**
+       \brief Auxiliary method for pushing a new constraint to the current constraint queue.
        The new constraint is based on the constraint \c c. The constraint \c c may be a equality or convertability constraint.
        The update is justified by \c new_tr.
     */
@@ -405,15 +414,23 @@ class elaborator::imp {
                 }
             } else {
                 local_entry const & me = head(metavar_lctx(a));
-                if (me.is_lift() && !has_free_var(b, me.s(), me.s() + me.n())) {
-                    // Case 3
-                    trace new_tr(new normalize_trace(c));
-                    expr new_a = pop_meta_context(a);
-                    expr new_b = lower_free_vars(b, me.s() + me.n(), me.n());
-                    if (!is_lhs)
-                        swap(new_a, new_b);
-                    push_updated_constraint(c, new_a, new_b, new_tr);
-                    return Processed;
+                if (me.is_lift()) {
+                    if (!has_free_var(b, me.s(), me.s() + me.n())) {
+                        // Case 3
+                        trace new_tr(new normalize_trace(c));
+                        expr new_a = pop_meta_context(a);
+                        expr new_b = lower_free_vars(b, me.s() + me.n(), me.n());
+                        context new_ctx = get_context(c).remove(me.s(), me.n());
+                        if (!is_lhs)
+                            swap(new_a, new_b);
+                        push_new_constraint(is_eq(c), new_ctx, new_a, new_b, new_tr);
+                        return Processed;
+                    } else if (is_var(b)) {
+                        // Failure, there is no way to unify
+                        // ?m[lift:s:n, ...] with a variable in [s, s+n]
+                        m_conflict = trace(new unification_failure_trace(c));
+                        return Failed;
+                    }
                 }
             }
         }
@@ -691,7 +708,7 @@ class elaborator::imp {
                 expr proj            = mk_lambda(arg_types, mk_var(num_a - i - 1));
                 expr new_a           = arg(a, i);
                 expr new_b           = b;
-                if (is_lhs)
+                if (!is_lhs)
                     swap(new_a, new_b);
                 push_new_constraint(new_state.m_queue, is_eq(c), ctx, new_a, new_b, new_assumption);
                 push_new_eq_constraint(new_state.m_queue, ctx, f_a, proj, new_assumption);
@@ -755,6 +772,82 @@ class elaborator::imp {
         }
     }
 
+    /** \brief Return true if \c a is of the form ?m[inst:i t, ...] */
+    bool is_metavar_inst(expr const & a) const {
+        return is_metavar(a) && has_local_context(a) && head(metavar_lctx(a)).is_inst();
+    }
+
+    /**
+       \brief Process a constraint <tt>ctx |- a == b</tt> where \c a is of the form <tt>?m[(inst:i t), ...]</tt>.
+       We perform a "case split",
+       Case 1) ?m[...] == #i and t == b
+       Case 2) imitate b
+    */
+    bool process_metavar_inst(expr const & a, expr const & b, bool is_lhs, unification_constraint const & c) {
+        if (is_metavar_inst(a) && !is_metavar_inst(b) && !is_meta_app(b)) {
+            context const & ctx = get_context(c);
+            local_context  lctx = metavar_lctx(a);
+            unsigned i          = head(lctx).s();
+            expr t              = head(lctx).v();
+            std::unique_ptr<generic_case_split> new_cs(new generic_case_split(c, m_state));
+            {
+                // Case 1
+                state new_state(m_state);
+                trace new_assumption = mk_assumption();
+                // add ?m[...] == #1
+                push_new_eq_constraint(new_state.m_queue, ctx, pop_meta_context(a), mk_var(i), new_assumption);
+                // add t == b (t << b)
+                expr new_a = t;
+                expr new_b = b;
+                if (!is_lhs)
+                    swap(new_a, new_b);
+                push_new_constraint(new_state.m_queue, is_eq(c), ctx, new_a, new_b, new_assumption);
+                new_cs->push_back(new_state, new_assumption);
+            }
+            {
+                // Case 2
+                state new_state(m_state);
+                trace new_assumption = mk_assumption();
+                expr  imitation;
+                if (is_app(b)) {
+                    // Imitation for applications b == f(s_1, ..., s_k)
+                    // mname <- f(?h_1, ..., ?h_k)
+                    expr f_b          = arg(b, 0);
+                    unsigned num_b    = num_args(b);
+                    buffer<expr> imitation_args;
+                    imitation_args.push_back(f_b);
+                    for (unsigned i = 1; i < num_b; i++)
+                        imitation_args.push_back(new_state.m_menv.mk_metavar(ctx));
+                    imitation = mk_app(imitation_args.size(), imitation_args.data());
+                } else if (is_eq(b)) {
+                    // Imitation for equality b == Eq(s1, s2)
+                    // mname <- Eq(?h_1, ?h_2)
+                    expr h_1 = new_state.m_menv.mk_metavar(ctx);
+                    expr h_2 = new_state.m_menv.mk_metavar(ctx);
+                    imitation = mk_eq(h_1, h_2);
+                } else if (is_abstraction(b)) {
+                    // Lambdas and Pis
+                    // Imitation for Lambdas and Pis, b == Fun(x:T) B
+                    // mname <- Fun (x:?h_1) ?h_2 x)
+                    expr h_1 = new_state.m_menv.mk_metavar(ctx);
+                    expr h_2 = new_state.m_menv.mk_metavar(ctx);
+                    imitation = update_abstraction(b, h_1, mk_app(h_2, Var(0)));
+                } else {
+                    imitation = lift_free_vars(b, i, 1);
+                }
+                push_new_eq_constraint(new_state.m_queue, ctx, pop_meta_context(a), imitation, new_assumption);
+                new_cs->push_back(new_state, new_assumption);
+            }
+            bool r = new_cs->next(*this);
+            lean_assert(r);
+            m_case_splits.push_back(std::move(new_cs));
+            reset_quota();
+            return r;
+        } else {
+            return false;
+        }
+    }
+
     /** \brief Process constraint of the form ctx |- a << ?m, where \c a is Type of Bool */
     bool process_lower(expr const & a, expr const & b, unification_constraint const & c) {
         if (is_convertible(c) && is_metavar(b) && (a == Bool || is_type(a))) {
@@ -770,24 +863,6 @@ class elaborator::imp {
                 new_c = mk_choice_constraint(get_context(c), b, 5, choices, new_tr);
             }
             push_front(new_c);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-        \brief Process a constraints of the form:
-           - true == (t1 = t2)
-           - true << (t1 = t2)
-
-        \remark This method should be removed if we remove T == T ==> true normalization rule from the
-        kernel.
-    */
-    bool process_true_eq(expr const & a, expr const & b, unification_constraint const & c) {
-        if (a == True && is_eq(b)) {
-            trace new_tr(new normalize_trace(c));
-            push_front(mk_eq_constraint(get_context(c), eq_lhs(b), eq_rhs(b), new_tr));
             return true;
         } else {
             return false;
@@ -818,8 +893,7 @@ class elaborator::imp {
             process_simple_ho_match(ctx, b, a, false, c))
             return true;
 
-        if (process_true_eq(a, b, c) ||
-            process_true_eq(b, a, c))
+        if (!eq && a == Bool && is_type(b))
             return true;
 
         if (a.kind() == b.kind()) {
@@ -895,6 +969,8 @@ class elaborator::imp {
             // process expensive cases
             if (process_meta_app(a, b, true, c) || process_meta_app(b, a, false, c))
                 return true;
+            if (process_metavar_inst(a, b, true, c) || process_metavar_inst(b, a, false, c))
+                return true;
         }
 
         if (m_quota < - static_cast<int>(m_state.m_queue.size())) {
@@ -903,7 +979,7 @@ class elaborator::imp {
                 return true;
         }
 
-        std::cout << "Postponed: "; display(std::cout, c);
+        // std::cout << "Postponed: "; display(std::cout, c);
         push_back(c);
 
         return true;
@@ -932,7 +1008,7 @@ class elaborator::imp {
 
         while (!m_case_splits.empty()) {
             std::unique_ptr<case_split> & d = m_case_splits.back();
-            std::cout << "Assumption " << d->m_curr_assumption.pp(fmt, options(), nullptr, true) << "\n";
+            // std::cout << "Assumption " << d->m_curr_assumption.pp(fmt, options(), nullptr, true) << "\n";
             if (depends_on(m_conflict, d->m_curr_assumption)) {
                 d->m_failed_traces.push_back(m_conflict);
                 if (d->next(*this)) {
@@ -1035,7 +1111,7 @@ public:
                 }
             } else {
                 unification_constraint c = q.front();
-                std::cout << "Processing, quota: " << m_quota << ", depth: " << m_case_splits.size() << " "; display(std::cout, c);
+                // std::cout << "Processing, quota: " << m_quota << ", depth: " << m_case_splits.size() << " "; display(std::cout, c);
                 q.pop_front();
                 if (!process(c)) {
                     resolve_conflict();

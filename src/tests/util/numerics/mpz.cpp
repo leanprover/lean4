@@ -32,7 +32,7 @@ static void tst1() {
     lean_assert_eq(mpz(-10) % mpz(-3), 2);
     lean_assert_eq(mpz(-10) % mpz(3), 2);
     mpz big;
-    big = power(mpz(10), 10000);
+    big = pow(mpz(10), 10000);
     std::ostringstream out;
     out << big;
     std::string s = out.str();

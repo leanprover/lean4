@@ -481,11 +481,11 @@ public:
     void power(mpz_t const & b, mpfr_rnd_t rnd = get_mpfp_rnd())     { mpfr_pow_z(m_val, m_val, b, rnd); }
     void power(mpz const & b, mpfr_rnd_t rnd = get_mpfp_rnd())       { mpfr_pow_z(m_val, m_val, b.m_val, rnd); }
 
-    friend mpfp power(mpfp a, mpfp const & b, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.power(b, rnd); return a;; }
-    friend mpfp power(mpfp a, unsigned long int b, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.power(b, rnd); return a;; }
-    friend mpfp power(mpfp a, long int b, mpfr_rnd_t rnd = get_mpfp_rnd())          { a.power(b, rnd); return a;; }
-    friend mpfp power(mpfp a, mpz_t const & b, mpfr_rnd_t rnd = get_mpfp_rnd())     { a.power(b, rnd); return a;; }
-    friend mpfp power(mpfp a, mpz const & b, mpfr_rnd_t rnd = get_mpfp_rnd())       { a.power(b, rnd); return a;; }
+    friend mpfp pow(mpfp a, mpfp const & b, mpfr_rnd_t rnd = get_mpfp_rnd())      { a.power(b, rnd); return a; }
+    friend mpfp pow(mpfp a, unsigned long int b, mpfr_rnd_t rnd = get_mpfp_rnd()) { a.power(b, rnd); return a; }
+    friend mpfp pow(mpfp a, long int b, mpfr_rnd_t rnd = get_mpfp_rnd())          { a.power(b, rnd); return a; }
+    friend mpfp pow(mpfp a, mpz_t const & b, mpfr_rnd_t rnd = get_mpfp_rnd())     { a.power(b, rnd); return a; }
+    friend mpfp pow(mpfp a, mpz const & b, mpfr_rnd_t rnd = get_mpfp_rnd())       { a.power(b, rnd); return a; }
 
     friend std::ostream & operator<<(std::ostream & out, mpfp const & v);
 };

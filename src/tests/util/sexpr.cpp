@@ -107,11 +107,11 @@ static void tst2() {
     lean_assert(a == mpq(1, 3));
     lean_assert(mpq(1, 3) == a);
     lean_assert(mpq(2, 3) != a);
-    a = power(mpz(2), 100);
-    lean_assert(a == sexpr(power(mpz(2), 100)));
-    lean_assert(a == power(mpz(2), 100));
-    lean_assert(power(mpz(2), 100) == a);
-    lean_assert(mpq(power(mpz(2), 100)) != a);
+    a = pow(mpz(2), 100);
+    lean_assert(a == sexpr(pow(mpz(2), 100)));
+    lean_assert(a == pow(mpz(2), 100));
+    lean_assert(pow(mpz(2), 100) == a);
+    lean_assert(mpq(pow(mpz(2), 100)) != a);
     lean_assert(sexpr(1, 2) != sexpr(2, 1));
     lean_assert(sexpr(1, 2) != sexpr(1, sexpr(2, nil())));
     lean_assert(sexpr(1, 2) == sexpr(1, sexpr(2)));

@@ -204,7 +204,7 @@ public:
 
     friend void power(mpz & a, mpz const & b, unsigned k) { mpz_pow_ui(a.m_val, b.m_val, k); }
     friend void _power(mpz & a, mpz const & b, unsigned k) { power(a, b, k); }
-    friend mpz power(mpz const & a, unsigned k) { mpz r; power(r, a, k); return r; }
+    friend mpz pow(mpz a, unsigned k) { power(a, a, k); return a; }
 
     friend void rootrem(mpz & root, mpz & rem, mpz const & a, unsigned k) { mpz_rootrem(root.m_val, rem.m_val, a.m_val, k); }
     // root <- a^{1/k}, return true iff the result is an integer

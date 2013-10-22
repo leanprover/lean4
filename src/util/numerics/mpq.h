@@ -205,7 +205,7 @@ public:
 
     friend void power(mpq & a, mpq const & b, unsigned k);
     friend void _power(mpq & a, mpq const & b, unsigned k) { power(a, b, k); }
-    friend mpq power(mpq a, unsigned k) { power(a, a, k); return a; }
+    friend mpq pow(mpq a, unsigned k) { power(a, a, k); return a; }
 
     friend std::ostream & operator<<(std::ostream & out, mpq const & v);
 

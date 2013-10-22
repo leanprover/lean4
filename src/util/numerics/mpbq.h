@@ -179,6 +179,7 @@ public:
 
     friend void power(mpbq & a, mpbq const & b, unsigned k);
     friend void _power(mpbq & a, mpbq const & b, unsigned k) { power(a, b, k); }
+    friend mpbq pow(mpbq a, unsigned k) { power(a, a, k); return a; }
 
     /**
        \brief Return the magnitude of a = b/2^k.

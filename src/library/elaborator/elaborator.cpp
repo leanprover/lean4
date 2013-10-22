@@ -77,24 +77,24 @@ class elaborator::imp {
     };
 
     /**
-       \brief Case split object for higher-order matching
+       \brief General purpose case split object
     */
-    struct ho_match_case_split : public case_split {
+    struct generic_case_split : public case_split {
         unification_constraint m_constraint;
         unsigned               m_idx;    // current alternative
         std::vector<state>     m_states; // alternatives
         std::vector<trace>     m_assumptions; // assumption for each alternative
 
-        ho_match_case_split(unification_constraint const & cnstr, state const & prev_state):
+        generic_case_split(unification_constraint const & cnstr, state const & prev_state):
             case_split(prev_state),
             m_constraint(cnstr),
             m_idx(0) {
         }
 
-        virtual ~ho_match_case_split() {}
+        virtual ~generic_case_split() {}
 
         virtual bool next(imp & owner) {
-            return owner.next_ho_case(*this);
+            return owner.next_generic_case(*this);
         }
 
         void push_back(state const & s, trace const & tr) {
@@ -208,6 +208,10 @@ class elaborator::imp {
     */
     bool has_metavar(expr const & e, expr const & m) const {
         return ::lean::has_metavar(e, m, m_state.m_menv.get_substitutions());
+    }
+
+    static bool has_metavar(expr const & e) {
+        return ::lean::has_metavar(e);
     }
 
     /**
@@ -349,7 +353,7 @@ class elaborator::imp {
             for (auto c : ucs)
                 push_front(c);
             trace new_trace(new typeof_mvar_trace(ctx, m, menv.get_type(m), tv, tr));
-            push_front(mk_eq_constraint(ctx, menv.get_type(m), tv, new_trace));
+            push_front(mk_convertible_constraint(ctx, tv, menv.get_type(m), new_trace));
         }
     }
 
@@ -619,6 +623,21 @@ class elaborator::imp {
     }
 
     /**
+       \brief Return true iff all arguments of the application \c a are variables that do
+       not have a definition in \c ctx.
+    */
+    static bool are_args_vars(context const & ctx, expr const & a) {
+        lean_assert(is_app(a));
+        for (unsigned i = 1; i < num_args(a); i++) {
+            if (!is_var(arg(a, i)))
+                return false;
+            if (has_body(ctx, var_idx(arg(a, i))))
+                return false;
+        }
+        return true;
+    }
+
+    /**
         \brief Return true iff ctx |- a == b is a "simple" higher-order matching constraint. By simple, we mean
         a constraint of the form
                ctx |- (?m x) == c
@@ -628,11 +647,13 @@ class elaborator::imp {
         // Solve constraint of the form
         //    ctx |- (?m x) == c
         // using imitation
-        if (is_eq(c) && is_meta_app(a) && is_var(arg(a, 1)) && !has_body(ctx, var_idx(arg(a, 1))) && closed(b)) {
+        if (is_eq(c) && is_meta_app(a) && are_args_vars(ctx, a) && closed(b)) {
             expr m = arg(a, 0);
-            expr t = lookup(ctx, var_idx(arg(a, 1))).get_domain();
+            buffer<expr> types;
+            for (unsigned i = 1; i < num_args(a); i++)
+                types.push_back(lookup(ctx, var_idx(arg(a, i))).get_domain());
             trace new_trace(new destruct_trace(c));
-            expr s = mk_lambda(g_x_name, t, b);
+            expr s = mk_lambda(types, b);
             if (!is_lhs)
                 swap(m, s);
             push_front(mk_eq_constraint(ctx, m, s, new_trace));
@@ -648,7 +669,7 @@ class elaborator::imp {
        for further details.
     */
     bool process_meta_app(expr const & a, expr const & b, bool is_lhs, unification_constraint const & c) {
-        if (is_meta_app(a) && !has_local_context(arg(a, 0)) && !is_meta_app(b)) {
+        if (is_meta_app(a) && !is_meta_app(b)) {
             context const & ctx = get_context(c);
             metavar_env & menv  = m_state.m_menv;
             expr f_a            = arg(a, 0);
@@ -661,7 +682,7 @@ class elaborator::imp {
                 for (auto uc : ucs)
                     push_front(uc);
             }
-            std::unique_ptr<ho_match_case_split> new_cs(new ho_match_case_split(c, m_state));
+            std::unique_ptr<generic_case_split> new_cs(new generic_case_split(c, m_state));
             // Add projections
             for (unsigned i = 1; i < num_a; i++) {
                 // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), x_i
@@ -734,6 +755,45 @@ class elaborator::imp {
         }
     }
 
+    /** \brief Process constraint of the form ctx |- a << ?m, where \c a is Type of Bool */
+    bool process_lower(expr const & a, expr const & b, unification_constraint const & c) {
+        if (is_convertible(c) && is_metavar(b) && (a == Bool || is_type(a))) {
+            // Remark: in principle, there are infinite number of choices.
+            // We approximate and only consider the most useful ones.
+            trace new_tr(new destruct_trace(c));
+            unification_constraint new_c;
+            if (a == Bool) {
+                expr choices[5] = { Bool, Type(), Type(level() + 1), TypeM, TypeU };
+                new_c = mk_choice_constraint(get_context(c), b, 5, choices, new_tr);
+            } else {
+                expr choices[5] = { a, Type(ty_level(a) + 1), Type(ty_level(a) + 2), TypeM, TypeU };
+                new_c = mk_choice_constraint(get_context(c), b, 5, choices, new_tr);
+            }
+            push_front(new_c);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+        \brief Process a constraints of the form:
+           - true == (t1 = t2)
+           - true << (t1 = t2)
+
+        \remark This method should be removed if we remove T == T ==> true normalization rule from the
+        kernel.
+    */
+    bool process_true_eq(expr const & a, expr const & b, unification_constraint const & c) {
+        if (a == True && is_eq(b)) {
+            trace new_tr(new normalize_trace(c));
+            push_front(mk_eq_constraint(get_context(c), eq_lhs(b), eq_rhs(b), new_tr));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     bool process_eq_convertible(context const & ctx, expr const & a, expr const & b, unification_constraint const & c) {
         bool eq = is_eq(c);
         if (a == b) {
@@ -756,6 +816,10 @@ class elaborator::imp {
 
         if (process_simple_ho_match(ctx, a, b, true, c) ||
             process_simple_ho_match(ctx, b, a, false, c))
+            return true;
+
+        if (process_true_eq(a, b, c) ||
+            process_true_eq(b, a, c))
             return true;
 
         if (a.kind() == b.kind()) {
@@ -817,19 +881,25 @@ class elaborator::imp {
             }
         }
 
-        if (!is_meta(a) && !is_meta(b) && a.kind() != b.kind()) {
-            m_conflict = trace(new unification_failure_trace(c));
-            return false;
-        }
-
         if (instantiate_metavars(true, a, c) ||
             instantiate_metavars(false, b, c)) {
             return true;
         }
 
+        if (a.kind() != b.kind() && !has_metavar(a) && !has_metavar(b)) {
+            m_conflict = trace(new unification_failure_trace(c));
+            return false;
+        }
+
         if (m_quota < 0) {
             // process expensive cases
             if (process_meta_app(a, b, true, c) || process_meta_app(b, a, false, c))
+                return true;
+        }
+
+        if (m_quota < - static_cast<int>(m_state.m_queue.size())) {
+            // process very expensive cases
+            if (process_lower(a, b, c))
                 return true;
         }
 
@@ -891,7 +961,7 @@ class elaborator::imp {
         }
     }
 
-    bool next_ho_case(ho_match_case_split & s) {
+    bool next_generic_case(generic_case_split & s) {
         unsigned idx = s.m_idx;
         unsigned sz  = s.m_states.size();
         if (idx < sz) {

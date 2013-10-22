@@ -76,7 +76,7 @@ class replace_using_ctx_fn {
                         expr new_b;
                         {
                             cache::mk_scope sc(m_cache);
-                            new_b  = apply(b, extend(ctx, abst_name(e), new_t, new_v), offset+1);
+                            new_b  = apply(b, extend(ctx, let_name(e), new_t, new_v), offset+1);
                         }
                         return std::make_tuple(new_t, new_v, new_b);
                     });

@@ -8,7 +8,7 @@ Author: Soonho Kong
 #include "util/trace.h"
 #include "util/numerics/float.h"
 #include "util/interval/interval.h"
-#include "tests/interval/check.h"
+#include "tests/util/interval/check.h"
 
 using namespace lean;
 

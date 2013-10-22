@@ -248,12 +248,12 @@ void import_basic_thms(environment & env) {
     // Congr1 : Pi (A : Type u) (B : A -> Type u) (f g: Pi (x : A) B x) (a : A) (H : f = g), f a = g a
     env.add_theorem(congr1_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {a, A}, {H, Eq(f, g)}}, Eq(f(a), g(a))),
                     Fun({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {a, A}, {H, Eq(f, g)}},
-                        Subst(piABx, f, g, Fun({h, piABx}, Eq(f(a), h(a))), Refl(piABx, f), H)));
+                        Subst(piABx, f, g, Fun({h, piABx}, Eq(f(a), h(a))), Refl(B(a), f(a)), H)));
 
     // Congr2 : Pi (A : Type u) (B : A -> Type u)  (a b : A) (f : Pi (x : A) B x) (H : a = b), f a = f b
     env.add_theorem(congr2_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {a, A}, {b, A}, {f, piABx}, {H, Eq(a, b)}}, Eq(f(a), f(b))),
                     Fun({{A, TypeU}, {B, A_arrow_u}, {a, A}, {b, A}, {f, piABx}, {H, Eq(a, b)}},
-                        Subst(A, a, b, Fun({x, A}, Eq(f(a), f(x))), Refl(A, a), H)));
+                        Subst(A, a, b, Fun({x, A}, Eq(f(a), f(x))), Refl(B(a), f(a)), H)));
 
     // Congr : Pi (A : Type u) (B : A -> Type u) (f g : Pi (x : A) B x) (a b : A) (H1 : f = g) (H2 : a = b), f a = g b
     env.add_theorem(congr_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {a, A}, {b, A}, {H1, Eq(f, g)}, {H2, Eq(a, b)}}, Eq(f(a), g(b))),

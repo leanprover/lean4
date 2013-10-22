@@ -193,7 +193,7 @@ static void tst3() {
     expr t2 = Const("a");
     expr e = Eq(t1, t2);
     std::cout << e << " --> " << normalize(e, env) << "\n";
-    lean_assert(normalize(e, env) == True);
+    lean_assert(normalize(e, env) == Eq(t1, t2));
 }
 
 static void tst4() {

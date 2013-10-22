@@ -62,6 +62,7 @@ static void tst2() {
 }
 
 static void tst3() {
+    std::cout << "tst3\n";
     environment env = mk_toplevel();
     try {
         env.add_definition("a", Int, Const("a"));
@@ -111,6 +112,7 @@ static void tst3() {
 }
 
 static void tst4() {
+    std::cout << "tst4\n";
     environment env = mk_toplevel();
     env.add_definition("a", Int, iVal(1), true); // add opaque definition
     expr t = iAdd(Const("a"), iVal(1));

@@ -254,10 +254,8 @@ class normalizer::imp {
         case expr_kind::Eq: {
             expr new_lhs = reify(normalize(eq_lhs(a), s, k), k);
             expr new_rhs = reify(normalize(eq_rhs(a), s, k), k);
-            if (new_lhs == new_rhs) {
-                r = svalue(mk_bool_value(true));
-            } else if (is_value(new_lhs) && is_value(new_rhs)) {
-                r = svalue(mk_bool_value(false));
+            if (is_value(new_lhs) && is_value(new_rhs)) {
+                r = svalue(mk_bool_value(new_lhs == new_rhs));
             } else {
                 r = svalue(mk_eq(new_lhs, new_rhs));
             }

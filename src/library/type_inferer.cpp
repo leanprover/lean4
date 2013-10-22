@@ -119,9 +119,12 @@ class type_inferer::imp {
             break;
         }
         case expr_kind::Var: {
-            context_entry const & ce = lookup(ctx, var_idx(e));
-            if (ce.get_domain())
-                return ce.get_domain();
+            auto p = lookup_ext(ctx, var_idx(e));
+            context_entry const & ce = p.first;
+            if (ce.get_domain()) {
+                context const & ce_ctx   = p.second;
+                return lift_free_vars(ce.get_domain(), ctx.size() - ce_ctx.size());
+            }
             // Remark: the case where ce.get_domain() is not
             // available is not considered cheap.
             break;

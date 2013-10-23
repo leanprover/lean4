@@ -789,6 +789,69 @@ void tst25() {
     }
 }
 
+void tst26() {
+    /*
+      Solve elaboration problem for
+
+      g : Pi (A : Type U), A -> A
+      a : Type 1
+      Axiom H : g _ a = a
+    */
+    environment env;
+    import_all(env);
+    metavar_env menv;
+    buffer<unification_constraint> ucs;
+    type_checker checker(env);
+    expr A = Const("A");
+    expr g = Const("g");
+    env.add_var("g", Pi({A, TypeU}, A >> A));
+    expr a = Const("a");
+    env.add_var("a", Type(level()+1));
+    expr m1 = menv.mk_metavar();
+    expr F  = Eq(g(m1, a), a);
+    std::cout << F << "\n";
+    std::cout << checker.infer_type(F, context(), &menv, ucs) << "\n";
+    elaborator elb(env, menv, ucs.size(), ucs.data());
+    substitution s = elb.next();
+    std::cout << instantiate_metavars(F, s) << "\n";
+    lean_assert_eq(instantiate_metavars(F, s), Eq(g(Type(level()+1), a), a));
+}
+
+void tst27() {
+    /*
+      Solve elaboration problem for
+
+      g : Pi (A : Type U), A -> A
+      eq : Pi (A : Type U), A -> A -> Bool
+      a : Type 1
+      fun f : _, eq _ ((g _ f) a) a
+    */
+    environment env;
+    import_all(env);
+    metavar_env menv;
+    buffer<unification_constraint> ucs;
+    type_checker checker(env);
+    expr A = Const("A");
+    expr g = Const("g");
+    expr f = Const("f");
+    expr a = Const("a");
+    expr eq = Const("eq");
+    env.add_var("eq", Pi({A, TypeU}, A >> (A >> Bool)));
+    env.add_var("g", Pi({A, TypeU}, A >> A));
+    env.add_var("a", TypeM);
+    expr m1 = menv.mk_metavar();
+    expr m2 = menv.mk_metavar();
+    expr m3 = menv.mk_metavar();
+    expr F  = Fun({f, m1}, eq(m2, g(m3, f)(a), a));
+    std::cout << F << "\n";
+    std::cout << checker.infer_type(F, context(), &menv, ucs) << "\n";
+    elaborator elb(env, menv, ucs.size(), ucs.data());
+    substitution s = elb.next();
+    std::cout << beta_reduce(instantiate_metavars(F, s)) << "\n";
+    lean_assert_eq(beta_reduce(instantiate_metavars(F, s)),
+                   Fun({f, TypeM >> TypeM}, eq(TypeM, g(TypeM >> TypeM, f)(a), a)));
+}
+
 int main() {
     tst1();
     tst2();
@@ -815,6 +878,8 @@ int main() {
     tst23();
     tst24();
     tst25();
+    tst26();
+    tst27();
     return has_violations() ? 1 : 0;
 }
 

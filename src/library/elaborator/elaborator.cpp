@@ -455,6 +455,26 @@ class elaborator::imp {
     }
 
     /**
+       \brief Instantiate the assigned metavariables in \c a, and store the justification
+       in \c traces.
+    */
+    expr instantiate_metavars(expr const & a, buffer<trace> & traces) {
+        lean_assert(has_assigned_metavar(a));
+        metavar_env & menv = m_state.m_menv;
+        auto f = [&](expr const & m, unsigned) -> expr {
+            if (is_metavar(m) && menv.is_assigned(m)) {
+                trace t = menv.get_trace(m);
+                if (t)
+                    traces.push_back(t);
+                return menv.get_subst(m);
+            } else {
+                return m;
+            }
+        };
+        return replace_fn<decltype(f)>(f)(a);
+    }
+
+    /**
        \brief Return true iff \c a contains instantiated variables. If this is the case,
        then constraint \c c is updated with a new \c a s.t. all metavariables of \c a
        are instantiated.
@@ -468,19 +488,8 @@ class elaborator::imp {
         lean_assert(!is_convertible(c) || !is_lhs || is_eqp(convertible_from(c), a));
         lean_assert(!is_convertible(c) ||  is_lhs || is_eqp(convertible_to(c), a));
         if (has_assigned_metavar(a)) {
-            metavar_env & menv = m_state.m_menv;
             buffer<trace> traces;
-            auto f = [&](expr const & m, unsigned) -> expr {
-                if (is_metavar(m) && menv.is_assigned(m)) {
-                    trace t = menv.get_trace(m);
-                    if (t)
-                        traces.push_back(t);
-                    return menv.get_subst(m);
-                } else {
-                    return m;
-                }
-            };
-            expr new_a   = replace_fn<decltype(f)>(f)(a);
+            expr new_a = instantiate_metavars(a, traces);
             trace new_tr = mk_subst_trace(c, traces);
             push_updated_constraint(c, is_lhs, new_a, new_tr);
             return true;
@@ -747,9 +756,10 @@ class elaborator::imp {
             // New constraints (h_1 a_1 ... a_{num_a-1}) == abst_domain(b)
             //                 (h_2 a_1 ... a_{num_a-1} x_b) == abst_body(b)
             expr h_1 = new_state.m_menv.mk_metavar(ctx);
-            expr h_2 = new_state.m_menv.mk_metavar(ctx);
+            context new_ctx = extend(ctx, abst_name(b), abst_domain(b));
+            expr h_2 = new_state.m_menv.mk_metavar(new_ctx);
             push_new_eq_constraint(new_state.m_queue, ctx, update_app(a, 0, h_1), abst_domain(b), new_assumption);
-            push_new_eq_constraint(new_state.m_queue, extend(ctx, abst_name(b), abst_domain(b)),
+            push_new_eq_constraint(new_state.m_queue, new_ctx,
                                    mk_app(update_app(a, 0, h_2), Var(0)), abst_body(b), new_assumption);
             imitation = mk_lambda(arg_types, update_abstraction(b, mk_app_vars(h_1, num_a - 1), mk_app_vars(h_2, num_a)));
         } else {
@@ -788,6 +798,18 @@ class elaborator::imp {
         return is_metavar(a) && has_local_context(a) && head(metavar_lctx(a)).is_inst();
     }
 
+    /** \brief Return true if \c a is of the form ?m[lift:s:n, ...] */
+    bool is_metavar_lift(expr const & a) const {
+        return is_metavar(a) && has_local_context(a) && head(metavar_lctx(a)).is_lift();
+    }
+
+    /**
+       \brief A neutral abstraction is an Arrow (if the abstraction is a Pi) or a constant function (if the abstraction is a lambda).
+    */
+    bool is_neutral_abstraction(expr const & a) {
+        return is_abstraction(a) && !has_free_var(abst_body(a), 0);
+    }
+
     /**
        \brief Process a constraint <tt>ctx |- a == b</tt> where \c a is of the form <tt>?m[(inst:i t), ...]</tt>.
        We perform a "case split",
@@ -796,6 +818,9 @@ class elaborator::imp {
     */
     bool process_metavar_inst(expr const & a, expr const & b, bool is_lhs, unification_constraint const & c) {
         if (is_metavar_inst(a) && !is_metavar_inst(b) && !is_meta_app(b)) {
+            // Remark: the condition !is_abstraction(b) || is_neutral_abstraction(b)
+            // is used to make sure we don't enter a loop.
+            // This is just a conservative step to make sure the elaborator does diverge.
             context const & ctx = get_context(c);
             local_context  lctx = metavar_lctx(a);
             unsigned i          = head(lctx).s();
@@ -827,8 +852,10 @@ class elaborator::imp {
                     unsigned num_b    = num_args(b);
                     buffer<expr> imitation_args;
                     imitation_args.push_back(f_b);
-                    for (unsigned i = 1; i < num_b; i++)
-                        imitation_args.push_back(new_state.m_menv.mk_metavar(ctx));
+                    for (unsigned i = 1; i < num_b; i++) {
+                        expr h_i = new_state.m_menv.mk_metavar(ctx);
+                        imitation_args.push_back(h_i);
+                    }
                     imitation = mk_app(imitation_args.size(), imitation_args.data());
                 } else if (is_eq(b)) {
                     // Imitation for equality b == Eq(s1, s2)
@@ -839,14 +866,23 @@ class elaborator::imp {
                 } else if (is_abstraction(b)) {
                     // Lambdas and Pis
                     // Imitation for Lambdas and Pis, b == Fun(x:T) B
-                    // mname <- Fun (x:?h_1) ?h_2 x)
+                    // mname <- Fun (x:?h_1) ?h_2
+                    // Remark: we don't need to use (Fun (x:?h_1) (?h_2 x)) because when b
+                    // is a neutral abstraction (arrow or constant function).
+                    // We avoid the more general (Fun (x:?h_1) (?h_2 x)) because it produces
+                    // non-termination.
                     expr h_1 = new_state.m_menv.mk_metavar(ctx);
-                    expr h_2 = new_state.m_menv.mk_metavar(ctx);
-                    imitation = update_abstraction(b, h_1, mk_app(h_2, Var(0)));
+                    context new_ctx = extend(ctx, abst_name(b), abst_domain(b));
+                    expr h_2 = new_state.m_menv.mk_metavar(new_ctx);
+                    if (is_neutral_abstraction(b))
+                        imitation = update_abstraction(b, h_1, h_2);
+                    else
+                        imitation = update_abstraction(b, h_1, mk_app(h_2, Var(0)));
                 } else {
                     imitation = lift_free_vars(b, i, 1);
                 }
-                push_new_eq_constraint(new_state.m_queue, ctx, pop_meta_context(a), imitation, new_assumption);
+                new_state.m_queue.push_front(c); // keep c
+                push_new_eq_constraint(new_state.m_queue, ctx, mk_metavar(metavar_name(a)), imitation, new_assumption);
                 new_cs->push_back(new_state, new_assumption);
             }
             bool r = new_cs->next(*this);
@@ -859,7 +895,31 @@ class elaborator::imp {
         }
     }
 
-    /** \brief Process constraint of the form ctx |- a << ?m, where \c a is Type of Bool */
+    /**
+       \brief Process a constraint of the form <tt>ctx |- ?m[lift, ...] == b</tt> where \c b is an abstraction.
+       That is, \c b is a Pi or Lambda. In both cases, ?m must have the same kind.
+       We just add a new assignment that forces ?m to have the corresponding kind.
+    */
+    bool process_metavar_lift_abstraction(expr const & a, expr const & b, unification_constraint const & c) {
+        if (is_metavar_lift(a) && is_abstraction(b) && is_neutral_abstraction(b)) {
+            push_back(c);
+            context const & ctx = get_context(c);
+            expr h_1 = m_state.m_menv.mk_metavar(ctx);
+            expr h_2 = m_state.m_menv.mk_metavar(ctx);
+            // We don't use h_2(Var 0) in the body of the imitation term because
+            // b is a neutral abstraction (arrow or constant function).
+            // See comment at process_metavar_inst
+            expr imitation = update_abstraction(b, h_1, h_2);
+            expr ma  = mk_metavar(metavar_name(a));
+            trace new_tr(new imitation_trace(c));
+            push_new_constraint(true, ctx, ma, imitation, new_tr);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /** \brief Process constraint of the form <tt>ctx |- a << ?m</tt>, where \c a is Type or Bool */
     bool process_lower(expr const & a, expr const & b, unification_constraint const & c) {
         if (is_convertible(c) && is_metavar(b) && (a == Bool || is_type(a))) {
             // Remark: in principle, there are infinite number of choices.
@@ -872,6 +932,57 @@ class elaborator::imp {
             } else {
                 expr choices[5] = { a, Type(ty_level(a) + 1), Type(ty_level(a) + 2), TypeM, TypeU };
                 new_c = mk_choice_constraint(get_context(c), b, 5, choices, new_tr);
+            }
+            push_front(new_c);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /** \brief Process constraint of the form <tt>ctx |- ?m << b</tt>, where \c a is Type */
+    bool process_upper(expr const & a, expr const & b, unification_constraint const & c) {
+        if (is_convertible(c) && is_metavar(a) && is_type(b)) {
+            // Remark: in principle, there are infinite number of choices.
+            // We approximate and only consider the most useful ones.
+            trace new_tr(new destruct_trace(c));
+            unification_constraint new_c;
+            if (b == Type()) {
+                expr choices[2] = { Type(), Bool };
+                new_c = mk_choice_constraint(get_context(c), a, 2, choices, new_tr);
+            } else if (b == TypeU) {
+                expr choices[5] = { TypeU, TypeM, Type(level() + 1), Type(), Bool };
+                new_c = mk_choice_constraint(get_context(c), a, 5, choices, new_tr);
+            } else if (b == TypeM) {
+                expr choices[4] = { TypeM, Type(level() + 1), Type(), Bool };
+                new_c = mk_choice_constraint(get_context(c), a, 4, choices, new_tr);
+            } else {
+                level const & lvl = ty_level(b);
+                lean_assert(!lvl.is_bottom());
+                if (is_lift(lvl)) {
+                    // If  b is (Type L + k)
+                    // make choices == { Type(L + k), Type(L + k - 1), ..., Type(L), Type, Bool }
+                    buffer<expr> choices;
+                    unsigned k = lift_offset(lvl);
+                    level L = lift_of(lvl);
+                    lean_assert(k > 0);
+                    while (k > 0) {
+                        choices.push_back(mk_type(L + k));
+                        k--;
+                    }
+                    choices.push_back(mk_type(L));
+                    if (!L.is_bottom())
+                        choices.push_back(Type());
+                    choices.push_back(Bool);
+                    new_c = mk_choice_constraint(get_context(c), a, choices.size(), choices.data(), new_tr);
+                } else if (is_uvar(lvl)) {
+                    expr choices[4] = { Type(level() + 1), Type(), b, Bool };
+                    new_c = mk_choice_constraint(get_context(c), a, 4, choices, new_tr);
+                } else {
+                    lean_assert(is_max(lvl));
+                    // TODO(Leo)
+                    return false;
+                }
             }
             push_front(new_c);
             return true;
@@ -980,15 +1091,17 @@ class elaborator::imp {
             // process expensive cases
             if (process_meta_app(a, b, true, c) || process_meta_app(b, a, false, c))
                 return true;
-            if (process_metavar_inst(a, b, true, c) || process_metavar_inst(b, a, false, c))
-                return true;
         }
 
         if (m_quota < - static_cast<int>(m_state.m_queue.size())) {
             // process very expensive cases
-            if (process_lower(a, b, c))
-                return true;
-            if (process_meta_app(a, b, true, c, true))
+            if (process_lower(a, b, c) ||
+                process_upper(a, b, c) ||
+                process_metavar_inst(a, b, true, c) ||
+                process_metavar_inst(b, a, false, c) ||
+                process_metavar_lift_abstraction(a, b, c) ||
+                process_metavar_lift_abstraction(b, a, c) ||
+                process_meta_app(a, b, true, c, true))
                 return true;
         }
 
@@ -999,8 +1112,79 @@ class elaborator::imp {
     }
 
 
-    bool process_max(unification_constraint const &) {
-        // TODO(Leo)
+    bool process_max(unification_constraint const & c) {
+        expr const & lhs1 = max_lhs1(c);
+        expr const & lhs2 = max_lhs2(c);
+        expr const & rhs  = max_rhs(c);
+        buffer<trace> traces;
+        bool modified = false;
+        expr new_lhs1 = lhs1;
+        expr new_lhs2 = lhs2;
+        expr new_rhs  = rhs;
+        if (has_assigned_metavar(lhs1)) {
+            new_lhs1 = instantiate_metavars(lhs1, traces);
+            modified = true;
+        }
+        if (has_assigned_metavar(lhs2)) {
+            new_lhs2 = instantiate_metavars(lhs2, traces);
+            modified = true;
+        }
+        if (has_assigned_metavar(rhs)) {
+            new_rhs = instantiate_metavars(rhs, traces);
+            modified = true;
+        }
+        if (modified) {
+            trace new_tr = mk_subst_trace(c, traces);
+            push_front(mk_max_constraint(get_context(c), new_lhs1, new_lhs2, new_rhs, new_tr));
+            return true;
+        }
+        if (!is_metavar(lhs1) && !is_type(lhs1)) {
+            new_lhs1 = normalize(get_context(c), lhs1);
+            modified = (lhs1 != new_lhs1);
+        }
+        if (!is_metavar(lhs2) && !is_type(lhs2)) {
+            new_lhs2 = normalize(get_context(c), lhs2);
+            modified = (lhs2 != new_lhs2);
+        }
+        if (!is_metavar(rhs) && !is_type(rhs)) {
+            new_rhs = normalize(get_context(c), rhs);
+            modified = (rhs != new_rhs);
+        }
+        if (modified) {
+            trace new_tr(new normalize_trace(c));
+            push_front(mk_max_constraint(get_context(c), new_lhs1, new_lhs2, new_rhs, new_tr));
+            return true;
+        }
+        if (is_type(lhs1) && is_type(lhs2)) {
+            trace new_tr(new normalize_trace(c));
+            expr new_lhs = mk_type(max(ty_level(lhs1), ty_level(lhs2)));
+            push_front(mk_eq_constraint(get_context(c), new_lhs, rhs, new_tr));
+            return true;
+        }
+        if (lhs1 == rhs) {
+            // ctx |- max(lhs1, lhs2) == rhs
+            // ==>  IF lhs1 = rhs
+            // ctx |- lhs2 << rhs
+            trace new_tr(new normalize_trace(c));
+            push_front(mk_convertible_constraint(get_context(c), lhs2, rhs, new_tr));
+            return true;
+        } else if (lhs2 == rhs) {
+            // ctx |- max(lhs1, lhs2) == rhs
+            // ==>  IF lhs1 = rhs
+            // ctx |- lhs2 << rhs
+            trace new_tr(new normalize_trace(c));
+            push_front(mk_convertible_constraint(get_context(c), lhs1, rhs, new_tr));
+            return true;
+        }
+
+        if ((!has_metavar(lhs1) && !is_type(lhs1)) ||
+            (!has_metavar(lhs2) && !is_type(lhs2))) {
+            m_conflict = trace(new unification_failure_trace(c));
+            return false;
+        }
+
+        // std::cout << "Postponed: "; display(std::cout, c);
+        push_back(c);
         return true;
     }
 

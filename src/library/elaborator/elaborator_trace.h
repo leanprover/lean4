@@ -105,6 +105,24 @@ public:
 };
 
 /**
+   \brief Trace object used to justify an imitation step.
+   An imitation step is used when solving constraints such as:
+
+   <tt>ctx |- ?m[lift:s:n, ...] == Pi (x : A), B x</tt>
+
+   In this case, ?m must be a Pi. We make progress, by adding the constraint
+   <tt>ctx |- ?m == Pi (x : ?M1), (?M2 x)</tt>
+
+   where ?M1 and ?M2 are fresh metavariables.
+*/
+class imitation_trace : public propagation_trace {
+protected:
+    virtual char const * get_prop_name() const { return "Imitation"; }
+public:
+    imitation_trace(unification_constraint const & c):propagation_trace(c) {}
+};
+
+/**
    \brief Trace object used to justify a new constraint obtained by substitution.
 */
 class substitution_trace : public propagation_trace {

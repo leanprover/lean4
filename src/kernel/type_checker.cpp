@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/builtin.h"
 #include "kernel/free_vars.h"
-#include "kernel/type_checker_trace.h"
+#include "kernel/type_checker_justification.h"
 
 namespace lean {
 static name g_x_name("x");
@@ -55,8 +55,8 @@ class type_checker::imp {
             expr A   = m_menv->mk_metavar(ctx);
             expr B   = m_menv->mk_metavar(ctx);
             expr p   = mk_pi(g_x_name, A, B(Var(0)));
-            trace tr = mk_function_expected_trace(ctx, s);
-            m_uc->push_back(mk_eq_constraint(ctx, r, p, tr));
+            justification jst = mk_function_expected_justification(ctx, s);
+            m_uc->push_back(mk_eq_constraint(ctx, r, p, jst));
             return p;
         }
         throw function_expected_exception(m_env, ctx, s);
@@ -73,8 +73,8 @@ class type_checker::imp {
         if (u == Bool)
             return Type();
         if (has_metavar(u) && m_menv) {
-            trace tr = mk_type_expected_trace(ctx, s);
-            m_uc->push_back(mk_convertible_constraint(ctx, u, TypeU, tr));
+            justification jst = mk_type_expected_justification(ctx, s);
+            m_uc->push_back(mk_convertible_constraint(ctx, u, TypeU, jst));
             return u;
         }
         throw type_expected_exception(m_env, ctx, s);
@@ -123,8 +123,8 @@ class type_checker::imp {
             while (true) {
                 expr const & c   = arg(e, i);
                 expr const & c_t = arg_types[i];
-                auto mk_trace = [&](){ return mk_app_type_match_trace(ctx, e, i); }; // thunk for creating trace object if needed
-                if (!is_convertible(c_t, abst_domain(f_t), ctx, mk_trace))
+                auto mk_justification = [&](){ return mk_app_type_match_justification(ctx, e, i); }; // thunk for creating justification object if needed
+                if (!is_convertible(c_t, abst_domain(f_t), ctx, mk_justification))
                     throw app_type_mismatch_exception(m_env, ctx, e, arg_types.size(), arg_types.data());
                 if (closed(abst_body(f_t)))
                     f_t = abst_body(f_t);
@@ -169,9 +169,9 @@ class type_checker::imp {
                 r = mk_type(max(ty_level(t1), ty_level(t2)));
             } else {
                 lean_assert(m_uc);
-                trace tr = mk_max_type_trace(ctx, e);
+                justification jst = mk_max_type_justification(ctx, e);
                 r = m_menv->mk_metavar(ctx);
-                m_uc->push_back(mk_max_constraint(ctx, t1, t2, r, tr));
+                m_uc->push_back(mk_max_constraint(ctx, t1, t2, r, jst));
             }
             break;
         }
@@ -180,8 +180,8 @@ class type_checker::imp {
             if (let_type(e)) {
                 expr ty = infer_type_core(let_type(e), ctx);
                 check_type(ty, let_type(e), ctx); // check if it is really a type
-                auto mk_trace = [&](){ return mk_def_type_match_trace(ctx, let_name(e), let_value(e)); }; // thunk for creating trace object if needed
-                if (!is_convertible(lt, let_type(e), ctx, mk_trace))
+                auto mk_justification = [&](){ return mk_def_type_match_justification(ctx, let_name(e), let_value(e)); }; // thunk for creating justification object if needed
+                if (!is_convertible(lt, let_type(e), ctx, mk_justification))
                     throw def_type_mismatch_exception(m_env, ctx, let_name(e), let_type(e), let_value(e), lt);
             }
             {
@@ -235,8 +235,8 @@ class type_checker::imp {
         }
     }
 
-    template<typename MkTrace>
-    bool is_convertible(expr const & given, expr const & expected, context const & ctx, MkTrace const & mk_trace) {
+    template<typename MkJustification>
+    bool is_convertible(expr const & given, expr const & expected, context const & ctx, MkJustification const & mk_justification) {
         if (is_convertible_core(given, expected))
             return true;
         expr new_given    = normalize(given, ctx);
@@ -244,7 +244,7 @@ class type_checker::imp {
         if (is_convertible_core(new_given, new_expected))
             return true;
         if (m_menv && (has_metavar(new_given) || has_metavar(new_expected))) {
-            m_uc->push_back(mk_convertible_constraint(ctx, new_given, new_expected, mk_trace()));
+            m_uc->push_back(mk_convertible_constraint(ctx, new_given, new_expected, mk_justification()));
             return true;
         }
         return false;
@@ -292,8 +292,8 @@ public:
     bool is_convertible(expr const & t1, expr const & t2, context const & ctx) {
         set_ctx(ctx);
         set_menv(nullptr);
-        auto mk_trace = [](){ lean_unreachable(); return trace(); };
-        return is_convertible(t1, t2, ctx, mk_trace);
+        auto mk_justification = [](){ lean_unreachable(); return justification(); };
+        return is_convertible(t1, t2, ctx, mk_justification);
     }
 
     void check_type(expr const & e, context const & ctx) {

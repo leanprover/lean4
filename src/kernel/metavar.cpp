@@ -87,12 +87,12 @@ expr substitution::get_subst(expr const & m) const {
 static name g_unique_name = name::mk_internal_unique_name();
 
 void swap(metavar_env & a, metavar_env & b) {
-    swap(a.m_name_generator,   b.m_name_generator);
-    swap(a.m_substitution,     b.m_substitution);
-    swap(a.m_metavar_types,    b.m_metavar_types);
-    swap(a.m_metavar_contexts, b.m_metavar_contexts);
-    swap(a.m_metavar_traces,   b.m_metavar_traces);
-    std::swap(a.m_timestamp,   b.m_timestamp);
+    swap(a.m_name_generator,         b.m_name_generator);
+    swap(a.m_substitution,           b.m_substitution);
+    swap(a.m_metavar_types,          b.m_metavar_types);
+    swap(a.m_metavar_contexts,       b.m_metavar_contexts);
+    swap(a.m_metavar_justifications, b.m_metavar_justifications);
+    std::swap(a.m_timestamp,         b.m_timestamp);
 }
 
 void metavar_env::inc_timestamp() {
@@ -173,17 +173,17 @@ bool metavar_env::has_type(expr const & m) const {
 }
 
 
-trace metavar_env::get_trace(expr const & m) const {
+justification metavar_env::get_justification(expr const & m) const {
     lean_assert(is_metavar(m));
-    return get_trace(metavar_name(m));
+    return get_justification(metavar_name(m));
 }
 
-trace metavar_env::get_trace(name const & m) const {
-    auto e = const_cast<metavar_env*>(this)->m_metavar_traces.splay_find(m);
+justification metavar_env::get_justification(name const & m) const {
+    auto e = const_cast<metavar_env*>(this)->m_metavar_justifications.splay_find(m);
     if (e) {
         return e->second;
     } else {
-        return trace();
+        return justification();
     }
 }
 
@@ -196,18 +196,18 @@ bool metavar_env::is_assigned(expr const & m) const {
     return is_assigned(metavar_name(m));
 }
 
-void metavar_env::assign(name const & m, expr const & t, trace const & tr) {
+void metavar_env::assign(name const & m, expr const & t, justification const & j) {
     lean_assert(!is_assigned(m));
     inc_timestamp();
     m_substitution.assign(m, t);
-    if (tr)
-        m_metavar_traces.insert(m, tr);
+    if (j)
+        m_metavar_justifications.insert(m, j);
 }
 
-void metavar_env::assign(expr const & m, expr const & t, trace const & tr) {
+void metavar_env::assign(expr const & m, expr const & t, justification const & j) {
     lean_assert(is_metavar(m));
     lean_assert(!has_local_context(m));
-    assign(metavar_name(m), t, tr);
+    assign(metavar_name(m), t, j);
 }
 
 struct found_unassigned{};

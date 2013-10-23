@@ -18,7 +18,7 @@ Author: Leonardo de Moura
 #include "kernel/normalizer.h"
 #include "kernel/printer.h"
 #include "kernel/kernel_exception.h"
-#include "kernel/type_checker_trace.h"
+#include "kernel/type_checker_justification.h"
 #include "library/basic_thms.h"
 #include "library/arith/arith.h"
 #include "library/all/all.h"
@@ -297,7 +297,7 @@ static void tst15() {
     lean_assert(is_eqp(r, checker.infer_type(F, ctx1)));
 }
 
-static void check_trace_msg(trace const & t, char const * expected) {
+static void check_justification_msg(justification const & t, char const * expected) {
     formatter fmt = mk_simple_formatter();
     options   opts;
     opts = opts.update({"pp", "indent"}, 2);
@@ -309,18 +309,18 @@ static void check_trace_msg(trace const & t, char const * expected) {
 }
 
 static void tst16() {
-    std::cout << "Testing type checker trace objects\n";
+    std::cout << "Testing type checker justification objects\n";
     context ctx;
     expr f = Const("f");
     expr a = Const("a");
     expr x = Var(0);
     ctx = extend(ctx, "x", Const("N"));
-    check_trace_msg(mk_function_expected_trace(ctx, f(a, x)), "Function expected at\n  f a x");
-    check_trace_msg(mk_type_expected_trace(ctx, Pi({a, Const("N")}, Var(1))), "Type expected at\n  N -> x");
-    check_trace_msg(mk_type_expected_trace(ctx, Pi({a, Const("N")}, Var(1)(a))), "Type expected at\n  Pi a : N, (x a)");
-    check_trace_msg(mk_app_type_match_trace(ctx, f(a, x), 1), "Type of argument 1 must be convertible to the expected type in the application of\n  f\nwith arguments:\n  a\n  x");
-    check_trace_msg(mk_max_type_trace(ctx, Pi({a, Const("N")}, Var(1))), "Type expected at\n  N -> x");
-    check_trace_msg(mk_def_type_match_trace(ctx, "foo", f(a, x)), "Type of definition 'foo' must be convertible to expected type.");
+    check_justification_msg(mk_function_expected_justification(ctx, f(a, x)), "Function expected at\n  f a x");
+    check_justification_msg(mk_type_expected_justification(ctx, Pi({a, Const("N")}, Var(1))), "Type expected at\n  N -> x");
+    check_justification_msg(mk_type_expected_justification(ctx, Pi({a, Const("N")}, Var(1)(a))), "Type expected at\n  Pi a : N, (x a)");
+    check_justification_msg(mk_app_type_match_justification(ctx, f(a, x), 1), "Type of argument 1 must be convertible to the expected type in the application of\n  f\nwith arguments:\n  a\n  x");
+    check_justification_msg(mk_max_type_justification(ctx, Pi({a, Const("N")}, Var(1))), "Type expected at\n  N -> x");
+    check_justification_msg(mk_def_type_match_justification(ctx, "foo", f(a, x)), "Type of definition 'foo' must be convertible to expected type.");
 }
 
 int main() {

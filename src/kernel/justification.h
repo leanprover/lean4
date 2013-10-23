@@ -15,54 +15,54 @@ Author: Leonardo de Moura
 #include "kernel/pos_info_provider.h"
 
 namespace lean {
-class trace;
+class justification;
 /**
-   \brief Base class used to represent trace objects.
-   These objects are used to trace the execution of different engines in Lean.
-   The traces may help users understanding why something did not work.
-   The traces are particularly important for the elaborator.
+   \brief Base class used to represent justification objects.
+   These objects are used to justification the execution of different engines in Lean.
+   The justifications may help users understanding why something did not work.
+   The justifications are particularly important for the elaborator.
 */
-class trace_cell {
+class justification_cell {
     MK_LEAN_RC();
     void dealloc() { delete this; }
 protected:
     static void add_pos_info(format & r, expr const & e, pos_info_provider const * p);
 public:
-    trace_cell():m_rc(0) {}
-    virtual ~trace_cell() {}
+    justification_cell():m_rc(0) {}
+    virtual ~justification_cell() {}
     virtual format pp_header(formatter const & fmt, options const & opts) const = 0;
     virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool display_children) const;
-    virtual void get_children(buffer<trace_cell*> & r) const = 0;
+    virtual void get_children(buffer<justification_cell*> & r) const = 0;
     virtual expr const & get_main_expr() const { return expr::null(); }
     bool is_shared() const { return get_rc() > 1; }
 };
 
 /**
-   \brief Smart pointer for trace_cell's
+   \brief Smart pointer for justification_cell's
 */
-class trace {
-    trace_cell * m_ptr;
+class justification {
+    justification_cell * m_ptr;
 public:
-    trace():m_ptr(nullptr) {}
-    trace(trace_cell * ptr):m_ptr(ptr) { if (m_ptr) m_ptr->inc_ref(); }
-    trace(trace const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
-    trace(trace && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
-    ~trace() { if (m_ptr) m_ptr->dec_ref(); }
+    justification():m_ptr(nullptr) {}
+    justification(justification_cell * ptr):m_ptr(ptr) { if (m_ptr) m_ptr->inc_ref(); }
+    justification(justification const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
+    justification(justification && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
+    ~justification() { if (m_ptr) m_ptr->dec_ref(); }
 
     operator bool() const { return m_ptr != nullptr; }
 
-    trace_cell * raw() const { return m_ptr; }
+    justification_cell * raw() const { return m_ptr; }
 
-    friend void swap(trace & a, trace & b) { std::swap(a.m_ptr, b.m_ptr); }
+    friend void swap(justification & a, justification & b) { std::swap(a.m_ptr, b.m_ptr); }
 
-    trace & operator=(trace const & s) { LEAN_COPY_REF(trace, s); }
-    trace & operator=(trace && s) { LEAN_MOVE_REF(trace, s); }
+    justification & operator=(justification const & s) { LEAN_COPY_REF(justification, s); }
+    justification & operator=(justification && s) { LEAN_MOVE_REF(justification, s); }
     format pp(formatter const & fmt, options const & opts, pos_info_provider const * p = nullptr, bool display_children = true) const {
         lean_assert(m_ptr);
         return m_ptr->pp(fmt, opts, p, display_children);
     }
     expr const & get_main_expr() const { return m_ptr ? m_ptr->get_main_expr() : expr::null(); }
-    void get_children(buffer<trace_cell*> & r) const { if (m_ptr) m_ptr->get_children(r); }
+    void get_children(buffer<justification_cell*> & r) const { if (m_ptr) m_ptr->get_children(r); }
     bool has_children() const;
 };
 
@@ -70,5 +70,5 @@ public:
    \brief Return true iff \c t depends on \c d.
    That is \c t is a descendant of \c d.
 */
-bool depends_on(trace const & t, trace const & d);
+bool depends_on(justification const & t, justification const & d);
 }

@@ -6,20 +6,20 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "util/exception.h"
-#include "kernel/trace.h"
+#include "kernel/justification.h"
 
 namespace lean {
 /**
    \brief Elaborator and related components store the reason for
-   failure in trace objects.
+   failure in justification objects.
 */
 class elaborator_exception : public exception {
-    trace m_trace;
+    justification m_justification;
 public:
-    elaborator_exception(trace const & tr):m_trace(tr) {}
+    elaborator_exception(justification const & j):m_justification(j) {}
     virtual ~elaborator_exception() {}
     virtual char const * what() const noexcept { return "elaborator exception"; }
-    trace const & get_trace() const { return m_trace; }
+    justification const & get_justification() const { return m_justification; }
 };
 
 

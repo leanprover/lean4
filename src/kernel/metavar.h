@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "util/name_generator.h"
 #include "kernel/expr.h"
 #include "kernel/context.h"
-#include "kernel/trace.h"
+#include "kernel/justification.h"
 
 namespace lean {
 /**
@@ -89,16 +89,16 @@ void swap(substitution & s1, substitution & s2);
    4- Collecting constraints
 */
 class metavar_env {
-    typedef splay_map<name, expr, name_cmp>    name2expr;
-    typedef splay_map<name, context, name_cmp> name2context;
-    typedef splay_map<name, trace, name_cmp>   name2trace;
+    typedef splay_map<name, expr, name_cmp>          name2expr;
+    typedef splay_map<name, context, name_cmp>       name2context;
+    typedef splay_map<name, justification, name_cmp> name2justification;
 
-    name_generator m_name_generator;
-    substitution   m_substitution;
-    name2expr      m_metavar_types;
-    name2context   m_metavar_contexts;
-    name2trace     m_metavar_traces;
-    unsigned       m_timestamp;
+    name_generator     m_name_generator;
+    substitution       m_substitution;
+    name2expr          m_metavar_types;
+    name2context       m_metavar_contexts;
+    name2justification m_metavar_justifications;
+    unsigned           m_timestamp;
 
     void inc_timestamp();
 public:
@@ -146,12 +146,12 @@ public:
     bool has_type(name const & m) const;
 
     /**
-       \brief Return the trace/justification for an assigned metavariable.
+       \brief Return the justification for an assigned metavariable.
        \pre is_metavar(m)
        \pre is_assigned(m)
     */
-    trace get_trace(expr const & m) const;
-    trace get_trace(name const & m) const;
+    justification get_justification(expr const & m) const;
+    justification get_justification(name const & m) const;
 
 
     /**
@@ -172,7 +172,7 @@ public:
 
        \pre !is_assigned(m)
     */
-    void assign(name const & m, expr const & t, trace const & tr = trace());
+    void assign(name const & m, expr const & t, justification const & j = justification());
 
     /**
        \brief Assign metavariable \c m to \c t.
@@ -181,7 +181,7 @@ public:
        \pre !has_meta_context(m)
        \pre !is_assigned(m)
     */
-    void assign(expr const & m, expr const & t, trace const & tr = trace());
+    void assign(expr const & m, expr const & t, justification const & j = justification());
 
     /**
        \brief Return the set of substitutions.

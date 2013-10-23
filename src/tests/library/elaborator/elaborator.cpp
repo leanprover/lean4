@@ -51,9 +51,9 @@ static void tst1() {
     std::cout << checker.infer_type(F, context(), &menv, ucs) << "\n";
     expr int_id = Fun({a, Int}, a);
     expr nat_id = Fun({a, Nat}, a);
-    ucs.push_back(mk_choice_constraint(context(), m1, { int_id, mk_int_to_real_fn() }, trace()));
-    ucs.push_back(mk_choice_constraint(context(), m2, { nat_id, mk_nat_to_int_fn(), mk_nat_to_real_fn() }, trace()));
-    ucs.push_back(mk_choice_constraint(context(), m3, { int_id, mk_int_to_real_fn() }, trace()));
+    ucs.push_back(mk_choice_constraint(context(), m1, { int_id, mk_int_to_real_fn() }, justification()));
+    ucs.push_back(mk_choice_constraint(context(), m2, { nat_id, mk_nat_to_int_fn(), mk_nat_to_real_fn() }, justification()));
+    ucs.push_back(mk_choice_constraint(context(), m3, { int_id, mk_int_to_real_fn() }, justification()));
     elaborator elb(env, menv, ucs.size(), ucs.data());
     substitution s = elb.next();
 }
@@ -93,9 +93,9 @@ static void tst2() {
     expr F  = m1(g(m2, m3(a)), m4(nVal(0)));
     std::cout << F << "\n";
     std::cout << checker.infer_type(F, context(), &menv, ucs) << "\n";
-    ucs.push_back(mk_choice_constraint(context(), m1, { mk_nat_le_fn(), mk_int_le_fn(), mk_real_le_fn() }, trace()));
-    ucs.push_back(mk_choice_constraint(context(), m3, { int_id, mk_int_to_real_fn() }, trace()));
-    ucs.push_back(mk_choice_constraint(context(), m4, { nat_id, mk_nat_to_int_fn(), mk_nat_to_real_fn() }, trace()));
+    ucs.push_back(mk_choice_constraint(context(), m1, { mk_nat_le_fn(), mk_int_le_fn(), mk_real_le_fn() }, justification()));
+    ucs.push_back(mk_choice_constraint(context(), m3, { int_id, mk_int_to_real_fn() }, justification()));
+    ucs.push_back(mk_choice_constraint(context(), m4, { nat_id, mk_nat_to_int_fn(), mk_nat_to_real_fn() }, justification()));
     elaborator elb(env, menv, ucs.size(), ucs.data());
     substitution s = elb.next();
 }
@@ -136,9 +136,9 @@ static void tst3() {
     expr F = Fun({x, m1}, m2(f(m3, x), m4(nVal(10))))(m5(a));
     std::cout << F << "\n";
     std::cout << checker.infer_type(F, context(), &menv, ucs) << "\n";
-    ucs.push_back(mk_choice_constraint(context(), m2, { mk_nat_le_fn(), mk_int_le_fn(), mk_real_le_fn() }, trace()));
-    ucs.push_back(mk_choice_constraint(context(), m4, { nat_id, mk_nat_to_int_fn(), mk_nat_to_real_fn() }, trace()));
-    ucs.push_back(mk_choice_constraint(context(), m5, { int_id, mk_int_to_real_fn() }, trace()));
+    ucs.push_back(mk_choice_constraint(context(), m2, { mk_nat_le_fn(), mk_int_le_fn(), mk_real_le_fn() }, justification()));
+    ucs.push_back(mk_choice_constraint(context(), m4, { nat_id, mk_nat_to_int_fn(), mk_nat_to_real_fn() }, justification()));
+    ucs.push_back(mk_choice_constraint(context(), m5, { int_id, mk_int_to_real_fn() }, justification()));
     elaborator elb(env, menv, ucs.size(), ucs.data());
     substitution s = elb.next();
 }
@@ -181,8 +181,8 @@ static void tst4() {
     expr F = Fun({{x, m1}, {y, m2}}, m3(f(m4, x), f(m5, y)))(m6(a), b);
     std::cout << F << "\n";
     std::cout << checker.infer_type(F, context(), &menv, ucs) << "\n";
-    ucs.push_back(mk_choice_constraint(context(), m3, { mk_nat_le_fn(), mk_int_le_fn(), mk_real_le_fn() }, trace()));
-    ucs.push_back(mk_choice_constraint(context(), m6, { int_id, mk_int_to_real_fn() }, trace()));
+    ucs.push_back(mk_choice_constraint(context(), m3, { mk_nat_le_fn(), mk_int_le_fn(), mk_real_le_fn() }, justification()));
+    ucs.push_back(mk_choice_constraint(context(), m6, { int_id, mk_int_to_real_fn() }, justification()));
     elaborator elb(env, menv, ucs.size(), ucs.data());
     substitution s = elb.next();
 }
@@ -223,7 +223,7 @@ static void tst5() {
     expr F = Fun({{x, m1}, {y, m2}}, f(m3, x, y))(m4(a), b);
     std::cout << F << "\n";
     std::cout << checker.infer_type(F, context(), &menv, ucs) << "\n";
-    ucs.push_back(mk_choice_constraint(context(), m4, { int_id, mk_int_to_real_fn() }, trace()));
+    ucs.push_back(mk_choice_constraint(context(), m4, { int_id, mk_int_to_real_fn() }, justification()));
     elaborator elb(env, menv, ucs.size(), ucs.data());
     substitution s = elb.next();
 }
@@ -260,7 +260,7 @@ static void tst6() {
     expr V = Subst(m1, m2, m3, m4, H1, H2);
     expr expected = Eq(f(a, f(b, b)), a);
     expr given    = checker.infer_type(V, context(), &menv, ucs);
-    ucs.push_back(mk_eq_constraint(context(), expected, given, trace()));
+    ucs.push_back(mk_eq_constraint(context(), expected, given, justification()));
     elaborator elb(env, menv, ucs.size(), ucs.data());
     substitution s = elb.next();
     std::cout << beta_reduce(instantiate_metavars(V, s)) << "\n";

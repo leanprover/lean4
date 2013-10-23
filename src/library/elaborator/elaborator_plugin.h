@@ -27,7 +27,7 @@ public:
             Each result is represented by a pair: the new metavariable
             environment and a new list of constraints to be solved.
         */
-        virtual std::pair<metavar_env, list<unification_constraint>> next(trace const & assumption) = 0;
+        virtual std::pair<metavar_env, list<unification_constraint>> next(justification const & assumption) = 0;
         /** \brief Interrupt the computation for the next solution. */
         virtual void interrupt() = 0;
     };

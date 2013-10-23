@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/normalizer.h"
 #include "kernel/builtin.h"
 #include "kernel/kernel_exception.h"
-#include "kernel/type_checker_trace.h"
+#include "kernel/type_checker_justification.h"
 #include "kernel/instantiate.h"
 #include "kernel/free_vars.h"
 #include "kernel/metavar.h"
@@ -47,8 +47,8 @@ class type_inferer::imp {
         if (u == Bool)
             return Type();
         if (has_metavar(u) && m_menv) {
-            trace tr = mk_type_expected_trace(ctx, s);
-            m_uc->push_back(mk_convertible_constraint(ctx, u, TypeU, tr));
+            justification jst = mk_type_expected_justification(ctx, s);
+            m_uc->push_back(mk_convertible_constraint(ctx, u, TypeU, jst));
             return u;
         }
         throw type_expected_exception(m_env, ctx, s);
@@ -70,8 +70,8 @@ class type_inferer::imp {
                     expr A   = m_menv->mk_metavar(ctx);
                     expr B   = m_menv->mk_metavar(ctx);
                     expr p   = mk_pi(g_x_name, A, B(Var(0)));
-                    trace tr = mk_function_expected_trace(ctx, e);
-                    m_uc->push_back(mk_eq_constraint(ctx, t, p, tr));
+                    justification jst = mk_function_expected_justification(ctx, e);
+                    m_uc->push_back(mk_eq_constraint(ctx, t, p, jst));
                     t        = abst_body(p);
                 } else {
                     throw function_expected_exception(m_env, ctx, e);
@@ -186,9 +186,9 @@ class type_inferer::imp {
                 r = mk_type(max(ty_level(t1), ty_level(t2)));
             } else {
                 lean_assert(m_uc);
-                trace tr = mk_max_type_trace(ctx, e);
+                justification jst = mk_max_type_justification(ctx, e);
                 r = m_menv->mk_metavar(ctx);
-                m_uc->push_back(mk_max_constraint(ctx, t1, t2, r, tr));
+                m_uc->push_back(mk_max_constraint(ctx, t1, t2, r, jst));
             }
             break;
         }

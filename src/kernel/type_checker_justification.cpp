@@ -4,14 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "kernel/type_checker_trace.h"
+#include "kernel/type_checker_justification.h"
 
 namespace lean {
 
-function_expected_trace_cell::~function_expected_trace_cell() {
+function_expected_justification_cell::~function_expected_justification_cell() {
 }
 
-format function_expected_trace_cell::pp_header(formatter const & fmt, options const & opts) const {
+format function_expected_justification_cell::pp_header(formatter const & fmt, options const & opts) const {
     unsigned indent = get_pp_indent(opts);
     format expr_fmt = fmt(m_ctx, m_app, false, opts);
     format r;
@@ -20,17 +20,17 @@ format function_expected_trace_cell::pp_header(formatter const & fmt, options co
     return r;
 }
 
-void function_expected_trace_cell::get_children(buffer<trace_cell*> &) const {
+void function_expected_justification_cell::get_children(buffer<justification_cell*> &) const {
 }
 
-expr const & function_expected_trace_cell::get_main_expr() const {
+expr const & function_expected_justification_cell::get_main_expr() const {
     return m_app;
 }
 
-app_type_match_trace_cell::~app_type_match_trace_cell() {
+app_type_match_justification_cell::~app_type_match_justification_cell() {
 }
 
-format app_type_match_trace_cell::pp_header(formatter const & fmt, options const & opts) const {
+format app_type_match_justification_cell::pp_header(formatter const & fmt, options const & opts) const {
     unsigned indent = get_pp_indent(opts);
     format r;
     r += format("Type of argument ");
@@ -48,17 +48,17 @@ format app_type_match_trace_cell::pp_header(formatter const & fmt, options const
     return r;
 }
 
-void app_type_match_trace_cell::get_children(buffer<trace_cell*> &) const {
+void app_type_match_justification_cell::get_children(buffer<justification_cell*> &) const {
 }
 
-expr const & app_type_match_trace_cell::get_main_expr() const {
+expr const & app_type_match_justification_cell::get_main_expr() const {
     return m_app;
 }
 
-type_expected_trace_cell::~type_expected_trace_cell() {
+type_expected_justification_cell::~type_expected_justification_cell() {
 }
 
-format type_expected_trace_cell::pp_header(formatter const & fmt, options const & opts) const {
+format type_expected_justification_cell::pp_header(formatter const & fmt, options const & opts) const {
     unsigned indent = get_pp_indent(opts);
     format expr_fmt = fmt(m_ctx, m_type, false, opts);
     format r;
@@ -67,17 +67,17 @@ format type_expected_trace_cell::pp_header(formatter const & fmt, options const 
     return r;
 }
 
-void type_expected_trace_cell::get_children(buffer<trace_cell*> &) const {
+void type_expected_justification_cell::get_children(buffer<justification_cell*> &) const {
 }
 
-expr const & type_expected_trace_cell::get_main_expr() const {
+expr const & type_expected_justification_cell::get_main_expr() const {
     return m_type;
 }
 
-def_type_match_trace_cell::~def_type_match_trace_cell() {
+def_type_match_justification_cell::~def_type_match_justification_cell() {
 }
 
-format def_type_match_trace_cell::pp_header(formatter const &, options const &) const {
+format def_type_match_justification_cell::pp_header(formatter const &, options const &) const {
     format r;
     r += format("Type of definition '");
     r += format(get_name());
@@ -85,10 +85,10 @@ format def_type_match_trace_cell::pp_header(formatter const &, options const &) 
     return r;
 }
 
-void def_type_match_trace_cell::get_children(buffer<trace_cell*> &) const {
+void def_type_match_justification_cell::get_children(buffer<justification_cell*> &) const {
 }
 
-expr const & def_type_match_trace_cell::get_main_expr() const {
+expr const & def_type_match_justification_cell::get_main_expr() const {
     return m_value;
 }
 }

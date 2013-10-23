@@ -91,7 +91,7 @@ format unification_constraint_max::pp(formatter const & fmt, options const & opt
     format lhs1_fmt = fmt(m_ctx, m_lhs1, false, opts);
     format lhs2_fmt = fmt(m_ctx, m_lhs2, false, opts);
     format rhs_fmt  = fmt(m_ctx, m_rhs, false, opts);
-    format body     = group(format{format("max"), lp(), lhs1_fmt, comma(), nest(4, compose(line(), lhs2_fmt)), space(), op, line(), rhs_fmt});
+    format body     = group(format{format("max"), lp(), lhs1_fmt, comma(), nest(4, compose(line(), lhs2_fmt)), rp(), space(), op, line(), rhs_fmt});
     body = add_context(fmt, opts, m_ctx, body);
     return add_trace(fmt, opts, body, m_trace, p, include_trace);
 }

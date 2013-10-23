@@ -108,7 +108,8 @@ public:
 };
 namespace debug {
 template<typename T> void display_var(char const * name, T const & value) {
-    std::cerr << name << " : " << typeid(value).name() << " := "
+    // commented typeid(value).name() since the name is mangled
+    std::cerr << name << /* " : " << typeid(value).name() << */ " := "
               << std::boolalpha << value << std::noboolalpha
               << std::endl; }
 }

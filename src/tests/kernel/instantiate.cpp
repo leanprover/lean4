@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include "util/test.h"
 #include "kernel/abstract.h"
-#include "library/reduce.h"
+#include "kernel/instantiate.h"
 using namespace lean;
 
 static void tst1() {
@@ -36,19 +36,12 @@ static void tst1() {
 }
 
 static void tst2() {
-    environment env;
     expr x = Const("x");
     expr a = Const("a");
     expr f = Const("f");
     expr N = Const("N");
     expr F1 = Let({x, a}, f(x));
     lean_assert_eq(head_beta_reduce(F1), F1);
-    lean_assert_eq(head_reduce(F1, env), f(a));
-    context ctx;
-    ctx = extend(ctx, "x", N, f(a));
-    ctx = extend(ctx, "y", N, f(Var(0)));
-    std::cout << head_reduce(Var(0), env, ctx) << "\n";
-    lean_assert_eq(head_reduce(Var(0), env, ctx), f(Var(1)));
 }
 
 int main() {

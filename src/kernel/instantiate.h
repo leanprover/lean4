@@ -29,4 +29,8 @@ inline expr instantiate(expr const & e, expr const & s) { return instantiate(e, 
    \brief Replace free variable \c i with \c s in \c e.
 */
 expr instantiate(expr const & e, unsigned i, expr const & s);
+
+bool is_head_beta(expr const & t);
+expr head_beta_reduce(expr const & t);
+expr beta_reduce(expr t);
 }

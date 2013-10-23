@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/free_vars.h"
 #include "kernel/metavar.h"
-#include "library/reduce.h"
 #include "library/type_inferer.h"
 
 namespace lean {

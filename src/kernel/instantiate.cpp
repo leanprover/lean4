@@ -64,4 +64,52 @@ expr instantiate(expr const & e, unsigned n, expr const * s) {
 expr instantiate(expr const & e, unsigned i, expr const & s) {
     return instantiate(e, i, 1, &s);
 }
+
+bool is_head_beta(expr const & t) {
+    return is_app(t) && is_lambda(arg(t, 0));
+}
+
+expr head_beta_reduce(expr const & t) {
+    if (!is_head_beta(t)) {
+        return t;
+    } else {
+        unsigned num  = num_args(t);
+        unsigned num1 = num - 1;
+        expr const * f = &arg(t, 0);
+        lean_assert(is_lambda(*f));
+        unsigned m = 1;
+        while (is_lambda(abst_body(*f)) && m < num1) {
+            f = &abst_body(*f);
+            m++;
+        }
+        lean_assert(m <= num1);
+        expr r = instantiate(abst_body(*f), m, &arg(t, 1));
+        if (m == num1) {
+            return r;
+        } else {
+            buffer<expr> args;
+            args.push_back(r);
+            m++;
+            for (; m < num; m++)
+                args.push_back(arg(t, m));
+            return mk_app(args.size(), args.data());
+        }
+    }
+}
+
+expr beta_reduce(expr t) {
+    auto f = [=](expr const & m, unsigned) -> expr {
+        if (is_head_beta(m))
+            return head_beta_reduce(m);
+        else
+            return m;
+    };
+    while (true) {
+        expr new_t = replace_fn<decltype(f)>(f)(t);
+        if (new_t == t)
+            return new_t;
+        else
+            t = new_t;
+    }
+}
 }

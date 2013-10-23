@@ -19,7 +19,6 @@ Author: Leonardo de Moura
 #include "kernel/metavar.h"
 #include "kernel/printer.h"
 #include "library/placeholder.h"
-#include "library/reduce.h"
 #include "library/update_expr.h"
 #include "library/expr_pair.h"
 #include "frontends/lean/frontend.h"

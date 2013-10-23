@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/occurs.h"
 #include "kernel/metavar.h"
 #include "kernel/expr_maps.h"
-#include "library/replace_using_ctx.h"
+#include "kernel/replace_visitor.h"
 #include "library/placeholder.h"
 
 namespace lean {
@@ -24,18 +24,33 @@ bool has_placeholder(expr const & e) {
     return occurs(mk_placholder(), e);
 }
 
-expr replace_placeholders_with_metavars(expr const & e, metavar_env & menv, expr_map<expr> * new2old) {
-    auto f = [&](expr const & e, context const & c, unsigned) -> expr {
+class replace_placeholders_with_metavars_proc : public replace_visitor {
+    metavar_env &    m_menv;
+    expr_map<expr> * m_new2old;
+protected:
+    expr visit_constant(expr const & e, context const & c) {
         if (is_placeholder(e)) {
-            return menv.mk_metavar(c);
+            return m_menv.mk_metavar(c);
         } else {
             return e;
         }
-    };
-    auto p = [&](expr const & s, expr const & t) {
-        if (new2old)
-            (*new2old)[t] = s;
-    };
-    return replace_using_ctx_fn<decltype(f), decltype(p)>(f, p)(e);
+    }
+
+    expr visit(expr const & e, context const & c) {
+        expr r = replace_visitor::visit(e, c);
+        if (!is_eqp(r, e) && m_new2old)
+            (*m_new2old)[r] = e;
+        return r;
+    }
+public:
+    replace_placeholders_with_metavars_proc(metavar_env & menv, expr_map<expr> * new2old):
+        m_menv(menv),
+        m_new2old(new2old) {
+    }
+};
+
+expr replace_placeholders_with_metavars(expr const & e, metavar_env & menv, expr_map<expr> * new2old) {
+    replace_placeholders_with_metavars_proc proc(menv, new2old);
+    return proc(e);
 }
 }

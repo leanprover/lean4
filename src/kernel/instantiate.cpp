@@ -69,31 +69,31 @@ bool is_head_beta(expr const & t) {
     return is_app(t) && is_lambda(arg(t, 0));
 }
 
+expr apply_beta(expr f, unsigned num_args, expr const * args) {
+    lean_assert(is_lambda(f));
+    unsigned m = 1;
+    while (is_lambda(abst_body(f)) && m < num_args) {
+        f = abst_body(f);
+        m++;
+    }
+    lean_assert(m <= num_args);
+    expr r = instantiate(abst_body(f), m, args);
+    if (m == num_args) {
+        return r;
+    } else {
+        buffer<expr> new_args;
+        new_args.push_back(r);
+        for (; m < num_args; m++)
+            new_args.push_back(args[m]);
+        return mk_app(new_args.size(), new_args.data());
+    }
+}
+
 expr head_beta_reduce(expr const & t) {
     if (!is_head_beta(t)) {
         return t;
     } else {
-        unsigned num  = num_args(t);
-        unsigned num1 = num - 1;
-        expr const * f = &arg(t, 0);
-        lean_assert(is_lambda(*f));
-        unsigned m = 1;
-        while (is_lambda(abst_body(*f)) && m < num1) {
-            f = &abst_body(*f);
-            m++;
-        }
-        lean_assert(m <= num1);
-        expr r = instantiate(abst_body(*f), m, &arg(t, 1));
-        if (m == num1) {
-            return r;
-        } else {
-            buffer<expr> args;
-            args.push_back(r);
-            m++;
-            for (; m < num; m++)
-                args.push_back(arg(t, m));
-            return mk_app(args.size(), args.data());
-        }
+        return apply_beta(arg(t, 0), num_args(t) - 1, &arg(t, 1));
     }
 }
 

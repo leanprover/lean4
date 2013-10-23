@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/kernel_exception.h"
+#include "kernel/normalizer.h"
 #include "library/basic_thms.h"
 #include "library/reduce.h"
 #include "library/placeholder.h"
@@ -616,6 +617,178 @@ void tst19() {
             env);
 }
 
+void tst20() {
+    environment env;
+    metavar_env menv;
+    expr N  = Const("N");
+    expr M  = Const("M");
+    env.add_var("N", Type());
+    env.add_var("M", Type());
+    env.add_var("f", N >> (M >> M));
+    env.add_var("a", N);
+    env.add_var("b", M);
+    expr f  = Const("f");
+    expr x  = Const("x");
+    expr a  = Const("a");
+    expr b  = Const("b");
+    expr m1 = menv.mk_metavar();
+    expr l = m1(b, a);
+    expr r = f(b, f(a, b));
+    elaborator elb(env, menv, context(), l, r);
+    while (true) {
+        try {
+            auto sol = elb.next();
+            std::cout << m1 << " -> " << beta_reduce(sol.get_subst(m1)) << "\n";
+            std::cout << beta_reduce(instantiate_metavars(l, sol)) << "\n";
+            lean_assert(beta_reduce(instantiate_metavars(l, sol)) == r);
+            std::cout << "--------------\n";
+        } catch (elaborator_exception & ex) {
+            break;
+        }
+    }
+}
+
+void tst21() {
+    environment env;
+    import_all(env);
+    metavar_env menv;
+    expr N  = Const("N");
+    expr M  = Const("M");
+    env.add_var("N", Type());
+    env.add_var("f", N >> (Bool >> N));
+    env.add_var("a", N);
+    env.add_var("b", N);
+    expr f  = Const("f");
+    expr x  = Const("x");
+    expr a  = Const("a");
+    expr b  = Const("b");
+    expr m1 = menv.mk_metavar();
+    expr l = m1(b, a);
+    expr r = Fun({x, N}, f(x, Eq(a, b)));
+    elaborator elb(env, menv, context(), l, r);
+    while (true) {
+        try {
+            auto sol = elb.next();
+            std::cout << m1 << " -> " << beta_reduce(sol.get_subst(m1)) << "\n";
+            std::cout << beta_reduce(instantiate_metavars(l, sol)) << "\n";
+            lean_assert(beta_reduce(instantiate_metavars(l, sol)) == r);
+            std::cout << "--------------\n";
+        } catch (elaborator_exception & ex) {
+            break;
+        }
+    }
+}
+
+void tst22() {
+    environment env;
+    import_all(env);
+    metavar_env menv;
+    expr N  = Const("N");
+    env.add_var("N", Type());
+    env.add_var("f", N >> (Int >> N));
+    env.add_var("a", N);
+    env.add_var("b", N);
+    expr m1 = menv.mk_metavar();
+    expr m2 = menv.mk_metavar();
+    expr m3 = menv.mk_metavar();
+    expr t1 = menv.get_type(m1);
+    expr t2 = menv.get_type(m2);
+    expr f  = Const("f");
+    expr a  = Const("a");
+    expr b  = Const("b");
+    expr l = f(m1(a), iAdd(m3, iAdd(iVal(1), iVal(1))));
+    expr r = f(m2(b), iAdd(iVal(1), iVal(2)));
+    elaborator elb(env, menv, context(), l, r);
+    while (true) {
+        try {
+            auto sol = elb.next();
+            std::cout << m3 << " -> " << beta_reduce(sol.get_subst(m3)) << "\n";
+            lean_assert(sol.get_subst(m3) == iVal(1));
+            std::cout << beta_reduce(instantiate_metavars(l, sol)) << "\n";
+            std::cout << beta_reduce(instantiate_metavars(r, sol)) << "\n";
+            std::cout << "--------------\n";
+        } catch (elaborator_exception & ex) {
+            break;
+        }
+    }
+}
+
+void tst23() {
+    environment env;
+    import_all(env);
+    metavar_env menv;
+    expr N  = Const("N");
+    env.add_var("N", Type());
+    env.add_var("f", N >> (N >> N));
+    expr x  = Const("x");
+    expr y  = Const("y");
+    expr f  = Const("f");
+    expr m1 = menv.mk_metavar();
+    expr m2 = menv.mk_metavar();
+    expr l  = Fun({{x, N}, {y, N}}, Eq(y, f(x, m1)));
+    expr r  = Fun({{x, N}, {y, N}}, Eq(m2, f(m1, x)));
+    elaborator elb(env, menv, context(), l, r);
+    while (true) {
+        try {
+            auto sol = elb.next();
+            std::cout << m1 << " -> " << beta_reduce(sol.get_subst(m1)) << "\n";
+            std::cout << beta_reduce(instantiate_metavars(l, sol)) << "\n";
+            lean_assert_eq(beta_reduce(instantiate_metavars(l, sol)),
+                           beta_reduce(instantiate_metavars(r, sol)));
+            std::cout << "--------------\n";
+        } catch (elaborator_exception & ex) {
+            break;
+        }
+    }
+}
+
+void tst24() {
+    environment env;
+    import_all(env);
+    metavar_env menv;
+    expr N  = Const("N");
+    env.add_var("N", Type());
+    env.add_var("f", N >> (N >> N));
+    expr f  = Const("f");
+    expr m1 = menv.mk_metavar();
+    expr l  = f(f(m1));
+    expr r  = f(m1);
+    elaborator elb(env, menv, context(), l, r);
+    try {
+        elb.next();
+        lean_unreachable();
+    } catch (elaborator_exception & ex) {
+    }
+}
+
+void tst25() {
+    environment env;
+    import_all(env);
+    metavar_env menv;
+    expr N  = Const("N");
+    env.add_var("N", Type());
+    env.add_var("f", N >> (N >> N));
+    expr x  = Const("x");
+    expr y  = Const("y");
+    expr f  = Const("f");
+    expr m1 = menv.mk_metavar();
+    expr l  = Fun({x, N}, Fun({y, N}, f(m1, y))(x));
+    expr r  = Fun({x, N}, f(x, x));
+    elaborator elb(env, menv, context(), l, r);
+    while (true) {
+        try {
+            auto sol = elb.next();
+            std::cout << m1 << " -> " << beta_reduce(sol.get_subst(m1)) << "\n";
+            std::cout << beta_reduce(instantiate_metavars(l, sol)) << "\n";
+            lean_assert_eq(beta_reduce(instantiate_metavars(l, sol)),
+                           beta_reduce(instantiate_metavars(r, sol)));
+            std::cout << "--------------\n";
+        } catch (elaborator_exception & ex) {
+            break;
+        }
+    }
+}
+
 int main() {
     tst1();
     tst2();
@@ -636,6 +809,12 @@ int main() {
     tst17();
     tst18();
     tst19();
+    tst20();
+    tst21();
+    tst22();
+    tst23();
+    tst24();
+    tst25();
     return has_violations() ? 1 : 0;
 }
 

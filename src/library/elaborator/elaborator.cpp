@@ -143,6 +143,7 @@ class elaborator::imp {
     unsigned                                 m_next_id;
     int                                      m_quota;
     trace                                    m_conflict;
+    bool                                     m_first;
     bool                                     m_interrupted;
 
 
@@ -681,87 +682,97 @@ class elaborator::imp {
     }
 
     /**
+       \brief Auxiliary method for \c process_meta_app. Add new case-splits to new_cs
+    */
+    void process_meta_app_core(std::unique_ptr<generic_case_split> & new_cs, expr const & a, expr const & b, bool is_lhs, unification_constraint const & c) {
+        lean_assert(is_meta_app(a));
+        context const & ctx = get_context(c);
+        metavar_env & menv  = m_state.m_menv;
+        expr f_a            = arg(a, 0);
+        lean_assert(is_metavar(f_a));
+        unsigned num_a      = num_args(a);
+        buffer<expr> arg_types;
+        buffer<unification_constraint> ucs;
+        for (unsigned i = 1; i < num_a; i++) {
+            arg_types.push_back(m_type_inferer(arg(a, i), ctx, &menv, ucs));
+            for (auto uc : ucs)
+                push_front(uc);
+        }
+        // Add projections
+        for (unsigned i = 1; i < num_a; i++) {
+            // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), x_i
+            state new_state(m_state);
+            trace new_assumption = mk_assumption();
+            expr proj            = mk_lambda(arg_types, mk_var(num_a - i - 1));
+            expr new_a           = arg(a, i);
+            expr new_b           = b;
+            if (!is_lhs)
+                swap(new_a, new_b);
+            push_new_constraint(new_state.m_queue, is_eq(c), ctx, new_a, new_b, new_assumption);
+            push_new_eq_constraint(new_state.m_queue, ctx, f_a, proj, new_assumption);
+            new_cs->push_back(new_state, new_assumption);
+        }
+        // Add imitation
+        state new_state(m_state);
+        trace new_assumption = mk_assumption();
+        expr imitation;
+        if (is_app(b)) {
+            // Imitation for applications
+            expr f_b          = arg(b, 0);
+            unsigned num_b    = num_args(b);
+            // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), f_b (h_1 x_1 ... x_{num_a-1}) ... (h_{num_b-1} x_1 ... x_{num_a-1})
+            // New constraints (h_i a_1 ... a_{num_a-1}) == arg(b, i)
+            buffer<expr> imitation_args; // arguments for the imitation
+            imitation_args.push_back(f_b);
+            for (unsigned i = 1; i < num_b; i++) {
+                expr h_i = new_state.m_menv.mk_metavar(ctx);
+                imitation_args.push_back(mk_app_vars(h_i, num_a - 1));
+                push_new_eq_constraint(new_state.m_queue, ctx, update_app(a, 0, h_i), arg(b, i), new_assumption);
+            }
+            imitation = mk_lambda(arg_types, mk_app(imitation_args.size(), imitation_args.data()));
+        } else if (is_eq(b)) {
+            // Imitation for equality
+            // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), (h_1 x_1 ... x_{num_a-1}) = (h_2 x_1 ... x_{num_a-1})
+            // New constraints (h_1 a_1 ... a_{num_a-1}) == eq_lhs(b)
+            //                 (h_2 a_1 ... a_{num_a-1}) == eq_rhs(b)
+            expr h_1 = new_state.m_menv.mk_metavar(ctx);
+            expr h_2 = new_state.m_menv.mk_metavar(ctx);
+            push_new_eq_constraint(new_state.m_queue, ctx, update_app(a, 0, h_1), eq_lhs(b), new_assumption);
+            push_new_eq_constraint(new_state.m_queue, ctx, update_app(a, 0, h_2), eq_rhs(b), new_assumption);
+            imitation = mk_lambda(arg_types, mk_eq(mk_app_vars(h_1, num_a - 1), mk_app_vars(h_2, num_a - 1)));
+        } else if (is_abstraction(b)) {
+            // Imitation for lambdas and Pis
+            // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}),
+            //                        fun (x_b : (?h_1 x_1 ... x_{num_a-1})), (?h_2 x_1 ... x_{num_a-1} x_b)
+            // New constraints (h_1 a_1 ... a_{num_a-1}) == abst_domain(b)
+            //                 (h_2 a_1 ... a_{num_a-1} x_b) == abst_body(b)
+            expr h_1 = new_state.m_menv.mk_metavar(ctx);
+            expr h_2 = new_state.m_menv.mk_metavar(ctx);
+            push_new_eq_constraint(new_state.m_queue, ctx, update_app(a, 0, h_1), abst_domain(b), new_assumption);
+            push_new_eq_constraint(new_state.m_queue, extend(ctx, abst_name(b), abst_domain(b)),
+                                   mk_app(update_app(a, 0, h_2), Var(0)), abst_body(b), new_assumption);
+            imitation = mk_lambda(arg_types, update_abstraction(b, mk_app_vars(h_1, num_a - 1), mk_app_vars(h_2, num_a)));
+        } else {
+            // "Dumb imitation" aka the constant function
+            // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), b
+            imitation = mk_lambda(arg_types, lift_free_vars(b, 0, num_a - 1));
+        }
+        lean_assert(imitation);
+        push_new_eq_constraint(new_state.m_queue, ctx, f_a, imitation, new_assumption);
+        new_cs->push_back(new_state, new_assumption);
+    }
+
+    /**
        \brief Process a constraint <tt>ctx |- a = b</tt> where \c a is of the form <tt>(?m ...)</tt>.
        We perform a "case split" using "projection" or "imitation". See Huet&Lang's paper on higher order matching
        for further details.
     */
-    bool process_meta_app(expr const & a, expr const & b, bool is_lhs, unification_constraint const & c) {
-        if (is_meta_app(a) && !is_meta_app(b)) {
-            context const & ctx = get_context(c);
-            metavar_env & menv  = m_state.m_menv;
-            expr f_a            = arg(a, 0);
-            lean_assert(is_metavar(f_a));
-            unsigned num_a      = num_args(a);
-            buffer<expr> arg_types;
-            buffer<unification_constraint> ucs;
-            for (unsigned i = 1; i < num_a; i++) {
-                arg_types.push_back(m_type_inferer(arg(a, i), ctx, &menv, ucs));
-                for (auto uc : ucs)
-                    push_front(uc);
-            }
+    bool process_meta_app(expr const & a, expr const & b, bool is_lhs, unification_constraint const & c, bool flex_flex = false) {
+        if (is_meta_app(a) && (flex_flex || !is_meta_app(b))) {
             std::unique_ptr<generic_case_split> new_cs(new generic_case_split(c, m_state));
-            // Add projections
-            for (unsigned i = 1; i < num_a; i++) {
-                // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), x_i
-                state new_state(m_state);
-                trace new_assumption = mk_assumption();
-                expr proj            = mk_lambda(arg_types, mk_var(num_a - i - 1));
-                expr new_a           = arg(a, i);
-                expr new_b           = b;
-                if (!is_lhs)
-                    swap(new_a, new_b);
-                push_new_constraint(new_state.m_queue, is_eq(c), ctx, new_a, new_b, new_assumption);
-                push_new_eq_constraint(new_state.m_queue, ctx, f_a, proj, new_assumption);
-                new_cs->push_back(new_state, new_assumption);
-            }
-            // Add imitation
-            state new_state(m_state);
-            trace new_assumption = mk_assumption();
-            expr imitation;
-            if (is_app(b)) {
-                // Imitation for applications
-                expr f_b          = arg(b, 0);
-                unsigned num_b    = num_args(b);
-                // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), f_b (h_1 x_1 ... x_{num_a-1}) ... (h_{num_b-1} x_1 ... x_{num_a-1})
-                // New constraints (h_i a_1 ... a_{num_a-1}) == arg(b, i)
-                buffer<expr> imitation_args; // arguments for the imitation
-                imitation_args.push_back(f_b);
-                for (unsigned i = 1; i < num_b; i++) {
-                    expr h_i = new_state.m_menv.mk_metavar(ctx);
-                    imitation_args.push_back(mk_app_vars(h_i, num_a - 1));
-                    push_new_eq_constraint(new_state.m_queue, ctx, update_app(a, 0, h_i), arg(b, i), new_assumption);
-                }
-                imitation = mk_lambda(arg_types, mk_app(imitation_args.size(), imitation_args.data()));
-            } else if (is_eq(b)) {
-                // Imitation for equality
-                // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), (h_1 x_1 ... x_{num_a-1}) = (h_2 x_1 ... x_{num_a-1})
-                // New constraints (h_1 a_1 ... a_{num_a-1}) == eq_lhs(b)
-                //                 (h_2 a_1 ... a_{num_a-1}) == eq_rhs(b)
-                expr h_1 = new_state.m_menv.mk_metavar(ctx);
-                expr h_2 = new_state.m_menv.mk_metavar(ctx);
-                push_new_eq_constraint(new_state.m_queue, ctx, update_app(a, 0, h_1), eq_lhs(b), new_assumption);
-                push_new_eq_constraint(new_state.m_queue, ctx, update_app(a, 0, h_2), eq_rhs(b), new_assumption);
-                imitation = mk_lambda(arg_types, mk_eq(mk_app_vars(h_1, num_a - 1), mk_app_vars(h_2, num_a - 1)));
-            } else if (is_abstraction(b)) {
-                // Imitation for lambdas and Pis
-                // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}),
-                //                        fun (x_b : (?h_1 x_1 ... x_{num_a-1})), (?h_2 x_1 ... x_{num_a-1} x_b)
-                // New constraints (h_1 a_1 ... a_{num_a-1}) == abst_domain(b)
-                //                 (h_2 a_1 ... a_{num_a-1} x_b) == abst_body(b)
-                expr h_1 = new_state.m_menv.mk_metavar(ctx);
-                expr h_2 = new_state.m_menv.mk_metavar(ctx);
-                push_new_eq_constraint(new_state.m_queue, ctx, update_app(a, 0, h_1), abst_domain(b), new_assumption);
-                push_new_eq_constraint(new_state.m_queue, extend(ctx, abst_name(b), abst_domain(b)),
-                                       mk_app(update_app(a, 0, h_2), Var(0)), abst_body(b), new_assumption);
-                imitation = mk_lambda(arg_types, update_abstraction(b, mk_app_vars(h_1, num_a - 1), mk_app_vars(h_2, num_a)));
-            } else {
-                // "Dumb imitation" aka the constant function
-                // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), b
-                imitation = mk_lambda(arg_types, lift_free_vars(b, 0, num_a - 1));
-            }
-            lean_assert(imitation);
-            push_new_eq_constraint(new_state.m_queue, ctx, f_a, imitation, new_assumption);
-            new_cs->push_back(new_state, new_assumption);
+            process_meta_app_core(new_cs, a, b, is_lhs, c);
+            if (flex_flex && is_meta_app(b))
+                process_meta_app_core(new_cs, b, a, !is_lhs, c);
             bool r = new_cs->next(*this);
             lean_assert(r);
             m_case_splits.push_back(std::move(new_cs));
@@ -977,6 +988,8 @@ class elaborator::imp {
             // process very expensive cases
             if (process_lower(a, b, c))
                 return true;
+            if (process_meta_app(a, b, true, c, true))
+                return true;
         }
 
         // std::cout << "Postponed: "; display(std::cout, c);
@@ -1080,7 +1093,7 @@ public:
         m_next_id     = 0;
         m_quota       = 0;
         m_interrupted = false;
-
+        m_first       = true;
         display(std::cout);
     }
 
@@ -1094,6 +1107,12 @@ public:
                 assumptions.push_back(cs->m_curr_assumption);
             m_conflict = trace(new next_solution_trace(assumptions.size(), assumptions.data()));
             resolve_conflict();
+        } else if (m_first) {
+            m_first = false;
+        } else {
+            // this is not the first run, and there are no case-splits
+            m_conflict = trace(new next_solution_trace(0, nullptr));
+            throw elaborator_exception(m_conflict);
         }
         reset_quota();
         while (true) {

@@ -46,13 +46,17 @@ void substitution::assign(expr const & m, expr const & t) {
 
 expr apply_local_context(expr const & a, local_context const & lctx) {
     if (lctx) {
-        expr r = apply_local_context(a, tail(lctx));
-        local_entry const & e = head(lctx);
-        if (e.is_lift()) {
-            return lift_free_vars(r, e.s(), e.n());
+        if (is_metavar(a)) {
+            return mk_metavar(metavar_name(a), append(lctx, metavar_lctx(a)));
         } else {
-            lean_assert(e.is_inst());
-            return instantiate(r, e.s(), e.v());
+            expr r = apply_local_context(a, tail(lctx));
+            local_entry const & e = head(lctx);
+            if (e.is_lift()) {
+                return lift_free_vars(r, e.s(), e.n());
+            } else {
+                lean_assert(e.is_inst());
+                return instantiate(r, e.s(), e.v());
+            }
         }
     } else {
         return a;

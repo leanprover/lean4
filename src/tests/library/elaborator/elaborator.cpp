@@ -263,7 +263,7 @@ static void tst6() {
     ucs.push_back(mk_eq_constraint(context(), expected, given, justification()));
     elaborator elb(env, menv, ucs.size(), ucs.data());
     substitution s = elb.next();
-    std::cout << beta_reduce(instantiate_metavars(V, s)) << "\n";
+    std::cout << instantiate_metavars(V, s) << "\n";
 }
 
 #define _ mk_placholder()
@@ -276,7 +276,7 @@ static expr elaborate(expr const & e, environment const & env) {
     checker.infer_type(e2, context(), &menv, ucs);
     elaborator elb(env, menv, ucs.size(), ucs.data());
     substitution s = elb.next();
-    return beta_reduce(instantiate_metavars(e2, s));
+    return instantiate_metavars(e2, s);
 }
 
 // Check elaborator success
@@ -652,9 +652,9 @@ void tst20() {
     while (true) {
         try {
             auto sol = elb.next();
-            std::cout << m1 << " -> " << beta_reduce(sol.get_subst(m1)) << "\n";
-            std::cout << beta_reduce(instantiate_metavars(l, sol)) << "\n";
-            lean_assert(beta_reduce(instantiate_metavars(l, sol)) == r);
+            std::cout << m1 << " -> " << sol.get_subst(m1) << "\n";
+            std::cout << instantiate_metavars(l, sol) << "\n";
+            lean_assert(instantiate_metavars(l, sol) == r);
             std::cout << "--------------\n";
         } catch (elaborator_exception & ex) {
             break;
@@ -684,9 +684,9 @@ void tst21() {
     while (true) {
         try {
             auto sol = elb.next();
-            std::cout << m1 << " -> " << beta_reduce(sol.get_subst(m1)) << "\n";
-            std::cout << beta_reduce(instantiate_metavars(l, sol)) << "\n";
-            lean_assert(beta_reduce(instantiate_metavars(l, sol)) == r);
+            std::cout << m1 << " -> " << sol.get_subst(m1) << "\n";
+            std::cout << instantiate_metavars(l, sol) << "\n";
+            lean_assert(instantiate_metavars(l, sol) == r);
             std::cout << "--------------\n";
         } catch (elaborator_exception & ex) {
             break;
@@ -718,10 +718,10 @@ void tst22() {
     while (true) {
         try {
             auto sol = elb.next();
-            std::cout << m3 << " -> " << beta_reduce(sol.get_subst(m3)) << "\n";
+            std::cout << m3 << " -> " << sol.get_subst(m3) << "\n";
             lean_assert(sol.get_subst(m3) == iVal(1));
-            std::cout << beta_reduce(instantiate_metavars(l, sol)) << "\n";
-            std::cout << beta_reduce(instantiate_metavars(r, sol)) << "\n";
+            std::cout << instantiate_metavars(l, sol) << "\n";
+            std::cout << instantiate_metavars(r, sol) << "\n";
             std::cout << "--------------\n";
         } catch (elaborator_exception & ex) {
             break;
@@ -748,10 +748,10 @@ void tst23() {
     while (true) {
         try {
             auto sol = elb.next();
-            std::cout << m1 << " -> " << beta_reduce(sol.get_subst(m1)) << "\n";
-            std::cout << beta_reduce(instantiate_metavars(l, sol)) << "\n";
-            lean_assert_eq(beta_reduce(instantiate_metavars(l, sol)),
-                           beta_reduce(instantiate_metavars(r, sol)));
+            std::cout << m1 << " -> " << sol.get_subst(m1) << "\n";
+            std::cout << instantiate_metavars(l, sol) << "\n";
+            lean_assert_eq(instantiate_metavars(l, sol),
+                           instantiate_metavars(r, sol));
             std::cout << "--------------\n";
         } catch (elaborator_exception & ex) {
             break;
@@ -797,8 +797,8 @@ void tst25() {
     while (true) {
         try {
             auto sol = elb.next();
-            std::cout << m1 << " -> " << beta_reduce(sol.get_subst(m1)) << "\n";
-            std::cout << beta_reduce(instantiate_metavars(l, sol)) << "\n";
+            std::cout << m1 << " -> " << sol.get_subst(m1) << "\n";
+            std::cout << instantiate_metavars(l, sol) << "\n";
             lean_assert_eq(beta_reduce(instantiate_metavars(l, sol)),
                            beta_reduce(instantiate_metavars(r, sol)));
             std::cout << "--------------\n";
@@ -868,8 +868,8 @@ void tst27() {
     std::cout << checker.infer_type(F, context(), &menv, ucs) << "\n";
     elaborator elb(env, menv, ucs.size(), ucs.data());
     substitution s = elb.next();
-    std::cout << beta_reduce(instantiate_metavars(F, s)) << "\n";
-    lean_assert_eq(beta_reduce(instantiate_metavars(F, s)),
+    std::cout << instantiate_metavars(F, s) << "\n";
+    lean_assert_eq(instantiate_metavars(F, s),
                    Fun({f, TypeM >> TypeM}, eq(TypeM, g(TypeM >> TypeM, f)(a), a)));
 }
 

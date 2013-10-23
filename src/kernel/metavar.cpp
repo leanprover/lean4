@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include "util/exception.h"
 #include "kernel/metavar.h"
-#include "kernel/replace.h"
 #include "kernel/free_vars.h"
 #include "kernel/instantiate.h"
 #include "kernel/occurs.h"
@@ -20,8 +19,9 @@ void swap(substitution & s1, substitution & s2) {
     std::swap(s1.m_size, s2.m_size);
 }
 
-substitution::substitution():
-    m_size(0) {
+substitution::substitution(bool beta_reduce_mv):
+    m_size(0),
+    m_beta_reduce_mv(beta_reduce_mv) {
 }
 
 bool substitution::is_assigned(name const & m) const {
@@ -225,18 +225,41 @@ name metavar_env::find_unassigned_metavar() const {
     return r;
 }
 
+
+void instantiate_metavars_proc::instantiated_metavar(expr const &) {
+}
+
+expr instantiate_metavars_proc::visit_metavar(expr const & m, context const &) {
+    if (is_metavar(m) && m_subst.is_assigned(m)) {
+        instantiated_metavar(m);
+        return m_subst.get_subst(m);
+    } else {
+        return m;
+    }
+}
+
+expr instantiate_metavars_proc::visit_app(expr const & e, context const & ctx) {
+    if (m_subst.beta_reduce_metavar_application() && is_metavar(arg(e, 0)) && m_subst.is_assigned(arg(e, 0))) {
+        instantiated_metavar(arg(e, 0));
+        expr new_f = m_subst.get_subst(arg(e, 0));
+        if (is_lambda(new_f)) {
+            buffer<expr> new_args;
+            for (unsigned i = 1; i < num_args(e); i++)
+                new_args.push_back(visit(arg(e, i), ctx));
+            return apply_beta(new_f, new_args.size(), new_args.data());
+        }
+    }
+    return replace_visitor::visit_app(e, ctx);
+}
+
+instantiate_metavars_proc::instantiate_metavars_proc(substitution const & s):m_subst(s) {
+}
+
 expr instantiate_metavars(expr const & e, substitution const & s) {
     if (!has_metavar(e)) {
         return e;
     } else {
-        auto f = [=](expr const & m, unsigned) -> expr {
-            if (is_metavar(m) && s.is_assigned(m)) {
-                return s.get_subst(m);
-            } else {
-                return m;
-            }
-        };
-        return replace_fn<decltype(f)>(f)(e);
+        return instantiate_metavars_proc(s)(e);
     }
 }
 

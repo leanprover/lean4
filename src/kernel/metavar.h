@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "kernel/context.h"
 #include "kernel/justification.h"
+#include "kernel/replace_visitor.h"
 
 namespace lean {
 /**
@@ -21,8 +22,17 @@ class substitution {
     typedef splay_map<name, expr, name_cmp> name2expr;
     name2expr m_subst;
     unsigned  m_size;
+    // If the following flag is true, then beta-reduction is automatically applied
+    // when we apply a substitution containing ?m <- fun (x : T), ...
+    // to an expression containing (?m a)
+    // The motivation is that higher order unification and matching produces a
+    // bunch of assignments of the form ?m <- fun (x : T), ...
+    bool      m_beta_reduce_mv;
 public:
-    substitution();
+    substitution(bool beta_reduce_mv = true);
+
+    bool beta_reduce_metavar_application() const { return m_beta_reduce_mv; }
+    void set_beta_reduce_metavar_application(bool f) { m_beta_reduce_mv = f; }
 
     friend void swap(substitution & s1, substitution & s2);
 
@@ -215,6 +225,18 @@ void swap(metavar_env & a, metavar_env & b);
    \brief Apply the changes in \c lctx to \c a.
 */
 expr apply_local_context(expr const & a, local_context const & lctx);
+
+class instantiate_metavars_proc : public replace_visitor {
+protected:
+    substitution const & m_subst;
+    virtual expr visit_metavar(expr const & m, context const &);
+    virtual expr visit_app(expr const & e, context const & ctx);
+    // The following method is invoked whenever the visitor instantiates
+    // a metavariable \c m
+    virtual void instantiated_metavar(expr const & m);
+public:
+    instantiate_metavars_proc(substitution const & s);
+};
 
 /**
    \brief Instantiate the metavariables occurring in \c e with the substitutions

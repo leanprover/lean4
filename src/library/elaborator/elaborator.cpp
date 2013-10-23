@@ -438,7 +438,10 @@ class elaborator::imp {
         if (is_app(a) && is_metavar(arg(a, 0)) && is_assigned(arg(a, 0))) {
             // Case 4
             justification new_jst(new substitution_justification(c, get_mvar_justification(arg(a, 0))));
-            expr new_a = update_app(a, 0, get_mvar_subst(arg(a, 0)));
+            expr new_f = get_mvar_subst(arg(a, 0));
+            expr new_a = update_app(a, 0, new_f);
+            if (m_state.m_menv.get_substitutions().beta_reduce_metavar_application())
+                new_a = head_beta_reduce(new_a);
             push_updated_constraint(c, is_lhs, new_a, new_jst);
             return Processed;
         }
@@ -453,24 +456,27 @@ class elaborator::imp {
         }
     }
 
+    class instantiate_metavars_tracking_justifications_proc : public instantiate_metavars_proc {
+        metavar_env &           m_menv;
+        buffer<justification> & m_jsts;
+    protected:
+        virtual void instantiated_metavar(expr const & m) {
+            justification t = m_menv.get_justification(m);
+            if (t)
+                m_jsts.push_back(t);
+        }
+    public:
+        instantiate_metavars_tracking_justifications_proc(metavar_env & menv, buffer<justification> & js):
+            instantiate_metavars_proc(menv.get_substitutions()), m_menv(menv), m_jsts(js) {}
+    };
+
     /**
        \brief Instantiate the assigned metavariables in \c a, and store the justifications
        in \c jsts.
     */
     expr instantiate_metavars(expr const & a, buffer<justification> & jsts) {
         lean_assert(has_assigned_metavar(a));
-        metavar_env & menv = m_state.m_menv;
-        auto f = [&](expr const & m, unsigned) -> expr {
-            if (is_metavar(m) && menv.is_assigned(m)) {
-                justification t = menv.get_justification(m);
-                if (t)
-                    jsts.push_back(t);
-                return menv.get_subst(m);
-            } else {
-                return m;
-            }
-        };
-        return replace_fn<decltype(f)>(f)(a);
+        return instantiate_metavars_tracking_justifications_proc(m_state.m_menv, jsts)(a);
     }
 
     /**

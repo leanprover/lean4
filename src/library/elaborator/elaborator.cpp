@@ -919,9 +919,19 @@ class elaborator::imp {
         }
     }
 
+    /**
+       \brief Return true iff c is a constraint of the form <tt>ctx |- a << ?m</tt>, where \c a is Type or Bool
+     */
+    bool is_lower(unification_constraint const & c) {
+        return
+            is_convertible(c) &&
+            is_metavar(convertible_to(c)) &&
+            (convertible_from(c) == Bool || is_type(convertible_from(c)));
+    }
+
     /** \brief Process constraint of the form <tt>ctx |- a << ?m</tt>, where \c a is Type or Bool */
     bool process_lower(expr const & a, expr const & b, unification_constraint const & c) {
-        if (is_convertible(c) && is_metavar(b) && (a == Bool || is_type(a))) {
+        if (is_lower(c)) {
             // Remark: in principle, there are infinite number of choices.
             // We approximate and only consider the most useful ones.
             trace new_tr(new destruct_trace(c));
@@ -940,11 +950,53 @@ class elaborator::imp {
         }
     }
 
+    /**
+       \brief Return true if the current queue contains a constraint that satisfies the predicate p
+    */
+    template<typename P>
+    bool has_constraint(P p) {
+        auto it  = m_state.m_queue.begin();
+        auto end = m_state.m_queue.end();
+        for (; it != end; ++it) {
+            unification_constraint const & c = *it;
+            if (p(c))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+       \brief Return true iff the current queue has a max constraint of the form <tt>ctx |- max(L1, L2) == a</tt>.
+
+       \pre is_metavar(a)
+    */
+    bool has_max_constraint(expr const & a) {
+        lean_assert(is_metavar(a));
+        return has_constraint([&](unification_constraint const & c) { return is_max(c) && max_rhs(c) == a; });
+    }
+
+
+    /**
+       \brief Return true iff the current queue has a constraint that is a lower bound for \c a.
+       \pre is_metavar(a)
+    */
+    bool has_lower(expr const & a) {
+        lean_assert(is_metavar(a));
+        return has_constraint([&](unification_constraint const & c) { return is_lower(c) && convertible_to(c) == a; });
+    }
+
     /** \brief Process constraint of the form <tt>ctx |- ?m << b</tt>, where \c a is Type */
     bool process_upper(expr const & a, expr const & b, unification_constraint const & c) {
-        if (is_convertible(c) && is_metavar(a) && is_type(b)) {
+        if (is_convertible(c) && is_metavar(a) && is_type(b) && !has_max_constraint(a) && !has_lower(a)) {
             // Remark: in principle, there are infinite number of choices.
             // We approximate and only consider the most useful ones.
+            //
+            // Remark: we only consider \c a if the queue does not have a constraint
+            // of the form ctx |- max(L1, L2) == a.
+            // If it does, we don't need to guess. We wait \c a to be assigned
+            // and just check if the upper bound is satisfied.
+            //
+            // Remark: we also give preference to lower bounds
             trace new_tr(new destruct_trace(c));
             unification_constraint new_c;
             if (b == Type()) {
@@ -1094,6 +1146,8 @@ class elaborator::imp {
         }
 
         if (m_quota < - static_cast<int>(m_state.m_queue.size())) {
+            // std::cout << "\n\nTRYING EXPENSIVE STEP...\n";
+            // display(std::cout);
             // process very expensive cases
             if (process_lower(a, b, c) ||
                 process_upper(a, b, c) ||
@@ -1304,7 +1358,7 @@ public:
             cnstr_queue & q = m_state.m_queue;
             if (q.empty() || m_quota < - static_cast<int>(q.size()) - 10) {
                 name m = find_unassigned_metavar();
-                std::cout << "Queue is empty\n"; display(std::cout);
+                std::cout << "Queue is empty\n"; display(std::cout); std::cout << "\n\n";
                 if (m) {
                     // TODO(Leo)
                     // erase the following line, and implement interface with synthesizer

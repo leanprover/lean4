@@ -305,6 +305,7 @@ static void unsolved(expr const & e, environment const & env) {
 }
 
 static void tst7() {
+    std::cout << "\nTST 7\n";
     environment env;
     import_all(env);
     expr A = Const("A");
@@ -325,6 +326,7 @@ static void tst7() {
 }
 
 static void tst8() {
+    std::cout << "\nTST 8\n";
     environment env;
     import_all(env);
     expr a  = Const("a");
@@ -350,6 +352,7 @@ static void tst8() {
 }
 
 static void tst9() {
+    std::cout << "\nTST 9\n";
     environment env;
     import_all(env);
     expr Nat = Const("N");
@@ -381,6 +384,7 @@ static void tst9() {
 }
 
 static void tst10() {
+    std::cout << "\nTST 10\n";
     environment env;
     import_all(env);
     expr Nat = Const("N");
@@ -404,6 +408,7 @@ static void tst10() {
 }
 
 static void tst11() {
+    std::cout << "\nTST 11\n";
     environment env;
     import_all(env);
     expr A = Const("A");
@@ -421,6 +426,7 @@ static void tst11() {
 }
 
 static void tst12() {
+    std::cout << "\nTST 12\n";
     environment env;
     import_all(env);
     expr lst  = Const("list");
@@ -441,6 +447,7 @@ static void tst12() {
 }
 
 static void tst13() {
+    std::cout << "\nTST 13\n";
     environment env;
     import_all(env);
     expr B = Const("B");
@@ -463,6 +470,7 @@ static void tst13() {
 }
 
 static void tst14() {
+    std::cout << "\nTST 14\n";
     environment env;
     import_all(env);
     expr A = Const("A");
@@ -503,6 +511,7 @@ static void tst14() {
 }
 
 static void tst15() {
+    std::cout << "\nTST 15\n";
     environment env;
     import_all(env);
     expr A = Const("A");
@@ -528,6 +537,7 @@ static void tst15() {
 }
 
 static void tst16() {
+    std::cout << "\nTST 16\n";
     environment env;
     import_all(env);
     expr a  = Const("a");
@@ -565,6 +575,7 @@ static void tst16() {
 }
 
 void tst17() {
+    std::cout << "\nTST 17\n";
     environment env;
     import_all(env);
     expr A  = Const("A");
@@ -579,6 +590,7 @@ void tst17() {
 }
 
 void tst18() {
+    std::cout << "\nTST 18\n";
     environment env;
     import_all(env);
     expr A  = Const("A");
@@ -592,6 +604,7 @@ void tst18() {
 }
 
 void tst19() {
+    std::cout << "\nTST 19\n";
     environment env;
     import_all(env);
     expr R  = Const("R");
@@ -618,6 +631,7 @@ void tst19() {
 }
 
 void tst20() {
+    std::cout << "\nTST 20\n";
     environment env;
     metavar_env menv;
     expr N  = Const("N");
@@ -649,6 +663,7 @@ void tst20() {
 }
 
 void tst21() {
+    std::cout << "\nTST 21\n";
     environment env;
     import_all(env);
     metavar_env menv;
@@ -680,6 +695,7 @@ void tst21() {
 }
 
 void tst22() {
+    std::cout << "\nTST 22\n";
     environment env;
     import_all(env);
     metavar_env menv;
@@ -714,6 +730,7 @@ void tst22() {
 }
 
 void tst23() {
+    std::cout << "\nTST 23\n";
     environment env;
     import_all(env);
     metavar_env menv;
@@ -743,6 +760,7 @@ void tst23() {
 }
 
 void tst24() {
+    std::cout << "\nTST 24\n";
     environment env;
     import_all(env);
     metavar_env menv;
@@ -762,6 +780,7 @@ void tst24() {
 }
 
 void tst25() {
+    std::cout << "\nTST 25\n";
     environment env;
     import_all(env);
     metavar_env menv;
@@ -790,6 +809,7 @@ void tst25() {
 }
 
 void tst26() {
+    std::cout << "\nTST 26\n";
     /*
       Solve elaboration problem for
 
@@ -818,12 +838,13 @@ void tst26() {
 }
 
 void tst27() {
+    std::cout << "\nTST 27\n";
     /*
       Solve elaboration problem for
 
       g : Pi (A : Type U), A -> A
       eq : Pi (A : Type U), A -> A -> Bool
-      a : Type 1
+      a : Type M
       fun f : _, eq _ ((g _ f) a) a
     */
     environment env;

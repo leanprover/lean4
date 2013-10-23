@@ -202,7 +202,12 @@ bool operator<(level const & l1, level const & l2) {
 std::ostream & operator<<(std::ostream & out, level const & l) {
     switch (kind(l)) {
     case level_kind::UVar: out << uvar_name(l);                        return out;
-    case level_kind::Lift: out << lift_of(l) << "+" << lift_offset(l); return out;
+    case level_kind::Lift:
+        if (lift_of(l).is_bottom())
+            out << lift_offset(l);
+        else
+            out << lift_of(l) << "+" << lift_offset(l);
+        return out;
     case level_kind::Max:
         out << "(max";
         for (unsigned i = 0; i < max_size(l); i++)

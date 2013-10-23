@@ -50,7 +50,7 @@ struct print_expr_fn {
         if (a == Type()) {
             out() << "Type";
         } else {
-            out() << "Type " << ty_level(a);
+            out() << "(Type " << ty_level(a) << ")";
         }
     }
 

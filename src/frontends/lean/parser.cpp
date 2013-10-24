@@ -1048,7 +1048,7 @@ class parser::imp {
             pre_type  = mk_abstraction(false, bindings, type_body);
             pre_val   = mk_abstraction(true, bindings, val_body);
         }
-        auto type_val_pair = m_elaborator(pre_type, pre_val);
+        auto type_val_pair = m_elaborator(id, pre_type, pre_val);
         expr type = type_val_pair.first;
         expr val  = type_val_pair.second;
         if (is_definition) {

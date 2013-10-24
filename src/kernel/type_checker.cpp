@@ -263,6 +263,7 @@ class type_checker::imp {
             // Check whether m_menv has been updated since the last time the type checker has been invoked
             if (m_menv && m_menv->get_timestamp() > m_menv_timestamp) {
                 clear();
+                m_menv = menv;
                 m_menv_timestamp = m_menv->get_timestamp();
             }
         } else {

@@ -62,5 +62,6 @@ public:
 
     substitution next();
     void interrupt();
+    void set_interrupt(bool ) { interrupt(); }
 };
 }

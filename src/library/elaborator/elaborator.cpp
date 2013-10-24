@@ -1258,9 +1258,9 @@ class elaborator::imp {
     void resolve_conflict() {
         lean_assert(m_conflict);
 
-        std::cout << "Resolve conflict, num case_splits: " << m_case_splits.size() << "\n";
-        formatter fmt = mk_simple_formatter();
-        std::cout << m_conflict.pp(fmt, options(), nullptr, true) << "\n";
+        // std::cout << "Resolve conflict, num case_splits: " << m_case_splits.size() << "\n";
+        // formatter fmt = mk_simple_formatter();
+        // std::cout << m_conflict.pp(fmt, options(), nullptr, true) << "\n";
 
         while (!m_case_splits.empty()) {
             std::unique_ptr<case_split> & d = m_case_splits.back();
@@ -1337,7 +1337,7 @@ public:
         m_quota       = 0;
         m_interrupted = false;
         m_first       = true;
-        display(std::cout);
+        // display(std::cout);
     }
 
     substitution next() {
@@ -1363,7 +1363,7 @@ public:
             cnstr_queue & q = m_state.m_queue;
             if (q.empty() || m_quota < - static_cast<int>(q.size()) - 10) {
                 name m = find_unassigned_metavar();
-                std::cout << "Queue is empty\n"; display(std::cout); std::cout << "\n\n";
+                // std::cout << "Queue is empty\n"; display(std::cout); std::cout << "\n\n";
                 if (m) {
                     // TODO(Leo)
                     // erase the following line, and implement interface with synthesizer

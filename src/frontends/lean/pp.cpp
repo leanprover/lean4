@@ -25,7 +25,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/pp.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/coercion.h"
-#include "frontends/lean/elaborator.h"
+#include "frontends/lean/frontend_elaborator.h"
 
 #ifndef LEAN_DEFAULT_PP_MAX_DEPTH
 #define LEAN_DEFAULT_PP_MAX_DEPTH std::numeric_limits<unsigned>::max()

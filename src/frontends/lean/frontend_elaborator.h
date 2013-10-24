@@ -12,20 +12,29 @@ Author: Leonardo de Moura
 namespace lean {
 class frontend;
 /**
-   \brief Expression elaborator, it is responsible for "filling" holes
+   \brief Expression elaborator for the Lean default frontend, it is responsible for "filling" holes
    in terms left by the user. This is the main module resposible for computing
-   the value of implicit arguments.
+   the value of implicit arguments. It is based on the general purpose elaborator defined at
+   library/elaborator/elaborator.h
 */
-class old_elaborator {
+class frontend_elaborator {
     class imp;
     std::shared_ptr<imp> m_ptr;
     static void print(imp * ptr);
 public:
-    explicit old_elaborator(frontend const & fe);
-    ~old_elaborator();
+    explicit frontend_elaborator(frontend const & fe);
+    ~frontend_elaborator();
 
+    /**
+       \brief Elaborate the given expression.
+    */
     expr operator()(expr const & e);
-    expr operator()(expr const & e, expr const & expected_type);
+    /**
+       \brief Elaborate the given type and expression. The typeof(e) == t.
+       This information is used by the elaborator. The result is a new
+       elaborated type and expression.
+    */
+    std::pair<expr, expr> operator()(expr const & t, expr const & e);
 
     /**
         \brief If \c e is an expression instantiated by the elaborator, then it
@@ -41,12 +50,8 @@ public:
     void clear();
 
     environment const & get_environment() const;
-
-    void display(std::ostream & out) const;
-    format pp(formatter & f, options const & o) const;
-
-    bool has_constraints() const;
 };
+
 /**
     \brief Create a choice expression for the given functions.
     It is used to mark which functions can be used in a particular application.

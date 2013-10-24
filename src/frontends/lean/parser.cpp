@@ -29,9 +29,9 @@ Author: Leonardo de Moura
 #include "library/arith/arith.h"
 #include "library/state.h"
 #include "library/placeholder.h"
+#include "library/elaborator/elaborator_exception.h"
 #include "frontends/lean/frontend.h"
-#include "frontends/lean/elaborator.h"
-#include "frontends/lean/elaborator_exception.h"
+#include "frontends/lean/frontend_elaborator.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/notation.h"
@@ -115,24 +115,24 @@ class parser::imp {
     typedef std::pair<unsigned, unsigned> pos_info;
     typedef expr_map<pos_info> expr_pos_info;
     typedef buffer<std::tuple<pos_info, name, expr, bool>> bindings_buffer;
-    frontend       m_frontend;
-    scanner        m_scanner;
-    old_elaborator m_elaborator;
-    scanner::token m_curr;
-    bool           m_use_exceptions;
-    bool           m_interactive;
-    bool           m_found_errors;
-    local_decls    m_local_decls;
-    unsigned       m_num_local_decls;
-    expr_pos_info  m_expr_pos_info;
-    pos_info       m_last_cmd_pos;
+    frontend            m_frontend;
+    scanner             m_scanner;
+    frontend_elaborator m_elaborator;
+    scanner::token      m_curr;
+    bool                m_use_exceptions;
+    bool                m_interactive;
+    bool                m_found_errors;
+    local_decls         m_local_decls;
+    unsigned            m_num_local_decls;
+    expr_pos_info       m_expr_pos_info;
+    pos_info            m_last_cmd_pos;
     // Reference to temporary parser used to process import command.
     // We need this reference to be able to interrupt it.
     interruptable_ptr<parser>     m_import_parser;
     interruptable_ptr<normalizer> m_normalizer;
 
-    bool           m_verbose;
-    bool           m_show_errors;
+    bool                m_verbose;
+    bool                m_show_errors;
 
     /** \brief Exception used to track parsing erros, it does not leak outside of this class. */
     struct parser_error : public exception {
@@ -1030,14 +1030,14 @@ class parser::imp {
     /** \brief Auxiliary method used for parsing definitions and theorems. */
     void parse_def_core(bool is_definition) {
         next();
-        expr type, val;
+        expr pre_type, pre_val;
         name id = check_identifier_next("invalid definition, identifier expected");
         bindings_buffer bindings;
         if (curr_is_colon()) {
             next();
-            type = m_elaborator(parse_expr());
+            pre_type = parse_expr();
             check_assign_next("invalid definition, ':=' expected");
-            val  = m_elaborator(parse_expr(), type);
+            pre_val  = parse_expr();
         } else {
             mk_scope scope(*this);
             parse_object_bindings(bindings);
@@ -1045,9 +1045,12 @@ class parser::imp {
             expr type_body = parse_expr();
             check_assign_next("invalid definition, ':=' expected");
             expr val_body  = parse_expr();
-            type = m_elaborator(mk_abstraction(false, bindings, type_body));
-            val  = m_elaborator(mk_abstraction(true, bindings, val_body), type);
+            pre_type  = mk_abstraction(false, bindings, type_body);
+            pre_val   = mk_abstraction(true, bindings, val_body);
         }
+        auto type_val_pair = m_elaborator(pre_type, pre_val);
+        expr type = type_val_pair.first;
+        expr val  = type_val_pair.second;
         if (is_definition) {
             m_frontend.add_definition(id, type, val);
             if (m_verbose)
@@ -1519,10 +1522,13 @@ class parser::imp {
         sync();
     }
 
-    void display_error(old_elaborator_exception const & ex) {
+    void display_error(elaborator_exception const &) {
+#if 0
+        // TODO(Leo)
         display_error_pos(m_elaborator.get_original(ex.get_expr()));
         regular(m_frontend) << " " << ex << endl;
         sync();
+#endif
     }
 
     void updt_options() {
@@ -1586,7 +1592,7 @@ public:
                     display_error(ex);
                 if (m_use_exceptions)
                     throw;
-            } catch (old_elaborator_exception & ex) {
+            } catch (elaborator_exception & ex) {
                 m_found_errors = true;
                 if (m_show_errors)
                     display_error(ex);

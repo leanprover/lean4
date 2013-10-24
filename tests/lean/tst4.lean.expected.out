@@ -21,11 +21,12 @@ f::explicit N n1 n2
   Proved: Pr
 Axiom H1 : a = b ∧ b = c
 Theorem Pr : (g a) = (g c) :=
-    let κ::1 := Trans::explicit
-                     N
-                     a
-                     b
-                     c
-                     (Conjunct1::explicit (a = b) (b = c) H1)
-                     (Conjunct2::explicit (a = b) (b = c) H1)
-    in Congr::explicit N (λ x : N, N) g g a c (Refl::explicit (N → N) g) κ::1
+    Congr::explicit
+        N
+        (λ x : N, N)
+        g
+        g
+        a
+        c
+        (Refl::explicit (N → N) g)
+        (Trans::explicit N a b c (Conjunct1::explicit (a = b) (b = c) H1) (Conjunct2::explicit (a = b) (b = c) H1))

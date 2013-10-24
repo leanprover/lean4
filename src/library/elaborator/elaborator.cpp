@@ -262,7 +262,7 @@ class elaborator::imp {
         unsigned i = types.size();
         while (i > 0) {
             --i;
-            r = mk_lambda(name(g_x_name, i), types[i], r);
+            r = mk_lambda(i == 0 ? g_x_name : name(g_x_name, i), types[i], r);
         }
         return r;
     }

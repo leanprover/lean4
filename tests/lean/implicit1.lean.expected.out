@@ -9,22 +9,8 @@
   Set: lean::pp::coercion
 ∀ a b : ℤ, (g a (int_to_real (f a b))) > (nat_to_int 0)
 λ a : ℕ, a + 1
-Error (line: 10, pos: 18) ambiguous overloads
-Candidates:
-    Real::add : ℝ → ℝ → ℝ
-    Int::add : ℤ → ℤ → ℤ
-    Nat::add : ℕ → ℕ → ℕ
-Arguments:
-    a : ?M0[lift:0:2]
-    b : ?M2[lift:0:1]
+λ a b : ℕ, a + b
 λ a b c : ℤ, a + c + b
-Error (line: 17, pos: 19) ambiguous overloads
-Candidates:
-    Real::add : ℝ → ℝ → ℝ
-    Int::add : ℤ → ℤ → ℤ
-    Nat::add : ℕ → ℕ → ℕ
-Arguments:
-    a : ?M0[lift:0:2]
-    b : ?M2[lift:0:1]
+(λ a b : ℕ, a + b) 10 20
   Assumed: x
 λ a b : ℤ, a + x + b

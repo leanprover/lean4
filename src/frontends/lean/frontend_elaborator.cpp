@@ -325,7 +325,14 @@ public:
             expr new_e_t = m_type_checker.infer_type(new_e, context(), &m_menv, m_ucs);
             m_ucs.push_back(mk_convertible_constraint(context(), new_e_t, new_t,
                                                       mk_def_type_match_justification(context(), n, e)));
+            // for (auto c : m_ucs) {
+            //    formatter fmt = mk_simple_formatter();
+            //    std::cout << c.pp(fmt, options(), nullptr, false) << "\n";
+            // }
             substitution s = elaborate_core();
+            // s.for_each([&](name const & n, expr const & v) {
+            //        std::cout << n << " --> " << v << "\n";
+            //    });
             return mk_pair(instantiate_metavars(new_t, s), instantiate_metavars(new_e, s));
         } else {
             return mk_pair(new_t, new_e);

@@ -244,7 +244,7 @@ class type_checker::imp {
         if (is_convertible_core(new_given, new_expected))
             return true;
         if (m_menv && (has_metavar(new_given) || has_metavar(new_expected))) {
-            m_uc->push_back(mk_convertible_constraint(ctx, new_given, new_expected, mk_justification()));
+            m_uc->push_back(mk_convertible_constraint(ctx, given, expected, mk_justification()));
             return true;
         }
         return false;

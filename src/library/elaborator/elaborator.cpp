@@ -149,10 +149,12 @@ class elaborator::imp {
     // options
     bool                                     m_use_justifications;
     bool                                     m_use_normalizer;
+    bool                                     m_assume_injectivity;
 
     void set_options(options const &) {
         m_use_justifications = true;
         m_use_normalizer     = true;
+        m_assume_injectivity = true;
     }
 
     void reset_quota() {
@@ -1054,8 +1056,21 @@ class elaborator::imp {
             return true;
         }
 
+        if (m_assume_injectivity && is_app(a) && is_app(b) && num_args(a) == num_args(b) && arg(a, 0) == arg(b, 0)) {
+            // If m_assume_injectivity is true, we apply the following rule
+            // ctx |- (f a1 a2) == (f b1 b2)
+            // ===>
+            // ctx |- a1 == b1
+            // ctx |- a2 == b2
+            justification new_jst(new destruct_justification(c));
+            for (unsigned i = 1; i < num_args(a); i++)
+                push_front(mk_eq_constraint(ctx, arg(a, i), arg(b, i), new_jst));
+            return true;
+        }
+
         status r;
-        bool allow_assignment = eq; // at this point, we only assign metavariables if the constraint is an equational constraint.
+        // At this point, we only assign metavariables if the constraint is an equational constraint.
+        bool allow_assignment = eq;
         r = process_metavar(c, a, b, true, allow_assignment);
         if (r != Continue) { return r == Processed; }
         r = process_metavar(c, b, a, false, allow_assignment);

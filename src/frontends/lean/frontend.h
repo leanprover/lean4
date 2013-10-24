@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include "kernel/environment.h"
 #include "library/state.h"
+#include "library/expr_pair.h"
 #include "frontends/lean/operator_info.h"
 
 namespace lean {
@@ -169,12 +170,20 @@ public:
        coercion from T1 to T2.
     */
     void add_coercion(expr const & f);
+
     /**
-        \brief Return a coercion from given_type to expected_type if it exists.
-        Return the null expression if there is no coercion from \c given_type to
-        \c expected_type.
+       \brief Return a coercion from given_type to expected_type if it exists.
+       Return the null expression if there is no coercion from \c from_type to
+       \c to_type.
     */
-    expr get_coercion(expr const & given_type, expr const & expected_type, context const & ctx) const;
+    expr get_coercion(expr const & from_type, expr const & to_type) const;
+
+    /**
+       \brief Return the list of coercions for the given type.
+       The result is a list of pairs (to_type, function).
+    */
+    list<expr_pair> get_coercions(expr const & from_type) const;
+
     /**
        \brief Return true iff the given expression is a coercion. That is, it was added using
        \c add_coercion.

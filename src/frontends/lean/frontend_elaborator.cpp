@@ -197,7 +197,8 @@ class frontend_elaborator::imp {
         /**
            \brief Create a metavariable for representing the choice.
         */
-        expr mk_overload_mvar(buffer<expr> const & f_choices, context const & ctx, expr const & src) {
+        expr mk_overload_mvar(buffer<expr> & f_choices, context const & ctx, expr const & src) {
+            std::reverse(f_choices.begin(), f_choices.end());
             expr mvar = m_ref.m_menv.mk_metavar(ctx);
             m_ref.m_ucs.push_back(mk_choice_constraint(ctx, mvar, f_choices.size(), f_choices.data(),
                                                        mk_overload_justification(ctx, src)));

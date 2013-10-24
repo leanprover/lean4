@@ -6,7 +6,7 @@
   Assumed: B'
   Assumed: x
 x
-⊤
+x = x
   Assumed: b
   Defined: f
   Assumed: H

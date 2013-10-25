@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <algorithm>
+#include <vector>
 #include "kernel/expr.h"
 #include "kernel/context.h"
 #include "kernel/justification.h"

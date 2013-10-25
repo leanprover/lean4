@@ -262,8 +262,11 @@ bool has_assigned_metavar(expr const & e, substitution const & s) {
         return false;
     } else {
         auto proc = [&](expr const & n, unsigned) {
+            if (!has_metavar(n))
+                return false;
             if (is_metavar(n) && s.is_assigned(n))
                 throw found_assigned();
+            return true;
         };
         for_each_fn<decltype(proc)> visitor(proc);
         try {
@@ -342,6 +345,7 @@ bool has_metavar(expr const & e, expr const & m, substitution const & s) {
                     has_metavar(s.get_subst(m2), m, s))
                     throw found_metavar();
             }
+            return true;
         };
         try {
             for_each_fn<decltype(f)> proc(f);

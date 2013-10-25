@@ -27,11 +27,12 @@ namespace occurs_ns {
 struct found {};
 }
 bool occurs(name const & n, context const * c, unsigned sz, expr const * es) {
-    auto visitor = [&](expr const & e, unsigned) -> void {
+    auto visitor = [&](expr const & e, unsigned) -> bool {
         if (is_constant(e)) {
             if (const_name(e) == n)
                 throw occurs_ns::found();
         }
+        return true;
     };
     try {
         for_each(visitor, c, sz, es);
@@ -42,9 +43,10 @@ bool occurs(name const & n, context const * c, unsigned sz, expr const * es) {
 }
 
 bool occurs(expr const & n, context const * c, unsigned sz, expr const * es) {
-    auto visitor = [&](expr const & e, unsigned) -> void {
+    auto visitor = [&](expr const & e, unsigned) -> bool {
         if (e == n)
             throw occurs_ns::found();
+        return true;
     };
     try {
         for_each(visitor, c, sz, es);

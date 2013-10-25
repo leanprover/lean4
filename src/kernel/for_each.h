@@ -22,8 +22,8 @@ template<typename F>
 class for_each_fn {
     std::unique_ptr<expr_cell_offset_set> m_visited;
     F                                     m_f;
-    static_assert(std::is_same<typename std::result_of<F(expr const &, unsigned)>::type, void>::value,
-                  "for_each_fn: return type of m_f is not void");
+    static_assert(std::is_same<typename std::result_of<F(expr const &, unsigned)>::type, bool>::value,
+                  "for_each_fn: return type of m_f is not bool");
 
     void apply(expr const & e, unsigned offset) {
         if (is_shared(e)) {
@@ -35,7 +35,8 @@ class for_each_fn {
             m_visited->insert(p);
         }
 
-        m_f(e, offset);
+        if (!m_f(e, offset))
+            return;
 
         switch (e.kind()) {
         case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:

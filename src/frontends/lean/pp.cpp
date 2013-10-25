@@ -1113,6 +1113,7 @@ class pp_fn {
             } else if (is_let(e)) {
                 if (is_prefix_of(prefix, let_name(e))) throw found_prefix();
             }
+            return true;
         };
         try {
             for_each_fn<decltype(f)> visitor(f);

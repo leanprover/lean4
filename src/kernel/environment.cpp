@@ -44,6 +44,7 @@ struct environment::imp {
                 if (obj)
                     w = std::max(w, obj.get_weight());
             }
+            return true;
         };
         for_each_fn<decltype(proc)> visitor(proc);
         visitor(e);

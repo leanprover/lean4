@@ -354,16 +354,19 @@ class elaborator::imp {
     /**
        \brief Assign \c v to \c m with justification \c tr in the current state.
     */
-    void assign(expr const & m, expr const & v, context const & ctx, justification const & tr) {
+    void assign(expr const & m, expr const & v, unification_constraint const & c) {
         lean_assert(is_metavar(m));
+        reset_quota();
+        context const & ctx = get_context(c);
+        justification jst(new assignment_justification(c));
         metavar_env & menv = m_state.m_menv;
-        m_state.m_menv.assign(m, v, tr);
+        m_state.m_menv.assign(m, v, jst);
         if (menv.has_type(m)) {
             buffer<unification_constraint> ucs;
             expr tv = m_type_inferer(v, ctx, &menv, ucs);
             for (auto c : ucs)
                 push_front(c);
-            justification new_jst(new typeof_mvar_justification(ctx, m, menv.get_type(m), tv, tr));
+            justification new_jst(new typeof_mvar_justification(ctx, m, menv.get_type(m), tv, jst));
             push_front(mk_convertible_constraint(ctx, tv, menv.get_type(m), new_jst));
         }
     }
@@ -410,8 +413,7 @@ class elaborator::imp {
                     m_conflict = justification(new unification_failure_justification(c));
                     return Failed;
                 } else if (allow_assignment) {
-                    assign(a, b, get_context(c), justification(new assignment_justification(c)));
-                    reset_quota();
+                    assign(a, b, c);
                     return Processed;
                 }
             } else {
@@ -1079,10 +1081,21 @@ class elaborator::imp {
 
         if (normalize_head(a, b, c)) { return true; }
 
-        r = process_metavar(c, a, b, true, !is_type(b) && !is_meta(b));
-        if (r != Continue) { return r == Processed; }
-        r = process_metavar(c, b, a, false, !is_type(a) && !is_meta(a) && a != Bool);
-        if (r != Continue) { return r == Processed; }
+        if (!eq) {
+            // Try to assign convertability constraints.
+            if (!is_type(b) && !is_meta(b) && is_metavar(a) && !is_assigned(a) && !has_local_context(a)) {
+                // We can assign a <- b at this point IF b is not (Type lvl) or Metavariable
+                lean_assert(!has_metavar(b, a));
+                assign(a, b, c);
+                return true;
+            }
+            if (!is_type(a) && !is_meta(a) && a != Bool && is_metavar(b) && !is_assigned(b) && !has_local_context(b)) {
+                // We can assign b <- a at this point IF a is not (Type lvl) or Metavariable or Bool.
+                lean_assert(!has_metavar(a, b));
+                assign(b, a, c);
+                return true;
+            }
+        }
 
         if (process_simple_ho_match(ctx, a, b, true, c) ||
             process_simple_ho_match(ctx, b, a, false, c))

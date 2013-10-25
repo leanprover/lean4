@@ -96,10 +96,10 @@ format unification_constraint_max::pp(formatter const & fmt, options const & opt
     return add_justification(fmt, opts, body, m_justification, p, include_justification);
 }
 
-unification_constraint_choice::unification_constraint_choice(context const & c, expr const & mvar, unsigned num, justification const & j):
+unification_constraint_choice::unification_constraint_choice(context const & c, expr const & mvar, unsigned num, expr const * choices, justification const & j):
     unification_constraint_cell(unification_constraint_kind::Choice, c, j),
     m_mvar(mvar),
-    m_num_choices(num) {
+    m_choices(choices, choices + num) {
 }
 
 unification_constraint_choice::~unification_constraint_choice() {
@@ -111,9 +111,9 @@ format unification_constraint_choice::pp(formatter const & fmt, options const & 
     format eq_op    = mk_unification_op(opts);
     format or_op    = unicode ? format("\u2295") : format("OR");
     format body;
-    for (unsigned i = 0; i < m_num_choices; i++) {
+    for (unsigned i = 0; i < m_choices.size(); i++) {
         body += group(paren(format{m_fmt, space(), eq_op, compose(line(), fmt(m_ctx, m_choices[i], false, opts))}));
-        if (i + 1 < m_num_choices)
+        if (i + 1 < m_choices.size())
             body += format{space(), or_op, line()};
     }
     body = group(body);
@@ -134,12 +134,7 @@ unification_constraint mk_max_constraint(context const & c, expr const & lhs1, e
 }
 
 unification_constraint mk_choice_constraint(context const & c, expr const & mvar, unsigned num, expr const * choices, justification const & j) {
-    char * mem   = new char[sizeof(unification_constraint_choice) + num*sizeof(expr)];
-    unification_constraint r(new (mem) unification_constraint_choice(c, mvar, num, j));
-    expr * m_choices = to_choice(r)->m_choices;
-    for (unsigned i = 0; i < num; i++)
-        new (m_choices+i) expr(choices[i]);
-    return r;
+    return unification_constraint(new unification_constraint_choice(c, mvar, num, choices, j));
 }
 
 unification_constraint mk_choice_constraint(context const & c, expr const & mvar, std::initializer_list<expr> const & choices, justification const & j) {

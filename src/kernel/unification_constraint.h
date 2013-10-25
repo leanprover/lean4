@@ -134,18 +134,16 @@ public:
    \brief Unification constraint of the form <tt>ctx |- mvar == choices[0] OR ... OR mvar == choices[size-1]</tt>.
 */
 class unification_constraint_choice : public unification_constraint_cell {
-    expr     m_mvar;
-    unsigned m_num_choices;
-    expr     m_choices[0];
-    friend unification_constraint mk_choice_constraint(context const & c, expr const & mvar, unsigned num, expr const * choices, justification const & j);
+    expr              m_mvar;
+    std::vector<expr> m_choices;
 public:
-    unification_constraint_choice(context const & c, expr const & mvar, unsigned num, justification const & j);
+    unification_constraint_choice(context const & c, expr const & mvar, unsigned num, expr const * choices, justification const & j);
     virtual ~unification_constraint_choice();
     expr const & get_mvar() const               { return m_mvar; }
-    unsigned     get_num_choices() const        { return m_num_choices; }
-    expr const & get_choice(unsigned idx) const { lean_assert(idx < m_num_choices); return m_choices[idx]; }
-    expr const * begin_choices() const          { return m_choices; }
-    expr const * end_choices() const            { return m_choices + m_num_choices; }
+    unsigned     get_num_choices() const        { return m_choices.size(); }
+    expr const & get_choice(unsigned idx) const { return m_choices[idx]; }
+    std::vector<expr>::const_iterator begin_choices() const { return m_choices.begin(); }
+    std::vector<expr>::const_iterator end_choices() const   { return m_choices.end(); }
     virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_justification) const;
 };
 

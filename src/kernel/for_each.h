@@ -18,7 +18,7 @@ namespace lean {
    </code>
    The \c offset is the number of binders under which \c e occurs.
 */
-template<typename F>
+template<typename F, bool CacheAtomic = false>
 class for_each_fn {
     std::unique_ptr<expr_cell_offset_set> m_visited;
     F                                     m_f;
@@ -26,6 +26,17 @@ class for_each_fn {
                   "for_each_fn: return type of m_f is not bool");
 
     void apply(expr const & e, unsigned offset) {
+        if (!CacheAtomic) {
+            switch (e.kind()) {
+            case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
+            case expr_kind::Var: case expr_kind::MetaVar:
+                m_f(e, offset);
+                return;
+            default:
+                break;
+            }
+        }
+
         if (is_shared(e)) {
             expr_cell_offset p(e.raw(), offset);
             if (!m_visited)

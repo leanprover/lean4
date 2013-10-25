@@ -6,8 +6,6 @@
   Defined: n1
   Defined: n2
   Defined: n3
-  Defined: n3a
-  Defined: n3b
   Defined: n4
   Defined: n5
   Set: lean::pp::coercion

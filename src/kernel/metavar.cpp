@@ -338,23 +338,27 @@ expr pop_meta_context(expr const & m) {
 struct found_metavar {};
 
 bool has_metavar(expr const & e, expr const & m, substitution const & s) {
-    lean_assert(is_metavar(m));
-    lean_assert(!s.is_assigned(m));
-    auto f = [&](expr const & m2, unsigned) {
-        if (is_metavar(m2)) {
-            if (metavar_name(m) == metavar_name(m2))
-                throw found_metavar();
-            if (s.is_assigned(m2) &&
-                has_metavar(s.get_subst(m2), m, s))
-                throw found_metavar();
+    if (has_metavar(e)) {
+        lean_assert(is_metavar(m));
+        lean_assert(!s.is_assigned(m));
+        auto f = [&](expr const & m2, unsigned) {
+            if (is_metavar(m2)) {
+                if (metavar_name(m) == metavar_name(m2))
+                    throw found_metavar();
+                if (s.is_assigned(m2) &&
+                    has_metavar(s.get_subst(m2), m, s))
+                    throw found_metavar();
+            }
+        };
+        try {
+            for_each_fn<decltype(f)> proc(f);
+            proc(e);
+            return false;
+        } catch (found_metavar) {
+            return true;
         }
-    };
-    try {
-        for_each_fn<decltype(f)> proc(f);
-        proc(e);
+    } else {
         return false;
-    } catch (found_metavar) {
-        return true;
     }
 }
 }

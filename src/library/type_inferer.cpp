@@ -107,7 +107,7 @@ class type_inferer::imp {
                 else
                     return m_menv->get_type(e);
             } else {
-                throw kernel_exception(m_env, "unexpected metavariable occurrence");
+                throw unexpected_metavar_occurrence(m_env, e);
             }
         case expr_kind::Constant: {
             object const & obj = m_env.get_object(const_name(e));

@@ -99,7 +99,7 @@ class type_checker::imp {
                 else
                     return m_menv->get_type(e);
             } else {
-                throw kernel_exception(m_env, "unexpected metavariable occurrence");
+                throw unexpected_metavar_occurrence(m_env, e);
             }
             break;
         case expr_kind::Constant:

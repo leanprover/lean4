@@ -198,6 +198,7 @@ public:
     invalid_builtin_value_declaration(environment const & env, expr const & e):kernel_exception(env), m_expr(e) {}
     virtual ~invalid_builtin_value_declaration() {}
     virtual char const * what() const noexcept { return "invalid builtin value declaration, expression is not a builtin value"; }
+    virtual expr const & get_main_expr() const { return m_expr; }
 };
 
 /**
@@ -210,5 +211,18 @@ public:
     invalid_builtin_value_reference(environment const & env, expr const & e):kernel_exception(env), m_expr(e) {}
     virtual ~invalid_builtin_value_reference() {}
     virtual char const * what() const noexcept { return "invalid builtin value reference, this kind of builtin value was not declared in the environment"; }
+    virtual expr const & get_main_expr() const { return m_expr; }
+};
+
+/**
+   \brief Unexpected metavariable occurrence
+*/
+class unexpected_metavar_occurrence : public kernel_exception {
+    expr m_expr;
+public:
+    unexpected_metavar_occurrence(environment const & env, expr const & e):kernel_exception(env), m_expr(e) {}
+    virtual ~unexpected_metavar_occurrence() {}
+    virtual char const * what() const noexcept { return "unexpected metavariable occurrence"; }
+    virtual expr const & get_main_expr() const { return m_expr; }
 };
 }

@@ -65,14 +65,13 @@ expr apply_local_context(expr const & a, local_context const & lctx) {
 
 expr substitution::get_subst(expr const & m) const {
     lean_assert(is_metavar(m));
-    name2expr::entry const * e = const_cast<substitution*>(this)->m_subst.splay_find(metavar_name(m));
-    if (e) {
-        expr r = e->second;
-        if (has_assigned_metavar(r, *this)) {
-            r = instantiate_metavars(r, *this);
-            const_cast<substitution*>(this)->m_subst.insert(metavar_name(m), r);
+    auto it = const_cast<substitution*>(this)->m_subst.splay_find(metavar_name(m));
+    if (it) {
+        if (has_assigned_metavar(*it, *this)) {
+            *it = instantiate_metavars(*it, *this);
         }
         local_context const & lctx = metavar_lctx(m);
+        expr r = *it;
         if (lctx) {
             r = apply_local_context(r, lctx);
             if (has_assigned_metavar(r, *this))
@@ -130,11 +129,8 @@ context metavar_env::get_context(expr const & m) const {
 }
 
 context metavar_env::get_context(name const & m) const {
-    auto e = const_cast<metavar_env*>(this)->m_metavar_contexts.splay_find(m);
-    if (e)
-        return e->second;
-    else
-        return context();
+    auto it = const_cast<metavar_env*>(this)->m_metavar_contexts.splay_find(m);
+    return it ? *it : context();
 }
 
 expr metavar_env::get_type(expr const & m) {
@@ -152,19 +148,19 @@ expr metavar_env::get_type(expr const & m) {
 }
 
 expr metavar_env::get_type(name const & m) {
-    auto e = const_cast<metavar_env*>(this)->m_metavar_types.splay_find(m);
-    if (e) {
-        return e->second;
+    auto it = const_cast<metavar_env*>(this)->m_metavar_types.splay_find(m);
+    if (it) {
+        return *it;
     } else {
         expr t = mk_metavar(get_context(m));
-        m_metavar_types.insert(m, t);
+        const_cast<metavar_env*>(this)->m_metavar_types.insert(m, t);
         return t;
     }
 }
 
 bool metavar_env::has_type(name const & m) const {
-    auto e = const_cast<metavar_env*>(this)->m_metavar_types.splay_find(m);
-    return e;
+    auto it = const_cast<metavar_env*>(this)->m_metavar_types.splay_find(m);
+    return it;
 }
 
 bool metavar_env::has_type(expr const & m) const {
@@ -179,12 +175,8 @@ justification metavar_env::get_justification(expr const & m) const {
 }
 
 justification metavar_env::get_justification(name const & m) const {
-    auto e = const_cast<metavar_env*>(this)->m_metavar_justifications.splay_find(m);
-    if (e) {
-        return e->second;
-    } else {
-        return justification();
-    }
+    auto it = const_cast<metavar_env*>(this)->m_metavar_justifications.splay_find(m);
+    return it ? *it : justification();
 }
 
 bool metavar_env::is_assigned(name const & m) const {

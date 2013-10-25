@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <memory>
 #include "kernel/expr.h"
 #include "kernel/expr_sets.h"
 
@@ -24,8 +25,8 @@ struct id_expr_fn {
 */
 template<typename N = id_expr_fn, bool UseHash = true>
 class expr_eq_fn {
-    expr_cell_pair_set m_eq_visited;
-    N                  m_norm;
+    std::unique_ptr<expr_cell_pair_set> m_eq_visited;
+    N                                   m_norm;
 
     bool apply(expr const & a0, expr const & b0) {
         if (is_eqp(a0, b0))                    return true;
@@ -37,9 +38,11 @@ class expr_eq_fn {
         if (is_var(a))                       return var_idx(a) == var_idx(b);
         if (is_shared(a) && is_shared(b)) {
             auto p = std::make_pair(a.raw(), b.raw());
-            if (m_eq_visited.find(p) != m_eq_visited.end())
+            if (!m_eq_visited)
+                m_eq_visited.reset(new expr_cell_pair_set);
+            if (m_eq_visited->find(p) != m_eq_visited->end())
                 return true;
-            m_eq_visited.insert(p);
+            m_eq_visited->insert(p);
         }
         switch (a.kind()) {
         case expr_kind::Var:      lean_unreachable();
@@ -81,6 +84,6 @@ public:
     bool operator()(expr const & a, expr const & b) {
         return apply(a, b);
     }
-    void clear() { m_eq_visited.clear(); }
+    void clear() { m_eq_visited.reset(); }
 };
 }

@@ -64,7 +64,11 @@ typedef list<local_entry> local_context;
 class expr_cell {
 protected:
     unsigned short     m_kind;
+#ifdef LEAN_THREAD_UNSAFE
+    unsigned short     m_flags;
+#else
     std::atomic_ushort m_flags;
+#endif
     unsigned m_hash;
     MK_LEAN_RC(); // Declare m_rc counter
     void dealloc();

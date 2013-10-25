@@ -7,6 +7,7 @@ set(CMAKE_COLOR_MAKEFILE ON)
 enable_testing()
 
 option(TRACK_MEMORY_USAGE "TRACK_MEMORY_USAGE" ON)
+option(THREAD_SAFE "THREAD_SAFE" ON)
 
 # Added for CTest
 INCLUDE(CTest)
@@ -21,6 +22,11 @@ if((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
   message(STATUS "Windows detected")
   set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -Wl,--stack,104857600")
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_DEFAULT_PP_UNICODE=false")
+endif()
+
+if("${THREAD_SAFE}" MATCHES "OFF")
+  message(STATUS "Disabled thread-safety, it will not be safe to run multiple threads in parallel")
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_THREAD_UNSAFE")
 endif()
 
 # Set Module Path

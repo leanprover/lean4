@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 
 // Goodies for reference counting
-#ifdef LEAN_THREAD_UNSAFE_REF_COUNT
+#ifdef LEAN_THREAD_UNSAFE
 #define MK_LEAN_RC()                                                    \
 private:                                                                \
 unsigned m_rc;                                                          \

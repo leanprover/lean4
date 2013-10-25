@@ -155,10 +155,14 @@ name const & name::anonymous() {
     return g_anonymous;
 }
 
+#ifdef LEAN_THREAD_UNSAFE
+static unsigned g_next_id(0);
+#else
 static std::atomic<unsigned> g_next_id(0);
+#endif
 
 name name::mk_internal_unique_name() {
-    unsigned id = std::atomic_fetch_add(&g_next_id, 1u);
+    unsigned id = g_next_id++;
     return name(id);
 }
 

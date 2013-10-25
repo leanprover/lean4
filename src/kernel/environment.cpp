@@ -25,7 +25,11 @@ struct environment::imp {
     std::vector<constraint>              m_constraints;
     std::vector<level>                   m_uvars;
     // Children environment management
+#ifdef LEAN_THREAD_UNSAFE
+    unsigned                             m_num_children;
+#else
     std::atomic<unsigned>                m_num_children;
+#endif
     std::shared_ptr<imp>                 m_parent;
     // Object management
     std::vector<object>                  m_objects;

@@ -96,7 +96,11 @@ inline void   free_core(void * ptr)               { ::free(static_cast<size_t*>(
 
 namespace lean {
 class alloc_info {
+#ifdef LEAN_THREAD_UNSAFE
+    size_t              m_size;
+#else
     std::atomic<size_t> m_size;
+#endif
 public:
     alloc_info():m_size(0) {}
     ~alloc_info() {}

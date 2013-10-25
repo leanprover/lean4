@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <set>
 #include "util/buffer.h"
 #include "kernel/justification.h"
 
@@ -42,7 +41,6 @@ bool justification::has_children() const {
 
 bool depends_on(justification const & t, justification const & d) {
     buffer<justification_cell *>   todo;
-    std::set<justification_cell *> visited;
     buffer<justification_cell *>   children;
     todo.push_back(t.raw());
     while (!todo.empty()) {
@@ -54,14 +52,7 @@ bool depends_on(justification const & t, justification const & d) {
             children.clear();
             curr->get_children(children);
             for (justification_cell * child : children) {
-                if (child->is_shared()) {
-                    if (visited.find(child) == visited.end()) {
-                        visited.insert(child);
-                        todo.push_back(child);
-                    }
-                } else {
-                    todo.push_back(child);
-                }
+                todo.push_back(child);
             }
         }
     }

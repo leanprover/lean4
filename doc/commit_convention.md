@@ -26,6 +26,7 @@ Format of the commit message
  - refactor
  - test (when adding missing tests)
  - chore (maintain, ex: travis-ci)
+ - perf (performance improvement, optimization, ...)
 
 ``<scope>`` is a name of module or a directory which contains changed modules. For instance,
 it could be

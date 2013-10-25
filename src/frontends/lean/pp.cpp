@@ -966,10 +966,10 @@ class pp_fn {
             name const & n = std::get<0>(b);
             format beg = i == 0 ? space() : line();
             format sep = i < sz - 1 ? comma() : format();
-            result p_def = pp(std::get<2>(b), depth+1);
+            result p_def = pp_scoped_child(std::get<2>(b), depth+1);
             expr type = std::get<1>(b);
             if (type) {
-                result p_type = pp(type, depth+1);
+                result p_type = pp_scoped_child(type, depth+1);
                 r_format += nest(3 + 1, compose(beg, group(format{format(n), space(),
                                     colon(), nest(n.size() + 1 + 1 + 1, compose(space(), p_type.first)), space(), g_assign_fmt,
                                     nest(m_indent, format{line(), p_def.first, sep})})));

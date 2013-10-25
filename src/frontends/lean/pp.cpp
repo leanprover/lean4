@@ -1207,7 +1207,7 @@ class pp_formatter_cell : public formatter_cell {
                 r = group(entry);
                 first = false;
             } else {
-                r += format{line(), group(entry)};
+                r += format{comma(), line(), group(entry)};
             }
             c2 = replace_var_with_name(fake_context_rest(c2), n1);
         }

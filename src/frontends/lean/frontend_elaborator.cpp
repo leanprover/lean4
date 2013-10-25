@@ -332,6 +332,10 @@ public:
         // std::cout << "After preprocessing\n" << new_e << "\n";
         if (has_metavar(new_e)) {
             m_type_checker.infer_type(new_e, context(), &m_menv, m_ucs);
+            // for (auto c : m_ucs) {
+            //     formatter fmt = mk_simple_formatter();
+            //     std::cout << c.pp(fmt, options(), nullptr, false) << "\n";
+            // }
             substitution s = elaborate_core();
             return instantiate_metavars(new_e, s);
         } else {

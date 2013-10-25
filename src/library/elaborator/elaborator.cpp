@@ -732,6 +732,7 @@ class elaborator::imp {
         state new_state(m_state);
         justification new_assumption = mk_assumption();
         expr imitation;
+        lean_assert(arg_types.size() == num_a - 1);
         if (is_app(b)) {
             // Imitation for applications
             expr f_b          = arg(b, 0);
@@ -739,7 +740,7 @@ class elaborator::imp {
             // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), f_b (h_1 x_1 ... x_{num_a-1}) ... (h_{num_b-1} x_1 ... x_{num_a-1})
             // New constraints (h_i a_1 ... a_{num_a-1}) == arg(b, i)
             buffer<expr> imitation_args; // arguments for the imitation
-            imitation_args.push_back(f_b);
+            imitation_args.push_back(lift_free_vars(f_b, 0, num_a - 1));
             for (unsigned i = 1; i < num_b; i++) {
                 expr h_i = new_state.m_menv.mk_metavar(ctx);
                 imitation_args.push_back(mk_app_vars(h_i, num_a - 1));
@@ -767,7 +768,7 @@ class elaborator::imp {
             expr h_2 = new_state.m_menv.mk_metavar(new_ctx);
             push_new_eq_constraint(new_state.m_queue, ctx, update_app(a, 0, h_1), abst_domain(b), new_assumption);
             push_new_eq_constraint(new_state.m_queue, new_ctx,
-                                   mk_app(update_app(a, 0, h_2), Var(0)), abst_body(b), new_assumption);
+                                   mk_app(update_app(a, 0, h_2), mk_var(0)), abst_body(b), new_assumption);
             imitation = mk_lambda(arg_types, update_abstraction(b, mk_app_vars(h_1, num_a - 1), mk_app_vars(h_2, num_a)));
         } else {
             // "Dumb imitation" aka the constant function

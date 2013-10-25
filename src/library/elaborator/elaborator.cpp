@@ -1188,8 +1188,8 @@ class elaborator::imp {
 
 
     bool process_max(unification_constraint const & c) {
-        expr const & lhs1 = max_lhs1(c);
-        expr const & lhs2 = max_lhs2(c);
+        expr lhs1 = max_lhs1(c);
+        expr lhs2 = max_lhs2(c);
         expr const & rhs  = max_rhs(c);
         buffer<justification> jsts;
         bool modified = false;
@@ -1230,6 +1230,10 @@ class elaborator::imp {
             push_front(mk_max_constraint(get_context(c), new_lhs1, new_lhs2, new_rhs, new_jst));
             return true;
         }
+        if (lhs1 == Bool)
+            lhs1 = Type();
+        if (lhs2 == Bool)
+            lhs2 = Type();
         if (is_type(lhs1) && is_type(lhs2)) {
             justification new_jst(new normalize_justification(c));
             expr new_lhs = mk_type(max(ty_level(lhs1), ty_level(lhs2)));

@@ -2,15 +2,13 @@
   Set: pp::unicode
   Assumed: f
 λ (A B : Type) (a : B), f B a
-Error (line: 4, pos: 40) application type mismatch during term elaboration
-    f B a
-Function type:
-    Π (A : Type), A → Bool
-Arguments types:
-    B : Type
-    a : ?M0[lift:0:2]
-Elaborator state
-    #0 ≈ ?M0[lift:0:2]
+Failed to solve
+A : Type, a : ?M3::0, B : Type ⊢ ?M3::0[lift:0:2] ≺ B
+    (line: 4: pos: 40) Type of argument 2 must be convertible to the expected type in the application of
+        f
+    with arguments:
+        B
+        a
   Assumed: myeq
 myeq (Π (A : Type), A → A) (λ (A : Type) (a : A), a) (λ (B : Type) (b : B), b)
 myeq (Π (A : Type), A → A) (λ (A : Type) (a : A), a) (λ (B : Type) (b : B), b) : Bool

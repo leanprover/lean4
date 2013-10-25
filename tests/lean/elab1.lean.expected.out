@@ -1,39 +1,138 @@
   Set: pp::colors
   Set: pp::unicode
   Assumed: f
-Error (line: 4, pos: 6) type mismatch at application
-    f 10 ⊤
-Function type:
-    Π (A : Type), A → A → A
-Arguments types:
-    ℕ : Type
-    10 : ℕ
-    ⊤ : Bool
+Failed to solve
+ ⊢ (?M3::1 ≈ λ x : ℕ, x) ⊕ (?M3::1 ≈ nat_to_int) ⊕ (?M3::1 ≈ nat_to_real)
+    (line: 4: pos: 8) Coercion for
+        10
+    Failed to solve
+     ⊢ Bool ≺ ℕ
+        Substitution
+         ⊢ Bool ≺ ?M3::0
+            (line: 4: pos: 6) Type of argument 3 must be convertible to the expected type in the application of
+                f::explicit
+            with arguments:
+                ?M3::0
+                ?M3::1 10
+                ⊤
+            Assignment
+             ⊢ ℕ ≺ ?M3::0
+                Substitution
+                 ⊢ (?M3::5[inst:0 (10)]) 10 ≺ ?M3::0
+                    (line: 4: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
+                        f::explicit
+                    with arguments:
+                        ?M3::0
+                        ?M3::1 10
+                        ⊤
+                    Assignment
+                    x : ℕ ⊢ λ x : ℕ, ℕ ≈ ?M3::5
+                        Destruct/Decompose
+                        x : ℕ ⊢ ℕ ≈ ?M3::5 x
+                            Destruct/Decompose
+                             ⊢ ℕ → ℕ ≈ Π x : ?M3::4, ?M3::5 x
+                                Substitution
+                                 ⊢ ?M3::3 ≈ Π x : ?M3::4, ?M3::5 x
+                                     Function expected at
+                                        ?M3::1 10
+                                    Assignment
+                                     ⊢ ℕ → ℕ ≺ ?M3::3
+                                        Propagate type, ?M3::1 : ?M3::3
+                                            Assignment
+                                             ⊢ ?M3::1 ≈ λ x : ℕ, x
+                                                assumption 0
+    Failed to solve
+     ⊢ Bool ≺ ℤ
+        Substitution
+         ⊢ Bool ≺ ?M3::0
+            (line: 4: pos: 6) Type of argument 3 must be convertible to the expected type in the application of
+                f::explicit
+            with arguments:
+                ?M3::0
+                ?M3::1 10
+                ⊤
+            Assignment
+             ⊢ ℤ ≺ ?M3::0
+                Substitution
+                 ⊢ (?M3::5[inst:0 (10)]) 10 ≺ ?M3::0
+                    (line: 4: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
+                        f::explicit
+                    with arguments:
+                        ?M3::0
+                        ?M3::1 10
+                        ⊤
+                    Assignment
+                    _ : ℕ ⊢ λ x : ℕ, ℤ ≈ ?M3::5
+                        Destruct/Decompose
+                        _ : ℕ ⊢ ℤ ≈ ?M3::5 _
+                            Destruct/Decompose
+                             ⊢ ℕ → ℤ ≈ Π x : ?M3::4, ?M3::5 x
+                                Substitution
+                                 ⊢ ?M3::3 ≈ Π x : ?M3::4, ?M3::5 x
+                                     Function expected at
+                                        ?M3::1 10
+                                    Assignment
+                                     ⊢ ℕ → ℤ ≺ ?M3::3
+                                        Propagate type, ?M3::1 : ?M3::3
+                                            Assignment
+                                             ⊢ ?M3::1 ≈ nat_to_int
+                                                assumption 1
+    Failed to solve
+     ⊢ Bool ≺ ℝ
+        Substitution
+         ⊢ Bool ≺ ?M3::0
+            (line: 4: pos: 6) Type of argument 3 must be convertible to the expected type in the application of
+                f::explicit
+            with arguments:
+                ?M3::0
+                ?M3::1 10
+                ⊤
+            Assignment
+             ⊢ ℝ ≺ ?M3::0
+                Substitution
+                 ⊢ (?M3::5[inst:0 (10)]) 10 ≺ ?M3::0
+                    (line: 4: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
+                        f::explicit
+                    with arguments:
+                        ?M3::0
+                        ?M3::1 10
+                        ⊤
+                    Assignment
+                    _ : ℕ ⊢ λ x : ℕ, ℝ ≈ ?M3::5
+                        Destruct/Decompose
+                        _ : ℕ ⊢ ℝ ≈ ?M3::5 _
+                            Destruct/Decompose
+                             ⊢ ℕ → ℝ ≈ Π x : ?M3::4, ?M3::5 x
+                                Substitution
+                                 ⊢ ?M3::3 ≈ Π x : ?M3::4, ?M3::5 x
+                                     Function expected at
+                                        ?M3::1 10
+                                    Assignment
+                                     ⊢ ℕ → ℝ ≺ ?M3::3
+                                        Propagate type, ?M3::1 : ?M3::3
+                                            Assignment
+                                             ⊢ ?M3::1 ≈ nat_to_real
+                                                assumption 2
   Assumed: g
 Error (line: 7, pos: 6) unsolved placeholder at term
     g 10
   Assumed: h
-Error (line: 11, pos: 27) application type mismatch during term elaboration
-    h A x
-Function type:
-    Π (A : Type), A → A
-Arguments types:
-    A : Type
-    x : ?M0[lift:0:2]
-Elaborator state
-    #0 ≈ ?M0[lift:0:2]
+Failed to solve
+x : ?M3::0, A : Type ⊢ ?M3::0[lift:0:2] ≺ A
+    (line: 11: pos: 27) Type of argument 2 must be convertible to the expected type in the application of
+        h
+    with arguments:
+        A
+        x
   Assumed: eq
-Error (line: 15, pos: 51) application type mismatch during term elaboration
-    eq C a b
-Function type:
-    Π (A : Type), A → A → Bool
-Arguments types:
-    C : Type
-    a : ?M0[lift:0:3]
-    b : ?M2[lift:0:2]
-Elaborator state
-    #0 ≈ ?M2[lift:0:2]
-    #0 ≈ ?M0[lift:0:3]
+Failed to solve
+A : Type, B : Type, a : ?M3::0, b : ?M3::1, C : Type ⊢ ?M3::0[lift:0:3] ≺ C
+    (line: 15: pos: 51) Type of argument 2 must be convertible to the expected type in the application of
+        eq
+    with arguments:
+        C
+        a
+        b
   Assumed: a
   Assumed: b
   Assumed: H

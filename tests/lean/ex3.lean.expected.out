@@ -4,21 +4,41 @@
 myeq Bool ⊤ ⊥
   Assumed: T
   Assumed: a
-Error (line: 5, pos: 6) type mismatch at application
-    myeq Bool ⊤ a
-Function type:
-    Π (A : Type), A → A → Bool
-Arguments types:
-    Bool : Type
-    ⊤ : Bool
-    a : T
+Failed to solve
+ ⊢ Bool ≺ T
+    Substitution
+     ⊢ Bool ≺ ?M3::0
+        (line: 5: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
+            myeq
+        with arguments:
+            ?M3::0
+            ⊤
+            a
+        Assignment
+         ⊢ T ≺ ?M3::0
+            (line: 5: pos: 6) Type of argument 3 must be convertible to the expected type in the application of
+                myeq
+            with arguments:
+                ?M3::0
+                ⊤
+                a
   Assumed: myeq2
   Set: lean::pp::implicit
-Error (line: 9, pos: 15) type mismatch at application
-    myeq2::explicit Bool ⊤ a
-Function type:
-    Π (A : Type), A → A → Bool
-Arguments types:
-    Bool : Type
-    ⊤ : Bool
-    a : T
+Failed to solve
+ ⊢ Bool ≺ T
+    Substitution
+     ⊢ Bool ≺ ?M3::0
+        (line: 9: pos: 15) Type of argument 2 must be convertible to the expected type in the application of
+            myeq2::explicit
+        with arguments:
+            ?M3::0
+            ⊤
+            a
+        Assignment
+         ⊢ T ≺ ?M3::0
+            (line: 9: pos: 15) Type of argument 3 must be convertible to the expected type in the application of
+                myeq2::explicit
+            with arguments:
+                ?M3::0
+                ⊤
+                a

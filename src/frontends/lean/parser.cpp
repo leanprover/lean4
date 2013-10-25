@@ -1538,7 +1538,7 @@ class parser::imp {
         formatter fmt = m_frontend.get_state().get_formatter();
         options opts  = m_frontend.get_state().get_options();
         lean_pos_info_provider pos_provider(*this);
-        regular(m_frontend) << ex.get_justification().pp(fmt, opts, &pos_provider, true) << endl;
+        regular(m_frontend) << mk_pair(ex.get_justification().pp(fmt, opts, &pos_provider, true), opts) << endl;
     }
 
     void updt_options() {

@@ -1522,13 +1522,23 @@ class parser::imp {
         sync();
     }
 
-    void display_error(elaborator_exception const &) {
-#if 0
-        // TODO(Leo)
-        display_error_pos(m_elaborator.get_original(ex.get_expr()));
-        regular(m_frontend) << " " << ex << endl;
-        sync();
-#endif
+    struct lean_pos_info_provider : public pos_info_provider {
+        imp const & m_ref;
+        lean_pos_info_provider(imp const & r):m_ref(r) {}
+        virtual std::pair<unsigned, unsigned> get_pos_info(expr const & e) const {
+            expr const & o = m_ref.m_elaborator.get_original(e);
+            auto it = m_ref.m_expr_pos_info.find(o);
+            if (it == m_ref.m_expr_pos_info.end())
+                throw exception("position is not available"); // information is not available
+            return it->second;
+        }
+    };
+
+    void display_error(elaborator_exception const & ex) {
+        formatter fmt = m_frontend.get_state().get_formatter();
+        options opts  = m_frontend.get_state().get_options();
+        lean_pos_info_provider pos_provider(*this);
+        regular(m_frontend) << ex.get_justification().pp(fmt, opts, &pos_provider, true) << endl;
     }
 
     void updt_options() {

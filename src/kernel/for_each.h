@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <memory>
 #include "kernel/expr.h"
 #include "kernel/expr_sets.h"
 
@@ -19,17 +20,19 @@ namespace lean {
 */
 template<typename F>
 class for_each_fn {
-    expr_cell_offset_set m_visited;
-    F                    m_f;
+    std::unique_ptr<expr_cell_offset_set> m_visited;
+    F                                     m_f;
     static_assert(std::is_same<typename std::result_of<F(expr const &, unsigned)>::type, void>::value,
                   "for_each_fn: return type of m_f is not void");
 
     void apply(expr const & e, unsigned offset) {
         if (is_shared(e)) {
             expr_cell_offset p(e.raw(), offset);
-            if (m_visited.find(p) != m_visited.end())
+            if (!m_visited)
+                m_visited.reset(new expr_cell_offset_set());
+            if (m_visited->find(p) != m_visited->end())
                 return;
-            m_visited.insert(p);
+            m_visited->insert(p);
         }
 
         m_f(e, offset);

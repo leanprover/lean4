@@ -99,8 +99,25 @@ public:
     friend void swap(name & a, name & b) {
         std::swap(a.m_ptr, b.m_ptr);
     }
+
+    /**
+       \brief Quicker version of \c cmp that uses the hashcode.
+       Remark: we should not use it when we want to order names using
+       lexicographical order.
+    */
+    friend int quick_cmp(name const & a, name const & b) {
+        if (a.m_ptr == b.m_ptr)
+            return 0;
+        unsigned h1 = a.hash();
+        unsigned h2 = b.hash();
+        if (h1 != h2)
+            return h1 < h2 ? -1 : 1;
+        else
+            return cmp(a, b);
+    }
 };
 struct name_hash { unsigned operator()(name const & n) const { return n.hash(); } };
 struct name_eq { bool operator()(name const & n1, name const & n2) const { return n1 == n2; } };
 struct name_cmp { int operator()(name const & n1, name const & n2) const { return cmp(n1, n2); } };
+struct name_quick_cmp { int operator()(name const & n1, name const & n2) const { return quick_cmp(n1, n2); } };
 }

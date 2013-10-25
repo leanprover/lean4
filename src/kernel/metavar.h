@@ -19,7 +19,7 @@ namespace lean {
    metavariables to expressions.
 */
 class substitution {
-    typedef splay_map<name, expr, name_cmp> name2expr;
+    typedef splay_map<name, expr, name_quick_cmp> name2expr;
     name2expr m_subst;
     unsigned  m_size;
     // If the following flag is true, then beta-reduction is automatically applied
@@ -99,9 +99,9 @@ void swap(substitution & s1, substitution & s2);
    4- Collecting constraints
 */
 class metavar_env {
-    typedef splay_map<name, expr, name_cmp>          name2expr;
-    typedef splay_map<name, context, name_cmp>       name2context;
-    typedef splay_map<name, justification, name_cmp> name2justification;
+    typedef splay_map<name, expr, name_quick_cmp>          name2expr;
+    typedef splay_map<name, context, name_quick_cmp>       name2context;
+    typedef splay_map<name, justification, name_quick_cmp> name2justification;
 
     name_generator     m_name_generator;
     substitution       m_substitution;

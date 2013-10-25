@@ -88,9 +88,7 @@ static name g_unique_name = name::mk_internal_unique_name();
 void swap(metavar_env & a, metavar_env & b) {
     swap(a.m_name_generator,         b.m_name_generator);
     swap(a.m_substitution,           b.m_substitution);
-    swap(a.m_metavar_types,          b.m_metavar_types);
-    swap(a.m_metavar_contexts,       b.m_metavar_contexts);
-    swap(a.m_metavar_justifications, b.m_metavar_justifications);
+    swap(a.m_metavar_data,           b.m_metavar_data);
     std::swap(a.m_timestamp,         b.m_timestamp);
 }
 
@@ -115,10 +113,7 @@ expr metavar_env::mk_metavar(context const & ctx, expr const & type) {
     inc_timestamp();
     name m = m_name_generator.next();
     expr r = ::lean::mk_metavar(m);
-    if (ctx)
-        m_metavar_contexts.insert(m, ctx);
-    if (type)
-        m_metavar_types.insert(m, type);
+    m_metavar_data.insert(m, data(type, ctx));
     return r;
 }
 
@@ -129,8 +124,9 @@ context metavar_env::get_context(expr const & m) const {
 }
 
 context metavar_env::get_context(name const & m) const {
-    auto it = const_cast<metavar_env*>(this)->m_metavar_contexts.splay_find(m);
-    return it ? *it : context();
+    auto it = const_cast<metavar_env*>(this)->m_metavar_data.splay_find(m);
+    lean_assert(it);
+    return it->m_context;
 }
 
 expr metavar_env::get_type(expr const & m) {
@@ -148,19 +144,21 @@ expr metavar_env::get_type(expr const & m) {
 }
 
 expr metavar_env::get_type(name const & m) {
-    auto it = const_cast<metavar_env*>(this)->m_metavar_types.splay_find(m);
-    if (it) {
-        return *it;
+    auto it = const_cast<metavar_env*>(this)->m_metavar_data.splay_find(m);
+    lean_assert(it);
+    if (it->m_type) {
+        return it->m_type;
     } else {
         expr t = mk_metavar(get_context(m));
-        const_cast<metavar_env*>(this)->m_metavar_types.insert(m, t);
+        it->m_type = t;
         return t;
     }
 }
 
 bool metavar_env::has_type(name const & m) const {
-    auto it = const_cast<metavar_env*>(this)->m_metavar_types.splay_find(m);
-    return it;
+    auto it = const_cast<metavar_env*>(this)->m_metavar_data.splay_find(m);
+    lean_assert(it);
+    return it->m_type;
 }
 
 bool metavar_env::has_type(expr const & m) const {
@@ -168,15 +166,15 @@ bool metavar_env::has_type(expr const & m) const {
     return has_type(metavar_name(m));
 }
 
-
 justification metavar_env::get_justification(expr const & m) const {
     lean_assert(is_metavar(m));
     return get_justification(metavar_name(m));
 }
 
 justification metavar_env::get_justification(name const & m) const {
-    auto it = const_cast<metavar_env*>(this)->m_metavar_justifications.splay_find(m);
-    return it ? *it : justification();
+    auto it = const_cast<metavar_env*>(this)->m_metavar_data.splay_find(m);
+    lean_assert(it);
+    return it->m_justification;
 }
 
 bool metavar_env::is_assigned(name const & m) const {
@@ -192,8 +190,11 @@ void metavar_env::assign(name const & m, expr const & t, justification const & j
     lean_assert(!is_assigned(m));
     inc_timestamp();
     m_substitution.assign(m, t);
-    if (j)
-        m_metavar_justifications.insert(m, j);
+    if (j) {
+        auto it = m_metavar_data.splay_find(m);
+        lean_assert(it);
+        it->m_justification = j;
+    }
 }
 
 void metavar_env::assign(expr const & m, expr const & t, justification const & j) {
@@ -206,7 +207,7 @@ struct found_unassigned{};
 name metavar_env::find_unassigned_metavar() const {
     name r;
     try {
-        m_metavar_types.for_each([&](name const & m, expr const &) {
+        m_metavar_data.for_each([&](name const & m, data const &) {
                 if (!m_substitution.is_assigned(m)) {
                     r = m;
                     throw found_unassigned();

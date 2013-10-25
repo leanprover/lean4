@@ -99,15 +99,17 @@ void swap(substitution & s1, substitution & s2);
    4- Collecting constraints
 */
 class metavar_env {
-    typedef splay_map<name, expr, name_quick_cmp>          name2expr;
-    typedef splay_map<name, context, name_quick_cmp>       name2context;
-    typedef splay_map<name, justification, name_quick_cmp> name2justification;
+    struct data {
+        expr          m_type;          // type of the metavariable
+        context       m_context;       // context where the metavariable was defined
+        justification m_justification; // justification for assigned metavariables.
+        data(expr const & t = expr(), context const & ctx = context()):m_type(t), m_context(ctx) {}
+    };
+    typedef splay_map<name, data, name_quick_cmp> name2data;
 
     name_generator     m_name_generator;
     substitution       m_substitution;
-    name2expr          m_metavar_types;
-    name2context       m_metavar_contexts;
-    name2justification m_metavar_justifications;
+    name2data          m_metavar_data;
     unsigned           m_timestamp;
 
     void inc_timestamp();

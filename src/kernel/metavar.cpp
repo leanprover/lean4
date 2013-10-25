@@ -256,25 +256,25 @@ expr instantiate_metavars(expr const & e, substitution const & s) {
     }
 }
 
-struct found_assigned {};
 bool has_assigned_metavar(expr const & e, substitution const & s) {
     if (!has_metavar(e)) {
         return false;
     } else {
+        bool result = false;
         auto proc = [&](expr const & n, unsigned) {
+            if (result)
+                return false;
             if (!has_metavar(n))
                 return false;
-            if (is_metavar(n) && s.is_assigned(n))
-                throw found_assigned();
+            if (is_metavar(n) && s.is_assigned(n)) {
+                result = true;
+                return false;
+            }
             return true;
         };
         for_each_fn<decltype(proc)> visitor(proc);
-        try {
-            visitor(e);
-            return false;
-        } catch (found_assigned&) {
-            return true;
-        }
+        visitor(e);
+        return result;
     }
 }
 

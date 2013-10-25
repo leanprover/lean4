@@ -1,0 +1,15 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: list
+  Assumed: nil
+  Assumed: cons
+  Defined: n1
+  Defined: n2
+  Defined: n3
+  Defined: n3a
+  Defined: n3b
+  Defined: n4
+  Defined: n5
+  Set: lean::pp::coercion
+  Set: lean::pp::implicit
+Definition n5 : list ℕ := cons::explicit ℕ 10 (nil::explicit ℕ)

@@ -1,0 +1,12 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: list
+  Assumed: nil
+  Assumed: cons
+  Assumed: a
+  Assumed: b
+  Assumed: n
+  Assumed: m
+  Defined: l1
+  Defined: l2
+cons a (cons b (cons n nil)) : list ℤ

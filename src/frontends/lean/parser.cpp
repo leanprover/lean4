@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include <unordered_map>
 #include <utility>
 #include <string>
+#include <tuple>
 #include <vector>
 #include "util/scoped_map.h"
 #include "util/exception.h"

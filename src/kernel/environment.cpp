@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <vector>
 #include <atomic>
+#include <tuple>
 #include <unordered_map>
 #include "util/safe_arith.h"
 #include "kernel/for_each.h"

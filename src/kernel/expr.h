@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <limits>
 #include <utility>
+#include <tuple>
 #include "util/rc.h"
 #include "util/name.h"
 #include "util/hash.h"

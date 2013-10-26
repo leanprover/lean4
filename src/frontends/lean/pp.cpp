@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <limits>
 #include <memory>
+#include <tuple>
 #include <utility>
 #include <vector>
 #include "util/scoped_map.h"

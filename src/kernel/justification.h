@@ -38,6 +38,18 @@ public:
 };
 
 /**
+   \brief Base class for justification objects used to justify case-splits.
+*/
+class assumption_justification : public justification_cell {
+    unsigned m_idx;
+public:
+    assumption_justification(unsigned idx);
+    virtual void get_children(buffer<justification_cell*> &) const;
+    virtual expr const & get_main_expr() const;
+    virtual format pp_header(formatter const &, options const &) const;
+};
+
+/**
    \brief Smart pointer for justification_cell's
 */
 class justification {
@@ -65,6 +77,8 @@ public:
     void get_children(buffer<justification_cell*> & r) const { if (m_ptr) m_ptr->get_children(r); }
     bool has_children() const;
 };
+
+inline justification mk_assumption_justification(unsigned idx) { return justification(new assumption_justification(idx)); }
 
 /**
    \brief Return true iff \c t depends on \c d.

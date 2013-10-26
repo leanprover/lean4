@@ -10,18 +10,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 /**
-   \brief Base class for justification objects used to justify case-splits.
-*/
-class assumption_justification : public justification_cell {
-    unsigned m_idx;
-public:
-    assumption_justification(unsigned idx);
-    virtual void get_children(buffer<justification_cell*> &) const;
-    virtual expr const & get_main_expr() const;
-    virtual format pp_header(formatter const &, options const &) const;
-};
-
-/**
    \brief Base class for justifying propagations and failures
 */
 class propagation_justification : public justification_cell {

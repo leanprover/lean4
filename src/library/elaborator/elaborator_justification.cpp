@@ -19,20 +19,6 @@ static void append(buffer<justification_cell*> & r, T const & s) {
 }
 
 // -------------------------
-// Assumptions
-// -------------------------
-assumption_justification::assumption_justification(unsigned idx):m_idx(idx) {
-}
-void assumption_justification::get_children(buffer<justification_cell*> &) const {
-}
-expr const & assumption_justification::get_main_expr() const {
-    return expr::null();
-}
-format assumption_justification::pp_header(formatter const &, options const &) const {
-    return format{format("assumption"), space(), format(m_idx)};
-}
-
-// -------------------------
 // Propagation justification
 // -------------------------
 propagation_justification::propagation_justification(unification_constraint const & c):

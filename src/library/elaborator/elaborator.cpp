@@ -164,7 +164,7 @@ class elaborator::imp {
     justification mk_assumption() {
         unsigned id = m_next_id;
         m_next_id++;
-        return justification(new assumption_justification(id));
+        return mk_assumption_justification(id);
     }
 
     /** \brief Add given constraint to the front of the current constraint queue */

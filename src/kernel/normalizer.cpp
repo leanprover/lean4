@@ -245,7 +245,7 @@ class normalizer::imp {
                             break;
                         }
                     }
-                    r = svalue(mk_app(new_args.size(), new_args.data()));
+                    r = svalue(mk_app(new_args));
                     break;
                 }
             }

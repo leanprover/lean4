@@ -280,7 +280,7 @@ class elaborator::imp {
             --i;
             args.push_back(mk_var(i));
         }
-        return mk_app(args.size(), args.data());
+        return mk_app(args);
     }
 
     /**
@@ -552,7 +552,7 @@ class elaborator::imp {
                     }
                 }
                 if (modified) {
-                    a = mk_app(new_args.size(), new_args.data());
+                    a = mk_app(new_args);
                     return;
                 }
             } else {
@@ -748,7 +748,7 @@ class elaborator::imp {
                 imitation_args.push_back(mk_app_vars(h_i, num_a - 1));
                 push_new_eq_constraint(new_state.m_queue, ctx, update_app(a, 0, h_i), arg(b, i), new_assumption);
             }
-            imitation = mk_lambda(arg_types, mk_app(imitation_args.size(), imitation_args.data()));
+            imitation = mk_lambda(arg_types, mk_app(imitation_args));
         } else if (is_eq(b)) {
             // Imitation for equality
             // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), (h_1 x_1 ... x_{num_a-1}) = (h_2 x_1 ... x_{num_a-1})
@@ -866,7 +866,7 @@ class elaborator::imp {
                         expr h_i = new_state.m_menv.mk_metavar(ctx);
                         imitation_args.push_back(h_i);
                     }
-                    imitation = mk_app(imitation_args.size(), imitation_args.data());
+                    imitation = mk_app(imitation_args);
                 } else if (is_eq(b)) {
                     // Imitation for equality b == Eq(s1, s2)
                     // mname <- Eq(?h_1, ?h_2)

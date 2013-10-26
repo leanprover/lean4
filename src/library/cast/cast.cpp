@@ -54,7 +54,7 @@ public:
                 buffer<expr> new_as;
                 new_as.push_back(c);
                 new_as.append(num_as - 5, as + 5);
-                r = mk_app(new_as.size(), new_as.data());
+                r = mk_app(new_as);
             }
             return true;
         } else if (num_as > 5 && is_pi(as[1]) && is_pi(as[2])) {
@@ -91,7 +91,7 @@ public:
                 buffer<expr> new_as;
                 new_as.push_back(fa_1_B2);
                 new_as.append(num_as - 6, as + 6);
-                r = mk_app(new_as.size(), new_as.data());
+                r = mk_app(new_as);
             }
             return true;
         } else {

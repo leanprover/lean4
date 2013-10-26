@@ -230,7 +230,7 @@ struct frontend::imp {
             args.push_back(mk_constant(n));
             unsigned j = sz;
             while (j > 0) { --j; args.push_back(mk_var(j)); }
-            return mk_app(args.size(), args.data());
+            return mk_app(args);
         } else {
             lean_assert(is_pi(type));
             return mk_lambda(abst_name(type), abst_domain(type), mk_explicit_definition_body(abst_body(type), n, i+1, sz));

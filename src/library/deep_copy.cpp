@@ -30,7 +30,7 @@ class deep_copy_fn {
             buffer<expr> new_args;
             for (expr const & old_arg : args(a))
                 new_args.push_back(apply(old_arg));
-            r = mk_app(new_args.size(), new_args.data());
+            r = mk_app(new_args);
             break;
         }
         case expr_kind::Eq:       r = mk_eq(apply(eq_lhs(a)), apply(eq_rhs(a))); break;

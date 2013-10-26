@@ -20,7 +20,7 @@ expr update_app(expr const & app, unsigned i, expr const & new_arg) {
             else
                 new_args.push_back(arg(app, j));
         }
-        return mk_app(new_args.size(), new_args.data());
+        return mk_app(new_args);
     }
 }
 

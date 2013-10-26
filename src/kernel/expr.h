@@ -365,6 +365,7 @@ inline expr mk_value(value & v) { return expr(new expr_value(v)); }
 inline expr to_expr(value & v) { return mk_value(v); }
        expr mk_app(unsigned num_args, expr const * args);
 inline expr mk_app(std::initializer_list<expr> const & l) { return mk_app(l.size(), l.begin()); }
+template<typename T> expr mk_app(T const & args) { return mk_app(args.size(), args.data()); }
 inline expr mk_app(expr const & e1, expr const & e2) { return mk_app({e1, e2}); }
 inline expr mk_app(expr const & e1, expr const & e2, expr const & e3) { return mk_app({e1, e2, e3}); }
 inline expr mk_app(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({e1, e2, e3, e4}); }

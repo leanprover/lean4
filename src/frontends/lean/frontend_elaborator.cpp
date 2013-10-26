@@ -241,7 +241,7 @@ class frontend_elaborator::imp {
                         }
                     }
                 }
-                return mk_app(args.size(), args.data());
+                return mk_app(args);
             } else {
                 buffer<expr> new_args;
                 expr new_f   = visit(f, ctx);
@@ -273,7 +273,7 @@ class frontend_elaborator::imp {
                     if (new_f_t)
                         new_f_t = ::lean::instantiate(abst_body(new_f_t), new_a);
                 }
-                return mk_app(new_args.size(), new_args.data());
+                return mk_app(new_args);
             }
         }
 

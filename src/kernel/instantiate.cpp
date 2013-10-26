@@ -85,7 +85,7 @@ expr apply_beta(expr f, unsigned num_args, expr const * args) {
         new_args.push_back(r);
         for (; m < num_args; m++)
             new_args.push_back(args[m]);
-        return mk_app(new_args.size(), new_args.data());
+        return mk_app(new_args);
     }
 }
 

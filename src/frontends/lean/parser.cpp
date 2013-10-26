@@ -417,7 +417,7 @@ class parser::imp {
         } else {
             new_args.append(num_args, args);
         }
-        return save(mk_app(new_args.size(), new_args.data()), pos);
+        return save(mk_app(new_args), pos);
     }
     expr mk_application(operator_info const & op, pos_info const & pos, std::initializer_list<expr> const & l) {
         return mk_application(op, pos, l.size(), l.begin());
@@ -560,7 +560,7 @@ class parser::imp {
                             args.push_back(parse_expr(1));
                         }
                     }
-                    return mk_app(args.size(), args.data());
+                    return mk_app(args);
                 } else {
                     return mk_constant(obj.get_name());
                 }

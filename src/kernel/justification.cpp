@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <vector>
 #include "util/buffer.h"
 #include "kernel/justification.h"
 
@@ -43,7 +44,7 @@ assumption_justification::assumption_justification(unsigned idx):m_idx(idx) {}
 void assumption_justification::get_children(buffer<justification_cell*> &) const {}
 expr const & assumption_justification::get_main_expr() const { return expr::null(); }
 format assumption_justification::pp_header(formatter const &, options const &) const {
-    return format{format("assumption"), space(), format(m_idx)};
+    return format{format("Assumption"), space(), format(m_idx)};
 }
 
 bool depends_on(justification const & t, justification const & d) {

@@ -36,7 +36,7 @@ Failed to solve
                                             Propagate type, ?M3::0 : ?M3::2
                                                 Assignment
                                                  ⊢ ?M3::0 ≈ Nat::add
-                                                    assumption 0
+                                                    Assumption 0
     Failed to solve
      ⊢ Bool ≺ ℤ
         Substitution
@@ -69,7 +69,7 @@ Failed to solve
                                             Propagate type, ?M3::0 : ?M3::2
                                                 Assignment
                                                  ⊢ ?M3::0 ≈ Int::add
-                                                    assumption 2
+                                                    Assumption 2
     Failed to solve
      ⊢ Bool ≺ ℝ
         Substitution
@@ -102,7 +102,7 @@ Failed to solve
                                             Propagate type, ?M3::0 : ?M3::2
                                                 Assignment
                                                  ⊢ ?M3::0 ≈ Real::add
-                                                    assumption 5
+                                                    Assumption 5
   Assumed: R
   Assumed: T
   Assumed: r2t

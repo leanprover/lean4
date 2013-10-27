@@ -24,9 +24,9 @@ Author: Leonardo de Moura
 #include "library/all/all.h"
 using namespace lean;
 
-static std::ostream & operator<<(std::ostream & out, substitution const & env) {
+static std::ostream & operator<<(std::ostream & out, metavar_env const & menv) {
     bool first = true;
-    env.for_each([&](name const & n, expr const & v) {
+    menv.for_each_subst([&](name const & n, expr const & v) {
             if (first) first = false; else out << "\n";
             out << "?M" << n << " <- " << v;
         });
@@ -80,7 +80,7 @@ static void tst2() {
     std::cout << instantiate_metavars(m11, menv) << "\n";
     menv.assign(m2, g(a, Var(1)));
     std::cout << instantiate_metavars(h(m11), menv) << "\n";
-    lean_assert(instantiate_metavars(h(m11), menv) == h(f(f(a, g(a, Var(1))))));
+    lean_assert_eq(instantiate_metavars(h(m11), menv), h(f(f(a, g(a, Var(1))))));
 }
 
 static void tst3() {

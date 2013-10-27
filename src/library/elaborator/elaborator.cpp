@@ -209,7 +209,7 @@ class elaborator::imp {
        The substitutions in the current state are taken into account.
     */
     bool has_metavar(expr const & e, expr const & m) const {
-        return ::lean::has_metavar(e, m, m_state.m_menv.get_substitutions());
+        return ::lean::has_metavar(e, m, m_state.m_menv);
     }
 
     static bool has_metavar(expr const & e) {
@@ -221,15 +221,7 @@ class elaborator::imp {
        the current state.
     */
     bool has_assigned_metavar(expr const & e) const {
-        return ::lean::has_assigned_metavar(e, m_state.m_menv.get_substitutions());
-    }
-
-    /**
-        \brief Return a unassigned metavariable in the current state.
-        Return the anonymous name if the state does not contain unassigned metavariables.
-    */
-    name find_unassigned_metavar() const {
-        return m_state.m_menv.find_unassigned_metavar();
+        return ::lean::has_assigned_metavar(e, m_state.m_menv);
     }
 
     /** \brief Return true if \c a is of the form <tt>(?m ...)</tt> */
@@ -444,7 +436,7 @@ class elaborator::imp {
             justification new_jst(new substitution_justification(c, get_mvar_justification(arg(a, 0))));
             expr new_f = get_mvar_subst(arg(a, 0));
             expr new_a = update_app(a, 0, new_f);
-            if (m_state.m_menv.get_substitutions().beta_reduce_metavar_application())
+            if (m_state.m_menv.beta_reduce_metavar_application())
                 new_a = head_beta_reduce(new_a);
             push_updated_constraint(c, is_lhs, new_a, new_jst);
             return Processed;
@@ -460,27 +452,13 @@ class elaborator::imp {
         }
     }
 
-    class instantiate_metavars_tracking_justifications_proc : public instantiate_metavars_proc {
-        metavar_env &           m_menv;
-        buffer<justification> & m_jsts;
-    protected:
-        virtual void instantiated_metavar(expr const & m) {
-            justification t = m_menv.get_justification(m);
-            if (t)
-                m_jsts.push_back(t);
-        }
-    public:
-        instantiate_metavars_tracking_justifications_proc(metavar_env & menv, buffer<justification> & js):
-            instantiate_metavars_proc(menv.get_substitutions()), m_menv(menv), m_jsts(js) {}
-    };
-
     /**
        \brief Instantiate the assigned metavariables in \c a, and store the justifications
        in \c jsts.
     */
     expr instantiate_metavars(expr const & a, buffer<justification> & jsts) {
         lean_assert(has_assigned_metavar(a));
-        return instantiate_metavars_tracking_justifications_proc(m_state.m_menv, jsts)(a);
+        return ::lean::instantiate_metavars(a, m_state.m_menv, jsts);
     }
 
     /**
@@ -1373,7 +1351,7 @@ public:
         // display(std::cout);
     }
 
-    substitution next() {
+    metavar_env next() {
         check_interrupted(m_interrupted);
         if (m_conflict)
             throw elaborator_exception(m_conflict);
@@ -1395,15 +1373,8 @@ public:
             check_interrupted(m_interrupted);
             cnstr_queue & q = m_state.m_queue;
             if (q.empty() || m_quota < - static_cast<int>(q.size()) - 10) {
-                name m = find_unassigned_metavar();
-                // std::cout << "Queue is empty\n"; display(std::cout); std::cout << "\n\n";
-                if (m) {
-                    // TODO(Leo)
-                    // erase the following line, and implement interface with synthesizer
-                    return m_state.m_menv.get_substitutions();
-                } else {
-                    return m_state.m_menv.get_substitutions();
-                }
+                // TODO(Leo): implement interface with synthesizer
+                return m_state.m_menv;
             } else {
                 unification_constraint c = q.front();
                 // std::cout << "Processing, quota: " << m_quota << ", depth: " << m_case_splits.size() << " "; display(std::cout, c);
@@ -1427,7 +1398,7 @@ public:
     }
 
     void display(std::ostream & out) const {
-        m_state.m_menv.get_substitutions().for_each([&](name const & m, expr const & e) {
+        m_state.m_menv.for_each_subst([&](name const & m, expr const & e) {
                 out << m << " <- " << e << "\n";
             });
         for (auto c : m_state.m_queue)
@@ -1454,7 +1425,7 @@ elaborator::elaborator(environment const & env,
 elaborator::~elaborator() {
 }
 
-substitution elaborator::next() {
+metavar_env elaborator::next() {
     return m_ptr->next();
 }
 

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <vector>
 #include <limits>
 #include <algorithm>
 #include "util/exception.h"
@@ -14,81 +15,47 @@ Author: Leonardo de Moura
 #include "kernel/for_each.h"
 
 namespace lean {
-void swap(substitution & s1, substitution & s2) {
-    swap(s1.m_subst, s2.m_subst);
-    std::swap(s1.m_size, s2.m_size);
-}
-
-substitution::substitution(bool beta_reduce_mv):
-    m_size(0),
-    m_beta_reduce_mv(beta_reduce_mv) {
-}
-
-bool substitution::is_assigned(name const & m) const {
-    return const_cast<substitution*>(this)->m_subst.splay_find(m);
-}
-
-bool substitution::is_assigned(expr const & m) const {
-    return is_assigned(metavar_name(m));
-}
-
-void substitution::assign(name const & m, expr const & t) {
-    lean_assert(!is_assigned(m));
-    m_subst.insert(m, t);
-    m_size++;
-}
-
-void substitution::assign(expr const & m, expr const & t) {
-    lean_assert(is_metavar(m));
-    lean_assert(!has_local_context(m));
-    assign(metavar_name(m), t);
-}
-
-expr apply_local_context(expr const & a, local_context const & lctx) {
-    if (lctx) {
-        if (is_metavar(a)) {
-            return mk_metavar(metavar_name(a), append(lctx, metavar_lctx(a)));
-        } else {
-            expr r = apply_local_context(a, tail(lctx));
-            local_entry const & e = head(lctx);
-            if (e.is_lift()) {
-                return lift_free_vars(r, e.s(), e.n());
-            } else {
-                lean_assert(e.is_inst());
-                return instantiate(r, e.s(), e.v());
-            }
-        }
-    } else {
-        return a;
+/**
+   \brief Assignment normalization justification. That is, when other assignments are applied to an existing assignment.
+*/
+class normalize_assignment_justification : public justification_cell {
+    context                    m_ctx;
+    expr                       m_expr;
+    std::vector<justification> m_jsts;
+public:
+    normalize_assignment_justification(context const & ctx, expr const & e,
+                                       justification const & jst,
+                                       unsigned num_assignment_jsts, justification const * assignment_jsts):
+        m_ctx(ctx),
+        m_expr(e),
+        m_jsts(assignment_jsts, assignment_jsts + num_assignment_jsts) {
+        m_jsts.push_back(jst);
+        std::reverse(m_jsts.begin(), m_jsts.end());
     }
-}
 
-expr substitution::get_subst(expr const & m) const {
-    lean_assert(is_metavar(m));
-    auto it = const_cast<substitution*>(this)->m_subst.splay_find(metavar_name(m));
-    if (it) {
-        if (has_assigned_metavar(*it, *this)) {
-            *it = instantiate_metavars(*it, *this);
-        }
-        local_context const & lctx = metavar_lctx(m);
-        expr r = *it;
-        if (lctx) {
-            r = apply_local_context(r, lctx);
-            if (has_assigned_metavar(r, *this))
-                r = instantiate_metavars(r, *this);
-        }
+    virtual format pp_header(formatter const & fmt, options const & opts) const {
+        unsigned indent = get_pp_indent(opts);
+        format expr_fmt = fmt(m_ctx, m_expr, false, opts);
+        format r;
+        r += format("Normalize assignment");
+        r += nest(indent, compose(line(), expr_fmt));
         return r;
-    } else {
-        return expr();
     }
-}
+
+    virtual void get_children(buffer<justification_cell*> & r) const {
+        append(r, m_jsts);
+    }
+
+    virtual expr const & get_main_expr() const { return m_expr; }
+};
 
 static name g_unique_name = name::mk_internal_unique_name();
 
 void swap(metavar_env & a, metavar_env & b) {
     swap(a.m_name_generator,         b.m_name_generator);
-    swap(a.m_substitution,           b.m_substitution);
     swap(a.m_metavar_data,           b.m_metavar_data);
+    std::swap(a.m_size,              b.m_size);
+    std::swap(a.m_beta_reduce_mv,    b.m_beta_reduce_mv);
     std::swap(a.m_timestamp,         b.m_timestamp);
 }
 
@@ -102,6 +69,8 @@ void metavar_env::inc_timestamp() {
 
 metavar_env::metavar_env(name const & prefix):
     m_name_generator(prefix),
+    m_size(0),
+    m_beta_reduce_mv(true),
     m_timestamp(0) {
 }
 
@@ -178,7 +147,8 @@ justification metavar_env::get_justification(name const & m) const {
 }
 
 bool metavar_env::is_assigned(name const & m) const {
-    return m_substitution.is_assigned(m);
+    auto it = const_cast<metavar_env*>(this)->m_metavar_data.splay_find(m);
+    return it && it->m_subst;
 }
 
 bool metavar_env::is_assigned(expr const & m) const {
@@ -186,15 +156,14 @@ bool metavar_env::is_assigned(expr const & m) const {
     return is_assigned(metavar_name(m));
 }
 
-void metavar_env::assign(name const & m, expr const & t, justification const & j) {
+void metavar_env::assign(name const & m, expr const & t, justification const & jst) {
     lean_assert(!is_assigned(m));
     inc_timestamp();
-    m_substitution.assign(m, t);
-    if (j) {
-        auto it = m_metavar_data.splay_find(m);
-        lean_assert(it);
-        it->m_justification = j;
-    }
+    m_size++;
+    auto it = const_cast<metavar_env*>(this)->m_metavar_data.splay_find(m);
+    lean_assert(it);
+    it->m_subst         = t;
+    it->m_justification = jst;
 }
 
 void metavar_env::assign(expr const & m, expr const & t, justification const & j) {
@@ -203,60 +172,103 @@ void metavar_env::assign(expr const & m, expr const & t, justification const & j
     assign(metavar_name(m), t, j);
 }
 
-struct found_unassigned{};
-name metavar_env::find_unassigned_metavar() const {
-    name r;
-    try {
-        m_metavar_data.for_each([&](name const & m, data const &) {
-                if (!m_substitution.is_assigned(m)) {
-                    r = m;
-                    throw found_unassigned();
-                }
-            });
-    } catch (found_unassigned &) {
-    }
-    return r;
-}
-
-
-void instantiate_metavars_proc::instantiated_metavar(expr const &) {
-}
-
-expr instantiate_metavars_proc::visit_metavar(expr const & m, context const &) {
-    if (is_metavar(m) && m_subst.is_assigned(m)) {
-        instantiated_metavar(m);
-        return m_subst.get_subst(m);
+expr apply_local_context(expr const & a, local_context const & lctx) {
+    if (lctx) {
+        if (is_metavar(a)) {
+            return mk_metavar(metavar_name(a), append(lctx, metavar_lctx(a)));
+        } else {
+            expr r = apply_local_context(a, tail(lctx));
+            local_entry const & e = head(lctx);
+            if (e.is_lift()) {
+                return lift_free_vars(r, e.s(), e.n());
+            } else {
+                lean_assert(e.is_inst());
+                return instantiate(r, e.s(), e.v());
+            }
+        }
     } else {
-        return m;
+        return a;
     }
 }
 
-expr instantiate_metavars_proc::visit_app(expr const & e, context const & ctx) {
-    if (m_subst.beta_reduce_metavar_application() && is_metavar(arg(e, 0)) && m_subst.is_assigned(arg(e, 0))) {
-        instantiated_metavar(arg(e, 0));
-        expr new_f = m_subst.get_subst(arg(e, 0));
-        if (is_lambda(new_f)) {
-            buffer<expr> new_args;
-            for (unsigned i = 1; i < num_args(e); i++)
-                new_args.push_back(visit(arg(e, i), ctx));
-            return apply_beta(new_f, new_args.size(), new_args.data());
+expr metavar_env::get_subst(expr const & m) const {
+    lean_assert(is_metavar(m));
+    auto it = const_cast<metavar_env*>(this)->m_metavar_data.splay_find(metavar_name(m));
+    if (it->m_subst) {
+        if (has_assigned_metavar(it->m_subst, *this)) {
+            buffer<justification> jsts;
+            expr new_subst = instantiate_metavars(it->m_subst, *this, jsts);
+            if (!jsts.empty()) {
+                it->m_justification = justification(new normalize_assignment_justification(it->m_context, it->m_subst, it->m_justification,
+                                                                                           jsts.size(), jsts.data()));
+                it->m_subst         = new_subst;
+            }
+        }
+        local_context const & lctx = metavar_lctx(m);
+        expr r = it->m_subst;
+        if (lctx)
+            r = apply_local_context(r, lctx);
+        return r;
+    } else {
+        return expr();
+    }
+}
+
+class instantiate_metavars_proc : public replace_visitor {
+protected:
+    metavar_env const &     m_menv;
+    buffer<justification> & m_jsts;
+
+    void push_back(justification const & jst) {
+        if (jst)
+            m_jsts.push_back(jst);
+    }
+
+    virtual expr visit_metavar(expr const & m, context const & ctx) {
+        if (is_metavar(m) && m_menv.is_assigned(m)) {
+            push_back(m_menv.get_justification(m));
+            expr r = m_menv.get_subst(m);
+            if (has_assigned_metavar(r, m_menv)) {
+                return visit(r, ctx);
+            } else {
+                return r;
+            }
+        } else {
+            return m;
         }
     }
-    return replace_visitor::visit_app(e, ctx);
-}
 
-instantiate_metavars_proc::instantiate_metavars_proc(substitution const & s):m_subst(s) {
-}
+    virtual expr visit_app(expr const & e, context const & ctx) {
+        expr const & f = arg(e, 0);
+        if (m_menv.beta_reduce_metavar_application() && is_metavar(f) && m_menv.is_assigned(f)) {
+            buffer<expr> new_args;
+            for (unsigned i = 0; i < num_args(e); i++)
+                new_args.push_back(visit(arg(e, i), ctx));
+            if (is_lambda(new_args[0]))
+                return apply_beta(new_args[0], new_args.size() - 1, new_args.data() + 1);
+            else
+                return mk_app(new_args);
+        } else {
+            return replace_visitor::visit_app(e, ctx);
+        }
+    }
 
-expr instantiate_metavars(expr const & e, substitution const & s) {
+public:
+    instantiate_metavars_proc(metavar_env const & menv, buffer<justification> & jsts):
+        m_menv(menv),
+        m_jsts(jsts) {
+    }
+};
+
+expr instantiate_metavars(expr const & e, metavar_env const & menv, buffer<justification> & jsts) {
     if (!has_metavar(e)) {
         return e;
     } else {
-        return instantiate_metavars_proc(s)(e);
+        return instantiate_metavars_proc(menv, jsts)(e);
     }
 }
 
-bool has_assigned_metavar(expr const & e, substitution const & s) {
+bool has_assigned_metavar(expr const & e, metavar_env const & menv) {
     if (!has_metavar(e)) {
         return false;
     } else {
@@ -266,7 +278,7 @@ bool has_assigned_metavar(expr const & e, substitution const & s) {
                 return false;
             if (!has_metavar(n))
                 return false;
-            if (is_metavar(n) && s.is_assigned(n)) {
+            if (is_metavar(n) && menv.is_assigned(n)) {
                 result = true;
                 return false;
             }
@@ -333,16 +345,16 @@ expr pop_meta_context(expr const & m) {
 */
 struct found_metavar {};
 
-bool has_metavar(expr const & e, expr const & m, substitution const & s) {
+bool has_metavar(expr const & e, expr const & m, metavar_env const & menv) {
     if (has_metavar(e)) {
         lean_assert(is_metavar(m));
-        lean_assert(!s.is_assigned(m));
+        lean_assert(!menv.is_assigned(m));
         auto f = [&](expr const & m2, unsigned) {
             if (is_metavar(m2)) {
                 if (metavar_name(m) == metavar_name(m2))
                     throw found_metavar();
-                if (s.is_assigned(m2) &&
-                    has_metavar(s.get_subst(m2), m, s))
+                if (menv.is_assigned(m2) &&
+                    has_metavar(menv.get_subst(m2), m, menv))
                     throw found_metavar();
             }
             return true;

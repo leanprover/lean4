@@ -40,7 +40,7 @@ Failed to solve
                                         Propagate type, ?M3::1 : ?M3::3
                                             Assignment
                                              ⊢ ?M3::1 ≈ λ x : ℕ, x
-                                                assumption 0
+                                                Assumption 0
     Failed to solve
      ⊢ Bool ≺ ℤ
         Substitution
@@ -76,7 +76,7 @@ Failed to solve
                                         Propagate type, ?M3::1 : ?M3::3
                                             Assignment
                                              ⊢ ?M3::1 ≈ nat_to_int
-                                                assumption 1
+                                                Assumption 1
     Failed to solve
      ⊢ Bool ≺ ℝ
         Substitution
@@ -112,7 +112,7 @@ Failed to solve
                                         Propagate type, ?M3::1 : ?M3::3
                                             Assignment
                                              ⊢ ?M3::1 ≈ nat_to_real
-                                                assumption 2
+                                                Assumption 2
   Assumed: g
 Error (line: 7, pos: 8) unexpected metavariable occurrence
   Assumed: h
@@ -169,7 +169,7 @@ Failed to solve
             Propagate type, ?M3::0 : ?M3::1
                 Assignment
                  ⊢ ?M3::0 ≈ Type
-                    assumption 0
+                    Assumption 0
         Failed to solve
          ⊢ Type 1 ≺ Type
             Substitution
@@ -182,7 +182,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type 1
-                    assumption 1
+                    Assumption 1
         Failed to solve
          ⊢ Type 2 ≺ Type
             Substitution
@@ -195,7 +195,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type 2
-                    assumption 2
+                    Assumption 2
         Failed to solve
          ⊢ Type 3 ≺ Type
             Substitution
@@ -208,7 +208,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type 3
-                    assumption 3
+                    Assumption 3
         Failed to solve
          ⊢ Type M ≺ Type
             Substitution
@@ -221,7 +221,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type M
-                    assumption 4
+                    Assumption 4
         Failed to solve
          ⊢ Type U ≺ Type
             Substitution
@@ -234,7 +234,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type U
-                    assumption 5
+                    Assumption 5
     Failed to solve
      ⊢
     (?M3::1 ≈ Type 2) ⊕ (?M3::1 ≈ Type 3) ⊕ (?M3::1 ≈ Type 4) ⊕ (?M3::1 ≈ Type M) ⊕ (?M3::1 ≈ Type U)
@@ -243,7 +243,7 @@ Failed to solve
             Propagate type, ?M3::0 : ?M3::1
                 Assignment
                  ⊢ ?M3::0 ≈ Type 1
-                    assumption 6
+                    Assumption 6
         Failed to solve
          ⊢ Type 2 ≺ Type
             Substitution
@@ -256,7 +256,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type 2
-                    assumption 7
+                    Assumption 7
         Failed to solve
          ⊢ Type 3 ≺ Type
             Substitution
@@ -269,7 +269,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type 3
-                    assumption 8
+                    Assumption 8
         Failed to solve
          ⊢ Type 4 ≺ Type
             Substitution
@@ -282,7 +282,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type 4
-                    assumption 9
+                    Assumption 9
         Failed to solve
          ⊢ Type M ≺ Type
             Substitution
@@ -295,7 +295,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type M
-                    assumption 10
+                    Assumption 10
         Failed to solve
          ⊢ Type U ≺ Type
             Substitution
@@ -308,7 +308,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type U
-                    assumption 11
+                    Assumption 11
     Failed to solve
      ⊢
     (?M3::1 ≈ Type 3) ⊕ (?M3::1 ≈ Type 4) ⊕ (?M3::1 ≈ Type 5) ⊕ (?M3::1 ≈ Type M) ⊕ (?M3::1 ≈ Type U)
@@ -317,7 +317,7 @@ Failed to solve
             Propagate type, ?M3::0 : ?M3::1
                 Assignment
                  ⊢ ?M3::0 ≈ Type 2
-                    assumption 12
+                    Assumption 12
         Failed to solve
          ⊢ Type 3 ≺ Type
             Substitution
@@ -330,7 +330,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type 3
-                    assumption 13
+                    Assumption 13
         Failed to solve
          ⊢ Type 4 ≺ Type
             Substitution
@@ -343,7 +343,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type 4
-                    assumption 14
+                    Assumption 14
         Failed to solve
          ⊢ Type 5 ≺ Type
             Substitution
@@ -356,7 +356,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type 5
-                    assumption 15
+                    Assumption 15
         Failed to solve
          ⊢ Type M ≺ Type
             Substitution
@@ -369,7 +369,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type M
-                    assumption 16
+                    Assumption 16
         Failed to solve
          ⊢ Type U ≺ Type
             Substitution
@@ -382,7 +382,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type U
-                    assumption 17
+                    Assumption 17
     Failed to solve
      ⊢
     (?M3::1 ≈ Type M+1) ⊕
@@ -395,7 +395,7 @@ Failed to solve
             Propagate type, ?M3::0 : ?M3::1
                 Assignment
                  ⊢ ?M3::0 ≈ Type M
-                    assumption 18
+                    Assumption 18
         Failed to solve
          ⊢ Type M+1 ≺ Type
             Substitution
@@ -408,7 +408,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type M+1
-                    assumption 19
+                    Assumption 19
         Failed to solve
          ⊢ Type M+2 ≺ Type
             Substitution
@@ -421,7 +421,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type M+2
-                    assumption 20
+                    Assumption 20
         Failed to solve
          ⊢ Type M+3 ≺ Type
             Substitution
@@ -434,7 +434,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type M+3
-                    assumption 21
+                    Assumption 21
         Failed to solve
          ⊢ Type M ≺ Type
             Substitution
@@ -447,7 +447,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type M
-                    assumption 22
+                    Assumption 22
         Failed to solve
          ⊢ Type U ≺ Type
             Substitution
@@ -460,7 +460,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type U
-                    assumption 23
+                    Assumption 23
     Failed to solve
      ⊢
     (?M3::1 ≈ Type U+1) ⊕
@@ -473,7 +473,7 @@ Failed to solve
             Propagate type, ?M3::0 : ?M3::1
                 Assignment
                  ⊢ ?M3::0 ≈ Type U
-                    assumption 24
+                    Assumption 24
         Failed to solve
          ⊢ Type U+1 ≺ Type
             Substitution
@@ -486,7 +486,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type U+1
-                    assumption 25
+                    Assumption 25
         Failed to solve
          ⊢ Type U+2 ≺ Type
             Substitution
@@ -499,7 +499,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type U+2
-                    assumption 26
+                    Assumption 26
         Failed to solve
          ⊢ Type U+3 ≺ Type
             Substitution
@@ -512,7 +512,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type U+3
-                    assumption 27
+                    Assumption 27
         Failed to solve
          ⊢ Type M ≺ Type
             Substitution
@@ -525,7 +525,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type M
-                    assumption 28
+                    Assumption 28
         Failed to solve
          ⊢ Type U ≺ Type
             Substitution
@@ -538,7 +538,7 @@ Failed to solve
                     Bool
                 Assignment
                  ⊢ ?M3::1 ≈ Type U
-                    assumption 29
+                    Assumption 29
 Failed to solve
 a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ a ≺ if Bool (if Bool a b ⊤) a ⊤
     Substitution
@@ -627,14 +627,25 @@ a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ a ≺ if Bool (if Bool a b ⊤
                                 EM a
                                 λ H_a : ?M3::6, H
                                 λ H_na : ?M3::7, NotImp1 (MT H H_na)
-                        Assignment
-                        a : Bool, b : Bool ⊢ ?M3::2 ≈ ?M3::0
-                            Destruct/Decompose
-                            a : Bool, b : Bool ⊢ Π H : ?M3::2, ?M3::5 ≺ Π _ : ?M3::0, ?M3::1[lift:0:1]
-                                (line: 27: pos: 4) Type of argument 3 must be convertible to the expected type in the application of
-                                    Discharge::explicit
-                                with arguments:
-                                    ?M3::0
-                                    ?M3::1
-                                    λ H : ?M3::2,
-                                      DisjCases (EM a) (λ H_a : ?M3::6, H) (λ H_na : ?M3::7, NotImp1 (MT H H_na))
+                         Normalize assignment
+                            ?M3::0
+                            Assignment
+                            a : Bool, b : Bool ⊢ ?M3::2 ≈ ?M3::0
+                                Destruct/Decompose
+                                a : Bool, b : Bool ⊢ Π H : ?M3::2, ?M3::5 ≺ Π _ : ?M3::0, ?M3::1[lift:0:1]
+                                    (line: 27: pos: 4) Type of argument 3 must be convertible to the expected type in the application of
+                                        Discharge::explicit
+                                    with arguments:
+                                        ?M3::0
+                                        ?M3::1
+                                        λ H : ?M3::2,
+                                          DisjCases (EM a) (λ H_a : ?M3::6, H) (λ H_na : ?M3::7, NotImp1 (MT H H_na))
+                            Assignment
+                            a : Bool, b : Bool ⊢ ?M3::0 ≈ (a ⇒ b) ⇒ a
+                                Destruct/Decompose
+                                a : Bool, b : Bool ⊢ ?M3::0 ⇒ ?M3::1 ≺ ((a ⇒ b) ⇒ a) ⇒ a
+                                    Destruct/Decompose
+                                    a : Bool ⊢ Π b : Bool, ?M3::0 ⇒ ?M3::1 ≺ Π b : Bool, ((a ⇒ b) ⇒ a) ⇒ a
+                                        Destruct/Decompose
+                                         ⊢ Π a b : Bool, ?M3::0 ⇒ ?M3::1 ≺ Π a b : Bool, ((a ⇒ b) ⇒ a) ⇒ a
+                                            (line: 26: pos: 16) Type of definition 'pierce' must be convertible to expected type.

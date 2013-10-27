@@ -7,17 +7,6 @@ Author: Leonardo de Moura
 #include "library/elaborator/elaborator_justification.h"
 
 namespace lean {
-static void push_back(buffer<justification_cell*> & r, justification const & t) {
-    if (t)
-        r.push_back(t.raw());
-}
-
-template<typename T>
-static void append(buffer<justification_cell*> & r, T const & s) {
-    for (auto t : s)
-        push_back(r, t);
-}
-
 // -------------------------
 // Propagation justification
 // -------------------------

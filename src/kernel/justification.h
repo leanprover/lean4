@@ -85,4 +85,16 @@ inline justification mk_assumption_justification(unsigned idx) { return justific
    That is \c t is a descendant of \c d.
 */
 bool depends_on(justification const & t, justification const & d);
+
+/** \brief Add \c t to \c r */
+inline void push_back(buffer<justification_cell*> & r, justification const & t) {
+    if (t) r.push_back(t.raw());
+}
+
+/** \brief Add justifications in the collection \c s into r. */
+template<typename T>
+void append(buffer<justification_cell*> & r, T const & s) {
+    for (auto t : s)
+        push_back(r, t);
+}
 }

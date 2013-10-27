@@ -309,7 +309,7 @@ class frontend_elaborator::imp {
         }
     };
 
-    substitution elaborate_core() {
+    metavar_env elaborate_core() {
         elaborator elb(m_env, m_menv, m_ucs.size(), m_ucs.data());
         scoped_set_interruptable_ptr<elaborator> set(m_elaborator, &elb);
         return elb.next();
@@ -336,8 +336,8 @@ public:
             //     formatter fmt = mk_simple_formatter();
             //     std::cout << c.pp(fmt, options(), nullptr, false) << "\n";
             // }
-            substitution s = elaborate_core();
-            return instantiate_metavars(new_e, s);
+            metavar_env new_menv = elaborate_core();
+            return instantiate_metavars(new_e, new_menv);
         } else {
             return new_e;
         }
@@ -358,11 +358,8 @@ public:
             //    formatter fmt = mk_simple_formatter();
             //    std::cout << c.pp(fmt, options(), nullptr, false) << "\n";
             // }
-            substitution s = elaborate_core();
-            // s.for_each([&](name const & n, expr const & v) {
-            //        std::cout << n << " --> " << v << "\n";
-            //    });
-            return mk_pair(instantiate_metavars(new_t, s), instantiate_metavars(new_e, s));
+            metavar_env new_menv = elaborate_core();
+            return mk_pair(instantiate_metavars(new_t, new_menv), instantiate_metavars(new_e, new_menv));
         } else {
             return mk_pair(new_t, new_e);
         }

@@ -60,7 +60,7 @@ public:
 
     ~elaborator();
 
-    substitution next();
+    metavar_env next();
     void interrupt();
     void set_interrupt(bool ) { interrupt(); }
 };

@@ -652,6 +652,32 @@ class elaborator::imp {
     }
 
     /**
+       \brief Return true iff \c a may be an actual lower bound for a convertibility constraint.
+       That is, if the result is false, it means the convertability constraint is essentially
+       an equality constraint.
+    */
+    bool is_actual_lower(expr const & a) {
+        return is_type(a) || is_metavar(a) || a == Bool || (is_pi(a) && is_actual_lower(abst_body(a)));
+    }
+
+    /**
+       \brief Return true iff \c a may be an actual upper bound for a convertibility constraint.
+       That is, if the result is false, it means the convertability constraint is essentially
+       an equality constraint.
+    */
+    bool is_actual_upper(expr const & a) {
+        return is_type(a) || is_metavar(a) || (is_pi(a) && is_actual_upper(abst_body(a)));
+    }
+
+    /**
+       \brief See \c process_simple_ho_match
+    */
+    bool is_simple_ho_match(context const & ctx, expr const & a, expr const & b, bool is_lhs, unification_constraint const & c) {
+        return is_meta_app(a) && are_args_vars(ctx, a) && closed(b) &&
+            (is_eq(c) || (is_lhs && !is_actual_upper(b)) || (!is_lhs && !is_actual_lower(b)));
+    }
+
+    /**
         \brief Return true iff ctx |- a == b is a "simple" higher-order matching constraint. By simple, we mean
         a constraint of the form
                ctx |- (?m x) == c
@@ -661,7 +687,7 @@ class elaborator::imp {
         // Solve constraint of the form
         //    ctx |- (?m x) == c
         // using imitation
-        if (is_eq(c) && is_meta_app(a) && are_args_vars(ctx, a) && closed(b)) {
+        if (is_simple_ho_match(ctx, a, b, is_lhs, c)) {
             expr m = arg(a, 0);
             buffer<expr> types;
             for (unsigned i = 1; i < num_args(a); i++)
@@ -1060,6 +1086,8 @@ class elaborator::imp {
         if (normalize_head(a, b, c)) { return true; }
 
         if (!eq) {
+            // TODO(Leo): use is_actual_lower and is_actual_upper
+
             // Try to assign convertability constraints.
             if (!is_type(b) && !is_meta(b) && is_metavar(a) && !is_assigned(a) && !has_local_context(a)) {
                 // We can assign a <- b at this point IF b is not (Type lvl) or Metavariable
@@ -1074,6 +1102,8 @@ class elaborator::imp {
                 return true;
             }
         }
+
+        // TODO(Leo): normalize pi domain... to make sure we are not missing solutions in process_simple_ho_match
 
         if (process_simple_ho_match(ctx, a, b, true, c) ||
             process_simple_ho_match(ctx, b, a, false, c))

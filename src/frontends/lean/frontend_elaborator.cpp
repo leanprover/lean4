@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include <utility>
+#include <algorithm>
 #include "util/interruptable_ptr.h"
 #include "kernel/type_checker.h"
 #include "kernel/type_checker_justification.h"
@@ -310,6 +311,10 @@ class frontend_elaborator::imp {
     };
 
     metavar_env elaborate_core() {
+        // std::stable_sort(m_ucs.begin(), m_ucs.end(),
+        //                 [](unification_constraint const & c1, unification_constraint const & c2) {
+        //                     return !is_choice(c1) && is_choice(c2);
+        //                 });
         elaborator elb(m_env, m_menv, m_ucs.size(), m_ucs.data());
         scoped_set_interruptable_ptr<elaborator> set(m_elaborator, &elb);
         return elb.next();

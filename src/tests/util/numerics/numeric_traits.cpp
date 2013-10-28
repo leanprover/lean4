@@ -33,6 +33,7 @@ static void tst1() {
     tst_num(mpfp(0.0, 512));
     tst_num(mpbq(3));
     tst_num(1.0);
+    tst_num(static_cast<float>(1.0));
 }
 
 int main() {

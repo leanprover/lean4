@@ -529,6 +529,10 @@ class elaborator::imp {
                         }
                     }
                 }
+                if (to_value(f).normalize(new_args.size(), new_args.data(), r)) {
+                    a = r;
+                    return;
+                }
                 if (modified) {
                     a = mk_app(new_args);
                     return;

@@ -20,6 +20,7 @@ void tst_num(T const & a) {
     std::cout << "zero:            " << numeric_traits<T>::zero() << "\n";
     std::cout << "is type precise: " << std::boolalpha << numeric_traits<T>::precise() << "\n";
     std::cout << "typeid:          " << typeid(T).name() << "\n";
+    lean_assert(numeric_traits<T>::is_zero(numeric_traits<T>::zero()));
     std::cout << "\n";
 }
 

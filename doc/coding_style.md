@@ -51,6 +51,10 @@ reference counter is stored in `expr_cell`.
 We use `std::unique_ptr` to make sure unique resources will be freed
 correctly.
 
+Template
+--------
+We organize template source code using the approach described at http://www.codeproject.com/Articles/3515/How-To-Organize-Template-Source-Code
+
 Idioms
 ------
 

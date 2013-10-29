@@ -120,6 +120,11 @@ public:
             push_back(elems[i]);
     }
 
+    template<typename C>
+    void append(C const & c) {
+        append(c.size(), c.data());
+    }
+
     void resize(unsigned nsz, T const & elem = T()) {
         unsigned sz = size();
         if (nsz > sz) {
@@ -130,6 +135,13 @@ public:
                 pop_back();
         }
         lean_assert(size() == nsz);
+    }
+
+    void erase(unsigned idx) {
+        lean_assert(idx < size());
+        for (unsigned i = idx+1; i < size(); i++)
+            m_buffer[i-1] = m_buffer[i];
+        m_pos--;
     }
 
     void shrink(unsigned nsz) {

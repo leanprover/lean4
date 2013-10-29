@@ -14,6 +14,6 @@ n + x + m
   Set: lean::pp::coercion
 (nat_to_int n) + x + (nat_to_int m) + (nat_to_int 10)
 x + (nat_to_int n) + (nat_to_int m) + (nat_to_int 10)
-(nat_to_int n) + (nat_to_int m) + (nat_to_int 10) + x
+(nat_to_int (n + m + 10)) + x
   Set: lean::pp::notation
-Int::add (Int::add (Int::add (nat_to_int n) (nat_to_int m)) (nat_to_int 10)) x
+Int::add (nat_to_int (Nat::add (Nat::add n m) 10)) x

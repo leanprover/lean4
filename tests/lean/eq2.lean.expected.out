@@ -1,0 +1,9 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: List
+  Assumed: nil
+  Assumed: cons
+  Assumed: l
+l = nil : Bool
+  Set: lean::pp::implicit
+eq::explicit (List ℤ) l (nil::explicit ℤ) : Bool

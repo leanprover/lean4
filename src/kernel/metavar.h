@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <utility>
 #include "util/pair.h"
 #include "util/splay_map.h"
 #include "util/name_generator.h"

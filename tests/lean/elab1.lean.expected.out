@@ -553,7 +553,7 @@ Failed to solve
                  ⊢ ?M3::1 ≈ Type U
                     Assumption 29
 Failed to solve
-a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ a ≺ if Bool (if Bool a b ⊤) a ⊤
+a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ a ≺ if (if a b ⊤) a ⊤
     Substitution
     a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ a ≺ ?M3::5[lift:0:1]
         Substitution
@@ -572,29 +572,29 @@ a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ a ≺ if Bool (if Bool a b ⊤
             Assignment
             a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ a ≈ ?M3::8
                 Destruct/Decompose
-                a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ if Bool a b ⊤ ≈ if Bool ?M3::8 ?M3::9 ⊤
+                a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ if a b ⊤ ≈ if ?M3::8 ?M3::9 ⊤
                     Normalize
-                    a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ if Bool a b ⊤ ≈ ?M3::8 ⇒ ?M3::9
+                    a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ if a b ⊤ ≈ ?M3::8 ⇒ ?M3::9
                         Substitution
-                        a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ if Bool a b ⊤ ≈ ?M3::10
+                        a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ if a b ⊤ ≈ ?M3::10
                             Destruct/Decompose
                             a : Bool,
                             b : Bool,
                             H : ?M3::2,
                             H_na : ?M3::7 ⊢
-                            if Bool (if Bool a b ⊤) a ⊤ ≺ if Bool ?M3::10 ?M3::11 ⊤
+                            if (if a b ⊤) a ⊤ ≺ if ?M3::10 ?M3::11 ⊤
                                 Normalize
                                 a : Bool,
                                 b : Bool,
                                 H : ?M3::2,
                                 H_na : ?M3::7 ⊢
-                                (a ⇒ b) ⇒ a ≺ if Bool ?M3::10 ?M3::11 ⊤
+                                (a ⇒ b) ⇒ a ≺ if ?M3::10 ?M3::11 ⊤
                                     Substitution
                                     a : Bool,
                                     b : Bool,
                                     H : ?M3::2,
                                     H_na : ?M3::7 ⊢
-                                    ?M3::2[lift:0:2] ≺ if Bool ?M3::10 ?M3::11 ⊤
+                                    ?M3::2[lift:0:2] ≺ if ?M3::10 ?M3::11 ⊤
                                         Normalize
                                         a : Bool,
                                         b : Bool,
@@ -650,7 +650,7 @@ a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ a ≺ if Bool (if Bool a b ⊤
                                         ?M3::9
                                         MT H H_na
         Assignment
-        a : Bool, b : Bool, H : ?M3::2 ⊢ if Bool (if Bool a b ⊤) a ⊤ ≺ ?M3::5
+        a : Bool, b : Bool, H : ?M3::2 ⊢ if (if a b ⊤) a ⊤ ≺ ?M3::5
             Normalize
             a : Bool, b : Bool, H : ?M3::2 ⊢ (a ⇒ b) ⇒ a ≺ ?M3::5
                 Normalize

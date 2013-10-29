@@ -17,7 +17,7 @@ Definition vector (A : Type) (n : N) : Type := Π (i : N), (i < n) → A
 Definition const {A : Type} (n : N) (d : A) : vector A n := λ (i : N) (H : i < n), d
 Definition const::explicit (A : Type) (n : N) (d : A) : vector A n := const n d
 Definition update {A : Type} {n : N} (v : vector A n) (i : N) (d : A) : vector A n :=
-    λ (j : N) (H : j < n), if A (j = i) d (v j H)
+    λ (j : N) (H : j < n), if (j = i) d (v j H)
 Definition update::explicit (A : Type) (n : N) (v : vector A n) (i : N) (d : A) : vector A n := update v i d
 Definition select {A : Type} {n : N} (v : vector A n) (i : N) (H : i < n) : A := v i H
 Definition select::explicit (A : Type) (n : N) (v : vector A n) (i : N) (H : i < n) : A := select v i H
@@ -26,7 +26,7 @@ Definition map {A B C : Type} {n : N} (f : A → B → C) (v1 : vector A n) (v2 
 Definition map::explicit (A B C : Type) (n : N) (f : A → B → C) (v1 : vector A n) (v2 : vector B n) : vector C n :=
     map f v1 v2
 select (update (const three ⊥) two ⊤) two two_lt_three : Bool
-if Bool (two = two) ⊤ ⊥
+if (two = two) ⊤ ⊥
 update (const three ⊥) two ⊤ : vector Bool three
 
 --------
@@ -46,4 +46,4 @@ map normal form -->
   f (v1 i H) (v2 i H)
 
 update normal form --> 
-λ (A : Type) (n : N) (v : Π (i : N), (i < n) → A) (i : N) (d : A) (j : N) (H : j < n), if A (j = i) d (v j H)
+λ (A : Type) (n : N) (v : Π (i : N), (i < n) → A) (i : N) (d : A) (j : N) (H : j < n), if (j = i) d (v j H)

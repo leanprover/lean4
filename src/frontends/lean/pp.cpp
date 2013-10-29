@@ -244,7 +244,12 @@ class pp_fn {
     }
 
     result pp_value(expr const & e) {
-        return mk_result(to_value(e).pp(m_unicode), 1);
+        value const & v = to_value(e);
+        if (has_implicit_arguments(v.get_name())) {
+            return mk_result(format(m_frontend.get_explicit_version(v.get_name())), 1);
+        } else {
+            return mk_result(v.pp(m_unicode), 1);
+        }
     }
 
     result pp_type(expr const & e) {
@@ -506,18 +511,25 @@ class pp_fn {
         std::vector<bool> const * m_implicit_args;
         bool         m_notation_enabled;
 
+        static bool has_implicit_arguments(pp_fn const & owner, expr const & f) {
+            return
+                (is_constant(f) && owner.has_implicit_arguments(const_name(f))) ||
+                (is_value(f)    && owner.has_implicit_arguments(to_value(f).get_name()));
+        }
+
         application(expr const & e, pp_fn const & owner, bool show_implicit):m_app(e) {
             frontend const & fe = owner.m_frontend;
             expr const & f = arg(e, 0);
-            if (is_constant(f) && owner.has_implicit_arguments(const_name(f))) {
-                m_implicit_args = &(fe.get_implicit_arguments(const_name(f)));
+            if (has_implicit_arguments(owner, f)) {
+                name const & n = is_constant(f) ? const_name(f) : to_value(f).get_name();
+                m_implicit_args = &(fe.get_implicit_arguments(n));
                 if (show_implicit || num_args(e) - 1 < m_implicit_args->size()) {
                     // we are showing implicit arguments, thus we do
                     // not need the bit-mask for implicit arguments
                     m_implicit_args = nullptr;
                     // we use the explicit name of f, to make it clear
                     // that we are exposing implicit arguments
-                    m_f = mk_constant(fe.get_explicit_version(const_name(f)));
+                    m_f = mk_constant(fe.get_explicit_version(n));
                     m_notation_enabled = false;
                 } else {
                     m_f = f;
@@ -683,7 +695,13 @@ class pp_fn {
         } else {
             // standard function application
             expr const & f  = app.get_function();
-            result p        = is_constant(f) ? mk_result(format(const_name(f)), 1) : pp_child(f, depth);
+            result p;
+            if (is_constant(f))
+                p = mk_result(format(const_name(f)), 1);
+            else if (is_value(f))
+                p = mk_result(to_value(f).pp(m_unicode), 1);
+            else
+                p = pp_child(f, depth);
             bool simple     = is_constant(f) && const_name(f).size() <= m_indent + 4;
             unsigned indent = simple ? const_name(f).size()+1 : m_indent;
             format   r_format = p.first;

@@ -545,12 +545,13 @@ class parser::imp {
         object const & obj = m_frontend.find_object(id);
         if (obj) {
             object_kind k      = obj.kind();
-            if (k == object_kind::Definition || k == object_kind::Postulate) {
+            if (k == object_kind::Definition || k == object_kind::Postulate || k == object_kind::Builtin) {
                 if (m_frontend.has_implicit_arguments(obj.get_name())) {
                     std::vector<bool> const & imp_args = m_frontend.get_implicit_arguments(obj.get_name());
                     buffer<expr> args;
                     pos_info p = pos();
-                    args.push_back(save(mk_constant(obj.get_name()), p));
+                    expr f = (k == object_kind::Builtin) ? obj.get_value() : mk_constant(obj.get_name());
+                    args.push_back(save(f, p));
                     // We parse all the arguments to make sure we
                     // get all explicit arguments.
                     for (unsigned i = 0; i < imp_args.size(); i++) {
@@ -561,11 +562,11 @@ class parser::imp {
                         }
                     }
                     return mk_app(args);
+                } else if (k == object_kind::Builtin) {
+                    return obj.get_value();
                 } else {
                     return mk_constant(obj.get_name());
                 }
-            } else if (k == object_kind::Builtin) {
-                return obj.get_value();
             } else {
                 throw parser_error(sstream() << "invalid object reference, object '" << id << "' is not an expression.", p);
             }

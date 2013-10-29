@@ -16,6 +16,7 @@ namespace lean {
 */
 void init_builtin_notation(frontend & f) {
     f.mark_implicit_arguments(mk_homo_eq_fn(), {true, false, false});
+    f.mark_implicit_arguments(mk_if_fn(), {true, false, false, false});
     f.add_infix("==", 50, mk_homo_eq_fn());
     f.add_infix("≃",  50, mk_homo_eq_fn());
 

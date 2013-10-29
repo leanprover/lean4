@@ -241,7 +241,7 @@ struct frontend::imp {
         if (has_children())
             throw exception(sstream() << "failed to mark implicit arguments, frontend object is read-only");
         object const & obj = m_env.get_object(n);
-        if (obj.kind() != object_kind::Definition && obj.kind() != object_kind::Postulate)
+        if (obj.kind() != object_kind::Definition && obj.kind() != object_kind::Postulate && obj.kind() != object_kind::Builtin)
             throw exception(sstream() << "failed to mark implicit arguments, the object '" << n << "' is not a definition or postulate");
         if (has_implicit_arguments(n))
             throw exception(sstream() << "the object '" << n << "' already has implicit argument information associated with it");
@@ -425,6 +425,14 @@ operator_info frontend::find_led(name const & n) const { return m_ptr->find_led(
 
 void frontend::mark_implicit_arguments(name const & n, unsigned sz, bool const * implicit) { m_ptr->mark_implicit_arguments(n, sz, implicit); }
 void frontend::mark_implicit_arguments(name const & n, std::initializer_list<bool> const & l) { mark_implicit_arguments(n, l.size(), l.begin()); }
+void frontend::mark_implicit_arguments(expr const & n, std::initializer_list<bool> const & l) {
+    if (is_constant(n)) {
+        mark_implicit_arguments(const_name(n), l);
+    } else {
+        lean_assert(is_value(n));
+        mark_implicit_arguments(to_value(n).get_name(), l);
+    }
+}
 bool frontend::has_implicit_arguments(name const & n) const { return m_ptr->has_implicit_arguments(n); }
 std::vector<bool> const & frontend::get_implicit_arguments(name const & n) const { return m_ptr->get_implicit_arguments(n); }
 name const & frontend::get_explicit_version(name const & n) const { return m_ptr->get_explicit_version(n); }

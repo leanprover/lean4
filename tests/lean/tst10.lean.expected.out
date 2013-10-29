@@ -15,7 +15,7 @@ a ∨ b
 a ∨ a ∨ b
 a ⇒ b ⇒ a
 a ⇒ b : Bool
-if Bool a a ⊤
+if a a ⊤
 a
   Assumed: H1
   Assumed: H2

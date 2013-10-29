@@ -135,7 +135,7 @@ public:
     */
     void mark_implicit_arguments(name const & n, unsigned sz, bool const * mask);
     void mark_implicit_arguments(name const & n, std::initializer_list<bool> const & l);
-    void mark_implicit_arguments(expr const & n, std::initializer_list<bool> const & l) { mark_implicit_arguments(const_name(n), l); }
+    void mark_implicit_arguments(expr const & n, std::initializer_list<bool> const & l);
     /** \brief Return true iff \c n has implicit arguments */
     bool has_implicit_arguments(name const & n) const;
     /** \brief Return the position of the arguments that are implicit. */

@@ -7,4 +7,4 @@
   Assumed: H2
   Proved: T1
 Axiom H2 : (g a) > 0
-Theorem T1 : (g b) > 0 := Subst (λ x : ℤ, if Bool ((g x) ≤ 0) ⊥ ⊤) H2 H1
+Theorem T1 : (g b) > 0 := Subst (λ x : ℤ, if ((g x) ≤ 0) ⊥ ⊤) H2 H1

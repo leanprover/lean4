@@ -32,7 +32,7 @@ class type_inferer::imp {
     volatile bool             m_interrupted;
 
     expr normalize(expr const & e, context const & ctx) {
-        return m_normalizer(e, ctx, m_menv);
+        return m_normalizer(e, ctx);
     }
 
     expr check_type(expr const & e, expr const & s, context const & ctx) {

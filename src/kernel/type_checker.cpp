@@ -32,7 +32,7 @@ class type_checker::imp {
     volatile bool             m_interrupted;
 
     expr normalize(expr const & e, context const & ctx) {
-        return m_normalizer(e, ctx, m_menv);
+        return m_normalizer(e, ctx);
     }
 
     expr lookup(context const & c, unsigned i) {

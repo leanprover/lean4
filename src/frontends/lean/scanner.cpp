@@ -22,7 +22,7 @@ static name g_pi_name("Pi");
 static name g_let_name("let");
 static name g_in_name("in");
 static name g_arrow_name("->");
-static name g_eq_name("=");
+static name g_eq_name("==");
 static name g_forall_name("forall");
 static name g_forall_unicode("\u2200");
 static name g_exists_name("exists");
@@ -393,7 +393,7 @@ std::ostream & operator<<(std::ostream & out, scanner::token const & t) {
     case scanner::token::NatVal:            out << "Nat"; break;
     case scanner::token::DecimalVal:        out << "Dec"; break;
     case scanner::token::StringVal:         out << "String"; break;
-    case scanner::token::Eq:                out << "="; break;
+    case scanner::token::Eq:                out << "=="; break;
     case scanner::token::Assign:            out << ":="; break;
     case scanner::token::Type:              out << "Type"; break;
     case scanner::token::Placeholder:       out << "_"; break;

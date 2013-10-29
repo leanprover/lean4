@@ -3,9 +3,9 @@
   Assumed: N
   Assumed: a
   Assumed: b
-a ≃ b
-a ≃ b : Bool
+a = b
+a = b : Bool
   Set: lean::pp::implicit
-heq::explicit N a b
-heq::explicit (Type 2) (Type 1) (Type 1)
-heq::explicit Bool ⊤ ⊥
+eq::explicit N a b
+eq::explicit (Type 2) (Type 1) (Type 1)
+eq::explicit Bool ⊤ ⊥

@@ -123,11 +123,11 @@ x : ?M3::0, A : Type ⊢ ?M3::0[lift:0:2] ≺ A
     with arguments:
         A
         x
-  Assumed: eq
+  Assumed: my_eq
 Failed to solve
 A : Type, B : Type, a : ?M3::0, b : ?M3::1, C : Type ⊢ ?M3::0[lift:0:3] ≺ C
     (line: 15: pos: 51) Type of argument 2 must be convertible to the expected type in the application of
-        eq
+        my_eq
     with arguments:
         C
         a
@@ -139,29 +139,29 @@ Error (line: 20, pos: 28) unexpected metavariable occurrence
 Failed to solve
  ⊢ b ≈ a
     Substitution
-     ⊢ b ≈ ?M3::2
+     ⊢ b ≈ ?M3::3
         Destruct/Decompose
-         ⊢ b = b ≺ ?M3::2 = ?M3::3
+         ⊢ b == b ≺ ?M3::3 == ?M3::4
             (line: 22: pos: 22) Type of argument 6 must be convertible to the expected type in the application of
                 Trans::explicit
             with arguments:
-                ?M3::0
                 ?M3::1
                 ?M3::2
                 ?M3::3
+                ?M3::4
                 Refl a
                 Refl b
         Assignment
-         ⊢ a ≈ ?M3::2
+         ⊢ a ≈ ?M3::3
             Destruct/Decompose
-             ⊢ a = a ≺ ?M3::1 = ?M3::2
+             ⊢ a == a ≺ ?M3::2 == ?M3::3
                 (line: 22: pos: 22) Type of argument 5 must be convertible to the expected type in the application of
                     Trans::explicit
                 with arguments:
-                    ?M3::0
                     ?M3::1
                     ?M3::2
                     ?M3::3
+                    ?M3::4
                     Refl a
                     Refl b
 Failed to solve

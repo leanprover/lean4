@@ -56,7 +56,7 @@ struct print_expr_fn {
 
     void print_eq(expr const & a, context const & c) {
         print_child(eq_lhs(a), c);
-        out() << " = ";
+        out() << " == ";
         print_child(eq_rhs(a), c);
     }
 

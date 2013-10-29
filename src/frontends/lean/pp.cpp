@@ -57,7 +57,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 static format g_Type_fmt      = highlight_builtin(format("Type"));
-static format g_eq_fmt        = format("=");
+static format g_eq_fmt        = format("==");
 static format g_lambda_n_fmt  = highlight_keyword(format("\u03BB"));
 static format g_Pi_n_fmt      = highlight_keyword(format("\u03A0"));
 static format g_lambda_fmt    = highlight_keyword(format("fun"));

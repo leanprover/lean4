@@ -4,7 +4,10 @@
   Assumed: h
   Proved: CongrH
   Set: lean::pp::implicit
-Theorem CongrH {a1 a2 b1 b2 : N} (H1 : a1 = b1) (H2 : a2 = b2) : (h a1 a2) = (h b1 b2) :=
+Theorem CongrH {a1 a2 b1 b2 : N} (H1 : eq::explicit N a1 b1) (H2 : eq::explicit N a2 b2) : eq::explicit
+        N
+        (h a1 a2)
+        (h b1 b2) :=
     Congr::explicit
         N
         (λ x : N, N)
@@ -20,13 +23,17 @@ Theorem CongrH {a1 a2 b1 b2 : N} (H1 : a1 = b1) (H2 : a2 = b2) : (h a1 a2) = (h 
 Theorem CongrH::explicit (a1 a2 b1 b2 : N) (H1 : a1 = b1) (H2 : a2 = b2) : (h a1 a2) = (h b1 b2) := CongrH H1 H2
   Proved: Example1
   Set: lean::pp::implicit
-Theorem Example1 (a b c d : N) (H : a = b ∧ b = c ∨ a = d ∧ d = c) : (h a b) = (h c b) :=
+Theorem Example1 (a b c d : N)
+    (H : eq::explicit N a b ∧ eq::explicit N b c ∨ eq::explicit N a d ∧ eq::explicit N d c) : eq::explicit
+        N
+        (h a b)
+        (h c b) :=
     DisjCases::explicit
-        (a = b ∧ b = c)
-        (a = d ∧ d = c)
-        ((h a b) = (h c b))
+        (eq::explicit N a b ∧ eq::explicit N b c)
+        (eq::explicit N a d ∧ eq::explicit N d c)
+        ((h a b) == (h c b))
         H
-        (λ H1 : a = b ∧ b = c,
+        (λ H1 : eq::explicit N a b ∧ eq::explicit N b c,
            CongrH::explicit
                a
                b
@@ -37,10 +44,10 @@ Theorem Example1 (a b c d : N) (H : a = b ∧ b = c ∨ a = d ∧ d = c) : (h a 
                     a
                     b
                     c
-                    (Conjunct1::explicit (a = b) (b = c) H1)
-                    (Conjunct2::explicit (a = b) (b = c) H1))
+                    (Conjunct1::explicit (eq::explicit N a b) (eq::explicit N b c) H1)
+                    (Conjunct2::explicit (eq::explicit N a b) (eq::explicit N b c) H1))
                (Refl::explicit N b))
-        (λ H1 : a = d ∧ d = c,
+        (λ H1 : eq::explicit N a d ∧ eq::explicit N d c,
            CongrH::explicit
                a
                b
@@ -51,18 +58,22 @@ Theorem Example1 (a b c d : N) (H : a = b ∧ b = c ∨ a = d ∧ d = c) : (h a 
                     a
                     d
                     c
-                    (Conjunct1::explicit (a = d) (d = c) H1)
-                    (Conjunct2::explicit (a = d) (d = c) H1))
+                    (Conjunct1::explicit (eq::explicit N a d) (eq::explicit N d c) H1)
+                    (Conjunct2::explicit (eq::explicit N a d) (eq::explicit N d c) H1))
                (Refl::explicit N b))
   Proved: Example2
   Set: lean::pp::implicit
-Theorem Example2 (a b c d : N) (H : a = b ∧ b = c ∨ a = d ∧ d = c) : (h a b) = (h c b) :=
+Theorem Example2 (a b c d : N)
+    (H : eq::explicit N a b ∧ eq::explicit N b c ∨ eq::explicit N a d ∧ eq::explicit N d c) : eq::explicit
+        N
+        (h a b)
+        (h c b) :=
     DisjCases::explicit
-        (a = b ∧ b = c)
-        (a = d ∧ d = c)
-        ((h a b) = (h c b))
+        (eq::explicit N a b ∧ eq::explicit N b c)
+        (eq::explicit N a d ∧ eq::explicit N d c)
+        ((h a b) == (h c b))
         H
-        (λ H1 : a = b ∧ b = c,
+        (λ H1 : eq::explicit N a b ∧ eq::explicit N b c,
            CongrH::explicit
                a
                b
@@ -73,10 +84,10 @@ Theorem Example2 (a b c d : N) (H : a = b ∧ b = c ∨ a = d ∧ d = c) : (h a 
                     a
                     b
                     c
-                    (Conjunct1::explicit (a = b) (b = c) H1)
-                    (Conjunct2::explicit (a = b) (b = c) H1))
+                    (Conjunct1::explicit (a == b) (b == c) H1)
+                    (Conjunct2::explicit (a == b) (b == c) H1))
                (Refl::explicit N b))
-        (λ H1 : a = d ∧ d = c,
+        (λ H1 : eq::explicit N a d ∧ eq::explicit N d c,
            CongrH::explicit
                a
                b
@@ -87,8 +98,8 @@ Theorem Example2 (a b c d : N) (H : a = b ∧ b = c ∨ a = d ∧ d = c) : (h a 
                     a
                     d
                     c
-                    (Conjunct1::explicit (a = d) (d = c) H1)
-                    (Conjunct2::explicit (a = d) (d = c) H1))
+                    (Conjunct1::explicit (a == d) (d == c) H1)
+                    (Conjunct2::explicit (a == d) (d == c) H1))
                (Refl::explicit N b))
   Proved: Example3
   Set: lean::pp::implicit

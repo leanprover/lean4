@@ -11,7 +11,7 @@ f::explicit ((N → N) → N → N) (λ x : N → N, x) (λ y : N → N, y)
 EqNice::explicit N n1 n2
 f::explicit N n1 n2 : N
 Congr::explicit :
-    Π (A : Type U) (B : A → (Type U)) (f g : Π x : A, B x) (a b : A), (f = g) → (a = b) → ((f a) = (g b))
+    Π (A : Type U) (B : A → (Type U)) (f g : Π x : A, B x) (a b : A), (f == g) → (a == b) → ((f a) == (g b))
 f::explicit N n1 n2
   Assumed: a
   Assumed: b
@@ -19,8 +19,8 @@ f::explicit N n1 n2
   Assumed: g
   Assumed: H1
   Proved: Pr
-Axiom H1 : a = b ∧ b = c
-Theorem Pr : (g a) = (g c) :=
+Axiom H1 : eq::explicit N a b ∧ eq::explicit N b c
+Theorem Pr : eq::explicit N (g a) (g c) :=
     Congr::explicit
         N
         (λ x : N, N)
@@ -29,4 +29,10 @@ Theorem Pr : (g a) = (g c) :=
         a
         c
         (Refl::explicit (N → N) g)
-        (Trans::explicit N a b c (Conjunct1::explicit (a = b) (b = c) H1) (Conjunct2::explicit (a = b) (b = c) H1))
+        (Trans::explicit
+             N
+             a
+             b
+             c
+             (Conjunct1::explicit (eq::explicit N a b) (eq::explicit N b c) H1)
+             (Conjunct2::explicit (eq::explicit N a b) (eq::explicit N b c) H1))

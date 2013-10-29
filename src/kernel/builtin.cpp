@@ -155,7 +155,7 @@ MK_CONSTANT(or_fn,      name("or"));
 MK_CONSTANT(not_fn,     name("not"));
 MK_CONSTANT(forall_fn,  name("forall"));
 MK_CONSTANT(exists_fn,  name("exists"));
-MK_CONSTANT(homo_eq_fn, name("heq"));
+MK_CONSTANT(homo_eq_fn, name("eq"));
 
 // Axioms
 MK_CONSTANT(mp_fn,          name("MP"));

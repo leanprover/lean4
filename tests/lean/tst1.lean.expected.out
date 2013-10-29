@@ -26,7 +26,7 @@ Definition map {A B C : Type} {n : N} (f : A → B → C) (v1 : vector A n) (v2 
 Definition map::explicit (A B C : Type) (n : N) (f : A → B → C) (v1 : vector A n) (v2 : vector B n) : vector C n :=
     map f v1 v2
 select (update (const three ⊥) two ⊤) two two_lt_three : Bool
-if (two = two) ⊤ ⊥
+if (two == two) ⊤ ⊥
 update (const three ⊥) two ⊤ : vector Bool three
 
 --------
@@ -46,4 +46,4 @@ map normal form -->
   f (v1 i H) (v2 i H)
 
 update normal form --> 
-λ (A : Type) (n : N) (v : Π (i : N), (i < n) → A) (i : N) (d : A) (j : N) (H : j < n), if (j = i) d (v j H)
+λ (A : Type) (n : N) (v : Π (i : N), (i < n) → A) (i : N) (d : A) (j : N) (H : j < n), if (j == i) d (v j H)

@@ -1158,6 +1158,7 @@ class elaborator::imp {
                             push_front(mk_eq_constraint(ctx, arg(a, i), arg(b, i), new_jst));
                         return true;
                     } else {
+                        m_conflict = justification(new unification_failure_justification(c));
                         return false;
                     }
                 }

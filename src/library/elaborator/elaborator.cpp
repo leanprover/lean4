@@ -184,18 +184,11 @@ class elaborator::imp {
         return m_state.m_menv.is_assigned(m);
     }
 
-    /** \brief Return the substitution for an assigned metavariable */
-    expr get_mvar_subst(expr const & m) const {
+    /** \brief Return the substitution (and justification) for an assigned metavariable */
+    std::pair<expr, justification> get_subst_jst(expr const & m) const {
         lean_assert(is_metavar(m));
         lean_assert(is_assigned(m));
-        return m_state.m_menv.get_subst(m);
-    }
-
-    /** \brief Return the justification/justification for an assigned metavariable */
-    justification get_mvar_justification(expr const & m) const {
-        lean_assert(is_metavar(m));
-        lean_assert(is_assigned(m));
-        return m_state.m_menv.get_justification(m);
+        return m_state.m_menv.get_subst_jst(m);
     }
 
     /** \brief Return the type of an metavariable */
@@ -396,8 +389,9 @@ class elaborator::imp {
         if (is_metavar(a)) {
             if (is_assigned(a)) {
                 // Case 1
-                justification new_jst(new substitution_justification(c, get_mvar_justification(a)));
-                push_updated_constraint(c, is_lhs, get_mvar_subst(a), new_jst);
+                auto s_j = get_subst_jst(a);
+                justification new_jst(new substitution_justification(c, s_j.second));
+                push_updated_constraint(c, is_lhs, s_j.first, new_jst);
                 return Processed;
             } else if (!has_local_context(a)) {
                 // Case 2
@@ -433,8 +427,9 @@ class elaborator::imp {
 
         if (is_app(a) && is_metavar(arg(a, 0)) && is_assigned(arg(a, 0))) {
             // Case 4
-            justification new_jst(new substitution_justification(c, get_mvar_justification(arg(a, 0))));
-            expr new_f = get_mvar_subst(arg(a, 0));
+            auto s_j = get_subst_jst(arg(a, 0));
+            justification new_jst(new substitution_justification(c, s_j.second));
+            expr new_f = s_j.first;
             expr new_a = update_app(a, 0, new_f);
             if (m_state.m_menv.beta_reduce_metavar_application())
                 new_a = head_beta_reduce(new_a);

@@ -608,22 +608,37 @@ a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ a ≺ if Bool (if Bool a b ⊤
                                                 ?M3::11
                                                 H
                                                 H_na
-                                        Assignment
-                                        a : Bool, b : Bool ⊢ ?M3::2 ≈ ?M3::0
-                                            Destruct/Decompose
-                                            a : Bool,
-                                            b : Bool ⊢
-                                            Π H : ?M3::2, ?M3::5 ≺ Π _ : ?M3::0, ?M3::1[lift:0:1]
-                                                (line: 27: pos: 4) Type of argument 3 must be convertible to the expected type in the application of
-                                                    Discharge::explicit
-                                                with arguments:
-                                                    ?M3::0
-                                                    ?M3::1
-                                                    λ H : ?M3::2,
-                                                      DisjCases
-                                                          (EM a)
-                                                          (λ H_a : ?M3::6, H)
-                                                          (λ H_na : ?M3::7, NotImp1 (MT H H_na))
+                                         Normalize assignment
+                                            ?M3::0
+                                            Assignment
+                                            a : Bool, b : Bool ⊢ ?M3::2 ≈ ?M3::0
+                                                Destruct/Decompose
+                                                a : Bool,
+                                                b : Bool ⊢
+                                                Π H : ?M3::2, ?M3::5 ≺ Π _ : ?M3::0, ?M3::1[lift:0:1]
+                                                    (line: 27: pos: 4) Type of argument 3 must be convertible to the expected type in the application of
+                                                        Discharge::explicit
+                                                    with arguments:
+                                                        ?M3::0
+                                                        ?M3::1
+                                                        λ H : ?M3::2,
+                                                          DisjCases
+                                                              (EM a)
+                                                              (λ H_a : ?M3::6, H)
+                                                              (λ H_na : ?M3::7, NotImp1 (MT H H_na))
+                                            Assignment
+                                            a : Bool, b : Bool ⊢ ?M3::0 ≈ (a ⇒ b) ⇒ a
+                                                Destruct/Decompose
+                                                a : Bool, b : Bool ⊢ ?M3::0 ⇒ ?M3::1 ≺ ((a ⇒ b) ⇒ a) ⇒ a
+                                                    Destruct/Decompose
+                                                    a : Bool ⊢
+                                                    Π b : Bool, ?M3::0 ⇒ ?M3::1 ≺
+                                                    Π b : Bool, ((a ⇒ b) ⇒ a) ⇒ a
+                                                        Destruct/Decompose
+                                                         ⊢
+                                                        Π a b : Bool, ?M3::0 ⇒ ?M3::1 ≺
+                                                        Π a b : Bool, ((a ⇒ b) ⇒ a) ⇒ a
+                                                            (line: 26: pos: 16) Type of definition 'pierce' must be convertible to expected type.
                             Assignment
                             a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ ?M3::10 ≈ ?M3::8 ⇒ ?M3::9
                                 Destruct/Decompose

@@ -92,6 +92,15 @@ public:
     bool has_type(name const & m) const;
 
     /**
+       \brief Return the substitution and justification for the given metavariable.
+
+       If the metavariable is not assigned in this substitution, then it returns the null
+       expression.
+    */
+    std::pair<expr, justification> get_subst_jst(name const & m) const;
+    std::pair<expr, justification> get_subst_jst(expr const & m) const;
+
+    /**
        \brief Return the justification for an assigned metavariable.
        \pre is_metavar(m)
        \pre is_assigned(m)

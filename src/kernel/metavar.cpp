@@ -141,9 +141,7 @@ justification metavar_env::get_justification(expr const & m) const {
 }
 
 justification metavar_env::get_justification(name const & m) const {
-    auto it = const_cast<metavar_env*>(this)->m_metavar_data.splay_find(m);
-    lean_assert(it);
-    return it->m_justification;
+    return get_subst_jst(m).second;
 }
 
 bool metavar_env::is_assigned(name const & m) const {
@@ -191,9 +189,22 @@ expr apply_local_context(expr const & a, local_context const & lctx) {
     }
 }
 
-expr metavar_env::get_subst(expr const & m) const {
+std::pair<expr, justification> metavar_env::get_subst_jst(expr const & m) const {
     lean_assert(is_metavar(m));
-    auto it = const_cast<metavar_env*>(this)->m_metavar_data.splay_find(metavar_name(m));
+    auto p = get_subst_jst(metavar_name(m));
+    expr r = p.first;
+    if (p.first) {
+        local_context const & lctx = metavar_lctx(m);
+        if (lctx)
+            r = apply_local_context(r, lctx);
+        return mk_pair(r, p.second);
+    } else {
+        return p;
+    }
+}
+
+std::pair<expr, justification> metavar_env::get_subst_jst(name const & m) const {
+    auto it = const_cast<metavar_env*>(this)->m_metavar_data.splay_find(m);
     if (it->m_subst) {
         if (has_assigned_metavar(it->m_subst, *this)) {
             buffer<justification> jsts;
@@ -204,14 +215,14 @@ expr metavar_env::get_subst(expr const & m) const {
                 it->m_subst         = new_subst;
             }
         }
-        local_context const & lctx = metavar_lctx(m);
-        expr r = it->m_subst;
-        if (lctx)
-            r = apply_local_context(r, lctx);
-        return r;
+        return mk_pair(it->m_subst, it->m_justification);
     } else {
-        return expr();
+        return mk_pair(expr(), justification());
     }
+}
+
+expr metavar_env::get_subst(expr const & m) const {
+    return get_subst_jst(m).first;
 }
 
 class instantiate_metavars_proc : public replace_visitor {
@@ -226,8 +237,9 @@ protected:
 
     virtual expr visit_metavar(expr const & m, context const & ctx) {
         if (is_metavar(m) && m_menv.is_assigned(m)) {
-            push_back(m_menv.get_justification(m));
-            expr r = m_menv.get_subst(m);
+            auto p = m_menv.get_subst_jst(m);
+            expr r = p.first;
+            push_back(p.second);
             if (has_assigned_metavar(r, m_menv)) {
                 return visit(r, ctx);
             } else {

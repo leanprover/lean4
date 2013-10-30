@@ -37,8 +37,13 @@ public:
         return _other && _other->m_val == m_val;
     }
     virtual void display(std::ostream & out) const { out << m_val; }
-    virtual format pp() const { return format(m_val); }
-    virtual format pp(bool ) const { return pp(); }
+    virtual format pp() const { return pp(false, false); }
+    virtual format pp(bool unicode, bool coercion) const {
+        if (coercion)
+            return format{to_value(mk_nat_to_int_fn()).pp(unicode, coercion), space(), format(m_val)};
+        else
+            return format(m_val);
+    }
     virtual unsigned hash() const { return m_val.hash(); }
     mpz const & get_num() const { return m_val; }
 };

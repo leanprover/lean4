@@ -244,7 +244,7 @@ public:
     bool operator<(value const & other) const;
     virtual void display(std::ostream & out) const;
     virtual format pp() const;
-    virtual format pp(bool unicode) const;
+    virtual format pp(bool unicode, bool coercion) const;
     virtual unsigned hash() const;
 };
 /** \brief Semantic attachments */

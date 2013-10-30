@@ -248,7 +248,7 @@ class pp_fn {
         if (has_implicit_arguments(v.get_name())) {
             return mk_result(format(m_frontend.get_explicit_version(v.get_name())), 1);
         } else {
-            return mk_result(v.pp(m_unicode), 1);
+            return mk_result(v.pp(m_unicode, m_coercion), 1);
         }
     }
 
@@ -699,7 +699,7 @@ class pp_fn {
             if (is_constant(f))
                 p = mk_result(format(const_name(f)), 1);
             else if (is_value(f))
-                p = mk_result(to_value(f).pp(m_unicode), 1);
+                p = mk_result(to_value(f).pp(m_unicode, m_coercion), 1);
             else
                 p = pp_child(f, depth);
             bool simple     = is_constant(f) && const_name(f).size() <= m_indent + 4;

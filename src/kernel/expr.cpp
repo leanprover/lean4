@@ -127,7 +127,7 @@ bool value::operator<(value const & other) const {
         return get_name() < other.get_name();
 }
 format value::pp() const { return format(get_name()); }
-format value::pp(bool unicode) const { return unicode ? format(get_unicode_name()) : pp(); }
+format value::pp(bool unicode, bool) const { return unicode ? format(get_unicode_name()) : pp(); }
 unsigned value::hash() const { return get_name().hash(); }
 expr_value::expr_value(value & v):
     expr_cell(expr_kind::Value, v.hash(), false),

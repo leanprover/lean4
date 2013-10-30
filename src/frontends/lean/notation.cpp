@@ -81,6 +81,7 @@ void init_builtin_notation(frontend & f) {
     f.mark_implicit_arguments(mk_discharge_fn(), {true, true, false});
     f.mark_implicit_arguments(mk_refl_fn(), {true, false});
     f.mark_implicit_arguments(mk_subst_fn(), {true, true, true, false, false, false});
+    f.mark_implicit_arguments(mk_trans_ext_fn(), {true, true, true, true, true, true, false, false});
     f.mark_implicit_arguments(mk_eta_fn(), {true, true, false});
     f.mark_implicit_arguments(mk_imp_antisym_fn(), {true, true, false, false});
     f.mark_implicit_arguments(mk_dom_inj_fn(), {true, true, true, true, false});
@@ -102,7 +103,6 @@ void init_builtin_notation(frontend & f) {
     f.mark_implicit_arguments(mk_disj_cases_fn(), {true, true, true, false, false, false});
     f.mark_implicit_arguments(mk_symm_fn(), {true, true, true, false});
     f.mark_implicit_arguments(mk_trans_fn(), {true, true, true, true, false, false});
-    f.mark_implicit_arguments(mk_trans_ext_fn(), {true, true, true, true, true, false, false});
     f.mark_implicit_arguments(mk_eqt_elim_fn(), {true, false});
     f.mark_implicit_arguments(mk_eqt_intro_fn(), {true, false});
     f.mark_implicit_arguments(mk_congr1_fn(), {true, true, true, true, false, false});

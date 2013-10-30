@@ -519,8 +519,8 @@ static void tst15() {
     expr C = Const("C");
     expr a = Const("a");
     expr b = Const("b");
-    expr eq = Const("eq");
-    env.add_var("eq", Pi({A, Type()}, A >> (A >> Bool)));
+    expr eq = Const("my_eq");
+    env.add_var("my_eq", Pi({A, Type()}, A >> (A >> Bool)));
     success(Fun({{A, Type()}, {B, Type()}, {a, _}, {b, B}}, eq(_, a, b)),
             Fun({{A, Type()}, {B, Type()}, {a, B}, {b, B}}, eq(B, a, b)), env);
     success(Fun({{A, Type()}, {B, Type()}, {a, _}, {b, A}}, eq(_, a, b)),
@@ -582,8 +582,8 @@ void tst17() {
     expr B  = Const("B");
     expr a  = Const("a");
     expr b  = Const("b");
-    expr eq = Const("eq");
-    env.add_var("eq", Pi({A, Type(level()+1)}, A >> (A >> Bool)));
+    expr eq = Const("my_eq");
+    env.add_var("my_eq", Pi({A, Type(level()+1)}, A >> (A >> Bool)));
     success(eq(_, Fun({{A, Type()}, {a, _}}, a), Fun({{B, Type()}, {b, B}}, b)),
             eq(Pi({A, Type()}, A >> A), Fun({{A, Type()}, {a, A}}, a), Fun({{B, Type()}, {b, B}}, b)),
             env);
@@ -610,7 +610,7 @@ void tst19() {
     expr R  = Const("R");
     expr A  = Const("A");
     expr r  = Const("r");
-    expr eq = Const("eq");
+    expr eq = Const("my_eq");
     expr f  = Const("f");
     expr g  = Const("g");
     expr h  = Const("h");
@@ -618,7 +618,7 @@ void tst19() {
     env.add_var("R", Type() >> Bool);
     env.add_var("r", Pi({A, Type()}, R(A)));
     env.add_var("h", Pi({A, Type()}, R(A)) >> Bool);
-    env.add_var("eq", Pi({A, Type(level()+1)}, A >> (A >> Bool)));
+    env.add_var("my_eq", Pi({A, Type(level()+1)}, A >> (A >> Bool)));
     success(Let({{f, Fun({A, Type()}, r(_))},
                  {g, Fun({A, Type()}, r(_))},
                  {D, Fun({A, Type()}, eq(_, f(A), g(_)))}},
@@ -856,8 +856,8 @@ void tst27() {
     expr g = Const("g");
     expr f = Const("f");
     expr a = Const("a");
-    expr eq = Const("eq");
-    env.add_var("eq", Pi({A, TypeU}, A >> (A >> Bool)));
+    expr eq = Const("my_eq");
+    env.add_var("my_eq", Pi({A, TypeU}, A >> (A >> Bool)));
     env.add_var("g", Pi({A, TypeU}, A >> A));
     env.add_var("a", TypeM);
     expr m1 = menv.mk_metavar();

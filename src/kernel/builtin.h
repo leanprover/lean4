@@ -123,20 +123,27 @@ expr mk_discharge_fn();
 /** \brief (Axiom) {a : Bool}, {b : Bool}, H : a -> b |- Discharge(a, b, H) : a => b */
 inline expr Discharge(expr const & a, expr const & b, expr const & H) { return mk_app(mk_discharge_fn(), a, b, H); }
 
-/** \brief Reflexivity axiom */
-expr mk_refl_fn();
-/** \brief (Axiom) {A : Type u}, a : A |- Refl(A, a) : a = a */
-inline expr Refl(expr const & A, expr const & a) { return mk_app(mk_refl_fn(), A, a); }
-
 /** \brief Case analysis axiom */
 expr mk_case_fn();
 /** \brief (Axiom) P : Bool -> Bool, H1 : P True, H2 : P False, a : Bool |- Case(P, H1, H2, a) : P a */
 inline expr Case(expr const & P, expr const & H1, expr const & H2, expr const & a) { return mk_app(mk_case_fn(), P, H1, H2, a); }
 
+/** \brief Reflexivity axiom */
+expr mk_refl_fn();
+/** \brief (Axiom) {A : Type u}, a : A |- Refl(A, a) : a = a */
+inline expr Refl(expr const & A, expr const & a) { return mk_app(mk_refl_fn(), A, a); }
+
 /** \brief Substitution axiom */
 expr mk_subst_fn();
 /** \brief (Axiom) {A : Type u}, {a b : A}, P : A -> Bool, H1 : P a, H2 : a = b |- Subst(A, a, b, P, H1, H2) : P b */
 inline expr Subst(expr const & A, expr const & a, expr const & b, expr const & P, expr const & H1, expr const & H2) { return mk_app({mk_subst_fn(), A, a, b, P, H1, H2}); }
+
+/** \brief Heterogeneous Transitivity axiom */
+expr mk_trans_ext_fn();
+/** \brief (Axiom) {A : Type u}, {B : Type u}, {B : Type u}, {a : A}, {b : B} {c : C}, H1 : a = b, H2 : b = c |- TransExt(A, B, a, b, c, H1, H2) : a = c */
+inline expr TransExt(expr const & A, expr const & B, expr const & C, expr const & a, expr const & b, expr const & c, expr const & H1, expr const & H2) {
+    return mk_app({mk_trans_ext_fn(), A, B, C, a, b, c, H1, H2});
+}
 
 /** \brief Eta conversion axiom */
 expr mk_eta_fn();

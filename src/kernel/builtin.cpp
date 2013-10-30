@@ -160,8 +160,9 @@ MK_CONSTANT(homo_eq_fn, name("eq"));
 // Axioms
 MK_CONSTANT(mp_fn,          name("MP"));
 MK_CONSTANT(discharge_fn,   name("Discharge"));
-MK_CONSTANT(refl_fn,        name("Refl"));
 MK_CONSTANT(case_fn,        name("Case"));
+MK_CONSTANT(refl_fn,        name("Refl"));
+MK_CONSTANT(trans_ext_fn,   name("TransExt"));
 MK_CONSTANT(subst_fn,       name("Subst"));
 MK_CONSTANT(eta_fn,         name("Eta"));
 MK_CONSTANT(imp_antisym_fn, name("ImpAntisym"));
@@ -175,11 +176,13 @@ void import_basic(environment & env) {
     expr f         = Const("f");
     expr a         = Const("a");
     expr b         = Const("b");
+    expr c         = Const("c");
     expr x         = Const("x");
     expr y         = Const("y");
     expr A         = Const("A");
     expr A_pred    = A >> Bool;
     expr B         = Const("B");
+    expr C         = Const("C");
     expr q_type    = Pi({A, TypeU}, A_pred >> Bool);
     expr piABx     = Pi({x, A}, B(x));
     expr A_arrow_u = A >> TypeU;
@@ -222,11 +225,14 @@ void import_basic(environment & env) {
     // Discharge : Pi (a b : Bool) (H : a -> b), a => b
     env.add_axiom(discharge_fn_name, Pi({{a, Bool}, {b, Bool}, {H, a >> b}}, Implies(a, b)));
 
+    // Case : Pi (P : Bool -> Bool) (H1 : P True) (H2 : P False) (a : Bool), P a
+    env.add_axiom(case_fn_name, Pi({{P, Bool >> Bool}, {H1, P(True)}, {H2, P(False)}, {a, Bool}}, P(a)));
+
     // Refl : Pi (A : Type u) (a : A), a = a
     env.add_axiom(refl_fn_name, Pi({{A, TypeU}, {a, A}}, Eq(a, a)));
 
-    // Case : Pi (P : Bool -> Bool) (H1 : P True) (H2 : P False) (a : Bool), P a
-    env.add_axiom(case_fn_name, Pi({{P, Bool >> Bool}, {H1, P(True)}, {H2, P(False)}, {a, Bool}}, P(a)));
+    // TransExt : Pi (A B C: Type u) (a : A) (b : B) (c : C) (H1 : a = b) (H2 : b = c), a = c
+    env.add_axiom(trans_ext_fn_name, Pi({{A, TypeU}, {B, TypeU}, {C, TypeU}, {a, A}, {b, B}, {c, C}, {H1, Eq(a, b)}, {H2, Eq(b, c)}}, Eq(a, c)));
 
     // Subst : Pi (A : Type u) (a b : A) (P : A -> bool) (H1 : P a) (H2 : a = b), P b
     env.add_axiom(subst_fn_name, Pi({{A, TypeU}, {a, A}, {b, A}, {P, A_pred}, {H1, P(a)}, {H2, Eq(a, b)}}, P(b)));

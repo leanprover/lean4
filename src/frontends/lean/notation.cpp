@@ -11,6 +11,11 @@ Author: Leonardo de Moura
 #include "frontends/lean/frontend.h"
 
 namespace lean {
+void add_alias(frontend & f, name const & n, name const & m) {
+    object const & obj = f.get_object(n);
+    f.add_definition(m, obj.get_type(), mk_constant(n));
+}
+
 /**
    \brief Initialize builtin notation.
 */
@@ -80,7 +85,9 @@ void init_builtin_notation(frontend & f) {
     f.mark_implicit_arguments(mk_mp_fn(), {true, true, false, false});
     f.mark_implicit_arguments(mk_discharge_fn(), {true, true, false});
     f.mark_implicit_arguments(mk_refl_fn(), {true, false});
-    f.mark_implicit_arguments(mk_subst_fn(), {true, true, true, false, false, false});
+    f.mark_implicit_arguments(mk_subst_fn(), {true, true, true, true, false, false});
+    add_alias(f, "Subst", "SubstP");
+    f.mark_implicit_arguments("SubstP", {true, true, true, false, false, false});
     f.mark_implicit_arguments(mk_trans_ext_fn(), {true, true, true, true, true, true, false, false});
     f.mark_implicit_arguments(mk_eta_fn(), {true, true, false});
     f.mark_implicit_arguments(mk_imp_antisym_fn(), {true, true, false, false});

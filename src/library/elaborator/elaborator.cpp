@@ -269,7 +269,7 @@ class elaborator::imp {
     }
 
     /**
-       \brief Auxiliary method for pushing a new constraint to the given constraint queue.
+       \brief Push a new constraint to the given constraint queue.
        If \c is_eq is true, then a equality constraint is created, otherwise a convertability constraint is created.
     */
     void push_new_constraint(cnstr_queue & q, bool is_eq, context const & new_ctx, expr const & new_a, expr const & new_b, justification const & new_jst) {
@@ -279,6 +279,10 @@ class elaborator::imp {
             q.push_front(mk_convertible_constraint(new_ctx, new_a, new_b, new_jst));
     }
 
+    /**
+       \brief Push a new equality constraint <tt>new_ctx |- new_a == new_b</tt> into the given contraint queue using
+       justification \c new_jst.
+    */
     void push_new_eq_constraint(cnstr_queue & q, context const & new_ctx, expr const & new_a, expr const & new_b, justification const & new_jst) {
         push_new_constraint(q, true, new_ctx, new_a, new_b, new_jst);
     }

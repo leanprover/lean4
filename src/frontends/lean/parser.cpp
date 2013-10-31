@@ -721,7 +721,7 @@ class parser::imp {
             if (type)
                 arg_type = lift_free_vars(type, i);
             else
-                arg_type = mk_placholder();
+                arg_type = save(mk_placholder(), names[i].first);
             result[sz + i] = std::make_tuple(names[i].first, names[i].second, arg_type, implicit_decl);
         }
     }

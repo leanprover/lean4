@@ -211,6 +211,8 @@ class parser::imp {
     bool curr_is_lcurly() const { return curr() == scanner::token::LeftCurlyBracket; }
     /** \brief Return true iff the current token is a ':' */
     bool curr_is_colon() const { return curr() == scanner::token::Colon; }
+    /** \brief Return true iff the current token is a ':=' */
+    bool curr_is_assign() const { return curr() == scanner::token::Assign; }
     /** \brief Return true iff the current token is an 'in' token */
     bool curr_is_in() const { return curr() == scanner::token::In; }
 
@@ -1038,6 +1040,11 @@ class parser::imp {
             next();
             pre_type = parse_expr();
             check_assign_next("invalid definition, ':=' expected");
+            pre_val  = parse_expr();
+        } else if (is_definition && curr_is_assign()) {
+            auto p   = pos();
+            next();
+            pre_type = save(mk_placholder(), p);
             pre_val  = parse_expr();
         } else {
             mk_scope scope(*this);

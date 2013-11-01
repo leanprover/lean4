@@ -1,0 +1,12 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Defined: revapp
+-21
+  Defined: revcomp
+λ x : ℕ, 10 + 2 * (x + 1) * (x + 1)
+  Defined: simple
+simple : ℕ → ℕ
+252
+  Defined: simple2
+simple2 : ℤ → ℤ
+172

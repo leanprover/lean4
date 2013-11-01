@@ -54,7 +54,7 @@ public:
         set('\'', 'a');
 
         // characters that can be used to create ids of group b
-        for (unsigned char b : {'=', '<', '>', '@', '^', '|', '&', '~', '+', '-', '*', '/', '\\', '$', '%', '?', ';', '[', ']'})
+        for (unsigned char b : {'=', '<', '>', '@', '^', '|', '&', '~', '+', '-', '*', '/', '\\', '$', '%', '?', ';', '[', ']', '#'})
             set(b, 'b');
 
         // punctuation

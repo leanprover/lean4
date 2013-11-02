@@ -104,6 +104,7 @@ install:
   - if [[ $TCMALLOC == ON ]]; then until sudo add-apt-repository --yes ppa:agent-8131/ppa && sudo apt-get -qq update && sudo apt-get -qq install libgoogle-perftools-dev; do echo retry; done; fi
   - until sudo apt-get -qq install libgmp-dev libmpfr-dev; do echo retry; done
   - until sudo apt-get -qq install cmake python; do echo retry; done
+  - until sudo apt-get -qq install liblua5.2.0 lua5.2-0 lua5.2-dev; do echo retry; done
   - wget http://dl.dropboxusercontent.com/u/203889738/gcc/ninja.tar.gz;
     tar xfz ninja.tar.gz;
     cd ninja;

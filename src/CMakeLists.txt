@@ -119,7 +119,7 @@ if(NOT "${TCMALLOC_FOUND}" AND "${TRACK_MEMORY_USAGE}" MATCHES "ON")
   endif()
 endif()
 
-find_package(Lua52 REQUIRED)
+find_package(Lua52)
 if ("${LUA52_FOUND}" MATCHES "TRUE")
   message(STATUS "Using Lua 5.2 script language")
   set(EXTRA_LIBS ${EXTRA_LIBS} ${LUA_LIBRARIES})

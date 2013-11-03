@@ -6,6 +6,9 @@ Author: Leonardo de Moura
 */
 #ifdef LEAN_USE_LUA
 #include <lua.hpp>
+#include <exception>
+#include "util/exception.h"
+
 namespace lean {
 /**
    \brief luaL_setfuncs replacement. The function luaL_setfuncs is only available in Lua 5.2.
@@ -20,6 +23,25 @@ void setfuncs(lua_State * L, luaL_Reg const * l, int nup) {
         lua_setfield(L, -(nup + 2), l->name);
     }
     lua_pop(L, nup);  // remove upvalues
+}
+
+int safe_function_wrapper(lua_State * L, lua_CFunction f){
+    static thread_local std::string _error_msg;
+    char const * error_msg;
+    try {
+        return f(L);
+    } catch (exception & e) {
+        _error_msg = e.what();
+        error_msg  = _error_msg.c_str();
+    } catch (std::bad_alloc &) {
+        error_msg = "out of memory";
+    } catch (std::exception & e) {
+        _error_msg = e.what();
+        error_msg  = _error_msg.c_str();
+    } catch(...) {
+        error_msg = "unknown error";
+    }
+    return luaL_error(L, error_msg);
 }
 }
 #endif

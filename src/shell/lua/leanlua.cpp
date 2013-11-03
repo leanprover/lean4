@@ -9,14 +9,13 @@ Author: Leonardo de Moura
 
 #ifdef LEAN_USE_LUA
 #include <lua.hpp>
-#include "util/exception.h"
 #include "bindings/lua/name.h"
 #include "bindings/lua/numerics.h"
 
 int main(int argc, char ** argv) {
     int status, result;
     lua_State *L;
-
+    int exitcode = 0;
     L = luaL_newstate();
     luaL_openlibs(L);
     lean::init_name(L);
@@ -27,21 +26,17 @@ int main(int argc, char ** argv) {
         status = luaL_loadfile(L, argv[i]);
         if (status) {
             std::cerr << "Couldn't load file: " << lua_tostring(L, -1) << "\n";
-            return 1;
-        }
-        try {
+            exitcode = 1;
+        } else {
             result = lua_pcall(L, 0, LUA_MULTRET, 0);
             if (result) {
                 std::cerr << "Failed to run script: " << lua_tostring(L, -1) << "\n";
-                return 1;
+                exitcode = 1;
             }
-        } catch (lean::exception & ex) {
-            std::cerr << "Lean exception when running: " << argv[i] << "\n";
-            std::cerr << ex.what() << "\n";
         }
     }
     lua_close(L);
-    return 0;
+    return exitcode;
 }
 #else
 int main() {

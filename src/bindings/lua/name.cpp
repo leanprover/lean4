@@ -17,7 +17,11 @@ static int name_eq(lua_State * L);
 static int name_lt(lua_State * L);
 
 static const struct luaL_Reg name_m[] = {
-    {"__gc", name_gc}, {"__tostring", name_tostring}, {"__eq", name_eq}, {"__lt", name_lt}, {0, 0}
+    {"__gc",       name_gc}, // never throws
+    {"__tostring", safe_function<name_tostring>},
+    {"__eq",       safe_function<name_eq>},
+    {"__lt",       safe_function<name_lt>},
+    {0, 0}
 };
 
 static int mk_name(lua_State * L) {
@@ -84,7 +88,7 @@ void init_name(lua_State * L) {
     luaL_newmetatable(L, "name.mt");
     setfuncs(L, name_m, 0);
 
-    lua_pushcfunction(L, mk_name);
+    lua_pushcfunction(L, safe_function<mk_name>);
     lua_setglobal(L, "name");
 }
 }

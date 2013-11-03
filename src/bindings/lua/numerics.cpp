@@ -102,17 +102,23 @@ public:
         luaL_newmetatable(L, M);
         setfuncs(L, m, 0);
 
-        lua_pushcfunction(L, mk);
+        lua_pushcfunction(L, safe_function<mk>);
         lua_setglobal(L, N);
     }
 };
 
 template<typename T, char const * N, char const * M>
 const struct luaL_Reg num_bindings<T, N, M>::m[] = {
-    {"__gc", num_bindings<T, N, M>::gc}, {"__tostring", num_bindings<T, N, M>::tostring}, {"__eq", num_bindings<T, N, M>::eq},
-    {"__lt", num_bindings<T, N, M>::lt}, {"__add", num_bindings<T, N, M>::add}, {"__add", num_bindings<T, N, M>::sub},
-    {"__mul", num_bindings<T, N, M>::mul}, {"__div", num_bindings<T, N, M>::div}, {"__pow", num_bindings<T, N, M>::power},
-    {"__unm", num_bindings<T, N, M>::umn},
+    {"__gc",       num_bindings<T, N, M>::gc}, // never throws
+    {"__tostring", safe_function<num_bindings<T, N, M>::tostring>},
+    {"__eq",       safe_function<num_bindings<T, N, M>::eq>},
+    {"__lt",       safe_function<num_bindings<T, N, M>::lt>},
+    {"__add",      safe_function<num_bindings<T, N, M>::add>},
+    {"__add",      safe_function<num_bindings<T, N, M>::sub>},
+    {"__mul",      safe_function<num_bindings<T, N, M>::mul>},
+    {"__div",      safe_function<num_bindings<T, N, M>::div>},
+    {"__pow",      safe_function<num_bindings<T, N, M>::power>},
+    {"__unm",      safe_function<num_bindings<T, N, M>::umn>},
     {0, 0}
 };
 
@@ -121,6 +127,7 @@ constexpr char const mpz_metatable[] = "mpz.mt";
 void init_mpz(lua_State * L) {
     num_bindings<mpz, mpz_name, mpz_metatable>::init(L);
 }
+
 constexpr char const mpq_name[]      = "mpq";
 constexpr char const mpq_metatable[] = "mpq.mt";
 void init_mpq(lua_State * L) {

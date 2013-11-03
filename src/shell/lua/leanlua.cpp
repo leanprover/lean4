@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #ifdef LEAN_USE_LUA
 #include <lua.hpp>
 #include "bindings/lua/name.h"
+#include "bindings/lua/numerics.h"
 
 int main(int argc, char ** argv) {
     int status, result;
@@ -18,6 +19,8 @@ int main(int argc, char ** argv) {
     L = luaL_newstate();
     luaL_openlibs(L);
     lean::init_name(L);
+    lean::init_mpz(L);
+    lean::init_mpq(L);
 
     for (int i = 1; i < argc; i++) {
         status = luaL_loadfile(L, argv[i]);

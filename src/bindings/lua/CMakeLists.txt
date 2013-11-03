@@ -1,1 +1,1 @@
-add_library(lua name.cpp)
+add_library(lua name.cpp numerics.cpp)

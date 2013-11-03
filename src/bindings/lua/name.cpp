@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <lua.hpp>
 #include "util/debug.h"
 #include "util/name.h"
+#include "bindings/lua/util.h"
 
 namespace lean {
 static int name_gc(lua_State * L);
@@ -81,7 +82,7 @@ static int name_lt(lua_State * L) {
 
 void init_name(lua_State * L) {
     luaL_newmetatable(L, "name.mt");
-    luaL_setfuncs(L, name_m, 0);
+    setfuncs(L, name_m, 0);
 
     lua_pushcfunction(L, mk_name);
     lua_setglobal(L, "name");

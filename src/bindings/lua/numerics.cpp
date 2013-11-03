@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/debug.h"
 #include "util/numerics/mpz.h"
 #include "util/numerics/mpq.h"
+#include "bindings/lua/util.h"
 
 namespace lean {
 template<typename T, char const * N, char const * M>
@@ -99,7 +100,7 @@ public:
 
     static void init(lua_State * L) {
         luaL_newmetatable(L, M);
-        luaL_setfuncs(L, m, 0);
+        setfuncs(L, m, 0);
 
         lua_pushcfunction(L, mk);
         lua_setglobal(L, N);

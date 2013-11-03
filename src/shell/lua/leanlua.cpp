@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 
 #ifdef LEAN_USE_LUA
 #include <lua.hpp>
+#include "util/exception.h"
 #include "bindings/lua/name.h"
 #include "bindings/lua/numerics.h"
 
@@ -28,10 +29,15 @@ int main(int argc, char ** argv) {
             std::cerr << "Couldn't load file: " << lua_tostring(L, -1) << "\n";
             return 1;
         }
-        result = lua_pcall(L, 0, LUA_MULTRET, 0);
-        if (result) {
-            std::cerr << "Failed to run script: " << lua_tostring(L, -1) << "\n";
-            return 1;
+        try {
+            result = lua_pcall(L, 0, LUA_MULTRET, 0);
+            if (result) {
+                std::cerr << "Failed to run script: " << lua_tostring(L, -1) << "\n";
+                return 1;
+            }
+        } catch (lean::exception & ex) {
+            std::cerr << "Lean exception when running: " << argv[i] << "\n";
+            std::cerr << ex.what() << "\n";
         }
     }
     lua_close(L);

@@ -29,10 +29,12 @@ static int mk_name(lua_State * L) {
         new (mem) name(str);
     } else {
         lean_assert(nargs == 2);
+        name tmp;
         name * prefix;
         if (lua_isstring(L, 1)) {
             char const * str = luaL_checkstring(L, 1);
-            prefix = new name(str);
+            tmp    = name(str);
+            prefix = &tmp;
         } else {
             prefix = static_cast<name*>(luaL_checkudata(L, 1, "name.mt"));
         }

@@ -7,6 +7,6 @@ Author: Leonardo de Moura
 #ifdef LEAN_USE_LUA
 #include <lua.hpp>
 namespace lean {
-void init_name(lua_State * L);
+void open_name(lua_State * L);
 }
 #endif

@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #ifdef LEAN_USE_LUA
 #include <lua.hpp>
 namespace lean {
-void init_mpz(lua_State * L);
-void init_mpq(lua_State * L);
+void open_mpz(lua_State * L);
+void open_mpq(lua_State * L);
 }
 #endif

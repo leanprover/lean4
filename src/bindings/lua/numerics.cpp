@@ -98,7 +98,7 @@ public:
         return push_result(L, arg);
     }
 
-    static void init(lua_State * L) {
+    static void open(lua_State * L) {
         luaL_newmetatable(L, M);
         setfuncs(L, m, 0);
 
@@ -124,14 +124,14 @@ const struct luaL_Reg num_bindings<T, N, M>::m[] = {
 
 constexpr char const mpz_name[]      = "mpz";
 constexpr char const mpz_metatable[] = "mpz.mt";
-void init_mpz(lua_State * L) {
-    num_bindings<mpz, mpz_name, mpz_metatable>::init(L);
+void open_mpz(lua_State * L) {
+    num_bindings<mpz, mpz_name, mpz_metatable>::open(L);
 }
 
 constexpr char const mpq_name[]      = "mpq";
 constexpr char const mpq_metatable[] = "mpq.mt";
-void init_mpq(lua_State * L) {
-    num_bindings<mpq, mpq_name, mpq_metatable>::init(L);
+void open_mpq(lua_State * L) {
+    num_bindings<mpq, mpq_name, mpq_metatable>::open(L);
 }
 }
 #endif

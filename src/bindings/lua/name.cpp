@@ -84,7 +84,7 @@ static int name_lt(lua_State * L) {
     return 1;
 }
 
-void init_name(lua_State * L) {
+void open_name(lua_State * L) {
     luaL_newmetatable(L, "name.mt");
     setfuncs(L, name_m, 0);
 

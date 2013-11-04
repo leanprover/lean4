@@ -18,9 +18,9 @@ int main(int argc, char ** argv) {
     int exitcode = 0;
     L = luaL_newstate();
     luaL_openlibs(L);
-    lean::init_name(L);
-    lean::init_mpz(L);
-    lean::init_mpq(L);
+    lean::open_name(L);
+    lean::open_mpz(L);
+    lean::open_mpq(L);
 
     for (int i = 1; i < argc; i++) {
         status = luaL_loadfile(L, argv[i]);

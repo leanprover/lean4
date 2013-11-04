@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include <lua.hpp>
 #include "bindings/lua/name.h"
 #include "bindings/lua/numerics.h"
+#include "bindings/lua/options.h"
 
 int main(int argc, char ** argv) {
     int status, result;
@@ -21,6 +22,7 @@ int main(int argc, char ** argv) {
     lean::open_name(L);
     lean::open_mpz(L);
     lean::open_mpq(L);
+    lean::open_options(L);
 
     for (int i = 1; i < argc; i++) {
         status = luaL_loadfile(L, argv[i]);

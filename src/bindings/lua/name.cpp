@@ -11,19 +11,6 @@ Author: Leonardo de Moura
 #include "bindings/lua/util.h"
 
 namespace lean {
-static int name_gc(lua_State * L);
-static int name_tostring(lua_State * L);
-static int name_eq(lua_State * L);
-static int name_lt(lua_State * L);
-
-static const struct luaL_Reg name_m[] = {
-    {"__gc",       name_gc}, // never throws
-    {"__tostring", safe_function<name_tostring>},
-    {"__eq",       safe_function<name_eq>},
-    {"__lt",       safe_function<name_lt>},
-    {0, 0}
-};
-
 static name const & to_name(lua_State * L, unsigned idx) {
     return *static_cast<name*>(luaL_checkudata(L, idx, "name.mt"));
 }
@@ -68,6 +55,14 @@ static int name_lt(lua_State * L) {
     lua_pushboolean(L, to_name(L, 1) < to_name(L, 2));
     return 1;
 }
+
+static const struct luaL_Reg name_m[] = {
+    {"__gc",       name_gc}, // never throws
+    {"__tostring", safe_function<name_tostring>},
+    {"__eq",       safe_function<name_eq>},
+    {"__lt",       safe_function<name_lt>},
+    {0, 0}
+};
 
 void open_name(lua_State * L) {
     luaL_newmetatable(L, "name.mt");

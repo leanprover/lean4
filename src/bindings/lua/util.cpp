@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #ifdef LEAN_USE_LUA
 #include <lua.hpp>
 #include <exception>
+#include <string>
 #include "util/exception.h"
 
 namespace lean {

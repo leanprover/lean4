@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <exception>
 #include <string>
 #include "util/exception.h"
+#include "util/debug.h"
 
 namespace lean {
 /**
@@ -40,7 +41,7 @@ int safe_function_wrapper(lua_State * L, lua_CFunction f){
         _error_msg = e.what();
         error_msg  = _error_msg.c_str();
     } catch(...) {
-        error_msg = "unknown error";
+        throw;
     }
     return luaL_error(L, error_msg);
 }

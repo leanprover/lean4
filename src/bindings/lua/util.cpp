@@ -30,13 +30,18 @@ void setfuncs(lua_State * L, luaL_Reg const * l, int nup) {
 /**
    \brief luaL_testudata replacement.
 */
-bool testudata(lua_State * L, unsigned idx, char const * mt) {
-    try {
-        luaL_checkudata(L, idx, mt);
-        return true;
-    } catch (...) {
-        return false;
+bool testudata(lua_State * L, int ud, char const * tname) {
+    void * p = lua_touserdata(L, ud);
+    if (p != nullptr) {
+        if (lua_getmetatable(L, ud)) {
+            luaL_getmetatable(L, tname);
+            if (!lua_rawequal(L, -1, -2))
+                p = nullptr;
+            lua_pop(L, 2);
+            return p;
+        }
     }
+    return nullptr;  // value is not a userdata with a metatable
 }
 
 int safe_function_wrapper(lua_State * L, lua_CFunction f){

@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/name.h"
 #include "bindings/lua/numerics.h"
 #include "bindings/lua/options.h"
+#include "bindings/lua/sexpr.h"
 
 int main(int argc, char ** argv) {
     int status, result;
@@ -23,6 +24,7 @@ int main(int argc, char ** argv) {
     lean::open_mpz(L);
     lean::open_mpq(L);
     lean::open_options(L);
+    lean::open_sexpr(L);
 
     for (int i = 1; i < argc; i++) {
         status = luaL_loadfile(L, argv[i]);

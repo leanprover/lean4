@@ -10,56 +10,10 @@ Author: Leonardo de Moura
 #include "util/debug.h"
 #include "util/name.h"
 #include "util/sexpr/options.h"
+#include "util/sexpr/option_declarations.h"
 #include "bindings/lua/util.h"
 
 namespace lean {
-static int mk_option(lua_State * L);
-static int options_gc(lua_State * L);
-static int options_tostring(lua_State * L);
-static int options_contains(lua_State * L);
-static int options_size(lua_State * L);
-static int options_empty(lua_State * L);
-static int options_get_bool(lua_State * L);
-static int options_get_int(lua_State * L);
-static int options_get_unsigned(lua_State * L);
-static int options_get_double(lua_State * L);
-static int options_get_string(lua_State * L);
-static int options_update_bool(lua_State * L);
-static int options_update_int(lua_State * L);
-static int options_update_unsigned(lua_State * L);
-static int options_update_double(lua_State * L);
-static int options_update_string(lua_State * L);
-
-static const struct luaL_Reg options_m[] = {
-    {"__gc",            options_gc}, // never throws
-    {"__tostring",      safe_function<options_tostring>},
-    {"__len",           safe_function<options_size> },
-    {"contains",        safe_function<options_contains>},
-    {"size",            safe_function<options_size>},
-    {"empty",           safe_function<options_empty>},
-    {"get_bool",        safe_function<options_get_bool>},
-    {"get_int",         safe_function<options_get_int>},
-    {"get_unsigned",    safe_function<options_get_unsigned>},
-    {"get_double",      safe_function<options_get_double>},
-    {"get_string",      safe_function<options_get_string>},
-    {"update_bool",     safe_function<options_update_bool>},
-    {"update_int",      safe_function<options_update_int>},
-    {"update_unsigned", safe_function<options_update_unsigned>},
-    {"update_double",   safe_function<options_update_double>},
-    {"update_string",   safe_function<options_update_string>},
-    {0, 0}
-};
-
-void open_options(lua_State * L) {
-    luaL_newmetatable(L, "options.mt");
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    setfuncs(L, options_m, 0);
-
-    lua_pushcfunction(L, safe_function<mk_option>);
-    lua_setglobal(L, "options");
-}
-
 static int push_options(lua_State * L, options const & o) {
     void * mem = lua_newuserdata(L, sizeof(options));
     new (mem) options(o);
@@ -71,9 +25,6 @@ static int push_options(lua_State * L, options const & o) {
 static int mk_option(lua_State * L) {
     // int nargs = lua_gettop(L);
     options r;
-
-    // TODO(Leo): optional table argument
-
     return push_options(L, r);
 }
 
@@ -171,6 +122,75 @@ static int options_update_double(lua_State * L) {
 
 static int options_update_string(lua_State * L) {
     return push_options(L, to_options(L, 1).update(to_key(L, 2), lua_tostring(L, 3)));
+}
+
+static int options_get(lua_State * L) {
+    name k = to_key(L, 2);
+    auto it = get_option_declarations().find(k);
+    if (it == get_option_declarations().end()) {
+        return luaL_error(L, "unknown option '%s'", k.to_string().c_str());
+    } else {
+        option_declaration const & d = it->second;
+        switch (d.kind()) {
+        case BoolOption:      return options_get_bool(L);
+        case IntOption:       return options_get_int(L);
+        case UnsignedOption:  return options_get_unsigned(L);
+        case DoubleOption:    return options_get_double(L);
+        case StringOption:    return options_get_string(L);
+        default:              return luaL_error(L, "unsupported option kind for '%s'", k.to_string().c_str());
+        }
+    }
+}
+
+static int options_update(lua_State * L) {
+    name k = to_key(L, 2);
+    auto it = get_option_declarations().find(k);
+    if (it == get_option_declarations().end()) {
+        return luaL_error(L, "unknown option '%s'", k.to_string().c_str());
+    } else {
+        option_declaration const & d = it->second;
+        switch (d.kind()) {
+        case BoolOption:      return options_update_bool(L);
+        case IntOption:       return options_update_int(L);
+        case UnsignedOption:  return options_update_unsigned(L);
+        case DoubleOption:    return options_update_double(L);
+        case StringOption:    return options_update_string(L);
+        default:              return luaL_error(L, "unsupported option kind for '%s'", k.to_string().c_str());
+        }
+    }
+}
+
+static const struct luaL_Reg options_m[] = {
+    {"__gc",            options_gc}, // never throws
+    {"__tostring",      safe_function<options_tostring>},
+    {"__len",           safe_function<options_size> },
+    {"contains",        safe_function<options_contains>},
+    {"size",            safe_function<options_size>},
+    {"empty",           safe_function<options_empty>},
+    {"get",             safe_function<options_get>},
+    {"update",          safe_function<options_update>},
+    // low-level API
+    {"get_bool",        safe_function<options_get_bool>},
+    {"get_int",         safe_function<options_get_int>},
+    {"get_unsigned",    safe_function<options_get_unsigned>},
+    {"get_double",      safe_function<options_get_double>},
+    {"get_string",      safe_function<options_get_string>},
+    {"update_bool",     safe_function<options_update_bool>},
+    {"update_int",      safe_function<options_update_int>},
+    {"update_unsigned", safe_function<options_update_unsigned>},
+    {"update_double",   safe_function<options_update_double>},
+    {"update_string",   safe_function<options_update_string>},
+    {0, 0}
+};
+
+void open_options(lua_State * L) {
+    luaL_newmetatable(L, "options.mt");
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    setfuncs(L, options_m, 0);
+
+    lua_pushcfunction(L, safe_function<mk_option>);
+    lua_setglobal(L, "options");
 }
 }
 #endif

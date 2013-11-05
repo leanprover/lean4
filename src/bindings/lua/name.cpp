@@ -24,63 +24,48 @@ static const struct luaL_Reg name_m[] = {
     {0, 0}
 };
 
+static name const & to_name(lua_State * L, unsigned idx) {
+    return *static_cast<name*>(luaL_checkudata(L, idx, "name.mt"));
+}
+
 static int mk_name(lua_State * L) {
     int nargs = lua_gettop(L);
-    if (nargs != 1 && nargs != 2)
-        return luaL_error(L, "function 'name' expects 1 or 2 arguments");
-    if (nargs == 1) {
-        char const * str = luaL_checkstring(L, 1);
-        void * mem = lua_newuserdata(L, sizeof(name));
-        new (mem) name(str);
-    } else {
-        lean_assert(nargs == 2);
-        name tmp;
-        name * prefix;
-        if (lua_isstring(L, 1)) {
-            char const * str = luaL_checkstring(L, 1);
-            tmp    = name(str);
-            prefix = &tmp;
+    name r;
+    for (int i = 1; i <= nargs; i++) {
+        if (lua_isnil(L, i)) {
+            // skip
+        } else if (lua_isuserdata(L, i)) {
+            r = r + to_name(L, i);
+        } else if (lua_isstring(L, i)) {
+            r = name(r, luaL_checkstring(L, i));
         } else {
-            prefix = static_cast<name*>(luaL_checkudata(L, 1, "name.mt"));
-        }
-        if (lua_isstring(L, 2)) {
-            char const * str = luaL_checkstring(L, 2);
-            void * mem = lua_newuserdata(L, sizeof(name));
-            new (mem) name(*prefix, str);
-        } else {
-            int idx = luaL_checkinteger(L, 2);
-            void * mem = lua_newuserdata(L, sizeof(name));
-            new (mem) name(*prefix, idx);
+            r = name(r, luaL_checkinteger(L, i));
         }
     }
+    void * mem = lua_newuserdata(L, sizeof(name));
+    new (mem) name(r);
     luaL_getmetatable(L, "name.mt");
     lua_setmetatable(L, -2);
     return 1;
 }
 
 static int name_gc(lua_State * L) {
-    name * n = static_cast<name*>(luaL_checkudata(L, 1, "name.mt"));
-    n->~name();
+    to_name(L, 1).~name();
     return 0;
 }
 
 static int name_tostring(lua_State * L) {
-    name * n = static_cast<name*>(luaL_checkudata(L, 1, "name.mt"));
-    lua_pushfstring(L, n->to_string().c_str());
+    lua_pushfstring(L, to_name(L, 1).to_string().c_str());
     return 1;
 }
 
 static int name_eq(lua_State * L) {
-    name * n1 = static_cast<name*>(luaL_checkudata(L, 1, "name.mt"));
-    name * n2 = static_cast<name*>(luaL_checkudata(L, 2, "name.mt"));
-    lua_pushboolean(L, *n1 == *n2);
+    lua_pushboolean(L, to_name(L, 1) == to_name(L, 2));
     return 1;
 }
 
 static int name_lt(lua_State * L) {
-    name * n1 = static_cast<name*>(luaL_checkudata(L, 1, "name.mt"));
-    name * n2 = static_cast<name*>(luaL_checkudata(L, 2, "name.mt"));
-    lua_pushboolean(L, *n1 < *n2);
+    lua_pushboolean(L, to_name(L, 1) < to_name(L, 2));
     return 1;
 }
 

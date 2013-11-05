@@ -48,7 +48,7 @@ static sexpr to_sexpr_elem(lua_State * L, int idx) {
     if (lua_isnil(L, idx)) {
         return sexpr();
     } else if (lua_isboolean(L, idx)) {
-        return sexpr(lua_toboolean(L, idx));
+        return sexpr(static_cast<bool>(lua_toboolean(L, idx)));
     } else if (lua_isnumber(L, idx)) {
         // Remark: we convert to integer by default
         return sexpr(static_cast<int>(lua_tointeger(L, idx)));
@@ -95,7 +95,7 @@ static int sexpr_is_name(lua_State * L)   { lua_pushboolean(L, is_name(to_sexpr(
 static int sexpr_is_mpz(lua_State * L)    { lua_pushboolean(L, is_mpz(to_sexpr(L, 1)));            return 1; }
 static int sexpr_is_mpq(lua_State * L)    { lua_pushboolean(L, is_mpq(to_sexpr(L, 1)));            return 1; }
 
-static int sexpr_length(lua_State * L)    {
+static int sexpr_length(lua_State * L) {
     sexpr const & e = to_sexpr(L, 1);
     if (!is_list(e))
         return luaL_error(L, "s-expression is not a list");
@@ -103,27 +103,72 @@ static int sexpr_length(lua_State * L)    {
     return 1;
 }
 
-static int sexpr_head(lua_State * L)      {
+static int sexpr_head(lua_State * L) {
     sexpr const & e = to_sexpr(L, 1);
     if (!is_cons(e))
         return luaL_error(L, "s-expression is not a cons cell");
     return push_sexpr(L, head(e));
 }
 
-static int sexpr_tail(lua_State * L)      {
+static int sexpr_tail(lua_State * L) {
     sexpr const & e = to_sexpr(L, 1);
     if (!is_cons(e))
         return luaL_error(L, "s-expression is not a cons cell");
     return push_sexpr(L, tail(e));
 }
 
-static int sexpr_to_bool(lua_State * L)   { lua_pushboolean(L, to_bool(to_sexpr(L, 1)));           return 1; }
-static int sexpr_to_string(lua_State * L) { lua_pushfstring(L, to_string(to_sexpr(L, 1)).c_str()); return 1; }
-static int sexpr_to_int(lua_State * L)    { lua_pushinteger(L, to_int(to_sexpr(L, 1)));            return 1; }
-static int sexpr_to_double(lua_State * L) { lua_pushnumber(L, to_double(to_sexpr(L, 1)));          return 1; }
-static int sexpr_to_name(lua_State * L)   { return push_name(L, to_name(to_sexpr(L, 1))); }
-static int sexpr_to_mpz(lua_State * L)    { return push_mpz(L, to_mpz(to_sexpr(L, 1))); }
-static int sexpr_to_mpq(lua_State * L)    { return push_mpq(L, to_mpq(to_sexpr(L, 1))); }
+static int sexpr_to_bool(lua_State * L) {
+    sexpr const & e = to_sexpr(L, 1);
+    if (!is_bool(e))
+        return luaL_error(L, "s-expression is not a Boolean");
+    lua_pushboolean(L, to_bool(e));
+    return 1;
+}
+
+static int sexpr_to_string(lua_State * L) {
+    sexpr const & e = to_sexpr(L, 1);
+    if (!is_string(e))
+        return luaL_error(L, "s-expression is not a string");
+    lua_pushfstring(L, to_string(e).c_str());
+    return 1;
+}
+
+static int sexpr_to_int(lua_State * L) {
+    sexpr const & e = to_sexpr(L, 1);
+    if (!is_int(e))
+        return luaL_error(L, "s-expression is not an integer");
+    lua_pushinteger(L, to_int(e));
+    return 1;
+}
+
+static int sexpr_to_double(lua_State * L) {
+    sexpr const & e = to_sexpr(L, 1);
+    if (!is_double(e))
+        return luaL_error(L, "s-expression is not a double");
+    lua_pushnumber(L, to_double(e));
+    return 1;
+}
+
+static int sexpr_to_name(lua_State * L) {
+    sexpr const & e = to_sexpr(L, 1);
+    if (!is_name(e))
+        return luaL_error(L, "s-expression is not a name");
+    return push_name(L, to_name(e));
+}
+
+static int sexpr_to_mpz(lua_State * L) {
+    sexpr const & e = to_sexpr(L, 1);
+    if (!is_mpz(e))
+        return luaL_error(L, "s-expression is not a multi-precision integer");
+    return push_mpz(L, to_mpz(e));
+}
+
+static int sexpr_to_mpq(lua_State * L) {
+    sexpr const & e = to_sexpr(L, 1);
+    if (!is_mpq(e))
+        return luaL_error(L, "s-expression is not a multi-precision rational");
+    return push_mpq(L, to_mpq(e));
+}
 
 static const struct luaL_Reg sexpr_m[] = {
     {"__gc",       sexpr_gc}, // never throws

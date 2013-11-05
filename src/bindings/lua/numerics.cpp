@@ -25,7 +25,7 @@ static mpz const & to_mpz(lua_State * L) {
         arg = mpz(str);
         return arg;
     } else {
-        arg = luaL_checkinteger(L, 1);
+        arg = static_cast<long int>(luaL_checkinteger(L, 1));
         return arg;
     }
 }
@@ -137,7 +137,7 @@ static mpq const & to_mpq(lua_State * L) {
         arg = mpq(str);
         return arg;
     } else {
-        arg = luaL_checkinteger(L, 1);
+        arg = static_cast<long int>(luaL_checkinteger(L, 1));
         return arg;
     }
 }

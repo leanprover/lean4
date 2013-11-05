@@ -7,6 +7,9 @@ Author: Leonardo de Moura
 #ifdef LEAN_USE_LUA
 #include <lua.hpp>
 namespace lean {
+class options;
 void open_options(lua_State * L);
+bool is_options(lua_State * L, int idx);
+options & to_options(lua_State * L, int idx);
 }
 #endif

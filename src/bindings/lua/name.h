@@ -7,6 +7,9 @@ Author: Leonardo de Moura
 #ifdef LEAN_USE_LUA
 #include <lua.hpp>
 namespace lean {
+class name;
 void open_name(lua_State * L);
+bool is_name(lua_State * L, int idx);
+name & to_name(lua_State * L, int idx);
 }
 #endif

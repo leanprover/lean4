@@ -27,6 +27,18 @@ void setfuncs(lua_State * L, luaL_Reg const * l, int nup) {
     lua_pop(L, nup);  // remove upvalues
 }
 
+/**
+   \brief luaL_testudata replacement.
+*/
+bool testudata(lua_State * L, unsigned idx, char const * mt) {
+    try {
+        luaL_checkudata(L, idx, mt);
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
 int safe_function_wrapper(lua_State * L, lua_CFunction f){
     static thread_local std::string _error_msg;
     char const * error_msg;

@@ -11,8 +11,14 @@ Author: Leonardo de Moura
 #include "bindings/lua/util.h"
 
 namespace lean {
-static name const & to_name(lua_State * L, unsigned idx) {
-    return *static_cast<name*>(luaL_checkudata(L, idx, "name.mt"));
+constexpr char const * name_mt = "name.mt";
+
+bool is_name(lua_State * L, int idx) {
+    return testudata(L, idx, name_mt);
+}
+
+name & to_name(lua_State * L, int idx) {
+    return *static_cast<name*>(luaL_checkudata(L, idx, name_mt));
 }
 
 static int mk_name(lua_State * L) {
@@ -31,7 +37,7 @@ static int mk_name(lua_State * L) {
     }
     void * mem = lua_newuserdata(L, sizeof(name));
     new (mem) name(r);
-    luaL_getmetatable(L, "name.mt");
+    luaL_getmetatable(L, name_mt);
     lua_setmetatable(L, -2);
     return 1;
 }
@@ -65,7 +71,7 @@ static const struct luaL_Reg name_m[] = {
 };
 
 void open_name(lua_State * L) {
-    luaL_newmetatable(L, "name.mt");
+    luaL_newmetatable(L, name_mt);
     setfuncs(L, name_m, 0);
 
     lua_pushcfunction(L, safe_function<mk_name>);

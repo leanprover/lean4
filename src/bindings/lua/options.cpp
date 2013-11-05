@@ -12,12 +12,23 @@ Author: Leonardo de Moura
 #include "util/sexpr/options.h"
 #include "util/sexpr/option_declarations.h"
 #include "bindings/lua/util.h"
+#include "bindings/lua/name.h"
 
 namespace lean {
+constexpr char const * options_mt = "options.mt";
+
+bool is_options(lua_State * L, int idx) {
+    return testudata(L, idx, options_mt);
+}
+
+options & to_options(lua_State * L, int idx) {
+    return *static_cast<options*>(luaL_checkudata(L, idx, options_mt));
+}
+
 static int push_options(lua_State * L, options const & o) {
     void * mem = lua_newuserdata(L, sizeof(options));
     new (mem) options(o);
-    luaL_getmetatable(L, "options.mt");
+    luaL_getmetatable(L, options_mt);
     lua_setmetatable(L, -2);
     return 1;
 }
@@ -28,18 +39,13 @@ static int mk_option(lua_State * L) {
     return push_options(L, r);
 }
 
-static name to_key(lua_State * L, unsigned idx) {
+static name to_key(lua_State * L, int idx) {
     if (lua_isstring(L, idx)) {
         char const * k = luaL_checkstring(L, idx);
         return name(k);
     } else {
-        name * k = static_cast<name*>(luaL_checkudata(L, idx, "name.mt"));
-        return *k;
+        return to_name(L, idx);
     }
-}
-
-static options & to_options(lua_State * L, unsigned idx) {
-    return *static_cast<options*>(luaL_checkudata(L, idx, "options.mt"));
 }
 
 static int options_gc(lua_State * L) {
@@ -184,7 +190,7 @@ static const struct luaL_Reg options_m[] = {
 };
 
 void open_options(lua_State * L) {
-    luaL_newmetatable(L, "options.mt");
+    luaL_newmetatable(L, options_mt);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, options_m, 0);

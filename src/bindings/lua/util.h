@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <lua.hpp>
 namespace lean {
 void setfuncs(lua_State * L, luaL_Reg const * l, int nup);
+bool testudata(lua_State * L, unsigned idx, char const * mt);
 /**
    \brief Wrapper for invoking function f, and catching Lean exceptions.
 */

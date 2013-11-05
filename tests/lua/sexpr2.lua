@@ -1,14 +1,3 @@
-function check_error(f)
-    ok, msg = pcall(function ()
-        f()
-        end)
-    if ok then
-       error("unexpected success...")
-    else
-       print("caught expected error: ", msg)
-    end
-end
-
 s = sexpr(1, 2, 3)
 print(s)
 s = sexpr(1, 2, 3, nil)

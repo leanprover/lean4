@@ -25,7 +25,7 @@ options & to_options(lua_State * L, int idx) {
     return *static_cast<options*>(luaL_checkudata(L, idx, options_mt));
 }
 
-static int push_options(lua_State * L, options const & o) {
+int push_options(lua_State * L, options const & o) {
     void * mem = lua_newuserdata(L, sizeof(options));
     new (mem) options(o);
     luaL_getmetatable(L, options_mt);

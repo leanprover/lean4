@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 namespace lean {
 constexpr char const * sexpr_mt = "sexpr.mt";
 
-static int push_sexpr(lua_State * L, sexpr const & e) {
+int push_sexpr(lua_State * L, sexpr const & e) {
     void * mem = lua_newuserdata(L, sizeof(sexpr));
     new (mem) sexpr(e);
     luaL_getmetatable(L, sexpr_mt);

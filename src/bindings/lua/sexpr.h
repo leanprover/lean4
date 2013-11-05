@@ -10,6 +10,6 @@ namespace lean {
 class sexpr;
 void open_sexpr(lua_State * L);
 bool is_sexpr(lua_State * L, int idx);
-sexpr to_sexpr(lua_State * L, int idx);
+sexpr & to_sexpr(lua_State * L, int idx);
 }
 #endif

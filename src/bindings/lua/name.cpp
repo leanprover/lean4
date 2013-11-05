@@ -21,6 +21,14 @@ name & to_name(lua_State * L, int idx) {
     return *static_cast<name*>(luaL_checkudata(L, idx, name_mt));
 }
 
+int push_name(lua_State * L, name const & n) {
+    void * mem = lua_newuserdata(L, sizeof(name));
+    new (mem) name(n);
+    luaL_getmetatable(L, name_mt);
+    lua_setmetatable(L, -2);
+    return 1;
+}
+
 static int mk_name(lua_State * L) {
     int nargs = lua_gettop(L);
     name r;
@@ -35,11 +43,7 @@ static int mk_name(lua_State * L) {
             r = name(r, luaL_checkinteger(L, i));
         }
     }
-    void * mem = lua_newuserdata(L, sizeof(name));
-    new (mem) name(r);
-    luaL_getmetatable(L, name_mt);
-    lua_setmetatable(L, -2);
-    return 1;
+    return push_name(L, r);
 }
 
 static int name_gc(lua_State * L) {

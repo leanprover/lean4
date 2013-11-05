@@ -38,7 +38,7 @@ mpz & to_mpz(lua_State * L, int idx) {
     return *static_cast<mpz*>(luaL_checkudata(L, idx, mpz_mt));
 }
 
-static int push_mpz(lua_State * L, mpz const & val) {
+int push_mpz(lua_State * L, mpz const & val) {
     void * mem = lua_newuserdata(L, sizeof(mpz));
     new (mem) mpz(val);
     luaL_getmetatable(L, mpz_mt);
@@ -150,7 +150,7 @@ mpq & to_mpq(lua_State * L, int idx) {
     return *static_cast<mpq*>(luaL_checkudata(L, idx, mpq_mt));
 }
 
-static int push_mpq(lua_State * L, mpq const & val) {
+int push_mpq(lua_State * L, mpq const & val) {
     void * mem = lua_newuserdata(L, sizeof(mpq));
     new (mem) mpq(val);
     luaL_getmetatable(L, mpq_mt);

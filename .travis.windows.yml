@@ -11,7 +11,8 @@ env:
 install:
   - sudo add-apt-repository --yes ppa:purplekarrot/cmake
   - sudo apt-get -qq update
-  - sudo apt-get -qq install cmake make
+  - sudo apt-get -qq install make
+  - sudo apt-get -qq install cmake=2.8.11.2-1ubuntu2~precise1
   - if [[ $DROPBOX == TRUE ]]; then
        sudo apt-get -qq install python python-pip;
        sudo pip install dropbox;

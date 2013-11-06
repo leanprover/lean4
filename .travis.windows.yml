@@ -9,10 +9,7 @@ env:
   - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG PUSH_TO_CDASH=TRUE
 
 install:
-  - sudo add-apt-repository --yes ppa:purplekarrot/cmake
-  - sudo apt-get -qq update
-  - sudo apt-get -qq install make
-  - sudo apt-get -qq install cmake=2.8.11.2-1ubuntu2~precise1
+  - sudo apt-get -qq install make cmake
   - if [[ $DROPBOX == TRUE ]]; then
        sudo apt-get -qq install python python-pip;
        sudo pip install dropbox;

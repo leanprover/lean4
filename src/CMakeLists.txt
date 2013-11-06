@@ -64,15 +64,15 @@ else ()
     message(FATAL_ERROR "Your C++ compiler does not support C++11.")
 endif ()
 
-# GMP
-find_package(GMP 5.0.5)
-include_directories(${GMP_INCLUDE_DIR})
-set(EXTRA_LIBS ${EXTRA_LIBS} ${GMP_LIBRARIES})
-
 # MPFR
 find_package(MPFR 3.1.0)
 include_directories(${MPFR_INCLUDES})
 set(EXTRA_LIBS ${EXTRA_LIBS} ${MPFR_LIBRARIES})
+
+# GMP
+find_package(GMP 5.0.5)
+include_directories(${GMP_INCLUDE_DIR})
+set(EXTRA_LIBS ${EXTRA_LIBS} ${GMP_LIBRARIES})
 
 # TRACK_MEMORY_USAGE
 if("${TRACK_MEMORY_USAGE}" MATCHES "ON")

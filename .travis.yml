@@ -75,17 +75,33 @@ env:
    # =======================================================
    # MEMCHECK Build
    # =======================================================
-   # M1. clang++-3.3 | DEBUG    | MEMCHECK       | CDASH
+   # M1-1. clang++-3.3 | DEBUG    | MEMCHECK       | CDASH
    - CMAKE_CXX_COMPILER=clang++-3.3
      CMAKE_BUILD_TYPE=DEBUG
      TCMALLOC=OFF
      MEMCHECK=TRUE
+     MEMCHECK_RANGE=1,40
      PUSH_TO_CDASH=TRUE
-   # M2. g++-4.8     | DEBUG    | MEMCHECK       | CDASH
+   # M1-2. clang++-3.3 | DEBUG    | MEMCHECK       | CDASH
+   - CMAKE_CXX_COMPILER=clang++-3.3
+     CMAKE_BUILD_TYPE=DEBUG
+     TCMALLOC=OFF
+     MEMCHECK=TRUE
+     MEMCHECK_RANGE=40,80
+     PUSH_TO_CDASH=TRUE
+   # M2-1. g++-4.8     | DEBUG    | MEMCHECK       | CDASH
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=DEBUG
      TCMALLOC=ON
      MEMCHECK=TRUE
+     MEMCHECK_RANGE=1,40
+     PUSH_TO_CDASH=TRUE
+    # M2-2. g++-4.8     | DEBUG    | MEMCHECK       | CDASH
+   - CMAKE_CXX_COMPILER=g++-4.8
+     CMAKE_BUILD_TYPE=DEBUG
+     TCMALLOC=ON
+     MEMCHECK=TRUE
+     MEMCHECK_RANGE=40,80
      PUSH_TO_CDASH=TRUE
    # =======================================================
    # DOXYGEN Build
@@ -206,7 +222,7 @@ after_script:
      CONFIG_FILE=DartConfiguration.tcl;
      sed -i "s,^MemoryCheckSuppressionFile:\W*$,MemoryCheckSuppressionFile:$MEMCHECK_SUPP," $CONFIG_FILE;
      ulimit -s unlimited;
-     yes "C" | ctest -D ExperimentalMemCheck -VV | ../script/demangle_cpptype.py;
+     yes "C" | ctest -D ExperimentalMemCheck -VV -I $MEMCHECK_RANGE | ../script/demangle_cpptype.py;
   fi
 - if [[ $LEANREPO == BLESSED && $PUSH_TO_CDASH == TRUE ]]; then
       GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`;

@@ -352,7 +352,11 @@ struct lean_extension_initializer {
 
 static lean_extension_initializer g_lean_extension_initializer;
 
-static lean_extension & to_ext(environment const & env) {
+static lean_extension const & to_ext(environment const & env) {
+    return env.get_extension<lean_extension>(g_lean_extension_initializer.m_extid);
+}
+
+static lean_extension & to_ext(environment & env) {
     return env.get_extension<lean_extension>(g_lean_extension_initializer.m_extid);
 }
 

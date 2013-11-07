@@ -33,6 +33,8 @@ public:
 
     environment const & get_environment() const { return m_env; }
     operator environment const &() const { return get_environment(); }
+    environment & get_environment() { return m_env; }
+    operator environment &() { return get_environment(); }
 
     /**
        @name Environment API
@@ -179,6 +181,8 @@ public:
     /*@{*/
     state const & get_state() const { return m_state; }
     operator state const &() const { return m_state; }
+    state & get_state() { return m_state; }
+    operator state &() { return m_state; }
     options get_options() const { return m_state.get_options(); }
     void set_options(options const & opts) { return m_state.set_options(opts); }
     template<typename T> void set_option(name const & n, T const & v) { m_state.set_option(n, v); }

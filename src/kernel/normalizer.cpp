@@ -69,12 +69,14 @@ value_stack extend(value_stack const & s, svalue const & v) { return cons(v, s);
 class normalizer::imp {
     typedef scoped_map<expr, svalue, expr_hash, expr_eqp> cache;
 
-    environment const &  m_env;
-    context              m_ctx;
-    cache                m_cache;
-    unsigned             m_max_depth;
-    unsigned             m_depth;
-    volatile bool        m_interrupted;
+    environment::weak_ref m_env;
+    context               m_ctx;
+    cache                 m_cache;
+    unsigned              m_max_depth;
+    unsigned              m_depth;
+    volatile bool         m_interrupted;
+
+    environment env() const { return environment(m_env); }
 
     /**
         \brief Auxiliary object for saving the current context.
@@ -179,7 +181,7 @@ class normalizer::imp {
         flet<unsigned> l(m_depth, m_depth+1);
         check_interrupted(m_interrupted);
         if (m_depth > m_max_depth)
-            throw kernel_exception(m_env, "normalizer maximum recursion depth exceeded");
+            throw kernel_exception(env(), "normalizer maximum recursion depth exceeded");
         bool shared = false;
         if (is_shared(a)) {
             shared = true;
@@ -197,7 +199,7 @@ class normalizer::imp {
             r = lookup(s, var_idx(a));
             break;
         case expr_kind::Constant: {
-            object const & obj = m_env.get_object(const_name(a));
+            object const & obj = env().get_object(const_name(a));
             if (obj.is_definition() && !obj.is_opaque()) {
                 r = normalize(obj.get_value(), value_stack(), 0);
             } else {
@@ -291,7 +293,7 @@ class normalizer::imp {
 
 public:
     imp(environment const & env, unsigned max_depth):
-        m_env(env) {
+        m_env(env.to_weak_ref()) {
         m_interrupted    = false;
         m_max_depth      = max_depth;
         m_depth          = 0;

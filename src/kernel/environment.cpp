@@ -65,14 +65,12 @@ struct environment::imp {
     // Object management
     std::vector<object>                  m_objects;
     object_dictionary                    m_object_dictionary;
-    type_checker                         m_type_checker;
+    std::unique_ptr<type_checker>        m_type_checker;
 
     std::vector<std::unique_ptr<extension>> m_extensions;
     friend class extension;
 
-    extension & get_extension_core(unsigned extid, environment const & env) {
-        if (has_children())
-            throw read_only_environment_exception(env);
+    extension & get_extension_core(unsigned extid) {
         if (extid >= m_extensions.size())
             m_extensions.resize(extid+1);
         if (!m_extensions[extid]) {
@@ -288,9 +286,9 @@ struct environment::imp {
         infer_universe and infer_type expect an environment instead of environment::imp.
     */
     void check_type(name const & n, expr const & t, expr const & v, environment const & env) {
-        m_type_checker.check_type(t);
-        expr v_t = m_type_checker.infer_type(v);
-        if (!m_type_checker.is_convertible(v_t, t))
+        m_type_checker->check_type(t);
+        expr v_t = m_type_checker->infer_type(v);
+        if (!m_type_checker->is_convertible(v_t, t))
             throw def_type_mismatch_exception(env, n, t, v, v_t);
     }
 
@@ -335,7 +333,7 @@ struct environment::imp {
     */
     void add_definition(name const & n, expr const & v, bool opaque, environment const & env) {
         check_name(n, env);
-        expr v_t = m_type_checker.infer_type(v);
+        expr v_t = m_type_checker->infer_type(v);
         unsigned w = get_max_weight(v) + 1;
         register_named_object(mk_definition(n, v_t, v, opaque, w));
     }
@@ -349,14 +347,14 @@ struct environment::imp {
     /** \brief Add new axiom. */
     void add_axiom(name const & n, expr const & t, environment const & env) {
         check_name(n, env);
-        m_type_checker.check_type(t);
+        m_type_checker->check_type(t);
         register_named_object(mk_axiom(n, t));
     }
 
     /** \brief Add new variable. */
     void add_var(name const & n, expr const & t, environment const & env) {
         check_name(n, env);
-        m_type_checker.check_type(t);
+        m_type_checker->check_type(t);
         register_named_object(mk_var_decl(n, t));
     }
 
@@ -381,11 +379,11 @@ struct environment::imp {
     }
 
     expr infer_type(expr const & e, context const & ctx) {
-        return m_type_checker.infer_type(e, ctx);
+        return m_type_checker->infer_type(e, ctx);
     }
 
     expr normalize(expr const & e, context const & ctx) {
-        return m_type_checker.get_normalizer()(e, ctx);
+        return m_type_checker->get_normalizer()(e, ctx);
     }
 
     /** \brief Display universal variable constraints and objects stored in this environment and its parents. */
@@ -400,19 +398,17 @@ struct environment::imp {
     }
 
     void set_interrupt(bool flag) {
-        m_type_checker.set_interrupt(flag);
+        m_type_checker->set_interrupt(flag);
     }
 
-    imp(environment const & env):
-        m_num_children(0),
-        m_type_checker(env) {
+    imp():
+        m_num_children(0) {
         init_uvars();
     }
 
-    imp(std::shared_ptr<imp> const & parent, environment const & env):
+    imp(std::shared_ptr<imp> const & parent):
         m_num_children(0),
-        m_parent(parent),
-        m_type_checker(env) {
+        m_parent(parent) {
         m_parent->inc_children();
     }
 
@@ -423,12 +419,14 @@ struct environment::imp {
 };
 
 environment::environment():
-    m_ptr(new imp(*this)) {
+    m_ptr(new imp()) {
+    m_ptr->m_type_checker.reset(new type_checker(*this));
 }
 
 // used when creating a new child environment
 environment::environment(std::shared_ptr<imp> const & parent, bool):
-    m_ptr(new imp(parent, *this)) {
+    m_ptr(new imp(parent)) {
+    m_ptr->m_type_checker.reset(new type_checker(*this));
 }
 
 // used when creating a reference to the parent environment
@@ -532,8 +530,12 @@ void environment::set_interrupt(bool flag) {
     m_ptr->set_interrupt(flag);
 }
 
-environment::extension & environment::get_extension_core(unsigned extid) const {
-    return m_ptr->get_extension_core(extid, *this);
+environment::extension const & environment::get_extension_core(unsigned extid) const {
+    return m_ptr->get_extension_core(extid);
+}
+
+environment::extension & environment::get_extension_core(unsigned extid) {
+    return m_ptr->get_extension_core(extid);
 }
 
 environment::extension::extension():

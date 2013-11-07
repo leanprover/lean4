@@ -23,7 +23,6 @@ private:
     void check_type(name const & n, expr const & t, expr const & v);
     environment(std::shared_ptr<imp> const & parent, bool);
     explicit environment(std::shared_ptr<imp> const & ptr);
-    explicit environment(imp * new_ptr);
     unsigned get_num_objects(bool local) const;
     object const & get_object(unsigned i, bool local) const;
 public:
@@ -253,7 +252,8 @@ public:
     static unsigned register_extension(mk_extension mk);
 
 private:
-    extension & get_extension_core(unsigned extid) const;
+    extension const & get_extension_core(unsigned extid) const;
+    extension & get_extension_core(unsigned extid);
 
 public:
     /**
@@ -261,10 +261,22 @@ public:
        The token is the value returned by \c register_extension.
     */
     template<typename Ext>
-    Ext & get_extension(unsigned extid) const {
+    Ext const & get_extension(unsigned extid) const {
+        extension const & ext = get_extension_core(extid);
+        lean_assert(dynamic_cast<Ext const *>(&ext) != nullptr);
+        return static_cast<Ext const &>(ext);
+    }
+
+    template<typename Ext>
+    Ext & get_extension(unsigned extid) {
         extension & ext = get_extension_core(extid);
         lean_assert(dynamic_cast<Ext*>(&ext) != nullptr);
         return static_cast<Ext&>(ext);
     }
+
+public:
+    typedef std::weak_ptr<imp> weak_ref;
+    weak_ref to_weak_ref() const { return weak_ref(m_ptr); }
+    environment(weak_ref const & r):m_ptr(r) { lean_assert(!r.expired()); }
 };
 }

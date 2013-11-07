@@ -22,7 +22,7 @@ class type_checker::imp {
     typedef scoped_map<expr, expr, expr_hash, expr_eqp> cache;
     typedef buffer<unification_constraint> unification_constraints;
 
-    environment const &       m_env;
+    environment::weak_ref     m_env;
     cache                     m_cache;
     normalizer                m_normalizer;
     context                   m_ctx;
@@ -30,6 +30,10 @@ class type_checker::imp {
     unsigned                  m_menv_timestamp;
     unification_constraints * m_uc;
     volatile bool             m_interrupted;
+
+    environment env() const {
+        return environment(m_env);
+    }
 
     expr normalize(expr const & e, context const & ctx) {
         return m_normalizer(e, ctx);
@@ -59,7 +63,7 @@ class type_checker::imp {
             m_uc->push_back(mk_eq_constraint(ctx, r, p, jst));
             return p;
         }
-        throw function_expected_exception(m_env, ctx, s);
+        throw function_expected_exception(env(), ctx, s);
     }
 
     expr check_type(expr const & e, expr const & s, context const & ctx) {
@@ -77,7 +81,7 @@ class type_checker::imp {
             m_uc->push_back(mk_convertible_constraint(ctx, u, TypeU, jst));
             return u;
         }
-        throw type_expected_exception(m_env, ctx, s);
+        throw type_expected_exception(env(), ctx, s);
     }
 
     expr infer_type_core(expr const & e, context const & ctx) {
@@ -99,11 +103,11 @@ class type_checker::imp {
                 else
                     return m_menv->get_type(e);
             } else {
-                throw unexpected_metavar_occurrence(m_env, e);
+                throw unexpected_metavar_occurrence(env(), e);
             }
             break;
         case expr_kind::Constant:
-            r = m_env.get_object(const_name(e)).get_type();
+            r = env().get_object(const_name(e)).get_type();
             break;
         case expr_kind::Var:
             r = lookup(ctx, var_idx(e));
@@ -125,7 +129,7 @@ class type_checker::imp {
                 expr const & c_t = arg_types[i];
                 auto mk_justification = [&](){ return mk_app_type_match_justification(ctx, e, i); }; // thunk for creating justification object if needed
                 if (!is_convertible(c_t, abst_domain(f_t), ctx, mk_justification))
-                    throw app_type_mismatch_exception(m_env, ctx, e, arg_types.size(), arg_types.data());
+                    throw app_type_mismatch_exception(env(), ctx, e, arg_types.size(), arg_types.data());
                 if (closed(abst_body(f_t)))
                     f_t = abst_body(f_t);
                 else if (closed(c))
@@ -182,7 +186,7 @@ class type_checker::imp {
                 check_type(ty, let_type(e), ctx); // check if it is really a type
                 auto mk_justification = [&](){ return mk_def_type_match_justification(ctx, let_name(e), let_value(e)); }; // thunk for creating justification object if needed
                 if (!is_convertible(lt, let_type(e), ctx, mk_justification))
-                    throw def_type_mismatch_exception(m_env, ctx, let_name(e), let_type(e), let_value(e), lt);
+                    throw def_type_mismatch_exception(env(), ctx, let_name(e), let_type(e), let_value(e), lt);
             }
             {
                 cache::mk_scope sc(m_cache);
@@ -194,11 +198,11 @@ class type_checker::imp {
         case expr_kind::Value: {
             // Check if the builtin value (or its set) is declared in the environment.
             name const & n = to_value(e).get_name();
-            object const & obj = m_env.get_object(n);
+            object const & obj = env().get_object(n);
             if (obj && ((obj.is_builtin() && obj.get_value() == e) || (obj.is_builtin_set() && obj.in_builtin_set(e)))) {
                 r = to_value(e).get_type();
             } else {
-                throw invalid_builtin_value_reference(m_env, e);
+                throw invalid_builtin_value_reference(env(), e);
             }
             break;
         }
@@ -218,7 +222,7 @@ class type_checker::imp {
             expr const * e = &expected;
             while (true) {
                 if (is_type(*e) && is_type(*g)) {
-                    if (m_env.is_ge(ty_level(*e), ty_level(*g)))
+                    if (env().is_ge(ty_level(*e), ty_level(*g)))
                         return true;
                 }
 
@@ -275,7 +279,7 @@ class type_checker::imp {
 
 public:
     imp(environment const & env):
-        m_env(env),
+        m_env(env.to_weak_ref()),
         m_normalizer(env) {
         m_menv           = nullptr;
         m_menv_timestamp = 0;

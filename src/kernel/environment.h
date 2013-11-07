@@ -211,5 +211,60 @@ public:
     void set_interrupt(bool flag);
     void interrupt() { set_interrupt(true); }
     void reset_interrupt() { set_interrupt(false); }
+
+    /**
+       \brief Frontend can store data in environment extensions.
+       Each extension is associated with a unique token/id.
+       This token allows the frontend to retrieve/store an extension object
+       in the environment
+    */
+    class extension {
+        friend class imp;
+        imp *     m_env;
+        unsigned  m_extid; // extension id
+        extension const * get_parent_core() const;
+    public:
+        extension();
+        virtual ~extension();
+        /**
+           \brief Return a constant reference for a parent extension,
+           and a nullptr if there is no parent/ancestor, or if the
+           parent/ancestor has an extension.
+        */
+        template<typename Ext> Ext const * get_parent() const {
+            extension const * ext = get_parent_core();
+            lean_assert(!ext || dynamic_cast<Ext const *>(ext) != nullptr);
+            return static_cast<Ext const *>(ext);
+        }
+    };
+
+    /**
+       \brief Register an environment extension. Every environment
+       object will contain this extension. The funciton mk creates a
+       new instance of the extension.  The extension object can be
+       retrieved using the token (unsigned integer) returned by this
+       method.
+
+       \remark The extension objects are created on demand.
+
+       \see get_extension
+    */
+    typedef std::unique_ptr<extension> (*mk_extension)();
+    static unsigned register_extension(mk_extension mk);
+
+private:
+    extension & get_extension_core(unsigned extid) const;
+
+public:
+    /**
+       \brief Retrieve the extension associated with the token \c extid.
+       The token is the value returned by \c register_extension.
+    */
+    template<typename Ext>
+    Ext & get_extension(unsigned extid) const {
+        extension & ext = get_extension_core(extid);
+        lean_assert(dynamic_cast<Ext*>(&ext) != nullptr);
+        return static_cast<Ext&>(ext);
+    }
 };
 }

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <atomic>
 #include <tuple>
 #include <unordered_map>
+#include <mutex>
 #include "util/safe_arith.h"
 #include "kernel/for_each.h"
 #include "kernel/kernel_exception.h"
@@ -17,6 +18,35 @@ Author: Leonardo de Moura
 #include "kernel/normalizer.h"
 
 namespace lean {
+
+class extension_factory {
+    std::vector<environment::mk_extension> m_makers;
+    std::mutex                             m_makers_mutex;
+public:
+    unsigned register_extension(environment::mk_extension mk) {
+        std::lock_guard<std::mutex> lock(m_makers_mutex);
+        unsigned r = m_makers.size();
+        m_makers.push_back(mk);
+        return r;
+    }
+
+    std::unique_ptr<environment::extension> mk(unsigned extid) {
+        std::lock_guard<std::mutex> lock(m_makers_mutex);
+        return m_makers[extid]();
+    }
+};
+
+static std::unique_ptr<extension_factory> g_extension_factory;
+static extension_factory & get_extension_factory() {
+    if (!g_extension_factory)
+        g_extension_factory.reset(new extension_factory());
+    return *g_extension_factory;
+}
+
+unsigned environment::register_extension(mk_extension mk) {
+    return get_extension_factory().register_extension(mk);
+}
+
 /** \brief Implementation of the Lean environment. */
 struct environment::imp {
     // Remark: only named objects are stored in the dictionary.
@@ -36,6 +66,23 @@ struct environment::imp {
     std::vector<object>                  m_objects;
     object_dictionary                    m_object_dictionary;
     type_checker                         m_type_checker;
+
+    std::vector<std::unique_ptr<extension>> m_extensions;
+    friend class extension;
+
+    extension & get_extension_core(unsigned extid, environment const & env) {
+        if (has_children())
+            throw read_only_environment_exception(env);
+        if (extid >= m_extensions.size())
+            m_extensions.resize(extid+1);
+        if (!m_extensions[extid]) {
+            std::unique_ptr<extension> ext = get_extension_factory().mk(extid);
+            ext->m_extid = extid;
+            ext->m_env   = this;
+            m_extensions[extid].swap(ext);
+        }
+        return *(m_extensions[extid].get());
+    }
 
     unsigned get_max_weight(expr const & e) {
         unsigned w = 0;
@@ -483,5 +530,32 @@ void environment::display(std::ostream & out) const {
 
 void environment::set_interrupt(bool flag) {
     m_ptr->set_interrupt(flag);
+}
+
+environment::extension & environment::get_extension_core(unsigned extid) const {
+    return m_ptr->get_extension_core(extid, *this);
+}
+
+environment::extension::extension():
+    m_env(nullptr),
+    m_extid(0) {
+}
+
+environment::extension::~extension() {
+}
+
+environment::extension const * environment::extension::get_parent_core() const {
+    if (m_env == nullptr)
+        return nullptr;
+    imp * parent = m_env->m_parent.get();
+    while (parent) {
+        if (m_extid < parent->m_extensions.size()) {
+            extension * ext = parent->m_extensions[m_extid].get();
+            if (ext)
+                return ext;
+        }
+        parent = parent->m_parent.get();
+    }
+    return nullptr;
 }
 }

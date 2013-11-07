@@ -225,6 +225,51 @@ static void tst10() {
     lean_assert(env.get_object("d").get_weight() == 3);
 }
 
+struct my_extension : public environment::extension {
+    unsigned m_value1;
+    unsigned m_value2;
+    my_extension():m_value1(0), m_value2(0) {}
+};
+
+struct my_extension_reg {
+    unsigned m_extid;
+    my_extension_reg() {
+        m_extid = environment::register_extension([](){ return std::unique_ptr<environment::extension>(new my_extension()); });
+    }
+};
+
+static my_extension_reg R;
+
+static void tst11() {
+    unsigned extid = R.m_extid;
+    environment env;
+    my_extension & ext  = env.get_extension<my_extension>(extid);
+    ext.m_value1 = 10;
+    ext.m_value2 = 20;
+    my_extension & ext2 = env.get_extension<my_extension>(extid);
+    lean_assert(ext2.m_value1 == 10);
+    lean_assert(ext2.m_value2 == 20);
+    environment child = env.mk_child();
+    my_extension & ext3 = child.get_extension<my_extension>(extid);
+    lean_assert(ext3.m_value1 == 0);
+    lean_assert(ext3.m_value2 == 0);
+    my_extension const * ext4 = ext3.get_parent<my_extension>();
+    lean_assert(ext4);
+    lean_assert(ext4->m_value1 == 10);
+    lean_assert(ext4->m_value2 == 20);
+    lean_assert(ext4->get_parent<my_extension>() == nullptr);
+}
+
+static void tst12() {
+    unsigned extid = R.m_extid;
+    environment env;
+    environment child = env.mk_child();
+    my_extension & ext = child.get_extension<my_extension>(extid);
+    lean_assert(ext.m_value1 == 0);
+    lean_assert(ext.m_value2 == 0);
+    lean_assert(ext.get_parent<my_extension>() == nullptr);
+}
+
 int main() {
     enable_trace("is_convertible");
     tst1();
@@ -237,5 +282,7 @@ int main() {
     tst8();
     tst9();
     tst10();
+    tst11();
+    tst12();
     return has_violations() ? 1 : 0;
 }

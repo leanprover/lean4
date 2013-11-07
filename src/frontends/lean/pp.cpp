@@ -1043,7 +1043,7 @@ class pp_fn {
     }
 
     result pp_metavar(expr const & a, unsigned depth) {
-        format mv_fmt = compose(format("?M"), format(metavar_name(a)));
+        format mv_fmt = compose(format("?"), format(metavar_name(a)));
         if (metavar_lctx(a)) {
             format ctx_fmt;
             bool first = true;

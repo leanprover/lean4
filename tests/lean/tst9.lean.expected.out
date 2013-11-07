@@ -5,9 +5,9 @@
   Assumed: g
   Assumed: a
 Error (line: 5, pos: 6) type mismatch at application
-    g ⊤ (f ?M3::0 a a)
+    g ⊤ (f ?M::0 a a)
 Function type:
     N → N → Bool
 Arguments types:
     ⊤ : Bool
-    f ?M3::0 a a : ?M3::0
+    f ?M::0 a a : ?M::0

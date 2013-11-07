@@ -1,107 +1,107 @@
   Set: pp::colors
   Set: pp::unicode
 Failed to solve
- ⊢ (?M3::0 ≈ Nat::add) ⊕ (?M3::0 ≈ Int::add) ⊕ (?M3::0 ≈ Real::add)
+ ⊢ (?M::0 ≈ Nat::add) ⊕ (?M::0 ≈ Int::add) ⊕ (?M::0 ≈ Real::add)
     (line: 1: pos: 10) Overloading at
         (Real::add | Int::add | Nat::add) 1 ⊤
     Failed to solve
      ⊢ Bool ≺ ℕ
         Substitution
-         ⊢ Bool ≺ ?M3::8
+         ⊢ Bool ≺ ?M::8
             (line: 1: pos: 10) Type of argument 2 must be convertible to the expected type in the application of
-                ?M3::0
+                ?M::0
             with arguments:
-                ?M3::1 1
+                ?M::1 1
                 ⊤
             Assignment
-             ⊢ ℕ ≈ ?M3::8
+             ⊢ ℕ ≈ ?M::8
                 Destruct/Decompose
-                 ⊢ ℕ → ℕ ≈ Π x : ?M3::8, ?M3::9 x
+                 ⊢ ℕ → ℕ ≈ Π x : ?M::8, ?M::9 x
                     Substitution
-                     ⊢ (?M3::7[inst:0 (?M3::1 1)]) (?M3::1 1) ≈ Π x : ?M3::8, ?M3::9 x
+                     ⊢ (?M::7[inst:0 (?M::1 1)]) (?M::1 1) ≈ Π x : ?M::8, ?M::9 x
                         (line: 1: pos: 10) Function expected at
-                            ?M3::0 (?M3::1 1) ⊤
+                            ?M::0 (?M::1 1) ⊤
                         Assignment
-                        _ : ℕ ⊢ λ x : ℕ, ℕ → ℕ ≈ ?M3::7
+                        _ : ℕ ⊢ λ x : ℕ, ℕ → ℕ ≈ ?M::7
                             Destruct/Decompose
-                            _ : ℕ ⊢ ℕ → ℕ ≈ ?M3::7 _
+                            _ : ℕ ⊢ ℕ → ℕ ≈ ?M::7 _
                                 Destruct/Decompose
-                                 ⊢ ℕ → ℕ → ℕ ≈ Π x : ?M3::6, ?M3::7 x
+                                 ⊢ ℕ → ℕ → ℕ ≈ Π x : ?M::6, ?M::7 x
                                     Substitution
-                                     ⊢ ?M3::2 ≈ Π x : ?M3::6, ?M3::7 x
+                                     ⊢ ?M::2 ≈ Π x : ?M::6, ?M::7 x
                                         (line: 1: pos: 10) Function expected at
-                                            ?M3::0 (?M3::1 1) ⊤
+                                            ?M::0 (?M::1 1) ⊤
                                         Assignment
-                                         ⊢ ℕ → ℕ → ℕ ≺ ?M3::2
-                                            Propagate type, ?M3::0 : ?M3::2
+                                         ⊢ ℕ → ℕ → ℕ ≺ ?M::2
+                                            Propagate type, ?M::0 : ?M::2
                                                 Assignment
-                                                 ⊢ ?M3::0 ≈ Nat::add
+                                                 ⊢ ?M::0 ≈ Nat::add
                                                     Assumption 0
     Failed to solve
      ⊢ Bool ≺ ℤ
         Substitution
-         ⊢ Bool ≺ ?M3::8
+         ⊢ Bool ≺ ?M::8
             (line: 1: pos: 10) Type of argument 2 must be convertible to the expected type in the application of
-                ?M3::0
+                ?M::0
             with arguments:
-                ?M3::1 1
+                ?M::1 1
                 ⊤
             Assignment
-             ⊢ ℤ ≈ ?M3::8
+             ⊢ ℤ ≈ ?M::8
                 Destruct/Decompose
-                 ⊢ ℤ → ℤ ≈ Π x : ?M3::8, ?M3::9 x
+                 ⊢ ℤ → ℤ ≈ Π x : ?M::8, ?M::9 x
                     Substitution
-                     ⊢ (?M3::7[inst:0 (?M3::1 1)]) (?M3::1 1) ≈ Π x : ?M3::8, ?M3::9 x
+                     ⊢ (?M::7[inst:0 (?M::1 1)]) (?M::1 1) ≈ Π x : ?M::8, ?M::9 x
                         (line: 1: pos: 10) Function expected at
-                            ?M3::0 (?M3::1 1) ⊤
+                            ?M::0 (?M::1 1) ⊤
                         Assignment
-                        _ : ℤ ⊢ λ x : ℤ, ℤ → ℤ ≈ ?M3::7
+                        _ : ℤ ⊢ λ x : ℤ, ℤ → ℤ ≈ ?M::7
                             Destruct/Decompose
-                            _ : ℤ ⊢ ℤ → ℤ ≈ ?M3::7 _
+                            _ : ℤ ⊢ ℤ → ℤ ≈ ?M::7 _
                                 Destruct/Decompose
-                                 ⊢ ℤ → ℤ → ℤ ≈ Π x : ?M3::6, ?M3::7 x
+                                 ⊢ ℤ → ℤ → ℤ ≈ Π x : ?M::6, ?M::7 x
                                     Substitution
-                                     ⊢ ?M3::2 ≈ Π x : ?M3::6, ?M3::7 x
+                                     ⊢ ?M::2 ≈ Π x : ?M::6, ?M::7 x
                                         (line: 1: pos: 10) Function expected at
-                                            ?M3::0 (?M3::1 1) ⊤
+                                            ?M::0 (?M::1 1) ⊤
                                         Assignment
-                                         ⊢ ℤ → ℤ → ℤ ≺ ?M3::2
-                                            Propagate type, ?M3::0 : ?M3::2
+                                         ⊢ ℤ → ℤ → ℤ ≺ ?M::2
+                                            Propagate type, ?M::0 : ?M::2
                                                 Assignment
-                                                 ⊢ ?M3::0 ≈ Int::add
+                                                 ⊢ ?M::0 ≈ Int::add
                                                     Assumption 2
     Failed to solve
      ⊢ Bool ≺ ℝ
         Substitution
-         ⊢ Bool ≺ ?M3::8
+         ⊢ Bool ≺ ?M::8
             (line: 1: pos: 10) Type of argument 2 must be convertible to the expected type in the application of
-                ?M3::0
+                ?M::0
             with arguments:
-                ?M3::1 1
+                ?M::1 1
                 ⊤
             Assignment
-             ⊢ ℝ ≈ ?M3::8
+             ⊢ ℝ ≈ ?M::8
                 Destruct/Decompose
-                 ⊢ ℝ → ℝ ≈ Π x : ?M3::8, ?M3::9 x
+                 ⊢ ℝ → ℝ ≈ Π x : ?M::8, ?M::9 x
                     Substitution
-                     ⊢ (?M3::7[inst:0 (?M3::1 1)]) (?M3::1 1) ≈ Π x : ?M3::8, ?M3::9 x
+                     ⊢ (?M::7[inst:0 (?M::1 1)]) (?M::1 1) ≈ Π x : ?M::8, ?M::9 x
                         (line: 1: pos: 10) Function expected at
-                            ?M3::0 (?M3::1 1) ⊤
+                            ?M::0 (?M::1 1) ⊤
                         Assignment
-                        _ : ℝ ⊢ λ x : ℝ, ℝ → ℝ ≈ ?M3::7
+                        _ : ℝ ⊢ λ x : ℝ, ℝ → ℝ ≈ ?M::7
                             Destruct/Decompose
-                            _ : ℝ ⊢ ℝ → ℝ ≈ ?M3::7 _
+                            _ : ℝ ⊢ ℝ → ℝ ≈ ?M::7 _
                                 Destruct/Decompose
-                                 ⊢ ℝ → ℝ → ℝ ≈ Π x : ?M3::6, ?M3::7 x
+                                 ⊢ ℝ → ℝ → ℝ ≈ Π x : ?M::6, ?M::7 x
                                     Substitution
-                                     ⊢ ?M3::2 ≈ Π x : ?M3::6, ?M3::7 x
+                                     ⊢ ?M::2 ≈ Π x : ?M::6, ?M::7 x
                                         (line: 1: pos: 10) Function expected at
-                                            ?M3::0 (?M3::1 1) ⊤
+                                            ?M::0 (?M::1 1) ⊤
                                         Assignment
-                                         ⊢ ℝ → ℝ → ℝ ≺ ?M3::2
-                                            Propagate type, ?M3::0 : ?M3::2
+                                         ⊢ ℝ → ℝ → ℝ ≺ ?M::2
+                                            Propagate type, ?M::0 : ?M::2
                                                 Assignment
-                                                 ⊢ ?M3::0 ≈ Real::add
+                                                 ⊢ ?M::0 ≈ Real::add
                                                     Assumption 5
   Assumed: R
   Assumed: T

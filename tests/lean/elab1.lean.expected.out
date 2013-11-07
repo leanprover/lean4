@@ -2,122 +2,122 @@
   Set: pp::unicode
   Assumed: f
 Failed to solve
- ⊢ (?M3::1 ≈ λ x : ℕ, x) ⊕ (?M3::1 ≈ nat_to_int) ⊕ (?M3::1 ≈ nat_to_real)
+ ⊢ (?M::1 ≈ λ x : ℕ, x) ⊕ (?M::1 ≈ nat_to_int) ⊕ (?M::1 ≈ nat_to_real)
     (line: 4: pos: 8) Coercion for
         10
     Failed to solve
      ⊢ Bool ≺ ℕ
         Substitution
-         ⊢ Bool ≺ ?M3::0
+         ⊢ Bool ≺ ?M::0
             (line: 4: pos: 6) Type of argument 3 must be convertible to the expected type in the application of
                 f::explicit
             with arguments:
-                ?M3::0
-                ?M3::1 10
+                ?M::0
+                ?M::1 10
                 ⊤
             Assignment
-             ⊢ ℕ ≺ ?M3::0
+             ⊢ ℕ ≺ ?M::0
                 Substitution
-                 ⊢ (?M3::5[inst:0 (10)]) 10 ≺ ?M3::0
+                 ⊢ (?M::5[inst:0 (10)]) 10 ≺ ?M::0
                     (line: 4: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
                         f::explicit
                     with arguments:
-                        ?M3::0
-                        ?M3::1 10
+                        ?M::0
+                        ?M::1 10
                         ⊤
                     Assignment
-                    x : ℕ ⊢ λ x : ℕ, ℕ ≈ ?M3::5
+                    x : ℕ ⊢ λ x : ℕ, ℕ ≈ ?M::5
                         Destruct/Decompose
-                        x : ℕ ⊢ ℕ ≈ ?M3::5 x
+                        x : ℕ ⊢ ℕ ≈ ?M::5 x
                             Destruct/Decompose
-                             ⊢ ℕ → ℕ ≈ Π x : ?M3::4, ?M3::5 x
+                             ⊢ ℕ → ℕ ≈ Π x : ?M::4, ?M::5 x
                                 Substitution
-                                 ⊢ ?M3::3 ≈ Π x : ?M3::4, ?M3::5 x
+                                 ⊢ ?M::3 ≈ Π x : ?M::4, ?M::5 x
                                      Function expected at
-                                        ?M3::1 10
+                                        ?M::1 10
                                     Assignment
-                                     ⊢ ℕ → ℕ ≺ ?M3::3
-                                        Propagate type, ?M3::1 : ?M3::3
+                                     ⊢ ℕ → ℕ ≺ ?M::3
+                                        Propagate type, ?M::1 : ?M::3
                                             Assignment
-                                             ⊢ ?M3::1 ≈ λ x : ℕ, x
+                                             ⊢ ?M::1 ≈ λ x : ℕ, x
                                                 Assumption 0
     Failed to solve
      ⊢ Bool ≺ ℤ
         Substitution
-         ⊢ Bool ≺ ?M3::0
+         ⊢ Bool ≺ ?M::0
             (line: 4: pos: 6) Type of argument 3 must be convertible to the expected type in the application of
                 f::explicit
             with arguments:
-                ?M3::0
-                ?M3::1 10
+                ?M::0
+                ?M::1 10
                 ⊤
             Assignment
-             ⊢ ℤ ≺ ?M3::0
+             ⊢ ℤ ≺ ?M::0
                 Substitution
-                 ⊢ (?M3::5[inst:0 (10)]) 10 ≺ ?M3::0
+                 ⊢ (?M::5[inst:0 (10)]) 10 ≺ ?M::0
                     (line: 4: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
                         f::explicit
                     with arguments:
-                        ?M3::0
-                        ?M3::1 10
+                        ?M::0
+                        ?M::1 10
                         ⊤
                     Assignment
-                    _ : ℕ ⊢ λ x : ℕ, ℤ ≈ ?M3::5
+                    _ : ℕ ⊢ λ x : ℕ, ℤ ≈ ?M::5
                         Destruct/Decompose
-                        _ : ℕ ⊢ ℤ ≈ ?M3::5 _
+                        _ : ℕ ⊢ ℤ ≈ ?M::5 _
                             Destruct/Decompose
-                             ⊢ ℕ → ℤ ≈ Π x : ?M3::4, ?M3::5 x
+                             ⊢ ℕ → ℤ ≈ Π x : ?M::4, ?M::5 x
                                 Substitution
-                                 ⊢ ?M3::3 ≈ Π x : ?M3::4, ?M3::5 x
+                                 ⊢ ?M::3 ≈ Π x : ?M::4, ?M::5 x
                                      Function expected at
-                                        ?M3::1 10
+                                        ?M::1 10
                                     Assignment
-                                     ⊢ ℕ → ℤ ≺ ?M3::3
-                                        Propagate type, ?M3::1 : ?M3::3
+                                     ⊢ ℕ → ℤ ≺ ?M::3
+                                        Propagate type, ?M::1 : ?M::3
                                             Assignment
-                                             ⊢ ?M3::1 ≈ nat_to_int
+                                             ⊢ ?M::1 ≈ nat_to_int
                                                 Assumption 1
     Failed to solve
      ⊢ Bool ≺ ℝ
         Substitution
-         ⊢ Bool ≺ ?M3::0
+         ⊢ Bool ≺ ?M::0
             (line: 4: pos: 6) Type of argument 3 must be convertible to the expected type in the application of
                 f::explicit
             with arguments:
-                ?M3::0
-                ?M3::1 10
+                ?M::0
+                ?M::1 10
                 ⊤
             Assignment
-             ⊢ ℝ ≺ ?M3::0
+             ⊢ ℝ ≺ ?M::0
                 Substitution
-                 ⊢ (?M3::5[inst:0 (10)]) 10 ≺ ?M3::0
+                 ⊢ (?M::5[inst:0 (10)]) 10 ≺ ?M::0
                     (line: 4: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
                         f::explicit
                     with arguments:
-                        ?M3::0
-                        ?M3::1 10
+                        ?M::0
+                        ?M::1 10
                         ⊤
                     Assignment
-                    _ : ℕ ⊢ λ x : ℕ, ℝ ≈ ?M3::5
+                    _ : ℕ ⊢ λ x : ℕ, ℝ ≈ ?M::5
                         Destruct/Decompose
-                        _ : ℕ ⊢ ℝ ≈ ?M3::5 _
+                        _ : ℕ ⊢ ℝ ≈ ?M::5 _
                             Destruct/Decompose
-                             ⊢ ℕ → ℝ ≈ Π x : ?M3::4, ?M3::5 x
+                             ⊢ ℕ → ℝ ≈ Π x : ?M::4, ?M::5 x
                                 Substitution
-                                 ⊢ ?M3::3 ≈ Π x : ?M3::4, ?M3::5 x
+                                 ⊢ ?M::3 ≈ Π x : ?M::4, ?M::5 x
                                      Function expected at
-                                        ?M3::1 10
+                                        ?M::1 10
                                     Assignment
-                                     ⊢ ℕ → ℝ ≺ ?M3::3
-                                        Propagate type, ?M3::1 : ?M3::3
+                                     ⊢ ℕ → ℝ ≺ ?M::3
+                                        Propagate type, ?M::1 : ?M::3
                                             Assignment
-                                             ⊢ ?M3::1 ≈ nat_to_real
+                                             ⊢ ?M::1 ≈ nat_to_real
                                                 Assumption 2
   Assumed: g
 Error (line: 7, pos: 8) unexpected metavariable occurrence
   Assumed: h
 Failed to solve
-x : ?M3::0, A : Type ⊢ ?M3::0[lift:0:2] ≺ A
+x : ?M::0, A : Type ⊢ ?M::0[lift:0:2] ≺ A
     (line: 11: pos: 27) Type of argument 2 must be convertible to the expected type in the application of
         h
     with arguments:
@@ -125,7 +125,7 @@ x : ?M3::0, A : Type ⊢ ?M3::0[lift:0:2] ≺ A
         x
   Assumed: my_eq
 Failed to solve
-A : Type, B : Type, a : ?M3::0, b : ?M3::1, C : Type ⊢ ?M3::0[lift:0:3] ≺ C
+A : Type, B : Type, a : ?M::0, b : ?M::1, C : Type ⊢ ?M::0[lift:0:3] ≺ C
     (line: 15: pos: 51) Type of argument 2 must be convertible to the expected type in the application of
         my_eq
     with arguments:
@@ -139,557 +139,542 @@ Error (line: 20, pos: 28) unexpected metavariable occurrence
 Failed to solve
  ⊢ b ≈ a
     Substitution
-     ⊢ b ≈ ?M3::3
+     ⊢ b ≈ ?M::3
         Destruct/Decompose
-         ⊢ b == b ≺ ?M3::3 == ?M3::4
+         ⊢ b == b ≺ ?M::3 == ?M::4
             (line: 22: pos: 22) Type of argument 6 must be convertible to the expected type in the application of
                 Trans::explicit
             with arguments:
-                ?M3::1
-                ?M3::2
-                ?M3::3
-                ?M3::4
+                ?M::1
+                ?M::2
+                ?M::3
+                ?M::4
                 Refl a
                 Refl b
         Assignment
-         ⊢ a ≈ ?M3::3
+         ⊢ a ≈ ?M::3
             Destruct/Decompose
-             ⊢ a == a ≺ ?M3::2 == ?M3::3
+             ⊢ a == a ≺ ?M::2 == ?M::3
                 (line: 22: pos: 22) Type of argument 5 must be convertible to the expected type in the application of
                     Trans::explicit
                 with arguments:
-                    ?M3::1
-                    ?M3::2
-                    ?M3::3
-                    ?M3::4
+                    ?M::1
+                    ?M::2
+                    ?M::3
+                    ?M::4
                     Refl a
                     Refl b
 Failed to solve
- ⊢ (?M3::0 ≈ Type) ⊕ (?M3::0 ≈ Type 1) ⊕ (?M3::0 ≈ Type 2) ⊕ (?M3::0 ≈ Type M) ⊕ (?M3::0 ≈ Type U)
+ ⊢ (?M::0 ≈ Type) ⊕ (?M::0 ≈ Type 1) ⊕ (?M::0 ≈ Type 2) ⊕ (?M::0 ≈ Type M) ⊕ (?M::0 ≈ Type U)
     Destruct/Decompose
-     ⊢ Type ≺ ?M3::0
+     ⊢ Type ≺ ?M::0
         (line: 24: pos: 6) Type of argument 3 must be convertible to the expected type in the application of
             f::explicit
         with arguments:
-            ?M3::0
+            ?M::0
             Bool
             Bool
     Failed to solve
-     ⊢
-    (?M3::1 ≈ Type 1) ⊕ (?M3::1 ≈ Type 2) ⊕ (?M3::1 ≈ Type 3) ⊕ (?M3::1 ≈ Type M) ⊕ (?M3::1 ≈ Type U)
+     ⊢ (?M::1 ≈ Type 1) ⊕ (?M::1 ≈ Type 2) ⊕ (?M::1 ≈ Type 3) ⊕ (?M::1 ≈ Type M) ⊕ (?M::1 ≈ Type U)
         Destruct/Decompose
-         ⊢ Type 1 ≺ ?M3::1
-            Propagate type, ?M3::0 : ?M3::1
+         ⊢ Type 1 ≺ ?M::1
+            Propagate type, ?M::0 : ?M::1
                 Assignment
-                 ⊢ ?M3::0 ≈ Type
+                 ⊢ ?M::0 ≈ Type
                     Assumption 0
         Failed to solve
          ⊢ Type 1 ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type 1
+                 ⊢ ?M::1 ≈ Type 1
                     Assumption 1
         Failed to solve
          ⊢ Type 2 ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type 2
+                 ⊢ ?M::1 ≈ Type 2
                     Assumption 2
         Failed to solve
          ⊢ Type 3 ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type 3
+                 ⊢ ?M::1 ≈ Type 3
                     Assumption 3
         Failed to solve
          ⊢ Type M ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type M
+                 ⊢ ?M::1 ≈ Type M
                     Assumption 4
         Failed to solve
          ⊢ Type U ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type U
+                 ⊢ ?M::1 ≈ Type U
                     Assumption 5
     Failed to solve
-     ⊢
-    (?M3::1 ≈ Type 2) ⊕ (?M3::1 ≈ Type 3) ⊕ (?M3::1 ≈ Type 4) ⊕ (?M3::1 ≈ Type M) ⊕ (?M3::1 ≈ Type U)
+     ⊢ (?M::1 ≈ Type 2) ⊕ (?M::1 ≈ Type 3) ⊕ (?M::1 ≈ Type 4) ⊕ (?M::1 ≈ Type M) ⊕ (?M::1 ≈ Type U)
         Destruct/Decompose
-         ⊢ Type 2 ≺ ?M3::1
-            Propagate type, ?M3::0 : ?M3::1
+         ⊢ Type 2 ≺ ?M::1
+            Propagate type, ?M::0 : ?M::1
                 Assignment
-                 ⊢ ?M3::0 ≈ Type 1
+                 ⊢ ?M::0 ≈ Type 1
                     Assumption 6
         Failed to solve
          ⊢ Type 2 ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type 2
+                 ⊢ ?M::1 ≈ Type 2
                     Assumption 7
         Failed to solve
          ⊢ Type 3 ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type 3
+                 ⊢ ?M::1 ≈ Type 3
                     Assumption 8
         Failed to solve
          ⊢ Type 4 ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type 4
+                 ⊢ ?M::1 ≈ Type 4
                     Assumption 9
         Failed to solve
          ⊢ Type M ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type M
+                 ⊢ ?M::1 ≈ Type M
                     Assumption 10
         Failed to solve
          ⊢ Type U ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type U
+                 ⊢ ?M::1 ≈ Type U
                     Assumption 11
     Failed to solve
-     ⊢
-    (?M3::1 ≈ Type 3) ⊕ (?M3::1 ≈ Type 4) ⊕ (?M3::1 ≈ Type 5) ⊕ (?M3::1 ≈ Type M) ⊕ (?M3::1 ≈ Type U)
+     ⊢ (?M::1 ≈ Type 3) ⊕ (?M::1 ≈ Type 4) ⊕ (?M::1 ≈ Type 5) ⊕ (?M::1 ≈ Type M) ⊕ (?M::1 ≈ Type U)
         Destruct/Decompose
-         ⊢ Type 3 ≺ ?M3::1
-            Propagate type, ?M3::0 : ?M3::1
+         ⊢ Type 3 ≺ ?M::1
+            Propagate type, ?M::0 : ?M::1
                 Assignment
-                 ⊢ ?M3::0 ≈ Type 2
+                 ⊢ ?M::0 ≈ Type 2
                     Assumption 12
         Failed to solve
          ⊢ Type 3 ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type 3
+                 ⊢ ?M::1 ≈ Type 3
                     Assumption 13
         Failed to solve
          ⊢ Type 4 ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type 4
+                 ⊢ ?M::1 ≈ Type 4
                     Assumption 14
         Failed to solve
          ⊢ Type 5 ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type 5
+                 ⊢ ?M::1 ≈ Type 5
                     Assumption 15
         Failed to solve
          ⊢ Type M ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type M
+                 ⊢ ?M::1 ≈ Type M
                     Assumption 16
         Failed to solve
          ⊢ Type U ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type U
+                 ⊢ ?M::1 ≈ Type U
                     Assumption 17
     Failed to solve
      ⊢
-    (?M3::1 ≈ Type M+1) ⊕
-    (?M3::1 ≈ Type M+2) ⊕
-    (?M3::1 ≈ Type M+3) ⊕
-    (?M3::1 ≈ Type M) ⊕
-    (?M3::1 ≈ Type U)
+    (?M::1 ≈ Type M+1) ⊕ (?M::1 ≈ Type M+2) ⊕ (?M::1 ≈ Type M+3) ⊕ (?M::1 ≈ Type M) ⊕ (?M::1 ≈ Type U)
         Destruct/Decompose
-         ⊢ Type M+1 ≺ ?M3::1
-            Propagate type, ?M3::0 : ?M3::1
+         ⊢ Type M+1 ≺ ?M::1
+            Propagate type, ?M::0 : ?M::1
                 Assignment
-                 ⊢ ?M3::0 ≈ Type M
+                 ⊢ ?M::0 ≈ Type M
                     Assumption 18
         Failed to solve
          ⊢ Type M+1 ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type M+1
+                 ⊢ ?M::1 ≈ Type M+1
                     Assumption 19
         Failed to solve
          ⊢ Type M+2 ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type M+2
+                 ⊢ ?M::1 ≈ Type M+2
                     Assumption 20
         Failed to solve
          ⊢ Type M+3 ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type M+3
+                 ⊢ ?M::1 ≈ Type M+3
                     Assumption 21
         Failed to solve
          ⊢ Type M ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type M
+                 ⊢ ?M::1 ≈ Type M
                     Assumption 22
         Failed to solve
          ⊢ Type U ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type U
+                 ⊢ ?M::1 ≈ Type U
                     Assumption 23
     Failed to solve
      ⊢
-    (?M3::1 ≈ Type U+1) ⊕
-    (?M3::1 ≈ Type U+2) ⊕
-    (?M3::1 ≈ Type U+3) ⊕
-    (?M3::1 ≈ Type M) ⊕
-    (?M3::1 ≈ Type U)
+    (?M::1 ≈ Type U+1) ⊕ (?M::1 ≈ Type U+2) ⊕ (?M::1 ≈ Type U+3) ⊕ (?M::1 ≈ Type M) ⊕ (?M::1 ≈ Type U)
         Destruct/Decompose
-         ⊢ Type U+1 ≺ ?M3::1
-            Propagate type, ?M3::0 : ?M3::1
+         ⊢ Type U+1 ≺ ?M::1
+            Propagate type, ?M::0 : ?M::1
                 Assignment
-                 ⊢ ?M3::0 ≈ Type U
+                 ⊢ ?M::0 ≈ Type U
                     Assumption 24
         Failed to solve
          ⊢ Type U+1 ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type U+1
+                 ⊢ ?M::1 ≈ Type U+1
                     Assumption 25
         Failed to solve
          ⊢ Type U+2 ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type U+2
+                 ⊢ ?M::1 ≈ Type U+2
                     Assumption 26
         Failed to solve
          ⊢ Type U+3 ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type U+3
+                 ⊢ ?M::1 ≈ Type U+3
                     Assumption 27
         Failed to solve
          ⊢ Type M ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type M
+                 ⊢ ?M::1 ≈ Type M
                     Assumption 28
         Failed to solve
          ⊢ Type U ≺ Type
             Substitution
-             ⊢ ?M3::1 ≺ Type
+             ⊢ ?M::1 ≺ Type
                 (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
                     f::explicit
                 with arguments:
-                    ?M3::0
+                    ?M::0
                     Bool
                     Bool
                 Assignment
-                 ⊢ ?M3::1 ≈ Type U
+                 ⊢ ?M::1 ≈ Type U
                     Assumption 29
 Failed to solve
-a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ a ≺ if (if a b ⊤) a ⊤
+a : Bool, b : Bool, H : ?M::2, H_na : ?M::7 ⊢ a ≺ if (if a b ⊤) a ⊤
     Substitution
-    a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ a ≺ ?M3::5[lift:0:1]
+    a : Bool, b : Bool, H : ?M::2, H_na : ?M::7 ⊢ a ≺ ?M::5[lift:0:1]
         Substitution
-        a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ ?M3::8 ≺ ?M3::5[lift:0:1]
+        a : Bool, b : Bool, H : ?M::2, H_na : ?M::7 ⊢ ?M::8 ≺ ?M::5[lift:0:1]
             Destruct/Decompose
-            a : Bool, b : Bool, H : ?M3::2 ⊢ Π H_na : ?M3::7, ?M3::8 ≺ Π _ : ?M3::4, ?M3::5[lift:0:1]
+            a : Bool, b : Bool, H : ?M::2 ⊢ Π H_na : ?M::7, ?M::8 ≺ Π _ : ?M::4, ?M::5[lift:0:1]
                 (line: 27: pos: 21) Type of argument 6 must be convertible to the expected type in the application of
                     DisjCases::explicit
                 with arguments:
-                    ?M3::3
-                    ?M3::4
-                    ?M3::5
+                    ?M::3
+                    ?M::4
+                    ?M::5
                     EM a
-                    λ H_a : ?M3::6, H
-                    λ H_na : ?M3::7, NotImp1 (MT H H_na)
+                    λ H_a : ?M::6, H
+                    λ H_na : ?M::7, NotImp1 (MT H H_na)
             Assignment
-            a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ a ≈ ?M3::8
+            a : Bool, b : Bool, H : ?M::2, H_na : ?M::7 ⊢ a ≈ ?M::8
                 Destruct/Decompose
-                a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ if a b ⊤ ≈ if ?M3::8 ?M3::9 ⊤
+                a : Bool, b : Bool, H : ?M::2, H_na : ?M::7 ⊢ if a b ⊤ ≈ if ?M::8 ?M::9 ⊤
                     Normalize
-                    a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ if a b ⊤ ≈ ?M3::8 ⇒ ?M3::9
+                    a : Bool, b : Bool, H : ?M::2, H_na : ?M::7 ⊢ if a b ⊤ ≈ ?M::8 ⇒ ?M::9
                         Substitution
-                        a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ if a b ⊤ ≈ ?M3::10
+                        a : Bool, b : Bool, H : ?M::2, H_na : ?M::7 ⊢ if a b ⊤ ≈ ?M::10
                             Destruct/Decompose
                             a : Bool,
                             b : Bool,
-                            H : ?M3::2,
-                            H_na : ?M3::7 ⊢
-                            if (if a b ⊤) a ⊤ ≺ if ?M3::10 ?M3::11 ⊤
+                            H : ?M::2,
+                            H_na : ?M::7 ⊢
+                            if (if a b ⊤) a ⊤ ≺ if ?M::10 ?M::11 ⊤
                                 Normalize
-                                a : Bool,
-                                b : Bool,
-                                H : ?M3::2,
-                                H_na : ?M3::7 ⊢
-                                (a ⇒ b) ⇒ a ≺ if ?M3::10 ?M3::11 ⊤
+                                a : Bool, b : Bool, H : ?M::2, H_na : ?M::7 ⊢ (a ⇒ b) ⇒ a ≺ if ?M::10 ?M::11 ⊤
                                     Substitution
                                     a : Bool,
                                     b : Bool,
-                                    H : ?M3::2,
-                                    H_na : ?M3::7 ⊢
-                                    ?M3::2[lift:0:2] ≺ if ?M3::10 ?M3::11 ⊤
+                                    H : ?M::2,
+                                    H_na : ?M::7 ⊢
+                                    ?M::2[lift:0:2] ≺ if ?M::10 ?M::11 ⊤
                                         Normalize
                                         a : Bool,
                                         b : Bool,
-                                        H : ?M3::2,
-                                        H_na : ?M3::7 ⊢
-                                        ?M3::2[lift:0:2] ≺ ?M3::10 ⇒ ?M3::11
+                                        H : ?M::2,
+                                        H_na : ?M::7 ⊢
+                                        ?M::2[lift:0:2] ≺ ?M::10 ⇒ ?M::11
                                             (line: 29: pos: 48) Type of argument 3 must be convertible to the expected type in the application of
                                                 MT::explicit
                                             with arguments:
-                                                ?M3::10
-                                                ?M3::11
+                                                ?M::10
+                                                ?M::11
                                                 H
                                                 H_na
                                          Normalize assignment
-                                            ?M3::0
+                                            ?M::0
                                             Assignment
-                                            a : Bool, b : Bool ⊢ ?M3::2 ≈ ?M3::0
+                                            a : Bool, b : Bool ⊢ ?M::2 ≈ ?M::0
                                                 Destruct/Decompose
                                                 a : Bool,
                                                 b : Bool ⊢
-                                                Π H : ?M3::2, ?M3::5 ≺ Π _ : ?M3::0, ?M3::1[lift:0:1]
+                                                Π H : ?M::2, ?M::5 ≺ Π _ : ?M::0, ?M::1[lift:0:1]
                                                     (line: 27: pos: 4) Type of argument 3 must be convertible to the expected type in the application of
                                                         Discharge::explicit
                                                     with arguments:
-                                                        ?M3::0
-                                                        ?M3::1
-                                                        λ H : ?M3::2,
+                                                        ?M::0
+                                                        ?M::1
+                                                        λ H : ?M::2,
                                                           DisjCases
                                                               (EM a)
-                                                              (λ H_a : ?M3::6, H)
-                                                              (λ H_na : ?M3::7, NotImp1 (MT H H_na))
+                                                              (λ H_a : ?M::6, H)
+                                                              (λ H_na : ?M::7, NotImp1 (MT H H_na))
                                             Assignment
-                                            a : Bool, b : Bool ⊢ ?M3::0 ≈ (a ⇒ b) ⇒ a
+                                            a : Bool, b : Bool ⊢ ?M::0 ≈ (a ⇒ b) ⇒ a
                                                 Destruct/Decompose
-                                                a : Bool, b : Bool ⊢ ?M3::0 ⇒ ?M3::1 ≺ ((a ⇒ b) ⇒ a) ⇒ a
+                                                a : Bool, b : Bool ⊢ ?M::0 ⇒ ?M::1 ≺ ((a ⇒ b) ⇒ a) ⇒ a
                                                     Destruct/Decompose
                                                     a : Bool ⊢
-                                                    Π b : Bool, ?M3::0 ⇒ ?M3::1 ≺
+                                                    Π b : Bool, ?M::0 ⇒ ?M::1 ≺
                                                     Π b : Bool, ((a ⇒ b) ⇒ a) ⇒ a
                                                         Destruct/Decompose
                                                          ⊢
-                                                        Π a b : Bool, ?M3::0 ⇒ ?M3::1 ≺
+                                                        Π a b : Bool, ?M::0 ⇒ ?M::1 ≺
                                                         Π a b : Bool, ((a ⇒ b) ⇒ a) ⇒ a
                                                             (line: 26: pos: 16) Type of definition 'pierce' must be convertible to expected type.
                             Assignment
-                            a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ ?M3::10 ≈ ?M3::8 ⇒ ?M3::9
+                            a : Bool, b : Bool, H : ?M::2, H_na : ?M::7 ⊢ ?M::10 ≈ ?M::8 ⇒ ?M::9
                                 Destruct/Decompose
-                                a : Bool, b : Bool, H : ?M3::2, H_na : ?M3::7 ⊢ ¬ ?M3::10 ≺ ¬ (?M3::8 ⇒ ?M3::9)
+                                a : Bool, b : Bool, H : ?M::2, H_na : ?M::7 ⊢ ¬ ?M::10 ≺ ¬ (?M::8 ⇒ ?M::9)
                                     (line: 29: pos: 40) Type of argument 3 must be convertible to the expected type in the application of
                                         NotImp1::explicit
                                     with arguments:
-                                        ?M3::8
-                                        ?M3::9
+                                        ?M::8
+                                        ?M::9
                                         MT H H_na
         Assignment
-        a : Bool, b : Bool, H : ?M3::2 ⊢ if (if a b ⊤) a ⊤ ≺ ?M3::5
+        a : Bool, b : Bool, H : ?M::2 ⊢ if (if a b ⊤) a ⊤ ≺ ?M::5
             Normalize
-            a : Bool, b : Bool, H : ?M3::2 ⊢ (a ⇒ b) ⇒ a ≺ ?M3::5
+            a : Bool, b : Bool, H : ?M::2 ⊢ (a ⇒ b) ⇒ a ≺ ?M::5
                 Normalize
-                a : Bool, b : Bool, H : ?M3::2, H_a : ?M3::6 ⊢ (a ⇒ b) ⇒ a ≺ ?M3::5[lift:0:1]
+                a : Bool, b : Bool, H : ?M::2, H_a : ?M::6 ⊢ (a ⇒ b) ⇒ a ≺ ?M::5[lift:0:1]
                     Substitution
-                    a : Bool, b : Bool, H : ?M3::2, H_a : ?M3::6 ⊢ ?M3::2[lift:0:2] ≺ ?M3::5[lift:0:1]
+                    a : Bool, b : Bool, H : ?M::2, H_a : ?M::6 ⊢ ?M::2[lift:0:2] ≺ ?M::5[lift:0:1]
                         Destruct/Decompose
                         a : Bool,
                         b : Bool,
-                        H : ?M3::2 ⊢
-                        Π H_a : ?M3::6, ?M3::2[lift:0:2] ≺ Π _ : ?M3::3, ?M3::5[lift:0:1]
+                        H : ?M::2 ⊢
+                        Π H_a : ?M::6, ?M::2[lift:0:2] ≺ Π _ : ?M::3, ?M::5[lift:0:1]
                             (line: 27: pos: 21) Type of argument 5 must be convertible to the expected type in the application of
                                 DisjCases::explicit
                             with arguments:
-                                ?M3::3
-                                ?M3::4
-                                ?M3::5
+                                ?M::3
+                                ?M::4
+                                ?M::5
                                 EM a
-                                λ H_a : ?M3::6, H
-                                λ H_na : ?M3::7, NotImp1 (MT H H_na)
+                                λ H_a : ?M::6, H
+                                λ H_na : ?M::7, NotImp1 (MT H H_na)
                          Normalize assignment
-                            ?M3::0
+                            ?M::0
                             Assignment
-                            a : Bool, b : Bool ⊢ ?M3::2 ≈ ?M3::0
+                            a : Bool, b : Bool ⊢ ?M::2 ≈ ?M::0
                                 Destruct/Decompose
-                                a : Bool, b : Bool ⊢ Π H : ?M3::2, ?M3::5 ≺ Π _ : ?M3::0, ?M3::1[lift:0:1]
+                                a : Bool, b : Bool ⊢ Π H : ?M::2, ?M::5 ≺ Π _ : ?M::0, ?M::1[lift:0:1]
                                     (line: 27: pos: 4) Type of argument 3 must be convertible to the expected type in the application of
                                         Discharge::explicit
                                     with arguments:
-                                        ?M3::0
-                                        ?M3::1
-                                        λ H : ?M3::2,
-                                          DisjCases (EM a) (λ H_a : ?M3::6, H) (λ H_na : ?M3::7, NotImp1 (MT H H_na))
+                                        ?M::0
+                                        ?M::1
+                                        λ H : ?M::2,
+                                          DisjCases (EM a) (λ H_a : ?M::6, H) (λ H_na : ?M::7, NotImp1 (MT H H_na))
                             Assignment
-                            a : Bool, b : Bool ⊢ ?M3::0 ≈ (a ⇒ b) ⇒ a
+                            a : Bool, b : Bool ⊢ ?M::0 ≈ (a ⇒ b) ⇒ a
                                 Destruct/Decompose
-                                a : Bool, b : Bool ⊢ ?M3::0 ⇒ ?M3::1 ≺ ((a ⇒ b) ⇒ a) ⇒ a
+                                a : Bool, b : Bool ⊢ ?M::0 ⇒ ?M::1 ≺ ((a ⇒ b) ⇒ a) ⇒ a
                                     Destruct/Decompose
-                                    a : Bool ⊢ Π b : Bool, ?M3::0 ⇒ ?M3::1 ≺ Π b : Bool, ((a ⇒ b) ⇒ a) ⇒ a
+                                    a : Bool ⊢ Π b : Bool, ?M::0 ⇒ ?M::1 ≺ Π b : Bool, ((a ⇒ b) ⇒ a) ⇒ a
                                         Destruct/Decompose
-                                         ⊢ Π a b : Bool, ?M3::0 ⇒ ?M3::1 ≺ Π a b : Bool, ((a ⇒ b) ⇒ a) ⇒ a
+                                         ⊢ Π a b : Bool, ?M::0 ⇒ ?M::1 ≺ Π a b : Bool, ((a ⇒ b) ⇒ a) ⇒ a
                                             (line: 26: pos: 16) Type of definition 'pierce' must be convertible to expected type.

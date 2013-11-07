@@ -76,7 +76,7 @@ struct print_expr_fn {
     }
 
     void print_metavar(expr const & a, context const &) {
-        out() << "?M" << metavar_name(a);
+        out() << "?" << metavar_name(a);
         if (metavar_lctx(a)) {
             out() << "[";
             bool first = true;

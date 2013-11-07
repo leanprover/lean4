@@ -50,8 +50,6 @@ public:
     virtual expr const & get_main_expr() const { return m_expr; }
 };
 
-static name g_unique_name = name::mk_internal_unique_name();
-
 void swap(metavar_env & a, metavar_env & b) {
     swap(a.m_name_generator,         b.m_name_generator);
     swap(a.m_metavar_data,           b.m_metavar_data);
@@ -75,8 +73,9 @@ metavar_env::metavar_env(name const & prefix):
     m_timestamp(0) {
 }
 
+static name g_default_name("M");
 metavar_env::metavar_env():
-    metavar_env(g_unique_name) {
+    metavar_env(g_default_name) {
 }
 
 expr metavar_env::mk_metavar(context const & ctx, expr const & type) {

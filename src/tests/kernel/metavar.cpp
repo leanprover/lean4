@@ -28,7 +28,7 @@ static std::ostream & operator<<(std::ostream & out, metavar_env const & menv) {
     bool first = true;
     menv.for_each_subst([&](name const & n, expr const & v) {
             if (first) first = false; else out << "\n";
-            out << "?M" << n << " <- " << v;
+            out << "?" << n << " <- " << v;
         });
     return out;
 }

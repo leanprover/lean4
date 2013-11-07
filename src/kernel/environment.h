@@ -218,7 +218,7 @@ public:
        in the environment
     */
     class extension {
-        friend class imp;
+        friend struct imp;
         imp *     m_env;
         unsigned  m_extid; // extension id
         extension const * get_parent_core() const;

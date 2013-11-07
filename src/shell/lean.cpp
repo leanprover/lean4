@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/interruptable_ptr.h"
 #include "kernel/printer.h"
 #include "frontends/lean/parser.h"
+#include "bindings/lua/leanlua_state.h"
 #include "version.h"
 
 using lean::interruptable_ptr;
@@ -17,6 +18,7 @@ using lean::shell;
 using lean::frontend;
 using lean::scoped_set_interruptable_ptr;
 using lean::parser;
+using lean::leanlua_state;
 
 static interruptable_ptr<shell> g_lean_shell;
 
@@ -28,7 +30,8 @@ bool lean_shell() {
     std::cout << "Lean (version " << LEAN_VERSION_MAJOR << "." << LEAN_VERSION_MINOR << ")\n";
     std::cout << "Type Ctrl-D to exit or 'Help.' for help."<< std::endl;
     frontend f;
-    shell sh(f);
+    leanlua_state S;
+    shell sh(f, &S);
     scoped_set_interruptable_ptr<shell> set(g_lean_shell, &sh);
     signal(SIGINT, on_ctrl_c);
     return sh();
@@ -40,9 +43,10 @@ int main(int argc, char ** argv) {
     } else {
         bool ok = true;
         frontend f;
+        leanlua_state S;
         for (int i = 1; i < argc; i++) {
             std::ifstream in(argv[i]);
-            parser p(f, in, false, false);
+            parser p(f, in, &S, false, false);
             if (!p())
                 ok = false;
         }

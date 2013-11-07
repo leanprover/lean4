@@ -10,12 +10,13 @@ Author: Leonardo de Moura
 #include "frontends/lean/frontend.h"
 
 namespace lean {
+class leanlua_state;
 /** \brief Functional object for parsing commands and expressions */
 class parser {
     class imp;
     std::unique_ptr<imp> m_ptr;
 public:
-    parser(frontend & fe, std::istream & in, bool use_exceptions = true, bool interactive = false);
+    parser(frontend & fe, std::istream & in, leanlua_state * S, bool use_exceptions = true, bool interactive = false);
     ~parser();
 
     /** \brief Parse a sequence of commands */
@@ -32,9 +33,10 @@ public:
 /** \brief Implements the Read Eval Print loop */
 class shell {
     frontend &                m_frontend;
+    leanlua_state *           m_leanlua_state;
     interruptable_ptr<parser> m_parser;
 public:
-    shell(frontend & fe);
+    shell(frontend & fe, leanlua_state * S);
     ~shell();
 
     bool operator()();
@@ -44,10 +46,10 @@ public:
     void reset_interrupt() { set_interrupt(false); }
 };
 
-inline bool parse_commands(frontend & fe, std::istream & in, bool use_exceptions = true, bool interactive = false) {
-    return parser(fe, in, use_exceptions, interactive)();
+inline bool parse_commands(frontend & fe, std::istream & in, leanlua_state * S = nullptr, bool use_exceptions = true, bool interactive = false) {
+    return parser(fe, in, S, use_exceptions, interactive)();
 }
 inline expr parse_expr(frontend & fe, std::istream & in) {
-    return parser(fe, in).parse_expr();
+    return parser(fe, in, nullptr).parse_expr();
 }
 }

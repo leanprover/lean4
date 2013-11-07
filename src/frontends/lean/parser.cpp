@@ -37,6 +37,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/notation.h"
 #include "frontends/lean/pp.h"
+#include "bindings/lua/leanlua_state.h"
 
 #ifndef LEAN_DEFAULT_PARSER_SHOW_ERRORS
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true
@@ -131,6 +132,8 @@ class parser::imp {
     // We need this reference to be able to interrupt it.
     interruptable_ptr<parser>     m_import_parser;
     interruptable_ptr<normalizer> m_normalizer;
+
+    leanlua_state *     m_leanlua_state;
 
     bool                m_verbose;
     bool                m_show_errors;
@@ -1398,7 +1401,7 @@ class parser::imp {
         try {
             if (m_verbose)
                 regular(m_frontend) << "Importing file '" << fname << "'" << endl;
-            parser import_parser(m_frontend, in, true /* use exceptions */, false /* not interactive */);
+            parser import_parser(m_frontend, in, m_leanlua_state, true /* use exceptions */, false /* not interactive */);
             scoped_set_interruptable_ptr<parser> set(m_import_parser, &import_parser);
             import_parser();
         } catch (interrupted &) {
@@ -1562,13 +1565,21 @@ class parser::imp {
             next();
     }
 
+    void parse_script() {
+        if (!m_leanlua_state)
+            throw exception("failed to execute Lua script, parser does not have a Lua interpreter");
+        m_leanlua_state->dostring(m_scanner.get_str_val().c_str());
+        next();
+    }
+
 public:
-    imp(frontend & fe, std::istream & in, bool use_exceptions, bool interactive):
+    imp(frontend & fe, std::istream & in, leanlua_state * S, bool use_exceptions, bool interactive):
         m_frontend(fe),
         m_scanner(in),
         m_elaborator(fe),
         m_use_exceptions(use_exceptions),
         m_interactive(interactive) {
+        m_leanlua_state = S;
         updt_options();
         m_found_errors = false;
         m_num_local_decls = 0;
@@ -1592,9 +1603,10 @@ public:
         while (true) {
             try {
                 switch (curr()) {
-                case scanner::token::CommandId: parse_command(); break;
-                case scanner::token::Period: show_prompt(); next(); break;
-                case scanner::token::Eof: return !m_found_errors;
+                case scanner::token::CommandId:   parse_command(); break;
+                case scanner::token::ScriptBlock: parse_script(); break;
+                case scanner::token::Period:      show_prompt(); next(); break;
+                case scanner::token::Eof:         return !m_found_errors;
                 default:
                     throw parser_error("Command expected", pos());
                 }
@@ -1655,9 +1667,9 @@ public:
     }
 };
 
-parser::parser(frontend & fe, std::istream & in, bool use_exceptions, bool interactive) {
+parser::parser(frontend & fe, std::istream & in, leanlua_state * S, bool use_exceptions, bool interactive) {
     parser::imp::show_prompt(interactive, fe);
-    m_ptr.reset(new imp(fe, in, use_exceptions, interactive));
+    m_ptr.reset(new imp(fe, in, S, use_exceptions, interactive));
 }
 
 parser::~parser() {
@@ -1675,7 +1687,7 @@ expr parser::parse_expr() {
     return m_ptr->parse_expr_main();
 }
 
-shell::shell(frontend & fe):m_frontend(fe) {
+shell::shell(frontend & fe, leanlua_state * S):m_frontend(fe), m_leanlua_state(S) {
 }
 
 shell::~shell() {
@@ -1691,7 +1703,7 @@ bool shell::operator()() {
         add_history(input);
         std::istringstream strm(input);
         {
-            parser p(m_frontend, strm, false, false);
+            parser p(m_frontend, strm, m_leanlua_state, false, false);
             scoped_set_interruptable_ptr<parser> set(m_parser, &p);
             if (!p())
                 errors = true;
@@ -1699,7 +1711,7 @@ bool shell::operator()() {
         free(input);
     }
 #else
-    parser p(m_frontend, std::cin, false, true);
+    parser p(m_frontend, std::cin, m_leanlua_state, false, true);
     scoped_set_interruptable_ptr<parser> set(m_parser, &p);
     return p();
 #endif

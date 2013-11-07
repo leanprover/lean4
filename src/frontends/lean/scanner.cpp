@@ -334,6 +334,56 @@ scanner::token scanner::read_string() {
     }
 }
 
+scanner::token scanner::read_script_block() {
+    lean_assert(curr() == '{');
+    next();
+    m_buffer.clear();
+    int num_open_blocks = 1;
+    while (true) {
+        char c = curr();
+        if (c == EOF) {
+            throw_exception("unexpected end of script");
+        } else if (c == '{') {
+            m_buffer += '{';
+            next();
+            c = curr();
+            if (c == '{')
+                num_open_blocks++;
+            else if (c == '\n')
+                new_line();
+            else if (c == EOF)
+                throw_exception("unexpected end of script");
+            m_buffer += c;
+            next();
+        } else if (c == '}') {
+            next();
+            char c2 = curr();
+            if (c2 == '}') {
+                next();
+                num_open_blocks--;
+                if (num_open_blocks == 0)
+                    return token::ScriptBlock;
+            } else if (c2 == '\n') {
+                new_line();
+                next();
+            } else if (c2 == EOF) {
+                throw_exception("unexpected end of script");
+            } else {
+                next();
+            }
+            m_buffer += c;
+            m_buffer += c2;
+        } else if (c == '\n') {
+            new_line();
+            m_buffer += '\n';
+            next();
+        } else {
+            m_buffer += c;
+            next();
+        }
+    }
+}
+
 scanner::token scanner::scan() {
     while (true) {
         char c = curr();
@@ -359,7 +409,12 @@ scanner::token scanner::scan() {
                 return token::LeftParen;
             }
         case ')':  next(); return token::RightParen;
-        case '{':  next(); return token::LeftCurlyBracket;
+        case '{':
+            next();
+            if (curr() == '{')
+                return read_script_block();
+            else
+                return token::LeftCurlyBracket;
         case '}':  next(); return token::RightCurlyBracket;
         case 'a':  return read_a_symbol();
         case 'b':  return read_b_symbol();
@@ -397,6 +452,7 @@ std::ostream & operator<<(std::ostream & out, scanner::token const & t) {
     case scanner::token::Assign:            out << ":="; break;
     case scanner::token::Type:              out << "Type"; break;
     case scanner::token::Placeholder:       out << "_"; break;
+    case scanner::token::ScriptBlock:       out << "Script"; break;
     case scanner::token::Eof:               out << "EOF"; break;
     }
     return out;

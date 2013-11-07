@@ -20,7 +20,8 @@ class scanner {
 public:
     enum class token {
         LeftParen, RightParen, LeftCurlyBracket, RightCurlyBracket, Colon, Comma, Period, Lambda, Pi, Arrow,
-        Let, In, Forall, Exists, Id, CommandId, NatVal, DecimalVal, StringVal, Eq, Assign, Type, Placeholder, Eof
+        Let, In, Forall, Exists, Id, CommandId, NatVal, DecimalVal, StringVal, Eq, Assign, Type, Placeholder,
+        ScriptBlock, Eof
     };
 protected:
     int                m_spos; // position in the current line of the stream
@@ -49,6 +50,7 @@ protected:
     token read_c_symbol();
     token read_number();
     token read_string();
+    token read_script_block();
     bool  is_command(name const & n) const;
 
 public:

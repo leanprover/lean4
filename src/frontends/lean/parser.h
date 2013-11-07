@@ -15,7 +15,7 @@ class parser {
     class imp;
     std::unique_ptr<imp> m_ptr;
 public:
-    parser(frontend const & fe, std::istream & in, bool use_exceptions = true, bool interactive = false);
+    parser(frontend & fe, std::istream & in, bool use_exceptions = true, bool interactive = false);
     ~parser();
 
     /** \brief Parse a sequence of commands */
@@ -31,10 +31,10 @@ public:
 
 /** \brief Implements the Read Eval Print loop */
 class shell {
-    frontend                  m_frontend;
+    frontend &                m_frontend;
     interruptable_ptr<parser> m_parser;
 public:
-    shell(frontend const & fe);
+    shell(frontend & fe);
     ~shell();
 
     bool operator()();
@@ -47,7 +47,7 @@ public:
 inline bool parse_commands(frontend & fe, std::istream & in, bool use_exceptions = true, bool interactive = false) {
     return parser(fe, in, use_exceptions, interactive)();
 }
-inline expr parse_expr(frontend const & fe, std::istream & in) {
+inline expr parse_expr(frontend & fe, std::istream & in) {
     return parser(fe, in).parse_expr();
 }
 }

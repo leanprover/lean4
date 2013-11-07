@@ -127,7 +127,6 @@ static void tst9() {
     {
         frontend c = f.mk_child();
         lean_assert(f.has_children());
-        lean_assert(c.parent().has_children());
     }
     lean_assert(!f.has_children());
     f.add_uvar("l", level()+1);

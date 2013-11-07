@@ -116,7 +116,7 @@ class parser::imp {
     typedef std::pair<unsigned, unsigned> pos_info;
     typedef expr_map<pos_info> expr_pos_info;
     typedef buffer<std::tuple<pos_info, name, expr, bool>> bindings_buffer;
-    frontend            m_frontend;
+    frontend &          m_frontend;
     scanner             m_scanner;
     frontend_elaborator m_elaborator;
     scanner::token      m_curr;
@@ -1563,7 +1563,7 @@ class parser::imp {
     }
 
 public:
-    imp(frontend const & fe, std::istream & in, bool use_exceptions, bool interactive):
+    imp(frontend & fe, std::istream & in, bool use_exceptions, bool interactive):
         m_frontend(fe),
         m_scanner(in),
         m_elaborator(fe),
@@ -1576,7 +1576,7 @@ public:
         scan();
     }
 
-    static void show_prompt(bool interactive, frontend const & fe) {
+    static void show_prompt(bool interactive, frontend & fe) {
         if (interactive) {
             regular(fe) << "# ";
             regular(fe).flush();
@@ -1655,7 +1655,7 @@ public:
     }
 };
 
-parser::parser(frontend const & fe, std::istream & in, bool use_exceptions, bool interactive) {
+parser::parser(frontend & fe, std::istream & in, bool use_exceptions, bool interactive) {
     parser::imp::show_prompt(interactive, fe);
     m_ptr.reset(new imp(fe, in, use_exceptions, interactive));
 }
@@ -1675,7 +1675,7 @@ expr parser::parse_expr() {
     return m_ptr->parse_expr_main();
 }
 
-shell::shell(frontend const & fe):m_frontend(fe) {
+shell::shell(frontend & fe):m_frontend(fe) {
 }
 
 shell::~shell() {

@@ -49,7 +49,7 @@ static void tst1() {
     parse(fe, "Check Pi (A : Type), A -> A");
 }
 
-static void check(frontend const & fe, char const * str, expr const & expected) {
+static void check(frontend & fe, char const * str, expr const & expected) {
     std::istringstream in(str);
     try {
         expr got = parse_expr(fe, in);

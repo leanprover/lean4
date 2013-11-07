@@ -14,64 +14,46 @@ Author: Leonardo de Moura
 
 namespace lean {
 /**
-   \brief Object for managing the environment, parser, pretty printer,
-   elaborator, etc.
+   \brief Wrapper for environment/state that provides additional objects
+   that are specific to the Lean frontend.
+
+   This wrapper provides APIs for accessing/using the Lean frontend
+   extension data in the environment.
 */
 class frontend {
-    struct imp;
-    std::shared_ptr<imp> m_ptr;
-    explicit frontend(imp * new_ptr);
-    explicit frontend(std::shared_ptr<imp> const & ptr);
-    state & get_state_core();
+    environment m_env;
+    state       m_state;
 public:
     frontend();
-    ~frontend();
+    frontend(environment const & env, state const & s);
 
-    /**
-       @name Parent/Child frontend management.
-    */
-    /*@{*/
-    /**
-        \brief Create a child environment. This frontend object will
-        only allow "read-only" operations until all children frontend
-        objects are deleted.
-    */
-    frontend mk_child() const;
+    frontend mk_child() const { return frontend(m_env.mk_child(), m_state); }
+    bool has_children() const { return m_env.has_children(); }
+    bool has_parent() const { return m_env.has_parent(); }
 
-    /** \brief Return true iff this fronted has children frontend. */
-    bool has_children() const;
-
-    /** \brief Return true iff this frontend has a parent frontend. */
-    bool has_parent() const;
-
-    /** \brief Return parent frontend */
-    frontend parent() const;
-    /*@}*/
+    environment const & get_environment() const { return m_env; }
+    operator environment const &() const { return get_environment(); }
 
     /**
        @name Environment API
     */
     /*@{*/
-    /** \brief Coercion frontend -> environment. */
-    environment const & get_environment() const;
-    operator environment const &() const { return get_environment(); }
-
-    level add_uvar(name const & n, level const & l);
-    level add_uvar(name const & n);
-    level get_uvar(name const & n) const;
-    void add_definition(name const & n, expr const & t, expr const & v, bool opaque = false);
-    void add_theorem(name const & n, expr const & t, expr const & v);
-    void add_definition(name const & n, expr const & v, bool opaque = false);
-    void add_axiom(name const & n, expr const & t);
-    void add_var(name const & n, expr const & t);
-    object const & get_object(name const & n) const;
-    object const & find_object(name const & n) const;
-    bool has_object(name const & n) const;
+    level add_uvar(name const & n, level const & l) { return m_env.add_uvar(n, l);  }
+    level add_uvar(name const & n) { return m_env.add_uvar(n); }
+    level get_uvar(name const & n) const { return m_env.get_uvar(n); }
+    void add_definition(name const & n, expr const & t, expr const & v, bool opaque = false) { m_env.add_definition(n, t, v, opaque); }
+    void add_theorem(name const & n, expr const & t, expr const & v) { m_env.add_theorem(n, t, v); }
+    void add_definition(name const & n, expr const & v, bool opaque = false) { m_env.add_definition(n, v, opaque); }
+    void add_axiom(name const & n, expr const & t) { m_env.add_axiom(n, t); }
+    void add_var(name const & n, expr const & t) { m_env.add_var(n, t); }
+    object const & get_object(name const & n) const { return m_env.get_object(n); }
+    object const & find_object(name const & n) const { return m_env.find_object(n); }
+    bool has_object(name const & n) const { return m_env.has_object(n); }
     typedef environment::object_iterator object_iterator;
-    object_iterator begin_objects() const;
-    object_iterator end_objects() const;
-    object_iterator begin_local_objects() const;
-    object_iterator end_local_objects() const;
+    object_iterator begin_objects() const { return m_env.begin_objects(); }
+    object_iterator end_objects() const { return m_env.end_objects(); }
+    object_iterator begin_local_objects() const { return m_env.begin_local_objects(); }
+    object_iterator end_local_objects() const { return m_env.end_local_objects(); }
     /*@}*/
 
     /**
@@ -195,18 +177,19 @@ public:
        @name State management.
     */
     /*@{*/
-    state const & get_state() const;
-    operator state const &() const { return get_state(); }
-    void set_options(options const & opts);
-    template<typename T> void set_option(name const & n, T const & v) { get_state_core().set_option(n, v); }
-    void set_regular_channel(std::shared_ptr<output_channel> const & out);
-    void set_diagnostic_channel(std::shared_ptr<output_channel> const & out);
+    state const & get_state() const { return m_state; }
+    operator state const &() const { return m_state; }
+    options get_options() const { return m_state.get_options(); }
+    void set_options(options const & opts) { return m_state.set_options(opts); }
+    template<typename T> void set_option(name const & n, T const & v) { m_state.set_option(n, v); }
+    void set_regular_channel(std::shared_ptr<output_channel> const & out) { m_state.set_regular_channel(out); }
+    void set_diagnostic_channel(std::shared_ptr<output_channel> const & out) { m_state.set_diagnostic_channel(out); }
     /*@}*/
 
     /**
        @name Interrupts.
     */
-    void set_interrupt(bool flag);
+    void set_interrupt(bool flag) { m_env.set_interrupt(flag); m_state.set_interrupt(flag); }
     void interrupt() { set_interrupt(true); }
     void reset_interrupt() { set_interrupt(false); }
     /*@}*/

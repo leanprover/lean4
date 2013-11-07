@@ -25,8 +25,10 @@ Author: Leonardo de Moura
 
 namespace lean {
 static std::vector<bool> g_empty_vector;
-/** \brief Implementation of the Lean frontend */
-struct frontend::imp {
+/**
+   \brief Environment extension object for the Lean default frontend.
+*/
+struct lean_extension : public environment::extension {
     typedef std::pair<std::vector<bool>, name> implicit_info;
     // Remark: only named objects are stored in the dictionary.
     typedef std::unordered_map<name, operator_info, name_hash, name_eq> operator_table;
@@ -36,9 +38,6 @@ struct frontend::imp {
     typedef std::unordered_map<expr, list<expr_pair>, expr_hash, std::equal_to<expr>> expr_to_coercions;
     typedef std::unordered_set<expr, expr_hash, std::equal_to<expr>> coercion_set;
 
-    std::atomic<unsigned> m_num_children;
-    std::shared_ptr<imp>  m_parent;
-    environment           m_env;
     operator_table        m_nud; // nud table for Pratt's parser
     operator_table        m_led; // led table for Pratt's parser
     expr_to_operators     m_expr_to_operators; // map denotations to operators (this is used for pretty printing)
@@ -46,21 +45,19 @@ struct frontend::imp {
     coercion_map          m_coercion_map; // mapping from (given_type, expected_type) -> coercion
     coercion_set          m_coercion_set; // Set of coercions
     expr_to_coercions     m_type_coercions; // mapping type -> list (to-type, function)
-    state                 m_state;
 
-    bool has_children() const { return m_num_children > 0; }
-    void inc_children() { m_num_children++; }
-    void dec_children() { m_num_children--; }
-
-    bool has_parent() const { return m_parent != nullptr; }
+    lean_extension const * get_parent() const {
+        return environment::extension::get_parent<lean_extension>();
+    }
 
     /** \brief Return the nud operator for the given symbol. */
     operator_info find_nud(name const & n) const {
         auto it = m_nud.find(n);
         if (it != m_nud.end())
             return it->second;
-        else if (has_parent())
-            return m_parent->find_nud(n);
+        lean_extension const * parent = get_parent();
+        if (parent)
+            return parent->find_nud(n);
         else
             return operator_info();
     }
@@ -70,8 +67,9 @@ struct frontend::imp {
         auto it = m_led.find(n);
         if (it != m_led.end())
             return it->second;
-        else if (has_parent())
-            return m_parent->find_led(n);
+        lean_extension const * parent = get_parent();
+        if (parent)
+            return parent->find_led(n);
         else
             return operator_info();
     }
@@ -110,17 +108,18 @@ struct frontend::imp {
                     return op;
             }
         }
-
-        if (has_parent())
-            return m_parent->find_op_for(e, unicode);
+        lean_extension const * parent = get_parent();
+        if (parent)
+            return parent->find_op_for(e, unicode);
         else
             return operator_info();
     }
 
     /** \brief Remove all internal denotations that are associated with the given operator symbol (aka notation) */
     void remove_bindings(operator_info const & op) {
+        lean_extension const * parent = get_parent();
         for (expr const & d : op.get_denotations()) {
-            if (has_parent() && m_parent->find_op_for(d, true)) {
+            if (parent && parent->find_op_for(d, true)) {
                 // parent has an association for d... we must hide it.
                 insert(m_expr_to_operators, d, list<operator_info>(operator_info()));
             } else {
@@ -128,6 +127,7 @@ struct frontend::imp {
             }
         }
     }
+
 
     /** \brief Add a new entry d -> op in the mapping m_expr_to_operators */
     void insert_expr_to_operator_entry(expr const & d, operator_info const & op) {
@@ -181,7 +181,7 @@ struct frontend::imp {
         2) It is a real conflict, and report the issue in the
         diagnostic channel, and override the existing operator (aka notation).
     */
-    void add_op(operator_info new_op, expr const & d, bool led) {
+    void add_op(operator_info new_op, expr const & d, bool led, environment & env, state & st) {
         name const & opn = new_op.get_op_name();
         operator_info old_op = find_op(opn, led);
         if (!old_op) {
@@ -199,30 +199,20 @@ struct frontend::imp {
                     register_new_op(new_op, d, led);
                 }
             } else {
-                diagnostic(m_state) << "The denotation(s) for the existing notation:\n  " << old_op
-                                    << "\nhave been replaced with the new denotation:\n  " << d
-                                    << "\nbecause they conflict on how implicit arguments are used.\n";
+                diagnostic(st) << "The denotation(s) for the existing notation:\n  " << old_op
+                               << "\nhave been replaced with the new denotation:\n  " << d
+                               << "\nbecause they conflict on how implicit arguments are used.\n";
                 remove_bindings(old_op);
                 register_new_op(new_op, d, led);
             }
         } else {
-            diagnostic(m_state) << "Notation has been redefined, the existing notation:\n  " << old_op
-                                << "\nhas been replaced with:\n  " << new_op << "\nbecause they conflict with each other.\n";
+            diagnostic(st) << "Notation has been redefined, the existing notation:\n  " << old_op
+                           << "\nhas been replaced with:\n  " << new_op << "\nbecause they conflict with each other.\n";
             remove_bindings(old_op);
             register_new_op(new_op, d, led);
         }
-        m_env.add_neutral_object(new notation_declaration(new_op, d));
+        env.add_neutral_object(new notation_declaration(new_op, d));
     }
-
-    void add_infix(name const & opn, unsigned p, expr const & d)  { add_op(infix(opn, p), d, true); }
-    void add_infixl(name const & opn, unsigned p, expr const & d) { add_op(infixl(opn, p), d, true); }
-    void add_infixr(name const & opn, unsigned p, expr const & d) { add_op(infixr(opn, p), d, true); }
-    void add_prefix(name const & opn, unsigned p, expr const & d) { add_op(prefix(opn, p), d, false); }
-    void add_postfix(name const & opn, unsigned p, expr const & d) { add_op(postfix(opn, p), d, true); }
-    void add_mixfixl(unsigned sz, name const * opns, unsigned p, expr const & d) { add_op(mixfixl(sz, opns, p), d, false); }
-    void add_mixfixr(unsigned sz, name const * opns, unsigned p, expr const & d) { add_op(mixfixr(sz, opns, p), d, true);  }
-    void add_mixfixc(unsigned sz, name const * opns, unsigned p, expr const & d) { add_op(mixfixc(sz, opns, p), d, false); }
-    void add_mixfixo(unsigned sz, name const * opns, unsigned p, expr const & d) { add_op(mixfixo(sz, opns, p), d, true); }
 
     expr mk_explicit_definition_body(expr type, name const & n, unsigned i, unsigned sz) {
         if (i == sz) {
@@ -237,16 +227,16 @@ struct frontend::imp {
         }
     }
 
-    void mark_implicit_arguments(name const & n, unsigned sz, bool const * implicit) {
-        if (has_children())
+    void mark_implicit_arguments(name const & n, unsigned sz, bool const * implicit, environment & env) {
+        if (env.has_children())
             throw exception(sstream() << "failed to mark implicit arguments, frontend object is read-only");
-        object const & obj = m_env.get_object(n);
+        object const & obj = env.get_object(n);
         if (obj.kind() != object_kind::Definition && obj.kind() != object_kind::Postulate && obj.kind() != object_kind::Builtin)
             throw exception(sstream() << "failed to mark implicit arguments, the object '" << n << "' is not a definition or postulate");
         if (has_implicit_arguments(n))
             throw exception(sstream() << "the object '" << n << "' already has implicit argument information associated with it");
         name explicit_version(n, "explicit");
-        if (m_env.find_object(explicit_version))
+        if (env.find_object(explicit_version))
             throw exception(sstream() << "failed to mark implicit arguments for '" << n << "', the frontend already has an object named '" << explicit_version << "'");
         expr const & type = obj.get_type();
         unsigned num_args = 0;
@@ -258,58 +248,58 @@ struct frontend::imp {
         m_implicit_table[n] = mk_pair(v, explicit_version);
         expr body = mk_explicit_definition_body(type, n, 0, sz);
         if (obj.is_axiom() || obj.is_theorem()) {
-            m_env.add_theorem(explicit_version, type, body);
+            env.add_theorem(explicit_version, type, body);
         } else {
-            m_env.add_definition(explicit_version, type, body);
+            env.add_definition(explicit_version, type, body);
         }
     }
 
-    bool has_implicit_arguments(name const & n) {
-        if (m_implicit_table.find(n) != m_implicit_table.end()) {
+    bool has_implicit_arguments(name const & n) const {
+        if (m_implicit_table.find(n) != m_implicit_table.end())
             return true;
-        } else if (has_parent()) {
-            return m_parent->has_implicit_arguments(n);
-        } else {
+        lean_extension const * parent = get_parent();
+        if (parent)
+            return parent->has_implicit_arguments(n);
+        else
             return false;
-        }
     }
 
-    std::vector<bool> const & get_implicit_arguments(name const & n) {
+    std::vector<bool> const & get_implicit_arguments(name const & n) const {
         auto it = m_implicit_table.find(n);
-        if (it != m_implicit_table.end()) {
+        if (it != m_implicit_table.end())
             return it->second.first;
-        } else if (has_parent()) {
-            return m_parent->get_implicit_arguments(n);
-        } else {
+        lean_extension const * parent = get_parent();
+        if (parent)
+            return parent->get_implicit_arguments(n);
+        else
             return g_empty_vector;
-        }
     }
 
-    std::vector<bool> const & get_implicit_arguments(expr const & n) {
+    std::vector<bool> const & get_implicit_arguments(expr const & n) const {
         if (is_constant(n))
             return get_implicit_arguments(const_name(n));
         else
             return g_empty_vector;
     }
 
-    name const & get_explicit_version(name const & n) {
+    name const & get_explicit_version(name const & n) const {
         auto it = m_implicit_table.find(n);
-        if (it != m_implicit_table.end()) {
+        if (it != m_implicit_table.end())
             return it->second.second;
-        } else if (has_parent()) {
-            return m_parent->get_explicit_version(n);
-        } else {
+        lean_extension const * parent = get_parent();
+        if (parent)
+            return parent->get_explicit_version(n);
+        else
             return name::anonymous();
-        }
     }
 
-    bool is_explicit(name const & n) {
+    bool is_explicit(name const & n) const {
         return !n.is_atomic() && get_explicit_version(n.get_prefix()) == n;
     }
 
-    void add_coercion(expr const & f) {
-        expr type      = m_env.infer_type(f);
-        expr norm_type = m_env.normalize(type);
+    void add_coercion(expr const & f, environment & env) {
+        expr type      = env.infer_type(f);
+        expr norm_type = env.normalize(type);
         if (!is_arrow(norm_type))
             throw exception("invalid coercion declaration, a coercion must have an arrow type (i.e., a non-dependent functional type)");
         expr from      = abst_domain(norm_type);
@@ -322,16 +312,17 @@ struct frontend::imp {
         m_coercion_set.insert(f);
         list<expr_pair> l = get_coercions(from);
         insert(m_type_coercions, from, cons(expr_pair(to, f), l));
-        m_env.add_neutral_object(new coercion_declaration(f));
+        env.add_neutral_object(new coercion_declaration(f));
     }
 
-    expr get_coercion(expr const & from_type, expr const & to_type) {
+    expr get_coercion(expr const & from_type, expr const & to_type) const {
         expr_pair p(from_type, to_type);
         auto it = m_coercion_map.find(p);
         if (it != m_coercion_map.end())
             return it->second;
-        else if (has_parent())
-            return m_parent->get_coercion(from_type, to_type);
+        lean_extension const * parent = get_parent();
+        if (parent)
+            return parent->get_coercion(from_type, to_type);
         else
             return expr();
     }
@@ -340,91 +331,81 @@ struct frontend::imp {
         auto r = m_type_coercions.find(from_type);
         if (r != m_type_coercions.end())
             return r->second;
-        else if (has_parent())
-            return m_parent->get_coercions(from_type);
+        lean_extension const * parent = get_parent();
+        if (parent)
+            return parent->get_coercions(from_type);
         else
             return list<expr_pair>();
     }
 
-    bool is_coercion(expr const & f) {
+    bool is_coercion(expr const & f) const {
         return m_coercion_set.find(f) != m_coercion_set.end();
-    }
-
-    void set_interrupt(bool flag) {
-        m_env.set_interrupt(flag);
-        m_state.set_interrupt(flag);
-    }
-
-    imp(frontend &):
-        m_num_children(0) {
-    }
-
-    explicit imp(std::shared_ptr<imp> const & parent):
-        m_num_children(0),
-        m_parent(parent),
-        m_env(m_parent->m_env.mk_child()),
-        m_state(m_parent->m_state) {
-        m_parent->inc_children();
-    }
-
-    ~imp() {
-        if (m_parent)
-            m_parent->dec_children();
     }
 };
 
-frontend::frontend():m_ptr(new imp(*this)) {
-    import_all(m_ptr->m_env);
+struct lean_extension_initializer {
+    unsigned m_extid;
+    lean_extension_initializer() {
+        m_extid = environment::register_extension([](){ return std::unique_ptr<environment::extension>(new lean_extension()); });
+    }
+};
+
+static lean_extension_initializer g_lean_extension_initializer;
+
+static lean_extension & to_ext(environment const & env) {
+    return env.get_extension<lean_extension>(g_lean_extension_initializer.m_extid);
+}
+
+frontend::frontend() {
+    import_all(m_env);
     init_builtin_notation(*this);
-    m_ptr->m_state.set_formatter(mk_pp_formatter(*this));
+    m_state.set_formatter(mk_pp_formatter(*this));
 }
-frontend::frontend(imp * new_ptr):m_ptr(new_ptr) {
-    m_ptr->m_state.set_formatter(mk_pp_formatter(*this));
+frontend::frontend(environment const & env, state const & s):m_env(env), m_state(s) {
 }
-frontend::frontend(std::shared_ptr<imp> const & ptr):m_ptr(ptr) {}
-frontend::~frontend() {}
 
-frontend frontend::mk_child() const { return frontend(new imp(m_ptr)); }
-bool frontend::has_children() const { return m_ptr->has_children(); }
-bool frontend::has_parent() const { return m_ptr->has_parent(); }
-frontend frontend::parent() const { lean_assert(has_parent()); return frontend(m_ptr->m_parent); }
-
-environment const & frontend::get_environment() const { return m_ptr->m_env; }
-
-level frontend::add_uvar(name const & n, level const & l) { return m_ptr->m_env.add_uvar(n, l); }
-level frontend::add_uvar(name const & n) { return m_ptr->m_env.add_uvar(n); }
-level frontend::get_uvar(name const & n) const { return m_ptr->m_env.get_uvar(n); }
-
-void frontend::add_definition(name const & n, expr const & t, expr const & v, bool opaque) {
-    return m_ptr->m_env.add_definition(n, t, v, opaque);
+void frontend::add_infix(name const & opn, unsigned p, expr const & d)  {
+    to_ext(m_env).add_op(infix(opn, p), d, true, m_env, m_state);
 }
-void frontend::add_theorem(name const & n, expr const & t, expr const & v) { return m_ptr->m_env.add_theorem(n, t, v); }
-void frontend::add_definition(name const & n, expr const & v, bool opaque) { return m_ptr->m_env.add_definition(n, v, opaque); }
-void frontend::add_axiom(name const & n, expr const & t) { return m_ptr->m_env.add_axiom(n, t); }
-void frontend::add_var(name const & n, expr const & t) { return m_ptr->m_env.add_var(n, t); }
-object const & frontend::get_object(name const & n) const { return m_ptr->m_env.get_object(n); }
-object const & frontend::find_object(name const & n) const { return m_ptr->m_env.find_object(n); }
-bool frontend::has_object(name const & n) const { return m_ptr->m_env.has_object(n); }
-frontend::object_iterator frontend::begin_objects() const { return m_ptr->m_env.begin_objects(); }
-frontend::object_iterator frontend::end_objects() const { return m_ptr->m_env.end_objects(); }
-frontend::object_iterator frontend::begin_local_objects() const { return m_ptr->m_env.begin_local_objects(); }
-frontend::object_iterator frontend::end_local_objects() const { return m_ptr->m_env.end_local_objects(); }
-
-void frontend::add_infix(name const & opn, unsigned p, expr const & d)  { m_ptr->add_infix(opn, p, d); }
-void frontend::add_infixl(name const & opn, unsigned p, expr const & d)  { m_ptr->add_infixl(opn, p, d); }
-void frontend::add_infixr(name const & opn, unsigned p, expr const & d)  { m_ptr->add_infixr(opn, p, d); }
-void frontend::add_prefix(name const & opn, unsigned p, expr const & d)  { m_ptr->add_prefix(opn, p, d); }
-void frontend::add_postfix(name const & opn, unsigned p, expr const & d) { m_ptr->add_postfix(opn, p, d); }
-void frontend::add_mixfixl(unsigned sz, name const * opns, unsigned p, expr const & d) { m_ptr->add_mixfixl(sz, opns, p, d); }
-void frontend::add_mixfixr(unsigned sz, name const * opns, unsigned p, expr const & d) { m_ptr->add_mixfixr(sz, opns, p, d); }
-void frontend::add_mixfixc(unsigned sz, name const * opns, unsigned p, expr const & d) { m_ptr->add_mixfixc(sz, opns, p, d); }
-void frontend::add_mixfixo(unsigned sz, name const * opns, unsigned p, expr const & d) { m_ptr->add_mixfixo(sz, opns, p, d); }
-operator_info frontend::find_op_for(expr const & n, bool unicode) const { return m_ptr->find_op_for(n, unicode); }
-operator_info frontend::find_nud(name const & n) const { return m_ptr->find_nud(n); }
-operator_info frontend::find_led(name const & n) const { return m_ptr->find_led(n); }
-
-void frontend::mark_implicit_arguments(name const & n, unsigned sz, bool const * implicit) { m_ptr->mark_implicit_arguments(n, sz, implicit); }
-void frontend::mark_implicit_arguments(name const & n, std::initializer_list<bool> const & l) { mark_implicit_arguments(n, l.size(), l.begin()); }
+void frontend::add_infixl(name const & opn, unsigned p, expr const & d) {
+    to_ext(m_env).add_op(infixl(opn, p), d, true, m_env, m_state);
+}
+void frontend::add_infixr(name const & opn, unsigned p, expr const & d) {
+    to_ext(m_env).add_op(infixr(opn, p), d, true, m_env, m_state);
+}
+void frontend::add_prefix(name const & opn, unsigned p, expr const & d) {
+    to_ext(m_env).add_op(prefix(opn, p), d, false, m_env, m_state);
+}
+void frontend::add_postfix(name const & opn, unsigned p, expr const & d) {
+    to_ext(m_env).add_op(postfix(opn, p), d, true, m_env, m_state);
+}
+void frontend::add_mixfixl(unsigned sz, name const * opns, unsigned p, expr const & d) {
+    to_ext(m_env).add_op(mixfixl(sz, opns, p), d, false, m_env, m_state);
+}
+void frontend::add_mixfixr(unsigned sz, name const * opns, unsigned p, expr const & d) {
+    to_ext(m_env).add_op(mixfixr(sz, opns, p), d, true, m_env, m_state);
+}
+void frontend::add_mixfixc(unsigned sz, name const * opns, unsigned p, expr const & d) {
+    to_ext(m_env).add_op(mixfixc(sz, opns, p), d, false, m_env, m_state);
+}
+void frontend::add_mixfixo(unsigned sz, name const * opns, unsigned p, expr const & d) {
+    to_ext(m_env).add_op(mixfixo(sz, opns, p), d, true, m_env, m_state);
+}
+operator_info frontend::find_op_for(expr const & n, bool unicode) const {
+    return to_ext(m_env).find_op_for(n, unicode);
+}
+operator_info frontend::find_nud(name const & n) const {
+    return to_ext(m_env).find_nud(n);
+}
+operator_info frontend::find_led(name const & n) const {
+    return to_ext(m_env).find_led(n);
+}
+void frontend::mark_implicit_arguments(name const & n, unsigned sz, bool const * implicit) {
+    to_ext(m_env).mark_implicit_arguments(n, sz, implicit, m_env);
+}
+void frontend::mark_implicit_arguments(name const & n, std::initializer_list<bool> const & l) {
+    mark_implicit_arguments(n, l.size(), l.begin());
+}
 void frontend::mark_implicit_arguments(expr const & n, std::initializer_list<bool> const & l) {
     if (is_constant(n)) {
         mark_implicit_arguments(const_name(n), l);
@@ -433,21 +414,28 @@ void frontend::mark_implicit_arguments(expr const & n, std::initializer_list<boo
         mark_implicit_arguments(to_value(n).get_name(), l);
     }
 }
-bool frontend::has_implicit_arguments(name const & n) const { return m_ptr->has_implicit_arguments(n); }
-std::vector<bool> const & frontend::get_implicit_arguments(name const & n) const { return m_ptr->get_implicit_arguments(n); }
-name const & frontend::get_explicit_version(name const & n) const { return m_ptr->get_explicit_version(n); }
-bool frontend::is_explicit(name const & n) const { return m_ptr->is_explicit(n); }
-
-void frontend::add_coercion(expr const & f) { m_ptr->add_coercion(f); }
-expr frontend::get_coercion(expr const & from_type, expr const & to_type) const { return m_ptr->get_coercion(from_type, to_type); }
-list<expr_pair> frontend::get_coercions(expr const & from_type) const { return m_ptr->get_coercions(from_type); }
-bool frontend::is_coercion(expr const & f) const { return m_ptr->is_coercion(f); }
-
-state const & frontend::get_state() const { return m_ptr->m_state; }
-state & frontend::get_state_core() { return m_ptr->m_state; }
-void frontend::set_options(options const & opts) { return m_ptr->m_state.set_options(opts); }
-void frontend::set_regular_channel(std::shared_ptr<output_channel> const & out) { return m_ptr->m_state.set_regular_channel(out); }
-void frontend::set_diagnostic_channel(std::shared_ptr<output_channel> const & out) { return m_ptr->m_state.set_diagnostic_channel(out); }
-
-void frontend::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
+bool frontend::has_implicit_arguments(name const & n) const {
+    return to_ext(m_env).has_implicit_arguments(n);
+}
+std::vector<bool> const & frontend::get_implicit_arguments(name const & n) const {
+    return to_ext(m_env).get_implicit_arguments(n);
+}
+name const & frontend::get_explicit_version(name const & n) const {
+    return to_ext(m_env).get_explicit_version(n);
+}
+bool frontend::is_explicit(name const & n) const {
+    return to_ext(m_env).is_explicit(n);
+}
+void frontend::add_coercion(expr const & f) {
+    to_ext(m_env).add_coercion(f, m_env);
+}
+expr frontend::get_coercion(expr const & from_type, expr const & to_type) const {
+    return to_ext(m_env).get_coercion(from_type, to_type);
+}
+list<expr_pair> frontend::get_coercions(expr const & from_type) const {
+    return to_ext(m_env).get_coercions(from_type);
+}
+bool frontend::is_coercion(expr const & f) const {
+    return to_ext(m_env).is_coercion(f);
+}
 }

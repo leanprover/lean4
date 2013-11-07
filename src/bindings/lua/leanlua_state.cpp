@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/debug.h"
 #include "util/exception.h"
+#include "util/memory.h"
 #include "bindings/lua/leanlua_state.h"
 
 #ifdef LEAN_USE_LUA
@@ -19,12 +20,17 @@ Author: Leonardo de Moura
 #include "bindings/lua/options.h"
 #include "bindings/lua/sexpr.h"
 
+extern "C" void * lua_realloc(void *, void * q, size_t, size_t new_size) { return lean::realloc(q, new_size); }
+
 namespace lean {
 struct leanlua_state::imp {
     lua_State * m_state;
     std::mutex  m_mutex;
+
     imp() {
-        m_state = luaL_newstate();
+        m_state = lua_newstate(lua_realloc, nullptr);
+        if (m_state == nullptr)
+            throw exception("fail to create Lua interpreter");
         luaL_openlibs(m_state);
         lean::open_name(m_state);
         lean::open_mpz(m_state);
@@ -32,6 +38,7 @@ struct leanlua_state::imp {
         lean::open_options(m_state);
         lean::open_sexpr(m_state);
     }
+
     ~imp() {
         lua_close(m_state);
     }

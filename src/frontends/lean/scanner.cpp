@@ -93,7 +93,9 @@ scanner::scanner(std::istream& stream):
     m_curr(0),
     m_line(1),
     m_pos(0),
-    m_stream(stream) {
+    m_stream(stream),
+    m_script_line(1),
+    m_script_pos(0) {
     next();
 }
 
@@ -337,6 +339,8 @@ scanner::token scanner::read_string() {
 scanner::token scanner::read_script_block() {
     lean_assert(curr() == '{');
     next();
+    m_script_line = m_line;
+    m_script_pos  = m_pos;
     m_buffer.clear();
     int num_open_blocks = 1;
     while (true) {

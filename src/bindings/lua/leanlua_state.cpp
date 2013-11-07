@@ -5,12 +5,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <iostream>
+#include <sstream>
+#include <mutex>
+#include <string>
+#include "util/debug.h"
+#include "util/exception.h"
 #include "bindings/lua/leanlua_state.h"
 
 #ifdef LEAN_USE_LUA
 #include <lua.hpp>
-#include <mutex>
-#include "util/exception.h"
 #include "bindings/lua/name.h"
 #include "bindings/lua/numerics.h"
 #include "bindings/lua/options.h"
@@ -36,14 +39,14 @@ struct leanlua_state::imp {
     void exec() {
         int result = lua_pcall(m_state, 0, LUA_MULTRET, 0);
         if (result)
-            throw exception(lua_tostring(m_state, -1));
+            throw lua_exception(lua_tostring(m_state, -1));
     }
 
     void dofile(char const * fname) {
         std::lock_guard<std::mutex> lock(m_mutex);
         int result = luaL_loadfile(m_state, fname);
         if (result)
-            throw exception(lua_tostring(m_state, -1));
+            throw lua_exception(lua_tostring(m_state, -1));
         exec();
     }
 
@@ -51,7 +54,7 @@ struct leanlua_state::imp {
         std::lock_guard<std::mutex> lock(m_mutex);
         int result = luaL_loadstring(m_state, str);
         if (result)
-            throw exception(lua_tostring(m_state, -1));
+            throw lua_exception(lua_tostring(m_state, -1));
         exec();
     }
 };
@@ -72,6 +75,7 @@ void leanlua_state::dostring(char const * str) {
 }
 }
 #else
+namespace lean {
 leanlua_state::leanlua_state() {
 }
 
@@ -89,4 +93,74 @@ void leanlua_state::dofile(char const * fname) {
 void leanlua_state::dostring(char const * str) {
     throw_lua_not_supported();
 }
+}
 #endif
+
+namespace lean {
+lua_exception::lua_exception(char const * lua_error):exception("") {
+    lean_assert(lua_error);
+    std::string fname;
+    std::string line;
+    std::string msg;
+    int state = 0;
+    char const * it = lua_error;
+    while (*it) {
+        if (state == 0) {
+            if (*it == ':') {
+                state = 1;
+            } else {
+                fname += *it;
+            }
+        } else if (state == 1) {
+            if (*it == ':') {
+                state = 2;
+            } else {
+                line += *it;
+            }
+        } else {
+            msg += *it;
+        }
+        it++;
+    }
+    if (state != 2) {
+        // failed to decode Lua error message
+        m_source = source::Unknown;
+        m_msg = lua_error;
+    } else {
+        if (fname == "[string \"...\"]") {
+            m_source = source::String;
+        } else {
+            m_source = source::File;
+            m_file   = fname;
+        }
+        m_line   = atoi(line.c_str());
+        m_msg = msg;
+    }
+}
+
+char const * lua_exception::get_filename() const {
+    lean_assert(get_source() == source::File);
+    return m_file.c_str();
+}
+
+unsigned lua_exception::get_line() const {
+    lean_assert(get_source() != source::Unknown);
+    return m_line;
+}
+
+char const * lua_exception::msg() const noexcept {
+    return exception::what();
+}
+
+char const * lua_exception::what() const noexcept {
+    static thread_local std::string buffer;
+    std::ostringstream strm;
+    switch (m_source) {
+    case source::String:  strm << "[string]:" << m_line << ":" << msg() << "\n"; break;
+    case source::File:    strm << m_file << ":" << m_file << ":" << msg() << "\n"; break;
+    case source::Unknown: return msg();
+    }
+    buffer = strm.str();
+    return buffer.c_str();
+}
+}

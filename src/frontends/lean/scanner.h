@@ -31,6 +31,9 @@ protected:
     int                m_pos;   // start position of the token
     std::istream &     m_stream;
 
+    int                m_script_line; // hack for saving beginning of script block line and pos
+    int                m_script_pos;
+
     mpq                m_num_val;
     name               m_name_val;
     std::string        m_buffer;
@@ -68,6 +71,9 @@ public:
     name const & get_name_val() const { return m_name_val; }
     mpq const &  get_num_val() const { return m_num_val; }
     std::string const & get_str_val() const { return m_buffer; }
+
+    int get_script_block_line() const { return m_script_line; }
+    int get_script_block_pos()  const { return m_script_pos; }
 };
 std::ostream & operator<<(std::ostream & out, scanner::token const & t);
 }

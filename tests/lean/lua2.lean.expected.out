@@ -1,0 +1,7 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: x
+hello world
+ok
+Error (line: 11) executing script, attempt to call global 'rint' (a nil value)
+  Assumed: y

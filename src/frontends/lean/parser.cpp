@@ -128,6 +128,7 @@ class parser::imp {
     unsigned            m_num_local_decls;
     expr_pos_info       m_expr_pos_info;
     pos_info            m_last_cmd_pos;
+    pos_info            m_last_script_pos;
     // Reference to temporary parser used to process import command.
     // We need this reference to be able to interrupt it.
     interruptable_ptr<parser>     m_import_parser;
@@ -1504,7 +1505,12 @@ class parser::imp {
     }
     /*@}*/
 
-    void display_error_pos(unsigned line, unsigned pos) { regular(m_frontend) << "Error (line: " << line << ", pos: " << pos << ")"; }
+    void display_error_pos(unsigned line, unsigned pos) {
+        regular(m_frontend) << "Error (line: " << line;
+        if (pos != static_cast<unsigned>(-1))
+            regular(m_frontend) << ", pos: " << pos;
+        regular(m_frontend) << ")";
+    }
     void display_error_pos(pos_info const & p) { display_error_pos(p.first, p.second); }
     void display_error_pos(expr const & e) {
         if (e) {
@@ -1553,6 +1559,24 @@ class parser::imp {
         regular(m_frontend) << mk_pair(ex.get_justification().pp(fmt, opts, &pos_provider, true), opts) << endl;
     }
 
+    void display_error(lua_exception const & ex) {
+        switch (ex.get_source()) {
+        case lua_exception::source::String:
+            display_error_pos(ex.get_line() + m_last_script_pos.first - 1, static_cast<unsigned>(-1));
+            regular(m_frontend) << " executing script," << ex.msg() << endl;
+            break;
+        case lua_exception::source::File:
+            display_error_pos(m_last_script_pos);
+            regular(m_frontend) << " executing external script (" << ex.get_filename() << ":" << ex.get_line() << ")," << ex.msg() << endl;
+            break;
+        case lua_exception::source::Unknown:
+            display_error_pos(m_last_script_pos);
+            regular(m_frontend) << " executing script, but could not decode position information, " << ex.what() << endl;
+            break;
+        }
+        next();
+    }
+
     void updt_options() {
         m_verbose = get_parser_verbose(m_frontend.get_state().get_options());
         m_show_errors = get_parser_show_errors(m_frontend.get_state().get_options());
@@ -1566,6 +1590,7 @@ class parser::imp {
     }
 
     void parse_script() {
+        m_last_script_pos = mk_pair(m_scanner.get_script_block_line(), m_scanner.get_script_block_pos());
         if (!m_leanlua_state)
             throw exception("failed to execute Lua script, parser does not have a Lua interpreter");
         m_leanlua_state->dostring(m_scanner.get_str_val().c_str());
@@ -1625,6 +1650,13 @@ public:
                     throw;
             } catch (elaborator_exception & ex) {
                 m_found_errors = true;
+                if (m_show_errors)
+                    display_error(ex);
+                if (m_use_exceptions)
+                    throw;
+            } catch (lua_exception & ex) {
+                m_found_errors = true;
+                reset_interrupt();
                 if (m_show_errors)
                     display_error(ex);
                 if (m_use_exceptions)

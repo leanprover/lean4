@@ -1,0 +1,5 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: x
+hello
+Error (line: 4, pos: 0) executing external script (script.lua:4), attempt to call global 'prn' (a nil value)

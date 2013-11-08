@@ -83,6 +83,7 @@ install:
       sudo chown -R `whoami` /usr/local;
       brew install gmp; brew link --overwrite gmp;
       brew install mpfr; brew link --overwrite mpfr;
+      brew install lua;
   fi
 - brew install cmake ninja
 - if [[ $MEMCHECK == TRUE ]]; then

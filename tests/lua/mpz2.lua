@@ -1,0 +1,6 @@
+assert(is_mpz(mpz(1000)))
+assert(not is_mpz(10))
+assert(not is_mpz(mpq(10)))
+assert(is_mpq(mpq(1000)))
+assert(not is_mpq(10))
+assert(not is_mpq(mpz(10)))

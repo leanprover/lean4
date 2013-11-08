@@ -102,6 +102,11 @@ static int mk_mpz(lua_State * L) {
     return push_mpz(L, arg);
 }
 
+static int mpz_pred(lua_State * L) {
+    lua_pushboolean(L, is_mpz(L, 1));
+    return 1;
+}
+
 static const struct luaL_Reg mpz_m[] = {
     {"__gc",       mpz_gc}, // never throws
     {"__tostring", safe_function<mpz_tostring>},
@@ -121,6 +126,7 @@ void open_mpz(lua_State * L) {
     setfuncs(L, mpz_m, 0);
 
     set_global_function<mk_mpz>(L, "mpz");
+    set_global_function<mpz_pred>(L, "is_mpz");
 }
 
 constexpr char const * mpq_mt = "mpq.mt";
@@ -213,6 +219,11 @@ static int mk_mpq(lua_State * L) {
     return push_mpq(L, arg);
 }
 
+static int mpq_pred(lua_State * L) {
+    lua_pushboolean(L, is_mpq(L, 1));
+    return 1;
+}
+
 static const struct luaL_Reg mpq_m[] = {
     {"__gc",       mpq_gc}, // never throws
     {"__tostring", safe_function<mpq_tostring>},
@@ -232,5 +243,6 @@ void open_mpq(lua_State * L) {
     setfuncs(L, mpq_m, 0);
 
     set_global_function<mk_mpq>(L, "mpq");
+    set_global_function<mpq_pred>(L, "is_mpq");
 }
 }

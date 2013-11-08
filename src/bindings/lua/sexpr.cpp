@@ -169,6 +169,11 @@ static int sexpr_to_mpq(lua_State * L) {
     return push_mpq(L, to_mpq(e));
 }
 
+static int sexpr_pred(lua_State * L) {
+    lua_pushboolean(L, is_sexpr(L, 1));
+    return 1;
+}
+
 static const struct luaL_Reg sexpr_m[] = {
     {"__gc",       sexpr_gc}, // never throws
     {"__tostring", safe_function<sexpr_tostring>},
@@ -205,5 +210,6 @@ void open_sexpr(lua_State * L) {
     setfuncs(L, sexpr_m, 0);
 
     set_global_function<mk_sexpr>(L, "sexpr");
+    set_global_function<sexpr_pred>(L, "is_sexpr");
 }
 }

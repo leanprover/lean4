@@ -1,0 +1,6 @@
+l = sexpr(1, 2, 3)
+print(l)
+assert(is_sexpr(l))
+assert(is_sexpr(sexpr(10)))
+assert(not is_sexpr(10))
+assert(not is_sexpr({}))

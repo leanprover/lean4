@@ -72,6 +72,11 @@ static int name_lt(lua_State * L) {
     return 1;
 }
 
+static int name_pred(lua_State * L) {
+    lua_pushboolean(L, is_name(L, 1));
+    return 1;
+}
+
 static const struct luaL_Reg name_m[] = {
     {"__gc",       name_gc}, // never throws
     {"__tostring", safe_function<name_tostring>},
@@ -85,5 +90,6 @@ void open_name(lua_State * L) {
     setfuncs(L, name_m, 0);
 
     set_global_function<mk_name>(L, "name");
+    set_global_function<name_pred>(L, "is_name");
 }
 }

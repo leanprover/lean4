@@ -111,6 +111,11 @@ static int format_highlight(lua_State * L) {
 static int format_line(lua_State * L) { return push_format(L, line()); }
 static int format_space(lua_State * L) { return push_format(L, space()); }
 
+static int format_pred(lua_State * L) {
+    lua_pushboolean(L, is_format(L, 1));
+    return 1;
+}
+
 static const struct luaL_Reg format_m[] = {
     {"__gc",            format_gc}, // never throws
     {"__tostring",      safe_function<format_tostring>},
@@ -130,5 +135,6 @@ void open_format(lua_State * L) {
     set_global_function<mk_format>(L, "format");
     set_global_function<format_line>(L, "line");
     set_global_function<format_space>(L, "space");
+    set_global_function<format_pred>(L, "is_format");
 }
 }

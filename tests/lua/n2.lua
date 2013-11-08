@@ -1,0 +1,6 @@
+assert(is_name(name("foo")))
+assert(not is_name("foo"))
+assert(not is_name(3))
+a = name("foo", 1, 2)
+print(a)
+assert(is_name(a))

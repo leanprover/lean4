@@ -165,6 +165,11 @@ static int options_update(lua_State * L) {
     }
 }
 
+static int options_pred(lua_State * L) {
+    lua_pushboolean(L, is_options(L, 1));
+    return 1;
+}
+
 static const struct luaL_Reg options_m[] = {
     {"__gc",            options_gc}, // never throws
     {"__tostring",      safe_function<options_tostring>},
@@ -195,5 +200,6 @@ void open_options(lua_State * L) {
     setfuncs(L, options_m, 0);
 
     set_global_function<mk_option>(L, "options");
+    set_global_function<options_pred>(L, "is_options");
 }
 }

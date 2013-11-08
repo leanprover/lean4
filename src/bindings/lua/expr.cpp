@@ -119,65 +119,43 @@ static std::pair<expr, expr> get_expr_pair_from_table(lua_State * L, int t, int 
     return mk_pair(ai, bi);
 }
 
-static int expr_fun(lua_State * L) {
+typedef expr (*MkAbst1)(expr const & n, expr const & t, expr const & b);
+typedef expr (*MkAbst2)(name const & n, expr const & t, expr const & b);
+
+template<MkAbst1 F1, MkAbst2 F2>
+int expr_abst(lua_State * L, char const * fname) {
     int nargs = lua_gettop(L);
     if (nargs < 2)
-        luaL_error(L, "Lean fun must have at least 2 arguments");
+        luaL_error(L, "Lean %s must have at least 2 arguments", fname);
     if (nargs == 2) {
         if (!lua_istable(L, 1))
-            luaL_error(L, "Lean fun expects arg #1 to be of the form '{{expr, expr}, ...}'");
+            luaL_error(L, "Lean %s expects arg #1 to be of the form '{{expr, expr}, ...}'", fname);
         int len = objlen(L, 1);
         if (len == 0)
-            luaL_error(L, "Lean fun expects arg #1 to be non-empty table");
+            luaL_error(L, "Lean %s expects arg #1 to be non-empty table", fname);
         expr r = to_expr(L, 2);
         for (int i = len; i >= 1; i--) {
             auto p = get_expr_pair_from_table(L, 1, i);
-            r = Fun(p.first, p.second, r);
+            r = F1(p.first, p.second, r);
         }
         return push_expr(L, r);
     } else {
         if (nargs % 2 == 0)
-            luaL_error(L, "Lean fun must have an odd number of arguments");
+            luaL_error(L, "Lean %s must have an odd number of arguments", fname);
         expr r = to_expr(L, nargs);
         for (int i = nargs - 1; i >= 1; i-=2) {
             if (is_expr(L, i - 1))
-                r = Fun(to_expr(L, i - 1), to_expr(L, i), r);
+                r = F1(to_expr(L, i - 1), to_expr(L, i), r);
             else
-                r = Fun(to_name_ext(L, i - 1), to_expr(L, i), r);
+                r = F2(to_name_ext(L, i - 1), to_expr(L, i), r);
         }
         return push_expr(L, r);
     }
 }
 
-static int expr_pi(lua_State * L) {
-    int nargs = lua_gettop(L);
-    if (nargs < 2)
-        luaL_error(L, "Lean Pi must have at least 2 arguments");
-    if (nargs == 2) {
-        if (!lua_istable(L, 1))
-            luaL_error(L, "Lean Pi expects arg #1 to be of the form '{{expr, expr}, ...}'");
-        int len = objlen(L, 1);
-        if (len == 0)
-            luaL_error(L, "Lean Pi expects arg #1 to be non-empty table");
-        expr r = to_expr(L, 2);
-        for (int i = len; i >= 1; i--) {
-            auto p = get_expr_pair_from_table(L, 1, i);
-            r = Pi(p.first, p.second, r);
-        }
-        return push_expr(L, r);
-    } else {
-        if (nargs % 2 == 0)
-            luaL_error(L, "Lean Pi must have an odd number of arguments");
-        expr r = to_expr(L, nargs);
-        for (int i = nargs - 1; i >= 1; i-=2) {
-            if (is_expr(L, i - 1))
-                r = Pi(to_expr(L, i - 1), to_expr(L, i), r);
-            else
-                r = Pi(to_name_ext(L, i - 1), to_expr(L, i), r);
-        }
-        return push_expr(L, r);
-    }
-}
+static int expr_fun(lua_State * L) { return expr_abst<Fun, Fun>(L, "fun"); }
+static int expr_pi(lua_State * L)  { return expr_abst<Pi, Pi>(L, "Pi"); }
+static int expr_let(lua_State * L) { return expr_abst<Let, Let>(L, "Let"); }
 
 static const struct luaL_Reg expr_m[] = {
     {"__gc",       expr_gc}, // never throws
@@ -207,5 +185,6 @@ void open_expr(lua_State * L) {
     set_global_function<expr_fun>(L, "fun");
     set_global_function<expr_fun>(L, "Fun");
     set_global_function<expr_pi>(L, "Pi");
+    set_global_function<expr_let>(L, "Let");
 }
 }

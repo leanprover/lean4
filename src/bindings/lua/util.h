@@ -4,11 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#pragma once
 #include <lua.hpp>
+
 namespace lean {
 void setfuncs(lua_State * L, luaL_Reg const * l, int nup);
 bool testudata(lua_State * L, int idx, char const * mt);
 size_t objlen(lua_State * L, int idx);
+void dofile(lua_State * L, char const * fname);
+void dostring(lua_State * L, char const * str);
 /**
    \brief Wrapper for invoking function f, and catching Lean exceptions.
 */

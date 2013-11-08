@@ -5,10 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <lua.hpp>
-#include <exception>
 #include <string>
-#include "util/exception.h"
-#include "util/debug.h"
+#include "bindings/lua/util.h"
+#include "bindings/lua/lua_exception.h"
 
 namespace lean {
 /**
@@ -49,6 +48,26 @@ size_t objlen(lua_State * L, int idx) {
     #else
     return lua_rawlen(L, idx);
     #endif
+}
+
+static void exec(lua_State * L) {
+    int result = lua_pcall(L, 0, LUA_MULTRET, 0);
+    if (result)
+        throw lua_exception(lua_tostring(L, -1));
+}
+
+void dofile(lua_State * L, char const * fname) {
+    int result = luaL_loadfile(L, fname);
+    if (result)
+        throw lua_exception(lua_tostring(L, -1));
+    exec(L);
+}
+
+void dostring(lua_State * L, char const * str) {
+    int result = luaL_loadstring(L, str);
+    if (result)
+        throw lua_exception(lua_tostring(L, -1));
+    exec(L);
 }
 
 int safe_function_wrapper(lua_State * L, lua_CFunction f){

@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/expr_lt.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
+#include "bindings/lua/level.h"
 
 namespace lean {
 constexpr char const * expr_mt = "expr.mt";
@@ -157,6 +158,14 @@ static int expr_fun(lua_State * L) { return expr_abst<Fun, Fun>(L, "fun"); }
 static int expr_pi(lua_State * L)  { return expr_abst<Pi, Pi>(L, "Pi"); }
 static int expr_let(lua_State * L) { return expr_abst<Let, Let>(L, "Let"); }
 
+static int expr_type(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs == 0)
+        return push_expr(L, Type());
+    else
+        return push_expr(L, Type(to_level(L, 1)));
+}
+
 static const struct luaL_Reg expr_m[] = {
     {"__gc",       expr_gc}, // never throws
     {"__tostring", safe_function<expr_tostring>},
@@ -186,5 +195,7 @@ void open_expr(lua_State * L) {
     set_global_function<expr_fun>(L, "Fun");
     set_global_function<expr_pi>(L, "Pi");
     set_global_function<expr_let>(L, "Let");
+    set_global_function<expr_type>(L, "mk_type");
+    set_global_function<expr_type>(L, "Type");
 }
 }

@@ -16,5 +16,9 @@ int safe_function_wrapper(lua_State * L, lua_CFunction f);
 template<lua_CFunction F> int safe_function(lua_State * L) {
     return safe_function_wrapper(L, F);
 }
+template<lua_CFunction F> void set_global_function(lua_State * L, char const * name) {
+    lua_pushcfunction(L, safe_function<F>);
+    lua_setglobal(L, name);
+}
 }
 #endif

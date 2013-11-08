@@ -11,6 +11,7 @@ class name;
 void open_name(lua_State * L);
 bool is_name(lua_State * L, int idx);
 name & to_name(lua_State * L, int idx);
+name to_name_ext(lua_State * L, int idx);
 int push_name(lua_State * L, name const & n);
 }
 #endif

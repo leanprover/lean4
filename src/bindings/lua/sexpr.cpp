@@ -204,8 +204,8 @@ void open_sexpr(lua_State * L) {
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, sexpr_m, 0);
-    lua_pushcfunction(L, safe_function<mk_sexpr>);
-    lua_setglobal(L, "sexpr");
+
+    set_global_function<mk_sexpr>(L, "sexpr");
 }
 }
 #endif

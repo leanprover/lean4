@@ -195,8 +195,7 @@ void open_options(lua_State * L) {
     lua_setfield(L, -2, "__index");
     setfuncs(L, options_m, 0);
 
-    lua_pushcfunction(L, safe_function<mk_option>);
-    lua_setglobal(L, "options");
+    set_global_function<mk_option>(L, "options");
 }
 }
 #endif

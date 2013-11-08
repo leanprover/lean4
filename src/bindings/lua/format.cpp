@@ -128,13 +128,9 @@ void open_format(lua_State * L) {
     lua_setfield(L, -2, "__index");
     setfuncs(L, format_m, 0);
 
-    lua_pushcfunction(L, safe_function<mk_format>);
-    lua_setglobal(L, "format");
-
-    lua_pushcfunction(L, safe_function<format_line>);
-    lua_setglobal(L, "line");
-    lua_pushcfunction(L, safe_function<format_space>);
-    lua_setglobal(L, "space");
+    set_global_function<mk_format>(L, "format");
+    set_global_function<format_line>(L, "line");
+    set_global_function<format_space>(L, "space");
 }
 }
 #endif

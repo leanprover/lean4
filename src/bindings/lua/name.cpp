@@ -21,6 +21,13 @@ name & to_name(lua_State * L, int idx) {
     return *static_cast<name*>(luaL_checkudata(L, idx, name_mt));
 }
 
+name to_name_ext(lua_State * L, int idx) {
+    if (lua_isstring(L, idx))
+        return luaL_checkstring(L, idx);
+    else
+        return to_name(L, idx);
+}
+
 int push_name(lua_State * L, name const & n) {
     void * mem = lua_newuserdata(L, sizeof(name));
     new (mem) name(n);
@@ -78,8 +85,7 @@ void open_name(lua_State * L) {
     luaL_newmetatable(L, name_mt);
     setfuncs(L, name_m, 0);
 
-    lua_pushcfunction(L, safe_function<mk_name>);
-    lua_setglobal(L, "name");
+    set_global_function<mk_name>(L, "name");
 }
 }
 #endif

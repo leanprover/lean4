@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/sexpr.h"
 #include "bindings/lua/format.h"
 #include "bindings/lua/expr.h"
+#include "bindings/lua/lean.lua"
 
 extern "C" void * lua_realloc(void *, void * q, size_t, size_t new_size) { return lean::realloc(q, new_size); }
 
@@ -43,6 +44,7 @@ struct leanlua_state::imp {
         lean::open_sexpr(m_state);
         lean::open_format(m_state);
         lean::open_expr(m_state);
+        dostring(g_leanlua_extra);
     }
 
     ~imp() {

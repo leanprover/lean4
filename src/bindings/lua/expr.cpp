@@ -172,18 +172,6 @@ void open_expr(lua_State * L) {
     lua_setfield(L, -2, "__index");
     setfuncs(L, expr_m, 0);
 
-    dostring(L, R"Lua(
-function Consts(s)
-   r = {}
-   i = 1
-   for c in string.gmatch(s, '[^ ,;\t\n]+') do
-      r[i] = Const(c)
-      i = i + 1
-   end
-   return unpack(r)
-end
-)Lua");
-
     set_global_function<expr_mk_constant>(L, "mk_constant");
     set_global_function<expr_mk_constant>(L, "Const");
     set_global_function<expr_mk_var>(L, "mk_var");

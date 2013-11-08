@@ -5,7 +5,7 @@ Ubuntu 12.04 LTS 64bit, g++-4.8 | clang++-3.3
 Mac OS X 10.8.2, g++-4.9
 
 [![Build Status](https://travis-ci.org/soonhokong/lean-windows.png?branch=master)](https://travis-ci.org/soonhokong/lean-windows)
-Windows, x86_64-w64-mingw32-g++-4.8.1
+Windows, x86_64-w64-mingw32-g++-4.8.2
 
 [[Result of Build/UnitTest/Coverage/Dynamic Analysis]][build]
 

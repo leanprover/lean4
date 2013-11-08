@@ -44,6 +44,14 @@ bool testudata(lua_State * L, int ud, char const * tname) {
     return nullptr;  // value is not a userdata with a metatable
 }
 
+size_t objlen(lua_State * L, int idx) {
+    #ifdef LEAN_USE_LUA_OBJLEN
+    return lua_objlen(L, idx);
+    #else
+    return lua_rawlen(L, idx);
+    #endif
+}
+
 int safe_function_wrapper(lua_State * L, lua_CFunction f){
     static thread_local std::string _error_msg;
     char const * error_msg;

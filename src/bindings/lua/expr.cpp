@@ -112,7 +112,7 @@ static std::pair<expr, expr> get_expr_pair_from_table(lua_State * L, int t, int 
     lua_pushvalue(L, t); // push table on the top
     lua_pushinteger(L, i);
     lua_gettable(L, -2); // now table {ai, bi} is on the top
-    if (!lua_istable(L, -1) || lua_objlen(L, -1) != 2)
+    if (!lua_istable(L, -1) || objlen(L, -1) != 2)
         luaL_error(L, "arg #1 must be of the form '{{expr, expr}, ...}'");
     expr ai = get_expr_from_table(L, -1, 1);
     expr bi = get_expr_from_table(L, -1, 2);
@@ -127,7 +127,7 @@ static int expr_fun(lua_State * L) {
     if (nargs == 2) {
         if (!lua_istable(L, 1))
             luaL_error(L, "Lean fun expects arg #1 to be of the form '{{expr, expr}, ...}'");
-        int len = lua_objlen(L, 1);
+        int len = objlen(L, 1);
         if (len == 0)
             luaL_error(L, "Lean fun expects arg #1 to be non-empty table");
         expr r = to_expr(L, 2);
@@ -157,7 +157,7 @@ static int expr_pi(lua_State * L) {
     if (nargs == 2) {
         if (!lua_istable(L, 1))
             luaL_error(L, "Lean Pi expects arg #1 to be of the form '{{expr, expr}, ...}'");
-        int len = lua_objlen(L, 1);
+        int len = objlen(L, 1);
         if (len == 0)
             luaL_error(L, "Lean Pi expects arg #1 to be non-empty table");
         expr r = to_expr(L, 2);

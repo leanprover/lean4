@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 namespace lean {
 void setfuncs(lua_State * L, luaL_Reg const * l, int nup);
 bool testudata(lua_State * L, int idx, char const * mt);
+size_t objlen(lua_State * L, int idx);
 /**
    \brief Wrapper for invoking function f, and catching Lean exceptions.
 */

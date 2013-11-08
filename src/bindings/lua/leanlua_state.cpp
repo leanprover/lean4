@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/options.h"
 #include "bindings/lua/sexpr.h"
 #include "bindings/lua/format.h"
+#include "bindings/lua/level.h"
 #include "bindings/lua/expr.h"
 #include "bindings/lua/lean.lua"
 
@@ -43,6 +44,7 @@ struct leanlua_state::imp {
         lean::open_options(m_state);
         lean::open_sexpr(m_state);
         lean::open_format(m_state);
+        lean::open_level(m_state);
         lean::open_expr(m_state);
         dostring(g_leanlua_extra);
     }

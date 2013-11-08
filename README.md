@@ -25,7 +25,9 @@ Requirements
 - [CMake](http://www.cmake.org)
 - [GMP (GNU multiprecision library)](http://gmplib.org/)
 - [MPFR (GNU MPFR Library)](http://www.mpfr.org/)
+- [Lua 5.2 or 5.1](http://www.lua.org), or [LuaJIT 2.0](http://luajit.org)
 - (optional) [gperftools](https://code.google.com/p/gperftools/)
+
 
 Installing required packages at
 --------------------------------

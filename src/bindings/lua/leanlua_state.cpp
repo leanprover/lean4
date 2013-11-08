@@ -29,7 +29,11 @@ struct leanlua_state::imp {
     std::mutex  m_mutex;
 
     imp() {
+        #ifdef LEAN_USE_LUA_NEWSTATE
         m_state = lua_newstate(lua_realloc, nullptr);
+        #else
+        m_state = luaL_newstate();
+        #endif
         if (m_state == nullptr)
             throw exception("fail to create Lua interpreter");
         luaL_openlibs(m_state);

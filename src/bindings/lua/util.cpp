@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#ifdef LEAN_USE_LUA
 #include <lua.hpp>
 #include <exception>
 #include <string>
@@ -71,4 +70,3 @@ int safe_function_wrapper(lua_State * L, lua_CFunction f){
     return luaL_error(L, error_msg);
 }
 }
-#endif

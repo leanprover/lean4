@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#ifdef LEAN_USE_LUA
 #include <sstream>
 #include <lua.hpp>
 #include <cstring>
@@ -133,4 +132,3 @@ void open_format(lua_State * L) {
     set_global_function<format_space>(L, "space");
 }
 }
-#endif

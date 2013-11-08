@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#ifdef LEAN_USE_LUA
 #include <sstream>
 #include <lua.hpp>
 #include "util/debug.h"
@@ -208,4 +207,3 @@ void open_sexpr(lua_State * L) {
     set_global_function<mk_sexpr>(L, "sexpr");
 }
 }
-#endif

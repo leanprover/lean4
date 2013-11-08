@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#ifdef LEAN_USE_LUA
 #include <lua.hpp>
 namespace lean {
 class mpz;
@@ -19,4 +18,3 @@ bool is_mpq(lua_State * L, int idx);
 mpq & to_mpq(lua_State * L, int idx);
 int push_mpq(lua_State * L, mpq const & val);
 }
-#endif

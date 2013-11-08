@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#ifdef LEAN_USE_LUA
 #include <sstream>
 #include <lua.hpp>
 #include <utility>
@@ -210,4 +209,3 @@ void open_expr(lua_State * L) {
     set_global_function<expr_pi>(L, "Pi");
 }
 }
-#endif

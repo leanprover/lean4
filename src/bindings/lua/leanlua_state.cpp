@@ -8,13 +8,11 @@ Author: Leonardo de Moura
 #include <sstream>
 #include <mutex>
 #include <string>
+#include <lua.hpp>
 #include "util/debug.h"
 #include "util/exception.h"
 #include "util/memory.h"
 #include "bindings/lua/leanlua_state.h"
-
-#ifdef LEAN_USE_LUA
-#include <lua.hpp>
 #include "bindings/lua/name.h"
 #include "bindings/lua/numerics.h"
 #include "bindings/lua/options.h"
@@ -88,30 +86,7 @@ void leanlua_state::dofile(char const * fname) {
 void leanlua_state::dostring(char const * str) {
     m_ptr->dostring(str);
 }
-}
-#else
-namespace lean {
-leanlua_state::leanlua_state() {
-}
 
-leanlua_state::~leanlua_state() {
-}
-
-[[ noreturn ]] void throw_lua_not_supported() {
-    throw exception("Lean was compiled without Lua support");
-}
-
-void leanlua_state::dofile(char const * fname) {
-    throw_lua_not_supported();
-}
-
-void leanlua_state::dostring(char const * str) {
-    throw_lua_not_supported();
-}
-}
-#endif
-
-namespace lean {
 lua_exception::lua_exception(char const * lua_error):exception("") {
     lean_assert(lua_error);
     std::string fname;

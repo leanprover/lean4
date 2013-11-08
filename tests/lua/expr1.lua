@@ -1,0 +1,13 @@
+f = Const("f")
+a = Const("a")
+print(f(f(a)))
+print(mk_lambda("x", Const("N"), Var(0)))
+assert(tostring(f(a)) == "f a")
+x = Const("x")
+y = Const("y")
+N = Const("N")
+print(fun(x, N, y, N, f(x, y)))
+a = {x, N, x, Y}
+print(a[1])
+print(fun({{x, N}, {y, N}}, f(x, y)))
+print(Pi({{x, N}, {y, N}}, f(x, y)))

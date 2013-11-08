@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/options.h"
 #include "bindings/lua/sexpr.h"
 #include "bindings/lua/format.h"
+#include "bindings/lua/expr.h"
 
 extern "C" void * lua_realloc(void *, void * q, size_t, size_t new_size) { return lean::realloc(q, new_size); }
 
@@ -43,6 +44,7 @@ struct leanlua_state::imp {
         lean::open_options(m_state);
         lean::open_sexpr(m_state);
         lean::open_format(m_state);
+        lean::open_expr(m_state);
     }
 
     ~imp() {
@@ -170,7 +172,7 @@ char const * lua_exception::what() const noexcept {
     std::ostringstream strm;
     switch (m_source) {
     case source::String:  strm << "[string]:" << m_line << ":" << msg() << "\n"; break;
-    case source::File:    strm << m_file << ":" << m_file << ":" << msg() << "\n"; break;
+    case source::File:    strm << m_file << ":" << m_line << ":" << msg() << "\n"; break;
     case source::Unknown: return msg();
     }
     buffer = strm.str();

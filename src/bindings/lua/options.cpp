@@ -32,7 +32,7 @@ int push_options(lua_State * L, options const & o) {
     return 1;
 }
 
-static int mk_option(lua_State * L) {
+static int mk_options(lua_State * L) {
     // int nargs = lua_gettop(L);
     options r;
     return push_options(L, r);
@@ -199,7 +199,7 @@ void open_options(lua_State * L) {
     lua_setfield(L, -2, "__index");
     setfuncs(L, options_m, 0);
 
-    set_global_function<mk_option>(L, "options");
+    set_global_function<mk_options>(L, "options");
     set_global_function<options_pred>(L, "is_options");
 }
 }

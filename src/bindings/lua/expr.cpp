@@ -43,8 +43,13 @@ static int expr_gc(lua_State * L) {
 
 static int expr_tostring(lua_State * L) {
     std::ostringstream out;
-    // TODO(Leo): use pretty printer
-    out << to_expr(L, 1);
+    expr & e = to_expr(L, 1);
+    if (e) {
+        // TODO(Leo): use pretty printer
+        out << to_expr(L, 1);
+    } else {
+        out << "<null-expr>";
+    }
     lua_pushfstring(L, out.str().c_str());
     return 1;
 }
@@ -166,12 +171,18 @@ static int expr_type(lua_State * L) {
         return push_expr(L, Type(to_level(L, 1)));
 }
 
+static int expr_is_null(lua_State * L) {
+    lua_pushboolean(L, !to_expr(L, 1));
+    return 1;
+}
+
 static const struct luaL_Reg expr_m[] = {
     {"__gc",       expr_gc}, // never throws
     {"__tostring", safe_function<expr_tostring>},
     {"__eq",       safe_function<expr_eq>},
     {"__lt",       safe_function<expr_lt>},
     {"__call",     safe_function<expr_mk_app>},
+    {"is_null",    safe_function<expr_is_null>},
     {0, 0}
 };
 

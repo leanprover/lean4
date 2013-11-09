@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include <memory>
+#include <cstdlib>
 #include <lua.hpp>
 
 static void * lua_realloc(void *, void * q, size_t, size_t sz) { return realloc(q, sz); }
@@ -13,7 +14,7 @@ static void * lua_realloc(void *, void * q, size_t, size_t sz) { return realloc(
 // Little program for checking whether lua_newstate is available
 int main() {
     lua_State * L;
-    L = lua_newstate(lua_realloc, nullptr);
+    L = lua_newstate(lua_realloc, 0);
     lua_close(L);
     return 0;
 }

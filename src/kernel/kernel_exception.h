@@ -85,6 +85,17 @@ public:
     type_checker_exception(environment const & env):kernel_exception(env) {}
 };
 
+/** \brief Exception for objects that do not have types associated with them */
+class has_no_type_exception : public type_checker_exception {
+    expr m_const;
+public:
+    has_no_type_exception(environment const & env, expr const & c):type_checker_exception(env), m_const(c) {}
+    virtual ~has_no_type_exception() {}
+    virtual expr const & get_main_expr() const { return m_const; }
+    virtual char const * what() const noexcept { return "object does not have a type associated with it"; }
+    virtual format pp(formatter const & fmt, options const & opts) const;
+};
+
 /**
     \brief Exception used to report an application argument type
     mismatch.

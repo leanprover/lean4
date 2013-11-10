@@ -114,7 +114,7 @@ class type_inferer::imp {
             if (obj.has_type())
                 return obj.get_type();
             else
-                throw exception("type incorrect expression");
+                throw has_no_type_exception(m_env, e);
             break;
         }
         case expr_kind::Var: {

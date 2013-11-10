@@ -20,6 +20,10 @@ format already_declared_exception::pp(formatter const &, options const &) const 
     return format{format("invalid object declaration, environment already has an object named '"), format(get_name()), format("'")};
 }
 
+format has_no_type_exception::pp(formatter const &, options const &) const {
+    return format{format("object '"), format(const_name(m_const)), format("' has no type associated with it")};
+}
+
 format app_type_mismatch_exception::pp(formatter const & fmt, options const & opts) const {
     unsigned indent     = get_pp_indent(opts);
     context const & ctx = get_context();

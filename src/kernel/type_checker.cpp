@@ -106,9 +106,14 @@ class type_checker::imp {
                 throw unexpected_metavar_occurrence(env(), e);
             }
             break;
-        case expr_kind::Constant:
-            r = env().get_object(const_name(e)).get_type();
+        case expr_kind::Constant: {
+            object const & obj = env().get_object(const_name(e));
+            if (obj.has_type())
+                r = obj.get_type();
+            else
+                throw has_no_type_exception(env(), e);
             break;
+        }
         case expr_kind::Var:
             r = lookup(ctx, var_idx(e));
             break;

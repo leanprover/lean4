@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/local_context.h"
 #include "bindings/lua/expr.h"
 #include "bindings/lua/context.h"
+#include "bindings/lua/environment.h"
 #include "bindings/lua/lean.lua"
 
 extern "C" void * lua_realloc(void *, void * q, size_t, size_t new_size) { return lean::realloc(q, new_size); }
@@ -50,6 +51,7 @@ struct leanlua_state::imp {
         lean::open_local_context(m_state);
         lean::open_expr(m_state);
         lean::open_context(m_state);
+        lean::open_environment(m_state);
         dostring(g_leanlua_extra);
     }
 

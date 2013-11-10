@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
 #include "bindings/lua/level.h"
+#include "bindings/lua/local_context.h"
 
 namespace lean {
 constexpr char const * expr_mt = "expr.mt";
@@ -171,6 +172,14 @@ static int expr_type(lua_State * L) {
         return push_expr(L, Type(to_level(L, 1)));
 }
 
+static int expr_mk_metavar(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs == 1)
+        return push_expr(L, mk_metavar(to_name_ext(L, 1)));
+    else
+        return push_expr(L, mk_metavar(to_name_ext(L, 1), to_local_context(L, 2)));
+}
+
 static int expr_is_null(lua_State * L) {
     lua_pushboolean(L, !to_expr(L, 1));
     return 1;
@@ -208,5 +217,6 @@ void open_expr(lua_State * L) {
     set_global_function<expr_let>(L, "Let");
     set_global_function<expr_type>(L, "mk_type");
     set_global_function<expr_type>(L, "Type");
+    set_global_function<expr_mk_metavar>(L, "mk_metavar");
 }
 }

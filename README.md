@@ -7,6 +7,8 @@ Mac OS X 10.8.2, g++-4.9
 [![Build Status](https://travis-ci.org/soonhokong/lean-windows.png?branch=master)](https://travis-ci.org/soonhokong/lean-windows)
 Windows, x86_64-w64-mingw32-g++-4.8.2
 
+[![Coverage Status](https://coveralls.io/repos/soonhokong/lean/badge.png?branch=master)](https://coveralls.io/r/soonhokong/lean?branch=master)
+
 [[Result of Build/UnitTest/Coverage/Dynamic Analysis]][build]
 
 [build]: http://build.leanprover.net

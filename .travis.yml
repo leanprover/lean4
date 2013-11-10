@@ -145,6 +145,7 @@ install:
        sudo cp -v lcov-1.10/bin/{lcov,genpng,gendesc,genhtml,geninfo} /usr/bin/;
        sudo chmod 777 /usr/bin/lcov /usr/bin/genhtml /usr/bin/geninfo /usr/bin/genpng /usg/bin/gendesc;
        rm -rf lcov-1.10.tar.gz lcov-1.10;
+       sudo mv -v `which gcov-4.8` `which gcov`;
     fi
 
 before_script:

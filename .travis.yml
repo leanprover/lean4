@@ -10,6 +10,8 @@ env:
    - secure: "b9qdjrlr2khvQclMg12Fjg0DF3Chv46SdNRymK7cPukAhIaqaPn8g0FL4K9xW/asXRXdWcd3dYBoarjkqX43mNV9nl5Hl2VwV7T6KeGAxQSRqdYioMugIY0P8xrj4i5dwuvt8aqSlCctSozE1e/th8EWjjy6TWi890MJB//NGRE="
    # LEANREPO
    - secure: "KsbUsMxTFDbUaObKOTxfWSu0gGzbUWlJr52nI1ITMqLxswettUR9bYAa1HTA+7hXXCT1W5I+RjxeWi74C+w/eTJGPGePX0irtzjNF/XVhP1ADoJJVQCF64yv02GNBeeUzGSDiW4bmO8ZLxTzvFr2ZskJDe/bIytQd3pJAlU6M0w="
+   # COVERALLS.IO TOKEN
+   - secure: "evxwePIXiCohG6gtgOEVnBdHuo5uOryxKlpn1UD57kp16oz02s7pXz1LterlSeoI1K2siJEonzeVvfhRP/ieadaje8qbE7aSX5ZMt1Zb1iNRYubIjnLiiBuoE/hcaPdTXjbNrCWM1CMr+VdPmBWCboKiFXjspinJryYoQwxtDKo="
 
   matrix:
    # =======================================================
@@ -216,6 +218,9 @@ after_script:
 - cd build
 - if [[ $LEANREPO == BLESSED && $TESTCOV == ON ]]; then
      ctest -D ExperimentalCoverage;
+     ninja cov;
+     npm install coveralls --save;
+     cat coverage.info.cleaned | ./node_modules/coveralls/bin/coveralls.js;
   fi
 - if [[ $LEANREPO == BLESSED && $MEMCHECK == TRUE ]]; then
      MEMCHECK_SUPP=`readlink -f ../src/memcheck.supp`;

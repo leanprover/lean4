@@ -11,7 +11,7 @@ env:
    # LEANREPO
    - secure: "KsbUsMxTFDbUaObKOTxfWSu0gGzbUWlJr52nI1ITMqLxswettUR9bYAa1HTA+7hXXCT1W5I+RjxeWi74C+w/eTJGPGePX0irtzjNF/XVhP1ADoJJVQCF64yv02GNBeeUzGSDiW4bmO8ZLxTzvFr2ZskJDe/bIytQd3pJAlU6M0w="
    # COVERALLS.IO TOKEN
-   - secure: "evxwePIXiCohG6gtgOEVnBdHuo5uOryxKlpn1UD57kp16oz02s7pXz1LterlSeoI1K2siJEonzeVvfhRP/ieadaje8qbE7aSX5ZMt1Zb1iNRYubIjnLiiBuoE/hcaPdTXjbNrCWM1CMr+VdPmBWCboKiFXjspinJryYoQwxtDKo="
+   - secure: "UaRz6E3zZeOG/2UzrGrsofYPkQG3qWzooYV6cRm5G+pMYReee8MdosnP6GtmPFhoFlkHeLQl21BpoJu3yFtrQoD2qpdrnb2uOJMYlSHLJtcZ5+pOl3DuX1qu06xXtz4PrZUSTx4WyaYynBP5kpky2Ghzmm1B5LKLUBcpCyP7uaw="
 
   matrix:
    # =======================================================

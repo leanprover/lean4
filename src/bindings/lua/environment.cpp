@@ -129,19 +129,19 @@ static char g_set_environment_key;
 
 set_environment::set_environment(lua_State * L, environment & env) {
     m_state = L;
-    lua_pushlightuserdata(m_state, (void *)&g_set_environment_key);
+    lua_pushlightuserdata(m_state, static_cast<void *>(&g_set_environment_key));
     push_environment(m_state, env);
     lua_settable(m_state, LUA_REGISTRYINDEX);
 }
 
 set_environment::~set_environment() {
-    lua_pushlightuserdata(m_state, (void *)&g_set_environment_key);
+    lua_pushlightuserdata(m_state, static_cast<void *>(&g_set_environment_key));
     lua_pushnil(m_state);
     lua_settable(m_state, LUA_REGISTRYINDEX);
 }
 
 int get_environment(lua_State * L) {
-    lua_pushlightuserdata(L, (void *)&g_set_environment_key);
+    lua_pushlightuserdata(L, static_cast<void *>(&g_set_environment_key));
     lua_gettable(L, LUA_REGISTRYINDEX);
     if (!is_environment(L, -1))
         luaL_error(L, "Lua registry does not contain a Lean environment");

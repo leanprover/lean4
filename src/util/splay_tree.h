@@ -246,10 +246,10 @@ class splay_tree : public CMP {
                 lean_assert(!n->is_shared());
                 int c = cmp(v, n->m_value);
                 if (c < 0) {
-                    path.push_back(entry(false, n));
+                    path.emplace_back(false, n);
                     n = n->m_left;
                 } else if (c > 0) {
-                    path.push_back(entry(true, n));
+                    path.emplace_back(true, n);
                     n = n->m_right;
                 } else {
                     if (is_insert)
@@ -280,7 +280,7 @@ class splay_tree : public CMP {
                 update_parent(path, n);
             }
             if (n->m_right) {
-                path.push_back(entry(true, n));
+                path.emplace_back(true, n);
                 n = n->m_right;
             } else {
                 splay_to_top(path, n);

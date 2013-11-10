@@ -312,7 +312,7 @@ class pp_fn {
             expr lambda = arg(e, 2);
             name n1 = get_unused_name(lambda);
             m_local_names.insert(n1);
-            r.push_back(mk_pair(n1, abst_domain(lambda)));
+            r.emplace_back(n1, abst_domain(lambda));
             expr b  = replace_var_with_name(abst_body(lambda), n1);
             if (is_quant_expr(b, is_forall))
                 return collect_nested_quantifiers(b, is_forall, r);
@@ -730,7 +730,7 @@ class pp_fn {
         if (e.kind() == k && (!T || is_abstraction(T))) {
             name n1    = get_unused_name(e);
             m_local_names.insert(n1);
-            r.push_back(mk_pair(n1, abst_domain(e)));
+            r.emplace_back(n1, abst_domain(e));
             expr b = replace_var_with_name(abst_body(e), n1);
             if (T)
                 T = replace_var_with_name(abst_body(T), n1);
@@ -965,7 +965,7 @@ class pp_fn {
         if (is_let(e)) {
             name n1    = get_unused_name(e);
             m_local_names.insert(n1);
-            bindings.push_back(std::make_tuple(n1, let_type(e), let_value(e)));
+            bindings.emplace_back(n1, let_type(e), let_value(e));
             expr b = replace_var_with_name(let_body(e), n1);
             return collect_nested_let(b, bindings);
         } else {
@@ -1102,7 +1102,7 @@ class pp_fn {
             if (!main && m_extra_lets && is_shared(e) && r.second > m_alias_min_weight) {
                 name new_aux = name(m_aux, m_aliases_defs.size()+1);
                 m_aliases.insert(e, new_aux);
-                m_aliases_defs.push_back(mk_pair(new_aux, r.first));
+                m_aliases_defs.emplace_back(new_aux, r.first);
                 return mk_result(format(new_aux), 1);
             }
             return r;

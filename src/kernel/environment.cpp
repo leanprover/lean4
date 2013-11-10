@@ -217,10 +217,10 @@ struct environment::imp {
                 level const & l3 = std::get<1>(c);
                 int u_l3_d = safe_add(d, std::get<2>(c));
                 if (!is_implied(u, l3, u_l3_d))
-                    to_add.push_back(constraint(u, l3, u_l3_d));
+                    to_add.emplace_back(u, l3, u_l3_d);
             }
         }
-        m_constraints.push_back(constraint(u, v, d));
+        m_constraints.emplace_back(u, v, d);
         for (constraint const & c : to_add) {
             m_constraints.push_back(c);
         }
@@ -275,7 +275,7 @@ struct environment::imp {
        \brief Initialize the set of universe variables with bottom
     */
     void init_uvars() {
-        m_uvars.push_back(level());
+        m_uvars.emplace_back();
     }
 
     /**

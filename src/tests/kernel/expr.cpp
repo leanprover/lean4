@@ -96,7 +96,7 @@ unsigned depth2(expr const & e) {
 unsigned depth3(expr const & e) {
     static std::vector<std::pair<expr const *, unsigned>> todo;
     unsigned m = 0;
-    todo.push_back(std::make_pair(&e, 0));
+    todo.emplace_back(&e, 0);
     while (!todo.empty()) {
         auto const & p = todo.back();
         expr const & e = *(p.first);
@@ -110,20 +110,20 @@ unsigned depth3(expr const & e) {
         case expr_kind::App: {
             unsigned num = num_args(e);
             for (unsigned i = 0; i < num; i++)
-                todo.push_back(std::make_pair(&arg(e, i), c));
+                todo.emplace_back(&arg(e, i), c);
             break;
         }
         case expr_kind::Eq:
-            todo.push_back(std::make_pair(&eq_lhs(e), c));
-            todo.push_back(std::make_pair(&eq_rhs(e), c));
+            todo.emplace_back(&eq_lhs(e), c);
+            todo.emplace_back(&eq_rhs(e), c);
             break;
         case expr_kind::Lambda: case expr_kind::Pi:
-            todo.push_back(std::make_pair(&abst_domain(e), c));
-            todo.push_back(std::make_pair(&abst_body(e), c));
+            todo.emplace_back(&abst_domain(e), c);
+            todo.emplace_back(&abst_body(e), c);
             break;
         case expr_kind::Let:
-            todo.push_back(std::make_pair(&let_value(e), c));
-            todo.push_back(std::make_pair(&let_body(e), c));
+            todo.emplace_back(&let_value(e), c);
+            todo.emplace_back(&let_body(e), c);
             break;
         }
     }

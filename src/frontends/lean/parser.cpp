@@ -681,7 +681,7 @@ class parser::imp {
     */
     void parse_names(buffer<std::pair<pos_info, name>> & result) {
         while (curr_is_identifier()) {
-            result.push_back(mk_pair(pos(), curr_name()));
+            result.emplace_back(pos(), curr_name());
             next();
         }
     }
@@ -873,7 +873,7 @@ class parser::imp {
             check_assign_next("invalid let expression, ':=' expected");
             expr val = parse_expr();
             register_binding(id);
-            bindings.push_back(std::make_tuple(p, id, type, val));
+            bindings.emplace_back(p, id, type, val);
             if (curr_is_in()) {
                 next();
                 expr r = parse_expr();

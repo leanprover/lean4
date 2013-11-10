@@ -108,11 +108,11 @@ public:
         auto it = m_map.find(k);
         if (it == m_map.end()) {
             if (!at_base_lvl())
-                m_actions.push_back(std::make_pair(action_kind::Insert, value_type(k, T())));
+                m_actions.emplace_back(action_kind::Insert, value_type(k, T()));
             m_map.insert(value_type(k, v));
         } else {
             if (!at_base_lvl())
-                m_actions.push_back(std::make_pair(action_kind::Replace, *it));
+                m_actions.emplace_back(action_kind::Replace, *it);
             it->second = v;
         }
     }
@@ -126,7 +126,7 @@ public:
         if (!at_base_lvl()) {
             auto it = m_map.find(k);
             if (m_map.find(k) != m_map.end())
-                m_actions.push_back(std::make_pair(action_kind::Erase, *it));
+                m_actions.emplace_back(action_kind::Erase, *it);
         }
         m_map.erase(k);
     }

@@ -110,6 +110,14 @@ public:
         m_pos++;
     }
 
+    template<typename... Args>
+    void emplace_back(Args&&... args) {
+        if (m_pos >= m_capacity)
+            expand();
+        new (m_buffer + m_pos) T(args...);
+        m_pos++;
+    }
+
     void pop_back() {
         back().~T();
         m_pos--;

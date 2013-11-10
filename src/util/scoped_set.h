@@ -91,7 +91,7 @@ public:
     void insert(Key const & k) {
         if (!at_base_lvl()) {
             if (m_set.find(k) == m_set.end())
-                m_actions.push_back(std::make_pair(action_kind::Insert, k));
+                m_actions.emplace_back(action_kind::Insert, k);
         }
         m_set.insert(k);
     }
@@ -100,7 +100,7 @@ public:
     void erase(Key const & k) {
         if (!at_base_lvl()) {
             if (m_set.find(k) != m_set.end())
-                m_actions.push_back(std::make_pair(action_kind::Erase, k));
+                m_actions.emplace_back(action_kind::Erase, k);
         }
         m_set.erase(k);
     }

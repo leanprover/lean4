@@ -143,7 +143,7 @@ install:
        wget http://downloads.sourceforge.net/ltp/lcov-1.10.tar.gz;
        tar xvfz lcov-1.10.tar.gz;
        sudo cp -v lcov-1.10/bin/{lcov,genpng,gendesc,genhtml,geninfo} /usr/bin/;
-       sudo chmod 777 /usr/bin/lcov /usr/bin/genhtml;
+       sudo chmod 777 /usr/bin/lcov /usr/bin/genhtml /usr/bin/geninfo /usr/bin/genpng /usg/bin/gendesc;
        rm -rf lcov-1.10.tar.gz lcov-1.10;
     fi
 

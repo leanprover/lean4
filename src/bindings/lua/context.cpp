@@ -39,9 +39,9 @@ static int context_entry_gc(lua_State * L) {
 static int mk_context_entry(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 2)
-        return push_context_entry(L, context_entry(to_name_ext(L, 1), to_expr(L, 2)));
+        return push_context_entry(L, context_entry(to_name_ext(L, 1), to_nonnull_expr(L, 2)));
     else
-        return push_context_entry(L, context_entry(to_name_ext(L, 1), to_expr(L, 2), to_expr(L, 3)));
+        return push_context_entry(L, context_entry(to_name_ext(L, 1), to_nonnull_expr(L, 2), to_nonnull_expr(L, 3)));
 }
 
 static int context_entry_pred(lua_State * L) {
@@ -100,9 +100,9 @@ static int mk_context(lua_State * L) {
         context_entry & e = to_context_entry(L, 2);
         return push_context(L, context(to_context(L, 1), e.get_name(), e.get_domain(), e.get_body()));
     } else if (nargs == 3) {
-        return push_context(L, context(to_context(L, 1), to_name_ext(L, 2), to_expr(L, 3)));
+        return push_context(L, context(to_context(L, 1), to_name_ext(L, 2), to_nonnull_expr(L, 3)));
     } else {
-        return push_context(L, context(to_context(L, 1), to_name_ext(L, 2), to_expr(L, 3), to_expr(L, 4)));
+        return push_context(L, context(to_context(L, 1), to_name_ext(L, 2), to_nonnull_expr(L, 3), to_nonnull_expr(L, 4)));
     }
 }
 

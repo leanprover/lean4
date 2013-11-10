@@ -45,7 +45,7 @@ static int local_entry_mk_lift(lua_State * L) {
 }
 
 static int local_entry_mk_inst(lua_State * L) {
-    return push_local_entry(L, mk_inst(luaL_checkinteger(L, 1), to_expr(L, 2)));
+    return push_local_entry(L, mk_inst(luaL_checkinteger(L, 1), to_nonnull_expr(L, 2)));
 }
 
 static int local_entry_pred(lua_State * L) {

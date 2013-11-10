@@ -11,5 +11,6 @@ class expr;
 void open_expr(lua_State * L);
 bool is_expr(lua_State * L, int idx);
 expr & to_expr(lua_State * L, int idx);
+expr & to_nonnull_expr(lua_State * L, int idx);
 int push_expr(lua_State * L, expr const & o);
 }

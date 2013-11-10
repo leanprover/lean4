@@ -68,6 +68,11 @@ struct leanlua_state::imp {
         std::lock_guard<std::mutex> lock(m_mutex);
         ::lean::dostring(m_state, str);
     }
+
+    void dostring(char const * str, environment & env) {
+        set_environment set(m_state, env);
+        dostring(str);
+    }
 };
 
 leanlua_state::leanlua_state():
@@ -83,5 +88,9 @@ void leanlua_state::dofile(char const * fname) {
 
 void leanlua_state::dostring(char const * str) {
     m_ptr->dostring(str);
+}
+
+void leanlua_state::dostring(char const * str, environment & env) {
+    m_ptr->dostring(str, env);
 }
 }

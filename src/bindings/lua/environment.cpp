@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/level.h"
 #include "bindings/lua/expr.h"
 #include "bindings/lua/context.h"
+#include "bindings/lua/environment.h"
 
 namespace lean {
 constexpr char const * environment_mt = "environment.mt";
@@ -29,12 +30,16 @@ static int environment_gc(lua_State * L) {
     return 0;
 }
 
-static int mk_environment(lua_State * L) {
+int push_environment(lua_State * L, environment const & env) {
     void * mem = lua_newuserdata(L, sizeof(environment));
-    new (mem) environment();
+    new (mem) environment(env);
     luaL_getmetatable(L, environment_mt);
     lua_setmetatable(L, -2);
     return 1;
+}
+
+static int mk_environment(lua_State * L) {
+    return push_environment(L, environment());
 }
 
 static int environment_add_uvar(lua_State * L) {
@@ -120,6 +125,29 @@ static const struct luaL_Reg environment_m[] = {
     {0, 0}
 };
 
+static char g_set_environment_key;
+
+set_environment::set_environment(lua_State * L, environment & env) {
+    m_state = L;
+    lua_pushlightuserdata(m_state, (void *)&g_set_environment_key);
+    push_environment(m_state, env);
+    lua_settable(m_state, LUA_REGISTRYINDEX);
+}
+
+set_environment::~set_environment() {
+    lua_pushlightuserdata(m_state, (void *)&g_set_environment_key);
+    lua_pushnil(m_state);
+    lua_settable(m_state, LUA_REGISTRYINDEX);
+}
+
+int get_environment(lua_State * L) {
+    lua_pushlightuserdata(L, (void *)&g_set_environment_key);
+    lua_gettable(L, LUA_REGISTRYINDEX);
+    if (!is_environment(L, -1))
+        luaL_error(L, "Lua registry does not contain a Lean environment");
+    return push_environment(L, to_environment(L, -1));
+}
+
 void open_environment(lua_State * L) {
     luaL_newmetatable(L, environment_mt);
     lua_pushvalue(L, -1);
@@ -128,5 +156,7 @@ void open_environment(lua_State * L) {
 
     set_global_function<mk_environment>(L, "environment");
     set_global_function<environment_pred>(L, "is_environment");
+    set_global_function<get_environment>(L, "get_environment");
+    set_global_function<get_environment>(L, "env");
 }
 }

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/lua_exception.h"
 
 namespace lean {
+class environment;
 /**
    \brief Wrapper for lua_State objects which contains all Lean bindings.
 */
@@ -29,5 +30,6 @@ public:
        This method throws an exception if an error occurs.
     */
     void dostring(char const * str);
+    void dostring(char const * str, environment & env);
 };
 }

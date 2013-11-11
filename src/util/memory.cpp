@@ -139,6 +139,10 @@ void * malloc(size_t sz)  {
 void * realloc(void * ptr, size_t sz) {
     if (ptr == nullptr)
         return malloc(sz);
+    if (sz == 0) {
+        free(ptr);
+        return nullptr;
+    }
     size_t old_sz = malloc_size(ptr);
     g_global_memory.dec(old_sz);
     g_thread_memory.dec(old_sz);

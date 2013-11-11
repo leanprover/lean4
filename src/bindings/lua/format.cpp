@@ -103,7 +103,7 @@ static int format_highlight(lua_State * L) {
     } else if (strcmp(color_str, "grey") == 0) {
         color = format::GREY;
     } else {
-        return luaL_error(L, "unknown color '%'", color_str);
+        return luaL_error(L, "unknown color '%s'", color_str);
     }
     return push_format(L, highlight(to_format(L, 1), color));
 }

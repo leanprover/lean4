@@ -32,7 +32,7 @@ expr & to_expr(lua_State * L, int idx) {
 expr & to_nonnull_expr(lua_State * L, int idx) {
     expr & r = to_expr(L, idx);
     if (!r)
-        luaL_error(L, "non null Lean expression expected");
+        luaL_error(L, "non-null Lean expression expected");
     return r;
 }
 
@@ -99,7 +99,7 @@ static int expr_mk_lambda(lua_State * L) {
 }
 
 static int expr_mk_pi(lua_State * L) {
-    return push_expr(L, mk_lambda(to_name_ext(L, 1), to_nonnull_expr(L, 2), to_nonnull_expr(L, 3)));
+    return push_expr(L, mk_pi(to_name_ext(L, 1), to_nonnull_expr(L, 2), to_nonnull_expr(L, 3)));
 }
 
 static int expr_mk_let(lua_State * L) {
@@ -146,7 +146,7 @@ int expr_abst(lua_State * L, char const * fname) {
             luaL_error(L, "Lean %s expects arg #1 to be of the form '{{expr, expr}, ...}'", fname);
         int len = objlen(L, 1);
         if (len == 0)
-            luaL_error(L, "Lean %s expects arg #1 to be non-empty table", fname);
+            luaL_error(L, "Lean %s expects arg #1 to be a non-empty table", fname);
         expr r = to_nonnull_expr(L, 2);
         for (int i = len; i >= 1; i--) {
             auto p = get_expr_pair_from_table(L, 1, i);

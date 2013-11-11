@@ -77,16 +77,24 @@ static int name_pred(lua_State * L) {
     return 1;
 }
 
+static int name_hash(lua_State * L) {
+    lua_pushinteger(L, to_name(L, 1).hash());
+    return 1;
+}
+
 static const struct luaL_Reg name_m[] = {
     {"__gc",       name_gc}, // never throws
     {"__tostring", safe_function<name_tostring>},
     {"__eq",       safe_function<name_eq>},
     {"__lt",       safe_function<name_lt>},
+    {"hash",       safe_function<name_hash>},
     {0, 0}
 };
 
 void open_name(lua_State * L) {
     luaL_newmetatable(L, name_mt);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
     setfuncs(L, name_m, 0);
 
     set_global_function<mk_name>(L, "name");

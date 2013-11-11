@@ -942,7 +942,7 @@ void interval<T>::inv(interval_deps & deps) {
             deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_UPPER1;
         }
     } else {
-        lean_unreachable();
+        lean_unreachable(); // LCOV_EXCL_LINE
     }
     lean_assert(check_invariant());
 }
@@ -1869,7 +1869,7 @@ void interval<T>::csc  (interval_deps & deps) {
             }
             return;
         }
-        lean_unreachable();
+        lean_unreachable(); // LCOV_EXCL_LINE
     }
 
     if (m_lower <= pi && m_upper <= pi) {

@@ -226,7 +226,7 @@ class pdeque {
                     case cell_kind::PopBack:   update_cell(new pop_back_cell(to_pop_back(m_ptr))); break;
                     case cell_kind::PopFront:  update_cell(new pop_front_cell(to_pop_front(m_ptr))); break;
                     case cell_kind::Set:       update_cell(new set_cell(to_set(m_ptr))); break;
-                    case cell_kind::Root:      lean_unreachable();
+                    case cell_kind::Root:      lean_unreachable(); // LCOV_EXCL_LINE
                     }
                 }
                 lean_assert(!is_shared());

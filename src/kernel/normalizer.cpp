@@ -138,7 +138,7 @@ class normalizer::imp {
         case svalue_kind::BoundedVar: return mk_var(k - to_bvar(v) - 1);
         case svalue_kind::Closure:    return reify_closure(to_expr(v), stack_of(v), k);
         }
-        lean_unreachable();
+        lean_unreachable(); // LCOV_EXCL_LINE
     }
 
     /** \brief Return true iff the value_stack does affect the context of a metavariable */

@@ -253,27 +253,27 @@ public:
     static inline mpq pi_twice_upper() { return pi_u * 2; }
 
     // Transcendental functions
-    static void exp(mpq & )   { lean_unreachable(); }
-    static void exp2(mpq & )  { lean_unreachable(); }
-    static void exp10(mpq & ) { lean_unreachable(); }
-    static void log(mpq & )   { lean_unreachable(); }
-    static void log2(mpq & )  { lean_unreachable(); }
-    static void log10(mpq & ) { lean_unreachable(); }
-    static void sin(mpq & )   { lean_unreachable(); }
-    static void cos(mpq & )   { lean_unreachable(); }
-    static void tan(mpq & )   { lean_unreachable(); }
-    static void sec(mpq & )   { lean_unreachable(); }
-    static void csc(mpq & )   { lean_unreachable(); }
-    static void cot(mpq & )   { lean_unreachable(); }
-    static void asin(mpq & )  { lean_unreachable(); }
-    static void acos(mpq & )  { lean_unreachable(); }
-    static void atan(mpq & )  { lean_unreachable(); }
-    static void sinh(mpq & )  { lean_unreachable(); }
-    static void cosh(mpq & )  { lean_unreachable(); }
-    static void tanh(mpq & )  { lean_unreachable(); }
-    static void asinh(mpq & ) { lean_unreachable(); }
-    static void acosh(mpq & ) { lean_unreachable(); }
-    static void atanh(mpq & ) { lean_unreachable(); }
+    static void exp(mpq & )   { lean_unreachable(); } // LCOV_EXCL_LINE
+    static void exp2(mpq & )  { lean_unreachable(); } // LCOV_EXCL_LINE
+    static void exp10(mpq & ) { lean_unreachable(); } // LCOV_EXCL_LINE
+    static void log(mpq & )   { lean_unreachable(); } // LCOV_EXCL_LINE
+    static void log2(mpq & )  { lean_unreachable(); } // LCOV_EXCL_LINE
+    static void log10(mpq & ) { lean_unreachable(); } // LCOV_EXCL_LINE
+    static void sin(mpq & )   { lean_unreachable(); } // LCOV_EXCL_LINE
+    static void cos(mpq & )   { lean_unreachable(); } // LCOV_EXCL_LINE
+    static void tan(mpq & )   { lean_unreachable(); } // LCOV_EXCL_LINE
+    static void sec(mpq & )   { lean_unreachable(); } // LCOV_EXCL_LINE
+    static void csc(mpq & )   { lean_unreachable(); } // LCOV_EXCL_LINE
+    static void cot(mpq & )   { lean_unreachable(); } // LCOV_EXCL_LINE
+    static void asin(mpq & )  { lean_unreachable(); } // LCOV_EXCL_LINE
+    static void acos(mpq & )  { lean_unreachable(); } // LCOV_EXCL_LINE
+    static void atan(mpq & )  { lean_unreachable(); } // LCOV_EXCL_LINE
+    static void sinh(mpq & )  { lean_unreachable(); } // LCOV_EXCL_LINE
+    static void cosh(mpq & )  { lean_unreachable(); } // LCOV_EXCL_LINE
+    static void tanh(mpq & )  { lean_unreachable(); } // LCOV_EXCL_LINE
+    static void asinh(mpq & ) { lean_unreachable(); } // LCOV_EXCL_LINE
+    static void acosh(mpq & ) { lean_unreachable(); } // LCOV_EXCL_LINE
+    static void atanh(mpq & ) { lean_unreachable(); } // LCOV_EXCL_LINE
 };
 
 }

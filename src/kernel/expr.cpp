@@ -183,6 +183,6 @@ expr copy(expr const & a) {
     case expr_kind::Let:      return mk_let(let_name(a), let_type(a), let_value(a), let_body(a));
     case expr_kind::MetaVar:  return mk_metavar(metavar_name(a), metavar_lctx(a));
     }
-    lean_unreachable();
+    lean_unreachable(); // LCOV_EXCL_LINE
 }
 }

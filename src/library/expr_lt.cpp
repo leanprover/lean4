@@ -17,7 +17,7 @@ bool is_lt(expr const & a, expr const & b, bool use_hash) {
     if (is_var(a))                       return var_idx(a) < var_idx(b);
     switch (a.kind()) {
     case expr_kind::Var:
-        lean_unreachable();
+        lean_unreachable(); // LCOV_EXCL_LINE
     case expr_kind::Constant:
         return const_name(a) < const_name(b);
     case expr_kind::App:
@@ -27,7 +27,7 @@ bool is_lt(expr const & a, expr const & b, bool use_hash) {
             if (arg(a, i) != arg(b, i))
                 return is_lt(arg(a, i), arg(b, i), use_hash);
         }
-        lean_unreachable();
+        lean_unreachable(); // LCOV_EXCL_LINE
     case expr_kind::Eq:
         if (eq_lhs(a) != eq_lhs(b))
             return is_lt(eq_lhs(a), eq_lhs(b), use_hash);
@@ -75,6 +75,6 @@ bool is_lt(expr const & a, expr const & b, bool use_hash) {
             return it1 == end1 && it2 != end2;
         }
     }
-    lean_unreachable();
+    lean_unreachable(); // LCOV_EXCL_LINE
 }
 }

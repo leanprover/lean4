@@ -73,7 +73,7 @@ struct max_sharing_fn::imp {
             cache(r);
             return r;
         }}
-        lean_unreachable();
+        lean_unreachable(); // LCOV_EXCL_LINE
     }
     expr operator()(expr const & a) { return apply(a); }
 };

@@ -119,7 +119,7 @@ char const * to_string(fixity f) {
     case fixity::Mixfixc: return "Mixfixc";
     case fixity::Mixfixo: return "Mixfixo";
     }
-    lean_unreachable();
+    lean_unreachable(); // LCOV_EXCL_LINE
 }
 
 format pp(operator_info const & o) {
@@ -169,10 +169,10 @@ format pp(operator_info const & o) {
                 r += format{space(), format("_"), space(), format(p)};
             r += format{space(), format("_")};
             return r;
-        default: lean_unreachable();
+        default: lean_unreachable(); // LCOV_EXCL_LINE
         }
     }
-    lean_unreachable();
+    lean_unreachable(); // LCOV_EXCL_LINE
 }
 
 char const * notation_declaration::keyword() const {

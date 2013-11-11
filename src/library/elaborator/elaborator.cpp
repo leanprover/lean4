@@ -368,7 +368,7 @@ class elaborator::imp {
         case unification_constraint_kind::Max:         return process_max(c);
         case unification_constraint_kind::Choice:      return process_choice(c);
         }
-        lean_unreachable();
+        lean_unreachable(); // LCOV_EXCL_LINE
         return true;
     }
 
@@ -1168,7 +1168,7 @@ class elaborator::imp {
                 }
                 break;
             case expr_kind::Let:
-                lean_unreachable();
+                lean_unreachable(); // LCOV_EXCL_LINE
                 return true;
             default:
                 break;

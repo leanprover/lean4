@@ -75,7 +75,7 @@ std::ostream & layout(std::ostream & out, bool colors, sexpr const & s) {
     case format::format_kind::CHOICE:
     case format::format_kind::COMPOSE:
     case format::format_kind::FLAT_COMPOSE:
-        lean_unreachable();
+        lean_unreachable(); // LCOV_EXCL_LINE
 
     case format::format_kind::NIL:
         out << "";
@@ -194,7 +194,7 @@ sexpr format::flatten(sexpr const & s) {
     case format_kind::COLOR_END:
         return s;
     }
-    lean_unreachable();
+    lean_unreachable(); // LCOV_EXCL_LINE
 }
 format format::flatten(format const & f){
     return format(flatten(f.m_value));
@@ -302,7 +302,7 @@ int format::space_upto_line_break(sexpr const & s, int available, bool & found_n
         return space_upto_line_break(x, available, found_newline);
     }
     }
-    lean_unreachable();
+    lean_unreachable(); // LCOV_EXCL_LINE
 }
 
 sexpr format::be(unsigned w, unsigned k, sexpr const & s) {
@@ -357,7 +357,7 @@ sexpr format::be(unsigned w, unsigned k, sexpr const & s) {
         }
     }
     }
-    lean_unreachable();
+    lean_unreachable(); // LCOV_EXCL_LINE
 }
 
 sexpr format::best(unsigned w, unsigned k, sexpr const & s) {
@@ -427,7 +427,7 @@ struct sexpr_pp_fn {
                 }
             }
         }}
-        lean_unreachable();
+        lean_unreachable(); // LCOV_EXCL_LINE
     }
 
     format operator()(sexpr const & s) {

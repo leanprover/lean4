@@ -302,7 +302,9 @@ public:
     bool is_convertible(expr const & t1, expr const & t2, context const & ctx) {
         set_ctx(ctx);
         set_menv(nullptr);
-        auto mk_justification = [](){ lean_unreachable(); return justification(); };
+        auto mk_justification = [](){
+            lean_unreachable(); return justification(); // LCOV_EXCL_LINE
+        };
         return is_convertible(t1, t2, ctx, mk_justification);
     }
 

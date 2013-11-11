@@ -426,7 +426,7 @@ scanner::token scanner::scan() {
         case '0':  return read_number();
         case '\"': return read_string();
         case -1:   return token::Eof;
-        default:   lean_unreachable();
+        default:   lean_unreachable(); // LCOV_EXCL_LINE
         }
     }
 }

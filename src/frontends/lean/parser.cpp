@@ -604,7 +604,7 @@ class parser::imp {
                 case fixity::Prefix:  return parse_prefix(op);
                 case fixity::Mixfixl: return parse_mixfixl(op);
                 case fixity::Mixfixc: return parse_mixfixc(op);
-                default: lean_unreachable();
+                default: lean_unreachable(); // LCOV_EXCL_LINE
                 }
             } else {
                 return save(get_name_ref(id, p), p);
@@ -639,7 +639,7 @@ class parser::imp {
                 case fixity::Mixfixr: return parse_mixfixr(left, op);
                 case fixity::Mixfixo: return parse_mixfixo(left, op);
                 case fixity::Postfix: return parse_postfix(left, op);
-                default: lean_unreachable();
+                default: lean_unreachable(); // LCOV_EXCL_LINE
                 }
             } else {
                 return save(mk_app(left, save(get_name_ref(id, p), p)), p2);
@@ -1255,7 +1255,7 @@ class parser::imp {
         case fixity::Infix:   m_frontend.add_infix(op_id, prec, d); break;
         case fixity::Infixl:  m_frontend.add_infixl(op_id, prec, d); break;
         case fixity::Infixr:  m_frontend.add_infixr(op_id, prec, d); break;
-        default: lean_unreachable();
+        default: lean_unreachable(); // LCOV_EXCL_LINE
         }
     }
 
@@ -1302,7 +1302,7 @@ class parser::imp {
                             // prefix: ID _
                             m_frontend.add_prefix(parts[0], prec, d);
                         } else {
-                            lean_unreachable();
+                            lean_unreachable(); // LCOV_EXCL_LINE
                         }
                     } else {
                         if (first_placeholder && prev_placeholder) {

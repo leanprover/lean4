@@ -182,7 +182,7 @@ struct environment::imp {
         case level_kind::Lift: return is_ge(l1, lift_of(l2), safe_add(k, lift_offset(l2)));
         case level_kind::Max:  return std::all_of(max_begin_levels(l2), max_end_levels(l2), [&](level const & l) { return is_ge(l1, l, k); });
         }
-        lean_unreachable();
+        lean_unreachable(); // LCOV_EXCL_LINE
     }
 
     /** \brief Return true iff l1 >= l2 is implied by asserted universe constraints. */
@@ -239,7 +239,7 @@ struct environment::imp {
         case level_kind::Lift: add_constraints(n, lift_of(l), safe_add(k, lift_offset(l))); return;
         case level_kind::Max:  std::for_each(max_begin_levels(l), max_end_levels(l), [&](level const & l1) { add_constraints(n, l1, k); }); return;
         }
-        lean_unreachable();
+        lean_unreachable(); // LCOV_EXCL_LINE
     }
 
     /** \brief Add a new universe variable with constraint n >= l */

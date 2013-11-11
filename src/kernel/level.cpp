@@ -148,7 +148,7 @@ level operator+(level const & l, unsigned k)  {
             new_lvls.push_back(max_level(l, i) + k);
         return max_core(new_lvls.size(), new_lvls.data());
     }}
-    lean_unreachable();
+    lean_unreachable(); // LCOV_EXCL_LINE
 }
 
 level_kind    kind       (level const & l) { lean_assert(l.m_ptr); return l.m_ptr->m_kind; }
@@ -176,7 +176,7 @@ bool operator==(level const & l1, level const & l2) {
             return false;
         }
     }
-    lean_unreachable();
+    lean_unreachable(); // LCOV_EXCL_LINE
 }
 
 bool operator<(level const & l1, level const & l2) {
@@ -196,7 +196,7 @@ bool operator<(level const & l1, level const & l2) {
                 return max_level(l1, i) < max_level(l2, i);
         return false;
     }
-    lean_unreachable();
+    lean_unreachable(); // LCOV_EXCL_LINE
 }
 
 std::ostream & operator<<(std::ostream & out, level const & l) {
@@ -245,7 +245,7 @@ format pp(level const & l, bool unicode) {
             return paren(r);
         }
     }}
-    lean_unreachable();
+    lean_unreachable(); // LCOV_EXCL_LINE
 }
 
 format pp(level const & l, options const & opts) {

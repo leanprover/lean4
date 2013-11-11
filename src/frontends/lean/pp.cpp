@@ -586,7 +586,7 @@ class pp_fn {
                         --i;
                     }
                 }
-                lean_unreachable();
+                lean_unreachable(); // LCOV_EXCL_LINE
             } else {
                 return arg(m_app, i + 1);
             }
@@ -615,7 +615,7 @@ class pp_fn {
         case fixity::Mixfixo:
             return app.get_num_args() == length(op.get_op_name_parts()) + 1;
         }
-        lean_unreachable();
+        lean_unreachable(); // LCOV_EXCL_LINE
     }
 
     /**
@@ -688,7 +688,7 @@ class pp_fn {
                 }
                 return mk_result(group(r_format), r_weight);
             }}
-            lean_unreachable();
+            lean_unreachable(); // LCOV_EXCL_LINE
         } else if (m_notation && is_forall_expr(e)) {
             return pp_forall(e, depth);
         } else if (m_notation && is_exists_expr(e)) {
@@ -1380,7 +1380,7 @@ public:
                 return format("Unknown neutral object");
             }
         }
-        lean_unreachable();
+        lean_unreachable(); // LCOV_EXCL_LINE
     }
 
     virtual format operator()(environment const & env, options const & opts) {

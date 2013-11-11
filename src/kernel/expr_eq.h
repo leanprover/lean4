@@ -45,7 +45,7 @@ class expr_eq_fn {
             m_eq_visited->insert(p);
         }
         switch (a.kind()) {
-        case expr_kind::Var:      lean_unreachable();
+        case expr_kind::Var:      lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::Constant: return const_name(a) == const_name(b);
         case expr_kind::App:
             if (num_args(a) != num_args(b))
@@ -72,7 +72,7 @@ class expr_eq_fn {
                             return e1.n() == e2.n();
                     });
         }
-        lean_unreachable();
+        lean_unreachable(); // LCOV_EXCL_LINE
     }
 public:
     expr_eq_fn(N const & norm = N()):m_norm(norm) {

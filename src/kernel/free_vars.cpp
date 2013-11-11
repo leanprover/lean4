@@ -60,7 +60,7 @@ protected:
         switch (e.kind()) {
         case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value: case expr_kind::Var: case expr_kind::MetaVar:
             // easy cases were already handled
-            lean_unreachable();
+            lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::App:
             result = std::any_of(begin_args(e), end_args(e), [=](expr const & arg){ return apply(arg, offset); });
             break;
@@ -135,7 +135,7 @@ protected:
         switch (e.kind()) {
         case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value: case expr_kind::Var: case expr_kind::MetaVar:
             // easy cases were already handled
-            lean_unreachable();
+            lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::App:
             result = std::any_of(begin_args(e), end_args(e), [=](expr const & arg){ return apply(arg, offset); });
             break;
@@ -182,7 +182,7 @@ expr lower_free_vars(expr const & e, unsigned s, unsigned d) {
             lean_assert(var_idx(e) >= offset + d);
             return mk_var(var_idx(e) - d);
         } else if (is_metavar(e)) {
-            lean_unreachable();
+            lean_unreachable(); // LCOV_EXCL_LINE
         } else {
             return e;
         }

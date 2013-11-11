@@ -153,7 +153,7 @@ class type_inferer::imp {
         case expr_kind::Constant: case expr_kind::Eq:
         case expr_kind::Value:    case expr_kind::Type:
         case expr_kind::MetaVar:
-            lean_unreachable();
+            lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::Var: {
             auto p = lookup_ext(ctx, var_idx(e));
             context_entry const & ce = p.first;

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
+#include <lua.hpp>
 #include "bindings/lua/lua_exception.h"
 
 namespace lean {
@@ -30,6 +31,20 @@ public:
        This method throws an exception if an error occurs.
     */
     void dostring(char const * str);
+
+    /**
+       \brief Execute the given script, but sets the registry with the given environment object.
+       The registry can be accessed by \str by invoking the function <tt>env()</tt>.
+       The script \c str should not store a reference to the environment \c env.
+    */
     void dostring(char const * str, environment & env);
+
+    /**
+       \brief Execute the given script, but copy the values at positions <tt>[first, last]</tt> from the stack of \c src.
+       The values are passed as arguments to the script \c str.
+       The values returned by the script \c str are copied back to the stack of \c src.
+       The result is the number of values returned by the script \c str.
+    */
+    int dostring(char const * str, lua_State * src, int first, int last);
 };
 }

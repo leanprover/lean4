@@ -42,8 +42,16 @@ bool testudata(lua_State * L, int ud, char const * tname) {
     return nullptr;  // value is not a userdata with a metatable
 }
 
+int load(lua_State * L, lua_Reader reader, void * data, char const * source) {
+    #if LUA_VERSION_NUM < 502
+    return lua_load(L, reader, data, source);
+    #else
+    return lua_load(L, reader, data, source, nullptr);
+    #endif
+}
+
 size_t objlen(lua_State * L, int idx) {
-    #ifdef LEAN_USE_LUA_OBJLEN
+    #if LUA_VERSION_NUM < 502
     return lua_objlen(L, idx);
     #else
     return lua_rawlen(L, idx);

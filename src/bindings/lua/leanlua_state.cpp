@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "util/debug.h"
 #include "util/exception.h"
 #include "util/memory.h"
+#include "util/buffer.h"
 #include "bindings/lua/leanlua_state.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
@@ -34,6 +35,30 @@ static void open_patch(lua_State * L);
 static void open_state(lua_State * L);
 static void open_thread(lua_State * L);
 environment & to_environment(lua_State * L, int idx);
+static int writer(lua_State *, void const * p, size_t sz, void * buf) {
+    buffer<char> & _buf = *static_cast<buffer<char>*>(buf);
+    char const * in = static_cast<char const *>(p);
+    for (size_t i = 0; i < sz; i++)
+        _buf.push_back(in[i]);
+    return 0;
+}
+struct reader_data {
+    buffer<char> & m_buffer;
+    bool           m_done;
+    reader_data(buffer<char> & b):m_buffer(b), m_done(false) {}
+};
+static char const * reader(lua_State *, void * data, size_t * sz) {
+    reader_data & _data = *static_cast<reader_data*>(data);
+    if (_data.m_done) {
+        *sz = 0;
+        return nullptr;
+    } else {
+        *sz = _data.m_buffer.size();
+        _data.m_done = true;
+        return _data.m_buffer.data();
+    }
+}
+
 static void copy_values(lua_State * src, int first, int last, lua_State * tgt) {
     for (int i = first; i <= last; i++) {
         if (lua_isstring(src, i)) {
@@ -42,6 +67,26 @@ static void copy_values(lua_State * src, int first, int last, lua_State * tgt) {
             lua_pushnumber(tgt, lua_tonumber(src, i));
         } else if (lua_isboolean(src, i)) {
             lua_pushboolean(tgt, lua_toboolean(src, i));
+        } else if (lua_isfunction(src, i)) {
+            lua_pushvalue(src, i); // copy function to the top of the stack
+            buffer<char> buffer;
+            if (lua_dump(src, writer, &buffer) != 0)
+                throw exception("falied to copy function between State objects");
+            lua_pop(src, 1); // remove function from the top of the stack
+            reader_data data(buffer);
+            if (load(tgt, reader, &data, "temporary buffer for moving functions between states") != 0)
+                throw exception("falied to copy function between State objects");
+            // copy upvalues
+            int j = 1;
+            while (true) {
+                char const * name = lua_getupvalue(src, i, j);
+                if (name == nullptr)
+                    break;
+                copy_values(src, lua_gettop(src), lua_gettop(src), tgt); // copy upvalue to tgt stack
+                lua_pop(src, 1); // remove upvalue from src stack
+                lua_setupvalue(tgt, -2, j);
+                j++;
+            }
         } else if (is_expr(src, i)) {
             push_expr(tgt, to_expr(src, i));
         } else if (is_context(src, i)) {
@@ -233,6 +278,15 @@ int state_dostring(lua_State * L) {
     return sz_after - sz_before;
 }
 
+int state_set_global(lua_State * L) {
+    auto S = to_state(L, 1).m_ptr;
+    char const * name = luaL_checkstring(L, 2);
+    std::lock_guard<std::mutex> lock(S->m_mutex);
+    copy_values(L, 3, 3, S->m_state);
+    lua_setglobal(S->m_state, name);
+    return 0;
+}
+
 static int state_pred(lua_State * L) {
     lua_pushboolean(L, is_state(L, 1));
     return 1;
@@ -241,6 +295,8 @@ static int state_pred(lua_State * L) {
 static const struct luaL_Reg state_m[] = {
     {"__gc",            state_gc},
     {"dostring",        safe_function<state_dostring>},
+    {"eval",            safe_function<state_dostring>},
+    {"set",             safe_function<state_set_global>},
     {0, 0}
 };
 

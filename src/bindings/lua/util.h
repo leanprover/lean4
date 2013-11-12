@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 namespace lean {
 void setfuncs(lua_State * L, luaL_Reg const * l, int nup);
 bool testudata(lua_State * L, int idx, char const * mt);
+int load(lua_State * L, lua_Reader reader, void * data, char const * source);
 size_t objlen(lua_State * L, int idx);
 void dofile(lua_State * L, char const * fname);
 void dostring(lua_State * L, char const * str);

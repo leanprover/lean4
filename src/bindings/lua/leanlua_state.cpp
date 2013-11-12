@@ -71,7 +71,9 @@ struct leanlua_state::imp {
     std::mutex  m_mutex;
 
     imp() {
-        #ifdef LEAN_USE_LUA_NEWSTATE
+        // TODO(Leo) investigate why TCMALLOC + lua_realloc do not work together
+        // #ifdef LEAN_USE_LUA_NEWSTATE
+        #if 0
         m_state = lua_newstate(lua_realloc, nullptr);
         #else
         m_state = luaL_newstate();

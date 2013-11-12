@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/name.h"
 #include "bindings/lua/level.h"
 #include "bindings/lua/expr.h"
+#include "bindings/lua/object.h"
 #include "bindings/lua/context.h"
 #include "bindings/lua/environment.h"
 
@@ -49,6 +50,25 @@ int push_environment(lua_State * L, environment const & env) {
 
 static int mk_environment(lua_State * L) {
     return push_environment(L, environment());
+}
+
+static int environment_has_parent(lua_State * L) {
+    ro_environment env(L, 1);
+    lua_pushboolean(L, env->has_parent());
+    return 1;
+}
+
+static int environment_has_children(lua_State * L) {
+    ro_environment env(L, 1);
+    lua_pushboolean(L, env->has_children());
+    return 1;
+}
+
+static int environment_parent(lua_State * L) {
+    ro_environment env(L, 1);
+    if (!env->has_parent())
+        throw exception("environment does not have a parent environment");
+    return push_environment(L, env->parent());
 }
 
 static int environment_add_uvar(lua_State * L) {
@@ -106,6 +126,17 @@ static int environment_add_axiom(lua_State * L) {
     return 0;
 }
 
+static int environment_find_object(lua_State * L) {
+    ro_environment env(L, 1);
+    return push_object(L, env->find_object(to_name_ext(L, 2)));
+}
+
+static int environment_has_object(lua_State * L) {
+    ro_environment env(L, 1);
+    lua_pushboolean(L, env->has_object(to_name_ext(L, 2)));
+    return 1;
+}
+
 static int environment_check_type(lua_State * L) {
     ro_environment env(L, 1);
     int nargs = lua_gettop(L);
@@ -122,6 +153,30 @@ static int environment_normalize(lua_State * L) {
         return push_expr(L, env->normalize(to_nonnull_expr(L, 2)));
     else
         return push_expr(L, env->normalize(to_nonnull_expr(L, 2), to_context(L, 3)));
+}
+
+static int environment_objects(lua_State * L) {
+    ro_environment env(L, 1);
+    auto it  = env->begin_objects();
+    auto end = env->end_objects();
+    lua_newtable(L);
+    for (int i = 1; it != end; ++it, ++i) {
+        push_object(L, *it);
+        lua_rawseti(L, -2, i);
+    }
+    return 1;
+}
+
+static int environment_local_objects(lua_State * L) {
+    ro_environment env(L, 1);
+    auto it  = env->begin_local_objects();
+    auto end = env->end_local_objects();
+    lua_newtable(L);
+    for (int i = 1; it != end; ++it, ++i) {
+        push_object(L, *it);
+        lua_rawseti(L, -2, i);
+    }
+    return 1;
 }
 
 static int environment_pred(lua_State * L) {
@@ -142,6 +197,9 @@ static int environment_tostring(lua_State * L) {
 static const struct luaL_Reg environment_m[] = {
     {"__gc",           environment_gc}, // never throws
     {"__tostring",     safe_function<environment_tostring>},
+    {"has_parent",     safe_function<environment_has_parent>},
+    {"has_children",   safe_function<environment_has_children>},
+    {"parent",         safe_function<environment_parent>},
     {"add_uvar",       safe_function<environment_add_uvar>},
     {"is_ge",          safe_function<environment_is_ge>},
     {"get_uvar",       safe_function<environment_get_uvar>},
@@ -149,8 +207,12 @@ static const struct luaL_Reg environment_m[] = {
     {"add_theorem",    safe_function<environment_add_theorem>},
     {"add_var",        safe_function<environment_add_var>},
     {"add_axiom",      safe_function<environment_add_axiom>},
+    {"find_object",    safe_function<environment_find_object>},
+    {"has_object",     safe_function<environment_has_object>},
     {"check_type",     safe_function<environment_check_type>},
     {"normalize",      safe_function<environment_normalize>},
+    {"objects",        safe_function<environment_objects>},
+    {"local_objects",  safe_function<environment_local_objects>},
     {0, 0}
 };
 

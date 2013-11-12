@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/local_context.h"
 #include "bindings/lua/expr.h"
 #include "bindings/lua/context.h"
+#include "bindings/lua/object.h"
 #include "bindings/lua/environment.h"
 #include "bindings/lua/lean.lua"
 
@@ -97,6 +98,7 @@ struct leanlua_state::imp {
         open_local_context(m_state);
         open_expr(m_state);
         open_context(m_state);
+        open_object(m_state);
         open_environment(m_state);
         open_state(m_state);
         open_thread(m_state);

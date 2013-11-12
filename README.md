@@ -1,17 +1,15 @@
-[![Build Status](https://travis-ci.org/leodemoura/lean.png?branch=master)](https://travis-ci.org/leodemoura/lean)
-Ubuntu 12.04 LTS 64bit, g++-4.8 | clang++-3.3
-
-[![Build Status](https://travis-ci.org/soonhokong/lean-osx.png?branch=master)](https://travis-ci.org/soonhokong/lean-osx)
-Mac OS X 10.8.2, g++-4.9
-
-[![Build Status](https://travis-ci.org/soonhokong/lean-windows.png?branch=master)](https://travis-ci.org/soonhokong/lean-windows)
-Windows, x86_64-w64-mingw32-g++-4.8.2
-
-[![Coverage Status](https://coveralls.io/repos/soonhokong/lean/badge.png?branch=master)](https://coveralls.io/r/soonhokong/lean?branch=master)
-
-[[Result of Build/UnitTest/Coverage/Dynamic Analysis]][build]
-
-[build]: http://build.leanprover.net
+<table>
+  <tr>
+    <th>Ubuntu</th><th>OS X</th><th>Windows</th><th>Code Coverage</th><th>Builds / UnitTests / Dynamic Analyses</th>
+  </tr>
+  <tr>
+    <td><a href="https://travis-ci.org/leodemoura/lean"><img src="https://travis-ci.org/leodemoura/lean.png?branch=master" title="Ubuntu 12.04 LTS 64bit, g++-4.8 | clang++-3.3"/></a></td>
+    <td><a href="https://travis-ci.org/soonhokong/lean-osx"><img src="https://travis-ci.org/soonhokong/lean-osx.png?branch=master" title="Mac OS X 10.8.2, g++-4.9"/></a></td>
+    <td><a href="https://travis-ci.org/soonhokong/lean-windows"><img src="https://travis-ci.org/soonhokong/lean-windows.png?branch=master" title="Windows, x86_64-w64-mingw32-g++-4.8.2"/></a></td>
+    <td><a href="https://coveralls.io/r/soonhokong/lean?branch=master"><img src="https://coveralls.io/repos/soonhokong/lean/badge.png?branch=master"/></a></td>
+    <td><a href="http://build.leanprover.net">http://build.leanprover.net</a></td>
+  </tr>
+</table>
 
 About
 -----

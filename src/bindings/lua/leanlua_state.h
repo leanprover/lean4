@@ -17,6 +17,10 @@ class environment;
 class leanlua_state {
     struct imp;
     std::shared_ptr<imp> m_ptr;
+    friend class leanlua_thread;
+    friend int state_dostring(lua_State *);
+    friend int mk_thread(lua_State *);
+    friend int thread_wait(lua_State *);
 public:
     leanlua_state();
     ~leanlua_state();
@@ -38,13 +42,5 @@ public:
        The script \c str should not store a reference to the environment \c env.
     */
     void dostring(char const * str, environment & env);
-
-    /**
-       \brief Execute the given script, but copy the values at positions <tt>[first, last]</tt> from the stack of \c src.
-       The values are passed as arguments to the script \c str.
-       The values returned by the script \c str are copied back to the stack of \c src.
-       The result is the number of values returned by the script \c str.
-    */
-    int dostring(char const * str, lua_State * src, int first, int last);
 };
 }

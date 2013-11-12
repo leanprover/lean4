@@ -29,6 +29,7 @@ Author: Leonardo de Moura
 extern "C" void * lua_realloc(void *, void * q, size_t, size_t new_size) { return lean::realloc(q, new_size); }
 
 namespace lean {
+static void open_patch(lua_State * L);
 static void open_state(lua_State * L);
 static void open_thread(lua_State * L);
 environment & to_environment(lua_State * L, int idx);
@@ -85,6 +86,7 @@ struct leanlua_state::imp {
         if (m_state == nullptr)
             throw exception("fail to create Lua interpreter");
         luaL_openlibs(m_state);
+        open_patch(m_state);
         open_name(m_state);
         open_mpz(m_state);
         open_mpq(m_state);
@@ -138,6 +140,39 @@ void leanlua_state::dostring(char const * str) {
 
 void leanlua_state::dostring(char const * str, environment & env) {
     m_ptr->dostring(str, env);
+}
+
+static std::mutex g_print_mutex;
+
+/** \brief Thread safe version of print function */
+static int print(lua_State * L) {
+    // TODO(Leo): use output channels (if available) instead of std::cout
+    int n = lua_gettop(L);
+    int i;
+    lua_getglobal(L, "tostring");
+    std::lock_guard<std::mutex> lock(g_print_mutex);
+    for (i = 1; i <= n; i++) {
+        char const * s;
+        size_t l;
+        lua_pushvalue(L, -1);
+        lua_pushvalue(L, i);
+        lua_call(L, 1, 1);
+        s = lua_tolstring(L, -1, &l);
+        if (s == NULL)
+            return luaL_error(L, "'to_string' must return a string to 'print'");
+        if (i > 1) {
+            std::cout << "\t";
+        }
+        std::cout << s;
+        lua_pop(L, 1);
+    }
+    std::cout << std::endl;
+    return 0;
+}
+
+/** \brief Redefine some functions from the Lua library */
+static void open_patch(lua_State * L) {
+    set_global_function<print>(L, "print");
 }
 
 constexpr char const * state_mt = "state.mt";

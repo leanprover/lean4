@@ -219,3 +219,45 @@ Modified Features:
 
 [google-style]: http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml
 [cpplint]: /src/cmake/Modules/cpplint.py
+
+Git pre-push hook
+-----------------
+
+Since [git 1.8.2][git-pre-push-hook], git introduced *pre-push* hook
+which is executed *before* actual push operation is performed. Using this,
+we can *automatically* run the style checker over the changed files *before*
+we push commits to repositories. This is useful because it prevents us
+from accidentally pushing the commits which contain style problems.
+
+[git-pre-push-hook]: https://github.com/git/git/blob/master/Documentation/RelNotes/1.8.2.txt
+
+ - Create ``<PROJECT_ROOT>/.git/hooks/pre-push`` file with the following contents:
+
+~~~~~~~~~~~~~~~~
+#!/usr/bin/env bash
+IFS=' '
+DIR="$( cd "$( dirname "$0" )" && pwd )"
+CHECKER=$DIR/../../src/cmake/Modules/cpplint.py
+while read local_ref local_sha remote_ref remote_sha;
+do
+    CHANGED_FILES=`git diff --name-only $local_sha $remote_sha | grep '\(cpp\|h\)$'`
+    if [ ! -z "$CHANGED_FILES" -a "$CHANGED_FILES" != " " ]; then
+        echo $CHANGED_FILES | xargs $CHECKER
+        RET=$?
+        if [ $RET -ne 0 ]; then
+            echo "There is error(s) from style-check. Please fix them before push to the repo."
+            exit $RET
+        fi
+    fi
+done
+exit 0
+~~~~~~~~~~~~~~~~
+
+ - Give "exec" permission to the file
+
+~~~~~~~~~~~~~~~~
+chmod +x <PROJECT_ROOT>/.git/hooks/pre-push
+~~~~~~~~~~~~~~~~
+
+Note that you need to change ``CHECKER`` variable if you want to use other
+checkers.

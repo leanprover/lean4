@@ -18,9 +18,9 @@ class leanlua_state {
     struct imp;
     std::shared_ptr<imp> m_ptr;
     friend class leanlua_thread;
-    friend int state_dostring(lua_State *);
-    friend int mk_thread(lua_State *);
-    friend int thread_wait(lua_State *);
+    friend int state_dostring(lua_State * L);
+    friend int mk_thread(lua_State * L);
+    friend int thread_wait(lua_State * L);
 public:
     leanlua_state();
     ~leanlua_state();

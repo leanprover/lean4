@@ -38,6 +38,8 @@ static void copy_values(lua_State * src, int first, int last, lua_State * tgt) {
             lua_pushfstring(tgt, lua_tostring(src, i));
         } else if (lua_isnumber(src, i)) {
             lua_pushnumber(tgt, lua_tonumber(src, i));
+        } else if (lua_isboolean(src, i)) {
+            lua_pushboolean(tgt, lua_toboolean(src, i));
         } else if (is_expr(src, i)) {
             push_expr(tgt, to_expr(src, i));
         } else if (is_context(src, i)) {

@@ -133,18 +133,5 @@ if (LUA_FOUND)
     else()
       message(STATUS "lua_newstate is not supported by your Lua engine, Lean will not be able to track memory consumed by the Lua engine")
     endif()
-
-    try_run(LUA_CHECK2 LUA_CHECK_BUILD2
-      ${LEAN_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp
-      ${LEAN_SOURCE_DIR}/cmake/Modules/CheckLuaObjlen.cc
-      CMAKE_FLAGS -DINCLUDE_DIRECTORIES=${LUA_INCLUDE_DIR}
-      -DLINK_LIBRARIES=${LUA_LIBRARIES}
-      RUN_OUTPUT_VARIABLE LUA_TRY_OUT)
-    if ("${LUA_CHECK2}" MATCHES "0" AND "${LUA_CHECK_BUILD2}$" MATCHES "TRUE")
-      message(STATUS "lua_objlen found")
-      set(HAS_LUA_OBJLEN TRUE)
-    else()
-      message(STATUS "lua_objlen is not available, using lua_rawlen instead")
-    endif()
   endif()
 endif ()

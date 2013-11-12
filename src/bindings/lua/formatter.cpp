@@ -46,7 +46,7 @@ static int formatter_gc(lua_State * L) {
 static int formatter_call(lua_State * L) {
     int nargs = lua_gettop(L);
     formatter & fmt = to_formatter(L, 1);
-    options opts;
+    options opts = get_global_options(L);
     if (nargs <= 3) {
         if (nargs == 3) {
             if (is_options(L, 3))

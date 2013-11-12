@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/context.h"
 #include "bindings/lua/object.h"
 #include "bindings/lua/environment.h"
+#include "bindings/lua/state.h"
 #include "bindings/lua/lean.lua"
 
 extern "C" void * lua_realloc(void *, void * q, size_t, size_t new_size) { return lean::realloc(q, new_size); }
@@ -168,6 +169,11 @@ struct leanlua_state::imp {
         set_environment set(m_state, env);
         dostring(str);
     }
+
+    void dostring(char const * str, environment & env, state & st) {
+        set_state set(m_state, st);
+        dostring(str, env);
+    }
 };
 
 leanlua_state::leanlua_state():
@@ -187,6 +193,10 @@ void leanlua_state::dostring(char const * str) {
 
 void leanlua_state::dostring(char const * str, environment & env) {
     m_ptr->dostring(str, env);
+}
+
+void leanlua_state::dostring(char const * str, environment & env, state & st) {
+    m_ptr->dostring(str, env, st);
 }
 
 static std::mutex g_print_mutex;
@@ -222,7 +232,7 @@ static void open_patch(lua_State * L) {
     set_global_function<print>(L, "print");
 }
 
-constexpr char const * state_mt = "state.mt";
+constexpr char const * state_mt = "luastate.mt";
 
 bool is_state(lua_State * L, int idx) {
     return testudata(L, idx, state_mt);

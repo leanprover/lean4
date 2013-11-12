@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "util/sexpr/option_declarations.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
+#include "bindings/lua/state.h"
 
 namespace lean {
 constexpr char const * options_mt = "options.mt";
@@ -171,6 +172,54 @@ static int options_pred(lua_State * L) {
     return 1;
 }
 
+static char g_options_key;
+
+options get_global_options(lua_State * L) {
+    state * S = get_state(L);
+    if (S != nullptr) {
+        return S->get_options();
+    } else {
+        lua_pushlightuserdata(L, static_cast<void *>(&g_options_key));
+        lua_gettable(L, LUA_REGISTRYINDEX);
+        options r;
+        if (!is_options(L, -1))
+            r = to_options(L, -1);
+        lua_pop(L, 1);
+        return r;
+    }
+}
+
+void set_global_options(lua_State * L, options const & o) {
+    state * S = get_state(L);
+    if (S != nullptr) {
+        S->set_options(o);
+    } else {
+        lua_pushlightuserdata(L, static_cast<void *>(&g_options_key));
+        push_options(L, o);
+        lua_settable(L, LUA_REGISTRYINDEX);
+    }
+}
+
+static int _get_global_options(lua_State * L) {
+    return push_options(L, get_global_options(L));
+}
+
+static int _set_global_options(lua_State * L) {
+    options o = to_options(L, 1);
+    set_global_options(L, o);
+    return 0;
+}
+
+static int _set_global_option(lua_State * L) {
+    options o = get_global_options(L);
+    push_options(L, o);
+    lua_insert(L, 1);
+    options_update(L);
+    o = to_options(L, -1);
+    set_global_options(L, o);
+    return 0;
+}
+
 static const struct luaL_Reg options_m[] = {
     {"__gc",            options_gc}, // never throws
     {"__tostring",      safe_function<options_tostring>},
@@ -202,5 +251,8 @@ void open_options(lua_State * L) {
 
     set_global_function<mk_options>(L, "options");
     set_global_function<options_pred>(L, "is_options");
+    set_global_function<_get_global_options>(L, "get_options");
+    set_global_function<_set_global_options>(L, "set_options");
+    set_global_function<_set_global_option>(L, "set_option");
 }
 }

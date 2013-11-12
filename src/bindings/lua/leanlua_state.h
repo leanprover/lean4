@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 class environment;
+class state;
 /**
    \brief Wrapper for lua_State objects which contains all Lean bindings.
 */
@@ -43,5 +44,7 @@ public:
        The script \c str should not store a reference to the environment \c env.
     */
     void dostring(char const * str, environment & env);
+
+    void dostring(char const * str, environment & env, state & st);
 };
 }

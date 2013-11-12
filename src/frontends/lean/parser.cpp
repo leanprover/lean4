@@ -1593,7 +1593,7 @@ class parser::imp {
         m_last_script_pos = mk_pair(m_scanner.get_script_block_line(), m_scanner.get_script_block_pos());
         if (!m_leanlua_state)
             throw exception("failed to execute Lua script, parser does not have a Lua interpreter");
-        m_leanlua_state->dostring(m_scanner.get_str_val().c_str(), m_frontend.get_environment());
+        m_leanlua_state->dostring(m_scanner.get_str_val().c_str(), m_frontend.get_environment(), m_frontend.get_state());
         next();
     }
 

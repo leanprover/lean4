@@ -1,6 +1,6 @@
 <table>
   <tr>
-    <th>Ubuntu</th><th>OS X</th><th>Windows</th><th>Code Coverage</th><th>Builds / UnitTests / Dynamic Analyses</th>
+    <th>Ubuntu</th><th>OS X</th><th>Windows</th><th>Coverage</th><th>Builds / UnitTests / Dynamic Analyses</th>
   </tr>
   <tr>
     <td><a href="https://travis-ci.org/leodemoura/lean"><img src="https://travis-ci.org/leodemoura/lean.png?branch=master" title="Ubuntu 12.04 LTS 64bit, g++-4.8 | clang++-3.3"/></a></td>

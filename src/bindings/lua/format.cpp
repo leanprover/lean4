@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <lua.hpp>
 #include <cstring>
 #include "util/debug.h"
+#include "util/sstream.h"
 #include "util/sexpr/format.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
@@ -103,7 +104,7 @@ static int format_highlight(lua_State * L) {
     } else if (strcmp(color_str, "grey") == 0) {
         color = format::GREY;
     } else {
-        return luaL_error(L, "unknown color '%s'", color_str);
+        throw exception(sstream() << "unknown color '" << color_str << "'");
     }
     return push_format(L, highlight(to_format(L, 1), color));
 }

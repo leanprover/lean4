@@ -71,7 +71,7 @@ static int local_entry_s(lua_State * L) {
 static int local_entry_n(lua_State * L) {
     local_entry & e = to_local_entry(L, 1);
     if (!e.is_lift())
-        luaL_error(L, "Lean lift local entry expected");
+        throw exception("Lean lift local entry expected");
     lua_pushinteger(L, to_local_entry(L, 1).n());
     return 1;
 }
@@ -79,7 +79,7 @@ static int local_entry_n(lua_State * L) {
 static int local_entry_v(lua_State * L) {
     local_entry & e = to_local_entry(L, 1);
     if (!e.is_inst())
-        luaL_error(L, "Lean inst local entry expected");
+        throw exception("Lean inst local entry expected");
     return push_expr(L, to_local_entry(L, 1).v());
     return 1;
 }

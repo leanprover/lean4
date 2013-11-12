@@ -96,33 +96,33 @@ static int level_is_max(lua_State * L) {
 
 static int level_name(lua_State * L) {
     if (!is_uvar(to_level(L, 1)))
-        luaL_error(L, "arg #1 must be a Lean level universal variable");
+        throw exception("arg #1 must be a Lean level universal variable");
     return push_name(L, uvar_name(to_level(L, 1)));
 }
 
 static int level_lift_of(lua_State * L) {
     if (!is_lift(to_level(L, 1)))
-        luaL_error(L, "arg #1 must be a Lean level lift");
+        throw exception("arg #1 must be a Lean level lift");
     return push_level(L, lift_of(to_level(L, 1)));
 }
 
 static int level_lift_offset(lua_State * L) {
     if (!is_lift(to_level(L, 1)))
-        luaL_error(L, "arg #1 must be a Lean level lift");
+        throw exception("arg #1 must be a Lean level lift");
     lua_pushinteger(L, lift_offset(to_level(L, 1)));
     return 1;
 }
 
 static int level_max_size(lua_State * L) {
     if (!is_max(to_level(L, 1)))
-        luaL_error(L, "arg #1 must be a Lean level max");
+        throw exception("arg #1 must be a Lean level max");
     lua_pushinteger(L, max_size(to_level(L, 1)));
     return 1;
 }
 
 static int level_max_level(lua_State * L) {
     if (!is_max(to_level(L, 1)))
-        luaL_error(L, "arg #1 must be a Lean level max");
+        throw exception("arg #1 must be a Lean level max");
     return push_level(L, max_level(to_level(L, 1), luaL_checkinteger(L, 2)));
 }
 

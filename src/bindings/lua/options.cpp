@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <lua.hpp>
 #include "util/debug.h"
 #include "util/name.h"
+#include "util/sstream.h"
 #include "util/sexpr/options.h"
 #include "util/sexpr/option_declarations.h"
 #include "bindings/lua/util.h"
@@ -133,7 +134,7 @@ static int options_get(lua_State * L) {
     name k = to_key(L, 2);
     auto it = get_option_declarations().find(k);
     if (it == get_option_declarations().end()) {
-        return luaL_error(L, "unknown option '%s'", k.to_string().c_str());
+        throw exception(sstream() << "unknown option '" << k.to_string().c_str() << "'");
     } else {
         option_declaration const & d = it->second;
         switch (d.kind()) {
@@ -142,7 +143,7 @@ static int options_get(lua_State * L) {
         case UnsignedOption:  return options_get_unsigned(L);
         case DoubleOption:    return options_get_double(L);
         case StringOption:    return options_get_string(L);
-        default:              return luaL_error(L, "unsupported option kind for '%s'", k.to_string().c_str());
+        default:              throw exception(sstream() << "unsupported option kind for '" << k.to_string().c_str() << "'");
         }
     }
 }
@@ -151,7 +152,7 @@ static int options_update(lua_State * L) {
     name k = to_key(L, 2);
     auto it = get_option_declarations().find(k);
     if (it == get_option_declarations().end()) {
-        return luaL_error(L, "unknown option '%s'", k.to_string().c_str());
+        throw exception(sstream() << "unknown option '" << k.to_string().c_str() << "'");
     } else {
         option_declaration const & d = it->second;
         switch (d.kind()) {
@@ -160,7 +161,7 @@ static int options_update(lua_State * L) {
         case UnsignedOption:  return options_update_unsigned(L);
         case DoubleOption:    return options_update_double(L);
         case StringOption:    return options_update_string(L);
-        default:              return luaL_error(L, "unsupported option kind for '%s'", k.to_string().c_str());
+        default:              throw exception(sstream() << "unsupported option kind for '" << k.to_string().c_str() << "'");
         }
     }
 }

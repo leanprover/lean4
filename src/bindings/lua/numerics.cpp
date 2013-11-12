@@ -83,7 +83,7 @@ static int mpz_mul(lua_State * L) {
 
 static int mpz_div(lua_State * L) {
     mpz const & arg2 = to_mpz<2>(L);
-    if (arg2 == 0) luaL_error(L, "division by zero");
+    if (arg2 == 0) throw exception("division by zero");
     return push_mpz(L, to_mpz<1>(L) / arg2);
 }
 
@@ -93,7 +93,7 @@ static int mpz_umn(lua_State * L) {
 
 static int mpz_power(lua_State * L) {
     int k = luaL_checkinteger(L, 2);
-    if (k < 0) luaL_error(L, "argument #2 must be positive");
+    if (k < 0) throw exception("argument #2 must be positive");
     return push_mpz(L, pow(to_mpz<1>(L), k));
 }
 
@@ -200,7 +200,7 @@ static int mpq_mul(lua_State * L) {
 
 static int mpq_div(lua_State * L) {
     mpq const & arg2 = to_mpq<2>(L);
-    if (arg2 == 0) luaL_error(L, "division by zero");
+    if (arg2 == 0) throw exception("division by zero");
     return push_mpq(L, to_mpq<1>(L) / arg2);
 }
 
@@ -210,7 +210,7 @@ static int mpq_umn(lua_State * L) {
 
 static int mpq_power(lua_State * L) {
     int k = luaL_checkinteger(L, 2);
-    if (k < 0) luaL_error(L, "argument #2 must be positive");
+    if (k < 0) throw exception("argument #2 must be positive");
     return push_mpq(L, pow(to_mpq<1>(L), k));
 }
 

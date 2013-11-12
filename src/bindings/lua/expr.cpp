@@ -32,7 +32,7 @@ expr & to_expr(lua_State * L, int idx) {
 expr & to_nonnull_expr(lua_State * L, int idx) {
     expr & r = to_expr(L, idx);
     if (!r)
-        luaL_error(L, "non-null Lean expression expected");
+        throw exception("non-null Lean expression expected");
     return r;
 }
 
@@ -83,7 +83,7 @@ static int expr_mk_var(lua_State * L) {
 static int expr_mk_app(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs < 2)
-        luaL_error(L, "application must have at least two arguments");
+        throw exception("application must have at least two arguments");
     buffer<expr> args;
     for (int i = 1; i <= nargs; i++)
         args.push_back(to_nonnull_expr(L, i));
@@ -126,7 +126,7 @@ static std::pair<expr, expr> get_expr_pair_from_table(lua_State * L, int t, int 
     lua_pushinteger(L, i);
     lua_gettable(L, -2); // now table {ai, bi} is on the top
     if (!lua_istable(L, -1) || objlen(L, -1) != 2)
-        luaL_error(L, "arg #1 must be of the form '{{expr, expr}, ...}'");
+        throw exception("arg #1 must be of the form '{{expr, expr}, ...}'");
     expr ai = get_expr_from_table(L, -1, 1);
     expr bi = get_expr_from_table(L, -1, 2);
     lua_pop(L, 2); // pop table {ai, bi} and t from stack
@@ -137,16 +137,16 @@ typedef expr (*MkAbst1)(expr const & n, expr const & t, expr const & b);
 typedef expr (*MkAbst2)(name const & n, expr const & t, expr const & b);
 
 template<MkAbst1 F1, MkAbst2 F2>
-int expr_abst(lua_State * L, char const * fname) {
+int expr_abst(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs < 2)
-        luaL_error(L, "Lean %s must have at least 2 arguments", fname);
+        throw exception("function must have at least 2 arguments");
     if (nargs == 2) {
         if (!lua_istable(L, 1))
-            luaL_error(L, "Lean %s expects arg #1 to be of the form '{{expr, expr}, ...}'", fname);
+            throw exception("function expects arg #1 to be of the form '{{expr, expr}, ...}'");
         int len = objlen(L, 1);
         if (len == 0)
-            luaL_error(L, "Lean %s expects arg #1 to be a non-empty table", fname);
+            throw exception("function expects arg #1 to be a non-empty table");
         expr r = to_nonnull_expr(L, 2);
         for (int i = len; i >= 1; i--) {
             auto p = get_expr_pair_from_table(L, 1, i);
@@ -155,7 +155,7 @@ int expr_abst(lua_State * L, char const * fname) {
         return push_expr(L, r);
     } else {
         if (nargs % 2 == 0)
-            luaL_error(L, "Lean %s must have an odd number of arguments", fname);
+            throw exception("function must have an odd number of arguments");
         expr r = to_nonnull_expr(L, nargs);
         for (int i = nargs - 1; i >= 1; i-=2) {
             if (is_expr(L, i - 1))
@@ -167,9 +167,9 @@ int expr_abst(lua_State * L, char const * fname) {
     }
 }
 
-static int expr_fun(lua_State * L) { return expr_abst<Fun, Fun>(L, "fun"); }
-static int expr_pi(lua_State * L)  { return expr_abst<Pi, Pi>(L, "Pi"); }
-static int expr_let(lua_State * L) { return expr_abst<Let, Let>(L, "Let"); }
+static int expr_fun(lua_State * L) { return expr_abst<Fun, Fun>(L); }
+static int expr_pi(lua_State * L)  { return expr_abst<Pi, Pi>(L); }
+static int expr_let(lua_State * L) { return expr_abst<Let, Let>(L); }
 
 static int expr_type(lua_State * L) {
     int nargs = lua_gettop(L);

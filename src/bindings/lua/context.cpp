@@ -114,7 +114,7 @@ static int context_pred(lua_State * L) {
 static int context_extend(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs != 3 && nargs != 4)
-        luaL_error(L, "extend expect 3 or 4 arguments");
+        throw exception("extend expect 3 or 4 arguments");
     return mk_context(L);
 }
 

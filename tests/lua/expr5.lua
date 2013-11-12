@@ -15,8 +15,3 @@ check_error(function() Pi({{"x"}}, Const("x")) end)
 check_error(function() Pi(Const("x")) end)
 check_error(function() Pi(Const("x"), Const("N"), Const("x"), Const("a")) end)
 check_error(function() Pi({}, Const("x")) end)
-
-
-
-
-

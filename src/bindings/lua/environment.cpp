@@ -173,7 +173,7 @@ int get_environment(lua_State * L) {
     lua_pushlightuserdata(L, static_cast<void *>(&g_set_environment_key));
     lua_gettable(L, LUA_REGISTRYINDEX);
     if (!is_environment(L, -1))
-        luaL_error(L, "Lua registry does not contain a Lean environment");
+        throw exception("Lua registry does not contain a Lean environment");
     return push_environment(L, to_environment(L, -1));
 }
 

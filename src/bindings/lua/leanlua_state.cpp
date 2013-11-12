@@ -159,7 +159,7 @@ static int print(lua_State * L) {
         lua_call(L, 1, 1);
         s = lua_tolstring(L, -1, &l);
         if (s == NULL)
-            return luaL_error(L, "'to_string' must return a string to 'print'");
+            throw exception("'to_string' must return a string to 'print'");
         if (i > 1) {
             std::cout << "\t";
         }

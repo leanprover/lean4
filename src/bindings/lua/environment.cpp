@@ -21,8 +21,16 @@ bool is_environment(lua_State * L, int idx) {
     return testudata(L, idx, environment_mt);
 }
 
-environment & to_environment(lua_State * L, int idx) {
+static environment & to_environment(lua_State * L, int idx) {
     return *static_cast<environment*>(luaL_checkudata(L, idx, environment_mt));
+}
+
+ro_environment::ro_environment(lua_State * L, int idx):
+    read_only_environment(to_environment(L, idx)) {
+}
+
+rw_environment::rw_environment(lua_State * L, int idx):
+    read_write_environment(to_environment(L, idx)) {
 }
 
 static int environment_gc(lua_State * L) {
@@ -43,67 +51,76 @@ static int mk_environment(lua_State * L) {
 }
 
 static int environment_add_uvar(lua_State * L) {
+    rw_environment env(L, 1);
     int nargs = lua_gettop(L);
     if (nargs == 2)
-        to_environment(L, 1).add_uvar(to_name_ext(L, 2));
+        env->add_uvar(to_name_ext(L, 2));
     else
-        to_environment(L, 1).add_uvar(to_name_ext(L, 2), to_level(L, 3));
+        env->add_uvar(to_name_ext(L, 2), to_level(L, 3));
     return 0;
 }
 
 static int environment_is_ge(lua_State * L) {
-    lua_pushboolean(L, to_environment(L, 1).is_ge(to_level(L, 2), to_level(L, 3)));
+    ro_environment env(L, 1);
+    lua_pushboolean(L, env->is_ge(to_level(L, 2), to_level(L, 3)));
     return 1;
 }
 
 static int environment_get_uvar(lua_State * L) {
-    return push_level(L, to_environment(L, 1).get_uvar(to_name_ext(L, 2)));
+    ro_environment env(L, 1);
+    return push_level(L, env->get_uvar(to_name_ext(L, 2)));
 }
 
 static int environment_add_definition(lua_State * L) {
+    rw_environment env(L, 1);
     int nargs = lua_gettop(L);
     if (nargs == 3) {
-        to_environment(L, 1).add_definition(to_name_ext(L, 2), to_nonnull_expr(L, 3));
+        env->add_definition(to_name_ext(L, 2), to_nonnull_expr(L, 3));
     } else if (nargs == 4) {
         if (is_expr(L, 4))
-            to_environment(L, 1).add_definition(to_name_ext(L, 2), to_nonnull_expr(L, 3), to_nonnull_expr(L, 4));
+            env->add_definition(to_name_ext(L, 2), to_nonnull_expr(L, 3), to_nonnull_expr(L, 4));
         else
-            to_environment(L, 1).add_definition(to_name_ext(L, 2), to_nonnull_expr(L, 3), lua_toboolean(L, 4));
+            env->add_definition(to_name_ext(L, 2), to_nonnull_expr(L, 3), lua_toboolean(L, 4));
     } else {
-        to_environment(L, 1).add_definition(to_name_ext(L, 2), to_nonnull_expr(L, 3), to_nonnull_expr(L, 4), lua_toboolean(L, 5));
+        env->add_definition(to_name_ext(L, 2), to_nonnull_expr(L, 3), to_nonnull_expr(L, 4), lua_toboolean(L, 5));
     }
     return 0;
 }
 
 static int environment_add_theorem(lua_State * L) {
-    to_environment(L, 1).add_theorem(to_name_ext(L, 2), to_nonnull_expr(L, 3), to_nonnull_expr(L, 4));
+    rw_environment env(L, 1);
+    env->add_theorem(to_name_ext(L, 2), to_nonnull_expr(L, 3), to_nonnull_expr(L, 4));
     return 0;
 }
 
 static int environment_add_var(lua_State * L) {
-    to_environment(L, 1).add_var(to_name_ext(L, 2), to_nonnull_expr(L, 3));
+    rw_environment env(L, 1);
+    env->add_var(to_name_ext(L, 2), to_nonnull_expr(L, 3));
     return 0;
 }
 
 static int environment_add_axiom(lua_State * L) {
-    to_environment(L, 1).add_axiom(to_name_ext(L, 2), to_nonnull_expr(L, 3));
+    rw_environment env(L, 1);
+    env->add_axiom(to_name_ext(L, 2), to_nonnull_expr(L, 3));
     return 0;
 }
 
 static int environment_check_type(lua_State * L) {
+    ro_environment env(L, 1);
     int nargs = lua_gettop(L);
     if (nargs == 2)
-        return push_expr(L, to_environment(L, 1).infer_type(to_nonnull_expr(L, 2)));
+        return push_expr(L, env->infer_type(to_nonnull_expr(L, 2)));
     else
-        return push_expr(L, to_environment(L, 1).infer_type(to_nonnull_expr(L, 2), to_context(L, 3)));
+        return push_expr(L, env->infer_type(to_nonnull_expr(L, 2), to_context(L, 3)));
 }
 
 static int environment_normalize(lua_State * L) {
+    ro_environment env(L, 1);
     int nargs = lua_gettop(L);
     if (nargs == 2)
-        return push_expr(L, to_environment(L, 1).normalize(to_nonnull_expr(L, 2)));
+        return push_expr(L, env->normalize(to_nonnull_expr(L, 2)));
     else
-        return push_expr(L, to_environment(L, 1).normalize(to_nonnull_expr(L, 2), to_context(L, 3)));
+        return push_expr(L, env->normalize(to_nonnull_expr(L, 2), to_context(L, 3)));
 }
 
 static int environment_pred(lua_State * L) {

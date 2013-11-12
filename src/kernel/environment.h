@@ -25,6 +25,8 @@ private:
     explicit environment(std::shared_ptr<imp> const & ptr);
     unsigned get_num_objects(bool local) const;
     object const & get_object(unsigned i, bool local) const;
+    friend class read_only_environment;
+    friend class read_write_environment;
 public:
     environment();
     ~environment();
@@ -145,12 +147,12 @@ public:
     /**
        \brief Return the type of \c e in the given context and this environment.
     */
-    expr infer_type(expr const & e, context const & ctx = context());
+    expr infer_type(expr const & e, context const & ctx = context()) const;
 
     /**
        \brief Normalize \c e in the given context and this environment.
     */
-    expr normalize(expr const & e, context const & ctx = context());
+    expr normalize(expr const & e, context const & ctx = context()) const;
 
     /** \brief Iterator for Lean environment objects. */
     class object_iterator {

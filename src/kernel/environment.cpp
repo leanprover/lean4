@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/environment.h"
+#include "kernel/threadsafe_environment.h"
 #include "kernel/type_checker.h"
 #include "kernel/normalizer.h"
 
@@ -69,6 +70,10 @@ struct environment::imp {
 
     std::vector<std::unique_ptr<extension>> m_extensions;
     friend class extension;
+
+    // This mutex is only used to implement threadsafe environment objects
+    // in the external APIs
+    shared_mutex                         m_mutex;
 
     extension & get_extension_core(unsigned extid) {
         if (extid >= m_extensions.size())
@@ -514,11 +519,11 @@ object const & environment::get_object(unsigned i, bool local) const {
     return m_ptr->get_object(i, local);
 }
 
-expr environment::infer_type(expr const & e, context const & ctx) {
+expr environment::infer_type(expr const & e, context const & ctx) const {
     return m_ptr->infer_type(e, ctx);
 }
 
-expr environment::normalize(expr const & e, context const & ctx) {
+expr environment::normalize(expr const & e, context const & ctx) const {
     return m_ptr->normalize(e, ctx);
 }
 
@@ -560,4 +565,16 @@ environment::extension const * environment::extension::get_parent_core() const {
     }
     return nullptr;
 }
+
+read_only_environment::read_only_environment(environment const & env):
+    m_env(env),
+    m_lock(m_env.m_ptr->m_mutex) {
+}
+read_only_environment::~read_only_environment() {}
+
+read_write_environment::read_write_environment(environment & env):
+    m_env(env),
+    m_lock(m_env.m_ptr->m_mutex) {
+}
+read_write_environment::~read_write_environment() {}
 }

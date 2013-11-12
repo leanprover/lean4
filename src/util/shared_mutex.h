@@ -1,5 +1,15 @@
-// C++11 does not support std::shared_mutex and std::shared_lock yet.
-// This piece of Code is based on the proposal for C++14
+/**
+   Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+   Released under Apache 2.0 license as described in the file LICENSE.
+
+   Author: Leonardo de Moura
+
+   C++11 does not support std::shared_mutex and std::shared_lock yet.
+   This piece of code is based on the proposal submitted to the C++
+   standardization committee. The proposal was written by Howard
+   Hinnant. The proposal is also part of the Boost library which is
+   licensed under http://www.boost.org/LICENSE_1_0.txt
+*/
 #include <mutex>
 #include <condition_variable>
 #include <climits>

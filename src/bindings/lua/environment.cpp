@@ -21,7 +21,7 @@ bool is_environment(lua_State * L, int idx) {
     return testudata(L, idx, environment_mt);
 }
 
-static environment & to_environment(lua_State * L, int idx) {
+environment & to_environment(lua_State * L, int idx) {
     return *static_cast<environment*>(luaL_checkudata(L, idx, environment_mt));
 }
 

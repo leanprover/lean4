@@ -31,7 +31,7 @@ extern "C" void * lua_realloc(void *, void * q, size_t, size_t new_size) { retur
 namespace lean {
 static void open_state(lua_State * L);
 static void open_thread(lua_State * L);
-
+environment & to_environment(lua_State * L, int idx);
 static void copy_values(lua_State * src, int first, int last, lua_State * tgt) {
     for (int i = first; i <= last; i++) {
         if (lua_isstring(src, i)) {
@@ -42,6 +42,8 @@ static void copy_values(lua_State * src, int first, int last, lua_State * tgt) {
             push_expr(tgt, to_expr(src, i));
         } else if (is_context(src, i)) {
             push_context(tgt, to_context(src, i));
+        } else if (is_environment(src, i)) {
+            push_environment(tgt, to_environment(src, i));
         } else if (is_name(src, i)) {
             push_name(tgt, to_name(src, i));
         } else if (is_mpz(src, i)) {

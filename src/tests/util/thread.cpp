@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <mutex>
 #include <vector>
+#include "util/shared_mutex.h"
 
 void foo() {
     static thread_local std::vector<int> v(1024);
@@ -26,6 +27,30 @@ static void tst1() {
     }
 }
 
+static void tst2() {
+    unsigned N = 10;
+    unsigned n = 1;
+    lean::shared_mutex mut;
+    std::vector<std::thread> threads;
+    for (unsigned i = 0; i < N; i++) {
+        threads.emplace_back([&]() {
+                unsigned sum = 0;
+                {
+                    lean::shared_lock lock(mut);
+                    for (unsigned i = 0; i < 1000000; i++)
+                        sum += n;
+                }
+                {
+                   lean::unique_lock lock(mut);
+                   std::cout << sum << "\n";
+                }
+            });
+    }
+    for (unsigned i = 0; i < N; i++)
+        threads[i].join();
+}
+
 int main() {
+    tst2(); return 0;
     tst1();
 }

@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <sstream>
 #include <lua.hpp>
 #include "kernel/environment.h"
+#include "kernel/formatter.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
 #include "bindings/lua/level.h"
@@ -128,8 +129,19 @@ static int environment_pred(lua_State * L) {
     return 1;
 }
 
+static int environment_tostring(lua_State * L) {
+    ro_environment env(L, 1);
+    std::ostringstream out;
+    // TODO(Leo): get formatter from registry
+    formatter fmt = mk_simple_formatter();
+    out << fmt(env);
+    lua_pushfstring(L, out.str().c_str());
+    return 1;
+}
+
 static const struct luaL_Reg environment_m[] = {
     {"__gc",           environment_gc}, // never throws
+    {"__tostring",     safe_function<environment_tostring>},
     {"add_uvar",       safe_function<environment_add_uvar>},
     {"is_ge",          safe_function<environment_is_ge>},
     {"get_uvar",       safe_function<environment_get_uvar>},

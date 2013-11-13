@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/list.h"
 #include "util/flet.h"
 #include "util/buffer.h"
+#include "util/interrupt.h"
 #include "util/sexpr/options.h"
 #include "kernel/normalizer.h"
 #include "kernel/expr.h"
@@ -74,7 +75,6 @@ class normalizer::imp {
     cache                 m_cache;
     unsigned              m_max_depth;
     unsigned              m_depth;
-    volatile bool         m_interrupted;
 
     environment env() const { return environment(m_env); }
 
@@ -179,7 +179,7 @@ class normalizer::imp {
     /** \brief Normalize the expression \c a in a context composed of stack \c s and \c k binders. */
     svalue normalize(expr const & a, value_stack const & s, unsigned k) {
         flet<unsigned> l(m_depth, m_depth+1);
-        check_interrupted(m_interrupted);
+        check_interrupted();
         if (m_depth > m_max_depth)
             throw kernel_exception(env(), "normalizer maximum recursion depth exceeded");
         bool shared = false;
@@ -294,7 +294,6 @@ class normalizer::imp {
 public:
     imp(environment const & env, unsigned max_depth):
         m_env(env.to_weak_ref()) {
-        m_interrupted    = false;
         m_max_depth      = max_depth;
         m_depth          = 0;
     }
@@ -306,7 +305,6 @@ public:
     }
 
     void clear() { m_ctx = context(); m_cache.clear(); }
-    void set_interrupt(bool flag) { m_interrupted = flag; }
 };
 
 normalizer::normalizer(environment const & env, unsigned max_depth):m_ptr(new imp(env, max_depth)) {}
@@ -315,7 +313,6 @@ normalizer::normalizer(environment const & env, options const & opts):normalizer
 normalizer::~normalizer() {}
 expr normalizer::operator()(expr const & e, context const & ctx) { return (*m_ptr)(e, ctx); }
 void normalizer::clear() { m_ptr->clear(); }
-void normalizer::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
 
 expr normalize(expr const & e, environment const & env, context const & ctx) {
     return normalizer(env)(e, ctx);

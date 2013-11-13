@@ -7,23 +7,19 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <fstream>
 #include <signal.h>
-#include "util/interruptable_ptr.h"
+#include "util/interrupt.h"
 #include "kernel/printer.h"
 #include "frontends/lean/parser.h"
 #include "bindings/lua/leanlua_state.h"
 #include "version.h"
 
-using lean::interruptable_ptr;
 using lean::shell;
 using lean::frontend;
-using lean::scoped_set_interruptable_ptr;
 using lean::parser;
 using lean::leanlua_state;
 
-static interruptable_ptr<shell> g_lean_shell;
-
 static void on_ctrl_c(int ) {
-    g_lean_shell.set_interrupt(true);
+    lean::request_interrupt();
 }
 
 bool lean_shell() {
@@ -32,7 +28,6 @@ bool lean_shell() {
     frontend f;
     leanlua_state S;
     shell sh(f, &S);
-    scoped_set_interruptable_ptr<shell> set(g_lean_shell, &sh);
     signal(SIGINT, on_ctrl_c);
     return sh();
 }

@@ -29,7 +29,6 @@ public:
         */
         virtual std::pair<metavar_env, list<unification_constraint>> next(justification const & assumption) = 0;
         /** \brief Interrupt the computation for the next solution. */
-        virtual void interrupt() = 0;
     };
 
     /**

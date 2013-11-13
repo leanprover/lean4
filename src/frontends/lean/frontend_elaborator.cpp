@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <algorithm>
 #include <limits>
-#include "util/interruptable_ptr.h"
+#include "util/interrupt.h"
 #include "kernel/type_checker.h"
 #include "kernel/type_checker_justification.h"
 #include "kernel/normalizer.h"
@@ -112,8 +112,6 @@ class frontend_elaborator::imp {
     // We need that because a frontend may associate line number information
     // with the original non-elaborated expressions.
     expr_map<expr>                      m_trace;
-    interruptable_ptr<elaborator>       m_elaborator;
-    volatile bool                       m_interrupted;
 
     /**
        \brief Replace placeholders and choices with metavariables.
@@ -378,7 +376,7 @@ class frontend_elaborator::imp {
         }
 
         virtual expr visit(expr const & e, context const & ctx) {
-            check_interrupted(m_ref.m_interrupted);
+            check_interrupted();
             expr r = replace_visitor::visit(e, ctx);
             if (!is_eqp(r, e))
                 m_ref.m_trace[r] = e;
@@ -392,7 +390,6 @@ class frontend_elaborator::imp {
         //                     return !is_choice(c1) && is_choice(c2);
         //                 });
         elaborator elb(m_env, m_menv, m_ucs.size(), m_ucs.data());
-        scoped_set_interruptable_ptr<elaborator> set(m_elaborator, &elb);
         return elb.next();
     }
 
@@ -403,7 +400,6 @@ public:
         m_type_checker(m_env),
         m_type_inferer(m_env),
         m_normalizer(m_env) {
-        m_interrupted = false;
     }
 
     expr elaborate(expr const & e) {
@@ -458,14 +454,6 @@ public:
         }
     }
 
-    void set_interrupt(bool f) {
-        m_interrupted = f;
-        m_type_checker.set_interrupt(f);
-        m_type_inferer.set_interrupt(f);
-        m_normalizer.set_interrupt(f);
-        m_elaborator.set_interrupt(f);
-    }
-
     void clear() {
         m_menv = metavar_env();
         m_ucs.clear();
@@ -485,7 +473,6 @@ frontend_elaborator::~frontend_elaborator() {}
 expr frontend_elaborator::operator()(expr const & e) { return m_ptr->elaborate(e); }
 std::pair<expr, expr> frontend_elaborator::operator()(name const & n, expr const & t, expr const & e) { return m_ptr->elaborate(n, t, e); }
 expr const & frontend_elaborator::get_original(expr const & e) const { return m_ptr->get_original(e); }
-void frontend_elaborator::set_interrupt(bool f) { m_ptr->set_interrupt(f); }
 void frontend_elaborator::clear() { m_ptr->clear(); }
 environment const & frontend_elaborator::get_environment() const { return m_ptr->get_environment(); }
 }

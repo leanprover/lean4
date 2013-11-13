@@ -44,10 +44,6 @@ public:
     */
     expr const & get_original(expr const & e) const;
 
-    void set_interrupt(bool flag);
-    void interrupt() { set_interrupt(true); }
-    void reset_interrupt() { set_interrupt(false); }
-
     void clear();
 
     environment const & get_environment() const;

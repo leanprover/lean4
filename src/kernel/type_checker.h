@@ -56,11 +56,6 @@ public:
     /** \brief Reset internal caches */
     void clear();
 
-    /** \brief Interrupt type checker */
-    void set_interrupt(bool flag);
-    void interrupt() { set_interrupt(true); }
-    void reset_interrupt() { set_interrupt(false); }
-
     /** \brief Return reference to the normalizer used by this type checker. */
     normalizer & get_normalizer();
 };

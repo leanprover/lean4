@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "util/exception.h"
 #include "util/sstream.h"
 #include "util/sexpr/option_declarations.h"
+#include "util/interrupt.h"
 #include "kernel/normalizer.h"
 #include "kernel/type_checker.h"
 #include "kernel/free_vars.h"
@@ -129,10 +130,6 @@ class parser::imp {
     expr_pos_info       m_expr_pos_info;
     pos_info            m_last_cmd_pos;
     pos_info            m_last_script_pos;
-    // Reference to temporary parser used to process import command.
-    // We need this reference to be able to interrupt it.
-    interruptable_ptr<parser>     m_import_parser;
-    interruptable_ptr<normalizer> m_normalizer;
 
     leanlua_state *     m_leanlua_state;
 
@@ -1170,7 +1167,6 @@ class parser::imp {
         next();
         expr v = m_elaborator(parse_expr());
         normalizer norm(m_frontend);
-        scoped_set_interruptable_ptr<normalizer> set(m_normalizer, &norm);
         expr r = norm(v);
         regular(m_frontend) << r << endl;
     }
@@ -1403,7 +1399,6 @@ class parser::imp {
             if (m_verbose)
                 regular(m_frontend) << "Importing file '" << fname << "'" << endl;
             parser import_parser(m_frontend, in, m_leanlua_state, true /* use exceptions */, false /* not interactive */);
-            scoped_set_interruptable_ptr<parser> set(m_import_parser, &import_parser);
             import_parser();
         } catch (interrupted &) {
             throw;
@@ -1686,17 +1681,6 @@ public:
             throw parser_exception(ex.what(), ex.m_pos.first, ex.m_pos.second);
         }
     }
-
-    void set_interrupt(bool flag) {
-        m_frontend.set_interrupt(flag);
-        m_elaborator.set_interrupt(flag);
-        m_import_parser.set_interrupt(flag);
-        m_normalizer.set_interrupt(flag);
-    }
-
-    void reset_interrupt() {
-        set_interrupt(false);
-    }
 };
 
 parser::parser(frontend & fe, std::istream & in, leanlua_state * S, bool use_exceptions, bool interactive) {
@@ -1709,10 +1693,6 @@ parser::~parser() {
 
 bool parser::operator()() {
     return m_ptr->parse_commands();
-}
-
-void parser::set_interrupt(bool flag) {
-    m_ptr->set_interrupt(flag);
 }
 
 expr parser::parse_expr() {
@@ -1736,7 +1716,6 @@ bool shell::operator()() {
         std::istringstream strm(input);
         {
             parser p(m_frontend, strm, m_leanlua_state, false, false);
-            scoped_set_interruptable_ptr<parser> set(m_parser, &p);
             if (!p())
                 errors = true;
         }
@@ -1744,12 +1723,7 @@ bool shell::operator()() {
     }
 #else
     parser p(m_frontend, std::cin, m_leanlua_state, false, true);
-    scoped_set_interruptable_ptr<parser> set(m_parser, &p);
     return p();
 #endif
-}
-
-void shell::set_interrupt(bool flag) {
-    m_parser.set_interrupt(flag);
 }
 }

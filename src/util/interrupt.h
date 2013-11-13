@@ -22,12 +22,12 @@ void reset_interrupt();
 /**
    \brief Return true iff the current thread was marked for interruption.
 */
-bool interrupted();
+bool interrupt_requested();
 
 /**
-   \brief Throw an interrupt exception if the (interrupt) flag is set.
+   \brief Throw an interrupted exception if the (interrupt) flag is set.
 */
-void check_interrupt();
+void check_interrupted();
 
 /**
    \brief Thread that provides a method for setting its interrupt flag.

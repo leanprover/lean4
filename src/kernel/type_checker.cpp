@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "util/scoped_map.h"
 #include "util/flet.h"
+#include "util/interrupt.h"
 #include "kernel/type_checker.h"
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
@@ -29,7 +30,6 @@ class type_checker::imp {
     metavar_env *             m_menv;
     unsigned                  m_menv_timestamp;
     unification_constraints * m_uc;
-    volatile bool             m_interrupted;
 
     environment env() const {
         return environment(m_env);
@@ -85,7 +85,7 @@ class type_checker::imp {
     }
 
     expr infer_type_core(expr const & e, context const & ctx) {
-        check_interrupted(m_interrupted);
+        check_interrupted();
         bool shared = false;
         if (is_shared(e)) {
             shared = true;
@@ -289,7 +289,6 @@ public:
         m_menv           = nullptr;
         m_menv_timestamp = 0;
         m_uc              = nullptr;
-        m_interrupted     = false;
     }
 
     expr infer_type(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> & uc) {
@@ -313,11 +312,6 @@ public:
         set_menv(nullptr);
         expr t = infer_type_core(e, ctx);
         check_type(t, e, ctx);
-    }
-
-    void set_interrupt(bool flag) {
-        m_interrupted = flag;
-        m_normalizer.set_interrupt(flag);
     }
 
     void clear() {
@@ -349,7 +343,6 @@ void type_checker::check_type(expr const & e, context const & ctx) {
     m_ptr->check_type(e, ctx);
 }
 void type_checker::clear() { m_ptr->clear(); }
-void type_checker::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
 normalizer & type_checker::get_normalizer() { return m_ptr->get_normalizer(); }
 
 expr  infer_type(expr const & e, environment const & env, context const & ctx) {

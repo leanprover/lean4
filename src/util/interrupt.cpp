@@ -18,12 +18,12 @@ void reset_interrupt() {
     g_interrupt.store(false);
 }
 
-bool interrupted() {
+bool interrupt_requested() {
     return g_interrupt.load();
 }
 
-void check_interrupt() {
-    if (interrupted())
+void check_interrupted() {
+    if (interrupt_requested())
         throw interrupted();
 }
 

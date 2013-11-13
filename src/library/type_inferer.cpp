@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "util/flet.h"
 #include "util/scoped_map.h"
+#include "util/interrupt.h"
 #include "kernel/environment.h"
 #include "kernel/normalizer.h"
 #include "kernel/builtin.h"
@@ -29,7 +30,6 @@ class type_inferer::imp {
     unification_constraints * m_uc;
     normalizer                m_normalizer;
     cache                     m_cache;
-    volatile bool             m_interrupted;
 
     expr normalize(expr const & e, context const & ctx) {
         return m_normalizer(e, ctx);
@@ -139,7 +139,7 @@ class type_inferer::imp {
             break; // expensive cases
         }
 
-        check_interrupted(m_interrupted);
+        check_interrupted();
         bool shared = false;
         if (is_shared(e)) {
             shared = true;
@@ -214,7 +214,6 @@ public:
     imp(environment const & env):
         m_env(env),
         m_normalizer(env) {
-        m_interrupted    = false;
         m_menv           = nullptr;
         m_menv_timestamp = 0;
         m_uc             = nullptr;
@@ -225,11 +224,6 @@ public:
         set_menv(menv);
         flet<unification_constraints*> set(m_uc, &uc);
         return infer_type(e, ctx);
-    }
-
-    void set_interrupt(bool flag) {
-        m_interrupted = flag;
-        m_normalizer.set_interrupt(flag);
     }
 
     void clear() {
@@ -250,5 +244,4 @@ expr type_inferer::operator()(expr const & e, context const & ctx) {
     return operator()(e, ctx, nullptr, uc);
 }
 void type_inferer::clear() { m_ptr->clear(); }
-void type_inferer::set_interrupt(bool flag) { m_ptr->set_interrupt(flag); }
 }

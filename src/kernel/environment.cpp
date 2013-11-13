@@ -402,10 +402,6 @@ struct environment::imp {
         }
     }
 
-    void set_interrupt(bool flag) {
-        m_type_checker->set_interrupt(flag);
-    }
-
     imp():
         m_num_children(0) {
         init_uvars();
@@ -529,10 +525,6 @@ expr environment::normalize(expr const & e, context const & ctx) const {
 
 void environment::display(std::ostream & out) const {
     m_ptr->display(out, *this);
-}
-
-void environment::set_interrupt(bool flag) {
-    m_ptr->set_interrupt(flag);
 }
 
 environment::extension const & environment::get_extension_core(unsigned extid) const {

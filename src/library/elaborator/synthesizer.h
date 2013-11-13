@@ -25,7 +25,6 @@ public:
         /** \brief Return the next possible solution. An elaborator_exception is throw in case of failure. */
         virtual expr next() = 0;
         /** \brief Interrupt the computation for the next solution. */
-        virtual void interrupt() = 0;
     };
 
     /**

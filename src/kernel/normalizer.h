@@ -26,10 +26,6 @@ public:
     expr operator()(expr const & e, context const & ctx = context());
 
     void clear();
-
-    void set_interrupt(bool flag);
-    void interrupt() { set_interrupt(true); }
-    void reset_interrupt() { set_interrupt(false); }
 };
 /** \brief Normalize \c e using the environment \c env and context \c ctx */
 expr normalize(expr const & e, environment const & env, context const & ctx = context());

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "util/trace.h"
 #include "util/exception.h"
+#include "util/interrupt.h"
 #include "kernel/type_checker.h"
 #include "kernel/environment.h"
 #include "kernel/abstract.h"
@@ -227,7 +228,7 @@ static void tst12() {
     env.add_var("a", Int);
     type_checker checker(env);
     std::chrono::milliseconds dura(100);
-    std::thread thread([&]() {
+    interruptible_thread thread([&]() {
             try {
                 std::cout << checker.infer_type(t) << "\n";
                 // Remark: if the following code is reached, we
@@ -238,7 +239,8 @@ static void tst12() {
             }
         });
     std::this_thread::sleep_for(dura);
-    checker.interrupt();
+    while (!thread.request_interrupt()) {
+    }
     thread.join();
 #endif
 }

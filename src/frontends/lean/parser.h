@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <iostream>
-#include "util/interruptable_ptr.h"
 #include "frontends/lean/frontend.h"
 
 namespace lean {
@@ -24,26 +23,17 @@ public:
 
     /** \brief Parse a single expression */
     expr parse_expr();
-
-    void set_interrupt(bool flag);
-    void interrupt() { set_interrupt(true); }
-    void reset_interrupt() { set_interrupt(false); }
 };
 
 /** \brief Implements the Read Eval Print loop */
 class shell {
     frontend &                m_frontend;
     leanlua_state *           m_leanlua_state;
-    interruptable_ptr<parser> m_parser;
 public:
     shell(frontend & fe, leanlua_state * S);
     ~shell();
 
     bool operator()();
-
-    void set_interrupt(bool flag);
-    void interrupt() { set_interrupt(true); }
-    void reset_interrupt() { set_interrupt(false); }
 };
 
 inline bool parse_commands(frontend & fe, std::istream & in, leanlua_state * S = nullptr, bool use_exceptions = true, bool interactive = false) {

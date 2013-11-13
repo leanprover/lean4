@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "util/trace.h"
 #include "util/exception.h"
+#include "util/interrupt.h"
 #include "kernel/normalizer.h"
 #include "kernel/builtin.h"
 #include "kernel/expr_sets.h"
@@ -219,7 +220,7 @@ static void tst5() {
     env.add_var("a", Bool);
     normalizer proc(env);
     std::chrono::milliseconds dura(50);
-    std::thread thread([&]() {
+    interruptible_thread thread([&]() {
             try {
                 proc(t);
                 // Remark: if the following code is reached, we
@@ -230,7 +231,8 @@ static void tst5() {
             }
         });
     std::this_thread::sleep_for(dura);
-    proc.interrupt();
+    while (!thread.request_interrupt()) {
+    }
     thread.join();
 #endif
 }

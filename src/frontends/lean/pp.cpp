@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "util/exception.h"
 #include "util/scoped_set.h"
 #include "util/sexpr/options.h"
-#include "util/interruptable_ptr.h"
+#include "util/interrupt.h"
 #include "kernel/context.h"
 #include "kernel/for_each.h"
 #include "kernel/occurs.h"
@@ -169,8 +169,6 @@ class pp_fn {
     bool             m_notation;         //!< if true use notation
     bool             m_extra_lets;       //!< introduce extra let-expression to cope with sharing.
     unsigned         m_alias_min_weight; //!< minimal weight for creating an alias
-    volatile bool    m_interrupted;
-
 
     // Create a scope for local definitions
     struct mk_scope {
@@ -1072,7 +1070,7 @@ class pp_fn {
     }
 
     result pp(expr const & e, unsigned depth, bool main = false) {
-        check_interrupted(m_interrupted);
+        check_interrupted();
         if (!is_atomic(e) && (m_num_steps > m_max_steps || depth > m_max_depth)) {
             return pp_ellipsis();
         } else {
@@ -1170,7 +1168,6 @@ public:
     pp_fn(frontend const & fe, options const & opts):
         m_frontend(fe) {
         set_options(opts);
-        m_interrupted = false;
         m_num_steps   = 0;
     }
 
@@ -1190,10 +1187,6 @@ public:
         return pp_abstraction_core(e, 0, expr(), &implicit_args).first;
     }
 
-    void set_interrupt(bool flag) {
-        m_interrupted = flag;
-    }
-
     void register_local(name const & n) {
         m_local_names.insert(n);
     }
@@ -1201,24 +1194,20 @@ public:
 
 class pp_formatter_cell : public formatter_cell {
     frontend const &         m_frontend;
-    interruptable_ptr<pp_fn> m_pp_fn;
-    volatile bool            m_interrupted;
 
     format pp(expr const & e, options const & opts) {
         pp_fn fn(m_frontend, opts);
-        scoped_set_interruptable_ptr<pp_fn> set(m_pp_fn, &fn);
         return fn(e);
     }
 
     format pp(context const & c, expr const & e, bool include_e, options const & opts) {
         pp_fn fn(m_frontend, opts);
-        scoped_set_interruptable_ptr<pp_fn> set(m_pp_fn, &fn);
         unsigned indent = get_pp_indent(opts);
         format r;
         bool first = true;
         expr c2   = context_to_lambda(c, e);
         while (is_fake_context(c2)) {
-            check_interrupted(m_interrupted);
+            check_interrupted();
             name n1 = get_unused_name(c2);
             fn.register_local(n1);
             format entry = format{format(n1), space(), colon(), space(), fn(fake_context_domain(c2))};
@@ -1255,7 +1244,7 @@ class pp_formatter_cell : public formatter_cell {
         expr it1 = t;
         expr it2 = v;
         while (is_pi(it1) && is_lambda(it2)) {
-            check_interrupted(m_interrupted);
+            check_interrupted();
             if (abst_domain(it1) != abst_domain(it2))
                 return pp_definition(kwd, n, t, v, opts);
             it1 = abst_body(it1);
@@ -1269,7 +1258,6 @@ class pp_formatter_cell : public formatter_cell {
             if (m_frontend.has_implicit_arguments(n))
                 implicit_args = &(m_frontend.get_implicit_arguments(n));
             pp_fn fn(m_frontend, opts);
-            scoped_set_interruptable_ptr<pp_fn> set(m_pp_fn, &fn);
             format def = fn.pp_definition(v, t, implicit_args);
             return format{highlight_command(format(kwd)), space(), format(n), def};
         }
@@ -1286,7 +1274,6 @@ class pp_formatter_cell : public formatter_cell {
         format r = format{highlight_command(format(kwd)), space(), format(n)};
         if (m_frontend.has_implicit_arguments(n)) {
             pp_fn fn(m_frontend, opts);
-            scoped_set_interruptable_ptr<pp_fn> set(m_pp_fn, &fn);
             r += fn.pp_pi_with_implicit_args(obj.get_type(), m_frontend.get_implicit_arguments(n));
         } else {
             r += format{space(), colon(), space(), pp(obj.get_type(), opts)};
@@ -1329,7 +1316,6 @@ class pp_formatter_cell : public formatter_cell {
 public:
     pp_formatter_cell(frontend const & fe):
         m_frontend(fe) {
-        m_interrupted = false;
     }
 
     virtual ~pp_formatter_cell() {
@@ -1348,10 +1334,9 @@ public:
             return pp(c, e, true, opts);
         } else {
             pp_fn fn(m_frontend, opts);
-            scoped_set_interruptable_ptr<pp_fn> set(m_pp_fn, &fn);
             expr c2   = context_to_lambda(c, e);
             while (is_fake_context(c2)) {
-                check_interrupted(m_interrupted);
+                check_interrupted();
                 name n1 = get_unused_name(c2);
                 fn.register_local(n1);
                 expr const & rest = fake_context_rest(c2);
@@ -1389,16 +1374,11 @@ public:
         std::for_each(env.begin_objects(),
                       env.end_objects(),
                       [&](object const & obj) {
-                          check_interrupted(m_interrupted);
+                          check_interrupted();
                           if (first) first = false; else r += line();
                           r += operator()(obj, opts);
                       });
         return r;
-    }
-
-    virtual void set_interrupt(bool flag) {
-        m_pp_fn.set_interrupt(flag);
-        m_interrupted = flag;
     }
 };
 

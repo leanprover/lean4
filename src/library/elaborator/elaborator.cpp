@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <utility>
 #include "util/pdeque.h"
+#include "util/interrupt.h"
 #include "kernel/formatter.h"
 #include "kernel/free_vars.h"
 #include "kernel/normalizer.h"
@@ -143,8 +144,6 @@ class elaborator::imp {
     int                                      m_quota;
     justification                            m_conflict;
     bool                                     m_first;
-    bool                                     m_interrupted;
-
 
     // options
     bool                                     m_use_justifications;
@@ -596,7 +595,7 @@ class elaborator::imp {
         context const & ctx = get_context(c);
         bool modified = false;
         while (true) {
-            check_interrupted(m_interrupted);
+            check_interrupted();
             expr new_a = normalize_step(ctx, a);
             expr new_b = normalize_step(ctx, b);
             if (new_a == a && new_b == b) {
@@ -1380,13 +1379,12 @@ public:
         set_options(opts);
         m_next_id     = 0;
         m_quota       = 0;
-        m_interrupted = false;
         m_first       = true;
         // display(std::cout);
     }
 
     metavar_env next() {
-        check_interrupted(m_interrupted);
+        check_interrupted();
         if (m_conflict)
             throw elaborator_exception(m_conflict);
         if (!m_case_splits.empty()) {
@@ -1404,7 +1402,7 @@ public:
         }
         reset_quota();
         while (true) {
-            check_interrupted(m_interrupted);
+            check_interrupted();
             cnstr_queue & q = m_state.m_queue;
             if (q.empty() || m_quota < - static_cast<int>(q.size()) - 10) {
                 // TODO(Leo): implement interface with synthesizer
@@ -1418,12 +1416,6 @@ public:
                 }
             }
         }
-    }
-
-    void interrupt() {
-        m_interrupted = true;
-        m_type_inferer.set_interrupt(true);
-        m_normalizer.set_interrupt(true);
     }
 
     void display(std::ostream & out, unification_constraint const & c) const {
@@ -1461,9 +1453,5 @@ elaborator::~elaborator() {
 
 metavar_env elaborator::next() {
     return m_ptr->next();
-}
-
-void elaborator::interrupt() {
-    m_ptr->interrupt();
 }
 }

@@ -7,9 +7,11 @@ Author: Leonardo de Moura
 #include <sstream>
 #include <lua.hpp>
 #include "util/buffer.h"
+#include "util/sexpr/options.h"
 #include "kernel/level.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
+#include "bindings/lua/options.h"
 
 namespace lean {
 constexpr char const * level_mt = "level.mt";
@@ -37,8 +39,8 @@ static int level_gc(lua_State * L) {
 
 static int level_tostring(lua_State * L) {
     std::ostringstream out;
-    // TODO(Leo): use pretty printer
-    out << to_level(L, 1);
+    options opts  = get_global_options(L);
+    out << mk_pair(pp(to_level(L, 1), opts), opts);
     lua_pushfstring(L, out.str().c_str());
     return 1;
 }

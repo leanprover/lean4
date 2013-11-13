@@ -1,5 +1,5 @@
   Set: pp::colors
   Set: pp::unicode
   Assumed: x
-type of x is Int
+type of x is ℤ
 x + y : ℤ

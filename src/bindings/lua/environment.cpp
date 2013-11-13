@@ -10,11 +10,13 @@ Author: Leonardo de Moura
 #include "kernel/formatter.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
+#include "bindings/lua/options.h"
 #include "bindings/lua/level.h"
 #include "bindings/lua/expr.h"
 #include "bindings/lua/object.h"
 #include "bindings/lua/context.h"
 #include "bindings/lua/environment.h"
+#include "bindings/lua/formatter.h"
 
 namespace lean {
 constexpr char const * environment_mt = "environment.mt";
@@ -187,9 +189,9 @@ static int environment_pred(lua_State * L) {
 static int environment_tostring(lua_State * L) {
     ro_environment env(L, 1);
     std::ostringstream out;
-    // TODO(Leo): get formatter from registry
-    formatter fmt = mk_simple_formatter();
-    out << fmt(env);
+    formatter fmt = get_global_formatter(L);
+    options opts  = get_global_options(L);
+    out << mk_pair(fmt(env, opts), opts);
     lua_pushfstring(L, out.str().c_str());
     return 1;
 }

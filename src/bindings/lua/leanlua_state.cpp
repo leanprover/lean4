@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "util/exception.h"
 #include "util/memory.h"
 #include "util/buffer.h"
+#include "library/state.h"
 #include "bindings/lua/leanlua_state.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
@@ -203,7 +204,7 @@ static std::mutex g_print_mutex;
 
 /** \brief Thread safe version of print function */
 static int print(lua_State * L) {
-    // TODO(Leo): use output channels (if available) instead of std::cout
+    state * S = get_state(L);
     int n = lua_gettop(L);
     int i;
     lua_getglobal(L, "tostring");
@@ -218,12 +219,21 @@ static int print(lua_State * L) {
         if (s == NULL)
             throw exception("'to_string' must return a string to 'print'");
         if (i > 1) {
-            std::cout << "\t";
+            if (S)
+                regular(*S) << "\t";
+            else
+                std::cout << "\t";
         }
-        std::cout << s;
+        if (S)
+            regular(*S) << s;
+        else
+            std::cout << s;
         lua_pop(L, 1);
     }
-    std::cout << std::endl;
+    if (S)
+        regular(*S) << endl;
+    else
+        std::cout << std::endl;
     return 0;
 }
 

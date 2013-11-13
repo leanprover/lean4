@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/context.h"
 #include "bindings/lua/environment.h"
 #include "bindings/lua/object.h"
+#include "bindings/lua/state.h"
 
 namespace lean {
 constexpr char const * formatter_mt = "formatter.mt";
@@ -87,6 +88,38 @@ static const struct luaL_Reg formatter_m[] = {
     {"__call",          safe_function<formatter_call>},
     {0, 0}
 };
+
+static char g_formatter_key;
+static formatter g_simple_formatter = mk_simple_formatter();
+
+formatter get_global_formatter(lua_State * L) {
+    state * S = get_state(L);
+    if (S != nullptr) {
+        return S->get_formatter();
+    } else {
+        lua_pushlightuserdata(L, static_cast<void *>(&g_formatter_key));
+        lua_gettable(L, LUA_REGISTRYINDEX);
+        if (is_formatter(L, -1)) {
+            formatter r = to_formatter(L, -1);
+            lua_pop(L, 1);
+            return r;
+        } else {
+            lua_pop(L, 1);
+            return g_simple_formatter;
+        }
+    }
+}
+
+void set_global_formatter(lua_State * L, formatter const & fmt) {
+    state * S = get_state(L);
+    if (S != nullptr) {
+        S->set_formatter(fmt);
+    } else {
+        lua_pushlightuserdata(L, static_cast<void *>(&g_formatter_key));
+        push_formatter(L, fmt);
+        lua_settable(L, LUA_REGISTRYINDEX);
+    }
+}
 
 void open_formatter(lua_State * L) {
     luaL_newmetatable(L, formatter_mt);

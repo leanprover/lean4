@@ -9,10 +9,12 @@ Author: Leonardo de Moura
 #include <cstring>
 #include "util/debug.h"
 #include "util/sstream.h"
+#include "util/sexpr/options.h"
 #include "util/sexpr/format.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
 #include "bindings/lua/numerics.h"
+#include "bindings/lua/options.h"
 
 namespace lean {
 constexpr char const * format_mt = "format.mt";
@@ -55,7 +57,7 @@ static int format_gc(lua_State * L) {
 
 static int format_tostring(lua_State * L) {
     std::ostringstream out;
-    out << to_format(L, 1);
+    out << mk_pair(to_format(L, 1), get_global_options(L));
     lua_pushfstring(L, out.str().c_str());
     return 1;
 }

@@ -182,7 +182,7 @@ options get_global_options(lua_State * L) {
         lua_pushlightuserdata(L, static_cast<void *>(&g_options_key));
         lua_gettable(L, LUA_REGISTRYINDEX);
         options r;
-        if (!is_options(L, -1))
+        if (is_options(L, -1))
             r = to_options(L, -1);
         lua_pop(L, 1);
         return r;

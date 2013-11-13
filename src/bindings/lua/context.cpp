@@ -6,11 +6,15 @@ Author: Leonardo de Moura
 */
 #include <sstream>
 #include <lua.hpp>
+#include "util/sexpr/options.h"
 #include "kernel/context.h"
+#include "kernel/formatter.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
+#include "bindings/lua/options.h"
 #include "bindings/lua/expr.h"
 #include "bindings/lua/context.h"
+#include "bindings/lua/formatter.h"
 
 namespace lean {
 constexpr char const * context_entry_mt = "context_entry.mt";
@@ -86,8 +90,9 @@ static int context_gc(lua_State * L) {
 
 static int context_tostring(lua_State * L) {
     std::ostringstream out;
-    // TODO(Leo): use pretty printer
-    out << to_context(L, 1);
+    formatter fmt = get_global_formatter(L);
+    options opts  = get_global_options(L);
+    out << mk_pair(fmt(to_context(L, 1), opts), opts);
     lua_pushfstring(L, out.str().c_str());
     return 1;
 }

@@ -10,13 +10,17 @@ Author: Leonardo de Moura
 #include "util/debug.h"
 #include "util/name.h"
 #include "util/buffer.h"
+#include "util/sexpr/options.h"
 #include "kernel/expr.h"
 #include "kernel/abstract.h"
+#include "kernel/formatter.h"
 #include "library/expr_lt.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
+#include "bindings/lua/options.h"
 #include "bindings/lua/level.h"
 #include "bindings/lua/local_context.h"
+#include "bindings/lua/formatter.h"
 
 namespace lean {
 constexpr char const * expr_mt = "expr.mt";
@@ -53,8 +57,9 @@ static int expr_tostring(lua_State * L) {
     std::ostringstream out;
     expr & e = to_expr(L, 1);
     if (e) {
-        // TODO(Leo): use pretty printer
-        out << to_expr(L, 1);
+        formatter fmt = get_global_formatter(L);
+        options opts  = get_global_options(L);
+        out << mk_pair(fmt(to_expr(L, 1), opts), opts);
     } else {
         out << "<null-expr>";
     }

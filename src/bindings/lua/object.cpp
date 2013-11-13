@@ -6,11 +6,15 @@ Author: Leonardo de Moura
 */
 #include <sstream>
 #include <lua.hpp>
+#include "util/sexpr/options.h"
 #include "kernel/object.h"
+#include "kernel/formatter.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
+#include "bindings/lua/options.h"
 #include "bindings/lua/level.h"
 #include "bindings/lua/expr.h"
+#include "bindings/lua/formatter.h"
 
 namespace lean {
 constexpr char const * object_mt = "object.mt";
@@ -144,8 +148,22 @@ static int object_pred(lua_State * L) {
     return 1;
 }
 
+static int object_tostring(lua_State * L) {
+    std::ostringstream out;
+    formatter fmt = get_global_formatter(L);
+    options opts  = get_global_options(L);
+    object & obj  = to_object(L, 1);
+    if (obj)
+        out << mk_pair(fmt(to_object(L, 1), opts), opts);
+    else
+        out << "<null-kernel-object>";
+    lua_pushfstring(L, out.str().c_str());
+    return 1;
+}
+
 static const struct luaL_Reg object_m[] = {
     {"__gc",            object_gc}, // never throws
+    {"__tostring",      safe_function<object_tostring>},
     {"is_null",         safe_function<object_is_null>},
     {"keyword",         safe_function<object_keyword>},
     {"has_name",        safe_function<object_has_name>},

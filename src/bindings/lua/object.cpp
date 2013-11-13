@@ -191,6 +191,6 @@ void open_object(lua_State * L) {
     lua_setfield(L, -2, "__index");
     setfuncs(L, object_m, 0);
 
-    set_global_function<object_pred>(L, "is_kernel_object");
+    SET_GLOBAL_FUN(object_pred, "is_kernel_object");
 }
 }

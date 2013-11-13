@@ -125,8 +125,8 @@ void open_mpz(lua_State * L) {
     luaL_newmetatable(L, mpz_mt);
     setfuncs(L, mpz_m, 0);
 
-    set_global_function<mk_mpz>(L, "mpz");
-    set_global_function<mpz_pred>(L, "is_mpz");
+    SET_GLOBAL_FUN(mk_mpz,   "mpz");
+    SET_GLOBAL_FUN(mpz_pred, "is_mpz");
 }
 
 constexpr char const * mpq_mt = "mpq.mt";
@@ -242,7 +242,7 @@ void open_mpq(lua_State * L) {
     luaL_newmetatable(L, mpq_mt);
     setfuncs(L, mpq_m, 0);
 
-    set_global_function<mk_mpq>(L, "mpq");
-    set_global_function<mpq_pred>(L, "is_mpq");
+    SET_GLOBAL_FUN(mk_mpq,   "mpq");
+    SET_GLOBAL_FUN(mpq_pred, "is_mpq");
 }
 }

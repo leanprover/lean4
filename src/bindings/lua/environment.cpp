@@ -247,9 +247,9 @@ void open_environment(lua_State * L) {
     lua_setfield(L, -2, "__index");
     setfuncs(L, environment_m, 0);
 
-    set_global_function<mk_environment>(L, "environment");
-    set_global_function<environment_pred>(L, "is_environment");
-    set_global_function<get_environment>(L, "get_environment");
-    set_global_function<get_environment>(L, "env");
+    SET_GLOBAL_FUN(mk_environment,   "environment");
+    SET_GLOBAL_FUN(environment_pred, "is_environment");
+    SET_GLOBAL_FUN(get_environment,  "get_environment");
+    SET_GLOBAL_FUN(get_environment,  "env");
 }
 }

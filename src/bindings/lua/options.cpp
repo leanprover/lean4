@@ -249,10 +249,10 @@ void open_options(lua_State * L) {
     lua_setfield(L, -2, "__index");
     setfuncs(L, options_m, 0);
 
-    set_global_function<mk_options>(L, "options");
-    set_global_function<options_pred>(L, "is_options");
-    set_global_function<_get_global_options>(L, "get_options");
-    set_global_function<_set_global_options>(L, "set_options");
-    set_global_function<_set_global_option>(L, "set_option");
+    SET_GLOBAL_FUN(mk_options,          "options");
+    SET_GLOBAL_FUN(options_pred,        "is_options");
+    SET_GLOBAL_FUN(_get_global_options, "get_options");
+    SET_GLOBAL_FUN(_set_global_options, "set_options");
+    SET_GLOBAL_FUN(_set_global_option,  "set_option");
 }
 }

@@ -127,6 +127,6 @@ void open_formatter(lua_State * L) {
     lua_setfield(L, -2, "__index");
     setfuncs(L, formatter_m, 0);
 
-    set_global_function<formatter_pred>(L, "is_formatter");
+    SET_GLOBAL_FUN(formatter_pred, "is_formatter");
 }
 }

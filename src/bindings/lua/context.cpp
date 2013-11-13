@@ -146,6 +146,8 @@ static const struct luaL_Reg context_m[] = {
     {"__len",           safe_function<context_size>},
     {"is_empty",        safe_function<context_is_empty>},
     {"size",            safe_function<context_size>},
+    {"extend",          safe_function<context_extend>},
+    {"lookup",          safe_function<context_lookup>},
     {0, 0}
 };
 
@@ -154,16 +156,16 @@ void open_context(lua_State * L) {
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, context_entry_m, 0);
-    set_global_function<mk_context_entry>(L, "context_entry");
-    set_global_function<context_entry_pred>(L, "is_context_entry");
+    SET_GLOBAL_FUN(mk_context_entry,   "context_entry");
+    SET_GLOBAL_FUN(context_entry_pred, "is_context_entry");
 
     luaL_newmetatable(L, context_mt);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, context_m, 0);
-    set_global_function<mk_context>(L, "context");
-    set_global_function<context_pred>(L, "is_context");
-    set_global_function<context_extend>(L, "extend");
-    set_global_function<context_lookup>(L, "lookup");
+    SET_GLOBAL_FUN(mk_context,     "context");
+    SET_GLOBAL_FUN(context_pred,   "is_context");
+    SET_GLOBAL_FUN(context_extend, "extend");
+    SET_GLOBAL_FUN(context_lookup, "lookup");
 }
 }

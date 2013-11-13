@@ -97,7 +97,7 @@ void open_name(lua_State * L) {
     lua_setfield(L, -2, "__index");
     setfuncs(L, name_m, 0);
 
-    set_global_function<mk_name>(L, "name");
-    set_global_function<name_pred>(L, "is_name");
+    SET_GLOBAL_FUN(mk_name,   "name");
+    SET_GLOBAL_FUN(name_pred, "is_name");
 }
 }

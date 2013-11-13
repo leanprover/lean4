@@ -133,11 +133,26 @@ static int level_pred(lua_State * L) {
     return 1;
 }
 
+static int level_get_kind(lua_State * L) {
+    lua_pushinteger(L, static_cast<int>(kind(to_level(L, 1))));
+    return 1;
+}
+
 static const struct luaL_Reg level_m[] = {
     {"__gc",            level_gc}, // never throws
     {"__tostring",      safe_function<level_tostring>},
     {"__eq",            safe_function<level_eq>},
     {"__lt",            safe_function<level_lt>},
+    {"kind",            safe_function<level_get_kind>},
+    {"is_bottom",       safe_function<level_is_bottom>},
+    {"is_lift",         safe_function<level_is_lift>},
+    {"is_max",          safe_function<level_is_max>},
+    {"is_uvar",         safe_function<level_is_uvar>},
+    {"uvar_name",       safe_function<level_name>},
+    {"lift_of",         safe_function<level_lift_of>},
+    {"lift_offset",     safe_function<level_lift_offset>},
+    {"max_size",        safe_function<level_max_size>},
+    {"max_level",       safe_function<level_max_level>},
     {0, 0}
 };
 
@@ -147,16 +162,13 @@ void open_level(lua_State * L) {
     lua_setfield(L, -2, "__index");
     setfuncs(L, level_m, 0);
 
-    set_global_function<mk_level>(L, "level");
-    set_global_function<level_pred>(L, "is_level");
-    set_global_function<level_is_bottom>(L, "is_bottom");
-    set_global_function<level_is_lift>(L, "is_lift");
-    set_global_function<level_is_max>(L, "is_max");
-    set_global_function<level_is_uvar>(L, "is_uvar");
-    set_global_function<level_name>(L, "uvar_name");
-    set_global_function<level_lift_of>(L, "lift_of");
-    set_global_function<level_lift_offset>(L, "lift_offset");
-    set_global_function<level_max_size>(L, "max_size");
-    set_global_function<level_max_level>(L, "max_level");
+    SET_GLOBAL_FUN(mk_level,   "level");
+    SET_GLOBAL_FUN(level_pred, "is_level");
+
+    lua_newtable(L);
+    SET_ENUM("UVar",      level_kind::UVar);
+    SET_ENUM("Lift",      level_kind::Lift);
+    SET_ENUM("Max",       level_kind::Max);
+    lua_setglobal(L, "level_kind");
 }
 }

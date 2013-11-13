@@ -174,11 +174,17 @@ static int sexpr_pred(lua_State * L) {
     return 1;
 }
 
+static int sexpr_get_kind(lua_State * L) {
+    lua_pushinteger(L, static_cast<int>(to_sexpr(L, 1).kind()));
+    return 1;
+}
+
 static const struct luaL_Reg sexpr_m[] = {
     {"__gc",       sexpr_gc}, // never throws
     {"__tostring", safe_function<sexpr_tostring>},
     {"__eq",       safe_function<sexpr_eq>},
     {"__lt",       safe_function<sexpr_lt>},
+    {"kind",       safe_function<sexpr_get_kind>},
     {"is_nil",     safe_function<sexpr_is_nil>},
     {"is_cons",    safe_function<sexpr_is_cons>},
     {"is_list",    safe_function<sexpr_is_list>},
@@ -209,7 +215,19 @@ void open_sexpr(lua_State * L) {
     lua_setfield(L, -2, "__index");
     setfuncs(L, sexpr_m, 0);
 
-    set_global_function<mk_sexpr>(L, "sexpr");
-    set_global_function<sexpr_pred>(L, "is_sexpr");
+    SET_GLOBAL_FUN(mk_sexpr,   "sexpr");
+    SET_GLOBAL_FUN(sexpr_pred, "is_sexpr");
+
+    lua_newtable(L);
+    SET_ENUM("Nil",         sexpr_kind::NIL);
+    SET_ENUM("String",      sexpr_kind::STRING);
+    SET_ENUM("Bool",        sexpr_kind::BOOL);
+    SET_ENUM("Int",         sexpr_kind::INT);
+    SET_ENUM("Double",      sexpr_kind::DOUBLE);
+    SET_ENUM("Name",        sexpr_kind::NAME);
+    SET_ENUM("MPZ",         sexpr_kind::MPZ);
+    SET_ENUM("MPQ",         sexpr_kind::MPQ);
+    SET_ENUM("Cons",        sexpr_kind::CONS);
+    lua_setglobal(L, "sexpr_kind");
 }
 }

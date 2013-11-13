@@ -239,7 +239,7 @@ static int print(lua_State * L) {
 
 /** \brief Redefine some functions from the Lua library */
 static void open_patch(lua_State * L) {
-    set_global_function<print>(L, "print");
+    SET_GLOBAL_FUN(print, "print");
 }
 
 constexpr char const * state_mt = "luastate.mt";
@@ -326,8 +326,8 @@ static void open_state(lua_State * L) {
     lua_setfield(L, -2, "__index");
     setfuncs(L, state_m, 0);
 
-    set_global_function<mk_state>(L, "State");
-    set_global_function<state_pred>(L, "is_State");
+    SET_GLOBAL_FUN(mk_state,   "State");
+    SET_GLOBAL_FUN(state_pred, "is_State");
 }
 
 class leanlua_thread {
@@ -432,7 +432,7 @@ static void open_thread(lua_State * L) {
     lua_setfield(L, -2, "__index");
     setfuncs(L, thread_m, 0);
 
-    set_global_function<mk_thread>(L, "thread");
-    set_global_function<thread_pred>(L, "is_thread");
+    SET_GLOBAL_FUN(mk_thread,   "thread");
+    SET_GLOBAL_FUN(thread_pred, "is_thread");
 }
 }

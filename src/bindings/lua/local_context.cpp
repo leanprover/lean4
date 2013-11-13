@@ -158,15 +158,15 @@ void open_local_context(lua_State * L) {
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, local_entry_m, 0);
-    set_global_function<local_entry_mk_lift>(L, "mk_lift");
-    set_global_function<local_entry_mk_inst>(L, "mk_inst");
-    set_global_function<local_entry_pred>(L, "is_local_entry");
+    SET_GLOBAL_FUN(local_entry_mk_lift, "mk_lift");
+    SET_GLOBAL_FUN(local_entry_mk_inst, "mk_inst");
+    SET_GLOBAL_FUN(local_entry_pred,    "is_local_entry");
 
     luaL_newmetatable(L, local_context_mt);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, local_context_m, 0);
-    set_global_function<mk_local_context>(L, "local_context");
-    set_global_function<local_context_pred>(L, "is_local_context");
+    SET_GLOBAL_FUN(mk_local_context,   "local_context");
+    SET_GLOBAL_FUN(local_context_pred, "is_local_context");
 }
 }

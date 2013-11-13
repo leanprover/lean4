@@ -1,7 +1,7 @@
 env = environment()
 env:add_var("N", Type())
 env:add_var("x", Const("N"))
-for i, v in ipairs(env:objects()) do
+for v in env:objects() do
    print(v:get_name())
 end
 assert(not env:find_object("N"):is_null())

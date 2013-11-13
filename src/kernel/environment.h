@@ -23,8 +23,6 @@ private:
     void check_type(name const & n, expr const & t, expr const & v);
     environment(std::shared_ptr<imp> const & parent, bool);
     explicit environment(std::shared_ptr<imp> const & ptr);
-    unsigned get_num_objects(bool local) const;
-    object const & get_object(unsigned i, bool local) const;
     friend class read_only_environment;
     friend class read_write_environment;
 public:
@@ -153,6 +151,15 @@ public:
        \brief Normalize \c e in the given context and this environment.
     */
     expr normalize(expr const & e, context const & ctx = context()) const;
+
+    /**
+       \brief Low-level function for accessing objects. Consider using iterators.
+    */
+    unsigned get_num_objects(bool local) const;
+    /**
+       \brief Low-level function for accessing objects. Consider using iterators.
+    */
+    object const & get_object(unsigned i, bool local) const;
 
     /** \brief Iterator for Lean environment objects. */
     class object_iterator {

@@ -157,28 +157,44 @@ static int environment_normalize(lua_State * L) {
         return push_expr(L, env->normalize(to_nonnull_expr(L, 2), to_context(L, 3)));
 }
 
-static int environment_objects(lua_State * L) {
-    ro_environment env(L, 1);
-    auto it  = env->begin_objects();
-    auto end = env->end_objects();
-    lua_newtable(L);
-    for (int i = 1; it != end; ++it, ++i) {
-        push_object(L, *it);
-        lua_rawseti(L, -2, i);
+
+/**
+   \brief Iterator (closure base function) for kernel objects.
+
+   \see environment_objects
+   \see environment_local_objects.
+*/
+static int environment_next_object(lua_State * L) {
+    ro_environment env(L, lua_upvalueindex(1));
+    unsigned i   = lua_tointeger(L, lua_upvalueindex(2));
+    unsigned num = lua_tointeger(L, lua_upvalueindex(3));
+    if (i >= num) {
+        lua_pushnil(L);
+    } else {
+        bool local   = lua_toboolean(L, lua_upvalueindex(4));
+        lua_pushinteger(L, i + 1);
+        lua_replace(L, lua_upvalueindex(2)); // update closure
+        push_object(L, env->get_object(i, local));
     }
     return 1;
 }
 
-static int environment_local_objects(lua_State * L) {
+static int environment_objects_core(lua_State * L, bool local) {
     ro_environment env(L, 1);
-    auto it  = env->begin_local_objects();
-    auto end = env->end_local_objects();
-    lua_newtable(L);
-    for (int i = 1; it != end; ++it, ++i) {
-        push_object(L, *it);
-        lua_rawseti(L, -2, i);
-    }
+    push_environment(L, env);   // upvalue(1): environment
+    lua_pushinteger(L, 0);      // upvalue(2): index
+    lua_pushinteger(L, env->get_num_objects(local)); // upvalue(3): size
+    lua_pushboolean(L, local);  // upvalue(4): local flag
+    lua_pushcclosure(L, &environment_next_object, 4); // create closure with 4 upvalues
     return 1;
+}
+
+static int environment_objects(lua_State * L) {
+    return environment_objects_core(L, false);
+}
+
+static int environment_local_objects(lua_State * L) {
+    return environment_objects_core(L, true);
 }
 
 static int environment_pred(lua_State * L) {

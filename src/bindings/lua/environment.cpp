@@ -250,6 +250,6 @@ void open_environment(lua_State * L) {
     SET_GLOBAL_FUN(mk_environment,   "environment");
     SET_GLOBAL_FUN(environment_pred, "is_environment");
     SET_GLOBAL_FUN(get_environment,  "get_environment");
-    SET_GLOBAL_FUN(get_environment,  "env");
+    SET_GLOBAL_FUN(get_environment,  "get_env");
 }
 }

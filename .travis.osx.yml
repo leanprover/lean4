@@ -31,7 +31,7 @@ script:
       BUILD_TYPE=Release;
   else
       BUILD_TYPE=Debug;
-      CTEST_FLAGS="-E leanslowtests"
+      CTEST_FLAGS="-E leanslowtests";
   fi
 - BUILD_NAME=${TRAVIS_BRANCH}_g++-4.9.0_${BUILD_TYPE}
 - if [[ $TCMALLOC == ON ]]; then

@@ -15,7 +15,7 @@ class mpq;
 class mpz;
 struct sexpr_cell;
 
-enum class sexpr_kind { NIL, STRING, BOOL, INT, DOUBLE, NAME, MPZ, MPQ, CONS };
+enum class sexpr_kind { Nil, String, Bool, Int, Double, Name, MPZ, MPQ, Cons };
 
 /**
    \brief Simple LISP-like S-expressions.
@@ -102,14 +102,14 @@ inline sexpr const & car(sexpr const & s) { return head(s); }
 */
 inline sexpr const & cdr(sexpr const & s) { return tail(s); }
 /** \brief Return true iff \c s is not an atom (i.e., it is not a cons cell). */
-inline bool is_atom(sexpr const & s)   { return s.kind() != sexpr_kind::CONS; }
+inline bool is_atom(sexpr const & s)   { return s.kind() != sexpr_kind::Cons; }
 /** \brief Return true iff \c s is not a cons cell. */
-inline bool is_cons(sexpr const & s)   { return s.kind() == sexpr_kind::CONS; }
-inline bool is_string(sexpr const & s) { return s.kind() == sexpr_kind::STRING; }
-inline bool is_bool(sexpr const & s)   { return s.kind() == sexpr_kind::BOOL; }
-inline bool is_int(sexpr const & s)    { return s.kind() == sexpr_kind::INT; }
-inline bool is_double(sexpr const & s) { return s.kind() == sexpr_kind::DOUBLE; }
-inline bool is_name(sexpr const & s)   { return s.kind() == sexpr_kind::NAME; }
+inline bool is_cons(sexpr const & s)   { return s.kind() == sexpr_kind::Cons; }
+inline bool is_string(sexpr const & s) { return s.kind() == sexpr_kind::String; }
+inline bool is_bool(sexpr const & s)   { return s.kind() == sexpr_kind::Bool; }
+inline bool is_int(sexpr const & s)    { return s.kind() == sexpr_kind::Int; }
+inline bool is_double(sexpr const & s) { return s.kind() == sexpr_kind::Double; }
+inline bool is_name(sexpr const & s)   { return s.kind() == sexpr_kind::Name; }
 inline bool is_mpz(sexpr const & s)    { return s.kind() == sexpr_kind::MPZ; }
 inline bool is_mpq(sexpr const & s)    { return s.kind() == sexpr_kind::MPQ; }
 

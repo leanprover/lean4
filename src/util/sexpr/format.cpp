@@ -400,19 +400,19 @@ format pp(name const & n) {
 struct sexpr_pp_fn {
     format apply(sexpr const & s) {
         switch (s.kind()) {
-        case sexpr_kind::NIL:         return format("nil");
-        case sexpr_kind::STRING: {
+        case sexpr_kind::Nil:         return format("nil");
+        case sexpr_kind::String: {
             std::ostringstream ss;
             ss << "\"" << escaped(to_string(s).c_str()) << "\"";
             return format(ss.str());
         }
-        case sexpr_kind::BOOL:        return format(to_bool(s) ? "true" : "false");
-        case sexpr_kind::INT:         return format(to_int(s));
-        case sexpr_kind::DOUBLE:      return format(to_double(s));
-        case sexpr_kind::NAME:        return pp(to_name(s));
+        case sexpr_kind::Bool:        return format(to_bool(s) ? "true" : "false");
+        case sexpr_kind::Int:         return format(to_int(s));
+        case sexpr_kind::Double:      return format(to_double(s));
+        case sexpr_kind::Name:        return pp(to_name(s));
         case sexpr_kind::MPZ:         return format(to_mpz(s));
         case sexpr_kind::MPQ:         return format(to_mpq(s));
-        case sexpr_kind::CONS: {
+        case sexpr_kind::Cons: {
             sexpr const * curr = &s;
             format r;
             while (true) {

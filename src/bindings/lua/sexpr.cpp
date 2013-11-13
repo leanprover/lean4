@@ -219,15 +219,15 @@ void open_sexpr(lua_State * L) {
     SET_GLOBAL_FUN(sexpr_pred, "is_sexpr");
 
     lua_newtable(L);
-    SET_ENUM("Nil",         sexpr_kind::NIL);
-    SET_ENUM("String",      sexpr_kind::STRING);
-    SET_ENUM("Bool",        sexpr_kind::BOOL);
-    SET_ENUM("Int",         sexpr_kind::INT);
-    SET_ENUM("Double",      sexpr_kind::DOUBLE);
-    SET_ENUM("Name",        sexpr_kind::NAME);
+    SET_ENUM("Nil",         sexpr_kind::Nil);
+    SET_ENUM("String",      sexpr_kind::String);
+    SET_ENUM("Bool",        sexpr_kind::Bool);
+    SET_ENUM("Int",         sexpr_kind::Int);
+    SET_ENUM("Double",      sexpr_kind::Double);
+    SET_ENUM("Name",        sexpr_kind::Name);
     SET_ENUM("MPZ",         sexpr_kind::MPZ);
     SET_ENUM("MPQ",         sexpr_kind::MPQ);
-    SET_ENUM("Cons",        sexpr_kind::CONS);
+    SET_ENUM("Cons",        sexpr_kind::Cons);
     lua_setglobal(L, "sexpr_kind");
 }
 }

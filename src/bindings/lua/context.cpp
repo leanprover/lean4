@@ -107,7 +107,7 @@ static int mk_context(lua_State * L) {
     } else if (nargs == 3) {
         return push_context(L, context(to_context(L, 1), to_name_ext(L, 2), to_nonnull_expr(L, 3)));
     } else {
-        return push_context(L, context(to_context(L, 1), to_name_ext(L, 2), to_nonnull_expr(L, 3), to_nonnull_expr(L, 4)));
+        return push_context(L, context(to_context(L, 1), to_name_ext(L, 2), to_expr(L, 3), to_nonnull_expr(L, 4)));
     }
 }
 

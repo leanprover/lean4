@@ -114,6 +114,10 @@ static int expr_mk_pi(lua_State * L) {
     return push_expr(L, mk_pi(to_name_ext(L, 1), to_nonnull_expr(L, 2), to_nonnull_expr(L, 3)));
 }
 
+static int expr_mk_arrow(lua_State * L) {
+    return push_expr(L, mk_arrow(to_nonnull_expr(L, 1), to_nonnull_expr(L, 2)));
+}
+
 static int expr_mk_let(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 3)
@@ -322,6 +326,7 @@ void open_expr(lua_State * L) {
     SET_GLOBAL_FUN(expr_mk_eq,       "Eq");
     SET_GLOBAL_FUN(expr_mk_lambda,        "mk_lambda");
     SET_GLOBAL_FUN(expr_mk_pi,       "mk_pi");
+    SET_GLOBAL_FUN(expr_mk_arrow,    "mk_arrow");
     SET_GLOBAL_FUN(expr_mk_let,      "mk_let");
     SET_GLOBAL_FUN(expr_fun,         "fun");
     SET_GLOBAL_FUN(expr_fun,         "Fun");

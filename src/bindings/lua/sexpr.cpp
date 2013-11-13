@@ -179,6 +179,23 @@ static int sexpr_get_kind(lua_State * L) {
     return 1;
 }
 
+static int sexpr_fields(lua_State * L) {
+    sexpr const & e = to_sexpr(L, 1);
+    switch (e.kind()) {
+    case sexpr_kind::Nil:         return 0;
+    case sexpr_kind::String:      return sexpr_to_string(L);
+    case sexpr_kind::Bool:        return sexpr_to_bool(L);
+    case sexpr_kind::Int:         return sexpr_to_int(L);
+    case sexpr_kind::Double:      return sexpr_to_double(L);
+    case sexpr_kind::Name:        return sexpr_to_name(L);
+    case sexpr_kind::MPZ:         return sexpr_to_mpz(L);
+    case sexpr_kind::MPQ:         return sexpr_to_mpq(L);
+    case sexpr_kind::Cons:        sexpr_head(L); sexpr_tail(L); return 2;
+    }
+    lean_unreachable(); // LCOV_EXCL_LINE
+    return 0;           // LCOV_EXCL_LINE
+}
+
 static const struct luaL_Reg sexpr_m[] = {
     {"__gc",       sexpr_gc}, // never throws
     {"__tostring", safe_function<sexpr_tostring>},
@@ -206,6 +223,7 @@ static const struct luaL_Reg sexpr_m[] = {
     {"to_name",    safe_function<sexpr_to_name>},
     {"to_mpz",     safe_function<sexpr_to_mpz>},
     {"to_mpq",     safe_function<sexpr_to_mpq>},
+    {"fields",     safe_function<sexpr_fields>},
     {0, 0}
 };
 

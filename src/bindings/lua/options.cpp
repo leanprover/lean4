@@ -57,7 +57,7 @@ static int options_gc(lua_State * L) {
 static int options_tostring(lua_State * L) {
     std::ostringstream out;
     out << to_options(L, 1);
-    lua_pushfstring(L, out.str().c_str());
+    lua_pushstring(L, out.str().c_str());
     return 1;
 }
 
@@ -107,7 +107,7 @@ static int options_get_double(lua_State * L) {
 static int options_get_string(lua_State * L) {
     int nargs = lua_gettop(L);
     char const * defval = nargs < 3 ? "" : lua_tostring(L, 3);
-    lua_pushfstring(L, to_options(L, 1).get_string(to_key(L, 2), defval));
+    lua_pushstring(L, to_options(L, 1).get_string(to_key(L, 2), defval));
     return 1;
 }
 

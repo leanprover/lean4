@@ -93,7 +93,7 @@ static int context_tostring(lua_State * L) {
     formatter fmt = get_global_formatter(L);
     options opts  = get_global_options(L);
     out << mk_pair(fmt(to_context(L, 1), opts), opts);
-    lua_pushfstring(L, out.str().c_str());
+    lua_pushstring(L, out.str().c_str());
     return 1;
 }
 

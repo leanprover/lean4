@@ -64,7 +64,7 @@ static char const * reader(lua_State *, void * data, size_t * sz) {
 static void copy_values(lua_State * src, int first, int last, lua_State * tgt) {
     for (int i = first; i <= last; i++) {
         if (lua_isstring(src, i)) {
-            lua_pushfstring(tgt, lua_tostring(src, i));
+            lua_pushstring(tgt, lua_tostring(src, i));
         } else if (lua_isnumber(src, i)) {
             lua_pushnumber(tgt, lua_tonumber(src, i));
         } else if (lua_isboolean(src, i)) {

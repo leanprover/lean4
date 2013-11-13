@@ -70,7 +70,7 @@ static int expr_tostring(lua_State * L) {
     } else {
         out << "<null-expr>";
     }
-    lua_pushfstring(L, out.str().c_str());
+    lua_pushstring(L, out.str().c_str());
     return 1;
 }
 

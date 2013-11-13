@@ -41,7 +41,7 @@ static int level_tostring(lua_State * L) {
     std::ostringstream out;
     options opts  = get_global_options(L);
     out << mk_pair(pp(to_level(L, 1), opts), opts);
-    lua_pushfstring(L, out.str().c_str());
+    lua_pushstring(L, out.str().c_str());
     return 1;
 }
 

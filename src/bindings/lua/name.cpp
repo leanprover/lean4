@@ -58,7 +58,7 @@ static int name_gc(lua_State * L) {
 }
 
 static int name_tostring(lua_State * L) {
-    lua_pushfstring(L, to_name(L, 1).to_string().c_str());
+    lua_pushstring(L, to_name(L, 1).to_string().c_str());
     return 1;
 }
 

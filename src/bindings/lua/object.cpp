@@ -53,7 +53,7 @@ static int object_is_null(lua_State * L) {
 }
 
 static int object_keyword(lua_State * L) {
-    lua_pushfstring(L, to_nonnull_object(L, 1).keyword());
+    lua_pushstring(L, to_nonnull_object(L, 1).keyword());
     return 1;
 }
 
@@ -157,7 +157,7 @@ static int object_tostring(lua_State * L) {
         out << mk_pair(fmt(to_object(L, 1), opts), opts);
     else
         out << "<null-kernel-object>";
-    lua_pushfstring(L, out.str().c_str());
+    lua_pushstring(L, out.str().c_str());
     return 1;
 }
 

@@ -58,7 +58,7 @@ static int format_gc(lua_State * L) {
 static int format_tostring(lua_State * L) {
     std::ostringstream out;
     out << mk_pair(to_format(L, 1), get_global_options(L));
-    lua_pushfstring(L, out.str().c_str());
+    lua_pushstring(L, out.str().c_str());
     return 1;
 }
 

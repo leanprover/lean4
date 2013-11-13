@@ -39,7 +39,7 @@ static int sexpr_gc(lua_State * L) {
 static int sexpr_tostring(lua_State * L) {
     std::ostringstream out;
     out << to_sexpr(L, 1);
-    lua_pushfstring(L, out.str().c_str());
+    lua_pushstring(L, out.str().c_str());
     return 1;
 }
 
@@ -128,7 +128,7 @@ static int sexpr_to_string(lua_State * L) {
     sexpr const & e = to_sexpr(L, 1);
     if (!is_string(e))
         throw exception("s-expression is not a string");
-    lua_pushfstring(L, to_string(e).c_str());
+    lua_pushstring(L, to_string(e).c_str());
     return 1;
 }
 

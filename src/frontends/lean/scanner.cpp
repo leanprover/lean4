@@ -132,8 +132,6 @@ bool scanner::check_next_is_digit() {
 }
 
 void scanner::read_comment() {
-    lean_assert(curr() == '*');
-    next();
     int nest = 1;
     while (true) {
         if (curr() == '*') {
@@ -337,53 +335,43 @@ scanner::token scanner::read_string() {
 }
 
 scanner::token scanner::read_script_block() {
-    lean_assert(curr() == '{');
-    next();
     m_script_line = m_line;
     m_script_pos  = m_pos;
     m_buffer.clear();
-    int num_open_blocks = 1;
     while (true) {
-        char c = curr();
-        if (c == EOF) {
+        char c1 = curr();
+        if (c1 == EOF)
             throw_exception("unexpected end of script");
-        } else if (c == '{') {
-            m_buffer += '{';
-            next();
-            c = curr();
-            if (c == '{')
-                num_open_blocks++;
-            else if (c == '\n')
-                new_line();
-            else if (c == EOF)
-                throw_exception("unexpected end of script");
-            m_buffer += c;
-            next();
-        } else if (c == '}') {
-            next();
+        next();
+        if (c1 == '*') {
             char c2 = curr();
-            if (c2 == '}') {
-                next();
-                num_open_blocks--;
-                if (num_open_blocks == 0)
-                    return token::ScriptBlock;
-            } else if (c2 == '\n') {
-                new_line();
-                next();
-            } else if (c2 == EOF) {
+            if (c2 == EOF)
                 throw_exception("unexpected end of script");
-            } else {
+            next();
+            if (c2 == '*') {
+                char c3 = curr();
+                if (c3 == EOF)
+                    throw_exception("unexpected end of script");
                 next();
+                if (c3 == ')') {
+                    return token::ScriptBlock;
+                } else {
+                    if (c3 == '\n')
+                        new_line();
+                    m_buffer += c1;
+                    m_buffer += c2;
+                    m_buffer += c3;
+                }
+            } else {
+                if (c2 == '\n')
+                    new_line();
+                m_buffer += c1;
+                m_buffer += c2;
             }
-            m_buffer += c;
-            m_buffer += c2;
-        } else if (c == '\n') {
-            new_line();
-            m_buffer += '\n';
-            next();
         } else {
-            m_buffer += c;
-            next();
+            if (c1 == '\n')
+                new_line();
+            m_buffer += c1;
         }
     }
 }
@@ -407,18 +395,19 @@ scanner::token scanner::scan() {
         case '(':
             next();
             if (curr() == '*') {
-                read_comment();
-                break;
+                next();
+                if (curr() == '*')  {
+                    next();
+                    return read_script_block();
+                } else {
+                    read_comment();
+                    break;
+                }
             } else {
                 return token::LeftParen;
             }
         case ')':  next(); return token::RightParen;
-        case '{':
-            next();
-            if (curr() == '{')
-                return read_script_block();
-            else
-                return token::LeftCurlyBracket;
+        case '{':  next(); return token::LeftCurlyBracket;
         case '}':  next(); return token::RightCurlyBracket;
         case 'a':  return read_a_symbol();
         case 'b':  return read_b_symbol();

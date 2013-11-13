@@ -1,6 +1,6 @@
 Variable x : Bool
 
-{{
+(**
  a = {}
  print("hello world")
  print ("ok")
@@ -9,7 +9,7 @@ Variable x : Bool
     y = 20
  }
  rint ("ok")
-}}
+**)
 
 Variable y : Bool
 

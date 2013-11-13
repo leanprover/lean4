@@ -35,7 +35,6 @@ int push_options(lua_State * L, options const & o) {
 }
 
 static int mk_options(lua_State * L) {
-    // int nargs = lua_gettop(L);
     options r;
     return push_options(L, r);
 }

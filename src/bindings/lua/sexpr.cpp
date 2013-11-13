@@ -82,17 +82,24 @@ static int mk_sexpr(lua_State * L) {
 
 static int sexpr_eq(lua_State * L)        { lua_pushboolean(L, to_sexpr(L, 1) == to_sexpr(L, 2));  return 1; }
 static int sexpr_lt(lua_State * L)        { lua_pushboolean(L, to_sexpr(L, 1) < to_sexpr(L, 2));   return 1; }
-static int sexpr_is_nil(lua_State * L)    { lua_pushboolean(L, is_nil(to_sexpr(L, 1)));            return 1; }
-static int sexpr_is_cons(lua_State * L)   { lua_pushboolean(L, is_cons(to_sexpr(L, 1)));           return 1; }
-static int sexpr_is_list(lua_State * L)   { lua_pushboolean(L, is_list(to_sexpr(L, 1)));           return 1; }
-static int sexpr_is_atom(lua_State * L)   { lua_pushboolean(L, is_atom(to_sexpr(L, 1)));           return 1; }
-static int sexpr_is_string(lua_State * L) { lua_pushboolean(L, is_string(to_sexpr(L, 1)));         return 1; }
-static int sexpr_is_bool(lua_State * L)   { lua_pushboolean(L, is_bool(to_sexpr(L, 1)));           return 1; }
-static int sexpr_is_int(lua_State * L)    { lua_pushboolean(L, is_int(to_sexpr(L, 1)));            return 1; }
-static int sexpr_is_double(lua_State * L) { lua_pushboolean(L, is_double(to_sexpr(L, 1)));         return 1; }
-static int sexpr_is_name(lua_State * L)   { lua_pushboolean(L, is_name(to_sexpr(L, 1)));           return 1; }
-static int sexpr_is_mpz(lua_State * L)    { lua_pushboolean(L, is_mpz(to_sexpr(L, 1)));            return 1; }
-static int sexpr_is_mpq(lua_State * L)    { lua_pushboolean(L, is_mpq(to_sexpr(L, 1)));            return 1; }
+
+#define SEXPR_PRED(P)                           \
+static int sexpr_ ## P(lua_State * L)    {      \
+    lua_pushboolean(L, P(to_sexpr(L, 1)));      \
+    return 1;                                   \
+}
+
+SEXPR_PRED(is_nil)
+SEXPR_PRED(is_cons)
+SEXPR_PRED(is_list)
+SEXPR_PRED(is_atom)
+SEXPR_PRED(is_string)
+SEXPR_PRED(is_bool)
+SEXPR_PRED(is_int)
+SEXPR_PRED(is_double)
+SEXPR_PRED(is_name)
+SEXPR_PRED(is_mpz)
+SEXPR_PRED(is_mpq)
 
 static int sexpr_length(lua_State * L) {
     sexpr const & e = to_sexpr(L, 1);

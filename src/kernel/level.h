@@ -61,9 +61,10 @@ level max(level const & l1, level const & l2);
 level max(std::initializer_list<level> const & l);
 level operator+(level const & l, unsigned k);
 
-inline bool is_uvar(level const & l) { return kind(l) == level_kind::UVar;  }
-inline bool is_lift(level const & l) { return kind(l) == level_kind::Lift; }
-inline bool is_max (level const & l) { return kind(l) == level_kind::Max;  }
+inline bool is_bottom(level const & l) { return l.is_bottom(); }
+inline bool is_uvar(level const & l)   { return kind(l) == level_kind::UVar;  }
+inline bool is_lift(level const & l)   { return kind(l) == level_kind::Lift; }
+inline bool is_max (level const & l)   { return kind(l) == level_kind::Max;  }
 
 /** \brief Return a */
 inline level const * max_begin_levels(level const & l) { return &max_level(l, 0); }

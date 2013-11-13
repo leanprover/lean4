@@ -76,25 +76,16 @@ static int mk_level(lua_State * L) {
     }
 }
 
-static int level_is_bottom(lua_State * L) {
-    lua_pushboolean(L, to_level(L, 1).is_bottom());
-    return 1;
+#define LEVEL_PRED(P)                           \
+static int level_ ## P(lua_State * L)    {      \
+    lua_pushboolean(L, P(to_level(L, 1)));      \
+    return 1;                                   \
 }
 
-static int level_is_uvar(lua_State * L) {
-    lua_pushboolean(L, is_uvar(to_level(L, 1)));
-    return 1;
-}
-
-static int level_is_lift(lua_State * L) {
-    lua_pushboolean(L, is_lift(to_level(L, 1)));
-    return 1;
-}
-
-static int level_is_max(lua_State * L) {
-    lua_pushboolean(L, is_max(to_level(L, 1)));
-    return 1;
-}
+LEVEL_PRED(is_bottom)
+LEVEL_PRED(is_uvar)
+LEVEL_PRED(is_lift)
+LEVEL_PRED(is_max)
 
 static int level_name(lua_State * L) {
     if (!is_uvar(to_level(L, 1)))

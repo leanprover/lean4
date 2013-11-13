@@ -209,55 +209,22 @@ static int expr_get_kind(lua_State * L) {
     return 1;
 }
 
-static int expr_is_constant(lua_State * L) {
-    lua_pushboolean(L, is_constant(to_nonnull_expr(L, 1)));
-    return 1;
+#define EXPR_PRED(P)                                    \
+static int expr_ ## P(lua_State * L) {                  \
+    lua_pushboolean(L, P(to_nonnull_expr(L, 1)));       \
+    return 1;                                           \
 }
 
-static int expr_is_var(lua_State * L) {
-    lua_pushboolean(L, is_var(to_nonnull_expr(L, 1)));
-    return 1;
-}
-
-static int expr_is_app(lua_State * L) {
-    lua_pushboolean(L, is_app(to_nonnull_expr(L, 1)));
-    return 1;
-}
-
-static int expr_is_eq(lua_State * L) {
-    lua_pushboolean(L, is_eq(to_nonnull_expr(L, 1)));
-    return 1;
-}
-
-static int expr_is_lambda(lua_State * L) {
-    lua_pushboolean(L, is_lambda(to_nonnull_expr(L, 1)));
-    return 1;
-}
-
-static int expr_is_pi(lua_State * L) {
-    lua_pushboolean(L, is_lambda(to_nonnull_expr(L, 1)));
-    return 1;
-}
-
-static int expr_is_abstraction(lua_State * L) {
-    lua_pushboolean(L, is_abstraction(to_nonnull_expr(L, 1)));
-    return 1;
-}
-
-static int expr_is_let(lua_State * L) {
-    lua_pushboolean(L, is_let(to_nonnull_expr(L, 1)));
-    return 1;
-}
-
-static int expr_is_value(lua_State * L) {
-    lua_pushboolean(L, is_value(to_nonnull_expr(L, 1)));
-    return 1;
-}
-
-static int expr_is_metavar(lua_State * L) {
-    lua_pushboolean(L, is_metavar(to_nonnull_expr(L, 1)));
-    return 1;
-}
+EXPR_PRED(is_constant)
+EXPR_PRED(is_var)
+EXPR_PRED(is_app)
+EXPR_PRED(is_eq)
+EXPR_PRED(is_lambda)
+EXPR_PRED(is_pi)
+EXPR_PRED(is_abstraction)
+EXPR_PRED(is_let)
+EXPR_PRED(is_value)
+EXPR_PRED(is_metavar)
 
 /**
    \brief Iterator (closure base function) for application args. See \c expr_args

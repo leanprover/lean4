@@ -90,16 +90,6 @@ static int object_get_cnstr_level(lua_State * L) {
     return push_level(L, to_nonnull_object(L, 1).get_cnstr_level());
 }
 
-static int object_is_definition(lua_State * L) {
-    lua_pushboolean(L, to_nonnull_object(L, 1).is_definition());
-    return 1;
-}
-
-static int object_is_opaque(lua_State * L) {
-    lua_pushboolean(L, to_nonnull_object(L, 1).is_opaque());
-    return 1;
-}
-
 static int object_get_value(lua_State * L) {
     if (!to_nonnull_object(L, 1).is_definition())
         throw exception("kernel object is not a definition/theorem");
@@ -113,30 +103,19 @@ static int object_get_weight(lua_State * L) {
     return 1;
 }
 
-static int object_is_axiom(lua_State * L) {
-    lua_pushboolean(L, to_nonnull_object(L, 1).is_axiom());
-    return 1;
+#define OBJECT_PRED(P)                                  \
+static int object_ ## P(lua_State * L) {                \
+    lua_pushboolean(L, to_nonnull_object(L, 1).P());    \
+    return 1;                                           \
 }
 
-static int object_is_theorem(lua_State * L) {
-    lua_pushboolean(L, to_nonnull_object(L, 1).is_theorem());
-    return 1;
-}
-
-static int object_is_var_decl(lua_State * L) {
-    lua_pushboolean(L, to_nonnull_object(L, 1).is_var_decl());
-    return 1;
-}
-
-static int object_is_builtin(lua_State * L) {
-    lua_pushboolean(L, to_nonnull_object(L, 1).is_builtin());
-    return 1;
-}
-
-static int object_is_builtin_set(lua_State * L) {
-    lua_pushboolean(L, to_nonnull_object(L, 1).is_builtin_set());
-    return 1;
-}
+OBJECT_PRED(is_definition)
+OBJECT_PRED(is_opaque)
+OBJECT_PRED(is_axiom)
+OBJECT_PRED(is_theorem)
+OBJECT_PRED(is_var_decl)
+OBJECT_PRED(is_builtin)
+OBJECT_PRED(is_builtin_set)
 
 static int object_in_builtin_set(lua_State * L) {
     lua_pushboolean(L, to_nonnull_object(L, 1).in_builtin_set(to_expr(L, 2)));

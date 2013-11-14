@@ -339,7 +339,7 @@ static int expr_lower_free_vars(lua_State * L) {
 // Copy Lua table/array elements to r
 static void copy_lua_array(lua_State * L, int tidx, buffer<expr> & r) {
     luaL_checktype(L, tidx, LUA_TTABLE);
-    int n = luaL_len(L, tidx);
+    int n = objlen(L, tidx);
     for (int i = 1; i <= n; i++) {
         lua_rawgeti(L, tidx, i);
         r.push_back(to_expr(L, -1));

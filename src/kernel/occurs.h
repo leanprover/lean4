@@ -12,11 +12,11 @@ namespace lean {
 bool occurs(expr const & n, expr const & m);
 /** \brief Return true iff there is a constant named \c n in \c m. */
 bool occurs(name const & n, expr const & m);
-/** \brief Return true iff \c n ocurs in context \c c. */
+/** \brief Return true iff \c n occurs in context \c c. */
 bool occurs(expr const & n, context const & c);
 /** \brief Return true iff there is a constant named \c n in context \c c. */
 bool occurs(name const & n, context const & c);
-/** \brief Return true iff \c n ocurs in context \c c or the array of expressions es[sz]. */
+/** \brief Return true iff \c n occurs in context \c c or the array of expressions es[sz]. */
 bool occurs(expr const & n, context const & c, unsigned sz, expr const * es);
 inline bool occurs(expr const & n, context const & c, std::initializer_list<expr> const & l) { return occurs(n, c, l.size(), l.begin()); }
 /** \brief Return true iff there is a constant named \c n in context \c c or the array of expressions es[sz]. */

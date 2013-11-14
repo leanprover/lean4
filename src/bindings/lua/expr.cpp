@@ -12,9 +12,11 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "util/sexpr/options.h"
 #include "kernel/expr.h"
+#include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/formatter.h"
 #include "kernel/for_each.h"
+#include "kernel/free_vars.h"
 #include "library/expr_lt.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
@@ -230,6 +232,8 @@ EXPR_PRED(is_abstraction)
 EXPR_PRED(is_let)
 EXPR_PRED(is_value)
 EXPR_PRED(is_metavar)
+EXPR_PRED(has_free_vars)
+EXPR_PRED(closed)
 
 /**
    \brief Iterator (closure base function) for application args. See \c expr_args
@@ -288,11 +292,10 @@ static int expr_pred(lua_State * L) {
 }
 
 static int expr_for_each(lua_State * L) {
-    expr & e = to_nonnull_expr(L, 1);
-    if (!lua_isfunction(L, 2))
-        throw exception("arg #2 must be a function");
+    expr & e = to_nonnull_expr(L, 1);    // expr
+    luaL_checktype(L, 2, LUA_TFUNCTION); // user-fun
     auto f = [&](expr const & a, unsigned offset) {
-        lua_pushvalue(L, 2); // push user function
+        lua_pushvalue(L, 2); // push user-fun
         push_expr(L, a);
         lua_pushinteger(L, offset);
         pcall(L, 2, 1, 0);
@@ -307,29 +310,95 @@ static int expr_for_each(lua_State * L) {
     return 0;
 }
 
+static int expr_has_free_var(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs == 2)
+        lua_pushboolean(L, has_free_var(to_expr(L, 1), luaL_checkinteger(L, 2)));
+    else
+        lua_pushboolean(L, has_free_var(to_expr(L, 1), luaL_checkinteger(L, 2), luaL_checkinteger(L, 3)));
+    return 1;
+}
+
+static int expr_lift_free_vars(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs == 2)
+        return push_expr(L, lift_free_vars(to_expr(L, 1), luaL_checkinteger(L, 2)));
+    else
+        return push_expr(L, lift_free_vars(to_expr(L, 1), luaL_checkinteger(L, 2), luaL_checkinteger(L, 3)));
+}
+
+static int expr_lower_free_vars(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs == 2)
+        return push_expr(L, lower_free_vars(to_expr(L, 1), luaL_checkinteger(L, 2)));
+    else
+        return push_expr(L, lower_free_vars(to_expr(L, 1), luaL_checkinteger(L, 2), luaL_checkinteger(L, 3)));
+}
+
+// Copy Lua table/array elements to r
+static void copy_lua_array(lua_State * L, int tidx, buffer<expr> & r) {
+    luaL_checktype(L, tidx, LUA_TTABLE);
+    int n = luaL_len(L, tidx);
+    for (int i = 1; i <= n; i++) {
+        lua_rawgeti(L, tidx, i);
+        r.push_back(to_expr(L, -1));
+        lua_pop(L, 1);
+    }
+}
+
+static int expr_instantiate(lua_State * L) {
+    expr const & e = to_expr(L, 1);
+    if (is_expr(L, 2)) {
+        return push_expr(L, instantiate(e, to_expr(L, 2)));
+    } else {
+        buffer<expr> s;
+        copy_lua_array(L, 2, s);
+        return push_expr(L, instantiate(e, s.size(), s.data()));
+    }
+}
+
+static int expr_abstract(lua_State * L) {
+    expr const & e = to_expr(L, 1);
+    if (is_expr(L, 2)) {
+        expr const & e2 = to_expr(L, 2);
+        return push_expr(L, abstract(e, 1, &e2));
+    } else {
+        buffer<expr> s;
+        copy_lua_array(L, 2, s);
+        return push_expr(L, abstract(e, s.size(), s.data()));
+    }
+}
+
 static const struct luaL_Reg expr_m[] = {
-    {"__gc",           expr_gc}, // never throws
-    {"__tostring",     safe_function<expr_tostring>},
-    {"__eq",           safe_function<expr_eq>},
-    {"__lt",           safe_function<expr_lt>},
-    {"__call",         safe_function<expr_mk_app>},
-    {"kind",           safe_function<expr_get_kind>},
-    {"is_null",        safe_function<expr_is_null>},
-    {"is_var",         safe_function<expr_is_var>},
-    {"is_constant",    safe_function<expr_is_constant>},
-    {"is_app",         safe_function<expr_is_app>},
-    {"is_eq",          safe_function<expr_is_eq>},
-    {"is_lambda",           safe_function<expr_is_lambda>},
-    {"is_pi",          safe_function<expr_is_pi>},
-    {"is_abstraction", safe_function<expr_is_abstraction>},
-    {"is_let",         safe_function<expr_is_let>},
-    {"is_value",       safe_function<expr_is_value>},
-    {"is_metavar",     safe_function<expr_is_metavar>},
-    {"fields",         safe_function<expr_fields>},
-    {"args",           safe_function<expr_args>},
-    {"num_args",       safe_function<expr_num_args>},
-    {"arg",            safe_function<expr_arg>},
-    {"for_each",       safe_function<expr_for_each>},
+    {"__gc",            expr_gc}, // never throws
+    {"__tostring",      safe_function<expr_tostring>},
+    {"__eq",            safe_function<expr_eq>},
+    {"__lt",            safe_function<expr_lt>},
+    {"__call",          safe_function<expr_mk_app>},
+    {"kind",            safe_function<expr_get_kind>},
+    {"is_null",         safe_function<expr_is_null>},
+    {"is_var",          safe_function<expr_is_var>},
+    {"is_constant",     safe_function<expr_is_constant>},
+    {"is_app",          safe_function<expr_is_app>},
+    {"is_eq",           safe_function<expr_is_eq>},
+    {"is_lambda",            safe_function<expr_is_lambda>},
+    {"is_pi",           safe_function<expr_is_pi>},
+    {"is_abstraction",  safe_function<expr_is_abstraction>},
+    {"is_let",          safe_function<expr_is_let>},
+    {"is_value",        safe_function<expr_is_value>},
+    {"is_metavar",      safe_function<expr_is_metavar>},
+    {"fields",          safe_function<expr_fields>},
+    {"args",            safe_function<expr_args>},
+    {"num_args",        safe_function<expr_num_args>},
+    {"arg",             safe_function<expr_arg>},
+    {"for_each",        safe_function<expr_for_each>},
+    {"has_free_vars",   safe_function<expr_has_free_vars>},
+    {"closed",          safe_function<expr_closed>},
+    {"has_free_var",    safe_function<expr_has_free_var>},
+    {"lift_free_vars",  safe_function<expr_lift_free_vars>},
+    {"lower_free_vars", safe_function<expr_lower_free_vars>},
+    {"instantiate",     safe_function<expr_instantiate>},
+    {"abstract",        safe_function<expr_abstract>},
     {0, 0}
 };
 

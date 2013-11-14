@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/leanlua_state.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
+#include "bindings/lua/splay_map.h"
 #include "bindings/lua/numerics.h"
 #include "bindings/lua/options.h"
 #include "bindings/lua/sexpr.h"
@@ -145,6 +146,7 @@ struct leanlua_state::imp {
         luaL_openlibs(m_state);
         open_patch(m_state);
         open_name(m_state);
+        open_splay_map(m_state);
         open_mpz(m_state);
         open_mpq(m_state);
         open_options(m_state);

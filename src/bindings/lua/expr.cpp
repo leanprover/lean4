@@ -377,6 +377,16 @@ static int expr_occurs(lua_State * L) {
     return 1;
 }
 
+static int expr_is_eqp(lua_State * L) {
+    lua_pushboolean(L, is_eqp(to_expr(L, 1), to_expr(L, 2)));
+    return 1;
+}
+
+static int expr_hash(lua_State * L) {
+    lua_pushinteger(L, to_expr(L, 1).hash());
+    return 1;
+}
+
 static const struct luaL_Reg expr_m[] = {
     {"__gc",            expr_gc}, // never throws
     {"__tostring",      safe_function<expr_tostring>},
@@ -389,7 +399,7 @@ static const struct luaL_Reg expr_m[] = {
     {"is_constant",     safe_function<expr_is_constant>},
     {"is_app",          safe_function<expr_is_app>},
     {"is_eq",           safe_function<expr_is_eq>},
-    {"is_lambda",            safe_function<expr_is_lambda>},
+    {"is_lambda",       safe_function<expr_is_lambda>},
     {"is_pi",           safe_function<expr_is_pi>},
     {"is_abstraction",  safe_function<expr_is_abstraction>},
     {"is_let",          safe_function<expr_is_let>},
@@ -409,6 +419,8 @@ static const struct luaL_Reg expr_m[] = {
     {"abstract",        safe_function<expr_abstract>},
     {"occurs",          safe_function<expr_occurs>},
     {"has_metavar",     safe_function<expr_has_metavar>},
+    {"is_eqp",          safe_function<expr_is_eqp>},
+    {"hash",            safe_function<expr_hash>},
     {0, 0}
 };
 

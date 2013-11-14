@@ -58,6 +58,22 @@ size_t objlen(lua_State * L, int idx) {
     #endif
 }
 
+int lessthan(lua_State * L, int idx1, int idx2) {
+    #if LUA_VERSION_NUM < 502
+    return lua_lessthan(L, idx1, idx2);
+    #else
+    return lua_compare(L, idx1, idx2, LUA_OPLT);
+    #endif
+}
+
+int equal(lua_State * L, int idx1, int idx2) {
+    #if LUA_VERSION_NUM < 502
+    return lua_equal(L, idx1, idx2);
+    #else
+    return lua_compare(L, idx1, idx2, LUA_OPEQ);
+    #endif
+}
+
 static void exec(lua_State * L) {
     pcall(L, 0, LUA_MULTRET, 0);
 }

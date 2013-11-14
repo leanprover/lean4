@@ -183,11 +183,11 @@ class splay_tree : public CMP {
         if (n) {
             if (n->m_left) {
                 check_invariant(n->m_left);
-                lean_assert(cmp(n->m_left->m_value, n->m_value) < 0);
+                lean_assert_lt(cmp(n->m_left->m_value, n->m_value), 0);
             }
             if (n->m_right) {
                 check_invariant(n->m_right);
-                lean_assert(cmp(n->m_value, n->m_right->m_value) < 0);
+                lean_assert_lt(cmp(n->m_value, n->m_right->m_value), 0);
             }
         }
         return true;

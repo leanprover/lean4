@@ -7,12 +7,14 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <mutex>
 #include <thread>
+#include <chrono>
 #include <string>
 #include <lua.hpp>
 #include "util/debug.h"
 #include "util/exception.h"
 #include "util/memory.h"
 #include "util/buffer.h"
+#include "util/interrupt.h"
 #include "library/state.h"
 #include "bindings/lua/leanlua_state.h"
 #include "bindings/lua/util.h"
@@ -36,6 +38,7 @@ namespace lean {
 static void open_patch(lua_State * L);
 static void open_state(lua_State * L);
 static void open_thread(lua_State * L);
+static void open_interrupt(lua_State * L);
 environment & to_environment(lua_State * L, int idx);
 static int writer(lua_State *, void const * p, size_t sz, void * buf) {
     buffer<char> & _buf = *static_cast<buffer<char>*>(buf);
@@ -155,6 +158,7 @@ struct leanlua_state::imp {
         open_environment(m_state);
         open_state(m_state);
         open_thread(m_state);
+        open_interrupt(m_state);
         dostring(g_leanlua_extra);
     }
 
@@ -335,11 +339,11 @@ static void open_state(lua_State * L) {
 }
 
 class leanlua_thread {
-    leanlua_state m_state;
-    int           m_sz_before;
-    bool          m_error;
-    std::string   m_error_msg;
-    std::thread   m_thread;
+    leanlua_state        m_state;
+    int                  m_sz_before;
+    bool                 m_error;
+    std::string          m_error_msg;
+    interruptible_thread m_thread;
 public:
     leanlua_thread(leanlua_state const & st, int sz_before, int num_args):
         m_state(st),
@@ -374,6 +378,11 @@ public:
             lua_pop(S->m_state, sz_after - m_sz_before);
         }
         return sz_after - m_sz_before;
+    }
+
+    int request_interrupt(lua_State * src) {
+        lua_pushboolean(src, m_thread.request_interrupt());
+        return 1;
     }
 };
 
@@ -420,13 +429,18 @@ static int thread_pred(lua_State * L) {
     return 1;
 }
 
+static int thread_interrupt(lua_State * L) {
+    return to_thread(L, 1).request_interrupt(L);
+}
+
 int thread_wait(lua_State * L) {
     return to_thread(L, 1).wait(L);
 }
 
 static const struct luaL_Reg thread_m[] = {
-    {"__gc",    thread_gc},
-    {"wait",    safe_function<thread_wait>},
+    {"__gc",      thread_gc},
+    {"wait",      safe_function<thread_wait>},
+    {"interrupt", safe_function<thread_interrupt>},
     {0, 0}
 };
 
@@ -438,5 +452,21 @@ static void open_thread(lua_State * L) {
 
     SET_GLOBAL_FUN(mk_thread,   "thread");
     SET_GLOBAL_FUN(thread_pred, "is_thread");
+}
+
+static int check_interrupted(lua_State * ) {
+    check_interrupted();
+    return 0;
+}
+
+static int sleep(lua_State * L) {
+    std::chrono::milliseconds dura(luaL_checkinteger(L, 1));
+    std::this_thread::sleep_for(dura);
+    return 0;
+}
+
+static void open_interrupt(lua_State * L) {
+    SET_GLOBAL_FUN(check_interrupted, "check_interrupted");
+    SET_GLOBAL_FUN(sleep,             "sleep");
 }
 }

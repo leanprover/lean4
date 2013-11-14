@@ -149,9 +149,9 @@ expr replace_var_with_name(expr const & a, name const & n) {
 
 /** \brief Functional object for pretty printing expressions */
 class pp_fn {
-    typedef scoped_map<expr, name, expr_hash, expr_eqp> aliases;
-    typedef std::vector<std::pair<name, format>>        aliases_defs;
-    typedef scoped_set<name, name_hash, name_eq>        local_names;
+    typedef scoped_map<expr, name, expr_hash_alloc, expr_eqp> aliases;
+    typedef std::vector<std::pair<name, format>>              aliases_defs;
+    typedef scoped_set<name, name_hash, name_eq>              local_names;
     frontend const & m_frontend;
     // State
     aliases          m_aliases;

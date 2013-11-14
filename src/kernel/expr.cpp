@@ -41,7 +41,17 @@ expr_cell::expr_cell(expr_kind k, unsigned h, bool has_mv):
     m_kind(static_cast<unsigned>(k)),
     m_flags(has_mv ? 4 : 0),
     m_hash(h),
-    m_rc(1) {}
+    m_rc(1) {
+    // m_hash_alloc does not need to be a unique identifier.
+    // We want diverse hash codes such that given expr_cell * c1 and expr_cell * c2,
+    // if c1 != c2, then there is high probability c1->m_hash_alloc != c2->m_hash_alloc.
+    // Remark: using pointer address as a hash code is not a good idea.
+    //    - each execution run will behave differently.
+    //    - the hash is not diverse enough
+    static thread_local unsigned g_hash_alloc_counter = 0;
+    m_hash_alloc = g_hash_alloc_counter;
+    g_hash_alloc_counter++;
+}
 
 expr_var::expr_var(unsigned idx):
     expr_cell(expr_kind::Var, idx, false),

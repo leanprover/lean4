@@ -20,7 +20,7 @@ namespace lean {
 static name g_x_name("x");
 /** \brief Auxiliary functional object used to implement infer_type. */
 class type_checker::imp {
-    typedef scoped_map<expr, expr, expr_hash, expr_eqp> cache;
+    typedef scoped_map<expr, expr, expr_hash_alloc, expr_eqp> cache;
     typedef buffer<unification_constraint> unification_constraints;
 
     environment::weak_ref     m_env;

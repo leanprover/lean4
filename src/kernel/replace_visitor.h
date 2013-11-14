@@ -21,7 +21,7 @@ namespace lean {
 */
 class replace_visitor {
 protected:
-    typedef scoped_map<expr, expr, expr_hash, expr_eqp> cache;
+    typedef scoped_map<expr, expr, expr_hash_alloc, expr_eqp> cache;
     cache                      m_cache;
     context                    m_ctx;
 

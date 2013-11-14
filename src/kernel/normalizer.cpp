@@ -68,7 +68,7 @@ value_stack extend(value_stack const & s, svalue const & v) { return cons(v, s);
 
 /** \brief Expression normalizer. */
 class normalizer::imp {
-    typedef scoped_map<expr, svalue, expr_hash, expr_eqp> cache;
+    typedef scoped_map<expr, svalue, expr_hash_alloc, expr_eqp> cache;
 
     environment::weak_ref m_env;
     context               m_ctx;

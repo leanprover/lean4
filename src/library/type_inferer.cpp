@@ -20,7 +20,7 @@ Author: Leonardo de Moura
 namespace lean {
 static name g_x_name("x");
 class type_inferer::imp {
-    typedef scoped_map<expr, expr, expr_hash, expr_eqp> cache;
+    typedef scoped_map<expr, expr, expr_hash_alloc, expr_eqp> cache;
     typedef buffer<unification_constraint> unification_constraints;
 
     environment               m_env;

@@ -15,7 +15,7 @@ namespace lean {
 // =======================================
 // Expression Set && Expression Offset Set
 // Remark: to expressions are assumed to be equal if they are "pointer-equal"
-typedef std::unordered_set<expr, expr_hash, expr_eqp> expr_set;
+typedef std::unordered_set<expr, expr_hash_alloc, expr_eqp> expr_set;
 typedef std::unordered_set<expr_offset, expr_offset_hash, expr_offset_eqp> expr_offset_set;
 // =======================================
 
@@ -39,7 +39,7 @@ typedef std::unordered_set<expr_cell_offset, expr_cell_offset_hash, expr_cell_of
 // garbage collected.
 typedef std::pair<expr_cell *, expr_cell *> expr_cell_pair;
 struct expr_cell_pair_hash {
-    unsigned operator()(expr_cell_pair const & p) const { return hash(p.first->hash(), p.second->hash()); }
+    unsigned operator()(expr_cell_pair const & p) const { return hash(p.first->hash_alloc(), p.second->hash_alloc()); }
 };
 struct expr_cell_pair_eqp {
     bool operator()(expr_cell_pair const & p1, expr_cell_pair const & p2) const {

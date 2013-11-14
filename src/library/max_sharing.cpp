@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <tuple>
 #include <unordered_set>
+#include <functional>
 #include "util/buffer.h"
 #include "library/max_sharing.h"
 
@@ -15,8 +16,7 @@ namespace lean {
    shared sub-expressions.
 */
 struct max_sharing_fn::imp {
-    struct expr_struct_eq { unsigned operator()(expr const & e1, expr const & e2) const { return e1 == e2; }};
-    typedef typename std::unordered_set<expr, expr_hash, expr_struct_eq> expr_cache;
+    typedef typename std::unordered_set<expr, expr_hash, std::equal_to<expr>> expr_cache;
 
     expr_cache m_cache;
 

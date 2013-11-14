@@ -70,7 +70,8 @@ protected:
 #else
     std::atomic_ushort m_flags;
 #endif
-    unsigned m_hash;
+    unsigned m_hash;  // hash based on the structure of the expression (this is a good hash for structural equality)
+    unsigned m_hash_alloc; // hash based on 'time' of allocation (this is a good hash for pointer-based equality)
     MK_LEAN_RC(); // Declare m_rc counter
     void dealloc();
 
@@ -85,6 +86,7 @@ public:
     expr_cell(expr_kind k, unsigned h, bool has_mv);
     expr_kind kind() const { return static_cast<expr_kind>(m_kind); }
     unsigned  hash() const { return m_hash; }
+    unsigned  hash_alloc() const { return m_hash_alloc; }
     bool has_metavar() const { return (m_flags & 4) != 0; }
 };
 /**
@@ -111,6 +113,7 @@ public:
 
     expr_kind kind() const { return m_ptr->kind(); }
     unsigned  hash() const { return m_ptr ? m_ptr->hash() : 23; }
+    unsigned  hash_alloc() const { return m_ptr ? m_ptr->hash_alloc() : 23; }
     bool has_metavar() const { return m_ptr->has_metavar(); }
 
     expr_cell * raw() const { return m_ptr; }
@@ -495,18 +498,25 @@ typedef std::pair<expr_cell*, unsigned> expr_cell_offset;
 // Auxiliary functionals
 /** \brief Functional object for hashing kernel expressions. */
 struct expr_hash { unsigned operator()(expr const & e) const { return e.hash(); } };
+/**
+    \brief Functional object for hashing (based on allocation time) kernel expressions.
+
+    This hash is compatible with pointer equality.
+    \warning This hash is incompatible with structural equality (i.e., std::equal_to<expr>)
+*/
+struct expr_hash_alloc { unsigned operator()(expr const & e) const { return e.hash_alloc(); } };
 /** \brief Functional object for testing pointer equality between kernel expressions. */
 struct expr_eqp { bool operator()(expr const & e1, expr const & e2) const { return is_eqp(e1, e2); } };
 /** \brief Functional object for hashing kernel expression cells. */
-struct expr_cell_hash { unsigned operator()(expr_cell * e) const { return e->hash(); } };
+struct expr_cell_hash { unsigned operator()(expr_cell * e) const { return e->hash_alloc(); } };
 /** \brief Functional object for testing pointer equality between kernel cell expressions. */
 struct expr_cell_eqp { bool operator()(expr_cell * e1, expr_cell * e2) const { return e1 == e2; } };
 /** \brief Functional object for hashing a pair (n, k) where n is a kernel expressions, and k is an offset. */
-struct expr_offset_hash { unsigned operator()(expr_offset const & p) const { return hash(p.first.hash(), p.second); } };
+struct expr_offset_hash { unsigned operator()(expr_offset const & p) const { return hash(p.first.hash_alloc(), p.second); } };
 /** \brief Functional object for comparing pairs (expression, offset). */
 struct expr_offset_eqp { unsigned operator()(expr_offset const & p1, expr_offset const & p2) const { return is_eqp(p1.first, p2.first) && p1.second == p2.second; } };
 /** \brief Functional object for hashing a pair (n, k) where n is a kernel cell expressions, and k is an offset. */
-struct expr_cell_offset_hash { unsigned operator()(expr_cell_offset const & p) const { return hash(p.first->hash(), p.second); } };
+struct expr_cell_offset_hash { unsigned operator()(expr_cell_offset const & p) const { return hash(p.first->hash_alloc(), p.second); } };
 /** \brief Functional object for comparing pairs (expression cell, offset). */
 struct expr_cell_offset_eqp { unsigned operator()(expr_cell_offset const & p1, expr_cell_offset const & p2) const { return p1 == p2; } };
 // =======================================

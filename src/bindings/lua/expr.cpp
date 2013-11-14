@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "kernel/formatter.h"
 #include "kernel/for_each.h"
 #include "kernel/free_vars.h"
+#include "kernel/occurs.h"
 #include "library/expr_lt.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
@@ -369,6 +370,11 @@ static int expr_abstract(lua_State * L) {
     }
 }
 
+static int expr_occurs(lua_State * L) {
+    lua_pushboolean(L, occurs(to_expr(L, 1), to_expr(L, 2)));
+    return 1;
+}
+
 static const struct luaL_Reg expr_m[] = {
     {"__gc",            expr_gc}, // never throws
     {"__tostring",      safe_function<expr_tostring>},
@@ -399,6 +405,7 @@ static const struct luaL_Reg expr_m[] = {
     {"lower_free_vars", safe_function<expr_lower_free_vars>},
     {"instantiate",     safe_function<expr_instantiate>},
     {"abstract",        safe_function<expr_abstract>},
+    {"occurs",          safe_function<expr_occurs>},
     {0, 0}
 };
 

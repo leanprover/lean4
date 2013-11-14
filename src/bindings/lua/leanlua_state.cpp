@@ -63,13 +63,12 @@ static char const * reader(lua_State *, void * data, size_t * sz) {
 
 static void copy_values(lua_State * src, int first, int last, lua_State * tgt) {
     for (int i = first; i <= last; i++) {
-        if (lua_isstring(src, i)) {
-            lua_pushstring(tgt, lua_tostring(src, i));
-        } else if (lua_isnumber(src, i)) {
-            lua_pushnumber(tgt, lua_tonumber(src, i));
-        } else if (lua_isboolean(src, i)) {
-            lua_pushboolean(tgt, lua_toboolean(src, i));
-        } else if (lua_isfunction(src, i)) {
+        switch (lua_type(src, i)) {
+        case LUA_TNUMBER:   lua_pushnumber(tgt, lua_tonumber(src, i)); break;
+        case LUA_TSTRING:   lua_pushstring(tgt, lua_tostring(src, i)); break;
+        case LUA_TNIL:      lua_pushnil(tgt); break;
+        case LUA_TBOOLEAN:  lua_pushboolean(tgt, lua_toboolean(src, i)); break;
+        case LUA_TFUNCTION: {
             lua_pushvalue(src, i); // copy function to the top of the stack
             buffer<char> buffer;
             if (lua_dump(src, writer, &buffer) != 0)
@@ -89,31 +88,38 @@ static void copy_values(lua_State * src, int first, int last, lua_State * tgt) {
                 lua_setupvalue(tgt, -2, j);
                 j++;
             }
-        } else if (is_expr(src, i)) {
-            push_expr(tgt, to_expr(src, i));
-        } else if (is_context(src, i)) {
-            push_context(tgt, to_context(src, i));
-        } else if (is_environment(src, i)) {
-            push_environment(tgt, to_environment(src, i));
-        } else if (is_name(src, i)) {
-            push_name(tgt, to_name(src, i));
-        } else if (is_mpz(src, i)) {
-            push_mpz(tgt, to_mpz(src, i));
-        } else if (is_mpq(src, i)) {
-            push_mpq(tgt, to_mpq(src, i));
-        } else if (is_options(src, i)) {
-            push_options(tgt, to_options(src, i));
-        } else if (is_sexpr(src, i)) {
-            push_sexpr(tgt, to_sexpr(src, i));
-        } else if (is_format(src, i)) {
-            push_format(tgt, to_format(src, i));
-        } else if (is_context_entry(src, i)) {
-            push_context_entry(tgt, to_context_entry(src, i));
-        } else if (is_local_context(src, i)) {
-            push_local_context(tgt, to_local_context(src, i));
-        } else if (is_local_entry(src, i)) {
-            push_local_entry(tgt, to_local_entry(src, i));
-        } else {
+            break;
+        }
+        case LUA_TUSERDATA:
+            if (is_expr(src, i)) {
+                push_expr(tgt, to_expr(src, i));
+            } else if (is_context(src, i)) {
+                push_context(tgt, to_context(src, i));
+            } else if (is_environment(src, i)) {
+                push_environment(tgt, to_environment(src, i));
+            } else if (is_name(src, i)) {
+                push_name(tgt, to_name(src, i));
+            } else if (is_mpz(src, i)) {
+                push_mpz(tgt, to_mpz(src, i));
+            } else if (is_mpq(src, i)) {
+                push_mpq(tgt, to_mpq(src, i));
+            } else if (is_options(src, i)) {
+                push_options(tgt, to_options(src, i));
+            } else if (is_sexpr(src, i)) {
+                push_sexpr(tgt, to_sexpr(src, i));
+            } else if (is_format(src, i)) {
+                push_format(tgt, to_format(src, i));
+            } else if (is_context_entry(src, i)) {
+                push_context_entry(tgt, to_context_entry(src, i));
+            } else if (is_local_context(src, i)) {
+                push_local_context(tgt, to_local_context(src, i));
+            } else if (is_local_entry(src, i)) {
+                push_local_entry(tgt, to_local_entry(src, i));
+            } else {
+                throw exception("unsupported value type for inter-State call");
+            }
+            break;
+        default:
             throw exception("unsupported value type for inter-State call");
         }
     }

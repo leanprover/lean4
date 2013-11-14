@@ -1,10 +1,9 @@
-
 Variable x : Bool
 
 (**
  local env    = get_environment()
  local Int    = Const("Int")
- local plus   = Const(name("Int", "add"))
+ local plus   = Const{"Int", "add"}
  local x1, x2 = Consts("x1, x2")
  print(env:check_type(Int))
  print(env:check_type(plus))
@@ -35,4 +34,3 @@ Variable x : Bool
 Show Environment 1
 Eval sum1
 Variable y : Bool
-

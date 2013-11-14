@@ -7,10 +7,10 @@ Author: Leonardo de Moura
 #include <lua.hpp>
 #include "util/splay_map.h"
 #include "bindings/lua/util.h"
-#include "bindings/lua/lua_ref.h"
+#include "bindings/lua/lref.h"
 
 namespace lean {
-typedef splay_map<lua_ref, lua_ref, lua_ref_lt_proc> lua_splay_map;
+typedef splay_map<lref, lref, lref_lt_proc> lua_splay_map;
 
 constexpr char const * splay_map_mt = "splay_map.mt";
 
@@ -46,7 +46,7 @@ static int splay_map_size(lua_State * L) {
 }
 
 static int splay_map_contains(lua_State * L) {
-    lua_pushboolean(L, to_splay_map(L, 1).contains(lua_ref(L, 2)));
+    lua_pushboolean(L, to_splay_map(L, 1).contains(lref(L, 2)));
     return 1;
 }
 
@@ -56,18 +56,18 @@ static int splay_map_empty(lua_State * L) {
 }
 
 static int splay_map_insert(lua_State * L) {
-    to_splay_map(L, 1).insert(lua_ref(L, 2), lua_ref(L, 3));
+    to_splay_map(L, 1).insert(lref(L, 2), lref(L, 3));
     return 0;
 }
 
 static int splay_map_erase(lua_State * L) {
-    to_splay_map(L, 1).erase(lua_ref(L, 2));
+    to_splay_map(L, 1).erase(lref(L, 2));
     return 0;
 }
 
 static int splay_map_find(lua_State * L) {
     lua_splay_map & m = to_splay_map(L, 1);
-    lua_ref * val = m.splay_find(lua_ref(L, 2));
+    lref * val = m.splay_find(lref(L, 2));
     if (val) {
         lean_assert(val->get_state() == L);
         val->push();
@@ -93,7 +93,7 @@ static int splay_map_for_each(lua_State * L) {
     // The copy operation is very cheap O(1).
     lua_splay_map m(to_splay_map(L, 1)); // map
     luaL_checktype(L, 2, LUA_TFUNCTION); // user-fun
-    m.for_each([&](lua_ref const & k, lua_ref const & v) {
+    m.for_each([&](lref const & k, lref const & v) {
         lua_pushvalue(L, 2); // push user-fun
         k.push();
         v.push();

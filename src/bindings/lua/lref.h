@@ -10,27 +10,27 @@ namespace lean {
 /**
    \brief Reference to Lua object.
 */
-class lua_ref {
+class lref {
     lua_State * m_state;
     int         m_ref;
 public:
-    lua_ref():m_state(nullptr) {}
+    lref():m_state(nullptr) {}
     /**
        \brief Create a reference to the Lua object at position \c i on \c L stack.
     */
-    lua_ref(lua_State * L, int i);
-    lua_ref(lua_ref const & r);
-    lua_ref(lua_ref && r);
-    ~lua_ref();
-    lua_ref & operator=(lua_ref const & r);
+    lref(lua_State * L, int i);
+    lref(lref const & r);
+    lref(lref && r);
+    ~lref();
+    lref & operator=(lref const & r);
     void push() const;
     lua_State * get_state() const { return m_state; }
 };
 
 /**
-   \brief '<' functor for lua_ref.
+   \brief '<' functor for lref.
 */
-struct lua_ref_lt_proc {
-    int operator()(lua_ref const & r1, lua_ref const & r2) const;
+struct lref_lt_proc {
+    int operator()(lref const & r1, lref const & r2) const;
 };
 }

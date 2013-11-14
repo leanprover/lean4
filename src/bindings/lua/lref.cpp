@@ -6,17 +6,17 @@ Author: Leonardo de Moura
 */
 #include "util/debug.h"
 #include "bindings/lua/util.h"
-#include "bindings/lua/lua_ref.h"
+#include "bindings/lua/lref.h"
 
 namespace lean {
-lua_ref::lua_ref(lua_State * L, int i) {
+lref::lref(lua_State * L, int i) {
     lean_assert(L);
     m_state = L;
     lua_pushvalue(m_state, i);
     m_ref   = luaL_ref(m_state, LUA_REGISTRYINDEX);
 }
 
-lua_ref::lua_ref(lua_ref const & r) {
+lref::lref(lref const & r) {
     m_state = r.m_state;
     if (m_state) {
         r.push();
@@ -24,18 +24,18 @@ lua_ref::lua_ref(lua_ref const & r) {
     }
 }
 
-lua_ref::lua_ref(lua_ref && r) {
+lref::lref(lref && r) {
     m_state = r.m_state;
     m_ref   = r.m_ref;
     r.m_state = nullptr;
 }
 
-lua_ref::~lua_ref() {
+lref::~lref() {
     if (m_state)
         luaL_unref(m_state, LUA_REGISTRYINDEX, m_ref);
 }
 
-lua_ref & lua_ref::operator=(lua_ref const & r) {
+lref & lref::operator=(lref const & r) {
     if (m_ref == r.m_ref)
         return *this;
     if (m_state)
@@ -48,12 +48,12 @@ lua_ref & lua_ref::operator=(lua_ref const & r) {
     return *this;
 }
 
-void lua_ref::push() const {
+void lref::push() const {
     lean_assert(m_state);
     lua_rawgeti(m_state, LUA_REGISTRYINDEX, m_ref);
 }
 
-int lua_ref_lt_proc::operator()(lua_ref const & r1, lua_ref const & r2) const {
+int lref_lt_proc::operator()(lref const & r1, lref const & r2) const {
     lean_assert(r1.get_state() == r2.get_state());
     lua_State * L = r1.get_state();
     r1.push();

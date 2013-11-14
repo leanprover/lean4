@@ -7,91 +7,10 @@ Author: Leonardo de Moura
 #include <lua.hpp>
 #include "util/splay_map.h"
 #include "bindings/lua/util.h"
-
-#include "bindings/lua/expr.h"
-#include "library/expr_lt.h"
+#include "bindings/lua/lua_ref.h"
 
 namespace lean {
-/**
-   \brief Reference to Lua object.
-*/
-class lua_ref {
-    lua_State * m_state;
-    int         m_ref;
-public:
-    lua_ref():m_state(nullptr) {}
-
-    lua_ref(lua_State * L, int i) {
-        lean_assert(L);
-        m_state = L;
-        lua_pushvalue(m_state, i);
-        m_ref   = luaL_ref(m_state, LUA_REGISTRYINDEX);
-    }
-
-    lua_ref(lua_ref const & r) {
-        m_state = r.m_state;
-        if (m_state) {
-            r.push();
-            m_ref   = luaL_ref(m_state, LUA_REGISTRYINDEX);
-        }
-    }
-
-    lua_ref(lua_ref && r) {
-        m_state = r.m_state;
-        m_ref   = r.m_ref;
-        r.m_state = nullptr;
-    }
-
-    ~lua_ref() {
-        if (m_state)
-            luaL_unref(m_state, LUA_REGISTRYINDEX, m_ref);
-    }
-
-    lua_ref & operator=(lua_ref const & r) {
-        if (m_ref == r.m_ref)
-            return *this;
-        if (m_state)
-            luaL_unref(m_state, LUA_REGISTRYINDEX, m_ref);
-        m_state = r.m_state;
-        if (m_state) {
-            r.push();
-            m_ref   = luaL_ref(m_state, LUA_REGISTRYINDEX);
-        }
-        return *this;
-    }
-
-    void push() const {
-        lean_assert(m_state);
-        lua_rawgeti(m_state, LUA_REGISTRYINDEX, m_ref);
-    }
-
-    lua_State * get_state() const {
-        return m_state;
-    }
-};
-
-struct lua_lt_proc {
-    int operator()(lua_ref const & r1, lua_ref const & r2) const {
-        lean_assert(r1.get_state() == r2.get_state());
-        lua_State * L = r1.get_state();
-        r1.push();
-        r2.push();
-        int r;
-        if (lessthan(L, -2, -1)) {
-            r = -1;
-        } else if (lessthan(L, -1, -2)) {
-            r = 1;
-        } else if (equal(L, -2, -1)) {
-            r = 0;
-        } else {
-            throw exception("'<' is not a total order for the elements inserted on the table");
-        }
-        lua_pop(L, 2);
-        return r;
-    }
-};
-
-typedef splay_map<lua_ref, lua_ref, lua_lt_proc> lua_splay_map;
+typedef splay_map<lua_ref, lua_ref, lua_ref_lt_proc> lua_splay_map;
 
 constexpr char const * splay_map_mt = "splay_map.mt";
 

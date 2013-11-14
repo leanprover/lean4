@@ -21,10 +21,28 @@ name & to_name(lua_State * L, int idx) {
 }
 
 name to_name_ext(lua_State * L, int idx) {
-    if (lua_isstring(L, idx))
+    if (lua_isstring(L, idx)) {
         return luaL_checkstring(L, idx);
-    else
+    } else if (lua_istable(L, idx)) {
+        name r;
+        int n = objlen(L, idx);
+        for (int i = 1; i <= n; i++) {
+            lua_rawgeti(L, idx, i);
+            if (lua_isnil(L, -1)) {
+                // skip
+            } else if (lua_isuserdata(L, -1)) {
+                r = r + to_name(L, -1);
+            } else if (lua_isstring(L, -1)) {
+                r = name(r, luaL_checkstring(L, -1));
+            } else {
+                r = name(r, luaL_checkinteger(L, -1));
+            }
+            lua_pop(L, 1);
+        }
+        return r;
+    } else {
         return to_name(L, idx);
+    }
 }
 
 int push_name(lua_State * L, name const & n) {

@@ -20,12 +20,16 @@ Author: Leonardo de Moura
 #include "kernel/occurs.h"
 #include "kernel/metavar.h"
 #include "library/expr_lt.h"
+#include "library/arith/nat.h"
+#include "library/arith/int.h"
+#include "library/arith/real.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
 #include "bindings/lua/options.h"
 #include "bindings/lua/level.h"
 #include "bindings/lua/local_context.h"
 #include "bindings/lua/formatter.h"
+#include "bindings/lua/numerics.h"
 
 namespace lean {
 constexpr char const * expr_mt = "expr.mt";
@@ -424,6 +428,18 @@ static const struct luaL_Reg expr_m[] = {
     {0, 0}
 };
 
+static int mk_nat_value(lua_State * L) {
+    return push_expr(L, mk_nat_value(to_mpz_ext(L, 1)));
+}
+
+static int mk_int_value(lua_State * L) {
+    return push_expr(L, mk_int_value(to_mpz_ext(L, 1)));
+}
+
+static int mk_real_value(lua_State * L) {
+    return push_expr(L, mk_real_value(to_mpq_ext(L, 1)));
+}
+
 void open_expr(lua_State * L) {
     luaL_newmetatable(L, expr_mt);
     lua_pushvalue(L, -1);
@@ -449,6 +465,12 @@ void open_expr(lua_State * L) {
     SET_GLOBAL_FUN(expr_type,        "Type");
     SET_GLOBAL_FUN(expr_mk_metavar,  "mk_metavar");
     SET_GLOBAL_FUN(expr_pred,        "is_expr");
+    SET_GLOBAL_FUN(mk_nat_value,     "mk_nat_value");
+    SET_GLOBAL_FUN(mk_nat_value,     "nVal");
+    SET_GLOBAL_FUN(mk_int_value,     "mk_int_value");
+    SET_GLOBAL_FUN(mk_int_value,     "iVal");
+    SET_GLOBAL_FUN(mk_real_value,    "mk_real_value");
+    SET_GLOBAL_FUN(mk_real_value,    "rVal");
 
     lua_newtable(L);
     SET_ENUM("Var",      expr_kind::Var);

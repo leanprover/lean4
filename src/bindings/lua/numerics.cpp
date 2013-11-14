@@ -20,8 +20,7 @@ static mpz const & to_mpz(lua_State * L) {
     if (lua_isuserdata(L, idx)) {
         return *static_cast<mpz*>(luaL_checkudata(L, idx, mpz_mt));
     } else if (lua_isstring(L, idx)) {
-        char const * str = luaL_checkstring(L, idx);
-        arg = mpz(str);
+        arg = mpz(luaL_checkstring(L, idx));
         return arg;
     } else {
         arg = static_cast<long int>(luaL_checkinteger(L, 1));
@@ -35,6 +34,16 @@ bool is_mpz(lua_State * L, int idx) {
 
 mpz & to_mpz(lua_State * L, int idx) {
     return *static_cast<mpz*>(luaL_checkudata(L, idx, mpz_mt));
+}
+
+mpz to_mpz_ext(lua_State * L, int idx) {
+    if (lua_isuserdata(L, idx)) {
+        return *static_cast<mpz*>(luaL_checkudata(L, idx, mpz_mt));
+    } else if (lua_isstring(L, idx)) {
+        return mpz(luaL_checkstring(L, idx));
+    } else {
+        return mpz(static_cast<long int>(luaL_checkinteger(L, 1)));
+    }
 }
 
 int push_mpz(lua_State * L, mpz const & val) {
@@ -135,15 +144,17 @@ template<unsigned idx>
 static mpq const & to_mpq(lua_State * L) {
     static thread_local mpq arg;
     if (lua_isuserdata(L, idx)) {
-        return *static_cast<mpq*>(luaL_checkudata(L, idx, mpq_mt));
+        if (is_mpz(L, idx)) {
+            arg = mpq(to_mpz<idx>(L));
+        } else {
+            return *static_cast<mpq*>(luaL_checkudata(L, idx, mpq_mt));
+        }
     } else if (lua_isstring(L, idx)) {
-        char const * str = luaL_checkstring(L, idx);
-        arg = mpq(str);
-        return arg;
+        arg = mpq(luaL_checkstring(L, idx));
     } else {
         arg = static_cast<long int>(luaL_checkinteger(L, 1));
-        return arg;
     }
+    return arg;
 }
 
 bool is_mpq(lua_State * L, int idx) {
@@ -152,6 +163,20 @@ bool is_mpq(lua_State * L, int idx) {
 
 mpq & to_mpq(lua_State * L, int idx) {
     return *static_cast<mpq*>(luaL_checkudata(L, idx, mpq_mt));
+}
+
+mpq to_mpq_ext(lua_State * L, int idx) {
+    if (lua_isuserdata(L, idx)) {
+        if (is_mpz(L, idx)) {
+            return mpq(to_mpz(L, idx));
+        } else {
+            return *static_cast<mpq*>(luaL_checkudata(L, idx, mpq_mt));
+        }
+    } else if (lua_isstring(L, idx)) {
+        return mpq(luaL_checkstring(L, idx));
+    } else {
+        return mpq(static_cast<long int>(luaL_checkinteger(L, 1)));
+    }
 }
 
 int push_mpq(lua_State * L, mpq const & val) {

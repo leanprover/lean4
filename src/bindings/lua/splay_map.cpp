@@ -168,7 +168,11 @@ static int splay_map_pred(lua_State * L) {
 }
 
 static int splay_map_for_each(lua_State * L) {
-    lua_splay_map & m = to_splay_map(L, 1);    // map
+    // Remark: we take a copy of the map to make sure
+    // for_each will not crash if the map is updated while being
+    // traversed.
+    // The copy operation is very cheap O(1).
+    lua_splay_map m(to_splay_map(L, 1)); // map
     luaL_checktype(L, 2, LUA_TFUNCTION); // user-fun
     m.for_each([&](lua_ref const & k, lua_ref const & v) {
         lua_pushvalue(L, 2); // push user-fun

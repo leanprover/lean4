@@ -12,7 +12,10 @@ bool is_lt(expr const & a, expr const & b, bool use_hash) {
     if (!a && b)                         return true;  // the null expression is the smallest one
     if (a && !b)                         return false;
     if (a.kind() != b.kind())            return a.kind() < b.kind();
-    if (use_hash && a.hash() < b.hash()) return true;
+    if (use_hash) {
+        if (a.hash() < b.hash()) return true;
+        if (a.hash() > b.hash()) return false;
+    }
     if (a == b)                          return false;
     if (is_var(a))                       return var_idx(a) < var_idx(b);
     switch (a.kind()) {

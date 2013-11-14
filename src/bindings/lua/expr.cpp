@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "kernel/abstract.h"
 #include "kernel/formatter.h"
+#include "kernel/for_each.h"
 #include "library/expr_lt.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
@@ -286,6 +287,26 @@ static int expr_pred(lua_State * L) {
     return 1;
 }
 
+static int expr_for_each(lua_State * L) {
+    expr & e = to_nonnull_expr(L, 1);
+    if (!lua_isfunction(L, 2))
+        throw exception("arg #2 must be a function");
+    auto f = [&](expr const & a, unsigned offset) {
+        lua_pushvalue(L, 2); // push user function
+        push_expr(L, a);
+        lua_pushinteger(L, offset);
+        pcall(L, 2, 1, 0);
+        bool r = true;
+        if (lua_isboolean(L, -1))
+            r = lua_toboolean(L, -1);
+        lua_pop(L, 1);
+        return r;
+    };
+    for_each_fn<decltype(f)> proc(f);
+    proc(e);
+    return 0;
+}
+
 static const struct luaL_Reg expr_m[] = {
     {"__gc",           expr_gc}, // never throws
     {"__tostring",     safe_function<expr_tostring>},
@@ -308,6 +329,7 @@ static const struct luaL_Reg expr_m[] = {
     {"args",           safe_function<expr_args>},
     {"num_args",       safe_function<expr_num_args>},
     {"arg",            safe_function<expr_arg>},
+    {"for_each",       safe_function<expr_for_each>},
     {0, 0}
 };
 

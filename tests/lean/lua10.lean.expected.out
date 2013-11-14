@@ -1,0 +1,8 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: x1
+  Assumed: x2
+  Assumed: x3
+  Defined: F
+x1 ∧ (x2 ∨ x3)
+7

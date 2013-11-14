@@ -285,9 +285,7 @@ int state_dostring(lua_State * L) {
 
     copy_values(L, first, last, S->m_state);
 
-    result = lua_pcall(S->m_state, first > last ? 0 : last - first + 1, LUA_MULTRET, 0);
-    if (result)
-        throw lua_exception(lua_tostring(S->m_state, -1));
+    pcall(S->m_state, first > last ? 0 : last - first + 1, LUA_MULTRET, 0);
 
     int sz_after = lua_gettop(S->m_state);
 

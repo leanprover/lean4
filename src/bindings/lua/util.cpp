@@ -59,9 +59,7 @@ size_t objlen(lua_State * L, int idx) {
 }
 
 static void exec(lua_State * L) {
-    int result = lua_pcall(L, 0, LUA_MULTRET, 0);
-    if (result)
-        throw lua_exception(lua_tostring(L, -1));
+    pcall(L, 0, LUA_MULTRET, 0);
 }
 
 void dofile(lua_State * L, char const * fname) {
@@ -76,6 +74,12 @@ void dostring(lua_State * L, char const * str) {
     if (result)
         throw lua_exception(lua_tostring(L, -1));
     exec(L);
+}
+
+void pcall(lua_State * L, int nargs, int nresults, int errorfun) {
+    int result = lua_pcall(L, nargs, nresults, errorfun);
+    if (result)
+        throw lua_exception(lua_tostring(L, -1));
 }
 
 int safe_function_wrapper(lua_State * L, lua_CFunction f){

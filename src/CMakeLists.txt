@@ -123,6 +123,10 @@ endif()
 
 find_package(Lua REQUIRED)
 set(EXTRA_LIBS ${EXTRA_LIBS} ${LUA_LIBRARIES})
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  # Lua static library for linux depends on dl.so
+  set(EXTRA_LIBS ${EXTRA_LIBS} -ldl)
+endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I ${LUA_INCLUDE_DIR}")
 if ("${HAS_LUA_NEWSTATE}$" MATCHES "TRUE")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D LEAN_USE_LUA_NEWSTATE")

@@ -456,7 +456,7 @@ static void open_thread(lua_State * L) {
     SET_GLOBAL_FUN(thread_pred, "is_thread");
 }
 
-static int check_interrupted(lua_State * ) {
+static int check_interrupted(lua_State *) { // NOLINT
     check_interrupted();
     return 0;
 }

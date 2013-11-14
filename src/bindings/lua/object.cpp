@@ -63,9 +63,10 @@ static int object_has_name(lua_State * L) {
 }
 
 static int object_get_name(lua_State * L) {
-    if (!to_nonnull_object(L, 1).has_name())
+    object const & o = to_nonnull_object(L, 1);
+    if (!o.has_name())
         throw exception("kernel object does not have a name");
-    return push_name(L, to_nonnull_object(L, 1).get_name());
+    return push_name(L, o.get_name());
 }
 
 static int object_has_type(lua_State * L) {
@@ -74,9 +75,10 @@ static int object_has_type(lua_State * L) {
 }
 
 static int object_get_type(lua_State * L) {
-    if (!to_nonnull_object(L, 1).has_type())
+    object const & o = to_nonnull_object(L, 1);
+    if (!o.has_type())
         throw exception("kernel object does not have a type");
-    return push_expr(L, to_nonnull_object(L, 1).get_type());
+    return push_expr(L, o.get_type());
 }
 
 static int object_has_cnstr_level(lua_State * L) {
@@ -85,21 +87,24 @@ static int object_has_cnstr_level(lua_State * L) {
 }
 
 static int object_get_cnstr_level(lua_State * L) {
-    if (!to_nonnull_object(L, 1).has_cnstr_level())
+    object const & o = to_nonnull_object(L, 1);
+    if (!o.has_cnstr_level())
         throw exception("kernel object does not have a constraint level");
-    return push_level(L, to_nonnull_object(L, 1).get_cnstr_level());
+    return push_level(L, o.get_cnstr_level());
 }
 
 static int object_get_value(lua_State * L) {
-    if (!to_nonnull_object(L, 1).is_definition())
-        throw exception("kernel object is not a definition/theorem");
-    return push_expr(L, to_nonnull_object(L, 1).get_value());
+    object const & o = to_nonnull_object(L, 1);
+    if (!o.is_definition() && !o.is_builtin())
+        throw exception("kernel object is not a definition/theorem/builtin");
+    return push_expr(L, o.get_value());
 }
 
 static int object_get_weight(lua_State * L) {
-    if (!to_nonnull_object(L, 1).is_definition())
+    object const & o = to_nonnull_object(L, 1);
+    if (!o.is_definition())
         throw exception("kernel object is not a definition");
-    lua_pushinteger(L, to_nonnull_object(L, 1).get_weight());
+    lua_pushinteger(L, o.get_weight());
     return 1;
 }
 

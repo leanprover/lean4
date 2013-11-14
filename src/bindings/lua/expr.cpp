@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each.h"
 #include "kernel/free_vars.h"
 #include "kernel/occurs.h"
+#include "kernel/metavar.h"
 #include "library/expr_lt.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
@@ -235,6 +236,7 @@ EXPR_PRED(is_value)
 EXPR_PRED(is_metavar)
 EXPR_PRED(has_free_vars)
 EXPR_PRED(closed)
+EXPR_PRED(has_metavar)
 
 /**
    \brief Iterator (closure base function) for application args. See \c expr_args
@@ -406,6 +408,7 @@ static const struct luaL_Reg expr_m[] = {
     {"instantiate",     safe_function<expr_instantiate>},
     {"abstract",        safe_function<expr_abstract>},
     {"occurs",          safe_function<expr_occurs>},
+    {"has_metavar",     safe_function<expr_has_metavar>},
     {0, 0}
 };
 

@@ -1,0 +1,12 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: x
+  Assumed: y
+  Assumed: z
+  Assumed: f
+λ w : ℤ, f w (f y 0)
+f #0 (f y 0)
+30
+x + y : ℤ
+  Assumed: g
+g (f x 10) : ℤ

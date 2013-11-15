@@ -564,7 +564,7 @@ read_only_environment::read_only_environment(environment const & env):
 }
 read_only_environment::~read_only_environment() {}
 
-read_write_environment::read_write_environment(environment & env):
+read_write_environment::read_write_environment(environment const & env):
     m_env(env),
     m_lock(m_env.m_ptr->m_mutex) {
 }

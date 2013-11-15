@@ -31,6 +31,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/object.h"
 #include "bindings/lua/environment.h"
 #include "bindings/lua/state.h"
+#include "bindings/lua/frontend_lean.h"
 #include "bindings/lua/lean.lua"
 
 extern "C" void * lua_realloc(void *, void * q, size_t, size_t new_size) { return lean::realloc(q, new_size); }
@@ -129,9 +130,26 @@ static void copy_values(lua_State * src, int first, int last, lua_State * tgt) {
     }
 }
 
+static char g_weak_ptr_key; // key for Lua registry (used at get_weak_ptr and save_weak_ptr)
+
 struct leanlua_state::imp {
     lua_State * m_state;
     std::mutex  m_mutex;
+
+    static std::weak_ptr<imp> * get_weak_ptr(lua_State * L) {
+        lua_pushlightuserdata(L, static_cast<void *>(&g_weak_ptr_key));
+        lua_gettable(L, LUA_REGISTRYINDEX);
+        std::weak_ptr<imp> * ptr = static_cast<std::weak_ptr<imp>*>(lua_touserdata(L, -1));
+        lua_pop(L, 1);
+        return ptr;
+    }
+
+    void save_weak_ptr(std::shared_ptr<imp> & ptr) {
+        lua_pushlightuserdata(m_state, static_cast<void *>(&g_weak_ptr_key));
+        void * mem = lua_newuserdata(m_state, sizeof(std::weak_ptr<imp>));
+        new (mem) std::weak_ptr<imp>(ptr);
+        lua_settable(m_state, LUA_REGISTRYINDEX);
+    }
 
     imp() {
         // TODO(Leo) investigate why TCMALLOC + lua_realloc do not work together
@@ -159,12 +177,16 @@ struct leanlua_state::imp {
         open_object(m_state);
         open_environment(m_state);
         open_state(m_state);
+        open_frontend_lean(m_state);
         open_thread(m_state);
         open_interrupt(m_state);
         dostring(g_leanlua_extra);
     }
 
     ~imp() {
+        typedef std::weak_ptr<imp> wptr;
+        wptr * ptr = get_weak_ptr(m_state);
+        ptr->~wptr(); // destruct weak pointer
         lua_close(m_state);
     }
 
@@ -185,8 +207,17 @@ struct leanlua_state::imp {
     }
 };
 
+leanlua_state to_leanlua_state(lua_State * L) {
+    return leanlua_state(*leanlua_state::imp::get_weak_ptr(L));
+}
+
 leanlua_state::leanlua_state():
     m_ptr(new imp()) {
+    m_ptr->save_weak_ptr(m_ptr);
+}
+
+leanlua_state::leanlua_state(std::weak_ptr<imp> const & ptr):m_ptr(ptr.lock()) {
+    lean_assert(m_ptr);
 }
 
 leanlua_state::~leanlua_state() {

@@ -6,10 +6,12 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <iostream>
-#include "frontends/lean/frontend.h"
 
 namespace lean {
 class script_evaluator;
+class frontend;
+class state;
+class environment;
 /** \brief Functional object for parsing commands and expressions */
 class parser {
     class imp;
@@ -36,10 +38,8 @@ public:
     bool operator()();
 };
 
-inline bool parse_commands(frontend & fe, std::istream & in, script_evaluator * S = nullptr, bool use_exceptions = true, bool interactive = false) {
-    return parser(fe, in, S, use_exceptions, interactive)();
-}
-inline expr parse_expr(frontend & fe, std::istream & in) {
-    return parser(fe, in, nullptr).parse_expr();
-}
+bool parse_commands(frontend & fe, std::istream & in, script_evaluator * S = nullptr, bool use_exceptions = true, bool interactive = false);
+bool parse_commands(environment const & env, state & st, std::istream & in, script_evaluator * S = nullptr, bool use_exceptions = true, bool interactive = false);
+expr parse_expr(frontend & fe, std::istream & in, script_evaluator * S = nullptr, bool use_exceptions = true);
+expr parse_expr(environment const & env, state & st, std::istream & in, script_evaluator * S = nullptr, bool use_exceptions = true);
 }

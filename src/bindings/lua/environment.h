@@ -29,6 +29,7 @@ public:
 class ro_environment : public read_only_environment {
 public:
     ro_environment(lua_State * L, int idx);
+    ro_environment(lua_State * L);
 };
 
 /**
@@ -38,5 +39,6 @@ public:
 class rw_environment : public read_write_environment {
 public:
     rw_environment(lua_State * L, int idx);
+    rw_environment(lua_State * L);
 };
 }

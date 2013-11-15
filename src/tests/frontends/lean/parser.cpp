@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <sstream>
+#include <memory>
 #include "util/test.h"
 #include "util/exception.h"
 #include "util/numerics/mpq.h"
@@ -12,6 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/printer.h"
 #include "library/arith/arith.h"
 #include "frontends/lean/parser.h"
+#include "frontends/lean/frontend.h"
 #include "frontends/lean/pp.h"
 using namespace lean;
 

@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 #include "kernel/printer.h"
 #include "frontends/lean/parser.h"
+#include "frontends/lean/frontend.h"
 #include "bindings/lua/leanlua_state.h"
 #include "version.h"
 

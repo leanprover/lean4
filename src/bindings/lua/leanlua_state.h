@@ -17,14 +17,18 @@ class state;
    \brief Wrapper for lua_State objects which contains all Lean bindings.
 */
 class leanlua_state : public script_evaluator {
+public:
     struct imp;
+private:
     std::shared_ptr<imp> m_ptr;
+    leanlua_state(std::weak_ptr<imp> const & ptr);
     friend class leanlua_thread;
     friend class data_channel;
     friend int state_dostring(lua_State * L);
     friend int state_set_global(lua_State * L);
     friend int mk_thread(lua_State * L);
     friend int thread_wait(lua_State * L);
+    friend leanlua_state to_leanlua_state(lua_State * L);
 public:
     leanlua_state();
     virtual ~leanlua_state();
@@ -47,4 +51,8 @@ public:
     */
     virtual void dostring(char const * str, environment & env, state & st);
 };
+/**
+   \brief Return a reference to the leanlua_state object that is wrapping \c L.
+*/
+leanlua_state to_leanlua_state(lua_State * L);
 }

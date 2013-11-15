@@ -1726,4 +1726,26 @@ bool shell::operator()() {
     return p();
 #endif
 }
+
+bool parse_commands(frontend & fe, std::istream & in, script_evaluator * S, bool use_exceptions, bool interactive) {
+    return parser(fe, in, S, use_exceptions, interactive)();
+}
+
+bool parse_commands(environment const & env, state & st, std::istream & in, script_evaluator * S, bool use_exceptions, bool interactive) {
+    frontend f(env, st);
+    bool r = parse_commands(f, in, S, use_exceptions, interactive);
+    st = f.get_state();
+    return r;
+}
+
+expr parse_expr(frontend & fe, std::istream & in, script_evaluator * S, bool use_exceptions) {
+    return parser(fe, in, S, use_exceptions).parse_expr();
+}
+
+expr parse_expr(environment const & env, state & st, std::istream & in, script_evaluator * S, bool use_exceptions) {
+    frontend f(env, st);
+    expr r = parse_expr(f, in, S, use_exceptions);
+    st = f.get_state();
+    return r;
+}
 }

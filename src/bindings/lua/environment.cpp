@@ -21,12 +21,22 @@ Author: Leonardo de Moura
 namespace lean {
 DECL_UDATA(environment)
 
+static environment get_global_environment(lua_State * L);
+
 ro_environment::ro_environment(lua_State * L, int idx):
     read_only_environment(to_environment(L, idx)) {
 }
 
+ro_environment::ro_environment(lua_State * L):
+    read_only_environment(get_global_environment(L)) {
+}
+
 rw_environment::rw_environment(lua_State * L, int idx):
     read_write_environment(to_environment(L, idx)) {
+}
+
+rw_environment::rw_environment(lua_State * L):
+    read_write_environment(get_global_environment(L)) {
 }
 
 static int mk_environment(lua_State * L) {
@@ -136,7 +146,6 @@ static int environment_normalize(lua_State * L) {
         return push_expr(L, env->normalize(to_nonnull_expr(L, 2), to_context(L, 3)));
 }
 
-
 /**
    \brief Iterator (closure base function) for kernel objects.
 
@@ -223,12 +232,18 @@ set_environment::~set_environment() {
     lua_settable(m_state, LUA_REGISTRYINDEX);
 }
 
-int get_environment(lua_State * L) {
+static environment get_global_environment(lua_State * L) {
     lua_pushlightuserdata(L, static_cast<void *>(&g_set_environment_key));
     lua_gettable(L, LUA_REGISTRYINDEX);
     if (!is_environment(L, -1))
         throw exception("Lua registry does not contain a Lean environment");
-    return push_environment(L, to_environment(L, -1));
+    environment r = to_environment(L, -1);
+    lua_pop(L, 1);
+    return r;
+}
+
+int get_environment(lua_State * L) {
+    return push_environment(L, get_global_environment(L));
 }
 
 void open_environment(lua_State * L) {

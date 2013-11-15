@@ -141,7 +141,7 @@
    # This entry suppresses the warning caused by a bug in luajit 2.0
    LuaJIT_Bug1
    Memcheck:Cond
-   obj:/usr/local/lib/libluajit-5.1.so.2.0.2
+   obj:*luajit-5.1*
    ...
    fun:lua_pcall
    ...
@@ -151,7 +151,7 @@
    # This entry suppresses the warning caused by a bug in luajit 2.0
    LuaJIT_Bug2
    Memcheck:Cond
-   obj:/usr/local/lib/libluajit-5.1.so.2.0.2
+   obj:*luajit-5.1*
    ...
    fun:luaL_checklstring
    ...

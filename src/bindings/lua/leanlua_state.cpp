@@ -178,14 +178,10 @@ struct leanlua_state::imp {
         ::lean::dostring(m_state, str);
     }
 
-    void dostring(char const * str, environment & env) {
-        set_environment set(m_state, env);
-        dostring(str);
-    }
-
     void dostring(char const * str, environment & env, state & st) {
-        set_state set(m_state, st);
-        dostring(str, env);
+        set_state       set1(m_state, st);
+        set_environment set2(m_state, env);
+        dostring(str);
     }
 };
 
@@ -202,10 +198,6 @@ void leanlua_state::dofile(char const * fname) {
 
 void leanlua_state::dostring(char const * str) {
     m_ptr->dostring(str);
-}
-
-void leanlua_state::dostring(char const * str, environment & env) {
-    m_ptr->dostring(str, env);
 }
 
 void leanlua_state::dostring(char const * str, environment & env, state & st) {

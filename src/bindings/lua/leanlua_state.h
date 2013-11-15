@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <memory>
 #include <lua.hpp>
+#include "library/script_evaluator.h"
 #include "bindings/lua/lua_exception.h"
 
 namespace lean {
@@ -15,7 +16,7 @@ class state;
 /**
    \brief Wrapper for lua_State objects which contains all Lean bindings.
 */
-class leanlua_state {
+class leanlua_state : public script_evaluator {
     struct imp;
     std::shared_ptr<imp> m_ptr;
     friend class leanlua_thread;
@@ -26,7 +27,7 @@ class leanlua_state {
     friend int thread_wait(lua_State * L);
 public:
     leanlua_state();
-    ~leanlua_state();
+    virtual ~leanlua_state();
 
     /**
        \brief Execute the file with the given name.
@@ -37,15 +38,13 @@ public:
        \brief Execute the given string.
        This method throws an exception if an error occurs.
     */
-    void dostring(char const * str);
+    virtual void dostring(char const * str);
 
     /**
        \brief Execute the given script, but sets the registry with the given environment object.
        The registry can be accessed by \str by invoking the function <tt>env()</tt>.
        The script \c str should not store a reference to the environment \c env.
     */
-    void dostring(char const * str, environment & env);
-
-    void dostring(char const * str, environment & env, state & st);
+    virtual void dostring(char const * str, environment & env, state & st);
 };
 }

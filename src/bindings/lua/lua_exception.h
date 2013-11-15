@@ -7,25 +7,24 @@ Author: Leonardo de Moura
 #pragma once
 #include <string>
 #include "util/exception.h"
+#include "library/script_evaluator.h"
 
 namespace lean {
 /**
    \brief Exception for wrapping errors produced by the Lua engine.
 */
-class lua_exception : public exception {
-public:
-    enum class source { String, File, Unknown };
+class lua_exception : public script_exception {
 private:
     source      m_source;
     std::string m_file;   // if source == File, then this field contains the filename that triggered the error.
     unsigned    m_line;   // line number
 public:
     lua_exception(char const * lua_error);
-    source get_source() const { return m_source; }
-    char const * get_filename() const;
-    unsigned get_line() const;
+    virtual ~lua_exception();
+    virtual source get_source() const { return m_source; }
+    virtual char const * get_filename() const;
+    virtual unsigned get_line() const;
     /** \brief Return error message without position information */
-    char const * msg() const noexcept;
-    virtual char const * what() const noexcept;
+    virtual char const * get_msg() const noexcept;
 };
 }

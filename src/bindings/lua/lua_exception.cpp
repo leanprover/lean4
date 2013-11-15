@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/lua_exception.h"
 
 namespace lean {
-lua_exception::lua_exception(char const * lua_error):exception("") {
+lua_exception::lua_exception(char const * lua_error):script_exception() {
     lean_assert(lua_error);
     std::string fname;
     std::string line;
@@ -52,6 +52,9 @@ lua_exception::lua_exception(char const * lua_error):exception("") {
     }
 }
 
+lua_exception::~lua_exception() {
+}
+
 char const * lua_exception::get_filename() const {
     lean_assert(get_source() == source::File);
     return m_file.c_str();
@@ -62,19 +65,7 @@ unsigned lua_exception::get_line() const {
     return m_line;
 }
 
-char const * lua_exception::msg() const noexcept {
+char const * lua_exception::get_msg() const noexcept {
     return exception::what();
-}
-
-char const * lua_exception::what() const noexcept {
-    static thread_local std::string buffer;
-    std::ostringstream strm;
-    switch (m_source) {
-    case source::String:  strm << "[string]:" << m_line << ":" << msg() << "\n"; break;
-    case source::File:    strm << m_file << ":" << m_line << ":" << msg() << "\n"; break;
-    case source::Unknown: return msg();
-    }
-    buffer = strm.str();
-    return buffer.c_str();
 }
 }

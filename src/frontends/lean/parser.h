@@ -9,13 +9,13 @@ Author: Leonardo de Moura
 #include "frontends/lean/frontend.h"
 
 namespace lean {
-class leanlua_state;
+class script_evaluator;
 /** \brief Functional object for parsing commands and expressions */
 class parser {
     class imp;
     std::unique_ptr<imp> m_ptr;
 public:
-    parser(frontend & fe, std::istream & in, leanlua_state * S, bool use_exceptions = true, bool interactive = false);
+    parser(frontend & fe, std::istream & in, script_evaluator * S, bool use_exceptions = true, bool interactive = false);
     ~parser();
 
     /** \brief Parse a sequence of commands */
@@ -28,15 +28,15 @@ public:
 /** \brief Implements the Read Eval Print loop */
 class shell {
     frontend &                m_frontend;
-    leanlua_state *           m_leanlua_state;
+    script_evaluator *        m_script_evaluator;
 public:
-    shell(frontend & fe, leanlua_state * S);
+    shell(frontend & fe, script_evaluator * S);
     ~shell();
 
     bool operator()();
 };
 
-inline bool parse_commands(frontend & fe, std::istream & in, leanlua_state * S = nullptr, bool use_exceptions = true, bool interactive = false) {
+inline bool parse_commands(frontend & fe, std::istream & in, script_evaluator * S = nullptr, bool use_exceptions = true, bool interactive = false) {
     return parser(fe, in, S, use_exceptions, interactive)();
 }
 inline expr parse_expr(frontend & fe, std::istream & in) {

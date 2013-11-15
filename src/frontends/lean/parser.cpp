@@ -31,6 +31,7 @@ Author: Leonardo de Moura
 #include "library/arith/arith.h"
 #include "library/state.h"
 #include "library/placeholder.h"
+#include "library/script_evaluator.h"
 #include "library/elaborator/elaborator_exception.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/frontend_elaborator.h"
@@ -38,7 +39,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/notation.h"
 #include "frontends/lean/pp.h"
-#include "bindings/lua/leanlua_state.h"
 
 #ifndef LEAN_DEFAULT_PARSER_SHOW_ERRORS
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true
@@ -131,7 +131,7 @@ class parser::imp {
     pos_info            m_last_cmd_pos;
     pos_info            m_last_script_pos;
 
-    leanlua_state *     m_leanlua_state;
+    script_evaluator *  m_script_evaluator;
 
     bool                m_verbose;
     bool                m_show_errors;
@@ -1398,7 +1398,7 @@ class parser::imp {
         try {
             if (m_verbose)
                 regular(m_frontend) << "Importing file '" << fname << "'" << endl;
-            parser import_parser(m_frontend, in, m_leanlua_state, true /* use exceptions */, false /* not interactive */);
+            parser import_parser(m_frontend, in, m_script_evaluator, true /* use exceptions */, false /* not interactive */);
             import_parser();
         } catch (interrupted &) {
             throw;
@@ -1554,17 +1554,17 @@ class parser::imp {
         regular(m_frontend) << mk_pair(ex.get_justification().pp(fmt, opts, &pos_provider, true), opts) << endl;
     }
 
-    void display_error(lua_exception const & ex) {
+    void display_error(script_exception const & ex) {
         switch (ex.get_source()) {
-        case lua_exception::source::String:
+        case script_exception::source::String:
             display_error_pos(ex.get_line() + m_last_script_pos.first - 1, static_cast<unsigned>(-1));
-            regular(m_frontend) << " executing script," << ex.msg() << endl;
+            regular(m_frontend) << " executing script," << ex.get_msg() << endl;
             break;
-        case lua_exception::source::File:
+        case script_exception::source::File:
             display_error_pos(m_last_script_pos);
-            regular(m_frontend) << " executing external script (" << ex.get_filename() << ":" << ex.get_line() << ")," << ex.msg() << endl;
+            regular(m_frontend) << " executing external script (" << ex.get_filename() << ":" << ex.get_line() << ")," << ex.get_msg() << endl;
             break;
-        case lua_exception::source::Unknown:
+        case script_exception::source::Unknown:
             display_error_pos(m_last_script_pos);
             regular(m_frontend) << " executing script, but could not decode position information, " << ex.what() << endl;
             break;
@@ -1586,20 +1586,20 @@ class parser::imp {
 
     void parse_script() {
         m_last_script_pos = mk_pair(m_scanner.get_script_block_line(), m_scanner.get_script_block_pos());
-        if (!m_leanlua_state)
+        if (!m_script_evaluator)
             throw exception("failed to execute Lua script, parser does not have a Lua interpreter");
-        m_leanlua_state->dostring(m_scanner.get_str_val().c_str(), m_frontend.get_environment(), m_frontend.get_state());
+        m_script_evaluator->dostring(m_scanner.get_str_val().c_str(), m_frontend.get_environment(), m_frontend.get_state());
         next();
     }
 
 public:
-    imp(frontend & fe, std::istream & in, leanlua_state * S, bool use_exceptions, bool interactive):
+    imp(frontend & fe, std::istream & in, script_evaluator * S, bool use_exceptions, bool interactive):
         m_frontend(fe),
         m_scanner(in),
         m_elaborator(fe),
         m_use_exceptions(use_exceptions),
         m_interactive(interactive) {
-        m_leanlua_state = S;
+        m_script_evaluator = S;
         updt_options();
         m_found_errors = false;
         m_num_local_decls = 0;
@@ -1649,7 +1649,7 @@ public:
                     display_error(ex);
                 if (m_use_exceptions)
                     throw;
-            } catch (lua_exception & ex) {
+            } catch (script_exception & ex) {
                 m_found_errors = true;
                 reset_interrupt();
                 if (m_show_errors)
@@ -1683,7 +1683,7 @@ public:
     }
 };
 
-parser::parser(frontend & fe, std::istream & in, leanlua_state * S, bool use_exceptions, bool interactive) {
+parser::parser(frontend & fe, std::istream & in, script_evaluator * S, bool use_exceptions, bool interactive) {
     parser::imp::show_prompt(interactive, fe);
     m_ptr.reset(new imp(fe, in, S, use_exceptions, interactive));
 }
@@ -1699,7 +1699,7 @@ expr parser::parse_expr() {
     return m_ptr->parse_expr_main();
 }
 
-shell::shell(frontend & fe, leanlua_state * S):m_frontend(fe), m_leanlua_state(S) {
+shell::shell(frontend & fe, script_evaluator * S):m_frontend(fe), m_script_evaluator(S) {
 }
 
 shell::~shell() {
@@ -1715,14 +1715,14 @@ bool shell::operator()() {
         add_history(input);
         std::istringstream strm(input);
         {
-            parser p(m_frontend, strm, m_leanlua_state, false, false);
+            parser p(m_frontend, strm, m_script_evaluator, false, false);
             if (!p())
                 errors = true;
         }
         free(input);
     }
 #else
-    parser p(m_frontend, std::cin, m_leanlua_state, false, true);
+    parser p(m_frontend, std::cin, m_script_evaluator, false, true);
     return p();
 #endif
 }

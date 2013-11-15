@@ -117,6 +117,27 @@
 }
 
 {
+   # This entry suppresses the warning caused by a bug in tcmalloc
+   # It is the equivalent of TCMalloc_Bug2 for realloc
+   TCMalloc_Bug3
+   Memcheck:Param
+   msync(start)
+   obj:*/libpthread-2.*.*
+   obj:*/libunwind.so.*
+   ...
+   fun:_UL*_step
+   fun:*GetStackTrace*
+   fun:*PageHeap*GrowHeap*
+   fun:*PageHeap*New*
+   fun:*CentralFreeList*Populate*
+   fun:*CentralFreeList*FetchFromSpansSafe*
+   fun:*CentralFreeList*RemoveRange*
+   fun:*ThreadCache*FetchFromCentralCache*
+   fun:realloc
+   ...
+}
+
+{
    # This entry suppresses the warning caused by a bug in luajit 2.0
    LuaJIT_Bug1
    Memcheck:Cond

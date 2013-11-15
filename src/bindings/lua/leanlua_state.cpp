@@ -446,14 +446,16 @@ class leanlua_thread {
     int                             m_sz_before;
     bool                            m_error;
     std::string                     m_error_msg;
-    interruptible_thread            m_thread;
     std::atomic<data_channel_ref *> m_in_channel_addr;
     std::atomic<data_channel_ref *> m_out_channel_addr;
+    interruptible_thread            m_thread;
 public:
     leanlua_thread(leanlua_state const & st, int sz_before, int num_args):
         m_state(st),
         m_sz_before(sz_before),
         m_error(false),
+        m_in_channel_addr(0),
+        m_out_channel_addr(0),
         m_thread([=]() {
                 m_in_channel_addr.store(&g_in_channel);
                 m_out_channel_addr.store(&g_out_channel);

@@ -23,15 +23,6 @@ static int mk_options(lua_State * L) {
     return push_options(L, r);
 }
 
-static name to_key(lua_State * L, int idx) {
-    if (lua_isstring(L, idx)) {
-        char const * k = luaL_checkstring(L, idx);
-        return name(k);
-    } else {
-        return to_name(L, idx);
-    }
-}
-
 static int options_tostring(lua_State * L) {
     std::ostringstream out;
     out << to_options(L, 1);
@@ -45,7 +36,7 @@ static int options_size(lua_State * L) {
 }
 
 static int options_contains(lua_State * L) {
-    lua_pushboolean(L, to_options(L, 1).contains(to_key(L, 2)));
+    lua_pushboolean(L, to_options(L, 1).contains(to_name_ext(L, 2)));
     return 1;
 }
 
@@ -57,60 +48,60 @@ static int options_empty(lua_State * L) {
 static int options_get_bool(lua_State * L) {
     int nargs = lua_gettop(L);
     bool defval = nargs < 3 ? false : lua_toboolean(L, 3);
-    lua_pushboolean(L, to_options(L, 1).get_bool(to_key(L, 2), defval));
+    lua_pushboolean(L, to_options(L, 1).get_bool(to_name_ext(L, 2), defval));
     return 1;
 }
 
 static int options_get_int(lua_State * L) {
     int nargs = lua_gettop(L);
     int defval = nargs < 3 ? 0 : lua_tointeger(L, 3);
-    lua_pushinteger(L, to_options(L, 1).get_int(to_key(L, 2), defval));
+    lua_pushinteger(L, to_options(L, 1).get_int(to_name_ext(L, 2), defval));
     return 1;
 }
 
 static int options_get_unsigned(lua_State * L) {
     int nargs = lua_gettop(L);
     unsigned defval = nargs < 3 ? 0 : lua_tointeger(L, 3);
-    lua_pushnumber(L, to_options(L, 1).get_unsigned(to_key(L, 2), defval));
+    lua_pushnumber(L, to_options(L, 1).get_unsigned(to_name_ext(L, 2), defval));
     return 1;
 }
 
 static int options_get_double(lua_State * L) {
     int nargs = lua_gettop(L);
     double defval = nargs < 3 ? 0.0 : lua_tonumber(L, 3);
-    lua_pushnumber(L, to_options(L, 1).get_double(to_key(L, 2), defval));
+    lua_pushnumber(L, to_options(L, 1).get_double(to_name_ext(L, 2), defval));
     return 1;
 }
 
 static int options_get_string(lua_State * L) {
     int nargs = lua_gettop(L);
     char const * defval = nargs < 3 ? "" : lua_tostring(L, 3);
-    lua_pushstring(L, to_options(L, 1).get_string(to_key(L, 2), defval));
+    lua_pushstring(L, to_options(L, 1).get_string(to_name_ext(L, 2), defval));
     return 1;
 }
 
 static int options_update_bool(lua_State * L) {
-    return push_options(L, to_options(L, 1).update(to_key(L, 2), static_cast<bool>(lua_toboolean(L, 3))));
+    return push_options(L, to_options(L, 1).update(to_name_ext(L, 2), static_cast<bool>(lua_toboolean(L, 3))));
 }
 
 static int options_update_int(lua_State * L) {
-    return push_options(L, to_options(L, 1).update(to_key(L, 2), static_cast<int>(lua_tointeger(L, 3))));
+    return push_options(L, to_options(L, 1).update(to_name_ext(L, 2), static_cast<int>(lua_tointeger(L, 3))));
 }
 
 static int options_update_unsigned(lua_State * L) {
-    return push_options(L, to_options(L, 1).update(to_key(L, 2), static_cast<unsigned>(lua_tointeger(L, 3))));
+    return push_options(L, to_options(L, 1).update(to_name_ext(L, 2), static_cast<unsigned>(lua_tointeger(L, 3))));
 }
 
 static int options_update_double(lua_State * L) {
-    return push_options(L, to_options(L, 1).update(to_key(L, 2), lua_tonumber(L, 3)));
+    return push_options(L, to_options(L, 1).update(to_name_ext(L, 2), lua_tonumber(L, 3)));
 }
 
 static int options_update_string(lua_State * L) {
-    return push_options(L, to_options(L, 1).update(to_key(L, 2), lua_tostring(L, 3)));
+    return push_options(L, to_options(L, 1).update(to_name_ext(L, 2), lua_tostring(L, 3)));
 }
 
 static int options_get(lua_State * L) {
-    name k = to_key(L, 2);
+    name k = to_name_ext(L, 2);
     auto it = get_option_declarations().find(k);
     if (it == get_option_declarations().end()) {
         throw exception(sstream() << "unknown option '" << k.to_string().c_str() << "'");
@@ -128,7 +119,7 @@ static int options_get(lua_State * L) {
 }
 
 static int options_update(lua_State * L) {
-    name k = to_key(L, 2);
+    name k = to_name_ext(L, 2);
     auto it = get_option_declarations().find(k);
     if (it == get_option_declarations().end()) {
         throw exception(sstream() << "unknown option '" << k.to_string().c_str() << "'");

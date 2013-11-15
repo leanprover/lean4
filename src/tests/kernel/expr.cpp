@@ -376,8 +376,6 @@ int main() {
     std::cout << "sizeof(expr):      " << sizeof(expr) << "\n";
     std::cout << "sizeof(expr_app):  " << sizeof(expr_app) << "\n";
     std::cout << "sizeof(expr_cell): " << sizeof(expr_cell) << "\n";
-    tst3();
-    return 0;
     tst1();
     tst2();
     tst3();

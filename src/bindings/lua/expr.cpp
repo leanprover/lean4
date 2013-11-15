@@ -427,7 +427,7 @@ void open_expr(lua_State * L) {
     SET_GLOBAL_FUN(expr_mk_app,      "mk_app");
     SET_GLOBAL_FUN(expr_mk_eq,       "mk_eq");
     SET_GLOBAL_FUN(expr_mk_eq,       "Eq");
-    SET_GLOBAL_FUN(expr_mk_lambda,        "mk_lambda");
+    SET_GLOBAL_FUN(expr_mk_lambda,   "mk_lambda");
     SET_GLOBAL_FUN(expr_mk_pi,       "mk_pi");
     SET_GLOBAL_FUN(expr_mk_arrow,    "mk_arrow");
     SET_GLOBAL_FUN(expr_mk_let,      "mk_let");

@@ -13,31 +13,6 @@ Author: Leonardo de Moura
 namespace lean {
 DECL_UDATA(name)
 
-name to_name_ext(lua_State * L, int idx) {
-    if (lua_isstring(L, idx)) {
-        return luaL_checkstring(L, idx);
-    } else if (lua_istable(L, idx)) {
-        name r;
-        int n = objlen(L, idx);
-        for (int i = 1; i <= n; i++) {
-            lua_rawgeti(L, idx, i);
-            if (lua_isnil(L, -1)) {
-                // skip
-            } else if (lua_isuserdata(L, -1)) {
-                r = r + to_name(L, -1);
-            } else if (lua_isstring(L, -1)) {
-                r = name(r, luaL_checkstring(L, -1));
-            } else {
-                r = name(r, luaL_checkinteger(L, -1));
-            }
-            lua_pop(L, 1);
-        }
-        return r;
-    } else {
-        return to_name(L, idx);
-    }
-}
-
 static int mk_name(lua_State * L) {
     int nargs = lua_gettop(L);
     name r;
@@ -47,11 +22,33 @@ static int mk_name(lua_State * L) {
         case LUA_TNUMBER:   r = name(r, lua_tointeger(L, i)); break;
         case LUA_TSTRING:   r = name(r, lua_tostring(L, i)); break;
         case LUA_TUSERDATA: r = r + to_name(L, i); break;
-        default:
-            throw exception(sstream() << "arg #" << i << " must be a hierarchical name, string, or integer");
+        default:            throw exception(sstream() << "arg #" << i << " must be a hierarchical name, string, or integer");
         }
     }
     return push_name(L, r);
+}
+
+name to_name_ext(lua_State * L, int idx) {
+    if (lua_isstring(L, idx)) {
+        return luaL_checkstring(L, idx);
+    } else if (lua_istable(L, idx)) {
+        name r;
+        int n = objlen(L, idx);
+        for (int i = 1; i <= n; i++) {
+            lua_rawgeti(L, idx, i);
+            switch (lua_type(L, -1)) {
+            case LUA_TNIL:      break; // skip
+            case LUA_TNUMBER:   r = name(r, lua_tointeger(L, -1)); break;
+            case LUA_TSTRING:   r = name(r, lua_tostring(L, -1));  break;
+            case LUA_TUSERDATA: r = r + to_name(L, -1); break;
+            default:            throw exception("invalid array arguments, elements must be a hierarchical name, string, or integer");
+            }
+            lua_pop(L, 1);
+        }
+        return r;
+    } else {
+        return to_name(L, idx);
+    }
 }
 
 static int name_tostring(lua_State * L) {

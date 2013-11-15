@@ -399,6 +399,7 @@ leanlua_thread & to_thread(lua_State * L, int idx) {
 }
 
 int mk_thread(lua_State * L) {
+    check_threadsafe();
     leanlua_state & st  = to_state(L, 1);
     char const * script = luaL_checkstring(L, 2);
     int first           = 3;

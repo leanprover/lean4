@@ -62,4 +62,12 @@ public:
     void join();
     bool joinable();
 };
+
+#ifdef LEAN_THREAD_UNSAFE
+inline void check_threadsafe() {
+    throw exception("Lean was compiled without support for multi-threading");
+}
+#else
+inline void check_threadsafe() {}
+#endif
 }

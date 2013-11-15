@@ -33,4 +33,67 @@ template<lua_CFunction F> void set_global_function(lua_State * L, char const * n
 
 // Auxiliary macro for creating a Lua table that stores enumeration values
 #define SET_ENUM(N, V) lua_pushstring(L, N); lua_pushinteger(L, static_cast<int>(V)); lua_settable(L, -3)
+
+#define DECL_PUSH_CORE(NAME, T, TREF)            \
+int push_ ## NAME(lua_State * L, TREF val) {    \
+    void * mem = lua_newuserdata(L, sizeof(T)); \
+    new (mem) T(val);                           \
+    luaL_getmetatable(L, NAME ## _mt);          \
+    lua_setmetatable(L, -2);                    \
+    return 1;                                   \
+}
+
+#define DECL_PUSH(T)                             \
+DECL_PUSH_CORE(T, T, T const &)                  \
+DECL_PUSH_CORE(T, T, T &&)
+
+#define DECL_GC(T) static int T ## _gc(lua_State * L) { static_cast<T*>(lua_touserdata(L, 1))->~T(); return 0; }
+
+#define DECL_PRED(T)                                                     \
+bool is_ ## T(lua_State * L, int idx) { return testudata(L, idx, T ## _mt); } \
+static int T ## _pred(lua_State * L) {                                  \
+    lua_pushboolean(L, is_ ## T(L, 1));                                 \
+    return 1;                                                           \
+}
+
+/**
+   \brief Create basic declarations for adding a new kind of userdata in Lua
+   T is a Lean object type.
+   For example, if T == expr, it produces an implementation for the
+   following declarations
+
+     constexpr char const * expr_mt = "expr";
+     expr & to_expr(lua_State * L, int i);
+     bool is_expr(lua_State * L, int i);
+     static int expr_pred(lua_State * L);
+     static int expr_gc(lua_State * L);
+     int push_expr(lua_State * L, expr const & e);
+     int push_expr(lua_State * L, expr && e);
+*/
+#define DECL_UDATA(T)                                                    \
+constexpr char const * T ## _mt = #T;                                   \
+T & to_ ## T(lua_State * L, int i) { return *static_cast<T*>(luaL_checkudata(L, i, T ## _mt)); } \
+DECL_PRED(T)                                                             \
+DECL_GC(T)                                                               \
+DECL_PUSH(T)
+
+/**
+   \brief Similar to DECL_UDATA, but it only declares the functions.
+
+   For example, if T == expr, it produces the following declarations:
+
+      class expr;
+      expr & to_expr(lua_State * L, int i);
+      bool is_expr(lua_State * L, int i);
+      int push_expr(lua_State * L, expr const & e);
+      int push_expr(lua_State * L, expr && e);
+*/
+#define UDATA_DEFS_CORE(T)                      \
+T & to_ ## T(lua_State * L, int i);             \
+bool is_ ## T(lua_State * L, int i);            \
+int push_ ## T(lua_State * L, T const & e);     \
+int push_ ## T(lua_State * L, T && e);
+#define UDATA_DEFS(T)                           \
+class T;                                        \
+UDATA_DEFS_CORE(T)
 }

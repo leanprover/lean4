@@ -7,9 +7,6 @@ Author: Leonardo de Moura
 #pragma once
 #include <lua.hpp>
 namespace lean {
-class object;
+UDATA_DEFS(object)
 void open_object(lua_State * L);
-bool is_object(lua_State * L, int idx);
-object & to_object(lua_State * L, int idx);
-int push_object(lua_State * L, object const & o);
 }

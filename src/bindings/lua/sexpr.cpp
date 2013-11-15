@@ -13,28 +13,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/numerics.h"
 
 namespace lean {
-constexpr char const * sexpr_mt = "sexpr.mt";
-
-int push_sexpr(lua_State * L, sexpr const & e) {
-    void * mem = lua_newuserdata(L, sizeof(sexpr));
-    new (mem) sexpr(e);
-    luaL_getmetatable(L, sexpr_mt);
-    lua_setmetatable(L, -2);
-    return 1;
-}
-
-bool is_sexpr(lua_State * L, int idx) {
-    return testudata(L, idx, sexpr_mt);
-}
-
-sexpr & to_sexpr(lua_State * L, int idx) {
-    return *static_cast<sexpr*>(lua_touserdata(L, idx));
-}
-
-static int sexpr_gc(lua_State * L) {
-    to_sexpr(L, 1).~sexpr();
-    return 0;
-}
+DECL_UDATA(sexpr)
 
 static int sexpr_tostring(lua_State * L) {
     std::ostringstream out;
@@ -174,11 +153,6 @@ static int sexpr_to_mpq(lua_State * L) {
     if (!is_mpq(e))
         throw exception("s-expression is not a multi-precision rational");
     return push_mpq(L, to_mpq(e));
-}
-
-static int sexpr_pred(lua_State * L) {
-    lua_pushboolean(L, is_sexpr(L, 1));
-    return 1;
 }
 
 static int sexpr_get_kind(lua_State * L) {

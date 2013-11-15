@@ -17,23 +17,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/options.h"
 
 namespace lean {
-constexpr char const * format_mt = "format.mt";
-
-int push_format(lua_State * L, format const & e) {
-    void * mem = lua_newuserdata(L, sizeof(format));
-    new (mem) format(e);
-    luaL_getmetatable(L, format_mt);
-    lua_setmetatable(L, -2);
-    return 1;
-}
-
-bool is_format(lua_State * L, int idx) {
-    return testudata(L, idx, format_mt);
-}
-
-format & to_format(lua_State * L, int idx) {
-    return *static_cast<format*>(luaL_checkudata(L, idx, format_mt));
-}
+DECL_UDATA(format)
 
 format to_format_elem(lua_State * L, int idx) {
     if (is_format(L, idx))
@@ -48,11 +32,6 @@ format to_format_elem(lua_State * L, int idx) {
         return format(to_mpq(L, idx));
     else
         return format(lua_tostring(L, idx));
-}
-
-static int format_gc(lua_State * L) {
-    to_format(L, 1).~format();
-    return 0;
 }
 
 static int format_tostring(lua_State * L) {
@@ -113,11 +92,6 @@ static int format_highlight(lua_State * L) {
 
 static int format_line(lua_State * L) { return push_format(L, line()); }
 static int format_space(lua_State * L) { return push_format(L, space()); }
-
-static int format_pred(lua_State * L) {
-    lua_pushboolean(L, is_format(L, 1));
-    return 1;
-}
 
 static const struct luaL_Reg format_m[] = {
     {"__gc",            format_gc}, // never throws

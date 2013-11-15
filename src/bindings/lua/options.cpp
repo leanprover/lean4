@@ -16,23 +16,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/state.h"
 
 namespace lean {
-constexpr char const * options_mt = "options.mt";
-
-bool is_options(lua_State * L, int idx) {
-    return testudata(L, idx, options_mt);
-}
-
-options & to_options(lua_State * L, int idx) {
-    return *static_cast<options*>(luaL_checkudata(L, idx, options_mt));
-}
-
-int push_options(lua_State * L, options const & o) {
-    void * mem = lua_newuserdata(L, sizeof(options));
-    new (mem) options(o);
-    luaL_getmetatable(L, options_mt);
-    lua_setmetatable(L, -2);
-    return 1;
-}
+DECL_UDATA(options)
 
 static int mk_options(lua_State * L) {
     options r;
@@ -46,11 +30,6 @@ static name to_key(lua_State * L, int idx) {
     } else {
         return to_name(L, idx);
     }
-}
-
-static int options_gc(lua_State * L) {
-    to_options(L, 1).~options();
-    return 0;
 }
 
 static int options_tostring(lua_State * L) {
@@ -164,11 +143,6 @@ static int options_update(lua_State * L) {
         default:              throw exception(sstream() << "unsupported option kind for '" << k.to_string().c_str() << "'");
         }
     }
-}
-
-static int options_pred(lua_State * L) {
-    lua_pushboolean(L, is_options(L, 1));
-    return 1;
 }
 
 static char g_options_key;

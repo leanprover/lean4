@@ -12,28 +12,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/local_context.h"
 
 namespace lean {
-constexpr char const * local_entry_mt = "local_entry.mt";
-
-bool is_local_entry(lua_State * L, int idx) {
-    return testudata(L, idx, local_entry_mt);
-}
-
-local_entry & to_local_entry(lua_State * L, int idx) {
-    return *static_cast<local_entry*>(luaL_checkudata(L, idx, local_entry_mt));
-}
-
-int push_local_entry(lua_State * L, local_entry const & e) {
-    void * mem = lua_newuserdata(L, sizeof(local_entry));
-    new (mem) local_entry(e);
-    luaL_getmetatable(L, local_entry_mt);
-    lua_setmetatable(L, -2);
-    return 1;
-}
-
-static int local_entry_gc(lua_State * L) {
-    to_local_entry(L, 1).~local_entry();
-    return 0;
-}
+DECL_UDATA(local_entry)
 
 static int local_entry_eq(lua_State * L) {
     lua_pushboolean(L, to_local_entry(L, 1) == to_local_entry(L, 2));
@@ -46,11 +25,6 @@ static int local_entry_mk_lift(lua_State * L) {
 
 static int local_entry_mk_inst(lua_State * L) {
     return push_local_entry(L, mk_inst(luaL_checkinteger(L, 1), to_nonnull_expr(L, 2)));
-}
-
-static int local_entry_pred(lua_State * L) {
-    lua_pushboolean(L, is_local_entry(L, 1));
-    return 1;
 }
 
 static int local_entry_is_lift(lua_State * L) {
@@ -95,28 +69,7 @@ static const struct luaL_Reg local_entry_m[] = {
     {0, 0}
 };
 
-constexpr char const * local_context_mt = "local_context.mt";
-
-bool is_local_context(lua_State * L, int idx) {
-    return testudata(L, idx, local_context_mt);
-}
-
-local_context & to_local_context(lua_State * L, int idx) {
-    return *static_cast<local_context*>(luaL_checkudata(L, idx, local_context_mt));
-}
-
-int push_local_context(lua_State * L, local_context const & e) {
-    void * mem = lua_newuserdata(L, sizeof(local_context));
-    new (mem) local_context(e);
-    luaL_getmetatable(L, local_context_mt);
-    lua_setmetatable(L, -2);
-    return 1;
-}
-
-static int local_context_gc(lua_State * L) {
-    to_local_context(L, 1).~local_context();
-    return 0;
-}
+DECL_UDATA(local_context)
 
 static int mk_local_context(lua_State * L) {
     int nargs = lua_gettop(L);
@@ -137,11 +90,6 @@ static int local_context_tail(lua_State * L) {
 
 static int local_context_is_nil(lua_State * L) {
     lua_pushboolean(L, !to_local_context(L, 1));
-    return 1;
-}
-
-static int local_context_pred(lua_State * L) {
-    lua_pushboolean(L, is_local_context(L, 1));
     return 1;
 }
 

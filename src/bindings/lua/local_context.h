@@ -8,13 +8,7 @@ Author: Leonardo de Moura
 #include <lua.hpp>
 #include "kernel/expr.h"
 namespace lean {
-bool is_local_entry(lua_State * L, int idx);
-local_entry & to_local_entry(lua_State * L, int idx);
-int push_local_entry(lua_State * L, local_entry const & o);
-
-bool is_local_context(lua_State * L, int idx);
-local_context & to_local_context(lua_State * L, int idx);
-int push_local_context(lua_State * L, local_context const & o);
-
+UDATA_DEFS(local_entry)
+UDATA_DEFS_CORE(local_context)
 void open_local_context(lua_State * L);
 }

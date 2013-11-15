@@ -7,18 +7,11 @@ Author: Leonardo de Moura
 #include <lua.hpp>
 #include "util/debug.h"
 #include "util/name.h"
+#include "util/sstream.h"
 #include "bindings/lua/util.h"
 
 namespace lean {
-constexpr char const * name_mt = "name.mt";
-
-bool is_name(lua_State * L, int idx) {
-    return testudata(L, idx, name_mt);
-}
-
-name & to_name(lua_State * L, int idx) {
-    return *static_cast<name*>(luaL_checkudata(L, idx, name_mt));
-}
+DECL_UDATA(name)
 
 name to_name_ext(lua_State * L, int idx) {
     if (lua_isstring(L, idx)) {
@@ -45,34 +38,20 @@ name to_name_ext(lua_State * L, int idx) {
     }
 }
 
-int push_name(lua_State * L, name const & n) {
-    void * mem = lua_newuserdata(L, sizeof(name));
-    new (mem) name(n);
-    luaL_getmetatable(L, name_mt);
-    lua_setmetatable(L, -2);
-    return 1;
-}
-
 static int mk_name(lua_State * L) {
     int nargs = lua_gettop(L);
     name r;
     for (int i = 1; i <= nargs; i++) {
-        if (lua_isnil(L, i)) {
-            // skip
-        } else if (lua_isuserdata(L, i)) {
-            r = r + to_name(L, i);
-        } else if (lua_isstring(L, i)) {
-            r = name(r, luaL_checkstring(L, i));
-        } else {
-            r = name(r, luaL_checkinteger(L, i));
+        switch (lua_type(L, i)) {
+        case LUA_TNIL:      break; // skip
+        case LUA_TNUMBER:   r = name(r, lua_tointeger(L, i)); break;
+        case LUA_TSTRING:   r = name(r, lua_tostring(L, i)); break;
+        case LUA_TUSERDATA: r = r + to_name(L, i); break;
+        default:
+            throw exception(sstream() << "arg #" << i << " must be a hierarchical name, string, or integer");
         }
     }
     return push_name(L, r);
-}
-
-static int name_gc(lua_State * L) {
-    to_name(L, 1).~name();
-    return 0;
 }
 
 static int name_tostring(lua_State * L) {
@@ -87,11 +66,6 @@ static int name_eq(lua_State * L) {
 
 static int name_lt(lua_State * L) {
     lua_pushboolean(L, to_name(L, 1) < to_name(L, 2));
-    return 1;
-}
-
-static int name_pred(lua_State * L) {
-    lua_pushboolean(L, is_name(L, 1));
     return 1;
 }
 

@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/util.h"
 
 namespace lean {
-constexpr char const * mpz_mt = "mpz.mt";
+DECL_UDATA(mpz)
 
 template<unsigned idx>
 static mpz const & to_mpz(lua_State * L) {
@@ -28,14 +28,6 @@ static mpz const & to_mpz(lua_State * L) {
     }
 }
 
-bool is_mpz(lua_State * L, int idx) {
-    return testudata(L, idx, mpz_mt);
-}
-
-mpz & to_mpz(lua_State * L, int idx) {
-    return *static_cast<mpz*>(luaL_checkudata(L, idx, mpz_mt));
-}
-
 mpz to_mpz_ext(lua_State * L, int idx) {
     if (lua_isuserdata(L, idx)) {
         return *static_cast<mpz*>(luaL_checkudata(L, idx, mpz_mt));
@@ -44,20 +36,6 @@ mpz to_mpz_ext(lua_State * L, int idx) {
     } else {
         return mpz(static_cast<long int>(luaL_checkinteger(L, 1)));
     }
-}
-
-int push_mpz(lua_State * L, mpz const & val) {
-    void * mem = lua_newuserdata(L, sizeof(mpz));
-    new (mem) mpz(val);
-    luaL_getmetatable(L, mpz_mt);
-    lua_setmetatable(L, -2);
-    return 1;
-}
-
-static int mpz_gc(lua_State * L) {
-    mpz * n = static_cast<mpz*>(luaL_checkudata(L, 1, mpz_mt));
-    n->~mpz();
-    return 0;
 }
 
 static int mpz_tostring(lua_State * L) {
@@ -111,11 +89,6 @@ static int mk_mpz(lua_State * L) {
     return push_mpz(L, arg);
 }
 
-static int mpz_pred(lua_State * L) {
-    lua_pushboolean(L, is_mpz(L, 1));
-    return 1;
-}
-
 static const struct luaL_Reg mpz_m[] = {
     {"__gc",       mpz_gc}, // never throws
     {"__tostring", safe_function<mpz_tostring>},
@@ -138,7 +111,7 @@ void open_mpz(lua_State * L) {
     SET_GLOBAL_FUN(mpz_pred, "is_mpz");
 }
 
-constexpr char const * mpq_mt = "mpq.mt";
+DECL_UDATA(mpq)
 
 template<unsigned idx>
 static mpq const & to_mpq(lua_State * L) {
@@ -157,14 +130,6 @@ static mpq const & to_mpq(lua_State * L) {
     return arg;
 }
 
-bool is_mpq(lua_State * L, int idx) {
-    return testudata(L, idx, mpq_mt);
-}
-
-mpq & to_mpq(lua_State * L, int idx) {
-    return *static_cast<mpq*>(luaL_checkudata(L, idx, mpq_mt));
-}
-
 mpq to_mpq_ext(lua_State * L, int idx) {
     if (lua_isuserdata(L, idx)) {
         if (is_mpz(L, idx)) {
@@ -177,20 +142,6 @@ mpq to_mpq_ext(lua_State * L, int idx) {
     } else {
         return mpq(static_cast<long int>(luaL_checkinteger(L, 1)));
     }
-}
-
-int push_mpq(lua_State * L, mpq const & val) {
-    void * mem = lua_newuserdata(L, sizeof(mpq));
-    new (mem) mpq(val);
-    luaL_getmetatable(L, mpq_mt);
-    lua_setmetatable(L, -2);
-    return 1;
-}
-
-static int mpq_gc(lua_State * L) {
-    mpq * n = static_cast<mpq*>(luaL_checkudata(L, 1, mpq_mt));
-    n->~mpq();
-    return 0;
 }
 
 static int mpq_tostring(lua_State * L) {
@@ -242,11 +193,6 @@ static int mpq_power(lua_State * L) {
 static int mk_mpq(lua_State * L) {
     mpq const & arg = to_mpq<1>(L);
     return push_mpq(L, arg);
-}
-
-static int mpq_pred(lua_State * L) {
-    lua_pushboolean(L, is_mpq(L, 1));
-    return 1;
 }
 
 static const struct luaL_Reg mpq_m[] = {

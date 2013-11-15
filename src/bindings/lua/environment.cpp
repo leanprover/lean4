@@ -19,15 +19,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/formatter.h"
 
 namespace lean {
-constexpr char const * environment_mt = "environment.mt";
-
-bool is_environment(lua_State * L, int idx) {
-    return testudata(L, idx, environment_mt);
-}
-
-environment & to_environment(lua_State * L, int idx) {
-    return *static_cast<environment*>(luaL_checkudata(L, idx, environment_mt));
-}
+DECL_UDATA(environment)
 
 ro_environment::ro_environment(lua_State * L, int idx):
     read_only_environment(to_environment(L, idx)) {
@@ -35,19 +27,6 @@ ro_environment::ro_environment(lua_State * L, int idx):
 
 rw_environment::rw_environment(lua_State * L, int idx):
     read_write_environment(to_environment(L, idx)) {
-}
-
-static int environment_gc(lua_State * L) {
-    to_environment(L, 1).~environment();
-    return 0;
-}
-
-int push_environment(lua_State * L, environment const & env) {
-    void * mem = lua_newuserdata(L, sizeof(environment));
-    new (mem) environment(env);
-    luaL_getmetatable(L, environment_mt);
-    lua_setmetatable(L, -2);
-    return 1;
 }
 
 static int mk_environment(lua_State * L) {
@@ -195,11 +174,6 @@ static int environment_objects(lua_State * L) {
 
 static int environment_local_objects(lua_State * L) {
     return environment_objects_core(L, true);
-}
-
-static int environment_pred(lua_State * L) {
-    lua_pushboolean(L, is_environment(L, 1));
-    return 1;
 }
 
 static int environment_tostring(lua_State * L) {

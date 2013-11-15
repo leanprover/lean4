@@ -7,15 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <lua.hpp>
 namespace lean {
-class context_entry;
-bool is_context_entry(lua_State * L, int idx);
-context_entry & to_context_entry(lua_State * L, int idx);
-int push_context_entry(lua_State * L, context_entry const & o);
-
-class context;
-bool is_context(lua_State * L, int idx);
-context & to_context(lua_State * L, int idx);
-int push_context(lua_State * L, context const & o);
-
+UDATA_DEFS(context_entry)
+UDATA_DEFS(context)
 void open_context(lua_State * L);
 }

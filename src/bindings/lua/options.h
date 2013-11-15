@@ -7,11 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include <lua.hpp>
 namespace lean {
-class options;
+UDATA_DEFS(options)
 void open_options(lua_State * L);
-bool is_options(lua_State * L, int idx);
-options & to_options(lua_State * L, int idx);
-int push_options(lua_State * L, options const & o);
 /**
    \brief Return the set of options associated with the given Lua State.
    This procedure checks for options at:

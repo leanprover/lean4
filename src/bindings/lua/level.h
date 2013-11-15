@@ -7,9 +7,6 @@ Author: Leonardo de Moura
 #pragma once
 #include <lua.hpp>
 namespace lean {
-class level;
+UDATA_DEFS(level)
 void open_level(lua_State * L);
-bool is_level(lua_State * L, int idx);
-level & to_level(lua_State * L, int idx);
-int push_level(lua_State * L, level const & o);
 }

@@ -17,28 +17,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/state.h"
 
 namespace lean {
-constexpr char const * formatter_mt = "formatter.mt";
-
-bool is_formatter(lua_State * L, int idx) {
-    return testudata(L, idx, formatter_mt);
-}
-
-formatter & to_formatter(lua_State * L, int idx) {
-    return *static_cast<formatter*>(luaL_checkudata(L, idx, formatter_mt));
-}
-
-int push_formatter(lua_State * L, formatter const & o) {
-    void * mem = lua_newuserdata(L, sizeof(formatter));
-    new (mem) formatter(o);
-    luaL_getmetatable(L, formatter_mt);
-    lua_setmetatable(L, -2);
-    return 1;
-}
-
-static int formatter_gc(lua_State * L) {
-    to_formatter(L, 1).~formatter();
-    return 0;
-}
+DECL_UDATA(formatter)
 
 [[ noreturn ]] void throw_invalid_formatter_call() {
     throw exception("invalid formatter invocation, the acceptable arguments are: (expr, options?), (context, options?), (context, expr, bool? options?), (kernel object, options?), (environment, options?)");
@@ -76,11 +55,6 @@ static int formatter_call(lua_State * L) {
     } else {
         throw_invalid_formatter_call();
     }
-}
-
-static int formatter_pred(lua_State * L) {
-    lua_pushboolean(L, is_formatter(L, 1));
-    return 1;
 }
 
 static const struct luaL_Reg formatter_m[] = {

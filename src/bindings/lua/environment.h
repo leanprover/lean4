@@ -9,11 +9,8 @@ Author: Leonardo de Moura
 #include "kernel/threadsafe_environment.h"
 
 namespace lean {
-class environment;
+UDATA_DEFS(environment)
 void open_environment(lua_State * L);
-bool is_environment(lua_State * L, int idx);
-int push_environment(lua_State * L, environment const & env);
-
 /**
    \brief Auxiliary class for setting the Lua registry of a Lua state
    with an environment object.

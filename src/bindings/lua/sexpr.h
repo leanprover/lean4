@@ -7,9 +7,6 @@ Author: Leonardo de Moura
 #pragma once
 #include <lua.hpp>
 namespace lean {
-class sexpr;
+UDATA_DEFS(sexpr)
 void open_sexpr(lua_State * L);
-bool is_sexpr(lua_State * L, int idx);
-sexpr & to_sexpr(lua_State * L, int idx);
-int push_sexpr(lua_State * L, sexpr const & e);
 }

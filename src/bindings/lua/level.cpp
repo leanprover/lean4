@@ -14,28 +14,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/options.h"
 
 namespace lean {
-constexpr char const * level_mt = "level.mt";
-
-bool is_level(lua_State * L, int idx) {
-    return testudata(L, idx, level_mt);
-}
-
-level & to_level(lua_State * L, int idx) {
-    return *static_cast<level*>(luaL_checkudata(L, idx, level_mt));
-}
-
-int push_level(lua_State * L, level const & e) {
-    void * mem = lua_newuserdata(L, sizeof(level));
-    new (mem) level(e);
-    luaL_getmetatable(L, level_mt);
-    lua_setmetatable(L, -2);
-    return 1;
-}
-
-static int level_gc(lua_State * L) {
-    to_level(L, 1).~level();
-    return 0;
-}
+DECL_UDATA(level)
 
 static int level_tostring(lua_State * L) {
     std::ostringstream out;
@@ -117,11 +96,6 @@ static int level_max_level(lua_State * L) {
     if (!is_max(to_level(L, 1)))
         throw exception("arg #1 must be a Lean level max");
     return push_level(L, max_level(to_level(L, 1), luaL_checkinteger(L, 2)));
-}
-
-static int level_pred(lua_State * L) {
-    lua_pushboolean(L, is_level(L, 1));
-    return 1;
 }
 
 static int level_get_kind(lua_State * L) {

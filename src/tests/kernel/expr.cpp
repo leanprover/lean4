@@ -147,8 +147,8 @@ expr mk_big(expr f, unsigned depth, unsigned val) {
 
 void tst3() {
     expr f = Const("f");
-    expr r1 = mk_big(f, 18, 0);
-    expr r2 = mk_big(f, 18, 0);
+    expr r1 = mk_big(f, 20, 0);
+    expr r2 = mk_big(f, 20, 0);
     lean_assert(r1 == r2);
 }
 
@@ -376,6 +376,8 @@ int main() {
     std::cout << "sizeof(expr):      " << sizeof(expr) << "\n";
     std::cout << "sizeof(expr_app):  " << sizeof(expr_app) << "\n";
     std::cout << "sizeof(expr_cell): " << sizeof(expr_cell) << "\n";
+    tst3();
+    return 0;
     tst1();
     tst2();
     tst3();

@@ -17,34 +17,13 @@ Author: Leonardo de Moura
 #include "bindings/lua/formatter.h"
 
 namespace lean {
-constexpr char const * object_mt = "object.mt";
-
-bool is_object(lua_State * L, int idx) {
-    return testudata(L, idx, object_mt);
-}
-
-object & to_object(lua_State * L, int idx) {
-    return *static_cast<object*>(luaL_checkudata(L, idx, object_mt));
-}
+DECL_UDATA(object)
 
 object & to_nonnull_object(lua_State * L, int idx) {
     object & r = to_object(L, idx);
     if (!r)
         throw exception("non-null kernel object expected");
     return r;
-}
-
-int push_object(lua_State * L, object const & o) {
-    void * mem = lua_newuserdata(L, sizeof(object));
-    new (mem) object(o);
-    luaL_getmetatable(L, object_mt);
-    lua_setmetatable(L, -2);
-    return 1;
-}
-
-static int object_gc(lua_State * L) {
-    to_object(L, 1).~object();
-    return 0;
 }
 
 static int object_is_null(lua_State * L) {
@@ -124,11 +103,6 @@ OBJECT_PRED(is_builtin_set)
 
 static int object_in_builtin_set(lua_State * L) {
     lua_pushboolean(L, to_nonnull_object(L, 1).in_builtin_set(to_expr(L, 2)));
-    return 1;
-}
-
-static int object_pred(lua_State * L) {
-    lua_pushboolean(L, is_object(L, 1));
     return 1;
 }
 

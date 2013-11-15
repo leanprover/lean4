@@ -7,10 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <lua.hpp>
 namespace lean {
-class expr;
-void open_expr(lua_State * L);
-bool is_expr(lua_State * L, int idx);
-expr & to_expr(lua_State * L, int idx);
+UDATA_DEFS(expr);
 expr & to_nonnull_expr(lua_State * L, int idx);
-int push_expr(lua_State * L, expr const & o);
+void open_expr(lua_State * L);
 }

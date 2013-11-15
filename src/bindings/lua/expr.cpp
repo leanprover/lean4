@@ -32,15 +32,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/numerics.h"
 
 namespace lean {
-constexpr char const * expr_mt = "expr.mt";
-
-bool is_expr(lua_State * L, int idx) {
-    return testudata(L, idx, expr_mt);
-}
-
-expr & to_expr(lua_State * L, int idx) {
-    return *static_cast<expr*>(luaL_checkudata(L, idx, expr_mt));
-}
+DECL_UDATA(expr)
 
 expr & to_nonnull_expr(lua_State * L, int idx) {
     expr & r = to_expr(L, idx);
@@ -54,19 +46,6 @@ expr & to_app(lua_State * L, int idx) {
     if (!is_app(r))
         throw exception("Lean application expression expected");
     return r;
-}
-
-int push_expr(lua_State * L, expr const & e) {
-    void * mem = lua_newuserdata(L, sizeof(expr));
-    new (mem) expr(e);
-    luaL_getmetatable(L, expr_mt);
-    lua_setmetatable(L, -2);
-    return 1;
-}
-
-static int expr_gc(lua_State * L) {
-    to_expr(L, 1).~expr();
-    return 0;
 }
 
 static int expr_tostring(lua_State * L) {
@@ -291,11 +270,6 @@ static int expr_fields(lua_State * L) {
     }
     lean_unreachable(); // LCOV_EXCL_LINE
     return 0;           // LCOV_EXCL_LINE
-}
-
-static int expr_pred(lua_State * L) {
-    lua_pushboolean(L, is_expr(L, 1));
-    return 1;
 }
 
 static int expr_for_each(lua_State * L) {

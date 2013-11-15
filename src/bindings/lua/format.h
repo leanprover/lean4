@@ -7,9 +7,6 @@ Author: Leonardo de Moura
 #pragma once
 #include <lua.hpp>
 namespace lean {
-class format;
+UDATA_DEFS(format)
 void open_format(lua_State * L);
-bool is_format(lua_State * L, int idx);
-format & to_format(lua_State * L, int idx);
-int push_format(lua_State * L, format const & o);
 }

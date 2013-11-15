@@ -17,28 +17,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/formatter.h"
 
 namespace lean {
-constexpr char const * context_entry_mt = "context_entry.mt";
-
-bool is_context_entry(lua_State * L, int idx) {
-    return testudata(L, idx, context_entry_mt);
-}
-
-context_entry & to_context_entry(lua_State * L, int idx) {
-    return *static_cast<context_entry*>(luaL_checkudata(L, idx, context_entry_mt));
-}
-
-int push_context_entry(lua_State * L, context_entry const & e) {
-    void * mem = lua_newuserdata(L, sizeof(context_entry));
-    new (mem) context_entry(e);
-    luaL_getmetatable(L, context_entry_mt);
-    lua_setmetatable(L, -2);
-    return 1;
-}
-
-static int context_entry_gc(lua_State * L) {
-    to_context_entry(L, 1).~context_entry();
-    return 0;
-}
+DECL_UDATA(context_entry)
 
 static int mk_context_entry(lua_State * L) {
     int nargs = lua_gettop(L);
@@ -46,11 +25,6 @@ static int mk_context_entry(lua_State * L) {
         return push_context_entry(L, context_entry(to_name_ext(L, 1), to_nonnull_expr(L, 2)));
     else
         return push_context_entry(L, context_entry(to_name_ext(L, 1), to_nonnull_expr(L, 2), to_nonnull_expr(L, 3)));
-}
-
-static int context_entry_pred(lua_State * L) {
-    lua_pushboolean(L, is_context_entry(L, 1));
-    return 1;
 }
 
 static int context_entry_get_name(lua_State * L) { return push_name(L, to_context_entry(L, 1).get_name()); }
@@ -65,28 +39,7 @@ static const struct luaL_Reg context_entry_m[] = {
     {0, 0}
 };
 
-constexpr char const * context_mt = "context.mt";
-
-bool is_context(lua_State * L, int idx) {
-    return testudata(L, idx, context_mt);
-}
-
-context & to_context(lua_State * L, int idx) {
-    return *static_cast<context*>(luaL_checkudata(L, idx, context_mt));
-}
-
-int push_context(lua_State * L, context const & e) {
-    void * mem = lua_newuserdata(L, sizeof(context));
-    new (mem) context(e);
-    luaL_getmetatable(L, context_mt);
-    lua_setmetatable(L, -2);
-    return 1;
-}
-
-static int context_gc(lua_State * L) {
-    to_context(L, 1).~context();
-    return 0;
-}
+DECL_UDATA(context)
 
 static int context_tostring(lua_State * L) {
     std::ostringstream out;
@@ -109,11 +62,6 @@ static int mk_context(lua_State * L) {
     } else {
         return push_context(L, context(to_context(L, 1), to_name_ext(L, 2), to_expr(L, 3), to_nonnull_expr(L, 4)));
     }
-}
-
-static int context_pred(lua_State * L) {
-    lua_pushboolean(L, is_context(L, 1));
-    return 1;
 }
 
 static int context_extend(lua_State * L) {

@@ -133,8 +133,8 @@ static void copy_values(lua_State * src, int first, int last, lua_State * tgt) {
 static char g_weak_ptr_key; // key for Lua registry (used at get_weak_ptr and save_weak_ptr)
 
 struct leanlua_state::imp {
-    lua_State * m_state;
-    std::mutex  m_mutex;
+    lua_State *           m_state;
+    std::recursive_mutex  m_mutex;
 
     static std::weak_ptr<imp> * get_weak_ptr(lua_State * L) {
         lua_pushlightuserdata(L, static_cast<void *>(&g_weak_ptr_key));
@@ -191,12 +191,12 @@ struct leanlua_state::imp {
     }
 
     void dofile(char const * fname) {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
         ::lean::dofile(m_state, fname);
     }
 
     void dostring(char const * str) {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
         ::lean::dostring(m_state, str);
     }
 
@@ -310,7 +310,7 @@ int state_dostring(lua_State * L) {
     char const * script = luaL_checkstring(L, 2);
     int first           = 3;
     int last            = lua_gettop(L);
-    std::lock_guard<std::mutex> lock(S->m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(S->m_mutex);
 
     int sz_before = lua_gettop(S->m_state);
 
@@ -334,7 +334,7 @@ int state_dostring(lua_State * L) {
 int state_set_global(lua_State * L) {
     auto S = to_state(L, 1).m_ptr;
     char const * name = luaL_checkstring(L, 2);
-    std::lock_guard<std::mutex> lock(S->m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(S->m_mutex);
     copy_values(L, 3, 3, S->m_state);
     lua_setglobal(S->m_state, name);
     return 0;
@@ -483,7 +483,7 @@ public:
                 m_in_channel_addr.store(&g_in_channel);
                 m_out_channel_addr.store(&g_out_channel);
                 auto S = m_state.m_ptr;
-                std::lock_guard<std::mutex> lock(S->m_mutex);
+                std::lock_guard<std::recursive_mutex> lock(S->m_mutex);
                 int result = lua_pcall(S->m_state, num_args, LUA_MULTRET, 0);
                 if (result) {
                     m_error = true;
@@ -563,7 +563,7 @@ int mk_thread(lua_State * L) {
     int sz_before;
     auto S = st.m_ptr;
     {
-        std::lock_guard<std::mutex> lock(S->m_mutex);
+        std::lock_guard<std::recursive_mutex> lock(S->m_mutex);
         sz_before = lua_gettop(S->m_state);
         int result  = luaL_loadstring(S->m_state, script);
         if (result)

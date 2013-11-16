@@ -30,6 +30,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/context.h"
 #include "bindings/lua/object.h"
 #include "bindings/lua/environment.h"
+#include "bindings/lua/justification.h"
 #include "bindings/lua/state.h"
 #include "bindings/lua/frontend_lean.h"
 #include "bindings/lua/lean.lua"
@@ -176,6 +177,7 @@ struct leanlua_state::imp {
         open_context(m_state);
         open_object(m_state);
         open_environment(m_state);
+        open_justification(m_state);
         open_state(m_state);
         open_frontend_lean(m_state);
         open_thread(m_state);

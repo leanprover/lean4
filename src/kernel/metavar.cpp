@@ -221,6 +221,10 @@ std::pair<expr, justification> metavar_env::get_subst_jst(name const & m) const 
     }
 }
 
+expr metavar_env::get_subst(name const & m) const {
+    return get_subst_jst(m).first;
+}
+
 expr metavar_env::get_subst(expr const & m) const {
     return get_subst_jst(m).first;
 }

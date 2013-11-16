@@ -149,6 +149,7 @@ public:
        \pre is_metavar(m)
     */
     expr get_subst(expr const & m) const;
+    expr get_subst(name const & m) const;
 
     /**
        \brief Apply f to each substitution in the metavariable environment.

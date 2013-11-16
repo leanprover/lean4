@@ -11,12 +11,15 @@
    licensed under http://www.boost.org/LICENSE_1_0.txt
 */
 #include <mutex>
+#include <thread>
 #include <condition_variable>
 #include <climits>
 
 namespace lean {
 class shared_mutex {
     std::mutex              m_mutex;
+    std::thread::id         m_rw_owner;
+    unsigned                m_rw_counter;
     std::condition_variable m_gate1;
     std::condition_variable m_gate2;
     unsigned                m_state;

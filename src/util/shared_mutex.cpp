@@ -10,27 +10,42 @@
    Hinnant. The proposal is also part of the Boost library which is
    licensed under http://www.boost.org/LICENSE_1_0.txt
 */
+#include "util/debug.h"
 #include "util/shared_mutex.h"
 
 namespace lean {
-shared_mutex::shared_mutex():m_state(0) {}
+shared_mutex::shared_mutex():m_rw_counter(0), m_state(0) {}
 shared_mutex::~shared_mutex() {
     std::lock_guard<std::mutex> lock(m_mutex);
 }
 
 void shared_mutex::lock() {
     std::unique_lock<std::mutex> lock(m_mutex);
+    if (m_rw_owner == std::this_thread::get_id()) {
+        m_rw_counter++;
+        return; // already has the lock
+    }
     while (m_state & write_entered)
         m_gate1.wait(lock);
     m_state |= write_entered;
     while (m_state & readers)
         m_gate2.wait(lock);
+    lean_assert(m_rw_counter == 0);
+    m_rw_owner   = std::this_thread::get_id();
+    m_rw_counter = 1;
 }
 
 bool shared_mutex::try_lock() {
     std::unique_lock<std::mutex> lock(m_mutex);
+    if (m_rw_owner == std::this_thread::get_id()) {
+        m_rw_counter++;
+        return true; // already has the lock
+    }
     if (m_state == 0) {
-        m_state = write_entered;
+        m_state      = write_entered;
+        lean_assert(m_rw_counter == 0);
+        m_rw_owner   = std::this_thread::get_id();
+        m_rw_counter = 1;
         return true;
     }
     return false;
@@ -38,12 +53,25 @@ bool shared_mutex::try_lock() {
 
 void shared_mutex::unlock() {
     std::lock_guard<std::mutex> lock(m_mutex);
+    lean_assert(m_rw_owner == std::this_thread::get_id());
+    lean_assert(m_rw_counter > 0);
+    m_rw_counter--;
+    if (m_rw_counter > 0)
+        return; // keep the lock
+    m_rw_owner = std::thread::id(); // reset owner
+    lean_assert(m_rw_counter == 0);
+    lean_assert(m_rw_owner != std::this_thread::get_id());
     m_state = 0;
     m_gate1.notify_all();
 }
 
 void shared_mutex::lock_shared() {
     std::unique_lock<std::mutex> lock(m_mutex);
+    if (m_rw_owner == std::this_thread::get_id()) {
+        lean_assert(m_rw_counter > 0);
+        m_rw_counter++;
+        return; // already has the lock
+    }
     while ((m_state & write_entered) || (m_state & readers) == readers)
         m_gate1.wait(lock);
     unsigned num_readers = (m_state & readers) + 1;
@@ -53,6 +81,11 @@ void shared_mutex::lock_shared() {
 
 bool shared_mutex::try_lock_shared() {
     std::unique_lock<std::mutex> lock(m_mutex);
+    if (m_rw_owner == std::this_thread::get_id()) {
+        lean_assert(m_rw_counter > 0);
+        m_rw_counter++;
+        return true; // already has the lock
+    }
     unsigned num_readers = m_state & readers;
     if (!(m_state & write_entered) && num_readers != readers) {
         ++num_readers;
@@ -65,6 +98,14 @@ bool shared_mutex::try_lock_shared() {
 
 void shared_mutex::unlock_shared() {
     std::lock_guard<std::mutex> lock(m_mutex);
+    if (m_rw_owner == std::this_thread::get_id()) {
+        // if we have a rw (aka unshared) lock, then
+        // the shared lock must be nested.
+        lean_assert(m_rw_counter > 1);
+        m_rw_counter--;
+        return;
+    }
+    lean_assert(m_rw_counter == 0);
     unsigned num_readers = (m_state & readers) - 1;
     m_state &= ~readers;
     m_state |= num_readers;

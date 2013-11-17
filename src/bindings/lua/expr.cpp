@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "util/name.h"
 #include "util/buffer.h"
 #include "util/sexpr/options.h"
+#include "util/sstream.h"
 #include "kernel/expr.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
@@ -251,7 +252,11 @@ static int expr_num_args(lua_State * L) {
 }
 
 static int expr_arg(lua_State * L) {
-    return push_expr(L, arg(to_app(L, 1), luaL_checkinteger(L, 2)));
+    expr & e = to_app(L, 1);
+    int i    = luaL_checkinteger(L, 2);
+    if (i >= static_cast<int>(num_args(e)) || i < 0)
+        throw exception(sstream() << "invalid application argument #" << i << ", application has " << num_args(e) << " arguments");
+    return push_expr(L, arg(e, i));
 }
 
 static int expr_fields(lua_State * L) {

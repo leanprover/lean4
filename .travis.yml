@@ -246,7 +246,7 @@ after_script:
       script/doxygen.sh;
       DOXYGEN_DIR=doc/html;
       find $DOXYGEN_DIR -type f -name "*.md5" -exec rm {} ";";
-      find $DOXYGEN_DIR -type f | split -l 100 - doxygen_new_files.txt.;
+      find $DOXYGEN_DIR -type f | split -l 100 - doxygen_files.txt.;
       ls -1 doxygen_files.txt.* | parallel -u -j 10 'script/dropbox_upload.py --destpath /Public --dropbox-token ${DROPBOX_KEY} --copylist {}';
   fi
 - if [[ $LEANREPO == BLESSED && $UPLOAD ]]; then

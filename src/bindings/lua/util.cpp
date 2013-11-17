@@ -6,8 +6,15 @@ Author: Leonardo de Moura
 */
 #include <lua.hpp>
 #include <string>
+#include <sstream>
+#include "kernel/kernel_exception.h"
+#include "library/elaborator/elaborator_exception.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/lua_exception.h"
+#include "bindings/lua/options.h"
+#include "bindings/lua/format.h"
+#include "bindings/lua/formatter.h"
+#include "bindings/lua/justification.h"
 
 namespace lean {
 /**
@@ -103,6 +110,15 @@ int safe_function_wrapper(lua_State * L, lua_CFunction f){
     char const * error_msg;
     try {
         return f(L);
+    } catch (kernel_exception & e) {
+        std::ostringstream out;
+        options o = get_global_options(L);
+        out << mk_pair(e.pp(get_global_formatter(L), o), o);
+        _error_msg = out.str();
+        error_msg  = _error_msg.c_str();
+    } catch (elaborator_exception & e) {
+        push_justification(L, e.get_justification());
+        lua_error(L);
     } catch (exception & e) {
         _error_msg = e.what();
         error_msg  = _error_msg.c_str();

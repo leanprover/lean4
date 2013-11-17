@@ -22,7 +22,7 @@ static int justification_tostring(lua_State * L) {
     if (jst) {
         formatter fmt  = get_global_formatter(L);
         options   opts = get_global_options(L);
-        out << mk_pair(jst.pp(fmt, opts, nullptr, false), opts);
+        out << mk_pair(jst.pp(fmt, opts), opts);
     } else {
         out << "<null-justification>";
     }

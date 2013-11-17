@@ -21,6 +21,4 @@ public:
     virtual char const * what() const noexcept { return "elaborator exception"; }
     justification const & get_justification() const { return m_justification; }
 };
-
-
 }

@@ -1,0 +1,7 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: i
+  Assumed: j
+  Assumed: p
+Failed to solve
+ ⊢ (?M::0 ≈ Nat::add) ⊕ (?M::0 ≈ Int::add) ⊕ (?M::0 ≈ Real::add)

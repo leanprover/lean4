@@ -33,6 +33,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/justification.h"
 #include "bindings/lua/metavar_env.h"
 #include "bindings/lua/state.h"
+#include "bindings/lua/type_inferer.h"
 #include "bindings/lua/frontend_lean.h"
 #include "bindings/lua/lean.lua"
 
@@ -181,6 +182,7 @@ struct leanlua_state::imp {
         open_justification(m_state);
         open_metavar_env(m_state);
         open_state(m_state);
+        open_type_inferer(m_state);
         open_frontend_lean(m_state);
         open_thread(m_state);
         open_interrupt(m_state);

@@ -28,6 +28,8 @@ private:
 public:
     environment();
     ~environment();
+
+    friend bool is_eqp(environment const & env1, environment const & env2) { return env1.m_ptr.get() == env2.m_ptr.get(); }
     // =======================================
     // Parent/Child environment management
     /**

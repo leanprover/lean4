@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <lua.hpp>
 #include "kernel/environment.h"
 #include "kernel/formatter.h"
+#include "library/type_inferer.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
 #include "bindings/lua/options.h"
@@ -185,6 +186,15 @@ static int environment_local_objects(lua_State * L) {
     return environment_objects_core(L, true);
 }
 
+static int environment_infer_type(lua_State * L) {
+    int nargs = lua_gettop(L);
+    type_inferer inferer(to_environment(L, 1));
+    if (nargs == 2)
+        return push_expr(L, inferer(to_nonnull_expr(L, 2)));
+    else
+        return push_expr(L, inferer(to_nonnull_expr(L, 2), to_context(L, 3)));
+}
+
 static int environment_tostring(lua_State * L) {
     ro_environment env(L, 1);
     std::ostringstream out;
@@ -211,6 +221,7 @@ static const struct luaL_Reg environment_m[] = {
     {"find_object",    safe_function<environment_find_object>},
     {"has_object",     safe_function<environment_has_object>},
     {"check_type",     safe_function<environment_check_type>},
+    {"infer_type",     safe_function<environment_infer_type>},
     {"normalize",      safe_function<environment_normalize>},
     {"objects",        safe_function<environment_objects>},
     {"local_objects",  safe_function<environment_local_objects>},

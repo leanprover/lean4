@@ -435,6 +435,12 @@ environment::environment(std::shared_ptr<imp> const & ptr):
     m_ptr(ptr) {
 }
 
+environment::environment(weak_ref const & r) {
+    if (r.expired())
+        throw exception("weak reference to environment object has expired (i.e., the environment has been deleted)");
+    m_ptr = r.lock();
+}
+
 environment::~environment() {
 }
 

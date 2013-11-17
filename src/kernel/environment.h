@@ -282,6 +282,6 @@ public:
 public:
     typedef std::weak_ptr<imp> weak_ref;
     weak_ref to_weak_ref() const { return weak_ref(m_ptr); }
-    environment(weak_ref const & r):m_ptr(r) { lean_assert(!r.expired()); }
+    environment(weak_ref const & r);
 };
 }

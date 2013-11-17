@@ -270,6 +270,18 @@ static void tst12() {
     lean_assert(ext.get_parent<my_extension>() == nullptr);
 }
 
+static void tst13() {
+    environment::weak_ref wref;
+    {
+        environment env;
+        wref = env.to_weak_ref();
+    }
+    try {
+        environment env2(wref);
+        lean_unreachable();
+    } catch (exception &) {}
+}
+
 int main() {
     enable_trace("is_convertible");
     tst1();
@@ -284,5 +296,6 @@ int main() {
     tst10();
     tst11();
     tst12();
+    tst13();
     return has_violations() ? 1 : 0;
 }

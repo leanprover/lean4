@@ -118,7 +118,7 @@ int safe_function_wrapper(lua_State * L, lua_CFunction f){
         error_msg  = _error_msg.c_str();
     } catch (elaborator_exception & e) {
         push_justification(L, e.get_justification());
-        lua_error(L);
+        return lua_error(L);
     } catch (exception & e) {
         _error_msg = e.what();
         error_msg  = _error_msg.c_str();

@@ -243,11 +243,11 @@ after_script:
 - cd ..
 - if [[ $LEANREPO == BLESSED && $BUILD_DOXYGEN == TRUE ]]; then
       sudo apt-get -qq install graphviz doxygen parallel;
-      script/doxygen.sh;
+      script/doxygen.sh > /dev/null;
       DOXYGEN_DIR=doc/html;
       find $DOXYGEN_DIR -type f -name "*.md5" -exec rm {} ";";
       find $DOXYGEN_DIR -type f | split -l 100 - doxygen_files.txt.;
-      ls -1 doxygen_files.txt.* | parallel -u -j 10 'script/dropbox_upload.py --destpath /Public --dropbox-token ${DROPBOX_KEY} --copylist {}';
+      ls -1 doxygen_files.txt.* | parallel -u -j 10 "script/dropbox_upload.py --destpath /Public --dropbox-token ${DROPBOX_KEY} --copylist {}";
   fi
 - if [[ $LEANREPO == BLESSED && $UPLOAD ]]; then
       UPLOAD_DIR=bin;

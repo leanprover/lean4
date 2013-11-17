@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <sstream>
 #include <lua.hpp>
 #include "util/debug.h"
+#include "util/sstream.h"
 #include "util/numerics/mpz.h"
 #include "util/numerics/mpq.h"
 #include "bindings/lua/util.h"
@@ -17,24 +18,20 @@ DECL_UDATA(mpz)
 template<unsigned idx>
 static mpz const & to_mpz(lua_State * L) {
     static thread_local mpz arg;
-    if (lua_isuserdata(L, idx)) {
-        return *static_cast<mpz*>(luaL_checkudata(L, idx, mpz_mt));
-    } else if (lua_isstring(L, idx)) {
-        arg = mpz(luaL_checkstring(L, idx));
-        return arg;
-    } else {
-        arg = static_cast<long int>(luaL_checkinteger(L, 1));
-        return arg;
+    switch (lua_type(L, idx)) {
+    case LUA_TNUMBER:       arg = static_cast<long>(lua_tointeger(L, idx)); return arg;
+    case LUA_TSTRING:       arg = mpz(lua_tostring(L, idx)); return arg;
+    case LUA_TUSERDATA:     return *static_cast<mpz*>(luaL_checkudata(L, idx, mpz_mt));
+    default: throw exception(sstream() << "arg #" << idx << " must be a number, string or mpz");
     }
 }
 
 mpz to_mpz_ext(lua_State * L, int idx) {
-    if (lua_isuserdata(L, idx)) {
-        return *static_cast<mpz*>(luaL_checkudata(L, idx, mpz_mt));
-    } else if (lua_isstring(L, idx)) {
-        return mpz(luaL_checkstring(L, idx));
-    } else {
-        return mpz(static_cast<long int>(luaL_checkinteger(L, 1)));
+    switch (lua_type(L, idx)) {
+    case LUA_TNUMBER:       return mpz(static_cast<long>(lua_tointeger(L, idx)));
+    case LUA_TSTRING:       return mpz(lua_tostring(L, idx));
+    case LUA_TUSERDATA:     return *static_cast<mpz*>(luaL_checkudata(L, idx, mpz_mt));
+    default: throw exception(sstream() << "arg #" << idx << " must be a number, string or mpz");
     }
 }
 
@@ -95,7 +92,7 @@ static const struct luaL_Reg mpz_m[] = {
     {"__eq",       safe_function<mpz_eq>},
     {"__lt",       safe_function<mpz_lt>},
     {"__add",      safe_function<mpz_add>},
-    {"__add",      safe_function<mpz_sub>},
+    {"__sub",      safe_function<mpz_sub>},
     {"__mul",      safe_function<mpz_mul>},
     {"__div",      safe_function<mpz_div>},
     {"__pow",      safe_function<mpz_power>},
@@ -116,31 +113,31 @@ DECL_UDATA(mpq)
 template<unsigned idx>
 static mpq const & to_mpq(lua_State * L) {
     static thread_local mpq arg;
-    if (lua_isuserdata(L, idx)) {
+    switch (lua_type(L, idx)) {
+    case LUA_TNUMBER:       arg = lua_tonumber(L, idx); return arg;
+    case LUA_TSTRING:       arg = mpq(lua_tostring(L, idx)); return arg;
+    case LUA_TUSERDATA:
         if (is_mpz(L, idx)) {
             arg = mpq(to_mpz<idx>(L));
+            return arg;
         } else {
             return *static_cast<mpq*>(luaL_checkudata(L, idx, mpq_mt));
         }
-    } else if (lua_isstring(L, idx)) {
-        arg = mpq(luaL_checkstring(L, idx));
-    } else {
-        arg = static_cast<long int>(luaL_checkinteger(L, 1));
+    default: throw exception(sstream() << "arg #" << idx << " must be a number, string, mpz or mpq");
     }
-    return arg;
 }
 
 mpq to_mpq_ext(lua_State * L, int idx) {
-    if (lua_isuserdata(L, idx)) {
+    switch (lua_type(L, idx)) {
+    case LUA_TNUMBER:       return mpq(lua_tonumber(L, idx));
+    case LUA_TSTRING:       return mpq(lua_tostring(L, idx));
+    case LUA_TUSERDATA:
         if (is_mpz(L, idx)) {
-            return mpq(to_mpz(L, idx));
+            return mpq(to_mpz<1>(L));
         } else {
             return *static_cast<mpq*>(luaL_checkudata(L, idx, mpq_mt));
         }
-    } else if (lua_isstring(L, idx)) {
-        return mpq(luaL_checkstring(L, idx));
-    } else {
-        return mpq(static_cast<long int>(luaL_checkinteger(L, 1)));
+    default: throw exception(sstream() << "arg #" << idx << " must be a number, string, mpz or mpq");
     }
 }
 
@@ -201,7 +198,7 @@ static const struct luaL_Reg mpq_m[] = {
     {"__eq",       safe_function<mpq_eq>},
     {"__lt",       safe_function<mpq_lt>},
     {"__add",      safe_function<mpq_add>},
-    {"__add",      safe_function<mpq_sub>},
+    {"__sub",      safe_function<mpq_sub>},
     {"__mul",      safe_function<mpq_mul>},
     {"__div",      safe_function<mpq_div>},
     {"__pow",      safe_function<mpq_power>},

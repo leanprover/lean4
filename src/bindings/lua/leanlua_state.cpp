@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/options.h"
 #include "bindings/lua/sexpr.h"
 #include "bindings/lua/format.h"
+#include "bindings/lua/formatter.h"
 #include "bindings/lua/level.h"
 #include "bindings/lua/local_context.h"
 #include "bindings/lua/expr.h"
@@ -173,6 +174,7 @@ struct leanlua_state::imp {
         open_options(m_state);
         open_sexpr(m_state);
         open_format(m_state);
+        open_formatter(m_state);
         open_level(m_state);
         open_local_context(m_state);
         open_expr(m_state);

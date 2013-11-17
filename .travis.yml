@@ -14,97 +14,97 @@ env:
    - secure: "UaRz6E3zZeOG/2UzrGrsofYPkQG3qWzooYV6cRm5G+pMYReee8MdosnP6GtmPFhoFlkHeLQl21BpoJu3yFtrQoD2qpdrnb2uOJMYlSHLJtcZ5+pOl3DuX1qu06xXtz4PrZUSTx4WyaYynBP5kpky2Ghzmm1B5LKLUBcpCyP7uaw="
 
   matrix:
-   # # =======================================================
-   # # TESTCOV Build
-   # # =======================================================
-   # # TC. g++-4.8      | DEBUG                   | CDASH
-   # - CMAKE_CXX_COMPILER=g++-4.8
-   #   CMAKE_BUILD_TYPE=Debug
-   #   TESTCOV=ON
-   #   PUSH_TO_CDASH=TRUE
-   #   TCMALLOC=OFF
-   # # =======================================================
-   # # DEBUG Build
-   # # =======================================================
-   # # D1. clang++-3.3  | DEBUG   | TCMALLOC       | CDASH
-   # - CMAKE_CXX_COMPILER=clang++-3.3
-   #   CMAKE_BUILD_TYPE=DEBUG
-   #   TCMALLOC=ON
-   #   PUSH_TO_CDASH=TRUE
-   # # D2. g++-4.8     | DEBUG    | TCMALLOC       | CDASH + TRIGGERS
-   # - CMAKE_CXX_COMPILER=g++-4.8
-   #   CMAKE_BUILD_TYPE=DEBUG
-   #   TRIGGER_BB=TRUE
-   #   TRIGGER_OSX=TRUE
-   #   TRIGGER_WINDOWS=TRUE
-   #   TCMALLOC=ON
-   #   PUSH_TO_CDASH=TRUE
-   # # D3. clang++-3.3 | DEBUG
-   # - CMAKE_CXX_COMPILER=clang++-3.3
-   #   CMAKE_BUILD_TYPE=DEBUG
-   #   TCMALLOC=OFF
-   #   PUSH_TO_CDASH=TRUE
-   # # D4. g++-4.8     | DEBUG
-   # - CMAKE_CXX_COMPILER=g++-4.8
-   #   CMAKE_BUILD_TYPE=DEBUG
-   #   TCMALLOC=OFF
-   #   PUSH_TO_CDASH=TRUE
-   # # =======================================================
-   # # RELEASE Build
-   # # =======================================================
-   # # R1. clang++-3.3 | RELEASE | TCMALLOC        | CDASH
-   # - CMAKE_CXX_COMPILER=clang++-3.3
-   #   CMAKE_BUILD_TYPE=RELEASE
-   #   TCMALLOC=ON
-   #   PUSH_TO_CDASH=TRUE
-   # # R2. g++-4.8     | RELEASE | TCMALLOC        | CDASH + UPLOAD=>DROPBOX
-   # - CMAKE_CXX_COMPILER=g++-4.8
-   #   CMAKE_BUILD_TYPE=RELEASE
-   #   TCMALLOC=ON
-   #   UPLOAD=linux_tcmalloc
-   #   PUSH_TO_CDASH=TRUE
-   # # R3. clang++-3.3 | RELEASE
-   # - CMAKE_CXX_COMPILER=clang++-3.3
-   #   CMAKE_BUILD_TYPE=RELEASE
-   #   TCMALLOC=OFF
-   #   PUSH_TO_CDASH=TRUE
-   # # R4. g++-4.8    | RELEASE                    | UPLOAD=>DROPBOX
-   # - CMAKE_CXX_COMPILER=g++-4.8
-   #   CMAKE_BUILD_TYPE=RELEASE
-   #   TCMALLOC=OFF
-   #   UPLOAD=linux
-   #   PUSH_TO_CDASH=TRUE
-   # # =======================================================
-   # # MEMCHECK Build
-   # # =======================================================
-   # # M1-1. clang++-3.3 | DEBUG    | MEMCHECK       | CDASH
-   # - CMAKE_CXX_COMPILER=clang++-3.3
-   #   CMAKE_BUILD_TYPE=DEBUG
-   #   TCMALLOC=OFF
-   #   MEMCHECK=TRUE
-   #   MEMCHECK_RANGE=1,40
-   #   PUSH_TO_CDASH=TRUE
-   # # M1-2. clang++-3.3 | DEBUG    | MEMCHECK       | CDASH
-   # - CMAKE_CXX_COMPILER=clang++-3.3
-   #   CMAKE_BUILD_TYPE=DEBUG
-   #   TCMALLOC=OFF
-   #   MEMCHECK=TRUE
-   #   MEMCHECK_RANGE=40,80
-   #   PUSH_TO_CDASH=TRUE
-   # # M2-1. g++-4.8     | DEBUG    | MEMCHECK       | CDASH
-   # - CMAKE_CXX_COMPILER=g++-4.8
-   #   CMAKE_BUILD_TYPE=DEBUG
-   #   TCMALLOC=ON
-   #   MEMCHECK=TRUE
-   #   MEMCHECK_RANGE=1,40
-   #   PUSH_TO_CDASH=TRUE
-   #  # M2-2. g++-4.8     | DEBUG    | MEMCHECK       | CDASH
-   # - CMAKE_CXX_COMPILER=g++-4.8
-   #   CMAKE_BUILD_TYPE=DEBUG
-   #   TCMALLOC=ON
-   #   MEMCHECK=TRUE
-   #   MEMCHECK_RANGE=40,80
-   #   PUSH_TO_CDASH=TRUE
+   # =======================================================
+   # TESTCOV Build
+   # =======================================================
+   # TC. g++-4.8      | DEBUG                   | CDASH
+   - CMAKE_CXX_COMPILER=g++-4.8
+     CMAKE_BUILD_TYPE=Debug
+     TESTCOV=ON
+     PUSH_TO_CDASH=TRUE
+     TCMALLOC=OFF
+   # =======================================================
+   # DEBUG Build
+   # =======================================================
+   # D1. clang++-3.3  | DEBUG   | TCMALLOC       | CDASH
+   - CMAKE_CXX_COMPILER=clang++-3.3
+     CMAKE_BUILD_TYPE=DEBUG
+     TCMALLOC=ON
+     PUSH_TO_CDASH=TRUE
+   # D2. g++-4.8     | DEBUG    | TCMALLOC       | CDASH + TRIGGERS
+   - CMAKE_CXX_COMPILER=g++-4.8
+     CMAKE_BUILD_TYPE=DEBUG
+     TRIGGER_BB=TRUE
+     TRIGGER_OSX=TRUE
+     TRIGGER_WINDOWS=TRUE
+     TCMALLOC=ON
+     PUSH_TO_CDASH=TRUE
+   # D3. clang++-3.3 | DEBUG
+   - CMAKE_CXX_COMPILER=clang++-3.3
+     CMAKE_BUILD_TYPE=DEBUG
+     TCMALLOC=OFF
+     PUSH_TO_CDASH=TRUE
+   # D4. g++-4.8     | DEBUG
+   - CMAKE_CXX_COMPILER=g++-4.8
+     CMAKE_BUILD_TYPE=DEBUG
+     TCMALLOC=OFF
+     PUSH_TO_CDASH=TRUE
+   # =======================================================
+   # RELEASE Build
+   # =======================================================
+   # R1. clang++-3.3 | RELEASE | TCMALLOC        | CDASH
+   - CMAKE_CXX_COMPILER=clang++-3.3
+     CMAKE_BUILD_TYPE=RELEASE
+     TCMALLOC=ON
+     PUSH_TO_CDASH=TRUE
+   # R2. g++-4.8     | RELEASE | TCMALLOC        | CDASH + UPLOAD=>DROPBOX
+   - CMAKE_CXX_COMPILER=g++-4.8
+     CMAKE_BUILD_TYPE=RELEASE
+     TCMALLOC=ON
+     UPLOAD=linux_tcmalloc
+     PUSH_TO_CDASH=TRUE
+   # R3. clang++-3.3 | RELEASE
+   - CMAKE_CXX_COMPILER=clang++-3.3
+     CMAKE_BUILD_TYPE=RELEASE
+     TCMALLOC=OFF
+     PUSH_TO_CDASH=TRUE
+   # R4. g++-4.8    | RELEASE                    | UPLOAD=>DROPBOX
+   - CMAKE_CXX_COMPILER=g++-4.8
+     CMAKE_BUILD_TYPE=RELEASE
+     TCMALLOC=OFF
+     UPLOAD=linux
+     PUSH_TO_CDASH=TRUE
+   # =======================================================
+   # MEMCHECK Build
+   # =======================================================
+   # M1-1. clang++-3.3 | DEBUG    | MEMCHECK       | CDASH
+   - CMAKE_CXX_COMPILER=clang++-3.3
+     CMAKE_BUILD_TYPE=DEBUG
+     TCMALLOC=OFF
+     MEMCHECK=TRUE
+     MEMCHECK_RANGE=1,40
+     PUSH_TO_CDASH=TRUE
+   # M1-2. clang++-3.3 | DEBUG    | MEMCHECK       | CDASH
+   - CMAKE_CXX_COMPILER=clang++-3.3
+     CMAKE_BUILD_TYPE=DEBUG
+     TCMALLOC=OFF
+     MEMCHECK=TRUE
+     MEMCHECK_RANGE=40,80
+     PUSH_TO_CDASH=TRUE
+   # M2-1. g++-4.8     | DEBUG    | MEMCHECK       | CDASH
+   - CMAKE_CXX_COMPILER=g++-4.8
+     CMAKE_BUILD_TYPE=DEBUG
+     TCMALLOC=ON
+     MEMCHECK=TRUE
+     MEMCHECK_RANGE=1,40
+     PUSH_TO_CDASH=TRUE
+    # M2-2. g++-4.8     | DEBUG    | MEMCHECK       | CDASH
+   - CMAKE_CXX_COMPILER=g++-4.8
+     CMAKE_BUILD_TYPE=DEBUG
+     TCMALLOC=ON
+     MEMCHECK=TRUE
+     MEMCHECK_RANGE=40,80
+     PUSH_TO_CDASH=TRUE
    # =======================================================
    # DOXYGEN Build
    # =======================================================
@@ -268,7 +268,6 @@ after_script:
 notifications:
   email:
     recipients:
-     - soonho.kong@gmail.com
-    # - leansmt-dev@googlegroups.com
+     - leansmt-dev@googlegroups.com
     on_success: always
     on_failure: always

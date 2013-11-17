@@ -10,3 +10,5 @@ GTAGS
 Makefile
 *.cmake
 CMakeFiles/
+.projectile
+.coveralls.yml

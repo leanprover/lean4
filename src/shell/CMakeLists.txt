@@ -6,9 +6,21 @@ add_test(example1 ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../exampl
 add_test(example2 ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../examples/lean/ex2.lean")
 add_test(example3 ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../examples/lean/ex3.lean")
 add_test(example1_stdin ${CMAKE_CURRENT_BINARY_DIR}/lean < "${LEAN_SOURCE_DIR}/../examples/lean/ex1.lean")
-add_test(NAME leantests
-         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
-         COMMAND "./test.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
-add_test(NAME leanslowtests
-         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/slow"
-         COMMAND "../test.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
+
+# LEANTESTS
+file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")
+FOREACH(T ${LEANTESTS})
+  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+  add_test(NAME "leantest_${T_NAME}"
+           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
+           COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T})
+ENDFOREACH(T)
+
+# LEANSLOWTESTS
+file(GLOB LEANSLOWTESTS "${LEAN_SOURCE_DIR}/../tests/lean/slow/*.lean")
+FOREACH(T ${LEANSLOWTESTS})
+  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+  add_test(NAME "leanslowtest_${T_NAME}"
+           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/slow"
+           COMMAND "../test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T})
+ENDFOREACH(T)

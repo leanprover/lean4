@@ -99,6 +99,7 @@ void disable_debug(char const * tag);
 bool is_debug_enabled(char const * tag);
 void invoke_debugger();
 bool has_violations();
+// LCOV_EXCL_START
 /** \brief Exception used to sign that unreachable code was reached */
 class unreachable_reached : public exception {
 public:
@@ -113,4 +114,5 @@ template<typename T> void display_var(char const * name, T const & value) {
               << std::boolalpha << value << std::noboolalpha
               << std::endl; }
 }
+// LCOV_EXCL_STOP
 }

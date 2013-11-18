@@ -1,0 +1,7 @@
+local s = splay_map()
+assert(s:empty())
+assert(#s == 0)
+s:insert(10, 1)
+assert(not s:empty())
+assert(#s == 1)
+assert(s:find(10) == 1)

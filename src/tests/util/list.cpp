@@ -86,6 +86,13 @@ static void tst7() {
     lean_assert(l2 == l3);
 }
 
+static void tst8() {
+    list<int> l1{1, 2, 3};
+    unsigned c = 0;
+    for_each(l1, [&](int ){ c = c + 1; });
+    lean_assert(c == length(l1));
+}
+
 int main() {
     tst1();
     tst2();
@@ -94,5 +101,6 @@ int main() {
     tst5();
     tst6();
     tst7();
+    tst8();
     return has_violations() ? 1 : 0;
 }

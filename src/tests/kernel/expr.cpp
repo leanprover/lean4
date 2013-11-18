@@ -19,7 +19,7 @@ Author: Leonardo de Moura
 #include "library/arith/arith.h"
 using namespace lean;
 
-void tst1() {
+static void tst1() {
     expr a;
     a = Const("a");
     expr f;
@@ -40,7 +40,7 @@ void tst1() {
     std::cout << mk_pi("x", ty, Var(0)) << "\n";
 }
 
-expr mk_dag(unsigned depth, bool _closed = false) {
+static expr mk_dag(unsigned depth, bool _closed = false) {
     expr f = Const("f");
     expr a = _closed ? Const("a") : Var(0);
     while (depth > 0) {
@@ -50,7 +50,7 @@ expr mk_dag(unsigned depth, bool _closed = false) {
     return a;
 }
 
-unsigned depth1(expr const & e) {
+static unsigned depth1(expr const & e) {
     switch (e.kind()) {
     case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type:
     case expr_kind::Value: case expr_kind::MetaVar:
@@ -72,7 +72,7 @@ unsigned depth1(expr const & e) {
 }
 
 // This is the fastest depth implementation in this file.
-unsigned depth2(expr const & e) {
+static unsigned depth2(expr const & e) {
     switch (e.kind()) {
     case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type:
     case expr_kind::Value: case expr_kind::MetaVar:
@@ -92,45 +92,7 @@ unsigned depth2(expr const & e) {
     return 0;
 }
 
-// This is the slowest depth implementation in this file.
-unsigned depth3(expr const & e) {
-    static std::vector<std::pair<expr const *, unsigned>> todo;
-    unsigned m = 0;
-    todo.emplace_back(&e, 0);
-    while (!todo.empty()) {
-        auto const & p = todo.back();
-        expr const & e = *(p.first);
-        unsigned c     = p.second + 1;
-        todo.pop_back();
-        switch (e.kind()) {
-        case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type:
-        case expr_kind::Value: case expr_kind::MetaVar:
-            m = std::max(c, m);
-            break;
-        case expr_kind::App: {
-            unsigned num = num_args(e);
-            for (unsigned i = 0; i < num; i++)
-                todo.emplace_back(&arg(e, i), c);
-            break;
-        }
-        case expr_kind::Eq:
-            todo.emplace_back(&eq_lhs(e), c);
-            todo.emplace_back(&eq_rhs(e), c);
-            break;
-        case expr_kind::Lambda: case expr_kind::Pi:
-            todo.emplace_back(&abst_domain(e), c);
-            todo.emplace_back(&abst_body(e), c);
-            break;
-        case expr_kind::Let:
-            todo.emplace_back(&let_value(e), c);
-            todo.emplace_back(&let_body(e), c);
-            break;
-        }
-    }
-    return m;
-}
-
-void tst2() {
+static void tst2() {
     expr r1 = mk_dag(20);
     expr r2 = mk_dag(20);
     lean_assert(r1 == r2);
@@ -138,21 +100,21 @@ void tst2() {
     lean_assert(depth2(r1) == 21);
 }
 
-expr mk_big(expr f, unsigned depth, unsigned val) {
+static expr mk_big(expr f, unsigned depth, unsigned val) {
     if (depth == 1)
         return Const(name(name("foo"), val));
     else
         return f(mk_big(f, depth - 1, val << 1), mk_big(f, depth - 1, (val << 1) + 1));
 }
 
-void tst3() {
+static void tst3() {
     expr f = Const("f");
     expr r1 = mk_big(f, 20, 0);
     expr r2 = mk_big(f, 20, 0);
     lean_assert(r1 == r2);
 }
 
-void tst4() {
+static void tst4() {
     expr f = Const("f");
     expr a = Var(0);
     for (unsigned i = 0; i < 10000; i++) {
@@ -160,15 +122,14 @@ void tst4() {
     }
 }
 
-expr mk_redundant_dag(expr f, unsigned depth) {
+static expr mk_redundant_dag(expr f, unsigned depth) {
     if (depth == 0)
         return Var(0);
     else
         return f(mk_redundant_dag(f, depth - 1), mk_redundant_dag(f, depth - 1));
 }
 
-
-unsigned count_core(expr const & a, expr_set & s) {
+static unsigned count_core(expr const & a, expr_set & s) {
     if (s.find(a) != s.end())
         return 0;
     s.insert(a);
@@ -189,12 +150,12 @@ unsigned count_core(expr const & a, expr_set & s) {
     return 0;
 }
 
-unsigned count(expr const & a) {
+static unsigned count(expr const & a) {
     expr_set s;
     return count_core(a, s);
 }
 
-void tst5() {
+static void tst5() {
     expr f  = Const("f");
     {
         expr r1 = mk_redundant_dag(f, 5);
@@ -214,7 +175,7 @@ void tst5() {
     }
 }
 
-void tst6() {
+static void tst6() {
     expr f = Const("f");
     expr r = mk_redundant_dag(f, 12);
     for (unsigned i = 0; i < 1000; i++) {
@@ -226,7 +187,7 @@ void tst6() {
     }
 }
 
-void tst7() {
+static void tst7() {
     expr f  = Const("f");
     expr v  = Var(0);
     expr a1 = max_sharing(f(v, v));
@@ -236,7 +197,7 @@ void tst7() {
     lean_assert(is_eqp(arg(b, 1), arg(b, 2)));
 }
 
-void tst8() {
+static void tst8() {
     expr f = Const("f");
     expr x = Var(0);
     expr a = Const("a");
@@ -268,14 +229,14 @@ void tst8() {
     lean_assert(closed(mk_lambda("z", p, r)));
 }
 
-void tst9() {
+static void tst9() {
     expr r = mk_dag(20, true);
     lean_assert(closed(r));
     r = mk_dag(20, false);
     lean_assert(!closed(r));
 }
 
-void tst10() {
+static void tst10() {
     expr f = Const("f");
     expr r = mk_big(f, 16, 0);
     for (unsigned i = 0; i < 1000; i++) {
@@ -288,11 +249,11 @@ void tst10() {
 
    \pre s and t must be closed expressions (i.e., no free variables)
 */
-inline expr substitute(expr const & e, expr const & s, expr const & t) {
+static expr substitute(expr const & e, expr const & s, expr const & t) {
     return instantiate(abstract(e, s), t);
 }
 
-void tst11() {
+static void tst11() {
     expr f = Const("f");
     expr a = Const("a");
     expr b = Const("b");
@@ -315,7 +276,7 @@ void tst11() {
     lean_assert(substitute(f(f(f(a))), f(a), b) == f(f(b)));
 }
 
-void tst12() {
+static void tst12() {
     expr f  = Const("f");
     expr v  = Var(0);
     expr a1 = max_sharing(f(v, v));
@@ -327,7 +288,7 @@ void tst12() {
     lean_assert(is_eqp(M(a1), M(a2)));
 }
 
-void tst13() {
+static void tst13() {
     expr t0 = Type();
     expr t1 = Type(level()+1);
     lean_assert(ty_level(t1) == level()+1);
@@ -335,7 +296,7 @@ void tst13() {
     std::cout << t0 << " " << t1 << "\n";
 }
 
-void tst14() {
+static void tst14() {
     expr t = Eq(Const("a"), Const("b"));
     std::cout << t << "\n";
     expr l = mk_let("a", expr(), Const("b"), Var(0));
@@ -343,7 +304,7 @@ void tst14() {
     lean_assert(closed(l));
 }
 
-void tst15() {
+static void tst15() {
     expr f = Const("f");
     expr x = Var(0);
     expr a = Const("a");
@@ -372,6 +333,47 @@ void tst15() {
     lean_assert(has_metavar(Eq(a, f(m))));
 }
 
+static void check_copy(expr const & e) {
+    expr c = copy(e);
+    lean_assert(!is_eqp(e, c));
+    lean_assert(e == c);
+}
+
+static void tst16() {
+    expr f = Const("f");
+    expr a = Const("a");
+    check_copy(iVal(10));
+    check_copy(f(a));
+    check_copy(Eq(f(a), a));
+    check_copy(mk_metavar("M"));
+    check_copy(mk_lambda("x", a, Var(0)));
+    check_copy(mk_pi("x", a, Var(0)));
+    check_copy(mk_let("x", expr(), a, Var(0)));
+}
+
+static void tst17() {
+    lean_assert(is_true(True));
+    lean_assert(is_false(False));
+    lean_assert(!is_true(Const("a")));
+    lean_assert(!is_false(Const("a")));
+}
+
+static void tst18() {
+    expr f = Const("f");
+    expr a = Const("a");
+    lean_assert_eq(mk_bin_rop(f, a, 0, nullptr), a);
+    expr b = Const("b");
+    lean_assert_eq(mk_bin_rop(f, a, 1, &b), b);
+    expr a1 = Const("a1"); expr a2 = Const("a2"); expr a3 = Const("a3");
+    expr ar[] = { a1, a2, a3 };
+    lean_assert_eq(mk_bin_rop(f, a, 3, ar), f(a1, f(a2, a3)));
+    lean_assert_eq(mk_bin_rop(f, a, {a1, a2, a3}), f(a1, f(a2, a3)));
+    lean_assert_eq(mk_bin_lop(f, a, 0, nullptr), a);
+    lean_assert_eq(mk_bin_lop(f, a, 1, &b), b);
+    lean_assert_eq(mk_bin_lop(f, a, 3, ar), f(f(a1, a2), a3));
+    lean_assert_eq(mk_bin_lop(f, a, {a1, a2, a3}), f(f(a1, a2), a3));
+}
+
 int main() {
     std::cout << "sizeof(expr):      " << sizeof(expr) << "\n";
     std::cout << "sizeof(expr_app):  " << sizeof(expr_app) << "\n";
@@ -391,6 +393,9 @@ int main() {
     tst13();
     tst14();
     tst15();
+    tst16();
+    tst17();
+    tst18();
     std::cout << "done" << "\n";
     return has_violations() ? 1 : 0;
 }

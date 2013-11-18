@@ -43,8 +43,19 @@ static void tst1() {
     lean_assert(out.str() == "t1 t2 ");
 }
 
+static void tst2() {
+    int2name m1, m2;
+    m1[10] = name("t1");
+    lean_assert(m1.size() == 1);
+    lean_assert(m2.size() == 0);
+    swap(m1, m2);
+    lean_assert(m2.size() == 1);
+    lean_assert(m1.size() == 0);
+}
+
 int main() {
     tst0();
     tst1();
+    tst2();
     return has_violations() ? 1 : 0;
 }

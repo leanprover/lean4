@@ -85,10 +85,14 @@ public:
     virtual expr get_type() const { return Bool; }
     virtual name get_name() const { return m_val ? g_true_name : g_false_name; }
     virtual name get_unicode_name() const { return m_val ? g_true_u_name : g_false_u_name; }
+    // LCOV_EXCL_START
     virtual bool operator==(value const & other) const {
+        // This method is unreachable because there is only one copy of True and False in the system,
+        // and they have different hashcodes.
         bool_value_value const * _other = dynamic_cast<bool_value_value const*>(&other);
         return _other && _other->m_val == m_val;
     }
+    // LCOV_EXCL_STOP
     bool get_val() const { return m_val; }
 };
 expr const True  = mk_value(*(new bool_value_value(true)));

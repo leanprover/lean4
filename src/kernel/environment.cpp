@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include <unordered_map>
 #include <mutex>
 #include "util/safe_arith.h"
+#include "util/realpath.h"
 #include "kernel/for_each.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/environment.h"
@@ -426,7 +427,7 @@ struct environment::imp {
     }
 
     bool mark_imported(char const * fname, environment const & env) {
-        return mark_imported_core(name(realpath(fname, nullptr)), env);
+        return mark_imported_core(name(realpath(fname)), env);
     }
 
     bool mark_builtin_imported(char const * id, environment const & env) {

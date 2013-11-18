@@ -24,6 +24,10 @@ if((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_DEFAULT_PP_UNICODE=false")
 endif()
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_WINDOWS")
+endif()
+
 if("${THREAD_SAFE}" MATCHES "OFF")
   message(STATUS "Disabled thread-safety, it will not be safe to run multiple threads in parallel")
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_THREAD_UNSAFE")

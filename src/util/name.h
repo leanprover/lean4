@@ -26,6 +26,7 @@ class name {
 public:
     name();
     name(char const * name);
+    name(std::string const & s):name(s.c_str()) {}
     name(name const & prefix, char const * name);
     name(name const & prefix, unsigned k);
     name(name const & other);

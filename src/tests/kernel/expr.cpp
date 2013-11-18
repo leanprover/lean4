@@ -50,27 +50,6 @@ static expr mk_dag(unsigned depth, bool _closed = false) {
     return a;
 }
 
-static unsigned depth1(expr const & e) {
-    switch (e.kind()) {
-    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type:
-    case expr_kind::Value: case expr_kind::MetaVar:
-        return 1;
-    case expr_kind::App: {
-        unsigned m = 0;
-        for (expr const & a : args(e))
-            m = std::max(m, depth1(a));
-        return m + 1;
-    }
-    case expr_kind::Eq:
-        return std::max(depth1(eq_lhs(e)), depth1(eq_rhs(e))) + 1;
-    case expr_kind::Lambda: case expr_kind::Pi:
-        return std::max(depth1(abst_domain(e)), depth1(abst_body(e))) + 1;
-    case expr_kind::Let:
-        return std::max(depth1(let_value(e)), depth1(let_body(e))) + 1;
-    }
-    return 0;
-}
-
 // This is the fastest depth implementation in this file.
 static unsigned depth2(expr const & e) {
     switch (e.kind()) {

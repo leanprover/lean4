@@ -13,6 +13,7 @@ if $LEANLUA $f.lua > $f.produced.out; then
     echo "-- worked"
     exit 0
 else
-    echo "ERROR executing $f.lua, produced output is at $f.produced.out"
+    echo "ERROR executing $f.lua, produced output:"
+    cat  $f.produced.out
     exit 1
 fi

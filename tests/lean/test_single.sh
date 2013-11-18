@@ -24,6 +24,8 @@ if test -f $f.expected.out; then
             if diff $f.produced.out $f.expected.out; then
                 echo "-- mismath was fixed"
             fi
+        else
+            diff $f.produced.out $f.expected.out
         fi
         exit 1
     fi

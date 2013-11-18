@@ -11,6 +11,7 @@ if $LEANLUA util.lua $f > $f.produced.out; then
     echo "-- worked"
     exit 0
 else
-    echo "ERROR executing $f, produced output is at $f.produced.out"
+    echo "ERROR executing $f, produced output:"
+    cat $f.produced.out
     exit 1
 fi

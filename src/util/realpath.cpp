@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <iostream>
+#include <string>
 #include <cstdlib>
 #include "util/realpath.h"
 #ifdef LEAN_WINDOWS
@@ -14,10 +14,10 @@ Author: Leonardo de Moura
 namespace lean {
 std::string realpath(char const * fname) {
 #ifdef LEAN_WINDOWS
-    constexpr unsigned buffer_size = 8192;
-    char buffer[buffer_size];
-    DWORD retval = GetFullPathName(fname, buffer_size, buffer, nullptr);
-    if (retval == 0 || retval > buffer_size) {
+    constexpr unsigned BufferSize = 8192;
+    char buffer[BufferSize];
+    DWORD retval = GetFullPathName(fname, BufferSize, buffer, nullptr);
+    if (retval == 0 || retval > BufferSize) {
         return std::string(fname);
     } else {
         return std::string(buffer);

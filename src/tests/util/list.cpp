@@ -93,6 +93,27 @@ static void tst8() {
     lean_assert(c == length(l1));
 }
 
+static void tst9(int sz) {
+    list<int> l;
+    for (int i = 0; i < sz; i++) {
+        l = cons(i, l);
+    }
+    l = map_reuse(l, [&](int v) { return v > 90 ? v + 10 : v; });
+    std::cout << l << "\n";
+    unsigned sum = 0;
+    int j = length(l);
+    for (auto i : l) {
+        --j;
+        lean_assert(j > 90 || i == j);
+        sum += i;
+    }
+    auto l2 = map_reuse(l, [&](int v) { return v; });
+    lean_assert(l == l2);
+    auto l3 = map_reuse(l2, [&](int v) { return v + 2; });
+    lean_assert(compare(l2, l3, [](int v1, int v2) { return v1 + 2 == v2; }));
+    std::cout << l3 << "\n";
+}
+
 int main() {
     tst1();
     tst2();
@@ -102,5 +123,6 @@ int main() {
     tst6();
     tst7();
     tst8();
+    tst9(100);
     return has_violations() ? 1 : 0;
 }

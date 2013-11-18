@@ -16,14 +16,19 @@ namespace lean {
 */
 template<typename T>
 class list {
-    struct cell {
+public:
+    class cell {
         MK_LEAN_RC()
         T      m_head;
         list   m_tail;
+    public:
         cell(T const & h, list const & t):m_rc(1), m_head(h), m_tail(t) {}
         ~cell() {}
+        T const & head() const { return m_head; }
+        list const & tail() const { return m_tail; }
         void dealloc() { delete this; }
     };
+private:
     cell * m_ptr;
 public:
     list():m_ptr(nullptr) {}
@@ -38,10 +43,22 @@ public:
             *this = list(*it, *this);
         }
     }
+    explicit list(cell * c):m_ptr(c) { if (m_ptr) m_ptr->inc_ref(); }
     ~list() { if (m_ptr) m_ptr->dec_ref(); }
 
     list & operator=(list const & s) { LEAN_COPY_REF(list, s); }
     list & operator=(list && s) { LEAN_MOVE_REF(list, s); }
+
+    /**
+        \brief Return internal representation.
+        This method is useful when we know the list is not going to be deleted and
+        we want to save a temporary reference to it. Use raw() prevents us from updating the
+        reference counters.
+
+        \warning Use it with care. The main risk of storing references to cell is that
+        the list may be deleted.
+    */
+    cell * raw() const { return m_ptr; }
 
     /** \brief Return true iff it is not the empty/nil list. */
     operator bool() const { return m_ptr != nullptr; }
@@ -53,6 +70,8 @@ public:
 
     /** \brief Pointer equality. Return true iff \c l1 and \c l2 point to the same memory location. */
     friend bool is_eqp(list const & l1, list const & l2) { return l1.m_ptr == l2.m_ptr; }
+    friend bool is_eqp(list const & l1, cell const * l2) { return l1.m_ptr == l2; }
+
     /** \brief Structural equality. */
     friend bool operator==(list const & l1, list const & l2) {
         cell * it1 = l1.m_ptr;

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <utility>
+#include <functional>
 #include "util/list.h"
 #include "util/buffer.h"
 #include "util/pair.h"
@@ -114,6 +115,41 @@ list<T> map(list<T> const & l, F f) {
         return l;
     } else {
         return list<T>(f(head(l)), map(tail(l), f));
+    }
+}
+
+/**
+   \brief Semantically equivalent to \c map, but it tries to reuse
+   list cells. The elements are compared using the predicate \c eq.
+*/
+template<typename T, typename F, typename Eq = std::equal_to<T>>
+list<T> map_reuse(list<T> const & l, F f, Eq const & eq = Eq()) {
+    if (is_nil(l)) {
+        return l;
+    } else {
+        typedef typename list<T>::cell cell;
+        buffer<std::pair<T, cell*>> tmp;
+        cell * it = l.raw();
+        while (it) {
+            tmp.emplace_back(f(it->head()), it);
+            it = it->tail().raw();
+        }
+        unsigned i = tmp.size();
+        lean_assert(i > 0);
+        while (i > 0) {
+            --i;
+            std::pair<T, cell*> const & p = tmp[i];
+            if (!eq(p.first, p.second->head())) {
+                list<T> r(p.first, p.second->tail());
+                while (i > 0) {
+                    --i;
+                    std::pair<T, cell*> const & p = tmp[i];
+                    r = cons(p.first, r);
+                }
+                return r;
+            }
+        }
+        return l;
     }
 }
 

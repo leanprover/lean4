@@ -105,32 +105,25 @@ void pcall(lua_State * L, int nargs, int nresults, int errorfun) {
         throw lua_exception(lua_tostring(L, -1));
 }
 
-static thread_local std::string g_error_msg;
-
 int safe_function_wrapper(lua_State * L, lua_CFunction f){
-    char const * error_msg;
     try {
         return f(L);
     } catch (kernel_exception & e) {
         std::ostringstream out;
         options o = get_global_options(L);
         out << mk_pair(e.pp(get_global_formatter(L), o), o);
-        g_error_msg = out.str();
-        error_msg  = g_error_msg.c_str();
+        lua_pushstring(L, out.str().c_str());
     } catch (elaborator_exception & e) {
         push_justification(L, e.get_justification());
-        return lua_error(L);
     } catch (exception & e) {
-        g_error_msg = e.what();
-        error_msg  = g_error_msg.c_str();
+        lua_pushstring(L, e.what());
     } catch (std::bad_alloc &) {
-        error_msg = "out of memory";
+        lua_pushstring(L, "out of memory");
     } catch (std::exception & e) {
-        g_error_msg = e.what();
-        error_msg  = g_error_msg.c_str();
+        lua_pushstring(L, e.what());
     } catch(...) {
-        throw;
+        lua_pushstring(L, "unknown error");
     }
-    return luaL_error(L, error_msg);
+    return lua_error(L);
 }
 }

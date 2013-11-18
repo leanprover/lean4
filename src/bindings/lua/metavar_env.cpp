@@ -133,6 +133,10 @@ static int menv_copy(lua_State * L) {
     return push_metavar_env(L, metavar_env(to_metavar_env(L, 1)));
 }
 
+static int instantiate_metavars(lua_State * L) {
+    return push_expr(L, instantiate_metavars(to_expr(L, 1), to_metavar_env(L, 2)));
+}
+
 static const struct luaL_Reg metavar_env_m[] = {
     {"__gc",              metavar_env_gc}, // never throws
     {"mk_metavar",        safe_function<menv_mk_metavar>},
@@ -144,7 +148,7 @@ static const struct luaL_Reg metavar_env_m[] = {
     {"assign",            safe_function<menv_assign>},
     {"get_subst",         safe_function<menv_get_subst>},
     {"get_justification", safe_function<menv_get_justification>},
-    {"get_subt_jst",      safe_function<menv_get_subst_jst>},
+    {"get_subst_jst",     safe_function<menv_get_subst_jst>},
     {"for_each_subst",    safe_function<menv_for_each_subst>},
     {"copy",              safe_function<menv_copy>},
     {0, 0}
@@ -158,5 +162,6 @@ void open_metavar_env(lua_State * L) {
 
     SET_GLOBAL_FUN(mk_metavar_env,   "metavar_env");
     SET_GLOBAL_FUN(metavar_env_pred, "is_metavar_env");
+    SET_GLOBAL_FUN(instantiate_metavars, "instantiate_metavars");
 }
 }

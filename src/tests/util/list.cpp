@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "util/list.h"
 #include "util/list_fn.h"
+#include "util/timeit.h"
 using namespace lean;
 
 static void tst1() {
@@ -114,6 +115,22 @@ static void tst9(int sz) {
     std::cout << l3 << "\n";
 }
 
+static void tst10(int sz, int num) {
+    list<int> l;
+    for (int i = 0; i < sz; i++) {
+        l = cons(i, l);
+    }
+    {
+        timeit timer(std::cout, "for_each");
+        unsigned sum = 0;
+        for (int i = 0; i < num; i++) {
+            sum = 0;
+            for_each(l, [&](int v) { sum += v; });
+        }
+        std::cout << "sum: " << sum << "\n";
+    }
+}
+
 int main() {
     tst1();
     tst2();
@@ -124,5 +141,6 @@ int main() {
     tst7();
     tst8();
     tst9(100);
+    tst10(1000, 5);
     return has_violations() ? 1 : 0;
 }

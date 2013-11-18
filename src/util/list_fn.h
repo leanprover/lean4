@@ -160,11 +160,11 @@ template<typename T, typename F>
 void for_each(list<T> const & l, F f) {
     static_assert(std::is_same<typename std::result_of<F(T const &)>::type, void>::value,
                   "for_each: return type of f is not void");
-    if (is_nil(l)) {
-        return;
-    } else {
-        f(head(l));
-        return for_each(tail(l), f);
+    typedef typename list<T>::cell cell;
+    cell * it = l.raw();
+    while (it) {
+        f(it->head());
+        it = it->tail().raw();
     }
 }
 

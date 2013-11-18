@@ -105,8 +105,9 @@ void pcall(lua_State * L, int nargs, int nresults, int errorfun) {
         throw lua_exception(lua_tostring(L, -1));
 }
 
+static thread_local std::string g_error_msg;
+
 int safe_function_wrapper(lua_State * L, lua_CFunction f){
-    static thread_local std::string _error_msg;
     char const * error_msg;
     try {
         return f(L);
@@ -114,19 +115,19 @@ int safe_function_wrapper(lua_State * L, lua_CFunction f){
         std::ostringstream out;
         options o = get_global_options(L);
         out << mk_pair(e.pp(get_global_formatter(L), o), o);
-        _error_msg = out.str();
-        error_msg  = _error_msg.c_str();
+        g_error_msg = out.str();
+        error_msg  = g_error_msg.c_str();
     } catch (elaborator_exception & e) {
         push_justification(L, e.get_justification());
         return lua_error(L);
     } catch (exception & e) {
-        _error_msg = e.what();
-        error_msg  = _error_msg.c_str();
+        g_error_msg = e.what();
+        error_msg  = g_error_msg.c_str();
     } catch (std::bad_alloc &) {
         error_msg = "out of memory";
     } catch (std::exception & e) {
-        _error_msg = e.what();
-        error_msg  = _error_msg.c_str();
+        g_error_msg = e.what();
+        error_msg  = g_error_msg.c_str();
     } catch(...) {
         throw;
     }

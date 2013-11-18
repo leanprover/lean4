@@ -50,6 +50,11 @@ static int mk_environment(lua_State * L) {
     return push_environment(L, f.get_environment());
 }
 
+static int environment_mk_child(lua_State * L) {
+    rw_environment env(L, 1);
+    return push_environment(L, env->mk_child());
+}
+
 static int environment_has_parent(lua_State * L) {
     ro_environment env(L, 1);
     lua_pushboolean(L, env->has_parent());
@@ -214,6 +219,7 @@ static int environment_tostring(lua_State * L) {
 static const struct luaL_Reg environment_m[] = {
     {"__gc",           environment_gc}, // never throws
     {"__tostring",     safe_function<environment_tostring>},
+    {"mk_child",       safe_function<environment_mk_child>},
     {"has_parent",     safe_function<environment_has_parent>},
     {"has_children",   safe_function<environment_has_children>},
     {"parent",         safe_function<environment_parent>},

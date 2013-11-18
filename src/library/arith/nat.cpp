@@ -109,7 +109,7 @@ MK_CONSTANT(nat_gt_fn,  name({"Nat", "gt"}));
 MK_CONSTANT(nat_id_fn,  name({"Nat", "id"}));
 
 void import_nat(environment & env) {
-    if (env.find_object(to_value(Nat).get_name()))
+    if (!env.mark_builtin_imported("nat"))
         return;
     expr nn_b = Nat >> (Nat >> Bool);
     expr x    = Const("x");

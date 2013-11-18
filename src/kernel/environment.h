@@ -26,8 +26,13 @@ private:
     friend class read_only_environment;
     friend class read_write_environment;
 public:
+    typedef std::weak_ptr<imp> weak_ref;
+
     environment();
     ~environment();
+    environment(weak_ref const & r);
+
+    weak_ref to_weak_ref() const { return weak_ref(m_ptr); }
 
     friend bool is_eqp(environment const & env1, environment const & env2) { return env1.m_ptr.get() == env2.m_ptr.get(); }
     // =======================================
@@ -281,9 +286,15 @@ public:
         return static_cast<Ext&>(ext);
     }
 
-public:
-    typedef std::weak_ptr<imp> weak_ref;
-    weak_ref to_weak_ref() const { return weak_ref(m_ptr); }
-    environment(weak_ref const & r);
+    /**
+        \brief Return true iff the given file was not already marked as imported.
+        It will also mark the file as imported.
+    */
+    bool mark_imported(char const * fname);
+    /**
+        \brief Return true iff the given builtin id was not already marked as imported.
+        It will also mark the id as imported.
+    */
+    bool mark_builtin_imported(char const * id);
 };
 }

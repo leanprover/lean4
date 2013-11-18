@@ -105,7 +105,7 @@ MK_CONSTANT(dom_inj_fn, name("DomInj"));
 MK_CONSTANT(ran_inj_fn, name("RanInj"));
 
 void import_cast(environment & env) {
-    if (env.find_object(to_value(mk_Cast_fn()).get_name()))
+    if (!env.mark_builtin_imported("cast"))
         return;
     expr x         = Const("x");
     expr A         = Const("A");

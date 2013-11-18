@@ -47,6 +47,8 @@ MK_CONSTANT(range_inj_fn,      name("range_inj"));
 #endif
 
 void import_basic_thms(environment & env) {
+    if (!env.mark_builtin_imported("basic_thms"))
+        return;
     expr A  = Const("A");
     expr a  = Const("a");
     expr b  = Const("b");

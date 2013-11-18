@@ -20,6 +20,8 @@ void add_alias(frontend & f, name const & n, name const & m) {
    \brief Initialize builtin notation.
 */
 void init_builtin_notation(frontend & f) {
+    if (!f.get_environment().mark_builtin_imported("lean_notation"))
+        return;
     f.add_infix("=",  50, mk_homo_eq_fn());
     f.mark_implicit_arguments(mk_homo_eq_fn(), {true, false, false});
     f.mark_implicit_arguments(mk_if_fn(), {true, false, false, false});

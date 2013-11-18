@@ -133,7 +133,7 @@ MK_CONSTANT(real_lt_fn, name({"Real", "lt"}));
 MK_CONSTANT(real_gt_fn, name({"Real", "gt"}));
 
 void import_real(environment & env) {
-    if (env.find_object(to_value(Real).get_name()))
+    if (!env.mark_builtin_imported("real"))
         return;
     expr rr_b = Real >> (Real >> Bool);
     expr rr_r = Real >> (Real >> Real);
@@ -172,7 +172,7 @@ MK_BUILTIN(int_to_real_fn,  int_to_real_value);
 MK_CONSTANT(nat_to_real_fn, name("nat_to_real"));
 
 void import_int_to_real_coercions(environment & env) {
-    if (env.find_object(to_value(mk_int_to_real_fn()).get_name()))
+    if (!env.mark_builtin_imported("real_coercions"))
         return;
     import_int(env);
     import_real(env);

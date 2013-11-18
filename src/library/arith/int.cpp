@@ -145,7 +145,7 @@ MK_CONSTANT(nat_sub_fn, name({"Nat", "sub"}));
 MK_CONSTANT(nat_neg_fn, name({"Nat", "neg"}));
 
 void import_int(environment & env) {
-    if (env.find_object(to_value(Int).get_name()))
+    if (!env.mark_builtin_imported("int"))
         return;
     import_nat(env);
     expr i_i  = Int >> Int;

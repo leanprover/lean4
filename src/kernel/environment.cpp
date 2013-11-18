@@ -4,10 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <cstdlib>
 #include <algorithm>
 #include <vector>
 #include <atomic>
 #include <tuple>
+#include <set>
 #include <unordered_map>
 #include <mutex>
 #include "util/safe_arith.h"
@@ -19,7 +21,7 @@ Author: Leonardo de Moura
 #include "kernel/normalizer.h"
 
 namespace lean {
-
+static name g_builtin_module("builtin_module");
 class extension_factory {
     std::vector<environment::mk_extension> m_makers;
     std::mutex                             m_makers_mutex;
@@ -67,6 +69,7 @@ struct environment::imp {
     std::vector<object>                  m_objects;
     object_dictionary                    m_object_dictionary;
     std::unique_ptr<type_checker>        m_type_checker;
+    std::set<name>                       m_imported_modules;   // set of imported files and builtin modules
 
     std::vector<std::unique_ptr<extension>> m_extensions;
     friend class extension;
@@ -402,6 +405,34 @@ struct environment::imp {
         }
     }
 
+    bool already_imported(name const & n) const {
+        if (m_imported_modules.find(n) != m_imported_modules.end())
+            return true;
+        else if (has_parent())
+            return m_parent->already_imported(n);
+        else
+            return false;
+    }
+
+    bool mark_imported_core(name n, environment const & env) {
+        if (already_imported(n)) {
+            return false;
+        } else if (has_children()) {
+            throw read_only_environment_exception(env);
+        } else {
+            m_imported_modules.insert(n);
+            return true;
+        }
+    }
+
+    bool mark_imported(char const * fname, environment const & env) {
+        return mark_imported_core(name(realpath(fname, nullptr)), env);
+    }
+
+    bool mark_builtin_imported(char const * id, environment const & env) {
+        return mark_imported_core(name(g_builtin_module, id), env);
+    }
+
     imp():
         m_num_children(0) {
         init_uvars();
@@ -531,6 +562,14 @@ expr environment::normalize(expr const & e, context const & ctx) const {
 
 void environment::display(std::ostream & out) const {
     m_ptr->display(out, *this);
+}
+
+bool environment::mark_imported(char const * fname) {
+    return m_ptr->mark_imported(fname, *this);
+}
+
+bool environment::mark_builtin_imported(char const * id) {
+    return m_ptr->mark_builtin_imported(id, *this);
 }
 
 environment::extension const & environment::get_extension_core(unsigned extid) const {

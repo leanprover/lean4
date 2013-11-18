@@ -366,6 +366,8 @@ frontend::frontend() {
     m_state.set_formatter(mk_pp_formatter(*this));
 }
 frontend::frontend(environment const & env, state const & s):m_env(env), m_state(s) {
+    import_all(m_env);
+    init_builtin_notation(*this);
 }
 
 void frontend::add_infix(name const & opn, unsigned p, expr const & d)  {

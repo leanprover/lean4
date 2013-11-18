@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/formatter.h"
 #include "library/type_inferer.h"
+#include "frontends/lean/frontend.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
 #include "bindings/lua/options.h"
@@ -40,8 +41,13 @@ rw_environment::rw_environment(lua_State * L):
     read_write_environment(get_global_environment(L)) {
 }
 
-static int mk_environment(lua_State * L) {
+static int mk_empty_environment(lua_State * L) {
     return push_environment(L, environment());
+}
+
+static int mk_environment(lua_State * L) {
+    frontend f;
+    return push_environment(L, f.get_environment());
 }
 
 static int environment_has_parent(lua_State * L) {
@@ -263,9 +269,10 @@ void open_environment(lua_State * L) {
     lua_setfield(L, -2, "__index");
     setfuncs(L, environment_m, 0);
 
-    SET_GLOBAL_FUN(mk_environment,   "environment");
-    SET_GLOBAL_FUN(environment_pred, "is_environment");
-    SET_GLOBAL_FUN(get_environment,  "get_environment");
-    SET_GLOBAL_FUN(get_environment,  "get_env");
+    SET_GLOBAL_FUN(mk_empty_environment,   "empty_environment");
+    SET_GLOBAL_FUN(mk_environment,         "environment");
+    SET_GLOBAL_FUN(environment_pred,       "is_environment");
+    SET_GLOBAL_FUN(get_environment,        "get_environment");
+    SET_GLOBAL_FUN(get_environment,        "get_env");
 }
 }

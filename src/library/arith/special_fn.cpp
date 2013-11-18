@@ -29,7 +29,7 @@ MK_CONSTANT(sech_fn, name("sech"));
 MK_CONSTANT(csch_fn, name("csch"));
 
 void import_special_fn(environment & env) {
-    if (env.find_object(const_name(mk_exp_fn())))
+    if (!env.mark_builtin_imported("special_fn"))
         return;
     import_real(env);
 

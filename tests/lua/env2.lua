@@ -2,7 +2,9 @@ env = environment()
 env:add_var("N", Type())
 env:add_var("x", Const("N"))
 for v in env:objects() do
-   print(v:get_name())
+   if v:has_name() then
+      print(v:get_name())
+   end
 end
 assert(not env:find_object("N"):is_null())
 assert(env:find_object("Z"):is_null())

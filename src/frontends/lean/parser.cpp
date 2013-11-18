@@ -1391,10 +1391,14 @@ class parser::imp {
 
     void parse_import() {
         next();
-        std::string fname = check_string_next("invalid import command, string (i.e., file name) expected");
+        std::string fname  = check_string_next("invalid import command, string (i.e., file name) expected");
         std::ifstream in(fname);
         if (!in.is_open())
             throw parser_error(sstream() << "invalid import command, failed to open file '" << fname << "'", m_last_cmd_pos);
+        if (!m_frontend.get_environment().mark_imported(fname.c_str())) {
+            diagnostic(m_frontend) << "Module '" << fname << "' has already been imported" << endl;
+            return;
+        }
         try {
             if (m_verbose)
                 regular(m_frontend) << "Importing file '" << fname << "'" << endl;

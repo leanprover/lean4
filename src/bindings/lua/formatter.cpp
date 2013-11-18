@@ -95,6 +95,10 @@ void set_global_formatter(lua_State * L, formatter const & fmt) {
     }
 }
 
+int get_formatter(lua_State * L) {
+    return push_formatter(L, get_global_formatter(L));
+}
+
 void open_formatter(lua_State * L) {
     luaL_newmetatable(L, formatter_mt);
     lua_pushvalue(L, -1);
@@ -102,5 +106,6 @@ void open_formatter(lua_State * L) {
     setfuncs(L, formatter_m, 0);
 
     SET_GLOBAL_FUN(formatter_pred, "is_formatter");
+    SET_GLOBAL_FUN(get_formatter,  "get_formatter");
 }
 }

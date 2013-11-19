@@ -99,7 +99,9 @@ assert(m[a]  == 10)
 ## Splay maps
 
 In Lean, we provide splay maps for implementing mappings where the keys are
-Lean objects such as hierarchical names. We can also use Lua atomic data types
+Lean objects such as hierarchical names. A splay map is implemented using
+a [splay tree](http://en.wikipedia.org/wiki/Splay_tree), a self-adjusting binary
+search tree. We can also use Lua atomic data types
 as keys in splay maps. However, we should not mix different types in the
 same splay map. The Lean splay map assumes that `<` is a total order on the
 keys inserted in the map.

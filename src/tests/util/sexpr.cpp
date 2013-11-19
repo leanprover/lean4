@@ -203,6 +203,14 @@ static void tst8() {
     lean_assert(s.str() == "nil 1/2");
 }
 
+static void tst9() {
+    int sz = 100000;
+    sexpr r;
+    for (int i = 0; i < sz; i++) {
+        r = sexpr(sexpr(i), r);
+    }
+}
+
 int main() {
     tst1();
     tst2();
@@ -212,5 +220,6 @@ int main() {
     tst6();
     tst7();
     tst8();
+    tst9();
     return has_violations() ? 1 : 0;
 }

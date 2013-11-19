@@ -28,6 +28,8 @@ enum class sexpr_kind { Nil, String, Bool, Int, Double, Name, MPZ, MPQ, Cons };
 */
 class sexpr {
     sexpr_cell * m_ptr;
+    sexpr_cell * steal_ptr() { sexpr_cell * r = m_ptr; m_ptr = nullptr; return r; }
+    friend struct sexpr_cons;
 public:
     sexpr():m_ptr(nullptr) {}
     explicit sexpr(char const * v);

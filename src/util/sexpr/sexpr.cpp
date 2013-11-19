@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/hash.h"
 #include "util/name.h"
 #include "util/escaped.h"
+#include "util/buffer.h"
 #include "util/numerics/mpz.h"
 #include "util/numerics/mpq.h"
 #include "util/sexpr/sexpr.h"
@@ -92,6 +93,35 @@ struct sexpr_cons : public sexpr_cell {
         sexpr_cell(sexpr_kind::Cons, hash(h.hash(), t.hash())),
         m_head(h),
         m_tail(t) {}
+
+    void dealloc_cons() {
+        buffer<sexpr_cons *> tmp;
+        try {
+            tmp.push_back(this);
+            while (!tmp.empty()) {
+                sexpr_cons * it = tmp.back();
+                tmp.pop_back();
+                sexpr_cell * head = it->m_head.steal_ptr();
+                sexpr_cell * tail = it->m_tail.steal_ptr();
+                delete it;
+                if (head && head->dec_ref_core()) {
+                    if (head->m_kind == sexpr_kind::Cons)
+                        tmp.push_back(static_cast<sexpr_cons*>(head));
+                    else
+                        head->dealloc();
+                }
+                if (tail && tail->dec_ref_core()) {
+                    if (tail->m_kind == sexpr_kind::Cons)
+                        tmp.push_back(static_cast<sexpr_cons*>(tail));
+                    else
+                        tail->dealloc();
+                }
+            }
+        } catch (std::bad_alloc &) {
+            // We need this catch, because push_back may fail when expanding the buffer size.
+            // In this case, we avoid the crash, and "accept" the memory leak.
+        }
+    }
 };
 
 void sexpr_cell::dealloc() {
@@ -104,7 +134,7 @@ void sexpr_cell::dealloc() {
     case sexpr_kind::Name:        delete static_cast<sexpr_name*>(this);   break;
     case sexpr_kind::MPZ:         delete static_cast<sexpr_mpz*>(this);    break;
     case sexpr_kind::MPQ:         delete static_cast<sexpr_mpq*>(this);    break;
-    case sexpr_kind::Cons:        delete static_cast<sexpr_cons*>(this);   break;
+    case sexpr_kind::Cons:        static_cast<sexpr_cons*>(this)->dealloc_cons(); break;
     }
 }
 

@@ -35,14 +35,25 @@ void to_buffer(list<T> const & l, buffer<typename list<T>::cell *> & r) {
 }
 
 /**
-    \brief Auxiliary function for reverse function.
+   \brief Create a list using the values in the cells from \c begin to \c end.
 */
 template<typename T>
-list<T> reverse_aux(list<T> const & l, list<T> const & r) {
-    if (is_nil(l))
-        return r;
-    else
-        return reverse_aux(cdr(l), cons(car(l), r));
+list<T> cells_to_list(typename list<T>::cell * const * begin, typename list<T>::cell * const * end) {
+    list<T> r;
+    auto it = end;
+    while (it != begin) {
+        --it;
+        r = cons((*it)->head(), r);
+    }
+    return r;
+}
+
+/**
+   \brief Create a list using the values in the cells from \c b.
+*/
+template<typename T>
+list<T> buffer_to_list(buffer<typename list<T>::cell*> const & b) {
+    return cells_to_list<T>(b.begin(), b.end());
 }
 
 /**
@@ -50,7 +61,14 @@ list<T> reverse_aux(list<T> const & l, list<T> const & r) {
 */
 template<typename T>
 list<T> reverse(list<T> const & l) {
-    return reverse_aux(l, list<T>());
+    if (is_nil(l)) {
+        return l;
+    } else {
+        buffer<typename list<T>::cell *> tmp;
+        to_buffer(l, tmp);
+        std::reverse(tmp.begin(), tmp.end());
+        return buffer_to_list<T>(tmp);
+    }
 }
 
 /**
@@ -64,13 +82,13 @@ std::pair<list<T>, list<T>> split(list<T> const & l) {
     } else if (is_nil(cdr(l))) {
         return mk_pair(l, list<T>());
     } else {
-        buffer<T> tmp;
+        buffer<typename list<T>::cell*> tmp;
         to_buffer(l, tmp);
         unsigned mid = tmp.size() / 2;
         auto beg = tmp.begin();
         lean_assert(beg + mid <= tmp.end());
-        return mk_pair(to_list(beg, beg + mid),
-                       to_list(beg + mid, tmp.end()));
+        return mk_pair(cells_to_list<T>(beg, beg + mid),
+                       cells_to_list<T>(beg + mid, tmp.end()));
     }
 }
 
@@ -104,13 +122,13 @@ list<T> append(list<T> const & l1, list<T> const & l2) {
     } else if (!l2) {
         return l1;
     } else {
-        buffer<T> tmp;
+        buffer<typename list<T>::cell*> tmp;
         list<T> r = l2;
         to_buffer(l1, tmp);
         unsigned i = tmp.size();
         while (i > 0) {
             --i;
-            r = cons(tmp[i], r);
+            r = cons(tmp[i]->head(), r);
         }
         return r;
     }
@@ -147,24 +165,20 @@ list<T> map_reuse(list<T> const & l, F f, Eq const & eq = Eq()) {
     if (is_nil(l)) {
         return l;
     } else {
-        typedef typename list<T>::cell cell;
-        buffer<std::pair<T, cell*>> tmp;
-        cell * it = l.raw();
-        while (it) {
-            tmp.emplace_back(f(it->head()), it);
-            it = it->tail().raw();
-        }
-        unsigned i = tmp.size();
-        lean_assert(i > 0);
-        while (i > 0) {
-            --i;
-            std::pair<T, cell*> const & p = tmp[i];
-            if (!eq(p.first, p.second->head())) {
-                list<T> r(p.first, p.second->tail());
-                while (i > 0) {
-                    --i;
-                    std::pair<T, cell*> const & p = tmp[i];
-                    r = cons(p.first, r);
+        buffer<typename list<T>::cell*> tmp;
+        to_buffer(l, tmp);
+        auto it    = tmp.end();
+        auto begin = tmp.begin();
+        while (it != begin) {
+            --it;
+            auto curr  = *it;
+            auto new_v = f(curr->head());
+            if (!eq(new_v, curr->head())) {
+                list<T> r(new_v, curr->tail());
+                while (it != begin) {
+                    --it;
+                    auto curr  = *it;
+                    r = cons(f(curr->head()), r);
                 }
                 return r;
             }

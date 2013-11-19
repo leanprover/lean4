@@ -6,6 +6,8 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
+#include <utility>
+#include "util/buffer.h"
 #include "kernel/expr.h"
 #include "kernel/expr_sets.h"
 
@@ -26,51 +28,68 @@ class for_each_fn {
                   "for_each_fn: return type of m_f is not bool");
 
     void apply(expr const & e, unsigned offset) {
-        if (!CacheAtomic) {
+        buffer<std::pair<expr const &, unsigned>> todo;
+        todo.emplace_back(e, offset);
+        while (true) {
+          begin_loop:
+            if (todo.empty())
+                break;
+            auto p = todo.back();
+            todo.pop_back();
+            expr const & e  = p.first;
+            unsigned offset = p.second;
+            if (!CacheAtomic) {
+                switch (e.kind()) {
+                case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
+                case expr_kind::Var: case expr_kind::MetaVar:
+                    m_f(e, offset);
+                    goto begin_loop;
+                default:
+                    break;
+                }
+            }
+
+            if (is_shared(e)) {
+                expr_cell_offset p(e.raw(), offset);
+                if (!m_visited)
+                    m_visited.reset(new expr_cell_offset_set());
+                if (m_visited->find(p) != m_visited->end())
+                    goto begin_loop;
+                m_visited->insert(p);
+            }
+
+            if (!m_f(e, offset))
+                goto begin_loop;
+
             switch (e.kind()) {
             case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
             case expr_kind::Var: case expr_kind::MetaVar:
-                m_f(e, offset);
-                return;
-            default:
-                break;
+                goto begin_loop;
+            case expr_kind::App: {
+                auto it    = end_args(e);
+                auto begin = begin_args(e);
+                while (it != begin) {
+                    --it;
+                    todo.emplace_back(*it, offset);
+                }
+                goto begin_loop;
             }
-        }
-
-        if (is_shared(e)) {
-            expr_cell_offset p(e.raw(), offset);
-            if (!m_visited)
-                m_visited.reset(new expr_cell_offset_set());
-            if (m_visited->find(p) != m_visited->end())
-                return;
-            m_visited->insert(p);
-        }
-
-        if (!m_f(e, offset))
-            return;
-
-        switch (e.kind()) {
-        case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
-        case expr_kind::Var: case expr_kind::MetaVar:
-            return;
-        case expr_kind::App:
-            std::for_each(begin_args(e), end_args(e), [=](expr const & arg){ return apply(arg, offset); });
-            return;
-        case expr_kind::Eq:
-            apply(eq_lhs(e), offset);
-            apply(eq_rhs(e), offset);
-            return;
-        case expr_kind::Lambda:
-        case expr_kind::Pi:
-            apply(abst_domain(e), offset);
-            apply(abst_body(e), offset + 1);
-            return;
-        case expr_kind::Let:
-            if (let_type(e))
-                apply(let_type(e), offset);
-            apply(let_value(e), offset);
-            apply(let_body(e), offset + 1);
-            return;
+            case expr_kind::Eq:
+                todo.emplace_back(eq_rhs(e), offset);
+                todo.emplace_back(eq_lhs(e), offset);
+                goto begin_loop;
+            case expr_kind::Lambda:
+            case expr_kind::Pi:
+                todo.emplace_back(abst_body(e), offset + 1);
+                todo.emplace_back(abst_domain(e), offset);
+                goto begin_loop;
+            case expr_kind::Let:
+                todo.emplace_back(let_body(e), offset + 1);
+                todo.emplace_back(let_value(e), offset);
+                if (let_type(e))
+                    todo.emplace_back(let_type(e), offset);
+                goto begin_loop;
+            }
         }
     }
 public:

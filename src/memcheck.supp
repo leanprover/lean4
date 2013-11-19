@@ -156,3 +156,13 @@
    fun:luaL_checklstring
    ...
 }
+
+{
+   # This entry Suppresses memory leaks at awk. We use awk at doc/lua/test.sh and doc/lua/test_single.sh
+   AWK_Bug1
+   Memcheck:Leak
+   fun:malloc
+   obj:*/bin/mawk
+   ...
+   fun:(below main)
+}

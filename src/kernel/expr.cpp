@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <sstream>
 #include "util/hash.h"
+#include "util/buffer.h"
 #include "kernel/expr.h"
 #include "kernel/free_vars.h"
 #include "kernel/expr_eq.h"
@@ -53,6 +54,15 @@ expr_cell::expr_cell(expr_kind k, unsigned h, bool has_mv):
     g_hash_alloc_counter++;
 }
 
+void expr_cell::dec_ref(expr & e, buffer<expr_cell*> & todelete) {
+    if (e) {
+        expr_cell * c = e.steal_ptr();
+        lean_assert(!e);
+        if (c->dec_ref_core())
+            todelete.push_back(c);
+    }
+}
+
 expr_var::expr_var(unsigned idx):
     expr_cell(expr_kind::Var, idx, false),
     m_vidx(idx) {}
@@ -65,9 +75,15 @@ expr_app::expr_app(unsigned num_args, bool has_mv):
     expr_cell(expr_kind::App, 0, has_mv),
     m_num_args(num_args) {
 }
-expr_app::~expr_app() {
-    for (unsigned i = 0; i < m_num_args; i++)
-        (m_args+i)->~expr();
+expr_app::~expr_app() {}
+void expr_app::dealloc(buffer<expr_cell*> & todelete) {
+    unsigned i = m_num_args;
+    while (i > 0) {
+        --i;
+        dec_ref(m_args[i], todelete);
+        lean_assert(!m_args[i]);
+    }
+    delete[] reinterpret_cast<char*>(this);
 }
 expr mk_app(unsigned n, expr const * as) {
     lean_assert(n > 1);
@@ -105,11 +121,23 @@ expr_eq::expr_eq(expr const & lhs, expr const & rhs):
     m_rhs(rhs) {
 }
 expr_eq::~expr_eq() {}
+void expr_eq::dealloc(buffer<expr_cell*> & todelete) {
+    dec_ref(m_rhs, todelete);
+    dec_ref(m_lhs, todelete);
+    delete(this);
+}
 expr_abstraction::expr_abstraction(expr_kind k, name const & n, expr const & t, expr const & b):
     expr_cell(k, ::lean::hash(t.hash(), b.hash()), t.has_metavar() || b.has_metavar()),
     m_name(n),
     m_domain(t),
     m_body(b) {
+}
+void expr_abstraction::dealloc(buffer<expr_cell*> & todelete) {
+    dec_ref(m_body, todelete);
+    dec_ref(m_domain, todelete);
+    lean_assert(!m_body);
+    lean_assert(!m_domain);
+    delete(this);
 }
 expr_lambda::expr_lambda(name const & n, expr const & t, expr const & e):expr_abstraction(expr_kind::Lambda, n, t, e) {}
 expr_pi::expr_pi(name const & n, expr const & t, expr const & e):expr_abstraction(expr_kind::Pi, n, t, e) {}
@@ -124,6 +152,12 @@ expr_let::expr_let(name const & n, expr const & t, expr const & v, expr const & 
     m_type(t),
     m_value(v),
     m_body(b) {
+}
+void expr_let::dealloc(buffer<expr_cell*> & todelete) {
+    dec_ref(m_body, todelete);
+    dec_ref(m_value, todelete);
+    dec_ref(m_type, todelete);
+    delete(this);
 }
 expr_let::~expr_let() {}
 name value::get_unicode_name() const { return get_name(); }
@@ -153,17 +187,29 @@ expr_metavar::expr_metavar(name const & n, local_context const & lctx):
 expr_metavar::~expr_metavar() {}
 
 void expr_cell::dealloc() {
-    switch (kind()) {
-    case expr_kind::Var:        delete static_cast<expr_var*>(this); break;
-    case expr_kind::Constant:   delete static_cast<expr_const*>(this); break;
-    case expr_kind::App:        static_cast<expr_app*>(this)->~expr_app(); delete[] reinterpret_cast<char*>(this); break;
-    case expr_kind::Eq:         delete static_cast<expr_eq*>(this); break;
-    case expr_kind::Lambda:     delete static_cast<expr_lambda*>(this); break;
-    case expr_kind::Pi:         delete static_cast<expr_pi*>(this); break;
-    case expr_kind::Type:       delete static_cast<expr_type*>(this); break;
-    case expr_kind::Value:      delete static_cast<expr_value*>(this); break;
-    case expr_kind::Let:        delete static_cast<expr_let*>(this); break;
-    case expr_kind::MetaVar:    delete static_cast<expr_metavar*>(this); break;
+    try {
+        buffer<expr_cell*> todo;
+        todo.push_back(this);
+        while (!todo.empty()) {
+            expr_cell * it = todo.back();
+            todo.pop_back();
+            lean_assert(it->get_rc() == 0);
+            switch (it->kind()) {
+            case expr_kind::Var:        delete static_cast<expr_var*>(it); break;
+            case expr_kind::Constant:   delete static_cast<expr_const*>(it); break;
+            case expr_kind::Value:      delete static_cast<expr_value*>(it); break;
+            case expr_kind::MetaVar:    delete static_cast<expr_metavar*>(it); break;
+            case expr_kind::Type:       delete static_cast<expr_type*>(it); break;
+            case expr_kind::Eq:         static_cast<expr_eq*>(it)->dealloc(todo); break;
+            case expr_kind::App:        static_cast<expr_app*>(it)->dealloc(todo); break;
+            case expr_kind::Lambda:     static_cast<expr_lambda*>(it)->dealloc(todo); break;
+            case expr_kind::Pi:         static_cast<expr_pi*>(it)->dealloc(todo); break;
+            case expr_kind::Let:        static_cast<expr_let*>(it)->dealloc(todo); break;
+            }
+        }
+    } catch (std::bad_alloc&) {
+        // We need this catch, because push_back may fail when expanding the buffer.
+        // In this case, we avoid the crash, and "accept" the memory leak.
     }
 }
 

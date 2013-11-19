@@ -47,6 +47,7 @@ The main API is divided in the following sections
 - Accessors
 - Miscellaneous
 ======================================= */
+class expr;
 enum class expr_kind { Var, Constant, Value, App, Lambda, Pi, Type, Eq, Let, MetaVar };
 class local_entry;
 /**
@@ -82,6 +83,7 @@ protected:
     bool is_closed() const { return (m_flags & 2) != 0; }
     void set_closed() { m_flags |= 2; }
     friend class has_free_var_fn;
+    static void dec_ref(expr & c, buffer<expr_cell*> & todelete);
 public:
     expr_cell(expr_kind k, unsigned h, bool has_mv);
     expr_kind kind() const { return static_cast<expr_kind>(m_kind); }
@@ -96,6 +98,8 @@ class expr {
 private:
     expr_cell * m_ptr;
     explicit expr(expr_cell * ptr):m_ptr(ptr) {}
+    friend class expr_cell;
+    expr_cell * steal_ptr() { expr_cell * r = m_ptr; m_ptr = nullptr; return r; }
 public:
     expr():m_ptr(nullptr) {}
     expr(expr const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
@@ -165,6 +169,8 @@ class expr_app : public expr_cell {
     unsigned m_num_args;
     expr     m_args[0];
     friend expr mk_app(unsigned num_args, expr const * args);
+    friend expr_cell;
+    void dealloc(buffer<expr_cell*> & todelete);
 public:
     expr_app(unsigned size, bool has_mv);
     ~expr_app();
@@ -177,6 +183,8 @@ public:
 class expr_eq : public expr_cell {
     expr m_lhs;
     expr m_rhs;
+    friend class expr_cell;
+    void dealloc(buffer<expr_cell*> & todelete);
 public:
     expr_eq(expr const & lhs, expr const & rhs);
     ~expr_eq();
@@ -188,6 +196,8 @@ class expr_abstraction : public expr_cell {
     name     m_name;
     expr     m_domain;
     expr     m_body;
+    friend class expr_cell;
+    void dealloc(buffer<expr_cell*> & todelete);
 public:
     expr_abstraction(expr_kind k, name const & n, expr const & t, expr const & e);
     name const & get_name() const   { return m_name; }
@@ -210,6 +220,8 @@ class expr_let : public expr_cell {
     expr     m_type;
     expr     m_value;
     expr     m_body;
+    friend class expr_cell;
+    void dealloc(buffer<expr_cell*> & todelete);
 public:
     expr_let(name const & n, expr const & t, expr const & v, expr const & b);
     ~expr_let();

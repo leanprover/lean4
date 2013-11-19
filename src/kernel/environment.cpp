@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include <mutex>
 #include "util/safe_arith.h"
 #include "util/realpath.h"
-#include "kernel/for_each.h"
+#include "kernel/for_each_fn.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/environment.h"
 #include "kernel/threadsafe_environment.h"

@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/expr.h"
-#include "kernel/for_each.h"
+#include "kernel/for_each_fn.h"
 
 namespace lean {
 bool has_cached_type(expr const & e) {

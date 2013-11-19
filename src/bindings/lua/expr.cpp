@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/formatter.h"
-#include "kernel/for_each.h"
+#include "kernel/for_each_fn.h"
 #include "kernel/free_vars.h"
 #include "kernel/occurs.h"
 #include "kernel/metavar.h"

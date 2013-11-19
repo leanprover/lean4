@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "util/sexpr/options.h"
 #include "util/interrupt.h"
 #include "kernel/context.h"
-#include "kernel/for_each.h"
+#include "kernel/for_each_fn.h"
 #include "kernel/occurs.h"
 #include "kernel/builtin.h"
 #include "kernel/free_vars.h"

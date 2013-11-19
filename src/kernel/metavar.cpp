@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/instantiate.h"
 #include "kernel/occurs.h"
-#include "kernel/for_each.h"
+#include "kernel/for_each_fn.h"
 
 namespace lean {
 /**

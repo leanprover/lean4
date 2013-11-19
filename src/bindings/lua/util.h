@@ -17,6 +17,7 @@ void dostring(lua_State * L, char const * str);
 void pcall(lua_State * L, int nargs, int nresults, int errorfun);
 int lessthan(lua_State * L, int idx1, int idx2);
 int equal(lua_State * L, int idx1, int idx2);
+int get_nonnil_top(lua_State * L);
 /**
    \brief Wrapper for invoking function f, and catching Lean exceptions.
 */

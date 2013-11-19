@@ -81,28 +81,41 @@ int equal(lua_State * L, int idx1, int idx2) {
     #endif
 }
 
+int get_nonnil_top(lua_State * L) {
+    int top = lua_gettop(L);
+    while (top > 0 && lua_isnil(L, top))
+        top--;
+    return top;
+}
+
 static void exec(lua_State * L) {
     pcall(L, 0, LUA_MULTRET, 0);
 }
 
+static void check_result(lua_State * L, int result) {
+    if (result) {
+        if (is_justification(L, -1))
+            throw elaborator_exception(to_justification(L, -1));
+        else
+            throw lua_exception(lua_tostring(L, -1));
+    }
+}
+
 void dofile(lua_State * L, char const * fname) {
     int result = luaL_loadfile(L, fname);
-    if (result)
-        throw lua_exception(lua_tostring(L, -1));
+    check_result(L, result);
     exec(L);
 }
 
 void dostring(lua_State * L, char const * str) {
     int result = luaL_loadstring(L, str);
-    if (result)
-        throw lua_exception(lua_tostring(L, -1));
+    check_result(L, result);
     exec(L);
 }
 
 void pcall(lua_State * L, int nargs, int nresults, int errorfun) {
     int result = lua_pcall(L, nargs, nresults, errorfun);
-    if (result)
-        throw lua_exception(lua_tostring(L, -1));
+    check_result(L, result);
 }
 
 int safe_function_wrapper(lua_State * L, lua_CFunction f){

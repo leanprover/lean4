@@ -56,7 +56,7 @@ static int parse_lean_expr(lua_State * L) {
       3. (string, env, options, formatter?) : Everything is explicitly provided in this
          version. We also support a variation where the formmater is omitted.
     */
-    int nargs = lua_gettop(L);
+    int nargs = get_nonnil_top(L);
     if (nargs == 1) {
         ro_environment env(L); // get global environment
         return parse_lean_expr_core(L, env);
@@ -100,7 +100,7 @@ static int parse_lean_cmds(lua_State * L) {
       The main difference is the function result. When calling with explicit options
       the function returns an updated set of options. Otherwise it does not return anything.
     */
-    int nargs = lua_gettop(L);
+    int nargs = get_nonnil_top(L);
     if (nargs == 1) {
         rw_environment env(L); // get global environment
         parse_lean_cmds_core(L, env);

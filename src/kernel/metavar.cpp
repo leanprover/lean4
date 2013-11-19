@@ -54,7 +54,6 @@ public:
 void swap(metavar_env & a, metavar_env & b) {
     swap(a.m_name_generator,         b.m_name_generator);
     swap(a.m_metavar_data,           b.m_metavar_data);
-    std::swap(a.m_size,              b.m_size);
     std::swap(a.m_beta_reduce_mv,    b.m_beta_reduce_mv);
     std::swap(a.m_timestamp,         b.m_timestamp);
 }
@@ -69,7 +68,6 @@ void metavar_env::inc_timestamp() {
 
 metavar_env::metavar_env(name const & prefix):
     m_name_generator(prefix),
-    m_size(0),
     m_beta_reduce_mv(true),
     m_timestamp(0) {
 }
@@ -158,7 +156,6 @@ bool metavar_env::is_assigned(expr const & m) const {
 void metavar_env::assign(name const & m, expr const & t, justification const & jst) {
     lean_assert(!is_assigned(m));
     inc_timestamp();
-    m_size++;
     auto it = const_cast<metavar_env*>(this)->m_metavar_data.splay_find(m);
     lean_assert(it);
     it->m_subst         = t;

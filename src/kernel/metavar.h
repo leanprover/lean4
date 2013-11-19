@@ -35,7 +35,6 @@ class metavar_env {
 
     name_generator     m_name_generator;
     name2data          m_metavar_data;
-    unsigned           m_size;
     // If the following flag is true, then beta-reduction is automatically applied
     // when we apply a substitution containing ?m <- fun (x : T), ...
     // to an expression containing (?m a)

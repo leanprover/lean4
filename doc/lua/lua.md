@@ -108,6 +108,7 @@ keys inserted in the map.
 
 ```lua
 local m = splay_map() -- create an empty splay map
+assert(is_splay_map(m))
 assert(#m == 0)
 local a  = name("a", 1)
 local a1 = name("a", 1)
@@ -130,3 +131,45 @@ assert(#m2 == #m)
 m2:insert(name("b", 2), 40)
 assert(#m2 == #m + 1)
 ```
+
+## Multiple precision numerals
+
+We expose [GMP](http://gmplib.org/) (GNU Multiple precision arithmetic
+library) in Lua. Internally, Lean uses multiple precision numerals for
+representing expressing containing numerals.
+In Lua, we can create multiple precision integers (_mpz_) and multiple
+precision rationals (_mpq_). The following example demonstrates how to
+use `mpz` and `mpq` numerals.
+
+```lua
+local ten = mpz(10) -- create the mpz numeral 10.
+assert(is_mpz(ten)) -- test whether 'ten' is a mpz numeral or not
+assert(not is_mpz(10))
+local big = mpz("100000000000000000000000") -- create a mpz numeral from a string
+-- The operators +, -, *, /, ^, <, <=, >, >=, ==, ~=
+-- The operators +, -, *, /, ^ accept mixed mpz and Lua native types
+assert(ten + 1 == mpz(11))
+-- In Lua, objects of different types are always different
+-- So, the mpz number 10 is different from the native Lua numeral 10
+assert(mpz(10) ~= 10)
+assert(mpz(3) / 2 == mpz(1))
+-- The second argument of ^ must be a non-negative Lua numeral
+assert(mpz(10) ^ 100 > mpz("1000000000000000000000000"))
+assert(mpz(3) * mpz("1000000000000000000000") == mpz("3000000000000000000000"))
+assert(mpz(4) + "10" == mpz(14))
+local q1 = mpq(10) -- create the mpq numeral 10
+local q2 = q1 / 3  -- create the mpq numeral 10/3
+assert(q2 == mpq("10/3"))
+local q3 = mpq(0.25) -- create the mpq numeral 1/4
+assert(q3 == mpq(1)/4)
+assert(is_mpq(q3)) -- test whether 'q3' is a mpq numeral or not
+assert(not is_mpq(mpz(10))) -- mpz numerals are not mpq
+assert(ten == mpz(10))
+local q4 = mpq(ten) -- convert the mpz numeral 'ten' into a mpq numeral
+assert(is_mpq(q4))
+assert(mpq(1)/3 + mpq(2)/3 == mpq(1))
+assert(mpq(0.5)^5 == mpq("1/32"))
+assert(mpq(1)/2 > mpq("1/3"))
+```
+
+

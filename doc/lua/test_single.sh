@@ -8,7 +8,7 @@ ulimit -s unlimited
 LEANLUA=$1
 f=$2
 echo "-- testing $f"
-awk 'BEGIN{ in_block = 0 } !/```/{ if (in_block == 1) print $0; else print "" } /```/{ in_block = 0; print "" } /```lua/{ in_block = 1; print "" }' $f > $f.lua
+awk 'BEGIN{ in_block = 0 } !/```/{ if (in_block == 1) print $0; else print "" } /```/ && !/```lua/{ in_block = 0; print "" } /```lua/{ in_block = 1; print "" }' $f > $f.lua
 if $LEANLUA $f.lua > $f.produced.out; then
     echo "-- worked"
     exit 0

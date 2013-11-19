@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/occurs.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/find_fn.h"
 
 namespace lean {
 /**
@@ -289,19 +290,17 @@ bool has_assigned_metavar(expr const & e, metavar_env const & menv) {
         return false;
     } else {
         bool result = false;
-        auto proc = [&](expr const & n, unsigned) {
-            if (result)
-                return false;
-            if (!has_metavar(n))
-                return false;
-            if (is_metavar(n) && menv.is_assigned(n)) {
-                result = true;
-                return false;
-            }
-            return true;
-        };
-        for_each_fn<decltype(proc)> visitor(proc);
-        visitor(e);
+        for_each(e, [&](expr const & n, unsigned) {
+                if (result)
+                    return false;
+                if (!has_metavar(n))
+                    return false;
+                if (is_metavar(n) && menv.is_assigned(n)) {
+                    result = true;
+                    return false;
+                }
+                return true;
+            });
         return result;
     }
 }
@@ -365,23 +364,12 @@ bool has_metavar(expr const & e, expr const & m, metavar_env const & menv) {
     if (has_metavar(e)) {
         lean_assert(is_metavar(m));
         lean_assert(!menv.is_assigned(m));
-        auto f = [&](expr const & m2, unsigned) {
-            if (is_metavar(m2)) {
-                if (metavar_name(m) == metavar_name(m2))
-                    throw found_metavar();
-                if (menv.is_assigned(m2) &&
-                    has_metavar(menv.get_subst(m2), m, menv))
-                    throw found_metavar();
-            }
-            return true;
-        };
-        try {
-            for_each_fn<decltype(f)> proc(f);
-            proc(e);
-            return false;
-        } catch (found_metavar) {
-            return true;
-        }
+        return find(e, [&](expr const & m2) {
+                return
+                    is_metavar(m2) &&
+                    ((metavar_name(m) == metavar_name(m2)) ||
+                     (menv.is_assigned(m2) && has_metavar(menv.get_subst(m2), m, menv)));
+            });
     } else {
         return false;
     }

@@ -107,4 +107,9 @@ public:
     for_each_fn(F const & f):m_f(f) {}
     void operator()(expr const & e) { apply(e, 0); }
 };
+
+template<typename F>
+void for_each(expr const & e, F f) {
+    return for_each_fn<F>(f)(e);
+}
 }

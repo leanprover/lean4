@@ -15,12 +15,12 @@ Author: Leonardo de Moura
 #include "util/safe_arith.h"
 #include "util/realpath.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/find_fn.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/environment.h"
 #include "kernel/threadsafe_environment.h"
 #include "kernel/type_checker.h"
 #include "kernel/normalizer.h"
-#include "kernel/has_cached_type.h"
 
 namespace lean {
 static name g_builtin_module("builtin_module");
@@ -288,8 +288,16 @@ struct environment::imp {
         m_uvars.emplace_back();
     }
 
+    /**
+       The kernel should *not* accept expressions containing cached types.
+       Reason: Cached types may introduce unsoundness.
+       For example, in the environment env, the constant x may have type T.
+       Now suppose we are trying to add a new definition D that contains x,
+       and x is associated with a cached type T'. The cached type may allow
+       us to accept a definition that is type incorrect with respect to env.
+    */
     void check_no_cached_type(expr const & e, environment const & env) {
-        if (has_cached_type(e))
+        if (find(e, [](expr const & a) { return is_constant(a) && const_type(a); }))
             throw kernel_exception(env, "expression has a constant with a cached type, this is a bug in one of Lean tactics and/or solvers");
     }
 

@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 #include "kernel/context.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/find_fn.h"
 #include "kernel/occurs.h"
 #include "kernel/builtin.h"
 #include "kernel/free_vars.h"
@@ -1119,26 +1120,13 @@ class pp_fn {
         m_alias_min_weight = get_pp_alias_min_weight(opts);
     }
 
-
-    struct found_prefix {};
     bool uses_prefix(expr const & e, name const & prefix) {
-        auto f = [&](expr const & e, unsigned) {
-            if (is_constant(e)) {
-                if (is_prefix_of(prefix, const_name(e))) throw found_prefix();
-            } else if (is_abstraction(e)) {
-                if (is_prefix_of(prefix, abst_name(e))) throw found_prefix();
-            } else if (is_let(e)) {
-                if (is_prefix_of(prefix, let_name(e))) throw found_prefix();
-            }
-            return true;
-        };
-        try {
-            for_each_fn<decltype(f)> visitor(f);
-            visitor(e);
-            return false;
-        } catch (found_prefix) {
-            return true;
-        }
+        return find(e, [&](expr const & e) {
+                return
+                    (is_constant(e) && is_prefix_of(prefix, const_name(e)))   ||
+                    (is_abstraction(e) && is_prefix_of(prefix, abst_name(e))) ||
+                    (is_let(e) && is_prefix_of(prefix, let_name(e)));
+            });
     }
 
     name find_unused_prefix(expr const & e) {

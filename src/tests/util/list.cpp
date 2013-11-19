@@ -131,6 +131,21 @@ static void tst10(int sz, int num) {
     }
 }
 
+static void tst11(int sz, int num) {
+    list<int> l;
+    for (int i = 0; i < sz; i++) {
+        l = cons(i, l);
+    }
+    list<int> l2;
+    {
+        timeit timer(std::cout, "map");
+        for (int i = 0; i < num; i++) {
+            l2 = map(l, [&](int v) { return v; });
+        }
+    }
+    lean_assert(l == l2);
+}
+
 int main() {
     tst1();
     tst2();
@@ -142,5 +157,6 @@ int main() {
     tst8();
     tst9(100);
     tst10(1000, 5);
+    tst11(1000, 5);
     return has_violations() ? 1 : 0;
 }

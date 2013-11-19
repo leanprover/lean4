@@ -23,6 +23,18 @@ void to_buffer(list<T> const & l, buffer<T> & r) {
 }
 
 /**
+   \brief Copy the cells in the list \c l to the buffer \c r.
+*/
+template<typename T>
+void to_buffer(list<T> const & l, buffer<typename list<T>::cell *> & r) {
+    typename list<T>::cell * it = l.raw();
+    while (it) {
+        r.push_back(it);
+        it = it->tail().raw();
+    }
+}
+
+/**
     \brief Auxiliary function for reverse function.
 */
 template<typename T>
@@ -114,7 +126,15 @@ list<T> map(list<T> const & l, F f) {
     if (is_nil(l)) {
         return l;
     } else {
-        return list<T>(f(head(l)), map(tail(l), f));
+        buffer<typename list<T>::cell*> tmp;
+        to_buffer(l, tmp);
+        unsigned i = tmp.size();
+        list<T> r;
+        while (i > 0) {
+            --i;
+            r = cons(f(tmp[i]->head()), r);
+        }
+        return l;
     }
 }
 

@@ -30,6 +30,7 @@ public:
     };
 private:
     cell * m_ptr;
+    cell * steal_ptr() { cell * r = m_ptr; m_ptr = nullptr; return r; }
 public:
     list():m_ptr(nullptr) {}
     list(T const & h, list const & t):m_ptr(new cell(h, t)) {}
@@ -44,7 +45,22 @@ public:
         }
     }
     explicit list(cell * c):m_ptr(c) { if (m_ptr) m_ptr->inc_ref(); }
-    ~list() { if (m_ptr) m_ptr->dec_ref(); }
+    ~list() {
+        if (m_ptr && m_ptr->dec_ref_core()) {
+            cell * it = m_ptr;
+            while (true) {
+                lean_assert(it);
+                lean_assert(it->get_rc() == 0);
+                cell * next = it->m_tail.steal_ptr();
+                delete it;
+                if (next && next->dec_ref_core()) {
+                    it = next;
+                } else {
+                    break;
+                }
+            }
+        }
+    }
 
     list & operator=(list const & s) { LEAN_COPY_REF(list, s); }
     list & operator=(list && s) { LEAN_MOVE_REF(list, s); }

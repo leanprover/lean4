@@ -107,11 +107,15 @@ class type_checker::imp {
             }
             break;
         case expr_kind::Constant: {
-            object const & obj = env().get_object(const_name(e));
-            if (obj.has_type())
-                r = obj.get_type();
-            else
-                throw has_no_type_exception(env(), e);
+            if (const_type(e)) {
+                r = const_type(e);
+            } else {
+                object const & obj = env().get_object(const_name(e));
+                if (obj.has_type())
+                    r = obj.get_type();
+                else
+                    throw has_no_type_exception(env(), e);
+            }
             break;
         }
         case expr_kind::Var:

@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "kernel/threadsafe_environment.h"
 #include "kernel/type_checker.h"
 #include "kernel/normalizer.h"
+#include "kernel/has_cached_type.h"
 
 namespace lean {
 static name g_builtin_module("builtin_module");
@@ -287,6 +288,11 @@ struct environment::imp {
         m_uvars.emplace_back();
     }
 
+    void check_no_cached_type(expr const & e, environment const & env) {
+        if (has_cached_type(e))
+            throw kernel_exception(env, "expression has a constant with a cached type, this is a bug in one of Lean tactics and/or solvers");
+    }
+
     /**
         \brief Throw an exception if \c t is not a type or type of \c
         v is not convertible to \c t.
@@ -331,6 +337,8 @@ struct environment::imp {
 
     /** \brief Add new definition. */
     void add_definition(name const & n, expr const & t, expr const & v, bool opaque, environment const & env) {
+        check_no_cached_type(t, env);
+        check_no_cached_type(v, env);
         check_new_definition(n, t, v, env);
         unsigned w = get_max_weight(v) + 1;
         register_named_object(mk_definition(n, t, v, opaque, w));
@@ -341,6 +349,7 @@ struct environment::imp {
         The type of the new definition is the type of \c v.
     */
     void add_definition(name const & n, expr const & v, bool opaque, environment const & env) {
+        check_no_cached_type(v, env);
         check_name(n, env);
         expr v_t = m_type_checker->infer_type(v);
         unsigned w = get_max_weight(v) + 1;
@@ -349,12 +358,15 @@ struct environment::imp {
 
     /** \brief Add new theorem. */
     void add_theorem(name const & n, expr const & t, expr const & v, environment const & env) {
+        check_no_cached_type(t, env);
+        check_no_cached_type(v, env);
         check_new_definition(n, t, v, env);
         register_named_object(mk_theorem(n, t, v));
     }
 
     /** \brief Add new axiom. */
     void add_axiom(name const & n, expr const & t, environment const & env) {
+        check_no_cached_type(t, env);
         check_name(n, env);
         m_type_checker->check_type(t);
         register_named_object(mk_axiom(n, t));
@@ -362,6 +374,7 @@ struct environment::imp {
 
     /** \brief Add new variable. */
     void add_var(name const & n, expr const & t, environment const & env) {
+        check_no_cached_type(t, env);
         check_name(n, env);
         m_type_checker->check_type(t);
         register_named_object(mk_var_decl(n, t));

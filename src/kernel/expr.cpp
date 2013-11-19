@@ -67,9 +67,14 @@ expr_var::expr_var(unsigned idx):
     expr_cell(expr_kind::Var, idx, false),
     m_vidx(idx) {}
 
-expr_const::expr_const(name const & n):
-    expr_cell(expr_kind::Constant, n.hash(), false),
-    m_name(n) {}
+expr_const::expr_const(name const & n, expr const & t):
+    expr_cell(expr_kind::Constant, n.hash(), t && t.has_metavar()),
+    m_name(n),
+    m_type(t) {}
+void expr_const::dealloc(buffer<expr_cell*> & todelete) {
+    dec_ref(m_type, todelete);
+    delete(this);
+}
 
 expr_app::expr_app(unsigned num_args, bool has_mv):
     expr_cell(expr_kind::App, 0, has_mv),
@@ -196,10 +201,10 @@ void expr_cell::dealloc() {
             lean_assert(it->get_rc() == 0);
             switch (it->kind()) {
             case expr_kind::Var:        delete static_cast<expr_var*>(it); break;
-            case expr_kind::Constant:   delete static_cast<expr_const*>(it); break;
             case expr_kind::Value:      delete static_cast<expr_value*>(it); break;
             case expr_kind::MetaVar:    delete static_cast<expr_metavar*>(it); break;
             case expr_kind::Type:       delete static_cast<expr_type*>(it); break;
+            case expr_kind::Constant:   static_cast<expr_const*>(it)->dealloc(todo); break;
             case expr_kind::Eq:         static_cast<expr_eq*>(it)->dealloc(todo); break;
             case expr_kind::App:        static_cast<expr_app*>(it)->dealloc(todo); break;
             case expr_kind::Lambda:     static_cast<expr_lambda*>(it)->dealloc(todo); break;
@@ -229,7 +234,7 @@ bool is_arrow(expr const & t) {
 expr copy(expr const & a) {
     switch (a.kind()) {
     case expr_kind::Var:      return mk_var(var_idx(a));
-    case expr_kind::Constant: return mk_constant(const_name(a));
+    case expr_kind::Constant: return mk_constant(const_name(a), const_type(a));
     case expr_kind::Type:     return mk_type(ty_level(a));
     case expr_kind::Value:    return mk_value(static_cast<expr_value*>(a.raw())->m_val);
     case expr_kind::App:      return mk_app(num_args(a), begin_args(a));

@@ -24,7 +24,11 @@ protected:
     bool apply(expr const & e, unsigned offset) {
         // handle easy cases
         switch (e.kind()) {
-        case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
+        case expr_kind::Constant:
+            if (!const_type(e))
+                return false;
+            break;
+        case expr_kind::Type: case expr_kind::Value:
             return false;
         case expr_kind::MetaVar:
             return true;
@@ -58,7 +62,11 @@ protected:
         bool result = false;
 
         switch (e.kind()) {
-        case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value: case expr_kind::Var: case expr_kind::MetaVar:
+        case expr_kind::Constant:
+            lean_assert(const_type(e));
+            result = apply(const_type(e), offset);
+            break;
+        case expr_kind::Type: case expr_kind::Value: case expr_kind::Var: case expr_kind::MetaVar:
             // easy cases were already handled
             lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::App:
@@ -109,7 +117,11 @@ protected:
     bool apply(expr const & e, unsigned offset) {
         // handle easy cases
         switch (e.kind()) {
-        case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
+        case expr_kind::Constant:
+            if (!const_type(e))
+                return false;
+            break;
+        case expr_kind::Type: case expr_kind::Value:
             return false;
         case expr_kind::MetaVar:
             return true;
@@ -133,7 +145,11 @@ protected:
         bool result = false;
 
         switch (e.kind()) {
-        case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value: case expr_kind::Var: case expr_kind::MetaVar:
+        case expr_kind::Constant:
+            lean_assert(const_type(e));
+            result = apply(const_type(e), offset);
+            break;
+        case expr_kind::Type: case expr_kind::Value: case expr_kind::Var: case expr_kind::MetaVar:
             // easy cases were already handled
             lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::App:

@@ -59,7 +59,11 @@ class replace_fn {
         expr r = m_f(e, offset);
         if (is_eqp(e, r)) {
             switch (e.kind()) {
-            case expr_kind::Type: case expr_kind::Value: case expr_kind::Constant:
+            case expr_kind::Constant:
+                if (const_type(e))
+                    r = update_const(e, apply(const_type(e), offset));
+                break;
+            case expr_kind::Type: case expr_kind::Value:
             case expr_kind::Var: case expr_kind::MetaVar:
                 break;
             case expr_kind::App:

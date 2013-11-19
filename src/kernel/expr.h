@@ -125,7 +125,7 @@ public:
     operator bool() const { return m_ptr != nullptr; }
 
     friend expr mk_var(unsigned idx);
-    friend expr mk_constant(name const & n);
+    friend expr mk_constant(name const & n, expr const & t);
     friend expr mk_value(value & v);
     friend expr mk_app(unsigned num_args, expr const * args);
     friend expr mk_eq(expr const & l, expr const & r);
@@ -160,9 +160,15 @@ public:
 /** \brief Constants. */
 class expr_const : public expr_cell {
     name     m_name;
+    expr     m_type; // (optional) cached type
+    // Remark: we do *not* perform destructive updates on m_type
+    // This field is used to efficiently implement the tactic framework
+    friend class expr_cell;
+    void dealloc(buffer<expr_cell*> & to_delete);
 public:
-    expr_const(name const & n);
+    expr_const(name const & n, expr const & type);
     name const & get_name() const { return m_name; }
+    expr const & get_type() const { return m_type; }
 };
 /** \brief Function Applications */
 class expr_app : public expr_cell {
@@ -375,7 +381,7 @@ inline bool is_abstraction(expr const & e) { return is_lambda(e) || is_pi(e); }
 // Constructors
 inline expr mk_var(unsigned idx) { return expr(new expr_var(idx)); }
 inline expr Var(unsigned idx) { return mk_var(idx); }
-inline expr mk_constant(name const & n) { return expr(new expr_const(n)); }
+inline expr mk_constant(name const & n, expr const & t = expr()) { return expr(new expr_const(n, t)); }
 inline expr Const(name const & n) { return mk_constant(n); }
 inline expr mk_value(value & v) { return expr(new expr_value(v)); }
 inline expr to_expr(value & v) { return mk_value(v); }
@@ -444,6 +450,8 @@ inline bool          is_shared(expr_cell * e)            { return get_rc(e) > 1;
 inline unsigned      var_idx(expr_cell * e)              { return to_var(e)->get_vidx(); }
 inline bool          is_var(expr_cell * e, unsigned i)   { return is_var(e) && var_idx(e) == i; }
 inline name const &  const_name(expr_cell * e)           { return to_constant(e)->get_name(); }
+// Remark: the following function should not be exposed in the internal API.
+inline expr const &  const_type(expr_cell * e)           { return to_constant(e)->get_type(); }
 inline value const & to_value(expr_cell * e)             { lean_assert(is_value(e)); return static_cast<expr_value*>(e)->get_value(); }
 inline unsigned      num_args(expr_cell * e)             { return to_app(e)->get_num_args(); }
 inline expr const &  arg(expr_cell * e, unsigned idx)    { return to_app(e)->get_arg(idx); }
@@ -469,6 +477,8 @@ inline unsigned      var_idx(expr const & e)              { return to_var(e)->ge
 /** \brief Return true iff the given expression is a variable with de Bruijn index equal to \c i. */
 inline bool          is_var(expr const & e, unsigned i)   { return is_var(e) && var_idx(e) == i; }
 inline name const &  const_name(expr const & e)           { return to_constant(e)->get_name(); }
+// Remark: the following function should not be exposed in the internal API.
+inline expr const &  const_type(expr const & e)           { return to_constant(e)->get_type(); }
 /** \brief Return true iff the given expression is a constant with name \c n. */
 inline bool          is_constant(expr const & e, name const & n) {
     return is_constant(e) && const_name(e) == n;
@@ -644,6 +654,12 @@ template<typename F> expr update_metavar(expr const & e, F f) {
 inline expr update_metavar(expr const & e, local_context const & lctx) {
     if (metavar_lctx(e) != lctx)
         return mk_metavar(metavar_name(e), lctx);
+    else
+        return e;
+}
+inline expr update_const(expr const & e, expr const & t) {
+    if (!is_eqp(const_type(e), t))
+        return mk_constant(const_name(e), t);
     else
         return e;
 }

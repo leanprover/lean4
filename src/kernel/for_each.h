@@ -40,7 +40,14 @@ class for_each_fn {
             unsigned offset = p.second;
             if (!CacheAtomic) {
                 switch (e.kind()) {
-                case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
+                case expr_kind::Constant:
+                    if (!const_type(e)) {
+                        // only constants without cached types are considered atomic
+                        m_f(e, offset);
+                        goto begin_loop;
+                    }
+                    break;
+                case expr_kind::Type: case expr_kind::Value:
                 case expr_kind::Var: case expr_kind::MetaVar:
                     m_f(e, offset);
                     goto begin_loop;
@@ -62,7 +69,11 @@ class for_each_fn {
                 goto begin_loop;
 
             switch (e.kind()) {
-            case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
+            case expr_kind::Constant:
+                if (const_type(e))
+                    todo.emplace_back(const_type(e), offset);
+                goto begin_loop;
+            case expr_kind::Type: case expr_kind::Value:
             case expr_kind::Var: case expr_kind::MetaVar:
                 goto begin_loop;
             case expr_kind::App: {

@@ -36,7 +36,16 @@ struct max_sharing_fn::imp {
             return a;
         }
         switch (a.kind()) {
-        case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
+        case expr_kind::Constant:
+            if (const_type(a)) {
+                expr r = update_const(a, apply(const_type(a)));
+                cache(r);
+                return r;
+            } else {
+                cache(a);
+                return a;
+            }
+        case expr_kind::Var: case expr_kind::Type: case expr_kind::Value:
             cache(a);
             return a;
         case expr_kind::App: {

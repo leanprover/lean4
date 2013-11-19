@@ -110,11 +110,15 @@ class type_inferer::imp {
                 throw unexpected_metavar_occurrence(m_env, e);
             }
         case expr_kind::Constant: {
-            object const & obj = m_env.get_object(const_name(e));
-            if (obj.has_type())
-                return obj.get_type();
-            else
-                throw has_no_type_exception(m_env, e);
+            if (const_type(e)) {
+                return const_type(e);
+            } else {
+                object const & obj = m_env.get_object(const_name(e));
+                if (obj.has_type())
+                    return obj.get_type();
+                else
+                    throw has_no_type_exception(m_env, e);
+            }
             break;
         }
         case expr_kind::Var: {

@@ -10,9 +10,16 @@ Author: Leonardo de Moura
 namespace lean {
 expr replace_visitor::visit_type(expr const & e, context const &) { lean_assert(is_type(e)); return e; }
 expr replace_visitor::visit_value(expr const & e, context const &) { lean_assert(is_value(e)); return e; }
-expr replace_visitor::visit_constant(expr const & e, context const &) { lean_assert(is_constant(e)); return e; }
 expr replace_visitor::visit_var(expr const & e, context const &) { lean_assert(is_var(e)); return e; }
 expr replace_visitor::visit_metavar(expr const & e, context const &) { lean_assert(is_metavar(e)); return e; }
+expr replace_visitor::visit_constant(expr const & e, context const & ctx) {
+    lean_assert(is_constant(e));
+    if (const_type(e)) {
+        return update_const(e, visit(const_type(e), ctx));
+    } else {
+        return e;
+    }
+}
 expr replace_visitor::visit_app(expr const & e, context const & ctx) {
     lean_assert(is_app(e));
     return update_app(e, [&](expr const & c) { return visit(c, ctx); });

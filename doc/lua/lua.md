@@ -42,3 +42,89 @@ assert(x < y) -- '<' is a total order on hierarchical names
 local h = x:hash() -- retrieve the hash code for 'x'
 assert(h ~= y:hash())
 ```
+
+## Lua tables
+
+Tables are the only mutable, non-atomic type of data in Lua.  Tables
+are used to implement mappings, arrays, lists, objects, etc. Here is a
+small examples demonstrating how to use Lua tables:
+
+```lua
+local t = {}    -- create an empty table
+t["x"]  = 10    -- insert the entry "x" -> 10
+t.x     = 20    -- syntax-sugar for t["x"] = 20
+t["y"]  = 30    -- insert the entry "y" -> 30
+assert(t["x"] == 20)
+local p = { x = 10, y = 20 } -- create a table with two entries
+assert(p.x == 10)
+assert(p["x"] == 10)
+assert(p.y == 20)
+assert(p["y"] == 20)
+```
+
+Arrays are implemented by indexing tables with integers.
+The arrays don't have a fixed size and grow dynamically.
+The arrays in Lua usually start at index 1. The Lua libraries
+use this convention. The following example initializes
+an array with 100 elements.
+
+```lua
+local a = {}    -- new array
+for i=1, 100 do
+    a[i] = 0
+end
+local b = {2, 4, 6, 8, 10} -- create an array with 5 elements
+assert(#b == 5)    -- array has 5 elements
+assert(b[1] == 2)
+assert(b[2] == 4)
+```
+In Lua, we cannot provide custom hash and equality functions to tables.
+So, we cannot effectively use Lua tables to implement mappings where
+the keys are Lean hierarchical names, expressions, etc.
+The following example demonstrates the issue.
+
+```lua
+local m  = {} -- create empty table
+local a  = name("a")
+m[a]     = 10 -- map the hierarchical name 'a' to 10
+assert(m[a] == 10)
+local a1 = name("a")
+assert(a == a1)      -- 'a' and 'a1' are the same hierarchical name
+assert(m[a1] == nil) -- 'a1' is not a key in the mapping 'm'
+assert(m[a]  == 10)
+-- 'a' and 'a1' are two instances of the same object
+-- Lua tables assume that different instances are not equal
+```
+
+## Splay maps
+
+In Lean, we provide splay maps for implementing mappings where the keys are
+Lean objects such as hierarchical names. We can also use Lua atomic data types
+as keys in splay maps. However, we should not mix different types in the
+same splay map. The Lean splay map assumes that `<` is a total order on the
+keys inserted in the map.
+
+```lua
+local m = splay_map() -- create an empty splay map
+assert(#m == 0)
+local a  = name("a", 1)
+local a1 = name("a", 1)
+m:insert(a, 10)          -- add the entry 'a::1' -> 10
+assert(m:find(a1) == 10)
+m:insert(name("b"), 20)
+assert(#m == 2)
+m:erase(a)               -- remove entry with key 'a::1'
+assert(m:find(a) == nil)
+assert(not m:contains(a))
+assert(#m == 1)
+m:insert(name("c"), 30)
+m:for_each(              -- traverse the entries in the splay map
+    function(k, v)       -- executing the given function
+        print(k, v)
+    end
+)
+local m2 = m:copy()      -- the splay maps are copied in constant time
+assert(#m2 == #m)
+m2:insert(name("b", 2), 40)
+assert(#m2 == #m + 1)
+```

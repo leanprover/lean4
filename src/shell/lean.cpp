@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <fstream>
 #include <signal.h>
 #include <getopt.h>
+#include "util/debug.h"
 #include "util/interrupt.h"
 #include "kernel/printer.h"
 #include "frontends/lean/parser.h"
@@ -19,19 +20,28 @@ using lean::shell;
 using lean::frontend;
 using lean::parser;
 using lean::leanlua_state;
+using lean::unreachable_reached;
+using lean::invoke_debugger;
+using lean::notify_assertion_violation;
 
 enum class input_kind { Unspecified, Lean, Lua };
 
-struct option long_options[] = {
-    {"version", no_argument,       0, 'v'},
-    {"help",    no_argument,       0, 'h'},
-    {"lean",    no_argument,       0, 0},
-    {"lua",     no_argument,       0, 0},
-    {0, 0, 0, 0}
-};
-
 static void on_ctrl_c(int ) {
     lean::request_interrupt();
+}
+
+static void display_header(std::ostream & out) {
+    out << "Lean (version " << LEAN_VERSION_MAJOR << "." << LEAN_VERSION_MINOR << ")\n";
+}
+
+static void display_help(std::ostream & out) {
+    display_header(out);
+    std::cout << "Input format:\n";
+    std::cout << "  --lean        use parser for Lean default input format for files with unknown extension (default)\n";
+    std::cout << "  --lua         use Lua parser for files with unknown extension\n";
+    std::cout << "Miscellaneous:\n";
+    std::cout << "  --help -h     display this message\n";
+    std::cout << "  --version -v  display version number\n";
 }
 
 static char const * get_file_extension(char const * fname) {
@@ -48,26 +58,53 @@ static char const * get_file_extension(char const * fname) {
     }
 }
 
-bool lean_shell() {
-    std::cout << "Lean (version " << LEAN_VERSION_MAJOR << "." << LEAN_VERSION_MINOR << ")\n";
-    std::cout << "Type Ctrl-D to exit or 'Help.' for help."<< std::endl;
-    frontend f;
-    leanlua_state S;
-    shell sh(f, &S);
-    signal(SIGINT, on_ctrl_c);
-    return sh();
-}
+static struct option g_long_options[] = {
+    {"version", no_argument,       0, 'v'},
+    {"help",    no_argument,       0, 'h'},
+    {"lean",    no_argument,       0, 'l'},
+    {"lua",     no_argument,       0, 'u'},
+    {0, 0, 0, 0}
+};
 
 int main(int argc, char ** argv) {
-    if (argc == 1) {
-        return lean_shell() ? 0 : 1;
+    input_kind default_k = input_kind::Lean; // default
+    int optind     = 1;
+    while (true) {
+        int c = getopt_long(argc, argv, "vh", g_long_options, &optind);
+        if (c == -1)
+            break; // end of command line
+        switch (c) {
+        case 'v':
+            display_header(std::cout);
+            return 0;
+        case 'h':
+            display_help(std::cout);
+            return 0;
+        case 'l':
+            default_k = input_kind::Lean;
+            break;
+        case 'u':
+            default_k = input_kind::Lua;
+            break;
+        default:
+            std::cerr << "Unknown command line option\n";
+            display_help(std::cerr);
+            return 1;
+        }
+    }
+    frontend f;
+    leanlua_state S;
+    if (optind >= argc) {
+        display_header(std::cout);
+        std::cout << "Type Ctrl-D to exit or 'Help.' for help."<< std::endl;
+        shell sh(f, &S);
+        signal(SIGINT, on_ctrl_c);
+        return sh();
     } else {
         bool ok = true;
-        frontend f;
-        leanlua_state S;
-        for (int i = 1; i < argc; i++) {
-            input_kind k = input_kind::Unspecified;
+        for (int i = optind; i < argc; i++) {
             char const * ext = get_file_extension(argv[i]);
+            input_kind k     = default_k;
             if (ext) {
                 if (strcmp(ext, "lean") == 0) {
                     k = input_kind::Lean;
@@ -75,11 +112,6 @@ int main(int argc, char ** argv) {
                     k = input_kind::Lua;
                 }
             }
-            if (k == input_kind::Unspecified) {
-                // assume the input is in Lean format
-                k = input_kind::Lean;
-            }
-
             if (k == input_kind::Lean) {
                 std::ifstream in(argv[i]);
                 parser p(f, in, &S, false, false);
@@ -92,6 +124,8 @@ int main(int argc, char ** argv) {
                     std::cerr << ex.what() << std::endl;
                     ok = false;
                 }
+            } else {
+                lean_unreachable(); // LCOV_EXCL_LINE
             }
         }
         return ok ? 0 : 1;

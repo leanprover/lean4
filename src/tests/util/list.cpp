@@ -146,6 +146,20 @@ static void tst11(int sz, int num) {
     lean_assert(l == l2);
 }
 
+static void tst12() {
+    list<std::pair<int, char const *>> l;
+    lean_assert(is_nil(l));
+    l.emplace_front(20, "world");
+    l.emplace_front(10, "hello");
+    int sum = 0;
+    for (auto p : l) {
+        sum += p.first;
+        std::cout << p.second << " ";
+    }
+    std::cout << "\n";
+    lean_assert(sum == 30);
+}
+
 int main() {
     tst1();
     tst2();
@@ -158,5 +172,6 @@ int main() {
     tst9(100);
     tst10(1000, 5);
     tst11(1000, 5);
+    tst12();
     return has_violations() ? 1 : 0;
 }

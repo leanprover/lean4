@@ -21,6 +21,8 @@ public:
         MK_LEAN_RC()
         T      m_head;
         list   m_tail;
+        template<typename... Fields>
+        cell(bool, list const & t, Fields&&... head):m_rc(1), m_head(head...), m_tail(t) {}
     public:
         cell(T const & h, list const & t):m_rc(1), m_head(h), m_tail(t) {}
         ~cell() {}
@@ -87,6 +89,13 @@ public:
     /** \brief Pointer equality. Return true iff \c l1 and \c l2 point to the same memory location. */
     friend bool is_eqp(list const & l1, list const & l2) { return l1.m_ptr == l2.m_ptr; }
     friend bool is_eqp(list const & l1, cell const * l2) { return l1.m_ptr == l2; }
+
+    template<typename... Args>
+    void emplace_front(Args&&... args) {
+        cell * new_ptr = new cell(true, *this, args...);
+        if (m_ptr) m_ptr->dec_ref();
+        m_ptr = new_ptr;
+    }
 
     /** \brief Structural equality. */
     friend bool operator==(list const & l1, list const & l2) {

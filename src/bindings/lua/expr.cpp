@@ -265,7 +265,16 @@ static int expr_fields(lua_State * L) {
     case expr_kind::Var:      lua_pushinteger(L, var_idx(e)); return 1;
     case expr_kind::Constant: return push_name(L, const_name(e));
     case expr_kind::Type:     return push_level(L, ty_level(e));
-    case expr_kind::Value:    return 0;
+    case expr_kind::Value:
+        if (is_nat_value(e)) {
+            return push_mpz(L, nat_value_numeral(e));
+        } else if (is_int_value(e)) {
+            return push_mpz(L, int_value_numeral(e));
+        } else if (is_real_value(e)) {
+            return push_mpq(L, real_value_numeral(e));
+        } else {
+            return 0;
+        }
     case expr_kind::App:      lua_pushinteger(L, num_args(e)); expr_args(L); return 2;
     case expr_kind::Eq:       push_expr(L, eq_lhs(e)); push_expr(L, eq_rhs(e)); return 2;
     case expr_kind::Lambda:
@@ -389,6 +398,7 @@ static const struct luaL_Reg expr_m[] = {
     {"is_value",        safe_function<expr_is_value>},
     {"is_metavar",      safe_function<expr_is_metavar>},
     {"fields",          safe_function<expr_fields>},
+    {"data",            safe_function<expr_fields>},
     {"args",            safe_function<expr_args>},
     {"num_args",        safe_function<expr_num_args>},
     {"arg",             safe_function<expr_arg>},
@@ -408,7 +418,10 @@ static const struct luaL_Reg expr_m[] = {
 };
 
 static int mk_nat_value(lua_State * L) {
-    return push_expr(L, mk_nat_value(to_mpz_ext(L, 1)));
+    mpz v = to_mpz_ext(L, 1);
+    if (v < 0)
+        throw exception("arg #1 must be non-negative");
+    return push_expr(L, mk_nat_value(v));
 }
 
 static int mk_int_value(lua_State * L) {

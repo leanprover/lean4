@@ -165,7 +165,6 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread ${LEAN_EXTRA_LINK
 set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
 set(EXTRA_LIBS ${LEAN_LIBS} ${EXTRA_LIBS})
 add_subdirectory(shell)
-add_subdirectory(shell/lua)
 add_subdirectory(tests/util)
 add_subdirectory(tests/util/numerics)
 add_subdirectory(tests/util/interval)

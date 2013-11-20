@@ -19,8 +19,24 @@ using lean::frontend;
 using lean::parser;
 using lean::leanlua_state;
 
+enum class input_kind { Unspecified, Lean, Lua };
+
 static void on_ctrl_c(int ) {
     lean::request_interrupt();
+}
+
+static char const * get_file_extension(char const * fname) {
+    if (fname == 0)
+        return 0;
+    char const * last_dot = 0;
+    while (true) {
+        char const * tmp = strchr(fname, '.');
+        if (tmp == 0) {
+            return last_dot;
+        }
+        last_dot  = tmp + 1;
+        fname = last_dot;
+    }
 }
 
 bool lean_shell() {
@@ -41,10 +57,33 @@ int main(int argc, char ** argv) {
         frontend f;
         leanlua_state S;
         for (int i = 1; i < argc; i++) {
-            std::ifstream in(argv[i]);
-            parser p(f, in, &S, false, false);
-            if (!p())
-                ok = false;
+            input_kind k = input_kind::Unspecified;
+            char const * ext = get_file_extension(argv[i]);
+            if (ext) {
+                if (strcmp(ext, "lean") == 0) {
+                    k = input_kind::Lean;
+                } else if (strcmp(ext, "lua") == 0) {
+                    k = input_kind::Lua;
+                }
+            }
+            if (k == input_kind::Unspecified) {
+                // assume the input is in Lean format
+                k = input_kind::Lean;
+            }
+
+            if (k == input_kind::Lean) {
+                std::ifstream in(argv[i]);
+                parser p(f, in, &S, false, false);
+                if (!p())
+                    ok = false;
+            } else if (k == input_kind::Lua) {
+                try {
+                    S.dofile(argv[i]);
+                } catch (lean::exception & ex) {
+                    std::cerr << ex.what() << std::endl;
+                    ok = false;
+                }
+            }
         }
         return ok ? 0 : 1;
     }

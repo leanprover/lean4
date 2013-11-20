@@ -1,14 +1,14 @@
 #!/bin/bash
 if [ $# -ne 1 ]; then
-    echo "Usage: test.sh [leanlua-executable-path]"
+    echo "Usage: test.sh [lean-executable-path]"
     exit 1
 fi
 ulimit -s unlimited
-LEANLUA=$1
+LEAN=$1
 NUM_ERRORS=0
 for f in `ls *.lua`; do
     echo "-- testing $f"
-    if $LEANLUA util.lua $f > $f.produced.out; then
+    if $LEAN util.lua $f > $f.produced.out; then
         echo "-- worked"
     else
         echo "ERROR executing $f, produced output is at $f.produced.out"

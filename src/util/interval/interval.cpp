@@ -130,7 +130,9 @@ bool interval<T>::contains(interval<T> const & b) const {
 
 template<typename T>
 bool interval<T>::is_empty() const {
-    return m_lower == m_upper && m_lower_open && m_upper_open && !m_lower_inf && !m_upper_inf;
+    return
+        (m_lower == m_upper && (m_lower_open || m_upper_open) && !m_lower_inf && !m_upper_inf) ||
+        (m_lower > m_upper && !m_lower_inf && !m_upper_inf);
 }
 
 template<typename T>

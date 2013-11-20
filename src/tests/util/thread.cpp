@@ -66,10 +66,10 @@ static void tst3() {
             }
             while (!mutex.try_lock()) {
                 std::this_thread::sleep_for(small_delay);
-                // test recursive try_lock
-                lean_verify(mutex.try_lock());
-                mutex.unlock();
             }
+            // test recursive try_lock
+            lean_verify(mutex.try_lock());
+            mutex.unlock();
             // we can only succeed getting the lock if t2 is done
             lean_assert(t2_done);
             mutex.unlock();
@@ -101,10 +101,10 @@ static void tst4() {
             }
             while (!mutex.try_lock_shared()) {
                 std::this_thread::sleep_for(small_delay);
-                // test recursive try_lock_shared
-                lean_verify(mutex.try_lock_shared());
-                mutex.unlock_shared();
             }
+            // test recursive try_lock_shared
+            lean_verify(mutex.try_lock_shared());
+            mutex.unlock_shared();
             // we can only succeed getting the lock if t2 is done
             lean_assert(t2_done);
             mutex.unlock_shared();
@@ -165,6 +165,8 @@ static void tst5() {}
 #endif
 
 int main() {
+    tst3();
+    return 0;
     tst1();
     tst2();
     tst3();

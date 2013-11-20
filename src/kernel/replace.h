@@ -47,6 +47,8 @@ class replace_fn {
     P                          m_post;
 
     expr apply(expr const & e, unsigned offset) {
+        if (!e)
+            return e;
         bool sh = false;
         if (is_shared(e)) {
             expr_cell_offset p(e.raw(), offset);
@@ -101,6 +103,10 @@ public:
 
     expr operator()(expr const & e) {
         return apply(e, 0);
+    }
+
+    void clear() {
+        m_cache.clear();
     }
 };
 }

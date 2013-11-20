@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 namespace lean {
 template class interval<mpq>;
 template void interval<mpq>::neg<true, false>(interval_deps &);
+template void interval<mpq>::neg<false, true>(interval_deps &);
 template void interval<mpq>::inv<true, false>(interval_deps &);
 template void interval<mpq>::power<true, false>(unsigned, interval_deps &);
 

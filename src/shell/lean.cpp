@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <fstream>
 #include <signal.h>
+#include <getopt.h>
 #include "util/interrupt.h"
 #include "kernel/printer.h"
 #include "frontends/lean/parser.h"
@@ -20,6 +21,14 @@ using lean::parser;
 using lean::leanlua_state;
 
 enum class input_kind { Unspecified, Lean, Lua };
+
+struct option long_options[] = {
+    {"version", no_argument,       0, 'v'},
+    {"help",    no_argument,       0, 'h'},
+    {"lean",    no_argument,       0, 0},
+    {"lua",     no_argument,       0, 0},
+    {0, 0, 0, 0}
+};
 
 static void on_ctrl_c(int ) {
     lean::request_interrupt();

@@ -65,7 +65,7 @@ std::pair<goal, goal_proof_fn> to_goal(environment const & env, context const & 
     buffer<std::pair<name, expr>> hypotheses;  // normalized names and types of the entries processed so far
     buffer<expr> bodies;                       // normalized bodies of the entries processed so far
     std::vector<expr> consts;                  // cached consts[i] == mk_constant(names[i], hypotheses[i])
-    auto replace_vars = [&](expr const & e, unsigned offset) {
+    auto replace_vars = [&](expr const & e, unsigned offset) -> expr {
         if (is_var(e)) {
             unsigned vidx = var_idx(e);
             if (vidx >= offset) {

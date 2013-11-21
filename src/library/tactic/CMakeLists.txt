@@ -1,2 +1,2 @@
-add_library(tactic goal.cpp tactic.cpp)
+add_library(tactic goal.cpp proof_builder.cpp proof_state.cpp tactic.cpp)
 target_link_libraries(tactic ${LEAN_LIBS})

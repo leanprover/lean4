@@ -35,6 +35,7 @@ public:
     weak_ref to_weak_ref() const { return weak_ref(m_ptr); }
 
     friend bool is_eqp(environment const & env1, environment const & env2) { return env1.m_ptr.get() == env2.m_ptr.get(); }
+    friend void swap(environment & env1, environment & env2) { env1.m_ptr.swap(env2.m_ptr); }
     // =======================================
     // Parent/Child environment management
     /**

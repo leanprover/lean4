@@ -25,6 +25,7 @@ class justification_builder {
 protected:
     justification_builder_cell * m_ptr;
 public:
+    justification_builder():m_ptr(nullptr) {}
     explicit justification_builder(justification_builder_cell * ptr):m_ptr(ptr) { lean_assert(m_ptr); m_ptr->inc_ref(); }
     justification_builder(justification_builder const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     justification_builder(justification_builder && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
@@ -35,4 +36,17 @@ public:
 
     justification operator()(name const & n, justification const & j, environment const & env, assignment const & a) const { return m_ptr->operator()(n, j, env, a); }
 };
+
+template<typename F>
+class simple_justification_builder : public justification_builder_cell {
+    F m_f;
+public:
+    simple_justification_builder(F && f):m_f(std::forward<F>(f)) {}
+    virtual justification operator()(name const & n, justification const & j, environment const & env, assignment const & a) const { return m_f(n, j, env, a); }
+};
+
+template<typename F>
+justification_builder mk_justification_builder(F && f) {
+    return justification_builder(new simple_justification_builder<F>(std::forward<F>(f)));
+}
 }

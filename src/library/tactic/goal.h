@@ -36,7 +36,7 @@ class goal_proof_fn {
     std::vector<expr> m_constants;
     goal_proof_fn(std::vector<expr> && constants);
 public:
-    expr operator()(expr const & pr);
+    expr operator()(expr const & pr) const;
 };
 
 /**

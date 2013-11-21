@@ -7,27 +7,39 @@ Author: Leonardo de Moura
 #pragma once
 #include <algorithm>
 #include <memory>
+#include <mutex>
 #include "library/tactic/proof_state.h"
 
 namespace lean {
+typedef std::unique_ptr<proof_state> proof_state_ref;
+class tactic_result;
+typedef std::unique_ptr<tactic_result> tactic_result_ref;
+
 class tactic_result {
-    volatile bool m_result;
+    std::mutex    m_mutex;
+    bool          m_result;
+protected:
+    template<typename F>
+    void exclusive_update(F && f) {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        f();
+    }
+    virtual void interrupt();
+    void propagate_interrupt(tactic_result_ref & r) { if (r) r->interrupt(); }
 public:
     tactic_result():m_result(false) {}
     bool interrupted() const { return m_result; }
+    void request_interrupt();
     virtual ~tactic_result();
-    virtual void interrupt();
-    virtual proof_state next() = 0;
+    virtual proof_state_ref next() = 0;
 };
-
-typedef std::unique_ptr<tactic_result> tactic_result_ref;
 
 class tactic_cell {
     void dealloc() { delete this; }
     MK_LEAN_RC();
 public:
     virtual ~tactic_cell();
-    virtual tactic_result_ref operator()(proof_state const & p) const = 0;
+    virtual tactic_result_ref operator()(proof_state const & s) const = 0;
 };
 
 class tactic {
@@ -42,7 +54,9 @@ public:
     tactic & operator=(tactic const & s);
     tactic & operator=(tactic && s);
 
-    tactic_result_ref operator()(proof_state const & p) const { return m_ptr->operator()(p); }
+    tactic_result_ref operator()(proof_state const & s) const { return m_ptr->operator()(s); }
 };
-}
 
+tactic idtac();
+tactic then(tactic const & t1, tactic const & t2);
+}

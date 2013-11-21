@@ -22,7 +22,7 @@ goal_proof_fn::goal_proof_fn(std::vector<expr> && consts):
     m_constants(consts) {
 }
 
-expr goal_proof_fn::operator()(expr const & pr) {
+expr goal_proof_fn::operator()(expr const & pr) const {
     return abstract(pr, m_constants.size(), m_constants.data());
 }
 

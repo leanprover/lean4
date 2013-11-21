@@ -16,6 +16,8 @@ Author: Leonardo de Moura
 namespace lean {
 typedef splay_map<name, expr, name_quick_cmp> proof_map;
 
+expr find(proof_map const & m, name const & n);
+
 class proof_builder_cell {
     void dealloc() { delete this; }
     MK_LEAN_RC();
@@ -28,6 +30,7 @@ class proof_builder {
 protected:
     proof_builder_cell * m_ptr;
 public:
+    proof_builder():m_ptr(nullptr) {}
     explicit proof_builder(proof_builder_cell * ptr):m_ptr(ptr) { lean_assert(m_ptr); m_ptr->inc_ref(); }
     proof_builder(proof_builder const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     proof_builder(proof_builder && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
@@ -38,4 +41,17 @@ public:
 
     expr operator()(proof_map const & p, environment const & env, assignment const & a) const { return m_ptr->operator()(p, env, a); }
 };
+
+template<typename F>
+class simple_proof_builder : public proof_builder_cell {
+    F m_f;
+public:
+    simple_proof_builder(F && f):m_f(std::forward<F>(f)) {}
+    virtual expr operator()(proof_map const & p, environment const & env, assignment const & a) const { return m_f(p, env, a); }
+};
+
+template<typename F>
+proof_builder mk_proof_builder(F && f) {
+    return proof_builder(new simple_proof_builder<F>(std::forward<F>(f)));
+}
 }

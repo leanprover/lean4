@@ -138,7 +138,7 @@ list<T> append(list<T> const & l1, list<T> const & l2) {
    \brief Given list <tt>(a_0, ..., a_k)</tt>, return list <tt>(f(a_0), ..., f(a_k))</tt>.
 */
 template<typename T, typename F>
-list<T> map(list<T> const & l, F f) {
+list<T> map(list<T> const & l, F && f) {
     static_assert(std::is_same<typename std::result_of<F(T const &)>::type, T>::value,
                   "map: return type of f is not sxpr");
     if (is_nil(l)) {
@@ -161,7 +161,7 @@ list<T> map(list<T> const & l, F f) {
    list cells. The elements are compared using the predicate \c eq.
 */
 template<typename T, typename F, typename Eq = std::equal_to<T>>
-list<T> map_reuse(list<T> const & l, F f, Eq const & eq = Eq()) {
+list<T> map_reuse(list<T> const & l, F && f, Eq const & eq = Eq()) {
     if (is_nil(l)) {
         return l;
     } else {
@@ -191,7 +191,7 @@ list<T> map_reuse(list<T> const & l, F f, Eq const & eq = Eq()) {
    \brief Given list <tt>(a_0, ..., a_k)</tt>, exec f(a_0); f(a_1); ... f(a_k)</tt>.
 */
 template<typename T, typename F>
-void for_each(list<T> const & l, F f) {
+void for_each(list<T> const & l, F && f) {
     static_assert(std::is_same<typename std::result_of<F(T const &)>::type, void>::value,
                   "for_each: return type of f is not void");
     typedef typename list<T>::cell cell;
@@ -206,7 +206,7 @@ void for_each(list<T> const & l, F f) {
    \brief Compare two lists using the binary predicate p.
 */
 template<typename T, typename P>
-bool compare(list<T> const & l1, list<T> const & l2, P p) {
+bool compare(list<T> const & l1, list<T> const & l2, P && p) {
     static_assert(std::is_same<typename std::result_of<P(T const &, T const &)>::type, bool>::value,
                   "compare: return type of f is not bool");
     auto it1 = l1.begin();

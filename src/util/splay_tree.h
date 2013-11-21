@@ -292,7 +292,7 @@ class splay_tree : public CMP {
     }
 
     template<typename F, typename R>
-    static R fold(node const * n, F & f, R r) {
+    static R fold(node const * n, F && f, R r) {
         static_assert(std::is_same<typename std::result_of<F(T const &, R)>::type, R>::value,
                       "fold: return type of f(t : T, r : R) is not R");
         if (n) {
@@ -305,7 +305,7 @@ class splay_tree : public CMP {
     }
 
     template<typename F>
-    static void for_each(node const * n, F & f) {
+    static void for_each(node const * n, F && f) {
         static_assert(std::is_same<typename std::result_of<F(T const &)>::type, void>::value,
                       "for_each: return type of f is not void");
         if (n) {
@@ -432,20 +432,20 @@ public:
        <tt>a_0, a_1, ... a_k</tt> are the elements is stored in the splay tree.
     */
     template<typename F, typename R>
-    R fold(F f, R r) const {
+    R fold(F && f, R r) const {
         static_assert(std::is_same<typename std::result_of<F(T const &, R)>::type, R>::value,
                       "fold: return type of f(t : T, r : R) is not R");
-        return fold(m_ptr, f, r);
+        return fold(m_ptr, std::forward<F>(f), r);
     }
 
     /**
        \brief Apply \c f to each value stored in the splay tree.
     */
     template<typename F>
-    void for_each(F f) const {
+    void for_each(F && f) const {
         static_assert(std::is_same<typename std::result_of<F(T const &)>::type, void>::value,
                       "for_each: return type of f is not void");
-        for_each(m_ptr, f);
+        for_each(m_ptr, std::forward<F>(f));
     }
 };
 template<typename T, typename CMP>
@@ -453,15 +453,15 @@ splay_tree<T, CMP> insert(splay_tree<T, CMP> & t, T const & v) { splay_tree<T, C
 template<typename T, typename CMP>
 splay_tree<T, CMP> erase(splay_tree<T, CMP> & t, T const & v) { splay_tree<T, CMP> r(t); r.erase(v); return r; }
 template<typename T, typename CMP, typename F, typename R>
-R fold(splay_tree<T, CMP> const & t, F f, R r) {
+R fold(splay_tree<T, CMP> const & t, F && f, R r) {
     static_assert(std::is_same<typename std::result_of<F(T const &, R)>::type, R>::value,
                   "fold: return type of f(t : T, r : R) is not R");
-    return t.fold(f, r);
+    return t.fold(std::forward<F>(f), r);
 }
 template<typename T, typename CMP, typename F>
-void for_each(splay_tree<T, CMP> const & t, F f) {
+void for_each(splay_tree<T, CMP> const & t, F && f) {
     static_assert(std::is_same<typename std::result_of<F(T const &)>::type, void>::value,
                   "for_each: return type of f is not void");
-    return t.for_each(f);
+    return t.for_each(std::forward<F>(f));
 }
 }

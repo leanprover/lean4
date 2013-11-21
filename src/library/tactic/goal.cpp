@@ -106,10 +106,4 @@ std::pair<goal, goal_proof_fn> to_goal(environment const & env, context const & 
     return mk_pair(goal(reverse_to_list(hypotheses.begin(), hypotheses.end()), conclusion),
                    goal_proof_fn(std::move(consts)));
 }
-
-#if 0
-
-
-
-#endif
 }

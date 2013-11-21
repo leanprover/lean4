@@ -23,8 +23,10 @@ bool interrupt_requested() {
 }
 
 void check_interrupted() {
-    if (interrupt_requested())
+    if (interrupt_requested()) {
+        reset_interrupt();
         throw interrupted();
+    }
 }
 
 std::atomic_bool * interruptible_thread::get_flag_addr() {

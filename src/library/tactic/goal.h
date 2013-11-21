@@ -18,9 +18,11 @@ class goal {
     list<std::pair<name, expr>> m_hypotheses;
     expr                        m_conclusion;
 public:
+    goal() {}
     goal(list<std::pair<name, expr>> const & h, expr const & c);
     list<std::pair<name, expr>> const & get_hypotheses() const { return m_hypotheses; }
     expr const & get_conclusion() const { return m_conclusion; }
+    operator bool() const { return m_conclusion; }
 };
 
 /**

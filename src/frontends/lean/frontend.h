@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include <vector>
 #include "kernel/environment.h"
-#include "library/state.h"
+#include "library/io_state.h"
 #include "library/expr_pair.h"
 #include "frontends/lean/operator_info.h"
 
@@ -22,10 +22,10 @@ namespace lean {
 */
 class frontend {
     environment m_env;
-    state       m_state;
+    io_state    m_state;
 public:
     frontend();
-    frontend(environment const & env, state const & s);
+    frontend(environment const & env, io_state const & s);
 
     frontend mk_child() const { return frontend(m_env.mk_child(), m_state); }
     bool has_children() const { return m_env.has_children(); }
@@ -179,10 +179,10 @@ public:
        @name State management.
     */
     /*@{*/
-    state const & get_state() const { return m_state; }
-    operator state const &() const { return m_state; }
-    state & get_state() { return m_state; }
-    operator state &() { return m_state; }
+    io_state const & get_state() const { return m_state; }
+    operator io_state const &() const { return m_state; }
+    io_state & get_state() { return m_state; }
+    operator io_state &() { return m_state; }
     options get_options() const { return m_state.get_options(); }
     void set_options(options const & opts) { return m_state.set_options(opts); }
     template<typename T> void set_option(name const & n, T const & v) { m_state.set_option(n, v); }

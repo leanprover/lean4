@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "util/sexpr/option_declarations.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
-#include "bindings/lua/state.h"
+#include "bindings/lua/io_state.h"
 
 namespace lean {
 DECL_UDATA(options)
@@ -139,7 +139,7 @@ static int options_update(lua_State * L) {
 static char g_options_key;
 
 options get_global_options(lua_State * L) {
-    state * S = get_state(L);
+    io_state * S = get_io_state(L);
     if (S != nullptr) {
         return S->get_options();
     } else {
@@ -154,7 +154,7 @@ options get_global_options(lua_State * L) {
 }
 
 void set_global_options(lua_State * L, options const & o) {
-    state * S = get_state(L);
+    io_state * S = get_io_state(L);
     if (S != nullptr) {
         S->set_options(o);
     } else {

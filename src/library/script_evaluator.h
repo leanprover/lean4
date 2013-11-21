@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 class environment;
-class state;
+class io_state;
 /**
    \brief Abstract base class for script code evaluators.
    These evaluators are used to execute user-supplied code embedded in frontend files (.e.g., .lean, .smt2, etc).
@@ -19,7 +19,7 @@ class script_evaluator {
 public:
     virtual ~script_evaluator() {}
     virtual void dostring(char const * str) = 0;
-    virtual void dostring(char const * str, environment & env, state & st) = 0;
+    virtual void dostring(char const * str, environment & env, io_state & st) = 0;
 };
 
 /**

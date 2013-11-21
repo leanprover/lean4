@@ -19,7 +19,7 @@ Author: Leonardo de Moura
 #include "kernel/printer.h"
 #include "kernel/kernel_exception.h"
 #include "library/placeholder.h"
-#include "library/state.h"
+#include "library/io_state.h"
 #include "library/arith/arith.h"
 #include "library/all/all.h"
 using namespace lean;
@@ -477,7 +477,7 @@ static void tst23() {
         std::cout << checker.infer_type(F1, context(), &menv, up) << "\n";
     } catch (kernel_exception & ex) {
         formatter fmt = mk_simple_formatter();
-        state st(options(), fmt);
+        io_state st(options(), fmt);
         regular(st) << ex << "\n";
     }
     std::cout << up << "\n";

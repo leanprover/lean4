@@ -23,7 +23,7 @@ Author: Leonardo de Moura
 #include "library/basic_thms.h"
 #include "library/arith/arith.h"
 #include "library/all/all.h"
-#include "library/state.h"
+#include "library/io_state.h"
 using namespace lean;
 
 expr c(char const * n) { return mk_constant(n); }
@@ -263,7 +263,7 @@ static void tst14() {
     expr F = f(a);
     type_checker checker(env);
     formatter fmt = mk_simple_formatter();
-    state st(options(), fmt);
+    io_state st(options(), fmt);
     try {
         std::cout << checker.infer_type(F) << "\n";
     } catch (kernel_exception & ex) {

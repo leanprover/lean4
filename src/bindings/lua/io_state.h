@@ -6,22 +6,22 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <lua.hpp>
-#include "library/state.h"
+#include "library/io_state.h"
 
 namespace lean {
 /**
    \brief Auxiliary class for temporarily setting the Lua registry of a Lua state
-   with a Lean state object.
+   with a Lean io_state object.
 */
-class set_state {
+class set_io_state {
     lua_State * m_state;
 public:
-    set_state(lua_State * L, state & st);
-    ~set_state();
+    set_io_state(lua_State * L, io_state & st);
+    ~set_io_state();
 };
 /**
    \brief Return the Lean state object associated with the given Lua state.
    Return nullptr is there is none.
 */
-state * get_state(lua_State * L);
+io_state * get_io_state(lua_State * L);
 }

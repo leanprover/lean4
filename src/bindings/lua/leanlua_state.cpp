@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "util/memory.h"
 #include "util/buffer.h"
 #include "util/interrupt.h"
-#include "library/state.h"
+#include "library/io_state.h"
 #include "bindings/lua/leanlua_state.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/name.h"
@@ -33,7 +33,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/environment.h"
 #include "bindings/lua/justification.h"
 #include "bindings/lua/metavar_env.h"
-#include "bindings/lua/state.h"
+#include "bindings/lua/io_state.h"
 #include "bindings/lua/type_inferer.h"
 #include "bindings/lua/frontend_lean.h"
 #include "bindings/lua/lean.lua"
@@ -208,8 +208,8 @@ struct leanlua_state::imp {
         ::lean::dostring(m_state, str);
     }
 
-    void dostring(char const * str, environment & env, state & st) {
-        set_state       set1(m_state, st);
+    void dostring(char const * str, environment & env, io_state & st) {
+        set_io_state    set1(m_state, st);
         set_environment set2(m_state, env);
         dostring(str);
     }
@@ -239,7 +239,7 @@ void leanlua_state::dostring(char const * str) {
     m_ptr->dostring(str);
 }
 
-void leanlua_state::dostring(char const * str, environment & env, state & st) {
+void leanlua_state::dostring(char const * str, environment & env, io_state & st) {
     m_ptr->dostring(str, env, st);
 }
 
@@ -247,7 +247,7 @@ static std::mutex g_print_mutex;
 
 /** \brief Thread safe version of print function */
 static int print(lua_State * L) {
-    state * S = get_state(L);
+    io_state * io = get_io_state(L);
     int n = lua_gettop(L);
     int i;
     lua_getglobal(L, "tostring");
@@ -262,19 +262,19 @@ static int print(lua_State * L) {
         if (s == NULL)
             throw exception("'to_string' must return a string to 'print'");
         if (i > 1) {
-            if (S)
-                regular(*S) << "\t";
+            if (io)
+                regular(*io) << "\t";
             else
                 std::cout << "\t";
         }
-        if (S)
-            regular(*S) << s;
+        if (io)
+            regular(*io) << s;
         else
             std::cout << s;
         lua_pop(L, 1);
     }
-    if (S)
-        regular(*S) << endl;
+    if (io)
+        regular(*io) << endl;
     else
         std::cout << std::endl;
     return 0;

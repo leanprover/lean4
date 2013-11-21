@@ -6,19 +6,19 @@ Author: Leonardo de Moura
 */
 #include <sstream>
 #include <lua.hpp>
-#include "library/state.h"
+#include "library/io_state.h"
 #include "frontends/lean/parser.h"
 #include "bindings/lua/util.h"
 #include "bindings/lua/expr.h"
 #include "bindings/lua/environment.h"
 #include "bindings/lua/options.h"
 #include "bindings/lua/formatter.h"
-#include "bindings/lua/state.h"
+#include "bindings/lua/io_state.h"
 #include "bindings/lua/leanlua_state.h"
 
 namespace lean {
 /** \see parse_lean_expr */
-static int parse_lean_expr_core(lua_State * L, ro_environment const & env, state & st) {
+static int parse_lean_expr_core(lua_State * L, ro_environment const & env, io_state & st) {
     char const * src = luaL_checkstring(L, 1);
     std::istringstream in(src);
     leanlua_state S   = to_leanlua_state(L);
@@ -28,12 +28,12 @@ static int parse_lean_expr_core(lua_State * L, ro_environment const & env, state
 
 /** \see parse_lean_expr */
 static int parse_lean_expr_core(lua_State * L, ro_environment const & env) {
-    state * st = get_state(L);
-    if (st == nullptr) {
-        state st(get_global_options(L), get_global_formatter(L));
-        return parse_lean_expr_core(L, env, st);
+    io_state * io = get_io_state(L);
+    if (io == nullptr) {
+        io_state s(get_global_options(L), get_global_formatter(L));
+        return parse_lean_expr_core(L, env, s);
     } else {
-        return parse_lean_expr_core(L, env, *st);
+        return parse_lean_expr_core(L, env, *io);
     }
 }
 
@@ -67,14 +67,14 @@ static int parse_lean_expr(lua_State * L) {
         } else {
             options opts    = to_options(L, 3);
             formatter fmt   = nargs == 3 ? get_global_formatter(L) : to_formatter(L, 4);
-            state st(opts, fmt);
+            io_state st(opts, fmt);
             return parse_lean_expr_core(L, env, st);
         }
     }
 }
 
 /** \see parse_lean_cmds */
-static void parse_lean_cmds_core(lua_State * L, rw_environment & env, state & st) {
+static void parse_lean_cmds_core(lua_State * L, rw_environment & env, io_state & st) {
     char const * src = luaL_checkstring(L, 1);
     std::istringstream in(src);
     leanlua_state S   = to_leanlua_state(L);
@@ -83,13 +83,13 @@ static void parse_lean_cmds_core(lua_State * L, rw_environment & env, state & st
 
 /** \see parse_lean_cmds */
 static void parse_lean_cmds_core(lua_State * L, rw_environment & env) {
-    state * st = get_state(L);
-    if (st == nullptr) {
-        state st(get_global_options(L), get_global_formatter(L));
-        parse_lean_cmds_core(L, env, st);
-        set_global_options(L, st.get_options());
+    io_state * io = get_io_state(L);
+    if (io == nullptr) {
+        io_state s(get_global_options(L), get_global_formatter(L));
+        parse_lean_cmds_core(L, env, s);
+        set_global_options(L, s.get_options());
     } else {
-        parse_lean_cmds_core(L, env, *st);
+        parse_lean_cmds_core(L, env, *io);
     }
 }
 
@@ -113,7 +113,7 @@ static int parse_lean_cmds(lua_State * L) {
         } else {
             options opts    = to_options(L, 3);
             formatter fmt   = nargs == 3 ? get_global_formatter(L) : to_formatter(L, 4);
-            state st(opts, fmt);
+            io_state st(opts, fmt);
             parse_lean_cmds_core(L, env, st);
             push_options(L, st.get_options());
             return 1;

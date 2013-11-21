@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "util/exception.h"
 #include "kernel/environment.h"
 #include "library/expr_pair.h"
-#include "library/state.h"
+#include "library/io_state.h"
 #include "library/all/all.h"
 #include "frontends/lean/operator_info.h"
 #include "frontends/lean/coercion.h"
@@ -181,7 +181,7 @@ struct lean_extension : public environment::extension {
         2) It is a real conflict, and report the issue in the
         diagnostic channel, and override the existing operator (aka notation).
     */
-    void add_op(operator_info new_op, expr const & d, bool led, environment & env, state & st) {
+    void add_op(operator_info new_op, expr const & d, bool led, environment & env, io_state & st) {
         name const & opn = new_op.get_op_name();
         operator_info old_op = find_op(opn, led);
         if (!old_op) {
@@ -365,7 +365,7 @@ frontend::frontend() {
     init_builtin_notation(*this);
     m_state.set_formatter(mk_pp_formatter(*this));
 }
-frontend::frontend(environment const & env, state const & s):m_env(env), m_state(s) {
+frontend::frontend(environment const & env, io_state const & s):m_env(env), m_state(s) {
     import_all(m_env);
     init_builtin_notation(*this);
 }

@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 class environment;
-class state;
+class io_state;
 /**
    \brief Wrapper for lua_State objects which contains all Lean bindings.
 */
@@ -49,7 +49,7 @@ public:
        The registry can be accessed by \str by invoking the function <tt>env()</tt>.
        The script \c str should not store a reference to the environment \c env.
     */
-    virtual void dostring(char const * str, environment & env, state & st);
+    virtual void dostring(char const * str, environment & env, io_state & st);
 };
 /**
    \brief Return a reference to the leanlua_state object that is wrapping \c L.

@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/context.h"
 #include "bindings/lua/environment.h"
 #include "bindings/lua/object.h"
-#include "bindings/lua/state.h"
+#include "bindings/lua/io_state.h"
 
 namespace lean {
 DECL_UDATA(formatter)
@@ -67,9 +67,9 @@ static char g_formatter_key;
 static formatter g_simple_formatter = mk_simple_formatter();
 
 formatter get_global_formatter(lua_State * L) {
-    state * S = get_state(L);
-    if (S != nullptr) {
-        return S->get_formatter();
+    io_state * io = get_io_state(L);
+    if (io != nullptr) {
+        return io->get_formatter();
     } else {
         lua_pushlightuserdata(L, static_cast<void *>(&g_formatter_key));
         lua_gettable(L, LUA_REGISTRYINDEX);
@@ -85,9 +85,9 @@ formatter get_global_formatter(lua_State * L) {
 }
 
 void set_global_formatter(lua_State * L, formatter const & fmt) {
-    state * S = get_state(L);
-    if (S != nullptr) {
-        S->set_formatter(fmt);
+    io_state * io = get_io_state(L);
+    if (io != nullptr) {
+        io->set_formatter(fmt);
     } else {
         lua_pushlightuserdata(L, static_cast<void *>(&g_formatter_key));
         push_formatter(L, fmt);

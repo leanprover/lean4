@@ -59,8 +59,8 @@ static void tst3() {
 
 static void tst4() {
     frontend f;
-    state const & s1 = f.get_state();
-    state s2 = f.get_state();
+    io_state const & s1 = f.get_state();
+    io_state s2 = f.get_state();
     regular(s1) << And(Const("a"), Const("b")) << "\n";
     regular(f) << And(Const("a"), Const("b")) << "\n";
     diagnostic(f) << And(Const("a"), Const("b")) << "\n";

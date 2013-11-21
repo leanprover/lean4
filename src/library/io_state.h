@@ -17,15 +17,15 @@ namespace lean {
    3- Output results
    4- Produce formatted output
 */
-class state {
+class io_state {
     options                         m_options;
     formatter                       m_formatter;
     std::shared_ptr<output_channel> m_regular_channel;
     std::shared_ptr<output_channel> m_diagnostic_channel;
 public:
-    state();
-    state(options const & opts, formatter const & fmt);
-    ~state();
+    io_state();
+    io_state(options const & opts, formatter const & fmt);
+    ~io_state();
 
     options get_options() const { return m_options; }
     formatter get_formatter() const { return m_formatter; }
@@ -42,22 +42,22 @@ public:
 };
 
 /**
-   \brief Wrapper for the state object that provides access to the
-   state's regular channel
+   \brief Wrapper for the io_state object that provides access to the
+   io_state's regular channel
 */
 struct regular {
-    state const & m_state;
-    regular(state const & s):m_state(s) {}
+    io_state const & m_io_state;
+    regular(io_state const & s):m_io_state(s) {}
     void flush();
 };
 
 /**
-   \brief Wrapper for the state object that provides access to the
-   state's diagnostic channel
+   \brief Wrapper for the io_state object that provides access to the
+   io_state's diagnostic channel
 */
 struct diagnostic {
-    state const & m_state;
-    diagnostic(state const & s):m_state(s) {}
+    io_state const & m_io_state;
+    diagnostic(io_state const & s):m_io_state(s) {}
     void flush();
 };
 
@@ -78,13 +78,13 @@ diagnostic const & operator<<(diagnostic const & out, kernel_exception const & e
 
 template<typename T>
 inline regular const & operator<<(regular const & out, T const & t) {
-    out.m_state.get_regular_channel().get_stream() << t;
+    out.m_io_state.get_regular_channel().get_stream() << t;
     return out;
 }
 
 template<typename T>
 inline diagnostic const & operator<<(diagnostic const & out, T const & t) {
-    out.m_state.get_diagnostic_channel().get_stream() << t;
+    out.m_io_state.get_diagnostic_channel().get_stream() << t;
     return out;
 }
 }

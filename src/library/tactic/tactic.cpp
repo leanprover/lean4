@@ -23,7 +23,7 @@ void tactic_result::request_interrupt() {
     ::lean::request_interrupt();
 }
 
-proof_state_ref tactic_result::next(environment const & env, state const & s) {
+proof_state_ref tactic_result::next(environment const & env, io_state const & s) {
     try {
         return next_core(env, s);
     } catch (interrupted &) {
@@ -68,7 +68,7 @@ public:
     public:
         result(tactic_result_ref && r1, tactic const & t2):m_r1(std::move(r1)), m_t2(t2) {}
 
-        virtual proof_state_ref next_core(environment const & env, state const & s) {
+        virtual proof_state_ref next_core(environment const & env, io_state const & s) {
             if (m_r2) {
                 proof_state_ref s2 = m_r2->next(env, s);
                 if (s2)
@@ -95,12 +95,12 @@ public:
 
 tactic then(tactic const & t1, tactic const & t2) { return tactic(new then_tactic(t1, t2)); }
 
-tactic id_tactic() { return mk_tactic([](environment const &, state const &, proof_state const & s) -> proof_state { return s; }); }
+tactic id_tactic() { return mk_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state { return s; }); }
 
-tactic fail_tactic() { return mk_tactic([](environment const &, state const &, proof_state const &) -> proof_state { throw tactic_exception("failed"); }); }
+tactic fail_tactic() { return mk_tactic([](environment const &, io_state const &, proof_state const &) -> proof_state { throw tactic_exception("failed"); }); }
 
 tactic now_tactic() {
-    return mk_tactic([](environment const &, state const &, proof_state const & s) -> proof_state {
+    return mk_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state {
             if (!empty(s.get_goals()))
                 throw tactic_exception("nowtac failed");
             return s;
@@ -108,7 +108,7 @@ tactic now_tactic() {
 }
 
 tactic assumption_tactic() {
-    return mk_tactic([](environment const &, state const &, proof_state const & s) -> proof_state {
+    return mk_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state {
             list<std::pair<name, expr>> proofs;
             goals new_goals = map_goals(s, [&](name const & ng, goal const & g) -> goal {
                     expr const & c  = g.get_conclusion();

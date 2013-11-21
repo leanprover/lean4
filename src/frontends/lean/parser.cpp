@@ -29,7 +29,7 @@ Author: Leonardo de Moura
 #include "kernel/expr_maps.h"
 #include "kernel/printer.h"
 #include "library/arith/arith.h"
-#include "library/state.h"
+#include "library/io_state.h"
 #include "library/placeholder.h"
 #include "library/script_evaluator.h"
 #include "library/elaborator/elaborator_exception.h"
@@ -1735,7 +1735,7 @@ bool parse_commands(frontend & fe, std::istream & in, script_evaluator * S, bool
     return parser(fe, in, S, use_exceptions, interactive)();
 }
 
-bool parse_commands(environment const & env, state & st, std::istream & in, script_evaluator * S, bool use_exceptions, bool interactive) {
+bool parse_commands(environment const & env, io_state & st, std::istream & in, script_evaluator * S, bool use_exceptions, bool interactive) {
     frontend f(env, st);
     bool r = parse_commands(f, in, S, use_exceptions, interactive);
     st = f.get_state();
@@ -1746,7 +1746,7 @@ expr parse_expr(frontend & fe, std::istream & in, script_evaluator * S, bool use
     return parser(fe, in, S, use_exceptions).parse_expr();
 }
 
-expr parse_expr(environment const & env, state & st, std::istream & in, script_evaluator * S, bool use_exceptions) {
+expr parse_expr(environment const & env, io_state & st, std::istream & in, script_evaluator * S, bool use_exceptions) {
     frontend f(env, st);
     expr r = parse_expr(f, in, S, use_exceptions);
     st = f.get_state();

@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <memory>
 #include <mutex>
-#include "library/state.h"
+#include "library/io_state.h"
 #include "library/tactic/proof_state.h"
 
 namespace lean {
@@ -27,11 +27,11 @@ protected:
     }
     virtual void interrupt();
     void propagate_interrupt(tactic_result_ref & r) { if (r) r->interrupt(); }
-    virtual proof_state_ref next_core(environment const & env, state const & s) = 0;
+    virtual proof_state_ref next_core(environment const & env, io_state const & s) = 0;
 public:
     tactic_result():m_interrupted(false) {}
     void request_interrupt();
-    proof_state_ref next(environment const & env, state const & s);
+    proof_state_ref next(environment const & env, io_state const & s);
     virtual ~tactic_result();
 };
 
@@ -73,7 +73,7 @@ public:
             m_cell->inc_ref();
         }
         virtual ~result() { if (m_cell) m_cell->dec_ref(); }
-        virtual proof_state_ref next_core(environment const & env, state const & io) {
+        virtual proof_state_ref next_core(environment const & env, io_state const & io) {
             if (m_cell) {
                 proof_state_ref r(new proof_state(m_cell->m_f(env, io, m_in)));
                 m_cell = nullptr;

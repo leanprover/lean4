@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 namespace lean {
 class script_evaluator;
 class frontend;
-class state;
+class io_state;
 class environment;
 /** \brief Functional object for parsing commands and expressions */
 class parser {
@@ -39,7 +39,7 @@ public:
 };
 
 bool parse_commands(frontend & fe, std::istream & in, script_evaluator * S = nullptr, bool use_exceptions = true, bool interactive = false);
-bool parse_commands(environment const & env, state & st, std::istream & in, script_evaluator * S = nullptr, bool use_exceptions = true, bool interactive = false);
+bool parse_commands(environment const & env, io_state & st, std::istream & in, script_evaluator * S = nullptr, bool use_exceptions = true, bool interactive = false);
 expr parse_expr(frontend & fe, std::istream & in, script_evaluator * S = nullptr, bool use_exceptions = true);
-expr parse_expr(environment const & env, state & st, std::istream & in, script_evaluator * S = nullptr, bool use_exceptions = true);
+expr parse_expr(environment const & env, io_state & st, std::istream & in, script_evaluator * S = nullptr, bool use_exceptions = true);
 }

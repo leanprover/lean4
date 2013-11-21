@@ -140,7 +140,7 @@ list<T> append(list<T> const & l1, list<T> const & l2) {
 template<typename T, typename F>
 list<T> map(list<T> const & l, F && f) {
     static_assert(std::is_same<typename std::result_of<F(T const &)>::type, T>::value,
-                  "map: return type of f is not sxpr");
+                  "map: return type of f is not equal to input type");
     if (is_nil(l)) {
         return l;
     } else {

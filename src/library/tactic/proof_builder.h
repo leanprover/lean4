@@ -21,7 +21,7 @@ class proof_builder_cell {
     MK_LEAN_RC();
 public:
     virtual ~proof_builder_cell() {}
-    virtual expr operator()(proof_map const & p, assignment const & a) const = 0;
+    virtual expr operator()(proof_map const & p, environment const & env, assignment const & a) const = 0;
 };
 
 class proof_builder {
@@ -36,6 +36,6 @@ public:
     proof_builder & operator=(proof_builder const & s) { LEAN_COPY_REF(proof_builder, s); }
     proof_builder & operator=(proof_builder && s) { LEAN_MOVE_REF(proof_builder, s); }
 
-    expr operator()(proof_map const & p, assignment const & a) const { return m_ptr->operator()(p, a); }
+    expr operator()(proof_map const & p, environment const & env, assignment const & a) const { return m_ptr->operator()(p, env, a); }
 };
 }

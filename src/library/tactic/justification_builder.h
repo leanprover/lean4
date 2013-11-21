@@ -18,7 +18,7 @@ class justification_builder_cell {
     MK_LEAN_RC();
 public:
     virtual ~justification_builder_cell() {}
-    virtual justification operator()(name const & n, justification const & j, assignment const & a) const = 0;
+    virtual justification operator()(name const & n, justification const & j, environment const & env, assignment const & a) const = 0;
 };
 
 class justification_builder {
@@ -33,6 +33,6 @@ public:
     justification_builder & operator=(justification_builder const & s) { LEAN_COPY_REF(justification_builder, s); }
     justification_builder & operator=(justification_builder && s) { LEAN_MOVE_REF(justification_builder, s); }
 
-    justification operator()(name const & n, justification const & j, assignment const & a) const { return m_ptr->operator()(n, j, a); }
+    justification operator()(name const & n, justification const & j, environment const & env, assignment const & a) const { return m_ptr->operator()(n, j, env, a); }
 };
 }

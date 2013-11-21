@@ -247,5 +247,10 @@ expr type_inferer::operator()(expr const & e, context const & ctx) {
     buffer<unification_constraint> uc;
     return operator()(e, ctx, nullptr, uc);
 }
+bool type_inferer::is_proposition(expr const & e, context const & ctx) {
+    expr t = operator()(e, ctx);
+    // TODO(Leo): consider replacing the following test with is_convertible(t, Bool);
+    return t == Bool;
+}
 void type_inferer::clear() { m_ptr->clear(); }
 }

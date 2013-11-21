@@ -33,7 +33,7 @@ public:
 
     expr operator()(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> & uc);
     expr operator()(expr const & e, context const & ctx = context());
-
+    bool is_proposition(expr const & e, context const & ctx = context());
     void clear();
 };
 }

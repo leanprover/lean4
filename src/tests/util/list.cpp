@@ -161,6 +161,23 @@ static void tst12() {
     lean_assert(sum == 30);
 }
 
+static void tst13() {
+    list<int> l({1, 2, 3, 4, 5, 6, 7});
+    list<int> l2 = map_filter(l, [](int in, int & out) {
+            if (in % 2 == 0) {
+                out = in + 10;
+                return true;
+            } else {
+                return false;
+            }
+        });
+    std::cout << l2 << "\n";
+    list<int> l3({12, 14, 16});
+    lean_assert_eq(l2, l3);
+    lean_assert(empty(map_filter(l, [](int, int &) { return false; })));
+    lean_assert(empty(map_filter(list<int>(), [](int in, int & out) { out = in; return true; })));
+}
+
 int main() {
     tst1();
     tst2();
@@ -174,5 +191,6 @@ int main() {
     tst10(1000, 5);
     tst11(1000, 5);
     tst12();
+    tst13();
     return has_violations() ? 1 : 0;
 }

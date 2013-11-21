@@ -157,6 +157,32 @@ list<T> map(list<T> const & l, F && f) {
 }
 
 /**
+   \brief Similar to \c map but \c f has signature
+
+       <tt>bool f(T const & in, T & out)</tt>
+
+   If \c out becomes part of the result iff \c f returns true.
+*/
+template<typename T, typename F>
+list<T> map_filter(list<T> const & l, F && f) {
+    if (is_nil(l)) {
+        return l;
+    } else {
+        buffer<typename list<T>::cell*> tmp;
+        to_buffer(l, tmp);
+        unsigned i = tmp.size();
+        list<T> r;
+        while (i > 0) {
+            --i;
+            T out;
+            if (f(tmp[i]->head(), out))
+                r = cons(out, r);
+        }
+        return r;
+    }
+}
+
+/**
    \brief Semantically equivalent to \c map, but it tries to reuse
    list cells. The elements are compared using the predicate \c eq.
 */

@@ -60,6 +60,55 @@ expr tactic::solve(environment const & env, io_state const & io, proof_state con
     return final->get_proof_builder()(m, env, a);
 }
 
+expr tactic::solve(environment const & env, io_state const & io, context const & ctx, expr const & t) {
+    proof_state s = to_proof_state(env, ctx, t);
+    return solve(env, io, s);
+}
+
+tactic id_tactic() { return mk_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state { return s; }); }
+
+tactic fail_tactic() { return mk_tactic([](environment const &, io_state const &, proof_state const &) -> proof_state { throw tactic_exception("failed"); }); }
+
+tactic now_tactic() {
+    return mk_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state {
+            if (!empty(s.get_goals()))
+                throw tactic_exception("nowtac failed");
+            return s;
+        });
+}
+
+tactic assumption_tactic() {
+    return mk_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state {
+            list<std::pair<name, expr>> proofs;
+            goals new_goals = map_goals(s, [&](name const & ng, goal const & g) -> goal {
+                    expr const & c  = g.get_conclusion();
+                    expr pr;
+                    for (auto const & p : g.get_hypotheses()) {
+                        check_interrupted();
+                        if (p.second == c) {
+                            pr = mk_constant(p.first);
+                            break;
+                        }
+                    }
+                    if (pr) {
+                        proofs.emplace_front(ng, pr);
+                        return goal();
+                    } else {
+                        return g;
+                    }
+                });
+            proof_builder p     = s.get_proof_builder();
+            proof_builder new_p = mk_proof_builder([=](proof_map const & m, environment const & env, assignment const & a) -> expr {
+                    proof_map new_m(m);
+                    for (auto const & np : proofs) {
+                        new_m.insert(np.first, np.second);
+                    }
+                    return p(new_m, env, a);
+                });
+            return proof_state(s, new_goals, new_p);
+        });
+}
+
 class then_tactic : public tactic_cell {
     tactic m_t1;
     tactic m_t2;
@@ -106,48 +155,4 @@ public:
 };
 
 tactic then(tactic const & t1, tactic const & t2) { return tactic(new then_tactic(t1, t2)); }
-
-tactic id_tactic() { return mk_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state { return s; }); }
-
-tactic fail_tactic() { return mk_tactic([](environment const &, io_state const &, proof_state const &) -> proof_state { throw tactic_exception("failed"); }); }
-
-tactic now_tactic() {
-    return mk_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state {
-            if (!empty(s.get_goals()))
-                throw tactic_exception("nowtac failed");
-            return s;
-        });
-}
-
-tactic assumption_tactic() {
-    return mk_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state {
-            list<std::pair<name, expr>> proofs;
-            goals new_goals = map_goals(s, [&](name const & ng, goal const & g) -> goal {
-                    expr const & c  = g.get_conclusion();
-                    expr pr;
-                    for (auto const & p : g.get_hypotheses()) {
-                        check_interrupted();
-                        if (p.second == c) {
-                            pr = mk_constant(p.first);
-                            break;
-                        }
-                    }
-                    if (pr) {
-                        proofs.emplace_front(ng, pr);
-                        return goal();
-                    } else {
-                        return g;
-                    }
-                });
-            proof_builder p     = s.get_proof_builder();
-            proof_builder new_p = mk_proof_builder([=](proof_map const & m, environment const & env, assignment const & a) -> expr {
-                    proof_map new_m(m);
-                    for (auto const & np : proofs) {
-                        new_m.insert(np.first, np.second);
-                    }
-                    return p(new_m, env, a);
-                });
-            return proof_state(s, new_goals, new_p);
-        });
-}
 }

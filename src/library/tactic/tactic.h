@@ -58,6 +58,7 @@ public:
     tactic_result_ref operator()(proof_state const & s) { return m_ptr->operator()(s); }
 
     expr solve(environment const & env, io_state const & io, proof_state const & s);
+    expr solve(environment const & env, io_state const & io, context const & ctx, expr const & t);
 };
 
 template<typename F>

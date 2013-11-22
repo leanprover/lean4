@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/numerics/mpz.h"
 #include "util/pair.h"
 #include "util/lazy_list.h"
+#include "util/lazy_list_fn.h"
 #include "util/list.h"
 using namespace lean;
 
@@ -32,30 +33,28 @@ lazy_list<mpz> fact_list() {
     return fact_list_core(mpz(1), mpz(1));
 }
 
-template<typename T>
-lazy_list<T> first(unsigned sz, lazy_list<T> l) {
-    if (sz == 0 || !l) {
-        return lazy_list<T>();
-    } else {
-        return lazy_list<T>(head(l), [=]() { return first(sz - 1, tail(l)); });
-    }
+lazy_list<int> mk_simple1(int y) {
+    int x = 3;
+    return map(map(append(from(10, 1, 15), from(20, 2, 25)), [=](int v) { return x + v; }),
+               [=](int v) { return v - y; });
 }
 
-template<typename T1, typename T2>
-lazy_list<std::pair<T1, T2>> zip(lazy_list<T1> const & l1, lazy_list<T2> const & l2) {
-    if (l1 && l2) {
-        return lazy_list<std::pair<T1, T2>>(mk_pair(head(l1), head(l2)), [=]() { return zip(tail(l1), tail(l2)); });
-    } else {
-        return lazy_list<std::pair<T1, T2>>();
-    }
+lazy_list<int> mk_simple2() {
+    int x = 10;
+    return filter(map(interleave(from(0, 2, 10), from(10, 3, 20)), [=](int v) { return x * v; }),
+                  [](int v) { return v > 40; });
+}
+
+lazy_list<int> mk_simple3() {
+    return map_append(from(0, 2, 100), [=](int v) { return from(1, 1, v); });
 }
 
 template<typename T>
-lazy_list<T> to_lazy(list<T> const & l) {
-    if (l)
-        return lazy_list<T>(head(l), [=]() { return to_lazy(tail(l)); });
-    else
-        return lazy_list<T>();
+void display(lazy_list<T> const & l) {
+    for (auto v : l) {
+        std::cout << v << " ";
+    }
+    std::cout << "\n";
 }
 
 int main() {
@@ -69,7 +68,7 @@ int main() {
         std::cout << c << "\n";
     }
     int i = 1;
-    for (auto c : first(30, zip(seq(1), fact_list()))) {
+    for (auto c : take(30, zip(seq(1), fact_list()))) {
         lean_assert(c.first == i);
         std::cout << c.first << " " << c.second << "\n";
         i++;
@@ -80,5 +79,8 @@ int main() {
         lean_assert(c == i);
         i++;
     }
+    display(mk_simple1(4));
+    display(mk_simple2());
+    display(take(12, mk_simple3()));
     return 0;
 }

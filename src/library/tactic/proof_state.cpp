@@ -38,7 +38,7 @@ proof_state to_proof_state(environment const & env, context const & ctx, expr co
         [=](proof_map const & m, environment const &, assignment const &) -> expr {
             expr p = find(m, g_main);
             if (!p)
-                throw tactic_exception(sstream() << "failed to find proof for '" << g_main << "' goal");
+                throw exception(sstream() << "failed to find proof for '" << g_main << "' goal");
             return fn(p);
         });
     return proof_state(goals(mk_pair(g_main, g)), metavar_env(), p);

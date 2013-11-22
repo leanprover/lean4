@@ -5,41 +5,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <utility>
+#include <chrono>
 #include "util/interrupt.h"
+#include "util/lazy_list_fn.h"
 #include "library/tactic/tactic_exception.h"
 #include "library/tactic/tactic.h"
 
 namespace lean {
-tactic_result::~tactic_result() {
-}
-void tactic_result::interrupt() {
-    m_interrupted = true;
-}
-void tactic_result::request_interrupt() {
-    {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        interrupt();
-    }
-    ::lean::request_interrupt();
-}
-
-proof_state_ref tactic_result::next(environment const & env, io_state const & s) {
-    try {
-        return next_core(env, s);
-    } catch (interrupted &) {
-        if (m_interrupted) {
-            // promote to tactic_exception if tactic is marked as interrupted
-            throw tactic_exception("interrupted");
-        } else {
-            // if tactic was not interrupted, then continue propagating interrupted exception
-            throw;
-        }
-    }
-}
-
-tactic_cell::~tactic_cell() {
-}
-
 tactic & tactic::operator=(tactic const & s) {
     LEAN_COPY_REF(tactic, s);
 }
@@ -49,15 +21,13 @@ tactic & tactic::operator=(tactic && s) {
 }
 
 expr tactic::solve(environment const & env, io_state const & io, proof_state const & s) {
-    tactic_result_ref r   = operator()(s);
-    proof_state_ref final = r->next(env, io);
-    if (!final)
-        throw tactic_exception("tactic did not produce any result");
-    if (!empty(final->get_goals()))
-        throw tactic_exception("tactic did not solve all goals");
-    assignment a(final->get_menv());
+    proof_state_seq r   = operator()(env, io, s);
+    if (!r)
+        throw exception("tactic failed to solve input");
+    proof_state final = head(r);
+    assignment a(final.get_menv());
     proof_map  m;
-    return final->get_proof_builder()(m, env, a);
+    return final.get_proof_builder()(m, env, a);
 }
 
 expr tactic::solve(environment const & env, io_state const & io, context const & ctx, expr const & t) {
@@ -65,20 +35,29 @@ expr tactic::solve(environment const & env, io_state const & io, context const &
     return solve(env, io, s);
 }
 
-tactic id_tactic() { return mk_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state { return s; }); }
+tactic id_tactic() {
+    return mk_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state_seq {
+            return proof_state_seq(s);
+        });
+}
 
-tactic fail_tactic() { return mk_tactic([](environment const &, io_state const &, proof_state const &) -> proof_state { throw tactic_exception("failed"); }); }
+tactic fail_tactic() {
+    return mk_tactic([](environment const &, io_state const &, proof_state const &) -> proof_state_seq {
+            return proof_state_seq();
+        });
+}
 
 tactic now_tactic() {
-    return mk_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state {
+    return mk_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state_seq {
             if (!empty(s.get_goals()))
-                throw tactic_exception("nowtac failed");
-            return s;
+                return proof_state_seq();
+            else
+                return proof_state_seq(s);
         });
 }
 
 tactic assumption_tactic() {
-    return mk_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state {
+    return mk_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state_seq {
             list<std::pair<name, expr>> proofs;
             goals new_goals = map_goals(s, [&](name const & ng, goal const & g) -> goal {
                     expr const & c  = g.get_conclusion();
@@ -105,54 +84,69 @@ tactic assumption_tactic() {
                     }
                     return p(new_m, env, a);
                 });
-            return proof_state(s, new_goals, new_p);
+            return proof_state_seq(proof_state(s, new_goals, new_p));
         });
 }
 
-class then_tactic : public tactic_cell {
-    tactic m_t1;
-    tactic m_t2;
-public:
-    then_tactic(tactic const & t1, tactic const & t2):m_t1(t1), m_t2(t2) {}
+tactic then(tactic t1, tactic t2) {
+    return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s1) -> proof_state_seq {
+            tactic _t1(t1);
+            return map_append(_t1(env, io, s1), [=](proof_state const & s2) {
+                    check_interrupted();
+                    tactic _t2(t2);
+                    return _t2(env, io, s2);
+                });
+        });
+}
 
-    class result : public tactic_result {
-        tactic_result_ref              m_r1;
-        proof_state_ref                m_s1;
-        tactic                         m_t2;
-        tactic_result_ref              m_r2;
-    protected:
-        virtual void interrupt() {
-            tactic_result::interrupt();
-            propagate_interrupt(m_r1);
-            propagate_interrupt(m_r2);
-        }
-    public:
-        result(tactic_result_ref && r1, tactic const & t2):m_r1(std::move(r1)), m_t2(t2) {}
-
-        virtual proof_state_ref next_core(environment const & env, io_state const & s) {
-            if (m_r2) {
-                proof_state_ref s2 = m_r2->next(env, s);
-                if (s2)
-                    return s2;
-                m_r2.release();
-                m_s1.release();
+tactic orelse(tactic t1, tactic t2) {
+    return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
+            tactic _t1(t1);
+            proof_state_seq r = _t1(env, io, s);
+            if (r) {
+                return r;
+            } else {
+                check_interrupted();
+                tactic _t2(t2);
+                return _t2(env, io, s);
             }
-            lean_assert(!m_r2);
-            lean_assert(!m_s1);
-            proof_state_ref new_s1(m_r1->next(env, s));
-            if (!new_s1)
-                return proof_state_ref(); // done, m_r1 has no more solutions
-            m_s1.swap(new_s1);
-            tactic_result_ref r2 = m_t2(proof_state(*m_s1));
-            exclusive_update([&]() { m_r2.swap(r2); }); // must protect because interrupt() may be invoked from different thread
-            return m_r2->next(env, s);
-        }
-    };
+        });
+}
 
-    virtual tactic_result_ref operator()(proof_state const & s) {
-        return tactic_result_ref(new result(m_t1(s), m_t2));
-    }
-};
-
-tactic then(tactic const & t1, tactic const & t2) { return tactic(new then_tactic(t1, t2)); }
+tactic try_for(tactic t, unsigned ms, unsigned check_ms) {
+    if (check_ms == 0)
+        check_ms = 1;
+    return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
+            tactic _t(t);
+            proof_state_seq         r;
+            std::atomic<bool>       done(false);
+            interruptible_thread th([&]() {
+                    try {
+                        r = _t(env, io, s);
+                    } catch (...) {
+                        r = proof_state_seq();
+                    }
+                    done = true;
+                });
+            try {
+                auto start = std::chrono::steady_clock::now();
+                std::chrono::milliseconds d(ms);
+                std::chrono::milliseconds one(1);
+                while (!done) {
+                    auto curr = std::chrono::steady_clock::now();
+                    if (std::chrono::duration_cast<std::chrono::milliseconds>(curr - start) > d)
+                        break;
+                    check_interrupted();
+                    std::this_thread::sleep_for(one);
+                }
+                th.request_interrupt();
+                th.join();
+                return r;
+            } catch (...) {
+                th.request_interrupt();
+                th.join();
+                throw;
+            }
+        });
+}
 }

@@ -7,12 +7,19 @@ Author: Leonardo de Moura
 #pragma once
 #include <string>
 #include "util/exception.h"
+#include "kernel/justification.h"
 
 namespace lean {
+/**
+   \brief Tactic and related components store the reason for
+   failure in justification objects.
+*/
 class tactic_exception : public exception {
+    justification m_justification;
 public:
-    tactic_exception(char const * msg):exception(msg) {}
-    tactic_exception(std::string const & msg):exception(msg) {}
-    tactic_exception(sstream const & strm):exception(strm) {}
+    tactic_exception(justification const & j):m_justification(j) {}
+    virtual ~tactic_exception() {}
+    virtual char const * what() const noexcept { return "tactic exception"; }
+    justification const & get_justification() const { return m_justification; }
 };
 }

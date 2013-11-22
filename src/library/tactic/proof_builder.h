@@ -22,6 +22,7 @@ class proof_builder_cell {
     void dealloc() { delete this; }
     MK_LEAN_RC();
 public:
+    proof_builder_cell():m_rc(0) {}
     virtual ~proof_builder_cell() {}
     virtual expr operator()(proof_map const & p, environment const & env, assignment const & a) const = 0;
 };
@@ -46,7 +47,7 @@ template<typename F>
 class simple_proof_builder : public proof_builder_cell {
     F m_f;
 public:
-    simple_proof_builder(F && f):m_f(std::forward<F>(f)) {}
+    simple_proof_builder(F && f):m_f(f) {}
     virtual expr operator()(proof_map const & p, environment const & env, assignment const & a) const { return m_f(p, env, a); }
 };
 

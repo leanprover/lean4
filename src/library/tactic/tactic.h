@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include <utility>
 #include <memory>
 #include <mutex>
-#include "util/interrupt.h"
 #include "util/lazy_list.h"
 #include "library/io_state.h"
 #include "library/tactic/proof_state.h"
@@ -63,6 +62,6 @@ tactic now_tactic();
 tactic assumption_tactic();
 tactic then(tactic t1, tactic t2);
 tactic orelse(tactic t1, tactic t2);
-tactic try_for(tactic t, unsigned ms, unsigned check_ms = g_small_sleep);
+tactic try_for(tactic t, unsigned ms, unsigned check_ms = 1);
 tactic repeat(tactic t1);
 }

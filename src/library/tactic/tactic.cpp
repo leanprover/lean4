@@ -131,13 +131,13 @@ tactic try_for(tactic t, unsigned ms, unsigned check_ms) {
             try {
                 auto start = std::chrono::steady_clock::now();
                 std::chrono::milliseconds d(ms);
-                std::chrono::milliseconds one(1);
+                std::chrono::milliseconds small(check_ms);
                 while (!done) {
                     auto curr = std::chrono::steady_clock::now();
                     if (std::chrono::duration_cast<std::chrono::milliseconds>(curr - start) > d)
                         break;
                     check_interrupted();
-                    std::this_thread::sleep_for(one);
+                    std::this_thread::sleep_for(small);
                 }
                 th.request_interrupt();
                 th.join();

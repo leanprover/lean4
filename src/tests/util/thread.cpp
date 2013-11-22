@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include <atomic>
 #include "util/debug.h"
 #include "util/shared_mutex.h"
+#include "util/interrupt.h"
 using namespace lean;
 
 void foo() {
@@ -124,7 +125,6 @@ static void tst4() {
     lean_assert(t2_done);
 }
 
-
 static void tst5() {
     shared_mutex      mutex;
     std::atomic<bool> t2_started(false);
@@ -158,10 +158,26 @@ static void tst5() {
     t1.join();
     t2.join();
 }
+
+static void tst6() {
+    interruptible_thread t1([]() {
+            try {
+                // Remark: std::this_thread::sleep_for does not check whether the thread has been interrupted or not.
+                // std::this_thread::sleep_for(std::chrono::milliseconds(1000000));
+                sleep_for(1000000);
+            } catch (interrupted &) {
+                std::cout << "interrupted...\n";
+            }
+        });
+    sleep_for(20);
+    t1.request_interrupt();
+    t1.join();
+}
 #else
 static void tst3() {}
 static void tst4() {}
 static void tst5() {}
+static void tst6() {}
 #endif
 
 int main() {
@@ -170,5 +186,6 @@ int main() {
     tst3();
     tst4();
     tst5();
+    tst6();
     return has_violations() ? 1 : 0;
 }

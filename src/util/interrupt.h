@@ -29,6 +29,15 @@ bool interrupt_requested();
 */
 void check_interrupted();
 
+constexpr unsigned g_small_sleep = 50;
+
+/**
+   \brief Put the current thread to sleep for \c ms milliseconds.
+
+   \remark check_interrupted is invoked every \c step_ms milliseconds;
+*/
+void sleep_for(unsigned ms, unsigned step_ms = g_small_sleep);
+
 /**
    \brief Thread that provides a method for setting its interrupt flag.
 */
@@ -56,8 +65,12 @@ public:
     /**
        \brief Send a interrupt request to the current thread. Return
        true iff the request has been successfully performed.
+
+       \remark The main thread may have to wait the interrupt flag of this thread to
+       be initialized. If the flag was not initialized, then the main thread will be put
+       to sleep for \c try_ms milliseconds until it tries to set the flag again.
     */
-    bool request_interrupt();
+    void request_interrupt(unsigned try_ms = g_small_sleep);
 
     void join();
     bool joinable();

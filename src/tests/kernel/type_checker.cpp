@@ -239,8 +239,7 @@ static void tst12() {
             }
         });
     std::this_thread::sleep_for(dura);
-    while (!thread.request_interrupt()) {
-    }
+    thread.request_interrupt();
     thread.join();
 #endif
 }

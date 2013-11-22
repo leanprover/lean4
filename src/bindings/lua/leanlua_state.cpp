@@ -521,10 +521,7 @@ public:
     }
 
     void request_interrupt() {
-        while (!m_thread.request_interrupt()) {
-            check_interrupted();
-            std::this_thread::sleep_for(g_small_delay);
-        }
+        m_thread.request_interrupt();
     }
 
     void write(lua_State * src, int first, int last) {

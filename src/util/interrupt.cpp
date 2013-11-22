@@ -29,6 +29,19 @@ void check_interrupted() {
     }
 }
 
+void sleep_for(unsigned ms, unsigned step_ms) {
+    if (step_ms == 0)
+        step_ms = 1;
+    unsigned rounds = ms / step_ms;
+    std::chrono::milliseconds c(step_ms);
+    std::chrono::milliseconds r(ms % step_ms);
+    for (unsigned i = 0; i < rounds; i++) {
+        std::this_thread::sleep_for(c);
+        check_interrupted();
+    }
+    std::this_thread::sleep_for(r);
+}
+
 std::atomic_bool * interruptible_thread::get_flag_addr() {
     return &g_interrupt;
 }
@@ -40,12 +53,16 @@ bool interruptible_thread::interrupted() const {
     return f->load();
 }
 
-bool interruptible_thread::request_interrupt() {
-    std::atomic_bool * f = m_flag_addr.load();
-    if (f == nullptr)
-        return false;
-    f->store(true);
-    return true;
+void interruptible_thread::request_interrupt(unsigned try_ms) {
+    while (true) {
+        std::atomic_bool * f = m_flag_addr.load();
+        if (f != nullptr) {
+            f->store(true);
+            return;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(try_ms));
+        check_interrupted();
+    }
 }
 
 void interruptible_thread::join() {

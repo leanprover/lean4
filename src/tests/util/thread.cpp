@@ -165,8 +165,6 @@ static void tst5() {}
 #endif
 
 int main() {
-    tst3();
-    return 0;
     tst1();
     tst2();
     tst3();

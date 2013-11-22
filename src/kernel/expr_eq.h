@@ -46,7 +46,7 @@ class expr_eq_fn {
         }
         switch (a.kind()) {
         case expr_kind::Var:      lean_unreachable(); // LCOV_EXCL_LINE
-        case expr_kind::Constant: return const_name(a) == const_name(b) && apply(const_type(a), const_type(b));
+        case expr_kind::Constant: return const_name(a) == const_name(b);
         case expr_kind::App:
             if (num_args(a) != num_args(b))
                 return false;

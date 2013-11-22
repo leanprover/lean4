@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include "util/list.h"
 #include "util/name.h"
+#include "kernel/formatter.h"
 #include "kernel/expr.h"
 #include "kernel/context.h"
 #include "kernel/environment.h"
@@ -23,6 +24,7 @@ public:
     list<std::pair<name, expr>> const & get_hypotheses() const { return m_hypotheses; }
     expr const & get_conclusion() const { return m_conclusion; }
     operator bool() const { return m_conclusion; }
+    format pp(formatter const & fmt, options const & opts) const;
 };
 
 /**

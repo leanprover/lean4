@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <utility>
 #include <vector>
+#include <algorithm>
 #include "util/name_set.h"
 #include "util/buffer.h"
 #include "kernel/for_each_fn.h"
@@ -17,6 +18,28 @@ Author: Leonardo de Moura
 namespace lean {
 
 goal::goal(list<std::pair<name, expr>> const & h, expr const & c):m_hypotheses(h), m_conclusion(c) {}
+
+format goal::pp(formatter const & fmt, options const & opts) const {
+    unsigned indent  = get_pp_indent(opts);
+    bool unicode     = get_pp_unicode(opts);
+    format turnstile = unicode ? format("\u22A2") /* ⊢ */ : format("|-");
+    buffer<std::pair<name, expr>> tmp;
+    to_buffer(m_hypotheses, tmp);
+    bool first = true;
+    format r;
+    for (auto const & p : tmp) {
+        if (first) {
+            first = false;
+        } else {
+            r += compose(comma(), line());
+        }
+        r += format{format(p.first), space(), colon(), nest(indent, compose(line(), fmt(p.second, opts)))};
+    }
+
+    r = group(r);
+    r += format{line(), turnstile, space(), nest(indent, fmt(m_conclusion, opts))};
+    return group(r);
+}
 
 goal_proof_fn::goal_proof_fn(std::vector<expr> && consts):
     m_constants(consts) {
@@ -56,7 +79,7 @@ static name mk_unique_name(name_set & s, name const & suggestion) {
 
 std::pair<goal, goal_proof_fn> to_goal(environment const & env, context const & ctx, expr const & t) {
     type_inferer inferer(env);
-    if (!inferer.is_proposition(t))
+    if (!inferer.is_proposition(t, ctx))
         throw exception("to goal failed, type is not a proposition");
     name_set used_names = collect_used_names(ctx, t);
     buffer<context_entry> entries;
@@ -103,6 +126,7 @@ std::pair<goal, goal_proof_fn> to_goal(environment const & env, context const & 
         }
     }
     expr conclusion = replacer(t);
+    std::reverse(consts.begin(), consts.end());
     return mk_pair(goal(reverse_to_list(hypotheses.begin(), hypotheses.end()), conclusion),
                    goal_proof_fn(std::move(consts)));
 }

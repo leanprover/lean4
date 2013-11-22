@@ -16,6 +16,7 @@ using namespace lean;
 
 static void tst1() {
     environment env;
+    io_state io(options(), mk_simple_formatter());
     import_all(env);
     env.add_var("p", Bool);
     env.add_var("q", Bool);
@@ -24,10 +25,10 @@ static void tst1() {
     context ctx;
     ctx = extend(ctx, "H1", p);
     ctx = extend(ctx, "H2", q);
-    // proof_state s1 = to_proof_state(env, ctx, mk_var(0));
-    // tactic t = then(assumption_tactic(), now_tactic());
-    // tactic_result_ref r = t(s1);
-    // proof_state_ref s2 = r->next();
+    proof_state s = to_proof_state(env, ctx, p);
+    std::cout << s.pp(mk_simple_formatter(), options()) << "\n";
+    tactic t = then(assumption_tactic(), now_tactic());
+    std::cout << "proof: " << t.solve(env, io, s) << "\n";
 }
 
 int main() {

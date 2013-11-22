@@ -48,6 +48,18 @@ tactic & tactic::operator=(tactic && s) {
     LEAN_MOVE_REF(tactic, s);
 }
 
+expr tactic::solve(environment const & env, io_state const & io, proof_state const & s) {
+    tactic_result_ref r   = operator()(s);
+    proof_state_ref final = r->next(env, io);
+    if (!final)
+        throw tactic_exception("tactic did not produce any result");
+    if (!empty(final->get_goals()))
+        throw tactic_exception("tactic did not solve all goals");
+    assignment a(final->get_menv());
+    proof_map  m;
+    return final->get_proof_builder()(m, env, a);
+}
+
 class then_tactic : public tactic_cell {
     tactic m_t1;
     tactic m_t2;

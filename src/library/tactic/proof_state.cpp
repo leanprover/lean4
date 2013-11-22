@@ -9,6 +9,19 @@ Author: Leonardo de Moura
 #include "library/tactic/proof_state.h"
 
 namespace lean {
+format proof_state::pp(formatter const & fmt, options const & opts) const {
+    format r;
+    bool first = true;
+    for (auto const & p : m_goals) {
+        if (first)
+            first = false;
+        else
+            r += line();
+        r += group(format{format(p.first), colon(), line(), p.second.pp(fmt, opts)});
+    }
+    return r;
+}
+
 void swap(proof_state & s1, proof_state & s2) {
     swap(s1.m_goals, s2.m_goals);
     swap(s1.m_menv, s2.m_menv);

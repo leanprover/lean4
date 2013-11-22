@@ -28,6 +28,7 @@ public:
     metavar_env const & get_menv() const { return m_menv; }
     proof_builder const & get_proof_builder() const { return m_proof_builder; }
     justification_builder const & get_justification_builder() const { return m_justification_builder; }
+    format pp(formatter const & fmt, options const & opts) const;
 };
 void swap(proof_state & s1, proof_state & s2);
 

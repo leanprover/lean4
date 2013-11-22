@@ -56,6 +56,8 @@ public:
     tactic & operator=(tactic && s);
 
     tactic_result_ref operator()(proof_state const & s) { return m_ptr->operator()(s); }
+
+    expr solve(environment const & env, io_state const & io, proof_state const & s);
 };
 
 template<typename F>
@@ -88,7 +90,6 @@ public:
         return tactic_result_ref(new result(this, s));
     }
 };
-
 
 template<typename F>
 tactic mk_tactic(F && f) { return tactic(new simple_tactic_cell<F>(std::forward<F>(f))); }

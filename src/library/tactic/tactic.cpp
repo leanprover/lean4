@@ -149,4 +149,68 @@ tactic try_for(tactic t, unsigned ms, unsigned check_ms) {
             }
         });
 }
+
+tactic append(tactic t1, tactic t2) {
+    return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
+            tactic _t1(t1);
+            tactic _t2(t2);
+            return append(_t1(env, io, s), _t2(env, io, s));
+        });
+}
+
+tactic interleave(tactic t1, tactic t2) {
+    return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
+            tactic _t1(t1);
+            tactic _t2(t2);
+            return interleave(_t1(env, io, s), _t2(env, io, s));
+        });
+}
+
+tactic par(tactic t1, tactic t2, unsigned check_ms) {
+    return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
+            tactic _t1(t1);
+            tactic _t2(t2);
+            proof_state_seq r1;
+            proof_state_seq r2;
+            std::atomic<bool>  done1(false);
+            std::atomic<bool>  done2(false);
+            interruptible_thread th1([&]() {
+                    try {
+                        r1 = _t1(env, io, s);
+                    } catch (...) {
+                        r1 = proof_state_seq();
+                    }
+                    done1 = true;
+                });
+            interruptible_thread th2([&]() {
+                    try {
+                        r2 = _t2(env, io, s);
+                    } catch (...) {
+                        r2 = proof_state_seq();
+                    }
+                    done2 = true;
+                });
+            try {
+                std::chrono::milliseconds small(check_ms);
+                while (!done1 && !done2) {
+                    check_interrupted();
+                    std::this_thread::sleep_for(small);
+                }
+                th1.request_interrupt();
+                th2.request_interrupt();
+                th1.join();
+                th2.join();
+                if (r1)
+                    return r1;
+                else
+                    return r2;
+            } catch (...) {
+                th1.request_interrupt();
+                th2.request_interrupt();
+                th1.join();
+                th2.join();
+                throw;
+            }
+        });
+}
 }

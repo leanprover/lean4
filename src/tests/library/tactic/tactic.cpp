@@ -83,6 +83,7 @@ static void tst1() {
                          set_tactic(&flag1)),
                   env, io, ctx, q);
     lean_assert(flag1);
+    std::cout << "proof 2: " << par(loop_tactic(), par(loop_tactic(), t)).solve(env, io, ctx, q) << "\n";
 #endif
     std::cout << "done\n";
 }

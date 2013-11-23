@@ -77,7 +77,7 @@ tactic trace_tactic(char const * msg) {
 }
 
 tactic assumption_tactic() {
-    return mk_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state_seq {
+    return mk_simple_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state {
             list<std::pair<name, expr>> proofs;
             goals new_goals = map_goals(s, [&](name const & ng, goal const & g) -> goal {
                     expr const & c  = g.get_conclusion();
@@ -104,7 +104,7 @@ tactic assumption_tactic() {
                     }
                     return p(new_m, env, a);
                 });
-            return to_proof_state_seq(proof_state(s, new_goals, new_p));
+            return proof_state(s, new_goals, new_p);
         });
 }
 

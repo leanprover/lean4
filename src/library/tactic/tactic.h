@@ -65,6 +65,23 @@ public:
 template<typename F>
 tactic mk_tactic(F && f) { return tactic(new simple_tactic_cell<F>(std::forward<F>(f))); }
 
+/**
+   \brief Create a tactic using the given functor.
+
+   <code>
+   proof_state operator()(environment const & env, io_state const & io, proof_state const & s)
+   </code>
+
+   \remark The functor is invoked on demand.
+*/
+template<typename F>
+tactic mk_simple_tactic(F && f) {
+    return
+        mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) {
+                return proof_state_seq([=]() { return some(mk_pair(f(env, io, s), proof_state_seq())); });
+            });
+}
+
 inline proof_state_seq to_proof_state_seq(proof_state const & s) {
     return proof_state_seq([=]() { return some(mk_pair(s, proof_state_seq())); });
 }

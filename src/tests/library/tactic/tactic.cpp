@@ -25,17 +25,10 @@ tactic loop_tactic() {
         });
 }
 
-tactic msg_tactic(std::string msg) {
-    return mk_tactic([=](environment const &, io_state const &, proof_state const & s) -> proof_state_seq {
-            std::cout << msg << "\n";
-            return proof_state_seq(s);
-        });
-}
-
 tactic set_tactic(std::atomic<bool> * flag) {
     return mk_tactic([=](environment const &, io_state const &, proof_state const & s) -> proof_state_seq {
             *flag = true;
-            return proof_state_seq(s);
+            return to_proof_state_seq(s);
         });
 }
 
@@ -71,7 +64,7 @@ static void tst1() {
     check_failure(try_for(loop_tactic(), 100), env, io, ctx, q);
     std::cout << "proof 1: " << try_for(t, 10000).solve(env, io, s) << "\n";
     check_failure(try_for(orelse(try_for(loop_tactic(), 10000),
-                                 msg_tactic(std::string("hello world"))),
+                                 trace_tactic(std::string("hello world"))),
                           100),
                   env, io, ctx, q);
     std::atomic<bool> flag1(false);
@@ -87,10 +80,16 @@ static void tst1() {
     std::cout << "proof 2: " << par(loop_tactic(), par(loop_tactic(), t)).solve(env, io, ctx, q) << "\n";
 #endif
 
-    std::cout << "proof 2: " << orelse(then(repeat_at_most(append(msg_tactic("hello1"), msg_tactic("hello2")), 5), fail_tactic()),
+    std::cout << "proof 2: " << orelse(then(repeat_at_most(append(trace_tactic("hello1"), trace_tactic("hello2")), 5), fail_tactic()),
                                        t).solve(env, io, ctx, q) << "\n";
     std::cout << "------------------\n";
-    std::cout << "proof 2: " << force(take(then(repeat_at_most(interleave(id_tactic(), id_tactic()), 100), then(msg_tactic("foo"), t)), 5)).solve(env, io, ctx, q) << "\n";
+    std::cout << "proof 2: " << ((trace_tactic("hello1.1") + trace_tactic("hello1.2") + trace_tactic("hello1.3") + trace_tactic("hello1.4")) <<
+                                 (trace_tactic("hello2.1") + trace_tactic("hello2.2")) <<
+                                 (trace_tactic("hello3.1") || trace_tactic("hello3.2")) <<
+                                 assumption_tactic()).solve(env, io, ctx, q) << "\n";
+    std::cout << "------------------\n";
+    std::cout << "proof 2: " << force(take(repeat_at_most(interleave(id_tactic(), id_tactic()), 100) << trace_tactic("foo") << t,
+                                           5)).solve(env, io, ctx, q) << "\n";
     std::cout << "done\n";
 }
 

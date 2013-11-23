@@ -10,78 +10,117 @@ Author: Leonardo de Moura
 #include "util/list.h"
 
 namespace lean {
-template<typename T>
-lazy_list<T> take(unsigned sz, lazy_list<T> l) {
-    if (sz == 0 || !l) {
-        return lazy_list<T>();
-    } else {
-        return lazy_list<T>(head(l), [=]() { return take(sz - 1, tail(l)); });
-    }
-}
-
-template<typename T1, typename T2>
-lazy_list<std::pair<T1, T2>> zip(lazy_list<T1> const & l1, lazy_list<T2> const & l2) {
-    if (l1 && l2) {
-        return lazy_list<std::pair<T1, T2>>(mk_pair(head(l1), head(l2)), [=]() { return zip(tail(l1), tail(l2)); });
-    } else {
-        return lazy_list<std::pair<T1, T2>>();
+template<typename T, typename F>
+void for_each(lazy_list<T> l, F && f) {
+    while (true) {
+        auto p = l.pull();
+        if (p) {
+            f(p->first);
+            l = p->second;
+        } else {
+            break;
+        }
     }
 }
 
 template<typename T>
-lazy_list<T> to_lazy(list<T> const & l) {
-    if (l)
-        return lazy_list<T>(head(l), [=]() { return to_lazy(tail(l)); });
-    else
+lazy_list<T> take(unsigned sz, lazy_list<T> const & l) {
+    if (sz == 0) {
         return lazy_list<T>();
+    } else {
+        return lazy_list<T>([=]() {
+                auto p = l.pull();
+                if (p)
+                    return some(mk_pair(p->first, take(sz - 1, p->second)));
+                else
+                    return p;
+            });
+    }
+}
+
+template<typename T>
+lazy_list<T> to_lazy(list<T> l) {
+    if (l) {
+        return lazy_list<T>([=]() {
+                return some(mk_pair(head(l), to_lazy(tail(l))));
+            });
+    } else {
+        return lazy_list<T>();
+    }
 }
 
 template<typename T>
 lazy_list<T> append(lazy_list<T> const & l1, lazy_list<T> const & l2) {
-    if (!l1)
-        return l2;
-    else if (!l2)
-        return l1;
-    else
-        return lazy_list<T>(head(l1), [=]() { return append(tail(l1), l2); });
+    return lazy_list<T>([=]() {
+            auto p = l1.pull();
+            if (!p)
+                return l2.pull();
+            else
+                return some(mk_pair(p->first, append(p->second, l2)));
+        });
 }
 
-template<typename T, typename F>
-lazy_list<T> map(lazy_list<T> const & l, F && f) {
-    if (!l)
-        return l;
-    else
-        return lazy_list<T>(f(head(l)), [=]() { return map(tail(l), f); });
+template<typename T>
+lazy_list<T> orelse(lazy_list<T> const & l1, lazy_list<T> const & l2) {
+    return lazy_list<T>([=]() {
+            auto p = l1.pull();
+            if (!p)
+                return l2.pull();
+            else
+                return some(mk_pair(p->first, orelse(p->second, lazy_list<T>())));
+        });
 }
 
 template<typename T>
 lazy_list<T> interleave(lazy_list<T> const & l1, lazy_list<T> const & l2) {
-    if (!l1)
-        return l2;
-    else if (!l2)
-        return l1;
-    else
-        return lazy_list<T>(head(l1), [=]() { return interleave(l2, tail(l1)); });
+    return lazy_list<T>([=]() {
+            auto p = l1.pull();
+            if (!p)
+                return l2.pull();
+            else
+                return some(mk_pair(p->first, interleave(l2, p->second)));
+        });
+}
+
+template<typename T, typename F>
+lazy_list<T> map(lazy_list<T> const & l, F && f) {
+    return lazy_list<T>([=]() {
+            auto p = l.pull();
+            if (!p)
+                return p;
+            else
+                return some(mk_pair(f(p->first), map(p->second, f)));
+        });
 }
 
 template<typename T, typename P>
-lazy_list<T> filter(lazy_list<T> const & l, P && p) {
-    if (!l)
-        return l;
-    else if (p(head(l)))
-        return lazy_list<T>(head(l), [=]() { return filter(tail(l), p); });
-    else
-        return filter(tail(l), p);
+lazy_list<T> filter(lazy_list<T> const & l, P && pred) {
+    return lazy_list<T>([=]() {
+            auto p = l.pull();
+            if (!p)
+                return p;
+            else if (pred(p->first))
+                return some(mk_pair(p->first, p->second));
+            else
+                return filter(p->second, pred).pull();
+        });
 }
 
 template<typename T, typename F>
 lazy_list<T> map_append_aux(lazy_list<T> const & h, lazy_list<T> const & l, F && f) {
-    if (!l)
-        return h;
-    else if (h)
-        return lazy_list<T>(head(h), [=]() { return map_append_aux(tail(h), l, f); });
-    else
-        return map_append_aux(f(head(l)), tail(l), f);
+    return lazy_list<T>([=]() {
+            auto p1 = h.pull();
+            if (p1) {
+                return some(mk_pair(p1->first, map_append_aux(p1->second, l, f)));
+            } else {
+                auto p2 = l.pull();
+                if (p2) {
+                    return map_append_aux(f(p2->first), p2->second, f).pull();
+                } else {
+                    return typename lazy_list<T>::maybe_pair();
+                }
+            }
+        });
 }
 
 template<typename T, typename F>

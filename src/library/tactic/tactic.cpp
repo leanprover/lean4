@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <utility>
 #include <chrono>
+#include "util/sstream.h"
 #include "util/interrupt.h"
 #include "util/lazy_list_fn.h"
 #include "library/tactic/tactic_exception.h"
@@ -22,9 +23,10 @@ tactic & tactic::operator=(tactic && s) {
 
 expr tactic::solve(environment const & env, io_state const & io, proof_state const & s) {
     proof_state_seq r   = operator()(env, io, s);
-    if (!r)
+    auto p = r.pull();
+    if (!p)
         throw exception("tactic failed to solve input");
-    proof_state final = head(r);
+    proof_state final = p->first;
     assignment a(final.get_menv());
     proof_map  m;
     return final.get_proof_builder()(m, env, a);
@@ -37,7 +39,7 @@ expr tactic::solve(environment const & env, io_state const & io, context const &
 
 tactic id_tactic() {
     return mk_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state_seq {
-            return proof_state_seq(s);
+            return to_proof_state_seq(s);
         });
 }
 
@@ -52,8 +54,26 @@ tactic now_tactic() {
             if (!empty(s.get_goals()))
                 return proof_state_seq();
             else
-                return proof_state_seq(s);
+                return to_proof_state_seq(s);
         });
+}
+
+tactic trace_tactic(std::string const & msg) {
+    return mk_tactic([=](environment const &, io_state const & io, proof_state const & s) -> proof_state_seq {
+            return proof_state_seq([=]() {
+                    io.get_diagnostic_channel() << msg << "\n";
+                    io.get_diagnostic_channel().get_stream().flush();
+                    return some(mk_pair(s, proof_state_seq()));
+                });
+        });
+}
+
+tactic trace_tactic(sstream const & msg) {
+    return trace_tactic(msg.str());
+}
+
+tactic trace_tactic(char const * msg) {
+    return trace_tactic(std::string(msg));
 }
 
 tactic assumption_tactic() {
@@ -84,7 +104,7 @@ tactic assumption_tactic() {
                     }
                     return p(new_m, env, a);
                 });
-            return proof_state_seq(proof_state(s, new_goals, new_p));
+            return to_proof_state_seq(proof_state(s, new_goals, new_p));
         });
 }
 
@@ -102,14 +122,8 @@ tactic then(tactic t1, tactic t2) {
 tactic orelse(tactic t1, tactic t2) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
             tactic _t1(t1);
-            proof_state_seq r = _t1(env, io, s);
-            if (r) {
-                return r;
-            } else {
-                check_interrupted();
-                tactic _t2(t2);
-                return _t2(env, io, s);
-            }
+            tactic _t2(t2);
+            return orelse(_t1(env, io, s), _t2(env, io, s));
         });
 }
 
@@ -200,10 +214,7 @@ tactic par(tactic t1, tactic t2, unsigned check_ms) {
                 th2.request_interrupt();
                 th1.join();
                 th2.join();
-                if (r1)
-                    return r1;
-                else
-                    return r2;
+                return orelse(r1, r2);
             } catch (...) {
                 th1.request_interrupt();
                 th2.request_interrupt();
@@ -218,10 +229,11 @@ tactic repeat(tactic t) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s1) -> proof_state_seq {
             tactic t1(t);
             proof_state_seq r = t1(env, io, s1);
-            if (!r) {
-                return proof_state_seq(s1);
+            auto p = r.pull();
+            if (!p) {
+                return to_proof_state_seq(s1);
             } else {
-                return map_append(r, [=](proof_state const & s2) {
+                return map_append(to_proof_state_seq(p), [=](proof_state const & s2) {
                         check_interrupted();
                         tactic t2 = repeat(t1);
                         return t2(env, io, s2);
@@ -233,13 +245,14 @@ tactic repeat(tactic t) {
 tactic repeat_at_most(tactic t, unsigned k) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s1) -> proof_state_seq {
             if (k == 0)
-                return proof_state_seq(s1);
+                return to_proof_state_seq(s1);
             tactic t1(t);
             proof_state_seq r = t1(env, io, s1);
-            if (!r) {
-                return proof_state_seq(s1);
+            auto p = r.pull();
+            if (!p) {
+                return to_proof_state_seq(s1);
             } else {
-                return map_append(r, [=](proof_state const & s2) {
+                return map_append(to_proof_state_seq(p), [=](proof_state const & s2) {
                         check_interrupted();
                         tactic t2 = repeat_at_most(t1, k - 1);
                         return t2(env, io, s2);
@@ -260,10 +273,10 @@ tactic force(tactic t) {
             tactic _t(t);
             proof_state_seq r = _t(env, io, s);
             buffer<proof_state> buf;
-            for (auto s2 : r) {
-                buf.push_back(s2);
-                check_interrupted();
-            }
+            for_each(r, [&](proof_state const & s2) {
+                    buf.push_back(s2);
+                    check_interrupted();
+                });
             return to_lazy(to_list(buf.begin(), buf.end()));
         });
 }

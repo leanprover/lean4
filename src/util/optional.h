@@ -96,4 +96,9 @@ public:
             return !o1.m_some || o1.m_value == o2.m_value;
     }
 };
+
+template<typename T>
+optional<T> some(T && t) {
+    return optional<T>(std::forward<T>(t));
+}
 }

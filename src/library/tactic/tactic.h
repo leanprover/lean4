@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <memory>
 #include <mutex>
+#include <string>
 #include "util/lazy_list.h"
 #include "library/io_state.h"
 #include "library/tactic/proof_state.h"
@@ -64,6 +65,19 @@ public:
 template<typename F>
 tactic mk_tactic(F && f) { return tactic(new simple_tactic_cell<F>(std::forward<F>(f))); }
 
+inline proof_state_seq to_proof_state_seq(proof_state const & s) {
+    return proof_state_seq([=]() { return some(mk_pair(s, proof_state_seq())); });
+}
+
+inline proof_state_seq to_proof_state_seq(proof_state_seq::maybe_pair const & p) {
+    lean_assert(p);
+    return proof_state_seq([=]() { return some(mk_pair(p->first, p->second)); });
+}
+
+inline proof_state_seq to_proof_state_seq(proof_state const & s, proof_state_seq const & t) {
+    return proof_state_seq([=]() { return some(mk_pair(s, t)); });
+}
+
 /**
    \brief Return a "do nothing" tactic (aka skip).
 */
@@ -81,14 +95,24 @@ tactic now_tactic();
 */
 tactic assumption_tactic();
 /**
+   \brief Return a tactic that just returns the input state, and display the given message in the diagnostic channel.
+*/
+tactic trace_tactic(char const * msg);
+class sstream;
+tactic trace_tactic(sstream const & msg);
+tactic trace_tactic(std::string const & msg);
+
+/**
    \brief Return a tactic that performs \c t1 followed by \c t2.
 */
 tactic then(tactic t1, tactic t2);
+inline tactic operator<<(tactic t1, tactic t2) { return then(t1, t2); }
 /**
    \brief Return a tactic that applies \c t1, and if \c t1 returns the empty sequence of states,
    then applies \c t2.
 */
 tactic orelse(tactic t1, tactic t2);
+inline tactic operator||(tactic t1, tactic t2) { return orelse(t1, t2); }
 /**
    \brief Return a tactic that tries the tactic \c t for at most \c ms milliseconds.
    If the tactic does not terminate in \c ms milliseconds, then the empty
@@ -106,6 +130,7 @@ tactic try_for(tactic t, unsigned ms, unsigned check_ms = 1);
    from tactic \c t2.
 */
 tactic append(tactic t1, tactic t2);
+inline tactic operator+(tactic t1, tactic t2) { return append(t1, t2); }
 /**
    \brief Execute both tactics and and combines their results.
    The results produced by tactics \c t1 and \c t2 are interleaved

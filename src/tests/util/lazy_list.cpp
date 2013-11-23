@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <utility>
 #include "util/test.h"
+#include "util/optional.h"
 #include "util/numerics/mpz.h"
 #include "util/pair.h"
 #include "util/lazy_list.h"
@@ -15,18 +16,18 @@ Author: Leonardo de Moura
 using namespace lean;
 
 lazy_list<int> seq(int s) {
-    return lazy_list<int>(s, [=]() { return seq(s + 1); });
+    return lazy_list<int>([=]() { return some(mk_pair(s, seq(s + 1))); });
 }
 
 lazy_list<int> from(int begin, int step, int end) {
     if (begin > end)
         return lazy_list<int>();
     else
-        return lazy_list<int>(begin, [=]() { return from(begin + step, step, end); });
+        return lazy_list<int>([=]() { return some(mk_pair(begin, from(begin + step, step, end))); });
 }
 
 lazy_list<mpz> fact_list_core(mpz i, mpz n) {
-    return lazy_list<mpz>(n, [=]() { return fact_list_core(i+1, n*(i+1)); });
+    return lazy_list<mpz>([=]() { return some(mk_pair(n, fact_list_core(i+1, n*(i+1)))); });
 }
 
 lazy_list<mpz> fact_list() {
@@ -51,36 +52,41 @@ lazy_list<int> mk_simple3() {
 
 template<typename T>
 void display(lazy_list<T> const & l) {
-    for (auto v : l) {
-        std::cout << v << " ";
-    }
+    int buffer[20000];
+    int i = 0;
+    for_each(l, [&](T const & v) {
+            std::cout << v << " ";
+            buffer[i] = i;
+            i++;
+        });
     std::cout << "\n";
 }
 
-int main() {
-    lean_assert(head(lazy_list<int>(10)) == 10);
-    lean_assert(!lazy_list<int>());
-    lean_assert(!tail(lazy_list<int>(10)));
-    lazy_list<int> l(-10, from(10, 20, 100));
-    l = cons(-20, l);
-    lean_assert(head(l) == -20);
-    for (auto c : l) {
-        std::cout << c << "\n";
-    }
-    int i = 1;
-    for (auto c : take(30, zip(seq(1), fact_list()))) {
-        lean_assert(c.first == i);
-        std::cout << c.first << " " << c.second << "\n";
-        i++;
-    }
+static void tst1() {
+    lazy_list<int> l([]() { return some(mk_pair(10, lazy_list<int>())); });
+    lazy_list<int> empty;
+    lean_assert(l.pull()->first == 10);
+    lean_assert(!empty.pull());
+    lean_assert(!l.pull()->second.pull());
     list<int> l2{1, 2, 3};
-    i = 1;
-    for (auto c : to_lazy(l2)) {
-        lean_assert(c == i);
-        i++;
-    }
+    int i = 1;
+    for_each(to_lazy(l2), [&](int c) {
+            std::cout << "c: " << c << ", i: " << i << "\n";
+            lean_assert(c == i);
+            i++;
+        });
     display(mk_simple1(4));
     display(mk_simple2());
-    display(take(12, mk_simple3()));
+    display(take(10, fact_list()));
+    display(take(20, mk_simple3()));
+    display(orelse(take(10, seq(1)), take(10, seq(100))));
+    display(orelse(take(10, seq(1)), lazy_list<int>()));
+    display(orelse(lazy_list<int>(), take(10, seq(100))));
+    display(orelse(take(0, seq(1)), take(10, seq(100))));
+    display(orelse(filter(take(100, seq(1)), [](int i) { return i < 0; }), take(10, seq(1000))));
+}
+
+int main() {
+    tst1();
     return 0;
 }

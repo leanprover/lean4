@@ -132,4 +132,22 @@ tactic repeat(tactic t);
    then tactic \c t will be applied 2^k times.
 */
 tactic repeat_at_most(tactic t, unsigned k);
+/**
+   \brief Return a tactic that applies \c t, but takes at most \c
+   k elements from the sequence produced by \c t.
+*/
+tactic take(tactic t, unsigned k);
+/**
+   \brief Return a tactic that forces \c t to produce all
+   the elements in the resultant sequence.
+
+   \remark proof_state_seq is a lazy-list, that is, their
+   elements are produced on demand. This tactic forces
+   all the elements in the sequence to be computed eagerly.
+
+   \remark The sequence may be infinite. So, consider
+   combining this tactical with \c take if the sequence
+   may be infinite or too big.
+*/
+tactic force(tactic t);
 }

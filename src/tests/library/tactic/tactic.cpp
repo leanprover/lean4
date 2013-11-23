@@ -89,8 +89,8 @@ static void tst1() {
 
     std::cout << "proof 2: " << orelse(then(repeat_at_most(append(msg_tactic("hello1"), msg_tactic("hello2")), 5), fail_tactic()),
                                        t).solve(env, io, ctx, q) << "\n";
-
-
+    std::cout << "------------------\n";
+    std::cout << "proof 2: " << force(take(then(repeat_at_most(interleave(id_tactic(), id_tactic()), 100), then(msg_tactic("foo"), t)), 5)).solve(env, io, ctx, q) << "\n";
     std::cout << "done\n";
 }
 

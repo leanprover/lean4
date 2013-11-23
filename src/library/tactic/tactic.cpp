@@ -247,4 +247,24 @@ tactic repeat_at_most(tactic t, unsigned k) {
             }
         });
 }
+
+tactic take(tactic t, unsigned k) {
+    return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
+            tactic _t(t);
+            return take(k, _t(env, io, s));
+        });
+}
+
+tactic force(tactic t) {
+    return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
+            tactic _t(t);
+            proof_state_seq r = _t(env, io, s);
+            buffer<proof_state> buf;
+            for (auto s2 : r) {
+                buf.push_back(s2);
+                check_interrupted();
+            }
+            return to_lazy(to_list(buf.begin(), buf.end()));
+        });
+}
 }

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <utility>
+#include "util/interrupt.h"
 #include "util/lazy_list.h"
 #include "util/list.h"
 
@@ -20,6 +21,7 @@ void for_each(lazy_list<T> l, F && f) {
         } else {
             break;
         }
+        check_interrupted();
     }
 }
 
@@ -53,10 +55,12 @@ template<typename T>
 lazy_list<T> append(lazy_list<T> const & l1, lazy_list<T> const & l2) {
     return lazy_list<T>([=]() {
             auto p = l1.pull();
-            if (!p)
+            if (!p) {
+                check_interrupted();
                 return l2.pull();
-            else
+            } else {
                 return some(mk_pair(p->first, append(p->second, l2)));
+            }
         });
 }
 
@@ -64,10 +68,12 @@ template<typename T>
 lazy_list<T> orelse(lazy_list<T> const & l1, lazy_list<T> const & l2) {
     return lazy_list<T>([=]() {
             auto p = l1.pull();
-            if (!p)
+            if (!p) {
+                check_interrupted();
                 return l2.pull();
-            else
+            } else {
                 return some(mk_pair(p->first, orelse(p->second, lazy_list<T>())));
+            }
         });
 }
 
@@ -75,10 +81,12 @@ template<typename T>
 lazy_list<T> interleave(lazy_list<T> const & l1, lazy_list<T> const & l2) {
     return lazy_list<T>([=]() {
             auto p = l1.pull();
-            if (!p)
+            if (!p) {
+                check_interrupted();
                 return l2.pull();
-            else
+            } else {
                 return some(mk_pair(p->first, interleave(l2, p->second)));
+            }
         });
 }
 
@@ -97,12 +105,14 @@ template<typename T, typename P>
 lazy_list<T> filter(lazy_list<T> const & l, P && pred) {
     return lazy_list<T>([=]() {
             auto p = l.pull();
-            if (!p)
+            if (!p) {
                 return p;
-            else if (pred(p->first))
+            } else if (pred(p->first)) {
                 return some(mk_pair(p->first, p->second));
-            else
+            } else {
+                check_interrupted();
                 return filter(p->second, pred).pull();
+            }
         });
 }
 
@@ -113,8 +123,10 @@ lazy_list<T> map_append_aux(lazy_list<T> const & h, lazy_list<T> const & l, F &&
             if (p1) {
                 return some(mk_pair(p1->first, map_append_aux(p1->second, l, f)));
             } else {
+                check_interrupted();
                 auto p2 = l.pull();
                 if (p2) {
+                    check_interrupted();
                     return map_append_aux(f(p2->first), p2->second, f).pull();
                 } else {
                     return typename lazy_list<T>::maybe_pair();

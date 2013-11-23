@@ -66,6 +66,7 @@ static void tst1() {
     std::cout << "proof 2: " << t.solve(env, io, ctx, q) << "\n";
     check_failure(now_tactic(), env, io, ctx, q);
     std::cout << "proof 2: " << orelse(fail_tactic(), t).solve(env, io, ctx, q) << "\n";
+
 #ifndef __APPLE__
     check_failure(try_for(loop_tactic(), 100), env, io, ctx, q);
     std::cout << "proof 1: " << try_for(t, 10000).solve(env, io, s) << "\n";
@@ -85,6 +86,11 @@ static void tst1() {
     lean_assert(flag1);
     std::cout << "proof 2: " << par(loop_tactic(), par(loop_tactic(), t)).solve(env, io, ctx, q) << "\n";
 #endif
+
+    std::cout << "proof 2: " << orelse(then(repeat_at_most(append(msg_tactic("hello1"), msg_tactic("hello2")), 5), fail_tactic()),
+                                       t).solve(env, io, ctx, q) << "\n";
+
+
     std::cout << "done\n";
 }
 

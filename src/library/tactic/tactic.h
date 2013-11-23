@@ -120,6 +120,16 @@ tactic interleave(tactic t1, tactic t2);
    threads finished.
 */
 tactic par(tactic t1, tactic t2, unsigned check_ms = 1);
+/**
+   \brief Return a tactic that keeps applying \c t until it fails.
+*/
+tactic repeat(tactic t);
+/**
+   \brief Similar to \c repeat, but execute \c t at most \c k times.
 
-tactic repeat(tactic t1);
+   \remark The value \c k is the depth of the recursion.
+   For example, if tactic \c t always produce a sequence of size 2,
+   then tactic \c t will be applied 2^k times.
+*/
+tactic repeat_at_most(tactic t, unsigned k);
 }

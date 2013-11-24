@@ -159,39 +159,19 @@ tactic par(tactic t1, tactic t2, unsigned check_ms) {
 
 tactic repeat(tactic t) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s1) -> proof_state_seq {
-            tactic t1(t);
-            proof_state_seq r = t1(env, io, s1);
-            // TODO(Leo): pull should be executed lazily
-            auto p = r.pull();
-            if (!p) {
-                return to_proof_state_seq(s1);
-            } else {
-                return map_append(to_proof_state_seq(p), [=](proof_state const & s2) {
-                        check_interrupted();
-                        tactic t2 = repeat(t1);
-                        return t2(env, io, s2);
-                    });
-            }
+            return repeat(s1, [=](proof_state const & s2) {
+                    tactic _t1(t);
+                    return _t1(env, io, s2);
+                });
         });
 }
 
 tactic repeat_at_most(tactic t, unsigned k) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s1) -> proof_state_seq {
-            if (k == 0)
-                return to_proof_state_seq(s1);
-            tactic t1(t);
-            proof_state_seq r = t1(env, io, s1);
-            // TODO(Leo): pull should be executed lazily
-            auto p = r.pull();
-            if (!p) {
-                return to_proof_state_seq(s1);
-            } else {
-                return map_append(to_proof_state_seq(p), [=](proof_state const & s2) {
-                        check_interrupted();
-                        tactic t2 = repeat_at_most(t1, k - 1);
-                        return t2(env, io, s2);
-                    });
-            }
+            return repeat_at_most(s1, [=](proof_state const & s2) {
+                    tactic _t1(t);
+                    return _t1(env, io, s2);
+                }, k);
         });
 }
 

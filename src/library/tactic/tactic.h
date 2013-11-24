@@ -174,6 +174,10 @@ tactic par(tactic const & t1, tactic const & t2, unsigned check_ms = 1);
 */
 tactic repeat(tactic const & t);
 /**
+   \brief Similar to \c repeat, but applies \c t at least once.
+*/
+inline tactic repeat1(tactic const & t) { return then(t, repeat(t)); }
+/**
    \brief Similar to \c repeat, but execute \c t at most \c k times.
 
    \remark The value \c k is the depth of the recursion.
@@ -186,6 +190,10 @@ tactic repeat_at_most(tactic const & t, unsigned k);
    k elements from the sequence produced by \c t.
 */
 tactic take(tactic const & t, unsigned k);
+/**
+   \brief Syntax sugar for take(t, 1)
+*/
+inline tactic determ(tactic const & t) { return take(t, 1); }
 /**
    \brief Return a tactic that forces \c t to produce all
    the elements in the resultant sequence.

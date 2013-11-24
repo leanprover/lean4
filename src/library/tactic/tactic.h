@@ -65,6 +65,11 @@ public:
 template<typename F>
 tactic mk_tactic(F && f) { return tactic(new simple_tactic_cell<F>(std::forward<F>(f))); }
 
+template<typename F>
+inline proof_state_seq mk_proof_state_seq(F && f) {
+    return mk_lazy_list<proof_state>(std::forward<F>(f));
+}
+
 /**
    \brief Create a tactic using the given functor.
 
@@ -78,21 +83,21 @@ template<typename F>
 tactic mk_simple_tactic(F && f) {
     return
         mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) {
-                return proof_state_seq([=]() { return some(mk_pair(f(env, io, s), proof_state_seq())); });
+                return mk_proof_state_seq([=]() { return some(mk_pair(f(env, io, s), proof_state_seq())); });
             });
 }
 
 inline proof_state_seq to_proof_state_seq(proof_state const & s) {
-    return proof_state_seq([=]() { return some(mk_pair(s, proof_state_seq())); });
+    return mk_proof_state_seq([=]() { return some(mk_pair(s, proof_state_seq())); });
 }
 
 inline proof_state_seq to_proof_state_seq(proof_state_seq::maybe_pair const & p) {
     lean_assert(p);
-    return proof_state_seq([=]() { return some(mk_pair(p->first, p->second)); });
+    return mk_proof_state_seq([=]() { return some(mk_pair(p->first, p->second)); });
 }
 
 inline proof_state_seq to_proof_state_seq(proof_state const & s, proof_state_seq const & t) {
-    return proof_state_seq([=]() { return some(mk_pair(s, t)); });
+    return mk_proof_state_seq([=]() { return some(mk_pair(s, t)); });
 }
 
 /**

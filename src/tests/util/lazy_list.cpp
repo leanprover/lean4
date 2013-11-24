@@ -17,18 +17,18 @@ Author: Leonardo de Moura
 using namespace lean;
 
 lazy_list<int> seq(int s) {
-    return lazy_list<int>([=]() { return some(mk_pair(s, seq(s + 1))); });
+    return mk_lazy_list<int>([=]() { return some(mk_pair(s, seq(s + 1))); });
 }
 
 lazy_list<int> from(int begin, int step, int end) {
     if (begin > end)
         return lazy_list<int>();
     else
-        return lazy_list<int>([=]() { return some(mk_pair(begin, from(begin + step, step, end))); });
+        return mk_lazy_list<int>([=]() { return some(mk_pair(begin, from(begin + step, step, end))); });
 }
 
 lazy_list<mpz> fact_list_core(mpz i, mpz n) {
-    return lazy_list<mpz>([=]() { return some(mk_pair(n, fact_list_core(i+1, n*(i+1)))); });
+    return mk_lazy_list<mpz>([=]() { return some(mk_pair(n, fact_list_core(i+1, n*(i+1)))); });
 }
 
 lazy_list<mpz> fact_list() {
@@ -52,7 +52,7 @@ lazy_list<int> mk_simple3() {
 }
 
 lazy_list<int> loop() {
-    return lazy_list<int>([=]() {
+    return mk_lazy_list<int>([=]() {
             while (true) {
                 check_interrupted();
             }
@@ -74,7 +74,7 @@ void display(lazy_list<T> const & l) {
 }
 
 static void tst1() {
-    lazy_list<int> l([]() { return some(mk_pair(10, lazy_list<int>())); });
+    lazy_list<int> l = mk_lazy_list<int>([]() { return some(mk_pair(10, lazy_list<int>())); });
     lazy_list<int> empty;
     lean_assert(l.pull()->first == 10);
     lean_assert(!empty.pull());
@@ -101,7 +101,23 @@ static void tst1() {
 #endif
 }
 
+void tst2() {
+    lazy_list<int> l(10);
+    lean_assert(l.pull()->first == 10);
+    lean_assert(!l.pull()->second.pull());
+    display(l);
+    lazy_list<int> l2(20, l);
+    int i = 0;
+    for_each(l2, [&](int v) {
+            lean_assert(i != 0 || v == 20);
+            lean_assert(i != 1 || v == 10);
+            i++;
+        });
+    lean_assert(i == 2);
+}
+
 int main() {
     tst1();
-    return 0;
+    tst2();
+    return has_violations() ? 1 : 0;
 }

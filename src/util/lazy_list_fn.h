@@ -33,7 +33,7 @@ lazy_list<T> take(unsigned sz, lazy_list<T> const & l) {
     if (sz == 0) {
         return lazy_list<T>();
     } else {
-        return lazy_list<T>([=]() {
+        return mk_lazy_list<T>([=]() {
                 auto p = l.pull();
                 if (p)
                     return some(mk_pair(p->first, take(sz - 1, p->second)));
@@ -49,7 +49,7 @@ lazy_list<T> take(unsigned sz, lazy_list<T> const & l) {
 template<typename T>
 lazy_list<T> to_lazy(list<T> l) {
     if (l) {
-        return lazy_list<T>([=]() {
+        return mk_lazy_list<T>([=]() {
                 return some(mk_pair(head(l), to_lazy(tail(l))));
             });
     } else {
@@ -62,7 +62,7 @@ lazy_list<T> to_lazy(list<T> l) {
 */
 template<typename T>
 lazy_list<T> append(lazy_list<T> const & l1, lazy_list<T> const & l2) {
-    return lazy_list<T>([=]() {
+    return mk_lazy_list<T>([=]() {
             auto p = l1.pull();
             if (!p) {
                 check_interrupted();
@@ -78,13 +78,13 @@ lazy_list<T> append(lazy_list<T> const & l1, lazy_list<T> const & l2) {
 */
 template<typename T>
 lazy_list<T> orelse(lazy_list<T> const & l1, lazy_list<T> const & l2) {
-    return lazy_list<T>([=]() {
+    return mk_lazy_list<T>([=]() {
             auto p = l1.pull();
             if (!p) {
                 check_interrupted();
                 return l2.pull();
             } else {
-                return some(mk_pair(p->first, orelse(p->second, lazy_list<T>())));
+                return p;
             }
         });
 }
@@ -95,7 +95,7 @@ lazy_list<T> orelse(lazy_list<T> const & l1, lazy_list<T> const & l2) {
 */
 template<typename T>
 lazy_list<T> interleave(lazy_list<T> const & l1, lazy_list<T> const & l2) {
-    return lazy_list<T>([=]() {
+    return mk_lazy_list<T>([=]() {
             auto p = l1.pull();
             if (!p) {
                 check_interrupted();
@@ -111,7 +111,7 @@ lazy_list<T> interleave(lazy_list<T> const & l1, lazy_list<T> const & l2) {
 */
 template<typename T, typename F>
 lazy_list<T> map(lazy_list<T> const & l, F && f) {
-    return lazy_list<T>([=]() {
+    return mk_lazy_list<T>([=]() {
             auto p = l.pull();
             if (!p)
                 return p;
@@ -129,12 +129,12 @@ lazy_list<T> map(lazy_list<T> const & l, F && f) {
 */
 template<typename T, typename P>
 lazy_list<T> filter(lazy_list<T> const & l, P && pred) {
-    return lazy_list<T>([=]() {
+    return mk_lazy_list<T>([=]() {
             auto p = l.pull();
             if (!p) {
                 return p;
             } else if (pred(p->first)) {
-                return some(mk_pair(p->first, p->second));
+                return p;
             } else {
                 check_interrupted();
                 return filter(p->second, pred).pull();
@@ -147,7 +147,7 @@ lazy_list<T> filter(lazy_list<T> const & l, P && pred) {
 */
 template<typename T, typename F>
 lazy_list<T> map_append_aux(lazy_list<T> const & h, lazy_list<T> const & l, F && f) {
-    return lazy_list<T>([=]() {
+    return mk_lazy_list<T>([=]() {
             auto p1 = h.pull();
             if (p1) {
                 return some(mk_pair(p1->first, map_append_aux(p1->second, l, f)));
@@ -188,7 +188,7 @@ template<typename T>
 lazy_list<T> timeout(lazy_list<T> const & l, unsigned ms, unsigned check_ms = g_small_sleep) {
     if (check_ms == 0)
         check_ms = 1;
-    return lazy_list<T>([=]() {
+    return mk_lazy_list<T>([=]() {
             typename lazy_list<T>::maybe_pair r;
             std::atomic<bool> done(false);
             interruptible_thread th([&]() {
@@ -231,7 +231,7 @@ lazy_list<T> timeout(lazy_list<T> const & l, unsigned ms, unsigned check_ms = g_
 */
 template<typename T>
 lazy_list<T> par(lazy_list<T> const & l1, lazy_list<T> const & l2, unsigned check_ms = g_small_sleep) {
-    return lazy_list<T>([=]() {
+    return mk_lazy_list<T>([=]() {
             typename lazy_list<T>::maybe_pair r1;
             typename lazy_list<T>::maybe_pair r2;
             std::atomic<bool>  done1(false);

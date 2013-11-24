@@ -61,7 +61,7 @@ tactic now_tactic() {
 
 tactic trace_tactic(std::string const & msg) {
     return mk_tactic([=](environment const &, io_state const & io, proof_state const & s) -> proof_state_seq {
-            return proof_state_seq([=]() {
+            return mk_proof_state_seq([=]() {
                     io.get_diagnostic_channel() << msg << "\n";
                     io.get_diagnostic_channel().get_stream().flush();
                     return some(mk_pair(s, proof_state_seq()));

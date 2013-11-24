@@ -37,12 +37,37 @@ private:
         virtual maybe_pair pull() const { return m_f(); }
     };
 
+    class cell_singleton : public cell_base {
+        T m_val;
+    public:
+        cell_singleton(T const & v):cell_base(), m_val(v) {}
+        cell_singleton(T && v):cell_base(), m_val(std::move(v)) {}
+        virtual ~cell_singleton() {}
+        virtual maybe_pair pull() const {
+            lazy_list empty;
+            return maybe_pair(m_val, empty);
+        }
+    };
+
+    class cell_pair : public cell_base {
+        T         m_head;
+        lazy_list m_tail;
+    public:
+        cell_pair(T const & h, lazy_list const & t):cell_base(), m_head(h), m_tail(t) {}
+        virtual ~cell_pair() {}
+        virtual maybe_pair pull() const {
+            return maybe_pair(m_head, m_tail);
+        }
+    };
+
     cell_base * m_ptr;
 public:
     lazy_list():m_ptr(nullptr) {}
     lazy_list(lazy_list const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     lazy_list(lazy_list && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
-    template<typename F> explicit lazy_list(F && f):m_ptr(new cell<F>(std::forward<F>(f))) { m_ptr->inc_ref(); }
+    lazy_list(T const & v):m_ptr(new cell_singleton(v)) { m_ptr->inc_ref(); }
+    lazy_list(T && v):m_ptr(new cell_singleton(std::forward<T>(v))) { m_ptr->inc_ref(); }
+    lazy_list(T const & h, lazy_list const & t):m_ptr(new cell_pair(h, t)) { m_ptr->inc_ref(); }
     ~lazy_list() { if (m_ptr) m_ptr->dec_ref(); }
 
     lazy_list & operator=(lazy_list const & s) { LEAN_COPY_REF(lazy_list, s); }
@@ -57,5 +82,17 @@ public:
 
     friend T head(lazy_list const & l) { return l.pull()->first; }
     friend lazy_list tail(lazy_list const & l) { return l.pull()->second; }
+
+    template<typename F>
+    static lazy_list mk_lazy_list_core(F && f) {
+        lazy_list r;
+        r.m_ptr = new cell<F>(std::forward<F>(f));
+        r.m_ptr->inc_ref();
+        return r;
+    }
 };
+template<typename T, typename F>
+lazy_list<T> mk_lazy_list(F && f) {
+    return lazy_list<T>::mk_lazy_list_core(std::forward<F>(f));
+}
 }

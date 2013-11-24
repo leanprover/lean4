@@ -107,85 +107,70 @@ tactic assumption_tactic() {
         });
 }
 
-tactic then(tactic t1, tactic t2) {
+tactic then(tactic const & t1, tactic const & t2) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s1) -> proof_state_seq {
-            tactic _t1(t1);
-            return map_append(_t1(env, io, s1), [=](proof_state const & s2) {
+            return map_append(t1(env, io, s1), [=](proof_state const & s2) {
                     check_interrupted();
-                    tactic _t2(t2);
-                    return _t2(env, io, s2);
+                    return t2(env, io, s2);
                 });
         });
 }
 
-tactic orelse(tactic t1, tactic t2) {
+tactic orelse(tactic const & t1, tactic const & t2) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
-            tactic _t1(t1);
-            tactic _t2(t2);
-            return orelse(_t1(env, io, s), _t2(env, io, s));
+            return orelse(t1(env, io, s), t2(env, io, s));
         });
 }
 
-tactic try_for(tactic t, unsigned ms, unsigned check_ms) {
+tactic try_for(tactic const & t, unsigned ms, unsigned check_ms) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
-            tactic _t(t);
-            return timeout(_t(env, io, s), ms, check_ms);
+            return timeout(t(env, io, s), ms, check_ms);
         });
 }
 
-tactic append(tactic t1, tactic t2) {
+tactic append(tactic const & t1, tactic const & t2) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
-            tactic _t1(t1);
-            tactic _t2(t2);
-            return append(_t1(env, io, s), _t2(env, io, s));
+            return append(t1(env, io, s), t2(env, io, s));
         });
 }
 
-tactic interleave(tactic t1, tactic t2) {
+tactic interleave(tactic const & t1, tactic const & t2) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
-            tactic _t1(t1);
-            tactic _t2(t2);
-            return interleave(_t1(env, io, s), _t2(env, io, s));
+            return interleave(t1(env, io, s), t2(env, io, s));
         });
 }
 
-tactic par(tactic t1, tactic t2, unsigned check_ms) {
+tactic par(tactic const & t1, tactic const & t2, unsigned check_ms) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
-            tactic _t1(t1);
-            tactic _t2(t2);
-            return par(_t1(env, io, s), _t2(env, io, s), check_ms);
+            return par(t1(env, io, s), t2(env, io, s), check_ms);
         });
 }
 
-tactic repeat(tactic t) {
+tactic repeat(tactic const & t) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s1) -> proof_state_seq {
             return repeat(s1, [=](proof_state const & s2) {
-                    tactic _t1(t);
-                    return _t1(env, io, s2);
+                    return t(env, io, s2);
                 });
         });
 }
 
-tactic repeat_at_most(tactic t, unsigned k) {
+tactic repeat_at_most(tactic const & t, unsigned k) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s1) -> proof_state_seq {
             return repeat_at_most(s1, [=](proof_state const & s2) {
-                    tactic _t1(t);
-                    return _t1(env, io, s2);
+                    return t(env, io, s2);
                 }, k);
         });
 }
 
-tactic take(tactic t, unsigned k) {
+tactic take(tactic const & t, unsigned k) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
-            tactic _t(t);
-            return take(k, _t(env, io, s));
+            return take(k, t(env, io, s));
         });
 }
 
-tactic force(tactic t) {
+tactic force(tactic const & t) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
-            tactic _t(t);
-            proof_state_seq r = _t(env, io, s);
+            proof_state_seq r = t(env, io, s);
             buffer<proof_state> buf;
             for_each(r, [&](proof_state const & s2) {
                     buf.push_back(s2);

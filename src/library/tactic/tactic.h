@@ -23,7 +23,7 @@ class tactic_cell {
 public:
     tactic_cell():m_rc(0) {}
     virtual ~tactic_cell() {}
-    virtual proof_state_seq operator()(environment const & env, io_state const & io, proof_state const & s) = 0;
+    virtual proof_state_seq operator()(environment const & env, io_state const & io, proof_state const & s) const = 0;
 };
 
 class tactic {
@@ -38,7 +38,7 @@ public:
     tactic & operator=(tactic const & s);
     tactic & operator=(tactic && s);
 
-    proof_state_seq operator()(environment const & env, io_state const & io, proof_state const & s) { return m_ptr->operator()(env, io, s); }
+    proof_state_seq operator()(environment const & env, io_state const & io, proof_state const & s) const { return m_ptr->operator()(env, io, s); }
 
     expr solve(environment const & env, io_state const & io, proof_state const & s);
     expr solve(environment const & env, io_state const & io, context const & ctx, expr const & t);
@@ -49,7 +49,7 @@ class simple_tactic_cell : public tactic_cell {
     F m_f;
 public:
     simple_tactic_cell(F && f):m_f(f) {}
-    virtual proof_state_seq operator()(environment const & env, io_state const & io, proof_state const & s) {
+    virtual proof_state_seq operator()(environment const & env, io_state const & io, proof_state const & s) const {
         return m_f(env, io, s);
     }
 };
@@ -127,14 +127,14 @@ tactic trace_tactic(std::string const & msg);
 /**
    \brief Return a tactic that performs \c t1 followed by \c t2.
 */
-tactic then(tactic t1, tactic t2);
-inline tactic operator<<(tactic t1, tactic t2) { return then(t1, t2); }
+tactic then(tactic const & t1, tactic const & t2);
+inline tactic operator<<(tactic const & t1, tactic const & t2) { return then(t1, t2); }
 /**
    \brief Return a tactic that applies \c t1, and if \c t1 returns the empty sequence of states,
    then applies \c t2.
 */
-tactic orelse(tactic t1, tactic t2);
-inline tactic operator||(tactic t1, tactic t2) { return orelse(t1, t2); }
+tactic orelse(tactic const & t1, tactic const & t2);
+inline tactic operator||(tactic const & t1, tactic const & t2) { return orelse(t1, t2); }
 /**
    \brief Return a tactic that tries the tactic \c t for at most \c ms milliseconds.
    If the tactic does not terminate in \c ms milliseconds, then the empty
@@ -145,32 +145,34 @@ inline tactic operator||(tactic t1, tactic t2) { return orelse(t1, t2); }
    \remark \c check_ms is how often the main thread checks whether the child
    thread finished.
 */
-tactic try_for(tactic t, unsigned ms, unsigned check_ms = 1);
+tactic try_for(tactic const & t, unsigned ms, unsigned check_ms = 1);
 /**
    \brief Execute both tactics and and combines their results.
    The results produced by tactic \c t1 are listed before the ones
    from tactic \c t2.
 */
-tactic append(tactic t1, tactic t2);
-inline tactic operator+(tactic t1, tactic t2) { return append(t1, t2); }
+tactic append(tactic const & t1, tactic const & t2);
+inline tactic operator+(tactic const & t1, tactic const & t2) { return append(t1, t2); }
 /**
    \brief Execute both tactics and and combines their results.
    The results produced by tactics \c t1 and \c t2 are interleaved
    to guarantee fairness.
 */
-tactic interleave(tactic t1, tactic t2);
+tactic interleave(tactic const & t1, tactic const & t2);
 /**
-   \brief Return a tactic that executs \c t1 and \c t2 in parallel.
-   It returns the sequence produced by the first to terminate.
+   \brief Return a tactic that executes \c t1 and \c t2 in parallel.
+   This is similar to \c append and \c interleave. The order of
+   the elements in the output sequence is not deterministic.
+   It depends on how fast \c t1 and \c t2 produce their output.
 
    \remark \c check_ms is how often the main thread checks whether the children
    threads finished.
 */
-tactic par(tactic t1, tactic t2, unsigned check_ms = 1);
+tactic par(tactic const & t1, tactic const & t2, unsigned check_ms = 1);
 /**
    \brief Return a tactic that keeps applying \c t until it fails.
 */
-tactic repeat(tactic t);
+tactic repeat(tactic const & t);
 /**
    \brief Similar to \c repeat, but execute \c t at most \c k times.
 
@@ -178,12 +180,12 @@ tactic repeat(tactic t);
    For example, if tactic \c t always produce a sequence of size 2,
    then tactic \c t will be applied 2^k times.
 */
-tactic repeat_at_most(tactic t, unsigned k);
+tactic repeat_at_most(tactic const & t, unsigned k);
 /**
    \brief Return a tactic that applies \c t, but takes at most \c
    k elements from the sequence produced by \c t.
 */
-tactic take(tactic t, unsigned k);
+tactic take(tactic const & t, unsigned k);
 /**
    \brief Return a tactic that forces \c t to produce all
    the elements in the resultant sequence.
@@ -196,5 +198,5 @@ tactic take(tactic t, unsigned k);
    combining this tactical with \c take if the sequence
    may be infinite or too big.
 */
-tactic force(tactic t);
+tactic force(tactic const & t);
 }

@@ -17,18 +17,18 @@ Author: Leonardo de Moura
 using namespace lean;
 
 tactic loop_tactic() {
-    return mk_tactic([=](environment const &, io_state const &, proof_state const &) -> proof_state_seq {
+    return mk_simple_tactic([=](environment const &, io_state const &, proof_state const & s) -> proof_state {
             while (true) {
                 check_interrupted();
             }
-            return proof_state_seq();
+            return s;
         });
 }
 
 tactic set_tactic(std::atomic<bool> * flag) {
-    return mk_tactic([=](environment const &, io_state const &, proof_state const & s) -> proof_state_seq {
+    return mk_simple_tactic([=](environment const &, io_state const &, proof_state const & s) -> proof_state {
             *flag = true;
-            return to_proof_state_seq(s);
+            return s;
         });
 }
 
@@ -73,13 +73,15 @@ static void tst1() {
                           100),
                   env, io, ctx, q);
     lean_assert(!flag1);
+    std::cout << "Before nested try_for...\n";
     check_failure(orelse(try_for(try_for(loop_tactic(), 10000), 100),
                          set_tactic(&flag1)),
                   env, io, ctx, q);
     lean_assert(flag1);
+    std::cout << "Before parallel 3 parallel tactics...\n";
     std::cout << "proof 2: " << par(loop_tactic(), par(loop_tactic(), t)).solve(env, io, ctx, q) << "\n";
 #endif
-
+    std::cout << "Before hello1 and 2...\n";
     std::cout << "proof 2: " << orelse(then(repeat_at_most(append(trace_tactic("hello1"), trace_tactic("hello2")), 5), fail_tactic()),
                                        t).solve(env, io, ctx, q) << "\n";
     std::cout << "------------------\n";

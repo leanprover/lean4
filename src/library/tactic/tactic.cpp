@@ -39,8 +39,8 @@ expr tactic::solve(environment const & env, io_state const & io, context const &
 }
 
 tactic id_tactic() {
-    return mk_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state_seq {
-            return to_proof_state_seq(s);
+    return mk_simple_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state {
+            return s;
         });
 }
 
@@ -60,12 +60,10 @@ tactic now_tactic() {
 }
 
 tactic trace_tactic(std::string const & msg) {
-    return mk_tactic([=](environment const &, io_state const & io, proof_state const & s) -> proof_state_seq {
-            return mk_proof_state_seq([=]() {
-                    io.get_diagnostic_channel() << msg << "\n";
-                    io.get_diagnostic_channel().get_stream().flush();
-                    return some(mk_pair(s, proof_state_seq()));
-                });
+    return mk_simple_tactic([=](environment const &, io_state const & io, proof_state const & s) -> proof_state {
+            io.get_diagnostic_channel() << msg << "\n";
+            io.get_diagnostic_channel().get_stream().flush();
+            return s;
         });
 }
 
@@ -129,8 +127,6 @@ tactic orelse(tactic t1, tactic t2) {
 }
 
 tactic try_for(tactic t, unsigned ms, unsigned check_ms) {
-    if (check_ms == 0)
-        check_ms = 1;
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
             tactic _t(t);
             return timeout(_t(env, io, s), ms, check_ms);
@@ -165,6 +161,7 @@ tactic repeat(tactic t) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s1) -> proof_state_seq {
             tactic t1(t);
             proof_state_seq r = t1(env, io, s1);
+            // TODO(Leo): pull should be executed lazily
             auto p = r.pull();
             if (!p) {
                 return to_proof_state_seq(s1);
@@ -184,6 +181,7 @@ tactic repeat_at_most(tactic t, unsigned k) {
                 return to_proof_state_seq(s1);
             tactic t1(t);
             proof_state_seq r = t1(env, io, s1);
+            // TODO(Leo): pull should be executed lazily
             auto p = r.pull();
             if (!p) {
                 return to_proof_state_seq(s1);

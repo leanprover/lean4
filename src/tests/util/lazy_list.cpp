@@ -60,7 +60,6 @@ lazy_list<int> loop() {
         });
 }
 
-
 template<typename T>
 void display(lazy_list<T> const & l) {
     int buffer[20000];
@@ -116,8 +115,63 @@ void tst2() {
     lean_assert(i == 2);
 }
 
+static void check(lazy_list<int> const & l, list<int> expected) {
+    display(l);
+    for_each(l, [&](int v) {
+            lean_assert(expected);
+            lean_assert(v == head(expected));
+            expected = tail(expected);
+        });
+    lean_assert(!expected);
+}
+
+static void tst3() {
+    check(repeat(1, [](int v) { if (v > 5) return lazy_list<int>(); else return lazy_list<int>(v+1); }),
+          list<int>(6));
+    // The following repeat produces the following "execution trace".
+    // We use >> << to mark the element being processed
+    // { >>1<< }       1 produces {2, 4}
+    // { >>2<<, 4 }    2 produces {3, 6}
+    // { >>3<<, 6, 4 }  3 produces {4, 8}
+    // { >>4<<, 8, 6, 4 }   4 produces {5, 10}
+    // { >>5<<, 10, 8, 6, 4 }  5 produces {6, 12}
+    // { 6, 12, 10, 8, 6, >>4<< }  skips 6, 12, 10, 8, 6 since they are bigger than 5, and 4 produces {5, 10}
+    // { 6, 12, 10, 8, 6, >>5<<, 10 } 5 produces {6, 12}
+    // { 6, 12, 10, 8, 6, 6, 12, 10 } skips 6, 12, 10 since they are bigger than 5
+    check(repeat(1, [](int v) { if (v > 5) return lazy_list<int>(); else return from(v+1, v+1, 2*(v + 1)); }),
+          list<int>({6, 12, 10, 8, 6, 6, 12, 10}));
+}
+
+static void tst4() {
+    // We use v:k to denote value v was produced with the given k.
+    // When k == 0, the element is not processed.
+    // Here is the execution trace for the following repeat_at_most
+    // { 1:4 }
+    // { 1:3, 2:3 }
+    // { 1:2, 2:2, 2:3 }
+    // { 1:1, 2:1, 2:2, 2:3 }
+    // { 1:0, 2:0, 2:1, 2:2, 2:3 }
+    // { 1:0, 2:0, 2:0, 4:0, 2:2, 2:3 }
+    // { 1:0, 2:0, 2:0, 4:0, 2:1, 4:1, 2:3 }
+    // { 1:0, 2:0, 2:0, 4:0, 2:0, 4:0, 4:1, 2:3 }
+    // { 1:0, 2:0, 2:0, 4:0, 2:0, 4:0, 4:0, 8:0, 2:3 }
+    // { 1:0, 2:0, 2:0, 4:0, 2:0, 4:0, 4:0, 8:0, 2:2, 4:2 }
+    // { 1:0, 2:0, 2:0, 4:0, 2:0, 4:0, 4:0, 8:0, 2:1, 4:1, 4:2 }
+    // { 1:0, 2:0, 2:0, 4:0, 2:0, 4:0, 4:0, 8:0, 2:0, 4:0, 4:1, 4:2 }
+    // { 1:0, 2:0, 2:0, 4:0, 2:0, 4:0, 4:0, 8:0, 2:0, 4:0, 4:0, 8:0, 4:2 }
+    // { 1:0, 2:0, 2:0, 4:0, 2:0, 4:0, 4:0, 8:0, 2:0, 4:0, 4:0, 8:0, 4:1, 8:1 }
+    // { 1:0, 2:0, 2:0, 4:0, 2:0, 4:0, 4:0, 8:0, 2:0, 4:0, 4:0, 8:0, 4:0, 8:0, 8:1 }
+    // { 1:0, 2:0, 2:0, 4:0, 2:0, 4:0, 4:0, 8:0, 2:0, 4:0, 4:0, 8:0, 4:0, 8:0, 8:0, 16:0 }
+    // Thus, the final lazy list is
+    // { 1, 2, 2, 4, 2, 4, 4, 8, 2, 4, 4, 8, 4, 8, 8, 16 }
+    check(repeat_at_most(1, [](int v) { return from(v, v, 2*v); }, 4),
+          list<int>({ 1, 2, 2, 4, 2, 4, 4, 8, 2, 4, 4, 8, 4, 8, 8, 16 }));
+}
+
 int main() {
     tst1();
     tst2();
+    tst3();
+    tst4();
     return has_violations() ? 1 : 0;
 }

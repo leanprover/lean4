@@ -173,6 +173,38 @@ lazy_list<T> map_append(lazy_list<T> const & l, F && f) {
     return map_append_aux(lazy_list<T>(), l, f);
 }
 
+template<typename T, typename F>
+lazy_list<T> repeat(T const & v, F && f) {
+    return mk_lazy_list<T>([=]() {
+            auto p = f(v).pull();
+            if (!p) {
+                return some(mk_pair(v, lazy_list<T>()));
+            } else {
+                check_interrupted();
+                return append(repeat(p->first, f),
+                              map_append(p->second, [=](T const & v2) { return repeat(v2, f); })).pull();
+            }
+        });
+}
+
+template<typename T, typename F>
+lazy_list<T> repeat_at_most(T const & v, F && f, unsigned k) {
+    return mk_lazy_list<T>([=]() {
+            if (k == 0) {
+                return some(mk_pair(v, lazy_list<T>()));
+            } else {
+                auto p = f(v).pull();
+                if (!p) {
+                    return some(mk_pair(v, lazy_list<T>()));
+                } else {
+                    check_interrupted();
+                    return append(repeat_at_most(p->first, f, k - 1),
+                                  map_append(p->second, [=](T const & v2) { return repeat_at_most(v2, f, k - 1); })).pull();
+                }
+            }
+        });
+}
+
 /**
    \brief Return a lazy list such that only the elements that can be computed in
    less than \c ms milliseconds are kept. That is, it uses a timeout for the \c pull

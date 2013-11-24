@@ -29,7 +29,7 @@ public:
     }
     optional(optional && other):m_some(other.m_some) {
         if (m_some)
-            m_value = std::move(other.m_value);
+            new (&m_value) T(std::forward<T>(other.m_value));
     }
     template<typename... Args>
     optional(Args&&... args):m_some(true) {

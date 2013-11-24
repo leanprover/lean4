@@ -23,10 +23,6 @@ public:
     optional(T const & v):m_some(true) {
         new (&m_value) T(v);
     }
-    template<typename... Args>
-    optional(Args&&... args):m_some(true) {
-        new (&m_value) T(args...);
-    }
     optional(optional const & other):m_some(other.m_some) {
         if (m_some)
             new (&m_value) T(other.m_value);
@@ -34,6 +30,10 @@ public:
     optional(optional && other):m_some(other.m_some) {
         if (m_some)
             m_value = std::move(other.m_value);
+    }
+    template<typename... Args>
+    optional(Args&&... args):m_some(true) {
+        new (&m_value) T(args...);
     }
     ~optional() {
         if (m_some)

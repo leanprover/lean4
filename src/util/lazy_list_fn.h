@@ -223,4 +223,64 @@ lazy_list<T> timeout(lazy_list<T> const & l, unsigned ms, unsigned check_ms = g_
             }
         });
 }
+
+/**
+   \brief Similar to interleave, but the heads are computed in parallel.
+   Moreover, when pulling results from the lists, if one finishes before the other,
+   then the other one is interrupted.
+*/
+template<typename T>
+lazy_list<T> par(lazy_list<T> const & l1, lazy_list<T> const & l2, unsigned check_ms = g_small_sleep) {
+    return lazy_list<T>([=]() {
+            typename lazy_list<T>::maybe_pair r1;
+            typename lazy_list<T>::maybe_pair r2;
+            std::atomic<bool>  done1(false);
+            std::atomic<bool>  done2(false);
+            interruptible_thread th1([&]() {
+                    try {
+                        r1 = l1.pull();
+                    } catch (...) {
+                        r1 = typename lazy_list<T>::maybe_pair();
+                    }
+                    done1 = true;
+                });
+            interruptible_thread th2([&]() {
+                    try {
+                        r2 = l2.pull();
+                    } catch (...) {
+                        r2 = typename lazy_list<T>::maybe_pair();
+                    }
+                    done2 = true;
+                });
+            try {
+                std::chrono::milliseconds small(check_ms);
+                while (!done1 && !done2) {
+                    check_interrupted();
+                    std::this_thread::sleep_for(small);
+                }
+                th1.request_interrupt();
+                th2.request_interrupt();
+                th1.join();
+                th2.join();
+                // TODO(Leo): check why the following commented code does not work
+                // if (r1 && r2) {
+                //    lazy_list<T> tail([=]() { return some(mk_pair(r2->first, par(r1->second, r2->second))); });
+                //    return some(mk_pair(r1->first, tail));
+                // } else
+                if (r1) {
+                    return some(mk_pair(r1->first, par(r1->second, l2)));
+                } else if (r2) {
+                    return some(mk_pair(r2->first, par(l1, r2->second)));
+                } else {
+                    return r2;
+                }
+            } catch (...) {
+                th1.request_interrupt();
+                th2.request_interrupt();
+                th1.join();
+                th2.join();
+                throw;
+            }
+        });
+}
 }

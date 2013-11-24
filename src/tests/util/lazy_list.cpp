@@ -97,6 +97,7 @@ static void tst1() {
     display(orelse(filter(take(100, seq(1)), [](int i) { return i < 0; }), take(10, seq(1000))));
 #ifndef __APPLE__
     display(timeout(append(append(take(10, seq(1)), loop()), seq(100)), 5));
+    display(take(10, par(seq(1), loop())));
 #endif
 }
 

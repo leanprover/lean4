@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <utility>
 #include <chrono>
+#include <string>
 #include "util/sstream.h"
 #include "util/interrupt.h"
 #include "util/lazy_list_fn.h"

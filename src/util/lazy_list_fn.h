@@ -262,12 +262,10 @@ lazy_list<T> par(lazy_list<T> const & l1, lazy_list<T> const & l2, unsigned chec
                 th2.request_interrupt();
                 th1.join();
                 th2.join();
-                // TODO(Leo): check why the following commented code does not work
-                // if (r1 && r2) {
-                //    lazy_list<T> tail([=]() { return some(mk_pair(r2->first, par(r1->second, r2->second))); });
-                //    return some(mk_pair(r1->first, tail));
-                // } else
-                if (r1) {
+                if (r1 && r2) {
+                    lazy_list<T> tail(r2->first, par(r1->second, r2->second));
+                    return some(mk_pair(r1->first, tail));
+                } else if (r1) {
                     return some(mk_pair(r1->first, par(r1->second, l2)));
                 } else if (r2) {
                     return some(mk_pair(r2->first, par(l1, r2->second)));

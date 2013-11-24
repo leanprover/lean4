@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include <utility>
+#include "util/interrupt.h"
 #include "util/test.h"
 #include "util/optional.h"
 #include "util/numerics/mpz.h"
@@ -50,6 +51,16 @@ lazy_list<int> mk_simple3() {
     return map_append(from(0, 2, 100), [=](int v) { return from(1, 1, v); });
 }
 
+lazy_list<int> loop() {
+    return lazy_list<int>([=]() {
+            while (true) {
+                check_interrupted();
+            }
+            return some(mk_pair(0, lazy_list<int>()));
+        });
+}
+
+
 template<typename T>
 void display(lazy_list<T> const & l) {
     int buffer[20000];
@@ -84,6 +95,9 @@ static void tst1() {
     display(orelse(lazy_list<int>(), take(10, seq(100))));
     display(orelse(take(0, seq(1)), take(10, seq(100))));
     display(orelse(filter(take(100, seq(1)), [](int i) { return i < 0; }), take(10, seq(1000))));
+#ifndef __APPLE__
+    display(timeout(append(append(take(10, seq(1)), loop()), seq(100)), 5));
+#endif
 }
 
 int main() {

@@ -207,4 +207,25 @@ inline tactic determ(tactic const & t) { return take(t, 1); }
    may be infinite or too big.
 */
 tactic force(tactic const & t);
+/**
+   \brief Return a tactic that applies the predicate \c p to the input state.
+   If \c p returns true, then applies \c t1. Otherwise, applies \c t2.
+*/
+template<typename P>
+tactic cond(P && p, tactic const & t1, tactic const & t2) {
+    return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
+            return mk_proof_state_seq([=]() {
+                    if (p(env, io, s)) {
+                        return t1(env, io, s).pull();
+                    } else {
+                        return t2(env, io, s).pull();
+                    }
+                });
+        });
+}
+/**
+   \brief Syntax-sugar for cond(p, t, id_tactic())
+*/
+template<typename P>
+tactic when(P && p, tactic const & t) { return cond(std::forward<P>(p), t, id_tactic()); }
 }

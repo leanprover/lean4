@@ -92,6 +92,16 @@ static void tst1() {
     std::cout << "------------------\n";
     std::cout << "proof 2: " << force(take(repeat_at_most(interleave(id_tactic(), id_tactic()), 100) << trace_tactic("foo") << t,
                                            5)).solve(env, io, ctx, q) << "\n";
+
+    std::cout << "proof 2: " << then(cond([](environment const &, io_state const &, proof_state const &) { return true; },
+                                          trace_tactic("then branch.1") + trace_tactic("then branch.2"),
+                                          trace_tactic("else branch")),
+                                     t).solve(env, io, ctx, q) << "\n";
+
+    std::cout << "proof 2: " << then(when([](environment const &, io_state const &, proof_state const &) { return true; },
+                                          trace_tactic("when branch.1") + trace_tactic("when branch.2")),
+                                     t).solve(env, io, ctx, q) << "\n";
+
     std::cout << "done\n";
 }
 

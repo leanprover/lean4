@@ -16,7 +16,7 @@ format proof_state::pp(formatter const & fmt, options const & opts) const {
             first = false;
         else
             r += line();
-        r += group(format{format(p.first), colon(), line(), p.second.pp(fmt, opts)});
+        r += p.second.pp(fmt, opts);
     }
     return r;
 }

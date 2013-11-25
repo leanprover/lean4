@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/interrupt.h"
 #include "util/lazy_list_fn.h"
-#include "library/tactic/tactic_exception.h"
 #include "library/tactic/tactic.h"
 
 namespace lean {

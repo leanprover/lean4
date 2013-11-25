@@ -13,11 +13,11 @@ Author: Leonardo de Moura
 #include "library/tactic/proof_builder.h"
 #include "library/tactic/proof_state.h"
 #include "library/tactic/tactic.h"
-#include "library/tactic/tactic_exception.h"
+#include "library/tactic/boolean.h"
 using namespace lean;
 
 tactic loop_tactic() {
-    return mk_simple_tactic([=](environment const &, io_state const &, proof_state const & s) -> proof_state {
+    return mk_tactic1([=](environment const &, io_state const &, proof_state const & s) -> proof_state {
             while (true) {
                 check_interrupted();
             }
@@ -26,8 +26,16 @@ tactic loop_tactic() {
 }
 
 tactic set_tactic(std::atomic<bool> * flag) {
-    return mk_simple_tactic([=](environment const &, io_state const &, proof_state const & s) -> proof_state {
+    return mk_tactic1([=](environment const &, io_state const &, proof_state const & s) -> proof_state {
             *flag = true;
+            return s;
+        });
+}
+
+tactic show_opts_tactic() {
+    return mk_tactic1([=](environment const &, io_state const & io, proof_state const & s) -> proof_state {
+            io.get_diagnostic_channel() << "options: " << io.get_options() << "\n";
+            io.get_diagnostic_channel().get_stream().flush();
             return s;
         });
 }
@@ -90,9 +98,6 @@ static void tst1() {
                                  (trace_tactic("hello3.1") || trace_tactic("hello3.2")) <<
                                  assumption_tactic()).solve(env, io, ctx, q) << "\n";
     std::cout << "------------------\n";
-    std::cout << "proof 2: " << force(take(repeat_at_most(interleave(id_tactic(), id_tactic()), 100) << trace_tactic("foo") << t,
-                                           5)).solve(env, io, ctx, q) << "\n";
-
     std::cout << "proof 2: " << then(cond([](environment const &, io_state const &, proof_state const &) { return true; },
                                           trace_tactic("then branch.1") + trace_tactic("then branch.2"),
                                           trace_tactic("else branch")),
@@ -101,11 +106,42 @@ static void tst1() {
     std::cout << "proof 2: " << then(when([](environment const &, io_state const &, proof_state const &) { return true; },
                                           trace_tactic("when branch.1") + trace_tactic("when branch.2")),
                                      t).solve(env, io, ctx, q) << "\n";
-
+    std::cout << "------------------\n";
+    std::cout << "proof 2: " << (suppress_trace(trace_tactic("msg1") << trace_tactic("msg2")) <<
+                                 trace_tactic("msg3") << t).solve(env, io, ctx, q) << "\n";
+    std::cout << "------------------\n";
+    std::cout << "proof 2: " << (show_opts_tactic() << using_params(show_opts_tactic(), options(name({"pp", "colors"}), true)) <<
+                                 show_opts_tactic() << t).solve(env, io, ctx, q) << "\n";
     std::cout << "done\n";
+}
+
+static void tst2() {
+    environment env;
+    io_state io(options(), mk_simple_formatter());
+    import_all(env);
+    env.add_var("p", Bool);
+    env.add_var("q", Bool);
+    expr p = Const("p");
+    expr q = Const("q");
+    context ctx;
+    ctx = extend(ctx, "H1", p);
+    ctx = extend(ctx, "H2", q);
+    std::cout << "proof: " << (repeat(conj_tactic()) << assumption_tactic()).solve(env, io, ctx, And(And(p, q), And(p, p)))
+              << "\n";
+    // Theorem to be proved
+    expr F   = Implies(p, Implies(q, And(And(p, q), And(p, p))));
+    // Tactic
+    tactic T = repeat(conj_tactic() || imp_tactic()) << assumption_tactic();
+    // Generate proof using tactic
+    expr pr  = T.solve(env, io, context(), F);
+    // Print proof
+    std::cout << pr << "\n";
+    // Check whether the proof is correct or not.
+    std::cout << env.infer_type(pr) << "\n";
 }
 
 int main() {
     tst1();
+    tst2();
     return has_violations() ? 1 : 0;
 }

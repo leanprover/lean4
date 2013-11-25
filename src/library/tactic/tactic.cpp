@@ -39,7 +39,7 @@ expr tactic::solve(environment const & env, io_state const & io, context const &
 }
 
 tactic id_tactic() {
-    return mk_simple_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state {
+    return mk_tactic1([](environment const &, io_state const &, proof_state const & s) -> proof_state {
             return s;
         });
 }
@@ -60,7 +60,7 @@ tactic now_tactic() {
 }
 
 tactic trace_tactic(std::string const & msg) {
-    return mk_simple_tactic([=](environment const &, io_state const & io, proof_state const & s) -> proof_state {
+    return mk_tactic1([=](environment const &, io_state const & io, proof_state const & s) -> proof_state {
             io.get_diagnostic_channel() << msg << "\n";
             io.get_diagnostic_channel().get_stream().flush();
             return s;
@@ -75,8 +75,17 @@ tactic trace_tactic(char const * msg) {
     return trace_tactic(std::string(msg));
 }
 
+tactic suppress_trace(tactic const & t) {
+    return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
+            io_state new_io(io);
+            std::shared_ptr<output_channel> out(new string_output_channel());
+            new_io.set_diagnostic_channel(out);
+            return t(env, new_io, s);
+        });
+}
+
 tactic assumption_tactic() {
-    return mk_simple_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state {
+    return mk_tactic1([](environment const &, io_state const &, proof_state const & s) -> proof_state {
             list<std::pair<name, expr>> proofs;
             goals new_goals = map_goals(s, [&](name const & ng, goal const & g) -> goal {
                     expr const & c  = g.get_conclusion();
@@ -84,7 +93,7 @@ tactic assumption_tactic() {
                     for (auto const & p : g.get_hypotheses()) {
                         check_interrupted();
                         if (p.second == c) {
-                            pr = mk_constant(p.first);
+                            pr = mk_constant(p.first, p.second);
                             break;
                         }
                     }
@@ -119,6 +128,14 @@ tactic then(tactic const & t1, tactic const & t2) {
 tactic orelse(tactic const & t1, tactic const & t2) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
             return orelse(t1(env, io, s), t2(env, io, s));
+        });
+}
+
+tactic using_params(tactic const & t, options const & opts) {
+    return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
+            io_state new_io(io);
+            new_io.set_options(join(opts, io.get_options()));
+            return t(env, new_io, s);
         });
 }
 
@@ -165,18 +182,6 @@ tactic repeat_at_most(tactic const & t, unsigned k) {
 tactic take(tactic const & t, unsigned k) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
             return take(k, t(env, io, s));
-        });
-}
-
-tactic force(tactic const & t) {
-    return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
-            proof_state_seq r = t(env, io, s);
-            buffer<proof_state> buf;
-            for_each(r, [&](proof_state const & s2) {
-                    buf.push_back(s2);
-                    check_interrupted();
-                });
-            return to_lazy(to_list(buf.begin(), buf.end()));
         });
 }
 }

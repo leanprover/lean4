@@ -41,6 +41,26 @@ format goal::pp(formatter const & fmt, options const & opts) const {
     return group(r);
 }
 
+name goal::mk_unique_hypothesis_name(name const & suggestion) const {
+    name n = suggestion;
+    unsigned i = 0;
+    while (true) {
+        bool ok = true;
+        for (auto const & p : m_hypotheses) {
+            if (n == p.first) {
+                ok = false;
+                break;
+            }
+        }
+        if (ok) {
+            return n;
+        } else {
+            i++;
+            n = name(suggestion, i);
+        }
+    }
+}
+
 goal_proof_fn::goal_proof_fn(std::vector<expr> && consts):
     m_constants(consts) {
 }

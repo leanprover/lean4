@@ -71,8 +71,9 @@ inline proof_state_seq mk_proof_state_seq(F && f) {
 }
 
 /**
-   \brief Create a tactic using the given functor.
+   \brief Create a tactic that produces exactly one output state.
 
+   The functor f must contain the method:
    <code>
    proof_state operator()(environment const & env, io_state const & io, proof_state const & s)
    </code>
@@ -80,10 +81,34 @@ inline proof_state_seq mk_proof_state_seq(F && f) {
    \remark The functor is invoked on demand.
 */
 template<typename F>
-tactic mk_simple_tactic(F && f) {
+tactic mk_tactic1(F && f) {
     return
         mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) {
                 return mk_proof_state_seq([=]() { return some(mk_pair(f(env, io, s), proof_state_seq())); });
+            });
+}
+
+/**
+   \brief Create a tactic that produces at most one output state.
+
+   The functor f must contain the method:
+   <code>
+   optional<proof_state> operator()(environment const & env, io_state const & io, proof_state const & s)
+   </code>
+
+   \remark The functor is invoked on demand.
+*/
+template<typename F>
+tactic mk_tactic01(F && f) {
+    return
+        mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) {
+                return mk_proof_state_seq([=]() {
+                        auto r = f(env, io, s);
+                        if (r)
+                            return some(mk_pair(*r, proof_state_seq()));
+                        else
+                            return proof_state_seq::maybe_pair();
+                    });
             });
 }
 
@@ -123,6 +148,10 @@ tactic trace_tactic(char const * msg);
 class sstream;
 tactic trace_tactic(sstream const & msg);
 tactic trace_tactic(std::string const & msg);
+/**
+   \brief Create a tactic that applies \c t, but suppressing diagnostic messages.
+*/
+tactic suppress_trace(tactic const & t);
 
 /**
    \brief Return a tactic that performs \c t1 followed by \c t2.
@@ -135,6 +164,11 @@ inline tactic operator<<(tactic const & t1, tactic const & t2) { return then(t1,
 */
 tactic orelse(tactic const & t1, tactic const & t2);
 inline tactic operator||(tactic const & t1, tactic const & t2) { return orelse(t1, t2); }
+/**
+   \brief Return a tactic that appies \c t, but using the additional set of options
+   \c opts.
+*/
+tactic using_params(tactic const & t, options const & opts);
 /**
    \brief Return a tactic that tries the tactic \c t for at most \c ms milliseconds.
    If the tactic does not terminate in \c ms milliseconds, then the empty
@@ -194,19 +228,6 @@ tactic take(tactic const & t, unsigned k);
    \brief Syntax sugar for take(t, 1)
 */
 inline tactic determ(tactic const & t) { return take(t, 1); }
-/**
-   \brief Return a tactic that forces \c t to produce all
-   the elements in the resultant sequence.
-
-   \remark proof_state_seq is a lazy-list, that is, their
-   elements are produced on demand. This tactic forces
-   all the elements in the sequence to be computed eagerly.
-
-   \remark The sequence may be infinite. So, consider
-   combining this tactical with \c take if the sequence
-   may be infinite or too big.
-*/
-tactic force(tactic const & t);
 /**
    \brief Return a tactic that applies the predicate \c p to the input state.
    If \c p returns true, then applies \c t1. Otherwise, applies \c t2.

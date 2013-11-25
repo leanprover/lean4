@@ -25,6 +25,7 @@ public:
     expr const & get_conclusion() const { return m_conclusion; }
     operator bool() const { return m_conclusion; }
     format pp(formatter const & fmt, options const & opts) const;
+    name mk_unique_hypothesis_name(name const & suggestion) const;
 };
 
 /**

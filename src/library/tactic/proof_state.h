@@ -25,7 +25,7 @@ enum class precision {
 };
 
 precision mk_union(precision p1, precision p2);
-bool trust_proofs(precision p);
+bool trust_proof(precision p);
 bool trust_cex(precision p);
 
 class proof_state {
@@ -61,6 +61,16 @@ public:
     metavar_env const & get_menv() const { lean_assert(m_ptr); return m_ptr->m_menv; }
     proof_builder const & get_proof_builder() const { lean_assert(m_ptr); return m_ptr->m_proof_builder; }
     cex_builder const & get_cex_builder() const { lean_assert(m_ptr); return m_ptr->m_cex_builder; }
+    /**
+        \brief Return true iff this state does not have any goals left, and
+        the precision is \c Precise or \c Over
+    */
+    bool is_proof_final_state() const;
+    /**
+       \brief Return true iff this state has only one goal of the form <tt> |- false</tt>,
+       and the precision is \c Precise or \c Under
+    */
+    bool is_cex_final_state() const;
     format pp(formatter const & fmt, options const & opts) const;
 };
 

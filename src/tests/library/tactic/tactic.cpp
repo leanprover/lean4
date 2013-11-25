@@ -42,12 +42,8 @@ tactic show_opts_tactic() {
 }
 
 static void check_failure(tactic t, environment const & env, io_state const & io, context const & ctx, expr const & ty) {
-    try {
-        t.solve(env, io, ctx, ty);
-        lean_unreachable();
-    } catch (exception & ex) {
-        std::cout << "expected error: " << ex.what() << "\n";
-    }
+    solve_result r(t.solve(env, io, ctx, ty));
+    lean_assert(r.kind() == solve_result_kind::Failure);
 }
 
 static void tst1() {
@@ -64,14 +60,14 @@ static void tst1() {
     proof_state s = to_proof_state(env, ctx, p);
     std::cout << s.pp(mk_simple_formatter(), options()) << "\n";
     tactic t = then(assumption_tactic(), now_tactic());
-    std::cout << "proof 1: " << t.solve(env, io, s) << "\n";
-    std::cout << "proof 2: " << t.solve(env, io, ctx, q) << "\n";
+    std::cout << "proof 1: " << t.solve(env, io, s).get_proof() << "\n";
+    std::cout << "proof 2: " << t.solve(env, io, ctx, q).get_proof() << "\n";
     check_failure(now_tactic(), env, io, ctx, q);
-    std::cout << "proof 2: " << orelse(fail_tactic(), t).solve(env, io, ctx, q) << "\n";
+    std::cout << "proof 2: " << orelse(fail_tactic(), t).solve(env, io, ctx, q).get_proof() << "\n";
 
 #ifndef __APPLE__
     check_failure(try_for(loop_tactic(), 100), env, io, ctx, q);
-    std::cout << "proof 1: " << try_for(t, 10000).solve(env, io, s) << "\n";
+    std::cout << "proof 1: " << try_for(t, 10000).solve(env, io, s).get_proof() << "\n";
     check_failure(try_for(orelse(try_for(loop_tactic(), 10000),
                                  trace_tactic(std::string("hello world"))),
                           100),
@@ -88,31 +84,31 @@ static void tst1() {
                   env, io, ctx, q);
     lean_assert(flag1);
     std::cout << "Before parallel 3 parallel tactics...\n";
-    std::cout << "proof 2: " << par(loop_tactic(), par(loop_tactic(), t)).solve(env, io, ctx, q) << "\n";
+    std::cout << "proof 2: " << par(loop_tactic(), par(loop_tactic(), t)).solve(env, io, ctx, q).get_proof() << "\n";
 #endif
     std::cout << "Before hello1 and 2...\n";
     std::cout << "proof 2: " << orelse(then(repeat_at_most(append(trace_tactic("hello1"), trace_tactic("hello2")), 5), fail_tactic()),
-                                       t).solve(env, io, ctx, q) << "\n";
+                                       t).solve(env, io, ctx, q).get_proof() << "\n";
     std::cout << "------------------\n";
     std::cout << "proof 2: " << ((trace_tactic("hello1.1") + trace_tactic("hello1.2") + trace_tactic("hello1.3") + trace_tactic("hello1.4")) <<
                                  (trace_tactic("hello2.1") + trace_tactic("hello2.2")) <<
                                  (trace_tactic("hello3.1") || trace_tactic("hello3.2")) <<
-                                 assumption_tactic()).solve(env, io, ctx, q) << "\n";
+                                 assumption_tactic()).solve(env, io, ctx, q).get_proof() << "\n";
     std::cout << "------------------\n";
     std::cout << "proof 2: " << then(cond([](environment const &, io_state const &, proof_state const &) { return true; },
                                           trace_tactic("then branch.1") + trace_tactic("then branch.2"),
                                           trace_tactic("else branch")),
-                                     t).solve(env, io, ctx, q) << "\n";
+                                     t).solve(env, io, ctx, q).get_proof() << "\n";
 
     std::cout << "proof 2: " << then(when([](environment const &, io_state const &, proof_state const &) { return true; },
                                           trace_tactic("when branch.1") + trace_tactic("when branch.2")),
-                                     t).solve(env, io, ctx, q) << "\n";
+                                     t).solve(env, io, ctx, q).get_proof() << "\n";
     std::cout << "------------------\n";
     std::cout << "proof 2: " << (suppress_trace(trace_tactic("msg1") << trace_tactic("msg2")) <<
-                                 trace_tactic("msg3") << t).solve(env, io, ctx, q) << "\n";
+                                 trace_tactic("msg3") << t).solve(env, io, ctx, q).get_proof() << "\n";
     std::cout << "------------------\n";
     std::cout << "proof 2: " << (show_opts_tactic() << using_params(show_opts_tactic(), options(name({"pp", "colors"}), true)) <<
-                                 show_opts_tactic() << t).solve(env, io, ctx, q) << "\n";
+                                 show_opts_tactic() << t).solve(env, io, ctx, q).get_proof() << "\n";
     std::cout << "done\n";
 }
 
@@ -131,15 +127,16 @@ static void tst2() {
     context ctx;
     ctx = extend(ctx, "H1", p);
     ctx = extend(ctx, "H2", q);
-    std::cout << "proof: " << (repeat(conj_tactic()) << assumption_tactic()).solve(env, io, ctx, And(And(p, q), And(p, p)))
+    std::cout << "proof: " << (repeat(conj_tactic()) << assumption_tactic()).solve(env, io, ctx, And(And(p, q), And(p, p))).get_proof()
               << "\n";
     std::cout << "-------------\n";
     // Theorem to be proved
     expr F   = Implies(And(p, And(r, s)), Implies(q, And(And(p, q), And(r, p))));
     // Tactic
-    tactic T = repeat(conj_tactic() || conj_hyp_tactic() || imp_tactic()) << trace_state_tactic() << assumption_tactic();
+    tactic T = append(id_tactic() << assumption_tactic(),
+                      repeat(conj_tactic() || conj_hyp_tactic() || imp_tactic()) << trace_state_tactic() << assumption_tactic());
     // Generate proof using tactic
-    expr pr  = T.solve(env, io, context(), F);
+    expr pr  = T.solve(env, io, context(), F).get_proof();
     // Print proof
     std::cout << pr << "\n";
     // Check whether the proof is correct or not.

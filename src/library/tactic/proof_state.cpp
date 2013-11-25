@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/sstream.h"
+#include "kernel/builtin.h"
 #include "library/tactic/proof_state.h"
 
 namespace lean {
@@ -15,7 +16,7 @@ precision mk_union(precision p1, precision p2) {
     else return precision::UnderOver;
 }
 
-bool trust_proofs(precision p) {
+bool trust_proof(precision p) {
     return p == precision::Precise || p == precision::Over;
 }
 
@@ -34,6 +35,19 @@ format proof_state::pp(formatter const & fmt, options const & opts) const {
         r += p.second.pp(fmt, opts);
     }
     return r;
+}
+
+bool proof_state::is_proof_final_state() const {
+    return empty(get_goals()) && trust_proof(get_precision());
+}
+
+bool proof_state::is_cex_final_state() const {
+    if (length(get_goals()) == 1 && trust_cex(get_precision())) {
+        goal const & g = head(get_goals()).second;
+        return is_false(g.get_conclusion()) && empty(g.get_hypotheses());
+    } else {
+        return false;
+    }
 }
 
 static name g_main("main");

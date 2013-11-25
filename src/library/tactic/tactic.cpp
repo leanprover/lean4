@@ -13,6 +13,24 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic.h"
 
 namespace lean {
+solve_result::solve_result(expr const & pr):m_kind(solve_result_kind::Proof) { new (&m_proof) expr(pr); }
+solve_result::solve_result(counterexample const & cex):m_kind(solve_result_kind::Counterexample) { new (&m_cex) counterexample(cex); }
+solve_result::solve_result(list<proof_state> const & fs):m_kind(solve_result_kind::Failure) { new (&m_failures) list<proof_state>(fs); }
+solve_result::solve_result(solve_result const & r):m_kind(r.m_kind) {
+    switch (m_kind) {
+    case solve_result_kind::Proof:          new (&m_proof) expr(r.m_proof); break;
+    case solve_result_kind::Counterexample: new (&m_cex) counterexample(r.m_cex); break;
+    case solve_result_kind::Failure:        new (&m_failures) list<proof_state>(r.m_failures); break;
+    }
+}
+solve_result::~solve_result() {
+    switch (m_kind) {
+    case solve_result_kind::Proof:          m_proof.~expr(); break;
+    case solve_result_kind::Counterexample: m_cex.~counterexample(); break;
+    case solve_result_kind::Failure:        m_failures.~list<proof_state>(); break;
+    }
+}
+
 tactic & tactic::operator=(tactic const & s) {
     LEAN_COPY_REF(tactic, s);
 }
@@ -21,20 +39,34 @@ tactic & tactic::operator=(tactic && s) {
     LEAN_MOVE_REF(tactic, s);
 }
 
-expr tactic::solve(environment const & env, io_state const & io, proof_state const & s) {
-    proof_state_seq r   = operator()(env, io, s);
-    auto p = r.pull();
-    if (!p)
-        throw exception("tactic failed to solve input");
-    proof_state final = p->first;
-    if (!trust_proofs(final.get_precision()))
-        throw exception("tactic failed to solve input, final state is not precise");
-    assignment a(final.get_menv());
-    proof_map  m;
-    return final.get_proof_builder()(m, a);
+solve_result tactic::solve(environment const & env, io_state const & io, proof_state const & s1) {
+    proof_state_seq r   = operator()(env, io, s1);
+    list<proof_state> failures;
+    while (true) {
+        check_interrupted();
+        auto p = r.pull();
+        if (!p) {
+            return solve_result(failures);
+        } else {
+            proof_state s2 = p->first;
+            r              = p->second;
+            try {
+                if (s2.is_proof_final_state()) {
+                    assignment a(s2.get_menv());
+                    proof_map  m;
+                    return solve_result(s2.get_proof_builder()(m, a));
+                } else if (s2.is_cex_final_state()) {
+                    assignment a(s2.get_menv());
+                    name goal_name(head(s2.get_goals()).first);
+                    return solve_result(s2.get_cex_builder()(goal_name, optional<counterexample>(), a));
+                }
+            } catch (exception & ex) {}
+            failures = cons(s2, failures);
+        }
+    }
 }
 
-expr tactic::solve(environment const & env, io_state const & io, context const & ctx, expr const & t) {
+solve_result tactic::solve(environment const & env, io_state const & io, context const & ctx, expr const & t) {
     proof_state s = to_proof_state(env, ctx, t);
     return solve(env, io, s);
 }

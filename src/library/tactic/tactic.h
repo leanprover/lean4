@@ -36,6 +36,30 @@ public:
     }
 };
 
+enum class solve_result_kind { Proof, Counterexample, Failure };
+/**
+   \brief Result for the solve method in the tactic class.
+   The result may be a proof, a counterexample, or a list of unsolved proof_states.
+*/
+class solve_result {
+    solve_result_kind m_kind;
+    union {
+        expr              m_proof;
+        counterexample    m_cex;
+        list<proof_state> m_failures;
+    };
+public:
+    solve_result(expr const & pr);
+    solve_result(counterexample const & cex);
+    solve_result(list<proof_state> const & fs);
+    solve_result(solve_result const & r);
+    ~solve_result();
+    solve_result_kind kind() const { return m_kind; }
+    expr get_proof() const { lean_assert(kind() == solve_result_kind::Proof); return m_proof; }
+    counterexample get_cex() const { lean_assert(kind() == solve_result_kind::Counterexample); return m_cex; }
+    list<proof_state> get_failures() const { lean_assert(kind() == solve_result_kind::Failure); return m_failures; }
+};
+
 class tactic {
 protected:
     tactic_cell * m_ptr;
@@ -50,8 +74,8 @@ public:
 
     proof_state_seq operator()(environment const & env, io_state const & io, proof_state const & s) const { return m_ptr->operator()(env, io, s); }
 
-    expr solve(environment const & env, io_state const & io, proof_state const & s);
-    expr solve(environment const & env, io_state const & io, context const & ctx, expr const & t);
+    solve_result solve(environment const & env, io_state const & io, proof_state const & s);
+    solve_result solve(environment const & env, io_state const & io, context const & ctx, expr const & t);
 };
 
 /**

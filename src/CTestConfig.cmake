@@ -18,7 +18,7 @@ set(VALGRIND_COMMAND_OPTIONS "-q --tool=memcheck --leak-check=yes --workaround-g
 set(MEMORYCHECK_COMMAND_OPTIONS "-q --tool=memcheck --leak-check=yes --workaround-gcc296-bugs=yes --num-callers=50 --trace-children=yes --leak-check=full --track-origins=yes --gen-suppressions=all")
 
 set(CTEST_DROP_METHOD "http")
-set(CTEST_DROP_SITE "cmacslab2.modck.cs.cmu.edu")
+set(CTEST_DROP_SITE "borel.modck.cs.cmu.edu")
 set(CTEST_DROP_LOCATION "/CDash-2-0-2/submit.php?project=Lean")
 set(CTEST_DROP_SITE_CDASH TRUE)
 

@@ -158,6 +158,17 @@
 }
 
 {
+   # This entry suppresses a known false positive in luajit 2.0
+   LuaJIT_Bug3
+   Memcheck:Addr4
+   obj:*luajit-5.1*
+   fun:lua_pushstring
+   ...
+   fun:lua_pcall
+   ...
+}
+
+{
    # This entry Suppresses memory leaks at awk. We use awk at doc/lua/test.sh and doc/lua/test_single.sh
    AWK_Bug1
    Memcheck:Leak
@@ -166,3 +177,4 @@
    ...
    fun:(below main)
 }
+

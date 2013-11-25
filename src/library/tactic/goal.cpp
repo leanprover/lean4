@@ -17,13 +17,13 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-goal::goal(list<std::pair<name, expr>> const & h, expr const & c):m_hypotheses(h), m_conclusion(c) {}
+goal::goal(hypotheses const & hs, expr const & c):m_hypotheses(hs), m_conclusion(c) {}
 
 format goal::pp(formatter const & fmt, options const & opts) const {
     unsigned indent  = get_pp_indent(opts);
     bool unicode     = get_pp_unicode(opts);
     format turnstile = unicode ? format("\u22A2") /* ⊢ */ : format("|-");
-    buffer<std::pair<name, expr>> tmp;
+    buffer<hypothesis> tmp;
     to_buffer(m_hypotheses, tmp);
     bool first = true;
     format r;
@@ -105,7 +105,7 @@ std::pair<goal, goal_proof_fn> to_goal(environment const & env, context const & 
     buffer<context_entry> entries;
     for (auto const & e : ctx)
         entries.push_back(e);
-    buffer<std::pair<name, expr>> hypotheses;  // normalized names and types of the entries processed so far
+    buffer<hypothesis> hypotheses;  // normalized names and types of the entries processed so far
     buffer<expr> bodies;                       // normalized bodies of the entries processed so far
     std::vector<expr> consts;                  // cached consts[i] == mk_constant(names[i], hypotheses[i])
     auto replace_vars = [&](expr const & e, unsigned offset) -> expr {

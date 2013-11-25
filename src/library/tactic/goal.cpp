@@ -44,6 +44,7 @@ format goal::pp(formatter const & fmt, options const & opts) const {
 name goal::mk_unique_hypothesis_name(name const & suggestion) const {
     name n = suggestion;
     unsigned i = 0;
+    // TODO(Leo): investigate if this method is a performance bottleneck
     while (true) {
         bool ok = true;
         for (auto const & p : m_hypotheses) {

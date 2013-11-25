@@ -6,6 +6,8 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <utility>
+#include <algorithm>
+#include "util/rc.h"
 #include "util/interrupt.h"
 #include "util/optional.h"
 #include "library/tactic/goal.h"
@@ -14,22 +16,32 @@ Author: Leonardo de Moura
 namespace lean {
 typedef list<std::pair<name, goal>> goals;
 class proof_state {
-    goals                       m_goals;
-    metavar_env                 m_menv;
-    proof_builder               m_proof_builder;
+    struct cell {
+        MK_LEAN_RC();
+        goals                       m_goals;
+        metavar_env                 m_menv;
+        proof_builder               m_proof_builder;
+        void dealloc() { delete this; }
+        cell():m_rc(1) {}
+        cell(goals const & gs, metavar_env const & menv, proof_builder const & p):
+            m_rc(1), m_goals(gs), m_menv(menv), m_proof_builder(p) {}
+    };
+    cell * m_ptr;
 public:
-    proof_state() {}
-    proof_state(list<std::pair<name, goal>> const & gs, metavar_env const & menv, proof_builder const & p):
-        m_goals(gs), m_menv(menv), m_proof_builder(p) {}
-    proof_state(proof_state const & s, goals const & gs, proof_builder const & p):
-        m_goals(gs), m_menv(s.m_menv), m_proof_builder(p) {}
-    friend void swap(proof_state & s1, proof_state & s2);
-    list<std::pair<name, goal>> const & get_goals() const { return m_goals; }
-    metavar_env const & get_menv() const { return m_menv; }
-    proof_builder const & get_proof_builder() const { return m_proof_builder; }
+    proof_state():m_ptr(new cell()) {}
+    proof_state(proof_state const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
+    proof_state(proof_state && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
+    proof_state(goals const & gs, metavar_env const & menv, proof_builder const & p):m_ptr(new cell(gs, menv, p)) {}
+    proof_state(proof_state const & s, goals const & gs, proof_builder const & p):m_ptr(new cell(gs, s.m_ptr->m_menv, p)) {}
+    ~proof_state() { if (m_ptr) m_ptr->dec_ref(); }
+    friend void swap(proof_state & a, proof_state & b) { std::swap(a.m_ptr, b.m_ptr); }
+    proof_state & operator=(proof_state const & s) { LEAN_COPY_REF(proof_state, s); }
+    proof_state & operator=(proof_state && s) { LEAN_MOVE_REF(proof_state, s); }
+    goals const & get_goals() const { lean_assert(m_ptr); return m_ptr->m_goals; }
+    metavar_env const & get_menv() const { lean_assert(m_ptr); return m_ptr->m_menv; }
+    proof_builder const & get_proof_builder() const { lean_assert(m_ptr); return m_ptr->m_proof_builder; }
     format pp(formatter const & fmt, options const & opts) const;
 };
-void swap(proof_state & s1, proof_state & s2);
 
 proof_state to_proof_state(environment const & env, context const & ctx, expr const & t);
 

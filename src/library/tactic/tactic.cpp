@@ -50,11 +50,11 @@ tactic fail_tactic() {
 }
 
 tactic now_tactic() {
-    return mk_tactic([](environment const &, io_state const &, proof_state const & s) -> proof_state_seq {
+    return mk_tactic01([](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             if (!empty(s.get_goals()))
-                return proof_state_seq();
+                return none_proof_state();
             else
-                return to_proof_state_seq(s);
+                return some(s);
         });
 }
 

@@ -97,8 +97,6 @@ public:
     }
 };
 
-template<typename T>
-optional<T> some(T && t) {
-    return optional<T>(std::forward<T>(t));
-}
+template<typename T> optional<T> some(T const & t) { return optional<T>(t); }
+template<typename T> optional<T> some(T && t) { return optional<T>(std::forward<T>(t)); }
 }

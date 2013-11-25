@@ -71,6 +71,7 @@ tactic conj_tactic(bool all) {
             }
         });
 }
+
 tactic imp_tactic(name const & H_name, bool all) {
     return mk_tactic01([=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             expr impfn = mk_implies_fn();
@@ -109,6 +110,7 @@ tactic imp_tactic(name const & H_name, bool all) {
             }
         });
 }
+
 tactic conj_hyp_tactic(bool all) {
     return mk_tactic01([=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             expr andfn = mk_and_fn();
@@ -146,10 +148,10 @@ tactic conj_hyp_tactic(bool all) {
                 proof_builder new_p = mk_proof_builder([=](proof_map const & m, environment const & env, assignment const & a) -> expr {
                         proof_map new_m(m);
                         for (auto const & info : proof_info) {
-                            name const & goal_name    = info.first;
-                            auto const & expanded_hyp = info.second;
-                            expr pr                   = find(m, goal_name); // proof for the new conclusion
-                            for (auto const & H_name_prop : expanded_hyp) {
+                            name const & goal_name     = info.first;
+                            auto const & expanded_hyps = info.second;
+                            expr pr                    = find(m, goal_name); // proof for the new conclusion
+                            for (auto const & H_name_prop : expanded_hyps) {
                                 name const & H_name   = H_name_prop.first;
                                 expr const & H_prop   = H_name_prop.second;
                                 expr const & H_1      = mk_constant(name(H_name, 1));

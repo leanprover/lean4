@@ -26,6 +26,16 @@ public:
     virtual proof_state_seq operator()(environment const & env, io_state const & io, proof_state const & s) const = 0;
 };
 
+template<typename F>
+class tactic_cell_tpl : public tactic_cell {
+    F m_f;
+public:
+    tactic_cell_tpl(F && f):m_f(f) {}
+    virtual proof_state_seq operator()(environment const & env, io_state const & io, proof_state const & s) const {
+        return m_f(env, io, s);
+    }
+};
+
 class tactic {
 protected:
     tactic_cell * m_ptr;
@@ -44,16 +54,6 @@ public:
     expr solve(environment const & env, io_state const & io, context const & ctx, expr const & t);
 };
 
-template<typename F>
-class simple_tactic_cell : public tactic_cell {
-    F m_f;
-public:
-    simple_tactic_cell(F && f):m_f(f) {}
-    virtual proof_state_seq operator()(environment const & env, io_state const & io, proof_state const & s) const {
-        return m_f(env, io, s);
-    }
-};
-
 /**
    \brief Create a tactic using the given functor.
    The functor must contain the operator:
@@ -63,7 +63,7 @@ public:
    </code>
 */
 template<typename F>
-tactic mk_tactic(F && f) { return tactic(new simple_tactic_cell<F>(std::forward<F>(f))); }
+tactic mk_tactic(F && f) { return tactic(new tactic_cell_tpl<F>(std::forward<F>(f))); }
 
 template<typename F>
 inline proof_state_seq mk_proof_state_seq(F && f) {
@@ -110,19 +110,6 @@ tactic mk_tactic01(F && f) {
                             return proof_state_seq::maybe_pair();
                     });
             });
-}
-
-inline proof_state_seq to_proof_state_seq(proof_state const & s) {
-    return mk_proof_state_seq([=]() { return some(mk_pair(s, proof_state_seq())); });
-}
-
-inline proof_state_seq to_proof_state_seq(proof_state_seq::maybe_pair const & p) {
-    lean_assert(p);
-    return mk_proof_state_seq([=]() { return some(mk_pair(p->first, p->second)); });
-}
-
-inline proof_state_seq to_proof_state_seq(proof_state const & s, proof_state_seq const & t) {
-    return mk_proof_state_seq([=]() { return some(mk_pair(s, t)); });
 }
 
 /**

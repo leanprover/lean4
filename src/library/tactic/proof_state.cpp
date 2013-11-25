@@ -11,7 +11,7 @@ namespace lean {
 format proof_state::pp(formatter const & fmt, options const & opts) const {
     format r;
     bool first = true;
-    for (auto const & p : m_goals) {
+    for (auto const & p : get_goals()) {
         if (first)
             first = false;
         else
@@ -19,12 +19,6 @@ format proof_state::pp(formatter const & fmt, options const & opts) const {
         r += p.second.pp(fmt, opts);
     }
     return r;
-}
-
-void swap(proof_state & s1, proof_state & s2) {
-    swap(s1.m_goals, s2.m_goals);
-    swap(s1.m_menv, s2.m_menv);
-    swap(s1.m_proof_builder, s2.m_proof_builder);
 }
 
 static name g_main("main");

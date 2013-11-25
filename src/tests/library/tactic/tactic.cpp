@@ -128,10 +128,11 @@ static void tst2() {
     ctx = extend(ctx, "H2", q);
     std::cout << "proof: " << (repeat(conj_tactic()) << assumption_tactic()).solve(env, io, ctx, And(And(p, q), And(p, p)))
               << "\n";
+    std::cout << "-------------\n";
     // Theorem to be proved
     expr F   = Implies(p, Implies(q, And(And(p, q), And(p, p))));
     // Tactic
-    tactic T = repeat(conj_tactic() || imp_tactic()) << assumption_tactic();
+    tactic T = repeat(conj_tactic() || imp_tactic()) << trace_state_tactic() << assumption_tactic();
     // Generate proof using tactic
     expr pr  = T.solve(env, io, context(), F);
     // Print proof

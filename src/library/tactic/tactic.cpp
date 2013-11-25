@@ -74,6 +74,16 @@ tactic trace_tactic(char const * msg) {
     return trace_tactic(std::string(msg));
 }
 
+tactic trace_state_tactic() {
+    return mk_tactic1([=](environment const &, io_state const & io, proof_state const & s) -> proof_state {
+            options opts = io.get_options();
+            format fmt   = s.pp(io.get_formatter(), opts);
+            io.get_diagnostic_channel() << mk_pair(fmt, opts) << "\n";
+            io.get_diagnostic_channel().get_stream().flush();
+            return s;
+        });
+}
+
 tactic suppress_trace(tactic const & t) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
             io_state new_io(io);

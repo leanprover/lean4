@@ -149,6 +149,10 @@ class sstream;
 tactic trace_tactic(sstream const & msg);
 tactic trace_tactic(std::string const & msg);
 /**
+   \brief Return a tactic that just displays the input state in the diagnostic channel.
+*/
+tactic trace_state_tactic();
+/**
    \brief Create a tactic that applies \c t, but suppressing diagnostic messages.
 */
 tactic suppress_trace(tactic const & t);

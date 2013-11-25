@@ -16,17 +16,36 @@ Author: Leonardo de Moura
 namespace lean {
 typedef splay_map<name, expr, name_quick_cmp> proof_map;
 
+/**
+   \brief Return the proof for the goal named \c n in the \c proof_map \c m.
+   Throw an exception if \c m does not contain a proof for \c n.
+*/
 expr find(proof_map const & m, name const & n);
 
+/**
+   \brief Base class for functors that build a proof for the main goal based on
+   the proofs of the subgoals.
+*/
 class proof_builder_cell {
     void dealloc() { delete this; }
     MK_LEAN_RC();
 public:
     proof_builder_cell():m_rc(0) {}
     virtual ~proof_builder_cell() {}
-    virtual expr operator()(proof_map const & p, environment const & env, assignment const & a) const = 0;
+    virtual expr operator()(proof_map const & p, assignment const & a) const = 0;
 };
 
+template<typename F>
+class proof_builder_tpl : public proof_builder_cell {
+    F m_f;
+public:
+    proof_builder_tpl(F && f):m_f(f) {}
+    virtual expr operator()(proof_map const & p, assignment const & a) const { return m_f(p, a); }
+};
+
+/**
+   \brief Smart pointer for a proof builder functor.
+*/
 class proof_builder {
 protected:
     proof_builder_cell * m_ptr;
@@ -40,19 +59,11 @@ public:
     proof_builder & operator=(proof_builder const & s) { LEAN_COPY_REF(proof_builder, s); }
     proof_builder & operator=(proof_builder && s) { LEAN_MOVE_REF(proof_builder, s); }
 
-    expr operator()(proof_map const & p, environment const & env, assignment const & a) const { return m_ptr->operator()(p, env, a); }
-};
-
-template<typename F>
-class simple_proof_builder : public proof_builder_cell {
-    F m_f;
-public:
-    simple_proof_builder(F && f):m_f(f) {}
-    virtual expr operator()(proof_map const & p, environment const & env, assignment const & a) const { return m_f(p, env, a); }
+    expr operator()(proof_map const & p, assignment const & a) const { return m_ptr->operator()(p, a); }
 };
 
 template<typename F>
 proof_builder mk_proof_builder(F && f) {
-    return proof_builder(new simple_proof_builder<F>(std::forward<F>(f)));
+    return proof_builder(new proof_builder_tpl<F>(std::forward<F>(f)));
 }
 }

@@ -52,8 +52,8 @@ tactic conj_tactic(bool all) {
                 }
             }
             if (found) {
-                proof_builder p     = s.get_proof_builder();
-                proof_builder new_p = mk_proof_builder([=](proof_map const & m, environment const & env, assignment const & a) -> expr {
+                proof_builder pr_builder     = s.get_proof_builder();
+                proof_builder new_pr_builder = mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
                         proof_map new_m(m);
                         for (auto nc : proof_info) {
                             name const & n = nc.first;
@@ -62,10 +62,10 @@ tactic conj_tactic(bool all) {
                             new_m.erase(name(n, 1));
                             new_m.erase(name(n, 2));
                         }
-                        return p(new_m, env, a);
+                        return pr_builder(new_m, a);
                     });
                 goals new_goals = to_list(new_goals_buf.begin(), new_goals_buf.end());
-                return some_proof_state(s, new_goals, new_p);
+                return some_proof_state(s, new_goals, new_pr_builder);
             } else {
                 return none_proof_state();
             }
@@ -90,8 +90,8 @@ tactic imp_tactic(name const & H_name, bool all) {
                     }
                 });
             if (found) {
-                proof_builder p     = s.get_proof_builder();
-                proof_builder new_p = mk_proof_builder([=](proof_map const & m, environment const & env, assignment const & a) -> expr {
+                proof_builder pr_builder     = s.get_proof_builder();
+                proof_builder new_pr_builder = mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
                         proof_map new_m(m);
                         for (auto const & info : proof_info) {
                             name const & goal_name = std::get<0>(info);
@@ -102,9 +102,9 @@ tactic imp_tactic(name const & H_name, bool all) {
                             expr const & c_pr      = find(m, goal_name);   // proof for the new conclusion
                             new_m.insert(goal_name, Discharge(h, c, Fun(hyp_name, h, c_pr)));
                         }
-                        return p(new_m, env, a);
+                        return pr_builder(new_m, a);
                     });
-                return some_proof_state(s, new_goals, new_p);
+                return some_proof_state(s, new_goals, new_pr_builder);
             } else {
                 return none_proof_state();
             }
@@ -144,8 +144,8 @@ tactic conj_hyp_tactic(bool all) {
                     }
                 });
             if (found) {
-                proof_builder p     = s.get_proof_builder();
-                proof_builder new_p = mk_proof_builder([=](proof_map const & m, environment const & env, assignment const & a) -> expr {
+                proof_builder pr_builder     = s.get_proof_builder();
+                proof_builder new_pr_builder = mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
                         proof_map new_m(m);
                         for (auto const & info : proof_info) {
                             name const & goal_name     = info.first;
@@ -163,9 +163,9 @@ tactic conj_hyp_tactic(bool all) {
                             }
                             new_m.insert(goal_name, pr);
                         }
-                        return p(new_m, env, a);
+                        return pr_builder(new_m, a);
                     });
-                return some_proof_state(s, new_goals, new_p);
+                return some_proof_state(s, new_goals, new_pr_builder);
             } else {
                 return none_proof_state();
             }

@@ -29,7 +29,7 @@ expr tactic::solve(environment const & env, io_state const & io, proof_state con
     proof_state final = p->first;
     assignment a(final.get_menv());
     proof_map  m;
-    return final.get_proof_builder()(m, env, a);
+    return final.get_proof_builder()(m, a);
 }
 
 expr tactic::solve(environment const & env, io_state const & io, context const & ctx, expr const & t) {
@@ -113,15 +113,15 @@ tactic assumption_tactic() {
                         return g;
                     }
                 });
-            proof_builder p     = s.get_proof_builder();
-            proof_builder new_p = mk_proof_builder([=](proof_map const & m, environment const & env, assignment const & a) -> expr {
+            proof_builder pr_builder     = s.get_proof_builder();
+            proof_builder new_pr_builder = mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
                     proof_map new_m(m);
                     for (auto const & np : proofs) {
                         new_m.insert(np.first, np.second);
                     }
-                    return p(new_m, env, a);
+                    return pr_builder(new_m, a);
                 });
-            return proof_state(s, new_goals, new_p);
+            return proof_state(s, new_goals, new_pr_builder);
         });
 }
 

@@ -24,16 +24,16 @@ format proof_state::pp(formatter const & fmt, options const & opts) const {
 static name g_main("main");
 
 proof_state to_proof_state(environment const & env, context const & ctx, expr const & t) {
-    auto gfn         = to_goal(env, ctx, t);
-    goal g           = gfn.first;
-    goal_proof_fn fn = gfn.second;
-    proof_builder p  = mk_proof_builder(
-        [=](proof_map const & m, environment const &, assignment const &) -> expr {
+    auto gfn                 = to_goal(env, ctx, t);
+    goal g                   = gfn.first;
+    goal_proof_fn fn         = gfn.second;
+    proof_builder pr_builder = mk_proof_builder(
+        [=](proof_map const & m, assignment const &) -> expr {
             expr p = find(m, g_main);
             if (!p)
                 throw exception(sstream() << "failed to find proof for '" << g_main << "' goal");
             return fn(p);
         });
-    return proof_state(goals(mk_pair(g_main, g)), metavar_env(), p);
+    return proof_state(goals(mk_pair(g_main, g)), metavar_env(), pr_builder);
 }
 }

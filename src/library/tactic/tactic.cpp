@@ -27,6 +27,8 @@ expr tactic::solve(environment const & env, io_state const & io, proof_state con
     if (!p)
         throw exception("tactic failed to solve input");
     proof_state final = p->first;
+    if (!trust_proofs(final.get_precision()))
+        throw exception("tactic failed to solve input, final state is not precise");
     assignment a(final.get_menv());
     proof_map  m;
     return final.get_proof_builder()(m, a);

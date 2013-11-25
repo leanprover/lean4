@@ -8,6 +8,21 @@ Author: Leonardo de Moura
 #include "library/tactic/proof_state.h"
 
 namespace lean {
+precision mk_union(precision p1, precision p2) {
+    if (p1 == p2) return p1;
+    else if (p1 == precision::Precise) return p2;
+    else if (p2 == precision::Precise) return p1;
+    else return precision::UnderOver;
+}
+
+bool trust_proofs(precision p) {
+    return p == precision::Precise || p == precision::Over;
+}
+
+bool trust_cex(precision p) {
+    return p == precision::Precise || p == precision::Under;
+}
+
 format proof_state::pp(formatter const & fmt, options const & opts) const {
     format r;
     bool first = true;
@@ -29,11 +44,14 @@ proof_state to_proof_state(environment const & env, context const & ctx, expr co
     goal_proof_fn fn         = gfn.second;
     proof_builder pr_builder = mk_proof_builder(
         [=](proof_map const & m, assignment const &) -> expr {
-            expr p = find(m, g_main);
-            if (!p)
-                throw exception(sstream() << "failed to find proof for '" << g_main << "' goal");
-            return fn(p);
+            return fn(find(m, g_main));
         });
-    return proof_state(goals(mk_pair(g_main, g)), metavar_env(), pr_builder);
+    cex_builder cex_builder = mk_cex_builder(
+        [](name const & n, optional<counterexample> const & cex, assignment const &) -> counterexample {
+            if (n != g_main || !cex)
+                throw exception(sstream() << "failed to build counterexample for '" << g_main << "' goal");
+            return *cex;
+        });
+    return proof_state(goals(mk_pair(g_main, g)), metavar_env(), pr_builder, cex_builder);
 }
 }

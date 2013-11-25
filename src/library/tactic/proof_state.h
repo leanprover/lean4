@@ -12,34 +12,55 @@ Author: Leonardo de Moura
 #include "util/optional.h"
 #include "library/tactic/goal.h"
 #include "library/tactic/proof_builder.h"
+#include "library/tactic/cex_builder.h"
 
 namespace lean {
 typedef list<std::pair<name, goal>> goals;
+
+enum class precision {
+    Precise,
+    Under,   // counter-examples can be trusted
+    Over,    // proofs can be trusted
+    UnderOver // proof_state is garbage: it was produced using under and over approximation steps.
+};
+
+precision mk_union(precision p1, precision p2);
+bool trust_proofs(precision p);
+bool trust_cex(precision p);
+
 class proof_state {
     struct cell {
         MK_LEAN_RC();
+        precision                   m_precision;
         goals                       m_goals;
         metavar_env                 m_menv;
         proof_builder               m_proof_builder;
+        cex_builder                 m_cex_builder;
         void dealloc() { delete this; }
         cell():m_rc(1) {}
-        cell(goals const & gs, metavar_env const & menv, proof_builder const & p):
-            m_rc(1), m_goals(gs), m_menv(menv), m_proof_builder(p) {}
+        cell(precision prec, goals const & gs, metavar_env const & menv, proof_builder const & p, cex_builder const & c):
+            m_rc(1), m_precision(prec), m_goals(gs), m_menv(menv), m_proof_builder(p), m_cex_builder(c) {}
+        cell(goals const & gs, metavar_env const & menv, proof_builder const & p, cex_builder const & c):
+            m_rc(1), m_precision(precision::Precise), m_goals(gs), m_menv(menv), m_proof_builder(p), m_cex_builder(c) {}
     };
     cell * m_ptr;
 public:
     proof_state():m_ptr(new cell()) {}
     proof_state(proof_state const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     proof_state(proof_state && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
-    proof_state(goals const & gs, metavar_env const & menv, proof_builder const & p):m_ptr(new cell(gs, menv, p)) {}
-    proof_state(proof_state const & s, goals const & gs, proof_builder const & p):m_ptr(new cell(gs, s.m_ptr->m_menv, p)) {}
+    proof_state(goals const & gs, metavar_env const & menv, proof_builder const & p, cex_builder const & c):
+        m_ptr(new cell(gs, menv, p, c)) {}
+    proof_state(proof_state const & s, goals const & gs, proof_builder const & p):
+        m_ptr(new cell(s.get_precision(), gs, s.get_menv(), p, s.get_cex_builder())) {}
     ~proof_state() { if (m_ptr) m_ptr->dec_ref(); }
     friend void swap(proof_state & a, proof_state & b) { std::swap(a.m_ptr, b.m_ptr); }
     proof_state & operator=(proof_state const & s) { LEAN_COPY_REF(proof_state, s); }
     proof_state & operator=(proof_state && s) { LEAN_MOVE_REF(proof_state, s); }
+    precision get_precision() const { lean_assert(m_ptr); return m_ptr->m_precision; }
     goals const & get_goals() const { lean_assert(m_ptr); return m_ptr->m_goals; }
     metavar_env const & get_menv() const { lean_assert(m_ptr); return m_ptr->m_menv; }
     proof_builder const & get_proof_builder() const { lean_assert(m_ptr); return m_ptr->m_proof_builder; }
+    cex_builder const & get_cex_builder() const { lean_assert(m_ptr); return m_ptr->m_cex_builder; }
     format pp(formatter const & fmt, options const & opts) const;
 };
 

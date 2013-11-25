@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "util/interrupt.h"
 #include "kernel/builtin.h"
+#include "kernel/kernel_exception.h"
 #include "library/all/all.h"
 #include "library/tactic/goal.h"
 #include "library/tactic/proof_builder.h"
@@ -121,8 +122,12 @@ static void tst2() {
     import_all(env);
     env.add_var("p", Bool);
     env.add_var("q", Bool);
+    env.add_var("r", Bool);
+    env.add_var("s", Bool);
     expr p = Const("p");
     expr q = Const("q");
+    expr r = Const("r");
+    expr s = Const("s");
     context ctx;
     ctx = extend(ctx, "H1", p);
     ctx = extend(ctx, "H2", q);
@@ -130,9 +135,9 @@ static void tst2() {
               << "\n";
     std::cout << "-------------\n";
     // Theorem to be proved
-    expr F   = Implies(p, Implies(q, And(And(p, q), And(p, p))));
+    expr F   = Implies(And(p, And(r, s)), Implies(q, And(And(p, q), And(r, p))));
     // Tactic
-    tactic T = repeat(conj_tactic() || imp_tactic()) << trace_state_tactic() << assumption_tactic();
+    tactic T = repeat(conj_tactic() || conj_hyp_tactic() || imp_tactic()) << trace_state_tactic() << assumption_tactic();
     // Generate proof using tactic
     expr pr  = T.solve(env, io, context(), F);
     // Print proof

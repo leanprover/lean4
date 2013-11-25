@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 #include "kernel/builtin.h"
 #include "kernel/abstract.h"
+#include "kernel/occurs.h"
 #include "library/basic_thms.h"
 #include "library/tactic/goal.h"
 #include "library/tactic/proof_builder.h"
@@ -86,6 +87,65 @@ tactic imp_tactic(name const & H_name, bool all) {
                             expr const & c      = arg(old_c, 2); // new conclusion: consequent of the old conclusion
                             expr const & c_pr   = find(m, gn);   // proof for the new conclusion
                             new_m.insert(gn, Discharge(h, c, Fun(hn, h, c_pr)));
+                        }
+                        return p(new_m, env, a);
+                    });
+                return some(proof_state(s, new_goals, new_p));
+            } else {
+                return optional<proof_state>();
+            }
+        });
+}
+tactic conj_hyp_tactic(bool all) {
+    return mk_tactic01([=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
+            expr andfn = mk_and_fn();
+            bool found = false;
+            list<std::pair<name, list<std::pair<name, expr>>>> proof_info; // goal name, list(hypothesis name, hypothesis prop)
+            goals new_goals = map_goals(s, [&](name const & ng, goal const & g) -> goal {
+                    if (all || !found) {
+                        buffer<std::pair<name, expr>> new_hyp_buf;
+                        list<std::pair<name, expr>> proof_info_data;
+                        for (auto const & p : g.get_hypotheses()) {
+                            name const & H_name = p.first;
+                            expr const & H_prop = p.second;
+                            if ((all || !found) && is_app_of(H_prop, andfn)) {
+                                found       = true;
+                                proof_info_data.emplace_front(H_name, H_prop);
+                                new_hyp_buf.emplace_back(name(H_name, 1), arg(H_prop, 1));
+                                new_hyp_buf.emplace_back(name(H_name, 2), arg(H_prop, 2));
+                            } else {
+                                new_hyp_buf.push_back(p);
+                            }
+                        }
+                        if (proof_info_data) {
+                            proof_info.emplace_front(ng, proof_info_data);
+                            return goal(to_list(new_hyp_buf.begin(), new_hyp_buf.end()), g.get_conclusion());
+                        } else {
+                            return g;
+                        }
+                    } else {
+                        return g;
+                    }
+                });
+            if (found) {
+                proof_builder p     = s.get_proof_builder();
+                proof_builder new_p = mk_proof_builder([=](proof_map const & m, environment const & env, assignment const & a) -> expr {
+                        proof_map new_m(m);
+                        for (auto const & info : proof_info) {
+                            name const & goal_name    = info.first;
+                            auto const & expanded_hyp = info.second;
+                            expr pr                   = find(m, goal_name); // proof for the new conclusion
+                            for (auto const & H_name_prop : expanded_hyp) {
+                                name const & H_name   = H_name_prop.first;
+                                expr const & H_prop   = H_name_prop.second;
+                                expr const & H_1      = mk_constant(name(H_name, 1), arg(H_prop, 1));
+                                expr const & H_2      = mk_constant(name(H_name, 2), arg(H_prop, 2));
+                                if (occurs(H_1, pr))
+                                    pr = Let(H_1, Conjunct1(arg(H_prop, 1), arg(H_prop, 2), mk_constant(H_name)), pr);
+                                if (occurs(H_2, pr))
+                                    pr = Let(H_2, Conjunct2(arg(H_prop, 1), arg(H_prop, 2), mk_constant(H_name)), pr);
+                            }
+                            new_m.insert(goal_name, pr);
                         }
                         return p(new_m, env, a);
                     });

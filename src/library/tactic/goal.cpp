@@ -47,7 +47,7 @@ name goal::mk_unique_hypothesis_name(name const & suggestion) const {
     while (true) {
         bool ok = true;
         for (auto const & p : m_hypotheses) {
-            if (n == p.first) {
+            if (is_prefix_of(n, p.first)) {
                 ok = false;
                 break;
             }

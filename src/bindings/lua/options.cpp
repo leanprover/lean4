@@ -20,6 +20,26 @@ DECL_UDATA(options)
 
 static int mk_options(lua_State * L) {
     options r;
+    int nargs = lua_gettop(L);
+    if (nargs % 2 != 0)
+        throw exception("options expects an even number of arguments");
+    for (int i = 1; i < nargs; i+=2) {
+        name k = to_name_ext(L, i);
+        auto it = get_option_declarations().find(k);
+        if (it == get_option_declarations().end()) {
+            throw exception(sstream() << "unknown option '" << k.to_string().c_str() << "'");
+        } else {
+            option_declaration const & d = it->second;
+            switch (d.kind()) {
+            case BoolOption:      r = r.update(k, lua_toboolean(L, i+1)); break;
+            case IntOption:       r = r.update(k, static_cast<int>(lua_tointeger(L, i+1))); break;
+            case UnsignedOption:  r = r.update(k, static_cast<unsigned>(lua_tointeger(L, i+1))); break;
+            case DoubleOption:    r = r.update(k, static_cast<double>(lua_tonumber(L, i+1))); break;
+            case StringOption:    r = r.update(k, lua_tostring(L, i+1)); break;
+            default:              throw exception(sstream() << "unsupported option kind for '" << k.to_string().c_str() << "'");
+            }
+        }
+    }
     return push_options(L, r);
 }
 

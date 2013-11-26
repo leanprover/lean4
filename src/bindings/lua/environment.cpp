@@ -185,7 +185,7 @@ static int environment_objects_core(lua_State * L, bool local) {
     lua_pushinteger(L, 0);      // upvalue(2): index
     lua_pushinteger(L, env->get_num_objects(local)); // upvalue(3): size
     lua_pushboolean(L, local);  // upvalue(4): local flag
-    lua_pushcclosure(L, &environment_next_object, 4); // create closure with 4 upvalues
+    lua_pushcclosure(L, &safe_function<environment_next_object>, 4); // create closure with 4 upvalues
     return 1;
 }
 

@@ -242,7 +242,7 @@ static int expr_args(lua_State * L) {
     expr & e = to_app(L, 1);
     push_expr(L, e);         // upvalue(1): expr
     lua_pushinteger(L, 0);   // upvalue(2): index
-    lua_pushcclosure(L, &expr_next_arg, 2); // create closure with 2 upvalues
+    lua_pushcclosure(L, &safe_function<expr_next_arg>, 2); // create closure with 2 upvalues
     return 1;
 }
 

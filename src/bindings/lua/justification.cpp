@@ -67,7 +67,7 @@ static int justification_children(lua_State * L) {
         i = i + 1;
     }
     lua_pushinteger(L, 1);
-    lua_pushcclosure(L, &justification_next_child, 2); // create closure with 2 upvalues
+    lua_pushcclosure(L, &safe_function<justification_next_child>, 2); // create closure with 2 upvalues
     return 1;
 }
 

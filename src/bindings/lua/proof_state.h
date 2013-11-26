@@ -6,9 +6,9 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <lua.hpp>
-#include "library/tactic/goal.h"
+#include "library/tactic/proof_state.h"
 namespace lean {
-UDATA_DEFS_CORE(hypotheses)
-UDATA_DEFS(goal)
-void open_goal(lua_State * L);
+UDATA_DEFS_CORE(goals)
+UDATA_DEFS(proof_state)
+void open_proof_state(lua_State * L);
 }

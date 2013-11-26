@@ -6,8 +6,9 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <lua.hpp>
+#include "library/tactic/proof_builder.h"
 namespace lean {
-UDATA_DEFS(proof_map)
+UDATA_DEFS_CORE(proof_map)
 UDATA_DEFS(assignment)
 UDATA_DEFS(proof_builder)
 void open_proof_builder(lua_State * L);

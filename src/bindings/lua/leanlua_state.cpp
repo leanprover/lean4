@@ -35,6 +35,7 @@ Author: Leonardo de Moura
 #include "bindings/lua/metavar_env.h"
 #include "bindings/lua/goal.h"
 #include "bindings/lua/proof_builder.h"
+#include "bindings/lua/cex_builder.h"
 #include "bindings/lua/io_state.h"
 #include "bindings/lua/type_inferer.h"
 #include "bindings/lua/frontend_lean.h"
@@ -189,6 +190,7 @@ struct leanlua_state::imp {
         open_type_inferer(m_state);
         open_goal(m_state);
         open_proof_builder(m_state);
+        open_cex_builder(m_state);
         open_frontend_lean(m_state);
         open_thread(m_state);
         open_interrupt(m_state);

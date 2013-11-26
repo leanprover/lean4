@@ -101,7 +101,7 @@ static name mk_unique_name(name_set & s, name const & suggestion) {
 std::pair<goal, goal_proof_fn> to_goal(environment const & env, context const & ctx, expr const & t) {
     type_inferer inferer(env);
     if (!inferer.is_proposition(t, ctx))
-        throw exception("to goal failed, type is not a proposition");
+        throw exception("to_goal failed, type is not a proposition");
     name_set used_names = collect_used_names(ctx, t);
     buffer<context_entry> entries;
     for (auto const & e : ctx)

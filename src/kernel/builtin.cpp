@@ -66,6 +66,9 @@ public:
 };
 expr const Bool = mk_value(*(new bool_type_value()));
 expr mk_bool_type() { return Bool; }
+bool is_bool(expr const & e) {
+    return e == Bool || (is_constant(e) && const_name(e) == to_value(Bool).get_name());
+}
 // =======================================
 
 // =======================================

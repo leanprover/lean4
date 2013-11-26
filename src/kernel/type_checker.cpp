@@ -69,12 +69,12 @@ class type_checker::imp {
     expr check_type(expr const & e, expr const & s, context const & ctx) {
         if (is_type(e))
             return e;
-        if (e == Bool)
+        if (is_bool(e))
             return Type();
         expr u = normalize(e, ctx);
         if (is_type(u))
             return u;
-        if (u == Bool)
+        if (is_bool(u))
             return Type();
         if (has_metavar(u) && m_menv) {
             justification jst = mk_type_expected_justification(ctx, s);

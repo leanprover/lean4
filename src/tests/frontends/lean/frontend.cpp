@@ -136,13 +136,13 @@ static void tst9() {
     f.add_definition("x", Bool, True);
     object const & obj = f.get_object("x");
     lean_assert(obj.get_name() == "x");
-    lean_assert(obj.get_type() == Bool);
+    lean_assert(is_bool(obj.get_type()));
     lean_assert(obj.get_value() == True);
     try { f.get_object("y"); lean_unreachable(); }
     catch (exception &) {}
     lean_assert(!f.find_object("y"));
     f.add_definition("y", False);
-    lean_assert(f.find_object("y").get_type() == Bool);
+    lean_assert(is_bool(f.find_object("y").get_type()));
     lean_assert(f.has_object("y"));
     lean_assert(!f.has_object("z"));
     bool found = false;

@@ -31,6 +31,7 @@ extern expr const TypeU;
 /** \brief Return the Lean Boolean type. */
 expr mk_bool_type();
 extern expr const Bool;
+bool is_bool(expr const & e);
 
 /** \brief Create a Lean Boolean value (true/false) */
 expr mk_bool_value(bool v);

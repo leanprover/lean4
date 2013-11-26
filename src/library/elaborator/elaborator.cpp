@@ -659,7 +659,7 @@ class elaborator::imp {
        an equality constraint.
     */
     bool is_actual_lower(expr const & a) {
-        return is_type(a) || is_metavar(a) || a == Bool || (is_pi(a) && is_actual_lower(abst_body(a)));
+        return is_type(a) || is_metavar(a) || is_bool(a) || (is_pi(a) && is_actual_lower(abst_body(a)));
     }
 
     /**
@@ -942,7 +942,7 @@ class elaborator::imp {
         return
             is_convertible(c) &&
             is_metavar(convertible_to(c)) &&
-            (convertible_from(c) == Bool || is_type(convertible_from(c)));
+            (is_bool(convertible_from(c)) || is_type(convertible_from(c)));
     }
 
     /** \brief Process constraint of the form <tt>ctx |- a << ?m</tt>, where \c a is Type or Bool */
@@ -952,7 +952,7 @@ class elaborator::imp {
             // We approximate and only consider the most useful ones.
             justification new_jst(new destruct_justification(c));
             unification_constraint new_c;
-            if (a == Bool) {
+            if (is_bool(a)) {
                 expr choices[5] = { Bool, Type(), Type(level() + 1), TypeM, TypeU };
                 new_c = mk_choice_constraint(get_context(c), b, 5, choices, new_jst);
             } else {
@@ -1111,7 +1111,7 @@ class elaborator::imp {
             process_simple_ho_match(ctx, b, a, false, c))
             return true;
 
-        if (!eq && a == Bool && is_type(b))
+        if (!eq && is_bool(a) && is_type(b))
             return true;
 
         if (a.kind() == b.kind()) {
@@ -1254,9 +1254,9 @@ class elaborator::imp {
             push_front(mk_max_constraint(get_context(c), new_lhs1, new_lhs2, new_rhs, new_jst));
             return true;
         }
-        if (lhs1 == Bool)
+        if (is_bool(lhs1))
             lhs1 = Type();
-        if (lhs2 == Bool)
+        if (is_bool(lhs2))
             lhs2 = Type();
         if (is_type(lhs1) && is_type(lhs2)) {
             justification new_jst(new normalize_justification(c));

@@ -34,7 +34,7 @@ static void tst1() {
     env.add_var("f", Int >> (Int >> Int));
     lean_assert(type_of(f(a, a)) == Int);
     lean_assert(type_of(f(a)) == Int >> Int);
-    lean_assert(type_of(And(a, f(a))) == Bool);
+    lean_assert(is_bool(type_of(And(a, f(a)))));
     lean_assert(type_of(Fun({a, Int}, iAdd(a, iVal(1)))) == Int >> Int);
     lean_assert(type_of(Let({a, iVal(10)}, iAdd(a, b))) == Int);
     lean_assert(type_of(Type()) == Type(level() + 1));

@@ -38,12 +38,12 @@ class type_inferer::imp {
     expr check_type(expr const & e, expr const & s, context const & ctx) {
         if (is_type(e))
             return e;
-        if (e == Bool)
+        if (is_bool(e))
             return Type();
         expr u = normalize(e, ctx);
         if (is_type(u))
             return u;
-        if (u == Bool)
+        if (is_bool(u))
             return Type();
         if (has_metavar(u) && m_menv) {
             justification jst = mk_type_expected_justification(ctx, s);
@@ -237,6 +237,15 @@ public:
         m_menv           = nullptr;
         m_menv_timestamp = 0;
     }
+
+    bool is_proposition(expr const & e, context const & ctx) {
+        buffer<unification_constraint> uc;
+        expr t = operator()(e, ctx, nullptr, uc);
+        if (is_bool(t))
+            return true;
+        else
+            return is_bool(normalize(e, ctx));
+    }
 };
 type_inferer::type_inferer(environment const & env):m_ptr(new imp(env)) {}
 type_inferer::~type_inferer() {}
@@ -248,9 +257,7 @@ expr type_inferer::operator()(expr const & e, context const & ctx) {
     return operator()(e, ctx, nullptr, uc);
 }
 bool type_inferer::is_proposition(expr const & e, context const & ctx) {
-    expr t = operator()(e, ctx);
-    // TODO(Leo): consider replacing the following test with is_convertible(t, Bool);
-    return t == Bool;
+    return m_ptr->is_proposition(e, ctx);
 }
 void type_inferer::clear() { m_ptr->clear(); }
 }

@@ -60,5 +60,4 @@ void open_cex_builder(lua_State * L) {
     SET_GLOBAL_FUN(cex_builder_pred, "is_cex_builder");
     SET_GLOBAL_FUN(mk_cex_builder, "cex_builder");
 }
-
 }

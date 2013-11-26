@@ -9,12 +9,15 @@ Author: Leonardo de Moura
 #include "library/io_state.h"
 
 namespace lean {
+UDATA_DEFS(io_state)
+void open_io_state(lua_State * L);
 /**
    \brief Auxiliary class for temporarily setting the Lua registry of a Lua state
    with a Lean io_state object.
 */
 class set_io_state {
     lua_State * m_state;
+    io_state *  m_prev;
 public:
     set_io_state(lua_State * L, io_state & st);
     ~set_io_state();

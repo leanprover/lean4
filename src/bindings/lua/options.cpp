@@ -31,7 +31,7 @@ static int mk_options(lua_State * L) {
         } else {
             option_declaration const & d = it->second;
             switch (d.kind()) {
-            case BoolOption:      r = r.update(k, lua_toboolean(L, i+1)); break;
+            case BoolOption:      r = r.update(k, static_cast<bool>(lua_toboolean(L, i+1))); break;
             case IntOption:       r = r.update(k, static_cast<int>(lua_tointeger(L, i+1))); break;
             case UnsignedOption:  r = r.update(k, static_cast<unsigned>(lua_tointeger(L, i+1))); break;
             case DoubleOption:    r = r.update(k, static_cast<double>(lua_tonumber(L, i+1))); break;

@@ -1,0 +1,6 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: a
+  Assumed: b
+Int::add a b
+a + b

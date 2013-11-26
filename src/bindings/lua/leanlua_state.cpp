@@ -196,6 +196,7 @@ struct leanlua_state::imp {
         open_frontend_lean(m_state);
         open_thread(m_state);
         open_interrupt(m_state);
+        open_io_state(m_state);
         dostring(g_leanlua_extra);
     }
 
@@ -253,14 +254,25 @@ void leanlua_state::dostring(char const * str, environment & env, io_state & st)
 
 static std::mutex g_print_mutex;
 
+static void print(io_state * ios, bool reg, char const * msg) {
+    if (ios) {
+        if (reg)
+            regular(*ios) << msg;
+        else
+            diagnostic(*ios) << msg;
+    } else {
+        std::cout << msg;
+    }
+}
+
 /** \brief Thread safe version of print function */
-static int print(lua_State * L) {
-    io_state * io = get_io_state(L);
+static int print(lua_State * L, int start, bool reg = false) {
+    std::lock_guard<std::mutex> lock(g_print_mutex);
+    io_state * ios = get_io_state(L);
     int n = lua_gettop(L);
     int i;
     lua_getglobal(L, "tostring");
-    std::lock_guard<std::mutex> lock(g_print_mutex);
-    for (i = 1; i <= n; i++) {
+    for (i = start; i <= n; i++) {
         char const * s;
         size_t l;
         lua_pushvalue(L, -1);
@@ -269,23 +281,23 @@ static int print(lua_State * L) {
         s = lua_tolstring(L, -1, &l);
         if (s == NULL)
             throw exception("'to_string' must return a string to 'print'");
-        if (i > 1) {
-            if (io)
-                regular(*io) << "\t";
-            else
-                std::cout << "\t";
+        if (i > start) {
+            print(ios, reg, "\t");
         }
-        if (io)
-            regular(*io) << s;
-        else
-            std::cout << s;
+        print(ios, reg, s);
         lua_pop(L, 1);
     }
-    if (io)
-        regular(*io) << endl;
-    else
-        std::cout << std::endl;
+    print(ios, reg, "\n");
     return 0;
+}
+
+int print(lua_State * L, io_state & ios, int start, bool reg) {
+    set_io_state set(L, ios);
+    return print(L, start, reg);
+}
+
+static int print(lua_State * L) {
+    return print(L, 1, true);
 }
 
 /** \brief Redefine some functions from the Lua library */

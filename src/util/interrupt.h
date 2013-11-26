@@ -43,6 +43,21 @@ void sleep_for(unsigned ms, unsigned step_ms = g_small_sleep);
 */
 class interruptible_thread {
     std::atomic<std::atomic_bool*> m_flag_addr;
+    /*
+      The following auxiliary field is used to workaround
+      a nasty bug that occurs in some platforms.
+      On cygwin, it seems that the thread local storage is
+      deleted before the object m_thread is destructed.
+      Then, the main thread may corrupt memory if it invokes
+      request_interrupt after the child thread referenced
+      by m_thread has terminated.
+      The method request_interrupt access the child thread
+      local storage pointed by m_flag_addr.
+      To avoid this bug, we use the a simple hack,
+      we reset m_flag_addr to m_dummy_addr before terminating
+      the execution of the main thread.
+    */
+    std::atomic_bool               m_dummy_addr;
     std::thread                    m_thread;
     static std::atomic_bool *      get_flag_addr();
 public:
@@ -53,6 +68,7 @@ public:
             [&](Function&& fun, Args&&... args) {
                 m_flag_addr.store(get_flag_addr());
                 fun(std::forward<Args>(args)...);
+                m_flag_addr.store(&m_dummy_addr); // see comment before m_dummy_addr
             },
             std::forward<Function>(fun),
             std::forward<Args>(args)...)

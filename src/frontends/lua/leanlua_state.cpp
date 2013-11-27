@@ -222,30 +222,8 @@ static void copy_values(lua_State * src, int first, int last, lua_State * tgt) {
             break;
         }
         case LUA_TUSERDATA:
-            if (is_expr(src, i)) {
-                push_expr(tgt, to_expr(src, i));
-            } else if (is_context(src, i)) {
-                push_context(tgt, to_context(src, i));
-            } else if (is_environment(src, i)) {
-                push_environment(tgt, to_environment(src, i));
-            } else if (is_name(src, i)) {
-                push_name(tgt, to_name(src, i));
-            } else if (is_mpz(src, i)) {
-                push_mpz(tgt, to_mpz(src, i));
-            } else if (is_mpq(src, i)) {
-                push_mpq(tgt, to_mpq(src, i));
-            } else if (is_options(src, i)) {
-                push_options(tgt, to_options(src, i));
-            } else if (is_sexpr(src, i)) {
-                push_sexpr(tgt, to_sexpr(src, i));
-            } else if (is_format(src, i)) {
-                push_format(tgt, to_format(src, i));
-            } else if (is_context_entry(src, i)) {
-                push_context_entry(tgt, to_context_entry(src, i));
-            } else if (is_local_context(src, i)) {
-                push_local_context(tgt, to_local_context(src, i));
-            } else if (is_local_entry(src, i)) {
-                push_local_entry(tgt, to_local_entry(src, i));
+            if (lua_migrate_fn f = get_migrate_fn(src, i)) {
+                f(src, i, tgt);
             } else {
                 throw exception("unsupported value type for inter-State call");
             }

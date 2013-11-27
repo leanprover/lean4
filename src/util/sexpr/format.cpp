@@ -529,8 +529,13 @@ static const struct luaL_Reg format_m[] = {
     {0, 0}
 };
 
+static void format_migrate(lua_State * src, int i, lua_State * tgt) {
+    push_format(tgt, to_format(src, i));
+}
+
 void open_format(lua_State * L) {
     luaL_newmetatable(L, format_mt);
+    set_migrate_fn_field(L, -1, format_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, format_m, 0);

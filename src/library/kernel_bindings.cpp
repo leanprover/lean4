@@ -238,8 +238,17 @@ static const struct luaL_Reg local_context_m[] = {
     {0, 0}
 };
 
+static void local_entry_migrate(lua_State * src, int i, lua_State * tgt) {
+    push_local_entry(tgt, to_local_entry(src, i));
+}
+
+static void local_context_migrate(lua_State * src, int i, lua_State * tgt) {
+    push_local_context(tgt, to_local_context(src, i));
+}
+
 static void open_local_context(lua_State * L) {
     luaL_newmetatable(L, local_entry_mt);
+    set_migrate_fn_field(L, -1, local_entry_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, local_entry_m, 0);
@@ -248,6 +257,7 @@ static void open_local_context(lua_State * L) {
     SET_GLOBAL_FUN(local_entry_pred,    "is_local_entry");
 
     luaL_newmetatable(L, local_context_mt);
+    set_migrate_fn_field(L, -1, local_context_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, local_context_m, 0);
@@ -630,8 +640,13 @@ static const struct luaL_Reg expr_m[] = {
     {0, 0}
 };
 
+static void expr_migrate(lua_State * src, int i, lua_State * tgt) {
+    push_expr(tgt, to_expr(src, i));
+}
+
 static void open_expr(lua_State * L) {
     luaL_newmetatable(L, expr_mt);
+    set_migrate_fn_field(L, -1, expr_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, expr_m, 0);
@@ -752,8 +767,17 @@ static const struct luaL_Reg context_m[] = {
     {0, 0}
 };
 
+static void context_entry_migrate(lua_State * src, int i, lua_State * tgt) {
+    push_context_entry(tgt, to_context_entry(src, i));
+}
+
+static void context_migrate(lua_State * src, int i, lua_State * tgt) {
+    push_context(tgt, to_context(src, i));
+}
+
 static void open_context(lua_State * L) {
     luaL_newmetatable(L, context_entry_mt);
+    set_migrate_fn_field(L, -1, context_entry_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, context_entry_m, 0);
@@ -761,6 +785,7 @@ static void open_context(lua_State * L) {
     SET_GLOBAL_FUN(context_entry_pred, "is_context_entry");
 
     luaL_newmetatable(L, context_mt);
+    set_migrate_fn_field(L, -1, context_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, context_m, 0);
@@ -1105,8 +1130,13 @@ int get_environment(lua_State * L) {
     return push_environment(L, get_global_environment(L));
 }
 
+static void environment_migrate(lua_State * src, int i, lua_State * tgt) {
+    push_environment(tgt, to_environment(src, i));
+}
+
 static void open_environment(lua_State * L) {
     luaL_newmetatable(L, environment_mt);
+    set_migrate_fn_field(L, -1, environment_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, environment_m, 0);

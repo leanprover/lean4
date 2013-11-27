@@ -486,8 +486,13 @@ static const struct luaL_Reg sexpr_m[] = {
     {0, 0}
 };
 
+static void sexpr_migrate(lua_State * src, int i, lua_State * tgt) {
+    push_sexpr(tgt, to_sexpr(src, i));
+}
+
 void open_sexpr(lua_State * L) {
     luaL_newmetatable(L, sexpr_mt);
+    set_migrate_fn_field(L, -1, sexpr_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, sexpr_m, 0);

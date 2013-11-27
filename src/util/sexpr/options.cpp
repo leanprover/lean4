@@ -373,8 +373,13 @@ static int _set_global_option(lua_State * L) {
     return 0;
 }
 
+static void options_migrate(lua_State * src, int i, lua_State * tgt) {
+    push_options(tgt, to_options(src, i));
+}
+
 void open_options(lua_State * L) {
     luaL_newmetatable(L, options_mt);
+    set_migrate_fn_field(L, -1, options_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, options_m, 0);

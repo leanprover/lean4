@@ -170,8 +170,15 @@ static const struct luaL_Reg mpz_m[] = {
     {0, 0}
 };
 
+static void mpz_migrate(lua_State * src, int i, lua_State * tgt) {
+    push_mpz(tgt, to_mpz(src, i));
+}
+
 void open_mpz(lua_State * L) {
     luaL_newmetatable(L, mpz_mt);
+    set_migrate_fn_field(L, -1, mpz_migrate);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
     setfuncs(L, mpz_m, 0);
 
     SET_GLOBAL_FUN(mk_mpz,   "mpz");

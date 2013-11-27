@@ -9,31 +9,38 @@ Author: Leonardo de Moura
 #include <thread>
 #include <chrono>
 #include <string>
+#include <vector>
+#include <condition_variable>
 #include "util/lua.h"
 #include "util/debug.h"
 #include "util/exception.h"
 #include "util/memory.h"
 #include "util/buffer.h"
 #include "util/interrupt.h"
-#include "util/open_module.h"
-#include "util/numerics/open_module.h"
-#include "util/sexpr/open_module.h"
-#include "library/kernel_bindings.h"
-#include "library/arith/open_module.h"
-#include "library/tactic/open_module.h"
-#include "frontends/lean/frontend.h"
-#include "frontends/lua/leanlua_state.h"
-#include "frontends/lua/frontend_lean.h"
-#include "frontends/lua/lean.lua"
+#include "util/script_state.h"
+#include "util/script_exception.h"
+#include "util/name.h"
+#include "util/splay_map.h"
 
 extern "C" void * lua_realloc(void *, void * q, size_t, size_t new_size) { return lean::realloc(q, new_size); }
 
 namespace lean {
+static std::vector<script_state::reg_fn> g_modules;
+static std::vector<char const *> g_code;
+
+void script_state::register_module(reg_fn f) {
+    g_modules.push_back(f);
+}
+
+void script_state::register_code(char const * code) {
+    g_code.push_back(code);
+}
+
 void open_extra(lua_State * L);
 
 static char g_weak_ptr_key; // key for Lua registry (used at get_weak_ptr and save_weak_ptr)
 
-struct leanlua_state::imp {
+struct script_state::imp {
     lua_State *           m_state;
     std::recursive_mutex  m_mutex;
 
@@ -63,16 +70,18 @@ struct leanlua_state::imp {
         if (m_state == nullptr)
             throw exception("fail to create Lua interpreter");
         luaL_openlibs(m_state);
-        open_util_module(m_state);
-        open_numerics_module(m_state);
-        open_sexpr_module(m_state);
-        open_kernel_module(m_state);
-        open_arith_module(m_state);
-        open_tactic_module(m_state);
-        open_frontend_lean(m_state);
+        open_exception(m_state);
+        open_name(m_state);
+        open_splay_map(m_state);
         open_extra(m_state);
 
-        dostring(g_leanlua_extra);
+        for (auto f : g_modules) {
+            f(m_state);
+        }
+
+        for (auto c : g_code) {
+            dostring(c);
+        }
     }
 
     ~imp() {
@@ -91,47 +100,37 @@ struct leanlua_state::imp {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
         ::lean::dostring(m_state, str);
     }
-
-    void dostring(char const * str, environment & env, io_state & st) {
-        set_io_state    set1(m_state, st);
-        set_environment set2(m_state, env);
-        dostring(str);
-    }
 };
 
-leanlua_state to_leanlua_state(lua_State * L) {
-    return leanlua_state(*leanlua_state::imp::get_weak_ptr(L));
+script_state to_script_state(lua_State * L) {
+    return script_state(*script_state::imp::get_weak_ptr(L));
 }
 
-leanlua_state::leanlua_state():
+script_state::script_state():
     m_ptr(new imp()) {
     m_ptr->save_weak_ptr(m_ptr);
 }
 
-leanlua_state::leanlua_state(std::weak_ptr<imp> const & ptr):m_ptr(ptr.lock()) {
+script_state::script_state(std::weak_ptr<imp> const & ptr):m_ptr(ptr.lock()) {
     lean_assert(m_ptr);
 }
 
-leanlua_state::~leanlua_state() {
+script_state::~script_state() {
 }
 
-void leanlua_state::dofile(char const * fname) {
+void script_state::dofile(char const * fname) {
     m_ptr->dofile(fname);
 }
 
-void leanlua_state::dostring(char const * str) {
+void script_state::dostring(char const * str) {
     m_ptr->dostring(str);
 }
 
-void leanlua_state::dostring(char const * str, environment & env, io_state & st) {
-    m_ptr->dostring(str, env, st);
-}
-
-std::recursive_mutex & leanlua_state::get_mutex() {
+std::recursive_mutex & script_state::get_mutex() {
     return m_ptr->m_mutex;
 }
 
-lua_State * leanlua_state::get_state() {
+lua_State * script_state::get_state() {
     return m_ptr->m_state;
 }
 
@@ -141,25 +140,25 @@ bool is_state(lua_State * L, int idx) {
     return testudata(L, idx, state_mt);
 }
 
-leanlua_state & to_state(lua_State * L, int idx) {
-    return *static_cast<leanlua_state*>(luaL_checkudata(L, idx, state_mt));
+script_state & to_state(lua_State * L, int idx) {
+    return *static_cast<script_state*>(luaL_checkudata(L, idx, state_mt));
 }
 
-int push_state(lua_State * L, leanlua_state const & s) {
-    void * mem = lua_newuserdata(L, sizeof(leanlua_state));
-    new (mem) leanlua_state(s);
+int push_state(lua_State * L, script_state const & s) {
+    void * mem = lua_newuserdata(L, sizeof(script_state));
+    new (mem) script_state(s);
     luaL_getmetatable(L, state_mt);
     lua_setmetatable(L, -2);
     return 1;
 }
 
 static int mk_state(lua_State * L) {
-    leanlua_state r;
+    script_state r;
     return push_state(L, r);
 }
 
 static int state_gc(lua_State * L) {
-    to_state(L, 1).~leanlua_state();
+    to_state(L, 1).~script_state();
     return 0;
 }
 
@@ -237,7 +236,7 @@ int state_dostring(lua_State * L) {
             int sz_before = lua_gettop(S);
             int status = luaL_loadstring(S, script);
             if (status)
-                throw lua_exception(lua_tostring(S, -1));
+                throw script_exception(lua_tostring(S, -1));
 
             copy_values(L, first, last, S);
 
@@ -296,7 +295,7 @@ class data_channel {
     // We use a lua_State to implement the channel. This is quite hackish,
     // but it is a convenient storage for Lua objects sent from one state to
     // another.
-    leanlua_state           m_channel;
+    script_state            m_channel;
     int                     m_ini;
     std::mutex              m_mutex;
     std::condition_variable m_cv;
@@ -390,14 +389,14 @@ int channel_write(lua_State * L) {
 }
 
 class leanlua_thread {
-    leanlua_state                   m_state;
+    script_state                    m_state;
     int                             m_sz_before;
     std::unique_ptr<exception>      m_exception;
     std::atomic<data_channel_ref *> m_in_channel_addr;
     std::atomic<data_channel_ref *> m_out_channel_addr;
     interruptible_thread            m_thread;
 public:
-    leanlua_thread(leanlua_state const & st, int sz_before, int num_args):
+    leanlua_thread(script_state const & st, int sz_before, int num_args):
         m_state(st),
         m_sz_before(sz_before),
         m_in_channel_addr(0),
@@ -411,7 +410,7 @@ public:
                             if (is_exception(S, -1))
                                 m_exception.reset(to_exception(S, -1).clone());
                             else
-                                m_exception.reset(new lua_exception(lua_tostring(S, -1)));
+                                m_exception.reset(new script_exception(lua_tostring(S, -1)));
                         }
                     });
             }) {
@@ -476,7 +475,7 @@ leanlua_thread & to_thread(lua_State * L, int idx) {
 
 int mk_thread(lua_State * L) {
     check_threadsafe();
-    leanlua_state & st  = to_state(L, 1);
+    script_state & st   = to_state(L, 1);
     char const * script = luaL_checkstring(L, 2);
     int first           = 3;
     int last            = lua_gettop(L);
@@ -486,7 +485,7 @@ int mk_thread(lua_State * L) {
             sz_before = lua_gettop(S);
             int result  = luaL_loadstring(S, script);
             if (result)
-                throw lua_exception(lua_tostring(S, -1));
+                throw script_exception(lua_tostring(S, -1));
             copy_values(L, first, last, S);
         });
     void * mem = lua_newuserdata(L, sizeof(leanlua_thread));
@@ -560,15 +559,9 @@ static void open_interrupt(lua_State * L) {
     SET_GLOBAL_FUN(channel_write,     "write");
 }
 
-static int mk_environment(lua_State * L) {
-    frontend f;
-    return push_environment(L, f.get_environment());
-}
-
 void open_extra(lua_State * L) {
     open_state(L);
     open_thread(L);
     open_interrupt(L);
-    SET_GLOBAL_FUN(mk_environment,  "environment");
 }
 }

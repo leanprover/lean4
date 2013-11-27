@@ -8,27 +8,23 @@ Author: Leonardo de Moura
 #include <memory>
 #include <mutex>
 #include <lua.hpp>
-#include "util/lua_exception.h"
-#include "library/script_evaluator.h"
 
 namespace lean {
-class environment;
-class io_state;
 /**
    \brief Wrapper for lua_State objects which contains all Lean bindings.
 */
-class leanlua_state : public script_evaluator {
+class script_state {
 public:
     struct imp;
 private:
     std::shared_ptr<imp> m_ptr;
-    leanlua_state(std::weak_ptr<imp> const & ptr);
-    friend leanlua_state to_leanlua_state(lua_State * L);
+    script_state(std::weak_ptr<imp> const & ptr);
+    friend script_state to_script_state(lua_State * L);
     std::recursive_mutex & get_mutex();
     lua_State * get_state();
 public:
-    leanlua_state();
-    virtual ~leanlua_state();
+    script_state();
+    virtual ~script_state();
 
     /**
        \brief Execute the file with the given name.
@@ -40,13 +36,6 @@ public:
        This method throws an exception if an error occurs.
     */
     virtual void dostring(char const * str);
-
-    /**
-       \brief Execute the given script, but sets the registry with the given environment object.
-       The registry can be accessed by \str by invoking the function <tt>env()</tt>.
-       The script \c str should not store a reference to the environment \c env.
-    */
-    virtual void dostring(char const * str, environment & env, io_state & st);
 
     /**
        \brief Execute \c f in the using the internal Lua State.
@@ -68,9 +57,14 @@ public:
     typename std::result_of<F(lua_State * L)>::type unguarded_apply(F && f) {
         return f(get_state());
     }
+
+    typedef void (*reg_fn)(lua_State *); // NOLINT
+    static void register_module(reg_fn f);
+
+    static void register_code(char const * code);
 };
 /**
-   \brief Return a reference to the leanlua_state object that is wrapping \c L.
+   \brief Return a reference to the script_state object that is wrapping \c L.
 */
-leanlua_state to_leanlua_state(lua_State * L);
+script_state to_script_state(lua_State * L);
 }

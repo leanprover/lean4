@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <utility>
-#include "util/lua.h"
 #include "util/sstream.h"
+#include "util/script_state.h"
 #include "kernel/expr.h"
 #include "kernel/context.h"
 #include "kernel/formatter.h"
@@ -1560,7 +1560,6 @@ static void open_metavar_env(lua_State * L) {
     SET_GLOBAL_FUN(instantiate_metavars, "instantiate_metavars");
 }
 
-
 void open_kernel_module(lua_State * L) {
     open_level(L);
     open_local_context(L);
@@ -1573,5 +1572,9 @@ void open_kernel_module(lua_State * L) {
     open_metavar_env(L);
     open_io_state(L);
     open_type_inferer(L);
+}
+
+void register_kernel_module() {
+    script_state::register_module(open_kernel_module);
 }
 }

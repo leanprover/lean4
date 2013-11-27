@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <memory>
 #include "util/lua.h"
-#include "util/lua_exception.h"
+#include "util/script_exception.h"
 #include "util/debug.h"
 
 namespace lean {
@@ -94,7 +94,7 @@ void check_result(lua_State * L, int result) {
         if (is_exception(L, -1))
             to_exception(L, -1).rethrow();
         else
-            throw lua_exception(lua_tostring(L, -1));
+            throw script_exception(lua_tostring(L, -1));
     }
 }
 
@@ -122,7 +122,7 @@ void pcall(lua_State * L, int nargs, int nresults, int errorfun) {
 int safe_function_wrapper(lua_State * L, lua_CFunction f) {
     try {
         return f(L);
-    } catch (lua_exception & e) {
+    } catch (script_exception & e) {
         lua_pushstring(L, e.what());
     } catch (exception & e) {
         push_exception(L, e);

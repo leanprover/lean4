@@ -1,3 +1,3 @@
-add_library(leanlua leanlua_state.cpp frontend_lean.cpp)
+add_library(leanlua register_modules.cpp)
 
 target_link_libraries(leanlua ${LEAN_LIBS})

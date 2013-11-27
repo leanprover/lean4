@@ -6,18 +6,19 @@ Author: Leonardo de Moura
 */
 #include <sstream>
 #include "util/lua.h"
+#include "util/script_state.h"
 #include "util/sexpr/options.h"
 #include "library/io_state.h"
 #include "library/kernel_bindings.h"
 #include "frontends/lean/parser.h"
-#include "frontends/lua/leanlua_state.h"
+#include "frontends/lean/frontend.h"
 
 namespace lean {
 /** \see parse_lean_expr */
 static int parse_lean_expr_core(lua_State * L, ro_environment const & env, io_state & st) {
     char const * src = luaL_checkstring(L, 1);
     std::istringstream in(src);
-    leanlua_state S   = to_leanlua_state(L);
+    script_state S   = to_script_state(L);
     push_expr(L, parse_expr(env, st, in, &S));
     return 1;
 }
@@ -73,7 +74,7 @@ static int parse_lean_expr(lua_State * L) {
 static void parse_lean_cmds_core(lua_State * L, rw_environment & env, io_state & st) {
     char const * src = luaL_checkstring(L, 1);
     std::istringstream in(src);
-    leanlua_state S   = to_leanlua_state(L);
+    script_state S   = to_script_state(L);
     parse_commands(env, st, in, &S);
 }
 
@@ -117,8 +118,18 @@ static int parse_lean_cmds(lua_State * L) {
     }
 }
 
+static int mk_environment(lua_State * L) {
+    frontend f;
+    return push_environment(L, f.get_environment());
+}
+
 void open_frontend_lean(lua_State * L) {
-    SET_GLOBAL_FUN(parse_lean_expr,   "parse_lean");
-    SET_GLOBAL_FUN(parse_lean_cmds,   "parse_lean_cmds");
+    SET_GLOBAL_FUN(mk_environment,  "environment");
+    SET_GLOBAL_FUN(parse_lean_expr, "parse_lean");
+    SET_GLOBAL_FUN(parse_lean_cmds, "parse_lean_cmds");
+}
+
+void register_frontend_lean_module() {
+    script_state::register_module(open_frontend_lean);
 }
 }

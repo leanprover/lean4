@@ -19,8 +19,10 @@ Author: Leonardo de Moura
 #include "util/scoped_map.h"
 #include "util/exception.h"
 #include "util/sstream.h"
-#include "util/sexpr/option_declarations.h"
+#include "util/script_state.h"
+#include "util/script_exception.h"
 #include "util/interrupt.h"
+#include "util/sexpr/option_declarations.h"
 #include "kernel/normalizer.h"
 #include "kernel/type_checker.h"
 #include "kernel/free_vars.h"
@@ -31,7 +33,7 @@ Author: Leonardo de Moura
 #include "library/arith/arith.h"
 #include "library/io_state.h"
 #include "library/placeholder.h"
-#include "library/script_evaluator.h"
+#include "library/kernel_bindings.h"
 #include "library/elaborator/elaborator_exception.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/frontend_elaborator.h"
@@ -131,7 +133,7 @@ class parser::imp {
     pos_info            m_last_cmd_pos;
     pos_info            m_last_script_pos;
 
-    script_evaluator *  m_script_evaluator;
+    script_state *      m_script_state;
 
     bool                m_verbose;
     bool                m_show_errors;
@@ -1404,7 +1406,7 @@ class parser::imp {
         try {
             if (m_verbose)
                 regular(m_frontend) << "Importing file '" << fname << "'" << endl;
-            parser import_parser(m_frontend, in, m_script_evaluator, true /* use exceptions */, false /* not interactive */);
+            parser import_parser(m_frontend, in, m_script_state, true /* use exceptions */, false /* not interactive */);
             import_parser();
         } catch (interrupted &) {
             throw;
@@ -1591,21 +1593,25 @@ class parser::imp {
 
     void parse_script() {
         m_last_script_pos = mk_pair(m_scanner.get_script_block_line(), m_scanner.get_script_block_pos());
-        if (!m_script_evaluator)
+        if (!m_script_state)
             throw exception("failed to execute Lua script, parser does not have a Lua interpreter");
         std::string script_code = m_scanner.get_str_val();
         next();
-        m_script_evaluator->dostring(script_code.c_str(), m_frontend.get_environment(), m_frontend.get_state());
+        m_script_state->apply([&](lua_State * L) {
+                set_io_state    set1(L, m_frontend.get_state());
+                set_environment set2(L, m_frontend.get_environment());
+                dostring(L, script_code.c_str());
+            });
     }
 
 public:
-    imp(frontend & fe, std::istream & in, script_evaluator * S, bool use_exceptions, bool interactive):
+    imp(frontend & fe, std::istream & in, script_state * S, bool use_exceptions, bool interactive):
         m_frontend(fe),
         m_scanner(in),
         m_elaborator(fe),
         m_use_exceptions(use_exceptions),
         m_interactive(interactive) {
-        m_script_evaluator = S;
+        m_script_state = S;
         updt_options();
         m_found_errors = false;
         m_num_local_decls = 0;
@@ -1689,7 +1695,7 @@ public:
     }
 };
 
-parser::parser(frontend & fe, std::istream & in, script_evaluator * S, bool use_exceptions, bool interactive) {
+parser::parser(frontend & fe, std::istream & in, script_state * S, bool use_exceptions, bool interactive) {
     parser::imp::show_prompt(interactive, fe);
     m_ptr.reset(new imp(fe, in, S, use_exceptions, interactive));
 }
@@ -1705,7 +1711,7 @@ expr parser::parse_expr() {
     return m_ptr->parse_expr_main();
 }
 
-shell::shell(frontend & fe, script_evaluator * S):m_frontend(fe), m_script_evaluator(S) {
+shell::shell(frontend & fe, script_state * S):m_frontend(fe), m_script_state(S) {
 }
 
 shell::~shell() {
@@ -1721,34 +1727,34 @@ bool shell::operator()() {
         add_history(input);
         std::istringstream strm(input);
         {
-            parser p(m_frontend, strm, m_script_evaluator, false, false);
+            parser p(m_frontend, strm, m_script_state, false, false);
             if (!p())
                 errors = true;
         }
         free(input);
     }
 #else
-    parser p(m_frontend, std::cin, m_script_evaluator, false, true);
+    parser p(m_frontend, std::cin, m_script_state, false, true);
     return p();
 #endif
 }
 
-bool parse_commands(frontend & fe, std::istream & in, script_evaluator * S, bool use_exceptions, bool interactive) {
+bool parse_commands(frontend & fe, std::istream & in, script_state * S, bool use_exceptions, bool interactive) {
     return parser(fe, in, S, use_exceptions, interactive)();
 }
 
-bool parse_commands(environment const & env, io_state & st, std::istream & in, script_evaluator * S, bool use_exceptions, bool interactive) {
+bool parse_commands(environment const & env, io_state & st, std::istream & in, script_state * S, bool use_exceptions, bool interactive) {
     frontend f(env, st);
     bool r = parse_commands(f, in, S, use_exceptions, interactive);
     st = f.get_state();
     return r;
 }
 
-expr parse_expr(frontend & fe, std::istream & in, script_evaluator * S, bool use_exceptions) {
+expr parse_expr(frontend & fe, std::istream & in, script_state * S, bool use_exceptions) {
     return parser(fe, in, S, use_exceptions).parse_expr();
 }
 
-expr parse_expr(environment const & env, io_state & st, std::istream & in, script_evaluator * S, bool use_exceptions) {
+expr parse_expr(environment const & env, io_state & st, std::istream & in, script_state * S, bool use_exceptions) {
     frontend f(env, st);
     expr r = parse_expr(f, in, S, use_exceptions);
     st = f.get_state();

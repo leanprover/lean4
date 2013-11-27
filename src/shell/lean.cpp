@@ -10,16 +10,17 @@ Author: Leonardo de Moura
 #include <getopt.h>
 #include "util/debug.h"
 #include "util/interrupt.h"
+#include "util/script_state.h"
 #include "kernel/printer.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/frontend.h"
-#include "frontends/lua/leanlua_state.h"
+#include "frontends/lua/register_modules.h"
 #include "version.h"
 
 using lean::shell;
 using lean::frontend;
 using lean::parser;
-using lean::leanlua_state;
+using lean::script_state;
 using lean::unreachable_reached;
 using lean::invoke_debugger;
 using lean::notify_assertion_violation;
@@ -67,6 +68,7 @@ static struct option g_long_options[] = {
 };
 
 int main(int argc, char ** argv) {
+    lean::register_modules();
     input_kind default_k = input_kind::Lean; // default
     int optind     = 1;
     while (true) {
@@ -93,7 +95,7 @@ int main(int argc, char ** argv) {
         }
     }
     frontend f;
-    leanlua_state S;
+    script_state S;
     if (optind >= argc) {
         display_header(std::cout);
         std::cout << "Type Ctrl-D to exit or 'Help.' for help."<< std::endl;

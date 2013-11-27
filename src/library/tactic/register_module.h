@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include "util/script_state.h"
 #include "library/tactic/goal.h"
 #include "library/tactic/proof_builder.h"
 #include "library/tactic/cex_builder.h"
@@ -16,5 +17,8 @@ inline void open_tactic_module(lua_State * L) {
     open_proof_builder(L);
     open_cex_builder(L);
     open_proof_state(L);
+}
+inline void register_tactic_module() {
+    script_state::register_module(open_tactic_module);
 }
 }

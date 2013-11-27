@@ -1,4 +1,4 @@
-static char const * g_leanlua_extra = R"Lua(
+static char const * g_extra_code = R"Lua(
 function Consts(s)
   r = {}
   i = 1

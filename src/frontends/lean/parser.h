@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <iostream>
 
 namespace lean {
-class script_evaluator;
+class script_state;
 class frontend;
 class io_state;
 class environment;
@@ -17,7 +17,7 @@ class parser {
     class imp;
     std::unique_ptr<imp> m_ptr;
 public:
-    parser(frontend & fe, std::istream & in, script_evaluator * S, bool use_exceptions = true, bool interactive = false);
+    parser(frontend & fe, std::istream & in, script_state * S, bool use_exceptions = true, bool interactive = false);
     ~parser();
 
     /** \brief Parse a sequence of commands */
@@ -29,17 +29,17 @@ public:
 
 /** \brief Implements the Read Eval Print loop */
 class shell {
-    frontend &                m_frontend;
-    script_evaluator *        m_script_evaluator;
+    frontend &            m_frontend;
+    script_state *        m_script_state;
 public:
-    shell(frontend & fe, script_evaluator * S);
+    shell(frontend & fe, script_state * S);
     ~shell();
 
     bool operator()();
 };
 
-bool parse_commands(frontend & fe, std::istream & in, script_evaluator * S = nullptr, bool use_exceptions = true, bool interactive = false);
-bool parse_commands(environment const & env, io_state & st, std::istream & in, script_evaluator * S = nullptr, bool use_exceptions = true, bool interactive = false);
-expr parse_expr(frontend & fe, std::istream & in, script_evaluator * S = nullptr, bool use_exceptions = true);
-expr parse_expr(environment const & env, io_state & st, std::istream & in, script_evaluator * S = nullptr, bool use_exceptions = true);
+bool parse_commands(frontend & fe, std::istream & in, script_state * S = nullptr, bool use_exceptions = true, bool interactive = false);
+bool parse_commands(environment const & env, io_state & st, std::istream & in, script_state * S = nullptr, bool use_exceptions = true, bool interactive = false);
+expr parse_expr(frontend & fe, std::istream & in, script_state * S = nullptr, bool use_exceptions = true);
+expr parse_expr(environment const & env, io_state & st, std::istream & in, script_state * S = nullptr, bool use_exceptions = true);
 }

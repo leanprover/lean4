@@ -5,12 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "util/numerics/mpz.h"
-#include "util/numerics/mpq.h"
-
 namespace lean {
-inline void open_numerics_module(lua_State * L) {
-    open_mpz(L);
-    open_mpq(L);
-}
+/**
+   \brief Register all modules at \c script_state.
+*/
+void register_modules();
 }

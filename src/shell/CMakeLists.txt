@@ -45,8 +45,12 @@ ENDFOREACH(T)
 
 if((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Linux"))
   if (NOT (${CMAKE_CXX_COMPILER} MATCHES "clang"))
-    add_test(NAME leanluathreadtests
-      WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lua/threads"
-      COMMAND "../test.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
+    file(GLOB LEANLUATHREADTESTS "${LEAN_SOURCE_DIR}/../tests/lua/threads/*.lua")
+    FOREACH(T ${LEANLUATHREADTESTS})
+      GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+      add_test(NAME "leanluathreadtest_${T_NAME}"
+        WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lua/threads"
+        COMMAND "../test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T})
+    ENDFOREACH(T)
   endif()
 endif()

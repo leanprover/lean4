@@ -22,6 +22,7 @@ private:
     friend script_state to_script_state(lua_State * L);
     std::recursive_mutex & get_mutex();
     lua_State * get_state();
+    friend class data_channel;
 public:
     script_state();
     virtual ~script_state();
@@ -43,18 +44,6 @@ public:
     template<typename F>
     typename std::result_of<F(lua_State * L)>::type apply(F && f) {
         std::lock_guard<std::recursive_mutex> lock(get_mutex());
-        return f(get_state());
-    }
-
-    /**
-       \brief Similar to \c apply, but a lock is not used to guarantee
-       exclusive access to the lua_State object.
-
-       \warning It is the caller resposability to guarantee that the object is not being
-       concurrently accessed.
-    */
-    template<typename F>
-    typename std::result_of<F(lua_State * L)>::type unguarded_apply(F && f) {
         return f(get_state());
     }
 

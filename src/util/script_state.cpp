@@ -301,9 +301,8 @@ class data_channel {
     std::condition_variable m_cv;
 public:
     data_channel() {
-        m_channel.unguarded_apply([&](lua_State * channel) {
-                m_ini = lua_gettop(channel);
-            });
+        lua_State * channel = m_channel.m_ptr->m_state;
+        m_ini = lua_gettop(channel);
     }
 
     /**
@@ -316,12 +315,11 @@ public:
         if (last < first)
             return;
         std::lock_guard<std::mutex> lock(m_mutex);
-        m_channel.unguarded_apply([&](lua_State * channel) {
-                bool was_empty = lua_gettop(channel) == m_ini;
-                copy_values(src, first, last, channel);
-                if (was_empty)
-                    m_cv.notify_one();
-            });
+        lua_State * channel = m_channel.m_ptr->m_state;
+        bool was_empty = lua_gettop(channel) == m_ini;
+        copy_values(src, first, last, channel);
+        if (was_empty)
+            m_cv.notify_one();
     }
 
     /**
@@ -330,33 +328,32 @@ public:
     */
     int read(lua_State * tgt, int i) {
         std::unique_lock<std::mutex> lock(m_mutex);
-        return m_channel.unguarded_apply([&](lua_State * channel) {
-                if (i > 0) {
-                    // i is the position of the timeout argument
-                    std::chrono::milliseconds dura(luaL_checkinteger(tgt, i));
-                    if (lua_gettop(channel) == m_ini)
-                        m_cv.wait_for(lock, dura);
-                    if (lua_gettop(channel) == m_ini) {
-                        // timeout...
-                        lua_pushboolean(tgt, false);
-                        lua_pushnil(tgt);
-                        return 2;
-                    } else {
-                        lua_pushboolean(tgt, true);
-                        copy_values(channel, m_ini + 1, m_ini + 1, tgt);
-                        lua_remove(channel, m_ini + 1);
-                        return 2;
-                    }
-                } else {
-                    while (lua_gettop(channel) == m_ini) {
-                        check_interrupted();
-                        m_cv.wait_for(lock, g_small_delay);
-                    }
-                    copy_values(channel, m_ini + 1, m_ini + 1, tgt);
-                    lua_remove(channel, m_ini + 1);
-                    return 1;
-                }
-            });
+        lua_State * channel = m_channel.m_ptr->m_state;
+        if (i > 0) {
+            // i is the position of the timeout argument
+            std::chrono::milliseconds dura(luaL_checkinteger(tgt, i));
+            if (lua_gettop(channel) == m_ini)
+                m_cv.wait_for(lock, dura);
+            if (lua_gettop(channel) == m_ini) {
+                // timeout...
+                lua_pushboolean(tgt, false);
+                lua_pushnil(tgt);
+                return 2;
+            } else {
+                lua_pushboolean(tgt, true);
+                copy_values(channel, m_ini + 1, m_ini + 1, tgt);
+                lua_remove(channel, m_ini + 1);
+                return 2;
+            }
+        } else {
+            while (lua_gettop(channel) == m_ini) {
+                check_interrupted();
+                m_cv.wait_for(lock, g_small_delay);
+            }
+            copy_values(channel, m_ini + 1, m_ini + 1, tgt);
+            lua_remove(channel, m_ini + 1);
+            return 1;
+        }
     }
 };
 

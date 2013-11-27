@@ -31,54 +31,133 @@ Author: Leonardo de Moura
 extern "C" void * lua_realloc(void *, void * q, size_t, size_t new_size) { return lean::realloc(q, new_size); }
 
 namespace lean {
-void _check_result(lua_State * L, int result) {
-    if (result) {
-        if (is_justification(L, -1))
-            throw elaborator_exception(to_justification(L, -1));
-        else
-            throw lua_exception(lua_tostring(L, -1));
+void open_extra(lua_State * L);
+
+static char g_weak_ptr_key; // key for Lua registry (used at get_weak_ptr and save_weak_ptr)
+
+struct leanlua_state::imp {
+    lua_State *           m_state;
+    std::recursive_mutex  m_mutex;
+
+    static std::weak_ptr<imp> * get_weak_ptr(lua_State * L) {
+        lua_pushlightuserdata(L, static_cast<void *>(&g_weak_ptr_key));
+        lua_gettable(L, LUA_REGISTRYINDEX);
+        std::weak_ptr<imp> * ptr = static_cast<std::weak_ptr<imp>*>(lua_touserdata(L, -1));
+        lua_pop(L, 1);
+        return ptr;
     }
-}
 
-static set_check_result set_check(_check_result);
-
-static int _safe_function_wrapper(lua_State * L, lua_CFunction f) {
-    try {
-        return f(L);
-    } catch (kernel_exception & e) {
-        std::ostringstream out;
-        options o = get_global_options(L);
-        out << mk_pair(e.pp(get_global_formatter(L), o), o);
-        lua_pushstring(L, out.str().c_str());
-    } catch (elaborator_exception & e) {
-        push_justification(L, e.get_justification());
-    } catch (exception & e) {
-        lua_pushstring(L, e.what());
-    } catch (std::bad_alloc &) {
-        lua_pushstring(L, "out of memory");
-    } catch (std::exception & e) {
-        lua_pushstring(L, e.what());
-    } catch(...) {
-        lua_pushstring(L, "unknown error");
+    void save_weak_ptr(std::shared_ptr<imp> & ptr) {
+        lua_pushlightuserdata(m_state, static_cast<void *>(&g_weak_ptr_key));
+        void * mem = lua_newuserdata(m_state, sizeof(std::weak_ptr<imp>));
+        new (mem) std::weak_ptr<imp>(ptr);
+        lua_settable(m_state, LUA_REGISTRYINDEX);
     }
-    return lua_error(L);
+
+    imp() {
+        // TODO(Leo) investigate why TCMALLOC + lua_realloc do not work together
+        // #ifdef LEAN_USE_LUA_NEWSTATE
+        #if 0
+        m_state = lua_newstate(lua_realloc, nullptr);
+        #else
+        m_state = luaL_newstate();
+        #endif
+        if (m_state == nullptr)
+            throw exception("fail to create Lua interpreter");
+        luaL_openlibs(m_state);
+        open_util_module(m_state);
+        open_numerics_module(m_state);
+        open_sexpr_module(m_state);
+        open_kernel_module(m_state);
+        open_arith_module(m_state);
+        open_tactic_module(m_state);
+        open_extra(m_state);
+
+        dostring(g_leanlua_extra);
+    }
+
+    ~imp() {
+        typedef std::weak_ptr<imp> wptr;
+        wptr * ptr = get_weak_ptr(m_state);
+        ptr->~wptr(); // destruct weak pointer
+        lua_close(m_state);
+    }
+
+    void dofile(char const * fname) {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+        ::lean::dofile(m_state, fname);
+    }
+
+    void dostring(char const * str) {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+        ::lean::dostring(m_state, str);
+    }
+
+    void dostring(char const * str, environment & env, io_state & st) {
+        set_io_state    set1(m_state, st);
+        set_environment set2(m_state, env);
+        dostring(str);
+    }
+};
+
+leanlua_state to_leanlua_state(lua_State * L) {
+    return leanlua_state(*leanlua_state::imp::get_weak_ptr(L));
 }
 
-static int mk_environment(lua_State * L) {
-    frontend f;
-    return push_environment(L, f.get_environment());
+leanlua_state::leanlua_state():
+    m_ptr(new imp()) {
+    m_ptr->save_weak_ptr(m_ptr);
 }
 
-static void decl_environment(lua_State * L) {
-    SET_GLOBAL_FUN(mk_environment,  "environment");
+leanlua_state::leanlua_state(std::weak_ptr<imp> const & ptr):m_ptr(ptr.lock()) {
+    lean_assert(m_ptr);
 }
 
-static set_safe_function_wrapper set_wrapper(_safe_function_wrapper);
+leanlua_state::~leanlua_state() {
+}
 
-static void open_state(lua_State * L);
-static void open_thread(lua_State * L);
-static void open_interrupt(lua_State * L);
+void leanlua_state::dofile(char const * fname) {
+    m_ptr->dofile(fname);
+}
+
+void leanlua_state::dostring(char const * str) {
+    m_ptr->dostring(str);
+}
+
+void leanlua_state::dostring(char const * str, environment & env, io_state & st) {
+    m_ptr->dostring(str, env, st);
+}
+
+constexpr char const * state_mt = "luastate.mt";
+
+bool is_state(lua_State * L, int idx) {
+    return testudata(L, idx, state_mt);
+}
+
+leanlua_state & to_state(lua_State * L, int idx) {
+    return *static_cast<leanlua_state*>(luaL_checkudata(L, idx, state_mt));
+}
+
+int push_state(lua_State * L, leanlua_state const & s) {
+    void * mem = lua_newuserdata(L, sizeof(leanlua_state));
+    new (mem) leanlua_state(s);
+    luaL_getmetatable(L, state_mt);
+    lua_setmetatable(L, -2);
+    return 1;
+}
+
+static int mk_state(lua_State * L) {
+    leanlua_state r;
+    return push_state(L, r);
+}
+
+static int state_gc(lua_State * L) {
+    to_state(L, 1).~leanlua_state();
+    return 0;
+}
+
 environment & to_environment(lua_State * L, int idx);
+
 static int writer(lua_State *, void const * p, size_t sz, void * buf) {
     buffer<char> & _buf = *static_cast<buffer<char>*>(buf);
     char const * in = static_cast<char const *>(p);
@@ -165,137 +244,6 @@ static void copy_values(lua_State * src, int first, int last, lua_State * tgt) {
             throw exception("unsupported value type for inter-State call");
         }
     }
-}
-
-void open_splay_map(lua_State * L);
-
-static char g_weak_ptr_key; // key for Lua registry (used at get_weak_ptr and save_weak_ptr)
-
-struct leanlua_state::imp {
-    lua_State *           m_state;
-    std::recursive_mutex  m_mutex;
-
-    static std::weak_ptr<imp> * get_weak_ptr(lua_State * L) {
-        lua_pushlightuserdata(L, static_cast<void *>(&g_weak_ptr_key));
-        lua_gettable(L, LUA_REGISTRYINDEX);
-        std::weak_ptr<imp> * ptr = static_cast<std::weak_ptr<imp>*>(lua_touserdata(L, -1));
-        lua_pop(L, 1);
-        return ptr;
-    }
-
-    void save_weak_ptr(std::shared_ptr<imp> & ptr) {
-        lua_pushlightuserdata(m_state, static_cast<void *>(&g_weak_ptr_key));
-        void * mem = lua_newuserdata(m_state, sizeof(std::weak_ptr<imp>));
-        new (mem) std::weak_ptr<imp>(ptr);
-        lua_settable(m_state, LUA_REGISTRYINDEX);
-    }
-
-    imp() {
-        // TODO(Leo) investigate why TCMALLOC + lua_realloc do not work together
-        // #ifdef LEAN_USE_LUA_NEWSTATE
-        #if 0
-        m_state = lua_newstate(lua_realloc, nullptr);
-        #else
-        m_state = luaL_newstate();
-        #endif
-        if (m_state == nullptr)
-            throw exception("fail to create Lua interpreter");
-        luaL_openlibs(m_state);
-        open_util_module(m_state);
-        open_numerics_module(m_state);
-        open_sexpr_module(m_state);
-        open_kernel_module(m_state);
-        open_arith_module(m_state);
-        open_tactic_module(m_state);
-
-        open_state(m_state);
-        open_frontend_lean(m_state);
-        open_thread(m_state);
-        open_interrupt(m_state);
-
-        decl_environment(m_state);
-
-        dostring(g_leanlua_extra);
-    }
-
-    ~imp() {
-        typedef std::weak_ptr<imp> wptr;
-        wptr * ptr = get_weak_ptr(m_state);
-        ptr->~wptr(); // destruct weak pointer
-        lua_close(m_state);
-    }
-
-    void dofile(char const * fname) {
-        std::lock_guard<std::recursive_mutex> lock(m_mutex);
-        ::lean::dofile(m_state, fname);
-    }
-
-    void dostring(char const * str) {
-        std::lock_guard<std::recursive_mutex> lock(m_mutex);
-        ::lean::dostring(m_state, str);
-    }
-
-    void dostring(char const * str, environment & env, io_state & st) {
-        set_io_state    set1(m_state, st);
-        set_environment set2(m_state, env);
-        dostring(str);
-    }
-};
-
-leanlua_state to_leanlua_state(lua_State * L) {
-    return leanlua_state(*leanlua_state::imp::get_weak_ptr(L));
-}
-
-leanlua_state::leanlua_state():
-    m_ptr(new imp()) {
-    m_ptr->save_weak_ptr(m_ptr);
-}
-
-leanlua_state::leanlua_state(std::weak_ptr<imp> const & ptr):m_ptr(ptr.lock()) {
-    lean_assert(m_ptr);
-}
-
-leanlua_state::~leanlua_state() {
-}
-
-void leanlua_state::dofile(char const * fname) {
-    m_ptr->dofile(fname);
-}
-
-void leanlua_state::dostring(char const * str) {
-    m_ptr->dostring(str);
-}
-
-void leanlua_state::dostring(char const * str, environment & env, io_state & st) {
-    m_ptr->dostring(str, env, st);
-}
-
-constexpr char const * state_mt = "luastate.mt";
-
-bool is_state(lua_State * L, int idx) {
-    return testudata(L, idx, state_mt);
-}
-
-leanlua_state & to_state(lua_State * L, int idx) {
-    return *static_cast<leanlua_state*>(luaL_checkudata(L, idx, state_mt));
-}
-
-int push_state(lua_State * L, leanlua_state const & s) {
-    void * mem = lua_newuserdata(L, sizeof(leanlua_state));
-    new (mem) leanlua_state(s);
-    luaL_getmetatable(L, state_mt);
-    lua_setmetatable(L, -2);
-    return 1;
-}
-
-static int mk_state(lua_State * L) {
-    leanlua_state r;
-    return push_state(L, r);
-}
-
-static int state_gc(lua_State * L) {
-    to_state(L, 1).~leanlua_state();
-    return 0;
 }
 
 int state_dostring(lua_State * L) {
@@ -591,7 +539,6 @@ static int thread_interrupt(lua_State * L) {
     return 0;
 }
 
-
 int thread_wait(lua_State * L) {
     return to_thread(L, 1).wait(L);
 }
@@ -631,5 +578,52 @@ static void open_interrupt(lua_State * L) {
     SET_GLOBAL_FUN(sleep,             "sleep");
     SET_GLOBAL_FUN(channel_read,      "read");
     SET_GLOBAL_FUN(channel_write,     "write");
+}
+
+void _check_result(lua_State * L, int result) {
+    if (result) {
+        if (is_justification(L, -1))
+            throw elaborator_exception(to_justification(L, -1));
+        else
+            throw lua_exception(lua_tostring(L, -1));
+    }
+}
+
+static set_check_result set_check(_check_result);
+
+static int _safe_function_wrapper(lua_State * L, lua_CFunction f) {
+    try {
+        return f(L);
+    } catch (kernel_exception & e) {
+        std::ostringstream out;
+        options o = get_global_options(L);
+        out << mk_pair(e.pp(get_global_formatter(L), o), o);
+        lua_pushstring(L, out.str().c_str());
+    } catch (elaborator_exception & e) {
+        push_justification(L, e.get_justification());
+    } catch (exception & e) {
+        lua_pushstring(L, e.what());
+    } catch (std::bad_alloc &) {
+        lua_pushstring(L, "out of memory");
+    } catch (std::exception & e) {
+        lua_pushstring(L, e.what());
+    } catch(...) {
+        lua_pushstring(L, "unknown error");
+    }
+    return lua_error(L);
+}
+
+static int mk_environment(lua_State * L) {
+    frontend f;
+    return push_environment(L, f.get_environment());
+}
+
+static set_safe_function_wrapper set_wrapper(_safe_function_wrapper);
+
+void open_extra(lua_State * L) {
+    open_state(L);
+    open_thread(L);
+    open_interrupt(L);
+    SET_GLOBAL_FUN(mk_environment,  "environment");
 }
 }

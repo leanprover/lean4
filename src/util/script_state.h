@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include <mutex>
 #include <lua.hpp>
+#include "util/unlock_guard.h"
 
 namespace lean {
 /**
@@ -20,12 +21,12 @@ private:
     std::shared_ptr<imp> m_ptr;
     script_state(std::weak_ptr<imp> const & ptr);
     friend script_state to_script_state(lua_State * L);
-    std::recursive_mutex & get_mutex();
+    std::mutex & get_mutex();
     lua_State * get_state();
     friend class data_channel;
 public:
     script_state();
-    virtual ~script_state();
+    ~script_state();
 
     /**
        \brief Execute the file with the given name.
@@ -36,14 +37,14 @@ public:
        \brief Execute the given string.
        This method throws an exception if an error occurs.
     */
-    virtual void dostring(char const * str);
+    void dostring(char const * str);
 
     /**
        \brief Execute \c f in the using the internal Lua State.
     */
     template<typename F>
     typename std::result_of<F(lua_State * L)>::type apply(F && f) {
-        std::lock_guard<std::recursive_mutex> lock(get_mutex());
+        std::lock_guard<std::mutex> lock(get_mutex());
         return f(get_state());
     }
 
@@ -51,6 +52,17 @@ public:
     static void register_module(reg_fn f);
 
     static void register_code(char const * code);
+
+    /**
+       \brief Auxiliary function for writing API bindings
+       that release the lock to this object while executing
+       \c f.
+    */
+    template<typename F>
+    void exec_unprotected(F && f) {
+        unlock_guard unlock(get_mutex());
+        f();
+    }
 };
 /**
    \brief Return a reference to the script_state object that is wrapping \c L.

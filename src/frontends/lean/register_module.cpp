@@ -19,8 +19,11 @@ static int parse_lean_expr_core(lua_State * L, ro_environment const & env, io_st
     char const * src = luaL_checkstring(L, 1);
     std::istringstream in(src);
     script_state S   = to_script_state(L);
-    push_expr(L, parse_expr(env, st, in, &S));
-    return 1;
+    expr r;
+    S.exec_unprotected([&]() {
+            r = parse_expr(env, st, in, &S);
+        });
+    return push_expr(L, r);
 }
 
 /** \see parse_lean_expr */
@@ -75,7 +78,9 @@ static void parse_lean_cmds_core(lua_State * L, rw_environment & env, io_state &
     char const * src = luaL_checkstring(L, 1);
     std::istringstream in(src);
     script_state S   = to_script_state(L);
-    parse_commands(env, st, in, &S);
+    S.exec_unprotected([&]() {
+            parse_commands(env, st, in, &S);
+        });
 }
 
 /** \see parse_lean_cmds */

@@ -41,8 +41,8 @@ void open_extra(lua_State * L);
 static char g_weak_ptr_key; // key for Lua registry (used at get_weak_ptr and save_weak_ptr)
 
 struct script_state::imp {
-    lua_State *           m_state;
-    std::recursive_mutex  m_mutex;
+    lua_State * m_state;
+    std::mutex  m_mutex;
 
     static std::weak_ptr<imp> * get_weak_ptr(lua_State * L) {
         lua_pushlightuserdata(L, static_cast<void *>(&g_weak_ptr_key));
@@ -92,12 +92,12 @@ struct script_state::imp {
     }
 
     void dofile(char const * fname) {
-        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
         ::lean::dofile(m_state, fname);
     }
 
     void dostring(char const * str) {
-        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
         ::lean::dostring(m_state, str);
     }
 };
@@ -126,7 +126,7 @@ void script_state::dostring(char const * str) {
     m_ptr->dostring(str);
 }
 
-std::recursive_mutex & script_state::get_mutex() {
+std::mutex & script_state::get_mutex() {
     return m_ptr->m_mutex;
 }
 

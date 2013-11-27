@@ -4,24 +4,20 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <sstream>
-#include <lua.hpp>
-#include "util/optional.h"
-#include "kernel/environment.h"
+#include "util/luaref.h"
+#include "library/kernel_bindings.h"
+#include "library/tactic/proof_builder.h"
 #include "library/tactic/cex_builder.h"
-#include "bindings/lua/util.h"
-#include "bindings/lua/name.h"
-#include "bindings/lua/expr.h"
-#include "bindings/lua/environment.h"
-#include "bindings/lua/proof_builder.h"
-#include "bindings/lua/lref.h"
 
 namespace lean {
+cex_builder & cex_builder::operator=(cex_builder const & s) { LEAN_COPY_REF(cex_builder, s); }
+cex_builder & cex_builder::operator=(cex_builder && s) { LEAN_MOVE_REF(cex_builder, s); }
+
 DECL_UDATA(cex_builder)
 
 static int mk_cex_builder(lua_State * L) {
     luaL_checktype(L, 1, LUA_TFUNCTION); // user-fun
-    lref ref(L, 1);
+    luaref ref(L, 1);
     return push_cex_builder(L,
                             mk_cex_builder([=](name const & n, optional<counterexample> const & cex, assignment const & a) -> counterexample {
                                       ref.push(); // push user-fun on the stack

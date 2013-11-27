@@ -5,8 +5,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include <lua.hpp>
+#include "util/name.h"
+#include "util/splay_map.h"
+
 namespace lean {
-UDATA_DEFS(format)
-void open_format(lua_State * L);
+inline void open_util_module(lua_State * L) {
+    open_name(L);
+    open_splay_map(L);
+}
 }

@@ -8,6 +8,11 @@ Author: Leonardo de Moura
 #include <lua.hpp>
 
 namespace lean {
+// =======================================
+// Lua 5.1 and 5.2 compatibility
+//
+// The following helper functions make sure
+// we can compile using Lua 5.1 or 5.2
 void setfuncs(lua_State * L, luaL_Reg const * l, int nup);
 bool testudata(lua_State * L, int idx, char const * mt);
 int load(lua_State * L, lua_Reader reader, void * data, char const * source);
@@ -18,24 +23,49 @@ void pcall(lua_State * L, int nargs, int nresults, int errorfun);
 int lessthan(lua_State * L, int idx1, int idx2);
 int equal(lua_State * L, int idx1, int idx2);
 int get_nonnil_top(lua_State * L);
+// =======================================
+
+// =======================================
+// Goodies/Macros for automating Lua binding
+// generation.
+/**
+   \brief Helper class for registering a new
+   set of Lua bindings.
+*/
+class lua_module {
+public:
+    typedef void (*init_fn)(lua_State * L);
+    lua_module(init_fn f);
+    static void init(lua_State * L);
+};
+
 /**
    \brief Wrapper for invoking function f, and catching Lean exceptions.
 */
-int safe_function_wrapper(lua_State * L, lua_CFunction f);
+extern int (*g_safe_function_wrapper)(lua_State * L, lua_CFunction f);
 template<lua_CFunction F> int safe_function(lua_State * L) {
-    return safe_function_wrapper(L, F);
+    return g_safe_function_wrapper(L, F);
 }
 template<lua_CFunction F> void set_global_function(lua_State * L, char const * name) {
     lua_pushcfunction(L, safe_function<F>);
     lua_setglobal(L, name);
 }
+/**
+    \brief Helper object for setting g_safe_function_wrapper.
+*/
+struct set_safe_function_wrapper { set_safe_function_wrapper(int (*f)(lua_State *, lua_CFunction)); };
+
+/**
+    \brief Helper object for setting a different check_result function.
+*/
+struct set_check_result { set_check_result(void (*f)(lua_State *, int)); };
 
 #define SET_GLOBAL_FUN(F, N) set_global_function<F>(L, N)
 
 // Auxiliary macro for creating a Lua table that stores enumeration values
 #define SET_ENUM(N, V) lua_pushstring(L, N); lua_pushinteger(L, static_cast<int>(V)); lua_settable(L, -3)
 
-#define DECL_PUSH_CORE(NAME, T, TREF)            \
+#define DECL_PUSH_CORE(NAME, T, TREF)           \
 int push_ ## NAME(lua_State * L, TREF val) {    \
     void * mem = lua_newuserdata(L, sizeof(T)); \
     new (mem) T(val);                           \
@@ -97,4 +127,5 @@ int push_ ## T(lua_State * L, T && e);
 #define UDATA_DEFS(T)                           \
 class T;                                        \
 UDATA_DEFS_CORE(T)
+// =======================================
 }

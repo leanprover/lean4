@@ -5,12 +5,36 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include <lua.hpp>
+#include "util/lua.h"
 #include "kernel/threadsafe_environment.h"
 
 namespace lean {
+void open_kernel_module(lua_State * L);
+UDATA_DEFS(level)
+UDATA_DEFS(local_entry)
+UDATA_DEFS_CORE(local_context)
+UDATA_DEFS(expr);
+UDATA_DEFS(context_entry)
+UDATA_DEFS(context)
+UDATA_DEFS(formatter)
+UDATA_DEFS(object)
 UDATA_DEFS(environment)
-void open_environment(lua_State * L);
+UDATA_DEFS(justification)
+UDATA_DEFS(metavar_env)
+expr & to_nonnull_expr(lua_State * L, int idx);
+/**
+   \brief Return the formatter object associated with the given Lua State.
+   This procedure checks for options at:
+   1- Lean state object associated with \c L
+   2- Lua Registry associated with \c L
+*/
+formatter get_global_formatter(lua_State * L);
+/**
+   \brief Update the formatter object associated with the given Lua State.
+   If \c L is associated with a Lean state object \c S, then we update the formatter of \c S.
+   Otherwise, we update the registry of \c L.
+*/
+void set_global_formatter(lua_State * L, formatter const & fmt);
 /**
    \brief Auxiliary class for setting the Lua registry of a Lua state
    with an environment object.

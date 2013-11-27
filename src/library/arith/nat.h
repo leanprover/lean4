@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include "util/lua.h"
 #include "kernel/expr.h"
 #include "kernel/builtin.h"
 #include "util/numerics/mpz.h"
@@ -55,4 +56,6 @@ inline expr nIf(expr const & c, expr const & t, expr const & e) { return mk_if(N
 class environment;
 /** \brief Import Natural number library in the given environment (if it has not been imported already). */
 void import_nat(environment & env);
+
+void open_nat(lua_State * L);
 }

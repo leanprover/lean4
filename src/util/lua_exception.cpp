@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <cstdlib>
 #include "util/debug.h"
-#include "bindings/lua/lua_exception.h"
+#include "util/lua_exception.h"
 
 namespace lean {
 lua_exception::lua_exception(char const * lua_error):script_exception() {

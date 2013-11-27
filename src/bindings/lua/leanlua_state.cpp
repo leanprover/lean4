@@ -9,43 +9,72 @@ Author: Leonardo de Moura
 #include <thread>
 #include <chrono>
 #include <string>
-#include <lua.hpp>
+#include "util/lua.h"
 #include "util/debug.h"
 #include "util/exception.h"
 #include "util/memory.h"
 #include "util/buffer.h"
 #include "util/interrupt.h"
-#include "library/io_state.h"
+#include "util/open_module.h"
+#include "util/numerics/open_module.h"
+#include "util/sexpr/open_module.h"
+#include "kernel/kernel_exception.h"
+#include "library/kernel_bindings.h"
+#include "library/arith/open_module.h"
+#include "library/tactic/open_module.h"
+#include "library/elaborator/elaborator_exception.h"
+#include "frontends/lean/frontend.h"
 #include "bindings/lua/leanlua_state.h"
-#include "bindings/lua/util.h"
-#include "bindings/lua/name.h"
-#include "bindings/lua/splay_map.h"
-#include "bindings/lua/numerics.h"
-#include "bindings/lua/options.h"
-#include "bindings/lua/sexpr.h"
-#include "bindings/lua/format.h"
-#include "bindings/lua/formatter.h"
-#include "bindings/lua/level.h"
-#include "bindings/lua/local_context.h"
-#include "bindings/lua/expr.h"
-#include "bindings/lua/context.h"
-#include "bindings/lua/object.h"
-#include "bindings/lua/environment.h"
-#include "bindings/lua/justification.h"
-#include "bindings/lua/metavar_env.h"
-#include "bindings/lua/goal.h"
-#include "bindings/lua/proof_builder.h"
-#include "bindings/lua/cex_builder.h"
-#include "bindings/lua/proof_state.h"
-#include "bindings/lua/io_state.h"
-#include "bindings/lua/type_inferer.h"
 #include "bindings/lua/frontend_lean.h"
 #include "bindings/lua/lean.lua"
 
 extern "C" void * lua_realloc(void *, void * q, size_t, size_t new_size) { return lean::realloc(q, new_size); }
 
 namespace lean {
-static void open_patch(lua_State * L);
+void _check_result(lua_State * L, int result) {
+    if (result) {
+        if (is_justification(L, -1))
+            throw elaborator_exception(to_justification(L, -1));
+        else
+            throw lua_exception(lua_tostring(L, -1));
+    }
+}
+
+static set_check_result set_check(_check_result);
+
+static int _safe_function_wrapper(lua_State * L, lua_CFunction f) {
+    try {
+        return f(L);
+    } catch (kernel_exception & e) {
+        std::ostringstream out;
+        options o = get_global_options(L);
+        out << mk_pair(e.pp(get_global_formatter(L), o), o);
+        lua_pushstring(L, out.str().c_str());
+    } catch (elaborator_exception & e) {
+        push_justification(L, e.get_justification());
+    } catch (exception & e) {
+        lua_pushstring(L, e.what());
+    } catch (std::bad_alloc &) {
+        lua_pushstring(L, "out of memory");
+    } catch (std::exception & e) {
+        lua_pushstring(L, e.what());
+    } catch(...) {
+        lua_pushstring(L, "unknown error");
+    }
+    return lua_error(L);
+}
+
+static int mk_environment(lua_State * L) {
+    frontend f;
+    return push_environment(L, f.get_environment());
+}
+
+static void decl_environment(lua_State * L) {
+    SET_GLOBAL_FUN(mk_environment,  "environment");
+}
+
+static set_safe_function_wrapper set_wrapper(_safe_function_wrapper);
+
 static void open_state(lua_State * L);
 static void open_thread(lua_State * L);
 static void open_interrupt(lua_State * L);
@@ -138,6 +167,8 @@ static void copy_values(lua_State * src, int first, int last, lua_State * tgt) {
     }
 }
 
+void open_splay_map(lua_State * L);
+
 static char g_weak_ptr_key; // key for Lua registry (used at get_weak_ptr and save_weak_ptr)
 
 struct leanlua_state::imp {
@@ -170,33 +201,20 @@ struct leanlua_state::imp {
         if (m_state == nullptr)
             throw exception("fail to create Lua interpreter");
         luaL_openlibs(m_state);
-        open_patch(m_state);
-        open_name(m_state);
-        open_splay_map(m_state);
-        open_mpz(m_state);
-        open_mpq(m_state);
-        open_options(m_state);
-        open_sexpr(m_state);
-        open_format(m_state);
-        open_formatter(m_state);
-        open_level(m_state);
-        open_local_context(m_state);
-        open_expr(m_state);
-        open_context(m_state);
-        open_object(m_state);
-        open_environment(m_state);
-        open_justification(m_state);
-        open_metavar_env(m_state);
+        open_util_module(m_state);
+        open_numerics_module(m_state);
+        open_sexpr_module(m_state);
+        open_kernel_module(m_state);
+        open_arith_module(m_state);
+        open_tactic_module(m_state);
+
         open_state(m_state);
-        open_type_inferer(m_state);
-        open_goal(m_state);
-        open_proof_builder(m_state);
-        open_cex_builder(m_state);
-        open_proof_state(m_state);
         open_frontend_lean(m_state);
         open_thread(m_state);
         open_interrupt(m_state);
-        open_io_state(m_state);
+
+        decl_environment(m_state);
+
         dostring(g_leanlua_extra);
     }
 
@@ -250,59 +268,6 @@ void leanlua_state::dostring(char const * str) {
 
 void leanlua_state::dostring(char const * str, environment & env, io_state & st) {
     m_ptr->dostring(str, env, st);
-}
-
-static std::mutex g_print_mutex;
-
-static void print(io_state * ios, bool reg, char const * msg) {
-    if (ios) {
-        if (reg)
-            regular(*ios) << msg;
-        else
-            diagnostic(*ios) << msg;
-    } else {
-        std::cout << msg;
-    }
-}
-
-/** \brief Thread safe version of print function */
-static int print(lua_State * L, int start, bool reg = false) {
-    std::lock_guard<std::mutex> lock(g_print_mutex);
-    io_state * ios = get_io_state(L);
-    int n = lua_gettop(L);
-    int i;
-    lua_getglobal(L, "tostring");
-    for (i = start; i <= n; i++) {
-        char const * s;
-        size_t l;
-        lua_pushvalue(L, -1);
-        lua_pushvalue(L, i);
-        lua_call(L, 1, 1);
-        s = lua_tolstring(L, -1, &l);
-        if (s == NULL)
-            throw exception("'to_string' must return a string to 'print'");
-        if (i > start) {
-            print(ios, reg, "\t");
-        }
-        print(ios, reg, s);
-        lua_pop(L, 1);
-    }
-    print(ios, reg, "\n");
-    return 0;
-}
-
-int print(lua_State * L, io_state & ios, int start, bool reg) {
-    set_io_state set(L, ios);
-    return print(L, start, reg);
-}
-
-static int print(lua_State * L) {
-    return print(L, 1, true);
-}
-
-/** \brief Redefine some functions from the Lua library */
-static void open_patch(lua_State * L) {
-    SET_GLOBAL_FUN(print, "print");
 }
 
 constexpr char const * state_mt = "luastate.mt";

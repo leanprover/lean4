@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <utility>
 #include <vector>
+#include "util/lua.h"
 #include "util/list.h"
 #include "util/name.h"
 #include "kernel/formatter.h"
@@ -64,4 +65,8 @@ public:
    to convert the proof for the goal into the proof term \c ?p.
 */
 std::pair<goal, goal_proof_fn> to_goal(environment const & env, context const & ctx, expr const & t);
+
+UDATA_DEFS_CORE(hypotheses)
+UDATA_DEFS(goal)
+void open_goal(lua_State * L);
 }

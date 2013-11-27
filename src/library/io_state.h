@@ -87,4 +87,24 @@ inline diagnostic const & operator<<(diagnostic const & out, T const & t) {
     out.m_io_state.get_diagnostic_channel().get_stream() << t;
     return out;
 }
+
+UDATA_DEFS(io_state)
+/**
+   \brief Auxiliary class for temporarily setting the Lua registry of a Lua state
+   with a Lean io_state object.
+*/
+class set_io_state {
+    lua_State * m_state;
+    io_state *  m_prev;
+    options     m_prev_options;
+public:
+    set_io_state(lua_State * L, io_state & st);
+    ~set_io_state();
+};
+/**
+   \brief Return the Lean state object associated with the given Lua state.
+   Return nullptr is there is none.
+*/
+io_state * get_io_state(lua_State * L);
+void open_io_state(lua_State * L);
 }

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <gmp.h>
 #include <iostream>
 #include "util/debug.h"
+#include "util/lua.h"
 #include "util/numerics/numeric_traits.h"
 
 namespace lean {
@@ -234,4 +235,8 @@ public:
     static void power(mpz & v, unsigned k) { _power(v, v, k); }
     static mpz const & zero();
 };
+
+UDATA_DEFS(mpz)
+mpz to_mpz_ext(lua_State * L, int idx);
+void open_mpz(lua_State * L);
 }

@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <string>
 #include "util/exception.h"
-#include "library/script_evaluator.h"
+#include "util/script_exception.h"
 
 namespace lean {
 /**

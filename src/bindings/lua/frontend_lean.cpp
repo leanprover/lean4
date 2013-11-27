@@ -5,15 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <sstream>
-#include <lua.hpp>
+#include "util/lua.h"
+#include "util/sexpr/options.h"
 #include "library/io_state.h"
+#include "library/kernel_bindings.h"
 #include "frontends/lean/parser.h"
-#include "bindings/lua/util.h"
-#include "bindings/lua/expr.h"
-#include "bindings/lua/environment.h"
-#include "bindings/lua/options.h"
-#include "bindings/lua/formatter.h"
-#include "bindings/lua/io_state.h"
 #include "bindings/lua/leanlua_state.h"
 
 namespace lean {

@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include <memory>
 #include <lua.hpp>
+#include "util/lua_exception.h"
 #include "library/script_evaluator.h"
-#include "bindings/lua/lua_exception.h"
 
 namespace lean {
 class environment;

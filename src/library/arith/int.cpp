@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/abstract.h"
 #include "kernel/environment.h"
+#include "library/kernel_bindings.h"
 #include "library/arith/int.h"
 #include "library/arith/nat.h"
 #include "library/arith/num_type.h"
@@ -45,6 +46,7 @@ public:
             return format(m_val);
     }
     virtual unsigned hash() const { return m_val.hash(); }
+    virtual int push_lua(lua_State * L) const { return push_mpz(L, m_val); }
     mpz const & get_num() const { return m_val; }
 };
 
@@ -173,5 +175,14 @@ void import_int(environment & env) {
 
     env.add_definition(nat_sub_fn_name, Nat >> (Nat >> Int), Fun({{x, Nat}, {y, Nat}}, iSub(n2i(x), n2i(y))));
     env.add_definition(nat_neg_fn_name, Nat >> Int, Fun({x, Nat}, iNeg(n2i(x))));
+}
+
+static int mk_int_value(lua_State * L) {
+    return push_expr(L, mk_int_value(to_mpz_ext(L, 1)));
+}
+
+void open_int(lua_State * L) {
+    SET_GLOBAL_FUN(mk_int_value,     "mk_int_value");
+    SET_GLOBAL_FUN(mk_int_value,     "iVal");
 }
 }

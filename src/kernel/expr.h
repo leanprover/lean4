@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include <limits>
 #include <utility>
 #include <tuple>
+#include "util/lua.h"
 #include "util/rc.h"
 #include "util/name.h"
 #include "util/hash.h"
@@ -267,6 +268,7 @@ public:
     virtual void display(std::ostream & out) const;
     virtual format pp() const;
     virtual format pp(bool unicode, bool coercion) const;
+    virtual int push_lua(lua_State * L) const;
     virtual unsigned hash() const;
 };
 /** \brief Semantic attachments */

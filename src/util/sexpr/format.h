@@ -13,6 +13,7 @@ Author: Soonho Kong
 #include <string>
 #include "util/pair.h"
 #include "util/debug.h"
+#include "util/lua.h"
 #include "util/numerics/mpz.h"
 #include "util/sexpr/sexpr.h"
 
@@ -317,4 +318,7 @@ format pp(name const & n);
 /** \brief Format a S-expression */
 format pp(sexpr const & s, options const & o);
 format pp(sexpr const & s);
+
+UDATA_DEFS(format)
+void open_format(lua_State * L);
 }

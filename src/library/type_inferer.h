@@ -36,4 +36,6 @@ public:
     bool is_proposition(expr const & e, context const & ctx = context());
     void clear();
 };
+
+void open_type_inferer(lua_State * L);
 }

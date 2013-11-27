@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/abstract.h"
 #include "kernel/environment.h"
+#include "library/kernel_bindings.h"
 #include "library/arith/real.h"
 #include "library/arith/int.h"
 #include "library/arith/nat.h"
@@ -48,6 +49,7 @@ public:
             return format(m_val);
     }
     virtual unsigned hash() const { return m_val.hash(); }
+    virtual int push_lua(lua_State * L) const { return push_mpq(L, m_val); }
     mpq const & get_num() const { return m_val; }
 };
 
@@ -180,5 +182,14 @@ void import_int_to_real_coercions(environment & env) {
     env.add_builtin(mk_int_to_real_fn());
     expr x    = Const("x");
     env.add_definition(nat_to_real_fn_name, Nat >> Real, Fun({x, Nat}, i2r(n2i(x))));
+}
+
+static int mk_real_value(lua_State * L) {
+    return push_expr(L, mk_real_value(to_mpq_ext(L, 1)));
+}
+
+void open_real(lua_State * L) {
+    SET_GLOBAL_FUN(mk_real_value,    "mk_real_value");
+    SET_GLOBAL_FUN(mk_real_value,    "rVal");
 }
 }

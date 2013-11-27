@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <sstream>
 #include <string>
-#include "library/script_evaluator.h"
+#include "util/script_exception.h"
 
 namespace lean {
 char const * script_exception::what() const noexcept {

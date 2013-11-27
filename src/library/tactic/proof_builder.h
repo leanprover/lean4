@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <algorithm>
+#include "util/lua.h"
 #include "util/debug.h"
 #include "util/name.h"
 #include "util/splay_map.h"
@@ -66,4 +67,9 @@ template<typename F>
 proof_builder mk_proof_builder(F && f) {
     return proof_builder(new proof_builder_tpl<F>(std::forward<F>(f)));
 }
+
+UDATA_DEFS_CORE(proof_map)
+UDATA_DEFS(assignment)
+UDATA_DEFS(proof_builder)
+void open_proof_builder(lua_State * L);
 }

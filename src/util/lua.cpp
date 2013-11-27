@@ -4,17 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <lua.hpp>
+#include <iostream>
 #include <string>
 #include <sstream>
-#include "kernel/kernel_exception.h"
-#include "library/elaborator/elaborator_exception.h"
-#include "bindings/lua/util.h"
-#include "bindings/lua/lua_exception.h"
-#include "bindings/lua/options.h"
-#include "bindings/lua/format.h"
-#include "bindings/lua/formatter.h"
-#include "bindings/lua/justification.h"
+#include <vector>
+#include <memory>
+#include "util/lua.h"
+#include "util/lua_exception.h"
 
 namespace lean {
 /**
@@ -92,13 +88,24 @@ static void exec(lua_State * L) {
     pcall(L, 0, LUA_MULTRET, 0);
 }
 
-static void check_result(lua_State * L, int result) {
+/**
+   \brief check_result for "customers" that are only using a subset
+   of Lean libraries.
+*/
+void simple_check_result(lua_State * L, int result) {
     if (result) {
-        if (is_justification(L, -1))
-            throw elaborator_exception(to_justification(L, -1));
-        else
-            throw lua_exception(lua_tostring(L, -1));
+        throw lua_exception(lua_tostring(L, -1));
     }
+}
+
+static void (*g_check_result)(lua_State *, int) = simple_check_result;
+
+static void check_result(lua_State * L, int result) {
+    g_check_result(L, result);
+}
+
+set_check_result::set_check_result(void (*f)(lua_State *, int)) {
+    g_check_result = f;
 }
 
 void dofile(lua_State * L, char const * fname) {
@@ -118,16 +125,13 @@ void pcall(lua_State * L, int nargs, int nresults, int errorfun) {
     check_result(L, result);
 }
 
-int safe_function_wrapper(lua_State * L, lua_CFunction f){
+/**
+   \brief Wrapper for "customers" that are only using a subset
+   of Lean libraries.
+*/
+int simple_safe_function_wrapper(lua_State * L, lua_CFunction f){
     try {
         return f(L);
-    } catch (kernel_exception & e) {
-        std::ostringstream out;
-        options o = get_global_options(L);
-        out << mk_pair(e.pp(get_global_formatter(L), o), o);
-        lua_pushstring(L, out.str().c_str());
-    } catch (elaborator_exception & e) {
-        push_justification(L, e.get_justification());
     } catch (exception & e) {
         lua_pushstring(L, e.what());
     } catch (std::bad_alloc &) {
@@ -138,5 +142,28 @@ int safe_function_wrapper(lua_State * L, lua_CFunction f){
         lua_pushstring(L, "unknown error");
     }
     return lua_error(L);
+}
+
+int (*g_safe_function_wrapper)(lua_State * L, lua_CFunction f) = simple_safe_function_wrapper;
+
+set_safe_function_wrapper::set_safe_function_wrapper(int (*f)(lua_State *, lua_CFunction)) {
+    g_safe_function_wrapper = f;
+}
+
+static std::unique_ptr<std::vector<lua_module::init_fn>> g_modules;
+
+lua_module::lua_module(init_fn f) {
+    if (!g_modules) {
+        g_modules.reset(new std::vector<init_fn>());
+    }
+    g_modules->push_back(f);
+}
+
+void lua_module::init(lua_State * L) {
+    if (g_modules) {
+        for (auto f : *g_modules) {
+            f(L);
+        }
+    }
 }
 }

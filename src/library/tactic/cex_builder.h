@@ -6,9 +6,11 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <algorithm>
+#include "util/lua.h"
 #include "util/debug.h"
 #include "util/name.h"
 #include "util/rc.h"
+#include "util/optional.h"
 #include "kernel/expr.h"
 #include "kernel/environment.h"
 #include "library/tactic/assignment.h"
@@ -55,8 +57,8 @@ public:
     cex_builder(cex_builder && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~cex_builder() { if (m_ptr) m_ptr->dec_ref(); }
     friend void swap(cex_builder & a, cex_builder & b) { std::swap(a.m_ptr, b.m_ptr); }
-    cex_builder & operator=(cex_builder const & s) { LEAN_COPY_REF(cex_builder, s); }
-    cex_builder & operator=(cex_builder && s) { LEAN_MOVE_REF(cex_builder, s); }
+    cex_builder & operator=(cex_builder const & s);
+    cex_builder & operator=(cex_builder && s);
 
     counterexample operator()(name const & n, optional<counterexample> const & cex, assignment const & a) const { return m_ptr->operator()(n, cex, a); }
 };
@@ -65,4 +67,7 @@ template<typename F>
 cex_builder mk_cex_builder(F && f) {
     return cex_builder(new cex_builder_tpl<F>(std::forward<F>(f)));
 }
+
+UDATA_DEFS(cex_builder)
+void open_cex_builder(lua_State * L);
 }

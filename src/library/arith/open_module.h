@@ -5,8 +5,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include <lua.hpp>
+#include "library/arith/nat.h"
+#include "library/arith/int.h"
+#include "library/arith/real.h"
+
 namespace lean {
-UDATA_DEFS(cex_builder)
-void open_cex_builder(lua_State * L);
+inline void open_arith_module(lua_State * L) {
+    open_nat(L);
+    open_int(L);
+    open_real(L);
+}
 }

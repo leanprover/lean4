@@ -4,19 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/luaref.h"
 #include "util/debug.h"
-#include "bindings/lua/util.h"
-#include "bindings/lua/lref.h"
 
 namespace lean {
-lref::lref(lua_State * L, int i) {
+luaref::luaref(lua_State * L, int i) {
     lean_assert(L);
     m_state = L;
     lua_pushvalue(m_state, i);
     m_ref   = luaL_ref(m_state, LUA_REGISTRYINDEX);
 }
 
-lref::lref(lref const & r) {
+luaref::luaref(luaref const & r) {
     m_state = r.m_state;
     if (m_state) {
         r.push();
@@ -24,18 +23,18 @@ lref::lref(lref const & r) {
     }
 }
 
-lref::lref(lref && r) {
+luaref::luaref(luaref && r) {
     m_state = r.m_state;
     m_ref   = r.m_ref;
     r.m_state = nullptr;
 }
 
-lref::~lref() {
+luaref::~luaref() {
     if (m_state)
         luaL_unref(m_state, LUA_REGISTRYINDEX, m_ref);
 }
 
-lref & lref::operator=(lref const & r) {
+luaref & luaref::operator=(luaref const & r) {
     if (m_ref == r.m_ref)
         return *this;
     if (m_state)
@@ -48,12 +47,12 @@ lref & lref::operator=(lref const & r) {
     return *this;
 }
 
-void lref::push() const {
+void luaref::push() const {
     lean_assert(m_state);
     lua_rawgeti(m_state, LUA_REGISTRYINDEX, m_ref);
 }
 
-int lref_lt_proc::operator()(lref const & r1, lref const & r2) const {
+int luaref_lt_proc::operator()(luaref const & r1, luaref const & r2) const {
     lean_assert(r1.get_state() == r2.get_state());
     lua_State * L = r1.get_state();
     r1.push();

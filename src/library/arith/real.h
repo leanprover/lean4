@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include "util/lua.h"
 #include "util/numerics/mpq.h"
 #include "kernel/expr.h"
 #include "kernel/builtin.h"
@@ -77,4 +78,6 @@ inline expr n2r(expr const & e) { return mk_app(mk_nat_to_real_fn(), e); }
 
 /** \brief Import the coercions \c i2r and \c n2r. The Integer and (basic) Real libraries are also imported. */
 void import_int_to_real_coercions(environment & env);
+
+void open_real(lua_State * L);
 }

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <utility>
+#include "util/lua.h"
 #include "util/pair.h"
 #include "util/splay_tree.h"
 
@@ -114,4 +115,6 @@ void for_each(splay_map<K, T, CMP> const & m, F f) {
                   "for_each: return type of f is not void");
     return m.for_each(f);
 }
+
+void open_splay_map(lua_State * L);
 }

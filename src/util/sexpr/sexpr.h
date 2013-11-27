@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include "util/lua.h"
 
 namespace lean {
 class name;
@@ -158,4 +159,6 @@ inline bool operator>(sexpr const & a, sexpr const & b) { return cmp(a, b) > 0; 
 inline bool operator<=(sexpr const & a, sexpr const & b) { return cmp(a, b) <= 0; }
 inline bool operator>=(sexpr const & a, sexpr const & b) { return cmp(a, b) >= 0; }
 
+UDATA_DEFS(sexpr)
+void open_sexpr(lua_State * L);
 }

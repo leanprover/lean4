@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <utility>
 #include <algorithm>
+#include "util/lua.h"
 #include "util/rc.h"
 #include "util/interrupt.h"
 #include "util/optional.h"
@@ -95,4 +96,8 @@ goals map_goals(proof_state const & s, F && f) {
             }
         });
 }
+
+UDATA_DEFS_CORE(goals)
+UDATA_DEFS(proof_state)
+void open_proof_state(lua_State * L);
 }

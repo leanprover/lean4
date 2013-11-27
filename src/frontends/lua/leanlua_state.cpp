@@ -135,7 +135,6 @@ lua_State * leanlua_state::get_state() {
     return m_ptr->m_state;
 }
 
-
 constexpr char const * state_mt = "luastate.mt";
 
 bool is_state(lua_State * L, int idx) {
@@ -163,8 +162,6 @@ static int state_gc(lua_State * L) {
     to_state(L, 1).~leanlua_state();
     return 0;
 }
-
-environment & to_environment(lua_State * L, int idx);
 
 static int writer(lua_State *, void const * p, size_t sz, void * buf) {
     buffer<char> & _buf = *static_cast<buffer<char>*>(buf);

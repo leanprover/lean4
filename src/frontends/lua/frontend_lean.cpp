@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "library/io_state.h"
 #include "library/kernel_bindings.h"
 #include "frontends/lean/parser.h"
-#include "bindings/lua/leanlua_state.h"
+#include "frontends/lua/leanlua_state.h"
 
 namespace lean {
 /** \see parse_lean_expr */

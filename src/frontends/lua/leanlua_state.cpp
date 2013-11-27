@@ -24,9 +24,9 @@ Author: Leonardo de Moura
 #include "library/tactic/open_module.h"
 #include "library/elaborator/elaborator_exception.h"
 #include "frontends/lean/frontend.h"
-#include "bindings/lua/leanlua_state.h"
-#include "bindings/lua/frontend_lean.h"
-#include "bindings/lua/lean.lua"
+#include "frontends/lua/leanlua_state.h"
+#include "frontends/lua/frontend_lean.h"
+#include "frontends/lua/lean.lua"
 
 extern "C" void * lua_realloc(void *, void * q, size_t, size_t new_size) { return lean::realloc(q, new_size); }
 
@@ -71,6 +71,7 @@ struct leanlua_state::imp {
         open_kernel_module(m_state);
         open_arith_module(m_state);
         open_tactic_module(m_state);
+        open_frontend_lean(m_state);
         open_extra(m_state);
 
         dostring(g_leanlua_extra);

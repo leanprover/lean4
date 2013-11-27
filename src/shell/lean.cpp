@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/printer.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/frontend.h"
-#include "bindings/lua/leanlua_state.h"
+#include "frontends/lua/leanlua_state.h"
 #include "version.h"
 
 using lean::shell;

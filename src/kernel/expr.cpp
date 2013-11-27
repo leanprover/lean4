@@ -178,7 +178,7 @@ bool value::operator<(value const & other) const {
 format value::pp() const { return format(get_name()); }
 format value::pp(bool unicode, bool) const { return unicode ? format(get_unicode_name()) : pp(); }
 unsigned value::hash() const { return get_name().hash(); }
-int value::push_lua(lua_State * L) const { lean_assert(L); return 0; }
+int value::push_lua(lua_State *) const { return 0; } // NOLINT
 expr_value::expr_value(value & v):
     expr_cell(expr_kind::Value, v.hash(), false),
     m_val(v) {

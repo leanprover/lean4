@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include "util/lua.h"
 #include <exception>
 #include <string>
 
@@ -21,6 +22,8 @@ public:
     exception(sstream const & strm);
     virtual ~exception() noexcept;
     virtual char const * what() const noexcept;
+    virtual exception * clone() const { return new exception(m_msg); }
+    virtual void rethrow() const { throw *this; }
 };
 /** \brief Exception produced by a Lean parser. */
 class parser_exception : public exception {
@@ -35,6 +38,8 @@ public:
     virtual char const * what() const noexcept;
     unsigned get_line() const { return m_line; }
     unsigned get_pos() const { return m_pos; }
+    virtual exception * clone() const { return new parser_exception(m_msg, m_line, m_pos); }
+    virtual void rethrow() const { throw *this; }
 };
 /** \brief Exception used to sign that a computation was interrupted */
 class interrupted : public exception {
@@ -42,10 +47,16 @@ public:
     interrupted() {}
     virtual ~interrupted() noexcept {}
     virtual char const * what() const noexcept { return "interrupted"; }
+    virtual exception * clone() const { return new interrupted(); }
+    virtual void rethrow() const { throw *this; }
 };
 /** \brief Throw interrupted exception iff flag is true. */
 inline void check_interrupted(bool flag) {
     if (flag)
         throw interrupted();
 }
+int push_exception(lua_State * L, exception const & e);
+exception const & to_exception(lua_State * L, int i);
+bool is_exception(lua_State * L, int i);
+void open_exception(lua_State * L);
 }

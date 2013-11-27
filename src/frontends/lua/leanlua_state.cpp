@@ -566,45 +566,10 @@ static void open_interrupt(lua_State * L) {
     SET_GLOBAL_FUN(channel_write,     "write");
 }
 
-void _check_result(lua_State * L, int result) {
-    if (result) {
-        if (is_justification(L, -1))
-            throw elaborator_exception(to_justification(L, -1));
-        else
-            throw lua_exception(lua_tostring(L, -1));
-    }
-}
-
-static set_check_result set_check(_check_result);
-
-static int _safe_function_wrapper(lua_State * L, lua_CFunction f) {
-    try {
-        return f(L);
-    } catch (kernel_exception & e) {
-        std::ostringstream out;
-        options o = get_global_options(L);
-        out << mk_pair(e.pp(get_global_formatter(L), o), o);
-        lua_pushstring(L, out.str().c_str());
-    } catch (elaborator_exception & e) {
-        push_justification(L, e.get_justification());
-    } catch (exception & e) {
-        lua_pushstring(L, e.what());
-    } catch (std::bad_alloc &) {
-        lua_pushstring(L, "out of memory");
-    } catch (std::exception & e) {
-        lua_pushstring(L, e.what());
-    } catch(...) {
-        lua_pushstring(L, "unknown error");
-    }
-    return lua_error(L);
-}
-
 static int mk_environment(lua_State * L) {
     frontend f;
     return push_environment(L, f.get_environment());
 }
-
-static set_safe_function_wrapper set_wrapper(_safe_function_wrapper);
 
 void open_extra(lua_State * L) {
     open_state(L);

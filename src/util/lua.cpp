@@ -89,24 +89,13 @@ static void exec(lua_State * L) {
     pcall(L, 0, LUA_MULTRET, 0);
 }
 
-/**
-   \brief check_result for "customers" that are only using a subset
-   of Lean libraries.
-*/
-void simple_check_result(lua_State * L, int result) {
+void check_result(lua_State * L, int result) {
     if (result) {
-        throw lua_exception(lua_tostring(L, -1));
+        if (is_exception(L, -1))
+            to_exception(L, -1).rethrow();
+        else
+            throw lua_exception(lua_tostring(L, -1));
     }
-}
-
-static void (*g_check_result)(lua_State *, int) = simple_check_result;
-
-static void check_result(lua_State * L, int result) {
-    g_check_result(L, result);
-}
-
-set_check_result::set_check_result(void (*f)(lua_State *, int)) {
-    g_check_result = f;
 }
 
 void dofile(lua_State * L, char const * fname) {
@@ -130,11 +119,13 @@ void pcall(lua_State * L, int nargs, int nresults, int errorfun) {
    \brief Wrapper for "customers" that are only using a subset
    of Lean libraries.
 */
-int simple_safe_function_wrapper(lua_State * L, lua_CFunction f){
+int safe_function_wrapper(lua_State * L, lua_CFunction f) {
     try {
         return f(L);
-    } catch (exception & e) {
+    } catch (lua_exception & e) {
         lua_pushstring(L, e.what());
+    } catch (exception & e) {
+        push_exception(L, e);
     } catch (std::bad_alloc &) {
         lua_pushstring(L, "out of memory");
     } catch (std::exception & e) {
@@ -143,12 +134,6 @@ int simple_safe_function_wrapper(lua_State * L, lua_CFunction f){
         lua_pushstring(L, "unknown error");
     }
     return lua_error(L);
-}
-
-int (*g_safe_function_wrapper)(lua_State * L, lua_CFunction f) = simple_safe_function_wrapper;
-
-set_safe_function_wrapper::set_safe_function_wrapper(int (*f)(lua_State *, lua_CFunction)) {
-    g_safe_function_wrapper = f;
 }
 
 void set_migrate_fn_field(lua_State * L, int i, lua_migrate_fn fn) {

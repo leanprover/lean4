@@ -141,6 +141,8 @@ class parser::imp {
         pos_info m_pos;
         parser_error(char const * msg, pos_info const & p):exception(msg), m_pos(p) {}
         parser_error(sstream const & msg, pos_info const & p):exception(msg), m_pos(p) {}
+        virtual exception * clone() const { return new parser_error(m_msg.c_str(), m_pos); }
+        virtual void rethrow() const { throw *this; }
     };
 
     /**
@@ -1573,7 +1575,6 @@ class parser::imp {
             regular(m_frontend) << " executing script, but could not decode position information, " << ex.what() << endl;
             break;
         }
-        next();
     }
 
     void updt_options() {
@@ -1592,8 +1593,9 @@ class parser::imp {
         m_last_script_pos = mk_pair(m_scanner.get_script_block_line(), m_scanner.get_script_block_pos());
         if (!m_script_evaluator)
             throw exception("failed to execute Lua script, parser does not have a Lua interpreter");
-        m_script_evaluator->dostring(m_scanner.get_str_val().c_str(), m_frontend.get_environment(), m_frontend.get_state());
+        std::string script_code = m_scanner.get_str_val();
         next();
+        m_script_evaluator->dostring(script_code.c_str(), m_frontend.get_environment(), m_frontend.get_state());
     }
 
 public:

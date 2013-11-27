@@ -20,5 +20,7 @@ public:
     virtual ~elaborator_exception() {}
     virtual char const * what() const noexcept { return "elaborator exception"; }
     justification const & get_justification() const { return m_justification; }
+    virtual exception * clone() const { return new elaborator_exception(m_justification); }
+    virtual void rethrow() const { throw *this; }
 };
 }

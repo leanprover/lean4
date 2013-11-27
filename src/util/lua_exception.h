@@ -18,6 +18,7 @@ private:
     source      m_source;
     std::string m_file;   // if source == File, then this field contains the filename that triggered the error.
     unsigned    m_line;   // line number
+    lua_exception(source s, std::string f, unsigned l):m_source(s), m_file(f), m_line(l) {}
 public:
     lua_exception(char const * lua_error);
     virtual ~lua_exception();
@@ -26,5 +27,7 @@ public:
     virtual unsigned get_line() const;
     /** \brief Return error message without position information */
     virtual char const * get_msg() const noexcept;
+    virtual exception * clone() const { return new lua_exception(m_source, m_file, m_line); }
+    virtual void rethrow() const { throw *this; }
 };
 }

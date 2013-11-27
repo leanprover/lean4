@@ -3,5 +3,160 @@
   Assumed: i
   Assumed: j
   Assumed: p
+elaborator exception
 Failed to solve
  ⊢ (?M::0 ≈ Nat::add) ⊕ (?M::0 ≈ Int::add) ⊕ (?M::0 ≈ Real::add)
+     Overloading at
+        (Real::add | Int::add | Nat::add) i p
+    Failed to solve
+     ⊢ (?M::1 ≈ λ x : ℤ, x) ⊕ (?M::1 ≈ int_to_real)
+         Coercion for
+            i
+        Failed to solve
+         ⊢ ℤ ≺ ℕ
+            Substitution
+             ⊢ ℤ ≺ ?M::6
+                Substitution
+                 ⊢ (?M::5[inst:0 i]) i ≺ ?M::6
+                     Type of argument 1 must be convertible to the expected type in the application of
+                        ?M::0
+                    with arguments:
+                        ?M::1 i
+                        p
+                    Assignment
+                    x : ℤ ⊢ λ x : ℤ, ℤ ≈ ?M::5
+                        Destruct/Decompose
+                        x : ℤ ⊢ ℤ ≈ ?M::5 x
+                            Destruct/Decompose
+                             ⊢ ℤ → ℤ ≈ Π x : ?M::4, ?M::5 x
+                                Substitution
+                                 ⊢ ?M::3 ≈ Π x : ?M::4, ?M::5 x
+                                     Function expected at
+                                        ?M::1 i
+                                    Assignment
+                                     ⊢ ℤ → ℤ ≺ ?M::3
+                                        Propagate type, ?M::1 : ?M::3
+                                            Assignment
+                                             ⊢ ?M::1 ≈ λ x : ℤ, x
+                                                Assumption 1
+                Assignment
+                 ⊢ ℕ ≈ ?M::6
+                    Destruct/Decompose
+                     ⊢ ℕ → ℕ → ℕ ≈ Π x : ?M::6, ?M::7 x
+                        Substitution
+                         ⊢ ?M::2 ≈ Π x : ?M::6, ?M::7 x
+                             Function expected at
+                                ?M::0 (?M::1 i) p
+                            Assignment
+                             ⊢ ℕ → ℕ → ℕ ≺ ?M::2
+                                Propagate type, ?M::0 : ?M::2
+                                    Assignment
+                                     ⊢ ?M::0 ≈ Nat::add
+                                        Assumption 0
+        Failed to solve
+         ⊢ ℝ ≺ ℕ
+            Substitution
+             ⊢ ℝ ≺ ?M::6
+                Substitution
+                 ⊢ (?M::5[inst:0 i]) i ≺ ?M::6
+                     Type of argument 1 must be convertible to the expected type in the application of
+                        ?M::0
+                    with arguments:
+                        ?M::1 i
+                        p
+                    Assignment
+                    _ : ℤ ⊢ λ x : ℤ, ℝ ≈ ?M::5
+                        Destruct/Decompose
+                        _ : ℤ ⊢ ℝ ≈ ?M::5 _
+                            Destruct/Decompose
+                             ⊢ ℤ → ℝ ≈ Π x : ?M::4, ?M::5 x
+                                Substitution
+                                 ⊢ ?M::3 ≈ Π x : ?M::4, ?M::5 x
+                                     Function expected at
+                                        ?M::1 i
+                                    Assignment
+                                     ⊢ ℤ → ℝ ≺ ?M::3
+                                        Propagate type, ?M::1 : ?M::3
+                                            Assignment
+                                             ⊢ ?M::1 ≈ int_to_real
+                                                Assumption 2
+                Assignment
+                 ⊢ ℕ ≈ ?M::6
+                    Destruct/Decompose
+                     ⊢ ℕ → ℕ → ℕ ≈ Π x : ?M::6, ?M::7 x
+                        Substitution
+                         ⊢ ?M::2 ≈ Π x : ?M::6, ?M::7 x
+                             Function expected at
+                                ?M::0 (?M::1 i) p
+                            Assignment
+                             ⊢ ℕ → ℕ → ℕ ≺ ?M::2
+                                Propagate type, ?M::0 : ?M::2
+                                    Assignment
+                                     ⊢ ?M::0 ≈ Nat::add
+                                        Assumption 0
+    Failed to solve
+     ⊢ Bool ≺ ℤ
+        Substitution
+         ⊢ Bool ≺ ?M::8
+             Type of argument 2 must be convertible to the expected type in the application of
+                ?M::0
+            with arguments:
+                ?M::1 i
+                p
+            Assignment
+             ⊢ ℤ ≈ ?M::8
+                Destruct/Decompose
+                 ⊢ ℤ → ℤ ≈ Π x : ?M::8, ?M::9 x
+                    Substitution
+                     ⊢ (?M::7[inst:0 (?M::1 i)]) (?M::1 i) ≈ Π x : ?M::8, ?M::9 x
+                         Function expected at
+                            ?M::0 (?M::1 i) p
+                        Assignment
+                        _ : ℤ ⊢ λ x : ℤ, ℤ → ℤ ≈ ?M::7
+                            Destruct/Decompose
+                            _ : ℤ ⊢ ℤ → ℤ ≈ ?M::7 _
+                                Destruct/Decompose
+                                 ⊢ ℤ → ℤ → ℤ ≈ Π x : ?M::6, ?M::7 x
+                                    Substitution
+                                     ⊢ ?M::2 ≈ Π x : ?M::6, ?M::7 x
+                                         Function expected at
+                                            ?M::0 (?M::1 i) p
+                                        Assignment
+                                         ⊢ ℤ → ℤ → ℤ ≺ ?M::2
+                                            Propagate type, ?M::0 : ?M::2
+                                                Assignment
+                                                 ⊢ ?M::0 ≈ Int::add
+                                                    Assumption 3
+    Failed to solve
+     ⊢ Bool ≺ ℝ
+        Substitution
+         ⊢ Bool ≺ ?M::8
+             Type of argument 2 must be convertible to the expected type in the application of
+                ?M::0
+            with arguments:
+                ?M::1 i
+                p
+            Assignment
+             ⊢ ℝ ≈ ?M::8
+                Destruct/Decompose
+                 ⊢ ℝ → ℝ ≈ Π x : ?M::8, ?M::9 x
+                    Substitution
+                     ⊢ (?M::7[inst:0 (?M::1 i)]) (?M::1 i) ≈ Π x : ?M::8, ?M::9 x
+                         Function expected at
+                            ?M::0 (?M::1 i) p
+                        Assignment
+                        _ : ℝ ⊢ λ x : ℝ, ℝ → ℝ ≈ ?M::7
+                            Destruct/Decompose
+                            _ : ℝ ⊢ ℝ → ℝ ≈ ?M::7 _
+                                Destruct/Decompose
+                                 ⊢ ℝ → ℝ → ℝ ≈ Π x : ?M::6, ?M::7 x
+                                    Substitution
+                                     ⊢ ?M::2 ≈ Π x : ?M::6, ?M::7 x
+                                         Function expected at
+                                            ?M::0 (?M::1 i) p
+                                        Assignment
+                                         ⊢ ℝ → ℝ → ℝ ≺ ?M::2
+                                            Propagate type, ?M::0 : ?M::2
+                                                Assignment
+                                                 ⊢ ?M::0 ≈ Real::add
+                                                    Assumption 5

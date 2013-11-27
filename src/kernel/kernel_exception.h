@@ -30,16 +30,21 @@ public:
     */
     virtual expr const & get_main_expr() const { return expr::null(); }
     virtual format pp(formatter const & fmt, options const & opts) const;
+    virtual exception * clone() const { return new kernel_exception(m_env, m_msg.c_str()); }
+    virtual void rethrow() const { throw *this; }
 };
 
 /** \brief Base class for unknown universe or object exceptions. */
 class unknown_name_exception : public kernel_exception {
+protected:
     name m_name;
 public:
     unknown_name_exception(environment const & env, name const & n):kernel_exception(env), m_name(n) {}
     virtual ~unknown_name_exception() {}
     name const & get_name() const { return m_name; }
     virtual format pp(formatter const & fmt, options const & opts) const;
+    virtual exception * clone() const { return new unknown_name_exception(m_env, m_name); }
+    virtual void rethrow() const { throw *this; }
 };
 
 /** \brief Exception used to report that a universe variable is not known in a given environment. */
@@ -47,6 +52,8 @@ class unknown_universe_variable_exception : public unknown_name_exception {
 public:
     unknown_universe_variable_exception(environment const & env, name const & n):unknown_name_exception(env, n) {}
     virtual char const * what() const noexcept { return "unknown universe variable"; }
+    virtual exception * clone() const { return new unknown_universe_variable_exception(m_env, m_name); }
+    virtual void rethrow() const { throw *this; }
 };
 
 /** \brief Exception used to report that an object is not known in a given environment. */
@@ -54,10 +61,13 @@ class unknown_object_exception : public unknown_name_exception {
 public:
     unknown_object_exception(environment const & env, name const & n):unknown_name_exception(env, n) {}
     virtual char const * what() const noexcept { return "unknown object"; }
+    virtual exception * clone() const { return new unknown_object_exception(m_env, m_name); }
+    virtual void rethrow() const { throw *this; }
 };
 
 /** \brief Base class for already declared object. */
 class already_declared_exception : public kernel_exception {
+protected:
     name m_name;
 public:
     already_declared_exception(environment const & env, name const & n):kernel_exception(env), m_name(n) {}
@@ -65,6 +75,8 @@ public:
     name const & get_name() const { return m_name; }
     virtual char const * what() const noexcept { return "invalid object declaration, environment already has an object the given name"; }
     virtual format pp(formatter const & fmt, options const & opts) const;
+    virtual exception * clone() const { return new already_declared_exception(m_env, m_name); }
+    virtual void rethrow() const { throw *this; }
 };
 
 /**
@@ -77,12 +89,16 @@ class read_only_environment_exception : public kernel_exception {
 public:
     read_only_environment_exception(environment const & env):kernel_exception(env) {}
     virtual char const * what() const noexcept { return "environment cannot be updated because it has children environments"; }
+    virtual exception * clone() const { return new read_only_environment_exception(m_env); }
+    virtual void rethrow() const { throw *this; }
 };
 
 /** \brief Base class for type checking related exceptions. */
 class type_checker_exception : public kernel_exception {
 public:
     type_checker_exception(environment const & env):kernel_exception(env) {}
+    virtual exception * clone() const { return new type_checker_exception(m_env); }
+    virtual void rethrow() const { throw *this; }
 };
 
 /** \brief Exception for objects that do not have types associated with them */
@@ -94,6 +110,8 @@ public:
     virtual expr const & get_main_expr() const { return m_const; }
     virtual char const * what() const noexcept { return "object does not have a type associated with it"; }
     virtual format pp(formatter const & fmt, options const & opts) const;
+    virtual exception * clone() const { return new has_no_type_exception(m_env, m_const); }
+    virtual void rethrow() const { throw *this; }
 };
 
 /**
@@ -120,6 +138,8 @@ public:
     std::vector<expr> const & get_arg_types() const { return m_arg_types; }
     virtual char const * what() const noexcept { return "application argument type mismatch"; }
     virtual format pp(formatter const & fmt, options const & opts) const;
+    virtual exception * clone() const { return new app_type_mismatch_exception(m_env, m_context, m_app, m_arg_types.size(), m_arg_types.data()); }
+    virtual void rethrow() const { throw *this; }
 };
 
 /**
@@ -142,6 +162,8 @@ public:
     virtual expr const & get_main_expr() const { return get_expr(); }
     virtual char const * what() const noexcept { return "function expected"; }
     virtual format pp(formatter const & fmt, options const & opts) const;
+    virtual exception * clone() const { return new function_expected_exception(m_env, m_context, m_expr); }
+    virtual void rethrow() const { throw *this; }
 };
 
 /**
@@ -164,6 +186,8 @@ public:
     virtual expr const & get_main_expr() const { return get_expr(); }
     virtual char const * what() const noexcept { return "type expected"; }
     virtual format pp(formatter const & fmt, options const & opts) const;
+    virtual exception * clone() const { return new type_expected_exception(m_env, m_context, m_expr); }
+    virtual void rethrow() const { throw *this; }
 };
 
 /**
@@ -198,6 +222,8 @@ public:
     virtual expr const & get_main_expr() const { return m_value; }
     virtual char const * what() const noexcept { return "definition type mismatch"; }
     virtual format pp(formatter const & fmt, options const & opts) const;
+    virtual exception * clone() const { return new def_type_mismatch_exception(m_env, m_context, m_name, m_type, m_value, m_value_type); }
+    virtual void rethrow() const { throw *this; }
 };
 
 /**
@@ -210,6 +236,8 @@ public:
     virtual ~invalid_builtin_value_declaration() {}
     virtual char const * what() const noexcept { return "invalid builtin value declaration, expression is not a builtin value"; }
     virtual expr const & get_main_expr() const { return m_expr; }
+    virtual exception * clone() const { return new invalid_builtin_value_declaration(m_env, m_expr); }
+    virtual void rethrow() const { throw *this; }
 };
 
 /**
@@ -223,6 +251,8 @@ public:
     virtual ~invalid_builtin_value_reference() {}
     virtual char const * what() const noexcept { return "invalid builtin value reference, this kind of builtin value was not declared in the environment"; }
     virtual expr const & get_main_expr() const { return m_expr; }
+    virtual exception * clone() const { return new invalid_builtin_value_reference(m_env, m_expr); }
+    virtual void rethrow() const { throw *this; }
 };
 
 /**
@@ -235,5 +265,7 @@ public:
     virtual ~unexpected_metavar_occurrence() {}
     virtual char const * what() const noexcept { return "unexpected metavariable occurrence"; }
     virtual expr const & get_main_expr() const { return m_expr; }
+    virtual exception * clone() const { return new unexpected_metavar_occurrence(m_env, m_expr); }
+    virtual void rethrow() const { throw *this; }
 };
 }

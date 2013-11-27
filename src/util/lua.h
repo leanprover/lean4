@@ -31,24 +31,14 @@ int get_nonnil_top(lua_State * L);
 /**
    \brief Wrapper for invoking function f, and catching Lean exceptions.
 */
-extern int (*g_safe_function_wrapper)(lua_State * L, lua_CFunction f);
+int safe_function_wrapper(lua_State * L, lua_CFunction f);
 template<lua_CFunction F> int safe_function(lua_State * L) {
-    return g_safe_function_wrapper(L, F);
+    return safe_function_wrapper(L, F);
 }
 template<lua_CFunction F> void set_global_function(lua_State * L, char const * name) {
     lua_pushcfunction(L, safe_function<F>);
     lua_setglobal(L, name);
 }
-/**
-    \brief Helper object for setting g_safe_function_wrapper.
-*/
-struct set_safe_function_wrapper { set_safe_function_wrapper(int (*f)(lua_State *, lua_CFunction)); };
-
-/**
-    \brief Helper object for setting a different check_result function.
-*/
-struct set_check_result { set_check_result(void (*f)(lua_State *, int)); };
-
 #define SET_GLOBAL_FUN(F, N) set_global_function<F>(L, N)
 
 // Auxiliary macro for creating a Lua table that stores enumeration values

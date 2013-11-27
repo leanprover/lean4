@@ -3,12 +3,12 @@ Variable p : Bool
 
 (**
  local env = get_environment()
- ok, jst = pcall(
+ ok, ex = pcall(
     function()
        print(parse_lean("i + p"))
  end)
  assert(not ok)
- assert(is_justification(jst))
- assert(not jst:is_null())
- print(jst:pp{display_children = false})
+ assert(is_exception(ex))
+ print(ex:what())
+ ex:rethrow()
 **)

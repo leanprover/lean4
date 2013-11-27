@@ -106,6 +106,8 @@ public:
     unreachable_reached() {}
     virtual ~unreachable_reached() noexcept {}
     virtual char const * what() const noexcept { return "'unreachable' code was reached"; }
+    virtual exception * clone() const { return new unreachable_reached(); }
+    virtual void rethrow() const { throw *this; }
 };
 namespace debug {
 template<typename T> void display_var(char const * name, T const & value) {

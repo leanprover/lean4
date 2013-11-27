@@ -24,6 +24,9 @@ Author: Soonho Kong
 namespace lean {
 
 class rewriter_exception : public exception {
+public:
+    virtual exception * clone() const { return new rewriter_exception(); }
+    virtual void rethrow() const { throw *this; }
 };
 
 enum class rewriter_kind { Theorem, OrElse, Then, Try, App,

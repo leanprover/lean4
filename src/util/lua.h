@@ -29,17 +29,6 @@ int get_nonnil_top(lua_State * L);
 // Goodies/Macros for automating Lua binding
 // generation.
 /**
-   \brief Helper class for registering a new
-   set of Lua bindings.
-*/
-class lua_module {
-public:
-    typedef void (*init_fn)(lua_State * L);
-    lua_module(init_fn f);
-    static void init(lua_State * L);
-};
-
-/**
    \brief Wrapper for invoking function f, and catching Lean exceptions.
 */
 extern int (*g_safe_function_wrapper)(lua_State * L, lua_CFunction f);

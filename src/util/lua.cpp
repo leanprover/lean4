@@ -149,21 +149,4 @@ int (*g_safe_function_wrapper)(lua_State * L, lua_CFunction f) = simple_safe_fun
 set_safe_function_wrapper::set_safe_function_wrapper(int (*f)(lua_State *, lua_CFunction)) {
     g_safe_function_wrapper = f;
 }
-
-static std::unique_ptr<std::vector<lua_module::init_fn>> g_modules;
-
-lua_module::lua_module(init_fn f) {
-    if (!g_modules) {
-        g_modules.reset(new std::vector<init_fn>());
-    }
-    g_modules->push_back(f);
-}
-
-void lua_module::init(lua_State * L) {
-    if (g_modules) {
-        for (auto f : *g_modules) {
-            f(L);
-        }
-    }
-}
 }

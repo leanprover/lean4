@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
+#include <mutex>
 #include <lua.hpp>
 #include "util/lua_exception.h"
 #include "library/script_evaluator.h"
@@ -22,13 +23,9 @@ public:
 private:
     std::shared_ptr<imp> m_ptr;
     leanlua_state(std::weak_ptr<imp> const & ptr);
-    friend class leanlua_thread;
-    friend class data_channel;
-    friend int state_dostring(lua_State * L);
-    friend int state_set_global(lua_State * L);
-    friend int mk_thread(lua_State * L);
-    friend int thread_wait(lua_State * L);
     friend leanlua_state to_leanlua_state(lua_State * L);
+    std::recursive_mutex & get_mutex();
+    lua_State * get_state();
 public:
     leanlua_state();
     virtual ~leanlua_state();
@@ -50,6 +47,27 @@ public:
        The script \c str should not store a reference to the environment \c env.
     */
     virtual void dostring(char const * str, environment & env, io_state & st);
+
+    /**
+       \brief Execute \c f in the using the internal Lua State.
+    */
+    template<typename F>
+    typename std::result_of<F(lua_State * L)>::type apply(F && f) {
+        std::lock_guard<std::recursive_mutex> lock(get_mutex());
+        return f(get_state());
+    }
+
+    /**
+       \brief Similar to \c apply, but a lock is not used to guarantee
+       exclusive access to the lua_State object.
+
+       \warning It is the caller resposability to guarantee that the object is not being
+       concurrently accessed.
+    */
+    template<typename F>
+    typename std::result_of<F(lua_State * L)>::type unguarded_apply(F && f) {
+        return f(get_state());
+    }
 };
 /**
    \brief Return a reference to the leanlua_state object that is wrapping \c L.

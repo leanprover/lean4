@@ -18,11 +18,9 @@ Author: Leonardo de Moura
 #include "util/open_module.h"
 #include "util/numerics/open_module.h"
 #include "util/sexpr/open_module.h"
-#include "kernel/kernel_exception.h"
 #include "library/kernel_bindings.h"
 #include "library/arith/open_module.h"
 #include "library/tactic/open_module.h"
-#include "library/elaborator/elaborator_exception.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lua/leanlua_state.h"
 #include "frontends/lua/frontend_lean.h"
@@ -397,8 +395,7 @@ int channel_write(lua_State * L) {
 class leanlua_thread {
     leanlua_state                   m_state;
     int                             m_sz_before;
-    bool                            m_error;
-    std::string                     m_error_msg;
+    std::unique_ptr<exception>      m_exception;
     std::atomic<data_channel_ref *> m_in_channel_addr;
     std::atomic<data_channel_ref *> m_out_channel_addr;
     interruptible_thread            m_thread;
@@ -406,7 +403,6 @@ public:
     leanlua_thread(leanlua_state const & st, int sz_before, int num_args):
         m_state(st),
         m_sz_before(sz_before),
-        m_error(false),
         m_in_channel_addr(0),
         m_out_channel_addr(0),
         m_thread([=]() {
@@ -415,8 +411,10 @@ public:
                 m_state.apply([&](lua_State * S) {
                         int result = lua_pcall(S, num_args, LUA_MULTRET, 0);
                         if (result) {
-                            m_error = true;
-                            m_error_msg = lua_tostring(S, -1);
+                            if (is_exception(S, -1))
+                                m_exception.reset(to_exception(S, -1).clone());
+                            else
+                                m_exception.reset(new lua_exception(lua_tostring(S, -1)));
                         }
                     });
             }) {
@@ -429,8 +427,8 @@ public:
 
     int wait(lua_State * src) {
         m_thread.join();
-        if (m_error)
-            throw lua_exception(m_error_msg.c_str());
+        if (m_exception)
+            m_exception->rethrow();
         return m_state.apply([&](lua_State * S) {
                 int sz_after = lua_gettop(S);
                 if (sz_after > m_sz_before) {

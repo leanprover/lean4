@@ -549,8 +549,7 @@ static int check_interrupted(lua_State *) { // NOLINT
 }
 
 static int sleep(lua_State * L) {
-    std::chrono::milliseconds dura(luaL_checkinteger(L, 1));
-    std::this_thread::sleep_for(dura);
+    sleep_for(luaL_checkinteger(L, 1));
     return 0;
 }
 

@@ -20,6 +20,11 @@ size_t objlen(lua_State * L, int idx);
 void dofile(lua_State * L, char const * fname);
 void dostring(lua_State * L, char const * str);
 void pcall(lua_State * L, int nargs, int nresults, int errorfun);
+/**
+    \brief Return true iff coroutine is done, false if it has yielded,
+    and throws an exception if error.
+*/
+bool resume(lua_State * L, int nargs);
 int lessthan(lua_State * L, int idx1, int idx2);
 int equal(lua_State * L, int idx1, int idx2);
 int get_nonnil_top(lua_State * L);

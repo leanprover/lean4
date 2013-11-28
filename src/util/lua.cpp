@@ -115,6 +115,21 @@ void pcall(lua_State * L, int nargs, int nresults, int errorfun) {
     check_result(L, result);
 }
 
+bool resume(lua_State * L, int nargs) {
+    #if LUA_VERSION_NUM < 502
+    int result = lua_resume(L, nargs);
+    #else
+    int result = lua_resume(L, nullptr, nargs);
+    #endif
+    if (result == LUA_YIELD)
+        return false;
+    if (result == 0)
+        return true;
+    check_result(L, result);
+    lean_unreachable();
+    return true;
+}
+
 /**
    \brief Wrapper for "customers" that are only using a subset
    of Lean libraries.

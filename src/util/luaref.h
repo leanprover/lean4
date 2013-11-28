@@ -23,6 +23,7 @@ public:
     luaref(luaref const & r);
     luaref(luaref && r);
     ~luaref();
+    void release();
     luaref & operator=(luaref const & r);
     void push() const;
     lua_State * get_state() const { return m_state; }

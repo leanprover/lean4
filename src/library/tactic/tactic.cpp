@@ -386,20 +386,41 @@ static int mk_lua_tactic01(lua_State * L) {
     luaref ref(L, 1);
     return push_tactic(L,
                        mk_tactic01([=](environment const & env, io_state const & ios, proof_state const & s) -> optional<proof_state> {
-                               optional<proof_state> r;
                                script_state _S(S);
-                               _S.exec_protected([&]() {
-                                       ref.push(); // push user-fun on the stack
-                                       push_environment(L, env);
-                                       push_io_state(L, ios);
-                                       push_proof_state(L, s);
-                                       pcall(L, 3, 1, 0);
-                                       if (is_proof_state(L, -1)) {
-                                           r = to_proof_state(L, -1);
-                                       }
-                                       lua_pop(L, 1);
-                                   });
-                               return r;
+                               optional<proof_state> r;
+                               luaref coref; // Remark: we have to release the reference in a protected block.
+                               try {
+                                   bool done    = false;
+                                   lua_State * co;
+                                   _S.exec_protected([&]() {
+                                           co = lua_newthread(L); // create a coroutine for executing user-fun
+                                           coref = luaref(L, -1);    // make sure co-routine in not deleted
+                                           lua_pop(L, 1);
+                                           ref.push();               // push user-fun on the stack
+                                           push_environment(L, env); // push args...
+                                           push_io_state(L, ios);
+                                           push_proof_state(L, s);
+                                           lua_xmove(L, co, 4);      // move function and arguments to co
+                                           done = resume(co, 3);
+                                       });
+                                   while (!done) {
+                                       check_interrupted();
+                                       std::this_thread::yield(); // give another thread a chance to execute
+                                       _S.exec_protected([&]() {
+                                               done = resume(co, 0);
+                                           });
+                                   }
+                                   _S.exec_protected([&]() {
+                                           if (is_proof_state(co, -1)) {
+                                               r = to_proof_state(co, -1);
+                                           }
+                                           coref.release();
+                                       });
+                                   return r;
+                               } catch (...) {
+                                   _S.exec_protected([&]() { coref.release(); });
+                                   throw;
+                               }
                            }));
 }
 

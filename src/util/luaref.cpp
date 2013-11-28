@@ -34,6 +34,13 @@ luaref::~luaref() {
         luaL_unref(m_state, LUA_REGISTRYINDEX, m_ref);
 }
 
+void luaref::release() {
+    if (m_state) {
+        luaL_unref(m_state, LUA_REGISTRYINDEX, m_ref);
+        m_state = nullptr;
+    }
+}
+
 luaref & luaref::operator=(luaref const & r) {
     if (m_ref == r.m_ref)
         return *this;

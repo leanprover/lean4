@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/script_state.h"
 #include "util/exception.h"
 #include "util/sstream.h"
 #include "util/luaref.h"
@@ -76,22 +77,35 @@ static const struct luaL_Reg assignment_m[] = {
 DECL_UDATA(proof_builder);
 
 static int mk_proof_builder(lua_State * L) {
+    script_state S = to_script_state(L);
     luaL_checktype(L, 1, LUA_TFUNCTION); // user-fun
     luaref ref(L, 1);
     return push_proof_builder(L,
                               mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
-                                      ref.push(); // push user-fun on the stack
-                                      push_proof_map(L, m);
-                                      push_assignment(L, a);
-                                      pcall(L, 2, 1, 0);
-                                      expr r = to_expr(L, -1);
-                                      lua_pop(L, 1);
+                                      expr r;
+                                      script_state _S(S);
+                                      _S.exec_protected([&]() {
+                                              ref.push(); // push user-fun on the stack
+                                              push_proof_map(L, m);
+                                              push_assignment(L, a);
+                                              pcall(L, 2, 1, 0);
+                                              r = to_expr(L, -1);
+                                              lua_pop(L, 1);
+                                          });
                                       return r;
                                   }));
 }
 
 static int proof_builder_call(lua_State * L) {
-    return push_expr(L, to_proof_builder(L, 1)(to_proof_map(L, 2), to_assignment(L, 3)));
+    proof_builder pb = to_proof_builder(L, 1);
+    proof_map m      = to_proof_map(L, 2);
+    assignment a     = to_assignment(L, 3);
+    expr r;
+    script_state S   = to_script_state(L);
+    S.exec_unprotected([&]() {
+            r = pb(m, a);
+        });
+    return push_expr(L, r);
 }
 
 static const struct luaL_Reg proof_builder_m[] = {

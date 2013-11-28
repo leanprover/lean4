@@ -382,12 +382,13 @@ static int tactic_solve(lua_State * L) {
 
 static int mk_lua_tactic01(lua_State * L) {
     luaL_checktype(L, 1, LUA_TFUNCTION); // user-fun
+    script_state S = to_script_state(L);
     luaref ref(L, 1);
     return push_tactic(L,
                        mk_tactic01([=](environment const & env, io_state const & ios, proof_state const & s) -> optional<proof_state> {
-                               script_state S = to_script_state(L);
                                optional<proof_state> r;
-                               S.exec_protected([&]() {
+                               script_state _S(S);
+                               _S.exec_protected([&]() {
                                        ref.push(); // push user-fun on the stack
                                        push_environment(L, env);
                                        push_io_state(L, ios);

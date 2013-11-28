@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <sstream>
 #include <string>
+#include <cstdlib>
 #include "util/debug.h"
 #include "util/script_exception.h"
 

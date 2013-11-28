@@ -83,8 +83,8 @@ static int mk_proof_builder(lua_State * L) {
     return push_proof_builder(L,
                               mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
                                       expr r;
-                                      script_state _S(S);
-                                      _S.exec_protected([&]() {
+                                      script_state S_copy(S);
+                                      S_copy.exec_protected([&]() {
                                               ref.push(); // push user-fun on the stack
                                               push_proof_map(L, m);
                                               push_assignment(L, a);

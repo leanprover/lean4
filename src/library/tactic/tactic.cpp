@@ -386,13 +386,13 @@ static int mk_lua_tactic01(lua_State * L) {
     luaref ref(L, 1);
     return push_tactic(L,
                        mk_tactic01([=](environment const & env, io_state const & ios, proof_state const & s) -> optional<proof_state> {
-                               script_state _S(S);
+                               script_state S_copy(S);
                                optional<proof_state> r;
                                luaref coref; // Remark: we have to release the reference in a protected block.
                                try {
                                    bool done    = false;
                                    lua_State * co;
-                                   _S.exec_protected([&]() {
+                                   S_copy.exec_protected([&]() {
                                            co = lua_newthread(L); // create a coroutine for executing user-fun
                                            coref = luaref(L, -1);    // make sure co-routine in not deleted
                                            lua_pop(L, 1);
@@ -406,11 +406,11 @@ static int mk_lua_tactic01(lua_State * L) {
                                    while (!done) {
                                        check_interrupted();
                                        std::this_thread::yield(); // give another thread a chance to execute
-                                       _S.exec_protected([&]() {
+                                       S_copy.exec_protected([&]() {
                                                done = resume(co, 0);
                                            });
                                    }
-                                   _S.exec_protected([&]() {
+                                   S_copy.exec_protected([&]() {
                                            if (is_proof_state(co, -1)) {
                                                r = to_proof_state(co, -1);
                                            }
@@ -418,7 +418,7 @@ static int mk_lua_tactic01(lua_State * L) {
                                        });
                                    return r;
                                } catch (...) {
-                                   _S.exec_protected([&]() { coref.release(); });
+                                   S_copy.exec_protected([&]() { coref.release(); });
                                    throw;
                                }
                            }));

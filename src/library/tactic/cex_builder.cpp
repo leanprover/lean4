@@ -22,9 +22,9 @@ static int mk_cex_builder(lua_State * L) {
     luaref ref(L, 1);
     return push_cex_builder(L,
                             mk_cex_builder([=](name const & n, optional<counterexample> const & cex, assignment const & a) -> counterexample {
-                                    script_state _S(S);
+                                    script_state S_copy(S);
                                     optional<environment> r;
-                                    _S.exec_protected([&]() {
+                                    S_copy.exec_protected([&]() {
                                             ref.push(); // push user-fun on the stack
                                             push_name(L, n);
                                             if (cex)

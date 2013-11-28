@@ -40,6 +40,7 @@ void sleep_for(unsigned ms, unsigned step_ms) {
         check_interrupted();
     }
     std::this_thread::sleep_for(r);
+    check_interrupted();
 }
 
 std::atomic_bool * interruptible_thread::get_flag_addr() {

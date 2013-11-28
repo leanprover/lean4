@@ -430,6 +430,10 @@ static const struct luaL_Reg tactic_m[] = {
     {0, 0}
 };
 
+static void tactic_migrate(lua_State * src, int i, lua_State * tgt) {
+    push_tactic(tgt, to_tactic(src, i));
+}
+
 void open_tactic(lua_State * L) {
     luaL_newmetatable(L, proof_state_seq_mt);
     lua_pushvalue(L, -1);
@@ -438,6 +442,7 @@ void open_tactic(lua_State * L) {
     SET_GLOBAL_FUN(proof_state_seq_pred, "is_proof_state_seq");
 
     luaL_newmetatable(L, tactic_mt);
+    set_migrate_fn_field(L, -1, tactic_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, tactic_m, 0);

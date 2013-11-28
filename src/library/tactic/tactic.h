@@ -36,7 +36,7 @@ public:
     }
 };
 
-enum class solve_result_kind { Proof, Counterexample, Failure };
+enum class solve_result_kind { None, Proof, Counterexample, Failure };
 /**
    \brief Result for the solve method in the tactic class.
    The result may be a proof, a counterexample, or a list of unsolved proof_states.
@@ -48,12 +48,17 @@ class solve_result {
         counterexample    m_cex;
         list<proof_state> m_failures;
     };
+    void init(solve_result const & r);
+    void destroy();
 public:
+    solve_result():m_kind(solve_result_kind::None) {}
     solve_result(expr const & pr);
     solve_result(counterexample const & cex);
     solve_result(list<proof_state> const & fs);
     solve_result(solve_result const & r);
     ~solve_result();
+    solve_result & operator=(solve_result & other);
+    solve_result & operator=(solve_result && other);
     solve_result_kind kind() const { return m_kind; }
     expr get_proof() const { lean_assert(kind() == solve_result_kind::Proof); return m_proof; }
     counterexample get_cex() const { lean_assert(kind() == solve_result_kind::Counterexample); return m_cex; }
@@ -218,6 +223,7 @@ tactic interleave(tactic const & t1, tactic const & t2);
    threads finished.
 */
 tactic par(tactic const & t1, tactic const & t2, unsigned check_ms = 1);
+
 /**
    \brief Return a tactic that keeps applying \c t until it fails.
 */
@@ -264,4 +270,8 @@ tactic cond(P && p, tactic const & t1, tactic const & t2) {
 */
 template<typename P>
 tactic when(P && p, tactic const & t) { return cond(std::forward<P>(p), t, id_tactic()); }
+
+UDATA_DEFS_CORE(proof_state_seq)
+UDATA_DEFS(tactic);
+void open_tactic(lua_State * L);
 }

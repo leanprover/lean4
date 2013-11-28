@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/tactic/proof_builder.h"
 #include "library/tactic/cex_builder.h"
 #include "library/tactic/proof_state.h"
+#include "library/tactic/tactic.h"
 
 namespace lean {
 inline void open_tactic_module(lua_State * L) {
@@ -17,6 +18,7 @@ inline void open_tactic_module(lua_State * L) {
     open_proof_builder(L);
     open_cex_builder(L);
     open_proof_state(L);
+    open_tactic(L);
 }
 inline void register_tactic_module() {
     script_state::register_module(open_tactic_module);

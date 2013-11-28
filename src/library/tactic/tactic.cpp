@@ -7,28 +7,53 @@ Author: Leonardo de Moura
 #include <utility>
 #include <chrono>
 #include <string>
+#include "util/luaref.h"
+#include "util/script_state.h"
 #include "util/sstream.h"
 #include "util/interrupt.h"
 #include "util/lazy_list_fn.h"
+#include "library/kernel_bindings.h"
 #include "library/tactic/tactic.h"
 
 namespace lean {
 solve_result::solve_result(expr const & pr):m_kind(solve_result_kind::Proof) { new (&m_proof) expr(pr); }
 solve_result::solve_result(counterexample const & cex):m_kind(solve_result_kind::Counterexample) { new (&m_cex) counterexample(cex); }
 solve_result::solve_result(list<proof_state> const & fs):m_kind(solve_result_kind::Failure) { new (&m_failures) list<proof_state>(fs); }
-solve_result::solve_result(solve_result const & r):m_kind(r.m_kind) {
+void solve_result::init(solve_result const & r) {
+    m_kind = r.m_kind;
     switch (m_kind) {
+    case solve_result_kind::None:           break;
     case solve_result_kind::Proof:          new (&m_proof) expr(r.m_proof); break;
     case solve_result_kind::Counterexample: new (&m_cex) counterexample(r.m_cex); break;
     case solve_result_kind::Failure:        new (&m_failures) list<proof_state>(r.m_failures); break;
     }
 }
-solve_result::~solve_result() {
+void solve_result::destroy() {
     switch (m_kind) {
+    case solve_result_kind::None:           break;
     case solve_result_kind::Proof:          m_proof.~expr(); break;
     case solve_result_kind::Counterexample: m_cex.~counterexample(); break;
     case solve_result_kind::Failure:        m_failures.~list<proof_state>(); break;
     }
+}
+solve_result::solve_result(solve_result const & r) {
+    init(r);
+}
+solve_result::~solve_result() {
+    destroy();
+}
+solve_result & solve_result::operator=(solve_result & other) {
+    if (this == &other)
+        return *this;
+    destroy();
+    init(other);
+    return *this;
+}
+solve_result & solve_result::operator=(solve_result && other) {
+    lean_assert(this != &other);
+    destroy();
+    init(other);
+    return *this;
 }
 
 tactic & tactic::operator=(tactic const & s) {
@@ -226,5 +251,203 @@ tactic take(tactic const & t, unsigned k) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
             return take(k, t(env, io, s));
         });
+}
+
+DECL_UDATA(proof_state_seq)
+
+static const struct luaL_Reg proof_state_seq_m[] = {
+    {"__gc",            proof_state_seq_gc}, // never throws
+    {0, 0}
+};
+
+static int proof_state_seq_next(lua_State * L) {
+    proof_state_seq seq = to_proof_state_seq(L, lua_upvalueindex(1));
+    script_state S      = to_script_state(L);
+    proof_state_seq::maybe_pair p;
+    S.exec_unprotected([&]() {
+            p = seq.pull();
+        });
+    if (p) {
+        push_proof_state_seq(L, p->second);
+        lua_replace(L, lua_upvalueindex(1));
+        push_proof_state(L, p->first);
+    } else {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
+static int push_proof_state_seq_it(lua_State * L, proof_state_seq const & seq) {
+    push_proof_state_seq(L, seq);
+    lua_pushcclosure(L, &safe_function<proof_state_seq_next>, 1); // create closure with 1 upvalue
+    return 1;
+}
+
+DECL_UDATA(tactic)
+
+static void check_ios(io_state * ios) {
+    if (!ios)
+        throw exception("failed to invoke tactic, io_state is not available");
+}
+
+static int tactic_call_core(lua_State * L, tactic t, environment env, io_state ios, proof_state s) {
+    script_state S = to_script_state(L);
+    proof_state_seq seq;
+    S.exec_unprotected([&]() {
+            seq = t(env, ios, s);
+        });
+    return push_proof_state_seq_it(L, seq);
+}
+
+static int tactic_call(lua_State * L) {
+    int nargs = lua_gettop(L);
+    tactic & t = to_tactic(L, 1);
+    ro_environment env(L, 2);
+    if (nargs == 3) {
+        io_state * ios = get_io_state(L);
+        check_ios(ios);
+        return tactic_call_core(L, t, env, *ios, to_proof_state(L, 3));
+    } else {
+        return tactic_call_core(L, t, env, to_io_state(L, 3), to_proof_state(L, 4));
+    }
+}
+
+static int tactic_then(lua_State * L)           {  return push_tactic(L, then(to_tactic(L, 1), to_tactic(L, 2)));   }
+static int tactic_orelse(lua_State * L)         {  return push_tactic(L, orelse(to_tactic(L, 1), to_tactic(L, 2))); }
+static int tactic_append(lua_State * L)         {  return push_tactic(L, append(to_tactic(L, 1), to_tactic(L, 2))); }
+static int tactic_par(lua_State * L)            {  return push_tactic(L, par(to_tactic(L, 1), to_tactic(L, 2))); }
+static int tactic_repeat(lua_State * L)         {  return push_tactic(L, repeat(to_tactic(L, 1))); }
+static int tactic_repeat1(lua_State * L)        {  return push_tactic(L, repeat1(to_tactic(L, 1))); }
+static int tactic_repeat_at_most(lua_State * L) {  return push_tactic(L, repeat_at_most(to_tactic(L, 1), luaL_checkinteger(L, 2))); }
+static int tactic_take(lua_State * L)           {  return push_tactic(L, take(to_tactic(L, 1), luaL_checkinteger(L, 2))); }
+static int tactic_determ(lua_State * L)         {  return push_tactic(L, determ(to_tactic(L, 1))); }
+static int tactic_suppress_trace(lua_State * L) {  return push_tactic(L, suppress_trace(to_tactic(L, 1))); }
+static int tactic_try_for(lua_State * L)        {  return push_tactic(L, try_for(to_tactic(L, 1), luaL_checkinteger(L, 2))); }
+
+static int push_solve_result(lua_State * L, solve_result const & r) {
+    switch (r.kind()) {
+    case solve_result_kind::None:           lua_pushnil(L); break;
+    case solve_result_kind::Proof:          push_expr(L, r.get_proof()); break;
+    case solve_result_kind::Counterexample: push_environment(L, r.get_cex()); break;
+    case solve_result_kind::Failure:
+        lua_newtable(L);
+        int i = 1;
+        for (auto s : r.get_failures()) {
+            push_proof_state(L, s);
+            lua_rawseti(L, -2, i);
+            i++;
+        }
+    }
+    return 1;
+}
+
+static int tactic_solve_core(lua_State * L, tactic t, environment env, io_state ios, proof_state s) {
+    script_state S = to_script_state(L);
+    solve_result result;
+    S.exec_unprotected([&]() {
+            result = t.solve(env, ios, s);;
+        });
+    return push_solve_result(L, result);
+}
+
+static int tactic_solve_core(lua_State * L, tactic t, environment env, io_state ios, context ctx, expr e) {
+    script_state S = to_script_state(L);
+    solve_result result;
+    S.exec_unprotected([&]() {
+            result = t.solve(env, ios, ctx, e);
+        });
+    return push_solve_result(L, result);
+}
+
+static int tactic_solve(lua_State * L) {
+    int nargs = lua_gettop(L);
+    tactic & t = to_tactic(L, 1);
+    ro_environment env(L, 2);
+    if (nargs == 3) {
+        io_state * ios = get_io_state(L);
+        check_ios(ios);
+        return tactic_solve_core(L, t, env, *ios, to_proof_state(L, 3));
+    } else if (nargs == 4) {
+        if (is_io_state(L, 3)) {
+            return tactic_solve_core(L, t, env, to_io_state(L, 3), to_proof_state(L, 4));
+        } else {
+            io_state * ios = get_io_state(L);
+            check_ios(ios);
+            return tactic_solve_core(L, t, env, *ios, to_context(L, 3), to_expr(L, 4));
+        }
+    } else {
+        return tactic_solve_core(L, t, env, to_io_state(L, 3), to_context(L, 4), to_expr(L, 5));
+    }
+}
+
+static int mk_lua_tactic01(lua_State * L) {
+    luaL_checktype(L, 1, LUA_TFUNCTION); // user-fun
+    luaref ref(L, 1);
+    return push_tactic(L,
+                       mk_tactic01([=](environment const & env, io_state const & ios, proof_state const & s) -> optional<proof_state> {
+                               script_state S = to_script_state(L);
+                               optional<proof_state> r;
+                               S.exec_protected([&]() {
+                                       ref.push(); // push user-fun on the stack
+                                       push_environment(L, env);
+                                       push_io_state(L, ios);
+                                       push_proof_state(L, s);
+                                       pcall(L, 3, 1, 0);
+                                       if (is_proof_state(L, -1)) {
+                                           r = to_proof_state(L, -1);
+                                       }
+                                       lua_pop(L, 1);
+                                   });
+                               return r;
+                           }));
+}
+
+static int mk_id_tactic(lua_State * L)         {  return push_tactic(L, id_tactic()); }
+static int mk_now_tactic(lua_State * L)        {  return push_tactic(L, now_tactic()); }
+static int mk_fail_tactic(lua_State * L)       {  return push_tactic(L, fail_tactic()); }
+static int mk_trace_tactic(lua_State * L)      {  return push_tactic(L, trace_tactic(luaL_checkstring(L, 1))); }
+static int mk_assumption_tactic(lua_State * L) {  return push_tactic(L, assumption_tactic()); }
+
+static const struct luaL_Reg tactic_m[] = {
+    {"__gc",            tactic_gc}, // never throws
+    {"__call",          safe_function<tactic_call>},
+    {"__concat",        safe_function<tactic_then>},
+    {"__pow",           safe_function<tactic_orelse>},
+    {"__add",           safe_function<tactic_append>},
+    {"then",            safe_function<tactic_then>},
+    {"orelse",          safe_function<tactic_orelse>},
+    {"append",          safe_function<tactic_append>},
+    {"solve",           safe_function<tactic_solve>},
+    {"par",             safe_function<tactic_par>},
+    {"determ",          safe_function<tactic_determ>},
+    {"repeat",          safe_function<tactic_repeat>},
+    {"repeat1",         safe_function<tactic_repeat1>},
+    {"repeat_at_most",  safe_function<tactic_repeat_at_most>},
+    {"take",            safe_function<tactic_take>},
+    {"suppress_trace",  safe_function<tactic_suppress_trace>},
+    {"try_for",         safe_function<tactic_try_for>},
+    {0, 0}
+};
+
+void open_tactic(lua_State * L) {
+    luaL_newmetatable(L, proof_state_seq_mt);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    setfuncs(L, proof_state_seq_m, 0);
+    SET_GLOBAL_FUN(proof_state_seq_pred, "is_proof_state_seq");
+
+    luaL_newmetatable(L, tactic_mt);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    setfuncs(L, tactic_m, 0);
+
+    SET_GLOBAL_FUN(tactic_pred,          "is_tactic");
+    SET_GLOBAL_FUN(mk_trace_tactic,      "trace_tactic");
+    SET_GLOBAL_FUN(mk_id_tactic,         "id_tactic");
+    SET_GLOBAL_FUN(mk_now_tactic,        "now_tactic");
+    SET_GLOBAL_FUN(mk_fail_tactic,       "fail_tactic");
+    SET_GLOBAL_FUN(mk_assumption_tactic, "assumption_tactic");
+    SET_GLOBAL_FUN(mk_assumption_tactic, "assump_tactic");
+    SET_GLOBAL_FUN(mk_lua_tactic01,      "tactic");
 }
 }

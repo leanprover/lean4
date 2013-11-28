@@ -63,6 +63,12 @@ public:
         unlock_guard unlock(get_mutex());
         f();
     }
+
+    template<typename F>
+    void exec_protected(F && f) {
+        std::lock_guard<std::mutex> lock(get_mutex());
+        f();
+    }
 };
 /**
    \brief Return a reference to the script_state object that is wrapping \c L.

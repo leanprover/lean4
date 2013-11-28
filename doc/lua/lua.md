@@ -172,4 +172,110 @@ assert(mpq(0.5)^5 == mpq("1/32"))
 assert(mpq(1)/2 > mpq("1/3"))
 ```
 
+## S-expressions
 
+In Lean, we use Lisp-like non-mutable S-expressions as a basis for
+building configuration options, statistics, formatting objects, and
+other structured objects. S-expressions can be atomic values (nil, strings,
+hierarchical names, integers, doubles, Booleans, and multiple precision
+integers and rationals), or pairs (aka _cons-cell_).
+The following example demonstrates how to create S-expressions using Lua.
+
+```lua
+local s = sexpr(1, 2) -- Create a pair containing the atomic values 1 and 2
+assert(is_sexpr(s))   -- 's' is a pair
+assert(s:is_cons())   -- 's' is a cons-cell/pair
+assert(s:head():is_atom())   -- the 'head' is an atomic S-expression
+assert(s:head() == sexpr(1)) -- the 'head' of 's' is the atomic S-expression 1
+assert(s:tail() == sexpr(2)) -- the 'head' of 's' is the atomic S-expression 2
+s = sexpr(1, 2, 3, nil) -- Create a 'list' containing 1, 2 and 3
+assert(s:length() == 3)
+assert(s:head() == sexpr(1))
+assert(s:tail() == sexpr(2, 3, nil))
+assert(s:head():is_int())      -- the 'head' is an integer
+assert(s:head():to_int() == 1) -- return the integer stored in the 'head' of 's'
+local h, t = s:fields()        -- return the 'head' and 'tail' of s
+assert(h == sexpr(1))
+```
+
+The following example demonstrates how to test the kind of and extract
+the value stored in atomic S-expressions.
+
+```lua
+assert(sexpr(1):is_int())
+assert(sexpr(1):to_int() == 1)
+assert(sexpr(true):is_bool())
+assert(sexpr(false):to_bool() == false)
+assert(sexpr("hello"):is_string())
+assert(sexpr("hello"):to_string() == "hello")
+assert(sexpr(name("n", 1)):is_name())
+assert(sexpr(name("n", 1)):to_name() == name("n", 1))
+assert(sexpr(mpz(10)):is_mpz())
+assert(sexpr(mpz(10)):to_mpz() == mpz(10))
+assert(sexpr(mpq(3)/2):is_mpq())
+assert(sexpr(mpq(3)/2):to_mpq() == mpq(6)/4)
+```
+We can also use the method `fields` to extract the value stored
+in atomic S-expressions. It is more convenient than using
+the `to_*` methods.
+
+```lua
+assert(sexpr(10):fields() == 10)
+assert(sexpr("hello"):fields() == "hello")
+```
+
+The `to_*` methods raise an error is the argument does not match
+the expected type. Remark: in Lua, we catch errors using
+the builtin function [`pcall`](http://pgl.yoyo.org/luai/i/pcall) (aka _protected call_).
+
+```lua
+local s = sexpr(10)
+local ok, msg = pcall(function() s:to_string() end)
+assert(not ok)
+-- 'msg' contains the error message
+```
+
+We say an S-expression `s` is a _list_ iff `s` is a pair, and the
+`tail` is nil or a list. So, every _list_ is a pair, but not every
+pair is a list.
+
+```lua
+assert(sexpr(1, 2):is_cons()) -- The S-expression is a pair
+assert(not sexpr(1, 2):is_list()) -- This pair is not a list
+assert(sexpr(1, nil):is_list())   -- List with one element
+assert(sexpr(1, 2, nil):is_list()) -- List with two elements
+-- The expression sexpr(1, 2, nil) is syntax-sugar
+-- for sexpr(1, sexpr(2, nil))
+assert(sexpr(1, 2, nil) == sexpr(1, sexpr(2, nil)))
+-- The methond 'length' returns the length of the list
+assert(sexpr(1, 2, nil):length() == 2)
+```
+
+We can encode trees using S-expressions. The following example
+demonstrates how to write a simple recursive function that
+collects all leaves (aka atomic values) stored in a S-expression
+tree.
+
+```lua
+function collect(S)
+    -- We store the result in a Lua table
+    local result = {}
+    function loop(S)
+        if S:is_cons() then
+            loop(S:head())
+            loop(S:tail())
+        elseif not S:is_nil() then
+            result[#result + 1] = S:fields()
+        end
+    end
+    loop(S)
+    return result
+end
+-- Create a simple tree
+local tree = sexpr(sexpr(1, 5), sexpr(sexpr(4, 3), 5))
+local leaves = collect(tree) -- store the leaves in a Lua table
+assert(#leaves == 5)
+assert(leaves[1] == 1)
+assert(leaves[2] == 5)
+assert(leaves[3] == 4)
+```

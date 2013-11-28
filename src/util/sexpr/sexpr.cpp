@@ -463,6 +463,7 @@ static const struct luaL_Reg sexpr_m[] = {
     {"kind",       safe_function<sexpr_get_kind>},
     {"is_nil",     safe_function<sexpr_is_nil>},
     {"is_cons",    safe_function<sexpr_is_cons>},
+    {"is_pair",    safe_function<sexpr_is_cons>},
     {"is_list",    safe_function<sexpr_is_list>},
     {"is_atom",    safe_function<sexpr_is_atom>},
     {"is_string",  safe_function<sexpr_is_string>},

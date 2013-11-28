@@ -230,9 +230,10 @@ the builtin function [`pcall`](http://pgl.yoyo.org/luai/i/pcall) (aka _protected
 
 ```lua
 local s = sexpr(10)
-local ok, msg = pcall(function() s:to_string() end)
+local ok, ex = pcall(function() s:to_string() end)
 assert(not ok)
--- 'msg' contains the error message
+-- 'ex' is a Lean exception
+assert(is_exception(ex))
 ```
 
 We say an S-expression `s` is a _list_ iff `s` is a pair, and the
@@ -278,4 +279,66 @@ assert(#leaves == 5)
 assert(leaves[1] == 1)
 assert(leaves[2] == 5)
 assert(leaves[3] == 4)
+```
+
+## Options
+
+Lean components can be configured used _options_ objects.  The options
+can be explicitly provided or read from a global variable. An options
+object is a non-mutable value based on S-expressions.
+An options object is essentially a list of pairs, where each pair
+is a hierarchical name and a value. The following example demonstrates
+how to create options objects using Lua.
+
+```lua
+-- Create an options set containing the entries
+--   pp::colors  -> false,
+--   pp::unicode -> false
+local o1 = options(name("pp", "colors"), false, name("pp", "unicode"), false)
+assert(is_options(o1))
+print(o1)
+-- The same example using syntax-sugar for hierarchical names.
+-- The Lean-Lua API will automatically convert Lua arrays into hierarchical names.
+local o2 = options({"pp", "colors"}, false, {"pp", "unicode"}, false)
+print(o2)
+-- An error is raised if the option is not known.
+local ok, ex = pcall(function() options({"pp", "foo"}, true) end)
+assert(not ok)
+assert(ex:what() == "unknown option 'pp::foo'")
+```
+
+Options objects are non-mutable values. The method `update` returns a new
+updates options object.
+
+```lua
+local o1 = options() -- create the empty options
+assert(o1:empty())
+local o2 = o1:update({'pp', 'colors'}, true)
+assert(o1:empty())
+assert(not o2:empty())
+assert(o2:size() == 1)
+assert(o2:get({'pp', 'colors'}) == true)
+assert(o2:get{'pp', 'colors'} == true)
+assert(o2:contains{'pp', 'colors'})
+assert(not o2:contains{'pp', 'unicode'})
+-- We can provide a default value for 'get'.
+-- The default value is used if the options object does
+-- not contain the key.
+assert(o2:get({'pp', 'width'}) == 0)
+assert(o2:get({'pp', 'width'}, 10) == 10)
+assert(o2:get({'pp', 'width'}, 20) == 20)
+local o3 = o2:update({'pp', 'width'}, 100)
+assert(o3:get({'pp', 'width'}) == 100)
+assert(o3:get({'pp', 'width'}, 1) == 100)
+assert(o3:get({'pp', 'width'}, 20) == 100)
+```
+
+The functions `get_options` and `set_options` get/set the global
+options object. For example, the global options object is used
+by the `print` method.
+
+```lua
+local o = options({'pp', 'unicode'}, false)
+set_options(o)
+assert(get_options():contains{'pp', 'unicode'})
 ```

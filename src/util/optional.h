@@ -78,7 +78,7 @@ public:
         if (m_some)
             m_value.~T();
         m_some = true;
-        new (&m_value) T(other.m_value);
+        new (&m_value) T(other);
         return *this;
     }
     optional& operator=(T && other) {

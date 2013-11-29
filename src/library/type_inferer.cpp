@@ -245,7 +245,7 @@ public:
         if (is_bool(t))
             return true;
         else
-            return is_bool(normalize(e, ctx));
+            return is_bool(normalize(t, ctx));
     }
 };
 type_inferer::type_inferer(environment const & env):m_ptr(new imp(env)) {}

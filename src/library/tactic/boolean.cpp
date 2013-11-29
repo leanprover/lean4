@@ -171,4 +171,25 @@ tactic conj_hyp_tactic(bool all) {
             }
         });
 }
+
+static int mk_conj_tactic(lua_State * L) {
+    int nargs = lua_gettop(L);
+    return push_tactic(L, conj_tactic(nargs == 0 ? true : lua_toboolean(L, 1)));
+}
+
+static int mk_imp_tactic(lua_State * L) {
+    int nargs = lua_gettop(L);
+    return push_tactic(L, imp_tactic(nargs >= 1 ? to_name_ext(L, 1) : name("H"), nargs == 2 ? lua_toboolean(L, 2) : true));
+}
+
+static int mk_conj_hyp_tactic(lua_State * L) {
+    int nargs = lua_gettop(L);
+    return push_tactic(L, conj_hyp_tactic(nargs == 0 ? true : lua_toboolean(L, 1)));
+}
+
+void open_boolean(lua_State * L) {
+    SET_GLOBAL_FUN(mk_conj_tactic,     "conj_tactic");
+    SET_GLOBAL_FUN(mk_imp_tactic,      "imp_tactic");
+    SET_GLOBAL_FUN(mk_conj_hyp_tactic, "conj_hyp_tactic");
+}
 }

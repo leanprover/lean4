@@ -10,4 +10,5 @@ namespace lean {
 tactic conj_tactic(bool all = true);
 tactic conj_hyp_tactic(bool all = true);
 tactic imp_tactic(name const & H_name = name("H"), bool all = true);
+void open_boolean(lua_State * L);
 }

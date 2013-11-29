@@ -71,7 +71,7 @@ Theorem Example2 (a b c d : N)
     DisjCases::explicit
         (eq::explicit N a b ∧ eq::explicit N b c)
         (eq::explicit N a d ∧ eq::explicit N d c)
-        ((h a b) == (h c b))
+        (eq::explicit N (h a b) (h c b))
         H
         (λ H1 : eq::explicit N a b ∧ eq::explicit N b c,
            CongrH::explicit

@@ -236,6 +236,15 @@ class elaborator::imp {
         return is_meta_app(a) && has_local_context(arg(a, 0));
     }
 
+    /** \brief Return true iff \c a is a proposition */
+    bool is_proposition(expr const & a, context const & ctx) {
+        try {
+            return m_type_inferer.is_proposition(a, ctx);
+        } catch (...) {
+            return false;
+        }
+    }
+
     static expr mk_lambda(name const & n, expr const & d, expr const & b) {
         return ::lean::mk_lambda(n, d, b);
     }
@@ -388,7 +397,7 @@ class elaborator::imp {
        4- \c a is an application of the form <tt>(?m ...)</tt> where ?m is an assigned metavariable.
     */
     enum status { Processed, Failed, Continue };
-    status process_metavar(unification_constraint const & c, expr const & a, expr const & b, bool is_lhs, bool allow_assignment) {
+    status process_metavar(unification_constraint const & c, expr const & a, expr const & b, bool is_lhs) {
         if (is_metavar(a)) {
             if (is_assigned(a)) {
                 // Case 1
@@ -401,7 +410,11 @@ class elaborator::imp {
                 if (has_metavar(b, a)) {
                     m_conflict = justification(new unification_failure_justification(c));
                     return Failed;
-                } else if (allow_assignment) {
+                } else if (is_eq(c) || is_proposition(b, get_context(c))) {
+                    // At this point, we only assign metavariables if the constraint is an equational constraint,
+                    // or b is a proposition.
+                    // It is important to handle propositions since we don't want to normalize them.
+                    // The normalization process destroys the structure of the proposition.
                     assign(a, b, c);
                     return Processed;
                 }
@@ -1078,11 +1091,9 @@ class elaborator::imp {
         }
 
         status r;
-        // At this point, we only assign metavariables if the constraint is an equational constraint.
-        bool allow_assignment = eq;
-        r = process_metavar(c, a, b, true, allow_assignment);
+        r = process_metavar(c, a, b, true);
         if (r != Continue) { return r == Processed; }
-        r = process_metavar(c, b, a, false, allow_assignment);
+        r = process_metavar(c, b, a, false);
         if (r != Continue) { return r == Processed; }
 
         if (normalize_head(a, b, c)) { return true; }

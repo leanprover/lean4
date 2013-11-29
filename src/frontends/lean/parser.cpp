@@ -1065,7 +1065,7 @@ class parser::imp {
                 auto tac_pos = pos();
                 optional<tactic> t;
                 if (curr() == scanner::token::ScriptBlock) {
-                    parse_script();
+                    parse_script_expr();
                     m_script_state->apply([&](lua_State * L) {
                             if (is_tactic(L, -1))
                                 t = to_tactic(L, -1);
@@ -1714,11 +1714,18 @@ class parser::imp {
             next();
     }
 
-    void parse_script() {
+    /**
+       \brief Parse a block of Lua code. If as_expr is true, then
+       it appends the string "return " in front of the script.
+    */
+    void parse_script(bool as_expr = false) {
         m_last_script_pos = mk_pair(m_scanner.get_script_block_line(), m_scanner.get_script_block_pos());
         if (!m_script_state)
             throw exception("failed to execute Lua script, parser does not have a Lua interpreter");
         std::string script_code = m_scanner.get_str_val();
+        if (as_expr) {
+            script_code = "return " + script_code;
+        }
         next();
         m_script_state->apply([&](lua_State * L) {
                 set_io_state    set1(L, m_frontend.get_state());
@@ -1726,6 +1733,8 @@ class parser::imp {
                 dostring(L, script_code.c_str());
             });
     }
+
+    void parse_script_expr() { return parse_script(true); }
 
 public:
     imp(frontend & fe, std::istream & in, script_state * S, bool use_exceptions, bool interactive):

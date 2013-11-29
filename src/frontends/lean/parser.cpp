@@ -1052,23 +1052,39 @@ class parser::imp {
         std::vector<lazy_list<proof_state>> stack;
         while (true) {
             auto p = pos();
-            name id = check_identifier_next("invalid tactic, identifier expected");
+            if (!curr_is_identifier()) {
+                diagnostic(m_frontend) << "current state:\n" << s << endl;
+                throw parser_error("invalid tactic, identifier expected", p);
+            }
+            name id = curr_name();
+            next();
             if (id == g_apply) {
-                auto tac_name_pos = pos();
-                name tac_name = check_identifier_next("invalid apply command, identifier expected");
+                auto tac_pos = pos();
                 optional<tactic> t;
-                m_script_state->apply([&](lua_State * L) {
-                        lua_getglobal(L, tac_name.to_string().c_str());
-                        if (lua_type(L, -1) != LUA_TFUNCTION && !is_tactic(L, -1))
-                            throw parser_error(sstream() << "unknown tactic '" << tac_name << "'", tac_name_pos);
-                        if (lua_type(L, -1) == LUA_TFUNCTION) {
-                            pcall(L, 0, 1, 0);
-                            if (!is_tactic(L, -1))
-                                throw parser_error(sstream() << "invalid function '" << tac_name << "', it does not return a tactic", tac_name_pos);
-                        }
-                        t = to_tactic(L, -1);
-                        lua_pop(L, 1);
-                    });
+                if (curr() == scanner::token::ScriptBlock) {
+                    parse_script();
+                    m_script_state->apply([&](lua_State * L) {
+                            if (is_tactic(L, -1))
+                                t = to_tactic(L, -1);
+                            else
+                                throw parser_error(sstream() << "invalid script-block, it must return a tactic", tac_pos);
+                        });
+                } else {
+                    name tac_name = check_identifier_next("invalid apply command, identifier or 'script-block' expected");
+                    m_script_state->apply([&](lua_State * L) {
+                            lua_getglobal(L, tac_name.to_string().c_str());
+                            if (lua_type(L, -1) != LUA_TFUNCTION && !is_tactic(L, -1))
+                                throw parser_error(sstream() << "unknown tactic '" << tac_name << "'", tac_pos);
+                            if (lua_type(L, -1) == LUA_TFUNCTION) {
+                                pcall(L, 0, 1, 0);
+                                if (!is_tactic(L, -1))
+                                    throw parser_error(sstream() << "invalid function '" << tac_name << "', it does not return a tactic",
+                                                       tac_pos);
+                            }
+                            t = to_tactic(L, -1);
+                            lua_pop(L, 1);
+                        });
+                }
                 lazy_list<proof_state> seq = (*t)(m_frontend, m_frontend.get_state(), s);
                 auto r = seq.pull();
                 if (r) {
@@ -1076,7 +1092,7 @@ class parser::imp {
                     stack.push_back(r->second);
                 } else {
                     diagnostic(m_frontend) << "current state:\n" << s << endl;
-                    throw parser_error(sstream() << "tactic '" << tac_name << "' failed", tac_name_pos);
+                    throw parser_error(sstream() << "tactic failed", tac_pos);
                 }
             } else if (id == g_done) {
                 if (s.is_proof_final_state()) {
@@ -1098,6 +1114,8 @@ class parser::imp {
         check_period_next("invalid theorem, '.' expected before tactical proof");
         if (is_metavar(val)) {
             // simple case
+            if (!m_type_inferer.is_proposition(type))
+                throw exception("failed to synthesize metavar, its type is not a proposition");
             proof_state s = to_proof_state(m_frontend, context(), type);
             return parse_tactic(s);
         } else {
@@ -1527,7 +1545,8 @@ class parser::imp {
                 regular(m_frontend) << "Available options:" << endl;
                 for (auto p : get_option_declarations()) {
                     auto opt = p.second;
-                    regular(m_frontend) << "  " << opt.get_name() << " (" << opt.kind() << ") " << opt.get_description() << " (default: " << opt.get_default_value() << ")" << endl;
+                    regular(m_frontend) << "  " << opt.get_name() << " (" << opt.kind() << ") "
+                                        << opt.get_description() << " (default: " << opt.get_default_value() << ")" << endl;
                 }
             } else {
                 throw parser_error("invalid help command", m_last_cmd_pos);

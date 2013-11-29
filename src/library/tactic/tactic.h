@@ -222,7 +222,8 @@ tactic interleave(tactic const & t1, tactic const & t2);
    \remark \c check_ms is how often the main thread checks whether the children
    threads finished.
 */
-tactic par(tactic const & t1, tactic const & t2, unsigned check_ms = 1);
+tactic par(tactic const & t1, tactic const & t2, unsigned check_ms);
+inline tactic par(tactic const & t1, tactic const & t2) { return par(t1, t2, 1); }
 
 /**
    \brief Return a tactic that keeps applying \c t until it fails.

@@ -1,0 +1,15 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: p
+  Assumed: q
+  Assumed: r
+  Proved: T1
+Theorem T1 : p ⇒ p ∧ q ⇒ r ⇒ q ∧ r ∧ p :=
+    Discharge
+        (λ H : p,
+           Discharge
+               (λ H::1 : p ∧ q,
+                  Discharge
+                      (λ H::2 : r,
+                         Conj (let H::1::2 := Conjunct2 H::1 in H::1::2)
+                              (Conj H::2 (let H::1::1 := Conjunct1 H::1 in H::1::1)))))

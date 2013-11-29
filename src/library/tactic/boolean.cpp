@@ -16,23 +16,8 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic.h"
 
 namespace lean {
-bool is_app_of(expr const & e, expr const & f) {
-    return is_app(e) && arg(e, 0) == f;
-}
-
-bool is_app_of(expr const & e, expr const & f, expr & arg1, expr & arg2) {
-    if (is_app_of(e, f)) {
-        arg1 = arg(e, 1);
-        arg2 = arg(e, 2);
-        return true;
-    } else {
-        return false;
-    }
-}
-
 tactic conj_tactic(bool all) {
     return mk_tactic01([=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
-            expr andfn = mk_and_fn();
             bool found = false;
             buffer<std::pair<name, goal>> new_goals_buf;
             list<std::pair<name, expr>> proof_info;
@@ -41,7 +26,7 @@ tactic conj_tactic(bool all) {
                 goal const & g = p.second;
                 expr const & c = g.get_conclusion();
                 expr c1, c2;
-                if ((all || !found) && is_app_of(c, andfn, c1, c2)) {
+                if ((all || !found) && is_and(c, c1, c2)) {
                     found = true;
                     name const & n = p.first;
                     proof_info.emplace_front(n, c);
@@ -80,7 +65,7 @@ tactic imp_tactic(name const & H_name, bool all) {
             goals new_goals = map_goals(s, [&](name const & g_name, goal const & g) -> goal {
                     expr const & c  = g.get_conclusion();
                     expr new_h, new_c;
-                    if ((all || !found) && is_app_of(c, impfn, new_h, new_c)) {
+                    if ((all || !found) && is_implies(c, new_h, new_c)) {
                         found = true;
                         name new_h_name = g.mk_unique_hypothesis_name(H_name);
                         proof_info.emplace_front(g_name, new_h_name, c);
@@ -113,7 +98,6 @@ tactic imp_tactic(name const & H_name, bool all) {
 
 tactic conj_hyp_tactic(bool all) {
     return mk_tactic01([=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
-            expr andfn = mk_and_fn();
             bool found = false;
             list<std::pair<name, hypotheses>> proof_info; // goal name -> expanded hypotheses
             goals new_goals = map_goals(s, [&](name const & ng, goal const & g) -> goal {
@@ -124,7 +108,7 @@ tactic conj_hyp_tactic(bool all) {
                             name const & H_name = p.first;
                             expr const & H_prop = p.second;
                             expr H1, H2;
-                            if ((all || !found) && is_app_of(H_prop, andfn, H1, H2)) {
+                            if ((all || !found) && is_and(H_prop, H1, H2)) {
                                 found       = true;
                                 proof_info_data = add_hypothesis(p, proof_info_data);
                                 new_hyp_buf.emplace_back(name(H_name, 1), H1);

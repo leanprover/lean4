@@ -51,6 +51,9 @@ bool is_false(expr const & e);
 
 /** \brief Return the Lean If-Then-Else operator. It has type: pi (A : Type), bool -> A -> A -> A */
 expr mk_if_fn();
+bool is_if_fn(expr const & e);
+inline bool is_if(expr const & e) { return is_app(e) && is_if_fn(arg(e, 0)); }
+bool is_if(expr const & n, expr & c, expr & t, expr & e);
 /** \brief Return the term (if A c t e) */
 inline expr mk_if(expr const & A, expr const & c, expr const & t, expr const & e) { return mk_app(mk_if_fn(), A, c, t, e); }
 inline expr If(expr const & A, expr const & c, expr const & t, expr const & e) { return mk_if(A, c, t, e); }
@@ -60,6 +63,9 @@ inline expr bIf(expr const & c, expr const & t, expr const & e) { return mk_bool
 
 /** \brief Return the Lean Implies operator */
 expr mk_implies_fn();
+bool is_implies_fn(expr const & e);
+inline bool is_implies(expr const & e) { return is_app(e) && is_implies_fn(arg(e, 0)); }
+bool is_implies(expr const & e, expr & a1, expr & a2);
 /** \brief Return the term (e1 => e2) */
 inline expr mk_implies(expr const & e1, expr const & e2) { return mk_app(mk_implies_fn(), e1, e2); }
 inline expr mk_implies(unsigned num_args, expr const * args) { lean_assert(num_args >= 2); return mk_bin_rop(mk_implies_fn(), False, num_args, args); }
@@ -68,6 +74,9 @@ inline expr Implies(std::initializer_list<expr> const & l) { return mk_implies(l
 
 /** \brief Return the Lean Iff operator */
 expr mk_iff_fn();
+bool is_iff_fn(expr const & e);
+inline bool is_iff(expr const & e) { return is_app(e) && is_iff_fn(arg(e, 0)); }
+bool is_iff(expr const & e, expr & a1, expr & a2);
 /** \brief Return (e1 iff e2) */
 inline expr mk_iff(expr const & e1, expr const & e2) { return mk_app(mk_iff_fn(), e1, e2); }
 inline expr mk_iff(unsigned num_args, expr const * args) { return mk_bin_rop(mk_iff_fn(), True, num_args, args); }
@@ -76,6 +85,9 @@ inline expr Iff(std::initializer_list<expr> const & l) { return mk_iff(l.size(),
 
 /** \brief Return the Lean And operator */
 expr mk_and_fn();
+bool is_and_fn(expr const & e);
+inline bool is_and(expr const & e) { return is_app(e) && is_and_fn(arg(e, 0)); }
+bool is_and(expr const & e, expr & a1, expr & a2);
 /** \brief Return (e1 and e2) */
 inline expr mk_and(expr const & e1, expr const & e2) { return mk_app(mk_and_fn(), e1, e2); }
 inline expr mk_and(unsigned num_args, expr const * args) { return mk_bin_rop(mk_and_fn(), True, num_args, args); }
@@ -84,6 +96,9 @@ inline expr And(std::initializer_list<expr> const & l) { return mk_and(l.size(),
 
 /** \brief Return the Lean Or operator */
 expr mk_or_fn();
+bool is_or_fn(expr const & e);
+inline bool is_or(expr const & e) { return is_app(e) && is_or_fn(arg(e, 0)); }
+bool is_or(expr const & e, expr & a1, expr & a2);
 /** \brief Return (e1 Or e2) */
 inline expr mk_or(expr const & e1, expr const & e2) { return mk_app(mk_or_fn(), e1, e2); }
 inline expr mk_or(unsigned num_args, expr const * args) { return mk_bin_rop(mk_or_fn(), False, num_args, args); }
@@ -92,24 +107,34 @@ inline expr Or(std::initializer_list<expr> const & l) { return mk_or(l.size(), l
 
 /** \brief Return the Lean not operator */
 expr mk_not_fn();
+bool is_not_fn(expr const & e);
+inline bool is_not(expr const & e) { return is_app(e) && is_not_fn(arg(e, 0)); }
+bool is_not(expr const & e, expr & a1);
 /** \brief Return (Not e) */
 inline expr mk_not(expr const & e) { return mk_app(mk_not_fn(), e); }
 inline expr Not(expr const & e) { return mk_not(e); }
 
 /** \brief Return the Lean forall operator. It has type: <tt>Pi (A : Type), (A -> bool) -> Bool</tt> */
 expr mk_forall_fn();
+bool is_forall_fn(expr const & e);
+inline bool is_forall(expr const & e) { return is_app(e) && is_forall_fn(arg(e, 0)); }
 /** \brief Return the term (Forall A P), where A is a type and P : A -> bool */
 inline expr mk_forall(expr const & A, expr const & P) { return mk_app(mk_forall_fn(), A, P); }
 inline expr Forall(expr const & A, expr const & P) { return mk_forall(A, P); }
 
 /** \brief Return the Lean exists operator. It has type: <tt>Pi (A : Type), (A -> Bool) -> Bool</tt> */
 expr mk_exists_fn();
+bool is_exists_fn(expr const & e);
+inline bool is_exists(expr const & e) { return is_app(e) && is_exists_fn(arg(e, 0)); }
 /** \brief Return the term (exists A P), where A is a type and P : A -> bool */
 inline expr mk_exists(expr const & A, expr const & P) { return mk_app(mk_exists_fn(), A, P); }
 inline expr Exists(expr const & A, expr const & P) { return mk_exists(A, P); }
 
 /** \brief Homogeneous equality. It has type: <tt>Pi (A : Type), A -> A -> Bool</tt> */
 expr mk_homo_eq_fn();
+bool is_homo_eq_fn(expr const & e);
+inline bool is_homo_eq(expr const & e) { return is_app(e) && is_homo_eq_fn(arg(e, 0)); }
+bool is_homo_eq(expr const & e, expr & a1, expr & a2);
 /** \brief Return the term (homo_eq A l r) */
 inline expr mk_homo_eq(expr const & A, expr const & l, expr const & r) { return mk_app(mk_homo_eq_fn(), A, l, r); }
 inline expr hEq(expr const & A, expr const & l, expr const & r) { return mk_homo_eq(A, l, r); }
@@ -177,5 +202,25 @@ static name Name ## _name = NameObj;                            \
 expr mk_##Name() {                                              \
     static thread_local expr r = mk_constant(Name ## _name);    \
     return r ;                                                  \
+}                                                               \
+bool is_ ## Name(expr const & e) {                              \
+    return is_constant(e) && const_name(e) == Name ## _name;    \
+}
+
+#define MK_IS_BUILTIN(Name, Builtin)                                    \
+bool Name(expr const & e) {                                             \
+    expr const & v = Builtin;                                           \
+    return e == v || (is_constant(e) && const_name(e) == to_value(v).get_name()); \
+}
+
+#define MK_IS_BINARY_APP(Name)                          \
+bool Name(expr const & e, expr & a1, expr & a2) {       \
+    if (Name(e)) {                                      \
+        a1 = arg(e, 1);                                 \
+        a2 = arg(e, 2);                                 \
+        return true;                                    \
+    } else {                                            \
+        return false;                                   \
+    }                                                   \
 }
 }

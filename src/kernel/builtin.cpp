@@ -66,9 +66,7 @@ public:
 };
 expr const Bool = mk_value(*(new bool_type_value()));
 expr mk_bool_type() { return Bool; }
-bool is_bool(expr const & e) {
-    return e == Bool || (is_constant(e) && const_name(e) == to_value(Bool).get_name());
-}
+MK_IS_BUILTIN(is_bool, Bool)
 // =======================================
 
 // =======================================
@@ -153,16 +151,48 @@ public:
     }
 };
 MK_BUILTIN(if_fn, if_fn_value);
+MK_IS_BUILTIN(is_if_fn, mk_if_fn());
+bool is_if(expr const & n, expr & c, expr & t, expr & e) {
+    if (is_if(n)) {
+        c = arg(n, 2);
+        t = arg(n, 3);
+        e = arg(n, 4);
+        return true;
+    } else {
+        return false;
+    }
+}
 // =======================================
 
 MK_CONSTANT(implies_fn, name("implies"));
+MK_IS_BINARY_APP(is_implies)
 MK_CONSTANT(iff_fn,     name("iff"));
+MK_IS_BINARY_APP(is_iff)
 MK_CONSTANT(and_fn,     name("and"));
+MK_IS_BINARY_APP(is_and)
 MK_CONSTANT(or_fn,      name("or"));
+MK_IS_BINARY_APP(is_or)
 MK_CONSTANT(not_fn,     name("not"));
+bool is_not(expr const & e, expr & a) {
+    if (is_not(e)) {
+        a = arg(e, 1);
+        return true;
+    } else {
+        return false;
+    }
+}
 MK_CONSTANT(forall_fn,  name("forall"));
 MK_CONSTANT(exists_fn,  name("exists"));
 MK_CONSTANT(homo_eq_fn, name("eq"));
+bool is_homo_eq(expr const & e, expr & lhs, expr & rhs) {
+    if (is_homo_eq(e)) {
+        lhs = arg(e, 2);
+        rhs = arg(e, 3);
+        return true;
+    } else {
+        return false;
+    }
+}
 
 // Axioms
 MK_CONSTANT(mp_fn,          name("MP"));

@@ -1560,6 +1560,8 @@ static void open_metavar_env(lua_State * L) {
     SET_GLOBAL_FUN(instantiate_metavars, "instantiate_metavars");
 }
 
+
+
 void open_kernel_module(lua_State * L) {
     open_level(L);
     open_local_context(L);

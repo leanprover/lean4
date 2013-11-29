@@ -153,8 +153,9 @@ tactic suppress_trace(tactic const & t) {
 }
 
 tactic assumption_tactic() {
-    return mk_tactic1([](environment const &, io_state const &, proof_state const & s) -> proof_state {
+    return mk_tactic01([](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             list<std::pair<name, expr>> proofs;
+            bool found = false;
             goals new_goals = map_goals(s, [&](name const & ng, goal const & g) -> goal {
                     expr const & c  = g.get_conclusion();
                     expr pr;
@@ -167,6 +168,7 @@ tactic assumption_tactic() {
                     }
                     if (pr) {
                         proofs.emplace_front(ng, pr);
+                        found = true;
                         return goal();
                     } else {
                         return g;
@@ -180,7 +182,10 @@ tactic assumption_tactic() {
                     }
                     return pr_builder(new_m, a);
                 });
-            return proof_state(s, new_goals, new_pr_builder);
+            if (found)
+                return some(proof_state(s, new_goals, new_pr_builder));
+            else
+                return none_proof_state();
         });
 }
 
@@ -325,6 +330,7 @@ static int tactic_determ(lua_State * L)         {  return push_tactic(L, determ(
 static int tactic_suppress_trace(lua_State * L) {  return push_tactic(L, suppress_trace(to_tactic(L, 1))); }
 static int tactic_try_for(lua_State * L)        {  return push_tactic(L, try_for(to_tactic(L, 1), luaL_checkinteger(L, 2))); }
 static int tactic_using_params(lua_State * L)   {  return push_tactic(L, using_params(to_tactic(L, 1), to_options(L, 2))); }
+static int tactic_try(lua_State * L)            {  return push_tactic(L, orelse(to_tactic(L, 1), id_tactic())); }
 
 static int push_solve_result(lua_State * L, solve_result const & r) {
     switch (r.kind()) {
@@ -525,6 +531,7 @@ void open_tactic(lua_State * L) {
     SET_GLOBAL_FUN(tactic_interleave,     "INTERLEAVE");
     SET_GLOBAL_FUN(mk_lua_cond_tactic,    "COND");
     SET_GLOBAL_FUN(mk_lua_when_tactic,    "WHEN");
+    SET_GLOBAL_FUN(tactic_try,            "TRY");
     SET_GLOBAL_FUN(tactic_try_for,        "TRY_FOR");
     SET_GLOBAL_FUN(tactic_take,           "TAKE");
     SET_GLOBAL_FUN(tactic_par,            "PAR");

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <algorithm>
 #include <readline/readline.h>
 #include <readline/history.h>
 #endif

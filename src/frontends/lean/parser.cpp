@@ -1063,7 +1063,7 @@ class parser::imp {
             next();
             if (id == g_apply) {
                 auto tac_pos = pos();
-                optional<tactic> t;
+                tactic t;
                 if (curr() == scanner::token::ScriptBlock) {
                     parse_script_expr();
                     m_script_state->apply([&](lua_State * L) {
@@ -1084,7 +1084,7 @@ class parser::imp {
                             lua_pop(L, 1);
                         });
                 }
-                lazy_list<proof_state> seq = (*t)(m_frontend, m_frontend.get_state(), s);
+                lazy_list<proof_state> seq = t(m_frontend, m_frontend.get_state(), s);
                 auto r = seq.pull();
                 if (r) {
                     s = r->first;

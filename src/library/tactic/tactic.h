@@ -69,15 +69,20 @@ class tactic {
 protected:
     tactic_cell * m_ptr;
 public:
+    tactic():m_ptr(nullptr) {}
     explicit tactic(tactic_cell * ptr):m_ptr(ptr) { if (m_ptr) m_ptr->inc_ref(); }
     tactic(tactic const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     tactic(tactic && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~tactic() { if (m_ptr) m_ptr->dec_ref(); }
+    operator bool() const { return m_ptr != nullptr; }
     friend void swap(tactic & a, tactic & b) { std::swap(a.m_ptr, b.m_ptr); }
     tactic & operator=(tactic const & s);
     tactic & operator=(tactic && s);
 
-    proof_state_seq operator()(environment const & env, io_state const & io, proof_state const & s) const { return m_ptr->operator()(env, io, s); }
+    proof_state_seq operator()(environment const & env, io_state const & io, proof_state const & s) const {
+        lean_assert(m_ptr);
+        return m_ptr->operator()(env, io, s);
+    }
 
     solve_result solve(environment const & env, io_state const & io, proof_state const & s);
     solve_result solve(environment const & env, io_state const & io, context const & ctx, expr const & t);

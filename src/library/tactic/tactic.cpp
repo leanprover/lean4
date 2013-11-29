@@ -302,8 +302,9 @@ DECL_UDATA(tactic)
           ORELSE(assumption_tactic(), conj_tactic())
 */
 tactic to_tactic_ext(lua_State * L, int i) {
+    tactic t;
     if (is_tactic(L, i)) {
-        return to_tactic(L, i);
+        t = to_tactic(L, i);
     } else if (lua_isfunction(L, i)) {
         try {
             lua_pushvalue(L, i);
@@ -312,15 +313,17 @@ tactic to_tactic_ext(lua_State * L, int i) {
             throw_tactic_expected(i);
         }
         if (is_tactic(L, -1)) {
-            tactic t = to_tactic(L, -1);
+            t = to_tactic(L, -1);
             lua_pop(L, 1);
-            return t;
         } else {
             throw_tactic_expected(i);
         }
     } else {
         throw_tactic_expected(i);
     }
+    if (!t)
+        throw exception(sstream() << "arg #" << i << " must be a nonnull tactic");
+    return t;
 }
 
 static void check_ios(io_state * ios) {

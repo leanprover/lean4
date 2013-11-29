@@ -231,6 +231,8 @@ class parser::imp {
     bool curr_is_assign() const { return curr() == scanner::token::Assign; }
     /** \brief Return true iff the current token is an 'in' token */
     bool curr_is_in() const { return curr() == scanner::token::In; }
+    /** \brief Return true iff the current token is '.' */
+    bool curr_is_period() const { return curr() == scanner::token::Period; }
 
     /** \brief Throws a parser error if the current token is not an identifier. */
     void check_identifier(char const * msg) { if (!curr_is_identifier()) throw parser_error(msg, pos()); }
@@ -1108,6 +1110,8 @@ class parser::imp {
             } else {
                 throw parser_error(sstream() << "invalid tactical proof, unknown command '" << id << "'", p);
             }
+            while (curr_is_period())
+                next();
         }
     }
 

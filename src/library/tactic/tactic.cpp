@@ -480,11 +480,12 @@ static int mk_lua_when_tactic(lua_State * L) {
     return mk_lua_cond_tactic(L, to_tactic(L, 2), id_tactic());
 }
 
-static int mk_id_tactic(lua_State * L)         {  return push_tactic(L, id_tactic()); }
-static int mk_now_tactic(lua_State * L)        {  return push_tactic(L, now_tactic()); }
-static int mk_fail_tactic(lua_State * L)       {  return push_tactic(L, fail_tactic()); }
-static int mk_trace_tactic(lua_State * L)      {  return push_tactic(L, trace_tactic(luaL_checkstring(L, 1))); }
-static int mk_assumption_tactic(lua_State * L) {  return push_tactic(L, assumption_tactic()); }
+static int mk_id_tactic(lua_State * L)          {  return push_tactic(L, id_tactic()); }
+static int mk_now_tactic(lua_State * L)         {  return push_tactic(L, now_tactic()); }
+static int mk_fail_tactic(lua_State * L)        {  return push_tactic(L, fail_tactic()); }
+static int mk_trace_tactic(lua_State * L)       {  return push_tactic(L, trace_tactic(luaL_checkstring(L, 1))); }
+static int mk_assumption_tactic(lua_State * L)  {  return push_tactic(L, assumption_tactic()); }
+static int mk_trace_state_tactic(lua_State * L) {  return push_tactic(L, trace_state_tactic()); }
 
 static const struct luaL_Reg tactic_m[] = {
     {"__gc",            tactic_gc}, // never throws
@@ -527,14 +528,16 @@ void open_tactic(lua_State * L) {
     lua_setfield(L, -2, "__index");
     setfuncs(L, tactic_m, 0);
 
-    SET_GLOBAL_FUN(tactic_pred,          "is_tactic");
-    SET_GLOBAL_FUN(mk_trace_tactic,      "trace_tactic");
-    SET_GLOBAL_FUN(mk_id_tactic,         "id_tactic");
-    SET_GLOBAL_FUN(mk_now_tactic,        "now_tactic");
-    SET_GLOBAL_FUN(mk_fail_tactic,       "fail_tactic");
-    SET_GLOBAL_FUN(mk_assumption_tactic, "assumption_tactic");
-    SET_GLOBAL_FUN(mk_assumption_tactic, "assump_tactic");
-    SET_GLOBAL_FUN(mk_lua_tactic01,      "tactic");
+    SET_GLOBAL_FUN(tactic_pred,           "is_tactic");
+    SET_GLOBAL_FUN(mk_trace_tactic,       "trace_tactic");
+    SET_GLOBAL_FUN(mk_id_tactic,          "id_tactic");
+    SET_GLOBAL_FUN(mk_now_tactic,         "now_tactic");
+    SET_GLOBAL_FUN(mk_fail_tactic,        "fail_tactic");
+    SET_GLOBAL_FUN(mk_trace_state_tactic, "show_tactic");
+    SET_GLOBAL_FUN(mk_assumption_tactic,  "assumption_tactic");
+    SET_GLOBAL_FUN(mk_assumption_tactic,  "assump_tactic");
+    SET_GLOBAL_FUN(mk_lua_tactic01,       "tactic");
+
     // HOL-like tactic names
     SET_GLOBAL_FUN(nary_tactic<then>,       "THEN");
     SET_GLOBAL_FUN(nary_tactic<orelse>,     "ORELSE");

@@ -1076,15 +1076,11 @@ class parser::imp {
                     name tac_name = check_identifier_next("invalid apply command, identifier or 'script-block' expected");
                     m_script_state->apply([&](lua_State * L) {
                             lua_getglobal(L, tac_name.to_string().c_str());
-                            if (lua_type(L, -1) != LUA_TFUNCTION && !is_tactic(L, -1))
+                            try {
+                                t = to_tactic_ext(L, -1);
+                            } catch (...) {
                                 throw parser_error(sstream() << "unknown tactic '" << tac_name << "'", tac_pos);
-                            if (lua_type(L, -1) == LUA_TFUNCTION) {
-                                pcall(L, 0, 1, 0);
-                                if (!is_tactic(L, -1))
-                                    throw parser_error(sstream() << "invalid function '" << tac_name << "', it does not return a tactic",
-                                                       tac_pos);
                             }
-                            t = to_tactic(L, -1);
                             lua_pop(L, 1);
                         });
                 }

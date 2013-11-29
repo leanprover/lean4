@@ -1,0 +1,5 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Proved: T4
+Theorem T4 (a b : Bool) : a ⇒ b ⇒ a ∧ b ∧ a :=
+    Discharge (λ H : a, Discharge (λ H::1 : b, Conj H (Conj H::1 H)))

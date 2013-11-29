@@ -104,13 +104,13 @@ class elaborator::imp {
     };
 
     struct synthesizer_case_split : public case_split {
-        expr                                 m_metavar;
-        std::unique_ptr<synthesizer::result> m_alternatives;
+        expr             m_metavar;
+        lazy_list<expr>  m_alternatives;
 
-        synthesizer_case_split(expr const & m, std::unique_ptr<synthesizer::result> & r, state const & prev_state):
+        synthesizer_case_split(expr const & m, lazy_list<expr> const & r, state const & prev_state):
             case_split(prev_state),
             m_metavar(m),
-            m_alternatives(std::move(r)) {
+            m_alternatives(r) {
         }
 
         virtual ~synthesizer_case_split() {}

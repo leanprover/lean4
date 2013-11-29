@@ -30,11 +30,17 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/expr_maps.h"
 #include "kernel/printer.h"
+#include "kernel/metavar.h"
+#include "kernel/for_each_fn.h"
+#include "library/expr_lt.h"
+#include "library/type_inferer.h"
 #include "library/arith/arith.h"
 #include "library/io_state.h"
 #include "library/placeholder.h"
 #include "library/kernel_bindings.h"
 #include "library/elaborator/elaborator_exception.h"
+#include "library/tactic/proof_state.h"
+#include "library/tactic/tactic.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/frontend_elaborator.h"
 #include "frontends/lean/parser.h"
@@ -85,6 +91,8 @@ static name g_env_kwd("Environment");
 static name g_import_kwd("Import");
 static name g_help_kwd("Help");
 static name g_coercion_kwd("Coercion");
+static name g_apply("apply");
+static name g_done("done");
 /** \brief Table/List with all builtin command keywords */
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_variables_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
                                         g_show_kwd, g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_notation_kwd, g_echo_kwd,
@@ -123,6 +131,7 @@ class parser::imp {
     frontend &          m_frontend;
     scanner             m_scanner;
     frontend_elaborator m_elaborator;
+    type_inferer        m_type_inferer;
     scanner::token      m_curr;
     bool                m_use_exceptions;
     bool                m_interactive;
@@ -241,6 +250,8 @@ class parser::imp {
     void check_rcurly_next(char const * msg) { check_next(scanner::token::RightCurlyBracket, msg); }
     /** \brief Throws a parser error if the current token is not ':='. If it is, move to the next token. */
     void check_assign_next(char const * msg) { check_next(scanner::token::Assign, msg); }
+    /** \brief Throws a parser error if the current token is not '.'. If it is, move to the next token. */
+    void check_period_next(char const * msg) { check_next(scanner::token::Period, msg); }
 
     /**
         \brief Throws a parser error if the current token is not a
@@ -1036,6 +1047,90 @@ class parser::imp {
             m_frontend.mark_implicit_arguments(n, imp_args.size(), imp_args.data());
     }
 
+    expr parse_tactic(proof_state s) {
+        proof_state ini = s;
+        std::vector<lazy_list<proof_state>> stack;
+        while (true) {
+            auto p = pos();
+            name id = check_identifier_next("invalid tactic, identifier expected");
+            if (id == g_apply) {
+                auto tac_name_pos = pos();
+                name tac_name = check_identifier_next("invalid apply command, identifier expected");
+                optional<tactic> t;
+                m_script_state->apply([&](lua_State * L) {
+                        lua_getglobal(L, tac_name.to_string().c_str());
+                        if (lua_type(L, -1) != LUA_TFUNCTION && !is_tactic(L, -1))
+                            throw parser_error(sstream() << "unknown tactic '" << tac_name << "'", tac_name_pos);
+                        if (lua_type(L, -1) == LUA_TFUNCTION) {
+                            pcall(L, 0, 1, 0);
+                            if (!is_tactic(L, -1))
+                                throw parser_error(sstream() << "invalid function '" << tac_name << "', it does not return a tactic", tac_name_pos);
+                        }
+                        t = to_tactic(L, -1);
+                        lua_pop(L, 1);
+                    });
+                lazy_list<proof_state> seq = (*t)(m_frontend, m_frontend.get_state(), s);
+                auto r = seq.pull();
+                if (r) {
+                    s = r->first;
+                    stack.push_back(r->second);
+                } else {
+                    diagnostic(m_frontend) << "current state:\n" << s << endl;
+                    throw parser_error(sstream() << "tactic '" << tac_name << "' failed", tac_name_pos);
+                }
+            } else if (id == g_done) {
+                if (s.is_proof_final_state()) {
+                    assignment a(s.get_menv());
+                    proof_map  m;
+                    expr pr = s.get_proof_builder()(m, a);
+                    return pr;
+                } else {
+                    diagnostic(m_frontend) << "final state:\n" << s << endl;
+                    throw exception("failed to synthesize proof object using given tactic");
+                }
+            } else {
+                throw parser_error(sstream() << "invalid tactical proof, unknown command '" << id << "'", p);
+            }
+        }
+    }
+
+    expr parse_tactic(expr const & type, expr const & val, metavar_env & menv) {
+        check_period_next("invalid theorem, '.' expected before tactical proof");
+        if (is_metavar(val)) {
+            // simple case
+            proof_state s = to_proof_state(m_frontend, context(), type);
+            return parse_tactic(s);
+        } else {
+            buffer<expr> mvars;
+            for_each(val, [&](expr const & e, unsigned) {
+                    if (is_metavar(e)) {
+                        mvars.push_back(e);
+                    }
+                    return true;
+                });
+            std::sort(mvars.begin(), mvars.end(), [](expr const & e1, expr const & e2) { return is_lt(e1, e2, false); });
+            for (auto mvar : mvars) {
+                expr    mvar_type = instantiate_metavars(menv.get_type(mvar), menv);
+                if (!m_type_inferer.is_proposition(mvar_type))
+                    throw exception("failed to synthesize metavar, its type is not a proposition");
+                if (has_metavar(mvar_type))
+                    throw exception("failed to synthesize metavar, its type contains metavariables");
+                buffer<context_entry> new_entries;
+                for (auto e : menv.get_context(mvar)) {
+                    new_entries.emplace_back(e.get_name(),
+                                             instantiate_metavars(e.get_domain(), menv),
+                                             instantiate_metavars(e.get_body(), menv));
+                }
+                context mvar_ctx(to_list(new_entries.begin(), new_entries.end()));
+                proof_state s = to_proof_state(m_frontend, mvar_ctx, mvar_type);
+                expr mvar_val = parse_tactic(s);
+                if (mvar_val)
+                    menv.assign(mvar, mvar_val);
+            }
+            return instantiate_metavars(val, menv);
+        }
+    }
+
     /** \brief Auxiliary method used for parsing definitions and theorems. */
     void parse_def_core(bool is_definition) {
         next();
@@ -1062,9 +1157,17 @@ class parser::imp {
             pre_type  = mk_abstraction(false, bindings, type_body);
             pre_val   = mk_abstraction(true, bindings, val_body);
         }
-        auto type_val_pair = m_elaborator(id, pre_type, pre_val);
-        expr type = type_val_pair.first;
-        expr val  = type_val_pair.second;
+        auto r = m_elaborator(id, pre_type, pre_val);
+        expr type = std::get<0>(r);
+        expr val  = std::get<1>(r);
+        metavar_env menv = std::get<2>(r);
+        if (has_metavar(type))
+            throw exception("invalid definition, type still contains metavariables after elaboration");
+        if (!is_definition && has_metavar(val)) {
+            val = parse_tactic(type, val, menv);
+        }
+        if (has_metavar(val))
+            throw exception("invalid definition, value still contains metavariables after elaboration");
         if (is_definition) {
             m_frontend.add_definition(id, type, val);
             if (m_verbose)
@@ -1609,6 +1712,7 @@ public:
         m_frontend(fe),
         m_scanner(in),
         m_elaborator(fe),
+        m_type_inferer(fe),
         m_use_exceptions(use_exceptions),
         m_interactive(interactive) {
         m_script_state = S;

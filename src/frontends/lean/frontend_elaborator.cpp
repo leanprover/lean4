@@ -420,7 +420,7 @@ public:
         }
     }
 
-    std::pair<expr, expr> elaborate(name const & n, expr const & t, expr const & e) {
+    std::tuple<expr, expr, metavar_env> elaborate(name const & n, expr const & t, expr const & e) {
         // std::cout << "Elaborate " << t << " : " << e << "\n";
         clear();
         expr new_t = preprocessor(*this)(t);
@@ -436,9 +436,11 @@ public:
             //    std::cout << c.pp(fmt, options(), nullptr, false) << "\n";
             // }
             metavar_env new_menv = elaborate_core();
-            return mk_pair(instantiate_metavars(new_t, new_menv), instantiate_metavars(new_e, new_menv));
+            return std::make_tuple(instantiate_metavars(new_t, new_menv),
+                                   instantiate_metavars(new_e, new_menv),
+                                   new_menv);
         } else {
-            return mk_pair(new_t, new_e);
+            return std::make_tuple(new_t, new_e, metavar_env());
         }
     }
 
@@ -471,7 +473,9 @@ public:
 frontend_elaborator::frontend_elaborator(frontend const & fe):m_ptr(new imp(fe)) {}
 frontend_elaborator::~frontend_elaborator() {}
 expr frontend_elaborator::operator()(expr const & e) { return m_ptr->elaborate(e); }
-std::pair<expr, expr> frontend_elaborator::operator()(name const & n, expr const & t, expr const & e) { return m_ptr->elaborate(n, t, e); }
+std::tuple<expr, expr, metavar_env> frontend_elaborator::operator()(name const & n, expr const & t, expr const & e) {
+    return m_ptr->elaborate(n, t, e);
+}
 expr const & frontend_elaborator::get_original(expr const & e) const { return m_ptr->get_original(e); }
 void frontend_elaborator::clear() { m_ptr->clear(); }
 environment const & frontend_elaborator::get_environment() const { return m_ptr->get_environment(); }

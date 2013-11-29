@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "util/rc.h"
 #include "util/interrupt.h"
 #include "util/optional.h"
+#include "library/io_state.h"
 #include "library/tactic/goal.h"
 #include "library/tactic/proof_builder.h"
 #include "library/tactic/cex_builder.h"
@@ -96,6 +97,9 @@ goals map_goals(proof_state const & s, F && f) {
             }
         });
 }
+
+regular const & operator<<(regular const & out, proof_state & s);
+diagnostic const & operator<<(diagnostic const & out, proof_state & s);
 
 UDATA_DEFS_CORE(goals)
 UDATA_DEFS(proof_state)

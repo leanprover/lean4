@@ -107,7 +107,8 @@ std::pair<goal, goal_proof_fn> to_goal(environment const & env, context const & 
     buffer<context_entry> entries;
     for (auto const & e : ctx)
         entries.push_back(e);
-    buffer<hypothesis> hypotheses;  // normalized names and types of the entries processed so far
+    std::reverse(entries.begin(), entries.end());
+    buffer<hypothesis> hypotheses;             // normalized names and types of the entries processed so far
     buffer<expr> bodies;                       // normalized bodies of the entries processed so far
     std::vector<expr> consts;                  // cached consts[i] == mk_constant(names[i], hypotheses[i])
     auto replace_vars = [&](expr const & e, unsigned offset) -> expr {
@@ -128,10 +129,9 @@ std::pair<goal, goal_proof_fn> to_goal(environment const & env, context const & 
         return e;
     };
     replace_fn<decltype(replace_vars)> replacer(replace_vars);
-    auto it    = entries.end();
-    auto begin = entries.begin();
-    while (it != begin) {
-        --it;
+    auto it  = entries.begin();
+    auto end = entries.end();
+    for (; it != end; ++it) {
         auto const & e = *it;
         name n = mk_unique_name(used_names, e.get_name());
         expr d = replacer(e.get_domain());
@@ -148,8 +148,7 @@ std::pair<goal, goal_proof_fn> to_goal(environment const & env, context const & 
         }
     }
     expr conclusion = replacer(t);
-    std::reverse(consts.begin(), consts.end());
-    return mk_pair(goal(reverse_to_list(hypotheses.begin(), hypotheses.end()), conclusion),
+    return mk_pair(goal(to_list(hypotheses.begin(), hypotheses.end()), conclusion),
                    goal_proof_fn(std::move(consts)));
 }
 

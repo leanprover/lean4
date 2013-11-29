@@ -31,11 +31,11 @@ public:
 */
 class context {
     list<context_entry> m_list;
-    explicit context(list<context_entry> const & l):m_list(l) {}
 public:
     context() {}
     context(context const & c, name const & n, expr const & d):m_list(context_entry(n, d), c.m_list) {}
     context(context const & c, name const & n, expr const & d, expr const & b):m_list(context_entry(n, d, b), c.m_list) {}
+    explicit context(list<context_entry> const & l):m_list(l) {}
     context_entry const & lookup(unsigned vidx) const;
     std::pair<context_entry const &, context> lookup_ext(unsigned vidx) const;
     bool empty() const { return is_nil(m_list); }

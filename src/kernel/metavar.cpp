@@ -275,7 +275,7 @@ public:
 };
 
 expr instantiate_metavars(expr const & e, metavar_env const & menv, buffer<justification> & jsts) {
-    if (!has_metavar(e)) {
+    if (!e || !has_metavar(e)) {
         return e;
     } else {
         return instantiate_metavars_proc(menv, jsts)(e);

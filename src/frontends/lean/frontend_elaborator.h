@@ -35,7 +35,7 @@ public:
        This information is used by the elaborator. The result is a new
        elaborated type and expression.
     */
-    std::pair<expr, expr> operator()(name const & n, expr const & t, expr const & e);
+    std::tuple<expr, expr, metavar_env> operator()(name const & n, expr const & t, expr const & e);
 
     /**
         \brief If \c e is an expression instantiated by the elaborator, then it

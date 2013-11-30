@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "util/rc.h"
 #include "util/interrupt.h"
 #include "util/optional.h"
+#include "util/name_set.h"
 #include "library/io_state.h"
 #include "library/tactic/goal.h"
 #include "library/tactic/proof_builder.h"
@@ -52,8 +53,14 @@ public:
     proof_state(proof_state && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     proof_state(goals const & gs, metavar_env const & menv, proof_builder const & p, cex_builder const & c):
         m_ptr(new cell(gs, menv, p, c)) {}
+    proof_state(precision prec, goals const & gs, metavar_env const & menv, proof_builder const & p, cex_builder const & c):
+        m_ptr(new cell(prec, gs, menv, p, c)) {}
     proof_state(proof_state const & s, goals const & gs, proof_builder const & p):
         m_ptr(new cell(s.get_precision(), gs, s.get_menv(), p, s.get_cex_builder())) {}
+    proof_state(proof_state const & s, goals const & gs):
+        m_ptr(new cell(s.get_precision(), gs, s.get_menv(), s.get_proof_builder(), s.get_cex_builder())) {}
+    proof_state(proof_state const & s, goals const & gs, proof_builder const & p, cex_builder const & c):
+        m_ptr(new cell(s.get_precision(), gs, s.get_menv(), p, c)) {}
     ~proof_state() { if (m_ptr) m_ptr->dec_ref(); }
     friend void swap(proof_state & a, proof_state & b) { std::swap(a.m_ptr, b.m_ptr); }
     proof_state & operator=(proof_state const & s) { LEAN_COPY_REF(proof_state, s); }
@@ -73,6 +80,10 @@ public:
        and the precision is \c Precise or \c Under
     */
     bool is_cex_final_state() const;
+    /**
+       \brief Store in \c r the goal names
+    */
+    void get_goal_names(name_set & r) const;
     format pp(formatter const & fmt, options const & opts) const;
 };
 

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/sstream.h"
 #include "util/script_state.h"
 #include "util/luaref.h"
 #include "library/kernel_bindings.h"
@@ -13,6 +14,15 @@ Author: Leonardo de Moura
 namespace lean {
 cex_builder & cex_builder::operator=(cex_builder const & s) { LEAN_COPY_REF(cex_builder, s); }
 cex_builder & cex_builder::operator=(cex_builder && s) { LEAN_MOVE_REF(cex_builder, s); }
+
+cex_builder mk_cex_builder_for(name const & gname) {
+    return mk_cex_builder(
+        [=](name const & n, optional<counterexample> const & cex, assignment const &) -> counterexample {
+            if (n != gname || !cex)
+                throw exception(sstream() << "failed to build counterexample for '" << gname << "' goal");
+            return *cex;
+        });
+}
 
 DECL_UDATA(cex_builder)
 

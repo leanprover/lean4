@@ -68,6 +68,11 @@ cex_builder mk_cex_builder(F && f) {
     return cex_builder(new cex_builder_tpl<F>(std::forward<F>(f)));
 }
 
+/**
+   \brief Return a counterexample builder that expects a counterexample for the given goal.
+*/
+cex_builder mk_cex_builder_for(name const & gname);
+
 UDATA_DEFS(cex_builder)
 void open_cex_builder(lua_State * L);
 }

@@ -64,6 +64,36 @@ tactic & tactic::operator=(tactic && s) {
     LEAN_MOVE_REF(tactic, s);
 }
 
+/**
+   \brief Try to extract a proof from the given proof state
+*/
+optional<expr> to_proof(proof_state const & s) {
+    if (s.is_proof_final_state()) {
+        try {
+            assignment a(s.get_menv());
+            proof_map  m;
+            return some(s.get_proof_builder()(m, a));
+        } catch (...) {
+        }
+    }
+    return optional<expr>();
+}
+
+/**
+   \brief Try to extract a counterexample from the given proof state.
+*/
+optional<counterexample> to_counterexample(proof_state const & s) {
+    if (s.is_cex_final_state()) {
+        assignment a(s.get_menv());
+        name goal_name(head(s.get_goals()).first);
+        try {
+            return some(s.get_cex_builder()(goal_name, optional<counterexample>(), a));
+        } catch (...) {
+        }
+    }
+    return optional<counterexample>();
+}
+
 solve_result tactic::solve(environment const & env, io_state const & io, proof_state const & s1) {
     proof_state_seq r   = operator()(env, io, s1);
     list<proof_state> failures;
@@ -75,17 +105,12 @@ solve_result tactic::solve(environment const & env, io_state const & io, proof_s
         } else {
             proof_state s2 = p->first;
             r              = p->second;
-            try {
-                if (s2.is_proof_final_state()) {
-                    assignment a(s2.get_menv());
-                    proof_map  m;
-                    return solve_result(s2.get_proof_builder()(m, a));
-                } else if (s2.is_cex_final_state()) {
-                    assignment a(s2.get_menv());
-                    name goal_name(head(s2.get_goals()).first);
-                    return solve_result(s2.get_cex_builder()(goal_name, optional<counterexample>(), a));
-                }
-            } catch (exception & ex) {}
+            optional<expr> pr = to_proof(s2);
+            if (pr)
+                return solve_result(*pr);
+            optional<counterexample> cex = to_counterexample(s2);
+            if (cex)
+                return solve_result(*cex);
             failures = cons(s2, failures);
         }
     }
@@ -137,7 +162,7 @@ tactic trace_state_tactic() {
     return mk_tactic1([=](environment const &, io_state const & io, proof_state const & s) -> proof_state {
             options opts = io.get_options();
             format fmt   = s.pp(io.get_formatter(), opts);
-            io.get_diagnostic_channel() << mk_pair(fmt, opts) << "\n";
+            io.get_diagnostic_channel() << "Proof state:\n" << mk_pair(fmt, opts) << "\n";
             io.get_diagnostic_channel().get_stream().flush();
             return s;
         });
@@ -255,6 +280,81 @@ tactic repeat_at_most(tactic const & t, unsigned k) {
 tactic take(tactic const & t, unsigned k) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
             return take(k, t(env, io, s));
+        });
+}
+
+proof_state_seq focus_core(tactic const & t, name const & gname, environment const & env, io_state const & io, proof_state const & s) {
+    for (auto const & p : s.get_goals()) {
+        if (p.first == gname) {
+            proof_builder pb = mk_proof_builder(
+                [=](proof_map const & m, assignment const &) -> expr {
+                    return find(m, gname);
+                });
+            cex_builder cb = mk_cex_builder_for(gname);
+            proof_state new_s(s, goals(p), pb, cb); // new state with singleton goal
+            return map(t(env, io, new_s), [=](proof_state const & s2) {
+                    // we have to put back the goals that were not selected
+                    list<std::pair<name, name>> renamed_goals;
+                    goals new_gs = map_append(s.get_goals(), [&](std::pair<name, goal> const & p) {
+                            if (p.first == gname) {
+                                name_set used_names;
+                                s.get_goal_names(used_names);
+                                used_names.erase(gname);
+                                return map(s2.get_goals(), [&](std::pair<name, goal> const & p2) -> std::pair<name, goal> {
+                                        name uname = mk_unique(used_names, p2.first);
+                                        used_names.insert(uname);
+                                        renamed_goals.emplace_front(p2.first, uname);
+                                        return mk_pair(uname, p2.second);
+                                    });
+                            } else {
+                                return goals(p);
+                            }
+                        });
+                    proof_builder pb1 = s.get_proof_builder();
+                    proof_builder pb2 = s2.get_proof_builder();
+                    proof_builder new_pb = mk_proof_builder(
+                        [=](proof_map const & m, assignment const & a) -> expr {
+                            proof_map m1(m); // map for pb1
+                            proof_map m2; // map for pb2
+                            for (auto p : renamed_goals) {
+                                m2.insert(p.first, find(m, p.second));
+                                m1.erase(p.first);
+                            }
+                            m1.insert(gname, pb2(m2, a));
+                            return pb1(m1, a);
+                        });
+                    cex_builder cb1 = s.get_cex_builder();
+                    cex_builder cb2 = s2.get_cex_builder();
+                    cex_builder new_cb = mk_cex_builder(
+                        [=](name const & n, optional<counterexample> const & cex, assignment const & a) -> counterexample {
+                            for (auto p : renamed_goals) {
+                                if (p.second == n)
+                                    return cb2(p.first, cex, a);
+                            }
+                            return cb1(n, cex, a);
+                        });
+                    return proof_state(s2, new_gs, new_pb, new_cb);
+                });
+        }
+    }
+    return proof_state_seq(); // tactic is not applicable
+}
+
+tactic focus(tactic const & t, name const & gname) {
+    return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
+            return focus_core(t, gname, env, io, s);
+        });
+}
+
+tactic focus(tactic const & t, int i) {
+    return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
+            int j = 1;
+            for (auto const & p : s.get_goals()) {
+                if (i == j)
+                    return focus_core(t, p.first, env, io, s);
+                j++;
+            }
+            return proof_state_seq();
         });
 }
 
@@ -381,6 +481,16 @@ static int tactic_suppress_trace(lua_State * L) {  return push_tactic(L, suppres
 static int tactic_try_for(lua_State * L)        {  return push_tactic(L, try_for(to_tactic_ext(L, 1), luaL_checkinteger(L, 2))); }
 static int tactic_using_params(lua_State * L)   {  return push_tactic(L, using_params(to_tactic_ext(L, 1), to_options(L, 2))); }
 static int tactic_try(lua_State * L)            {  return push_tactic(L, orelse(to_tactic_ext(L, 1), id_tactic())); }
+
+static int tactic_focus(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs == 1)
+        return push_tactic(L, focus(to_tactic_ext(L, 1)));
+    else if (lua_isnumber(L, 2))
+        return push_tactic(L, focus(to_tactic_ext(L, 1), lua_tointeger(L, 2)));
+    else
+        return push_tactic(L, focus(to_tactic_ext(L, 1), to_name_ext(L, 2)));
+}
 
 static int push_solve_result(lua_State * L, solve_result const & r) {
     switch (r.kind()) {
@@ -544,6 +654,7 @@ static const struct luaL_Reg tactic_m[] = {
     {"try_for",         safe_function<tactic_try_for>},
     {"using_params",    safe_function<tactic_using_params>},
     {"using",           safe_function<tactic_using_params>},
+    {"focus",           safe_function<tactic_focus>},
     {0, 0}
 };
 
@@ -591,5 +702,6 @@ void open_tactic(lua_State * L) {
     SET_GLOBAL_FUN(tactic_using_params,     "USING");
     SET_GLOBAL_FUN(tactic_using_params,     "USING_PARAMS");
     SET_GLOBAL_FUN(tactic_determ,           "DETERM");
+    SET_GLOBAL_FUN(tactic_focus,            "FOCUS");
 }
 }

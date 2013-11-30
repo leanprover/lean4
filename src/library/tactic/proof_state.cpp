@@ -51,6 +51,12 @@ bool proof_state::is_cex_final_state() const {
     }
 }
 
+void proof_state::get_goal_names(name_set & r) const {
+    for (auto const & p : get_goals()) {
+        r.insert(p.first);
+    }
+}
+
 static name g_main("main");
 
 proof_state to_proof_state(environment const & env, context const & ctx, expr const & t) {
@@ -61,12 +67,7 @@ proof_state to_proof_state(environment const & env, context const & ctx, expr co
         [=](proof_map const & m, assignment const &) -> expr {
             return fn(find(m, g_main));
         });
-    cex_builder cex_builder = mk_cex_builder(
-        [](name const & n, optional<counterexample> const & cex, assignment const &) -> counterexample {
-            if (n != g_main || !cex)
-                throw exception(sstream() << "failed to build counterexample for '" << g_main << "' goal");
-            return *cex;
-        });
+    cex_builder cex_builder = mk_cex_builder_for(g_main);
     return proof_state(goals(mk_pair(g_main, g)), metavar_env(), pr_builder, cex_builder);
 }
 

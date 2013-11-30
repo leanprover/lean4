@@ -276,6 +276,17 @@ tactic cond(P && p, tactic const & t1, tactic const & t2) {
 */
 template<typename P>
 tactic when(P && p, tactic const & t) { return cond(std::forward<P>(p), t, id_tactic()); }
+/**
+   \brief Return a tactic that applies \c t only to the goal named \c gname.
+   The tactic fails if the input state does not have a goal named \c gname.
+*/
+tactic focus(tactic const & t, name const & gname);
+/**
+   \brief Return a tactic that applies \c t only to the i-th goal.
+   The tactic fails if the input state does have at least i goals.
+*/
+tactic focus(tactic const & t, int i);
+inline tactic focus(tactic const & t) { return focus(t, 1); }
 
 UDATA_DEFS_CORE(proof_state_seq)
 UDATA_DEFS(tactic);

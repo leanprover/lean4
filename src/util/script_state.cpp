@@ -549,9 +549,22 @@ static int sleep(lua_State * L) {
     return 0;
 }
 
+static int yield(lua_State * L) {
+    check_interrupted();
+    int status = lua_pushthread(L);
+    lua_pop(L, 1);
+    if (status != 1) {
+        return lua_yield(L, 0);
+    } else {
+        // main thread cannot yield
+        return 0;
+    }
+}
+
 static void open_interrupt(lua_State * L) {
     SET_GLOBAL_FUN(check_interrupted, "check_interrupted");
     SET_GLOBAL_FUN(sleep,             "sleep");
+    SET_GLOBAL_FUN(yield,             "yield");
     SET_GLOBAL_FUN(channel_read,      "read");
     SET_GLOBAL_FUN(channel_write,     "write");
 }

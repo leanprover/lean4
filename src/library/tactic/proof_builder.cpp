@@ -22,7 +22,11 @@ expr find(proof_map const & m, name const & n) {
 DECL_UDATA(proof_map)
 
 static int mk_proof_map(lua_State * L) {
-    return push_proof_map(L, proof_map());
+    int nargs = lua_gettop(L);
+    if (nargs == 0)
+        return push_proof_map(L, proof_map());
+    else
+        return push_proof_map(L, to_proof_map(L, 1));
 }
 
 static int proof_map_len(lua_State * L) {

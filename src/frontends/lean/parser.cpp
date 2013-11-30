@@ -157,6 +157,26 @@ class parser::imp {
         virtual void rethrow() const { throw *this; }
     };
 
+    template<typename F>
+    void using_script(F && f) {
+        m_script_state->apply([&](lua_State * L) {
+                set_io_state    set1(L, m_frontend.get_state());
+                set_environment set2(L, m_frontend.get_environment());
+                f(L);
+            });
+    }
+
+    template<typename F>
+    void code_with_callbacks(F && f) {
+        m_script_state->apply([&](lua_State * L) {
+                set_io_state    set1(L, m_frontend.get_state());
+                set_environment set2(L, m_frontend.get_environment());
+                m_script_state->exec_unprotected([&]() {
+                        f();
+                    });
+            });
+    }
+
     /**
         \brief Auxiliar struct for creating/destroying a new scope for
         local declarations.
@@ -1066,7 +1086,7 @@ class parser::imp {
                 tactic t;
                 if (curr() == scanner::token::ScriptBlock) {
                     parse_script_expr();
-                    m_script_state->apply([&](lua_State * L) {
+                    using_script([&](lua_State * L) {
                             if (is_tactic(L, -1))
                                 t = to_tactic(L, -1);
                             else
@@ -1074,7 +1094,7 @@ class parser::imp {
                         });
                 } else {
                     name tac_name = check_identifier_next("invalid apply command, identifier or 'script-block' expected");
-                    m_script_state->apply([&](lua_State * L) {
+                    using_script([&](lua_State * L) {
                             lua_getglobal(L, tac_name.to_string().c_str());
                             try {
                                 t = to_tactic_ext(L, -1);
@@ -1084,8 +1104,12 @@ class parser::imp {
                             lua_pop(L, 1);
                         });
                 }
-                lazy_list<proof_state> seq = t(m_frontend, m_frontend.get_state(), s);
-                auto r = seq.pull();
+                proof_state_seq::maybe_pair r;
+                code_with_callbacks([&]() {
+                        // t may have call-backs we should set ios in the script_state
+                        lazy_list<proof_state> seq = t(m_frontend, m_frontend.get_state(), s);
+                        r = seq.pull();
+                    });
                 if (r) {
                     s = r->first;
                     stack.push_back(r->second);
@@ -1727,9 +1751,7 @@ class parser::imp {
             script_code = "return " + script_code;
         }
         next();
-        m_script_state->apply([&](lua_State * L) {
-                set_io_state    set1(L, m_frontend.get_state());
-                set_environment set2(L, m_frontend.get_environment());
+        using_script([&](lua_State * L) {
                 dostring(L, script_code.c_str());
             });
     }

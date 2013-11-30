@@ -88,6 +88,26 @@ static int mk_goals(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 0) {
         return push_goals(L, goals());
+    } else if (nargs == 1) {
+        // convert a Lua table of the form {{n_1, g_1}, ..., {n_n, g_n}} into a goal list
+        goals gs;
+        int len = objlen(L, 1);
+        for (int i = len; i >= 1; i--) {
+            lua_pushinteger(L, i);
+            lua_gettable(L, 1);  // now table {n_i, g_i} is on the top
+            if (!lua_istable(L, -1) || objlen(L, -1) != 2)
+                throw exception("arg #1 must be of the form '{{name, goal}, ...}'");
+            lua_pushinteger(L, 1);
+            lua_gettable(L, -2);
+            name n_i = to_name_ext(L, -1);
+            lua_pop(L, 1);  // remove n_i from the stack
+            lua_pushinteger(L, 2);
+            lua_gettable(L, -2);
+            goal g_i = to_goal(L, -1);
+            lua_pop(L, 2); // remove the g_i and table {n_i, g_i} from the stack
+            gs = goals(mk_pair(n_i, g_i), gs);
+        }
+        return push_goals(L, gs);
     } else if (nargs == 2) {
         return push_goals(L, goals(mk_pair(to_name_ext(L, 1), to_goal(L, 2)), goals()));
     } else if (nargs == 3) {

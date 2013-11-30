@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/occurs.h"
+#include "kernel/builtin.h"
 #include "library/expr_lt.h"
 #include "library/kernel_bindings.h"
 #include "library/io_state.h"
@@ -453,6 +454,15 @@ EXPR_PRED(is_metavar)
 EXPR_PRED(has_free_vars)
 EXPR_PRED(closed)
 EXPR_PRED(has_metavar)
+EXPR_PRED(is_not)
+EXPR_PRED(is_and)
+EXPR_PRED(is_or)
+EXPR_PRED(is_if)
+EXPR_PRED(is_iff)
+EXPR_PRED(is_implies)
+EXPR_PRED(is_forall)
+EXPR_PRED(is_exists)
+EXPR_PRED(is_homo_eq)
 
 /**
    \brief Iterator (closure base function) for application args. See \c expr_args
@@ -637,6 +647,15 @@ static const struct luaL_Reg expr_m[] = {
     {"has_metavar",     safe_function<expr_has_metavar>},
     {"is_eqp",          safe_function<expr_is_eqp>},
     {"hash",            safe_function<expr_hash>},
+    {"is_not",          safe_function<expr_is_not>},
+    {"is_and",          safe_function<expr_is_and>},
+    {"is_or",           safe_function<expr_is_or>},
+    {"is_if",           safe_function<expr_is_if>},
+    {"is_iff",          safe_function<expr_is_iff>},
+    {"is_implies",      safe_function<expr_is_implies>},
+    {"is_forall",       safe_function<expr_is_forall>},
+    {"is_exists",       safe_function<expr_is_exists>},
+    {"is_home_eq",      safe_function<expr_is_homo_eq>},
     {0, 0}
 };
 

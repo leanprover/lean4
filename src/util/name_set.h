@@ -9,4 +9,9 @@ Author: Leonardo de Moura
 #include "util/name.h"
 namespace lean {
 typedef std::unordered_set<name, name_hash, name_eq> name_set;
+/**
+   \brief Make a name that does not occur in \c s, based on
+   the given suggestion.
+*/
+name mk_unique(name_set const & s, name const & suggestion);
 }

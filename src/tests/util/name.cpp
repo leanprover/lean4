@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "util/name.h"
 #include "util/name_generator.h"
+#include "util/name_set.h"
 using namespace lean;
 
 static void tst1() {
@@ -146,6 +147,16 @@ static void tst11() {
     lean_assert(n2 == name("a"));
 }
 
+static void tst12() {
+    name_set s;
+    s.insert(name("foo"));
+    s.insert(name(name("foo"), 1));
+    s.insert(name("bla"));
+    lean_assert(mk_unique(s, name("boo")) == name("boo"));
+    lean_assert(mk_unique(s, name("bla")) == name(name("bla"), 1));
+    lean_assert(mk_unique(s, name("foo")) == name(name("foo"), 2));
+}
+
 int main() {
     tst1();
     tst2();
@@ -158,5 +169,6 @@ int main() {
     tst9();
     tst10();
     tst11();
+    tst12();
     return has_violations() ? 1 : 0;
 }

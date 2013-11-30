@@ -1,6 +1,6 @@
-add_library(util trace.cpp debug.cpp name.cpp exception.cpp
-  interrupt.cpp hash.cpp escaped.cpp bit_tricks.cpp safe_arith.cpp
-  ascii.cpp memory.cpp shared_mutex.cpp realpath.cpp
+add_library(util trace.cpp debug.cpp name.cpp name_set.cpp
+  exception.cpp interrupt.cpp hash.cpp escaped.cpp bit_tricks.cpp
+  safe_arith.cpp ascii.cpp memory.cpp shared_mutex.cpp realpath.cpp
   script_state.cpp script_exception.cpp splay_map.cpp lua.cpp
   luaref.cpp)
 

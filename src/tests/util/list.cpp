@@ -178,6 +178,15 @@ static void tst13() {
     lean_assert(empty(map_filter(list<int>(), [](int in, int & out) { out = in; return true; })));
 }
 
+static void tst14() {
+    list<int> l({1, 2, 3, 4, 5, 6, 7, 8});
+    lean_assert_eq(filter(l, [](int i) { return i % 2 == 0; }), list<int>({2, 4, 6, 8}));
+    lean_assert_eq(filter(l, [](int i) { return i < 3; }), list<int>({1, 2}));
+    lean_assert_eq(filter(l, [](int i) { return i > 10; }), list<int>());
+    lean_assert_eq(filter(l, [](int i) { return i > 5; }), list<int>({6, 7, 8}));
+    lean_assert_eq(filter(l, [](int i) { return i % 3 == 0; }), list<int>({3, 6}));
+}
+
 int main() {
     tst1();
     tst2();
@@ -192,5 +201,6 @@ int main() {
     tst11(1000, 5);
     tst12();
     tst13();
+    tst14();
     return has_violations() ? 1 : 0;
 }

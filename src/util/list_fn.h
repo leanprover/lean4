@@ -157,6 +157,28 @@ list<T> map(list<T> const & l, F && f) {
 }
 
 /**
+   \brief Filter/Remove elements from the list
+   that satisfy the given predicate.
+*/
+template<typename T, typename P>
+list<T> filter(list<T> const & l, P && p) {
+    if (is_nil(l)) {
+        return l;
+    } else {
+        buffer<typename list<T>::cell*> tmp;
+        to_buffer(l, tmp);
+        unsigned i = tmp.size();
+        list<T> r;
+        while (i > 0) {
+            --i;
+            if (p(tmp[i]->head()))
+                r = cons(tmp[i]->head(), r);
+        }
+        return r;
+    }
+}
+
+/**
    \brief Similar to \c map but \c f has signature
 
        <tt>bool f(T const & in, T & out)</tt>

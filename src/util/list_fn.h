@@ -204,6 +204,18 @@ list<T> map_filter(list<T> const & l, F && f) {
     }
 }
 
+template<typename T, typename F>
+list<T> map_append(list<T> const & l, F && f) {
+    if (is_nil(l)) {
+        return l;
+    } else {
+        buffer<T> tmp;
+        for (auto const & v : l)
+            to_buffer(f(v), tmp);
+        return to_list(tmp.begin(), tmp.end());
+    }
+}
+
 /**
    \brief Semantically equivalent to \c map, but it tries to reuse
    list cells. The elements are compared using the predicate \c eq.

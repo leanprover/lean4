@@ -187,6 +187,21 @@ static void tst14() {
     lean_assert_eq(filter(l, [](int i) { return i % 3 == 0; }), list<int>({3, 6}));
 }
 
+static list<int> range(int l, int u) {
+    if (l > u)
+        return list<int>();
+    else
+        return cons(l, range(l+1, u));
+}
+
+static void tst15() {
+    list<int> l({1, 2, 3, 4});
+    std::cout << map_append(l, [](int i) { return range(1, i); }) << "\n";
+    lean_assert_eq(map_append(l, [](int i) { return range(1, i); }), list<int>({1, 1, 2, 1, 2, 3, 1, 2, 3, 4}));
+    lean_assert_eq(map_append(l, [](int i) { return i == 2 ? list<int>({2, 2, 2}) : list<int>(i); }),
+                   list<int>({1, 2, 2, 2, 3, 4}));
+}
+
 int main() {
     tst1();
     tst2();
@@ -202,5 +217,6 @@ int main() {
     tst12();
     tst13();
     tst14();
+    tst15();
     return has_violations() ? 1 : 0;
 }

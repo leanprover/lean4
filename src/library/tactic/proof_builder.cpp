@@ -81,7 +81,7 @@ static const struct luaL_Reg assignment_m[] = {
 DECL_UDATA(proof_builder);
 
 static int mk_proof_builder(lua_State * L) {
-    script_state S = to_script_state(L);
+    script_state::weak_ref S = to_script_state(L).to_weak_ref();
     luaL_checktype(L, 1, LUA_TFUNCTION); // user-fun
     luaref ref(L, 1);
     return push_proof_builder(L,

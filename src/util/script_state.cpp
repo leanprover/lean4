@@ -111,8 +111,10 @@ script_state::script_state():
     m_ptr->save_weak_ptr(m_ptr);
 }
 
-script_state::script_state(std::weak_ptr<imp> const & ptr):m_ptr(ptr.lock()) {
-    lean_assert(m_ptr);
+script_state::script_state(weak_ref const & r) {
+    if (r.expired())
+        throw exception("weak reference to script_state object has expired (i.e., it has been deleted)");
+    m_ptr = r.lock();
 }
 
 script_state::~script_state() {

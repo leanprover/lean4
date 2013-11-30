@@ -17,7 +17,7 @@ cex_builder & cex_builder::operator=(cex_builder && s) { LEAN_MOVE_REF(cex_build
 DECL_UDATA(cex_builder)
 
 static int mk_cex_builder(lua_State * L) {
-    script_state S = to_script_state(L);
+    script_state::weak_ref S = to_script_state(L).to_weak_ref();
     luaL_checktype(L, 1, LUA_TFUNCTION); // user-fun
     luaref ref(L, 1);
     return push_cex_builder(L,

@@ -19,14 +19,18 @@ public:
     struct imp;
 private:
     std::shared_ptr<imp> m_ptr;
-    script_state(std::weak_ptr<imp> const & ptr);
     friend script_state to_script_state(lua_State * L);
     std::mutex & get_mutex();
     lua_State * get_state();
     friend class data_channel;
 public:
+    typedef std::weak_ptr<imp> weak_ref;
+
     script_state();
+    script_state(weak_ref const & r);
     ~script_state();
+
+    weak_ref to_weak_ref() const { return weak_ref(m_ptr); }
 
     /**
        \brief Execute the file with the given name.

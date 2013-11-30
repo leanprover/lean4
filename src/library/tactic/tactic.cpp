@@ -440,7 +440,7 @@ static int tactic_solve(lua_State * L) {
 
 static int mk_lua_tactic01(lua_State * L) {
     luaL_checktype(L, 1, LUA_TFUNCTION); // user-fun
-    script_state S = to_script_state(L);
+    script_state::weak_ref S = to_script_state(L).to_weak_ref();
     luaref ref(L, 1);
     return push_tactic(L,
                        mk_tactic01([=](environment const & env, io_state const & ios, proof_state const & s) -> optional<proof_state> {
@@ -484,7 +484,7 @@ static int mk_lua_tactic01(lua_State * L) {
 
 static int mk_lua_cond_tactic(lua_State * L, tactic t1, tactic t2) {
     luaL_checktype(L, 1, LUA_TFUNCTION); // user-fun
-    script_state S = to_script_state(L);
+    script_state::weak_ref S = to_script_state(L).to_weak_ref();
     luaref ref(L, 1);
     return push_tactic(L,
                        mk_tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {

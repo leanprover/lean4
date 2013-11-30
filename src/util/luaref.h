@@ -15,7 +15,7 @@ class luaref {
     lua_State * m_state;
     int         m_ref;
 public:
-    luaref():m_state(nullptr) {}
+    luaref():m_state(nullptr), m_ref(0) {}
     /**
        \brief Create a reference to the Lua object at position \c i on \c L stack.
     */

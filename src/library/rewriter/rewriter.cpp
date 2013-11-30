@@ -404,7 +404,6 @@ pair<expr, expr> let_body_rewriter_cell::operator()(environment const & env, con
 
     name const & n    = let_name(v);
     expr const & ty   = let_type(v);
-    expr const & val  = let_value(v);
     expr const & body = let_body(v);
     context new_ctx = extend(ctx, n, ty);
     pair<expr, expr> result_body = m_rw(env, new_ctx, body);

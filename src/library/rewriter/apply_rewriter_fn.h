@@ -94,8 +94,6 @@ class apply_rewriter_fn {
             std::pair<expr, expr> result_rhs = apply(env, ctx, rhs);
             expr const & new_lhs = result_lhs.first;
             expr const & new_rhs = result_rhs.first;
-            expr const & pf_lhs = result_lhs.second;
-            expr const & pf_rhs = result_rhs.second;
             if (lhs != new_lhs) {
                 if (rhs != new_rhs) {
                     // lhs & rhs changed

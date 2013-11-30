@@ -1,5 +1,7 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+Copyright (c) 2013 Microsoft Corporation.
+Copyright (c) 2013 Carnegie Mellon University.
+All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Soonho Kong
@@ -10,15 +12,8 @@ Author: Soonho Kong
 #include "util/exception.h"
 #include "kernel/environment.h"
 
-// Term Rewriting
-// APP_RW
-// LAMBDA_RW
-// PI_RW
-// LET_RW
-// DEPTH_RW
-// TRIVIAL_RW
+// TODO(soonhok)
 // FORALL
-// FAIL
 // FAIL_IF
 
 namespace lean {
@@ -33,7 +28,7 @@ enum class rewriter_kind { Theorem, OrElse, Then, Try, App,
         LambdaType, LambdaBody, Lambda,
         PiType, PiBody, Pi,
         LetType, LetValue, LetBody, Let,
-        Fail, Success, Repeat };
+        Fail, Success, Repeat, Depth };
 
 class rewriter;
 
@@ -261,6 +256,16 @@ public:
     std::pair<expr, expr> operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception);
 };
 
+class depth_rewriter_cell : public rewriter_cell {
+private:
+    rewriter m_rw;
+    std::ostream & display(std::ostream & out) const;
+public:
+    depth_rewriter_cell(rewriter const & rw);
+    ~depth_rewriter_cell();
+    std::pair<expr, expr> operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception);
+};
+
 /** \brief (For debugging) Display the content of this rewriter */
 inline std::ostream & operator<<(std::ostream & out, rewriter_cell const & rc) { rc.display(out); return out; }
 inline std::ostream & operator<<(std::ostream & out, rewriter const & rw) { out << *(rw.m_ptr); return out; }
@@ -287,4 +292,19 @@ rewriter mk_let_rewriter(rewriter const & rw);
 rewriter mk_fail_rewriter();
 rewriter mk_success_rewriter();
 rewriter mk_repeat_rewriter(rewriter const & rw);
+rewriter mk_depth_rewriter(rewriter const & rw);
+
+std::pair<expr, expr> rewrite_lambda_type(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_ty);
+std::pair<expr, expr> rewrite_lambda_body(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_body);
+std::pair<expr, expr> rewrite_lambda(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_ty, std::pair<expr, expr> const & result_body);
+std::pair<expr, expr> rewrite_pi_type(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_ty);
+std::pair<expr, expr> rewrite_pi_body(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_body);
+std::pair<expr, expr> rewrite_pi(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_ty, std::pair<expr, expr> const & result_body);
+std::pair<expr, expr> rewrite_eq_lhs(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_lhs);
+std::pair<expr, expr> rewrite_eq_rhs(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_rhs);
+std::pair<expr, expr> rewrite_eq(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_lhs, std::pair<expr, expr> const & result_rhs);
+std::pair<expr, expr> rewrite_let_type(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_ty);
+std::pair<expr, expr> rewrite_let_value(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_value);
+std::pair<expr, expr> rewrite_let_body(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_body);
+std::pair<expr, expr> rewrite_app(environment const & env, context & ctx, expr const & v, buffer<std::pair<expr, expr>> const & results );
 }

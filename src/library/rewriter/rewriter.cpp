@@ -1,5 +1,7 @@
 /*
-  Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+  Copyright (c) 2013 Microsoft Corporation.
+  Copyright (c) 2013 Carnegie Mellon University.
+  All rights reserved.
   Released under Apache 2.0 license as described in the file LICENSE.
 
   Author: Soonho Kong
@@ -20,8 +22,10 @@
 
 using std::cout;
 using std::endl;
-using std::pair;
+using std::initializer_list;
 using std::make_pair;
+using std::ostream;
+using std::pair;
 
 namespace lean {
 
@@ -102,17 +106,15 @@ pair<expr, expr> theorem_rewriter_cell::operator()(environment const &, context 
     lean_trace("rewriter", tout << "Proof   = " << proof << endl;);
     return make_pair(new_rhs, proof);
 }
-std::ostream & theorem_rewriter_cell::display(std::ostream & out) const {
-    out << "Thm_RW("
-        << m_type << ", "
-        << m_body << ")";
+ostream & theorem_rewriter_cell::display(ostream & out) const {
+    out << "Thm_RW(" << m_type << ", " << m_body << ")";
     return out;
 }
 
 // OrElse Rewriter
 orelse_rewriter_cell::orelse_rewriter_cell(rewriter const & rw1, rewriter const & rw2)
     :rewriter_cell(rewriter_kind::OrElse), m_rwlist({rw1, rw2}) { }
-orelse_rewriter_cell::orelse_rewriter_cell(std::initializer_list<rewriter> const & l)
+orelse_rewriter_cell::orelse_rewriter_cell(initializer_list<rewriter> const & l)
     :rewriter_cell(rewriter_kind::OrElse), m_rwlist(l) {
     lean_assert(l.size() >= 2);
 }
@@ -128,11 +130,9 @@ pair<expr, expr> orelse_rewriter_cell::operator()(environment const & env, conte
     // If the execution reaches here, it means every rewriter failed.
     throw rewriter_exception();
 }
-std::ostream & orelse_rewriter_cell::display(std::ostream & out) const {
+ostream & orelse_rewriter_cell::display(ostream & out) const {
     out << "Or_RW({";
-    for_each(m_rwlist, [&out](rewriter const & rw) {
-            out << rw << "; ";
-        });
+    for (rewriter const & rw : m_rwlist) { out << rw << "; "; }
     out << "})";
     return out;
 }
@@ -140,7 +140,7 @@ std::ostream & orelse_rewriter_cell::display(std::ostream & out) const {
 // Then Rewriter
 then_rewriter_cell::then_rewriter_cell(rewriter const & rw1, rewriter const & rw2)
     :rewriter_cell(rewriter_kind::Then), m_rwlist({rw1, rw2}) { }
-then_rewriter_cell::then_rewriter_cell(std::initializer_list<rewriter> const & l)
+then_rewriter_cell::then_rewriter_cell(initializer_list<rewriter> const & l)
     :rewriter_cell(rewriter_kind::Then), m_rwlist(l) {
     lean_assert(l.size() >= 2);
 }
@@ -158,11 +158,9 @@ pair<expr, expr> then_rewriter_cell::operator()(environment const & env, context
     }
     return result;
 }
-std::ostream & then_rewriter_cell::display(std::ostream & out) const {
+ostream & then_rewriter_cell::display(ostream & out) const {
     out << "Then_RW({";
-    for_each(m_rwlist, [&out](rewriter const & rw) {
-            out << rw << "; ";
-        });
+    for (rewriter const & rw : m_rwlist) { out << rw << "; "; }
     out << "})";
     return out;
 }
@@ -170,7 +168,7 @@ std::ostream & then_rewriter_cell::display(std::ostream & out) const {
 // Try Rewriter
 try_rewriter_cell::try_rewriter_cell(rewriter const & rw1, rewriter const & rw2)
     :rewriter_cell(rewriter_kind::Try), m_rwlist({rw1, rw2}) { }
-try_rewriter_cell::try_rewriter_cell(std::initializer_list<rewriter> const & l)
+try_rewriter_cell::try_rewriter_cell(initializer_list<rewriter> const & l)
     :rewriter_cell(rewriter_kind::Try), m_rwlist(l) {
     lean_assert(l.size() >= 1);
 }
@@ -187,11 +185,9 @@ pair<expr, expr> try_rewriter_cell::operator()(environment const & env, context 
     expr const & t = type_inferer(env)(v, ctx);
     return make_pair(v, Refl(t, v));
 }
-std::ostream & try_rewriter_cell::display(std::ostream & out) const {
+ostream & try_rewriter_cell::display(ostream & out) const {
     out << "Try_RW({";
-    for_each(m_rwlist, [&out](rewriter const & rw) {
-            out << rw << "; ";
-        });
+    for (rewriter const & rw : m_rwlist) { out << rw << "; "; }
     out << "})";
     return out;
 }
@@ -204,79 +200,14 @@ pair<expr, expr> app_rewriter_cell::operator()(environment const & env, context 
     if (!is_app(v))
         throw rewriter_exception();
 
-    unsigned n = num_args(v);
-    lean_assert_ge(n, 2);
-    expr f = arg(v, 0);
-    pair<expr, expr> result = m_rw(env, ctx, f);
-    expr new_f = result.first;
-    bool f_changed = (f != new_f);
-
-    for (unsigned i = 1; i < n; i++) {
-        // Information about f
-        new_f = result.first;
-        expr proof_f = result.second;
-        type_inferer lc(env);
-        expr const & f_ty = lc(f, ctx);
-        lean_assert(is_pi(f_ty));
-        expr f_ty_domain = abst_domain(f_ty); // A
-        expr f_ty_body = mk_lambda(abst_name(f_ty), f_ty_domain, abst_body(f_ty)); // B
-
-        // Information about arg_i
-        expr arg_i = arg(v, i);
-        pair<expr, expr> new_result = m_rw(env, ctx, arg_i);
-        expr new_arg_i = new_result.first;
-        expr proof_arg_i = new_result.second;
-        bool arg_changed = (arg_i != new_arg_i);
-
-        if (f_changed) {
-            if (arg_changed) {
-                // Congr : Pi (A : Type u) (B : A -> Type u) (f g : Pi (x : A) B x) (a b : A) (H1 : f = g) (H2 : a = b), f a = g b
-                expr new_v = new_f(new_arg_i);
-                expr new_proof = Congr(f_ty_domain,
-                                       f_ty_body,
-                                       f,
-                                       new_f,
-                                       arg_i,
-                                       new_arg_i,
-                                       proof_f,
-                                       proof_arg_i);
-                result = make_pair(new_v, new_proof);
-            } else {
-                // Congr1 : Pi (A : Type u) (B : A -> Type u) (f g: Pi (x : A) B x) (a : A) (H : f = g), f a = g a
-                expr new_v = new_f(new_arg_i);
-                expr new_proof = Congr1(f_ty_domain,
-                                        f_ty_body,
-                                        f,
-                                        new_f,
-                                        arg_i,
-                                        proof_f);
-                result = make_pair(new_v, new_proof);
-            }
-        } else {
-            if (arg_changed) {
-                // Congr2 : Pi (A : Type u) (B : A -> Type u)  (a b : A) (f : Pi (x : A) B x) (H : a = b), f a = f b
-                expr new_v = new_f(new_arg_i);
-                expr new_proof = Congr2(f_ty_domain,
-                                        f_ty_body,
-                                        arg_i,
-                                        new_arg_i,
-                                        f,
-                                        proof_arg_i);
-                result = make_pair(new_v, new_proof);
-                f_changed = true;
-            } else {
-                // Refl
-                expr new_v = new_f(new_arg_i);
-                expr new_proof = Refl(lc(new_f, ctx), new_f);
-                result = make_pair(new_v, new_proof);
-            }
-        }
-        f = f(arg_i);
+    buffer<pair<expr, expr>> results;
+    for (unsigned i = 0; i < num_args(v); i++) {
+        results.push_back(m_rw(env, ctx, arg(v, i)));
     }
-    return result;
+    return rewrite_app(env, ctx, v, results);
 }
 
-std::ostream & app_rewriter_cell::display(std::ostream & out) const {
+ostream & app_rewriter_cell::display(ostream & out) const {
     out << "App_RW(" << m_rw << ")";
     return out;
 }
@@ -290,25 +221,16 @@ pair<expr, expr> lambda_type_rewriter_cell::operator()(environment const & env, 
     if (!is_lambda(v))
         throw rewriter_exception();
     expr const & ty = abst_domain(v);
-    pair<expr, expr> result = m_rw(env, ctx, ty);
-    expr const & new_ty = result.first;
-    type_inferer lc(env);
-    expr const & ty_of_v = lc(v, ctx);
-    if (ty != new_ty) {
-        expr const & new_v = mk_lambda(abst_name(v), new_ty, abst_body(v));
-        expr const & ty_of_ty = lc(ty, ctx);
-        expr proof = Subst(ty_of_ty, ty, new_ty,
-                           Fun({Const("x"), ty_of_ty},
-                               Eq(mk_lambda(abst_name(v), ty, abst_body(v)),
-                                  mk_lambda(abst_name(v), Const("x"), abst_body(v)))),
-                           Refl(ty_of_v, v),
-                           result.second);
-        return make_pair(new_v, proof);
+    type_inferer ti(env);
+    pair<expr, expr> result_ty = m_rw(env, ctx, ty);
+    if (ty != result_ty.first) {
+        return rewrite_lambda_type(env, ctx, v, result_ty);
     } else {
-        return make_pair(v, Refl(ty_of_v, v));
+        // nothing changed
+        return make_pair(v, Refl(ti(v, ctx), v));
     }
 }
-std::ostream & lambda_type_rewriter_cell::display(std::ostream & out) const {
+ostream & lambda_type_rewriter_cell::display(ostream & out) const {
     out << "Lambda_Type_RW(" << m_rw << ")";
     return out;
 }
@@ -321,29 +243,22 @@ lambda_body_rewriter_cell::~lambda_body_rewriter_cell() { }
 pair<expr, expr> lambda_body_rewriter_cell::operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception) {
     if (!is_lambda(v))
         throw rewriter_exception();
-    expr const & body = abst_body(v);
+
     name const & n = abst_name(v);
     expr const & ty = abst_domain(v);
+    expr const & body = abst_body(v);
     context new_ctx = extend(ctx, n, ty);
-    pair<expr, expr> result = m_rw(env, new_ctx, body);
-    type_inferer lc(env);
-    expr const & ty_of_v = lc(v, ctx);
-    expr const & new_body = result.first;
-    if (body != new_body) {
-        expr const & new_v = mk_lambda(n, ty, new_body);
-        expr const & ty_of_body = lc(body, new_ctx);
-        expr proof = Subst(ty_of_body, body, new_body,
-                           Fun({Const("x"), ty_of_body},
-                               Eq(mk_lambda(abst_name(v), ty, abst_body(v)),
-                                  mk_lambda(abst_name(v), ty, Const("x")))),
-                           Refl(ty_of_v, v),
-                           result.second);
-        return make_pair(new_v, proof);
+    pair<expr, expr> result_body = m_rw(env, new_ctx, body);
+    if (body != result_body.first) {
+        // body changed
+        return rewrite_lambda_body(env, ctx, v, result_body);
     } else {
-        return make_pair(v, Refl(ty_of_v, v));
+        // nothing changed
+        type_inferer ti(env);
+        return make_pair(v, Refl(ti(v, ctx), v));
     }
 }
-std::ostream & lambda_body_rewriter_cell::display(std::ostream & out) const {
+ostream & lambda_body_rewriter_cell::display(ostream & out) const {
     out << "Lambda_Body_RW(" << m_rw << ")";
     return out;
 }
@@ -360,7 +275,7 @@ pair<expr, expr> lambda_rewriter_cell::operator()(environment const & env, conte
                                    mk_lambda_body_rewriter(m_rw));
     return rw(env, ctx, v);
 }
-std::ostream & lambda_rewriter_cell::display(std::ostream & out) const {
+ostream & lambda_rewriter_cell::display(ostream & out) const {
     out << "Lambda_RW(" << m_rw << ")";
     return out;
 }
@@ -373,26 +288,18 @@ pi_type_rewriter_cell::~pi_type_rewriter_cell() { }
 pair<expr, expr> pi_type_rewriter_cell::operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception) {
     if (!is_pi(v))
         throw rewriter_exception();
+
     expr const & ty = abst_domain(v);
-    pair<expr, expr> result = m_rw(env, ctx, ty);
-    expr const & new_ty = result.first;
-    type_inferer lc(env);
-    expr const & ty_of_v = lc(v, ctx);
-    if (ty != new_ty) {
-        expr const & new_v = mk_pi(abst_name(v), new_ty, abst_body(v));
-        expr const & ty_of_ty = lc(ty, ctx);
-        expr proof = Subst(ty_of_ty, ty, new_ty,
-                           Fun({Const("x"), ty_of_ty},
-                               Eq(mk_pi(abst_name(v), ty, abst_body(v)),
-                                  mk_pi(abst_name(v), Const("x"), abst_body(v)))),
-                           Refl(ty_of_v, v),
-                           result.second);
-        return make_pair(new_v, proof);
+    pair<expr, expr> result_ty = m_rw(env, ctx, ty);
+    if (ty != result_ty.first) {
+        return rewrite_pi_type(env, ctx, v, result_ty);
     } else {
-        return make_pair(v, Refl(ty_of_v, v));
+        // nothing changed
+        type_inferer ti(env);
+        return make_pair(v, Refl(ti(v, ctx), v));
     }
 }
-std::ostream & pi_type_rewriter_cell::display(std::ostream & out) const {
+ostream & pi_type_rewriter_cell::display(ostream & out) const {
     out << "Pi_Type_RW(" << m_rw << ")";
     return out;
 }
@@ -405,29 +312,22 @@ pi_body_rewriter_cell::~pi_body_rewriter_cell() { }
 pair<expr, expr> pi_body_rewriter_cell::operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception) {
     if (!is_pi(v))
         throw rewriter_exception();
-    expr const & body = abst_body(v);
+
     name const & n = abst_name(v);
     expr const & ty = abst_domain(v);
+    expr const & body = abst_body(v);
     context new_ctx = extend(ctx, n, ty);
-    pair<expr, expr> result = m_rw(env, new_ctx, body);
-    type_inferer lc(env);
-    expr const & ty_of_v = lc(v, ctx);
-    expr const & new_body = result.first;
-    if (body != new_body) {
-        expr const & new_v = mk_pi(n, ty, new_body);
-        expr const & ty_of_body = lc(body, new_ctx);
-        expr proof = Subst(ty_of_body, body, new_body,
-                           Fun({Const("x"), ty_of_body},
-                               Eq(mk_pi(abst_name(v), ty, abst_body(v)),
-                                  mk_pi(abst_name(v), ty, Const("x")))),
-                           Refl(ty_of_v, v),
-                           result.second);
-        return make_pair(new_v, proof);
+    pair<expr, expr> result_body = m_rw(env, new_ctx, body);
+    if (body != result_body.first) {
+        // body changed
+        return rewrite_pi_body(env, ctx, v, result_body);
     } else {
-        return make_pair(v, Refl(ty_of_v, v));
+        // nothing changed
+        type_inferer ti(env);
+        return make_pair(v, Refl(ti(v, ctx), v));
     }
 }
-std::ostream & pi_body_rewriter_cell::display(std::ostream & out) const {
+ostream & pi_body_rewriter_cell::display(ostream & out) const {
     out << "Pi_Body_RW(" << m_rw << ")";
     return out;
 }
@@ -443,7 +343,7 @@ pair<expr, expr> pi_rewriter_cell::operator()(environment const & env, context &
                                    mk_pi_body_rewriter(m_rw));
     return rw(env, ctx, v);
 }
-std::ostream & pi_rewriter_cell::display(std::ostream & out) const {
+ostream & pi_rewriter_cell::display(ostream & out) const {
     out << "Pi_RW(" << m_rw << ")";
     return out;
 }
@@ -455,26 +355,18 @@ let_type_rewriter_cell::~let_type_rewriter_cell() { }
 pair<expr, expr> let_type_rewriter_cell::operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception) {
     if (!is_let(v))
         throw rewriter_exception();
+
     expr const & ty = let_type(v);
-    pair<expr, expr> result = m_rw(env, ctx, ty);
-    expr const & new_ty = result.first;
-    type_inferer lc(env);
-    expr const & ty_of_v = lc(v, ctx);
-    if (ty != new_ty) {
-        expr const & new_v = mk_let(let_name(v), new_ty, let_value(v), let_body(v));
-        expr const & ty_of_ty = lc(ty, ctx);
-        expr proof = Subst(ty_of_ty, ty, new_ty,
-                           Fun({Const("x"), ty_of_ty},
-                               Eq(mk_let(let_name(v), ty, let_value(v), let_body(v)),
-                                  mk_let(let_name(v), Const("x"), let_value(v), let_body(v)))),
-                           Refl(ty_of_v, v),
-                           result.second);
-        return make_pair(new_v, proof);
+    pair<expr, expr> result_ty = m_rw(env, ctx, ty);
+    if (ty != result_ty.first) {
+        // ty changed
+        return rewrite_let_type(env, ctx, v, result_ty);
     } else {
-        return make_pair(v, Refl(ty_of_v, v));
+        type_inferer ti(env);
+        return make_pair(v, Refl(ti(v, ctx), v));
     }
 }
-std::ostream & let_type_rewriter_cell::display(std::ostream & out) const {
+ostream & let_type_rewriter_cell::display(ostream & out) const {
     out << "Let_Type_RW(" << m_rw << ")";
     return out;
 }
@@ -486,26 +378,18 @@ let_value_rewriter_cell::~let_value_rewriter_cell() { }
 pair<expr, expr> let_value_rewriter_cell::operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception) {
     if (!is_let(v))
         throw rewriter_exception();
-    expr const & val = let_value(v);
-    pair<expr, expr> result = m_rw(env, ctx, val);
-    expr const & new_val = result.first;
-    type_inferer lc(env);
-    expr const & ty_of_v = lc(v, ctx);
-    if (val != new_val) {
-        expr const & new_v = mk_let(let_name(v), let_type(v), new_val, let_body(v));
-        expr const & ty_of_val = lc(val, ctx);
-        expr proof = Subst(ty_of_val, val, new_val,
-                           Fun({Const("x"), ty_of_val},
-                               Eq(mk_let(let_name(v), let_type(v), let_value(v), let_body(v)),
-                                  mk_let(let_name(v), let_type(v), Const("x"), let_body(v)))),
-                           Refl(ty_of_v, v),
-                           result.second);
-        return make_pair(new_v, proof);
+
+    expr const & val  = let_value(v);
+    pair<expr, expr> result_val = m_rw(env, ctx, val);
+    if (val != result_val.first) {
+        // ty changed
+        return rewrite_let_value(env, ctx, v, result_val);
     } else {
-        return make_pair(v, Refl(ty_of_v, v));
+        type_inferer ti(env);
+        return make_pair(v, Refl(ti(v, ctx), v));
     }
 }
-std::ostream & let_value_rewriter_cell::display(std::ostream & out) const {
+ostream & let_value_rewriter_cell::display(ostream & out) const {
     out << "Let_Value_RW(" << m_rw << ")";
     return out;
 }
@@ -518,30 +402,20 @@ pair<expr, expr> let_body_rewriter_cell::operator()(environment const & env, con
     if (!is_let(v))
         throw rewriter_exception();
 
+    name const & n    = let_name(v);
+    expr const & ty   = let_type(v);
+    expr const & val  = let_value(v);
     expr const & body = let_body(v);
-    name const & n = let_name(v);
-    expr const & ty = let_type(v);
-    expr const & val = let_value(v);
     context new_ctx = extend(ctx, n, ty);
-    pair<expr, expr> result = m_rw(env, new_ctx, body);
-    type_inferer lc(env);
-    expr const & ty_of_v = lc(v, ctx);
-    expr const & new_body = result.first;
-    if (body != new_body) {
-        expr const & new_v = mk_let(n, ty, val, new_body);
-        expr const & ty_of_body = lc(body, new_ctx);
-        expr proof = Subst(ty_of_body, body, new_body,
-                           Fun({Const("x"), ty_of_body},
-                               Eq(mk_let(let_name(v), let_type(v), let_value(v), let_body(v)),
-                                  mk_let(let_name(v), let_type(v), let_value(v), Const("x")))),
-                           Refl(ty_of_v, v),
-                           result.second);
-        return make_pair(new_v, proof);
+    pair<expr, expr> result_body = m_rw(env, new_ctx, body);
+    if (body != result_body.first) {
+        return rewrite_let_body(env, ctx, v, result_body);
     } else {
-        return make_pair(v, Refl(ty_of_v, v));
+        type_inferer ti(env);
+        return make_pair(v, Refl(ti(v, ctx), v));
     }
 }
-std::ostream & let_body_rewriter_cell::display(std::ostream & out) const {
+ostream & let_body_rewriter_cell::display(ostream & out) const {
     out << "Let_Body_RW(" << m_rw << ")";
     return out;
 }
@@ -558,7 +432,7 @@ pair<expr, expr> let_rewriter_cell::operator()(environment const & env, context 
                                     mk_let_body_rewriter(m_rw)});
     return rw(env, ctx, v);
 }
-std::ostream & let_rewriter_cell::display(std::ostream & out) const {
+ostream & let_rewriter_cell::display(ostream & out) const {
     out << "Let_RW(" << m_rw << ")";
     return out;
 }
@@ -569,7 +443,7 @@ fail_rewriter_cell::~fail_rewriter_cell() { }
 pair<expr, expr> fail_rewriter_cell::operator()(environment const &, context &, expr const &) const throw(rewriter_exception) {
     throw rewriter_exception();
 }
-std::ostream & fail_rewriter_cell::display(std::ostream & out) const {
+ostream & fail_rewriter_cell::display(ostream & out) const {
     out << "Fail_RW()";
     return out;
 }
@@ -581,7 +455,7 @@ pair<expr, expr> success_rewriter_cell::operator()(environment const & env, cont
     expr const & t = type_inferer(env)(v, ctx);
     return make_pair(v, Refl(t, v));
 }
-std::ostream & success_rewriter_cell::display(std::ostream & out) const {
+ostream & success_rewriter_cell::display(ostream & out) const {
     out << "Success_RW()";
     return out;
 }
@@ -591,13 +465,13 @@ repeat_rewriter_cell::repeat_rewriter_cell(rewriter const & rw):rewriter_cell(re
 repeat_rewriter_cell::~repeat_rewriter_cell() { }
 pair<expr, expr> repeat_rewriter_cell::operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception) {
     pair<expr, expr> result = mk_success_rewriter()(env, ctx, v);
-    type_inferer lc(env);
+    type_inferer ti(env);
     try {
         while (true) {
             pair<expr, expr> new_result = m_rw(env, ctx, result.first);
             if (result.first == new_result.first)
                 break;
-            expr const & ty = lc(v, ctx);
+            expr const & ty = ti(v, ctx);
             result = make_pair(new_result.first,
                                Trans(ty, v, result.first, new_result.first, result.second, new_result.second));
         }
@@ -606,8 +480,20 @@ pair<expr, expr> repeat_rewriter_cell::operator()(environment const & env, conte
     }
     return result;
 }
-std::ostream & repeat_rewriter_cell::display(std::ostream & out) const {
+ostream & repeat_rewriter_cell::display(ostream & out) const {
     out << "Repeat_RW(" << m_rw << ")";
+    return out;
+}
+
+// Depth rewriter
+depth_rewriter_cell::depth_rewriter_cell(rewriter const & rw):rewriter_cell(rewriter_kind::Depth), m_rw(rw) { }
+depth_rewriter_cell::~depth_rewriter_cell() { }
+pair<expr, expr> depth_rewriter_cell::operator()(environment const &, context &, expr const &) const throw(rewriter_exception) {
+    // TODO(soonhok): implement
+    throw rewriter_exception();
+}
+ostream & depth_rewriter_cell::display(ostream & out) const {
+    out << "Depth_RW(" << m_rw << ")";
     return out;
 }
 
@@ -617,7 +503,7 @@ rewriter mk_theorem_rewriter(expr const & type, expr const & body) {
 rewriter mk_then_rewriter(rewriter const & rw1, rewriter const & rw2) {
     return rewriter(new then_rewriter_cell(rw1, rw2));
 }
-rewriter mk_then_rewriter(std::initializer_list<rewriter> const & l) {
+rewriter mk_then_rewriter(initializer_list<rewriter> const & l) {
     return rewriter(new then_rewriter_cell(l));
 }
 rewriter mk_try_rewriter(rewriter const & rw) {
@@ -626,13 +512,13 @@ rewriter mk_try_rewriter(rewriter const & rw) {
 rewriter mk_try_rewriter(rewriter const & rw1, rewriter const & rw2) {
     return rewriter(new try_rewriter_cell(rw1, rw2));
 }
-rewriter mk_try_rewriter(std::initializer_list<rewriter> const & l) {
+rewriter mk_try_rewriter(initializer_list<rewriter> const & l) {
     return rewriter(new try_rewriter_cell(l));
 }
 rewriter mk_orelse_rewriter(rewriter const & rw1, rewriter const & rw2) {
     return rewriter(new orelse_rewriter_cell(rw1, rw2));
 }
-rewriter mk_orelse_rewriter(std::initializer_list<rewriter> const & l) {
+rewriter mk_orelse_rewriter(initializer_list<rewriter> const & l) {
     return rewriter(new orelse_rewriter_cell(l));
 }
 rewriter mk_app_rewriter(rewriter const & rw) {
@@ -676,5 +562,416 @@ rewriter mk_success_rewriter() {
 }
 rewriter mk_repeat_rewriter(rewriter const & rw) {
     return rewriter(new repeat_rewriter_cell(rw));
+}
+rewriter mk_depth_rewriter(rewriter const & rw) {
+    return rewriter(new depth_rewriter_cell(rw));
+}
+
+// Input:
+//       v = (lambda n : ty. body)
+//       rewritten ty, new_ty
+//       proof of (ty = new_ty), pf_ty
+// Output:
+//       the result new_v = (lambda n : new_ty. body),
+//       proof of (lambda n : ty. body) = (lambda n : new_ty. body)
+pair<expr, expr> rewrite_lambda_type(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_ty) {
+    lean_assert(is_lambda(v));
+    type_inferer ti(env);
+    expr const & ty     = abst_domain(v);
+    expr const & new_ty = result_ty.first;
+    expr const & ty_v   = ti(v, ctx);
+    if (ty == new_ty) {
+        return make_pair(v, Refl(ty_v, v));
+    } else {
+        name const & n         = abst_name(v);
+        expr const & body      = abst_body(v);
+        expr const & pf_ty     = result_ty.second;
+        expr const & new_v     = mk_lambda(n, new_ty, body);
+        expr const & ty_ty     = ti(ty, ctx);
+        lean_assert_eq(ty_ty, ti(new_ty, ctx)); // TODO(soonhok): generalize for hetreogeneous types
+        expr const & proof     = Subst(ty_ty, ty, new_ty,
+                                       Fun({Const("T"), ty_ty},
+                                           mk_eq(v, mk_lambda(n, Const("T"), body))),
+                                       Refl(ty_v, v), pf_ty);
+        return make_pair(new_v, proof);
+    }
+}
+
+// Input:
+//       v = (lambda n : ty. body)
+//       rewritten body, new_body
+//       proof of (body = new_body), pf_body
+// Output:
+//       the result new_v = (lambda n : ty. new_body),
+//       proof of (lambda n : ty. body) = (lambda n : ty. new_body)
+pair<expr, expr> rewrite_lambda_body(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_body) {
+    lean_assert(is_lambda(v));
+    type_inferer ti(env);
+    expr const & body     = abst_body(v);
+    expr const & new_body = result_body.first;
+    expr const & ty_v     = ti(v, ctx);
+    if (body == new_body) {
+        return make_pair(v, Refl(ty_v, v));
+    } else {
+        name const & n       = abst_name(v);
+        expr const & ty      = abst_domain(v);
+        expr const & pf_body = result_body.second;
+        expr const & new_v   = mk_lambda(n, ty, new_body);
+        expr const & ty_body = ti(body, extend(ctx, n, ty));
+        lean_assert_eq(ty_body, ti(new_body, ctx)); // TODO(soonhok): generalize for hetreogeneous types
+        expr const & proof   = Subst(ty_body, body, new_body,
+                                     Fun({Const("e"), ty_body},
+                                         mk_eq(v, mk_lambda(n, ty, Const("e")))),
+                                     Refl(ty_v, v), pf_body);
+        return make_pair(new_v, proof);
+    }
+}
+
+// Generalized version of rewrite_labmda_type and rewrite_lambda_body
+// Input:
+//       v = (lambda n : ty. body)
+//       rewritten ty, new_ty     and proof of (ty = new_ty), pf_ty
+//       rewritten body, new_body and proof of (body = new_body), pf_body
+// Output:
+//       new_v = (lambda n : new_ty. new_body)
+//       proof of (lambda n : ty. body) = (lambda n : new_ty. new_body)
+pair<expr, expr> rewrite_lambda(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_ty, pair<expr, expr> const & result_body) {
+    lean_assert(is_lambda(v));
+    type_inferer ti(env);
+    name const & n         = abst_name(v);
+    expr const & ty        = abst_domain(v);
+    expr const & body      = abst_body(v);
+    expr const & new_ty    = result_ty.first;
+    expr const & pf_ty     = result_ty.second;
+    expr const & new_body  = result_body.first;
+    expr const & pf_body   = result_body.second;
+    expr const & ty_ty     = ti(ty, ctx);
+    expr const & ty_body   = ti(body, ctx);
+    expr const & ty_v      = ti(v, ctx);
+    expr const & new_v1    = mk_lambda(n, new_ty, body);
+    expr const & ty_new_v1 = ti(v, ctx);
+    expr const & new_v2    = mk_lambda(n, new_ty, new_body);
+    // proof1 : v = new_v1
+    expr const & proof1    = Subst(ty_ty, ty, new_ty,
+                                   Fun({Const("T"), ty_ty},
+                                       mk_eq(v, mk_lambda(n, Const("T"), body))),
+                                   Refl(ty_v, v),
+                                   pf_ty);
+    // proof2 : new_v1 = new_v2
+    expr const & proof2    = Subst(ty_body, body, new_body,
+                                   Fun({Const("e"), ty_body},
+                                       mk_eq(new_v1, mk_lambda(n, new_ty, Const("e")))),
+                                   Refl(ty_new_v1, new_v1),
+                                   pf_body);
+    expr const & proof     = Trans(ty_v, v, new_v1, new_v2, proof1, proof2);
+    return make_pair(new_v2, proof);
+}
+
+// Input:
+//       v = (Pi n : ty. body)
+//       rewritten ty, new_ty
+//       proof of (ty = new_ty), pf_ty
+// Output:
+//       the result new_v = (Pi n : new_ty. body),
+//       proof of (Pi n : ty. body) = (Pi n : new_ty. body)
+pair<expr, expr> rewrite_pi_type(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_ty) {
+    lean_assert(is_pi(v));
+    type_inferer ti(env);
+    name const & n      = abst_name(v);
+    expr const & ty     = abst_domain(v);
+    expr const & body   = abst_body(v);
+    expr const & new_ty = result_ty.first;
+    expr const & pf     = result_ty.second;
+    expr const & new_v  = mk_pi(n, new_ty, body);
+    expr const & ty_ty  = ti(ty, ctx);
+    expr const & ty_v   = ti(v, ctx);
+    expr const & proof  = Subst(ty_ty, ty, new_ty,
+                                Fun({Const("T"), ty_ty},
+                                    mk_eq(v, mk_pi(n, Const("T"), body))),
+                                Refl(ty_v, v),
+                                pf);
+    return make_pair(new_v, proof);
+}
+
+// Input:
+//       v = (Pi n : ty. body)
+//       rewritten body, new_body
+//       proof of (body = new_body), pf_body
+// Output:
+//       the result new_v = (Pi n : ty. new_body),
+//       proof of (Pi n : ty. body) = (Pi n : ty. new_body)
+pair<expr, expr> rewrite_pi_body(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_body) {
+    lean_assert(is_pi(v));
+    type_inferer ti(env);
+    name const & n        = abst_name(v);
+    expr const & ty       = abst_domain(v);
+    expr const & body     = abst_body(v);
+    expr const & new_body = result_body.first;
+    expr const & pf       = result_body.second;
+    expr const & new_v    = mk_pi(n, ty, new_body);
+    expr const & ty_body  = ti(body, extend(ctx, n, ty));
+    expr const & ty_v     = ti(v, ctx);
+    expr const & proof    = Subst(ty_body, body, new_body,
+                                  Fun({Const("e"), ty_body},
+                                      mk_eq(v, mk_pi(n, ty, Const("e")))),
+                                  Refl(ty_v, v),
+                                  pf);
+    return make_pair(new_v, proof);
+}
+
+// Generalized version of rewrite_labmda_type and rewrite_Pi_body
+// Input:
+//       v = (Pi n : ty. body)
+//       rewritten ty, new_ty     and proof of (ty = new_ty), pf_ty
+//       rewritten body, new_body and proof of (body = new_body), pf_body
+// Output:
+//       new_v = (Pi n : new_ty. new_body)
+//       proof of (Pi n : ty. body) = (Pi n : new_ty. new_body)
+pair<expr, expr> rewrite_pi(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_ty, pair<expr, expr> const & result_body) {
+    lean_assert(is_pi(v));
+    type_inferer ti(env);
+    name const & n         = abst_name(v);
+    expr const & ty        = abst_domain(v);
+    expr const & body      = abst_body(v);
+    expr const & new_ty    = result_ty.first;
+    expr const & pf_ty     = result_ty.second;
+    expr const & new_body  = result_body.first;
+    expr const & pf_body   = result_body.second;
+    expr const & ty_ty     = ti(ty, ctx);
+    expr const & ty_body   = ti(body, ctx);
+    expr const & ty_v      = ti(v, ctx);
+    expr const & new_v1    = mk_pi(n, new_ty, body);
+    expr const & ty_new_v1 = ti(v, ctx);
+    expr const & new_v2    = mk_pi(n, new_ty, new_body);
+    // proof1 : v = new_v1
+    expr const & proof1    = Subst(ty_ty, ty, new_ty,
+                                   Fun({Const("T"), ty_ty},
+                                       mk_eq(v, mk_pi(n, Const("T"), body))),
+                                   Refl(ty_v, v),
+                                   pf_ty);
+    // proof2 : new_v1 = new_v2
+    expr const & proof2    = Subst(ty_body, body, new_body,
+                                   Fun({Const("e"), ty_body},
+                                       mk_eq(new_v1, mk_pi(n, new_ty, Const("e")))),
+                                   Refl(ty_new_v1, new_v1),
+                                   pf_body);
+    expr const & proof     = Trans(ty_v, v, new_v1, new_v2, proof1, proof2);
+    return make_pair(new_v2, proof);
+}
+
+// Input:
+//       v = (lhs = rhs)
+//       rewritten lhs, new_lhs
+//       proof of (lhs = new_lhs), pf
+// Output:
+//       new_v = (new_lhs = rhs)
+//       proof of (lhs = rhs) = (new_lhs = rhs)
+pair<expr, expr> rewrite_eq_lhs(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_lhs) {
+    lean_assert(is_eq(v));
+    type_inferer ti(env);
+    expr const & lhs     = eq_lhs(v);
+    expr const & rhs     = eq_rhs(v);
+    expr const & new_lhs = result_lhs.first;
+    expr const & pf      = result_lhs.second;
+    expr const & new_v   = mk_eq(new_lhs, rhs);
+    expr const & ty_lhs  = ti(lhs, ctx);
+    expr const & ty_v    = ti(v, ctx);
+    expr const & proof   = Subst(ty_lhs, lhs, new_lhs,
+                                 Fun({Const("x"), ty_lhs},
+                                     mk_eq(v, mk_eq(Const("x"), rhs))),
+                                 Refl(ty_v, v),
+                                 pf);
+    return make_pair(new_v, proof);
+}
+
+// Input:
+//       v = (lhs = rhs)
+//       rewritten rhs, new_rhs
+//       proof of (rhs = new_rhs), pf
+// Output:
+//       new_v = (lhs = new_rhs)
+//       proof of (lhs = rhs) = (lhs = new_rhs)
+pair<expr, expr> rewrite_eq_rhs(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_rhs) {
+    lean_assert(is_eq(v));
+    type_inferer ti(env);
+    expr const & lhs     = eq_lhs(v);
+    expr const & rhs     = eq_rhs(v);
+    expr const & new_rhs = result_rhs.first;
+    expr const & pf      = result_rhs.second;
+    expr const & new_v   = mk_eq(rhs, new_rhs);
+    expr const & ty_rhs  = ti(rhs, ctx);
+    expr const & ty_v    = ti(v, ctx);
+    expr const & proof   = Subst(ty_rhs, rhs, new_rhs,
+                                 Fun({Const("x"), ty_rhs},
+                                     mk_eq(v, mk_eq(lhs, Const("x")))),
+                                 Refl(ty_v, v),
+                                 pf);
+    return make_pair(new_v, proof);
+}
+
+// Generalized version
+// Input
+//       v = (lhs = rhs)
+//       rewritten lhs, new_lhs   and   proof of (lhs = new_lhs), pf_lhs
+//       rewritten rhs, new_rhs   and   proof of (rhs = new_rhs), pf_rhs
+// Output:
+//       new_v = (new_lhs = new_rhs)
+//       proof of (lhs = rhs) = (new_lhs = new_rhs)
+pair<expr, expr> rewrite_eq(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_lhs, pair<expr, expr> const & result_rhs) {
+    lean_assert(is_eq(v));
+    type_inferer ti(env);
+    expr const & lhs       = eq_lhs(v);
+    expr const & rhs       = eq_rhs(v);
+    expr const & new_lhs   = result_lhs.first;
+    expr const & pf_lhs    = result_lhs.second;
+    expr const & new_rhs   = result_rhs.first;
+    expr const & pf_rhs    = result_rhs.second;
+    expr const & new_v1    = mk_eq(new_lhs, rhs);
+    expr const & new_v2    = mk_eq(new_lhs, new_rhs);
+    expr const & ty_lhs    = ti(lhs, ctx);
+    expr const & ty_rhs    = ti(rhs, ctx);
+    expr const & ty_v      = ti(v, ctx);
+    expr const & ty_new_v1 = ti(new_v1, ctx);
+    // proof1 : v = new_v1
+    expr const & proof1 = Subst(ty_lhs, lhs, new_lhs,
+                                Fun({Const("x"), ty_lhs},
+                                    mk_eq(v, mk_eq(Const("x"), rhs))),
+                                Refl(ty_v, v),
+                                pf_lhs);
+    // proof2 : new_v1 = new_v2
+    expr const & proof2 = Subst(ty_rhs, rhs, new_rhs,
+                                Fun({Const("x"), ty_rhs},
+                                    mk_eq(v, mk_eq(lhs, Const("x")))),
+                                Refl(ty_new_v1, new_v1),
+                                pf_rhs);
+    expr const & proof  = Trans(ty_v, v, new_v1, new_v2, proof1, proof2);
+    return make_pair(new_v2, proof);
+}
+
+// Input:
+//       v = (let n : ty = val in body)
+//       rewritten ty, new_ty
+//       proof of (ty = new_ty), pf
+// Output:
+//       new_v = (let n : new_ty = val in body)
+//       proof of (let n : ty = val in body) = (let n : new_ty = val in body)
+pair<expr, expr> rewrite_let_type(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_ty) {
+    lean_assert(is_let(v));
+    type_inferer ti(env);
+    name const & n       = let_name(v);
+    expr const & ty      = let_type(v);
+    expr const & val     = let_value(v);
+    expr const & body    = let_body(v);
+    expr const & new_ty  = result_ty.first;
+    expr const & pf      = result_ty.second;
+    expr const & new_v   = mk_let(n, new_ty, val, body);
+    expr const & ty_ty   = ti(ty, ctx);
+    expr const & ty_v    = ti(v, ctx);
+    expr const & proof   = Subst(ty_ty, ty, new_ty,
+                                 Fun({Const("x"), ty_ty},
+                                     mk_eq(v, mk_let(n, Const("x"), val, body))),
+                                 Refl(ty_v, v),
+                                 pf);
+    return make_pair(new_v, proof);
+}
+
+// Input:
+//       v = (let n : ty = val in body)
+//       rewritten val, new_val
+//       proof of (val = new_val), pf
+// Output:
+//       new_v = (let n : ty = new_val in body)
+//       proof of (let n : ty = val in body) = (let n : ty = new_val in body)
+pair<expr, expr> rewrite_let_value(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_value) {
+    lean_assert(is_let(v));
+    type_inferer ti(env);
+    name const & n       = let_name(v);
+    expr const & ty      = let_type(v);
+    expr const & val     = let_value(v);
+    expr const & body    = let_body(v);
+    expr const & new_val = result_value.first;
+    expr const & pf      = result_value.second;
+    expr const & new_v   = mk_let(n, ty, new_val, body);
+    expr const & ty_val  = ti(val, ctx);
+    expr const & ty_v    = ti(v, ctx);
+    expr const & proof   = Subst(ty_val, val, new_val,
+                                 Fun({Const("x"), ty_val},
+                                     mk_eq(v, mk_let(n, ty, Const("x"), body))),
+                                 Refl(ty_v, v),
+                                 pf);
+    return make_pair(new_v, proof);
+}
+
+// Input:
+//       v = (let n : ty = val in body)
+//       rewritten body, new_body
+//       proof of (body = new_body), pf
+// Output:
+//       new_v = (let n : ty = val in new_body)
+//       proof of (let n : ty = val in body) = (let n : ty = val in new_body)
+pair<expr, expr> rewrite_let_body(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_body) {
+    lean_assert(is_let(v));
+    type_inferer ti(env);
+    name const & n        = let_name(v);
+    expr const & ty       = let_type(v);
+    expr const & val      = let_value(v);
+    expr const & body     = let_body(v);
+    expr const & new_body = result_body.first;
+    expr const & pf       = result_body.second;
+    expr const & new_v    = mk_let(n, ty, val, new_body);
+    expr const & ty_body  = ti(body, extend(ctx, n, ty, body));
+    expr const & ty_v     = ti(v, ctx);
+    expr const & proof    = Subst(ty_body, body, new_body,
+                                  Fun({Const("e"), ty_body},
+                                      mk_eq(v, mk_let(n, ty, val, Const("e")))),
+                                  Refl(ty_v, v),
+                                  pf);
+    return make_pair(new_v, proof);
+}
+
+// Input:
+//       v = (e_0 e_1 ... e_n)
+//       result_i = (e'_i, proof of e_i = e'_i) for 0 <= i <= n
+// Output:
+//       new_v = ( e'_0 e'_1 ... e'_n )
+//       proof of (e_0 e_1 ... e_n) = ( e'_0 e'_1 ... e'_n )
+pair<expr, expr> rewrite_app(environment const & env, context & ctx, expr const & v, buffer<pair<expr, expr>> const & results ) {
+    type_inferer ti(env);
+    expr f = arg(v, 0);
+    expr new_f = results[0].first;
+    expr pf = results[0].second;
+    for (unsigned i = 1; i < results.size(); i++) {
+        expr const & f_ty = ti(f, ctx);
+        lean_assert(is_pi(f_ty));
+        expr const & f_ty_domain = abst_domain(f_ty); // A
+        expr f_ty_body = mk_lambda(abst_name(f_ty), f_ty_domain, abst_body(f_ty)); // B
+        expr const & e_i = arg(v, i);
+        expr const & new_e_i = results[i].first;
+        expr const & pf_e_i  = results[i].second;
+        bool f_changed = f != new_f;
+        if (f_changed) {
+            if (arg(v, i) != results[i].first) {
+                // Congr : Pi (A : Type u) (B : A -> Type u) (f g : Pi
+                // (x : A) B x) (a b : A) (H1 : f = g) (H2 : a = b), f
+                // a = g b
+                pf = Congr(f_ty_domain, f_ty_body, f, new_f, e_i, new_e_i, pf, pf_e_i);
+            } else {
+                // Congr1 : Pi (A : Type u) (B : A -> Type u) (f g: Pi
+                // (x : A) B x) (a : A) (H : f = g), f a = g a
+                pf = Congr1(f_ty_domain, f_ty_body, f, new_f, e_i, pf);
+            }
+        } else {
+            if (arg(v, i) != results[i].first) {
+                // Congr2 : Pi (A : Type u) (B : A -> Type u)  (a b : A) (f : Pi (x : A) B x) (H : a = b), f a = f b
+                pf = Congr2(f_ty_domain, f_ty_body, e_i, new_e_i, f, pf_e_i);
+            } else {
+                // Refl
+                pf = Refl(ti(f(e_i), ctx), f(e_i));
+            }
+        }
+        f = f (e_i);
+        new_f = new_f (new_e_i);
+    }
+    return make_pair(new_f, pf);
 }
 }

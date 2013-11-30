@@ -15,6 +15,7 @@ Author: Soonho Kong
 #include "library/arith/nat.h"
 #include "library/rewriter/fo_match.h"
 #include "library/rewriter/rewriter.h"
+#include "library/rewriter/apply_rewriter_fn.h"
 #include "library/basic_thms.h"
 using namespace lean;
 
@@ -395,8 +396,6 @@ static void try_rewriter2_tst() {
     env.add_theorem("try2", concl, proof);
 }
 
-#if 0
-// TODO(Leo): fix
 static void app_rewriter1_tst() {
     cout << "=== app_rewriter1_tst() ===" << std::endl;
     // Theorem:     Pi(x y : N),  x + y       = y + x       := ADD_COMM x y
@@ -440,9 +439,8 @@ static void app_rewriter1_tst() {
     cout << "Concl = " << concl << std::endl
          << "Proof = " << proof << std::endl;
     lean_assert_eq(concl, mk_eq(v, f1(nVal(0))));
-    lean_assert_eq(proof, Const("Refl")(Nat >> Nat, f1));
+    lean_assert_eq(proof, Refl(Nat, f1(nVal(0))));
     env.add_theorem("app_rewriter1", concl, proof);
-    // ==========================================================
     cout << "====================================================" << std::endl;
     v = f1(a_plus_b);
     result = app_try_comm_rewriter(env, ctx, v);
@@ -454,7 +452,6 @@ static void app_rewriter1_tst() {
     lean_assert_eq(proof,
                    Const("Congr2")(Nat, Fun(name("_"), Nat, Nat), a_plus_b, b_plus_a, f1, Const("ADD_COMM")(a, b)));
     env.add_theorem("app_rewriter2", concl, proof);
-    // ==========================================================
     cout << "====================================================" << std::endl;
     v = f4(nVal(0), a_plus_b, nVal(0), b_plus_a);
     result = app_try_comm_rewriter(env, ctx, v);
@@ -463,7 +460,7 @@ static void app_rewriter1_tst() {
     cout << "Concl = " << concl << std::endl
          << "Proof = " << proof << std::endl;
     lean_assert_eq(concl, mk_eq(v, f4(nVal(0), b_plus_a, nVal(0), a_plus_b)));
-//                   Congr Nat (fun _ : Nat, Nat) (f4 0 (Nat::add a b) 0) (f4 0 (Nat::add b a) 0) (Nat::add b a) (Nat::add a b) (Congr1 Nat (fun _ : Nat, (Nat -> Nat)) (f4 0 (Nat::add a b)) (f4 0 (Nat::add b a)) 0 (Congr2 Nat (fun _ : Nat, (Nat -> Nat -> Nat)) (Nat::add a b) (Nat::add b a) (f4 0) (ADD_COMM a b))) (ADD_COMM b a)
+    // Congr Nat (fun _ : Nat, Nat) (f4 0 (Nat::add a b) 0) (f4 0 (Nat::add b a) 0) (Nat::add b a) (Nat::add a b) (Congr1 Nat (fun _ : Nat, (Nat -> Nat)) (f4 0 (Nat::add a b)) (f4 0 (Nat::add b a)) 0 (Congr2 Nat (fun _ : Nat, (Nat -> Nat -> Nat)) (Nat::add a b) (Nat::add b a) (f4 0) (ADD_COMM a b))) (ADD_COMM b a)
 
     lean_assert_eq(proof,
                    Const("Congr")(Nat, Fun(name("_"), Nat, Nat), f4(zero, a_plus_b, zero), f4(zero, b_plus_a, zero),
@@ -476,7 +473,6 @@ static void app_rewriter1_tst() {
                                   Const("ADD_COMM")(b, a)));
     env.add_theorem("app_rewriter3", concl, proof);
 }
-#endif
 
 static void repeat_rewriter1_tst() {
     cout << "=== repeat_rewriter1_tst() ===" << std::endl;
@@ -604,10 +600,7 @@ int main() {
     orelse_rewriter2_tst();
     try_rewriter1_tst();
     try_rewriter2_tst();
-    // TODO(Leo): discuss with Soonho about this failure.
-    // The failure is probably due to a change in the normalizer.
-    // Now, The expression t == t does not normalize to True.
-    // app_rewriter1_tst();
+    app_rewriter1_tst();
     repeat_rewriter1_tst();
     repeat_rewriter2_tst();
     return has_violations() ? 1 : 0;

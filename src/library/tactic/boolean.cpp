@@ -156,6 +156,90 @@ tactic conj_hyp_tactic(bool all) {
         });
 }
 
+optional<proof_state> disj_hyp_tactic_core(name const & goal_name, name const & hyp_name, proof_state const & s) {
+    buffer<std::pair<name, goal>> new_goals_buf;
+    expr H;
+    expr conclusion;
+    for (auto const & p1 : s.get_goals()) {
+        check_interrupted();
+        if (p1.first == goal_name) {
+            goal const & g = p1.second;
+            buffer<hypothesis> new_hyp_buf1;
+            buffer<hypothesis> new_hyp_buf2;
+            conclusion = g.get_conclusion();
+            for (auto const & p2 : g.get_hypotheses()) {
+                if (p2.first == hyp_name) {
+                    H = p2.second;
+                    if (!is_or(H))
+                        return none_proof_state(); // tactic failed
+                    new_hyp_buf1.emplace_back(p2.first, arg(H, 1));
+                    new_hyp_buf2.emplace_back(p2.first, arg(H, 2));
+                } else {
+                    new_hyp_buf1.push_back(p2);
+                    new_hyp_buf2.push_back(p2);
+                }
+            }
+            if (!H)
+                return none_proof_state(); // tactic failed
+            new_goals_buf.emplace_back(name(goal_name, 1), update(g, new_hyp_buf1));
+            new_goals_buf.emplace_back(name(goal_name, 2), update(g, new_hyp_buf2));
+        } else {
+            new_goals_buf.push_back(p1);
+        }
+    }
+    if (!H)
+        return none_proof_state(); // tactic failed
+    goals new_gs = to_list(new_goals_buf.begin(), new_goals_buf.end());
+    proof_builder pb     = s.get_proof_builder();
+    proof_builder new_pb = mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
+            proof_map new_m(m);
+            expr pr1 = find(m, name(goal_name, 1));
+            expr pr2 = find(m, name(goal_name, 2));
+            pr1 = Fun(hyp_name, arg(H, 1), pr1);
+            pr2 = Fun(hyp_name, arg(H, 2), pr2);
+            new_m.insert(goal_name, DisjCases(arg(H, 1), arg(H, 2), conclusion, mk_constant(hyp_name), pr1, pr2));
+            new_m.erase(name(goal_name, 1));
+            new_m.erase(name(goal_name, 2));
+            return pb(new_m, a);
+        });
+    return some_proof_state(s, new_gs, new_pb);
+}
+
+tactic disj_hyp_tactic(name const & goal_name, name const & hyp_name) {
+    return mk_tactic01([=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
+            return disj_hyp_tactic_core(goal_name, hyp_name, s);
+        });
+}
+
+tactic disj_hyp_tactic(name const & hyp_name) {
+    return mk_tactic01([=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
+            for (auto const & p1 : s.get_goals()) {
+                check_interrupted();
+                goal const & g = p1.second;
+                for (auto const & p2 : g.get_hypotheses()) {
+                    if (p2.first == hyp_name)
+                        return disj_hyp_tactic_core(p1.first, hyp_name, s);
+                }
+            }
+            return none_proof_state(); // tactic failed
+        });
+}
+
+tactic disj_hyp_tactic() {
+    return mk_tactic01([=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
+            for (auto const & p1 : s.get_goals()) {
+                check_interrupted();
+                goal const & g = p1.second;
+                for (auto const & p2 : g.get_hypotheses()) {
+                    if (is_or(p2.second))
+                        return disj_hyp_tactic_core(p1.first, p2.first, s);
+                }
+            }
+            return none_proof_state(); // tactic failed
+        });
+}
+
+
 static int mk_conj_tactic(lua_State * L) {
     int nargs = lua_gettop(L);
     return push_tactic(L, conj_tactic(nargs == 0 ? true : lua_toboolean(L, 1)));
@@ -171,9 +255,20 @@ static int mk_conj_hyp_tactic(lua_State * L) {
     return push_tactic(L, conj_hyp_tactic(nargs == 0 ? true : lua_toboolean(L, 1)));
 }
 
+static int mk_disj_hyp_tactic(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs == 0)
+        return push_tactic(L, disj_hyp_tactic());
+    else if (nargs == 1)
+        return push_tactic(L, disj_hyp_tactic(to_name_ext(L, 1)));
+    else
+        return push_tactic(L, disj_hyp_tactic(to_name_ext(L, 1), to_name_ext(L, 2)));
+}
+
 void open_boolean(lua_State * L) {
     SET_GLOBAL_FUN(mk_conj_tactic,     "conj_tactic");
     SET_GLOBAL_FUN(mk_imp_tactic,      "imp_tactic");
     SET_GLOBAL_FUN(mk_conj_hyp_tactic, "conj_hyp_tactic");
+    SET_GLOBAL_FUN(mk_disj_hyp_tactic, "disj_hyp_tactic");
 }
 }

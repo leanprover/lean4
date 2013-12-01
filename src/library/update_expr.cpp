@@ -24,6 +24,21 @@ expr update_app(expr const & app, unsigned i, expr const & new_arg) {
     }
 }
 
+expr update_app(expr const & app, unsigned num_new_args, expr const * new_args) {
+    unsigned i;
+    unsigned num = num_args(app);
+    if (num != num_new_args)
+        return mk_app(num_new_args, new_args);
+    for (i = 0; i < num; i++) {
+        if (!is_eqp(arg(app, i), new_args[i]))
+            break;
+    }
+    if (i < num)
+        return mk_app(num, new_args);
+    else
+        return app;
+}
+
 expr update_lambda(expr const & lambda, expr const & d, expr const & b) {
     if (is_eqp(abst_domain(lambda), d) && is_eqp(abst_body(lambda), b))
         return lambda;

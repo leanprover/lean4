@@ -14,6 +14,8 @@ namespace lean {
    \remark Return \c app if <tt>is_eqp(new_arg, app[i])</tt>.
 */
 expr update_app(expr const & app, unsigned i, expr const & new_arg);
+expr update_app(expr const & app, unsigned num_args, expr const * new_args);
+inline expr update_app(expr const & app, buffer<expr> const & new_args) { return update_app(app, new_args.size(), new_args.data()); }
 /**
    \brief Return a lambda expression based on \c lambda with domain \c d and \c body b.
 

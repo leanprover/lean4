@@ -14,6 +14,8 @@ Author: Leonardo de Moura
 #include "util/lazy_list_fn.h"
 #include "kernel/replace_visitor.h"
 #include "kernel/instantiate.h"
+#include "library/hidden_defs.h"
+#include "library/update_expr.h"
 #include "library/kernel_bindings.h"
 #include "library/tactic/tactic.h"
 
@@ -350,11 +352,34 @@ tactic focus(tactic const & t, int i) {
         });
 }
 
-class unfold_fn : public replace_visitor {
+class unfold_core_fn : public replace_visitor {
+protected:
+    bool m_unfolded;
+
+    virtual expr visit_app(expr const & e, context const & ctx) {
+        expr const & f = arg(e, 0);
+        if (is_constant(f)) {
+            buffer<expr> new_args;
+            for (unsigned i = 0; i < num_args(e); i++)
+                new_args.push_back(visit(arg(e, i), ctx));
+            if (is_lambda(new_args[0]))
+                return apply_beta(new_args[0], new_args.size() - 1, new_args.data() + 1);
+            else
+                return update_app(e, new_args);
+        } else {
+            return replace_visitor::visit_app(e, ctx);
+        }
+    }
+public:
+    unfold_core_fn():m_unfolded(false) {}
+    bool unfolded() const { return m_unfolded; }
+};
+
+
+class unfold_fn : public unfold_core_fn {
 protected:
     name const & m_name;
     expr const & m_def;
-    bool         m_unfolded;
 
     virtual expr visit_constant(expr const & c, context const &) {
         if (const_name(c) == m_name) {
@@ -365,25 +390,40 @@ protected:
         }
     }
 
-    virtual expr visit_app(expr const & e, context const & ctx) {
-        expr const & f = arg(e, 0);
-        if (is_constant(f) && const_name(f) == m_name) {
-            buffer<expr> new_args;
-            for (unsigned i = 0; i < num_args(e); i++)
-                new_args.push_back(visit(arg(e, i), ctx));
-            if (is_lambda(new_args[0]))
-                return apply_beta(new_args[0], new_args.size() - 1, new_args.data() + 1);
-            else
-                return mk_app(new_args);
+public:
+    unfold_fn(name const & n, expr const & d):m_name(n), m_def(d) {}
+};
+
+class unfold_all_fn : public unfold_core_fn {
+protected:
+    environment m_env;
+
+    virtual expr visit_constant(expr const & c, context const &) {
+        object const & obj = m_env.find_object(const_name(c));
+        if (obj && obj.is_definition() && !obj.is_opaque() && !is_hidden(m_env, const_name(c))) {
+            m_unfolded = true;
+            return obj.get_value();
         } else {
-            return replace_visitor::visit_app(e, ctx);
+            return c;
         }
     }
 
 public:
-    unfold_fn(name const & n, expr const & d):m_name(n), m_def(d), m_unfolded(false) {}
-    bool unfolded() const { return m_unfolded; }
+    unfold_all_fn(environment const & env):m_env(env) {}
 };
+
+optional<proof_state> unfold_tactic_core(unfold_core_fn & fn, proof_state const & s) {
+    goals new_gs = map_goals(s, [&](name const &, goal const & g) -> goal {
+            hypotheses new_hs = map(g.get_hypotheses(), [&](hypothesis const & h) { return hypothesis(h.first, fn(h.second)); });
+            expr       new_c  = fn(g.get_conclusion());
+            return goal(new_hs, new_c);
+        });
+    if (fn.unfolded()) {
+        return proof_state(s, new_gs);
+    } else {
+        return none_proof_state();
+    }
+}
 
 tactic unfold_tactic(name const & n) {
     return mk_tactic01([=](environment const & env, io_state const &, proof_state const & s) -> optional<proof_state> {
@@ -391,16 +431,14 @@ tactic unfold_tactic(name const & n) {
             if (!obj || !obj.is_definition())
                 return none_proof_state(); // tactic failed
             unfold_fn fn(n, obj.get_value());
-            goals new_gs = map_goals(s, [&](name const &, goal const & g) -> goal {
-                    hypotheses new_hs = map(g.get_hypotheses(), [&](hypothesis const & h) { return hypothesis(h.first, fn(h.second)); });
-                    expr       new_c  = fn(g.get_conclusion());
-                    return goal(new_hs, new_c);
-                });
-            if (fn.unfolded()) {
-                return proof_state(s, new_gs);
-            } else {
-                return none_proof_state();
-            }
+            return unfold_tactic_core(fn, s);
+        });
+}
+
+tactic unfold_tactic() {
+    return mk_tactic01([=](environment const & env, io_state const &, proof_state const & s) -> optional<proof_state> {
+            unfold_all_fn fn(env);
+            return unfold_tactic_core(fn, s);
         });
 }
 
@@ -678,7 +716,13 @@ static int mk_fail_tactic(lua_State * L)        {  return push_tactic(L, fail_ta
 static int mk_trace_tactic(lua_State * L)       {  return push_tactic(L, trace_tactic(luaL_checkstring(L, 1))); }
 static int mk_assumption_tactic(lua_State * L)  {  return push_tactic(L, assumption_tactic()); }
 static int mk_trace_state_tactic(lua_State * L) {  return push_tactic(L, trace_state_tactic()); }
-static int mk_unfold_tactic(lua_State * L)      {  return push_tactic(L, unfold_tactic(to_name_ext(L, 1))); }
+static int mk_unfold_tactic(lua_State * L)      {
+    int nargs = lua_gettop(L);
+    if (nargs == 0)
+        return push_tactic(L, unfold_tactic());
+    else
+        return push_tactic(L, unfold_tactic(to_name_ext(L, 1)));
+}
 
 static const struct luaL_Reg tactic_m[] = {
     {"__gc",            tactic_gc}, // never throws

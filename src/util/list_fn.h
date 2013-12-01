@@ -152,7 +152,7 @@ list<T> map(list<T> const & l, F && f) {
             --i;
             r = cons(f(tmp[i]->head()), r);
         }
-        return l;
+        return r;
     }
 }
 

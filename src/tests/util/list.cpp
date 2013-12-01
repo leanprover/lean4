@@ -202,6 +202,13 @@ static void tst15() {
                    list<int>({1, 2, 2, 2, 3, 4}));
 }
 
+static void tst16() {
+    list<int> l({1, 2, 3, 4});
+    lean_assert_eq(map(l, [](int i) { return i + 10; }),
+                   list<int>({11, 12, 13, 14}));
+    lean_assert_eq(map(list<int>(), [](int i) { return i + 10; }), list<int>());
+}
+
 int main() {
     tst1();
     tst2();
@@ -218,5 +225,6 @@ int main() {
     tst13();
     tst14();
     tst15();
+    tst16();
     return has_violations() ? 1 : 0;
 }

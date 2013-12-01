@@ -11,13 +11,12 @@
 #include "kernel/context.h"
 #include "kernel/environment.h"
 #include "kernel/expr.h"
-#include "kernel/replace.h"
 #include "kernel/printer.h"
+#include "kernel/replace.h"
 #include "library/basic_thms.h"
-#include "library/type_inferer.h"
 #include "library/rewriter/fo_match.h"
 #include "library/rewriter/rewriter.h"
-#include "library/rewriter/apply_rewriter_fn.h"
+#include "library/type_inferer.h"
 #include "util/buffer.h"
 #include "util/trace.h"
 
@@ -967,8 +966,7 @@ ostream & repeat_rewriter_cell::display(ostream & out) const {
 depth_rewriter_cell::depth_rewriter_cell(rewriter const & rw):rewriter_cell(rewriter_kind::Depth), m_rw(rw) { }
 depth_rewriter_cell::~depth_rewriter_cell() { }
 pair<expr, expr> depth_rewriter_cell::operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception) {
-    apply_rewriter_fn f(m_rw);
-    return f.apply(env, ctx, v);
+    return apply_rewriter_fn<decltype(m_rw)>(m_rw)(env, ctx, v);
 }
 ostream & depth_rewriter_cell::display(ostream & out) const {
     out << "Depth_RW(" << m_rw << ")";

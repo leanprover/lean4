@@ -12,6 +12,8 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/interrupt.h"
 #include "util/lazy_list_fn.h"
+#include "kernel/replace_visitor.h"
+#include "kernel/instantiate.h"
 #include "library/kernel_bindings.h"
 #include "library/tactic/tactic.h"
 
@@ -180,7 +182,7 @@ tactic suppress_trace(tactic const & t) {
 tactic assumption_tactic() {
     return mk_tactic01([](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             list<std::pair<name, expr>> proofs;
-            goals new_goals = map_goals(s, [&](name const & ng, goal const & g) -> goal {
+            goals new_gs = map_goals(s, [&](name const & gname, goal const & g) -> goal {
                     expr const & c  = g.get_conclusion();
                     expr pr;
                     for (auto const & p : g.get_hypotheses()) {
@@ -191,7 +193,7 @@ tactic assumption_tactic() {
                         }
                     }
                     if (pr) {
-                        proofs.emplace_front(ng, pr);
+                        proofs.emplace_front(gname, pr);
                         return goal();
                     } else {
                         return g;
@@ -200,7 +202,7 @@ tactic assumption_tactic() {
             if (empty(proofs))
                 return none_proof_state();
             proof_builder new_pb = add_proofs(s.get_proof_builder(), proofs);
-            return some(proof_state(s, new_goals, new_pb));
+            return some(proof_state(s, new_gs, new_pb));
         });
 }
 
@@ -345,6 +347,60 @@ tactic focus(tactic const & t, int i) {
                 j++;
             }
             return proof_state_seq();
+        });
+}
+
+class unfold_fn : public replace_visitor {
+protected:
+    name const & m_name;
+    expr const & m_def;
+    bool         m_unfolded;
+
+    virtual expr visit_constant(expr const & c, context const &) {
+        if (const_name(c) == m_name) {
+            m_unfolded = true;
+            return m_def;
+        } else {
+            return c;
+        }
+    }
+
+    virtual expr visit_app(expr const & e, context const & ctx) {
+        expr const & f = arg(e, 0);
+        if (is_constant(f) && const_name(f) == m_name) {
+            buffer<expr> new_args;
+            for (unsigned i = 0; i < num_args(e); i++)
+                new_args.push_back(visit(arg(e, i), ctx));
+            if (is_lambda(new_args[0]))
+                return apply_beta(new_args[0], new_args.size() - 1, new_args.data() + 1);
+            else
+                return mk_app(new_args);
+        } else {
+            return replace_visitor::visit_app(e, ctx);
+        }
+    }
+
+public:
+    unfold_fn(name const & n, expr const & d):m_name(n), m_def(d), m_unfolded(false) {}
+    bool unfolded() const { return m_unfolded; }
+};
+
+tactic unfold_tactic(name const & n) {
+    return mk_tactic01([=](environment const & env, io_state const &, proof_state const & s) -> optional<proof_state> {
+            object const & obj = env.find_object(n);
+            if (!obj || !obj.is_definition())
+                return none_proof_state(); // tactic failed
+            unfold_fn fn(n, obj.get_value());
+            goals new_gs = map_goals(s, [&](name const &, goal const & g) -> goal {
+                    hypotheses new_hs = map(g.get_hypotheses(), [&](hypothesis const & h) { return hypothesis(h.first, fn(h.second)); });
+                    expr       new_c  = fn(g.get_conclusion());
+                    return goal(new_hs, new_c);
+                });
+            if (fn.unfolded()) {
+                return proof_state(s, new_gs);
+            } else {
+                return none_proof_state();
+            }
         });
 }
 
@@ -622,6 +678,7 @@ static int mk_fail_tactic(lua_State * L)        {  return push_tactic(L, fail_ta
 static int mk_trace_tactic(lua_State * L)       {  return push_tactic(L, trace_tactic(luaL_checkstring(L, 1))); }
 static int mk_assumption_tactic(lua_State * L)  {  return push_tactic(L, assumption_tactic()); }
 static int mk_trace_state_tactic(lua_State * L) {  return push_tactic(L, trace_state_tactic()); }
+static int mk_unfold_tactic(lua_State * L)      {  return push_tactic(L, unfold_tactic(to_name_ext(L, 1))); }
 
 static const struct luaL_Reg tactic_m[] = {
     {"__gc",            tactic_gc}, // never throws
@@ -673,6 +730,7 @@ void open_tactic(lua_State * L) {
     SET_GLOBAL_FUN(mk_trace_state_tactic, "show_tactic");
     SET_GLOBAL_FUN(mk_assumption_tactic,  "assumption_tactic");
     SET_GLOBAL_FUN(mk_assumption_tactic,  "assump_tactic");
+    SET_GLOBAL_FUN(mk_unfold_tactic,      "unfold_tactic");
     SET_GLOBAL_FUN(mk_lua_tactic01,       "tactic");
 
     // HOL-like tactic names

@@ -287,6 +287,10 @@ tactic focus(tactic const & t, name const & gname);
 */
 tactic focus(tactic const & t, int i);
 inline tactic focus(tactic const & t) { return focus(t, 1); }
+/**
+   \brief Return a tactic that unfolds the definition named \c n.
+*/
+tactic unfold_tactic(name const & n);
 
 UDATA_DEFS_CORE(proof_state_seq)
 UDATA_DEFS(tactic);

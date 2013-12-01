@@ -9,8 +9,6 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/basic_thms.h"
 
-#include "kernel/kernel_exception.h"
-
 namespace lean {
 
 MK_CONSTANT(trivial,            name("Trivial"));

@@ -239,6 +239,39 @@ tactic disj_hyp_tactic() {
         });
 }
 
+tactic absurd_tactic() {
+    return mk_tactic01([](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
+            list<std::pair<name, expr>> proofs;
+            goals new_gs = map_goals(s, [&](name const & gname, goal const & g) -> goal {
+                    expr const & c  = g.get_conclusion();
+                    for (auto const & p1 : g.get_hypotheses()) {
+                        check_interrupted();
+                        expr a;
+                        if (is_not(p1.second, a)) {
+                            for (auto const & p2 : g.get_hypotheses()) {
+                                if (p2.second == a) {
+                                    expr pr = AbsurdImpAny(a, c, mk_constant(p2.first), mk_constant(p1.first));
+                                    proofs.emplace_front(gname, pr);
+                                    return goal(); // remove goal
+                                }
+                            }
+                        }
+                    }
+                    return g; // keep goal
+                });
+            if (empty(proofs))
+                return none_proof_state(); // tactic failed
+            proof_builder pb     = s.get_proof_builder();
+            proof_builder new_pb = mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
+                    proof_map new_m(m);
+                    for (auto const & np : proofs) {
+                        new_m.insert(np.first, np.second);
+                    }
+                    return pb(new_m, a);
+                });
+            return some(proof_state(s, new_gs, new_pb));
+        });
+}
 
 static int mk_conj_tactic(lua_State * L) {
     int nargs = lua_gettop(L);
@@ -265,10 +298,15 @@ static int mk_disj_hyp_tactic(lua_State * L) {
         return push_tactic(L, disj_hyp_tactic(to_name_ext(L, 1), to_name_ext(L, 2)));
 }
 
+static int mk_absurd_tactic(lua_State * L) {
+    return push_tactic(L, absurd_tactic());
+}
+
 void open_boolean(lua_State * L) {
     SET_GLOBAL_FUN(mk_conj_tactic,     "conj_tactic");
     SET_GLOBAL_FUN(mk_imp_tactic,      "imp_tactic");
     SET_GLOBAL_FUN(mk_conj_hyp_tactic, "conj_hyp_tactic");
     SET_GLOBAL_FUN(mk_disj_hyp_tactic, "disj_hyp_tactic");
+    SET_GLOBAL_FUN(mk_absurd_tactic,   "absurd_tactic");
 }
 }

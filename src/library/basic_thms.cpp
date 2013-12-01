@@ -9,6 +9,8 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/basic_thms.h"
 
+#include "kernel/kernel_exception.h"
+
 namespace lean {
 
 MK_CONSTANT(trivial,            name("Trivial"));
@@ -21,6 +23,7 @@ MK_CONSTANT(double_neg_elim_fn, name("DoubleNegElim"));
 MK_CONSTANT(mt_fn,              name("MT"));
 MK_CONSTANT(contrapos_fn,       name("Contrapos"));
 MK_CONSTANT(false_imp_any_fn,   name("FalseImpAny"));
+MK_CONSTANT(absurd_imp_any_fn,  name("AbsurdImpAny"));
 MK_CONSTANT(eq_mp_fn,           name("EqMP"));
 MK_CONSTANT(not_imp1_fn,        name("NotImp1"));
 MK_CONSTANT(not_imp2_fn,        name("NotImp2"));
@@ -116,6 +119,11 @@ void import_basic_thms(environment & env) {
     // FalseImpliesAny : Pi (a : Bool), False => a
     env.add_theorem(false_imp_any_fn_name, Pi({a, Bool}, Implies(False, a)),
                     Fun({a, Bool}, Case(Fun({x, Bool}, Implies(False, x)), Trivial, Trivial, a)));
+
+    // AbsurdImpliesAny : Pi (a c : Bool) (H1 : a) (H2 : Not a), c
+    env.add_theorem(absurd_imp_any_fn_name, Pi({{a, Bool}, {c, Bool}, {H1, a}, {H2, Not(a)}}, c),
+                    Fun({{a, Bool}, {c, Bool}, {H1, a}, {H2, Not(a)}},
+                        MP(False, c, FalseImpAny(c), Absurd(a, H1, H2))));
 
     // EqMP : Pi (a b: Bool) (H1 : a = b) (H2 : a), b
     env.add_theorem(eq_mp_fn_name, Pi({{a, Bool}, {b, Bool}, {H1, Eq(a, b)}, {H2, a}}, b),

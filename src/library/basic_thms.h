@@ -45,8 +45,14 @@ expr mk_contrapos_fn();
 inline expr Contrapos(expr const & a, expr const & b, expr const & H) { return mk_app(mk_contrapos_fn(), a, b, H); }
 
 expr mk_false_imp_any_fn();
-/** \brief (Theorem) a : Bool, H : False |- a */
-inline expr FalseImpAny(expr const & a, expr const & H) { return mk_app(mk_false_imp_any_fn(), a, H); }
+/** \brief (Theorem) a : Bool |- false => a */
+inline expr FalseImpAny(expr const & a) { return mk_app(mk_false_imp_any_fn(), a); }
+
+expr mk_absurd_imp_any_fn();
+/** \brief (Theorem) {a c : Bool}, H1 : a, H2 : Not(a) |- AbsurdImpAny(a, H1, H2) : c */
+inline expr AbsurdImpAny(expr const & a, expr const & c, expr const & H1, expr const & H2) {
+    return mk_app(mk_absurd_imp_any_fn(), a, c, H1, H2);
+}
 
 expr mk_eq_mp_fn();
 /** \brief (Theorem) {a b : Bool}, H1 : a = b, H2 : a |- EqMP(a, b, H1, H2) : b */

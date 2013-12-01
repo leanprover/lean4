@@ -1,0 +1,6 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Proved: T
+Theorem T (a b : Bool) : a ∨ b ⇒ ¬ b ⇒ a :=
+    Discharge
+        (λ H : a ∨ b, Discharge (λ H::1 : ¬ b, DisjCases H (λ H : a, H) (λ H : b, AbsurdImpAny b a H H::1)))

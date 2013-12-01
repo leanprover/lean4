@@ -15,7 +15,6 @@ Author: Soonho Kong
 #include "library/arith/nat.h"
 #include "library/rewriter/fo_match.h"
 #include "library/rewriter/rewriter.h"
-#include "library/rewriter/apply_rewriter_fn.h"
 #include "library/basic_thms.h"
 using namespace lean;
 

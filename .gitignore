@@ -13,3 +13,4 @@ Makefile
 CMakeFiles/
 .projectile
 .coveralls.yml
+doc/html

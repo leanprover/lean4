@@ -261,14 +261,7 @@ tactic absurd_tactic() {
                 });
             if (empty(proofs))
                 return none_proof_state(); // tactic failed
-            proof_builder pb     = s.get_proof_builder();
-            proof_builder new_pb = mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
-                    proof_map new_m(m);
-                    for (auto const & np : proofs) {
-                        new_m.insert(np.first, np.second);
-                    }
-                    return pb(new_m, a);
-                });
+            proof_builder new_pb = add_proofs(s.get_proof_builder(), proofs);
             return some(proof_state(s, new_gs, new_pb));
         });
 }

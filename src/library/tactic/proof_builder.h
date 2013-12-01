@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <utility>
 #include <algorithm>
 #include "util/lua.h"
 #include "util/debug.h"
@@ -67,6 +68,8 @@ template<typename F>
 proof_builder mk_proof_builder(F && f) {
     return proof_builder(new proof_builder_tpl<F>(std::forward<F>(f)));
 }
+
+proof_builder add_proofs(proof_builder const & pb, list<std::pair<name, expr>> const & prs);
 
 UDATA_DEFS_CORE(proof_map)
 UDATA_DEFS(assignment)

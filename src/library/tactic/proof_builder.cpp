@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <utility>
 #include "util/script_state.h"
 #include "util/exception.h"
 #include "util/sstream.h"
@@ -17,6 +18,16 @@ expr find(proof_map const & m, name const & n) {
     if (r)
         return *r;
     throw exception(sstream() << "proof for goal '" << n << "' not found");
+}
+
+proof_builder add_proofs(proof_builder const & pb, list<std::pair<name, expr>> const & prs) {
+    return mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
+            proof_map new_m(m);
+            for (auto const & np : prs) {
+                new_m.insert(np.first, np.second);
+            }
+            return pb(new_m, a);
+        });
 }
 
 DECL_UDATA(proof_map)

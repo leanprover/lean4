@@ -180,7 +180,6 @@ tactic suppress_trace(tactic const & t) {
 tactic assumption_tactic() {
     return mk_tactic01([](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             list<std::pair<name, expr>> proofs;
-            bool found = false;
             goals new_goals = map_goals(s, [&](name const & ng, goal const & g) -> goal {
                     expr const & c  = g.get_conclusion();
                     expr pr;
@@ -193,24 +192,15 @@ tactic assumption_tactic() {
                     }
                     if (pr) {
                         proofs.emplace_front(ng, pr);
-                        found = true;
                         return goal();
                     } else {
                         return g;
                     }
                 });
-            proof_builder pr_builder     = s.get_proof_builder();
-            proof_builder new_pr_builder = mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
-                    proof_map new_m(m);
-                    for (auto const & np : proofs) {
-                        new_m.insert(np.first, np.second);
-                    }
-                    return pr_builder(new_m, a);
-                });
-            if (found)
-                return some(proof_state(s, new_goals, new_pr_builder));
-            else
+            if (empty(proofs))
                 return none_proof_state();
+            proof_builder new_pb = add_proofs(s.get_proof_builder(), proofs);
+            return some(proof_state(s, new_goals, new_pb));
         });
 }
 

@@ -181,6 +181,11 @@ expr mk_imp_antisym_fn();
 /** \brief (Axiom) {a : Bool}, {b : Bool}, H1 : a => b, H2 : b => a |- ImpAntisym(a, b, H1, H2) : a = b */
 inline expr ImpAntisym(expr const & a, expr const & b, expr const & H1, expr const & H2) { return mk_app(mk_imp_antisym_fn(), a, b, H1, H2); }
 
+/** \brief Abstraction axiom */
+expr mk_abst_fn();
+/** \brief (Axiom) {A : Type u} {B : A -> Type u}, f g : {Pi x : A, B x}, H : (Pi x : A, (f x) = (g x)) |- Abst(A, B, f, g, H) : f = g */
+inline expr Abst(expr const & A, expr const & B, expr const & f, expr const & g, expr const & H) { return mk_app({mk_abst_fn(), A, B, f, g, H}); }
+
 class environment;
 /** \brief Initialize the environment with basic builtin declarations and axioms */
 void import_basic(environment & env);

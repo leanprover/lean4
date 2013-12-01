@@ -203,6 +203,7 @@ MK_CONSTANT(trans_ext_fn,   name("TransExt"));
 MK_CONSTANT(subst_fn,       name("Subst"));
 MK_CONSTANT(eta_fn,         name("Eta"));
 MK_CONSTANT(imp_antisym_fn, name("ImpAntisym"));
+MK_CONSTANT(abst_fn,        name("Abst"));
 
 void import_basic(environment & env) {
     if (!env.mark_builtin_imported("basic"))
@@ -213,6 +214,7 @@ void import_basic(environment & env) {
     expr p1        = Bool >> Bool;
     expr p2        = Bool >> p1;
     expr f         = Const("f");
+    expr g         = Const("g");
     expr a         = Const("a");
     expr b         = Const("b");
     expr c         = Const("c");
@@ -281,5 +283,8 @@ void import_basic(environment & env) {
 
     // ImpliesAntisym : Pi (a b : Bool) (H1 : a => b) (H2 : b => a), a = b
     env.add_axiom(imp_antisym_fn_name, Pi({{a, Bool}, {b, Bool}, {H1, Implies(a, b)}, {H2, Implies(b, a)}}, Eq(a, b)));
+
+    // Abst : Pi (A : Type u) (B : A -> Type u), f g : (Pi x : A, B x), H : (Pi x : A, (f x) = (g x)), f = g
+    env.add_axiom(abst_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {H, Pi(x, A, Eq(f(x), g(x)))}}, Eq(f, g)));
 }
 }

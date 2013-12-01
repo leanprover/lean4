@@ -92,6 +92,7 @@ void init_builtin_notation(frontend & f) {
     f.mark_implicit_arguments("SubstP", {true, true, true, false, false, false});
     f.mark_implicit_arguments(mk_trans_ext_fn(), {true, true, true, true, true, true, false, false});
     f.mark_implicit_arguments(mk_eta_fn(), {true, true, false});
+    f.mark_implicit_arguments(mk_abst_fn(), {true, true, true, true, false});
     f.mark_implicit_arguments(mk_imp_antisym_fn(), {true, true, false, false});
     f.mark_implicit_arguments(mk_dom_inj_fn(), {true, true, true, true, false});
     f.mark_implicit_arguments(mk_ran_inj_fn(), {true, true, true, true, false, false});

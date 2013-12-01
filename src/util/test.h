@@ -10,3 +10,4 @@ Author: Leonardo de Moura
 #define LEAN_DEBUG
 #endif
 #include "util/debug.h"
+#include "util/stackinfo.h"

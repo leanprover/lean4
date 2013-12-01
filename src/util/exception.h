@@ -50,11 +50,13 @@ public:
     virtual exception * clone() const { return new interrupted(); }
     virtual void rethrow() const { throw *this; }
 };
-/** \brief Throw interrupted exception iff flag is true. */
-inline void check_interrupted(bool flag) {
-    if (flag)
-        throw interrupted();
-}
+class stack_space_exception : public exception {
+public:
+    stack_space_exception() {}
+    virtual char const * what() const noexcept { return "deep recursion was detected (potential solution: increase stack space in your system)"; }
+    virtual exception * clone() const { return new stack_space_exception(); }
+    virtual void rethrow() const { throw *this; }
+};
 int push_exception(lua_State * L, exception const & e);
 exception const & to_exception(lua_State * L, int i);
 bool is_exception(lua_State * L, int i);

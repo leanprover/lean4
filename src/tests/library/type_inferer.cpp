@@ -138,6 +138,7 @@ static void tst4() {
 }
 
 int main() {
+    save_stack_info();
     tst1();
     tst2();
     tst3();

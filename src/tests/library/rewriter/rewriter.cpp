@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Soonho Kong
 */
+#include "util/test.h"
 #include "util/trace.h"
 #include "kernel/abstract.h"
 #include "kernel/context.h"
@@ -638,6 +639,7 @@ static void depth_rewriter1_tst() {
 }
 
 int main() {
+    save_stack_info();
     theorem_rewriter1_tst();
     theorem_rewriter2_tst();
     then_rewriter1_tst();

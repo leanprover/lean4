@@ -325,7 +325,7 @@ static void tst16() {
 }
 
 int main() {
-    tst15(); return 0;
+    save_stack_info();
     tst1();
     tst2();
     tst3();

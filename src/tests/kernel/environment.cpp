@@ -283,6 +283,7 @@ static void tst13() {
 }
 
 int main() {
+    save_stack_info();
     enable_trace("is_convertible");
     tst1();
     tst2();

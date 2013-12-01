@@ -144,7 +144,7 @@ class type_inferer::imp {
             break; // expensive cases
         }
 
-        check_interrupted();
+        check_system();
         bool shared = false;
         if (is_shared(e)) {
             shared = true;

@@ -250,6 +250,7 @@ static void tst6() {
 }
 
 int main() {
+    save_stack_info();
     tst_church_numbers();
     tst1();
     tst2();

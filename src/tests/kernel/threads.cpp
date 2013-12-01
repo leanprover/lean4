@@ -52,7 +52,7 @@ static void tst1() {
 
     #ifndef __APPLE__
     for (unsigned i = 0; i < 8; i++) {
-        ts.push_back(std::thread([&](){ mk(a); }));
+        ts.push_back(std::thread([&](){ save_stack_info(); mk(a); }));
     }
     for (unsigned i = 0; i < 8; i++) {
         ts[i].join();
@@ -64,6 +64,7 @@ static void tst1() {
 }
 
 int main() {
+    save_stack_info();
     tst1();
     return 0;
 }

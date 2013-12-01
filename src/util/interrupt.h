@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <atomic>
 #include <thread>
 #include <utility>
+#include "util/stackinfo.h"
 
 namespace lean {
 /**
@@ -28,6 +29,8 @@ bool interrupt_requested();
    \brief Throw an interrupted exception if the (interrupt) flag is set.
 */
 void check_interrupted();
+
+inline void check_system() { check_stack(); check_interrupted(); }
 
 constexpr unsigned g_small_sleep = 50;
 
@@ -68,6 +71,7 @@ public:
         m_thread(
             [&](Function&& fun, Args&&... args) {
                 m_flag_addr.store(get_flag_addr());
+                save_stack_info();
                 fun(std::forward<Args>(args)...);
                 m_flag_addr.store(&m_dummy_addr); // see comment before m_dummy_addr
             },

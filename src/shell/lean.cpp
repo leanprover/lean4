@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <fstream>
 #include <signal.h>
 #include <getopt.h>
+#include "util/stackinfo.h"
 #include "util/debug.h"
 #include "util/interrupt.h"
 #include "util/script_state.h"
@@ -68,6 +69,7 @@ static struct option g_long_options[] = {
 };
 
 int main(int argc, char ** argv) {
+    lean::save_stack_info();
     lean::register_modules();
     input_kind default_k = input_kind::Lean; // default
     int optind     = 1;

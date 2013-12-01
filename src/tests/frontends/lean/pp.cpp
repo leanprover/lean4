@@ -103,6 +103,7 @@ static void tst6() {
 }
 
 int main() {
+    save_stack_info();
     tst1();
     tst2();
     tst3();

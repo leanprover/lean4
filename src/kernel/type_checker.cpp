@@ -85,7 +85,7 @@ class type_checker::imp {
     }
 
     expr infer_type_core(expr const & e, context const & ctx) {
-        check_interrupted();
+        check_system();
         bool shared = false;
         if (is_shared(e)) {
             shared = true;

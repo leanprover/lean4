@@ -355,8 +355,8 @@ class apply_rewriter_fn {
 
         std::pair<expr, expr> result; // m_rw(env, ctx, v);
         // if (is_eqp(v, result.first))
-        type_inferer lc(env);
-        expr ty_v = lc(v, ctx);
+        type_inferer ti(env);
+        expr ty_v = ti(v, ctx);
 
         switch (v.kind()) {
         case expr_kind::Type:
@@ -408,7 +408,7 @@ class apply_rewriter_fn {
                     result = rewrite_eq_rhs(env, ctx, v, result_rhs);
                 } else {
                     // nothing changed
-                    result = std::make_pair(v, Refl(lc(v, ctx), v));
+                    result = std::make_pair(v, Refl(ti(v, ctx), v));
                 }
             }
             std::pair<expr, expr> tmp = m_rw(env, ctx, result.first);
@@ -439,7 +439,7 @@ class apply_rewriter_fn {
                     result = rewrite_lambda_body(env, ctx, v, result_body);
                 } else {
                     // nothing changed
-                    result = std::make_pair(v, Refl(lc(v, ctx), v));
+                    result = std::make_pair(v, Refl(ti(v, ctx), v));
                 }
             }
             std::pair<expr, expr> tmp = m_rw(env, ctx, result.first);
@@ -471,7 +471,7 @@ class apply_rewriter_fn {
                     result = rewrite_pi_body(env, ctx, v, result_body);
                 } else {
                     // nothing changed
-                    result = std::make_pair(v, Refl(lc(v, ctx), v));
+                    result = std::make_pair(v, Refl(ti(v, ctx), v));
                 }
             }
             std::pair<expr, expr> tmp = m_rw(env, ctx, result.first);
@@ -488,7 +488,7 @@ class apply_rewriter_fn {
             expr const & body = let_body(v);
 
             expr new_v = v;
-            expr ty_v = lc(v, ctx);
+            expr ty_v = ti(v, ctx);
             expr pf = Refl(ty_v, v);
             bool changed = false;
 

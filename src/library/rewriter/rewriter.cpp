@@ -17,6 +17,7 @@
 #include "library/type_inferer.h"
 #include "library/rewriter/fo_match.h"
 #include "library/rewriter/rewriter.h"
+#include "library/rewriter/apply_rewriter_fn.h"
 #include "util/buffer.h"
 #include "util/trace.h"
 
@@ -28,6 +29,484 @@ using std::ostream;
 using std::pair;
 
 namespace lean {
+
+/**
+   \brief For a lambda term v = \f$(\lambda n : ty. body)\f$ and the rewriting result
+   for ty, it constructs a new rewriting result for v' = \f$(\lambda n : ty'.
+   body)\f$ with the proof of v = v'.
+
+   \param env environment
+   \param ctx context
+   \param v \f$(\lambda n : ty. body)\f$
+   \param result_ty rewriting result of ty -- pair of ty'
+          rewritten type of ty and pf_ty the proof of (ty = ty')
+   \return pair of v' = \f$(\lambda n : ty'. body)\f$, and proof of v = v'
+*/
+pair<expr, expr> rewrite_lambda_type(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_ty) {
+    lean_assert(is_lambda(v));
+    type_inferer ti(env);
+    expr const & ty     = abst_domain(v);
+    expr const & new_ty = result_ty.first;
+    expr const & ty_v   = ti(v, ctx);
+    if (ty == new_ty) {
+        return make_pair(v, Refl(ty_v, v));
+    } else {
+        name const & n         = abst_name(v);
+        expr const & body      = abst_body(v);
+        expr const & pf_ty     = result_ty.second;
+        expr const & new_v     = mk_lambda(n, new_ty, body);
+        expr const & ty_ty     = ti(ty, ctx);
+        lean_assert_eq(ty_ty, ti(new_ty, ctx)); // TODO(soonhok): generalize for hetreogeneous types
+        expr const & proof     = Subst(ty_ty, ty, new_ty,
+                                       Fun({Const("T"), ty_ty},
+                                           mk_eq(v, mk_lambda(n, Const("T"), body))),
+                                       Refl(ty_v, v), pf_ty);
+        return make_pair(new_v, proof);
+    }
+}
+
+/**
+   \brief For a lambda term v = \f$(\lambda n : ty. body)\f$ and the rewriting result
+   for body, it constructs a new rewriting result for v' = \f$(\lambda n : ty.
+   body')\f$ with the proof of v = v'.
+
+   \param env environment
+   \param ctx context
+   \param v \f$(\lambda n : ty. body)\f$
+   \param result_body rewriting result of body -- pair of \c body'
+          rewritten term of body and \c pf_body the proof of (body =
+          body')
+   \return pair of v' = \f$(\lambda n : ty. body')\f$, and proof of v = v'
+*/
+pair<expr, expr> rewrite_lambda_body(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_body) {
+    lean_assert(is_lambda(v));
+    type_inferer ti(env);
+    expr const & body     = abst_body(v);
+    expr const & new_body = result_body.first;
+    expr const & ty_v     = ti(v, ctx);
+    if (body == new_body) {
+        return make_pair(v, Refl(ty_v, v));
+    } else {
+        name const & n       = abst_name(v);
+        expr const & ty      = abst_domain(v);
+        expr const & pf_body = result_body.second;
+        expr const & new_v   = mk_lambda(n, ty, new_body);
+        expr const & ty_body = ti(body, extend(ctx, n, ty));
+        lean_assert_eq(ty_body, ti(new_body, ctx)); // TODO(soonhok): generalize for hetreogeneous types
+        expr const & proof   = Subst(ty_body, body, new_body,
+                                     Fun({Const("e"), ty_body},
+                                         mk_eq(v, mk_lambda(n, ty, Const("e")))),
+                                     Refl(ty_v, v), pf_body);
+        return make_pair(new_v, proof);
+    }
+}
+
+/**
+   \brief For a lambda term v = \f$(\lambda n : ty. body)\f$ and the rewriting
+   result for ty and body, it constructs a new rewriting result for v'
+   = \f$(\lambda n : ty'. body')\f$ with the proof of v = v'.
+
+   \param env environment
+   \param ctx context
+   \param v \f$(\lambda n : ty. body)\f$
+   \param result_ty rewriting result of ty -- pair of ty'
+          rewritten type of ty and pf_ty the proof of (ty = ty')
+   \param result_body rewriting result of body -- pair of body'
+          rewritten term of body and \c pf_body the proof of (body =
+          body')
+   \return pair of v' = \f$(\lambda n : ty'. body')\f$, and proof of v = v'
+*/
+pair<expr, expr> rewrite_lambda(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_ty, pair<expr, expr> const & result_body) {
+    lean_assert(is_lambda(v));
+    type_inferer ti(env);
+    name const & n         = abst_name(v);
+    expr const & ty        = abst_domain(v);
+    expr const & body      = abst_body(v);
+    expr const & new_ty    = result_ty.first;
+    expr const & pf_ty     = result_ty.second;
+    expr const & new_body  = result_body.first;
+    expr const & pf_body   = result_body.second;
+    expr const & ty_ty     = ti(ty, ctx);
+    expr const & ty_body   = ti(body, ctx);
+    expr const & ty_v      = ti(v, ctx);
+    expr const & new_v1    = mk_lambda(n, new_ty, body);
+    expr const & ty_new_v1 = ti(v, ctx);
+    expr const & new_v2    = mk_lambda(n, new_ty, new_body);
+    // proof1 : v = new_v1
+    expr const & proof1    = Subst(ty_ty, ty, new_ty,
+                                   Fun({Const("T"), ty_ty},
+                                       mk_eq(v, mk_lambda(n, Const("T"), body))),
+                                   Refl(ty_v, v),
+                                   pf_ty);
+    // proof2 : new_v1 = new_v2
+    expr const & proof2    = Subst(ty_body, body, new_body,
+                                   Fun({Const("e"), ty_body},
+                                       mk_eq(new_v1, mk_lambda(n, new_ty, Const("e")))),
+                                   Refl(ty_new_v1, new_v1),
+                                   pf_body);
+    expr const & proof     = Trans(ty_v, v, new_v1, new_v2, proof1, proof2);
+    return make_pair(new_v2, proof);
+}
+
+/**
+   \brief For a Pi term v = \f$(\Pi n : ty. body)\f$ and the rewriting
+   result for ty, it constructs a new rewriting result for v'
+   = \f$(\Pi n : ty'. body)\f$ with the proof of v = v'.
+
+   \param env environment
+   \param ctx context
+   \param v \f$(\Pi n : ty. body)\f$
+   \param result_ty rewriting result of ty -- pair of ty'
+          rewritten type of ty and pf_ty the proof of (ty = ty')
+   \return pair of v' = \f$(\Pi n : ty'. body)\f$, and proof of v = v'
+*/
+pair<expr, expr> rewrite_pi_type(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_ty) {
+    lean_assert(is_pi(v));
+    type_inferer ti(env);
+    name const & n      = abst_name(v);
+    expr const & ty     = abst_domain(v);
+    expr const & body   = abst_body(v);
+    expr const & new_ty = result_ty.first;
+    expr const & pf     = result_ty.second;
+    expr const & new_v  = mk_pi(n, new_ty, body);
+    expr const & ty_ty  = ti(ty, ctx);
+    expr const & ty_v   = ti(v, ctx);
+    expr const & proof  = Subst(ty_ty, ty, new_ty,
+                                Fun({Const("T"), ty_ty},
+                                    mk_eq(v, mk_pi(n, Const("T"), body))),
+                                Refl(ty_v, v),
+                                pf);
+    return make_pair(new_v, proof);
+}
+
+/**
+   \brief For a Pi term v = \f$(\Pi n : ty. body)\f$ and the rewriting
+   result for body, it constructs a new rewriting result for v'
+   = \f$(\Pi n : ty. body')\f$ with the proof of v = v'.
+
+   \param env environment
+   \param ctx context
+   \param v \f$(\Pi n : ty. body)\f$
+   \param result_body rewriting result of body -- pair of body'
+          rewritten term of body and \c pf_body the proof of (body =
+          body')
+   \return pair of v' = \f$(\Pi n : ty. body')\f$, and proof of v = v'
+*/
+pair<expr, expr> rewrite_pi_body(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_body) {
+    lean_assert(is_pi(v));
+    type_inferer ti(env);
+    name const & n        = abst_name(v);
+    expr const & ty       = abst_domain(v);
+    expr const & body     = abst_body(v);
+    expr const & new_body = result_body.first;
+    expr const & pf       = result_body.second;
+    expr const & new_v    = mk_pi(n, ty, new_body);
+    expr const & ty_body  = ti(body, extend(ctx, n, ty));
+    expr const & ty_v     = ti(v, ctx);
+    expr const & proof    = Subst(ty_body, body, new_body,
+                                  Fun({Const("e"), ty_body},
+                                      mk_eq(v, mk_pi(n, ty, Const("e")))),
+                                  Refl(ty_v, v),
+                                  pf);
+    return make_pair(new_v, proof);
+}
+
+/**
+   \brief For a Pi term v = \f$(\Pi n : ty. body)\f$ and the rewriting
+   result for ty and body, it constructs a new rewriting result for v'
+   = \f$(\Pi n : ty'. body')\f$ with the proof of v = v'.
+
+   \param env environment
+   \param ctx context
+   \param v \f$(\Pi n : ty. body)\f$
+   \param result_ty rewriting result of ty -- pair of ty'
+          rewritten type of ty and pf_ty the proof of (ty = ty')
+   \param result_body rewriting result of body -- pair of body'
+          rewritten term of body and \c pf_body the proof of (body =
+          body')
+   \return pair of v' = \f$(\Pi n : ty'. body')\f$, and proof of v = v'
+*/
+pair<expr, expr> rewrite_pi(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_ty, pair<expr, expr> const & result_body) {
+    lean_assert(is_pi(v));
+    type_inferer ti(env);
+    name const & n         = abst_name(v);
+    expr const & ty        = abst_domain(v);
+    expr const & body      = abst_body(v);
+    expr const & new_ty    = result_ty.first;
+    expr const & pf_ty     = result_ty.second;
+    expr const & new_body  = result_body.first;
+    expr const & pf_body   = result_body.second;
+    expr const & ty_ty     = ti(ty, ctx);
+    expr const & ty_body   = ti(body, ctx);
+    expr const & ty_v      = ti(v, ctx);
+    expr const & new_v1    = mk_pi(n, new_ty, body);
+    expr const & ty_new_v1 = ti(v, ctx);
+    expr const & new_v2    = mk_pi(n, new_ty, new_body);
+    expr const & proof1    = Subst(ty_ty, ty, new_ty,
+                                   Fun({Const("T"), ty_ty},
+                                       mk_eq(v, mk_pi(n, Const("T"), body))),
+                                   Refl(ty_v, v),
+                                   pf_ty);
+    expr const & proof2    = Subst(ty_body, body, new_body,
+                                   Fun({Const("e"), ty_body},
+                                       mk_eq(new_v1, mk_pi(n, new_ty, Const("e")))),
+                                   Refl(ty_new_v1, new_v1),
+                                   pf_body);
+    expr const & proof     = Trans(ty_v, v, new_v1, new_v2, proof1, proof2);
+    return make_pair(new_v2, proof);
+}
+
+/**
+   \brief For a Eq term v = (lhs = rhs) and the rewriting result for
+   lhs, it constructs a new rewriting result for v' = (lhs' = rhs)
+   with the proof of v = v'.
+
+   \param env environment
+   \param ctx context
+   \param v (lhs = rhs)
+   \param result_lhs rewriting result of lhs -- pair of lhs'
+          rewritten term of lhs and pf_lhs the proof of (lhs = lhs')
+   \return pair of v' = (lhs' = rhs), and proof of v = v'
+*/
+pair<expr, expr> rewrite_eq_lhs(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_lhs) {
+    lean_assert(is_eq(v));
+    type_inferer ti(env);
+    expr const & lhs     = eq_lhs(v);
+    expr const & rhs     = eq_rhs(v);
+    expr const & new_lhs = result_lhs.first;
+    expr const & pf      = result_lhs.second;
+    expr const & new_v   = mk_eq(new_lhs, rhs);
+    expr const & ty_lhs  = ti(lhs, ctx);
+    expr const & ty_v    = ti(v, ctx);
+    expr const & proof   = Subst(ty_lhs, lhs, new_lhs,
+                                 Fun({Const("x"), ty_lhs},
+                                     mk_eq(v, mk_eq(Const("x"), rhs))),
+                                 Refl(ty_v, v),
+                                 pf);
+    return make_pair(new_v, proof);
+}
+
+/**
+   \brief For a Eq term v = (lhs = rhs)and the rewriting
+   result for rhs, it constructs a new rewriting result for v'
+   = (lhs = rhs') with the proof of v = v'.
+
+   \param env environment
+   \param ctx context
+   \param v (lhs = rhs)
+   \param result_rhs rewriting result of rhs -- pair of rhs'
+          rewritten term of rhs and pf_rhs the proof of (rhs = rhs')
+   \return pair of v' = (lhs = rhs'), and proof of v = v'
+*/
+pair<expr, expr> rewrite_eq_rhs(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_rhs) {
+    lean_assert(is_eq(v));
+    type_inferer ti(env);
+    expr const & lhs     = eq_lhs(v);
+    expr const & rhs     = eq_rhs(v);
+    expr const & new_rhs = result_rhs.first;
+    expr const & pf      = result_rhs.second;
+    expr const & new_v   = mk_eq(rhs, new_rhs);
+    expr const & ty_rhs  = ti(rhs, ctx);
+    expr const & ty_v    = ti(v, ctx);
+    expr const & proof   = Subst(ty_rhs, rhs, new_rhs,
+                                 Fun({Const("x"), ty_rhs},
+                                     mk_eq(v, mk_eq(lhs, Const("x")))),
+                                 Refl(ty_v, v),
+                                 pf);
+    return make_pair(new_v, proof);
+}
+
+/**
+   \brief For a Eq term v = (lhs = rhs)and the rewriting result for
+   lhs and rhs, it constructs a new rewriting result for v' = (lhs' =
+   rhs') with the proof of v = v'.
+
+   \param env environment
+   \param ctx context
+   \param v (lhs = rhs)
+   \param result_lhs rewriting result of lhs -- pair of lhs'
+          rewritten term of lhs and pf_lhs the proof of (lhs = lhs')
+   \param result_rhs rewriting result of rhs -- pair of rhs'
+          rewritten term of rhs and pf_rhs the proof of (rhs = rhs')
+   \return pair of v' = (lhs' = rhs'), and proof of v = v'
+*/
+pair<expr, expr> rewrite_eq(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_lhs, pair<expr, expr> const & result_rhs) {
+    lean_assert(is_eq(v));
+    type_inferer ti(env);
+    expr const & lhs       = eq_lhs(v);
+    expr const & rhs       = eq_rhs(v);
+    expr const & new_lhs   = result_lhs.first;
+    expr const & pf_lhs    = result_lhs.second;
+    expr const & new_rhs   = result_rhs.first;
+    expr const & pf_rhs    = result_rhs.second;
+    expr const & new_v1    = mk_eq(new_lhs, rhs);
+    expr const & new_v2    = mk_eq(new_lhs, new_rhs);
+    expr const & ty_lhs    = ti(lhs, ctx);
+    expr const & ty_rhs    = ti(rhs, ctx);
+    expr const & ty_v      = ti(v, ctx);
+    expr const & ty_new_v1 = ti(new_v1, ctx);
+    expr const & proof1 = Subst(ty_lhs, lhs, new_lhs,
+                                Fun({Const("x"), ty_lhs},
+                                    mk_eq(v, mk_eq(Const("x"), rhs))),
+                                Refl(ty_v, v),
+                                pf_lhs);
+    expr const & proof2 = Subst(ty_rhs, rhs, new_rhs,
+                                Fun({Const("x"), ty_rhs},
+                                    mk_eq(v, mk_eq(lhs, Const("x")))),
+                                Refl(ty_new_v1, new_v1),
+                                pf_rhs);
+    expr const & proof  = Trans(ty_v, v, new_v1, new_v2, proof1, proof2);
+    return make_pair(new_v2, proof);
+}
+
+/**
+   \brief For a lambda term v = (let n : ty = val in body) and the rewriting result
+   for ty, it constructs a new rewriting result for v' = (let n : ty'
+   = val in body) with the proof of v = v'.
+
+   \param env environment
+   \param ctx context
+   \param v (let n : ty = val in body)
+   \param result_ty rewriting result of ty -- pair of ty'
+          rewritten type of ty and \c pf_ty the proof of (ty = ty')
+   \return pair of v' = (let n : ty' = val in body), and proof of v = v'
+*/
+pair<expr, expr> rewrite_let_type(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_ty) {
+    lean_assert(is_let(v));
+    type_inferer ti(env);
+    name const & n       = let_name(v);
+    expr const & ty      = let_type(v);
+    expr const & val     = let_value(v);
+    expr const & body    = let_body(v);
+    expr const & new_ty  = result_ty.first;
+    expr const & pf      = result_ty.second;
+    expr const & new_v   = mk_let(n, new_ty, val, body);
+    expr const & ty_ty   = ti(ty, ctx);
+    expr const & ty_v    = ti(v, ctx);
+    expr const & proof   = Subst(ty_ty, ty, new_ty,
+                                 Fun({Const("x"), ty_ty},
+                                     mk_eq(v, mk_let(n, Const("x"), val, body))),
+                                 Refl(ty_v, v),
+                                 pf);
+    return make_pair(new_v, proof);
+}
+
+/**
+   \brief For a lambda term v = (let n : ty = val in body) and the rewriting result
+   for val, it constructs a new rewriting result for v' = (let n : ty
+   = val' in body) with the proof of v = v'.
+
+   \param env environment
+   \param ctx context
+   \param v (let n : ty = val in body)
+   \param result_value rewriting result of val -- pair of val'
+          rewritten term of val and \c pf_val the proof of (val = val')
+   \return pair of v' = (let n : ty = val' in body), and proof of v = v'
+*/
+pair<expr, expr> rewrite_let_value(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_value) {
+    lean_assert(is_let(v));
+    type_inferer ti(env);
+    name const & n       = let_name(v);
+    expr const & ty      = let_type(v);
+    expr const & val     = let_value(v);
+    expr const & body    = let_body(v);
+    expr const & new_val = result_value.first;
+    expr const & pf      = result_value.second;
+    expr const & new_v   = mk_let(n, ty, new_val, body);
+    expr const & ty_val  = ti(val, ctx);
+    expr const & ty_v    = ti(v, ctx);
+    expr const & proof   = Subst(ty_val, val, new_val,
+                                 Fun({Const("x"), ty_val},
+                                     mk_eq(v, mk_let(n, ty, Const("x"), body))),
+                                 Refl(ty_v, v),
+                                 pf);
+    return make_pair(new_v, proof);
+}
+
+/**
+   \brief For a lambda term v = (let n : ty = val in body) and the rewriting result
+   for body, it constructs a new rewriting result for v' = (let n : ty
+   = val in body') with the proof of v = v'.
+
+   \param env environment
+   \param ctx context
+   \param v (let n : ty = val in body)
+   \param result_body rewriting result of body -- pair of \c body'
+          rewritten term of body and \c pf_body the proof of (body =
+          body')
+   \return pair of v' = (let n : ty = val in body'), and proof of v = v'
+*/
+pair<expr, expr> rewrite_let_body(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_body) {
+    lean_assert(is_let(v));
+    type_inferer ti(env);
+    name const & n        = let_name(v);
+    expr const & ty       = let_type(v);
+    expr const & val      = let_value(v);
+    expr const & body     = let_body(v);
+    expr const & new_body = result_body.first;
+    expr const & pf       = result_body.second;
+    expr const & new_v    = mk_let(n, ty, val, new_body);
+    expr const & ty_body  = ti(body, extend(ctx, n, ty, body));
+    expr const & ty_v     = ti(v, ctx);
+    expr const & proof    = Subst(ty_body, body, new_body,
+                                  Fun({Const("e"), ty_body},
+                                      mk_eq(v, mk_let(n, ty, val, Const("e")))),
+                                  Refl(ty_v, v),
+                                  pf);
+    return make_pair(new_v, proof);
+}
+
+/**
+   \brief For a lambda term v = (e_0 e_1 ... e_n) and the rewriting results
+   for each e_i, it constructs a new rewriting result for v' = (e'_0
+   e'_1 ... e'_n) with the proof of v = v'.
+
+   \param env environment
+   \param ctx context
+   \param v (e_0 e_1 ... e_n)
+   \param results rewriting result foe each e_i -- pair of e'_i
+          rewritten term of e_i and \c pf_e_i the proof of (e_i = e'_i)
+   \return pair of v' = (e'_0 e'_1 ... e'_n), and proof of v = v'
+*/
+pair<expr, expr> rewrite_app(environment const & env, context & ctx, expr const & v, buffer<pair<expr, expr>> const & results ) {
+    type_inferer ti(env);
+    expr f = arg(v, 0);
+    expr new_f = results[0].first;
+    expr pf = results[0].second;
+    for (unsigned i = 1; i < results.size(); i++) {
+        expr const & f_ty = ti(f, ctx);
+        lean_assert(is_pi(f_ty));
+        expr const & f_ty_domain = abst_domain(f_ty); // A
+        expr f_ty_body = mk_lambda(abst_name(f_ty), f_ty_domain, abst_body(f_ty)); // B
+        expr const & e_i = arg(v, i);
+        expr const & new_e_i = results[i].first;
+        expr const & pf_e_i  = results[i].second;
+        bool f_changed = f != new_f;
+        if (f_changed) {
+            if (arg(v, i) != results[i].first) {
+                // Congr : Pi (A : Type u) (B : A -> Type u) (f g : Pi
+                // (x : A) B x) (a b : A) (H1 : f = g) (H2 : a = b), f
+                // a = g b
+                pf = Congr(f_ty_domain, f_ty_body, f, new_f, e_i, new_e_i, pf, pf_e_i);
+            } else {
+                // Congr1 : Pi (A : Type u) (B : A -> Type u) (f g: Pi
+                // (x : A) B x) (a : A) (H : f = g), f a = g a
+                pf = Congr1(f_ty_domain, f_ty_body, f, new_f, e_i, pf);
+            }
+        } else {
+            if (arg(v, i) != results[i].first) {
+                // Congr2 : Pi (A : Type u) (B : A -> Type u)  (a b : A) (f : Pi (x : A) B x) (H : a = b), f a = f b
+                pf = Congr2(f_ty_domain, f_ty_body, e_i, new_e_i, f, pf_e_i);
+            } else {
+                // Refl
+                pf = Refl(ti(f(e_i), ctx), f(e_i));
+            }
+        }
+        f = f (e_i);
+        new_f = new_f (new_e_i);
+    }
+    return make_pair(new_f, pf);
+}
 
 void rewriter_cell::dealloc() {
     delete this;
@@ -487,9 +966,9 @@ ostream & repeat_rewriter_cell::display(ostream & out) const {
 // Depth rewriter
 depth_rewriter_cell::depth_rewriter_cell(rewriter const & rw):rewriter_cell(rewriter_kind::Depth), m_rw(rw) { }
 depth_rewriter_cell::~depth_rewriter_cell() { }
-pair<expr, expr> depth_rewriter_cell::operator()(environment const &, context &, expr const &) const throw(rewriter_exception) {
-    // TODO(soonhok): implement
-    throw rewriter_exception();
+pair<expr, expr> depth_rewriter_cell::operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception) {
+    apply_rewriter_fn f(m_rw);
+    return f.apply(env, ctx, v);
 }
 ostream & depth_rewriter_cell::display(ostream & out) const {
     out << "Depth_RW(" << m_rw << ")";
@@ -564,413 +1043,5 @@ rewriter mk_repeat_rewriter(rewriter const & rw) {
 }
 rewriter mk_depth_rewriter(rewriter const & rw) {
     return rewriter(new depth_rewriter_cell(rw));
-}
-
-// Input:
-//       v = (lambda n : ty. body)
-//       rewritten ty, new_ty
-//       proof of (ty = new_ty), pf_ty
-// Output:
-//       the result new_v = (lambda n : new_ty. body),
-//       proof of (lambda n : ty. body) = (lambda n : new_ty. body)
-pair<expr, expr> rewrite_lambda_type(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_ty) {
-    lean_assert(is_lambda(v));
-    type_inferer ti(env);
-    expr const & ty     = abst_domain(v);
-    expr const & new_ty = result_ty.first;
-    expr const & ty_v   = ti(v, ctx);
-    if (ty == new_ty) {
-        return make_pair(v, Refl(ty_v, v));
-    } else {
-        name const & n         = abst_name(v);
-        expr const & body      = abst_body(v);
-        expr const & pf_ty     = result_ty.second;
-        expr const & new_v     = mk_lambda(n, new_ty, body);
-        expr const & ty_ty     = ti(ty, ctx);
-        lean_assert_eq(ty_ty, ti(new_ty, ctx)); // TODO(soonhok): generalize for hetreogeneous types
-        expr const & proof     = Subst(ty_ty, ty, new_ty,
-                                       Fun({Const("T"), ty_ty},
-                                           mk_eq(v, mk_lambda(n, Const("T"), body))),
-                                       Refl(ty_v, v), pf_ty);
-        return make_pair(new_v, proof);
-    }
-}
-
-// Input:
-//       v = (lambda n : ty. body)
-//       rewritten body, new_body
-//       proof of (body = new_body), pf_body
-// Output:
-//       the result new_v = (lambda n : ty. new_body),
-//       proof of (lambda n : ty. body) = (lambda n : ty. new_body)
-pair<expr, expr> rewrite_lambda_body(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_body) {
-    lean_assert(is_lambda(v));
-    type_inferer ti(env);
-    expr const & body     = abst_body(v);
-    expr const & new_body = result_body.first;
-    expr const & ty_v     = ti(v, ctx);
-    if (body == new_body) {
-        return make_pair(v, Refl(ty_v, v));
-    } else {
-        name const & n       = abst_name(v);
-        expr const & ty      = abst_domain(v);
-        expr const & pf_body = result_body.second;
-        expr const & new_v   = mk_lambda(n, ty, new_body);
-        expr const & ty_body = ti(body, extend(ctx, n, ty));
-        lean_assert_eq(ty_body, ti(new_body, ctx)); // TODO(soonhok): generalize for hetreogeneous types
-        expr const & proof   = Subst(ty_body, body, new_body,
-                                     Fun({Const("e"), ty_body},
-                                         mk_eq(v, mk_lambda(n, ty, Const("e")))),
-                                     Refl(ty_v, v), pf_body);
-        return make_pair(new_v, proof);
-    }
-}
-
-// Generalized version of rewrite_labmda_type and rewrite_lambda_body
-// Input:
-//       v = (lambda n : ty. body)
-//       rewritten ty, new_ty     and proof of (ty = new_ty), pf_ty
-//       rewritten body, new_body and proof of (body = new_body), pf_body
-// Output:
-//       new_v = (lambda n : new_ty. new_body)
-//       proof of (lambda n : ty. body) = (lambda n : new_ty. new_body)
-pair<expr, expr> rewrite_lambda(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_ty, pair<expr, expr> const & result_body) {
-    lean_assert(is_lambda(v));
-    type_inferer ti(env);
-    name const & n         = abst_name(v);
-    expr const & ty        = abst_domain(v);
-    expr const & body      = abst_body(v);
-    expr const & new_ty    = result_ty.first;
-    expr const & pf_ty     = result_ty.second;
-    expr const & new_body  = result_body.first;
-    expr const & pf_body   = result_body.second;
-    expr const & ty_ty     = ti(ty, ctx);
-    expr const & ty_body   = ti(body, ctx);
-    expr const & ty_v      = ti(v, ctx);
-    expr const & new_v1    = mk_lambda(n, new_ty, body);
-    expr const & ty_new_v1 = ti(v, ctx);
-    expr const & new_v2    = mk_lambda(n, new_ty, new_body);
-    // proof1 : v = new_v1
-    expr const & proof1    = Subst(ty_ty, ty, new_ty,
-                                   Fun({Const("T"), ty_ty},
-                                       mk_eq(v, mk_lambda(n, Const("T"), body))),
-                                   Refl(ty_v, v),
-                                   pf_ty);
-    // proof2 : new_v1 = new_v2
-    expr const & proof2    = Subst(ty_body, body, new_body,
-                                   Fun({Const("e"), ty_body},
-                                       mk_eq(new_v1, mk_lambda(n, new_ty, Const("e")))),
-                                   Refl(ty_new_v1, new_v1),
-                                   pf_body);
-    expr const & proof     = Trans(ty_v, v, new_v1, new_v2, proof1, proof2);
-    return make_pair(new_v2, proof);
-}
-
-// Input:
-//       v = (Pi n : ty. body)
-//       rewritten ty, new_ty
-//       proof of (ty = new_ty), pf_ty
-// Output:
-//       the result new_v = (Pi n : new_ty. body),
-//       proof of (Pi n : ty. body) = (Pi n : new_ty. body)
-pair<expr, expr> rewrite_pi_type(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_ty) {
-    lean_assert(is_pi(v));
-    type_inferer ti(env);
-    name const & n      = abst_name(v);
-    expr const & ty     = abst_domain(v);
-    expr const & body   = abst_body(v);
-    expr const & new_ty = result_ty.first;
-    expr const & pf     = result_ty.second;
-    expr const & new_v  = mk_pi(n, new_ty, body);
-    expr const & ty_ty  = ti(ty, ctx);
-    expr const & ty_v   = ti(v, ctx);
-    expr const & proof  = Subst(ty_ty, ty, new_ty,
-                                Fun({Const("T"), ty_ty},
-                                    mk_eq(v, mk_pi(n, Const("T"), body))),
-                                Refl(ty_v, v),
-                                pf);
-    return make_pair(new_v, proof);
-}
-
-// Input:
-//       v = (Pi n : ty. body)
-//       rewritten body, new_body
-//       proof of (body = new_body), pf_body
-// Output:
-//       the result new_v = (Pi n : ty. new_body),
-//       proof of (Pi n : ty. body) = (Pi n : ty. new_body)
-pair<expr, expr> rewrite_pi_body(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_body) {
-    lean_assert(is_pi(v));
-    type_inferer ti(env);
-    name const & n        = abst_name(v);
-    expr const & ty       = abst_domain(v);
-    expr const & body     = abst_body(v);
-    expr const & new_body = result_body.first;
-    expr const & pf       = result_body.second;
-    expr const & new_v    = mk_pi(n, ty, new_body);
-    expr const & ty_body  = ti(body, extend(ctx, n, ty));
-    expr const & ty_v     = ti(v, ctx);
-    expr const & proof    = Subst(ty_body, body, new_body,
-                                  Fun({Const("e"), ty_body},
-                                      mk_eq(v, mk_pi(n, ty, Const("e")))),
-                                  Refl(ty_v, v),
-                                  pf);
-    return make_pair(new_v, proof);
-}
-
-// Generalized version of rewrite_labmda_type and rewrite_Pi_body
-// Input:
-//       v = (Pi n : ty. body)
-//       rewritten ty, new_ty     and proof of (ty = new_ty), pf_ty
-//       rewritten body, new_body and proof of (body = new_body), pf_body
-// Output:
-//       new_v = (Pi n : new_ty. new_body)
-//       proof of (Pi n : ty. body) = (Pi n : new_ty. new_body)
-pair<expr, expr> rewrite_pi(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_ty, pair<expr, expr> const & result_body) {
-    lean_assert(is_pi(v));
-    type_inferer ti(env);
-    name const & n         = abst_name(v);
-    expr const & ty        = abst_domain(v);
-    expr const & body      = abst_body(v);
-    expr const & new_ty    = result_ty.first;
-    expr const & pf_ty     = result_ty.second;
-    expr const & new_body  = result_body.first;
-    expr const & pf_body   = result_body.second;
-    expr const & ty_ty     = ti(ty, ctx);
-    expr const & ty_body   = ti(body, ctx);
-    expr const & ty_v      = ti(v, ctx);
-    expr const & new_v1    = mk_pi(n, new_ty, body);
-    expr const & ty_new_v1 = ti(v, ctx);
-    expr const & new_v2    = mk_pi(n, new_ty, new_body);
-    // proof1 : v = new_v1
-    expr const & proof1    = Subst(ty_ty, ty, new_ty,
-                                   Fun({Const("T"), ty_ty},
-                                       mk_eq(v, mk_pi(n, Const("T"), body))),
-                                   Refl(ty_v, v),
-                                   pf_ty);
-    // proof2 : new_v1 = new_v2
-    expr const & proof2    = Subst(ty_body, body, new_body,
-                                   Fun({Const("e"), ty_body},
-                                       mk_eq(new_v1, mk_pi(n, new_ty, Const("e")))),
-                                   Refl(ty_new_v1, new_v1),
-                                   pf_body);
-    expr const & proof     = Trans(ty_v, v, new_v1, new_v2, proof1, proof2);
-    return make_pair(new_v2, proof);
-}
-
-// Input:
-//       v = (lhs = rhs)
-//       rewritten lhs, new_lhs
-//       proof of (lhs = new_lhs), pf
-// Output:
-//       new_v = (new_lhs = rhs)
-//       proof of (lhs = rhs) = (new_lhs = rhs)
-pair<expr, expr> rewrite_eq_lhs(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_lhs) {
-    lean_assert(is_eq(v));
-    type_inferer ti(env);
-    expr const & lhs     = eq_lhs(v);
-    expr const & rhs     = eq_rhs(v);
-    expr const & new_lhs = result_lhs.first;
-    expr const & pf      = result_lhs.second;
-    expr const & new_v   = mk_eq(new_lhs, rhs);
-    expr const & ty_lhs  = ti(lhs, ctx);
-    expr const & ty_v    = ti(v, ctx);
-    expr const & proof   = Subst(ty_lhs, lhs, new_lhs,
-                                 Fun({Const("x"), ty_lhs},
-                                     mk_eq(v, mk_eq(Const("x"), rhs))),
-                                 Refl(ty_v, v),
-                                 pf);
-    return make_pair(new_v, proof);
-}
-
-// Input:
-//       v = (lhs = rhs)
-//       rewritten rhs, new_rhs
-//       proof of (rhs = new_rhs), pf
-// Output:
-//       new_v = (lhs = new_rhs)
-//       proof of (lhs = rhs) = (lhs = new_rhs)
-pair<expr, expr> rewrite_eq_rhs(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_rhs) {
-    lean_assert(is_eq(v));
-    type_inferer ti(env);
-    expr const & lhs     = eq_lhs(v);
-    expr const & rhs     = eq_rhs(v);
-    expr const & new_rhs = result_rhs.first;
-    expr const & pf      = result_rhs.second;
-    expr const & new_v   = mk_eq(rhs, new_rhs);
-    expr const & ty_rhs  = ti(rhs, ctx);
-    expr const & ty_v    = ti(v, ctx);
-    expr const & proof   = Subst(ty_rhs, rhs, new_rhs,
-                                 Fun({Const("x"), ty_rhs},
-                                     mk_eq(v, mk_eq(lhs, Const("x")))),
-                                 Refl(ty_v, v),
-                                 pf);
-    return make_pair(new_v, proof);
-}
-
-// Generalized version
-// Input
-//       v = (lhs = rhs)
-//       rewritten lhs, new_lhs   and   proof of (lhs = new_lhs), pf_lhs
-//       rewritten rhs, new_rhs   and   proof of (rhs = new_rhs), pf_rhs
-// Output:
-//       new_v = (new_lhs = new_rhs)
-//       proof of (lhs = rhs) = (new_lhs = new_rhs)
-pair<expr, expr> rewrite_eq(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_lhs, pair<expr, expr> const & result_rhs) {
-    lean_assert(is_eq(v));
-    type_inferer ti(env);
-    expr const & lhs       = eq_lhs(v);
-    expr const & rhs       = eq_rhs(v);
-    expr const & new_lhs   = result_lhs.first;
-    expr const & pf_lhs    = result_lhs.second;
-    expr const & new_rhs   = result_rhs.first;
-    expr const & pf_rhs    = result_rhs.second;
-    expr const & new_v1    = mk_eq(new_lhs, rhs);
-    expr const & new_v2    = mk_eq(new_lhs, new_rhs);
-    expr const & ty_lhs    = ti(lhs, ctx);
-    expr const & ty_rhs    = ti(rhs, ctx);
-    expr const & ty_v      = ti(v, ctx);
-    expr const & ty_new_v1 = ti(new_v1, ctx);
-    // proof1 : v = new_v1
-    expr const & proof1 = Subst(ty_lhs, lhs, new_lhs,
-                                Fun({Const("x"), ty_lhs},
-                                    mk_eq(v, mk_eq(Const("x"), rhs))),
-                                Refl(ty_v, v),
-                                pf_lhs);
-    // proof2 : new_v1 = new_v2
-    expr const & proof2 = Subst(ty_rhs, rhs, new_rhs,
-                                Fun({Const("x"), ty_rhs},
-                                    mk_eq(v, mk_eq(lhs, Const("x")))),
-                                Refl(ty_new_v1, new_v1),
-                                pf_rhs);
-    expr const & proof  = Trans(ty_v, v, new_v1, new_v2, proof1, proof2);
-    return make_pair(new_v2, proof);
-}
-
-// Input:
-//       v = (let n : ty = val in body)
-//       rewritten ty, new_ty
-//       proof of (ty = new_ty), pf
-// Output:
-//       new_v = (let n : new_ty = val in body)
-//       proof of (let n : ty = val in body) = (let n : new_ty = val in body)
-pair<expr, expr> rewrite_let_type(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_ty) {
-    lean_assert(is_let(v));
-    type_inferer ti(env);
-    name const & n       = let_name(v);
-    expr const & ty      = let_type(v);
-    expr const & val     = let_value(v);
-    expr const & body    = let_body(v);
-    expr const & new_ty  = result_ty.first;
-    expr const & pf      = result_ty.second;
-    expr const & new_v   = mk_let(n, new_ty, val, body);
-    expr const & ty_ty   = ti(ty, ctx);
-    expr const & ty_v    = ti(v, ctx);
-    expr const & proof   = Subst(ty_ty, ty, new_ty,
-                                 Fun({Const("x"), ty_ty},
-                                     mk_eq(v, mk_let(n, Const("x"), val, body))),
-                                 Refl(ty_v, v),
-                                 pf);
-    return make_pair(new_v, proof);
-}
-
-// Input:
-//       v = (let n : ty = val in body)
-//       rewritten val, new_val
-//       proof of (val = new_val), pf
-// Output:
-//       new_v = (let n : ty = new_val in body)
-//       proof of (let n : ty = val in body) = (let n : ty = new_val in body)
-pair<expr, expr> rewrite_let_value(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_value) {
-    lean_assert(is_let(v));
-    type_inferer ti(env);
-    name const & n       = let_name(v);
-    expr const & ty      = let_type(v);
-    expr const & val     = let_value(v);
-    expr const & body    = let_body(v);
-    expr const & new_val = result_value.first;
-    expr const & pf      = result_value.second;
-    expr const & new_v   = mk_let(n, ty, new_val, body);
-    expr const & ty_val  = ti(val, ctx);
-    expr const & ty_v    = ti(v, ctx);
-    expr const & proof   = Subst(ty_val, val, new_val,
-                                 Fun({Const("x"), ty_val},
-                                     mk_eq(v, mk_let(n, ty, Const("x"), body))),
-                                 Refl(ty_v, v),
-                                 pf);
-    return make_pair(new_v, proof);
-}
-
-// Input:
-//       v = (let n : ty = val in body)
-//       rewritten body, new_body
-//       proof of (body = new_body), pf
-// Output:
-//       new_v = (let n : ty = val in new_body)
-//       proof of (let n : ty = val in body) = (let n : ty = val in new_body)
-pair<expr, expr> rewrite_let_body(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_body) {
-    lean_assert(is_let(v));
-    type_inferer ti(env);
-    name const & n        = let_name(v);
-    expr const & ty       = let_type(v);
-    expr const & val      = let_value(v);
-    expr const & body     = let_body(v);
-    expr const & new_body = result_body.first;
-    expr const & pf       = result_body.second;
-    expr const & new_v    = mk_let(n, ty, val, new_body);
-    expr const & ty_body  = ti(body, extend(ctx, n, ty, body));
-    expr const & ty_v     = ti(v, ctx);
-    expr const & proof    = Subst(ty_body, body, new_body,
-                                  Fun({Const("e"), ty_body},
-                                      mk_eq(v, mk_let(n, ty, val, Const("e")))),
-                                  Refl(ty_v, v),
-                                  pf);
-    return make_pair(new_v, proof);
-}
-
-// Input:
-//       v = (e_0 e_1 ... e_n)
-//       result_i = (e'_i, proof of e_i = e'_i) for 0 <= i <= n
-// Output:
-//       new_v = ( e'_0 e'_1 ... e'_n )
-//       proof of (e_0 e_1 ... e_n) = ( e'_0 e'_1 ... e'_n )
-pair<expr, expr> rewrite_app(environment const & env, context & ctx, expr const & v, buffer<pair<expr, expr>> const & results ) {
-    type_inferer ti(env);
-    expr f = arg(v, 0);
-    expr new_f = results[0].first;
-    expr pf = results[0].second;
-    for (unsigned i = 1; i < results.size(); i++) {
-        expr const & f_ty = ti(f, ctx);
-        lean_assert(is_pi(f_ty));
-        expr const & f_ty_domain = abst_domain(f_ty); // A
-        expr f_ty_body = mk_lambda(abst_name(f_ty), f_ty_domain, abst_body(f_ty)); // B
-        expr const & e_i = arg(v, i);
-        expr const & new_e_i = results[i].first;
-        expr const & pf_e_i  = results[i].second;
-        bool f_changed = f != new_f;
-        if (f_changed) {
-            if (arg(v, i) != results[i].first) {
-                // Congr : Pi (A : Type u) (B : A -> Type u) (f g : Pi
-                // (x : A) B x) (a b : A) (H1 : f = g) (H2 : a = b), f
-                // a = g b
-                pf = Congr(f_ty_domain, f_ty_body, f, new_f, e_i, new_e_i, pf, pf_e_i);
-            } else {
-                // Congr1 : Pi (A : Type u) (B : A -> Type u) (f g: Pi
-                // (x : A) B x) (a : A) (H : f = g), f a = g a
-                pf = Congr1(f_ty_domain, f_ty_body, f, new_f, e_i, pf);
-            }
-        } else {
-            if (arg(v, i) != results[i].first) {
-                // Congr2 : Pi (A : Type u) (B : A -> Type u)  (a b : A) (f : Pi (x : A) B x) (H : a = b), f a = f b
-                pf = Congr2(f_ty_domain, f_ty_body, e_i, new_e_i, f, pf_e_i);
-            } else {
-                // Refl
-                pf = Refl(ti(f(e_i), ctx), f(e_i));
-            }
-        }
-        f = f (e_i);
-        new_f = new_f (new_e_i);
-    }
-    return make_pair(new_f, pf);
 }
 }

@@ -30,6 +30,20 @@ enum class rewriter_kind { Theorem, OrElse, Then, Try, App,
         LetType, LetValue, LetBody, Let,
         Fail, Success, Repeat, Depth };
 
+std::pair<expr, expr> rewrite_lambda_type(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_ty);
+std::pair<expr, expr> rewrite_lambda_body(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_body);
+std::pair<expr, expr> rewrite_lambda(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_ty, std::pair<expr, expr> const & result_body);
+std::pair<expr, expr> rewrite_pi_type(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_ty);
+std::pair<expr, expr> rewrite_pi_body(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_body);
+std::pair<expr, expr> rewrite_pi(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_ty, std::pair<expr, expr> const & result_body);
+std::pair<expr, expr> rewrite_eq_lhs(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_lhs);
+std::pair<expr, expr> rewrite_eq_rhs(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_rhs);
+std::pair<expr, expr> rewrite_eq(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_lhs, std::pair<expr, expr> const & result_rhs);
+std::pair<expr, expr> rewrite_let_type(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_ty);
+std::pair<expr, expr> rewrite_let_value(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_value);
+std::pair<expr, expr> rewrite_let_body(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_body);
+std::pair<expr, expr> rewrite_app(environment const & env, context & ctx, expr const & v, buffer<std::pair<expr, expr>> const & results );
+
 class rewriter;
 
 class rewriter_cell {
@@ -294,17 +308,4 @@ rewriter mk_success_rewriter();
 rewriter mk_repeat_rewriter(rewriter const & rw);
 rewriter mk_depth_rewriter(rewriter const & rw);
 
-std::pair<expr, expr> rewrite_lambda_type(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_ty);
-std::pair<expr, expr> rewrite_lambda_body(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_body);
-std::pair<expr, expr> rewrite_lambda(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_ty, std::pair<expr, expr> const & result_body);
-std::pair<expr, expr> rewrite_pi_type(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_ty);
-std::pair<expr, expr> rewrite_pi_body(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_body);
-std::pair<expr, expr> rewrite_pi(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_ty, std::pair<expr, expr> const & result_body);
-std::pair<expr, expr> rewrite_eq_lhs(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_lhs);
-std::pair<expr, expr> rewrite_eq_rhs(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_rhs);
-std::pair<expr, expr> rewrite_eq(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_lhs, std::pair<expr, expr> const & result_rhs);
-std::pair<expr, expr> rewrite_let_type(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_ty);
-std::pair<expr, expr> rewrite_let_value(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_value);
-std::pair<expr, expr> rewrite_let_body(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_body);
-std::pair<expr, expr> rewrite_app(environment const & env, context & ctx, expr const & v, buffer<std::pair<expr, expr>> const & results );
 }

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/environment.h"
 #include "kernel/abstract.h"
+#include "library/hidden_defs.h"
 #include "library/arith/special_fn.h"
 #include "library/arith/real.h"
 
@@ -56,5 +57,10 @@ void import_special_fn(environment & env) {
     env.add_definition(coth_fn_name, r_r, Fun({x, Real}, rDiv(Cosh(x), Sinh(x))));
     env.add_definition(sech_fn_name, r_r, Fun({x, Real}, rDiv(rVal(1), Cosh(x))));
     env.add_definition(csch_fn_name, r_r, Fun({x, Real}, rDiv(rVal(1), Sinh(x))));
+
+    for (auto n : {cos_fn_name, tan_fn_name, cot_fn_name, sec_fn_name, csc_fn_name, sinh_fn_name,
+                cosh_fn_name, tanh_fn_name, coth_fn_name, sech_fn_name, csch_fn_name}) {
+        set_hidden_flag(env, n);
+    }
 }
 }

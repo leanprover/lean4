@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/abstract.h"
 #include "kernel/environment.h"
+#include "library/hidden_defs.h"
 #include "library/kernel_bindings.h"
 #include "library/arith/int.h"
 #include "library/arith/nat.h"
@@ -175,6 +176,12 @@ void import_int(environment & env) {
 
     env.add_definition(nat_sub_fn_name, Nat >> (Nat >> Int), Fun({{x, Nat}, {y, Nat}}, iSub(n2i(x), n2i(y))));
     env.add_definition(nat_neg_fn_name, Nat >> Int, Fun({x, Nat}, iNeg(n2i(x))));
+
+    for (auto n : {int_sub_fn_name, int_neg_fn_name, int_mod_fn_name, int_divides_fn_name,
+                int_ge_fn_name, int_lt_fn_name, int_gt_fn_name, int_abs_fn_name,
+                nat_sub_fn_name, nat_neg_fn_name}) {
+        set_hidden_flag(env, n);
+    }
 }
 
 static int mk_int_value(lua_State * L) {

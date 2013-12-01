@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 void open_kernel_module(lua_State * L);
-void register_kernel_module();
 UDATA_DEFS(level)
 UDATA_DEFS(local_entry)
 UDATA_DEFS_CORE(local_context)

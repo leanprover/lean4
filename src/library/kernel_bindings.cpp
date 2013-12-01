@@ -1579,8 +1579,6 @@ static void open_metavar_env(lua_State * L) {
     SET_GLOBAL_FUN(instantiate_metavars, "instantiate_metavars");
 }
 
-
-
 void open_kernel_module(lua_State * L) {
     open_level(L);
     open_local_context(L);
@@ -1591,11 +1589,5 @@ void open_kernel_module(lua_State * L) {
     open_object(L);
     open_justification(L);
     open_metavar_env(L);
-    open_io_state(L);
-    open_type_inferer(L);
-}
-
-void register_kernel_module() {
-    script_state::register_module(open_kernel_module);
 }
 }

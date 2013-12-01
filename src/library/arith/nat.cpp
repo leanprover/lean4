@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/abstract.h"
 #include "kernel/environment.h"
+#include "library/hidden_defs.h"
 #include "library/kernel_bindings.h"
 #include "library/arith/nat.h"
 #include "library/arith/num_type.h"
@@ -127,6 +128,10 @@ void import_nat(environment & env) {
     env.add_definition(nat_lt_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, Not(nLe(y, x))));
     env.add_definition(nat_gt_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, Not(nLe(x, y))));
     env.add_definition(nat_id_fn_name, Nat >> Nat, Fun({x, Nat}, x));
+
+    for (auto n : {nat_ge_fn_name, nat_lt_fn_name, nat_gt_fn_name, nat_id_fn_name}) {
+        set_hidden_flag(env, n);
+    }
 }
 
 static int mk_nat_value(lua_State * L) {

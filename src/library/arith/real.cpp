@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/abstract.h"
 #include "kernel/environment.h"
+#include "library/hidden_defs.h"
 #include "library/kernel_bindings.h"
 #include "library/arith/real.h"
 #include "library/arith/int.h"
@@ -156,6 +157,11 @@ void import_real(environment & env) {
     env.add_definition(real_ge_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, rLe(y, x)));
     env.add_definition(real_lt_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, Not(rLe(y, x))));
     env.add_definition(real_gt_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, Not(rLe(x, y))));
+
+    for (auto n : {real_sub_fn_name, real_neg_fn_name, real_abs_fn_name, real_ge_fn_name,
+                real_lt_fn_name, real_gt_fn_name}) {
+        set_hidden_flag(env, n);
+    }
 }
 
 class int_to_real_value : public const_value {
@@ -182,6 +188,8 @@ void import_int_to_real_coercions(environment & env) {
     env.add_builtin(mk_int_to_real_fn());
     expr x    = Const("x");
     env.add_definition(nat_to_real_fn_name, Nat >> Real, Fun({x, Nat}, i2r(n2i(x))));
+
+    set_hidden_flag(env, nat_to_real_fn_name);
 }
 
 static int mk_real_value(lua_State * L) {

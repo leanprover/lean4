@@ -10,8 +10,16 @@ Author: Leonardo de Moura
 using namespace lean;
 
 static char foo(int i) {
-    #define SZ 1000000
-    char buffer[SZ];
+    #define SZ_FOO 1000000
+    char buffer[SZ_FOO];
+    buffer[i] = i;
+    std::cout << get_available_stack_size() << "\n";
+    return buffer[i];
+}
+
+static char bar(int i) {
+    #define SZ_BAR 10000
+    char buffer[SZ_BAR];
     buffer[i] = i;
     std::cout << get_available_stack_size() << "\n";
     return buffer[i];
@@ -23,8 +31,16 @@ static void tst1() {
     std::cout << get_available_stack_size() << "\n";
 }
 
+static void tst2() {
+    std::cout << get_available_stack_size() << "\n";
+    bar(10);
+    std::cout << get_available_stack_size() << "\n";
+}
+
 int main() {
     save_stack_info();
     tst1();
+    save_stack_info();
+    tst2();
     return has_violations() ? 1 : 0;
 }

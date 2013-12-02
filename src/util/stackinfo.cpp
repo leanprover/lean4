@@ -16,6 +16,19 @@ namespace lean {
 size_t get_stack_size() {
     return LEAN_WIN_STACK_SIZE
 }
+#endif
+#ifdef __APPLE__
+size_t get_stack_size() {
+    pthread_attr_t attr;
+    memset (&attr, 0, sizeof(attr));
+    pthread_attr_init(&attr);
+    size_t result;
+    if (pthread_attr_getstacksize(&attr, &result) != 0) {
+        // pthread_attr_getstacksize is supposed to return 0
+        throw stack_space_exception();
+    }
+    return result;
+}
 #else
 size_t get_stack_size() {
     pthread_attr_t attr;

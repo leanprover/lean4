@@ -24,6 +24,7 @@ size_t get_stack_size() {
     void * ptr;
     size_t result;
     pthread_attr_getstack (&attr, &ptr, &result);
+    pthread_attr_destroy(&attr);
     return result;
 }
 #endif

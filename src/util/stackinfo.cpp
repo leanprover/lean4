@@ -16,8 +16,7 @@ namespace lean {
 size_t get_stack_size() {
     return LEAN_WIN_STACK_SIZE
 }
-#endif
-#ifdef __APPLE__
+#elif defined (__APPLE__)
 size_t get_stack_size() {
     pthread_attr_t attr;
     memset (&attr, 0, sizeof(attr));

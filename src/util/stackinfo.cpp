@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 namespace lean {
 #ifdef LEAN_WINDOWS
 size_t get_stack_size() {
-    return LEAN_WIN_STACK_SIZE
+    return LEAN_WIN_STACK_SIZE;
 }
 #elif defined (__APPLE__)
 size_t get_stack_size() {
@@ -24,6 +24,7 @@ size_t get_stack_size() {
     size_t result;
     if (pthread_attr_getstacksize(&attr, &result) != 0) {
         // pthread_attr_getstacksize is supposed to return 0
+        std::cerr << "get_stack_size error" << std::endl;
         throw stack_space_exception();
     }
     return result;

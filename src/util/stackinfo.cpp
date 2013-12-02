@@ -12,6 +12,10 @@ Author: Leonardo de Moura
 #define LEAN_MIN_STACK_SPACE 128*1024  // 128 Kb
 
 namespace lean {
+static void throw_get_stack_size_failed() {
+    throw exception("failed to retrieve thread stack size");
+}
+
 #ifdef LEAN_WINDOWS
 size_t get_stack_size() {
     return LEAN_WIN_STACK_SIZE;
@@ -23,9 +27,7 @@ size_t get_stack_size() {
     pthread_attr_init(&attr);
     size_t result;
     if (pthread_attr_getstacksize(&attr, &result) != 0) {
-        // pthread_attr_getstacksize is supposed to return 0
-        std::cerr << "get_stack_size error" << std::endl;
-        throw stack_space_exception();
+        throw_get_stack_size_failed();
     }
     return result;
 }
@@ -33,11 +35,17 @@ size_t get_stack_size() {
 size_t get_stack_size() {
     pthread_attr_t attr;
     memset (&attr, 0, sizeof(attr));
-    pthread_getattr_np (pthread_self(), &attr);
+    if (pthread_getattr_np(pthread_self(), &attr) != 0) {
+        throw_get_stack_size_failed();
+    }
     void * ptr;
     size_t result;
-    pthread_attr_getstack (&attr, &ptr, &result);
-    pthread_attr_destroy(&attr);
+    if (pthread_attr_getstack (&attr, &ptr, &result) != 0) {
+        throw_get_stack_size_failed();
+    }
+    if (pthread_attr_destroy(&attr) != 0) {
+        throw_get_stack_size_failed();
+    }
     return result;
 }
 #endif

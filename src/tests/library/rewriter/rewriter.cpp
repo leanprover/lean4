@@ -725,8 +725,7 @@ static void lambda_rewriter2_tst() {
     cout << "Concl = " << concl << std::endl
          << "Proof = " << proof << std::endl;
     lean_assert_eq(concl, mk_eq(v, mk_lambda("x", Nat, nAdd(a, Var(0)))));
-    // TODO(soonhok): this one doesn't work now.
-//    env.add_theorem("lambda_rewriter2", concl, proof);
+    env.add_theorem("lambda_rewriter2", concl, proof);
     cout << "====================================================" << std::endl;
 }
 

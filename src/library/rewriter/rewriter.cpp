@@ -92,10 +92,7 @@ pair<expr, expr> rewrite_lambda_body(environment const & env, context & ctx, exp
         expr const & new_v   = mk_lambda(n, ty, new_body);
         expr const & ty_body = ti(body, extend(ctx, n, ty));
         lean_assert_eq(ty_body, ti(new_body, ctx)); // TODO(soonhok): generalize for hetreogeneous types
-        expr const & proof   = Subst(ty_body, body, new_body,
-                                     Fun({Const("e"), ty_body},
-                                         mk_eq(v, mk_lambda(n, ty, Const("e")))),
-                                     Refl(ty_v, v), pf_body);
+        expr const & proof = Abst(ty, mk_lambda(n, ty, ty_body), v, new_v, mk_lambda(n, ty, pf_body));
         return make_pair(new_v, proof);
     }
 }

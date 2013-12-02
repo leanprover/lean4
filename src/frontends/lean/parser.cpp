@@ -1183,8 +1183,12 @@ class parser::imp {
         if (curr_is_colon()) {
             next();
             pre_type = parse_expr();
-            check_assign_next("invalid definition, ':=' expected");
-            pre_val  = parse_expr();
+            if (!is_definition && curr_is_period()) {
+                pre_val  = save(mk_placholder(), pos());
+            } else {
+                check_assign_next("invalid definition, ':=' expected");
+                pre_val  = parse_expr();
+            }
         } else if (is_definition && curr_is_assign()) {
             auto p   = pos();
             next();
@@ -1195,10 +1199,14 @@ class parser::imp {
             parse_object_bindings(bindings);
             check_colon_next("invalid definition, ':' expected");
             expr type_body = parse_expr();
-            check_assign_next("invalid definition, ':=' expected");
-            expr val_body  = parse_expr();
             pre_type  = mk_abstraction(false, bindings, type_body);
-            pre_val   = mk_abstraction(true, bindings, val_body);
+            if (!is_definition && curr_is_period()) {
+                pre_val = mk_abstraction(true, bindings, mk_placholder());
+            } else {
+                check_assign_next("invalid definition, ':=' expected");
+                expr val_body  = parse_expr();
+                pre_val   = mk_abstraction(true, bindings, val_body);
+            }
         }
         auto r = m_elaborator(id, pre_type, pre_val);
         expr type = std::get<0>(r);

@@ -442,6 +442,44 @@ tactic unfold_tactic() {
         });
 }
 
+class beta_fn : public replace_visitor {
+protected:
+    bool m_reduced;
+
+    virtual expr visit_app(expr const & e, context const & ctx) {
+        expr const & f = arg(e, 0);
+        if (is_lambda(f)) {
+            m_reduced = true;
+            buffer<expr> new_args;
+            for (unsigned i = 0; i < num_args(e); i++)
+                new_args.push_back(visit(arg(e, i), ctx));
+            lean_assert(is_lambda(new_args[0]));
+            return apply_beta(new_args[0], new_args.size() - 1, new_args.data() + 1);
+        } else {
+            return replace_visitor::visit_app(e, ctx);
+        }
+    }
+public:
+    beta_fn():m_reduced(false) {}
+    bool reduced() const { return m_reduced; }
+};
+
+tactic beta_tactic() {
+    return mk_tactic01([=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
+            beta_fn fn;
+            goals new_gs = map_goals(s, [&](name const &, goal const & g) -> goal {
+                    hypotheses new_hs = map(g.get_hypotheses(), [&](hypothesis const & h) { return hypothesis(h.first, fn(h.second)); });
+                    expr       new_c  = fn(g.get_conclusion());
+                    return goal(new_hs, new_c);
+                });
+            if (fn.reduced()) {
+                return proof_state(s, new_gs);
+            } else {
+                return none_proof_state();
+            }
+        });
+}
+
 DECL_UDATA(proof_state_seq)
 
 static const struct luaL_Reg proof_state_seq_m[] = {
@@ -723,6 +761,7 @@ static int mk_unfold_tactic(lua_State * L)      {
     else
         return push_tactic(L, unfold_tactic(to_name_ext(L, 1)));
 }
+static int mk_beta_tactic(lua_State * L) {  return push_tactic(L, beta_tactic()); }
 
 static const struct luaL_Reg tactic_m[] = {
     {"__gc",            tactic_gc}, // never throws
@@ -775,6 +814,7 @@ void open_tactic(lua_State * L) {
     SET_GLOBAL_FUN(mk_assumption_tactic,  "assumption_tactic");
     SET_GLOBAL_FUN(mk_assumption_tactic,  "assump_tactic");
     SET_GLOBAL_FUN(mk_unfold_tactic,      "unfold_tactic");
+    SET_GLOBAL_FUN(mk_beta_tactic,        "beta_tactic");
     SET_GLOBAL_FUN(mk_lua_tactic01,       "tactic");
 
     // HOL-like tactic names

@@ -295,6 +295,10 @@ tactic unfold_tactic(name const & n);
    \brief Return a tactic that unfolds all (non-hidden and non-opaque) definitions.
 */
 tactic unfold_tactic();
+/**
+   \brief Return a tactic that applies beta-reduction.
+*/
+tactic beta_tactic();
 
 UDATA_DEFS_CORE(proof_state_seq)
 UDATA_DEFS(tactic);

@@ -14,7 +14,7 @@ class metavar_env;
     \brief Return a new placeholder expression. To be able to track location,
     a new constant for each placeholder.
 */
-expr mk_placholder();
+expr mk_placeholder();
 
 /**
     \brief Return true iff the given expression is a placeholder.

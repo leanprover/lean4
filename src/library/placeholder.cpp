@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 static name g_placeholder_name("_");
-expr mk_placholder() {
+expr mk_placeholder() {
     return mk_constant(g_placeholder_name);
 }
 
@@ -21,7 +21,7 @@ bool is_placeholder(expr const & e) {
 }
 
 bool has_placeholder(expr const & e) {
-    return occurs(mk_placholder(), e);
+    return occurs(mk_placeholder(), e);
 }
 
 class replace_placeholders_with_metavars_proc : public replace_visitor {

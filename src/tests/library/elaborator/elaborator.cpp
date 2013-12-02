@@ -266,7 +266,7 @@ static void tst6() {
     std::cout << instantiate_metavars(V, s) << "\n";
 }
 
-#define _ mk_placholder()
+#define _ mk_placeholder()
 
 static expr elaborate(expr const & e, environment const & env) {
     metavar_env menv;

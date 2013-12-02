@@ -446,7 +446,7 @@ static void tst21() {
                    add_lift(m1, 1, 7));
 }
 
-#define _ mk_placholder()
+#define _ mk_placeholder()
 
 static void tst22() {
     metavar_env menv;

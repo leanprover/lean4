@@ -448,7 +448,7 @@ class parser::imp {
             unsigned i = 0;
             for (unsigned j = 0; j < imp_args.size(); j++) {
                 if (imp_args[j]) {
-                    new_args.push_back(save(mk_placholder(), pos));
+                    new_args.push_back(save(mk_placeholder(), pos));
                 } else {
                     if (i >= num_args)
                         throw parser_error(sstream() << "unexpected number of arguments for denotation with implicit arguments, it expects " << num_args << " explicit argument(s)", pos);
@@ -598,7 +598,7 @@ class parser::imp {
                     // get all explicit arguments.
                     for (unsigned i = 0; i < imp_args.size(); i++) {
                         if (imp_args[i]) {
-                            args.push_back(save(mk_placholder(), pos()));
+                            args.push_back(save(mk_placeholder(), pos()));
                         } else {
                             args.push_back(parse_expr(1));
                         }
@@ -763,7 +763,7 @@ class parser::imp {
             if (type)
                 arg_type = lift_free_vars(type, i);
             else
-                arg_type = save(mk_placholder(), names[i].first);
+                arg_type = save(mk_placeholder(), names[i].first);
             result[sz + i] = std::make_tuple(names[i].first, names[i].second, arg_type, implicit_decl);
         }
     }
@@ -960,7 +960,7 @@ class parser::imp {
     expr parse_placeholder() {
         auto p = pos();
         next();
-        return save(mk_placholder(), p);
+        return save(mk_placeholder(), p);
     }
 
     /**
@@ -1184,7 +1184,7 @@ class parser::imp {
             next();
             pre_type = parse_expr();
             if (!is_definition && curr_is_period()) {
-                pre_val  = save(mk_placholder(), pos());
+                pre_val  = save(mk_placeholder(), pos());
             } else {
                 check_assign_next("invalid definition, ':=' expected");
                 pre_val  = parse_expr();
@@ -1192,7 +1192,7 @@ class parser::imp {
         } else if (is_definition && curr_is_assign()) {
             auto p   = pos();
             next();
-            pre_type = save(mk_placholder(), p);
+            pre_type = save(mk_placeholder(), p);
             pre_val  = parse_expr();
         } else {
             mk_scope scope(*this);
@@ -1201,7 +1201,7 @@ class parser::imp {
             expr type_body = parse_expr();
             pre_type  = mk_abstraction(false, bindings, type_body);
             if (!is_definition && curr_is_period()) {
-                pre_val = mk_abstraction(true, bindings, mk_placholder());
+                pre_val = mk_abstraction(true, bindings, mk_placeholder());
             } else {
                 check_assign_next("invalid definition, ':=' expected");
                 expr val_body  = parse_expr();

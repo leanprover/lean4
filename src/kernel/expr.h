@@ -123,7 +123,7 @@ public:
 
     expr_cell * raw() const { return m_ptr; }
 
-    operator bool() const { return m_ptr != nullptr; }
+    explicit operator bool() const { return m_ptr != nullptr; }
 
     friend expr mk_var(unsigned idx);
     friend expr mk_constant(name const & n, expr const & t);

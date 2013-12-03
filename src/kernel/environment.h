@@ -148,7 +148,7 @@ public:
     object const & find_object(name const & n) const;
 
     /** \brief Return true iff the environment has an object with the given name */
-    bool has_object(name const & n) const { return find_object(n); }
+    bool has_object(name const & n) const { return static_cast<bool>(find_object(n)); }
 
     /**
        \brief Return the type of \c e in the given context and this environment.

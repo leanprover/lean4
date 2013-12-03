@@ -46,7 +46,7 @@ public:
 
     friend void swap(operator_info & o1, operator_info & o2) { std::swap(o1.m_ptr, o2.m_ptr); }
 
-    operator bool() const { return m_ptr != nullptr; }
+    explicit operator bool() const { return m_ptr != nullptr; }
 
     friend operator_info infix(name const & op, unsigned precedence);
     friend operator_info infixl(name const & op, unsigned precedence);

@@ -74,7 +74,7 @@ public:
     bool is_anonymous() const { return kind() == name_kind::ANONYMOUS; }
     bool is_string() const    { return kind() == name_kind::STRING; }
     bool is_numeral() const   { return kind() == name_kind::NUMERAL; }
-    operator bool() const     { return !is_anonymous(); }
+    explicit operator bool() const     { return !is_anonymous(); }
     unsigned get_numeral() const;
     /**
        \brief If the tail of the given hierarchical name is a string, then it returns this string.

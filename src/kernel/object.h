@@ -98,7 +98,7 @@ public:
     object & operator=(object const & s) { LEAN_COPY_REF(object, s); }
     object & operator=(object && s) { LEAN_MOVE_REF(object, s); }
 
-    operator bool() const { return m_ptr != nullptr; }
+    explicit operator bool() const { return m_ptr != nullptr; }
 
     object_kind kind() const { return m_ptr->kind(); }
 

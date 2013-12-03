@@ -126,7 +126,7 @@ expr metavar_env::get_type(name const & m) {
 bool metavar_env::has_type(name const & m) const {
     auto it = const_cast<metavar_env*>(this)->m_metavar_data.splay_find(m);
     lean_assert(it);
-    return it->m_type;
+    return static_cast<bool>(it->m_type);
 }
 
 bool metavar_env::has_type(expr const & m) const {
@@ -343,7 +343,7 @@ expr add_inst(expr const & m, unsigned s, expr const & v) {
 }
 
 bool has_local_context(expr const & m) {
-    return metavar_lctx(m);
+    return static_cast<bool>(metavar_lctx(m));
 }
 
 expr pop_meta_context(expr const & m) {
@@ -361,12 +361,12 @@ bool has_metavar(expr const & e, expr const & m, metavar_env const & menv) {
     if (has_metavar(e)) {
         lean_assert(is_metavar(m));
         lean_assert(!menv.is_assigned(m));
-        return find(e, [&](expr const & m2) {
-                return
-                    is_metavar(m2) &&
-                    ((metavar_name(m) == metavar_name(m2)) ||
-                     (menv.is_assigned(m2) && has_metavar(menv.get_subst(m2), m, menv)));
-            });
+        return static_cast<bool>(find(e, [&](expr const & m2) {
+                    return
+                        is_metavar(m2) &&
+                        ((metavar_name(m) == metavar_name(m2)) ||
+                         (menv.is_assigned(m2) && has_metavar(menv.get_subst(m2), m, menv)));
+                }));
     } else {
         return false;
     }

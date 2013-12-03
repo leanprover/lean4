@@ -60,7 +60,7 @@ public:
 
     sexpr_kind kind() const;
 
-    operator bool() const { return m_ptr != nullptr; }
+    explicit operator bool() const { return m_ptr != nullptr; }
 
     friend bool is_nil(sexpr const & s) { return s.m_ptr == nullptr; }
     friend sexpr const & head(sexpr const & s);

@@ -39,7 +39,7 @@ public:
     context_entry const & lookup(unsigned vidx) const;
     std::pair<context_entry const &, context> lookup_ext(unsigned vidx) const;
     bool empty() const { return is_nil(m_list); }
-    operator bool() const { return !empty(); }
+    explicit operator bool() const { return !empty(); }
     unsigned size() const { return length(m_list); }
     typedef list<context_entry>::iterator iterator;
     iterator begin() const { return m_list.begin(); }

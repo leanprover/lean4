@@ -74,7 +74,7 @@ public:
     tactic(tactic const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     tactic(tactic && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~tactic() { if (m_ptr) m_ptr->dec_ref(); }
-    operator bool() const { return m_ptr != nullptr; }
+    explicit operator bool() const { return m_ptr != nullptr; }
     friend void swap(tactic & a, tactic & b) { std::swap(a.m_ptr, b.m_ptr); }
     tactic & operator=(tactic const & s);
     tactic & operator=(tactic && s);

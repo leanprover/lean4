@@ -79,7 +79,7 @@ public:
     cell * raw() const { return m_ptr; }
 
     /** \brief Return true iff it is not the empty/nil list. */
-    operator bool() const { return m_ptr != nullptr; }
+    explicit operator bool() const { return m_ptr != nullptr; }
 
     friend bool is_nil(list const & l) { return l.m_ptr == nullptr; }
     friend bool empty(list const & l) { return is_nil(l); }

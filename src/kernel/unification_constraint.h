@@ -69,7 +69,7 @@ public:
     unification_constraint_kind kind() const { return m_ptr->kind(); }
     unification_constraint_cell * raw() const { return m_ptr; }
 
-    operator bool() const { return m_ptr != nullptr; }
+    explicit operator bool() const { return m_ptr != nullptr; }
 
     format pp(formatter const & fmt, options const & opts, pos_info_provider const * p = nullptr, bool include_justification = false) const {
         lean_assert(m_ptr);

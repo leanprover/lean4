@@ -1121,12 +1121,12 @@ class pp_fn {
     }
 
     bool uses_prefix(expr const & e, name const & prefix) {
-        return find(e, [&](expr const & e) {
-                return
-                    (is_constant(e) && is_prefix_of(prefix, const_name(e)))   ||
-                    (is_abstraction(e) && is_prefix_of(prefix, abst_name(e))) ||
-                    (is_let(e) && is_prefix_of(prefix, let_name(e)));
-            });
+        return static_cast<bool>(find(e, [&](expr const & e) {
+                    return
+                        (is_constant(e) && is_prefix_of(prefix, const_name(e)))   ||
+                        (is_abstraction(e) && is_prefix_of(prefix, abst_name(e))) ||
+                        (is_let(e) && is_prefix_of(prefix, let_name(e)));
+                }));
     }
 
     name find_unused_prefix(expr const & e) {

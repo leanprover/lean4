@@ -9,11 +9,11 @@ Author: Leonardo de Moura
 
 namespace lean {
 bool occurs(name const & n, context const * c, unsigned sz, expr const * es) {
-    return find(c, sz, es, [&](expr const & e) { return is_constant(e) && const_name(e) == n; });
+    return static_cast<bool>(find(c, sz, es, [&](expr const & e) { return is_constant(e) && const_name(e) == n; }));
 }
 
 bool occurs(expr const & n, context const * c, unsigned sz, expr const * es) {
-    return find(c, sz, es, [&](expr const & e) { return e == n; });
+    return static_cast<bool>(find(c, sz, es, [&](expr const & e) { return e == n; }));
 }
 bool occurs(expr const & n, expr const & m) { return occurs(n, nullptr, 1, &m); }
 bool occurs(name const & n, expr const & m) { return occurs(n, nullptr, 1, &m); }

@@ -61,7 +61,7 @@ public:
     justification(justification && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~justification() { if (m_ptr) m_ptr->dec_ref(); }
 
-    operator bool() const { return m_ptr != nullptr; }
+    explicit operator bool() const { return m_ptr != nullptr; }
 
     justification_cell * raw() const { return m_ptr; }
 

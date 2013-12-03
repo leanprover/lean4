@@ -186,7 +186,7 @@ public:
     }
     unsigned hash() const { return m_value.hash(); }
 
-    operator bool() const { return m_value; }
+    explicit operator bool() const { return static_cast<bool>(m_value); }
 
     friend format compose(format const & f1, format const & f2);
     friend format nest(int i, format const & f);

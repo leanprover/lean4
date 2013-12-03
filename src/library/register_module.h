@@ -10,6 +10,8 @@ Author: Leonardo de Moura
 #include "library/io_state.h"
 #include "library/type_inferer.h"
 #include "library/hidden_defs.h"
+#include "library/substitution.h"
+#include "library/fo_unify.h"
 
 namespace lean {
 inline void open_core_module(lua_State * L) {
@@ -17,6 +19,8 @@ inline void open_core_module(lua_State * L) {
     open_io_state(L);
     open_type_inferer(L);
     open_hidden_defs(L);
+    open_substitution(L);
+    open_fo_unify(L);
 }
 inline void register_core_module() {
     script_state::register_module(open_core_module);

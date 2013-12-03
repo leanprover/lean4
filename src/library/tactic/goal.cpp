@@ -159,9 +159,9 @@ static int mk_hypotheses(lua_State * L) {
     if (nargs == 0) {
         return push_hypotheses(L, hypotheses());
     } else if (nargs == 2) {
-        return push_hypotheses(L, hypotheses(mk_pair(to_name_ext(L, 1), to_expr(L, 2)), hypotheses()));
+        return push_hypotheses(L, hypotheses(mk_pair(to_name_ext(L, 1), to_nonnull_expr(L, 2)), hypotheses()));
     } else if (nargs == 3) {
-        return push_hypotheses(L, hypotheses(mk_pair(to_name_ext(L, 1), to_expr(L, 2)), to_hypotheses(L, 3)));
+        return push_hypotheses(L, hypotheses(mk_pair(to_name_ext(L, 1), to_nonnull_expr(L, 2)), to_hypotheses(L, 3)));
     } else {
         throw exception("hypotheses functions expects 0 (empty list), 2 (name & expr for singleton hypotheses list), or 3 (name & expr & hypotheses list) arguments");
     }
@@ -230,7 +230,7 @@ static const struct luaL_Reg hypotheses_m[] = {
 DECL_UDATA(goal)
 
 static int mk_goal(lua_State * L) {
-    return push_goal(L, goal(to_hypotheses(L, 1), to_expr(L, 2)));
+    return push_goal(L, goal(to_hypotheses(L, 1), to_nonnull_expr(L, 2)));
 }
 
 static int goal_is_null(lua_State * L) {

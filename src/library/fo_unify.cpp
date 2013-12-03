@@ -78,7 +78,7 @@ optional<substitution> fo_unify(expr e1, expr e2) {
 
 
 static int fo_unify(lua_State * L) {
-    optional<substitution> r = fo_unify(to_expr(L, 1), to_expr(L, 2));
+    optional<substitution> r = fo_unify(to_nonnull_expr(L, 1), to_nonnull_expr(L, 2));
     if (!r) {
         lua_pushnil(L);
         return 1;

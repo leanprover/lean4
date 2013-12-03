@@ -50,7 +50,7 @@ static int proof_map_find(lua_State * L) {
 }
 
 static int proof_map_insert(lua_State * L) {
-    to_proof_map(L, 1).insert(to_name_ext(L, 2), to_expr(L, 3));
+    to_proof_map(L, 1).insert(to_name_ext(L, 2), to_nonnull_expr(L, 3));
     return 0;
 }
 
@@ -104,7 +104,7 @@ static int mk_proof_builder(lua_State * L) {
                                               push_proof_map(L, m);
                                               push_assignment(L, a);
                                               pcall(L, 2, 1, 0);
-                                              r = to_expr(L, -1);
+                                              r = to_nonnull_expr(L, -1);
                                               lua_pop(L, 1);
                                           });
                                       return r;

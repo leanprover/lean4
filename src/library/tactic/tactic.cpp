@@ -663,10 +663,10 @@ static int tactic_solve(lua_State * L) {
         } else {
             io_state * ios = get_io_state(L);
             check_ios(ios);
-            return tactic_solve_core(L, t, env, *ios, to_context(L, 3), to_expr(L, 4));
+            return tactic_solve_core(L, t, env, *ios, to_context(L, 3), to_nonnull_expr(L, 4));
         }
     } else {
-        return tactic_solve_core(L, t, env, to_io_state(L, 3), to_context(L, 4), to_expr(L, 5));
+        return tactic_solve_core(L, t, env, to_io_state(L, 3), to_context(L, 4), to_nonnull_expr(L, 5));
     }
 }
 

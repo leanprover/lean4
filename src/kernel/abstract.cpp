@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include "kernel/abstract.h"
 #include "kernel/free_vars.h"
-#include "kernel/replace.h"
+#include "kernel/replace_fn.h"
 
 namespace lean {
 expr abstract(expr const & e, unsigned n, expr const * s) {

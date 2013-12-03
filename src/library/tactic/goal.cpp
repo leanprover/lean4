@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "util/name_set.h"
 #include "util/buffer.h"
 #include "kernel/for_each_fn.h"
-#include "kernel/replace.h"
+#include "kernel/replace_fn.h"
 #include "kernel/abstract.h"
 #include "library/kernel_bindings.h"
 #include "library/type_inferer.h"

@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include "kernel/free_vars.h"
-#include "kernel/replace.h"
+#include "kernel/replace_fn.h"
 #include "kernel/metavar.h"
 
 namespace lean {

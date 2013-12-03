@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/expr_maps.h"
-#include "kernel/replace.h"
+#include "kernel/replace_fn.h"
 #include "kernel/printer.h"
 #include "library/deep_copy.h"
 using namespace lean;

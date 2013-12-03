@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/normalizer.h"
 #include "kernel/instantiate.h"
-#include "kernel/replace.h"
+#include "kernel/replace_fn.h"
 #include "kernel/builtin.h"
 #include "library/type_inferer.h"
 #include "library/update_expr.h"

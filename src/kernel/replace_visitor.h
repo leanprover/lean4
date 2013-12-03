@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "util/scoped_map.h"
-#include "kernel/replace.h"
+#include "kernel/replace_fn.h"
 #include "kernel/context.h"
 
 namespace lean {

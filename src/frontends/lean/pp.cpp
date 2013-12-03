@@ -20,7 +20,7 @@ Author: Leonardo de Moura
 #include "kernel/occurs.h"
 #include "kernel/builtin.h"
 #include "kernel/free_vars.h"
-#include "kernel/replace.h"
+#include "kernel/replace_fn.h"
 #include "library/context_to_lambda.h"
 #include "library/placeholder.h"
 #include "frontends/lean/notation.h"

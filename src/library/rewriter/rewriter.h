@@ -13,7 +13,7 @@ Author: Soonho Kong
 #include "kernel/context.h"
 #include "kernel/environment.h"
 #include "kernel/expr.h"
-#include "kernel/replace.h"
+#include "kernel/replace_fn.h"
 #include "library/basic_thms.h"
 #include "library/rewriter/rewriter.h"
 #include "library/type_inferer.h"

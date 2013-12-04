@@ -17,22 +17,34 @@ void throw_get_stack_size_failed() {
 }
 
 #ifdef LEAN_WINDOWS
-size_t get_stack_size() {
+size_t get_stack_size(int main) {
     return LEAN_WIN_STACK_SIZE;
 }
 #elif defined (__APPLE__)
-size_t get_stack_size() {
-    pthread_attr_t attr;
-    memset (&attr, 0, sizeof(attr));
-    pthread_attr_init(&attr);
-    size_t result;
-    if (pthread_attr_getstacksize(&attr, &result) != 0) {
-        throw_get_stack_size_failed();
+#include <sys/resource.h>
+size_t get_stack_size(int main) {
+    if (main) {
+        // Retrieve stack size of the main thread.
+        struct rlimit curr;
+        if (getrlimit(RLIMIT_STACK, &curr) != 0) {
+            throw_get_stack_size_failed();
+        }
+        return curr.rlim_max;
+    } else {
+        // This branch retrieves the default thread size for pthread threads.
+        // This is *not* the stack size of the main thread.
+        pthread_attr_t attr;
+        memset (&attr, 0, sizeof(attr));
+        pthread_attr_init(&attr);
+        size_t result;
+        if (pthread_attr_getstacksize(&attr, &result) != 0) {
+            throw_get_stack_size_failed();
+        }
+        return result;
     }
-    return result;
 }
 #else
-size_t get_stack_size() {
+size_t get_stack_size(int ) {
     pthread_attr_t attr;
     memset (&attr, 0, sizeof(attr));
     if (pthread_getattr_np(pthread_self(), &attr) != 0) {
@@ -53,8 +65,8 @@ size_t get_stack_size() {
 static thread_local size_t g_stack_size;
 static thread_local size_t g_stack_base;
 
-void save_stack_info() {
-    g_stack_size = get_stack_size();
+void save_stack_info(bool main) {
+    g_stack_size = get_stack_size(main);
     char x;
     g_stack_base = reinterpret_cast<size_t>(&x);
 }

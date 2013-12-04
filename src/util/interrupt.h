@@ -71,7 +71,7 @@ public:
         m_thread(
             [&](Function&& fun, Args&&... args) {
                 m_flag_addr.store(get_flag_addr());
-                save_stack_info();
+                save_stack_info(false);
                 fun(std::forward<Args>(args)...);
                 m_flag_addr.store(&m_dummy_addr); // see comment before m_dummy_addr
             },

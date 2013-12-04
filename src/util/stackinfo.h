@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #pragma once
 namespace lean {
-size_t get_stack_size();
-void save_stack_info();
+size_t get_stack_size(bool main);
+void save_stack_info(bool main = true);
 size_t get_used_stack_size();
 size_t get_available_stack_size();
 /**

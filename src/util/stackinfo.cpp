@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #define LEAN_MIN_STACK_SPACE 128*1024  // 128 Kb
 
 namespace lean {
-static void throw_get_stack_size_failed() {
+void throw_get_stack_size_failed() {
     throw exception("failed to retrieve thread stack size");
 }
 

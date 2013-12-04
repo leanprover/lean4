@@ -17,7 +17,7 @@ void throw_get_stack_size_failed() {
 }
 
 #ifdef LEAN_WINDOWS
-size_t get_stack_size(int main) {
+size_t get_stack_size(int ) {
     return LEAN_WIN_STACK_SIZE;
 }
 #elif defined (__APPLE__)

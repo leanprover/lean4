@@ -525,6 +525,7 @@ int thread_wait(lua_State * L) {
 static const struct luaL_Reg thread_m[] = {
     {"__gc",      thread_gc},
     {"wait",      safe_function<thread_wait>},
+    {"join",      safe_function<thread_wait>},
     {"interrupt", safe_function<thread_interrupt>},
     {"write",     safe_function<thread_write>},
     {"read",      safe_function<thread_read>},

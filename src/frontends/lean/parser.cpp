@@ -1604,8 +1604,10 @@ class parser::imp {
                                 << "  Show Environment       show objects in the environment, if [Num] provided, then show only the last [Num] objects" << endl
                                 << "  Show Environment [num] show the last num objects in the environment" << endl
                                 << "  Variable [id] : [type] declare/postulate an element of the given type" << endl
-                                << "  Universe [id] [level]  declare a new universe variable that is >= the given level" << endl
-                                << "Type Ctrl-D to exit" << endl;
+                                << "  Universe [id] [level]  declare a new universe variable that is >= the given level" << endl;
+            #if !defined(LEAN_WINDOWS)
+            regular(m_frontend) << "Type Ctrl-D to exit" << endl;
+            #endif
         }
     }
 

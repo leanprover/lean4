@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <signal.h>
 #include <cstdlib>
 #include <getopt.h>
+#include <string>
 #include "util/stackinfo.h"
 #include "util/debug.h"
 #include "util/interrupt.h"
@@ -18,6 +19,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/frontend.h"
 #include "frontends/lua/register_modules.h"
 #include "version.h"
+#include "githash.h" // NOLINT
 
 using lean::shell;
 using lean::frontend;
@@ -34,7 +36,7 @@ static void on_ctrl_c(int ) {
 }
 
 static void display_header(std::ostream & out) {
-    out << "Lean (version " << LEAN_VERSION_MAJOR << "." << LEAN_VERSION_MINOR << ")\n";
+    out << "Lean (version " << LEAN_VERSION_MAJOR << "." << LEAN_VERSION_MINOR << ", commit " << std::string(g_githash).substr(0, 12) << ")\n";
 }
 
 static void display_help(std::ostream & out) {
@@ -46,6 +48,7 @@ static void display_help(std::ostream & out) {
     std::cout << "Miscellaneous:\n";
     std::cout << "  --help -h      display this message\n";
     std::cout << "  --version -v   display version number\n";
+    std::cout << "  --githash      display the git commit hash number used to build this binary\n";
     std::cout << "  --luahook=num  how often the Lua interpreter checks the interrupted flag,\n";
     std::cout << "                 it is useful for interrupting non-terminating user scripts,\n";
     std::cout << "                 0 means 'do not check'.\n";
@@ -71,6 +74,7 @@ static struct option g_long_options[] = {
     {"lean",       no_argument,       0, 'l'},
     {"lua",        no_argument,       0, 'u'},
     {"luahook",    required_argument, 0, 'c'},
+    {"githash",    no_argument,       0, 'g'},
     {0, 0, 0, 0}
 };
 
@@ -79,12 +83,15 @@ int main(int argc, char ** argv) {
     lean::register_modules();
     input_kind default_k = input_kind::Lean; // default
     while (true) {
-        int c = getopt_long(argc, argv, "vhc:012", g_long_options, &optind);
+        int c = getopt_long(argc, argv, "gvhc:012", g_long_options, &optind);
         if (c == -1)
             break; // end of command line
         switch (c) {
         case 'v':
             display_header(std::cout);
+            return 0;
+        case 'g':
+            std::cout << g_githash << "\n";
             return 0;
         case 'h':
             display_help(std::cout);

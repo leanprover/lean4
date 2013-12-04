@@ -136,6 +136,15 @@ endif()
 
 include_directories(${LEAN_SOURCE_DIR})
 
+add_custom_command(
+  OUTPUT ${LEAN_BINARY_DIR}/githash.h
+  COMMAND ${LEAN_SOURCE_DIR}/cmake/mk_githash_dot_h.sh ${LEAN_BINARY_DIR}
+  DEPENDS ${LEAN_SOURCE_DIR}/../.git/HEAD ${LEAN_SOURCE_DIR}/../.git/index
+)
+add_custom_target(githash
+  DEPENDS ${LEAN_BINARY_DIR}/githash.h ${LEAN_SOURCE_DIR}/../.git/HEAD ${LEAN_SOURCE_DIR}/../.git/index
+)
+
 add_subdirectory(util)
 set(LEAN_LIBS ${LEAN_LIBS} util)
 add_subdirectory(util/numerics)

@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <fstream>
 #include <signal.h>
+#include <cstdlib>
 #include <getopt.h>
 #include "util/stackinfo.h"
 #include "util/debug.h"
@@ -39,11 +40,15 @@ static void display_header(std::ostream & out) {
 static void display_help(std::ostream & out) {
     display_header(out);
     std::cout << "Input format:\n";
-    std::cout << "  --lean        use parser for Lean default input format for files with unknown extension (default)\n";
-    std::cout << "  --lua         use Lua parser for files with unknown extension\n";
+    std::cout << "  --lean         use parser for Lean default input format for files,\n";
+    std::cout << "                 with unknown extension (default)\n";
+    std::cout << "  --lua          use Lua parser for files with unknown extension\n";
     std::cout << "Miscellaneous:\n";
-    std::cout << "  --help -h     display this message\n";
-    std::cout << "  --version -v  display version number\n";
+    std::cout << "  --help -h      display this message\n";
+    std::cout << "  --version -v   display version number\n";
+    std::cout << "  --luahook=num  how often the Lua interpreter checks the interrupted flag,\n";
+    std::cout << "                 it is useful for interrupting non-terminating user scripts,\n";
+    std::cout << "                 0 means 'do not check'.\n";
 }
 
 static char const * get_file_extension(char const * fname) {
@@ -61,10 +66,11 @@ static char const * get_file_extension(char const * fname) {
 }
 
 static struct option g_long_options[] = {
-    {"version", no_argument,       0, 'v'},
-    {"help",    no_argument,       0, 'h'},
-    {"lean",    no_argument,       0, 'l'},
-    {"lua",     no_argument,       0, 'u'},
+    {"version",    no_argument,       0, 'v'},
+    {"help",       no_argument,       0, 'h'},
+    {"lean",       no_argument,       0, 'l'},
+    {"lua",        no_argument,       0, 'u'},
+    {"luahook",    required_argument, 0, 'c'},
     {0, 0, 0, 0}
 };
 
@@ -72,9 +78,8 @@ int main(int argc, char ** argv) {
     lean::save_stack_info();
     lean::register_modules();
     input_kind default_k = input_kind::Lean; // default
-    int optind     = 1;
     while (true) {
-        int c = getopt_long(argc, argv, "vh", g_long_options, &optind);
+        int c = getopt_long(argc, argv, "vhc:012", g_long_options, &optind);
         if (c == -1)
             break; // end of command line
         switch (c) {
@@ -89,6 +94,9 @@ int main(int argc, char ** argv) {
             break;
         case 'u':
             default_k = input_kind::Lua;
+            break;
+        case 'c':
+            script_state::set_check_interrupt_freq(atoi(optarg));
             break;
         default:
             std::cerr << "Unknown command line option\n";

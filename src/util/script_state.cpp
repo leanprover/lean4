@@ -36,6 +36,12 @@ void script_state::register_code(char const * code) {
     g_code.push_back(code);
 }
 
+static unsigned g_check_interrupt_freq = 1048576;
+
+void script_state::set_check_interrupt_freq(unsigned count) {
+    g_check_interrupt_freq = count;
+}
+
 void open_extra(lua_State * L);
 
 static char g_weak_ptr_key; // key for Lua registry (used at get_weak_ptr and save_weak_ptr)
@@ -59,6 +65,15 @@ struct script_state::imp {
         lua_settable(m_state, LUA_REGISTRYINDEX);
     }
 
+    static void check_interrupted_hook(lua_State * L, lua_Debug *) {
+        try {
+            check_interrupted();
+        } catch (interrupted & ex) {
+            push_exception(L, ex);
+            lua_error(L);
+        }
+    }
+
     imp() {
         // TODO(Leo) investigate why TCMALLOC + lua_realloc do not work together
         // #ifdef LEAN_USE_LUA_NEWSTATE
@@ -69,6 +84,9 @@ struct script_state::imp {
         #endif
         if (m_state == nullptr)
             throw exception("fail to create Lua interpreter");
+        if (g_check_interrupt_freq > 0) {
+            lua_sethook(m_state, check_interrupted_hook, LUA_MASKCOUNT, g_check_interrupt_freq);
+        }
         luaL_openlibs(m_state);
         open_exception(m_state);
         open_name(m_state);

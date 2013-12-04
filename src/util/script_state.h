@@ -24,6 +24,8 @@ private:
     lua_State * get_state();
     friend class data_channel;
 public:
+    static void set_check_interrupt_freq(unsigned count);
+
     typedef std::weak_ptr<imp> weak_ref;
 
     script_state();

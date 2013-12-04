@@ -261,6 +261,12 @@ lazy_list<T> timeout(lazy_list<T> const & l, unsigned ms, unsigned check_ms = g_
    Moreover, when pulling results from the lists, if one finishes before the other,
    then the other one is interrupted.
 */
+#ifdef LEAN_THREAD_UNSAFE
+template<typename T>
+lazy_list<T> par(lazy_list<T> const & l1, lazy_list<T> const & l2, unsigned = g_small_sleep) {
+    return interleave(l1, l2);
+}
+#else
 template<typename T>
 lazy_list<T> par(lazy_list<T> const & l1, lazy_list<T> const & l2, unsigned check_ms = g_small_sleep) {
     return mk_lazy_list<T>([=]() {
@@ -313,4 +319,5 @@ lazy_list<T> par(lazy_list<T> const & l1, lazy_list<T> const & l2, unsigned chec
             }
         });
 }
+#endif
 }

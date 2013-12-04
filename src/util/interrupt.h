@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <thread>
 #include <utility>
 #include "util/stackinfo.h"
+#include "util/exception.h"
 
 namespace lean {
 /**

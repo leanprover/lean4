@@ -65,7 +65,7 @@ static void tst1() {
     check_failure(now_tactic(), env, io, ctx, q);
     std::cout << "proof 2: " << orelse(fail_tactic(), t).solve(env, io, ctx, q).get_proof() << "\n";
 
-#ifndef __APPLE__
+#if !defined(__APPLE__)
     check_failure(try_for(loop_tactic(), 100), env, io, ctx, q);
     std::cout << "proof 1: " << try_for(t, 10000).solve(env, io, s).get_proof() << "\n";
     check_failure(try_for(orelse(try_for(loop_tactic(), 10000),
@@ -83,8 +83,10 @@ static void tst1() {
                          set_tactic(&flag1)),
                   env, io, ctx, q);
     lean_assert(flag1);
+#if !defined(LEAN_THREAD_UNSAFE)
     std::cout << "Before parallel 3 parallel tactics...\n";
     std::cout << "proof 2: " << par(loop_tactic(), par(loop_tactic(), t)).solve(env, io, ctx, q).get_proof() << "\n";
+#endif
 #endif
     std::cout << "Before hello1 and 2...\n";
     std::cout << "proof 2: " << orelse(then(repeat_at_most(append(trace_tactic("hello1"), trace_tactic("hello2")), 5), fail_tactic()),

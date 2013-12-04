@@ -308,6 +308,7 @@ static void open_state(lua_State * L) {
 #define SMALL_DELAY 10 // in ms
 std::chrono::milliseconds g_small_delay(SMALL_DELAY);
 
+#if !defined(LEAN_THREAD_UNSAFE)
 /**
    \brief Channel for communicating with thread objects in the Lua API
 */
@@ -559,6 +560,7 @@ static void open_thread(lua_State * L) {
     SET_GLOBAL_FUN(mk_thread,   "thread");
     SET_GLOBAL_FUN(thread_pred, "is_thread");
 }
+#endif
 
 static int check_interrupted(lua_State *) { // NOLINT
     check_interrupted();
@@ -586,13 +588,17 @@ static void open_interrupt(lua_State * L) {
     SET_GLOBAL_FUN(check_interrupted, "check_interrupted");
     SET_GLOBAL_FUN(sleep,             "sleep");
     SET_GLOBAL_FUN(yield,             "yield");
+#if !defined(LEAN_THREAD_UNSAFE)
     SET_GLOBAL_FUN(channel_read,      "read");
     SET_GLOBAL_FUN(channel_write,     "write");
+#endif
 }
 
 void open_extra(lua_State * L) {
     open_state(L);
+#if !defined(LEAN_THREAD_UNSAFE)
     open_thread(L);
+#endif
     open_interrupt(L);
 }
 }

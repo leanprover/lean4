@@ -50,7 +50,7 @@ static void tst1() {
     a = f(a, a);
     std::vector<std::thread> ts;
 
-    #ifndef __APPLE__
+    #if !defined(__APPLE__) && !defined(LEAN_THREAD_UNSAFE)
     for (unsigned i = 0; i < 8; i++) {
         ts.push_back(std::thread([&](){ save_stack_info(); mk(a); }));
     }

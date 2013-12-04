@@ -54,7 +54,7 @@ static void tst2() {
         threads[i].join();
 }
 
-#ifndef __APPLE__
+#if !defined(__APPLE__) && !defined(LEAN_THREAD_UNSAFE)
 static void tst3() {
     shared_mutex      mutex;
     std::atomic<bool> t2_started(false);

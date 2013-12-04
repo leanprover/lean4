@@ -158,13 +158,22 @@
 }
 
 {
-   # This entry suppresses a known false positive in luajit 2.0
+   # This entry suppresses a false positive in luajit 2.0
    LuaJIT_Bug3
    Memcheck:Addr4
    obj:*luajit-5.1*
    fun:lua_pushstring
    ...
    fun:lua_pcall
+   ...
+}
+
+{
+   # This entry suppresses a false positive in luajit 2.0
+   LuaJIT_Bug4
+   Memcheck:Addr4
+   obj:*luajit-5.1*
+   fun:lua_getfield
    ...
 }
 
@@ -177,4 +186,3 @@
    ...
    fun:(below main)
 }
-

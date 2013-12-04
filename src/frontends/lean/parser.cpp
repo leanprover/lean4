@@ -92,12 +92,13 @@ static name g_env_kwd("Environment");
 static name g_import_kwd("Import");
 static name g_help_kwd("Help");
 static name g_coercion_kwd("Coercion");
+static name g_exit_kwd("Exit");
 static name g_apply("apply");
 static name g_done("done");
 /** \brief Table/List with all builtin command keywords */
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_variables_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
                                         g_show_kwd, g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_notation_kwd, g_echo_kwd,
-                                        g_set_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd, g_coercion_kwd};
+                                        g_set_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd, g_coercion_kwd, g_exit_kwd};
 // ==========================================
 
 // ==========================================
@@ -1592,6 +1593,7 @@ class parser::imp {
                                 << "  Theorem [id] : [type] := [expr]      define a new theorem" << endl
                                 << "  Echo [string]          display the given string" << endl
                                 << "  Eval [expr]            evaluate the given expression" << endl
+                                << "  Exit                   exit" << endl
                                 << "  Help                   display this message" << endl
                                 << "  Help Options           display available options" << endl
                                 << "  Help Notation          describe commands for defining infix, mixfix, postfix operators" << endl
@@ -1617,7 +1619,7 @@ class parser::imp {
     }
 
     /** \brief Parse a Lean command. */
-    void parse_command() {
+    bool parse_command() {
         m_elaborator.clear();
         m_expr_pos_info.clear();
         m_last_cmd_pos = pos();
@@ -1656,10 +1658,14 @@ class parser::imp {
             parse_help();
         } else if (cmd_id == g_coercion_kwd) {
             parse_coercion();
+        } else if (cmd_id == g_exit_kwd) {
+            next();
+            return false;
         } else {
             next();
             throw parser_error(sstream() << "invalid command '" << cmd_id << "'", m_last_cmd_pos);
         }
+        return true;
     }
     /*@}*/
 
@@ -1798,7 +1804,7 @@ public:
         while (true) {
             try {
                 switch (curr()) {
-                case scanner::token::CommandId:   parse_command(); break;
+                case scanner::token::CommandId:   if (!parse_command()) return !m_found_errors; break;
                 case scanner::token::ScriptBlock: parse_script(); break;
                 case scanner::token::Period:      show_prompt(); next(); break;
                 case scanner::token::Eof:         return !m_found_errors;

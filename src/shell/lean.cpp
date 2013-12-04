@@ -108,7 +108,11 @@ int main(int argc, char ** argv) {
     script_state S;
     if (optind >= argc) {
         display_header(std::cout);
-        std::cout << "Type Ctrl-D to exit or 'Help.' for help."<< std::endl;
+        #if defined(LEAN_WINDOWS)
+        std::cout << "Type 'Exit.' to exit or 'Help.' for help."<< std::endl;
+        #else
+        std::cout << "Type Ctrl-D or 'Exit.' to exit or 'Help.' for help."<< std::endl;
+        #endif
         shell sh(f, &S);
         signal(SIGINT, on_ctrl_c);
         return sh();

@@ -95,6 +95,7 @@ static name g_coercion_kwd("Coercion");
 static name g_exit_kwd("Exit");
 static name g_apply("apply");
 static name g_done("done");
+static name g_back("back");
 /** \brief Table/List with all builtin command keywords */
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_variables_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
                                         g_show_kwd, g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_notation_kwd, g_echo_kwd,
@@ -1071,13 +1072,38 @@ class parser::imp {
             m_frontend.mark_implicit_arguments(n, imp_args.size(), imp_args.data());
     }
 
+    void display_proof_state(proof_state s) {
+        diagnostic(m_frontend) << "Proof state:\n" << s << endl;
+    }
+
+    void backtrack(std::vector<lazy_list<proof_state>> & stack, proof_state & s) {
+        if (!stack.empty())
+            diagnostic(m_frontend) << "Backtracking...\n";
+        while (!stack.empty()) {
+            check_interrupted();
+            lazy_list<proof_state> seq = stack.back();
+            stack.pop_back();
+            proof_state_seq::maybe_pair r;
+            code_with_callbacks([&]() {
+                    r = seq.pull();
+                });
+            if (r) {
+                stack.push_back(r->second);
+                s = r->first;
+                return;
+            }
+        }
+        display_proof_state(s);
+        throw exception("failed to synthesize proof object using tactics");
+    }
+
     expr parse_tactic(proof_state s) {
         proof_state ini = s;
         std::vector<lazy_list<proof_state>> stack;
         while (true) {
             auto p = pos();
             if (!curr_is_identifier()) {
-                diagnostic(m_frontend) << "current state:\n" << s << endl;
+                display_proof_state(s);
                 throw parser_error("invalid tactic, identifier expected", p);
             }
             name id = curr_name();
@@ -1115,9 +1141,10 @@ class parser::imp {
                     s = r->first;
                     stack.push_back(r->second);
                 } else {
-                    diagnostic(m_frontend) << "current state:\n" << s << endl;
-                    throw parser_error(sstream() << "tactic failed", tac_pos);
+                    backtrack(stack, s);
                 }
+            } else if (id == g_back) {
+                backtrack(stack, s);
             } else if (id == g_done) {
                 if (s.is_proof_final_state()) {
                     assignment a(s.get_menv());
@@ -1125,8 +1152,8 @@ class parser::imp {
                     expr pr = s.get_proof_builder()(m, a);
                     return pr;
                 } else {
-                    diagnostic(m_frontend) << "final state:\n" << s << endl;
-                    throw exception("failed to synthesize proof object using given tactic");
+                    display_proof_state(s);
+                    throw exception("failed to synthesize proof object using tactics");
                 }
             } else {
                 throw parser_error(sstream() << "invalid tactical proof, unknown command '" << id << "'", p);

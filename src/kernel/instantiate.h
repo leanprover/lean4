@@ -18,6 +18,12 @@ inline expr instantiate_with_closed(expr const & e, std::initializer_list<expr> 
     return instantiate_with_closed(e, l.size(), l.begin());
 }
 inline expr instantiate_with_closed(expr const & e, expr const & s) { return instantiate_with_closed(e, 1, &s); }
+/**
+   \brief Similar to instantiate_with_closed, but does not use an assertion for
+   testing whether arguments are close or not.
+   This version is useful, for example, when we want to treat metavariables as closed terms.
+*/
+expr instantiate_with_closed_relaxed(expr const & a, unsigned n, expr const * s);
 
 /**
    \brief Replace the free variables with indices 0, ..., n-1 with s[n-1], ..., s[0] in e.

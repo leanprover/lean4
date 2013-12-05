@@ -10,9 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/metavar.h"
 
 namespace lean {
-expr instantiate_with_closed(expr const & a, unsigned n, expr const * s) {
-    lean_assert(std::all_of(s, s+n, closed));
-
+expr instantiate_with_closed_relaxed(expr const & a, unsigned n, expr const * s) {
     auto f = [=](expr const & m, unsigned offset) -> expr {
         if (is_var(m)) {
             unsigned vidx = var_idx(m);
@@ -35,6 +33,12 @@ expr instantiate_with_closed(expr const & a, unsigned n, expr const * s) {
     };
     return replace_fn<decltype(f)>(f)(a);
 }
+
+expr instantiate_with_closed(expr const & a, unsigned n, expr const * s) {
+    lean_assert(std::all_of(s, s+n, closed));
+    return instantiate_with_closed_relaxed(a, n, s);
+}
+
 expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst) {
     auto f = [=](expr const & m, unsigned offset) -> expr {
         if (is_var(m)) {

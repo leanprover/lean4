@@ -1076,7 +1076,8 @@ class parser::imp {
         diagnostic(m_frontend) << "Proof state:\n" << s << endl;
     }
 
-    void backtrack(std::vector<lazy_list<proof_state>> & stack, proof_state & s) {
+    typedef std::vector<proof_state_seq> proof_state_seq_stack;
+    void tactic_backtrack(proof_state_seq_stack & stack, proof_state & s) {
         if (!stack.empty())
             diagnostic(m_frontend) << "Backtracking...\n";
         while (!stack.empty()) {
@@ -1097,9 +1098,61 @@ class parser::imp {
         throw exception("failed to synthesize proof object using tactics");
     }
 
+    void tactic_apply(proof_state_seq_stack & stack, proof_state & s) {
+        auto tac_pos = pos();
+        tactic t;
+        if (curr() == scanner::token::ScriptBlock) {
+            parse_script_expr();
+            using_script([&](lua_State * L) {
+                    if (is_tactic(L, -1))
+                        t = to_tactic(L, -1);
+                    else
+                        throw parser_error(sstream() << "invalid script-block, it must return a tactic", tac_pos);
+                });
+        } else {
+            name tac_name = check_identifier_next("invalid apply command, identifier or 'script-block' expected");
+            using_script([&](lua_State * L) {
+                    lua_getglobal(L, tac_name.to_string().c_str());
+                    try {
+                        t = to_tactic_ext(L, -1);
+                    } catch (...) {
+                        throw parser_error(sstream() << "unknown tactic '" << tac_name << "'", tac_pos);
+                    }
+                    lua_pop(L, 1);
+                });
+        }
+        proof_state_seq::maybe_pair r;
+        code_with_callbacks([&]() {
+                // t may have call-backs we should set ios in the script_state
+                proof_state_seq seq = t(m_frontend, m_frontend.get_state(), s);
+                r = seq.pull();
+            });
+        if (r) {
+            s = r->first;
+            stack.push_back(r->second);
+        } else {
+            tactic_backtrack(stack, s);
+        }
+    }
+
+    expr tactic_done(proof_state const & s) {
+        if (s.is_proof_final_state()) {
+            assignment a(s.get_menv());
+            proof_map  m;
+            expr pr = s.get_proof_builder()(m, a);
+            if (has_metavar(pr)) {
+                throw exception("synthesized proof object has unsolved metavars");
+            }
+            return pr;
+        } else {
+            display_proof_state(s);
+            throw exception("failed to synthesize proof object using tactics");
+        }
+    }
+
     expr parse_tactic(proof_state s) {
         proof_state ini = s;
-        std::vector<lazy_list<proof_state>> stack;
+        proof_state_seq_stack stack;
         while (true) {
             auto p = pos();
             if (!curr_is_identifier()) {
@@ -1109,52 +1162,11 @@ class parser::imp {
             name id = curr_name();
             next();
             if (id == g_apply) {
-                auto tac_pos = pos();
-                tactic t;
-                if (curr() == scanner::token::ScriptBlock) {
-                    parse_script_expr();
-                    using_script([&](lua_State * L) {
-                            if (is_tactic(L, -1))
-                                t = to_tactic(L, -1);
-                            else
-                                throw parser_error(sstream() << "invalid script-block, it must return a tactic", tac_pos);
-                        });
-                } else {
-                    name tac_name = check_identifier_next("invalid apply command, identifier or 'script-block' expected");
-                    using_script([&](lua_State * L) {
-                            lua_getglobal(L, tac_name.to_string().c_str());
-                            try {
-                                t = to_tactic_ext(L, -1);
-                            } catch (...) {
-                                throw parser_error(sstream() << "unknown tactic '" << tac_name << "'", tac_pos);
-                            }
-                            lua_pop(L, 1);
-                        });
-                }
-                proof_state_seq::maybe_pair r;
-                code_with_callbacks([&]() {
-                        // t may have call-backs we should set ios in the script_state
-                        lazy_list<proof_state> seq = t(m_frontend, m_frontend.get_state(), s);
-                        r = seq.pull();
-                    });
-                if (r) {
-                    s = r->first;
-                    stack.push_back(r->second);
-                } else {
-                    backtrack(stack, s);
-                }
+                tactic_apply(stack, s);
             } else if (id == g_back) {
-                backtrack(stack, s);
+                tactic_backtrack(stack, s);
             } else if (id == g_done) {
-                if (s.is_proof_final_state()) {
-                    assignment a(s.get_menv());
-                    proof_map  m;
-                    expr pr = s.get_proof_builder()(m, a);
-                    return pr;
-                } else {
-                    display_proof_state(s);
-                    throw exception("failed to synthesize proof object using tactics");
-                }
+                return tactic_done(s);
             } else {
                 throw parser_error(sstream() << "invalid tactical proof, unknown command '" << id << "'", p);
             }

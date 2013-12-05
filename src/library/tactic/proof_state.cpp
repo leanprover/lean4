@@ -45,6 +45,9 @@ format proof_state::pp(formatter const & fmt, options const & opts) const {
             r += line();
         r += p.second.pp(fmt, opts);
     }
+    if (first) {
+        r = format("no goals");
+    }
     return r;
 }
 

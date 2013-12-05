@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <tuple>
+#include "util/interrupt.h"
 #include "kernel/replace_visitor.h"
 
 namespace lean {
@@ -62,6 +63,7 @@ expr replace_visitor::visit_let(expr const & e, context const & ctx) {
         });
 }
 expr replace_visitor::visit(expr const & e, context const & ctx) {
+    check_system();
     bool shared = false;
     if (is_shared(e)) {
         shared = true;

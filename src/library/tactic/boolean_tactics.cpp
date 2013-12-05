@@ -386,7 +386,7 @@ static int mk_absurd_tactic(lua_State * L) {
     return push_tactic(L, absurd_tactic());
 }
 
-void open_boolean(lua_State * L) {
+void open_boolean_tactics(lua_State * L) {
     SET_GLOBAL_FUN(mk_conj_tactic,     "conj_tactic");
     SET_GLOBAL_FUN(mk_imp_tactic,      "imp_tactic");
     SET_GLOBAL_FUN(mk_conj_hyp_tactic, "conj_hyp_tactic");

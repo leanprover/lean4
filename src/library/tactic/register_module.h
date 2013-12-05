@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "library/tactic/cex_builder.h"
 #include "library/tactic/proof_state.h"
 #include "library/tactic/tactic.h"
-#include "library/tactic/boolean.h"
+#include "library/tactic/boolean_tactics.h"
 #include "library/tactic/apply_tactic.h"
 
 namespace lean {
@@ -21,7 +21,7 @@ inline void open_tactic_module(lua_State * L) {
     open_cex_builder(L);
     open_proof_state(L);
     open_tactic(L);
-    open_boolean(L);
+    open_boolean_tactics(L);
     open_apply_tactic(L);
 }
 inline void register_tactic_module() {

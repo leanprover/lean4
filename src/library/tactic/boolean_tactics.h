@@ -17,5 +17,5 @@ tactic disj_tactic();
 tactic disj_tactic(unsigned i);
 tactic disj_tactic(name const & gname);
 tactic absurd_tactic();
-void open_boolean(lua_State * L);
+void open_boolean_tactics(lua_State * L);
 }

@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "library/tactic/proof_builder.h"
 #include "library/tactic/proof_state.h"
 #include "library/tactic/tactic.h"
-#include "library/tactic/boolean.h"
+#include "library/tactic/boolean_tactics.h"
 using namespace lean;
 
 tactic loop_tactic() {

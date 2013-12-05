@@ -1,4 +1,4 @@
 add_library(tactic goal.cpp proof_builder.cpp cex_builder.cpp
-proof_state.cpp tactic.cpp boolean.cpp apply_tactic.cpp)
+proof_state.cpp tactic.cpp boolean_tactics.cpp apply_tactic.cpp)
 
 target_link_libraries(tactic ${LEAN_LIBS})

@@ -1,0 +1,6 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Proved: T1
+  Proved: T2
+Theorem T2 (a b : Bool) : a ∨ b ⇒ b ∨ a :=
+    Discharge (λ H : a ∨ b, DisjCases H (λ H : a, Disj2 b H) (λ H : b, Disj1 a H))

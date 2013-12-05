@@ -342,13 +342,10 @@ tactic focus(tactic const & t, name const & gname) {
 
 tactic focus(tactic const & t, int i) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
-            int j = 1;
-            for (auto const & p : s.get_goals()) {
-                if (i == j)
-                    return focus_core(t, p.first, env, io, s);
-                j++;
-            }
-            return proof_state_seq();
+            if (optional<name> n = s.get_ith_goal_name(i))
+                return focus_core(t, *n, env, io, s);
+            else
+                return proof_state_seq();
         });
 }
 

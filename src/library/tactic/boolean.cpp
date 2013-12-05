@@ -239,6 +239,87 @@ tactic disj_hyp_tactic() {
         });
 }
 
+typedef std::pair<proof_state, proof_state> proof_state_pair;
+
+optional<proof_state_pair> disj_tactic(proof_state const & s, name gname) {
+    precision prec = s.get_precision();
+    if (prec != precision::Precise && prec != precision::Over) {
+        // it is pointless to apply this tactic, since it will produce UnderOver
+        optional<proof_state_pair>();
+    }
+    buffer<std::pair<name, goal>> new_goals_buf1, new_goals_buf2;
+    expr conclusion;
+    for (auto const & p : s.get_goals()) {
+        check_interrupted();
+        goal const & g = p.second;
+        expr const & c = g.get_conclusion();
+        if (!conclusion && ((gname.is_anonymous() && is_or(c)) || p.first == gname)) {
+            gname = p.first;
+            conclusion = c;
+            expr c1, c2;
+            if (is_or(c, c1, c2)) {
+                new_goals_buf1.emplace_back(gname, update(g, c1));
+                new_goals_buf2.emplace_back(gname, update(g, c2));
+            } else {
+                return optional<proof_state_pair>(); // failed
+            }
+        } else {
+            new_goals_buf1.push_back(p);
+            new_goals_buf2.push_back(p);
+        }
+    }
+    if (!conclusion) {
+        return optional<proof_state_pair>(); // failed
+    } else {
+        goals new_gs1 = to_list(new_goals_buf1.begin(), new_goals_buf1.end());
+        goals new_gs2 = to_list(new_goals_buf2.begin(), new_goals_buf2.end());
+        proof_builder pb     = s.get_proof_builder();
+        proof_builder new_pb1 = mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
+                proof_map new_m(m);
+                new_m.insert(gname, Disj1(arg(conclusion, 1), arg(conclusion, 2), find(m, gname)));
+                return pb(new_m, a);
+            });
+        proof_builder new_pb2 = mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
+                proof_map new_m(m);
+                new_m.insert(gname, Disj2(arg(conclusion, 2), arg(conclusion, 1), find(m, gname)));
+                return pb(new_m, a);
+            });
+        proof_state s1(precision::Over, new_gs1, s.get_menv(), new_pb1, s.get_cex_builder());
+        proof_state s2(precision::Over, new_gs2, s.get_menv(), new_pb2, s.get_cex_builder());
+        return some(mk_pair(s1, s2));
+    }
+}
+
+proof_state_seq disj_tactic_core(proof_state const & s, name const & gname) {
+    return mk_proof_state_seq([=]() {
+            auto p = disj_tactic(s, gname);
+            if (p) {
+                return some(mk_pair(p->first, proof_state_seq(p->second)));
+            } else {
+                return proof_state_seq::maybe_pair();
+            }
+        });
+}
+
+tactic disj_tactic(name const & gname) {
+    return mk_tactic([=](environment const &, io_state const &, proof_state const & s) -> proof_state_seq {
+            return disj_tactic_core(s, gname);
+        });
+}
+
+tactic disj_tactic() {
+    return disj_tactic(name());
+}
+
+tactic disj_tactic(unsigned i) {
+    return mk_tactic([=](environment const &, io_state const &, proof_state const & s) -> proof_state_seq {
+            if (optional<name> n = s.get_ith_goal_name(i))
+                return disj_tactic_core(s, *n);
+            else
+                return proof_state_seq();
+        });
+}
+
 tactic absurd_tactic() {
     return mk_tactic01([](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             list<std::pair<name, expr>> proofs;
@@ -291,6 +372,16 @@ static int mk_disj_hyp_tactic(lua_State * L) {
         return push_tactic(L, disj_hyp_tactic(to_name_ext(L, 1), to_name_ext(L, 2)));
 }
 
+static int mk_disj_tactic(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs == 0)
+        return push_tactic(L, disj_tactic());
+    else if (lua_isnumber(L, 1))
+        return push_tactic(L, disj_tactic(lua_tointeger(L, 1)));
+    else
+        return push_tactic(L, disj_tactic(to_name_ext(L, 1)));
+}
+
 static int mk_absurd_tactic(lua_State * L) {
     return push_tactic(L, absurd_tactic());
 }
@@ -300,6 +391,7 @@ void open_boolean(lua_State * L) {
     SET_GLOBAL_FUN(mk_imp_tactic,      "imp_tactic");
     SET_GLOBAL_FUN(mk_conj_hyp_tactic, "conj_hyp_tactic");
     SET_GLOBAL_FUN(mk_disj_hyp_tactic, "disj_hyp_tactic");
+    SET_GLOBAL_FUN(mk_disj_tactic,     "disj_tactic");
     SET_GLOBAL_FUN(mk_absurd_tactic,   "absurd_tactic");
 }
 }

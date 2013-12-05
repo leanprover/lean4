@@ -13,6 +13,9 @@ tactic imp_tactic(name const & H_name = name("H"), bool all = true);
 tactic disj_hyp_tactic(name const & goal_name, name const & hyp_name);
 tactic disj_hyp_tactic(name const & hyp_name);
 tactic disj_hyp_tactic();
+tactic disj_tactic();
+tactic disj_tactic(unsigned i);
+tactic disj_tactic(name const & gname);
 tactic absurd_tactic();
 void open_boolean(lua_State * L);
 }

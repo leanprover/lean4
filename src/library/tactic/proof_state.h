@@ -19,6 +19,12 @@ Author: Leonardo de Moura
 
 namespace lean {
 typedef list<std::pair<name, goal>> goals;
+/**
+   \brief Return the name of the i-th goal.
+
+   \remark Return none if i == 0 or i > size(g)
+*/
+optional<name> get_ith_goal_name(goals const & gs, unsigned i);
 
 enum class precision {
     Precise,
@@ -84,6 +90,9 @@ public:
        \brief Store in \c r the goal names
     */
     void get_goal_names(name_set & r) const;
+
+    optional<name> get_ith_goal_name(unsigned i) const { return ::lean::get_ith_goal_name(get_goals(), i); }
+
     format pp(formatter const & fmt, options const & opts) const;
 };
 

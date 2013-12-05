@@ -10,6 +10,16 @@ Author: Leonardo de Moura
 #include "library/tactic/proof_state.h"
 
 namespace lean {
+optional<name> get_ith_goal_name(goals const & gs, unsigned i) {
+    unsigned j = 1;
+    for (auto const & p : gs) {
+        if (i == j)
+            return some(p.first);
+        j++;
+    }
+    return optional<name>();
+}
+
 precision mk_union(precision p1, precision p2) {
     if (p1 == p2) return p1;
     else if (p1 == precision::Precise) return p2;

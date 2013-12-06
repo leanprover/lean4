@@ -96,7 +96,8 @@ static name g_exit_kwd("Exit");
 static name g_apply("apply");
 static name g_done("done");
 static name g_back("back");
-static list<name> g_tactic_cmds = { g_apply, g_done, g_back };
+static name g_abort("abort");
+static list<name> g_tactic_cmds = { g_apply, g_done, g_back, g_abort };
 /** \brief Table/List with all builtin command keywords */
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_variables_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
                                         g_show_kwd, g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_notation_kwd, g_echo_kwd,
@@ -1333,8 +1334,9 @@ class parser::imp {
         proof_state ini = s;
         proof_state_seq_stack stack;
         expr pr;
-        bool done = false;
-        while (!done) {
+        enum class status { Continue, Done, Eof, Abort };
+        status st = status::Continue;
+        while (st == status::Continue) {
             protected_call(
                 [&]() {
                     auto p = pos();
@@ -1347,7 +1349,7 @@ class parser::imp {
                         next();
                         break;
                     case scanner::token::Eof:
-                        done = true;
+                        st = status::Eof;
                         break;
                     case scanner::token::Id:
                         id = curr_name();
@@ -1358,7 +1360,10 @@ class parser::imp {
                         } else if (id == g_done) {
                             pr = tactic_done(s);
                             if (pr)
-                                done = true;
+                                st = status::Done;
+                        } else if (id == g_abort) {
+                            next();
+                            st = status::Abort;
                         } else {
                             next();
                             throw tactic_cmd_error(sstream() << "invalid tactic command '" << id << "'", p, s);
@@ -1379,10 +1384,11 @@ class parser::imp {
                         next();
                 });
         }
-        if (pr) {
-            return pr;
-        } else {
-            throw parser_error("invalid tactic command, unexpected end of file", pos());
+        switch (st) {
+        case status::Done:  return pr;
+        case status::Eof:   throw parser_error("invalid tactic command, unexpected end of file", pos());
+        case status::Abort: throw parser_error("failed to prove theorem, proof has been aborted", pos());
+        default: lean_unreachable(); // LCOV_EXCL_LINE
         }
     }
 

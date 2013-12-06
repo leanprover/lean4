@@ -1205,7 +1205,15 @@ class elaborator::imp {
             return true;
         }
 
-        if (a.kind() != b.kind() && !has_metavar(a) && !has_metavar(b)) {
+        // If 'a' and 'b' have different kinds, and 'a' and 'b' are not metavariables,
+        // and 'a' and 'b' are not applications where the function contains metavariables,
+        // then it is not possible to unify 'a' and 'b'.
+        // We need the last condition because if 'a'/'b' are applications containing metavariables,
+        // then they can be reduced when the metavariable is assigned
+        // Here is an example:
+        //     |- (?m Type) << Type
+        // If ?m is assigned to the identity function (fun x, x), then the constraint can be solved.
+        if (a.kind() != b.kind() && !is_metavar(a) && !is_metavar(b) && !(is_app(a) && has_metavar(arg(a, 0))) && !(is_app(b) && has_metavar(arg(b, 0)))) {
             m_conflict = justification(new unification_failure_justification(c));
             return false;
         }

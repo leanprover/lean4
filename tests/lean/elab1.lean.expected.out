@@ -135,7 +135,11 @@ A : Type, B : Type, a : ?M::0, b : ?M::1, C : Type ⊢ ?M::0[lift:0:3] ≺ C
   Assumed: a
   Assumed: b
   Assumed: H
-Error (line: 20, pos: 59) failed to synthesize metavar, its type is not a proposition
+Failed to solve
+ ⊢ if ?M::0 ?M::1 ⊤ ≺ b
+    Normalize
+     ⊢ ?M::0 ⇒ ?M::1 ≺ b
+        (line: 20: pos: 18) Type of definition 't1' must be convertible to expected type.
 Failed to solve
  ⊢ b ≈ a
     Substitution

@@ -1,0 +1,11 @@
+Type Ctrl-D or 'Exit.' to exit or 'Help.' for help.
+#   Set: pp::colors
+  Set: pp::unicode
+  Assumed: magic
+# Proof state:
+a : Bool ⊢ a
+## Proof state:
+no goals
+##   Proved: T
+# Theorem T (a : Bool) : a := magic a
+# 

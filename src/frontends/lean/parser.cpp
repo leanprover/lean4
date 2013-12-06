@@ -1413,8 +1413,6 @@ class parser::imp {
             std::sort(mvars.begin(), mvars.end(), [](expr const & e1, expr const & e2) { return is_lt(e1, e2, false); });
             for (auto mvar : mvars) {
                 expr    mvar_type = instantiate_metavars(menv.get_type(mvar), menv);
-                if (!m_type_inferer.is_proposition(mvar_type))
-                    throw exception("failed to synthesize metavar, its type is not a proposition");
                 if (has_metavar(mvar_type))
                     throw exception("failed to synthesize metavar, its type contains metavariables");
                 buffer<context_entry> new_entries;
@@ -1424,6 +1422,8 @@ class parser::imp {
                                              instantiate_metavars(e.get_body(), menv));
                 }
                 context mvar_ctx(to_list(new_entries.begin(), new_entries.end()));
+                if (!m_type_inferer.is_proposition(mvar_type, mvar_ctx))
+                    throw exception("failed to synthesize metavar, its type is not a proposition");
                 proof_state s = to_proof_state(m_frontend, mvar_ctx, mvar_type);
                 if (curr_is_period()) {
                     display_proof_state_if_interactive(s);

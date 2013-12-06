@@ -2005,6 +2005,8 @@ public:
                     show_prompt();
                     while (curr() != scanner::token::CommandId && curr() != scanner::token::Eof && curr() != scanner::token::Period)
                         next();
+                    if (curr_is_period())
+                        next();
                 });
         }
         return !m_found_errors;

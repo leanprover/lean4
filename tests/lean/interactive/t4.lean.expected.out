@@ -1,0 +1,6 @@
+Type Ctrl-D or 'Exit.' to exit or 'Help.' for help.
+#   Set: pp::colors
+  Set: pp::unicode
+Error (line: 4, pos: 8) invalid definition, identifier expected
+# done
+# 

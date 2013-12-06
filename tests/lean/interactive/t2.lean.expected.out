@@ -14,7 +14,7 @@ H : a, a : Bool, b : Bool ⊢ b ⇒ a ∧ b
 ## Proof state:
 H::1 : b, H : a, a : Bool, b : Bool ⊢ a ∧ b
 ## Error (line: 9, pos: 5) failed to prove theorem, proof has been aborted
-# #   Assumed: a
+#   Assumed: a
   Assumed: b
 # Variable a : Bool
 Variable b : Bool

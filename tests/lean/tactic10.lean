@@ -2,16 +2,16 @@ Definition f(a : Bool) : Bool := not a.
 Definition g(a b : Bool) : Bool := a \/ b.
 
 Theorem T1 (a b : Bool) : (g a b) => (f b) => a := _.
-     apply unfold_tactic
-     apply imp_tactic
-     apply imp_tactic
-     apply disj_hyp_tactic
-     apply assumption_tactic
-     apply absurd_tactic
+     apply unfold_tac
+     apply imp_tac
+     apply imp_tac
+     apply disj_hyp_tac
+     assumption
+     apply absurd_tac
      done.
 
 (**
-simple_tac   = REPEAT(unfold_tactic) .. REPEAT(ORELSE(imp_tactic, conj_hyp_tactic, assumption_tactic, absurd_tactic, conj_hyp_tactic, disj_hyp_tactic))
+simple_tac   = REPEAT(unfold_tac) .. REPEAT(ORELSE(imp_tac, conj_hyp_tac, assumption_tac, absurd_tac, conj_hyp_tac, disj_hyp_tac))
 **)
 
 Definition h(a b : Bool) : Bool := g a b.

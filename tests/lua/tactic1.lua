@@ -14,7 +14,7 @@ local ltac = tactic(function(env, ios, s)
                        print("FIRST tactic in Lua, current state: " .. tostring(s));
                        return s
 end)
-local t = (trace_tactic("hello") .. trace_tactic("world")) + (trace_tactic("again") .. ltac .. assumption_tactic())
+local t = (trace_tac("hello") .. trace_tac("world")) + (trace_tac("again") .. ltac .. assumption_tac())
 for s in t(env, ios, ps) do
    if s:is_proof_final_state() then
       local m = proof_map()
@@ -29,7 +29,7 @@ print(t:solve(env, ios, ps))
 print(t:solve(env, ios, ctx, p))
 assert(t:solve(env, ios, ps) == Var(1))
 assert(t:solve(env, ios, ctx, q) == Var(0))
-local t2 = id_tactic() + id_tactic() + id_tactic()
+local t2 = id_tac() + id_tac() + id_tac()
 local r  = t2:solve(env, ios, ps)
 assert(#r == 3)
 for i, out_state in ipairs(r) do

@@ -1,8 +1,8 @@
 Theorem T2 (a b : Bool) : a => b => a /\ b.
-apply imp_tactic.
-apply imp_tactic2.
+apply imp_tac.
+apply imp_tac2.
 foo.
-apply imp_tactic.
+apply imp_tac.
 abort.
 
 Variables a b : Bool.

@@ -149,6 +149,6 @@ int mk_apply_tactic(lua_State * L) {
 }
 
 void open_apply_tactic(lua_State * L) {
-    SET_GLOBAL_FUN(mk_apply_tactic,     "apply_tactic");
+    SET_GLOBAL_FUN(mk_apply_tactic,     "apply_tac");
 }
 }

@@ -1,12 +1,12 @@
 Theorem T2 (a b : Bool) : a => b => a /\ b.
 done.
 done.
-apply imp_tactic.
-apply imp_tactic2.
+apply imp_tac.
+apply imp_tac2.
 foo.
-apply imp_tactic.
-apply imp_tactic.
-apply conj_tactic.
+apply imp_tac.
+apply imp_tac.
+apply conj_tac.
 back.
-apply assumption_tactic.
+apply assumption_tac.
 done.

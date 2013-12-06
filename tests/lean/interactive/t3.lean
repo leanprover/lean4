@@ -1,9 +1,9 @@
 Theorem T2 (a b : Bool) : b => a \/ b.
-apply imp_tactic.
-apply disj_tactic.
+apply imp_tac.
+apply disj_tac.
 back.
 back.
-apply assumption_tactic.
+assumption.
 done.
 
 Show Environment 1.

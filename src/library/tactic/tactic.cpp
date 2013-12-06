@@ -803,15 +803,14 @@ void open_tactic(lua_State * L) {
     setfuncs(L, tactic_m, 0);
 
     SET_GLOBAL_FUN(tactic_pred,           "is_tactic");
-    SET_GLOBAL_FUN(mk_trace_tactic,       "trace_tactic");
-    SET_GLOBAL_FUN(mk_id_tactic,          "id_tactic");
-    SET_GLOBAL_FUN(mk_now_tactic,         "now_tactic");
-    SET_GLOBAL_FUN(mk_fail_tactic,        "fail_tactic");
-    SET_GLOBAL_FUN(mk_trace_state_tactic, "show_tactic");
-    SET_GLOBAL_FUN(mk_assumption_tactic,  "assumption_tactic");
-    SET_GLOBAL_FUN(mk_assumption_tactic,  "assump_tactic");
-    SET_GLOBAL_FUN(mk_unfold_tactic,      "unfold_tactic");
-    SET_GLOBAL_FUN(mk_beta_tactic,        "beta_tactic");
+    SET_GLOBAL_FUN(mk_trace_tactic,       "trace_tac");
+    SET_GLOBAL_FUN(mk_id_tactic,          "id_tac");
+    SET_GLOBAL_FUN(mk_now_tactic,         "now_tac");
+    SET_GLOBAL_FUN(mk_fail_tactic,        "fail_tac");
+    SET_GLOBAL_FUN(mk_trace_state_tactic, "show_tac");
+    SET_GLOBAL_FUN(mk_assumption_tactic,  "assumption_tac");
+    SET_GLOBAL_FUN(mk_unfold_tactic,      "unfold_tac");
+    SET_GLOBAL_FUN(mk_beta_tactic,        "beta_tac");
     SET_GLOBAL_FUN(mk_lua_tactic01,       "tactic");
 
     // HOL-like tactic names

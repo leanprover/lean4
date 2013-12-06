@@ -387,11 +387,11 @@ static int mk_absurd_tactic(lua_State * L) {
 }
 
 void open_boolean_tactics(lua_State * L) {
-    SET_GLOBAL_FUN(mk_conj_tactic,     "conj_tactic");
-    SET_GLOBAL_FUN(mk_imp_tactic,      "imp_tactic");
-    SET_GLOBAL_FUN(mk_conj_hyp_tactic, "conj_hyp_tactic");
-    SET_GLOBAL_FUN(mk_disj_hyp_tactic, "disj_hyp_tactic");
-    SET_GLOBAL_FUN(mk_disj_tactic,     "disj_tactic");
-    SET_GLOBAL_FUN(mk_absurd_tactic,   "absurd_tactic");
+    SET_GLOBAL_FUN(mk_conj_tactic,     "conj_tac");
+    SET_GLOBAL_FUN(mk_imp_tactic,      "imp_tac");
+    SET_GLOBAL_FUN(mk_conj_hyp_tactic, "conj_hyp_tac");
+    SET_GLOBAL_FUN(mk_disj_hyp_tactic, "disj_hyp_tac");
+    SET_GLOBAL_FUN(mk_disj_tactic,     "disj_tac");
+    SET_GLOBAL_FUN(mk_absurd_tactic,   "absurd_tac");
 }
 }

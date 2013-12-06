@@ -1255,7 +1255,7 @@ class parser::imp {
                 return;
             }
         }
-        throw tactic_cmd_error("no more states to backtrack", p, s);
+        throw tactic_cmd_error("failed to backtrack", p, s);
     }
 
     void tactic_apply(proof_state_seq_stack & stack, proof_state & s) {
@@ -1308,7 +1308,7 @@ class parser::imp {
             }
             return pr;
         } else {
-            throw tactic_cmd_error("failed to synthesize proof object using tactics", p, s);
+            throw tactic_cmd_error("invalid 'done' command, proof cannot be produced from this state", p, s);
         }
     }
 
@@ -1356,11 +1356,12 @@ class parser::imp {
                         } else if (id == g_back) {
                             tactic_backtrack(stack, s);
                         } else if (id == g_done) {
-                            done = true;
                             pr = tactic_done(s);
+                            if (pr)
+                                done = true;
                         } else {
                             next();
-                            throw tactic_cmd_error(sstream() << "invalid tactical proof, unknown command '" << id << "'", p, s);
+                            throw tactic_cmd_error(sstream() << "invalid tactic command '" << id << "'", p, s);
                         }
                         break;
                     default:

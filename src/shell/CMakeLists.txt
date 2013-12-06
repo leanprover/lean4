@@ -8,7 +8,7 @@ add_test(example2 ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../exampl
 add_test(example3 ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../examples/lean/ex3.lean")
 add_test(example1_stdin ${CMAKE_CURRENT_BINARY_DIR}/lean < "${LEAN_SOURCE_DIR}/../examples/lean/ex1.lean")
 
-# LEANTESTS
+# LEAN TESTS
 file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")
 FOREACH(T ${LEANTESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
@@ -17,7 +17,16 @@ FOREACH(T ${LEANTESTS})
            COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T})
 ENDFOREACH(T)
 
-# LEANSLOWTESTS
+# LEAN INTERACTIVE TESTS
+file(GLOB LEANINTERACTIVETESTS "${LEAN_SOURCE_DIR}/../tests/lean/interactive/*.lean")
+FOREACH(T ${LEANINTERACTIVETESTS})
+  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+  add_test(NAME "leaninteractivetest_${T_NAME}"
+           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/interactive"
+           COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T})
+ENDFOREACH(T)
+
+# LEAN SLOW TESTS
 file(GLOB LEANSLOWTESTS "${LEAN_SOURCE_DIR}/../tests/lean/slow/*.lean")
 FOREACH(T ${LEANSLOWTESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
@@ -26,7 +35,7 @@ FOREACH(T ${LEANSLOWTESTS})
            COMMAND "../test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T})
 ENDFOREACH(T)
 
-# LEANLUATESTS
+# LEAN LUA TESTS
 file(GLOB LEANLUATESTS "${LEAN_SOURCE_DIR}/../tests/lua/*.lua")
 FOREACH(T ${LEANLUATESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
@@ -35,7 +44,7 @@ FOREACH(T ${LEANLUATESTS})
            COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T})
 ENDFOREACH(T)
 
-# LEANLUADOCS
+# LEAN LUA DOCS
 file(GLOB LEANLUADOCS "${LEAN_SOURCE_DIR}/../doc/lua/*.md")
 FOREACH(T ${LEANLUADOCS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
@@ -44,6 +53,7 @@ FOREACH(T ${LEANLUADOCS})
            COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T})
 ENDFOREACH(T)
 
+# LEAN LUA THREAD TESTS
 if((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Linux"))
   if ((NOT (${CMAKE_CXX_COMPILER} MATCHES "clang")) AND (${THREAD_SAFE} MATCHES "ON"))
     file(GLOB LEANLUATHREADTESTS "${LEAN_SOURCE_DIR}/../tests/lua/threads/*.lua")

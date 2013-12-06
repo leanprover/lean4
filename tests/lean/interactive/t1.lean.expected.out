@@ -1,0 +1,35 @@
+Type Ctrl-D or 'Exit.' to exit or 'Help.' for help.
+#   Set: pp::colors
+  Set: pp::unicode
+Proof state:
+a : Bool, b : Bool ⊢ a ⇒ b ⇒ a ∧ b
+## Error (line: 5, pos: 0) invalid 'done' command, proof cannot be produced from this state
+Proof state:
+a : Bool, b : Bool ⊢ a ⇒ b ⇒ a ∧ b
+## Error (line: 6, pos: 0) invalid 'done' command, proof cannot be produced from this state
+Proof state:
+a : Bool, b : Bool ⊢ a ⇒ b ⇒ a ∧ b
+## Proof state:
+H : a, a : Bool, b : Bool ⊢ b ⇒ a ∧ b
+## Error (line: 8, pos: 0) unknown tactic 'imp_tactic2'
+Proof state:
+H : a, a : Bool, b : Bool ⊢ b ⇒ a ∧ b
+## Error (line: 9, pos: 0) invalid tactic command 'foo'
+Proof state:
+H : a, a : Bool, b : Bool ⊢ b ⇒ a ∧ b
+## Proof state:
+H::1 : b, H : a, a : Bool, b : Bool ⊢ a ∧ b
+## Error (line: 11, pos: 0) tactic failed
+Proof state:
+H::1 : b, H : a, a : Bool, b : Bool ⊢ a ∧ b
+## Proof state:
+H::1 : b, H : a, a : Bool, b : Bool ⊢ a
+H::1 : b, H : a, a : Bool, b : Bool ⊢ b
+## Error (line: 13, pos: 0) failed to backtrack
+Proof state:
+H::1 : b, H : a, a : Bool, b : Bool ⊢ a
+H::1 : b, H : a, a : Bool, b : Bool ⊢ b
+## Proof state:
+no goals
+##   Proved: T2
+# 

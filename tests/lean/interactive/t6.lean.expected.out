@@ -1,0 +1,16 @@
+Type Ctrl-D or 'Exit.' to exit or 'Help.' for help.
+#   Set: pp::colors
+  Set: pp::unicode
+Proof state:
+a : Bool, b : Bool ⊢ a ⇒ b ⇒ a ∧ b
+## Proof state:
+H : a, a : Bool, b : Bool ⊢ b ⇒ a ∧ b
+## Proof state:
+H::1 : b, H : a, a : Bool, b : Bool ⊢ a ∧ b
+## Proof state:
+H::1 : b, H : a, a : Bool, b : Bool ⊢ a
+H::1 : b, H : a, a : Bool, b : Bool ⊢ b
+## Proof state:
+no goals
+##   Proved: T1
+# 

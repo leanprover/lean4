@@ -42,6 +42,7 @@ Author: Leonardo de Moura
 #include "library/elaborator/elaborator_exception.h"
 #include "library/tactic/proof_state.h"
 #include "library/tactic/tactic.h"
+#include "library/tactic/apply_tactic.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/frontend_elaborator.h"
 #include "frontends/lean/parser.h"
@@ -1272,16 +1273,21 @@ class parser::imp {
                         throw tactic_cmd_error(sstream() << "invalid script-block, it must return a tactic", tac_pos, s);
                 });
         } else {
-            name tac_name = check_identifier_next("invalid apply command, identifier or 'script-block' expected");
-            using_script([&](lua_State * L) {
-                    lua_getglobal(L, tac_name.to_string().c_str());
-                    try {
-                        t = to_tactic_ext(L, -1);
-                    } catch (...) {
-                        throw tactic_cmd_error(sstream() << "unknown tactic '" << tac_name << "'", tac_pos, s);
-                    }
-                    lua_pop(L, 1);
-                });
+            name n = check_identifier_next("invalid apply command, identifier or 'script-block' expected");
+            object const & o = m_frontend.find_object(n);
+            if (o && (o.is_theorem() || o.is_axiom())) {
+                t = apply_tactic(n);
+            } else {
+                using_script([&](lua_State * L) {
+                        lua_getglobal(L, n.to_string().c_str());
+                        try {
+                            t = to_tactic_ext(L, -1);
+                        } catch (...) {
+                            throw tactic_cmd_error(sstream() << "unknown tactic '" << n << "'", tac_pos, s);
+                        }
+                        lua_pop(L, 1);
+                    });
+            }
         }
         proof_state_seq::maybe_pair r;
         code_with_callbacks([&]() {

@@ -51,6 +51,12 @@ public:
        \pre size() >= s + n
     */
     context remove(unsigned s, unsigned n) const;
+    /**
+       \brief Return a new context where then entry n : d is inserted at position i.
+
+       \pre size() >= i
+    */
+    context insert_at(unsigned i, name const & n, expr const & d) const;
 };
 
 /**

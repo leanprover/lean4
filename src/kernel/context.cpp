@@ -46,4 +46,17 @@ static list<context_entry> remove_core(list<context_entry> const & l, unsigned s
 context context::remove(unsigned s, unsigned n) const {
     return context(remove_core(m_list, s, n));
 }
+
+static list<context_entry> insert_at_core(list<context_entry> const & l, unsigned i, name const & n, expr const & d) {
+    if (i == 0) {
+        return cons(context_entry(n, d), l);
+    } else {
+        lean_assert(l);
+        return cons(head(l), insert_at_core(tail(l), i - 1, n, d));
+    }
+}
+
+context context::insert_at(unsigned i, name const & n, expr const & d) const {
+    return context(insert_at_core(m_list, i, n, d));
+}
 }

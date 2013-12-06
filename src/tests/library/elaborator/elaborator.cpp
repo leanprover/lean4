@@ -284,7 +284,7 @@ static void success(expr const & e, expr const & expected, environment const & e
     std::cout << "\n" << e << "\n\n";
     expr r = elaborate(e, env);
     std::cout << "\n" << e << "\n------>\n" << r << "\n";
-    lean_assert(r == expected);
+    lean_assert_eq(r, expected);
 }
 
 // Check elaborator failure

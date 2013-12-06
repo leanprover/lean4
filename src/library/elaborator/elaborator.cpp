@@ -398,6 +398,7 @@ class elaborator::imp {
     */
     enum status { Processed, Failed, Continue };
     status process_metavar(unification_constraint const & c, expr const & a, expr const & b, bool is_lhs) {
+        context const & ctx = get_context(c);
         if (is_metavar(a)) {
             if (is_assigned(a)) {
                 // Case 1
@@ -410,7 +411,7 @@ class elaborator::imp {
                 if (has_metavar(b, a)) {
                     m_conflict = justification(new unification_failure_justification(c));
                     return Failed;
-                } else if (is_eq(c) || is_proposition(b, get_context(c))) {
+                } else if (is_eq(c) || is_proposition(b, ctx)) {
                     // At this point, we only assign metavariables if the constraint is an equational constraint,
                     // or b is a proposition.
                     // It is important to handle propositions since we don't want to normalize them.
@@ -426,7 +427,7 @@ class elaborator::imp {
                         justification new_jst(new normalize_justification(c));
                         expr new_a = pop_meta_context(a);
                         expr new_b = lower_free_vars(b, me.s() + me.n(), me.n());
-                        context new_ctx = get_context(c).remove(me.s(), me.n());
+                        context new_ctx = ctx.remove(me.s(), me.n());
                         if (!is_lhs)
                             swap(new_a, new_b);
                         push_new_constraint(is_eq(c), new_ctx, new_a, new_b, new_jst);
@@ -437,6 +438,20 @@ class elaborator::imp {
                         m_conflict = justification(new unification_failure_justification(c));
                         return Failed;
                     }
+                } else if (me.is_inst() && is_proposition(b, ctx) && !is_proposition(me.v(), ctx)) {
+                    // If b is a proposition, and the value in the local context is not,
+                    // we ignore it, and create new constraint without the head of the local context.
+                    // This is a little bit hackish. We do it because we want to preserve
+                    // the structure of the proposition. This is similar to the trick used
+                    // in the assign(a, b, c) branch above.
+                    justification new_jst(new normalize_justification(c));
+                    expr new_a = pop_meta_context(a);
+                    expr new_b = lift_free_vars(b, me.s(), 1);
+                    context new_ctx = ctx.insert_at(me.s(), g_x_name, Type()); // insert a dummy at position s
+                    if (!is_lhs)
+                        swap(new_a, new_b);
+                    push_new_constraint(is_eq(c), new_ctx, new_a, new_b, new_jst);
+                    return Processed;
                 }
             }
         }

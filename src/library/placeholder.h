@@ -11,10 +11,11 @@ Author: Leonardo de Moura
 namespace lean {
 class metavar_env;
 /**
-    \brief Return a new placeholder expression. To be able to track location,
-    a new constant for each placeholder.
+    \brief Return a new placeholder expression (with an optional
+    type). To be able to track location, a new constant for each
+    placeholder.
 */
-expr mk_placeholder();
+expr mk_placeholder(expr const & t = expr());
 
 /**
     \brief Return true iff the given expression is a placeholder.

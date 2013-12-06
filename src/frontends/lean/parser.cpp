@@ -134,6 +134,7 @@ class parser::imp {
     typedef std::unordered_map<name, expr, name_hash, name_eq>  builtins;
     typedef std::pair<unsigned, unsigned> pos_info;
     typedef expr_map<pos_info> expr_pos_info;
+    typedef expr_map<tactic>   tactic_hints; // a mapping from placeholder to tactic
     typedef buffer<std::tuple<pos_info, name, expr, bool>> bindings_buffer;
     frontend &          m_frontend;
     scanner             m_scanner;
@@ -148,6 +149,7 @@ class parser::imp {
     expr_pos_info       m_expr_pos_info;
     pos_info            m_last_cmd_pos;
     pos_info            m_last_script_pos;
+    tactic_hints        m_tactic_hints;
 
     script_state *      m_script_state;
 
@@ -1122,6 +1124,72 @@ class parser::imp {
         return save(mk_placeholder(), p);
     }
 
+    /** \brief Parse a tactic expression, it can be
+
+        1) A Lua Script Block expression that returns a tactic
+        2) '(' expr ')' where expr is a proof term
+        3) identifier that is the name of a tactic or proof term.
+    */
+    tactic parse_tactic_expr() {
+        auto p = pos();
+        tactic t;
+        if (curr() == scanner::token::ScriptBlock) {
+            parse_script_expr();
+            using_script([&](lua_State * L) {
+                    try {
+                        t = to_tactic_ext(L, -1);
+                    } catch (...) {
+                        throw parser_error("invalid script-block, it must return a tactic", p);
+                    }
+                });
+        } else if (curr_is_lparen()) {
+            next();
+            expr pr      = parse_expr();
+            check_rparen_next("invalid apply command, ')' expected");
+            expr pr_type = m_type_inferer(pr);
+            t = apply_tactic(pr, pr_type);
+        } else {
+           name n = check_identifier_next("invalid apply command, identifier, '(' expr ')', or 'script-block' expected");
+            object const & o = m_frontend.find_object(n);
+            if (o && (o.is_theorem() || o.is_axiom())) {
+                t = apply_tactic(n);
+            } else {
+                using_script([&](lua_State * L) {
+                        lua_getglobal(L, n.to_string().c_str());
+                        try {
+                            t = to_tactic_ext(L, -1);
+                        } catch (...) {
+                            throw parser_error(sstream() << "unknown tactic '" << n << "'", p);
+                        }
+                        lua_pop(L, 1);
+                    });
+            }
+        }
+        return t;
+    }
+
+    /** \brief Parse <tt>'show' expr 'by' tactic</tt> */
+    expr parse_show_expr() {
+        auto p = pos();
+        next();
+        expr t = parse_expr();
+        check_next(scanner::token::By, "invalid 'show _ by _' expression, 'by' expected");
+        tactic tac = parse_tactic_expr();
+        expr r = mk_placeholder(t);
+        m_tactic_hints[r] = tac;
+        return save(r, p);
+    }
+
+    /** \brief Parse <tt>'by' tactic</tt> */
+    expr parse_by_expr() {
+        auto p = pos();
+        next();
+        tactic tac = parse_tactic_expr();
+        expr r = mk_placeholder();
+        m_tactic_hints[r] = tac;
+        return save(r, p);
+    }
+
     /**
        \brief Auxiliary method used when processing the beginning of an expression.
     */
@@ -1139,6 +1207,8 @@ class parser::imp {
         case scanner::token::StringVal:   return parse_string();
         case scanner::token::Placeholder: return parse_placeholder();
         case scanner::token::Type:        return parse_type();
+        case scanner::token::Show:        return parse_show_expr();
+        case scanner::token::By:          return parse_by_expr();
         default:
             throw parser_error("invalid expression, unexpected token", pos());
         }
@@ -1260,7 +1330,7 @@ class parser::imp {
         throw tactic_cmd_error("failed to backtrack", p, s);
     }
 
-    void tactic_apply(proof_state_seq_stack & stack, proof_state & s, tactic const & t, pos_info const & tac_pos) {
+    void tactic_apply(proof_state_seq_stack & stack, proof_state & s, tactic const & t, pos_info const & p) {
         proof_state_seq::maybe_pair r;
         code_with_callbacks([&]() {
                 // t may have call-backs we should set ios in the script_state
@@ -1271,46 +1341,20 @@ class parser::imp {
             s = r->first;
             stack.push_back(r->second);
         } else {
-            throw tactic_cmd_error("tactic failed", tac_pos, s);
+            throw tactic_cmd_error("tactic failed", p, s);
         }
+    }
+
+    proof_state tactic_apply(proof_state s, tactic const & t, pos_info const & p) {
+        proof_state_seq_stack stack;
+        tactic_apply(stack, s, t, p);
+        return s;
     }
 
     void tactic_apply(proof_state_seq_stack & stack, proof_state & s) {
         auto tac_pos = pos();
         next();
-        tactic t;
-        if (curr() == scanner::token::ScriptBlock) {
-            parse_script_expr();
-            using_script([&](lua_State * L) {
-                    try {
-                        t = to_tactic_ext(L, -1);
-                    } catch (...) {
-                        throw tactic_cmd_error(sstream() << "invalid script-block, it must return a tactic", tac_pos, s);
-                    }
-                });
-        } else if (curr_is_lparen()) {
-            next();
-            expr pr      = parse_expr();
-            check_rparen_next("invalid apply command, ')' expected");
-            expr pr_type = m_type_inferer(pr);
-            t = apply_tactic(pr, pr_type);
-        } else {
-           name n = check_identifier_next("invalid apply command, identifier, '(' expr ')', or 'script-block' expected");
-            object const & o = m_frontend.find_object(n);
-            if (o && (o.is_theorem() || o.is_axiom())) {
-                t = apply_tactic(n);
-            } else {
-                using_script([&](lua_State * L) {
-                        lua_getglobal(L, n.to_string().c_str());
-                        try {
-                            t = to_tactic_ext(L, -1);
-                        } catch (...) {
-                            throw tactic_cmd_error(sstream() << "unknown tactic '" << n << "'", tac_pos, s);
-                        }
-                        lua_pop(L, 1);
-                    });
-            }
-        }
+        tactic t = parse_tactic_expr();
         tactic_apply(stack, s, t, tac_pos);
     }
 
@@ -1320,9 +1364,7 @@ class parser::imp {
         tactic_apply(stack, s, assumption_tactic(), tac_pos);
     }
 
-    expr tactic_done(proof_state const & s) {
-        auto p = pos();
-        next();
+    expr mk_proof_for(proof_state const & s, pos_info const & p) {
         if (s.is_proof_final_state()) {
             assignment a(s.get_menv());
             proof_map  m;
@@ -1334,6 +1376,12 @@ class parser::imp {
         } else {
             throw tactic_cmd_error("invalid 'done' command, proof cannot be produced from this state", p, s);
         }
+    }
+
+    expr tactic_done(proof_state const & s) {
+        auto p = pos();
+        next();
+        return mk_proof_for(s, p);
     }
 
     bool curr_is_tactic_cmd() {
@@ -1420,16 +1468,38 @@ class parser::imp {
         }
     }
 
-    expr parse_tactic(expr const & type, expr const & val, metavar_env & menv) {
+    /**
+       \brief Return a 'hint' tactic (if it exists) for the given metavariable.
+       If the metavariable is not associated with any hint, then return the
+       null tactic. The method also returns the position of the hint.
+    */
+    std::pair<tactic, pos_info> get_tactic_tactic_for(expr const & mvar) {
+        expr placeholder = m_elaborator.get_original(mvar);
+        auto it = m_tactic_hints.find(placeholder);
+        if (it != m_tactic_hints.end()) {
+            return mk_pair(it->second, pos_of(placeholder, pos()));
+        } else {
+            return mk_pair(tactic(), pos_of(placeholder, pos()));
+        }
+    }
+
+    expr apply_tactics(expr const & type, expr const & val, metavar_env & menv) {
         if (is_metavar(val)) {
             // simple case
             if (!m_type_inferer.is_proposition(type))
                 throw exception("failed to synthesize metavar, its type is not a proposition");
             proof_state s = to_proof_state(m_frontend, context(), type);
-            display_proof_state_if_interactive(s);
-            show_tactic_prompt();
-            check_period_next("invalid theorem, '.' expected before tactical proof");
-            return parse_tactic(s);
+            std::pair<tactic, pos_info> hint_and_pos = get_tactic_tactic_for(val);
+            if (hint_and_pos.first) {
+                // metavariable has an associated tactic hint
+                s = tactic_apply(s, hint_and_pos.first, hint_and_pos.second);
+                return mk_proof_for(s, hint_and_pos.second);
+            } else {
+                display_proof_state_if_interactive(s);
+                show_tactic_prompt();
+                check_period_next("invalid theorem, '.' expected before tactical proof");
+                return parse_tactic(s);
+            }
         } else {
             buffer<expr> mvars;
             for_each(val, [&](expr const & e, unsigned) {
@@ -1453,14 +1523,21 @@ class parser::imp {
                 if (!m_type_inferer.is_proposition(mvar_type, mvar_ctx))
                     throw exception("failed to synthesize metavar, its type is not a proposition");
                 proof_state s = to_proof_state(m_frontend, mvar_ctx, mvar_type);
-                if (curr_is_period()) {
-                    display_proof_state_if_interactive(s);
-                    show_tactic_prompt();
-                    next();
+                std::pair<tactic, pos_info> hint_and_pos = get_tactic_tactic_for(mvar);
+                if (hint_and_pos.first) {
+                    // metavariable has an associated tactic hint
+                    s = tactic_apply(s, hint_and_pos.first, hint_and_pos.second);
+                    menv.assign(mvar, mk_proof_for(s, hint_and_pos.second));
+                } else {
+                    if (curr_is_period()) {
+                        display_proof_state_if_interactive(s);
+                        show_tactic_prompt();
+                        next();
+                    }
+                    expr mvar_val = parse_tactic(s);
+                    if (mvar_val)
+                        menv.assign(mvar, mvar_val);
                 }
-                expr mvar_val = parse_tactic(s);
-                if (mvar_val)
-                    menv.assign(mvar, mvar_val);
             }
             return instantiate_metavars(val, menv);
         }
@@ -1507,7 +1584,7 @@ class parser::imp {
         if (has_metavar(type))
             throw exception("invalid definition, type still contains metavariables after elaboration");
         if (!is_definition && has_metavar(val)) {
-            val = parse_tactic(type, val, menv);
+            val = apply_tactics(type, val, menv);
         }
         if (has_metavar(val))
             throw exception("invalid definition, value still contains metavariables after elaboration");
@@ -1915,6 +1992,7 @@ class parser::imp {
     bool parse_command() {
         m_elaborator.clear();
         m_expr_pos_info.clear();
+        m_tactic_hints.clear();
         m_last_cmd_pos = pos();
         name const & cmd_id = curr_name();
         if (cmd_id == g_definition_kwd) {

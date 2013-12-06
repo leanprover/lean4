@@ -21,7 +21,7 @@ public:
     enum class token {
         LeftParen, RightParen, LeftCurlyBracket, RightCurlyBracket, Colon, Comma, Period, Lambda, Pi, Arrow,
         Let, In, Forall, Exists, Id, CommandId, NatVal, DecimalVal, StringVal, Eq, Assign, Type, Placeholder,
-        ScriptBlock, Eof
+        Show, By, ScriptBlock, Eof
     };
 protected:
     int                m_spos; // position in the current line of the stream

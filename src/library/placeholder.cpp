@@ -12,8 +12,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 static name g_placeholder_name("_");
-expr mk_placeholder() {
-    return mk_constant(g_placeholder_name);
+expr mk_placeholder(expr const & t) {
+    return mk_constant(g_placeholder_name, t);
 }
 
 bool is_placeholder(expr const & e) {
@@ -30,7 +30,7 @@ class replace_placeholders_with_metavars_proc : public replace_visitor {
 protected:
     expr visit_constant(expr const & e, context const & c) {
         if (is_placeholder(e)) {
-            return m_menv.mk_metavar(c);
+            return m_menv.mk_metavar(c, const_type(e));
         } else {
             return e;
         }

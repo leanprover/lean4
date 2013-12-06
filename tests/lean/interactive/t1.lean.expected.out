@@ -11,9 +11,7 @@ Proof state:
 a : Bool, b : Bool ⊢ a ⇒ b ⇒ a ∧ b
 ## Proof state:
 H : a, a : Bool, b : Bool ⊢ b ⇒ a ∧ b
-## Error (line: 8, pos: 0) unknown tactic 'imp_tac2'
-Proof state:
-H : a, a : Bool, b : Bool ⊢ b ⇒ a ∧ b
+## Error (line: 8, pos: 6) unknown tactic 'imp_tac2'
 ## Error (line: 9, pos: 0) invalid tactic command 'foo'
 Proof state:
 H : a, a : Bool, b : Bool ⊢ b ⇒ a ∧ b

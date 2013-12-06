@@ -7,9 +7,7 @@ A : Bool, B : Bool, H : A ∧ B ⊢ A
 no goals
 ## Proof state:
 A : Bool, B : Bool, H : A ∧ B, H1 : A ⊢ B
-## Error (line: 15, pos: 3) unknown tactic 'simple2_tac'
-Proof state:
-A : Bool, B : Bool, H : A ∧ B, H1 : A ⊢ B
+## Error (line: 15, pos: 9) unknown tactic 'simple2_tac'
 ## Error (line: 15, pos: 22) invalid 'done' command, proof cannot be produced from this state
 Proof state:
 A : Bool, B : Bool, H : A ∧ B, H1 : A ⊢ B

@@ -123,7 +123,7 @@ class frontend_elaborator::imp {
 
         virtual expr visit_constant(expr const & e, context const & ctx) {
             if (is_placeholder(e)) {
-                expr m = m_ref.m_menv.mk_metavar(ctx);
+                expr m = m_ref.m_menv.mk_metavar(ctx, const_type(e));
                 m_ref.m_trace[m] = e;
                 return m;
             } else {

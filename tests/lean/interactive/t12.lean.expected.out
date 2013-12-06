@@ -1,0 +1,51 @@
+Type Ctrl-D or 'Exit.' to exit or 'Help.' for help.
+#   Set: pp::colors
+  Set: pp::unicode
+  Proved: T1
+Proof state:
+A : Bool, B : Bool, assumption : A ∧ B ⊢ A
+## Proof state:
+no goals
+## Proof state:
+A : Bool, B : Bool, assumption : A ∧ B, lemma1 : A ⊢ B
+## Proof state:
+no goals
+## Proof state:
+A : Bool, B : Bool, assumption : A ∧ B, lemma1 : A, lemma2 : B ⊢ B ∧ A
+## Proof state:
+no goals
+##   Proved: T2
+# Proof state:
+A : Bool, B : Bool, assumption : A ∧ B ⊢ A
+## Proof state:
+A : Bool, B : Bool, assumption::1 : A, assumption::2 : B ⊢ A
+## Proof state:
+no goals
+## Proof state:
+A : Bool, B : Bool, assumption : A ∧ B, lemma1 : A ⊢ B
+## Proof state:
+A : Bool, B : Bool, assumption::1 : A, assumption::2 : B, lemma1 : A ⊢ B
+## Proof state:
+no goals
+## Proof state:
+A : Bool, B : Bool, assumption : A ∧ B, lemma1 : A, lemma2 : B ⊢ B ∧ A
+## Proof state:
+A : Bool, B : Bool, assumption : A ∧ B, lemma1 : A, lemma2 : B ⊢ B
+A : Bool, B : Bool, assumption : A ∧ B, lemma1 : A, lemma2 : B ⊢ A
+## Proof state:
+no goals
+##   Proved: T3
+# Proof state:
+A : Bool, B : Bool, assumption : A ∧ B ⊢ A
+## Proof state:
+A : Bool, B : Bool, assumption::1 : A, assumption::2 : B ⊢ A
+## Proof state:
+no goals
+## Proof state:
+A : Bool, B : Bool, assumption : A ∧ B, lemma1 : A ⊢ B
+## Proof state:
+A : Bool, B : Bool, assumption::1 : A, assumption::2 : B, lemma1 : A ⊢ B
+## Proof state:
+no goals
+##   Proved: T4
+# 

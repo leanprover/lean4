@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <utility>
+#include "kernel/builtin.h"
 #include "library/fo_unify.h"
 #include "library/expr_pair.h"
 #include "library/kernel_bindings.h"
@@ -19,11 +20,16 @@ static bool is_metavar_wo_local_context(expr const & e) {
     return is_metavar(e) && !metavar_lctx(e);
 }
 
+static bool is_eq_heq(expr const & e, expr & lhs, expr & rhs) {
+    return is_eq(e, lhs, rhs) || is_homo_eq(e, lhs, rhs);
+}
+
 optional<substitution> fo_unify(expr e1, expr e2) {
     lean_assert(e1);
     lean_assert(e2);
     substitution s;
     unsigned i;
+    expr lhs1, rhs1, lhs2, rhs2;
     buffer<expr_pair> todo;
     todo.emplace_back(e1, e2);
     while (!todo.empty()) {
@@ -36,6 +42,9 @@ optional<substitution> fo_unify(expr e1, expr e2) {
                 assign(s, e1, e2);
             } else if (is_metavar_wo_local_context(e2)) {
                 assign(s, e2, e1);
+            } else if (is_eq_heq(e1, lhs1, rhs1) && is_eq_heq(e2, lhs2, rhs2)) {
+                todo.emplace_back(lhs1, lhs2);
+                todo.emplace_back(rhs1, rhs2);
             } else {
                 if (e1.kind() != e2.kind())
                     return optional<substitution>();
@@ -52,9 +61,7 @@ optional<substitution> fo_unify(expr e1, expr e2) {
                     }
                     break;
                 case expr_kind::Eq:
-                    todo.emplace_back(eq_rhs(e1), eq_rhs(e2));
-                    todo.emplace_back(eq_lhs(e1), eq_lhs(e2));
-                    break;
+                    lean_unreachable(); break; // LCOV_EXCL_LINE
                 case expr_kind::Lambda: case expr_kind::Pi:
                     todo.emplace_back(abst_body(e1), abst_body(e2));
                     todo.emplace_back(abst_domain(e1), abst_domain(e2));

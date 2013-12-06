@@ -232,6 +232,16 @@ bool is_arrow(expr const & t) {
     return is_pi(t) && !has_free_var(abst_body(t), 0);
 }
 
+bool is_eq(expr const & e, expr & lhs, expr & rhs) {
+    if (is_eq(e)) {
+        lhs = eq_lhs(e);
+        rhs = eq_rhs(e);
+        return true;
+    } else {
+        return false;
+    }
+}
+
 expr copy(expr const & a) {
     switch (a.kind()) {
     case expr_kind::Var:      return mk_var(var_idx(a));

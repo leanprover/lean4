@@ -135,7 +135,7 @@ A : Type, B : Type, a : ?M::0, b : ?M::1, C : Type ⊢ ?M::0[lift:0:3] ≺ C
   Assumed: a
   Assumed: b
   Assumed: H
-Error (line: 22, pos: 0) failed to synthesize metavar, its type is not a proposition
+Error (line: 20, pos: 59) failed to synthesize metavar, its type is not a proposition
 Failed to solve
  ⊢ b ≈ a
     Substitution

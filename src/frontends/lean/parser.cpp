@@ -96,6 +96,7 @@ static name g_exit_kwd("Exit");
 static name g_apply("apply");
 static name g_done("done");
 static name g_back("back");
+static list<name> g_tactic_cmds = { g_apply, g_done, g_back };
 /** \brief Table/List with all builtin command keywords */
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_variables_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
                                         g_show_kwd, g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_notation_kwd, g_echo_kwd,
@@ -156,6 +157,14 @@ class parser::imp {
         parser_error(char const * msg, pos_info const & p):exception(msg), m_pos(p) {}
         parser_error(sstream const & msg, pos_info const & p):exception(msg), m_pos(p) {}
         virtual exception * clone() const { return new parser_error(m_msg.c_str(), m_pos); }
+        virtual void rethrow() const { throw *this; }
+    };
+
+    struct tactic_cmd_error : public parser_error {
+        proof_state m_state;
+        tactic_cmd_error(char const * msg, pos_info const & p, proof_state const & s):parser_error(msg, p), m_state(s) {}
+        tactic_cmd_error(sstream const & msg, pos_info const & p, proof_state const & s):parser_error(msg, p), m_state(s) {}
+        virtual exception * clone() const { return new tactic_cmd_error(m_msg.c_str(), m_pos, m_state); }
         virtual void rethrow() const { throw *this; }
     };
 
@@ -289,6 +298,152 @@ class parser::imp {
         next();
         return r;
     }
+
+    /**
+       @name Error handling
+    */
+
+    /*@{*/
+    void display_error_pos(unsigned line, unsigned pos) {
+        regular(m_frontend) << "Error (line: " << line;
+        if (pos != static_cast<unsigned>(-1))
+            regular(m_frontend) << ", pos: " << pos;
+        regular(m_frontend) << ")";
+    }
+
+    void display_error_pos(pos_info const & p) { display_error_pos(p.first, p.second); }
+
+    void display_error_pos(expr const & e) {
+        if (e) {
+            auto it = m_expr_pos_info.find(e);
+            if (it == m_expr_pos_info.end())
+                return display_error_pos(m_last_cmd_pos);
+            else
+                return display_error_pos(it->second);
+        } else {
+            return display_error_pos(m_last_cmd_pos);
+        }
+    }
+
+    void display_error(char const * msg, unsigned line, unsigned pos) {
+        display_error_pos(line, pos);
+        regular(m_frontend) << " " << msg << endl;
+    }
+
+    void display_error(char const * msg) {
+        display_error(msg, m_scanner.get_line(), m_scanner.get_pos());
+    }
+
+    void display_error(kernel_exception const & ex) {
+        display_error_pos(m_elaborator.get_original(ex.get_main_expr()));
+        regular(m_frontend) << " " << ex << endl;
+    }
+
+    struct lean_pos_info_provider : public pos_info_provider {
+        imp const & m_ref;
+        lean_pos_info_provider(imp const & r):m_ref(r) {}
+        virtual std::pair<unsigned, unsigned> get_pos_info(expr const & e) const {
+            expr const & o = m_ref.m_elaborator.get_original(e);
+            auto it = m_ref.m_expr_pos_info.find(o);
+            if (it == m_ref.m_expr_pos_info.end())
+                throw exception("position is not available"); // information is not available
+            return it->second;
+        }
+    };
+
+    void display_error(elaborator_exception const & ex) {
+        formatter fmt = m_frontend.get_state().get_formatter();
+        options opts  = m_frontend.get_state().get_options();
+        lean_pos_info_provider pos_provider(*this);
+        regular(m_frontend) << mk_pair(ex.get_justification().pp(fmt, opts, &pos_provider, true), opts) << endl;
+    }
+
+    void display_error(script_exception const & ex) {
+        switch (ex.get_source()) {
+        case script_exception::source::String:
+            display_error_pos(ex.get_line() + m_last_script_pos.first - 1, static_cast<unsigned>(-1));
+            regular(m_frontend) << " executing script," << ex.get_msg() << endl;
+            break;
+        case script_exception::source::File:
+            display_error_pos(m_last_script_pos);
+            regular(m_frontend) << " executing external script (" << ex.get_filename() << ":" << ex.get_line() << ")," << ex.get_msg() << endl;
+            break;
+        case script_exception::source::Unknown:
+            display_error_pos(m_last_script_pos);
+            regular(m_frontend) << " executing script, but could not decode position information, " << ex.what() << endl;
+            break;
+        }
+    }
+
+    void display_error(tactic_cmd_error const & ex) {
+        display_error(ex.what(), ex.m_pos.first, ex.m_pos.second);
+        if (m_interactive)
+            display_proof_state(ex.m_state);
+    }
+
+    /**
+       \brief Execute the given function \c f, and handle exceptions occurring
+       when executing \c f.
+       The parameter \c s is an error synchronization procedure.
+    */
+    template<typename F, typename Sync>
+    void protected_call(F && f, Sync && sync) {
+        try {
+            f();
+        } catch (tactic_cmd_error & ex) {
+            m_found_errors = true;
+            if (m_show_errors)
+                display_error(ex);
+            sync();
+            if (m_use_exceptions)
+                throw;
+        } catch (parser_error & ex) {
+            m_found_errors = true;
+            if (m_show_errors)
+                display_error(ex.what(), ex.m_pos.first, ex.m_pos.second);
+            sync();
+            if (m_use_exceptions) {
+                throw parser_exception(ex.what(), ex.m_pos.first, ex.m_pos.second);
+            }
+        } catch (kernel_exception & ex) {
+            m_found_errors = true;
+            if (m_show_errors)
+                display_error(ex);
+            sync();
+            if (m_use_exceptions)
+                throw;
+        } catch (elaborator_exception & ex) {
+            m_found_errors = true;
+            if (m_show_errors)
+                display_error(ex);
+            sync();
+            if (m_use_exceptions)
+                throw;
+        } catch (script_exception & ex) {
+            m_found_errors = true;
+            reset_interrupt();
+            if (m_show_errors)
+                display_error(ex);
+            sync();
+            if (m_use_exceptions)
+                throw;
+        } catch (interrupted & ex) {
+            if (m_verbose)
+                regular(m_frontend) << "!!!Interrupted!!!" << endl;
+            reset_interrupt();
+            sync();
+            if (m_use_exceptions)
+                throw;
+        } catch (exception & ex) {
+            m_found_errors = true;
+            if (m_show_errors)
+                display_error(ex.what());
+            sync();
+            if (m_use_exceptions)
+                throw;
+        }
+    }
+    /*@}*/
 
     unsigned parse_unsigned(char const * msg) {
         lean_assert(curr_is_nat());
@@ -1073,13 +1228,19 @@ class parser::imp {
     }
 
     void display_proof_state(proof_state s) {
-        diagnostic(m_frontend) << "Proof state:\n" << s << endl;
+        regular(m_frontend) << "Proof state:\n" << s << endl;
+    }
+
+    void display_proof_state_if_interactive(proof_state s) {
+        if (m_interactive)
+            display_proof_state(s);
     }
 
     typedef std::vector<proof_state_seq> proof_state_seq_stack;
+
     void tactic_backtrack(proof_state_seq_stack & stack, proof_state & s) {
-        if (!stack.empty())
-            diagnostic(m_frontend) << "Backtracking...\n";
+        auto p = pos();
+        next();
         while (!stack.empty()) {
             check_interrupted();
             lazy_list<proof_state> seq = stack.back();
@@ -1094,12 +1255,12 @@ class parser::imp {
                 return;
             }
         }
-        display_proof_state(s);
-        throw exception("failed to synthesize proof object using tactics");
+        throw tactic_cmd_error("no more states to backtrack", p, s);
     }
 
     void tactic_apply(proof_state_seq_stack & stack, proof_state & s) {
         auto tac_pos = pos();
+        next();
         tactic t;
         if (curr() == scanner::token::ScriptBlock) {
             parse_script_expr();
@@ -1107,7 +1268,7 @@ class parser::imp {
                     if (is_tactic(L, -1))
                         t = to_tactic(L, -1);
                     else
-                        throw parser_error(sstream() << "invalid script-block, it must return a tactic", tac_pos);
+                        throw tactic_cmd_error(sstream() << "invalid script-block, it must return a tactic", tac_pos, s);
                 });
         } else {
             name tac_name = check_identifier_next("invalid apply command, identifier or 'script-block' expected");
@@ -1116,7 +1277,7 @@ class parser::imp {
                     try {
                         t = to_tactic_ext(L, -1);
                     } catch (...) {
-                        throw parser_error(sstream() << "unknown tactic '" << tac_name << "'", tac_pos);
+                        throw tactic_cmd_error(sstream() << "unknown tactic '" << tac_name << "'", tac_pos, s);
                     }
                     lua_pop(L, 1);
                 });
@@ -1131,11 +1292,13 @@ class parser::imp {
             s = r->first;
             stack.push_back(r->second);
         } else {
-            tactic_backtrack(stack, s);
+            throw tactic_cmd_error("tactic failed", tac_pos, s);
         }
     }
 
     expr tactic_done(proof_state const & s) {
+        auto p = pos();
+        next();
         if (s.is_proof_final_state()) {
             assignment a(s.get_menv());
             proof_map  m;
@@ -1145,43 +1308,92 @@ class parser::imp {
             }
             return pr;
         } else {
-            display_proof_state(s);
-            throw exception("failed to synthesize proof object using tactics");
+            throw tactic_cmd_error("failed to synthesize proof object using tactics", p, s);
+        }
+    }
+
+    bool curr_is_tactic_cmd() {
+        if (curr_is_identifier()) {
+            name const & id = curr_name();
+            for (auto c : g_tactic_cmds)
+                if (id == c)
+                    return true;
+        }
+        return false;
+    }
+
+    void show_tactic_prompt() {
+        if (m_interactive) {
+            regular(m_frontend) << "## ";
+            regular(m_frontend).flush();
         }
     }
 
     expr parse_tactic(proof_state s) {
         proof_state ini = s;
         proof_state_seq_stack stack;
-        while (true) {
-            auto p = pos();
-            if (!curr_is_identifier()) {
-                display_proof_state(s);
-                throw parser_error("invalid tactic, identifier expected", p);
-            }
-            name id = curr_name();
-            next();
-            if (id == g_apply) {
-                tactic_apply(stack, s);
-            } else if (id == g_back) {
-                tactic_backtrack(stack, s);
-            } else if (id == g_done) {
-                return tactic_done(s);
-            } else {
-                throw parser_error(sstream() << "invalid tactical proof, unknown command '" << id << "'", p);
-            }
-            while (curr_is_period())
-                next();
+        expr pr;
+        bool done = false;
+        while (!done) {
+            protected_call(
+                [&]() {
+                    auto p = pos();
+                    check_interrupted();
+                    name id;
+                    switch (curr()) {
+                    case scanner::token::Period:
+                        display_proof_state_if_interactive(s);
+                        show_tactic_prompt();
+                        next();
+                        break;
+                    case scanner::token::Eof:
+                        done = true;
+                        break;
+                    case scanner::token::Id:
+                        id = curr_name();
+                        if (id == g_apply) {
+                            tactic_apply(stack, s);
+                        } else if (id == g_back) {
+                            tactic_backtrack(stack, s);
+                        } else if (id == g_done) {
+                            done = true;
+                            pr = tactic_done(s);
+                        } else {
+                            next();
+                            throw tactic_cmd_error(sstream() << "invalid tactical proof, unknown command '" << id << "'", p, s);
+                        }
+                        break;
+                    default:
+                        next();
+                        throw tactic_cmd_error("invalid tactic command, identifier expected", p, s);
+                    }
+                },
+                [&]() {
+                    // Keep consuming tokens until we find a Command or End-of-file or Tactic command
+                    show_tactic_prompt();
+                    while (curr() != scanner::token::CommandId && curr() != scanner::token::Eof &&
+                           curr() != scanner::token::Period && !curr_is_tactic_cmd())
+                        next();
+                    if (curr_is_period())
+                        next();
+                });
+        }
+        if (pr) {
+            return pr;
+        } else {
+            throw parser_error("invalid tactic command, unexpected end of file", pos());
         }
     }
 
     expr parse_tactic(expr const & type, expr const & val, metavar_env & menv) {
-        check_period_next("invalid theorem, '.' expected before tactical proof");
         if (is_metavar(val)) {
             // simple case
             if (!m_type_inferer.is_proposition(type))
                 throw exception("failed to synthesize metavar, its type is not a proposition");
             proof_state s = to_proof_state(m_frontend, context(), type);
+            display_proof_state_if_interactive(s);
+            show_tactic_prompt();
+            check_period_next("invalid theorem, '.' expected before tactical proof");
             return parse_tactic(s);
         } else {
             buffer<expr> mvars;
@@ -1206,6 +1418,11 @@ class parser::imp {
                 }
                 context mvar_ctx(to_list(new_entries.begin(), new_entries.end()));
                 proof_state s = to_proof_state(m_frontend, mvar_ctx, mvar_type);
+                if (curr_is_period()) {
+                    display_proof_state_if_interactive(s);
+                    show_tactic_prompt();
+                    next();
+                }
                 expr mvar_val = parse_tactic(s);
                 if (mvar_val)
                     menv.assign(mvar, mvar_val);
@@ -1710,87 +1927,9 @@ class parser::imp {
     }
     /*@}*/
 
-    void display_error_pos(unsigned line, unsigned pos) {
-        regular(m_frontend) << "Error (line: " << line;
-        if (pos != static_cast<unsigned>(-1))
-            regular(m_frontend) << ", pos: " << pos;
-        regular(m_frontend) << ")";
-    }
-    void display_error_pos(pos_info const & p) { display_error_pos(p.first, p.second); }
-    void display_error_pos(expr const & e) {
-        if (e) {
-            auto it = m_expr_pos_info.find(e);
-            if (it == m_expr_pos_info.end())
-                return display_error_pos(m_last_cmd_pos);
-            else
-                return display_error_pos(it->second);
-        } else {
-            return display_error_pos(m_last_cmd_pos);
-        }
-    }
-
-    void display_error(char const * msg, unsigned line, unsigned pos) {
-        display_error_pos(line, pos);
-        regular(m_frontend) << " " << msg << endl;
-        sync();
-    }
-
-    void display_error(char const * msg) {
-        display_error(msg, m_scanner.get_line(), m_scanner.get_pos());
-    }
-
-    void display_error(kernel_exception const & ex) {
-        display_error_pos(m_elaborator.get_original(ex.get_main_expr()));
-        regular(m_frontend) << " " << ex << endl;
-        sync();
-    }
-
-    struct lean_pos_info_provider : public pos_info_provider {
-        imp const & m_ref;
-        lean_pos_info_provider(imp const & r):m_ref(r) {}
-        virtual std::pair<unsigned, unsigned> get_pos_info(expr const & e) const {
-            expr const & o = m_ref.m_elaborator.get_original(e);
-            auto it = m_ref.m_expr_pos_info.find(o);
-            if (it == m_ref.m_expr_pos_info.end())
-                throw exception("position is not available"); // information is not available
-            return it->second;
-        }
-    };
-
-    void display_error(elaborator_exception const & ex) {
-        formatter fmt = m_frontend.get_state().get_formatter();
-        options opts  = m_frontend.get_state().get_options();
-        lean_pos_info_provider pos_provider(*this);
-        regular(m_frontend) << mk_pair(ex.get_justification().pp(fmt, opts, &pos_provider, true), opts) << endl;
-    }
-
-    void display_error(script_exception const & ex) {
-        switch (ex.get_source()) {
-        case script_exception::source::String:
-            display_error_pos(ex.get_line() + m_last_script_pos.first - 1, static_cast<unsigned>(-1));
-            regular(m_frontend) << " executing script," << ex.get_msg() << endl;
-            break;
-        case script_exception::source::File:
-            display_error_pos(m_last_script_pos);
-            regular(m_frontend) << " executing external script (" << ex.get_filename() << ":" << ex.get_line() << ")," << ex.get_msg() << endl;
-            break;
-        case script_exception::source::Unknown:
-            display_error_pos(m_last_script_pos);
-            regular(m_frontend) << " executing script, but could not decode position information, " << ex.what() << endl;
-            break;
-        }
-    }
-
     void updt_options() {
         m_verbose = get_parser_verbose(m_frontend.get_state().get_options());
         m_show_errors = get_parser_show_errors(m_frontend.get_state().get_options());
-    }
-
-    /** \brief Keep consuming tokens until we find a Command or End-of-file. */
-    void sync() {
-        show_prompt();
-        while (curr() != scanner::token::CommandId && curr() != scanner::token::Eof)
-            next();
     }
 
     /**
@@ -1842,57 +1981,26 @@ public:
 
     /** \brief Parse a sequence of commands. This method also perform error management. */
     bool parse_commands() {
-        while (true) {
-            try {
-                switch (curr()) {
-                case scanner::token::CommandId:   if (!parse_command()) return !m_found_errors; break;
-                case scanner::token::ScriptBlock: parse_script(); break;
-                case scanner::token::Period:      show_prompt(); next(); break;
-                case scanner::token::Eof:         return !m_found_errors;
-                default:
-                    throw parser_error("Command expected", pos());
-                }
-            } catch (parser_error & ex) {
-                m_found_errors = true;
-                if (m_show_errors)
-                    display_error(ex.what(), ex.m_pos.first, ex.m_pos.second);
-                if (m_use_exceptions) {
-                    throw parser_exception(ex.what(), ex.m_pos.first, ex.m_pos.second);
-                }
-            } catch (kernel_exception & ex) {
-                m_found_errors = true;
-                if (m_show_errors)
-                    display_error(ex);
-                if (m_use_exceptions)
-                    throw;
-            } catch (elaborator_exception & ex) {
-                m_found_errors = true;
-                if (m_show_errors)
-                    display_error(ex);
-                if (m_use_exceptions)
-                    throw;
-            } catch (script_exception & ex) {
-                m_found_errors = true;
-                reset_interrupt();
-                if (m_show_errors)
-                    display_error(ex);
-                if (m_use_exceptions)
-                    throw;
-            } catch (interrupted & ex) {
-                if (m_verbose)
-                    regular(m_frontend) << "\n!!!Interrupted!!!" << endl;
-                reset_interrupt();
-                sync();
-                if (m_use_exceptions)
-                    throw;
-            } catch (exception & ex) {
-                m_found_errors = true;
-                if (m_show_errors)
-                    display_error(ex.what());
-                if (m_use_exceptions)
-                    throw;
-            }
+        bool done = false;
+        while (!done) {
+            protected_call([&]() {
+                    check_interrupted();
+                    switch (curr()) {
+                    case scanner::token::CommandId:   if (!parse_command()) done = true; break;
+                    case scanner::token::ScriptBlock: parse_script(); break;
+                    case scanner::token::Period:      show_prompt(); next(); break;
+                    case scanner::token::Eof:         done = true; break;
+                    default:
+                        throw parser_error("Command expected", pos());
+                    }
+                }, [&]() {
+                    // Keep consuming tokens until we find a Command or End-of-file
+                    show_prompt();
+                    while (curr() != scanner::token::CommandId && curr() != scanner::token::Eof && curr() != scanner::token::Period)
+                        next();
+                });
         }
+        return !m_found_errors;
     }
 
     /** \brief Parse an expression. */

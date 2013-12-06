@@ -1,0 +1,17 @@
+Type Ctrl-D or 'Exit.' to exit or 'Help.' for help.
+#   Set: pp::colors
+  Set: pp::unicode
+  Assumed: q
+#   Assumed: p
+#   Assumed: Ax
+#   Assumed: a
+# Proof state:
+x : ℤ ⊢ (q a x) ⇒ (p x)
+## Proof state:
+H : q a x, x : ℤ ⊢ p x
+## Proof state:
+H : q a x, x : ℤ ⊢ q a x
+## Proof state:
+no goals
+##   Proved: T
+# 

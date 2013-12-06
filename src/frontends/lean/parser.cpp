@@ -98,7 +98,8 @@ static name g_apply("apply");
 static name g_done("done");
 static name g_back("back");
 static name g_abort("abort");
-static list<name> g_tactic_cmds = { g_apply, g_done, g_back, g_abort };
+static name g_assumption("assumption");
+static list<name> g_tactic_cmds = { g_apply, g_done, g_back, g_abort, g_assumption };
 /** \brief Table/List with all builtin command keywords */
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_variables_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
                                         g_show_kwd, g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_notation_kwd, g_echo_kwd,
@@ -1260,6 +1261,21 @@ class parser::imp {
         throw tactic_cmd_error("failed to backtrack", p, s);
     }
 
+    void tactic_apply(proof_state_seq_stack & stack, proof_state & s, tactic const & t, pos_info const & tac_pos) {
+        proof_state_seq::maybe_pair r;
+        code_with_callbacks([&]() {
+                // t may have call-backs we should set ios in the script_state
+                proof_state_seq seq = t(m_frontend, m_frontend.get_state(), s);
+                r = seq.pull();
+            });
+        if (r) {
+            s = r->first;
+            stack.push_back(r->second);
+        } else {
+            throw tactic_cmd_error("tactic failed", tac_pos, s);
+        }
+    }
+
     void tactic_apply(proof_state_seq_stack & stack, proof_state & s) {
         auto tac_pos = pos();
         next();
@@ -1267,13 +1283,20 @@ class parser::imp {
         if (curr() == scanner::token::ScriptBlock) {
             parse_script_expr();
             using_script([&](lua_State * L) {
-                    if (is_tactic(L, -1))
-                        t = to_tactic(L, -1);
-                    else
+                    try {
+                        t = to_tactic_ext(L, -1);
+                    } catch (...) {
                         throw tactic_cmd_error(sstream() << "invalid script-block, it must return a tactic", tac_pos, s);
+                    }
                 });
+        } else if (curr_is_lparen()) {
+            next();
+            expr pr      = parse_expr();
+            check_rparen_next("invalid apply command, ')' expected");
+            expr pr_type = m_type_inferer(pr);
+            t = apply_tactic(pr, pr_type);
         } else {
-            name n = check_identifier_next("invalid apply command, identifier or 'script-block' expected");
+           name n = check_identifier_next("invalid apply command, identifier, '(' expr ')', or 'script-block' expected");
             object const & o = m_frontend.find_object(n);
             if (o && (o.is_theorem() || o.is_axiom())) {
                 t = apply_tactic(n);
@@ -1289,18 +1312,13 @@ class parser::imp {
                     });
             }
         }
-        proof_state_seq::maybe_pair r;
-        code_with_callbacks([&]() {
-                // t may have call-backs we should set ios in the script_state
-                proof_state_seq seq = t(m_frontend, m_frontend.get_state(), s);
-                r = seq.pull();
-            });
-        if (r) {
-            s = r->first;
-            stack.push_back(r->second);
-        } else {
-            throw tactic_cmd_error("tactic failed", tac_pos, s);
-        }
+        tactic_apply(stack, s, t, tac_pos);
+    }
+
+    void tactic_assumption(proof_state_seq_stack & stack, proof_state & s) {
+        auto tac_pos = pos();
+        next();
+        tactic_apply(stack, s, assumption_tactic(), tac_pos);
     }
 
     expr tactic_done(proof_state const & s) {
@@ -1370,6 +1388,8 @@ class parser::imp {
                         } else if (id == g_abort) {
                             next();
                             st = status::Abort;
+                        } else if (id == g_assumption) {
+                            tactic_assumption(stack, s);
                         } else {
                             next();
                             throw tactic_cmd_error(sstream() << "invalid tactic command '" << id << "'", p, s);

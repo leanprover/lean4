@@ -3,10 +3,16 @@ include_directories("${LEAN_BINARY_DIR}")
 add_executable(lean lean.cpp)
 add_dependencies(lean githash)
 target_link_libraries(lean ${EXTRA_LIBS})
-add_test(example1 ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../examples/lean/ex1.lean")
-add_test(example2 ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../examples/lean/ex2.lean")
-add_test(example3 ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../examples/lean/ex3.lean")
+
 add_test(example1_stdin ${CMAKE_CURRENT_BINARY_DIR}/lean < "${LEAN_SOURCE_DIR}/../examples/lean/ex1.lean")
+
+# LEAN EXAMPLES
+file(GLOB LEANEXAMPLES "${LEAN_SOURCE_DIR}/../examples/lean/*.lean")
+FOREACH(T ${LEANEXAMPLES})
+  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+  add_test(NAME "leanex_${T_NAME}"
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/lean ${T})
+ENDFOREACH(T)
 
 # LEAN TESTS
 file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")

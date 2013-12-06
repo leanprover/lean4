@@ -181,7 +181,9 @@ static void display_context_core(std::ostream & out, context const & ctx) {
         display_context_core(out, tail_ctx);
         if (!empty(tail_ctx))
             out << "; ";
-        out << head.get_name() << " : " << mk_pair(head.get_domain(), tail_ctx);
+        out << head.get_name();
+        if (head.get_domain())
+            out << " : " << mk_pair(head.get_domain(), tail_ctx);
         if (head.get_body()) {
             out << " := " << mk_pair(head.get_body(), tail_ctx);
         }

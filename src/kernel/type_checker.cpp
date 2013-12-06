@@ -173,9 +173,9 @@ class type_checker::imp {
         case expr_kind::Pi: {
             expr t1  = check_type(infer_type_core(abst_domain(e), ctx), abst_domain(e), ctx);
             expr t2;
+            context new_ctx = extend(ctx, abst_name(e), abst_domain(e));
             {
                 cache::mk_scope sc(m_cache);
-                context new_ctx = extend(ctx, abst_name(e), abst_domain(e));
                 t2 = check_type(infer_type_core(abst_body(e), new_ctx), abst_body(e), new_ctx);
             }
             if (is_type(t1) && is_type(t2)) {
@@ -184,7 +184,7 @@ class type_checker::imp {
                 lean_assert(m_uc);
                 justification jst = mk_max_type_justification(ctx, e);
                 r = m_menv->mk_metavar(ctx);
-                m_uc->push_back(mk_max_constraint(ctx, t1, t2, r, jst));
+                m_uc->push_back(mk_max_constraint(new_ctx, lift_free_vars(t1, 0, 1), t2, r, jst));
             }
             break;
         }

@@ -4,10 +4,10 @@ Eval cast (Refl A) x
 Eval x = (cast (Refl A) x)
 Variable b : B
 Definition f (x : A) : B := b
-Axiom H : A -> B = A' -> B
+Axiom H : (A -> B) = (A' -> B)
 Variable a' : A'
 Eval (cast H f) a'
-Axiom H2 : A -> B = A' -> B'
+Axiom H2 : (A -> B) = (A' -> B')
 Definition g (x : B') : Nat := 0
 Eval g ((cast H2 f) a')
 Check g ((cast H2 f) a')

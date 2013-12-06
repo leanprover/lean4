@@ -1,0 +1,15 @@
+Type Ctrl-D or 'Exit.' to exit or 'Help.' for help.
+#   Set: pp::colors
+  Set: pp::unicode
+  Set: tactic::proof_state::goal_names
+# Proof state:
+main: a : Bool ⊢ a ⇒ a ∧ a
+## Proof state:
+main: H : a, a : Bool ⊢ a ∧ a
+## Proof state:
+main::1: H : a, a : Bool ⊢ a
+main::2: H : a, a : Bool ⊢ a
+## Proof state:
+no goals
+##   Proved: T
+# 

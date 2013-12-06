@@ -9,7 +9,17 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 #include "library/tactic/proof_state.h"
 
+#ifndef LEAN_PROOF_STATE_GOAL_NAMES
+#define LEAN_PROOF_STATE_GOAL_NAMES false
+#endif
+
 namespace lean {
+static name g_proof_state_goal_names       {"tactic", "proof_state", "goal_names"};
+RegisterBoolOption(g_proof_state_goal_names, LEAN_PROOF_STATE_GOAL_NAMES, "(tactic) display goal names when pretty printing proof state");
+bool get_proof_state_goal_names(options const & opts) {
+    return opts.get_bool(g_proof_state_goal_names, LEAN_PROOF_STATE_GOAL_NAMES);
+}
+
 optional<name> get_ith_goal_name(goals const & gs, unsigned i) {
     unsigned j = 1;
     for (auto const & p : gs) {
@@ -36,6 +46,8 @@ bool trust_cex(precision p) {
 }
 
 format proof_state::pp(formatter const & fmt, options const & opts) const {
+    bool show_goal_names = get_proof_state_goal_names(opts);
+    unsigned indent      = get_pp_indent(opts);
     format r;
     bool first = true;
     for (auto const & p : get_goals()) {
@@ -43,7 +55,11 @@ format proof_state::pp(formatter const & fmt, options const & opts) const {
             first = false;
         else
             r += line();
-        r += p.second.pp(fmt, opts);
+        if (show_goal_names) {
+            r += group(format{format(p.first), colon(), nest(indent, compose(line(), p.second.pp(fmt, opts)))});
+        } else {
+            r += p.second.pp(fmt, opts);
+        }
     }
     if (first) {
         r = format("no goals");

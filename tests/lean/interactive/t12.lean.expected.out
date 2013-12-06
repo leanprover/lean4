@@ -2,7 +2,9 @@ Type Ctrl-D or 'Exit.' to exit or 'Help.' for help.
 #   Set: pp::colors
   Set: pp::unicode
   Proved: T1
-Proof state:
+Theorem T1 (A B : Bool) (assumption : A ∧ B) : B ∧ A :=
+    let lemma1 : A := Conjunct1 assumption, lemma2 : B := Conjunct2 assumption in Conj lemma2 lemma1
+# Proof state:
 A : Bool, B : Bool, assumption : A ∧ B ⊢ A
 ## Proof state:
 no goals

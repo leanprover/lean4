@@ -52,6 +52,10 @@ inline expr Let(name const & x, expr const & v, expr const & b) { return mk_let(
 inline expr Let(expr const & x, expr const & v, expr const & b) { return mk_let(const_name(x), expr(), v, abstract(b, x)); }
 inline expr Let(std::pair<expr const &, expr const &> const & p, expr const & b) { return Let(p.first, p.second, b); }
        expr Let(std::initializer_list<std::pair<expr const &, expr const &>> const & l, expr const & b);
+/**
+   \brief Similar to Let(x, v, b), but returns v if x == b
+*/
+inline expr Let_simp(expr const & x, expr const & v, expr const & b) { return x == b ? v : Let(x, v, b); }
 
 /**
    \brief Create a Let expression (Let x : t := v in b), the term b is abstracted using abstract(b, x).

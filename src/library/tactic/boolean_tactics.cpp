@@ -141,9 +141,9 @@ tactic conj_hyp_tactic(bool all) {
                                 expr const & H_1      = mk_constant(name(H_name, 1));
                                 expr const & H_2      = mk_constant(name(H_name, 2));
                                 if (occurs(H_1, pr))
-                                    pr = Let(H_1, Conjunct1(arg(H_prop, 1), arg(H_prop, 2), mk_constant(H_name)), pr);
+                                    pr = Let_simp(H_1, Conjunct1(arg(H_prop, 1), arg(H_prop, 2), mk_constant(H_name)), pr);
                                 if (occurs(H_2, pr))
-                                    pr = Let(H_2, Conjunct2(arg(H_prop, 1), arg(H_prop, 2), mk_constant(H_name)), pr);
+                                    pr = Let_simp(H_2, Conjunct2(arg(H_prop, 1), arg(H_prop, 2), mk_constant(H_name)), pr);
                             }
                             new_m.insert(goal_name, pr);
                         }

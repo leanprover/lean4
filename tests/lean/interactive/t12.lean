@@ -1,6 +1,6 @@
 (**
 -- Define a simple tactic using Lua
-auto = REPEAT(ORELSE(conj_hyp_tac, conj_tac, assumption_tac))
+auto = REPEAT(ORELSE(assumption_tac, conj_tac, conj_hyp_tac))
 **)
 
 (*
@@ -16,6 +16,8 @@ Theorem T1 (A B : Bool) : A /\ B -> B /\ A :=
           let lemma1     : A      := (by auto),
               lemma2     : B      := (by auto)
           in (show B /\ A by auto)
+
+Show Environment 1. (* Show proof for the previous theorem *)
 
 (*
 When hints are not provided, the user must fill the (remaining) holes using tactic command sequences.

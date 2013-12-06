@@ -1,0 +1,37 @@
+Type Ctrl-D or 'Exit.' to exit or 'Help.' for help.
+#   Set: pp::colors
+  Set: pp::unicode
+Proof state:
+A : Bool, B : Bool, H : A ∧ B ⊢ B
+## Proof state:
+A : Bool, B : Bool, H::1 : A, H::2 : B ⊢ B
+## Proof state:
+no goals
+## Proof state:
+A : Bool, B : Bool, H : A ∧ B, H1 : B ⊢ A
+## Proof state:
+A : Bool, B : Bool, H::1 : A, H::2 : B, H1 : B ⊢ A
+## Proof state:
+no goals
+## Proof state:
+A : Bool, B : Bool, H : A ∧ B, H1 : B, H2 : A ⊢ B ∧ A
+## Proof state:
+A : Bool, B : Bool, H : A ∧ B, H1 : B, H2 : A ⊢ B
+A : Bool, B : Bool, H : A ∧ B, H1 : B, H2 : A ⊢ A
+## Proof state:
+no goals
+##   Proved: T1
+# Proof state:
+A : Bool, B : Bool, H : A ∧ B ⊢ A
+## Proof state:
+no goals
+## Proof state:
+A : Bool, B : Bool, H : A ∧ B, H1 : A ⊢ B
+## Proof state:
+no goals
+## Proof state:
+A : Bool, B : Bool, H : A ∧ B, H1 : A, H2 : B ⊢ B ∧ A
+## Proof state:
+no goals
+##   Proved: T2
+# 

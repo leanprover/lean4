@@ -380,8 +380,7 @@ class parser::imp {
 
     void display_error(tactic_cmd_error const & ex) {
         display_error(ex.what(), ex.m_pos.first, ex.m_pos.second);
-        if (m_interactive)
-            display_proof_state(ex.m_state);
+        display_proof_state(ex.m_state);
     }
 
     /**
@@ -1394,6 +1393,9 @@ class parser::imp {
                             next();
                             throw tactic_cmd_error(sstream() << "invalid tactic command '" << id << "'", p, s);
                         }
+                        break;
+                    case scanner::token::CommandId:
+                        st = status::Abort;
                         break;
                     default:
                         next();

@@ -1,0 +1,21 @@
+Type Ctrl-D or 'Exit.' to exit or 'Help.' for help.
+#   Set: pp::colors
+  Set: pp::unicode
+Proof state:
+A : Bool, B : Bool, H : A ∧ B ⊢ A
+## Proof state:
+no goals
+## Proof state:
+A : Bool, B : Bool, H : A ∧ B, H1 : A ⊢ B
+## Error (line: 15, pos: 3) unknown tactic 'simple2_tac'
+Proof state:
+A : Bool, B : Bool, H : A ∧ B, H1 : A ⊢ B
+## Error (line: 15, pos: 22) invalid 'done' command, proof cannot be produced from this state
+Proof state:
+A : Bool, B : Bool, H : A ∧ B, H1 : A ⊢ B
+## Proof state:
+no goals
+## Proof state:
+A : Bool, B : Bool, H : A ∧ B, H1 : A, H2 : B ⊢ B ∧ A
+## Error (line: 18, pos: 0) failed to prove theorem, proof has been aborted
+# echo command after failure

@@ -28,7 +28,7 @@ optional<substitution> fo_unify(expr e1, expr e2) {
     lean_assert(e1);
     lean_assert(e2);
     substitution s;
-    unsigned i;
+    unsigned i1, i2;
     expr lhs1, rhs1, lhs2, rhs2;
     buffer<expr_pair> todo;
     todo.emplace_back(e1, e2);
@@ -52,12 +52,18 @@ optional<substitution> fo_unify(expr e1, expr e2) {
                 case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value: case expr_kind::MetaVar:
                     return optional<substitution>();
                 case expr_kind::App:
-                    if (num_args(e1) != num_args(e2))
-                        return optional<substitution>();
-                    i = num_args(e1);
-                    while (i > 0) {
-                        --i;
-                        todo.emplace_back(arg(e1, i), arg(e2, i));
+                    i1 = num_args(e1);
+                    i2 = num_args(e2);
+                    while (i1 > 0 && i2 > 0) {
+                        --i1;
+                        --i2;
+                        if (i1 == 0 && i2 > 0) {
+                            todo.emplace_back(arg(e1, i1), mk_app(i2+1, begin_args(e2)));
+                        } else if (i2 == 0 && i1 > 0) {
+                            todo.emplace_back(mk_app(i1+1, begin_args(e1)), arg(e2, i2));
+                        } else {
+                            todo.emplace_back(arg(e1, i1), arg(e2, i2));
+                        }
                     }
                     break;
                 case expr_kind::Eq:

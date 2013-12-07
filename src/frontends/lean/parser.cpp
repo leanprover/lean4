@@ -1521,71 +1521,52 @@ class parser::imp {
 
     /**
        \brief Try to fill the 'holes' in \c val using tactics.
-       The expression \c expected_type is the type of \c val.
        The metavar_env \c menv contains the definition of the metavariables occurring in \c val.
 
        If a 'hole' is associated with a "hint tactic" ('show-by' and 'by' constructs),
        then this will be the tactic used to "fill" the hole. Otherwise,
        a tactic command sequence is expected in the input stream being parsed.
     */
-    expr apply_tactics(expr const & expected_type, expr const & val, metavar_env & menv) {
-        if (is_metavar(val)) {
-            // simple case
-            if (!m_type_inferer.is_proposition(expected_type))
+    expr apply_tactics(expr const & val, metavar_env & menv) {
+        buffer<expr> mvars;
+        for_each(val, [&](expr const & e, unsigned) {
+                if (is_metavar(e)) {
+                    mvars.push_back(e);
+                }
+                return true;
+            });
+        std::sort(mvars.begin(), mvars.end(), [](expr const & e1, expr const & e2) { return is_lt(e1, e2, false); });
+        for (auto mvar : mvars) {
+            expr    mvar_type = instantiate_metavars(menv.get_type(mvar), menv);
+            if (has_metavar(mvar_type))
+                throw exception("failed to synthesize metavar, its type contains metavariables");
+            buffer<context_entry> new_entries;
+            for (auto e : menv.get_context(mvar)) {
+                new_entries.emplace_back(e.get_name(),
+                                         instantiate_metavars(e.get_domain(), menv),
+                                         instantiate_metavars(e.get_body(), menv));
+            }
+            context mvar_ctx(to_list(new_entries.begin(), new_entries.end()));
+            if (!m_type_inferer.is_proposition(mvar_type, mvar_ctx))
                 throw exception("failed to synthesize metavar, its type is not a proposition");
-            proof_state s = to_proof_state(m_frontend, context(), expected_type);
-            std::pair<tactic, pos_info> hint_and_pos = get_tactic_tactic_for(val);
+            proof_state s = to_proof_state(m_frontend, mvar_ctx, mvar_type);
+            std::pair<tactic, pos_info> hint_and_pos = get_tactic_tactic_for(mvar);
             if (hint_and_pos.first) {
                 // metavariable has an associated tactic hint
                 s = apply_tactic(s, hint_and_pos.first, hint_and_pos.second).first;
-                return mk_proof_for(s, hint_and_pos.second, context(), expected_type);
+                menv.assign(mvar, mk_proof_for(s, hint_and_pos.second, mvar_ctx, mvar_type));
             } else {
-                display_proof_state_if_interactive(s);
-                show_tactic_prompt();
-                check_period_next("invalid theorem, '.' expected before tactical proof");
-                return parse_tactic_cmds(s, context(), expected_type);
-            }
-        } else {
-            buffer<expr> mvars;
-            for_each(val, [&](expr const & e, unsigned) {
-                    if (is_metavar(e)) {
-                        mvars.push_back(e);
-                    }
-                    return true;
-                });
-            std::sort(mvars.begin(), mvars.end(), [](expr const & e1, expr const & e2) { return is_lt(e1, e2, false); });
-            for (auto mvar : mvars) {
-                expr    mvar_type = instantiate_metavars(menv.get_type(mvar), menv);
-                if (has_metavar(mvar_type))
-                    throw exception("failed to synthesize metavar, its type contains metavariables");
-                buffer<context_entry> new_entries;
-                for (auto e : menv.get_context(mvar)) {
-                    new_entries.emplace_back(e.get_name(),
-                                             instantiate_metavars(e.get_domain(), menv),
-                                             instantiate_metavars(e.get_body(), menv));
+                if (curr_is_period()) {
+                    display_proof_state_if_interactive(s);
+                    show_tactic_prompt();
+                    next();
                 }
-                context mvar_ctx(to_list(new_entries.begin(), new_entries.end()));
-                if (!m_type_inferer.is_proposition(mvar_type, mvar_ctx))
-                    throw exception("failed to synthesize metavar, its type is not a proposition");
-                proof_state s = to_proof_state(m_frontend, mvar_ctx, mvar_type);
-                std::pair<tactic, pos_info> hint_and_pos = get_tactic_tactic_for(mvar);
-                if (hint_and_pos.first) {
-                    // metavariable has an associated tactic hint
-                    s = apply_tactic(s, hint_and_pos.first, hint_and_pos.second).first;
-                    menv.assign(mvar, mk_proof_for(s, hint_and_pos.second, mvar_ctx, mvar_type));
-                } else {
-                    if (curr_is_period()) {
-                        display_proof_state_if_interactive(s);
-                        show_tactic_prompt();
-                        next();
-                    }
-                    expr mvar_val = parse_tactic_cmds(s, mvar_ctx, mvar_type);
-                    if (mvar_val)
-                        menv.assign(mvar, mvar_val);
-                }
+                expr mvar_val = parse_tactic_cmds(s, mvar_ctx, mvar_type);
+                if (mvar_val)
+                    menv.assign(mvar, mvar_val);
             }
-            return instantiate_metavars(val, menv);
         }
+        return instantiate_metavars(val, menv);
     }
 
     /** \brief Auxiliary method used for parsing definitions and theorems. */
@@ -1629,7 +1610,7 @@ class parser::imp {
         if (has_metavar(type))
             throw exception("invalid definition, type still contains metavariables after elaboration");
         if (!is_definition && has_metavar(val)) {
-            val = apply_tactics(type, val, menv);
+            val = apply_tactics(val, menv);
         }
         if (has_metavar(val))
             throw exception("invalid definition, value still contains metavariables after elaboration");

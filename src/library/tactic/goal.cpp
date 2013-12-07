@@ -138,10 +138,10 @@ std::pair<goal, goal_proof_fn> to_goal(environment const & env, context const & 
         expr b = replacer(e.get_body());
         replacer.clear();
         if (b && (!d || !inferer.is_proposition(d))) {
-            hypotheses.emplace_back(n, expr());
             bodies.push_back(b);
             consts.push_back(expr());
         } else {
+            lean_assert(d);
             hypotheses.emplace_back(n, d);
             bodies.push_back(expr());
             consts.push_back(mk_constant(n, d));

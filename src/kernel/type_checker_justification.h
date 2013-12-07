@@ -120,9 +120,29 @@ public:
     expr const & get_value() const { return m_value; }
 };
 
+/**
+   \brief Similar to def_type_match_justification_cell. It is used to sign that type of \c m_value
+   must be convertible to \c m_type at context \c m_ctx.
+*/
+class type_match_justification_cell : public justification_cell {
+    context m_ctx;
+    expr    m_type;
+    expr    m_value;
+public:
+    type_match_justification_cell(context const & c, expr const & t, expr const & v):m_ctx(c), m_type(t), m_value(v) {}
+    virtual ~type_match_justification_cell();
+    virtual format pp_header(formatter const & fmt, options const & opts) const;
+    virtual void get_children(buffer<justification_cell*> &) const;
+    virtual expr const & get_main_expr() const;
+    context const & get_context() const { return m_ctx; }
+    expr const & get_type() const { return m_type; }
+    expr const & get_value() const { return m_value; }
+};
+
 inline justification mk_function_expected_justification(context const & ctx, expr const & app) { return justification(new function_expected_justification_cell(ctx, app)); }
 inline justification mk_app_type_match_justification(context const & ctx, expr const & app, unsigned i) { return justification(new app_type_match_justification_cell(ctx, app, i)); }
 inline justification mk_type_expected_justification(context const & ctx, expr const & type) { return justification(new type_expected_justification_cell(ctx, type)); }
 inline justification mk_max_type_justification(context const & ctx, expr const & type) { return justification(new max_type_justification_cell(ctx, type)); }
 inline justification mk_def_type_match_justification(context const & ctx, name const & n, expr const & v) { return justification(new def_type_match_justification_cell(ctx, n, v)); }
+inline justification mk_type_match_justification(context const & ctx, expr const & t, expr const & v) { return justification(new type_match_justification_cell(ctx, t, v)); }
 }

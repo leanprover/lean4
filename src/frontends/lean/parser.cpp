@@ -33,6 +33,7 @@ Author: Leonardo de Moura
 #include "kernel/printer.h"
 #include "kernel/metavar.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/type_checker_justification.h"
 #include "library/expr_lt.h"
 #include "library/type_inferer.h"
 #include "library/arith/arith.h"
@@ -43,6 +44,7 @@ Author: Leonardo de Moura
 #include "library/tactic/proof_state.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/apply_tactic.h"
+#include "library/elaborator/elaborator.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/frontend_elaborator.h"
 #include "frontends/lean/parser.h"
@@ -1338,12 +1340,27 @@ class parser::imp {
        It basically applies the proof_builder if \c s does not contain
        any goals left. The position information is used to throw an exception
        if \c s is not a final state.
+
+       The resultant proof must have type \c expected_type in the context \c ctx.
     */
-    expr mk_proof_for(proof_state const & s, pos_info const & p) {
+    expr mk_proof_for(proof_state const & s, pos_info const & p, context const & ctx, expr const & expected_type) {
         if (s.is_proof_final_state()) {
             assignment a(s.get_menv());
             proof_map  m;
             expr pr = s.get_proof_builder()(m, a);
+            if (has_metavar(pr)) {
+                // Some tactics generate metavariables that can only be instantiated by type inference elaboration.
+                // Example: apply_tactic.
+                metavar_env menv = s.get_menv();
+                buffer<unification_constraint> ucs;
+                expr pr_type = type_checker(m_frontend).infer_type(pr, ctx, &menv, &ucs);
+                ucs.push_back(mk_convertible_constraint(ctx, pr_type, expected_type, mk_type_match_justification(ctx, expected_type, pr)));
+                elaborator elb(m_frontend, s.get_menv(), ucs.size(), ucs.data(), m_frontend.get_options());
+                metavar_env new_menv = elb.next();
+                pr = instantiate_metavars(pr, new_menv);
+                if (has_metavar(pr))
+                    throw exception("synthesized proof object has unsolved metavars");
+            }
             return pr;
         } else {
             throw tactic_cmd_error("invalid 'done' command, proof cannot be produced from this state", p, s);
@@ -1410,16 +1427,18 @@ class parser::imp {
        \brief Execute the \c done tactic command. It succeeds if
        a proof for \c s can be built.
     */
-    expr done_cmd(proof_state const & s) {
+    expr done_cmd(proof_state const & s, context const & ctx, expr const & expected_type) {
         auto p = pos();
         next();
-        return mk_proof_for(s, p);
+        return mk_proof_for(s, p, ctx, expected_type);
     }
 
     /**
        \brief Parse tactic command sequence for solving input state \c s.
+
+       The proof for \c s must have type \c expected_type in the context \c ctx.
     */
-    expr parse_tactic_cmds(proof_state s) {
+    expr parse_tactic_cmds(proof_state s, context const & ctx, expr const & expected_type) {
         proof_state_seq_stack stack;
         expr pr;
         enum class status { Continue, Done, Eof, Abort };
@@ -1446,7 +1465,7 @@ class parser::imp {
                         } else if (id == g_back) {
                             back_cmd(stack, s);
                         } else if (id == g_done) {
-                            pr = done_cmd(s);
+                            pr = done_cmd(s, ctx, expected_type);
                             if (pr)
                                 st = status::Done;
                         } else if (id == g_abort) {
@@ -1519,12 +1538,12 @@ class parser::imp {
             if (hint_and_pos.first) {
                 // metavariable has an associated tactic hint
                 s = apply_tactic(s, hint_and_pos.first, hint_and_pos.second).first;
-                return mk_proof_for(s, hint_and_pos.second);
+                return mk_proof_for(s, hint_and_pos.second, context(), expected_type);
             } else {
                 display_proof_state_if_interactive(s);
                 show_tactic_prompt();
                 check_period_next("invalid theorem, '.' expected before tactical proof");
-                return parse_tactic_cmds(s);
+                return parse_tactic_cmds(s, context(), expected_type);
             }
         } else {
             buffer<expr> mvars;
@@ -1553,14 +1572,14 @@ class parser::imp {
                 if (hint_and_pos.first) {
                     // metavariable has an associated tactic hint
                     s = apply_tactic(s, hint_and_pos.first, hint_and_pos.second).first;
-                    menv.assign(mvar, mk_proof_for(s, hint_and_pos.second));
+                    menv.assign(mvar, mk_proof_for(s, hint_and_pos.second, mvar_ctx, mvar_type));
                 } else {
                     if (curr_is_period()) {
                         display_proof_state_if_interactive(s);
                         show_tactic_prompt();
                         next();
                     }
-                    expr mvar_val = parse_tactic_cmds(s);
+                    expr mvar_val = parse_tactic_cmds(s, mvar_ctx, mvar_type);
                     if (mvar_val)
                         menv.assign(mvar, mvar_val);
                 }

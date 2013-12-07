@@ -91,4 +91,18 @@ void def_type_match_justification_cell::get_children(buffer<justification_cell*>
 expr const & def_type_match_justification_cell::get_main_expr() const {
     return m_value;
 }
+
+type_match_justification_cell::~type_match_justification_cell() {
+}
+
+format type_match_justification_cell::pp_header(formatter const &, options const &) const {
+    return format("Type of expression must be convertible to expected type.");
+}
+
+void type_match_justification_cell::get_children(buffer<justification_cell*> &) const {
+}
+
+expr const & type_match_justification_cell::get_main_expr() const {
+    return m_value;
+}
 }

@@ -46,7 +46,7 @@ class type_inferer::imp {
             return u;
         if (is_bool(u))
             return Type();
-        if (has_metavar(u) && m_menv) {
+        if (has_metavar(u) && m_menv && m_uc) {
             justification jst = mk_type_expected_justification(ctx, s);
             m_uc->push_back(mk_convertible_constraint(ctx, u, TypeU, jst));
             return u;
@@ -64,7 +64,7 @@ class type_inferer::imp {
                 t = m_normalizer(t, ctx);
                 if (is_pi(t)) {
                     t = abst_body(t);
-                } else if (has_metavar(t) && m_menv) {
+                } else if (has_metavar(t) && m_menv && m_uc) {
                     // Create two fresh variables A and B,
                     // and assign r == (Pi(x : A), B x)
                     expr A   = m_menv->mk_metavar(ctx);
@@ -224,10 +224,10 @@ public:
         m_uc             = nullptr;
     }
 
-    expr operator()(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> & uc) {
+    expr operator()(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> * uc) {
         set_ctx(ctx);
         set_menv(menv);
-        flet<unification_constraints*> set(m_uc, &uc);
+        flet<unification_constraints*> set(m_uc, uc);
         return infer_type(e, ctx);
     }
 
@@ -239,9 +239,8 @@ public:
         m_menv_timestamp = 0;
     }
 
-    bool is_proposition(expr const & e, context const & ctx) {
-        buffer<unification_constraint> uc;
-        expr t = operator()(e, ctx, nullptr, uc);
+    bool is_proposition(expr const & e, context const & ctx, metavar_env * menv) {
+        expr t = operator()(e, ctx, menv, nullptr);
         if (is_bool(t))
             return true;
         else
@@ -250,15 +249,14 @@ public:
 };
 type_inferer::type_inferer(environment const & env):m_ptr(new imp(env)) {}
 type_inferer::~type_inferer() {}
-expr type_inferer::operator()(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> & uc) {
+expr type_inferer::operator()(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> * uc) {
     return m_ptr->operator()(e, ctx, menv, uc);
 }
 expr type_inferer::operator()(expr const & e, context const & ctx) {
-    buffer<unification_constraint> uc;
-    return operator()(e, ctx, nullptr, uc);
+    return operator()(e, ctx, nullptr, nullptr);
 }
-bool type_inferer::is_proposition(expr const & e, context const & ctx) {
-    return m_ptr->is_proposition(e, ctx);
+bool type_inferer::is_proposition(expr const & e, context const & ctx, metavar_env * menv) {
+    return m_ptr->is_proposition(e, ctx, menv);
 }
 void type_inferer::clear() { m_ptr->clear(); }
 

@@ -360,7 +360,7 @@ class elaborator::imp {
         m_state.m_menv.assign(m, v, jst);
         if (menv.has_type(m)) {
             buffer<unification_constraint> ucs;
-            expr tv = m_type_inferer(v, ctx, &menv, ucs);
+            expr tv = m_type_inferer(v, ctx, &menv, &ucs);
             for (auto c : ucs)
                 push_front(c);
             justification new_jst(new typeof_mvar_justification(ctx, m, menv.get_type(m), tv, jst));
@@ -746,7 +746,7 @@ class elaborator::imp {
         buffer<expr> arg_types;
         buffer<unification_constraint> ucs;
         for (unsigned i = 1; i < num_a; i++) {
-            arg_types.push_back(m_type_inferer(arg(a, i), ctx, &menv, ucs));
+            arg_types.push_back(m_type_inferer(arg(a, i), ctx, &menv, &ucs));
             for (auto uc : ucs)
                 push_front(uc);
         }

@@ -133,7 +133,7 @@ static void tst4() {
     expr A4 = menv.mk_metavar();
     expr F  = cons(A1, m1(a), cons(A2, m2(n), cons(A3, m3(b), nil(A4))));
     std::cout << F << "\n";
-    std::cout << inferer(F, context(), &menv, uc) << "\n";
+    std::cout << inferer(F, context(), &menv, &uc) << "\n";
     std::cout << uc << "\n";
 }
 

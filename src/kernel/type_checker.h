@@ -34,7 +34,7 @@ public:
        New metavariables and unification constraints may be created by the type checker.
        The new unification constraints are stored in \c new_constraints.
     */
-    expr infer_type(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> & new_constraints);
+    expr infer_type(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> * new_constraints);
 
     /**
         \brief Return the type of \c e in the context \c ctx.

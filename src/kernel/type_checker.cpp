@@ -53,7 +53,7 @@ class type_checker::imp {
         expr r = normalize(e, ctx);
         if (is_pi(r))
             return r;
-        if (has_metavar(r) && m_menv) {
+        if (has_metavar(r) && m_menv && m_uc) {
             // Create two fresh variables A and B,
             // and assign r == (Pi(x : A), B x)
             expr A   = m_menv->mk_metavar(ctx);
@@ -76,7 +76,7 @@ class type_checker::imp {
             return u;
         if (is_bool(u))
             return Type();
-        if (has_metavar(u) && m_menv) {
+        if (has_metavar(u) && m_menv && m_uc) {
             justification jst = mk_type_expected_justification(ctx, s);
             m_uc->push_back(mk_convertible_constraint(ctx, u, TypeU, jst));
             return u;
@@ -256,7 +256,7 @@ class type_checker::imp {
         expr new_expected = normalize(expected, ctx);
         if (is_convertible_core(new_given, new_expected))
             return true;
-        if (m_menv && (has_metavar(new_given) || has_metavar(new_expected))) {
+        if (m_menv && m_uc && (has_metavar(new_given) || has_metavar(new_expected))) {
             m_uc->push_back(mk_convertible_constraint(ctx, given, expected, mk_justification()));
             return true;
         }
@@ -295,10 +295,10 @@ public:
         m_uc              = nullptr;
     }
 
-    expr infer_type(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> & uc) {
+    expr infer_type(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> * uc) {
         set_ctx(ctx);
         set_menv(menv);
-        flet<unification_constraints*> set_uc(m_uc, &uc);
+        flet<unification_constraints*> set_uc(m_uc, uc);
         return infer_type_core(e, ctx);
     }
 
@@ -333,12 +333,11 @@ public:
 
 type_checker::type_checker(environment const & env):m_ptr(new imp(env)) {}
 type_checker::~type_checker() {}
-expr type_checker::infer_type(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> & uc) {
+expr type_checker::infer_type(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> * uc) {
     return m_ptr->infer_type(e, ctx, menv, uc);
 }
 expr type_checker::infer_type(expr const & e, context const & ctx) {
-    buffer<unification_constraint> uc;
-    return infer_type(e, ctx, nullptr, uc);
+    return infer_type(e, ctx, nullptr, nullptr);
 }
 bool type_checker::is_convertible(expr const & t1, expr const & t2, context const & ctx) {
     return m_ptr->is_convertible(t1, t2, ctx);

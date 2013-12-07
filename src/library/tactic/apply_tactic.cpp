@@ -69,7 +69,7 @@ static optional<proof_state> apply_tactic(environment const & env, proof_state c
                         l.emplace_front(mvar_sol, name());
                         th_type_c = instantiate(abst_body(th_type_c), mvar_sol);
                     } else {
-                        if (inferer.is_proposition(abst_domain(th_type_c))) {
+                        if (inferer.is_proposition(abst_domain(th_type_c), context(), &new_menv)) {
                             name new_gname(gname, new_goal_idx);
                             new_goal_idx++;
                             l.emplace_front(expr(), new_gname);

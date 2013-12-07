@@ -408,7 +408,7 @@ public:
         expr new_e = preprocessor(*this)(e);
         // std::cout << "After preprocessing\n" << new_e << "\n";
         if (has_metavar(new_e)) {
-            m_type_checker.infer_type(new_e, context(), &m_menv, m_ucs);
+            m_type_checker.infer_type(new_e, context(), &m_menv, &m_ucs);
             // for (auto c : m_ucs) {
             //     formatter fmt = mk_simple_formatter();
             //     std::cout << c.pp(fmt, options(), nullptr, false) << "\n";
@@ -427,8 +427,8 @@ public:
         expr new_e = preprocessor(*this)(e);
         // std::cout << "After preprocessing\n" << new_t << "\n" << new_e << "\n";
         if (has_metavar(new_e) || has_metavar(new_t)) {
-            m_type_checker.infer_type(new_t, context(), &m_menv, m_ucs);
-            expr new_e_t = m_type_checker.infer_type(new_e, context(), &m_menv, m_ucs);
+            m_type_checker.infer_type(new_t, context(), &m_menv, &m_ucs);
+            expr new_e_t = m_type_checker.infer_type(new_e, context(), &m_menv, &m_ucs);
             m_ucs.push_back(mk_convertible_constraint(context(), new_e_t, new_t,
                                                       mk_def_type_match_justification(context(), n, e)));
             // for (auto c : m_ucs) {

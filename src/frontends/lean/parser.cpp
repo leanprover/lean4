@@ -269,6 +269,10 @@ class parser::imp {
     bool curr_is_in() const { return curr() == scanner::token::In; }
     /** \brief Return true iff the current token is '.' */
     bool curr_is_period() const { return curr() == scanner::token::Period; }
+    /** \brief Return true iff the current token is a tactic command */
+    bool curr_is_tactic_cmd() const {
+        return curr_is_identifier() && std::find(g_tactic_cmds.begin(), g_tactic_cmds.end(), curr_name()) != g_tactic_cmds.end();
+    }
 
     /** \brief Throws a parser error if the current token is not an identifier. */
     void check_identifier(char const * msg) { if (!curr_is_identifier()) throw parser_error(msg, pos()); }
@@ -1147,12 +1151,12 @@ class parser::imp {
             expr pr      = parse_expr();
             check_rparen_next("invalid apply command, ')' expected");
             expr pr_type = m_type_inferer(pr);
-            t = apply_tactic(pr, pr_type);
+            t = ::lean::apply_tactic(pr, pr_type);
         } else {
            name n = check_identifier_next("invalid apply command, identifier, '(' expr ')', or 'script-block' expected");
             object const & o = m_frontend.find_object(n);
             if (o && (o.is_theorem() || o.is_axiom())) {
-                t = apply_tactic(n);
+                t = ::lean::apply_tactic(n);
             } else {
                 using_script([&](lua_State * L) {
                         lua_getglobal(L, n.to_string().c_str());
@@ -1310,7 +1314,50 @@ class parser::imp {
 
     typedef std::vector<proof_state_seq> proof_state_seq_stack;
 
-    void tactic_backtrack(proof_state_seq_stack & stack, proof_state & s) {
+    /**
+       \brief Apply tactic \c t to state \c s.
+       When \c t succeeds, it returns the head and tail of the output state sequence.
+       Throws an exception if the tactic fails, and use \c p to sign the error position.
+    */
+    std::pair<proof_state, proof_state_seq> apply_tactic(proof_state const & s, tactic const & t, pos_info const & p) {
+        proof_state_seq::maybe_pair r;
+        code_with_callbacks([&]() {
+                // t may have call-backs we should set ios in the script_state
+                proof_state_seq seq = t(m_frontend, m_frontend.get_state(), s);
+                r = seq.pull();
+            });
+        if (r) {
+            return mk_pair(r->first, r->second);
+        } else {
+            throw tactic_cmd_error("tactic failed", p, s);
+        }
+    }
+
+    /**
+       \brief Try to create a proof for the input state \c s.
+       It basically applies the proof_builder if \c s does not contain
+       any goals left. The position information is used to throw an exception
+       if \c s is not a final state.
+    */
+    expr mk_proof_for(proof_state const & s, pos_info const & p) {
+        if (s.is_proof_final_state()) {
+            assignment a(s.get_menv());
+            proof_map  m;
+            expr pr = s.get_proof_builder()(m, a);
+            return pr;
+        } else {
+            throw tactic_cmd_error("invalid 'done' command, proof cannot be produced from this state", p, s);
+        }
+    }
+
+    /**
+       \brief Execute the \c back (backtrack) tactic command.  It
+       succeeds if the stack \c stack contains proof states.  When it
+       succeeds, \c s is updated with the next state in the state
+       sequence on the top of \c stack. The new state is also removed
+       from the stack.
+    */
+    void back_cmd(/* inout */ proof_state_seq_stack & stack, /* inout */ proof_state & s) {
         auto p = pos();
         next();
         while (!stack.empty()) {
@@ -1330,79 +1377,49 @@ class parser::imp {
         throw tactic_cmd_error("failed to backtrack", p, s);
     }
 
-    void tactic_apply(proof_state_seq_stack & stack, proof_state & s, tactic const & t, pos_info const & p) {
-        proof_state_seq::maybe_pair r;
-        code_with_callbacks([&]() {
-                // t may have call-backs we should set ios in the script_state
-                proof_state_seq seq = t(m_frontend, m_frontend.get_state(), s);
-                r = seq.pull();
-            });
-        if (r) {
-            s = r->first;
-            stack.push_back(r->second);
-        } else {
-            throw tactic_cmd_error("tactic failed", p, s);
-        }
-    }
-
-    proof_state tactic_apply(proof_state s, tactic const & t, pos_info const & p) {
-        proof_state_seq_stack stack;
-        tactic_apply(stack, s, t, p);
-        return s;
-    }
-
-    void tactic_apply(proof_state_seq_stack & stack, proof_state & s) {
+    /**
+       \brief Execute the <tt>apply [tactic]</tt> tactic command.
+       This command just applies the tactic to the input state \c s.
+       If it succeeds, \c s is assigned to the head of the output
+       state sequence produced by the tactic.  The rest/tail of the
+       output state sequence is stored on the top of the stack \c
+       stack.
+    */
+    void apply_cmd(/* inout */ proof_state_seq_stack & stack, /* inout */ proof_state & s) {
         auto tac_pos = pos();
         next();
         tactic t = parse_tactic_expr();
-        tactic_apply(stack, s, t, tac_pos);
+        auto r = apply_tactic(s, t, tac_pos);
+        s = r.first;
+        stack.push_back(r.second);
     }
 
-    void tactic_assumption(proof_state_seq_stack & stack, proof_state & s) {
+    /**
+       \brief Execute the \c assumption tactic command. This command
+       is just syntax sugar for <tt>apply assumption_tac</tt>.
+    */
+    void assumption_cmd(/* inout */ proof_state_seq_stack & stack, /* inout */ proof_state & s) {
         auto tac_pos = pos();
         next();
-        tactic_apply(stack, s, assumption_tactic(), tac_pos);
+        auto r = apply_tactic(s, assumption_tactic(), tac_pos);
+        s = r.first;
+        stack.push_back(r.second);
     }
 
-    expr mk_proof_for(proof_state const & s, pos_info const & p) {
-        if (s.is_proof_final_state()) {
-            assignment a(s.get_menv());
-            proof_map  m;
-            expr pr = s.get_proof_builder()(m, a);
-            if (has_metavar(pr)) {
-                throw exception("synthesized proof object has unsolved metavars");
-            }
-            return pr;
-        } else {
-            throw tactic_cmd_error("invalid 'done' command, proof cannot be produced from this state", p, s);
-        }
-    }
-
-    expr tactic_done(proof_state const & s) {
+    /**
+       \brief Execute the \c done tactic command. It succeeds if
+       a proof for \c s can be built.
+    */
+    expr done_cmd(proof_state const & s) {
         auto p = pos();
         next();
         return mk_proof_for(s, p);
     }
 
-    bool curr_is_tactic_cmd() {
-        if (curr_is_identifier()) {
-            name const & id = curr_name();
-            for (auto c : g_tactic_cmds)
-                if (id == c)
-                    return true;
-        }
-        return false;
-    }
-
-    void show_tactic_prompt() {
-        if (m_interactive) {
-            regular(m_frontend) << "## ";
-            regular(m_frontend).flush();
-        }
-    }
-
-    expr parse_tactic(proof_state s) {
-        proof_state ini = s;
+    /**
+       \brief Parse tactic command sequence for solving input state \c s.
+    */
+    expr parse_tactic_cmds(proof_state s) {
         proof_state_seq_stack stack;
         expr pr;
         enum class status { Continue, Done, Eof, Abort };
@@ -1425,18 +1442,18 @@ class parser::imp {
                     case scanner::token::Id:
                         id = curr_name();
                         if (id == g_apply) {
-                            tactic_apply(stack, s);
+                            apply_cmd(stack, s);
                         } else if (id == g_back) {
-                            tactic_backtrack(stack, s);
+                            back_cmd(stack, s);
                         } else if (id == g_done) {
-                            pr = tactic_done(s);
+                            pr = done_cmd(s);
                             if (pr)
                                 st = status::Done;
                         } else if (id == g_abort) {
                             next();
                             st = status::Abort;
                         } else if (id == g_assumption) {
-                            tactic_assumption(stack, s);
+                            assumption_cmd(stack, s);
                         } else {
                             next();
                             throw tactic_cmd_error(sstream() << "invalid tactic command '" << id << "'", p, s);
@@ -1483,22 +1500,31 @@ class parser::imp {
         }
     }
 
-    expr apply_tactics(expr const & type, expr const & val, metavar_env & menv) {
+    /**
+       \brief Try to fill the 'holes' in \c val using tactics.
+       The expression \c expected_type is the type of \c val.
+       The metavar_env \c menv contains the definition of the metavariables occurring in \c val.
+
+       If a 'hole' is associated with a "hint tactic" ('show-by' and 'by' constructs),
+       then this will be the tactic used to "fill" the hole. Otherwise,
+       a tactic command sequence is expected in the input stream being parsed.
+    */
+    expr apply_tactics(expr const & expected_type, expr const & val, metavar_env & menv) {
         if (is_metavar(val)) {
             // simple case
-            if (!m_type_inferer.is_proposition(type))
+            if (!m_type_inferer.is_proposition(expected_type))
                 throw exception("failed to synthesize metavar, its type is not a proposition");
-            proof_state s = to_proof_state(m_frontend, context(), type);
+            proof_state s = to_proof_state(m_frontend, context(), expected_type);
             std::pair<tactic, pos_info> hint_and_pos = get_tactic_tactic_for(val);
             if (hint_and_pos.first) {
                 // metavariable has an associated tactic hint
-                s = tactic_apply(s, hint_and_pos.first, hint_and_pos.second);
+                s = apply_tactic(s, hint_and_pos.first, hint_and_pos.second).first;
                 return mk_proof_for(s, hint_and_pos.second);
             } else {
                 display_proof_state_if_interactive(s);
                 show_tactic_prompt();
                 check_period_next("invalid theorem, '.' expected before tactical proof");
-                return parse_tactic(s);
+                return parse_tactic_cmds(s);
             }
         } else {
             buffer<expr> mvars;
@@ -1526,7 +1552,7 @@ class parser::imp {
                 std::pair<tactic, pos_info> hint_and_pos = get_tactic_tactic_for(mvar);
                 if (hint_and_pos.first) {
                     // metavariable has an associated tactic hint
-                    s = tactic_apply(s, hint_and_pos.first, hint_and_pos.second);
+                    s = apply_tactic(s, hint_and_pos.first, hint_and_pos.second).first;
                     menv.assign(mvar, mk_proof_for(s, hint_and_pos.second));
                 } else {
                     if (curr_is_period()) {
@@ -1534,7 +1560,7 @@ class parser::imp {
                         show_tactic_prompt();
                         next();
                     }
-                    expr mvar_val = parse_tactic(s);
+                    expr mvar_val = parse_tactic_cmds(s);
                     if (mvar_val)
                         menv.assign(mvar, mvar_val);
                 }
@@ -2090,6 +2116,13 @@ public:
 
     void show_prompt() {
         show_prompt(m_interactive, m_frontend);
+    }
+
+    void show_tactic_prompt() {
+        if (m_interactive) {
+            regular(m_frontend) << "## ";
+            regular(m_frontend).flush();
+        }
     }
 
     /** \brief Parse a sequence of commands. This method also perform error management. */

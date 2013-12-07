@@ -99,7 +99,7 @@ public:
 };
 
 bool has_free_vars(expr const & e) {
-    return has_free_vars_fn()(e);
+    return e && has_free_vars_fn()(e);
 }
 
 /**

@@ -1,0 +1,7 @@
+Type Ctrl-D or 'Exit.' to exit or 'Help.' for help.
+#   Set: pp::colors
+  Set: pp::unicode
+  Proved: T1
+Theorem T1 (A B : Bool) (assumption : A ∧ B) : B ∧ A :=
+    let lemma1 := Conjunct1 assumption, lemma2 := Conjunct2 assumption in Conj lemma2 lemma1
+# 

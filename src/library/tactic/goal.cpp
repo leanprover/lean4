@@ -136,8 +136,11 @@ std::pair<goal, goal_proof_fn> to_goal(environment const & env, context const & 
         name n = mk_unique_name(used_names, e.get_name());
         expr d = replacer(e.get_domain());
         expr b = replacer(e.get_body());
+        if (b && !d) {
+            d = inferer(b);
+        }
         replacer.clear();
-        if (b && (!d || !inferer.is_proposition(d))) {
+        if (b && !inferer.is_proposition(d)) {
             bodies.push_back(b);
             consts.push_back(expr());
         } else {

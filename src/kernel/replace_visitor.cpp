@@ -52,7 +52,7 @@ expr replace_visitor::visit_pi(expr const & e, context const & ctx) {
 expr replace_visitor::visit_let(expr const & e, context const & ctx) {
     lean_assert(is_let(e));
     return update_let(e, [&](expr const & t, expr const & v, expr const & b) {
-            expr new_t = t ? visit(t, ctx) : expr();
+            expr new_t = visit(t, ctx);
             expr new_v = visit(v, ctx);
             expr new_b;
             {
@@ -64,6 +64,8 @@ expr replace_visitor::visit_let(expr const & e, context const & ctx) {
 }
 expr replace_visitor::visit(expr const & e, context const & ctx) {
     check_system("expression replacer");
+    if (!e)
+        return e;
     bool shared = false;
     if (is_shared(e)) {
         shared = true;

@@ -12,7 +12,7 @@ else
 fi
 f=$2
 echo "-- testing $f"
-cat config.lean $f | $LEAN --lean | tail -n +2 > $f.produced.out
+cat config.lean $f | $LEAN --lean | tail -n +3 > $f.produced.out
 if test -f $f.expected.out; then
     if diff $f.produced.out $f.expected.out; then
         echo "-- checked"

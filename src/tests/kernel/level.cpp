@@ -108,6 +108,7 @@ static void tst5() {
 }
 
 int main() {
+    save_stack_info();
     tst0();
     tst1();
     tst2();

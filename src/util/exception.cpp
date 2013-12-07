@@ -33,6 +33,14 @@ char const * parser_exception::what() const noexcept {
     }
 }
 
+char const * stack_space_exception::what() const noexcept {
+    static thread_local std::string buffer;
+    std::ostringstream s;
+    s << "deep recursion was detected at '" << m_component_name << "' (potential solution: increase stack space in your system)";
+    buffer = s.str();
+    return buffer.c_str();
+}
+
 constexpr char const * exception_mt = "exception_mt";
 exception const & to_exception(lua_State * L, int i) {
     return *(*static_cast<exception**>(luaL_checkudata(L, i, exception_mt)));

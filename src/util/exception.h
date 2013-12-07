@@ -51,10 +51,11 @@ public:
     virtual void rethrow() const { throw *this; }
 };
 class stack_space_exception : public exception {
+    std::string m_component_name;
 public:
-    stack_space_exception() {}
-    virtual char const * what() const noexcept { return "deep recursion was detected (potential solution: increase stack space in your system)"; }
-    virtual exception * clone() const { return new stack_space_exception(); }
+    stack_space_exception(char const * component_name):m_component_name(component_name) {}
+    virtual char const * what() const noexcept;
+    virtual exception * clone() const { return new stack_space_exception(m_component_name.c_str()); }
     virtual void rethrow() const { throw *this; }
 };
 int push_exception(lua_State * L, exception const & e);

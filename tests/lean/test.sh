@@ -3,7 +3,7 @@ if [ $# -ne 2 -a $# -ne 1 ]; then
     echo "Usage: test.sh [lean-executable-path] [yes/no]?"
     exit 1
 fi
-ulimit -s unlimited
+ulimit -s 8192
 LEAN=$1
 if [ $# -ne 2 ]; then
     INTERACTIVE=no

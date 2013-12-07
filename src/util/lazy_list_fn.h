@@ -61,14 +61,14 @@ lazy_list<T> to_lazy(list<T> l) {
    \brief Appends the given lazy lists.
 */
 template<typename T>
-lazy_list<T> append(lazy_list<T> const & l1, lazy_list<T> const & l2) {
+lazy_list<T> append(lazy_list<T> const & l1, lazy_list<T> const & l2, char const * cname = "lazy list") {
     return mk_lazy_list<T>([=]() {
             auto p = l1.pull();
             if (!p) {
-                check_system();
+                check_system(cname);
                 return l2.pull();
             } else {
-                return some(mk_pair(p->first, append(p->second, l2)));
+                return some(mk_pair(p->first, append(p->second, l2, cname)));
             }
         });
 }
@@ -77,11 +77,11 @@ lazy_list<T> append(lazy_list<T> const & l1, lazy_list<T> const & l2) {
    \brief Return \c l1 if l1 is not empty, and \c l2 otherwise.
 */
 template<typename T>
-lazy_list<T> orelse(lazy_list<T> const & l1, lazy_list<T> const & l2) {
+lazy_list<T> orelse(lazy_list<T> const & l1, lazy_list<T> const & l2, char const * cname = "lazy list") {
     return mk_lazy_list<T>([=]() {
             auto p = l1.pull();
             if (!p) {
-                check_system();
+                check_system(cname);
                 return l2.pull();
             } else {
                 return p;
@@ -94,14 +94,14 @@ lazy_list<T> orelse(lazy_list<T> const & l1, lazy_list<T> const & l2) {
    are interleaved.
 */
 template<typename T>
-lazy_list<T> interleave(lazy_list<T> const & l1, lazy_list<T> const & l2) {
+lazy_list<T> interleave(lazy_list<T> const & l1, lazy_list<T> const & l2, char const * cname = "lazy list") {
     return mk_lazy_list<T>([=]() {
             auto p = l1.pull();
             if (!p) {
-                check_system();
+                check_system(cname);
                 return l2.pull();
             } else {
-                return some(mk_pair(p->first, interleave(l2, p->second)));
+                return some(mk_pair(p->first, interleave(l2, p->second, cname)));
             }
         });
 }
@@ -110,13 +110,15 @@ lazy_list<T> interleave(lazy_list<T> const & l1, lazy_list<T> const & l2) {
    \brief Create a lazy list by applying \c f to the elements of \c l.
 */
 template<typename T, typename F>
-lazy_list<T> map(lazy_list<T> const & l, F && f) {
+lazy_list<T> map(lazy_list<T> const & l, F && f, char const * cname = "lazy list") {
     return mk_lazy_list<T>([=]() {
             auto p = l.pull();
-            if (!p)
+            if (!p) {
                 return p;
-            else
-                return some(mk_pair(f(p->first), map(p->second, f)));
+            } else {
+                check_system(cname);
+                return some(mk_pair(f(p->first), map(p->second, f, cname)));
+            }
         });
 }
 
@@ -128,7 +130,7 @@ lazy_list<T> map(lazy_list<T> const & l, F && f) {
    \remark \c check_system() is invoked whenever \c pred returns false.
 */
 template<typename T, typename P>
-lazy_list<T> filter(lazy_list<T> const & l, P && pred) {
+lazy_list<T> filter(lazy_list<T> const & l, P && pred, char const * cname = "lazy list") {
     return mk_lazy_list<T>([=]() {
             auto p = l.pull();
             if (!p) {
@@ -136,8 +138,8 @@ lazy_list<T> filter(lazy_list<T> const & l, P && pred) {
             } else if (pred(p->first)) {
                 return p;
             } else {
-                check_system();
-                return filter(p->second, pred).pull();
+                check_system(cname);
+                return filter(p->second, pred, cname).pull();
             }
         });
 }
@@ -146,17 +148,17 @@ lazy_list<T> filter(lazy_list<T> const & l, P && pred) {
    \brief Auxiliary template for \c map_append.
 */
 template<typename T, typename F>
-lazy_list<T> map_append_aux(lazy_list<T> const & h, lazy_list<T> const & l, F && f) {
+lazy_list<T> map_append_aux(lazy_list<T> const & h, lazy_list<T> const & l, F && f, char const * cname) {
     return mk_lazy_list<T>([=]() {
             auto p1 = h.pull();
             if (p1) {
-                return some(mk_pair(p1->first, map_append_aux(p1->second, l, f)));
+                return some(mk_pair(p1->first, map_append_aux(p1->second, l, f, cname)));
             } else {
                 check_interrupted();
                 auto p2 = l.pull();
                 if (p2) {
-                    check_system();
-                    return map_append_aux(f(p2->first), p2->second, f).pull();
+                    check_system(cname);
+                    return map_append_aux(f(p2->first), p2->second, f, cname).pull();
                 } else {
                     return typename lazy_list<T>::maybe_pair();
                 }
@@ -169,26 +171,26 @@ lazy_list<T> map_append_aux(lazy_list<T> const & h, lazy_list<T> const & l, F &&
    All lazy_lists are appended together.
 */
 template<typename T, typename F>
-lazy_list<T> map_append(lazy_list<T> const & l, F && f) {
-    return map_append_aux(lazy_list<T>(), l, f);
+lazy_list<T> map_append(lazy_list<T> const & l, F && f, char const * cname = "lazy list") {
+    return map_append_aux(lazy_list<T>(), l, f, cname);
 }
 
 template<typename T, typename F>
-lazy_list<T> repeat(T const & v, F && f) {
+lazy_list<T> repeat(T const & v, F && f, char const * cname = "lazy list") {
     return mk_lazy_list<T>([=]() {
             auto p = f(v).pull();
             if (!p) {
                 return some(mk_pair(v, lazy_list<T>()));
             } else {
-                check_system();
-                return append(repeat(p->first, f),
-                              map_append(p->second, [=](T const & v2) { return repeat(v2, f); })).pull();
+                check_system(cname);
+                return append(repeat(p->first, f, cname),
+                              map_append(p->second, [=](T const & v2) { return repeat(v2, f, cname); }, cname), cname).pull();
             }
         });
 }
 
 template<typename T, typename F>
-lazy_list<T> repeat_at_most(T const & v, F && f, unsigned k) {
+lazy_list<T> repeat_at_most(T const & v, F && f, unsigned k, char const * cname = "lazy list") {
     return mk_lazy_list<T>([=]() {
             if (k == 0) {
                 return some(mk_pair(v, lazy_list<T>()));
@@ -197,9 +199,10 @@ lazy_list<T> repeat_at_most(T const & v, F && f, unsigned k) {
                 if (!p) {
                     return some(mk_pair(v, lazy_list<T>()));
                 } else {
-                    check_system();
-                    return append(repeat_at_most(p->first, f, k - 1),
-                                  map_append(p->second, [=](T const & v2) { return repeat_at_most(v2, f, k - 1); })).pull();
+                    check_system(cname);
+                    return append(repeat_at_most(p->first, f, k - 1, cname),
+                                  map_append(p->second, [=](T const & v2) { return repeat_at_most(v2, f, k - 1, cname); }, cname),
+                                  cname).pull();
                 }
             }
         });

@@ -12,6 +12,9 @@ size_t get_used_stack_size();
 size_t get_available_stack_size();
 /**
    \brief Throw an exception if the amount of available stack space is low.
+
+   \remark The optional argument \c component_name is used to inform the
+   user which module is the potential offender.
 */
-void check_stack();
+void check_stack(char const * component_name);
 }

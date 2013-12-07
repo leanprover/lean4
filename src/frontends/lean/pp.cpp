@@ -1071,7 +1071,7 @@ class pp_fn {
     }
 
     result pp(expr const & e, unsigned depth, bool main = false) {
-        check_interrupted();
+        check_system("pretty printer");
         if (!is_atomic(e) && (m_num_steps > m_max_steps || depth > m_max_depth)) {
             return pp_ellipsis();
         } else {

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
+#include "util/interrupt.h"
 #include "kernel/expr.h"
 #include "kernel/expr_sets.h"
 
@@ -29,6 +30,7 @@ class expr_eq_fn {
     N                                   m_norm;
 
     bool apply(expr const & a0, expr const & b0) {
+        check_system("expression equality test");
         if (is_eqp(a0, b0))                    return true;
         if (!a0 || !b0)                        return false;
         if (UseHash && a0.hash() != b0.hash()) return false;

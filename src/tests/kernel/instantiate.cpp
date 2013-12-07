@@ -45,9 +45,8 @@ static void tst2() {
 }
 
 int main() {
+    save_stack_info();
     tst1();
     tst2();
     return has_violations() ? 1 : 0;
 }
-
-

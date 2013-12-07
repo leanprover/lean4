@@ -144,7 +144,7 @@ class type_inferer::imp {
             break; // expensive cases
         }
 
-        check_system();
+        check_system("type inference");
         bool shared = false;
         if (is_shared(e)) {
             shared = true;

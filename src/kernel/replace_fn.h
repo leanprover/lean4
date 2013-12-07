@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <tuple>
 #include "util/buffer.h"
+#include "util/interrupt.h"
 #include "kernel/expr.h"
 #include "kernel/expr_maps.h"
 
@@ -47,6 +48,7 @@ class replace_fn {
     P                          m_post;
 
     expr apply(expr const & e, unsigned offset) {
+        check_system("expression replacer");
         if (!e)
             return e;
         bool sh = false;

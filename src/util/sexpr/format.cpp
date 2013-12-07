@@ -10,6 +10,7 @@
 #include <utility>
 #include "util/sstream.h"
 #include "util/escaped.h"
+#include "util/interrupt.h"
 #include "util/numerics/mpz.h"
 #include "util/numerics/mpq.h"
 #include "util/sexpr/sexpr.h"
@@ -310,6 +311,7 @@ int format::space_upto_line_break(sexpr const & s, int available, bool & found_n
 }
 
 sexpr format::be(unsigned w, unsigned k, sexpr const & s) {
+    check_system("formatter");
     /* s = (i, v) :: z, where h has the type int x format */
     /* ret = list of format */
 

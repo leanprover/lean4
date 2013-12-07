@@ -433,6 +433,7 @@ static void match_metavar_tst3() {
 }
 
 int main() {
+    save_stack_info();
     match_var_tst1();
     match_var_tst2();
     match_var_tst3();

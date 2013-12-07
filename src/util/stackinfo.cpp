@@ -85,8 +85,8 @@ size_t get_available_stack_size() {
         return g_stack_size - sz;
 }
 
-void check_stack() {
+void check_stack(char const * component_name) {
     if (get_used_stack_size() + LEAN_MIN_STACK_SPACE > g_stack_size)
-        throw stack_space_exception();
+        throw stack_space_exception(component_name);
 }
 }

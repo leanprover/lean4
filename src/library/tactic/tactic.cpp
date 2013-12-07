@@ -213,13 +213,13 @@ tactic then(tactic const & t1, tactic const & t2) {
             return map_append(t1(env, io, s1), [=](proof_state const & s2) {
                     check_interrupted();
                     return t2(env, io, s2);
-                });
+                }, "THEN tactical");
         });
 }
 
 tactic orelse(tactic const & t1, tactic const & t2) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
-            return orelse(t1(env, io, s), t2(env, io, s));
+            return orelse(t1(env, io, s), t2(env, io, s), "ORELSE tactical");
         });
 }
 
@@ -239,13 +239,13 @@ tactic try_for(tactic const & t, unsigned ms, unsigned check_ms) {
 
 tactic append(tactic const & t1, tactic const & t2) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
-            return append(t1(env, io, s), t2(env, io, s));
+            return append(t1(env, io, s), t2(env, io, s), "APPEND tactical");
         });
 }
 
 tactic interleave(tactic const & t1, tactic const & t2) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
-            return interleave(t1(env, io, s), t2(env, io, s));
+            return interleave(t1(env, io, s), t2(env, io, s), "INTERLEAVE tactical");
         });
 }
 
@@ -259,7 +259,7 @@ tactic repeat(tactic const & t) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s1) -> proof_state_seq {
             return repeat(s1, [=](proof_state const & s2) {
                     return t(env, io, s2);
-                });
+                }, "REPEAT tactical");
         });
 }
 
@@ -267,7 +267,7 @@ tactic repeat_at_most(tactic const & t, unsigned k) {
     return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s1) -> proof_state_seq {
             return repeat_at_most(s1, [=](proof_state const & s2) {
                     return t(env, io, s2);
-                }, k);
+                }, k, "REPEAT_AT_MOST tactical");
         });
 }
 

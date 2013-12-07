@@ -354,6 +354,7 @@ static void tst18() {
 }
 
 int main() {
+    save_stack_info();
     std::cout << "sizeof(expr):      " << sizeof(expr) << "\n";
     std::cout << "sizeof(expr_app):  " << sizeof(expr_app) << "\n";
     std::cout << "sizeof(expr_cell): " << sizeof(expr_cell) << "\n";

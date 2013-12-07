@@ -63,7 +63,7 @@ expr replace_visitor::visit_let(expr const & e, context const & ctx) {
         });
 }
 expr replace_visitor::visit(expr const & e, context const & ctx) {
-    check_system();
+    check_system("expression replacer");
     bool shared = false;
     if (is_shared(e)) {
         shared = true;

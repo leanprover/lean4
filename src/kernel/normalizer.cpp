@@ -133,6 +133,7 @@ class normalizer::imp {
 
     /** \brief Convert the value \c v back into an expression in a context that contains \c k binders. */
     expr reify(svalue const & v, unsigned k) {
+        check_system("normalizer");
         switch (v.kind()) {
         case svalue_kind::Expr:       return to_expr(v);
         case svalue_kind::BoundedVar: return mk_var(k - to_bvar(v) - 1);
@@ -179,7 +180,7 @@ class normalizer::imp {
     /** \brief Normalize the expression \c a in a context composed of stack \c s and \c k binders. */
     svalue normalize(expr const & a, value_stack const & s, unsigned k) {
         flet<unsigned> l(m_depth, m_depth+1);
-        check_system();
+        check_system("normalizer");
         if (m_depth > m_max_depth)
             throw kernel_exception(env(), "normalizer maximum recursion depth exceeded");
         bool shared = false;

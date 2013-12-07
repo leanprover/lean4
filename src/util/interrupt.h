@@ -31,7 +31,7 @@ bool interrupt_requested();
 */
 void check_interrupted();
 
-inline void check_system() { check_stack(); check_interrupted(); }
+inline void check_system(char const * component_name) { check_stack(component_name); check_interrupted(); }
 
 constexpr unsigned g_small_sleep = 50;
 

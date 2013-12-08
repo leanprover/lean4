@@ -1822,6 +1822,7 @@ class parser::imp {
        'Notation' [Num] parts ':' ID
     */
     void parse_notation_decl() {
+        auto p = pos();
         next();
         unsigned prec = parse_precedence();
         bool first             = true;
@@ -1844,7 +1845,7 @@ class parser::imp {
                 if (curr_is_colon()) {
                     next();
                     if (parts.size() == 0) {
-                        throw parser_error("invalid notation declaration, it must have at least one identifier", pos());
+                        throw parser_error("invalid notation declaration, it must have at least one identifier", p);
                     }
                     name name_id = check_identifier_next("invalid notation declaration, identifier expected");
                     expr d     = mk_constant(name_id);
@@ -1859,7 +1860,7 @@ class parser::imp {
                             // prefix: ID _
                             m_frontend.add_prefix(parts[0], prec, d);
                         } else {
-                            lean_unreachable(); // LCOV_EXCL_LINE
+                            throw parser_error("invalid notation declaration, at least one placeholder expected", p);
                         }
                     } else {
                         if (first_placeholder && prev_placeholder) {

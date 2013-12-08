@@ -136,10 +136,10 @@ std::pair<goal, goal_proof_fn> to_goal(environment const & env, context const & 
         name n = mk_unique_name(used_names, e.get_name());
         optional<expr> d = e.get_domain();
         optional<expr> b = e.get_body();
-        if (d) d = some(replacer(*d));
-        if (b) b = some(replacer(*b));
+        if (d) d = some_expr(replacer(*d));
+        if (b) b = some_expr(replacer(*b));
         if (b && !d) {
-            d = some(inferer(*b));
+            d = some_expr(inferer(*b));
         }
         replacer.clear();
         if (b && !inferer.is_proposition(*d)) {
@@ -148,7 +148,7 @@ std::pair<goal, goal_proof_fn> to_goal(environment const & env, context const & 
         } else {
             lean_assert(d);
             hypotheses.emplace_back(n, *d);
-            bodies.push_back(optional<expr>());
+            bodies.push_back(none_expr());
             consts.push_back(mk_constant(n, *d));
         }
     }

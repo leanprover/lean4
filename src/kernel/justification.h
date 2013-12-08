@@ -33,7 +33,7 @@ public:
     virtual format pp_header(formatter const & fmt, options const & opts) const = 0;
     virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool display_children) const;
     virtual void get_children(buffer<justification_cell*> & r) const = 0;
-    virtual optional<expr> get_main_expr() const { return optional<expr>(); }
+    virtual optional<expr> get_main_expr() const { return none_expr(); }
     bool is_shared() const { return get_rc() > 1; }
 };
 
@@ -73,7 +73,7 @@ public:
         lean_assert(m_ptr);
         return m_ptr->pp(fmt, opts, p, display_children);
     }
-    optional<expr> get_main_expr() const { return m_ptr ? m_ptr->get_main_expr() : optional<expr>(); }
+    optional<expr> get_main_expr() const { return m_ptr ? m_ptr->get_main_expr() : none_expr(); }
     void get_children(buffer<justification_cell*> & r) const { if (m_ptr) m_ptr->get_children(r); }
     bool has_children() const;
 };

@@ -24,7 +24,7 @@ void function_expected_justification_cell::get_children(buffer<justification_cel
 }
 
 optional<expr> function_expected_justification_cell::get_main_expr() const {
-    return some(m_app);
+    return some_expr(m_app);
 }
 
 app_type_match_justification_cell::~app_type_match_justification_cell() {
@@ -52,7 +52,7 @@ void app_type_match_justification_cell::get_children(buffer<justification_cell*>
 }
 
 optional<expr> app_type_match_justification_cell::get_main_expr() const {
-    return some(m_app);
+    return some_expr(m_app);
 }
 
 type_expected_justification_cell::~type_expected_justification_cell() {
@@ -71,7 +71,7 @@ void type_expected_justification_cell::get_children(buffer<justification_cell*> 
 }
 
 optional<expr> type_expected_justification_cell::get_main_expr() const {
-    return some(m_type);
+    return some_expr(m_type);
 }
 
 def_type_match_justification_cell::~def_type_match_justification_cell() {
@@ -89,7 +89,7 @@ void def_type_match_justification_cell::get_children(buffer<justification_cell*>
 }
 
 optional<expr> def_type_match_justification_cell::get_main_expr() const {
-    return some(m_value);
+    return some_expr(m_value);
 }
 
 type_match_justification_cell::~type_match_justification_cell() {
@@ -103,6 +103,6 @@ void type_match_justification_cell::get_children(buffer<justification_cell*> &) 
 }
 
 optional<expr> type_match_justification_cell::get_main_expr() const {
-    return some(m_value);
+    return some_expr(m_value);
 }
 }

@@ -74,9 +74,9 @@ public:
     int_bin_op():const_value(name("Int", Name), Int >> (Int >> Int)) {}
     virtual optional<expr> normalize(unsigned num_args, expr const * args) const {
         if (num_args == 3 && is_int_value(args[1]) && is_int_value(args[2])) {
-            return some(mk_int_value(F()(int_value_numeral(args[1]), int_value_numeral(args[2]))));
+            return some_expr(mk_int_value(F()(int_value_numeral(args[1]), int_value_numeral(args[2]))));
         } else {
-            return optional<expr>();
+            return none_expr();
         }
     }
 };
@@ -108,9 +108,9 @@ public:
     int_le_value():const_value(name{"Int", "le"}, Int >> (Int >> Bool)) {}
     virtual optional<expr> normalize(unsigned num_args, expr const * args) const {
         if (num_args == 3 && is_int_value(args[1]) && is_int_value(args[2])) {
-            return some(mk_bool_value(int_value_numeral(args[1]) <= int_value_numeral(args[2])));
+            return some_expr(mk_bool_value(int_value_numeral(args[1]) <= int_value_numeral(args[2])));
         } else {
-            return optional<expr>();
+            return none_expr();
         }
     }
 };
@@ -133,9 +133,9 @@ public:
     nat_to_int_value():const_value("nat_to_int", Nat >> Int) {}
     virtual optional<expr> normalize(unsigned num_args, expr const * args) const {
         if (num_args == 2 && is_nat_value(args[1])) {
-            return some(mk_int_value(nat_value_numeral(args[1])));
+            return some_expr(mk_int_value(nat_value_numeral(args[1])));
         } else {
-            return optional<expr>();
+            return none_expr();
         }
     }
 };

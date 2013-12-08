@@ -65,6 +65,6 @@ optional<expr> find(context const * c, unsigned sz, expr const * es, P p) {
         if (optional<expr> r = finder(es[i]))
             return r;
     }
-    return optional<expr>();
+    return none_expr();
 }
 }

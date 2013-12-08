@@ -740,7 +740,7 @@ static int mk_context(lua_State * L) {
         return push_context(L, context(to_context(L, 1), to_name_ext(L, 2), to_expr(L, 3)));
     } else {
         if (lua_isnil(L, 3))
-            return push_context(L, context(to_context(L, 1), to_name_ext(L, 2), optional<expr>(), to_expr(L, 4)));
+            return push_context(L, context(to_context(L, 1), to_name_ext(L, 2), none_expr(), to_expr(L, 4)));
         else
             return push_context(L, context(to_context(L, 1), to_name_ext(L, 2), to_expr(L, 3), to_expr(L, 4)));
     }
@@ -1445,7 +1445,7 @@ static int menv_mk_metavar(lua_State * L) {
     } else if (nargs == 2) {
         return push_expr(L, to_metavar_env(L, 1).mk_metavar(to_context(L, 2)));
     } else {
-        return push_expr(L, to_metavar_env(L, 1).mk_metavar(to_context(L, 2), optional<expr>(to_expr(L, 3))));
+        return push_expr(L, to_metavar_env(L, 1).mk_metavar(to_context(L, 2), some_expr(to_expr(L, 3))));
     }
 }
 

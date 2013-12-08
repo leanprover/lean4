@@ -89,8 +89,8 @@ expr replace_visitor::visit(expr const & e, context const & ctx) {
 }
 optional<expr> replace_visitor::visit(optional<expr> const & e, context const & ctx) {
     if (e)
-        return some(visit(*e, ctx));
+        return some_expr(visit(*e, ctx));
     else
-        return optional<expr>();
+        return none_expr();
 }
 }

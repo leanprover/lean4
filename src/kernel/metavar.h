@@ -29,7 +29,7 @@ class metavar_env {
         optional<expr> m_type;          // type of the metavariable
         context        m_context;       // context where the metavariable was defined
         justification  m_justification; // justification for assigned metavariables.
-        data(optional<expr> const & t = optional<expr>(), context const & ctx = context()):m_type(t), m_context(ctx) {}
+        data(optional<expr> const & t = none_expr(), context const & ctx = context()):m_type(t), m_context(ctx) {}
     };
     typedef splay_map<name, data, name_quick_cmp> name2data;
 
@@ -62,7 +62,7 @@ public:
     /**
        \brief Create a new metavariable in the given context and with the given type.
     */
-    expr mk_metavar(context const & ctx = context(), optional<expr> const & type = optional<expr>());
+    expr mk_metavar(context const & ctx = context(), optional<expr> const & type = none_expr());
 
     /**
        \brief Return the context where the given metavariable was created.

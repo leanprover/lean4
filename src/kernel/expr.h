@@ -155,6 +155,10 @@ inline bool operator!=(expr const & a, expr const & b) { return !operator==(a, b
 
 SPECIALIZE_OPTIONAL_FOR_SMART_PTR(expr)
 
+inline optional<expr> none_expr() { return optional<expr>(); }
+inline optional<expr> some_expr(expr const & e) { return optional<expr>(e); }
+inline optional<expr> some_expr(expr && e) { return optional<expr>(std::forward<expr>(e)); }
+
 inline bool is_eqp(optional<expr> const & a, optional<expr> const & b) {
     return static_cast<bool>(a) == static_cast<bool>(b) && (!a || is_eqp(*a, *b));
 }
@@ -394,8 +398,8 @@ inline bool is_abstraction(expr const & e) { return is_lambda(e) || is_pi(e); }
 inline expr mk_var(unsigned idx) { return expr(new expr_var(idx)); }
 inline expr Var(unsigned idx) { return mk_var(idx); }
 inline expr mk_constant(name const & n, optional<expr> const & t) { return expr(new expr_const(n, t)); }
-inline expr mk_constant(name const & n, expr const & t) { return mk_constant(n, optional<expr>(t)); }
-inline expr mk_constant(name const & n) { return mk_constant(n, optional<expr>()); }
+inline expr mk_constant(name const & n, expr const & t) { return mk_constant(n, some_expr(t)); }
+inline expr mk_constant(name const & n) { return mk_constant(n, none_expr()); }
 inline expr Const(name const & n) { return mk_constant(n); }
 inline expr mk_value(value & v) { return expr(new expr_value(v)); }
 inline expr to_expr(value & v) { return mk_value(v); }
@@ -413,8 +417,8 @@ inline expr mk_pi(name const & n, expr const & t, expr const & e) { return expr(
 inline expr mk_arrow(expr const & t, expr const & e) { return mk_pi(name("_"), t, e); }
 inline expr operator>>(expr const & t, expr const & e) { return mk_arrow(t, e); }
 inline expr mk_let(name const & n, optional<expr> const & t, expr const & v, expr const & e) { return expr(new expr_let(n, t, v, e)); }
-inline expr mk_let(name const & n, expr const & t, expr const & v, expr const & e) { return mk_let(n, optional<expr>(t), v, e); }
-inline expr mk_let(name const & n, expr const & v, expr const & e) { return mk_let(n, optional<expr>(), v, e); }
+inline expr mk_let(name const & n, expr const & t, expr const & v, expr const & e) { return mk_let(n, some_expr(t), v, e); }
+inline expr mk_let(name const & n, expr const & v, expr const & e) { return mk_let(n, none_expr(), v, e); }
 inline expr mk_type(level const & l) { return expr(new expr_type(l)); }
        expr mk_type();
 inline expr Type(level const & l) { return mk_type(l); }

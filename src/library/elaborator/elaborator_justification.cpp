@@ -19,7 +19,7 @@ void propagation_justification::get_children(buffer<justification_cell*> & r) co
     push_back(r, m_constraint.get_justification());
 }
 optional<expr> propagation_justification::get_main_expr() const {
-    return optional<expr>();
+    return none_expr();
 }
 format propagation_justification::pp_header(formatter const & fmt, options const & opts) const {
     format r;
@@ -121,7 +121,7 @@ void synthesis_justification::get_children(buffer<justification_cell*> & r) cons
     append(r, m_substitution_justifications);
 }
 optional<expr> synthesis_justification::get_main_expr() const {
-    return some(m_mvar);
+    return some_expr(m_mvar);
 }
 
 char const * synthesis_failure_justification::get_label() const {
@@ -157,6 +157,6 @@ void next_solution_justification::get_children(buffer<justification_cell*> & r) 
     append(r, m_assumptions);
 }
 optional<expr> next_solution_justification::get_main_expr() const {
-    return optional<expr>();
+    return none_expr();
 }
 }

@@ -68,9 +68,9 @@ public:
     nat_bin_op():const_value(name("Nat", Name), Nat >> (Nat >> Nat)) {}
     virtual optional<expr> normalize(unsigned num_args, expr const * args) const {
         if (num_args == 3 && is_nat_value(args[1]) && is_nat_value(args[2])) {
-            return some(mk_nat_value(F()(nat_value_numeral(args[1]), nat_value_numeral(args[2]))));
+            return some_expr(mk_nat_value(F()(nat_value_numeral(args[1]), nat_value_numeral(args[2]))));
         } else {
-            return optional<expr>();
+            return none_expr();
         }
     }
 };
@@ -96,9 +96,9 @@ public:
     nat_le_value():const_value(name{"Nat", "le"}, Nat >> (Nat >> Bool)) {}
     virtual optional<expr> normalize(unsigned num_args, expr const * args) const {
         if (num_args == 3 && is_nat_value(args[1]) && is_nat_value(args[2])) {
-            return some(mk_bool_value(nat_value_numeral(args[1]) <= nat_value_numeral(args[2])));
+            return some_expr(mk_bool_value(nat_value_numeral(args[1]) <= nat_value_numeral(args[2])));
         } else {
-            return optional<expr>();
+            return none_expr();
         }
     }
 };

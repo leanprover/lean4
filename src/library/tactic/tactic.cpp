@@ -76,11 +76,11 @@ optional<expr> to_proof(proof_state const & s) {
         try {
             assignment a(s.get_menv());
             proof_map  m;
-            return some(s.get_proof_builder()(m, a));
+            return some_expr(s.get_proof_builder()(m, a));
         } catch (...) {
         }
     }
-    return optional<expr>();
+    return none_expr();
 }
 
 /**

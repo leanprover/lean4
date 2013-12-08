@@ -200,7 +200,7 @@ static void tst3() {
 static void tst4() {
     environment env;
     env.add_var("b", Type());
-    expr t1 = mk_let("a", optional<expr>(), Const("b"), mk_lambda("c", Type(), Var(1)(Var(0))));
+    expr t1 = mk_let("a", none_expr(), Const("b"), mk_lambda("c", Type(), Var(1)(Var(0))));
     std::cout << t1 << " --> " << normalize(t1, env) << "\n";
     lean_assert(normalize(t1, env) == mk_lambda("c", Type(), Const("b")(Var(0))));
 }

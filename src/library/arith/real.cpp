@@ -77,9 +77,9 @@ public:
     real_bin_op():const_value(name("Real", Name), Real >> (Real >> Real)) {}
     virtual optional<expr> normalize(unsigned num_args, expr const * args) const {
         if (num_args == 3 && is_real_value(args[1]) && is_real_value(args[2])) {
-            return some(mk_real_value(F()(real_value_numeral(args[1]), real_value_numeral(args[2]))));
+            return some_expr(mk_real_value(F()(real_value_numeral(args[1]), real_value_numeral(args[2]))));
         } else {
-            return optional<expr>();
+            return none_expr();
         }
     }
 };
@@ -118,9 +118,9 @@ public:
     real_le_value():const_value(name{"Real", "le"}, Real >> (Real >> Bool)) {}
     virtual optional<expr> normalize(unsigned num_args, expr const * args) const {
         if (num_args == 3 && is_real_value(args[1]) && is_real_value(args[2])) {
-            return some(mk_bool_value(real_value_numeral(args[1]) <= real_value_numeral(args[2])));
+            return some_expr(mk_bool_value(real_value_numeral(args[1]) <= real_value_numeral(args[2])));
         } else {
-            return optional<expr>();
+            return none_expr();
         }
     }
 };
@@ -167,9 +167,9 @@ public:
     int_to_real_value():const_value("int_to_real", Int >> Real) {}
     virtual optional<expr> normalize(unsigned num_args, expr const * args) const {
         if (num_args == 2 && is_int_value(args[1])) {
-            return some(mk_real_value(mpq(int_value_numeral(args[1]))));
+            return some_expr(mk_real_value(mpq(int_value_numeral(args[1]))));
         } else {
-            return optional<expr>();
+            return none_expr();
         }
     }
 };

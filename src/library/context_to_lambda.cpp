@@ -41,17 +41,17 @@ optional<expr> fake_context_domain(expr const & e) {
     lean_assert(is_fake_context(e));
     expr r = arg(abst_domain(e), 1);
     if (!is_eqp(r, g_fake))
-        return optional<expr>(r);
+        return some_expr(r);
     else
-        return optional<expr>();
+        return none_expr();
 }
 optional<expr> fake_context_value(expr const & e) {
     lean_assert(is_fake_context(e));
     expr r = arg(abst_domain(e), 2);
     if (!is_eqp(r, g_fake))
-        return optional<expr>(r);
+        return some_expr(r);
     else
-        return optional<expr>();
+        return none_expr();
 }
 expr const & fake_context_rest(expr const & e) {
     return abst_body(e);

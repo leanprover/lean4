@@ -21,7 +21,7 @@ class deep_copy_fn {
 
     optional<expr> apply(optional<expr> const & a) {
         if (a)
-            return some(apply(*a));
+            return some_expr(apply(*a));
         else
             return a;
     }

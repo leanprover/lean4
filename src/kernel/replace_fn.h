@@ -49,9 +49,9 @@ class replace_fn {
 
     optional<expr> apply(optional<expr> const & e, unsigned offset) {
         if (e)
-            return optional<expr>(apply(*e, offset));
+            return some_expr(apply(*e, offset));
         else
-            return optional<expr>();
+            return none_expr();
     }
 
     expr apply(expr const & e, unsigned offset) {

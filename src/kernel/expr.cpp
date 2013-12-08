@@ -164,7 +164,7 @@ void expr_let::dealloc(buffer<expr_cell*> & todelete) {
 }
 expr_let::~expr_let() {}
 name value::get_unicode_name() const { return get_name(); }
-optional<expr> value::normalize(unsigned, expr const *) const { return optional<expr>(); }
+optional<expr> value::normalize(unsigned, expr const *) const { return none_expr(); }
 void value::display(std::ostream & out) const { out << get_name(); }
 bool value::operator==(value const & other) const { return typeid(*this) == typeid(other); }
 bool value::operator<(value const & other) const {

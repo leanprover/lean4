@@ -63,7 +63,7 @@ public:
         return r;
     }
     virtual void get_children(buffer<justification_cell*> &) const {}
-    virtual optional<expr> get_main_expr() const { return some(m_src); }
+    virtual optional<expr> get_main_expr() const { return some_expr(m_src); }
     context const & get_context() const { return m_ctx; }
 };
 
@@ -82,7 +82,7 @@ public:
         return r;
     }
     virtual void get_children(buffer<justification_cell*> &) const {}
-    virtual optional<expr> get_main_expr() const { return some(m_app); }
+    virtual optional<expr> get_main_expr() const { return some_expr(m_app); }
     context const & get_context() const { return m_ctx; }
     expr const & get_app() const { return m_app; }
 };
@@ -138,14 +138,14 @@ class frontend_elaborator::imp {
         */
         optional<expr> get_type(expr const & e, context const & ctx) {
             try {
-                return some(m_ref.m_type_inferer(e, ctx));
+                return some_expr(m_ref.m_type_inferer(e, ctx));
             } catch (exception &) {
-                return optional<expr>();
+                return none_expr();
             }
         }
 
         /**
-           \brief Make sure f_t is a Pi, if it is not, then return optional<expr>()
+           \brief Make sure f_t is a Pi, if it is not, then return none_expr()
         */
         optional<expr> check_pi(optional<expr> const & f_t, context const & ctx) {
             if (!f_t || is_pi(*f_t)) {
@@ -153,9 +153,9 @@ class frontend_elaborator::imp {
             } else {
                 expr r = m_ref.m_normalizer(*f_t, ctx);
                 if (is_pi(r))
-                    return optional<expr>(r);
+                    return some_expr(r);
                 else
-                    return optional<expr>();
+                    return none_expr();
             }
         }
 
@@ -176,10 +176,10 @@ class frontend_elaborator::imp {
         optional<expr> find_coercion(list<expr_pair> const & l, expr const & to_type) {
             for (auto p : l) {
                 if (p.first == to_type) {
-                    return optional<expr>(p.second);
+                    return some_expr(p.second);
                 }
             }
-            return optional<expr>();
+            return none_expr();
         }
 
         /**
@@ -225,7 +225,7 @@ class frontend_elaborator::imp {
                                 num_skipped_args++;
                             }
                         }
-                        f_t = some(::lean::instantiate(abst_body(*f_t), args[i]));
+                        f_t = some_expr(::lean::instantiate(abst_body(*f_t), args[i]));
                     }
                 }
                 if (i == num_args) {
@@ -279,7 +279,7 @@ class frontend_elaborator::imp {
             buffer<expr>   args;
             buffer<optional<expr>> arg_types;
             args.push_back(expr());      // placeholder
-            arg_types.push_back(optional<expr>()); // placeholder
+            arg_types.push_back(none_expr()); // placeholder
             for (unsigned i = 1; i < num_args(e); i++) {
                 expr a = arg(e, i);
                 expr new_a   = visit(a, ctx);
@@ -347,7 +347,7 @@ class frontend_elaborator::imp {
                 }
                 new_args.push_back(new_a);
                 if (f_t)
-                    f_t = some(::lean::instantiate(abst_body(*f_t), new_a));
+                    f_t = some_expr(::lean::instantiate(abst_body(*f_t), new_a));
             }
             return mk_app(new_args);
         }

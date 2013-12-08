@@ -348,7 +348,7 @@ class parser::imp {
     void display_error(kernel_exception const & ex) {
         optional<expr> main_expr = ex.get_main_expr();
         if (main_expr)
-            display_error_pos(some(m_elaborator.get_original(*main_expr)));
+            display_error_pos(some_expr(m_elaborator.get_original(*main_expr)));
         else
             display_error_pos(main_expr);
         regular(m_frontend) << " " << ex << endl;
@@ -1185,7 +1185,7 @@ class parser::imp {
         expr t = parse_expr();
         check_next(scanner::token::By, "invalid 'show _ by _' expression, 'by' expected");
         tactic tac = parse_tactic_expr();
-        expr r = mk_placeholder(optional<expr>(t));
+        expr r = mk_placeholder(some_expr(t));
         m_tactic_hints[r] = tac;
         return save(r, p);
     }

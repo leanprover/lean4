@@ -42,7 +42,7 @@ bool justification::has_children() const {
 
 assumption_justification::assumption_justification(unsigned idx):m_idx(idx) {}
 void assumption_justification::get_children(buffer<justification_cell*> &) const {}
-optional<expr> assumption_justification::get_main_expr() const { return optional<expr>(); }
+optional<expr> assumption_justification::get_main_expr() const { return none_expr(); }
 format assumption_justification::pp_header(formatter const &, options const &) const {
     return format{format("Assumption"), space(), format(m_idx)};
 }

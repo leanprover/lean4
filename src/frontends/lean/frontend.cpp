@@ -319,12 +319,12 @@ struct lean_extension : public environment::extension {
         expr_pair p(from_type, to_type);
         auto it = m_coercion_map.find(p);
         if (it != m_coercion_map.end())
-            return optional<expr>(it->second);
+            return some_expr(it->second);
         lean_extension const * parent = get_parent();
         if (parent)
             return parent->get_coercion(from_type, to_type);
         else
-            return optional<expr>();
+            return none_expr();
     }
 
     list<expr_pair> get_coercions(expr const & from_type) const {

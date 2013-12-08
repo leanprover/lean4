@@ -66,21 +66,21 @@ static optional<proof_state> apply_tactic(environment const & env, proof_state c
                 for (auto const & mvar : mvars) {
                     expr mvar_sol = apply(*subst, mvar);
                     if (mvar_sol != mvar) {
-                        l = cons(mk_pair(optional<expr>(mvar_sol), name()), l);
+                        l = cons(mk_pair(some_expr(mvar_sol), name()), l);
                         th_type_c = instantiate(abst_body(th_type_c), mvar_sol);
                     } else {
                         if (inferer.is_proposition(abst_domain(th_type_c), context(), &new_menv)) {
                             name new_gname(gname, new_goal_idx);
                             new_goal_idx++;
-                            l = cons(mk_pair(optional<expr>(), new_gname), l);
+                            l = cons(mk_pair(none_expr(), new_gname), l);
                             new_goals_buf.emplace_back(new_gname, update(g, abst_domain(th_type_c)));
                             th_type_c = instantiate(abst_body(th_type_c), mk_constant(new_gname, abst_domain(th_type_c)));
                         } else {
                             // we have to create a new metavar in menv
                             // since we do not have a substitution for mvar, and
                             // it is not a proposition
-                            expr new_m = new_menv.mk_metavar(context(), optional<expr>(abst_domain(th_type_c)));
-                            l = cons(mk_pair(optional<expr>(new_m), name()), l);
+                            expr new_m = new_menv.mk_metavar(context(), some_expr(abst_domain(th_type_c)));
+                            l = cons(mk_pair(some_expr(new_m), name()), l);
                             // we use instantiate_with_closed_relaxed because we do not want
                             // to introduce a lift operator in the new_m
                             th_type_c = instantiate_with_closed_relaxed(abst_body(th_type_c), 1, &new_m);

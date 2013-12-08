@@ -27,7 +27,7 @@ public:
         \brief Return a reference (if available) to the main expression associated with this exception.
         This information is used to provide better error messages.
     */
-    virtual optional<expr> get_main_expr() const { return optional<expr>(); }
+    virtual optional<expr> get_main_expr() const { return none_expr(); }
     virtual format pp(formatter const & fmt, options const & opts) const;
     virtual exception * clone() const { return new kernel_exception(m_env, m_msg.c_str()); }
     virtual void rethrow() const { throw *this; }
@@ -106,7 +106,7 @@ class has_no_type_exception : public type_checker_exception {
 public:
     has_no_type_exception(environment const & env, expr const & c):type_checker_exception(env), m_const(c) {}
     virtual ~has_no_type_exception() {}
-    virtual optional<expr> get_main_expr() const { return some(m_const); }
+    virtual optional<expr> get_main_expr() const { return some_expr(m_const); }
     virtual char const * what() const noexcept { return "object does not have a type associated with it"; }
     virtual format pp(formatter const & fmt, options const & opts) const;
     virtual exception * clone() const { return new has_no_type_exception(m_env, m_const); }
@@ -133,7 +133,7 @@ public:
     virtual ~app_type_mismatch_exception() {}
     context const & get_context() const { return m_context; }
     expr const & get_application() const { return m_app; }
-    virtual optional<expr> get_main_expr() const { return some(get_application()); }
+    virtual optional<expr> get_main_expr() const { return some_expr(get_application()); }
     std::vector<expr> const & get_arg_types() const { return m_arg_types; }
     virtual char const * what() const noexcept { return "application argument type mismatch"; }
     virtual format pp(formatter const & fmt, options const & opts) const;
@@ -158,7 +158,7 @@ public:
     virtual ~function_expected_exception() {}
     context const & get_context() const { return m_context; }
     expr const & get_expr() const { return m_expr; }
-    virtual optional<expr> get_main_expr() const { return some(get_expr()); }
+    virtual optional<expr> get_main_expr() const { return some_expr(get_expr()); }
     virtual char const * what() const noexcept { return "function expected"; }
     virtual format pp(formatter const & fmt, options const & opts) const;
     virtual exception * clone() const { return new function_expected_exception(m_env, m_context, m_expr); }
@@ -182,7 +182,7 @@ public:
     virtual ~type_expected_exception() {}
     context const & get_context() const { return m_context; }
     expr const & get_expr() const { return m_expr; }
-    virtual optional<expr> get_main_expr() const { return some(get_expr()); }
+    virtual optional<expr> get_main_expr() const { return some_expr(get_expr()); }
     virtual char const * what() const noexcept { return "type expected"; }
     virtual format pp(formatter const & fmt, options const & opts) const;
     virtual exception * clone() const { return new type_expected_exception(m_env, m_context, m_expr); }
@@ -218,7 +218,7 @@ public:
     expr const & get_type() const { return m_type; }
     expr const & get_value() const { return m_value; }
     expr const & get_value_type() const { return m_value_type; }
-    virtual optional<expr> get_main_expr() const { return some(m_value); }
+    virtual optional<expr> get_main_expr() const { return some_expr(m_value); }
     virtual char const * what() const noexcept { return "definition type mismatch"; }
     virtual format pp(formatter const & fmt, options const & opts) const;
     virtual exception * clone() const { return new def_type_mismatch_exception(m_env, m_context, m_name, m_type, m_value, m_value_type); }
@@ -234,7 +234,7 @@ public:
     invalid_builtin_value_declaration(environment const & env, expr const & e):kernel_exception(env), m_expr(e) {}
     virtual ~invalid_builtin_value_declaration() {}
     virtual char const * what() const noexcept { return "invalid builtin value declaration, expression is not a builtin value"; }
-    virtual optional<expr> get_main_expr() const { return some(m_expr); }
+    virtual optional<expr> get_main_expr() const { return some_expr(m_expr); }
     virtual exception * clone() const { return new invalid_builtin_value_declaration(m_env, m_expr); }
     virtual void rethrow() const { throw *this; }
 };
@@ -249,7 +249,7 @@ public:
     invalid_builtin_value_reference(environment const & env, expr const & e):kernel_exception(env), m_expr(e) {}
     virtual ~invalid_builtin_value_reference() {}
     virtual char const * what() const noexcept { return "invalid builtin value reference, this kind of builtin value was not declared in the environment"; }
-    virtual optional<expr> get_main_expr() const { return some(m_expr); }
+    virtual optional<expr> get_main_expr() const { return some_expr(m_expr); }
     virtual exception * clone() const { return new invalid_builtin_value_reference(m_env, m_expr); }
     virtual void rethrow() const { throw *this; }
 };
@@ -263,7 +263,7 @@ public:
     unexpected_metavar_occurrence(environment const & env, expr const & e):kernel_exception(env), m_expr(e) {}
     virtual ~unexpected_metavar_occurrence() {}
     virtual char const * what() const noexcept { return "unexpected metavariable occurrence"; }
-    virtual optional<expr> get_main_expr() const { return some(m_expr); }
+    virtual optional<expr> get_main_expr() const { return some_expr(m_expr); }
     virtual exception * clone() const { return new unexpected_metavar_occurrence(m_env, m_expr); }
     virtual void rethrow() const { throw *this; }
 };

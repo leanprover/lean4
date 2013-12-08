@@ -48,7 +48,7 @@ public:
         append(r, m_jsts);
     }
 
-    virtual optional<expr> get_main_expr() const { return some(m_expr); }
+    virtual optional<expr> get_main_expr() const { return some_expr(m_expr); }
 };
 
 void swap(metavar_env & a, metavar_env & b) {
@@ -227,17 +227,17 @@ optional<std::pair<expr, justification>> metavar_env::get_subst_jst(name const &
 optional<expr> metavar_env::get_subst(name const & m) const {
     auto r = get_subst_jst(m);
     if (r)
-        return optional<expr>(r->first);
+        return some_expr(r->first);
     else
-        return optional<expr>();
+        return none_expr();
 }
 
 optional<expr> metavar_env::get_subst(expr const & m) const {
     auto r = get_subst_jst(m);
     if (r)
-        return optional<expr>(r->first);
+        return some_expr(r->first);
     else
-        return optional<expr>();
+        return none_expr();
 }
 
 class instantiate_metavars_proc : public replace_visitor {

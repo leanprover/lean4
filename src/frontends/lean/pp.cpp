@@ -732,7 +732,7 @@ class pp_fn {
             r.emplace_back(n1, abst_domain(e));
             expr b = replace_var_with_name(abst_body(e), n1);
             if (T)
-                T = some(replace_var_with_name(abst_body(*T), n1));
+                T = some_expr(replace_var_with_name(abst_body(*T), n1));
             return collect_nested(b, T, k, r);
         } else {
             return mk_pair(e, T);
@@ -957,7 +957,7 @@ class pp_fn {
     }
 
     result pp_abstraction(expr const & e, unsigned depth) {
-        return pp_abstraction_core(e, depth, optional<expr>());
+        return pp_abstraction_core(e, depth, none_expr());
     }
 
     expr collect_nested_let(expr const & e, buffer<std::tuple<name, optional<expr>, expr>> & bindings) {
@@ -1166,12 +1166,12 @@ public:
 
     format pp_definition(expr const & v, expr const & t, std::vector<bool> const * implicit_args) {
         init(mk_app(v, t));
-        return pp_abstraction_core(v, 0, optional<expr>(t), implicit_args).first;
+        return pp_abstraction_core(v, 0, some_expr(t), implicit_args).first;
     }
 
     format pp_pi_with_implicit_args(expr const & e, std::vector<bool> const & implicit_args) {
         init(e);
-        return pp_abstraction_core(e, 0, optional<expr>(), &implicit_args).first;
+        return pp_abstraction_core(e, 0, none_expr(), &implicit_args).first;
     }
 
     void register_local(name const & n) {

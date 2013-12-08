@@ -139,13 +139,13 @@ public:
     virtual optional<expr> normalize(unsigned num_args, expr const * args) const {
         if (num_args == 5 && is_bool_value(args[2])) {
             if (to_bool(args[2]))
-                return some(args[3]); // if A true a b  --> a
+                return some_expr(args[3]); // if A true a b  --> a
             else
-                return some(args[4]); // if A false a b --> b
+                return some_expr(args[4]); // if A false a b --> b
         } else if (num_args == 5 && args[3] == args[4]) {
-            return some(args[3]);     // if A c a a --> a
+            return some_expr(args[3]);     // if A c a a --> a
         } else {
-            return optional<expr>();
+            return none_expr();
         }
     }
 };

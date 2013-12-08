@@ -1373,7 +1373,7 @@ public:
 };
 
 formatter mk_pp_formatter(frontend const & fe) {
-    return formatter(new pp_formatter_cell(fe));
+    return mk_formatter(pp_formatter_cell(fe));
 }
 
 std::ostream & operator<<(std::ostream & out, frontend const & fe) {

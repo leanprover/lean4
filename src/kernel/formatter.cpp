@@ -33,6 +33,6 @@ public:
     }
 };
 formatter mk_simple_formatter() {
-    return formatter(new simple_formatter_cell());
+    return mk_formatter(simple_formatter_cell());
 }
 }

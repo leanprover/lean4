@@ -4,4 +4,4 @@
 x : ℤ,
 y : ℤ
 Variable x : ℤ
-<null-kernel-object>
+nil

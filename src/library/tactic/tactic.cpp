@@ -396,10 +396,10 @@ protected:
     environment m_env;
 
     virtual expr visit_constant(expr const & c, context const &) {
-        object const & obj = m_env.find_object(const_name(c));
-        if (obj && obj.is_definition() && !obj.is_opaque() && !is_hidden(m_env, const_name(c))) {
+        optional<object> obj = m_env.find_object(const_name(c));
+        if (obj && obj->is_definition() && !obj->is_opaque() && !is_hidden(m_env, const_name(c))) {
             m_unfolded = true;
-            return obj.get_value();
+            return obj->get_value();
         } else {
             return c;
         }
@@ -424,10 +424,10 @@ optional<proof_state> unfold_tactic_core(unfold_core_fn & fn, proof_state const 
 
 tactic unfold_tactic(name const & n) {
     return mk_tactic01([=](environment const & env, io_state const &, proof_state const & s) -> optional<proof_state> {
-            object const & obj = env.find_object(n);
-            if (!obj || !obj.is_definition())
+            optional<object> obj = env.find_object(n);
+            if (!obj || !obj->is_definition())
                 return none_proof_state(); // tactic failed
-            unfold_fn fn(n, obj.get_value());
+            unfold_fn fn(n, obj->get_value());
             return unfold_tactic_core(fn, s);
         });
 }

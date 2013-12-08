@@ -590,9 +590,9 @@ class elaborator::imp {
 
     int get_const_weight(expr const & a) {
         lean_assert(is_constant(a));
-        object const & obj = m_env.find_object(const_name(a));
-        if (obj && obj.is_definition() && !obj.is_opaque())
-            return obj.get_weight();
+        optional<object> obj = m_env.find_object(const_name(a));
+        if (obj && obj->is_definition() && !obj->is_opaque())
+            return obj->get_weight();
         else
             return -1;
     }
@@ -613,9 +613,11 @@ class elaborator::imp {
     expr unfold(expr const & a) {
         lean_assert(is_constant(a) || (is_app(a) && is_constant(arg(a, 0))));
         if (is_constant(a)) {
-            return m_env.find_object(const_name(a)).get_value();
+            lean_assert(m_env.find_object(const_name(a)));
+            return m_env.find_object(const_name(a))->get_value();
         } else {
-            return update_app(a, 0, m_env.find_object(const_name(arg(a, 0))).get_value());
+            lean_assert(m_env.find_object(const_name(arg(a, 0))));
+            return update_app(a, 0, m_env.find_object(const_name(arg(a, 0)))->get_value());
         }
     }
 

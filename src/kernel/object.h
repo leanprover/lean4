@@ -84,21 +84,14 @@ class object {
     object_cell * m_ptr;
     explicit object(object_cell * ptr):m_ptr(ptr) {}
 public:
-    object():m_ptr(nullptr) {}
     object(object const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     object(object && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~object() { if (m_ptr) m_ptr->dec_ref(); }
 
-    static object const & null();
-
     friend void swap(object & a, object & b) { std::swap(a.m_ptr, b.m_ptr); }
-
-    void release() { if (m_ptr) m_ptr->dec_ref(); m_ptr = nullptr; }
 
     object & operator=(object const & s) { LEAN_COPY_REF(object, s); }
     object & operator=(object && s) { LEAN_MOVE_REF(object, s); }
-
-    explicit operator bool() const { return m_ptr != nullptr; }
 
     object_kind kind() const { return m_ptr->kind(); }
 
@@ -132,6 +125,11 @@ public:
 
     object_cell const * cell() const { return m_ptr; }
 };
+
+inline optional<object> none_object() { return optional<object>(); }
+inline optional<object> some_object(object const & o) { return optional<object>(o); }
+inline optional<object> some_object(object && o) { return optional<object>(std::forward<object>(o)); }
+
 object mk_uvar_decl(name const & n, level const & l);
 object mk_builtin(expr const & v);
 object mk_builtin_set(expr const & r);

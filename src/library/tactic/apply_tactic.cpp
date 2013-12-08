@@ -135,9 +135,9 @@ tactic apply_tactic(expr const & th, expr const & th_type, bool all) {
 
 tactic apply_tactic(name const & th_name, bool all) {
     return mk_tactic01([=](environment const & env, io_state const &, proof_state const & s) -> optional<proof_state> {
-            object const & obj = env.find_object(th_name);
-            if (obj && (obj.is_theorem() || obj.is_axiom()))
-                return apply_tactic(env, s, mk_constant(th_name), obj.get_type(), all);
+            optional<object> obj = env.find_object(th_name);
+            if (obj && (obj->is_theorem() || obj->is_axiom()))
+                return apply_tactic(env, s, mk_constant(th_name), obj->get_type(), all);
             else
                 return none_proof_state();
         });

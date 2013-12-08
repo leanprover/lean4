@@ -48,8 +48,8 @@ public:
     void add_definition(name const & n, expr const & v, bool opaque = false) { m_env.add_definition(n, v, opaque); }
     void add_axiom(name const & n, expr const & t) { m_env.add_axiom(n, t); }
     void add_var(name const & n, expr const & t) { m_env.add_var(n, t); }
-    object const & get_object(name const & n) const { return m_env.get_object(n); }
-    object const & find_object(name const & n) const { return m_env.find_object(n); }
+    object get_object(name const & n) const { return m_env.get_object(n); }
+    optional<object> find_object(name const & n) const { return m_env.find_object(n); }
     bool has_object(name const & n) const { return m_env.has_object(n); }
     typedef environment::object_iterator object_iterator;
     object_iterator begin_objects() const { return m_env.begin_objects(); }

@@ -23,6 +23,7 @@ UDATA_DEFS(justification)
 UDATA_DEFS(metavar_env)
 int push_optional_expr(lua_State * L, optional<expr> const & e);
 int push_optional_justification(lua_State * L, optional<justification> const & j);
+int push_optional_object(lua_State * L, optional<object> const & o);
 /**
    \brief Return the formatter object associated with the given Lua State.
    This procedure checks for options at:

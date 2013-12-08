@@ -164,12 +164,4 @@ object mk_axiom(name const & n, expr const & t) { return object(new axiom_object
 object mk_var_decl(name const & n, expr const & t) { return object(new variable_decl_object_cell(n, t)); }
 object mk_builtin(expr const & v) { return object(new builtin_object_cell(v)); }
 object mk_builtin_set(expr const & r) { return object(new builtin_set_object_cell(r)); }
-
-static object g_null_object;
-
-object const & object::null() {
-    lean_assert(!g_null_object);
-    return g_null_object;
 }
-}
-

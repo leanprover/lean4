@@ -7,7 +7,7 @@ for v in env:objects() do
    end
 end
 assert(env:find_object("N"))
-assert(env:find_object("Z"):is_null())
+assert(not env:find_object("Z"))
 assert(env:find_object("N"):is_var_decl())
 assert(env:find_object("N"):has_type())
 assert(env:find_object("N"):has_name())

@@ -11,7 +11,7 @@ for o in child:local_objects() do
    print(o)
 end
 local eenv = empty_environment()
-print(eenv:find_object("Int"):is_null())
+print(not eenv:find_object("Int"))
 assert(not pcall(function() env:parent() end))
 local p = child:parent()
 assert(p:has_children())

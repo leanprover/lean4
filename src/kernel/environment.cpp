@@ -96,9 +96,9 @@ struct environment::imp {
         unsigned w = 0;
         auto proc = [&](expr const & c, unsigned) {
             if (is_constant(c)) {
-                object const & obj = get_object_core(const_name(c));
+                optional<object> obj = get_object_core(const_name(c));
                 if (obj)
-                    w = std::max(w, obj.get_weight());
+                    w = std::max(w, obj->get_weight());
             }
             return true;
         };
@@ -145,22 +145,22 @@ struct environment::imp {
         ancestors. Return null object if there is no object with the
         given name.
     */
-    object const & get_object_core(name const & n) const {
+    optional<object> get_object_core(name const & n) const {
         auto it = m_object_dictionary.find(n);
         if (it == m_object_dictionary.end()) {
             if (has_parent())
                 return m_parent->get_object_core(n);
             else
-                return object::null();
+                return none_object();
         } else {
-            return it->second;
+            return some_object(it->second);
         }
     }
 
-    object const & get_object(name const & n, environment const & env) const {
-        object const & obj = get_object_core(n);
+    object get_object(name const & n, environment const & env) const {
+        optional<object> obj = get_object_core(n);
         if (obj) {
-            return obj;
+            return *obj;
         } else {
             throw unknown_object_exception(env, n);
         }
@@ -559,11 +559,11 @@ void environment::add_neutral_object(neutral_object_cell * o) {
     m_ptr->m_objects.push_back(mk_neutral(o));
 }
 
-object const & environment::get_object(name const & n) const {
+object environment::get_object(name const & n) const {
     return m_ptr->get_object(n, *this);
 }
 
-object const & environment::find_object(name const & n) const {
+optional<object> environment::find_object(name const & n) const {
     return m_ptr->get_object_core(n);
 }
 

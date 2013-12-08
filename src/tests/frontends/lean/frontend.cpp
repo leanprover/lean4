@@ -77,11 +77,11 @@ static void tst5() {
     formatter fmt = mk_pp_formatter(f);
     f.add_var("A", Type());
     f.add_var("x", Const("A"));
-    object const & obj = f.find_object("x");
+    optional<object> obj = f.find_object("x");
     lean_assert(obj);
-    lean_assert(obj.get_name() == "x");
-    std::cout << fmt(obj) << "\n";
-    object const & obj2 = f.find_object("y");
+    lean_assert(obj->get_name() == "x");
+    std::cout << fmt(*obj) << "\n";
+    optional<object> obj2 = f.find_object("y");
     lean_assert(!obj2);
     try {
         f.get_object("y");
@@ -118,7 +118,7 @@ static void tst8() {
     frontend fe;
     formatter fmt = mk_pp_formatter(fe);
     fe.add_infixl("<-$->", 10, mk_refl_fn());
-    std::cout << fmt(fe.find_object("Trivial")) << "\n";
+    std::cout << fmt(*(fe.find_object("Trivial"))) << "\n";
 }
 
 static void tst9() {
@@ -142,7 +142,7 @@ static void tst9() {
     catch (exception &) {}
     lean_assert(!f.find_object("y"));
     f.add_definition("y", False);
-    lean_assert(is_bool(f.find_object("y").get_type()));
+    lean_assert(is_bool(f.find_object("y")->get_type()));
     lean_assert(f.has_object("y"));
     lean_assert(!f.has_object("z"));
     bool found = false;
@@ -173,7 +173,7 @@ static void tst11() {
     lean_assert(f.has_implicit_arguments("g"))
     name gexp = f.get_explicit_version("g");
     lean_assert(f.find_object(gexp));
-    lean_assert(f.find_object("g").get_type() == f.find_object(gexp).get_type());
+    lean_assert(f.find_object("g")->get_type() == f.find_object(gexp)->get_type());
     lean_assert(f.get_implicit_arguments("g") == std::vector<bool>({true, false, false}));
     try {
         f.mark_implicit_arguments("g", {true, false, false});

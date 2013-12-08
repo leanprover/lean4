@@ -755,15 +755,15 @@ class parser::imp {
        to check if \c id is a builtin symbol. If it is not throws an error.
     */
     expr get_name_ref(name const & id, pos_info const & p) {
-        object const & obj = m_frontend.find_object(id);
+        optional<object> obj = m_frontend.find_object(id);
         if (obj) {
-            object_kind k      = obj.kind();
+            object_kind k      = obj->kind();
             if (k == object_kind::Definition || k == object_kind::Postulate || k == object_kind::Builtin) {
-                if (m_frontend.has_implicit_arguments(obj.get_name())) {
-                    std::vector<bool> const & imp_args = m_frontend.get_implicit_arguments(obj.get_name());
+                if (m_frontend.has_implicit_arguments(obj->get_name())) {
+                    std::vector<bool> const & imp_args = m_frontend.get_implicit_arguments(obj->get_name());
                     buffer<expr> args;
                     pos_info p = pos();
-                    expr f = (k == object_kind::Builtin) ? obj.get_value() : mk_constant(obj.get_name());
+                    expr f = (k == object_kind::Builtin) ? obj->get_value() : mk_constant(obj->get_name());
                     args.push_back(save(f, p));
                     // We parse all the arguments to make sure we
                     // get all explicit arguments.
@@ -776,9 +776,9 @@ class parser::imp {
                     }
                     return mk_app(args);
                 } else if (k == object_kind::Builtin) {
-                    return obj.get_value();
+                    return obj->get_value();
                 } else {
-                    return mk_constant(obj.get_name());
+                    return mk_constant(obj->get_name());
                 }
             } else {
                 throw parser_error(sstream() << "invalid object reference, object '" << id << "' is not an expression.", p);
@@ -1160,8 +1160,8 @@ class parser::imp {
             t = ::lean::apply_tactic(pr, pr_type);
         } else {
            name n = check_identifier_next("invalid apply command, identifier, '(' expr ')', or 'script-block' expected");
-            object const & o = m_frontend.find_object(n);
-            if (o && (o.is_theorem() || o.is_axiom())) {
+           optional<object> o = m_frontend.find_object(n);
+            if (o && (o->is_theorem() || o->is_axiom())) {
                 t = ::lean::apply_tactic(n);
             } else {
                 using_script([&](lua_State * L) {

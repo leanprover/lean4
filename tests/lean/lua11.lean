@@ -2,17 +2,14 @@
 
  local env = get_environment()
  local o1  = env:find_object(name("Int", "add"))
- local o2  = env:find_object("xyz31213")
  print(o1:get_value())
  assert(is_kernel_object(o1))
- assert(is_kernel_object(o2))
- assert(not o1:is_null())
- assert(o2:is_null())
+ assert(o1)
  assert(o1:is_builtin())
  assert(o1:keyword() == "Builtin")
  assert(o1:get_name() == name("Int", "add"))
- assert(not pcall(function() o2:get_name() end))
- assert(not pcall(function() o2:keyword() end))
+ local o2  = env:find_object("xyz31213")
+ assert(not o2)
 
  local found1 = false
  local found2 = false

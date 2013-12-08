@@ -402,9 +402,9 @@ operator_info frontend::find_op_for(expr const & n, bool unicode) const {
     if (r || !is_constant(n)) {
         return r;
     } else {
-        object const & obj = find_object(const_name(n));
-        if (obj && obj.is_builtin() && obj.get_name() == const_name(n))
-            return to_ext(m_env).find_op_for(obj.get_value(), unicode);
+        optional<object> obj = find_object(const_name(n));
+        if (obj && obj->is_builtin() && obj->get_name() == const_name(n))
+            return to_ext(m_env).find_op_for(obj->get_value(), unicode);
         else
             return r;
     }

@@ -137,15 +137,13 @@ public:
        \brief Return the object with the given name.
        It throws an exception if the environment does not have an object with the given name.
     */
-    object const & get_object(name const & n) const;
+    object get_object(name const & n) const;
 
     /**
        \brief Find a given object in the environment. Return the null
        object if there is no object with the given name.
-
-       \remark Object implements operator bool(), and the null object returns false.
     */
-    object const & find_object(name const & n) const;
+    optional<object> find_object(name const & n) const;
 
     /** \brief Return true iff the environment has an object with the given name */
     bool has_object(name const & n) const { return static_cast<bool>(find_object(n)); }

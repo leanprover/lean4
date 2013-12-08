@@ -208,8 +208,8 @@ class type_checker::imp {
         case expr_kind::Value: {
             // Check if the builtin value (or its set) is declared in the environment.
             name const & n = to_value(e).get_name();
-            object const & obj = env().get_object(n);
-            if (obj && ((obj.is_builtin() && obj.get_value() == e) || (obj.is_builtin_set() && obj.in_builtin_set(e)))) {
+            object obj = env().get_object(n);
+            if ((obj.is_builtin() && obj.get_value() == e) || (obj.is_builtin_set() && obj.in_builtin_set(e))) {
                 return save_result(e, to_value(e).get_type(), shared);
             } else {
                 throw invalid_builtin_value_reference(env(), e);

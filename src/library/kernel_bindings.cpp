@@ -1006,7 +1006,7 @@ static int environment_add_axiom(lua_State * L) {
 
 static int environment_find_object(lua_State * L) {
     ro_environment env(L, 1);
-    return push_object(L, env->find_object(to_name_ext(L, 2)));
+    return push_optional_object(L, env->find_object(to_name_ext(L, 2)));
 }
 
 static int environment_has_object(lua_State * L) {
@@ -1163,68 +1163,64 @@ static void open_environment(lua_State * L) {
 
 DECL_UDATA(object)
 
-object & to_nonnull_object(lua_State * L, int idx) {
-    object & r = to_object(L, idx);
-    if (!r)
-        throw exception("non-null kernel object expected");
-    return r;
-}
-
-static int object_is_null(lua_State * L) {
-    lua_pushboolean(L, !to_object(L, 1));
+int push_optional_object(lua_State * L, optional<object> const & o) {
+    if (o)
+        push_object(L, *o);
+    else
+        lua_pushnil(L);
     return 1;
 }
 
 static int object_keyword(lua_State * L) {
-    lua_pushstring(L, to_nonnull_object(L, 1).keyword());
+    lua_pushstring(L, to_object(L, 1).keyword());
     return 1;
 }
 
 static int object_has_name(lua_State * L) {
-    lua_pushboolean(L, to_nonnull_object(L, 1).has_name());
+    lua_pushboolean(L, to_object(L, 1).has_name());
     return 1;
 }
 
 static int object_get_name(lua_State * L) {
-    object const & o = to_nonnull_object(L, 1);
+    object const & o = to_object(L, 1);
     if (!o.has_name())
         throw exception("kernel object does not have a name");
     return push_name(L, o.get_name());
 }
 
 static int object_has_type(lua_State * L) {
-    lua_pushboolean(L, to_nonnull_object(L, 1).has_type());
+    lua_pushboolean(L, to_object(L, 1).has_type());
     return 1;
 }
 
 static int object_get_type(lua_State * L) {
-    object const & o = to_nonnull_object(L, 1);
+    object const & o = to_object(L, 1);
     if (!o.has_type())
         throw exception("kernel object does not have a type");
     return push_expr(L, o.get_type());
 }
 
 static int object_has_cnstr_level(lua_State * L) {
-    lua_pushboolean(L, to_nonnull_object(L, 1).has_cnstr_level());
+    lua_pushboolean(L, to_object(L, 1).has_cnstr_level());
     return 1;
 }
 
 static int object_get_cnstr_level(lua_State * L) {
-    object const & o = to_nonnull_object(L, 1);
+    object const & o = to_object(L, 1);
     if (!o.has_cnstr_level())
         throw exception("kernel object does not have a constraint level");
     return push_level(L, o.get_cnstr_level());
 }
 
 static int object_get_value(lua_State * L) {
-    object const & o = to_nonnull_object(L, 1);
+    object const & o = to_object(L, 1);
     if (!o.is_definition() && !o.is_builtin())
         throw exception("kernel object is not a definition/theorem/builtin");
     return push_expr(L, o.get_value());
 }
 
 static int object_get_weight(lua_State * L) {
-    object const & o = to_nonnull_object(L, 1);
+    object const & o = to_object(L, 1);
     if (!o.is_definition())
         throw exception("kernel object is not a definition");
     lua_pushinteger(L, o.get_weight());
@@ -1233,7 +1229,7 @@ static int object_get_weight(lua_State * L) {
 
 #define OBJECT_PRED(P)                                  \
 static int object_ ## P(lua_State * L) {                \
-    lua_pushboolean(L, to_nonnull_object(L, 1).P());    \
+    lua_pushboolean(L, to_object(L, 1).P());    \
     return 1;                                           \
 }
 
@@ -1246,7 +1242,7 @@ OBJECT_PRED(is_builtin)
 OBJECT_PRED(is_builtin_set)
 
 static int object_in_builtin_set(lua_State * L) {
-    lua_pushboolean(L, to_nonnull_object(L, 1).in_builtin_set(to_expr(L, 2)));
+    lua_pushboolean(L, to_object(L, 1).in_builtin_set(to_expr(L, 2)));
     return 1;
 }
 
@@ -1254,11 +1250,7 @@ static int object_tostring(lua_State * L) {
     std::ostringstream out;
     formatter fmt = get_global_formatter(L);
     options opts  = get_global_options(L);
-    object & obj  = to_object(L, 1);
-    if (obj)
-        out << mk_pair(fmt(to_object(L, 1), opts), opts);
-    else
-        out << "<null-kernel-object>";
+    out << mk_pair(fmt(to_object(L, 1), opts), opts);
     lua_pushstring(L, out.str().c_str());
     return 1;
 }
@@ -1266,7 +1258,6 @@ static int object_tostring(lua_State * L) {
 static const struct luaL_Reg object_m[] = {
     {"__gc",            object_gc}, // never throws
     {"__tostring",      safe_function<object_tostring>},
-    {"is_null",         safe_function<object_is_null>},
     {"keyword",         safe_function<object_keyword>},
     {"has_name",        safe_function<object_has_name>},
     {"get_name",        safe_function<object_get_name>},

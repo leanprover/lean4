@@ -1,6 +1,5 @@
-
 function print_leaves(e, ctx)
-   if e:is_null() then
+   if (not e) then
       return
    end
    local k = e:kind()
@@ -46,6 +45,3 @@ local F = fun(h, mk_arrow(N, N),
               Let(x, h(a), Eq(f(x), h(x))))
 print(F)
 print_leaves(F, context())
-
-
-

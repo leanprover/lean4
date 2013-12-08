@@ -26,6 +26,7 @@ private:
     bool match_let(expr const & p, expr const & t, unsigned o, subst_map & s);
     bool match_metavar(expr const & p, expr const & t, unsigned o, subst_map & s);
     bool match_main(expr const & p, expr const & t, unsigned o, subst_map & s);
+    bool match_main(optional<expr> const & p, optional<expr> const & t, unsigned o, subst_map & s);
 
 public:
     bool match(expr const & p, expr const & t, unsigned o, subst_map & s);

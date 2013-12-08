@@ -21,7 +21,7 @@ public:
     propagation_justification(unification_constraint const & c);
     virtual ~propagation_justification();
     virtual void get_children(buffer<justification_cell*> & r) const;
-    virtual expr const & get_main_expr() const;
+    virtual optional<expr> get_main_expr() const;
     virtual format pp_header(formatter const &, options const &) const;
     unification_constraint const & get_constraint() const { return m_constraint; }
 };
@@ -168,7 +168,7 @@ public:
     virtual ~synthesis_justification();
     virtual format pp_header(formatter const &, options const &) const;
     virtual void get_children(buffer<justification_cell*> & r) const;
-    virtual expr const & get_main_expr() const;
+    virtual optional<expr> get_main_expr() const;
 };
 
 /**
@@ -212,6 +212,6 @@ public:
     virtual ~next_solution_justification();
     virtual format pp_header(formatter const &, options const &) const;
     virtual void get_children(buffer<justification_cell*> & r) const;
-    virtual expr const & get_main_expr() const;
+    virtual optional<expr> get_main_expr() const;
 };
 };

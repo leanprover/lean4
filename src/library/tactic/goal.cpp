@@ -76,10 +76,10 @@ static name_set collect_used_names(context const & ctx, expr const & t) {
     auto f = [&r](expr const & e, unsigned) { if (is_constant(e)) r.insert(const_name(e)); return true; };
     for_each_fn<decltype(f)> visitor(f);
     for (auto const & e : ctx) {
-        if (expr const & d = e.get_domain())
-            visitor(d);
-        if (expr const & b = e.get_body())
-            visitor(b);
+        if (optional<expr> const & d = e.get_domain())
+            visitor(*d);
+        if (optional<expr> const & b = e.get_body())
+            visitor(*b);
     }
     visitor(t);
     return r;
@@ -108,9 +108,9 @@ std::pair<goal, goal_proof_fn> to_goal(environment const & env, context const & 
     for (auto const & e : ctx)
         entries.push_back(e);
     std::reverse(entries.begin(), entries.end());
-    buffer<hypothesis> hypotheses;             // normalized names and types of the entries processed so far
-    buffer<expr> bodies;                       // normalized bodies of the entries processed so far
-    std::vector<expr> consts;                  // cached consts[i] == mk_constant(names[i], hypotheses[i])
+    buffer<hypothesis> hypotheses;   // normalized names and types of the entries processed so far
+    buffer<optional<expr>> bodies;   // normalized bodies of the entries processed so far
+    std::vector<expr> consts;        // cached consts[i] == mk_constant(names[i], hypotheses[i])
     auto replace_vars = [&](expr const & e, unsigned offset) -> expr {
         if (is_var(e)) {
             unsigned vidx = var_idx(e);
@@ -121,7 +121,7 @@ std::pair<goal, goal_proof_fn> to_goal(environment const & env, context const & 
                     throw exception("to_goal failed, unknown free variable");
                 unsigned lvl   = nfv - nvidx - 1;
                 if (bodies[lvl])
-                    return bodies[lvl];
+                    return *(bodies[lvl]);
                 else
                     return consts[lvl];
             }
@@ -134,20 +134,22 @@ std::pair<goal, goal_proof_fn> to_goal(environment const & env, context const & 
     for (; it != end; ++it) {
         auto const & e = *it;
         name n = mk_unique_name(used_names, e.get_name());
-        expr d = replacer(e.get_domain());
-        expr b = replacer(e.get_body());
+        optional<expr> d = e.get_domain();
+        optional<expr> b = e.get_body();
+        if (d) d = some(replacer(*d));
+        if (b) b = some(replacer(*b));
         if (b && !d) {
-            d = inferer(b);
+            d = some(inferer(*b));
         }
         replacer.clear();
-        if (b && !inferer.is_proposition(d)) {
+        if (b && !inferer.is_proposition(*d)) {
             bodies.push_back(b);
             consts.push_back(expr());
         } else {
             lean_assert(d);
-            hypotheses.emplace_back(n, d);
-            bodies.push_back(expr());
-            consts.push_back(mk_constant(n, d));
+            hypotheses.emplace_back(n, *d);
+            bodies.push_back(optional<expr>());
+            consts.push_back(mk_constant(n, *d));
         }
     }
     expr conclusion = replacer(t);
@@ -162,9 +164,9 @@ static int mk_hypotheses(lua_State * L) {
     if (nargs == 0) {
         return push_hypotheses(L, hypotheses());
     } else if (nargs == 2) {
-        return push_hypotheses(L, hypotheses(mk_pair(to_name_ext(L, 1), to_nonnull_expr(L, 2)), hypotheses()));
+        return push_hypotheses(L, hypotheses(mk_pair(to_name_ext(L, 1), to_expr(L, 2)), hypotheses()));
     } else if (nargs == 3) {
-        return push_hypotheses(L, hypotheses(mk_pair(to_name_ext(L, 1), to_nonnull_expr(L, 2)), to_hypotheses(L, 3)));
+        return push_hypotheses(L, hypotheses(mk_pair(to_name_ext(L, 1), to_expr(L, 2)), to_hypotheses(L, 3)));
     } else {
         throw exception("hypotheses functions expects 0 (empty list), 2 (name & expr for singleton hypotheses list), or 3 (name & expr & hypotheses list) arguments");
     }
@@ -233,12 +235,7 @@ static const struct luaL_Reg hypotheses_m[] = {
 DECL_UDATA(goal)
 
 static int mk_goal(lua_State * L) {
-    return push_goal(L, goal(to_hypotheses(L, 1), to_nonnull_expr(L, 2)));
-}
-
-static int goal_is_null(lua_State * L) {
-    lua_pushboolean(L, !to_goal(L, 1));
-    return 1;
+    return push_goal(L, goal(to_hypotheses(L, 1), to_expr(L, 2)));
 }
 
 static int goal_hypotheses(lua_State * L) {
@@ -256,13 +253,9 @@ static int goal_unique_name(lua_State * L) {
 static int goal_tostring(lua_State * L) {
     std::ostringstream out;
     goal & g = to_goal(L, 1);
-    if (g) {
-        formatter fmt = get_global_formatter(L);
-        options opts  = get_global_options(L);
-        out << mk_pair(g.pp(fmt, opts), opts);
-    } else {
-        out << "<null-goal>";
-    }
+    formatter fmt = get_global_formatter(L);
+    options opts  = get_global_options(L);
+    out << mk_pair(g.pp(fmt, opts), opts);
     lua_pushstring(L, out.str().c_str());
     return 1;
 }
@@ -270,9 +263,7 @@ static int goal_tostring(lua_State * L) {
 static int goal_pp(lua_State * L) {
     int nargs = lua_gettop(L);
     goal & g = to_goal(L, 1);
-    if (!g) {
-        return push_format(L, format());
-    } else if (nargs == 1) {
+    if (nargs == 1) {
         return push_format(L, g.pp(get_global_formatter(L), get_global_options(L)));
     } else if (nargs == 2) {
         if (is_formatter(L, 2))
@@ -287,7 +278,6 @@ static int goal_pp(lua_State * L) {
 static const struct luaL_Reg goal_m[] = {
     {"__gc",            goal_gc}, // never throws
     {"__tostring",      safe_function<goal_tostring>},
-    {"is_null",         safe_function<goal_is_null>},
     {"hypotheses",      safe_function<goal_hypotheses>},
     {"hyps",            safe_function<goal_hypotheses>},
     {"conclusion",      safe_function<goal_conclusion>},

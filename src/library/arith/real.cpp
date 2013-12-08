@@ -75,12 +75,11 @@ template<char const * Name, typename F>
 class real_bin_op : public const_value {
 public:
     real_bin_op():const_value(name("Real", Name), Real >> (Real >> Real)) {}
-    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
+    virtual optional<expr> normalize(unsigned num_args, expr const * args) const {
         if (num_args == 3 && is_real_value(args[1]) && is_real_value(args[2])) {
-            r = mk_real_value(F()(real_value_numeral(args[1]), real_value_numeral(args[2])));
-            return true;
+            return some(mk_real_value(F()(real_value_numeral(args[1]), real_value_numeral(args[2]))));
         } else {
-            return false;
+            return optional<expr>();
         }
     }
 };
@@ -117,12 +116,11 @@ MK_BUILTIN(real_div_fn, real_div_value);
 class real_le_value : public const_value {
 public:
     real_le_value():const_value(name{"Real", "le"}, Real >> (Real >> Bool)) {}
-    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
+    virtual optional<expr> normalize(unsigned num_args, expr const * args) const {
         if (num_args == 3 && is_real_value(args[1]) && is_real_value(args[2])) {
-            r = mk_bool_value(real_value_numeral(args[1]) <= real_value_numeral(args[2]));
-            return true;
+            return some(mk_bool_value(real_value_numeral(args[1]) <= real_value_numeral(args[2])));
         } else {
-            return false;
+            return optional<expr>();
         }
     }
 };
@@ -167,12 +165,11 @@ void import_real(environment & env) {
 class int_to_real_value : public const_value {
 public:
     int_to_real_value():const_value("int_to_real", Int >> Real) {}
-    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
+    virtual optional<expr> normalize(unsigned num_args, expr const * args) const {
         if (num_args == 2 && is_int_value(args[1])) {
-            r = mk_real_value(mpq(int_value_numeral(args[1])));
-            return true;
+            return some(mk_real_value(mpq(int_value_numeral(args[1]))));
         } else {
-            return false;
+            return optional<expr>();
         }
     }
 };

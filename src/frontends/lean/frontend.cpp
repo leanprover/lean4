@@ -315,16 +315,16 @@ struct lean_extension : public environment::extension {
         env.add_neutral_object(new coercion_declaration(f));
     }
 
-    expr get_coercion(expr const & from_type, expr const & to_type) const {
+    optional<expr> get_coercion(expr const & from_type, expr const & to_type) const {
         expr_pair p(from_type, to_type);
         auto it = m_coercion_map.find(p);
         if (it != m_coercion_map.end())
-            return it->second;
+            return optional<expr>(it->second);
         lean_extension const * parent = get_parent();
         if (parent)
             return parent->get_coercion(from_type, to_type);
         else
-            return expr();
+            return optional<expr>();
     }
 
     list<expr_pair> get_coercions(expr const & from_type) const {
@@ -444,7 +444,7 @@ bool frontend::is_explicit(name const & n) const {
 void frontend::add_coercion(expr const & f) {
     to_ext(m_env).add_coercion(f, m_env);
 }
-expr frontend::get_coercion(expr const & from_type, expr const & to_type) const {
+optional<expr> frontend::get_coercion(expr const & from_type, expr const & to_type) const {
     return to_ext(m_env).get_coercion(from_type, to_type);
 }
 list<expr_pair> frontend::get_coercions(expr const & from_type) const {

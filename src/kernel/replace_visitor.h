@@ -24,7 +24,7 @@ protected:
     typedef scoped_map<expr, expr, expr_hash_alloc, expr_eqp> cache;
     cache                      m_cache;
     context                    m_ctx;
-
+    expr save_result(expr const & e, expr && r, bool shared);
     virtual expr visit_type(expr const &, context const &);
     virtual expr visit_value(expr const &, context const &);
     virtual expr visit_constant(expr const &, context const &);
@@ -37,6 +37,7 @@ protected:
     virtual expr visit_pi(expr const &, context const &);
     virtual expr visit_let(expr const &, context const &);
     virtual expr visit(expr const &, context const &);
+    optional<expr> visit(optional<expr> const &, context const &);
 
     void set_ctx(context const & ctx) {
         if (!is_eqp(m_ctx, ctx)) {

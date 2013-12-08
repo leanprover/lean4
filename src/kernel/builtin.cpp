@@ -126,27 +126,26 @@ static format g_if_fmt(g_if_name);
 */
 class if_fn_value : public value {
     expr m_type;
-public:
-    if_fn_value() {
+    static expr mk_type() {
         expr A    = Const("A");
         // Pi (A: Type), bool -> A -> A -> A
-        m_type = Pi({A, TypeU}, Bool >> (A >> (A >> A)));
+        return Pi({A, TypeU}, Bool >> (A >> (A >> A)));
     }
+public:
+    if_fn_value():m_type(mk_type()) {}
     virtual ~if_fn_value() {}
     virtual expr get_type() const { return m_type; }
     virtual name get_name() const { return g_if_name; }
-    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
+    virtual optional<expr> normalize(unsigned num_args, expr const * args) const {
         if (num_args == 5 && is_bool_value(args[2])) {
             if (to_bool(args[2]))
-                r = args[3]; // if A true a b  --> a
+                return some(args[3]); // if A true a b  --> a
             else
-                r = args[4]; // if A false a b --> b
-            return true;
+                return some(args[4]); // if A false a b --> b
         } else if (num_args == 5 && args[3] == args[4]) {
-            r = args[3];     // if A c a a --> a
-            return true;
+            return some(args[3]);     // if A c a a --> a
         } else {
-            return false;
+            return optional<expr>();
         }
     }
 };

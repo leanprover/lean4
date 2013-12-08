@@ -324,9 +324,9 @@ class parser::imp {
 
     void display_error_pos(pos_info const & p) { display_error_pos(p.first, p.second); }
 
-    void display_error_pos(expr const & e) {
+    void display_error_pos(optional<expr> const & e) {
         if (e) {
-            auto it = m_expr_pos_info.find(e);
+            auto it = m_expr_pos_info.find(*e);
             if (it == m_expr_pos_info.end())
                 return display_error_pos(m_last_cmd_pos);
             else
@@ -346,7 +346,11 @@ class parser::imp {
     }
 
     void display_error(kernel_exception const & ex) {
-        display_error_pos(m_elaborator.get_original(ex.get_main_expr()));
+        optional<expr> main_expr = ex.get_main_expr();
+        if (main_expr)
+            display_error_pos(some(m_elaborator.get_original(*main_expr)));
+        else
+            display_error_pos(main_expr);
         regular(m_frontend) << " " << ex << endl;
     }
 
@@ -912,7 +916,7 @@ class parser::imp {
     void parse_simple_bindings(bindings_buffer & result, bool implicit_decl, bool suppress_type) {
         buffer<std::pair<pos_info, name>> names;
         parse_names(names);
-        expr type;
+        optional<expr> type;
         if (!suppress_type) {
             check_colon_next("invalid binder, ':' expected");
             type = parse_expr();
@@ -928,7 +932,7 @@ class parser::imp {
             --i;
             expr arg_type;
             if (type)
-                arg_type = lift_free_vars(type, i);
+                arg_type = lift_free_vars(*type, i);
             else
                 arg_type = save(mk_placeholder(), names[i].first);
             result[sz + i] = std::make_tuple(names[i].first, names[i].second, arg_type, implicit_decl);
@@ -1063,11 +1067,11 @@ class parser::imp {
     expr parse_let() {
         next();
         mk_scope scope(*this);
-        buffer<std::tuple<pos_info, name, expr, expr>> bindings;
+        buffer<std::tuple<pos_info, name, optional<expr>, expr>> bindings;
         while (true) {
             auto p   = pos();
             name id  = check_identifier_next("invalid let expression, identifier expected");
-            expr type;
+            optional<expr> type;
             if (curr_is_colon()) {
                 next();
                 type = parse_expr();
@@ -1181,7 +1185,7 @@ class parser::imp {
         expr t = parse_expr();
         check_next(scanner::token::By, "invalid 'show _ by _' expression, 'by' expected");
         tactic tac = parse_tactic_expr();
-        expr r = mk_placeholder(t);
+        expr r = mk_placeholder(optional<expr>(t));
         m_tactic_hints[r] = tac;
         return save(r, p);
     }
@@ -1440,7 +1444,7 @@ class parser::imp {
     */
     expr parse_tactic_cmds(proof_state s, context const & ctx, expr const & expected_type) {
         proof_state_seq_stack stack;
-        expr pr;
+        optional<expr> pr;
         enum class status { Continue, Done, Eof, Abort };
         status st = status::Continue;
         while (st == status::Continue) {
@@ -1497,7 +1501,7 @@ class parser::imp {
                 });
         }
         switch (st) {
-        case status::Done:  return pr;
+        case status::Done:  return *pr;
         case status::Eof:   throw parser_error("invalid tactic command, unexpected end of file", pos());
         case status::Abort: throw parser_error("failed to prove theorem, proof has been aborted", pos());
         default: lean_unreachable(); // LCOV_EXCL_LINE
@@ -1542,9 +1546,14 @@ class parser::imp {
                 throw exception("failed to synthesize metavar, its type contains metavariables");
             buffer<context_entry> new_entries;
             for (auto e : menv.get_context(mvar)) {
-                new_entries.emplace_back(e.get_name(),
-                                         instantiate_metavars(e.get_domain(), menv),
-                                         instantiate_metavars(e.get_body(), menv));
+                optional<expr> d = e.get_domain();
+                optional<expr> b = e.get_body();
+                if (d) d = instantiate_metavars(*d, menv);
+                if (b) b = instantiate_metavars(*b, menv);
+                if (d)
+                    new_entries.emplace_back(e.get_name(), *d, b);
+                else
+                    new_entries.emplace_back(e.get_name(), d, *b);
             }
             context mvar_ctx(to_list(new_entries.begin(), new_entries.end()));
             if (!m_type_inferer.is_proposition(mvar_type, mvar_ctx))
@@ -1562,8 +1571,7 @@ class parser::imp {
                     next();
                 }
                 expr mvar_val = parse_tactic_cmds(s, mvar_ctx, mvar_type);
-                if (mvar_val)
-                    menv.assign(mvar, mvar_val);
+                menv.assign(mvar, mvar_val);
             }
         }
         return instantiate_metavars(val, menv);

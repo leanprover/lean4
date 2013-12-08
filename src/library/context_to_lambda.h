@@ -42,15 +42,14 @@ name const & fake_context_name(expr const & e);
 
    \pre is_fake_context(e)
 */
-expr const & fake_context_domain(expr const & e);
+optional<expr> fake_context_domain(expr const & e);
 /**
-   \brief Return the value V_1 of the head of the (fake) context
+   \brief Return (if available) the value V_1 of the head of the (fake) context
    (lambda (n_1 : (fake T_1 V_1)) ... (lambda (n_k : (fake T_k V_k)) e))
 
    \pre is_fake_context(e)
-   \remark If the head does not have a value, then return a null expression
 */
-expr const & fake_context_value(expr const & e);
+optional<expr> fake_context_value(expr const & e);
 /**
    \brief Return the rest (lambda (n_2 : (fake T_2 V_2)) ... (lambda (n_k : (fake T_k V_k)) e)) of the fake context
    (lambda (n_1 : (fake T_1 V_1)) ... (lambda (n_k : (fake T_k V_k)) e))

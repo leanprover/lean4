@@ -20,16 +20,21 @@ static bool is_metavar_wo_local_context(expr const & e) {
     return is_metavar(e) && !metavar_lctx(e);
 }
 
-static bool is_eq_heq(expr const & e, expr & lhs, expr & rhs) {
-    return is_eq(e, lhs, rhs) || is_homo_eq(e, lhs, rhs);
+static bool is_eq_heq(expr const & e) {
+    return is_eq(e) || is_homo_eq(e);
+}
+
+static expr_pair eq_heq_args(expr const & e) {
+    lean_assert(is_eq(e) || is_homo_eq(e));
+    if (is_eq(e))
+        return expr_pair(eq_lhs(e), eq_rhs(e));
+    else
+        return expr_pair(arg(e, 1), arg(e, 2));
 }
 
 optional<substitution> fo_unify(expr e1, expr e2) {
-    lean_assert(e1);
-    lean_assert(e2);
     substitution s;
     unsigned i1, i2;
-    expr lhs1, rhs1, lhs2, rhs2;
     buffer<expr_pair> todo;
     todo.emplace_back(e1, e2);
     while (!todo.empty()) {
@@ -42,9 +47,11 @@ optional<substitution> fo_unify(expr e1, expr e2) {
                 assign(s, e1, e2);
             } else if (is_metavar_wo_local_context(e2)) {
                 assign(s, e2, e1);
-            } else if (is_eq_heq(e1, lhs1, rhs1) && is_eq_heq(e2, lhs2, rhs2)) {
-                todo.emplace_back(lhs1, lhs2);
-                todo.emplace_back(rhs1, rhs2);
+            } else if (is_eq_heq(e1) && is_eq_heq(e2)) {
+                expr_pair p1 = eq_heq_args(e1);
+                expr_pair p2 = eq_heq_args(e2);
+                todo.emplace_back(p1.second, p2.second);
+                todo.emplace_back(p1.first,  p2.first);
             } else {
                 if (e1.kind() != e2.kind())
                     return optional<substitution>();
@@ -79,7 +86,7 @@ optional<substitution> fo_unify(expr e1, expr e2) {
                         return optional<substitution>();
                     if (let_type(e1)) {
                         lean_assert(let_type(e2));
-                        todo.emplace_back(let_type(e1), let_type(e2));
+                        todo.emplace_back(*let_type(e1), *let_type(e2));
                     }
                     break;
                 }
@@ -91,7 +98,7 @@ optional<substitution> fo_unify(expr e1, expr e2) {
 
 
 static int fo_unify(lua_State * L) {
-    optional<substitution> r = fo_unify(to_nonnull_expr(L, 1), to_nonnull_expr(L, 2));
+    optional<substitution> r = fo_unify(to_expr(L, 1), to_expr(L, 2));
     if (!r) {
         lua_pushnil(L);
         return 1;

@@ -8,4 +8,4 @@ for c in j1:children() do
 end
 assert(not j2:has_children())
 print(j1)
-assert(j1:get_main_expr():is_null())
+assert(not j1:get_main_expr())

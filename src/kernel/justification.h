@@ -26,14 +26,14 @@ class justification_cell {
     MK_LEAN_RC();
     void dealloc() { delete this; }
 protected:
-    static void add_pos_info(format & r, expr const & e, pos_info_provider const * p);
+    static void add_pos_info(format & r, optional<expr> const & e, pos_info_provider const * p);
 public:
     justification_cell():m_rc(0) {}
     virtual ~justification_cell() {}
     virtual format pp_header(formatter const & fmt, options const & opts) const = 0;
     virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool display_children) const;
     virtual void get_children(buffer<justification_cell*> & r) const = 0;
-    virtual expr const & get_main_expr() const { return expr::null(); }
+    virtual optional<expr> get_main_expr() const { return optional<expr>(); }
     bool is_shared() const { return get_rc() > 1; }
 };
 
@@ -45,7 +45,7 @@ class assumption_justification : public justification_cell {
 public:
     assumption_justification(unsigned idx);
     virtual void get_children(buffer<justification_cell*> &) const;
-    virtual expr const & get_main_expr() const;
+    virtual optional<expr> get_main_expr() const;
     virtual format pp_header(formatter const &, options const &) const;
 };
 
@@ -73,7 +73,7 @@ public:
         lean_assert(m_ptr);
         return m_ptr->pp(fmt, opts, p, display_children);
     }
-    expr const & get_main_expr() const { return m_ptr ? m_ptr->get_main_expr() : expr::null(); }
+    optional<expr> get_main_expr() const { return m_ptr ? m_ptr->get_main_expr() : optional<expr>(); }
     void get_children(buffer<justification_cell*> & r) const { if (m_ptr) m_ptr->get_children(r); }
     bool has_children() const;
 };

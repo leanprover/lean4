@@ -107,10 +107,10 @@ template<typename F>
 goals map_goals(proof_state const & s, F && f) {
     return map_filter(s.get_goals(), [=](std::pair<name, goal> const & in, std::pair<name, goal> & out) -> bool {
             check_interrupted();
-            goal new_goal = f(in.first, in.second);
+            optional<goal> new_goal = f(in.first, in.second);
             if (new_goal) {
                 out.first  = in.first;
-                out.second = new_goal;
+                out.second = *new_goal;
                 return true;
             } else {
                 return false;

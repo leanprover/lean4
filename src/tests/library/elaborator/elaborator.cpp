@@ -652,7 +652,7 @@ void tst20() {
     while (true) {
         try {
             auto sol = elb.next();
-            std::cout << m1 << " -> " << sol.get_subst(m1) << "\n";
+            std::cout << m1 << " -> " << *(sol.get_subst(m1)) << "\n";
             std::cout << instantiate_metavars(l, sol) << "\n";
             lean_assert(instantiate_metavars(l, sol) == r);
             std::cout << "--------------\n";
@@ -684,7 +684,7 @@ void tst21() {
     while (true) {
         try {
             auto sol = elb.next();
-            std::cout << m1 << " -> " << sol.get_subst(m1) << "\n";
+            std::cout << m1 << " -> " << *(sol.get_subst(m1)) << "\n";
             std::cout << instantiate_metavars(l, sol) << "\n";
             lean_assert(instantiate_metavars(l, sol) == r);
             std::cout << "--------------\n";
@@ -718,8 +718,8 @@ void tst22() {
     while (true) {
         try {
             auto sol = elb.next();
-            std::cout << m3 << " -> " << sol.get_subst(m3) << "\n";
-            lean_assert(sol.get_subst(m3) == iVal(1));
+            std::cout << m3 << " -> " << *(sol.get_subst(m3)) << "\n";
+            lean_assert(*(sol.get_subst(m3)) == iVal(1));
             std::cout << instantiate_metavars(l, sol) << "\n";
             std::cout << instantiate_metavars(r, sol) << "\n";
             std::cout << "--------------\n";
@@ -748,7 +748,7 @@ void tst23() {
     while (true) {
         try {
             auto sol = elb.next();
-            std::cout << m1 << " -> " << sol.get_subst(m1) << "\n";
+            std::cout << m1 << " -> " << *(sol.get_subst(m1)) << "\n";
             std::cout << instantiate_metavars(l, sol) << "\n";
             lean_assert_eq(instantiate_metavars(l, sol),
                            instantiate_metavars(r, sol));
@@ -797,7 +797,7 @@ void tst25() {
     while (true) {
         try {
             auto sol = elb.next();
-            std::cout << m1 << " -> " << sol.get_subst(m1) << "\n";
+            std::cout << m1 << " -> " << *(sol.get_subst(m1)) << "\n";
             std::cout << instantiate_metavars(l, sol) << "\n";
             lean_assert_eq(beta_reduce(instantiate_metavars(l, sol)),
                            beta_reduce(instantiate_metavars(r, sol)));

@@ -21,6 +21,10 @@ class has_free_vars_fn {
 protected:
     expr_cell_offset_set m_cached;
 
+    bool apply(optional<expr> const & e, unsigned offset) {
+        return e && apply(*e, offset);
+    }
+
     bool apply(expr const & e, unsigned offset) {
         // handle easy cases
         switch (e.kind()) {
@@ -80,7 +84,7 @@ protected:
             result = apply(abst_domain(e), offset) || apply(abst_body(e), offset + 1);
             break;
         case expr_kind::Let:
-            result = (let_type(e) && apply(let_type(e), offset)) || apply(let_value(e), offset) || apply(let_body(e), offset + 1);
+            result = apply(let_type(e), offset) || apply(let_value(e), offset) || apply(let_body(e), offset + 1);
             break;
         }
 
@@ -99,7 +103,7 @@ public:
 };
 
 bool has_free_vars(expr const & e) {
-    return e && has_free_vars_fn()(e);
+    return has_free_vars_fn()(e);
 }
 
 /**
@@ -113,6 +117,10 @@ protected:
     unsigned             m_low;
     unsigned             m_high;
     expr_cell_offset_set m_cached;
+
+    bool apply(optional<expr> const & e, unsigned offset) {
+        return e && apply(*e, offset);
+    }
 
     bool apply(expr const & e, unsigned offset) {
         // handle easy cases
@@ -163,7 +171,7 @@ protected:
             result = apply(abst_domain(e), offset) || apply(abst_body(e), offset + 1);
             break;
         case expr_kind::Let:
-            result = (let_type(e) && apply(let_type(e), offset)) || apply(let_value(e), offset) || apply(let_body(e), offset + 1);
+            result = apply(let_type(e), offset) || apply(let_value(e), offset) || apply(let_body(e), offset + 1);
             break;
         }
 

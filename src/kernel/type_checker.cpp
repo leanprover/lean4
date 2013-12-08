@@ -39,14 +39,6 @@ class type_checker::imp {
         return m_normalizer(e, ctx);
     }
 
-    expr lookup(context const & c, unsigned i) {
-        auto p = lookup_ext(c, i);
-        context_entry const & def = p.first;
-        context const & def_c     = p.second;
-        lean_assert(c.size() > def_c.size());
-        return lift_free_vars(def.get_domain(), c.size() - def_c.size());
-    }
-
     expr check_pi(expr const & e, expr const & s, context const & ctx) {
         if (is_pi(e))
             return e;
@@ -84,6 +76,12 @@ class type_checker::imp {
         throw type_expected_exception(env(), ctx, s);
     }
 
+    expr save_result(expr const & e, expr const & r, bool shared) {
+        if (shared)
+            m_cache.insert(e, r);
+        return r;
+    }
+
     expr infer_type_core(expr const & e, context const & ctx) {
         check_system("type checker");
         bool shared = false;
@@ -94,36 +92,44 @@ class type_checker::imp {
                 return it->second;
         }
 
-        expr r;
         switch (e.kind()) {
         case expr_kind::MetaVar:
             if (m_menv) {
                 if (m_menv->is_assigned(e))
-                    return infer_type_core(m_menv->get_subst(e), ctx);
+                    return infer_type_core(*(m_menv->get_subst(e)), ctx);
                 else
                     return m_menv->get_type(e);
             } else {
                 throw unexpected_metavar_occurrence(env(), e);
             }
-            break;
         case expr_kind::Constant: {
             if (const_type(e)) {
-                r = const_type(e);
+                return save_result(e, *const_type(e), shared);
             } else {
                 object const & obj = env().get_object(const_name(e));
                 if (obj.has_type())
-                    r = obj.get_type();
+                    return save_result(e, obj.get_type(), shared);
                 else
                     throw has_no_type_exception(env(), e);
             }
-            break;
         }
-        case expr_kind::Var:
-            r = lookup(ctx, var_idx(e));
-            break;
+        case expr_kind::Var: {
+            unsigned i = var_idx(e);
+            auto p = lookup_ext(ctx, i);
+            context_entry const & def = p.first;
+            context const & def_ctx   = p.second;
+            lean_assert(ctx.size() > def_ctx.size());
+            if (optional<expr> const & d = def.get_domain()) {
+                return save_result(e, lift_free_vars(*d, ctx.size() - def_ctx.size()), shared);
+            } else {
+                optional<expr> const & b = def.get_body();
+                lean_assert(b);
+                expr t = infer_type_core(*b, def_ctx);
+                return save_result(e, lift_free_vars(t, ctx.size() - def_ctx.size()), shared);
+            }
+        }
         case expr_kind::Type:
-            r = mk_type(ty_level(e) + 1);
-            break;
+            return save_result(e, mk_type(ty_level(e) + 1), shared);
         case expr_kind::App: {
             unsigned num = num_args(e);
             lean_assert(num >= 2);
@@ -146,81 +152,71 @@ class type_checker::imp {
                 else
                     f_t = instantiate(abst_body(f_t), c);
                 i++;
-                if (i == num) {
-                    r = f_t;
-                    break;
-                }
+                if (i == num)
+                    return save_result(e, f_t, shared);
                 f_t = check_pi(f_t, e, ctx);
             }
-            break;
         }
         case expr_kind::Eq:
             infer_type_core(eq_lhs(e), ctx);
             infer_type_core(eq_rhs(e), ctx);
-            r = mk_bool_type();
-            break;
+            return save_result(e, mk_bool_type(), shared);
         case expr_kind::Lambda: {
             expr d = infer_type_core(abst_domain(e), ctx);
             check_type(d, abst_domain(e), ctx);
-            expr t;
             {
                 cache::mk_scope sc(m_cache);
-                t = infer_type_core(abst_body(e), extend(ctx, abst_name(e), abst_domain(e)));
+                return save_result(e,
+                                   mk_pi(abst_name(e), abst_domain(e), infer_type_core(abst_body(e), extend(ctx, abst_name(e), abst_domain(e)))),
+                                   shared);
             }
-            r = mk_pi(abst_name(e), abst_domain(e), t);
-            break;
         }
         case expr_kind::Pi: {
             expr t1  = check_type(infer_type_core(abst_domain(e), ctx), abst_domain(e), ctx);
-            expr t2;
+            optional<expr> t2;
             context new_ctx = extend(ctx, abst_name(e), abst_domain(e));
             {
                 cache::mk_scope sc(m_cache);
                 t2 = check_type(infer_type_core(abst_body(e), new_ctx), abst_body(e), new_ctx);
             }
-            if (is_type(t1) && is_type(t2)) {
-                r = mk_type(max(ty_level(t1), ty_level(t2)));
+            if (is_type(t1) && is_type(*t2)) {
+                return save_result(e, mk_type(max(ty_level(t1), ty_level(*t2))), shared);
             } else {
                 lean_assert(m_uc);
                 justification jst = mk_max_type_justification(ctx, e);
-                r = m_menv->mk_metavar(ctx);
-                m_uc->push_back(mk_max_constraint(new_ctx, lift_free_vars(t1, 0, 1), t2, r, jst));
+                expr r = m_menv->mk_metavar(ctx);
+                m_uc->push_back(mk_max_constraint(new_ctx, lift_free_vars(t1, 0, 1), *t2, r, jst));
+                return save_result(e, r, shared);
             }
-            break;
         }
         case expr_kind::Let: {
             expr lt = infer_type_core(let_value(e), ctx);
             if (let_type(e)) {
-                expr ty = infer_type_core(let_type(e), ctx);
-                check_type(ty, let_type(e), ctx); // check if it is really a type
-                auto mk_justification = [&](){ return mk_def_type_match_justification(ctx, let_name(e), let_value(e)); }; // thunk for creating justification object if needed
-                if (!is_convertible(lt, let_type(e), ctx, mk_justification))
-                    throw def_type_mismatch_exception(env(), ctx, let_name(e), let_type(e), let_value(e), lt);
+                expr ty = infer_type_core(*let_type(e), ctx);
+                check_type(ty, *let_type(e), ctx); // check if it is really a type
+                // thunk for creating justification object if needed
+                auto mk_justification = [&](){ return mk_def_type_match_justification(ctx, let_name(e), let_value(e)); };
+                if (!is_convertible(lt, *let_type(e), ctx, mk_justification))
+                    throw def_type_mismatch_exception(env(), ctx, let_name(e), *let_type(e), let_value(e), lt);
             }
             {
                 cache::mk_scope sc(m_cache);
                 expr t = infer_type_core(let_body(e), extend(ctx, let_name(e), lt, let_value(e)));
-                r = instantiate(t, let_value(e));
+                return save_result(e, instantiate(t, let_value(e)), shared);
             }
-            break;
         }
         case expr_kind::Value: {
             // Check if the builtin value (or its set) is declared in the environment.
             name const & n = to_value(e).get_name();
             object const & obj = env().get_object(n);
             if (obj && ((obj.is_builtin() && obj.get_value() == e) || (obj.is_builtin_set() && obj.in_builtin_set(e)))) {
-                r = to_value(e).get_type();
+                return save_result(e, to_value(e).get_type(), shared);
             } else {
                 throw invalid_builtin_value_reference(env(), e);
             }
-            break;
         }
         }
-
-        if (shared) {
-            m_cache.insert(e, r);
-        }
-        return r;
+        lean_unreachable(); // LCOV_EXCL_LINE
     }
 
     bool is_convertible_core(expr const & given, expr const & expected) {

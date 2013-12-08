@@ -104,7 +104,7 @@ class type_inferer::imp {
         case expr_kind::MetaVar:
             if (m_menv) {
                 if (m_menv->is_assigned(e))
-                    return infer_type(m_menv->get_subst(e), ctx);
+                    return infer_type(*(m_menv->get_subst(e)), ctx);
                 else
                     return m_menv->get_type(e);
             } else {
@@ -112,7 +112,7 @@ class type_inferer::imp {
             }
         case expr_kind::Constant: {
             if (const_type(e)) {
-                return const_type(e);
+                return *const_type(e);
             } else {
                 object const & obj = m_env.get_object(const_name(e));
                 if (obj.has_type())
@@ -127,7 +127,7 @@ class type_inferer::imp {
             context_entry const & ce = p.first;
             if (ce.get_domain()) {
                 context const & ce_ctx   = p.second;
-                return lift_free_vars(ce.get_domain(), ctx.size() - ce_ctx.size());
+                return lift_free_vars(*(ce.get_domain()), ctx.size() - ce_ctx.size());
             }
             // Remark: the case where ce.get_domain() is not
             // available is not considered cheap.
@@ -164,7 +164,7 @@ class type_inferer::imp {
             context_entry const & ce = p.first;
             context const & ce_ctx   = p.second;
             lean_assert(!ce.get_domain());
-            r = lift_free_vars(infer_type(ce.get_body(), ce_ctx), ctx.size() - ce_ctx.size());
+            r = lift_free_vars(infer_type(*(ce.get_body()), ce_ctx), ctx.size() - ce_ctx.size());
             break;
         }
         case expr_kind::App: {
@@ -269,9 +269,9 @@ static int type_inferer_call(lua_State * L) {
     int nargs = lua_gettop(L);
     type_inferer & inferer = to_type_inferer(L, 1);
     if (nargs == 2)
-        return push_expr(L, inferer(to_nonnull_expr(L, 2)));
+        return push_expr(L, inferer(to_expr(L, 2)));
     else
-        return push_expr(L, inferer(to_nonnull_expr(L, 2), to_context(L, 3)));
+        return push_expr(L, inferer(to_expr(L, 2), to_context(L, 3)));
 }
 
 static int type_inferer_clear(lua_State * L) {

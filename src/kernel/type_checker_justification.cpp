@@ -23,8 +23,8 @@ format function_expected_justification_cell::pp_header(formatter const & fmt, op
 void function_expected_justification_cell::get_children(buffer<justification_cell*> &) const {
 }
 
-expr const & function_expected_justification_cell::get_main_expr() const {
-    return m_app;
+optional<expr> function_expected_justification_cell::get_main_expr() const {
+    return some(m_app);
 }
 
 app_type_match_justification_cell::~app_type_match_justification_cell() {
@@ -51,8 +51,8 @@ format app_type_match_justification_cell::pp_header(formatter const & fmt, optio
 void app_type_match_justification_cell::get_children(buffer<justification_cell*> &) const {
 }
 
-expr const & app_type_match_justification_cell::get_main_expr() const {
-    return m_app;
+optional<expr> app_type_match_justification_cell::get_main_expr() const {
+    return some(m_app);
 }
 
 type_expected_justification_cell::~type_expected_justification_cell() {
@@ -70,8 +70,8 @@ format type_expected_justification_cell::pp_header(formatter const & fmt, option
 void type_expected_justification_cell::get_children(buffer<justification_cell*> &) const {
 }
 
-expr const & type_expected_justification_cell::get_main_expr() const {
-    return m_type;
+optional<expr> type_expected_justification_cell::get_main_expr() const {
+    return some(m_type);
 }
 
 def_type_match_justification_cell::~def_type_match_justification_cell() {
@@ -88,8 +88,8 @@ format def_type_match_justification_cell::pp_header(formatter const &, options c
 void def_type_match_justification_cell::get_children(buffer<justification_cell*> &) const {
 }
 
-expr const & def_type_match_justification_cell::get_main_expr() const {
-    return m_value;
+optional<expr> def_type_match_justification_cell::get_main_expr() const {
+    return some(m_value);
 }
 
 type_match_justification_cell::~type_match_justification_cell() {
@@ -102,7 +102,7 @@ format type_match_justification_cell::pp_header(formatter const &, options const
 void type_match_justification_cell::get_children(buffer<justification_cell*> &) const {
 }
 
-expr const & type_match_justification_cell::get_main_expr() const {
-    return m_value;
+optional<expr> type_match_justification_cell::get_main_expr() const {
+    return some(m_value);
 }
 }

@@ -153,6 +153,13 @@ bool fo_match::match_metavar(expr const & p, expr const & t, unsigned, subst_map
     return p == t;
 }
 
+bool fo_match::match_main(optional<expr> const & p, optional<expr> const & t, unsigned o, subst_map & s) {
+    if (p && t)
+        return match_main(*p, *t, o, s);
+    else
+        return !p && !t;
+}
+
 bool fo_match::match_main(expr const & p, expr const & t, unsigned o, subst_map & s) {
     lean_trace("fo_match", tout << "match : (" << p << ", " << t << ", " << o << ", " << s << ")" << endl;); // LCOV_EXCL_LINE
     switch (p.kind()) {

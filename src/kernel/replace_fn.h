@@ -47,10 +47,15 @@ class replace_fn {
     F                          m_f;
     P                          m_post;
 
+    optional<expr> apply(optional<expr> const & e, unsigned offset) {
+        if (e)
+            return optional<expr>(apply(*e, offset));
+        else
+            return optional<expr>();
+    }
+
     expr apply(expr const & e, unsigned offset) {
         check_system("expression replacer");
-        if (!e)
-            return e;
         bool sh = false;
         if (is_shared(e)) {
             expr_cell_offset p(e.raw(), offset);
@@ -81,9 +86,8 @@ class replace_fn {
                 r = update_abst(e, [=](expr const & t, expr const & b) { return std::make_pair(apply(t, offset), apply(b, offset+1)); });
                 break;
             case expr_kind::Let:
-                r = update_let(e, [=](expr const & t, expr const & v, expr const & b) {
-                        expr new_t = t ? apply(t, offset) : expr();
-                        return std::make_tuple(new_t, apply(v, offset), apply(b, offset+1));
+                r = update_let(e, [=](optional<expr> const & t, expr const & v, expr const & b) {
+                        return std::make_tuple(apply(t, offset), apply(v, offset), apply(b, offset+1));
                     });
                 break;
             }

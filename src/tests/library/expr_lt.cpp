@@ -34,7 +34,6 @@ static void tst1() {
     lt(Const("a"), Const("b"), true);
     lt(Const("a"), Const("a"), false);
     lt(Var(1), Const("a"), true);
-    lt(expr(), Var(0), true);
     lt(Eq(Var(0), Var(1)), Eq(Var(1), Var(1)), true);
     lt(Eq(Var(1), Var(0)), Eq(Var(1), Var(1)), true);
     lt(Eq(Var(1), Var(1)), Eq(Var(1), Var(1)), false);

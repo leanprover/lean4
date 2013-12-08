@@ -8,11 +8,12 @@ Author: Leonardo de Moura
 #include "kernel/metavar.h"
 #include "kernel/expr_maps.h"
 #include "kernel/replace_visitor.h"
+#include "library/expr_pair.h"
 #include "library/placeholder.h"
 
 namespace lean {
 static name g_placeholder_name("_");
-expr mk_placeholder(expr const & t) {
+expr mk_placeholder(optional<expr> const & t) {
     return mk_constant(g_placeholder_name, t);
 }
 
@@ -39,7 +40,7 @@ protected:
     expr visit(expr const & e, context const & c) {
         expr r = replace_visitor::visit(e, c);
         if (!is_eqp(r, e) && m_new2old)
-            (*m_new2old)[r] = e;
+            m_new2old->insert(expr_pair(r, e));
         return r;
     }
 public:

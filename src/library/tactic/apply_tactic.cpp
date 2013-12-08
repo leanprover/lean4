@@ -44,7 +44,7 @@ static optional<proof_state> apply_tactic(environment const & env, proof_state c
     //    1) regular arguments computed using unification.
     //    2) propostions that generate new subgoals.
     // We use a pair to simulate this "union" type.
-    typedef list<std::pair<expr, name>> arg_list;
+    typedef list<std::pair<optional<expr>, name>> arg_list;
     // We may solve more than one goal.
     // We store the solved goals using a list of pairs
     // name, args. Where the 'name' is the name of the solved goal.
@@ -66,21 +66,21 @@ static optional<proof_state> apply_tactic(environment const & env, proof_state c
                 for (auto const & mvar : mvars) {
                     expr mvar_sol = apply(*subst, mvar);
                     if (mvar_sol != mvar) {
-                        l.emplace_front(mvar_sol, name());
+                        l = cons(mk_pair(optional<expr>(mvar_sol), name()), l);
                         th_type_c = instantiate(abst_body(th_type_c), mvar_sol);
                     } else {
                         if (inferer.is_proposition(abst_domain(th_type_c), context(), &new_menv)) {
                             name new_gname(gname, new_goal_idx);
                             new_goal_idx++;
-                            l.emplace_front(expr(), new_gname);
+                            l = cons(mk_pair(optional<expr>(), new_gname), l);
                             new_goals_buf.emplace_back(new_gname, update(g, abst_domain(th_type_c)));
                             th_type_c = instantiate(abst_body(th_type_c), mk_constant(new_gname, abst_domain(th_type_c)));
                         } else {
                             // we have to create a new metavar in menv
                             // since we do not have a substitution for mvar, and
                             // it is not a proposition
-                            expr new_m = new_menv.mk_metavar(context(), abst_domain(th_type_c));
-                            l.emplace_front(new_m, name());
+                            expr new_m = new_menv.mk_metavar(context(), optional<expr>(abst_domain(th_type_c)));
+                            l = cons(mk_pair(optional<expr>(new_m), name()), l);
                             // we use instantiate_with_closed_relaxed because we do not want
                             // to introduce a lift operator in the new_m
                             th_type_c = instantiate_with_closed_relaxed(abst_body(th_type_c), 1, &new_m);
@@ -105,10 +105,10 @@ static optional<proof_state> apply_tactic(environment const & env, proof_state c
                     buffer<expr> args;
                     args.push_back(th);
                     for (auto const & p2 : l) {
-                        expr const & arg = p2.first;
+                        optional<expr> const & arg = p2.first;
                         if (arg) {
                             // TODO(Leo): decide if we instantiate the metavars in the end or not.
-                            args.push_back(arg);
+                            args.push_back(*arg);
                         } else {
                             name const & subgoal_name = p2.second;
                             args.push_back(find(m, subgoal_name));

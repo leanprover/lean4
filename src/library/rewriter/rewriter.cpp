@@ -370,21 +370,25 @@ pair<expr, expr> rewrite_eq(environment const & env, context & ctx, expr const &
 pair<expr, expr> rewrite_let_type(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_ty) {
     lean_assert(is_let(v));
     type_inferer ti(env);
-    name const & n       = let_name(v);
-    expr const & ty      = let_type(v);
-    expr const & val     = let_value(v);
-    expr const & body    = let_body(v);
-    expr const & new_ty  = result_ty.first;
-    expr const & pf      = result_ty.second;
-    expr const & new_v   = mk_let(n, new_ty, val, body);
-    expr const & ty_ty   = ti(ty, ctx);
-    expr const & ty_v    = ti(v, ctx);
-    expr const & proof   = Subst(ty_ty, ty, new_ty,
-                                 Fun({Const("x"), ty_ty},
-                                     mk_eq(v, mk_let(n, Const("x"), val, body))),
-                                 Refl(ty_v, v),
-                                 pf);
-    return make_pair(new_v, proof);
+    if (!let_type(v)) {
+        name const & n       = let_name(v);
+        expr const & ty      = *let_type(v);
+        expr const & val     = let_value(v);
+        expr const & body    = let_body(v);
+        expr const & new_ty  = result_ty.first;
+        expr const & pf      = result_ty.second;
+        expr const & new_v   = mk_let(n, new_ty, val, body);
+        expr const & ty_ty   = ti(ty, ctx);
+        expr const & ty_v    = ti(v, ctx);
+        expr const & proof   = Subst(ty_ty, ty, new_ty,
+                                     Fun({Const("x"), ty_ty},
+                                         mk_eq(v, mk_let(n, Const("x"), val, body))),
+                                     Refl(ty_v, v),
+                                     pf);
+        return make_pair(new_v, proof);
+    } else {
+        throw rewriter_exception();
+    }
 }
 
 /**
@@ -403,7 +407,7 @@ pair<expr, expr> rewrite_let_value(environment const & env, context & ctx, expr 
     lean_assert(is_let(v));
     type_inferer ti(env);
     name const & n       = let_name(v);
-    expr const & ty      = let_type(v);
+    optional<expr> const & ty = let_type(v);
     expr const & val     = let_value(v);
     expr const & body    = let_body(v);
     expr const & new_val = result_value.first;
@@ -436,7 +440,7 @@ pair<expr, expr> rewrite_let_body(environment const & env, context & ctx, expr c
     lean_assert(is_let(v));
     type_inferer ti(env);
     name const & n        = let_name(v);
-    expr const & ty       = let_type(v);
+    optional<expr> const & ty = let_type(v);
     expr const & val      = let_value(v);
     expr const & body     = let_body(v);
     expr const & new_body = result_body.first;
@@ -828,10 +832,11 @@ let_type_rewriter_cell::let_type_rewriter_cell(rewriter const & rw)
     :rewriter_cell(rewriter_kind::LetType), m_rw(rw) { }
 let_type_rewriter_cell::~let_type_rewriter_cell() { }
 pair<expr, expr> let_type_rewriter_cell::operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception) {
-    if (!is_let(v))
+    if (!is_let(v) || !let_type(v))
         throw rewriter_exception();
 
-    expr const & ty = let_type(v);
+    expr const & ty = *let_type(v);
+
     pair<expr, expr> result_ty = m_rw(env, ctx, ty);
     if (ty != result_ty.first) {
         // ty changed
@@ -878,9 +883,9 @@ pair<expr, expr> let_body_rewriter_cell::operator()(environment const & env, con
         throw rewriter_exception();
 
     name const & n    = let_name(v);
-    expr const & ty   = let_type(v);
+    optional<expr> const & ty = let_type(v);
     expr const & body = let_body(v);
-    context new_ctx = extend(ctx, n, ty);
+    context new_ctx = extend(ctx, n, ty, let_value(v));
     pair<expr, expr> result_body = m_rw(env, new_ctx, body);
     if (body != result_body.first) {
         return rewrite_let_body(env, ctx, v, result_body);

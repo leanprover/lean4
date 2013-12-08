@@ -223,7 +223,7 @@ static int mk_proof_state(lua_State * L) {
 }
 
 static int to_proof_state(lua_State * L) {
-    return push_proof_state(L, to_proof_state(to_environment(L, 1), to_context(L, 2), to_nonnull_expr(L, 3)));
+    return push_proof_state(L, to_proof_state(to_environment(L, 1), to_context(L, 2), to_expr(L, 3)));
 }
 
 static int proof_state_tostring(lua_State * L) {

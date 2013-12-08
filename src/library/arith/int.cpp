@@ -72,12 +72,11 @@ template<char const * Name, typename F>
 class int_bin_op : public const_value {
 public:
     int_bin_op():const_value(name("Int", Name), Int >> (Int >> Int)) {}
-    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
+    virtual optional<expr> normalize(unsigned num_args, expr const * args) const {
         if (num_args == 3 && is_int_value(args[1]) && is_int_value(args[2])) {
-            r = mk_int_value(F()(int_value_numeral(args[1]), int_value_numeral(args[2])));
-            return true;
+            return some(mk_int_value(F()(int_value_numeral(args[1]), int_value_numeral(args[2]))));
         } else {
-            return false;
+            return optional<expr>();
         }
     }
 };
@@ -107,12 +106,11 @@ MK_BUILTIN(int_div_fn, int_div_value);
 class int_le_value : public const_value {
 public:
     int_le_value():const_value(name{"Int", "le"}, Int >> (Int >> Bool)) {}
-    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
+    virtual optional<expr> normalize(unsigned num_args, expr const * args) const {
         if (num_args == 3 && is_int_value(args[1]) && is_int_value(args[2])) {
-            r = mk_bool_value(int_value_numeral(args[1]) <= int_value_numeral(args[2]));
-            return true;
+            return some(mk_bool_value(int_value_numeral(args[1]) <= int_value_numeral(args[2])));
         } else {
-            return false;
+            return optional<expr>();
         }
     }
 };
@@ -133,12 +131,11 @@ MK_CONSTANT(int_gt_fn, name({"Int", "gt"}));
 class nat_to_int_value : public const_value {
 public:
     nat_to_int_value():const_value("nat_to_int", Nat >> Int) {}
-    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
+    virtual optional<expr> normalize(unsigned num_args, expr const * args) const {
         if (num_args == 2 && is_nat_value(args[1])) {
-            r = mk_int_value(nat_value_numeral(args[1]));
-            return true;
+            return some(mk_int_value(nat_value_numeral(args[1])));
         } else {
-            return false;
+            return optional<expr>();
         }
     }
 };

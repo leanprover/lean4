@@ -159,10 +159,11 @@ struct environment::imp {
 
     object const & get_object(name const & n, environment const & env) const {
         object const & obj = get_object_core(n);
-        if (obj)
+        if (obj) {
             return obj;
-        else
+        } else {
             throw unknown_object_exception(env, n);
+        }
     }
 
     /**

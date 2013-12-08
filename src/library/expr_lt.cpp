@@ -7,10 +7,16 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
+bool is_lt(expr const & a, expr const & b, bool use_hash);
+static bool is_lt(optional<expr> const & a, optional<expr> const & b, bool use_hash) {
+    if (is_eqp(a, b))   return false;
+    else if (!a && b)   return true;
+    else if (a && !b)   return false;
+    else return is_lt(*a, *b, use_hash);
+}
+
 bool is_lt(expr const & a, expr const & b, bool use_hash) {
     if (is_eqp(a, b))                    return false;
-    if (!a && b)                         return true;  // the null expression is the smallest one
-    if (a && !b)                         return false;
     if (a.kind() != b.kind())            return a.kind() < b.kind();
     if (use_hash) {
         if (a.hash() < b.hash()) return true;

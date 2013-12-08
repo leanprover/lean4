@@ -60,7 +60,7 @@ expr update_abstraction(expr const & abst, expr const & d, expr const & b) {
         return update_pi(abst, d, b);
 }
 
-expr update_let(expr const & let, expr const & t, expr const & v, expr const & b) {
+expr update_let(expr const & let, optional<expr> const & t, expr const & v, expr const & b) {
     if (is_eqp(let_type(let), t) && is_eqp(let_value(let), v) && is_eqp(let_body(let), b))
         return let;
     else

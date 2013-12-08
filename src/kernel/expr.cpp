@@ -15,6 +15,9 @@ Author: Leonardo de Moura
 #include "kernel/metavar.h"
 
 namespace lean {
+static expr g_dummy(mk_var(0));
+expr::expr():expr(g_dummy) {}
+
 local_entry::local_entry(unsigned s, unsigned n):m_kind(local_entry_kind::Lift), m_s(s), m_n(n) {}
 local_entry::local_entry(unsigned s, expr const & v):m_kind(local_entry_kind::Inst), m_s(s), m_v(v) {}
 local_entry::~local_entry() {}
@@ -29,13 +32,6 @@ bool local_entry::operator==(local_entry const & e) const {
 
 unsigned hash_args(unsigned size, expr const * args) {
     return hash(size, [&args](unsigned i){ return args[i].hash(); });
-}
-
-static expr g_null;
-
-expr const & expr::null() {
-    lean_assert(!g_null);
-    return g_null;
 }
 
 expr_cell::expr_cell(expr_kind k, unsigned h, bool has_mv):
@@ -55,20 +51,25 @@ expr_cell::expr_cell(expr_kind k, unsigned h, bool has_mv):
 }
 
 void expr_cell::dec_ref(expr & e, buffer<expr_cell*> & todelete) {
-    if (e) {
+    if (e.m_ptr) {
         expr_cell * c = e.steal_ptr();
-        lean_assert(!e);
+        lean_assert(!(e.m_ptr));
         if (c->dec_ref_core())
             todelete.push_back(c);
     }
+}
+
+void expr_cell::dec_ref(optional<expr> & c, buffer<expr_cell*> & todelete) {
+    if (c)
+        dec_ref(*c, todelete);
 }
 
 expr_var::expr_var(unsigned idx):
     expr_cell(expr_kind::Var, idx, false),
     m_vidx(idx) {}
 
-expr_const::expr_const(name const & n, expr const & t):
-    expr_cell(expr_kind::Constant, n.hash(), t && t.has_metavar()),
+expr_const::expr_const(name const & n, optional<expr> const & t):
+    expr_cell(expr_kind::Constant, n.hash(), t && t->has_metavar()),
     m_name(n),
     m_type(t) {}
 void expr_const::dealloc(buffer<expr_cell*> & todelete) {
@@ -86,7 +87,6 @@ void expr_app::dealloc(buffer<expr_cell*> & todelete) {
     while (i > 0) {
         --i;
         dec_ref(m_args[i], todelete);
-        lean_assert(!m_args[i]);
     }
     delete[] reinterpret_cast<char*>(this);
 }
@@ -140,8 +140,6 @@ expr_abstraction::expr_abstraction(expr_kind k, name const & n, expr const & t, 
 void expr_abstraction::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_body, todelete);
     dec_ref(m_domain, todelete);
-    lean_assert(!m_body);
-    lean_assert(!m_domain);
     delete(this);
 }
 expr_lambda::expr_lambda(name const & n, expr const & t, expr const & e):expr_abstraction(expr_kind::Lambda, n, t, e) {}
@@ -151,8 +149,8 @@ expr_type::expr_type(level const & l):
     m_level(l) {
 }
 expr_type::~expr_type() {}
-expr_let::expr_let(name const & n, expr const & t, expr const & v, expr const & b):
-    expr_cell(expr_kind::Let, ::lean::hash(v.hash(), b.hash()), v.has_metavar() || b.has_metavar() || (t && t.has_metavar())),
+expr_let::expr_let(name const & n, optional<expr> const & t, expr const & v, expr const & b):
+    expr_cell(expr_kind::Let, ::lean::hash(v.hash(), b.hash()), v.has_metavar() || b.has_metavar() || (t && t->has_metavar())),
     m_name(n),
     m_type(t),
     m_value(v),
@@ -166,7 +164,7 @@ void expr_let::dealloc(buffer<expr_cell*> & todelete) {
 }
 expr_let::~expr_let() {}
 name value::get_unicode_name() const { return get_name(); }
-bool value::normalize(unsigned, expr const *, expr &) const { return false; }
+optional<expr> value::normalize(unsigned, expr const *) const { return optional<expr>(); }
 void value::display(std::ostream & out) const { out << get_name(); }
 bool value::operator==(value const & other) const { return typeid(*this) == typeid(other); }
 bool value::operator<(value const & other) const {

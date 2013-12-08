@@ -187,7 +187,7 @@ class elaborator::imp {
     std::pair<expr, justification> get_subst_jst(expr const & m) const {
         lean_assert(is_metavar(m));
         lean_assert(is_assigned(m));
-        return m_state.m_menv.get_subst_jst(m);
+        return *(m_state.m_menv.get_subst_jst(m));
     }
 
     /** \brief Return the type of an metavariable */
@@ -523,7 +523,7 @@ class elaborator::imp {
             try {
                 context_entry const & e = lookup(ctx, var_idx(a));
                 if (e.get_body())
-                    a = e.get_body();
+                    a = *(e.get_body());
             } catch (exception&) {
             }
         }
@@ -549,14 +549,14 @@ class elaborator::imp {
                     if (curr != new_curr) {
                         modified = true;
                         new_args[i] = new_curr;
-                        if (to_value(f).normalize(new_args.size(), new_args.data(), r)) {
-                            a = r;
+                        if (optional<expr> r = to_value(f).normalize(new_args.size(), new_args.data())) {
+                            a = *r;
                             return;
                         }
                     }
                 }
-                if (to_value(f).normalize(new_args.size(), new_args.data(), r)) {
-                    a = r;
+                if (optional<expr> r = to_value(f).normalize(new_args.size(), new_args.data())) {
+                    a = *r;
                     return;
                 }
                 if (modified) {
@@ -720,8 +720,13 @@ class elaborator::imp {
         if (is_simple_ho_match(ctx, a, b, is_lhs, c)) {
             expr m = arg(a, 0);
             buffer<expr> types;
-            for (unsigned i = 1; i < num_args(a); i++)
-                types.push_back(lookup(ctx, var_idx(arg(a, i))).get_domain());
+            for (unsigned i = 1; i < num_args(a); i++) {
+                optional<expr> d = lookup(ctx, var_idx(arg(a, i))).get_domain();
+                if (d)
+                    types.push_back(*d);
+                else
+                    return false;
+            }
             justification new_jst(new destruct_justification(c));
             expr s = mk_lambda(types, b);
             if (!is_lhs)
@@ -811,7 +816,6 @@ class elaborator::imp {
             // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), b
             imitation = mk_lambda(arg_types, lift_free_vars(b, 0, num_a - 1));
         }
-        lean_assert(imitation);
         push_new_eq_constraint(new_state.m_queue, ctx, f_a, imitation, new_assumption);
         new_cs->push_back(new_state, new_assumption);
     }

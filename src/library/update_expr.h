@@ -37,7 +37,7 @@ expr update_abstraction(expr const & abst, expr const & d, expr const & b);
 
    \remark Return \c let if the given value and body are (pointer) equal to the ones in \c let.
 */
-expr update_let(expr const & let, expr const & t, expr const & v, expr const & b);
+expr update_let(expr const & let, optional<expr> const & t, expr const & v, expr const & b);
 /**
    \brief Return a new equality with lhs \c l and rhs \c r.
 

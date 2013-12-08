@@ -59,7 +59,7 @@ static int substitution_find(lua_State * L) {
     substitution & s = to_substitution(L, 1);
     expr * it;
     if (is_expr(L, 2)) {
-        expr const & e = to_nonnull_expr(L, 2);
+        expr const & e = to_expr(L, 2);
         if (is_metavar(e))
             it = s.splay_find(metavar_name(e));
         else
@@ -75,7 +75,7 @@ static int substitution_find(lua_State * L) {
 }
 
 static int substitution_apply(lua_State * L) {
-    return push_expr(L, apply(to_substitution(L, 1), to_nonnull_expr(L, 2)));
+    return push_expr(L, apply(to_substitution(L, 1), to_expr(L, 2)));
 }
 
 static const struct luaL_Reg substitution_m[] = {

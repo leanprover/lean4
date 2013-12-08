@@ -6,7 +6,7 @@ for v in env:objects() do
       print(v:get_name())
    end
 end
-assert(not env:find_object("N"):is_null())
+assert(env:find_object("N"))
 assert(env:find_object("Z"):is_null())
 assert(env:find_object("N"):is_var_decl())
 assert(env:find_object("N"):has_type())

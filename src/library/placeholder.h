@@ -15,7 +15,7 @@ class metavar_env;
     type). To be able to track location, a new constant for each
     placeholder.
 */
-expr mk_placeholder(expr const & t = expr());
+expr mk_placeholder(optional<expr> const & t = optional<expr>());
 
 /**
     \brief Return true iff the given expression is a placeholder.

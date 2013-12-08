@@ -38,10 +38,10 @@ typedef list<svalue> value_stack; //!< Normalization stack
 enum class svalue_kind { Expr, Closure, BoundedVar };
 /** \brief Stack value: simple expressions, closures and bounded variables. */
 class svalue {
-    svalue_kind m_kind;
-    unsigned    m_bvar;
-    expr        m_expr;
-    value_stack m_ctx;
+    svalue_kind    m_kind;
+    unsigned       m_bvar;
+    optional<expr> m_expr;
+    value_stack    m_ctx;
 public:
     svalue() {}
     explicit svalue(expr const & e):              m_kind(svalue_kind::Expr), m_expr(e) {}
@@ -54,9 +54,9 @@ public:
     bool is_closure() const     { return kind() == svalue_kind::Closure; }
     bool is_bounded_var() const { return kind() == svalue_kind::BoundedVar; }
 
-    expr  const & get_expr() const { lean_assert(is_expr() || is_closure()); return m_expr; }
-    value_stack const & get_ctx()  const { lean_assert(is_closure());              return m_ctx; }
-    unsigned get_var_idx()   const { lean_assert(is_bounded_var());          return m_bvar; }
+    expr  const & get_expr() const { lean_assert(is_expr() || is_closure()); return *m_expr; }
+    value_stack const & get_ctx()  const { lean_assert(is_closure()); return m_ctx; }
+    unsigned get_var_idx()   const { lean_assert(is_bounded_var()); return m_bvar; }
 };
 
 svalue_kind         kind(svalue const & v)     { return v.kind(); }
@@ -113,7 +113,7 @@ class normalizer::imp {
             save_context save(*this); // it restores the context and cache
             m_ctx = entry_c;
             unsigned k = m_ctx.size();
-            return svalue(reify(normalize(entry.get_body(), value_stack(), k), k));
+            return svalue(reify(normalize(*(entry.get_body()), value_stack(), k), k));
         } else {
             return svalue(entry_c.size());
         }
@@ -123,12 +123,10 @@ class normalizer::imp {
     expr reify_closure(expr const & a, value_stack const & s, unsigned k) {
         lean_assert(is_lambda(a));
         expr new_t = reify(normalize(abst_domain(a), s, k), k);
-        expr new_b;
         {
             cache::mk_scope sc(m_cache);
-            new_b = reify(normalize(abst_body(a), extend(s, svalue(k)), k+1), k+1);
+            return mk_lambda(abst_name(a), new_t, reify(normalize(abst_body(a), extend(s, svalue(k)), k+1), k+1));
         }
-        return mk_lambda(abst_name(a), new_t, new_b);
     }
 
     /** \brief Convert the value \c v back into an expression in a context that contains \c k binders. */
@@ -236,9 +234,9 @@ class normalizer::imp {
                     for (; i < n; i++)
                         new_args.push_back(reify(normalize(arg(a, i), s, k), k));
                     if (is_value(new_f)) {
-                        expr m;
-                        if (to_value(new_f).normalize(new_args.size(), new_args.data(), m)) {
-                            r = normalize(m, s, k);
+                        optional<expr> m = to_value(new_f).normalize(new_args.size(), new_args.data());
+                        if (m) {
+                            r = normalize(*m, s, k);
                             break;
                         }
                     }
@@ -263,12 +261,11 @@ class normalizer::imp {
             break;
         case expr_kind::Pi: {
             expr new_t = reify(normalize(abst_domain(a), s, k), k);
-            expr new_b;
             {
                 cache::mk_scope sc(m_cache);
-                new_b = reify(normalize(abst_body(a), extend(s, svalue(k)), k+1), k+1);
+                expr new_b = reify(normalize(abst_body(a), extend(s, svalue(k)), k+1), k+1);
+                r = svalue(mk_pi(abst_name(a), new_t, new_b));
             }
-            r = svalue(mk_pi(abst_name(a), new_t, new_b));
             break;
         }
         case expr_kind::Let: {

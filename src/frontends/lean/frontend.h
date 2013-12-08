@@ -157,10 +157,8 @@ public:
 
     /**
        \brief Return a coercion from given_type to expected_type if it exists.
-       Return the null expression if there is no coercion from \c from_type to
-       \c to_type.
     */
-    expr get_coercion(expr const & from_type, expr const & to_type) const;
+    optional<expr> get_coercion(expr const & from_type, expr const & to_type) const;
 
     /**
        \brief Return the list of coercions for the given type.

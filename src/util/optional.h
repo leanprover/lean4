@@ -20,8 +20,9 @@ class optional {
     };
 public:
     optional():m_some(false) {}
-    optional(T const & v):m_some(true) {
-        new (&m_value) T(v);
+    optional(optional & other):m_some(other.m_some) {
+        if (m_some)
+            new (&m_value) T(other.m_value);
     }
     optional(optional const & other):m_some(other.m_some) {
         if (m_some)
@@ -31,9 +32,15 @@ public:
         if (m_some)
             new (&m_value) T(std::forward<T>(other.m_value));
     }
+    explicit optional(T const & v):m_some(true) {
+        new (&m_value) T(v);
+    }
+    explicit optional(T && v):m_some(true) {
+        new (&m_value) T(std::forward<T>(v));
+    }
     template<typename... Args>
-    optional(Args&&... args):m_some(true) {
-        new (&m_value) T(args...);
+    explicit optional(Args&&... args):m_some(true) {
+        new (&m_value) T(std::forward<Args>(args)...);
     }
     ~optional() {
         if (m_some)
@@ -94,6 +101,10 @@ public:
             return false;
         else
             return !o1.m_some || o1.m_value == o2.m_value;
+    }
+
+    friend bool operator!=(optional const & o1, optional const & o2) {
+        return !operator==(o1, o2);
     }
 };
 

@@ -25,6 +25,13 @@ struct max_sharing_fn::imp {
         m_cache.insert(a);
     }
 
+    optional<expr> apply(optional<expr> const & a) {
+        if (a)
+            return some(apply(*a));
+        else
+            return a;
+    }
+
     expr apply(expr const & a) {
         auto r = m_cache.find(a);
         if (r != m_cache.end()) {
@@ -36,25 +43,21 @@ struct max_sharing_fn::imp {
             return a;
         }
         switch (a.kind()) {
-        case expr_kind::Constant:
-            if (const_type(a)) {
-                expr r = update_const(a, apply(const_type(a)));
-                cache(r);
-                return r;
-            } else {
-                cache(a);
-                return a;
-            }
+        case expr_kind::Constant: {
+            expr r = update_const(a, apply(const_type(a)));
+            cache(r);
+            return r;
+        }
         case expr_kind::Var: case expr_kind::Type: case expr_kind::Value:
             cache(a);
             return a;
         case expr_kind::App: {
-            expr r = update_app(a, [=](expr const & c){ return apply(c); });
+            expr r = update_app(a, [=](expr const & c) { return apply(c); });
             cache(r);
             return r;
         }
         case expr_kind::Eq : {
-            expr r = update_eq(a, [=](expr const & l, expr const & r){ return std::make_pair(apply(l), apply(r)); });
+            expr r = update_eq(a, [=](expr const & l, expr const & r) { return std::make_pair(apply(l), apply(r)); });
             cache(r);
             return r;
         }
@@ -65,9 +68,8 @@ struct max_sharing_fn::imp {
             return r;
         }
         case expr_kind::Let: {
-            expr r = update_let(a, [=](expr const & t, expr const & v, expr const & b) {
-                    expr new_t = t ? apply(t) : expr();
-                    return std::make_tuple(new_t, apply(v), apply(b));
+            expr r = update_let(a, [=](optional<expr> const & t, expr const & v, expr const & b) {
+                    return std::make_tuple(apply(t), apply(v), apply(b));
                 });
             cache(r);
             return r;

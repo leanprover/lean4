@@ -62,16 +62,16 @@ tactic imp_tactic(name const & H_name, bool all) {
             expr impfn = mk_implies_fn();
             bool found = false;
             list<std::tuple<name, name, expr>> proof_info;
-            goals new_goals = map_goals(s, [&](name const & g_name, goal const & g) -> goal {
+            goals new_goals = map_goals(s, [&](name const & g_name, goal const & g) -> optional<goal> {
                     expr const & c  = g.get_conclusion();
                     expr new_h, new_c;
                     if ((all || !found) && is_implies(c, new_h, new_c)) {
                         found = true;
                         name new_h_name = g.mk_unique_hypothesis_name(H_name);
                         proof_info.emplace_front(g_name, new_h_name, c);
-                        return goal(add_hypothesis(new_h_name, new_h, g.get_hypotheses()), new_c);
+                        return optional<goal>(goal(add_hypothesis(new_h_name, new_h, g.get_hypotheses()), new_c));
                     } else {
-                        return g;
+                        return optional<goal>(g);
                     }
                 });
             if (found) {
@@ -100,7 +100,7 @@ tactic conj_hyp_tactic(bool all) {
     return mk_tactic01([=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             bool found = false;
             list<std::pair<name, hypotheses>> proof_info; // goal name -> expanded hypotheses
-            goals new_goals = map_goals(s, [&](name const & ng, goal const & g) -> goal {
+            goals new_goals = map_goals(s, [&](name const & ng, goal const & g) -> optional<goal> {
                     if (all || !found) {
                         buffer<hypothesis> new_hyp_buf;
                         hypotheses proof_info_data;
@@ -119,12 +119,12 @@ tactic conj_hyp_tactic(bool all) {
                         }
                         if (proof_info_data) {
                             proof_info.emplace_front(ng, proof_info_data);
-                            return update(g, new_hyp_buf);
+                            return some(update(g, new_hyp_buf));
                         } else {
-                            return g;
+                            return some(g);
                         }
                     } else {
-                        return g;
+                        return some(g);
                     }
                 });
             if (found) {
@@ -158,7 +158,7 @@ tactic conj_hyp_tactic(bool all) {
 
 optional<proof_state> disj_hyp_tactic_core(name const & goal_name, name const & hyp_name, proof_state const & s) {
     buffer<std::pair<name, goal>> new_goals_buf;
-    expr H;
+    optional<expr> H;
     expr conclusion;
     for (auto const & p1 : s.get_goals()) {
         check_interrupted();
@@ -170,10 +170,10 @@ optional<proof_state> disj_hyp_tactic_core(name const & goal_name, name const & 
             for (auto const & p2 : g.get_hypotheses()) {
                 if (p2.first == hyp_name) {
                     H = p2.second;
-                    if (!is_or(H))
+                    if (!is_or(*H))
                         return none_proof_state(); // tactic failed
-                    new_hyp_buf1.emplace_back(p2.first, arg(H, 1));
-                    new_hyp_buf2.emplace_back(p2.first, arg(H, 2));
+                    new_hyp_buf1.emplace_back(p2.first, arg(*H, 1));
+                    new_hyp_buf2.emplace_back(p2.first, arg(*H, 2));
                 } else {
                     new_hyp_buf1.push_back(p2);
                     new_hyp_buf2.push_back(p2);
@@ -191,13 +191,14 @@ optional<proof_state> disj_hyp_tactic_core(name const & goal_name, name const & 
         return none_proof_state(); // tactic failed
     goals new_gs = to_list(new_goals_buf.begin(), new_goals_buf.end());
     proof_builder pb     = s.get_proof_builder();
+    expr Href = *H;
     proof_builder new_pb = mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
             proof_map new_m(m);
             expr pr1 = find(m, name(goal_name, 1));
             expr pr2 = find(m, name(goal_name, 2));
-            pr1 = Fun(hyp_name, arg(H, 1), pr1);
-            pr2 = Fun(hyp_name, arg(H, 2), pr2);
-            new_m.insert(goal_name, DisjCases(arg(H, 1), arg(H, 2), conclusion, mk_constant(hyp_name), pr1, pr2));
+            pr1 = Fun(hyp_name, arg(Href, 1), pr1);
+            pr2 = Fun(hyp_name, arg(Href, 2), pr2);
+            new_m.insert(goal_name, DisjCases(arg(Href, 1), arg(Href, 2), conclusion, mk_constant(hyp_name), pr1, pr2));
             new_m.erase(name(goal_name, 1));
             new_m.erase(name(goal_name, 2));
             return pb(new_m, a);
@@ -248,7 +249,7 @@ optional<proof_state_pair> disj_tactic(proof_state const & s, name gname) {
         optional<proof_state_pair>();
     }
     buffer<std::pair<name, goal>> new_goals_buf1, new_goals_buf2;
-    expr conclusion;
+    optional<expr> conclusion;
     for (auto const & p : s.get_goals()) {
         check_interrupted();
         goal const & g = p.second;
@@ -276,12 +277,12 @@ optional<proof_state_pair> disj_tactic(proof_state const & s, name gname) {
         proof_builder pb     = s.get_proof_builder();
         proof_builder new_pb1 = mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
                 proof_map new_m(m);
-                new_m.insert(gname, Disj1(arg(conclusion, 1), arg(conclusion, 2), find(m, gname)));
+                new_m.insert(gname, Disj1(arg(*conclusion, 1), arg(*conclusion, 2), find(m, gname)));
                 return pb(new_m, a);
             });
         proof_builder new_pb2 = mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
                 proof_map new_m(m);
-                new_m.insert(gname, Disj2(arg(conclusion, 2), arg(conclusion, 1), find(m, gname)));
+                new_m.insert(gname, Disj2(arg(*conclusion, 2), arg(*conclusion, 1), find(m, gname)));
                 return pb(new_m, a);
             });
         proof_state s1(precision::Over, new_gs1, s.get_menv(), new_pb1, s.get_cex_builder());
@@ -323,7 +324,7 @@ tactic disj_tactic(unsigned i) {
 tactic absurd_tactic() {
     return mk_tactic01([](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             list<std::pair<name, expr>> proofs;
-            goals new_gs = map_goals(s, [&](name const & gname, goal const & g) -> goal {
+            goals new_gs = map_goals(s, [&](name const & gname, goal const & g) -> optional<goal> {
                     expr const & c  = g.get_conclusion();
                     for (auto const & p1 : g.get_hypotheses()) {
                         check_interrupted();
@@ -333,12 +334,12 @@ tactic absurd_tactic() {
                                 if (p2.second == a) {
                                     expr pr = AbsurdImpAny(a, c, mk_constant(p2.first), mk_constant(p1.first));
                                     proofs.emplace_front(gname, pr);
-                                    return goal(); // remove goal
+                                    return optional<goal>(); // remove goal
                                 }
                             }
                         }
                     }
-                    return g; // keep goal
+                    return some(g); // keep goal
                 });
             if (empty(proofs))
                 return none_proof_state(); // tactic failed

@@ -138,7 +138,7 @@ struct print_expr_fn {
             out() << "let " << let_name(a);
             if (let_type(a)) {
                 out() << " : ";
-                print(let_type(a), c);
+                print(*let_type(a), c);
             }
             out() << " := ";
             print(let_value(a), c);
@@ -182,10 +182,10 @@ static void display_context_core(std::ostream & out, context const & ctx) {
         if (!empty(tail_ctx))
             out << "; ";
         out << head.get_name();
-        if (head.get_domain())
-            out << " : " << mk_pair(head.get_domain(), tail_ctx);
-        if (head.get_body()) {
-            out << " := " << mk_pair(head.get_body(), tail_ctx);
+        if (optional<expr> const & d = head.get_domain())
+            out << " : " << mk_pair(*d, tail_ctx);
+        if (optional<expr> const & b = head.get_body()) {
+            out << " := " << mk_pair(*b, tail_ctx);
         }
     }
 }

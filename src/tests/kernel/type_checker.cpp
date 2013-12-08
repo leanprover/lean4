@@ -82,7 +82,7 @@ static void tst3() {
     expr f = Fun("a", Bool, Eq(Const("a"), True));
     std::cout << infer_type(f, env) << "\n";
     lean_assert(infer_type(f, env) == mk_arrow(Bool, Bool));
-    expr t = mk_let("a", expr(), True, Var(0));
+    expr t = mk_let("a", optional<expr>(), True, Var(0));
     std::cout << infer_type(t, env) << "\n";
 }
 
@@ -205,7 +205,7 @@ static void tst11() {
     expr t3 = f(b, b);
     for (unsigned i = 0; i < n; i++) {
         t1 = f(t1, t1);
-        t2 = mk_let("x", expr(), t2, f(Var(0), Var(0)));
+        t2 = mk_let("x", optional<expr>(), t2, f(Var(0), Var(0)));
         t3 = f(t3, t3);
     }
     lean_assert(t1 != t2);

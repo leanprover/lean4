@@ -13,12 +13,18 @@ expr context_to_lambda(context::iterator it, context::iterator const & end, expr
         return e;
     } else {
         context_entry const & entry = *it;
-        expr t;
-        if (entry.get_body())
-            t = mk_app(g_fake, entry.get_domain(), entry.get_body());
+        optional<expr> t;
+        optional<expr> const & d = entry.get_domain();
+        optional<expr> const & b = entry.get_body();
+        lean_assert(b || d);
+        if (b && d)
+            t = mk_app(g_fake, *d, *b);
+        else if (d)
+            t = mk_app(g_fake, *d, g_fake);
         else
-            t = mk_app(g_fake, entry.get_domain());
-        return context_to_lambda(++it, end, mk_lambda(entry.get_name(), t, e));
+            t = mk_app(g_fake, g_fake, *b);
+        lean_assert(t);
+        return context_to_lambda(++it, end, mk_lambda(entry.get_name(), *t, e));
     }
 }
 expr context_to_lambda(context const & c, expr const & e) {
@@ -31,16 +37,21 @@ name const & fake_context_name(expr const & e) {
     lean_assert(is_fake_context(e));
     return abst_name(e);
 }
-expr const & fake_context_domain(expr const & e) {
+optional<expr> fake_context_domain(expr const & e) {
     lean_assert(is_fake_context(e));
-    return arg(abst_domain(e), 1);
-}
-expr const & fake_context_value(expr const & e) {
-    lean_assert(is_fake_context(e));
-    if (num_args(abst_domain(e)) > 2)
-        return arg(abst_domain(e), 2);
+    expr r = arg(abst_domain(e), 1);
+    if (!is_eqp(r, g_fake))
+        return optional<expr>(r);
     else
-        return expr::null();
+        return optional<expr>();
+}
+optional<expr> fake_context_value(expr const & e) {
+    lean_assert(is_fake_context(e));
+    expr r = arg(abst_domain(e), 2);
+    if (!is_eqp(r, g_fake))
+        return optional<expr>(r);
+    else
+        return optional<expr>();
 }
 expr const & fake_context_rest(expr const & e) {
     return abst_body(e);

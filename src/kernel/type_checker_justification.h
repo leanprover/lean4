@@ -29,7 +29,7 @@ public:
     virtual ~function_expected_justification_cell();
     virtual format pp_header(formatter const & fmt, options const & opts) const;
     virtual void get_children(buffer<justification_cell*> &) const;
-    virtual expr const & get_main_expr() const;
+    virtual optional<expr> get_main_expr() const;
     context const & get_context() const { return m_ctx; }
     expr const & get_app() const { return m_app; }
 };
@@ -54,7 +54,7 @@ public:
     virtual ~app_type_match_justification_cell();
     virtual format pp_header(formatter const & fmt, options const & opts) const;
     virtual void get_children(buffer<justification_cell*> &) const;
-    virtual expr const & get_main_expr() const;
+    virtual optional<expr> get_main_expr() const;
     context const & get_context() const { return m_ctx; }
     expr const & get_app() const { return m_app; }
     unsigned get_arg_pos() const { return m_i; }
@@ -77,7 +77,7 @@ public:
     virtual ~type_expected_justification_cell();
     virtual format pp_header(formatter const & fmt, options const & opts) const;
     virtual void get_children(buffer<justification_cell*> &) const;
-    virtual expr const & get_main_expr() const;
+    virtual optional<expr> get_main_expr() const;
     context const & get_context() const { return m_ctx; }
     expr const & get_type() const { return m_type; }
 };
@@ -114,7 +114,7 @@ public:
     virtual ~def_type_match_justification_cell();
     virtual format pp_header(formatter const & fmt, options const & opts) const;
     virtual void get_children(buffer<justification_cell*> &) const;
-    virtual expr const & get_main_expr() const;
+    virtual optional<expr> get_main_expr() const;
     context const & get_context() const { return m_ctx; }
     name const & get_name() const { return m_name; }
     expr const & get_value() const { return m_value; }
@@ -133,7 +133,7 @@ public:
     virtual ~type_match_justification_cell();
     virtual format pp_header(formatter const & fmt, options const & opts) const;
     virtual void get_children(buffer<justification_cell*> &) const;
-    virtual expr const & get_main_expr() const;
+    virtual optional<expr> get_main_expr() const;
     context const & get_context() const { return m_ctx; }
     expr const & get_type() const { return m_type; }
     expr const & get_value() const { return m_value; }

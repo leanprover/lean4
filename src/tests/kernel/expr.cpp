@@ -278,7 +278,7 @@ static void tst13() {
 static void tst14() {
     expr t = Eq(Const("a"), Const("b"));
     std::cout << t << "\n";
-    expr l = mk_let("a", expr(), Const("b"), Var(0));
+    expr l = mk_let("a", optional<expr>(), Const("b"), Var(0));
     std::cout << l << "\n";
     lean_assert(closed(l));
 }
@@ -327,7 +327,7 @@ static void tst16() {
     check_copy(mk_metavar("M"));
     check_copy(mk_lambda("x", a, Var(0)));
     check_copy(mk_pi("x", a, Var(0)));
-    check_copy(mk_let("x", expr(), a, Var(0)));
+    check_copy(mk_let("x", optional<expr>(), a, Var(0)));
 }
 
 static void tst17() {

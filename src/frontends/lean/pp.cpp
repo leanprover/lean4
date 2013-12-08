@@ -725,14 +725,14 @@ class pp_fn {
        \remark The argument B is only relevant when processing
        condensed definitions. \see pp_abstraction_core.
     */
-    std::pair<expr, expr> collect_nested(expr const & e, expr T, expr_kind k, buffer<std::pair<name, expr>> & r) {
-        if (e.kind() == k && (!T || is_abstraction(T))) {
+    std::pair<expr, optional<expr>> collect_nested(expr const & e, optional<expr> T, expr_kind k, buffer<std::pair<name, expr>> & r) {
+        if (e.kind() == k && (!T || is_abstraction(*T))) {
             name n1    = get_unused_name(e);
             m_local_names.insert(n1);
             r.emplace_back(n1, abst_domain(e));
             expr b = replace_var_with_name(abst_body(e), n1);
             if (T)
-                T = replace_var_with_name(abst_body(T), n1);
+                T = some(replace_var_with_name(abst_body(*T), n1));
             return collect_nested(b, T, k, r);
         } else {
             return mk_pair(e, T);
@@ -849,7 +849,7 @@ class pp_fn {
 
        \remark if T != 0, then T is Pi(x : A), B
     */
-    result pp_abstraction_core(expr const & e, unsigned depth, expr T, std::vector<bool> const * implicit_args = nullptr) {
+    result pp_abstraction_core(expr const & e, unsigned depth, optional<expr> T, std::vector<bool> const * implicit_args = nullptr) {
         local_names::mk_scope mk(m_local_names);
         if (is_arrow(e) && !implicit_args) {
             lean_assert(!T);
@@ -876,7 +876,7 @@ class pp_fn {
             }
             format body_sep;
             if (T) {
-                format T_f = pp(T, 0).first;
+                format T_f = pp(*T, 0).first;
                 body_sep = format{space(), colon(), space(), T_f, space(), g_assign_fmt};
             } else if (implicit_args) {
                 // This is a little hack to pretty print Variable and
@@ -957,10 +957,10 @@ class pp_fn {
     }
 
     result pp_abstraction(expr const & e, unsigned depth) {
-        return pp_abstraction_core(e, depth, expr());
+        return pp_abstraction_core(e, depth, optional<expr>());
     }
 
-    expr collect_nested_let(expr const & e, buffer<std::tuple<name, expr, expr>> & bindings) {
+    expr collect_nested_let(expr const & e, buffer<std::tuple<name, optional<expr>, expr>> & bindings) {
         if (is_let(e)) {
             name n1    = get_unused_name(e);
             m_local_names.insert(n1);
@@ -974,7 +974,7 @@ class pp_fn {
 
     result pp_let(expr const & e, unsigned depth) {
         local_names::mk_scope mk(m_local_names);
-        buffer<std::tuple<name, expr, expr>> bindings;
+        buffer<std::tuple<name, optional<expr>, expr>> bindings;
         expr body = collect_nested_let(e, bindings);
         unsigned r_weight = 2;
         format r_format = g_let_fmt;
@@ -985,9 +985,9 @@ class pp_fn {
             format beg = i == 0 ? space() : line();
             format sep = i < sz - 1 ? comma() : format();
             result p_def = pp_scoped_child(std::get<2>(b), depth+1);
-            expr type = std::get<1>(b);
+            optional<expr> const & type = std::get<1>(b);
             if (type) {
-                result p_type = pp_scoped_child(type, depth+1);
+                result p_type = pp_scoped_child(*type, depth+1);
                 r_format += nest(3 + 1, compose(beg, group(format{format(n), space(),
                                     colon(), nest(n.size() + 1 + 1 + 1, compose(space(), p_type.first)), space(), g_assign_fmt,
                                     nest(m_indent, format{line(), p_def.first, sep})})));
@@ -1166,13 +1166,12 @@ public:
 
     format pp_definition(expr const & v, expr const & t, std::vector<bool> const * implicit_args) {
         init(mk_app(v, t));
-        expr T(t);
-        return pp_abstraction_core(v, 0, T, implicit_args).first;
+        return pp_abstraction_core(v, 0, optional<expr>(t), implicit_args).first;
     }
 
     format pp_pi_with_implicit_args(expr const & e, std::vector<bool> const & implicit_args) {
         init(e);
-        return pp_abstraction_core(e, 0, expr(), &implicit_args).first;
+        return pp_abstraction_core(e, 0, optional<expr>(), &implicit_args).first;
     }
 
     void register_local(name const & n) {
@@ -1198,10 +1197,13 @@ class pp_formatter_cell : public formatter_cell {
             check_interrupted();
             name n1 = get_unused_name(c2);
             fn.register_local(n1);
-            format entry = format{format(n1), space(), colon(), space(), fn(fake_context_domain(c2))};
-            expr val = fake_context_value(c2);
+            format entry = format(n1);
+            optional<expr> domain = fake_context_domain(c2);
+            optional<expr> val    = fake_context_value(c2);
+            if (domain)
+                entry += format{space(), colon(), space(), fn(*domain)};
             if (val)
-                entry += format{space(), g_assign_fmt, nest(indent, format{line(), fn(val)})};
+                entry += format{space(), g_assign_fmt, nest(indent, format{line(), fn(*val)})};
             if (first) {
                 r = group(entry);
                 first = false;

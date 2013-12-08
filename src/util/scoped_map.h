@@ -108,7 +108,7 @@ public:
         auto it = m_map.find(k);
         if (it == m_map.end()) {
             if (!at_base_lvl())
-                m_actions.emplace_back(action_kind::Insert, value_type(k, T()));
+                m_actions.emplace_back(action_kind::Insert, value_type(k, v /* dummy */));
             m_map.insert(value_type(k, v));
         } else {
             if (!at_base_lvl())

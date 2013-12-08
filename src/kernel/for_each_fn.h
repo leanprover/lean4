@@ -71,7 +71,7 @@ class for_each_fn {
             switch (e.kind()) {
             case expr_kind::Constant:
                 if (const_type(e))
-                    todo.emplace_back(const_type(e), offset);
+                    todo.emplace_back(*const_type(e), offset);
                 goto begin_loop;
             case expr_kind::Type: case expr_kind::Value:
             case expr_kind::Var: case expr_kind::MetaVar:
@@ -98,7 +98,7 @@ class for_each_fn {
                 todo.emplace_back(let_body(e), offset + 1);
                 todo.emplace_back(let_value(e), offset);
                 if (let_type(e))
-                    todo.emplace_back(let_type(e), offset);
+                    todo.emplace_back(*let_type(e), offset);
                 goto begin_loop;
             }
         }

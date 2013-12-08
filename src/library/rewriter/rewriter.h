@@ -483,7 +483,7 @@ class apply_rewriter_fn {
             break;
         case expr_kind::Let: {
             name const & n    = let_name(v);
-            expr const & ty   = let_type(v);
+            optional<expr> const & ty = let_type(v);
             expr const & val  = let_value(v);
             expr const & body = let_body(v);
 
@@ -492,13 +492,15 @@ class apply_rewriter_fn {
             expr pf = Refl(ty_v, v);
             bool changed = false;
 
-            std::pair<expr, expr> result_ty = apply(env, ctx, ty);
-            if (ty != result_ty.first) {
-                // ty changed
-                result  = rewrite_let_type(env, ctx, new_v, result_ty);
-                new_v   = result.first;
-                pf      = result.second;
-                changed = true;
+            if (ty) {
+                std::pair<expr, expr> result_ty = apply(env, ctx, *ty);
+                if (*ty != result_ty.first) {
+                    // ty changed
+                    result  = rewrite_let_type(env, ctx, new_v, result_ty);
+                    new_v   = result.first;
+                    pf      = result.second;
+                    changed = true;
+                }
             }
 
             std::pair<expr, expr> result_val = apply(env, ctx, val);
@@ -513,7 +515,7 @@ class apply_rewriter_fn {
                 changed = true;
             }
 
-            context new_ctx = extend(ctx, n, ty);
+            context new_ctx = extend(ctx, n, ty, val);
             std::pair<expr, expr> result_body = apply(env, new_ctx, body);
             if (body != result_body.first) {
                 result = rewrite_let_body(env, ctx, new_v, result_body);

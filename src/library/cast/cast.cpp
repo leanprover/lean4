@@ -27,14 +27,13 @@ public:
     virtual ~cast_fn_value() {}
     virtual expr get_type() const { return m_type; }
     virtual name get_name() const { return g_cast_name; }
-    virtual bool normalize(unsigned num_as, expr const * as, expr & r) const {
+    virtual optional<expr> normalize(unsigned num_as, expr const * as) const {
         if (num_as > 4 && as[1] == as[2]) {
             // Cast T T H a == a
             if (num_as == 5)
-                r = as[4];
+                return some(as[4]);
             else
-                r = mk_app(num_as - 4, as + 4);
-            return true;
+                return some(mk_app(num_as - 4, as + 4));
         } else if (is_app(as[4]) &&
                    arg(as[4], 0) == mk_Cast_fn() &&
                    num_args(as[4]) == 5 &&
@@ -49,14 +48,13 @@ public:
             expr const & a  = arg(nested, 4);
             expr c = Cast(T3, T2, Trans(TypeU, T3, T1, T2, H1, H2), a);
             if (num_as == 5) {
-                r = c;
+                return optional<expr>(c);
             } else {
                 buffer<expr> new_as;
                 new_as.push_back(c);
                 new_as.append(num_as - 5, as + 5);
-                r = mk_app(new_as);
+                return optional<expr>(mk_app(new_as));
             }
-            return true;
         } else if (num_as > 5 && is_pi(as[1]) && is_pi(as[2])) {
             // cast T1 T2 H f a_1 ... a_k
             // Propagate application over cast.
@@ -86,16 +84,15 @@ public:
             expr B1_eq_B2_at_a_1p = RanInj(A1, A2, B1f, B2f, H, a_1p);
             expr fa_1_B2     = Cast(B1, B2, B1_eq_B2_at_a_1p, fa_1);
             if (num_as == 6) {
-                r = fa_1_B2;
+                return optional<expr>(fa_1_B2);
             } else {
                 buffer<expr> new_as;
                 new_as.push_back(fa_1_B2);
                 new_as.append(num_as - 6, as + 6);
-                r = mk_app(new_as);
+                return optional<expr>(mk_app(new_as));
             }
-            return true;
         } else {
-            return false;
+            return optional<expr>();
         }
     }
 };

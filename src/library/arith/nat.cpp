@@ -66,12 +66,11 @@ template<char const * Name, typename F>
 class nat_bin_op : public const_value {
 public:
     nat_bin_op():const_value(name("Nat", Name), Nat >> (Nat >> Nat)) {}
-    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
+    virtual optional<expr> normalize(unsigned num_args, expr const * args) const {
         if (num_args == 3 && is_nat_value(args[1]) && is_nat_value(args[2])) {
-            r = mk_nat_value(F()(nat_value_numeral(args[1]), nat_value_numeral(args[2])));
-            return true;
+            return some(mk_nat_value(F()(nat_value_numeral(args[1]), nat_value_numeral(args[2]))));
         } else {
-            return false;
+            return optional<expr>();
         }
     }
 };
@@ -95,12 +94,11 @@ MK_BUILTIN(nat_mul_fn, nat_mul_value);
 class nat_le_value : public const_value {
 public:
     nat_le_value():const_value(name{"Nat", "le"}, Nat >> (Nat >> Bool)) {}
-    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const {
+    virtual optional<expr> normalize(unsigned num_args, expr const * args) const {
         if (num_args == 3 && is_nat_value(args[1]) && is_nat_value(args[2])) {
-            r = mk_bool_value(nat_value_numeral(args[1]) <= nat_value_numeral(args[2]));
-            return true;
+            return some(mk_bool_value(nat_value_numeral(args[1]) <= nat_value_numeral(args[2])));
         } else {
-            return false;
+            return optional<expr>();
         }
     }
 };

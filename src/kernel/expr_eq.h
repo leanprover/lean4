@@ -29,10 +29,18 @@ class expr_eq_fn {
     std::unique_ptr<expr_cell_pair_set> m_eq_visited;
     N                                   m_norm;
 
+    bool apply(optional<expr> const & a0, optional<expr> const & b0) {
+        if (is_eqp(a0, b0))
+            return true;
+        else if (!a0 || !b0)
+            return false;
+        else
+            return apply(*a0, *b0);
+    }
+
     bool apply(expr const & a0, expr const & b0) {
         check_system("expression equality test");
         if (is_eqp(a0, b0))                    return true;
-        if (!a0 || !b0)                        return false;
         if (UseHash && a0.hash() != b0.hash()) return false;
         expr const & a = m_norm(a0);
         expr const & b = m_norm(b0);

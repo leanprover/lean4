@@ -13,8 +13,20 @@ namespace lean {
 class deep_copy_fn {
     expr_cell_map<expr> m_cache;
 
+    expr save_result(expr const & a, expr && r, bool shared) {
+        if (shared)
+            m_cache.insert(std::make_pair(a.raw(), r));
+        return r;
+    }
+
+    optional<expr> apply(optional<expr> const & a) {
+        if (a)
+            return some(apply(*a));
+        else
+            return a;
+    }
+
     expr apply(expr const & a) {
-        if (!a) return a;
         bool sh = false;
         if (is_shared(a)) {
             auto r = m_cache.find(a.raw());
@@ -22,33 +34,30 @@ class deep_copy_fn {
                 return r->second;
             sh = true;
         }
-        expr r;
         switch (a.kind()) {
         case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
-            r = copy(a); break; // shallow copy is equivalent to deep copy for these ones.
+            return save_result(a, copy(a), sh);
         case expr_kind::App: {
             buffer<expr> new_args;
             for (expr const & old_arg : args(a))
                 new_args.push_back(apply(old_arg));
-            r = mk_app(new_args);
-            break;
+            return save_result(a, mk_app(new_args), sh);
         }
-        case expr_kind::Eq:       r = mk_eq(apply(eq_lhs(a)), apply(eq_rhs(a))); break;
-        case expr_kind::Lambda:   r = mk_lambda(abst_name(a), apply(abst_domain(a)), apply(abst_body(a))); break;
-        case expr_kind::Pi:       r = mk_pi(abst_name(a), apply(abst_domain(a)), apply(abst_body(a))); break;
-        case expr_kind::Let:      r = mk_let(let_name(a), apply(let_type(a)), apply(let_value(a)), apply(let_body(a))); break;
+        case expr_kind::Eq:       return save_result(a, mk_eq(apply(eq_lhs(a)), apply(eq_rhs(a))), sh);
+        case expr_kind::Lambda:   return save_result(a, mk_lambda(abst_name(a), apply(abst_domain(a)), apply(abst_body(a))), sh);
+        case expr_kind::Pi:       return save_result(a, mk_pi(abst_name(a), apply(abst_domain(a)), apply(abst_body(a))), sh);
+        case expr_kind::Let:      return save_result(a, mk_let(let_name(a), apply(let_type(a)), apply(let_value(a)), apply(let_body(a))), sh);
         case expr_kind::MetaVar:
-            r = update_metavar(a, [&](local_entry const & e) -> local_entry {
-                    if (e.is_inst())
-                        return mk_inst(e.s(), apply(e.v()));
-                    else
-                        return e;
-                });
-            break;
+            return save_result(a,
+                               update_metavar(a, [&](local_entry const & e) -> local_entry {
+                                       if (e.is_inst())
+                                           return mk_inst(e.s(), apply(e.v()));
+                                       else
+                                           return e;
+                                   }),
+                               sh);
         }
-        if (sh)
-            m_cache.insert(std::make_pair(a.raw(), r));
-        return r;
+        lean_unreachable(); // LCOV_EXCL_LINE
     }
 public:
     /**

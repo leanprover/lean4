@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "util/hash.h"
 #include "util/buffer.h"
 #include "util/list_fn.h"
+#include "util/optional.h"
 #include "util/sexpr/format.h"
 #include "kernel/level.h"
 
@@ -85,6 +86,7 @@ protected:
     void set_closed() { m_flags |= 2; }
     friend class has_free_var_fn;
     static void dec_ref(expr & c, buffer<expr_cell*> & todelete);
+    static void dec_ref(optional<expr> & c, buffer<expr_cell*> & todelete);
 public:
     expr_cell(expr_kind k, unsigned h, bool has_mv);
     expr_kind kind() const { return static_cast<expr_kind>(m_kind); }
@@ -102,12 +104,10 @@ private:
     friend class expr_cell;
     expr_cell * steal_ptr() { expr_cell * r = m_ptr; m_ptr = nullptr; return r; }
 public:
-    expr():m_ptr(nullptr) {}
+    expr();
     expr(expr const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     expr(expr && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~expr() { if (m_ptr) m_ptr->dec_ref(); }
-
-    static expr const & null();
 
     friend void swap(expr & a, expr & b) { std::swap(a.m_ptr, b.m_ptr); }
 
@@ -123,20 +123,21 @@ public:
 
     expr_cell * raw() const { return m_ptr; }
 
-    explicit operator bool() const { return m_ptr != nullptr; }
-
     friend expr mk_var(unsigned idx);
-    friend expr mk_constant(name const & n, expr const & t);
+    friend expr mk_constant(name const & n, optional<expr> const & t);
     friend expr mk_value(value & v);
     friend expr mk_app(unsigned num_args, expr const * args);
     friend expr mk_eq(expr const & l, expr const & r);
     friend expr mk_lambda(name const & n, expr const & t, expr const & e);
     friend expr mk_pi(name const & n, expr const & t, expr const & e);
     friend expr mk_type(level const & l);
-    friend expr mk_let(name const & n, expr const & t, expr const & v, expr const & e);
+    friend expr mk_let(name const & n, optional<expr> const & t, expr const & v, expr const & e);
     friend expr mk_metavar(name const & n, local_context const & ctx);
 
     friend bool is_eqp(expr const & a, expr const & b) { return a.m_ptr == b.m_ptr; }
+    friend bool is_eqp(optional<expr> const & a, optional<expr> const & b) {
+        return static_cast<bool>(a) == static_cast<bool>(b) && (!a || is_eqp(*a, *b));
+    }
 
     // Overloaded operator() can be used to create applications
     expr operator()(expr const & a1) const;
@@ -160,16 +161,16 @@ public:
 };
 /** \brief Constants. */
 class expr_const : public expr_cell {
-    name     m_name;
-    expr     m_type; // (optional) cached type
+    name           m_name;
+    optional<expr> m_type;
     // Remark: we do *not* perform destructive updates on m_type
     // This field is used to efficiently implement the tactic framework
     friend class expr_cell;
     void dealloc(buffer<expr_cell*> & to_delete);
 public:
-    expr_const(name const & n, expr const & type);
+    expr_const(name const & n, optional<expr> const & type);
     name const & get_name() const { return m_name; }
-    expr const & get_type() const { return m_type; }
+    optional<expr> const & get_type() const { return m_type; }
 };
 /** \brief Function Applications */
 class expr_app : public expr_cell {
@@ -223,17 +224,17 @@ public:
 };
 /** \brief Let expressions */
 class expr_let : public expr_cell {
-    name     m_name;
-    expr     m_type;
-    expr     m_value;
-    expr     m_body;
+    name           m_name;
+    optional<expr> m_type;
+    expr           m_value;
+    expr           m_body;
     friend class expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
 public:
-    expr_let(name const & n, expr const & t, expr const & v, expr const & b);
+    expr_let(name const & n, optional<expr> const & t, expr const & v, expr const & b);
     ~expr_let();
     name const & get_name() const  { return m_name; }
-    expr const & get_type() const  { return m_type; }
+    optional<expr> const & get_type() const { return m_type; }
     expr const & get_value() const { return m_value; }
     expr const & get_body() const  { return m_body; }
 };
@@ -262,7 +263,7 @@ public:
     virtual expr get_type() const = 0;
     virtual name get_name() const = 0;
     virtual name get_unicode_name() const;
-    virtual bool normalize(unsigned num_args, expr const * args, expr & r) const;
+    virtual optional<expr> normalize(unsigned num_args, expr const * args) const;
     virtual bool operator==(value const & other) const;
     bool operator<(value const & other) const;
     virtual void display(std::ostream & out) const;
@@ -320,7 +321,7 @@ class local_entry {
     local_entry_kind m_kind;
     unsigned         m_s;
     unsigned         m_n;
-    expr             m_v;
+    optional<expr>   m_v;
     local_entry(unsigned s, unsigned n);
     local_entry(unsigned s, expr const & v);
 public:
@@ -334,7 +335,7 @@ public:
     unsigned n() const { lean_assert(is_lift()); return m_n; }
     bool operator==(local_entry const & e) const;
     bool operator!=(local_entry const & e) const { return !operator==(e); }
-    expr const & v() const { lean_assert(is_inst()); return m_v; }
+    expr const & v() const { lean_assert(is_inst()); return *m_v; }
 };
 inline local_entry mk_lift(unsigned s, unsigned n) { return local_entry(s, n); }
 inline local_entry mk_inst(unsigned s, expr const & v) { return local_entry(s, v); }
@@ -383,7 +384,9 @@ inline bool is_abstraction(expr const & e) { return is_lambda(e) || is_pi(e); }
 // Constructors
 inline expr mk_var(unsigned idx) { return expr(new expr_var(idx)); }
 inline expr Var(unsigned idx) { return mk_var(idx); }
-inline expr mk_constant(name const & n, expr const & t = expr()) { return expr(new expr_const(n, t)); }
+inline expr mk_constant(name const & n, optional<expr> const & t) { return expr(new expr_const(n, t)); }
+inline expr mk_constant(name const & n, expr const & t) { return mk_constant(n, optional<expr>(t)); }
+inline expr mk_constant(name const & n) { return mk_constant(n, optional<expr>()); }
 inline expr Const(name const & n) { return mk_constant(n); }
 inline expr mk_value(value & v) { return expr(new expr_value(v)); }
 inline expr to_expr(value & v) { return mk_value(v); }
@@ -400,7 +403,9 @@ inline expr mk_lambda(name const & n, expr const & t, expr const & e) { return e
 inline expr mk_pi(name const & n, expr const & t, expr const & e) { return expr(new expr_pi(n, t, e)); }
 inline expr mk_arrow(expr const & t, expr const & e) { return mk_pi(name("_"), t, e); }
 inline expr operator>>(expr const & t, expr const & e) { return mk_arrow(t, e); }
-inline expr mk_let(name const & n, expr const & t, expr const & v, expr const & e) { return expr(new expr_let(n, t, v, e)); }
+inline expr mk_let(name const & n, optional<expr> const & t, expr const & v, expr const & e) { return expr(new expr_let(n, t, v, e)); }
+inline expr mk_let(name const & n, expr const & t, expr const & v, expr const & e) { return mk_let(n, optional<expr>(t), v, e); }
+inline expr mk_let(name const & n, expr const & v, expr const & e) { return mk_let(n, optional<expr>(), v, e); }
 inline expr mk_type(level const & l) { return expr(new expr_type(l)); }
        expr mk_type();
 inline expr Type(level const & l) { return mk_type(l); }
@@ -453,7 +458,7 @@ inline unsigned      var_idx(expr_cell * e)              { return to_var(e)->get
 inline bool          is_var(expr_cell * e, unsigned i)   { return is_var(e) && var_idx(e) == i; }
 inline name const &  const_name(expr_cell * e)           { return to_constant(e)->get_name(); }
 // Remark: the following function should not be exposed in the internal API.
-inline expr const &  const_type(expr_cell * e)           { return to_constant(e)->get_type(); }
+inline optional<expr> const &  const_type(expr_cell * e) { return to_constant(e)->get_type(); }
 inline value const & to_value(expr_cell * e)             { lean_assert(is_value(e)); return static_cast<expr_value*>(e)->get_value(); }
 inline unsigned      num_args(expr_cell * e)             { return to_app(e)->get_num_args(); }
 inline expr const &  arg(expr_cell * e, unsigned idx)    { return to_app(e)->get_arg(idx); }
@@ -465,7 +470,7 @@ inline expr const &  abst_body(expr_cell * e)            { return to_abstraction
 inline level const & ty_level(expr_cell * e)             { return to_type(e)->get_level(); }
 inline name const &  let_name(expr_cell * e)             { return to_let(e)->get_name(); }
 inline expr const &  let_value(expr_cell * e)            { return to_let(e)->get_value(); }
-inline expr const &  let_type(expr_cell * e)             { return to_let(e)->get_type(); }
+inline optional<expr> const &  let_type(expr_cell * e)   { return to_let(e)->get_type(); }
 inline expr const &  let_body(expr_cell * e)             { return to_let(e)->get_body(); }
 inline name const &  metavar_name(expr_cell * e)         { return to_metavar(e)->get_name(); }
 inline local_context const & metavar_lctx(expr_cell * e) { return to_metavar(e)->get_lctx(); }
@@ -480,7 +485,7 @@ inline unsigned      var_idx(expr const & e)              { return to_var(e)->ge
 inline bool          is_var(expr const & e, unsigned i)   { return is_var(e) && var_idx(e) == i; }
 inline name const &  const_name(expr const & e)           { return to_constant(e)->get_name(); }
 // Remark: the following function should not be exposed in the internal API.
-inline expr const &  const_type(expr const & e)           { return to_constant(e)->get_type(); }
+inline optional<expr> const &  const_type(expr const & e) { return to_constant(e)->get_type(); }
 /** \brief Return true iff the given expression is a constant with name \c n. */
 inline bool          is_constant(expr const & e, name const & n) {
     return is_constant(e) && const_name(e) == n;
@@ -497,7 +502,7 @@ inline expr const &  abst_domain(expr const & e)          { return to_abstractio
 inline expr const &  abst_body(expr const & e)            { return to_abstraction(e)->get_body(); }
 inline level const & ty_level(expr const & e)             { return to_type(e)->get_level(); }
 inline name const &  let_name(expr const & e)             { return to_let(e)->get_name(); }
-inline expr const &  let_type(expr const & e)             { return to_let(e)->get_type(); }
+inline optional<expr> const &  let_type(expr const & e)   { return to_let(e)->get_type(); }
 inline expr const &  let_value(expr const & e)            { return to_let(e)->get_value(); }
 inline expr const &  let_body(expr const & e)             { return to_let(e)->get_body(); }
 inline name const &  metavar_name(expr const & e)         { return to_metavar(e)->get_name(); }
@@ -604,15 +609,15 @@ template<typename F> expr update_abst(expr const & e, F f) {
     }
 }
 template<typename F> expr update_let(expr const & e, F f) {
-    static_assert(std::is_same<typename std::result_of<F(expr const &, expr const &, expr const &)>::type,
-                  std::tuple<expr, expr, expr>>::value,
-                  "update_let: return type of f is not pair<expr, expr>");
-    expr const & old_t = let_type(e);
-    expr const & old_v = let_value(e);
-    expr const & old_b = let_body(e);
-    std::tuple<expr, expr, expr> t = f(old_t, old_v, old_b);
-    if (!is_eqp(std::get<0>(t), old_t) || !is_eqp(std::get<1>(t), old_v) || !is_eqp(std::get<2>(t), old_b))
-        return mk_let(let_name(e), std::get<0>(t), std::get<1>(t), std::get<2>(t));
+    static_assert(std::is_same<typename std::result_of<F(optional<expr> const &, expr const &, expr const &)>::type,
+                  std::tuple<optional<expr>, expr, expr>>::value,
+                  "update_let: return type of f is not tuple<optional<expr>, expr, expr>");
+    optional<expr> const & old_t = let_type(e);
+    expr const & old_v           = let_value(e);
+    expr const & old_b           = let_body(e);
+    std::tuple<optional<expr>, expr, expr> r = f(old_t, old_v, old_b);
+    if (!is_eqp(std::get<0>(r), old_t) || !is_eqp(std::get<1>(r), old_v) || !is_eqp(std::get<2>(r), old_b))
+        return mk_let(let_name(e), std::get<0>(r), std::get<1>(r), std::get<2>(r));
     else
         return e;
 }
@@ -661,7 +666,7 @@ inline expr update_metavar(expr const & e, local_context const & lctx) {
     else
         return e;
 }
-inline expr update_const(expr const & e, expr const & t) {
+inline expr update_const(expr const & e, optional<expr> const & t) {
     if (!is_eqp(const_type(e), t))
         return mk_constant(const_name(e), t);
     else

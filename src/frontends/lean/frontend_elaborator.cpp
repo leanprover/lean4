@@ -63,7 +63,7 @@ public:
         return r;
     }
     virtual void get_children(buffer<justification_cell*> &) const {}
-    virtual expr const & get_main_expr() const { return m_src; }
+    virtual optional<expr> get_main_expr() const { return some(m_src); }
     context const & get_context() const { return m_ctx; }
 };
 
@@ -82,7 +82,7 @@ public:
         return r;
     }
     virtual void get_children(buffer<justification_cell*> &) const {}
-    virtual expr const & get_main_expr() const { return m_app; }
+    virtual optional<expr> get_main_expr() const { return some(m_app); }
     context const & get_context() const { return m_ctx; }
     expr const & get_app() const { return m_app; }
 };
@@ -133,30 +133,29 @@ class frontend_elaborator::imp {
 
         /**
            \brief Return the type of \c e if possible.
-           Return null expression if it was not possible to infer the type of \c e.
            The idea is to use the type to catch the easy cases where we can solve
            overloads (aka choices) and coercions during preprocessing.
         */
-        expr get_type(expr const & e, context const & ctx) {
+        optional<expr> get_type(expr const & e, context const & ctx) {
             try {
-                return m_ref.m_type_inferer(e, ctx);
+                return some(m_ref.m_type_inferer(e, ctx));
             } catch (exception &) {
-                return expr();
+                return optional<expr>();
             }
         }
 
         /**
-           \brief Make sure f_t is a Pi, if it is not, then return the null expression.
+           \brief Make sure f_t is a Pi, if it is not, then return optional<expr>()
         */
-        expr check_pi(expr const & f_t, context const & ctx) {
-            if (!f_t || is_pi(f_t)) {
+        optional<expr> check_pi(optional<expr> const & f_t, context const & ctx) {
+            if (!f_t || is_pi(*f_t)) {
                 return f_t;
             } else {
-                expr r = m_ref.m_normalizer(f_t, ctx);
+                expr r = m_ref.m_normalizer(*f_t, ctx);
                 if (is_pi(r))
-                    return r;
+                    return optional<expr>(r);
                 else
-                    return expr();
+                    return optional<expr>();
             }
         }
 
@@ -174,20 +173,20 @@ class frontend_elaborator::imp {
             return mk_app(mvar, a);
         }
 
-        expr find_coercion(list<expr_pair> const & l, expr const & to_type) {
+        optional<expr> find_coercion(list<expr_pair> const & l, expr const & to_type) {
             for (auto p : l) {
                 if (p.first == to_type) {
-                    return p.second;
+                    return optional<expr>(p.second);
                 }
             }
-            return expr();
+            return optional<expr>();
         }
 
         /**
            \brief Try to solve overload at preprocessing time.
         */
-        void choose(buffer<expr> & f_choices, buffer<expr> & f_choice_types,
-                    buffer<expr> const & args, buffer<expr> const & arg_types,
+        void choose(buffer<expr> & f_choices,  buffer<optional<expr>> & f_choice_types,
+                    buffer<expr> const & args, buffer<optional<expr>> const & arg_types,
                     context const & ctx) {
             unsigned best_num_coercions = std::numeric_limits<unsigned>::max();
             unsigned num_choices = f_choices.size();
@@ -196,7 +195,7 @@ class frontend_elaborator::imp {
             buffer<unsigned> matched;
 
             for (unsigned j = 0; j < num_choices; j++) {
-                expr f_t = f_choice_types[j];
+                optional<expr> f_t = f_choice_types[j];
                 unsigned num_coercions   = 0; // number of coercions needed by current choice
                 unsigned num_skipped_args = 0;
                 unsigned i = 1;
@@ -206,27 +205,28 @@ class frontend_elaborator::imp {
                         // can't process this choice at preprocessing time
                         delayed.push_back(j);
                         break;
-                    }
-                    expr expected = abst_domain(f_t);
-                    expr given    = arg_types[i];
-                    if (!given) {
-                        num_skipped_args++;
                     } else {
-                        if (!has_metavar(expected) && !has_metavar(given)) {
-                            if (m_ref.m_type_checker.is_convertible(given, expected, ctx)) {
-                                // compatible
-                            } else if (m_ref.m_frontend.get_coercion(given, expected)) {
-                                // compatible if using coercion
-                                num_coercions++;
-                            } else {
-                                // failed, this choice does not work
-                                break;
-                            }
-                        } else {
+                        expr expected        = abst_domain(*f_t);
+                        optional<expr> given = arg_types[i];
+                        if (!given) {
                             num_skipped_args++;
+                        } else {
+                            if (!has_metavar(expected) && !has_metavar(*given)) {
+                                if (m_ref.m_type_checker.is_convertible(*given, expected, ctx)) {
+                                    // compatible
+                                } else if (m_ref.m_frontend.get_coercion(*given, expected)) {
+                                    // compatible if using coercion
+                                    num_coercions++;
+                                } else {
+                                    // failed, this choice does not work
+                                    break;
+                                }
+                            } else {
+                                num_skipped_args++;
+                            }
                         }
+                        f_t = some(::lean::instantiate(abst_body(*f_t), args[i]));
                     }
-                    f_t = ::lean::instantiate(abst_body(f_t), args[i]);
                 }
                 if (i == num_args) {
                     if (num_skipped_args > 0) {
@@ -250,7 +250,7 @@ class frontend_elaborator::imp {
                 // We currently do nothing, and let the elaborator to sign the error
             } else {
                 buffer<expr> to_keep;
-                buffer<expr> to_keep_types;
+                buffer<optional<expr>> to_keep_types;
                 for (unsigned i : matched) {
                     to_keep.push_back(f_choices[i]);
                     to_keep_types.push_back(f_choice_types[i]);
@@ -275,27 +275,27 @@ class frontend_elaborator::imp {
 
         virtual expr visit_app(expr const & e, context const & ctx) {
             expr f = arg(e, 0);
-            expr f_t;
-            buffer<expr> args;
-            buffer<expr> arg_types;
+            optional<expr> f_t;
+            buffer<expr>   args;
+            buffer<optional<expr>> arg_types;
             args.push_back(expr());      // placeholder
-            arg_types.push_back(expr()); // placeholder
+            arg_types.push_back(optional<expr>()); // placeholder
             for (unsigned i = 1; i < num_args(e); i++) {
                 expr a = arg(e, i);
                 expr new_a   = visit(a, ctx);
-                expr new_a_t = get_type(new_a, ctx);
+                optional<expr> new_a_t = get_type(new_a, ctx);
                 args.push_back(new_a);
                 arg_types.push_back(new_a_t);
             }
 
             if (is_choice(f)) {
                 buffer<expr> f_choices;
-                buffer<expr> f_choice_types;
+                buffer<optional<expr>> f_choice_types;
                 unsigned num_alts = get_num_choices(f);
                 for (unsigned i = 0; i < num_alts; i++) {
                     expr c       = get_choice(f, i);
                     expr new_c   = visit(c, ctx);
-                    expr new_c_t = get_type(new_c, ctx);
+                    optional<expr> new_c_t = get_type(new_c, ctx);
                     f_choices.push_back(new_c);
                     f_choice_types.push_back(new_c_t);
                 }
@@ -304,9 +304,9 @@ class frontend_elaborator::imp {
                     args[0] = mk_overload_mvar(f_choices, ctx, e);
                     for (unsigned i = 1; i < args.size(); i++) {
                         if (arg_types[i]) {
-                            list<expr_pair> coercions = m_ref.m_frontend.get_coercions(arg_types[i]);
+                            list<expr_pair> coercions = m_ref.m_frontend.get_coercions(*(arg_types[i]));
                             if (coercions)
-                                args[i] = add_coercion_mvar_app(coercions, args[i], arg_types[i], ctx, arg(e, i));
+                                args[i] = add_coercion_mvar_app(coercions, args[i], *(arg_types[i]), ctx, arg(e, i));
                         }
                     }
                     return mk_app(args);
@@ -326,20 +326,20 @@ class frontend_elaborator::imp {
                 f_t = check_pi(f_t, ctx);
                 expr a       = arg(e, i);
                 expr new_a   = args[i];
-                expr new_a_t = arg_types[i];
+                optional<expr> new_a_t = arg_types[i];
                 if (new_a_t) {
-                    list<expr_pair> coercions = m_ref.m_frontend.get_coercions(new_a_t);
+                    list<expr_pair> coercions = m_ref.m_frontend.get_coercions(*new_a_t);
                     if (coercions) {
                         if (!f_t) {
-                            new_a = add_coercion_mvar_app(coercions, new_a, new_a_t, ctx, a);
+                            new_a = add_coercion_mvar_app(coercions, new_a, *new_a_t, ctx, a);
                         } else {
-                            expr expected = abst_domain(f_t);
-                            if (expected != new_a_t) {
-                                expr c = find_coercion(coercions, expected);
+                            expr expected = abst_domain(*f_t);
+                            if (expected != *new_a_t) {
+                                optional<expr> c = find_coercion(coercions, expected);
                                 if (c) {
-                                    new_a = mk_app(c, new_a); // apply coercion
+                                    new_a = mk_app(*c, new_a); // apply coercion
                                 } else {
-                                    new_a = add_coercion_mvar_app(coercions, new_a, new_a_t, ctx, a);
+                                    new_a = add_coercion_mvar_app(coercions, new_a, *new_a_t, ctx, a);
                                 }
                             }
                         }
@@ -347,32 +347,35 @@ class frontend_elaborator::imp {
                 }
                 new_args.push_back(new_a);
                 if (f_t)
-                    f_t = ::lean::instantiate(abst_body(f_t), new_a);
+                    f_t = some(::lean::instantiate(abst_body(*f_t), new_a));
             }
             return mk_app(new_args);
         }
 
         virtual expr visit_let(expr const & e, context const & ctx) {
             lean_assert(is_let(e));
-            return update_let(e, [&](expr const & t, expr const & v, expr const & b) {
-                    expr new_t = t ? visit(t, ctx) : expr();
+            return update_let(e, [&](optional<expr> const & t, expr const & v, expr const & b) {
+                    optional<expr> new_t = visit(t, ctx);
                     expr new_v = visit(v, ctx);
                     if (new_t) {
-                        expr new_v_t = get_type(new_v, ctx);
-                        if (new_v_t && new_t != new_v_t) {
-                            list<expr_pair> coercions = m_ref.m_frontend.get_coercions(new_v_t);
+                        optional<expr> new_v_t = get_type(new_v, ctx);
+                        if (new_v_t && *new_t != *new_v_t) {
+                            list<expr_pair> coercions = m_ref.m_frontend.get_coercions(*new_v_t);
                             if (coercions) {
-                                new_v = add_coercion_mvar_app(coercions, new_v, new_v_t, ctx, v);
+                                new_v = add_coercion_mvar_app(coercions, new_v, *new_v_t, ctx, v);
                             }
                         }
                     }
-                    expr new_b;
                     {
                         cache::mk_scope sc(m_cache);
-                        new_b = visit(b, extend(ctx, let_name(e), new_t, new_v));
+                        expr new_b = visit(b, extend(ctx, let_name(e), new_t, new_v));
+                        return std::make_tuple(new_t, new_v, new_b);
                     }
-                    return std::make_tuple(new_t, new_v, new_b);
                 });
+        }
+
+        optional<expr> visit(optional<expr> const & e, context const & ctx) {
+            return replace_visitor::visit(e, ctx);
         }
 
         virtual expr visit(expr const & e, context const & ctx) {

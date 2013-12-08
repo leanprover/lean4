@@ -26,7 +26,6 @@ public:
     goal(hypotheses const & hs, expr const & c);
     hypotheses const & get_hypotheses() const { return m_hypotheses; }
     expr const & get_conclusion() const { return m_conclusion; }
-    explicit operator bool() const { return static_cast<bool>(m_conclusion); }
     format pp(formatter const & fmt, options const & opts) const;
     name mk_unique_hypothesis_name(name const & suggestion) const;
 };

@@ -25,11 +25,11 @@ namespace lean {
 */
 class metavar_env {
     struct data {
-        expr          m_subst;         // substitution
-        expr          m_type;          // type of the metavariable
-        context       m_context;       // context where the metavariable was defined
-        justification m_justification; // justification for assigned metavariables.
-        data(expr const & t = expr(), context const & ctx = context()):m_type(t), m_context(ctx) {}
+        optional<expr> m_subst;         // substitution
+        optional<expr> m_type;          // type of the metavariable
+        context        m_context;       // context where the metavariable was defined
+        justification  m_justification; // justification for assigned metavariables.
+        data(optional<expr> const & t = optional<expr>(), context const & ctx = context()):m_type(t), m_context(ctx) {}
     };
     typedef splay_map<name, data, name_quick_cmp> name2data;
 
@@ -62,7 +62,7 @@ public:
     /**
        \brief Create a new metavariable in the given context and with the given type.
     */
-    expr mk_metavar(context const & ctx = context(), expr const & type = expr());
+    expr mk_metavar(context const & ctx = context(), optional<expr> const & type = optional<expr>());
 
     /**
        \brief Return the context where the given metavariable was created.
@@ -93,21 +93,16 @@ public:
 
     /**
        \brief Return the substitution and justification for the given metavariable.
-
-       If the metavariable is not assigned in this substitution, then it returns the null
-       expression.
     */
-    std::pair<expr, justification> get_subst_jst(name const & m) const;
-    std::pair<expr, justification> get_subst_jst(expr const & m) const;
+    optional<std::pair<expr, justification>> get_subst_jst(name const & m) const;
+    optional<std::pair<expr, justification>> get_subst_jst(expr const & m) const;
 
     /**
        \brief Return the justification for an assigned metavariable.
        \pre is_metavar(m)
-       \pre is_assigned(m)
     */
-    justification get_justification(expr const & m) const;
-    justification get_justification(name const & m) const;
-
+    optional<justification> get_justification(expr const & m) const;
+    optional<justification> get_justification(name const & m) const;
 
     /**
        \brief Return true iff the metavariable named \c m is assigned in this substitution.
@@ -142,13 +137,10 @@ public:
        \brief Return the substitution associated with the given metavariable
        in this substitution.
 
-       If the metavariable is not assigned in this substitution, then it returns the null
-       expression.
-
        \pre is_metavar(m)
     */
-    expr get_subst(expr const & m) const;
-    expr get_subst(name const & m) const;
+    optional<expr> get_subst(expr const & m) const;
+    optional<expr> get_subst(name const & m) const;
 
     /**
        \brief Apply f to each substitution in the metavariable environment.
@@ -157,7 +149,7 @@ public:
     void for_each_subst(F f) const {
         m_metavar_data.for_each([&](name const & k, data const & d) {
                 if (d.m_subst)
-                    f(k, d.m_subst);
+                    f(k, *(d.m_subst));
             });
     }
 };

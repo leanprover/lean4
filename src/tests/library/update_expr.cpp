@@ -40,9 +40,9 @@ void tst3() {
     expr b   = Const("b");
     expr f   = Const("f");
     expr t1  = Let(a, b, f(a));
-    expr t2  = update_let(t1, expr(), b, let_body(t1));
+    expr t2  = update_let(t1, optional<expr>(), b, let_body(t1));
     lean_assert(is_eqp(t1, t2));
-    t2  = update_let(t1, expr(), a, let_body(t1));
+    t2  = update_let(t1, optional<expr>(), a, let_body(t1));
     lean_assert(!is_eqp(t1, t2));
     lean_assert(t2 == Let(a, a, f(a)));
 }

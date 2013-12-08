@@ -15,6 +15,6 @@ class assignment {
     metavar_env m_menv;
 public:
     assignment(metavar_env const & menv):m_menv(menv) {}
-    expr operator()(name const & mvar) const { return m_menv.get_subst(mvar); }
+    optional<expr> operator()(name const & mvar) const { return m_menv.get_subst(mvar); }
 };
 }

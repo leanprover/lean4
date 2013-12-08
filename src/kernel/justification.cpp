@@ -9,10 +9,10 @@ Author: Leonardo de Moura
 #include "kernel/justification.h"
 
 namespace lean {
-void justification_cell::add_pos_info(format & r, expr const & e, pos_info_provider const * p) {
+void justification_cell::add_pos_info(format & r, optional<expr> const & e, pos_info_provider const * p) {
     if (!p || !e)
         return;
-    format f = p->pp(e);
+    format f = p->pp(*e);
     if (!f)
         return;
     r += f;
@@ -42,7 +42,7 @@ bool justification::has_children() const {
 
 assumption_justification::assumption_justification(unsigned idx):m_idx(idx) {}
 void assumption_justification::get_children(buffer<justification_cell*> &) const {}
-expr const & assumption_justification::get_main_expr() const { return expr::null(); }
+optional<expr> assumption_justification::get_main_expr() const { return optional<expr>(); }
 format assumption_justification::pp_header(formatter const &, options const &) const {
     return format{format("Assumption"), space(), format(m_idx)};
 }

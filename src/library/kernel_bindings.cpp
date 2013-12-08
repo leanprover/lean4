@@ -162,7 +162,7 @@ static int local_entry_mk_lift(lua_State * L) {
 }
 
 static int local_entry_mk_inst(lua_State * L) {
-    return push_local_entry(L, mk_inst(luaL_checkinteger(L, 1), to_nonnull_expr(L, 2)));
+    return push_local_entry(L, mk_inst(luaL_checkinteger(L, 1), to_expr(L, 2)));
 }
 
 static int local_entry_is_lift(lua_State * L) {
@@ -268,15 +268,16 @@ static void open_local_context(lua_State * L) {
 
 DECL_UDATA(expr)
 
-expr & to_nonnull_expr(lua_State * L, int idx) {
-    expr & r = to_expr(L, idx);
-    if (!r)
-        throw exception("non-null Lean expression expected");
-    return r;
+int push_optional_expr(lua_State * L, optional<expr> const & e) {
+    if (e)
+        push_expr(L, *e);
+    else
+        lua_pushnil(L);
+    return 1;
 }
 
 expr & to_app(lua_State * L, int idx) {
-    expr & r = to_nonnull_expr(L, idx);
+    expr & r = to_expr(L, idx);
     if (!is_app(r))
         throw exception("Lean application expression expected");
     return r;
@@ -284,14 +285,9 @@ expr & to_app(lua_State * L, int idx) {
 
 static int expr_tostring(lua_State * L) {
     std::ostringstream out;
-    expr & e = to_expr(L, 1);
-    if (e) {
-        formatter fmt = get_global_formatter(L);
-        options opts  = get_global_options(L);
-        out << mk_pair(fmt(to_expr(L, 1), opts), opts);
-    } else {
-        out << "<null-expr>";
-    }
+    formatter fmt = get_global_formatter(L);
+    options opts  = get_global_options(L);
+    out << mk_pair(fmt(to_expr(L, 1), opts), opts);
     lua_pushstring(L, out.str().c_str());
     return 1;
 }
@@ -320,39 +316,39 @@ static int expr_mk_app(lua_State * L) {
         throw exception("application must have at least two arguments");
     buffer<expr> args;
     for (int i = 1; i <= nargs; i++)
-        args.push_back(to_nonnull_expr(L, i));
+        args.push_back(to_expr(L, i));
     return push_expr(L, mk_app(args));
 }
 
 static int expr_mk_eq(lua_State * L) {
-    return push_expr(L, mk_eq(to_nonnull_expr(L, 1), to_nonnull_expr(L, 2)));
+    return push_expr(L, mk_eq(to_expr(L, 1), to_expr(L, 2)));
 }
 
 static int expr_mk_lambda(lua_State * L) {
-    return push_expr(L, mk_lambda(to_name_ext(L, 1), to_nonnull_expr(L, 2), to_nonnull_expr(L, 3)));
+    return push_expr(L, mk_lambda(to_name_ext(L, 1), to_expr(L, 2), to_expr(L, 3)));
 }
 
 static int expr_mk_pi(lua_State * L) {
-    return push_expr(L, mk_pi(to_name_ext(L, 1), to_nonnull_expr(L, 2), to_nonnull_expr(L, 3)));
+    return push_expr(L, mk_pi(to_name_ext(L, 1), to_expr(L, 2), to_expr(L, 3)));
 }
 
 static int expr_mk_arrow(lua_State * L) {
-    return push_expr(L, mk_arrow(to_nonnull_expr(L, 1), to_nonnull_expr(L, 2)));
+    return push_expr(L, mk_arrow(to_expr(L, 1), to_expr(L, 2)));
 }
 
 static int expr_mk_let(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 3)
-        return push_expr(L, mk_let(to_name_ext(L, 1), expr(), to_nonnull_expr(L, 2), to_nonnull_expr(L, 3)));
+        return push_expr(L, mk_let(to_name_ext(L, 1), to_expr(L, 2), to_expr(L, 3)));
     else
-        return push_expr(L, mk_let(to_name_ext(L, 1), to_nonnull_expr(L, 2), to_nonnull_expr(L, 3), to_nonnull_expr(L, 4)));
+        return push_expr(L, mk_let(to_name_ext(L, 1), to_expr(L, 2), to_expr(L, 3), to_expr(L, 4)));
 }
 
 static expr get_expr_from_table(lua_State * L, int t, int i) {
     lua_pushvalue(L, t); // push table to the top
     lua_pushinteger(L, i);
     lua_gettable(L, -2);
-    expr r = to_nonnull_expr(L, -1);
+    expr r = to_expr(L, -1);
     lua_pop(L, 2); // remove table and value
     return r;
 }
@@ -385,7 +381,7 @@ int expr_abst(lua_State * L) {
         int len = objlen(L, 1);
         if (len == 0)
             throw exception("function expects arg #1 to be a non-empty table");
-        expr r = to_nonnull_expr(L, 2);
+        expr r = to_expr(L, 2);
         for (int i = len; i >= 1; i--) {
             auto p = get_expr_pair_from_table(L, 1, i);
             r = F1(p.first, p.second, r);
@@ -394,12 +390,12 @@ int expr_abst(lua_State * L) {
     } else {
         if (nargs % 2 == 0)
             throw exception("function must have an odd number of arguments");
-        expr r = to_nonnull_expr(L, nargs);
+        expr r = to_expr(L, nargs);
         for (int i = nargs - 1; i >= 1; i-=2) {
             if (is_expr(L, i - 1))
-                r = F1(to_nonnull_expr(L, i - 1), to_nonnull_expr(L, i), r);
+                r = F1(to_expr(L, i - 1), to_expr(L, i), r);
             else
-                r = F2(to_name_ext(L, i - 1), to_nonnull_expr(L, i), r);
+                r = F2(to_name_ext(L, i - 1), to_expr(L, i), r);
         }
         return push_expr(L, r);
     }
@@ -425,19 +421,14 @@ static int expr_mk_metavar(lua_State * L) {
         return push_expr(L, mk_metavar(to_name_ext(L, 1), to_local_context(L, 2)));
 }
 
-static int expr_is_null(lua_State * L) {
-    lua_pushboolean(L, !to_expr(L, 1));
-    return 1;
-}
-
 static int expr_get_kind(lua_State * L) {
-    lua_pushinteger(L, static_cast<int>(to_nonnull_expr(L, 1).kind()));
+    lua_pushinteger(L, static_cast<int>(to_expr(L, 1).kind()));
     return 1;
 }
 
 #define EXPR_PRED(P)                                    \
 static int expr_ ## P(lua_State * L) {                  \
-    lua_pushboolean(L, P(to_nonnull_expr(L, 1)));       \
+    lua_pushboolean(L, P(to_expr(L, 1)));       \
     return 1;                                           \
 }
 
@@ -502,7 +493,7 @@ static int expr_arg(lua_State * L) {
 }
 
 static int expr_fields(lua_State * L) {
-    expr & e = to_nonnull_expr(L, 1);
+    expr & e = to_expr(L, 1);
     switch (e.kind()) {
     case expr_kind::Var:      lua_pushinteger(L, var_idx(e)); return 1;
     case expr_kind::Constant: return push_name(L, const_name(e));
@@ -511,8 +502,10 @@ static int expr_fields(lua_State * L) {
     case expr_kind::App:      lua_pushinteger(L, num_args(e)); expr_args(L); return 2;
     case expr_kind::Eq:       push_expr(L, eq_lhs(e)); push_expr(L, eq_rhs(e)); return 2;
     case expr_kind::Lambda:
-    case expr_kind::Pi:       push_name(L, abst_name(e)); push_expr(L, abst_domain(e)); push_expr(L, abst_body(e)); return 3;
-    case expr_kind::Let:      push_name(L, let_name(e));  push_expr(L, let_type(e)); push_expr(L, let_value(e)); push_expr(L, let_body(e)); return 4;
+    case expr_kind::Pi:
+        push_name(L, abst_name(e)); push_expr(L, abst_domain(e)); push_expr(L, abst_body(e)); return 3;
+    case expr_kind::Let:
+        push_name(L, let_name(e));  push_optional_expr(L, let_type(e)); push_expr(L, let_value(e)); push_expr(L, let_body(e)); return 4;
     case expr_kind::MetaVar:  push_name(L, metavar_name(e)); push_local_context(L, metavar_lctx(e)); return 2;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
@@ -520,7 +513,7 @@ static int expr_fields(lua_State * L) {
 }
 
 static int expr_for_each(lua_State * L) {
-    expr & e = to_nonnull_expr(L, 1);    // expr
+    expr & e = to_expr(L, 1);    // expr
     luaL_checktype(L, 2, LUA_TFUNCTION); // user-fun
     auto f = [&](expr const & a, unsigned offset) {
         lua_pushvalue(L, 2); // push user-fun
@@ -619,7 +612,6 @@ static const struct luaL_Reg expr_m[] = {
     {"__lt",            safe_function<expr_lt>},
     {"__call",          safe_function<expr_mk_app>},
     {"kind",            safe_function<expr_get_kind>},
-    {"is_null",         safe_function<expr_is_null>},
     {"is_var",          safe_function<expr_is_var>},
     {"is_constant",     safe_function<expr_is_constant>},
     {"is_app",          safe_function<expr_is_app>},
@@ -709,14 +701,14 @@ DECL_UDATA(context_entry)
 static int mk_context_entry(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 2)
-        return push_context_entry(L, context_entry(to_name_ext(L, 1), to_nonnull_expr(L, 2)));
+        return push_context_entry(L, context_entry(to_name_ext(L, 1), to_expr(L, 2)));
     else
-        return push_context_entry(L, context_entry(to_name_ext(L, 1), to_nonnull_expr(L, 2), to_nonnull_expr(L, 3)));
+        return push_context_entry(L, context_entry(to_name_ext(L, 1), to_expr(L, 2), to_expr(L, 3)));
 }
 
 static int context_entry_get_name(lua_State * L) { return push_name(L, to_context_entry(L, 1).get_name()); }
-static int context_entry_get_domain(lua_State * L) { return push_expr(L, to_context_entry(L, 1).get_domain()); }
-static int context_entry_get_body(lua_State * L) { return push_expr(L, to_context_entry(L, 1).get_body()); }
+static int context_entry_get_domain(lua_State * L) { return push_optional_expr(L, to_context_entry(L, 1).get_domain()); }
+static int context_entry_get_body(lua_State * L) { return push_optional_expr(L, to_context_entry(L, 1).get_body()); }
 
 static const struct luaL_Reg context_entry_m[] = {
     {"__gc",            context_entry_gc}, // never throws
@@ -743,11 +735,14 @@ static int mk_context(lua_State * L) {
         return push_context(L, context());
     } else if (nargs == 2) {
         context_entry & e = to_context_entry(L, 2);
-        return push_context(L, context(to_context(L, 1), e.get_name(), e.get_domain(), e.get_body()));
+        return push_context(L, context(to_context(L, 1), e));
     } else if (nargs == 3) {
-        return push_context(L, context(to_context(L, 1), to_name_ext(L, 2), to_nonnull_expr(L, 3)));
+        return push_context(L, context(to_context(L, 1), to_name_ext(L, 2), to_expr(L, 3)));
     } else {
-        return push_context(L, context(to_context(L, 1), to_name_ext(L, 2), to_expr(L, 3), to_nonnull_expr(L, 4)));
+        if (lua_isnil(L, 3))
+            return push_context(L, context(to_context(L, 1), to_name_ext(L, 2), optional<expr>(), to_expr(L, 4)));
+        else
+            return push_context(L, context(to_context(L, 1), to_name_ext(L, 2), to_expr(L, 3), to_expr(L, 4)));
     }
 }
 
@@ -979,33 +974,33 @@ static int environment_add_definition(lua_State * L) {
     rw_environment env(L, 1);
     int nargs = lua_gettop(L);
     if (nargs == 3) {
-        env->add_definition(to_name_ext(L, 2), to_nonnull_expr(L, 3));
+        env->add_definition(to_name_ext(L, 2), to_expr(L, 3));
     } else if (nargs == 4) {
         if (is_expr(L, 4))
-            env->add_definition(to_name_ext(L, 2), to_nonnull_expr(L, 3), to_nonnull_expr(L, 4));
+            env->add_definition(to_name_ext(L, 2), to_expr(L, 3), to_expr(L, 4));
         else
-            env->add_definition(to_name_ext(L, 2), to_nonnull_expr(L, 3), lua_toboolean(L, 4));
+            env->add_definition(to_name_ext(L, 2), to_expr(L, 3), lua_toboolean(L, 4));
     } else {
-        env->add_definition(to_name_ext(L, 2), to_nonnull_expr(L, 3), to_nonnull_expr(L, 4), lua_toboolean(L, 5));
+        env->add_definition(to_name_ext(L, 2), to_expr(L, 3), to_expr(L, 4), lua_toboolean(L, 5));
     }
     return 0;
 }
 
 static int environment_add_theorem(lua_State * L) {
     rw_environment env(L, 1);
-    env->add_theorem(to_name_ext(L, 2), to_nonnull_expr(L, 3), to_nonnull_expr(L, 4));
+    env->add_theorem(to_name_ext(L, 2), to_expr(L, 3), to_expr(L, 4));
     return 0;
 }
 
 static int environment_add_var(lua_State * L) {
     rw_environment env(L, 1);
-    env->add_var(to_name_ext(L, 2), to_nonnull_expr(L, 3));
+    env->add_var(to_name_ext(L, 2), to_expr(L, 3));
     return 0;
 }
 
 static int environment_add_axiom(lua_State * L) {
     rw_environment env(L, 1);
-    env->add_axiom(to_name_ext(L, 2), to_nonnull_expr(L, 3));
+    env->add_axiom(to_name_ext(L, 2), to_expr(L, 3));
     return 0;
 }
 
@@ -1024,18 +1019,18 @@ static int environment_check_type(lua_State * L) {
     ro_environment env(L, 1);
     int nargs = lua_gettop(L);
     if (nargs == 2)
-        return push_expr(L, env->infer_type(to_nonnull_expr(L, 2)));
+        return push_expr(L, env->infer_type(to_expr(L, 2)));
     else
-        return push_expr(L, env->infer_type(to_nonnull_expr(L, 2), to_context(L, 3)));
+        return push_expr(L, env->infer_type(to_expr(L, 2), to_context(L, 3)));
 }
 
 static int environment_normalize(lua_State * L) {
     ro_environment env(L, 1);
     int nargs = lua_gettop(L);
     if (nargs == 2)
-        return push_expr(L, env->normalize(to_nonnull_expr(L, 2)));
+        return push_expr(L, env->normalize(to_expr(L, 2)));
     else
-        return push_expr(L, env->normalize(to_nonnull_expr(L, 2), to_context(L, 3)));
+        return push_expr(L, env->normalize(to_expr(L, 2), to_context(L, 3)));
 }
 
 /**
@@ -1081,9 +1076,9 @@ static int environment_infer_type(lua_State * L) {
     int nargs = lua_gettop(L);
     type_inferer inferer(to_environment(L, 1));
     if (nargs == 2)
-        return push_expr(L, inferer(to_nonnull_expr(L, 2)));
+        return push_expr(L, inferer(to_expr(L, 2)));
     else
-        return push_expr(L, inferer(to_nonnull_expr(L, 2), to_context(L, 3)));
+        return push_expr(L, inferer(to_expr(L, 2), to_context(L, 3)));
 }
 
 static int environment_tostring(lua_State * L) {
@@ -1303,6 +1298,14 @@ static void open_object(lua_State * L) {
 
 DECL_UDATA(justification)
 
+int push_optional_justification(lua_State * L, optional<justification> const & j) {
+    if (j)
+        push_justification(L, *j);
+    else
+        lua_pushnil(L);
+    return 1;
+}
+
 static int justification_tostring(lua_State * L) {
     std::ostringstream out;
     justification & jst = to_justification(L, 1);
@@ -1359,7 +1362,12 @@ static int justification_children(lua_State * L) {
 }
 
 static int justification_get_main_expr(lua_State * L) {
-    return push_expr(L, to_justification(L, 1).get_main_expr());
+    optional<expr> r = to_justification(L, 1).get_main_expr();
+    if (r)
+        push_expr(L, *r);
+    else
+        lua_pushnil(L);
+    return 1;
 }
 
 static int justification_pp(lua_State * L) {
@@ -1437,7 +1445,7 @@ static int menv_mk_metavar(lua_State * L) {
     } else if (nargs == 2) {
         return push_expr(L, to_metavar_env(L, 1).mk_metavar(to_context(L, 2)));
     } else {
-        return push_expr(L, to_metavar_env(L, 1).mk_metavar(to_context(L, 2), to_expr(L, 3)));
+        return push_expr(L, to_metavar_env(L, 1).mk_metavar(to_context(L, 2), optional<expr>(to_expr(L, 3))));
     }
 }
 
@@ -1500,29 +1508,32 @@ static int menv_assign(lua_State * L) {
 
 static int menv_get_subst(lua_State * L) {
     if (is_expr(L, 2))
-        return push_expr(L, to_metavar_env(L, 1).get_subst(to_metavar(L, 2)));
+        return push_optional_expr(L, to_metavar_env(L, 1).get_subst(to_metavar(L, 2)));
     else
-        return push_expr(L, to_metavar_env(L, 1).get_subst(to_name_ext(L, 2)));
+        return push_optional_expr(L, to_metavar_env(L, 1).get_subst(to_name_ext(L, 2)));
 }
 
 static int menv_get_justification(lua_State * L) {
     if (is_expr(L, 2))
-        return push_justification(L, to_metavar_env(L, 1).get_justification(to_metavar(L, 2)));
+        return push_optional_justification(L, to_metavar_env(L, 1).get_justification(to_metavar(L, 2)));
     else
-        return push_justification(L, to_metavar_env(L, 1).get_justification(to_name_ext(L, 2)));
+        return push_optional_justification(L, to_metavar_env(L, 1).get_justification(to_name_ext(L, 2)));
 }
 
 static int menv_get_subst_jst(lua_State * L) {
+    optional<std::pair<expr, justification>> r;
     if (is_expr(L, 2)) {
-        auto p = to_metavar_env(L, 1).get_subst_jst(to_metavar(L, 2));
-        push_expr(L, p.first);
-        push_justification(L, p.second);
+        r = to_metavar_env(L, 1).get_subst_jst(to_metavar(L, 2));
     } else {
-        auto p = to_metavar_env(L, 1).get_subst_jst(to_name_ext(L, 2));
-        push_expr(L, p.first);
-        push_justification(L, p.second);
+        r = to_metavar_env(L, 1).get_subst_jst(to_name_ext(L, 2));
     }
-    return 2;
+    if (r) {
+        push_expr(L, r->first);
+        push_justification(L, r->second);
+        return 2;
+    } else {
+        return 0;
+    }
 }
 
 static int menv_for_each_subst(lua_State * L) {

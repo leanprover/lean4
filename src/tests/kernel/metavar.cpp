@@ -61,7 +61,7 @@ static void tst1() {
     menv.assign(m1, f(a));
     lean_assert(menv.is_assigned(m1));
     lean_assert(!menv.is_assigned(m2));
-    lean_assert(menv.get_subst(m1) == f(a));
+    lean_assert(*(menv.get_subst(m1)) == f(a));
 }
 
 static void tst2() {

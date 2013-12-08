@@ -184,9 +184,9 @@ tactic suppress_trace(tactic const & t) {
 tactic assumption_tactic() {
     return mk_tactic01([](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             list<std::pair<name, expr>> proofs;
-            goals new_gs = map_goals(s, [&](name const & gname, goal const & g) -> goal {
+            goals new_gs = map_goals(s, [&](name const & gname, goal const & g) -> optional<goal> {
                     expr const & c  = g.get_conclusion();
-                    expr pr;
+                    optional<expr> pr;
                     for (auto const & p : g.get_hypotheses()) {
                         check_interrupted();
                         if (p.second == c) {
@@ -195,10 +195,10 @@ tactic assumption_tactic() {
                         }
                     }
                     if (pr) {
-                        proofs.emplace_front(gname, pr);
-                        return goal();
+                        proofs.emplace_front(gname, *pr);
+                        return optional<goal>();
                     } else {
-                        return g;
+                        return some(g);
                     }
                 });
             if (empty(proofs))
@@ -410,13 +410,13 @@ public:
 };
 
 optional<proof_state> unfold_tactic_core(unfold_core_fn & fn, proof_state const & s) {
-    goals new_gs = map_goals(s, [&](name const &, goal const & g) -> goal {
+    goals new_gs = map_goals(s, [&](name const &, goal const & g) -> optional<goal> {
             hypotheses new_hs = map(g.get_hypotheses(), [&](hypothesis const & h) { return hypothesis(h.first, fn(h.second)); });
             expr       new_c  = fn(g.get_conclusion());
-            return goal(new_hs, new_c);
+            return some(goal(new_hs, new_c));
         });
     if (fn.unfolded()) {
-        return proof_state(s, new_gs);
+        return some(proof_state(s, new_gs));
     } else {
         return none_proof_state();
     }
@@ -464,13 +464,13 @@ public:
 tactic beta_tactic() {
     return mk_tactic01([=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             beta_fn fn;
-            goals new_gs = map_goals(s, [&](name const &, goal const & g) -> goal {
+            goals new_gs = map_goals(s, [&](name const &, goal const & g) -> optional<goal> {
                     hypotheses new_hs = map(g.get_hypotheses(), [&](hypothesis const & h) { return hypothesis(h.first, fn(h.second)); });
                     expr       new_c  = fn(g.get_conclusion());
-                    return goal(new_hs, new_c);
+                    return some(goal(new_hs, new_c));
                 });
             if (fn.reduced()) {
-                return proof_state(s, new_gs);
+                return some(proof_state(s, new_gs));
             } else {
                 return none_proof_state();
             }
@@ -660,10 +660,10 @@ static int tactic_solve(lua_State * L) {
         } else {
             io_state * ios = get_io_state(L);
             check_ios(ios);
-            return tactic_solve_core(L, t, env, *ios, to_context(L, 3), to_nonnull_expr(L, 4));
+            return tactic_solve_core(L, t, env, *ios, to_context(L, 3), to_expr(L, 4));
         }
     } else {
-        return tactic_solve_core(L, t, env, to_io_state(L, 3), to_context(L, 4), to_nonnull_expr(L, 5));
+        return tactic_solve_core(L, t, env, to_io_state(L, 3), to_context(L, 4), to_expr(L, 5));
     }
 }
 

@@ -355,9 +355,7 @@ static void tst18() {
 
 int main() {
     save_stack_info();
-    std::cout << "sizeof(expr):      " << sizeof(expr) << "\n";
-    std::cout << "sizeof(expr_app):  " << sizeof(expr_app) << "\n";
-    std::cout << "sizeof(expr_cell): " << sizeof(expr_cell) << "\n";
+    lean_assert(sizeof(expr) == sizeof(optional<expr>));
     tst1();
     tst2();
     tst3();
@@ -376,6 +374,11 @@ int main() {
     tst16();
     tst17();
     tst18();
+    std::cout << "sizeof(expr):            " << sizeof(expr) << "\n";
+    std::cout << "sizeof(expr_app):        " << sizeof(expr_app) << "\n";
+    std::cout << "sizeof(expr_cell):       " << sizeof(expr_cell) << "\n";
+    std::cout << "sizeof(optional<expr>):  " << sizeof(optional<expr>) << "\n";
+    std::cout << "sizeof(optional<sexpr>): " << sizeof(optional<sexpr>) << "\n";
     std::cout << "done" << "\n";
     return has_violations() ? 1 : 0;
 }

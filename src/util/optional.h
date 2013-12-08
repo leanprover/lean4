@@ -110,4 +110,40 @@ public:
 
 template<typename T> optional<T> some(T const & t) { return optional<T>(t); }
 template<typename T> optional<T> some(T && t) { return optional<T>(std::forward<T>(t)); }
+
+// The following macro creates a template specialization optional<P>, where P
+// is an intrusive smart pointer that does not let "customers" point to nullptr.
+// That is, if a customer have 'P x', then x is not a pointer to nullptr.
+// Requirements:
+//  -  P must declare optional<P> as a friend.
+//  -  P must handle the nullptr case even if it does not let "customers" point to nullptr
+//  -  P must have a field m_ptr a pointer to the actual value.
+#define SPECIALIZE_OPTIONAL_FOR_SMART_PTR(P)                            \
+template<> class optional<P> {                                          \
+    P m_value;                                                          \
+public:                                                                 \
+    optional():m_value(nullptr) {}                                      \
+    optional(optional const & other):m_value(other.m_value) {}          \
+    optional(optional && other):m_value(std::forward<P>(other.m_value)) {} \
+    explicit optional(P const & v):m_value(v) {}                        \
+    explicit optional(P && v):m_value(std::forward<P>(v)) {}            \
+                                                                        \
+    explicit operator bool() const { return m_value.m_ptr != nullptr; } \
+    P const * operator->() const { lean_assert(m_value.m_ptr); return &m_value; } \
+    P * operator->() { lean_assert(m_value.m_ptr); return &m_value; }   \
+    P const & operator*() const { lean_assert(m_value.m_ptr); return m_value; } \
+    P & operator*() { lean_assert(m_value.m_ptr); return m_value; }     \
+    P const & value() const { lean_assert(m_value.m_ptr); return m_value; } \
+    P & value() { lean_assert(m_value.m_ptr); return m_value; }         \
+    optional & operator=(optional const & other) { m_value = other.m_value; return *this; } \
+    optional& operator=(optional && other) { m_value = std::forward<P>(other.m_value); return *this; } \
+    optional& operator=(P const & other) { m_value = other; return *this; } \
+    optional& operator=(P && other) { m_value = std::forward<P>(other); return *this; } \
+    friend bool operator==(optional const & o1, optional const & o2) {  \
+        return static_cast<bool>(o1) == static_cast<bool>(o2) && (!o1 || o1.m_value == o2.m_value); \
+    }                                                                   \
+    friend bool operator!=(optional const & o1, optional const & o2) {  \
+        return !operator==(o1, o2);                                     \
+    }                                                                   \
+};
 }

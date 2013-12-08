@@ -100,9 +100,10 @@ public:
 class expr {
 private:
     expr_cell * m_ptr;
-    explicit expr(expr_cell * ptr):m_ptr(ptr) {}
+    explicit expr(expr_cell * ptr):m_ptr(ptr) { if (m_ptr) m_ptr->inc_ref(); }
     friend class expr_cell;
     expr_cell * steal_ptr() { expr_cell * r = m_ptr; m_ptr = nullptr; return r; }
+    friend class optional<expr>;
 public:
     expr();
     expr(expr const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
@@ -135,10 +136,6 @@ public:
     friend expr mk_metavar(name const & n, local_context const & ctx);
 
     friend bool is_eqp(expr const & a, expr const & b) { return a.m_ptr == b.m_ptr; }
-    friend bool is_eqp(optional<expr> const & a, optional<expr> const & b) {
-        return static_cast<bool>(a) == static_cast<bool>(b) && (!a || is_eqp(*a, *b));
-    }
-
     // Overloaded operator() can be used to create applications
     expr operator()(expr const & a1) const;
     expr operator()(expr const & a1, expr const & a2) const;
@@ -149,6 +146,18 @@ public:
     expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5, expr const & a6, expr const & a7) const;
     expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5, expr const & a6, expr const & a7, expr const & a8) const;
 };
+
+// =======================================
+// Structural equality
+       bool operator==(expr const & a, expr const & b);
+inline bool operator!=(expr const & a, expr const & b) { return !operator==(a, b); }
+// =======================================
+
+SPECIALIZE_OPTIONAL_FOR_SMART_PTR(expr)
+
+inline bool is_eqp(optional<expr> const & a, optional<expr> const & b) {
+    return static_cast<bool>(a) == static_cast<bool>(b) && (!a || is_eqp(*a, *b));
+}
 
 // =======================================
 // Expr (internal) Representation
@@ -511,12 +520,6 @@ inline local_context const & metavar_lctx(expr const & e) { return to_metavar(e)
 inline bool has_metavar(expr const & e) { return e.has_metavar(); }
 
 bool is_eq(expr const & e, expr & lhs, expr & rhs);
-// =======================================
-
-// =======================================
-// Structural equality
-       bool operator==(expr const & a, expr const & b);
-inline bool operator!=(expr const & a, expr const & b) { return !operator==(a, b); }
 // =======================================
 
 // =======================================

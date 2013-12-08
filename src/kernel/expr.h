@@ -105,14 +105,20 @@ private:
     expr_cell * steal_ptr() { expr_cell * r = m_ptr; m_ptr = nullptr; return r; }
     friend class optional<expr>;
 public:
+    /**
+      \brief The default constructor creates a reference to a "dummy"
+      expression.  The actual "dummy" expression is not relevant, and
+      no procedure should rely on the kind of expression used.
+
+      We have a default constructor because some collections only work
+      with types that have a default constructor.
+    */
     expr();
     expr(expr const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     expr(expr && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~expr() { if (m_ptr) m_ptr->dec_ref(); }
 
     friend void swap(expr & a, expr & b) { std::swap(a.m_ptr, b.m_ptr); }
-
-    void release() { if (m_ptr) m_ptr->dec_ref(); m_ptr = nullptr; }
 
     expr & operator=(expr const & s) { LEAN_COPY_REF(expr, s); }
     expr & operator=(expr && s) { LEAN_MOVE_REF(expr, s); }

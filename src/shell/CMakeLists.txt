@@ -4,7 +4,21 @@ add_executable(lean lean.cpp)
 add_dependencies(lean githash)
 target_link_libraries(lean ${EXTRA_LIBS})
 
-add_test(example1_stdin ${CMAKE_CURRENT_BINARY_DIR}/lean < "${LEAN_SOURCE_DIR}/../examples/lean/ex1.lean")
+add_test(example1_stdin1 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
+add_test(example1_stdin2 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_CURRENT_BINARY_DIR}/lean "-l" "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
+add_test(example1_stdin3 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_CURRENT_BINARY_DIR}/lean "--lean" "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
+add_test(lean_help1 ${CMAKE_CURRENT_BINARY_DIR}/lean --help)
+add_test(lean_help2 ${CMAKE_CURRENT_BINARY_DIR}/lean --h)
+add_test(lean_version1 ${CMAKE_CURRENT_BINARY_DIR}/lean --version)
+add_test(lean_version2 ${CMAKE_CURRENT_BINARY_DIR}/lean --v)
+add_test(lean_ghash1 ${CMAKE_CURRENT_BINARY_DIR}/lean -g)
+add_test(lean_ghash2 ${CMAKE_CURRENT_BINARY_DIR}/lean --githash)
+add_test(lean_luahook1 ${CMAKE_CURRENT_BINARY_DIR}/lean --luahook=100 "${LEAN_SOURCE_DIR}/../tests/lua/big.lua")
+add_test(lean_luahook2 ${CMAKE_CURRENT_BINARY_DIR}/lean -c 100 "${LEAN_SOURCE_DIR}/../tests/lua/big.lua")
+add_test(lean_lua1 ${LEAN_SOURCE_DIR}/cmake/redirect.sh "${CMAKE_CURRENT_BINARY_DIR}/lean" "--lua" "${LEAN_SOURCE_DIR}/../tests/lua/single.lua")
+add_test(lean_lua2 ${LEAN_SOURCE_DIR}/cmake/redirect.sh "${CMAKE_CURRENT_BINARY_DIR}/lean" "-u" "${LEAN_SOURCE_DIR}/../tests/lua/single.lua")
+add_test(lean_unknown_option ${LEAN_SOURCE_DIR}/cmake/check_failure.sh "${CMAKE_CURRENT_BINARY_DIR}/lean" "-z")
+
 
 # LEAN EXAMPLES
 file(GLOB LEANEXAMPLES "${LEAN_SOURCE_DIR}/../examples/lean/*.lean")

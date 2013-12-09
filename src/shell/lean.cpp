@@ -15,9 +15,12 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 #include "util/script_state.h"
 #include "kernel/printer.h"
+#include "library/io_state.h"
+#include "library/kernel_bindings.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lua/register_modules.h"
+#include "shell/lua_repl.h"
 #include "version.h"
 #include "githash.h" // NOLINT
 
@@ -83,7 +86,7 @@ int main(int argc, char ** argv) {
     lean::register_modules();
     input_kind default_k = input_kind::Lean; // default
     while (true) {
-        int c = getopt_long(argc, argv, "gvhc:012", g_long_options, &optind);
+        int c = getopt_long(argc, argv, "lugvhc:012", g_long_options, &optind);
         if (c == -1)
             break; // end of command line
         switch (c) {
@@ -111,19 +114,27 @@ int main(int argc, char ** argv) {
             return 1;
         }
     }
-    frontend f;
-    script_state S;
     if (optind >= argc) {
         display_header(std::cout);
-        #if defined(LEAN_WINDOWS)
-        std::cout << "Type 'Exit.' to exit or 'Help.' for help."<< std::endl;
-        #else
-        std::cout << "Type Ctrl-D or 'Exit.' to exit or 'Help.' for help."<< std::endl;
-        #endif
-        shell sh(f, &S);
         signal(SIGINT, on_ctrl_c);
-        return sh();
+        if (default_k == input_kind::Lean) {
+            #if defined(LEAN_WINDOWS)
+            std::cout << "Type 'Exit.' to exit or 'Help.' for help."<< std::endl;
+            #else
+            std::cout << "Type Ctrl-D or 'Exit.' to exit or 'Help.' for help."<< std::endl;
+            #endif
+            frontend f;
+            script_state S;
+            shell sh(f, &S);
+            return sh() ? 0 : 1;
+        } else {
+            lean_assert(default_k == input_kind::Lua);
+            script_state S;
+            S.dostring(g_lua_repl);
+        }
     } else {
+        frontend f;
+        script_state S;
         bool ok = true;
         for (int i = optind; i < argc; i++) {
             char const * ext = get_file_extension(argv[i]);

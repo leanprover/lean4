@@ -38,7 +38,7 @@ public:
         \brief Return environment object associated with this formatter.
         Not every formatter has an associated environment object.
     */
-    virtual optional<environment> get_environment() { return optional<environment>(); }
+    virtual optional<environment> get_environment() const { return optional<environment>(); }
 };
 /**
    \brief Smart-pointer for the actual formatter object (aka \c formatter_cell).
@@ -54,11 +54,12 @@ public:
     format operator()(environment const & env, options const & opts = options()) const { return (*m_cell)(env, opts); }
     optional<environment> get_environment() { return m_cell->get_environment(); }
 
-    template<typename FCell>
-    friend formatter mk_formatter(FCell && fcell) {
-        return formatter(new FCell(std::forward<FCell>(fcell)));
-    }
+    template<typename FCell> friend formatter mk_formatter(FCell && fcell);
 };
+
+template<typename FCell> formatter mk_formatter(FCell && fcell) {
+    return formatter(new FCell(std::forward<FCell>(fcell)));
+}
 
 /**
    \brief Create a simple formatter object based on \c print function.

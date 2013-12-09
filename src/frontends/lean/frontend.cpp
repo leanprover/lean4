@@ -360,10 +360,44 @@ static lean_extension & to_ext(environment & env) {
     return env.get_extension<lean_extension>(g_lean_extension_initializer.m_extid);
 }
 
+
+bool is_explicit(environment const & env, name const & n) {
+    return to_ext(env).is_explicit(n);
+}
+
+bool has_implicit_arguments(environment const & env, name const & n) {
+    return to_ext(env).has_implicit_arguments(n);
+}
+
+name const & get_explicit_version(environment const & env, name const & n) {
+    return to_ext(env).get_explicit_version(n);
+}
+
+std::vector<bool> const & get_implicit_arguments(environment const & env, name const & n) {
+    return to_ext(env).get_implicit_arguments(n);
+}
+
+bool is_coercion(environment const & env, expr const & f) {
+    return to_ext(env).is_coercion(f);
+}
+
+operator_info find_op_for(environment const & env, expr const & n, bool unicode) {
+    operator_info r = to_ext(env).find_op_for(n, unicode);
+    if (r || !is_constant(n)) {
+        return r;
+    } else {
+        optional<object> obj = env.find_object(const_name(n));
+        if (obj && obj->is_builtin() && obj->get_name() == const_name(n))
+            return to_ext(env).find_op_for(obj->get_value(), unicode);
+        else
+            return r;
+    }
+}
+
 frontend::frontend() {
+    m_state.set_formatter(mk_pp_formatter(m_env));
     import_all(m_env);
     init_builtin_notation(*this);
-    m_state.set_formatter(mk_pp_formatter(*this));
 }
 frontend::frontend(environment const & env, io_state const & s):m_env(env), m_state(s) {
     import_all(m_env);
@@ -398,16 +432,7 @@ void frontend::add_mixfixo(unsigned sz, name const * opns, unsigned p, expr cons
     to_ext(m_env).add_op(mixfixo(sz, opns, p), d, true, m_env, m_state);
 }
 operator_info frontend::find_op_for(expr const & n, bool unicode) const {
-    operator_info r = to_ext(m_env).find_op_for(n, unicode);
-    if (r || !is_constant(n)) {
-        return r;
-    } else {
-        optional<object> obj = find_object(const_name(n));
-        if (obj && obj->is_builtin() && obj->get_name() == const_name(n))
-            return to_ext(m_env).find_op_for(obj->get_value(), unicode);
-        else
-            return r;
-    }
+    return ::lean::find_op_for(m_env, n, unicode);
 }
 operator_info frontend::find_nud(name const & n) const {
     return to_ext(m_env).find_nud(n);

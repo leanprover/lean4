@@ -153,7 +153,7 @@ class pp_fn {
     typedef scoped_map<expr, name, expr_hash_alloc, expr_eqp> aliases;
     typedef std::vector<std::pair<name, format>>              aliases_defs;
     typedef scoped_set<name, name_hash, name_eq>              local_names;
-    frontend const & m_frontend;
+    environment::weak_ref     m_env;
     // State
     aliases          m_aliases;
     aliases_defs     m_aliases_defs;
@@ -170,6 +170,10 @@ class pp_fn {
     bool             m_notation;         //!< if true use notation
     bool             m_extra_lets;       //!< introduce extra let-expression to cope with sharing.
     unsigned         m_alias_min_weight; //!< minimal weight for creating an alias
+
+    environment env() const {
+        return environment(m_env);
+    }
 
     // Create a scope for local definitions
     struct mk_scope {
@@ -190,7 +194,7 @@ class pp_fn {
     typedef std::pair<format, unsigned> result;
 
     bool is_coercion(expr const & e) {
-        return is_app(e) && num_args(e) == 2 && m_frontend.is_coercion(arg(e, 0));
+        return is_app(e) && num_args(e) == 2 && ::lean::is_coercion(env(), arg(e, 0));
     }
 
     /**
@@ -229,7 +233,7 @@ class pp_fn {
     }
 
     bool has_implicit_arguments(name const & n) const {
-        return m_frontend.has_implicit_arguments(n) && m_local_names.find(n) == m_local_names.end();
+        return ::lean::has_implicit_arguments(env(), n) && m_local_names.find(n) == m_local_names.end();
     }
 
     result pp_constant(expr const & e) {
@@ -237,7 +241,7 @@ class pp_fn {
         if (is_placeholder(e)) {
             return mk_result(format("_"), 1);
         } else if (has_implicit_arguments(n)) {
-            return mk_result(format(m_frontend.get_explicit_version(n)), 1);
+            return mk_result(format(get_explicit_version(env(), n)), 1);
         } else {
             return mk_result(format(n), 1);
         }
@@ -246,7 +250,7 @@ class pp_fn {
     result pp_value(expr const & e) {
         value const & v = to_value(e);
         if (has_implicit_arguments(v.get_name())) {
-            return mk_result(format(m_frontend.get_explicit_version(v.get_name())), 1);
+            return mk_result(format(get_explicit_version(env(), v.get_name())), 1);
         } else {
             return mk_result(v.pp(m_unicode, m_coercion), 1);
         }
@@ -395,7 +399,7 @@ class pp_fn {
         if (is_constant(e) && m_local_names.find(const_name(e)) != m_local_names.end())
             return operator_info();
         else
-            return m_frontend.find_op_for(e, m_unicode);
+            return ::lean::find_op_for(env(), e, m_unicode);
     }
 
     /**
@@ -518,18 +522,18 @@ class pp_fn {
         }
 
         application(expr const & e, pp_fn const & owner, bool show_implicit):m_app(e) {
-            frontend const & fe = owner.m_frontend;
+            environment const & env = owner.env();
             expr const & f = arg(e, 0);
             if (has_implicit_arguments(owner, f)) {
                 name const & n = is_constant(f) ? const_name(f) : to_value(f).get_name();
-                m_implicit_args = &(fe.get_implicit_arguments(n));
+                m_implicit_args = &(get_implicit_arguments(env, n));
                 if (show_implicit || num_args(e) - 1 < m_implicit_args->size()) {
                     // we are showing implicit arguments, thus we do
                     // not need the bit-mask for implicit arguments
                     m_implicit_args = nullptr;
                     // we use the explicit name of f, to make it clear
                     // that we are exposing implicit arguments
-                    m_f = mk_constant(fe.get_explicit_version(n));
+                    m_f = mk_constant(get_explicit_version(env, n));
                     m_notation_enabled = false;
                 } else {
                     m_f = f;
@@ -1153,8 +1157,8 @@ class pp_fn {
     }
 
 public:
-    pp_fn(frontend const & fe, options const & opts):
-        m_frontend(fe) {
+    pp_fn(environment::weak_ref const & env, options const & opts):
+        m_env(env) {
         set_options(opts);
         m_num_steps   = 0;
     }
@@ -1180,15 +1184,19 @@ public:
 };
 
 class pp_formatter_cell : public formatter_cell {
-    frontend const &         m_frontend;
+    environment::weak_ref     m_env;
+
+    environment env() const {
+        return environment(m_env);
+    }
 
     format pp(expr const & e, options const & opts) {
-        pp_fn fn(m_frontend, opts);
+        pp_fn fn(m_env, opts);
         return fn(e);
     }
 
     format pp(context const & c, expr const & e, bool include_e, options const & opts) {
-        pp_fn fn(m_frontend, opts);
+        pp_fn fn(m_env, opts);
         unsigned indent = get_pp_indent(opts);
         format r;
         bool first = true;
@@ -1245,9 +1253,9 @@ class pp_formatter_cell : public formatter_cell {
         } else {
             lean_assert(is_lambda(v));
             std::vector<bool> const * implicit_args = nullptr;
-            if (m_frontend.has_implicit_arguments(n))
-                implicit_args = &(m_frontend.get_implicit_arguments(n));
-            pp_fn fn(m_frontend, opts);
+            if (has_implicit_arguments(env(), n))
+                implicit_args = &(get_implicit_arguments(env(), n));
+            pp_fn fn(m_env, opts);
             format def = fn.pp_definition(v, t, implicit_args);
             return format{highlight_command(format(kwd)), space(), format(n), def};
         }
@@ -1262,9 +1270,9 @@ class pp_formatter_cell : public formatter_cell {
         char const * kwd = obj.keyword();
         name const & n = obj.get_name();
         format r = format{highlight_command(format(kwd)), space(), format(n)};
-        if (m_frontend.has_implicit_arguments(n)) {
-            pp_fn fn(m_frontend, opts);
-            r += fn.pp_pi_with_implicit_args(obj.get_type(), m_frontend.get_implicit_arguments(n));
+        if (has_implicit_arguments(env(), n)) {
+            pp_fn fn(m_env, opts);
+            r += fn.pp_pi_with_implicit_args(obj.get_type(), get_implicit_arguments(env(), n));
         } else {
             r += format{space(), colon(), space(), pp(obj.get_type(), opts)};
         }
@@ -1278,7 +1286,7 @@ class pp_formatter_cell : public formatter_cell {
     }
 
     format pp_definition(object const & obj, options const & opts) {
-        if (m_frontend.is_explicit(obj.get_name())) {
+        if (is_explicit(env(), obj.get_name())) {
             // Hide implicit arguments when pretty printing the
             // explicit version on an object.
             // We do that because otherwise it looks like a recursive definition.
@@ -1304,8 +1312,8 @@ class pp_formatter_cell : public formatter_cell {
     }
 
 public:
-    pp_formatter_cell(frontend const & fe):
-        m_frontend(fe) {
+    pp_formatter_cell(environment const & env):
+        m_env(env.to_weak_ref()) {
     }
 
     virtual ~pp_formatter_cell() {
@@ -1323,7 +1331,7 @@ public:
         if (format_ctx) {
             return pp(c, e, true, opts);
         } else {
-            pp_fn fn(m_frontend, opts);
+            pp_fn fn(m_env, opts);
             expr c2   = context_to_lambda(c, e);
             while (is_fake_context(c2)) {
                 check_interrupted();
@@ -1372,8 +1380,8 @@ public:
     }
 };
 
-formatter mk_pp_formatter(frontend const & fe) {
-    return mk_formatter(pp_formatter_cell(fe));
+formatter mk_pp_formatter(environment const & env) {
+    return mk_formatter(pp_formatter_cell(env));
 }
 
 std::ostream & operator<<(std::ostream & out, frontend const & fe) {

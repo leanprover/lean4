@@ -188,4 +188,11 @@ public:
     void set_diagnostic_channel(std::shared_ptr<output_channel> const & out) { m_state.set_diagnostic_channel(out); }
     /*@}*/
 };
+
+bool is_explicit(environment const & env, name const & n);
+bool has_implicit_arguments(environment const & env, name const & n);
+name const & get_explicit_version(environment const & env, name const & n);
+std::vector<bool> const & get_implicit_arguments(environment const & env, name const & n);
+bool is_coercion(environment const & env, expr const & f);
+operator_info find_op_for(environment const & env, expr const & e, bool unicode);
 }

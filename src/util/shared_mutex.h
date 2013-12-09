@@ -14,6 +14,7 @@
 #include "util/thread.h"
 
 namespace lean {
+#if defined(LEAN_MULTI_THREAD)
 class shared_mutex {
     mutex                   m_mutex;
     thread::id              m_rw_owner;
@@ -42,6 +43,23 @@ public:
     bool try_lock_shared();
     void unlock_shared();
 };
+#else
+class shared_mutex {
+public:
+    shared_mutex() {}
+    shared_mutex(shared_mutex const &) = delete;
+    shared_mutex(shared_mutex &&) = delete;
+    shared_mutex& operator=(shared_mutex const &) = delete;
+    shared_mutex&& operator=(shared_mutex &&) = delete;
+    void lock() {}
+    bool try_lock() { return true; }
+    void unlock() {}
+
+    void lock_shared() {}
+    bool try_lock_shared() { return true; }
+    void unlock_shared() {}
+};
+#endif
 
 class shared_lock {
     shared_mutex & m_mutex;

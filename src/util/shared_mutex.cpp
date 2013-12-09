@@ -14,6 +14,7 @@
 #include "util/shared_mutex.h"
 
 namespace lean {
+#if defined(LEAN_MULTI_THREAD)
 shared_mutex::shared_mutex():m_rw_counter(0), m_state(0) {}
 shared_mutex::~shared_mutex() {
     lock_guard<mutex> lock(m_mutex);
@@ -117,4 +118,5 @@ void shared_mutex::unlock_shared() {
             m_gate1.notify_one();
     }
 }
+#endif
 }

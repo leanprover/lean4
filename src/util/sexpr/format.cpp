@@ -8,6 +8,7 @@
 #include <string>
 #include <cstring>
 #include <utility>
+#include <vector>
 #include "util/sstream.h"
 #include "util/escaped.h"
 #include "util/interrupt.h"
@@ -71,56 +72,6 @@ bool get_pp_colors(options const & o) {
 
 unsigned get_pp_width(options const & o) {
     return o.get_unsigned(g_pp_width, LEAN_DEFAULT_PP_WIDTH);
-}
-
-std::ostream & layout(std::ostream & out, bool colors, sexpr const & s) {
-    lean_assert(!is_nil(s));
-    switch (format::sexpr_kind(s)) {
-    case format::format_kind::NEST:
-    case format::format_kind::CHOICE:
-    case format::format_kind::COMPOSE:
-    case format::format_kind::FLAT_COMPOSE:
-        lean_unreachable(); // LCOV_EXCL_LINE
-
-    case format::format_kind::NIL:
-        out << "";
-        break;
-
-    case format::format_kind::LINE:
-        out << std::endl;
-        break;
-
-    case format::format_kind::TEXT:
-    {
-        sexpr const & v = cdr(s);
-        if (is_string(v)) {
-            out << to_string(v);
-        } else {
-            out << v;
-        }
-        break;
-    }
-
-    case format::format_kind::COLOR_BEGIN:
-        if (colors) {
-            format::format_color c = static_cast<format::format_color>(to_int(cdr(s)));
-            out << "\e[" << (31 + c % 7) << "m";
-        }
-        break;
-    case format::format_kind::COLOR_END:
-        if (colors) {
-            out << "\e[0m";
-        }
-        break;
-    }
-    return out;
-}
-
-std::ostream & layout_list(std::ostream & out, bool colors, sexpr const & s) {
-    for_each(s, [&](sexpr const & s) {
-            layout(out, colors, s);
-        });
-    return out;
 }
 
 format compose(format const & f1, format const & f2) {
@@ -240,25 +191,25 @@ format wrap(format const & f1, format const & f2) {
 */
 struct space_exceeded {};
 
-// Return true iff the space upto line break fits in the available space.
-bool format::space_upto_line_break_list_exceeded(sexpr const & r, int available) {
-    // r : list of (int * format)
+/**
+   \brief Return true iff the space upto line break fits in the available space.
+*/
+bool format::space_upto_line_break_list_exceeded(sexpr const & s, int available, std::vector<std::pair<sexpr, unsigned>> const & todo) {
     try {
-        lean_assert(is_list(r));
-        sexpr list = r;
         bool found_newline = false;
-        while (!is_nil(list) && !found_newline) {
+        available -= space_upto_line_break(s, available, found_newline);
+        auto it    = todo.end();
+        auto begin = todo.begin();
+        while (it != begin && !found_newline) {
+            --it;
             if (available < 0)
                 return true;
-            sexpr const & h = cdr(car(list));
-            available -= space_upto_line_break(h, available, found_newline);
-            list = cdr(list);
+            available -= space_upto_line_break(it->first, available, found_newline);
         }
         return available < 0;
     } catch (space_exceeded) {
         return true;
     }
-    return false;
 }
 
 /**
@@ -310,66 +261,6 @@ int format::space_upto_line_break(sexpr const & s, int available, bool & found_n
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-sexpr format::be(unsigned w, unsigned k, sexpr const & s) {
-    check_system("formatter");
-    /* s = (i, v) :: z, where h has the type int x format */
-    /* ret = list of format */
-
-    if (is_nil(s)) {
-        return sexpr{};
-    }
-
-    sexpr const & h = car(s);
-    sexpr const & z = cdr(s);
-    int i = to_int(car(h));
-    sexpr const & v = cdr(h);
-
-    switch (sexpr_kind(v)) {
-    case format_kind::NIL:
-        return be(w, k, z);
-    case format_kind::COLOR_BEGIN:
-    case format_kind::COLOR_END:
-        return sexpr(v, be(w, k, z));
-    case format_kind::COMPOSE:
-    case format_kind::FLAT_COMPOSE:
-    {
-        sexpr const & list  = sexpr_compose_list(v);
-        sexpr const & list_ = foldr(list, z, [i](sexpr const & s, sexpr const & res) {
-                return sexpr(sexpr(i, s), res);
-            });
-        return be(w, k, list_);
-    }
-    case format_kind::NEST:
-    {
-        int j = sexpr_nest_i(v);
-        sexpr const & x = sexpr_nest_s(v);
-        return be(w, k, sexpr(sexpr(i + j, x), z));
-    }
-    case format_kind::TEXT:
-        return sexpr(v, be(w, k + sexpr_text_length(v), z));
-    case format_kind::LINE:
-        return sexpr(v, sexpr(sexpr_text(std::string(i, ' ')), be(w, i, z)));
-    case format_kind::CHOICE:
-    {
-        sexpr const & x = sexpr_choice_1(v);
-        sexpr const & y = sexpr_choice_2(v);;
-        int available = static_cast<int>(w) - static_cast<int>(k);
-        if (!space_upto_line_break_list_exceeded(sexpr(sexpr(i, x), z), available)) {
-            sexpr const & s1 = be(w, k, sexpr(sexpr(i, x), z));
-            return s1;
-        } else {
-            sexpr const & s2 = be(w, k, sexpr(sexpr(i, y), z));
-            return s2;
-        }
-    }
-    }
-    lean_unreachable(); // LCOV_EXCL_LINE
-}
-
-sexpr format::best(unsigned w, unsigned k, sexpr const & s) {
-    return be(w, k, sexpr{sexpr(0, s)});
-}
-
 format operator+(format const & f1, format const & f2) {
     return format{f1, f2};
 }
@@ -378,9 +269,69 @@ format operator^(format const & f1, format const & f2) {
     return format {f1, format(" "), f2};
 }
 
+std::ostream & format::pretty(std::ostream & out, unsigned w, bool colors, format const & f) {
+    unsigned pos        = 0;
+    std::vector<std::pair<sexpr, unsigned>> todo;
+    todo.push_back(std::make_pair(f.m_value, 0));
+    while (!todo.empty()) {
+        auto pair       = todo.back();
+        sexpr s         = pair.first;
+        unsigned indent = pair.second;
+        todo.pop_back();
+
+        switch (sexpr_kind(s)) {
+        case format_kind::NIL:
+            break;
+        case format_kind::COLOR_BEGIN:
+            if (colors) {
+                format::format_color c = static_cast<format::format_color>(to_int(cdr(s)));
+                out << "\e[" << (31 + c % 7) << "m";
+            }
+            break;
+        case format_kind::COLOR_END:
+            if (colors) {
+                out << "\e[0m";
+            }
+            break;
+        case format_kind::COMPOSE:
+        case format_kind::FLAT_COMPOSE: {
+            unsigned old_sz     = todo.size();
+            for_each(sexpr_compose_list(s), [&](sexpr const & c) { todo.emplace_back(c, indent); });
+            std::reverse(todo.begin() + old_sz, todo.end());
+            break;
+        }
+        case format_kind::NEST:
+            todo.emplace_back(sexpr_nest_s(s), indent + sexpr_nest_i(s));
+            break;
+        case format_kind::LINE:
+            pos        = indent;
+            out << "\n";
+            for (unsigned i = 0; i < indent; i++)
+                out << " ";
+            break;
+        case format_kind::TEXT:
+            pos += sexpr_text_length(s);
+            if (is_string(cdr(s)))
+                out << to_string(cdr(s));
+            else
+                out << cdr(s);
+            break;
+        case format_kind::CHOICE: {
+            sexpr const & x = sexpr_choice_1(s);
+            sexpr const & y = sexpr_choice_2(s);;
+            int available   = static_cast<int>(w) - static_cast<int>(pos);
+            if (!space_upto_line_break_list_exceeded(x, available, todo))
+                todo.emplace_back(x, indent);
+            else
+                todo.emplace_back(y, indent);
+        }
+        }
+    }
+    return out;
+}
+
 std::ostream & pretty(std::ostream & out, unsigned w, bool colors, format const & f) {
-    sexpr const & b = format::best(w, 0, f.m_value);
-    return layout_list(out, colors, b);
+    return format::pretty(out, w, colors, f);
 }
 
 std::ostream & pretty(std::ostream & out, unsigned w, format const & f) {

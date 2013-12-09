@@ -11,6 +11,7 @@ Author: Soonho Kong
 #include <sstream>
 #include <utility>
 #include <string>
+#include <vector>
 #include "util/pair.h"
 #include "util/debug.h"
 #include "util/lua.h"
@@ -91,14 +92,14 @@ private:
     }
     static inline size_t sexpr_text_length(sexpr const & s) {
         lean_assert(sexpr_kind(s) == format_kind::TEXT);
-        std::stringstream ss;
         sexpr const & content = cdr(s);
         if (is_string(content)) {
-            ss << to_string(content);
+            return to_string(content).length();
         } else {
+            std::stringstream ss;
             ss << content;
+            return ss.str().length();
         }
-        return ss.str().length();
     }
     static inline sexpr sexpr_text(std::string const & s) {
         return sexpr(sexpr(format_kind::TEXT), sexpr(s));
@@ -124,10 +125,8 @@ private:
     }
 
     // Functions used inside of pretty printing
-    static bool space_upto_line_break_list_exceeded(sexpr const & r, int available);
+    static bool space_upto_line_break_list_exceeded(sexpr const & s, int available, std::vector<std::pair<sexpr, unsigned>> const & todo);
     static int space_upto_line_break(sexpr const & s, int available, bool & found);
-    static sexpr be(unsigned w, unsigned k, sexpr const & s);
-    static sexpr best(unsigned w, unsigned k, sexpr const & s);
 
     static bool is_fnil(format const & f)   {
         return to_int(car(f.m_value)) == format_kind::NIL;
@@ -212,7 +211,7 @@ public:
         return *this;
     }
 
-    friend std::ostream & layout(std::ostream & out, bool colors, sexpr const & s);
+    static std::ostream & pretty(std::ostream & out, unsigned w, bool colors, format const & f);
     friend std::ostream & pretty(std::ostream & out, unsigned w, bool colors, format const & f);
     friend std::ostream & pretty(std::ostream & out, unsigned w, format const & f);
     friend std::ostream & pretty(std::ostream & out, options const & o, format const & f);

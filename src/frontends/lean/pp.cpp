@@ -1378,6 +1378,8 @@ public:
                       });
         return r;
     }
+
+    virtual optional<environment> get_environment() const { return optional<environment>(env()); }
 };
 
 formatter mk_pp_formatter(environment const & env) {

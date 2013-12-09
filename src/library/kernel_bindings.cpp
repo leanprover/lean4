@@ -815,7 +815,7 @@ DECL_UDATA(formatter)
     throw exception("invalid formatter invocation, the acceptable arguments are: (expr, options?), (context, options?), (context, expr, bool? options?), (kernel object, options?), (environment, options?)");
 }
 
-static int formatter_call(lua_State * L) {
+static int formatter_call_core(lua_State * L) {
     int nargs = lua_gettop(L);
     formatter & fmt = to_formatter(L, 1);
     options opts = get_global_options(L);
@@ -846,6 +846,17 @@ static int formatter_call(lua_State * L) {
         return push_format(L, fmt(to_context(L, 2), to_expr(L, 3), lua_toboolean(L, 4), opts));
     } else {
         throw_invalid_formatter_call();
+    }
+}
+
+static int formatter_call(lua_State * L) {
+    formatter & fmt = to_formatter(L, 1);
+    optional<environment> env = fmt.get_environment();
+    if (env) {
+        read_only_environment ro_env(*env);
+        return formatter_call_core(L);
+    } else {
+        return formatter_call_core(L);
     }
 }
 

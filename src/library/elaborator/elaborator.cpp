@@ -985,16 +985,15 @@ class elaborator::imp {
             // Remark: in principle, there are infinite number of choices.
             // We approximate and only consider the most useful ones.
             justification new_jst(new destruct_justification(c));
-            unification_constraint new_c;
             if (is_bool(a)) {
                 expr choices[5] = { Bool, Type(), Type(level() + 1), TypeM, TypeU };
-                new_c = mk_choice_constraint(get_context(c), b, 5, choices, new_jst);
+                push_front(mk_choice_constraint(get_context(c), b, 5, choices, new_jst));
+                return true;
             } else {
                 expr choices[5] = { a, Type(ty_level(a) + 1), Type(ty_level(a) + 2), TypeM, TypeU };
-                new_c = mk_choice_constraint(get_context(c), b, 5, choices, new_jst);
+                push_front(mk_choice_constraint(get_context(c), b, 5, choices, new_jst));
+                return true;
             }
-            push_front(new_c);
-            return true;
         } else {
             return false;
         }
@@ -1048,16 +1047,18 @@ class elaborator::imp {
             //
             // Remark: we also give preference to lower bounds
             justification new_jst(new destruct_justification(c));
-            unification_constraint new_c;
             if (b == Type()) {
                 expr choices[2] = { Type(), Bool };
-                new_c = mk_choice_constraint(get_context(c), a, 2, choices, new_jst);
+                push_front(mk_choice_constraint(get_context(c), a, 2, choices, new_jst));
+                return true;
             } else if (b == TypeU) {
                 expr choices[5] = { TypeU, TypeM, Type(level() + 1), Type(), Bool };
-                new_c = mk_choice_constraint(get_context(c), a, 5, choices, new_jst);
+                push_front(mk_choice_constraint(get_context(c), a, 5, choices, new_jst));
+                return true;
             } else if (b == TypeM) {
                 expr choices[4] = { TypeM, Type(level() + 1), Type(), Bool };
-                new_c = mk_choice_constraint(get_context(c), a, 4, choices, new_jst);
+                push_front(mk_choice_constraint(get_context(c), a, 4, choices, new_jst));
+                return true;
             } else {
                 level const & lvl = ty_level(b);
                 lean_assert(!lvl.is_bottom());
@@ -1076,18 +1077,18 @@ class elaborator::imp {
                     if (!L.is_bottom())
                         choices.push_back(Type());
                     choices.push_back(Bool);
-                    new_c = mk_choice_constraint(get_context(c), a, choices.size(), choices.data(), new_jst);
+                    push_front(mk_choice_constraint(get_context(c), a, choices.size(), choices.data(), new_jst));
+                    return true;
                 } else if (is_uvar(lvl)) {
                     expr choices[4] = { Type(level() + 1), Type(), b, Bool };
-                    new_c = mk_choice_constraint(get_context(c), a, 4, choices, new_jst);
+                    push_front(mk_choice_constraint(get_context(c), a, 4, choices, new_jst));
+                    return true;
                 } else {
                     lean_assert(is_max(lvl));
                     // TODO(Leo)
                     return false;
                 }
             }
-            push_front(new_c);
-            return true;
         } else {
             return false;
         }

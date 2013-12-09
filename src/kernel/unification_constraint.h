@@ -51,12 +51,16 @@ public:
     void set_justification(justification const & j) { lean_assert(!m_justification); m_justification = j; }
 };
 
+class unification_constraint_eq;
+class unification_constraint_convertible;
+class unification_constraint_max;
+class unification_constraint_choice;
+
 class unification_constraint {
 private:
     unification_constraint_cell * m_ptr;
     explicit unification_constraint(unification_constraint_cell * ptr):m_ptr(ptr) {}
 public:
-    unification_constraint():m_ptr(nullptr) {}
     unification_constraint(unification_constraint const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     unification_constraint(unification_constraint && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~unification_constraint() { if (m_ptr) m_ptr->dec_ref(); }
@@ -67,22 +71,25 @@ public:
     unification_constraint & operator=(unification_constraint && s) { LEAN_MOVE_REF(unification_constraint, s); }
 
     unification_constraint_kind kind() const { return m_ptr->kind(); }
-    unification_constraint_cell * raw() const { return m_ptr; }
-
-    explicit operator bool() const { return m_ptr != nullptr; }
 
     format pp(formatter const & fmt, options const & opts, pos_info_provider const * p = nullptr, bool include_justification = false) const {
-        lean_assert(m_ptr);
         return m_ptr->pp(fmt, opts, p, include_justification);
     }
 
-    justification const & get_justification() const { lean_assert(m_ptr); return m_ptr->get_justification(); }
+    justification const & get_justification() const { return m_ptr->get_justification(); }
     void set_justification(justification const & j) { lean_assert(!get_justification()); lean_assert(m_ptr); m_ptr->set_justification(j); }
+
+    context const & get_context() const { return m_ptr->get_context(); }
 
     friend unification_constraint mk_eq_constraint(context const & c, expr const & lhs, expr const & rhs, justification const & j);
     friend unification_constraint mk_convertible_constraint(context const & c, expr const & from, expr const & to, justification const & j);
     friend unification_constraint mk_max_constraint(context const & c, expr const & lhs1, expr const & lhs2, expr const & rhs, justification const & j);
     friend unification_constraint mk_choice_constraint(context const & c, expr const & mvar, unsigned num, expr const * choices, justification const & j);
+
+    friend unification_constraint_eq * to_eq(unification_constraint const & c);
+    friend unification_constraint_convertible * to_convertible(unification_constraint const & c);
+    friend unification_constraint_max * to_max(unification_constraint const & c);
+    friend unification_constraint_choice * to_choice(unification_constraint const & c);
 };
 
 /**
@@ -159,13 +166,24 @@ inline bool is_convertible(unification_constraint const & c) { return c.kind() =
 inline bool is_max(unification_constraint const & c)         { return c.kind() == unification_constraint_kind::Max; }
 inline bool is_choice(unification_constraint const & c)      { return c.kind() == unification_constraint_kind::Choice; }
 
-inline unification_constraint_eq *          to_eq(unification_constraint const & c)          { lean_assert(is_eq(c)); return static_cast<unification_constraint_eq*>(c.raw()); }
-inline unification_constraint_convertible * to_convertible(unification_constraint const & c) { lean_assert(is_convertible(c)); return static_cast<unification_constraint_convertible*>(c.raw()); }
-inline unification_constraint_max *         to_max(unification_constraint const & c)         { lean_assert(is_max(c)); return static_cast<unification_constraint_max*>(c.raw()); }
-inline unification_constraint_choice *      to_choice(unification_constraint const & c)      { lean_assert(is_choice(c)); return static_cast<unification_constraint_choice*>(c.raw()); }
+inline unification_constraint_eq * to_eq(unification_constraint const & c) {
+    lean_assert(is_eq(c)); return static_cast<unification_constraint_eq*>(c.m_ptr);
+}
 
-inline context const & get_context(unification_constraint const & c) { return c.raw()->get_context(); }
-inline justification   const & get_justification(unification_constraint const & c) { return c.raw()->get_justification(); }
+inline unification_constraint_convertible * to_convertible(unification_constraint const & c) {
+    lean_assert(is_convertible(c)); return static_cast<unification_constraint_convertible*>(c.m_ptr);
+}
+
+inline unification_constraint_max * to_max(unification_constraint const & c) {
+    lean_assert(is_max(c)); return static_cast<unification_constraint_max*>(c.m_ptr);
+}
+
+inline unification_constraint_choice * to_choice(unification_constraint const & c) {
+    lean_assert(is_choice(c)); return static_cast<unification_constraint_choice*>(c.m_ptr);
+}
+
+inline context const & get_context(unification_constraint const & c) { return c.get_context(); }
+inline justification   const & get_justification(unification_constraint const & c) { return c.get_justification(); }
 inline expr const & eq_lhs(unification_constraint const & c) { return to_eq(c)->get_lhs(); }
 inline expr const & eq_rhs(unification_constraint const & c) { return to_eq(c)->get_rhs(); }
 inline expr const & convertible_from(unification_constraint const & c) { return to_convertible(c)->get_from(); }

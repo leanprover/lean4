@@ -30,6 +30,11 @@ int push_optional_object(lua_State * L, optional<object> const & o);
    1- Lean state object associated with \c L
    2- Lua Registry associated with \c L
 */
+optional<formatter> get_global_formatter_core(lua_State * L);
+/**
+   \brief Similar to \c get_global_formatter_core, but returns
+   the simple_formatter if a formatter can't be found.
+*/
 formatter get_global_formatter(lua_State * L);
 /**
    \brief Update the formatter object associated with the given Lua State.

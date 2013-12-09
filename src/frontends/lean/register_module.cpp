@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/frontend.h"
+#include "frontends/lean/pp.h"
 
 namespace lean {
 /** \see parse_lean_expr */
@@ -30,7 +31,7 @@ static int parse_lean_expr_core(lua_State * L, ro_environment const & env, io_st
 static int parse_lean_expr_core(lua_State * L, ro_environment const & env) {
     io_state * io = get_io_state(L);
     if (io == nullptr) {
-        io_state s(get_global_options(L), get_global_formatter(L));
+        io_state s(get_global_options(L), mk_pp_formatter(env));
         return parse_lean_expr_core(L, env, s);
     } else {
         return parse_lean_expr_core(L, env, *io);
@@ -66,7 +67,7 @@ static int parse_lean_expr(lua_State * L) {
             return parse_lean_expr_core(L, env);
         } else {
             options opts    = to_options(L, 3);
-            formatter fmt   = nargs == 3 ? get_global_formatter(L) : to_formatter(L, 4);
+            formatter fmt   = nargs == 3 ? mk_pp_formatter(env) : to_formatter(L, 4);
             io_state st(opts, fmt);
             return parse_lean_expr_core(L, env, st);
         }
@@ -87,7 +88,7 @@ static void parse_lean_cmds_core(lua_State * L, rw_environment & env, io_state &
 static void parse_lean_cmds_core(lua_State * L, rw_environment & env) {
     io_state * io = get_io_state(L);
     if (io == nullptr) {
-        io_state s(get_global_options(L), get_global_formatter(L));
+        io_state s(get_global_options(L), mk_pp_formatter(env));
         parse_lean_cmds_core(L, env, s);
         set_global_options(L, s.get_options());
     } else {
@@ -114,7 +115,7 @@ static int parse_lean_cmds(lua_State * L) {
             return 0;
         } else {
             options opts    = to_options(L, 3);
-            formatter fmt   = nargs == 3 ? get_global_formatter(L) : to_formatter(L, 4);
+            formatter fmt   = nargs == 3 ? mk_pp_formatter(env) : to_formatter(L, 4);
             io_state st(opts, fmt);
             parse_lean_cmds_core(L, env, st);
             push_options(L, st.get_options());
@@ -128,10 +129,15 @@ static int mk_environment(lua_State * L) {
     return push_environment(L, f.get_environment());
 }
 
+static int mk_lean_formatter(lua_State * L) {
+    return push_formatter(L, mk_pp_formatter(to_environment(L, 1)));
+}
+
 void open_frontend_lean(lua_State * L) {
-    SET_GLOBAL_FUN(mk_environment,  "environment");
-    SET_GLOBAL_FUN(parse_lean_expr, "parse_lean");
-    SET_GLOBAL_FUN(parse_lean_cmds, "parse_lean_cmds");
+    SET_GLOBAL_FUN(mk_environment,    "environment");
+    SET_GLOBAL_FUN(mk_lean_formatter, "lean_formatter");
+    SET_GLOBAL_FUN(parse_lean_expr,   "parse_lean");
+    SET_GLOBAL_FUN(parse_lean_cmds,   "parse_lean_cmds");
 }
 
 void register_frontend_lean_module() {

@@ -869,22 +869,30 @@ static const struct luaL_Reg formatter_m[] = {
 static char g_formatter_key;
 static formatter g_simple_formatter = mk_simple_formatter();
 
-formatter get_global_formatter(lua_State * L) {
+optional<formatter> get_global_formatter_core(lua_State * L) {
     io_state * io = get_io_state(L);
     if (io != nullptr) {
-        return io->get_formatter();
+        return optional<formatter>(io->get_formatter());
     } else {
         lua_pushlightuserdata(L, static_cast<void *>(&g_formatter_key));
         lua_gettable(L, LUA_REGISTRYINDEX);
         if (is_formatter(L, -1)) {
             formatter r = to_formatter(L, -1);
             lua_pop(L, 1);
-            return r;
+            return optional<formatter>(r);
         } else {
             lua_pop(L, 1);
-            return g_simple_formatter;
+            return optional<formatter>();
         }
     }
+}
+
+formatter get_global_formatter(lua_State * L) {
+    auto r = get_global_formatter_core(L);
+    if (r)
+        return *r;
+    else
+        return g_simple_formatter;
 }
 
 void set_global_formatter(lua_State * L, formatter const & fmt) {
@@ -898,8 +906,13 @@ void set_global_formatter(lua_State * L, formatter const & fmt) {
     }
 }
 
-int get_formatter(lua_State * L) {
+static int get_formatter(lua_State * L) {
     return push_formatter(L, get_global_formatter(L));
+}
+
+static int set_formatter(lua_State * L) {
+    set_global_formatter(L, to_formatter(L, 1));
+    return 0;
 }
 
 static void open_formatter(lua_State * L) {
@@ -910,6 +923,7 @@ static void open_formatter(lua_State * L) {
 
     SET_GLOBAL_FUN(formatter_pred, "is_formatter");
     SET_GLOBAL_FUN(get_formatter,  "get_formatter");
+    SET_GLOBAL_FUN(set_formatter,  "set_formatter");
 }
 
 DECL_UDATA(environment)

@@ -153,7 +153,7 @@ class pp_fn {
     typedef scoped_map<expr, name, expr_hash_alloc, expr_eqp> aliases;
     typedef std::vector<std::pair<name, format>>              aliases_defs;
     typedef scoped_set<name, name_hash, name_eq>              local_names;
-    environment::weak_ref     m_env;
+    environment      m_env;
     // State
     aliases          m_aliases;
     aliases_defs     m_aliases_defs;
@@ -171,9 +171,7 @@ class pp_fn {
     bool             m_extra_lets;       //!< introduce extra let-expression to cope with sharing.
     unsigned         m_alias_min_weight; //!< minimal weight for creating an alias
 
-    environment env() const {
-        return environment(m_env);
-    }
+    environment const & env() const { return m_env; }
 
     // Create a scope for local definitions
     struct mk_scope {
@@ -1157,7 +1155,7 @@ class pp_fn {
     }
 
 public:
-    pp_fn(environment::weak_ref const & env, options const & opts):
+    pp_fn(environment const & env, options const & opts):
         m_env(env) {
         set_options(opts);
         m_num_steps   = 0;
@@ -1184,19 +1182,17 @@ public:
 };
 
 class pp_formatter_cell : public formatter_cell {
-    environment::weak_ref     m_env;
+    environment m_env;
 
-    environment env() const {
-        return environment(m_env);
-    }
+    environment const & env() const { return m_env; }
 
     format pp(expr const & e, options const & opts) {
-        pp_fn fn(m_env, opts);
+        pp_fn fn(env(), opts);
         return fn(e);
     }
 
     format pp(context const & c, expr const & e, bool include_e, options const & opts) {
-        pp_fn fn(m_env, opts);
+        pp_fn fn(env(), opts);
         unsigned indent = get_pp_indent(opts);
         format r;
         bool first = true;
@@ -1255,7 +1251,7 @@ class pp_formatter_cell : public formatter_cell {
             std::vector<bool> const * implicit_args = nullptr;
             if (has_implicit_arguments(env(), n))
                 implicit_args = &(get_implicit_arguments(env(), n));
-            pp_fn fn(m_env, opts);
+            pp_fn fn(env(), opts);
             format def = fn.pp_definition(v, t, implicit_args);
             return format{highlight_command(format(kwd)), space(), format(n), def};
         }
@@ -1271,7 +1267,7 @@ class pp_formatter_cell : public formatter_cell {
         name const & n = obj.get_name();
         format r = format{highlight_command(format(kwd)), space(), format(n)};
         if (has_implicit_arguments(env(), n)) {
-            pp_fn fn(m_env, opts);
+            pp_fn fn(env(), opts);
             r += fn.pp_pi_with_implicit_args(obj.get_type(), get_implicit_arguments(env(), n));
         } else {
             r += format{space(), colon(), space(), pp(obj.get_type(), opts)};
@@ -1313,10 +1309,7 @@ class pp_formatter_cell : public formatter_cell {
 
 public:
     pp_formatter_cell(environment const & env):
-        m_env(env.to_weak_ref()) {
-    }
-
-    virtual ~pp_formatter_cell() {
+        m_env(env) {
     }
 
     virtual format operator()(expr const & e, options const & opts) {

@@ -18,7 +18,7 @@ namespace lean {
 
 #ifdef LEAN_TRACE
 std::ofstream tout(LEAN_TRACE_OUT);
-std::mutex    trace_mutex;
+mutex         trace_mutex;
 #endif
 
 static std::unique_ptr<std::set<std::string>> g_enabled_trace_tags;

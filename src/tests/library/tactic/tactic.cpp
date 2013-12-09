@@ -26,7 +26,7 @@ tactic loop_tactic() {
         });
 }
 
-tactic set_tactic(std::atomic<bool> * flag) {
+tactic set_tactic(atomic<bool> * flag) {
     return mk_tactic1([=](environment const &, io_state const &, proof_state const & s) -> proof_state {
             *flag = true;
             return s;
@@ -65,14 +65,14 @@ static void tst1() {
     check_failure(now_tactic(), env, io, ctx, q);
     std::cout << "proof 2: " << orelse(fail_tactic(), t).solve(env, io, ctx, q).get_proof() << "\n";
 
-#if !defined(__APPLE__)
+#if !defined(__APPLE__) && defined(LEAN_MULTI_THREAD)
     check_failure(try_for(loop_tactic(), 100), env, io, ctx, q);
     std::cout << "proof 1: " << try_for(t, 10000).solve(env, io, s).get_proof() << "\n";
     check_failure(try_for(orelse(try_for(loop_tactic(), 10000),
                                  trace_tactic(std::string("hello world"))),
                           100),
                   env, io, ctx, q);
-    std::atomic<bool> flag1(false);
+    atomic<bool> flag1(false);
     check_failure(try_for(orelse(try_for(loop_tactic(), 10000),
                                  set_tactic(&flag1)),
                           100),
@@ -83,10 +83,8 @@ static void tst1() {
                          set_tactic(&flag1)),
                   env, io, ctx, q);
     lean_assert(flag1);
-#if !defined(LEAN_THREAD_UNSAFE)
     std::cout << "Before parallel 3 parallel tactics...\n";
     std::cout << "proof 2: " << par(loop_tactic(), par(loop_tactic(), t)).solve(env, io, ctx, q).get_proof() << "\n";
-#endif
 #endif
     std::cout << "Before hello1 and 2...\n";
     std::cout << "proof 2: " << orelse(then(repeat_at_most(append(trace_tactic("hello1"), trace_tactic("hello2")), 5), fail_tactic()),

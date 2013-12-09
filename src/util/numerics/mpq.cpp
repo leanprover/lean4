@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/sstream.h"
+#include "util/thread.h"
 #include "util/numerics/mpq.h"
 #include "util/numerics/mpbq.h"
 
@@ -26,7 +27,7 @@ int cmp(mpq const & a, mpz const & b) {
     if (a.is_integer()) {
         return mpz_cmp(mpq_numref(a.m_val), mpq::zval(b));
     } else {
-        static thread_local mpz tmp;
+        static LEAN_THREAD_LOCAL mpz tmp;
         mpz_mul(mpq::zval(tmp), mpq_denref(a.m_val), mpq::zval(b));
         return mpz_cmp(mpq_numref(a.m_val), mpq::zval(tmp));
     }
@@ -128,7 +129,7 @@ DECL_UDATA(mpq)
 
 template<int idx>
 static mpq const & to_mpq(lua_State * L) {
-    static thread_local mpq arg;
+    static LEAN_THREAD_LOCAL mpq arg;
     switch (lua_type(L, idx)) {
     case LUA_TNUMBER:       arg = lua_tonumber(L, idx); return arg;
     case LUA_TSTRING:       arg = mpq(lua_tostring(L, idx)); return arg;

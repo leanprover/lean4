@@ -5,12 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <iostream>
-#include <mutex>
-#include <thread>
 #include <chrono>
 #include <string>
 #include <vector>
-#include <condition_variable>
+#include "util/thread.h"
 #include "util/lua.h"
 #include "util/debug.h"
 #include "util/exception.h"
@@ -48,7 +46,7 @@ static char g_weak_ptr_key; // key for Lua registry (used at get_weak_ptr and sa
 
 struct script_state::imp {
     lua_State * m_state;
-    std::mutex  m_mutex;
+    mutex       m_mutex;
 
     static std::weak_ptr<imp> * get_weak_ptr(lua_State * L) {
         lua_pushlightuserdata(L, static_cast<void *>(&g_weak_ptr_key));
@@ -110,12 +108,12 @@ struct script_state::imp {
     }
 
     void dofile(char const * fname) {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        lock_guard<mutex> lock(m_mutex);
         ::lean::dofile(m_state, fname);
     }
 
     void dostring(char const * str) {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        lock_guard<mutex> lock(m_mutex);
         ::lean::dostring(m_state, str);
     }
 };
@@ -146,7 +144,7 @@ void script_state::dostring(char const * str) {
     m_ptr->dostring(str);
 }
 
-std::mutex & script_state::get_mutex() {
+mutex & script_state::get_mutex() {
     return m_ptr->m_mutex;
 }
 
@@ -308,7 +306,7 @@ static void open_state(lua_State * L) {
 #define SMALL_DELAY 10 // in ms
 std::chrono::milliseconds g_small_delay(SMALL_DELAY);
 
-#if !defined(LEAN_THREAD_UNSAFE)
+#if defined(LEAN_MULTI_THREAD)
 /**
    \brief Channel for communicating with thread objects in the Lua API
 */
@@ -316,10 +314,10 @@ class data_channel {
     // We use a lua_State to implement the channel. This is quite hackish,
     // but it is a convenient storage for Lua objects sent from one state to
     // another.
-    script_state            m_channel;
-    int                     m_ini;
-    std::mutex              m_mutex;
-    std::condition_variable m_cv;
+    script_state       m_channel;
+    int                m_ini;
+    mutex              m_mutex;
+    condition_variable m_cv;
 public:
     data_channel() {
         lua_State * channel = m_channel.m_ptr->m_state;
@@ -335,7 +333,7 @@ public:
         // on m_channel.
         if (last < first)
             return;
-        std::lock_guard<std::mutex> lock(m_mutex);
+        lock_guard<mutex> lock(m_mutex);
         lua_State * channel = m_channel.m_ptr->m_state;
         bool was_empty = lua_gettop(channel) == m_ini;
         copy_values(src, first, last, channel);
@@ -348,7 +346,7 @@ public:
        the execution of \c tgt if the channel is empty.
     */
     int read(lua_State * tgt, int i) {
-        std::unique_lock<std::mutex> lock(m_mutex);
+        unique_lock<mutex> lock(m_mutex);
         lua_State * channel = m_channel.m_ptr->m_state;
         if (i > 0) {
             // i is the position of the timeout argument
@@ -383,10 +381,10 @@ public:
 */
 class data_channel_ref {
     std::unique_ptr<data_channel> m_channel;
-    std::mutex                    m_mutex;
+    mutex                         m_mutex;
 public:
     data_channel & get() {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        lock_guard<mutex> lock(m_mutex);
         if (!m_channel)
             m_channel.reset(new data_channel());
         lean_assert(m_channel);
@@ -410,8 +408,8 @@ class leanlua_thread {
     script_state                    m_state;
     int                             m_sz_before;
     std::unique_ptr<exception>      m_exception;
-    std::atomic<data_channel_ref *> m_in_channel_addr;
-    std::atomic<data_channel_ref *> m_out_channel_addr;
+    atomic<data_channel_ref *>      m_in_channel_addr;
+    atomic<data_channel_ref *>      m_out_channel_addr;
     interruptible_thread            m_thread;
 public:
     leanlua_thread(script_state const & st, int sz_before, int num_args):
@@ -460,7 +458,7 @@ public:
     void write(lua_State * src, int first, int last) {
         while (!m_in_channel_addr) {
             check_interrupted();
-            std::this_thread::sleep_for(g_small_delay);
+            this_thread::sleep_for(g_small_delay);
         }
         data_channel & in = m_in_channel_addr.load()->get();
         in.write(src, first, last);
@@ -469,7 +467,7 @@ public:
     int read(lua_State * src) {
         if (!m_out_channel_addr) {
             check_interrupted();
-            std::this_thread::sleep_for(g_small_delay);
+            this_thread::sleep_for(g_small_delay);
         }
         data_channel & out = m_out_channel_addr.load()->get();
         int nargs = lua_gettop(src);
@@ -588,7 +586,7 @@ static void open_interrupt(lua_State * L) {
     SET_GLOBAL_FUN(check_interrupted, "check_interrupted");
     SET_GLOBAL_FUN(sleep,             "sleep");
     SET_GLOBAL_FUN(yield,             "yield");
-#if !defined(LEAN_THREAD_UNSAFE)
+#if defined(LEAN_MULTI_THREAD)
     SET_GLOBAL_FUN(channel_read,      "read");
     SET_GLOBAL_FUN(channel_write,     "write");
 #endif
@@ -596,7 +594,7 @@ static void open_interrupt(lua_State * L) {
 
 void open_extra(lua_State * L) {
     open_state(L);
-#if !defined(LEAN_THREAD_UNSAFE)
+#if defined(LEAN_MULTI_THREAD)
     open_thread(L);
 #endif
     open_interrupt(L);

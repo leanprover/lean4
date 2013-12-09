@@ -7,7 +7,17 @@ Author: Leonardo de Moura
 #include <pthread.h>
 #include <memory.h>
 #include <iostream>
+#include "util/thread.h"
 #include "util/exception.h"
+
+#if defined(LEAN_WINDOWS)
+    // no extra included needed so far
+#elif defined(__APPLE__)
+    #include <sys/resource.h> // NOLINT
+#else
+    #include <sys/time.h> // NOLINT
+    #include <sys/resource.h> // NOLINT
+#endif
 
 #define LEAN_MIN_STACK_SPACE 128*1024  // 128 Kb
 
@@ -16,12 +26,11 @@ void throw_get_stack_size_failed() {
     throw exception("failed to retrieve thread stack size");
 }
 
-#ifdef LEAN_WINDOWS
+#if defined(LEAN_WINDOWS)
 size_t get_stack_size(int ) {
     return LEAN_WIN_STACK_SIZE;
 }
 #elif defined (__APPLE__)
-#include <sys/resource.h>
 size_t get_stack_size(int main) {
     if (main) {
         // Retrieve stack size of the main thread.
@@ -31,6 +40,7 @@ size_t get_stack_size(int main) {
         }
         return curr.rlim_max;
     } else {
+        #if defined(LEAN_MULTI_THREAD)
         // This branch retrieves the default thread size for pthread threads.
         // This is *not* the stack size of the main thread.
         pthread_attr_t attr;
@@ -41,29 +51,45 @@ size_t get_stack_size(int main) {
             throw_get_stack_size_failed();
         }
         return result;
+        #else
+        return 0;
+        #endif
     }
 }
 #else
-size_t get_stack_size(int ) {
-    pthread_attr_t attr;
-    memset (&attr, 0, sizeof(attr));
-    if (pthread_getattr_np(pthread_self(), &attr) != 0) {
-        throw_get_stack_size_failed();
+size_t get_stack_size(int main) {
+    if (main) {
+        // Retrieve stack size of the main thread.
+        struct rlimit curr;
+        if (getrlimit(RLIMIT_STACK, &curr) != 0) {
+            throw_get_stack_size_failed();
+        }
+        return curr.rlim_max;
+    } else {
+        #if defined(LEAN_MULTI_THREAD)
+        pthread_attr_t attr;
+        memset (&attr, 0, sizeof(attr));
+        if (pthread_getattr_np(pthread_self(), &attr) != 0) {
+            throw_get_stack_size_failed();
+        }
+        void * ptr;
+        size_t result;
+        if (pthread_attr_getstack (&attr, &ptr, &result) != 0) {
+            throw_get_stack_size_failed();
+        }
+        if (pthread_attr_destroy(&attr) != 0) {
+            throw_get_stack_size_failed();
+        }
+        return result;
+        #else
+        return 0;
+        #endif
     }
-    void * ptr;
-    size_t result;
-    if (pthread_attr_getstack (&attr, &ptr, &result) != 0) {
-        throw_get_stack_size_failed();
-    }
-    if (pthread_attr_destroy(&attr) != 0) {
-        throw_get_stack_size_failed();
-    }
-    return result;
 }
 #endif
 
-static thread_local size_t g_stack_size;
-static thread_local size_t g_stack_base;
+static LEAN_THREAD_LOCAL size_t g_stack_size;
+static LEAN_THREAD_LOCAL size_t g_stack_base;
 
 void save_stack_info(bool main) {
     g_stack_size = get_stack_size(main);

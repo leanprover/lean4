@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <vector>
-#include <mutex>
+#include "util/thread.h"
 #include "util/int64.h"
 #include "util/debug.h"
 #include "util/exception.h"
@@ -91,7 +91,7 @@ public:
 };
 
 static prime_generator g_prime_generator;
-static std::mutex      g_prime_generator_mutex;
+static mutex           g_prime_generator_mutex;
 
 
 prime_iterator::prime_iterator():
@@ -102,7 +102,7 @@ uint64 prime_iterator::next() {
     unsigned idx = m_idx;
     m_idx++;
     {
-        std::lock_guard<std::mutex> guard(g_prime_generator_mutex);
+        lock_guard<mutex> guard(g_prime_generator_mutex);
         return g_prime_generator(idx);
     }
 }

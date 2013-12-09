@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <thread>
+#include "util/thread.h"
 #include "util/test.h"
 #include "kernel/builtin.h"
 #include "kernel/normalizer.h"
@@ -122,9 +122,9 @@ static void tst6() {
     std::cout << mk_int_add_fn().raw() << "\n";
 
     #ifndef __APPLE__
-    std::thread t1([](){ save_stack_info(); std::cout << "t1: " << mk_int_add_fn().raw() << "\n"; });
+    thread t1([](){ save_stack_info(); std::cout << "t1: " << mk_int_add_fn().raw() << "\n"; });
     t1.join();
-    std::thread t2([](){ save_stack_info(); std::cout << "t2: " << mk_int_add_fn().raw() << "\n"; });
+    thread t2([](){ save_stack_info(); std::cout << "t2: " << mk_int_add_fn().raw() << "\n"; });
     t2.join();
     #endif
     std::cout << mk_int_add_fn().raw() << "\n";

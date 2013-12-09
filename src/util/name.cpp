@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <sstream>
 #include <string>
-#include <atomic>
+#include "util/thread.h"
 #include "util/name.h"
 #include "util/sstream.h"
 #include "util/debug.h"
@@ -156,11 +156,7 @@ name const & name::anonymous() {
     return g_anonymous;
 }
 
-#ifdef LEAN_THREAD_UNSAFE
-static unsigned g_next_id(0);
-#else
-static std::atomic<unsigned> g_next_id(0);
-#endif
+static atomic<unsigned> g_next_id(0);
 
 name name::mk_internal_unique_name() {
     unsigned id = g_next_id++;

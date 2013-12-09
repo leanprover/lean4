@@ -120,7 +120,7 @@ format const & colon() { return g_colon; }
 format const & dot() { return g_dot; }
 // Auxiliary flag used to mark whether flatten
 // produce a different sexpr
-static bool thread_local g_diff_flatten = false;
+static bool LEAN_THREAD_LOCAL g_diff_flatten = false;
 //
 sexpr format::flatten(sexpr const & s) {
     lean_assert(is_cons(s));

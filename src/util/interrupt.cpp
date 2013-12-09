@@ -4,11 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <chrono>
 #include "util/interrupt.h"
 #include "util/exception.h"
 
 namespace lean {
-static thread_local std::atomic_bool g_interrupt;
+static LEAN_THREAD_LOCAL atomic_bool g_interrupt;
 
 void request_interrupt() {
     g_interrupt.store(true);
@@ -36,19 +37,19 @@ void sleep_for(unsigned ms, unsigned step_ms) {
     std::chrono::milliseconds c(step_ms);
     std::chrono::milliseconds r(ms % step_ms);
     for (unsigned i = 0; i < rounds; i++) {
-        std::this_thread::sleep_for(c);
+        this_thread::sleep_for(c);
         check_interrupted();
     }
-    std::this_thread::sleep_for(r);
+    this_thread::sleep_for(r);
     check_interrupted();
 }
 
-std::atomic_bool * interruptible_thread::get_flag_addr() {
+atomic_bool * interruptible_thread::get_flag_addr() {
     return &g_interrupt;
 }
 
 bool interruptible_thread::interrupted() const {
-    std::atomic_bool * f = m_flag_addr.load();
+    atomic_bool * f = m_flag_addr.load();
     if (f == nullptr)
         return false;
     return f->load();
@@ -56,12 +57,12 @@ bool interruptible_thread::interrupted() const {
 
 void interruptible_thread::request_interrupt(unsigned try_ms) {
     while (true) {
-        std::atomic_bool * f = m_flag_addr.load();
+        atomic_bool * f = m_flag_addr.load();
         if (f != nullptr) {
             f->store(true);
             return;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(try_ms));
+        this_thread::sleep_for(std::chrono::milliseconds(try_ms));
         check_interrupted();
     }
 }

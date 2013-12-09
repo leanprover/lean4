@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <algorithm>
+#include "util/thread.h"
 #include "util/bit_tricks.h"
 #include "util/numerics/mpz.h"
 #include "util/numerics/mpq.h"
@@ -268,7 +269,7 @@ public:
 template<>
 class numeric_traits<mpbq> {
 private:
-    static thread_local bool rnd;
+    static LEAN_THREAD_LOCAL bool rnd;
 public:
     static bool precise() { return true; }
     static bool is_zero(mpbq const &  v) { return v.is_zero(); }

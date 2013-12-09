@@ -5,9 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <iostream>
-#include <thread>
 #include <chrono>
 #include <string>
+#include "util/thread.h"
 #include "util/test.h"
 #include "util/trace.h"
 #include "util/exception.h"
@@ -221,7 +221,7 @@ static expr mk_big(unsigned depth) {
 }
 
 static void tst12() {
-#ifndef __APPLE__
+#if !defined(__APPLE__) && defined(LEAN_MULTI_THREAD)
     expr t = mk_big(18);
     environment env = mk_toplevel();
     env.add_var("f", Int >> (Int >> Int));
@@ -238,7 +238,7 @@ static void tst12() {
                 std::cout << "interrupted\n";
             }
         });
-    std::this_thread::sleep_for(dura);
+    this_thread::sleep_for(dura);
     thread.request_interrupt();
     thread.join();
 #endif

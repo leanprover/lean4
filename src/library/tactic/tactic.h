@@ -8,8 +8,8 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <utility>
 #include <memory>
-#include <mutex>
 #include <string>
+#include "util/thread.h"
 #include "util/lazy_list.h"
 #include "library/io_state.h"
 #include "library/tactic/proof_state.h"

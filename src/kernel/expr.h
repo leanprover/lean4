@@ -6,11 +6,11 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <algorithm>
-#include <atomic>
 #include <iostream>
 #include <limits>
 #include <utility>
 #include <tuple>
+#include "util/thread.h"
 #include "util/lua.h"
 #include "util/rc.h"
 #include "util/name.h"
@@ -71,7 +71,7 @@ protected:
 #ifdef LEAN_THREAD_UNSAFE
     unsigned short     m_flags;
 #else
-    std::atomic_ushort m_flags;
+    atomic_ushort      m_flags;
 #endif
     unsigned m_hash;  // hash based on the structure of the expression (this is a good hash for structural equality)
     unsigned m_hash_alloc; // hash based on 'time' of allocation (this is a good hash for pointer-based equality)

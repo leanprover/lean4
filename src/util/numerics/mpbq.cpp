@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <limits.h>
+#include "util/thread.h"
 #include "util/numerics/mpbq.h"
 
 namespace lean {
@@ -15,7 +16,7 @@ bool set(mpbq & a, mpq const & b) {
         a.m_k = 0;
         return true;
     } else {
-        static thread_local mpz d;
+        static LEAN_THREAD_LOCAL mpz d;
         denominator(d, b);
         unsigned shift;
         if (d.is_power_of_two(shift)) {
@@ -46,7 +47,7 @@ void mpbq::normalize() {
 }
 
 int cmp(mpbq const & a, mpbq const & b) {
-    static thread_local mpz tmp;
+    static LEAN_THREAD_LOCAL mpz tmp;
     if (a.m_k == b.m_k) {
         return cmp(a.m_num, b.m_num);
     } else if (a.m_k < b.m_k) {
@@ -60,7 +61,7 @@ int cmp(mpbq const & a, mpbq const & b) {
 }
 
 int cmp(mpbq const & a, mpz const & b) {
-    static thread_local mpz tmp;
+    static LEAN_THREAD_LOCAL mpz tmp;
     if (a.m_k == 0) {
         return cmp(a.m_num, b);
     } else {
@@ -73,8 +74,8 @@ int cmp(mpbq const & a, mpq const & b) {
     if (a.is_integer() && b.is_integer()) {
         return -cmp(b, a.m_num);
     } else {
-        static thread_local mpz tmp1;
-        static thread_local mpz tmp2;
+        static LEAN_THREAD_LOCAL mpz tmp1;
+        static LEAN_THREAD_LOCAL mpz tmp2;
         // tmp1 <- numerator(a)*denominator(b)
         denominator(tmp1, b); tmp1 *= a.m_num;
         // tmp2 <- numerator(b)*denominator(a)
@@ -92,7 +93,7 @@ mpbq & mpbq::operator+=(mpbq const & a) {
         m_num += a.m_num;
     } else {
         lean_assert(m_k > a.m_k);
-        static thread_local mpz tmp;
+        static LEAN_THREAD_LOCAL mpz tmp;
         mul2k(tmp, a.m_num, m_k - a.m_k);
         m_num += tmp;
     }
@@ -106,7 +107,7 @@ mpbq & mpbq::add_int(T const & a) {
         m_num += a;
     } else {
         lean_assert(m_k > 0);
-        static thread_local mpz tmp;
+        static LEAN_THREAD_LOCAL mpz tmp;
         tmp = a;
         mul2k(tmp, tmp, m_k);
         m_num += tmp;
@@ -126,7 +127,7 @@ mpbq & mpbq::operator-=(mpbq const & a) {
         m_num -= a.m_num;
     } else {
         lean_assert(m_k > a.m_k);
-        static thread_local mpz tmp;
+        static LEAN_THREAD_LOCAL mpz tmp;
         mul2k(tmp, a.m_num, m_k - a.m_k);
         m_num -= tmp;
     }
@@ -140,7 +141,7 @@ mpbq & mpbq::sub_int(T const & a) {
         m_num -= a;
     } else {
         lean_assert(m_k > 0);
-        static thread_local mpz tmp;
+        static LEAN_THREAD_LOCAL mpz tmp;
         tmp = a;
         mul2k(tmp, tmp, m_k);
         m_num -= tmp;
@@ -302,7 +303,7 @@ bool lt_1div2k(mpbq const & a, unsigned k) {
         return false;
     } else {
         lean_assert(a.m_k > k);
-        static thread_local mpz tmp;
+        static LEAN_THREAD_LOCAL mpz tmp;
         tmp = 1;
         mul2k(tmp, tmp, a.m_k - k);
         return a.m_num < tmp;

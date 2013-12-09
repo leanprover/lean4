@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <memory>
 #include "util/sstream.h"
+#include "util/thread.h"
 #include "util/numerics/mpz.h"
 
 namespace lean {
@@ -53,7 +54,7 @@ mpz operator%(mpz const & a, mpz const & b) {
 }
 
 bool root(mpz & root, mpz const & a, unsigned k) {
-    static thread_local mpz rem;
+    static LEAN_THREAD_LOCAL mpz rem;
     mpz_rootrem(root.m_val, rem.m_val, a.m_val, k);
     return rem.is_zero();
 }
@@ -87,7 +88,7 @@ DECL_UDATA(mpz)
 
 template<int idx>
 static mpz const & to_mpz(lua_State * L) {
-    static thread_local mpz arg;
+    static LEAN_THREAD_LOCAL mpz arg;
     switch (lua_type(L, idx)) {
     case LUA_TNUMBER:       arg = static_cast<long>(lua_tointeger(L, idx)); return arg;
     case LUA_TSTRING:       arg = mpz(lua_tostring(L, idx)); return arg;

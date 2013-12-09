@@ -5,9 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include <atomic>
-#include <thread>
 #include <utility>
+#include "util/thread.h"
 #include "util/stackinfo.h"
 #include "util/exception.h"
 
@@ -46,7 +45,7 @@ void sleep_for(unsigned ms, unsigned step_ms = g_small_sleep);
    \brief Thread that provides a method for setting its interrupt flag.
 */
 class interruptible_thread {
-    std::atomic<std::atomic_bool*> m_flag_addr;
+    atomic<atomic_bool*> m_flag_addr;
     /*
       The following auxiliary field is used to workaround a nasty bug
       that occurs in some platforms. On cygwin, it seems that the
@@ -62,9 +61,9 @@ class interruptible_thread {
       m_dummy_addr before terminating the execution of the child
       thread.
     */
-    std::atomic_bool               m_dummy_addr;
-    std::thread                    m_thread;
-    static std::atomic_bool *      get_flag_addr();
+    atomic_bool           m_dummy_addr;
+    thread                m_thread;
+    static atomic_bool *  get_flag_addr();
 public:
     template<typename Function, typename... Args>
     interruptible_thread(Function && fun, Args &&... args):
@@ -98,7 +97,7 @@ public:
     bool joinable();
 };
 
-#ifdef LEAN_THREAD_UNSAFE
+#if !defined(LEAN_MULTI_THREAD)
 inline void check_threadsafe() {
     throw exception("Lean was compiled without support for multi-threading");
 }

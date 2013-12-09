@@ -10,18 +10,16 @@
    Hinnant. The proposal is also part of the Boost library which is
    licensed under http://www.boost.org/LICENSE_1_0.txt
 */
-#include <mutex>
-#include <thread>
-#include <condition_variable>
 #include <climits>
+#include "util/thread.h"
 
 namespace lean {
 class shared_mutex {
-    std::mutex              m_mutex;
-    std::thread::id         m_rw_owner;
+    mutex                   m_mutex;
+    thread::id              m_rw_owner;
     unsigned                m_rw_counter;
-    std::condition_variable m_gate1;
-    std::condition_variable m_gate2;
+    condition_variable      m_gate1;
+    condition_variable      m_gate2;
     unsigned                m_state;
 
     static constexpr unsigned write_entered = 1u << (sizeof(unsigned)*8 - 1);
@@ -52,10 +50,10 @@ public:
     ~shared_lock() { m_mutex.unlock_shared(); }
 };
 
-class unique_lock {
+class exclusive_lock {
     shared_mutex & m_mutex;
 public:
-    unique_lock(shared_mutex & m):m_mutex(m) { m_mutex.lock(); }
-    ~unique_lock() { m_mutex.unlock(); }
+    exclusive_lock(shared_mutex & m):m_mutex(m) { m_mutex.lock(); }
+    ~exclusive_lock() { m_mutex.unlock(); }
 };
 }

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/exception.h"
 #include "util/sstream.h"
+#include "util/thread.h"
 
 namespace lean {
 exception::exception(char const * msg):m_msg(msg) {}
@@ -22,7 +23,7 @@ parser_exception::parser_exception(sstream const & msg, unsigned l, unsigned p):
 parser_exception::~parser_exception() noexcept {}
 char const * parser_exception::what() const noexcept {
     try {
-        static thread_local std::string buffer;
+        static LEAN_THREAD_LOCAL std::string buffer;
         std::ostringstream s;
         s << "(line: " << m_line << ", pos: " << m_pos << ") " << m_msg;
         buffer = s.str();
@@ -34,7 +35,7 @@ char const * parser_exception::what() const noexcept {
 }
 
 char const * stack_space_exception::what() const noexcept {
-    static thread_local std::string buffer;
+    static LEAN_THREAD_LOCAL std::string buffer;
     std::ostringstream s;
     s << "deep recursion was detected at '" << m_component_name << "' (potential solution: increase stack space in your system)";
     buffer = s.str();

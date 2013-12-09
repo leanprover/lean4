@@ -40,7 +40,7 @@ void free(void * ptr) {
 }
 
 #else
-#include <atomic>
+#include "util/thread.h"
 
 #if defined(HAS_MALLOC_USABLE_SIZE)
 #include <malloc.h> // NOLINT
@@ -96,11 +96,7 @@ inline void   free_core(void * ptr)               { ::free(static_cast<size_t*>(
 
 namespace lean {
 class alloc_info {
-#ifdef LEAN_THREAD_UNSAFE
-    size_t              m_size;
-#else
-    std::atomic<size_t> m_size;
-#endif
+    atomic<size_t> m_size;
 public:
     alloc_info():m_size(0) {}
     ~alloc_info() {}
@@ -118,8 +114,8 @@ public:
     long long size() const { return static_cast<long long>(m_size); }
 };
 
-static alloc_info                     g_global_memory;
-static thread_local thread_alloc_info g_thread_memory;
+static alloc_info                          g_global_memory;
+static LEAN_THREAD_LOCAL thread_alloc_info g_thread_memory;
 
 size_t     get_allocated_memory() { return g_global_memory.size(); }
 long long  get_thread_allocated_memory() { return g_thread_memory.size(); }

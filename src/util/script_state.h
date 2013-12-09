@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
-#include <mutex>
 #include <lua.hpp>
+#include "util/thread.h"
 #include "util/unlock_guard.h"
 
 namespace lean {
@@ -20,7 +20,7 @@ public:
 private:
     std::shared_ptr<imp> m_ptr;
     friend script_state to_script_state(lua_State * L);
-    std::mutex & get_mutex();
+    mutex & get_mutex();
     lua_State * get_state();
     friend class data_channel;
 public:
@@ -50,7 +50,7 @@ public:
     */
     template<typename F>
     typename std::result_of<F(lua_State * L)>::type apply(F && f) {
-        std::lock_guard<std::mutex> lock(get_mutex());
+        lock_guard<mutex> lock(get_mutex());
         return f(get_state());
     }
 
@@ -72,7 +72,7 @@ public:
 
     template<typename F>
     void exec_protected(F && f) {
-        std::lock_guard<std::mutex> lock(get_mutex());
+        lock_guard<mutex> lock(get_mutex());
         f();
     }
 };

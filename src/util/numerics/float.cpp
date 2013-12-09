@@ -5,12 +5,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Soonho Kong
 */
 #include <cmath>
+#include "util/thread.h"
 #include "util/numerics/numeric_traits.h"
 #include "util/numerics/float.h"
 
 namespace lean {
 
-static thread_local mpfr_rnd_t g_rnd;
+static LEAN_THREAD_LOCAL mpfr_rnd_t g_rnd;
 void set_float_rnd(bool plus_inf) {
     g_rnd = plus_inf ? MPFR_RNDU : MPFR_RNDD;
 }

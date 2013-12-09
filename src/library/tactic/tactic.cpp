@@ -689,7 +689,7 @@ static int mk_lua_tactic01(lua_State * L) {
                                        });
                                    while (!done) {
                                        check_interrupted();
-                                       std::this_thread::yield(); // give another thread a chance to execute
+                                       this_thread::yield(); // give another thread a chance to execute
                                        S_copy.exec_protected([&]() {
                                                done = resume(co, 0);
                                            });

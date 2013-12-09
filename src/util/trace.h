@@ -7,13 +7,13 @@ Author: Leonardo de Moura
 #pragma once
 
 #ifdef LEAN_TRACE
-#include <mutex>
+#include "util/thread.h"
 #include <fstream>
 namespace lean {
 extern std::ofstream tout;
-extern std::mutex    trace_mutex;
+extern mutex         trace_mutex;
 }
-#define TRACE_CODE(CODE) { std::lock_guard<std::mutex> _lean_trace_lock_(lean::trace_mutex); CODE }
+#define TRACE_CODE(CODE) { lock_guard<mutex> _lean_trace_lock_(lean::trace_mutex); CODE }
 #else
 #define TRACE_CODE(CODE)
 #endif

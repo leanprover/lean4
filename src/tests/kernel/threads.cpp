@@ -4,9 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <thread>
-#include <mutex>
 #include <vector>
+#include "util/thread.h"
 #include "util/test.h"
 #include "kernel/expr.h"
 #include "kernel/free_vars.h"
@@ -48,11 +47,11 @@ static void tst1() {
     expr a = Const("a");
     expr f = Const("f");
     a = f(a, a);
-    std::vector<std::thread> ts;
+    std::vector<thread> ts;
 
-    #if !defined(__APPLE__) && !defined(LEAN_THREAD_UNSAFE)
+    #if !defined(__APPLE__) && defined(LEAN_MULTI_THREAD)
     for (unsigned i = 0; i < 8; i++) {
-        ts.push_back(std::thread([&](){ save_stack_info(); mk(a); }));
+        ts.push_back(thread([&](){ save_stack_info(); mk(a); }));
     }
     for (unsigned i = 0; i < 8; i++) {
         ts[i].join();

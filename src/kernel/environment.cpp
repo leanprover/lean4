@@ -7,11 +7,10 @@ Author: Leonardo de Moura
 #include <cstdlib>
 #include <algorithm>
 #include <vector>
-#include <atomic>
 #include <tuple>
 #include <set>
 #include <unordered_map>
-#include <mutex>
+#include "util/thread.h"
 #include "util/safe_arith.h"
 #include "util/realpath.h"
 #include "kernel/for_each_fn.h"
@@ -26,17 +25,17 @@ namespace lean {
 static name g_builtin_module("builtin_module");
 class extension_factory {
     std::vector<environment::mk_extension> m_makers;
-    std::mutex                             m_makers_mutex;
+    mutex                                  m_makers_mutex;
 public:
     unsigned register_extension(environment::mk_extension mk) {
-        std::lock_guard<std::mutex> lock(m_makers_mutex);
+        lock_guard<mutex> lock(m_makers_mutex);
         unsigned r = m_makers.size();
         m_makers.push_back(mk);
         return r;
     }
 
     std::unique_ptr<environment::extension> mk(unsigned extid) {
-        std::lock_guard<std::mutex> lock(m_makers_mutex);
+        lock_guard<mutex> lock(m_makers_mutex);
         return m_makers[extid]();
     }
 };
@@ -61,11 +60,7 @@ struct environment::imp {
     std::vector<constraint>              m_constraints;
     std::vector<level>                   m_uvars;
     // Children environment management
-#ifdef LEAN_THREAD_UNSAFE
-    unsigned                             m_num_children;
-#else
-    std::atomic<unsigned>                m_num_children;
-#endif
+    atomic<unsigned>                     m_num_children;
     std::shared_ptr<imp>                 m_parent;
     // Object management
     std::vector<object>                  m_objects;

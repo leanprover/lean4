@@ -458,21 +458,21 @@ public:
     void rround(mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_rint_round(m_val, m_val, rnd); }
     void rtrunc(mpfr_rnd_t rnd = get_mpfp_rnd()) { mpfr_rint_trunc(m_val, m_val, rnd); }
 
-    friend mpfp floor(mpfp const & a) { static thread_local mpfp tmp; tmp = a; tmp.floor(); return tmp; }
-    friend mpfp ceil (mpfp const & a) { static thread_local mpfp tmp; tmp = a; tmp.ceil();  return tmp; }
-    friend mpfp round(mpfp const & a) { static thread_local mpfp tmp; tmp = a; tmp.round(); return tmp; }
-    friend mpfp trunc(mpfp const & a) { static thread_local mpfp tmp; tmp = a; tmp.trunc(); return tmp; }
+    friend mpfp floor(mpfp const & a) { static LEAN_THREAD_LOCAL mpfp tmp; tmp = a; tmp.floor(); return tmp; }
+    friend mpfp ceil (mpfp const & a) { static LEAN_THREAD_LOCAL mpfp tmp; tmp = a; tmp.ceil();  return tmp; }
+    friend mpfp round(mpfp const & a) { static LEAN_THREAD_LOCAL mpfp tmp; tmp = a; tmp.round(); return tmp; }
+    friend mpfp trunc(mpfp const & a) { static LEAN_THREAD_LOCAL mpfp tmp; tmp = a; tmp.trunc(); return tmp; }
     friend mpfp rfloor(mpfp const & a, mpfr_rnd_t rnd = get_mpfp_rnd()) {
-        static thread_local mpfp tmp; tmp = a; tmp.rfloor(rnd); return tmp;
+        static LEAN_THREAD_LOCAL mpfp tmp; tmp = a; tmp.rfloor(rnd); return tmp;
     }
     friend mpfp rceil (mpfp const & a, mpfr_rnd_t rnd = get_mpfp_rnd()) {
-        static thread_local mpfp tmp; tmp = a; tmp.rceil(rnd);  return tmp;
+        static LEAN_THREAD_LOCAL mpfp tmp; tmp = a; tmp.rceil(rnd);  return tmp;
     }
     friend mpfp rround(mpfp const & a, mpfr_rnd_t rnd = get_mpfp_rnd()) {
-        static thread_local mpfp tmp; tmp = a; tmp.rround(rnd); return tmp;
+        static LEAN_THREAD_LOCAL mpfp tmp; tmp = a; tmp.rround(rnd); return tmp;
     }
     friend mpfp rtrunc(mpfp const & a, mpfr_rnd_t rnd = get_mpfp_rnd()) {
-        static thread_local mpfp tmp; tmp = a; tmp.rtrunc(rnd); return tmp;
+        static LEAN_THREAD_LOCAL mpfp tmp; tmp = a; tmp.rtrunc(rnd); return tmp;
     }
 
     void power(mpfp const & b, mpfr_rnd_t rnd = get_mpfp_rnd())      { mpfr_pow(m_val, m_val, b.m_val, rnd); }

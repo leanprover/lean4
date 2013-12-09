@@ -219,13 +219,19 @@ lazy_list<T> repeat_at_most(T const & v, F && f, unsigned k, char const * cname 
    \remark \c check_ms is how often the main thread checks whether the child
    thread finished.
 */
+#if !defined(LEAN_MULTI_THREAD)
+template<typename T>
+lazy_list<T> timeout(lazy_list<T> const & l, unsigned, unsigned) {
+    return l;
+}
+#else
 template<typename T>
 lazy_list<T> timeout(lazy_list<T> const & l, unsigned ms, unsigned check_ms = g_small_sleep) {
     if (check_ms == 0)
         check_ms = 1;
     return mk_lazy_list<T>([=]() {
             typename lazy_list<T>::maybe_pair r;
-            std::atomic<bool> done(false);
+            atomic<bool> done(false);
             interruptible_thread th([&]() {
                     try {
                         r = l.pull();
@@ -243,7 +249,7 @@ lazy_list<T> timeout(lazy_list<T> const & l, unsigned ms, unsigned check_ms = g_
                     if (std::chrono::duration_cast<std::chrono::milliseconds>(curr - start) > d)
                         break;
                     check_interrupted();
-                    std::this_thread::sleep_for(small);
+                    this_thread::sleep_for(small);
                 }
                 th.request_interrupt();
                 th.join();
@@ -258,13 +264,14 @@ lazy_list<T> timeout(lazy_list<T> const & l, unsigned ms, unsigned check_ms = g_
             }
         });
 }
+#endif
 
 /**
    \brief Similar to interleave, but the heads are computed in parallel.
    Moreover, when pulling results from the lists, if one finishes before the other,
    then the other one is interrupted.
 */
-#ifdef LEAN_THREAD_UNSAFE
+#if !defined(LEAN_MULTI_THREAD)
 template<typename T>
 lazy_list<T> par(lazy_list<T> const & l1, lazy_list<T> const & l2, unsigned = g_small_sleep) {
     return interleave(l1, l2);
@@ -275,8 +282,8 @@ lazy_list<T> par(lazy_list<T> const & l1, lazy_list<T> const & l2, unsigned chec
     return mk_lazy_list<T>([=]() {
             typename lazy_list<T>::maybe_pair r1;
             typename lazy_list<T>::maybe_pair r2;
-            std::atomic<bool>  done1(false);
-            std::atomic<bool>  done2(false);
+            atomic<bool>  done1(false);
+            atomic<bool>  done2(false);
             interruptible_thread th1([&]() {
                     try {
                         r1 = l1.pull();
@@ -297,7 +304,7 @@ lazy_list<T> par(lazy_list<T> const & l1, lazy_list<T> const & l2, unsigned chec
                 std::chrono::milliseconds small(check_ms);
                 while (!done1 && !done2) {
                     check_interrupted();
-                    std::this_thread::sleep_for(small);
+                    this_thread::sleep_for(small);
                 }
                 th1.request_interrupt();
                 th2.request_interrupt();

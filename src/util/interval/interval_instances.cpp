@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/thread.h"
 #include "util/numerics/mpq.h"
 #include "util/numerics/double.h"
 #include "util/numerics/float.h"

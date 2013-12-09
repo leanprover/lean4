@@ -195,21 +195,21 @@ void import_basic(environment & env);
 */
 #define MK_BUILTIN(Name, ClassName)                                     \
 expr mk_##Name() {                                                      \
-    static thread_local expr r = mk_value(*(new ClassName()));          \
+    static LEAN_THREAD_LOCAL expr r = mk_value(*(new ClassName()));     \
     return r;                                                           \
-}                                                                       \
+}
 
 /**
    \brief Helper macro for generating "defined" constants.
 */
-#define MK_CONSTANT(Name, NameObj)                              \
-static name Name ## _name = NameObj;                            \
-expr mk_##Name() {                                              \
-    static thread_local expr r = mk_constant(Name ## _name);    \
-    return r ;                                                  \
-}                                                               \
-bool is_ ## Name(expr const & e) {                              \
-    return is_constant(e) && const_name(e) == Name ## _name;    \
+#define MK_CONSTANT(Name, NameObj)                                      \
+static name Name ## _name = NameObj;                                    \
+expr mk_##Name() {                                                      \
+    static LEAN_THREAD_LOCAL expr r = mk_constant(Name ## _name);       \
+    return r ;                                                          \
+}                                                                       \
+bool is_ ## Name(expr const & e) {                                      \
+    return is_constant(e) && const_name(e) == Name ## _name;            \
 }
 
 #define MK_IS_BUILTIN(Name, Builtin)                                    \

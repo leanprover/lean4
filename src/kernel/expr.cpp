@@ -45,7 +45,7 @@ expr_cell::expr_cell(expr_kind k, unsigned h, bool has_mv):
     // Remark: using pointer address as a hash code is not a good idea.
     //    - each execution run will behave differently.
     //    - the hash is not diverse enough
-    static thread_local unsigned g_hash_alloc_counter = 0;
+    static LEAN_THREAD_LOCAL unsigned g_hash_alloc_counter = 0;
     m_hash_alloc = g_hash_alloc_counter;
     g_hash_alloc_counter++;
 }
@@ -218,7 +218,7 @@ void expr_cell::dealloc() {
 }
 
 expr mk_type() {
-    static thread_local expr r = mk_type(level());
+    static LEAN_THREAD_LOCAL expr r = mk_type(level());
     return r;
 }
 

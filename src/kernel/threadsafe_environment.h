@@ -31,8 +31,8 @@ public:
    \brief See \c read_only_environment
 */
 class read_write_environment {
-    environment  m_env;
-    unique_lock  m_lock;
+    environment     m_env;
+    exclusive_lock  m_lock;
 public:
     read_write_environment(environment const & env);
     ~read_write_environment();

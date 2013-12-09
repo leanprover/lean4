@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "util/pair.h"
 #include "util/debug.h"
 #include "util/buffer.h"
+#include "util/thread.h"
 
 namespace lean {
 /**
@@ -223,7 +224,7 @@ class splay_tree : public CMP {
     }
 
     bool insert_pull(T const & v, bool is_insert) {
-        static thread_local std::vector<entry> path;
+        static LEAN_THREAD_LOCAL std::vector<entry> path;
         node * n   = m_ptr;
         bool found = false;
         while (true) {
@@ -271,7 +272,7 @@ class splay_tree : public CMP {
 
     void pull_max() {
         if (!m_ptr) return;
-        static thread_local std::vector<entry> path;
+        static LEAN_THREAD_LOCAL std::vector<entry> path;
         node * n   = m_ptr;
         while (true) {
             lean_assert(n);

@@ -121,7 +121,7 @@ int io_state_set_options(lua_State * L) {
     return 0;
 }
 
-static std::mutex g_print_mutex;
+static mutex g_print_mutex;
 
 static void print(io_state * ios, bool reg, char const * msg) {
     if (ios) {
@@ -136,7 +136,7 @@ static void print(io_state * ios, bool reg, char const * msg) {
 
 /** \brief Thread safe version of print function */
 static int print(lua_State * L, int start, bool reg) {
-    std::lock_guard<std::mutex> lock(g_print_mutex);
+    lock_guard<mutex> lock(g_print_mutex);
     io_state * ios = get_io_state(L);
     int n = lua_gettop(L);
     int i;

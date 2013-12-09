@@ -4,12 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <atomic>
 #include <unordered_set>
 #include <vector>
 #include <utility>
 #include <functional>
-
+#include "util/thread.h"
 #include "util/map.h"
 #include "util/sstream.h"
 #include "util/exception.h"

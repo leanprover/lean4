@@ -7,10 +7,11 @@ Author: Soonho Kong
 #include <cmath>
 #include <cstdio>
 #include <string>
+#include "util/thread.h"
 #include "util/numerics/mpfp.h"
 
 namespace lean {
-static thread_local mpfr_rnd_t g_mpfp_rnd = MPFR_RNDN;
+static LEAN_THREAD_LOCAL mpfr_rnd_t g_mpfp_rnd = MPFR_RNDN;
 
 mpfp numeric_traits<mpfp>::pi_l;
 mpfp numeric_traits<mpfp>::pi_n;

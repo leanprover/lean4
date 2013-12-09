@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include <mutex>
+#include "util/thread.h"
 
 namespace lean {
 /**
@@ -23,20 +23,20 @@ namespace lean {
 */
 template<typename T>
 class interruptable_ptr {
-    T *        m_ptr;
-    std::mutex m_mutex;
+    T *   m_ptr;
+    mutex m_mutex;
 public:
     interruptable_ptr():m_ptr(nullptr) {}
 
     T * set(T * ptr) {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        lock_guard<mutex> lock(m_mutex);
         T * old = m_ptr;
         m_ptr = ptr;
         return old;
     }
 
     void set_interrupt(bool flag) {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        lock_guard<mutex> lock(m_mutex);
         if (m_ptr)
             m_ptr->set_interrupt(flag);
     }

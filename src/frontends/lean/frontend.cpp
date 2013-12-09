@@ -339,7 +339,10 @@ struct lean_extension : public environment::extension {
     }
 
     bool is_coercion(expr const & f) const {
-        return m_coercion_set.find(f) != m_coercion_set.end();
+        if (m_coercion_set.find(f) != m_coercion_set.end())
+            return true;
+        lean_extension const * parent = get_parent();
+        return parent && parent->is_coercion(f);
     }
 };
 

@@ -170,10 +170,15 @@ struct lean_extension : public environment::extension {
                  f : Pi {A : Type} (a : A) {B : Type} (b : B), A    Pattern _ * _ *
                  g : Pi {A B : Type} (a : A) (b : B), A             Pattern _ _ * *
 
-       TODO(Leo): not implemented yet
+        Remark: we remove the explicit suffix at mark_implicit_arguments.
     */
     bool compatible_denotation(expr const & d1, expr const & d2) {
-        return get_implicit_arguments(d1) == get_implicit_arguments(d2);
+        auto imp1 = get_implicit_arguments(d1);
+        auto imp2 = get_implicit_arguments(d2);
+        auto it1  = std::find(imp1.begin(), imp1.end(), false);
+        auto it2  = std::find(imp2.begin(), imp2.end(), false);
+        for (; it1 != imp1.end() && it2 != imp2.end() && *it1 == *it2; ++it1, ++it2) {}
+        return it1 == imp1.end() && it2 == imp2.end();
     }
 
     /**

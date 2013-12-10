@@ -158,6 +158,10 @@ int main(int argc, char ** argv) {
             }
             if (k == input_kind::Lean) {
                 std::ifstream in(argv[i]);
+                if (in.bad() || in.fail()) {
+                    std::cerr << "Failed to open file '" << argv[i] << "'\n";
+                    return 1;
+                }
                 parser p(f, in, &S, false, false);
                 if (!p())
                     ok = false;

@@ -13,7 +13,7 @@ with libraries that do not. However, it did not work in our experiments.
 To be able to compile Lean with split-stacks, we also have to compile
 GMP, MPFR and Lua using split-stacks.
 
-We also had to use the [gold linker](http://en.wikipedia.org/wiki/Gold_(linker)).
+We also had to use the [gold linker](http://en.wikipedia.org/wiki/Gold_(linker).
 
 Gold linker
 -----------
@@ -37,84 +37,69 @@ get an output like the following one:
 Compiling GMP using split-stacks
 --------------------------------
 
-- Download GMP from [https://gmplib.org](https://gmplib.org/)
-- Uncompress the gmp tar-ball at `$HOME/tools`
-- Configure it using
+Download GMP from [https://gmplib.org](https://gmplib.org/); uncompress the gmp tar-ball at `$HOME/tools`; and configure it using
 
-    ./configure CFLAGS=-fsplit-stack --prefix=$HOME/tools/split-stack --enable-static
+      ./configure CFLAGS=-fsplit-stack --prefix=$HOME/tools/split-stack --enable-static
 
-- Build
+Then, build and install using
 
-    make
-
-- Install
-
-    make install
+      make
+      make install
 
 We should have the file `libgmp.a` at `$HOME/tools/split-stack/lib`.
 
 Compiling MPFR using split-stacks
 ----------------------------------
 
-- Download MPFR from [http://www.mpfr.org/](http://www.mpfr.org/)
-- Uncompress the mpfr tar-ball at `$HOME/tools`
-- Configure it using
+Download MPFR from [http://www.mpfr.org/](http://www.mpfr.org/); uncompress the mpfr tar-ball at `$HOME/tools`; and configure it using
 
-    ./configure CFLAGS=-fsplit-stack --prefix=$HOME/tools/split-stack --with-gmp-include=$HOME/tools/split-stack/include --with-gmp-lib=$HOME/tools/split-stack/lib --enable-static
+      ./configure CFLAGS=-fsplit-stack --prefix=$HOME/tools/split-stack --with-gmp-include=$HOME/tools/split-stack/include --with-gmp-lib=$HOME/tools/split-stack/lib --enable-static
 
-Make sure MPFR does not produce any warning/error message
+Make sure MPFR does not produce any warning/error message. Then, build and install using:
 
-- Build
-
-    make
-
-- Install
-
-    make install
+      make
+      make install
 
 We should have the file `libmpfr.a` at `$HOME/tools/split-stack/lib`.
 
 Compiling Lua using split-stacks
 --------------------------------
 
-- Download Lua from [http://www.lua.org/](http://www.lua.org/)
-- Uncompress the Lua tar-ball at `$HOME/tools`
-- Modify the following line in the file `src/Makefile` in the Lua directory
+Download Lua from [http://www.lua.org/](http://www.lua.org/); uncompress the Lua tar-ball at `$HOME/tools`.
+Then, modify the following line in the file `src/Makefile` in the Lua directory.
 
-      CFLAGS= -O2 -Wall -DLUA_COMPAT_ALL $(SYSCFLAGS) $(MYCFLAGS)
+       CFLAGS= -O2 -Wall -DLUA_COMPAT_ALL $(SYSCFLAGS) $(MYCFLAGS)
 
-  We should include the option `-fsplit-stack`
+We should include the option `-fsplit-stack`
 
-      CFLAGS= -O2 -fsplit-stack -Wall -DLUA_COMPAT_ALL $(SYSCFLAGS) $(MYCFLAGS)
+       CFLAGS= -O2 -fsplit-stack -Wall -DLUA_COMPAT_ALL $(SYSCFLAGS) $(MYCFLAGS)
 
-- Build
+Then, build and install using
 
-    make linux
-
-- Install
-
-    make linux install INSTALL_TOP=$HOME/tools/split-stack
+       make linux
+       make linux install INSTALL_TOP=$HOME/tools/split-stack
 
 We should have the file `liblua.a` at `$HOME/tools/split-stack/lib`.
 
 Compiling Lean using split-stacks
 --------------------------------
 
-- Go to the Lean directory
-- Create the folder `build/release`
+Go to the Lean directory, and create the folder `build/release`
 
-    mkdir build/release
+      mkdir build/release
 
-- Configure it using
+Configure Lean using
 
-    cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_CXX_COMPILER=g++ -D TCMALLOC=OFF -D LUA_LIBRARIES=$HOME/tools/split-stack/lib/liblua.a -D LUA_INCLUDE_DIR=$HOME/tool/split-stack/include -D GMP_INCLUDE_DIR=$HOME/tools/split-stack/include -D GMP_LIBRARIES=$HOME/tools/split-stack/lib/libgmp.a -D MPFR_LIBRARIES=$HOME/tools/split-stack/lib/libmpfr.a ../../src
+      cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_CXX_COMPILER=g++ -D TCMALLOC=OFF -D LUA_LIBRARIES=$HOME/tools/split-stack/lib/liblua.a -D LUA_INCLUDE_DIR=$HOME/tool/split-stack/include -D GMP_INCLUDE_DIR=$HOME/tools/split-stack/include -D GMP_LIBRARIES=$HOME/tools/split-stack/lib/libgmp.a -D MPFR_LIBRARIES=$HOME/tools/split-stack/lib/libmpfr.a ../../src
 
 Remark: if you have ninja build tool installed in your system, you can also provide `-G Ninja`
 
-- Build
+Then, build using
 
-    make
+      make
 
-- Test it
+and, test it
 
-    yes "C" | ctest
+      yes "C" | ctest
+
+The Lean executable will be located at `build/release/shell/lean`.

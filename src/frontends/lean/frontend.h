@@ -130,6 +130,11 @@ public:
     /** \brief Return the position of the arguments that are implicit. */
     std::vector<bool> const & get_implicit_arguments(name const & n) const;
     /**
+        \brief Return the position of the arguments that are implicit.
+        \remark If \c n is not a constant, then return the empty vector.
+    */
+    std::vector<bool> const & get_implicit_arguments(expr const & n) const;
+    /**
         \brief This frontend associates an definition with each
         definition (or postulate) that has implicit arguments. The
         additional definition has explicit arguments, and it is called

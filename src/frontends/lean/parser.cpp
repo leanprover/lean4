@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <tuple>
 #include <vector>
+#include <limits>
 #include "util/scoped_map.h"
 #include "util/exception.h"
 #include "util/sstream.h"
@@ -580,13 +581,48 @@ class parser::imp {
     /*@{*/
 
     /**
+       \brief Return the size of the implicit vector associated with the given denotation.
+    */
+    unsigned get_implicit_vector_size(expr const & d) {
+        return m_frontend.get_implicit_arguments(d).size();
+    }
+
+    /**
+       \brief Return a vector \c v that is the implicit vector for some \c d in \c ds,
+       and <tt>v.size() == min{get_implicit_vector_size(d) | d in ds}</tt>
+    */
+    std::vector<bool> const & get_smallest_implicit_vector(list<expr> const & ds) {
+        std::vector<bool> const * r = nullptr;
+        unsigned m = std::numeric_limits<unsigned>::max();
+        for (expr const & d : ds) {
+            std::vector<bool> const & v = m_frontend.get_implicit_arguments(d);
+            unsigned s = v.size();
+            if (s == 0) {
+                return v;
+            } else if (s < m) {
+                r = &v;
+                m = s;
+            }
+        }
+        lean_assert(r);
+        return *r;
+    }
+
+    /**
+       \brief Return <tt>min{get_implicit_vector_size(d) | d in ds}</tt>
+    */
+    unsigned get_smallest_implicit_vector_size(list<expr> const & ds) {
+        return get_smallest_implicit_vector(ds).size();
+    }
+
+    /**
        \brief Return the function associated with the given operator.
        If the operator has been overloaded, it returns a choice expression
        of the form <tt>(choice f_1 f_2 ... f_k)</tt> where f_i's are different options.
        After we finish parsing, the elaborator
        resolve/decide which f_i should be used.
     */
-    expr mk_fun(operator_info const & op) {
+    expr mk_fun(operator_info const & op, pos_info const & pos) {
         list<expr> const & fs = op.get_denotations();
         lean_assert(!is_nil(fs));
         auto it = fs.begin();
@@ -595,10 +631,24 @@ class parser::imp {
         if (it == fs.end()) {
             return r;
         } else {
+            unsigned min_sz = get_smallest_implicit_vector_size(fs);
             buffer<expr> alternatives;
-            alternatives.push_back(r);
+            auto add_alternative = [&](expr const & d) {
+                unsigned sz = get_implicit_vector_size(d);
+                if (sz > min_sz) {
+                    // must fill the difference with placeholders
+                    buffer<expr> aux;
+                    aux.push_back(d);
+                    for (unsigned i = min_sz; i < sz; i++)
+                        aux.push_back(save(mk_placeholder(), pos));
+                    alternatives.push_back(mk_app(aux));
+                } else {
+                    alternatives.push_back(d);
+                }
+            };
+            add_alternative(r);
             for (; it != fs.end(); ++it)
-                alternatives.push_back(*it);
+                add_alternative(*it);
             return mk_choice(alternatives.size(), alternatives.data());
         }
     }
@@ -609,29 +659,23 @@ class parser::imp {
     */
     expr mk_application(operator_info const & op, pos_info const & pos, unsigned num_args, expr const * args) {
         buffer<expr> new_args;
-        expr f = save(mk_fun(op), pos);
+        expr f = save(mk_fun(op, pos), pos);
         new_args.push_back(f);
-        // I'm using the fact that all denotations are compatible.
         // See lean_frontend.cpp for the definition of compatible denotations.
-        expr const & d = head(op.get_denotations());
-        if (is_constant(d) && m_frontend.has_implicit_arguments(const_name(d))) {
-            std::vector<bool> const & imp_args = m_frontend.get_implicit_arguments(const_name(d));
-            unsigned i = 0;
-            for (unsigned j = 0; j < imp_args.size(); j++) {
-                if (imp_args[j]) {
-                    new_args.push_back(save(mk_placeholder(), pos));
-                } else {
-                    if (i >= num_args)
-                        throw parser_error(sstream() << "unexpected number of arguments for denotation with implicit arguments, it expects " << num_args << " explicit argument(s)", pos);
-                    new_args.push_back(args[i]);
-                    i++;
-                }
-            }
-            for (; i < num_args; i++)
+        auto imp_args = get_smallest_implicit_vector(op.get_denotations());
+        unsigned i = 0;
+        for (unsigned j = 0; j < imp_args.size(); j++) {
+            if (imp_args[j]) {
+                new_args.push_back(save(mk_placeholder(), pos));
+            } else {
+                if (i >= num_args)
+                    throw parser_error(sstream() << "unexpected number of arguments for denotation with implicit arguments, it expects " << num_args << " explicit argument(s)", pos);
                 new_args.push_back(args[i]);
-        } else {
-            new_args.append(num_args, args);
+                i++;
+            }
         }
+        for (; i < num_args; i++)
+            new_args.push_back(args[i]);
         return save(mk_app(new_args), pos);
     }
     expr mk_application(operator_info const & op, pos_info const & pos, std::initializer_list<expr> const & l) {

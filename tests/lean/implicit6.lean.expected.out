@@ -1,0 +1,11 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: f
+⊤ + ⊥
+10 + 20
+10 + - 20
+  Set: lean::pp::notation
+  Set: lean::pp::coercion
+f ⊤ ⊥
+Nat::add 10 20
+Int::add (nat_to_int 10) (Nat::neg 20)

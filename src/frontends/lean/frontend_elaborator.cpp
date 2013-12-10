@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_visitor.h"
 #include "kernel/unification_constraint.h"
 #include "kernel/instantiate.h"
+#include "kernel/builtin.h"
 #include "library/type_inferer.h"
 #include "library/placeholder.h"
 #include "library/elaborator/elaborator.h"
@@ -23,29 +24,52 @@ Author: Leonardo de Moura
 
 namespace lean {
 static name g_x_name("x");
-static name g_choice_name = name::mk_internal_unique_name();
-static expr g_choice = mk_constant(g_choice_name);
 static format g_assignment_fmt  = format(":=");
 static format g_unification_u_fmt = format("\u2248");
 static format g_unification_fmt = format("=?=");
 
+/**
+   \brief Internal value used to store choices for the elaborator.
+   This is a transient value that is only used to setup a problem
+   for the elaborator.
+*/
+struct choice_value : public value {
+    std::vector<expr> m_choices;
+    choice_value(unsigned num_fs, expr const * fs):m_choices(fs, fs + num_fs) {}
+    virtual ~choice_value() {}
+    virtual expr get_type() const { lean_unreachable(); } // LCOV_EXCL_LINE
+    virtual name get_name() const { return name("Choice"); }
+    virtual void display(std::ostream & out) const {
+        out << "(Choice";
+        for (auto c : m_choices) {
+            out << " (" << c << ")";
+        }
+        out << ")";
+    }
+    // Remark: we don't implement the pp methods because the lean::pp_fn formatter
+    // object has support for formatting choice internal values.
+};
+
 expr mk_choice(unsigned num_fs, expr const * fs) {
     lean_assert(num_fs >= 2);
-    return mk_eq(g_choice, mk_app(num_fs, fs));
+    return mk_value(*(new choice_value(num_fs, fs)));
 }
 
 bool is_choice(expr const & e) {
-    return is_eq(e) && eq_lhs(e) == g_choice;
+    return is_value(e) && dynamic_cast<choice_value const *>(&to_value(e)) != nullptr;
+}
+
+choice_value const & to_choice_value(expr const & e) {
+    lean_assert(is_choice(e));
+    return static_cast<choice_value const &>(to_value(e));
 }
 
 unsigned get_num_choices(expr const & e) {
-    lean_assert(is_choice(e));
-    return num_args(eq_rhs(e));
+    return to_choice_value(e).m_choices.size();
 }
 
 expr const & get_choice(expr const & e, unsigned i) {
-    lean_assert(is_choice(e));
-    return arg(eq_rhs(e), i);
+    return to_choice_value(e).m_choices[i];
 }
 
 class coercion_justification_cell : public justification_cell {
@@ -251,6 +275,7 @@ class frontend_elaborator::imp {
             } else {
                 buffer<expr> to_keep;
                 buffer<optional<expr>> to_keep_types;
+                std::sort(matched.begin(), matched.end()); // we must preserve the original order
                 for (unsigned i : matched) {
                     to_keep.push_back(f_choices[i]);
                     to_keep_types.push_back(f_choice_types[i]);

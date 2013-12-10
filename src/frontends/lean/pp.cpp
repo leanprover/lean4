@@ -200,8 +200,10 @@ class pp_fn {
     */
     bool is_atomic(expr const & e) {
         switch (e.kind()) {
-        case expr_kind::Var: case expr_kind::Constant: case expr_kind::Value:
+        case expr_kind::Var: case expr_kind::Constant:
             return true;
+        case expr_kind::Value:
+            return !is_choice(e);
         case expr_kind::Type:
             return e == Type();
         case expr_kind::MetaVar:
@@ -700,6 +702,8 @@ class pp_fn {
             result p;
             if (is_constant(f))
                 p = mk_result(format(const_name(f)), 1);
+            else if (is_choice(f))
+                p = pp_child(f, depth);
             else if (is_value(f))
                 p = mk_result(to_value(f).pp(m_unicode, m_coercion), 1);
             else

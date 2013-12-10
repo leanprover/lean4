@@ -504,6 +504,12 @@ bool frontend::has_implicit_arguments(name const & n) const {
 std::vector<bool> const & frontend::get_implicit_arguments(name const & n) const {
     return to_ext(m_env).get_implicit_arguments(n);
 }
+std::vector<bool> const & frontend::get_implicit_arguments(expr const & n) const {
+    if (is_constant(n))
+        return get_implicit_arguments(const_name(n));
+    else
+        return g_empty_vector;
+}
 name const & frontend::get_explicit_version(name const & n) const {
     return to_ext(m_env).get_explicit_version(n);
 }

@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
-#include <chrono>
 #include "util/thread.h"
 #include "util/test.h"
 #include "util/trace.h"
@@ -219,7 +218,7 @@ static void tst5() {
     env.add_var("f", Bool >> (Bool >> Bool));
     env.add_var("a", Bool);
     normalizer proc(env);
-    std::chrono::milliseconds dura(50);
+    chrono::milliseconds dura(50);
     interruptible_thread thread([&]() {
             try {
                 proc(t);

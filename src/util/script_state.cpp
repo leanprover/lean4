@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <iostream>
-#include <chrono>
 #include <string>
 #include <vector>
 #include "util/thread.h"
@@ -304,7 +303,7 @@ static void open_state(lua_State * L) {
 
 // TODO(Leo): allow the user to change it?
 #define SMALL_DELAY 10 // in ms
-std::chrono::milliseconds g_small_delay(SMALL_DELAY);
+chrono::milliseconds g_small_delay(SMALL_DELAY);
 
 #if defined(LEAN_MULTI_THREAD)
 /**
@@ -350,7 +349,7 @@ public:
         lua_State * channel = m_channel.m_ptr->m_state;
         if (i > 0) {
             // i is the position of the timeout argument
-            std::chrono::milliseconds dura(luaL_checkinteger(tgt, i));
+            chrono::milliseconds dura(luaL_checkinteger(tgt, i));
             if (lua_gettop(channel) == m_ini)
                 m_cv.wait_for(lock, dura);
             if (lua_gettop(channel) == m_ini) {

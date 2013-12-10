@@ -57,7 +57,7 @@ static void tst3() {
     shared_mutex      mutex;
     atomic<bool>      t2_started(false);
     atomic<bool>      t2_done(false);
-    std::chrono::milliseconds small_delay(10);
+    chrono::milliseconds small_delay(10);
 
     thread t1([&]() {
             while (!t2_started) {
@@ -92,7 +92,7 @@ static void tst4() {
     shared_mutex      mutex;
     atomic<bool>      t2_started(false);
     atomic<bool>      t2_done(false);
-    std::chrono::milliseconds small_delay(10);
+    chrono::milliseconds small_delay(10);
 
     thread t1([&]() {
             while (!t2_started) {
@@ -127,7 +127,7 @@ static void tst5() {
     shared_mutex mutex;
     atomic<bool> t2_started(false);
     atomic<bool> t1_done(false);
-    std::chrono::milliseconds small_delay(10);
+    chrono::milliseconds small_delay(10);
 
     thread t1([&]() {
             while (!t2_started) {
@@ -161,7 +161,7 @@ static void tst6() {
     interruptible_thread t1([]() {
             try {
                 // Remark: this_thread::sleep_for does not check whether the thread has been interrupted or not.
-                // this_thread::sleep_for(std::chrono::milliseconds(1000000));
+                // this_thread::sleep_for(chrono::milliseconds(1000000));
                 sleep_for(1000000);
             } catch (interrupted &) {
                 std::cout << "interrupted...\n";

@@ -7,8 +7,8 @@ set(CMAKE_COLOR_MAKEFILE ON)
 enable_testing()
 
 option(TRACK_MEMORY_USAGE "TRACK_MEMORY_USAGE" ON)
-option(MULTI_THREAD       "MULTI_THREAD"    ON)
-
+option(MULTI_THREAD       "MULTI_THREAD"       ON)
+option(BOOST              "BOOST"              OFF)
 # Added for CTest
 INCLUDE(CTest)
 CONFIGURE_FILE(${LEAN_SOURCE_DIR}/CTestCustom.cmake.in
@@ -66,6 +66,14 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 else ()
     message(FATAL_ERROR "Your C++ compiler does not support C++11.")
 endif ()
+
+# BOOST
+if (("${BOOST}" MATCHES "ON") AND ("${MULTI_THREAD}" MATCHES "ON"))
+  find_package(Boost 1.54 COMPONENTS system thread atomic chrono REQUIRED)
+  message(STATUS "Boost library will be used to implement multi-threading support")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D LEAN_USE_BOOST")
+  set(EXTRA_LIBS ${EXTRA_LIBS} -lboost_system -lboost_chrono -lboost_atomic -lboost_thread)
+endif()
 
 # MPFR
 find_package(MPFR 3.1.0)

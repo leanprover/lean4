@@ -45,6 +45,53 @@ void sleep_for(unsigned ms, unsigned step_ms = g_small_sleep);
    \brief Thread that provides a method for setting its interrupt flag.
 */
 class interruptible_thread {
+public:
+    #if !defined(LEAN_USE_BOOST)
+    template<typename Function, typename... Args>
+    interruptible_thread(Function && fun, Args &&... args):
+        m_flag_addr(nullptr),
+        m_thread(
+            [&](Function&& fun, Args&&... args) {
+                m_flag_addr.store(get_flag_addr());
+                save_stack_info(false);
+                fun(std::forward<Args>(args)...);
+                m_flag_addr.store(&m_dummy_addr); // see comment before m_dummy_addr
+            },
+            std::forward<Function>(fun),
+            std::forward<Args>(args)...)
+        {}
+    #else
+    // Simpler version that works with Boost, and set stack size
+private:
+    std::function<void()> m_fun;
+    static void execute(interruptible_thread * _this) {
+        _this->m_flag_addr.store(get_flag_addr());
+        save_stack_info(false);
+        _this->m_fun();
+        _this->m_flag_addr.store(&(_this->m_dummy_addr)); // see comment before m_dummy_addr
+    }
+public:
+    template<typename Function>
+    interruptible_thread(Function && fun):m_fun(fun), m_flag_addr(nullptr), m_thread(get_thread_attributes(), boost::bind(execute, this)) {}
+    #endif
+
+    /**
+       \brief Return true iff an interrupt request has been made to the current thread.
+    */
+    bool interrupted() const;
+    /**
+       \brief Send a interrupt request to the current thread. Return
+       true iff the request has been successfully performed.
+
+       \remark The main thread may have to wait the interrupt flag of this thread to
+       be initialized. If the flag was not initialized, then the main thread will be put
+       to sleep for \c try_ms milliseconds until it tries to set the flag again.
+    */
+    void request_interrupt(unsigned try_ms = g_small_sleep);
+
+    void join();
+    bool joinable();
+private:
     atomic<atomic_bool*> m_flag_addr;
     /*
       The following auxiliary field is used to workaround a nasty bug
@@ -64,37 +111,6 @@ class interruptible_thread {
     atomic_bool           m_dummy_addr;
     thread                m_thread;
     static atomic_bool *  get_flag_addr();
-public:
-    template<typename Function, typename... Args>
-    interruptible_thread(Function && fun, Args &&... args):
-        m_flag_addr(nullptr),
-        m_thread(
-            [&](Function&& fun, Args&&... args) {
-                m_flag_addr.store(get_flag_addr());
-                save_stack_info(false);
-                fun(std::forward<Args>(args)...);
-                m_flag_addr.store(&m_dummy_addr); // see comment before m_dummy_addr
-            },
-            std::forward<Function>(fun),
-            std::forward<Args>(args)...)
-        {}
-
-    /**
-       \brief Return true iff an interrupt request has been made to the current thread.
-    */
-    bool interrupted() const;
-    /**
-       \brief Send a interrupt request to the current thread. Return
-       true iff the request has been successfully performed.
-
-       \remark The main thread may have to wait the interrupt flag of this thread to
-       be initialized. If the flag was not initialized, then the main thread will be put
-       to sleep for \c try_ms milliseconds until it tries to set the flag again.
-    */
-    void request_interrupt(unsigned try_ms = g_small_sleep);
-
-    void join();
-    bool joinable();
 };
 
 #if !defined(LEAN_MULTI_THREAD)

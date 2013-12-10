@@ -6,12 +6,16 @@ Author: Leonardo de Moura
 */
 #pragma once
 #if defined(LEAN_MULTI_THREAD)
+#if !defined(LEAN_USE_BOOST)
+// MULTI THREADING SUPPORT BASED ON THE STANDARD LIBRARY
 #include <thread>
 #include <mutex>
 #include <atomic>
 #include <condition_variable>
+#include <chrono>
 #define LEAN_THREAD_LOCAL thread_local
 namespace lean {
+inline void set_thread_stack_size(size_t ) {}
 using std::thread;
 using std::mutex;
 using std::atomic;
@@ -24,13 +28,42 @@ using std::atomic_load;
 using std::atomic_fetch_add_explicit;
 using std::atomic_fetch_sub_explicit;
 using std::memory_order_relaxed;
+namespace chrono      = std::chrono;
 namespace this_thread = std::this_thread;
 }
 #else
+// MULTI THREADING SUPPORT BASED ON THE BOOST LIBRARY
+#include <boost/thread.hpp>
+#define LEAN_THREAD_LOCAL thread_local
+namespace lean {
+void set_thread_stack_size(size_t );
+boost::thread::attributes const & get_thread_attributes();
+using boost::thread;
+using boost::mutex;
+using boost::atomic;
+using boost::memory_order_relaxed;
+using boost::condition_variable;
+using boost::unique_lock;
+using boost::lock_guard;
+namespace chrono      = boost::chrono;
+namespace this_thread = boost::this_thread;
+typedef atomic<bool>           atomic_bool;
+typedef atomic<unsigned short> atomic_ushort;
+template<typename T> T atomic_load(atomic<T> const * a) { return a->load(); }
+template<typename T> T atomic_fetch_add_explicit(atomic<T> * a, T v, boost::memory_order mo) { return a->fetch_add(v, mo); }
+template<typename T> T atomic_fetch_sub_explicit(atomic<T> * a, T v, boost::memory_order mo) { return a->fetch_sub(v, mo); }
+}
+#endif
+#else
+// NO MULTI THREADING SUPPORT
 #include <utility>
-#include <chrono>
+#include <cstdlib>
 #define LEAN_THREAD_LOCAL
 namespace lean {
+inline void set_thread_stack_size(size_t ) {}
+namespace chrono {
+typedef unsigned milliseconds;
+}
 constexpr int memory_order_relaxed = 0;
 template<typename T>
 class atomic {
@@ -73,8 +106,7 @@ public:
 };
 class this_thread {
 public:
-    template<typename Rep, typename Period>
-    static void sleep_for(std::chrono::duration<Rep, Period> const &) {}
+    static void sleep_for(chrono::milliseconds const &) {}
     static thread::id get_id() { return 0; }
     static void yield() {}
 };

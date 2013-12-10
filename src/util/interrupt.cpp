@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <chrono>
+#include "util/thread.h"
 #include "util/interrupt.h"
 #include "util/exception.h"
 
@@ -34,8 +34,8 @@ void sleep_for(unsigned ms, unsigned step_ms) {
     if (step_ms == 0)
         step_ms = 1;
     unsigned rounds = ms / step_ms;
-    std::chrono::milliseconds c(step_ms);
-    std::chrono::milliseconds r(ms % step_ms);
+    chrono::milliseconds c(step_ms);
+    chrono::milliseconds r(ms % step_ms);
     for (unsigned i = 0; i < rounds; i++) {
         this_thread::sleep_for(c);
         check_interrupted();
@@ -62,7 +62,7 @@ void interruptible_thread::request_interrupt(unsigned try_ms) {
             f->store(true);
             return;
         }
-        this_thread::sleep_for(std::chrono::milliseconds(try_ms));
+        this_thread::sleep_for(chrono::milliseconds(try_ms));
         check_interrupted();
     }
 }

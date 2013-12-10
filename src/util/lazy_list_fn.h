@@ -241,12 +241,12 @@ lazy_list<T> timeout(lazy_list<T> const & l, unsigned ms, unsigned check_ms = g_
                     done = true;
                 });
             try {
-                auto start = std::chrono::steady_clock::now();
-                std::chrono::milliseconds d(ms);
-                std::chrono::milliseconds small(check_ms);
+                auto start = chrono::steady_clock::now();
+                chrono::milliseconds d(ms);
+                chrono::milliseconds small(check_ms);
                 while (!done) {
-                    auto curr = std::chrono::steady_clock::now();
-                    if (std::chrono::duration_cast<std::chrono::milliseconds>(curr - start) > d)
+                    auto curr = chrono::steady_clock::now();
+                    if (chrono::duration_cast<chrono::milliseconds>(curr - start) > d)
                         break;
                     check_interrupted();
                     this_thread::sleep_for(small);
@@ -301,7 +301,7 @@ lazy_list<T> par(lazy_list<T> const & l1, lazy_list<T> const & l2, unsigned chec
                     done2 = true;
                 });
             try {
-                std::chrono::milliseconds small(check_ms);
+                chrono::milliseconds small(check_ms);
                 while (!done1 && !done2) {
                     check_interrupted();
                     this_thread::sleep_for(small);

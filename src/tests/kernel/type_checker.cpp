@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <iostream>
-#include <chrono>
 #include <string>
 #include "util/thread.h"
 #include "util/test.h"
@@ -227,7 +226,7 @@ static void tst12() {
     env.add_var("f", Int >> (Int >> Int));
     env.add_var("a", Int);
     type_checker checker(env);
-    std::chrono::milliseconds dura(100);
+    chrono::milliseconds dura(100);
     interruptible_thread thread([&]() {
             try {
                 std::cout << checker.infer_type(t) << "\n";

@@ -525,10 +525,7 @@ class pp_fn {
             if (has_implicit_arguments(owner, f)) {
                 name const & n = is_constant(f) ? const_name(f) : to_value(f).get_name();
                 m_implicit_args = &(get_implicit_arguments(env, n));
-                auto last_imp = std::find(m_implicit_args->rbegin(), m_implicit_args->rend(), true);
-                lean_assert(last_imp != m_implicit_args->rend()); // it must contain an implicit argument
-                unsigned num = static_cast<unsigned>(m_implicit_args->rend() - last_imp);
-                if (show_implicit || num_args(e) - 1 < num) {
+                if (show_implicit || num_args(e) - 1 < m_implicit_args->size()) {
                     // we are showing implicit arguments, thus we do
                     // not need the bit-mask for implicit arguments
                     m_implicit_args = nullptr;
@@ -796,7 +793,7 @@ class pp_fn {
     }
 
     bool is_implicit(std::vector<bool> const * implicit_args, unsigned arg_pos) {
-        return implicit_args && (*implicit_args)[arg_pos];
+        return implicit_args && arg_pos < implicit_args->size() && (*implicit_args)[arg_pos];
     }
 
     /**

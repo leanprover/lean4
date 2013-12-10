@@ -23,8 +23,8 @@ void init_builtin_notation(frontend & f) {
     if (!f.get_environment().mark_builtin_imported("lean_notation"))
         return;
     f.add_infix("=",  50, mk_homo_eq_fn());
-    f.mark_implicit_arguments(mk_homo_eq_fn(), {true, false, false});
-    f.mark_implicit_arguments(mk_if_fn(), {true, false, false, false});
+    f.mark_implicit_arguments(mk_homo_eq_fn(), 1);
+    f.mark_implicit_arguments(mk_if_fn(), 1);
 
     f.add_prefix("\u00ac", 40, mk_not_fn());     // "¬"
     f.add_infixr("&&", 35, mk_and_fn());         // "&&"
@@ -83,41 +83,41 @@ void init_builtin_notation(frontend & f) {
     f.add_coercion(mk_nat_to_real_fn());
 
     // implicit arguments for builtin axioms
-    f.mark_implicit_arguments(mk_cast_fn(), {true, true, false, false});
-    f.mark_implicit_arguments(mk_mp_fn(), {true, true, false, false});
-    f.mark_implicit_arguments(mk_discharge_fn(), {true, true, false});
-    f.mark_implicit_arguments(mk_refl_fn(), {true, false});
-    f.mark_implicit_arguments(mk_subst_fn(), {true, true, true, true, false, false});
+    f.mark_implicit_arguments(mk_cast_fn(), 2);
+    f.mark_implicit_arguments(mk_mp_fn(), 2);
+    f.mark_implicit_arguments(mk_discharge_fn(), 2);
+    f.mark_implicit_arguments(mk_refl_fn(), 1);
+    f.mark_implicit_arguments(mk_subst_fn(), 4);
     add_alias(f, "Subst", "SubstP");
-    f.mark_implicit_arguments("SubstP", {true, true, true, false, false, false});
-    f.mark_implicit_arguments(mk_trans_ext_fn(), {true, true, true, true, true, true, false, false});
-    f.mark_implicit_arguments(mk_eta_fn(), {true, true, false});
-    f.mark_implicit_arguments(mk_abst_fn(), {true, true, true, true, false});
-    f.mark_implicit_arguments(mk_imp_antisym_fn(), {true, true, false, false});
-    f.mark_implicit_arguments(mk_dom_inj_fn(), {true, true, true, true, false});
-    f.mark_implicit_arguments(mk_ran_inj_fn(), {true, true, true, true, false, false});
+    f.mark_implicit_arguments("SubstP", 3);
+    f.mark_implicit_arguments(mk_trans_ext_fn(), 6);
+    f.mark_implicit_arguments(mk_eta_fn(), 2);
+    f.mark_implicit_arguments(mk_abst_fn(), 4);
+    f.mark_implicit_arguments(mk_imp_antisym_fn(), 2);
+    f.mark_implicit_arguments(mk_dom_inj_fn(), 4);
+    f.mark_implicit_arguments(mk_ran_inj_fn(), 4);
 
     // implicit arguments for basic theorems
-    f.mark_implicit_arguments(mk_absurd_fn(), {true, false, false});
-    f.mark_implicit_arguments(mk_double_neg_elim_fn(), {true, true, false});
-    f.mark_implicit_arguments(mk_mt_fn(), {true, true, false, false});
-    f.mark_implicit_arguments(mk_contrapos_fn(), {true, true, false});
-    f.mark_implicit_arguments(mk_eq_mp_fn(), {true, true, false, false});
-    f.mark_implicit_arguments(mk_not_imp1_fn(), {true, true, false});
-    f.mark_implicit_arguments(mk_not_imp2_fn(), {true, true, false});
-    f.mark_implicit_arguments(mk_conj_fn(), {true, true, false, false});
-    f.mark_implicit_arguments(mk_conjunct1_fn(), {true, true, false});
-    f.mark_implicit_arguments(mk_conjunct2_fn(), {true, true, false});
-    f.mark_implicit_arguments(mk_disj1_fn(), {true, false, false});
-    f.mark_implicit_arguments(mk_disj2_fn(), {true, false, false});
-    f.mark_implicit_arguments(mk_disj_cases_fn(), {true, true, true, false, false, false});
-    f.mark_implicit_arguments(mk_symm_fn(), {true, true, true, false});
-    f.mark_implicit_arguments(mk_trans_fn(), {true, true, true, true, false, false});
-    f.mark_implicit_arguments(mk_eqt_elim_fn(), {true, false});
-    f.mark_implicit_arguments(mk_eqt_intro_fn(), {true, false});
-    f.mark_implicit_arguments(mk_congr1_fn(), {true, true, true, true, false, false});
-    f.mark_implicit_arguments(mk_congr2_fn(), {true, true, true, true, false, false});
-    f.mark_implicit_arguments(mk_congr_fn(),  {true, true, true, true, true, true, false, false});
-    f.mark_implicit_arguments(mk_forall_elim_fn(), {true, true, false, false});
+    f.mark_implicit_arguments(mk_absurd_fn(), 1);
+    f.mark_implicit_arguments(mk_double_neg_elim_fn(), 2);
+    f.mark_implicit_arguments(mk_mt_fn(), 2);
+    f.mark_implicit_arguments(mk_contrapos_fn(), 2);
+    f.mark_implicit_arguments(mk_eq_mp_fn(), 2);
+    f.mark_implicit_arguments(mk_not_imp1_fn(), 2);
+    f.mark_implicit_arguments(mk_not_imp2_fn(), 2);
+    f.mark_implicit_arguments(mk_conj_fn(), 2);
+    f.mark_implicit_arguments(mk_conjunct1_fn(), 2);
+    f.mark_implicit_arguments(mk_conjunct2_fn(), 2);
+    f.mark_implicit_arguments(mk_disj1_fn(), 1);
+    f.mark_implicit_arguments(mk_disj2_fn(), 1);
+    f.mark_implicit_arguments(mk_disj_cases_fn(), 3);
+    f.mark_implicit_arguments(mk_symm_fn(), 3);
+    f.mark_implicit_arguments(mk_trans_fn(), 4);
+    f.mark_implicit_arguments(mk_eqt_elim_fn(), 1);
+    f.mark_implicit_arguments(mk_eqt_intro_fn(), 1);
+    f.mark_implicit_arguments(mk_congr1_fn(), 4);
+    f.mark_implicit_arguments(mk_congr2_fn(), 4);
+    f.mark_implicit_arguments(mk_congr_fn(),  6);
+    f.mark_implicit_arguments(mk_forall_elim_fn(), 2);
 }
 }

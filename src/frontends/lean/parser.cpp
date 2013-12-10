@@ -627,6 +627,8 @@ class parser::imp {
                     i++;
                 }
             }
+            for (; i < num_args; i++)
+                new_args.push_back(args[i]);
         } else {
             new_args.append(num_args, args);
         }
@@ -765,11 +767,7 @@ class parser::imp {
                     pos_info p = pos();
                     expr f = (k == object_kind::Builtin) ? obj->get_value() : mk_constant(obj->get_name());
                     args.push_back(save(f, p));
-                    // We parse the arguments until we find the last implicit argument.
-                    auto last_imp = std::find(imp_args.rbegin(), imp_args.rend(), true);
-                    lean_assert(last_imp != imp_args.rend()); // it must contain an implicit argument
-                    unsigned num = static_cast<unsigned>(imp_args.rend() - last_imp);
-                    for (unsigned i = 0; i < num; i++) {
+                    for (unsigned i = 0; i < imp_args.size(); i++) {
                         if (imp_args[i]) {
                             args.push_back(save(mk_placeholder(), pos()));
                         } else {

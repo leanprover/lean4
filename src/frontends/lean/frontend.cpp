@@ -143,13 +143,34 @@ struct lean_extension : public environment::extension {
 
     /**
         \brief Two operator (aka notation) denotations are compatible
-        iff one of the following holds:
-
-        1) Both do not have implicit arguments
-
-        2) Both have implicit arguments, and the implicit arguments
+        iff after ignoring all implicit arguments in the prefix and
+        explicit arguments in the suffix, the remaining implicit arguments
         occur in the same positions.
 
+        Let us denote implicit arguments with a '_' and explicit with a '*'.
+        Then a denotation can be associated with a pattern containing one or more
+        '_' and '*'.
+        Two denotations are compatible, if we have the same pattern after
+        removed the '_' from the prefix and '*' from the suffix.
+
+        Here is an example of compatible denotations
+                 f : Int -> Int -> Int              Pattern   * *
+                 g : Pi {A : Type}, A -> A -> A     Pattern   _ * *
+                 h : Pi {A B : Type}, A -> B -> A   Pattern   _ _ * *
+            They are compatible, because after we remove the _ from the prefix, and * from the suffix,
+            all of them reduce to the empty sequence
+
+        Here is another example of compatible denotations:
+                 f : Pi {A : Type} (a : A) {B : Type} (b : B), A    Pattern _ * _ *
+                 g : Pi (i : Int) {T : Type} (x : T), T             Pattern * _ *
+            They are compatible, because after we remove the _ from the prefix, and * from the suffix,
+            we get the same sequence:  * _
+
+        The following two are not compatible
+                 f : Pi {A : Type} (a : A) {B : Type} (b : B), A    Pattern _ * _ *
+                 g : Pi {A B : Type} (a : A) (b : B), A             Pattern _ _ * *
+
+       TODO(Leo): not implemented yet
     */
     bool compatible_denotation(expr const & d1, expr const & d2) {
         return get_implicit_arguments(d1) == get_implicit_arguments(d2);
@@ -243,9 +264,13 @@ struct lean_extension : public environment::extension {
         while (is_pi(it)) { num_args++; it = abst_body(it); }
         if (sz > num_args)
             throw exception(sstream() << "failed to mark implicit arguments for '" << n << "', object has only " << num_args << " arguments, but trying to mark " << sz << " arguments");
+        // remove explicit suffix
+        while (sz > 0 && !implicit[sz - 1]) sz--;
+        if (sz == 0)
+            throw exception(sstream() << "failed to mark implicit arguments for '" << n << "', all arguments are explicit");
         std::vector<bool> v(implicit, implicit+sz);
         m_implicit_table[n] = mk_pair(v, explicit_version);
-        expr body = mk_explicit_definition_body(type, n, 0, sz);
+        expr body = mk_explicit_definition_body(type, n, 0, num_args);
         if (obj.is_axiom() || obj.is_theorem()) {
             env.add_theorem(explicit_version, type, body);
         } else {
@@ -444,6 +469,18 @@ operator_info frontend::find_led(name const & n) const {
 }
 void frontend::mark_implicit_arguments(name const & n, unsigned sz, bool const * implicit) {
     to_ext(m_env).mark_implicit_arguments(n, sz, implicit, m_env);
+}
+void frontend::mark_implicit_arguments(name const & n, unsigned prefix_sz) {
+    buffer<bool> implicit; implicit.resize(prefix_sz, true);
+    mark_implicit_arguments(n, implicit.size(), implicit.data());
+}
+void frontend::mark_implicit_arguments(expr const & n, unsigned prefix_sz) {
+    if (is_constant(n)) {
+        mark_implicit_arguments(const_name(n), prefix_sz);
+    } else {
+        lean_assert(is_value(n));
+        mark_implicit_arguments(to_value(n).get_name(), prefix_sz);
+    }
 }
 void frontend::mark_implicit_arguments(name const & n, std::initializer_list<bool> const & l) {
     mark_implicit_arguments(n, l.size(), l.begin());

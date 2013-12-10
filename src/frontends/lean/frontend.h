@@ -120,6 +120,11 @@ public:
     void mark_implicit_arguments(name const & n, unsigned sz, bool const * mask);
     void mark_implicit_arguments(name const & n, std::initializer_list<bool> const & l);
     void mark_implicit_arguments(expr const & n, std::initializer_list<bool> const & l);
+    /**
+       \brief Syntax sugar for mark_implicit_arguments(n, {true, ..., true}), with prefix_sz true's.
+    */
+    void mark_implicit_arguments(name const & n, unsigned prefix_sz);
+    void mark_implicit_arguments(expr const & n, unsigned prefix_sz);
     /** \brief Return true iff \c n has implicit arguments */
     bool has_implicit_arguments(name const & n) const;
     /** \brief Return the position of the arguments that are implicit. */

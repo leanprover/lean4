@@ -174,7 +174,7 @@ static void tst11() {
     name gexp = f.get_explicit_version("g");
     lean_assert(f.find_object(gexp));
     lean_assert(f.find_object("g")->get_type() == f.find_object(gexp)->get_type());
-    lean_assert(f.get_implicit_arguments("g") == std::vector<bool>({true, false, false}));
+    lean_assert(f.get_implicit_arguments("g") == std::vector<bool>({true})); // the trailing "false" marks are removed
     try {
         f.mark_implicit_arguments("g", {true, false, false});
         lean_unreachable();

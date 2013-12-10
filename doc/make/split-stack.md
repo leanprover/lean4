@@ -4,7 +4,7 @@ Compiling Lean with Split Stacks
 [Split stacks](http://gcc.gnu.org/wiki/SplitStacks) is a relatively
 new feature in gcc.  It allows the stack to grown automatically as
 needed.  There is a small performance penalty since the program stack
-is stored in the heap. However, we multiple threads, each starting
+is stored in the heap. However, we can have multiple threads, each starting
 with a small stack, and have the stack grow and shrink as required by
 the program.
 

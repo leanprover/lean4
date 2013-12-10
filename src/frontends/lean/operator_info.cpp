@@ -183,4 +183,14 @@ std::ostream & operator<<(std::ostream & out, operator_info const & o) {
     out << pp(o);
     return out;
 }
+
+regular const & operator<<(regular const & out, operator_info const & o) {
+    out.m_io_state.get_regular_channel().get_stream() << mk_pair(pp(o), out.m_io_state.get_options());
+    return out;
+}
+
+diagnostic const & operator<<(diagnostic const & out, operator_info const & o) {
+    out.m_io_state.get_diagnostic_channel().get_stream() << mk_pair(pp(o), out.m_io_state.get_options());
+    return out;
+}
 }

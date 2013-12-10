@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/name.h"
 #include "util/list.h"
 #include "util/sexpr/format.h"
+#include "library/io_state.h"
 #include "kernel/object.h"
 
 namespace lean {
@@ -109,6 +110,9 @@ inline operator_info mixfixo(std::initializer_list<name> const & l, unsigned pre
 
 format pp(operator_info const & o);
 std::ostream & operator<<(std::ostream & out, operator_info const & o);
+
+regular const & operator<<(regular const & out, operator_info const & o);
+diagnostic const & operator<<(diagnostic const & out, operator_info const & o);
 
 /**
     \brief Create object for tracking notation/operator declarations.

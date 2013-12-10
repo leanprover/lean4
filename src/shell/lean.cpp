@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "util/debug.h"
 #include "util/interrupt.h"
 #include "util/script_state.h"
+#include "util/thread.h"
 #include "kernel/printer.h"
 #include "library/io_state.h"
 #include "library/kernel_bindings.h"
@@ -45,16 +46,19 @@ static void display_header(std::ostream & out) {
 static void display_help(std::ostream & out) {
     display_header(out);
     std::cout << "Input format:\n";
-    std::cout << "  --lean         use parser for Lean default input format for files,\n";
-    std::cout << "                 with unknown extension (default)\n";
-    std::cout << "  --lua          use Lua parser for files with unknown extension\n";
+    std::cout << "  --lean            use parser for Lean default input format for files,\n";
+    std::cout << "                    with unknown extension (default)\n";
+    std::cout << "  --lua             use Lua parser for files with unknown extension\n";
     std::cout << "Miscellaneous:\n";
-    std::cout << "  --help -h      display this message\n";
-    std::cout << "  --version -v   display version number\n";
-    std::cout << "  --githash      display the git commit hash number used to build this binary\n";
-    std::cout << "  --luahook=num  how often the Lua interpreter checks the interrupted flag,\n";
-    std::cout << "                 it is useful for interrupting non-terminating user scripts,\n";
-    std::cout << "                 0 means 'do not check'.\n";
+    std::cout << "  --help -h         display this message\n";
+    std::cout << "  --version -v      display version number\n";
+    std::cout << "  --githash         display the git commit hash number used to build this binary\n";
+    std::cout << "  --luahook=num -c  how often the Lua interpreter checks the interrupted flag,\n";
+    std::cout << "                    it is useful for interrupting non-terminating user scripts,\n";
+    std::cout << "                    0 means 'do not check'.\n";
+#if defined(LEAN_USE_BOOST)
+    std::cout << "  --tstack=num -s   thread stack size in Kb\n";
+#endif
 }
 
 static char const * get_file_extension(char const * fname) {
@@ -78,6 +82,9 @@ static struct option g_long_options[] = {
     {"lua",        no_argument,       0, 'u'},
     {"luahook",    required_argument, 0, 'c'},
     {"githash",    no_argument,       0, 'g'},
+#if defined(LEAN_USE_BOOST)
+    {"tstack",     required_argument, 0, 's'},
+#endif
     {0, 0, 0, 0}
 };
 
@@ -86,7 +93,7 @@ int main(int argc, char ** argv) {
     lean::register_modules();
     input_kind default_k = input_kind::Lean; // default
     while (true) {
-        int c = getopt_long(argc, argv, "lugvhc:012", g_long_options, &optind);
+        int c = getopt_long(argc, argv, "lugvhc:012s:012", g_long_options, &optind);
         if (c == -1)
             break; // end of command line
         switch (c) {
@@ -107,6 +114,9 @@ int main(int argc, char ** argv) {
             break;
         case 'c':
             script_state::set_check_interrupt_freq(atoi(optarg));
+            break;
+        case 's':
+            lean::set_thread_stack_size(atoi(optarg)*1024);
             break;
         default:
             std::cerr << "Unknown command line option\n";

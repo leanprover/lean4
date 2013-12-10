@@ -10,6 +10,8 @@ Author: Leonardo de Moura
 #include "util/thread.h"
 #include "util/exception.h"
 
+#if !defined(LEAN_USE_SPLIT_STACK)
+
 #if defined(LEAN_WINDOWS)
     // no extra included needed so far
 #elif defined(__APPLE__)
@@ -116,3 +118,4 @@ void check_stack(char const * component_name) {
         throw stack_space_exception(component_name);
 }
 }
+#endif

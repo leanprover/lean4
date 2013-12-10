@@ -10,6 +10,7 @@ option(TRACK_MEMORY_USAGE "TRACK_MEMORY_USAGE" ON)
 option(MULTI_THREAD       "MULTI_THREAD"       ON)
 option(BOOST              "BOOST"              OFF)
 option(STATIC             "STATIC"             OFF)
+option(SPLIT_STACK        "SPLIT_STACK"        OFF)
 
 # Added for CTest
 INCLUDE(CTest)
@@ -48,6 +49,16 @@ set(CMAKE_CXX_FLAGS_DEBUG          "-g -DLEAN_DEBUG -DLEAN_TRACE")
 set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+
+# SPLIT_STACK
+if ("${SPLIT_STACK}" MATCHES "ON")
+  if ((${CMAKE_SYSTEM_NAME} MATCHES "Linux") AND ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU"))
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsplit-stack -D LEAN_USE_SPLIT_STACK")
+     message(STATUS "Using split-stacks")
+  else()
+     message(FATAL_ERROR "Split-stacks are only supported on Linux with g++")
+  endif()
+endif()
 
 # Test coverage
 if("${TESTCOV}" MATCHES "ON")

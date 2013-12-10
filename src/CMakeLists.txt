@@ -9,6 +9,8 @@ enable_testing()
 option(TRACK_MEMORY_USAGE "TRACK_MEMORY_USAGE" ON)
 option(MULTI_THREAD       "MULTI_THREAD"       ON)
 option(BOOST              "BOOST"              OFF)
+option(STATIC             "STATIC"             OFF)
+
 # Added for CTest
 INCLUDE(CTest)
 CONFIGURE_FILE(${LEAN_SOURCE_DIR}/CTestCustom.cmake.in
@@ -30,6 +32,11 @@ if("${MULTI_THREAD}" MATCHES "OFF")
   message(STATUS "Disabled multi-thread support, it will not be safe to run multiple threads in parallel")
 else()
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_MULTI_THREAD")
+endif()
+
+if("${STATIC}" MATCHES "ON")
+  set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -static")
+  message(STATUS "Creating a static executable")
 endif()
 
 # Set Module Path

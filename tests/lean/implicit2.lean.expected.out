@@ -1,0 +1,12 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: f
+f 10 20 : ℕ
+f 10 : ℕ → ℕ
+f::explicit : Π (A : Type), A → A → A
+  Assumed: g
+g 10 20 ⊤ : Bool → Bool
+let r : ℝ → ℝ → ℝ := g 10 20 in r : ℝ → ℝ → ℝ
+Error (line: 10, pos: 0) invalid expression, unexpected token
+  Set: lean::pp::implicit
+let r : ℝ → ℝ → ℝ := g::explicit ℕ 10 20 ℝ in r : ℝ → ℝ → ℝ

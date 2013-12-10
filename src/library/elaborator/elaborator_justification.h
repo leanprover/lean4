@@ -154,55 +154,6 @@ public:
 };
 
 /**
-   \brief Base class for synthesis_failure_justification and synthesized_assignment_justification
-*/
-class synthesis_justification : public justification_cell {
-    context            m_context;
-    expr               m_mvar;
-    expr               m_type;
-    std::vector<justification> m_substitution_justifications; // justification objects justifying the assignments used to instantiate \c m_type and \c m_context.
-protected:
-    virtual char const * get_label() const = 0;
-public:
-    synthesis_justification(context const & ctx, expr const & mvar, expr const & type, unsigned num, justification const * substs);
-    virtual ~synthesis_justification();
-    virtual format pp_header(formatter const &, options const &) const;
-    virtual void get_children(buffer<justification_cell*> & r) const;
-    virtual optional<expr> get_main_expr() const;
-};
-
-/**
-   \brief Justification object for justifying why a synthesis step failed.
-   A synthesis step is of the form
-
-   <tt>ctx |- ?mvar : type</tt>
-
-   Before invoking the synthesizer, the elaborator substitutes the
-   metavariables in \c ctx and \c type with their corresponding assignments.
-*/
-class synthesis_failure_justification : public synthesis_justification {
-    justification              m_justification;  // justification object produced by the synthesizer
-protected:
-    virtual char const * get_label() const;
-public:
-    synthesis_failure_justification(context const & ctx, expr const & mvar, expr const & type, justification const & tr, unsigned num, justification const * substs);
-    virtual ~synthesis_failure_justification();
-    virtual void get_children(buffer<justification_cell*> & r) const;
-};
-
-/**
-   \brief Justification object used to justify a metavar assignment produced by a synthesizer.
-*/
-class synthesized_assignment_justification : public synthesis_justification {
-protected:
-    virtual char const * get_label() const;
-public:
-    synthesized_assignment_justification(context const & ctx, expr const & mvar, expr const & type, unsigned num, justification const * substs):
-        synthesis_justification(ctx, mvar, type, num, substs) {
-    }
-};
-
-/**
     \brief Justification object used to justify that we are moving to the next solution.
 */
 class next_solution_justification : public justification_cell {

@@ -103,19 +103,6 @@ class elaborator::imp {
         }
     };
 
-    struct synthesizer_case_split : public case_split {
-        expr             m_metavar;
-        lazy_list<expr>  m_alternatives;
-
-        synthesizer_case_split(expr const & m, lazy_list<expr> const & r, state const & prev_state):
-            case_split(prev_state),
-            m_metavar(m),
-            m_alternatives(r) {
-        }
-
-        virtual ~synthesizer_case_split() {}
-    };
-
     struct plugin_case_split : public case_split {
         unification_constraint                     m_constraint;
         std::unique_ptr<elaborator_plugin::result> m_alternatives;
@@ -138,7 +125,6 @@ class elaborator::imp {
     normalizer                               m_normalizer;
     state                                    m_state;
     std::vector<std::unique_ptr<case_split>> m_case_splits;
-    std::shared_ptr<synthesizer>             m_synthesizer;
     std::shared_ptr<elaborator_plugin>       m_plugin;
     unsigned                                 m_next_id;
     int                                      m_quota;
@@ -1410,12 +1396,11 @@ class elaborator::imp {
 
 public:
     imp(environment const & env, metavar_env const & menv, unsigned num_cnstrs, unification_constraint const * cnstrs,
-        options const & opts, std::shared_ptr<synthesizer> const & s, std::shared_ptr<elaborator_plugin> const & p):
+        options const & opts, std::shared_ptr<elaborator_plugin> const & p):
         m_env(env),
         m_type_inferer(env),
         m_normalizer(env),
         m_state(menv, num_cnstrs, cnstrs),
-        m_synthesizer(s),
         m_plugin(p) {
         set_options(opts);
         m_next_id     = 0;
@@ -1446,7 +1431,7 @@ public:
             check_interrupted();
             cnstr_queue & q = m_state.m_queue;
             if (q.empty() || m_quota < - static_cast<int>(q.size()) - 10) {
-                // TODO(Leo): implement interface with synthesizer
+                // TODO(Leo): improve exit condition
                 return m_state.m_menv;
             } else {
                 unification_constraint c = q.front();
@@ -1478,9 +1463,8 @@ elaborator::elaborator(environment const & env,
                        unsigned num_cnstrs,
                        unification_constraint const * cnstrs,
                        options const & opts,
-                       std::shared_ptr<synthesizer> const & s,
                        std::shared_ptr<elaborator_plugin> const & p):
-    m_ptr(new imp(env, menv, num_cnstrs, cnstrs, opts, s, p)) {
+    m_ptr(new imp(env, menv, num_cnstrs, cnstrs, opts, p)) {
 }
 
 elaborator::elaborator(environment const & env,

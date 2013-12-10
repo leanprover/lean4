@@ -98,51 +98,6 @@ void typeof_mvar_justification::get_children(buffer<justification_cell*> & r) co
 }
 
 // -------------------------
-// Synthesis justification objects
-// -------------------------
-synthesis_justification::synthesis_justification(context const & ctx, expr const & mvar, expr const & type, unsigned num, justification const * substs):
-    m_context(ctx),
-    m_mvar(mvar),
-    m_type(type),
-    m_substitution_justifications(substs, substs + num) {
-}
-synthesis_justification::~synthesis_justification() {
-}
-format synthesis_justification::pp_header(formatter const & fmt, options const & opts) const {
-    format r;
-    r += format(get_label());
-    r += space();
-    r += fmt(m_context, m_mvar, false, opts);
-    unsigned indent = get_pp_indent(opts);
-    r += nest(indent, compose(line(), fmt(m_context, m_type, true, opts)));
-    return r;
-}
-void synthesis_justification::get_children(buffer<justification_cell*> & r) const {
-    append(r, m_substitution_justifications);
-}
-optional<expr> synthesis_justification::get_main_expr() const {
-    return some_expr(m_mvar);
-}
-
-char const * synthesis_failure_justification::get_label() const {
-    return "Failed to synthesize expression of type for";
-}
-synthesis_failure_justification::synthesis_failure_justification(context const & ctx, expr const & mvar, expr const & type, justification const & tr, unsigned num, justification const * substs):
-    synthesis_justification(ctx, mvar, type, num, substs),
-    m_justification(tr) {
-}
-synthesis_failure_justification::~synthesis_failure_justification() {
-}
-void synthesis_failure_justification::get_children(buffer<justification_cell*> & r) const {
-    synthesis_justification::get_children(r);
-    push_back(r, m_justification);
-}
-
-char const * synthesized_assignment_justification::get_label() const {
-    return "Synthesized assignment for";
-}
-
-// -------------------------
 // Next solution justification
 // -------------------------
 next_solution_justification::next_solution_justification(unsigned num, justification const * as):

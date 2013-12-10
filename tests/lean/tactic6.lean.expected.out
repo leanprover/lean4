@@ -1,4 +1,19 @@
   Set: pp::colors
   Set: pp::unicode
+Proof state:
+H::1::1 : b, H::1::2 : c, H : a, a : Bool, b : Bool, c : Bool ⊢ a ∧ b
+Proof state:
+H::1::1 : b, H::1::2 : c, H : a, a : Bool, b : Bool, c : Bool ⊢ a
+H::1::1 : b, H::1::2 : c, H : a, a : Bool, b : Bool, c : Bool ⊢ b
   Proved: T
+Proof state:
+H::1::1 : b, H::1::2 : c, H : a, a : Bool, b : Bool, c : Bool ⊢ c
+H::1::1 : b, H::1::2 : c, H : a, a : Bool, b : Bool, c : Bool ⊢ a ∧ b
+Proof state:
+H::1::1 : b, H::1::2 : c, H : a, a : Bool, b : Bool, c : Bool ⊢ a ∧ b
+Proof state:
+H::1::1 : b, H::1::2 : c, H : a, a : Bool, b : Bool, c : Bool ⊢ c
+H::1::1 : b, H::1::2 : c, H : a, a : Bool, b : Bool, c : Bool ⊢ b
+Proof state:
+H::1::1 : b, H::1::2 : c, H : a, a : Bool, b : Bool, c : Bool ⊢ b
   Proved: T2

@@ -4,3 +4,8 @@
   Assumed: g
   Assumed: p
   Assumed: h
+The denotation(s) for the existing notation:
+  Infix ++
+have been replaced with the new denotation:
+  h::explicit
+because they conflict on how implicit arguments are used.

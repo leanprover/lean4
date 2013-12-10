@@ -42,57 +42,26 @@ void io_state::set_formatter(formatter const & f) {
     m_formatter = f;
 }
 
-void regular::flush() {
-    m_io_state.get_regular_channel().get_stream().flush();
-}
-
-void diagnostic::flush() {
-    m_io_state.get_diagnostic_channel().get_stream().flush();
-}
-
-regular const & operator<<(regular const & out, endl_class) {
-    out.m_io_state.get_regular_channel().get_stream() << std::endl;
+io_state_stream const & operator<<(io_state_stream const & out, endl_class) {
+    out.get_stream() << std::endl;
     return out;
 }
 
-diagnostic const & operator<<(diagnostic const & out, endl_class) {
-    out.m_io_state.get_diagnostic_channel().get_stream() << std::endl;
+io_state_stream const & operator<<(io_state_stream const & out, expr const & e) {
+    options const & opts = out.get_options();
+    out.get_stream() << mk_pair(out.get_formatter()(e, opts), opts);
     return out;
 }
 
-regular const & operator<<(regular const & out, expr const & e) {
-    options const & opts = out.m_io_state.get_options();
-    out.m_io_state.get_regular_channel().get_stream() << mk_pair(out.m_io_state.get_formatter()(e, opts), opts);
+io_state_stream const & operator<<(io_state_stream const & out, object const & obj) {
+    options const & opts = out.get_options();
+    out.get_stream() << mk_pair(out.get_formatter()(obj, opts), opts);
     return out;
 }
 
-diagnostic const & operator<<(diagnostic const & out, expr const & e) {
-    options const & opts = out.m_io_state.get_options();
-    out.m_io_state.get_diagnostic_channel().get_stream() << mk_pair(out.m_io_state.get_formatter()(e, opts), opts);
-    return out;
-}
-
-regular const & operator<<(regular const & out, object const & obj) {
-    options const & opts = out.m_io_state.get_options();
-    out.m_io_state.get_regular_channel().get_stream() << mk_pair(out.m_io_state.get_formatter()(obj, opts), opts);
-    return out;
-}
-
-diagnostic const & operator<<(diagnostic const & out, object const & obj) {
-    options const & opts = out.m_io_state.get_options();
-    out.m_io_state.get_diagnostic_channel().get_stream() << mk_pair(out.m_io_state.get_formatter()(obj, opts), opts);
-    return out;
-}
-
-regular const & operator<<(regular const & out, kernel_exception const & ex) {
-    options const & opts = out.m_io_state.get_options();
-    out.m_io_state.get_regular_channel().get_stream() << mk_pair(ex.pp(out.m_io_state.get_formatter(), opts), opts);
-    return out;
-}
-
-diagnostic const & operator<<(diagnostic const & out, kernel_exception const & ex) {
-    options const & opts = out.m_io_state.get_options();
-    out.m_io_state.get_diagnostic_channel().get_stream() << mk_pair(ex.pp(out.m_io_state.get_formatter(), opts), opts);
+io_state_stream const & operator<<(io_state_stream const & out, kernel_exception const & ex) {
+    options const & opts = out.get_options();
+    out.get_stream() << mk_pair(ex.pp(out.get_formatter(), opts), opts);
     return out;
 }
 

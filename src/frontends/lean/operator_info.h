@@ -111,8 +111,7 @@ inline operator_info mixfixo(std::initializer_list<name> const & l, unsigned pre
 format pp(operator_info const & o);
 std::ostream & operator<<(std::ostream & out, operator_info const & o);
 
-regular const & operator<<(regular const & out, operator_info const & o);
-diagnostic const & operator<<(diagnostic const & out, operator_info const & o);
+io_state_stream const & operator<<(io_state_stream const & out, operator_info const & o);
 
 /**
     \brief Create object for tracking notation/operator declarations.

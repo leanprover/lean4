@@ -118,8 +118,7 @@ goals map_goals(proof_state const & s, F && f) {
         });
 }
 
-regular const & operator<<(regular const & out, proof_state & s);
-diagnostic const & operator<<(diagnostic const & out, proof_state & s);
+io_state_stream const & operator<<(io_state_stream const & out, proof_state & s);
 
 UDATA_DEFS_CORE(goals)
 UDATA_DEFS(proof_state)

@@ -100,15 +100,9 @@ proof_state to_proof_state(environment const & env, context const & ctx, expr co
     return proof_state(goals(mk_pair(g_main, g)), metavar_env(), pr_builder, cex_builder);
 }
 
-regular const & operator<<(regular const & out, proof_state & s) {
-    options const & opts = out.m_io_state.get_options();
-    out.m_io_state.get_regular_channel().get_stream() << mk_pair(s.pp(out.m_io_state.get_formatter(), opts), opts);
-    return out;
-}
-
-diagnostic const & operator<<(diagnostic const & out, proof_state & s) {
-    options const & opts = out.m_io_state.get_options();
-    out.m_io_state.get_diagnostic_channel().get_stream() << mk_pair(s.pp(out.m_io_state.get_formatter(), opts), opts);
+io_state_stream const & operator<<(io_state_stream const & out, proof_state & s) {
+    options const & opts = out.get_options();
+    out.get_stream() << mk_pair(s.pp(out.get_formatter(), opts), opts);
     return out;
 }
 

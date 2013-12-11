@@ -224,7 +224,9 @@ class elaborator::imp {
 
     /** \brief Return true iff \c a is a proposition */
     bool is_proposition(expr const & a, context const & ctx) {
-        if (is_metavar(a)) {
+        if ((is_metavar(a)) ||
+            (is_app(a) && is_metavar(arg(a, 0))) ||
+            (is_abstraction(a) && (is_metavar(abst_domain(a)) || is_metavar(abst_body(a))))) {
             // Avoid exception at m_type_inferer.
             // Throw is expensive in C++.
             return false;

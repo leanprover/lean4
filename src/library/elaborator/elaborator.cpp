@@ -866,13 +866,21 @@ class elaborator::imp {
             local_context  lctx = metavar_lctx(a);
             unsigned i          = head(lctx).s();
             expr t              = head(lctx).v();
+
+            metavar_env & menv  = m_state.m_menv;
+            buffer<unification_constraint> ucs;
+            expr b_type = m_type_inferer(b, ctx, &menv, &ucs);
+            for (auto uc : ucs)
+                m_state.m_queue.push_front(uc);
+            context ctx_with_i = ctx.insert_at(i, g_x_name, b_type); // must add entry for variable #i in the context
+
             std::unique_ptr<generic_case_split> new_cs(new generic_case_split(c, m_state));
             {
                 // Case 1
                 state new_state(m_state);
                 justification new_assumption = mk_assumption();
                 // add ?m[...] == #1
-                push_new_eq_constraint(new_state.m_queue, ctx, pop_meta_context(a), mk_var(i), new_assumption);
+                push_new_eq_constraint(new_state.m_queue, ctx_with_i, pop_meta_context(a), mk_var(i), new_assumption);
                 // add t == b (t << b)
                 expr new_a = t;
                 expr new_b = b;
@@ -923,7 +931,7 @@ class elaborator::imp {
                     imitation = lift_free_vars(b, i, 1);
                 }
                 new_state.m_queue.push_front(c); // keep c
-                push_new_eq_constraint(new_state.m_queue, ctx, mk_metavar(metavar_name(a)), imitation, new_assumption);
+                push_new_eq_constraint(new_state.m_queue, ctx_with_i, mk_metavar(metavar_name(a)), imitation, new_assumption);
                 new_cs->push_back(new_state, new_assumption);
             }
             bool r = new_cs->next(*this);

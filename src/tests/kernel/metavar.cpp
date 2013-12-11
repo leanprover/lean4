@@ -439,11 +439,17 @@ static void tst21() {
     expr l  = add_lift(add_lift(m1, 0, 1), 1, 1);
     expr r  = add_lift(m1, 0, 2);
     std::cout << menv.get_type(l) << " " << menv.get_type(r) << "\n";
+#if 0
+    // Leo: I disabled the lift over lift optimization since it was
+    // negatively impacting the heuristics
     lean_assert_eq(l, r);
     lean_assert_eq(add_lift(add_lift(m1, 1, 2), 3, 4),
                    add_lift(m1, 1, 6));
-    lean_assert_ne(add_lift(add_lift(m1, 1, 3), 3, 4),
+    lean_assert_eq(add_lift(add_lift(m1, 1, 3), 3, 4),
                    add_lift(m1, 1, 7));
+    lean_assert_ne(add_lift(add_lift(m1, 0, 3), 3, 4),
+                   add_lift(m1, 1, 7));
+#endif
 }
 
 #define _ mk_placeholder()

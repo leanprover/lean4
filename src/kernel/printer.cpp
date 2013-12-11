@@ -99,13 +99,14 @@ struct print_expr_fn {
         case expr_kind::MetaVar:
             print_metavar(a, c);
             break;
-        case expr_kind::Var:
-            try {
-                out() << lookup(c, var_idx(a)).get_name();
-            } catch (exception & ex) {
+        case expr_kind::Var: {
+            auto e = find(c, var_idx(a));
+            if (e)
+                out() << e->get_name();
+            else
                 out() << "#" << var_idx(a);
-            }
             break;
+        }
         case expr_kind::Constant:
             out() << const_name(a);
             break;

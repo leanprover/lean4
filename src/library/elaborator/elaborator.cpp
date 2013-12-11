@@ -513,12 +513,9 @@ class elaborator::imp {
     /** \brief Replace variables by their definition if the context contains it. */
     void process_var(context const & ctx, expr & a) {
         if (is_var(a)) {
-            try {
-                context_entry const & e = lookup(ctx, var_idx(a));
-                if (e.get_body())
-                    a = *(e.get_body());
-            } catch (exception&) {
-            }
+            auto e = find(ctx, var_idx(a));
+            if (e && e->get_body())
+                a = *(e->get_body());
         }
     }
 
@@ -652,13 +649,8 @@ class elaborator::imp {
 
     /** \brief Return true iff the variable with id \c vidx has a body/definition in the context \c ctx. */
     static bool has_body(context const & ctx, unsigned vidx) {
-        try {
-            context_entry const & e = lookup(ctx, vidx);
-            if (e.get_body())
-                return true;
-        } catch (exception&) {
-        }
-        return false;
+        auto e = find(ctx, vidx);
+        return e && e->get_body();
     }
 
     /**

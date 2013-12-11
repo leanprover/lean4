@@ -44,6 +44,8 @@ public:
     explicit context(list<context_entry> const & l):m_list(l) {}
     context_entry const & lookup(unsigned vidx) const;
     std::pair<context_entry const &, context> lookup_ext(unsigned vidx) const;
+    /** \brief Similar to lookup, but always succeed */
+    optional<context_entry> find(unsigned vidx) const;
     bool empty() const { return is_nil(m_list); }
     explicit operator bool() const { return !empty(); }
     unsigned size() const { return length(m_list); }
@@ -75,6 +77,7 @@ inline std::pair<context_entry const &, context> lookup_ext(context const & c, u
    Bruijn index \c i.
 */
 inline context_entry const & lookup(context const & c, unsigned i) { return c.lookup(i); }
+inline optional<context_entry> find(context const & c, unsigned i) { return c.find(i); }
 inline context extend(context const & c, name const & n, optional<expr> const & d, expr const & b) { return context(c, n, d, b); }
 inline context extend(context const & c, name const & n, expr const & d, optional<expr> const & b) { return context(c, n, d, b); }
 inline context extend(context const & c, name const & n, expr const & d, expr const & b) { return context(c, n, d, b); }

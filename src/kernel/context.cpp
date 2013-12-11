@@ -31,6 +31,17 @@ context_entry const & context::lookup(unsigned i) const {
     throw exception("unknown free variable");
 }
 
+optional<context_entry> context::find(unsigned i) const {
+    list<context_entry> const * it1 = &m_list;
+    while (*it1) {
+        if (i == 0)
+            return some(head(*it1));
+        --i;
+        it1 = &tail(*it1);
+    }
+    return optional<context_entry>();
+}
+
 static list<context_entry> remove_core(list<context_entry> const & l, unsigned s, unsigned n) {
     if (s == 0) {
         if (n > 0) {

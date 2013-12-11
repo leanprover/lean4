@@ -37,25 +37,35 @@ class metavar_env;
 unsigned free_var_range(expr const & e, metavar_env const & menv);
 
 /**
-    \brief Return true iff \c e contains the free variable <tt>(var i)</tt>.
-*/
-bool has_free_var(expr const & e, unsigned i);
-
-/**
     \brief Return true iff \c e constains a free variable <tt>(var i)</tt> s.t. \c i in <tt>[low, high)</tt>.
     \pre low < high
+
+    \remark If menv != nullptr, then we use \c free_var_range to compute the free variables that may
+    occur in a metavariable.
 */
-bool has_free_var(expr const & e, unsigned low, unsigned high);
+bool has_free_var(expr const & e, unsigned low, unsigned high, metavar_env const * menv = nullptr);
+inline bool has_free_var(expr const & e, unsigned low, unsigned high, metavar_env const & menv) {
+    return has_free_var(e, low, high, &menv);
+}
+/**
+    \brief Return true iff \c e contains the free variable <tt>(var i)</tt>.
+*/
+inline bool has_free_var(expr const & e, unsigned i, metavar_env const * menv = nullptr) {  return has_free_var(e, i, i+1, menv); }
 
 /**
-   \brief Lower the free variables >= s in \c e by d. That is, a free variable <tt>(var i)</tt> s.t.
+   \brief Lower the free variables >= s in \c e by \c d. That is, a free variable <tt>(var i)</tt> s.t.
    <tt>i >= s</tt> is mapped into <tt>(var i-d)</tt>.
 
-   \pre d > 0
-   \pre !has_free_var(e, 0, d)
+   \pre s >= d
+   \pre !has_free_var(e, s-d, d, menv)
+
+   \remark The parameter menv is only used for debugging purposes
 */
-expr lower_free_vars(expr const & e, unsigned s, unsigned d);
-inline expr lower_free_vars(expr const & e, unsigned d) { return lower_free_vars(e, d, d); }
+expr lower_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const * menv = nullptr);
+inline expr lower_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const & menv) {
+    return lower_free_vars(e, s, d, &menv);
+}
+inline expr lower_free_vars(expr const & e, unsigned d, metavar_env const * menv = nullptr) { return lower_free_vars(e, d, d, menv); }
 
 /**
    \brief Lift free variables >= s in \c e by d.

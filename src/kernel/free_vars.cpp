@@ -233,9 +233,10 @@ unsigned free_var_range(expr const & e, metavar_env const & menv) {
 */
 class has_free_var_in_range_fn {
 protected:
-    unsigned             m_low;
-    unsigned             m_high;
-    expr_cell_offset_set m_cached;
+    unsigned                           m_low;
+    unsigned                           m_high;
+    expr_cell_offset_set               m_cached;
+    std::unique_ptr<free_var_range_fn> m_range_fn;
 
     bool apply(optional<expr> const & e, unsigned offset) {
         return e && apply(*e, offset);
@@ -251,7 +252,10 @@ protected:
         case expr_kind::Type: case expr_kind::Value:
             return false;
         case expr_kind::MetaVar:
-            return true;
+            if (m_range_fn)
+                break; // it is not cheap
+            else
+                return true; // assume that any free variable can occur in the metavariable
         case expr_kind::Var:
             return var_idx(e) >= offset + m_low && var_idx(e) < offset + m_high;
         case expr_kind::App: case expr_kind::Eq: case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Let:
@@ -276,9 +280,20 @@ protected:
             lean_assert(const_type(e));
             result = apply(const_type(e), offset);
             break;
-        case expr_kind::Type: case expr_kind::Value: case expr_kind::Var: case expr_kind::MetaVar:
+        case expr_kind::Type: case expr_kind::Value: case expr_kind::Var:
             // easy cases were already handled
             lean_unreachable(); // LCOV_EXCL_LINE
+        case expr_kind::MetaVar: {
+            lean_assert(m_range_fn);
+            unsigned R = (*m_range_fn)(e);
+            if (R > 0) {
+                unsigned max_fvar_idx = R - 1;
+                result = max_fvar_idx >= offset + m_low;
+                // Remark: Variable #0 may occur in \c e.
+                // So, we don't have to check the upper bound offset + m_high;
+            }
+            break;
+        }
         case expr_kind::App:
             result = std::any_of(begin_args(e), end_args(e), [=](expr const & arg){ return apply(arg, offset); });
             break;
@@ -301,31 +316,27 @@ protected:
         return result;
     }
 public:
-    has_free_var_in_range_fn(unsigned low, unsigned high):
+    has_free_var_in_range_fn(unsigned low, unsigned high, metavar_env const * menv):
         m_low(low),
         m_high(high) {
         lean_assert(low < high);
+        if (menv)
+            m_range_fn.reset(new free_var_range_fn(*menv));
     }
     bool operator()(expr const & e) { return apply(e, 0); }
 };
 
-bool has_free_var(expr const & e, unsigned vidx) {
-    return has_free_var_in_range_fn(vidx, vidx+1)(e);
+bool has_free_var(expr const & e, unsigned low, unsigned high, metavar_env const * menv) {
+    return has_free_var_in_range_fn(low, high, menv)(e);
 }
 
-bool has_free_var(expr const & e, unsigned low, unsigned high) {
-    return has_free_var_in_range_fn(low, high)(e);
-}
-
-expr lower_free_vars(expr const & e, unsigned s, unsigned d) {
+expr lower_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const * menv) {
     lean_assert(s >= d);
-    lean_assert(!has_free_var(e, s-d, s));
+    lean_assert(!has_free_var(e, s-d, s, menv));
     auto f = [=](expr const & e, unsigned offset) -> expr {
         if (is_var(e) && var_idx(e) >= s + offset) {
             lean_assert(var_idx(e) >= offset + d);
             return mk_var(var_idx(e) - d);
-        } else if (is_metavar(e)) {
-            lean_unreachable(); // LCOV_EXCL_LINE
         } else {
             return e;
         }

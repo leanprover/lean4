@@ -106,11 +106,44 @@ static void tst4() {
     lean_assert_eq(fn(mk_let("x", Var(2), Var(1), Var(4))), 4);
 }
 
+static void tst5() {
+    metavar_env menv;
+    expr m1 = menv.mk_metavar();
+    expr f = Const("f");
+    expr a = Const("a");
+    expr b = Const("b");
+    expr t = Const("t");
+    expr x = Const("x");
+    lean_assert(has_free_var(mk_lambda("x", t, f(Var(1))), 0,  menv));
+    lean_assert(!has_free_var(mk_lambda("x", t, f(Var(0))), 1, menv));
+    lean_assert(!has_free_var(m1, 0, menv));
+    lean_assert(!has_free_var(m1, 1, menv));
+    context ctx;
+    ctx = extend(ctx, name("x"), Bool);
+    ctx = extend(ctx, name("y"), Bool);
+    expr m2 = menv.mk_metavar(ctx);
+    lean_assert(has_free_var(m2, 0, menv));
+    lean_assert(has_free_var(m2, 1, menv));
+    lean_assert(!has_free_var(m2, 2, menv));
+    lean_assert(has_free_var(Fun({x, Bool}, m2), 0, menv));
+    lean_assert(!has_free_var(Fun({x, Bool}, m2), 1, menv));
+    lean_assert(has_free_var(Fun({x, Bool}, add_inst(add_lift(m2, 1, 3), 0, Var(0))), 0, menv));
+    lean_assert(has_free_var(Fun({x, Bool}, add_inst(add_lift(m2, 1, 1), 0, Var(0))), 0, menv));
+    lean_assert(!has_free_var(Fun({x, Bool}, add_inst(add_lift(m2, 1, 1), 0, Var(0))), 1, menv));
+    lean_assert(has_free_var(Fun({x, Bool}, add_inst(add_lift(m2, 1, 2), 0, Var(0))), 1, 3, menv));
+    lean_assert(!has_free_var(Fun({x, Bool}, add_inst(add_lift(m2, 1, 2), 0, Var(0))), 2, 5, menv));
+    lean_assert_eq(lower_free_vars(Fun({x, Bool}, add_inst(add_lift(m2, 1, 2), 0, Var(0))), 5, 3, menv),
+                   Fun({x, Bool}, add_inst(add_lift(m2, 1, 2), 0, Var(0))));
+    lean_assert_eq(lower_free_vars(Fun({x, Bool}, Var(6)(add_inst(add_lift(m2, 1, 2), 0, Var(0)))), 5, 3, menv),
+                   Fun({x, Bool}, Var(3)(add_inst(add_lift(m2, 1, 2), 0, Var(0)))));
+}
+
 int main() {
     save_stack_info();
     tst1();
     tst2();
     tst3();
     tst4();
+    tst5();
     return has_violations() ? 1 : 0;
 }

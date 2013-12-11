@@ -16,6 +16,26 @@ bool has_free_vars(expr const & a);
 */
 inline bool closed(expr const & a) { return !has_free_vars(a); }
 
+class metavar_env;
+/**
+   \brief Return \c R s.t. the de Bruijn index of all free variables
+   occurring in \c e is in the interval <tt>[0, R)</tt>.
+
+   \pre All metavariables occurring in \c e must have been created
+   at \c menv.
+
+   \remark Regarding metavariables, if a metavariable \c m was defined
+   in a context \c ctx and <tt>ctx.size() == R</tt>, then \c m can
+   only contain free variables in the range <tt>[0, R)</tt>
+
+   So, if \c m does not have an associated local context, the answer is just \c R.
+   If \c m has an associated local context, we process it using the following rules
+
+   [inst:s v] R  ===>  if s >= R then R else max(R-1, range_of(v))
+   [lift:s:n] R  ===>  if s >= R then R else R + n
+*/
+unsigned free_var_range(expr const & e, metavar_env const & menv);
+
 /**
     \brief Return true iff \c e contains the free variable <tt>(var i)</tt>.
 */

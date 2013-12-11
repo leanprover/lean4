@@ -107,6 +107,125 @@ bool has_free_vars(expr const & e) {
 }
 
 /**
+   \brief Functional object for computing the range [0, R) of free variables occurring
+   in an expression.
+*/
+class free_var_range_fn {
+    expr_map<unsigned>  m_cached;
+    metavar_env const & m_menv;
+
+    static unsigned dec(unsigned s) { return (s == 0) ? 0 : s - 1; }
+
+    /*
+      \brief If a metavariable \c m was defined in a context \c ctx and <tt>ctx.size() == R</tt>,
+      then \c m can only contain free variables in the range <tt>[0, R)</tt>
+
+      So, if \c m does not have an associated local context, the answer is just \c R.
+      If \c m has an associated local context, we process it using the following rules
+
+           [inst:s v] R  ===>  if s >= R then R else max(R-1, range_of(v))
+           [lift:s:n] R  ===>  if s >= R then R else R + n
+    */
+    unsigned process_metavar(expr const & m) {
+        lean_assert(is_metavar(m));
+        context ctx = m_menv.get_context(metavar_name(m));
+        unsigned R  = ctx.size();
+        if (has_local_context(m)) {
+            local_context lctx = metavar_lctx(m);
+            buffer<local_entry> lentries;
+            to_buffer(lctx, lentries);
+            unsigned i = lentries.size();
+            while (i > 0) {
+                --i;
+                local_entry const & entry = lentries[i];
+                if (entry.is_inst()) {
+                    if (entry.s() < R) {
+                        R = std::max(dec(R), apply(entry.v()));
+                    }
+                } else {
+                    if (entry.s() < R)
+                        R += entry.n();
+                }
+            }
+        }
+        return R;
+    }
+
+    unsigned apply(optional<expr> const & e) {
+        return e ? apply(*e) : 0;
+    }
+
+    unsigned apply(expr const & e) {
+        // handle easy cases
+        switch (e.kind()) {
+        case expr_kind::Constant:
+            if (!const_type(e))
+                return 0;
+            break;
+        case expr_kind::Type: case expr_kind::Value:
+            return 0;
+        case expr_kind::Var:
+            return var_idx(e) + 1;
+        case expr_kind::MetaVar: case expr_kind::App: case expr_kind::Eq:
+        case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Let:
+            break;
+        }
+
+        if (e.raw()->is_closed())
+            return 0;
+
+        bool shared = false;
+        if (is_shared(e)) {
+            shared = true;
+            auto it = m_cached.find(e);
+            if (it != m_cached.end())
+                return it->second;
+        }
+
+        unsigned result = 0;
+
+        switch (e.kind()) {
+        case expr_kind::Constant:
+            lean_assert(const_type(e));
+            result = apply(const_type(e));
+            break;
+        case expr_kind::Type: case expr_kind::Value: case expr_kind::Var:
+            // easy cases were already handled
+            lean_unreachable(); // LCOV_EXCL_LINE
+        case expr_kind::MetaVar:
+            result = process_metavar(e);
+            break;
+        case expr_kind::App:
+            for (auto const & c : args(e))
+                result = std::max(result, apply(c));
+            break;
+        case expr_kind::Eq:
+            result = std::max(apply(eq_lhs(e)), apply(eq_rhs(e)));
+            break;
+        case expr_kind::Lambda:
+        case expr_kind::Pi:
+            result = std::max(apply(abst_domain(e)), dec(apply(abst_body(e))));
+            break;
+        case expr_kind::Let:
+            result = std::max({apply(let_type(e)), apply(let_value(e)), dec(apply(let_body(e)))});
+            break;
+        }
+
+        if (shared)
+            m_cached.insert(mk_pair(e, result));
+
+        return result;
+    }
+public:
+    free_var_range_fn(metavar_env const & menv):m_menv(menv) {}
+    unsigned operator()(expr const & e) { return apply(e); }
+};
+
+unsigned free_var_range(expr const & e, metavar_env const & menv) {
+    return free_var_range_fn(menv)(e);
+}
+
+/**
     \brief Functional object for checking whether a kernel expression has a free variable in the range <tt>[low, high)</tt> or not.
 
     \remark We assume that a metavariable contains free variables.

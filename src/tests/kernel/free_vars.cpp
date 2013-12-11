@@ -7,6 +7,8 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "kernel/free_vars.h"
 #include "kernel/abstract.h"
+#include "kernel/metavar.h"
+#include "kernel/builtin.h"
 using namespace lean;
 
 static void tst1() {
@@ -57,10 +59,58 @@ static void tst3() {
     }
 }
 
+static void tst4() {
+    metavar_env menv;
+    auto fn = [&](expr const & e) { return free_var_range(e, menv); };
+    expr f = Const("f");
+    expr a = Const("a");
+    expr b = Const("b");
+    expr x = Const("x");
+    expr m1 = menv.mk_metavar();
+    lean_assert(fn(m1) == 0);
+    lean_assert(fn(Var(0)) == 1);
+    lean_assert(fn(Var(0)(Var(2), Var(1))) == 3);
+    lean_assert(fn(Type()) == 0);
+    lean_assert(fn(Bool) == 0);
+    lean_assert(fn(Fun({x, Type()}, Var(0))) == 0);
+    lean_assert(fn(Fun({x, Var(0)}, Var(0))) == 1);
+    lean_assert(fn(Fun({x, Var(0)}, Var(2))) == 2);
+    lean_assert(fn(Fun({x, Var(0)}, Eq(Var(2), Var(1)))) == 2);
+    lean_assert(fn(Pi({x, Type()}, Var(0))) == 0);
+    lean_assert(fn(Pi({x, Var(0)}, Var(0))) == 1);
+    lean_assert(fn(Pi({x, Var(0)}, Var(2))) == 2);
+    lean_assert(fn(Pi({x, Var(0)}, Eq(Var(2), Var(1)))) == 2);
+    context ctx;
+    ctx = extend(ctx, name("x"), Bool);
+    ctx = extend(ctx, name("y"), Bool);
+    expr m2 = menv.mk_metavar(ctx);
+    lean_assert_eq(fn(m2), 2);
+    lean_assert_eq(fn(add_lift(m2, 3, 5)), 2);
+    lean_assert_eq(fn(add_lift(m2, 2, 5)), 2);
+    lean_assert_eq(fn(add_lift(m2, 1, 5)), 7);
+    lean_assert_eq(fn(add_inst(m2, 3, Var(10))), 2);
+    lean_assert_eq(fn(add_inst(m2, 1, Var(10))), 11);
+    // Here is the explanation for the following assertion.
+    // If m2 is assigned to #1, that m2[1:f(#2)] becomes f(#2),
+    // and then lift:2:2 transforms it to f(#4)
+    lean_assert_eq(fn(add_lift(add_inst(m2, 1, f(Var(2))), 2, 2)), 5);
+    ctx = extend(ctx, name("w"), Bool);
+    ctx = extend(ctx, name("z"), Bool);
+    expr m3 = menv.mk_metavar(ctx);
+    lean_assert_eq(fn(m3), 4);
+    lean_assert_eq(fn(add_lift(add_inst(m3, 1, f(Var(0))), 1, 1)), 4);
+    lean_assert_eq(fn(add_lift(add_inst(m3, 1, f(Var(3))), 1, 1)), 5);
+    lean_assert_eq(fn(mk_let("x", Var(0), Var(1))), 1);
+    lean_assert_eq(fn(mk_let("x", Var(1), Var(1))), 2);
+    lean_assert_eq(fn(mk_let("x", Var(2), Var(1), Var(1))), 3);
+    lean_assert_eq(fn(mk_let("x", Var(2), Var(1), Var(4))), 4);
+}
+
 int main() {
     save_stack_info();
     tst1();
     tst2();
     tst3();
+    tst4();
     return has_violations() ? 1 : 0;
 }

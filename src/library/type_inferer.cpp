@@ -240,6 +240,12 @@ public:
     }
 
     bool is_proposition(expr const & e, context const & ctx, metavar_env * menv) {
+        // Catch easy cases
+        switch (e.kind()) {
+        case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Type: return false;
+        case expr_kind::Eq: return true;
+        default: break;
+        }
         expr t = operator()(e, ctx, menv, nullptr);
         if (is_bool(t))
             return true;

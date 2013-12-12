@@ -176,12 +176,6 @@ class elaborator::imp {
         return *(m_state.m_menv.get_subst_jst(m));
     }
 
-    /** \brief Return the type of an metavariable */
-    expr get_mvar_type(expr const & m) {
-        lean_assert(is_metavar(m));
-        return m_state.m_menv.get_type(m);
-    }
-
     /**
        \brief Return true iff \c e contains the metavariable \c m.
        The substitutions in the current state are taken into account.
@@ -872,7 +866,7 @@ class elaborator::imp {
             buffer<unification_constraint> ucs;
             expr b_type = m_type_inferer(b, ctx, &menv, &ucs);
             for (auto uc : ucs)
-                m_state.m_queue.push_front(uc);
+                push_front(uc);
             context ctx_with_i = ctx.insert_at(i, g_x_name, b_type); // must add entry for variable #i in the context
 
             std::unique_ptr<generic_case_split> new_cs(new generic_case_split(c, m_state));
@@ -902,9 +896,10 @@ class elaborator::imp {
                     unsigned num_b    = num_args(b);
                     buffer<expr> imitation_args;
                     imitation_args.push_back(f_b);
-                    for (unsigned i = 1; i < num_b; i++) {
-                        expr h_i = new_state.m_menv.mk_metavar(ctx);
-                        imitation_args.push_back(h_i);
+                    for (unsigned j = 1; j < num_b; j++) {
+                        expr h_j = new_state.m_menv.mk_metavar(ctx);
+                        imitation_args.push_back(h_j);
+                        push_new_eq_constraint(new_state.m_queue, ctx, h_j, lift_free_vars(arg(b, j), i, 1), new_assumption);
                     }
                     imitation = mk_app(imitation_args);
                 } else if (is_eq(b)) {
@@ -913,6 +908,8 @@ class elaborator::imp {
                     expr h_1 = new_state.m_menv.mk_metavar(ctx);
                     expr h_2 = new_state.m_menv.mk_metavar(ctx);
                     imitation = mk_eq(h_1, h_2);
+                    push_new_eq_constraint(new_state.m_queue, ctx, h_1, lift_free_vars(eq_lhs(b), i, 1), new_assumption);
+                    push_new_eq_constraint(new_state.m_queue, ctx, h_2, lift_free_vars(eq_rhs(b), i, 1), new_assumption);
                 } else if (is_abstraction(b)) {
                     // Lambdas and Pis
                     // Imitation for Lambdas and Pis, b == Fun(x:T) B
@@ -922,17 +919,21 @@ class elaborator::imp {
                     // We avoid the more general (Fun (x:?h_1) (?h_2 x)) because it produces
                     // non-termination.
                     expr h_1 = new_state.m_menv.mk_metavar(ctx);
+                    push_new_eq_constraint(new_state.m_queue, ctx, h_1, lift_free_vars(abst_domain(b), i, 1), new_assumption);
                     context new_ctx = extend(ctx, abst_name(b), abst_domain(b));
                     expr h_2 = new_state.m_menv.mk_metavar(new_ctx);
-                    if (is_neutral_abstraction(b, new_state.m_menv))
+                    if (is_neutral_abstraction(b, new_state.m_menv)) {
                         imitation = update_abstraction(b, h_1, h_2);
-                    else
-                        imitation = update_abstraction(b, h_1, mk_app(h_2, Var(0)));
+                        push_new_eq_constraint(new_state.m_queue, new_ctx, h_2, lift_free_vars(abst_body(b), i+1, 1), new_assumption);
+                    } else {
+                        expr h2_x = mk_app(h_2, Var(0));
+                        imitation = update_abstraction(b, h_1, h2_x);
+                        push_new_eq_constraint(new_state.m_queue, new_ctx, h2_x, lift_free_vars(abst_body(b), i+1, 1), new_assumption);
+                    }
                 } else {
                     imitation = lift_free_vars(b, i, 1);
                 }
-                new_state.m_queue.push_front(c); // keep c
-                push_new_eq_constraint(new_state.m_queue, ctx_with_i, mk_metavar(metavar_name(a)), imitation, new_assumption);
+                push_new_eq_constraint(new_state.m_queue, ctx_with_i, pop_meta_context(a), imitation, new_assumption);
                 new_cs->push_back(new_state, new_assumption);
             }
             bool r = new_cs->next(*this);

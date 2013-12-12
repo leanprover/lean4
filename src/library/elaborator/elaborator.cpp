@@ -836,17 +836,6 @@ class elaborator::imp {
     }
 
     /**
-       \brief A neutral abstraction is an Arrow (if the abstraction is a Pi) or a constant function (if the abstraction is a lambda).
-    */
-    bool is_neutral_abstraction(expr const & a, metavar_env const & menv) {
-        return is_abstraction(a) && !has_free_var(abst_body(a), 0, menv);
-    }
-    bool is_neutral_abstraction(expr const & a) {
-        return is_neutral_abstraction(a, m_state.m_menv);
-    }
-
-
-    /**
        \brief Process a constraint <tt>ctx |- a == b</tt> where \c a is of the form <tt>?m[(inst:i t), ...]</tt>.
        We perform a "case split",
        Case 1) ?m[...] == #i and t == b
@@ -854,9 +843,6 @@ class elaborator::imp {
     */
     bool process_metavar_inst(expr const & a, expr const & b, bool is_lhs, unification_constraint const & c) {
         if (is_metavar_inst(a) && !is_metavar_inst(b) && !is_meta_app(b)) {
-            // Remark: the condition !is_abstraction(b) || is_neutral_abstraction(b)
-            // is used to make sure we don't enter a loop.
-            // This is just a conservative step to make sure the elaborator does diverge.
             context const & ctx = get_context(c);
             local_context  lctx = metavar_lctx(a);
             unsigned i          = head(lctx).s();
@@ -914,22 +900,12 @@ class elaborator::imp {
                     // Lambdas and Pis
                     // Imitation for Lambdas and Pis, b == Fun(x:T) B
                     // mname <- Fun (x:?h_1) ?h_2
-                    // Remark: we don't need to use (Fun (x:?h_1) (?h_2 x)) because when b
-                    // is a neutral abstraction (arrow or constant function).
-                    // We avoid the more general (Fun (x:?h_1) (?h_2 x)) because it produces
-                    // non-termination.
                     expr h_1 = new_state.m_menv.mk_metavar(ctx);
                     push_new_eq_constraint(new_state.m_queue, ctx, h_1, lift_free_vars(abst_domain(b), i, 1), new_assumption);
                     context new_ctx = extend(ctx, abst_name(b), abst_domain(b));
                     expr h_2 = new_state.m_menv.mk_metavar(new_ctx);
-                    if (is_neutral_abstraction(b, new_state.m_menv)) {
-                        imitation = update_abstraction(b, h_1, h_2);
-                        push_new_eq_constraint(new_state.m_queue, new_ctx, h_2, lift_free_vars(abst_body(b), i+1, 1), new_assumption);
-                    } else {
-                        expr h2_x = mk_app(h_2, Var(0));
-                        imitation = update_abstraction(b, h_1, h2_x);
-                        push_new_eq_constraint(new_state.m_queue, new_ctx, h2_x, lift_free_vars(abst_body(b), i+1, 1), new_assumption);
-                    }
+                    imitation = update_abstraction(b, h_1, h_2);
+                    push_new_eq_constraint(new_state.m_queue, new_ctx, h_2, lift_free_vars(abst_body(b), i+1, 1), new_assumption);
                 } else {
                     imitation = lift_free_vars(b, i, 1);
                 }
@@ -952,18 +928,18 @@ class elaborator::imp {
        We just add a new assignment that forces ?m to have the corresponding kind.
     */
     bool process_metavar_lift_abstraction(expr const & a, expr const & b, unification_constraint const & c) {
-        if (is_metavar_lift(a) && is_abstraction(b) && is_neutral_abstraction(b)) {
+        if (is_metavar_lift(a) && is_abstraction(b)) {
             push_back(c);
-            context const & ctx = get_context(c);
-            expr h_1 = m_state.m_menv.mk_metavar(ctx);
-            expr h_2 = m_state.m_menv.mk_metavar(ctx);
-            // We don't use h_2(Var 0) in the body of the imitation term because
-            // b is a neutral abstraction (arrow or constant function).
-            // See comment at process_metavar_inst
+            // a <- (fun x : ?h1, ?h2)  or (Pi x : ?h1, ?h2)
+            // ?h1 is in the same context where 'a' was defined
+            // ?h2 is in the context of 'a' + domain of b
+            context ctx_a = m_state.m_menv.get_context(metavar_name(a));
+            expr h_1 = m_state.m_menv.mk_metavar(ctx_a);
+            expr h_2 = m_state.m_menv.mk_metavar(extend(ctx_a, abst_name(b), abst_domain(b)));
             expr imitation = update_abstraction(b, h_1, h_2);
             expr ma  = mk_metavar(metavar_name(a));
             justification new_jst(new imitation_justification(c));
-            push_new_constraint(true, ctx, ma, imitation, new_jst);
+            push_new_constraint(true, ctx_a, ma, imitation, new_jst);
             return true;
         } else {
             return false;

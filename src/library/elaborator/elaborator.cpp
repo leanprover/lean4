@@ -415,11 +415,11 @@ class elaborator::imp {
             } else {
                 local_entry const & me = head(metavar_lctx(a));
                 if (me.is_lift()) {
-                    if (!has_free_var(b, me.s(), me.s() + me.n())) {
+                    if (!has_free_var(b, me.s(), me.s() + me.n(), m_state.m_menv)) {
                         // Case 3
                         justification new_jst(new normalize_justification(c));
                         expr new_a = pop_meta_context(a);
-                        expr new_b = lower_free_vars(b, me.s() + me.n(), me.n());
+                        expr new_b = lower_free_vars(b, me.s() + me.n(), me.n(), m_state.m_menv);
                         context new_ctx = ctx.remove(me.s(), me.n());
                         if (!is_lhs)
                             swap(new_a, new_b);
@@ -844,9 +844,13 @@ class elaborator::imp {
     /**
        \brief A neutral abstraction is an Arrow (if the abstraction is a Pi) or a constant function (if the abstraction is a lambda).
     */
-    bool is_neutral_abstraction(expr const & a) {
-        return is_abstraction(a) && !has_free_var(abst_body(a), 0);
+    bool is_neutral_abstraction(expr const & a, metavar_env const & menv) {
+        return is_abstraction(a) && !has_free_var(abst_body(a), 0, menv);
     }
+    bool is_neutral_abstraction(expr const & a) {
+        return is_neutral_abstraction(a, m_state.m_menv);
+    }
+
 
     /**
        \brief Process a constraint <tt>ctx |- a == b</tt> where \c a is of the form <tt>?m[(inst:i t), ...]</tt>.
@@ -920,7 +924,7 @@ class elaborator::imp {
                     expr h_1 = new_state.m_menv.mk_metavar(ctx);
                     context new_ctx = extend(ctx, abst_name(b), abst_domain(b));
                     expr h_2 = new_state.m_menv.mk_metavar(new_ctx);
-                    if (is_neutral_abstraction(b))
+                    if (is_neutral_abstraction(b, new_state.m_menv))
                         imitation = update_abstraction(b, h_1, h_2);
                     else
                         imitation = update_abstraction(b, h_1, mk_app(h_2, Var(0)));

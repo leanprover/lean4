@@ -51,6 +51,7 @@ inline bool has_free_var(expr const & e, unsigned low, unsigned high, metavar_en
     \brief Return true iff \c e contains the free variable <tt>(var i)</tt>.
 */
 inline bool has_free_var(expr const & e, unsigned i, metavar_env const * menv = nullptr) {  return has_free_var(e, i, i+1, menv); }
+inline bool has_free_var(expr const & e, unsigned i, metavar_env const & menv) {  return has_free_var(e, i, i+1, &menv); }
 
 /**
    \brief Lower the free variables >= s in \c e by \c d. That is, a free variable <tt>(var i)</tt> s.t.

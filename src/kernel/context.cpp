@@ -9,6 +9,11 @@ Author: Leonardo de Moura
 #include "kernel/context.h"
 
 namespace lean {
+context::context(std::initializer_list<std::pair<char const *, expr const &>> const & l) {
+    for (auto const & p : l)
+        m_list = cons(context_entry(name(p.first), p.second), m_list);
+}
+
 std::pair<context_entry const &, context> context::lookup_ext(unsigned i) const {
     list<context_entry> const * it1 = &m_list;
     while (*it1) {

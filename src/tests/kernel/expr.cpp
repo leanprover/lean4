@@ -353,6 +353,14 @@ static void tst18() {
     lean_assert_eq(mk_bin_lop(f, a, {a1, a2, a3}), f(f(a1, a2), a3));
 }
 
+static void tst19() {
+    expr T1 = Const("T1");
+    expr T2 = Const("T2");
+    lean_assert(extend(extend(context(), "a", T1), "b", T2) == context({{"a", T1}, {"b", T2}}));
+    lean_assert(extend(extend(context(), "a", T1), "b", T2) == context({{"b", T1}, {"a", T2}})); // names don't matter
+    lean_assert(extend(extend(context(), "a", T2), "b", T2) != context({{"a", T1}, {"b", T2}}));
+}
+
 int main() {
     save_stack_info();
     lean_assert(sizeof(expr) == sizeof(optional<expr>));
@@ -374,6 +382,7 @@ int main() {
     tst16();
     tst17();
     tst18();
+    tst19();
     std::cout << "sizeof(expr):            " << sizeof(expr) << "\n";
     std::cout << "sizeof(expr_app):        " << sizeof(expr_app) << "\n";
     std::cout << "sizeof(expr_cell):       " << sizeof(expr_cell) << "\n";

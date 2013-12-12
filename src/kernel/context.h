@@ -27,6 +27,8 @@ public:
     name const & get_name() const   { return m_name; }
     optional<expr> const & get_domain() const { return m_domain; }
     optional<expr> const & get_body() const   { return m_body; }
+    friend bool operator==(context_entry const & e1, context_entry const & e2) { return e1.m_domain == e2.m_domain && e1.m_body == e2.m_body; }
+    friend bool operator!=(context_entry const & e1, context_entry const & e2) { return !(e1 == e2); }
 };
 
 /**
@@ -41,6 +43,7 @@ public:
     context(context const & c, name const & n, expr const & d, expr const & b):m_list(context_entry(n, d, b), c.m_list) {}
     context(context const & c, name const & n, expr const & d):m_list(context_entry(n, d), c.m_list) {}
     context(context const & c, context_entry const & e):m_list(e, c.m_list) {}
+    context(std::initializer_list<std::pair<char const *, expr const &>> const & l);
     explicit context(list<context_entry> const & l):m_list(l) {}
     context_entry const & lookup(unsigned vidx) const;
     std::pair<context_entry const &, context> lookup_ext(unsigned vidx) const;
@@ -65,6 +68,8 @@ public:
        \pre size() >= i
     */
     context insert_at(unsigned i, name const & n, expr const & d) const;
+    friend bool operator==(context const & ctx1, context const & ctx2) { return ctx1.m_list == ctx2.m_list; }
+    friend bool operator!=(context const & ctx1, context const & ctx2) { return !(ctx1 == ctx2); }
 };
 
 /**

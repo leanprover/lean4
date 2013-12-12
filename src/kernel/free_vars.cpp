@@ -330,7 +330,7 @@ bool has_free_var(expr const & e, unsigned low, unsigned high, metavar_env const
     return has_free_var_in_range_fn(low, high, menv)(e);
 }
 
-expr lower_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const * menv) {
+expr lower_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const * DEBUG_CODE(menv)) {
     lean_assert(s >= d);
     lean_assert(!has_free_var(e, s-d, s, menv));
     auto f = [=](expr const & e, unsigned offset) -> expr {

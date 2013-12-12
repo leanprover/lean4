@@ -43,14 +43,18 @@ optional<context_entry> context::find(unsigned i) const {
 }
 
 static list<context_entry> remove_core(list<context_entry> const & l, unsigned s, unsigned n) {
-    if (s == 0) {
-        if (n > 0) {
-            return remove_core(tail(l), 0, n-1);
+    if (l) {
+        if (s == 0) {
+            if (n > 0) {
+                return remove_core(tail(l), 0, n-1);
+            } else {
+                return l;
+            }
         } else {
-            return l;
+            return cons(head(l), remove_core(tail(l), s-1, n));
         }
     } else {
-        return cons(head(l), remove_core(tail(l), s-1, n));
+        return l;
     }
 }
 

@@ -319,9 +319,6 @@ bool has_assigned_metavar(expr const & e, metavar_env const & menv) {
 local_context add_lift(local_context const & lctx, unsigned s, unsigned n) {
     if (n == 0)
         return lctx;
-#if 0
-    // Remark: I disabled the following simplification.
-    // It impacts negatively the heuristics used in the elaborator.
     if (lctx) {
         local_entry e = head(lctx);
         // Simplification rule
@@ -330,7 +327,6 @@ local_context add_lift(local_context const & lctx, unsigned s, unsigned n) {
             return add_lift(tail(lctx), e.s(), e.n() + n);
         }
     }
-#endif
     return cons(mk_lift(s, n), lctx);
 }
 

@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/printer.h"
 #include "kernel/kernel_exception.h"
+#include "kernel/builtin.h"
 #include "library/placeholder.h"
 #include "library/io_state.h"
 #include "library/arith/arith.h"
@@ -599,6 +600,27 @@ static void tst27() {
     std::cout << up << "\n";
 }
 
+static void tst28() {
+    metavar_env menv;
+    expr f = Const("f");
+    expr a = Const("a");
+    expr m1 = menv.mk_metavar();
+    lean_assert(add_inst(m1, 0, f(a), menv) == m1);
+    lean_assert(add_inst(m1, 1, f(a), menv) == m1);
+    lean_assert(add_lift(m1, 0, 2, menv) == m1);
+    lean_assert(add_lift(m1, 1, 2, menv) == m1);
+    expr m2 = menv.mk_metavar(context({{"x", Bool}, {"y", Bool}}));
+    lean_assert(add_inst(m2, 0, f(a), menv) != m2);
+    lean_assert(add_inst(m2, 0, f(a), menv) == add_inst(m2, 0, f(a)));
+    lean_assert(add_inst(m2, 1, f(a), menv) != m2);
+    lean_assert(add_inst(m2, 2, f(a), menv) == m2);
+    lean_assert(add_lift(m2, 0, 2, menv) != m2);
+    lean_assert(add_lift(m2, 0, 2, menv) == add_lift(m2, 0, 2));
+    lean_assert(add_lift(m2, 1, 2, menv) != m2);
+    lean_assert(add_lift(m2, 2, 2, menv) == m2);
+    lean_assert(add_lift(m2, 2, 2, menv) != add_lift(m2, 2, 2));
+}
+
 int main() {
     save_stack_info();
     tst1();
@@ -628,5 +650,6 @@ int main() {
     tst25();
     tst26();
     tst27();
+    tst28();
     return has_violations() ? 1 : 0;
 }

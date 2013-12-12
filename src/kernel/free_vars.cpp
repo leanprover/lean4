@@ -344,14 +344,14 @@ expr lower_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const *
     return replace_fn<decltype(f)>(f)(e);
 }
 
-expr lift_free_vars(expr const & e, unsigned s, unsigned d) {
+expr lift_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const * menv) {
     if (d == 0)
         return e;
     auto f = [=](expr const & e, unsigned offset) -> expr {
         if (is_var(e) && var_idx(e) >= s + offset) {
             return mk_var(var_idx(e) + d);
         } else if (is_metavar(e)) {
-            return add_lift(e, s + offset, d);
+            return add_lift(e, s + offset, d, menv);
         } else {
             return e;
         }

@@ -180,15 +180,25 @@ local_context add_lift(local_context const & lctx, unsigned s, unsigned n);
    \brief Add a lift:s:n operation to the context of the given metavariable.
 
    \pre is_metavar(m)
+
+   \remark If menv != nullptr, then we use \c free_var_range to compute the free variables that may
+   occur in \c m. If s > the maximum free variable that occurs in \c m, then
+   we do not add a lift local entry to the local context.
 */
-expr add_lift(expr const & m, unsigned s, unsigned n);
+expr add_lift(expr const & m, unsigned s, unsigned n, metavar_env const * menv = nullptr);
+inline expr add_lift(expr const & m, unsigned s, unsigned n, metavar_env const & menv) { return add_lift(m, s, n, &menv); }
 
 /**
    \brief Add an inst:s:v operation to the context of the given metavariable.
 
    \pre is_metavar(m)
+
+   \remark If menv != nullptr, then we use \c free_var_range to compute the free variables that may
+   occur in \c m. If s > the maximum free variable that occurs in \c m, then
+   we do not add an inst local entry to the local context.
 */
-expr add_inst(expr const & m, unsigned s, expr const & v);
+expr add_inst(expr const & m, unsigned s, expr const & v, metavar_env const * menv = nullptr);
+inline expr add_inst(expr const & m, unsigned s, expr const & v, metavar_env const & menv) { return add_inst(m, s, v, &menv); }
 
 /**
    \brief Extend the local context \c lctx with the entry <tt>inst:s v</tt>

@@ -70,7 +70,12 @@ inline expr lower_free_vars(expr const & e, unsigned d, metavar_env const * menv
 
 /**
    \brief Lift free variables >= s in \c e by d.
+
+   \remark When the parameter menv != nullptr, this function will minimize the use
+   of the local entry lift in metavariables occurring in \c e.
 */
-expr lift_free_vars(expr const & e, unsigned s, unsigned d);
-inline expr lift_free_vars(expr const & e, unsigned d) { return lift_free_vars(e, 0, d); }
+expr lift_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const * menv = nullptr);
+inline expr lift_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const & menv) { return lift_free_vars(e, s, d, &menv); }
+inline expr lift_free_vars(expr const & e, unsigned d, metavar_env const * menv = nullptr) { return lift_free_vars(e, 0, d, menv); }
+inline expr lift_free_vars(expr const & e, unsigned d, metavar_env const & menv) { return lift_free_vars(e, 0, d, &menv); }
 }

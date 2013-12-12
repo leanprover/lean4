@@ -330,7 +330,9 @@ local_context add_lift(local_context const & lctx, unsigned s, unsigned n) {
     return cons(mk_lift(s, n), lctx);
 }
 
-expr add_lift(expr const & m, unsigned s, unsigned n) {
+expr add_lift(expr const & m, unsigned s, unsigned n, metavar_env const * menv) {
+    if (menv && s >= free_var_range(m, *menv))
+        return m;
     return update_metavar(m, add_lift(metavar_lctx(m), s, n));
 }
 
@@ -352,7 +354,9 @@ local_context add_inst(local_context const & lctx, unsigned s, expr const & v) {
     return cons(mk_inst(s, v), lctx);
 }
 
-expr add_inst(expr const & m, unsigned s, expr const & v) {
+expr add_inst(expr const & m, unsigned s, expr const & v, metavar_env const * menv) {
+    if (menv && s >= free_var_range(m, *menv))
+        return m;
     return update_metavar(m, add_inst(metavar_lctx(m), s, v));
 }
 

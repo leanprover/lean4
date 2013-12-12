@@ -118,9 +118,7 @@ static void tst5() {
     lean_assert(!has_free_var(mk_lambda("x", t, f(Var(0))), 1, menv));
     lean_assert(!has_free_var(m1, 0, menv));
     lean_assert(!has_free_var(m1, 1, menv));
-    context ctx;
-    ctx = extend(ctx, name("x"), Bool);
-    ctx = extend(ctx, name("y"), Bool);
+    context ctx({{"x", Bool}, {"y", Bool}});
     expr m2 = menv.mk_metavar(ctx);
     lean_assert(has_free_var(m2, 0, menv));
     lean_assert(has_free_var(m2, 1, menv));
@@ -138,6 +136,19 @@ static void tst5() {
                    Fun({x, Bool}, Var(3)(add_inst(add_lift(m2, 1, 2), 0, Var(0)))));
 }
 
+static void tst6() {
+    metavar_env menv;
+    expr f  = Const("f");
+    expr m1 = menv.mk_metavar();
+    expr m2 = menv.mk_metavar(context({{"x", Bool}, {"y", Bool}}));
+    lean_assert(lift_free_vars(m1, 0, 1, menv) == m1);
+    lean_assert(lift_free_vars(m2, 0, 1, menv) != m2);
+    lean_assert(lift_free_vars(m2, 0, 1, menv) == add_lift(m2, 0, 1));
+    lean_assert(lift_free_vars(m1, 0, 1) == add_lift(m1, 0, 1));
+    lean_assert(lift_free_vars(f(m1), 0, 1, menv) == f(m1));
+    lean_assert(lift_free_vars(f(m2), 0, 1, menv) == f(add_lift(m2, 0, 1)));
+}
+
 int main() {
     save_stack_info();
     tst1();
@@ -145,5 +156,6 @@ int main() {
     tst3();
     tst4();
     tst5();
+    tst6();
     return has_violations() ? 1 : 0;
 }

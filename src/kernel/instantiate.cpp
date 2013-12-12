@@ -5,12 +5,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
+#include <limits>
 #include "kernel/free_vars.h"
 #include "kernel/replace_fn.h"
 #include "kernel/metavar.h"
+#include "kernel/instantiate.h"
 
 namespace lean {
-expr instantiate_with_closed_relaxed(expr const & a, unsigned n, expr const * s) {
+expr instantiate_with_closed_relaxed(expr const & a, unsigned n, expr const * s, metavar_env const * menv) {
     auto f = [=](expr const & m, unsigned offset) -> expr {
         if (is_var(m)) {
             unsigned vidx = var_idx(m);
@@ -25,7 +27,7 @@ expr instantiate_with_closed_relaxed(expr const & a, unsigned n, expr const * s)
         } else if (is_metavar(m)) {
             expr r = m;
             for (unsigned i = 0; i < n; i++)
-                r = add_inst(r, offset + n - i - 1, s[i]);
+                r = add_inst(r, offset + n - i - 1, s[i], menv);
             return r;
         } else {
             return m;
@@ -34,18 +36,18 @@ expr instantiate_with_closed_relaxed(expr const & a, unsigned n, expr const * s)
     return replace_fn<decltype(f)>(f)(a);
 }
 
-expr instantiate_with_closed(expr const & a, unsigned n, expr const * s) {
-    lean_assert(std::all_of(s, s+n, closed));
-    return instantiate_with_closed_relaxed(a, n, s);
+expr instantiate_with_closed(expr const & a, unsigned n, expr const * s, metavar_env const * menv) {
+    lean_assert(std::all_of(s, s+n, [&](expr const & e) { return !has_free_var(e, 0, std::numeric_limits<unsigned>::max(), menv); }));
+    return instantiate_with_closed_relaxed(a, n, s, menv);
 }
 
-expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst) {
+expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst, metavar_env const * menv) {
     auto f = [=](expr const & m, unsigned offset) -> expr {
         if (is_var(m)) {
             unsigned vidx = var_idx(m);
             if (vidx >= offset + s) {
                 if (vidx < offset + s + n)
-                    return lift_free_vars(subst[n - (vidx - s - offset) - 1], offset);
+                    return lift_free_vars(subst[n - (vidx - s - offset) - 1], offset, menv);
                 else
                     return mk_var(vidx - n);
             } else {
@@ -54,7 +56,7 @@ expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst) {
         } else if (is_metavar(m)) {
             expr r = m;
             for (unsigned i = 0; i < n; i++)
-                r = add_inst(r, offset + s + n - i - 1, lift_free_vars(subst[i], offset + n - i - 1));
+                r = add_inst(r, offset + s + n - i - 1, lift_free_vars(subst[i], offset + n - i - 1, menv), menv);
             return r;
         } else {
             return m;
@@ -62,18 +64,18 @@ expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst) {
     };
     return replace_fn<decltype(f)>(f)(a);
 }
-expr instantiate(expr const & e, unsigned n, expr const * s) {
-    return instantiate(e, 0, n, s);
+expr instantiate(expr const & e, unsigned n, expr const * s, metavar_env const * menv) {
+    return instantiate(e, 0, n, s, menv);
 }
-expr instantiate(expr const & e, unsigned i, expr const & s) {
-    return instantiate(e, i, 1, &s);
+expr instantiate(expr const & e, unsigned i, expr const & s, metavar_env const * menv) {
+    return instantiate(e, i, 1, &s, menv);
 }
 
 bool is_head_beta(expr const & t) {
     return is_app(t) && is_lambda(arg(t, 0));
 }
 
-expr apply_beta(expr f, unsigned num_args, expr const * args) {
+expr apply_beta(expr f, unsigned num_args, expr const * args, metavar_env const * menv) {
     lean_assert(is_lambda(f));
     unsigned m = 1;
     while (is_lambda(abst_body(f)) && m < num_args) {
@@ -81,7 +83,7 @@ expr apply_beta(expr f, unsigned num_args, expr const * args) {
         m++;
     }
     lean_assert(m <= num_args);
-    expr r = instantiate(abst_body(f), m, args);
+    expr r = instantiate(abst_body(f), m, args, menv);
     if (m == num_args) {
         return r;
     } else {
@@ -93,18 +95,18 @@ expr apply_beta(expr f, unsigned num_args, expr const * args) {
     }
 }
 
-expr head_beta_reduce(expr const & t) {
+expr head_beta_reduce(expr const & t, metavar_env const * menv) {
     if (!is_head_beta(t)) {
         return t;
     } else {
-        return apply_beta(arg(t, 0), num_args(t) - 1, &arg(t, 1));
+        return apply_beta(arg(t, 0), num_args(t) - 1, &arg(t, 1), menv);
     }
 }
 
-expr beta_reduce(expr t) {
+expr beta_reduce(expr t, metavar_env const * menv) {
     auto f = [=](expr const & m, unsigned) -> expr {
         if (is_head_beta(m))
-            return head_beta_reduce(m);
+            return head_beta_reduce(m, menv);
         else
             return m;
     };

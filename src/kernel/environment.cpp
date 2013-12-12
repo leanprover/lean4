@@ -56,6 +56,7 @@ struct environment::imp {
     // Remark: only named objects are stored in the dictionary.
     typedef std::unordered_map<name, object, name_hash, name_eq> object_dictionary;
     typedef std::tuple<level, level, int> constraint;
+    std::weak_ptr<imp>                   m_this;
     // Universe variable management
     std::vector<constraint>              m_constraints;
     std::vector<level>                   m_uvars;
@@ -74,6 +75,12 @@ struct environment::imp {
     // This mutex is only used to implement threadsafe environment objects
     // in the external APIs
     shared_mutex                         m_mutex;
+
+    environment env() const {
+        lean_assert(!m_this.expired()); // it is not possible to expire since it is a reference to this object
+        lean_assert(this == m_this.lock().get());
+        return environment(m_this);
+    }
 
     extension & get_extension_core(unsigned extid) {
         if (extid >= m_extensions.size())
@@ -116,17 +123,17 @@ struct environment::imp {
     bool has_parent() const { return m_parent != nullptr; }
 
     /** \brief Throw exception if environment or its ancestors already have an object with the given name. */
-    void check_name_core(name const & n, environment const & env) {
+    void check_name_core(name const & n) {
         if (has_parent())
-            m_parent->check_name_core(n, env);
+            m_parent->check_name_core(n);
         if (m_object_dictionary.find(n) != m_object_dictionary.end())
-            throw already_declared_exception(env, n);
+            throw already_declared_exception(env(), n);
     }
 
-    void check_name(name const & n, environment const & env) {
+    void check_name(name const & n) {
         if (has_children())
-            throw read_only_environment_exception(env);
-        check_name_core(n, env);
+            throw read_only_environment_exception(env());
+        check_name_core(n);
     }
 
     /** \brief Store new named object inside internal data-structures */
@@ -152,12 +159,12 @@ struct environment::imp {
         }
     }
 
-    object get_object(name const & n, environment const & env) const {
+    object get_object(name const & n) const {
         optional<object> obj = get_object_core(n);
         if (obj) {
             return *obj;
         } else {
-            throw unknown_object_exception(env, n);
+            throw unknown_object_exception(env(), n);
         }
     }
 
@@ -200,8 +207,8 @@ struct environment::imp {
     }
 
     /** \brief Add a new universe variable */
-    level add_uvar(name const & n, environment const & env) {
-        check_name(n, env);
+    level add_uvar(name const & n) {
+        check_name(n);
         level r(n);
         m_uvars.push_back(r);
         return r;
@@ -249,12 +256,12 @@ struct environment::imp {
     }
 
     /** \brief Add a new universe variable with constraint n >= l */
-    level add_uvar(name const & n, level const & l, environment const & env) {
+    level add_uvar(name const & n, level const & l) {
         if (has_parent())
-            throw kernel_exception(env, "invalid universe declaration, universe variables can only be declared in top-level environments");
+            throw kernel_exception(env(), "invalid universe declaration, universe variables can only be declared in top-level environments");
         if (has_children())
-            throw read_only_environment_exception(env);
-        level r = add_uvar(n, env);
+            throw read_only_environment_exception(env());
+        level r = add_uvar(n);
         add_constraints(r, l, 0);
         register_named_object(mk_uvar_decl(n, l));
         return r;
@@ -265,13 +272,13 @@ struct environment::imp {
         exception if the environment and its ancestors do not
         contain a universe variable named \c n.
     */
-    level get_uvar(name const & n, environment const & env) const {
+    level get_uvar(name const & n) const {
         if (has_parent()) {
-            return m_parent->get_uvar(n, env);
+            return m_parent->get_uvar(n);
         } else {
             auto it = std::find_if(m_uvars.begin(), m_uvars.end(), [&](level const & l) { return uvar_name(l) == n; });
             if (it == m_uvars.end())
-                throw unknown_universe_variable_exception(env, n);
+                throw unknown_universe_variable_exception(env(), n);
             else
                 return *it;
         }
@@ -292,58 +299,55 @@ struct environment::imp {
        and x is associated with a cached type T'. The cached type may allow
        us to accept a definition that is type incorrect with respect to env.
     */
-    void check_no_cached_type(expr const & e, environment const & env) {
+    void check_no_cached_type(expr const & e) {
         if (find(e, [](expr const & a) { return is_constant(a) && const_type(a); }))
-            throw kernel_exception(env, "expression has a constant with a cached type, this is a bug in one of Lean tactics and/or solvers");
+            throw kernel_exception(env(), "expression has a constant with a cached type, this is a bug in one of Lean tactics and/or solvers");
     }
 
     /**
         \brief Throw an exception if \c t is not a type or type of \c
         v is not convertible to \c t.
-
-        \remark env is the smart pointer of imp. We need it because
-        infer_universe and infer_type expect an environment instead of environment::imp.
     */
-    void check_type(name const & n, expr const & t, expr const & v, environment const & env) {
+    void check_type(name const & n, expr const & t, expr const & v) {
         m_type_checker->check_type(t);
         expr v_t = m_type_checker->infer_type(v);
         if (!m_type_checker->is_convertible(v_t, t))
-            throw def_type_mismatch_exception(env, n, t, v, v_t);
+            throw def_type_mismatch_exception(env(), n, t, v, v_t);
     }
 
     /** \brief Throw exception if it is not a valid new definition */
-    void check_new_definition(name const & n, expr const & t, expr const & v, environment const & env) {
-        check_name(n, env);
-        check_type(n, t, v, env);
+    void check_new_definition(name const & n, expr const & t, expr const & v) {
+        check_name(n);
+        check_type(n, t, v);
     }
 
     /** \brief Add a new builtin value to this environment */
-    void add_builtin(expr const & v, environment const & env) {
+    void add_builtin(expr const & v) {
         if (!is_value(v))
-            throw invalid_builtin_value_declaration(env, v);
+            throw invalid_builtin_value_declaration(env(), v);
         name const & n = to_value(v).get_name();
-        check_name(n, env);
+        check_name(n);
         name const & u = to_value(v).get_unicode_name();
-        check_name(u, env);
+        check_name(u);
         register_named_object(mk_builtin(v));
         if (u != n) {
-            add_definition(u, to_value(v).get_type(), mk_constant(n), false, env);
+            add_definition(u, to_value(v).get_type(), mk_constant(n), false);
         }
     }
 
     /** \brief Add a new builtin value set to this environment */
-    void add_builtin_set(expr const & r, environment const & env) {
+    void add_builtin_set(expr const & r) {
         if (!is_value(r))
-            throw invalid_builtin_value_declaration(env, r);
-        check_name(to_value(r).get_name(), env);
+            throw invalid_builtin_value_declaration(env(), r);
+        check_name(to_value(r).get_name());
         register_named_object(mk_builtin_set(r));
     }
 
     /** \brief Add new definition. */
-    void add_definition(name const & n, expr const & t, expr const & v, bool opaque, environment const & env) {
-        check_no_cached_type(t, env);
-        check_no_cached_type(v, env);
-        check_new_definition(n, t, v, env);
+    void add_definition(name const & n, expr const & t, expr const & v, bool opaque) {
+        check_no_cached_type(t);
+        check_no_cached_type(v);
+        check_new_definition(n, t, v);
         unsigned w = get_max_weight(v) + 1;
         register_named_object(mk_definition(n, t, v, opaque, w));
     }
@@ -352,34 +356,34 @@ struct environment::imp {
         \brief Add new definition.
         The type of the new definition is the type of \c v.
     */
-    void add_definition(name const & n, expr const & v, bool opaque, environment const & env) {
-        check_no_cached_type(v, env);
-        check_name(n, env);
+    void add_definition(name const & n, expr const & v, bool opaque) {
+        check_no_cached_type(v);
+        check_name(n);
         expr v_t = m_type_checker->infer_type(v);
         unsigned w = get_max_weight(v) + 1;
         register_named_object(mk_definition(n, v_t, v, opaque, w));
     }
 
     /** \brief Add new theorem. */
-    void add_theorem(name const & n, expr const & t, expr const & v, environment const & env) {
-        check_no_cached_type(t, env);
-        check_no_cached_type(v, env);
-        check_new_definition(n, t, v, env);
+    void add_theorem(name const & n, expr const & t, expr const & v) {
+        check_no_cached_type(t);
+        check_no_cached_type(v);
+        check_new_definition(n, t, v);
         register_named_object(mk_theorem(n, t, v));
     }
 
     /** \brief Add new axiom. */
-    void add_axiom(name const & n, expr const & t, environment const & env) {
-        check_no_cached_type(t, env);
-        check_name(n, env);
+    void add_axiom(name const & n, expr const & t) {
+        check_no_cached_type(t);
+        check_name(n);
         m_type_checker->check_type(t);
         register_named_object(mk_axiom(n, t));
     }
 
     /** \brief Add new variable. */
-    void add_var(name const & n, expr const & t, environment const & env) {
-        check_no_cached_type(t, env);
-        check_name(n, env);
+    void add_var(name const & n, expr const & t) {
+        check_no_cached_type(t);
+        check_name(n);
         m_type_checker->check_type(t);
         register_named_object(mk_var_decl(n, t));
     }
@@ -413,9 +417,9 @@ struct environment::imp {
     }
 
     /** \brief Display universal variable constraints and objects stored in this environment and its parents. */
-    void display(std::ostream & out, environment const & env) const {
+    void display(std::ostream & out) const {
         if (has_parent())
-            m_parent->display(out, env);
+            m_parent->display(out);
         for (object const & obj : m_objects) {
             if (obj.has_name()) {
                 out << obj.keyword() << " " << obj.get_name() << "\n";
@@ -432,23 +436,23 @@ struct environment::imp {
             return false;
     }
 
-    bool mark_imported_core(name n, environment const & env) {
+    bool mark_imported_core(name n) {
         if (already_imported(n)) {
             return false;
         } else if (has_children()) {
-            throw read_only_environment_exception(env);
+            throw read_only_environment_exception(env());
         } else {
             m_imported_modules.insert(n);
             return true;
         }
     }
 
-    bool mark_imported(char const * fname, environment const & env) {
-        return mark_imported_core(name(realpath(fname)), env);
+    bool mark_imported(char const * fname) {
+        return mark_imported_core(name(realpath(fname)));
     }
 
-    bool mark_builtin_imported(char const * id, environment const & env) {
-        return mark_imported_core(name(g_builtin_module, id), env);
+    bool mark_builtin_imported(char const * id) {
+        return mark_imported_core(name(g_builtin_module, id));
     }
 
     imp():
@@ -470,12 +474,14 @@ struct environment::imp {
 
 environment::environment():
     m_ptr(new imp()) {
+    m_ptr->m_this = m_ptr;
     m_ptr->m_type_checker.reset(new type_checker(*this));
 }
 
 // used when creating a new child environment
 environment::environment(std::shared_ptr<imp> const & parent, bool):
     m_ptr(new imp(parent)) {
+    m_ptr->m_this = m_ptr;
     m_ptr->m_type_checker.reset(new type_checker(*this));
 }
 
@@ -511,7 +517,7 @@ environment environment::parent() const {
 }
 
 level environment::add_uvar(name const & n, level const & l) {
-    return m_ptr->add_uvar(n, l, *this);
+    return m_ptr->add_uvar(n, l);
 }
 
 bool environment::is_ge(level const & l1, level const & l2) const {
@@ -519,35 +525,35 @@ bool environment::is_ge(level const & l1, level const & l2) const {
 }
 
 level environment::get_uvar(name const & n) const {
-    return m_ptr->get_uvar(n, *this);
+    return m_ptr->get_uvar(n);
 }
 
 void environment::add_builtin(expr const & v) {
-    return m_ptr->add_builtin(v, *this);
+    return m_ptr->add_builtin(v);
 }
 
 void environment::add_builtin_set(expr const & r) {
-    return m_ptr->add_builtin_set(r, *this);
+    return m_ptr->add_builtin_set(r);
 }
 
 void environment::add_definition(name const & n, expr const & t, expr const & v, bool opaque) {
-    m_ptr->add_definition(n, t, v, opaque, *this);
+    m_ptr->add_definition(n, t, v, opaque);
 }
 
 void environment::add_theorem(name const & n, expr const & t, expr const & v) {
-    m_ptr->add_theorem(n, t, v, *this);
+    m_ptr->add_theorem(n, t, v);
 }
 
 void environment::add_definition(name const & n, expr const & v, bool opaque) {
-    m_ptr->add_definition(n, v, opaque, *this);
+    m_ptr->add_definition(n, v, opaque);
 }
 
 void environment::add_axiom(name const & n, expr const & t) {
-    m_ptr->add_axiom(n, t, *this);
+    m_ptr->add_axiom(n, t);
 }
 
 void environment::add_var(name const & n, expr const & t) {
-    m_ptr->add_var(n, t, *this);
+    m_ptr->add_var(n, t);
 }
 
 void environment::add_neutral_object(neutral_object_cell * o) {
@@ -555,7 +561,7 @@ void environment::add_neutral_object(neutral_object_cell * o) {
 }
 
 object environment::get_object(name const & n) const {
-    return m_ptr->get_object(n, *this);
+    return m_ptr->get_object(n);
 }
 
 optional<object> environment::find_object(name const & n) const {
@@ -579,15 +585,15 @@ expr environment::normalize(expr const & e, context const & ctx) const {
 }
 
 void environment::display(std::ostream & out) const {
-    m_ptr->display(out, *this);
+    m_ptr->display(out);
 }
 
 bool environment::mark_imported(char const * fname) {
-    return m_ptr->mark_imported(fname, *this);
+    return m_ptr->mark_imported(fname);
 }
 
 bool environment::mark_builtin_imported(char const * id) {
-    return m_ptr->mark_builtin_imported(id, *this);
+    return m_ptr->mark_builtin_imported(id);
 }
 
 environment::extension const & environment::get_extension_core(unsigned extid) const {

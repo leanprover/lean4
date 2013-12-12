@@ -16,8 +16,8 @@ install:
     fi
   - mkdir -p /tmp/mxe
   - cd /tmp/mxe
-  - wget http://dl.dropboxusercontent.com/u/203889738/gcc/mxe-gcc-4.8.2.tar.bz2
-  - tar xfj mxe-gcc-4.8.2.tar.bz2
+  - wget http://dl.dropboxusercontent.com/u/203889738/gcc/mxe-gcc-4.8-20131205.tar.bz2
+  - tar xfj mxe-gcc-4.8-20131205.tar.bz2
   - cd -
 
 script:
@@ -31,7 +31,7 @@ script:
     else
         BUILD_TYPE=Debug;
     fi
-  - BUILD_NAME=${TRAVIS_BRANCH}_w64-mingw32-g++-4.8.2_${BUILD_TYPE}
+  - BUILD_NAME=${TRAVIS_BRANCH}_w64-mingw32-g++-4.8.3_${BUILD_TYPE}
   - if [[ $TCMALLOC == ON ]]; then
         BUILD_NAME=${BUILD_NAME}_TC;
     fi;

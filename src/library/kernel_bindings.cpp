@@ -833,7 +833,7 @@ static int formatter_call_core(lua_State * L) {
         } else if (is_context(L, 2)) {
             return push_format(L, fmt(to_context(L, 2), opts));
         } else if (is_environment(L, 2)) {
-            ro_environment env(L, 2);
+            ro_shared_environment env(L, 2);
             return push_format(L, fmt(env, opts));
         } else if (is_object(L, 2)) {
             return push_format(L, fmt(to_object(L, 2), opts));
@@ -853,7 +853,7 @@ static int formatter_call(lua_State * L) {
     formatter & fmt = to_formatter(L, 1);
     optional<environment> env = fmt.get_environment();
     if (env) {
-        read_only_environment ro_env(*env);
+        read_only_shared_environment ro_env(*env);
         return formatter_call_core(L);
     } else {
         return formatter_call_core(L);
@@ -930,20 +930,20 @@ DECL_UDATA(environment)
 
 static environment get_global_environment(lua_State * L);
 
-ro_environment::ro_environment(lua_State * L, int idx):
-    read_only_environment(to_environment(L, idx)) {
+ro_shared_environment::ro_shared_environment(lua_State * L, int idx):
+    read_only_shared_environment(to_environment(L, idx)) {
 }
 
-ro_environment::ro_environment(lua_State * L):
-    read_only_environment(get_global_environment(L)) {
+ro_shared_environment::ro_shared_environment(lua_State * L):
+    read_only_shared_environment(get_global_environment(L)) {
 }
 
-rw_environment::rw_environment(lua_State * L, int idx):
-    read_write_environment(to_environment(L, idx)) {
+rw_shared_environment::rw_shared_environment(lua_State * L, int idx):
+    read_write_shared_environment(to_environment(L, idx)) {
 }
 
-rw_environment::rw_environment(lua_State * L):
-    read_write_environment(get_global_environment(L)) {
+rw_shared_environment::rw_shared_environment(lua_State * L):
+    read_write_shared_environment(get_global_environment(L)) {
 }
 
 static int mk_empty_environment(lua_State * L) {
@@ -951,31 +951,31 @@ static int mk_empty_environment(lua_State * L) {
 }
 
 static int environment_mk_child(lua_State * L) {
-    rw_environment env(L, 1);
+    rw_shared_environment env(L, 1);
     return push_environment(L, env->mk_child());
 }
 
 static int environment_has_parent(lua_State * L) {
-    ro_environment env(L, 1);
+    ro_shared_environment env(L, 1);
     lua_pushboolean(L, env->has_parent());
     return 1;
 }
 
 static int environment_has_children(lua_State * L) {
-    ro_environment env(L, 1);
+    ro_shared_environment env(L, 1);
     lua_pushboolean(L, env->has_children());
     return 1;
 }
 
 static int environment_parent(lua_State * L) {
-    ro_environment env(L, 1);
+    ro_shared_environment env(L, 1);
     if (!env->has_parent())
         throw exception("environment does not have a parent environment");
     return push_environment(L, env->parent());
 }
 
 static int environment_add_uvar(lua_State * L) {
-    rw_environment env(L, 1);
+    rw_shared_environment env(L, 1);
     int nargs = lua_gettop(L);
     if (nargs == 2)
         env->add_uvar(to_name_ext(L, 2));
@@ -985,18 +985,18 @@ static int environment_add_uvar(lua_State * L) {
 }
 
 static int environment_is_ge(lua_State * L) {
-    ro_environment env(L, 1);
+    ro_shared_environment env(L, 1);
     lua_pushboolean(L, env->is_ge(to_level(L, 2), to_level(L, 3)));
     return 1;
 }
 
 static int environment_get_uvar(lua_State * L) {
-    ro_environment env(L, 1);
+    ro_shared_environment env(L, 1);
     return push_level(L, env->get_uvar(to_name_ext(L, 2)));
 }
 
 static int environment_add_definition(lua_State * L) {
-    rw_environment env(L, 1);
+    rw_shared_environment env(L, 1);
     int nargs = lua_gettop(L);
     if (nargs == 3) {
         env->add_definition(to_name_ext(L, 2), to_expr(L, 3));
@@ -1012,36 +1012,36 @@ static int environment_add_definition(lua_State * L) {
 }
 
 static int environment_add_theorem(lua_State * L) {
-    rw_environment env(L, 1);
+    rw_shared_environment env(L, 1);
     env->add_theorem(to_name_ext(L, 2), to_expr(L, 3), to_expr(L, 4));
     return 0;
 }
 
 static int environment_add_var(lua_State * L) {
-    rw_environment env(L, 1);
+    rw_shared_environment env(L, 1);
     env->add_var(to_name_ext(L, 2), to_expr(L, 3));
     return 0;
 }
 
 static int environment_add_axiom(lua_State * L) {
-    rw_environment env(L, 1);
+    rw_shared_environment env(L, 1);
     env->add_axiom(to_name_ext(L, 2), to_expr(L, 3));
     return 0;
 }
 
 static int environment_find_object(lua_State * L) {
-    ro_environment env(L, 1);
+    ro_shared_environment env(L, 1);
     return push_optional_object(L, env->find_object(to_name_ext(L, 2)));
 }
 
 static int environment_has_object(lua_State * L) {
-    ro_environment env(L, 1);
+    ro_shared_environment env(L, 1);
     lua_pushboolean(L, env->has_object(to_name_ext(L, 2)));
     return 1;
 }
 
 static int environment_check_type(lua_State * L) {
-    ro_environment env(L, 1);
+    ro_shared_environment env(L, 1);
     int nargs = lua_gettop(L);
     if (nargs == 2)
         return push_expr(L, env->infer_type(to_expr(L, 2)));
@@ -1050,7 +1050,7 @@ static int environment_check_type(lua_State * L) {
 }
 
 static int environment_normalize(lua_State * L) {
-    ro_environment env(L, 1);
+    ro_shared_environment env(L, 1);
     int nargs = lua_gettop(L);
     if (nargs == 2)
         return push_expr(L, env->normalize(to_expr(L, 2)));
@@ -1065,7 +1065,7 @@ static int environment_normalize(lua_State * L) {
    \see environment_local_objects.
 */
 static int environment_next_object(lua_State * L) {
-    ro_environment env(L, lua_upvalueindex(1));
+    ro_shared_environment env(L, lua_upvalueindex(1));
     unsigned i   = lua_tointeger(L, lua_upvalueindex(2));
     unsigned num = lua_tointeger(L, lua_upvalueindex(3));
     if (i >= num) {
@@ -1080,7 +1080,7 @@ static int environment_next_object(lua_State * L) {
 }
 
 static int environment_objects_core(lua_State * L, bool local) {
-    ro_environment env(L, 1);
+    ro_shared_environment env(L, 1);
     push_environment(L, env);   // upvalue(1): environment
     lua_pushinteger(L, 0);      // upvalue(2): index
     lua_pushinteger(L, env->get_num_objects(local)); // upvalue(3): size
@@ -1107,7 +1107,7 @@ static int environment_infer_type(lua_State * L) {
 }
 
 static int environment_tostring(lua_State * L) {
-    ro_environment env(L, 1);
+    ro_shared_environment env(L, 1);
     std::ostringstream out;
     formatter fmt = get_global_formatter(L);
     options opts  = get_global_options(L);

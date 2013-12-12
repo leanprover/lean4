@@ -68,14 +68,14 @@ void hide_builtin(environment & env) {
 }
 
 static int is_hidden(lua_State * L) {
-    ro_environment env(L, 1);
+    ro_shared_environment env(L, 1);
     lua_pushboolean(L, is_hidden(env, to_name_ext(L, 2)));
     return 1;
 }
 
 static int set_hidden_flag(lua_State * L) {
     int nargs = lua_gettop(L);
-    rw_environment env(L, 1);
+    rw_shared_environment env(L, 1);
     set_hidden_flag(env, to_name_ext(L, 2), nargs <= 2 ? true : lua_toboolean(L, 3));
     return 0;
 }

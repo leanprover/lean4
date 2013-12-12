@@ -559,7 +559,7 @@ static int tactic_call_core(lua_State * L, tactic t, environment env, io_state i
 static int tactic_call(lua_State * L) {
     int nargs = lua_gettop(L);
     tactic t = to_tactic_ext(L, 1);
-    ro_environment env(L, 2);
+    ro_shared_environment env(L, 2);
     if (nargs == 3) {
         io_state * ios = get_io_state(L);
         check_ios(ios);
@@ -646,7 +646,7 @@ static int tactic_solve_core(lua_State * L, tactic t, environment env, io_state 
 static int tactic_solve(lua_State * L) {
     int nargs = lua_gettop(L);
     tactic t = to_tactic_ext(L, 1);
-    ro_environment env(L, 2);
+    ro_shared_environment env(L, 2);
     if (nargs == 3) {
         io_state * ios = get_io_state(L);
         check_ios(ios);

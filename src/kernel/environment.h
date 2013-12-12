@@ -23,8 +23,8 @@ private:
     void check_type(name const & n, expr const & t, expr const & v);
     environment(std::shared_ptr<imp> const & parent, bool);
     explicit environment(std::shared_ptr<imp> const & ptr);
-    friend class read_only_environment;
-    friend class read_write_environment;
+    friend class read_only_shared_environment;
+    friend class read_write_shared_environment;
 public:
     typedef std::weak_ptr<imp> weak_ref;
 

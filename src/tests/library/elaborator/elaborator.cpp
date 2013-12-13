@@ -28,13 +28,13 @@ static void tst1() {
     expr nil  = Const("nil");
     expr cons = Const("cons");
     expr A    = Const("A");
-    env.add_var("list", Type() >> Type());
-    env.add_var("nil", Pi({A, Type()}, list(A)));
-    env.add_var("cons", Pi({A, Type()}, A >> (list(A) >> list(A))));
-    env.add_var("a", Int);
-    env.add_var("b", Int);
-    env.add_var("n", Nat);
-    env.add_var("m", Nat);
+    env->add_var("list", Type() >> Type());
+    env->add_var("nil", Pi({A, Type()}, list(A)));
+    env->add_var("cons", Pi({A, Type()}, A >> (list(A) >> list(A))));
+    env->add_var("a", Int);
+    env->add_var("b", Int);
+    env->add_var("n", Nat);
+    env->add_var("m", Nat);
     expr a  = Const("a");
     expr b  = Const("b");
     expr n  = Const("n");
@@ -81,9 +81,9 @@ static void tst2() {
     type_checker checker(env);
     expr A = Const("A");
     expr g = Const("g");
-    env.add_var("g", Pi({A, Type()}, A >> A));
+    env->add_var("g", Pi({A, Type()}, A >> A));
     expr a = Const("a");
-    env.add_var("a", Int);
+    env->add_var("a", Int);
     expr m1 = menv.mk_metavar();
     expr m2 = menv.mk_metavar();
     expr m3 = menv.mk_metavar();
@@ -122,9 +122,9 @@ static void tst3() {
     type_checker checker(env);
     expr A = Const("A");
     expr f = Const("f");
-    env.add_var("f", Pi({A, Type()}, A >> A));
+    env->add_var("f", Pi({A, Type()}, A >> A));
     expr a = Const("a");
-    env.add_var("a", Int);
+    env->add_var("a", Int);
     expr m1 = menv.mk_metavar();
     expr m2 = menv.mk_metavar();
     expr m3 = menv.mk_metavar();
@@ -164,11 +164,11 @@ static void tst4() {
     type_checker checker(env);
     expr A = Const("A");
     expr f = Const("f");
-    env.add_var("f", Pi({A, Type()}, A >> A));
+    env->add_var("f", Pi({A, Type()}, A >> A));
     expr a = Const("a");
     expr b = Const("b");
-    env.add_var("a", Int);
-    env.add_var("b", Real);
+    env->add_var("a", Int);
+    env->add_var("b", Real);
     expr m1 = menv.mk_metavar();
     expr m2 = menv.mk_metavar();
     expr m3 = menv.mk_metavar();
@@ -208,11 +208,11 @@ static void tst5() {
     type_checker checker(env);
     expr A = Const("A");
     expr f = Const("f");
-    env.add_var("f", Pi({A, Type()}, A >> (A >> A)));
+    env->add_var("f", Pi({A, Type()}, A >> (A >> A)));
     expr a = Const("a");
     expr b = Const("b");
-    env.add_var("a", Int);
-    env.add_var("b", Real);
+    env->add_var("a", Int);
+    env->add_var("b", Real);
     expr m1 = menv.mk_metavar();
     expr m2 = menv.mk_metavar();
     expr m3 = menv.mk_metavar();
@@ -252,11 +252,11 @@ static void tst6() {
     expr m2 = menv.mk_metavar();
     expr m3 = menv.mk_metavar();
     expr m4 = menv.mk_metavar();
-    env.add_var("f", Int >> (Int >> Int));
-    env.add_var("a", Int);
-    env.add_var("b", Int);
-    env.add_axiom("H1", Eq(f(a, f(a, b)), a));
-    env.add_axiom("H2", Eq(a, b));
+    env->add_var("f", Int >> (Int >> Int));
+    env->add_var("a", Int);
+    env->add_var("b", Int);
+    env->add_axiom("H1", Eq(f(a, f(a, b)), a));
+    env->add_axiom("H2", Eq(a, b));
     expr V = Subst(m1, m2, m3, m4, H1, H2);
     expr expected = Eq(f(a, f(b, b)), a);
     expr given    = checker.infer_type(V, context(), &menv, &ucs);
@@ -315,10 +315,10 @@ static void tst7() {
     expr a = Const("a");
     expr Nat  = Const("N");
     expr Real = Const("R");
-    env.add_var("N", Type());
-    env.add_var("R", Type());
-    env.add_var("F", Pi({{A, Type()}, {B, Type()}, {g, A >> B}}, A));
-    env.add_var("f", Nat >> Real);
+    env->add_var("N", Type());
+    env->add_var("R", Type());
+    env->add_var("F", Pi({{A, Type()}, {B, Type()}, {g, A >> B}}, A));
+    env->add_var("f", Nat >> Real);
     expr f = Const("f");
     success(F(_, _, f), F(Nat, Real, f), env);
     // fails(F(_, Bool, f), env);
@@ -334,17 +334,17 @@ static void tst8() {
     expr c  = Const("c");
     expr H1 = Const("H1");
     expr H2 = Const("H2");
-    env.add_var("a", Bool);
-    env.add_var("b", Bool);
-    env.add_var("c", Bool);
-    env.add_axiom("H1", Eq(a, b));
-    env.add_axiom("H2", Eq(b, c));
+    env->add_var("a", Bool);
+    env->add_var("b", Bool);
+    env->add_var("c", Bool);
+    env->add_axiom("H1", Eq(a, b));
+    env->add_axiom("H2", Eq(b, c));
     success(Trans(_, _, _, _, H1, H2), Trans(Bool, a, b, c, H1, H2), env);
     success(Trans(_, _, _, _, Symm(_, _, _, H2), Symm(_, _, _, H1)),
             Trans(Bool, c, b, a, Symm(Bool, b, c, H2), Symm(Bool, a, b, H1)), env);
     success(Symm(_, _, _, Trans(_, _ , _ , _ , Symm(_, _, _, H2), Symm(_, _, _, H1))),
             Symm(Bool, c, a, Trans(Bool, c, b, a, Symm(Bool, b, c, H2), Symm(Bool, a, b, H1))), env);
-    env.add_axiom("H3", a);
+    env->add_axiom("H3", a);
     expr H3 = Const("H3");
     success(EqTIntro(_, EqMP(_, _, Symm(_, _, _, Trans(_, _, _, _, Symm(_, _, _, H2), Symm(_, _, _, H1))), H3)),
             EqTIntro(c, EqMP(a, c, Symm(Bool, c, a, Trans(Bool, c, b, a, Symm(Bool, b, c, H2), Symm(Bool, a, b, H1))), H3)),
@@ -356,25 +356,25 @@ static void tst9() {
     environment env;
     import_all(env);
     expr Nat = Const("N");
-    env.add_var("N", Type());
-    env.add_var("vec", Nat >> Type());
+    env->add_var("N", Type());
+    env->add_var("vec", Nat >> Type());
     expr n   = Const("n");
     expr vec = Const("vec");
-    env.add_var("f", Pi({n, Nat}, vec(n) >> Nat));
+    env->add_var("f", Pi({n, Nat}, vec(n) >> Nat));
     expr f = Const("f");
     expr a = Const("a");
     expr b = Const("b");
     expr H = Const("H");
     expr fact = Const("fact");
-    env.add_var("a", Nat);
-    env.add_var("b", Nat);
-    env.add_definition("fact", Bool, Eq(a, b));
-    env.add_axiom("H", fact);
+    env->add_var("a", Nat);
+    env->add_var("b", Nat);
+    env->add_definition("fact", Bool, Eq(a, b));
+    env->add_axiom("H", fact);
     success(Congr2(_, _, _, _, f, H),
             Congr2(Nat, Fun({n, Nat}, vec(n) >> Nat), a, b, f, H), env);
-    env.add_var("g", Pi({n, Nat}, vec(n) >> Nat));
+    env->add_var("g", Pi({n, Nat}, vec(n) >> Nat));
     expr g = Const("g");
-    env.add_axiom("H2", Eq(f, g));
+    env->add_axiom("H2", Eq(f, g));
     expr H2 = Const("H2");
     success(Congr(_, _, _, _, _, _, H2, H),
             Congr(Nat, Fun({n, Nat}, vec(n) >> Nat), f, g, a, b, H2, H), env);
@@ -388,13 +388,13 @@ static void tst10() {
     environment env;
     import_all(env);
     expr Nat = Const("N");
-    env.add_var("N", Type());
+    env->add_var("N", Type());
     expr R   = Const("R");
-    env.add_var("R", Type());
-    env.add_var("a", Nat);
+    env->add_var("R", Type());
+    env->add_var("a", Nat);
     expr a   = Const("a");
     expr f   = Const("f");
-    env.add_var("f", Nat >> ((R >> Nat) >> R));
+    env->add_var("f", Nat >> ((R >> Nat) >> R));
     expr x   = Const("x");
     expr y   = Const("y");
     expr z   = Const("z");
@@ -418,9 +418,9 @@ static void tst11() {
     expr f = Const("f");
     expr g = Const("g");
     expr Nat = Const("N");
-    env.add_var("N", Type());
-    env.add_var("f", Pi({{A, Type()}, {a, A}, {b, A}}, A));
-    env.add_var("g", Nat >> Nat);
+    env->add_var("N", Type());
+    env->add_var("f", Pi({{A, Type()}, {a, A}, {b, A}}, A));
+    env->add_var("g", Nat >> Nat);
     success(Fun({{a, _}, {b, _}}, g(f(_, a, b))),
             Fun({{a, Nat}, {b, Nat}}, g(f(Nat, a, b))), env);
 }
@@ -437,11 +437,11 @@ static void tst12() {
     expr f    = Const("f");
     expr l    = Const("l");
     expr a    = Const("a");
-    env.add_var("N", Type());
-    env.add_var("list", Type() >> Type());
-    env.add_var("nil", Pi({A, Type()}, lst(A)));
-    env.add_var("cons", Pi({{A, Type()}, {a, A}, {l, lst(A)}}, lst(A)));
-    env.add_var("f", lst(N >> N) >> Bool);
+    env->add_var("N", Type());
+    env->add_var("list", Type() >> Type());
+    env->add_var("nil", Pi({A, Type()}, lst(A)));
+    env->add_var("cons", Pi({{A, Type()}, {a, A}, {l, lst(A)}}, lst(A)));
+    env->add_var("f", lst(N >> N) >> Bool);
     success(Fun({a, _}, f(cons(_, a, cons(_, a, nil(_))))),
             Fun({a, N >> N}, f(cons(N >> N, a, cons(N >> N, a, nil(N >> N))))), env);
 }
@@ -454,7 +454,7 @@ static void tst13() {
     expr A = Const("A");
     expr x = Const("x");
     expr f = Const("f");
-    env.add_var("f", Pi({B, Type()}, B >> B));
+    env->add_var("f", Pi({B, Type()}, B >> B));
     success(Fun({{A, Type()}, {B, Type()}, {x, _}}, f(B, x)),
             Fun({{A, Type()}, {B, Type()}, {x, B}}, f(B, x)), env);
     fails(Fun({{x, _}, {A, Type()}}, f(A, x)), env);
@@ -479,8 +479,8 @@ static void tst14() {
     expr g = Const("g");
     expr x = Const("x");
     expr y = Const("y");
-    env.add_var("N", Type());
-    env.add_var("f", Pi({A, Type()}, A >> A));
+    env->add_var("N", Type());
+    env->add_var("f", Pi({A, Type()}, A >> A));
     expr N = Const("N");
     success(Fun({g, Pi({A, Type()}, A >> (A >> Bool))}, g(_, True, False)),
             Fun({g, Pi({A, Type()}, A >> (A >> Bool))}, g(Bool, True, False)),
@@ -520,7 +520,7 @@ static void tst15() {
     expr a = Const("a");
     expr b = Const("b");
     expr eq = Const("my_eq");
-    env.add_var("my_eq", Pi({A, Type()}, A >> (A >> Bool)));
+    env->add_var("my_eq", Pi({A, Type()}, A >> (A >> Bool)));
     success(Fun({{A, Type()}, {B, Type()}, {a, _}, {b, B}}, eq(_, a, b)),
             Fun({{A, Type()}, {B, Type()}, {a, B}, {b, B}}, eq(B, a, b)), env);
     success(Fun({{A, Type()}, {B, Type()}, {a, _}, {b, A}}, eq(_, a, b)),
@@ -545,9 +545,9 @@ static void tst16() {
     expr c  = Const("c");
     expr H1 = Const("H1");
     expr H2 = Const("H2");
-    env.add_var("a", Bool);
-    env.add_var("b", Bool);
-    env.add_var("c", Bool);
+    env->add_var("a", Bool);
+    env->add_var("b", Bool);
+    env->add_var("c", Bool);
     success(Fun({{H1, Eq(a, b)}, {H2, Eq(b, c)}},
                 Trans(_, _, _, _, H1, H2)),
             Fun({{H1, Eq(a, b)}, {H2, Eq(b, c)}},
@@ -583,7 +583,7 @@ void tst17() {
     expr a  = Const("a");
     expr b  = Const("b");
     expr eq = Const("my_eq");
-    env.add_var("my_eq", Pi({A, Type(level()+1)}, A >> (A >> Bool)));
+    env->add_var("my_eq", Pi({A, Type(level()+1)}, A >> (A >> Bool)));
     success(eq(_, Fun({{A, Type()}, {a, _}}, a), Fun({{B, Type()}, {b, B}}, b)),
             eq(Pi({A, Type()}, A >> A), Fun({{A, Type()}, {a, A}}, a), Fun({{B, Type()}, {b, B}}, b)),
             env);
@@ -597,7 +597,7 @@ void tst18() {
     expr h  = Const("h");
     expr f  = Const("f");
     expr a  = Const("a");
-    env.add_var("h", Pi({A, Type()}, A) >> Bool);
+    env->add_var("h", Pi({A, Type()}, A) >> Bool);
     success(Fun({{f, Pi({A, Type()}, _)}, {a, Bool}}, h(f)),
             Fun({{f, Pi({A, Type()}, A)}, {a, Bool}}, h(f)),
             env);
@@ -615,10 +615,10 @@ void tst19() {
     expr g  = Const("g");
     expr h  = Const("h");
     expr D  = Const("D");
-    env.add_var("R", Type() >> Bool);
-    env.add_var("r", Pi({A, Type()}, R(A)));
-    env.add_var("h", Pi({A, Type()}, R(A)) >> Bool);
-    env.add_var("my_eq", Pi({A, Type(level()+1)}, A >> (A >> Bool)));
+    env->add_var("R", Type() >> Bool);
+    env->add_var("r", Pi({A, Type()}, R(A)));
+    env->add_var("h", Pi({A, Type()}, R(A)) >> Bool);
+    env->add_var("my_eq", Pi({A, Type(level()+1)}, A >> (A >> Bool)));
     success(Let({{f, Fun({A, Type()}, r(_))},
                  {g, Fun({A, Type()}, r(_))},
                  {D, Fun({A, Type()}, eq(_, f(A), g(_)))}},
@@ -636,11 +636,11 @@ void tst20() {
     metavar_env menv;
     expr N  = Const("N");
     expr M  = Const("M");
-    env.add_var("N", Type());
-    env.add_var("M", Type());
-    env.add_var("f", N >> (M >> M));
-    env.add_var("a", N);
-    env.add_var("b", M);
+    env->add_var("N", Type());
+    env->add_var("M", Type());
+    env->add_var("f", N >> (M >> M));
+    env->add_var("a", N);
+    env->add_var("b", M);
     expr f  = Const("f");
     expr x  = Const("x");
     expr a  = Const("a");
@@ -669,10 +669,10 @@ void tst21() {
     metavar_env menv;
     expr N  = Const("N");
     expr M  = Const("M");
-    env.add_var("N", Type());
-    env.add_var("f", N >> (Bool >> N));
-    env.add_var("a", N);
-    env.add_var("b", N);
+    env->add_var("N", Type());
+    env->add_var("f", N >> (Bool >> N));
+    env->add_var("a", N);
+    env->add_var("b", N);
     expr f  = Const("f");
     expr x  = Const("x");
     expr a  = Const("a");
@@ -700,10 +700,10 @@ void tst22() {
     import_all(env);
     metavar_env menv;
     expr N  = Const("N");
-    env.add_var("N", Type());
-    env.add_var("f", N >> (Int >> N));
-    env.add_var("a", N);
-    env.add_var("b", N);
+    env->add_var("N", Type());
+    env->add_var("f", N >> (Int >> N));
+    env->add_var("a", N);
+    env->add_var("b", N);
     expr m1 = menv.mk_metavar();
     expr m2 = menv.mk_metavar();
     expr m3 = menv.mk_metavar();
@@ -735,8 +735,8 @@ void tst23() {
     import_all(env);
     metavar_env menv;
     expr N  = Const("N");
-    env.add_var("N", Type());
-    env.add_var("f", N >> (N >> N));
+    env->add_var("N", Type());
+    env->add_var("f", N >> (N >> N));
     expr x  = Const("x");
     expr y  = Const("y");
     expr f  = Const("f");
@@ -765,8 +765,8 @@ void tst24() {
     import_all(env);
     metavar_env menv;
     expr N  = Const("N");
-    env.add_var("N", Type());
-    env.add_var("f", N >> (N >> N));
+    env->add_var("N", Type());
+    env->add_var("f", N >> (N >> N));
     expr f  = Const("f");
     expr m1 = menv.mk_metavar();
     expr l  = f(f(m1));
@@ -785,8 +785,8 @@ void tst25() {
     import_all(env);
     metavar_env menv;
     expr N  = Const("N");
-    env.add_var("N", Type());
-    env.add_var("f", N >> (N >> N));
+    env->add_var("N", Type());
+    env->add_var("f", N >> (N >> N));
     expr x  = Const("x");
     expr y  = Const("y");
     expr f  = Const("f");
@@ -824,9 +824,9 @@ void tst26() {
     type_checker checker(env);
     expr A = Const("A");
     expr g = Const("g");
-    env.add_var("g", Pi({A, TypeU}, A >> A));
+    env->add_var("g", Pi({A, TypeU}, A >> A));
     expr a = Const("a");
-    env.add_var("a", Type(level()+1));
+    env->add_var("a", Type(level()+1));
     expr m1 = menv.mk_metavar();
     expr F  = Eq(g(m1, a), a);
     std::cout << F << "\n";
@@ -857,9 +857,9 @@ void tst27() {
     expr f = Const("f");
     expr a = Const("a");
     expr eq = Const("my_eq");
-    env.add_var("my_eq", Pi({A, TypeU}, A >> (A >> Bool)));
-    env.add_var("g", Pi({A, TypeU}, A >> A));
-    env.add_var("a", TypeM);
+    env->add_var("my_eq", Pi({A, TypeU}, A >> (A >> Bool)));
+    env->add_var("g", Pi({A, TypeU}, A >> A));
+    env->add_var("a", TypeM);
     expr m1 = menv.mk_metavar();
     expr m2 = menv.mk_metavar();
     expr m3 = menv.mk_metavar();

@@ -88,7 +88,7 @@ void proof_state::get_goal_names(name_set & r) const {
 
 static name g_main("main");
 
-proof_state to_proof_state(environment const & env, context const & ctx, expr const & t) {
+proof_state to_proof_state(ro_environment const & env, context const & ctx, expr const & t) {
     auto gfn                 = to_goal(env, ctx, t);
     goal g                   = gfn.first;
     goal_proof_fn fn         = gfn.second;

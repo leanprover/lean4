@@ -21,7 +21,7 @@ static void check(format const & f, char const * expected) {
 
 static void tst1() {
     environment env;
-    env.add_var("N", Type());
+    env->add_var("N", Type());
     formatter fmt = mk_simple_formatter();
     check(fmt(env), "Variable N : Type\n");
     expr f  = Const("f");
@@ -31,7 +31,7 @@ static void tst1() {
     expr N  = Const("N");
     expr F  = Fun({x, Pi({x, N}, x >> x)}, Let({y, f(a)}, f(Eq(x, f(y, a)))));
     check(fmt(F), "fun x : (Pi x : N, (x -> x)), (let y := f a in (f (x == (f y a))))");
-    check(fmt(env.get_object("N")), "Variable N : Type");
+    check(fmt(env->get_object("N")), "Variable N : Type");
     context ctx;
     ctx = extend(ctx, "x", f(a));
     ctx = extend(ctx, "y", f(Var(0), N >> N));

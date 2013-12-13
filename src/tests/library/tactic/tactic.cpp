@@ -18,7 +18,7 @@ Author: Leonardo de Moura
 using namespace lean;
 
 tactic loop_tactic() {
-    return mk_tactic1([=](environment const &, io_state const &, proof_state const & s) -> proof_state {
+    return mk_tactic1([=](ro_environment const &, io_state const &, proof_state const & s) -> proof_state {
             while (true) {
                 check_interrupted();
             }
@@ -27,21 +27,21 @@ tactic loop_tactic() {
 }
 
 tactic set_tactic(atomic<bool> * flag) {
-    return mk_tactic1([=](environment const &, io_state const &, proof_state const & s) -> proof_state {
+    return mk_tactic1([=](ro_environment const &, io_state const &, proof_state const & s) -> proof_state {
             *flag = true;
             return s;
         });
 }
 
 tactic show_opts_tactic() {
-    return mk_tactic1([=](environment const &, io_state const & io, proof_state const & s) -> proof_state {
+    return mk_tactic1([=](ro_environment const &, io_state const & io, proof_state const & s) -> proof_state {
             io.get_diagnostic_channel() << "options: " << io.get_options() << "\n";
             io.get_diagnostic_channel().get_stream().flush();
             return s;
         });
 }
 
-static void check_failure(tactic t, environment const & env, io_state const & io, context const & ctx, expr const & ty) {
+static void check_failure(tactic t, ro_environment const & env, io_state const & io, context const & ctx, expr const & ty) {
     solve_result r(t.solve(env, io, ctx, ty));
     lean_assert(r.kind() == solve_result_kind::Failure);
 }
@@ -50,8 +50,8 @@ static void tst1() {
     environment env;
     io_state io(options(), mk_simple_formatter());
     import_all(env);
-    env.add_var("p", Bool);
-    env.add_var("q", Bool);
+    env->add_var("p", Bool);
+    env->add_var("q", Bool);
     expr p = Const("p");
     expr q = Const("q");
     context ctx;
@@ -95,12 +95,12 @@ static void tst1() {
                                  (trace_tactic("hello3.1") || trace_tactic("hello3.2")) <<
                                  assumption_tactic()).solve(env, io, ctx, q).get_proof() << "\n";
     std::cout << "------------------\n";
-    std::cout << "proof 2: " << then(cond([](environment const &, io_state const &, proof_state const &) { return true; },
+    std::cout << "proof 2: " << then(cond([](ro_environment const &, io_state const &, proof_state const &) { return true; },
                                           trace_tactic("then branch.1") + trace_tactic("then branch.2"),
                                           trace_tactic("else branch")),
                                      t).solve(env, io, ctx, q).get_proof() << "\n";
 
-    std::cout << "proof 2: " << then(when([](environment const &, io_state const &, proof_state const &) { return true; },
+    std::cout << "proof 2: " << then(when([](ro_environment const &, io_state const &, proof_state const &) { return true; },
                                           trace_tactic("when branch.1") + trace_tactic("when branch.2")),
                                      t).solve(env, io, ctx, q).get_proof() << "\n";
     std::cout << "------------------\n";
@@ -116,10 +116,10 @@ static void tst2() {
     environment env;
     io_state io(options(), mk_simple_formatter());
     import_all(env);
-    env.add_var("p", Bool);
-    env.add_var("q", Bool);
-    env.add_var("r", Bool);
-    env.add_var("s", Bool);
+    env->add_var("p", Bool);
+    env->add_var("q", Bool);
+    env->add_var("r", Bool);
+    env->add_var("s", Bool);
     expr p = Const("p");
     expr q = Const("q");
     expr r = Const("r");
@@ -140,7 +140,7 @@ static void tst2() {
     // Print proof
     std::cout << pr << "\n";
     // Check whether the proof is correct or not.
-    std::cout << env.infer_type(pr) << "\n";
+    std::cout << env->infer_type(pr) << "\n";
 }
 
 int main() {

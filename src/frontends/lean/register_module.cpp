@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 /** \see parse_lean_expr */
-static int parse_lean_expr_core(lua_State * L, ro_shared_environment const & env, io_state & st) {
+static int parse_lean_expr_core(lua_State * L, rw_shared_environment const & env, io_state & st) {
     char const * src = luaL_checkstring(L, 1);
     std::istringstream in(src);
     script_state S   = to_script_state(L);
@@ -28,7 +28,7 @@ static int parse_lean_expr_core(lua_State * L, ro_shared_environment const & env
 }
 
 /** \see parse_lean_expr */
-static int parse_lean_expr_core(lua_State * L, ro_shared_environment const & env) {
+static int parse_lean_expr_core(lua_State * L, rw_shared_environment const & env) {
     io_state * io = get_io_state(L);
     if (io == nullptr) {
         io_state s(get_global_options(L), mk_pp_formatter(env));
@@ -59,10 +59,10 @@ static int parse_lean_expr(lua_State * L) {
     */
     int nargs = get_nonnil_top(L);
     if (nargs == 1) {
-        ro_shared_environment env(L); // get global environment
+        rw_shared_environment env(L); // get global environment
         return parse_lean_expr_core(L, env);
     } else {
-        ro_shared_environment env(L, 2);
+        rw_shared_environment env(L, 2);
         if (nargs == 2) {
             return parse_lean_expr_core(L, env);
         } else {
@@ -75,7 +75,7 @@ static int parse_lean_expr(lua_State * L) {
 }
 
 /** \see parse_lean_cmds */
-static void parse_lean_cmds_core(lua_State * L, rw_shared_environment & env, io_state & st) {
+static void parse_lean_cmds_core(lua_State * L, rw_shared_environment const & env, io_state & st) {
     char const * src = luaL_checkstring(L, 1);
     std::istringstream in(src);
     script_state S   = to_script_state(L);
@@ -85,7 +85,7 @@ static void parse_lean_cmds_core(lua_State * L, rw_shared_environment & env, io_
 }
 
 /** \see parse_lean_cmds */
-static void parse_lean_cmds_core(lua_State * L, rw_shared_environment & env) {
+static void parse_lean_cmds_core(lua_State * L, rw_shared_environment const & env) {
     io_state * io = get_io_state(L);
     if (io == nullptr) {
         io_state s(get_global_options(L), mk_pp_formatter(env));

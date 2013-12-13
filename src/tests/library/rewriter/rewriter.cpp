@@ -38,9 +38,9 @@ static void theorem_rewriter1_tst() {
     expr add_comm_thm_body = Const("ADD_COMM");
 
     environment env = mk_toplevel();
-    env.add_var("a", Nat);
-    env.add_var("b", Nat);
-    env.add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
+    env->add_var("a", Nat);
+    env->add_var("b", Nat);
+    env->add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
 
     // Rewriting
     rewriter add_comm_thm_rewriter = mk_theorem_rewriter(add_comm_thm_type, add_comm_thm_body);
@@ -54,7 +54,7 @@ static void theorem_rewriter1_tst() {
 
     lean_assert_eq(concl, mk_eq(a_plus_b, b_plus_a));
     lean_assert_eq(proof, Const("ADD_COMM")(a, b));
-    env.add_theorem("New_theorem1", concl, proof);
+    env->add_theorem("New_theorem1", concl, proof);
 }
 
 static void theorem_rewriter2_tst() {
@@ -70,8 +70,8 @@ static void theorem_rewriter2_tst() {
     expr add_id_thm_body = Const("ADD_ID");
 
     environment env = mk_toplevel();
-    env.add_var("a", Nat);
-    env.add_axiom("ADD_ID", add_id_thm_type); // ADD_ID : Pi (x : N), x = x + 0
+    env->add_var("a", Nat);
+    env->add_axiom("ADD_ID", add_id_thm_type); // ADD_ID : Pi (x : N), x = x + 0
 
     // Rewriting
     rewriter add_id_thm_rewriter = mk_theorem_rewriter(add_id_thm_type, add_id_thm_body);
@@ -85,7 +85,7 @@ static void theorem_rewriter2_tst() {
 
     lean_assert_eq(concl, mk_eq(a_plus_zero, a));
     lean_assert_eq(proof, Const("ADD_ID")(a));
-    env.add_theorem("New_theorem2", concl, proof);
+    env->add_theorem("New_theorem2", concl, proof);
 }
 
 static void then_rewriter1_tst() {
@@ -108,9 +108,9 @@ static void then_rewriter1_tst() {
     expr add_id_thm_body = Const("ADD_ID");
 
     environment env = mk_toplevel();
-    env.add_var("a", Nat);
-    env.add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
-    env.add_axiom("ADD_ID", add_id_thm_type); // ADD_ID : Pi (x : N), x = x + 0
+    env->add_var("a", Nat);
+    env->add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
+    env->add_axiom("ADD_ID", add_id_thm_type); // ADD_ID : Pi (x : N), x = x + 0
 
     // Rewriting
     rewriter add_comm_thm_rewriter = mk_theorem_rewriter(add_comm_thm_type, add_comm_thm_body);
@@ -129,7 +129,7 @@ static void then_rewriter1_tst() {
     lean_assert(proof == Trans(Nat, zero_plus_a, a_plus_zero, a,
                                Const("ADD_COMM")(zero, a), Const("ADD_ID")(a)));
 
-    env.add_theorem("New_theorem3", concl, proof);
+    env->add_theorem("New_theorem3", concl, proof);
 }
 
 static void then_rewriter2_tst() {
@@ -164,10 +164,10 @@ static void then_rewriter2_tst() {
     expr add_id_thm_body = Const("ADD_ID");
 
     environment env = mk_toplevel();
-    env.add_var("a", Nat);
-    env.add_axiom("ADD_ASSOC", add_assoc_thm_type); // ADD_ASSOC : Pi (x, y, z : N), x + (y + z) = (x + y) + z
-    env.add_axiom("ADD_COMM", add_comm_thm_type);   // ADD_COMM  : Pi (x, y: N), x + y = y + z
-    env.add_axiom("ADD_ID", add_id_thm_type);       // ADD_ID    : Pi (x : N), x = x + 0
+    env->add_var("a", Nat);
+    env->add_axiom("ADD_ASSOC", add_assoc_thm_type); // ADD_ASSOC : Pi (x, y, z : N), x + (y + z) = (x + y) + z
+    env->add_axiom("ADD_COMM", add_comm_thm_type);   // ADD_COMM  : Pi (x, y: N), x + y = y + z
+    env->add_axiom("ADD_ID", add_id_thm_type);       // ADD_ID    : Pi (x : N), x = x + 0
 
     // Rewriting
     rewriter add_assoc_thm_rewriter = mk_theorem_rewriter(add_assoc_thm_type, add_assoc_thm_body);
@@ -194,7 +194,7 @@ static void then_rewriter2_tst() {
                                      Const("ADD_COMM")(zero, a)),
                                Const("ADD_ID")(a)));
 
-    env.add_theorem("New_theorem4", concl, proof);
+    env->add_theorem("New_theorem4", concl, proof);
 }
 
 static void orelse_rewriter1_tst() {
@@ -223,9 +223,9 @@ static void orelse_rewriter1_tst() {
     expr add_id_thm_body = Const("ADD_ID");
 
     environment env = mk_toplevel();
-    env.add_var("a", Nat);
-    env.add_var("b", Nat);
-    env.add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
+    env->add_var("a", Nat);
+    env->add_var("b", Nat);
+    env->add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
 
     // Rewriting
     rewriter add_assoc_thm_rewriter = mk_theorem_rewriter(add_assoc_thm_type, add_assoc_thm_body);
@@ -246,7 +246,7 @@ static void orelse_rewriter1_tst() {
 
     lean_assert_eq(concl, mk_eq(a_plus_b, b_plus_a));
     lean_assert_eq(proof, Const("ADD_COMM")(a, b));
-    env.add_theorem("New_theorem5", concl, proof);
+    env->add_theorem("New_theorem5", concl, proof);
 }
 
 static void orelse_rewriter2_tst() {
@@ -270,10 +270,10 @@ static void orelse_rewriter2_tst() {
     expr add_id_thm_body = Const("ADD_ID");
 
     environment env = mk_toplevel();
-    env.add_var("a", Nat);
-    env.add_var("b", Nat);
-    env.add_axiom("ADD_ASSOC", add_assoc_thm_type);
-    env.add_axiom("ADD_ID", add_id_thm_type);
+    env->add_var("a", Nat);
+    env->add_var("b", Nat);
+    env->add_axiom("ADD_ASSOC", add_assoc_thm_type);
+    env->add_axiom("ADD_ID", add_id_thm_type);
 
     // Rewriting
     rewriter add_assoc_thm_rewriter = mk_theorem_rewriter(add_assoc_thm_type, add_assoc_thm_body);
@@ -319,9 +319,9 @@ static void try_rewriter1_tst() {
     expr add_id_thm_body = Const("ADD_ID");
 
     environment env = mk_toplevel();
-    env.add_var("a", Nat);
-    env.add_var("b", Nat);
-    env.add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
+    env->add_var("a", Nat);
+    env->add_var("b", Nat);
+    env->add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
 
     // Rewriting
     rewriter add_assoc_thm_rewriter = mk_theorem_rewriter(add_assoc_thm_type, add_assoc_thm_body);
@@ -341,7 +341,7 @@ static void try_rewriter1_tst() {
 
     lean_assert_eq(concl, mk_eq(a_plus_b, a_plus_b));
     lean_assert_eq(proof, Const("Refl")(Nat, a_plus_b));
-    env.add_theorem("New_theorem6", concl, proof);
+    env->add_theorem("New_theorem6", concl, proof);
 }
 
 static void try_rewriter2_tst() {
@@ -370,9 +370,9 @@ static void try_rewriter2_tst() {
     expr add_id_thm_body = Const("ADD_ID");
 
     environment env = mk_toplevel();
-    env.add_var("a", Nat);
-    env.add_var("b", Nat);
-    env.add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
+    env->add_var("a", Nat);
+    env->add_var("b", Nat);
+    env->add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
 
     // Rewriting
     rewriter add_assoc_thm_rewriter = mk_theorem_rewriter(add_assoc_thm_type, add_assoc_thm_body);
@@ -393,7 +393,7 @@ static void try_rewriter2_tst() {
 
     lean_assert_eq(concl, mk_eq(a_plus_b, b_plus_a));
     lean_assert_eq(proof, Const("ADD_COMM")(a, b));
-    env.add_theorem("try2", concl, proof);
+    env->add_theorem("try2", concl, proof);
 }
 
 static void app_rewriter1_tst() {
@@ -416,13 +416,13 @@ static void app_rewriter1_tst() {
     expr add_comm_thm_body = Const("ADD_COMM");
 
     environment env = mk_toplevel();
-    env.add_var("f1", Nat >> Nat);
-    env.add_var("f2", Nat >> (Nat >> Nat));
-    env.add_var("f3", Nat >> (Nat >> (Nat >> Nat)));
-    env.add_var("f4", Nat >> (Nat >> (Nat >> (Nat >> Nat))));
-    env.add_var("a", Nat);
-    env.add_var("b", Nat);
-    env.add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
+    env->add_var("f1", Nat >> Nat);
+    env->add_var("f2", Nat >> (Nat >> Nat));
+    env->add_var("f3", Nat >> (Nat >> (Nat >> Nat)));
+    env->add_var("f4", Nat >> (Nat >> (Nat >> (Nat >> Nat))));
+    env->add_var("a", Nat);
+    env->add_var("b", Nat);
+    env->add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
 
     // Rewriting
     rewriter add_comm_thm_rewriter = mk_theorem_rewriter(add_comm_thm_type, add_comm_thm_body);
@@ -440,7 +440,7 @@ static void app_rewriter1_tst() {
          << "Proof = " << proof << std::endl;
     lean_assert_eq(concl, mk_eq(v, f1(nVal(0))));
     lean_assert_eq(proof, Refl(Nat, f1(nVal(0))));
-    env.add_theorem("app_rewriter1", concl, proof);
+    env->add_theorem("app_rewriter1", concl, proof);
     cout << "====================================================" << std::endl;
     v = f1(a_plus_b);
     result = app_try_comm_rewriter(env, ctx, v);
@@ -451,7 +451,7 @@ static void app_rewriter1_tst() {
     lean_assert_eq(concl, mk_eq(v, f1(b_plus_a)));
     lean_assert_eq(proof,
                    Const("Congr2")(Nat, Fun(name("_"), Nat, Nat), a_plus_b, b_plus_a, f1, Const("ADD_COMM")(a, b)));
-    env.add_theorem("app_rewriter2", concl, proof);
+    env->add_theorem("app_rewriter2", concl, proof);
     cout << "====================================================" << std::endl;
     v = f4(nVal(0), a_plus_b, nVal(0), b_plus_a);
     result = app_try_comm_rewriter(env, ctx, v);
@@ -471,7 +471,7 @@ static void app_rewriter1_tst() {
                                                                   a_plus_b, b_plus_a, f4(zero),
                                                                   Const("ADD_COMM")(a, b))),
                                   Const("ADD_COMM")(b, a)));
-    env.add_theorem("app_rewriter3", concl, proof);
+    env->add_theorem("app_rewriter3", concl, proof);
 }
 
 static void repeat_rewriter1_tst() {
@@ -506,10 +506,10 @@ static void repeat_rewriter1_tst() {
     expr add_id_thm_body = Const("ADD_ID");
 
     environment env = mk_toplevel();
-    env.add_var("a", Nat);
-    env.add_axiom("ADD_ASSOC", add_assoc_thm_type); // ADD_ASSOC : Pi (x, y, z : N), x + (y + z) = (x + y) + z
-    env.add_axiom("ADD_COMM", add_comm_thm_type);   // ADD_COMM  : Pi (x, y: N), x + y = y + z
-    env.add_axiom("ADD_ID", add_id_thm_type);       // ADD_ID    : Pi (x : N), x = x + 0
+    env->add_var("a", Nat);
+    env->add_axiom("ADD_ASSOC", add_assoc_thm_type); // ADD_ASSOC : Pi (x, y, z : N), x + (y + z) = (x + y) + z
+    env->add_axiom("ADD_COMM", add_comm_thm_type);   // ADD_COMM  : Pi (x, y: N), x + y = y + z
+    env->add_axiom("ADD_ID", add_id_thm_type);       // ADD_ID    : Pi (x : N), x = x + 0
 
     // Rewriting
     rewriter add_assoc_thm_rewriter = mk_theorem_rewriter(add_assoc_thm_type, add_assoc_thm_body);
@@ -529,7 +529,7 @@ static void repeat_rewriter1_tst() {
     cout << "         " << concl << " := " << proof << std::endl;
 
     lean_assert_eq(concl, mk_eq(zero_plus_a_plus_zero, a));
-    env.add_theorem("repeat_thm1", concl, proof);
+    env->add_theorem("repeat_thm1", concl, proof);
 }
 
 static void repeat_rewriter2_tst() {
@@ -564,10 +564,10 @@ static void repeat_rewriter2_tst() {
     expr add_id_thm_body = Const("ADD_ID");
 
     environment env = mk_toplevel();
-    env.add_var("a", Nat);
-    env.add_axiom("ADD_ASSOC", add_assoc_thm_type); // ADD_ASSOC : Pi (x, y, z : N), x + (y + z) = (x + y) + z
-    env.add_axiom("ADD_COMM", add_comm_thm_type);   // ADD_COMM  : Pi (x, y: N), x + y = y + z
-    env.add_axiom("ADD_ID", add_id_thm_type);       // ADD_ID    : Pi (x : N), x = x + 0
+    env->add_var("a", Nat);
+    env->add_axiom("ADD_ASSOC", add_assoc_thm_type); // ADD_ASSOC : Pi (x, y, z : N), x + (y + z) = (x + y) + z
+    env->add_axiom("ADD_COMM", add_comm_thm_type);   // ADD_COMM  : Pi (x, y: N), x + y = y + z
+    env->add_axiom("ADD_ID", add_id_thm_type);       // ADD_ID    : Pi (x : N), x = x + 0
 
     // Rewriting
     rewriter add_assoc_thm_rewriter = mk_theorem_rewriter(add_assoc_thm_type, add_assoc_thm_body);
@@ -588,7 +588,7 @@ static void repeat_rewriter2_tst() {
     cout << "         " << concl << " := " << proof << std::endl;
 
     lean_assert_eq(concl, mk_eq(zero_plus_a_plus_zero, a));
-    env.add_theorem("repeat_thm2", concl, proof);
+    env->add_theorem("repeat_thm2", concl, proof);
 }
 
 static void depth_rewriter1_tst() {
@@ -611,13 +611,13 @@ static void depth_rewriter1_tst() {
     expr add_comm_thm_body = Const("ADD_COMM");
 
     environment env = mk_toplevel();
-    env.add_var("f1", Nat >> Nat);
-    env.add_var("f2", Nat >> (Nat >> Nat));
-    env.add_var("f3", Nat >> (Nat >> (Nat >> Nat)));
-    env.add_var("f4", Nat >> (Nat >> (Nat >> (Nat >> Nat))));
-    env.add_var("a", Nat);
-    env.add_var("b", Nat);
-    env.add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
+    env->add_var("f1", Nat >> Nat);
+    env->add_var("f2", Nat >> (Nat >> Nat));
+    env->add_var("f3", Nat >> (Nat >> (Nat >> Nat)));
+    env->add_var("f4", Nat >> (Nat >> (Nat >> (Nat >> Nat))));
+    env->add_var("a", Nat);
+    env->add_var("b", Nat);
+    env->add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
 
     // Rewriting
     rewriter add_comm_thm_rewriter = mk_theorem_rewriter(add_comm_thm_type, add_comm_thm_body);
@@ -634,7 +634,7 @@ static void depth_rewriter1_tst() {
     cout << "Concl = " << concl << std::endl
          << "Proof = " << proof << std::endl;
     lean_assert_eq(concl, mk_eq(v, nAdd(f3(a, b, nAdd(b, a)), f1(nAdd(b, a)))));
-    env.add_theorem("depth_rewriter1", concl, proof);
+    env->add_theorem("depth_rewriter1", concl, proof);
     cout << "====================================================" << std::endl;
 }
 
@@ -658,13 +658,13 @@ static void lambda_rewriter1_tst() {
     expr add_comm_thm_body = Const("ADD_COMM");
 
     environment env = mk_toplevel();
-    env.add_var("f1", Nat >> Nat);
-    env.add_var("f2", Nat >> (Nat >> Nat));
-    env.add_var("f3", Nat >> (Nat >> (Nat >> Nat)));
-    env.add_var("f4", Nat >> (Nat >> (Nat >> (Nat >> Nat))));
-    env.add_var("a", Nat);
-    env.add_var("b", Nat);
-    env.add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
+    env->add_var("f1", Nat >> Nat);
+    env->add_var("f2", Nat >> (Nat >> Nat));
+    env->add_var("f3", Nat >> (Nat >> (Nat >> Nat)));
+    env->add_var("f4", Nat >> (Nat >> (Nat >> (Nat >> Nat))));
+    env->add_var("a", Nat);
+    env->add_var("b", Nat);
+    env->add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
 
     // Rewriting
     rewriter add_comm_thm_rewriter = mk_theorem_rewriter(add_comm_thm_type, add_comm_thm_body);
@@ -679,7 +679,7 @@ static void lambda_rewriter1_tst() {
     cout << "Concl = " << concl << std::endl
          << "Proof = " << proof << std::endl;
     lean_assert_eq(concl, mk_eq(v, mk_lambda("x", Nat, nAdd(a, b))));
-    env.add_theorem("lambda_rewriter1", concl, proof);
+    env->add_theorem("lambda_rewriter1", concl, proof);
     cout << "====================================================" << std::endl;
 }
 
@@ -703,13 +703,13 @@ static void lambda_rewriter2_tst() {
     expr add_comm_thm_body = Const("ADD_COMM");
 
     environment env = mk_toplevel();
-    env.add_var("f1", Nat >> Nat);
-    env.add_var("f2", Nat >> (Nat >> Nat));
-    env.add_var("f3", Nat >> (Nat >> (Nat >> Nat)));
-    env.add_var("f4", Nat >> (Nat >> (Nat >> (Nat >> Nat))));
-    env.add_var("a", Nat);
-    env.add_var("b", Nat);
-    env.add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
+    env->add_var("f1", Nat >> Nat);
+    env->add_var("f2", Nat >> (Nat >> Nat));
+    env->add_var("f3", Nat >> (Nat >> (Nat >> Nat)));
+    env->add_var("f4", Nat >> (Nat >> (Nat >> (Nat >> Nat))));
+    env->add_var("a", Nat);
+    env->add_var("b", Nat);
+    env->add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
 
     // Rewriting
     rewriter add_comm_thm_rewriter = mk_theorem_rewriter(add_comm_thm_type, add_comm_thm_body);
@@ -725,7 +725,7 @@ static void lambda_rewriter2_tst() {
     cout << "Concl = " << concl << std::endl
          << "Proof = " << proof << std::endl;
     lean_assert_eq(concl, mk_eq(v, mk_lambda("x", Nat, nAdd(a, Var(0)))));
-    env.add_theorem("lambda_rewriter2", concl, proof);
+    env->add_theorem("lambda_rewriter2", concl, proof);
     cout << "====================================================" << std::endl;
 }
 

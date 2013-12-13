@@ -41,5 +41,5 @@ inline expr RanInj(expr const & A, expr const & Ap, expr const & B, expr const &
 
 class environment;
 /** \brief Import type "casting" library */
-void import_cast(environment & env);
+void import_cast(environment const & env);
 }

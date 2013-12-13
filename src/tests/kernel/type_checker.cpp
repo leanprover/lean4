@@ -35,8 +35,8 @@ static void tst1() {
     expr f = mk_pi("_", t0, t0);
     std::cout << infer_type(f, env) << "\n";
     lean_assert(infer_type(f, env) == Type(level()+1));
-    level u = env.add_uvar("u", level() + 1);
-    level v = env.add_uvar("v", level() + 1);
+    level u = env->add_uvar("u", level() + 1);
+    level v = env->add_uvar("v", level() + 1);
     expr g = mk_pi("_", Type(u), Type(v));
     std::cout << infer_type(g, env) << "\n";
     lean_assert(infer_type(g, env) == Type(max(u+1, v+1)));
@@ -58,7 +58,7 @@ static void tst1() {
 static void tst2() {
     try{
         environment env;
-        level l1      = env.add_uvar("l1", level() + 1);
+        level l1      = env->add_uvar("l1", level() + 1);
         expr t0       = Type();
         expr t1       = Type(l1);
         expr F =
@@ -94,7 +94,7 @@ static void tst4() {
 
 static void tst5() {
     environment env = mk_toplevel();
-    env.add_var("P", Bool);
+    env->add_var("P", Bool);
     expr P = Const("P");
     expr H = Const("H");
     unsigned n = 4000;
@@ -139,8 +139,8 @@ static void tst7() {
 
 static void tst8() {
     environment env = mk_toplevel();
-    env.add_var("P", mk_arrow(Int, mk_arrow(Int, Bool)));
-    env.add_var("x", Int);
+    env->add_var("P", mk_arrow(Int, mk_arrow(Int, Bool)));
+    env->add_var("x", Int);
     expr P = Const("P");
     context c;
     c = extend(c, "P", mk_arrow(Bool, Bool));
@@ -158,8 +158,8 @@ static void tst8() {
 
 static void tst9() {
     environment env = mk_toplevel();
-    env.add_var("P", mk_arrow(Int, mk_arrow(Int, Bool)));
-    env.add_var("x", Int);
+    env->add_var("P", mk_arrow(Int, mk_arrow(Int, Bool)));
+    env->add_var("x", Int);
     expr P = Const("P");
     context c;
     c = extend(c, "P", mk_arrow(Bool, Bool));
@@ -177,8 +177,8 @@ static void tst9() {
 
 static void tst10() {
     environment env = mk_toplevel();
-    env.add_var("f", mk_arrow(Int, Int));
-    env.add_var("b", Int);
+    env->add_var("f", mk_arrow(Int, Int));
+    env->add_var("b", Int);
     expr f = Const("f");
     expr a = Const("a");
     expr b = Const("b");
@@ -187,14 +187,14 @@ static void tst10() {
     std::cout << t1 << " --> " << normalize(t1, env) << "\n";
     expr prop  = Eq(t1, t2);
     expr proof = Refl(Int, t1);
-    env.add_theorem("simp_eq", prop, proof);
-    std::cout << env.get_object("simp_eq").get_name() << "\n";
+    env->add_theorem("simp_eq", prop, proof);
+    std::cout << env->get_object("simp_eq").get_name() << "\n";
 }
 
 static void tst11() {
     environment env = mk_toplevel();
-    env.add_var("f", Int >> (Int >> Int));
-    env.add_var("a", Int);
+    env->add_var("f", Int >> (Int >> Int));
+    env->add_var("a", Int);
     unsigned n = 1000;
     expr f = Const("f");
     expr a = Const("a");
@@ -208,8 +208,8 @@ static void tst11() {
         t3 = f(t3, t3);
     }
     lean_assert(t1 != t2);
-    env.add_theorem("eqs1", Eq(t1, t2), Refl(Int, t1));
-    env.add_theorem("eqs2", Eq(t1, t3), Refl(Int, t1));
+    env->add_theorem("eqs1", Eq(t1, t2), Refl(Int, t1));
+    env->add_theorem("eqs2", Eq(t1, t3), Refl(Int, t1));
 }
 
 static expr mk_big(unsigned depth) {
@@ -223,8 +223,8 @@ static void tst12() {
 #if !defined(__APPLE__) && defined(LEAN_MULTI_THREAD)
     expr t = mk_big(18);
     environment env = mk_toplevel();
-    env.add_var("f", Int >> (Int >> Int));
-    env.add_var("a", Int);
+    env->add_var("f", Int >> (Int >> Int));
+    env->add_var("a", Int);
     type_checker checker(env);
     chrono::milliseconds dura(100);
     interruptible_thread thread([&]() {
@@ -245,7 +245,7 @@ static void tst12() {
 
 static void tst13() {
     environment env = mk_toplevel();
-    env.add_var("f", Type() >> Type());
+    env->add_var("f", Type() >> Type());
     expr f = Const("f");
     std::cout << infer_type(f(Bool), env) << "\n";
     std::cout << infer_type(f(Eq(True, False)), env) << "\n";
@@ -256,8 +256,8 @@ static void tst14() {
     import_all(env);
     expr f = Const("f");
     expr a = Const("a");
-    env.add_var("f", Int >> Int);
-    env.add_var("a", Real);
+    env->add_var("f", Int >> Int);
+    env->add_var("a", Real);
     expr F = f(a);
     type_checker checker(env);
     formatter fmt = mk_simple_formatter();
@@ -276,8 +276,8 @@ static void tst15() {
     expr A = Const("A");
     expr vec1 = Const("vec1");
     expr vec2 = Const("vec2");
-    env.add_var("vec1", Int  >> (Type() >> Type()));
-    env.add_var("vec2", Real >> (Type() >> Type()));
+    env->add_var("vec1", Int  >> (Type() >> Type()));
+    env->add_var("vec2", Real >> (Type() >> Type()));
     ctx1 = extend(ctx1, "x", Int,  iVal(1));
     ctx1 = extend(ctx1, "f", Pi({A, Int}, vec1(A, Int)));
     ctx2 = extend(ctx2, "x", Real, rVal(2));

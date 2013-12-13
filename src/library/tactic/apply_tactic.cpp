@@ -20,7 +20,7 @@ Author: Leonardo de Moura
 namespace lean {
 static name g_tmp_mvar_name = name::mk_internal_unique_name();
 
-static optional<proof_state> apply_tactic(environment const & env, proof_state const & s,
+static optional<proof_state> apply_tactic(ro_environment const & env, proof_state const & s,
                                           expr const & th, expr const & th_type, bool all) {
     precision prec = s.get_precision();
     if (prec != precision::Precise && prec != precision::Over) {
@@ -128,14 +128,14 @@ static optional<proof_state> apply_tactic(environment const & env, proof_state c
 }
 
 tactic apply_tactic(expr const & th, expr const & th_type, bool all) {
-    return mk_tactic01([=](environment const & env, io_state const &, proof_state const & s) -> optional<proof_state> {
+    return mk_tactic01([=](ro_environment const & env, io_state const &, proof_state const & s) -> optional<proof_state> {
             return apply_tactic(env, s, th, th_type, all);
         });
 }
 
 tactic apply_tactic(name const & th_name, bool all) {
-    return mk_tactic01([=](environment const & env, io_state const &, proof_state const & s) -> optional<proof_state> {
-            optional<object> obj = env.find_object(th_name);
+    return mk_tactic01([=](ro_environment const & env, io_state const &, proof_state const & s) -> optional<proof_state> {
+            optional<object> obj = env->find_object(th_name);
             if (obj && (obj->is_theorem() || obj->is_axiom()))
                 return apply_tactic(env, s, mk_constant(th_name), obj->get_type(), all);
             else

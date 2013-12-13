@@ -96,7 +96,7 @@ public:
     format pp(formatter const & fmt, options const & opts) const;
 };
 
-proof_state to_proof_state(environment const & env, context const & ctx, expr const & t);
+proof_state to_proof_state(ro_environment const & env, context const & ctx, expr const & t);
 
 inline optional<proof_state> some_proof_state(proof_state const & s, goals const & gs, proof_builder const & p) {
     return some(proof_state(s, gs, p));

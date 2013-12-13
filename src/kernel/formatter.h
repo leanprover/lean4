@@ -32,13 +32,13 @@ public:
     /** \brief Format the given object */
     virtual format operator()(object const & obj, options const & opts) = 0;
     /** \brief Format the given environment */
-    virtual format operator()(environment const & env, options const & opts) = 0;
+    virtual format operator()(ro_environment const & env, options const & opts) = 0;
 
     /**
         \brief Return environment object associated with this formatter.
         Not every formatter has an associated environment object.
     */
-    virtual optional<environment> get_environment() const { return optional<environment>(); }
+    virtual optional<ro_environment> get_environment() const { return optional<ro_environment>(); }
 };
 /**
    \brief Smart-pointer for the actual formatter object (aka \c formatter_cell).
@@ -51,8 +51,8 @@ public:
     format operator()(context const & c, options const & opts = options()) const { return (*m_cell)(c, opts); }
     format operator()(context const & c, expr const & e, bool format_ctx = false, options const & opts = options()) const { return (*m_cell)(c, e, format_ctx, opts); }
     format operator()(object const & obj, options const & opts = options()) const { return (*m_cell)(obj, opts); }
-    format operator()(environment const & env, options const & opts = options()) const { return (*m_cell)(env, opts); }
-    optional<environment> get_environment() { return m_cell->get_environment(); }
+    format operator()(ro_environment const & env, options const & opts = options()) const { return (*m_cell)(env, opts); }
+    optional<ro_environment> get_environment() { return m_cell->get_environment(); }
 
     template<typename FCell> friend formatter mk_formatter(FCell && fcell);
 };

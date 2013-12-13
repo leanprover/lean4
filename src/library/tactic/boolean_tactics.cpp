@@ -17,7 +17,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 tactic conj_tactic(bool all) {
-    return mk_tactic01([=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
+    return mk_tactic01([=](ro_environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             bool found = false;
             buffer<std::pair<name, goal>> new_goals_buf;
             list<std::pair<name, expr>> proof_info;
@@ -58,7 +58,7 @@ tactic conj_tactic(bool all) {
 }
 
 tactic imp_tactic(name const & H_name, bool all) {
-    return mk_tactic01([=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
+    return mk_tactic01([=](ro_environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             expr impfn = mk_implies_fn();
             bool found = false;
             list<std::tuple<name, name, expr>> proof_info;
@@ -97,7 +97,7 @@ tactic imp_tactic(name const & H_name, bool all) {
 }
 
 tactic conj_hyp_tactic(bool all) {
-    return mk_tactic01([=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
+    return mk_tactic01([=](ro_environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             bool found = false;
             list<std::pair<name, hypotheses>> proof_info; // goal name -> expanded hypotheses
             goals new_goals = map_goals(s, [&](name const & ng, goal const & g) -> optional<goal> {
@@ -207,13 +207,13 @@ optional<proof_state> disj_hyp_tactic_core(name const & goal_name, name const & 
 }
 
 tactic disj_hyp_tactic(name const & goal_name, name const & hyp_name) {
-    return mk_tactic01([=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
+    return mk_tactic01([=](ro_environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             return disj_hyp_tactic_core(goal_name, hyp_name, s);
         });
 }
 
 tactic disj_hyp_tactic(name const & hyp_name) {
-    return mk_tactic01([=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
+    return mk_tactic01([=](ro_environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             for (auto const & p1 : s.get_goals()) {
                 check_interrupted();
                 goal const & g = p1.second;
@@ -227,7 +227,7 @@ tactic disj_hyp_tactic(name const & hyp_name) {
 }
 
 tactic disj_hyp_tactic() {
-    return mk_tactic01([=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
+    return mk_tactic01([=](ro_environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             for (auto const & p1 : s.get_goals()) {
                 check_interrupted();
                 goal const & g = p1.second;
@@ -303,7 +303,7 @@ proof_state_seq disj_tactic_core(proof_state const & s, name const & gname) {
 }
 
 tactic disj_tactic(name const & gname) {
-    return mk_tactic([=](environment const &, io_state const &, proof_state const & s) -> proof_state_seq {
+    return mk_tactic([=](ro_environment const &, io_state const &, proof_state const & s) -> proof_state_seq {
             return disj_tactic_core(s, gname);
         });
 }
@@ -313,7 +313,7 @@ tactic disj_tactic() {
 }
 
 tactic disj_tactic(unsigned i) {
-    return mk_tactic([=](environment const &, io_state const &, proof_state const & s) -> proof_state_seq {
+    return mk_tactic([=](ro_environment const &, io_state const &, proof_state const & s) -> proof_state_seq {
             if (optional<name> n = s.get_ith_goal_name(i))
                 return disj_tactic_core(s, *n);
             else
@@ -322,7 +322,7 @@ tactic disj_tactic(unsigned i) {
 }
 
 tactic absurd_tactic() {
-    return mk_tactic01([](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
+    return mk_tactic01([](ro_environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             list<std::pair<name, expr>> proofs;
             goals new_gs = map_goals(s, [&](name const & gname, goal const & g) -> optional<goal> {
                     expr const & c  = g.get_conclusion();

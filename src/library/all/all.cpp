@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "library/all/all.h"
 
 namespace lean {
-void import_all(environment & env) {
+void import_all(environment const & env) {
     import_basic(env);
     hide_builtin(env);
     import_basic_thms(env);

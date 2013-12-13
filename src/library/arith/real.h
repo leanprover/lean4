@@ -67,7 +67,7 @@ inline expr rIf(expr const & c, expr const & t, expr const & e) { return mk_if(R
 
 class environment;
 /** \brief Import (basic) Real number library in the given environment (if it has not been imported already). */
-void import_real(environment & env);
+void import_real(environment const & env);
 
 /** \brief Coercion from int to real */
 expr mk_int_to_real_fn();
@@ -77,7 +77,7 @@ expr mk_nat_to_real_fn();
 inline expr n2r(expr const & e) { return mk_app(mk_nat_to_real_fn(), e); }
 
 /** \brief Import the coercions \c i2r and \c n2r. The Integer and (basic) Real libraries are also imported. */
-void import_int_to_real_coercions(environment & env);
+void import_int_to_real_coercions(environment const & env);
 
 void open_real(lua_State * L);
 }

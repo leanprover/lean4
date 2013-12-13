@@ -23,7 +23,7 @@ class tactic_cell {
 public:
     tactic_cell():m_rc(0) {}
     virtual ~tactic_cell() {}
-    virtual proof_state_seq operator()(environment const & env, io_state const & io, proof_state const & s) const = 0;
+    virtual proof_state_seq operator()(ro_environment const & env, io_state const & io, proof_state const & s) const = 0;
 };
 
 template<typename F>
@@ -31,7 +31,7 @@ class tactic_cell_tpl : public tactic_cell {
     F m_f;
 public:
     tactic_cell_tpl(F && f):m_f(f) {}
-    virtual proof_state_seq operator()(environment const & env, io_state const & io, proof_state const & s) const {
+    virtual proof_state_seq operator()(ro_environment const & env, io_state const & io, proof_state const & s) const {
         return m_f(env, io, s);
     }
 };
@@ -77,13 +77,13 @@ public:
     tactic & operator=(tactic const & s);
     tactic & operator=(tactic && s);
 
-    proof_state_seq operator()(environment const & env, io_state const & io, proof_state const & s) const {
+    proof_state_seq operator()(ro_environment const & env, io_state const & io, proof_state const & s) const {
         lean_assert(m_ptr);
         return m_ptr->operator()(env, io, s);
     }
 
-    solve_result solve(environment const & env, io_state const & io, proof_state const & s);
-    solve_result solve(environment const & env, io_state const & io, context const & ctx, expr const & t);
+    solve_result solve(ro_environment const & env, io_state const & io, proof_state const & s);
+    solve_result solve(ro_environment const & env, io_state const & io, context const & ctx, expr const & t);
 };
 
 inline optional<tactic> none_tactic() { return optional<tactic>(); }
@@ -95,7 +95,7 @@ inline optional<tactic> some_tactic(tactic && o) { return optional<tactic>(std::
    The functor must contain the operator:
 
    <code>
-   proof_state_seq operator()(environment const & env, io_state const & io, proof_state const & s)
+   proof_state_seq operator()(ro_environment const & env, io_state const & io, proof_state const & s)
    </code>
 */
 template<typename F>
@@ -111,7 +111,7 @@ inline proof_state_seq mk_proof_state_seq(F && f) {
 
    The functor f must contain the method:
    <code>
-   proof_state operator()(environment const & env, io_state const & io, proof_state const & s)
+   proof_state operator()(ro_environment const & env, io_state const & io, proof_state const & s)
    </code>
 
    \remark The functor is invoked on demand.
@@ -119,7 +119,7 @@ inline proof_state_seq mk_proof_state_seq(F && f) {
 template<typename F>
 tactic mk_tactic1(F && f) {
     return
-        mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) {
+        mk_tactic([=](ro_environment const & env, io_state const & io, proof_state const & s) {
                 return mk_proof_state_seq([=]() { return some(mk_pair(f(env, io, s), proof_state_seq())); });
             });
 }
@@ -129,7 +129,7 @@ tactic mk_tactic1(F && f) {
 
    The functor f must contain the method:
    <code>
-   optional<proof_state> operator()(environment const & env, io_state const & io, proof_state const & s)
+   optional<proof_state> operator()(ro_environment const & env, io_state const & io, proof_state const & s)
    </code>
 
    \remark The functor is invoked on demand.
@@ -137,7 +137,7 @@ tactic mk_tactic1(F && f) {
 template<typename F>
 tactic mk_tactic01(F && f) {
     return
-        mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) {
+        mk_tactic([=](ro_environment const & env, io_state const & io, proof_state const & s) {
                 return mk_proof_state_seq([=]() {
                         auto r = f(env, io, s);
                         if (r)
@@ -263,7 +263,7 @@ inline tactic determ(tactic const & t) { return take(t, 1); }
 */
 template<typename P>
 tactic cond(P && p, tactic const & t1, tactic const & t2) {
-    return mk_tactic([=](environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
+    return mk_tactic([=](ro_environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
             return mk_proof_state_seq([=]() {
                     if (p(env, io, s)) {
                         return t1(env, io, s).pull();

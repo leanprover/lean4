@@ -28,7 +28,7 @@ class type_inferer {
     class imp;
     std::unique_ptr<imp> m_ptr;
 public:
-    type_inferer(environment const & env);
+    type_inferer(ro_environment const & env);
     ~type_inferer();
 
     expr operator()(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> * uc);

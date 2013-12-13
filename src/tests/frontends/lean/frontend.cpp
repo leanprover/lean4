@@ -21,7 +21,7 @@ static void tst1() {
     f.add_uvar("tst");
     frontend c = f.mk_child();
     lean_assert(c.get_uvar("tst") == f.get_uvar("tst"));
-    lean_assert(f.get_environment().has_children());
+    lean_assert(f.get_environment()->has_children());
 }
 
 static void tst2() {
@@ -103,7 +103,7 @@ static void tst6() {
     std::cout << "=================\n";
     frontend f;
     environment env;
-    env.add_neutral_object(new alien_cell());
+    env->add_neutral_object(new alien_cell());
     formatter fmt = mk_pp_formatter(f);
     std::cout << fmt(env) << "\n";
 }

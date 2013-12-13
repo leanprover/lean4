@@ -49,7 +49,7 @@ inline hypotheses add_hypothesis(hypothesis const & h, hypotheses const & hs) {
    s.t. <tt>ctx |- p : T</t>
 */
 class goal_proof_fn {
-    friend std::pair<goal, goal_proof_fn> to_goal(environment const & env, context const & ctx, expr const & t);
+    friend std::pair<goal, goal_proof_fn> to_goal(ro_environment const & env, context const & ctx, expr const & t);
     std::vector<expr> m_constants;
     goal_proof_fn(std::vector<expr> && constants);
 public:
@@ -63,7 +63,7 @@ public:
    We can use tactics for solving the resultant goal, and the functor \c goal_proof_fn
    to convert the proof for the goal into the proof term \c ?p.
 */
-std::pair<goal, goal_proof_fn> to_goal(environment const & env, context const & ctx, expr const & t);
+std::pair<goal, goal_proof_fn> to_goal(ro_environment const & env, context const & ctx, expr const & t);
 
 UDATA_DEFS_CORE(hypotheses)
 UDATA_DEFS(goal)

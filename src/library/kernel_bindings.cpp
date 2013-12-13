@@ -851,7 +851,7 @@ static int formatter_call_core(lua_State * L) {
 
 static int formatter_call(lua_State * L) {
     formatter & fmt = to_formatter(L, 1);
-    optional<environment> env = fmt.get_environment();
+    optional<ro_environment> env = fmt.get_environment();
     if (env) {
         read_only_shared_environment ro_env(*env);
         return formatter_call_core(L);
@@ -927,6 +927,11 @@ static void open_formatter(lua_State * L) {
 }
 
 DECL_UDATA(environment)
+int push_environment(lua_State * L, ro_environment const & env) {
+    // Hack to avoid having environment and ro_environment in the Lua API
+    // push_environment is a friend of the environment
+    return push_environment(L, env.cast_to_environment());
+}
 
 static environment get_global_environment(lua_State * L);
 
@@ -1142,7 +1147,7 @@ static const struct luaL_Reg environment_m[] = {
 
 static char g_set_environment_key;
 
-set_environment::set_environment(lua_State * L, environment & env) {
+set_environment::set_environment(lua_State * L, environment const & env) {
     m_state = L;
     lua_pushlightuserdata(m_state, static_cast<void *>(&g_set_environment_key));
     push_environment(m_state, env);

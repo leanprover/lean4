@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 /** \brief Import all builtin libraries and theorems */
-void import_all(environment & env);
+void import_all(environment const & env);
 /** \brief Create top-level environment with all builtin libraries and theorems */
 environment mk_toplevel();
 }

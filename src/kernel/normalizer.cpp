@@ -70,13 +70,13 @@ value_stack extend(value_stack const & s, svalue const & v) { return cons(v, s);
 class normalizer::imp {
     typedef scoped_map<expr, svalue, expr_hash_alloc, expr_eqp> cache;
 
-    environment::weak_ref m_env;
-    context               m_ctx;
-    cache                 m_cache;
-    unsigned              m_max_depth;
-    unsigned              m_depth;
+    ro_environment::weak_ref m_env;
+    context                  m_ctx;
+    cache                    m_cache;
+    unsigned                 m_max_depth;
+    unsigned                 m_depth;
 
-    environment env() const { return environment(m_env); }
+    ro_environment env() const { return ro_environment(m_env); }
 
     /**
         \brief Auxiliary object for saving the current context.
@@ -198,7 +198,7 @@ class normalizer::imp {
             r = lookup(s, var_idx(a));
             break;
         case expr_kind::Constant: {
-            object const & obj = env().get_object(const_name(a));
+            object const & obj = env()->get_object(const_name(a));
             if (obj.is_definition() && !obj.is_opaque()) {
                 r = normalize(obj.get_value(), value_stack(), 0);
             } else {
@@ -290,8 +290,8 @@ class normalizer::imp {
     }
 
 public:
-    imp(environment const & env, unsigned max_depth):
-        m_env(env.to_weak_ref()) {
+    imp(ro_environment const & env, unsigned max_depth):
+        m_env(env) {
         m_max_depth      = max_depth;
         m_depth          = 0;
     }
@@ -305,14 +305,14 @@ public:
     void clear() { m_ctx = context(); m_cache.clear(); }
 };
 
-normalizer::normalizer(environment const & env, unsigned max_depth):m_ptr(new imp(env, max_depth)) {}
-normalizer::normalizer(environment const & env):normalizer(env, std::numeric_limits<unsigned>::max()) {}
-normalizer::normalizer(environment const & env, options const & opts):normalizer(env, get_normalizer_max_depth(opts)) {}
+normalizer::normalizer(ro_environment const & env, unsigned max_depth):m_ptr(new imp(env, max_depth)) {}
+normalizer::normalizer(ro_environment const & env):normalizer(env, std::numeric_limits<unsigned>::max()) {}
+normalizer::normalizer(ro_environment const & env, options const & opts):normalizer(env, get_normalizer_max_depth(opts)) {}
 normalizer::~normalizer() {}
 expr normalizer::operator()(expr const & e, context const & ctx) { return (*m_ptr)(e, ctx); }
 void normalizer::clear() { m_ptr->clear(); }
 
-expr normalize(expr const & e, environment const & env, context const & ctx) {
+expr normalize(expr const & e, ro_environment const & env, context const & ctx) {
     return normalizer(env)(e, ctx);
 }
 }

@@ -12,6 +12,6 @@ Author: Leonardo de Moura
 namespace lean {
 class frontend;
 class environment;
-formatter mk_pp_formatter(environment const & env);
+formatter mk_pp_formatter(ro_environment const & env);
 std::ostream & operator<<(std::ostream & out, frontend const & fe);
 }

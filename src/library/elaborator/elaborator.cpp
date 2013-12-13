@@ -120,7 +120,7 @@ class elaborator::imp {
         }
     };
 
-    environment const &                      m_env;
+    ro_environment                           m_env;
     type_inferer                             m_type_inferer;
     normalizer                               m_normalizer;
     state                                    m_state;
@@ -574,7 +574,7 @@ class elaborator::imp {
 
     int get_const_weight(expr const & a) {
         lean_assert(is_constant(a));
-        optional<object> obj = m_env.find_object(const_name(a));
+        optional<object> obj = m_env->find_object(const_name(a));
         if (obj && obj->is_definition() && !obj->is_opaque())
             return obj->get_weight();
         else
@@ -597,11 +597,11 @@ class elaborator::imp {
     expr unfold(expr const & a) {
         lean_assert(is_constant(a) || (is_app(a) && is_constant(arg(a, 0))));
         if (is_constant(a)) {
-            lean_assert(m_env.find_object(const_name(a)));
-            return m_env.find_object(const_name(a))->get_value();
+            lean_assert(m_env->find_object(const_name(a)));
+            return m_env->find_object(const_name(a))->get_value();
         } else {
-            lean_assert(m_env.find_object(const_name(arg(a, 0))));
-            return update_app(a, 0, m_env.find_object(const_name(arg(a, 0)))->get_value());
+            lean_assert(m_env->find_object(const_name(arg(a, 0))));
+            return update_app(a, 0, m_env->find_object(const_name(arg(a, 0)))->get_value());
         }
     }
 
@@ -1134,7 +1134,7 @@ class elaborator::imp {
                     return false;
                 }
             case expr_kind::Type:
-                if ((!eq && m_env.is_ge(ty_level(b), ty_level(a))) || (eq && a == b)) {
+                if ((!eq && m_env->is_ge(ty_level(b), ty_level(a))) || (eq && a == b)) {
                     return true;
                 } else {
                     m_conflict = justification(new unification_failure_justification(c));
@@ -1386,7 +1386,7 @@ class elaborator::imp {
     }
 
 public:
-    imp(environment const & env, metavar_env const & menv, unsigned num_cnstrs, unification_constraint const * cnstrs,
+    imp(ro_environment const & env, metavar_env const & menv, unsigned num_cnstrs, unification_constraint const * cnstrs,
         options const & opts, std::shared_ptr<elaborator_plugin> const & p):
         m_env(env),
         m_type_inferer(env),
@@ -1449,7 +1449,7 @@ public:
     }
 };
 
-elaborator::elaborator(environment const & env,
+elaborator::elaborator(ro_environment const & env,
                        metavar_env const & menv,
                        unsigned num_cnstrs,
                        unification_constraint const * cnstrs,
@@ -1458,7 +1458,7 @@ elaborator::elaborator(environment const & env,
     m_ptr(new imp(env, menv, num_cnstrs, cnstrs, opts, p)) {
 }
 
-elaborator::elaborator(environment const & env,
+elaborator::elaborator(ro_environment const & env,
                        metavar_env const & menv,
                        context const & ctx, expr const & lhs, expr const & rhs):
     elaborator(env, menv, { mk_eq_constraint(ctx, lhs, rhs, justification()) }) {

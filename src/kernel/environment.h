@@ -7,55 +7,97 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 #include <memory>
+#include <vector>
+#include <unordered_map>
+#include <set>
+#include "util/lua.h"
+#include "util/shared_mutex.h"
 #include "kernel/context.h"
 #include "kernel/object.h"
 #include "kernel/level.h"
 
 namespace lean {
-/**
-   \brief Lean environment for defining constants, inductive
-   datatypes, universe variables, et.c
-*/
-class environment {
-private:
-    struct imp;
-    std::shared_ptr<imp> m_ptr;
+class environment;
+class ro_environment;
+class type_checker;
+class environment_extension;
+
+/** \brief Implementation of the Lean environment. */
+struct environment_cell {
+    friend class environment;
+    // Remark: only named objects are stored in the dictionary.
+    typedef std::unordered_map<name, object, name_hash, name_eq> object_dictionary;
+    typedef std::tuple<level, level, int> constraint;
+    std::weak_ptr<environment_cell>         m_this;
+    // Universe variable management
+    std::vector<constraint>                 m_constraints;
+    std::vector<level>                      m_uvars;
+    // Children environment management
+    atomic<unsigned>                        m_num_children;
+    std::shared_ptr<environment_cell>       m_parent;
+    // Object management
+    std::vector<object>                     m_objects;
+    object_dictionary                       m_object_dictionary;
+    std::unique_ptr<type_checker>           m_type_checker;
+    std::set<name>                          m_imported_modules;   // set of imported files and builtin modules
+
+    std::vector<std::unique_ptr<environment_extension>> m_extensions;
+    friend class environment_extension;
+
+    // This mutex is only used to implement threadsafe environment objects
+    // in the external APIs
+    shared_mutex                            m_mutex;
+
+    environment env() const;
+
+    void inc_children() { m_num_children++; }
+    void dec_children() { m_num_children--; }
+
+    environment_extension & get_extension_core(unsigned extid);
+    environment_extension const & get_extension_core(unsigned extid) const;
+
+    unsigned get_max_weight(expr const & e);
+    void check_name_core(name const & n);
+    void check_name(name const & n);
+
+    void register_named_object(object const & new_obj);
+    optional<object> get_object_core(name const & n) const;
+
+    bool is_implied(level const & u, level const & v, int k) const;
+    bool is_ge(level const & l1, level const & l2, int k) const;
+    level add_uvar_core(name const & n);
+    void add_constraint(level const & u, level const & v, int d);
+    void add_constraints(level const & n, level const & l, int k);
+    void init_uvars();
+    void check_no_cached_type(expr const & e);
     void check_type(name const & n, expr const & t, expr const & v);
-    environment(std::shared_ptr<imp> const & parent, bool);
-    explicit environment(std::shared_ptr<imp> const & ptr);
-    friend class read_only_shared_environment;
-    friend class read_write_shared_environment;
+    void check_new_definition(name const & n, expr const & t, expr const & v);
+
+    bool already_imported(name const & n) const;
+    bool mark_imported_core(name n);
+
+    environment_cell(std::shared_ptr<environment_cell> const & parent);
+
 public:
-    typedef std::weak_ptr<imp> weak_ref;
+    environment_cell();
+    ~environment_cell();
 
-    environment();
-    ~environment();
-    environment(weak_ref const & r);
+    /** \brief Return true iff this environment has children environments. */
+    bool has_children() const { return m_num_children > 0; }
+    /** \brief Return true iff this environment has a parent environment */
+    bool has_parent() const { return m_parent != nullptr; }
 
-    weak_ref to_weak_ref() const { return weak_ref(m_ptr); }
+    /**
+       \brief Return parent environment of this environment.
+       \pre has_parent()
+    */
+    environment parent() const;
 
-    friend bool is_eqp(environment const & env1, environment const & env2) { return env1.m_ptr.get() == env2.m_ptr.get(); }
-    friend void swap(environment & env1, environment & env2) { env1.m_ptr.swap(env2.m_ptr); }
-    // =======================================
-    // Parent/Child environment management
     /**
        \brief Create a child environment. This environment will only allow "read-only" operations until
        all children environments are deleted.
     */
     environment mk_child() const;
-
-    /** \brief Return true iff this environment has children environments. */
-    bool has_children() const;
-
-    /** \brief Return true iff this environment has a parent environment. */
-    bool has_parent() const;
-
-    /**
-        \brief Return parent environment of this environment.
-        \pre has_parent()
-    */
-    environment parent() const;
-    // =======================================
 
     // =======================================
     // Universe variables
@@ -143,7 +185,7 @@ public:
        \brief Find a given object in the environment. Return the null
        object if there is no object with the given name.
     */
-    optional<object> find_object(name const & n) const;
+    optional<object> find_object(name const & n) const { return get_object_core(n); }
 
     /** \brief Return true iff the environment has an object with the given name */
     bool has_object(name const & n) const { return static_cast<bool>(find_object(n)); }
@@ -169,21 +211,21 @@ public:
 
     /** \brief Iterator for Lean environment objects. */
     class object_iterator {
-        environment const & m_env;
-        unsigned            m_idx;
-        bool                m_local;
-        friend class environment;
-        object_iterator(environment const & env, unsigned idx, bool local):m_env(env), m_idx(idx), m_local(local) {}
+        std::shared_ptr<environment_cell const> m_env;
+        unsigned                                m_idx;
+        bool                                    m_local;
+        friend class environment_cell;
+        object_iterator(std::shared_ptr<environment_cell const> && env, unsigned idx, bool local):m_env(env), m_idx(idx), m_local(local) {}
     public:
         object_iterator(object_iterator const & s):m_env(s.m_env), m_idx(s.m_idx), m_local(s.m_local) {}
         object_iterator & operator++() { ++m_idx; return *this; }
         object_iterator operator++(int) { object_iterator tmp(*this); operator++(); return tmp; }
         object_iterator & operator--() { --m_idx; return *this; }
         object_iterator operator--(int) { object_iterator tmp(*this); operator--(); return tmp; }
-        bool operator==(object_iterator const & s) const { lean_assert(&m_env == &(s.m_env)); return m_idx == s.m_idx; }
+        bool operator==(object_iterator const & s) const { lean_assert(m_env.get() == s.m_env.get()); return m_idx == s.m_idx; }
         bool operator!=(object_iterator const & s) const { return !operator==(s); }
-        object const & operator*() { return m_env.get_object(m_idx, m_local); }
-        object const * operator->() { return &(m_env.get_object(m_idx, m_local)); }
+        object const & operator*() { return m_env->get_object(m_idx, m_local); }
+        object const * operator->() { return &(m_env->get_object(m_idx, m_local)); }
     };
 
     /**
@@ -193,7 +235,7 @@ public:
         \remark The objects in this environment and ancestor
         environments are considered
     */
-    object_iterator begin_objects() const { return object_iterator(*this, 0, false); }
+    object_iterator begin_objects() const { return object_iterator(m_this.lock(), 0, false); }
 
     /**
         \brief Return an iterator to the end of the sequence of
@@ -202,51 +244,25 @@ public:
         \remark The objects in this environment and ancestor
         environments are considered
     */
-    object_iterator end_objects() const { return object_iterator(*this, get_num_objects(false), false); }
+    object_iterator end_objects() const { return object_iterator(m_this.lock(), get_num_objects(false), false); }
 
     /**
         \brief Return an iterator to the beginning of the sequence of
         objects stored in this environment (objects in ancestor
         environments are ingored).
     */
-    object_iterator begin_local_objects() const { return object_iterator(*this, 0, true); }
+    object_iterator begin_local_objects() const { return object_iterator(m_this.lock(), 0, true); }
 
     /**
         \brief Return an iterator to the end of the sequence of
         objects stored in this environment (objects in ancestor
         environments are ingored).
     */
-    object_iterator end_local_objects() const { return object_iterator(*this, get_num_objects(true), true); }
+    object_iterator end_local_objects() const { return object_iterator(m_this.lock(), get_num_objects(true), true); }
     // =======================================
 
     /** \brief Display universal variable constraints and objects stored in this environment and its parents. */
     void display(std::ostream & out) const;
-
-    /**
-       \brief Frontend can store data in environment extensions.
-       Each extension is associated with a unique token/id.
-       This token allows the frontend to retrieve/store an extension object
-       in the environment
-    */
-    class extension {
-        friend struct imp;
-        imp *     m_env;
-        unsigned  m_extid; // extension id
-        extension const * get_parent_core() const;
-    public:
-        extension();
-        virtual ~extension();
-        /**
-           \brief Return a constant reference for a parent extension,
-           and a nullptr if there is no parent/ancestor, or if the
-           parent/ancestor has an extension.
-        */
-        template<typename Ext> Ext const * get_parent() const {
-            extension const * ext = get_parent_core();
-            lean_assert(!ext || dynamic_cast<Ext const *>(ext) != nullptr);
-            return static_cast<Ext const *>(ext);
-        }
-    };
 
     /**
        \brief Register an environment extension. Every environment
@@ -259,28 +275,23 @@ public:
 
        \see get_extension
     */
-    typedef std::unique_ptr<extension> (*mk_extension)();
+    typedef std::unique_ptr<environment_extension> (*mk_extension)();
     static unsigned register_extension(mk_extension mk);
 
-private:
-    extension const & get_extension_core(unsigned extid) const;
-    extension & get_extension_core(unsigned extid);
-
-public:
     /**
        \brief Retrieve the extension associated with the token \c extid.
        The token is the value returned by \c register_extension.
     */
     template<typename Ext>
     Ext const & get_extension(unsigned extid) const {
-        extension const & ext = get_extension_core(extid);
+        environment_extension const & ext = get_extension_core(extid);
         lean_assert(dynamic_cast<Ext const *>(&ext) != nullptr);
         return static_cast<Ext const &>(ext);
     }
 
     template<typename Ext>
     Ext & get_extension(unsigned extid) {
-        extension & ext = get_extension_core(extid);
+        environment_extension & ext = get_extension_core(extid);
         lean_assert(dynamic_cast<Ext*>(&ext) != nullptr);
         return static_cast<Ext&>(ext);
     }
@@ -295,5 +306,67 @@ public:
         It will also mark the id as imported.
     */
     bool mark_builtin_imported(char const * id);
+};
+
+/**
+   \brief Frontend can store data in environment extensions.
+   Each extension is associated with a unique token/id.
+   This token allows the frontend to retrieve/store an extension object
+   in the environment
+*/
+class environment_extension {
+    friend struct environment_cell;
+    environment_cell * m_env;
+    unsigned           m_extid; // extension id
+    environment_extension const * get_parent_core() const;
+public:
+    environment_extension();
+    virtual ~environment_extension();
+    /**
+       \brief Return a constant reference for a parent extension,
+       and a nullptr if there is no parent/ancestor, or if the
+       parent/ancestor has an extension.
+    */
+    template<typename Ext> Ext const * get_parent() const {
+        environment_extension const * ext = get_parent_core();
+        lean_assert(!ext || dynamic_cast<Ext const *>(ext) != nullptr);
+        return static_cast<Ext const *>(ext);
+    }
+};
+
+/**
+   \brief Reference to environment
+*/
+class environment {
+    friend class ro_environment;
+    friend class environment_cell;
+    friend class read_write_shared_environment;
+    std::shared_ptr<environment_cell> m_ptr;
+    environment(std::shared_ptr<environment_cell> const & parent, bool);
+    environment(std::shared_ptr<environment_cell> const & ptr);
+public:
+    environment();
+    environment_cell * operator->() const { return m_ptr.get(); }
+    environment_cell & operator*() const { return *(m_ptr.get()); }
+};
+
+/**
+   \brief Read-only reference to environment.
+*/
+class ro_environment {
+    friend class environment_cell;
+    friend class read_only_shared_environment;
+    std::shared_ptr<environment_cell const> m_ptr;
+    ro_environment(std::shared_ptr<environment_cell const> const & p):m_ptr(p) {}
+    friend int push_environment(lua_State * L, ro_environment const & env);
+    environment cast_to_environment() const { return environment(std::const_pointer_cast<environment_cell>(m_ptr)); }
+public:
+    typedef std::weak_ptr<environment_cell const> weak_ref;
+    ro_environment(environment const & env);
+    ro_environment(weak_ref const & env);
+    explicit operator weak_ref() const { return weak_ref(m_ptr); }
+    weak_ref to_weak_ref() const { return weak_ref(m_ptr); }
+    environment_cell const * operator->() const { return m_ptr.get(); }
+    environment_cell const & operator*() const { return *(m_ptr.get()); }
 };
 }

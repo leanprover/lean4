@@ -27,7 +27,7 @@ static std::vector<bool> g_empty_vector;
 /**
    \brief Environment extension object for the Lean default frontend.
 */
-struct lean_extension : public environment::extension {
+struct lean_extension : public environment_extension {
     typedef std::pair<std::vector<bool>, name> implicit_info;
     // Remark: only named objects are stored in the dictionary.
     typedef std::unordered_map<name, operator_info, name_hash, name_eq> operator_table;
@@ -46,7 +46,7 @@ struct lean_extension : public environment::extension {
     expr_to_coercions     m_type_coercions; // mapping type -> list (to-type, function)
 
     lean_extension const * get_parent() const {
-        return environment::extension::get_parent<lean_extension>();
+        return environment_extension::get_parent<lean_extension>();
     }
 
     /** \brief Return the nud operator for the given symbol. */
@@ -206,7 +206,7 @@ struct lean_extension : public environment::extension {
         2) It is a real conflict, and report the issue in the
         diagnostic channel, and override the existing operator (aka notation).
     */
-    void add_op(operator_info new_op, expr const & d, bool led, environment & env, io_state & st) {
+    void add_op(operator_info new_op, expr const & d, bool led, environment const & env, io_state & st) {
         name const & opn = new_op.get_op_name();
         operator_info old_op = find_op(opn, led);
         if (!old_op) {
@@ -236,7 +236,7 @@ struct lean_extension : public environment::extension {
             remove_bindings(old_op);
             register_new_op(new_op, d, led);
         }
-        env.add_neutral_object(new notation_declaration(new_op, d));
+        env->add_neutral_object(new notation_declaration(new_op, d));
     }
 
     expr mk_explicit_definition_body(expr type, name const & n, unsigned i, unsigned sz) {
@@ -252,16 +252,16 @@ struct lean_extension : public environment::extension {
         }
     }
 
-    void mark_implicit_arguments(name const & n, unsigned sz, bool const * implicit, environment & env) {
-        if (env.has_children())
+    void mark_implicit_arguments(name const & n, unsigned sz, bool const * implicit, environment const & env) {
+        if (env->has_children())
             throw exception(sstream() << "failed to mark implicit arguments, frontend object is read-only");
-        object const & obj = env.get_object(n);
+        object const & obj = env->get_object(n);
         if (obj.kind() != object_kind::Definition && obj.kind() != object_kind::Postulate && obj.kind() != object_kind::Builtin)
             throw exception(sstream() << "failed to mark implicit arguments, the object '" << n << "' is not a definition or postulate");
         if (has_implicit_arguments(n))
             throw exception(sstream() << "the object '" << n << "' already has implicit argument information associated with it");
         name explicit_version(n, "explicit");
-        if (env.find_object(explicit_version))
+        if (env->find_object(explicit_version))
             throw exception(sstream() << "failed to mark implicit arguments for '" << n << "', the frontend already has an object named '" << explicit_version << "'");
         expr const & type = obj.get_type();
         unsigned num_args = 0;
@@ -277,9 +277,9 @@ struct lean_extension : public environment::extension {
         m_implicit_table[n] = mk_pair(v, explicit_version);
         expr body = mk_explicit_definition_body(type, n, 0, num_args);
         if (obj.is_axiom() || obj.is_theorem()) {
-            env.add_theorem(explicit_version, type, body);
+            env->add_theorem(explicit_version, type, body);
         } else {
-            env.add_definition(explicit_version, type, body);
+            env->add_definition(explicit_version, type, body);
         }
     }
 
@@ -326,9 +326,9 @@ struct lean_extension : public environment::extension {
         return !n.is_atomic() && get_explicit_version(n.get_prefix()) == n;
     }
 
-    void add_coercion(expr const & f, environment & env) {
-        expr type      = env.infer_type(f);
-        expr norm_type = env.normalize(type);
+    void add_coercion(expr const & f, environment const & env) {
+        expr type      = env->infer_type(f);
+        expr norm_type = env->normalize(type);
         if (!is_arrow(norm_type))
             throw exception("invalid coercion declaration, a coercion must have an arrow type (i.e., a non-dependent functional type)");
         expr from      = abst_domain(norm_type);
@@ -341,7 +341,7 @@ struct lean_extension : public environment::extension {
         m_coercion_set.insert(f);
         list<expr_pair> l = get_coercions(from);
         insert(m_type_coercions, from, cons(expr_pair(to, f), l));
-        env.add_neutral_object(new coercion_declaration(f));
+        env->add_neutral_object(new coercion_declaration(f));
     }
 
     optional<expr> get_coercion(expr const & from_type, expr const & to_type) const {
@@ -378,47 +378,46 @@ struct lean_extension : public environment::extension {
 struct lean_extension_initializer {
     unsigned m_extid;
     lean_extension_initializer() {
-        m_extid = environment::register_extension([](){ return std::unique_ptr<environment::extension>(new lean_extension()); });
+        m_extid = environment_cell::register_extension([](){ return std::unique_ptr<environment_extension>(new lean_extension()); });
     }
 };
 
 static lean_extension_initializer g_lean_extension_initializer;
 
-static lean_extension const & to_ext(environment const & env) {
-    return env.get_extension<lean_extension>(g_lean_extension_initializer.m_extid);
+static lean_extension const & to_ext(ro_environment const & env) {
+    return env->get_extension<lean_extension>(g_lean_extension_initializer.m_extid);
 }
 
-static lean_extension & to_ext(environment & env) {
-    return env.get_extension<lean_extension>(g_lean_extension_initializer.m_extid);
+static lean_extension & to_ext(environment const & env) {
+    return env->get_extension<lean_extension>(g_lean_extension_initializer.m_extid);
 }
 
-
-bool is_explicit(environment const & env, name const & n) {
+bool is_explicit(ro_environment const & env, name const & n) {
     return to_ext(env).is_explicit(n);
 }
 
-bool has_implicit_arguments(environment const & env, name const & n) {
+bool has_implicit_arguments(ro_environment const & env, name const & n) {
     return to_ext(env).has_implicit_arguments(n);
 }
 
-name const & get_explicit_version(environment const & env, name const & n) {
+name const & get_explicit_version(ro_environment const & env, name const & n) {
     return to_ext(env).get_explicit_version(n);
 }
 
-std::vector<bool> const & get_implicit_arguments(environment const & env, name const & n) {
+std::vector<bool> const & get_implicit_arguments(ro_environment const & env, name const & n) {
     return to_ext(env).get_implicit_arguments(n);
 }
 
-bool is_coercion(environment const & env, expr const & f) {
+bool is_coercion(ro_environment const & env, expr const & f) {
     return to_ext(env).is_coercion(f);
 }
 
-operator_info find_op_for(environment const & env, expr const & n, bool unicode) {
+operator_info find_op_for(ro_environment const & env, expr const & n, bool unicode) {
     operator_info r = to_ext(env).find_op_for(n, unicode);
     if (r || !is_constant(n)) {
         return r;
     } else {
-        optional<object> obj = env.find_object(const_name(n));
+        optional<object> obj = env->find_object(const_name(n));
         if (obj && obj->is_builtin() && obj->get_name() == const_name(n))
             return to_ext(env).find_op_for(obj->get_value(), unicode);
         else

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/lua.h"
 namespace lean {
 class environment;
+class ro_environment;
 class name;
 /**
    \brief Return true iff the definition named \c d is hidden in
@@ -17,7 +18,7 @@ class name;
    example, unfold_tactic uses it to decide whether a definition
    should be unfolded or not.
 */
-bool is_hidden(environment const & env, name const & d);
+bool is_hidden(ro_environment const & env, name const & d);
 /**
    \brief Mark the definition named \c d as hidden in the given environment.
 
@@ -25,12 +26,12 @@ bool is_hidden(environment const & env, name const & d);
 
    \remark It throws an exception if \c d is not a definition in \c env.
 */
-void set_hidden_flag(environment & env, name const & d, bool flag = true);
+void set_hidden_flag(environment const & env, name const & d, bool flag = true);
 /**
    \brief Hide definitions at builtin.cpp. We hide them here because
    the hidden_defs module is not part of the kernel.
 */
-void hide_builtin(environment & env);
+void hide_builtin(environment const & env);
 
 void open_hidden_defs(lua_State * L);
 }

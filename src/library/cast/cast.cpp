@@ -101,8 +101,8 @@ MK_CONSTANT(cast_fn,    name("cast"));
 MK_CONSTANT(dom_inj_fn, name("DomInj"));
 MK_CONSTANT(ran_inj_fn, name("RanInj"));
 
-void import_cast(environment & env) {
-    if (!env.mark_builtin_imported("cast"))
+void import_cast(environment const & env) {
+    if (!env->mark_builtin_imported("cast"))
         return;
     expr x         = Const("x");
     expr A         = Const("A");
@@ -115,18 +115,18 @@ void import_cast(environment & env) {
     expr a         = Const("a");
     expr b         = Const("b");
 
-    env.add_builtin(mk_Cast_fn());
+    env->add_builtin(mk_Cast_fn());
 
     // Alias for Cast operator. We create the alias to be able to mark
     // implicit arguments.
-    env.add_definition(cast_fn_name, Pi({{A, TypeU}, {B, TypeU}}, Eq(A, B) >> (A >> B)), mk_Cast_fn());
+    env->add_definition(cast_fn_name, Pi({{A, TypeU}, {B, TypeU}}, Eq(A, B) >> (A >> B)), mk_Cast_fn());
 
     // DomInj : Pi (A A': Type u) (B : A -> Type u) (B' : A' -> Type u) (H : (Pi x : A, B x) = (Pi x : A', B' x)), A = A'
-    env.add_axiom(dom_inj_fn_name, Pi({{A, TypeU}, {Ap, TypeU}, {B, A >> TypeU}, {Bp, Ap >> TypeU}, {H, Eq(piABx, piApBpx)}}, Eq(A, Ap)));
+    env->add_axiom(dom_inj_fn_name, Pi({{A, TypeU}, {Ap, TypeU}, {B, A >> TypeU}, {Bp, Ap >> TypeU}, {H, Eq(piABx, piApBpx)}}, Eq(A, Ap)));
 
     // RanInj : Pi (A A': Type u) (B : A -> Type u) (B' : A' -> Type u) (H : (Pi x : A, B x) = (Pi x : A', B' x)) (a : A),
     //                     B a = B' (cast A A' (DomInj A A' B B' H) a)
-    env.add_axiom(ran_inj_fn_name, Pi({{A, TypeU}, {Ap, TypeU}, {B, A >> TypeU}, {Bp, Ap >> TypeU}, {H, Eq(piABx, piApBpx)}, {a, A}},
-                                      Eq(B(a), Bp(Cast(A, Ap, DomInj(A, Ap, B, Bp, H), a)))));
+    env->add_axiom(ran_inj_fn_name, Pi({{A, TypeU}, {Ap, TypeU}, {B, A >> TypeU}, {Bp, Ap >> TypeU}, {H, Eq(piABx, piApBpx)}, {a, A}},
+                                       Eq(B(a), Bp(Cast(A, Ap, DomInj(A, Ap, B, Bp, H), a)))));
 }
 }

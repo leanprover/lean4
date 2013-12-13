@@ -99,7 +99,7 @@ static name mk_unique_name(name_set & s, name const & suggestion) {
     }
 }
 
-std::pair<goal, goal_proof_fn> to_goal(environment const & env, context const & ctx, expr const & t) {
+std::pair<goal, goal_proof_fn> to_goal(ro_environment const & env, context const & ctx, expr const & t) {
     type_inferer inferer(env);
     if (!inferer.is_proposition(t, ctx))
         throw exception("to_goal failed, type is not a proposition");

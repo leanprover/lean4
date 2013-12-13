@@ -133,8 +133,8 @@ MK_CONSTANT(real_ge_fn, name({"Real", "ge"}));
 MK_CONSTANT(real_lt_fn, name({"Real", "lt"}));
 MK_CONSTANT(real_gt_fn, name({"Real", "gt"}));
 
-void import_real(environment & env) {
-    if (!env.mark_builtin_imported("real"))
+void import_real(environment const & env) {
+    if (!env->mark_builtin_imported("real"))
         return;
     expr rr_b = Real >> (Real >> Bool);
     expr rr_r = Real >> (Real >> Real);
@@ -142,19 +142,19 @@ void import_real(environment & env) {
     expr x    = Const("x");
     expr y    = Const("y");
 
-    env.add_builtin(Real);
-    env.add_builtin_set(rVal(0));
-    env.add_builtin(mk_real_add_fn());
-    env.add_builtin(mk_real_mul_fn());
-    env.add_builtin(mk_real_div_fn());
-    env.add_builtin(mk_real_le_fn());
+    env->add_builtin(Real);
+    env->add_builtin_set(rVal(0));
+    env->add_builtin(mk_real_add_fn());
+    env->add_builtin(mk_real_mul_fn());
+    env->add_builtin(mk_real_div_fn());
+    env->add_builtin(mk_real_le_fn());
 
-    env.add_definition(real_sub_fn_name, rr_r, Fun({{x, Real}, {y, Real}}, rAdd(x, rMul(rVal(-1), y))));
-    env.add_definition(real_neg_fn_name, r_r,  Fun({x, Real}, rMul(rVal(-1), x)));
-    env.add_definition(real_abs_fn_name, r_r,  Fun({x, Real}, rIf(rLe(rVal(0), x), x, rNeg(x))));
-    env.add_definition(real_ge_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, rLe(y, x)));
-    env.add_definition(real_lt_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, Not(rLe(y, x))));
-    env.add_definition(real_gt_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, Not(rLe(x, y))));
+    env->add_definition(real_sub_fn_name, rr_r, Fun({{x, Real}, {y, Real}}, rAdd(x, rMul(rVal(-1), y))));
+    env->add_definition(real_neg_fn_name, r_r,  Fun({x, Real}, rMul(rVal(-1), x)));
+    env->add_definition(real_abs_fn_name, r_r,  Fun({x, Real}, rIf(rLe(rVal(0), x), x, rNeg(x))));
+    env->add_definition(real_ge_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, rLe(y, x)));
+    env->add_definition(real_lt_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, Not(rLe(y, x))));
+    env->add_definition(real_gt_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, Not(rLe(x, y))));
 
     for (auto n : {real_sub_fn_name, real_neg_fn_name, real_abs_fn_name, real_ge_fn_name,
                 real_lt_fn_name, real_gt_fn_name}) {
@@ -176,15 +176,15 @@ public:
 MK_BUILTIN(int_to_real_fn,  int_to_real_value);
 MK_CONSTANT(nat_to_real_fn, name("nat_to_real"));
 
-void import_int_to_real_coercions(environment & env) {
-    if (!env.mark_builtin_imported("real_coercions"))
+void import_int_to_real_coercions(environment const & env) {
+    if (!env->mark_builtin_imported("real_coercions"))
         return;
     import_int(env);
     import_real(env);
 
-    env.add_builtin(mk_int_to_real_fn());
+    env->add_builtin(mk_int_to_real_fn());
     expr x    = Const("x");
-    env.add_definition(nat_to_real_fn_name, Nat >> Real, Fun({x, Nat}, i2r(n2i(x))));
+    env->add_definition(nat_to_real_fn_name, Nat >> Real, Fun({x, Nat}, i2r(n2i(x))));
 
     set_hidden_flag(env, nat_to_real_fn_name);
 }

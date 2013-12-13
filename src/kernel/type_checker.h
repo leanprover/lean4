@@ -22,7 +22,7 @@ class type_checker {
     class imp;
     std::unique_ptr<imp> m_ptr;
 public:
-    type_checker(environment const & env);
+    type_checker(ro_environment const & env);
     ~type_checker();
 
     /**
@@ -60,6 +60,6 @@ public:
     normalizer & get_normalizer();
 };
 
-expr infer_type(expr const & e, environment const & env, context const & ctx = context());
-bool is_convertible(expr const & t1, expr const & t2, environment const & env, context const & ctx = context());
+expr infer_type(expr const & e, ro_environment const & env, context const & ctx = context());
+bool is_convertible(expr const & t1, expr const & t2, ro_environment const & env, context const & ctx = context());
 }

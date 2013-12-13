@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "library/arith/arith.h"
 
 namespace lean {
-void import_arith(environment & env) {
+void import_arith(environment const & env) {
     import_nat(env);
     import_int(env);
     import_real(env);

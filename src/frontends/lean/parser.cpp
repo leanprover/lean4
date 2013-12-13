@@ -1373,7 +1373,7 @@ class parser::imp {
         proof_state_seq::maybe_pair r;
         code_with_callbacks([&]() {
                 // t may have call-backs we should set ios in the script_state
-                proof_state_seq seq = t(m_frontend, m_frontend.get_state(), s);
+                proof_state_seq seq = t(m_frontend.get_environment(), m_frontend.get_state(), s);
                 r = seq.pull();
             });
         if (r) {
@@ -1401,9 +1401,9 @@ class parser::imp {
                 // Example: apply_tactic.
                 metavar_env menv = s.get_menv();
                 buffer<unification_constraint> ucs;
-                expr pr_type = type_checker(m_frontend).infer_type(pr, ctx, &menv, &ucs);
+                expr pr_type = type_checker(m_frontend.get_environment()).infer_type(pr, ctx, &menv, &ucs);
                 ucs.push_back(mk_convertible_constraint(ctx, pr_type, expected_type, mk_type_match_justification(ctx, expected_type, pr)));
-                elaborator elb(m_frontend, s.get_menv(), ucs.size(), ucs.data(), m_frontend.get_options());
+                elaborator elb(m_frontend.get_environment(), s.get_menv(), ucs.size(), ucs.data(), m_frontend.get_options());
                 metavar_env new_menv = elb.next();
                 pr = instantiate_metavars(pr, new_menv);
                 if (has_metavar(pr))
@@ -1602,7 +1602,7 @@ class parser::imp {
             context mvar_ctx(to_list(new_entries.begin(), new_entries.end()));
             if (!m_type_inferer.is_proposition(mvar_type, mvar_ctx))
                 throw exception("failed to synthesize metavar, its type is not a proposition");
-            proof_state s = to_proof_state(m_frontend, mvar_ctx, mvar_type);
+            proof_state s = to_proof_state(m_frontend.get_environment(), mvar_ctx, mvar_type);
             std::pair<optional<tactic>, pos_info> hint_and_pos = get_tactic_for(mvar);
             if (hint_and_pos.first) {
                 // metavariable has an associated tactic hint
@@ -1746,7 +1746,7 @@ class parser::imp {
         for (auto b : bindings) {
             name const & id = std::get<1>(b);
             if (m_frontend.find_object(id))
-                throw already_declared_exception(m_frontend, id);
+                throw already_declared_exception(m_frontend.get_environment(), id);
         }
         for (auto b : bindings) {
             name const & id = std::get<1>(b);
@@ -1771,7 +1771,7 @@ class parser::imp {
     void parse_eval() {
         next();
         expr v = m_elaborator(parse_expr());
-        normalizer norm(m_frontend);
+        normalizer norm(m_frontend.get_environment());
         expr r = norm(v);
         regular(m_frontend) << r << endl;
     }
@@ -1817,7 +1817,7 @@ class parser::imp {
     void parse_check() {
         next();
         expr v = m_elaborator(parse_expr());
-        expr t = infer_type(v, m_frontend);
+        expr t = infer_type(v, m_frontend.get_environment());
         formatter fmt = m_frontend.get_state().get_formatter();
         options opts  = m_frontend.get_state().get_options();
         unsigned indent = get_pp_indent(opts);
@@ -2001,7 +2001,7 @@ class parser::imp {
         std::ifstream in(fname);
         if (!in.is_open())
             throw parser_error(sstream() << "invalid import command, failed to open file '" << fname << "'", m_last_cmd_pos);
-        if (!m_frontend.get_environment().mark_imported(fname.c_str())) {
+        if (!m_frontend.get_environment()->mark_imported(fname.c_str())) {
             diagnostic(m_frontend) << "Module '" << fname << "' has already been imported" << endl;
             return;
         }
@@ -2149,7 +2149,7 @@ public:
         m_frontend(fe),
         m_scanner(in),
         m_elaborator(fe),
-        m_type_inferer(fe),
+        m_type_inferer(fe.get_environment()),
         m_use_exceptions(use_exceptions),
         m_interactive(interactive) {
         m_script_state = S;

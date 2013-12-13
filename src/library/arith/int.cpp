@@ -144,8 +144,8 @@ MK_BUILTIN(nat_to_int_fn, nat_to_int_value);
 MK_CONSTANT(nat_sub_fn, name({"Nat", "sub"}));
 MK_CONSTANT(nat_neg_fn, name({"Nat", "neg"}));
 
-void import_int(environment & env) {
-    if (!env.mark_builtin_imported("int"))
+void import_int(environment const & env) {
+    if (!env->mark_builtin_imported("int"))
         return;
     import_nat(env);
     expr i_i  = Int >> Int;
@@ -154,25 +154,25 @@ void import_int(environment & env) {
     expr x    = Const("x");
     expr y    = Const("y");
 
-    env.add_builtin(Int);
-    env.add_builtin_set(iVal(0));
-    env.add_builtin(mk_int_add_fn());
-    env.add_builtin(mk_int_mul_fn());
-    env.add_builtin(mk_int_div_fn());
-    env.add_builtin(mk_int_le_fn());
-    env.add_builtin(mk_nat_to_int_fn());
+    env->add_builtin(Int);
+    env->add_builtin_set(iVal(0));
+    env->add_builtin(mk_int_add_fn());
+    env->add_builtin(mk_int_mul_fn());
+    env->add_builtin(mk_int_div_fn());
+    env->add_builtin(mk_int_le_fn());
+    env->add_builtin(mk_nat_to_int_fn());
 
-    env.add_definition(int_sub_fn_name, ii_i, Fun({{x, Int}, {y, Int}}, iAdd(x, iMul(iVal(-1), y))));
-    env.add_definition(int_neg_fn_name, i_i, Fun({x, Int}, iMul(iVal(-1), x)));
-    env.add_definition(int_mod_fn_name, ii_i, Fun({{x, Int}, {y, Int}}, iSub(x, iMul(y, iDiv(x, y)))));
-    env.add_definition(int_divides_fn_name, ii_b, Fun({{x, Int}, {y, Int}}, Eq(iMod(y, x), iVal(0))));
-    env.add_definition(int_ge_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, iLe(y, x)));
-    env.add_definition(int_lt_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, Not(iLe(y, x))));
-    env.add_definition(int_gt_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, Not(iLe(x, y))));
-    env.add_definition(int_abs_fn_name, i_i, Fun({x, Int}, iIf(iLe(iVal(0), x), x, iNeg(x))));
+    env->add_definition(int_sub_fn_name, ii_i, Fun({{x, Int}, {y, Int}}, iAdd(x, iMul(iVal(-1), y))));
+    env->add_definition(int_neg_fn_name, i_i, Fun({x, Int}, iMul(iVal(-1), x)));
+    env->add_definition(int_mod_fn_name, ii_i, Fun({{x, Int}, {y, Int}}, iSub(x, iMul(y, iDiv(x, y)))));
+    env->add_definition(int_divides_fn_name, ii_b, Fun({{x, Int}, {y, Int}}, Eq(iMod(y, x), iVal(0))));
+    env->add_definition(int_ge_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, iLe(y, x)));
+    env->add_definition(int_lt_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, Not(iLe(y, x))));
+    env->add_definition(int_gt_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, Not(iLe(x, y))));
+    env->add_definition(int_abs_fn_name, i_i, Fun({x, Int}, iIf(iLe(iVal(0), x), x, iNeg(x))));
 
-    env.add_definition(nat_sub_fn_name, Nat >> (Nat >> Int), Fun({{x, Nat}, {y, Nat}}, iSub(n2i(x), n2i(y))));
-    env.add_definition(nat_neg_fn_name, Nat >> Int, Fun({x, Nat}, iNeg(n2i(x))));
+    env->add_definition(nat_sub_fn_name, Nat >> (Nat >> Int), Fun({{x, Nat}, {y, Nat}}, iSub(n2i(x), n2i(y))));
+    env->add_definition(nat_neg_fn_name, Nat >> Int, Fun({x, Nat}, iNeg(n2i(x))));
 
     for (auto n : {int_sub_fn_name, int_neg_fn_name, int_mod_fn_name, int_divides_fn_name,
                 int_ge_fn_name, int_lt_fn_name, int_gt_fn_name, int_abs_fn_name,

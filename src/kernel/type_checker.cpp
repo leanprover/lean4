@@ -23,7 +23,7 @@ class type_checker::imp {
     typedef scoped_map<expr, expr, expr_hash_alloc, expr_eqp> cache;
     typedef buffer<unification_constraint> unification_constraints;
 
-    environment::weak_ref     m_env;
+    ro_environment::weak_ref  m_env;
     cache                     m_cache;
     normalizer                m_normalizer;
     context                   m_ctx;
@@ -31,8 +31,8 @@ class type_checker::imp {
     unsigned                  m_menv_timestamp;
     unification_constraints * m_uc;
 
-    environment env() const {
-        return environment(m_env);
+    ro_environment env() const {
+        return ro_environment(m_env);
     }
 
     expr normalize(expr const & e, context const & ctx) {
@@ -106,7 +106,7 @@ class type_checker::imp {
             if (const_type(e)) {
                 return save_result(e, *const_type(e), shared);
             } else {
-                object const & obj = env().get_object(const_name(e));
+                object const & obj = env()->get_object(const_name(e));
                 if (obj.has_type())
                     return save_result(e, obj.get_type(), shared);
                 else
@@ -208,7 +208,7 @@ class type_checker::imp {
         case expr_kind::Value: {
             // Check if the builtin value (or its set) is declared in the environment.
             name const & n = to_value(e).get_name();
-            object obj = env().get_object(n);
+            object obj = env()->get_object(n);
             if ((obj.is_builtin() && obj.get_value() == e) || (obj.is_builtin_set() && obj.in_builtin_set(e))) {
                 return save_result(e, to_value(e).get_type(), shared);
             } else {
@@ -227,7 +227,7 @@ class type_checker::imp {
             expr const * e = &expected;
             while (true) {
                 if (is_type(*e) && is_type(*g)) {
-                    if (env().is_ge(ty_level(*e), ty_level(*g)))
+                    if (env()->is_ge(ty_level(*e), ty_level(*g)))
                         return true;
                 }
 
@@ -283,8 +283,8 @@ class type_checker::imp {
     }
 
 public:
-    imp(environment const & env):
-        m_env(env.to_weak_ref()),
+    imp(ro_environment const & env):
+        m_env(env),
         m_normalizer(env) {
         m_menv           = nullptr;
         m_menv_timestamp = 0;
@@ -327,7 +327,7 @@ public:
     }
 };
 
-type_checker::type_checker(environment const & env):m_ptr(new imp(env)) {}
+type_checker::type_checker(ro_environment const & env):m_ptr(new imp(env)) {}
 type_checker::~type_checker() {}
 expr type_checker::infer_type(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> * uc) {
     return m_ptr->infer_type(e, ctx, menv, uc);
@@ -344,10 +344,10 @@ void type_checker::check_type(expr const & e, context const & ctx) {
 void type_checker::clear() { m_ptr->clear(); }
 normalizer & type_checker::get_normalizer() { return m_ptr->get_normalizer(); }
 
-expr  infer_type(expr const & e, environment const & env, context const & ctx) {
+expr  infer_type(expr const & e, ro_environment const & env, context const & ctx) {
     return type_checker(env).infer_type(e, ctx);
 }
-bool is_convertible(expr const & given, expr const & expected, environment const & env, context const & ctx) {
+bool is_convertible(expr const & given, expr const & expected, ro_environment const & env, context const & ctx) {
     return type_checker(env).is_convertible(given, expected, ctx);
 }
 }

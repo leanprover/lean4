@@ -88,10 +88,10 @@ unsigned count(expr const & a) {
 
 static void tst_church_numbers() {
     environment env;
-    env.add_var("t", Type());
-    env.add_var("N", Type());
-    env.add_var("z", Const("N"));
-    env.add_var("s", Const("N"));
+    env->add_var("t", Type());
+    env->add_var("N", Type());
+    env->add_var("z", Const("N"));
+    env->add_var("s", Const("N"));
     expr N = Const("N");
     expr z = Const("z");
     expr s = Const("s");
@@ -120,13 +120,13 @@ static void tst_church_numbers() {
 
 static void tst1() {
     environment env;
-    env.add_var("t", Type());
+    env->add_var("t", Type());
     expr t = Type();
-    env.add_var("f", mk_arrow(t, t));
+    env->add_var("f", mk_arrow(t, t));
     expr f = Const("f");
-    env.add_var("a", t);
+    env->add_var("a", t);
     expr a = Const("a");
-    env.add_var("b", t);
+    env->add_var("b", t);
     expr b = Const("b");
     expr x = Var(0);
     expr y = Var(1);
@@ -148,13 +148,13 @@ static void tst1() {
 static void tst2() {
     environment env;
     expr t = Type();
-    env.add_var("f", mk_arrow(t, t));
+    env->add_var("f", mk_arrow(t, t));
     expr f = Const("f");
-    env.add_var("a", t);
+    env->add_var("a", t);
     expr a = Const("a");
-    env.add_var("b", t);
+    env->add_var("b", t);
     expr b = Const("b");
-    env.add_var("h", mk_arrow(t, t));
+    env->add_var("h", mk_arrow(t, t));
     expr h = Const("h");
     expr x = Var(0);
     expr y = Var(1);
@@ -188,7 +188,7 @@ static void tst2() {
 
 static void tst3() {
     environment env = mk_toplevel();
-    env.add_var("a", Bool);
+    env->add_var("a", Bool);
     expr t1 = Const("a");
     expr t2 = Const("a");
     expr e = Eq(t1, t2);
@@ -198,7 +198,7 @@ static void tst3() {
 
 static void tst4() {
     environment env;
-    env.add_var("b", Type());
+    env->add_var("b", Type());
     expr t1 = mk_let("a", none_expr(), Const("b"), mk_lambda("c", Type(), Var(1)(Var(0))));
     std::cout << t1 << " --> " << normalize(t1, env) << "\n";
     lean_assert(normalize(t1, env) == mk_lambda("c", Type(), Const("b")(Var(0))));
@@ -215,8 +215,8 @@ static void tst5() {
 #if !defined(__APPLE__) && defined(LEAN_MULTI_THREAD)
     expr t = mk_big(18);
     environment env = mk_toplevel();
-    env.add_var("f", Bool >> (Bool >> Bool));
-    env.add_var("a", Bool);
+    env->add_var("f", Bool >> (Bool >> Bool));
+    env->add_var("a", Bool);
     normalizer proc(env);
     chrono::milliseconds dura(50);
     interruptible_thread thread([&]() {

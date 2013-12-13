@@ -18,13 +18,14 @@ namespace lean {
    They are only used for implementing external APIs.
 */
 class read_only_shared_environment {
-    environment   m_env;
-    shared_lock   m_lock;
+    ro_environment m_env;
+    shared_lock    m_lock;
 public:
-    read_only_shared_environment(environment const & env);
+    read_only_shared_environment(ro_environment const & env);
     ~read_only_shared_environment();
-    operator environment const &() const { return m_env; }
-    environment const * operator->() const { return &m_env; }
+    operator ro_environment const &() const { return m_env; }
+    environment_cell const * operator->() const { return m_env.m_ptr.get(); }
+    environment_cell const & operator*() const { return *(m_env.m_ptr.get()); }
 };
 
 /**
@@ -36,7 +37,9 @@ class read_write_shared_environment {
 public:
     read_write_shared_environment(environment const & env);
     ~read_write_shared_environment();
-    operator environment &() { return m_env; }
-    environment * operator->() { return &m_env; }
+    operator environment const &() const { return m_env; }
+    operator ro_environment() const { return ro_environment(m_env); }
+    environment_cell * operator->() const { return m_env.m_ptr.get(); }
+    environment_cell & operator*() const { return *(m_env.m_ptr.get()); }
 };
 }

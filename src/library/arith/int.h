@@ -90,7 +90,7 @@ class environment;
     \brief Import Integer number library in the given environment (if it has not been imported already).
     It will also load the natural number library.
 */
-void import_int(environment & env);
+void import_int(environment const & env);
 
 void open_int(lua_State * L);
 }

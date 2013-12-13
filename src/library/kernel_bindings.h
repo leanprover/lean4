@@ -21,6 +21,7 @@ UDATA_DEFS(object)
 UDATA_DEFS(environment)
 UDATA_DEFS(justification)
 UDATA_DEFS(metavar_env)
+int push_environment(lua_State * L, ro_environment const & env);
 int push_optional_expr(lua_State * L, optional<expr> const & e);
 int push_optional_justification(lua_State * L, optional<justification> const & j);
 int push_optional_object(lua_State * L, optional<object> const & o);
@@ -49,7 +50,7 @@ void set_global_formatter(lua_State * L, formatter const & fmt);
 class set_environment {
     lua_State * m_state;
 public:
-    set_environment(lua_State * L, environment & env);
+    set_environment(lua_State * L, environment const & env);
     ~set_environment();
 };
 

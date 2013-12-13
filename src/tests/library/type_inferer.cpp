@@ -31,7 +31,7 @@ static void tst1() {
     expr a = Const("a");
     expr b = Const("b");
     expr A = Const("A");
-    env.add_var("f", Int >> (Int >> Int));
+    env->add_var("f", Int >> (Int >> Int));
     lean_assert(type_of(f(a, a)) == Int);
     lean_assert(type_of(f(a)) == Int >> Int);
     lean_assert(is_bool(type_of(And(a, f(a)))));
@@ -42,7 +42,7 @@ static void tst1() {
     lean_assert(type_of(Pi({a, Type()}, Type(level() + 2))) == Type(level() + 3));
     lean_assert(type_of(Pi({a, Type(level()+4)}, Type(level() + 2))) == Type(level() + 5));
     lean_assert(type_of(Pi({a, Int}, Bool)) == Type());
-    env.add_var("g", Pi({A, Type()}, A >> A));
+    env->add_var("g", Pi({A, Type()}, A >> A));
     lean_assert(type_of(g(Int, a)) == Int);
     lean_assert(type_of(g(Fun({a, Type()}, a)(Int), a)) == Fun({a, Type()}, a)(Int));
 }
@@ -82,8 +82,8 @@ static void tst3() {
     expr A = Const("A");
     expr vec1 = Const("vec1");
     expr vec2 = Const("vec2");
-    env.add_var("vec1", Int  >> (Type() >> Type()));
-    env.add_var("vec2", Real >> (Type() >> Type()));
+    env->add_var("vec1", Int  >> (Type() >> Type()));
+    env->add_var("vec2", Real >> (Type() >> Type()));
     ctx1 = extend(ctx1, "x", Int,  iVal(1));
     ctx1 = extend(ctx1, "f", Pi({A, Int}, vec1(A, Int)));
     ctx2 = extend(ctx2, "x", Real, rVal(2));
@@ -113,13 +113,13 @@ static void tst4() {
     expr nil  = Const("nil");
     expr cons = Const("cons");
     expr A    = Const("A");
-    env.add_var("list", Type() >> Type());
-    env.add_var("nil", Pi({A, Type()}, list(A)));
-    env.add_var("cons", Pi({A, Type()}, A >> (list(A) >> list(A))));
-    env.add_var("a", Int);
-    env.add_var("b", Int);
-    env.add_var("n", Nat);
-    env.add_var("m", Nat);
+    env->add_var("list", Type() >> Type());
+    env->add_var("nil", Pi({A, Type()}, list(A)));
+    env->add_var("cons", Pi({A, Type()}, A >> (list(A) >> list(A))));
+    env->add_var("a", Int);
+    env->add_var("b", Int);
+    env->add_var("n", Nat);
+    env->add_var("m", Nat);
     expr a  = Const("a");
     expr b  = Const("b");
     expr n  = Const("n");

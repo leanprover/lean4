@@ -188,7 +188,7 @@ inline expr Abst(expr const & A, expr const & B, expr const & f, expr const & g,
 
 class environment;
 /** \brief Initialize the environment with basic builtin declarations and axioms */
-void import_basic(environment & env);
+void import_basic(environment const & env);
 
 /**
    \brief Helper macro for defining constants such as bool_type, int_type, int_add, etc.

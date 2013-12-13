@@ -36,21 +36,21 @@ public:
     class imp;
     std::shared_ptr<imp> m_ptr;
 public:
-    elaborator(environment const & env,
+    elaborator(ro_environment const & env,
                metavar_env const & menv,
                unsigned num_cnstrs,
                unification_constraint const * cnstrs,
                options const & opts = options(),
                std::shared_ptr<elaborator_plugin> const & p = std::shared_ptr<elaborator_plugin>());
 
-    elaborator(environment const & env,
+    elaborator(ro_environment const & env,
                metavar_env const & menv,
                std::initializer_list<unification_constraint> const & cnstrs,
                options const & opts = options(),
                std::shared_ptr<elaborator_plugin> const & p = std::shared_ptr<elaborator_plugin>()):
         elaborator(env, menv, cnstrs.size(), cnstrs.begin(), opts, p) {}
 
-    elaborator(environment const & env,
+    elaborator(ro_environment const & env,
                metavar_env const & menv,
                context const & ctx, expr const & lhs, expr const & rhs);
 

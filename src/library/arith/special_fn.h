@@ -59,5 +59,5 @@ class environment;
     \brief Import the special function library (if it has not been imported already).
     The (basic) Real Number library is also imported.
 */
-void import_special_fn(environment & env);
+void import_special_fn(environment const & env);
 }

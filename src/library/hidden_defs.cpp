@@ -13,12 +13,12 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 
 namespace lean {
-struct hidden_defs_extension : public environment::extension {
+struct hidden_defs_extension : public environment_extension {
     typedef std::unordered_map<name, bool, name_hash, name_eq> hidden_defs;
     hidden_defs m_hidden_defs;
 
     hidden_defs_extension const * get_parent() const {
-        return environment::extension::get_parent<hidden_defs_extension>();
+        return environment_extension::get_parent<hidden_defs_extension>();
     }
 
     bool is_hidden(name const & n) const {
@@ -37,31 +37,31 @@ struct hidden_defs_extension : public environment::extension {
 struct hidden_defs_extension_initializer {
     unsigned m_extid;
     hidden_defs_extension_initializer() {
-        m_extid = environment::register_extension([](){ return std::unique_ptr<environment::extension>(new hidden_defs_extension()); });
+        m_extid = environment_cell::register_extension([](){ return std::unique_ptr<environment_extension>(new hidden_defs_extension()); });
     }
 };
 
 static hidden_defs_extension_initializer g_hidden_defs_extension_initializer;
 
-static hidden_defs_extension const & to_ext(environment const & env) {
-    return env.get_extension<hidden_defs_extension>(g_hidden_defs_extension_initializer.m_extid);
+static hidden_defs_extension const & to_ext(ro_environment const & env) {
+    return env->get_extension<hidden_defs_extension>(g_hidden_defs_extension_initializer.m_extid);
 }
 
-static hidden_defs_extension & to_ext(environment & env) {
-    return env.get_extension<hidden_defs_extension>(g_hidden_defs_extension_initializer.m_extid);
+static hidden_defs_extension & to_ext(environment const & env) {
+    return env->get_extension<hidden_defs_extension>(g_hidden_defs_extension_initializer.m_extid);
 }
 
-bool is_hidden(environment const & env, name const & d) {
+bool is_hidden(ro_environment const & env, name const & d) {
     return to_ext(env).is_hidden(d);
 }
 
-void set_hidden_flag(environment & env, name const & d, bool flag) {
-    if (!env.get_object(d).is_definition())
+void set_hidden_flag(environment const & env, name const & d, bool flag) {
+    if (!env->get_object(d).is_definition())
         throw exception(sstream() << "'" << d << "' is not a definition");
     to_ext(env).set_hidden_flag(d, flag);
 }
 
-void hide_builtin(environment & env) {
+void hide_builtin(environment const & env) {
     for (auto c : { mk_implies_fn(), mk_iff_fn(), mk_not_fn(), mk_or_fn(), mk_and_fn(),
                 mk_forall_fn(), mk_exists_fn(), mk_homo_eq_fn() })
         set_hidden_flag(env, const_name(c));

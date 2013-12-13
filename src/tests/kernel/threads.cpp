@@ -18,10 +18,10 @@ Author: Leonardo de Moura
 using namespace lean;
 
 expr norm(expr const & e, environment & env) {
-    env.add_var("a", Int);
-    env.add_var("b", Int);
-    env.add_var("f", Int >> (Int >> Int));
-    env.add_var("h", Int >> (Int >> Int));
+    env->add_var("a", Int);
+    env->add_var("b", Int);
+    env->add_var("f", Int >> (Int >> Int));
+    env->add_var("h", Int >> (Int >> Int));
     return normalize(e, env);
 }
 
@@ -35,7 +35,7 @@ static void mk(expr const & a) {
             h = mk_app(h, b);
         h = max_sharing(h);
         lean_assert(closed(h));
-        environment env2 = env.mk_child();
+        environment env2 = env->mk_child();
         h = norm(h, env2);
         h = abstract(h, a);
         lean_assert(!closed(h));

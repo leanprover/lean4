@@ -11,15 +11,15 @@ Author: Leonardo de Moura
 #include "kernel/context.h"
 
 namespace lean {
+class ro_environment;
 std::ostream & operator<<(std::ostream & out, context const & ctx);
 std::ostream & operator<<(std::ostream & out, expr const & e);
 std::ostream & operator<<(std::ostream & out, std::pair<expr const &, context const &> const & p);
 class object;
 std::ostream & operator<<(std::ostream & out, object const & obj);
-class environment;
-std::ostream & operator<<(std::ostream & out, environment const & env);
+std::ostream & operator<<(std::ostream & out, ro_environment const & env);
 }
 void print(lean::expr const & a);
 void print(lean::expr const & a, lean::context const & c);
 void print(lean::context const & c);
-void print(lean::environment const & e);
+void print(lean::ro_environment const & e);

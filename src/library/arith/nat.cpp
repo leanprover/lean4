@@ -109,23 +109,23 @@ MK_CONSTANT(nat_lt_fn,  name({"Nat", "lt"}));
 MK_CONSTANT(nat_gt_fn,  name({"Nat", "gt"}));
 MK_CONSTANT(nat_id_fn,  name({"Nat", "id"}));
 
-void import_nat(environment & env) {
-    if (!env.mark_builtin_imported("nat"))
+void import_nat(environment const & env) {
+    if (!env->mark_builtin_imported("nat"))
         return;
     expr nn_b = Nat >> (Nat >> Bool);
     expr x    = Const("x");
     expr y    = Const("y");
 
-    env.add_builtin(Nat);
-    env.add_builtin_set(nVal(0));
-    env.add_builtin(mk_nat_add_fn());
-    env.add_builtin(mk_nat_mul_fn());
-    env.add_builtin(mk_nat_le_fn());
+    env->add_builtin(Nat);
+    env->add_builtin_set(nVal(0));
+    env->add_builtin(mk_nat_add_fn());
+    env->add_builtin(mk_nat_mul_fn());
+    env->add_builtin(mk_nat_le_fn());
 
-    env.add_definition(nat_ge_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, nLe(y, x)));
-    env.add_definition(nat_lt_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, Not(nLe(y, x))));
-    env.add_definition(nat_gt_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, Not(nLe(x, y))));
-    env.add_definition(nat_id_fn_name, Nat >> Nat, Fun({x, Nat}, x));
+    env->add_definition(nat_ge_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, nLe(y, x)));
+    env->add_definition(nat_lt_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, Not(nLe(y, x))));
+    env->add_definition(nat_gt_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, Not(nLe(x, y))));
+    env->add_definition(nat_id_fn_name, Nat >> Nat, Fun({x, Nat}, x));
 
     for (auto n : {nat_ge_fn_name, nat_lt_fn_name, nat_gt_fn_name, nat_id_fn_name}) {
         set_hidden_flag(env, n);

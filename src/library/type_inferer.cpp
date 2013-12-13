@@ -24,7 +24,7 @@ class type_inferer::imp {
     typedef scoped_map<expr, expr, expr_hash_alloc, expr_eqp> cache;
     typedef buffer<unification_constraint> unification_constraints;
 
-    environment               m_env;
+    ro_environment            m_env;
     context                   m_ctx;
     metavar_env *             m_menv;
     unsigned                  m_menv_timestamp;
@@ -114,7 +114,7 @@ class type_inferer::imp {
             if (const_type(e)) {
                 return *const_type(e);
             } else {
-                object const & obj = m_env.get_object(const_name(e));
+                object const & obj = m_env->get_object(const_name(e));
                 if (obj.has_type())
                     return obj.get_type();
                 else
@@ -216,7 +216,7 @@ class type_inferer::imp {
     }
 
 public:
-    imp(environment const & env):
+    imp(ro_environment const & env):
         m_env(env),
         m_normalizer(env) {
         m_menv           = nullptr;
@@ -253,7 +253,7 @@ public:
             return is_bool(normalize(t, ctx));
     }
 };
-type_inferer::type_inferer(environment const & env):m_ptr(new imp(env)) {}
+type_inferer::type_inferer(ro_environment const & env):m_ptr(new imp(env)) {}
 type_inferer::~type_inferer() {}
 expr type_inferer::operator()(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> * uc) {
     return m_ptr->operator()(e, ctx, menv, uc);

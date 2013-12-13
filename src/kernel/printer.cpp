@@ -215,9 +215,9 @@ std::ostream & operator<<(std::ostream & out, object const & obj) {
     return out;
 }
 
-std::ostream & operator<<(std::ostream & out, environment const & env) {
-    std::for_each(env.begin_objects(),
-                  env.end_objects(),
+std::ostream & operator<<(std::ostream & out, ro_environment const & env) {
+    std::for_each(env->begin_objects(),
+                  env->end_objects(),
                   [&](object const & obj) { out << obj << "\n"; });
     return out;
 }
@@ -225,4 +225,4 @@ std::ostream & operator<<(std::ostream & out, environment const & env) {
 void print(lean::expr const & a) { std::cout << a << std::endl; }
 void print(lean::expr const & a, lean::context const & c) { std::cout << mk_pair(a, c) << std::endl; }
 void print(lean::context const & c) { std::cout << c << std::endl; }
-void print(lean::environment const & e) { std::cout << e << std::endl; }
+void print(lean::ro_environment const & e) { std::cout << e << std::endl; }

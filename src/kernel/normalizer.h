@@ -18,9 +18,9 @@ class normalizer {
     class imp;
     std::unique_ptr<imp> m_ptr;
 public:
-    normalizer(environment const & env);
-    normalizer(environment const & env, unsigned max_depth);
-    normalizer(environment const & env, options const & opts);
+    normalizer(ro_environment const & env);
+    normalizer(ro_environment const & env, unsigned max_depth);
+    normalizer(ro_environment const & env, options const & opts);
     ~normalizer();
 
     expr operator()(expr const & e, context const & ctx = context());
@@ -28,5 +28,5 @@ public:
     void clear();
 };
 /** \brief Normalize \c e using the environment \c env and context \c ctx */
-expr normalize(expr const & e, environment const & env, context const & ctx = context());
+expr normalize(expr const & e, ro_environment const & env, context const & ctx = context());
 }

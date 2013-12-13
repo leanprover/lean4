@@ -27,35 +27,34 @@ public:
     frontend();
     frontend(environment const & env, io_state const & s);
 
-    frontend mk_child() const { return frontend(m_env.mk_child(), m_state); }
-    bool has_children() const { return m_env.has_children(); }
-    bool has_parent() const { return m_env.has_parent(); }
+    frontend mk_child() const { return frontend(m_env->mk_child(), m_state); }
+    bool has_children() const { return m_env->has_children(); }
+    bool has_parent() const { return m_env->has_parent(); }
 
     environment const & get_environment() const { return m_env; }
     operator environment const &() const { return get_environment(); }
-    environment & get_environment() { return m_env; }
-    operator environment &() { return get_environment(); }
+    operator ro_environment() const { return ro_environment(m_env); }
 
     /**
        @name Environment API
     */
     /*@{*/
-    level add_uvar(name const & n, level const & l) { return m_env.add_uvar(n, l);  }
-    level add_uvar(name const & n) { return m_env.add_uvar(n); }
-    level get_uvar(name const & n) const { return m_env.get_uvar(n); }
-    void add_definition(name const & n, expr const & t, expr const & v, bool opaque = false) { m_env.add_definition(n, t, v, opaque); }
-    void add_theorem(name const & n, expr const & t, expr const & v) { m_env.add_theorem(n, t, v); }
-    void add_definition(name const & n, expr const & v, bool opaque = false) { m_env.add_definition(n, v, opaque); }
-    void add_axiom(name const & n, expr const & t) { m_env.add_axiom(n, t); }
-    void add_var(name const & n, expr const & t) { m_env.add_var(n, t); }
-    object get_object(name const & n) const { return m_env.get_object(n); }
-    optional<object> find_object(name const & n) const { return m_env.find_object(n); }
-    bool has_object(name const & n) const { return m_env.has_object(n); }
-    typedef environment::object_iterator object_iterator;
-    object_iterator begin_objects() const { return m_env.begin_objects(); }
-    object_iterator end_objects() const { return m_env.end_objects(); }
-    object_iterator begin_local_objects() const { return m_env.begin_local_objects(); }
-    object_iterator end_local_objects() const { return m_env.end_local_objects(); }
+    level add_uvar(name const & n, level const & l) { return m_env->add_uvar(n, l);  }
+    level add_uvar(name const & n) { return m_env->add_uvar(n); }
+    level get_uvar(name const & n) const { return m_env->get_uvar(n); }
+    void add_definition(name const & n, expr const & t, expr const & v, bool opaque = false) { m_env->add_definition(n, t, v, opaque); }
+    void add_theorem(name const & n, expr const & t, expr const & v) { m_env->add_theorem(n, t, v); }
+    void add_definition(name const & n, expr const & v, bool opaque = false) { m_env->add_definition(n, v, opaque); }
+    void add_axiom(name const & n, expr const & t) { m_env->add_axiom(n, t); }
+    void add_var(name const & n, expr const & t) { m_env->add_var(n, t); }
+    object get_object(name const & n) const { return m_env->get_object(n); }
+    optional<object> find_object(name const & n) const { return m_env->find_object(n); }
+    bool has_object(name const & n) const { return m_env->has_object(n); }
+    typedef environment_cell::object_iterator object_iterator;
+    object_iterator begin_objects() const { return m_env->begin_objects(); }
+    object_iterator end_objects() const { return m_env->end_objects(); }
+    object_iterator begin_local_objects() const { return m_env->begin_local_objects(); }
+    object_iterator end_local_objects() const { return m_env->end_local_objects(); }
     /*@}*/
 
     /**
@@ -199,10 +198,10 @@ public:
     /*@}*/
 };
 
-bool is_explicit(environment const & env, name const & n);
-bool has_implicit_arguments(environment const & env, name const & n);
-name const & get_explicit_version(environment const & env, name const & n);
-std::vector<bool> const & get_implicit_arguments(environment const & env, name const & n);
-bool is_coercion(environment const & env, expr const & f);
-operator_info find_op_for(environment const & env, expr const & e, bool unicode);
+bool is_explicit(ro_environment const & env, name const & n);
+bool has_implicit_arguments(ro_environment const & env, name const & n);
+name const & get_explicit_version(ro_environment const & env, name const & n);
+std::vector<bool> const & get_implicit_arguments(ro_environment const & env, name const & n);
+bool is_coercion(ro_environment const & env, expr const & f);
+operator_info find_op_for(ro_environment const & env, expr const & e, bool unicode);
 }

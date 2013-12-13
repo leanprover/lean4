@@ -28,7 +28,7 @@ public:
     virtual format operator()(object const & obj, options const &) {
         std::ostringstream s; s << obj; return format(s.str());
     }
-    virtual format operator()(environment const & env, options const &) {
+    virtual format operator()(ro_environment const & env, options const &) {
         std::ostringstream s; s << env; return format(s.str());
     }
 };

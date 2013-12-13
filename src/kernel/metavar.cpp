@@ -51,13 +51,6 @@ public:
     virtual optional<expr> get_main_expr() const { return some_expr(m_expr); }
 };
 
-void swap(metavar_env & a, metavar_env & b) {
-    swap(a.m_name_generator,         b.m_name_generator);
-    swap(a.m_metavar_data,           b.m_metavar_data);
-    std::swap(a.m_beta_reduce_mv,    b.m_beta_reduce_mv);
-    std::swap(a.m_timestamp,         b.m_timestamp);
-}
-
 void metavar_env::inc_timestamp() {
     if (m_timestamp == std::numeric_limits<unsigned>::max()) {
         // This should not happen in real examples. We add it just to be safe.

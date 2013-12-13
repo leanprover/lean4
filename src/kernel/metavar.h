@@ -154,8 +154,6 @@ public:
     }
 };
 
-void swap(metavar_env & a, metavar_env & b);
-
 /**
    \brief Apply the changes in \c lctx to \c a.
 */

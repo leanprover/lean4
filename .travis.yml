@@ -157,10 +157,10 @@ install:
        until sudo apt-get -qq install liblua5.2.0 lua5.2-0 lua5.2-dev; do echo retry; done;
     fi
   - if [[ $LUA == 51 ]]; then
-       until sudo apt-get -qq install liblua5.1-0 lua5.1; do echo retry; done;
+       until sudo apt-get -qq install liblua5.1-0 liblua5.1-0-dev lua5.1; do echo retry; done;
     fi
   - if [[ $LUA == JIT ]]; then
-       until sudo apt-get -qq install libluajit-5.1-2 luajit; do echo retry; done;
+       until sudo apt-get -qq install libluajit-5.1-dev luajit; do echo retry; done;
     fi
   - wget http://dl.dropboxusercontent.com/u/203889738/gcc/ninja.tar.gz;
     tar xfz ninja.tar.gz;

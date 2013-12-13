@@ -44,7 +44,7 @@ static int lua_splay_map_erase(lua_State * L) {
 
 static int lua_splay_map_find(lua_State * L) {
     lua_splay_map & m = to_lua_splay_map(L, 1);
-    luaref * val = m.splay_find(luaref(L, 2));
+    luaref const * val = m.find(luaref(L, 2));
     if (val) {
         lean_assert(val->get_state() == L);
         val->push();

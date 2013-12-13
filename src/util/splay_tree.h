@@ -353,39 +353,21 @@ public:
         If the splay tree does not contain any value equal to \c v, then return \c nullptr.
 
         \remark <tt>find(v) != nullptr</tt> iff <tt>contains(v)</tt>
+
+        \warning The content of the tree is not modified, but it is "reorganized".
     */
     T const * find(T const & v) const {
-        node const * n = m_ptr;
-        while (true) {
-            if (n == nullptr)
-                return nullptr;
-            int c = cmp(v, n->m_value);
-            if (c < 0)
-                n = n->m_left;
-            else if (c > 0)
-                n = n->m_right;
-            else
-                return &(n->m_value);
+        if (const_cast<splay_tree*>(this)->pull(v)) {
+            lean_assert(cmp(m_ptr->m_value, v) == 0);
+            return &(m_ptr->m_value);
+        } else {
+            return nullptr;
         }
     }
 
     /** \brief Return true iff the splay tree contains an element equal to \c v. */
     bool contains(T const & v) const {
         return find(v);
-    }
-
-    /**
-        \brief Similar to \c find, but the splay tree is reorganized.
-        If <tt>find(v)</tt> is invoked after <tt>splay_find(v)</tt>, then the cost will be O(1).
-        The idea is to move recently accessed elements close to the root.
-    */
-    T const * splay_find(T const & v) {
-        if (pull(v)) {
-            lean_assert(cmp(m_ptr->m_value, v) == 0);
-            return &(m_ptr->m_value);
-        } else {
-            return nullptr;
-        }
     }
 
     /** \brief Remove \c v from this splay tree. Actually, it removes an element that is equal to \c v. */

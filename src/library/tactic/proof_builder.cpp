@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 expr find(proof_map const & m, name const & n) {
-    expr * r = const_cast<proof_map&>(m).splay_find(n);
+    expr const * r = m.find(n);
     if (r)
         return *r;
     throw exception(sstream() << "proof for goal '" << n << "' not found");

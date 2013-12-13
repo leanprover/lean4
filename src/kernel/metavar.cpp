@@ -92,7 +92,7 @@ context metavar_env::get_context(expr const & m) const {
 }
 
 context metavar_env::get_context(name const & m) const {
-    auto it = const_cast<metavar_env*>(this)->m_metavar_data.splay_find(m);
+    auto it = m_metavar_data.find(m);
     lean_assert(it);
     return it->m_context;
 }
@@ -112,7 +112,7 @@ expr metavar_env::get_type(expr const & m) {
 }
 
 expr metavar_env::get_type(name const & m) {
-    auto it = const_cast<metavar_env*>(this)->m_metavar_data.splay_find(m);
+    auto it = m_metavar_data.find(m);
     lean_assert(it);
     if (it->m_type) {
         return *(it->m_type);
@@ -124,7 +124,7 @@ expr metavar_env::get_type(name const & m) {
 }
 
 bool metavar_env::has_type(name const & m) const {
-    auto it = const_cast<metavar_env*>(this)->m_metavar_data.splay_find(m);
+    auto it = m_metavar_data.find(m);
     lean_assert(it);
     return static_cast<bool>(it->m_type);
 }
@@ -148,7 +148,7 @@ optional<justification> metavar_env::get_justification(name const & m) const {
 }
 
 bool metavar_env::is_assigned(name const & m) const {
-    auto it = const_cast<metavar_env*>(this)->m_metavar_data.splay_find(m);
+    auto it = m_metavar_data.find(m);
     return it && it->m_subst;
 }
 
@@ -160,7 +160,7 @@ bool metavar_env::is_assigned(expr const & m) const {
 void metavar_env::assign(name const & m, expr const & t, justification const & jst) {
     lean_assert(!is_assigned(m));
     inc_timestamp();
-    auto it = const_cast<metavar_env*>(this)->m_metavar_data.splay_find(m);
+    auto it = m_metavar_data.find(m);
     lean_assert(it);
     it->m_subst         = t;
     it->m_justification = jst;
@@ -206,7 +206,7 @@ optional<std::pair<expr, justification>> metavar_env::get_subst_jst(expr const &
 }
 
 optional<std::pair<expr, justification>> metavar_env::get_subst_jst(name const & m) const {
-    auto it = const_cast<metavar_env*>(this)->m_metavar_data.splay_find(m);
+    auto it = const_cast<metavar_env*>(this)->m_metavar_data.find(m);
     if (it->m_subst) {
         expr s = *(it->m_subst);
         if (has_assigned_metavar(s, *this)) {

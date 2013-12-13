@@ -13,7 +13,7 @@ namespace lean {
 expr find(substitution & s, expr e) {
     while (true) {
         if (is_metavar(e)) {
-            expr * it = s.splay_find(metavar_name(e));
+            expr * it = s.find(metavar_name(e));
             if (it == nullptr)
                 return e;
             e = *it;
@@ -61,11 +61,11 @@ static int substitution_find(lua_State * L) {
     if (is_expr(L, 2)) {
         expr const & e = to_expr(L, 2);
         if (is_metavar(e))
-            it = s.splay_find(metavar_name(e));
+            it = s.find(metavar_name(e));
         else
             throw exception("arg #2 must be a metavariable");
     } else {
-        it = s.splay_find(to_name_ext(L, 2));
+        it = s.find(to_name_ext(L, 2));
     }
     if (it)
         push_expr(L, find(s, *it));

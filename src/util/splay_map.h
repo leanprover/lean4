@@ -37,9 +37,9 @@ public:
     bool is_eqp(splay_map const & m) const { return m_map.is_eqp(m); }
     unsigned size() const { return m_map.size(); }
     void insert(K const & k, T const & v) { m_map.insert(mk_pair(k, v)); }
-    entry const * find(K const & k) const { return m_map.find(mk_pair(k, T())); }
+    T const * find(K const & k) const { auto e = m_map.find(mk_pair(k, T())); return e ? &(e->second) : nullptr; }
+    T * find(K const & k) { auto e = m_map.find(mk_pair(k, T())); return e ? &(const_cast<T&>(e->second)) : nullptr; }
     bool contains(K const & k) const { return m_map.contains(mk_pair(k, T())); }
-    T * splay_find(K const & k) { auto e = m_map.splay_find(mk_pair(k, T())); return e ? &(const_cast<T&>(e->second)) : nullptr; }
     void erase(K const & k) { m_map.erase(mk_pair(k, T())); }
 
     class ref {
@@ -49,12 +49,12 @@ public:
         ref(splay_map & m, K const & k):m_map(m), m_key(k) {}
         ref & operator=(T const & v) { m_map.insert(m_key, v); return *this; }
         operator T const &() const {
-            entry const * e = m_map.find(m_key);
+            T const * e = m_map.find(m_key);
             if (e) {
-                return e->second;
+                return *e;
             } else {
                 m_map.insert(m_key, T());
-                return m_map.find(m_key)->second;
+                return *(m_map.find(m_key));
             }
         }
     };

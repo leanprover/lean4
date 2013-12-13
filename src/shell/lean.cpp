@@ -93,7 +93,7 @@ int main(int argc, char ** argv) {
     lean::register_modules();
     input_kind default_k = input_kind::Lean; // default
     while (true) {
-        int c = getopt_long(argc, argv, "lugvhc:012s:012", g_long_options, &optind);
+        int c = getopt_long(argc, argv, "lugvhc:012s:012", g_long_options, NULL);
         if (c == -1)
             break; // end of command line
         switch (c) {

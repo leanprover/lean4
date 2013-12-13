@@ -23,8 +23,10 @@ class type_checker;
 class environment_extension;
 
 /** \brief Implementation of the Lean environment. */
-struct environment_cell {
+class environment_cell {
     friend class environment;
+    friend class read_write_shared_environment;
+    friend class read_only_shared_environment;
     // Remark: only named objects are stored in the dictionary.
     typedef std::unordered_map<name, object, name_hash, name_eq> object_dictionary;
     typedef std::tuple<level, level, int> constraint;
@@ -315,7 +317,7 @@ public:
    in the environment
 */
 class environment_extension {
-    friend struct environment_cell;
+    friend class environment_cell;
     environment_cell * m_env;
     unsigned           m_extid; // extension id
     environment_extension const * get_parent_core() const;

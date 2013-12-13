@@ -3,8 +3,10 @@ env:
   global:
   - secure: "W8vou0KRJOOboZXP9q+D/9Wl6LlBeVS2T85MHWPz7EwCMQbJq5xWnGzYLE6FmC0iILcZkXyP63vqoYMFo5MJaEQeALGx2RuIiW7XgrD+7Bn4Vfsp6BLT7K9/AJETGGTQnLs8oZJJCXHGtzbc8EPFIZd/ZPPrve4jhEE5ZNhXnRc="
   matrix:
-  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG   TCMALLOC=OFF            PUSH_TO_CDASH=TRUE
-  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF UPLOAD=osx PUSH_TO_CDASH=TRUE
+  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG   TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=52
+  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=52 UPLOAD=osx
+  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=51
+  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=JIT
 
 # Turn off tcmalloc on OSX due to segmentation fault.
 # Soonho filed a bug report for this:
@@ -33,7 +35,8 @@ script:
       BUILD_TYPE=Debug;
       CTEST_FLAGS="-E leanslowtests";
   fi
-- BUILD_NAME=${TRAVIS_BRANCH}_g++-4.9.0_${BUILD_TYPE}
+- LUA_VERSION=LUA_${LUA}
+- BUILD_NAME=${TRAVIS_BRANCH}_g++-4.9.0_${BUILD_TYPE}_${LUA_VERSION}
 - if [[ $TCMALLOC == ON ]]; then
       BUILD_NAME=${BUILD_NAME}_TC;
   fi;
@@ -54,7 +57,8 @@ after_script:
       NOW=`TZ='America/Los_Angeles' date +"%Y%m%d_%H%M"`;
       GIT_COMMIT=`git log HEAD~ --oneline -n 1 | cut -d ' ' -f 1`;
       OS=osx;
-      ARCHIVE_BINARY=${NOW}_${TRAVIS_BRANCH}_${GIT_COMMIT}_${OS}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE};
+      LUA_VERSION=LUA_${LUA};
+      ARCHIVE_BINARY=${NOW}_${TRAVIS_BRANCH}_${GIT_COMMIT}_${OS}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE}_${LUA_VERSION};
       if [[ $TCMALLOC == ON ]]; then
           ARCHIVE_BINARY=${ARCHIVE_BINARY}_tcmalloc;
       fi;
@@ -88,7 +92,15 @@ install:
       sudo chown -R `whoami` /usr/local;
       brew install gmp; brew link --overwrite gmp;
       brew install mpfr; brew link --overwrite mpfr;
+  fi
+- if [[ $LUA == 52 ]]; then
+      brew install lua52;
+  fi
+- if [[ $LUA == 51 ]]; then
       brew install lua;
+  fi
+- if [[ $LUA == JIT ]]; then
+      brew install luajit;
   fi
 - brew install cmake ninja
 - if [[ $MEMCHECK == TRUE ]]; then

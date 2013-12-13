@@ -23,6 +23,7 @@ env:
      TESTCOV=ON
      PUSH_TO_CDASH=TRUE
      TCMALLOC=OFF
+     LUA=52
    # =======================================================
    # DEBUG Build
    # =======================================================
@@ -31,6 +32,7 @@ env:
      CMAKE_BUILD_TYPE=DEBUG
      TCMALLOC=ON
      PUSH_TO_CDASH=TRUE
+     LUA=52
    # D2. g++-4.8     | DEBUG    | TCMALLOC       | CDASH + TRIGGERS
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=DEBUG
@@ -39,16 +41,19 @@ env:
      TRIGGER_WINDOWS=TRUE
      TCMALLOC=ON
      PUSH_TO_CDASH=TRUE
+     LUA=52
    # D3. clang++-3.3 | DEBUG
    - CMAKE_CXX_COMPILER=clang++-3.3
      CMAKE_BUILD_TYPE=DEBUG
      TCMALLOC=OFF
      PUSH_TO_CDASH=TRUE
+     LUA=52
    # D4. g++-4.8     | DEBUG
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=DEBUG
      TCMALLOC=OFF
      PUSH_TO_CDASH=TRUE
+     LUA=52
    # =======================================================
    # RELEASE Build
    # =======================================================
@@ -57,23 +62,27 @@ env:
      CMAKE_BUILD_TYPE=RELEASE
      TCMALLOC=ON
      PUSH_TO_CDASH=TRUE
+     LUA=52
    # R2. g++-4.8     | RELEASE | TCMALLOC        | CDASH + UPLOAD=>DROPBOX
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=RELEASE
      TCMALLOC=ON
      UPLOAD=linux_tcmalloc
      PUSH_TO_CDASH=TRUE
+     LUA=52
    # R3. clang++-3.3 | RELEASE
    - CMAKE_CXX_COMPILER=clang++-3.3
      CMAKE_BUILD_TYPE=RELEASE
      TCMALLOC=OFF
      PUSH_TO_CDASH=TRUE
+     LUA=52
    # R4. g++-4.8    | RELEASE                    | UPLOAD=>DROPBOX
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=RELEASE
      TCMALLOC=OFF
      UPLOAD=linux
      PUSH_TO_CDASH=TRUE
+     LUA=52
    # =======================================================
    # MEMCHECK Build
    # =======================================================
@@ -84,6 +93,7 @@ env:
      MEMCHECK=TRUE
      MEMCHECK_RANGE=1,40
      PUSH_TO_CDASH=TRUE
+     LUA=52
    # M1-2. clang++-3.3 | DEBUG    | MEMCHECK       | CDASH
    - CMAKE_CXX_COMPILER=clang++-3.3
      CMAKE_BUILD_TYPE=DEBUG
@@ -91,6 +101,7 @@ env:
      MEMCHECK=TRUE
      MEMCHECK_RANGE=40,80
      PUSH_TO_CDASH=TRUE
+     LUA=52
    # M2-1. g++-4.8     | DEBUG    | MEMCHECK       | CDASH
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=DEBUG
@@ -98,6 +109,7 @@ env:
      MEMCHECK=TRUE
      MEMCHECK_RANGE=1,40
      PUSH_TO_CDASH=TRUE
+     LUA=52
     # M2-2. g++-4.8     | DEBUG    | MEMCHECK       | CDASH
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=DEBUG
@@ -105,6 +117,7 @@ env:
      MEMCHECK=TRUE
      MEMCHECK_RANGE=40,80
      PUSH_TO_CDASH=TRUE
+     LUA=52
    # =======================================================
    # DOXYGEN Build
    # =======================================================
@@ -113,6 +126,24 @@ env:
      CMAKE_BUILD_TYPE=DOXYGEN
      BUILD_DOXYGEN=TRUE
      TCMALLOC=OFF
+     LUA=52
+   # =======================================================
+   # Different Lua Versions
+   # =======================================================
+   # L51. g++-4.8     | RELEASE |                | CDASH
+   - CMAKE_CXX_COMPILER=g++-4.8
+     CMAKE_BUILD_TYPE=RELEASE
+     TCMALLOC=OFF
+     UPLOAD=linux
+     PUSH_TO_CDASH=TRUE
+     LUA=51
+   # LJIT. g++-4.8     | RELEASE |                | CDASH
+   - CMAKE_CXX_COMPILER=g++-4.8
+     CMAKE_BUILD_TYPE=RELEASE
+     TCMALLOC=OFF
+     UPLOAD=linux
+     PUSH_TO_CDASH=TRUE
+     LUA=JIT
 
 install:
   - until sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test; do echo retry; done
@@ -122,7 +153,15 @@ install:
   - if [[ $TCMALLOC == ON ]]; then until sudo add-apt-repository --yes ppa:agent-8131/ppa && sudo apt-get -qq update && sudo apt-get -qq install libgoogle-perftools-dev; do echo retry; done; fi
   - until sudo apt-get -qq install libgmp-dev libmpfr-dev; do echo retry; done
   - until sudo apt-get -qq install cmake python; do echo retry; done
-  - until sudo apt-get -qq install liblua5.2.0 lua5.2-0 lua5.2-dev; do echo retry; done
+  - if [[ $LUA == 52 ]]; then
+       until sudo apt-get -qq install liblua5.2.0 lua5.2-0 lua5.2-dev; do echo retry; done;
+    fi
+  - if [[ $LUA == 51 ]]; then
+       until sudo apt-get -qq install liblua5.1-0 lua5.1; do echo retry; done;
+    fi
+  - if [[ $LUA == JIT ]]; then
+       until sudo apt-get -qq install libluajit-5.1-2 luajit; do echo retry; done;
+    fi
   - wget http://dl.dropboxusercontent.com/u/203889738/gcc/ninja.tar.gz;
     tar xfz ninja.tar.gz;
     cd ninja;
@@ -196,7 +235,8 @@ script:
        else
            BUILD_TYPE=Debug;
        fi;
-       BUILD_NAME=${TRAVIS_BRANCH}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE};
+       LUA_VERSION=LUA_${LUA};
+       BUILD_NAME=${TRAVIS_BRANCH}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE}_${LUA_VERSION};
        if [[ $TCMALLOC == ON ]]; then
            BUILD_NAME=${BUILD_NAME}_TC;
        fi;
@@ -255,7 +295,8 @@ after_script:
       NOW=`TZ='America/Los_Angeles' date +"%Y%m%d_%H%M"`;
       GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`;
       OS=linux;
-      ARCHIVE_BINARY=${NOW}_${TRAVIS_BRANCH}_${GIT_COMMIT}_${OS}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE};
+      LUA_VERSION=LUA_${LUA};
+      ARCHIVE_BINARY=${NOW}_${TRAVIS_BRANCH}_${GIT_COMMIT}_${OS}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE}_${LUA_VERSION};
       if [[ $TCMALLOC == ON ]]; then
           ARCHIVE_BINARY=${ARCHIVE_BINARY}_tcmalloc;
       fi;

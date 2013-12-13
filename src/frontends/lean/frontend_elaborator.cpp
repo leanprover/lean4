@@ -147,7 +147,7 @@ class frontend_elaborator::imp {
 
         virtual expr visit_constant(expr const & e, context const & ctx) {
             if (is_placeholder(e)) {
-                expr m = m_ref.m_menv.mk_metavar(ctx, visit(const_type(e), ctx));
+                expr m = m_ref.m_menv->mk_metavar(ctx, visit(const_type(e), ctx));
                 m_ref.m_trace[m] = e;
                 return m;
             } else {
@@ -186,7 +186,7 @@ class frontend_elaborator::imp {
         expr add_coercion_mvar_app(list<expr_pair> const & l, expr const & a, expr const & a_t,
                                    context const & ctx, expr const & original_a) {
             buffer<expr> choices;
-            expr mvar = m_ref.m_menv.mk_metavar(ctx);
+            expr mvar = m_ref.m_menv->mk_metavar(ctx);
             for (auto p : l) {
                 choices.push_back(p.second);
             }
@@ -292,7 +292,7 @@ class frontend_elaborator::imp {
         */
         expr mk_overload_mvar(buffer<expr> & f_choices, context const & ctx, expr const & src) {
             std::reverse(f_choices.begin(), f_choices.end());
-            expr mvar = m_ref.m_menv.mk_metavar(ctx);
+            expr mvar = m_ref.m_menv->mk_metavar(ctx);
             m_ref.m_ucs.push_back(mk_choice_constraint(ctx, mvar, f_choices.size(), f_choices.data(),
                                                        mk_overload_justification(ctx, src)));
             return mvar;
@@ -436,13 +436,13 @@ public:
         expr new_e = preprocessor(*this)(e);
         // std::cout << "After preprocessing\n" << new_e << "\n";
         if (has_metavar(new_e)) {
-            m_type_checker.infer_type(new_e, context(), &m_menv, &m_ucs);
+            m_type_checker.infer_type(new_e, context(), m_menv, m_ucs);
             // for (auto c : m_ucs) {
             //     formatter fmt = mk_simple_formatter();
             //     std::cout << c.pp(fmt, options(), nullptr, false) << "\n";
             // }
             metavar_env new_menv = elaborate_core();
-            return instantiate_metavars(new_e, new_menv);
+            return new_menv->instantiate_metavars(new_e);
         } else {
             return new_e;
         }
@@ -455,8 +455,8 @@ public:
         expr new_e = preprocessor(*this)(e);
         // std::cout << "After preprocessing\n" << new_t << "\n" << new_e << "\n";
         if (has_metavar(new_e) || has_metavar(new_t)) {
-            m_type_checker.infer_type(new_t, context(), &m_menv, &m_ucs);
-            expr new_e_t = m_type_checker.infer_type(new_e, context(), &m_menv, &m_ucs);
+            m_type_checker.infer_type(new_t, context(), m_menv, m_ucs);
+            expr new_e_t = m_type_checker.infer_type(new_e, context(), m_menv, m_ucs);
             m_ucs.push_back(mk_convertible_constraint(context(), new_e_t, new_t,
                                                       mk_def_type_match_justification(context(), n, e)));
             // for (auto c : m_ucs) {
@@ -464,8 +464,8 @@ public:
             //    std::cout << c.pp(fmt, options(), nullptr, false) << "\n";
             // }
             metavar_env new_menv = elaborate_core();
-            return std::make_tuple(instantiate_metavars(new_t, new_menv),
-                                   instantiate_metavars(new_e, new_menv),
+            return std::make_tuple(new_menv->instantiate_metavars(new_t),
+                                   new_menv->instantiate_metavars(new_e),
                                    new_menv);
         } else {
             return std::make_tuple(new_t, new_e, metavar_env());

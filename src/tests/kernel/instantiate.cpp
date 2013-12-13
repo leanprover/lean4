@@ -50,8 +50,8 @@ static void tst3() {
     expr f  = Const("f");
     expr a  = Const("a");
     expr T  = Const("T");
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar(context({{"x", T}, {"y", T}}));
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar(context({{"x", T}, {"y", T}}));
     lean_assert_eq(instantiate(f(m1, Var(0)), 0, a, menv), f(m1, a));
     lean_assert_ne(instantiate(f(m1, Var(0)), 0, a, menv), instantiate(f(m1, Var(0)), 0, a));
     lean_assert_ne(instantiate(f(m2, Var(0)), 0, a, menv), f(m2, a));
@@ -67,7 +67,7 @@ static void tst3() {
                    Fun({x, T}, f(m1, f(Var(1)), Var(0))));
     lean_assert_eq(instantiate(Fun({x, T}, f(m2, Var(3), Var(0))), 1, f(Var(0)), menv),
                    Fun({x, T}, f(m2, Var(2), Var(0))));
-    expr m3 = menv.mk_metavar(context({{"x", T}, {"y", T}, {"z", T}}));
+    expr m3 = menv->mk_metavar(context({{"x", T}, {"y", T}, {"z", T}}));
     lean_assert_eq(instantiate(Fun({x, T}, f(m3, Var(3), Var(0))), 1, f(Var(0)), menv),
                    Fun({x, T}, f(add_inst(m3, 2, f(Var(1))), Var(2), Var(0))));
 }
@@ -75,8 +75,8 @@ static void tst3() {
 static void tst4() {
     metavar_env menv;
     expr T  = Const("T");
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar(context({{"x", T}, {"y", T}}));
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar(context({{"x", T}, {"y", T}}));
     expr f = Const("f");
     expr g = Const("f");
     expr x = Const("x");

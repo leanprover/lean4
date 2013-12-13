@@ -31,14 +31,25 @@ class elaborator::imp {
         cnstr_queue m_queue;
 
         state(metavar_env const & menv, unsigned num_cnstrs, unification_constraint const * cnstrs):
-            m_menv(menv) {
+            m_menv(menv.copy()) {
             for (unsigned i = 0; i < num_cnstrs; i++)
                 m_queue.push_back(cnstrs[i]);
         }
 
         state(metavar_env const & menv, cnstr_queue const & q):
-            m_menv(menv),
+            m_menv(menv.copy()),
             m_queue(q) {
+        }
+
+        state(state const & other):
+            m_menv(other.m_menv.copy()),
+            m_queue(other.m_queue) {
+        }
+
+        state & operator=(state const & other) {
+            m_menv  = other.m_menv.copy();
+            m_queue = other.m_queue;
+            return *this;
         }
     };
 
@@ -166,14 +177,14 @@ class elaborator::imp {
     /** \brief Return true iff \c m is an assigned metavariable in the current state */
     bool is_assigned(expr const & m) const {
         lean_assert(is_metavar(m));
-        return m_state.m_menv.is_assigned(m);
+        return m_state.m_menv->is_assigned(m);
     }
 
     /** \brief Return the substitution (and justification) for an assigned metavariable */
     std::pair<expr, justification> get_subst_jst(expr const & m) const {
         lean_assert(is_metavar(m));
         lean_assert(is_assigned(m));
-        return *(m_state.m_menv.get_subst_jst(m));
+        return *(m_state.m_menv->get_subst_jst(m));
     }
 
     /**
@@ -181,7 +192,7 @@ class elaborator::imp {
        The substitutions in the current state are taken into account.
     */
     bool has_metavar(expr const & e, expr const & m) const {
-        return ::lean::has_metavar(e, m, m_state.m_menv);
+        return m_state.m_menv->has_metavar(e, m);
     }
 
     static bool has_metavar(expr const & e) {
@@ -193,7 +204,7 @@ class elaborator::imp {
        the current state.
     */
     bool has_assigned_metavar(expr const & e) const {
-        return ::lean::has_assigned_metavar(e, m_state.m_menv);
+        return m_state.m_menv->has_assigned_metavar(e);
     }
 
     /** \brief Return true if \c a is of the form <tt>(?m ...)</tt> */
@@ -343,15 +354,15 @@ class elaborator::imp {
         reset_quota();
         context const & ctx = get_context(c);
         justification jst(new assignment_justification(c));
-        metavar_env & menv = m_state.m_menv;
-        m_state.m_menv.assign(m, v, jst);
-        if (menv.has_type(m)) {
+        metavar_env const & menv = m_state.m_menv;
+        menv->assign(m, v, jst);
+        if (menv->has_type(m)) {
             buffer<unification_constraint> ucs;
-            expr tv = m_type_inferer(v, ctx, &menv, &ucs);
+            expr tv = m_type_inferer(v, ctx, menv, ucs);
             for (auto c : ucs)
                 push_front(c);
-            justification new_jst(new typeof_mvar_justification(ctx, m, menv.get_type(m), tv, jst));
-            push_front(mk_convertible_constraint(ctx, tv, menv.get_type(m), new_jst));
+            justification new_jst(new typeof_mvar_justification(ctx, m, menv->get_type(m), tv, jst));
+            push_front(mk_convertible_constraint(ctx, tv, menv->get_type(m), new_jst));
         }
     }
 
@@ -449,7 +460,7 @@ class elaborator::imp {
             justification new_jst(new substitution_justification(c, s_j.second));
             expr new_f = s_j.first;
             expr new_a = update_app(a, 0, new_f);
-            if (m_state.m_menv.beta_reduce_metavar_application())
+            if (m_state.m_menv->beta_reduce_metavar_application())
                 new_a = head_beta_reduce(new_a);
             push_updated_constraint(c, is_lhs, new_a, new_jst);
             return Processed;
@@ -471,7 +482,7 @@ class elaborator::imp {
     */
     expr instantiate_metavars(expr const & a, buffer<justification> & jsts) {
         lean_assert(has_assigned_metavar(a));
-        return ::lean::instantiate_metavars(a, m_state.m_menv, jsts);
+        return m_state.m_menv->instantiate_metavars(a, jsts);
     }
 
     /**
@@ -733,7 +744,7 @@ class elaborator::imp {
         buffer<unification_constraint> ucs;
         context h_ctx = ctx;  // context for new fresh metavariables used in the imitation step
         for (unsigned i = 1; i < num_a; i++) {
-            arg_types.push_back(m_type_inferer(arg(a, i), ctx, &menv, &ucs));
+            arg_types.push_back(m_type_inferer(arg(a, i), ctx, menv, ucs));
             for (auto uc : ucs)
                 push_front(uc);
             h_ctx = extend(h_ctx, name(g_x_name, i), arg_types.back());
@@ -767,7 +778,7 @@ class elaborator::imp {
             imitation_args.push_back(lift_free_vars(f_b, 0, num_a - 1));
             for (unsigned i = 1; i < num_b; i++) {
                 // Remark: h_ctx is "ctx, (x_{num_a} : T_{num_a}) ... (x_1 : T_1)" because h_i is inside of the lambda
-                expr h_i = new_state.m_menv.mk_metavar(h_ctx);
+                expr h_i = new_state.m_menv->mk_metavar(h_ctx);
                 imitation_args.push_back(mk_app_vars(h_i, num_a - 1));
                 push_new_eq_constraint(new_state.m_queue, ctx, update_app(a, 0, h_i), arg(b, i), new_assumption);
             }
@@ -777,8 +788,8 @@ class elaborator::imp {
             // Assign f_a <- fun (x_1 : T_1) ... (x_{num_a} : T_{num_a}), (h_1 x_1 ... x_{num_a}) = (h_2 x_1 ... x_{num_a})
             // New constraints (h_1 a_1 ... a_{num_a}) == eq_lhs(b)
             //                 (h_2 a_1 ... a_{num_a}) == eq_rhs(b)
-            expr h_1 = new_state.m_menv.mk_metavar(h_ctx);
-            expr h_2 = new_state.m_menv.mk_metavar(h_ctx);
+            expr h_1 = new_state.m_menv->mk_metavar(h_ctx);
+            expr h_2 = new_state.m_menv->mk_metavar(h_ctx);
             push_new_eq_constraint(new_state.m_queue, ctx, update_app(a, 0, h_1), eq_lhs(b), new_assumption);
             push_new_eq_constraint(new_state.m_queue, ctx, update_app(a, 0, h_2), eq_rhs(b), new_assumption);
             imitation = mk_lambda(arg_types, mk_eq(mk_app_vars(h_1, num_a - 1), mk_app_vars(h_2, num_a - 1)));
@@ -788,9 +799,9 @@ class elaborator::imp {
             //                        fun (x_b : (?h_1 x_1 ... x_{num_a})), (?h_2 x_1 ... x_{num_a} x_b)
             // New constraints (h_1 a_1 ... a_{num_a}) == abst_domain(b)
             //                 (h_2 a_1 ... a_{num_a} x_b) == abst_body(b)
-            expr h_1 = new_state.m_menv.mk_metavar(h_ctx);
+            expr h_1 = new_state.m_menv->mk_metavar(h_ctx);
             context new_ctx = extend(ctx, abst_name(b), abst_domain(b));
-            expr h_2 = new_state.m_menv.mk_metavar(extend(h_ctx, abst_name(b), abst_domain(b)));
+            expr h_2 = new_state.m_menv->mk_metavar(extend(h_ctx, abst_name(b), abst_domain(b)));
             push_new_eq_constraint(new_state.m_queue, ctx, update_app(a, 0, h_1), abst_domain(b), new_assumption);
             push_new_eq_constraint(new_state.m_queue, new_ctx,
                                    mk_app(update_app(a, 0, h_2), mk_var(0)), abst_body(b), new_assumption);
@@ -850,7 +861,7 @@ class elaborator::imp {
 
             metavar_env & menv  = m_state.m_menv;
             buffer<unification_constraint> ucs;
-            expr b_type = m_type_inferer(b, ctx, &menv, &ucs);
+            expr b_type = m_type_inferer(b, ctx, menv, ucs);
             for (auto uc : ucs)
                 push_front(uc);
             context ctx_with_i = ctx.insert_at(i, g_x_name, b_type); // must add entry for variable #i in the context
@@ -883,7 +894,7 @@ class elaborator::imp {
                     buffer<expr> imitation_args;
                     imitation_args.push_back(f_b);
                     for (unsigned j = 1; j < num_b; j++) {
-                        expr h_j = new_state.m_menv.mk_metavar(ctx);
+                        expr h_j = new_state.m_menv->mk_metavar(ctx);
                         imitation_args.push_back(h_j);
                         push_new_eq_constraint(new_state.m_queue, ctx, h_j, lift_free_vars(arg(b, j), i, 1), new_assumption);
                     }
@@ -891,8 +902,8 @@ class elaborator::imp {
                 } else if (is_eq(b)) {
                     // Imitation for equality b == Eq(s1, s2)
                     // mname <- Eq(?h_1, ?h_2)
-                    expr h_1 = new_state.m_menv.mk_metavar(ctx);
-                    expr h_2 = new_state.m_menv.mk_metavar(ctx);
+                    expr h_1 = new_state.m_menv->mk_metavar(ctx);
+                    expr h_2 = new_state.m_menv->mk_metavar(ctx);
                     imitation = mk_eq(h_1, h_2);
                     push_new_eq_constraint(new_state.m_queue, ctx, h_1, lift_free_vars(eq_lhs(b), i, 1), new_assumption);
                     push_new_eq_constraint(new_state.m_queue, ctx, h_2, lift_free_vars(eq_rhs(b), i, 1), new_assumption);
@@ -900,10 +911,10 @@ class elaborator::imp {
                     // Lambdas and Pis
                     // Imitation for Lambdas and Pis, b == Fun(x:T) B
                     // mname <- Fun (x:?h_1) ?h_2
-                    expr h_1 = new_state.m_menv.mk_metavar(ctx);
+                    expr h_1 = new_state.m_menv->mk_metavar(ctx);
                     push_new_eq_constraint(new_state.m_queue, ctx, h_1, lift_free_vars(abst_domain(b), i, 1), new_assumption);
                     context new_ctx = extend(ctx, abst_name(b), abst_domain(b));
-                    expr h_2 = new_state.m_menv.mk_metavar(new_ctx);
+                    expr h_2 = new_state.m_menv->mk_metavar(new_ctx);
                     imitation = update_abstraction(b, h_1, h_2);
                     push_new_eq_constraint(new_state.m_queue, new_ctx, h_2, lift_free_vars(abst_body(b), i+1, 1), new_assumption);
                 } else {
@@ -933,9 +944,9 @@ class elaborator::imp {
             // a <- (fun x : ?h1, ?h2)  or (Pi x : ?h1, ?h2)
             // ?h1 is in the same context where 'a' was defined
             // ?h2 is in the context of 'a' + domain of b
-            context ctx_a = m_state.m_menv.get_context(metavar_name(a));
-            expr h_1 = m_state.m_menv.mk_metavar(ctx_a);
-            expr h_2 = m_state.m_menv.mk_metavar(extend(ctx_a, abst_name(b), abst_domain(b)));
+            context ctx_a = m_state.m_menv->get_context(metavar_name(a));
+            expr h_1 = m_state.m_menv->mk_metavar(ctx_a);
+            expr h_2 = m_state.m_menv->mk_metavar(extend(ctx_a, abst_name(b), abst_domain(b)));
             expr imitation = update_abstraction(b, h_1, h_2);
             expr ma  = mk_metavar(metavar_name(a));
             justification new_jst(new imitation_justification(c));
@@ -1441,7 +1452,7 @@ public:
     }
 
     void display(std::ostream & out) const {
-        m_state.m_menv.for_each_subst([&](name const & m, expr const & e) {
+        m_state.m_menv->for_each_subst([&](name const & m, expr const & e) {
                 out << m << " <- " << e << "\n";
             });
         for (auto c : m_state.m_queue)

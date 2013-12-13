@@ -39,16 +39,16 @@ static void tst1() {
     expr b  = Const("b");
     expr n  = Const("n");
     expr m  = Const("m");
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
-    expr m3 = menv.mk_metavar();
-    expr A1 = menv.mk_metavar();
-    expr A2 = menv.mk_metavar();
-    expr A3 = menv.mk_metavar();
-    expr A4 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar();
+    expr m3 = menv->mk_metavar();
+    expr A1 = menv->mk_metavar();
+    expr A2 = menv->mk_metavar();
+    expr A3 = menv->mk_metavar();
+    expr A4 = menv->mk_metavar();
     expr F  = cons(A1, m1(a), cons(A2, m2(n), cons(A3, m3(b), nil(A4))));
     std::cout << F << "\n";
-    std::cout << checker.infer_type(F, context(), &menv, &ucs) << "\n";
+    std::cout << checker.infer_type(F, context(), menv, ucs) << "\n";
     expr int_id = Fun({a, Int}, a);
     expr nat_id = Fun({a, Nat}, a);
     ucs.push_back(mk_choice_constraint(context(), m1, { int_id, mk_int_to_real_fn() }, justification()));
@@ -84,15 +84,15 @@ static void tst2() {
     env->add_var("g", Pi({A, Type()}, A >> A));
     expr a = Const("a");
     env->add_var("a", Int);
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
-    expr m3 = menv.mk_metavar();
-    expr m4 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar();
+    expr m3 = menv->mk_metavar();
+    expr m4 = menv->mk_metavar();
     expr int_id = Fun({a, Int}, a);
     expr nat_id = Fun({a, Nat}, a);
     expr F  = m1(g(m2, m3(a)), m4(nVal(0)));
     std::cout << F << "\n";
-    std::cout << checker.infer_type(F, context(), &menv, &ucs) << "\n";
+    std::cout << checker.infer_type(F, context(), menv, ucs) << "\n";
     ucs.push_back(mk_choice_constraint(context(), m1, { mk_nat_le_fn(), mk_int_le_fn(), mk_real_le_fn() }, justification()));
     ucs.push_back(mk_choice_constraint(context(), m3, { int_id, mk_int_to_real_fn() }, justification()));
     ucs.push_back(mk_choice_constraint(context(), m4, { nat_id, mk_nat_to_int_fn(), mk_nat_to_real_fn() }, justification()));
@@ -125,17 +125,17 @@ static void tst3() {
     env->add_var("f", Pi({A, Type()}, A >> A));
     expr a = Const("a");
     env->add_var("a", Int);
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
-    expr m3 = menv.mk_metavar();
-    expr m4 = menv.mk_metavar();
-    expr m5 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar();
+    expr m3 = menv->mk_metavar();
+    expr m4 = menv->mk_metavar();
+    expr m5 = menv->mk_metavar();
     expr int_id = Fun({a, Int}, a);
     expr nat_id = Fun({a, Nat}, a);
     expr x = Const("x");
     expr F = Fun({x, m1}, m2(f(m3, x), m4(nVal(10))))(m5(a));
     std::cout << F << "\n";
-    std::cout << checker.infer_type(F, context(), &menv, &ucs) << "\n";
+    std::cout << checker.infer_type(F, context(), menv, ucs) << "\n";
     ucs.push_back(mk_choice_constraint(context(), m2, { mk_nat_le_fn(), mk_int_le_fn(), mk_real_le_fn() }, justification()));
     ucs.push_back(mk_choice_constraint(context(), m4, { nat_id, mk_nat_to_int_fn(), mk_nat_to_real_fn() }, justification()));
     ucs.push_back(mk_choice_constraint(context(), m5, { int_id, mk_int_to_real_fn() }, justification()));
@@ -169,18 +169,18 @@ static void tst4() {
     expr b = Const("b");
     env->add_var("a", Int);
     env->add_var("b", Real);
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
-    expr m3 = menv.mk_metavar();
-    expr m4 = menv.mk_metavar();
-    expr m5 = menv.mk_metavar();
-    expr m6 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar();
+    expr m3 = menv->mk_metavar();
+    expr m4 = menv->mk_metavar();
+    expr m5 = menv->mk_metavar();
+    expr m6 = menv->mk_metavar();
     expr x = Const("x");
     expr y = Const("y");
     expr int_id = Fun({a, Int}, a);
     expr F = Fun({{x, m1}, {y, m2}}, m3(f(m4, x), f(m5, y)))(m6(a), b);
     std::cout << F << "\n";
-    std::cout << checker.infer_type(F, context(), &menv, &ucs) << "\n";
+    std::cout << checker.infer_type(F, context(), menv, ucs) << "\n";
     ucs.push_back(mk_choice_constraint(context(), m3, { mk_nat_le_fn(), mk_int_le_fn(), mk_real_le_fn() }, justification()));
     ucs.push_back(mk_choice_constraint(context(), m6, { int_id, mk_int_to_real_fn() }, justification()));
     elaborator elb(env, menv, ucs.size(), ucs.data());
@@ -213,16 +213,16 @@ static void tst5() {
     expr b = Const("b");
     env->add_var("a", Int);
     env->add_var("b", Real);
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
-    expr m3 = menv.mk_metavar();
-    expr m4 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar();
+    expr m3 = menv->mk_metavar();
+    expr m4 = menv->mk_metavar();
     expr x = Const("x");
     expr y = Const("y");
     expr int_id = Fun({a, Int}, a);
     expr F = Fun({{x, m1}, {y, m2}}, f(m3, x, y))(m4(a), b);
     std::cout << F << "\n";
-    std::cout << checker.infer_type(F, context(), &menv, &ucs) << "\n";
+    std::cout << checker.infer_type(F, context(), menv, ucs) << "\n";
     ucs.push_back(mk_choice_constraint(context(), m4, { int_id, mk_int_to_real_fn() }, justification()));
     elaborator elb(env, menv, ucs.size(), ucs.data());
     elb.next();
@@ -248,10 +248,10 @@ static void tst6() {
     expr b = Const("b");
     expr H1 = Const("H1");
     expr H2 = Const("H2");
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
-    expr m3 = menv.mk_metavar();
-    expr m4 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar();
+    expr m3 = menv->mk_metavar();
+    expr m4 = menv->mk_metavar();
     env->add_var("f", Int >> (Int >> Int));
     env->add_var("a", Int);
     env->add_var("b", Int);
@@ -259,11 +259,11 @@ static void tst6() {
     env->add_axiom("H2", Eq(a, b));
     expr V = Subst(m1, m2, m3, m4, H1, H2);
     expr expected = Eq(f(a, f(b, b)), a);
-    expr given    = checker.infer_type(V, context(), &menv, &ucs);
+    expr given    = checker.infer_type(V, context(), menv, ucs);
     ucs.push_back(mk_eq_constraint(context(), expected, given, justification()));
     elaborator elb(env, menv, ucs.size(), ucs.data());
     metavar_env s = elb.next();
-    std::cout << instantiate_metavars(V, s) << "\n";
+    std::cout << s->instantiate_metavars(V) << "\n";
 }
 
 #define _ mk_placeholder()
@@ -273,10 +273,10 @@ static expr elaborate(expr const & e, environment const & env) {
     buffer<unification_constraint> ucs;
     type_checker checker(env);
     expr e2 = replace_placeholders_with_metavars(e, menv);
-    checker.infer_type(e2, context(), &menv, &ucs);
+    checker.infer_type(e2, context(), menv, ucs);
     elaborator elb(env, menv, ucs.size(), ucs.data());
     metavar_env s = elb.next();
-    return instantiate_metavars(e2, s);
+    return s->instantiate_metavars(e2);
 }
 
 // Check elaborator success
@@ -645,16 +645,16 @@ void tst20() {
     expr x  = Const("x");
     expr a  = Const("a");
     expr b  = Const("b");
-    expr m1 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
     expr l = m1(b, a);
     expr r = f(b, f(a, b));
     elaborator elb(env, menv, context(), l, r);
     while (true) {
         try {
             auto sol = elb.next();
-            std::cout << m1 << " -> " << *(sol.get_subst(m1)) << "\n";
-            std::cout << instantiate_metavars(l, sol) << "\n";
-            lean_assert(instantiate_metavars(l, sol) == r);
+            std::cout << m1 << " -> " << *(sol->get_subst(m1)) << "\n";
+            std::cout << sol->instantiate_metavars(l) << "\n";
+            lean_assert(sol->instantiate_metavars(l) == r);
             std::cout << "--------------\n";
         } catch (elaborator_exception & ex) {
             break;
@@ -677,16 +677,16 @@ void tst21() {
     expr x  = Const("x");
     expr a  = Const("a");
     expr b  = Const("b");
-    expr m1 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
     expr l = m1(b, a);
     expr r = Fun({x, N}, f(x, Eq(a, b)));
     elaborator elb(env, menv, context(), l, r);
     while (true) {
         try {
             auto sol = elb.next();
-            std::cout << m1 << " -> " << *(sol.get_subst(m1)) << "\n";
-            std::cout << instantiate_metavars(l, sol) << "\n";
-            lean_assert(instantiate_metavars(l, sol) == r);
+            std::cout << m1 << " -> " << *(sol->get_subst(m1)) << "\n";
+            std::cout << sol->instantiate_metavars(l) << "\n";
+            lean_assert(sol->instantiate_metavars(l) == r);
             std::cout << "--------------\n";
         } catch (elaborator_exception & ex) {
             break;
@@ -704,11 +704,11 @@ void tst22() {
     env->add_var("f", N >> (Int >> N));
     env->add_var("a", N);
     env->add_var("b", N);
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
-    expr m3 = menv.mk_metavar();
-    expr t1 = menv.get_type(m1);
-    expr t2 = menv.get_type(m2);
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar();
+    expr m3 = menv->mk_metavar();
+    expr t1 = menv->get_type(m1);
+    expr t2 = menv->get_type(m2);
     expr f  = Const("f");
     expr a  = Const("a");
     expr b  = Const("b");
@@ -718,10 +718,10 @@ void tst22() {
     while (true) {
         try {
             auto sol = elb.next();
-            std::cout << m3 << " -> " << *(sol.get_subst(m3)) << "\n";
-            lean_assert(*(sol.get_subst(m3)) == iVal(1));
-            std::cout << instantiate_metavars(l, sol) << "\n";
-            std::cout << instantiate_metavars(r, sol) << "\n";
+            std::cout << m3 << " -> " << *(sol->get_subst(m3)) << "\n";
+            lean_assert(*(sol->get_subst(m3)) == iVal(1));
+            std::cout << sol->instantiate_metavars(l) << "\n";
+            std::cout << sol->instantiate_metavars(r) << "\n";
             std::cout << "--------------\n";
         } catch (elaborator_exception & ex) {
             break;
@@ -740,18 +740,18 @@ void tst23() {
     expr x  = Const("x");
     expr y  = Const("y");
     expr f  = Const("f");
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar();
     expr l  = Fun({{x, N}, {y, N}}, Eq(y, f(x, m1)));
     expr r  = Fun({{x, N}, {y, N}}, Eq(m2, f(m1, x)));
     elaborator elb(env, menv, context(), l, r);
     while (true) {
         try {
             auto sol = elb.next();
-            std::cout << m1 << " -> " << *(sol.get_subst(m1)) << "\n";
-            std::cout << instantiate_metavars(l, sol) << "\n";
-            lean_assert_eq(instantiate_metavars(l, sol),
-                           instantiate_metavars(r, sol));
+            std::cout << m1 << " -> " << *(sol->get_subst(m1)) << "\n";
+            std::cout << sol->instantiate_metavars(l) << "\n";
+            lean_assert_eq(sol->instantiate_metavars(l),
+                           sol->instantiate_metavars(r));
             std::cout << "--------------\n";
         } catch (elaborator_exception & ex) {
             break;
@@ -768,7 +768,7 @@ void tst24() {
     env->add_var("N", Type());
     env->add_var("f", N >> (N >> N));
     expr f  = Const("f");
-    expr m1 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
     expr l  = f(f(m1));
     expr r  = f(m1);
     elaborator elb(env, menv, context(), l, r);
@@ -790,17 +790,17 @@ void tst25() {
     expr x  = Const("x");
     expr y  = Const("y");
     expr f  = Const("f");
-    expr m1 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
     expr l  = Fun({x, N}, Fun({y, N}, f(m1, y))(x));
     expr r  = Fun({x, N}, f(x, x));
     elaborator elb(env, menv, context(), l, r);
     while (true) {
         try {
             auto sol = elb.next();
-            std::cout << m1 << " -> " << *(sol.get_subst(m1)) << "\n";
-            std::cout << instantiate_metavars(l, sol) << "\n";
-            lean_assert_eq(beta_reduce(instantiate_metavars(l, sol)),
-                           beta_reduce(instantiate_metavars(r, sol)));
+            std::cout << m1 << " -> " << *(sol->get_subst(m1)) << "\n";
+            std::cout << sol->instantiate_metavars(l) << "\n";
+            lean_assert_eq(beta_reduce(sol->instantiate_metavars(l)),
+                           beta_reduce(sol->instantiate_metavars(r)));
             std::cout << "--------------\n";
         } catch (elaborator_exception & ex) {
             break;
@@ -827,14 +827,14 @@ void tst26() {
     env->add_var("g", Pi({A, TypeU}, A >> A));
     expr a = Const("a");
     env->add_var("a", Type(level()+1));
-    expr m1 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
     expr F  = Eq(g(m1, a), a);
     std::cout << F << "\n";
-    std::cout << checker.infer_type(F, context(), &menv, &ucs) << "\n";
+    std::cout << checker.infer_type(F, context(), menv, ucs) << "\n";
     elaborator elb(env, menv, ucs.size(), ucs.data());
     metavar_env s = elb.next();
-    std::cout << instantiate_metavars(F, s) << "\n";
-    lean_assert_eq(instantiate_metavars(F, s), Eq(g(Type(level()+1), a), a));
+    std::cout << s->instantiate_metavars(F) << "\n";
+    lean_assert_eq(s->instantiate_metavars(F), Eq(g(Type(level()+1), a), a));
 }
 
 void tst27() {
@@ -860,16 +860,16 @@ void tst27() {
     env->add_var("my_eq", Pi({A, TypeU}, A >> (A >> Bool)));
     env->add_var("g", Pi({A, TypeU}, A >> A));
     env->add_var("a", TypeM);
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
-    expr m3 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar();
+    expr m3 = menv->mk_metavar();
     expr F  = Fun({f, m1}, eq(m2, g(m3, f)(a), a));
     std::cout << F << "\n";
-    std::cout << checker.infer_type(F, context(), &menv, &ucs) << "\n";
+    std::cout << checker.infer_type(F, context(), menv, ucs) << "\n";
     elaborator elb(env, menv, ucs.size(), ucs.data());
     metavar_env s = elb.next();
-    std::cout << instantiate_metavars(F, s) << "\n";
-    lean_assert_eq(instantiate_metavars(F, s),
+    std::cout << s->instantiate_metavars(F) << "\n";
+    lean_assert_eq(s->instantiate_metavars(F),
                    Fun({f, TypeM >> TypeM}, eq(TypeM, g(TypeM >> TypeM, f)(a), a)));
 }
 

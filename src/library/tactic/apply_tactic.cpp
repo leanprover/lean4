@@ -49,7 +49,7 @@ static optional<proof_state> apply_tactic(ro_environment const & env, proof_stat
     // We store the solved goals using a list of pairs
     // name, args. Where the 'name' is the name of the solved goal.
     type_inferer inferer(env);
-    metavar_env new_menv = s.get_menv();
+    metavar_env new_menv = s.get_menv().copy();
     list<std::pair<name, arg_list>> proof_info;
     for (auto const & p : s.get_goals()) {
         check_interrupted();
@@ -69,7 +69,7 @@ static optional<proof_state> apply_tactic(ro_environment const & env, proof_stat
                         l = cons(mk_pair(some_expr(mvar_sol), name()), l);
                         th_type_c = instantiate(abst_body(th_type_c), mvar_sol);
                     } else {
-                        if (inferer.is_proposition(abst_domain(th_type_c), context(), &new_menv)) {
+                        if (inferer.is_proposition(abst_domain(th_type_c), context(), new_menv)) {
                             name new_gname(gname, new_goal_idx);
                             new_goal_idx++;
                             l = cons(mk_pair(none_expr(), new_gname), l);
@@ -79,7 +79,7 @@ static optional<proof_state> apply_tactic(ro_environment const & env, proof_stat
                             // we have to create a new metavar in menv
                             // since we do not have a substitution for mvar, and
                             // it is not a proposition
-                            expr new_m = new_menv.mk_metavar(context(), some_expr(abst_domain(th_type_c)));
+                            expr new_m = new_menv->mk_metavar(context(), some_expr(abst_domain(th_type_c)));
                             l = cons(mk_pair(some_expr(new_m), name()), l);
                             // we use instantiate_with_closed_relaxed because we do not want
                             // to introduce a lift operator in the new_m

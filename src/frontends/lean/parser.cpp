@@ -1393,19 +1393,19 @@ class parser::imp {
     */
     expr mk_proof_for(proof_state const & s, pos_info const & p, context const & ctx, expr const & expected_type) {
         if (s.is_proof_final_state()) {
-            assignment a(s.get_menv());
+            assignment a(s.get_menv().copy());
             proof_map  m;
             expr pr = s.get_proof_builder()(m, a);
             if (has_metavar(pr)) {
                 // Some tactics generate metavariables that can only be instantiated by type inference elaboration.
                 // Example: apply_tactic.
-                metavar_env menv = s.get_menv();
+                metavar_env menv = s.get_menv().copy();
                 buffer<unification_constraint> ucs;
-                expr pr_type = type_checker(m_frontend.get_environment()).infer_type(pr, ctx, &menv, &ucs);
+                expr pr_type = type_checker(m_frontend.get_environment()).infer_type(pr, ctx, menv, ucs);
                 ucs.push_back(mk_convertible_constraint(ctx, pr_type, expected_type, mk_type_match_justification(ctx, expected_type, pr)));
-                elaborator elb(m_frontend.get_environment(), s.get_menv(), ucs.size(), ucs.data(), m_frontend.get_options());
+                elaborator elb(m_frontend.get_environment(), menv, ucs.size(), ucs.data(), m_frontend.get_options());
                 metavar_env new_menv = elb.next();
-                pr = instantiate_metavars(pr, new_menv);
+                pr = new_menv->instantiate_metavars(pr);
                 if (has_metavar(pr))
                     throw exception("synthesized proof object has unsolved metavars");
             }
@@ -1585,15 +1585,15 @@ class parser::imp {
             });
         std::sort(mvars.begin(), mvars.end(), [](expr const & e1, expr const & e2) { return is_lt(e1, e2, false); });
         for (auto mvar : mvars) {
-            expr    mvar_type = instantiate_metavars(menv.get_type(mvar), menv);
+            expr    mvar_type = menv->instantiate_metavars(menv->get_type(mvar));
             if (has_metavar(mvar_type))
                 throw exception("failed to synthesize metavar, its type contains metavariables");
             buffer<context_entry> new_entries;
-            for (auto e : menv.get_context(mvar)) {
+            for (auto e : menv->get_context(mvar)) {
                 optional<expr> d = e.get_domain();
                 optional<expr> b = e.get_body();
-                if (d) d = instantiate_metavars(*d, menv);
-                if (b) b = instantiate_metavars(*b, menv);
+                if (d) d = menv->instantiate_metavars(*d);
+                if (b) b = menv->instantiate_metavars(*b);
                 if (d)
                     new_entries.emplace_back(e.get_name(), *d, b);
                 else
@@ -1607,7 +1607,7 @@ class parser::imp {
             if (hint_and_pos.first) {
                 // metavariable has an associated tactic hint
                 s = apply_tactic(s, *(hint_and_pos.first), hint_and_pos.second).first;
-                menv.assign(mvar, mk_proof_for(s, hint_and_pos.second, mvar_ctx, mvar_type));
+                menv->assign(mvar, mk_proof_for(s, hint_and_pos.second, mvar_ctx, mvar_type));
             } else {
                 if (curr_is_period()) {
                     display_proof_state_if_interactive(s);
@@ -1615,10 +1615,10 @@ class parser::imp {
                     next();
                 }
                 expr mvar_val = parse_tactic_cmds(s, mvar_ctx, mvar_type);
-                menv.assign(mvar, mvar_val);
+                menv->assign(mvar, mvar_val);
             }
         }
-        return instantiate_metavars(val, menv);
+        return menv->instantiate_metavars(val);
     }
 
     /** \brief Auxiliary method used for parsing definitions and theorems. */

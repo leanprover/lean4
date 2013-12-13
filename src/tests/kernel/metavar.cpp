@@ -27,7 +27,7 @@ using namespace lean;
 
 static std::ostream & operator<<(std::ostream & out, metavar_env const & menv) {
     bool first = true;
-    menv.for_each_subst([&](name const & n, expr const & v) {
+    menv->for_each_subst([&](name const & n, expr const & v) {
             if (first) first = false; else out << "\n";
             out << "?" << n << " <- " << v;
         });
@@ -44,25 +44,25 @@ static std::ostream & operator<<(std::ostream & out, buffer<unification_constrai
 
 static void tst1() {
     metavar_env  menv;
-    expr m1 = menv.mk_metavar();
-    lean_assert(!menv.is_assigned(m1));
-    expr t1 = menv.get_type(m1);
+    expr m1 = menv->mk_metavar();
+    lean_assert(!menv->is_assigned(m1));
+    expr t1 = menv->get_type(m1);
     lean_assert(is_metavar(t1));
-    lean_assert(is_eqp(menv.get_type(m1), t1));
-    lean_assert(is_eqp(menv.get_type(m1), t1));
-    lean_assert(!menv.is_assigned(m1));
-    expr m2 = menv.mk_metavar();
-    lean_assert(!menv.is_assigned(m1));
-    expr t2 = menv.get_type(m2);
+    lean_assert(is_eqp(menv->get_type(m1), t1));
+    lean_assert(is_eqp(menv->get_type(m1), t1));
+    lean_assert(!menv->is_assigned(m1));
+    expr m2 = menv->mk_metavar();
+    lean_assert(!menv->is_assigned(m1));
+    expr t2 = menv->get_type(m2);
     lean_assert(is_metavar(m2));
     lean_assert(!is_eqp(t1, t2));
     lean_assert(t1 != t2);
     expr f = Const("f");
     expr a = Const("a");
-    menv.assign(m1, f(a));
-    lean_assert(menv.is_assigned(m1));
-    lean_assert(!menv.is_assigned(m2));
-    lean_assert(*(menv.get_subst(m1)) == f(a));
+    menv->assign(m1, f(a));
+    lean_assert(menv->is_assigned(m1));
+    lean_assert(!menv->is_assigned(m2));
+    lean_assert(*(menv->get_subst(m1)) == f(a));
 }
 
 static void tst2() {
@@ -71,17 +71,17 @@ static void tst2() {
     expr g = Const("g");
     expr h = Const("h");
     expr a = Const("a");
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar();
     // move m1 to a different context, and store new metavariable + context in m11
     std::cout << "---------------------\n";
     expr m11 = add_inst(m1, 0, f(a, m2));
     std::cout << m11 << "\n";
-    menv.assign(m1, f(Var(0)));
-    std::cout << instantiate_metavars(m11, menv) << "\n";
-    menv.assign(m2, g(a, Var(1)));
-    std::cout << instantiate_metavars(h(m11), menv) << "\n";
-    lean_assert_eq(instantiate_metavars(h(m11), menv), h(f(f(a, g(a, Var(1))))));
+    menv->assign(m1, f(Var(0)));
+    std::cout << menv->instantiate_metavars(m11) << "\n";
+    menv->assign(m2, g(a, Var(1)));
+    std::cout << menv->instantiate_metavars(h(m11)) << "\n";
+    lean_assert_eq(menv->instantiate_metavars(h(m11)), h(f(f(a, g(a, Var(1))))));
 }
 
 static void tst3() {
@@ -92,15 +92,14 @@ static void tst3() {
     expr a = Const("a");
     expr x = Const("x");
     expr T = Const("T");
-    expr m1 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
     expr F = Fun({x, T}, f(m1, x));
-    menv.assign(m1, h(Var(0), Var(2)));
+    menv->assign(m1, h(Var(0), Var(2)));
     std::cout << instantiate(abst_body(F), g(a)) << "\n";
-    std::cout << instantiate_metavars(instantiate(abst_body(F), g(a)), menv) << "\n";
-    lean_assert(instantiate_metavars(instantiate(abst_body(F), g(a)), menv) == f(h(g(a), Var(1)), g(a)));
-    std::cout << instantiate(instantiate_metavars(abst_body(F), menv), g(a)) << "\n";
-    lean_assert(instantiate(instantiate_metavars(abst_body(F), menv), g(a)) ==
-                instantiate_metavars(instantiate(abst_body(F), g(a)), menv));
+    lean_assert(menv->instantiate_metavars(instantiate(abst_body(F), g(a))) == f(h(g(a), Var(1)), g(a)));
+    std::cout << instantiate(menv->instantiate_metavars(abst_body(F)), g(a)) << "\n";
+    lean_assert(instantiate(menv->instantiate_metavars(abst_body(F)), g(a)) ==
+                menv->instantiate_metavars(instantiate(abst_body(F), g(a))));
 }
 
 static void tst4() {
@@ -109,11 +108,11 @@ static void tst4() {
     expr g = Const("g");
     expr h = Const("h");
     expr a = Const("a");
-    expr m1 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
     expr F = f(m1, Var(2));
-    menv.assign(m1, h(Var(1)));
+    menv->assign(m1, h(Var(1)));
     std::cout << instantiate(F, {g(Var(0)), h(a)}) << "\n";
-    std::cout << instantiate_metavars(instantiate(F, {g(Var(0)), h(a)}), menv) << "\n";
+    std::cout << menv->instantiate_metavars(instantiate(F, {g(Var(0)), h(a)})) << "\n";
 }
 
 static void tst5() {
@@ -129,16 +128,16 @@ static void tst6() {
     expr g  = Const("g");
     expr h  = Const("h");
     metavar_env menv;
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar();
     expr t = f(Var(0), Fun({x, N}, f(Var(1), x, Fun({y, N}, f(Var(2), x, y)))));
     expr r = instantiate(t, g(m1, m2));
     std::cout << r << std::endl;
-    menv.assign(m2, Var(2));
-    r = instantiate_metavars(r, menv);
+    menv->assign(m2, Var(2));
+    r = menv->instantiate_metavars(r);
     std::cout << r << std::endl;
-    menv.assign(m1, h(Var(3)));
-    r = instantiate_metavars(r, menv);
+    menv->assign(m1, h(Var(3)));
+    r = menv->instantiate_metavars(r);
     std::cout << r << std::endl;
     lean_assert(r == f(g(h(Var(3)), Var(2)), Fun({x, N}, f(g(h(Var(4)), Var(3)), x, Fun({y, N}, f(g(h(Var(5)), Var(4)), x, y))))));
 }
@@ -148,11 +147,11 @@ static void tst7() {
     expr g  = Const("g");
     expr a  = Const("a");
     metavar_env menv;
-    expr m1 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
     expr t  = f(m1, Var(0));
     expr r = instantiate(t, a);
-    menv.assign(m1, g(Var(0)));
-    r = instantiate_metavars(r, menv);
+    menv->assign(m1, g(Var(0)));
+    r = menv->instantiate_metavars(r);
     std::cout << r << std::endl;
     lean_assert(r == f(g(a), a));
 }
@@ -162,11 +161,11 @@ static void tst8() {
     expr g  = Const("g");
     expr a  = Const("a");
     metavar_env menv;
-    expr m1 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
     expr t  = f(m1, Var(0), Var(2));
     expr r = instantiate(t, a);
-    menv.assign(m1, g(Var(0), Var(1)));
-    r = instantiate_metavars(r, menv);
+    menv->assign(m1, g(Var(0), Var(1)));
+    r = menv->instantiate_metavars(r);
     std::cout << r << std::endl;
     lean_assert(r == f(g(a, Var(0)), a, Var(1)));
 }
@@ -176,14 +175,14 @@ static void tst9() {
     expr g  = Const("g");
     expr a  = Const("a");
     metavar_env menv;
-    expr m1 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
     expr t  = f(m1, Var(1), Var(2));
     expr r  = lift_free_vars(t, 1, 2);
     std::cout << r << std::endl;
     r = instantiate(r, a);
     std::cout << r << std::endl;
-    menv.assign(m1, g(Var(0), Var(1)));
-    r = instantiate_metavars(r, menv);
+    menv->assign(m1, g(Var(0), Var(1)));
+    r = menv->instantiate_metavars(r);
     std::cout << r << std::endl;
     lean_assert(r == f(g(a, Var(2)), Var(2), Var(3)));
 }
@@ -197,35 +196,35 @@ static void tst10() {
     expr g  = Const("g");
     expr h  = Const("h");
     metavar_env menv;
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar();
     expr t = f(Var(0), Fun({x, N}, f(Var(1), Var(2), x, Fun({y, N}, f(Var(2), x, y)))));
     expr r = instantiate(t, g(m1));
     std::cout << r << std::endl;
     r = instantiate(r, h(m2));
     std::cout << r << std::endl;
-    menv.assign(m1, f(Var(0)));
-    menv.assign(m2, Var(2));
-    r = instantiate_metavars(r, menv);
+    menv->assign(m1, f(Var(0)));
+    menv->assign(m2, Var(2));
+    r = menv->instantiate_metavars(r);
     std::cout << r << std::endl;
     lean_assert(r == f(g(f(h(Var(2)))), Fun({x, N}, f(g(f(h(Var(3)))), h(Var(3)), x, Fun({y, N}, f(g(f(h(Var(4)))), x, y))))));
 }
 
 static void tst11() {
     metavar_env menv;
-    unsigned t1 = menv.get_timestamp();
-    expr m = menv.mk_metavar();
-    unsigned t2 = menv.get_timestamp();
+    unsigned t1 = menv->get_timestamp();
+    expr m = menv->mk_metavar();
+    unsigned t2 = menv->get_timestamp();
     lean_assert(t2 > t1);
-    lean_assert(!menv.is_assigned(m));
-    lean_assert(menv.get_timestamp() == t2);
-    menv.assign(m, Const("a"));
-    lean_assert(menv.get_timestamp() > t2);
+    lean_assert(!menv->is_assigned(m));
+    lean_assert(menv->get_timestamp() == t2);
+    menv->assign(m, Const("a"));
+    lean_assert(menv->get_timestamp() > t2);
 }
 
 static void tst12() {
     metavar_env menv;
-    expr m = menv.mk_metavar();
+    expr m = menv->mk_metavar();
     expr f = Const("f");
     std::cout << instantiate(f(m), {Var(0), Var(1)}) << "\n";
     std::cout << instantiate(f(m), {Var(1), Var(0)}) << "\n";
@@ -234,7 +233,7 @@ static void tst12() {
 static void tst13() {
     environment env;
     metavar_env menv;
-    expr m = menv.mk_metavar();
+    expr m = menv->mk_metavar();
     env->add_var("N", Type());
     expr N = Const("N");
     env->add_var("f", N >> N);
@@ -245,17 +244,17 @@ static void tst13() {
     expr F = Fun({x, N}, f(m))(a);
     normalizer norm(env);
     std::cout << norm(F) << "\n";
-    menv.assign(m, Var(0));
-    std::cout << norm(instantiate_metavars(F, menv)) << "\n";
-    lean_assert(norm(instantiate_metavars(F, menv)) ==
-                instantiate_metavars(norm(F), menv));
+    menv->assign(m, Var(0));
+    std::cout << norm(menv->instantiate_metavars(F)) << "\n";
+    lean_assert(norm(menv->instantiate_metavars(F)) ==
+                menv->instantiate_metavars(norm(F)));
 }
 
 static void tst14() {
     environment env;
     metavar_env menv;
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar();
     expr N = Const("N");
     expr f = Const("f");
     expr h = Const("h");
@@ -266,17 +265,17 @@ static void tst14() {
     env->add_var("h", Pi({N, Type()}, N >> (N >> N)));
     expr F1 = Fun({{N, Type()}, {a, N}, {f, N >> N}},
                   (Fun({{x, N}, {y, N}}, Eq(f(m1), y)))(a));
-    metavar_env menv2 = menv;
-    menv2.assign(m1, h(Var(4), Var(1), Var(3)));
+    metavar_env menv2 = menv.copy();
+    menv2->assign(m1, h(Var(4), Var(1), Var(3)));
     normalizer norm(env);
     env->add_var("M", Type());
     expr M = Const("M");
     std::cout << norm(F1) << "\n";
-    std::cout << instantiate_metavars(norm(F1), menv2) << "\n";
-    std::cout << instantiate_metavars(F1, menv2) << "\n";
-    std::cout << norm(instantiate_metavars(F1, menv2)) << "\n";
-    lean_assert(instantiate_metavars(norm(F1), menv2) ==
-                norm(instantiate_metavars(F1, menv2)));
+    std::cout << menv2->instantiate_metavars(norm(F1)) << "\n";
+    std::cout << menv2->instantiate_metavars(F1) << "\n";
+    std::cout << norm(menv2->instantiate_metavars(F1)) << "\n";
+    lean_assert(menv2->instantiate_metavars(norm(F1)) ==
+                norm(menv2->instantiate_metavars(F1)));
     expr F2 = (Fun({{N, Type()}, {f, N >> N}, {a, N}, {b, N}},
                    (Fun({{x, N}, {y, N}}, Eq(f(m1), y)))(a, m2)))(M);
     std::cout << norm(F2) << "\n";
@@ -289,7 +288,7 @@ static void tst15() {
     environment env;
     metavar_env menv;
     normalizer  norm(env);
-    expr m1 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
     expr f = Const("f");
     expr x = Const("x");
     expr y = Const("y");
@@ -298,12 +297,12 @@ static void tst15() {
     env->add_var("N", Type());
     env->add_var("f", Type() >> Type());
     expr F = Fun({z, Type()}, Fun({{x, Type()}, {y, Type()}}, f(m1))(N, N));
-    menv.assign(m1, Var(2));
+    menv->assign(m1, Var(2));
     std::cout << norm(F) << "\n";
-    std::cout << instantiate_metavars(norm(F), menv) << "\n";
-    std::cout << norm(instantiate_metavars(F, menv)) << "\n";
-    lean_assert(instantiate_metavars(norm(F), menv) ==
-                norm(instantiate_metavars(F, menv)));
+    std::cout << menv->instantiate_metavars(norm(F)) << "\n";
+    std::cout << norm(menv->instantiate_metavars(F)) << "\n";
+    lean_assert(menv->instantiate_metavars(norm(F)) ==
+                norm(menv->instantiate_metavars(F)));
 }
 
 static void tst16() {
@@ -312,7 +311,7 @@ static void tst16() {
     normalizer  norm(env);
     context ctx;
     ctx = extend(ctx, "w", Type());
-    expr m1 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
     expr f = Const("f");
     expr x = Const("x");
     expr y = Const("y");
@@ -320,10 +319,10 @@ static void tst16() {
     expr N = Const("N");
     env->add_var("N", Type());
     expr F = Fun({z, Type()}, Fun({{x, Type()}, {y, Type()}}, m1)(N, N));
-    menv.assign(m1, Var(3));
+    menv->assign(m1, Var(3));
     std::cout << norm(F, ctx) << "\n";
-    std::cout << instantiate_metavars(norm(F, ctx), menv) << "\n";
-    std::cout << norm(instantiate_metavars(F, menv), ctx) << "\n";
+    std::cout << menv->instantiate_metavars(norm(F, ctx)) << "\n";
+    std::cout << norm(menv->instantiate_metavars(F), ctx) << "\n";
 }
 
 static void tst17() {
@@ -335,7 +334,7 @@ static void tst17() {
     ctx = extend(ctx, "w2", Type());
     ctx = extend(ctx, "w3", Type());
     ctx = extend(ctx, "w4", Type());
-    expr m1 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
     expr f = Const("f");
     expr x = Const("x");
     expr y = Const("y");
@@ -343,21 +342,21 @@ static void tst17() {
     expr N = Const("N");
     env->add_var("N", Type());
     expr F = Fun({z, Type()}, Fun({{x, Type()}, {y, Type()}}, m1)(N, N));
-    metavar_env menv2 = menv;
-    menv.assign(m1, Var(3));
+    metavar_env menv2 = menv.copy();
+    menv->assign(m1, Var(3));
     std::cout << norm(F, ctx) << "\n";
-    std::cout << instantiate_metavars(norm(F, ctx), menv) << "\n";
-    std::cout << norm(instantiate_metavars(F, menv), ctx) << "\n";
+    std::cout << menv->instantiate_metavars(norm(F, ctx)) << "\n";
+    std::cout << norm(menv->instantiate_metavars(F), ctx) << "\n";
     F = Fun({z, Type()}, Fun({{x, Type()}, {y, Type()}, {x, Type()}, {y, Type()}, {x, Type()}}, m1)(N, N, N, N, N));
-    lean_assert(instantiate_metavars(norm(F, ctx), menv) ==
-                norm(instantiate_metavars(F, menv), ctx));
+    lean_assert(menv->instantiate_metavars(norm(F, ctx)) ==
+                norm(menv->instantiate_metavars(F), ctx));
     std::cout << "----------------------\n";
-    menv2.assign(m1, Var(8));
+    menv2->assign(m1, Var(8));
     std::cout << norm(F, ctx) << "\n";
-    std::cout << instantiate_metavars(norm(F, ctx), menv2) << "\n";
-    std::cout << norm(instantiate_metavars(F, menv2), ctx) << "\n";
-    lean_assert(instantiate_metavars(norm(F, ctx), menv2) ==
-                norm(instantiate_metavars(F, menv2), ctx));
+    std::cout << menv2->instantiate_metavars(norm(F, ctx)) << "\n";
+    std::cout << norm(menv2->instantiate_metavars(F), ctx) << "\n";
+    lean_assert(menv2->instantiate_metavars(norm(F, ctx)) ==
+                norm(menv2->instantiate_metavars(F), ctx));
 }
 
 static void tst18() {
@@ -367,8 +366,6 @@ static void tst18() {
     context ctx;
     ctx = extend(ctx, "w1", Type());
     ctx = extend(ctx, "w2", Type());
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
     expr f = Const("f");
     expr g = Const("g");
     expr h = Const("h");
@@ -381,17 +378,19 @@ static void tst18() {
     env->add_var("a", N);
     env->add_var("g", N >> N);
     env->add_var("h", N >> (N >> N));
+    expr m1 = menv->mk_metavar(context({{"z", Type()}, {"f", N >> N}, {"y", Type()}}));
+    expr m2 = menv->mk_metavar(context({{"z", Type()}, {"x", N}}));
     expr F = Fun({z, Type()}, Fun({{f, N >> N}, {y, Type()}}, m1)(Fun({x, N}, g(z, x, m2)), N));
     std::cout << norm(F, ctx) << "\n";
-    metavar_env menv2 = menv;
-    menv2.assign(m1, Var(1));
-    menv2.assign(m2, h(Var(2), Var(1)));
-    std::cout << instantiate_metavars(norm(F, ctx), menv2) << "\n";
-    std::cout << instantiate_metavars(F, menv2) << "\n";
-    lean_assert(instantiate_metavars(norm(F, ctx), menv2) ==
-                norm(instantiate_metavars(F, menv2), ctx));
-    lean_assert(instantiate_metavars(norm(F, ctx), menv2) ==
-                Fun({{z, Type()}, {x, N}}, g(z, x, h(Var(2), z))));
+    metavar_env menv2 = menv.copy();
+    menv2->assign(m1, Var(1));
+    menv2->assign(m2, h(Var(2), Var(1)));
+    std::cout << menv2->instantiate_metavars(norm(F, ctx)) << "\n";
+    std::cout << menv2->instantiate_metavars(F) << "\n";
+    lean_assert_eq(menv2->instantiate_metavars(norm(F, ctx)),
+                   norm(menv2->instantiate_metavars(F), ctx));
+    lean_assert_eq(menv2->instantiate_metavars(norm(F, ctx)),
+                   Fun({{z, Type()}, {x, N}}, g(z, x, h(Var(2), z))));
 }
 
 static void tst19() {
@@ -401,7 +400,7 @@ static void tst19() {
     context ctx;
     ctx = extend(ctx, "w1", Type());
     ctx = extend(ctx, "w2", Type());
-    expr m1 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
     expr x = Const("x");
     expr y = Const("y");
     expr N = Const("N");
@@ -419,7 +418,7 @@ static void tst20() {
     context ctx;
     ctx = extend(ctx, "w1", Type());
     ctx = extend(ctx, "w2", Type());
-    expr m1 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
     expr x = Const("x");
     expr y = Const("y");
     expr z = Const("z");
@@ -436,10 +435,10 @@ static void tst20() {
 
 static void tst21() {
     metavar_env menv;
-    expr m1 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
     expr l  = add_lift(add_lift(m1, 0, 1), 1, 1);
     expr r  = add_lift(m1, 0, 2);
-    std::cout << menv.get_type(l) << " " << menv.get_type(r) << "\n";
+    std::cout << menv->get_type(l) << " " << menv->get_type(r) << "\n";
 #if 0
     // Leo: I disabled the lift over lift optimization since it was
     // negatively impacting the heuristics
@@ -481,7 +480,7 @@ static void tst23() {
     buffer<unification_constraint> up;
     std::cout << F1 << "\n";
     try {
-        std::cout << checker.infer_type(F1, context(), &menv, &up) << "\n";
+        std::cout << checker.infer_type(F1, context(), menv, up) << "\n";
     } catch (kernel_exception & ex) {
         formatter fmt = mk_simple_formatter();
         io_state st(options(), fmt);
@@ -492,14 +491,14 @@ static void tst23() {
 
 static void tst24() {
     metavar_env menv;
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar();
     expr f  = Const("f");
     expr a  = Const("a");
-    menv.assign(m1, f(m2));
-    menv.assign(m2, a);
-    lean_assert(instantiate_metavars(f(m1), menv) == f(f(a)));
-    std::cout << instantiate_metavars(f(m1), menv) << "\n";
+    menv->assign(m1, f(m2));
+    menv->assign(m2, a);
+    lean_assert(menv->instantiate_metavars(f(m1)) == f(f(a)));
+    std::cout << menv->instantiate_metavars(f(m1)) << "\n";
 }
 
 static void tst25() {
@@ -513,9 +512,9 @@ static void tst25() {
     env->add_var("N", Type());
     env->add_var("a", N);
     env->add_var("b", N);
-    expr m = menv.mk_metavar();
+    expr m = menv->mk_metavar();
     expr F = m(a, b);
-    std::cout << checker.infer_type(F, context(), &menv, &up) << "\n";
+    std::cout << checker.infer_type(F, context(), menv, up) << "\n";
     std::cout << menv << "\n";
     std::cout << up << "\n";
 }
@@ -552,16 +551,16 @@ static void tst26() {
     expr b  = Const("b");
     expr n  = Const("n");
     expr m  = Const("m");
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
-    expr m3 = menv.mk_metavar();
-    expr A1 = menv.mk_metavar();
-    expr A2 = menv.mk_metavar();
-    expr A3 = menv.mk_metavar();
-    expr A4 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar();
+    expr m3 = menv->mk_metavar();
+    expr A1 = menv->mk_metavar();
+    expr A2 = menv->mk_metavar();
+    expr A3 = menv->mk_metavar();
+    expr A4 = menv->mk_metavar();
     expr F  = cons(A1, m1(a), cons(A2, m2(n), cons(A3, m3(b), nil(A4))));
     std::cout << F << "\n";
-    std::cout << checker.infer_type(F, context(), &menv, &up) << "\n";
+    std::cout << checker.infer_type(F, context(), menv, up) << "\n";
     std::cout << menv << "\n";
     std::cout << up << "\n";
 }
@@ -588,14 +587,14 @@ static void tst27() {
     env->add_var("f", Pi({A, Type()}, A >> (A >> Bool)));
     env->add_var("a", Int);
     env->add_var("b", Real);
-    expr T1 = menv.mk_metavar();
-    expr T2 = menv.mk_metavar();
-    expr A1 = menv.mk_metavar();
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
+    expr T1 = menv->mk_metavar();
+    expr T2 = menv->mk_metavar();
+    expr A1 = menv->mk_metavar();
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar();
     expr F = Fun({{x, T1}, {y, T2}}, f(A1, x, y))(m1(a), m2(b));
     std::cout << F << "\n";
-    std::cout << checker.infer_type(F, context(), &menv, &up) << "\n";
+    std::cout << checker.infer_type(F, context(), menv, up) << "\n";
     std::cout << menv << "\n";
     std::cout << up << "\n";
 }
@@ -604,12 +603,12 @@ static void tst28() {
     metavar_env menv;
     expr f = Const("f");
     expr a = Const("a");
-    expr m1 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
     lean_assert(add_inst(m1, 0, f(a), menv) == m1);
     lean_assert(add_inst(m1, 1, f(a), menv) == m1);
     lean_assert(add_lift(m1, 0, 2, menv) == m1);
     lean_assert(add_lift(m1, 1, 2, menv) == m1);
-    expr m2 = menv.mk_metavar(context({{"x", Bool}, {"y", Bool}}));
+    expr m2 = menv->mk_metavar(context({{"x", Bool}, {"y", Bool}}));
     lean_assert(add_inst(m2, 0, f(a), menv) != m2);
     lean_assert(add_inst(m2, 0, f(a), menv) == add_inst(m2, 0, f(a)));
     lean_assert(add_inst(m2, 1, f(a), menv) != m2);

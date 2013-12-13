@@ -66,7 +66,7 @@ static void tst4() {
     expr a = Const("a");
     expr b = Const("b");
     expr x = Const("x");
-    expr m1 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
     lean_assert(fn(m1) == 0);
     lean_assert(fn(Var(0)) == 1);
     lean_assert(fn(Var(0)(Var(2), Var(1))) == 3);
@@ -83,7 +83,7 @@ static void tst4() {
     context ctx;
     ctx = extend(ctx, name("x"), Bool);
     ctx = extend(ctx, name("y"), Bool);
-    expr m2 = menv.mk_metavar(ctx);
+    expr m2 = menv->mk_metavar(ctx);
     lean_assert_eq(fn(m2), 2);
     lean_assert_eq(fn(add_lift(m2, 3, 5)), 2);
     lean_assert_eq(fn(add_lift(m2, 2, 5)), 2);
@@ -96,7 +96,7 @@ static void tst4() {
     lean_assert_eq(fn(add_lift(add_inst(m2, 1, f(Var(2))), 2, 2)), 5);
     ctx = extend(ctx, name("w"), Bool);
     ctx = extend(ctx, name("z"), Bool);
-    expr m3 = menv.mk_metavar(ctx);
+    expr m3 = menv->mk_metavar(ctx);
     lean_assert_eq(fn(m3), 4);
     lean_assert_eq(fn(add_lift(add_inst(m3, 1, f(Var(0))), 1, 1)), 4);
     lean_assert_eq(fn(add_lift(add_inst(m3, 1, f(Var(3))), 1, 1)), 5);
@@ -108,7 +108,7 @@ static void tst4() {
 
 static void tst5() {
     metavar_env menv;
-    expr m1 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
     expr f = Const("f");
     expr a = Const("a");
     expr b = Const("b");
@@ -119,7 +119,7 @@ static void tst5() {
     lean_assert(!has_free_var(m1, 0, menv));
     lean_assert(!has_free_var(m1, 1, menv));
     context ctx({{"x", Bool}, {"y", Bool}});
-    expr m2 = menv.mk_metavar(ctx);
+    expr m2 = menv->mk_metavar(ctx);
     lean_assert(has_free_var(m2, 0, menv));
     lean_assert(has_free_var(m2, 1, menv));
     lean_assert(!has_free_var(m2, 2, menv));
@@ -139,8 +139,8 @@ static void tst5() {
 static void tst6() {
     metavar_env menv;
     expr f  = Const("f");
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar(context({{"x", Bool}, {"y", Bool}}));
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar(context({{"x", Bool}, {"y", Bool}}));
     lean_assert(lift_free_vars(m1, 0, 1, menv) == m1);
     lean_assert(lift_free_vars(m2, 0, 1, menv) != m2);
     lean_assert(lift_free_vars(m2, 0, 1, menv) == add_lift(m2, 0, 1));

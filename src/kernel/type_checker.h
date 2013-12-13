@@ -30,11 +30,13 @@ public:
 
        \remark This method throws an exception if \c e is not type correct.
 
-       \remark If \c menv is not nullptr, then \c e may contain metavariables.
+       \remark If \c menv is not none, then \c e may contain metavariables.
        New metavariables and unification constraints may be created by the type checker.
        The new unification constraints are stored in \c new_constraints.
     */
-    expr infer_type(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> * new_constraints);
+    expr infer_type(expr const & e, context const & ctx, optional<metavar_env> const & menv, buffer<unification_constraint> * new_constraints);
+    expr infer_type(expr const & e, context const & ctx, metavar_env const & menv, buffer<unification_constraint> & new_constraints);
+    expr infer_type(expr const & e, context const & ctx, metavar_env const & menv);
 
     /**
         \brief Return the type of \c e in the context \c ctx.

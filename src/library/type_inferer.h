@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <memory>
 #include "util/buffer.h"
+#include "util/optional.h"
 #include "kernel/expr.h"
 #include "kernel/context.h"
 #include "kernel/unification_constraint.h"
@@ -31,9 +32,12 @@ public:
     type_inferer(ro_environment const & env);
     ~type_inferer();
 
-    expr operator()(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> * uc);
+    expr operator()(expr const & e, context const & ctx, optional<metavar_env> const & menv, buffer<unification_constraint> * uc);
+    expr operator()(expr const & e, context const & ctx, metavar_env const & menv, buffer<unification_constraint> & uc);
     expr operator()(expr const & e, context const & ctx = context());
-    bool is_proposition(expr const & e, context const & ctx = context(), metavar_env * menv = nullptr);
+    bool is_proposition(expr const & e, context const & ctx, optional<metavar_env> const & menv);
+    bool is_proposition(expr const & e, context const & ctx, metavar_env const & menv);
+    bool is_proposition(expr const & e, context const & ctx = context());
     void clear();
 };
 

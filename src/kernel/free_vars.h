@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/expr.h"
+#include "kernel/metavar.h"
 namespace lean {
 /**
    \brief Return true iff the given expression has free variables.
@@ -40,18 +41,18 @@ unsigned free_var_range(expr const & e, metavar_env const & menv);
     \brief Return true iff \c e constains a free variable <tt>(var i)</tt> s.t. \c i in <tt>[low, high)</tt>.
     \pre low < high
 
-    \remark If menv != nullptr, then we use \c free_var_range to compute the free variables that may
+    \remark If menv is not none, then we use \c free_var_range to compute the free variables that may
     occur in a metavariable.
 */
-bool has_free_var(expr const & e, unsigned low, unsigned high, metavar_env const * menv = nullptr);
-inline bool has_free_var(expr const & e, unsigned low, unsigned high, metavar_env const & menv) {
-    return has_free_var(e, low, high, &menv);
-}
+bool has_free_var(expr const & e, unsigned low, unsigned high, optional<metavar_env> const & menv);
+bool has_free_var(expr const & e, unsigned low, unsigned high, metavar_env const & menv);
+bool has_free_var(expr const & e, unsigned low, unsigned high);
 /**
     \brief Return true iff \c e contains the free variable <tt>(var i)</tt>.
 */
-inline bool has_free_var(expr const & e, unsigned i, metavar_env const * menv = nullptr) {  return has_free_var(e, i, i+1, menv); }
-inline bool has_free_var(expr const & e, unsigned i, metavar_env const & menv) {  return has_free_var(e, i, i+1, &menv); }
+bool has_free_var(expr const & e, unsigned i, optional<metavar_env> const & menv);
+bool has_free_var(expr const & e, unsigned i, metavar_env const & menv);
+bool has_free_var(expr const & e, unsigned i);
 
 /**
    \brief Lower the free variables >= s in \c e by \c d. That is, a free variable <tt>(var i)</tt> s.t.
@@ -62,20 +63,23 @@ inline bool has_free_var(expr const & e, unsigned i, metavar_env const & menv) {
 
    \remark The parameter menv is only used for debugging purposes
 */
-expr lower_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const * menv = nullptr);
-inline expr lower_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const & menv) {
-    return lower_free_vars(e, s, d, &menv);
-}
-inline expr lower_free_vars(expr const & e, unsigned d, metavar_env const * menv = nullptr) { return lower_free_vars(e, d, d, menv); }
+expr lower_free_vars(expr const & e, unsigned s, unsigned d, optional<metavar_env> const & menv);
+expr lower_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const & menv);
+expr lower_free_vars(expr const & e, unsigned s, unsigned d);
+expr lower_free_vars(expr const & e, unsigned d, optional<metavar_env> const & menv);
+expr lower_free_vars(expr const & e, unsigned d, metavar_env const & menv);
+expr lower_free_vars(expr const & e, unsigned d);
 
 /**
    \brief Lift free variables >= s in \c e by d.
 
-   \remark When the parameter menv != nullptr, this function will minimize the use
+   \remark When the parameter menv is not none, this function will minimize the use
    of the local entry lift in metavariables occurring in \c e.
 */
-expr lift_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const * menv = nullptr);
-inline expr lift_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const & menv) { return lift_free_vars(e, s, d, &menv); }
-inline expr lift_free_vars(expr const & e, unsigned d, metavar_env const * menv = nullptr) { return lift_free_vars(e, 0, d, menv); }
-inline expr lift_free_vars(expr const & e, unsigned d, metavar_env const & menv) { return lift_free_vars(e, 0, d, &menv); }
+expr lift_free_vars(expr const & e, unsigned s, unsigned d, optional<metavar_env> const & menv);
+expr lift_free_vars(expr const & e, unsigned s, unsigned d);
+expr lift_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const & menv);
+expr lift_free_vars(expr const & e, unsigned d, optional<metavar_env> const & menv);
+expr lift_free_vars(expr const & e, unsigned d, metavar_env const & menv);
+expr lift_free_vars(expr const & e, unsigned d);
 }

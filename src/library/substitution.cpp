@@ -23,7 +23,7 @@ expr find(substitution & s, expr e) {
     }
 }
 
-expr apply(substitution & s, expr const & e) {
+expr apply(substitution & s, expr const & e, optional<metavar_env> const & menv) {
     auto f = [&](expr const & e, unsigned) -> expr {
         if (is_metavar(e)) {
             expr r = find(s, e);
@@ -32,7 +32,7 @@ expr apply(substitution & s, expr const & e) {
                     r = apply(s, r);
                     s.insert(metavar_name(e), r);
                 }
-                return apply_local_context(r, metavar_lctx(e));
+                return apply_local_context(r, metavar_lctx(e), menv);
             } else {
                 return e;
             }

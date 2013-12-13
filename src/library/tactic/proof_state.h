@@ -42,14 +42,14 @@ class proof_state {
         MK_LEAN_RC();
         precision                   m_precision;
         goals                       m_goals;
-        metavar_env                 m_menv;
+        ro_metavar_env              m_menv;
         proof_builder               m_proof_builder;
         cex_builder                 m_cex_builder;
         void dealloc() { delete this; }
         cell():m_rc(1) {}
-        cell(precision prec, goals const & gs, metavar_env const & menv, proof_builder const & p, cex_builder const & c):
+        cell(precision prec, goals const & gs, ro_metavar_env const & menv, proof_builder const & p, cex_builder const & c):
             m_rc(1), m_precision(prec), m_goals(gs), m_menv(menv), m_proof_builder(p), m_cex_builder(c) {}
-        cell(goals const & gs, metavar_env const & menv, proof_builder const & p, cex_builder const & c):
+        cell(goals const & gs, ro_metavar_env const & menv, proof_builder const & p, cex_builder const & c):
             m_rc(1), m_precision(precision::Precise), m_goals(gs), m_menv(menv), m_proof_builder(p), m_cex_builder(c) {}
     };
     cell * m_ptr;
@@ -57,23 +57,23 @@ public:
     proof_state():m_ptr(new cell()) {}
     proof_state(proof_state const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     proof_state(proof_state && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
-    proof_state(goals const & gs, metavar_env const & menv, proof_builder const & p, cex_builder const & c):
+    proof_state(goals const & gs, ro_metavar_env const & menv, proof_builder const & p, cex_builder const & c):
         m_ptr(new cell(gs, menv, p, c)) {}
-    proof_state(precision prec, goals const & gs, metavar_env const & menv, proof_builder const & p, cex_builder const & c):
+    proof_state(precision prec, goals const & gs, ro_metavar_env const & menv, proof_builder const & p, cex_builder const & c):
         m_ptr(new cell(prec, gs, menv, p, c)) {}
     proof_state(proof_state const & s, goals const & gs, proof_builder const & p):
-        m_ptr(new cell(s.get_precision(), gs, s.get_menv(), p, s.get_cex_builder())) {}
+        m_ptr(new cell(s.get_precision(), gs, s.m_ptr->m_menv, p, s.get_cex_builder())) {}
     proof_state(proof_state const & s, goals const & gs):
-        m_ptr(new cell(s.get_precision(), gs, s.get_menv(), s.get_proof_builder(), s.get_cex_builder())) {}
+        m_ptr(new cell(s.get_precision(), gs, s.m_ptr->m_menv, s.get_proof_builder(), s.get_cex_builder())) {}
     proof_state(proof_state const & s, goals const & gs, proof_builder const & p, cex_builder const & c):
-        m_ptr(new cell(s.get_precision(), gs, s.get_menv(), p, c)) {}
+        m_ptr(new cell(s.get_precision(), gs, s.m_ptr->m_menv, p, c)) {}
     ~proof_state() { if (m_ptr) m_ptr->dec_ref(); }
     friend void swap(proof_state & a, proof_state & b) { std::swap(a.m_ptr, b.m_ptr); }
     proof_state & operator=(proof_state const & s) { LEAN_COPY_REF(s); }
     proof_state & operator=(proof_state && s) { LEAN_MOVE_REF(s); }
     precision get_precision() const { lean_assert(m_ptr); return m_ptr->m_precision; }
     goals const & get_goals() const { lean_assert(m_ptr); return m_ptr->m_goals; }
-    metavar_env const & get_menv() const { lean_assert(m_ptr); return m_ptr->m_menv; }
+    ro_metavar_env const & get_menv() const { lean_assert(m_ptr); return m_ptr->m_menv; }
     proof_builder const & get_proof_builder() const { lean_assert(m_ptr); return m_ptr->m_proof_builder; }
     cex_builder const & get_cex_builder() const { lean_assert(m_ptr); return m_ptr->m_cex_builder; }
     /**

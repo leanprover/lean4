@@ -32,5 +32,5 @@ bool has_placeholder(expr const & e);
    if \c new2old is not nullptr, then for each new expression \c t created based on
    \c s, we store <tt>(*new2old)[t] = s</tt>.
 */
-expr replace_placeholders_with_metavars(expr const & e, metavar_env & menv, expr_map<expr> * new2old = nullptr);
+expr replace_placeholders_with_metavars(expr const & e, metavar_env const & menv, expr_map<expr> * new2old = nullptr);
 }

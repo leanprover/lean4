@@ -74,7 +74,7 @@ tactic & tactic::operator=(tactic && s) {
 optional<expr> to_proof(proof_state const & s) {
     if (s.is_proof_final_state()) {
         try {
-            assignment a(s.get_menv());
+            assignment a(s.get_menv().copy());
             proof_map  m;
             return some_expr(s.get_proof_builder()(m, a));
         } catch (...) {
@@ -88,7 +88,7 @@ optional<expr> to_proof(proof_state const & s) {
 */
 optional<counterexample> to_counterexample(proof_state const & s) {
     if (s.is_cex_final_state()) {
-        assignment a(s.get_menv());
+        assignment a(s.get_menv().copy());
         name goal_name(head(s.get_goals()).first);
         try {
             return some(s.get_cex_builder()(goal_name, optional<counterexample>(), a));

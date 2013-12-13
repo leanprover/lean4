@@ -26,8 +26,7 @@ class type_inferer::imp {
 
     ro_environment            m_env;
     context                   m_ctx;
-    metavar_env *             m_menv;
-    unsigned                  m_menv_timestamp;
+    cached_metavar_env        m_menv;
     unification_constraints * m_uc;
     normalizer                m_normalizer;
     cache                     m_cache;
@@ -82,20 +81,6 @@ class type_inferer::imp {
             return t;
         else
             return instantiate(t, num_args(e)-1, &arg(e, 1));
-    }
-
-    void set_menv(metavar_env * menv) {
-        if (m_menv == menv) {
-            // Check whether m_menv has been updated since the last time the checker has been invoked
-            if (m_menv && m_menv->get_timestamp() > m_menv_timestamp) {
-                m_menv_timestamp = m_menv->get_timestamp();
-                m_cache.clear();
-            }
-        } else {
-            m_menv = menv;
-            m_cache.clear();
-            m_menv_timestamp = m_menv ? m_menv->get_timestamp() : 0;
-        }
     }
 
     expr infer_type(expr const & e, context const & ctx) {
@@ -219,27 +204,29 @@ public:
     imp(ro_environment const & env):
         m_env(env),
         m_normalizer(env) {
-        m_menv           = nullptr;
-        m_menv_timestamp = 0;
-        m_uc             = nullptr;
+        m_uc = nullptr;
     }
 
-    expr operator()(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> * uc) {
+    expr operator()(expr const & e, context const & ctx, optional<metavar_env> const & menv, buffer<unification_constraint> * uc) {
         set_ctx(ctx);
-        set_menv(menv);
+        if (m_menv.update(menv))
+            clear_cache();
         flet<unification_constraints*> set(m_uc, uc);
         return infer_type(e, ctx);
     }
 
-    void clear() {
+    void clear_cache() {
         m_cache.clear();
         m_normalizer.clear();
-        m_ctx            = context();
-        m_menv           = nullptr;
-        m_menv_timestamp = 0;
     }
 
-    bool is_proposition(expr const & e, context const & ctx, metavar_env * menv) {
+    void clear() {
+        clear_cache();
+        m_menv.clear();
+        m_ctx = context();
+    }
+
+    bool is_proposition(expr const & e, context const & ctx, optional<metavar_env> const & menv) {
         // Catch easy cases
         switch (e.kind()) {
         case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Type: return false;
@@ -255,14 +242,23 @@ public:
 };
 type_inferer::type_inferer(ro_environment const & env):m_ptr(new imp(env)) {}
 type_inferer::~type_inferer() {}
-expr type_inferer::operator()(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> * uc) {
+expr type_inferer::operator()(expr const & e, context const & ctx, optional<metavar_env> const & menv, buffer<unification_constraint> * uc) {
     return m_ptr->operator()(e, ctx, menv, uc);
 }
-expr type_inferer::operator()(expr const & e, context const & ctx) {
-    return operator()(e, ctx, nullptr, nullptr);
+expr type_inferer::operator()(expr const & e, context const & ctx, metavar_env const & menv, buffer<unification_constraint> & uc) {
+    return m_ptr->operator()(e, ctx, some_menv(menv), &uc);
 }
-bool type_inferer::is_proposition(expr const & e, context const & ctx, metavar_env * menv) {
+expr type_inferer::operator()(expr const & e, context const & ctx) {
+    return operator()(e, ctx, none_menv(), nullptr);
+}
+bool type_inferer::is_proposition(expr const & e, context const & ctx, optional<metavar_env> const & menv) {
     return m_ptr->is_proposition(e, ctx, menv);
+}
+bool type_inferer::is_proposition(expr const & e, context const & ctx) {
+    return is_proposition(e, ctx, none_menv());
+}
+bool type_inferer::is_proposition(expr const & e, context const & ctx, metavar_env const & menv) {
+    return is_proposition(e, ctx, some_menv(menv));
 }
 void type_inferer::clear() { m_ptr->clear(); }
 

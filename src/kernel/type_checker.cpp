@@ -27,8 +27,7 @@ class type_checker::imp {
     cache                     m_cache;
     normalizer                m_normalizer;
     context                   m_ctx;
-    metavar_env *             m_menv;
-    unsigned                  m_menv_timestamp;
+    cached_metavar_env        m_menv;
     unification_constraints * m_uc;
 
     ro_environment env() const {
@@ -95,10 +94,13 @@ class type_checker::imp {
         switch (e.kind()) {
         case expr_kind::MetaVar:
             if (m_menv) {
-                if (m_menv->is_assigned(e))
-                    return infer_type_core(*(m_menv->get_subst(e)), ctx);
-                else
+                if (m_menv->is_assigned(e)) {
+                    optional<expr> s = m_menv->get_subst(e);
+                    lean_assert(s);
+                    return infer_type_core(*s, ctx);
+                } else {
                     return m_menv->get_type(e);
+                }
             } else {
                 throw unexpected_metavar_occurrence(env(), e);
             }
@@ -148,9 +150,9 @@ class type_checker::imp {
                 if (closed(abst_body(f_t)))
                     f_t = abst_body(f_t);
                 else if (closed(c))
-                    f_t = instantiate_with_closed(abst_body(f_t), c);
+                    f_t = instantiate_with_closed(abst_body(f_t), c); // TODO(Leo): m_menv.to_some_menv());
                 else
-                    f_t = instantiate(abst_body(f_t), c);
+                    f_t = instantiate(abst_body(f_t), c); // TODO(Leo): m_menv.to_some_menv());
                 i++;
                 if (i == num)
                     return save_result(e, f_t, shared);
@@ -202,7 +204,9 @@ class type_checker::imp {
             {
                 cache::mk_scope sc(m_cache);
                 expr t = infer_type_core(let_body(e), extend(ctx, let_name(e), lt, let_value(e)));
-                return save_result(e, instantiate(t, let_value(e)), shared);
+                return save_result(e,
+                                   instantiate(t, let_value(e)), // TODO(Leo): m_menv.to_some_menv()),
+                                   shared);
             }
         }
         case expr_kind::Value: {
@@ -267,40 +271,28 @@ class type_checker::imp {
         }
     }
 
-    void set_menv(metavar_env * menv) {
-        if (m_menv == menv) {
-            // Check whether m_menv has been updated since the last time the type checker has been invoked
-            if (m_menv && m_menv->get_timestamp() > m_menv_timestamp) {
-                clear();
-                m_menv = menv;
-                m_menv_timestamp = m_menv->get_timestamp();
-            }
-        } else {
-            clear();
-            m_menv = menv;
-            m_menv_timestamp = m_menv ? m_menv->get_timestamp() : 0;
-        }
+    void update_menv(optional<metavar_env> const & menv) {
+        if (m_menv.update(menv))
+            clear_cache();
     }
 
 public:
     imp(ro_environment const & env):
         m_env(env),
         m_normalizer(env) {
-        m_menv           = nullptr;
-        m_menv_timestamp = 0;
         m_uc              = nullptr;
     }
 
-    expr infer_type(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> * uc) {
+    expr infer_type(expr const & e, context const & ctx, optional<metavar_env> const & menv, buffer<unification_constraint> * uc) {
         set_ctx(ctx);
-        set_menv(menv);
+        update_menv(menv);
         flet<unification_constraints*> set_uc(m_uc, uc);
         return infer_type_core(e, ctx);
     }
 
     bool is_convertible(expr const & t1, expr const & t2, context const & ctx) {
         set_ctx(ctx);
-        set_menv(nullptr);
+        update_menv(none_menv());
         auto mk_justification = [](){
             lean_unreachable(); return justification(); // LCOV_EXCL_LINE
         };
@@ -309,17 +301,20 @@ public:
 
     void check_type(expr const & e, context const & ctx) {
         set_ctx(ctx);
-        set_menv(nullptr);
+        update_menv(none_menv());
         expr t = infer_type_core(e, ctx);
         check_type(t, e, ctx);
     }
 
-    void clear() {
+    void clear_cache() {
         m_cache.clear();
         m_normalizer.clear();
-        m_ctx            = context();
-        m_menv           = nullptr;
-        m_menv_timestamp = 0;
+    }
+
+    void clear() {
+        clear_cache();
+        m_menv.clear();
+        m_ctx = context();
     }
 
     normalizer & get_normalizer() {
@@ -329,11 +324,17 @@ public:
 
 type_checker::type_checker(ro_environment const & env):m_ptr(new imp(env)) {}
 type_checker::~type_checker() {}
-expr type_checker::infer_type(expr const & e, context const & ctx, metavar_env * menv, buffer<unification_constraint> * uc) {
+expr type_checker::infer_type(expr const & e, context const & ctx, optional<metavar_env> const & menv, buffer<unification_constraint> * uc) {
     return m_ptr->infer_type(e, ctx, menv, uc);
 }
+expr type_checker::infer_type(expr const & e, context const & ctx, metavar_env const & menv, buffer<unification_constraint> & uc) {
+    return m_ptr->infer_type(e, ctx, some_menv(menv), &uc);
+}
+expr type_checker::infer_type(expr const & e, context const & ctx, metavar_env const & menv) {
+    return m_ptr->infer_type(e, ctx, some_menv(menv), nullptr);
+}
 expr type_checker::infer_type(expr const & e, context const & ctx) {
-    return infer_type(e, ctx, nullptr, nullptr);
+    return infer_type(e, ctx, none_menv(), nullptr);
 }
 bool type_checker::is_convertible(expr const & t1, expr const & t2, context const & ctx) {
     return m_ptr->is_convertible(t1, t2, ctx);

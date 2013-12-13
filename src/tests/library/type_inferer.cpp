@@ -124,16 +124,16 @@ static void tst4() {
     expr b  = Const("b");
     expr n  = Const("n");
     expr m  = Const("m");
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
-    expr m3 = menv.mk_metavar();
-    expr A1 = menv.mk_metavar();
-    expr A2 = menv.mk_metavar();
-    expr A3 = menv.mk_metavar();
-    expr A4 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar();
+    expr m3 = menv->mk_metavar();
+    expr A1 = menv->mk_metavar();
+    expr A2 = menv->mk_metavar();
+    expr A3 = menv->mk_metavar();
+    expr A4 = menv->mk_metavar();
     expr F  = cons(A1, m1(a), cons(A2, m2(n), cons(A3, m3(b), nil(A4))));
     std::cout << F << "\n";
-    std::cout << inferer(F, context(), &menv, &uc) << "\n";
+    std::cout << inferer(F, context(), menv, uc) << "\n";
     std::cout << uc << "\n";
 }
 

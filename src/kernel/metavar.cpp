@@ -51,26 +51,35 @@ public:
     virtual optional<expr> get_main_expr() const { return some_expr(m_expr); }
 };
 
-void metavar_env::inc_timestamp() {
+void metavar_env_cell::inc_timestamp() {
     if (m_timestamp == std::numeric_limits<unsigned>::max()) {
         // This should not happen in real examples. We add it just to be safe.
-        throw exception("metavar_env timestamp overflow");
+        throw exception("metavar_env_cell timestamp overflow");
     }
     m_timestamp++;
 }
 
-metavar_env::metavar_env(name const & prefix):
+metavar_env_cell::metavar_env_cell(name const & prefix):
     m_name_generator(prefix),
     m_beta_reduce_mv(true),
-    m_timestamp(0) {
+    m_timestamp(1),
+    m_rc(0) {
 }
 
 static name g_default_name("M");
-metavar_env::metavar_env():
-    metavar_env(g_default_name) {
+metavar_env_cell::metavar_env_cell():
+    metavar_env_cell(g_default_name) {
 }
 
-expr metavar_env::mk_metavar(context const & ctx, optional<expr> const & type) {
+metavar_env_cell::metavar_env_cell(metavar_env_cell const & other):
+    m_name_generator(other.m_name_generator),
+    m_metavar_data(other.m_metavar_data),
+    m_beta_reduce_mv(other.m_beta_reduce_mv),
+    m_timestamp(0),
+    m_rc(0) {
+}
+
+expr metavar_env_cell::mk_metavar(context const & ctx, optional<expr> const & type) {
     inc_timestamp();
     name m = m_name_generator.next();
     expr r = ::lean::mk_metavar(m);
@@ -78,33 +87,33 @@ expr metavar_env::mk_metavar(context const & ctx, optional<expr> const & type) {
     return r;
 }
 
-context metavar_env::get_context(expr const & m) const {
+context metavar_env_cell::get_context(expr const & m) const {
     lean_assert(is_metavar(m));
     lean_assert(!has_local_context(m));
     return get_context(metavar_name(m));
 }
 
-context metavar_env::get_context(name const & m) const {
+context metavar_env_cell::get_context(name const & m) const {
     auto it = m_metavar_data.find(m);
     lean_assert(it);
     return it->m_context;
 }
 
-expr metavar_env::get_type(expr const & m) {
+expr metavar_env_cell::get_type(expr const & m) {
     lean_assert(is_metavar(m));
     expr t = get_type(metavar_name(m));
     if (has_local_context(m)) {
         if (is_metavar(t)) {
             return update_metavar(t, append(metavar_lctx(m), metavar_lctx(t)));
         } else {
-            return apply_local_context(t, metavar_lctx(m));
+            return apply_local_context(t, metavar_lctx(m), metavar_env(this));
         }
     } else {
         return t;
     }
 }
 
-expr metavar_env::get_type(name const & m) {
+expr metavar_env_cell::get_type(name const & m) {
     auto it = m_metavar_data.find(m);
     lean_assert(it);
     if (it->m_type) {
@@ -116,23 +125,23 @@ expr metavar_env::get_type(name const & m) {
     }
 }
 
-bool metavar_env::has_type(name const & m) const {
+bool metavar_env_cell::has_type(name const & m) const {
     auto it = m_metavar_data.find(m);
     lean_assert(it);
     return static_cast<bool>(it->m_type);
 }
 
-bool metavar_env::has_type(expr const & m) const {
+bool metavar_env_cell::has_type(expr const & m) const {
     lean_assert(is_metavar(m));
     return has_type(metavar_name(m));
 }
 
-optional<justification> metavar_env::get_justification(expr const & m) const {
+optional<justification> metavar_env_cell::get_justification(expr const & m) const {
     lean_assert(is_metavar(m));
     return get_justification(metavar_name(m));
 }
 
-optional<justification> metavar_env::get_justification(name const & m) const {
+optional<justification> metavar_env_cell::get_justification(name const & m) const {
     auto r = get_subst_jst(m);
     if (r)
         return optional<justification>(r->second);
@@ -140,17 +149,17 @@ optional<justification> metavar_env::get_justification(name const & m) const {
         return optional<justification>();
 }
 
-bool metavar_env::is_assigned(name const & m) const {
+bool metavar_env_cell::is_assigned(name const & m) const {
     auto it = m_metavar_data.find(m);
     return it && it->m_subst;
 }
 
-bool metavar_env::is_assigned(expr const & m) const {
+bool metavar_env_cell::is_assigned(expr const & m) const {
     lean_assert(is_metavar(m));
     return is_assigned(metavar_name(m));
 }
 
-void metavar_env::assign(name const & m, expr const & t, justification const & jst) {
+void metavar_env_cell::assign(name const & m, expr const & t, justification const & jst) {
     lean_assert(!is_assigned(m));
     inc_timestamp();
     auto it = m_metavar_data.find(m);
@@ -159,24 +168,24 @@ void metavar_env::assign(name const & m, expr const & t, justification const & j
     it->m_justification = jst;
 }
 
-void metavar_env::assign(expr const & m, expr const & t, justification const & j) {
+void metavar_env_cell::assign(expr const & m, expr const & t, justification const & j) {
     lean_assert(is_metavar(m));
     lean_assert(!has_local_context(m));
     assign(metavar_name(m), t, j);
 }
 
-expr apply_local_context(expr const & a, local_context const & lctx) {
+expr apply_local_context(expr const & a, local_context const & lctx, optional<metavar_env> const & menv) {
     if (lctx) {
         if (is_metavar(a)) {
             return mk_metavar(metavar_name(a), append(lctx, metavar_lctx(a)));
         } else {
-            expr r = apply_local_context(a, tail(lctx));
+            expr r = apply_local_context(a, tail(lctx), menv);
             local_entry const & e = head(lctx);
             if (e.is_lift()) {
-                return lift_free_vars(r, e.s(), e.n());
+                return lift_free_vars(r, e.s(), e.n(), menv);
             } else {
                 lean_assert(e.is_inst());
-                return instantiate(r, e.s(), e.v());
+                return instantiate(r, e.s(), e.v(), menv);
             }
         }
     } else {
@@ -184,30 +193,31 @@ expr apply_local_context(expr const & a, local_context const & lctx) {
     }
 }
 
-optional<std::pair<expr, justification>> metavar_env::get_subst_jst(expr const & m) const {
+optional<std::pair<expr, justification>> metavar_env_cell::get_subst_jst(expr const & m) const {
     lean_assert(is_metavar(m));
     auto p = get_subst_jst(metavar_name(m));
     if (p) {
         expr r = p->first;
         local_context const & lctx = metavar_lctx(m);
         if (lctx)
-            r = apply_local_context(r, lctx);
+            r = apply_local_context(r, lctx, metavar_env(const_cast<metavar_env_cell*>(this)));
         return some(mk_pair(r, p->second));
     } else {
         return p;
     }
 }
 
-optional<std::pair<expr, justification>> metavar_env::get_subst_jst(name const & m) const {
-    auto it = const_cast<metavar_env*>(this)->m_metavar_data.find(m);
+optional<std::pair<expr, justification>> metavar_env_cell::get_subst_jst(name const & m) const {
+    auto it = const_cast<metavar_env_cell*>(this)->m_metavar_data.find(m);
     if (it->m_subst) {
         expr s = *(it->m_subst);
-        if (has_assigned_metavar(s, *this)) {
+        if (has_assigned_metavar(s)) {
             buffer<justification> jsts;
-            expr new_subst = instantiate_metavars(s, *this, jsts);
+            expr new_subst = instantiate_metavars(s, jsts);
             if (!jsts.empty()) {
-                it->m_justification = justification(new normalize_assignment_justification(it->m_context, s, it->m_justification,
-                                                                                           jsts.size(), jsts.data()));
+                justification new_jst(new normalize_assignment_justification(it->m_context, s, it->m_justification,
+                                                                             jsts.size(), jsts.data()));
+                it->m_justification = new_jst;
                 it->m_subst         = new_subst;
             }
         }
@@ -217,7 +227,7 @@ optional<std::pair<expr, justification>> metavar_env::get_subst_jst(name const &
     }
 }
 
-optional<expr> metavar_env::get_subst(name const & m) const {
+optional<expr> metavar_env_cell::get_subst(name const & m) const {
     auto r = get_subst_jst(m);
     if (r)
         return some_expr(r->first);
@@ -225,18 +235,53 @@ optional<expr> metavar_env::get_subst(name const & m) const {
         return none_expr();
 }
 
-optional<expr> metavar_env::get_subst(expr const & m) const {
+optional<expr> metavar_env_cell::get_subst(expr const & m) const {
     auto r = get_subst_jst(m);
     if (r)
         return some_expr(r->first);
     else
         return none_expr();
+}
+
+bool metavar_env_cell::has_assigned_metavar(expr const & e) const {
+    if (!has_metavar(e)) {
+        return false;
+    } else {
+        bool result = false;
+        for_each(e, [&](expr const & n, unsigned) {
+                if (result)
+                    return false;
+                if (!has_metavar(n))
+                    return false;
+                if (is_metavar(n) && is_assigned(n)) {
+                    result = true;
+                    return false;
+                }
+                return true;
+            });
+        return result;
+    }
+}
+
+bool metavar_env_cell::has_metavar(expr const & e, expr const & m) const {
+    if (has_metavar(e)) {
+        lean_assert(is_metavar(m));
+        lean_assert(!is_assigned(m));
+        return static_cast<bool>(find(e, [&](expr const & m2) {
+                    return
+                        is_metavar(m2) &&
+                        ((metavar_name(m) == metavar_name(m2)) ||
+                         (is_assigned(m2) && has_metavar(*get_subst(m2), m)));
+                }));
+    } else {
+        return false;
+    }
 }
 
 class instantiate_metavars_proc : public replace_visitor {
 protected:
-    metavar_env const &     m_menv;
-    buffer<justification> & m_jsts;
+    metavar_env_cell const *  m_menv;
+    buffer<justification> &   m_jsts;
 
     void push_back(justification const & jst) {
         if (jst)
@@ -244,12 +289,12 @@ protected:
     }
 
     virtual expr visit_metavar(expr const & m, context const & ctx) {
-        if (is_metavar(m) && m_menv.is_assigned(m)) {
-            auto p = m_menv.get_subst_jst(m);
+        if (is_metavar(m) && m_menv->is_assigned(m)) {
+            auto p = m_menv->get_subst_jst(m);
             lean_assert(p);
             expr r = p->first;
             push_back(p->second);
-            if (has_assigned_metavar(r, m_menv)) {
+            if (m_menv->has_assigned_metavar(r)) {
                 return visit(r, ctx);
             } else {
                 return r;
@@ -261,7 +306,7 @@ protected:
 
     virtual expr visit_app(expr const & e, context const & ctx) {
         expr const & f = arg(e, 0);
-        if (m_menv.beta_reduce_metavar_application() && is_metavar(f) && m_menv.is_assigned(f)) {
+        if (m_menv->beta_reduce_metavar_application() && is_metavar(f) && m_menv->is_assigned(f)) {
             buffer<expr> new_args;
             for (unsigned i = 0; i < num_args(e); i++)
                 new_args.push_back(visit(arg(e, i), ctx));
@@ -275,37 +320,38 @@ protected:
     }
 
 public:
-    instantiate_metavars_proc(metavar_env const & menv, buffer<justification> & jsts):
+    instantiate_metavars_proc(metavar_env_cell const * menv, buffer<justification> & jsts):
         m_menv(menv),
         m_jsts(jsts) {
     }
 };
 
-expr instantiate_metavars(expr const & e, metavar_env const & menv, buffer<justification> & jsts) {
+expr metavar_env_cell::instantiate_metavars(expr const & e, buffer<justification> & jsts) const {
     if (!has_metavar(e)) {
         return e;
     } else {
-        return instantiate_metavars_proc(menv, jsts)(e);
+        return instantiate_metavars_proc(this, jsts)(e);
     }
 }
 
-bool has_assigned_metavar(expr const & e, metavar_env const & menv) {
-    if (!has_metavar(e)) {
-        return false;
+bool cached_metavar_env::update(optional<metavar_env> const & menv) {
+    if (!menv) {
+        if (m_timestamp != 0) {
+            m_menv      = none_menv();
+            m_timestamp = 0;
+            return true;
+        } else {
+            return false;
+        }
     } else {
-        bool result = false;
-        for_each(e, [&](expr const & n, unsigned) {
-                if (result)
-                    return false;
-                if (!has_metavar(n))
-                    return false;
-                if (is_metavar(n) && menv.is_assigned(n)) {
-                    result = true;
-                    return false;
-                }
-                return true;
-            });
-        return result;
+        unsigned new_timestamp = (*menv)->get_timestamp();
+        if (m_menv != menv || m_timestamp != new_timestamp) {
+            m_menv      = menv;
+            m_timestamp = new_timestamp;
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 
@@ -323,7 +369,7 @@ local_context add_lift(local_context const & lctx, unsigned s, unsigned n) {
     return cons(mk_lift(s, n), lctx);
 }
 
-expr add_lift(expr const & m, unsigned s, unsigned n, metavar_env const * menv) {
+expr add_lift(expr const & m, unsigned s, unsigned n, optional<metavar_env> const & menv) {
     if (menv && s >= free_var_range(m, *menv))
         return m;
     return update_metavar(m, add_lift(metavar_lctx(m), s, n));
@@ -347,7 +393,7 @@ local_context add_inst(local_context const & lctx, unsigned s, expr const & v) {
     return cons(mk_inst(s, v), lctx);
 }
 
-expr add_inst(expr const & m, unsigned s, expr const & v, metavar_env const * menv) {
+expr add_inst(expr const & m, unsigned s, expr const & v, optional<metavar_env> const & menv) {
     if (menv && s >= free_var_range(m, *menv))
         return m;
     return update_metavar(m, add_inst(metavar_lctx(m), s, v));
@@ -360,26 +406,5 @@ bool has_local_context(expr const & m) {
 expr pop_meta_context(expr const & m) {
     lean_assert(has_local_context(m));
     return update_metavar(m, tail(metavar_lctx(m)));
-}
-
-/**
-   \brief Auxiliary exception used to sign that a metavariable was
-   found in an expression.
-*/
-struct found_metavar {};
-
-bool has_metavar(expr const & e, expr const & m, metavar_env const & menv) {
-    if (has_metavar(e)) {
-        lean_assert(is_metavar(m));
-        lean_assert(!menv.is_assigned(m));
-        return static_cast<bool>(find(e, [&](expr const & m2) {
-                    return
-                        is_metavar(m2) &&
-                        ((metavar_name(m) == metavar_name(m2)) ||
-                         (menv.is_assigned(m2) && has_metavar(*menv.get_subst(m2), m, menv)));
-                }));
-    } else {
-        return false;
-    }
 }
 }

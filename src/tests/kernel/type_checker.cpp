@@ -323,6 +323,36 @@ static void tst16() {
     check_justification_msg(mk_def_type_match_justification(ctx, "foo", f(a, x)), "Type of definition 'foo' must be convertible to expected type.");
 }
 
+static void f1(type_checker & tc, expr const & F) {
+    metavar_env menv;
+    expr m1 = menv->mk_metavar(context(), some_expr(Bool >> Int));
+    expr r = tc.infer_type(F, context(), menv);
+    lean_assert_eq(r, Int);
+}
+
+static void f2(type_checker & tc, expr const & F) {
+    metavar_env menv;
+    expr m1 = menv->mk_metavar(context(), some_expr(Bool >> Bool));
+    expr r = tc.infer_type(F, context(), menv);
+    lean_assert_eq(r, Bool);
+}
+
+static void tst17() {
+    environment env;
+    import_all(env);
+    type_checker tc(env);
+    expr A = Const("A");
+    expr F;
+    {
+        metavar_env menv;
+        expr m1 = menv->mk_metavar();
+        F = m1(True);
+    }
+    expr F2 = F;
+    f1(tc, F);
+    f2(tc, F);
+}
+
 int main() {
     save_stack_info();
     tst1();
@@ -341,5 +371,6 @@ int main() {
     tst14();
     tst15();
     tst16();
+    tst17();
     return has_violations() ? 1 : 0;
 }

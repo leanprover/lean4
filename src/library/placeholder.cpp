@@ -26,12 +26,12 @@ bool has_placeholder(expr const & e) {
 }
 
 class replace_placeholders_with_metavars_proc : public replace_visitor {
-    metavar_env &    m_menv;
-    expr_map<expr> * m_new2old;
+    metavar_env const & m_menv;
+    expr_map<expr> *    m_new2old;
 protected:
     expr visit_constant(expr const & e, context const & c) {
         if (is_placeholder(e)) {
-            return m_menv.mk_metavar(c, const_type(e));
+            return m_menv->mk_metavar(c, const_type(e));
         } else {
             return e;
         }
@@ -44,13 +44,13 @@ protected:
         return r;
     }
 public:
-    replace_placeholders_with_metavars_proc(metavar_env & menv, expr_map<expr> * new2old):
+    replace_placeholders_with_metavars_proc(metavar_env const & menv, expr_map<expr> * new2old):
         m_menv(menv),
         m_new2old(new2old) {
     }
 };
 
-expr replace_placeholders_with_metavars(expr const & e, metavar_env & menv, expr_map<expr> * new2old) {
+expr replace_placeholders_with_metavars(expr const & e, metavar_env const & menv, expr_map<expr> * new2old) {
     replace_placeholders_with_metavars_proc proc(menv, new2old);
     return proc(e);
 }

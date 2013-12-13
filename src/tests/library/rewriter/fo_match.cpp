@@ -400,8 +400,8 @@ static void match_eq_tst3() {
 static void match_metavar_tst1() {
     cout << "--- match_metavar_tst1() ---" << endl;
     metavar_env menv;
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar();
     expr f = Const("f");
     subst_map s;
     bool result = test_match(m1, m1, 0, s);
@@ -412,8 +412,8 @@ static void match_metavar_tst1() {
 static void match_metavar_tst2() {
     cout << "--- match_metavar_tst2() ---" << endl;
     metavar_env menv;
-    expr m1 = menv.mk_metavar();
-    expr m2 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar();
     expr f = Const("f");
     subst_map s;
     bool result = test_match(m1, m2, 0, s);
@@ -424,7 +424,7 @@ static void match_metavar_tst2() {
 static void match_metavar_tst3() {
     cout << "--- match_metavar_tst3() ---" << endl;
     metavar_env menv;
-    expr m1 = menv.mk_metavar();
+    expr m1 = menv->mk_metavar();
     expr f = Const("f");
     subst_map s;
     bool result = test_match(m1, f, 0, s);

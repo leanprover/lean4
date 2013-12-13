@@ -240,7 +240,8 @@ static int proof_state_get_goals(lua_State * L) {
 }
 
 static int proof_state_get_menv(lua_State * L) {
-    return push_metavar_env(L, to_proof_state(L, 1).get_menv());
+    // Remark: I use copy to make sure Lua code cannot change the metavar_env in the proof_state
+    return push_metavar_env(L, to_proof_state(L, 1).get_menv().copy());
 }
 
 static int proof_state_get_proof_builder(lua_State * L) {

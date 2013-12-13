@@ -128,7 +128,7 @@ class free_var_range_fn {
     */
     unsigned process_metavar(expr const & m) {
         lean_assert(is_metavar(m));
-        context ctx = m_menv.get_context(metavar_name(m));
+        context ctx = m_menv->get_context(metavar_name(m));
         unsigned R  = ctx.size();
         if (has_local_context(m)) {
             local_context lctx = metavar_lctx(m);
@@ -316,7 +316,7 @@ protected:
         return result;
     }
 public:
-    has_free_var_in_range_fn(unsigned low, unsigned high, metavar_env const * menv):
+    has_free_var_in_range_fn(unsigned low, unsigned high, optional<metavar_env> const & menv):
         m_low(low),
         m_high(high) {
         lean_assert(low < high);
@@ -326,11 +326,14 @@ public:
     bool operator()(expr const & e) { return apply(e, 0); }
 };
 
-bool has_free_var(expr const & e, unsigned low, unsigned high, metavar_env const * menv) {
-    return has_free_var_in_range_fn(low, high, menv)(e);
-}
+bool has_free_var(expr const & e, unsigned low, unsigned high, optional<metavar_env> const & menv) { return has_free_var_in_range_fn(low, high, menv)(e); }
+bool has_free_var(expr const & e, unsigned low, unsigned high, metavar_env const & menv) { return has_free_var(e, low, high, some_menv(menv)); }
+bool has_free_var(expr const & e, unsigned low, unsigned high) { return has_free_var(e, low, high, none_menv()); }
+bool has_free_var(expr const & e, unsigned i, optional<metavar_env> const & menv) { return has_free_var(e, i, i+1, menv); }
+bool has_free_var(expr const & e, unsigned i, metavar_env const & menv) { return has_free_var(e, i, i+1, menv); }
+bool has_free_var(expr const & e, unsigned i) { return has_free_var(e, i, i+1); }
 
-expr lower_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const * DEBUG_CODE(menv)) {
+expr lower_free_vars(expr const & e, unsigned s, unsigned d, optional<metavar_env> const & DEBUG_CODE(menv)) {
     lean_assert(s >= d);
     lean_assert(!has_free_var(e, s-d, s, menv));
     auto f = [=](expr const & e, unsigned offset) -> expr {
@@ -343,8 +346,13 @@ expr lower_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const *
     };
     return replace_fn<decltype(f)>(f)(e);
 }
+expr lower_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const & menv) { return lower_free_vars(e, s, d, some_menv(menv)); }
+expr lower_free_vars(expr const & e, unsigned s, unsigned d) { return lower_free_vars(e, s, d, none_menv()); }
+expr lower_free_vars(expr const & e, unsigned d, optional<metavar_env> const & menv) { return lower_free_vars(e, d, d, menv); }
+expr lower_free_vars(expr const & e, unsigned d, metavar_env const & menv) { return lower_free_vars(e, d, d, menv); }
+expr lower_free_vars(expr const & e, unsigned d) { return lower_free_vars(e, d, d); }
 
-expr lift_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const * menv) {
+expr lift_free_vars(expr const & e, unsigned s, unsigned d, optional<metavar_env> const & menv) {
     if (d == 0)
         return e;
     auto f = [=](expr const & e, unsigned offset) -> expr {
@@ -358,4 +366,9 @@ expr lift_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const * 
     };
     return replace_fn<decltype(f)>(f)(e);
 }
+expr lift_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const & menv) { return lift_free_vars(e, s, d, some_menv(menv)); }
+expr lift_free_vars(expr const & e, unsigned s, unsigned d) { return lift_free_vars(e, s, d, none_menv()); }
+expr lift_free_vars(expr const & e, unsigned d, optional<metavar_env> const & menv) { return lift_free_vars(e, 0, d, menv); }
+expr lift_free_vars(expr const & e, unsigned d) { return lift_free_vars(e, 0, d); }
+expr lift_free_vars(expr const & e, unsigned d, metavar_env const & menv) { return lift_free_vars(e, 0, d, menv); }
 }

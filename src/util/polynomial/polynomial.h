@@ -48,8 +48,8 @@ public:
 
     void release() { if (m_ptr) m_ptr->dec_ref(); m_ptr = nullptr; }
 
-    monomial & operator=(monomial const & s) { LEAN_COPY_REF(monomial, s); }
-    monomial & operator=(monomial && s) { LEAN_MOVE_REF(monomial, s); }
+    monomial & operator=(monomial const & s) { LEAN_COPY_REF(s); }
+    monomial & operator=(monomial && s) { LEAN_MOVE_REF(s); }
 };
 
 template<typename T>
@@ -74,7 +74,7 @@ public:
 
     void release() { if (m_ptr) m_ptr->dec_ref(); m_ptr = nullptr; }
 
-    polynomial & operator=(polynomial const & s) { LEAN_COPY_REF(polynomial, s); }
-    polynomial & operator=(polynomial && s) { LEAN_MOVE_REF(polynomial, s); }
+    polynomial & operator=(polynomial const & s) { LEAN_COPY_REF(s); }
+    polynomial & operator=(polynomial && s) { LEAN_MOVE_REF(s); }
 };
 }

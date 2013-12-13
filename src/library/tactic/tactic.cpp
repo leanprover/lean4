@@ -61,11 +61,11 @@ solve_result & solve_result::operator=(solve_result && other) {
 }
 
 tactic & tactic::operator=(tactic const & s) {
-    LEAN_COPY_REF(tactic, s);
+    LEAN_COPY_REF(s);
 }
 
 tactic & tactic::operator=(tactic && s) {
-    LEAN_MOVE_REF(tactic, s);
+    LEAN_MOVE_REF(s);
 }
 
 /**

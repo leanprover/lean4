@@ -325,9 +325,9 @@ public:
     ~splay_tree() { node::dec_ref(m_ptr); }
 
     /** \brief O(1) copy */
-    splay_tree & operator=(splay_tree const & s) { LEAN_COPY_REF(splay_tree, s); }
+    splay_tree & operator=(splay_tree const & s) { LEAN_COPY_REF(s); }
     /** \brief O(1) move */
-    splay_tree & operator=(splay_tree && s) { LEAN_MOVE_REF(splay_tree, s); }
+    splay_tree & operator=(splay_tree && s) { LEAN_MOVE_REF(s); }
 
     friend void swap(splay_tree & t1, splay_tree & t2) { std::swap(t1.m_ptr, t2.m_ptr); }
 

@@ -251,8 +251,8 @@ public:
     pdeque(pdeque && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~pdeque() { if (m_ptr) m_ptr->dec_ref(); }
 
-    pdeque & operator=(pdeque const & s) { LEAN_COPY_REF(pdeque, s); }
-    pdeque & operator=(pdeque && s) { LEAN_MOVE_REF(pdeque, s); }
+    pdeque & operator=(pdeque const & s) { LEAN_COPY_REF(s); }
+    pdeque & operator=(pdeque && s) { LEAN_MOVE_REF(s); }
 
     /** \brief Return the number of elements */
     unsigned size() const { return m_ptr->size(); }

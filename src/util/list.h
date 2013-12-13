@@ -64,8 +64,8 @@ public:
         }
     }
 
-    list & operator=(list const & s) { LEAN_COPY_REF(list, s); }
-    list & operator=(list && s) { LEAN_MOVE_REF(list, s); }
+    list & operator=(list const & s) { LEAN_COPY_REF(s); }
+    list & operator=(list && s) { LEAN_MOVE_REF(s); }
 
     /**
         \brief Return internal representation.

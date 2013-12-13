@@ -19,7 +19,7 @@ void inc_ref() { atomic_fetch_add_explicit(&m_rc, 1u, memory_order_relaxed); } \
 bool dec_ref_core() { lean_assert(get_rc() > 0); return atomic_fetch_sub_explicit(&m_rc, 1u, memory_order_relaxed) == 1u; } \
 void dec_ref() { if (dec_ref_core()) dealloc(); }
 
-#define LEAN_COPY_REF(T, Arg)                   \
+#define LEAN_COPY_REF(Arg)                      \
     if (Arg.m_ptr)                              \
         Arg.m_ptr->inc_ref();                   \
     auto new_ptr = Arg.m_ptr;                   \
@@ -28,7 +28,7 @@ void dec_ref() { if (dec_ref_core()) dealloc(); }
     m_ptr = new_ptr;                            \
     return *this;
 
-#define LEAN_MOVE_REF(T, Arg)                   \
+#define LEAN_MOVE_REF(Arg)                      \
     if (m_ptr)                                  \
         m_ptr->dec_ref();                       \
     m_ptr   = Arg.m_ptr;                        \

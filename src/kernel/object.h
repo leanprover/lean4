@@ -90,8 +90,8 @@ public:
 
     friend void swap(object & a, object & b) { std::swap(a.m_ptr, b.m_ptr); }
 
-    object & operator=(object const & s) { LEAN_COPY_REF(object, s); }
-    object & operator=(object && s) { LEAN_MOVE_REF(object, s); }
+    object & operator=(object const & s) { LEAN_COPY_REF(s); }
+    object & operator=(object && s) { LEAN_MOVE_REF(s); }
 
     object_kind kind() const { return m_ptr->kind(); }
 

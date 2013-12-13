@@ -45,9 +45,9 @@ operator_info::operator_info(operator_info && info):m_ptr(info.m_ptr) { info.m_p
 
 operator_info::~operator_info() { if (m_ptr) m_ptr->dec_ref(); }
 
-operator_info & operator_info::operator=(operator_info const & s) { LEAN_COPY_REF(operator_info, s); }
+operator_info & operator_info::operator=(operator_info const & s) { LEAN_COPY_REF(s); }
 
-operator_info & operator_info::operator=(operator_info && s) { LEAN_MOVE_REF(operator_info, s); }
+operator_info & operator_info::operator=(operator_info && s) { LEAN_MOVE_REF(s); }
 
 void operator_info::add_expr(expr const & d) { lean_assert(m_ptr); m_ptr->m_exprs = cons(d, m_ptr->m_exprs); }
 

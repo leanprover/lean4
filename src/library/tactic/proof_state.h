@@ -69,8 +69,8 @@ public:
         m_ptr(new cell(s.get_precision(), gs, s.get_menv(), p, c)) {}
     ~proof_state() { if (m_ptr) m_ptr->dec_ref(); }
     friend void swap(proof_state & a, proof_state & b) { std::swap(a.m_ptr, b.m_ptr); }
-    proof_state & operator=(proof_state const & s) { LEAN_COPY_REF(proof_state, s); }
-    proof_state & operator=(proof_state && s) { LEAN_MOVE_REF(proof_state, s); }
+    proof_state & operator=(proof_state const & s) { LEAN_COPY_REF(s); }
+    proof_state & operator=(proof_state && s) { LEAN_MOVE_REF(s); }
     precision get_precision() const { lean_assert(m_ptr); return m_ptr->m_precision; }
     goals const & get_goals() const { lean_assert(m_ptr); return m_ptr->m_goals; }
     metavar_env const & get_menv() const { lean_assert(m_ptr); return m_ptr->m_menv; }

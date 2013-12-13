@@ -158,8 +158,8 @@ unsigned      lift_offset(level const & l) { lean_assert(is_lift(l)); return sta
 unsigned      max_size   (level const & l) { lean_assert(is_max(l));  return static_cast<level_max*>(l.m_ptr)->m_size; }
 level const & max_level  (level const & l, unsigned i) { lean_assert(is_max(l));  return static_cast<level_max*>(l.m_ptr)->m_levels[i]; }
 
-level & level::operator=(level const & l) { LEAN_COPY_REF(level, l); }
-level & level::operator=(level&& l) { LEAN_MOVE_REF(level, l); }
+level & level::operator=(level const & l) { LEAN_COPY_REF(l); }
+level & level::operator=(level&& l) { LEAN_MOVE_REF(l); }
 
 bool operator==(level const & l1, level const & l2) {
     if (kind(l1) != kind(l2)) return false;

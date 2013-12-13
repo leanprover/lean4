@@ -67,8 +67,8 @@ public:
 
     friend void swap(justification & a, justification & b) { std::swap(a.m_ptr, b.m_ptr); }
 
-    justification & operator=(justification const & s) { LEAN_COPY_REF(justification, s); }
-    justification & operator=(justification && s) { LEAN_MOVE_REF(justification, s); }
+    justification & operator=(justification const & s) { LEAN_COPY_REF(s); }
+    justification & operator=(justification && s) { LEAN_MOVE_REF(s); }
     format pp(formatter const & fmt, options const & opts, pos_info_provider const * p = nullptr, bool display_children = true) const {
         lean_assert(m_ptr);
         return m_ptr->pp(fmt, opts, p, display_children);

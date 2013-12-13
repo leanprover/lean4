@@ -163,9 +163,9 @@ name name::mk_internal_unique_name() {
     return name(id);
 }
 
-name & name::operator=(name const & other) { LEAN_COPY_REF(name, other); }
+name & name::operator=(name const & other) { LEAN_COPY_REF(other); }
 
-name & name::operator=(name && other) { LEAN_MOVE_REF(name, other); }
+name & name::operator=(name && other) { LEAN_MOVE_REF(other); }
 
 name_kind name::kind() const {
     if (m_ptr == nullptr)

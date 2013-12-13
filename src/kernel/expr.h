@@ -120,8 +120,8 @@ public:
 
     friend void swap(expr & a, expr & b) { std::swap(a.m_ptr, b.m_ptr); }
 
-    expr & operator=(expr const & s) { LEAN_COPY_REF(expr, s); }
-    expr & operator=(expr && s) { LEAN_MOVE_REF(expr, s); }
+    expr & operator=(expr const & s) { LEAN_COPY_REF(s); }
+    expr & operator=(expr && s) { LEAN_MOVE_REF(s); }
 
     expr_kind kind() const { return m_ptr->kind(); }
     unsigned  hash() const { return m_ptr ? m_ptr->hash() : 23; }

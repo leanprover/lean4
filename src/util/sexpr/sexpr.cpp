@@ -173,8 +173,8 @@ mpq const & sexpr::get_mpq() const { return static_cast<sexpr_mpq*>(m_ptr)->m_va
 
 unsigned sexpr::hash() const { return m_ptr == nullptr ? 23 : m_ptr->m_hash; }
 
-sexpr & sexpr::operator=(sexpr const & s) { LEAN_COPY_REF(sexpr, s); }
-sexpr & sexpr::operator=(sexpr && s) { LEAN_MOVE_REF(sexpr, s); }
+sexpr & sexpr::operator=(sexpr const & s) { LEAN_COPY_REF(s); }
+sexpr & sexpr::operator=(sexpr && s) { LEAN_MOVE_REF(s); }
 
 bool is_list(sexpr const & s) {
     if (is_nil(s))

@@ -67,8 +67,8 @@ public:
 
     friend void swap(unification_constraint & a, unification_constraint & b) { std::swap(a.m_ptr, b.m_ptr); }
 
-    unification_constraint & operator=(unification_constraint const & s) { LEAN_COPY_REF(unification_constraint, s); }
-    unification_constraint & operator=(unification_constraint && s) { LEAN_MOVE_REF(unification_constraint, s); }
+    unification_constraint & operator=(unification_constraint const & s) { LEAN_COPY_REF(s); }
+    unification_constraint & operator=(unification_constraint && s) { LEAN_MOVE_REF(s); }
 
     unification_constraint_kind kind() const { return m_ptr->kind(); }
 

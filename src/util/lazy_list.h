@@ -70,8 +70,8 @@ public:
     lazy_list(T const & h, lazy_list const & t):m_ptr(new cell_pair(h, t)) { m_ptr->inc_ref(); }
     ~lazy_list() { if (m_ptr) m_ptr->dec_ref(); }
 
-    lazy_list & operator=(lazy_list const & s) { LEAN_COPY_REF(lazy_list, s); }
-    lazy_list & operator=(lazy_list && s) { LEAN_MOVE_REF(lazy_list, s); }
+    lazy_list & operator=(lazy_list const & s) { LEAN_COPY_REF(s); }
+    lazy_list & operator=(lazy_list && s) { LEAN_MOVE_REF(s); }
 
     maybe_pair pull() const {
         if (m_ptr)

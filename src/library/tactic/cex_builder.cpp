@@ -12,8 +12,8 @@ Author: Leonardo de Moura
 #include "library/tactic/cex_builder.h"
 
 namespace lean {
-cex_builder & cex_builder::operator=(cex_builder const & s) { LEAN_COPY_REF(cex_builder, s); }
-cex_builder & cex_builder::operator=(cex_builder && s) { LEAN_MOVE_REF(cex_builder, s); }
+cex_builder & cex_builder::operator=(cex_builder const & s) { LEAN_COPY_REF(s); }
+cex_builder & cex_builder::operator=(cex_builder && s) { LEAN_MOVE_REF(s); }
 
 cex_builder mk_cex_builder_for(name const & gname) {
     return mk_cex_builder(

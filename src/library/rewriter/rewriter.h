@@ -82,8 +82,8 @@ public:
     void release() { if (m_ptr) m_ptr->dec_ref(); m_ptr = nullptr; }
     friend void swap(rewriter & a, rewriter & b) { std::swap(a.m_ptr, b.m_ptr); }
     rewriter_kind kind() const { return m_ptr->kind(); }
-    rewriter & operator=(rewriter const & s) { LEAN_COPY_REF(rewriter, s); }
-    rewriter & operator=(rewriter && s) { LEAN_MOVE_REF(rewriter, s); }
+    rewriter & operator=(rewriter const & s) { LEAN_COPY_REF(s); }
+    rewriter & operator=(rewriter && s) { LEAN_MOVE_REF(s); }
     std::pair<expr, expr> operator()(environment const & env, context & ctx, expr const & v) const {
         return (*m_ptr)(env, ctx, v);
     }

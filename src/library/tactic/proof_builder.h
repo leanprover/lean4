@@ -58,8 +58,8 @@ public:
     proof_builder(proof_builder && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~proof_builder() { if (m_ptr) m_ptr->dec_ref(); }
     friend void swap(proof_builder & a, proof_builder & b) { std::swap(a.m_ptr, b.m_ptr); }
-    proof_builder & operator=(proof_builder const & s) { LEAN_COPY_REF(proof_builder, s); }
-    proof_builder & operator=(proof_builder && s) { LEAN_MOVE_REF(proof_builder, s); }
+    proof_builder & operator=(proof_builder const & s) { LEAN_COPY_REF(s); }
+    proof_builder & operator=(proof_builder && s) { LEAN_MOVE_REF(s); }
 
     expr operator()(proof_map const & p, assignment const & a) const { return m_ptr->operator()(p, a); }
 };

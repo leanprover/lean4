@@ -145,6 +145,10 @@ class frontend_elaborator::imp {
         imp & m_ref;
         preprocessor(imp & r):m_ref(r) {}
 
+        expr instantiate(expr const & e, expr const & v) {
+            return ::lean::instantiate(e, v, m_ref.m_menv);
+        }
+
         virtual expr visit_constant(expr const & e, context const & ctx) {
             if (is_placeholder(e)) {
                 expr m = m_ref.m_menv->mk_metavar(ctx, visit(const_type(e), ctx));
@@ -249,7 +253,7 @@ class frontend_elaborator::imp {
                                 num_skipped_args++;
                             }
                         }
-                        f_t = some_expr(::lean::instantiate(abst_body(*f_t), args[i]));
+                        f_t = some_expr(instantiate(abst_body(*f_t), args[i]));
                     }
                 }
                 if (i == num_args) {
@@ -372,7 +376,7 @@ class frontend_elaborator::imp {
                 }
                 new_args.push_back(new_a);
                 if (f_t)
-                    f_t = some_expr(::lean::instantiate(abst_body(*f_t), new_a));
+                    f_t = some_expr(instantiate(abst_body(*f_t), new_a));
             }
             return mk_app(new_args);
         }

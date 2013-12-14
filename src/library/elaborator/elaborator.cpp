@@ -454,7 +454,7 @@ class elaborator::imp {
                     // in the assign(a, b, c) branch above.
                     justification new_jst(new normalize_justification(c));
                     expr new_a = pop_meta_context(a);
-                    expr new_b = lift_free_vars(b, me.s(), 1);
+                    expr new_b = lift_free_vars(b, me.s(), 1, m_state.m_menv);
                     context new_ctx = ctx.insert_at(me.s(), g_x_name, Type()); // insert a dummy at position s
                     if (!is_lhs)
                         swap(new_a, new_b);
@@ -522,7 +522,7 @@ class elaborator::imp {
     /** \brief Unfold let-expression */
     void process_let(expr & a) {
         if (is_let(a))
-            a = instantiate(let_body(a), let_value(a));
+            a = instantiate(let_body(a), let_value(a), m_state.m_menv);
     }
 
     /** \brief Replace variables by their definition if the context contains it. */
@@ -788,7 +788,7 @@ class elaborator::imp {
             // Assign f_a <- fun (x_1 : T_1) ... (x_{num_a} : T_{num_a}), f_b (h_1 x_1 ... x_{num_a}) ... (h_{num_b} x_1 ... x_{num_a})
             // New constraints (h_i a_1 ... a_{num_a}) == arg(b, i)
             buffer<expr> imitation_args; // arguments for the imitation
-            imitation_args.push_back(lift_free_vars(f_b, 0, num_a - 1));
+            imitation_args.push_back(lift_free_vars(f_b, 0, num_a - 1, new_state.m_menv));
             for (unsigned i = 1; i < num_b; i++) {
                 // Remark: h_ctx is "ctx, (x_{num_a} : T_{num_a}) ... (x_1 : T_1)" because h_i is inside of the lambda
                 expr h_i = new_state.m_menv->mk_metavar(h_ctx);
@@ -822,7 +822,7 @@ class elaborator::imp {
         } else {
             // "Dumb imitation" aka the constant function
             // Assign f_a <- fun (x_1 : T_1) ... (x_{num_a} : T_{num_a}), b
-            imitation = mk_lambda(arg_types, lift_free_vars(b, 0, num_a - 1));
+            imitation = mk_lambda(arg_types, lift_free_vars(b, 0, num_a - 1, new_state.m_menv));
         }
         push_new_eq_constraint(new_state.m_queue, ctx, f_a, imitation, new_assumption);
         new_cs->push_back(new_state, new_assumption);
@@ -912,7 +912,7 @@ class elaborator::imp {
                     for (unsigned j = 1; j < num_b; j++) {
                         expr h_j = new_state.m_menv->mk_metavar(ctx);
                         imitation_args.push_back(h_j);
-                        push_new_eq_constraint(new_state.m_queue, ctx, h_j, lift_free_vars(arg(b, j), i, 1), new_assumption);
+                        push_new_eq_constraint(new_state.m_queue, ctx, h_j, lift_free_vars(arg(b, j), i, 1, new_state.m_menv), new_assumption);
                     }
                     imitation = mk_app(imitation_args);
                 } else if (is_eq(b)) {
@@ -921,20 +921,20 @@ class elaborator::imp {
                     expr h_1 = new_state.m_menv->mk_metavar(ctx);
                     expr h_2 = new_state.m_menv->mk_metavar(ctx);
                     imitation = mk_eq(h_1, h_2);
-                    push_new_eq_constraint(new_state.m_queue, ctx, h_1, lift_free_vars(eq_lhs(b), i, 1), new_assumption);
-                    push_new_eq_constraint(new_state.m_queue, ctx, h_2, lift_free_vars(eq_rhs(b), i, 1), new_assumption);
+                    push_new_eq_constraint(new_state.m_queue, ctx, h_1, lift_free_vars(eq_lhs(b), i, 1, new_state.m_menv), new_assumption);
+                    push_new_eq_constraint(new_state.m_queue, ctx, h_2, lift_free_vars(eq_rhs(b), i, 1, new_state.m_menv), new_assumption);
                 } else if (is_abstraction(b)) {
                     // Lambdas and Pis
                     // Imitation for Lambdas and Pis, b == Fun(x:T) B
                     // mname <- Fun (x:?h_1) ?h_2
                     expr h_1 = new_state.m_menv->mk_metavar(ctx);
-                    push_new_eq_constraint(new_state.m_queue, ctx, h_1, lift_free_vars(abst_domain(b), i, 1), new_assumption);
+                    push_new_eq_constraint(new_state.m_queue, ctx, h_1, lift_free_vars(abst_domain(b), i, 1, new_state.m_menv), new_assumption);
                     context new_ctx = extend(ctx, abst_name(b), abst_domain(b));
                     expr h_2 = new_state.m_menv->mk_metavar(new_ctx);
                     imitation = update_abstraction(b, h_1, h_2);
-                    push_new_eq_constraint(new_state.m_queue, new_ctx, h_2, lift_free_vars(abst_body(b), i+1, 1), new_assumption);
+                    push_new_eq_constraint(new_state.m_queue, new_ctx, h_2, lift_free_vars(abst_body(b), i+1, 1, new_state.m_menv), new_assumption);
                 } else {
-                    imitation = lift_free_vars(b, i, 1);
+                    imitation = lift_free_vars(b, i, 1, new_state.m_menv);
                 }
                 push_new_eq_constraint(new_state.m_queue, ctx_with_i, pop_meta_context(a), imitation, new_assumption);
                 new_cs->push_back(new_state, new_assumption);

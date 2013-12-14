@@ -161,6 +161,15 @@ if ("${HAS_LUA_NEWSTATE}$" MATCHES "TRUE")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D LEAN_USE_LUA_NEWSTATE")
 endif()
 
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND ${LUA_FOUND} AND
+    "${LUA_INCLUDE_DIR}" MATCHES "jit")
+  # http://luajit.org/install.html
+  # If you're building a 64 bit application on OSX which links
+  # directly or indirectly against LuaJIT, you need to link your main
+  # executable with these flags:
+  set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -pagezero_size 10000 -image_base 100000000")
+ENDIF()
+
 include_directories(${LEAN_SOURCE_DIR})
 
 add_custom_command(

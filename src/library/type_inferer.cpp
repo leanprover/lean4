@@ -65,10 +65,10 @@ class type_inferer::imp {
                     t = abst_body(t);
                 } else if (has_metavar(t) && m_menv && m_uc) {
                     // Create two fresh variables A and B,
-                    // and assign r == (Pi(x : A), B x)
+                    // and assign r == (Pi(x : A), B)
                     expr A   = m_menv->mk_metavar(ctx);
-                    expr B   = m_menv->mk_metavar(ctx);
-                    expr p   = mk_pi(g_x_name, A, B(Var(0)));
+                    expr B   = m_menv->mk_metavar(extend(ctx, g_x_name, A));
+                    expr p   = mk_pi(g_x_name, A, B);
                     justification jst = mk_function_expected_justification(ctx, e);
                     m_uc->push_back(mk_eq_constraint(ctx, t, p, jst));
                     t        = abst_body(p);

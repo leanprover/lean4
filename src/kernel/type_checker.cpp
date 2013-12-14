@@ -34,6 +34,14 @@ class type_checker::imp {
         return ro_environment(m_env);
     }
 
+    expr lift_free_vars(expr const & e, unsigned s, unsigned d) {
+        return ::lean::lift_free_vars(e, s, d, m_menv.to_some_menv());
+    }
+
+    expr lift_free_vars(expr const & e, unsigned d) {
+        return ::lean::lift_free_vars(e, d, m_menv.to_some_menv());
+    }
+
     expr normalize(expr const & e, context const & ctx) {
         return m_normalizer(e, ctx);
     }
@@ -46,10 +54,10 @@ class type_checker::imp {
             return r;
         if (has_metavar(r) && m_menv && m_uc) {
             // Create two fresh variables A and B,
-            // and assign r == (Pi(x : A), B x)
+            // and assign r == (Pi(x : A), B)
             expr A   = m_menv->mk_metavar(ctx);
-            expr B   = m_menv->mk_metavar(ctx);
-            expr p   = mk_pi(g_x_name, A, B(Var(0)));
+            expr B   = m_menv->mk_metavar(extend(ctx, g_x_name, A));
+            expr p   = mk_pi(g_x_name, A, B);
             justification jst = mk_function_expected_justification(ctx, s);
             m_uc->push_back(mk_eq_constraint(ctx, r, p, jst));
             return p;

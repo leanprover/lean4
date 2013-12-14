@@ -159,19 +159,69 @@ bool metavar_env_cell::is_assigned(expr const & m) const {
     return is_assigned(metavar_name(m));
 }
 
-void metavar_env_cell::assign(name const & m, expr const & t, justification const & jst) {
+bool metavar_env_cell::assign(name const & m, expr const & t, justification const & jst) {
     lean_assert(!is_assigned(m));
     inc_timestamp();
+    justification jst2 = jst;
+    buffer<justification> jsts;
+    expr t2 = instantiate_metavars(t, jsts);
+    if (!jsts.empty()) {
+        jst2 = justification(new normalize_assignment_justification(get_context(m), t, jst,
+                                                                    jsts.size(), jsts.data()));
+    }
+    unsigned ctx_size = get_context_size(m);
+    if (has_metavar(t2)) {
+        bool failed = false;
+        // Make sure the contexts of the metavariables occurring in \c t2 are
+        // not too big.
+        for_each(t2, [&](expr const & e, unsigned offset) {
+                if (is_metavar(e)) {
+                    lean_assert(!is_assigned(e));
+                    unsigned range = free_var_range(e, metavar_env(this));
+                    if (range > ctx_size + offset) {
+                        unsigned extra = range - ctx_size - offset;
+                        auto it2 = m_metavar_data.find(metavar_name(e));
+                        if (it2 == nullptr) {
+                            failed = true;
+                        } else {
+                            unsigned e_ctx_size = it2->m_context.size();
+                            if (e_ctx_size < extra) {
+                                failed = true;
+                            } else {
+                                it2->m_context = it2->m_context.remove(e_ctx_size - extra, extra);
+                                lean_assert(free_var_range(e, metavar_env(this)) == ctx_size + offset);
+                            }
+                        }
+                    }
+                }
+                return true;
+            });
+        if (failed)
+            return false;
+    }
+    if (free_var_range(t2, metavar_env(this)) > ctx_size)
+        return false;
     auto it = m_metavar_data.find(m);
     lean_assert(it);
-    it->m_subst         = t;
-    it->m_justification = jst;
+    it->m_subst         = t2;
+    it->m_justification = jst2;
+    return true;
 }
 
-void metavar_env_cell::assign(expr const & m, expr const & t, justification const & j) {
+bool metavar_env_cell::assign(name const & m, expr const & t) {
+    justification j;
+    return assign(m, t, j);
+}
+
+bool metavar_env_cell::assign(expr const & m, expr const & t, justification const & j) {
     lean_assert(is_metavar(m));
     lean_assert(!has_local_context(m));
-    assign(metavar_name(m), t, j);
+    return assign(metavar_name(m), t, j);
+}
+
+bool metavar_env_cell::assign(expr const & m, expr const & t) {
+    justification j;
+    return assign(m, t, j);
 }
 
 expr apply_local_context(expr const & a, local_context const & lctx, optional<metavar_env> const & menv) {

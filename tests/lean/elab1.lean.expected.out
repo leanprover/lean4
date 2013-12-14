@@ -18,7 +18,7 @@ Failed to solve
             Assignment
              ⊢ ℕ ≺ ?M::0
                 Substitution
-                 ⊢ (?M::5[inst:0 (10)]) 10 ≺ ?M::0
+                 ⊢ ?M::5[inst:0 (10)] ≺ ?M::0
                     (line: 4: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
                         f::explicit
                     with arguments:
@@ -26,21 +26,19 @@ Failed to solve
                         ?M::1 10
                         ⊤
                     Assignment
-                    x : ℕ ⊢ λ x : ℕ, ℕ ≈ ?M::5
+                    x : ℕ ⊢ ℕ ≈ ?M::5
                         Destruct/Decompose
-                        x : ℕ ⊢ ℕ ≈ ?M::5 x
-                            Destruct/Decompose
-                             ⊢ ℕ → ℕ ≈ Π x : ?M::4, ?M::5 x
-                                Substitution
-                                 ⊢ ?M::3 ≈ Π x : ?M::4, ?M::5 x
-                                     Function expected at
-                                        ?M::1 10
-                                    Assignment
-                                     ⊢ ℕ → ℕ ≺ ?M::3
-                                        Propagate type, ?M::1 : ?M::3
-                                            Assignment
-                                             ⊢ ?M::1 ≈ λ x : ℕ, x
-                                                Assumption 0
+                         ⊢ ℕ → ℕ ≈ Π x : ?M::4, ?M::5
+                            Substitution
+                             ⊢ ?M::3 ≈ Π x : ?M::4, ?M::5
+                                 Function expected at
+                                    ?M::1 10
+                                Assignment
+                                 ⊢ ℕ → ℕ ≺ ?M::3
+                                    Propagate type, ?M::1 : ?M::3
+                                        Assignment
+                                         ⊢ ?M::1 ≈ λ x : ℕ, x
+                                            Assumption 0
     Failed to solve
      ⊢ Bool ≺ ℤ
         Substitution
@@ -54,7 +52,7 @@ Failed to solve
             Assignment
              ⊢ ℤ ≺ ?M::0
                 Substitution
-                 ⊢ (?M::5[inst:0 (10)]) 10 ≺ ?M::0
+                 ⊢ ?M::5[inst:0 (10)] ≺ ?M::0
                     (line: 4: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
                         f::explicit
                     with arguments:
@@ -62,21 +60,19 @@ Failed to solve
                         ?M::1 10
                         ⊤
                     Assignment
-                    _ : ℕ ⊢ λ x : ℕ, ℤ ≈ ?M::5
+                    _ : ℕ ⊢ ℤ ≈ ?M::5
                         Destruct/Decompose
-                        _ : ℕ ⊢ ℤ ≈ ?M::5 _
-                            Destruct/Decompose
-                             ⊢ ℕ → ℤ ≈ Π x : ?M::4, ?M::5 x
-                                Substitution
-                                 ⊢ ?M::3 ≈ Π x : ?M::4, ?M::5 x
-                                     Function expected at
-                                        ?M::1 10
-                                    Assignment
-                                     ⊢ ℕ → ℤ ≺ ?M::3
-                                        Propagate type, ?M::1 : ?M::3
-                                            Assignment
-                                             ⊢ ?M::1 ≈ nat_to_int
-                                                Assumption 1
+                         ⊢ ℕ → ℤ ≈ Π x : ?M::4, ?M::5
+                            Substitution
+                             ⊢ ?M::3 ≈ Π x : ?M::4, ?M::5
+                                 Function expected at
+                                    ?M::1 10
+                                Assignment
+                                 ⊢ ℕ → ℤ ≺ ?M::3
+                                    Propagate type, ?M::1 : ?M::3
+                                        Assignment
+                                         ⊢ ?M::1 ≈ nat_to_int
+                                            Assumption 1
     Failed to solve
      ⊢ Bool ≺ ℝ
         Substitution
@@ -90,7 +86,7 @@ Failed to solve
             Assignment
              ⊢ ℝ ≺ ?M::0
                 Substitution
-                 ⊢ (?M::5[inst:0 (10)]) 10 ≺ ?M::0
+                 ⊢ ?M::5[inst:0 (10)] ≺ ?M::0
                     (line: 4: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
                         f::explicit
                     with arguments:
@@ -98,26 +94,24 @@ Failed to solve
                         ?M::1 10
                         ⊤
                     Assignment
-                    _ : ℕ ⊢ λ x : ℕ, ℝ ≈ ?M::5
+                    _ : ℕ ⊢ ℝ ≈ ?M::5
                         Destruct/Decompose
-                        _ : ℕ ⊢ ℝ ≈ ?M::5 _
-                            Destruct/Decompose
-                             ⊢ ℕ → ℝ ≈ Π x : ?M::4, ?M::5 x
-                                Substitution
-                                 ⊢ ?M::3 ≈ Π x : ?M::4, ?M::5 x
-                                     Function expected at
-                                        ?M::1 10
-                                    Assignment
-                                     ⊢ ℕ → ℝ ≺ ?M::3
-                                        Propagate type, ?M::1 : ?M::3
-                                            Assignment
-                                             ⊢ ?M::1 ≈ nat_to_real
-                                                Assumption 2
+                         ⊢ ℕ → ℝ ≈ Π x : ?M::4, ?M::5
+                            Substitution
+                             ⊢ ?M::3 ≈ Π x : ?M::4, ?M::5
+                                 Function expected at
+                                    ?M::1 10
+                                Assignment
+                                 ⊢ ℕ → ℝ ≺ ?M::3
+                                    Propagate type, ?M::1 : ?M::3
+                                        Assignment
+                                         ⊢ ?M::1 ≈ nat_to_real
+                                            Assumption 2
   Assumed: g
 Error (line: 7, pos: 8) unexpected metavariable occurrence
   Assumed: h
 Failed to solve
-x : ?M::0, A : Type ⊢ ?M::0[lift:0:2] ≺ A
+x : ?M::0, A : Type ⊢ ?M::0 ≺ A
     (line: 11: pos: 27) Type of argument 2 must be convertible to the expected type in the application of
         h
     with arguments:

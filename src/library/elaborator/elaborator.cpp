@@ -163,10 +163,15 @@ class elaborator::imp {
         return mk_assumption_justification(id);
     }
 
+    void push_front(cnstr_queue & q, unification_constraint const & c) {
+        // std::cout << "PUSHING: "; display(std::cout, c); std::cout << "\n";
+        q.push_front(c);
+    }
+
     /** \brief Add given constraint to the front of the current constraint queue */
     void push_front(unification_constraint const & c) {
         reset_quota();
-        m_state.m_queue.push_front(c);
+        push_front(m_state.m_queue, c);
     }
 
     /** \brief Add given constraint to the end of the current constraint queue */
@@ -280,9 +285,9 @@ class elaborator::imp {
     */
     void push_new_constraint(cnstr_queue & q, bool is_eq, context const & new_ctx, expr const & new_a, expr const & new_b, justification const & new_jst) {
         if (is_eq)
-            q.push_front(mk_eq_constraint(new_ctx, new_a, new_b, new_jst));
+            push_front(q, mk_eq_constraint(new_ctx, new_a, new_b, new_jst));
         else
-            q.push_front(mk_convertible_constraint(new_ctx, new_a, new_b, new_jst));
+            push_front(q, mk_convertible_constraint(new_ctx, new_a, new_b, new_jst));
     }
 
     /**
@@ -349,13 +354,18 @@ class elaborator::imp {
     /**
        \brief Assign \c v to \c m with justification \c tr in the current state.
     */
-    void assign(expr const & m, expr const & v, unification_constraint const & c) {
+    bool assign(expr const & m, expr const & v, unification_constraint const & c, bool is_lhs) {
         lean_assert(is_metavar(m));
+        if (instantiate_metavars(!is_lhs, v, c)) // make sure v does not have assigned metavars
+            return true;
         reset_quota();
         context const & ctx = get_context(c);
         justification jst(new assignment_justification(c));
         metavar_env const & menv = m_state.m_menv;
-        menv->assign(m, v, jst);
+        if (!menv->assign(m, v, jst)) {
+            m_conflict = justification(new unification_failure_justification(c));
+            return false;
+        }
         if (menv->has_type(m)) {
             buffer<unification_constraint> ucs;
             expr tv = m_type_inferer(v, ctx, menv, ucs);
@@ -364,6 +374,7 @@ class elaborator::imp {
             justification new_jst(new typeof_mvar_justification(ctx, m, menv->get_type(m), tv, jst));
             push_front(mk_convertible_constraint(ctx, tv, menv->get_type(m), new_jst));
         }
+        return true;
     }
 
     bool process(unification_constraint const & c) {
@@ -414,8 +425,7 @@ class elaborator::imp {
                     // or b is a proposition.
                     // It is important to handle propositions since we don't want to normalize them.
                     // The normalization process destroys the structure of the proposition.
-                    assign(a, b, c);
-                    return Processed;
+                    return assign(a, b, c, is_lhs) ? Processed : Failed;
                 }
             } else {
                 local_entry const & me = head(metavar_lctx(a));
@@ -742,7 +752,10 @@ class elaborator::imp {
         unsigned num_a      = num_args(a);
         buffer<expr> arg_types;
         buffer<unification_constraint> ucs;
-        context h_ctx = ctx;  // context for new fresh metavariables used in the imitation step
+        // h_ctx is the context for new fresh metavariables used in the imitation step
+        // Since the imitation is going to be assigned to f_a, its context must
+        // be the context of f_a + the imitation arguments
+        context h_ctx = menv->get_context(metavar_name(f_a));
         for (unsigned i = 1; i < num_a; i++) {
             arg_types.push_back(m_type_inferer(arg(a, i), ctx, menv, ucs));
             for (auto uc : ucs)
@@ -821,7 +834,9 @@ class elaborator::imp {
        for further details.
     */
     bool process_meta_app(expr const & a, expr const & b, bool is_lhs, unification_constraint const & c, bool flex_flex = false) {
-        if (is_meta_app(a) && (flex_flex || !is_meta_app(b))) {
+        if (is_meta_app(a) &&
+            (flex_flex || !is_meta_app(b)) &&
+            (is_eq(c) || (is_lhs && !is_actual_upper(b)) || (!is_lhs && !is_actual_lower(b)))) {
             std::unique_ptr<generic_case_split> new_cs(new generic_case_split(c, m_state));
             process_meta_app_core(new_cs, a, b, is_lhs, c);
             if (flex_flex && is_meta_app(b))
@@ -853,7 +868,8 @@ class elaborator::imp {
        Case 2) imitate b
     */
     bool process_metavar_inst(expr const & a, expr const & b, bool is_lhs, unification_constraint const & c) {
-        if (is_metavar_inst(a) && !is_metavar_inst(b) && !is_meta_app(b)) {
+        if (is_metavar_inst(a) && !is_metavar_inst(b) && !is_meta_app(b) &&
+            (is_eq(c) || (is_lhs && !is_actual_upper(b)) || (!is_lhs && !is_actual_lower(b)))) {
             context const & ctx = get_context(c);
             local_context  lctx = metavar_lctx(a);
             unsigned i          = head(lctx).s();
@@ -963,7 +979,7 @@ class elaborator::imp {
     bool is_lower(unification_constraint const & c) {
         return
             is_convertible(c) &&
-            is_metavar(convertible_to(c)) &&
+            (is_metavar(convertible_to(c)) || is_meta_app(convertible_to(c))) &&
             (is_bool(convertible_from(c)) || is_type(convertible_from(c)));
     }
 
@@ -1115,14 +1131,12 @@ class elaborator::imp {
             if (!is_type(b) && !is_meta(b) && is_metavar(a) && !is_assigned(a) && !has_local_context(a)) {
                 // We can assign a <- b at this point IF b is not (Type lvl) or Metavariable
                 lean_assert(!has_metavar(b, a));
-                assign(a, b, c);
-                return true;
+                return assign(a, b, c, true);
             }
             if (!is_type(a) && !is_meta(a) && a != Bool && is_metavar(b) && !is_assigned(b) && !has_local_context(b)) {
                 // We can assign b <- a at this point IF a is not (Type lvl) or Metavariable or Bool.
                 lean_assert(!has_metavar(a, b));
-                assign(b, a, c);
-                return true;
+                return assign(b, a, c, false);
             }
         }
 

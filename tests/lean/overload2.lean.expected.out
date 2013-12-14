@@ -16,27 +16,25 @@ Failed to solve
             Assignment
              ⊢ ℕ ≈ ?M::8
                 Destruct/Decompose
-                 ⊢ ℕ → ℕ ≈ Π x : ?M::8, ?M::9 x
+                 ⊢ ℕ → ℕ ≈ Π x : ?M::8, ?M::9
                     Substitution
-                     ⊢ (?M::7[inst:0 (?M::1 1)]) (?M::1 1) ≈ Π x : ?M::8, ?M::9 x
+                     ⊢ ?M::7[inst:0 (?M::1 1)] ≈ Π x : ?M::8, ?M::9
                         (line: 1: pos: 10) Function expected at
                             ?M::0 (?M::1 1) ⊤
                         Assignment
-                        _ : ℕ ⊢ λ x : ℕ, ℕ → ℕ ≈ ?M::7
+                        _ : ℕ ⊢ ℕ → ℕ ≈ ?M::7
                             Destruct/Decompose
-                            _ : ℕ ⊢ ℕ → ℕ ≈ ?M::7 _
-                                Destruct/Decompose
-                                 ⊢ ℕ → ℕ → ℕ ≈ Π x : ?M::6, ?M::7 x
-                                    Substitution
-                                     ⊢ ?M::2 ≈ Π x : ?M::6, ?M::7 x
-                                        (line: 1: pos: 10) Function expected at
-                                            ?M::0 (?M::1 1) ⊤
-                                        Assignment
-                                         ⊢ ℕ → ℕ → ℕ ≺ ?M::2
-                                            Propagate type, ?M::0 : ?M::2
-                                                Assignment
-                                                 ⊢ ?M::0 ≈ Nat::add
-                                                    Assumption 0
+                             ⊢ ℕ → ℕ → ℕ ≈ Π x : ?M::6, ?M::7
+                                Substitution
+                                 ⊢ ?M::2 ≈ Π x : ?M::6, ?M::7
+                                    (line: 1: pos: 10) Function expected at
+                                        ?M::0 (?M::1 1) ⊤
+                                    Assignment
+                                     ⊢ ℕ → ℕ → ℕ ≺ ?M::2
+                                        Propagate type, ?M::0 : ?M::2
+                                            Assignment
+                                             ⊢ ?M::0 ≈ Nat::add
+                                                Assumption 0
     Failed to solve
      ⊢ Bool ≺ ℤ
         Substitution
@@ -49,27 +47,25 @@ Failed to solve
             Assignment
              ⊢ ℤ ≈ ?M::8
                 Destruct/Decompose
-                 ⊢ ℤ → ℤ ≈ Π x : ?M::8, ?M::9 x
+                 ⊢ ℤ → ℤ ≈ Π x : ?M::8, ?M::9
                     Substitution
-                     ⊢ (?M::7[inst:0 (?M::1 1)]) (?M::1 1) ≈ Π x : ?M::8, ?M::9 x
+                     ⊢ ?M::7[inst:0 (?M::1 1)] ≈ Π x : ?M::8, ?M::9
                         (line: 1: pos: 10) Function expected at
                             ?M::0 (?M::1 1) ⊤
                         Assignment
-                        _ : ℤ ⊢ λ x : ℤ, ℤ → ℤ ≈ ?M::7
+                        _ : ℤ ⊢ ℤ → ℤ ≈ ?M::7
                             Destruct/Decompose
-                            _ : ℤ ⊢ ℤ → ℤ ≈ ?M::7 _
-                                Destruct/Decompose
-                                 ⊢ ℤ → ℤ → ℤ ≈ Π x : ?M::6, ?M::7 x
-                                    Substitution
-                                     ⊢ ?M::2 ≈ Π x : ?M::6, ?M::7 x
-                                        (line: 1: pos: 10) Function expected at
-                                            ?M::0 (?M::1 1) ⊤
-                                        Assignment
-                                         ⊢ ℤ → ℤ → ℤ ≺ ?M::2
-                                            Propagate type, ?M::0 : ?M::2
-                                                Assignment
-                                                 ⊢ ?M::0 ≈ Int::add
-                                                    Assumption 2
+                             ⊢ ℤ → ℤ → ℤ ≈ Π x : ?M::6, ?M::7
+                                Substitution
+                                 ⊢ ?M::2 ≈ Π x : ?M::6, ?M::7
+                                    (line: 1: pos: 10) Function expected at
+                                        ?M::0 (?M::1 1) ⊤
+                                    Assignment
+                                     ⊢ ℤ → ℤ → ℤ ≺ ?M::2
+                                        Propagate type, ?M::0 : ?M::2
+                                            Assignment
+                                             ⊢ ?M::0 ≈ Int::add
+                                                Assumption 2
     Failed to solve
      ⊢ Bool ≺ ℝ
         Substitution
@@ -82,27 +78,25 @@ Failed to solve
             Assignment
              ⊢ ℝ ≈ ?M::8
                 Destruct/Decompose
-                 ⊢ ℝ → ℝ ≈ Π x : ?M::8, ?M::9 x
+                 ⊢ ℝ → ℝ ≈ Π x : ?M::8, ?M::9
                     Substitution
-                     ⊢ (?M::7[inst:0 (?M::1 1)]) (?M::1 1) ≈ Π x : ?M::8, ?M::9 x
+                     ⊢ ?M::7[inst:0 (?M::1 1)] ≈ Π x : ?M::8, ?M::9
                         (line: 1: pos: 10) Function expected at
                             ?M::0 (?M::1 1) ⊤
                         Assignment
-                        _ : ℝ ⊢ λ x : ℝ, ℝ → ℝ ≈ ?M::7
+                        _ : ℝ ⊢ ℝ → ℝ ≈ ?M::7
                             Destruct/Decompose
-                            _ : ℝ ⊢ ℝ → ℝ ≈ ?M::7 _
-                                Destruct/Decompose
-                                 ⊢ ℝ → ℝ → ℝ ≈ Π x : ?M::6, ?M::7 x
-                                    Substitution
-                                     ⊢ ?M::2 ≈ Π x : ?M::6, ?M::7 x
-                                        (line: 1: pos: 10) Function expected at
-                                            ?M::0 (?M::1 1) ⊤
-                                        Assignment
-                                         ⊢ ℝ → ℝ → ℝ ≺ ?M::2
-                                            Propagate type, ?M::0 : ?M::2
-                                                Assignment
-                                                 ⊢ ?M::0 ≈ Real::add
-                                                    Assumption 5
+                             ⊢ ℝ → ℝ → ℝ ≈ Π x : ?M::6, ?M::7
+                                Substitution
+                                 ⊢ ?M::2 ≈ Π x : ?M::6, ?M::7
+                                    (line: 1: pos: 10) Function expected at
+                                        ?M::0 (?M::1 1) ⊤
+                                    Assignment
+                                     ⊢ ℝ → ℝ → ℝ ≺ ?M::2
+                                        Propagate type, ?M::0 : ?M::2
+                                            Assignment
+                                             ⊢ ?M::0 ≈ Real::add
+                                                Assumption 5
   Assumed: R
   Assumed: T
   Assumed: r2t

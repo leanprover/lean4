@@ -71,8 +71,9 @@ static void tst2() {
     expr g = Const("g");
     expr h = Const("h");
     expr a = Const("a");
-    expr m1 = menv->mk_metavar();
-    expr m2 = menv->mk_metavar();
+    expr T = Const("T");
+    expr m1 = menv->mk_metavar(context({{"x", T}, {"y", T}}));
+    expr m2 = menv->mk_metavar(context({{"x", T}, {"y", T}}));
     // move m1 to a different context, and store new metavariable + context in m11
     std::cout << "---------------------\n";
     expr m11 = add_inst(m1, 0, f(a, m2));
@@ -92,7 +93,7 @@ static void tst3() {
     expr a = Const("a");
     expr x = Const("x");
     expr T = Const("T");
-    expr m1 = menv->mk_metavar();
+    expr m1 = menv->mk_metavar(context({{"x", T}, {"y", T}, {"z", T}}));
     expr F = Fun({x, T}, f(m1, x));
     menv->assign(m1, h(Var(0), Var(2)));
     std::cout << instantiate(abst_body(F), g(a)) << "\n";
@@ -108,7 +109,8 @@ static void tst4() {
     expr g = Const("g");
     expr h = Const("h");
     expr a = Const("a");
-    expr m1 = menv->mk_metavar();
+    expr T = Const("T");
+    expr m1 = menv->mk_metavar(context({{"x", T}, {"y", T}}));
     expr F = f(m1, Var(2));
     menv->assign(m1, h(Var(1)));
     std::cout << instantiate(F, {g(Var(0)), h(a)}) << "\n";
@@ -128,8 +130,9 @@ static void tst6() {
     expr g  = Const("g");
     expr h  = Const("h");
     metavar_env menv;
-    expr m1 = menv->mk_metavar();
-    expr m2 = menv->mk_metavar();
+    expr T  = Const("T");
+    expr m1 = menv->mk_metavar(context({{"x1", T}, {"x2", T}, {"x3", T}, {"x4", T}}));
+    expr m2 = menv->mk_metavar(context({{"x1", T}, {"x2", T}, {"x3", T}, {"x4", T}}));
     expr t = f(Var(0), Fun({x, N}, f(Var(1), x, Fun({y, N}, f(Var(2), x, y)))));
     expr r = instantiate(t, g(m1, m2));
     std::cout << r << std::endl;
@@ -147,7 +150,8 @@ static void tst7() {
     expr g  = Const("g");
     expr a  = Const("a");
     metavar_env menv;
-    expr m1 = menv->mk_metavar();
+    expr T  = Const("T");
+    expr m1 = menv->mk_metavar(context({{"x", T}}));
     expr t  = f(m1, Var(0));
     expr r = instantiate(t, a);
     menv->assign(m1, g(Var(0)));
@@ -161,7 +165,8 @@ static void tst8() {
     expr g  = Const("g");
     expr a  = Const("a");
     metavar_env menv;
-    expr m1 = menv->mk_metavar();
+    expr T  = Const("T");
+    expr m1 = menv->mk_metavar(context({{"x1", T}, {"x2", T}, {"x3", T}, {"x4", T}}));
     expr t  = f(m1, Var(0), Var(2));
     expr r = instantiate(t, a);
     menv->assign(m1, g(Var(0), Var(1)));
@@ -175,7 +180,8 @@ static void tst9() {
     expr g  = Const("g");
     expr a  = Const("a");
     metavar_env menv;
-    expr m1 = menv->mk_metavar();
+    expr T  = Const("T");
+    expr m1 = menv->mk_metavar(context({{"x1", T}, {"x2", T}, {"x3", T}, {"x4", T}}));
     expr t  = f(m1, Var(1), Var(2));
     expr r  = lift_free_vars(t, 1, 2);
     std::cout << r << std::endl;
@@ -196,8 +202,9 @@ static void tst10() {
     expr g  = Const("g");
     expr h  = Const("h");
     metavar_env menv;
-    expr m1 = menv->mk_metavar();
-    expr m2 = menv->mk_metavar();
+    expr T  = Const("T");
+    expr m1 = menv->mk_metavar(context({{"x1", T}, {"x2", T}, {"x3", T}, {"x4", T}}));
+    expr m2 = menv->mk_metavar(context({{"x1", T}, {"x2", T}, {"x3", T}, {"x4", T}}));
     expr t = f(Var(0), Fun({x, N}, f(Var(1), Var(2), x, Fun({y, N}, f(Var(2), x, y)))));
     expr r = instantiate(t, g(m1));
     std::cout << r << std::endl;
@@ -224,7 +231,8 @@ static void tst11() {
 
 static void tst12() {
     metavar_env menv;
-    expr m = menv->mk_metavar();
+    expr T  = Const("T");
+    expr m = menv->mk_metavar(context({{"x1", T}, {"x2", T}}));
     expr f = Const("f");
     std::cout << instantiate(f(m), {Var(0), Var(1)}) << "\n";
     std::cout << instantiate(f(m), {Var(1), Var(0)}) << "\n";
@@ -233,7 +241,8 @@ static void tst12() {
 static void tst13() {
     environment env;
     metavar_env menv;
-    expr m = menv->mk_metavar();
+    expr T  = Const("T");
+    expr m = menv->mk_metavar(context({{"x", T}}));
     env->add_var("N", Type());
     expr N = Const("N");
     env->add_var("f", N >> N);
@@ -253,8 +262,9 @@ static void tst13() {
 static void tst14() {
     environment env;
     metavar_env menv;
-    expr m1 = menv->mk_metavar();
-    expr m2 = menv->mk_metavar();
+    expr T  = Const("T");
+    expr m1 = menv->mk_metavar(context({{"x1", T}, {"x2", T}, {"x3", T}, {"x4", T}, {"x5", T}}));
+    expr m2 = menv->mk_metavar(context({{"x1", T}, {"x2", T}, {"x3", T}, {"x4", T}, {"x5", T}}));
     expr N = Const("N");
     expr f = Const("f");
     expr h = Const("h");
@@ -288,7 +298,8 @@ static void tst15() {
     environment env;
     metavar_env menv;
     normalizer  norm(env);
-    expr m1 = menv->mk_metavar();
+    expr T  = Const("T");
+    expr m1 = menv->mk_metavar(context({{"x1", T}, {"x2", T}, {"x3", T}}));
     expr f = Const("f");
     expr x = Const("x");
     expr y = Const("y");
@@ -311,7 +322,8 @@ static void tst16() {
     normalizer  norm(env);
     context ctx;
     ctx = extend(ctx, "w", Type());
-    expr m1 = menv->mk_metavar();
+    expr T  = Const("T");
+    expr m1 = menv->mk_metavar(context({{"x1", T}, {"x2", T}, {"x3", T}, {"x4", T}, {"x5", T}}));
     expr f = Const("f");
     expr x = Const("x");
     expr y = Const("y");
@@ -334,7 +346,8 @@ static void tst17() {
     ctx = extend(ctx, "w2", Type());
     ctx = extend(ctx, "w3", Type());
     ctx = extend(ctx, "w4", Type());
-    expr m1 = menv->mk_metavar();
+    expr T  = Const("T");
+    expr m1 = menv->mk_metavar(context({{"x1", T}, {"x2", T}, {"x3", T}, {"x4", T}}));
     expr f = Const("f");
     expr x = Const("x");
     expr y = Const("y");
@@ -379,7 +392,7 @@ static void tst18() {
     env->add_var("g", N >> N);
     env->add_var("h", N >> (N >> N));
     expr m1 = menv->mk_metavar(context({{"z", Type()}, {"f", N >> N}, {"y", Type()}}));
-    expr m2 = menv->mk_metavar(context({{"z", Type()}, {"x", N}}));
+    expr m2 = menv->mk_metavar(context({{"z", Type()}, {"x", N}, {"x1", N}}));
     expr F = Fun({z, Type()}, Fun({{f, N >> N}, {y, Type()}}, m1)(Fun({x, N}, g(z, x, m2)), N));
     std::cout << norm(F, ctx) << "\n";
     metavar_env menv2 = menv.copy();
@@ -400,11 +413,11 @@ static void tst19() {
     context ctx;
     ctx = extend(ctx, "w1", Type());
     ctx = extend(ctx, "w2", Type());
-    expr m1 = menv->mk_metavar();
-    expr x = Const("x");
-    expr y = Const("y");
-    expr N = Const("N");
-    expr F = Fun({{N, Type()}, {x, N}, {y, N}}, m1);
+    expr x  = Const("x");
+    expr y  = Const("y");
+    expr N  = Const("N");
+    expr m1 = menv->mk_metavar(context({{"N", Type()}, {"x", N}, {"y", N}}));
+    expr F  = Fun({{N, Type()}, {x, N}, {y, N}}, m1);
     std::cout << norm(F) << "\n";
     std::cout << norm(F, ctx) << "\n";
     lean_assert(norm(F) == F);
@@ -418,13 +431,13 @@ static void tst20() {
     context ctx;
     ctx = extend(ctx, "w1", Type());
     ctx = extend(ctx, "w2", Type());
-    expr m1 = menv->mk_metavar();
     expr x = Const("x");
     expr y = Const("y");
     expr z = Const("z");
     expr N = Const("N");
     expr a = Const("a");
     expr b = Const("b");
+    expr m1 = menv->mk_metavar(context({{"x", N}, {"y", N}, {"z", N}, {"x", N}, {"y", N}}));
     env->add_var("N", Type());
     env->add_var("a", N);
     env->add_var("b", N);
@@ -588,10 +601,10 @@ static void tst27() {
     env->add_var("a", Int);
     env->add_var("b", Real);
     expr T1 = menv->mk_metavar();
-    expr T2 = menv->mk_metavar();
-    expr A1 = menv->mk_metavar();
-    expr m1 = menv->mk_metavar();
-    expr m2 = menv->mk_metavar();
+    expr T2 = menv->mk_metavar(context({{"x", T1}}));
+    expr A1 = menv->mk_metavar(context({{"x", T1}, {"y", T2}}));
+    expr m1 = menv->mk_metavar(context({{"x", T1}, {"y", T2}}));
+    expr m2 = menv->mk_metavar(context({{"x", T1}, {"y", T2}}));
     expr F = Fun({{x, T1}, {y, T2}}, f(A1, x, y))(m1(a), m2(b));
     std::cout << F << "\n";
     std::cout << checker.infer_type(F, context(), menv, up) << "\n";

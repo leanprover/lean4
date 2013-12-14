@@ -77,6 +77,9 @@ public:
     context get_context(expr const & m) const;
     context get_context(name const & m) const;
 
+    unsigned get_context_size(expr const & m) const { return get_context(m).size(); }
+    unsigned get_context_size(name const & m) const { return get_context(m).size(); }
+
     /**
        \brief Return the type of the given metavariable.
        \pre is_metavar(m)
@@ -126,17 +129,27 @@ public:
        \brief Assign metavariable named \c m.
 
        \pre !is_assigned(m)
+
+       \remark The method returns false if the assignment cannot be performed
+       because \c t contain free variables that are not available in the context 
+       associated with \c m.
     */
-    void assign(name const & m, expr const & t, justification const & j = justification());
+    bool assign(name const & m, expr const & t, justification const & j);
+    bool assign(name const & m, expr const & t);
 
     /**
        \brief Assign metavariable \c m to \c t.
 
+       \remark The method returns false if the assignment cannot be performed
+       because \c t contain free variables that are not available in the context 
+       associated with \c m.
+       
        \pre is_metavar(m)
        \pre !has_meta_context(m)
        \pre !is_assigned(m)
     */
-    void assign(expr const & m, expr const & t, justification const & j = justification());
+    bool assign(expr const & m, expr const & t, justification const & j);
+    bool assign(expr const & m, expr const & t);
 
     /**
        \brief Return the substitution associated with the given metavariable

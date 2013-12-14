@@ -42,6 +42,14 @@ class type_checker::imp {
         return ::lean::lift_free_vars(e, d, m_menv.to_some_menv());
     }
 
+    expr instantiate_with_closed(expr const & e, expr const & v) {
+        return ::lean::instantiate_with_closed(e, v, m_menv.to_some_menv());
+    }
+
+    expr instantiate(expr const & e, expr const & v) {
+        return ::lean::instantiate(e, v, m_menv.to_some_menv());
+    }
+
     expr normalize(expr const & e, context const & ctx) {
         return m_normalizer(e, ctx);
     }
@@ -158,9 +166,9 @@ class type_checker::imp {
                 if (closed(abst_body(f_t)))
                     f_t = abst_body(f_t);
                 else if (closed(c))
-                    f_t = instantiate_with_closed(abst_body(f_t), c); // TODO(Leo): m_menv.to_some_menv());
+                    f_t = instantiate_with_closed(abst_body(f_t), c);
                 else
-                    f_t = instantiate(abst_body(f_t), c); // TODO(Leo): m_menv.to_some_menv());
+                    f_t = instantiate(abst_body(f_t), c);
                 i++;
                 if (i == num)
                     return save_result(e, f_t, shared);
@@ -212,9 +220,7 @@ class type_checker::imp {
             {
                 cache::mk_scope sc(m_cache);
                 expr t = infer_type_core(let_body(e), extend(ctx, let_name(e), lt, let_value(e)));
-                return save_result(e,
-                                   instantiate(t, let_value(e)), // TODO(Leo): m_menv.to_some_menv()),
-                                   shared);
+                return save_result(e, instantiate(t, let_value(e)), shared);
             }
         }
         case expr_kind::Value: {

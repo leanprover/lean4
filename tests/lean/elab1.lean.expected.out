@@ -130,10 +130,47 @@ A : Type, B : Type, a : ?M::0, b : ?M::1, C : Type ⊢ ?M::0[lift:0:3] ≺ C
   Assumed: b
   Assumed: H
 Failed to solve
- ⊢ if ?M::0 ?M::1 ⊤ ≺ b
+ ⊢ if ?M::0 (if (if ?M::3 (if a ⊥ ⊤) ⊤) ⊥ ⊤) ⊤ ≺ b
     Normalize
-     ⊢ ?M::0 ⇒ ?M::1 ≺ b
-        (line: 20: pos: 18) Type of definition 't1' must be convertible to expected type.
+     ⊢ if ?M::0 (?M::3 ∧ a) ⊤ ≺ b
+        Substitution
+         ⊢ if ?M::0 ?M::1 ⊤ ≺ b
+            Normalize
+             ⊢ ?M::0 ⇒ ?M::1 ≺ b
+                (line: 20: pos: 18) Type of definition 't1' must be convertible to expected type.
+            Assignment
+            H1 : ?M::2 ⊢ ?M::3 ∧ a ≺ ?M::1
+                Substitution
+                H1 : ?M::2 ⊢ ?M::3 ∧ ?M::4 ≺ ?M::1
+                    Destruct/Decompose
+                     ⊢ Π H1 : ?M::2, ?M::3 ∧ ?M::4 ≺ Π _ : ?M::0, ?M::1
+                        (line: 20: pos: 18) Type of argument 3 must be convertible to the expected type in the application of
+                            Discharge::explicit
+                        with arguments:
+                            ?M::0
+                            ?M::1
+                            λ H1 : ?M::2, Conj H1 (Conjunct1 H)
+                    Assignment
+                    H1 : ?M::2 ⊢ a ≺ ?M::4
+                        Substitution
+                        H1 : ?M::2 ⊢ ?M::5 ≺ ?M::4
+                            (line: 20: pos: 37) Type of argument 4 must be convertible to the expected type in the application of
+                                Conj::explicit
+                            with arguments:
+                                ?M::3
+                                ?M::4
+                                H1
+                                Conjunct1 H
+                            Assignment
+                            H1 : ?M::2 ⊢ a ≈ ?M::5
+                                Destruct/Decompose
+                                H1 : ?M::2 ⊢ a ∧ b ≺ ?M::5 ∧ ?M::6
+                                    (line: 20: pos: 45) Type of argument 3 must be convertible to the expected type in the application of
+                                        Conjunct1::explicit
+                                    with arguments:
+                                        ?M::5
+                                        ?M::6
+                                        H
 Failed to solve
  ⊢ b ≈ a
     Substitution

@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/printer.h"
+#include "kernel/metavar.h"
 #include "library/all/all.h"
 using namespace lean;
 
@@ -248,6 +249,30 @@ static void tst6() {
     }
 }
 
+static void tst7() {
+    environment env;
+    import_all(env);
+    metavar_env menv;
+    expr m1 = menv->mk_metavar();
+    expr x  = Const("x");
+    expr F  = Fun({x, Bool}, m1(x))(True);
+    normalizer proc(env);
+    std::cout << F << " --> " << proc(F, context(), menv) << "\n";
+    // In the following assertion, we provide the metavar_env to the normalizer.
+    // Thus, it "knowns" the metavariable does not contain the free variable #0
+    lean_assert_eq(proc(F, context(), menv), m1(True));
+    // In the following assertion, we did not provide the metavar_env to the normalizer.
+    // Thus, it assumes the may contain the free variable #0, then it adds
+    // the local context ?m::0[inst:0 true]
+    lean_assert_eq(proc(F, context()), add_inst(m1, 0, True)(True));
+    // In the following assertion, the normalizer has to use the local context
+    // because the metavariable m2 was defined in a context of size 1.
+    // Thus, it may contain the free variable #0.
+    expr m2 = menv->mk_metavar(context({{"x", Bool}}));
+    expr F2  = Fun({x, Bool}, m2(x))(True);
+    lean_assert_eq(proc(F2, context(), menv), add_inst(m2, 0, True)(True));
+}
+
 int main() {
     save_stack_info();
     tst_church_numbers();
@@ -257,5 +282,6 @@ int main() {
     tst4();
     tst5();
     tst6();
+    tst7();
     return has_violations() ? 1 : 0;
 }

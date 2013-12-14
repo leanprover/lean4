@@ -535,7 +535,7 @@ class elaborator::imp {
     }
 
     expr normalize(context const & ctx, expr const & a) {
-        return m_normalizer(a, ctx);
+        return m_normalizer(a, ctx, m_state.m_menv);
     }
 
     void process_app(context const & ctx, expr & a) {

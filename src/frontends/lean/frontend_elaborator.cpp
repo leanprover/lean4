@@ -175,7 +175,7 @@ class frontend_elaborator::imp {
             if (!f_t || is_pi(*f_t)) {
                 return f_t;
             } else {
-                expr r = m_ref.m_normalizer(*f_t, ctx);
+                expr r = m_ref.m_normalizer(*f_t, ctx, m_ref.m_menv);
                 if (is_pi(r))
                     return some_expr(r);
                 else

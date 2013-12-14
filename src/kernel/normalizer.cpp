@@ -72,11 +72,20 @@ class normalizer::imp {
 
     ro_environment::weak_ref m_env;
     context                  m_ctx;
+    cached_metavar_env       m_menv;
     cache                    m_cache;
     unsigned                 m_max_depth;
     unsigned                 m_depth;
 
     ro_environment env() const { return ro_environment(m_env); }
+
+    expr instantiate(expr const & e, unsigned n, expr const * s) {
+        return ::lean::instantiate(e, n, s, m_menv.to_some_menv());
+    }
+
+    expr add_lift(expr const & m, unsigned s, unsigned n) {
+        return ::lean::add_lift(m, s, n, m_menv.to_some_menv());
+    }
 
     /**
         \brief Auxiliary object for saving the current context.
@@ -164,9 +173,11 @@ class normalizer::imp {
         unsigned len_s     = length(s);
         unsigned len_ctx   = m_ctx.size();
         lean_assert(k >= len_ctx);
+        expr r;
         if (k > len_ctx)
-            lctx = add_lift(lctx, len_s, k - len_ctx);
-        expr r = update_metavar(m, lctx);
+            r = add_lift(m, len_s, k - len_ctx);
+        else
+            r = m;
         buffer<expr> subst;
         for (auto e : s) {
             subst.push_back(reify(e, k));
@@ -296,20 +307,24 @@ public:
         m_depth          = 0;
     }
 
-    expr operator()(expr const & e, context const & ctx) {
+    expr operator()(expr const & e, context const & ctx, optional<metavar_env> const & menv) {
         set_ctx(ctx);
+        if (m_menv.update(menv))
+            m_cache.clear();
         unsigned k = m_ctx.size();
         return reify(normalize(e, value_stack(), k), k);
     }
 
-    void clear() { m_ctx = context(); m_cache.clear(); }
+    void clear() { m_ctx = context(); m_cache.clear(); m_menv.clear(); }
 };
 
 normalizer::normalizer(ro_environment const & env, unsigned max_depth):m_ptr(new imp(env, max_depth)) {}
 normalizer::normalizer(ro_environment const & env):normalizer(env, std::numeric_limits<unsigned>::max()) {}
 normalizer::normalizer(ro_environment const & env, options const & opts):normalizer(env, get_normalizer_max_depth(opts)) {}
 normalizer::~normalizer() {}
-expr normalizer::operator()(expr const & e, context const & ctx) { return (*m_ptr)(e, ctx); }
+expr normalizer::operator()(expr const & e, context const & ctx, optional<metavar_env> const & menv) { return (*m_ptr)(e, ctx, menv); }
+expr normalizer::operator()(expr const & e, context const & ctx, metavar_env const & menv) { return operator()(e, ctx, some_menv(menv)); }
+expr normalizer::operator()(expr const & e, context const & ctx) { return operator()(e, ctx, none_menv()); }
 void normalizer::clear() { m_ptr->clear(); }
 
 expr normalize(expr const & e, ro_environment const & env, context const & ctx) {

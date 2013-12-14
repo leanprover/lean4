@@ -51,7 +51,7 @@ class type_checker::imp {
     }
 
     expr normalize(expr const & e, context const & ctx) {
-        return m_normalizer(e, ctx);
+        return m_normalizer(e, ctx, m_menv.to_some_menv());
     }
 
     expr check_pi(expr const & e, expr const & s, context const & ctx) {

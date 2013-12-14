@@ -32,7 +32,18 @@ class type_inferer::imp {
     cache                     m_cache;
 
     expr normalize(expr const & e, context const & ctx) {
-        return m_normalizer(e, ctx);
+        return m_normalizer(e, ctx, m_menv.to_some_menv());
+    }
+    expr lift_free_vars(expr const & e, unsigned s, unsigned d) {
+        return ::lean::lift_free_vars(e, s, d, m_menv.to_some_menv());
+    }
+
+    expr lift_free_vars(expr const & e, unsigned d) {
+        return ::lean::lift_free_vars(e, d, m_menv.to_some_menv());
+    }
+
+    expr instantiate(expr const & e, unsigned n, expr const * s) {
+        return ::lean::instantiate(e, n, s, m_menv.to_some_menv());
     }
 
     expr check_type(expr const & e, expr const & s, context const & ctx) {

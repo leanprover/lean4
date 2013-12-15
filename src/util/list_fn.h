@@ -158,7 +158,7 @@ list<T> map(list<T> const & l, F && f) {
 
 /**
    \brief Filter/Remove elements from the list
-   that satisfy the given predicate.
+   that do not satisfy the given predicate.
 */
 template<typename T, typename P>
 list<T> filter(list<T> const & l, P && p) {
@@ -168,13 +168,19 @@ list<T> filter(list<T> const & l, P && p) {
         buffer<typename list<T>::cell*> tmp;
         to_buffer(l, tmp);
         unsigned i = tmp.size();
-        list<T> r;
         while (i > 0) {
             --i;
-            if (p(tmp[i]->head()))
-                r = cons(tmp[i]->head(), r);
+            if (!p(tmp[i]->head())) {
+                list<T> r = tmp[i]->tail();
+                while (i > 0) {
+                    --i;
+                    if (p(tmp[i]->head()))
+                        r = cons(tmp[i]->head(), r);
+                }
+                return r;
+            }
         }
-        return r;
+        return l; // not element was removed
     }
 }
 

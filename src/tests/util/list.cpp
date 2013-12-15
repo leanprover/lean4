@@ -209,6 +209,15 @@ static void tst16() {
     lean_assert_eq(map(list<int>(), [](int i) { return i + 10; }), list<int>());
 }
 
+static void tst17() {
+    list<int> l({1, 2, 3, 4});
+    lean_assert(is_eqp(filter(l, [](int v) { return v < 10; }), l));
+    list<int> l2(filter(l, [](int v) { return v != 1; }));
+    lean_assert(is_eqp(tail(l), l2));
+    list<int> l3(filter(l, [](int v) { return v != 2; }));
+    lean_assert(is_eqp(tail(tail(l)), tail(l2)));
+}
+
 int main() {
     tst1();
     tst2();
@@ -226,5 +235,6 @@ int main() {
     tst14();
     tst15();
     tst16();
+    tst17();
     return has_violations() ? 1 : 0;
 }

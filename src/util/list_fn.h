@@ -185,6 +185,30 @@ list<T> filter(list<T> const & l, P && p) {
 }
 
 /**
+   \brief Remove the last element that satisfies \c p.
+*/
+template<typename T, typename P>
+list<T> remove_last(list<T> const & l, P && p) {
+    if (!is_nil(l)) {
+        buffer<typename list<T>::cell*> tmp;
+        to_buffer(l, tmp);
+        unsigned i = tmp.size();
+        while (i > 0) {
+            --i;
+            if (p(tmp[i]->head())) {
+                list<T> r = tmp[i]->tail();
+                while (i > 0) {
+                    --i;
+                    r = cons(tmp[i]->head(), r);
+                }
+                return r;
+            }
+        }
+    }
+    return l;
+}
+
+/**
    \brief Similar to \c map but \c f has signature
 
        <tt>bool f(T const & in, T & out)</tt>

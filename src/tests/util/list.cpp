@@ -218,6 +218,16 @@ static void tst17() {
     lean_assert(is_eqp(tail(tail(l)), tail(l2)));
 }
 
+static void tst18() {
+    list<int> l({1, 2, 3, 4, 5});
+    lean_assert_eq(remove_last(l, [](int v) { return v % 2 == 0; }), list<int>({1, 2, 3, 5}));
+    lean_assert_eq(remove_last(l, [](int v) { return v < 0; }), l);
+    lean_assert(is_eqp(remove_last(l, [](int v) { return v < 0; }), l));
+    list<int> l2 = remove_last(l, [](int v) { return v < 3; });
+    lean_assert_eq(l2, list<int>({1, 3, 4, 5}));
+    lean_assert(is_eqp(tail(tail(l)), tail(l2)));
+}
+
 int main() {
     tst1();
     tst2();
@@ -236,5 +246,6 @@ int main() {
     tst15();
     tst16();
     tst17();
+    tst18();
     return has_violations() ? 1 : 0;
 }

@@ -7,8 +7,11 @@ Author: Leonardo de Moura
 #include <memory>
 #include <vector>
 #include <utility>
-#include "util/pdeque.h"
+#include <algorithm>
+#include "util/list.h"
+#include "util/splay_tree.h"
 #include "util/interrupt.h"
+#include "kernel/for_each_fn.h"
 #include "kernel/formatter.h"
 #include "kernel/free_vars.h"
 #include "kernel/normalizer.h"
@@ -24,31 +27,33 @@ namespace lean {
 static name g_x_name("x");
 
 class elaborator::imp {
-    typedef pdeque<unification_constraint> cnstr_queue;
+    typedef splay_tree<name, name_cmp>                         name_set;
+    typedef list<unification_constraint>                       cnstr_list;
+    typedef list<name>                                         name_list;
+    typedef list<std::pair<unification_constraint, name_list>> delayed_cnstr_list;
 
     struct state {
-        metavar_env m_menv;
-        cnstr_queue m_queue;
-
+        metavar_env        m_menv;
+        cnstr_list         m_active_cnstrs;
+        delayed_cnstr_list m_delayed_cnstrs;
+        name_set           m_recently_assigned; // recently assigned metavars
         state(metavar_env const & menv, unsigned num_cnstrs, unification_constraint const * cnstrs):
-            m_menv(menv.copy()) {
-            for (unsigned i = 0; i < num_cnstrs; i++)
-                m_queue.push_back(cnstrs[i]);
-        }
-
-        state(metavar_env const & menv, cnstr_queue const & q):
             m_menv(menv.copy()),
-            m_queue(q) {
+            m_active_cnstrs(to_list(cnstrs, cnstrs + num_cnstrs)) {
         }
 
         state(state const & other):
             m_menv(other.m_menv.copy()),
-            m_queue(other.m_queue) {
+            m_active_cnstrs(other.m_active_cnstrs),
+            m_delayed_cnstrs(other.m_delayed_cnstrs),
+            m_recently_assigned(other.m_recently_assigned) {
         }
 
         state & operator=(state const & other) {
             m_menv  = other.m_menv.copy();
-            m_queue = other.m_queue;
+            m_active_cnstrs = other.m_active_cnstrs;
+            m_delayed_cnstrs = other.m_delayed_cnstrs;
+            m_recently_assigned = other.m_recently_assigned;
             return *this;
         }
     };
@@ -138,7 +143,6 @@ class elaborator::imp {
     std::vector<std::unique_ptr<case_split>> m_case_splits;
     std::shared_ptr<elaborator_plugin>       m_plugin;
     unsigned                                 m_next_id;
-    int                                      m_quota;
     justification                            m_conflict;
     bool                                     m_first;
 
@@ -153,30 +157,57 @@ class elaborator::imp {
         m_assume_injectivity = true;
     }
 
-    void reset_quota() {
-        m_quota = m_state.m_queue.size();
-    }
-
     justification mk_assumption() {
         unsigned id = m_next_id;
         m_next_id++;
         return mk_assumption_justification(id);
     }
 
-    void push_front(cnstr_queue & q, unification_constraint const & c) {
+    void push_front(cnstr_list & clist, unification_constraint const & c) {
         // std::cout << "PUSHING: "; display(std::cout, c); std::cout << "\n";
-        q.push_front(c);
+        clist = cons(c, clist);
     }
 
-    /** \brief Add given constraint to the front of the current constraint queue */
-    void push_front(unification_constraint const & c) {
-        reset_quota();
-        push_front(m_state.m_queue, c);
+    /** \brief Add given constraint to active list */
+    void push_active(unification_constraint const & c) {
+        push_front(m_state.m_active_cnstrs, c);
     }
 
-    /** \brief Add given constraint to the end of the current constraint queue */
-    void push_back(unification_constraint const & c) {
-        m_state.m_queue.push_back(c);
+    /** \brief Push all contraints in the collection to the active list */
+    void push_active(buffer<unification_constraint> const & cs) {
+        for (auto const & c : cs)
+            push_active(c);
+    }
+
+    /** \brief Collect metavars in \c c */
+    name_list collect_mvars(unification_constraint const & c) {
+        buffer<name> r;
+        auto f = [&](expr const & m, unsigned) {
+            if (is_metavar(m))
+                r.push_back(metavar_name(m));
+            return true;
+        };
+        for_each_fn<decltype(f)> proc(f);
+        switch (c.kind()) {
+        case unification_constraint_kind::Eq:
+            proc(eq_lhs(c)); proc(eq_rhs(c)); break;
+        case unification_constraint_kind::Convertible:
+            proc(convertible_from(c)); proc(convertible_to(c)); break;
+        case unification_constraint_kind::Max:
+            proc(max_lhs1(c)); proc(max_lhs2(c)); proc(max_rhs(c)); break;
+        case unification_constraint_kind::Choice:
+            lean_unreachable(); // we never delay Choice
+            break;
+        }
+        std::sort(r.begin(), r.end(), name_quick_cmp());
+        auto new_end = std::unique(r.begin(), r.end());
+        r.resize(r.size() + r.end() - new_end);
+        return to_list(r.begin(), r.end());
+    }
+
+    /** \brief Add given constraint to the delayed list */
+    void push_delayed(unification_constraint const & c) {
+        m_state.m_delayed_cnstrs.emplace_front(c, collect_mvars(c));
     }
 
     /** \brief Return true iff \c m is an assigned metavariable in the current state */
@@ -280,35 +311,40 @@ class elaborator::imp {
     }
 
     /**
-       \brief Push a new constraint to the given constraint queue.
+       \brief Push a new constraint to the active_cnstrs.
        If \c is_eq is true, then a equality constraint is created, otherwise a convertability constraint is created.
     */
-    void push_new_constraint(cnstr_queue & q, bool is_eq, context const & new_ctx, expr const & new_a, expr const & new_b, justification const & new_jst) {
+    void push_new_constraint(cnstr_list & active_cnstrs, bool is_eq,
+                             context const & new_ctx, expr const & new_a, expr const & new_b, justification const & new_jst) {
         if (is_eq)
-            push_front(q, mk_eq_constraint(new_ctx, new_a, new_b, new_jst));
+            push_front(active_cnstrs, mk_eq_constraint(new_ctx, new_a, new_b, new_jst));
         else
-            push_front(q, mk_convertible_constraint(new_ctx, new_a, new_b, new_jst));
+            push_front(active_cnstrs, mk_convertible_constraint(new_ctx, new_a, new_b, new_jst));
     }
 
     /**
-       \brief Push a new equality constraint <tt>new_ctx |- new_a == new_b</tt> into the given contraint queue using
+       \brief Push a new equality constraint <tt>new_ctx |- new_a == new_b</tt> into the active_cnstrs using
        justification \c new_jst.
     */
-    void push_new_eq_constraint(cnstr_queue & q, context const & new_ctx, expr const & new_a, expr const & new_b, justification const & new_jst) {
-        push_new_constraint(q, true, new_ctx, new_a, new_b, new_jst);
+    void push_new_eq_constraint(cnstr_list & active_cnstrs,
+                                context const & new_ctx, expr const & new_a, expr const & new_b, justification const & new_jst) {
+        push_new_constraint(active_cnstrs, true, new_ctx, new_a, new_b, new_jst);
+    }
+
+    void push_new_eq_constraint(context const & new_ctx, expr const & new_a, expr const & new_b, justification const & new_jst) {
+        push_new_eq_constraint(m_state.m_active_cnstrs, new_ctx, new_a, new_b, new_jst);
     }
 
     /**
-       \brief Auxiliary method for pushing a new constraint to the current constraint queue.
+       \brief Auxiliary method for pushing a new constraint to the current active list.
        If \c is_eq is true, then a equality constraint is created, otherwise a convertability constraint is created.
     */
     void push_new_constraint(bool is_eq, context const & new_ctx, expr const & new_a, expr const & new_b, justification const & new_jst) {
-        reset_quota();
-        push_new_constraint(m_state.m_queue, is_eq, new_ctx, new_a, new_b, new_jst);
+        push_new_constraint(m_state.m_active_cnstrs, is_eq, new_ctx, new_a, new_b, new_jst);
     }
 
     /**
-       \brief Auxiliary method for pushing a new constraint to the current constraint queue.
+       \brief Auxiliary method for pushing a new constraint to the current active constraint list.
        The new constraint is based on the constraint \c c. The constraint \c c may be a equality or convertability constraint.
        The update is justified by \c new_jst.
     */
@@ -316,13 +352,13 @@ class elaborator::imp {
         lean_assert(is_eq(c) || is_convertible(c));
         context const & ctx = get_context(c);
         if (is_eq(c))
-            push_front(mk_eq_constraint(ctx, new_a, new_b, new_jst));
+            push_active(mk_eq_constraint(ctx, new_a, new_b, new_jst));
         else
-            push_front(mk_convertible_constraint(ctx, new_a, new_b, new_jst));
+            push_active(mk_convertible_constraint(ctx, new_a, new_b, new_jst));
     }
 
     /**
-       \brief Auxiliary method for pushing a new constraint to the current constraint queue.
+       \brief Auxiliary method for pushing a new constraint to the current active constraint list.
        The new constraint is based on the constraint \c c. The constraint \c c may be a equality or convertability constraint.
        The flag \c is_lhs says if the left-hand-side or right-hand-side are being updated with \c new_a.
        The update is justified by \c new_jst.
@@ -332,14 +368,14 @@ class elaborator::imp {
         context const & ctx = get_context(c);
         if (is_eq(c)) {
             if (is_lhs)
-                push_front(mk_eq_constraint(ctx, new_a, eq_rhs(c), new_jst));
+                push_active(mk_eq_constraint(ctx, new_a, eq_rhs(c), new_jst));
             else
-                push_front(mk_eq_constraint(ctx, eq_lhs(c), new_a, new_jst));
+                push_active(mk_eq_constraint(ctx, eq_lhs(c), new_a, new_jst));
         } else {
             if (is_lhs)
-                push_front(mk_convertible_constraint(ctx, new_a, convertible_to(c), new_jst));
+                push_active(mk_convertible_constraint(ctx, new_a, convertible_to(c), new_jst));
             else
-                push_front(mk_convertible_constraint(ctx, convertible_from(c), new_a, new_jst));
+                push_active(mk_convertible_constraint(ctx, convertible_from(c), new_a, new_jst));
         }
     }
 
@@ -358,7 +394,6 @@ class elaborator::imp {
         lean_assert(is_metavar(m));
         if (instantiate_metavars(!is_lhs, v, c)) // make sure v does not have assigned metavars
             return true;
-        reset_quota();
         context const & ctx = get_context(c);
         justification jst(new assignment_justification(c));
         metavar_env const & menv = m_state.m_menv;
@@ -369,16 +404,15 @@ class elaborator::imp {
         if (menv->has_type(m)) {
             buffer<unification_constraint> ucs;
             expr tv = m_type_inferer(v, ctx, menv, ucs);
-            for (auto c : ucs)
-                push_front(c);
+            push_active(ucs);
             justification new_jst(new typeof_mvar_justification(ctx, m, menv->get_type(m), tv, jst));
-            push_front(mk_convertible_constraint(ctx, tv, menv->get_type(m), new_jst));
+            push_active(mk_convertible_constraint(ctx, tv, menv->get_type(m), new_jst));
         }
+        m_state.m_recently_assigned.insert(metavar_name(m));
         return true;
     }
 
     bool process(unification_constraint const & c) {
-        m_quota--;
         switch (c.kind()) {
         case unification_constraint_kind::Eq:          return process_eq(c);
         case unification_constraint_kind::Convertible: return process_convertible(c);
@@ -737,7 +771,7 @@ class elaborator::imp {
             expr s = mk_lambda(types, b);
             if (!is_lhs)
                 swap(m, s);
-            push_front(mk_eq_constraint(ctx, m, s, new_jst));
+            push_active(mk_eq_constraint(ctx, m, s, new_jst));
             return true;
         } else {
             return false;
@@ -747,7 +781,8 @@ class elaborator::imp {
     /**
        \brief Auxiliary method for \c process_meta_app. Add new case-splits to new_cs
     */
-    void process_meta_app_core(std::unique_ptr<generic_case_split> & new_cs, expr const & a, expr const & b, bool is_lhs, unification_constraint const & c) {
+    void process_meta_app_core(std::unique_ptr<generic_case_split> & new_cs, expr const & a, expr const & b, bool is_lhs,
+                               unification_constraint const & c) {
         lean_assert(is_meta_app(a));
         context const & ctx = get_context(c);
         metavar_env & menv  = m_state.m_menv;
@@ -762,8 +797,7 @@ class elaborator::imp {
         context h_ctx = menv->get_context(metavar_name(f_a));
         for (unsigned i = 1; i < num_a; i++) {
             arg_types.push_back(m_type_inferer(arg(a, i), ctx, menv, ucs));
-            for (auto uc : ucs)
-                push_front(uc);
+            push_active(ucs);
             h_ctx = extend(h_ctx, name(g_x_name, i), arg_types.back());
         }
         // Add projections
@@ -776,8 +810,8 @@ class elaborator::imp {
             expr new_b           = b;
             if (!is_lhs)
                 swap(new_a, new_b);
-            push_new_constraint(new_state.m_queue, is_eq(c), ctx, new_a, new_b, new_assumption);
-            push_new_eq_constraint(new_state.m_queue, ctx, f_a, proj, new_assumption);
+            push_new_constraint(new_state.m_active_cnstrs, is_eq(c), ctx, new_a, new_b, new_assumption);
+            push_new_eq_constraint(new_state.m_active_cnstrs, ctx, f_a, proj, new_assumption);
             new_cs->push_back(new_state, new_assumption);
         }
         // Add imitation
@@ -797,7 +831,7 @@ class elaborator::imp {
                 // Remark: h_ctx is "ctx, (x_{num_a} : T_{num_a}) ... (x_1 : T_1)" because h_i is inside of the lambda
                 expr h_i = new_state.m_menv->mk_metavar(h_ctx);
                 imitation_args.push_back(mk_app_vars(h_i, num_a - 1));
-                push_new_eq_constraint(new_state.m_queue, ctx, update_app(a, 0, h_i), arg(b, i), new_assumption);
+                push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_i), arg(b, i), new_assumption);
             }
             imitation = mk_lambda(arg_types, mk_app(imitation_args));
         } else if (is_eq(b)) {
@@ -807,8 +841,8 @@ class elaborator::imp {
             //                 (h_2 a_1 ... a_{num_a}) == eq_rhs(b)
             expr h_1 = new_state.m_menv->mk_metavar(h_ctx);
             expr h_2 = new_state.m_menv->mk_metavar(h_ctx);
-            push_new_eq_constraint(new_state.m_queue, ctx, update_app(a, 0, h_1), eq_lhs(b), new_assumption);
-            push_new_eq_constraint(new_state.m_queue, ctx, update_app(a, 0, h_2), eq_rhs(b), new_assumption);
+            push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_1), eq_lhs(b), new_assumption);
+            push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_2), eq_rhs(b), new_assumption);
             imitation = mk_lambda(arg_types, mk_eq(mk_app_vars(h_1, num_a - 1), mk_app_vars(h_2, num_a - 1)));
         } else if (is_abstraction(b)) {
             // Imitation for lambdas and Pis
@@ -819,8 +853,8 @@ class elaborator::imp {
             expr h_1 = new_state.m_menv->mk_metavar(h_ctx);
             context new_ctx = extend(ctx, abst_name(b), abst_domain(b));
             expr h_2 = new_state.m_menv->mk_metavar(extend(h_ctx, abst_name(b), abst_domain(b)));
-            push_new_eq_constraint(new_state.m_queue, ctx, update_app(a, 0, h_1), abst_domain(b), new_assumption);
-            push_new_eq_constraint(new_state.m_queue, new_ctx,
+            push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_1), abst_domain(b), new_assumption);
+            push_new_eq_constraint(new_state.m_active_cnstrs, new_ctx,
                                    mk_app(update_app(a, 0, h_2), mk_var(0)), abst_body(b), new_assumption);
             imitation = mk_lambda(arg_types, update_abstraction(b, mk_app_vars(h_1, num_a - 1), mk_app_vars(h_2, num_a)));
         } else {
@@ -828,7 +862,7 @@ class elaborator::imp {
             // Assign f_a <- fun (x_1 : T_1) ... (x_{num_a} : T_{num_a}), b
             imitation = mk_lambda(arg_types, lift_free_vars(b, 0, num_a - 1, new_state.m_menv));
         }
-        push_new_eq_constraint(new_state.m_queue, ctx, f_a, imitation, new_assumption);
+        push_new_eq_constraint(new_state.m_active_cnstrs, ctx, f_a, imitation, new_assumption);
         new_cs->push_back(new_state, new_assumption);
     }
 
@@ -838,21 +872,24 @@ class elaborator::imp {
        for further details.
     */
     bool process_meta_app(expr const & a, expr const & b, bool is_lhs, unification_constraint const & c, bool flex_flex = false) {
-        if (is_meta_app(a) &&
-            (flex_flex || !is_meta_app(b)) &&
-            (is_eq(c) || (is_lhs && !is_actual_upper(b)) || (!is_lhs && !is_actual_lower(b)))) {
-            std::unique_ptr<generic_case_split> new_cs(new generic_case_split(c, m_state));
-            process_meta_app_core(new_cs, a, b, is_lhs, c);
-            if (flex_flex && is_meta_app(b))
-                process_meta_app_core(new_cs, b, a, !is_lhs, c);
-            bool r = new_cs->next(*this);
-            lean_assert(r);
-            m_case_splits.push_back(std::move(new_cs));
-            reset_quota();
-            return r;
-        } else {
+        if (!is_meta_app(a))
             return false;
+        if (!flex_flex) {
+            if (is_meta_app(b))
+                return false;
+            if (is_abstraction(b) && is_meta_app(abst_domain(b)) && is_meta_app(abst_body(b)))
+                return false;
         }
+        if (!(is_eq(c) || (is_lhs && !is_actual_upper(b)) || (!is_lhs && !is_actual_lower(b))))
+            return false;
+        std::unique_ptr<generic_case_split> new_cs(new generic_case_split(c, m_state));
+        process_meta_app_core(new_cs, a, b, is_lhs, c);
+        if (flex_flex && is_meta_app(b))
+            process_meta_app_core(new_cs, b, a, !is_lhs, c);
+        bool r = new_cs->next(*this);
+        lean_assert(r);
+        m_case_splits.push_back(std::move(new_cs));
+        return r;
     }
 
     /** \brief Return true if \c a is of the form ?m[inst:i t, ...] */
@@ -882,8 +919,7 @@ class elaborator::imp {
             metavar_env & menv  = m_state.m_menv;
             buffer<unification_constraint> ucs;
             expr b_type = m_type_inferer(b, ctx, menv, ucs);
-            for (auto uc : ucs)
-                push_front(uc);
+            push_active(ucs);
             context ctx_with_i = ctx.insert_at(i, g_x_name, b_type); // must add entry for variable #i in the context
 
             std::unique_ptr<generic_case_split> new_cs(new generic_case_split(c, m_state));
@@ -892,13 +928,13 @@ class elaborator::imp {
                 state new_state(m_state);
                 justification new_assumption = mk_assumption();
                 // add ?m[...] == #1
-                push_new_eq_constraint(new_state.m_queue, ctx_with_i, pop_meta_context(a), mk_var(i), new_assumption);
+                push_new_eq_constraint(new_state.m_active_cnstrs, ctx_with_i, pop_meta_context(a), mk_var(i), new_assumption);
                 // add t == b (t << b)
                 expr new_a = t;
                 expr new_b = b;
                 if (!is_lhs)
                     swap(new_a, new_b);
-                push_new_constraint(new_state.m_queue, is_eq(c), ctx, new_a, new_b, new_assumption);
+                push_new_constraint(new_state.m_active_cnstrs, is_eq(c), ctx, new_a, new_b, new_assumption);
                 new_cs->push_back(new_state, new_assumption);
             }
             {
@@ -916,7 +952,7 @@ class elaborator::imp {
                     for (unsigned j = 1; j < num_b; j++) {
                         expr h_j = new_state.m_menv->mk_metavar(ctx);
                         imitation_args.push_back(h_j);
-                        push_new_eq_constraint(new_state.m_queue, ctx, h_j, lift_free_vars(arg(b, j), i, 1, new_state.m_menv), new_assumption);
+                        push_new_eq_constraint(new_state.m_active_cnstrs, ctx, h_j, lift_free_vars(arg(b, j), i, 1, new_state.m_menv), new_assumption);
                     }
                     imitation = mk_app(imitation_args);
                 } else if (is_eq(b)) {
@@ -925,28 +961,29 @@ class elaborator::imp {
                     expr h_1 = new_state.m_menv->mk_metavar(ctx);
                     expr h_2 = new_state.m_menv->mk_metavar(ctx);
                     imitation = mk_eq(h_1, h_2);
-                    push_new_eq_constraint(new_state.m_queue, ctx, h_1, lift_free_vars(eq_lhs(b), i, 1, new_state.m_menv), new_assumption);
-                    push_new_eq_constraint(new_state.m_queue, ctx, h_2, lift_free_vars(eq_rhs(b), i, 1, new_state.m_menv), new_assumption);
+                    push_new_eq_constraint(new_state.m_active_cnstrs, ctx, h_1, lift_free_vars(eq_lhs(b), i, 1, new_state.m_menv), new_assumption);
+                    push_new_eq_constraint(new_state.m_active_cnstrs, ctx, h_2, lift_free_vars(eq_rhs(b), i, 1, new_state.m_menv), new_assumption);
                 } else if (is_abstraction(b)) {
                     // Lambdas and Pis
                     // Imitation for Lambdas and Pis, b == Fun(x:T) B
                     // mname <- Fun (x:?h_1) ?h_2
                     expr h_1 = new_state.m_menv->mk_metavar(ctx);
-                    push_new_eq_constraint(new_state.m_queue, ctx, h_1, lift_free_vars(abst_domain(b), i, 1, new_state.m_menv), new_assumption);
+                    push_new_eq_constraint(new_state.m_active_cnstrs, ctx, h_1, lift_free_vars(abst_domain(b), i, 1, new_state.m_menv),
+                                           new_assumption);
                     context new_ctx = extend(ctx, abst_name(b), abst_domain(b));
                     expr h_2 = new_state.m_menv->mk_metavar(new_ctx);
                     imitation = update_abstraction(b, h_1, h_2);
-                    push_new_eq_constraint(new_state.m_queue, new_ctx, h_2, lift_free_vars(abst_body(b), i+1, 1, new_state.m_menv), new_assumption);
+                    push_new_eq_constraint(new_state.m_active_cnstrs, new_ctx, h_2, lift_free_vars(abst_body(b), i+1, 1, new_state.m_menv),
+                                           new_assumption);
                 } else {
                     imitation = lift_free_vars(b, i, 1, new_state.m_menv);
                 }
-                push_new_eq_constraint(new_state.m_queue, ctx_with_i, pop_meta_context(a), imitation, new_assumption);
+                push_new_eq_constraint(new_state.m_active_cnstrs, ctx_with_i, pop_meta_context(a), imitation, new_assumption);
                 new_cs->push_back(new_state, new_assumption);
             }
             bool r = new_cs->next(*this);
             lean_assert(r);
             m_case_splits.push_back(std::move(new_cs));
-            reset_quota();
             return r;
         } else {
             return false;
@@ -960,7 +997,7 @@ class elaborator::imp {
     */
     bool process_metavar_lift_abstraction(expr const & a, expr const & b, unification_constraint const & c) {
         if (is_metavar_lift(a) && is_abstraction(b)) {
-            push_back(c);
+            push_active(c);
             // a <- (fun x : ?h1, ?h2)  or (Pi x : ?h1, ?h2)
             // ?h1 is in the same context where 'a' was defined
             // ?h2 is in the context of 'a' + domain of b
@@ -995,11 +1032,11 @@ class elaborator::imp {
             justification new_jst(new destruct_justification(c));
             if (is_bool(a)) {
                 expr choices[5] = { Bool, Type(), Type(level() + 1), TypeM, TypeU };
-                push_front(mk_choice_constraint(get_context(c), b, 5, choices, new_jst));
+                push_active(mk_choice_constraint(get_context(c), b, 5, choices, new_jst));
                 return true;
             } else {
                 expr choices[5] = { a, Type(ty_level(a) + 1), Type(ty_level(a) + 2), TypeM, TypeU };
-                push_front(mk_choice_constraint(get_context(c), b, 5, choices, new_jst));
+                push_active(mk_choice_constraint(get_context(c), b, 5, choices, new_jst));
                 return true;
             }
         } else {
@@ -1012,11 +1049,12 @@ class elaborator::imp {
     */
     template<typename P>
     bool has_constraint(P p) {
-        auto it  = m_state.m_queue.begin();
-        auto end = m_state.m_queue.end();
-        for (; it != end; ++it) {
-            unification_constraint const & c = *it;
+        for (auto const & c : m_state.m_active_cnstrs) {
             if (p(c))
+                return true;
+        }
+        for (auto const & c : m_state.m_delayed_cnstrs) {
+            if (p(c.first))
                 return true;
         }
         return false;
@@ -1057,15 +1095,15 @@ class elaborator::imp {
             justification new_jst(new destruct_justification(c));
             if (b == Type()) {
                 expr choices[2] = { Type(), Bool };
-                push_front(mk_choice_constraint(get_context(c), a, 2, choices, new_jst));
+                push_active(mk_choice_constraint(get_context(c), a, 2, choices, new_jst));
                 return true;
             } else if (b == TypeU) {
                 expr choices[5] = { TypeU, TypeM, Type(level() + 1), Type(), Bool };
-                push_front(mk_choice_constraint(get_context(c), a, 5, choices, new_jst));
+                push_active(mk_choice_constraint(get_context(c), a, 5, choices, new_jst));
                 return true;
             } else if (b == TypeM) {
                 expr choices[4] = { TypeM, Type(level() + 1), Type(), Bool };
-                push_front(mk_choice_constraint(get_context(c), a, 4, choices, new_jst));
+                push_active(mk_choice_constraint(get_context(c), a, 4, choices, new_jst));
                 return true;
             } else {
                 level const & lvl = ty_level(b);
@@ -1085,11 +1123,11 @@ class elaborator::imp {
                     if (!L.is_bottom())
                         choices.push_back(Type());
                     choices.push_back(Bool);
-                    push_front(mk_choice_constraint(get_context(c), a, choices.size(), choices.data(), new_jst));
+                    push_active(mk_choice_constraint(get_context(c), a, choices.size(), choices.data(), new_jst));
                     return true;
                 } else if (is_uvar(lvl)) {
                     expr choices[4] = { Type(level() + 1), Type(), b, Bool };
-                    push_front(mk_choice_constraint(get_context(c), a, 4, choices, new_jst));
+                    push_active(mk_choice_constraint(get_context(c), a, 4, choices, new_jst));
                     return true;
                 } else {
                     lean_assert(is_max(lvl));
@@ -1116,7 +1154,7 @@ class elaborator::imp {
             // ctx |- a2 == b2
             justification new_jst(new destruct_justification(c));
             for (unsigned i = 1; i < num_args(a); i++)
-                push_front(mk_eq_constraint(ctx, arg(a, i), arg(b, i), new_jst));
+                push_active(mk_eq_constraint(ctx, arg(a, i), arg(b, i), new_jst));
             return true;
         }
 
@@ -1171,25 +1209,25 @@ class elaborator::imp {
                 }
             case expr_kind::Eq: {
                 justification new_jst(new destruct_justification(c));
-                push_front(mk_eq_constraint(ctx, eq_lhs(a), eq_lhs(b), new_jst));
-                push_front(mk_eq_constraint(ctx, eq_rhs(a), eq_rhs(b), new_jst));
+                push_active(mk_eq_constraint(ctx, eq_lhs(a), eq_lhs(b), new_jst));
+                push_active(mk_eq_constraint(ctx, eq_rhs(a), eq_rhs(b), new_jst));
                 return true;
             }
             case expr_kind::Pi: {
                 justification new_jst(new destruct_justification(c));
-                push_front(mk_eq_constraint(ctx, abst_domain(a), abst_domain(b), new_jst));
+                push_active(mk_eq_constraint(ctx, abst_domain(a), abst_domain(b), new_jst));
                 context new_ctx = extend(ctx, abst_name(a), abst_domain(a));
                 if (eq)
-                    push_front(mk_eq_constraint(new_ctx, abst_body(a), abst_body(b), new_jst));
+                    push_active(mk_eq_constraint(new_ctx, abst_body(a), abst_body(b), new_jst));
                 else
-                    push_front(mk_convertible_constraint(new_ctx, abst_body(a), abst_body(b), new_jst));
+                    push_active(mk_convertible_constraint(new_ctx, abst_body(a), abst_body(b), new_jst));
                 return true;
             }
             case expr_kind::Lambda: {
                 justification new_jst(new destruct_justification(c));
-                push_front(mk_eq_constraint(ctx, abst_domain(a), abst_domain(b), new_jst));
+                push_active(mk_eq_constraint(ctx, abst_domain(a), abst_domain(b), new_jst));
                 context new_ctx = extend(ctx, abst_name(a), abst_domain(a));
-                push_front(mk_eq_constraint(new_ctx, abst_body(a), abst_body(b), new_jst));
+                push_active(mk_eq_constraint(new_ctx, abst_body(a), abst_body(b), new_jst));
                 return true;
             }
             case expr_kind::App:
@@ -1197,7 +1235,7 @@ class elaborator::imp {
                     if (num_args(a) == num_args(b)) {
                         justification new_jst(new destruct_justification(c));
                         for (unsigned i = 0; i < num_args(a); i++)
-                            push_front(mk_eq_constraint(ctx, arg(a, i), arg(b, i), new_jst));
+                            push_active(mk_eq_constraint(ctx, arg(a, i), arg(b, i), new_jst));
                         return true;
                     } else {
                         m_conflict = justification(new unification_failure_justification(c));
@@ -1226,37 +1264,16 @@ class elaborator::imp {
         // Here is an example:
         //     |- (?m Type) << Type
         // If ?m is assigned to the identity function (fun x, x), then the constraint can be solved.
-        if (a.kind() != b.kind() && !is_metavar(a) && !is_metavar(b) && !(is_app(a) && has_metavar(arg(a, 0))) && !(is_app(b) && has_metavar(arg(b, 0)))) {
+        if (a.kind() != b.kind() && !is_metavar(a) && !is_metavar(b) &&
+            !(is_app(a) && has_metavar(arg(a, 0))) && !(is_app(b) && has_metavar(arg(b, 0)))) {
+            // std::cout << "CONFLICT: "; display(std::cout, c); std::cout << "\n";
             m_conflict = justification(new unification_failure_justification(c));
             return false;
         }
 
-        if (m_quota < 0) {
-            // process expensive cases
-            if (process_meta_app(a, b, true, c) || process_meta_app(b, a, false, c))
-                return true;
-        }
-
-        if (m_quota < - static_cast<int>(m_state.m_queue.size())) {
-            // std::cout << "\n\nTRYING EXPENSIVE STEP...\n";
-            // display(std::cout);
-            // process very expensive cases
-            if (process_lower(a, b, c) ||
-                process_upper(a, b, c) ||
-                process_metavar_inst(a, b, true, c) ||
-                process_metavar_inst(b, a, false, c) ||
-                process_metavar_lift_abstraction(a, b, c) ||
-                process_metavar_lift_abstraction(b, a, c) ||
-                process_meta_app(a, b, true, c, true))
-                return true;
-        }
-
-        // std::cout << "Postponed: "; display(std::cout, c);
-        push_back(c);
-
+        push_delayed(c);
         return true;
     }
-
 
     bool process_max(unification_constraint const & c) {
         expr lhs1 = max_lhs1(c);
@@ -1281,7 +1298,7 @@ class elaborator::imp {
         }
         if (modified) {
             justification new_jst = mk_subst_justification(c, jsts);
-            push_front(mk_max_constraint(get_context(c), new_lhs1, new_lhs2, new_rhs, new_jst));
+            push_active(mk_max_constraint(get_context(c), new_lhs1, new_lhs2, new_rhs, new_jst));
             return true;
         }
         if (!is_metavar(lhs1) && !is_type(lhs1)) {
@@ -1298,7 +1315,7 @@ class elaborator::imp {
         }
         if (modified) {
             justification new_jst(new normalize_justification(c));
-            push_front(mk_max_constraint(get_context(c), new_lhs1, new_lhs2, new_rhs, new_jst));
+            push_active(mk_max_constraint(get_context(c), new_lhs1, new_lhs2, new_rhs, new_jst));
             return true;
         }
         if (is_bool(lhs1))
@@ -1308,7 +1325,7 @@ class elaborator::imp {
         if (is_type(lhs1) && is_type(lhs2)) {
             justification new_jst(new normalize_justification(c));
             expr new_lhs = mk_type(max(ty_level(lhs1), ty_level(lhs2)));
-            push_front(mk_eq_constraint(get_context(c), new_lhs, rhs, new_jst));
+            push_active(mk_eq_constraint(get_context(c), new_lhs, rhs, new_jst));
             return true;
         }
         if (lhs1 == rhs) {
@@ -1316,14 +1333,14 @@ class elaborator::imp {
             // ==>  IF lhs1 = rhs
             // ctx |- lhs2 << rhs
             justification new_jst(new normalize_justification(c));
-            push_front(mk_convertible_constraint(get_context(c), lhs2, rhs, new_jst));
+            push_active(mk_convertible_constraint(get_context(c), lhs2, rhs, new_jst));
             return true;
         } else if (lhs2 == rhs) {
             // ctx |- max(lhs1, lhs2) == rhs
             // ==>  IF lhs1 = rhs
             // ctx |- lhs2 << rhs
             justification new_jst(new normalize_justification(c));
-            push_front(mk_convertible_constraint(get_context(c), lhs1, rhs, new_jst));
+            push_active(mk_convertible_constraint(get_context(c), lhs1, rhs, new_jst));
             return true;
         }
 
@@ -1332,9 +1349,8 @@ class elaborator::imp {
             m_conflict = justification(new unification_failure_justification(c));
             return false;
         }
-
         // std::cout << "Postponed: "; display(std::cout, c);
-        push_back(c);
+        push_delayed(c);
         return true;
     }
 
@@ -1360,7 +1376,6 @@ class elaborator::imp {
                 d->m_failed_justifications.push_back(m_conflict);
                 if (d->next(*this)) {
                     m_conflict = justification();
-                    reset_quota();
                     return;
                 }
             }
@@ -1376,10 +1391,11 @@ class elaborator::imp {
             s.m_idx++;
             s.m_curr_assumption = mk_assumption();
             m_state = s.m_prev_state;
-            push_front(mk_eq_constraint(get_context(choice), choice_mvar(choice), choice_ith(choice, idx), s.m_curr_assumption));
+            push_active(mk_eq_constraint(get_context(choice), choice_mvar(choice), choice_ith(choice, idx), s.m_curr_assumption));
             return true;
         } else {
-            m_conflict = justification(new unification_failure_by_cases_justification(choice, s.m_failed_justifications.size(), s.m_failed_justifications.data()));
+            m_conflict = justification(new unification_failure_by_cases_justification(choice, s.m_failed_justifications.size(),
+                                                                                      s.m_failed_justifications.data()));
             return false;
         }
     }
@@ -1393,7 +1409,8 @@ class elaborator::imp {
             m_state             = s.m_states[sz - idx - 1];
             return true;
         } else {
-            m_conflict = justification(new unification_failure_by_cases_justification(s.m_constraint, s.m_failed_justifications.size(), s.m_failed_justifications.data()));
+            m_conflict = justification(new unification_failure_by_cases_justification(s.m_constraint, s.m_failed_justifications.size(),
+                                                                                      s.m_failed_justifications.data()));
             return false;
         }
     }
@@ -1402,16 +1419,99 @@ class elaborator::imp {
         try {
             s.m_curr_assumption = mk_assumption();
             std::pair<metavar_env, list<unification_constraint>> r = s.m_alternatives->next(s.m_curr_assumption);
-            m_state.m_queue     = s.m_prev_state.m_queue;
-            m_state.m_menv      = r.first;
+            m_state.m_active_cnstrs     = s.m_prev_state.m_active_cnstrs;
+            m_state.m_delayed_cnstrs    = s.m_prev_state.m_delayed_cnstrs;
+            m_state.m_recently_assigned = s.m_prev_state.m_recently_assigned;
+            m_state.m_menv              = r.first;
             for (auto c : r.second) {
-                push_front(c);
+                push_active(c);
             }
             return true;
         } catch (exception & ex) {
-            m_conflict = justification(new unification_failure_by_cases_justification(s.m_constraint, s.m_failed_justifications.size(), s.m_failed_justifications.data()));
+            m_conflict = justification(new unification_failure_by_cases_justification(s.m_constraint, s.m_failed_justifications.size(),
+                                                                                      s.m_failed_justifications.data()));
             return false;
         }
+    }
+
+    bool process_delayed() {
+        name_set const & recently_assigned = m_state.m_recently_assigned;
+        m_state.m_delayed_cnstrs =
+            filter(m_state.m_delayed_cnstrs,
+                   [&](std::pair<unification_constraint, name_list> const & p) {
+                       bool found = false;
+                       for (auto const & m : p.second) {
+                           if (recently_assigned.contains(m)) {
+                               found = true;
+                               break;
+                           }
+                       }
+                       if (found) {
+                           push_active(p.first);
+                           return false;
+                       } else {
+                           return true;
+                       }
+                   });
+
+        m_state.m_recently_assigned = name_set(); // reset
+        lean_assert(m_state.m_recently_assigned.empty());
+        if (!empty(m_state.m_active_cnstrs))
+            return true;
+        // second pass trying to apply process_meta_app
+        m_state.m_delayed_cnstrs =
+            remove_last(m_state.m_delayed_cnstrs,
+                        [&](std::pair<unification_constraint, name_list> const & p) {
+                            unification_constraint const & c = p.first;
+                            if (is_eq(c) || is_convertible(c)) {
+                                expr const & a = is_eq(c) ? eq_lhs(c) : convertible_from(c);
+                                expr const & b = is_eq(c) ? eq_rhs(c) : convertible_to(c);
+                                if ((process_meta_app(a, b, true, c) || process_meta_app(b, a, false, c))) {
+                                    // std::cout << "META_APP: "; display(std::cout, c); std::cout << "\n";
+                                    return true;
+                                }
+                            }
+                            return false;
+                        });
+        if (!empty(m_state.m_active_cnstrs))
+            return true;
+        // final pass trying expensive constraints
+        m_state.m_delayed_cnstrs =
+            remove_last(m_state.m_delayed_cnstrs,
+                        [&](std::pair<unification_constraint, name_list> const & p) {
+                            unification_constraint const & c = p.first;
+                            if (is_eq(c) || is_convertible(c)) {
+                                // std::cout << "EXPENSIVE: "; display(std::cout, c); std::cout << "\n";
+                                expr const & a = is_eq(c) ? eq_lhs(c) : convertible_from(c);
+                                expr const & b = is_eq(c) ? eq_rhs(c) : convertible_to(c);
+                                if (process_lower(a, b, c) ||
+                                    process_upper(a, b, c) ||
+                                    process_metavar_inst(a, b, true, c) ||
+                                    process_metavar_inst(b, a, false, c) ||
+                                    process_metavar_lift_abstraction(a, b, c) ||
+                                    process_metavar_lift_abstraction(b, a, c) ||
+                                    process_meta_app(a, b, true, c, true)) {
+                                    return true;
+                                }
+                            }
+                            return false;
+                        });
+        if (!empty(m_state.m_active_cnstrs))
+            return true;
+        // "approximated mode"
+        // change convertability into equality constraint
+        m_state.m_delayed_cnstrs =
+            remove_last(m_state.m_delayed_cnstrs,
+                        [&](std::pair<unification_constraint, name_list> const & p) {
+                            if (is_convertible(p.first)) {
+                                unification_constraint const & c = p.first;
+                                // std::cout << "CONVERTABILITY: "; display(std::cout, c); std::cout << "\n";
+                                push_new_eq_constraint(get_context(c), convertible_from(c), convertible_to(c), get_justification(c));
+                                return true;
+                            }
+                            return false;
+                        });
+        return !empty(m_state.m_active_cnstrs);
     }
 
 public:
@@ -1424,7 +1524,6 @@ public:
         m_plugin(p) {
         set_options(opts);
         m_next_id     = 0;
-        m_quota       = 0;
         m_first       = true;
         // display(std::cout);
     }
@@ -1446,20 +1545,25 @@ public:
             m_conflict = justification(new next_solution_justification(0, nullptr));
             throw elaborator_exception(m_conflict);
         }
-        reset_quota();
         while (true) {
             check_interrupted();
-            cnstr_queue & q = m_state.m_queue;
-            if (q.empty() || m_quota < - static_cast<int>(q.size()) - 10) {
-                // TODO(Leo): improve exit condition
-                return m_state.m_menv;
-            } else {
-                unification_constraint c = q.front();
-                // std::cout << "Processing, quota: " << m_quota << ", depth: " << m_case_splits.size() << " "; display(std::cout, c);
-                q.pop_front();
+            cnstr_list & active_cnstrs = m_state.m_active_cnstrs;
+            if (!empty(active_cnstrs)) {
+                unification_constraint c = head(active_cnstrs);
+                m_state.m_active_cnstrs  = tail(active_cnstrs);
+                // std::cout << "Processing, depth: " << m_case_splits.size() << " "; display(std::cout, c);
                 if (!process(c)) {
                     resolve_conflict();
                 }
+            } else if (!empty(m_state.m_delayed_cnstrs)) {
+                // std::cout << "PROCESSING DELAYED\n"; display(std::cout); std::cout << "\n\n";
+                if (!process_delayed()) {
+                    // std::cout << "FAILED to solve\n";
+                    // display(std::cout);
+                    return m_state.m_menv;
+                }
+            } else {
+                return m_state.m_menv;
             }
         }
     }
@@ -1473,8 +1577,11 @@ public:
         m_state.m_menv->for_each_subst([&](name const & m, expr const & e) {
                 out << m << " <- " << e << "\n";
             });
-        for (auto c : m_state.m_queue)
+        for (auto c : m_state.m_active_cnstrs)
             display(out, c);
+        out << "Delayed constraints:\n";
+        for (auto c : m_state.m_delayed_cnstrs)
+            display(out, c.first);
     }
 };
 

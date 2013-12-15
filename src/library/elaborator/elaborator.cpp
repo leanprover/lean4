@@ -428,6 +428,10 @@ class elaborator::imp {
                     return assign(a, b, c, is_lhs) ? Processed : Failed;
                 }
             } else {
+                if (!is_metavar(b) && has_metavar(b, a)) {
+                    m_conflict = justification(new unification_failure_justification(c));
+                    return Failed;
+                }
                 local_entry const & me = head(metavar_lctx(a));
                 if (me.is_lift()) {
                     if (!has_free_var(b, me.s(), me.s() + me.n(), m_state.m_menv)) {

@@ -1,0 +1,25 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: a
+  Assumed: P
+  Assumed: f
+  Assumed: g
+  Assumed: H1
+  Assumed: H2
+  Assumed: H3
+  Proved: T1
+  Proved: T2
+  Proved: T3
+  Proved: T4
+  Proved: T5
+  Proved: T6
+  Proved: T7
+  Proved: T8
+Theorem T1 : ∃ x y : ℤ, P (f y x) (f y x) := ExistsIntro (g a) (ExistsIntro a H1)
+Theorem T2 : ∃ x : ℤ, P (f x (g x)) (f x (g x)) := ExistsIntro a H1
+Theorem T3 : ∃ x : ℤ, P (f x x) (f x x) := ExistsIntro (g a) H2
+Theorem T4 : ∃ x : ℤ, P (f (g a) x) (f x x) := ExistsIntro (g a) H2
+Theorem T5 : ∃ x : ℤ, P x x := ExistsIntro (f (g a) (g a)) H2
+Theorem T6 : ∃ x y : ℤ, P x y := ExistsIntro (f (g a) (g a)) (ExistsIntro (g a) H3)
+Theorem T7 : ∃ x : ℤ, P (f x x) x := ExistsIntro (g a) H3
+Theorem T8 : ∃ x y : ℤ, P (f x x) y := ExistsIntro (g a) (ExistsIntro (g a) H3)

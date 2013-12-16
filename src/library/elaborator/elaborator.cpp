@@ -879,8 +879,11 @@ class elaborator::imp {
        We perform a "case split" using "projection" or "imitation". See Huet&Lang's paper on higher order matching
        for further details.
     */
-    bool process_meta_app(expr const & a, expr const & b, bool is_lhs, unification_constraint const & c, bool flex_flex = false) {
+    bool process_meta_app(expr const & a, expr const & b, bool is_lhs, unification_constraint const & c,
+                          bool flex_flex = false, bool local_ctx = false) {
         if (!is_meta_app(a))
+            return false;
+        if (!local_ctx && has_local_context(arg(a, 0)))
             return false;
         if (!flex_flex) {
             if (is_meta_app(b))
@@ -1498,6 +1501,8 @@ class elaborator::imp {
                                     process_metavar_inst(b, a, false, c) ||
                                     process_metavar_lift_abstraction(a, b, c) ||
                                     process_metavar_lift_abstraction(b, a, c) ||
+                                    process_meta_app(a, b, true, c, false, true) ||
+                                    process_meta_app(b, a, false, c, false, true) ||
                                     process_meta_app(a, b, true, c, true)) {
                                     return true;
                                 }

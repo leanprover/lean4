@@ -4,8 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <unordered_map>
 #include "util/flet.h"
-#include "util/scoped_map.h"
+#include "util/freset.h"
 #include "util/interrupt.h"
 #include "kernel/environment.h"
 #include "kernel/normalizer.h"
@@ -21,7 +22,7 @@ Author: Leonardo de Moura
 namespace lean {
 static name g_x_name("x");
 class type_inferer::imp {
-    typedef scoped_map<expr, expr, expr_hash_alloc, expr_eqp> cache;
+    typedef std::unordered_map<expr, expr, expr_hash_alloc, expr_eqp> cache;
     typedef buffer<unification_constraint> unification_constraints;
 
     ro_environment            m_env;
@@ -170,7 +171,7 @@ class type_inferer::imp {
             break;
         }
         case expr_kind::Lambda: {
-            cache::mk_scope sc(m_cache);
+            freset<cache> reset(m_cache);
             r = mk_pi(abst_name(e), abst_domain(e), infer_type(abst_body(e), extend(ctx, abst_name(e), abst_domain(e))));
             break;
         }
@@ -179,7 +180,7 @@ class type_inferer::imp {
             expr t2;
             context new_ctx = extend(ctx, abst_name(e), abst_domain(e));
             {
-                cache::mk_scope sc(m_cache);
+                freset<cache> reset(m_cache);
                 t2 = check_type(infer_type(abst_body(e), new_ctx), abst_body(e), new_ctx);
             }
             if (is_type(t1) && is_type(t2)) {
@@ -193,13 +194,13 @@ class type_inferer::imp {
             break;
         }
         case expr_kind::Let: {
-            cache::mk_scope sc(m_cache);
+            freset<cache> reset(m_cache);
             r = infer_type(let_body(e), extend(ctx, let_name(e), let_type(e), let_value(e)));
             break;
         }}
 
         if (shared) {
-            m_cache.insert(e, r);
+            m_cache[e] = r;
         }
         return r;
     }

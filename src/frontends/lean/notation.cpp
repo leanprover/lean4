@@ -119,5 +119,6 @@ void init_builtin_notation(frontend & f) {
     f.mark_implicit_arguments(mk_congr2_fn(), 4);
     f.mark_implicit_arguments(mk_congr_fn(),  6);
     f.mark_implicit_arguments(mk_forall_elim_fn(), 2);
+    f.mark_implicit_arguments(mk_exists_intro_fn(), 2);
 }
 }

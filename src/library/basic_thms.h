@@ -122,6 +122,10 @@ expr mk_forall_elim_fn();
 // \brief (Theorem) {A : Type u}, {P : A -> Bool}, H : (Forall A P), a : A |- Forallelim(A, P, H, a) : P a
 inline expr ForallElim(expr const & A, expr const & P, expr const & H, expr const & a) { return mk_app(mk_forall_elim_fn(), A, P, H, a); }
 
+expr mk_exists_intro_fn();
+// \brief (Theorem) {A : Type u}, {P : A -> Bool}, a : A,  H : P a |- ExistsIntro(A, P, a, H) : exists x : A, P
+inline expr ExistsIntro(expr const & A, expr const & P, expr const & a, expr const & H) { return mk_app(mk_exists_intro_fn(), A, P, a, H); }
+
 /** \brief Add basic theorems to Environment */
 void import_basic_thms(environment const & env);
 

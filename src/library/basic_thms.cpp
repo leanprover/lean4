@@ -39,6 +39,7 @@ MK_CONSTANT(congr_fn,           name("Congr"));
 MK_CONSTANT(eqt_elim_fn,        name("EqTElim"));
 MK_CONSTANT(eqt_intro_fn,       name("EqTIntro"));
 MK_CONSTANT(forall_elim_fn,     name("ForallElim"));
+MK_CONSTANT(exists_intro_fn,    name("ExistsIntro"));
 
 #if 0
 MK_CONSTANT(ext_fn,            name("ext"));
@@ -268,6 +269,13 @@ void import_basic_thms(environment const & env) {
     env->add_theorem(forall_elim_fn_name, Pi({{A, TypeU}, {P, A_pred}, {H, mk_forall(A, P)}, {a, A}}, P(a)),
                      Fun({{A, TypeU}, {P, A_pred}, {H, mk_forall(A, P)}, {a, A}},
                          EqTElim(P(a), Congr1(A, Fun({x, A}, Bool), P, Fun({x, A}, True), a, H))));
+
+    // ExistsIntro : Pi (A : Type u) (P : A -> bool) (a : A) (H : P a), exists A P
+    env->add_theorem(exists_intro_fn_name, Pi({{A, TypeU}, {P, A_pred}, {a, A}, {H, P(a)}}, mk_exists(A, P)),
+                     Fun({{A, TypeU}, {P, A_pred}, {a, A}, {H, P(a)}},
+                         Discharge(mk_forall(A, Fun({x, A}, Not(P(x)))), False,
+                                   Fun({H2, mk_forall(A, Fun({x, A}, Not(P(x))))},
+                                       Absurd(P(a), H, ForallElim(A, Fun({x, A}, Not(P(x))), H2, a))))));
 
 #if 0
     // STOPPED HERE

@@ -33,6 +33,7 @@ MK_CONSTANT(conjunct2_fn,       name("Conjunct2"));
 MK_CONSTANT(disj1_fn,           name("Disj1"));
 MK_CONSTANT(disj2_fn,           name("Disj2"));
 MK_CONSTANT(disj_cases_fn,      name("DisjCases"));
+MK_CONSTANT(refute_fn,          name("Refute"));
 MK_CONSTANT(symm_fn,            name("Symm"));
 MK_CONSTANT(trans_fn,           name("Trans"));
 MK_CONSTANT(congr1_fn,          name("Congr1"));
@@ -207,6 +208,11 @@ void import_basic_thms(environment const & env) {
                                                          // Not(a)
                                                          MT(a, c, Discharge(a, c, H2), H))),
                                                    H))))));
+
+    // Refute : Pi {a : Bool} (H : not a -> false), a */
+    env->add_theorem(refute_fn_name, Pi({{a, Bool}, {H, Not(a) >> False}}, a),
+                     Fun({{a, Bool}, {H, Not(a) >> False}},
+                         DisjCases(a, Not(a), a, EM(a), Fun({H1, a}, H1), Fun({H1, Not(a)}, FalseElim(a, H(H1))))));
 
     // Symm : Pi (A : Type u) (a b : A) (H : a = b), b = a
     env->add_theorem(symm_fn_name, Pi({{A, TypeU}, {a, A}, {b, A}, {H, Eq(a, b)}}, Eq(b, a)),

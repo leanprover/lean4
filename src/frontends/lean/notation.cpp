@@ -111,6 +111,7 @@ void init_builtin_notation(frontend & f) {
     f.mark_implicit_arguments(mk_disj1_fn(), 1);
     f.mark_implicit_arguments(mk_disj2_fn(), 1);
     f.mark_implicit_arguments(mk_disj_cases_fn(), 3);
+    f.mark_implicit_arguments(mk_refute_fn(), 1);
     f.mark_implicit_arguments(mk_symm_fn(), 3);
     f.mark_implicit_arguments(mk_trans_fn(), 4);
     f.mark_implicit_arguments(mk_eqt_elim_fn(), 1);

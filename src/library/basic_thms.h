@@ -33,8 +33,8 @@ expr mk_double_neg_fn();
 inline expr DoubleNeg(expr const & a) { return mk_app(mk_double_neg_fn(), a); }
 
 expr mk_double_neg_elim_fn();
-/** \brief (Theorem) {a : Bool}, {P : Bool -> Bool}, H : P (Not (Not a)) |- DoubleNegElim(a, P, H) : P a */
-inline expr DoubleNegElim(expr const & a, expr const & P, expr const & H) { return mk_app(mk_double_neg_elim_fn(), a, P, H); }
+/** \brief (Theorem) {P : Bool}, H : Not (Not P) |- DoubleNegElim(P, H) : P */
+inline expr DoubleNegElim(expr const & P, expr const & H) { return mk_app(mk_double_neg_elim_fn(), P, H); }
 
 expr mk_mt_fn();
 /** \brief (Theorem) {a b : Bool}, H1 : a => b, H2 : Not(b) |- MT(a, b, H1, H2) : Not(a) */

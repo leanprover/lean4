@@ -99,7 +99,7 @@ void init_builtin_notation(frontend & f) {
 
     // implicit arguments for basic theorems
     f.mark_implicit_arguments(mk_absurd_fn(), 1);
-    f.mark_implicit_arguments(mk_double_neg_elim_fn(), 2);
+    f.mark_implicit_arguments(mk_double_neg_elim_fn(), 1);
     f.mark_implicit_arguments(mk_mt_fn(), 2);
     f.mark_implicit_arguments(mk_contrapos_fn(), 2);
     f.mark_implicit_arguments(mk_eq_mp_fn(), 2);

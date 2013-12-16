@@ -46,13 +46,6 @@ MK_CONSTANT(forall_intro_fn,    name("ForallIntro"));
 MK_CONSTANT(exists_elim_fn,     name("ExistsElim"));
 MK_CONSTANT(exists_intro_fn,    name("ExistsIntro"));
 
-#if 0
-MK_CONSTANT(ext_fn,            name("ext"));
-MK_CONSTANT(foralli_fn,        name("foralli"));
-MK_CONSTANT(domain_inj_fn,     name("domain_inj"));
-MK_CONSTANT(range_inj_fn,      name("range_inj"));
-#endif
-
 void import_basic_thms(environment const & env) {
     if (!env->mark_builtin_imported("basic_thms"))
         return;
@@ -101,14 +94,19 @@ void import_basic_thms(environment const & env) {
                      Fun({{a, Bool}, {H1, a}, {H2, Not(a)}},
                          MP(a, False, H2, H1)));
 
+    // EqMP : Pi (a b: Bool) (H1 : a = b) (H2 : a), b
+    env->add_theorem(eq_mp_fn_name, Pi({{a, Bool}, {b, Bool}, {H1, Eq(a, b)}, {H2, a}}, b),
+                     Fun({{a, Bool}, {b, Bool}, {H1, Eq(a, b)}, {H2, a}},
+                         Subst(Bool, a, b, Fun({x, Bool}, x), H2, H1)));
+
     // DoubleNeg : Pi (a : Bool), Eq(Not(Not(a)), a)
     env->add_theorem(double_neg_fn_name, Pi({a, Bool}, Eq(Not(Not(a)), a)),
                      Fun({a, Bool}, Case(Fun({x, Bool}, Eq(Not(Not(x)), x)), Trivial, Trivial, a)));
 
-    // DoubleNegElim : Pi (a : Bool) (P : Bool -> Bool) (H : P (Not (Not a))), (P a)
-    env->add_theorem(double_neg_elim_fn_name, Pi({{a, Bool}, {P, Bool >> Bool}, {H, P(Not(Not(a)))}}, P(a)),
-                     Fun({{a, Bool}, {P, Bool >> Bool}, {H, P(Not(Not(a)))}},
-                         Subst(Bool, Not(Not(a)), a, P, H, DoubleNeg(a))));
+    // DoubleNegElim : Pi (P : Bool) (H : Not (Not P)), P
+    env->add_theorem(double_neg_elim_fn_name, Pi({{P, Bool}, {H, Not(Not(P))}}, P),
+                     Fun({{P, Bool}, {H, Not(Not(P))}},
+                         EqMP(Not(Not(P)), P, DoubleNeg(P), H)));
 
     // ModusTollens : Pi (a b : Bool) (H1 : a => b) (H2 : Not(b)), Not(a)
     env->add_theorem(mt_fn_name, Pi({{a, Bool}, {b, Bool}, {H1, Implies(a, b)}, {H2, Not(b)}}, Not(a)),
@@ -130,11 +128,6 @@ void import_basic_thms(environment const & env) {
                      Fun({{a, Bool}, {c, Bool}, {H1, a}, {H2, Not(a)}},
                          MP(False, c, FalseImpAny(c), Absurd(a, H1, H2))));
 
-    // EqMP : Pi (a b: Bool) (H1 : a = b) (H2 : a), b
-    env->add_theorem(eq_mp_fn_name, Pi({{a, Bool}, {b, Bool}, {H1, Eq(a, b)}, {H2, a}}, b),
-                     Fun({{a, Bool}, {b, Bool}, {H1, Eq(a, b)}, {H2, a}},
-                         Subst(Bool, a, b, Fun({x, Bool}, x), H2, H1)));
-
     // NotImp1 : Pi (a b : Bool) (H : Not(Implies(a, b))), a
     env->add_theorem(not_imp1_fn_name, Pi({{a, Bool}, {b, Bool}, {H, Not(Implies(a, b))}}, a),
                      Fun({{a, Bool}, {b, Bool}, {H, Not(Implies(a, b))}},
@@ -155,14 +148,7 @@ void import_basic_thms(environment const & env) {
                                    Fun({H1, b},
                                        Absurd(Implies(a, b),
                                               // a => b
-                                              DoubleNegElim(b, Fun({x, Bool}, Implies(a, x)),
-                                                            // a => Not(Not(b))
-                                                            DoubleNegElim(a, Fun({x, Bool}, Implies(x, Not(Not(b)))),
-                                                                          // Not(Not(a)) => Not(Not(b))
-                                                                          Contrapos(Not(b), Not(a),
-                                                                                    Discharge(Not(b), Not(a),
-                                                                                              Fun({H2, Not(b)},
-                                                                                                  FalseElim(Not(a), Absurd(b, H1, H2))))))),
+                                              Discharge(a, b, Fun({H2, a}, H1)),
                                               H)))));
 
     // Conj : Pi (a b : Bool) (H1 : a) (H2 : b), And(a, b)
@@ -191,12 +177,7 @@ void import_basic_thms(environment const & env) {
     // Disj2 : Pi (b a : Bool) (H : b), Or(a, b)
     env->add_theorem(disj2_fn_name, Pi({{b, Bool}, {a, Bool}, {H, b}}, Or(a, b)),
                      Fun({{b, Bool}, {a, Bool}, {H, b}},
-                         // Not(a) => b
-                         DoubleNegElim(b, Fun({x, Bool}, Implies(Not(a), x)),
-                                       // Not(a) => Not(Not(b))
-                                       Contrapos(Not(b), a,
-                                                 Discharge(Not(b), a, Fun({H1, Not(b)},
-                                                                          FalseElim(a, Absurd(b, H, H1))))))));
+                         Discharge(Not(a), b, Fun({H1, Not(a)}, H))));
 
     // DisjCases : Pi (a b c: Bool) (H1 : Or(a, b)) (H2 : a -> c) (H3 : b -> c), c */
     env->add_theorem(disj_cases_fn_name, Pi({{a, Bool}, {b, Bool}, {c, Bool}, {H1, Or(a, b)}, {H2, a >> c}, {H3, b >> c}}, c),

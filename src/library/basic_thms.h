@@ -130,21 +130,14 @@ expr mk_forall_intro_fn();
 // \brief (Theorem) {A : Type u} {P : A -> bool} (H : Pi (x : A), P x) |- ForallIntro(A, P, H) : forall x : A, P
 inline expr ForallIntro(expr const & A, expr const & P, expr const & H) { return mk_app(mk_forall_intro_fn(), A, P, H); }
 
+expr mk_exists_elim_fn();
+// \brief (Theorem) {A : Type U} {P : A -> Bool} {B : Bool} (H1 : exists x : A, P x) (H2 : Pi (a : A) (H : P a) |- ExistsElim(A, P, B, H1, H2) : B
+inline expr ExistsElim(expr const & A, expr const & P, expr const & B, expr const & H1, expr const & H2) { return mk_app({mk_exists_elim_fn(), A, P, B, H1, H2}); }
+
 expr mk_exists_intro_fn();
 // \brief (Theorem) {A : Type u}, {P : A -> Bool}, a : A,  H : P a |- ExistsIntro(A, P, a, H) : exists x : A, P
 inline expr ExistsIntro(expr const & A, expr const & P, expr const & a, expr const & H) { return mk_app(mk_exists_intro_fn(), A, P, a, H); }
 
 /** \brief Add basic theorems to Environment */
 void import_basic_thms(environment const & env);
-
-#if 0
-expr mk_ext_fn();
-bool is_ext_fn(expr const & e);
-expr mk_foralli_fn();
-bool is_foralli_fn(expr const & e);
-expr mk_domain_inj_fn();
-bool is_domain_inj_fn(expr const & e);
-expr mk_range_inj_fn();
-bool is_range_inj_fn(expr const & e);
-#endif
 }

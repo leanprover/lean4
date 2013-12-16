@@ -43,6 +43,7 @@ MK_CONSTANT(eqt_elim_fn,        name("EqTElim"));
 MK_CONSTANT(eqt_intro_fn,       name("EqTIntro"));
 MK_CONSTANT(forall_elim_fn,     name("ForallElim"));
 MK_CONSTANT(forall_intro_fn,    name("ForallIntro"));
+MK_CONSTANT(exists_elim_fn,     name("ExistsElim"));
 MK_CONSTANT(exists_intro_fn,    name("ExistsIntro"));
 
 #if 0
@@ -74,6 +75,7 @@ void import_basic_thms(environment const & env) {
     expr A1 = Const("A1");
     expr B1 = Const("B1");
     expr a1 = Const("a1");
+    expr R  = Const("R");
 
     expr A_pred    = A >> Bool;
     expr q_type    = Pi({A, TypeU}, A_pred >> Bool);
@@ -285,6 +287,14 @@ void import_basic_thms(environment const & env) {
                          Trans(A_pred, P, Fun({x, A}, P(x)), Fun({x, A}, True),
                                Symm(A_pred, Fun({x, A}, P(x)), P, Eta(A, Fun({x, A}, Bool), P)), // P == fun x : A, P x
                                Abst(A, Fun({x, A}, Bool), Fun({x, A}, P(x)), Fun({x, A}, True), Fun({x, A}, EqTIntro(P(x), H(x)))))));
+
+    // ExistsElim : Pi (A : Type U) (P : A -> Bool) (B : Bool) (H1 : exists x : A, P x) (H2 : Pi (a : A) (H : P a), B) : B :=
+    env->add_theorem(exists_elim_fn_name, Pi({{A, TypeU}, {P, A_pred}, {B, Bool}, {H1, mk_exists(A, P)}, {H2, Pi({{a, A}, {H, P(a)}}, B)}}, B),
+                     Fun({{A, TypeU}, {P, A_pred}, {B, Bool}, {H1, mk_exists(A, P)}, {H2, Pi({{a, A}, {H, P(a)}}, B)}},
+                         Refute(B, Fun({R, Not(B)},
+                                       Absurd(mk_forall(A, Fun({x, A}, Not(P(x)))),
+                                              ForallIntro(A, Fun({x, A}, Not(P(x))), Fun({a, A}, MT(P(a), B, Discharge(P(a), B, Fun({H, P(a)}, H2(a, H))), R))),
+                                              H1)))));
 
     // ExistsIntro : Pi (A : Type u) (P : A -> bool) (a : A) (H : P a), exists A P
     env->add_theorem(exists_intro_fn_name, Pi({{A, TypeU}, {P, A_pred}, {a, A}, {H, P(a)}}, mk_exists(A, P)),

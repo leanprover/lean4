@@ -17,6 +17,8 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/printer.h"
 #include "kernel/metavar.h"
+#include "library/deep_copy.h"
+#include "library/arith/int.h"
 #include "library/all/all.h"
 using namespace lean;
 
@@ -273,6 +275,22 @@ static void tst7() {
     lean_assert_eq(proc(F2, context(), menv), add_inst(m2, 0, True)(True));
 }
 
+static void tst8() {
+    environment env;
+    import_all(env);
+    env->add_var("P", Int >> (Int >> Bool));
+    expr P = Const("P");
+    expr v0 = Var(0);
+    expr v1 = Var(1);
+    expr F = mk_forall(Int, mk_lambda("x", Int, Not(mk_lambda("x", Int, mk_exists(Int, mk_lambda("y", Int, P(v1, v0))))(v0))));
+    normalizer proc(env);
+    expr N1 = proc(F);
+    expr N2 = proc(deep_copy(F));
+    std::cout << "F: " << F << "\n====>\n";
+    std::cout << N1 << "\n";
+    lean_assert_eq(N1, N2);
+}
+
 int main() {
     save_stack_info();
     tst_church_numbers();
@@ -283,5 +301,6 @@ int main() {
     tst5();
     tst6();
     tst7();
+    tst8();
     return has_violations() ? 1 : 0;
 }

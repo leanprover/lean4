@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <tuple>
 #include "util/interrupt.h"
+#include "util/freset.h"
 #include "kernel/replace_visitor.h"
 
 namespace lean {
@@ -30,7 +31,7 @@ expr replace_visitor::visit_abst(expr const & e, context const & ctx) {
     return update_abst(e, [&](expr const & t, expr const & b) {
             expr new_t = visit(t, ctx);
             {
-                cache::mk_scope sc(m_cache);
+                freset<cache> reset(m_cache);
                 expr new_b = visit(b, extend(ctx, abst_name(e), new_t));
                 return std::make_pair(new_t, new_b);
             }
@@ -51,7 +52,7 @@ expr replace_visitor::visit_let(expr const & e, context const & ctx) {
             optional<expr> new_t = visit(t, ctx);
             expr new_v = visit(v, ctx);
             {
-                cache::mk_scope sc(m_cache);
+                freset<cache> reset(m_cache);
                 expr new_b = visit(b, extend(ctx, let_name(e), new_t, new_v));
                 return std::make_tuple(new_t, new_v, new_b);
             }

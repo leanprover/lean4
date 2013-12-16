@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "util/scoped_map.h"
+#include <unordered_map>
 #include "kernel/replace_fn.h"
 #include "kernel/context.h"
 
@@ -21,9 +21,9 @@ namespace lean {
 */
 class replace_visitor {
 protected:
-    typedef scoped_map<expr, expr, expr_hash_alloc, expr_eqp> cache;
-    cache                      m_cache;
-    context                    m_ctx;
+    typedef std::unordered_map<expr, expr, expr_hash_alloc, expr_eqp> cache;
+    cache   m_cache;
+    context m_ctx;
     expr save_result(expr const & e, expr && r, bool shared);
     virtual expr visit_type(expr const &, context const &);
     virtual expr visit_value(expr const &, context const &);

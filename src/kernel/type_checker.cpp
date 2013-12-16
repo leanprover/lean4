@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "util/scoped_map.h"
+#include <unordered_map>
+#include "util/freset.h"
 #include "util/flet.h"
 #include "util/interrupt.h"
 #include "kernel/type_checker.h"
@@ -20,7 +21,7 @@ namespace lean {
 static name g_x_name("x");
 /** \brief Auxiliary functional object used to implement infer_type. */
 class type_checker::imp {
-    typedef scoped_map<expr, expr, expr_hash_alloc, expr_eqp> cache;
+    typedef std::unordered_map<expr, expr, expr_hash_alloc, expr_eqp> cache;
     typedef buffer<unification_constraint> unification_constraints;
 
     ro_environment::weak_ref  m_env;
@@ -93,7 +94,7 @@ class type_checker::imp {
 
     expr save_result(expr const & e, expr const & r, bool shared) {
         if (shared)
-            m_cache.insert(e, r);
+            m_cache[e] = r;
         return r;
     }
 
@@ -183,7 +184,7 @@ class type_checker::imp {
             expr d = infer_type_core(abst_domain(e), ctx);
             check_type(d, abst_domain(e), ctx);
             {
-                cache::mk_scope sc(m_cache);
+                freset<cache> reset(m_cache);
                 return save_result(e,
                                    mk_pi(abst_name(e), abst_domain(e), infer_type_core(abst_body(e), extend(ctx, abst_name(e), abst_domain(e)))),
                                    shared);
@@ -194,7 +195,7 @@ class type_checker::imp {
             optional<expr> t2;
             context new_ctx = extend(ctx, abst_name(e), abst_domain(e));
             {
-                cache::mk_scope sc(m_cache);
+                freset<cache> reset(m_cache);
                 t2 = check_type(infer_type_core(abst_body(e), new_ctx), abst_body(e), new_ctx);
             }
             if (is_type(t1) && is_type(*t2)) {
@@ -218,7 +219,7 @@ class type_checker::imp {
                     throw def_type_mismatch_exception(env(), ctx, let_name(e), *let_type(e), let_value(e), lt);
             }
             {
-                cache::mk_scope sc(m_cache);
+                freset<cache> reset(m_cache);
                 expr t = infer_type_core(let_body(e), extend(ctx, let_name(e), lt, let_value(e)));
                 return save_result(e, instantiate(t, let_value(e)), shared);
             }

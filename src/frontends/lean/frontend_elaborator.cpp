@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <limits>
 #include "util/interrupt.h"
+#include "util/freset.h"
 #include "kernel/type_checker.h"
 #include "kernel/type_checker_justification.h"
 #include "kernel/normalizer.h"
@@ -396,7 +397,7 @@ class frontend_elaborator::imp {
                         }
                     }
                     {
-                        cache::mk_scope sc(m_cache);
+                        freset<cache> reset(m_cache);
                         expr new_b = visit(b, extend(ctx, let_name(e), new_t, new_v));
                         return std::make_tuple(new_t, new_v, new_b);
                     }

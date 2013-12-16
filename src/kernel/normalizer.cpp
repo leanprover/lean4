@@ -6,9 +6,10 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <limits>
-#include "util/scoped_map.h"
+#include <unordered_map>
 #include "util/list.h"
 #include "util/flet.h"
+#include "util/freset.h"
 #include "util/buffer.h"
 #include "util/interrupt.h"
 #include "util/sexpr/options.h"
@@ -68,7 +69,7 @@ value_stack extend(value_stack const & s, svalue const & v) { return cons(v, s);
 
 /** \brief Expression normalizer. */
 class normalizer::imp {
-    typedef scoped_map<expr, svalue, expr_hash_alloc, expr_eqp> cache;
+    typedef std::unordered_map<expr, svalue, expr_hash_alloc, expr_eqp> cache;
 
     ro_environment::weak_ref m_env;
     context                  m_ctx;
@@ -87,25 +88,6 @@ class normalizer::imp {
         return ::lean::add_lift(m, s, n, m_menv.to_some_menv());
     }
 
-    /**
-        \brief Auxiliary object for saving the current context.
-        We need this to be able to process values in the context.
-    */
-    struct save_context {
-        imp &           m_imp;
-        context         m_saved_ctx;
-        cache           m_saved_cache;
-        save_context(imp & imp):
-            m_imp(imp),
-            m_saved_ctx(m_imp.m_ctx) {
-            m_imp.m_cache.swap(m_saved_cache);
-        }
-        ~save_context() {
-            m_imp.m_ctx = m_saved_ctx;
-            m_imp.m_cache.swap(m_saved_cache);
-        }
-    };
-
     svalue lookup(value_stack const & s, unsigned i) {
         unsigned j = i;
         value_stack const * it1 = &s;
@@ -119,7 +101,9 @@ class normalizer::imp {
         context_entry const & entry = p.first;
         context const & entry_c     = p.second;
         if (entry.get_body()) {
-            save_context save(*this); // it restores the context and cache
+            // Save the current context and cache
+            freset<cache>    reset1(m_cache);
+            freset<context>  reset2(m_ctx);
             m_ctx = entry_c;
             unsigned k = m_ctx.size();
             return svalue(reify(normalize(*(entry.get_body()), value_stack(), k), k));
@@ -133,7 +117,7 @@ class normalizer::imp {
         lean_assert(is_lambda(a));
         expr new_t = reify(normalize(abst_domain(a), s, k), k);
         {
-            cache::mk_scope sc(m_cache);
+            freset<cache> reset(m_cache);
             return mk_lambda(abst_name(a), new_t, reify(normalize(abst_body(a), extend(s, svalue(k)), k+1), k+1));
         }
     }
@@ -229,7 +213,7 @@ class normalizer::imp {
                     // beta reduction
                     expr const & fv = to_expr(f);
                     {
-                        cache::mk_scope sc(m_cache);
+                        freset<cache> reset(m_cache);
                         value_stack new_s = extend(stack_of(f), normalize(arg(a, i), s, k));
                         f = normalize(abst_body(fv), new_s, k);
                     }
@@ -273,7 +257,7 @@ class normalizer::imp {
         case expr_kind::Pi: {
             expr new_t = reify(normalize(abst_domain(a), s, k), k);
             {
-                cache::mk_scope sc(m_cache);
+                freset<cache> reset(m_cache);
                 expr new_b = reify(normalize(abst_body(a), extend(s, svalue(k)), k+1), k+1);
                 r = svalue(mk_pi(abst_name(a), new_t, new_b));
             }
@@ -282,13 +266,13 @@ class normalizer::imp {
         case expr_kind::Let: {
             svalue v = normalize(let_value(a), s, k);
             {
-                cache::mk_scope sc(m_cache);
+                freset<cache> reset(m_cache);
                 r = normalize(let_body(a), extend(s, v), k+1);
             }
             break;
         }}
         if (shared) {
-            m_cache.insert(a, r);
+            m_cache[a] = r;
         }
         return r;
     }

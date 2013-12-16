@@ -119,8 +119,12 @@ expr mk_congr_fn();
 inline expr Congr(expr const & A, expr const & B, expr const & f, expr const & g, expr const & a, expr const & b, expr const & H1, expr const & H2) { return mk_app({mk_congr_fn(), A, B, f, g, a, b, H1, H2}); }
 
 expr mk_forall_elim_fn();
-// \brief (Theorem) {A : Type u}, {P : A -> Bool}, H : (Forall A P), a : A |- Forallelim(A, P, H, a) : P a
+// \brief (Theorem) {A : Type u}, {P : A -> Bool}, H : (Forall A P), a : A |- ForallElim(A, P, H, a) : P a
 inline expr ForallElim(expr const & A, expr const & P, expr const & H, expr const & a) { return mk_app(mk_forall_elim_fn(), A, P, H, a); }
+
+expr mk_forall_intro_fn();
+// \brief (Theorem) {A : Type u} {P : A -> bool} (H : Pi (x : A), P x) |- ForallIntro(A, P, H) : forall x : A, P
+inline expr ForallIntro(expr const & A, expr const & P, expr const & H) { return mk_app(mk_forall_intro_fn(), A, P, H); }
 
 expr mk_exists_intro_fn();
 // \brief (Theorem) {A : Type u}, {P : A -> Bool}, a : A,  H : P a |- ExistsIntro(A, P, a, H) : exists x : A, P

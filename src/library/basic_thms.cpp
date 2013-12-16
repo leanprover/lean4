@@ -9,6 +9,8 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/basic_thms.h"
 
+#include "kernel/kernel_exception.h"
+
 namespace lean {
 
 MK_CONSTANT(trivial,            name("Trivial"));
@@ -39,6 +41,7 @@ MK_CONSTANT(congr_fn,           name("Congr"));
 MK_CONSTANT(eqt_elim_fn,        name("EqTElim"));
 MK_CONSTANT(eqt_intro_fn,       name("EqTIntro"));
 MK_CONSTANT(forall_elim_fn,     name("ForallElim"));
+MK_CONSTANT(forall_intro_fn,    name("ForallIntro"));
 MK_CONSTANT(exists_intro_fn,    name("ExistsIntro"));
 
 #if 0
@@ -270,29 +273,18 @@ void import_basic_thms(environment const & env) {
                      Fun({{A, TypeU}, {P, A_pred}, {H, mk_forall(A, P)}, {a, A}},
                          EqTElim(P(a), Congr1(A, Fun({x, A}, Bool), P, Fun({x, A}, True), a, H))));
 
+    // ForallIntro : Pi (A : Type u) (P : A -> bool) (H : Pi (x : A), P x), (forall A P)
+    env->add_theorem(forall_intro_fn_name, Pi({{A, TypeU}, {P, A_pred}, {H, Pi({x, A}, P(x))}}, Forall(A, P)),
+                     Fun({{A, TypeU}, {P, A_pred}, {H, Pi({x, A}, P(x))}},
+                         Trans(A_pred, P, Fun({x, A}, P(x)), Fun({x, A}, True),
+                               Symm(A_pred, Fun({x, A}, P(x)), P, Eta(A, Fun({x, A}, Bool), P)), // P == fun x : A, P x
+                               Abst(A, Fun({x, A}, Bool), Fun({x, A}, P(x)), Fun({x, A}, True), Fun({x, A}, EqTIntro(P(x), H(x)))))));
+
     // ExistsIntro : Pi (A : Type u) (P : A -> bool) (a : A) (H : P a), exists A P
     env->add_theorem(exists_intro_fn_name, Pi({{A, TypeU}, {P, A_pred}, {a, A}, {H, P(a)}}, mk_exists(A, P)),
                      Fun({{A, TypeU}, {P, A_pred}, {a, A}, {H, P(a)}},
                          Discharge(mk_forall(A, Fun({x, A}, Not(P(x)))), False,
                                    Fun({H2, mk_forall(A, Fun({x, A}, Not(P(x))))},
                                        Absurd(P(a), H, ForallElim(A, Fun({x, A}, Not(P(x))), H2, a))))));
-
-#if 0
-    // STOPPED HERE
-
-    // foralli : Pi (A : Type u) (P : A -> bool) (H : Pi (x : A), P x), (forall A P)
-    env->add_axiom(foralli_fn_name, Pi({{A, TypeU}, {P, A_pred}, {H, Pi({x, A}, P(x))}}, Forall(A, P)));
-
-    // ext : Pi (A : Type u) (B : A -> Type u) (f g : Pi (x : A) B x) (H : Pi x : A, (f x) = (g x)), f = g
-    env->add_axiom(ext_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {H, Pi({x, A}, Eq(f(x), g(x)))}}, Eq(f, g)));
-
-
-    // domain_inj : Pi (A A1: Type u) (B : A -> Type u) (B1 : A1 -> Type u) (H : (Pi (x : A), B x) = (Pi (x : A1), B1 x)), A = A1
-    expr piA1B1x = Pi({x, A1}, B1(x));
-    expr A1_arrow_u = A1 >> TypeU;
-    env->add_axiom(domain_inj_fn_name, Pi({{A, TypeU}, {A1, TypeU}, {B, A_arrow_u}, {B1, A1_arrow_u}, {H, Eq(piABx, piA1B1x)}}, Eq(A, A1)));
-    // range_inj : Pi (A A1: Type u) (B : A -> Type u) (B1 : A1 -> Type u) (a : A) (a1 : A1) (H : (Pi (x : A), B x) = (Pi (x : A1), B1 x)), (B a) = (B1 a1)
-    env->add_axiom(range_inj_fn_name, Pi({{A, TypeU}, {A1, TypeU}, {B, A_arrow_u}, {B1, A1_arrow_u}, {a, A}, {a1, A1}, {H, Eq(piABx, piA1B1x)}}, Eq(B(a), B1(a1))));
-#endif
 }
 }

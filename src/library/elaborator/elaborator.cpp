@@ -747,6 +747,14 @@ class elaborator::imp {
             (is_eq(c) || (is_lhs && !is_actual_upper(b)) || (!is_lhs && !is_actual_lower(b)));
     }
 
+    optional<expr> try_get_type(context const & ctx, expr const & e) {
+        try {
+            return some_expr(m_type_inferer(e, ctx));
+        } catch (...) {
+            return none_expr();
+        }
+    }
+
     /**
         \brief Return true iff ctx |- a == b is a "simple" higher-order matching constraint. By simple, we mean
         a constraint of the form
@@ -761,7 +769,7 @@ class elaborator::imp {
             expr m = arg(a, 0);
             buffer<expr> types;
             for (unsigned i = 1; i < num_args(a); i++) {
-                optional<expr> d = lookup(ctx, var_idx(arg(a, i))).get_domain();
+                optional<expr> d = try_get_type(ctx, arg(a, i));
                 if (d)
                     types.push_back(*d);
                 else

@@ -1,0 +1,25 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: N
+  Assumed: a
+  Assumed: b
+  Assumed: c
+  Assumed: P
+  Assumed: H3
+  Proved: T1
+  Proved: T2
+  Proved: T3
+  Proved: T4
+Theorem T1 : ∃ x y z : N, P x y z :=
+    ExistsIntro::explicit
+        N
+        (λ x : N, ∃ y z : N, P x y z)
+        a
+        (ExistsIntro::explicit
+             N
+             (λ x : N, if ((λ x::1 : N, if (P a x x::1) ⊥ ⊤) == (λ x : N, ⊤)) ⊥ ⊤)
+             b
+             (ExistsIntro::explicit N (λ z : N, P a b z) c H3))
+Theorem T2 : ∃ x y z : N, P x y z := ExistsIntro a (ExistsIntro b (ExistsIntro c H3))
+Theorem T3 : ∃ x y z : N, P x y z := ExistsIntro a (ExistsIntro b (ExistsIntro c H3))
+Theorem T4 (H : P a a b) : ∃ x y z : N, P x y z := ExistsIntro a (ExistsIntro a (ExistsIntro b H))

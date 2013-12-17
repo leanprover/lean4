@@ -739,7 +739,7 @@ class elaborator::imp {
        \brief See \c process_simple_ho_match
     */
     bool is_simple_ho_match(context const & ctx, expr const & a, expr const & b, bool is_lhs, unification_constraint const & c) {
-        return is_meta_app(a) && are_args_vars(ctx, a) && closed(b) &&
+        return is_meta_app(a) && !has_local_context(arg(a, 0)) && are_args_vars(ctx, a) && closed(b) &&
             (is_eq(c) || (is_lhs && !is_actual_upper(b)) || (!is_lhs && !is_actual_lower(b)));
     }
 

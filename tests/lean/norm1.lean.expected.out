@@ -1,0 +1,17 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: N
+  Assumed: P
+  Assumed: a
+  Assumed: g
+  Assumed: H
+λ (f : N → N) (y : N), g (f a)
+λ (a : N) (f : N → N) (g : (N → N) → N → N) (h : N → N → N) (z : N), h (g (λ x : N, f (f x)) (f a)) (f a)
+λ (a b : N) (g : Bool → N) (y : Bool), g (a == b)
+λ (a : Type) (b : a → Type) (g : (Type U) → Bool) (y : Type U), g (Π x : a, b x)
+λ (f : N → N) (y z : N), g (f a)
+λ (f g : N → N) (y z : N), g (f a)
+λ (f : N → N) (y z : N), P (f a) y z
+λ (f : N → N) (a y z : N), P (f a) y z
+λ (f g : N → N) (y1 z1 : N), H (λ y2 z2 : N, g (f a))
+λ f g : N → N, (λ x y1 z1 : N, H ((λ x y2 z2 : N, g x) x)) (f a) : (N → N) → (N → N) → N → N → N

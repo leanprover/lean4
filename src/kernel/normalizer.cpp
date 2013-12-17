@@ -34,42 +34,46 @@ unsigned get_normalizer_max_depth(options const & opts) {
     return opts.get_unsigned(g_kernel_normalizer_max_depth, LEAN_KERNEL_NORMALIZER_MAX_DEPTH);
 }
 
-class svalue;
-typedef list<svalue> value_stack; //!< Normalization stack
-enum class svalue_kind { Expr, Closure, BoundedVar };
-/** \brief Stack value: simple expressions, closures and bounded variables. */
-class svalue {
-    svalue_kind    m_kind;
-    unsigned       m_bvar;
-    optional<expr> m_expr;
-    value_stack    m_ctx;
+typedef list<expr> value_stack;
+value_stack extend(value_stack const & s, expr const & v) {
+    lean_assert(!is_lambda(v) && !is_pi(v) && !is_metavar(v) && !is_let(v));
+    return cons(v, s);
+}
+
+/**
+   \brief Internal value used to store closures.
+   This is a transient value that is only used during normalization.
+*/
+class closure : public value {
+    expr         m_expr;
+    context      m_ctx;
+    value_stack  m_stack;
 public:
-    svalue() {}
-    explicit svalue(expr const & e):              m_kind(svalue_kind::Expr), m_expr(e) {}
-    explicit svalue(unsigned k):                  m_kind(svalue_kind::BoundedVar), m_bvar(k) {}
-    svalue(expr const & e, value_stack const & c):m_kind(svalue_kind::Closure), m_expr(e), m_ctx(c) { lean_assert(is_lambda(e)); }
-
-    svalue_kind kind() const { return m_kind; }
-
-    bool is_expr() const        { return kind() == svalue_kind::Expr; }
-    bool is_closure() const     { return kind() == svalue_kind::Closure; }
-    bool is_bounded_var() const { return kind() == svalue_kind::BoundedVar; }
-
-    expr  const & get_expr() const { lean_assert(is_expr() || is_closure()); return *m_expr; }
-    value_stack const & get_ctx()  const { lean_assert(is_closure()); return m_ctx; }
-    unsigned get_var_idx()   const { lean_assert(is_bounded_var()); return m_bvar; }
+    closure(expr const & e, context const & ctx, value_stack const & s):m_expr(e), m_ctx(ctx), m_stack(s) {}
+    virtual ~closure() {}
+    virtual expr get_type() const { lean_unreachable(); } // LCOV_EXCL_LINE
+    virtual name get_name() const { return name("Closure"); }
+    virtual void display(std::ostream & out) const {
+        out << "(Closure " << m_expr << " [";
+        bool first = true;
+        for (auto v : m_stack) {
+            if (first) first = false; else out << " ";
+            out << v;
+        }
+        out << "])";
+    }
+    expr const & get_expr() const { return m_expr; }
+    context const & get_context() const { return m_ctx; }
+    value_stack const & get_stack() const { return m_stack; }
 };
 
-svalue_kind         kind(svalue const & v)     { return v.kind(); }
-expr const &        to_expr(svalue const & v)  { return v.get_expr(); }
-value_stack const & stack_of(svalue const & v) { return v.get_ctx(); }
-unsigned            to_bvar(svalue const & v)  { return v.get_var_idx(); }
-
-value_stack extend(value_stack const & s, svalue const & v) { return cons(v, s); }
+expr mk_closure(expr const & e, context const & ctx, value_stack const & s) { return mk_value(*(new closure(e, ctx, s))); }
+bool is_closure(expr const & e) { return is_value(e) && dynamic_cast<closure const *>(&to_value(e)) != nullptr; }
+closure const & to_closure(expr const & e) { lean_assert(is_closure(e));   return static_cast<closure const &>(to_value(e)); }
 
 /** \brief Expression normalizer. */
 class normalizer::imp {
-    typedef std::unordered_map<expr, svalue, expr_hash_alloc, expr_eqp> cache;
+    typedef std::unordered_map<expr, expr, expr_hash_alloc, expr_eqp> cache;
 
     ro_environment::weak_ref m_env;
     context                  m_ctx;
@@ -88,7 +92,7 @@ class normalizer::imp {
         return ::lean::add_lift(m, s, n, m_menv.to_some_menv());
     }
 
-    svalue lookup(value_stack const & s, unsigned i) {
+    expr lookup(value_stack const & s, unsigned i) {
         unsigned j = i;
         value_stack const * it1 = &s;
         while (*it1) {
@@ -106,72 +110,77 @@ class normalizer::imp {
             freset<context>  reset2(m_ctx);
             m_ctx = entry_c;
             unsigned k = m_ctx.size();
-            return svalue(reify(normalize(*(entry.get_body()), value_stack(), k), k));
+            return normalize(*(entry.get_body()), value_stack(), k);
         } else {
-            return svalue(entry_c.size());
-        }
-    }
-
-    /** \brief Convert the closure \c a into an expression using the given stack in a context that contains \c k binders. */
-    expr reify_closure(expr const & a, value_stack const & s, unsigned k) {
-        lean_assert(is_lambda(a));
-        expr new_t = reify(normalize(abst_domain(a), s, k), k);
-        {
-            freset<cache> reset(m_cache);
-            return mk_lambda(abst_name(a), new_t, reify(normalize(abst_body(a), extend(s, svalue(k)), k+1), k+1));
+            return mk_var(entry_c.size());
         }
     }
 
     /** \brief Convert the value \c v back into an expression in a context that contains \c k binders. */
-    expr reify(svalue const & v, unsigned k) {
-        check_system("normalizer");
-        switch (v.kind()) {
-        case svalue_kind::Expr:       return to_expr(v);
-        case svalue_kind::BoundedVar: return mk_var(k - to_bvar(v) - 1);
-        case svalue_kind::Closure:    return reify_closure(to_expr(v), stack_of(v), k);
-        }
-        lean_unreachable(); // LCOV_EXCL_LINE
+    expr reify(expr const & v, unsigned k) {
+        auto f = [&](expr const & e, unsigned DEBUG_CODE(offset)) {
+            lean_assert(offset == 0);
+            lean_assert(!is_lambda(e) && !is_pi(e) && !is_metavar(e) && !is_let(e));
+            if (is_var(e)) {
+                // de Bruijn level --> de Bruijn index
+                return mk_var(k - var_idx(e) - 1);
+            } else if (is_closure(e)) {
+                return reify_closure(to_closure(e), k);
+            } else {
+                return e;
+            }
+        };
+        return replace_fn<decltype(f)>(f)(v);
     }
 
     /** \brief Return true iff the value_stack does affect the context of a metavariable */
     bool is_identity_stack(value_stack const & s, unsigned k) {
         unsigned i = 0;
         for (auto e : s) {
-            if (e.kind() != svalue_kind::BoundedVar || k - to_bvar(e) - 1 != i)
+            if (!is_var(e) || k - var_idx(e) - 1 != i)
                 return false;
             ++i;
         }
         return true;
     }
 
-    /**
-       \brief Update the metavariable context for \c m based on the
-       value_stack \c s and the number of binders \c k.
-       \pre is_metavar(m)
-    */
-    expr updt_metavar(expr const & m, value_stack const & s, unsigned k) {
-        lean_assert(is_metavar(m));
-        if (is_identity_stack(s, k))
-            return m; // nothing to be done
-        local_context lctx = metavar_lctx(m);
-        unsigned len_s     = length(s);
-        unsigned len_ctx   = m_ctx.size();
-        lean_assert(k >= len_ctx);
-        expr r;
-        if (k > len_ctx)
-            r = add_lift(m, len_s, k - len_ctx);
-        else
-            r = m;
-        buffer<expr> subst;
-        for (auto e : s) {
-            subst.push_back(reify(e, k));
+    /** \brief Convert the closure \c c into an expression in a context that contains \c k binders. */
+    expr reify_closure(closure const & c, unsigned k) {
+        expr const & e        = c.get_expr();
+        context const & ctx   = c.get_context();
+        value_stack const & s = c.get_stack();
+        freset<cache>    reset1(m_cache);
+        freset<context>  reset2(m_ctx);
+        m_ctx = ctx;
+        if (is_abstraction(e)) {
+            return update_abst(e, [&](expr const & d, expr const & b) {
+                    expr new_d = reify(normalize(d, s, k), k);
+                    expr new_b = reify(normalize(b, extend(s, mk_var(k)), k+1), k+1);
+                    return mk_pair(new_d, new_b);
+                });
+        } else {
+            lean_assert(is_metavar(e));
+            if (is_identity_stack(s, k))
+                return e; // nothing to be done
+            local_context lctx = metavar_lctx(e);
+            unsigned len_s     = length(s);
+            unsigned len_ctx   = ctx.size();
+            lean_assert(k >= len_ctx);
+            expr r;
+            if (k > len_ctx)
+                r = add_lift(e, len_s, k - len_ctx);
+            else
+                r = e;
+            buffer<expr> subst;
+            for (auto v : s)
+                subst.push_back(reify(v, k));
+            std::reverse(subst.begin(), subst.end());
+            return instantiate(r, subst.size(), subst.data());
         }
-        std::reverse(subst.begin(), subst.end());
-        return instantiate(r, subst.size(), subst.data());
     }
 
     /** \brief Normalize the expression \c a in a context composed of stack \c s and \c k binders. */
-    svalue normalize(expr const & a, value_stack const & s, unsigned k) {
+    expr normalize(expr const & a, value_stack const & s, unsigned k) {
         flet<unsigned> l(m_depth, m_depth+1);
         check_system("normalizer");
         if (m_depth > m_max_depth)
@@ -184,10 +193,10 @@ class normalizer::imp {
                 return it->second;
         }
 
-        svalue r;
+        expr r;
         switch (a.kind()) {
-        case expr_kind::MetaVar:
-            r = svalue(updt_metavar(a, s, k));
+        case expr_kind::MetaVar: case expr_kind::Pi: case expr_kind::Lambda:
+            r = mk_closure(a, m_ctx, s);
             break;
         case expr_kind::Var:
             r = lookup(s, var_idx(a));
@@ -195,26 +204,27 @@ class normalizer::imp {
         case expr_kind::Constant: {
             object const & obj = env()->get_object(const_name(a));
             if (obj.is_definition() && !obj.is_opaque()) {
+                freset<cache> reset(m_cache);
                 r = normalize(obj.get_value(), value_stack(), 0);
             } else {
-                r = svalue(a);
+                r = a;
             }
             break;
         }
         case expr_kind::Type: case expr_kind::Value:
-            r = svalue(a);
+            r = a;
             break;
         case expr_kind::App: {
-            svalue f    = normalize(arg(a, 0), s, k);
-            unsigned i = 1;
-            unsigned n = num_args(a);
+            expr f      = normalize(arg(a, 0), s, k);
+            unsigned i  = 1;
+            unsigned n  = num_args(a);
             while (true) {
-                if (f.is_closure()) {
+                if (is_closure(f) && is_lambda(to_closure(f).get_expr())) {
                     // beta reduction
-                    expr const & fv = to_expr(f);
+                    expr const & fv = to_closure(f).get_expr();
                     {
                         freset<cache> reset(m_cache);
-                        value_stack new_s = extend(stack_of(f), normalize(arg(a, i), s, k));
+                        value_stack new_s = extend(to_closure(f).get_stack(), normalize(arg(a, i), s, k));
                         f = normalize(abst_body(fv), new_s, k);
                     }
                     if (i == n - 1) {
@@ -224,47 +234,36 @@ class normalizer::imp {
                     i++;
                 } else {
                     buffer<expr> new_args;
-                    expr new_f = reify(f, k);
-                    new_args.push_back(new_f);
+                    new_args.push_back(f);
                     for (; i < n; i++)
-                        new_args.push_back(reify(normalize(arg(a, i), s, k), k));
-                    if (is_value(new_f)) {
-                        optional<expr> m = to_value(new_f).normalize(new_args.size(), new_args.data());
+                        new_args.push_back(normalize(arg(a, i), s, k));
+                    if (is_value(f) && !is_closure(f)) {
+                        buffer<expr> reified_args;
+                        for (auto arg : new_args) reified_args.push_back(reify(arg, k));
+                        optional<expr> m = to_value(f).normalize(reified_args.size(), reified_args.data());
                         if (m) {
                             r = normalize(*m, s, k);
                             break;
                         }
                     }
-                    r = svalue(mk_app(new_args));
+                    r = mk_app(new_args);
                     break;
                 }
             }
             break;
         }
         case expr_kind::Eq: {
-            expr new_lhs = reify(normalize(eq_lhs(a), s, k), k);
-            expr new_rhs = reify(normalize(eq_rhs(a), s, k), k);
-            if (is_value(new_lhs) && is_value(new_rhs)) {
-                r = svalue(mk_bool_value(new_lhs == new_rhs));
+            expr new_lhs = normalize(eq_lhs(a), s, k);
+            expr new_rhs = normalize(eq_rhs(a), s, k);
+            if (is_value(new_lhs) && is_value(new_rhs) && !is_closure(new_lhs) && !is_closure(new_rhs)) {
+                r = mk_bool_value(new_lhs == new_rhs);
             } else {
-                r = svalue(mk_eq(new_lhs, new_rhs));
-            }
-            break;
-        }
-        case expr_kind::Lambda:
-            r = svalue(a, s);
-            break;
-        case expr_kind::Pi: {
-            expr new_t = reify(normalize(abst_domain(a), s, k), k);
-            {
-                freset<cache> reset(m_cache);
-                expr new_b = reify(normalize(abst_body(a), extend(s, svalue(k)), k+1), k+1);
-                r = svalue(mk_pi(abst_name(a), new_t, new_b));
+                r = mk_eq(new_lhs, new_rhs);
             }
             break;
         }
         case expr_kind::Let: {
-            svalue v = normalize(let_value(a), s, k);
+            expr v = normalize(let_value(a), s, k);
             {
                 freset<cache> reset(m_cache);
                 r = normalize(let_body(a), extend(s, v), k);

@@ -142,8 +142,6 @@ public:
                 return some_expr(args[3]); // if A true a b  --> a
             else
                 return some_expr(args[4]); // if A false a b --> b
-        } else if (num_args == 5 && args[3] == args[4]) {
-            return some_expr(args[3]);     // if A c a a --> a
         } else {
             return none_expr();
         }

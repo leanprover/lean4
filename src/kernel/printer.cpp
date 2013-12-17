@@ -102,7 +102,7 @@ struct print_expr_fn {
         case expr_kind::Var: {
             auto e = find(c, var_idx(a));
             if (e)
-                out() << e->get_name();
+                out() << e->get_name() << "#" << var_idx(a);
             else
                 out() << "#" << var_idx(a);
             break;

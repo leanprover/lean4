@@ -106,9 +106,8 @@ class normalizer::imp {
         context const & entry_c     = p.second;
         if (entry.get_body()) {
             // Save the current context and cache
-            freset<cache>    reset1(m_cache);
-            freset<context>  reset2(m_ctx);
-            m_ctx = entry_c;
+            freset<cache>    reset(m_cache);
+            flet<context>    set(m_ctx, entry_c);
             unsigned k = m_ctx.size();
             return normalize(*(entry.get_body()), value_stack(), k);
         } else {
@@ -149,12 +148,12 @@ class normalizer::imp {
         expr const & e        = c.get_expr();
         context const & ctx   = c.get_context();
         value_stack const & s = c.get_stack();
-        freset<cache>    reset1(m_cache);
-        freset<context>  reset2(m_ctx);
-        m_ctx = ctx;
+        freset<cache>    reset(m_cache);
+        flet<context>    set(m_ctx, ctx);
         if (is_abstraction(e)) {
             return update_abst(e, [&](expr const & d, expr const & b) {
                     expr new_d = reify(normalize(d, s, k), k);
+                    m_cache.clear(); // make sure we do not reuse cached values from the previous call
                     expr new_b = reify(normalize(b, extend(s, mk_var(k)), k+1), k+1);
                     return mk_pair(new_d, new_b);
                 });
@@ -224,6 +223,7 @@ class normalizer::imp {
                     expr const & fv = to_closure(f).get_expr();
                     {
                         freset<cache> reset(m_cache);
+                        flet<context> set(m_ctx, to_closure(f).get_context());
                         value_stack new_s = extend(to_closure(f).get_stack(), normalize(arg(a, i), s, k));
                         f = normalize(abst_body(fv), new_s, k);
                     }

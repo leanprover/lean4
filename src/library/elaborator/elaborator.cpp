@@ -474,9 +474,9 @@ class elaborator::imp {
                             swap(new_a, new_b);
                         push_new_constraint(is_eq(c), new_ctx, new_a, new_b, new_jst);
                         return Processed;
-                    } else if (is_var(b)) {
+                    } else if (!has_metavar(b)) {
                         // Failure, there is no way to unify
-                        // ?m[lift:s:n, ...] with a variable in [s, s+n]
+                        // ?m[lift:s:n, ...] with a term that contains variables in [s, s+n]
                         m_conflict = justification(new unification_failure_justification(c));
                         return Failed;
                     }
@@ -795,14 +795,9 @@ class elaborator::imp {
         unsigned num_a      = num_args(a);
         buffer<expr> arg_types;
         buffer<unification_constraint> ucs;
-        // h_ctx is the context for new fresh metavariables used in the imitation step
-        // Since the imitation is going to be assigned to f_a, its context must
-        // be the context of f_a + the imitation arguments
-        context h_ctx = menv->get_context(metavar_name(f_a));
         for (unsigned i = 1; i < num_a; i++) {
             arg_types.push_back(m_type_inferer(arg(a, i), ctx, menv, ucs));
             push_active(ucs);
-            h_ctx = extend(h_ctx, name(g_x_name, i), arg_types.back());
         }
         // Add projections
         for (unsigned i = 1; i < num_a; i++) {
@@ -832,9 +827,8 @@ class elaborator::imp {
             buffer<expr> imitation_args; // arguments for the imitation
             imitation_args.push_back(lift_free_vars(f_b, 0, num_a - 1, new_state.m_menv));
             for (unsigned i = 1; i < num_b; i++) {
-                // Remark: h_ctx is "ctx, (x_{num_a} : T_{num_a}) ... (x_1 : T_1)" because h_i is inside of the lambda
-                expr h_i = new_state.m_menv->mk_metavar(h_ctx);
-                imitation_args.push_back(mk_app_vars(h_i, num_a - 1));
+                expr h_i = new_state.m_menv->mk_metavar(ctx);
+                imitation_args.push_back(mk_app_vars(add_lift(h_i, 0, num_a - 1), num_a - 1));
                 push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_i), arg(b, i), new_assumption);
             }
             imitation = mk_lambda(arg_types, mk_app(imitation_args));
@@ -843,24 +837,24 @@ class elaborator::imp {
             // Assign f_a <- fun (x_1 : T_1) ... (x_{num_a} : T_{num_a}), (h_1 x_1 ... x_{num_a}) = (h_2 x_1 ... x_{num_a})
             // New constraints (h_1 a_1 ... a_{num_a}) == eq_lhs(b)
             //                 (h_2 a_1 ... a_{num_a}) == eq_rhs(b)
-            expr h_1 = new_state.m_menv->mk_metavar(h_ctx);
-            expr h_2 = new_state.m_menv->mk_metavar(h_ctx);
+            expr h_1 = new_state.m_menv->mk_metavar(ctx);
+            expr h_2 = new_state.m_menv->mk_metavar(ctx);
             push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_1), eq_lhs(b), new_assumption);
             push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_2), eq_rhs(b), new_assumption);
-            imitation = mk_lambda(arg_types, mk_eq(mk_app_vars(h_1, num_a - 1), mk_app_vars(h_2, num_a - 1)));
+            imitation = mk_lambda(arg_types, mk_eq(mk_app_vars(add_lift(h_1, 0, num_a - 1), num_a - 1), mk_app_vars(add_lift(h_2, 0, num_a - 1), num_a - 1)));
         } else if (is_abstraction(b)) {
             // Imitation for lambdas and Pis
             // Assign f_a <- fun (x_1 : T_1) ... (x_{num_a} : T_{num_a}),
             //                        fun (x_b : (?h_1 x_1 ... x_{num_a})), (?h_2 x_1 ... x_{num_a} x_b)
             // New constraints (h_1 a_1 ... a_{num_a}) == abst_domain(b)
             //                 (h_2 a_1 ... a_{num_a} x_b) == abst_body(b)
-            expr h_1 = new_state.m_menv->mk_metavar(h_ctx);
+            expr h_1 = new_state.m_menv->mk_metavar(ctx);
             context new_ctx = extend(ctx, abst_name(b), abst_domain(b));
-            expr h_2 = new_state.m_menv->mk_metavar(extend(h_ctx, abst_name(b), abst_domain(b)));
+            expr h_2 = new_state.m_menv->mk_metavar(extend(ctx, abst_name(b), abst_domain(b)));
             push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_1), abst_domain(b), new_assumption);
             push_new_eq_constraint(new_state.m_active_cnstrs, new_ctx,
-                                   mk_app(update_app(a, 0, h_2), mk_var(0)), abst_body(b), new_assumption);
-            imitation = mk_lambda(arg_types, update_abstraction(b, mk_app_vars(h_1, num_a - 1), mk_app_vars(h_2, num_a)));
+                                   mk_app(update_app(lift_free_vars(a, 1), 0, h_2), mk_var(0)), abst_body(b), new_assumption);
+            imitation = mk_lambda(arg_types, update_abstraction(b, mk_app_vars(add_lift(h_1, 0, num_a - 1), num_a - 1), mk_app_vars(add_lift(h_2, 1, num_a - 1), num_a)));
         } else {
             // "Dumb imitation" aka the constant function
             // Assign f_a <- fun (x_1 : T_1) ... (x_{num_a} : T_{num_a}), b

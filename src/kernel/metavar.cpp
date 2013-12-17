@@ -189,7 +189,7 @@ bool metavar_env_cell::assign(name const & m, expr const & t, justification cons
                                 failed = true;
                             } else {
                                 it2->m_context = it2->m_context.remove(e_ctx_size - extra, extra);
-                                lean_assert(free_var_range(e, metavar_env(this)) == ctx_size + offset);
+                                lean_assert_le(free_var_range(e, metavar_env(this)), ctx_size + offset);
                             }
                         }
                     }

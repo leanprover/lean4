@@ -291,6 +291,18 @@ static void tst8() {
     lean_assert_eq(N1, N2);
 }
 
+static void tst9() {
+    environment env;
+    expr f = Const("f");
+    env->add_var("f", Type() >> (Type() >> Type()));
+    expr x = Const("x");
+    expr v = Const("v");
+    expr F = Fun({x, Type()}, Let({v, Bool}, f(x, v)));
+    expr N = normalizer(env)(F);
+    std::cout << F << " ==> " << N << "\n";
+    lean_assert_eq(N, Fun({x, Type()}, f(x, Bool)));
+}
+
 int main() {
     save_stack_info();
     tst_church_numbers();
@@ -302,5 +314,6 @@ int main() {
     tst6();
     tst7();
     tst8();
+    tst9();
     return has_violations() ? 1 : 0;
 }

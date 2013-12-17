@@ -267,7 +267,7 @@ class normalizer::imp {
             svalue v = normalize(let_value(a), s, k);
             {
                 freset<cache> reset(m_cache);
-                r = normalize(let_body(a), extend(s, v), k+1);
+                r = normalize(let_body(a), extend(s, v), k);
             }
             break;
         }}

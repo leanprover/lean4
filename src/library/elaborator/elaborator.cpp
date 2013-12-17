@@ -316,6 +316,8 @@ class elaborator::imp {
     */
     void push_new_constraint(cnstr_list & active_cnstrs, bool is_eq,
                              context const & new_ctx, expr const & new_a, expr const & new_b, justification const & new_jst) {
+        if (new_a == new_b)
+            return; // trivial constraint
         if (is_eq)
             push_front(active_cnstrs, mk_eq_constraint(new_ctx, new_a, new_b, new_jst));
         else
@@ -349,12 +351,7 @@ class elaborator::imp {
        The update is justified by \c new_jst.
     */
     void push_updated_constraint(unification_constraint const & c, expr const & new_a, expr const & new_b, justification const & new_jst) {
-        lean_assert(is_eq(c) || is_convertible(c));
-        context const & ctx = get_context(c);
-        if (is_eq(c))
-            push_active(mk_eq_constraint(ctx, new_a, new_b, new_jst));
-        else
-            push_active(mk_convertible_constraint(ctx, new_a, new_b, new_jst));
+        push_new_constraint(m_state.m_active_cnstrs, is_eq(c), get_context(c), new_a, new_b, new_jst);
     }
 
     /**
@@ -365,17 +362,16 @@ class elaborator::imp {
     */
     void push_updated_constraint(unification_constraint const & c, bool is_lhs, expr const & new_a, justification const & new_jst) {
         lean_assert(is_eq(c) || is_convertible(c));
-        context const & ctx = get_context(c);
         if (is_eq(c)) {
             if (is_lhs)
-                push_active(mk_eq_constraint(ctx, new_a, eq_rhs(c), new_jst));
+                push_updated_constraint(c, new_a, eq_rhs(c), new_jst);
             else
-                push_active(mk_eq_constraint(ctx, eq_lhs(c), new_a, new_jst));
+                push_updated_constraint(c, eq_lhs(c), new_a, new_jst);
         } else {
             if (is_lhs)
-                push_active(mk_convertible_constraint(ctx, new_a, convertible_to(c), new_jst));
+                push_updated_constraint(c, new_a, convertible_to(c), new_jst);
             else
-                push_active(mk_convertible_constraint(ctx, convertible_from(c), new_a, new_jst));
+                push_updated_constraint(c, convertible_from(c), new_a, new_jst);
         }
     }
 
@@ -779,7 +775,7 @@ class elaborator::imp {
             expr s = mk_lambda(types, b);
             if (!is_lhs)
                 swap(m, s);
-            push_active(mk_eq_constraint(ctx, m, s, new_jst));
+            push_new_eq_constraint(ctx, m, s, new_jst);
             return true;
         } else {
             return false;
@@ -1165,7 +1161,7 @@ class elaborator::imp {
             // ctx |- a2 == b2
             justification new_jst(new destruct_justification(c));
             for (unsigned i = 1; i < num_args(a); i++)
-                push_active(mk_eq_constraint(ctx, arg(a, i), arg(b, i), new_jst));
+                push_new_eq_constraint(ctx, arg(a, i), arg(b, i), new_jst);
             return true;
         }
 
@@ -1220,25 +1216,22 @@ class elaborator::imp {
                 }
             case expr_kind::Eq: {
                 justification new_jst(new destruct_justification(c));
-                push_active(mk_eq_constraint(ctx, eq_lhs(a), eq_lhs(b), new_jst));
-                push_active(mk_eq_constraint(ctx, eq_rhs(a), eq_rhs(b), new_jst));
+                push_new_eq_constraint(ctx, eq_lhs(a), eq_lhs(b), new_jst);
+                push_new_eq_constraint(ctx, eq_rhs(a), eq_rhs(b), new_jst);
                 return true;
             }
             case expr_kind::Pi: {
                 justification new_jst(new destruct_justification(c));
-                push_active(mk_eq_constraint(ctx, abst_domain(a), abst_domain(b), new_jst));
+                push_new_eq_constraint(ctx, abst_domain(a), abst_domain(b), new_jst);
                 context new_ctx = extend(ctx, abst_name(a), abst_domain(a));
-                if (eq)
-                    push_active(mk_eq_constraint(new_ctx, abst_body(a), abst_body(b), new_jst));
-                else
-                    push_active(mk_convertible_constraint(new_ctx, abst_body(a), abst_body(b), new_jst));
+                push_new_constraint(eq, new_ctx, abst_body(a), abst_body(b), new_jst);
                 return true;
             }
             case expr_kind::Lambda: {
                 justification new_jst(new destruct_justification(c));
-                push_active(mk_eq_constraint(ctx, abst_domain(a), abst_domain(b), new_jst));
+                push_new_eq_constraint(ctx, abst_domain(a), abst_domain(b), new_jst);
                 context new_ctx = extend(ctx, abst_name(a), abst_domain(a));
-                push_active(mk_eq_constraint(new_ctx, abst_body(a), abst_body(b), new_jst));
+                push_new_eq_constraint(new_ctx, abst_body(a), abst_body(b), new_jst);
                 return true;
             }
             case expr_kind::App:
@@ -1246,7 +1239,7 @@ class elaborator::imp {
                     if (num_args(a) == num_args(b)) {
                         justification new_jst(new destruct_justification(c));
                         for (unsigned i = 0; i < num_args(a); i++)
-                            push_active(mk_eq_constraint(ctx, arg(a, i), arg(b, i), new_jst));
+                            push_new_eq_constraint(ctx, arg(a, i), arg(b, i), new_jst);
                         return true;
                     } else {
                         m_conflict = justification(new unification_failure_justification(c));
@@ -1336,7 +1329,7 @@ class elaborator::imp {
         if (is_type(lhs1) && is_type(lhs2)) {
             justification new_jst(new normalize_justification(c));
             expr new_lhs = mk_type(max(ty_level(lhs1), ty_level(lhs2)));
-            push_active(mk_eq_constraint(get_context(c), new_lhs, rhs, new_jst));
+            push_new_eq_constraint(get_context(c), new_lhs, rhs, new_jst);
             return true;
         }
         if (lhs1 == rhs) {
@@ -1402,7 +1395,7 @@ class elaborator::imp {
             s.m_idx++;
             s.m_curr_assumption = mk_assumption();
             m_state = s.m_prev_state;
-            push_active(mk_eq_constraint(get_context(choice), choice_mvar(choice), choice_ith(choice, idx), s.m_curr_assumption));
+            push_new_eq_constraint(get_context(choice), choice_mvar(choice), choice_ith(choice, idx), s.m_curr_assumption);
             return true;
         } else {
             m_conflict = justification(new unification_failure_by_cases_justification(choice, s.m_failed_justifications.size(),

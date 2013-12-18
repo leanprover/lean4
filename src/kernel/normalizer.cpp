@@ -117,19 +117,18 @@ class normalizer::imp {
 
     /** \brief Convert the value \c v back into an expression in a context that contains \c k binders. */
     expr reify(expr const & v, unsigned k) {
-        auto f = [&](expr const & e, unsigned DEBUG_CODE(offset)) {
-            lean_assert(offset == 0);
-            lean_assert(!is_lambda(e) && !is_pi(e) && !is_metavar(e) && !is_let(e));
-            if (is_var(e)) {
-                // de Bruijn level --> de Bruijn index
-                return mk_var(k - var_idx(e) - 1);
-            } else if (is_closure(e)) {
-                return reify_closure(to_closure(e), k);
-            } else {
-                return e;
-            }
-        };
-        return replace_fn<decltype(f)>(f)(v);
+        return replace(v, [&](expr const & e, unsigned DEBUG_CODE(offset)) {
+                lean_assert(offset == 0);
+                lean_assert(!is_lambda(e) && !is_pi(e) && !is_metavar(e) && !is_let(e));
+                if (is_var(e)) {
+                    // de Bruijn level --> de Bruijn index
+                    return mk_var(k - var_idx(e) - 1);
+                } else if (is_closure(e)) {
+                    return reify_closure(to_closure(e), k);
+                } else {
+                    return e;
+                }
+            });
     }
 
     /** \brief Return true iff the value_stack does affect the context of a metavariable */

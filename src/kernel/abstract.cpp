@@ -13,33 +13,27 @@ Author: Leonardo de Moura
 namespace lean {
 expr abstract(expr const & e, unsigned n, expr const * s) {
     lean_assert(std::all_of(s, s+n, closed));
-
-    auto f = [=](expr const & e, unsigned offset) -> expr {
-        unsigned i = n;
-        while (i > 0) {
-            --i;
-            if (s[i] == e)
-                return mk_var(offset + n - i - 1);
-        }
-        return e;
-    };
-
-    return replace_fn<decltype(f)>(f)(e);
+    return replace(e, [=](expr const & e, unsigned offset) -> expr {
+            unsigned i = n;
+            while (i > 0) {
+                --i;
+                if (s[i] == e)
+                    return mk_var(offset + n - i - 1);
+            }
+            return e;
+        });
 }
 expr abstract_p(expr const & e, unsigned n, expr const * s) {
     lean_assert(std::all_of(s, s+n, closed));
-
-    auto f = [=](expr const & e, unsigned offset) -> expr {
-        unsigned i = n;
-        while (i > 0) {
-            --i;
-            if (is_eqp(s[i], e))
-                return mk_var(offset + n - i - 1);
-        }
-        return e;
-    };
-
-    return replace_fn<decltype(f)>(f)(e);
+    return replace(e, [=](expr const & e, unsigned offset) -> expr {
+            unsigned i = n;
+            while (i > 0) {
+                --i;
+                if (is_eqp(s[i], e))
+                    return mk_var(offset + n - i - 1);
+            }
+            return e;
+        });
 }
 #define MkBinder(FName)                                                 \
 expr FName(std::initializer_list<std::pair<expr const &, expr const &>> const & l, expr const & b) { \

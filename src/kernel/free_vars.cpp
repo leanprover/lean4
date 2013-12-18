@@ -336,15 +336,14 @@ bool has_free_var(expr const & e, unsigned i) { return has_free_var(e, i, i+1); 
 expr lower_free_vars(expr const & e, unsigned s, unsigned d, optional<metavar_env> const & DEBUG_CODE(menv)) {
     lean_assert(s >= d);
     lean_assert(!has_free_var(e, s-d, s, menv));
-    auto f = [=](expr const & e, unsigned offset) -> expr {
-        if (is_var(e) && var_idx(e) >= s + offset) {
-            lean_assert(var_idx(e) >= offset + d);
-            return mk_var(var_idx(e) - d);
-        } else {
-            return e;
-        }
-    };
-    return replace_fn<decltype(f)>(f)(e);
+    return replace(e, [=](expr const & e, unsigned offset) -> expr {
+            if (is_var(e) && var_idx(e) >= s + offset) {
+                lean_assert(var_idx(e) >= offset + d);
+                return mk_var(var_idx(e) - d);
+            } else {
+                return e;
+            }
+        });
 }
 expr lower_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const & menv) { return lower_free_vars(e, s, d, some_menv(menv)); }
 expr lower_free_vars(expr const & e, unsigned s, unsigned d) { return lower_free_vars(e, s, d, none_menv()); }
@@ -355,16 +354,15 @@ expr lower_free_vars(expr const & e, unsigned d) { return lower_free_vars(e, d, 
 expr lift_free_vars(expr const & e, unsigned s, unsigned d, optional<metavar_env> const & menv) {
     if (d == 0)
         return e;
-    auto f = [=](expr const & e, unsigned offset) -> expr {
-        if (is_var(e) && var_idx(e) >= s + offset) {
-            return mk_var(var_idx(e) + d);
-        } else if (is_metavar(e)) {
-            return add_lift(e, s + offset, d, menv);
-        } else {
-            return e;
-        }
-    };
-    return replace_fn<decltype(f)>(f)(e);
+    return replace(e, [=](expr const & e, unsigned offset) -> expr {
+            if (is_var(e) && var_idx(e) >= s + offset) {
+                return mk_var(var_idx(e) + d);
+            } else if (is_metavar(e)) {
+                return add_lift(e, s + offset, d, menv);
+            } else {
+                return e;
+            }
+        });
 }
 expr lift_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const & menv) { return lift_free_vars(e, s, d, some_menv(menv)); }
 expr lift_free_vars(expr const & e, unsigned s, unsigned d) { return lift_free_vars(e, s, d, none_menv()); }

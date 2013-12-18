@@ -24,23 +24,22 @@ expr find(substitution & s, expr e) {
 }
 
 expr apply(substitution & s, expr const & e, optional<metavar_env> const & menv) {
-    auto f = [&](expr const & e, unsigned) -> expr {
-        if (is_metavar(e)) {
-            expr r = find(s, e);
-            if (r != e) {
-                if (has_metavar(r)) {
-                    r = apply(s, r);
-                    s.insert(metavar_name(e), r);
+    return replace(e, [&](expr const & e, unsigned) -> expr {
+            if (is_metavar(e)) {
+                expr r = find(s, e);
+                if (r != e) {
+                    if (has_metavar(r)) {
+                        r = apply(s, r);
+                        s.insert(metavar_name(e), r);
+                    }
+                    return apply_local_context(r, metavar_lctx(e), menv);
+                } else {
+                    return e;
                 }
-                return apply_local_context(r, metavar_lctx(e), menv);
             } else {
                 return e;
             }
-        } else {
-            return e;
-        }
-    };
-    return replace_fn<decltype(f)>(f)(e);
+        });
 }
 
 DECL_UDATA(substitution)

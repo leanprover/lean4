@@ -137,15 +137,14 @@ name get_unused_name(expr const & e) {
 */
 expr replace_var_with_name(expr const & a, name const & n) {
     expr c = mk_constant(n);
-    auto f = [=](expr const & m, unsigned offset) -> expr {
-        if (is_var(m)) {
-            unsigned vidx = var_idx(m);
-            if (vidx >= offset)
-                return vidx == offset ? c : mk_var(vidx - 1);
-        }
-        return m;
-    };
-    return replace_fn<decltype(f)>(f)(a);
+    return replace(a, [=](expr const & m, unsigned offset) -> expr {
+            if (is_var(m)) {
+                unsigned vidx = var_idx(m);
+                if (vidx >= offset)
+                    return vidx == offset ? c : mk_var(vidx - 1);
+            }
+            return m;
+        });
 }
 
 /** \brief Functional object for pretty printing expressions */

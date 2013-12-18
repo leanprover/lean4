@@ -13,27 +13,26 @@ Author: Leonardo de Moura
 
 namespace lean {
 expr instantiate_with_closed_relaxed(expr const & a, unsigned n, expr const * s, optional<metavar_env> const & menv) {
-    auto f = [=](expr const & m, unsigned offset) -> expr {
-        if (is_var(m)) {
-            unsigned vidx = var_idx(m);
-            if (vidx >= offset) {
-                if (vidx < offset + n)
-                    return s[n - (vidx - offset) - 1];
-                else
-                    return mk_var(vidx - n);
+    return replace(a, [=](expr const & m, unsigned offset) -> expr {
+            if (is_var(m)) {
+                unsigned vidx = var_idx(m);
+                if (vidx >= offset) {
+                    if (vidx < offset + n)
+                        return s[n - (vidx - offset) - 1];
+                    else
+                        return mk_var(vidx - n);
+                } else {
+                    return m;
+                }
+            } else if (is_metavar(m)) {
+                expr r = m;
+                for (unsigned i = 0; i < n; i++)
+                    r = add_inst(r, offset + n - i - 1, s[i], menv);
+                return r;
             } else {
                 return m;
             }
-        } else if (is_metavar(m)) {
-            expr r = m;
-            for (unsigned i = 0; i < n; i++)
-                r = add_inst(r, offset + n - i - 1, s[i], menv);
-            return r;
-        } else {
-            return m;
-        }
-    };
-    return replace_fn<decltype(f)>(f)(a);
+        });
 }
 expr instantiate_with_closed_relaxed(expr const & a, unsigned n, expr const * s, metavar_env const & menv) {
     return instantiate_with_closed_relaxed(a, n, s, some_menv(menv));
@@ -53,27 +52,26 @@ expr instantiate_with_closed(expr const & e, expr const & s) { return instantiat
 expr instantiate_with_closed(expr const & e, expr const & s, metavar_env const & menv) { return instantiate_with_closed(e, s, some_menv(menv)); }
 
 expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst, optional<metavar_env> const & menv) {
-    auto f = [=](expr const & m, unsigned offset) -> expr {
-        if (is_var(m)) {
-            unsigned vidx = var_idx(m);
-            if (vidx >= offset + s) {
-                if (vidx < offset + s + n)
-                    return lift_free_vars(subst[n - (vidx - s - offset) - 1], offset, menv);
-                else
-                    return mk_var(vidx - n);
+    return replace(a, [=](expr const & m, unsigned offset) -> expr {
+            if (is_var(m)) {
+                unsigned vidx = var_idx(m);
+                if (vidx >= offset + s) {
+                    if (vidx < offset + s + n)
+                        return lift_free_vars(subst[n - (vidx - s - offset) - 1], offset, menv);
+                    else
+                        return mk_var(vidx - n);
+                } else {
+                    return m;
+                }
+            } else if (is_metavar(m)) {
+                expr r = m;
+                for (unsigned i = 0; i < n; i++)
+                    r = add_inst(r, offset + s + n - i - 1, lift_free_vars(subst[i], offset + n - i - 1, menv), menv);
+                return r;
             } else {
                 return m;
             }
-        } else if (is_metavar(m)) {
-            expr r = m;
-            for (unsigned i = 0; i < n; i++)
-                r = add_inst(r, offset + s + n - i - 1, lift_free_vars(subst[i], offset + n - i - 1, menv), menv);
-            return r;
-        } else {
-            return m;
-        }
-    };
-    return replace_fn<decltype(f)>(f)(a);
+        });
 }
 expr instantiate(expr const & e, unsigned n, expr const * s, optional<metavar_env> const & menv) { return instantiate(e, 0, n, s, menv); }
 expr instantiate(expr const & e, unsigned n, expr const * s, metavar_env const & menv) { return instantiate(e, n, s, some_menv(menv)); }

@@ -210,4 +210,14 @@ public:
         m_rs.clear();
     }
 };
+
+template<typename F>
+expr replace(expr const & e, F f) {
+    return replace_fn<F>(f)(e);
+}
+
+template<typename F, typename P>
+expr replace(expr const & e, F f, P p) {
+    return replace_fn<F, P>(f, p)(e);
+}
 }

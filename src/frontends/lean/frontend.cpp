@@ -35,6 +35,7 @@ struct lean_extension : public environment_extension {
     // Remark: only named objects are stored in the dictionary.
     typedef name_map<operator_info>              operator_table;
     typedef name_map<implicit_info>              implicit_table;
+    typedef name_map<unsigned>                   precedence_table;
     typedef expr_struct_map<list<operator_info>> expr_to_operators;
     typedef expr_pair_struct_map<expr>           coercion_map;
     typedef expr_struct_map<list<expr_pair>>     expr_to_coercions;
@@ -42,6 +43,9 @@ struct lean_extension : public environment_extension {
 
     operator_table        m_nud; // nud table for Pratt's parser
     operator_table        m_led; // led table for Pratt's parser
+    // The following table stores the precedence of other operator parts.
+    // The m_nud and m_led only map the first part of an operator to its definition.
+    precedence_table      m_other_lbp;
     expr_to_operators     m_expr_to_operators; // map denotations to operators (this is used for pretty printing)
     implicit_table        m_implicit_table; // track the number of implicit arguments for a symbol.
     coercion_map          m_coercion_map; // mapping from (given_type, expected_type) -> coercion
@@ -74,6 +78,26 @@ struct lean_extension : public environment_extension {
             return parent->find_led(n);
         else
             return operator_info();
+    }
+
+    optional<unsigned> get_other_lbp(name const & n) const {
+        auto it = m_other_lbp.find(n);
+        if (it != m_other_lbp.end())
+            return some(it->second);
+        lean_extension const * parent = get_parent();
+        if (parent)
+            return parent->get_other_lbp(n);
+        else
+            return optional<unsigned>();
+    }
+
+    /** \brief Return the precedence (aka binding power) of the given name. */
+    optional<unsigned> get_lbp(name const & n) const {
+        operator_info info = find_led(n);
+        if (info)
+            return some(info.get_precedence());
+        else
+            return get_other_lbp(n);
     }
 
     /**
@@ -130,18 +154,31 @@ struct lean_extension : public environment_extension {
         }
     }
 
-
     /** \brief Add a new entry d -> op in the mapping m_expr_to_operators */
     void insert_expr_to_operator_entry(expr const & d, operator_info const & op) {
         list<operator_info> & l = m_expr_to_operators[d];
         l = cons(op, l);
     }
 
+    void check_precedence(name const & n, unsigned prec, io_state & st) const {
+        auto old_prec = get_lbp(n);
+        if (old_prec && *old_prec != prec)
+            diagnostic(st) << "The precedence of '" << n << "' changed from " << *old_prec << " to " << prec << ".\n";
+    }
+
     /** \brief Register the new operator in the tables for parsing and pretty printing. */
-    void register_new_op(operator_info new_op, expr const & d, bool led) {
+    void register_new_op(operator_info new_op, expr const & d, bool led, io_state & st) {
         new_op.add_expr(d);
         insert_op(new_op, led);
         insert_expr_to_operator_entry(d, new_op);
+        auto parts = new_op.get_op_name_parts();
+        auto prec  = new_op.get_precedence();
+        if (led)
+            check_precedence(head(parts), prec, st);
+        for (name const & part : tail(parts)) {
+            check_precedence(part, prec, st);
+            m_other_lbp[part] = prec;
+        }
     }
 
     /**
@@ -213,7 +250,7 @@ struct lean_extension : public environment_extension {
         name const & opn = new_op.get_op_name();
         operator_info old_op = find_op(opn, led);
         if (!old_op) {
-            register_new_op(new_op, d, led);
+            register_new_op(new_op, d, led, st);
         } else if (old_op == new_op) {
             if (compatible_denotations(old_op, d)) {
                 // overload
@@ -224,20 +261,20 @@ struct lean_extension : public environment_extension {
                     // we must copy the operator because it was defined in
                     // a parent frontend.
                     new_op = old_op.copy();
-                    register_new_op(new_op, d, led);
+                    register_new_op(new_op, d, led, st);
                 }
             } else {
                 diagnostic(st) << "The denotation(s) for the existing notation:\n  " << old_op
                                << "\nhave been replaced with the new denotation:\n  " << d
                                << "\nbecause they conflict on how implicit arguments are used.\n";
                 remove_bindings(old_op);
-                register_new_op(new_op, d, led);
+                register_new_op(new_op, d, led, st);
             }
         } else {
             diagnostic(st) << "Notation has been redefined, the existing notation:\n  " << old_op
                            << "\nhas been replaced with:\n  " << new_op << "\nbecause they conflict with each other.\n";
             remove_bindings(old_op);
-            register_new_op(new_op, d, led);
+            register_new_op(new_op, d, led, st);
         }
         env->add_neutral_object(new notation_declaration(new_op, d));
     }
@@ -473,6 +510,9 @@ operator_info frontend::find_nud(name const & n) const {
 }
 operator_info frontend::find_led(name const & n) const {
     return to_ext(m_env).find_led(n);
+}
+optional<unsigned> frontend::get_lbp(name const & n) const {
+    return to_ext(m_env).get_lbp(n);
 }
 void frontend::mark_implicit_arguments(name const & n, unsigned sz, bool const * implicit) {
     to_ext(m_env).mark_implicit_arguments(n, sz, implicit, m_env);

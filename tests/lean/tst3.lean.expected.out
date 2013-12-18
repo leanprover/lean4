@@ -9,6 +9,7 @@ f c d e
 c |- d ; e
 (c !) !
 fact (fact c)
+The precedence of ';' changed from 100 to 30.
 [ c ; d ]
 [ c ; ([ d ; e ]) ]
 g c (g d e)

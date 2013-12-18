@@ -117,6 +117,9 @@ static unsigned g_level_plus_prec = 10;
 static unsigned g_level_cup_prec  = 5;
 // ==========================================
 
+// precedence (aka binding power) for function application
+constexpr unsigned app_lbp = std::numeric_limits<unsigned>::max();
+
 // A name that can't be created by the user.
 // It is used as placeholder for parsing A -> B expressions which
 // are syntax sugar for (Pi (_ : A), B)
@@ -814,7 +817,7 @@ class parser::imp {
                         if (imp_args[i]) {
                             args.push_back(save(mk_placeholder(), pos()));
                         } else {
-                            args.push_back(parse_expr(1));
+                            args.push_back(parse_expr(app_lbp));
                         }
                     }
                     return mk_app(args);
@@ -1301,20 +1304,20 @@ class parser::imp {
             name const & id = curr_name();
             auto it = m_local_decls.find(id);
             if (it != m_local_decls.end()) {
-                return 1;
+                return app_lbp;
             } else {
-                operator_info op = m_frontend.find_led(id);
-                if (op)
-                    return op.get_precedence();
+                optional<unsigned> prec = m_frontend.get_lbp(id);
+                if (prec)
+                    return *prec;
                 else
-                    return 1;
+                    return app_lbp;
             }
         }
         case scanner::token::Eq : return g_eq_precedence;
         case scanner::token::Arrow : return g_arrow_precedence;
         case scanner::token::LeftParen: case scanner::token::NatVal: case scanner::token::DecimalVal:
         case scanner::token::StringVal: case scanner::token::Type: case scanner::token::Placeholder:
-            return 1;
+            return app_lbp;
         default:
             return 0;
         }

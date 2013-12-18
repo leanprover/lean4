@@ -107,6 +107,9 @@ public:
         \remark This is used for parsing.
     */
     operator_info find_led(name const & n) const;
+
+    /** \brief Return the precedence (aka binding power) of the given name. */
+    optional<unsigned> get_lbp(name const & n) const;
     /*@}*/
 
     /**

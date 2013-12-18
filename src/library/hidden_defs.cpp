@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <unordered_map>
 #include "util/name.h"
 #include "util/sstream.h"
+#include "util/name_map.h"
 #include "kernel/environment.h"
 #include "kernel/builtin.h"
 #include "library/hidden_defs.h"
@@ -14,7 +15,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 struct hidden_defs_extension : public environment_extension {
-    typedef std::unordered_map<name, bool, name_hash, name_eq> hidden_defs;
+    typedef name_map<bool> hidden_defs;
     hidden_defs m_hidden_defs;
 
     hidden_defs_extension const * get_parent() const {

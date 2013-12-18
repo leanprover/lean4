@@ -134,7 +134,7 @@ static name g_unused = name::mk_internal_unique_name();
 */
 class parser::imp {
     typedef scoped_map<name, unsigned, name_hash, name_eq> local_decls;
-    typedef std::unordered_map<name, expr, name_hash, name_eq>  builtins;
+    typedef name_map<expr> builtins;
     typedef std::pair<unsigned, unsigned> pos_info;
     typedef expr_map<pos_info> expr_pos_info;
     typedef expr_map<tactic>   tactic_hints; // a mapping from placeholder to tactic

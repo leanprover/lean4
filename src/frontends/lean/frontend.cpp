@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "util/map.h"
 #include "util/sstream.h"
 #include "util/exception.h"
+#include "util/name_map.h"
 #include "kernel/environment.h"
 #include "library/expr_pair.h"
 #include "library/io_state.h"
@@ -30,8 +31,8 @@ static std::vector<bool> g_empty_vector;
 struct lean_extension : public environment_extension {
     typedef std::pair<std::vector<bool>, name> implicit_info;
     // Remark: only named objects are stored in the dictionary.
-    typedef std::unordered_map<name, operator_info, name_hash, name_eq> operator_table;
-    typedef std::unordered_map<name, implicit_info, name_hash, name_eq> implicit_table;
+    typedef name_map<operator_info> operator_table;
+    typedef name_map<implicit_info> implicit_table;
     typedef std::unordered_map<expr, list<operator_info>, expr_hash, std::equal_to<expr>> expr_to_operators;
     typedef std::unordered_map<expr_pair, expr, expr_pair_hash, expr_pair_eq> coercion_map;
     typedef std::unordered_map<expr, list<expr_pair>, expr_hash, std::equal_to<expr>> expr_to_coercions;

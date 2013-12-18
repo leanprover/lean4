@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include <set>
 #include "util/lua.h"
 #include "util/shared_mutex.h"
+#include "util/name_map.h"
 #include "kernel/context.h"
 #include "kernel/object.h"
 #include "kernel/level.h"
@@ -28,7 +29,7 @@ class environment_cell {
     friend class read_write_shared_environment;
     friend class read_only_shared_environment;
     // Remark: only named objects are stored in the dictionary.
-    typedef std::unordered_map<name, object, name_hash, name_eq> object_dictionary;
+    typedef name_map<object> object_dictionary;
     typedef std::tuple<level, level, int> constraint;
     std::weak_ptr<environment_cell>         m_this;
     // Universe variable management

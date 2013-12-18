@@ -117,7 +117,7 @@ class normalizer::imp {
 
     /** \brief Convert the value \c v back into an expression in a context that contains \c k binders. */
     expr reify(expr const & v, unsigned k) {
-        return replace(v, [&](expr const & e, unsigned DEBUG_CODE(offset)) {
+        return replace(v, [&](expr const & e, unsigned DEBUG_CODE(offset)) -> expr {
                 lean_assert(offset == 0);
                 lean_assert(!is_lambda(e) && !is_pi(e) && !is_metavar(e) && !is_let(e));
                 if (is_var(e)) {

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 namespace lean {
 constexpr unsigned g_eq_precedence    = 50;
 constexpr unsigned g_arrow_precedence = 25;
-class frontend;
-void init_builtin_notation(frontend & fe);
+class environment;
+class io_state;
+void init_builtin_notation(environment const & env, io_state & st);
 }

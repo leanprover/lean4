@@ -135,13 +135,15 @@ static name g_unused = name::mk_internal_unique_name();
     operators.
 */
 class parser::imp {
+    friend class parser;
     typedef scoped_map<name, unsigned, name_hash, name_eq> local_decls;
     typedef name_map<expr> builtins;
     typedef std::pair<unsigned, unsigned> pos_info;
     typedef expr_map<pos_info> expr_pos_info;
     typedef expr_map<tactic>   tactic_hints; // a mapping from placeholder to tactic
     typedef buffer<std::tuple<pos_info, name, expr, bool>> bindings_buffer;
-    frontend &          m_frontend;
+    environment         m_env;
+    io_state            m_io_state;
     scanner             m_scanner;
     frontend_elaborator m_elaborator;
     type_inferer        m_type_inferer;
@@ -181,8 +183,8 @@ class parser::imp {
     template<typename F>
     typename std::result_of<F(lua_State * L)>::type using_script(F && f) {
         return m_script_state->apply([&](lua_State * L) {
-                set_io_state    set1(L, m_frontend.get_state());
-                set_environment set2(L, m_frontend.get_environment());
+                set_io_state    set1(L, m_io_state);
+                set_environment set2(L, m_env);
                 return f(L);
             });
     }
@@ -190,8 +192,8 @@ class parser::imp {
     template<typename F>
     void code_with_callbacks(F && f) {
         m_script_state->apply([&](lua_State * L) {
-                set_io_state    set1(L, m_frontend.get_state());
-                set_environment set2(L, m_frontend.get_environment());
+                set_io_state    set1(L, m_io_state);
+                set_environment set2(L, m_env);
                 m_script_state->exec_unprotected([&]() {
                         f();
                     });
@@ -319,10 +321,10 @@ class parser::imp {
 
     /*@{*/
     void display_error_pos(unsigned line, unsigned pos) {
-        regular(m_frontend) << "Error (line: " << line;
+        regular(m_io_state) << "Error (line: " << line;
         if (pos != static_cast<unsigned>(-1))
-            regular(m_frontend) << ", pos: " << pos;
-        regular(m_frontend) << ")";
+            regular(m_io_state) << ", pos: " << pos;
+        regular(m_io_state) << ")";
     }
 
     void display_error_pos(pos_info const & p) { display_error_pos(p.first, p.second); }
@@ -341,7 +343,7 @@ class parser::imp {
 
     void display_error(char const * msg, unsigned line, unsigned pos) {
         display_error_pos(line, pos);
-        regular(m_frontend) << " " << msg << endl;
+        regular(m_io_state) << " " << msg << endl;
     }
 
     void display_error(char const * msg) {
@@ -354,7 +356,7 @@ class parser::imp {
             display_error_pos(some_expr(m_elaborator.get_original(*main_expr)));
         else
             display_error_pos(main_expr);
-        regular(m_frontend) << " " << ex << endl;
+        regular(m_io_state) << " " << ex << endl;
     }
 
     struct lean_pos_info_provider : public pos_info_provider {
@@ -370,25 +372,25 @@ class parser::imp {
     };
 
     void display_error(elaborator_exception const & ex) {
-        formatter fmt = m_frontend.get_state().get_formatter();
-        options opts  = m_frontend.get_state().get_options();
+        formatter fmt = m_io_state.get_formatter();
+        options opts  = m_io_state.get_options();
         lean_pos_info_provider pos_provider(*this);
-        regular(m_frontend) << mk_pair(ex.get_justification().pp(fmt, opts, &pos_provider, true), opts) << endl;
+        regular(m_io_state) << mk_pair(ex.get_justification().pp(fmt, opts, &pos_provider, true), opts) << endl;
     }
 
     void display_error(script_exception const & ex) {
         switch (ex.get_source()) {
         case script_exception::source::String:
             display_error_pos(ex.get_line() + m_last_script_pos.first - 1, static_cast<unsigned>(-1));
-            regular(m_frontend) << " executing script," << ex.get_msg() << endl;
+            regular(m_io_state) << " executing script," << ex.get_msg() << endl;
             break;
         case script_exception::source::File:
             display_error_pos(m_last_script_pos);
-            regular(m_frontend) << " executing external script (" << ex.get_filename() << ":" << ex.get_line() << ")," << ex.get_msg() << endl;
+            regular(m_io_state) << " executing external script (" << ex.get_filename() << ":" << ex.get_line() << ")," << ex.get_msg() << endl;
             break;
         case script_exception::source::Unknown:
             display_error_pos(m_last_script_pos);
-            regular(m_frontend) << " executing script, but could not decode position information, " << ex.what() << endl;
+            regular(m_io_state) << " executing script, but could not decode position information, " << ex.what() << endl;
             break;
         }
     }
@@ -446,7 +448,7 @@ class parser::imp {
                 throw;
         } catch (interrupted & ex) {
             if (m_verbose)
-                regular(m_frontend) << "!!!Interrupted!!!" << endl;
+                regular(m_io_state) << "!!!Interrupted!!!" << endl;
             reset_interrupt();
             sync();
             if (m_use_exceptions)
@@ -508,7 +510,7 @@ class parser::imp {
             return parse_level_max();
         } else {
             next();
-            return m_frontend.get_uvar(id);
+            return m_env->get_uvar(id);
         }
     }
 
@@ -586,7 +588,7 @@ class parser::imp {
        \brief Return the size of the implicit vector associated with the given denotation.
     */
     unsigned get_implicit_vector_size(expr const & d) {
-        return m_frontend.get_implicit_arguments(d).size();
+        return get_implicit_arguments(m_env, d).size();
     }
 
     /**
@@ -597,7 +599,7 @@ class parser::imp {
         std::vector<bool> const * r = nullptr;
         unsigned m = std::numeric_limits<unsigned>::max();
         for (expr const & d : ds) {
-            std::vector<bool> const & v = m_frontend.get_implicit_arguments(d);
+            std::vector<bool> const & v = get_implicit_arguments(m_env, d);
             unsigned s = v.size();
             if (s == 0) {
                 return v;
@@ -803,12 +805,12 @@ class parser::imp {
        to check if \c id is a builtin symbol. If it is not throws an error.
     */
     expr get_name_ref(name const & id, pos_info const & p) {
-        optional<object> obj = m_frontend.find_object(id);
+        optional<object> obj = m_env->find_object(id);
         if (obj) {
             object_kind k      = obj->kind();
             if (k == object_kind::Definition || k == object_kind::Postulate || k == object_kind::Builtin) {
-                if (m_frontend.has_implicit_arguments(obj->get_name())) {
-                    std::vector<bool> const & imp_args = m_frontend.get_implicit_arguments(obj->get_name());
+                if (has_implicit_arguments(m_env, obj->get_name())) {
+                    std::vector<bool> const & imp_args = get_implicit_arguments(m_env, obj->get_name());
                     buffer<expr> args;
                     pos_info p = pos();
                     expr f = (k == object_kind::Builtin) ? obj->get_value() : mk_constant(obj->get_name());
@@ -850,7 +852,7 @@ class parser::imp {
         if (it != m_local_decls.end()) {
             return save(mk_var(m_num_local_decls - it->second - 1), p);
         } else {
-            operator_info op = m_frontend.find_nud(id);
+            operator_info op = find_nud(m_env, id);
             if (op) {
                 switch (op.get_fixity()) {
                 case fixity::Prefix:  return parse_prefix(op);
@@ -882,7 +884,7 @@ class parser::imp {
         if (it != m_local_decls.end()) {
             return save(mk_app(left, save(mk_var(m_num_local_decls - it->second - 1), p)), p2);
         } else {
-            operator_info op = m_frontend.find_led(id);
+            operator_info op = find_led(m_env, id);
             if (op) {
                 switch (op.get_fixity()) {
                 case fixity::Infix:   return parse_infix(left, op);
@@ -1205,7 +1207,7 @@ class parser::imp {
             return ::lean::apply_tactic(pr, pr_type);
         } else {
            name n = check_identifier_next("invalid apply command, identifier, '(' expr ')', or 'script-block' expected");
-           optional<object> o = m_frontend.find_object(n);
+           optional<object> o = m_env->find_object(n);
             if (o && (o->is_theorem() || o->is_axiom())) {
                 return ::lean::apply_tactic(n);
             } else {
@@ -1306,7 +1308,7 @@ class parser::imp {
             if (it != m_local_decls.end()) {
                 return app_lbp;
             } else {
-                optional<unsigned> prec = m_frontend.get_lbp(id);
+                optional<unsigned> prec = get_lbp(m_env, id);
                 if (prec)
                     return *prec;
                 else
@@ -1352,11 +1354,11 @@ class parser::imp {
                 found = true;
         }
         if (found)
-            m_frontend.mark_implicit_arguments(n, imp_args.size(), imp_args.data());
+            mark_implicit_arguments(m_env, n, imp_args.size(), imp_args.data());
     }
 
     void display_proof_state(proof_state s) {
-        regular(m_frontend) << "Proof state:\n" << s << endl;
+        regular(m_io_state) << "Proof state:\n" << s << endl;
     }
 
     void display_proof_state_if_interactive(proof_state s) {
@@ -1375,7 +1377,7 @@ class parser::imp {
         proof_state_seq::maybe_pair r;
         code_with_callbacks([&]() {
                 // t may have call-backs we should set ios in the script_state
-                proof_state_seq seq = t(m_frontend.get_environment(), m_frontend.get_state(), s);
+                proof_state_seq seq = t(m_env, m_io_state, s);
                 r = seq.pull();
             });
         if (r) {
@@ -1403,9 +1405,9 @@ class parser::imp {
                 // Example: apply_tactic.
                 metavar_env menv = s.get_menv().copy();
                 buffer<unification_constraint> ucs;
-                expr pr_type = type_checker(m_frontend.get_environment()).infer_type(pr, ctx, menv, ucs);
+                expr pr_type = type_checker(m_env).infer_type(pr, ctx, menv, ucs);
                 ucs.push_back(mk_convertible_constraint(ctx, pr_type, expected_type, mk_type_match_justification(ctx, expected_type, pr)));
-                elaborator elb(m_frontend.get_environment(), menv, ucs.size(), ucs.data(), m_frontend.get_options());
+                elaborator elb(m_env, menv, ucs.size(), ucs.data(), m_io_state.get_options());
                 metavar_env new_menv = elb.next();
                 pr = new_menv->instantiate_metavars(pr);
                 if (has_metavar(pr))
@@ -1604,7 +1606,7 @@ class parser::imp {
             context mvar_ctx(to_list(new_entries.begin(), new_entries.end()));
             if (!m_type_inferer.is_proposition(mvar_type, mvar_ctx))
                 throw exception("failed to synthesize metavar, its type is not a proposition");
-            proof_state s = to_proof_state(m_frontend.get_environment(), mvar_ctx, mvar_type);
+            proof_state s = to_proof_state(m_env, mvar_ctx, mvar_type);
             std::pair<optional<tactic>, pos_info> hint_and_pos = get_tactic_for(mvar);
             if (hint_and_pos.first) {
                 // metavariable has an associated tactic hint
@@ -1669,13 +1671,13 @@ class parser::imp {
         if (has_metavar(val))
             throw exception("invalid definition, value still contains metavariables after elaboration");
         if (is_definition) {
-            m_frontend.add_definition(id, type, val);
+            m_env->add_definition(id, type, val);
             if (m_verbose)
-                regular(m_frontend) << "  Defined: " << id << endl;
+                regular(m_io_state) << "  Defined: " << id << endl;
         } else {
-            m_frontend.add_theorem(id, type, val);
+            m_env->add_theorem(id, type, val);
             if (m_verbose)
-                regular(m_frontend) << "  Proved: " << id << endl;
+                regular(m_io_state) << "  Proved: " << id << endl;
         }
         register_implicit_arguments(id, bindings);
     }
@@ -1719,11 +1721,11 @@ class parser::imp {
             type = m_elaborator(mk_abstraction(false, bindings, type_body));
         }
         if (is_var)
-            m_frontend.add_var(id, type);
+            m_env->add_var(id, type);
         else
-            m_frontend.add_axiom(id, type);
+            m_env->add_axiom(id, type);
         if (m_verbose)
-            regular(m_frontend) << "  Assumed: " << id << endl;
+            regular(m_io_state) << "  Assumed: " << id << endl;
         register_implicit_arguments(id, bindings);
     }
 
@@ -1747,15 +1749,15 @@ class parser::imp {
         parse_simple_bindings(bindings, false, false);
         for (auto b : bindings) {
             name const & id = std::get<1>(b);
-            if (m_frontend.find_object(id))
-                throw already_declared_exception(m_frontend.get_environment(), id);
+            if (m_env->find_object(id))
+                throw already_declared_exception(m_env, id);
         }
         for (auto b : bindings) {
             name const & id = std::get<1>(b);
             expr const & type = std::get<2>(b);
-            m_frontend.add_var(id, type);
+            m_env->add_var(id, type);
             if (m_verbose)
-                regular(m_frontend) << "  Assumed: " << id << endl;
+                regular(m_io_state) << "  Assumed: " << id << endl;
         }
     }
 
@@ -1773,9 +1775,9 @@ class parser::imp {
     void parse_eval() {
         next();
         expr v = m_elaborator(parse_expr());
-        normalizer norm(m_frontend.get_environment());
+        normalizer norm(m_env);
         expr r = norm(v);
-        regular(m_frontend) << r << endl;
+        regular(m_io_state) << r << endl;
     }
 
     /** \brief Parse
@@ -1791,27 +1793,27 @@ class parser::imp {
             if (opt_id == g_env_kwd) {
                 if (curr_is_nat()) {
                     unsigned i = parse_unsigned("invalid argument, value does not fit in a machine integer");
-                    auto end = m_frontend.end_objects();
-                    auto beg = m_frontend.begin_objects();
+                    auto end = m_env->end_objects();
+                    auto beg = m_env->begin_objects();
                     auto it  = end;
                     while (it != beg && i != 0) {
                         --i;
                         --it;
                     }
                     for (; it != end; ++it) {
-                        regular(m_frontend) << *it << endl;
+                        regular(m_io_state) << *it << endl;
                     }
                 } else {
-                    regular(m_frontend) << m_frontend << endl;
+                    regular(m_io_state) << m_env << endl;
                 }
             } else if (opt_id == g_options_kwd) {
-                regular(m_frontend) << pp(m_frontend.get_state().get_options()) << endl;
+                regular(m_io_state) << pp(m_io_state.get_options()) << endl;
             } else {
                 throw parser_error("invalid Show command, expression, 'Options' or 'Environment' expected", m_last_cmd_pos);
             }
         } else {
             expr v = m_elaborator(parse_expr());
-            regular(m_frontend) << v << endl;
+            regular(m_io_state) << v << endl;
         }
     }
 
@@ -1819,12 +1821,12 @@ class parser::imp {
     void parse_check() {
         next();
         expr v = m_elaborator(parse_expr());
-        expr t = infer_type(v, m_frontend.get_environment());
-        formatter fmt = m_frontend.get_state().get_formatter();
-        options opts  = m_frontend.get_state().get_options();
+        expr t = infer_type(v, m_env);
+        formatter fmt = m_io_state.get_formatter();
+        options opts  = m_io_state.get_options();
         unsigned indent = get_pp_indent(opts);
         format r = group(format{fmt(v, opts), space(), colon(), nest(indent, compose(line(), fmt(t, opts)))});
-        regular(m_frontend) << mk_pair(r, opts) << endl;
+        regular(m_io_state) << mk_pair(r, opts) << endl;
     }
 
     /** \brief Return the (optional) precedence of a user-defined operator. */
@@ -1855,9 +1857,9 @@ class parser::imp {
         name name_id = check_identifier_next("invalid operator definition, identifier expected");
         expr d     = mk_constant(name_id);
         switch (fx) {
-        case fixity::Infix:   m_frontend.add_infix(op_id, prec, d); break;
-        case fixity::Infixl:  m_frontend.add_infixl(op_id, prec, d); break;
-        case fixity::Infixr:  m_frontend.add_infixr(op_id, prec, d); break;
+        case fixity::Infix:   add_infix(m_env, m_io_state, op_id, prec, d); break;
+        case fixity::Infixl:  add_infixl(m_env, m_io_state, op_id, prec, d); break;
+        case fixity::Infixr:  add_infixr(m_env, m_io_state, op_id, prec, d); break;
         default: lean_unreachable(); // LCOV_EXCL_LINE
         }
     }
@@ -1898,29 +1900,29 @@ class parser::imp {
                     if (parts.size() == 1) {
                         if (first_placeholder && prev_placeholder) {
                             // infix: _ ID _
-                            m_frontend.add_infix(parts[0], prec, d);
+                            add_infix(m_env, m_io_state, parts[0], prec, d);
                         } else if (first_placeholder) {
                             // postfix: _ ID
-                            m_frontend.add_postfix(parts[0], prec, d);
+                            add_postfix(m_env, m_io_state, parts[0], prec, d);
                         } else if (prev_placeholder) {
                             // prefix: ID _
-                            m_frontend.add_prefix(parts[0], prec, d);
+                            add_prefix(m_env, m_io_state, parts[0], prec, d);
                         } else {
                             throw parser_error("invalid notation declaration, at least one placeholder expected", p);
                         }
                     } else {
                         if (first_placeholder && prev_placeholder) {
                             // mixfixo: _ ID ... ID _
-                            m_frontend.add_mixfixo(parts.size(), parts.data(), prec, d);
+                            add_mixfixo(m_env, m_io_state, parts.size(), parts.data(), prec, d);
                         } else if (first_placeholder) {
                             // mixfixr: _ ID ... ID
-                            m_frontend.add_mixfixr(parts.size(), parts.data(), prec, d);
+                            add_mixfixr(m_env, m_io_state, parts.size(), parts.data(), prec, d);
                         } else if (prev_placeholder) {
                             // mixfixl: ID _ ... ID _
-                            m_frontend.add_mixfixl(parts.size(), parts.data(), prec, d);
+                            add_mixfixl(m_env, m_io_state, parts.size(), parts.data(), prec, d);
                         } else {
                             // mixfixc: ID _ ... _ ID
-                            m_frontend.add_mixfixc(parts.size(), parts.data(), prec, d);
+                            add_mixfixc(m_env, m_io_state, parts.size(), parts.data(), prec, d);
                         }
                     }
                     return;
@@ -1941,7 +1943,7 @@ class parser::imp {
     void parse_echo() {
         next();
         std::string msg = check_string_next("invalid echo command, string expected");
-        regular(m_frontend) << msg << endl;
+        regular(m_io_state) << msg << endl;
     }
 
     /** Parse 'Set' [id] [value] */
@@ -1966,9 +1968,9 @@ class parser::imp {
             if (k != BoolOption)
                 throw parser_error(sstream() << "invalid option value, given option is not Boolean", pos());
             if (curr_name() == "true")
-                m_frontend.set_option(id, true);
+                m_io_state.set_option(id, true);
             else if (curr_name() == "false")
-                m_frontend.set_option(id, false);
+                m_io_state.set_option(id, false);
             else
                 throw parser_error("invalid Boolean option value, 'true' or 'false' expected", pos());
             next();
@@ -1976,25 +1978,25 @@ class parser::imp {
         case scanner::token::StringVal:
             if (k != StringOption)
                 throw parser_error("invalid option value, given option is not a string", pos());
-            m_frontend.set_option(id, curr_string());
+            m_io_state.set_option(id, curr_string());
             next();
             break;
         case scanner::token::NatVal:
             if (k != IntOption && k != UnsignedOption)
                 throw parser_error("invalid option value, given option is not an integer", pos());
-            m_frontend.set_option(id, parse_unsigned("invalid option value, value does not fit in a machine integer"));
+            m_io_state.set_option(id, parse_unsigned("invalid option value, value does not fit in a machine integer"));
             break;
         case scanner::token::DecimalVal:
             if (k != DoubleOption)
                 throw parser_error("invalid option value, given option is not floating point value", pos());
-            m_frontend.set_option(id, parse_double());
+            m_io_state.set_option(id, parse_double());
             break;
         default:
             throw parser_error("invalid option value, 'true', 'false', string, integer or decimal value expected", pos());
         }
         updt_options();
         if (m_verbose)
-            regular(m_frontend) << "  Set: " << id << endl;
+            regular(m_io_state) << "  Set: " << id << endl;
     }
 
     void parse_import() {
@@ -2003,14 +2005,14 @@ class parser::imp {
         std::ifstream in(fname);
         if (!in.is_open())
             throw parser_error(sstream() << "invalid import command, failed to open file '" << fname << "'", m_last_cmd_pos);
-        if (!m_frontend.get_environment()->mark_imported(fname.c_str())) {
-            diagnostic(m_frontend) << "Module '" << fname << "' has already been imported" << endl;
+        if (!m_env->mark_imported(fname.c_str())) {
+            diagnostic(m_io_state) << "Module '" << fname << "' has already been imported" << endl;
             return;
         }
         try {
             if (m_verbose)
-                regular(m_frontend) << "Importing file '" << fname << "'" << endl;
-            parser import_parser(m_frontend, in, m_script_state, true /* use exceptions */, false /* not interactive */);
+                regular(m_io_state) << "Importing file '" << fname << "'" << endl;
+            parser import_parser(m_env, m_io_state, in, m_script_state, true /* use exceptions */, false /* not interactive */);
             import_parser();
         } catch (interrupted &) {
             throw;
@@ -2025,17 +2027,17 @@ class parser::imp {
             name opt_id = curr_name();
             next();
             if (opt_id == g_options_kwd) {
-                regular(m_frontend) << "Available options:" << endl;
+                regular(m_io_state) << "Available options:" << endl;
                 for (auto p : get_option_declarations()) {
                     auto opt = p.second;
-                    regular(m_frontend) << "  " << opt.get_name() << " (" << opt.kind() << ") "
+                    regular(m_io_state) << "  " << opt.get_name() << " (" << opt.kind() << ") "
                                         << opt.get_description() << " (default: " << opt.get_default_value() << ")" << endl;
                 }
             } else {
                 throw parser_error("invalid help command", m_last_cmd_pos);
             }
         } else {
-            regular(m_frontend) << "Available commands:" << endl
+            regular(m_io_state) << "Available commands:" << endl
                                 << "  Axiom [id] : [type]    assert/postulate a new axiom" << endl
                                 << "  Check [expr]           type check the given expression" << endl
                                 << "  Definition [id] : [type] := [expr]   define a new element" << endl
@@ -2055,7 +2057,7 @@ class parser::imp {
                                 << "  Variable [id] : [type] declare/postulate an element of the given type" << endl
                                 << "  Universe [id] [level]  declare a new universe variable that is >= the given level" << endl;
             #if !defined(LEAN_WINDOWS)
-            regular(m_frontend) << "Type Ctrl-D to exit" << endl;
+            regular(m_io_state) << "Type Ctrl-D to exit" << endl;
             #endif
         }
     }
@@ -2064,9 +2066,9 @@ class parser::imp {
     void parse_coercion() {
         next();
         expr coercion = parse_expr();
-        m_frontend.add_coercion(coercion);
+        add_coercion(m_env, coercion);
         if (m_verbose)
-            regular(m_frontend) << "  Coercion " << coercion << endl;
+            regular(m_io_state) << "  Coercion " << coercion << endl;
     }
 
     /** \brief Parse a Lean command. */
@@ -2122,8 +2124,8 @@ class parser::imp {
     /*@}*/
 
     void updt_options() {
-        m_verbose = get_parser_verbose(m_frontend.get_state().get_options());
-        m_show_errors = get_parser_show_errors(m_frontend.get_state().get_options());
+        m_verbose = get_parser_verbose(m_io_state.get_options());
+        m_show_errors = get_parser_show_errors(m_io_state.get_options());
     }
 
     /**
@@ -2147,11 +2149,12 @@ class parser::imp {
     void parse_script_expr() { return parse_script(true); }
 
 public:
-    imp(frontend & fe, std::istream & in, script_state * S, bool use_exceptions, bool interactive):
-        m_frontend(fe),
+    imp(environment const & env, io_state const & st, std::istream & in, script_state * S, bool use_exceptions, bool interactive):
+        m_env(env),
+        m_io_state(st),
         m_scanner(in),
-        m_elaborator(fe),
-        m_type_inferer(fe.get_environment()),
+        m_elaborator(env),
+        m_type_inferer(env),
         m_use_exceptions(use_exceptions),
         m_interactive(interactive) {
         m_script_state = S;
@@ -2162,21 +2165,21 @@ public:
         scan();
     }
 
-    static void show_prompt(bool interactive, frontend & fe) {
+    static void show_prompt(bool interactive, io_state const & ios) {
         if (interactive) {
-            regular(fe) << "# ";
-            regular(fe).flush();
+            regular(ios) << "# ";
+            regular(ios).flush();
         }
     }
 
     void show_prompt() {
-        show_prompt(m_interactive, m_frontend);
+        show_prompt(m_interactive, m_io_state);
     }
 
     void show_tactic_prompt() {
         if (m_interactive) {
-            regular(m_frontend) << "## ";
-            regular(m_frontend).flush();
+            regular(m_io_state) << "## ";
+            regular(m_io_state).flush();
         }
     }
 
@@ -2216,9 +2219,14 @@ public:
     }
 };
 
-parser::parser(frontend & fe, std::istream & in, script_state * S, bool use_exceptions, bool interactive) {
-    parser::imp::show_prompt(interactive, fe);
-    m_ptr.reset(new imp(fe, in, S, use_exceptions, interactive));
+parser::parser(environment const & env, io_state const & ios, std::istream & in, script_state * S, bool use_exceptions, bool interactive) {
+    parser::imp::show_prompt(interactive, ios);
+    m_ptr.reset(new imp(env, ios, in, S, use_exceptions, interactive));
+}
+
+parser::parser(environment const & env, std::istream & in, script_state * S, bool use_exceptions, bool interactive):
+    parser(env, io_state(), in, S, use_exceptions, interactive) {
+    m_ptr->m_io_state.set_formatter(mk_pp_formatter(m_ptr->m_env));
 }
 
 parser::~parser() {
@@ -2232,7 +2240,15 @@ expr parser::parse_expr() {
     return m_ptr->parse_expr_main();
 }
 
-shell::shell(frontend & fe, script_state * S):m_frontend(fe), m_script_state(S) {
+io_state parser::get_io_state() const {
+    return m_ptr->m_io_state;
+}
+
+shell::shell(environment const & env, io_state const & ios, script_state * S):m_env(env), m_io_state(ios), m_script_state(S) {
+}
+
+shell::shell(environment const & env, script_state * S):m_env(env), m_io_state(), m_script_state(S) {
+    m_io_state.set_formatter(mk_pp_formatter(m_env));
 }
 
 shell::~shell() {
@@ -2248,37 +2264,29 @@ bool shell::operator()() {
         add_history(input);
         std::istringstream strm(input);
         {
-            parser p(m_frontend, strm, m_script_state, false, false);
+            parser p(m_env, m_io_state, strm, m_script_state, false, false);
             if (!p())
                 errors = true;
         }
         free(input);
     }
 #else
-    parser p(m_frontend, std::cin, m_script_state, false, true);
+    parser p(m_env, m_io_state, std::cin, m_script_state, false, true);
     return p();
 #endif
 }
 
-bool parse_commands(frontend & fe, std::istream & in, script_state * S, bool use_exceptions, bool interactive) {
-    return parser(fe, in, S, use_exceptions, interactive)();
-}
-
-bool parse_commands(environment const & env, io_state & st, std::istream & in, script_state * S, bool use_exceptions, bool interactive) {
-    frontend f(env, st);
-    bool r = parse_commands(f, in, S, use_exceptions, interactive);
-    st = f.get_state();
+bool parse_commands(environment const & env, io_state & ios, std::istream & in, script_state * S, bool use_exceptions, bool interactive) {
+    parser p(env, ios, in, S, use_exceptions, interactive);
+    bool r = p();
+    ios = p.get_io_state();
     return r;
 }
 
-expr parse_expr(frontend & fe, std::istream & in, script_state * S, bool use_exceptions) {
-    return parser(fe, in, S, use_exceptions).parse_expr();
-}
-
-expr parse_expr(environment const & env, io_state & st, std::istream & in, script_state * S, bool use_exceptions) {
-    frontend f(env, st);
-    expr r = parse_expr(f, in, S, use_exceptions);
-    st = f.get_state();
+expr parse_expr(environment const & env, io_state & ios, std::istream & in, script_state * S, bool use_exceptions) {
+    parser p(env, ios, in, S, use_exceptions);
+    expr r = p.parse_expr();
+    ios = p.get_io_state();
     return r;
 }
 }

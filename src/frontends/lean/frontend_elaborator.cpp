@@ -125,7 +125,6 @@ inline justification mk_overload_justification(context const & ctx, expr const &
     \brief Actual implementation of the frontend_elaborator.
 */
 class frontend_elaborator::imp {
-    frontend  const &                   m_frontend;
     environment const &                 m_env;
     type_checker                        m_type_checker;
     type_inferer                        m_type_inferer;
@@ -149,6 +148,8 @@ class frontend_elaborator::imp {
         expr instantiate(expr const & e, expr const & v) {
             return ::lean::instantiate(e, v, m_ref.m_menv);
         }
+
+        environment const & env() const { return m_ref.m_env; }
 
         virtual expr visit_constant(expr const & e, context const & ctx) {
             if (is_placeholder(e)) {
@@ -243,7 +244,7 @@ class frontend_elaborator::imp {
                             if (!has_metavar(expected) && !has_metavar(*given)) {
                                 if (m_ref.m_type_checker.is_convertible(*given, expected, ctx)) {
                                     // compatible
-                                } else if (m_ref.m_frontend.get_coercion(*given, expected)) {
+                                } else if (get_coercion(env(), *given, expected)) {
                                     // compatible if using coercion
                                     num_coercions++;
                                 } else {
@@ -334,7 +335,7 @@ class frontend_elaborator::imp {
                     args[0] = mk_overload_mvar(f_choices, ctx, e);
                     for (unsigned i = 1; i < args.size(); i++) {
                         if (arg_types[i]) {
-                            list<expr_pair> coercions = m_ref.m_frontend.get_coercions(*(arg_types[i]));
+                            list<expr_pair> coercions = get_coercions(env(), *(arg_types[i]));
                             if (coercions)
                                 args[i] = add_coercion_mvar_app(coercions, args[i], *(arg_types[i]), ctx, arg(e, i));
                         }
@@ -358,7 +359,7 @@ class frontend_elaborator::imp {
                 expr new_a   = args[i];
                 optional<expr> new_a_t = arg_types[i];
                 if (new_a_t) {
-                    list<expr_pair> coercions = m_ref.m_frontend.get_coercions(*new_a_t);
+                    list<expr_pair> coercions = get_coercions(env(), *new_a_t);
                     if (coercions) {
                         if (!f_t) {
                             new_a = add_coercion_mvar_app(coercions, new_a, *new_a_t, ctx, a);
@@ -390,7 +391,7 @@ class frontend_elaborator::imp {
                     if (new_t) {
                         optional<expr> new_v_t = get_type(new_v, ctx);
                         if (new_v_t && *new_t != *new_v_t) {
-                            list<expr_pair> coercions = m_ref.m_frontend.get_coercions(*new_v_t);
+                            list<expr_pair> coercions = get_coercions(env(), *new_v_t);
                             if (coercions) {
                                 new_v = add_coercion_mvar_app(coercions, new_v, *new_v_t, ctx, v);
                             }
@@ -427,9 +428,8 @@ class frontend_elaborator::imp {
     }
 
 public:
-    imp(frontend const & fe):
-        m_frontend(fe),
-        m_env(fe.get_environment()),
+    imp(environment const & env):
+        m_env(env),
         m_type_checker(m_env),
         m_type_inferer(m_env),
         m_normalizer(m_env) {
@@ -503,7 +503,7 @@ public:
     }
 };
 
-frontend_elaborator::frontend_elaborator(frontend const & fe):m_ptr(new imp(fe)) {}
+frontend_elaborator::frontend_elaborator(environment const & env):m_ptr(new imp(env)) {}
 frontend_elaborator::~frontend_elaborator() {}
 expr frontend_elaborator::operator()(expr const & e) { return m_ptr->elaborate(e); }
 std::tuple<expr, expr, metavar_env> frontend_elaborator::operator()(name const & n, expr const & t, expr const & e) {

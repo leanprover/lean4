@@ -17,11 +17,11 @@ Author: Leonardo de Moura
 using namespace lean;
 
 static void tst1() {
-    frontend f;
-    f.add_uvar("tst");
-    frontend c = f.mk_child();
-    lean_assert(c.get_uvar("tst") == f.get_uvar("tst"));
-    lean_assert(f.get_environment()->has_children());
+    environment env; io_state ios; init_frontend(env, ios);
+    env->add_uvar("tst");
+    environment c = env->mk_child();
+    lean_assert(c->get_uvar("tst") == env->get_uvar("tst"));
+    lean_assert(env->has_children());
 }
 
 static void tst2() {
@@ -53,14 +53,14 @@ static void tst2() {
 }
 
 static void tst3() {
-    frontend f;
+    environment env;
     std::cout << "====================\n";
-    std::cout << f << "\n";
+    std::cout << env << "\n";
 }
 
 static void tst4() {
-    frontend f;
-    formatter fmt = mk_pp_formatter(f);
+    environment env; io_state ios; init_frontend(env, ios);
+    formatter fmt = mk_pp_formatter(env);
     context c;
     c = extend(c, "x", Bool);
     c = extend(c, "y", Bool);
@@ -73,18 +73,18 @@ static void tst4() {
 
 static void tst5() {
     std::cout << "=================\n";
-    frontend f;
-    formatter fmt = mk_pp_formatter(f);
-    f.add_var("A", Type());
-    f.add_var("x", Const("A"));
-    optional<object> obj = f.find_object("x");
+    environment env; io_state ios; init_frontend(env, ios);
+    formatter fmt = mk_pp_formatter(env);
+    env->add_var("A", Type());
+    env->add_var("x", Const("A"));
+    optional<object> obj = env->find_object("x");
     lean_assert(obj);
     lean_assert(obj->get_name() == "x");
     std::cout << fmt(*obj) << "\n";
-    optional<object> obj2 = f.find_object("y");
+    optional<object> obj2 = env->find_object("y");
     lean_assert(!obj2);
     try {
-        f.get_object("y");
+        env->get_object("y");
         lean_unreachable();
     } catch (unknown_name_exception & ex) {
         std::cout << ex.what() << " " << ex.get_name() << "\n";
@@ -101,61 +101,60 @@ public:
 
 static void tst6() {
     std::cout << "=================\n";
-    frontend f;
-    environment env;
+    environment env; io_state ios; init_frontend(env, ios);
     env->add_neutral_object(new alien_cell());
-    formatter fmt = mk_pp_formatter(f);
+    formatter fmt = mk_pp_formatter(env);
     std::cout << fmt(env) << "\n";
 }
 
 static void tst7() {
-    frontend f;
-    formatter fmt = mk_pp_formatter(f);
+    environment env; io_state ios; init_frontend(env, ios);
+    formatter fmt = mk_pp_formatter(env);
     std::cout << fmt(And(Const("x"), Const("y"))) << "\n";
 }
 
 static void tst8() {
-    frontend fe;
-    formatter fmt = mk_pp_formatter(fe);
-    fe.add_infixl("<-$->", 10, mk_refl_fn());
-    std::cout << fmt(*(fe.find_object("Trivial"))) << "\n";
+    environment env; io_state ios; init_frontend(env, ios);
+    formatter fmt = mk_pp_formatter(env);
+    add_infixl(env, ios, "<-$->", 10, mk_refl_fn());
+    std::cout << fmt(*(env->find_object("Trivial"))) << "\n";
 }
 
 static void tst9() {
-    frontend f;
-    lean_assert(!f.has_children());
+    environment env; io_state ios; init_frontend(env, ios);
+    lean_assert(!env->has_children());
     {
-        frontend c = f.mk_child();
-        lean_assert(f.has_children());
+        environment c = env->mk_child();
+        lean_assert(env->has_children());
     }
-    lean_assert(!f.has_children());
-    f.add_uvar("l", level()+1);
-    lean_assert(f.get_uvar("l") == level("l"));
-    try { f.get_uvar("l2"); lean_unreachable(); }
+    lean_assert(!env->has_children());
+    env->add_uvar("l", level()+1);
+    lean_assert(env->get_uvar("l") == level("l"));
+    try { env->get_uvar("l2"); lean_unreachable(); }
     catch (exception &) {}
-    f.add_definition("x", Bool, True);
-    object const & obj = f.get_object("x");
+    env->add_definition("x", Bool, True);
+    object const & obj = env->get_object("x");
     lean_assert(obj.get_name() == "x");
     lean_assert(is_bool(obj.get_type()));
     lean_assert(obj.get_value() == True);
-    try { f.get_object("y"); lean_unreachable(); }
+    try { env->get_object("y"); lean_unreachable(); }
     catch (exception &) {}
-    lean_assert(!f.find_object("y"));
-    f.add_definition("y", False);
-    lean_assert(is_bool(f.find_object("y")->get_type()));
-    lean_assert(f.has_object("y"));
-    lean_assert(!f.has_object("z"));
+    lean_assert(!env->find_object("y"));
+    env->add_definition("y", False);
+    lean_assert(is_bool(env->find_object("y")->get_type()));
+    lean_assert(env->has_object("y"));
+    lean_assert(!env->has_object("z"));
     bool found = false;
-    std::for_each(f.begin_objects(), f.end_objects(), [&](object const & obj) { if (obj.has_name() && obj.get_name() == "y") found = true; });
+    std::for_each(env->begin_objects(), env->end_objects(), [&](object const & obj) { if (obj.has_name() && obj.get_name() == "y") found = true; });
     lean_assert(found);
-    f.add_postfix("!", 10, Const("factorial"));
+    add_postfix(env, ios, "!", 10, Const("factorial"));
     name parts[] = {"if", "then", "else"};
-    f.add_mixfixl(3, parts, 10, Const("if"));
+    add_mixfixl(env, ios, 3, parts, 10, Const("if"));
 }
 
 static void tst10() {
-    frontend f;
-    formatter fmt = mk_pp_formatter(f);
+    environment env; io_state ios; init_frontend(env, ios);
+    formatter fmt = mk_pp_formatter(env);
     expr x = Const("xxxxxxxxxxxx");
     expr y = Const("y");
     expr z = Const("foo");
@@ -165,39 +164,39 @@ static void tst10() {
 }
 
 static void tst11() {
-    frontend f;
+    environment env; io_state ios; init_frontend(env, ios);
     expr A = Const("A");
-    f.add_var("g", Pi({A, Type()}, A >> (A >> A)));
-    lean_assert(!f.has_implicit_arguments("g"));
-    f.mark_implicit_arguments("g", {true, false, false});
-    lean_assert(f.has_implicit_arguments("g"))
-    name gexp = f.get_explicit_version("g");
-    lean_assert(f.find_object(gexp));
-    lean_assert(f.find_object("g")->get_type() == f.find_object(gexp)->get_type());
-    lean_assert(f.get_implicit_arguments("g") == std::vector<bool>({true})); // the trailing "false" marks are removed
+    env->add_var("g", Pi({A, Type()}, A >> (A >> A)));
+    lean_assert(!has_implicit_arguments(env, "g"));
+    mark_implicit_arguments(env, "g", {true, false, false});
+    lean_assert(has_implicit_arguments(env, "g"))
+        name gexp = get_explicit_version(env, "g");
+    lean_assert(env->find_object(gexp));
+    lean_assert(env->find_object("g")->get_type() == env->find_object(gexp)->get_type());
+    lean_assert(get_implicit_arguments(env, "g") == std::vector<bool>({true})); // the trailing "false" marks are removed
     try {
-        f.mark_implicit_arguments("g", {true, false, false});
+        mark_implicit_arguments(env, "g", {true, false, false});
         lean_unreachable();
     } catch (exception & ex) {
         std::cout << "Expected error: " << ex.what() << std::endl;
     }
-    f.add_var("s", Pi({A, Type()}, A >> (A >> A)));
+    env->add_var("s", Pi({A, Type()}, A >> (A >> A)));
     try {
-        f.mark_implicit_arguments("s", {true, true, true, true});
+        mark_implicit_arguments(env, "s", {true, true, true, true});
         lean_unreachable();
     } catch (exception & ex) {
         std::cout << "Expected error: " << ex.what() << std::endl;
     }
-    f.add_var(name{"h", "explicit"}, Pi({A, Type()}, A >> (A >> A)));
-    f.add_var("h", Pi({A, Type()}, A >> (A >> A)));
+    env->add_var(name{"h", "explicit"}, Pi({A, Type()}, A >> (A >> A)));
+    env->add_var("h", Pi({A, Type()}, A >> (A >> A)));
     try {
-        f.mark_implicit_arguments("h", {true, false, false});
+        mark_implicit_arguments(env, "h", {true, false, false});
         lean_unreachable();
     } catch (exception & ex) {
         std::cout << "Expected error: " << ex.what() << std::endl;
     }
     try {
-        f.mark_implicit_arguments("u", {true, false});
+        mark_implicit_arguments(env, "u", {true, false});
         lean_unreachable();
     } catch (exception & ex) {
         std::cout << "Expected error: " << ex.what() << std::endl;

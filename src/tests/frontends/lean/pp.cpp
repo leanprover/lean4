@@ -22,8 +22,8 @@ static expr mk_shared_expr(unsigned depth) {
 }
 
 static void tst1() {
-    frontend f;
-    formatter fmt = mk_pp_formatter(f);
+    environment env; io_state ios; init_frontend(env, ios);
+    formatter fmt = mk_pp_formatter(env);
     std::cout << "Basic printer\n";
     std::cout << mk_shared_expr(10) << std::endl;
     std::cout << "----------------------------\nPretty printer\n";
@@ -31,19 +31,19 @@ static void tst1() {
 }
 
 static void tst2() {
-    frontend f;
-    formatter fmt = mk_pp_formatter(f);
+    environment env; io_state ios; init_frontend(env, ios);
+    formatter fmt = mk_pp_formatter(env);
     expr a = Const("a");
     expr t = Fun({a, Type()}, mk_shared_expr(10));
     expr g = Const("g");
     std::cout << fmt(g(t, t, t)) << std::endl;
-    formatter fmt2 = mk_pp_formatter(f);
+    formatter fmt2 = mk_pp_formatter(env);
     std::cout << fmt2(g(t, t, t), options({"lean", "pp", "alias_min_weight"}, 100)) << std::endl;
 }
 
 static void tst3() {
-    frontend f;
-    formatter fmt = mk_pp_formatter(f);
+    environment env; io_state ios; init_frontend(env, ios);
+    formatter fmt = mk_pp_formatter(env);
     expr g = Const("g");
     expr a = Const("\u03BA");
     expr b = Const("\u03C1");
@@ -58,28 +58,28 @@ static void tst3() {
 }
 
 static void tst4() {
-    frontend f;
-    io_state const & s1 = f.get_state();
-    io_state s2 = f.get_state();
+    environment env; io_state ios; init_frontend(env, ios);
+    io_state const & s1 = ios;
+    io_state s2 = ios;
     regular(s1) << And(Const("a"), Const("b")) << "\n";
-    regular(f) << And(Const("a"), Const("b")) << "\n";
-    diagnostic(f) << And(Const("a"), Const("b")) << "\n";
-    f.set_option(name{"lean", "pp", "notation"}, false);
-    regular(f) << And(Const("a"), Const("b")) << "\n";
+    regular(ios) << And(Const("a"), Const("b")) << "\n";
+    diagnostic(ios) << And(Const("a"), Const("b")) << "\n";
+    ios.set_option(name{"lean", "pp", "notation"}, false);
+    regular(ios) << And(Const("a"), Const("b")) << "\n";
     regular(s1) << And(Const("a"), Const("b")) << "\n";
     regular(s2) << And(Const("a"), Const("b")) << "\n";
 }
 
 static void tst5() {
-    frontend f;
+    environment env; io_state ios; init_frontend(env, ios);
     std::shared_ptr<string_output_channel> out(new string_output_channel());
-    f.set_regular_channel(out);
-    f.set_option(name{"pp", "unicode"}, true);
-    f.set_option(name{"lean", "pp", "notation"}, true);
-    regular(f) << And(Const("a"), Const("b"));
+    ios.set_regular_channel(out);
+    ios.set_option(name{"pp", "unicode"}, true);
+    ios.set_option(name{"lean", "pp", "notation"}, true);
+    regular(ios) << And(Const("a"), Const("b"));
     lean_assert(out->str() == "a ∧ b");
-    f.set_option(name{"lean", "pp", "notation"}, false);
-    regular(f) << " " << And(Const("a"), Const("b"));
+    ios.set_option(name{"lean", "pp", "notation"}, false);
+    regular(ios) << " " << And(Const("a"), Const("b"));
     lean_assert(out->str() == "a ∧ b and a b");
 }
 
@@ -91,14 +91,14 @@ static expr mk_deep(unsigned depth) {
 }
 
 static void tst6() {
-    frontend f;
+    environment env; io_state ios; init_frontend(env, ios);
     std::shared_ptr<string_output_channel> out(new string_output_channel());
-    f.set_regular_channel(out);
+    ios.set_regular_channel(out);
     expr t = mk_deep(10);
-    f.set_option(name{"lean", "pp", "max_depth"}, 5);
-    f.set_option(name{"pp", "colors"}, false);
-    f.set_option(name{"pp", "unicode"}, false);
-    regular(f) << t;
+    ios.set_option(name{"lean", "pp", "max_depth"}, 5);
+    ios.set_option(name{"pp", "colors"}, false);
+    ios.set_option(name{"pp", "unicode"}, false);
+    regular(ios) << t;
     lean_assert(out->str() == "f (f (f (f (f (...)))))");
 }
 

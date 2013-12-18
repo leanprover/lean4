@@ -26,6 +26,15 @@ Author: Leonardo de Moura
 #include "frontends/lean/pp.h"
 
 namespace lean {
+/**
+   \brief Import all definitions and notation.
+*/
+void init_frontend(environment const & env, io_state & ios) {
+    ios.set_formatter(mk_pp_formatter(env));
+    import_all(env);
+    init_builtin_notation(env, ios);
+}
+
 static std::vector<bool> g_empty_vector;
 /**
    \brief Environment extension object for the Lean default frontend.
@@ -160,23 +169,23 @@ struct lean_extension : public environment_extension {
         l = cons(op, l);
     }
 
-    void check_precedence(name const & n, unsigned prec, io_state & st) const {
+    void check_precedence(name const & n, unsigned prec, io_state const & ios) const {
         auto old_prec = get_lbp(n);
         if (old_prec && *old_prec != prec)
-            diagnostic(st) << "The precedence of '" << n << "' changed from " << *old_prec << " to " << prec << ".\n";
+            diagnostic(ios) << "The precedence of '" << n << "' changed from " << *old_prec << " to " << prec << ".\n";
     }
 
     /** \brief Register the new operator in the tables for parsing and pretty printing. */
-    void register_new_op(operator_info new_op, expr const & d, bool led, io_state & st) {
+    void register_new_op(operator_info new_op, expr const & d, bool led, io_state const & ios) {
         new_op.add_expr(d);
         insert_op(new_op, led);
         insert_expr_to_operator_entry(d, new_op);
         auto parts = new_op.get_op_name_parts();
         auto prec  = new_op.get_precedence();
         if (led)
-            check_precedence(head(parts), prec, st);
+            check_precedence(head(parts), prec, ios);
         for (name const & part : tail(parts)) {
-            check_precedence(part, prec, st);
+            check_precedence(part, prec, ios);
             m_other_lbp[part] = prec;
         }
     }
@@ -246,11 +255,11 @@ struct lean_extension : public environment_extension {
         2) It is a real conflict, and report the issue in the
         diagnostic channel, and override the existing operator (aka notation).
     */
-    void add_op(operator_info new_op, expr const & d, bool led, environment const & env, io_state & st) {
+    void add_op(operator_info new_op, expr const & d, bool led, environment const & env, io_state const & ios) {
         name const & opn = new_op.get_op_name();
         operator_info old_op = find_op(opn, led);
         if (!old_op) {
-            register_new_op(new_op, d, led, st);
+            register_new_op(new_op, d, led, ios);
         } else if (old_op == new_op) {
             if (compatible_denotations(old_op, d)) {
                 // overload
@@ -261,20 +270,20 @@ struct lean_extension : public environment_extension {
                     // we must copy the operator because it was defined in
                     // a parent frontend.
                     new_op = old_op.copy();
-                    register_new_op(new_op, d, led, st);
+                    register_new_op(new_op, d, led, ios);
                 }
             } else {
-                diagnostic(st) << "The denotation(s) for the existing notation:\n  " << old_op
-                               << "\nhave been replaced with the new denotation:\n  " << d
-                               << "\nbecause they conflict on how implicit arguments are used.\n";
+                diagnostic(ios) << "The denotation(s) for the existing notation:\n  " << old_op
+                                << "\nhave been replaced with the new denotation:\n  " << d
+                                << "\nbecause they conflict on how implicit arguments are used.\n";
                 remove_bindings(old_op);
-                register_new_op(new_op, d, led, st);
+                register_new_op(new_op, d, led, ios);
             }
         } else {
-            diagnostic(st) << "Notation has been redefined, the existing notation:\n  " << old_op
-                           << "\nhas been replaced with:\n  " << new_op << "\nbecause they conflict with each other.\n";
+            diagnostic(ios) << "Notation has been redefined, the existing notation:\n  " << old_op
+                            << "\nhas been replaced with:\n  " << new_op << "\nbecause they conflict with each other.\n";
             remove_bindings(old_op);
-            register_new_op(new_op, d, led, st);
+            register_new_op(new_op, d, led, ios);
         }
         env->add_neutral_object(new notation_declaration(new_op, d));
     }
@@ -432,26 +441,33 @@ static lean_extension & to_ext(environment const & env) {
     return env->get_extension<lean_extension>(g_lean_extension_initializer.m_extid);
 }
 
-bool is_explicit(ro_environment const & env, name const & n) {
-    return to_ext(env).is_explicit(n);
+void add_infix(environment const & env, io_state const & ios, name const & opn, unsigned p, expr const & d)  {
+    to_ext(env).add_op(infix(opn, p), d, true, env, ios);
 }
-
-bool has_implicit_arguments(ro_environment const & env, name const & n) {
-    return to_ext(env).has_implicit_arguments(n);
+void add_infixl(environment const & env, io_state const & ios, name const & opn, unsigned p, expr const & d) {
+    to_ext(env).add_op(infixl(opn, p), d, true, env, ios);
 }
-
-name const & get_explicit_version(ro_environment const & env, name const & n) {
-    return to_ext(env).get_explicit_version(n);
+void add_infixr(environment const & env, io_state const & ios, name const & opn, unsigned p, expr const & d) {
+    to_ext(env).add_op(infixr(opn, p), d, true, env, ios);
 }
-
-std::vector<bool> const & get_implicit_arguments(ro_environment const & env, name const & n) {
-    return to_ext(env).get_implicit_arguments(n);
+void add_prefix(environment const & env, io_state const & ios, name const & opn, unsigned p, expr const & d) {
+    to_ext(env).add_op(prefix(opn, p), d, false, env, ios);
 }
-
-bool is_coercion(ro_environment const & env, expr const & f) {
-    return to_ext(env).is_coercion(f);
+void add_postfix(environment const & env, io_state const & ios, name const & opn, unsigned p, expr const & d) {
+    to_ext(env).add_op(postfix(opn, p), d, true, env, ios);
 }
-
+void add_mixfixl(environment const & env, io_state const & ios, unsigned sz, name const * opns, unsigned p, expr const & d) {
+    to_ext(env).add_op(mixfixl(sz, opns, p), d, false, env, ios);
+}
+void add_mixfixr(environment const & env, io_state const & ios, unsigned sz, name const * opns, unsigned p, expr const & d) {
+    to_ext(env).add_op(mixfixr(sz, opns, p), d, true, env, ios);
+}
+void add_mixfixc(environment const & env, io_state const & ios, unsigned sz, name const * opns, unsigned p, expr const & d) {
+    to_ext(env).add_op(mixfixc(sz, opns, p), d, false, env, ios);
+}
+void add_mixfixo(environment const & env, io_state const & ios, unsigned sz, name const * opns, unsigned p, expr const & d) {
+    to_ext(env).add_op(mixfixo(sz, opns, p), d, true, env, ios);
+}
 operator_info find_op_for(ro_environment const & env, expr const & n, bool unicode) {
     operator_info r = to_ext(env).find_op_for(n, unicode);
     if (r || !is_constant(n)) {
@@ -464,110 +480,69 @@ operator_info find_op_for(ro_environment const & env, expr const & n, bool unico
             return r;
     }
 }
-
-frontend::frontend() {
-    m_state.set_formatter(mk_pp_formatter(m_env));
-    import_all(m_env);
-    init_builtin_notation(*this);
+operator_info find_nud(ro_environment const & env, name const & n) {
+    return to_ext(env).find_nud(n);
 }
-frontend::frontend(environment const & env, io_state const & s):m_env(env), m_state(s) {
-    import_all(m_env);
-    init_builtin_notation(*this);
+operator_info find_led(ro_environment const & env, name const & n) {
+    return to_ext(env).find_led(n);
 }
-
-void frontend::add_infix(name const & opn, unsigned p, expr const & d)  {
-    to_ext(m_env).add_op(infix(opn, p), d, true, m_env, m_state);
+optional<unsigned> get_lbp(ro_environment const & env, name const & n) {
+    return to_ext(env).get_lbp(n);
 }
-void frontend::add_infixl(name const & opn, unsigned p, expr const & d) {
-    to_ext(m_env).add_op(infixl(opn, p), d, true, m_env, m_state);
+void mark_implicit_arguments(environment const & env, name const & n, unsigned sz, bool const * implicit) {
+    to_ext(env).mark_implicit_arguments(n, sz, implicit, env);
 }
-void frontend::add_infixr(name const & opn, unsigned p, expr const & d) {
-    to_ext(m_env).add_op(infixr(opn, p), d, true, m_env, m_state);
-}
-void frontend::add_prefix(name const & opn, unsigned p, expr const & d) {
-    to_ext(m_env).add_op(prefix(opn, p), d, false, m_env, m_state);
-}
-void frontend::add_postfix(name const & opn, unsigned p, expr const & d) {
-    to_ext(m_env).add_op(postfix(opn, p), d, true, m_env, m_state);
-}
-void frontend::add_mixfixl(unsigned sz, name const * opns, unsigned p, expr const & d) {
-    to_ext(m_env).add_op(mixfixl(sz, opns, p), d, false, m_env, m_state);
-}
-void frontend::add_mixfixr(unsigned sz, name const * opns, unsigned p, expr const & d) {
-    to_ext(m_env).add_op(mixfixr(sz, opns, p), d, true, m_env, m_state);
-}
-void frontend::add_mixfixc(unsigned sz, name const * opns, unsigned p, expr const & d) {
-    to_ext(m_env).add_op(mixfixc(sz, opns, p), d, false, m_env, m_state);
-}
-void frontend::add_mixfixo(unsigned sz, name const * opns, unsigned p, expr const & d) {
-    to_ext(m_env).add_op(mixfixo(sz, opns, p), d, true, m_env, m_state);
-}
-operator_info frontend::find_op_for(expr const & n, bool unicode) const {
-    return ::lean::find_op_for(m_env, n, unicode);
-}
-operator_info frontend::find_nud(name const & n) const {
-    return to_ext(m_env).find_nud(n);
-}
-operator_info frontend::find_led(name const & n) const {
-    return to_ext(m_env).find_led(n);
-}
-optional<unsigned> frontend::get_lbp(name const & n) const {
-    return to_ext(m_env).get_lbp(n);
-}
-void frontend::mark_implicit_arguments(name const & n, unsigned sz, bool const * implicit) {
-    to_ext(m_env).mark_implicit_arguments(n, sz, implicit, m_env);
-}
-void frontend::mark_implicit_arguments(name const & n, unsigned prefix_sz) {
+void mark_implicit_arguments(environment const & env, name const & n, unsigned prefix_sz) {
     buffer<bool> implicit; implicit.resize(prefix_sz, true);
-    mark_implicit_arguments(n, implicit.size(), implicit.data());
+    mark_implicit_arguments(env, n, implicit.size(), implicit.data());
 }
-void frontend::mark_implicit_arguments(expr const & n, unsigned prefix_sz) {
+void mark_implicit_arguments(environment const & env, expr const & n, unsigned prefix_sz) {
     if (is_constant(n)) {
-        mark_implicit_arguments(const_name(n), prefix_sz);
+        mark_implicit_arguments(env, const_name(n), prefix_sz);
     } else {
         lean_assert(is_value(n));
-        mark_implicit_arguments(to_value(n).get_name(), prefix_sz);
+        mark_implicit_arguments(env, to_value(n).get_name(), prefix_sz);
     }
 }
-void frontend::mark_implicit_arguments(name const & n, std::initializer_list<bool> const & l) {
-    mark_implicit_arguments(n, l.size(), l.begin());
+void mark_implicit_arguments(environment const & env, name const & n, std::initializer_list<bool> const & l) {
+    mark_implicit_arguments(env, n, l.size(), l.begin());
 }
-void frontend::mark_implicit_arguments(expr const & n, std::initializer_list<bool> const & l) {
+void mark_implicit_arguments(environment const & env, expr const & n, std::initializer_list<bool> const & l) {
     if (is_constant(n)) {
-        mark_implicit_arguments(const_name(n), l);
+        mark_implicit_arguments(env, const_name(n), l);
     } else {
         lean_assert(is_value(n));
-        mark_implicit_arguments(to_value(n).get_name(), l);
+        mark_implicit_arguments(env, to_value(n).get_name(), l);
     }
 }
-bool frontend::has_implicit_arguments(name const & n) const {
-    return to_ext(m_env).has_implicit_arguments(n);
+bool has_implicit_arguments(ro_environment const & env, name const & n) {
+    return to_ext(env).has_implicit_arguments(n);
 }
-std::vector<bool> const & frontend::get_implicit_arguments(name const & n) const {
-    return to_ext(m_env).get_implicit_arguments(n);
+std::vector<bool> const & get_implicit_arguments(ro_environment const & env, name const & n) {
+    return to_ext(env).get_implicit_arguments(n);
 }
-std::vector<bool> const & frontend::get_implicit_arguments(expr const & n) const {
+std::vector<bool> const & get_implicit_arguments(ro_environment const & env, expr const & n) {
     if (is_constant(n))
-        return get_implicit_arguments(const_name(n));
+        return get_implicit_arguments(env, const_name(n));
     else
         return g_empty_vector;
 }
-name const & frontend::get_explicit_version(name const & n) const {
-    return to_ext(m_env).get_explicit_version(n);
+name const & get_explicit_version(ro_environment const & env, name const & n) {
+    return to_ext(env).get_explicit_version(n);
 }
-bool frontend::is_explicit(name const & n) const {
-    return to_ext(m_env).is_explicit(n);
+bool is_explicit(ro_environment const & env, name const & n) {
+    return to_ext(env).is_explicit(n);
 }
-void frontend::add_coercion(expr const & f) {
-    to_ext(m_env).add_coercion(f, m_env);
+void add_coercion(environment const & env, expr const & f) {
+    to_ext(env).add_coercion(f, env);
 }
-optional<expr> frontend::get_coercion(expr const & from_type, expr const & to_type) const {
-    return to_ext(m_env).get_coercion(from_type, to_type);
+optional<expr> get_coercion(ro_environment const & env, expr const & from_type, expr const & to_type) {
+    return to_ext(env).get_coercion(from_type, to_type);
 }
-list<expr_pair> frontend::get_coercions(expr const & from_type) const {
-    return to_ext(m_env).get_coercions(from_type);
+list<expr_pair> get_coercions(ro_environment const & env, expr const & from_type) {
+    return to_ext(env).get_coercions(from_type);
 }
-bool frontend::is_coercion(expr const & f) const {
-    return to_ext(m_env).is_coercion(f);
+bool is_coercion(ro_environment const & env, expr const & f) {
+    return to_ext(env).is_coercion(f);
 }
 }

@@ -23,7 +23,7 @@ class frontend_elaborator {
     std::shared_ptr<imp> m_ptr;
     static void print(imp * ptr);
 public:
-    explicit frontend_elaborator(frontend const & fe);
+    explicit frontend_elaborator(environment const & env);
     ~frontend_elaborator();
 
     /**

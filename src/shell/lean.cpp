@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "util/script_state.h"
 #include "util/thread.h"
 #include "kernel/printer.h"
+#include "kernel/environment.h"
 #include "library/io_state.h"
 #include "library/kernel_bindings.h"
 #include "frontends/lean/parser.h"
@@ -26,12 +27,13 @@ Author: Leonardo de Moura
 #include "githash.h" // NOLINT
 
 using lean::shell;
-using lean::frontend;
 using lean::parser;
 using lean::script_state;
 using lean::unreachable_reached;
 using lean::invoke_debugger;
 using lean::notify_assertion_violation;
+using lean::environment;
+using lean::io_state;
 
 enum class input_kind { Unspecified, Lean, Lua };
 
@@ -133,9 +135,11 @@ int main(int argc, char ** argv) {
             #else
             std::cout << "Type Ctrl-D or 'Exit.' to exit or 'Help.' for help."<< std::endl;
             #endif
-            frontend f;
+            environment env;
+            io_state ios;
+            init_frontend(env, ios);
             script_state S;
-            shell sh(f, &S);
+            shell sh(env, &S);
             return sh() ? 0 : 1;
         } else {
             lean_assert(default_k == input_kind::Lua);
@@ -143,7 +147,9 @@ int main(int argc, char ** argv) {
             S.dostring(g_lua_repl);
         }
     } else {
-        frontend f;
+        environment env;
+        io_state    ios;
+        init_frontend(env, ios);
         script_state S;
         bool ok = true;
         for (int i = optind; i < argc; i++) {
@@ -162,8 +168,7 @@ int main(int argc, char ** argv) {
                     std::cerr << "Failed to open file '" << argv[i] << "'\n";
                     return 1;
                 }
-                parser p(f, in, &S, false, false);
-                if (!p())
+                if (!parse_commands(env, ios, in, &S, false, false))
                     ok = false;
             } else if (k == input_kind::Lua) {
                 try {

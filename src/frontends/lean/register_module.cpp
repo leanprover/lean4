@@ -125,8 +125,10 @@ static int parse_lean_cmds(lua_State * L) {
 }
 
 static int mk_environment(lua_State * L) {
-    frontend f;
-    return push_environment(L, f.get_environment());
+    environment env;
+    io_state ios;
+    init_frontend(env, ios);
+    return push_environment(L, env);
 }
 
 static int mk_lean_formatter(lua_State * L) {

@@ -27,9 +27,9 @@ static void tst1() {
     lean_assert(!has_free_var(f(Var(1)), 0));
     lean_assert(has_free_var(f(Var(1)), 0, 2));
     lean_assert(!has_free_var(f(Var(1)), 0, 1));
-    lean_assert(lower_free_vars(f(Var(1)), 1) == f(Var(0)));
-    lean_assert(lower_free_vars(mk_lambda("_", t, f(Var(2))), 1) == mk_lambda("_", t, f(Var(1))));
-    lean_assert(lower_free_vars(mk_lambda("_", t, f(Var(0))), 1) == mk_lambda("_", t, f(Var(0))));
+    lean_assert_eq(lower_free_vars(f(Var(1)), 1), f(Var(0)));
+    lean_assert_eq(lower_free_vars(mk_lambda("_", t, f(Var(2))), 1), mk_lambda("_", t, f(Var(1))));
+    lean_assert_eq(lower_free_vars(mk_lambda("_", t, f(Var(0))), 1), mk_lambda("_", t, f(Var(0))));
 }
 
 static void tst2() {

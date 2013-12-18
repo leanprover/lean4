@@ -14,8 +14,8 @@ Author: Leonardo de Moura
 #include "util/lazy_list_fn.h"
 #include "kernel/replace_visitor.h"
 #include "kernel/instantiate.h"
+#include "kernel/update_expr.h"
 #include "library/hidden_defs.h"
-#include "library/update_expr.h"
 #include "library/kernel_bindings.h"
 #include "library/tactic/tactic.h"
 

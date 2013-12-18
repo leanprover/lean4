@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include "util/test.h"
 #include "kernel/abstract.h"
-#include "library/update_expr.h"
+#include "kernel/update_expr.h"
 using namespace lean;
 
 static void tst1() {

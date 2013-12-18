@@ -18,8 +18,8 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/replace_fn.h"
 #include "kernel/builtin.h"
+#include "kernel/update_expr.h"
 #include "library/type_inferer.h"
-#include "library/update_expr.h"
 #include "library/elaborator/elaborator.h"
 #include "library/elaborator/elaborator_justification.h"
 

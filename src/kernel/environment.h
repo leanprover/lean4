@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <memory>
 #include <vector>
-#include <unordered_map>
 #include <set>
 #include "util/lua.h"
 #include "util/shared_mutex.h"

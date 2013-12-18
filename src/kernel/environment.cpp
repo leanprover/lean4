@@ -8,8 +8,6 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <vector>
 #include <tuple>
-#include <set>
-#include <unordered_map>
 #include "util/thread.h"
 #include "util/safe_arith.h"
 #include "util/realpath.h"

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <unordered_set>
 #include <vector>
 #include <utility>
 #include <functional>
@@ -14,7 +13,10 @@ Author: Leonardo de Moura
 #include "util/exception.h"
 #include "util/name_map.h"
 #include "kernel/environment.h"
+#include "kernel/expr_maps.h"
+#include "kernel/expr_sets.h"
 #include "library/expr_pair.h"
+#include "library/expr_pair_maps.h"
 #include "library/io_state.h"
 #include "library/all/all.h"
 #include "frontends/lean/operator_info.h"
@@ -31,12 +33,12 @@ static std::vector<bool> g_empty_vector;
 struct lean_extension : public environment_extension {
     typedef std::pair<std::vector<bool>, name> implicit_info;
     // Remark: only named objects are stored in the dictionary.
-    typedef name_map<operator_info> operator_table;
-    typedef name_map<implicit_info> implicit_table;
-    typedef std::unordered_map<expr, list<operator_info>, expr_hash, std::equal_to<expr>> expr_to_operators;
-    typedef std::unordered_map<expr_pair, expr, expr_pair_hash, expr_pair_eq> coercion_map;
-    typedef std::unordered_map<expr, list<expr_pair>, expr_hash, std::equal_to<expr>> expr_to_coercions;
-    typedef std::unordered_set<expr, expr_hash, std::equal_to<expr>> coercion_set;
+    typedef name_map<operator_info>              operator_table;
+    typedef name_map<implicit_info>              implicit_table;
+    typedef expr_struct_map<list<operator_info>> expr_to_operators;
+    typedef expr_pair_struct_map<expr>           coercion_map;
+    typedef expr_struct_map<list<expr_pair>>     expr_to_coercions;
+    typedef expr_struct_set coercion_set;
 
     operator_table        m_nud; // nud table for Pratt's parser
     operator_table        m_led; // led table for Pratt's parser

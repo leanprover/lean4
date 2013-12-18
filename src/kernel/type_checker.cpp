@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <unordered_map>
 #include "util/freset.h"
 #include "util/flet.h"
 #include "util/interrupt.h"
 #include "kernel/type_checker.h"
+#include "kernel/expr_maps.h"
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/normalizer.h"
@@ -21,7 +21,7 @@ namespace lean {
 static name g_x_name("x");
 /** \brief Auxiliary functional object used to implement infer_type. */
 class type_checker::imp {
-    typedef std::unordered_map<expr, expr, expr_hash_alloc, expr_eqp> cache;
+    typedef expr_map<expr> cache;
     typedef buffer<unification_constraint> unification_constraints;
 
     ro_environment::weak_ref  m_env;

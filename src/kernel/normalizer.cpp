@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <limits>
-#include <unordered_map>
 #include "util/list.h"
 #include "util/flet.h"
 #include "util/freset.h"
@@ -15,6 +14,7 @@ Author: Leonardo de Moura
 #include "util/sexpr/options.h"
 #include "kernel/normalizer.h"
 #include "kernel/expr.h"
+#include "kernel/expr_maps.h"
 #include "kernel/context.h"
 #include "kernel/environment.h"
 #include "kernel/builtin.h"
@@ -73,7 +73,7 @@ closure const & to_closure(expr const & e) { lean_assert(is_closure(e));   retur
 
 /** \brief Expression normalizer. */
 class normalizer::imp {
-    typedef std::unordered_map<expr, expr, expr_hash_alloc, expr_eqp> cache;
+    typedef expr_map<expr> cache;
 
     ro_environment::weak_ref m_env;
     context                  m_ctx;

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <unordered_map>
 #include "util/name.h"
 #include "util/sstream.h"
 #include "util/name_map.h"

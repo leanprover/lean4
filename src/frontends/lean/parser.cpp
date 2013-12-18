@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include <readline/readline.h>
 #include <readline/history.h>
 #endif
-#include <unordered_map>
 #include <utility>
 #include <string>
 #include <tuple>

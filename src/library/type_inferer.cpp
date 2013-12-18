@@ -4,11 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <unordered_map>
 #include "util/flet.h"
 #include "util/freset.h"
 #include "util/interrupt.h"
 #include "kernel/environment.h"
+#include "kernel/expr_maps.h"
 #include "kernel/normalizer.h"
 #include "kernel/builtin.h"
 #include "kernel/kernel_exception.h"
@@ -22,7 +22,7 @@ Author: Leonardo de Moura
 namespace lean {
 static name g_x_name("x");
 class type_inferer::imp {
-    typedef std::unordered_map<expr, expr, expr_hash_alloc, expr_eqp> cache;
+    typedef expr_map<expr> cache;
     typedef buffer<unification_constraint> unification_constraints;
 
     ro_environment            m_env;

@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <unordered_set>
 #include <utility>
+#include <functional>
 #include "util/hash.h"
 #include "kernel/expr.h"
 
@@ -48,4 +49,7 @@ struct expr_cell_pair_eqp {
 };
 typedef std::unordered_set<expr_cell_pair, expr_cell_pair_hash, expr_cell_pair_eqp> expr_cell_pair_set;
 // =======================================
+
+// Similar to expr_set, but using structural equality
+typedef std::unordered_set<expr, expr_hash, std::equal_to<expr>> expr_struct_set;
 }

@@ -6,10 +6,11 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <unordered_map>
+#include <functional>
 #include "kernel/expr.h"
 
 namespace lean {
-
+// Maps based on pointer equality. That is, two keys are equal iff they are pointer equal
 template<typename T>
 using expr_map = typename std::unordered_map<expr, T, expr_hash_alloc, expr_eqp>;
 
@@ -22,4 +23,7 @@ using expr_cell_map = typename std::unordered_map<expr_cell *, T, expr_cell_hash
 template<typename T>
 using expr_cell_offset_map = typename std::unordered_map<expr_cell_offset, T, expr_cell_offset_hash, expr_cell_offset_eqp>;
 
+// Maps based on structural equality. That is, two keys are equal iff they are structurally equal
+template<typename T>
+using expr_struct_map = typename std::unordered_map<expr, T, expr_hash, std::equal_to<expr>>;
 };

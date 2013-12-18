@@ -220,18 +220,22 @@ class normalizer::imp {
             while (true) {
                 if (is_closure(f) && is_lambda(to_closure(f).get_expr())) {
                     // beta reduction
-                    expr const & fv = to_closure(f).get_expr();
+                    expr fv = to_closure(f).get_expr();
+                    value_stack new_s = to_closure(f).get_stack();
+                    while (is_lambda(fv) && i < n) {
+                        new_s = extend(new_s, normalize(arg(a, i), s, k));
+                        i++;
+                        fv = abst_body(fv);
+                    }
                     {
                         freset<cache> reset(m_cache);
                         flet<context> set(m_ctx, to_closure(f).get_context());
-                        value_stack new_s = extend(to_closure(f).get_stack(), normalize(arg(a, i), s, k));
-                        f = normalize(abst_body(fv), new_s, k);
+                        f = normalize(fv, new_s, k);
                     }
-                    if (i == n - 1) {
+                    if (i == n) {
                         r = f;
                         break;
                     }
-                    i++;
                 } else {
                     buffer<expr> new_args;
                     new_args.push_back(f);

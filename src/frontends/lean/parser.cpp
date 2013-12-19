@@ -1654,8 +1654,14 @@ class parser::imp {
         } else {
             mk_scope scope(*this);
             parse_object_bindings(bindings);
-            check_colon_next("invalid definition, ':' expected");
-            expr type_body = parse_expr();
+            expr type_body;
+            if (curr_is_colon()) {
+                next();
+                type_body = parse_expr();
+            } else {
+                auto p = pos();
+                type_body = save(mk_placeholder(), p);
+            }
             pre_type  = mk_abstraction(false, bindings, type_body);
             if (!is_definition && curr_is_period()) {
                 pre_val = mk_abstraction(true, bindings, mk_placeholder());

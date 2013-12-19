@@ -8,7 +8,7 @@
   Assumed: F2
   Assumed: H
   Assumed: a
-Eta (F2 a) : (λ x : B, F2 a x) == (F2 a)
+Eta (F2 a) : (λ x : B, F2 a x) == F2 a
 Abst (λ a : A, Trans (Symm (Eta (F1 a))) (Trans (Abst (λ b : B, H a b)) (Eta (F2 a)))) :
     (λ x : A, F1 x) == (λ x : A, F2 x)
 Abst (λ a : A, Abst (λ b : B, H a b)) : (λ (x : A) (x::1 : B), F1 x x::1) == (λ (x : A) (x::1 : B), F2 x x::1)

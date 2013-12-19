@@ -5,5 +5,5 @@ let x := ⊤,
     y := ⊤,
     z := x ∧ y,
     f := λ arg1 arg2 : Bool, arg1 ∧ arg2 ⇔ arg2 ∧ arg1 ⇔ arg1 ∨ arg2 ∨ arg2
-in (f x y) ∨ z
+in f x y ∨ z
 ⊤

@@ -6,5 +6,5 @@
   Assumed: H1
   Assumed: H2
   Proved: T1
-Axiom H2 : (g a) > 0
-Theorem T1 : (g b) > 0 := Subst H2 H1
+Axiom H2 : g a > 0
+Theorem T1 : g b > 0 := Subst H2 H1

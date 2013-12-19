@@ -22,7 +22,7 @@ Definition R::explicit (A A' : Type)
     (B : A → Type)
     (B' : A' → Type)
     (H : (Π x : A, B x) = (Π x : A', B' x))
-    (a : A) : (B a) = (B' (C (D H) a)) :=
+    (a : A) : B a = B' (C (D H) a) :=
     R H a
 Theorem R2 (A1 A2 B1 B2 : Type) (H : eq::explicit Type (A1 → B1) (A2 → B2)) (a : A1) : eq::explicit Type B1 B2 :=
     R::explicit A1 A2 (λ x : A1, B1) (λ x : A2, B2) H a

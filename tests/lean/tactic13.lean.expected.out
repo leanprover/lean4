@@ -3,7 +3,7 @@
   Assumed: f
   Proved: T1
   Proved: T2
-Theorem T1 (a b c : ℤ) (H1 : a = b) (H2 : a = c) : (f (f a a) b) = (f (f b c) a) :=
+Theorem T1 (a b c : ℤ) (H1 : a = b) (H2 : a = c) : f (f a a) b = f (f b c) a :=
     Congr (Congr (Refl f) (Congr (Congr (Refl f) H1) H2)) (Symm H1)
-Theorem T2 (a b c : ℤ) (H1 : a = b) (H2 : a = c) : (f (f a c)) = (f (f b a)) :=
+Theorem T2 (a b c : ℤ) (H1 : a = b) (H2 : a = c) : f (f a c) = f (f b a) :=
     Congr (Refl f) (Congr (Congr (Refl f) H1) (Symm H2))

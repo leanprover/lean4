@@ -28,5 +28,5 @@ h (h r s) r : S
 g (g (t2r a) b) (t2r a)
 h (h r s) r
   Set: lean::pp::notation
-(t2r a) ++ b ++ (t2r a)
+t2r a ++ b ++ t2r a
 r ++ s ++ r

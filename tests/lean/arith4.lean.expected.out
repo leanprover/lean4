@@ -3,7 +3,7 @@
   Assumed: x
 sin x
 sin (x + -1 * (π / 2))
-(sin x) / (sin (x + -1 * (π / 2)))
-(sin (x + -1 * (π / 2))) / (sin x)
-1 / (sin (x + -1 * (π / 2)))
-1 / (sin x)
+sin x / sin (x + -1 * (π / 2))
+sin (x + -1 * (π / 2)) / sin x
+1 / sin (x + -1 * (π / 2))
+1 / sin x

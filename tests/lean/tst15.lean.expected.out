@@ -3,7 +3,7 @@
   Assumed: x
 x : Type U+3 ⊔ M+2 ⊔ 3
   Assumed: f
-f : (Type U+10) → Type
+f : Type U+10 → Type
 f x : Type
 Type 4 : Type 5
 x : Type U+3 ⊔ M+2 ⊔ 3
@@ -14,9 +14,9 @@ Type U ⊔ M : Type U+1 ⊔ M+1
 Type U ⊔ M ⊔ 3 : Type U+1 ⊔ M+1 ⊔ 4
 Type U+1 ⊔ M ⊔ 3
 Type U+1 ⊔ M ⊔ 3 : Type U+2 ⊔ M+1 ⊔ 4
-(Type U) → (Type 5)
-(Type U) → (Type 5) : Type U+1 ⊔ 6
-(Type M ⊔ 3) → (Type U+5) : Type M+1 ⊔ 4 ⊔ U+6
-(Type M ⊔ 3) → (Type U) → (Type 5)
-(Type M ⊔ 3) → (Type U) → (Type 5) : Type M+1 ⊔ 6 ⊔ U+1
+Type U → Type 5
+Type U → Type 5 : Type U+1 ⊔ 6
+Type M ⊔ 3 → Type U+5 : Type M+1 ⊔ 4 ⊔ U+6
+Type M ⊔ 3 → Type U → Type 5
+Type M ⊔ 3 → Type U → Type 5 : Type M+1 ⊔ 6 ⊔ U+1
 Type U

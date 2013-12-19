@@ -5,7 +5,7 @@
 #   Assumed: Ax
 #   Assumed: a
 # Proof state:
-x : ℤ ⊢ (q a x) ⇒ (p x)
+x : ℤ ⊢ q a x ⇒ p x
 ## Proof state:
 H : q a x, x : ℤ ⊢ p x
 ## Proof state:

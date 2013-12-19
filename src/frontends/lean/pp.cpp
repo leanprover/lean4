@@ -197,12 +197,10 @@ class pp_fn {
     */
     bool is_atomic(expr const & e) {
         switch (e.kind()) {
-        case expr_kind::Var: case expr_kind::Constant:
+        case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type:
             return true;
         case expr_kind::Value:
             return !is_choice(e);
-        case expr_kind::Type:
-            return e == Type();
         case expr_kind::MetaVar:
             return !metavar_lctx(e);
         case expr_kind::App:
@@ -257,7 +255,7 @@ class pp_fn {
         if (e == Type()) {
             return mk_result(g_Type_fmt, 1);
         } else {
-            return mk_result(format{g_Type_fmt, space(), ::lean::pp(ty_level(e), m_unicode)}, 1);
+            return mk_result(paren(format{g_Type_fmt, space(), ::lean::pp(ty_level(e), m_unicode)}), 1);
         }
     }
 

@@ -210,7 +210,8 @@ Failed to solve
             Bool
             Bool
     Failed to solve
-     ⊢ (?M::0 ≈ Type) ⊕ (?M::0 ≈ Type 1) ⊕ (?M::0 ≈ Type 2) ⊕ (?M::0 ≈ Type M) ⊕ (?M::0 ≈ Type U)
+     ⊢
+    (?M::0 ≈ Type) ⊕ (?M::0 ≈ (Type 1)) ⊕ (?M::0 ≈ (Type 2)) ⊕ (?M::0 ≈ (Type M)) ⊕ (?M::0 ≈ (Type U))
         Destruct/Decompose
          ⊢ Type ≺ ?M::0
             (line: 24: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
@@ -220,9 +221,9 @@ Failed to solve
                 Bool
                 Bool
         Failed to solve
-         ⊢ Type 1 ≺ Type
+         ⊢ (Type 1) ≺ Type
             Substitution
-             ⊢ Type 1 ≺ ?M::1
+             ⊢ (Type 1) ≺ ?M::1
                 Propagate type, ?M::0 : ?M::1
                     Assignment
                      ⊢ ?M::0 ≈ Type
@@ -231,51 +232,52 @@ Failed to solve
                  ⊢ ?M::1 ≈ Type
                     Assumption 0
         Failed to solve
-         ⊢ Type 2 ≺ Type
+         ⊢ (Type 2) ≺ Type
             Substitution
-             ⊢ Type 2 ≺ ?M::1
+             ⊢ (Type 2) ≺ ?M::1
                 Propagate type, ?M::0 : ?M::1
                     Assignment
-                     ⊢ ?M::0 ≈ Type 1
+                     ⊢ ?M::0 ≈ (Type 1)
                         Assumption 2
                 Assignment
                  ⊢ ?M::1 ≈ Type
                     Assumption 0
         Failed to solve
-         ⊢ Type 3 ≺ Type
+         ⊢ (Type 3) ≺ Type
             Substitution
-             ⊢ Type 3 ≺ ?M::1
+             ⊢ (Type 3) ≺ ?M::1
                 Propagate type, ?M::0 : ?M::1
                     Assignment
-                     ⊢ ?M::0 ≈ Type 2
+                     ⊢ ?M::0 ≈ (Type 2)
                         Assumption 3
                 Assignment
                  ⊢ ?M::1 ≈ Type
                     Assumption 0
         Failed to solve
-         ⊢ Type M+1 ≺ Type
+         ⊢ (Type M+1) ≺ Type
             Substitution
-             ⊢ Type M+1 ≺ ?M::1
+             ⊢ (Type M+1) ≺ ?M::1
                 Propagate type, ?M::0 : ?M::1
                     Assignment
-                     ⊢ ?M::0 ≈ Type M
+                     ⊢ ?M::0 ≈ (Type M)
                         Assumption 4
                 Assignment
                  ⊢ ?M::1 ≈ Type
                     Assumption 0
         Failed to solve
-         ⊢ Type U+1 ≺ Type
+         ⊢ (Type U+1) ≺ Type
             Substitution
-             ⊢ Type U+1 ≺ ?M::1
+             ⊢ (Type U+1) ≺ ?M::1
                 Propagate type, ?M::0 : ?M::1
                     Assignment
-                     ⊢ ?M::0 ≈ Type U
+                     ⊢ ?M::0 ≈ (Type U)
                         Assumption 5
                 Assignment
                  ⊢ ?M::1 ≈ Type
                     Assumption 0
     Failed to solve
-     ⊢ (?M::0 ≈ Type) ⊕ (?M::0 ≈ Type 1) ⊕ (?M::0 ≈ Type 2) ⊕ (?M::0 ≈ Type M) ⊕ (?M::0 ≈ Type U)
+     ⊢
+    (?M::0 ≈ Type) ⊕ (?M::0 ≈ (Type 1)) ⊕ (?M::0 ≈ (Type 2)) ⊕ (?M::0 ≈ (Type M)) ⊕ (?M::0 ≈ (Type U))
         Destruct/Decompose
          ⊢ Type ≺ ?M::0
             (line: 24: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
@@ -285,9 +287,9 @@ Failed to solve
                 Bool
                 Bool
         Failed to solve
-         ⊢ Type 1 ≺ Bool
+         ⊢ (Type 1) ≺ Bool
             Substitution
-             ⊢ Type 1 ≺ ?M::1
+             ⊢ (Type 1) ≺ ?M::1
                 Propagate type, ?M::0 : ?M::1
                     Assignment
                      ⊢ ?M::0 ≈ Type
@@ -296,45 +298,45 @@ Failed to solve
                  ⊢ ?M::1 ≈ Bool
                     Assumption 6
         Failed to solve
-         ⊢ Type 2 ≺ Bool
+         ⊢ (Type 2) ≺ Bool
             Substitution
-             ⊢ Type 2 ≺ ?M::1
+             ⊢ (Type 2) ≺ ?M::1
                 Propagate type, ?M::0 : ?M::1
                     Assignment
-                     ⊢ ?M::0 ≈ Type 1
+                     ⊢ ?M::0 ≈ (Type 1)
                         Assumption 8
                 Assignment
                  ⊢ ?M::1 ≈ Bool
                     Assumption 6
         Failed to solve
-         ⊢ Type 3 ≺ Bool
+         ⊢ (Type 3) ≺ Bool
             Substitution
-             ⊢ Type 3 ≺ ?M::1
+             ⊢ (Type 3) ≺ ?M::1
                 Propagate type, ?M::0 : ?M::1
                     Assignment
-                     ⊢ ?M::0 ≈ Type 2
+                     ⊢ ?M::0 ≈ (Type 2)
                         Assumption 9
                 Assignment
                  ⊢ ?M::1 ≈ Bool
                     Assumption 6
         Failed to solve
-         ⊢ Type M+1 ≺ Bool
+         ⊢ (Type M+1) ≺ Bool
             Substitution
-             ⊢ Type M+1 ≺ ?M::1
+             ⊢ (Type M+1) ≺ ?M::1
                 Propagate type, ?M::0 : ?M::1
                     Assignment
-                     ⊢ ?M::0 ≈ Type M
+                     ⊢ ?M::0 ≈ (Type M)
                         Assumption 10
                 Assignment
                  ⊢ ?M::1 ≈ Bool
                     Assumption 6
         Failed to solve
-         ⊢ Type U+1 ≺ Bool
+         ⊢ (Type U+1) ≺ Bool
             Substitution
-             ⊢ Type U+1 ≺ ?M::1
+             ⊢ (Type U+1) ≺ ?M::1
                 Propagate type, ?M::0 : ?M::1
                     Assignment
-                     ⊢ ?M::0 ≈ Type U
+                     ⊢ ?M::0 ≈ (Type U)
                         Assumption 11
                 Assignment
                  ⊢ ?M::1 ≈ Bool

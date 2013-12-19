@@ -131,7 +131,7 @@ expr mk_forall_intro_fn();
 inline expr ForallIntro(expr const & A, expr const & P, expr const & H) { return mk_app(mk_forall_intro_fn(), A, P, H); }
 
 expr mk_exists_elim_fn();
-// \brief (Theorem) {A : Type U} {P : A -> Bool} {B : Bool} (H1 : exists x : A, P x) (H2 : Pi (a : A) (H : P a) |- ExistsElim(A, P, B, H1, H2) : B
+// \brief (Theorem) {A : Type U} {P : A -> Bool} {B : Bool} (H1 : exists x : A, P x) (H2 : Pi (a : A) (H : P a)) |- ExistsElim(A, P, B, H1, H2) : B
 inline expr ExistsElim(expr const & A, expr const & P, expr const & B, expr const & H1, expr const & H2) { return mk_app({mk_exists_elim_fn(), A, P, B, H1, H2}); }
 
 expr mk_exists_intro_fn();

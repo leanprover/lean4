@@ -2085,6 +2085,7 @@ class parser::imp {
         m_env = env;
         m_elaborator.reset(env);
         m_type_inferer.reset(env);
+        m_io_state.set_formatter(mk_pp_formatter(env));
     }
 
     void parse_scope() {

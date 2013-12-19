@@ -5,9 +5,6 @@
   Assumed: R
   Proved: R2
   Set: lean::pp::implicit
-Coercion int_to_real
-Coercion nat_to_real
-Definition SubstP : Π (A : Type U) (a b : A) (P : A → Bool), P a → a == b → P b := Subst::explicit
 Variable C {A B : Type} (H : eq::explicit Type A B) (a : A) : B
 Variable D {A A' : Type} {B : A → Type} {B' : A' → Type} (H : eq::explicit Type (Π x : A, B x) (Π x : A', B' x)) :
     eq::explicit Type A A'

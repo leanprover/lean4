@@ -19,6 +19,12 @@ namespace lean {
 void init_frontend(environment const & env, io_state & ios);
 
 /**
+   \brief Return the environment size after init_frontend invocation.
+   Return 0 if \c init_frontend was not invoked for this environment.
+*/
+unsigned get_initial_size(ro_environment const & env);
+
+/**
    @name Notation for parsing and pretty printing.
 */
 /*@{*/

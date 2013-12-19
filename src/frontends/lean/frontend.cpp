@@ -26,15 +26,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/pp.h"
 
 namespace lean {
-/**
-   \brief Import all definitions and notation.
-*/
-void init_frontend(environment const & env, io_state & ios) {
-    ios.set_formatter(mk_pp_formatter(env));
-    import_all(env);
-    init_builtin_notation(env, ios);
-}
-
 static std::vector<bool> g_empty_vector;
 /**
    \brief Environment extension object for the Lean default frontend.
@@ -60,6 +51,19 @@ struct lean_extension : public environment_extension {
     coercion_map          m_coercion_map; // mapping from (given_type, expected_type) -> coercion
     coercion_set          m_coercion_set; // Set of coercions
     expr_to_coercions     m_type_coercions; // mapping type -> list (to-type, function)
+    unsigned              m_initial_size; // size of the environment after init_frontend was invoked
+
+    lean_extension() {
+        m_initial_size = 0;
+    }
+
+    void set_initial_size(unsigned sz) {
+        m_initial_size = sz;
+    }
+
+    unsigned get_initial_size() const {
+        return m_initial_size;
+    }
 
     lean_extension const * get_parent() const {
         return environment_extension::get_parent<lean_extension>();
@@ -439,6 +443,20 @@ static lean_extension const & to_ext(ro_environment const & env) {
 
 static lean_extension & to_ext(environment const & env) {
     return env->get_extension<lean_extension>(g_lean_extension_initializer.m_extid);
+}
+
+/**
+   \brief Import all definitions and notation.
+*/
+void init_frontend(environment const & env, io_state & ios) {
+    ios.set_formatter(mk_pp_formatter(env));
+    import_all(env);
+    init_builtin_notation(env, ios);
+    to_ext(env).set_initial_size(env->get_num_objects(false));
+}
+
+unsigned get_initial_size(ro_environment const & env) {
+    return to_ext(env).get_initial_size();
 }
 
 void add_infix(environment const & env, io_state const & ios, name const & opn, unsigned p, expr const & d)  {

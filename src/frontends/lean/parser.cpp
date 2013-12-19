@@ -1797,6 +1797,7 @@ class parser::imp {
     /** \brief Parse
            'Show' expr
            'Show' Environment [num]
+           'Show' Environment all
            'Show' Options
     */
     void parse_show() {
@@ -1805,23 +1806,28 @@ class parser::imp {
             name opt_id = curr_name();
             next();
             if (opt_id == g_env_kwd) {
+                unsigned beg = get_initial_size(m_env);
+                unsigned end = m_env->get_num_objects(false);
                 unsigned i;
                 if (curr_is_nat()) {
-                    i = parse_unsigned("invalid argument, value does not fit in a machine integer");
+                    i   = parse_unsigned("invalid argument, value does not fit in a machine integer");
+                } else if (curr_is_identifier() && curr_name() == "all") {
+                    next();
+                    i   = std::numeric_limits<unsigned>::max();
+                    beg = 0;
                 } else {
                     i = std::numeric_limits<unsigned>::max();
                 }
-                auto end = m_env->end_objects();
-                auto beg = m_env->begin_objects();
-                auto it  = end;
+                unsigned it  = end;
                 while (it != beg && i != 0) {
                     --it;
-                    if (!is_hidden_object(*it))
+                    if (!is_hidden_object(m_env->get_object(it, false)))
                         --i;
                 }
                 for (; it != end; ++it) {
-                    if (!is_hidden_object(*it))
-                        regular(m_io_state) << *it << endl;
+                    auto obj = m_env->get_object(it, false);
+                    if (!is_hidden_object(obj))
+                        regular(m_io_state) << obj << endl;
                 }
             } else if (opt_id == g_options_kwd) {
                 regular(m_io_state) << pp(m_io_state.get_options()) << endl;

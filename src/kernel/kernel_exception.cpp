@@ -13,7 +13,7 @@ format kernel_exception::pp(formatter const &, options const &) const {
 }
 
 format unknown_name_exception::pp(formatter const &, options const &) const {
-    return format{format("unknown object '"), format(get_name()), format("'")};
+    return format{format(what()), format(" '"), format(get_name()), format("'")};
 }
 
 format already_declared_exception::pp(formatter const &, options const &) const {

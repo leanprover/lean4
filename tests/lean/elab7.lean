@@ -1,6 +1,4 @@
-Variable A : Type U
-Variable B : Type U
-Variable C : Type U
+Variables A B C : (Type U)
 Variable P : A -> Bool
 Variable F1 : A -> B -> C
 Variable F2 : A -> B -> C

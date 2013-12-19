@@ -1,4 +1,4 @@
-Definition revapp {A : Type U} {B : A -> Type U} (a : A) (f : Pi (x : A), B x) : (B a) := f a.
+Definition revapp {A : (Type U)} {B : A -> (Type U)} (a : A) (f : Pi (x : A), B x) : (B a) := f a.
 Infixl 100 |> : revapp
 
 Eval 10 |> (fun x, x + 1)
@@ -7,7 +7,7 @@ Eval 10 |> (fun x, x + 1)
         |> (fun x, 3 - x)
         |> (fun x, x + 2)
 
-Definition revcomp {A B C: Type U} (f : A -> B) (g : B -> C) : A -> C :=
+Definition revcomp {A B C: (Type U)} (f : A -> B) (g : B -> C) : A -> C :=
         fun x, g (f x)
 Infixl 100 #> : revcomp
 

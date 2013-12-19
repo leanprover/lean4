@@ -927,9 +927,9 @@ class parser::imp {
     expr parse_lparen() {
         auto p = pos();
         next();
-        expr r = save(parse_expr(), p);
+        expr r = curr() == scanner::token::Type ? parse_type(true) : parse_expr();
         check_rparen_next("invalid expression, ')' expected");
-        return r;
+        return save(r, p);
     }
 
     /**
@@ -1168,13 +1168,13 @@ class parser::imp {
     }
 
     /** \brief Parse <tt>'Type'</tt> and <tt>'Type' level</tt> expressions. */
-    expr parse_type() {
+    expr parse_type(bool level_expected) {
         auto p = pos();
         next();
-        if (curr_is_identifier() || curr_is_nat()) {
+        if (level_expected) {
             return save(mk_type(parse_level()), p);
         } else {
-            return Type();
+            return save(Type(), p);
         }
     }
 
@@ -1267,7 +1267,7 @@ class parser::imp {
         case scanner::token::DecimalVal:  return parse_decimal();
         case scanner::token::StringVal:   return parse_string();
         case scanner::token::Placeholder: return parse_placeholder();
-        case scanner::token::Type:        return parse_type();
+        case scanner::token::Type:        return parse_type(false);
         case scanner::token::Show:        return parse_show_expr();
         case scanner::token::By:          return parse_by_expr();
         default:
@@ -1279,6 +1279,8 @@ class parser::imp {
        \brief Create a new application and associate position of left with the resultant expression.
     */
     expr mk_app_left(expr const & left, expr const & arg) {
+        if (is_type(left))
+            throw parser_error("Type is not a function, use '(Type <universe>)' for specifying a particular type universe", pos());
         auto it = m_expr_pos_info.find(left);
         lean_assert(it != m_expr_pos_info.end());
         return save(mk_app(left, arg), it->second);
@@ -1297,7 +1299,7 @@ class parser::imp {
         case scanner::token::DecimalVal:  return mk_app_left(left, parse_decimal());
         case scanner::token::StringVal:   return mk_app_left(left, parse_string());
         case scanner::token::Placeholder: return mk_app_left(left, parse_placeholder());
-        case scanner::token::Type:        return mk_app_left(left, parse_type());
+        case scanner::token::Type:        return mk_app_left(left, parse_type(false));
         default:                          return left;
         }
     }

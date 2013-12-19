@@ -86,7 +86,7 @@ static void tst3() {
     parse_error(env, ios, "Help Echo");
     check(env, ios, "10.3", mk_real_value(mpq(103, 10)));
     parse(env, ios, "Variable f : Real -> Real. Check f 10.3.");
-    parse(env, ios, "Variable g : Type 1 -> Type. Check g Type");
+    parse(env, ios, "Variable g : (Type 1) -> Type. Check g Type");
     parse_error(env, ios, "Check fun .");
     parse_error(env, ios, "Definition foo .");
     parse_error(env, ios, "Check a");

@@ -1789,6 +1789,11 @@ class parser::imp {
         regular(m_io_state) << r << endl;
     }
 
+    /** \brief Return true iff \c obj is an object that should be ignored by the Show command */
+    bool is_hidden_object(object const & obj) const {
+        return obj.is_definition() && is_explicit(m_env, obj.get_name());
+    }
+
     /** \brief Parse
            'Show' expr
            'Show' Environment [num]
@@ -1800,20 +1805,23 @@ class parser::imp {
             name opt_id = curr_name();
             next();
             if (opt_id == g_env_kwd) {
+                unsigned i;
                 if (curr_is_nat()) {
-                    unsigned i = parse_unsigned("invalid argument, value does not fit in a machine integer");
-                    auto end = m_env->end_objects();
-                    auto beg = m_env->begin_objects();
-                    auto it  = end;
-                    while (it != beg && i != 0) {
-                        --i;
-                        --it;
-                    }
-                    for (; it != end; ++it) {
-                        regular(m_io_state) << *it << endl;
-                    }
+                    i = parse_unsigned("invalid argument, value does not fit in a machine integer");
                 } else {
-                    regular(m_io_state) << m_env << endl;
+                    i = std::numeric_limits<unsigned>::max();
+                }
+                auto end = m_env->end_objects();
+                auto beg = m_env->begin_objects();
+                auto it  = end;
+                while (it != beg && i != 0) {
+                    --it;
+                    if (!is_hidden_object(*it))
+                        --i;
+                }
+                for (; it != end; ++it) {
+                    if (!is_hidden_object(*it))
+                        regular(m_io_state) << *it << endl;
                 }
             } else if (opt_id == g_options_kwd) {
                 regular(m_io_state) << pp(m_io_state.get_options()) << endl;

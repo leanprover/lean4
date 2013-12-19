@@ -4,6 +4,7 @@
   Assumed: h
   Proved: CongrH
   Set: lean::pp::implicit
+Variable h : N → N → N
 Theorem CongrH {a1 a2 b1 b2 : N} (H1 : eq::explicit N a1 b1) (H2 : eq::explicit N a2 b2) : eq::explicit
         N
         (h a1 a2)
@@ -17,10 +18,9 @@ Theorem CongrH {a1 a2 b1 b2 : N} (H1 : eq::explicit N a1 b1) (H2 : eq::explicit 
         b2
         (Congr::explicit N (λ x : N, N → N) h h a1 b1 (Refl::explicit (N → N → N) h) H1)
         H2
-Theorem CongrH::explicit (a1 a2 b1 b2 : N) (H1 : a1 = b1) (H2 : a2 = b2) : h a1 a2 = h b1 b2 := CongrH H1 H2
   Set: lean::pp::implicit
+Variable h : N → N → N
 Theorem CongrH {a1 a2 b1 b2 : N} (H1 : a1 = b1) (H2 : a2 = b2) : h a1 a2 = h b1 b2 := Congr (Congr (Refl h) H1) H2
-Theorem CongrH::explicit (a1 a2 b1 b2 : N) (H1 : a1 = b1) (H2 : a2 = b2) : h a1 a2 = h b1 b2 := CongrH H1 H2
   Proved: Example1
   Set: lean::pp::implicit
 Theorem Example1 (a b c d : N)

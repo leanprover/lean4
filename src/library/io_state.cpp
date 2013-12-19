@@ -59,6 +59,12 @@ io_state_stream const & operator<<(io_state_stream const & out, object const & o
     return out;
 }
 
+io_state_stream const & operator<<(io_state_stream const & out, environment const & env) {
+    options const & opts = out.get_options();
+    out.get_stream() << mk_pair(out.get_formatter()(env, opts), opts);
+    return out;
+}
+
 io_state_stream const & operator<<(io_state_stream const & out, kernel_exception const & ex) {
     options const & opts = out.get_options();
     out.get_stream() << mk_pair(ex.pp(out.get_formatter(), opts), opts);

@@ -63,7 +63,7 @@ Failed to solve
                         ?M::1 i
                         p
                     Assignment
-                    _ : ℤ ⊢ ℝ ≈ ?M::5
+                    a : ℤ ⊢ ℝ ≈ ?M::5
                         Destruct/Decompose
                          ⊢ ℤ → ℝ ≈ Π x : ?M::4, ?M::5
                             Substitution
@@ -108,7 +108,7 @@ Failed to solve
                          Function expected at
                             ?M::0 (?M::1 i) p
                         Assignment
-                        _ : ℤ ⊢ ℤ → ℤ ≈ ?M::7
+                        a : ℤ ⊢ ℤ → ℤ ≈ ?M::7
                             Destruct/Decompose
                              ⊢ ℤ → ℤ → ℤ ≈ Π x : ?M::6, ?M::7
                                 Substitution
@@ -139,7 +139,7 @@ Failed to solve
                          Function expected at
                             ?M::0 (?M::1 i) p
                         Assignment
-                        _ : ℝ ⊢ ℝ → ℝ ≈ ?M::7
+                        a : ℝ ⊢ ℝ → ℝ ≈ ?M::7
                             Destruct/Decompose
                              ⊢ ℝ → ℝ → ℝ ≈ Π x : ?M::6, ?M::7
                                 Substitution

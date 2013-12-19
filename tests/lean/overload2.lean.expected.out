@@ -22,7 +22,7 @@ Failed to solve
                         (line: 1: pos: 10) Function expected at
                             ?M::0 (?M::1 1) ⊤
                         Assignment
-                        _ : ℕ ⊢ ℕ → ℕ ≈ ?M::7
+                        a : ℕ ⊢ ℕ → ℕ ≈ ?M::7
                             Destruct/Decompose
                              ⊢ ℕ → ℕ → ℕ ≈ Π x : ?M::6, ?M::7
                                 Substitution
@@ -53,7 +53,7 @@ Failed to solve
                         (line: 1: pos: 10) Function expected at
                             ?M::0 (?M::1 1) ⊤
                         Assignment
-                        _ : ℤ ⊢ ℤ → ℤ ≈ ?M::7
+                        a : ℤ ⊢ ℤ → ℤ ≈ ?M::7
                             Destruct/Decompose
                              ⊢ ℤ → ℤ → ℤ ≈ Π x : ?M::6, ?M::7
                                 Substitution
@@ -84,7 +84,7 @@ Failed to solve
                         (line: 1: pos: 10) Function expected at
                             ?M::0 (?M::1 1) ⊤
                         Assignment
-                        _ : ℝ ⊢ ℝ → ℝ ≈ ?M::7
+                        a : ℝ ⊢ ℝ → ℝ ≈ ?M::7
                             Destruct/Decompose
                              ⊢ ℝ → ℝ → ℝ ≈ Π x : ?M::6, ?M::7
                                 Substitution

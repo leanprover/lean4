@@ -39,6 +39,7 @@ public:
     bool is_proposition(expr const & e, context const & ctx, metavar_env const & menv);
     bool is_proposition(expr const & e, context const & ctx = context());
     void clear();
+    void reset(ro_environment const & env);
 };
 
 void open_type_inferer(lua_State * L);

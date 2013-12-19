@@ -51,6 +51,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/notation.h"
 #include "frontends/lean/pp.h"
+#include "frontends/lean/environment_scope.h"
 
 #ifndef LEAN_DEFAULT_PARSER_SHOW_ERRORS
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true
@@ -96,6 +97,10 @@ static name g_import_kwd("Import");
 static name g_help_kwd("Help");
 static name g_coercion_kwd("Coercion");
 static name g_exit_kwd("Exit");
+static name g_push_kwd("Push");
+static name g_pop_kwd("Pop");
+static name g_scope_kwd("Scope");
+static name g_end_scope_kwd("EndScope");
 static name g_apply("apply");
 static name g_done("done");
 static name g_back("back");
@@ -105,7 +110,8 @@ static list<name> g_tactic_cmds = { g_apply, g_done, g_back, g_abort, g_assumpti
 /** \brief Table/List with all builtin command keywords */
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_variables_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
                                         g_show_kwd, g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_notation_kwd, g_echo_kwd,
-                                        g_set_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd, g_coercion_kwd, g_exit_kwd};
+                                        g_set_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd, g_coercion_kwd, g_exit_kwd, g_push_kwd, g_pop_kwd,
+                                        g_scope_kwd, g_end_scope_kwd};
 // ==========================================
 
 // ==========================================
@@ -2043,12 +2049,16 @@ class parser::imp {
                                 << "  Definition [id] : [type] := [expr]   define a new element" << endl
                                 << "  Theorem [id] : [type] := [expr]      define a new theorem" << endl
                                 << "  Echo [string]          display the given string" << endl
+                                << "  EndScope               end the current scope and import its objects into the parent scope" << endl
                                 << "  Eval [expr]            evaluate the given expression" << endl
                                 << "  Exit                   exit" << endl
                                 << "  Help                   display this message" << endl
                                 << "  Help Options           display available options" << endl
                                 << "  Help Notation          describe commands for defining infix, mixfix, postfix operators" << endl
                                 << "  Import [string]        load the given file" << endl
+                                << "  Push                   create a scope (it is just an alias for the command Scope)" << endl
+                                << "  Pop                    discard the current scope" << endl
+                                << "  Scope                  create a scope" << endl
                                 << "  Set [id] [value]       set option [id] with value [value]" << endl
                                 << "  Show [expr]            pretty print the given expression" << endl
                                 << "  Show Options           show current the set of assigned options" << endl
@@ -2069,6 +2079,38 @@ class parser::imp {
         add_coercion(m_env, coercion);
         if (m_verbose)
             regular(m_io_state) << "  Coercion " << coercion << endl;
+    }
+
+    void reset_env(environment env) {
+        m_env = env;
+        m_elaborator.reset(env);
+        m_type_inferer.reset(env);
+    }
+
+    void parse_scope() {
+        next();
+        reset_env(m_env->mk_child());
+    }
+
+    void parse_pop() {
+        next();
+        if (!m_env->has_parent())
+            throw parser_error("main scope cannot be removed", m_last_cmd_pos);
+        reset_env(m_env->parent());
+    }
+
+    void parse_end_scope() {
+        next();
+        if (!m_env->has_parent())
+            throw parser_error("main scope cannot be removed", m_last_cmd_pos);
+        auto new_objects = export_local_objects(m_env);
+        reset_env(m_env->parent());
+        for (auto const & obj : new_objects) {
+            if (obj.is_theorem())
+                m_env->add_theorem(obj.get_name(), obj.get_type(), obj.get_value());
+            else
+                m_env->add_definition(obj.get_name(), obj.get_type(), obj.get_value(), obj.is_opaque());
+        }
     }
 
     /** \brief Parse a Lean command. */
@@ -2115,6 +2157,12 @@ class parser::imp {
         } else if (cmd_id == g_exit_kwd) {
             next();
             return false;
+        } else if (cmd_id == g_push_kwd || cmd_id == g_scope_kwd) {
+            parse_scope();
+        } else if (cmd_id == g_pop_kwd) {
+            parse_pop();
+        } else if (cmd_id == g_end_scope_kwd) {
+            parse_end_scope();
         } else {
             next();
             throw parser_error(sstream() << "invalid command '" << cmd_id << "'", m_last_cmd_pos);

@@ -1,0 +1,13 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: first
+  Assumed: a
+  Assumed: b
+  Assumed: c
+  Assumed: f
+f a
+Error (line: 10, pos: 5) unknown identifier 'f'
+Variable first : Bool
+10 + 20 : ℤ
+Error (line: 19, pos: 9) unknown identifier '++'
+Error (line: 21, pos: 0) main scope cannot be removed

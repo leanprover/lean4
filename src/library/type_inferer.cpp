@@ -254,6 +254,7 @@ public:
 };
 type_inferer::type_inferer(ro_environment const & env):m_ptr(new imp(env)) {}
 type_inferer::~type_inferer() {}
+void type_inferer::reset(ro_environment const & env) { m_ptr.reset(new imp(env)); }
 expr type_inferer::operator()(expr const & e, context const & ctx, optional<metavar_env> const & menv, buffer<unification_constraint> * uc) {
     return m_ptr->operator()(e, ctx, menv, uc);
 }

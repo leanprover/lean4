@@ -44,9 +44,10 @@ public:
     */
     expr const & get_original(expr const & e) const;
 
-    void clear();
-
     environment const & get_environment() const;
+
+    void clear();
+    void reset(environment const & env);
 };
 
 /**

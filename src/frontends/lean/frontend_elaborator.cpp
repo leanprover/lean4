@@ -125,7 +125,7 @@ inline justification mk_overload_justification(context const & ctx, expr const &
     \brief Actual implementation of the frontend_elaborator.
 */
 class frontend_elaborator::imp {
-    environment const &                 m_env;
+    environment                         m_env;
     type_checker                        m_type_checker;
     type_inferer                        m_type_inferer;
     normalizer                          m_normalizer;
@@ -511,5 +511,6 @@ std::tuple<expr, expr, metavar_env> frontend_elaborator::operator()(name const &
 }
 expr const & frontend_elaborator::get_original(expr const & e) const { return m_ptr->get_original(e); }
 void frontend_elaborator::clear() { m_ptr->clear(); }
+void frontend_elaborator::reset(environment const & env) { m_ptr.reset(new imp(env)); }
 environment const & frontend_elaborator::get_environment() const { return m_ptr->get_environment(); }
 }

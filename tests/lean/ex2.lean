@@ -1,9 +1,9 @@
 (* comment *)
 (* (* nested comment *) *)
 Show true
-Set lean::pp::notation false
+SetOption lean::pp::notation false
 Show true && false
-Set pp::unicode false
+SetOption pp::unicode false
 Show true && false
 Variable a : Bool
 Variable a : Bool
@@ -13,7 +13,7 @@ Variable A : Type
 Check a && A
 Show Environment 1
 Show Options
-Set lean::p::notation true
-Set lean::pp::notation 10
-Set lean::pp::notation true
+SetOption lean::p::notation true
+SetOption lean::pp::notation 10
+SetOption lean::pp::notation true
 Show a && b

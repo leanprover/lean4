@@ -8,5 +8,5 @@ Variable v3 : Vector (0 + n)
 Axiom H1 : v1 == v2
 Axiom H2 : v2 == v3
 Check TransExt H1 H2
-Set pp::implicit true
+SetOption pp::implicit true
 Check TransExt H1 H2

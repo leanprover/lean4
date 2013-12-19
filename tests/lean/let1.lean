@@ -5,7 +5,7 @@ Check let a : Nat := 10 in a + 1
 Eval let a : Nat := 20 in a + 10
 Eval let a := 20 in a + 10
 Check let a : Int := 20 in a + 10
-Set pp::coercion true
+SetOption pp::coercion true
 Show let a : Int := 20 in a + 10
 
 

@@ -19,5 +19,5 @@ Theorem T2 : (fun (x1 : A) (x2 : B), F1 x1 x2) = F2 := Abst (fun a, (Abst (fun b
 Theorem T3 : F1 = (fun (x1 : A) (x2 : B), F2 x1 x2) := Abst (fun a, (Abst (fun b, H a b)))
 Theorem T4 : (fun (x1 : A) (x2 : B), F1 x1 x2) = (fun (x1 : A) (x2 : B), F2 x1 x2) := Abst (fun a, (Abst (fun b, H a b)))
 Show Environment 4
-Set pp::implicit true
+SetOption pp::implicit true
 Show Environment 4

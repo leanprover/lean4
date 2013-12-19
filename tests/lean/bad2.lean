@@ -7,6 +7,6 @@ Definition n3 : list Int := cons 10 nil
 Definition n4 : list Int := nil
 Definition n5 : _ := cons 10 nil
 
-Set pp::coercion true
-Set pp::implicit true
+SetOption pp::coercion true
+SetOption pp::implicit true
 Show Environment 1.

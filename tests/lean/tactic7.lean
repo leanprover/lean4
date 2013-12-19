@@ -23,7 +23,7 @@ Theorem VectorPlus0 (A : Type U) (n : Nat) : (Vector A (n + 0)) === (Vector A n)
         EqSubst (fun x : Nat, (Vector A x) === (Vector A n))
                 (EqRefl (Vector A n))
                 (EqSymm (Plus0 n))
-Set pp::implicit true
+SetOption pp::implicit true
 (* Check fun (A : Type) (n : Nat), VectorPlus0 A n *)
 Axiom AppendNil {A : Type} {n : Nat} (v : Vector A n) : (EqCast (VectorPlus0 A n) (append v empty)) === v
 

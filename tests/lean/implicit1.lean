@@ -4,7 +4,7 @@ Show forall a b, f a b > 0
 Variable g : Int -> Real -> Int
 Show forall a b, g a b > 0
 Show forall a b, g a (f a b) > 0
-Set pp::coercion true
+SetOption pp::coercion true
 Show forall a b, g a (f a b) > 0
 Show fun a, a + 1
 Show fun a b, a + b

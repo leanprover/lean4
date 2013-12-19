@@ -10,9 +10,9 @@ Notation 100 _ ; _ ; _ : f
 Notation 100 _ ; _ ; _ : g
 Check 10 ; true ; false
 Check 10 ; 10 ; true
-Set pp::notation false
+SetOption pp::notation false
 Check 10 ; true ; false
 Check 10 ; 10 ; true
-Set pp::implicit true
+SetOption pp::implicit true
 Check 10 ; true ; false
 Check 10 ; 10 ; true

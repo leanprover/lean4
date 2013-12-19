@@ -5,7 +5,7 @@ Theorem simple (p q r : Bool) : (p ⇒ q) ∧ (q ⇒ r) ⇒ p ⇒ r :=
             P_q  := MP P_pq H_p
         in MP P_qr P_q))
 
-Set pp::implicit true
+SetOption pp::implicit true
 Show Environment 1
 
 Theorem simple2 (a b c : Bool) : (a ⇒ b ⇒ c) ⇒ (a ⇒ b) ⇒ a ⇒ c :=

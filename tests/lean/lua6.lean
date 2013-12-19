@@ -1,5 +1,5 @@
 Variable x : Int
-Set pp::notation false
+SetOption pp::notation false
 (**
 print(get_options())
 **)

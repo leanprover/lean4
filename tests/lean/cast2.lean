@@ -6,6 +6,6 @@ Axiom H : (A -> B) = (A' -> B')
 Variable a : A
 Check DomInj H
 Theorem BeqB' : B = B' := RanInj H a
-Set pp::implicit true
+SetOption pp::implicit true
 Show DomInj H
 Show RanInj H a

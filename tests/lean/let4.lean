@@ -40,7 +40,7 @@ let a  := 10,
     v2 : vector Int  a := v1
 in v2
 
-Set pp::coercion true
+SetOption pp::coercion true
 
 Show
 let a  := 10,

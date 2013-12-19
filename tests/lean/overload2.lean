@@ -8,8 +8,8 @@ Coercion t2r
 Variable f : T -> R -> T
 Variable a : T
 Variable b : R
-Set lean::pp::coercion true
-Set lean::pp::notation false
+SetOption lean::pp::coercion true
+SetOption lean::pp::notation false
 Show f a b
 Show f b a
 Variable g : R -> T -> R

@@ -11,6 +11,6 @@ Eval |x + 1| > 0
 Variable y : Int
 Eval |x + y|
 Show |x + y| > x
-Set pp::notation false
+SetOption pp::notation false
 Show |x + y| > x
 Show |x + y| + |y + x| > x

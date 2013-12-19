@@ -90,7 +90,7 @@ static name g_infixl_kwd("Infixl");
 static name g_infixr_kwd("Infixr");
 static name g_notation_kwd("Notation");
 static name g_echo_kwd("Echo");
-static name g_set_kwd("Set");
+static name g_set_kwd("SetOption");
 static name g_options_kwd("Options");
 static name g_env_kwd("Environment");
 static name g_import_kwd("Import");
@@ -1958,7 +1958,7 @@ class parser::imp {
         regular(m_io_state) << msg << endl;
     }
 
-    /** Parse 'Set' [id] [value] */
+    /** Parse 'SetOption' [id] [value] */
     void parse_set() {
         next();
         auto id_pos = pos();
@@ -2065,7 +2065,7 @@ class parser::imp {
                                 << "  Push                   create a scope (it is just an alias for the command Scope)" << endl
                                 << "  Pop                    discard the current scope" << endl
                                 << "  Scope                  create a scope" << endl
-                                << "  Set [id] [value]       set option [id] with value [value]" << endl
+                                << "  SetOption [id] [value] set option [id] with value [value]" << endl
                                 << "  Show [expr]            pretty print the given expression" << endl
                                 << "  Show Options           show current the set of assigned options" << endl
                                 << "  Show Environment       show objects in the environment, if [Num] provided, then show only the last [Num] objects" << endl

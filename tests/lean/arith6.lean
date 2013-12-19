@@ -1,4 +1,4 @@
-Set pp::unicode false
+SetOption pp::unicode false
 Show 3 | 6
 Eval 3 | 6
 Eval 3 | 7
@@ -8,5 +8,5 @@ Variable x : Int
 Eval x | 3
 Eval 3 | x
 Eval 6 | 3
-Set pp::notation false
+SetOption pp::notation false
 Show 3 | x

@@ -3,8 +3,8 @@ Infixl 65 + : f
 Show true + false
 Show 10 + 20
 Show 10 + (- 20)
-Set pp::notation false
-Set pp::coercion true
+SetOption pp::notation false
+SetOption pp::coercion true
 Show true + false
 Show 10 + 20
 Show 10 + (- 20)

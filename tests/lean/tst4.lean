@@ -2,7 +2,7 @@ Variable f {A : Type} (a b : A) : A
 Variable N : Type
 Variable n1 : N
 Variable n2 : N
-Set lean::pp::implicit true
+SetOption lean::pp::implicit true
 Show f n1 n2
 Show f (fun x : N -> N, x) (fun y : _, y)
 Variable EqNice {A : Type} (lhs rhs : A) : Bool

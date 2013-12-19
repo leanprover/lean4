@@ -1,8 +1,8 @@
 Show true /\ false
-Set pp::unicode false
+SetOption pp::unicode false
 Show true /\ false
-Set pp::unicode true
-Set lean::pp::notation false
+SetOption pp::unicode true
+SetOption lean::pp::notation false
 Show true /\ false
-Set pp::unicode false
+SetOption pp::unicode false
 Show true /\ false

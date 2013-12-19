@@ -1,4 +1,4 @@
-Definition Set (A : Type) : Type := A -> Bool
+Definition Set (A : Type) : Type := A → Bool
 
 Definition element {A : Type} (x : A) (s : Set A) := s x
 Infix 60 ∈ : element

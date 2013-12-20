@@ -26,15 +26,6 @@ expr instantiate_with_closed(expr const & e, expr const & s, metavar_env const &
 expr instantiate_with_closed(expr const & e, expr const & s);
 
 /**
-   \brief Similar to instantiate_with_closed, but does not use an assertion for
-   testing whether arguments are close or not.
-   This version is useful, for example, when we want to treat metavariables as closed terms.
-*/
-expr instantiate_with_closed_relaxed(expr const & a, unsigned n, expr const * s, optional<metavar_env> const & menv);
-expr instantiate_with_closed_relaxed(expr const & a, unsigned n, expr const * s, metavar_env const & menv);
-expr instantiate_with_closed_relaxed(expr const & a, unsigned n, expr const * s);
-
-/**
    \brief Replace the free variables with indices 0, ..., n-1 with s[n-1], ..., s[0] in e.
 
    \remark When the parameter menv is not none, this function will minimize the use

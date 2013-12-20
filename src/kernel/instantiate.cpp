@@ -12,7 +12,8 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 
 namespace lean {
-expr instantiate_with_closed_relaxed(expr const & a, unsigned n, expr const * s, optional<metavar_env> const & menv) {
+expr instantiate_with_closed(expr const & a, unsigned n, expr const * s, optional<metavar_env> const & menv) {
+    lean_assert(std::all_of(s, s+n, [&](expr const & e) { return !has_free_var(e, 0, std::numeric_limits<unsigned>::max(), menv); }));
     return replace(a, [=](expr const & m, unsigned offset) -> expr {
             if (is_var(m)) {
                 unsigned vidx = var_idx(m);
@@ -33,16 +34,6 @@ expr instantiate_with_closed_relaxed(expr const & a, unsigned n, expr const * s,
                 return m;
             }
         });
-}
-expr instantiate_with_closed_relaxed(expr const & a, unsigned n, expr const * s, metavar_env const & menv) {
-    return instantiate_with_closed_relaxed(a, n, s, some_menv(menv));
-}
-expr instantiate_with_closed_relaxed(expr const & a, unsigned n, expr const * s) {
-    return instantiate_with_closed_relaxed(a, n, s, none_menv());
-}
-expr instantiate_with_closed(expr const & a, unsigned n, expr const * s, optional<metavar_env> const & menv) {
-    lean_assert(std::all_of(s, s+n, [&](expr const & e) { return !has_free_var(e, 0, std::numeric_limits<unsigned>::max(), menv); }));
-    return instantiate_with_closed_relaxed(a, n, s, menv);
 }
 expr instantiate_with_closed(expr const & e, unsigned n, expr const * s, metavar_env const & menv) { return instantiate_with_closed(e, n, s, some_menv(menv)); }
 expr instantiate_with_closed(expr const & e, unsigned n, expr const * s) { return instantiate_with_closed(e, n, s, none_menv()); }

@@ -848,6 +848,17 @@ class parser::imp {
         }
     }
 
+    void propagage_position(expr const & e, pos_info p) {
+        for_each(e, [&](expr const & e, unsigned) {
+                if (m_expr_pos_info.find(e) == m_expr_pos_info.end()) {
+                    save(e, p);
+                    return true;
+                } else {
+                    return false; // do not search children...
+                }
+            });
+    }
+
     bool is_curr_begin_expr() const {
         switch (curr()) {
         case scanner::token::RightParen:
@@ -955,7 +966,8 @@ class parser::imp {
                     if (is_expr(L, -1)) {
                         expr r = to_expr(L, -1);
                         lua_pop(L, 1);
-                        return save(r, p);
+                        propagage_position(r, p);
+                        return r;
                     } else {
                         lua_pop(L, 1);
                         throw parser_error("failed to execute macro", p);
@@ -971,7 +983,7 @@ class parser::imp {
         luaref proc                    = m.second;
         macro_arg_stack args;
         return parse_macro(arg_kinds, proc, args, p);
-            }
+    }
 
     /**
         \brief Parse an identifier that has a "null denotation" (See

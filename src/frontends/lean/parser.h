@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <iostream>
+#include "util/lua.h"
 #include "kernel/environment.h"
 #include "library/io_state.h"
 
@@ -45,4 +46,6 @@ public:
 
 bool parse_commands(environment const & env, io_state & st, std::istream & in, script_state * S = nullptr, bool use_exceptions = true, bool interactive = false);
 expr parse_expr(environment const & env, io_state & st, std::istream & in, script_state * S = nullptr, bool use_exceptions = true);
+
+void open_macros(lua_State * L);
 }

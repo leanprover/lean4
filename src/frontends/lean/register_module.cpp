@@ -136,6 +136,7 @@ static int mk_lean_formatter(lua_State * L) {
 }
 
 void open_frontend_lean(lua_State * L) {
+    open_macros(L);
     SET_GLOBAL_FUN(mk_environment,    "environment");
     SET_GLOBAL_FUN(mk_lean_formatter, "lean_formatter");
     SET_GLOBAL_FUN(parse_lean_expr,   "parse_lean");

@@ -24,12 +24,12 @@ public:
     normalizer(ro_environment const & env, options const & opts);
     ~normalizer();
 
-    expr operator()(expr const & e, context const & ctx, optional<metavar_env> const & menv);
-    expr operator()(expr const & e, context const & ctx, metavar_env const & menv);
-    expr operator()(expr const & e, context const & ctx = context());
+    expr operator()(expr const & e, context const & ctx, optional<metavar_env> const & menv, bool unfold_opaque = false);
+    expr operator()(expr const & e, context const & ctx, metavar_env const & menv, bool unfold_opaque = false);
+    expr operator()(expr const & e, context const & ctx = context(), bool unfold_opaque = false);
 
     void clear();
 };
 /** \brief Normalize \c e using the environment \c env and context \c ctx */
-expr normalize(expr const & e, ro_environment const & env, context const & ctx = context());
+expr normalize(expr const & e, ro_environment const & env, context const & ctx = context(), bool unfold_opaque = false);
 }

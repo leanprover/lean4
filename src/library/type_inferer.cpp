@@ -32,8 +32,8 @@ class type_inferer::imp {
     normalizer                m_normalizer;
     cache                     m_cache;
 
-    expr normalize(expr const & e, context const & ctx) {
-        return m_normalizer(e, ctx, m_menv.to_some_menv());
+    expr normalize(expr const & e, context const & ctx, bool unfold_opaque) {
+        return m_normalizer(e, ctx, m_menv.to_some_menv(), unfold_opaque);
     }
     expr lift_free_vars(expr const & e, unsigned s, unsigned d) {
         return ::lean::lift_free_vars(e, s, d, m_menv.to_some_menv());
@@ -52,7 +52,7 @@ class type_inferer::imp {
             return e;
         if (is_bool(e))
             return Type();
-        expr u = normalize(e, ctx);
+        expr u = normalize(e, ctx, false);
         if (is_type(u))
             return u;
         if (is_bool(u))
@@ -62,6 +62,11 @@ class type_inferer::imp {
             m_uc->push_back(mk_convertible_constraint(ctx, u, TypeU, jst));
             return u;
         }
+        u = normalize(e, ctx, true);
+        if (is_type(u))
+            return u;
+        if (is_bool(u))
+            return Type();
         throw type_expected_exception(m_env, ctx, s);
     }
 
@@ -72,7 +77,7 @@ class type_inferer::imp {
             if (is_pi(t)) {
                 t = abst_body(t);
             } else {
-                t = m_normalizer(t, ctx);
+                t = normalize(t, ctx, false);
                 if (is_pi(t)) {
                     t = abst_body(t);
                 } else if (has_metavar(t) && m_menv && m_uc) {
@@ -85,7 +90,12 @@ class type_inferer::imp {
                     m_uc->push_back(mk_eq_constraint(ctx, t, p, jst));
                     t        = abst_body(p);
                 } else {
-                    throw function_expected_exception(m_env, ctx, e);
+                    t = normalize(t, ctx, true);
+                    if (is_pi(t)) {
+                        t = abst_body(t);
+                    } else {
+                        throw function_expected_exception(m_env, ctx, e);
+                    }
                 }
             }
         }
@@ -249,7 +259,7 @@ public:
         if (is_bool(t))
             return true;
         else
-            return is_bool(normalize(t, ctx));
+            return is_bool(normalize(t, ctx, true));
     }
 };
 type_inferer::type_inferer(ro_environment const & env):m_ptr(new imp(env)) {}

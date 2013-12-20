@@ -397,8 +397,8 @@ expr environment_cell::infer_type(expr const & e, context const & ctx) const {
     return m_type_checker->infer_type(e, ctx);
 }
 
-expr environment_cell::normalize(expr const & e, context const & ctx) const {
-    return m_type_checker->get_normalizer()(e, ctx);
+expr environment_cell::normalize(expr const & e, context const & ctx, bool unfold_opaque) const {
+    return m_type_checker->get_normalizer()(e, ctx, unfold_opaque);
 }
 
 /** \brief Display universal variable constraints and objects stored in this environment and its parents. */

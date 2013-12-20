@@ -1941,7 +1941,7 @@ class parser::imp {
         next();
         expr v = m_elaborator(parse_expr());
         normalizer norm(m_env);
-        expr r = norm(v);
+        expr r = norm(v, context(), true);
         regular(m_io_state) << r << endl;
     }
 

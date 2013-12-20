@@ -145,4 +145,21 @@ object mk_theorem(name const & n, expr const & t, expr const & v);
 object mk_axiom(name const & n, expr const & t);
 object mk_var_decl(name const & n, expr const & t);
 inline object mk_neutral(neutral_object_cell * c) { lean_assert(c->get_rc() == 1); return object(c); }
+
+/**
+   \brief Helper function whether we should unfold an definition or not.
+
+   1- We unfold definitions.
+   2- We never unfold theorems.
+   3- We unfold opaque definitions if \c unfold_opaque == true
+*/
+inline bool should_unfold(object const & obj, bool unfold_opaque) {
+    return obj.is_definition() && !obj.is_theorem() && (unfold_opaque || !obj.is_opaque());
+}
+inline bool should_unfold(optional<object> const & obj, bool unfold_opaque) {
+    return obj && should_unfold(*obj, unfold_opaque);
+}
+inline bool should_unfold(optional<object> const & obj) {
+    return should_unfold(obj, false);
+}
 }

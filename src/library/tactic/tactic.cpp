@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "kernel/replace_visitor.h"
 #include "kernel/instantiate.h"
 #include "kernel/update_expr.h"
-#include "library/hidden_defs.h"
 #include "library/kernel_bindings.h"
 #include "library/tactic/tactic.h"
 
@@ -397,7 +396,7 @@ protected:
 
     virtual expr visit_constant(expr const & c, context const &) {
         optional<object> obj = m_env->find_object(const_name(c));
-        if (obj && obj->is_definition() && !obj->is_opaque() && !is_hidden(m_env, const_name(c))) {
+        if (should_unfold(obj)) {
             m_unfolded = true;
             return obj->get_value();
         } else {

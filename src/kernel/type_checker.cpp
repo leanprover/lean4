@@ -51,14 +51,14 @@ class type_checker::imp {
         return ::lean::instantiate(e, v, m_menv.to_some_menv());
     }
 
-    expr normalize(expr const & e, context const & ctx) {
-        return m_normalizer(e, ctx, m_menv.to_some_menv());
+    expr normalize(expr const & e, context const & ctx, bool unfold_opaque) {
+        return m_normalizer(e, ctx, m_menv.to_some_menv(), unfold_opaque);
     }
 
     expr check_pi(expr const & e, expr const & s, context const & ctx) {
         if (is_pi(e))
             return e;
-        expr r = normalize(e, ctx);
+        expr r = normalize(e, ctx, false);
         if (is_pi(r))
             return r;
         if (has_metavar(r) && m_menv && m_uc) {
@@ -71,6 +71,9 @@ class type_checker::imp {
             m_uc->push_back(mk_eq_constraint(ctx, e, p, jst));
             return p;
         }
+        r = normalize(e, ctx, true);
+        if (is_pi(r))
+            return r;
         throw function_expected_exception(env(), ctx, s);
     }
 
@@ -79,7 +82,7 @@ class type_checker::imp {
             return e;
         if (is_bool(e))
             return Type();
-        expr u = normalize(e, ctx);
+        expr u = normalize(e, ctx, false);
         if (is_type(u))
             return u;
         if (is_bool(u))
@@ -89,6 +92,11 @@ class type_checker::imp {
             m_uc->push_back(mk_convertible_constraint(ctx, e, TypeU, jst));
             return u;
         }
+        u = normalize(e, ctx, true);
+        if (is_type(u))
+            return u;
+        if (is_bool(u))
+            return Type();
         throw type_expected_exception(env(), ctx, s);
     }
 
@@ -267,17 +275,20 @@ class type_checker::imp {
     bool is_convertible(expr const & given, expr const & expected, context const & ctx, MkJustification const & mk_justification) {
         if (is_convertible_core(given, expected))
             return true;
-        expr new_given    = normalize(given, ctx);
-        expr new_expected = normalize(expected, ctx);
+        expr new_given    = normalize(given, ctx, false);
+        expr new_expected = normalize(expected, ctx, false);
         if (is_convertible_core(new_given, new_expected))
             return true;
         if (m_menv && m_uc && (has_metavar(new_given) || has_metavar(new_expected))) {
             m_uc->push_back(mk_convertible_constraint(ctx, given, expected, mk_justification()));
             return true;
         }
+        new_given    = normalize(new_given, ctx, true);
+        new_expected = normalize(new_expected, ctx, true);
+        if (is_convertible_core(new_given, new_expected))
+            return true;
         return false;
     }
-
 
     void set_ctx(context const & ctx) {
         if (!is_eqp(m_ctx, ctx)) {

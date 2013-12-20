@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include "kernel/abstract.h"
 #include "kernel/environment.h"
-#include "library/hidden_defs.h"
 #include "library/kernel_bindings.h"
 #include "library/arith/nat.h"
 #include "library/arith/num_type.h"
@@ -122,14 +121,10 @@ void import_nat(environment const & env) {
     env->add_builtin(mk_nat_mul_fn());
     env->add_builtin(mk_nat_le_fn());
 
-    env->add_definition(nat_ge_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, nLe(y, x)));
-    env->add_definition(nat_lt_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, Not(nLe(y, x))));
-    env->add_definition(nat_gt_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, Not(nLe(x, y))));
-    env->add_definition(nat_id_fn_name, Nat >> Nat, Fun({x, Nat}, x));
-
-    for (auto n : {nat_ge_fn_name, nat_lt_fn_name, nat_gt_fn_name, nat_id_fn_name}) {
-        set_hidden_flag(env, n);
-    }
+    env->add_opaque_definition(nat_ge_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, nLe(y, x)));
+    env->add_opaque_definition(nat_lt_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, Not(nLe(y, x))));
+    env->add_opaque_definition(nat_gt_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, Not(nLe(x, y))));
+    env->add_opaque_definition(nat_id_fn_name, Nat >> Nat, Fun({x, Nat}, x));
 }
 
 static int mk_nat_value(lua_State * L) {

@@ -294,7 +294,7 @@ inline tactic focus(tactic const & t) { return focus(t, 1); }
 */
 tactic unfold_tactic(name const & n);
 /**
-   \brief Return a tactic that unfolds all (non-hidden and non-opaque) definitions.
+   \brief Return a tactic that unfolds all (non-opaque) definitions.
 */
 tactic unfold_tactic();
 /**

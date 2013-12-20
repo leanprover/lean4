@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 #include "library/io_state.h"
 #include "library/type_inferer.h"
-#include "library/hidden_defs.h"
 #include "library/substitution.h"
 #include "library/fo_unify.h"
 #include "library/placeholder.h"
@@ -19,7 +18,6 @@ inline void open_core_module(lua_State * L) {
     open_kernel_module(L);
     open_io_state(L);
     open_type_inferer(L);
-    open_hidden_defs(L);
     open_substitution(L);
     open_fo_unify(L);
     open_placeholder(L);

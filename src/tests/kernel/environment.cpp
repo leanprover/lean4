@@ -121,7 +121,8 @@ static void tst4() {
     env->add_definition("b", Int, iAdd(Const("a"), iVal(1)));
     expr t2 = iSub(Const("b"), iVal(9));
     std::cout << t2 << " --> " << normalize(t2, env) << "\n";
-    lean_assert(normalize(t2, env) == iAdd(iAdd(Const("a"), iVal(1)), iVal(-9)));
+    lean_assert_eq(normalize(t2, env, context()),
+                   iSub(iAdd(Const("a"), iVal(1)), iVal(9)));
 }
 
 static void tst5() {

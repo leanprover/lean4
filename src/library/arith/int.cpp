@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include "kernel/abstract.h"
 #include "kernel/environment.h"
-#include "library/hidden_defs.h"
 #include "library/kernel_bindings.h"
 #include "library/arith/int.h"
 #include "library/arith/nat.h"
@@ -162,23 +161,17 @@ void import_int(environment const & env) {
     env->add_builtin(mk_int_le_fn());
     env->add_builtin(mk_nat_to_int_fn());
 
-    env->add_definition(int_sub_fn_name, ii_i, Fun({{x, Int}, {y, Int}}, iAdd(x, iMul(iVal(-1), y))));
-    env->add_definition(int_neg_fn_name, i_i, Fun({x, Int}, iMul(iVal(-1), x)));
-    env->add_definition(int_mod_fn_name, ii_i, Fun({{x, Int}, {y, Int}}, iSub(x, iMul(y, iDiv(x, y)))));
-    env->add_definition(int_divides_fn_name, ii_b, Fun({{x, Int}, {y, Int}}, Eq(iMod(y, x), iVal(0))));
-    env->add_definition(int_ge_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, iLe(y, x)));
-    env->add_definition(int_lt_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, Not(iLe(y, x))));
-    env->add_definition(int_gt_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, Not(iLe(x, y))));
-    env->add_definition(int_abs_fn_name, i_i, Fun({x, Int}, iIf(iLe(iVal(0), x), x, iNeg(x))));
+    env->add_opaque_definition(int_sub_fn_name, ii_i, Fun({{x, Int}, {y, Int}}, iAdd(x, iMul(iVal(-1), y))));
+    env->add_opaque_definition(int_neg_fn_name, i_i, Fun({x, Int}, iMul(iVal(-1), x)));
+    env->add_opaque_definition(int_mod_fn_name, ii_i, Fun({{x, Int}, {y, Int}}, iSub(x, iMul(y, iDiv(x, y)))));
+    env->add_opaque_definition(int_divides_fn_name, ii_b, Fun({{x, Int}, {y, Int}}, Eq(iMod(y, x), iVal(0))));
+    env->add_opaque_definition(int_ge_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, iLe(y, x)));
+    env->add_opaque_definition(int_lt_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, Not(iLe(y, x))));
+    env->add_opaque_definition(int_gt_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, Not(iLe(x, y))));
+    env->add_opaque_definition(int_abs_fn_name, i_i, Fun({x, Int}, iIf(iLe(iVal(0), x), x, iNeg(x))));
 
-    env->add_definition(nat_sub_fn_name, Nat >> (Nat >> Int), Fun({{x, Nat}, {y, Nat}}, iSub(n2i(x), n2i(y))));
-    env->add_definition(nat_neg_fn_name, Nat >> Int, Fun({x, Nat}, iNeg(n2i(x))));
-
-    for (auto n : {int_sub_fn_name, int_neg_fn_name, int_mod_fn_name, int_divides_fn_name,
-                int_ge_fn_name, int_lt_fn_name, int_gt_fn_name, int_abs_fn_name,
-                nat_sub_fn_name, nat_neg_fn_name}) {
-        set_hidden_flag(env, n);
-    }
+    env->add_opaque_definition(nat_sub_fn_name, Nat >> (Nat >> Int), Fun({{x, Nat}, {y, Nat}}, iSub(n2i(x), n2i(y))));
+    env->add_opaque_definition(nat_neg_fn_name, Nat >> Int, Fun({x, Nat}, iNeg(n2i(x))));
 }
 
 static int mk_int_value(lua_State * L) {

@@ -79,6 +79,7 @@ class normalizer::imp {
     context                  m_ctx;
     cached_metavar_env       m_menv;
     cache                    m_cache;
+    bool                     m_unfold_opaque;
     unsigned                 m_max_depth;
     unsigned                 m_depth;
 
@@ -201,7 +202,7 @@ class normalizer::imp {
             break;
         case expr_kind::Constant: {
             object const & obj = env()->get_object(const_name(a));
-            if (obj.is_definition() && !obj.is_opaque()) {
+            if (should_unfold(obj, m_unfold_opaque)) {
                 freset<cache> reset(m_cache);
                 r = normalize(obj.get_value(), value_stack(), 0);
             } else {
@@ -291,9 +292,13 @@ public:
         m_env(env) {
         m_max_depth      = max_depth;
         m_depth          = 0;
+        m_unfold_opaque  = false;
     }
 
-    expr operator()(expr const & e, context const & ctx, optional<metavar_env> const & menv) {
+    expr operator()(expr const & e, context const & ctx, optional<metavar_env> const & menv, bool unfold_opaque) {
+        if (m_unfold_opaque != unfold_opaque)
+            m_cache.clear();
+        m_unfold_opaque = unfold_opaque;
         set_ctx(ctx);
         if (m_menv.update(menv))
             m_cache.clear();
@@ -308,13 +313,19 @@ normalizer::normalizer(ro_environment const & env, unsigned max_depth):m_ptr(new
 normalizer::normalizer(ro_environment const & env):normalizer(env, std::numeric_limits<unsigned>::max()) {}
 normalizer::normalizer(ro_environment const & env, options const & opts):normalizer(env, get_normalizer_max_depth(opts)) {}
 normalizer::~normalizer() {}
-expr normalizer::operator()(expr const & e, context const & ctx, optional<metavar_env> const & menv) { return (*m_ptr)(e, ctx, menv); }
-expr normalizer::operator()(expr const & e, context const & ctx, metavar_env const & menv) { return operator()(e, ctx, some_menv(menv)); }
-expr normalizer::operator()(expr const & e, context const & ctx) { return operator()(e, ctx, none_menv()); }
+expr normalizer::operator()(expr const & e, context const & ctx, optional<metavar_env> const & menv, bool unfold_opaque) {
+    return (*m_ptr)(e, ctx, menv, unfold_opaque);
+}
+expr normalizer::operator()(expr const & e, context const & ctx, metavar_env const & menv, bool unfold_opaque) {
+    return operator()(e, ctx, some_menv(menv), unfold_opaque);
+}
+expr normalizer::operator()(expr const & e, context const & ctx, bool unfold_opaque) {
+    return operator()(e, ctx, none_menv(), unfold_opaque);
+}
 void normalizer::clear() { m_ptr->clear(); }
 
-expr normalize(expr const & e, ro_environment const & env, context const & ctx) {
-    return normalizer(env)(e, ctx);
+expr normalize(expr const & e, ro_environment const & env, context const & ctx, bool unfold_opaque) {
+    return normalizer(env)(e, ctx, unfold_opaque);
 }
 }
 

@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include "kernel/abstract.h"
 #include "kernel/environment.h"
-#include "library/hidden_defs.h"
 #include "library/kernel_bindings.h"
 #include "library/arith/real.h"
 #include "library/arith/int.h"
@@ -149,17 +148,12 @@ void import_real(environment const & env) {
     env->add_builtin(mk_real_div_fn());
     env->add_builtin(mk_real_le_fn());
 
-    env->add_definition(real_sub_fn_name, rr_r, Fun({{x, Real}, {y, Real}}, rAdd(x, rMul(rVal(-1), y))));
-    env->add_definition(real_neg_fn_name, r_r,  Fun({x, Real}, rMul(rVal(-1), x)));
-    env->add_definition(real_abs_fn_name, r_r,  Fun({x, Real}, rIf(rLe(rVal(0), x), x, rNeg(x))));
-    env->add_definition(real_ge_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, rLe(y, x)));
-    env->add_definition(real_lt_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, Not(rLe(y, x))));
-    env->add_definition(real_gt_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, Not(rLe(x, y))));
-
-    for (auto n : {real_sub_fn_name, real_neg_fn_name, real_abs_fn_name, real_ge_fn_name,
-                real_lt_fn_name, real_gt_fn_name}) {
-        set_hidden_flag(env, n);
-    }
+    env->add_opaque_definition(real_sub_fn_name, rr_r, Fun({{x, Real}, {y, Real}}, rAdd(x, rMul(rVal(-1), y))));
+    env->add_opaque_definition(real_neg_fn_name, r_r,  Fun({x, Real}, rMul(rVal(-1), x)));
+    env->add_opaque_definition(real_abs_fn_name, r_r,  Fun({x, Real}, rIf(rLe(rVal(0), x), x, rNeg(x))));
+    env->add_opaque_definition(real_ge_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, rLe(y, x)));
+    env->add_opaque_definition(real_lt_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, Not(rLe(y, x))));
+    env->add_opaque_definition(real_gt_fn_name, rr_b,  Fun({{x, Real}, {y, Real}}, Not(rLe(x, y))));
 }
 
 class int_to_real_value : public const_value {
@@ -184,9 +178,7 @@ void import_int_to_real_coercions(environment const & env) {
 
     env->add_builtin(mk_int_to_real_fn());
     expr x    = Const("x");
-    env->add_definition(nat_to_real_fn_name, Nat >> Real, Fun({x, Nat}, i2r(n2i(x))));
-
-    set_hidden_flag(env, nat_to_real_fn_name);
+    env->add_opaque_definition(nat_to_real_fn_name, Nat >> Real, Fun({x, Nat}, i2r(n2i(x))));
 }
 
 static int mk_real_value(lua_State * L) {

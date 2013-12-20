@@ -235,22 +235,22 @@ void import_basic(environment const & env) {
     env->add_builtin(mk_if_fn());
 
     // implies(x, y) := if x y True
-    env->add_definition(implies_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, bIf(x, y, True)));
+    env->add_opaque_definition(implies_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, bIf(x, y, True)));
 
     // iff(x, y) := x = y
-    env->add_definition(iff_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, Eq(x, y)));
+    env->add_opaque_definition(iff_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, Eq(x, y)));
 
     // not(x) := if x False True
-    env->add_definition(not_fn_name, p1, Fun({x, Bool}, bIf(x, False, True)));
+    env->add_opaque_definition(not_fn_name, p1, Fun({x, Bool}, bIf(x, False, True)));
 
     // or(x, y) := Not(x) => y
-    env->add_definition(or_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, Implies(Not(x), y)));
+    env->add_opaque_definition(or_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, Implies(Not(x), y)));
 
     // and(x, y) := Not(x => Not(y))
-    env->add_definition(and_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, Not(Implies(x, Not(y)))));
+    env->add_opaque_definition(and_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, Not(Implies(x, Not(y)))));
 
     // forall : Pi (A : Type u), (A -> Bool) -> Bool
-    env->add_definition(forall_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Eq(P, Fun({x, A}, True))));
+    env->add_opaque_definition(forall_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Eq(P, Fun({x, A}, True))));
     // TODO(Leo): introduce epsilon
     env->add_definition(exists_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Not(Forall(A, Fun({x, A}, Not(P(x)))))));
 

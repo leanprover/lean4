@@ -95,15 +95,15 @@ static void tst4() {
     expr e = iSub(iVal(10), iVal(30));
     std::cout << e << "\n";
     std::cout << normalize(e, env) << "\n";
-    lean_assert(normalize(e, env) == iVal(-20));
+    lean_assert(normalize(e, env, context(), true) == iVal(-20));
     std::cout << infer_type(mk_int_sub_fn(), env) << "\n";
     lean_assert(infer_type(e, env) == Int);
     lean_assert(infer_type(mk_app(mk_int_sub_fn(), iVal(10)), env) == mk_arrow(Int, Int));
-    lean_assert(is_int_value(normalize(e, env)));
+    lean_assert(is_int_value(normalize(e, env, context(), true)));
     expr e2 = Fun("a", Int, iSub(Const("a"), iSub(iVal(10), iVal(30))));
     std::cout << e2 << " --> " << normalize(e2, env) << "\n";
     lean_assert(infer_type(e2, env) == (Int >> Int));
-    lean_assert(normalize(e2, env) == Fun("a", Int, iAdd(Const("a"), iVal(20))));
+    lean_assert_eq(normalize(e2, env, context(), true), Fun("a", Int, iAdd(Const("a"), iVal(20))));
 }
 
 static void tst5() {

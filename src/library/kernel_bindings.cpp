@@ -1121,6 +1121,19 @@ static int environment_tostring(lua_State * L) {
     return 1;
 }
 
+static int environment_set_opaque(lua_State * L) {
+    rw_shared_environment env(L, 1);
+    env->set_opaque(to_name_ext(L, 2), lua_toboolean(L, 3));
+    return 0;
+}
+
+static int environment_is_opaque(lua_State * L) {
+    ro_shared_environment env(L, 1);
+    auto obj = env->find_object(to_name_ext(L, 2));
+    lua_pushboolean(L, obj && obj->is_opaque());
+    return 1;
+}
+
 static const struct luaL_Reg environment_m[] = {
     {"__gc",           environment_gc}, // never throws
     {"__tostring",     safe_function<environment_tostring>},
@@ -1142,6 +1155,8 @@ static const struct luaL_Reg environment_m[] = {
     {"normalize",      safe_function<environment_normalize>},
     {"objects",        safe_function<environment_objects>},
     {"local_objects",  safe_function<environment_local_objects>},
+    {"set_opaque",     safe_function<environment_set_opaque>},
+    {"is_opaque",      safe_function<environment_is_opaque>},
     {0, 0}
 };
 

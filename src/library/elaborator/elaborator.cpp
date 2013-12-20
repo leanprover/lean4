@@ -19,7 +19,6 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "kernel/builtin.h"
 #include "kernel/update_expr.h"
-#include "library/hidden_defs.h"
 #include "library/type_inferer.h"
 #include "library/elaborator/elaborator.h"
 #include "library/elaborator/elaborator_justification.h"
@@ -627,7 +626,7 @@ class elaborator::imp {
     int get_const_weight(expr const & a) {
         lean_assert(is_constant(a));
         optional<object> obj = m_env->find_object(const_name(a));
-        if (obj && obj->is_definition() && !obj->is_opaque() && !is_hidden(m_env, const_name(a)))
+        if (should_unfold(obj))
             return obj->get_weight();
         else
             return -1;

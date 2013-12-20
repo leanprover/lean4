@@ -152,15 +152,14 @@ public:
        \brief Add a new definition n : t := v.
        It throws an exception if v does not have type t.
        It throws an exception if there is already an object with the given name.
-       If opaque == true, then definition is not used by normalizer.
     */
     void add_definition(name const & n, expr const & t, expr const & v, bool opaque = false);
+    void add_opaque_definition(name const & n, expr const & t, expr const & v) { add_definition(n, t, v, true); }
     void add_theorem(name const & n, expr const & t, expr const & v);
 
     /**
        \brief Add a new definition n : infer_type(v) := v.
        It throws an exception if there is already an object with the given name.
-       If opaque == true, then definition is not used by normalizer.
     */
     void add_definition(name const & n, expr const & v, bool opaque = false);
 
@@ -207,7 +206,7 @@ public:
     /**
        \brief Normalize \c e in the given context and this environment.
     */
-    expr normalize(expr const & e, context const & ctx = context()) const;
+    expr normalize(expr const & e, context const & ctx = context(), bool unfold_opaque = false) const;
 
     /**
        \brief Low-level function for accessing objects. Consider using iterators.

@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/hidden_defs.h"
 #include "library/substitution.h"
 #include "library/fo_unify.h"
+#include "library/placeholder.h"
 
 namespace lean {
 inline void open_core_module(lua_State * L) {
@@ -21,6 +22,7 @@ inline void open_core_module(lua_State * L) {
     open_hidden_defs(L);
     open_substitution(L);
     open_fo_unify(L);
+    open_placeholder(L);
 }
 inline void register_core_module() {
     script_state::register_module(open_core_module);

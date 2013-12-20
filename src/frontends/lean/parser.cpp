@@ -280,6 +280,8 @@ class parser::imp {
     bool curr_is_lcurly() const { return curr() == scanner::token::LeftCurlyBracket; }
     /** \brief Return true iff the current token is a ':' */
     bool curr_is_colon() const { return curr() == scanner::token::Colon; }
+    /** \brief Return true iff the current token is a ',' */
+    bool curr_is_comma() const { return curr() == scanner::token::Comma; }
     /** \brief Return true iff the current token is a ':=' */
     bool curr_is_assign() const { return curr() == scanner::token::Assign; }
     /** \brief Return true iff the current token is an 'in' token */
@@ -856,86 +858,120 @@ class parser::imp {
         case scanner::token::CommandId:
         case scanner::token::Eof:
         case scanner::token::ScriptBlock:
+        case scanner::token::In:
             return false;
         default:
             return true;
         }
     }
 
+    typedef buffer<std::pair<macro_arg_kind, void*>> macro_arg_stack;
+
     /**
        \brief Parse a macro implemented in Lua
     */
-    expr parse_macro(lua_State * L, list<macro_arg_kind> const & args, unsigned num_args, pos_info const & p) {
-        if (args) {
-            auto k = head(args);
+    expr parse_macro(list<macro_arg_kind> const & arg_kinds, luaref const & proc, macro_arg_stack & args, pos_info const & p) {
+        if (arg_kinds) {
+            auto k = head(arg_kinds);
             switch (k) {
-            case macro_arg_kind::Expr:
-                push_expr(L, parse_expr());
-                return parse_macro(L, tail(args), num_args + 1, p);
+            case macro_arg_kind::Expr: {
+                expr e = parse_expr(g_app_precedence);
+                args.emplace_back(k, &e);
+                return parse_macro(tail(arg_kinds), proc, args, p);
+            }
             case macro_arg_kind::Exprs: {
-                lua_newtable(L);
-                int i = 1;
+                buffer<expr> exprs;
                 while (is_curr_begin_expr()) {
-                    push_expr(L, parse_expr(g_app_precedence));
-                    lua_rawseti(L, -2, i);
-                    i = i + 1;
+                    exprs.push_back(parse_expr(g_app_precedence));
                 }
-                return parse_macro(L, tail(args), num_args + 1, p);
+                args.emplace_back(k, &exprs);
+                return parse_macro(tail(arg_kinds), proc, args, p);
             }
             case macro_arg_kind::Bindings: {
                 mk_scope scope(*this);
                 bindings_buffer bindings;
                 parse_expr_bindings(bindings);
-                lua_newtable(L);
-                int i = 1;
-                for (auto const & b : bindings) {
-                    lua_newtable(L);
-                    push_name(L, std::get<1>(b));
-                    lua_rawseti(L, -2, 1);
-                    push_expr(L, std::get<2>(b));
-                    lua_rawseti(L, -2, 2);
-                    lua_rawseti(L, -2, i);
-                    i = i + 1;
-                }
-                return parse_macro(L, tail(args), num_args + 1, p);
+                args.emplace_back(k, &bindings);
+                return parse_macro(tail(arg_kinds), proc, args, p);
             }
             case macro_arg_kind::Comma:
                 check_comma_next("invalid macro, ',' expected");
-                return parse_macro(L, tail(args), num_args, p);
+                return parse_macro(tail(arg_kinds), proc, args, p);
             case macro_arg_kind::Assign:
                 check_comma_next("invalid macro, ':=' expected");
-                return parse_macro(L, tail(args), num_args, p);
-            case macro_arg_kind::Id:
-                push_name(L, curr_name());
-                next();
-                return parse_macro(L, tail(args), num_args + 1, p);
-            }
+                return parse_macro(tail(arg_kinds), proc, args, p);
+            case macro_arg_kind::Id: {
+                name n = curr_name();
+                args.emplace_back(k, &n);
+                return parse_macro(tail(arg_kinds), proc, args, p);
+            }}
             lean_unreachable();
         } else {
             // All arguments have been parsed, then call Lua procedure proc.
             m_last_script_pos = p;
-            pcall(L, num_args, 1, 0);
-            if (is_expr(L, -1)) {
-                expr r = to_expr(L, -1);
-                lua_pop(L, 1);
-                return save(r, p);
-            } else {
-                lua_pop(L, 1);
-                throw parser_error("failed to execute macro", p);
-            }
+            return m_script_state->apply([&](lua_State * L) {
+                    proc.push();
+                    for (auto p : args) {
+                        macro_arg_kind k = p.first;
+                        void * arg       = p.second;
+                        switch (k) {
+                        case macro_arg_kind::Expr:
+                            push_expr(L, *static_cast<expr*>(arg));
+                            break;
+                        case macro_arg_kind::Exprs: {
+                            auto const & exprs = *static_cast<buffer<expr>*>(arg);
+                            lua_newtable(L);
+                            int i = 1;
+                            for (auto e : exprs) {
+                                push_expr(L, e);
+                                lua_rawseti(L, -2, i);
+                                i = i + 1;
+                            }
+                            break;
+                        }
+                        case macro_arg_kind::Bindings: {
+                            bindings_buffer const & bindings = *static_cast<bindings_buffer*>(arg);
+                            lua_newtable(L);
+                            int i = 1;
+                            for (auto const & b : bindings) {
+                                lua_newtable(L);
+                                push_name(L, std::get<1>(b));
+                                lua_rawseti(L, -2, 1);
+                                push_expr(L, std::get<2>(b));
+                                lua_rawseti(L, -2, 2);
+                                lua_rawseti(L, -2, i);
+                                i = i + 1;
+                            }
+                            break;
+                        }
+                        case macro_arg_kind::Id:
+                            push_name(L, *static_cast<name*>(arg));
+                            break;
+                        default:
+                            lean_unreachable();
+                        }
+                    }
+                    pcall(L, args.size(), 1, 0);
+                    if (is_expr(L, -1)) {
+                        expr r = to_expr(L, -1);
+                        lua_pop(L, 1);
+                        return save(r, p);
+                    } else {
+                        lua_pop(L, 1);
+                        throw parser_error("failed to execute macro", p);
+                    }
+                });
         }
     }
 
     expr parse_macro(name const & id, pos_info const & p) {
         lean_assert(m_macros && m_macros->find(id) != m_macros->end());
         auto m = m_macros->find(id)->second;
-        list<macro_arg_kind> args = m.first;
-        luaref proc               = m.second;
-        return m_script_state->apply([&](lua_State * L) {
-                proc.push();
-                return parse_macro(L, args, 0, p);
-            });
-    }
+        list<macro_arg_kind> arg_kinds = m.first;
+        luaref proc                    = m.second;
+        macro_arg_stack args;
+        return parse_macro(arg_kinds, proc, args, p);
+            }
 
     /**
         \brief Parse an identifier that has a "null denotation" (See
@@ -1334,11 +1370,17 @@ class parser::imp {
         auto p = pos();
         next();
         expr t = parse_expr();
-        check_next(scanner::token::By, "invalid 'show _ by _' expression, 'by' expected");
-        tactic tac = parse_tactic_expr();
-        expr r = mk_placeholder(some_expr(t));
-        m_tactic_hints.insert(mk_pair(r, tac));
-        return save(r, p);
+        if (curr_is_comma()) {
+            next();
+            expr b = parse_expr();
+            return mk_let("H", t, b, Var(0));
+        } else {
+            check_next(scanner::token::By, "invalid 'show' expression, 'by' or ',' expected");
+            tactic tac = parse_tactic_expr();
+            expr r = mk_placeholder(some_expr(t));
+            m_tactic_hints.insert(mk_pair(r, tac));
+            return save(r, p);
+        }
     }
 
     /** \brief Parse <tt>'by' tactic</tt> */

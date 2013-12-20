@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_visitor.h"
 #include "library/expr_pair.h"
 #include "library/placeholder.h"
+#include "library/kernel_bindings.h"
 
 namespace lean {
 static name g_placeholder_name("_");
@@ -53,5 +54,17 @@ public:
 expr replace_placeholders_with_metavars(expr const & e, metavar_env const & menv, expr_map<expr> * new2old) {
     replace_placeholders_with_metavars_proc proc(menv, new2old);
     return proc(e);
+}
+
+static int mk_placeholder(lua_State * L) {
+    if (lua_gettop(L) == 0) {
+        return push_expr(L, mk_placeholder());
+    } else {
+        return push_expr(L, mk_placeholder(some_expr(to_expr(L, 1))));
+    }
+}
+
+void open_placeholder(lua_State * L) {
+    SET_GLOBAL_FUN(mk_placeholder, "mk_placeholder");
 }
 }

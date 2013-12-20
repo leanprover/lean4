@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include "util/lua.h"
 #include "kernel/expr.h"
 #include "kernel/expr_maps.h"
 
@@ -33,4 +34,6 @@ bool has_placeholder(expr const & e);
    \c s, we store <tt>(*new2old)[t] = s</tt>.
 */
 expr replace_placeholders_with_metavars(expr const & e, metavar_env const & menv, expr_map<expr> * new2old = nullptr);
+
+void open_placeholder(lua_State * L);
 }

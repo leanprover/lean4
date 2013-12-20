@@ -438,14 +438,10 @@ class elaborator::imp {
     enum status { Processed, Failed, Continue };
     status process_metavar(unification_constraint const & c, expr const & a, expr const & b, bool is_lhs) {
         context const & ctx = get_context(c);
+        lean_assert(!(is_metavar(a) && is_assigned(a)));
+        lean_assert(!(is_metavar(b) && is_assigned(b)));
         if (is_metavar(a)) {
-            if (is_assigned(a)) {
-                // Case 1
-                auto s_j = get_subst_jst(a);
-                justification new_jst(new substitution_justification(c, s_j.second));
-                push_updated_constraint(c, is_lhs, s_j.first, new_jst);
-                return Processed;
-            } else if (!has_local_context(a)) {
+            if (!has_local_context(a)) {
                 // Case 2
                 if (has_metavar(b, a)) {
                     m_conflict = justification(new unification_failure_justification(c));
@@ -1141,11 +1137,24 @@ class elaborator::imp {
         }
     }
 
+    bool process_assigned_metavar(unification_constraint const & c, expr const & a, bool is_lhs) {
+        if (is_metavar(a) && is_assigned(a)) {
+            auto s_j = get_subst_jst(a);
+            justification new_jst(new substitution_justification(c, s_j.second));
+            push_updated_constraint(c, is_lhs, s_j.first, new_jst);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     bool process_eq_convertible(context const & ctx, expr const & a, expr const & b, unification_constraint const & c) {
         bool eq = is_eq(c);
-        if (a == b) {
+        if (a == b)
             return true;
-        }
+
+        if (process_assigned_metavar(c, a, true) || process_assigned_metavar(c, b, false))
+            return true;
 
         if (m_assume_injectivity && is_app(a) && is_app(b) && num_args(a) == num_args(b) && arg(a, 0) == arg(b, 0)) {
             // If m_assume_injectivity is true, we apply the following rule

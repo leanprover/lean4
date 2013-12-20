@@ -165,6 +165,13 @@ public:
     void add_definition(name const & n, expr const & v, bool opaque = false);
 
     /**
+       \brief Set the given definition as opaque (or not)
+
+       \remark It throws an error if \c n is not a definition.
+    */
+    void set_opaque(name const & n, bool opaque);
+
+    /**
        \brief Add a new fact (Axiom or Fact) to the environment.
        It throws an exception if there is already an object with the given name.
     */

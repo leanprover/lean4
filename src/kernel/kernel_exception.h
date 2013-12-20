@@ -21,6 +21,7 @@ protected:
 public:
     kernel_exception(ro_environment const & env):m_env(env) {}
     kernel_exception(ro_environment const & env, char const * msg):exception(msg), m_env(env) {}
+    kernel_exception(ro_environment const & env, sstream const & strm):exception(strm), m_env(env) {}
     virtual ~kernel_exception() noexcept {}
     ro_environment const & get_environment() const { return m_env; }
     /**

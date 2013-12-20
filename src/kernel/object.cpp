@@ -35,29 +35,31 @@ public:
         named_object_cell(object_kind::UVarDeclaration, n), m_level(l) {}
     virtual ~uvar_declaration_object_cell() {}
 
-    virtual bool has_cnstr_level() const { return true; }
+    virtual bool has_cnstr_level() const  { return true; }
     virtual level get_cnstr_level() const { return m_level; }
-    virtual char const * keyword() const { return "Universe"; }
+    virtual char const * keyword() const  { return "Universe"; }
 };
 
 /**
-   \brief Base class for Axioms and Variable declarations.
+   \brief Builtin object.
 */
 class builtin_object_cell : public object_cell {
     expr m_value;
+    bool m_opaque;
 public:
     builtin_object_cell(expr const & v):
-        object_cell(object_kind::Builtin), m_value(v) { lean_assert(is_value(v)); }
+        object_cell(object_kind::Builtin), m_value(v), m_opaque(false) { lean_assert(is_value(v)); }
     virtual ~builtin_object_cell() {}
-    virtual bool has_name() const { return true; }
-    virtual name get_name() const { return to_value(m_value).get_name(); }
-    virtual bool has_type() const { return true; }
-    virtual expr get_type() const { return to_value(m_value).get_type(); }
-    virtual bool is_definition() const { return true; }
-    virtual bool is_opaque() const { return false; }
-    virtual expr get_value() const { return m_value; }
+    virtual bool has_name() const        { return true; }
+    virtual name get_name() const        { return to_value(m_value).get_name(); }
+    virtual bool has_type() const        { return true; }
+    virtual expr get_type() const        { return to_value(m_value).get_type(); }
+    virtual bool is_definition() const   { return true; }
+    virtual bool is_opaque() const       { return m_opaque; }
+    virtual void set_opaque(bool f)      { m_opaque = f; }
+    virtual expr get_value() const       { return m_value; }
     virtual char const * keyword() const { return "Builtin"; }
-    virtual bool is_builtin() const { return true; }
+    virtual bool is_builtin() const      { return true; }
 };
 
 /**
@@ -141,6 +143,7 @@ public:
 
     virtual bool is_definition() const   { return true; }
     virtual bool is_opaque() const       { return m_opaque; }
+    virtual void set_opaque(bool f)      { m_opaque = f; }
     virtual expr get_value() const       { return m_value; }
     virtual char const * keyword() const { return "Definition"; }
     virtual unsigned get_weight() const  { return m_weight; }

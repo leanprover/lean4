@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "util/thread.h"
 #include "util/safe_arith.h"
 #include "util/realpath.h"
+#include "util/sstream.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/find_fn.h"
 #include "kernel/kernel_exception.h"
@@ -343,6 +344,13 @@ void environment_cell::add_theorem(name const & n, expr const & t, expr const & 
     check_no_cached_type(v);
     check_new_definition(n, t, v);
     register_named_object(mk_theorem(n, t, v));
+}
+
+void environment_cell::set_opaque(name const & n, bool opaque) {
+    auto obj = find_object(n);
+    if (!obj || !obj->is_definition())
+        throw kernel_exception(env(), sstream() << "set_opaque failed, '" << n << "' is not a definition");
+    obj->set_opaque(opaque);
 }
 
 /** \brief Add new axiom. */

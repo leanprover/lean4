@@ -15,12 +15,17 @@ Author: Leonardo de Moura
   frontend may need to create new objects for bookkeeping.
 */
 namespace lean {
+class object;
 enum class object_kind { UVarDeclaration, Definition, Postulate, Builtin, BuiltinSet, Neutral };
 
 class object_cell {
+protected:
+    friend class object;
     void dealloc() { delete this; }
     MK_LEAN_RC();
     object_kind m_kind;
+    /** \brief Set the opaque flag */
+    virtual void set_opaque(bool ) { lean_unreachable(); } // LCOV_EXCL_LINE
 public:
     object_cell(object_kind k):m_rc(1), m_kind(k) {}
     virtual ~object_cell() {}
@@ -83,6 +88,8 @@ public:
 class object {
     object_cell * m_ptr;
     explicit object(object_cell * ptr):m_ptr(ptr) {}
+    friend class environment_cell;
+    void set_opaque(bool f) { m_ptr->set_opaque(f); }
 public:
     object(object const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     object(object && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }

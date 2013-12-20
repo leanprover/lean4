@@ -39,6 +39,16 @@ FOREACH(T ${LEANTESTS})
            COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T})
 ENDFOREACH(T)
 
+# LEAN PP TESTS
+# For making sure that Lean can parse the output produced by its pretty printer
+file(GLOB LEANPPTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")
+FOREACH(T ${LEANPPTESTS})
+  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+  add_test(NAME "leanpptest_${T_NAME}"
+           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
+           COMMAND "./test_single_pp.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T})
+ENDFOREACH(T)
+
 # LEAN INTERACTIVE TESTS
 file(GLOB LEANINTERACTIVETESTS "${LEAN_SOURCE_DIR}/../tests/lean/interactive/*.lean")
 FOREACH(T ${LEANINTERACTIVETESTS})

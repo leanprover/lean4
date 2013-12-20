@@ -36,7 +36,8 @@ static optional<proof_state> apply_tactic(ro_environment const & env, proof_stat
     buffer<expr> mvars;
     for (unsigned i = 0; i < num; i++)
         mvars.push_back(mk_metavar(name(g_tmp_mvar_name, i)));
-    th_type_c = instantiate_with_closed_relaxed(th_type_c, mvars.size(), mvars.data());
+    metavar_env new_menv = s.get_menv().copy();
+    th_type_c = instantiate(th_type_c, mvars.size(), mvars.data(), new_menv);
     bool found = false;
     buffer<std::pair<name, goal>> new_goals_buf;
     // The proof is based on an application of th.
@@ -49,7 +50,6 @@ static optional<proof_state> apply_tactic(ro_environment const & env, proof_stat
     // We store the solved goals using a list of pairs
     // name, args. Where the 'name' is the name of the solved goal.
     type_inferer inferer(env);
-    metavar_env new_menv = s.get_menv().copy();
     list<std::pair<name, arg_list>> proof_info;
     for (auto const & p : s.get_goals()) {
         check_interrupted();
@@ -67,23 +67,21 @@ static optional<proof_state> apply_tactic(ro_environment const & env, proof_stat
                     expr mvar_sol = apply(*subst, mvar);
                     if (mvar_sol != mvar) {
                         l = cons(mk_pair(some_expr(mvar_sol), name()), l);
-                        th_type_c = instantiate(abst_body(th_type_c), mvar_sol);
+                        th_type_c = instantiate(abst_body(th_type_c), mvar_sol, new_menv);
                     } else {
                         if (inferer.is_proposition(abst_domain(th_type_c), context(), new_menv)) {
                             name new_gname(gname, new_goal_idx);
                             new_goal_idx++;
                             l = cons(mk_pair(none_expr(), new_gname), l);
                             new_goals_buf.emplace_back(new_gname, update(g, abst_domain(th_type_c)));
-                            th_type_c = instantiate(abst_body(th_type_c), mk_constant(new_gname, abst_domain(th_type_c)));
+                            th_type_c = instantiate(abst_body(th_type_c), mk_constant(new_gname, abst_domain(th_type_c)), new_menv);
                         } else {
                             // we have to create a new metavar in menv
                             // since we do not have a substitution for mvar, and
                             // it is not a proposition
                             expr new_m = new_menv->mk_metavar(context(), some_expr(abst_domain(th_type_c)));
                             l = cons(mk_pair(some_expr(new_m), name()), l);
-                            // we use instantiate_with_closed_relaxed because we do not want
-                            // to introduce a lift operator in the new_m
-                            th_type_c = instantiate_with_closed_relaxed(abst_body(th_type_c), 1, &new_m);
+                            th_type_c = instantiate(abst_body(th_type_c), 1, &new_m, new_menv);
                         }
                     }
                 }

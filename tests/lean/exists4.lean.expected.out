@@ -17,7 +17,7 @@ Theorem T1 : ∃ x y z : N, P x y z :=
         a
         (ExistsIntro::explicit
              N
-             (λ x : N, if ((λ x::1 : N, if (P a x x::1) ⊥ ⊤) == (λ x : N, ⊤)) ⊥ ⊤)
+             (λ x : N, ¬ ∀ x::1 : N, ¬ P a x x::1)
              b
              (ExistsIntro::explicit N (λ z : N, P a b z) c H3))
 Theorem T2 : ∃ x y z : N, P x y z := ExistsIntro a (ExistsIntro b (ExistsIntro c H3))

@@ -63,7 +63,7 @@ void set_hidden_flag(environment const & env, name const & d, bool flag) {
 
 void hide_builtin(environment const & env) {
     for (auto c : { mk_implies_fn(), mk_iff_fn(), mk_not_fn(), mk_or_fn(), mk_and_fn(),
-                mk_forall_fn(), mk_exists_fn(), mk_homo_eq_fn() })
+                mk_forall_fn() })
         set_hidden_flag(env, const_name(c));
 }
 

@@ -84,8 +84,8 @@ Theorem Example2 (a b c d : N)
                     a
                     b
                     c
-                    (Conjunct1::explicit (a == b) (b == c) H1)
-                    (Conjunct2::explicit (a == b) (b == c) H1))
+                    (Conjunct1::explicit (a == b) (eq::explicit N b c) H1)
+                    (Conjunct2::explicit (eq::explicit N a b) (b == c) H1))
                (Refl::explicit N b))
         (λ H1 : eq::explicit N a d ∧ eq::explicit N d c,
            CongrH::explicit
@@ -98,8 +98,8 @@ Theorem Example2 (a b c d : N)
                     a
                     d
                     c
-                    (Conjunct1::explicit (a == d) (d == c) H1)
-                    (Conjunct2::explicit (a == d) (d == c) H1))
+                    (Conjunct1::explicit (a == d) (eq::explicit N d c) H1)
+                    (Conjunct2::explicit (eq::explicit N a d) (d == c) H1))
                (Refl::explicit N b))
   Proved: Example3
   Set: lean::pp::implicit

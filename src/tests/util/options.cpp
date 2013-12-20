@@ -124,6 +124,17 @@ static void tst5() {
     lean_assert(it2 == decls.end());
 }
 
+static void tst6() {
+    options opt, opt2;
+    lean_assert(is_eqp(opt, opt2));
+    opt = update(opt, name{"test", "foo"}, 10);
+    lean_assert(!is_eqp(opt, opt2));
+    opt2 = update(opt2, name{"test", "foo"}, 10);
+    lean_assert(!is_eqp(opt, opt2));
+    opt2 = opt;
+    lean_assert(is_eqp(opt, opt2));
+}
+
 int main() {
     save_stack_info();
     tst1();
@@ -131,5 +142,6 @@ int main() {
     tst3();
     tst4();
     tst5();
+    tst6();
     return has_violations() ? 1 : 0;
 }

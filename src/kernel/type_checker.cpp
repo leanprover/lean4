@@ -68,7 +68,7 @@ class type_checker::imp {
             expr B   = m_menv->mk_metavar(extend(ctx, g_x_name, A));
             expr p   = mk_pi(g_x_name, A, B);
             justification jst = mk_function_expected_justification(ctx, s);
-            m_uc->push_back(mk_eq_constraint(ctx, r, p, jst));
+            m_uc->push_back(mk_eq_constraint(ctx, e, p, jst));
             return p;
         }
         throw function_expected_exception(env(), ctx, s);
@@ -86,7 +86,7 @@ class type_checker::imp {
             return Type();
         if (has_metavar(u) && m_menv && m_uc) {
             justification jst = mk_type_expected_justification(ctx, s);
-            m_uc->push_back(mk_convertible_constraint(ctx, u, TypeU, jst));
+            m_uc->push_back(mk_convertible_constraint(ctx, e, TypeU, jst));
             return u;
         }
         throw type_expected_exception(env(), ctx, s);

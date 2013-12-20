@@ -194,6 +194,8 @@ set_io_state::~set_io_state() {
     lua_settable(m_state, LUA_REGISTRYINDEX);
     if (!m_prev)
         set_global_options(m_state, m_prev_options);
+    else
+        set_global_options(m_state, m_prev->get_options());
 }
 
 io_state * get_io_state(lua_State * L) {

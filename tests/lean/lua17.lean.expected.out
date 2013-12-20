@@ -1,0 +1,13 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: a
+  Assumed: b
+⟨pp::unicode ↦ true, pp::colors ↦ false⟩
+⟨pp::unicode ↦ true, pp::colors ↦ false⟩
+⟨pp::unicode ↦ true, pp::colors ↦ false⟩
+Int::add a b
+λ x : ℤ, a + x
+⟨pp::unicode ↦ true, pp::colors ↦ false⟩
+⟨pp::unicode ↦ true, pp::colors ↦ false⟩
+Variable a : ℤ
+Variable b : ℤ

@@ -29,7 +29,7 @@ static expr_pair eq_heq_args(expr const & e) {
     if (is_eq(e))
         return expr_pair(eq_lhs(e), eq_rhs(e));
     else
-        return expr_pair(arg(e, 1), arg(e, 2));
+        return expr_pair(arg(e, 2), arg(e, 3));
 }
 
 optional<substitution> fo_unify(expr e1, expr e2) {

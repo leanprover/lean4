@@ -1216,14 +1216,17 @@ class pp_formatter_cell : public formatter_cell {
             c2 = replace_var_with_name(fake_context_rest(c2), n1);
         }
         if (include_e) {
-            if (first)
-                r += format{line(), fn(c2)};
-            else
+            if (!first) {
+                bool unicode     = get_pp_unicode(opts);
+                format turnstile = unicode ? format("\u22A2") /* ⊢ */ : format("|-");
+                r += format{line(), turnstile, space(), fn(c2)};
+            } else {
                 r = fn(c2);
+            }
+            return group(r);
         } else {
-            return r;
+            return group(r);
         }
-        return r;
     }
 
     format pp_definition(char const * kwd, name const & n, expr const & t, expr const & v, options const & opts) {

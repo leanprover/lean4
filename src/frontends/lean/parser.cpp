@@ -34,6 +34,7 @@ Author: Leonardo de Moura
 #include "kernel/printer.h"
 #include "kernel/metavar.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/find_fn.h"
 #include "kernel/type_checker_justification.h"
 #include "library/expr_lt.h"
 #include "library/type_inferer.h"
@@ -188,6 +189,15 @@ class parser::imp {
         tactic_cmd_error(sstream const & msg, pos_info const & p, proof_state const & s):parser_error(msg, p), m_state(s) {}
         virtual exception * clone() const { return new tactic_cmd_error(m_msg.c_str(), m_pos, m_state); }
         virtual void rethrow() const { throw *this; }
+    };
+
+    struct metavar_not_synthesized_exception : public exception {
+        context m_mvar_ctx;
+        expr    m_mvar;
+        expr    m_mvar_type;
+    public:
+        metavar_not_synthesized_exception(context const & ctx, expr const & mvar, expr const & mvar_type, char const * msg):
+            exception(msg), m_mvar_ctx(ctx), m_mvar(mvar), m_mvar_type(mvar_type) {}
     };
 
     template<typename F>
@@ -371,6 +381,14 @@ class parser::imp {
         regular(m_io_state) << " " << ex << endl;
     }
 
+    void display_error(metavar_not_synthesized_exception const & ex) {
+        display_error_pos(some_expr(m_elaborator.get_original(ex.m_mvar)));
+        regular(m_io_state) << " " << ex.what() << ", metavariable: " << ex.m_mvar << ", type:\n";
+        formatter fmt = m_io_state.get_formatter();
+        options opts  = m_io_state.get_options();
+        regular(m_io_state) << mk_pair(fmt(ex.m_mvar_ctx, ex.m_mvar_type, true, opts), opts) << "\n";
+    }
+
     struct lean_pos_info_provider : public pos_info_provider {
         imp const & m_ref;
         lean_pos_info_provider(imp const & r):m_ref(r) {}
@@ -444,6 +462,13 @@ class parser::imp {
             if (m_use_exceptions)
                 throw;
         } catch (elaborator_exception & ex) {
+            m_found_errors = true;
+            if (m_show_errors)
+                display_error(ex);
+            sync();
+            if (m_use_exceptions)
+                throw;
+        } catch (metavar_not_synthesized_exception & ex) {
             m_found_errors = true;
             if (m_show_errors)
                 display_error(ex);
@@ -1730,6 +1755,35 @@ class parser::imp {
         }
     }
 
+    std::pair<expr, context> get_metavar_ctx_and_type(expr const & mvar, metavar_env const & menv) {
+        expr mvar_type = menv->instantiate_metavars(menv->get_type(mvar));
+        buffer<context_entry> new_entries;
+        for (auto e : menv->get_context(mvar)) {
+            optional<expr> d = e.get_domain();
+            optional<expr> b = e.get_body();
+            if (d) d = menv->instantiate_metavars(*d);
+            if (b) b = menv->instantiate_metavars(*b);
+            if (d)
+                new_entries.emplace_back(e.get_name(), *d, b);
+            else
+                new_entries.emplace_back(e.get_name(), d, *b);
+        }
+        context mvar_ctx(to_list(new_entries.begin(), new_entries.end()));
+        return mk_pair(mvar_type, mvar_ctx);
+    }
+
+    /** \brief Throw an exception if \c e contains a metavariable */
+    void check_no_metavar(expr const & e, metavar_env const & menv, char const * msg) {
+        auto m = find(e, [](expr const & e) -> bool { return is_metavar(e); });
+        if (m) {
+            auto p = get_metavar_ctx_and_type(*m, menv);
+            throw metavar_not_synthesized_exception(p.second, *m, p.first, msg);
+        }
+    }
+    void check_no_metavar(std::pair<expr, metavar_env> const & p, char const * msg) {
+        check_no_metavar(p.first, p.second, msg);
+    }
+
     /**
        \brief Try to fill the 'holes' in \c val using tactics.
        The metavar_env \c menv contains the definition of the metavariables occurring in \c val.
@@ -1748,23 +1802,14 @@ class parser::imp {
             });
         std::sort(mvars.begin(), mvars.end(), [](expr const & e1, expr const & e2) { return is_lt(e1, e2, false); });
         for (auto mvar : mvars) {
-            expr    mvar_type = menv->instantiate_metavars(menv->get_type(mvar));
+            auto p = get_metavar_ctx_and_type(mvar, menv);
+            expr mvar_type   = p.first;
+            context mvar_ctx = p.second;
             if (has_metavar(mvar_type))
-                throw exception("failed to synthesize metavar, its type contains metavariables");
-            buffer<context_entry> new_entries;
-            for (auto e : menv->get_context(mvar)) {
-                optional<expr> d = e.get_domain();
-                optional<expr> b = e.get_body();
-                if (d) d = menv->instantiate_metavars(*d);
-                if (b) b = menv->instantiate_metavars(*b);
-                if (d)
-                    new_entries.emplace_back(e.get_name(), *d, b);
-                else
-                    new_entries.emplace_back(e.get_name(), d, *b);
-            }
-            context mvar_ctx(to_list(new_entries.begin(), new_entries.end()));
+                throw metavar_not_synthesized_exception(mvar_ctx, mvar, mvar_type,
+                                                        "failed to synthesize metavar, its type contains metavariables");
             if (!m_type_inferer.is_proposition(mvar_type, mvar_ctx))
-                throw exception("failed to synthesize metavar, its type is not a proposition");
+                throw metavar_not_synthesized_exception(mvar_ctx, mvar, mvar_type, "failed to synthesize metavar, its type is not a proposition");
             proof_state s = to_proof_state(m_env, mvar_ctx, mvar_type);
             std::pair<optional<tactic>, pos_info> hint_and_pos = get_tactic_for(mvar);
             if (hint_and_pos.first) {
@@ -1828,13 +1873,13 @@ class parser::imp {
         expr type = std::get<0>(r);
         expr val  = std::get<1>(r);
         metavar_env menv = std::get<2>(r);
-        if (has_metavar(type))
-            throw exception("invalid definition, type still contains metavariables after elaboration");
+        check_no_metavar(type, menv, "invalid definition, type still contains metavariables after elaboration");
         if (!is_definition && has_metavar(val)) {
             val = apply_tactics(val, menv);
+        } else {
+            check_no_metavar(val, menv, "invalid definition, value still contains metavariables after elaboration");
         }
-        if (has_metavar(val))
-            throw exception("invalid definition, value still contains metavariables after elaboration");
+        lean_assert(!has_metavar(val));
         if (is_definition) {
             m_env->add_definition(id, type, val);
             if (m_verbose)
@@ -1877,13 +1922,17 @@ class parser::imp {
         expr type;
         if (curr_is_colon()) {
             next();
-            type = m_elaborator(parse_expr());
+            auto p = m_elaborator(parse_expr());
+            check_no_metavar(p, "invalid declaration, type still contains metavariables after elaboration");
+            type = p.first;
         } else {
             mk_scope scope(*this);
             parse_object_bindings(bindings);
             check_colon_next("invalid variable/axiom declaration, ':' expected");
             expr type_body = parse_expr();
-            type = m_elaborator(mk_abstraction(false, bindings, type_body));
+            auto p = m_elaborator(mk_abstraction(false, bindings, type_body));
+            check_no_metavar(p, "invalid declaration, type still contains metavariables after elaboration");
+            type = p.first;
         }
         if (is_var)
             m_env->add_var(id, type);
@@ -1939,7 +1988,7 @@ class parser::imp {
     /** \brief Parse 'Eval' expr */
     void parse_eval() {
         next();
-        expr v = m_elaborator(parse_expr());
+        expr v = m_elaborator(parse_expr()).first;
         normalizer norm(m_env);
         expr r = norm(v, context(), true);
         regular(m_io_state) << r << endl;
@@ -1991,7 +2040,7 @@ class parser::imp {
                 throw parser_error("invalid Show command, expression, 'Options' or 'Environment' expected", m_last_cmd_pos);
             }
         } else {
-            expr v = m_elaborator(parse_expr());
+            expr v = m_elaborator(parse_expr()).first;
             regular(m_io_state) << v << endl;
         }
     }
@@ -1999,7 +2048,9 @@ class parser::imp {
     /** \brief Parse 'Check' expr */
     void parse_check() {
         next();
-        expr v = m_elaborator(parse_expr());
+        auto p = m_elaborator(parse_expr());
+        check_no_metavar(p, "invalid expression, it still contains metavariables after elaboration");
+        expr v = p.first;
         expr t = infer_type(v, m_env);
         formatter fmt = m_io_state.get_formatter();
         options opts  = m_io_state.get_options();
@@ -2441,7 +2492,9 @@ public:
     /** \brief Parse an expression. */
     expr parse_expr_main() {
         try {
-            return m_elaborator(parse_expr());
+            auto p = m_elaborator(parse_expr());
+            check_no_metavar(p, "invalid expression, it still contains metavariables after elaboration");
+            return p.first;
         } catch (parser_error & ex) {
             throw parser_exception(ex.what(), ex.m_pos.first, ex.m_pos.second);
         }

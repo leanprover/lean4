@@ -108,7 +108,8 @@ Failed to solve
                                          ⊢ ?M::1 ≈ nat_to_real
                                             Assumption 2
   Assumed: g
-Error (line: 7, pos: 8) unexpected metavariable occurrence
+Error (line: 7, pos: 8) invalid expression, it still contains metavariables after elaboration, metavariable: ?M::1, type:
+Type
   Assumed: h
 Failed to solve
 x : ?M::0, A : Type ⊢ ?M::0 ≺ A

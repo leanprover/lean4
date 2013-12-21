@@ -29,7 +29,7 @@ public:
     /**
        \brief Elaborate the given expression.
     */
-    expr operator()(expr const & e);
+    std::pair<expr, metavar_env> operator()(expr const & e);
     /**
        \brief Elaborate the given type and expression. The typeof(e) == t.
        This information is used by the elaborator. The result is a new

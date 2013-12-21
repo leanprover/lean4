@@ -435,7 +435,7 @@ public:
         m_normalizer(m_env) {
     }
 
-    expr elaborate(expr const & e) {
+    std::pair<expr, metavar_env> elaborate(expr const & e) {
         // std::cout << "Elaborate " << e << "\n";
         clear();
         expr new_e = preprocessor(*this)(e);
@@ -447,9 +447,9 @@ public:
             //     std::cout << c.pp(fmt, options(), nullptr, false) << "\n";
             // }
             metavar_env new_menv = elaborate_core();
-            return new_menv->instantiate_metavars(new_e);
+            return mk_pair(new_menv->instantiate_metavars(new_e), new_menv);
         } else {
-            return new_e;
+            return mk_pair(new_e, metavar_env());
         }
     }
 
@@ -505,7 +505,7 @@ public:
 
 frontend_elaborator::frontend_elaborator(environment const & env):m_ptr(new imp(env)) {}
 frontend_elaborator::~frontend_elaborator() {}
-expr frontend_elaborator::operator()(expr const & e) { return m_ptr->elaborate(e); }
+std::pair<expr, metavar_env> frontend_elaborator::operator()(expr const & e) { return m_ptr->elaborate(e); }
 std::tuple<expr, expr, metavar_env> frontend_elaborator::operator()(name const & n, expr const & t, expr const & e) {
     return m_ptr->elaborate(n, t, e);
 }

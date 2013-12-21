@@ -3,7 +3,8 @@
   Assumed: i
 λ x : ℤ, x + i : ℤ → ℤ
 λ x : ℕ, x + 1 : ℕ → ℕ
-Error (line: 4, pos: 10) unexpected metavariable occurrence
+Error (line: 4, pos: 10) invalid expression, it still contains metavariables after elaboration, metavariable: ?M::0, type:
+(Type U)
 λ x y : ℤ, y + i + 1 + x : ℤ → ℤ → ℤ
 (λ x : ℤ, x) i : ℤ
 (λ x : ℤ → ℤ → ℤ, x i) (λ x y : ℤ, x + 1 + y) : ℤ → ℤ

@@ -1,7 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
   Assumed: x
-x : ℤ,
-y : ℤ
+x : ℤ, y : ℤ
 Variable x : ℤ
 nil

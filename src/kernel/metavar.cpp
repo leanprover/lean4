@@ -380,7 +380,9 @@ expr metavar_env_cell::instantiate_metavars(expr const & e, buffer<justification
     if (!has_metavar(e)) {
         return e;
     } else {
-        return instantiate_metavars_proc(this, jsts)(e);
+        expr r = instantiate_metavars_proc(this, jsts)(e);
+        lean_assert(!has_assigned_metavar(r));
+        return r;
     }
 }
 

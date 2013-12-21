@@ -159,17 +159,18 @@ class normalizer::imp {
                 });
         } else {
             lean_assert(is_metavar(e));
-            if (is_identity_stack(s, k))
-                return e; // nothing to be done
-            local_context lctx = metavar_lctx(e);
-            unsigned len_s     = length(s);
-            unsigned len_ctx   = ctx.size();
+            local_context lctx     = metavar_lctx(e);
+            unsigned len_s         = length(s);
+            unsigned len_ctx       = ctx.size();
             lean_assert(k >= len_ctx);
             expr r;
-            if (k > len_ctx)
-                r = add_lift(e, len_s, k - len_ctx);
+            if (k > len_ctx + len_s)
+                r = add_lift(e, len_s, k - len_ctx - len_s);
             else
                 r = e;
+            if (is_identity_stack(s, k)) {
+                return r;
+            }
             buffer<expr> subst;
             for (auto v : s)
                 subst.push_back(reify(v, k));

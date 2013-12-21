@@ -303,6 +303,17 @@ static void tst9() {
     lean_assert_eq(N, Fun({x, Type()}, f(x, Bool)));
 }
 
+static void tst10() {
+    environment env;
+    import_all(env);
+    metavar_env menv;
+    context ctx({{"x", Bool}, {"y", Bool}});
+    expr m  = menv->mk_metavar(ctx);
+    ctx     = extend(ctx, "z", none_expr(), m);
+    std::cout << normalizer(env)(Var(0), ctx) << "\n";
+    lean_assert_eq(normalizer(env)(Var(0), ctx), add_lift(m, 0, 1));
+}
+
 int main() {
     save_stack_info();
     tst_church_numbers();
@@ -315,5 +326,6 @@ int main() {
     tst7();
     tst8();
     tst9();
+    tst10();
     return has_violations() ? 1 : 0;
 }

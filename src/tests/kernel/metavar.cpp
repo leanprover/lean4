@@ -376,9 +376,6 @@ static void tst18() {
     environment env;
     metavar_env menv;
     normalizer  norm(env);
-    context ctx;
-    ctx = extend(ctx, "w1", Type());
-    ctx = extend(ctx, "w2", Type());
     expr f = Const("f");
     expr g = Const("g");
     expr h = Const("h");
@@ -387,12 +384,13 @@ static void tst18() {
     expr z = Const("z");
     expr N = Const("N");
     expr a = Const("a");
+    context ctx({{"x1", N}});
     env->add_var("N", Type());
     env->add_var("a", N);
     env->add_var("g", N >> N);
     env->add_var("h", N >> (N >> N));
-    expr m1 = menv->mk_metavar(context({{"z", Type()}, {"f", N >> N}, {"y", Type()}}));
-    expr m2 = menv->mk_metavar(context({{"z", Type()}, {"x", N}, {"x1", N}}));
+    expr m1 = menv->mk_metavar(context({{"x1", N}, {"z", Type()}, {"f", N >> N}, {"y", Type()}}));
+    expr m2 = menv->mk_metavar(context({{"x1", N}, {"z", Type()}, {"x", N}}));
     expr F = Fun({z, Type()}, Fun({{f, N >> N}, {y, Type()}}, m1)(Fun({x, N}, g(z, x, m2)), N));
     std::cout << norm(F, ctx) << "\n";
     metavar_env menv2 = menv.copy();
@@ -400,9 +398,12 @@ static void tst18() {
     menv2->assign(m2, h(Var(2), Var(1)));
     std::cout << menv2->instantiate_metavars(norm(F, ctx)) << "\n";
     std::cout << menv2->instantiate_metavars(F) << "\n";
-    lean_assert_eq(menv2->instantiate_metavars(norm(F, ctx)),
-                   norm(menv2->instantiate_metavars(F), ctx));
-    lean_assert_eq(menv2->instantiate_metavars(norm(F, ctx)),
+    lean_assert_eq(menv2->instantiate_metavars(norm(F, ctx, menv2)),
+                   norm(menv2->instantiate_metavars(F), ctx, menv2));
+    std::cout << "norm(F...): " << norm(F, ctx, menv2) << "\n";
+    lean_assert(menv2->is_assigned(m1));
+    lean_assert(menv2->is_assigned(m2));
+    lean_assert_eq(menv2->instantiate_metavars(norm(F, ctx, menv2)),
                    Fun({{z, Type()}, {x, N}}, g(z, x, h(Var(2), z))));
 }
 
@@ -420,8 +421,8 @@ static void tst19() {
     expr F  = Fun({{N, Type()}, {x, N}, {y, N}}, m1);
     std::cout << norm(F) << "\n";
     std::cout << norm(F, ctx) << "\n";
-    lean_assert(norm(F) == F);
-    lean_assert(norm(F, ctx) == F);
+    lean_assert_eq(norm(F, context(), menv), F);
+    lean_assert_eq(norm(F, ctx, menv), F);
 }
 
 static void tst20() {

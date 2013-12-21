@@ -1,0 +1,474 @@
+  Set: pp::colors
+  Set: pp::unicode
+Failed to solve
+A : (Type U), A' : (Type U), H : A == A' ⊢
+(?M::3 ≈ (Type U)) ⊕ (?M::3 ≈ (Type M)) ⊕ (?M::3 ≈ (Type 1)) ⊕ (?M::3 ≈ Type) ⊕ (?M::3 ≈ Bool)
+    Destruct/Decompose
+    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≺ (Type U)
+        (line: 1: pos: 44) Type of argument 1 must be convertible to the expected type in the application of
+            Symm::explicit
+        with arguments:
+            ?M::0
+            ?M::1
+            ?M::2
+            H
+    Failed to solve
+    A : (Type U), A' : (Type U), H : A == A' ⊢ (?M::5 ≈ (Type U)) ⊕ (?M::5 ≈ (Type U+1))
+        Destruct/Decompose
+        A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U) ≺ ?M::5
+            Propagate type, ?M::2 : ?M::5
+                Assignment
+                A : (Type U), A' : (Type U), H : A == A' ⊢ A' ≈ ?M::2
+                    Destruct/Decompose
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ A == A' ≺ ?M::1 == ?M::2
+                        (line: 1: pos: 44) Type of argument 4 must be convertible to the expected type in the application of
+                            Symm::explicit
+                        with arguments:
+                            ?M::0
+                            ?M::1
+                            ?M::2
+                            H
+        Failed to solve
+        A : (Type U), A' : (Type U), H : A == A' ⊢ (?M::0 ≈ (Type U)) ⊕ (?M::0 ≈ (Type U+1))
+            Destruct/Decompose
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U) ≺ ?M::0
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≺ ?M::0
+                    (line: 1: pos: 44) Type of argument 3 must be convertible to the expected type in the application of
+                        Symm::explicit
+                    with arguments:
+                        ?M::0
+                        ?M::1
+                        ?M::2
+                        H
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≈ (Type U)
+                        Assumption 1
+            Failed to solve
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+1) ≺ (Type U)
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+1) ≺ ?M::3
+                    Propagate type, ?M::0 : ?M::3
+                        Assignment
+                        A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::0 ≈ (Type U)
+                            Assumption 3
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≈ (Type U)
+                        Assumption 0
+            Failed to solve
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+2) ≺ (Type U)
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+2) ≺ ?M::3
+                    Propagate type, ?M::0 : ?M::3
+                        Assignment
+                        A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::0 ≈ (Type U+1)
+                            Assumption 4
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≈ (Type U)
+                        Assumption 0
+        Failed to solve
+        A : (Type U), A' : (Type U), H : A == A' ⊢ (?M::0 ≈ (Type U+1)) ⊕ (?M::0 ≈ (Type U+2))
+            Destruct/Decompose
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+1) ≺ ?M::0
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≺ ?M::0
+                    (line: 1: pos: 44) Type of argument 3 must be convertible to the expected type in the application of
+                        Symm::explicit
+                    with arguments:
+                        ?M::0
+                        ?M::1
+                        ?M::2
+                        H
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≈ (Type U+1)
+                        Assumption 5
+            Failed to solve
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+2) ≺ (Type U)
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+2) ≺ ?M::3
+                    Propagate type, ?M::0 : ?M::3
+                        Assignment
+                        A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::0 ≈ (Type U+1)
+                            Assumption 7
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≈ (Type U)
+                        Assumption 0
+            Failed to solve
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+3) ≺ (Type U)
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+3) ≺ ?M::3
+                    Propagate type, ?M::0 : ?M::3
+                        Assignment
+                        A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::0 ≈ (Type U+2)
+                            Assumption 8
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≈ (Type U)
+                        Assumption 0
+    Failed to solve
+    A : (Type U), A' : (Type U), H : A == A' ⊢ (?M::5 ≈ (Type U)) ⊕ (?M::5 ≈ (Type U+1))
+        Destruct/Decompose
+        A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U) ≺ ?M::5
+            Propagate type, ?M::2 : ?M::5
+                Assignment
+                A : (Type U), A' : (Type U), H : A == A' ⊢ A' ≈ ?M::2
+                    Destruct/Decompose
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ A == A' ≺ ?M::1 == ?M::2
+                        (line: 1: pos: 44) Type of argument 4 must be convertible to the expected type in the application of
+                            Symm::explicit
+                        with arguments:
+                            ?M::0
+                            ?M::1
+                            ?M::2
+                            H
+        Failed to solve
+        A : (Type U), A' : (Type U), H : A == A' ⊢ (?M::0 ≈ (Type U)) ⊕ (?M::0 ≈ (Type U+1))
+            Destruct/Decompose
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U) ≺ ?M::0
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≺ ?M::0
+                    (line: 1: pos: 44) Type of argument 3 must be convertible to the expected type in the application of
+                        Symm::explicit
+                    with arguments:
+                        ?M::0
+                        ?M::1
+                        ?M::2
+                        H
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≈ (Type U)
+                        Assumption 10
+            Failed to solve
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+1) ≺ (Type M)
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+1) ≺ ?M::3
+                    Propagate type, ?M::0 : ?M::3
+                        Assignment
+                        A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::0 ≈ (Type U)
+                            Assumption 12
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≈ (Type M)
+                        Assumption 9
+            Failed to solve
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+2) ≺ (Type M)
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+2) ≺ ?M::3
+                    Propagate type, ?M::0 : ?M::3
+                        Assignment
+                        A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::0 ≈ (Type U+1)
+                            Assumption 13
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≈ (Type M)
+                        Assumption 9
+        Failed to solve
+        A : (Type U), A' : (Type U), H : A == A' ⊢ (?M::0 ≈ (Type U+1)) ⊕ (?M::0 ≈ (Type U+2))
+            Destruct/Decompose
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+1) ≺ ?M::0
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≺ ?M::0
+                    (line: 1: pos: 44) Type of argument 3 must be convertible to the expected type in the application of
+                        Symm::explicit
+                    with arguments:
+                        ?M::0
+                        ?M::1
+                        ?M::2
+                        H
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≈ (Type U+1)
+                        Assumption 14
+            Failed to solve
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+2) ≺ (Type M)
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+2) ≺ ?M::3
+                    Propagate type, ?M::0 : ?M::3
+                        Assignment
+                        A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::0 ≈ (Type U+1)
+                            Assumption 16
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≈ (Type M)
+                        Assumption 9
+            Failed to solve
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+3) ≺ (Type M)
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+3) ≺ ?M::3
+                    Propagate type, ?M::0 : ?M::3
+                        Assignment
+                        A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::0 ≈ (Type U+2)
+                            Assumption 17
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≈ (Type M)
+                        Assumption 9
+    Failed to solve
+    A : (Type U), A' : (Type U), H : A == A' ⊢ (?M::5 ≈ (Type U)) ⊕ (?M::5 ≈ (Type U+1))
+        Destruct/Decompose
+        A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U) ≺ ?M::5
+            Propagate type, ?M::2 : ?M::5
+                Assignment
+                A : (Type U), A' : (Type U), H : A == A' ⊢ A' ≈ ?M::2
+                    Destruct/Decompose
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ A == A' ≺ ?M::1 == ?M::2
+                        (line: 1: pos: 44) Type of argument 4 must be convertible to the expected type in the application of
+                            Symm::explicit
+                        with arguments:
+                            ?M::0
+                            ?M::1
+                            ?M::2
+                            H
+        Failed to solve
+        A : (Type U), A' : (Type U), H : A == A' ⊢ (?M::0 ≈ (Type U)) ⊕ (?M::0 ≈ (Type U+1))
+            Destruct/Decompose
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U) ≺ ?M::0
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≺ ?M::0
+                    (line: 1: pos: 44) Type of argument 3 must be convertible to the expected type in the application of
+                        Symm::explicit
+                    with arguments:
+                        ?M::0
+                        ?M::1
+                        ?M::2
+                        H
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≈ (Type U)
+                        Assumption 19
+            Failed to solve
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+1) ≺ (Type 1)
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+1) ≺ ?M::3
+                    Propagate type, ?M::0 : ?M::3
+                        Assignment
+                        A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::0 ≈ (Type U)
+                            Assumption 21
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≈ (Type 1)
+                        Assumption 18
+            Failed to solve
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+2) ≺ (Type 1)
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+2) ≺ ?M::3
+                    Propagate type, ?M::0 : ?M::3
+                        Assignment
+                        A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::0 ≈ (Type U+1)
+                            Assumption 22
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≈ (Type 1)
+                        Assumption 18
+        Failed to solve
+        A : (Type U), A' : (Type U), H : A == A' ⊢ (?M::0 ≈ (Type U+1)) ⊕ (?M::0 ≈ (Type U+2))
+            Destruct/Decompose
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+1) ≺ ?M::0
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≺ ?M::0
+                    (line: 1: pos: 44) Type of argument 3 must be convertible to the expected type in the application of
+                        Symm::explicit
+                    with arguments:
+                        ?M::0
+                        ?M::1
+                        ?M::2
+                        H
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≈ (Type U+1)
+                        Assumption 23
+            Failed to solve
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+2) ≺ (Type 1)
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+2) ≺ ?M::3
+                    Propagate type, ?M::0 : ?M::3
+                        Assignment
+                        A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::0 ≈ (Type U+1)
+                            Assumption 25
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≈ (Type 1)
+                        Assumption 18
+            Failed to solve
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+3) ≺ (Type 1)
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+3) ≺ ?M::3
+                    Propagate type, ?M::0 : ?M::3
+                        Assignment
+                        A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::0 ≈ (Type U+2)
+                            Assumption 26
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≈ (Type 1)
+                        Assumption 18
+    Failed to solve
+    A : (Type U), A' : (Type U), H : A == A' ⊢ (?M::5 ≈ (Type U)) ⊕ (?M::5 ≈ (Type U+1))
+        Destruct/Decompose
+        A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U) ≺ ?M::5
+            Propagate type, ?M::2 : ?M::5
+                Assignment
+                A : (Type U), A' : (Type U), H : A == A' ⊢ A' ≈ ?M::2
+                    Destruct/Decompose
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ A == A' ≺ ?M::1 == ?M::2
+                        (line: 1: pos: 44) Type of argument 4 must be convertible to the expected type in the application of
+                            Symm::explicit
+                        with arguments:
+                            ?M::0
+                            ?M::1
+                            ?M::2
+                            H
+        Failed to solve
+        A : (Type U), A' : (Type U), H : A == A' ⊢ (?M::0 ≈ (Type U)) ⊕ (?M::0 ≈ (Type U+1))
+            Destruct/Decompose
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U) ≺ ?M::0
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≺ ?M::0
+                    (line: 1: pos: 44) Type of argument 3 must be convertible to the expected type in the application of
+                        Symm::explicit
+                    with arguments:
+                        ?M::0
+                        ?M::1
+                        ?M::2
+                        H
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≈ (Type U)
+                        Assumption 28
+            Failed to solve
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+1) ≺ Type
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+1) ≺ ?M::3
+                    Propagate type, ?M::0 : ?M::3
+                        Assignment
+                        A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::0 ≈ (Type U)
+                            Assumption 30
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≈ Type
+                        Assumption 27
+            Failed to solve
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+2) ≺ Type
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+2) ≺ ?M::3
+                    Propagate type, ?M::0 : ?M::3
+                        Assignment
+                        A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::0 ≈ (Type U+1)
+                            Assumption 31
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≈ Type
+                        Assumption 27
+        Failed to solve
+        A : (Type U), A' : (Type U), H : A == A' ⊢ (?M::0 ≈ (Type U+1)) ⊕ (?M::0 ≈ (Type U+2))
+            Destruct/Decompose
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+1) ≺ ?M::0
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≺ ?M::0
+                    (line: 1: pos: 44) Type of argument 3 must be convertible to the expected type in the application of
+                        Symm::explicit
+                    with arguments:
+                        ?M::0
+                        ?M::1
+                        ?M::2
+                        H
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≈ (Type U+1)
+                        Assumption 32
+            Failed to solve
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+2) ≺ Type
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+2) ≺ ?M::3
+                    Propagate type, ?M::0 : ?M::3
+                        Assignment
+                        A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::0 ≈ (Type U+1)
+                            Assumption 34
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≈ Type
+                        Assumption 27
+            Failed to solve
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+3) ≺ Type
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+3) ≺ ?M::3
+                    Propagate type, ?M::0 : ?M::3
+                        Assignment
+                        A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::0 ≈ (Type U+2)
+                            Assumption 35
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≈ Type
+                        Assumption 27
+    Failed to solve
+    A : (Type U), A' : (Type U), H : A == A' ⊢ (?M::5 ≈ (Type U)) ⊕ (?M::5 ≈ (Type U+1))
+        Destruct/Decompose
+        A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U) ≺ ?M::5
+            Propagate type, ?M::2 : ?M::5
+                Assignment
+                A : (Type U), A' : (Type U), H : A == A' ⊢ A' ≈ ?M::2
+                    Destruct/Decompose
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ A == A' ≺ ?M::1 == ?M::2
+                        (line: 1: pos: 44) Type of argument 4 must be convertible to the expected type in the application of
+                            Symm::explicit
+                        with arguments:
+                            ?M::0
+                            ?M::1
+                            ?M::2
+                            H
+        Failed to solve
+        A : (Type U), A' : (Type U), H : A == A' ⊢ (?M::0 ≈ (Type U)) ⊕ (?M::0 ≈ (Type U+1))
+            Destruct/Decompose
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U) ≺ ?M::0
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≺ ?M::0
+                    (line: 1: pos: 44) Type of argument 3 must be convertible to the expected type in the application of
+                        Symm::explicit
+                    with arguments:
+                        ?M::0
+                        ?M::1
+                        ?M::2
+                        H
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≈ (Type U)
+                        Assumption 37
+            Failed to solve
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+1) ≺ Bool
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+1) ≺ ?M::3
+                    Propagate type, ?M::0 : ?M::3
+                        Assignment
+                        A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::0 ≈ (Type U)
+                            Assumption 39
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≈ Bool
+                        Assumption 36
+            Failed to solve
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+2) ≺ Bool
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+2) ≺ ?M::3
+                    Propagate type, ?M::0 : ?M::3
+                        Assignment
+                        A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::0 ≈ (Type U+1)
+                            Assumption 40
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≈ Bool
+                        Assumption 36
+        Failed to solve
+        A : (Type U), A' : (Type U), H : A == A' ⊢ (?M::0 ≈ (Type U+1)) ⊕ (?M::0 ≈ (Type U+2))
+            Destruct/Decompose
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+1) ≺ ?M::0
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≺ ?M::0
+                    (line: 1: pos: 44) Type of argument 3 must be convertible to the expected type in the application of
+                        Symm::explicit
+                    with arguments:
+                        ?M::0
+                        ?M::1
+                        ?M::2
+                        H
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≈ (Type U+1)
+                        Assumption 41
+            Failed to solve
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+2) ≺ Bool
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+2) ≺ ?M::3
+                    Propagate type, ?M::0 : ?M::3
+                        Assignment
+                        A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::0 ≈ (Type U+1)
+                            Assumption 43
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≈ Bool
+                        Assumption 36
+            Failed to solve
+            A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+3) ≺ Bool
+                Substitution
+                A : (Type U), A' : (Type U), H : A == A' ⊢ (Type U+3) ≺ ?M::3
+                    Propagate type, ?M::0 : ?M::3
+                        Assignment
+                        A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::0 ≈ (Type U+2)
+                            Assumption 44
+                    Assignment
+                    A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≈ Bool
+                        Assumption 36

@@ -68,11 +68,7 @@ typedef list<local_entry> local_context;
 class expr_cell {
 protected:
     unsigned short     m_kind;
-#ifdef LEAN_THREAD_UNSAFE
-    unsigned short     m_flags;
-#else
     atomic_ushort      m_flags;
-#endif
     unsigned m_hash;  // hash based on the structure of the expression (this is a good hash for structural equality)
     unsigned m_hash_alloc; // hash based on 'time' of allocation (this is a good hash for pointer-based equality)
     MK_LEAN_RC(); // Declare m_rc counter

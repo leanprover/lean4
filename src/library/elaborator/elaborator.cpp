@@ -145,6 +145,8 @@ class elaborator::imp {
     unsigned                                 m_next_id;
     justification                            m_conflict;
     bool                                     m_first;
+    level                                    m_U; // universe U used for builtin kernel axioms
+    level                                    m_M; // universe M
 
     // options
     bool                                     m_use_justifications;
@@ -1031,9 +1033,17 @@ class elaborator::imp {
                 expr choices[5] = { Bool, Type(), Type(level() + 1), TypeM, TypeU };
                 push_active(mk_choice_constraint(get_context(c), b, 5, choices, new_jst));
                 return true;
+            } else if (m_env->is_ge(ty_level(a), m_U)) {
+                expr choices[2] = { a, Type(ty_level(a) + 1) };
+                push_active(mk_choice_constraint(get_context(c), b, 2, choices, new_jst));
+                return true;
+            } else if (m_env->is_ge(ty_level(a), m_M)) {
+                expr choices[3] = { a, Type(ty_level(a) + 1), TypeU };
+                push_active(mk_choice_constraint(get_context(c), b, 3, choices, new_jst));
+                return true;
             } else {
-                expr choices[5] = { a, Type(ty_level(a) + 1), Type(ty_level(a) + 2), TypeM, TypeU };
-                push_active(mk_choice_constraint(get_context(c), b, 5, choices, new_jst));
+                expr choices[4] = { a, Type(ty_level(a) + 1), TypeM, TypeU };
+                push_active(mk_choice_constraint(get_context(c), b, 4, choices, new_jst));
                 return true;
             }
         } else {
@@ -1534,6 +1544,8 @@ public:
         set_options(opts);
         m_next_id     = 0;
         m_first       = true;
+        m_U           = m_env->get_uvar("U");
+        m_M           = m_env->get_uvar("M");
         // display(std::cout);
     }
 

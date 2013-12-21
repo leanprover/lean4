@@ -207,8 +207,7 @@ Failed to solve
             Bool
             Bool
     Failed to solve
-     ⊢
-    (?M::0 ≈ Type) ⊕ (?M::0 ≈ (Type 1)) ⊕ (?M::0 ≈ (Type 2)) ⊕ (?M::0 ≈ (Type M)) ⊕ (?M::0 ≈ (Type U))
+     ⊢ (?M::0 ≈ Type) ⊕ (?M::0 ≈ (Type 1)) ⊕ (?M::0 ≈ (Type M)) ⊕ (?M::0 ≈ (Type U))
         Destruct/Decompose
          ⊢ Type ≺ ?M::0
             (line: 24: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
@@ -240,24 +239,13 @@ Failed to solve
                  ⊢ ?M::1 ≈ Type
                     Assumption 0
         Failed to solve
-         ⊢ (Type 3) ≺ Type
-            Substitution
-             ⊢ (Type 3) ≺ ?M::1
-                Propagate type, ?M::0 : ?M::1
-                    Assignment
-                     ⊢ ?M::0 ≈ (Type 2)
-                        Assumption 3
-                Assignment
-                 ⊢ ?M::1 ≈ Type
-                    Assumption 0
-        Failed to solve
          ⊢ (Type M+1) ≺ Type
             Substitution
              ⊢ (Type M+1) ≺ ?M::1
                 Propagate type, ?M::0 : ?M::1
                     Assignment
                      ⊢ ?M::0 ≈ (Type M)
-                        Assumption 4
+                        Assumption 3
                 Assignment
                  ⊢ ?M::1 ≈ Type
                     Assumption 0
@@ -268,13 +256,12 @@ Failed to solve
                 Propagate type, ?M::0 : ?M::1
                     Assignment
                      ⊢ ?M::0 ≈ (Type U)
-                        Assumption 5
+                        Assumption 4
                 Assignment
                  ⊢ ?M::1 ≈ Type
                     Assumption 0
     Failed to solve
-     ⊢
-    (?M::0 ≈ Type) ⊕ (?M::0 ≈ (Type 1)) ⊕ (?M::0 ≈ (Type 2)) ⊕ (?M::0 ≈ (Type M)) ⊕ (?M::0 ≈ (Type U))
+     ⊢ (?M::0 ≈ Type) ⊕ (?M::0 ≈ (Type 1)) ⊕ (?M::0 ≈ (Type M)) ⊕ (?M::0 ≈ (Type U))
         Destruct/Decompose
          ⊢ Type ≺ ?M::0
             (line: 24: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
@@ -290,10 +277,10 @@ Failed to solve
                 Propagate type, ?M::0 : ?M::1
                     Assignment
                      ⊢ ?M::0 ≈ Type
-                        Assumption 7
+                        Assumption 6
                 Assignment
                  ⊢ ?M::1 ≈ Bool
-                    Assumption 6
+                    Assumption 5
         Failed to solve
          ⊢ (Type 2) ≺ Bool
             Substitution
@@ -301,21 +288,10 @@ Failed to solve
                 Propagate type, ?M::0 : ?M::1
                     Assignment
                      ⊢ ?M::0 ≈ (Type 1)
-                        Assumption 8
+                        Assumption 7
                 Assignment
                  ⊢ ?M::1 ≈ Bool
-                    Assumption 6
-        Failed to solve
-         ⊢ (Type 3) ≺ Bool
-            Substitution
-             ⊢ (Type 3) ≺ ?M::1
-                Propagate type, ?M::0 : ?M::1
-                    Assignment
-                     ⊢ ?M::0 ≈ (Type 2)
-                        Assumption 9
-                Assignment
-                 ⊢ ?M::1 ≈ Bool
-                    Assumption 6
+                    Assumption 5
         Failed to solve
          ⊢ (Type M+1) ≺ Bool
             Substitution
@@ -323,10 +299,10 @@ Failed to solve
                 Propagate type, ?M::0 : ?M::1
                     Assignment
                      ⊢ ?M::0 ≈ (Type M)
-                        Assumption 10
+                        Assumption 8
                 Assignment
                  ⊢ ?M::1 ≈ Bool
-                    Assumption 6
+                    Assumption 5
         Failed to solve
          ⊢ (Type U+1) ≺ Bool
             Substitution
@@ -334,10 +310,10 @@ Failed to solve
                 Propagate type, ?M::0 : ?M::1
                     Assignment
                      ⊢ ?M::0 ≈ (Type U)
-                        Assumption 11
+                        Assumption 9
                 Assignment
                  ⊢ ?M::1 ≈ Bool
-                    Assumption 6
+                    Assumption 5
 Failed to solve
 a : Bool, b : Bool, H : ?M::2, H_a : ?M::6 ⊢ (a ⇒ b) ⇒ a ≺ a
     Substitution

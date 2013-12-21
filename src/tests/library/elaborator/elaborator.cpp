@@ -633,11 +633,12 @@ void tst19() {
 void tst20() {
     std::cout << "\nTST 20\n";
     environment env;
+    import_all(env);
     metavar_env menv;
-    expr N  = Const("N");
-    expr M  = Const("M");
-    env->add_var("N", Type());
-    env->add_var("M", Type());
+    expr N  = Const("N1");
+    expr M  = Const("M1");
+    env->add_var("N1", Type());
+    env->add_var("M1", Type());
     env->add_var("f", N >> (M >> M));
     env->add_var("a", N);
     env->add_var("b", M);

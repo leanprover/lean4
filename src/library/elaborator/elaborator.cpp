@@ -562,7 +562,7 @@ class elaborator::imp {
         if (is_var(a)) {
             auto e = find(ctx, var_idx(a));
             if (e && e->get_body())
-                a = *(e->get_body());
+                a = lift_free_vars(*(e->get_body()), var_idx(a) + 1, m_state.m_menv);
         }
     }
 

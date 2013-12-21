@@ -64,6 +64,25 @@ void expr_cell::dec_ref(optional<expr> & c, buffer<expr_cell*> & todelete) {
         dec_ref(*c, todelete);
 }
 
+optional<bool> expr_cell::is_arrow() const {
+    // it is stored in bits 3-4
+    unsigned r = (m_flags & (8+16)) >> 3;
+    if (r == 0) {
+        return optional<bool>();
+    } else if (r == 1) {
+        return optional<bool>(true);
+    } else {
+        lean_assert(r == 2);
+        return optional<bool>(false);
+    }
+}
+
+void expr_cell::set_is_arrow(bool flag) {
+    unsigned mask = flag ? 8 : 16;
+    m_flags |= mask;
+    lean_assert(is_arrow() && *is_arrow() == flag);
+}
+
 expr_var::expr_var(unsigned idx):
     expr_cell(expr_kind::Var, idx, false),
     m_vidx(idx) {}
@@ -227,7 +246,14 @@ bool operator==(expr const & a, expr const & b) {
 }
 
 bool is_arrow(expr const & t) {
-    return is_pi(t) && !has_free_var(abst_body(t), 0);
+    optional<bool> r = t.raw()->is_arrow();
+    if (r) {
+        return *r;
+    } else {
+        bool res = is_pi(t) && !has_free_var(abst_body(t), 0);
+        t.raw()->set_is_arrow(res);
+        return res;
+    }
 }
 
 bool is_eq(expr const & e, expr & lhs, expr & rhs) {

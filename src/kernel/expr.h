@@ -68,6 +68,11 @@ typedef list<local_entry> local_context;
 class expr_cell {
 protected:
     unsigned short     m_kind;
+    // The bits of the following field mean:
+    //    0    - term is maximally shared
+    //    1    - term is closed
+    //    2    - term contains metavariables
+    //    3-4  - term is an arrow (0 - not initialized, 1 - is arrow, 2 - is not arrow)
     atomic_ushort      m_flags;
     unsigned m_hash;  // hash based on the structure of the expression (this is a good hash for structural equality)
     unsigned m_hash_alloc; // hash based on 'time' of allocation (this is a good hash for pointer-based equality)
@@ -80,6 +85,11 @@ protected:
 
     bool is_closed() const { return (m_flags & 2) != 0; }
     void set_closed() { m_flags |= 2; }
+
+    optional<bool> is_arrow() const;
+    void set_is_arrow(bool flag);
+    friend bool is_arrow(expr const & e);
+
     friend class has_free_var_fn;
     static void dec_ref(expr & c, buffer<expr_cell*> & todelete);
     static void dec_ref(optional<expr> & c, buffer<expr_cell*> & todelete);

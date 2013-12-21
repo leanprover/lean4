@@ -1709,8 +1709,8 @@ class parser::imp {
         }
         switch (st) {
         case status::Done:  return *pr;
-        case status::Eof:   throw parser_error("invalid tactic command, unexpected end of file", pos());
-        case status::Abort: throw parser_error("failed to prove theorem, proof has been aborted", pos());
+        case status::Eof:   throw tactic_cmd_error("invalid tactic command, unexpected end of file", pos(), s);
+        case status::Abort: throw tactic_cmd_error("failed to prove theorem, proof has been aborted", pos(), s);
         default: lean_unreachable(); // LCOV_EXCL_LINE
         }
     }

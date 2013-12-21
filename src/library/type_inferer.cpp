@@ -43,6 +43,10 @@ class type_inferer::imp {
         return ::lean::lift_free_vars(e, d, m_menv.to_some_menv());
     }
 
+    expr lower_free_vars(expr const & e, unsigned s, unsigned n) {
+        return ::lean::lower_free_vars(e, s, n, m_menv.to_some_menv());
+    }
+
     expr instantiate(expr const & e, unsigned n, expr const * s) {
         return ::lean::instantiate(e, n, s, m_menv.to_some_menv());
     }
@@ -70,16 +74,28 @@ class type_inferer::imp {
         throw type_expected_exception(m_env, ctx, s);
     }
 
+    /**
+       \brief Given \c t (a Pi term), this method returns the body (aka range)
+       of the function space for the element e in the domain of the Pi.
+    */
+    expr get_pi_body(expr const & t, expr const & e) {
+        lean_assert(is_pi(t));
+        if (is_arrow(t))
+            return lower_free_vars(abst_body(t), 1, 1);
+        else
+            return instantiate(abst_body(t), 1, &e);
+    }
+
     expr get_range(expr t, expr const & e, context const & ctx) {
-        unsigned num = num_args(e) - 1;
-        while (num > 0) {
-            --num;
+        unsigned num = num_args(e);
+        for (unsigned i = 1; i < num; i++) {
+            expr const & a = arg(e, i);
             if (is_pi(t)) {
-                t = abst_body(t);
+                t = get_pi_body(t, a);
             } else {
                 t = normalize(t, ctx, false);
                 if (is_pi(t)) {
-                    t = abst_body(t);
+                    t = get_pi_body(t, a);
                 } else if (has_metavar(t) && m_menv && m_uc) {
                     // Create two fresh variables A and B,
                     // and assign r == (Pi(x : A), B)
@@ -88,21 +104,18 @@ class type_inferer::imp {
                     expr p   = mk_pi(g_x_name, A, B);
                     justification jst = mk_function_expected_justification(ctx, e);
                     m_uc->push_back(mk_eq_constraint(ctx, t, p, jst));
-                    t        = abst_body(p);
+                    t        = get_pi_body(p, a);
                 } else {
                     t = normalize(t, ctx, true);
                     if (is_pi(t)) {
-                        t = abst_body(t);
+                        t = get_pi_body(t, a);
                     } else {
                         throw function_expected_exception(m_env, ctx, e);
                     }
                 }
             }
         }
-        if (closed(t))
-            return t;
-        else
-            return instantiate(t, num_args(e)-1, &arg(e, 1));
+        return t;
     }
 
     expr infer_type(expr const & e, context const & ctx) {

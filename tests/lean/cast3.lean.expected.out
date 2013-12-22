@@ -16,7 +16,7 @@ b
   Defined: g
 0
 g (cast H2 f a') : ℕ
-Cast B B' (RanInj H2 (Cast A' A (Symm (DomInj H2)) a')) b
+Cast B B' (RanInj H2 (Cast A' A (DomInj (Symm H2)) a')) b
   Assumed: A1
   Assumed: A2
   Assumed: A3

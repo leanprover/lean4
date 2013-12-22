@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/abstract.h"
 #include "kernel/builtin.h"
+#include "kernel/instantiate.h"
 #include "library/basic_thms.h"
 #include "library/cast/cast.h"
 
@@ -67,22 +68,20 @@ public:
             expr const & T2  = as[2]; // Pi x : A2, B2
             expr const & H   = as[3];
             expr const & f   = as[4];
-            expr const & a_1 = as[5]; // has type A2
+            expr const & a_1 = as[5]; // a_1 : A2
             expr const & A1  = abst_domain(T1);
             expr const & B1  = abst_body(T1);
             expr const & A2  = abst_domain(T2);
             expr const & B2  = abst_body(T2);
             expr B1f         = mk_lambda(abst_name(T1), A1, B1);
             expr B2f         = mk_lambda(abst_name(T2), A2, B2);
-            expr A1_eq_A2    = DomInj(A1, A2, B1f, B2f, H);
-            name t("t");
-            expr A2_eq_A1    = Symm(TypeU, A1, A2, A1_eq_A2);
-            expr a_1p        = Cast(A2, A1, A2_eq_A1, a_1);
-            expr fa_1        = f(a_1p);
+            expr A2_eq_A1    = DomInj(A1, A2, B1f, B2f, Symm(TypeU, T1, T2, H));
+            expr a_1p        = Cast(A2, A1, A2_eq_A1, a_1); // a_1p : A1
+            expr fa_1        = f(a_1p);  // fa_1 : (A1 a_1p)
             // Cast fa_1 back to B2 since the type of cast T1 T2 H f a_1
             // is in B2 a_1p
             expr B1_eq_B2_at_a_1p = RanInj(A1, A2, B1f, B2f, H, a_1p);
-            expr fa_1_B2     = Cast(B1, B2, B1_eq_B2_at_a_1p, fa_1);
+            expr fa_1_B2     = Cast(instantiate(B1, 0, a_1p), instantiate(B2, 0, a_1), B1_eq_B2_at_a_1p, fa_1);
             if (num_as == 6) {
                 return some_expr(fa_1_B2);
             } else {

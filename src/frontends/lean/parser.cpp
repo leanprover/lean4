@@ -1872,7 +1872,7 @@ class parser::imp {
         expr val  = std::get<1>(r);
         metavar_env menv = std::get<2>(r);
         check_no_metavar(type, menv, "invalid definition, type still contains metavariables after elaboration");
-        if (!is_definition && has_metavar(val)) {
+        if (has_metavar(val)) {
             val = apply_tactics(val, menv);
         } else {
             check_no_metavar(val, menv, "invalid definition, value still contains metavariables after elaboration");

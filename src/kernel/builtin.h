@@ -164,13 +164,6 @@ expr mk_subst_fn();
 /** \brief (Axiom) {A : Type u}, {a b : A}, P : A -> Bool, H1 : P a, H2 : a = b |- Subst(A, a, b, P, H1, H2) : P b */
 inline expr Subst(expr const & A, expr const & a, expr const & b, expr const & P, expr const & H1, expr const & H2) { return mk_app({mk_subst_fn(), A, a, b, P, H1, H2}); }
 
-/** \brief Heterogeneous Transitivity axiom */
-expr mk_trans_ext_fn();
-/** \brief (Axiom) {A : Type u}, {B : Type u}, {B : Type u}, {a : A}, {b : B} {c : C}, H1 : a = b, H2 : b = c |- TransExt(A, B, a, b, c, H1, H2) : a = c */
-inline expr TransExt(expr const & A, expr const & B, expr const & C, expr const & a, expr const & b, expr const & c, expr const & H1, expr const & H2) {
-    return mk_app({mk_trans_ext_fn(), A, B, C, a, b, c, H1, H2});
-}
-
 /** \brief Eta conversion axiom */
 expr mk_eta_fn();
 /** \brief (Axiom) {A : Type u}, {B : A -> Type u}, f : (Pi x : A, B x) |- Eta(A, B, f) : ((Fun x : A => f x) = f) */
@@ -185,6 +178,20 @@ inline expr ImpAntisym(expr const & a, expr const & b, expr const & H1, expr con
 expr mk_abst_fn();
 /** \brief (Axiom) {A : Type u} {B : A -> Type u}, f g : {Pi x : A, B x}, H : (Pi x : A, (f x) = (g x)) |- Abst(A, B, f, g, H) : f = g */
 inline expr Abst(expr const & A, expr const & B, expr const & f, expr const & g, expr const & H) { return mk_app({mk_abst_fn(), A, B, f, g, H}); }
+
+/** \brief Heterogeneous symmetry axiom */
+expr mk_hsymm_fn();
+/** \brief (Axiom) {A : Type u}, {B : Type u}, {a : A}, {b : B}, H1 : a = b |- HSymm(A, B, a, b, H1) : b = a */
+inline expr HSymm(expr const & A, expr const & B, expr const & a, expr const & b, expr const & H1) {
+    return mk_app({mk_hsymm_fn(), A, B, a, b, H1});
+}
+
+/** \brief Heterogeneous Transitivity axiom */
+expr mk_htrans_fn();
+/** \brief (Axiom) {A : Type u}, {B : Type u}, {C : Type u}, {a : A}, {b : B} {c : C}, H1 : a = b, H2 : b = c |- TransExt(A, B, a, b, c, H1, H2) : a = c */
+inline expr HTrans(expr const & A, expr const & B, expr const & C, expr const & a, expr const & b, expr const & c, expr const & H1, expr const & H2) {
+    return mk_app({mk_htrans_fn(), A, B, C, a, b, c, H1, H2});
+}
 
 class environment;
 /** \brief Initialize the environment with basic builtin declarations and axioms */

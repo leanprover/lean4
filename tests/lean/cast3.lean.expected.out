@@ -5,23 +5,23 @@
   Assumed: B
   Assumed: B'
   Assumed: x
-x
-x == x
+cast (Refl A) x
+x == cast (Refl A) x
   Assumed: b
   Defined: f
   Assumed: H
   Assumed: a'
-b
+cast H (λ x : A, b) a'
   Assumed: H2
   Defined: g
 0
 g (cast H2 f a') : ℕ
-Cast B B' (RanInj H2 (Cast A' A (DomInj (Symm H2)) a')) b
+cast H2 (λ x : A, b) a'
   Assumed: A1
   Assumed: A2
   Assumed: A3
   Assumed: Ha
   Assumed: Hb
   Assumed: a
-Cast A1 A3 (Trans Hb Ha) a
+cast Hb (cast Ha a)
 cast Hb (cast Ha a) : A3

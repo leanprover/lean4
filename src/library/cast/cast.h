@@ -14,6 +14,21 @@ expr mk_cast_fn();
 inline expr mk_cast(expr const & A, expr const & B, expr const & H, expr const & a) { return mk_app(mk_cast_fn(), A, B, H, a); }
 inline expr Cast(expr const & A, expr const & B, expr const & H, expr const & a) { return mk_cast(A, B, H, a); }
 
+/** \brief Axiom a == (cast A B H a) */
+expr mk_cast_eq_fn();
+inline expr CastEq(expr const & A, expr const & B, expr const & H, expr const & a) { return mk_app({mk_cast_eq_fn(), A, B, H, a}); }
+
+/** \brief Axiom
+    CastApp :
+    Pi (A A': Type u) (B : A -> Type u) (B' : A' -> Type u) (H1 : (Pi x : A, B x) = (Pi x : A', B' x)) (H2 : A = A')
+       (f : Pi x : A, B x) (x : A), Cast(Pi(x : A, B x), Pi(x : A', B' x), H1, f)(Cast(A, A', H2, x)) ==  f(x)
+*/
+expr mk_cast_app_fn();
+inline expr CastApp(expr const & A, expr const & Ap, expr const & B, expr const & Bp, expr const & H1, expr const & H2,
+                    expr const & f, expr const & x) {
+    return mk_app({mk_cast_app_fn(), A, Ap, B, Bp, H1, H2, f, x});
+}
+
 /** \brief Domain Injectivity.
     It has type <tt>Pi (A A': Type u) (B : A -> Type u) (B' : A' -> Type u) (H : (Pi x : A, B x) = (Pi x : A', B' x)), A = A' </tt>
 */

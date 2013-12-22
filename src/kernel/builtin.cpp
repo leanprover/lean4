@@ -196,11 +196,13 @@ MK_CONSTANT(mp_fn,          name("MP"));
 MK_CONSTANT(discharge_fn,   name("Discharge"));
 MK_CONSTANT(case_fn,        name("Case"));
 MK_CONSTANT(refl_fn,        name("Refl"));
-MK_CONSTANT(trans_ext_fn,   name("TransExt"));
 MK_CONSTANT(subst_fn,       name("Subst"));
 MK_CONSTANT(eta_fn,         name("Eta"));
 MK_CONSTANT(imp_antisym_fn, name("ImpAntisym"));
 MK_CONSTANT(abst_fn,        name("Abst"));
+
+MK_CONSTANT(htrans_fn,      name("HTrans"));
+MK_CONSTANT(hsymm_fn,       name("HSymm"));
 
 void import_basic(environment const & env) {
     if (!env->mark_builtin_imported("basic"))
@@ -269,9 +271,6 @@ void import_basic(environment const & env) {
     // Refl : Pi (A : Type u) (a : A), a = a
     env->add_axiom(refl_fn_name, Pi({{A, TypeU}, {a, A}}, Eq(a, a)));
 
-    // TransExt : Pi (A B C: Type u) (a : A) (b : B) (c : C) (H1 : a = b) (H2 : b = c), a = c
-    env->add_axiom(trans_ext_fn_name, Pi({{A, TypeU}, {B, TypeU}, {C, TypeU}, {a, A}, {b, B}, {c, C}, {H1, Eq(a, b)}, {H2, Eq(b, c)}}, Eq(a, c)));
-
     // Subst : Pi (A : Type u) (a b : A) (P : A -> bool) (H1 : P a) (H2 : a = b), P b
     env->add_axiom(subst_fn_name, Pi({{A, TypeU}, {a, A}, {b, A}, {P, A_pred}, {H1, P(a)}, {H2, Eq(a, b)}}, P(b)));
 
@@ -283,5 +282,11 @@ void import_basic(environment const & env) {
 
     // Abst : Pi (A : Type u) (B : A -> Type u), f g : (Pi x : A, B x), H : (Pi x : A, (f x) = (g x)), f = g
     env->add_axiom(abst_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {H, Pi(x, A, Eq(f(x), g(x)))}}, Eq(f, g)));
+
+    // HSymm : Pi (A B : Type u) (a : A) (b : B) (H1 : a = b), b = a
+    env->add_axiom(hsymm_fn_name, Pi({{A, TypeU}, {B, TypeU}, {a, A}, {b, B}, {H1, Eq(a, b)}}, Eq(b, a)));
+
+    // HTrans : Pi (A B C: Type u) (a : A) (b : B) (c : C) (H1 : a = b) (H2 : b = c), a = c
+    env->add_axiom(htrans_fn_name, Pi({{A, TypeU}, {B, TypeU}, {C, TypeU}, {a, A}, {b, B}, {c, C}, {H1, Eq(a, b)}, {H2, Eq(b, c)}}, Eq(a, c)));
 }
 }

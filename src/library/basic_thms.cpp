@@ -253,8 +253,8 @@ void import_basic_thms(environment const & env) {
     // Congr : Pi (A : Type u) (B : A -> Type u) (f g : Pi (x : A) B x) (a b : A) (H1 : f = g) (H2 : a = b), f a = g b
     env->add_theorem(congr_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {a, A}, {b, A}, {H1, Eq(f, g)}, {H2, Eq(a, b)}}, Eq(f(a), g(b))),
                      Fun({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {a, A}, {b, A}, {H1, Eq(f, g)}, {H2, Eq(a, b)}},
-                         TransExt(B(a), B(b), B(b), f(a), f(b), g(b),
-                                  Congr2(A, B, a, b, f, H2), Congr1(A, B, f, g, b, H1))));
+                         HTrans(B(a), B(b), B(b), f(a), f(b), g(b),
+                                Congr2(A, B, a, b, f, H2), Congr1(A, B, f, g, b, H1))));
 
 
     // ForallElim : Pi (A : Type u) (P : A -> bool) (H : (forall A P)) (a : A), P a

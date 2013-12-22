@@ -2,7 +2,6 @@ SetOption pp::colors false
 
 Definition TypeM := (Type M)
 Definition TypeU := (Type U)
-Variable CastEq {A : TypeU} {A' : TypeU} (H : A == A') (x : A) : x == cast H x
 
 Check fun (A A': TypeM)
           (a   : A)
@@ -26,6 +25,6 @@ Check fun (A A': TypeM)
         L2 : A' == A                := Symm L1,
         b' : A                      := cast L2 b,
         L3 : b  == b'               := CastEq L2 b,
-        L4 : a == b'                := TransExt H3 L3,
+        L4 : a == b'                := HTrans H3 L3,
         L5 : f a == f b'            := Congr2 f L4
     in L5

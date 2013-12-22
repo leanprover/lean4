@@ -13,92 +13,11 @@ Author: Leonardo de Moura
 
 namespace lean {
 // Cast builtin operator
-static name   g_cast_name("Cast");
-static format g_cast_fmt(g_cast_name);
-expr mk_Cast_fn();
-class cast_fn_value : public value {
-    expr m_type;
-public:
-    cast_fn_value() {
-        expr A    = Const("A");
-        expr B    = Const("B");
-        // Cast: Pi (A : Type u) (B : Type u) (H : A = B) (a : A), B
-        m_type = Pi({{A, TypeU}, {B, TypeU}}, Eq(A, B) >> (A >> B));
-    }
-    virtual ~cast_fn_value() {}
-    virtual expr get_type() const { return m_type; }
-    virtual name get_name() const { return g_cast_name; }
-    virtual optional<expr> normalize(unsigned num_as, expr const * as) const {
-        if (num_as > 4 && as[1] == as[2]) {
-            // Cast T T H a == a
-            if (num_as == 5)
-                return some_expr(as[4]);
-            else
-                return some_expr(mk_app(num_as - 4, as + 4));
-        } else if (is_app(as[4]) &&
-                   arg(as[4], 0) == mk_Cast_fn() &&
-                   num_args(as[4]) == 5 &&
-                   as[1] == arg(as[4], 2)) {
-            // Cast T1 T2 H1 (Cast T3 T1 H2 a) == Cast T3 T2 (Trans H1 H2) a
-            expr const & nested = as[4];
-            expr const & T1 = as[1];
-            expr const & T2 = as[2];
-            expr const & T3 = arg(nested, 1);
-            expr const & H1 = as[3];
-            expr const & H2 = arg(nested, 3);
-            expr const & a  = arg(nested, 4);
-            expr c = Cast(T3, T2, Trans(TypeU, T3, T1, T2, H1, H2), a);
-            if (num_as == 5) {
-                return some_expr(c);
-            } else {
-                buffer<expr> new_as;
-                new_as.push_back(c);
-                new_as.append(num_as - 5, as + 5);
-                return some_expr(mk_app(new_as));
-            }
-        } else if (num_as > 5 && is_pi(as[1]) && is_pi(as[2])) {
-            // cast T1 T2 H f a_1 ... a_k
-            // Propagate application over cast.
-            // Remark: we check if T1 is a Pi to prevent non-termination
-            // For example, H can be a bogus hypothesis that shows
-            // that A == A -> A
-
-            // Since T1 and T2 are Pi's, we decompose them
-            expr const & T1  = as[1]; // Pi x : A1, B1
-            expr const & T2  = as[2]; // Pi x : A2, B2
-            expr const & H   = as[3];
-            expr const & f   = as[4];
-            expr const & a_1 = as[5]; // a_1 : A2
-            expr const & A1  = abst_domain(T1);
-            expr const & B1  = abst_body(T1);
-            expr const & A2  = abst_domain(T2);
-            expr const & B2  = abst_body(T2);
-            expr B1f         = mk_lambda(abst_name(T1), A1, B1);
-            expr B2f         = mk_lambda(abst_name(T2), A2, B2);
-            expr A2_eq_A1    = DomInj(A1, A2, B1f, B2f, Symm(TypeU, T1, T2, H));
-            expr a_1p        = Cast(A2, A1, A2_eq_A1, a_1); // a_1p : A1
-            expr fa_1        = f(a_1p);  // fa_1 : (A1 a_1p)
-            // Cast fa_1 back to B2 since the type of cast T1 T2 H f a_1
-            // is in B2 a_1p
-            expr B1_eq_B2_at_a_1p = RanInj(A1, A2, B1f, B2f, H, a_1p);
-            expr fa_1_B2     = Cast(instantiate(B1, 0, a_1p), instantiate(B2, 0, a_1), B1_eq_B2_at_a_1p, fa_1);
-            if (num_as == 6) {
-                return some_expr(fa_1_B2);
-            } else {
-                buffer<expr> new_as;
-                new_as.push_back(fa_1_B2);
-                new_as.append(num_as - 6, as + 6);
-                return some_expr(mk_app(new_as));
-            }
-        } else {
-            return none_expr();
-        }
-    }
-};
-MK_BUILTIN(Cast_fn,     cast_fn_value);
-MK_CONSTANT(cast_fn,    name("cast"));
-MK_CONSTANT(dom_inj_fn, name("DomInj"));
-MK_CONSTANT(ran_inj_fn, name("RanInj"));
+MK_CONSTANT(cast_fn,      name("cast"));
+MK_CONSTANT(cast_eq_fn,   name("CastEq"));
+MK_CONSTANT(cast_app_fn,  name("CastApp"));
+MK_CONSTANT(dom_inj_fn,   name("DomInj"));
+MK_CONSTANT(ran_inj_fn,   name("RanInj"));
 
 void import_cast(environment const & env) {
     if (!env->mark_builtin_imported("cast"))
@@ -111,14 +30,13 @@ void import_cast(environment const & env) {
     expr piABx     = Pi({x, A}, B(x));
     expr piApBpx   = Pi({x, Ap}, Bp(x));
     expr H         = Const("H");
+    expr H1        = Const("H1");
+    expr H2        = Const("H2");
     expr a         = Const("a");
     expr b         = Const("b");
+    expr f         = Const("f");
 
-    env->add_builtin(mk_Cast_fn());
-
-    // Alias for Cast operator. We create the alias to be able to mark
-    // implicit arguments.
-    env->add_definition(cast_fn_name, Pi({{A, TypeU}, {B, TypeU}}, Eq(A, B) >> (A >> B)), mk_Cast_fn());
+    env->add_var(cast_fn_name, Pi({{A, TypeU}, {B, TypeU}}, Eq(A, B) >> (A >> B)));
 
     // DomInj : Pi (A A': Type u) (B : A -> Type u) (B' : A' -> Type u) (H : (Pi x : A, B x) = (Pi x : A', B' x)), A = A'
     env->add_axiom(dom_inj_fn_name, Pi({{A, TypeU}, {Ap, TypeU}, {B, A >> TypeU}, {Bp, Ap >> TypeU}, {H, Eq(piABx, piApBpx)}}, Eq(A, Ap)));
@@ -127,5 +45,14 @@ void import_cast(environment const & env) {
     //                     B a = B' (cast A A' (DomInj A A' B B' H) a)
     env->add_axiom(ran_inj_fn_name, Pi({{A, TypeU}, {Ap, TypeU}, {B, A >> TypeU}, {Bp, Ap >> TypeU}, {H, Eq(piABx, piApBpx)}, {a, A}},
                                        Eq(B(a), Bp(Cast(A, Ap, DomInj(A, Ap, B, Bp, H), a)))));
+
+    // CastEq : Pi (A B : Type u) (H : A == B) (x : A), x == (cast A B H x)
+    env->add_axiom(cast_eq_fn_name, Pi({{A, TypeU}, {B, TypeU}, {H, Eq(A, B)}, {x, A}}, Eq(x, Cast(A, B, H, x))));
+
+    // CastApp : Pi (A A': Type u) (B : A -> Type u) (B' : A' -> Type u) (H1 : (Pi x : A, B x) = (Pi x : A', B' x)) (H2 : A = A')
+    //              (f : Pi x : A, B x) (x : A),  Cast(Pi(x : A, B x), Pi(x : A', B' x), H1, f)(Cast(A, A', H2, x)) ==  f(x)
+    env->add_axiom(cast_app_fn_name, Pi({{A, TypeU},
+                    {Ap, TypeU}, {B, A >> TypeU}, {Bp, Ap >> TypeU}, {H1, Eq(piABx, piApBpx)}, {H2, Eq(A, Ap)}, {f, piABx}, {x, A}},
+            Eq(Cast(piABx, piApBpx, H1, f)(Cast(A, Ap, H2, x)), f(x))));
 }
 }

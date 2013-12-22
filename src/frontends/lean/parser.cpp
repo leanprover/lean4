@@ -5,12 +5,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #ifdef LEAN_USE_READLINE
+#include <readline/readline.h>
+#include <readline/history.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <algorithm>
-#include <readline/readline.h>
-#include <readline/history.h>
 #endif
 #include <utility>
 #include <string>

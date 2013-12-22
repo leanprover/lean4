@@ -11,6 +11,7 @@ option(MULTI_THREAD       "MULTI_THREAD"       ON)
 option(BOOST              "BOOST"              OFF)
 option(STATIC             "STATIC"             OFF)
 option(SPLIT_STACK        "SPLIT_STACK"        OFF)
+option(READLINE           "READLINE"           OFF)
 
 # Added for CTest
 INCLUDE(CTest)
@@ -124,7 +125,6 @@ else()
 endif()
 
 # Readline
-option(READLINE "READLINE" OFF)
 if("${READLINE}" MATCHES "ON")
   find_package(Readline)
   set(EXTRA_LIBS ${EXTRA_LIBS} ${READLINE_LIBRARY})

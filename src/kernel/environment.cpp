@@ -284,7 +284,7 @@ void environment_cell::check_no_cached_type(expr const & e) {
 */
 void environment_cell::check_type(name const & n, expr const & t, expr const & v) {
     m_type_checker->check_type(t);
-    expr v_t = m_type_checker->infer_type(v);
+    expr v_t = m_type_checker->check(v);
     if (!m_type_checker->is_convertible(v_t, t))
         throw def_type_mismatch_exception(env(), n, t, v, v_t);
 }
@@ -333,7 +333,7 @@ void environment_cell::add_definition(name const & n, expr const & t, expr const
 void environment_cell::add_definition(name const & n, expr const & v, bool opaque) {
     check_no_cached_type(v);
     check_name(n);
-    expr v_t = m_type_checker->infer_type(v);
+    expr v_t = m_type_checker->check(v);
     unsigned w = get_max_weight(v) + 1;
     register_named_object(mk_definition(n, v_t, v, opaque, w));
 }
@@ -391,6 +391,10 @@ object const & environment_cell::get_object(unsigned i, bool local) const {
         else
             return m_parent->get_object(i, false);
     }
+}
+
+expr environment_cell::type_check(expr const & e, context const & ctx) const {
+    return m_type_checker->check(e, ctx);
 }
 
 expr environment_cell::infer_type(expr const & e, context const & ctx) const {

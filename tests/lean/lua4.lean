@@ -5,7 +5,7 @@ Variable x : Int
 -- The type of the new variable is equal to the type
 -- of x
 local env = get_environment()
-typeofx = env:check_type(Const("x"))
+typeofx = env:type_check(Const("x"))
 print("type of x is " .. tostring(typeofx))
 env:add_var("y", typeofx)
 **)

@@ -18,10 +18,10 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/occurs.h"
 #include "kernel/builtin.h"
+#include "kernel/type_checker.h"
 #include "library/expr_lt.h"
 #include "library/kernel_bindings.h"
 #include "library/io_state.h"
-#include "library/type_inferer.h"
 
 // Lua Bindings for the Kernel classes. We do not include the Lua
 // bindings in the kernel because we do not want to inflate the Kernel.
@@ -1045,13 +1045,13 @@ static int environment_has_object(lua_State * L) {
     return 1;
 }
 
-static int environment_check_type(lua_State * L) {
+static int environment_type_check(lua_State * L) {
     ro_shared_environment env(L, 1);
     int nargs = lua_gettop(L);
     if (nargs == 2)
-        return push_expr(L, env->infer_type(to_expr(L, 2)));
+        return push_expr(L, env->type_check(to_expr(L, 2)));
     else
-        return push_expr(L, env->infer_type(to_expr(L, 2), to_context(L, 3)));
+        return push_expr(L, env->type_check(to_expr(L, 2), to_context(L, 3)));
 }
 
 static int environment_normalize(lua_State * L) {
@@ -1104,11 +1104,11 @@ static int environment_local_objects(lua_State * L) {
 
 static int environment_infer_type(lua_State * L) {
     int nargs = lua_gettop(L);
-    type_inferer inferer(to_environment(L, 1));
+    ro_shared_environment env(L, 1);
     if (nargs == 2)
-        return push_expr(L, inferer(to_expr(L, 2)));
+        return push_expr(L, env->infer_type(to_expr(L, 2)));
     else
-        return push_expr(L, inferer(to_expr(L, 2), to_context(L, 3)));
+        return push_expr(L, env->infer_type(to_expr(L, 2), to_context(L, 3)));
 }
 
 static int environment_tostring(lua_State * L) {
@@ -1150,7 +1150,7 @@ static const struct luaL_Reg environment_m[] = {
     {"add_axiom",      safe_function<environment_add_axiom>},
     {"find_object",    safe_function<environment_find_object>},
     {"has_object",     safe_function<environment_has_object>},
-    {"check_type",     safe_function<environment_check_type>},
+    {"type_check",     safe_function<environment_type_check>},
     {"infer_type",     safe_function<environment_infer_type>},
     {"normalize",      safe_function<environment_normalize>},
     {"objects",        safe_function<environment_objects>},
@@ -1626,6 +1626,50 @@ static void open_metavar_env(lua_State * L) {
     SET_GLOBAL_FUN(instantiate_metavars, "instantiate_metavars");
 }
 
+constexpr char const * type_inferer_mt = "type_inferer";
+type_inferer & to_type_inferer(lua_State * L, int i) { return *static_cast<type_inferer*>(luaL_checkudata(L, i, type_inferer_mt)); }
+DECL_PRED(type_inferer)
+DECL_GC(type_inferer)
+
+static int type_inferer_call(lua_State * L) {
+    int nargs = lua_gettop(L);
+    type_inferer & inferer = to_type_inferer(L, 1);
+    if (nargs == 2)
+        return push_expr(L, inferer(to_expr(L, 2)));
+    else
+        return push_expr(L, inferer(to_expr(L, 2), to_context(L, 3)));
+}
+
+static int type_inferer_clear(lua_State * L) {
+    to_type_inferer(L, 1).clear();
+    return 0;
+}
+
+static int mk_type_inferer(lua_State * L) {
+    void * mem = lua_newuserdata(L, sizeof(type_inferer));
+    new (mem) type_inferer(to_environment(L, 1));
+    luaL_getmetatable(L, type_inferer_mt);
+    lua_setmetatable(L, -2);
+    return 1;
+}
+
+static const struct luaL_Reg type_inferer_m[] = {
+    {"__gc",            type_inferer_gc}, // never throws
+    {"__call",          safe_function<type_inferer_call>},
+    {"clear",           safe_function<type_inferer_clear>},
+    {0, 0}
+};
+
+void open_type_inferer(lua_State * L) {
+    luaL_newmetatable(L, type_inferer_mt);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    setfuncs(L, type_inferer_m, 0);
+
+    SET_GLOBAL_FUN(mk_type_inferer,          "type_inferer");
+    SET_GLOBAL_FUN(type_inferer_pred,        "is_type_inferer");
+}
+
 void open_kernel_module(lua_State * L) {
     open_level(L);
     open_local_context(L);
@@ -1636,5 +1680,6 @@ void open_kernel_module(lua_State * L) {
     open_object(L);
     open_justification(L);
     open_metavar_env(L);
+    open_type_inferer(L);
 }
 }

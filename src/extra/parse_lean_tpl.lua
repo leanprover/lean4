@@ -11,13 +11,12 @@ function parse_lean_tpl(str, args, env, opts, fmt)
    else
       -- Create the string "fun (a::1 : type-of-args[1]) ... (a::n : type-of-args[n]), $str",
       -- where n is the size of args
-      local inferer = type_inferer(env)
       local tbl = {"fun"}
       for i = 1, #args do
          table.insert(tbl, " (a::")
          table.insert(tbl, i)
          table.insert(tbl, " : ")
-         table.insert(tbl, tostring(inferer(args[i])))
+         table.insert(tbl, tostring(env:infer_type(args[i])))
          table.insert(tbl, ")")
       end
       table.insert(tbl, ", ")

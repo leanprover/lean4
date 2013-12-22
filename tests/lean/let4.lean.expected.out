@@ -6,42 +6,18 @@ let b := ⊤, a : ℤ := b in a
 let a := 10, v1 := const a ⊤, v2 := v1 in v2 : vector Bool 10
 let a := 10, v1 : vector Bool a := const a ⊤, v2 : vector Bool a := v1 in v2
 let a := 10, v1 : vector Bool a := const a ⊤, v2 : vector Bool a := v1 in v2 : vector Bool 10
-Failed to solve
-a : ℕ := 10, v1 : vector ?M::0 a := const a ⊤ ⊢ Bool ≈ ℤ
-    Substitution
-    a : ℕ := 10, v1 : vector ?M::0 a := const a ⊤ ⊢ ?M::0[lift:0:1] ≈ ℤ
-        Destruct/Decompose
-        a : ℕ := 10, v1 : vector ?M::0 a := const a ⊤ ⊢ vector (?M::0[lift:0:1]) a ≺ vector ℤ a
-            (line: 31: pos: 26) Type of definition 'v2' must be convertible to expected type.
-        Assignment
-        a : ℕ := 10 ⊢ ?M::0 ≈ Bool
-            Destruct/Decompose
-            a : ℕ := 10 ⊢ vector ?M::0 a ≺ vector Bool a
-                (line: 30: pos: 26) Type of definition 'v1' must be convertible to expected type.
+Error (line: 31, pos: 26) type mismatch at definition 'v2', expected type
+    vector ℤ a
+Given type:
+    vector Bool a
   Assumed: foo
   Coercion foo
-Failed to solve
-a : ℕ := 10, v1 : vector ?M::0 a := const a ⊤ ⊢ Bool ≈ ℤ
-    Substitution
-    a : ℕ := 10, v1 : vector ?M::0 a := const a ⊤ ⊢ ?M::0[lift:0:1] ≈ ℤ
-        Destruct/Decompose
-        a : ℕ := 10, v1 : vector ?M::0 a := const a ⊤ ⊢ vector (?M::0[lift:0:1]) a ≺ vector ℤ a
-            (line: 40: pos: 26) Type of definition 'v2' must be convertible to expected type.
-        Assignment
-        a : ℕ := 10 ⊢ ?M::0 ≈ Bool
-            Destruct/Decompose
-            a : ℕ := 10 ⊢ vector ?M::0 a ≺ vector Bool a
-                (line: 39: pos: 26) Type of definition 'v1' must be convertible to expected type.
+Error (line: 40, pos: 26) type mismatch at definition 'v2', expected type
+    vector ℤ a
+Given type:
+    vector Bool a
   Set: lean::pp::coercion
-Failed to solve
-a : ℕ := 10, v1 : vector ?M::0 a := const a ⊤ ⊢ Bool ≈ ℤ
-    Substitution
-    a : ℕ := 10, v1 : vector ?M::0 a := const a ⊤ ⊢ ?M::0[lift:0:1] ≈ ℤ
-        Destruct/Decompose
-        a : ℕ := 10, v1 : vector ?M::0 a := const a ⊤ ⊢ vector (?M::0[lift:0:1]) a ≺ vector ℤ a
-            (line: 48: pos: 26) Type of definition 'v2' must be convertible to expected type.
-        Assignment
-        a : ℕ := 10 ⊢ ?M::0 ≈ Bool
-            Destruct/Decompose
-            a : ℕ := 10 ⊢ vector ?M::0 a ≺ vector Bool a
-                (line: 47: pos: 26) Type of definition 'v1' must be convertible to expected type.
+Error (line: 48, pos: 26) type mismatch at definition 'v2', expected type
+    vector ℤ a
+Given type:
+    vector Bool a

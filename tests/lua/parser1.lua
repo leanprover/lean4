@@ -9,4 +9,4 @@ print(parse_lean("f x (f x y)", env, opts))
 -- parse_lean will use the elaborator to fill missing information
 local F = parse_lean("fun x, f x x", env, opts)
 print(F)
-print(env:check_type(F))
+print(env:type_check(F))

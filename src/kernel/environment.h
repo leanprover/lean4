@@ -199,6 +199,11 @@ public:
     bool has_object(name const & n) const { return static_cast<bool>(find_object(n)); }
 
     /**
+       \brief Type check the given expression, and return the type of \c e in the given context and this environment.
+    */
+    expr type_check(expr const & e, context const & ctx = context()) const;
+
+    /**
        \brief Return the type of \c e in the given context and this environment.
     */
     expr infer_type(expr const & e, context const & ctx = context()) const;

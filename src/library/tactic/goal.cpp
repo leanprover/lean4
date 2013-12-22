@@ -12,8 +12,8 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
 #include "kernel/abstract.h"
+#include "kernel/type_checker.h"
 #include "library/kernel_bindings.h"
-#include "library/type_inferer.h"
 #include "library/tactic/goal.h"
 
 namespace lean {

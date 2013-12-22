@@ -6,7 +6,7 @@ Variables x y z : Int
  local plus = Const{"Int", "add"}
  local x, y = Consts("x y")
  local def  = plus(plus(x, y), iVal(1000))
- print(def, ":", env:check_type(def))
+ print(def, ":", env:type_check(def))
  env:add_definition("sum", def)
 
 **)

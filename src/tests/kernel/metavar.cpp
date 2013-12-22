@@ -494,7 +494,7 @@ static void tst23() {
     buffer<unification_constraint> up;
     std::cout << F1 << "\n";
     try {
-        std::cout << checker.infer_type(F1, context(), menv, up) << "\n";
+        std::cout << checker.check(F1, context(), menv, up) << "\n";
     } catch (kernel_exception & ex) {
         formatter fmt = mk_simple_formatter();
         io_state st(options(), fmt);
@@ -528,7 +528,7 @@ static void tst25() {
     env->add_var("b", N);
     expr m = menv->mk_metavar();
     expr F = m(a, b);
-    std::cout << checker.infer_type(F, context(), menv, up) << "\n";
+    std::cout << checker.check(F, context(), menv, up) << "\n";
     std::cout << menv << "\n";
     std::cout << up << "\n";
 }
@@ -574,7 +574,7 @@ static void tst26() {
     expr A4 = menv->mk_metavar();
     expr F  = cons(A1, m1(a), cons(A2, m2(n), cons(A3, m3(b), nil(A4))));
     std::cout << F << "\n";
-    std::cout << checker.infer_type(F, context(), menv, up) << "\n";
+    std::cout << checker.check(F, context(), menv, up) << "\n";
     std::cout << menv << "\n";
     std::cout << up << "\n";
 }
@@ -608,7 +608,7 @@ static void tst27() {
     expr m2 = menv->mk_metavar(context({{"x", T1}, {"y", T2}}));
     expr F = Fun({{x, T1}, {y, T2}}, f(A1, x, y))(m1(a), m2(b));
     std::cout << F << "\n";
-    std::cout << checker.infer_type(F, context(), menv, up) << "\n";
+    std::cout << checker.check(F, context(), menv, up) << "\n";
     std::cout << menv << "\n";
     std::cout << up << "\n";
 }

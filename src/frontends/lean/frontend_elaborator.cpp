@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "kernel/unification_constraint.h"
 #include "kernel/instantiate.h"
 #include "kernel/builtin.h"
-#include "library/type_inferer.h"
 #include "library/placeholder.h"
 #include "library/elaborator/elaborator.h"
 #include "frontends/lean/frontend.h"
@@ -127,7 +126,6 @@ inline justification mk_overload_justification(context const & ctx, expr const &
 class frontend_elaborator::imp {
     environment                         m_env;
     type_checker                        m_type_checker;
-    type_inferer                        m_type_inferer;
     normalizer                          m_normalizer;
     metavar_env                         m_menv;
     buffer<unification_constraint>      m_ucs;
@@ -168,7 +166,7 @@ class frontend_elaborator::imp {
         */
         optional<expr> get_type(expr const & e, context const & ctx) {
             try {
-                return some_expr(m_ref.m_type_inferer(e, ctx));
+                return some_expr(m_ref.m_type_checker.infer_type(e, ctx));
             } catch (exception &) {
                 return none_expr();
             }
@@ -431,7 +429,6 @@ public:
     imp(environment const & env):
         m_env(env),
         m_type_checker(m_env),
-        m_type_inferer(m_env),
         m_normalizer(m_env) {
     }
 
@@ -441,7 +438,7 @@ public:
         expr new_e = preprocessor(*this)(e);
         // std::cout << "After preprocessing\n" << new_e << "\n";
         if (has_metavar(new_e)) {
-            m_type_checker.infer_type(new_e, context(), m_menv, m_ucs);
+            m_type_checker.check(new_e, context(), m_menv, m_ucs);
             // for (auto c : m_ucs) {
             //     formatter fmt = mk_simple_formatter();
             //     std::cout << c.pp(fmt, options(), nullptr, false) << "\n";
@@ -460,8 +457,8 @@ public:
         expr new_e = preprocessor(*this)(e);
         // std::cout << "After preprocessing\n" << new_t << "\n" << new_e << "\n";
         if (has_metavar(new_e) || has_metavar(new_t)) {
-            m_type_checker.infer_type(new_t, context(), m_menv, m_ucs);
-            expr new_e_t = m_type_checker.infer_type(new_e, context(), m_menv, m_ucs);
+            m_type_checker.check(new_t, context(), m_menv, m_ucs);
+            expr new_e_t = m_type_checker.check(new_e, context(), m_menv, m_ucs);
             m_ucs.push_back(mk_convertible_constraint(context(), new_e_t, new_t,
                                                       mk_def_type_match_justification(context(), n, e)));
             // for (auto c : m_ucs) {
@@ -494,7 +491,6 @@ public:
         m_ucs.clear();
         m_trace.clear();
         m_type_checker.clear();
-        m_type_inferer.clear();
         m_normalizer.clear();
     }
 

@@ -129,7 +129,7 @@ static void tst5() {
     environment env = mk_toplevel();
     env->add_definition("a", Int, iVal(1), true); // add opaque definition
     try {
-        std::cout << infer_type(iAdd(Const("a"), Int), env) << "\n";
+        std::cout << type_check(iAdd(Const("a"), Int), env) << "\n";
         lean_unreachable();
     } catch (exception const & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
@@ -142,25 +142,25 @@ static void tst6() {
     level w = env->add_uvar("w", u + 1);
     env->add_var("f", mk_arrow(Type(u), Type(u)));
     expr t = Const("f")(Int);
-    std::cout << "type of " << t << " is " << infer_type(t, env) << "\n";
+    std::cout << "type of " << t << " is " << type_check(t, env) << "\n";
     try {
-        infer_type(Const("f")(Type(w)), env);
+        type_check(Const("f")(Type(w)), env);
         lean_unreachable();
     } catch (exception const & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
     }
     try {
-        infer_type(Const("f")(Type(u)), env);
+        type_check(Const("f")(Type(u)), env);
         lean_unreachable();
     } catch (exception const & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
     }
     t = Const("f")(Type());
-    std::cout << "type of " << t << " is " << infer_type(t, env) << "\n";
-    std::cout << infer_type(mk_arrow(Type(u), Type(w)), env) << "\n";
-    lean_assert(infer_type(mk_arrow(Type(u), Type(w)), env) == Type(max(u+1, w+1)));
-    std::cout << infer_type(mk_arrow(Int, Int), env) << "\n";
-    lean_assert(infer_type(mk_arrow(Int, Int), env) == Type());
+    std::cout << "type of " << t << " is " << type_check(t, env) << "\n";
+    std::cout << type_check(mk_arrow(Type(u), Type(w)), env) << "\n";
+    lean_assert(type_check(mk_arrow(Type(u), Type(w)), env) == Type(max(u+1, w+1)));
+    std::cout << type_check(mk_arrow(Int, Int), env) << "\n";
+    lean_assert(type_check(mk_arrow(Int, Int), env) == Type());
 }
 
 static void tst7() {
@@ -169,7 +169,7 @@ static void tst7() {
     env->add_var("b", Int);
     expr t = If(Int, True, Const("a"), Const("b"));
     std::cout << t << " --> " << normalize(t, env) << "\n";
-    std::cout << infer_type(t, env) << "\n";
+    std::cout << type_check(t, env) << "\n";
     std::cout << "Environment\n" << env;
 }
 

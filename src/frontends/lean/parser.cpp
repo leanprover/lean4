@@ -37,7 +37,6 @@ Author: Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "kernel/type_checker_justification.h"
 #include "library/expr_lt.h"
-#include "library/type_inferer.h"
 #include "library/arith/arith.h"
 #include "library/io_state.h"
 #include "library/placeholder.h"
@@ -156,7 +155,6 @@ class parser::imp {
     io_state            m_io_state;
     scanner             m_scanner;
     frontend_elaborator m_elaborator;
-    type_inferer        m_type_inferer;
     macros const *      m_macros;
     scanner::token      m_curr;
     bool                m_use_exceptions;
@@ -1379,7 +1377,7 @@ class parser::imp {
             next();
             expr pr      = parse_expr();
             check_rparen_next("invalid apply command, ')' expected");
-            expr pr_type = m_type_inferer(pr);
+            expr pr_type = m_env->infer_type(pr);
             return ::lean::apply_tactic(pr, pr_type);
         } else {
            name n = check_identifier_next("invalid apply command, identifier, '(' expr ')', or 'script-block' expected");
@@ -1589,7 +1587,7 @@ class parser::imp {
                 // Example: apply_tactic.
                 metavar_env menv = s.get_menv().copy();
                 buffer<unification_constraint> ucs;
-                expr pr_type = type_checker(m_env).infer_type(pr, ctx, menv, ucs);
+                expr pr_type = type_checker(m_env).check(pr, ctx, menv, ucs);
                 ucs.push_back(mk_convertible_constraint(ctx, pr_type, expected_type, mk_type_match_justification(ctx, expected_type, pr)));
                 elaborator elb(m_env, menv, ucs.size(), ucs.data(), m_io_state.get_options());
                 metavar_env new_menv = elb.next();
@@ -1808,7 +1806,7 @@ class parser::imp {
             if (has_metavar(mvar_type))
                 throw metavar_not_synthesized_exception(mvar_ctx, mvar, mvar_type,
                                                         "failed to synthesize metavar, its type contains metavariables");
-            if (!m_type_inferer.is_proposition(mvar_type, mvar_ctx))
+            if (!is_proposition(mvar_type, m_env, mvar_ctx))
                 throw metavar_not_synthesized_exception(mvar_ctx, mvar, mvar_type, "failed to synthesize metavar, its type is not a proposition");
             proof_state s = to_proof_state(m_env, mvar_ctx, mvar_type);
             std::pair<optional<tactic>, pos_info> hint_and_pos = get_tactic_for(mvar);
@@ -2051,7 +2049,7 @@ class parser::imp {
         auto p = m_elaborator(parse_expr());
         check_no_metavar(p, "invalid expression, it still contains metavariables after elaboration");
         expr v = p.first;
-        expr t = infer_type(v, m_env);
+        expr t = type_check(v, m_env);
         formatter fmt = m_io_state.get_formatter();
         options opts  = m_io_state.get_options();
         unsigned indent = get_pp_indent(opts);
@@ -2308,7 +2306,6 @@ class parser::imp {
     void reset_env(environment env) {
         m_env = env;
         m_elaborator.reset(env);
-        m_type_inferer.reset(env);
         m_io_state.set_formatter(mk_pp_formatter(env));
     }
 
@@ -2427,7 +2424,6 @@ public:
         m_io_state(st),
         m_scanner(in),
         m_elaborator(env),
-        m_type_inferer(env),
         m_use_exceptions(use_exceptions),
         m_interactive(interactive) {
         m_script_state = S;

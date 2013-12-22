@@ -1,6 +1,3 @@
-add_executable(type_inferer type_inferer.cpp)
-target_link_libraries(type_inferer ${EXTRA_LIBS})
-add_test(type_inferer ${CMAKE_CURRENT_BINARY_DIR}/type_inferer)
 add_executable(formatter formatter.cpp)
 target_link_libraries(formatter ${EXTRA_LIBS})
 add_test(formatter ${CMAKE_CURRENT_BINARY_DIR}/formatter)

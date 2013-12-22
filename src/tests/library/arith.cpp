@@ -51,7 +51,7 @@ static void tst1() {
     import_all(env);
     expr e = mk_int_value(mpz(10));
     lean_assert(is_int_value(e));
-    lean_assert(infer_type(e, env) == Int);
+    lean_assert(type_check(e, env) == Int);
     std::cout << "e: " << e << "\n";
 }
 
@@ -62,13 +62,13 @@ static void tst2() {
     std::cout << e << "\n";
     std::cout << normalize(e, env) << "\n";
     lean_assert(normalize(e, env) == iVal(40));
-    std::cout << infer_type(mk_int_add_fn(), env) << "\n";
-    lean_assert(infer_type(e, env) == Int);
-    lean_assert(infer_type(mk_app(mk_int_add_fn(), iVal(10)), env) == (Int >> Int));
+    std::cout << type_check(mk_int_add_fn(), env) << "\n";
+    lean_assert(type_check(e, env) == Int);
+    lean_assert(type_check(mk_app(mk_int_add_fn(), iVal(10)), env) == (Int >> Int));
     lean_assert(is_int_value(normalize(e, env)));
     expr e2 = Fun("a", Int, iAdd(Const("a"), iAdd(iVal(10), iVal(30))));
     std::cout << e2 << " --> " << normalize(e2, env) << "\n";
-    lean_assert(infer_type(e2, env) == mk_arrow(Int, Int));
+    lean_assert(type_check(e2, env) == mk_arrow(Int, Int));
     lean_assert(normalize(e2, env) == Fun("a", Int, iAdd(Const("a"), iVal(40))));
 }
 
@@ -79,13 +79,13 @@ static void tst3() {
     std::cout << e << "\n";
     std::cout << normalize(e, env) << "\n";
     lean_assert(normalize(e, env) == iVal(300));
-    std::cout << infer_type(mk_int_mul_fn(), env) << "\n";
-    lean_assert(infer_type(e, env) == Int);
-    lean_assert(infer_type(mk_app(mk_int_mul_fn(), iVal(10)), env) == mk_arrow(Int, Int));
+    std::cout << type_check(mk_int_mul_fn(), env) << "\n";
+    lean_assert(type_check(e, env) == Int);
+    lean_assert(type_check(mk_app(mk_int_mul_fn(), iVal(10)), env) == mk_arrow(Int, Int));
     lean_assert(is_int_value(normalize(e, env)));
     expr e2 = Fun("a", Int, iMul(Const("a"), iMul(iVal(10), iVal(30))));
     std::cout << e2 << " --> " << normalize(e2, env) << "\n";
-    lean_assert(infer_type(e2, env) == (Int >> Int));
+    lean_assert(type_check(e2, env) == (Int >> Int));
     lean_assert(normalize(e2, env) == Fun("a", Int, iMul(Const("a"), iVal(300))));
 }
 
@@ -96,13 +96,13 @@ static void tst4() {
     std::cout << e << "\n";
     std::cout << normalize(e, env) << "\n";
     lean_assert(normalize(e, env, context(), true) == iVal(-20));
-    std::cout << infer_type(mk_int_sub_fn(), env) << "\n";
-    lean_assert(infer_type(e, env) == Int);
-    lean_assert(infer_type(mk_app(mk_int_sub_fn(), iVal(10)), env) == mk_arrow(Int, Int));
+    std::cout << type_check(mk_int_sub_fn(), env) << "\n";
+    lean_assert(type_check(e, env) == Int);
+    lean_assert(type_check(mk_app(mk_int_sub_fn(), iVal(10)), env) == mk_arrow(Int, Int));
     lean_assert(is_int_value(normalize(e, env, context(), true)));
     expr e2 = Fun("a", Int, iSub(Const("a"), iSub(iVal(10), iVal(30))));
     std::cout << e2 << " --> " << normalize(e2, env) << "\n";
-    lean_assert(infer_type(e2, env) == (Int >> Int));
+    lean_assert(type_check(e2, env) == (Int >> Int));
     lean_assert_eq(normalize(e2, env, context(), true), Fun("a", Int, iAdd(Const("a"), iVal(20))));
 }
 

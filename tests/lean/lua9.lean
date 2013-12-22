@@ -5,12 +5,12 @@ Variable x : Bool
  local Int    = Const("Int")
  local plus   = Const{"Int", "add"}
  local x1, x2 = Consts("x1, x2")
- print(env:check_type(Int))
- print(env:check_type(plus))
+ print(env:type_check(Int))
+ print(env:type_check(plus))
  env:add_var("x1", Int)
  env:add_var("x2", Int)
  print(plus(x1, x2))
- print(env:check_type(plus(x1)))
+ print(env:type_check(plus(x1)))
 
  function sum(...)
     local args = {...}
@@ -27,7 +27,7 @@ Variable x : Bool
 
  local s = sum(x1, x1, x1, x2, x2)
  print(s)
- print(env:check_type(s))
+ print(env:type_check(s))
  env:add_definition("sum1", s)
 **)
 

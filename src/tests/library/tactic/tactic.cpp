@@ -140,7 +140,7 @@ static void tst2() {
     // Print proof
     std::cout << pr << "\n";
     // Check whether the proof is correct or not.
-    std::cout << env->infer_type(pr) << "\n";
+    std::cout << env->type_check(pr) << "\n";
 }
 
 int main() {

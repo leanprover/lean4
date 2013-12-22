@@ -6,8 +6,8 @@ parse_lean_cmds([[
    SetOption pp::colors false
 ]], env)
 local f, x, y = Consts("f, x, y")
-print(env:check_type(f(x, y)))
-assert(env:check_type(f(x, y)) == Const("N"))
+print(env:type_check(f(x, y)))
+assert(env:type_check(f(x, y)) == Const("N"))
 assert(not get_options():get{"pp", "colors"})
 parse_lean_cmds([[
    SetOption pp::colors true

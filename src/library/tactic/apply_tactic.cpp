@@ -8,9 +8,9 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include "kernel/environment.h"
 #include "kernel/instantiate.h"
+#include "kernel/type_checker.h"
 #include "library/fo_unify.h"
 #include "library/kernel_bindings.h"
-#include "library/type_inferer.h"
 #include "library/tactic/goal.h"
 #include "library/tactic/proof_builder.h"
 #include "library/tactic/proof_state.h"
@@ -49,7 +49,7 @@ static optional<proof_state> apply_tactic(ro_environment const & env, proof_stat
     // We may solve more than one goal.
     // We store the solved goals using a list of pairs
     // name, args. Where the 'name' is the name of the solved goal.
-    type_inferer inferer(env);
+    type_checker checker(env);
     list<std::pair<name, arg_list>> proof_info;
     for (auto const & p : s.get_goals()) {
         check_interrupted();
@@ -69,7 +69,7 @@ static optional<proof_state> apply_tactic(ro_environment const & env, proof_stat
                         l = cons(mk_pair(some_expr(mvar_sol), name()), l);
                         th_type_c = instantiate(abst_body(th_type_c), mvar_sol, new_menv);
                     } else {
-                        if (inferer.is_proposition(abst_domain(th_type_c), context(), new_menv)) {
+                        if (checker.is_proposition(abst_domain(th_type_c), context(), new_menv)) {
                             name new_gname(gname, new_goal_idx);
                             new_goal_idx++;
                             l = cons(mk_pair(none_expr(), new_gname), l);

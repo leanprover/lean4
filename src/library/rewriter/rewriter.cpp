@@ -13,10 +13,10 @@
 #include "kernel/expr.h"
 #include "kernel/printer.h"
 #include "kernel/replace_fn.h"
+#include "kernel/type_checker.h"
 #include "library/basic_thms.h"
 #include "library/rewriter/fo_match.h"
 #include "library/rewriter/rewriter.h"
-#include "library/type_inferer.h"
 #include "util/buffer.h"
 #include "util/trace.h"
 

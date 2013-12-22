@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "util/trace.h"
 #include "util/exception.h"
 #include "util/interrupt.h"
+#include "util/timeit.h"
 #include "kernel/type_checker.h"
 #include "kernel/environment.h"
 #include "kernel/abstract.h"
@@ -30,29 +31,29 @@ expr c(char const * n) { return mk_constant(n); }
 static void tst1() {
     environment env;
     expr t0 = Type();
-    std::cout << infer_type(t0, env) << "\n";
-    lean_assert(infer_type(t0, env) == Type(level()+1));
+    std::cout << type_check(t0, env) << "\n";
+    lean_assert(type_check(t0, env) == Type(level()+1));
     expr f = mk_pi("_", t0, t0);
-    std::cout << infer_type(f, env) << "\n";
-    lean_assert(infer_type(f, env) == Type(level()+1));
+    std::cout << type_check(f, env) << "\n";
+    lean_assert(type_check(f, env) == Type(level()+1));
     level u = env->add_uvar("u", level() + 1);
     level v = env->add_uvar("v", level() + 1);
     expr g = mk_pi("_", Type(u), Type(v));
-    std::cout << infer_type(g, env) << "\n";
-    lean_assert(infer_type(g, env) == Type(max(u+1, v+1)));
-    std::cout << infer_type(Type(u), env) << "\n";
-    lean_assert(infer_type(Type(u), env) == Type(u+1));
-    std::cout << infer_type(mk_lambda("x", Type(u), Var(0)), env) << "\n";
-    lean_assert(infer_type(mk_lambda("x", Type(u), Var(0)), env) == mk_pi("_", Type(u), Type(u)));
-    std::cout << infer_type(mk_lambda("Nat", Type(), mk_lambda("n", Var(0), Var(0))), env) << "\n";
+    std::cout << type_check(g, env) << "\n";
+    lean_assert(type_check(g, env) == Type(max(u+1, v+1)));
+    std::cout << type_check(Type(u), env) << "\n";
+    lean_assert(type_check(Type(u), env) == Type(u+1));
+    std::cout << type_check(mk_lambda("x", Type(u), Var(0)), env) << "\n";
+    lean_assert(type_check(mk_lambda("x", Type(u), Var(0)), env) == mk_pi("_", Type(u), Type(u)));
+    std::cout << type_check(mk_lambda("Nat", Type(), mk_lambda("n", Var(0), Var(0))), env) << "\n";
     expr nat = c("nat");
     expr T = Fun("nat", Type(),
              Fun("+", mk_arrow(nat, mk_arrow(nat, nat)),
              Fun("m", nat, mk_app({c("+"), c("m"), c("m")}))));
     std::cout << T << "\n";
-    std::cout << infer_type(T, env) << "\n";
+    std::cout << type_check(T, env) << "\n";
     std::cout << Pi("nat", Type(), mk_arrow(mk_arrow(nat, mk_arrow(nat, nat)), mk_arrow(nat, nat))) << "\n";
-    lean_assert(infer_type(T, env) == Pi("nat", Type(), mk_arrow(mk_arrow(nat, mk_arrow(nat, nat)), mk_arrow(nat, nat))));
+    lean_assert(type_check(T, env) == Pi("nat", Type(), mk_arrow(mk_arrow(nat, mk_arrow(nat, nat)), mk_arrow(nat, nat))));
 }
 
 static void tst2() {
@@ -69,7 +70,7 @@ static void tst2() {
             Fun("v", mk_app({c("Vec"), c("n")}),
                 mk_app({c("len"), c("v")}))))));
         std::cout << F << "\n";
-        std::cout << infer_type(F, env) << "\n";
+        std::cout << type_check(F, env) << "\n";
     }
     catch (exception & ex) {
         std::cout << "Error: " << ex.what() << "\n";
@@ -79,17 +80,17 @@ static void tst2() {
 static void tst3() {
     environment env = mk_toplevel();
     expr f = Fun("a", Bool, Eq(Const("a"), True));
-    std::cout << infer_type(f, env) << "\n";
-    lean_assert(infer_type(f, env) == mk_arrow(Bool, Bool));
+    std::cout << type_check(f, env) << "\n";
+    lean_assert(type_check(f, env) == mk_arrow(Bool, Bool));
     expr t = mk_let("a", none_expr(), True, Var(0));
-    std::cout << infer_type(t, env) << "\n";
+    std::cout << type_check(t, env) << "\n";
 }
 
 static void tst4() {
     environment env = mk_toplevel();
     expr a = Eq(iVal(1), iVal(2));
     expr pr   = mk_lambda("x", a, Var(0));
-    std::cout << infer_type(pr, env) << "\n";
+    std::cout << type_check(pr, env) << "\n";
 }
 
 static void tst5() {
@@ -105,7 +106,7 @@ static void tst5() {
         prop = And(P, prop);
     }
     expr impPr = Discharge(P, prop, Fun({H, P}, pr));
-    expr prop2 = infer_type(impPr, env);
+    expr prop2 = type_check(impPr, env);
     lean_assert(Implies(P, prop) == prop2);
 }
 
@@ -116,7 +117,7 @@ static void tst6() {
     expr x = Const("x");
     expr t = Fun({A, Type()}, Fun({f, mk_arrow(Int, A)}, Fun({x, Int}, f(x, x))));
     try {
-        infer_type(t, env);
+        type_check(t, env);
         lean_unreachable();
     } catch (exception & ex) {
         std::cout << "Error: " << ex.what() << "\n";
@@ -130,7 +131,7 @@ static void tst7() {
     expr x = Const("x");
     expr t = Fun({A, Type()}, Fun({f, mk_arrow(Int, mk_arrow(A, mk_arrow(A, mk_arrow(A, mk_arrow(A, mk_arrow(A, A))))))}, Fun({x, Int}, f(x, x))));
     try {
-        infer_type(t, env);
+        type_check(t, env);
         lean_unreachable();
     } catch (exception & ex) {
         std::cout << "Error: " << ex.what() << "\n";
@@ -149,7 +150,7 @@ static void tst8() {
     c = extend(c, "x", Bool);
     expr t = P(Const("x"), Var(0));
     try {
-        infer_type(t, env, c);
+        type_check(t, env, c);
         lean_unreachable();
     } catch (exception & ex) {
         std::cout << "Error: " << ex.what() << "\n";
@@ -168,7 +169,7 @@ static void tst9() {
     c = extend(c, "x", Bool);
     expr t = P(Const("x"), Var(0));
     try {
-        infer_type(t, env, c);
+        type_check(t, env, c);
         lean_unreachable();
     } catch (exception & ex) {
         std::cout << "Error: " << ex.what() << "\n";
@@ -229,7 +230,7 @@ static void tst12() {
     chrono::milliseconds dura(100);
     interruptible_thread thread([&]() {
             try {
-                std::cout << checker.infer_type(t) << "\n";
+                std::cout << checker.check(t) << "\n";
                 // Remark: if the following code is reached, we
                 // should decrease dura.
                 lean_unreachable();
@@ -247,8 +248,8 @@ static void tst13() {
     environment env = mk_toplevel();
     env->add_var("f", Type() >> Type());
     expr f = Const("f");
-    std::cout << infer_type(f(Bool), env) << "\n";
-    std::cout << infer_type(f(Eq(True, False)), env) << "\n";
+    std::cout << type_check(f(Bool), env) << "\n";
+    std::cout << type_check(f(Eq(True, False)), env) << "\n";
 }
 
 static void tst14() {
@@ -263,7 +264,7 @@ static void tst14() {
     formatter fmt = mk_simple_formatter();
     io_state st(options(), fmt);
     try {
-        std::cout << checker.infer_type(F) << "\n";
+        std::cout << checker.check(F) << "\n";
     } catch (kernel_exception & ex) {
         regular(st) << ex << "\n";
     }
@@ -285,16 +286,16 @@ static void tst15() {
     expr F = Var(0)(Var(1));
     expr F_copy = F;
     type_checker checker(env);
-    std::cout << checker.infer_type(F, ctx1) << "\n";
-    lean_assert_eq(checker.infer_type(F, ctx1), vec1(Var(1), Int));
-    lean_assert_eq(checker.infer_type(F, ctx2), vec2(Var(1), Real));
-    lean_assert(is_eqp(checker.infer_type(F, ctx2), checker.infer_type(F, ctx2)));
-    lean_assert(is_eqp(checker.infer_type(F, ctx1), checker.infer_type(F, ctx1)));
-    expr r = checker.infer_type(F, ctx1);
+    std::cout << checker.check(F, ctx1) << "\n";
+    lean_assert_eq(checker.check(F, ctx1), vec1(Var(1), Int));
+    lean_assert_eq(checker.check(F, ctx2), vec2(Var(1), Real));
+    lean_assert(is_eqp(checker.check(F, ctx2), checker.check(F, ctx2)));
+    lean_assert(is_eqp(checker.check(F, ctx1), checker.check(F, ctx1)));
+    expr r = checker.check(F, ctx1);
     checker.clear();
-    lean_assert(!is_eqp(r, checker.infer_type(F, ctx1)));
-    r = checker.infer_type(F, ctx1);
-    lean_assert(is_eqp(r, checker.infer_type(F, ctx1)));
+    lean_assert(!is_eqp(r, checker.check(F, ctx1)));
+    r = checker.check(F, ctx1);
+    lean_assert(is_eqp(r, checker.check(F, ctx1)));
 }
 
 static void check_justification_msg(justification const & t, char const * expected) {
@@ -326,14 +327,14 @@ static void tst16() {
 static void f1(type_checker & tc, expr const & F) {
     metavar_env menv;
     expr m1 = menv->mk_metavar(context(), some_expr(Bool >> Int));
-    expr r = tc.infer_type(F, context(), menv);
+    expr r = tc.check(F, context(), menv);
     lean_assert_eq(r, Int);
 }
 
 static void f2(type_checker & tc, expr const & F) {
     metavar_env menv;
     expr m1 = menv->mk_metavar(context(), some_expr(Bool >> Bool));
-    expr r = tc.infer_type(F, context(), menv);
+    expr r = tc.check(F, context(), menv);
     lean_assert_eq(r, Bool);
 }
 
@@ -351,6 +352,128 @@ static void tst17() {
     expr F2 = F;
     f1(tc, F);
     f2(tc, F);
+}
+
+static std::ostream & operator<<(std::ostream & out, buffer<unification_constraint> const & uc) {
+    formatter fmt = mk_simple_formatter();
+    for (auto c : uc) {
+        out << c.pp(fmt, options(), nullptr, true) << "\n";
+    }
+    return out;
+}
+
+static void tst18() {
+    environment env = mk_toplevel();
+    type_inferer type_of(env);
+    expr f = Const("f");
+    expr g = Const("g");
+    expr a = Const("a");
+    expr b = Const("b");
+    expr A = Const("A");
+    env->add_var("f", Int >> (Int >> Int));
+    lean_assert(type_of(f(a, a)) == Int);
+    lean_assert(type_of(f(a)) == Int >> Int);
+    lean_assert(is_bool(type_of(And(a, f(a)))));
+    lean_assert(type_of(Fun({a, Int}, iAdd(a, iVal(1)))) == Int >> Int);
+    lean_assert(type_of(Let({a, iVal(10)}, iAdd(a, b))) == Int);
+    lean_assert(type_of(Type()) == Type(level() + 1));
+    lean_assert(type_of(Bool) == Type());
+    lean_assert(type_of(Pi({a, Type()}, Type(level() + 2))) == Type(level() + 3));
+    lean_assert(type_of(Pi({a, Type(level()+4)}, Type(level() + 2))) == Type(level() + 5));
+    lean_assert(type_of(Pi({a, Int}, Bool)) == Type());
+    env->add_var("g", Pi({A, Type()}, A >> A));
+    lean_assert(type_of(g(Int, a)) == Int);
+    lean_assert(type_of(g(Fun({a, Type()}, a)(Int), a)) == Fun({a, Type()}, a)(Int));
+}
+
+static expr mk_big(unsigned val, unsigned depth) {
+    if (depth == 0)
+        return iVal(val);
+    else
+        return iAdd(mk_big(val*2, depth-1), mk_big(val*2 + 1, depth-1));
+}
+
+static void tst19() {
+    environment env = mk_toplevel();
+    type_inferer type_of(env);
+    type_checker  type_of_slow(env);
+    expr t = mk_big(0, 10);
+    {
+        timeit timer(std::cout, "light checker 10000 calls");
+        for (unsigned i = 0; i < 10000; i++) {
+            type_of(t);
+            type_of.clear();
+        }
+    }
+    {
+        timeit timer(std::cout, "type checker 300 calls");
+        for (unsigned i = 0; i < 300; i++) {
+            type_of_slow.check(t);
+            type_of_slow.clear();
+        }
+    }
+}
+
+static void tst20() {
+    environment env;
+    import_all(env);
+    context ctx1, ctx2;
+    expr A = Const("A");
+    expr vec1 = Const("vec1");
+    expr vec2 = Const("vec2");
+    env->add_var("vec1", Int  >> (Type() >> Type()));
+    env->add_var("vec2", Real >> (Type() >> Type()));
+    ctx1 = extend(ctx1, "x", Int,  iVal(1));
+    ctx1 = extend(ctx1, "f", Pi({A, Int}, vec1(A, Int)));
+    ctx2 = extend(ctx2, "x", Real, rVal(2));
+    ctx2 = extend(ctx2, "f", Pi({A, Real}, vec2(A, Real)));
+    expr F = Var(0)(Var(1));
+    expr F_copy = F;
+    type_inferer infer(env);
+    std::cout << infer(F, ctx1) << "\n";
+    lean_assert_eq(infer(F, ctx1), vec1(Var(1), Int));
+    lean_assert_eq(infer(F, ctx2), vec2(Var(1), Real));
+    lean_assert(is_eqp(infer(F, ctx2), infer(F, ctx2)));
+    lean_assert(is_eqp(infer(F, ctx1), infer(F, ctx1)));
+    expr r = infer(F, ctx1);
+    infer.clear();
+    lean_assert(!is_eqp(r, infer(F, ctx1)));
+    r = infer(F, ctx1);
+    lean_assert(is_eqp(r, infer(F, ctx1)));
+}
+
+static void tst21() {
+    environment  env;
+    import_all(env);
+    metavar_env menv;
+    buffer<unification_constraint> uc;
+    type_inferer inferer(env);
+    expr list = Const("list");
+    expr nil  = Const("nil");
+    expr cons = Const("cons");
+    expr A    = Const("A");
+    env->add_var("list", Type() >> Type());
+    env->add_var("nil", Pi({A, Type()}, list(A)));
+    env->add_var("cons", Pi({A, Type()}, A >> (list(A) >> list(A))));
+    env->add_var("a", Int);
+    env->add_var("b", Int);
+    env->add_var("n", Nat);
+    env->add_var("m", Nat);
+    expr a  = Const("a");
+    expr b  = Const("b");
+    expr n  = Const("n");
+    expr m  = Const("m");
+    expr m1 = menv->mk_metavar();
+    expr m2 = menv->mk_metavar();
+    expr m3 = menv->mk_metavar();
+    expr A1 = menv->mk_metavar();
+    expr A2 = menv->mk_metavar();
+    expr A3 = menv->mk_metavar();
+    expr A4 = menv->mk_metavar();
+    expr F  = cons(A1, m1(a), cons(A2, m2(n), cons(A3, m3(b), nil(A4))));
+    std::cout << F << "\n";
+    std::cout << inferer(F, context(), menv, uc) << "\n";
+    std::cout << uc << "\n";
 }
 
 int main() {
@@ -372,5 +495,9 @@ int main() {
     tst15();
     tst16();
     tst17();
+    tst18();
+    tst19();
+    tst20();
+    tst21();
     return has_violations() ? 1 : 0;
 }

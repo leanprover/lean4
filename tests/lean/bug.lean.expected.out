@@ -6,7 +6,7 @@ A : (Type U), A' : (Type U), H : A == A' ⊢
     Destruct/Decompose
     A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≺ (Type U)
         (line: 1: pos: 44) Type of argument 1 must be convertible to the expected type in the application of
-            Symm::explicit
+            @Symm
         with arguments:
             ?M::0
             ?M::1
@@ -22,7 +22,7 @@ A : (Type U), A' : (Type U), H : A == A' ⊢
                     Destruct/Decompose
                     A : (Type U), A' : (Type U), H : A == A' ⊢ A == A' ≺ ?M::1 == ?M::2
                         (line: 1: pos: 44) Type of argument 4 must be convertible to the expected type in the application of
-                            Symm::explicit
+                            @Symm
                         with arguments:
                             ?M::0
                             ?M::1
@@ -35,7 +35,7 @@ A : (Type U), A' : (Type U), H : A == A' ⊢
                 Substitution
                 A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≺ ?M::0
                     (line: 1: pos: 44) Type of argument 3 must be convertible to the expected type in the application of
-                        Symm::explicit
+                        @Symm
                     with arguments:
                         ?M::0
                         ?M::1
@@ -73,7 +73,7 @@ A : (Type U), A' : (Type U), H : A == A' ⊢
                 Substitution
                 A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≺ ?M::0
                     (line: 1: pos: 44) Type of argument 3 must be convertible to the expected type in the application of
-                        Symm::explicit
+                        @Symm
                     with arguments:
                         ?M::0
                         ?M::1
@@ -114,7 +114,7 @@ A : (Type U), A' : (Type U), H : A == A' ⊢
                     Destruct/Decompose
                     A : (Type U), A' : (Type U), H : A == A' ⊢ A == A' ≺ ?M::1 == ?M::2
                         (line: 1: pos: 44) Type of argument 4 must be convertible to the expected type in the application of
-                            Symm::explicit
+                            @Symm
                         with arguments:
                             ?M::0
                             ?M::1
@@ -127,7 +127,7 @@ A : (Type U), A' : (Type U), H : A == A' ⊢
                 Substitution
                 A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≺ ?M::0
                     (line: 1: pos: 44) Type of argument 3 must be convertible to the expected type in the application of
-                        Symm::explicit
+                        @Symm
                     with arguments:
                         ?M::0
                         ?M::1
@@ -165,7 +165,7 @@ A : (Type U), A' : (Type U), H : A == A' ⊢
                 Substitution
                 A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≺ ?M::0
                     (line: 1: pos: 44) Type of argument 3 must be convertible to the expected type in the application of
-                        Symm::explicit
+                        @Symm
                     with arguments:
                         ?M::0
                         ?M::1
@@ -206,7 +206,7 @@ A : (Type U), A' : (Type U), H : A == A' ⊢
                     Destruct/Decompose
                     A : (Type U), A' : (Type U), H : A == A' ⊢ A == A' ≺ ?M::1 == ?M::2
                         (line: 1: pos: 44) Type of argument 4 must be convertible to the expected type in the application of
-                            Symm::explicit
+                            @Symm
                         with arguments:
                             ?M::0
                             ?M::1
@@ -219,7 +219,7 @@ A : (Type U), A' : (Type U), H : A == A' ⊢
                 Substitution
                 A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≺ ?M::0
                     (line: 1: pos: 44) Type of argument 3 must be convertible to the expected type in the application of
-                        Symm::explicit
+                        @Symm
                     with arguments:
                         ?M::0
                         ?M::1
@@ -257,7 +257,7 @@ A : (Type U), A' : (Type U), H : A == A' ⊢
                 Substitution
                 A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≺ ?M::0
                     (line: 1: pos: 44) Type of argument 3 must be convertible to the expected type in the application of
-                        Symm::explicit
+                        @Symm
                     with arguments:
                         ?M::0
                         ?M::1
@@ -298,7 +298,7 @@ A : (Type U), A' : (Type U), H : A == A' ⊢
                     Destruct/Decompose
                     A : (Type U), A' : (Type U), H : A == A' ⊢ A == A' ≺ ?M::1 == ?M::2
                         (line: 1: pos: 44) Type of argument 4 must be convertible to the expected type in the application of
-                            Symm::explicit
+                            @Symm
                         with arguments:
                             ?M::0
                             ?M::1
@@ -311,7 +311,7 @@ A : (Type U), A' : (Type U), H : A == A' ⊢
                 Substitution
                 A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≺ ?M::0
                     (line: 1: pos: 44) Type of argument 3 must be convertible to the expected type in the application of
-                        Symm::explicit
+                        @Symm
                     with arguments:
                         ?M::0
                         ?M::1
@@ -349,7 +349,7 @@ A : (Type U), A' : (Type U), H : A == A' ⊢
                 Substitution
                 A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≺ ?M::0
                     (line: 1: pos: 44) Type of argument 3 must be convertible to the expected type in the application of
-                        Symm::explicit
+                        @Symm
                     with arguments:
                         ?M::0
                         ?M::1
@@ -390,7 +390,7 @@ A : (Type U), A' : (Type U), H : A == A' ⊢
                     Destruct/Decompose
                     A : (Type U), A' : (Type U), H : A == A' ⊢ A == A' ≺ ?M::1 == ?M::2
                         (line: 1: pos: 44) Type of argument 4 must be convertible to the expected type in the application of
-                            Symm::explicit
+                            @Symm
                         with arguments:
                             ?M::0
                             ?M::1
@@ -403,7 +403,7 @@ A : (Type U), A' : (Type U), H : A == A' ⊢
                 Substitution
                 A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≺ ?M::0
                     (line: 1: pos: 44) Type of argument 3 must be convertible to the expected type in the application of
-                        Symm::explicit
+                        @Symm
                     with arguments:
                         ?M::0
                         ?M::1
@@ -441,7 +441,7 @@ A : (Type U), A' : (Type U), H : A == A' ⊢
                 Substitution
                 A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::5 ≺ ?M::0
                     (line: 1: pos: 44) Type of argument 3 must be convertible to the expected type in the application of
-                        Symm::explicit
+                        @Symm
                     with arguments:
                         ?M::0
                         ?M::1

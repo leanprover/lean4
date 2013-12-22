@@ -187,7 +187,7 @@ static void tst11() {
     } catch (exception & ex) {
         std::cout << "Expected error: " << ex.what() << std::endl;
     }
-    env->add_var(name{"h", "explicit"}, Pi({A, Type()}, A >> (A >> A)));
+    env->add_var(name("@h"), Pi({A, Type()}, A >> (A >> A)));
     env->add_var("h", Pi({A, Type()}, A >> (A >> A)));
     try {
         mark_implicit_arguments(env, "h", {true, false, false});

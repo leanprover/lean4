@@ -10,7 +10,7 @@ Failed to solve
         Substitution
          ⊢ Bool ≺ ?M::0
             (line: 4: pos: 6) Type of argument 3 must be convertible to the expected type in the application of
-                f::explicit
+                @f
             with arguments:
                 ?M::0
                 ?M::1 10
@@ -20,7 +20,7 @@ Failed to solve
                 Substitution
                  ⊢ ?M::5[inst:0 (10)] ≺ ?M::0
                     (line: 4: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
-                        f::explicit
+                        @f
                     with arguments:
                         ?M::0
                         ?M::1 10
@@ -44,7 +44,7 @@ Failed to solve
         Substitution
          ⊢ Bool ≺ ?M::0
             (line: 4: pos: 6) Type of argument 3 must be convertible to the expected type in the application of
-                f::explicit
+                @f
             with arguments:
                 ?M::0
                 ?M::1 10
@@ -54,7 +54,7 @@ Failed to solve
                 Substitution
                  ⊢ ?M::5[inst:0 (10)] ≺ ?M::0
                     (line: 4: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
-                        f::explicit
+                        @f
                     with arguments:
                         ?M::0
                         ?M::1 10
@@ -78,7 +78,7 @@ Failed to solve
         Substitution
          ⊢ Bool ≺ ?M::0
             (line: 4: pos: 6) Type of argument 3 must be convertible to the expected type in the application of
-                f::explicit
+                @f
             with arguments:
                 ?M::0
                 ?M::1 10
@@ -88,7 +88,7 @@ Failed to solve
                 Substitution
                  ⊢ ?M::5[inst:0 (10)] ≺ ?M::0
                     (line: 4: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
-                        f::explicit
+                        @f
                     with arguments:
                         ?M::0
                         ?M::1 10
@@ -142,7 +142,7 @@ Failed to solve
                 Destruct/Decompose
                  ⊢ Π H1 : ?M::2, ?M::3 ∧ ?M::4 ≺ Π a : ?M::0, ?M::1
                     (line: 20: pos: 18) Type of argument 3 must be convertible to the expected type in the application of
-                        Discharge::explicit
+                        @Discharge
                     with arguments:
                         ?M::0
                         ?M::1
@@ -152,7 +152,7 @@ Failed to solve
                     Substitution
                     H1 : ?M::2 ⊢ ?M::5 ≺ ?M::4
                         (line: 20: pos: 37) Type of argument 4 must be convertible to the expected type in the application of
-                            Conj::explicit
+                            @Conj
                         with arguments:
                             ?M::3
                             ?M::4
@@ -163,7 +163,7 @@ Failed to solve
                             Destruct/Decompose
                             H1 : ?M::2 ⊢ a ∧ b ≺ ?M::5 ∧ ?M::6
                                 (line: 20: pos: 45) Type of argument 3 must be convertible to the expected type in the application of
-                                    Conjunct1::explicit
+                                    @Conjunct1
                                 with arguments:
                                     ?M::5
                                     ?M::6
@@ -175,7 +175,7 @@ Failed to solve
         Destruct/Decompose
          ⊢ b == b ≺ ?M::3 == ?M::4
             (line: 22: pos: 22) Type of argument 6 must be convertible to the expected type in the application of
-                Trans::explicit
+                @Trans
             with arguments:
                 ?M::1
                 ?M::2
@@ -188,7 +188,7 @@ Failed to solve
             Destruct/Decompose
              ⊢ a == a ≺ ?M::2 == ?M::3
                 (line: 22: pos: 22) Type of argument 5 must be convertible to the expected type in the application of
-                    Trans::explicit
+                    @Trans
                 with arguments:
                     ?M::1
                     ?M::2
@@ -201,7 +201,7 @@ Failed to solve
     Destruct/Decompose
      ⊢ ?M::1 ≺ Type
         (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
-            f::explicit
+            @f
         with arguments:
             ?M::0
             Bool
@@ -211,7 +211,7 @@ Failed to solve
         Destruct/Decompose
          ⊢ Type ≺ ?M::0
             (line: 24: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
-                f::explicit
+                @f
             with arguments:
                 ?M::0
                 Bool
@@ -265,7 +265,7 @@ Failed to solve
         Destruct/Decompose
          ⊢ Type ≺ ?M::0
             (line: 24: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
-                f::explicit
+                @f
             with arguments:
                 ?M::0
                 Bool
@@ -323,7 +323,7 @@ a : Bool, b : Bool, H : ?M::2, H_a : ?M::6 ⊢ (a ⇒ b) ⇒ a ≺ a
             Destruct/Decompose
             a : Bool, b : Bool, H : ?M::2 ⊢ Π H_a : ?M::6, ?M::2[lift:0:2] ≺ Π a : ?M::3, ?M::5[lift:0:1]
                 (line: 27: pos: 21) Type of argument 5 must be convertible to the expected type in the application of
-                    DisjCases::explicit
+                    @DisjCases
                 with arguments:
                     ?M::3
                     ?M::4
@@ -338,7 +338,7 @@ a : Bool, b : Bool, H : ?M::2, H_a : ?M::6 ⊢ (a ⇒ b) ⇒ a ≺ a
                     Destruct/Decompose
                     a : Bool, b : Bool ⊢ Π H : ?M::2, ?M::5 ≺ Π a : ?M::0, ?M::1[lift:0:1]
                         (line: 27: pos: 4) Type of argument 3 must be convertible to the expected type in the application of
-                            Discharge::explicit
+                            @Discharge
                         with arguments:
                             ?M::0
                             ?M::1
@@ -359,7 +359,7 @@ a : Bool, b : Bool, H : ?M::2, H_a : ?M::6 ⊢ (a ⇒ b) ⇒ a ≺ a
                 Destruct/Decompose
                 a : Bool, b : Bool ⊢ Π H : ?M::2, ?M::5 ≺ Π a : ?M::0, ?M::1[lift:0:1]
                     (line: 27: pos: 4) Type of argument 3 must be convertible to the expected type in the application of
-                        Discharge::explicit
+                        @Discharge
                     with arguments:
                         ?M::0
                         ?M::1

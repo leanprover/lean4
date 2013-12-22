@@ -8,5 +8,5 @@
 g 10 ⊤ ⊥ : Bool
 f 10 10 ⊤ : ℕ
   Set: lean::pp::implicit
-g::explicit ℕ Bool 10 Bool ⊤ ⊥ : Bool
-f::explicit ℕ 10 Bool 10 ⊤ : ℕ
+@g ℕ Bool 10 Bool ⊤ ⊥ : Bool
+@f ℕ 10 Bool 10 ⊤ : ℕ

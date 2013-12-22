@@ -19,6 +19,6 @@ if a a ⊤
 a
   Assumed: H1
   Assumed: H2
-MP::explicit : Π (a b : Bool), (a ⇒ b) → a → b
+@MP : Π (a b : Bool), (a ⇒ b) → a → b
 MP H2 H1
 MP H2 H1 : b

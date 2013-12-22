@@ -1,6 +1,3 @@
-
-
-
 Definition id (A : Type) : (Type U) := A.
 Variable p : (Int -> Int) -> Bool.
 Check fun (x : id Int), x.
@@ -14,7 +11,7 @@ Check g a.
 
 Definition c2 {T : Type} (A : (Type 3)) (a : T) : (Type 3) := (Type 1)
 Variable b : Int
-Check c2::explicit
+Check @c2
 Variable g2 : (c2 (Type 2) b) -> Bool
 Check g2
 Variable a2 : (c2 (Type 1) b).

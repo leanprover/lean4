@@ -9,4 +9,4 @@
   Assumed: H2
 TransExt H1 H2 : v1 == v3
   Set: lean::pp::implicit
-TransExt::explicit (Vector n) (Vector (n + 0)) (Vector (0 + n)) v1 v2 v3 H1 H2 : v1 == v3
+@TransExt (Vector n) (Vector (n + 0)) (Vector (0 + n)) v1 v2 v3 H1 H2 : v1 == v3

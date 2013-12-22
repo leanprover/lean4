@@ -17,10 +17,10 @@ Check select (update (const three false) two true) two two_lt_three
 Eval select (update (const three false) two true) two two_lt_three
 Check update (const three false) two true
 Echo "\n--------"
-Check select::explicit
+Check @select
 Echo "\nmap type ---> "
-Check map::explicit
+Check @map
 Echo "\nmap normal form --> "
-Eval map::explicit
+Eval @map
 Echo "\nupdate normal form --> "
-Eval update::explicit
+Eval @update

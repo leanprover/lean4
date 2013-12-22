@@ -5,14 +5,10 @@
   Assumed: R
   Proved: R2
   Set: lean::pp::implicit
-Variable C {A B : Type} (H : eq::explicit Type A B) (a : A) : B
-Variable D {A A' : Type} {B : A → Type} {B' : A' → Type} (H : eq::explicit Type (Π x : A, B x) (Π x : A', B' x)) :
-    eq::explicit Type A A'
-Variable R {A A' : Type}
-    {B : A → Type}
-    {B' : A' → Type}
-    (H : eq::explicit Type (Π x : A, B x) (Π x : A', B' x))
-    (a : A) :
-    eq::explicit Type (B a) (B' (C::explicit A A' (D::explicit A A' (λ x : A, B x) (λ x : A', B' x) H) a))
-Theorem R2 (A1 A2 B1 B2 : Type) (H : eq::explicit Type (A1 → B1) (A2 → B2)) (a : A1) : eq::explicit Type B1 B2 :=
-    R::explicit A1 A2 (λ x : A1, B1) (λ x : A2, B2) H a
+Variable C {A B : Type} (H : @eq Type A B) (a : A) : B
+Variable D {A A' : Type} {B : A → Type} {B' : A' → Type} (H : @eq Type (Π x : A, B x) (Π x : A', B' x)) :
+    @eq Type A A'
+Variable R {A A' : Type} {B : A → Type} {B' : A' → Type} (H : @eq Type (Π x : A, B x) (Π x : A', B' x)) (a : A) :
+    @eq Type (B a) (B' (@C A A' (@D A A' (λ x : A, B x) (λ x : A', B' x) H) a))
+Theorem R2 (A1 A2 B1 B2 : Type) (H : @eq Type (A1 → B1) (A2 → B2)) (a : A1) : @eq Type B1 B2 :=
+    @R A1 A2 (λ x : A1, B1) (λ x : A2, B2) H a

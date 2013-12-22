@@ -18,7 +18,7 @@ Theorem SubsetTrans {A : Type} {s1 s2 s3 : Set A} (H1 : s1 ⊆ s2) (H2 : s2 ⊆ 
 
 Definition transitive {A : Type} (R : A → A → Bool) := ∀ x y z, R x y ⇒ R y z ⇒ R x z
 
-Theorem SubsetTrans2 {A : Type} : transitive (subset::explicit A) :=
+Theorem SubsetTrans2 {A : Type} : transitive (@subset A) :=
    ForallIntro (λ s1, ForallIntro (λ s2, ForallIntro (λ s3,
       Discharge (λ H1, (Discharge (λ H2,
          SubsetTrans H1 H2)))))).

@@ -29,7 +29,7 @@ Failed to solve
     Substitution
      ⊢ Bool ≺ ?M::0
         (line: 9: pos: 15) Type of argument 2 must be convertible to the expected type in the application of
-            myeq2::explicit
+            @myeq2
         with arguments:
             ?M::0
             ⊤
@@ -37,7 +37,7 @@ Failed to solve
         Assignment
          ⊢ T ≺ ?M::0
             (line: 9: pos: 15) Type of argument 3 must be convertible to the expected type in the application of
-                myeq2::explicit
+                @myeq2
             with arguments:
                 ?M::0
                 ⊤

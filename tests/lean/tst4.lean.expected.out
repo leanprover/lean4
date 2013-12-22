@@ -5,34 +5,26 @@
   Assumed: n1
   Assumed: n2
   Set: lean::pp::implicit
-f::explicit N n1 n2
-f::explicit ((N → N) → N → N) (λ x : N → N, x) (λ y : N → N, y)
+@f N n1 n2
+@f ((N → N) → N → N) (λ x : N → N, x) (λ y : N → N, y)
   Assumed: EqNice
-EqNice::explicit N n1 n2
-f::explicit N n1 n2 : N
-Congr::explicit :
-    Π (A : (Type U)) (B : A → (Type U)) (f g : Π x : A, B x) (a b : A), f == g → a == b → f a == g b
-f::explicit N n1 n2
+@EqNice N n1 n2
+@f N n1 n2 : N
+@Congr : Π (A : (Type U)) (B : A → (Type U)) (f g : Π x : A, B x) (a b : A), f == g → a == b → f a == g b
+@f N n1 n2
   Assumed: a
   Assumed: b
   Assumed: c
   Assumed: g
   Assumed: H1
   Proved: Pr
-Axiom H1 : eq::explicit N a b ∧ eq::explicit N b c
-Theorem Pr : eq::explicit N (g a) (g c) :=
-    Congr::explicit
-        N
-        (λ x : N, N)
-        g
-        g
-        a
-        c
-        (Refl::explicit (N → N) g)
-        (Trans::explicit
-             N
-             a
-             b
-             c
-             (Conjunct1::explicit (eq::explicit N a b) (eq::explicit N b c) H1)
-             (Conjunct2::explicit (eq::explicit N a b) (eq::explicit N b c) H1))
+Axiom H1 : @eq N a b ∧ @eq N b c
+Theorem Pr : @eq N (g a) (g c) :=
+    @Congr N
+           (λ x : N, N)
+           g
+           g
+           a
+           c
+           (@Refl (N → N) g)
+           (@Trans N a b c (@Conjunct1 (@eq N a b) (@eq N b c) H1) (@Conjunct2 (@eq N a b) (@eq N b c) H1))

@@ -1,0 +1,11 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: f
+  Assumed: module::g
+@f : Π (A : Type), A → A → A
+module::@g : Π (A : Type), A → A → A
+  Assumed: h::1
+h::1::explicit : Π (A B : Type), A → B → A
+  Assumed: @h
+  Assumed: h
+Error (line: 8, pos: 37) failed to mark implicit arguments for 'h', the frontend already has an object named '@h'

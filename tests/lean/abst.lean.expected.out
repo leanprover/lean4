@@ -4,5 +4,5 @@
   Assumed: a
 Abst (λ x : ℤ, PlusComm a x) : (λ x : ℤ, a + x) == (λ x : ℤ, x + a)
   Set: lean::pp::implicit
-Abst::explicit ℤ (λ x : ℤ, ℤ) (λ x : ℤ, a + x) (λ x : ℤ, x + a) (λ x : ℤ, PlusComm a x) :
+@Abst ℤ (λ x : ℤ, ℤ) (λ x : ℤ, a + x) (λ x : ℤ, x + a) (λ x : ℤ, PlusComm a x) :
     (λ x : ℤ, a + x) == (λ x : ℤ, x + a)

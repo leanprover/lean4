@@ -6,6 +6,6 @@
 a = b
 a = b : Bool
   Set: lean::pp::implicit
-eq::explicit N a b
-eq::explicit (Type 2) (Type 1) (Type 1)
-eq::explicit Bool ⊤ ⊥
+@eq N a b
+@eq (Type 2) (Type 1) (Type 1)
+@eq Bool ⊤ ⊥

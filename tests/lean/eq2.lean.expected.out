@@ -6,4 +6,4 @@
   Assumed: l
 l = nil : Bool
   Set: lean::pp::implicit
-eq::explicit (List ℤ) l (nil::explicit ℤ) : Bool
+@eq (List ℤ) l (@nil ℤ) : Bool

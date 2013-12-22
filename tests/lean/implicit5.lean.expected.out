@@ -8,5 +8,5 @@
 The denotation(s) for the existing notation:
   Infix ++
 have been replaced with the new denotation:
-  p2::explicit
+  @p2
 because they conflict on how implicit arguments are used.

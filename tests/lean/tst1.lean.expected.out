@@ -29,10 +29,10 @@ if (two == two) ⊤ ⊥
 update (const three ⊥) two ⊤ : vector Bool three
 
 --------
-select::explicit : Π (A : Type) (n : N) (v : vector A n) (i : N), i < n → A
+@select : Π (A : Type) (n : N) (v : vector A n) (i : N), i < n → A
 
 map type ---> 
-map::explicit : Π (A B C : Type) (n : N), (A → B → C) → vector A n → vector B n → vector C n
+@map : Π (A B C : Type) (n : N), (A → B → C) → vector A n → vector B n → vector C n
 
 map normal form --> 
 λ (A B C : Type)

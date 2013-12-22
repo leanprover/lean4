@@ -7,11 +7,13 @@ Author: Leonardo de Moura
 #include <vector>
 #include <utility>
 #include <functional>
+#include <string>
 #include "util/thread.h"
 #include "util/map.h"
 #include "util/sstream.h"
 #include "util/exception.h"
 #include "util/name_map.h"
+#include "util/name_set.h"
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"
 #include "kernel/expr_sets.h"
@@ -52,6 +54,7 @@ struct lean_extension : public environment_extension {
     coercion_set          m_coercion_set; // Set of coercions
     expr_to_coercions     m_type_coercions; // mapping type -> list (to-type, function)
     unsigned              m_initial_size; // size of the environment after init_frontend was invoked
+    name_set              m_explicit_names; // set of explicit version of constants with implicit parameters
 
     lean_extension() {
         m_initial_size = 0;
@@ -305,6 +308,21 @@ struct lean_extension : public environment_extension {
         }
     }
 
+    static name mk_explicit_name(name const & n) {
+        if (n.is_anonymous()) {
+            throw exception("anonymous names cannot be used in definitions");
+        } else if (n.is_numeral()) {
+            return name(n, "explicit");
+        } else {
+            std::string new_name = "@";
+            new_name += n.get_string();
+            if (n.is_atomic())
+                return name(new_name);
+            else
+                return name(n.get_prefix(), new_name.c_str());
+        }
+    }
+
     void mark_implicit_arguments(name const & n, unsigned sz, bool const * implicit, environment const & env) {
         if (env->has_children())
             throw exception(sstream() << "failed to mark implicit arguments, frontend object is read-only");
@@ -313,7 +331,7 @@ struct lean_extension : public environment_extension {
             throw exception(sstream() << "failed to mark implicit arguments, the object '" << n << "' is not a definition or postulate");
         if (has_implicit_arguments(n))
             throw exception(sstream() << "the object '" << n << "' already has implicit argument information associated with it");
-        name explicit_version(n, "explicit");
+        name explicit_version = mk_explicit_name(n);
         if (env->find_object(explicit_version))
             throw exception(sstream() << "failed to mark implicit arguments for '" << n << "', the frontend already has an object named '" << explicit_version << "'");
         expr const & type = obj.get_type();
@@ -329,6 +347,7 @@ struct lean_extension : public environment_extension {
         std::vector<bool> v(implicit, implicit+sz);
         m_implicit_table[n] = mk_pair(v, explicit_version);
         expr body = mk_explicit_definition_body(type, n, 0, num_args);
+        m_explicit_names.insert(explicit_version);
         if (obj.is_axiom() || obj.is_theorem()) {
             env->add_theorem(explicit_version, type, body);
         } else {
@@ -376,7 +395,13 @@ struct lean_extension : public environment_extension {
     }
 
     bool is_explicit(name const & n) const {
-        return !n.is_atomic() && get_explicit_version(n.get_prefix()) == n;
+        if (m_explicit_names.find(n) != m_explicit_names.end())
+            return true;
+        lean_extension const * parent = get_parent();
+        if (parent)
+            return parent->is_explicit(n);
+        else
+            return false;
     }
 
     /**

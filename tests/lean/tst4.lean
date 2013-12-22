@@ -9,7 +9,7 @@ Variable EqNice {A : Type} (lhs rhs : A) : Bool
 Infix 50 === : EqNice
 Show n1 === n2
 Check f n1 n2
-Check Congr::explicit
+Check @Congr
 Show f n1 n2
 Variable a : N
 Variable b : N

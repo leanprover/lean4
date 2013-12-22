@@ -15,7 +15,9 @@ Author: Leonardo de Moura
 #include "kernel/replace_visitor.h"
 #include "kernel/instantiate.h"
 #include "kernel/update_expr.h"
+#include "kernel/builtin.h"
 #include "library/kernel_bindings.h"
+#include "library/basic_thms.h"
 #include "library/tactic/tactic.h"
 
 namespace lean {
@@ -195,6 +197,25 @@ tactic assumption_tactic() {
                     }
                     if (pr) {
                         proofs.emplace_front(gname, *pr);
+                        return optional<goal>();
+                    } else {
+                        return some(g);
+                    }
+                });
+            if (empty(proofs))
+                return none_proof_state();
+            proof_builder new_pb = add_proofs(s.get_proof_builder(), proofs);
+            return some(proof_state(s, new_gs, new_pb));
+        });
+}
+
+tactic trivial_tactic() {
+    return mk_tactic01([](ro_environment const & env, io_state const &, proof_state const & s) -> optional<proof_state> {
+            list<std::pair<name, expr>> proofs;
+            goals new_gs = map_goals(s, [&](name const & gname, goal const & g) -> optional<goal> {
+                    expr const & c  = env->normalize(g.get_conclusion(), context(), true);
+                    if (c == True) {
+                        proofs.emplace_front(gname, Trivial);
                         return optional<goal>();
                     } else {
                         return some(g);
@@ -468,11 +489,23 @@ tactic beta_tactic() {
                     expr       new_c  = fn(g.get_conclusion());
                     return some(goal(new_hs, new_c));
                 });
-            if (fn.reduced()) {
-                return some(proof_state(s, new_gs));
-            } else {
-                return none_proof_state();
-            }
+            return fn.reduced() ? some(proof_state(s, new_gs)) : none_proof_state();
+        });
+}
+
+tactic normalize_tactic(bool unfold_opaque, bool all) {
+    return mk_tactic01([=](ro_environment const & env, io_state const &, proof_state const & s) -> optional<proof_state> {
+            bool applied = false;
+            goals new_gs = map_goals(s, [&](name const &, goal const & g) -> optional<goal> {
+                    if (!applied || all) {
+                        applied = true;
+                        expr new_c  = env->normalize(g.get_conclusion(), context(), unfold_opaque);
+                        return some(goal(g.get_hypotheses(), new_c));
+                    } else {
+                        return some(g);
+                    }
+                });
+            return applied ? some(proof_state(s, new_gs)) : none_proof_state();
         });
 }
 
@@ -746,6 +779,7 @@ static int mk_now_tactic(lua_State * L)         {  return push_tactic(L, now_tac
 static int mk_fail_tactic(lua_State * L)        {  return push_tactic(L, fail_tactic()); }
 static int mk_trace_tactic(lua_State * L)       {  return push_tactic(L, trace_tactic(luaL_checkstring(L, 1))); }
 static int mk_assumption_tactic(lua_State * L)  {  return push_tactic(L, assumption_tactic()); }
+static int mk_trivial_tactic(lua_State * L)     {  return push_tactic(L, trivial_tactic()); }
 static int mk_trace_state_tactic(lua_State * L) {  return push_tactic(L, trace_state_tactic()); }
 static int mk_unfold_tactic(lua_State * L)      {
     int nargs = lua_gettop(L);
@@ -755,6 +789,15 @@ static int mk_unfold_tactic(lua_State * L)      {
         return push_tactic(L, unfold_tactic(to_name_ext(L, 1)));
 }
 static int mk_beta_tactic(lua_State * L) {  return push_tactic(L, beta_tactic()); }
+static int mk_normalize_tactic(lua_State * L) {
+    int nargs = lua_gettop(L);
+    return push_tactic(L, normalize_tactic(nargs == 0 ? false : lua_toboolean(L, 1),
+                                           nargs <= 1 ? true  : lua_toboolean(L, 2)));
+}
+static int mk_eval_tactic(lua_State * L) {
+    int nargs = lua_gettop(L);
+    return push_tactic(L, normalize_tactic(true, nargs == 0 ? true : lua_toboolean(L, 1)));
+}
 
 static const struct luaL_Reg tactic_m[] = {
     {"__gc",            tactic_gc}, // never throws
@@ -805,8 +848,11 @@ void open_tactic(lua_State * L) {
     SET_GLOBAL_FUN(mk_fail_tactic,        "fail_tac");
     SET_GLOBAL_FUN(mk_trace_state_tactic, "show_tac");
     SET_GLOBAL_FUN(mk_assumption_tactic,  "assumption_tac");
+    SET_GLOBAL_FUN(mk_trivial_tactic,     "trivial_tac");
     SET_GLOBAL_FUN(mk_unfold_tactic,      "unfold_tac");
     SET_GLOBAL_FUN(mk_beta_tactic,        "beta_tac");
+    SET_GLOBAL_FUN(mk_normalize_tactic,   "normalize_tac");
+    SET_GLOBAL_FUN(mk_eval_tactic,        "eval_tac");
     SET_GLOBAL_FUN(mk_lua_tactic01,       "tactic");
 
     // HOL-like tactic names

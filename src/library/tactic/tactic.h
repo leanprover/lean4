@@ -290,6 +290,10 @@ tactic focus(tactic const & t, name const & gname);
 tactic focus(tactic const & t, int i);
 inline tactic focus(tactic const & t) { return focus(t, 1); }
 /**
+   \brief Return a tactic that solves any goal which the hypothesis evaluates to true.
+*/
+tactic trivial_tactic();
+/**
    \brief Return a tactic that unfolds the definition named \c n.
 */
 tactic unfold_tactic(name const & n);
@@ -301,6 +305,10 @@ tactic unfold_tactic();
    \brief Return a tactic that applies beta-reduction.
 */
 tactic beta_tactic();
+/**
+   \brief Return a tactic that normalize the goal conclusion.
+*/
+tactic normalize_tactic(bool unfold_opaque = false, bool all = true);
 
 UDATA_DEFS_CORE(proof_state_seq)
 UDATA_DEFS(tactic);

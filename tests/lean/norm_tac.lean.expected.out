@@ -1,0 +1,9 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: vector
+  Assumed: read
+  Assumed: V1
+  Defined: D
+  Assumed: b
+  Defined: a
+  Proved: T

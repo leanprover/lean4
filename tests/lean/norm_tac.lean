@@ -1,3 +1,4 @@
+SetOption pp::implicit true
 Variable vector (A : Type) (sz : Nat) : Type
 Variable read {A : Type} {sz : Nat} (v : vector A sz) (i : Nat) (H : i < sz) : A
 Variable V1 : vector Int 10

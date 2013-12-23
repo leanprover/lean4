@@ -1,5 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
+  Set: lean::pp::implicit
   Assumed: vector
   Assumed: read
   Assumed: V1

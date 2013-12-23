@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <string>
 #include <vector>
+#include <unordered_set>
 #include "util/thread.h"
 #include "util/lua.h"
 #include "util/debug.h"
@@ -18,6 +19,7 @@ Author: Leonardo de Moura
 #include "util/script_exception.h"
 #include "util/name.h"
 #include "util/splay_map.h"
+#include "util/lean_path.h"
 
 extern "C" void * lua_realloc(void *, void * q, size_t, size_t new_size) { return lean::realloc(q, new_size); }
 
@@ -46,6 +48,7 @@ static char g_weak_ptr_key; // key for Lua registry (used at get_weak_ptr and sa
 struct script_state::imp {
     lua_State * m_state;
     mutex       m_mutex;
+    std::unordered_set<std::string> m_imported_modules;
 
     static std::weak_ptr<imp> * get_weak_ptr(lua_State * L) {
         lua_pushlightuserdata(L, static_cast<void *>(&g_weak_ptr_key));
@@ -115,6 +118,14 @@ struct script_state::imp {
         lock_guard<mutex> lock(m_mutex);
         ::lean::dostring(m_state, str);
     }
+
+    void import(char const * fname) {
+        std::string fname_str(find_file(fname));
+        if (m_imported_modules.find(fname_str) == m_imported_modules.end()) {
+            dofile(fname_str.c_str());
+            m_imported_modules.insert(fname_str);
+        }
+    }
 };
 
 script_state to_script_state(lua_State * L) {
@@ -141,6 +152,10 @@ void script_state::dofile(char const * fname) {
 
 void script_state::dostring(char const * str) {
     m_ptr->dostring(str);
+}
+
+void script_state::import(char const * str) {
+    m_ptr->import(str);
 }
 
 mutex & script_state::get_mutex() {
@@ -581,6 +596,13 @@ static int yield(lua_State * L) {
     }
 }
 
+static int import(lua_State * L) {
+    std::string fname = luaL_checkstring(L, 1);
+    script_state s = to_script_state(L);
+    s.exec_unprotected([&]() { s.import(fname.c_str()); });
+    return 0;
+}
+
 static void open_interrupt(lua_State * L) {
     SET_GLOBAL_FUN(check_interrupted, "check_interrupted");
     SET_GLOBAL_FUN(sleep,             "sleep");
@@ -597,5 +619,7 @@ void open_extra(lua_State * L) {
     open_thread(L);
 #endif
     open_interrupt(L);
+
+    SET_GLOBAL_FUN(import, "import");
 }
 }

@@ -44,6 +44,11 @@ public:
        This method throws an exception if an error occurs.
     */
     void dostring(char const * str);
+    /**
+       \brief Import file \c fname from the LEAN_PATH.
+       If the file was already included, then it nothing happens.
+    */
+    void import(char const * fname);
 
     /**
        \brief Execute \c f in the using the internal Lua State.

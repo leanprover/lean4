@@ -23,16 +23,7 @@ static std::string get_exe_location() {
     WCHAR path[MAX_PATH];
     GetModuleFileNameW(hModule, path, MAX_PATH);
     std::wstring pathstr(path);
-    std::string r(pathstr.begin(), pathstr.end());
-    while (true) {
-        if (r.empty())
-            throw exception("failed to locate Lean executable location");
-        if (r.back() == g_sep) {
-            r.pop_back();
-            return r;
-        }
-        r.pop_back();
-    }
+    return std::string(pathstr.begin(), pathstr.end());
 }
 #elif defined(__APPLE__)
 // OSX version
@@ -79,6 +70,18 @@ std::string normalize_path(std::string f) {
     return f;
 }
 
+std::string get_path(std::string f) {
+    while (true) {
+        if (f.empty())
+            throw exception("failed to locate Lean executable location");
+        if (f.back() == g_sep) {
+            f.pop_back();
+            return f;
+        }
+        f.pop_back();
+    }
+}
+
 static std::string              g_lean_path;
 static std::vector<std::string> g_lean_path_vector;
 struct init_lean_path {
@@ -87,7 +90,7 @@ struct init_lean_path {
         if (r == nullptr) {
             g_lean_path  = ".";
             g_lean_path += g_path_sep;
-            g_lean_path += get_exe_location();
+            g_lean_path += get_path(get_exe_location());
         } else {
             g_lean_path = r;
         }

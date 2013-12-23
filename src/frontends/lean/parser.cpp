@@ -558,10 +558,18 @@ class parser::imp {
         return level() + val.get_unsigned_int();
     }
 
+    level parse_level_lparen() {
+        next();
+        level r = parse_level();
+        check_rparen_next("invalid level expression, ')' expected");
+        return r;
+    }
+
     level parse_level_nud() {
         switch (curr()) {
         case scanner::token::Id:        return parse_level_nud_id();
         case scanner::token::NatVal:    return parse_level_nud_int();
+        case scanner::token::LeftParen: return parse_level_lparen();
         default:
             throw parser_error("invalid level expression", pos());
         }

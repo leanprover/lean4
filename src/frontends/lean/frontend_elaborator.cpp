@@ -172,6 +172,14 @@ class frontend_elaborator::imp {
             }
         }
 
+        bool is_convertible(expr const & from, expr const & to) {
+            try {
+                return m_ref.m_type_checker.is_convertible(from, to);
+            } catch (exception &) {
+                return false;
+            }
+        }
+
         /**
            \brief Make sure f_t is a Pi, if it is not, then return none_expr()
         */
@@ -363,7 +371,7 @@ class frontend_elaborator::imp {
                             new_a = add_coercion_mvar_app(coercions, new_a, *new_a_t, ctx, a);
                         } else {
                             expr expected = abst_domain(*f_t);
-                            if (expected != *new_a_t) {
+                            if (!is_convertible(*new_a_t, expected)) {
                                 optional<expr> c = find_coercion(coercions, expected);
                                 if (c) {
                                     new_a = mk_app(*c, new_a); // apply coercion

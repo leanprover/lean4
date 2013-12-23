@@ -1,10 +1,13 @@
   Set: pp::colors
   Set: pp::unicode
   Set: lean::pp::implicit
+  Set: lean::pp::coercion
+  Set: lean::pp::notation
   Assumed: vector
   Assumed: read
   Assumed: V1
   Defined: D
+Definition D : ℤ := @read ℤ 10 V1 1 Trivial
   Assumed: b
   Defined: a
   Proved: T

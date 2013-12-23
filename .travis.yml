@@ -160,7 +160,7 @@ install:
        until sudo apt-get -qq install liblua5.1-0 liblua5.1-0-dev lua5.1; do echo retry; done;
     fi
   - if [[ $LUA == JIT ]]; then
-       until sudo add-apt-repository --yes ppa:mwild1/ppa; do echo retry; done;
+       until sudo add-apt-repository --yes ppa:miurahr/openresty-devel; do echo retry; done;
        until sudo apt-get -qq update; do echo retry; done;
        until sudo apt-get -qq install libluajit-5.1-dev luajit; do echo retry; done;
     fi

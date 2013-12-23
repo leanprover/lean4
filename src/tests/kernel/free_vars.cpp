@@ -43,7 +43,7 @@ static void tst2() {
 }
 
 static void tst3() {
-    unsigned n = 30000;
+    unsigned n = 20000;
     unsigned m = 10;
     expr f = Const("f");
     expr a = Const("a");

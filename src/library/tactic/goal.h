@@ -10,12 +10,22 @@ Author: Leonardo de Moura
 #include "util/lua.h"
 #include "util/list.h"
 #include "util/name.h"
+#include "util/exception.h"
 #include "kernel/formatter.h"
 #include "kernel/expr.h"
 #include "kernel/context.h"
 #include "kernel/environment.h"
 
 namespace lean {
+class type_is_not_proposition_exception : public exception {
+public:
+    type_is_not_proposition_exception() {}
+    virtual ~type_is_not_proposition_exception() noexcept {}
+    virtual char const * what() const noexcept { return "type is not a propostion"; }
+    virtual exception * clone() const { return new type_is_not_proposition_exception(); }
+    virtual void rethrow() const { throw *this; }
+};
+
 typedef std::pair<name, expr> hypothesis;
 typedef list<hypothesis>      hypotheses;
 class goal {

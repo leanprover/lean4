@@ -426,6 +426,7 @@ inline expr mk_eq(expr const & l, expr const & r) { return expr(new expr_eq(l, r
 inline expr Eq(expr const & l, expr const & r) { return mk_eq(l, r); }
 inline expr mk_lambda(name const & n, expr const & t, expr const & e) { return expr(new expr_lambda(n, t, e)); }
 inline expr mk_pi(name const & n, expr const & t, expr const & e) { return expr(new expr_pi(n, t, e)); }
+inline bool is_default_arrow_var_name(name const & n) { return n == "a"; }
 inline expr mk_arrow(expr const & t, expr const & e) { return mk_pi(name("a"), t, e); }
 inline expr operator>>(expr const & t, expr const & e) { return mk_arrow(t, e); }
 inline expr mk_let(name const & n, optional<expr> const & t, expr const & v, expr const & e) { return expr(new expr_let(n, t, v, e)); }

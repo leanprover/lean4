@@ -1806,22 +1806,24 @@ class parser::imp {
             if (has_metavar(mvar_type))
                 throw metavar_not_synthesized_exception(mvar_ctx, mvar, mvar_type,
                                                         "failed to synthesize metavar, its type contains metavariables");
-            if (!is_proposition(mvar_type, m_env, mvar_ctx))
-                throw metavar_not_synthesized_exception(mvar_ctx, mvar, mvar_type, "failed to synthesize metavar, its type is not a proposition");
-            proof_state s = to_proof_state(m_env, mvar_ctx, mvar_type);
-            std::pair<optional<tactic>, pos_info> hint_and_pos = get_tactic_for(mvar);
-            if (hint_and_pos.first) {
-                // metavariable has an associated tactic hint
-                s = apply_tactic(s, *(hint_and_pos.first), hint_and_pos.second).first;
-                menv->assign(mvar, mk_proof_for(s, hint_and_pos.second, mvar_ctx, mvar_type));
-            } else {
-                if (curr_is_period()) {
-                    display_proof_state_if_interactive(s);
-                    show_tactic_prompt();
-                    next();
+            try {
+                proof_state s = to_proof_state(m_env, mvar_ctx, mvar_type);
+                std::pair<optional<tactic>, pos_info> hint_and_pos = get_tactic_for(mvar);
+                if (hint_and_pos.first) {
+                    // metavariable has an associated tactic hint
+                    s = apply_tactic(s, *(hint_and_pos.first), hint_and_pos.second).first;
+                    menv->assign(mvar, mk_proof_for(s, hint_and_pos.second, mvar_ctx, mvar_type));
+                } else {
+                    if (curr_is_period()) {
+                        display_proof_state_if_interactive(s);
+                        show_tactic_prompt();
+                        next();
+                    }
+                    expr mvar_val = parse_tactic_cmds(s, mvar_ctx, mvar_type);
+                    menv->assign(mvar, mvar_val);
                 }
-                expr mvar_val = parse_tactic_cmds(s, mvar_ctx, mvar_type);
-                menv->assign(mvar, mvar_val);
+            } catch (type_is_not_proposition_exception &) {
+                throw metavar_not_synthesized_exception(mvar_ctx, mvar, mvar_type, "failed to synthesize metavar, its type is not a proposition");
             }
         }
         return menv->instantiate_metavars(val);

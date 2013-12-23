@@ -102,7 +102,7 @@ static name mk_unique_name(name_set & s, name const & suggestion) {
 std::pair<goal, goal_proof_fn> to_goal(ro_environment const & env, context const & ctx, expr const & t) {
     type_inferer inferer(env);
     if (!inferer.is_proposition(t, ctx))
-        throw exception("to_goal failed, type is not a proposition");
+        throw type_is_not_proposition_exception();
     name_set used_names = collect_used_names(ctx, t);
     buffer<context_entry> entries;
     for (auto const & e : ctx)
@@ -118,7 +118,7 @@ std::pair<goal, goal_proof_fn> to_goal(ro_environment const & env, context const
                 unsigned nvidx = vidx - offset;
                 unsigned nfv   = consts.size();
                 if (nvidx >= nfv)
-                    throw exception("to_goal failed, unknown free variable");
+                    throw exception("failed to create goal, unknown free variable");
                 unsigned lvl   = nfv - nvidx - 1;
                 if (bodies[lvl])
                     return *(bodies[lvl]);

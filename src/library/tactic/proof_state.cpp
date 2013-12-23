@@ -4,8 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <utility>
 #include "util/sstream.h"
 #include "kernel/builtin.h"
+#include "kernel/type_checker.h"
 #include "library/kernel_bindings.h"
 #include "library/tactic/proof_state.h"
 
@@ -88,13 +90,27 @@ void proof_state::get_goal_names(name_set & r) const {
 
 static name g_main("main");
 
-proof_state to_proof_state(ro_environment const & env, context const & ctx, expr const & t) {
+proof_state to_proof_state(ro_environment const & env, context ctx, expr t) {
+    list<std::pair<name, expr>> extra_binders;
+    while (is_pi(t)) {
+        name vname;
+        if (is_default_arrow_var_name(abst_name(t)) && is_proposition(abst_domain(t), env, ctx))
+            vname = name("H");
+        else
+            vname = abst_name(t);
+        extra_binders.emplace_front(vname, abst_domain(t));
+        ctx = extend(ctx, vname, abst_domain(t));
+        t   = abst_body(t);
+    }
     auto gfn                 = to_goal(env, ctx, t);
     goal g                   = gfn.first;
     goal_proof_fn fn         = gfn.second;
     proof_builder pr_builder = mk_proof_builder(
         [=](proof_map const & m, assignment const &) -> expr {
-            return fn(find(m, g_main));
+            expr pr = fn(find(m, g_main));
+            for (auto p : extra_binders)
+                pr = mk_lambda(p.first, p.second, pr);
+            return pr;
         });
     cex_builder cex_builder = mk_cex_builder_for(g_main);
     return proof_state(goals(mk_pair(g_main, g)), metavar_env(), pr_builder, cex_builder);

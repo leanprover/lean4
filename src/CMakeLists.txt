@@ -14,8 +14,8 @@ option(SPLIT_STACK        "SPLIT_STACK"        OFF)
 option(READLINE           "READLINE"           OFF)
 
 # Added for CTest
-INCLUDE(CTest)
-CONFIGURE_FILE(${LEAN_SOURCE_DIR}/CTestCustom.cmake.in
+include(CTest)
+configure_file(${LEAN_SOURCE_DIR}/CTestCustom.cmake.in
   ${LEAN_BINARY_DIR}/CTestCustom.cmake @ONLY)
 
 set(LEAN_EXTRA_LINKER_FLAGS "")
@@ -217,6 +217,7 @@ endif()
 set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
 set(EXTRA_LIBS ${LEAN_LIBS} ${EXTRA_LIBS})
 add_subdirectory(shell)
+
 add_subdirectory(tests/util)
 add_subdirectory(tests/util/numerics)
 add_subdirectory(tests/util/interval)

@@ -4,6 +4,20 @@ add_executable(lean lean.cpp)
 add_dependencies(lean githash)
 target_link_libraries(lean ${EXTRA_LIBS})
 
+function(add_extra_module indir)
+  file(GLOB EXTRA_LUA_FILES "${LEAN_SOURCE_DIR}/extra/${indir}/*.lua")
+  foreach(FILE ${EXTRA_LUA_FILES})
+    get_filename_component(FNAME ${FILE} NAME)
+    add_custom_command(OUTPUT ${LEAN_BINARY_DIR}/shell/${indir}/${FNAME}
+      COMMAND ${CMAKE_COMMAND} -E copy ${FILE} ${LEAN_BINARY_DIR}/shell/${indir}/${FNAME}
+      MAIN_DEPENDENCY ${FILE})
+    add_custom_target("${FNAME}_extra" DEPENDS ${LEAN_BINARY_DIR}/shell/${indir}/${FNAME})
+    add_dependencies(lean "${FNAME}_extra")
+  endforeach(FILE)
+endfunction()
+
+add_extra_module(.)
+
 add_test(example1_stdin1 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
 add_test(example1_stdin2 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_CURRENT_BINARY_DIR}/lean "-l" "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
 add_test(example1_stdin3 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_CURRENT_BINARY_DIR}/lean "--lean" "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
@@ -22,7 +36,6 @@ add_test(lean_lua2 ${LEAN_SOURCE_DIR}/cmake/redirect.sh "${CMAKE_CURRENT_BINARY_
 add_test(lean_unknown_option ${LEAN_SOURCE_DIR}/cmake/check_failure.sh "${CMAKE_CURRENT_BINARY_DIR}/lean" "-z")
 add_test(lean_unknown_file1 ${LEAN_SOURCE_DIR}/cmake/check_failure.sh "${CMAKE_CURRENT_BINARY_DIR}/lean" "boofoo.lean")
 add_test(lean_unknown_file2 ${LEAN_SOURCE_DIR}/cmake/check_failure.sh "${CMAKE_CURRENT_BINARY_DIR}/lean" "boofoo.lua")
-
 
 # LEAN EXAMPLES
 file(GLOB LEANEXAMPLES "${LEAN_SOURCE_DIR}/../examples/lean/*.lean")

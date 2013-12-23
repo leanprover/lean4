@@ -43,6 +43,7 @@ static std::string get_exe_location() {
 // Linux version
 #include <sys/types.h>
 #include <unistd.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <limits.h> // NOLINT
 #include <stdio.h>
@@ -52,6 +53,7 @@ static char g_bad_sep  = '\\';
 static std::string get_exe_location() {
     char path[PATH_MAX];
     char dest[PATH_MAX];
+    memset(dest, 0, PATH_MAX);
     pid_t pid = getpid();
     snprintf(path, PATH_MAX, "/proc/%d/exe", pid);
     if (readlink(path, dest, PATH_MAX) == -1) {

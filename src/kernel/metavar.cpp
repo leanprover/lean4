@@ -388,8 +388,8 @@ expr metavar_env_cell::instantiate_metavars(expr const & e, buffer<justification
 
 bool cached_metavar_env::update(optional<metavar_env> const & menv) {
     if (!menv) {
+        m_menv = none_menv();
         if (m_timestamp != 0) {
-            m_menv      = none_menv();
             m_timestamp = 0;
             return true;
         } else {

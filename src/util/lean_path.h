@@ -6,5 +6,5 @@ Author: Leonardo de Moura
 */
 #pragma once
 namespace lean {
-char const * get_exe_location();
+char const * get_lean_path();
 }

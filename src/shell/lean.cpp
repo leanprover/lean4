@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 #include "util/script_state.h"
 #include "util/thread.h"
+#include "util/lean_path.h"
 #include "kernel/printer.h"
 #include "kernel/environment.h"
 #include "library/io_state.h"
@@ -55,6 +56,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --help -h         display this message\n";
     std::cout << "  --version -v      display version number\n";
     std::cout << "  --githash         display the git commit hash number used to build this binary\n";
+    std::cout << "  --path            display the path used for finding Lean libraries and extensions\n";
     std::cout << "  --luahook=num -c  how often the Lua interpreter checks the interrupted flag,\n";
     std::cout << "                    it is useful for interrupting non-terminating user scripts,\n";
     std::cout << "                    0 means 'do not check'.\n";
@@ -82,6 +84,7 @@ static struct option g_long_options[] = {
     {"help",       no_argument,       0, 'h'},
     {"lean",       no_argument,       0, 'l'},
     {"lua",        no_argument,       0, 'u'},
+    {"path",       no_argument,       0, 'p'},
     {"luahook",    required_argument, 0, 'c'},
     {"githash",    no_argument,       0, 'g'},
 #if defined(LEAN_USE_BOOST)
@@ -95,7 +98,7 @@ int main(int argc, char ** argv) {
     lean::register_modules();
     input_kind default_k = input_kind::Lean; // default
     while (true) {
-        int c = getopt_long(argc, argv, "lugvhc:012s:012", g_long_options, NULL);
+        int c = getopt_long(argc, argv, "lupgvhc:012s:012", g_long_options, NULL);
         if (c == -1)
             break; // end of command line
         switch (c) {
@@ -117,6 +120,9 @@ int main(int argc, char ** argv) {
         case 'c':
             script_state::set_check_interrupt_freq(atoi(optarg));
             break;
+        case 'p':
+            std::cout << lean::get_lean_path() << "\n";
+            return 0;
         case 's':
             lean::set_thread_stack_size(atoi(optarg)*1024);
             break;

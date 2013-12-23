@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "library/arith/register_module.h"
 #include "library/tactic/register_module.h"
 #include "frontends/lean/register_module.h"
-#include "frontends/lua/lean.lua"
+#include "frontends/lua/lean.lua.h"
 
 namespace lean {
 void register_modules() {

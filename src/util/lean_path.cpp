@@ -17,6 +17,7 @@ namespace lean {
 #include <windows.h>
 static char g_path_sep = ';';
 static char g_sep      = '\\';
+static char g_bad_sep  = '/';
 static std::string get_exe_location() {
     HMODULE hModule = GetModuleHandleW(NULL);
     WCHAR path[MAX_PATH];
@@ -39,6 +40,7 @@ static std::string get_exe_location() {
 #include <limits.h>
 static char g_path_sep = ':';
 static char g_sep      = '/';
+static char g_bad_sep  = '\\';
 static std::string get_exe_location() {
     char buf[PATH_MAX];
     uint32_t bufsize = PATH_MAX;
@@ -55,6 +57,7 @@ static std::string get_exe_location() {
 #include <stdio.h>
 static char g_path_sep = ':';
 static char g_sep      = '/';
+static char g_bad_sep  = '\\';
 static std::string get_exe_location() {
     char path[PATH_MAX];
     char dest[PATH_MAX];
@@ -67,6 +70,15 @@ static std::string get_exe_location() {
     }
 }
 #endif
+
+std::string normalize_path(std::string f) {
+    for (auto & c : f) {
+        if (c == g_bad_sep)
+            c = g_sep;
+    }
+    return f;
+}
+
 static std::string              g_lean_path;
 static std::vector<std::string> g_lean_path_vector;
 struct init_lean_path {
@@ -79,6 +91,7 @@ struct init_lean_path {
         } else {
             g_lean_path = r;
         }
+        g_lean_path = normalize_path(g_lean_path);
         unsigned i  = 0;
         unsigned j  = 0;
         unsigned sz = g_lean_path.size();
@@ -89,13 +102,16 @@ struct init_lean_path {
                 i = j + 1;
             }
         }
+        if (j > i)
+            g_lean_path_vector.push_back(g_lean_path.substr(i, j - i));
     }
 };
 static init_lean_path g_init_lean_path;
 
 std::string find_file(char const * fname) {
+    std::string nfname = normalize_path(std::string(fname));
     for (auto path : g_lean_path_vector) {
-        auto file = path + g_sep + fname;
+        std::string file = path + g_sep + nfname;
         std::ifstream ifile(file);
         if (ifile)
             return file;

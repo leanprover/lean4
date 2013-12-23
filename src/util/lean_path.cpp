@@ -21,7 +21,17 @@ static std::string get_exe_location() {
     HMODULE hModule = GetModuleHandleW(NULL);
     WCHAR path[MAX_PATH];
     GetModuleFileNameW(hModule, path, MAX_PATH);
-    return std::string(path);
+    std::wstring pathstr(path);
+    std::string r(pathstr.begin(), pathstr.end());
+    while (true) {
+        if (r.empty())
+            throw exception("failed to locate Lean executable location");
+        if (r.back() == g_sep) {
+            r.pop_back();
+            return r;
+        }
+        r.pop_back();
+    }
 }
 #elif defined(__APPLE__)
 // OSX version

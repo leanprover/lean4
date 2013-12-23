@@ -1,0 +1,6 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: P
+  Assumed: Ax1
+  Assumed: Ax2
+  Proved: T

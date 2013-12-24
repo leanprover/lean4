@@ -174,3 +174,13 @@
    ...
    fun:(below main)
 }
+
+{
+   readline_suppress_1
+   Memcheck:Param
+   sendmsg(msg.msg_name)
+   fun:__sendmsg_nocancel
+   fun:readline
+   ...
+}
+

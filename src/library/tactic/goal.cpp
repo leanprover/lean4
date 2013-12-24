@@ -18,6 +18,33 @@ Author: Leonardo de Moura
 
 namespace lean {
 
+name mk_unique_hypothesis_name(hypotheses const & hs, name const & suggestion) {
+    name n = suggestion;
+    unsigned i = 0;
+    // TODO(Leo): investigate if this method is a performance bottleneck
+    while (true) {
+        bool ok = true;
+        for (auto const & p : hs) {
+            if (is_prefix_of(n, p.first)) {
+                ok = false;
+                break;
+            }
+        }
+        if (ok) {
+            return n;
+        } else {
+            i++;
+            n = name(suggestion, i);
+        }
+    }
+}
+
+name update_hypotheses_fn::operator()(name const & suggestion, expr const & t) {
+    name n = mk_unique_hypothesis_name(m_hypotheses, suggestion);
+    m_hypotheses.emplace_front(n, t);
+    return n;
+}
+
 goal::goal(hypotheses const & hs, expr const & c):m_hypotheses(hs), m_conclusion(c) {}
 
 format goal::pp(formatter const & fmt, options const & opts) const {
@@ -43,24 +70,7 @@ format goal::pp(formatter const & fmt, options const & opts) const {
 }
 
 name goal::mk_unique_hypothesis_name(name const & suggestion) const {
-    name n = suggestion;
-    unsigned i = 0;
-    // TODO(Leo): investigate if this method is a performance bottleneck
-    while (true) {
-        bool ok = true;
-        for (auto const & p : m_hypotheses) {
-            if (is_prefix_of(n, p.first)) {
-                ok = false;
-                break;
-            }
-        }
-        if (ok) {
-            return n;
-        } else {
-            i++;
-            n = name(suggestion, i);
-        }
-    }
+    return ::lean::mk_unique_hypothesis_name(m_hypotheses, suggestion);
 }
 
 goal_proof_fn::goal_proof_fn(std::vector<expr> && consts):

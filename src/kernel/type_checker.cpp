@@ -491,6 +491,19 @@ bool type_checker::is_proposition(expr const & e, context const & ctx) {
 bool type_checker::is_proposition(expr const & e, context const & ctx, metavar_env const & menv) {
     return is_proposition(e, ctx, some_menv(menv));
 }
+bool type_checker::is_flex_proposition(expr e, context ctx, optional<metavar_env> const & menv) {
+    while (is_pi(e)) {
+        ctx = extend(ctx, abst_name(e), abst_domain(e));
+        e   = abst_body(e);
+    }
+    return is_proposition(e, ctx, menv);
+}
+bool type_checker::is_flex_proposition(expr const & e, context const & ctx, metavar_env const & menv) {
+    return is_flex_proposition(e, ctx, some_menv(menv));
+}
+bool type_checker::is_flex_proposition(expr const & e, context const & ctx) {
+    return is_flex_proposition(e, ctx, none_menv());
+}
 void type_checker::clear() { m_ptr->clear(); }
 normalizer & type_checker::get_normalizer() { return m_ptr->get_normalizer(); }
 expr  type_check(expr const & e, ro_environment const & env, context const & ctx) {

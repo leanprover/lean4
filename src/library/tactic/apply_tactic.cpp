@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
+#include "kernel/abstract.h"
 #include "library/fo_unify.h"
 #include "library/kernel_bindings.h"
 #include "library/tactic/goal.h"
@@ -43,9 +44,11 @@ static optional<proof_state> apply_tactic(ro_environment const & env, proof_stat
     // The proof is based on an application of th.
     // There are two kinds of arguments:
     //    1) regular arguments computed using unification.
-    //    2) propostions that generate new subgoals.
+    //    2) propositions that generate new subgoals.
+    typedef std::pair<name, hypotheses> proposition_arg;
     // We use a pair to simulate this "union" type.
-    typedef list<std::pair<optional<expr>, name>> arg_list;
+    typedef list<std::pair<optional<expr>,
+                           optional<proposition_arg>>> arg_list;
     // We may solve more than one goal.
     // We store the solved goals using a list of pairs
     // name, args. Where the 'name' is the name of the solved goal.
@@ -66,21 +69,32 @@ static optional<proof_state> apply_tactic(ro_environment const & env, proof_stat
                 for (auto const & mvar : mvars) {
                     expr mvar_sol = apply(*subst, mvar);
                     if (mvar_sol != mvar) {
-                        l = cons(mk_pair(some_expr(mvar_sol), name()), l);
+                        l = cons(mk_pair(some_expr(mvar_sol), optional<proposition_arg>()), l);
                         th_type_c = instantiate(abst_body(th_type_c), mvar_sol, new_menv);
                     } else {
-                        if (checker.is_proposition(abst_domain(th_type_c), context(), new_menv)) {
+                        expr arg_type = abst_domain(th_type_c);
+                        if (checker.is_flex_proposition(arg_type, context(), new_menv)) {
                             name new_gname(gname, new_goal_idx);
                             new_goal_idx++;
-                            l = cons(mk_pair(none_expr(), new_gname), l);
-                            new_goals_buf.emplace_back(new_gname, update(g, abst_domain(th_type_c)));
-                            th_type_c = instantiate(abst_body(th_type_c), mk_constant(new_gname, abst_domain(th_type_c)), new_menv);
+                            hypotheses hs = g.get_hypotheses();
+                            update_hypotheses_fn add_hypothesis(hs);
+                            hypotheses extra_hs;
+                            while (is_pi(arg_type)) {
+                                expr d   = abst_domain(arg_type);
+                                name n   = arg_to_hypothesis_name(env, context(), abst_name(arg_type), d);
+                                n   = add_hypothesis(n, d);
+                                extra_hs.emplace_front(n, d);
+                                arg_type = instantiate(abst_body(arg_type), mk_constant(n, d), new_menv);
+                            }
+                            l = cons(mk_pair(none_expr(), some(proposition_arg(new_gname, extra_hs))), l);
+                            new_goals_buf.emplace_back(new_gname, goal(add_hypothesis.get_hypotheses(), arg_type));
+                            th_type_c = instantiate(abst_body(th_type_c), mk_constant(new_gname, arg_type), new_menv);
                         } else {
                             // we have to create a new metavar in menv
                             // since we do not have a substitution for mvar, and
                             // it is not a proposition
-                            expr new_m = new_menv->mk_metavar(context(), some_expr(abst_domain(th_type_c)));
-                            l = cons(mk_pair(some_expr(new_m), name()), l);
+                            expr new_m = new_menv->mk_metavar(context(), some_expr(arg_type));
+                            l = cons(mk_pair(some_expr(new_m), optional<proposition_arg>()), l);
                             th_type_c = instantiate(abst_body(th_type_c), 1, &new_m, new_menv);
                         }
                     }
@@ -108,8 +122,12 @@ static optional<proof_state> apply_tactic(ro_environment const & env, proof_stat
                             // TODO(Leo): decide if we instantiate the metavars in the end or not.
                             args.push_back(*arg);
                         } else {
-                            name const & subgoal_name = p2.second;
-                            args.push_back(find(m, subgoal_name));
+                            proposition_arg const & parg = *(p2.second);
+                            name const & subgoal_name = parg.first;
+                            expr pr = find(m, subgoal_name);
+                            for (auto p : parg.second)
+                                pr = Fun(p.first, p.second, pr);
+                            args.push_back(pr);
                             new_m.erase(subgoal_name);
                         }
                     }

@@ -120,6 +120,12 @@ goals map_goals(proof_state const & s, F && f) {
 
 io_state_stream const & operator<<(io_state_stream const & out, proof_state & s);
 
+/**
+    \brief Return a name based on \c n that is suitable to be used as a hypothesis name
+    It basically renames \c n to 'H' if \c d is a proposition and \c n is the default arrow binder name.
+*/
+name arg_to_hypothesis_name(ro_environment const & env, context const & ctx, name const & n, expr const & d);
+
 UDATA_DEFS_CORE(goals)
 UDATA_DEFS(proof_state)
 void open_proof_state(lua_State * L);

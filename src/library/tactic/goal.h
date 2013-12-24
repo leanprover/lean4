@@ -28,6 +28,20 @@ public:
 
 typedef std::pair<name, expr> hypothesis;
 typedef list<hypothesis>      hypotheses;
+
+class update_hypotheses_fn {
+    hypotheses m_hypotheses;
+public:
+    update_hypotheses_fn(hypotheses const & hs):m_hypotheses(hs) {}
+    hypotheses const & get_hypotheses() const { return m_hypotheses; }
+    /**
+        \brief Add a new hypothesis, the name \c n is a suggestion.
+        The method checks if the given name collides with an existing name.
+        It returns the actual name used.
+    */
+    name operator()(name const & n, expr const & t);
+};
+
 class goal {
     hypotheses m_hypotheses;
     expr       m_conclusion;

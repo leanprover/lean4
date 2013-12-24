@@ -77,9 +77,15 @@ public:
     /** \brief Return true iff \c t1 is convertible to \c t2 in the context \c ctx. */
     bool is_convertible(expr const & t1, expr const & t2, context const & ctx = context());
 
+    /** \brief Return true iff \c e is a proposition (i.e., it has type Bool) */
     bool is_proposition(expr const & e, context const & ctx, optional<metavar_env> const & menv);
     bool is_proposition(expr const & e, context const & ctx, metavar_env const & menv);
     bool is_proposition(expr const & e, context const & ctx = context());
+
+    /** \brief Return true iff \c e is a proposition or is a Pi s.t. the range is a flex_proposition */
+    bool is_flex_proposition(expr e, context ctx, optional<metavar_env> const & menv);
+    bool is_flex_proposition(expr const & e, context const & ctx, metavar_env const & menv);
+    bool is_flex_proposition(expr const & e, context const & ctx = context());
 
     /** \brief Reset internal caches */
     void clear();

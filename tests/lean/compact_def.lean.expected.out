@@ -1,0 +1,8 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Defined: f
+  Defined: g
+  Defined: h
+Definition f (x y : ℕ) : ℕ := x + y
+Definition g (x y : ℝ) : ℝ := sin x + y
+Definition h (x y : ℝ) : ℝ := x * sin (x + y)

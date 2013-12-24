@@ -1178,7 +1178,7 @@ class parser::imp {
         \remark If implicit_decls is true, then we allow declarations
         with curly braces. These declarations are used to tag implicit
         arguments. Such as:
-        <code> Definition f {A : Type} (a b : A), A := ... </code>
+        <code> Definition f {A : Type} (a b : A) : A := ... </code>
 
         \see parse_simple_bindings
     */
@@ -1213,14 +1213,19 @@ class parser::imp {
         }
     }
 
-    /** \brief Parse bindings for object such as: definitions, theorems, axioms, variables ... */
-    void parse_object_bindings(bindings_buffer & result) {
-        parse_bindings(result, true, false);
-    }
-
     /** \brief Parse bindings for expressions such as: lambda, pi, forall, exists */
     void parse_expr_bindings(bindings_buffer & result) {
         parse_bindings(result, false, true);
+    }
+
+    /** \brief Parse bindings for object such as: axioms, variables ... */
+    void parse_var_decl_bindings(bindings_buffer & result) {
+        parse_bindings(result, true, false);
+    }
+
+    /** \brief Parse bindings for object such as: theorems, definitions ... */
+    void parse_definition_bindings(bindings_buffer & result) {
+        parse_bindings(result, true, true);
     }
 
     /**
@@ -1859,7 +1864,7 @@ class parser::imp {
             pre_val  = parse_expr();
         } else {
             mk_scope scope(*this);
-            parse_object_bindings(bindings);
+            parse_definition_bindings(bindings);
             expr type_body;
             if (curr_is_colon()) {
                 next();
@@ -1935,7 +1940,7 @@ class parser::imp {
             type = p.first;
         } else {
             mk_scope scope(*this);
-            parse_object_bindings(bindings);
+            parse_var_decl_bindings(bindings);
             check_colon_next("invalid variable/axiom declaration, ':' expected");
             expr type_body = parse_expr();
             auto p = m_elaborator(mk_abstraction(false, bindings, type_body));

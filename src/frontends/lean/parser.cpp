@@ -2255,8 +2255,6 @@ class parser::imp {
             return;
         }
         try {
-            if (m_verbose)
-                regular(m_io_state) << "Importing file '" << fname << "'" << endl;
             parser import_parser(m_env, m_io_state, in, m_script_state, true /* use exceptions */, false /* not interactive */);
             import_parser();
         } catch (interrupted &) {

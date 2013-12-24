@@ -512,7 +512,13 @@ expr  type_check(expr const & e, ro_environment const & env, context const & ctx
 bool is_convertible(expr const & given, expr const & expected, ro_environment const & env, context const & ctx) {
     return type_checker(env).is_convertible(given, expected, ctx);
 }
+bool is_proposition(expr const & e, ro_environment const & env, context const & ctx, optional<metavar_env> const & menv) {
+    return type_checker(env).is_proposition(e, ctx, menv);
+}
+bool is_proposition(expr const & e, ro_environment const & env, context const & ctx, metavar_env const & menv) {
+    return is_proposition(e, env, ctx, some_menv(menv));
+}
 bool is_proposition(expr const & e, ro_environment const & env, context const & ctx) {
-    return type_checker(env).is_proposition(e, ctx);
+    return is_proposition(e, env, ctx, none_menv());
 }
 }

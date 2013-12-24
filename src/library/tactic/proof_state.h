@@ -124,7 +124,11 @@ io_state_stream const & operator<<(io_state_stream const & out, proof_state & s)
     \brief Return a name based on \c n that is suitable to be used as a hypothesis name
     It basically renames \c n to 'H' if \c d is a proposition and \c n is the default arrow binder name.
 */
-name arg_to_hypothesis_name(ro_environment const & env, context const & ctx, name const & n, expr const & d);
+name arg_to_hypothesis_name(name const & n, expr const & d, ro_environment const & env, context const & ctx,
+                            optional<metavar_env> const & menv = none_menv());
+inline name arg_to_hypothesis_name(name const & n, expr const & d, ro_environment const & env, context const & ctx, metavar_env const & menv) {
+    return arg_to_hypothesis_name(n, d, env, ctx, some_menv(menv));
+}
 
 UDATA_DEFS_CORE(goals)
 UDATA_DEFS(proof_state)

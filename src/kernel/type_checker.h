@@ -111,5 +111,7 @@ public:
 };
 expr type_check(expr const & e, ro_environment const & env, context const & ctx = context());
 bool is_convertible(expr const & t1, expr const & t2, ro_environment const & env, context const & ctx = context());
+bool is_proposition(expr const & e, ro_environment const & env, context const & ctx, optional<metavar_env> const & menv);
+bool is_proposition(expr const & e, ro_environment const & env, context const & ctx, metavar_env const & menv);
 bool is_proposition(expr const & e, ro_environment const & env, context const & ctx = context());
 }

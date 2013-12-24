@@ -80,8 +80,8 @@ static optional<proof_state> apply_tactic(ro_environment const & env, proof_stat
                             update_hypotheses_fn add_hypothesis(hs);
                             hypotheses extra_hs;
                             while (is_pi(arg_type)) {
-                                expr d   = abst_domain(arg_type);
-                                name n   = arg_to_hypothesis_name(env, context(), abst_name(arg_type), d);
+                                expr d = abst_domain(arg_type);
+                                name n = arg_to_hypothesis_name(abst_name(arg_type), d, env, context(), new_menv);
                                 n   = add_hypothesis(n, d);
                                 extra_hs.emplace_front(n, d);
                                 arg_type = instantiate(abst_body(arg_type), mk_constant(n, d), new_menv);

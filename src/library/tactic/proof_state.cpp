@@ -88,8 +88,8 @@ void proof_state::get_goal_names(name_set & r) const {
     }
 }
 
-name arg_to_hypothesis_name(ro_environment const & env, context const & ctx, name const & n, expr const & d) {
-    if (is_default_arrow_var_name(n) && is_proposition(d, env, ctx))
+name arg_to_hypothesis_name(name const & n, expr const & d, ro_environment const & env, context const & ctx, optional<metavar_env> const & menv) {
+    if (is_default_arrow_var_name(n) && is_proposition(d, env, ctx, menv))
         return name("H");
     else
         return n;
@@ -100,7 +100,7 @@ static name g_main("main");
 proof_state to_proof_state(ro_environment const & env, context ctx, expr t) {
     list<std::pair<name, expr>> extra_binders;
     while (is_pi(t)) {
-        name vname = arg_to_hypothesis_name(env, ctx, abst_name(t), abst_domain(t));
+        name vname = arg_to_hypothesis_name(abst_name(t), abst_domain(t), env, ctx);
         extra_binders.emplace_front(vname, abst_domain(t));
         ctx = extend(ctx, vname, abst_domain(t));
         t   = abst_body(t);

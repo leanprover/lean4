@@ -1,5 +1,11 @@
   Set: pp::colors
   Set: pp::unicode
+Importing file '/home/leo/projects/lean/build/debug/shell/cast.lean'
+  Assumed: cast
+  Assumed: CastEq
+  Assumed: CastApp
+  Assumed: DomInj
+  Assumed: RanInj
   Set: pp::colors
   Defined: TypeM
   Defined: TypeU

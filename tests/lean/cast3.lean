@@ -1,3 +1,5 @@
+Import "cast.lean"
+
 Variables A A' B B' : Type
 Variable x : A
 Eval cast (Refl A) x
@@ -20,4 +22,3 @@ Axiom Hb : A2 = A3
 Variable a : A1
 Eval (cast Hb (cast Ha a))
 Check (cast Hb (cast Ha a))
-

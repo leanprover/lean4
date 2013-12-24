@@ -1,3 +1,5 @@
+Import "cast.lean"
+
 Variable vector : Type -> Nat -> Type
 Axiom N0 (n : Nat) : n + 0 = n
 Theorem V0 (T : Type) (n : Nat) : (vector T (n + 0)) = (vector T n) :=

@@ -4,15 +4,23 @@ add_executable(lean lean.cpp)
 add_dependencies(lean githash)
 target_link_libraries(lean ${EXTRA_LIBS})
 
+function(add_extra_dependency indir file)
+  get_filename_component(FNAME ${file} NAME)
+  add_custom_command(OUTPUT ${LEAN_BINARY_DIR}/shell/${indir}/${FNAME}
+    COMMAND ${CMAKE_COMMAND} -E copy ${file} ${LEAN_BINARY_DIR}/shell/${indir}/${FNAME}
+    MAIN_DEPENDENCY ${file})
+  add_custom_target("${FNAME}_extra" DEPENDS ${LEAN_BINARY_DIR}/shell/${indir}/${FNAME})
+  add_dependencies(lean "${FNAME}_extra")
+endfunction()
+
 function(add_extra_module indir)
   file(GLOB EXTRA_LUA_FILES "${LEAN_SOURCE_DIR}/extra/${indir}/*.lua")
   foreach(FILE ${EXTRA_LUA_FILES})
-    get_filename_component(FNAME ${FILE} NAME)
-    add_custom_command(OUTPUT ${LEAN_BINARY_DIR}/shell/${indir}/${FNAME}
-      COMMAND ${CMAKE_COMMAND} -E copy ${FILE} ${LEAN_BINARY_DIR}/shell/${indir}/${FNAME}
-      MAIN_DEPENDENCY ${FILE})
-    add_custom_target("${FNAME}_extra" DEPENDS ${LEAN_BINARY_DIR}/shell/${indir}/${FNAME})
-    add_dependencies(lean "${FNAME}_extra")
+    add_extra_dependency(${indir} ${FILE})
+  endforeach(FILE)
+  file(GLOB EXTRA_LEAN_FILES "${LEAN_SOURCE_DIR}/extra/${indir}/*.lean")
+  foreach(FILE ${EXTRA_LEAN_FILES})
+    add_extra_dependency(${indir} ${FILE})
   endforeach(FILE)
 endfunction()
 

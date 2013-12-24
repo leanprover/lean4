@@ -1,13 +1,11 @@
   Set: pp::colors
   Set: pp::unicode
-Importing file 'simple.lean'
+Importing file './simple.lean'
   Assumed: x
   Assumed: y
-Module 'simple.lean' has already been imported
-Importing file 'simple.lean'
+Importing file './simple.lean'
   Assumed: x
   Assumed: y
-Module 'simple.lean' has already been imported
 x + y : ℤ
   Assumed: z
 z : ℤ

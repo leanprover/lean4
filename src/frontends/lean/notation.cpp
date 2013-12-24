@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include "kernel/builtin.h"
 #include "library/basic_thms.h"
 #include "library/arith/arith.h"
-#include "library/cast/cast.h"
 #include "frontends/lean/frontend.h"
 
 namespace lean {
@@ -94,12 +93,6 @@ void init_builtin_notation(environment const & env, io_state & ios) {
     mark_implicit_arguments(env, mk_imp_antisym_fn(), 2);
     mark_implicit_arguments(env, mk_hsymm_fn(), 4);
     mark_implicit_arguments(env, mk_htrans_fn(), 6);
-
-    mark_implicit_arguments(env, mk_cast_fn(), 2);
-    mark_implicit_arguments(env, mk_cast_eq_fn(), 2);
-    mark_implicit_arguments(env, mk_cast_app_fn(), 4);
-    mark_implicit_arguments(env, mk_dom_inj_fn(), 4);
-    mark_implicit_arguments(env, mk_ran_inj_fn(), 4);
 
     // implicit arguments for basic theorems
     mark_implicit_arguments(env, mk_absurd_fn(), 1);

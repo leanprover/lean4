@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "util/script_state.h"
 #include "util/script_exception.h"
 #include "util/interrupt.h"
+#include "util/lean_path.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/normalizer.h"
 #include "kernel/type_checker.h"
@@ -2245,11 +2246,12 @@ class parser::imp {
     void parse_import() {
         next();
         std::string fname  = check_string_next("invalid import command, string (i.e., file name) expected");
+        fname = find_file(fname.c_str());
         std::ifstream in(fname);
         if (!in.is_open())
             throw parser_error(sstream() << "invalid import command, failed to open file '" << fname << "'", m_last_cmd_pos);
         if (!m_env->mark_imported(fname.c_str())) {
-            diagnostic(m_io_state) << "Module '" << fname << "' has already been imported" << endl;
+            // module already imported
             return;
         }
         try {

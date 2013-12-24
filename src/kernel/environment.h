@@ -78,10 +78,10 @@ class environment_cell {
     bool already_imported(name const & n) const;
     bool mark_imported_core(name n);
 
-    environment_cell(std::shared_ptr<environment_cell> const & parent);
 
 public:
     environment_cell();
+    environment_cell(std::shared_ptr<environment_cell> const & parent);
     ~environment_cell();
 
     /** \brief Return true iff this environment has children environments. */

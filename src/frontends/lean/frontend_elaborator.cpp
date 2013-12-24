@@ -507,7 +507,7 @@ public:
     }
 };
 
-frontend_elaborator::frontend_elaborator(environment const & env):m_ptr(new imp(env)) {}
+frontend_elaborator::frontend_elaborator(environment const & env):m_ptr(std::make_shared<imp>(env)) {}
 frontend_elaborator::~frontend_elaborator() {}
 std::pair<expr, metavar_env> frontend_elaborator::operator()(expr const & e) { return m_ptr->elaborate(e); }
 std::tuple<expr, expr, metavar_env> frontend_elaborator::operator()(name const & n, expr const & t, expr const & e) {

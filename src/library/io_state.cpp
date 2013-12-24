@@ -11,15 +11,15 @@ Author: Leonardo de Moura
 namespace lean {
 io_state::io_state():
     m_formatter(mk_simple_formatter()),
-    m_regular_channel(new stdout_channel()),
-    m_diagnostic_channel(new stderr_channel()) {
+    m_regular_channel(std::make_shared<stdout_channel>()),
+    m_diagnostic_channel(std::make_shared<stderr_channel>()) {
 }
 
 io_state::io_state(options const & opts, formatter const & fmt):
     m_options(opts),
     m_formatter(fmt),
-    m_regular_channel(new stdout_channel()),
-    m_diagnostic_channel(new stderr_channel()) {
+    m_regular_channel(std::make_shared<stdout_channel>()),
+    m_diagnostic_channel(std::make_shared<stderr_channel>()) {
 }
 
 io_state::~io_state() {}

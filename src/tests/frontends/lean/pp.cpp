@@ -72,7 +72,7 @@ static void tst4() {
 
 static void tst5() {
     environment env; io_state ios; init_frontend(env, ios);
-    std::shared_ptr<string_output_channel> out(new string_output_channel());
+    std::shared_ptr<string_output_channel> out(std::make_shared<string_output_channel>());
     ios.set_regular_channel(out);
     ios.set_option(name{"pp", "unicode"}, true);
     ios.set_option(name{"lean", "pp", "notation"}, true);
@@ -92,7 +92,7 @@ static expr mk_deep(unsigned depth) {
 
 static void tst6() {
     environment env; io_state ios; init_frontend(env, ios);
-    std::shared_ptr<string_output_channel> out(new string_output_channel());
+    std::shared_ptr<string_output_channel> out(std::make_shared<string_output_channel>());
     ios.set_regular_channel(out);
     expr t = mk_deep(10);
     ios.set_option(name{"lean", "pp", "max_depth"}, 5);

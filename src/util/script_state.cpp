@@ -133,7 +133,7 @@ script_state to_script_state(lua_State * L) {
 }
 
 script_state::script_state():
-    m_ptr(new imp()) {
+    m_ptr(std::make_shared<imp>()) {
     m_ptr->save_weak_ptr(m_ptr);
 }
 

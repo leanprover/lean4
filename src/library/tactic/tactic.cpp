@@ -176,7 +176,7 @@ tactic trace_state_tactic() {
 tactic suppress_trace(tactic const & t) {
     return mk_tactic([=](ro_environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
             io_state new_io(io);
-            std::shared_ptr<output_channel> out(new string_output_channel());
+            std::shared_ptr<output_channel> out(std::make_shared<string_output_channel>());
             new_io.set_diagnostic_channel(out);
             return t(env, new_io, s);
         });

@@ -461,14 +461,14 @@ environment_cell::~environment_cell() {
 }
 
 environment::environment():
-    m_ptr(new environment_cell()) {
+    m_ptr(std::make_shared<environment_cell>()) {
     m_ptr->m_this = m_ptr;
     m_ptr->m_type_checker.reset(new type_checker(*this));
 }
 
 // used when creating a new child environment
 environment::environment(std::shared_ptr<environment_cell> const & parent, bool):
-    m_ptr(new environment_cell(parent)) {
+    m_ptr(std::make_shared<environment_cell>(parent)) {
     m_ptr->m_this = m_ptr;
     m_ptr->m_type_checker.reset(new type_checker(*this));
 }

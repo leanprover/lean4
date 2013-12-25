@@ -172,7 +172,15 @@
    fun:malloc
    obj:*/bin/mawk
    ...
-   fun:(below main)
+}
+
+{
+   # This entry Suppresses memory leaks at awk. We use awk at doc/lua/test.sh and doc/lua/test_single.sh
+   AWK_Bug2
+   Memcheck:Leak
+   fun:realloc
+   obj:*/bin/mawk
+   ...
 }
 
 {
@@ -183,4 +191,3 @@
    fun:readline
    ...
 }
-

@@ -132,7 +132,12 @@ static unsigned g_level_cup_prec  = 5;
 static name g_unused = name::mk_internal_unique_name();
 
 enum class macro_arg_kind { Expr, Exprs, Bindings, Id, Comma, Assign };
-typedef std::pair<list<macro_arg_kind>, luaref> macro;
+struct macro {
+    list<macro_arg_kind> m_arg_kinds;
+    luaref               m_fn;
+    unsigned             m_precedence;
+    macro(list<macro_arg_kind> const & as, luaref const & fn, unsigned prec):m_arg_kinds(as), m_fn(fn), m_precedence(prec) {}
+};
 typedef name_map<macro> macros;
 macros & get_macros(lua_State * L);
 
@@ -921,47 +926,47 @@ class parser::imp {
     /**
        \brief Parse a macro implemented in Lua
     */
-    expr parse_macro(list<macro_arg_kind> const & arg_kinds, luaref const & proc, macro_arg_stack & args, pos_info const & p) {
+    expr parse_macro(list<macro_arg_kind> const & arg_kinds, luaref const & fn, unsigned prec, macro_arg_stack & args, pos_info const & p) {
         if (arg_kinds) {
             auto k = head(arg_kinds);
             switch (k) {
             case macro_arg_kind::Expr: {
-                expr e = parse_expr(g_app_precedence);
+                expr e = parse_expr(prec);
                 args.emplace_back(k, &e);
-                return parse_macro(tail(arg_kinds), proc, args, p);
+                return parse_macro(tail(arg_kinds), fn, prec, args, p);
             }
             case macro_arg_kind::Exprs: {
                 buffer<expr> exprs;
                 while (is_curr_begin_expr()) {
-                    exprs.push_back(parse_expr(g_app_precedence));
+                    exprs.push_back(parse_expr(prec));
                 }
                 args.emplace_back(k, &exprs);
-                return parse_macro(tail(arg_kinds), proc, args, p);
+                return parse_macro(tail(arg_kinds), fn, prec, args, p);
             }
             case macro_arg_kind::Bindings: {
                 mk_scope scope(*this);
                 bindings_buffer bindings;
                 parse_expr_bindings(bindings);
                 args.emplace_back(k, &bindings);
-                return parse_macro(tail(arg_kinds), proc, args, p);
+                return parse_macro(tail(arg_kinds), fn, prec, args, p);
             }
             case macro_arg_kind::Comma:
                 check_comma_next("invalid macro, ',' expected");
-                return parse_macro(tail(arg_kinds), proc, args, p);
+                return parse_macro(tail(arg_kinds), fn, prec, args, p);
             case macro_arg_kind::Assign:
                 check_comma_next("invalid macro, ':=' expected");
-                return parse_macro(tail(arg_kinds), proc, args, p);
+                return parse_macro(tail(arg_kinds), fn, prec, args, p);
             case macro_arg_kind::Id: {
                 name n = curr_name();
                 args.emplace_back(k, &n);
-                return parse_macro(tail(arg_kinds), proc, args, p);
+                return parse_macro(tail(arg_kinds), fn, prec, args, p);
             }}
             lean_unreachable();
         } else {
-            // All arguments have been parsed, then call Lua procedure proc.
+            // All arguments have been parsed, then call Lua procedure fn.
             m_last_script_pos = p;
             return m_script_state->apply([&](lua_State * L) {
-                    proc.push();
+                    fn.push();
                     for (auto p : args) {
                         macro_arg_kind k = p.first;
                         void * arg       = p.second;
@@ -1019,10 +1024,8 @@ class parser::imp {
     expr parse_macro(name const & id, pos_info const & p) {
         lean_assert(m_macros && m_macros->find(id) != m_macros->end());
         auto m = m_macros->find(id)->second;
-        list<macro_arg_kind> arg_kinds = m.first;
-        luaref proc                    = m.second;
         macro_arg_stack args;
-        return parse_macro(arg_kinds, proc, args, p);
+        return parse_macro(m.m_arg_kinds, m.m_fn, m.m_precedence, args, p);
     }
 
     /**
@@ -2671,7 +2674,9 @@ macros & get_macros(lua_State * L) {
 }
 
 int mk_macro(lua_State * L) {
+    int nargs = lua_gettop(L);
     name macro_name = to_name_ext(L, 1);
+    unsigned prec = nargs == 4 ? lua_tointeger(L, 4) : g_app_precedence;
     luaL_checktype(L, 3, LUA_TFUNCTION); // user-fun
     buffer<macro_arg_kind> arg_kind_buffer;
     int n = objlen(L, 2);
@@ -2681,7 +2686,7 @@ int mk_macro(lua_State * L) {
         lua_pop(L, 1);
     }
     list<macro_arg_kind> arg_kinds = to_list(arg_kind_buffer.begin(), arg_kind_buffer.end());
-    get_macros(L).insert(mk_pair(macro_name, macro(arg_kinds, luaref(L, 3))));
+    get_macros(L).insert(mk_pair(macro_name, macro(arg_kinds, luaref(L, 3), prec)));
     return 0;
 }
 

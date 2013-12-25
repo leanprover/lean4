@@ -24,6 +24,7 @@
 -- The _ are placeholders (aka) holes that will be filled by the Lean
 -- elaborator.
 function binder_macro(name, f, farity, typepos, lambdapos)
+   local precedence = 0
    macro(name, { macro_arg.Bindings, macro_arg.Comma, macro_arg.Expr },
          function (bindings, body)
             local r = body
@@ -44,7 +45,8 @@ function binder_macro(name, f, farity, typepos, lambdapos)
                r = mk_app(unpack(args))
             end
             return r
-   end)
+         end,
+         precedence)
 end
 
 -- The following macro is used to create nary versions of operators such as MP and ForallElim.
@@ -85,3 +87,4 @@ binder_macro("for", Const("ForallIntro"), 3, 1, 3)
 binder_macro("assume", Const("Discharge"), 3, 1, 3)
 nary_macro("instantiate", Const("ForallElim"), 4)
 nary_macro("mp", Const("MP"), 4)
+nary_macro("subst", Const("Subst"), 6)

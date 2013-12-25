@@ -42,25 +42,29 @@ typedef list<std::pair<optional<expr>, optional<proposition_arg>>> arg_list;
 proof_builder mk_apply_tac_proof_builder(proof_builder const & pb, name const & gname, expr const & th_fun, arg_list const & alist) {
     return mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
             proof_map new_m(m);
-            buffer<expr> args;
-            args.push_back(th_fun);
-            for (auto const & p2 : alist) {
-                optional<expr> const & arg = p2.first;
-                if (arg) {
-                    // TODO(Leo): decide if we instantiate the metavars in the end or not.
-                    args.push_back(*arg);
-                } else {
-                    proposition_arg const & parg = *(p2.second);
-                    name const & subgoal_name = parg.first;
-                    expr pr = find(m, subgoal_name);
-                    for (auto p : parg.second)
-                        pr = Fun(p.first, p.second, pr);
-                    args.push_back(pr);
-                    new_m.erase(subgoal_name);
+            if (alist) {
+                buffer<expr> args;
+                args.push_back(th_fun);
+                for (auto const & p2 : alist) {
+                    optional<expr> const & arg = p2.first;
+                    if (arg) {
+                        // TODO(Leo): decide if we instantiate the metavars in the end or not.
+                        args.push_back(*arg);
+                    } else {
+                        proposition_arg const & parg = *(p2.second);
+                        name const & subgoal_name = parg.first;
+                        expr pr = find(m, subgoal_name);
+                        for (auto p : parg.second)
+                            pr = Fun(p.first, p.second, pr);
+                        args.push_back(pr);
+                        new_m.erase(subgoal_name);
+                    }
                 }
+                std::reverse(args.begin() + 1, args.end());
+                new_m.insert(gname, mk_app(args));
+            } else {
+                new_m.insert(gname, th_fun);
             }
-            std::reverse(args.begin() + 1, args.end());
-            new_m.insert(gname, mk_app(args));
             return pb(new_m, a);
         });
 }
@@ -116,39 +120,13 @@ public:
     move_metavars_fn(metavar_env const & menv):m_menv(menv) {}
 };
 
-static optional<proof_state> apply_tactic(ro_environment const & env, proof_state const & s,
-                                          expr th, optional<expr> const & th_type) {
-    precision prec = s.get_precision();
-    if ((prec != precision::Precise && prec != precision::Over) || empty(s.get_goals())) {
-        // it is pointless to apply this tactic, since it will produce UnderOver
-        return none_proof_state();
-    }
+static optional<proof_state> apply_tactic_core(ro_environment const & env, proof_state const & s,
+                                               expr th, expr th_type, metavar_env const & new_menv) {
     type_checker checker(env);
     auto const & p       = head(s.get_goals());
     name const & gname   = p.first;
     goal const & g       = p.second;
-    metavar_env new_menv = s.get_menv().copy();
-    expr th_type_c;
-    if (th_type) {
-        th_type_c = *th_type;
-    } else {
-        metavar_env tmp_menv;
-        buffer<unification_constraint> ucs;
-        th = apply_tactic_preprocessor_fn(env, tmp_menv, g.get_hypotheses())(th);
-        th_type_c = checker.check(th, context(), tmp_menv, ucs);
-        elaborator elb(env, tmp_menv, ucs.size(), ucs.data());
-        try {
-            metavar_env new_tmp_menv = elb.next();
-            th        = new_tmp_menv->instantiate_metavars(th);
-            th_type_c = new_tmp_menv->instantiate_metavars(th_type_c);
-        } catch (exception & ex) {
-            return none_proof_state();
-        }
-        move_metavars_fn move(new_menv);
-        th        = move(th);
-        th_type_c = move(th_type_c);
-    }
-    expr conclusion = th_type_c;
+    expr conclusion = th_type;
     buffer<expr> mvars;
     unsigned i = 0;
     while (is_pi(conclusion)) {
@@ -161,8 +139,8 @@ static optional<proof_state> apply_tactic(ro_environment const & env, proof_stat
     if (!subst) {
         return none_proof_state();
     }
-    th_type_c = apply(*subst, th_type_c);
-    th        = apply(*subst, th);
+    th_type = apply(*subst, th_type);
+    th      = apply(*subst, th);
     arg_list alist;
     unsigned new_goal_idx = 1;
     buffer<std::pair<name, goal>> new_goals_buf;
@@ -170,9 +148,9 @@ static optional<proof_state> apply_tactic(ro_environment const & env, proof_stat
         expr mvar_subst = apply(*subst, mvar);
         if (mvar_subst != mvar) {
             alist = cons(mk_pair(some_expr(mvar_subst), optional<proposition_arg>()), alist);
-            th_type_c = instantiate(abst_body(th_type_c), mvar_subst, new_menv);
+            th_type = instantiate(abst_body(th_type), mvar_subst, new_menv);
         } else {
-            expr arg_type = abst_domain(th_type_c);
+            expr arg_type = abst_domain(th_type);
             if (checker.is_flex_proposition(arg_type, context(), new_menv)) {
                 name new_gname(gname, new_goal_idx);
                 new_goal_idx++;
@@ -188,14 +166,14 @@ static optional<proof_state> apply_tactic(ro_environment const & env, proof_stat
                 }
                 alist = cons(mk_pair(none_expr(), some(proposition_arg(new_gname, extra_hs))), alist);
                 new_goals_buf.emplace_back(new_gname, goal(add_hypothesis.get_hypotheses(), arg_type));
-                th_type_c = instantiate(abst_body(th_type_c), mk_constant(new_gname, arg_type), new_menv);
+                th_type = instantiate(abst_body(th_type), mk_constant(new_gname, arg_type), new_menv);
             } else {
                 // we have to create a new metavar in menv
                 // since we do not have a substitution for mvar, and
                 // it is not a proposition
                 /// expr new_m = new_menv->mk_metavar(context(), some_expr(arg_type));
                 alist = cons(mk_pair(some_expr(mvar), optional<proposition_arg>()), alist);
-                th_type_c = instantiate(abst_body(th_type_c), mvar, new_menv);
+                th_type = instantiate(abst_body(th_type), mvar, new_menv);
             }
         }
     }
@@ -203,6 +181,43 @@ static optional<proof_state> apply_tactic(ro_environment const & env, proof_stat
     proof_builder new_pb = mk_apply_tac_proof_builder(pb, gname, th, alist);
     goals new_gs = to_list(new_goals_buf.begin(), new_goals_buf.end(), tail(s.get_goals()));
     return some(proof_state(precision::Over, new_gs, new_menv, new_pb, s.get_cex_builder()));
+}
+
+
+static optional<proof_state> apply_tactic(ro_environment const & env, proof_state const & s,
+                                          expr th, optional<expr> const & th_type) {
+    precision prec = s.get_precision();
+    if ((prec != precision::Precise && prec != precision::Over) || empty(s.get_goals())) {
+        // it is pointless to apply this tactic, since it will produce UnderOver
+        return none_proof_state();
+    }
+    if (th_type) {
+        metavar_env new_menv = s.get_menv().copy();
+        return apply_tactic_core(env, s, th, *th_type, new_menv);
+    } else {
+        metavar_env tmp_menv;
+        type_checker checker(env);
+        auto const & p = head(s.get_goals());
+        goal const & g = p.second;
+        buffer<unification_constraint> ucs;
+        th = apply_tactic_preprocessor_fn(env, tmp_menv, g.get_hypotheses())(th);
+        expr th_type_inferred = checker.check(th, context(), tmp_menv, ucs);
+        elaborator elb(env, tmp_menv, ucs.size(), ucs.data());
+        try {
+            while (true) {
+                metavar_env new_tmp_menv = elb.next();
+                metavar_env new_menv = s.get_menv().copy();
+                move_metavars_fn move(new_menv);
+                expr new_th               = move(new_tmp_menv->instantiate_metavars(th));
+                expr new_th_type_inferred = move(new_tmp_menv->instantiate_metavars(th_type_inferred));
+                auto r = apply_tactic_core(env, s, new_th, new_th_type_inferred, new_menv);
+                if (r)
+                    return r;
+            }
+        } catch (exception & ex) {
+            return none_proof_state();
+        }
+    }
 }
 
 tactic apply_tactic(expr const & th) {

@@ -1,0 +1,15 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Proved: T
+Theorem T (A : Type) (p : A → Bool) (f : A → A → A) : ∀ x y z : A,
+        p (f x x) ⇒ x = y ⇒ x = z ⇒ p (f y z) :=
+    ForallIntro
+        (λ x : A,
+           ForallIntro
+               (λ x::1 : A,
+                  ForallIntro
+                      (λ x::2 : A,
+                         Discharge
+                             (λ H : p (f x x),
+                                Discharge
+                                    (λ H::1 : x = x::1, Discharge (λ H::2 : x = x::2, Subst (Subst H H::1) H::2))))))

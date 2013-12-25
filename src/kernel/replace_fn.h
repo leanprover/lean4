@@ -62,9 +62,8 @@ class replace_fn {
 
     static bool is_atomic(expr const & e) {
         switch (e.kind()) {
-        case expr_kind::Constant:
-            return !const_type(e);
-        case expr_kind::Type: case expr_kind::Value: case expr_kind::Var: case expr_kind::MetaVar:
+        case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
+        case expr_kind::Var: case expr_kind::MetaVar:
             return true;
         default:
             return false;
@@ -143,14 +142,8 @@ public:
             expr const & e   = f.m_expr;
             unsigned offset  = f.m_offset;
             switch (e.kind()) {
-            case expr_kind::Type: case expr_kind::Value: case expr_kind::Var: case expr_kind::MetaVar:
+            case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value: case expr_kind::Var: case expr_kind::MetaVar:
                 lean_unreachable(); // LCOV_EXCL_LINE
-            case expr_kind::Constant:
-                if (check_index(f, 0) && !visit(*const_type(e), offset))
-                    goto begin_loop;
-                r = update_const(e, some_expr(rs(-1)));
-                pop_rs(1);
-                break;
             case expr_kind::App: {
                 unsigned num = num_args(e);
                 while (f.m_index < num) {

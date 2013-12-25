@@ -101,13 +101,8 @@ static void tst3() {
     lean_assert(normalize(Const("b"), c_env) == iVal(6));
     c_env->add_definition("c", Int, Const("a"));
     lean_assert(normalize(Const("c"), c_env) == iVal(3));
-    try {
-        expr r = normalize(Const("c"), env);
-        lean_assert(r == iVal(3));
-        lean_unreachable();
-    } catch (exception const & ex) {
-        std::cout << "expected error: " << ex.what() << std::endl;
-    }
+    expr r = normalize(Const("c"), env);
+    lean_assert(r == Const("c"));
     std::cout << "end tst3" << std::endl;
 }
 

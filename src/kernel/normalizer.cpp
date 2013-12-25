@@ -202,10 +202,10 @@ class normalizer::imp {
             r = lookup(s, var_idx(a));
             break;
         case expr_kind::Constant: {
-            object const & obj = env()->get_object(const_name(a));
-            if (should_unfold(obj, m_unfold_opaque)) {
+            optional<object> obj = env()->find_object(const_name(a));
+            if (obj && should_unfold(*obj, m_unfold_opaque)) {
                 freset<cache> reset(m_cache);
-                r = normalize(obj.get_value(), value_stack(), 0);
+                r = normalize(obj->get_value(), value_stack(), 0);
             } else {
                 r = a;
             }

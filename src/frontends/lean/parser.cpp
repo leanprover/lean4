@@ -1391,8 +1391,7 @@ class parser::imp {
             next();
             expr pr      = parse_expr();
             check_rparen_next("invalid apply command, ')' expected");
-            expr pr_type = m_env->infer_type(pr);
-            return ::lean::apply_tactic(pr, pr_type);
+            return ::lean::apply_tactic(pr);
         } else {
            name n = check_identifier_next("invalid apply command, identifier, '(' expr ')', or 'script-block' expected");
            optional<object> o = m_env->find_object(n);

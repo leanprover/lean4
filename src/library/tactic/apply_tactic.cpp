@@ -143,8 +143,9 @@ static optional<proof_state> apply_tactic(ro_environment const & env, proof_stat
     }
 }
 
-tactic apply_tactic(expr const & th, expr const & th_type, bool all) {
+tactic apply_tactic(expr const & th, bool all) {
     return mk_tactic01([=](ro_environment const & env, io_state const &, proof_state const & s) -> optional<proof_state> {
+            expr th_type = type_inferer(env)(th, context(), s.get_menv().copy());
             return apply_tactic(env, s, th, th_type, all);
         });
 }
@@ -161,7 +162,11 @@ tactic apply_tactic(name const & th_name, bool all) {
 
 int mk_apply_tactic(lua_State * L) {
     int nargs = lua_gettop(L);
-    return push_tactic(L, apply_tactic(to_name_ext(L, 1), nargs >= 2 ? lua_toboolean(L, 2) : true));
+    bool all  = nargs >= 2 ? lua_toboolean(L, 2) : true;
+    if (is_expr(L, 1))
+        return push_tactic(L, apply_tactic(to_expr(L, 1), all));
+    else
+        return push_tactic(L, apply_tactic(to_name_ext(L, 1), all));
 }
 
 void open_apply_tactic(lua_State * L) {

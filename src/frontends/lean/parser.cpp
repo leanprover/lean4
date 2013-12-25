@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include <tuple>
 #include <vector>
 #include <limits>
+#include "util/flet.h"
 #include "util/luaref.h"
 #include "util/scoped_map.h"
 #include "util/exception.h"
@@ -167,6 +168,11 @@ class parser::imp {
     pos_info            m_last_cmd_pos;
     pos_info            m_last_script_pos;
     tactic_hints        m_tactic_hints;
+    // If true then return error when parsing identifiers and it is not local or global.
+    // We set this flag off when parsing tactics. The apply_tac may reference
+    // a hypothesis in the proof state. This hypothesis is not visible until we
+    // execute the tactic.
+    bool                m_check_identifiers;
 
     script_state *      m_script_state;
 
@@ -875,6 +881,8 @@ class parser::imp {
             } else {
                 throw parser_error(sstream() << "invalid object reference, object '" << id << "' is not an expression.", p);
             }
+        } else if (!m_check_identifiers) {
+            return mk_constant(id);
         } else {
             throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
         }
@@ -1389,6 +1397,7 @@ class parser::imp {
                 });
         } else if (curr_is_lparen()) {
             next();
+            flet<bool> set(m_check_identifiers, false);
             expr pr      = parse_expr();
             check_rparen_next("invalid apply command, ')' expected");
             return ::lean::apply_tactic(pr);
@@ -2440,6 +2449,7 @@ public:
         m_elaborator(env),
         m_use_exceptions(use_exceptions),
         m_interactive(interactive) {
+        m_check_identifiers = true;
         m_script_state = S;
         if (m_script_state) {
             m_script_state->apply([&](lua_State * L) {

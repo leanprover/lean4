@@ -7,7 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include "library/tactic/tactic.h"
 namespace lean {
-tactic apply_tactic(expr const & th, bool all = true);
-tactic apply_tactic(name const & th_name, bool all = true);
+tactic apply_tactic(expr const & th);
+tactic apply_tactic(expr const & th, expr const & th_type);
+tactic apply_tactic(name const & th_name);
 void open_apply_tactic(lua_State * L);
 }

@@ -169,8 +169,10 @@ template<typename T> unsigned length(list<T> const & l) {
 }
 
 /** \brief Return a list containing the elements in the subrange <tt>[begin, end)</tt>. */
-template<typename It> list<typename std::iterator_traits<It>::value_type> to_list(It const & begin, It const & end) {
-    list<typename std::iterator_traits<It>::value_type> r;
+template<typename It> list<typename std::iterator_traits<It>::value_type>
+to_list(It const & begin, It const & end,
+        list<typename std::iterator_traits<It>::value_type> const & ls = list<typename std::iterator_traits<It>::value_type>()) {
+    list<typename std::iterator_traits<It>::value_type> r = ls;
     auto it = end;
     while (it != begin) {
         --it;

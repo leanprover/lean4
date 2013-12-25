@@ -888,7 +888,7 @@ class parser::imp {
         }
     }
 
-    void propagage_position(expr const & e, pos_info p) {
+    void propagate_position(expr const & e, pos_info p) {
         for_each(e, [&](expr const & e, unsigned) {
                 if (m_expr_pos_info.find(e) == m_expr_pos_info.end()) {
                     save(e, p);
@@ -1006,7 +1006,7 @@ class parser::imp {
                     if (is_expr(L, -1)) {
                         expr r = to_expr(L, -1);
                         lua_pop(L, 1);
-                        propagage_position(r, p);
+                        propagate_position(r, p);
                         return r;
                     } else {
                         lua_pop(L, 1);

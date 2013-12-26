@@ -91,8 +91,11 @@ struct init_lean_path {
         char * r = getenv("LEAN_PATH");
         if (r == nullptr) {
             g_lean_path  = ".";
+            std::string exe_path = get_path(get_exe_location());
             g_lean_path += g_path_sep;
-            g_lean_path += get_path(get_exe_location());
+            g_lean_path += exe_path + g_sep + ".." + g_sep + "library";
+            g_lean_path += g_path_sep;
+            g_lean_path += exe_path;
         } else {
             g_lean_path = r;
         }

@@ -1,3 +1,4 @@
-Find ".*ongr.*"
+(** import("find.lua") **)
+Find "^.ongr"
 Find "foo"
 Find "(ab"

@@ -14,7 +14,9 @@ namespace lean {
 class script_state;
 /** \brief Functional object for parsing commands and expressions */
 class parser {
+public:
     class imp;
+private:
     std::unique_ptr<imp> m_ptr;
 public:
     parser(environment const & env, io_state const & st, std::istream & in, script_state * S, bool use_exceptions = true, bool interactive = false);

@@ -907,7 +907,12 @@ void set_global_formatter(lua_State * L, formatter const & fmt) {
 }
 
 static int get_formatter(lua_State * L) {
-    return push_formatter(L, get_global_formatter(L));
+    io_state * io = get_io_state(L);
+    if (io != nullptr) {
+        return push_formatter(L, io->get_formatter());
+    } else {
+        return push_formatter(L, get_global_formatter(L));
+    }
 }
 
 static int set_formatter(lua_State * L) {

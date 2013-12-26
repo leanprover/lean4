@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include <tuple>
 #include <vector>
 #include <limits>
-#include <regex>
 #include "util/flet.h"
 #include "util/luaref.h"
 #include "util/scoped_map.h"
@@ -105,7 +104,6 @@ static name g_push_kwd("Push");
 static name g_pop_kwd("Pop");
 static name g_scope_kwd("Scope");
 static name g_end_scope_kwd("EndScope");
-static name g_find_kwd("Find");
 static name g_apply("apply");
 static name g_done("done");
 static name g_back("back");
@@ -116,7 +114,7 @@ static list<name> g_tactic_cmds = { g_apply, g_done, g_back, g_abort, g_assumpti
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_variables_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
                                         g_show_kwd, g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_notation_kwd, g_echo_kwd,
                                         g_set_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd, g_coercion_kwd, g_exit_kwd, g_push_kwd,
-                                        g_pop_kwd, g_scope_kwd, g_end_scope_kwd, g_find_kwd};
+                                        g_pop_kwd, g_scope_kwd, g_end_scope_kwd};
 // ==========================================
 
 // ==========================================
@@ -133,7 +131,7 @@ static unsigned g_level_cup_prec  = 5;
 // are syntax sugar for (Pi (_ : A), B)
 static name g_unused = name::mk_internal_unique_name();
 
-enum class macro_arg_kind { Expr, Exprs, Bindings, Id, Comma, Assign, Tactic };
+enum class macro_arg_kind { Expr, Exprs, Bindings, Id, String, Comma, Assign, Tactic };
 struct macro {
     list<macro_arg_kind> m_arg_kinds;
     luaref               m_fn;
@@ -141,7 +139,49 @@ struct macro {
     macro(list<macro_arg_kind> const & as, luaref const & fn, unsigned prec):m_arg_kinds(as), m_fn(fn), m_precedence(prec) {}
 };
 typedef name_map<macro> macros;
-macros & get_macros(lua_State * L);
+macros & get_expr_macros(lua_State * L);
+macros & get_cmd_macros(lua_State * L);
+
+static char g_set_parser_key;
+
+/** \brief Return a reference to the parser object */
+parser::imp * get_parser(lua_State * L) {
+    lua_pushlightuserdata(L, static_cast<void *>(&g_set_parser_key));
+    lua_gettable(L, LUA_REGISTRYINDEX);
+    if (lua_islightuserdata(L, -1)) {
+        auto r = static_cast<parser::imp*>(lua_touserdata(L, -1));
+        lua_pop(L, 1);
+        return r;
+    }
+    lua_pop(L, 1);
+    return nullptr;
+}
+
+/** \brief Auxiliary object that stores a reference to the parser object inside the Lua State */
+struct set_parser {
+    script_state * m_state;
+    parser::imp *  m_prev;
+    set_parser(script_state * S, parser::imp * ptr) {
+        m_state = S;
+        if (m_state) {
+            m_state->apply([&](lua_State * L) {
+                    m_prev  = get_parser(L);
+                    lua_pushlightuserdata(L, static_cast<void *>(&g_set_parser_key));
+                    lua_pushlightuserdata(L, ptr);
+                    lua_settable(L, LUA_REGISTRYINDEX);
+                });
+        }
+    }
+    ~set_parser() {
+        if (m_state) {
+            m_state->apply([&](lua_State * L) {
+                    lua_pushlightuserdata(L, static_cast<void *>(&g_set_parser_key));
+                    lua_pushlightuserdata(L, m_prev);
+                    lua_settable(L, LUA_REGISTRYINDEX);
+                });
+        }
+    }
+};
 
 /**
     \brief Actual implementation for the parser functional object
@@ -154,6 +194,7 @@ macros & get_macros(lua_State * L);
 */
 class parser::imp {
     friend class parser;
+    friend int mk_cmd_macro(lua_State * L);
     typedef scoped_map<name, unsigned, name_hash, name_eq> local_decls;
     typedef name_map<expr> builtins;
     typedef std::pair<unsigned, unsigned> pos_info;
@@ -164,7 +205,8 @@ class parser::imp {
     io_state            m_io_state;
     scanner             m_scanner;
     frontend_elaborator m_elaborator;
-    macros const *      m_macros;
+    macros const *      m_expr_macros;
+    macros const *      m_cmd_macros;
     scanner::token      m_curr;
     bool                m_use_exceptions;
     bool                m_interactive;
@@ -182,6 +224,7 @@ class parser::imp {
     bool                m_check_identifiers;
 
     script_state *      m_script_state;
+    set_parser          m_set_parser;
 
     bool                m_verbose;
     bool                m_show_errors;
@@ -929,6 +972,7 @@ class parser::imp {
         optional<tactic>  m_tactic;
         macro_result(expr const & e):m_expr(e) {}
         macro_result(tactic const & t):m_tactic(t) {}
+        macro_result() {}
     };
 
     /**
@@ -965,8 +1009,14 @@ class parser::imp {
             case macro_arg_kind::Assign:
                 check_comma_next("invalid macro, ':=' expected");
                 return parse_macro(tail(arg_kinds), fn, prec, args, p);
+            case macro_arg_kind::String: {
+                std::string str = check_string_next("invalid macro, string expected");
+                args.emplace_back(k, &str);
+                return parse_macro(tail(arg_kinds), fn, prec, args, p);
+            }
             case macro_arg_kind::Id: {
                 name n = curr_name();
+                next();
                 args.emplace_back(k, &n);
                 return parse_macro(tail(arg_kinds), fn, prec, args, p);
             }
@@ -979,7 +1029,7 @@ class parser::imp {
         } else {
             // All arguments have been parsed, then call Lua procedure fn.
             m_last_script_pos = p;
-            return m_script_state->apply([&](lua_State * L) {
+            return using_script([&](lua_State * L) {
                     fn.push();
                     push_environment(L, m_env);
                     for (auto p : args) {
@@ -1018,6 +1068,9 @@ class parser::imp {
                         case macro_arg_kind::Id:
                             push_name(L, *static_cast<name*>(arg));
                             break;
+                        case macro_arg_kind::String:
+                            lua_pushstring(L, static_cast<std::string*>(arg)->c_str());
+                            break;
                         case macro_arg_kind::Tactic:
                             push_tactic(L, *static_cast<tactic*>(arg));
                             break;
@@ -1037,15 +1090,15 @@ class parser::imp {
                         return macro_result(t);
                     } else {
                         lua_pop(L, 1);
-                        throw parser_error("failed to execute macro, unexpected result type", p);
+                        return macro_result();
                     }
                 });
         }
     }
 
-    expr parse_macro(name const & id, pos_info const & p) {
-        lean_assert(m_macros && m_macros->find(id) != m_macros->end());
-        auto m = m_macros->find(id)->second;
+    expr parse_expr_macro(name const & id, pos_info const & p) {
+        lean_assert(m_expr_macros && m_expr_macros->find(id) != m_expr_macros->end());
+        auto m = m_expr_macros->find(id)->second;
         macro_arg_stack args;
         auto r = parse_macro(m.m_arg_kinds, m.m_fn, m.m_precedence, args, p);
         if (r.m_expr) {
@@ -1070,8 +1123,8 @@ class parser::imp {
         auto it = m_local_decls.find(id);
         if (it != m_local_decls.end()) {
             return save(mk_var(m_num_local_decls - it->second - 1), p);
-        } else if (m_macros && m_macros->find(id) != m_macros->end()) {
-            return parse_macro(id, p);
+        } else if (m_expr_macros && m_expr_macros->find(id) != m_expr_macros->end()) {
+            return parse_expr_macro(id, p);
         } else {
             operator_info op = find_nud(m_env, id);
             if (op) {
@@ -2326,7 +2379,6 @@ class parser::imp {
                                 << "  EndScope               end the current scope and import its objects into the parent scope" << endl
                                 << "  Eval [expr]            evaluate the given expression" << endl
                                 << "  Exit                   exit" << endl
-                                << "  Find [regex]           display objects whose name match the given regular expression" << endl
                                 << "  Help                   display this message" << endl
                                 << "  Help Options           display available options" << endl
                                 << "  Help Notation          describe commands for defining infix, mixfix, postfix operators" << endl
@@ -2389,28 +2441,12 @@ class parser::imp {
         }
     }
 
-    void parse_find() {
+    void parse_cmd_macro(name cmd_id, pos_info const & p) {
+        lean_assert(m_cmd_macros && m_cmd_macros->find(cmd_id) != m_cmd_macros->end());
         next();
-        auto p = pos();
-        std::string pattern = check_string_next("invalid find command, string (regular expression) expected");
-        try {
-            std::regex regex(pattern);
-            auto it    = m_env->begin_objects();
-            auto end   = m_env->end_objects();
-            bool found = false;
-            io_state tmp_ios(m_io_state);
-            tmp_ios.set_option(name{"lean", "pp", "definition_value"}, false);
-            for (; it != end; ++it) {
-                if (!is_hidden_object(*it) && it->has_name() && it->has_type() && std::regex_match(it->get_name().to_string(), regex)) {
-                    regular(tmp_ios) << *it << endl;
-                    found = true;
-                }
-            }
-            if (!found)
-                throw parser_error(sstream() << "no object name in the environment matches the regular expression '" << pattern << "'" , p);
-        } catch (std::regex_error & ex) {
-            throw parser_error(sstream() << "invalid regular expression '" << pattern << "'" , p);
-        }
+        auto m = m_cmd_macros->find(cmd_id)->second;
+        macro_arg_stack args;
+        parse_macro(m.m_arg_kinds, m.m_fn, m.m_precedence, args, p);
     }
 
     /** \brief Parse a Lean command. */
@@ -2463,8 +2499,8 @@ class parser::imp {
             parse_pop();
         } else if (cmd_id == g_end_scope_kwd) {
             parse_end_scope();
-        } else if (cmd_id == g_find_kwd) {
-            parse_find();
+        } else if (m_cmd_macros && m_cmd_macros->find(cmd_id) != m_cmd_macros->end()) {
+            parse_cmd_macro(cmd_id, m_last_cmd_pos);
         } else {
             next();
             throw parser_error(sstream() << "invalid command '" << cmd_id << "'", m_last_cmd_pos);
@@ -2505,15 +2541,18 @@ public:
         m_scanner(in),
         m_elaborator(env),
         m_use_exceptions(use_exceptions),
-        m_interactive(interactive) {
+        m_interactive(interactive),
+        m_script_state(S),
+        m_set_parser(m_script_state, this) {
         m_check_identifiers = true;
-        m_script_state = S;
         if (m_script_state) {
             m_script_state->apply([&](lua_State * L) {
-                    m_macros = &get_macros(L);
+                    m_expr_macros = &get_expr_macros(L);
+                    m_cmd_macros  = &get_cmd_macros(L);
                 });
         } else {
-            m_macros = nullptr;
+            m_expr_macros = nullptr;
+            m_cmd_macros  = nullptr;
         }
         updt_options();
         m_found_errors = false;
@@ -2709,25 +2748,36 @@ expr parse_expr(environment const & env, io_state & ios, std::istream & in, scri
     return r;
 }
 
-static char g_parser_macros_key;
+static char g_parser_expr_macros_key;
+static char g_parser_cmd_macros_key;
 DECL_UDATA(macros)
 
-void init_macros(lua_State * L) {
-    lua_pushlightuserdata(L, static_cast<void *>(&g_parser_macros_key));
-    push_macros(L, macros());
-    lua_settable(L, LUA_REGISTRYINDEX);
-}
-
-macros & get_macros(lua_State * L) {
-    lua_pushlightuserdata(L, static_cast<void *>(&g_parser_macros_key));
+macros & get_macros(lua_State * L, char * key) {
+    lua_pushlightuserdata(L, static_cast<void *>(key));
     lua_gettable(L, LUA_REGISTRYINDEX);
+    if (lua_isnil(L, -1)) {
+        lua_pop(L, 1);
+        lua_pushlightuserdata(L, static_cast<void *>(key));
+        push_macros(L, macros());
+        lua_settable(L, LUA_REGISTRYINDEX);
+        lua_pushlightuserdata(L, static_cast<void *>(key));
+        lua_gettable(L, LUA_REGISTRYINDEX);
+    }
     lean_assert(is_macros(L, -1));
     macros & r = to_macros(L, -1);
     lua_pop(L, 1);
     return r;
 }
 
-int mk_macro(lua_State * L) {
+macros & get_expr_macros(lua_State * L) {
+    return get_macros(L, &g_parser_expr_macros_key);
+}
+
+macros & get_cmd_macros(lua_State * L) {
+    return get_macros(L, &g_parser_cmd_macros_key);
+}
+
+void mk_macro(lua_State * L, macros & mtable) {
     int nargs = lua_gettop(L);
     name macro_name = to_name_ext(L, 1);
     unsigned prec = nargs == 4 ? lua_tointeger(L, 4) : g_app_precedence;
@@ -2740,7 +2790,25 @@ int mk_macro(lua_State * L) {
         lua_pop(L, 1);
     }
     list<macro_arg_kind> arg_kinds = to_list(arg_kind_buffer.begin(), arg_kind_buffer.end());
-    get_macros(L).insert(mk_pair(macro_name, macro(arg_kinds, luaref(L, 3), prec)));
+    mtable.insert(mk_pair(macro_name, macro(arg_kinds, luaref(L, 3), prec)));
+}
+
+int mk_macro(lua_State * L) {
+    mk_macro(L, get_expr_macros(L));
+    return 0;
+}
+
+int mk_cmd_macro(lua_State * L) {
+    mk_macro(L, get_cmd_macros(L));
+    name macro_name = to_name_ext(L, 1);
+    parser::imp * ptr = get_parser(L);
+    if (!ptr)
+        throw exception("invalid cmd_macro, it is not in the context of a Lean parser");
+    // Make sure macro_name is a CommandId.
+    ptr->m_scanner.add_command_keyword(macro_name);
+    if (ptr->m_curr == scanner::token::Id && ptr->curr_name() == macro_name) {
+        ptr->m_curr = scanner::token::CommandId;
+    }
     return 0;
 }
 
@@ -2755,14 +2823,15 @@ void open_macros(lua_State * L) {
     lua_setfield(L, -2, "__index");
     setfuncs(L, macros_m, 0);
     SET_GLOBAL_FUN(macros_pred, "is_macros");
-    init_macros(L);
     SET_GLOBAL_FUN(mk_macro, "macro");
+    SET_GLOBAL_FUN(mk_cmd_macro, "cmd_macro");
 
     lua_newtable(L);
     SET_ENUM("Expr",     macro_arg_kind::Expr);
     SET_ENUM("Exprs",    macro_arg_kind::Exprs);
     SET_ENUM("Bindings", macro_arg_kind::Bindings);
     SET_ENUM("Id",       macro_arg_kind::Id);
+    SET_ENUM("String",   macro_arg_kind::String);
     SET_ENUM("Comma",    macro_arg_kind::Comma);
     SET_ENUM("Assign",   macro_arg_kind::Assign);
     SET_ENUM("Tactic",   macro_arg_kind::Tactic);

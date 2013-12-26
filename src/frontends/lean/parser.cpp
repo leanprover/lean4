@@ -2346,7 +2346,8 @@ class parser::imp {
             return;
         }
         try {
-            parser import_parser(m_env, m_io_state, in, m_script_state, true /* use exceptions */, false /* not interactive */);
+            script_state state; // Empty state object for the imported module
+            parser import_parser(m_env, m_io_state, in, &state, true /* use exceptions */, false /* not interactive */);
             import_parser();
         } catch (interrupted &) {
             throw;

@@ -1,0 +1,5 @@
+  Set: pp::colors
+  Set: pp::unicode
+10
+Error (line: 2, pos: 5) unknown identifier 'IdMacro'
+Error (line: 11, pos: 0) failed to import file './module.lean'

@@ -2546,19 +2546,22 @@ public:
         m_script_state(S),
         m_set_parser(m_script_state, this) {
         m_check_identifiers = true;
+        updt_options();
+        m_found_errors = false;
+        m_num_local_decls = 0;
+        m_scanner.set_command_keywords(g_command_keywords);
         if (m_script_state) {
             m_script_state->apply([&](lua_State * L) {
                     m_expr_macros = &get_expr_macros(L);
                     m_cmd_macros  = &get_cmd_macros(L);
+                    for (auto const & p : *m_cmd_macros) {
+                        m_scanner.add_command_keyword(p.first);
+                    }
                 });
         } else {
             m_expr_macros = nullptr;
             m_cmd_macros  = nullptr;
         }
-        updt_options();
-        m_found_errors = false;
-        m_num_local_decls = 0;
-        m_scanner.set_command_keywords(g_command_keywords);
         scan();
     }
 

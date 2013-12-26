@@ -308,7 +308,7 @@ after_script:
       fi;
       mkdir ${UPLOAD_DIR};
       if [[ $LEANREPO == BLESSED && $PACKAGE == TRUE ]]; then
-          cp -v build/*.zip ${UPLOAD_DIR}/;
+          cp -v build/lean*.tar.gz ${UPLOAD_DIR}/;
       fi
       cp -v build/shell/lean ${UPLOAD_DIR}/${BINARY};
       tar cvfz ${UPLOAD_DIR}/${ARCHIVE_BINARY}.tar.gz ${UPLOAD_DIR}/${BINARY};

@@ -57,6 +57,10 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PP_ALIAS_MIN_WEIGHT 20
 #endif
 
+#ifndef LEAN_DEFAULT_PP_DEFINITION_VALUE
+#define LEAN_DEFAULT_PP_DEFINITION_VALUE true
+#endif
+
 namespace lean {
 static format g_Type_fmt      = highlight_builtin(format("Type"));
 static format g_eq_fmt        = format("==");
@@ -86,6 +90,7 @@ static name g_pp_notation        {"lean", "pp", "notation"};
 static name g_pp_extra_lets      {"lean", "pp", "extra_lets"};
 static name g_pp_alias_min_weight{"lean", "pp", "alias_min_weight"};
 static name g_pp_coercion        {"lean", "pp", "coercion"};
+static name g_pp_def_value       {"lean", "pp", "definition_value"};
 
 RegisterUnsignedOption(g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH, "(lean pretty printer) maximum expression depth, after that it will use ellipsis");
 RegisterUnsignedOption(g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS, "(lean pretty printer) maximum number of visited expressions, after that it will use ellipsis");
@@ -94,6 +99,7 @@ RegisterBoolOption(g_pp_notation,  LEAN_DEFAULT_PP_NOTATION, "(lean pretty print
 RegisterBoolOption(g_pp_coercion,  LEAN_DEFAULT_PP_COERCION, "(lean pretty printer) display coercions");
 RegisterBoolOption(g_pp_extra_lets,  LEAN_DEFAULT_PP_EXTRA_LETS, "(lean pretty printer) introduce extra let expressions when displaying shared terms");
 RegisterUnsignedOption(g_pp_alias_min_weight,  LEAN_DEFAULT_PP_ALIAS_MIN_WEIGHT, "(lean pretty printer) mimimal weight (approx. size) of a term to be considered a shared term");
+RegisterBoolOption(g_pp_def_value, LEAN_DEFAULT_PP_DEFINITION_VALUE, "(lean pretty printer) display definition/theorem value (i.e., the actual definition)");
 
 unsigned get_pp_max_depth(options const & opts)        { return opts.get_unsigned(g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH); }
 unsigned get_pp_max_steps(options const & opts)        { return opts.get_unsigned(g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS); }
@@ -102,6 +108,7 @@ bool     get_pp_notation(options const & opts)         { return opts.get_bool(g_
 bool     get_pp_coercion(options const & opts)         { return opts.get_bool(g_pp_coercion, LEAN_DEFAULT_PP_COERCION); }
 bool     get_pp_extra_lets(options const & opts)       { return opts.get_bool(g_pp_extra_lets, LEAN_DEFAULT_PP_EXTRA_LETS); }
 unsigned get_pp_alias_min_weight(options const & opts) { return opts.get_unsigned(g_pp_alias_min_weight, LEAN_DEFAULT_PP_ALIAS_MIN_WEIGHT); }
+bool     get_pp_def_value(options const & opts)        { return opts.get_bool(g_pp_def_value, LEAN_DEFAULT_PP_DEFINITION_VALUE); }
 
 // =======================================
 // Prefixes for naming aliases (auxiliary local decls)
@@ -1231,9 +1238,16 @@ class pp_formatter_cell : public formatter_cell {
 
     format pp_definition(char const * kwd, name const & n, expr const & t, expr const & v, options const & opts) {
         unsigned indent = get_pp_indent(opts);
-        format def = format{highlight_command(format(kwd)), space(), format(n), space(), colon(), space(),
-                            pp(t, opts), space(), g_assign_fmt, line(), pp(v, opts)};
-        return group(nest(indent, def));
+        bool def_value  = get_pp_def_value(opts);
+        format def_fmt;
+        if (def_value) {
+            def_fmt = format{highlight_command(format(kwd)), space(), format(n), space(), colon(), space(),
+                             pp(t, opts), space(), g_assign_fmt, line(), pp(v, opts)};
+        } else {
+            // suppress the actual definition
+            def_fmt = format{highlight_command(format(kwd)), space(), format(n), space(), colon(), space(), pp(t, opts)};
+        }
+        return group(nest(indent, def_fmt));
     }
 
     format pp_compact_definition(char const * kwd, name const & n, expr const & t, expr const & v, options const & opts) {
@@ -1254,8 +1268,15 @@ class pp_formatter_cell : public formatter_cell {
             if (has_implicit_arguments(m_env, n))
                 implicit_args = &(get_implicit_arguments(m_env, n));
             pp_fn fn(m_env, opts);
-            format def = fn.pp_definition(v, t, implicit_args);
-            return format{highlight_command(format(kwd)), space(), format(n), def};
+            format def_fmt;
+            bool def_value  = get_pp_def_value(opts);
+            if (def_value)
+                def_fmt = fn.pp_definition(v, t, implicit_args);
+            else if (implicit_args)
+                def_fmt = fn.pp_pi_with_implicit_args(t, *implicit_args);
+            else
+                def_fmt = format{space(), colon(), space(), pp(t, opts)};
+            return format{highlight_command(format(kwd)), space(), format(n), def_fmt};
         }
     }
 

@@ -1,0 +1,8 @@
+  Set: pp::colors
+  Set: pp::unicode
+Theorem Congr1 {A : (Type U)} {B : A → (Type U)} {f g : Π x : A, B x} (a : A) (H : f == g) : f a == g a
+Theorem Congr2 {A : (Type U)} {B : A → (Type U)} {a b : A} (f : Π x : A, B x) (H : a == b) : f a == f b
+Theorem Congr {A : (Type U)} {B : A → (Type U)} {f g : Π x : A, B x} {a b : A} (H1 : f == g) (H2 : a == b) :
+    f a == g b
+Error (line: 2, pos: 5) no object name in the environment matches the regular expression 'foo'
+Error (line: 3, pos: 5) invalid regular expression '(ab'

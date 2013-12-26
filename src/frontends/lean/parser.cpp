@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include <tuple>
 #include <vector>
 #include <limits>
+#include <regex>
 #include "util/flet.h"
 #include "util/luaref.h"
 #include "util/scoped_map.h"
@@ -104,6 +105,7 @@ static name g_push_kwd("Push");
 static name g_pop_kwd("Pop");
 static name g_scope_kwd("Scope");
 static name g_end_scope_kwd("EndScope");
+static name g_find_kwd("Find");
 static name g_apply("apply");
 static name g_done("done");
 static name g_back("back");
@@ -113,8 +115,8 @@ static list<name> g_tactic_cmds = { g_apply, g_done, g_back, g_abort, g_assumpti
 /** \brief Table/List with all builtin command keywords */
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_variables_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
                                         g_show_kwd, g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_notation_kwd, g_echo_kwd,
-                                        g_set_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd, g_coercion_kwd, g_exit_kwd, g_push_kwd, g_pop_kwd,
-                                        g_scope_kwd, g_end_scope_kwd};
+                                        g_set_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd, g_coercion_kwd, g_exit_kwd, g_push_kwd,
+                                        g_pop_kwd, g_scope_kwd, g_end_scope_kwd, g_find_kwd};
 // ==========================================
 
 // ==========================================
@@ -2295,11 +2297,11 @@ class parser::imp {
                                 << "  Axiom [id] : [type]    assert/postulate a new axiom" << endl
                                 << "  Check [expr]           type check the given expression" << endl
                                 << "  Definition [id] : [type] := [expr]   define a new element" << endl
-                                << "  Theorem [id] : [type] := [expr]      define a new theorem" << endl
                                 << "  Echo [string]          display the given string" << endl
                                 << "  EndScope               end the current scope and import its objects into the parent scope" << endl
                                 << "  Eval [expr]            evaluate the given expression" << endl
                                 << "  Exit                   exit" << endl
+                                << "  Find [regex]           display objects whose name match the given regular expression" << endl
                                 << "  Help                   display this message" << endl
                                 << "  Help Options           display available options" << endl
                                 << "  Help Notation          describe commands for defining infix, mixfix, postfix operators" << endl
@@ -2312,6 +2314,7 @@ class parser::imp {
                                 << "  Show Options           show current the set of assigned options" << endl
                                 << "  Show Environment       show objects in the environment, if [Num] provided, then show only the last [Num] objects" << endl
                                 << "  Show Environment [num] show the last num objects in the environment" << endl
+                                << "  Theorem [id] : [type] := [expr]      define a new theorem" << endl
                                 << "  Variable [id] : [type] declare/postulate an element of the given type" << endl
                                 << "  Universe [id] [level]  declare a new universe variable that is >= the given level" << endl;
             #if !defined(LEAN_WINDOWS)
@@ -2358,6 +2361,30 @@ class parser::imp {
                 m_env->add_theorem(obj.get_name(), obj.get_type(), obj.get_value());
             else
                 m_env->add_definition(obj.get_name(), obj.get_type(), obj.get_value(), obj.is_opaque());
+        }
+    }
+
+    void parse_find() {
+        next();
+        auto p = pos();
+        std::string pattern = check_string_next("invalid find command, string (regular expression) expected");
+        try {
+            std::regex regex(pattern);
+            auto it    = m_env->begin_objects();
+            auto end   = m_env->end_objects();
+            bool found = false;
+            io_state tmp_ios(m_io_state);
+            tmp_ios.set_option(name{"lean", "pp", "definition_value"}, false);
+            for (; it != end; ++it) {
+                if (!is_hidden_object(*it) && it->has_name() && it->has_type() && std::regex_match(it->get_name().to_string(), regex)) {
+                    regular(tmp_ios) << *it << endl;
+                    found = true;
+                }
+            }
+            if (!found)
+                throw parser_error(sstream() << "no object name in the environment matches the regular expression '" << pattern << "'" , p);
+        } catch (std::regex_error & ex) {
+            throw parser_error(sstream() << "invalid regular expression '" << pattern << "'" , p);
         }
     }
 
@@ -2411,6 +2438,8 @@ class parser::imp {
             parse_pop();
         } else if (cmd_id == g_end_scope_kwd) {
             parse_end_scope();
+        } else if (cmd_id == g_find_kwd) {
+            parse_find();
         } else {
             next();
             throw parser_error(sstream() << "invalid command '" << cmd_id << "'", m_last_cmd_pos);

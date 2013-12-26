@@ -312,6 +312,5 @@ tactic normalize_tactic(bool unfold_opaque = false, bool all = true);
 
 UDATA_DEFS_CORE(proof_state_seq)
 UDATA_DEFS(tactic);
-tactic to_tactic_ext(lua_State * L, int i);
 void open_tactic(lua_State * L);
 }

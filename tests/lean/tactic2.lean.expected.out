@@ -11,3 +11,10 @@ Theorem T3 : p ⇒ p ∧ q ⇒ r ⇒ q ∧ r ∧ p :=
     Discharge
         (λ H : p,
            Discharge (λ H::1 : p ∧ q, Discharge (λ H::2 : r, Conj (Conjunct2 H::1) (Conj H::2 (Conjunct1 H::1)))))
+  Proved: T4
+Theorem T4 : p ⇒ p ∧ q ⇒ r ⇒ q ∧ r ∧ p :=
+    Discharge
+        (λ H : p,
+           Discharge
+               (λ H::1 : p ∧ q,
+                  Discharge (λ H::2 : r, Conj (Conjunct2 H::1) (let H::1::1 := Conjunct1 H::1 in Conj H::2 H::1::1))))

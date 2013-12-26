@@ -1,9 +1,11 @@
+(** import("tactic.lua") **)
+
 Theorem T2 (a b : Bool) : b => a \/ b.
-apply imp_tac.
-apply disj_tac.
+(** imp_tac() **).
+(** disj_tac() **).
 back.
 back.
-assumption.
+exact.
 done.
 
 Show Environment 1.

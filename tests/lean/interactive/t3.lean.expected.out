@@ -8,7 +8,7 @@ H : b, a : Bool, b : Bool ⊢ a ∨ b
 H : b, a : Bool, b : Bool ⊢ a
 ## Proof state:
 H : b, a : Bool, b : Bool ⊢ b
-## Error (line: 8, pos: 0) failed to backtrack
+## Error (line: 10, pos: 0) failed to backtrack
 Proof state:
 H : b, a : Bool, b : Bool ⊢ b
 ## Proof state:

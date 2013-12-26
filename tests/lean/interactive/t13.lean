@@ -1,6 +1,6 @@
 (**
 -- Define a simple tactic using Lua
-auto = REPEAT(ORELSE(assumption_tac, conj_tac, conj_hyp_tac))
+auto = Repeat(OrElse(assumption_tac(), conj_tac(), conj_hyp_tac()))
 **)
 
 Theorem T1 (A B : Bool) : A /\ B -> B /\ A :=

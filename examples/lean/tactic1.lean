@@ -4,8 +4,14 @@ This example demonstrates how to specify a proof skeleton that contains
 *)
 
 (**
+-- Import useful macros for creating tactics
+import("tactic.lua")
+
 -- Define a simple tactic using Lua
-auto = REPEAT(ORELSE(assumption_tac, conj_tac, conj_hyp_tac))
+auto = Repeat(OrElse(assumption_tac(), conj_tac(), conj_hyp_tac()))
+
+conj_hyp = conj_hyp_tac()
+conj     = conj_tac()
 **)
 
 (*
@@ -35,9 +41,9 @@ Theorem T2 (A B : Bool) : A /\ B -> B /\ A :=
           let lemma1     : A      := _,  (* first hole *)
               lemma2     : B      := _   (* second hole *)
           in _. (* third hole *)
-   apply auto. done. (* tactic command sequence for the first hole *)
-   apply auto. done. (* tactic command sequence for the second hole *)
-   apply auto. done. (* tactic command sequence for the third hole *)
+   auto. done. (* tactic command sequence for the first hole *)
+   auto. done. (* tactic command sequence for the second hole *)
+   auto. done. (* tactic command sequence for the third hole *)
 
 (*
 In the following example, instead of using the "auto" tactic, we apply a sequence of even simpler tactics.
@@ -47,9 +53,9 @@ Theorem T3 (A B : Bool) : A /\ B -> B /\ A :=
           let lemma1     : A      := _,  (* first hole *)
               lemma2     : B      := _   (* second hole *)
           in _. (* third hole *)
-   apply conj_hyp_tac. apply assumption_tac. done.  (* tactic command sequence for the first hole *)
-   apply conj_hyp_tac. apply assumption_tac. done.  (* tactic command sequence for the second hole *)
-   apply conj_tac. apply assumption_tac. done.      (* tactic command sequence for the third hole *)
+   conj_hyp. exact. done.  (* tactic command sequence for the first hole *)
+   conj_hyp. exact. done.  (* tactic command sequence for the second hole *)
+   conj. exact. done.  (* tactic command sequence for the third hole *)
 
 (*
 We can also mix the two styles (hints and command sequences)
@@ -59,7 +65,5 @@ Theorem T4 (A B : Bool) : A /\ B -> B /\ A :=
           let lemma1     : A      := _,  (* first hole *)
               lemma2     : B      := _   (* second hole *)
           in (show B /\ A by auto).
-   apply conj_hyp_tac. apply assumption_tac. done.  (* tactic command sequence for the first hole *)
-   apply conj_hyp_tac. apply assumption_tac. done.  (* tactic command sequence for the second hole *)
-
-
+   auto. done.  (* tactic command sequence for the first hole *)
+   auto. done.  (* tactic command sequence for the second hole *)

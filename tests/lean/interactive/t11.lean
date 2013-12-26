@@ -1,5 +1,5 @@
 (**
-auto = REPEAT(ORELSE(conj_hyp_tac, conj_tac, assumption_tac))
+auto = Repeat(OrElse(conj_hyp_tac(), conj_tac(), assumption_tac()))
 **)
 
 Theorem T2 (A B : Bool) : A /\ B -> B /\ A :=
@@ -8,7 +8,6 @@ Theorem T2 (A B : Bool) : A /\ B -> B /\ A :=
               lemma2     : B      := _,
               conclusion : B /\ A := _
           in conclusion.
-   apply auto. done.
-   apply auto. done.
-   apply auto. done.
-
+   auto. done.
+   auto. done.
+   auto. done.

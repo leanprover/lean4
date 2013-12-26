@@ -545,35 +545,6 @@ DECL_UDATA(tactic)
     throw exception(sstream() << "arg #" << i << " must be a tactic or a function that returns a tactic");
 }
 
-/**
-   \brief We allow functions (that return tactics) to be used where a tactic
-   is expected. The idea is to be able to write
-          ORELSE(assumption_tactic, conj_tactic)
-   instead of
-          ORELSE(assumption_tactic(), conj_tactic())
-*/
-tactic to_tactic_ext(lua_State * L, int i) {
-    if (is_tactic(L, i)) {
-        return to_tactic(L, i);
-    } else if (lua_isfunction(L, i)) {
-        try {
-            lua_pushvalue(L, i);
-            pcall(L, 0, 1, 0);
-        } catch (...) {
-            throw_tactic_expected(i);
-        }
-        if (is_tactic(L, -1)) {
-            tactic t = to_tactic(L, -1);
-            lua_pop(L, 1);
-            return t;
-        } else {
-            throw_tactic_expected(i);
-        }
-    } else {
-        throw_tactic_expected(i);
-    }
-}
-
 static void check_ios(io_state * ios) {
     if (!ios)
         throw exception("failed to invoke tactic, io_state is not available");
@@ -590,7 +561,7 @@ static int tactic_call_core(lua_State * L, tactic t, ro_environment env, io_stat
 
 static int tactic_call(lua_State * L) {
     int nargs = lua_gettop(L);
-    tactic t = to_tactic_ext(L, 1);
+    tactic t = to_tactic(L, 1);
     ro_shared_environment env(L, 2);
     if (nargs == 3) {
         io_state * ios = get_io_state(L);
@@ -608,36 +579,36 @@ static int nary_tactic(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs < 2)
         throw exception("tactical expects at least two arguments");
-    tactic r = F(to_tactic_ext(L, 1), to_tactic_ext(L, 2));
+    tactic r = F(to_tactic(L, 1), to_tactic(L, 2));
     for (int i = 3; i <= nargs; i++)
-        r = F(r, to_tactic_ext(L, i));
+        r = F(r, to_tactic(L, i));
     return push_tactic(L, r);
 }
 
-static int tactic_then(lua_State * L)           {  return push_tactic(L, then(to_tactic_ext(L, 1), to_tactic_ext(L, 2)));   }
-static int tactic_orelse(lua_State * L)         {  return push_tactic(L, orelse(to_tactic_ext(L, 1), to_tactic_ext(L, 2))); }
-static int tactic_append(lua_State * L)         {  return push_tactic(L, append(to_tactic_ext(L, 1), to_tactic_ext(L, 2))); }
-static int tactic_interleave(lua_State * L)     {  return push_tactic(L, interleave(to_tactic_ext(L, 1), to_tactic_ext(L, 2))); }
-static int tactic_par(lua_State * L)            {  return push_tactic(L, par(to_tactic_ext(L, 1), to_tactic_ext(L, 2))); }
+static int tactic_then(lua_State * L)           {  return push_tactic(L, then(to_tactic(L, 1), to_tactic(L, 2)));   }
+static int tactic_orelse(lua_State * L)         {  return push_tactic(L, orelse(to_tactic(L, 1), to_tactic(L, 2))); }
+static int tactic_append(lua_State * L)         {  return push_tactic(L, append(to_tactic(L, 1), to_tactic(L, 2))); }
+static int tactic_interleave(lua_State * L)     {  return push_tactic(L, interleave(to_tactic(L, 1), to_tactic(L, 2))); }
+static int tactic_par(lua_State * L)            {  return push_tactic(L, par(to_tactic(L, 1), to_tactic(L, 2))); }
 
-static int tactic_repeat(lua_State * L)         {  return push_tactic(L, repeat(to_tactic_ext(L, 1))); }
-static int tactic_repeat1(lua_State * L)        {  return push_tactic(L, repeat1(to_tactic_ext(L, 1))); }
-static int tactic_repeat_at_most(lua_State * L) {  return push_tactic(L, repeat_at_most(to_tactic_ext(L, 1), luaL_checkinteger(L, 2))); }
-static int tactic_take(lua_State * L)           {  return push_tactic(L, take(to_tactic_ext(L, 1), luaL_checkinteger(L, 2))); }
-static int tactic_determ(lua_State * L)         {  return push_tactic(L, determ(to_tactic_ext(L, 1))); }
-static int tactic_suppress_trace(lua_State * L) {  return push_tactic(L, suppress_trace(to_tactic_ext(L, 1))); }
-static int tactic_try_for(lua_State * L)        {  return push_tactic(L, try_for(to_tactic_ext(L, 1), luaL_checkinteger(L, 2))); }
-static int tactic_using_params(lua_State * L)   {  return push_tactic(L, using_params(to_tactic_ext(L, 1), to_options(L, 2))); }
-static int tactic_try(lua_State * L)            {  return push_tactic(L, orelse(to_tactic_ext(L, 1), id_tactic())); }
+static int tactic_repeat(lua_State * L)         {  return push_tactic(L, repeat(to_tactic(L, 1))); }
+static int tactic_repeat1(lua_State * L)        {  return push_tactic(L, repeat1(to_tactic(L, 1))); }
+static int tactic_repeat_at_most(lua_State * L) {  return push_tactic(L, repeat_at_most(to_tactic(L, 1), luaL_checkinteger(L, 2))); }
+static int tactic_take(lua_State * L)           {  return push_tactic(L, take(to_tactic(L, 1), luaL_checkinteger(L, 2))); }
+static int tactic_determ(lua_State * L)         {  return push_tactic(L, determ(to_tactic(L, 1))); }
+static int tactic_suppress_trace(lua_State * L) {  return push_tactic(L, suppress_trace(to_tactic(L, 1))); }
+static int tactic_try_for(lua_State * L)        {  return push_tactic(L, try_for(to_tactic(L, 1), luaL_checkinteger(L, 2))); }
+static int tactic_using_params(lua_State * L)   {  return push_tactic(L, using_params(to_tactic(L, 1), to_options(L, 2))); }
+static int tactic_try(lua_State * L)            {  return push_tactic(L, orelse(to_tactic(L, 1), id_tactic())); }
 
 static int tactic_focus(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 1)
-        return push_tactic(L, focus(to_tactic_ext(L, 1)));
+        return push_tactic(L, focus(to_tactic(L, 1)));
     else if (lua_isnumber(L, 2))
-        return push_tactic(L, focus(to_tactic_ext(L, 1), lua_tointeger(L, 2)));
+        return push_tactic(L, focus(to_tactic(L, 1), lua_tointeger(L, 2)));
     else
-        return push_tactic(L, focus(to_tactic_ext(L, 1), to_name_ext(L, 2)));
+        return push_tactic(L, focus(to_tactic(L, 1), to_name_ext(L, 2)));
 }
 
 static int push_solve_result(lua_State * L, solve_result const & r) {
@@ -677,7 +648,7 @@ static int tactic_solve_core(lua_State * L, tactic t, ro_environment env, io_sta
 
 static int tactic_solve(lua_State * L) {
     int nargs = lua_gettop(L);
-    tactic t = to_tactic_ext(L, 1);
+    tactic t = to_tactic(L, 1);
     ro_shared_environment env(L, 2);
     if (nargs == 3) {
         io_state * ios = get_io_state(L);
@@ -767,11 +738,11 @@ static int mk_lua_cond_tactic(lua_State * L, tactic t1, tactic t2) {
 }
 
 static int mk_lua_cond_tactic(lua_State * L) {
-    return mk_lua_cond_tactic(L, to_tactic_ext(L, 2), to_tactic_ext(L, 3));
+    return mk_lua_cond_tactic(L, to_tactic(L, 2), to_tactic(L, 3));
 }
 
 static int mk_lua_when_tactic(lua_State * L) {
-    return mk_lua_cond_tactic(L, to_tactic_ext(L, 2), id_tactic());
+    return mk_lua_cond_tactic(L, to_tactic(L, 2), id_tactic());
 }
 
 static int mk_id_tactic(lua_State * L)          {  return push_tactic(L, id_tactic()); }
@@ -856,22 +827,22 @@ void open_tactic(lua_State * L) {
     SET_GLOBAL_FUN(mk_lua_tactic01,       "tactic");
 
     // HOL-like tactic names
-    SET_GLOBAL_FUN(nary_tactic<then>,       "THEN");
-    SET_GLOBAL_FUN(nary_tactic<orelse>,     "ORELSE");
-    SET_GLOBAL_FUN(nary_tactic<interleave>, "INTERLEAVE");
-    SET_GLOBAL_FUN(nary_tactic<append>,     "APPEND");
-    SET_GLOBAL_FUN(nary_tactic<par>,        "PAR");
-    SET_GLOBAL_FUN(tactic_repeat,           "REPEAT");
-    SET_GLOBAL_FUN(tactic_repeat_at_most,   "REPEAT_AT_MOST");
-    SET_GLOBAL_FUN(tactic_repeat1,          "REPEAT1");
-    SET_GLOBAL_FUN(mk_lua_cond_tactic,      "COND");
-    SET_GLOBAL_FUN(mk_lua_when_tactic,      "WHEN");
-    SET_GLOBAL_FUN(tactic_try,              "TRY");
-    SET_GLOBAL_FUN(tactic_try_for,          "TRY_FOR");
-    SET_GLOBAL_FUN(tactic_take,             "TAKE");
-    SET_GLOBAL_FUN(tactic_using_params,     "USING");
-    SET_GLOBAL_FUN(tactic_using_params,     "USING_PARAMS");
-    SET_GLOBAL_FUN(tactic_determ,           "DETERM");
-    SET_GLOBAL_FUN(tactic_focus,            "FOCUS");
+    SET_GLOBAL_FUN(nary_tactic<then>,       "Then");
+    SET_GLOBAL_FUN(nary_tactic<orelse>,     "OrElse");
+    SET_GLOBAL_FUN(nary_tactic<interleave>, "Interleave");
+    SET_GLOBAL_FUN(nary_tactic<append>,     "Append");
+    SET_GLOBAL_FUN(nary_tactic<par>,        "Par");
+    SET_GLOBAL_FUN(tactic_repeat,           "Repeat");
+    SET_GLOBAL_FUN(tactic_repeat_at_most,   "RepeatAtMost");
+    SET_GLOBAL_FUN(tactic_repeat1,          "Repeat1");
+    SET_GLOBAL_FUN(mk_lua_cond_tactic,      "Cond");
+    SET_GLOBAL_FUN(mk_lua_when_tactic,      "When");
+    SET_GLOBAL_FUN(tactic_try,              "Try");
+    SET_GLOBAL_FUN(tactic_try_for,          "TryFor");
+    SET_GLOBAL_FUN(tactic_take,             "Take");
+    SET_GLOBAL_FUN(tactic_using_params,     "Using");
+    SET_GLOBAL_FUN(tactic_using_params,     "UsingParams");
+    SET_GLOBAL_FUN(tactic_determ,           "Determ");
+    SET_GLOBAL_FUN(tactic_focus,            "Focus");
 }
 }

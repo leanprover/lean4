@@ -4,10 +4,10 @@
 # Proof state:
 main: a : Bool ⊢ a ⇒ a ∧ a
 ## Proof state:
-main: H : a, a : Bool ⊢ a ∧ a
+main::1: H : a, a : Bool ⊢ a ∧ a
 ## Proof state:
-main::1: H : a, a : Bool ⊢ a
-main::2: H : a, a : Bool ⊢ a
+main::1::1: H : a, a : Bool ⊢ a
+main::1::2: H : a, a : Bool ⊢ a
 ## Proof state:
 no goals
 ##   Proved: T

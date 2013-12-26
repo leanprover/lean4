@@ -131,7 +131,7 @@ static unsigned g_level_cup_prec  = 5;
 // are syntax sugar for (Pi (_ : A), B)
 static name g_unused = name::mk_internal_unique_name();
 
-enum class macro_arg_kind { Expr, Exprs, Bindings, Id, String, Comma, Assign, Tactic };
+enum class macro_arg_kind { Expr, Exprs, Bindings, Id, String, Comma, Assign, Tactic, Tactics };
 struct macro {
     list<macro_arg_kind> m_arg_kinds;
     luaref               m_fn;
@@ -140,6 +140,7 @@ struct macro {
 };
 typedef name_map<macro> macros;
 macros & get_expr_macros(lua_State * L);
+macros & get_tactic_macros(lua_State * L);
 macros & get_cmd_macros(lua_State * L);
 
 static char g_set_parser_key;
@@ -207,6 +208,7 @@ class parser::imp {
     frontend_elaborator m_elaborator;
     macros const *      m_expr_macros;
     macros const *      m_cmd_macros;
+    macros const *      m_tactic_macros;
     scanner::token      m_curr;
     bool                m_use_exceptions;
     bool                m_interactive;
@@ -966,6 +968,13 @@ class parser::imp {
         }
     }
 
+    bool is_curr_begin_tactic() const {
+        switch (curr()) {
+        case scanner::token::LeftParen: case scanner::token::Id:    return true;
+        default:                                                    return false;
+        }
+    }
+
     typedef buffer<std::pair<macro_arg_kind, void*>> macro_arg_stack;
     struct macro_result {
         optional<expr>    m_expr;
@@ -1024,6 +1033,14 @@ class parser::imp {
                 tactic t = parse_tactic_expr();
                 args.emplace_back(k, &t);
                 return parse_macro(tail(arg_kinds), fn, prec, args, p);
+            }
+            case macro_arg_kind::Tactics: {
+                buffer<tactic> tactics;
+                while (is_curr_begin_tactic()) {
+                    tactics.push_back(parse_tactic_expr());
+                }
+                args.emplace_back(k, &tactics);
+                return parse_macro(tail(arg_kinds), fn, prec, args, p);
             }}
             lean_unreachable();
         } else {
@@ -1074,6 +1091,17 @@ class parser::imp {
                         case macro_arg_kind::Tactic:
                             push_tactic(L, *static_cast<tactic*>(arg));
                             break;
+                        case macro_arg_kind::Tactics: {
+                            auto const & tactics = *static_cast<buffer<tactic>*>(arg);
+                            lua_newtable(L);
+                            int i = 1;
+                            for (auto t : tactics) {
+                                push_tactic(L, t);
+                                lua_rawseti(L, -2, i);
+                                i = i + 1;
+                            }
+                            break;
+                        }
                         default:
                             lean_unreachable();
                         }
@@ -1461,6 +1489,20 @@ class parser::imp {
         return save(mk_placeholder(), p);
     }
 
+    tactic parse_tactic_macro(name tac_id, pos_info const & p) {
+        lean_assert(m_tactic_macros && m_tactic_macros->find(tac_id) != m_tactic_macros->end());
+        next();
+        auto m = m_tactic_macros->find(tac_id)->second;
+        macro_arg_stack args;
+        flet<bool> set(m_check_identifiers, false);
+        auto r = parse_macro(m.m_arg_kinds, m.m_fn, m.m_precedence, args, p);
+        if (r.m_tactic) {
+            return *(r.m_tactic);
+        } else {
+            throw parser_error("failed to execute macro, unexpected result type, a tactic was expected", p);
+        }
+    }
+
     /** \brief Parse a tactic expression, it can be
 
         1) A Lua Script Block expression that returns a tactic
@@ -1473,35 +1515,35 @@ class parser::imp {
             parse_script_expr();
             return using_script([&](lua_State * L) {
                     try {
-                        return to_tactic_ext(L, -1);
+                        return to_tactic(L, -1);
                     } catch (...) {
                         throw parser_error("invalid script-block, it must return a tactic", p);
                     }
                 });
+        } else if (curr_is_identifier() && m_tactic_macros && m_tactic_macros->find(curr_name()) != m_tactic_macros->end()) {
+            return parse_tactic_macro(curr_name(), p);
         } else if (curr_is_lparen()) {
             next();
-            flet<bool> set(m_check_identifiers, false);
-            expr pr      = parse_expr();
-            check_rparen_next("invalid apply command, ')' expected");
-            return ::lean::apply_tactic(pr);
+            tactic r = parse_tactic_expr();
+            check_rparen_next("invalid tactic, ')' expected");
+            return r;
         } else {
-           name n = check_identifier_next("invalid apply command, identifier, '(' expr ')', or 'script-block' expected");
-           optional<object> o = m_env->find_object(n);
-            if (o && (o->is_theorem() || o->is_axiom())) {
-                return ::lean::apply_tactic(n);
-            } else {
-                return using_script([&](lua_State * L) {
-                        lua_getglobal(L, n.to_string().c_str());
-                        try {
-                            tactic t = to_tactic_ext(L, -1);
+            name n = check_identifier_next("invalid tactic, identifier, tactic macro, '(', or 'script-block' expected");
+            return using_script([&](lua_State * L) {
+                    lua_getglobal(L, n.to_string().c_str());
+                    try {
+                        if (is_tactic(L, -1)) {
+                            tactic t = to_tactic(L, -1);
                             lua_pop(L, 1);
                             return t;
-                        } catch (...) {
-                            lua_pop(L, 1);
-                            throw parser_error(sstream() << "unknown tactic '" << n << "'", p);
+                        } else {
+                            throw parser_error(sstream() << "invalid tactic, '" << n << "' is not a tactic in script environment", p);
                         }
-                    });
-            }
+                    } catch (...) {
+                        lua_pop(L, 1);
+                        throw parser_error(sstream() << "unknown tactic '" << n << "'", p);
+                    }
+                });
         }
     }
 
@@ -1734,30 +1776,17 @@ class parser::imp {
     }
 
     /**
-       \brief Execute the <tt>apply [tactic]</tt> tactic command.
+       \brief Execute the tactic.
        This command just applies the tactic to the input state \c s.
        If it succeeds, \c s is assigned to the head of the output
        state sequence produced by the tactic.  The rest/tail of the
        output state sequence is stored on the top of the stack \c
        stack.
     */
-    void apply_cmd(/* inout */ proof_state_seq_stack & stack, /* inout */ proof_state & s) {
+    void tactic_cmd(/* inout */ proof_state_seq_stack & stack, /* inout */ proof_state & s) {
         auto tac_pos = pos();
-        next();
         tactic t = parse_tactic_expr();
         auto r = apply_tactic(s, t, tac_pos);
-        s = r.first;
-        stack.push_back(r.second);
-    }
-
-    /**
-       \brief Execute the \c assumption tactic command. This command
-       is just syntax sugar for <tt>apply assumption_tac</tt>.
-    */
-    void assumption_cmd(/* inout */ proof_state_seq_stack & stack, /* inout */ proof_state & s) {
-        auto tac_pos = pos();
-        next();
-        auto r = apply_tactic(s, assumption_tactic(), tac_pos);
         s = r.first;
         stack.push_back(r.second);
     }
@@ -1799,9 +1828,7 @@ class parser::imp {
                         break;
                     case scanner::token::Id:
                         id = curr_name();
-                        if (id == g_apply) {
-                            apply_cmd(stack, s);
-                        } else if (id == g_back) {
+                        if (id == g_back) {
                             back_cmd(stack, s);
                         } else if (id == g_done) {
                             pr = done_cmd(s, ctx, expected_type);
@@ -1810,12 +1837,12 @@ class parser::imp {
                         } else if (id == g_abort) {
                             next();
                             st = status::Abort;
-                        } else if (id == g_assumption) {
-                            assumption_cmd(stack, s);
                         } else {
-                            next();
-                            throw tactic_cmd_error(sstream() << "invalid tactic command '" << id << "'", p, s);
+                            tactic_cmd(stack, s);
                         }
+                        break;
+                    case scanner::token::ScriptBlock:
+                        tactic_cmd(stack, s);
                         break;
                     case scanner::token::CommandId:
                         st = status::Abort;
@@ -2552,15 +2579,17 @@ public:
         m_scanner.set_command_keywords(g_command_keywords);
         if (m_script_state) {
             m_script_state->apply([&](lua_State * L) {
-                    m_expr_macros = &get_expr_macros(L);
-                    m_cmd_macros  = &get_cmd_macros(L);
+                    m_expr_macros   = &get_expr_macros(L);
+                    m_tactic_macros = &get_tactic_macros(L);
+                    m_cmd_macros    = &get_cmd_macros(L);
                     for (auto const & p : *m_cmd_macros) {
                         m_scanner.add_command_keyword(p.first);
                     }
                 });
         } else {
-            m_expr_macros = nullptr;
-            m_cmd_macros  = nullptr;
+            m_expr_macros   = nullptr;
+            m_tactic_macros = nullptr;
+            m_cmd_macros    = nullptr;
         }
         scan();
     }
@@ -2753,6 +2782,7 @@ expr parse_expr(environment const & env, io_state & ios, std::istream & in, scri
 }
 
 static char g_parser_expr_macros_key;
+static char g_parser_tactic_macros_key;
 static char g_parser_cmd_macros_key;
 DECL_UDATA(macros)
 
@@ -2773,13 +2803,9 @@ macros & get_macros(lua_State * L, char * key) {
     return r;
 }
 
-macros & get_expr_macros(lua_State * L) {
-    return get_macros(L, &g_parser_expr_macros_key);
-}
-
-macros & get_cmd_macros(lua_State * L) {
-    return get_macros(L, &g_parser_cmd_macros_key);
-}
+macros & get_expr_macros(lua_State * L)   { return get_macros(L, &g_parser_expr_macros_key); }
+macros & get_tactic_macros(lua_State * L) { return get_macros(L, &g_parser_tactic_macros_key); }
+macros & get_cmd_macros(lua_State * L)    { return get_macros(L, &g_parser_cmd_macros_key); }
 
 void mk_macro(lua_State * L, macros & mtable) {
     int nargs = lua_gettop(L);
@@ -2816,6 +2842,11 @@ int mk_cmd_macro(lua_State * L) {
     return 0;
 }
 
+int mk_tactic_macro(lua_State * L) {
+    mk_macro(L, get_tactic_macros(L));
+    return 0;
+}
+
 static const struct luaL_Reg macros_m[] = {
     {"__gc",            macros_gc}, // never throws
     {0, 0}
@@ -2829,6 +2860,7 @@ void open_macros(lua_State * L) {
     SET_GLOBAL_FUN(macros_pred, "is_macros");
     SET_GLOBAL_FUN(mk_macro, "macro");
     SET_GLOBAL_FUN(mk_cmd_macro, "cmd_macro");
+    SET_GLOBAL_FUN(mk_tactic_macro, "tactic_macro");
 
     lua_newtable(L);
     SET_ENUM("Expr",     macro_arg_kind::Expr);
@@ -2839,6 +2871,7 @@ void open_macros(lua_State * L) {
     SET_ENUM("Comma",    macro_arg_kind::Comma);
     SET_ENUM("Assign",   macro_arg_kind::Assign);
     SET_ENUM("Tactic",   macro_arg_kind::Tactic);
+    SET_ENUM("Tactics",  macro_arg_kind::Tactics);
     lua_setglobal(L, "macro_arg");
 }
 }

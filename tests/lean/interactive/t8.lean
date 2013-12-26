@@ -1,6 +1,7 @@
+(** import("tactic.lua") **)
 SetOption tactic::proof_state::goal_names true.
 Theorem T (a : Bool) : a => a /\ a.
-   apply imp_tac.
+   apply Discharge.
    apply Conj.
-   assumption.
+   exact.
    done.

@@ -2,14 +2,7 @@
   Set: pp::unicode
 Proof state:
 a : Bool, b : Bool ⊢ a ⇒ b ⇒ a ∧ b
-## Proof state:
-H : a, a : Bool, b : Bool ⊢ b ⇒ a ∧ b
-## Error (line: 6, pos: 6) unknown tactic 'imp_tac2'
-## Error (line: 7, pos: 0) invalid tactic command 'foo'
-Proof state:
-H : a, a : Bool, b : Bool ⊢ b ⇒ a ∧ b
-## Proof state:
-H::1 : b, H : a, a : Bool, b : Bool ⊢ a ∧ b
+## Error (line: 6, pos: 0) executing external script ([string "return  imp_tac2() "]:1), attempt to call global 'imp_tac2' (a nil value)
 ## Error (line: 9, pos: 5) failed to prove theorem, proof has been aborted
 Proof state:
 H::1 : b, H : a, a : Bool, b : Bool ⊢ a ∧ b

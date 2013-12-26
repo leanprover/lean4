@@ -1,7 +1,7 @@
 (**
 
 -- Tactic for trying to prove goal using Reflexivity, Congruence and available assumptions
-congr_tac = TRY(unfold_tac("eq")) .. REPEAT(ORELSE(apply_tac("Refl"), apply_tac("Congr"), assumption_tac))
+congr_tac = Try(unfold_tac("eq")) .. Repeat(OrElse(apply_tac("Refl"), apply_tac("Congr"), assumption_tac()))
 
 **)
 

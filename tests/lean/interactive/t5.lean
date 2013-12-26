@@ -1,7 +1,8 @@
+(** import("tactic.lua") **)
 Axiom magic (a : Bool) : a.
 
 Theorem T (a : Bool) : a.
-    apply (** apply_tac("magic") **).
+    apply magic.
     done.
 
 Show Environment 1.

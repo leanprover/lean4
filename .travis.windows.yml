@@ -5,7 +5,7 @@ env:
   # DROPBOX_KEY
   - secure: "fQ9mzDBBvId1qpEK/DhwlwRYBGrP0XG/XKUvTRTmX3kv7YIrKFZs/TGEDyvwnfaq6IY6rpHdqsnd/ic22DVsEGIGQO0BWUybZP0nmBHmL9aOqjjdUlgVs5vKhWmij8NkCp5LA3GU0fPm0tOonNmejxsxfNUdxk66hOlLLgPhzVo="
   matrix:
-  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE UPLOAD=windows DROPBOX=TRUE PUSH_TO_CDASH=TRUE
+  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE UPLOAD=windows DROPBOX=TRUE PUSH_TO_CDASH=TRUE PACKAGE=TRUE
   - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG PUSH_TO_CDASH=TRUE
 
 install:
@@ -52,6 +52,9 @@ script:
        find Testing -type f -name "*.xml" -exec sed -i 's/OSName=\"Linux\"/OSName=\"Windows\"/' {} \; ;
        ctest -D ExperimentalSubmit;
     fi
+  - if [[ $PACKAGE == TRUE ]]; then
+       make package;
+    fi
   - cd ..
 
 after_script:
@@ -66,6 +69,9 @@ after_script:
           ARCHIVE_BINARY=${ARCHIVE_BINARY}_tcmalloc;
       fi;
       mkdir ${UPLOAD_DIR};
+      if [[ $PACKAGE == TRUE ]]; then
+          cp -v build/*.zip ${UPLOAD_DIR}/;
+      fi
       cp build/shell/lean.exe ${UPLOAD_DIR}/${BINARY}.exe;
       tar cvfz ${UPLOAD_DIR}/${ARCHIVE_BINARY}.tar.gz ${UPLOAD_DIR}/${BINARY}.exe;
       script/dropbox_upload.py --srcpath ${UPLOAD_DIR} --destpath /Public/${UPLOAD_DIR} --dropbox-token ${DROPBOX_KEY};

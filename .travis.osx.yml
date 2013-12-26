@@ -4,7 +4,7 @@ env:
   - secure: "W8vou0KRJOOboZXP9q+D/9Wl6LlBeVS2T85MHWPz7EwCMQbJq5xWnGzYLE6FmC0iILcZkXyP63vqoYMFo5MJaEQeALGx2RuIiW7XgrD+7Bn4Vfsp6BLT7K9/AJETGGTQnLs8oZJJCXHGtzbc8EPFIZd/ZPPrve4jhEE5ZNhXnRc="
   matrix:
   - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG   TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=51
-  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=51 UPLOAD=osx
+  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=51 UPLOAD=osx PACKAGE=TRUE
   - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=52
   - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=JIT
 
@@ -48,6 +48,9 @@ script:
 - sed -i "" "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE
 - ctest -D ExperimentalBuild -VV
 - yes "C" | ctest -D ExperimentalTest ${CTEST_FLAGS} -VV | ../script/demangle_cpptype.py;
+- if [[ $PACKAGE == TRUE ]]; then
+      ninja package;
+  fi
 - cd ..
 
 after_script:
@@ -63,6 +66,9 @@ after_script:
           ARCHIVE_BINARY=${ARCHIVE_BINARY}_tcmalloc;
       fi;
       mkdir ${UPLOAD_DIR};
+      if [[ $PACKAGE == TRUE ]]; then
+          cp -v build/*.zip ${UPLOAD_DIR}/;
+      fi
       cp -v build/shell/lean ${UPLOAD_DIR}/${BINARY};
       tar cvfz ${UPLOAD_DIR}/${ARCHIVE_BINARY}.tar.gz ${UPLOAD_DIR}/${BINARY};
       script/dropbox_upload.py --srcpath ${UPLOAD_DIR} --destpath /Public/${UPLOAD_DIR} --dropbox-token ${DROPBOX_KEY};

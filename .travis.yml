@@ -70,6 +70,7 @@ env:
      UPLOAD=linux_tcmalloc
      PUSH_TO_CDASH=TRUE
      LUA=52
+     PACKAGE=TRUE
    # R3. clang++-3.3 | RELEASE
    - CMAKE_CXX_COMPILER=clang++-3.3
      CMAKE_BUILD_TYPE=RELEASE
@@ -282,6 +283,9 @@ after_script:
       find Testing \( -name "LastTest_*.log" -o -name "LastDynamicAnalysis_*.log" \) -exec sh -c 'TMP=`mktemp /tmp/ctesttmp_XXXX`; ../script/demangle_cpptype.py {} > $TMP; mv -v $TMP {}' ";";
       ctest -D ExperimentalSubmit;
   fi
+- if [[ $LEANREPO == BLESSED && $PACKAGE == TRUE ]]; then
+     ninja package;
+  fi
 - cd ..
 - if [[ $LEANREPO == BLESSED && $BUILD_DOXYGEN == TRUE ]]; then
       sudo apt-get -qq install graphviz doxygen parallel;
@@ -303,6 +307,9 @@ after_script:
           ARCHIVE_BINARY=${ARCHIVE_BINARY}_tcmalloc;
       fi;
       mkdir ${UPLOAD_DIR};
+      if [[ $LEANREPO == BLESSED && $PACKAGE == TRUE ]]; then
+          cp -v build/*.zip ${UPLOAD_DIR}/;
+      fi
       cp -v build/shell/lean ${UPLOAD_DIR}/${BINARY};
       tar cvfz ${UPLOAD_DIR}/${ARCHIVE_BINARY}.tar.gz ${UPLOAD_DIR}/${BINARY};
       script/dropbox_upload.py --srcpath ${UPLOAD_DIR} --destpath /Public/${UPLOAD_DIR} --dropbox-token ${DROPBOX_KEY};

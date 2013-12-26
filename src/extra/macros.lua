@@ -26,7 +26,7 @@
 function binder_macro(name, f, farity, typepos, lambdapos)
    local precedence = 0
    macro(name, { macro_arg.Bindings, macro_arg.Comma, macro_arg.Expr },
-         function (bindings, body)
+         function (env, bindings, body)
             local r = body
             for i = #bindings, 1, -1 do
                local bname = bindings[i][1]
@@ -74,7 +74,7 @@ function nary_macro(name, f, farity)
    end
 
    macro(name, { macro_arg.Expr, macro_arg.Expr, macro_arg.Exprs },
-         function (e1, e2, rest)
+         function (env, e1, e2, rest)
             local r = bin_app(e1, e2)
             for i = 1, #rest do
                r = bin_app(r, rest[i])

@@ -1,10 +1,10 @@
 (**
 macro("MyMacro", { macro_arg.Expr, macro_arg.Comma, macro_arg.Expr },
-     function (e1, e2)
+     function (env, e1, e2)
         return Const({"Int", "add"})(e1, e2)
      end)
 macro("Sum", { macro_arg.Exprs },
-      function (es)
+      function (env, es)
          if #es == 0 then
             return iVal(0)
          end

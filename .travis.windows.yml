@@ -70,8 +70,8 @@ after_script:
       fi;
       mkdir ${UPLOAD_DIR};
       if [[ $PACKAGE == TRUE ]]; then
-          cp -v build/*.zip ${UPLOAD_DIR}/;
-      fi
+          cp -v build/lean*.zip ${UPLOAD_DIR}/;
+      fi;
       cp build/shell/lean.exe ${UPLOAD_DIR}/${BINARY}.exe;
       tar cvfz ${UPLOAD_DIR}/${ARCHIVE_BINARY}.tar.gz ${UPLOAD_DIR}/${BINARY}.exe;
       script/dropbox_upload.py --srcpath ${UPLOAD_DIR} --destpath /Public/${UPLOAD_DIR} --dropbox-token ${DROPBOX_KEY};

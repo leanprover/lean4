@@ -150,6 +150,7 @@ if(NOT "${TCMALLOC_FOUND}" AND "${TRACK_MEMORY_USAGE}" MATCHES "ON")
   endif()
 endif()
 
+# Lua
 find_package(Lua REQUIRED)
 set(EXTRA_LIBS ${EXTRA_LIBS} ${LUA_LIBRARIES})
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -170,16 +171,24 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND ${LUA_FOUND} AND
   set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -pagezero_size 10000 -image_base 100000000")
 ENDIF()
 
-include_directories(${LEAN_SOURCE_DIR})
+# CPack
+set(CPACK_PACKAGE_NAME lean)
+string(TOLOWER ${CMAKE_SYSTEM_NAME} LOWER_SYSTEM_NAME)
+set(CPACK_PACKAGE_FILE_NAME "lean-${LEAN_VERSION_MAJOR}.${LEAN_VERSION_MINOR}-${LOWER_SYSTEM_NAME}")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  SET(CPACK_GENERATOR TGZ)
+else()
+  SET(CPACK_GENERATOR ZIP)
+endif()
+include(CPack)
 
-add_custom_command(
-  OUTPUT ${LEAN_BINARY_DIR}/githash.h
-  COMMAND ${LEAN_SOURCE_DIR}/cmake/mk_githash_dot_h.sh ${LEAN_BINARY_DIR}
-  DEPENDS ${LEAN_SOURCE_DIR}/../.git/HEAD ${LEAN_SOURCE_DIR}/../.git/index
-)
-add_custom_target(githash
-  DEPENDS ${LEAN_BINARY_DIR}/githash.h ${LEAN_SOURCE_DIR}/../.git/HEAD ${LEAN_SOURCE_DIR}/../.git/index
-)
+# Examples
+file(GLOB LEANLIB "${LEAN_SOURCE_DIR}/../examples/lean/*.lean")
+FOREACH(FILE ${LEANLIB})
+   install_files(/examples/lean FILES ${FILE})
+ENDFOREACH(FILE)
+
+include_directories(${LEAN_SOURCE_DIR})
 
 add_subdirectory(util)
 set(LEAN_LIBS ${LEAN_LIBS} util)
@@ -207,6 +216,7 @@ add_subdirectory(frontends/lean)
 set(LEAN_LIBS ${LEAN_LIBS} lean_frontend)
 add_subdirectory(frontends/lua)
 set(LEAN_LIBS ${LEAN_LIBS} leanlua)
+add_subdirectory(extra)
 if("${MULTI_THREAD}" MATCHES "ON")
    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread ${LEAN_EXTRA_LINKER_FLAGS}")
 else()

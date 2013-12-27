@@ -180,6 +180,9 @@ bool is_not(expr const & e, expr & a) {
 }
 MK_CONSTANT(forall_fn,  name("forall"));
 MK_CONSTANT(exists_fn,  name("exists"));
+MK_CONSTANT(Forall_fn,  name("Forall"));
+MK_CONSTANT(Exists_fn,  name("Exists"));
+
 MK_CONSTANT(homo_eq_fn, name("eq"));
 bool is_homo_eq(expr const & e, expr & lhs, expr & rhs) {
     if (is_homo_eq(e)) {
@@ -255,6 +258,9 @@ void import_basic(environment const & env) {
     env->add_opaque_definition(forall_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Eq(P, Fun({x, A}, True))));
     // TODO(Leo): introduce epsilon
     env->add_definition(exists_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Not(Forall(A, Fun({x, A}, Not(P(x)))))));
+    // Aliases for forall and exists
+    env->add_definition(Forall_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Forall(A, P)));
+    env->add_definition(Exists_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Exists(A, P)));
 
     // homogeneous equality
     env->add_definition(homo_eq_fn_name, Pi({{A, TypeU}, {x, A}, {y, A}}, Bool), Fun({{A, TypeU}, {x, A}, {y, A}}, Eq(x, y)));

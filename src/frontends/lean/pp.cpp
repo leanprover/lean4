@@ -242,6 +242,12 @@ class pp_fn {
         name const & n = const_name(e);
         if (is_placeholder(e)) {
             return mk_result(format("_"), 1);
+        } else if (is_forall_fn(e)) {
+            // use alias when forall is used as a function symbol
+            return mk_result(format(const_name(mk_Forall_fn())), 1);
+        } else if (is_exists_fn(e)) {
+            // use alias when exists is used as a function symbol
+            return mk_result(format(const_name(mk_Exists_fn())), 1);
         } else if (has_implicit_arguments(n)) {
             return mk_result(format(get_explicit_version(m_env, n)), 1);
         } else {
@@ -704,7 +710,8 @@ class pp_fn {
             // standard function application
             expr const & f  = app.get_function();
             result p;
-            if (is_constant(f))
+            bool is_const = is_constant(f) && !is_forall_fn(f) && !is_exists_fn(f);
+            if (is_const)
                 p = mk_result(format(const_name(f)), 1);
             else if (is_choice(f))
                 p = pp_child(f, depth);
@@ -712,7 +719,7 @@ class pp_fn {
                 p = mk_result(to_value(f).pp(m_unicode, m_coercion), 1);
             else
                 p = pp_child(f, depth);
-            bool simple     = is_constant(f) && const_name(f).size() <= m_indent + 4;
+            bool simple     = is_const && const_name(f).size() <= m_indent + 4;
             unsigned indent = simple ? const_name(f).size()+1 : m_indent;
             format   r_format = p.first;
             unsigned r_weight = p.second;

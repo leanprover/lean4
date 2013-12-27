@@ -121,6 +121,8 @@ inline bool is_forall(expr const & e) { return is_app(e) && is_forall_fn(arg(e, 
 /** \brief Return the term (Forall A P), where A is a type and P : A -> bool */
 inline expr mk_forall(expr const & A, expr const & P) { return mk_app(mk_forall_fn(), A, P); }
 inline expr Forall(expr const & A, expr const & P) { return mk_forall(A, P); }
+/** \brief Return alias \c Forall for \c forall */
+expr mk_Forall_fn();
 
 /** \brief Return the Lean exists operator. It has type: <tt>Pi (A : Type), (A -> Bool) -> Bool</tt> */
 expr mk_exists_fn();
@@ -129,6 +131,8 @@ inline bool is_exists(expr const & e) { return is_app(e) && is_exists_fn(arg(e, 
 /** \brief Return the term (exists A P), where A is a type and P : A -> bool */
 inline expr mk_exists(expr const & A, expr const & P) { return mk_app(mk_exists_fn(), A, P); }
 inline expr Exists(expr const & A, expr const & P) { return mk_exists(A, P); }
+/** \brief Return alias \c Exists for \c exists */
+expr mk_Exists_fn();
 
 /** \brief Homogeneous equality. It has type: <tt>Pi (A : Type), A -> A -> Bool</tt> */
 expr mk_homo_eq_fn();

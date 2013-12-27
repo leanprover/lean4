@@ -15,14 +15,14 @@ for f in `ls *.lean`; do
     echo "-- testing $f"
     $LEAN config.lean $f &> $f.produced.out
     if test -f $f.expected.out; then
-        if diff $f.produced.out $f.expected.out; then
+        if diff -I "executing external script" $f.produced.out $f.expected.out; then
             echo "-- checked"
         else
             echo "ERROR: file $f.produced.out does not match $f.expected.out"
             NUM_ERRORS=$(($NUM_ERRORS+1))
             if [ $INTERACTIVE == "yes" ]; then
                 meld $f.produced.out $f.expected.out
-                if diff $f.produced.out $f.expected.out; then
+                if diff -I "executing external script" $f.produced.out $f.expected.out; then
                     echo "-- mismath was fixed"
                 fi
             fi

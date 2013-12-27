@@ -14,18 +14,18 @@ f=$2
 echo "-- testing $f"
 $LEAN config.lean $f &> $f.produced.out
 if test -f $f.expected.out; then
-    if diff $f.produced.out $f.expected.out; then
+    if diff -I "executing external script" $f.produced.out $f.expected.out; then
         echo "-- checked"
         exit 0
     else
         echo "ERROR: file $f.produced.out does not match $f.expected.out"
         if [ $INTERACTIVE == "yes" ]; then
             meld $f.produced.out $f.expected.out
-            if diff $f.produced.out $f.expected.out; then
+            if diff -I "executing external script" $f.produced.out $f.expected.out; then
                 echo "-- mismath was fixed"
             fi
         else
-            diff $f.produced.out $f.expected.out
+            diff -I "executing external script" $f.produced.out $f.expected.out
         fi
         exit 1
     fi

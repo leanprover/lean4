@@ -436,7 +436,7 @@ class pp_fn {
             return g_eq_precedence;
         } else if (is_arrow(e)) {
             return g_arrow_precedence;
-        } else if (is_lambda(e) || is_pi(e) || is_let(e)) {
+        } else if (is_lambda(e) || is_pi(e) || is_let(e) || is_forall(e) || is_exists(e)) {
             return 0;
         } else {
             return g_app_precedence;

@@ -131,7 +131,7 @@ static unsigned g_level_cup_prec  = 5;
 // are syntax sugar for (Pi (_ : A), B)
 static name g_unused = name::mk_internal_unique_name();
 
-enum class macro_arg_kind { Expr, Exprs, Bindings, Id, String, Comma, Assign, Tactic, Tactics };
+enum class macro_arg_kind { Expr, Exprs, Bindings, Id, Int, String, Comma, Assign, Tactic, Tactics };
 struct macro {
     list<macro_arg_kind> m_arg_kinds;
     luaref               m_fn;
@@ -1023,6 +1023,11 @@ class parser::imp {
                 args.emplace_back(k, &str);
                 return parse_macro(tail(arg_kinds), fn, prec, args, p);
             }
+            case macro_arg_kind::Int: {
+                unsigned i = parse_unsigned("invalid macro argument, value does not fit in a machine integer");
+                args.emplace_back(k, &i);
+                return parse_macro(tail(arg_kinds), fn, prec, args, p);
+             }
             case macro_arg_kind::Id: {
                 name n = curr_name();
                 next();
@@ -1087,6 +1092,9 @@ class parser::imp {
                             break;
                         case macro_arg_kind::String:
                             lua_pushstring(L, static_cast<std::string*>(arg)->c_str());
+                            break;
+                        case macro_arg_kind::Int:
+                            lua_pushinteger(L, *static_cast<unsigned*>(arg));
                             break;
                         case macro_arg_kind::Tactic:
                             push_tactic(L, *static_cast<tactic*>(arg));
@@ -2868,6 +2876,7 @@ void open_macros(lua_State * L) {
     SET_ENUM("Bindings", macro_arg_kind::Bindings);
     SET_ENUM("Id",       macro_arg_kind::Id);
     SET_ENUM("String",   macro_arg_kind::String);
+    SET_ENUM("Int",      macro_arg_kind::Int);
     SET_ENUM("Comma",    macro_arg_kind::Comma);
     SET_ENUM("Assign",   macro_arg_kind::Assign);
     SET_ENUM("Tactic",   macro_arg_kind::Tactic);

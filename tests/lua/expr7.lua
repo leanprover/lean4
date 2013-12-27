@@ -1,3 +1,4 @@
+import("util.lua")
 local f, g, a, b, c, d = Consts("f, g, a, b, c, d")
 local x = Var(0)
 local y = Var(1)
@@ -16,4 +17,3 @@ assert(F:lift_free_vars(1):abstract(a):instantiate{c, d} == f(g(c, d), f(b, f(c,
 assert(F:lift_free_vars(1):abstract(a):instantiate{c, d}:abstract{c, b} == f(g(y, d), f(x, f(y, y))))
 assert(F:lift_free_vars(1):lower_free_vars(1) == F)
 assert(F:lift_free_vars(0, 1):lower_free_vars(1, 1) == F)
-

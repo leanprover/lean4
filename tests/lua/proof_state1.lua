@@ -1,3 +1,4 @@
+import("util.lua")
 local ps   = proof_state()
 local env  = environment()
 local Bool = Const("Bool")
@@ -23,5 +24,3 @@ local pb   = ps:proof_builder()
 local cb   = ps:cex_builder()
 assert(not ps:is_proof_final_state())
 assert(not ps:is_cex_final_state())
-
-

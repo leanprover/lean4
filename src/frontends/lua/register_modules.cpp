@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "library/arith/register_module.h"
 #include "library/tactic/register_module.h"
 #include "frontends/lean/register_module.h"
-#include "frontends/lua/lean.lua.h"
 
 namespace lean {
 void register_modules() {
@@ -21,6 +20,5 @@ void register_modules() {
     register_arith_module();
     register_tactic_module();
     register_frontend_lean_module();
-    script_state::register_code(g_extra_code);
 }
 }

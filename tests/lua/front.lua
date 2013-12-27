@@ -1,3 +1,4 @@
+import("util.lua")
 local env = environment()
 print(get_options())
 parse_lean_cmds([[

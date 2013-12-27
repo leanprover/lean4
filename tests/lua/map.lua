@@ -1,3 +1,4 @@
+import("util.lua")
 -- This examples demonstrates that Lean objects are not very useful as Lua table keys.
 local f = Const("f")
 local m = {}

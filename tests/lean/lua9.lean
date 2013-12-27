@@ -1,6 +1,7 @@
 Variable x : Bool
 
 (**
+ import("util.lua")
  local env    = get_environment()
  local Int    = Const("Int")
  local plus   = Const{"Int", "add"}

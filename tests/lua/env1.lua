@@ -1,3 +1,4 @@
+import("util.lua")
 e = environment()
 assert(is_environment(e))
 e:add_uvar("M1")

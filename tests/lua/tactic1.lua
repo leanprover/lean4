@@ -1,3 +1,4 @@
+import("util.lua")
 local ps   = proof_state()
 local env  = environment()
 local Bool = Const("Bool")

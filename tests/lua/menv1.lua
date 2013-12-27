@@ -1,3 +1,4 @@
+import("util.lua")
 local menv = metavar_env()
 assert(is_metavar_env(menv))
 local m1   = menv:mk_metavar()

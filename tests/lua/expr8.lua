@@ -1,3 +1,4 @@
+import("util.lua")
 local f, g, a, b, c, d = Consts("f, g, a, b, c, d")
 local N, M = Consts("N, M")
 local x = Var(0)

@@ -1,3 +1,4 @@
+import("util.lua")
 import("template.lua")
 local env = environment()
 parse_lean_cmds([[

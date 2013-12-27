@@ -7,7 +7,7 @@ ulimit -s unlimited
 LEAN=$1
 f=$2
 echo "-- testing $f"
-if $LEAN util.lua $f > $f.produced.out; then
+if $LEAN extra.lua $f > $f.produced.out; then
     echo "-- worked"
     exit 0
 else

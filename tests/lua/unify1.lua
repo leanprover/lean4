@@ -1,3 +1,4 @@
+import("util.lua")
 local f, g, a, b, c, x = Consts("f, g, a, b, c, x")
 local m1 = mk_metavar("m1")
 local m2 = mk_metavar("m2")

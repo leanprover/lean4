@@ -1,3 +1,4 @@
+import("util.lua")
 local env  = environment()
 local ios  = io_state()
 local Bool = Const("Bool")

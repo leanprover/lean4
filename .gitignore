@@ -2,6 +2,7 @@
 .lean_trace
 *.produced.out
 *.md.lua
+*.md.lean
 a.out
 build
 GPATH

@@ -77,14 +77,24 @@ deserializer & operator>>(deserializer & d, list<int> & l) {
     return d;
 }
 
+void display(std::ostringstream const & out) {
+    std::cout << "OUT: ";
+    auto str = out.str();
+    for (auto c : str) {
+        std::cout << static_cast<int>(static_cast<unsigned char>(c)) << " ";
+    }
+    std::cout << "\n";
+}
+
 static void tst1() {
     std::ostringstream out;
     serializer s(out);
-    s.write_int(10); s.write_int(20); s.write_bool(false); s.write_string("hello"); s.write_int(30);
+    s.write_int(10); s.write_int(-20); s.write_bool(false); s.write_string("hello"); s.write_int(30);
+    display(out);
     std::istringstream in(out.str());
     deserializer d(in);
     lean_assert(d.read_int() == 10);
-    lean_assert(d.read_int() == 20);
+    lean_assert(d.read_int() == -20);
     lean_assert(!d.read_bool());
     lean_assert(d.read_string() == "hello");
     lean_assert(d.read_int() == 30);
@@ -99,13 +109,7 @@ static void tst2() {
     list<int> l3;
     l3 = cons(20, cons(30, l2));
     s << l1 << l2 << l3 << l2 << l3;
-
-    std::cout << "OUT: ";
-    auto str = out.str();
-    for (auto c : str) {
-        std::cout << static_cast<int>(c) << " ";
-    }
-    std::cout << "\n";
+    display(out);
 
     std::istringstream in(out.str());
     deserializer d(in);
@@ -131,6 +135,7 @@ static void tst3() {
     name n4(n1, "hello");
     name n5("simple");
     s << n1 << n2 << n3 << n4 << n2 << n5;
+    display(out);
     std::istringstream in(out.str());
     deserializer d(in);
     name m1, m2, m3, m4, m5, m6;

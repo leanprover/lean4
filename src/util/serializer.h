@@ -22,8 +22,8 @@ public:
     serializer_core(std::ostream & out):m_out(out) {}
     void write_string(char const * str) { m_out.write(str, strlen(str) + 1); }
     void write_string(std::string const & str) { m_out.write(str.c_str(), str.size() + 1); }
-    void write_unsigned(unsigned i) { m_out.write(reinterpret_cast<char*>(&i), sizeof(i)); }
-    void write_int(int i) { m_out.write(reinterpret_cast<char*>(&i), sizeof(i)); }
+    void write_unsigned(unsigned i);
+    void write_int(int i);
     void write_char(char c) { m_out.put(c); }
     void write_bool(bool b) { m_out.put(b ? 1 : 0); }
 };
@@ -46,8 +46,8 @@ class deserializer_core {
 public:
     deserializer_core(std::istream & in):m_in(in) {}
     std::string read_string();
-    int read_int() { int r; m_in.read(reinterpret_cast<char*>(&r), sizeof(r)); return r; }
-    unsigned read_unsigned() { unsigned r; m_in.read(reinterpret_cast<char*>(&r), sizeof(r)); return r; }
+    unsigned read_unsigned();
+    int read_int();
     char read_char() { return m_in.get(); }
     bool read_bool() { return m_in.get() != 0; }
 };

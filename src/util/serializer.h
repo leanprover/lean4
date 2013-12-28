@@ -26,6 +26,7 @@ public:
     void write_int(int i);
     void write_char(char c) { m_out.put(c); }
     void write_bool(bool b) { m_out.put(b ? 1 : 0); }
+    void write_double(double b);
 };
 
 typedef extensible_object<serializer_core> serializer;
@@ -36,6 +37,7 @@ inline serializer & operator<<(serializer & s, unsigned i) { s.write_unsigned(i)
 inline serializer & operator<<(serializer & s, int i) { s.write_int(i); return s; }
 inline serializer & operator<<(serializer & s, char c) { s.write_char(c); return s; }
 inline serializer & operator<<(serializer & s, bool b) { s.write_bool(b); return s; }
+inline serializer & operator<<(serializer & s, double b) { s.write_double(b); return s; }
 
 /**
    \brief Low-tech serializer.
@@ -50,6 +52,7 @@ public:
     int read_int();
     char read_char() { return m_in.get(); }
     bool read_bool() { return m_in.get() != 0; }
+    double read_double();
 };
 
 typedef extensible_object<deserializer_core> deserializer;
@@ -59,4 +62,5 @@ inline deserializer & operator>>(deserializer & d, unsigned & i) { i = d.read_un
 inline deserializer & operator>>(deserializer & d, int & i) { i = d.read_int(); return d; }
 inline deserializer & operator>>(deserializer & d, char & c) { c = d.read_char(); return d; }
 inline deserializer & operator>>(deserializer & d, bool & b) { b = d.read_bool(); return d; }
+inline deserializer & operator>>(deserializer & d, double & b) { b = d.read_double(); return d; }
 }

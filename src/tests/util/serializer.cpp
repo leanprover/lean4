@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include <cstring>
 #include <vector>
 #include <functional>
+#include <cmath>
 #include "util/test.h"
 #include "util/object_serializer.h"
 #include "util/debug.h"
@@ -148,9 +149,31 @@ static void tst3() {
     lean_assert(n5 == m6);
 }
 
+static void tst4() {
+    std::ostringstream out;
+    serializer s(out);
+    double d1, d2, d3, d4, d5;
+    d1 = 0.1;
+    d2 = -0.3;
+    d3 = 0.0;
+    d4 = 12317.123;
+    d5 = std::atan(1.0)*4;
+    s << d1 << d2 << d3 << d4 << d5;
+    std::istringstream in(out.str());
+    deserializer d(in);
+    double o1, o2, o3, o4, o5;
+    d >> o1 >> o2 >> o3 >> o4 >> o5;
+    lean_assert_eq(d1, o1);
+    lean_assert_eq(d2, o2);
+    lean_assert_eq(d3, o3);
+    lean_assert_eq(d4, o4);
+    lean_assert_eq(d5, o5);
+}
+
 int main() {
     tst1();
     tst2();
     tst3();
+    tst4();
     return has_violations() ? 1 : 0;
 }

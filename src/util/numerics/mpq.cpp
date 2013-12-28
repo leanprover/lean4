@@ -125,6 +125,17 @@ mpq const & numeric_traits<mpq>::zero() {
     return g_zero;
 }
 
+serializer & operator<<(serializer & s, mpq const & n) {
+    std::ostringstream out;
+    out << n;
+    s << out.str();
+    return s;
+}
+
+mpq read_mpq(deserializer & d) {
+    return mpq(d.read_string().c_str());
+}
+
 DECL_UDATA(mpq)
 
 template<int idx>

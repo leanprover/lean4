@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include "util/debug.h"
 #include "util/lua.h"
+#include "util/serializer.h"
 #include "util/numerics/numeric_traits.h"
 
 namespace lean {
@@ -235,6 +236,10 @@ public:
     static void power(mpz & v, unsigned k) { _power(v, v, k); }
     static mpz const & zero();
 };
+
+serializer & operator<<(serializer & s, mpz const & n);
+mpz read_mpz(deserializer & d);
+inline deserializer & operator>>(deserializer & d, mpz & n) { n = read_mpz(d); return d; }
 
 UDATA_DEFS(mpz)
 mpz to_mpz_ext(lua_State * L, int idx);

@@ -84,6 +84,17 @@ mpz const & numeric_traits<mpz>::zero() {
     return g_zero;
 }
 
+serializer & operator<<(serializer & s, mpz const & n) {
+    std::ostringstream out;
+    out << n;
+    s << out.str();
+    return s;
+}
+
+mpz read_mpz(deserializer & d) {
+    return mpz(d.read_string().c_str());
+}
+
 DECL_UDATA(mpz)
 
 template<int idx>

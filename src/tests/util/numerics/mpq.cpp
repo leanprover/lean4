@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <sstream>
 #include "util/test.h"
+#include "util/serializer.h"
 #include "util/numerics/mpq.h"
 using namespace lean;
 
@@ -173,6 +174,27 @@ static void tst6() {
     lean_assert(cmp(mpq(-3, 2), mpz(-1)) < 0);
 }
 
+static void tst7() {
+    std::ostringstream out;
+    serializer s(out);
+    mpq n1("-100000000000000000000000000000000000/3");
+    lean_assert(n1.is_neg());
+    mpq n2("-3/4");
+    mpq n3("1200/2131");
+    mpq n4("321/345");
+    mpq n5(1, 3);
+    s << n1 << n2 << n3 << n4 << n5;
+    std::istringstream in(out.str());
+    deserializer d(in);
+    mpq m1, m2, m3, m4, m5;
+    d >> m1 >> m2 >> m3 >> m4 >> m5;
+    lean_assert(n1 == m1);
+    lean_assert(n2 == m2);
+    lean_assert(n3 == m3);
+    lean_assert(n4 == m4);
+    lean_assert(n5 == m5);
+}
+
 int main() {
     tst0();
     tst1();
@@ -181,5 +203,6 @@ int main() {
     tst4();
     tst5();
     tst6();
+    tst7();
     return has_violations() ? 1 : 0;
 }

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <sstream>
 #include <string>
 #include "util/test.h"
+#include "util/serializer.h"
 #include "util/numerics/mpz.h"
 using namespace lean;
 
@@ -43,7 +44,27 @@ static void tst1() {
     }
 }
 
+static void tst2() {
+    std::ostringstream out;
+    serializer s(out);
+    mpz n1("-100000000000000000000000000000000000");
+    lean_assert(n1.is_neg());
+    mpz n2("0");
+    mpz n3("1200");
+    mpz n4("321");
+    s << n1 << n2 << n3 << n4;
+    std::istringstream in(out.str());
+    deserializer d(in);
+    mpz m1, m2, m3, m4;
+    d >> m1 >> m2 >> m3 >> m4;
+    lean_assert(n1 == m1);
+    lean_assert(n2 == m2);
+    lean_assert(n3 == m3);
+    lean_assert(n4 == m4);
+}
+
 int main() {
     tst1();
+    tst2();
     return has_violations() ? 1 : 0;
 }

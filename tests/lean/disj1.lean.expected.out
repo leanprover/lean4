@@ -1,5 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
+  Imported 'tactic'
   Proved: T1
   Proved: T2
 Theorem T2 (a b : Bool) : a ∨ b ⇒ b ∨ a :=

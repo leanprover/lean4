@@ -1,10 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
-  Assumed: cast
-  Assumed: CastEq
-  Assumed: CastApp
-  Assumed: DomInj
-  Assumed: RanInj
+  Imported 'cast.lean'
   Assumed: vector
   Assumed: N0
   Proved: V0

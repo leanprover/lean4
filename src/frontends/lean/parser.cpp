@@ -2373,23 +2373,26 @@ class parser::imp {
             regular(m_io_state) << "  Set: " << id << endl;
     }
 
-    void import_lean_file(std::string const & fname) {
+    bool import_lean_file(std::string const & fname) {
         std::ifstream in(fname);
         if (!in.is_open())
             throw parser_error(sstream() << "invalid import command, failed to open file '" << fname << "'", m_last_cmd_pos);
         if (!m_env->mark_imported(fname.c_str())) {
             // module already imported
-            return;
+            return false;
         }
         try {
             script_state state; // Empty state object for the imported module
-            parser import_parser(m_env, m_io_state, in, &state, true /* use exceptions */, false /* not interactive */);
+            io_state ios = m_io_state;
+            ios.set_option(g_parser_verbose, false);
+            parser import_parser(m_env, ios, in, &state, true /* use exceptions */, false /* not interactive */);
             import_parser();
         } catch (interrupted &) {
             throw;
         } catch (exception &) {
             throw parser_error(sstream() << "failed to import file '" << fname << "'", m_last_cmd_pos);
         }
+        return true;
     }
 
     void parse_import() {
@@ -2401,16 +2404,23 @@ class parser::imp {
         } else {
             fname  = check_string_next("invalid import command, string (i.e., file name) or identifier expected");
         }
-        fname = find_file(fname);
-        if (is_lean_file(fname)) {
-            import_lean_file(fname);
-        } else if (is_lua_file(fname)) {
+        std::string ffname = find_file(fname);
+        bool r = false;
+        if (is_lean_file(ffname)) {
+            r = import_lean_file(ffname);
+        } else if (is_lua_file(ffname)) {
             if (!m_script_state)
                 throw parser_error(sstream() << "failed to import Lua file '" << fname << "', parser does not have an intepreter", m_last_cmd_pos);
-            m_script_state->import_explicit(fname.c_str());
+            r = m_script_state->import_explicit(ffname.c_str());
         } else {
             // assume is a Lean file
-            import_lean_file(fname);
+            r = import_lean_file(ffname);
+        }
+        if (m_verbose) {
+            if (r)
+                regular(m_io_state) << "  Imported '" << fname << "'" << endl;
+            else
+                regular(m_io_state) << "  Skipped '" << fname << "'" << endl;
         }
     }
 

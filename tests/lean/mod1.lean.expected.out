@@ -1,9 +1,9 @@
   Set: pp::colors
   Set: pp::unicode
-  Assumed: x
-  Assumed: y
-  Assumed: x
-  Assumed: y
+  Imported 'simple'
+  Skipped 'simple'
+  Imported 'simple.lean'
+  Skipped 'simple.lean'
 x + y : ℤ
   Assumed: z
 z : ℤ

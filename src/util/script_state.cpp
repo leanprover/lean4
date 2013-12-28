@@ -119,18 +119,21 @@ struct script_state::imp {
         ::lean::dostring(m_state, str);
     }
 
-    void import_explicit(std::string const & fname) {
+    bool import_explicit(std::string const & fname) {
         if (m_imported_modules.find(fname) == m_imported_modules.end()) {
             dofile(fname.c_str());
             m_imported_modules.insert(fname);
+            return true;
+        } else {
+            return false;
         }
     }
 
-    void import_explicit(char const * fname) {
-        import_explicit(std::string(fname));
+    bool import_explicit(char const * fname) {
+        return import_explicit(std::string(fname));
     }
 
-    void import(char const * fname) {
+    bool import(char const * fname) {
         return import_explicit(find_file(fname));
     }
 };
@@ -161,12 +164,12 @@ void script_state::dostring(char const * str) {
     m_ptr->dostring(str);
 }
 
-void script_state::import(char const * str) {
-    m_ptr->import(str);
+bool script_state::import(char const * str) {
+    return m_ptr->import(str);
 }
 
-void script_state::import_explicit(char const * str) {
-    m_ptr->import_explicit(str);
+bool script_state::import_explicit(char const * str) {
+    return m_ptr->import_explicit(str);
 }
 
 mutex & script_state::get_mutex() {

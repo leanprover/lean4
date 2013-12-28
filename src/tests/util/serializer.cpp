@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "util/object_serializer.h"
 #include "util/debug.h"
 #include "util/list.h"
+#include "util/name.h"
 using namespace lean;
 
 template<typename T>
@@ -121,8 +122,30 @@ static void tst2() {
     lean_assert(is_eqp(new_l5, new_l3));
 }
 
+static void tst3() {
+    std::ostringstream out;
+    serializer s(out);
+    name n1{"foo", "bla"};
+    name n2(n1, 10);
+    name n3(n2, "tst");
+    name n4(n1, "hello");
+    name n5("simple");
+    s << n1 << n2 << n3 << n4 << n2 << n5;
+    std::istringstream in(out.str());
+    deserializer d(in);
+    name m1, m2, m3, m4, m5, m6;
+    d >> m1 >> m2 >> m3 >> m4 >> m5 >> m6;
+    lean_assert(n1 == m1);
+    lean_assert(n2 == m2);
+    lean_assert(n3 == m3);
+    lean_assert(n4 == m4);
+    lean_assert(n2 == m5);
+    lean_assert(n5 == m6);
+}
+
 int main() {
     tst1();
     tst2();
+    tst3();
     return has_violations() ? 1 : 0;
 }

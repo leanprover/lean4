@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "util/hash.h"
 #include "util/trace.h"
 #include "util/ascii.h"
+#include "util/object_serializer.h"
 
 namespace lean {
 constexpr char const * anonymous_str = "[anonymous]";
@@ -354,6 +355,71 @@ name operator+(name const & n1, name const & n2) {
         else
             return name(prefix, n2.m_ptr->m_k);
     }
+}
+
+class name_serializer : public object_serializer<name, name::ptr_hash, name::ptr_eq> {
+    typedef object_serializer<name, name::ptr_hash, name::ptr_eq> super;
+public:
+    void write(name const & n) {
+        super::write(n, [&]() {
+                serializer & s = get_owner();
+                s.write_char(static_cast<char>(n.kind()));
+                if (n.is_anonymous())
+                    return;
+                if (n.is_atomic()) {
+                    s.write_bool(false);
+                } else {
+                    s.write_bool(true);
+                    write(n.get_prefix());
+                }
+                if (n.is_string()) {
+                    s.write_string(n.get_string());
+                } else {
+                    s.write_unsigned(n.get_numeral());
+                }
+            });
+    }
+};
+
+class name_deserializer : public object_deserializer<name> {
+    typedef object_deserializer<name> super;
+public:
+    name read() {
+        return super::read([&]() {
+                deserializer & d = get_owner();
+                auto k = static_cast<name_kind>(d.read_char());
+                if (k == name_kind::ANONYMOUS)
+                    return name();
+                name prefix;
+                if (d.read_bool())
+                    prefix = read();
+                if (k == name_kind::STRING) {
+                    return name(prefix, d.read_string().c_str());
+                } else {
+                    lean_assert(k == name_kind::NUMERAL);
+                    return name(prefix, d.read_unsigned());
+                }
+            });
+    }
+};
+
+struct name_sd {
+    unsigned m_serializer_extid;
+    unsigned m_deserializer_extid;
+    name_sd() {
+        m_serializer_extid   = serializer::register_extension([](){ return std::unique_ptr<serializer::extension>(new name_serializer()); });
+        m_deserializer_extid = deserializer::register_extension([](){ return std::unique_ptr<deserializer::extension>(new name_deserializer()); });
+    }
+};
+static name_sd g_name_sd;
+
+serializer & operator<<(serializer & s, name const & n) {
+    s.get_extension<name_serializer>(g_name_sd.m_serializer_extid).write(n);
+    return s;
+}
+
+name read_name(deserializer & d) {
+    return d.get_extension<name_deserializer>(g_name_sd.m_deserializer_extid).read();
 }
 
 DECL_UDATA(name)

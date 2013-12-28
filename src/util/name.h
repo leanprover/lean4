@@ -7,8 +7,10 @@ Author: Leonardo de Moura
 #pragma once
 #include <string>
 #include <iostream>
+#include <functional>
 #include <algorithm>
 #include "util/lua.h"
+#include "util/serializer.h"
 
 namespace lean {
 constexpr char const * lean_name_separator = "::";
@@ -117,11 +119,19 @@ public:
         else
             return cmp(a, b);
     }
+
+    struct ptr_hash { unsigned operator()(name const & n) const { return std::hash<imp*>()(n.m_ptr); } };
+    struct ptr_eq { bool operator()(name const & n1, name const & n2) const { return n1.m_ptr == n2.m_ptr; } };
 };
+
 struct name_hash { unsigned operator()(name const & n) const { return n.hash(); } };
 struct name_eq { bool operator()(name const & n1, name const & n2) const { return n1 == n2; } };
 struct name_cmp { int operator()(name const & n1, name const & n2) const { return cmp(n1, n2); } };
 struct name_quick_cmp { int operator()(name const & n1, name const & n2) const { return quick_cmp(n1, n2); } };
+
+serializer & operator<<(serializer & s, name const & n);
+name read_name(deserializer & d);
+inline deserializer & operator>>(deserializer & d, name & n) { n = read_name(d); return d; }
 
 UDATA_DEFS(name)
 name to_name_ext(lua_State * L, int idx);

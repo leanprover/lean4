@@ -211,6 +211,32 @@ static void tst9() {
     }
 }
 
+static sexpr mk_shared(unsigned n) {
+    sexpr f("f");
+    sexpr a(10);
+    sexpr b(true);
+    sexpr r(f, sexpr({a, b, sexpr(name({"foo", "bla"})), sexpr(mpz("10")), sexpr(mpq(1, 3))}));
+    for (unsigned i = 0; i < n; i++) {
+        r = sexpr(f, sexpr(r, r));
+    }
+    return r;
+}
+
+static void tst10() {
+    sexpr r = mk_shared(20);
+    std::ostringstream out;
+    serializer s(out);
+    s << r << r;
+    std::cout << "Stream Size: " << out.str().size() << "\n";
+    std::istringstream in(out.str());
+    deserializer d(in);
+    sexpr r2, r3;
+    d >> r2 >> r3;
+    lean_assert(is_eqp(head(tail(r2)), tail(tail(r2))));
+    lean_assert(is_eqp(r2, r3));
+    lean_assert(r == r2);
+}
+
 int main() {
     save_stack_info();
     tst1();
@@ -222,5 +248,6 @@ int main() {
     tst7();
     tst8();
     tst9();
+    tst10();
     return has_violations() ? 1 : 0;
 }

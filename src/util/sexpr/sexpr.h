@@ -8,7 +8,9 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <functional>
 #include "util/lua.h"
+#include "util/serializer.h"
 
 namespace lean {
 class name;
@@ -87,6 +89,9 @@ public:
     /** \brief Pointer equality */
     friend bool is_eqp(sexpr const & a, sexpr const & b) { return a.m_ptr == b.m_ptr; }
 
+    struct ptr_hash { unsigned operator()(sexpr const & a) const { return std::hash<sexpr_cell*>()(a.m_ptr); } };
+    struct ptr_eq { unsigned operator()(sexpr const & a1, sexpr const & a2) const { return is_eqp(a1, a2); } };
+
     friend std::ostream & operator<<(std::ostream & out, sexpr const & s);
 };
 
@@ -158,6 +163,10 @@ inline bool operator<(sexpr const & a, sexpr const & b) { return cmp(a, b) < 0; 
 inline bool operator>(sexpr const & a, sexpr const & b) { return cmp(a, b) > 0; }
 inline bool operator<=(sexpr const & a, sexpr const & b) { return cmp(a, b) <= 0; }
 inline bool operator>=(sexpr const & a, sexpr const & b) { return cmp(a, b) >= 0; }
+
+serializer & operator<<(serializer & s, sexpr const & a);
+sexpr read_sexpr(deserializer & d);
+inline deserializer & operator>>(deserializer & d, sexpr & a) { a = read_sexpr(d); return d; }
 
 UDATA_DEFS(sexpr)
 void open_sexpr(lua_State * L);

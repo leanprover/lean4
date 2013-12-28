@@ -20,6 +20,19 @@ static void tst1() {
     std::cout << opt << "\n";
 }
 
+static void check_serializer(options const & o) {
+    std::ostringstream out;
+    serializer s(out);
+    s << o << o;
+    std::istringstream in(out.str());
+    deserializer d(in);
+    options n1, n2;
+    d >> n1 >> n2;
+    lean_assert(o == n1);
+    lean_assert(o == n2);
+    lean_assert(is_eqp(n1, n2));
+}
+
 static void tst2() {
     options opt;
     opt = update(opt, name{"test", "foo"}, 10);
@@ -29,6 +42,7 @@ static void tst2() {
     opt = update(opt, name{"sp", "order"}, sexpr{s, s, s, s, s, s});
     opt = update(opt, name{"test", "long", "names", "with", "several", "parts"}, true);
     std::cout << pp(opt) << "\n";
+    check_serializer(opt);
 }
 
 static void tst3() {
@@ -40,6 +54,7 @@ static void tst3() {
     std::cout << pp(opt) << "\n";
     opt = update(opt, name{"color"}, 30);
     std::cout << pp(opt) << "\n";
+    check_serializer(opt);
 }
 
 static void tst4() {
@@ -86,11 +101,13 @@ static void tst4() {
     lean_assert(opt.contains("name"));
     lean_assert(!opt.contains("name2"));
     lean_assert(opt.contains("color"));
+    check_serializer(opt);
     options opt2;
     opt2 = update(opt2, "name", "Leo");
     opt2 = update(opt2, "value", 10);
     opt2 = update(opt2, "flag", false);
     std::cout << "# " << opt << "\n# " << opt2 << "\n";
+    check_serializer(opt2);
     options opt3 = join(opt, opt2);
     std::cout << "> " << opt3 << "\n";
     lean_assert(strcmp(opt3.get_string("name", ""), "Leo") == 0);
@@ -98,6 +115,7 @@ static void tst4() {
     lean_assert(opt3.get_unsigned("color", 0) == 3);
     lean_assert(opt3.get_double(name("freq"), 0.0) == 0.5);
     lean_assert(opt3.get_unsigned(name("freq"), 0) == 0);
+    check_serializer(opt3);
     std::ostringstream s;
     option_kind k;
     k = BoolOption; s << k << " ";
@@ -133,6 +151,7 @@ static void tst6() {
     lean_assert(!is_eqp(opt, opt2));
     opt2 = opt;
     lean_assert(is_eqp(opt, opt2));
+    check_serializer(opt);
 }
 
 int main() {

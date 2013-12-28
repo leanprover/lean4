@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/sexpr/sexpr.h"
 #include "util/sexpr/format.h"
 #include "util/lua.h"
+#include "util/serializer.h"
 
 namespace lean {
 enum option_kind { BoolOption, IntOption, UnsignedOption, DoubleOption, StringOption, SExprOption };
@@ -63,7 +64,15 @@ public:
 
     friend format pp(options const & o);
     friend std::ostream & operator<<(std::ostream & out, options const & o);
+
+    friend serializer & operator<<(serializer & s, options const & o) { s << o.m_value; return s; }
+    friend options read_options(deserializer & d);
+
+    friend bool operator==(options const & a, options const & b) { return a.m_value == b.m_value; }
 };
+
+inline options read_options(deserializer & d) { return options(read_sexpr(d)); }
+inline deserializer & operator>>(deserializer & d, options & o) { o = read_options(d); return d; }
 template<typename T> options update(options const & o, name const & n, T const & v) { return o.update(n, sexpr(v)); }
 
 struct mk_option_declaration {

@@ -15,7 +15,7 @@ Theorem T1 : ∃ x y z : N, P x y z :=
         N
         (λ x : N, ∃ y z : N, P x y z)
         a
-        (@ExistsIntro N (λ x : N, ¬ ∀ x::1 : N, ¬ P a x x::1) b (@ExistsIntro N (λ z : N, P a b z) c H3))
+        (@ExistsIntro N (λ x : N, ¬ (∀ x::1 : N, ¬ P a x x::1)) b (@ExistsIntro N (λ z : N, P a b z) c H3))
 Theorem T2 : ∃ x y z : N, P x y z := ExistsIntro a (ExistsIntro b (ExistsIntro c H3))
 Theorem T3 : ∃ x y z : N, P x y z := ExistsIntro a (ExistsIntro b (ExistsIntro c H3))
 Theorem T4 (H : P a a b) : ∃ x y z : N, P x y z := ExistsIntro a (ExistsIntro a (ExistsIntro b H))

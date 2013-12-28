@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "util/rc.h"
 #include "frontends/lean/operator_info.h"
+#include "frontends/lean/frontend.h"
 
 namespace lean {
 /** \brief Actual implementation of operator_info */
@@ -178,6 +179,35 @@ format pp(operator_info const & o) {
 char const * notation_declaration::keyword() const {
     return to_string(m_op.get_fixity());
 }
+
+void notation_declaration::write(serializer & s) const {
+    auto parts = m_op.get_op_name_parts();
+    s << "Notation" << length(parts);
+    for (auto n : parts)
+        s << n;
+    s << static_cast<char>(m_op.get_fixity()) << m_op.get_precedence() << m_expr;
+}
+static void read_notation(environment const & env, io_state const & ios, deserializer & d) {
+    buffer<name> parts;
+    unsigned num = d.read_unsigned();
+    for (unsigned i = 0; i < num; i++)
+        parts.push_back(read_name(d));
+    fixity fx = static_cast<fixity>(d.read_char());
+    unsigned p = d.read_unsigned();
+    expr e = read_expr(d);
+    switch (fx) {
+    case fixity::Infix:   lean_assert(parts.size() == 1); add_infix(env, ios, parts[0], p, e); return;
+    case fixity::Infixl:  lean_assert(parts.size() == 1); add_infixl(env, ios, parts[0], p, e); return;
+    case fixity::Infixr:  lean_assert(parts.size() == 1); add_infixr(env, ios, parts[0], p, e); return;
+    case fixity::Prefix:  lean_assert(parts.size() == 1); add_prefix(env, ios, parts[0], p, e); return;
+    case fixity::Postfix: lean_assert(parts.size() == 1); add_postfix(env, ios, parts[0], p, e); return;
+    case fixity::Mixfixl: add_mixfixl(env, ios, parts.size(), parts.data(), p, e); return;
+    case fixity::Mixfixr: add_mixfixr(env, ios, parts.size(), parts.data(), p, e); return;
+    case fixity::Mixfixc: add_mixfixc(env, ios, parts.size(), parts.data(), p, e); return;
+    case fixity::Mixfixo: add_mixfixo(env, ios, parts.size(), parts.data(), p, e); return;
+    }
+}
+static object_cell::register_deserializer_fn notation_ds("Notation", read_notation);
 
 std::ostream & operator<<(std::ostream & out, operator_info const & o) {
     out << pp(o);

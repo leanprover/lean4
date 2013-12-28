@@ -208,7 +208,7 @@ expr_value::~expr_value() {
 }
 typedef std::unordered_map<std::string, value::reader> value_readers;
 static std::unique_ptr<value_readers> g_value_readers;
-std::unordered_map<std::string, value::reader> & get_value_readers() {
+value_readers & get_value_readers() {
     if (!g_value_readers)
         g_value_readers.reset(new value_readers());
     return *(g_value_readers.get());

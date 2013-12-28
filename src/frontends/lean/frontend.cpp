@@ -28,6 +28,31 @@ Author: Leonardo de Moura
 #include "frontends/lean/pp.h"
 
 namespace lean {
+class mark_implicit_command : public neutral_object_cell {
+    name              m_obj_name;
+    std::vector<bool> m_implicit;
+public:
+    mark_implicit_command(name const & n, unsigned sz, bool const * implicit):
+        m_obj_name(n), m_implicit(implicit, implicit+sz) {}
+    virtual ~mark_implicit_command() {}
+    virtual char const * keyword() const { return "MarkImplicit"; }
+    virtual void write(serializer & s) const {
+        unsigned sz = m_implicit.size();
+        s << "MarkImplicit" << m_obj_name << sz;
+        for (auto b : m_implicit)
+            s << b;
+    }
+};
+static void read_mark_implicit(environment const & env, io_state const &, deserializer & d) {
+    name n = read_name(d);
+    buffer<bool> implicit;
+    unsigned num = d.read_unsigned();
+    for (unsigned i = 0; i < num; i++)
+        implicit.push_back(d.read_bool());
+    mark_implicit_arguments(env, n, implicit.size(), implicit.data());
+}
+static object_cell::register_deserializer_fn mark_implicit_ds("MarkImplicit", read_mark_implicit);
+
 static std::vector<bool> g_empty_vector;
 /**
    \brief Environment extension object for the Lean default frontend.

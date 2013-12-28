@@ -97,6 +97,7 @@ public:
     alien_cell() {}
     unsigned & get_data(unsigned i) { return m_data[i]; }
     virtual char const * keyword() const { return "alien"; }
+    virtual void write(serializer & ) const { lean_unreachable(); } // LCOV_EXCL_LINE
 };
 
 static void tst6() {

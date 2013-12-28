@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <algorithm>
+#include <string>
 #include "util/rc.h"
 #include "kernel/expr.h"
 /*
@@ -15,6 +16,7 @@ Author: Leonardo de Moura
   frontend may need to create new objects for bookkeeping.
 */
 namespace lean {
+class io_state;
 class object;
 enum class object_kind { UVarDeclaration, Definition, Postulate, Builtin, BuiltinSet, Neutral };
 
@@ -69,6 +71,13 @@ public:
     virtual bool in_builtin_set(expr const &) const { return false; }
 
     virtual unsigned get_weight() const { return 0; }
+
+    virtual void write(serializer & ) const = 0;
+    typedef void (*reader)(environment const & env, io_state const & ios, deserializer & d);
+    static void register_deserializer(std::string const & k, reader rd);
+    struct register_deserializer_fn {
+        register_deserializer_fn(std::string const & k, reader rd) { register_deserializer(k, rd); }
+    };
 };
 
 /**
@@ -103,7 +112,7 @@ public:
     object_kind kind() const { return m_ptr->kind(); }
 
     friend object mk_uvar_decl(name const & n, level const & l);
-    friend object mk_definition(name const & n, expr const & t, expr const & v, bool opaque, unsigned weight);
+    friend object mk_definition(name const & n, expr const & t, expr const & v, unsigned weight);
     friend object mk_theorem(name const & n, expr const & t, expr const & v);
     friend object mk_axiom(name const & n, expr const & t);
     friend object mk_var_decl(name const & n, expr const & t);
@@ -140,7 +149,7 @@ inline optional<object> some_object(object && o) { return optional<object>(std::
 object mk_uvar_decl(name const & n, level const & l);
 object mk_builtin(expr const & v);
 object mk_builtin_set(expr const & r);
-object mk_definition(name const & n, expr const & t, expr const & v, bool opaque, unsigned weight);
+object mk_definition(name const & n, expr const & t, expr const & v, unsigned weight);
 object mk_theorem(name const & n, expr const & t, expr const & v);
 object mk_axiom(name const & n, expr const & t);
 object mk_var_decl(name const & n, expr const & t);

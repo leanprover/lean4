@@ -126,5 +126,6 @@ public:
     virtual char const * keyword() const;
     operator_info get_op() const { return m_op; }
     expr const & get_expr() const { return m_expr; }
+    virtual void write(serializer & s) const;
 };
 }

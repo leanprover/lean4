@@ -19,5 +19,6 @@ public:
     virtual ~coercion_declaration() {}
     virtual char const * keyword() const { return "Coercion"; }
     expr const & get_coercion() const { return m_coercion; }
+    virtual void write(serializer & s) const;
 };
 }

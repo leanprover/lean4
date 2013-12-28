@@ -21,6 +21,22 @@ Author: Leonardo de Moura
 #include "kernel/normalizer.h"
 
 namespace lean {
+class set_opaque_command : public neutral_object_cell {
+    name m_obj_name;
+    bool m_opaque;
+public:
+    set_opaque_command(name const & n, bool opaque):m_obj_name(n), m_opaque(opaque) {}
+    virtual ~set_opaque_command() {}
+    virtual char const * keyword() const { return "SetOpaque"; }
+    virtual void write(serializer & s) const { s << "SetOpaque" << m_obj_name << m_opaque; }
+};
+static void read_set_opaque(environment const & env, io_state const &, deserializer & d) {
+    name n = read_name(d);
+    bool o = d.read_bool();
+    env->set_opaque(n, o);
+}
+static object_cell::register_deserializer_fn set_opaque_ds("SetOpaque", read_set_opaque);
+
 static name g_builtin_module("builtin_module");
 class extension_factory {
     std::vector<environment_cell::mk_extension> m_makers;
@@ -323,7 +339,9 @@ void environment_cell::add_definition(name const & n, expr const & t, expr const
     check_no_cached_type(v);
     check_new_definition(n, t, v);
     unsigned w = get_max_weight(v) + 1;
-    register_named_object(mk_definition(n, t, v, opaque, w));
+    register_named_object(mk_definition(n, t, v, w));
+    if (opaque)
+        set_opaque(n, opaque);
 }
 
 /**
@@ -335,7 +353,9 @@ void environment_cell::add_definition(name const & n, expr const & v, bool opaqu
     check_name(n);
     expr v_t = m_type_checker->check(v);
     unsigned w = get_max_weight(v) + 1;
-    register_named_object(mk_definition(n, v_t, v, opaque, w));
+    register_named_object(mk_definition(n, v_t, v, w));
+    if (opaque)
+        set_opaque(n, opaque);
 }
 
 /** \brief Add new theorem. */
@@ -351,6 +371,7 @@ void environment_cell::set_opaque(name const & n, bool opaque) {
     if (!obj || !obj->is_definition())
         throw kernel_exception(env(), sstream() << "set_opaque failed, '" << n << "' is not a definition");
     obj->set_opaque(opaque);
+    add_neutral_object(new set_opaque_command(n, opaque));
 }
 
 /** \brief Add new axiom. */

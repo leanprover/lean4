@@ -85,6 +85,7 @@ static expr Fun(expr e, name_map<object_info> & info_map, dependencies const & d
 }
 
 std::vector<object> export_local_objects(environment const & env) {
+    // TODO(Leo): Revise using Parameters
     if (!env->has_parent())
         return std::vector<object>();
     name_map<object_info> info_map;
@@ -110,7 +111,7 @@ std::vector<object> export_local_objects(environment const & env) {
             auto new_deps = mk_dependencies(info_map, dep_set);
             new_type = Pi(new_type, info_map, new_deps);
             new_val  = Fun(new_val, info_map, new_deps);
-            auto new_obj  = obj.is_theorem() ? mk_theorem(obj.get_name(), new_type, new_val) : mk_definition(obj.get_name(), new_type, new_val, obj.is_opaque(), obj.get_weight());
+            auto new_obj  = obj.is_theorem() ? mk_theorem(obj.get_name(), new_type, new_val) : mk_definition(obj.get_name(), new_type, new_val, obj.get_weight());
             new_objects.push_back(new_obj);
             info_map.insert(mk_pair(obj.get_name(), object_info(new_obj, pos, new_deps, mk_ref(new_obj, new_deps))));
         }

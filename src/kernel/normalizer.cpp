@@ -52,6 +52,7 @@ public:
     closure(expr const & e, context const & ctx, value_stack const & s):m_expr(e), m_ctx(ctx), m_stack(s) {}
     virtual ~closure() {}
     virtual expr get_type() const { lean_unreachable(); } // LCOV_EXCL_LINE
+    virtual void write(serializer & ) const { lean_unreachable(); } // LCOV_EXCL_LINE
     virtual name get_name() const { return name("Closure"); }
     virtual void display(std::ostream & out) const {
         out << "(Closure " << m_expr << " [";

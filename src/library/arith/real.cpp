@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <string>
 #include "kernel/abstract.h"
 #include "kernel/environment.h"
 #include "library/kernel_bindings.h"
@@ -16,9 +17,12 @@ namespace lean {
 class real_type_value : public num_type_value {
 public:
     real_type_value():num_type_value("Real", "\u211D") /* ℝ */ {}
+    virtual void write(serializer & s) const { s << "Real"; }
 };
 expr const Real = mk_value(*(new real_type_value()));
 expr mk_real_type() { return Real; }
+expr read_real(deserializer & ) { return Real; }
+static register_deserializer_fn if_ds("Real", read_real);
 
 /**
    \brief Semantic attachment for "Real" values.
@@ -51,11 +55,14 @@ public:
     virtual unsigned hash() const { return m_val.hash(); }
     virtual int push_lua(lua_State * L) const { return push_mpq(L, m_val); }
     mpq const & get_num() const { return m_val; }
+    virtual void write(serializer & s) const { s << "real" << m_val; }
 };
 
 expr mk_real_value(mpq const & v) {
     return mk_value(*(new real_value_value(v)));
 }
+expr read_real_value(deserializer & d) { return mk_real_value(read_mpq(d)); }
+static register_deserializer_fn real_value_ds("real", read_real_value);
 
 bool is_real_value(expr const & e) {
     return is_value(e) && dynamic_cast<real_value_value const *>(&to_value(e)) != nullptr;
@@ -81,6 +88,7 @@ public:
             return none_expr();
         }
     }
+    virtual void write(serializer & s) const { s << (std::string("real_") + Name); }
 };
 
 constexpr char real_add_name[] = "add";
@@ -88,12 +96,16 @@ constexpr char real_add_name[] = "add";
 struct real_add_eval { mpq operator()(mpq const & v1, mpq const & v2) { return v1 + v2; }; };
 typedef real_bin_op<real_add_name, real_add_eval> real_add_value;
 MK_BUILTIN(real_add_fn, real_add_value);
+expr read_real_add(deserializer & ) { return mk_real_add_fn(); }
+static register_deserializer_fn real_add_ds("real_add", read_real_add);
 
 constexpr char real_mul_name[] = "mul";
 /** \brief Evaluator for * : Real -> Real -> Real */
 struct real_mul_eval { mpq operator()(mpq const & v1, mpq const & v2) { return v1 * v2; }; };
 typedef real_bin_op<real_mul_name, real_mul_eval> real_mul_value;
 MK_BUILTIN(real_mul_fn, real_mul_value);
+expr read_real_mul(deserializer & ) { return mk_real_mul_fn(); }
+static register_deserializer_fn real_mul_ds("real_mul", read_real_mul);
 
 constexpr char real_div_name[] = "div";
 /** \brief Evaluator for / : Real -> Real -> Real */
@@ -107,6 +119,8 @@ struct real_div_eval {
 };
 typedef real_bin_op<real_div_name, real_div_eval> real_div_value;
 MK_BUILTIN(real_div_fn, real_div_value);
+expr read_real_div(deserializer & ) { return mk_real_div_fn(); }
+static register_deserializer_fn real_div_ds("real_div", read_real_div);
 
 /**
    \brief Semantic attachment for less than or equal to operator with type
@@ -122,8 +136,11 @@ public:
             return none_expr();
         }
     }
+    virtual void write(serializer & s) const { s << "real_le"; }
 };
 MK_BUILTIN(real_le_fn, real_le_value);
+expr read_real_le(deserializer & ) { return mk_real_le_fn(); }
+static register_deserializer_fn real_le_ds("real_le", read_real_le);
 
 MK_CONSTANT(real_sub_fn, name({"Real", "sub"}));
 MK_CONSTANT(real_neg_fn, name({"Real", "neg"}));
@@ -166,8 +183,11 @@ public:
             return none_expr();
         }
     }
+    virtual void write(serializer & s) const { s << "int_to_real"; }
 };
 MK_BUILTIN(int_to_real_fn,  int_to_real_value);
+expr read_int_to_real(deserializer & ) { return mk_int_to_real_fn(); }
+static register_deserializer_fn int_to_real_ds("int_to_real", read_int_to_real);
 MK_CONSTANT(nat_to_real_fn, name("nat_to_real"));
 
 void import_int_to_real_coercions(environment const & env) {

@@ -19,6 +19,20 @@ Author: Leonardo de Moura
 #include "library/arith/arith.h"
 using namespace lean;
 
+static void check_serializer(expr const & e) {
+    std::ostringstream out;
+    serializer s(out);
+    s << e << e;
+    std::cout << "OUT size: " << out.str().size() << "\n";
+    std::istringstream in(out.str());
+    deserializer d(in);
+    expr n1, n2;
+    d >> n1 >> n2;
+    lean_assert(e == n1);
+    lean_assert(e == n2);
+    lean_assert(is_eqp(n1, n2));
+}
+
 static void tst1() {
     expr a;
     a = Const("a");
@@ -88,9 +102,10 @@ static expr mk_big(expr f, unsigned depth, unsigned val) {
 
 static void tst3() {
     expr f = Const("f");
-    expr r1 = mk_big(f, 20, 0);
-    expr r2 = mk_big(f, 20, 0);
+    expr r1 = mk_big(f, 16, 0);
+    expr r2 = mk_big(f, 16, 0);
     lean_assert(r1 == r2);
+    check_serializer(r1);
 }
 
 static void tst4() {
@@ -229,6 +244,7 @@ static void tst10() {
    \pre s and t must be closed expressions (i.e., no free variables)
 */
 static expr substitute(expr const & e, expr const & s, expr const & t) {
+    check_serializer(e);
     return instantiate(abstract(e, s), t);
 }
 
@@ -270,6 +286,8 @@ static void tst12() {
 static void tst13() {
     expr t0 = Type();
     expr t1 = Type(level()+1);
+    check_serializer(t0);
+    check_serializer(t1);
     lean_assert(ty_level(t1) == level()+1);
     lean_assert(t0 != t1);
     std::cout << t0 << " " << t1 << "\n";
@@ -277,8 +295,10 @@ static void tst13() {
 
 static void tst14() {
     expr t = Eq(Const("a"), Const("b"));
+    check_serializer(t);
     std::cout << t << "\n";
     expr l = mk_let("a", none_expr(), Const("b"), Var(0));
+    check_serializer(l);
     std::cout << l << "\n";
     lean_assert(closed(l));
 }
@@ -288,6 +308,7 @@ static void tst15() {
     expr x = Var(0);
     expr a = Const("a");
     expr m = mk_metavar("m");
+    check_serializer(m);
     lean_assert(has_metavar(m));
     lean_assert(has_metavar(f(m)));
     lean_assert(!has_metavar(f(a)));
@@ -316,6 +337,7 @@ static void check_copy(expr const & e) {
     expr c = copy(e);
     lean_assert(!is_eqp(e, c));
     lean_assert(e == c);
+    check_serializer(e);
 }
 
 static void tst16() {
@@ -335,6 +357,8 @@ static void tst17() {
     lean_assert(is_false(False));
     lean_assert(!is_true(Const("a")));
     lean_assert(!is_false(Const("a")));
+    check_serializer(True);
+    check_serializer(False);
 }
 
 static void tst18() {

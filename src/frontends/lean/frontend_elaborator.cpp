@@ -38,6 +38,7 @@ struct choice_value : public value {
     choice_value(unsigned num_fs, expr const * fs):m_choices(fs, fs + num_fs) {}
     virtual ~choice_value() {}
     virtual expr get_type() const { lean_unreachable(); } // LCOV_EXCL_LINE
+    virtual void write(serializer & ) const { lean_unreachable(); } // LCOV_EXCL_LINE
     virtual name get_name() const { return name("Choice"); }
     virtual void display(std::ostream & out) const {
         out << "(Choice";

@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include <limits>
 #include <utility>
 #include <tuple>
+#include <string>
 #include "util/thread.h"
 #include "util/lua.h"
 #include "util/rc.h"
@@ -18,6 +19,7 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "util/list_fn.h"
 #include "util/optional.h"
+#include "util/serializer.h"
 #include "util/sexpr/format.h"
 #include "kernel/level.h"
 
@@ -296,7 +298,14 @@ public:
     virtual format pp(bool unicode, bool coercion) const;
     virtual int push_lua(lua_State * L) const;
     virtual unsigned hash() const;
+    virtual void write(serializer & s) const = 0;
+    typedef expr (*reader)(deserializer & d);
+    static void register_deserializer(std::string const & k, reader rd);
 };
+struct register_deserializer_fn {
+    register_deserializer_fn(std::string const & k, value::reader rd) { value::register_deserializer(k, rd); }
+};
+
 /** \brief Semantic attachments */
 class expr_value : public expr_cell {
     value & m_val;
@@ -692,6 +701,14 @@ inline expr update_const(expr const & e, optional<expr> const & t) {
     else
         return e;
 }
+// =======================================
+
+
+// =======================================
+// Serializer/Deserializer
+serializer & operator<<(serializer & s, expr const & e);
+expr read_expr(deserializer & d);
+inline deserializer & operator>>(deserializer & d, expr & e) { e = read_expr(d); return d; }
 // =======================================
 
 std::ostream & operator<<(std::ostream & out, expr const & e);

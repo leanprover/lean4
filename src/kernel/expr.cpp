@@ -7,8 +7,10 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include <sstream>
+#include <string>
 #include "util/hash.h"
 #include "util/buffer.h"
+#include "util/object_serializer.h"
 #include "kernel/expr.h"
 #include "kernel/free_vars.h"
 #include "kernel/expr_eq.h"
@@ -204,11 +206,31 @@ expr_value::expr_value(value & v):
 expr_value::~expr_value() {
     m_val.dec_ref();
 }
+typedef std::unordered_map<std::string, value::reader> value_readers;
+static std::unique_ptr<value_readers> g_value_readers;
+std::unordered_map<std::string, value::reader> & get_value_readers() {
+    if (!g_value_readers)
+        g_value_readers.reset(new value_readers());
+    return *(g_value_readers.get());
+}
+
+void value::register_deserializer(std::string const & k, value::reader rd) {
+    value_readers & readers = get_value_readers();
+    lean_assert(readers.find(k) == readers.end());
+    readers[k] = rd;
+}
+static expr read_value(deserializer & d) {
+    auto k  = d.read_string();
+    value_readers & readers = get_value_readers();
+    auto it = readers.find(k);
+    lean_assert(it != readers.end());
+    return it->second(d);
+}
+
 expr_metavar::expr_metavar(name const & n, local_context const & lctx):
     expr_cell(expr_kind::MetaVar, n.hash(), true),
     m_name(n), m_lctx(lctx) {}
 expr_metavar::~expr_metavar() {}
-
 void expr_cell::dealloc() {
     try {
         buffer<expr_cell*> todo;
@@ -280,5 +302,155 @@ expr copy(expr const & a) {
     case expr_kind::MetaVar:  return mk_metavar(metavar_name(a), metavar_lctx(a));
     }
     lean_unreachable(); // LCOV_EXCL_LINE
+}
+
+serializer & operator<<(serializer & s, local_context const & lctx) {
+    s << length(lctx);
+    for (auto const & e : lctx) {
+        if (e.is_lift()) {
+            s << true << e.s() << e.n();
+        } else {
+            s << false << e.s() << e.v();
+        }
+    }
+    return s;
+}
+
+local_context read_local_context(deserializer & d) {
+    unsigned num = d.read_unsigned();
+    buffer<local_entry> entries;
+    for (unsigned i = 0; i < num; i++) {
+        if (d.read_bool()) {
+            unsigned s, n;
+            d >> s >> n;
+            entries.push_back(mk_lift(s, n));
+        } else {
+            unsigned s; expr v;
+            d >> s >> v;
+            entries.push_back(mk_inst(s, v));
+        }
+    }
+    return to_list(entries.begin(), entries.end());
+}
+
+class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp> {
+    typedef object_serializer<expr, expr_hash_alloc, expr_eqp> super;
+public:
+    void write(optional<expr> const & a) {
+        serializer & s = get_owner();
+        if (a) {
+            s << true;
+            write(*a);
+        } else {
+            s << false;
+        }
+    }
+
+    void write(expr const & a) {
+        super::write(a, [&]() {
+                serializer & s = get_owner();
+                auto k = a.kind();
+                s << static_cast<char>(k);
+                switch (k) {
+                case expr_kind::Var:       s << var_idx(a); break;
+                case expr_kind::Constant:  s << const_name(a); write(const_type(a)); break;
+                case expr_kind::Type:      s << ty_level(a); break;
+                case expr_kind::Value:     to_value(a).write(s); break;
+                case expr_kind::App:
+                    s << num_args(a);
+                    for (unsigned i = 0; i < num_args(a); i++)
+                        write(arg(a, i));
+                    break;
+                case expr_kind::Eq:        write(eq_lhs(a)); write(eq_rhs(a)); break;
+                case expr_kind::Lambda:
+                case expr_kind::Pi:        s << abst_name(a); write(abst_domain(a)); write(abst_body(a)); break;
+                case expr_kind::Let:       s << let_name(a); write(let_type(a)); write(let_value(a)); write(let_body(a)); break;
+                case expr_kind::MetaVar:   s << metavar_name(a) << metavar_lctx(a); break;
+                }
+            });
+    }
+};
+
+class expr_deserializer : public object_deserializer<expr> {
+    typedef object_deserializer<expr> super;
+public:
+    optional<expr> read_opt() {
+        deserializer & d = get_owner();
+        if (d.read_bool()) {
+            return some_expr(read());
+        } else {
+            return none_expr();
+        }
+    }
+
+    expr read() {
+        return super::read([&]() {
+                deserializer & d = get_owner();
+                auto k = static_cast<expr_kind>(d.read_char());
+                switch (k) {
+                case expr_kind::Var:
+                    return mk_var(d.read_unsigned());
+                case expr_kind::Constant: {
+                    auto n = read_name(d);
+                    return mk_constant(n, read_opt());
+                }
+                case expr_kind::Type:
+                    return mk_type(read_level(d));
+                    break;
+                case expr_kind::Value:
+                    return read_value(d);
+                case expr_kind::App: {
+                    buffer<expr> args;
+                    unsigned num = d.read_unsigned();
+                    for (unsigned i = 0; i < num; i++)
+                        args.push_back(read());
+                    return mk_app(args);
+                }
+                case expr_kind::Eq: {
+                    expr lhs = read();
+                    return mk_eq(lhs, read());
+                }
+                case expr_kind::Lambda: {
+                    name n = read_name(d);
+                    expr d = read();
+                    return mk_lambda(n, d, read());
+                }
+                case expr_kind::Pi: {
+                    name n = read_name(d);
+                    expr d = read();
+                    return mk_pi(n, d, read());
+                }
+                case expr_kind::Let: {
+                    name n = read_name(d);
+                    optional<expr> t = read_opt();
+                    expr v = read();
+                    return mk_let(n, t, v, read());
+                }
+                case expr_kind::MetaVar: {
+                    name n = read_name(d);
+                    return mk_metavar(n, read_local_context(d));
+                }}
+                lean_unreachable(); // LCOV_EXCL_LINE
+            });
+    }
+};
+
+struct expr_sd {
+    unsigned m_s_extid;
+    unsigned m_d_extid;
+    expr_sd() {
+        m_s_extid = serializer::register_extension([](){ return std::unique_ptr<serializer::extension>(new expr_serializer()); });
+        m_d_extid = deserializer::register_extension([](){ return std::unique_ptr<deserializer::extension>(new expr_deserializer()); });
+    }
+};
+static expr_sd g_expr_sd;
+
+serializer & operator<<(serializer & s, expr const & n) {
+    s.get_extension<expr_serializer>(g_expr_sd.m_s_extid).write(n);
+    return s;
+}
+
+expr read_expr(deserializer & d) {
+    return d.get_extension<expr_deserializer>(g_expr_sd.m_d_extid).read();
 }
 }

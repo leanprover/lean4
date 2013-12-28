@@ -360,9 +360,6 @@ sexpr read_sexpr(deserializer & d) {
     return d.get_extension<sexpr_deserializer>(g_sexpr_sd.m_d_extid).read();
 }
 
-serializer & operator<<(serializer & s, sexpr const & a);
-sexpr read_sexpr(deserializer & d);
-
 DECL_UDATA(sexpr)
 
 static int sexpr_tostring(lua_State * L) {

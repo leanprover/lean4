@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/rc.h"
 #include "util/debug.h"
 #include "util/hash.h"
+#include "util/object_serializer.h"
 #include "kernel/level.h"
 
 namespace lean {
@@ -256,6 +257,79 @@ level max(std::initializer_list<level> const & l) {
     if (l.size() == 1)
         return *(l.begin());
     return max_core(l.size(), l.begin());
+}
+
+
+class level_serializer : public object_serializer<level, level::ptr_hash, level::ptr_eq> {
+    typedef object_serializer<level, level::ptr_hash, level::ptr_eq> super;
+public:
+    void write(level const & l) {
+        super::write(l, [&]() {
+                serializer & s = get_owner();
+                auto k = kind(l);
+                s << static_cast<char>(k);
+                switch (k) {
+                case level_kind::UVar:
+                    s << uvar_name(l);
+                    break;
+                case level_kind::Lift:
+                    s << lift_offset(l);
+                    write(lift_of(l));
+                    break;
+                case level_kind::Max:
+                    s << max_size(l);
+                    for (unsigned i = 0; i < max_size(l); i++)
+                        write(max_level(l, i));
+                    break;
+                }
+            });
+    }
+};
+
+class level_deserializer : public object_deserializer<level> {
+    typedef object_deserializer<level> super;
+public:
+    level read() {
+        return super::read([&]() {
+                deserializer & d = get_owner();
+                auto k = static_cast<level_kind>(d.read_char());
+                switch (k) {
+                case level_kind::UVar:
+                    return level(read_name(d));
+                case level_kind::Lift: {
+                    unsigned offset = d.read_unsigned();
+                    return read() + offset;
+                }
+                case level_kind::Max: {
+                    buffer<level> lvls;
+                    unsigned num = d.read_unsigned();
+                    for (unsigned i = 0; i < num; i++) {
+                        lvls.push_back(read());
+                    }
+                    return max_core(lvls.size(), lvls.data());
+                }}
+                lean_unreachable();
+            });
+    }
+};
+
+struct level_sd {
+    unsigned m_s_extid;
+    unsigned m_d_extid;
+    level_sd() {
+        m_s_extid = serializer::register_extension([](){ return std::unique_ptr<serializer::extension>(new level_serializer()); });
+        m_d_extid = deserializer::register_extension([](){ return std::unique_ptr<deserializer::extension>(new level_deserializer()); });
+    }
+};
+static level_sd g_level_sd;
+
+serializer & operator<<(serializer & s, level const & n) {
+    s.get_extension<level_serializer>(g_level_sd.m_s_extid).write(n);
+    return s;
+}
+
+level read_level(deserializer & d) {
+    return d.get_extension<level_deserializer>(g_level_sd.m_d_extid).read();
 }
 }
 void print(lean::level const & l) { std::cout << l << std::endl; }

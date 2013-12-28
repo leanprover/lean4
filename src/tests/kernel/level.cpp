@@ -11,6 +11,18 @@ Author: Leonardo de Moura
 #include "kernel/printer.h"
 using namespace lean;
 
+static void check_serializer(level const & l) {
+    std::ostringstream out;
+    serializer s(out);
+    s << l << l;
+    std::istringstream in(out.str());
+    deserializer d(in);
+    level l1, l2;
+    d >> l1 >> l2;
+    lean_assert(l == l1);
+    lean_assert(l == l2);
+}
+
 static void tst0() {
     environment env;
     lean_assert(env->begin_objects() == env->end_objects());
@@ -31,6 +43,10 @@ static void tst1() {
     level l2 = env->add_uvar("l2", l1 + 10);
     level l3 = env->add_uvar("l3", max(l2, l1 + 3));
     level l4 = env->add_uvar("l4", max(l1 + 8, max(l2 + 2, l3 + 20)));
+    check_serializer(l1);
+    check_serializer(l2);
+    check_serializer(l3);
+    check_serializer(l4);
     std::cout << pp(max(l1 + 8, max(l2 + 2, l3 + 20))) << "\n";
     std::cout << pp(level()) << "\n";
     std::cout << pp(level()+1) << "\n";
@@ -55,6 +71,7 @@ static void tst3() {
     environment env;
     level l1 = env->add_uvar("l1", level());
     level l2 = env->add_uvar("l2", l1 + ((1<<30) + 1024));
+    check_serializer(l2);
     try {
         level l3 = env->add_uvar("l3", l2 + (1<<30));
         lean_unreachable();
@@ -72,6 +89,12 @@ static void tst4() {
     level l4 = env->add_uvar("l4", l3 + 1);
     level l5 = env->add_uvar("l5", l3 + 1);
     level l6 = env->add_uvar("l6", max(l4, l5) + 1);
+    check_serializer(l1);
+    check_serializer(l2);
+    check_serializer(l3);
+    check_serializer(l4);
+    check_serializer(l5);
+    check_serializer(l6);
     lean_assert(!env->is_ge(l5 + 1, l6));
     lean_assert(env->is_ge(l6, l5));
     lean_assert(env->is_ge(l6, max({l1, l2, l3, l4, l5})));

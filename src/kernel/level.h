@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <algorithm>
 #include "util/name.h"
+#include "util/serializer.h"
 #include "util/sexpr/format.h"
 #include "util/sexpr/options.h"
 
@@ -55,6 +56,9 @@ public:
     friend void swap(level & l1, level & l2) { std::swap(l1, l2); }
 
     friend std::ostream & operator<<(std::ostream & out, level const & l);
+
+    struct ptr_hash { unsigned operator()(level const & n) const { return std::hash<level_cell*>()(n.m_ptr); } };
+    struct ptr_eq { bool operator()(level const & n1, level const & n2) const { return n1.m_ptr == n2.m_ptr; } };
 };
 
 level max(level const & l1, level const & l2);
@@ -74,5 +78,9 @@ inline level const * max_end_levels(level const & l)   { return max_begin_levels
 format pp(level const & l, bool unicode);
 /** \brief Pretty print the given level expression using the given configuration options. */
 format pp(level const & l, options const & opts = options());
+
+serializer & operator<<(serializer & s, level const & l);
+level read_level(deserializer & d);
+inline deserializer & operator>>(deserializer & d, level & l) { l = read_level(d); return d; }
 }
 void print(lean::level const & l);

@@ -10,6 +10,8 @@ Author: Leonardo de Moura
 #include <vector>
 #include "util/exception.h"
 #include "util/sstream.h"
+#include "util/name.h"
+#include "util/optional.h"
 
 namespace lean {
 #if defined(LEAN_WINDOWS)
@@ -115,14 +117,57 @@ struct init_lean_path {
     }
 };
 static init_lean_path g_init_lean_path;
+static std::string    g_sep_str(1, g_sep);
 
-std::string find_file(char const * fname) {
-    std::string nfname = normalize_path(std::string(fname));
+bool has_file_ext(std::string const & fname, char const * ext) {
+    unsigned ext_len = strlen(ext);
+    return fname.size() > ext_len && fname.substr(fname.size() - ext_len, ext_len) == ext;
+}
+
+bool is_lean_file(std::string const & fname) {
+    return has_file_ext(fname, ".lean");
+}
+
+bool is_olean_file(std::string const & fname) {
+    return has_file_ext(fname, ".olean");
+}
+
+bool is_lua_file(std::string const & fname) {
+    return has_file_ext(fname, ".lua");
+}
+
+bool is_known_file_ext(std::string const & fname) {
+    return is_lean_file(fname) || is_olean_file(fname) || is_lua_file(fname);
+}
+
+optional<std::string> check_file(std::string const & path, std::string const & fname, char const * ext = nullptr) {
+    std::string file = path + g_sep + fname;
+    if (ext)
+        file += ext;
+    std::ifstream ifile(file);
+    if (ifile)
+        return optional<std::string>(file);
+    else
+        return optional<std::string>();
+}
+
+std::string name_to_file(name const & fname) {
+    return fname.to_string(g_sep_str.c_str());
+}
+
+std::string find_file(std::string fname) {
+    bool is_known = is_known_file_ext(fname);
+    fname = normalize_path(fname);
     for (auto path : g_lean_path_vector) {
-        std::string file = path + g_sep + nfname;
-        std::ifstream ifile(file);
-        if (ifile)
-            return file;
+        if (is_known) {
+            if (auto r = check_file(path, fname))
+                return *r;
+        } else {
+            for (auto ext : { ".olean", ".lean", ".lua" }) {
+                if (auto r = check_file(path, fname, ext))
+                    return *r;
+            }
+        }
     }
     throw exception(sstream() << "file '" << fname << "' not found in the LEAN_PATH");
 }

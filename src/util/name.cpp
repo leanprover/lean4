@@ -53,11 +53,11 @@ struct name::imp {
 
     imp(bool s, imp * p):m_rc(1), m_is_string(s), m_hash(0), m_prefix(p) { if (p) p->inc_ref(); }
 
-    static void display_core(std::ostream & out, imp * p) {
+    static void display_core(std::ostream & out, imp * p, char const * sep) {
         lean_assert(p != nullptr);
         if (p->m_prefix) {
-            display_core(out, p->m_prefix);
-            out << lean_name_separator;
+            display_core(out, p->m_prefix, sep);
+            out << sep;
         }
         if (p->m_is_string)
             out << p->m_str;
@@ -65,11 +65,11 @@ struct name::imp {
             out << p->m_k;
     }
 
-    static void display(std::ostream & out, imp * p) {
+    static void display(std::ostream & out, imp * p, char const * sep = lean_name_separator) {
         if (p == nullptr)
             out << anonymous_str;
         else
-            display_core(out, p);
+            display_core(out, p, sep);
     }
 
     friend void copy_limbs(imp * p, buffer<name::imp *> & limbs) {
@@ -330,9 +330,9 @@ bool name::is_safe_ascii() const {
     return true;
 }
 
-std::string name::to_string() const {
+std::string name::to_string(char const * sep) const {
     std::ostringstream s;
-    imp::display(s, m_ptr);
+    imp::display(s, m_ptr, sep);
     return s.str();
 }
 

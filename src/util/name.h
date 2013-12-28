@@ -90,7 +90,7 @@ public:
     */
     name get_prefix() const;
     /** \brief Convert this hierarchical name into a string. */
-    std::string to_string() const;
+    std::string to_string(char const * sep = lean_name_separator) const;
     /** \brief Size of the this name (in characters). */
     size_t size() const;
     unsigned hash() const;

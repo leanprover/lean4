@@ -1,5 +1,5 @@
-Import "simple.lean"
-Import "simple.lean"
+Import simple
+Import simple
 (**
    local env = environment() -- create new environment
    parse_lean_cmds([[

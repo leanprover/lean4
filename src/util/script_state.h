@@ -46,9 +46,14 @@ public:
     void dostring(char const * str);
     /**
        \brief Import file \c fname from the LEAN_PATH.
-       If the file was already included, then it nothing happens.
+       If the file was already included, then nothing happens.
     */
     void import(char const * fname);
+    /**
+       \brief Import file \c fname. \c fname is the explicit path to the file.
+       If the file was already included, then nothing happens.
+    */
+    void import_explicit(char const * fname);
 
     /**
        \brief Execute \c f in the using the internal Lua State.

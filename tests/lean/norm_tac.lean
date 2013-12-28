@@ -1,4 +1,4 @@
-(** import("tactic.lua") **)
+Import tactic
 SetOption pp::implicit true
 SetOption pp::coercion true
 SetOption pp::notation false

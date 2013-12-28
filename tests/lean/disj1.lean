@@ -1,4 +1,4 @@
-(** import("tactic.lua") **)
+Import tactic
 
 Theorem T1 (a b : Bool) : a \/ b => b \/ a.
     apply Discharge.

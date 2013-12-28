@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
+#include "util/name.h"
 namespace lean {
 /**
    \brief Return the LEAN_PATH string
@@ -15,5 +16,15 @@ char const * get_lean_path();
    \brief Search the file \c fname in the LEAN_PATH. Throw an
    exception if the file was not found.
 */
-std::string find_file(char const * fname);
+std::string find_file(std::string fname);
+
+/** \brief Return true iff fname ends with ".lean" */
+bool is_lean_file(std::string const & fname);
+/** \brief Return true iff fname ends with ".olean" */
+bool is_olean_file(std::string const & fname);
+/** \brief Return true iff fname ends with ".lua" */
+bool is_lua_file(std::string const & fname);
+
+/** \brief Return a string that replaces hierachical name separator '::' with a path separator. */
+std::string name_to_file(name const & fname);
 }

@@ -1,7 +1,4 @@
-(**
--- import macros for, assume, mp, ...
-import("macros.lua")
-**)
+Import macros
 
 Definition Set (A : Type) : Type := A → Bool
 

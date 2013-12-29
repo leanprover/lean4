@@ -189,9 +189,16 @@ FOREACH(FILE ${LEANLIB})
 ENDFOREACH(FILE)
 
 include_directories(${LEAN_SOURCE_DIR})
-configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
-include_directories("${LEAN_BINARY_DIR}")
 
+# Git HASH
+include(GetGitRevisionDescription)
+get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+configure_file("${LEAN_SOURCE_DIR}/githash.h.in" "${LEAN_BINARY_DIR}/githash.h")
+
+# Version
+configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
+
+include_directories("${LEAN_BINARY_DIR}")
 add_subdirectory(util)
 set(LEAN_LIBS ${LEAN_LIBS} util)
 add_subdirectory(util/numerics)

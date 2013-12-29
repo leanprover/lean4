@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/builtin.h"
 #include "kernel/abstract.h"
 #include "kernel/printer.h"
+#include "library/bin_op.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/operator_info.h"
 #include "frontends/lean/pp.h"

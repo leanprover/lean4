@@ -8,20 +8,6 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
-/**
-   \brief Return unit if <tt>num_args == 0</tt>, args[0] if <tt>num_args == 1</tt>, and
-   <tt>(op args[0] (op args[1] (op ... )))</tt>
-*/
-expr mk_bin_rop(expr const & op, expr const & unit, unsigned num_args, expr const * args);
-expr mk_bin_rop(expr const & op, expr const & unit, std::initializer_list<expr> const & l);
-
-/**
-   \brief Return unit if <tt>num_args == 0</tt>, args[0] if <tt>num_args == 1</tt>, and
-   <tt>(op ... (op (op args[0] args[1]) args[2]) ...)</tt>
-*/
-expr mk_bin_lop(expr const & op, expr const & unit, unsigned num_args, expr const * args);
-expr mk_bin_lop(expr const & op, expr const & unit, std::initializer_list<expr> const & l);
-
 /** \brief Return (Type m)  m >= bottom + Offset */
 extern expr const TypeM;
 
@@ -66,9 +52,7 @@ bool is_implies_fn(expr const & e);
 inline bool is_implies(expr const & e) { return is_app(e) && is_implies_fn(arg(e, 0)); }
 /** \brief Return the term (e1 => e2) */
 inline expr mk_implies(expr const & e1, expr const & e2) { return mk_app(mk_implies_fn(), e1, e2); }
-inline expr mk_implies(unsigned num_args, expr const * args) { lean_assert(num_args >= 2); return mk_bin_rop(mk_implies_fn(), False, num_args, args); }
 inline expr Implies(expr const & e1, expr const & e2) { return mk_implies(e1, e2); }
-inline expr Implies(std::initializer_list<expr> const & l) { return mk_implies(l.size(), l.begin()); }
 
 /** \brief Return the Lean Iff operator */
 expr mk_iff_fn();
@@ -76,9 +60,7 @@ bool is_iff_fn(expr const & e);
 inline bool is_iff(expr const & e) { return is_app(e) && is_iff_fn(arg(e, 0)); }
 /** \brief Return (e1 iff e2) */
 inline expr mk_iff(expr const & e1, expr const & e2) { return mk_app(mk_iff_fn(), e1, e2); }
-inline expr mk_iff(unsigned num_args, expr const * args) { return mk_bin_rop(mk_iff_fn(), True, num_args, args); }
 inline expr Iff(expr const & e1, expr const & e2) { return mk_iff(e1, e2); }
-inline expr Iff(std::initializer_list<expr> const & l) { return mk_iff(l.size(), l.begin()); }
 
 /** \brief Return the Lean And operator */
 expr mk_and_fn();
@@ -86,9 +68,7 @@ bool is_and_fn(expr const & e);
 inline bool is_and(expr const & e) { return is_app(e) && is_and_fn(arg(e, 0)); }
 /** \brief Return (e1 and e2) */
 inline expr mk_and(expr const & e1, expr const & e2) { return mk_app(mk_and_fn(), e1, e2); }
-inline expr mk_and(unsigned num_args, expr const * args) { return mk_bin_rop(mk_and_fn(), True, num_args, args); }
 inline expr And(expr const & e1, expr const & e2) { return mk_and(e1, e2); }
-inline expr And(std::initializer_list<expr> const & l) { return mk_and(l.size(), l.begin()); }
 
 /** \brief Return the Lean Or operator */
 expr mk_or_fn();
@@ -96,9 +76,7 @@ bool is_or_fn(expr const & e);
 inline bool is_or(expr const & e) { return is_app(e) && is_or_fn(arg(e, 0)); }
 /** \brief Return (e1 Or e2) */
 inline expr mk_or(expr const & e1, expr const & e2) { return mk_app(mk_or_fn(), e1, e2); }
-inline expr mk_or(unsigned num_args, expr const * args) { return mk_bin_rop(mk_or_fn(), False, num_args, args); }
 inline expr Or(expr const & e1, expr const & e2) { return mk_or(e1, e2); }
-inline expr Or(std::initializer_list<expr> const & l) { return mk_or(l.size(), l.begin()); }
 
 /** \brief Return the Lean not operator */
 expr mk_not_fn();

@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/printer.h"
 #include "library/max_sharing.h"
+#include "library/bin_op.h"
 #include "library/arith/arith.h"
 using namespace lean;
 

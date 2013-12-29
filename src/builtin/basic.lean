@@ -3,8 +3,76 @@ Import macros
 Definition TypeU := (Type U)
 Definition TypeM := (Type M)
 
+Definition implies (a b : Bool) : Bool
+:= if a b true.
+
+Infixr 25 => : implies.
+Infixr 25 ⇒ : implies.
+
+Definition iff (a b : Bool) : Bool
+:= a == b.
+
+Infixr 25 <=> : iff.
+Infixr 25 ⇔ : iff.
+
+Definition not (a : Bool) : Bool
+:= if a false true.
+
+Notation 40 ¬ _ : not.
+
+Definition or (a b : Bool) : Bool
+:= ¬ a ⇒ b.
+
+Infixr 30 || : or.
+Infixr 30 \/ : or.
+Infixr 30 ∨  : or.
+
+Definition and (a b : Bool) : Bool
+:= ¬ (a ⇒ ¬ b).
+
+Infixr 35 && : and.
+Infixr 35 /\ : and.
+Infixr 35 ∧  : and.
+
+(* Forall is a macro for the identifier forall, we use that
+   because the Lean parser has the builtin syntax sugar:
+      forall x : T, P x
+   for
+      (forall T (fun x : T, P x))
+*)
+Definition Forall (A : TypeU) (P : A → Bool) : Bool
+:= P == (λ x : A, true).
+
+Definition Exists (A : TypeU) (P : A → Bool) : Bool
+:= ¬ (Forall A (λ x : A, ¬ (P x))).
+
+Definition eq {A : TypeU} (a b : A) : Bool
+:= a == b.
+
+Infix 50 = : eq.
+
+Axiom MP {a b : Bool} (H1 : a ⇒ b) (H2 : a) : b.
+
+Axiom Discharge {a b : Bool} (H : a → b) : a ⇒ b.
+
+Axiom Case (P : Bool → Bool) (H1 : P true) (H2 : P false) (a : Bool) : P a.
+
+Axiom Refl {A : TypeU} (a : A) : a == a.
+
+Axiom Subst {A : TypeU} {a b : A} {P : A → Bool} (H1 : P a) (H2 : a == b) : P b.
+
 Definition SubstP {A : TypeU} {a b : A} (P : A → Bool) (H1 : P a) (H2 : a == b) : P b
 := Subst H1 H2.
+
+Axiom Eta {A : TypeU} {B : A → TypeU} (f : Π x : A, B x) : (λ x : A, f x) == f.
+
+Axiom ImpAntisym {a b : Bool} (H1 : a ⇒ b) (H2 : b ⇒ a) : a == b.
+
+Axiom Abst {A : TypeU} {B : A → TypeU} {f g : Π x : A, B x} (H : Π x : A, f x == g x) : f == g.
+
+Axiom HSymm {A B : TypeU} {a : A} {b : B} (H : a == b) : b == a.
+
+Axiom HTrans {A B C : TypeU} {a : A} {b : B} {c : C} (H1 : a == b) (H2 : b == c) : a == c.
 
 Theorem Trivial : true
 := Refl true.

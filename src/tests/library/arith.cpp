@@ -16,9 +16,8 @@ using namespace lean;
 
 static void tst0() {
     environment env;
+    init_frontend(env);
     normalizer  norm(env);
-    import_kernel(env);
-    import_arith(env);
     env->add_var("n", Nat);
     expr n = Const("n");
     lean_assert_eq(mk_nat_type(), Nat);

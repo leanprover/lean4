@@ -22,32 +22,8 @@ void init_builtin_notation(environment const & env, io_state & ios, bool kernel_
     env->import_builtin(
         "lean_notation",
         [&]() {
-            add_infix(env, ios, "=",  50, mk_homo_eq_fn());
-            mark_implicit_arguments(env, mk_homo_eq_fn(), 1);
             mark_implicit_arguments(env, mk_if_fn(), 1);
 
-            add_prefix(env, ios, "\u00ac", 40, mk_not_fn());     // "¬"
-            add_infixr(env, ios, "&&", 35, mk_and_fn());         // "&&"
-            add_infixr(env, ios, "/\\", 35, mk_and_fn());        // "/\"
-            add_infixr(env, ios, "\u2227", 35, mk_and_fn());     // "∧"
-            add_infixr(env, ios, "||", 30, mk_or_fn());          // "||"
-            add_infixr(env, ios, "\\/", 30, mk_or_fn());         // "\/"
-            add_infixr(env, ios, "\u2228", 30, mk_or_fn());      // "∨"
-            add_infixr(env, ios, "=>", 25, mk_implies_fn());     // "=>"
-            add_infixr(env, ios, "\u21D2", 25, mk_implies_fn()); // "⇒"
-            add_infixr(env, ios, "<=>", 25, mk_iff_fn());        // "<=>"
-            add_infixr(env, ios, "\u21D4", 25, mk_iff_fn());     // "⇔"
-
-            // implicit arguments for builtin axioms
-            mark_implicit_arguments(env, mk_mp_fn(), 2);
-            mark_implicit_arguments(env, mk_discharge_fn(), 2);
-            mark_implicit_arguments(env, mk_refl_fn(), 1);
-            mark_implicit_arguments(env, mk_subst_fn(), 4);
-            mark_implicit_arguments(env, mk_eta_fn(), 2);
-            mark_implicit_arguments(env, mk_abst_fn(), 4);
-            mark_implicit_arguments(env, mk_imp_antisym_fn(), 2);
-            mark_implicit_arguments(env, mk_hsymm_fn(), 4);
-            mark_implicit_arguments(env, mk_htrans_fn(), 6);
 
             if (kernel_only)
                 return;

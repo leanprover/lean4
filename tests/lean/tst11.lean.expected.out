@@ -6,7 +6,7 @@
 ⊤
   Assumed: a
 a ⊕ a ⊕ a
-@Subst : Π (A : (Type U)) (a b : A) (P : A → Bool), P a → a == b → P b
+@Subst : Π (A : TypeU) (a b : A) (P : A → Bool), P a → a == b → P b
   Proved: EM2
 EM2 : Π a : Bool, a ∨ ¬ a
 EM2 a : a ∨ ¬ a

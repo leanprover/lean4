@@ -256,10 +256,10 @@ class pp_fn {
             return mk_result(format("_"), 1);
         } else if (is_forall_fn(e)) {
             // use alias when forall is used as a function symbol
-            return mk_result(format(const_name(mk_Forall_fn())), 1);
+            return mk_result(format("Forall"), 1);
         } else if (is_exists_fn(e)) {
             // use alias when exists is used as a function symbol
-            return mk_result(format(const_name(mk_Exists_fn())), 1);
+            return mk_result(format("Exists"), 1);
         } else if (has_implicit_arguments(n)) {
             return mk_result(format(get_explicit_version(m_env, n)), 1);
         } else {

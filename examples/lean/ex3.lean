@@ -4,7 +4,7 @@ Theorem and_comm (a b : Bool) : (a ∧ b) ⇒ (b ∧ a) :=
 Theorem or_comm (a b : Bool) : (a ∨ b) ⇒ (b ∨ a) :=
     Discharge (λ H_ab, DisjCases H_ab
                                  (λ H_a, Disj2 b H_a)
-                                 (λ H_b, Disj1 a H_b))
+                                 (λ H_b, Disj1 H_b a))
 
 (* ---------------------------------
 (EM a) is the excluded middle  a ∨ ¬a

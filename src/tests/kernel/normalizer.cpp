@@ -19,7 +19,7 @@ Author: Leonardo de Moura
 #include "kernel/metavar.h"
 #include "library/deep_copy.h"
 #include "library/arith/int.h"
-#include "library/all/all.h"
+#include "frontends/lean/frontend.h"
 using namespace lean;
 
 expr normalize(expr const & e) {
@@ -190,7 +190,8 @@ static void tst2() {
 }
 
 static void tst3() {
-    environment env = mk_toplevel();
+    environment env;
+    init_frontend(env);
     env->add_var("a", Bool);
     expr t1 = Const("a");
     expr t2 = Const("a");
@@ -217,7 +218,8 @@ static expr mk_big(unsigned depth) {
 static void tst5() {
 #if !defined(__APPLE__) && defined(LEAN_MULTI_THREAD)
     expr t = mk_big(18);
-    environment env = mk_toplevel();
+    environment env;
+    init_frontend(env);
     env->add_var("f", Bool >> (Bool >> Bool));
     env->add_var("a", Bool);
     normalizer proc(env);
@@ -253,7 +255,7 @@ static void tst6() {
 
 static void tst7() {
     environment env;
-    import_all(env);
+    init_frontend(env);
     metavar_env menv;
     expr m1 = menv->mk_metavar();
     expr x  = Const("x");
@@ -277,7 +279,7 @@ static void tst7() {
 
 static void tst8() {
     environment env;
-    import_all(env);
+    init_frontend(env);
     env->add_var("P", Int >> (Int >> Bool));
     expr P = Const("P");
     expr v0 = Var(0);
@@ -305,7 +307,7 @@ static void tst9() {
 
 static void tst10() {
     environment env;
-    import_all(env);
+    init_frontend(env);
     metavar_env menv;
     context ctx({{"x", Bool}, {"y", Bool}});
     expr m  = menv->mk_metavar(ctx);

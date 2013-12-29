@@ -5,13 +5,15 @@ A : (Type U), A' : (Type U), H : A == A' ⊢
 (?M::3 ≈ (Type U)) ⊕ (?M::3 ≈ (Type M)) ⊕ (?M::3 ≈ (Type 1)) ⊕ (?M::3 ≈ Type) ⊕ (?M::3 ≈ Bool)
     Destruct/Decompose
     A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≺ (Type U)
-        (line: 1: pos: 44) Type of argument 1 must be convertible to the expected type in the application of
-            @Symm
-        with arguments:
-            ?M::0
-            ?M::1
-            ?M::2
-            H
+        Normalize
+        A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≺ TypeU
+            (line: 1: pos: 44) Type of argument 1 must be convertible to the expected type in the application of
+                @Symm
+            with arguments:
+                ?M::0
+                ?M::1
+                ?M::2
+                H
     Failed to solve
     A : (Type U), A' : (Type U), H : A == A' ⊢ (?M::5 ≈ (Type U)) ⊕ (?M::5 ≈ (Type U+1))
         Destruct/Decompose

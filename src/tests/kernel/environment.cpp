@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/printer.h"
 #include "library/arith/arith.h"
-#include "library/all/all.h"
+#include "frontends/lean/frontend.h"
 using namespace lean;
 
 static void tst1() {
@@ -63,7 +63,7 @@ static void tst2() {
 
 static void tst3() {
     std::cout << "tst3\n";
-    environment env = mk_toplevel();
+    environment env; init_frontend(env);
     try {
         env->add_definition("a", Int, Const("a"));
         lean_unreachable();
@@ -108,7 +108,7 @@ static void tst3() {
 
 static void tst4() {
     std::cout << "tst4\n";
-    environment env = mk_toplevel();
+    environment env; init_frontend(env);
     env->add_definition("a", Int, iVal(1), true); // add opaque definition
     expr t = iAdd(Const("a"), iVal(1));
     std::cout << t << " --> " << normalize(t, env) << "\n";
@@ -121,7 +121,7 @@ static void tst4() {
 }
 
 static void tst5() {
-    environment env = mk_toplevel();
+    environment env; init_frontend(env);
     env->add_definition("a", Int, iVal(1), true); // add opaque definition
     try {
         std::cout << type_check(iAdd(Const("a"), Int), env) << "\n";
@@ -132,7 +132,7 @@ static void tst5() {
 }
 
 static void tst6() {
-    environment env = mk_toplevel();
+    environment env; init_frontend(env);
     level u = env->add_uvar("u", level() + 1);
     level w = env->add_uvar("w", u + 1);
     env->add_var("f", mk_arrow(Type(u), Type(u)));
@@ -159,7 +159,7 @@ static void tst6() {
 }
 
 static void tst7() {
-    environment env = mk_toplevel();
+    environment env; init_frontend(env);
     env->add_var("a", Int);
     env->add_var("b", Int);
     expr t = If(Int, True, Const("a"), Const("b"));
@@ -207,7 +207,7 @@ static void tst9() {
 
 static void tst10() {
     environment env;
-    import_all(env);
+    init_frontend(env);
     env->add_definition("a", Int, iVal(1));
     lean_assert(env->get_object("a").get_weight() == 1);
     expr a = Const("a");

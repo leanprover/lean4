@@ -24,8 +24,10 @@ static name g_in_name("in");
 static name g_arrow_name("->");
 static name g_eq_name("==");
 static name g_forall_name("forall");
+static name g_Forall_name("Forall");
 static name g_forall_unicode("\u2200");
 static name g_exists_name("exists");
+static name g_Exists_name("Exists");
 static name g_exists_unicode("\u2203");
 static name g_placeholder_name("_");
 static name g_show_name("show");
@@ -206,28 +208,35 @@ scanner::token scanner::read_a_symbol() {
             only_digits = (normalize(curr()) == '0');
         } else {
             m_name_val = mk_name(m_name_val, m_buffer, only_digits);
-            if (m_name_val == g_lambda_name)
+            if (m_name_val == g_lambda_name) {
                 return token::Lambda;
-            else if (m_name_val == g_pi_name)
+            } else if (m_name_val == g_pi_name) {
                 return token::Pi;
-            else if (m_name_val == g_forall_name)
+            } else if (m_name_val == g_forall_name) {
                 return token::Forall;
-            else if (m_name_val == g_exists_name)
+            } else if (m_name_val == g_exists_name) {
                 return token::Exists;
-            else if (m_name_val == g_type_name)
+            } else if (m_name_val == g_type_name) {
                 return token::Type;
-            else if (m_name_val == g_let_name)
+            } else if (m_name_val == g_let_name) {
                 return token::Let;
-            else if (m_name_val == g_in_name)
+            } else if (m_name_val == g_in_name) {
                 return token::In;
-            else if (m_name_val == g_placeholder_name)
+            } else if (m_name_val == g_placeholder_name) {
                 return token::Placeholder;
-            else if (m_name_val == g_show_name)
+            } else if (m_name_val == g_show_name) {
                 return token::Show;
-            else if (m_name_val == g_by_name)
+            } else if (m_name_val == g_by_name) {
                 return token::By;
-            else
+            } else if (m_name_val == g_Forall_name) {
+                m_name_val = g_forall_name;
+                return token::Id;
+            } else if (m_name_val == g_Exists_name) {
+                m_name_val = g_exists_name;
+                return token::Id;
+            } else {
                 return is_command(m_name_val) ? token::CommandId : token::Id;
+            }
         }
     }
 }

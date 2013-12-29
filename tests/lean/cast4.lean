@@ -2,7 +2,6 @@ Import cast
 SetOption pp::colors false
 
 Definition TypeM := (Type M)
-Definition TypeU := (Type U)
 
 Check fun (A A': TypeM)
           (B   : A -> TypeM)

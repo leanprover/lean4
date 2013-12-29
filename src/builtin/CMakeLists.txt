@@ -9,18 +9,28 @@ add_library(builtin builtin.cpp)
 # without installing it.
 set(SHELL_DIR ${LEAN_BINARY_DIR}/shell)
 
-file(GLOB LEANLIB "*.lean")
-FOREACH(FILE ${LEANLIB})
+function(add_theory_core FILE ARG EXTRA_DEPS)
   get_filename_component(BASENAME ${FILE} NAME_WE)
   set(FNAME "${BASENAME}.olean")
   add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${FNAME}
-    COMMAND ${SHELL_DIR}/lean -o ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} ${FILE}
+    COMMAND ${SHELL_DIR}/lean ${ARG} -o ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} ${CMAKE_CURRENT_SOURCE_DIR}/${FILE}
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} ${SHELL_DIR}/${FNAME}
-    DEPENDS ${FILE} ${SHELL_DIR}/lean)
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} ${SHELL_DIR}/lean ${EXTRA_DEPS})
   add_custom_target(${FNAME}_builtin DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${FNAME})
   add_dependencies(builtin ${FNAME}_builtin)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} DESTINATION library)
-ENDFOREACH(FILE)
+endfunction()
+
+function(add_kernel_theory FILE)
+  add_theory_core(${FILE} "-k" "")
+endfunction()
+
+function(add_theory FILE)
+  add_theory_core(${FILE} "" "${CMAKE_CURRENT_BINARY_DIR}/basic.olean")
+endfunction()
+
+add_kernel_theory("basic.lean")
+add_theory("cast.lean")
 
 file(GLOB LEANLIB "*.lua")
 FOREACH(FILE ${LEANLIB})

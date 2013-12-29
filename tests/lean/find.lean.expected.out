@@ -1,8 +1,7 @@
   Set: pp::colors
   Set: pp::unicode
-Theorem Congr1 {A : (Type U)} {B : A → (Type U)} {f g : Π x : A, B x} (a : A) (H : f == g) : f a == g a
-Theorem Congr2 {A : (Type U)} {B : A → (Type U)} {a b : A} (f : Π x : A, B x) (H : a == b) : f a == f b
-Theorem Congr {A : (Type U)} {B : A → (Type U)} {f g : Π x : A, B x} {a b : A} (H1 : f == g) (H2 : a == b) :
-    f a == g b
+Theorem Congr1 {A : TypeU} {B : A → TypeU} {f g : Π x : A, B x} (a : A) (H : f == g) : f a == g a
+Theorem Congr2 {A : TypeU} {B : A → TypeU} {a b : A} (f : Π x : A, B x) (H : a == b) : f a == f b
+Theorem Congr {A : TypeU} {B : A → TypeU} {f g : Π x : A, B x} {a b : A} (H1 : f == g) (H2 : a == b) : f a == g b
 Error (line: 3, pos: 0) executing external script (/home/leo/projects/lean/build/debug/shell/find.lua:24), no object name in the environment matches the regular expression 'foo'
 Error (line: 4, pos: 0) executing external script (/home/leo/projects/lean/build/debug/shell/find.lua:18), unfinished capture

@@ -3,7 +3,6 @@
   Imported 'cast'
   Set: pp::colors
   Defined: TypeM
-  Defined: TypeU
 λ (A A' : TypeM)
   (B : A → TypeM)
   (B' : A' → TypeM)

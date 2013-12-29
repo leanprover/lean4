@@ -48,10 +48,10 @@ expr mk_false_imp_any_fn();
 /** \brief (Theorem) a : Bool |- false => a */
 inline expr FalseImpAny(expr const & a) { return mk_app(mk_false_imp_any_fn(), a); }
 
-expr mk_absurd_imp_any_fn();
+expr mk_absurd_elim_fn();
 /** \brief (Theorem) {a c : Bool}, H1 : a, H2 : Not(a) |- AbsurdImpAny(a, H1, H2) : c */
-inline expr AbsurdImpAny(expr const & a, expr const & c, expr const & H1, expr const & H2) {
-    return mk_app(mk_absurd_imp_any_fn(), a, c, H1, H2);
+inline expr AbsurdElim(expr const & a, expr const & c, expr const & H1, expr const & H2) {
+    return mk_app(mk_absurd_elim_fn(), a, c, H1, H2);
 }
 
 expr mk_eq_mp_fn();
@@ -79,8 +79,8 @@ expr mk_conjunct2_fn();
 inline expr Conjunct2(expr const & a, expr const & b, expr const & H) { return mk_app(mk_conjunct2_fn(), a, b, H); }
 
 expr mk_disj1_fn();
-/** \brief (Theorem) a b : Bool, H : a |- Disj1(a, b, H) : Or(a, b) */
-inline expr Disj1(expr const & a, expr const & b, expr const & H) { return mk_app(mk_disj1_fn(), a, b, H); }
+/** \brief (Theorem) a : Bool, H : a, b : Bool |- Disj1(a, H, b) : Or(a, b) */
+inline expr Disj1(expr const & a, expr const & H, expr const & b) { return mk_app(mk_disj1_fn(), a, H, b); }
 
 expr mk_disj2_fn();
 /** \brief (Theorem) {b} a : Bool, H : b |- Disj2(a, b, H) : Or(a, b) */

@@ -9,12 +9,12 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 #include "kernel/builtin.h"
 #include "kernel/kernel_exception.h"
-#include "library/all/all.h"
 #include "library/tactic/goal.h"
 #include "library/tactic/proof_builder.h"
 #include "library/tactic/proof_state.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/boolean_tactics.h"
+#include "frontends/lean/frontend.h"
 using namespace lean;
 
 tactic loop_tactic() {
@@ -49,7 +49,7 @@ static void check_failure(tactic t, ro_environment const & env, io_state const &
 static void tst1() {
     environment env;
     io_state io(options(), mk_simple_formatter());
-    import_all(env);
+    init_frontend(env);
     env->add_var("p", Bool);
     env->add_var("q", Bool);
     expr p = Const("p");
@@ -115,7 +115,7 @@ static void tst1() {
 static void tst2() {
     environment env;
     io_state io(options(), mk_simple_formatter());
-    import_all(env);
+    init_frontend(env);
     env->add_var("p", Bool);
     env->add_var("q", Bool);
     env->add_var("r", Bool);

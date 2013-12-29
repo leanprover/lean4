@@ -192,8 +192,6 @@ bool is_not(expr const & e, expr & a) {
 }
 MK_CONSTANT(forall_fn,  name("forall"));
 MK_CONSTANT(exists_fn,  name("exists"));
-MK_CONSTANT(Forall_fn,  name("Forall"));
-MK_CONSTANT(Exists_fn,  name("Exists"));
 
 MK_CONSTANT(homo_eq_fn, name("eq"));
 bool is_homo_eq(expr const & e, expr & lhs, expr & rhs) {
@@ -219,9 +217,9 @@ MK_CONSTANT(abst_fn,        name("Abst"));
 MK_CONSTANT(htrans_fn,      name("HTrans"));
 MK_CONSTANT(hsymm_fn,       name("HSymm"));
 
-void import_basic(environment const & env) {
+void import_kernel(environment const & env) {
     env->import_builtin
-        ("basic",
+        ("kernel",
          [&]() {
             env->add_uvar(uvar_name(m_lvl), level() + LEAN_DEFAULT_LEVEL_SEPARATION);
             env->add_uvar(uvar_name(u_lvl), m_lvl + LEAN_DEFAULT_LEVEL_SEPARATION);
@@ -253,27 +251,24 @@ void import_basic(environment const & env) {
             env->add_builtin(mk_if_fn());
 
             // implies(x, y) := if x y True
-            env->add_opaque_definition(implies_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, bIf(x, y, True)));
+            env->add_definition(implies_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, bIf(x, y, True)));
 
             // iff(x, y) := x = y
-            env->add_opaque_definition(iff_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, Eq(x, y)));
+            env->add_definition(iff_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, Eq(x, y)));
 
             // not(x) := if x False True
-            env->add_opaque_definition(not_fn_name, p1, Fun({x, Bool}, bIf(x, False, True)));
+            env->add_definition(not_fn_name, p1, Fun({x, Bool}, bIf(x, False, True)));
 
             // or(x, y) := Not(x) => y
-            env->add_opaque_definition(or_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, Implies(Not(x), y)));
+            env->add_definition(or_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, Implies(Not(x), y)));
 
             // and(x, y) := Not(x => Not(y))
-            env->add_opaque_definition(and_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, Not(Implies(x, Not(y)))));
+            env->add_definition(and_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, Not(Implies(x, Not(y)))));
 
             // forall : Pi (A : Type u), (A -> Bool) -> Bool
-            env->add_opaque_definition(forall_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Eq(P, Fun({x, A}, True))));
+            env->add_definition(forall_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Eq(P, Fun({x, A}, True))));
             // TODO(Leo): introduce epsilon
             env->add_definition(exists_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Not(Forall(A, Fun({x, A}, Not(P(x)))))));
-            // Aliases for forall and exists
-            env->add_definition(Forall_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Forall(A, P)));
-            env->add_definition(Exists_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Exists(A, P)));
 
             // homogeneous equality
             env->add_definition(homo_eq_fn_name, Pi({{A, TypeU}, {x, A}, {y, A}}, Bool), Fun({{A, TypeU}, {x, A}, {y, A}}, Eq(x, y)));

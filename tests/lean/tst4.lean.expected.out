@@ -10,7 +10,7 @@
   Assumed: EqNice
 @EqNice N n1 n2
 @f N n1 n2 : N
-@Congr : Π (A : (Type U)) (B : A → (Type U)) (f g : Π x : A, B x) (a b : A), f == g → a == b → f a == g b
+@Congr : Π (A : TypeU) (B : A → TypeU) (f g : Π x : A, B x) (a b : A), f == g → a == b → f a == g b
 @f N n1 n2
   Assumed: a
   Assumed: b

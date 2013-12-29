@@ -22,7 +22,7 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/io_state.h"
 #include "library/arith/arith.h"
-#include "library/all/all.h"
+#include "frontends/lean/frontend.h"
 using namespace lean;
 
 static std::ostream & operator<<(std::ostream & out, metavar_env const & menv) {
@@ -546,7 +546,7 @@ static void tst26() {
     */
     std::cout << "\ntst26\n";
     environment  env;
-    import_all(env);
+    init_frontend(env);
     metavar_env menv;
     buffer<unification_constraint> up;
     type_checker checker(env);
@@ -588,7 +588,7 @@ static void tst27() {
     */
     std::cout << "\ntst27\n";
     environment  env;
-    import_all(env);
+    init_frontend(env);
     metavar_env menv;
     buffer<unification_constraint> up;
     type_checker checker(env);

@@ -18,7 +18,7 @@ void add_alias(environment const & env, name const & n, name const & m) {
 /**
    \brief Initialize builtin notation.
 */
-void init_builtin_notation(environment const & env, io_state & ios) {
+void init_builtin_notation(environment const & env, io_state & ios, bool kernel_only) {
     env->import_builtin(
         "lean_notation",
         [&]() {
@@ -37,6 +37,20 @@ void init_builtin_notation(environment const & env, io_state & ios) {
             add_infixr(env, ios, "\u21D2", 25, mk_implies_fn()); // "⇒"
             add_infixr(env, ios, "<=>", 25, mk_iff_fn());        // "<=>"
             add_infixr(env, ios, "\u21D4", 25, mk_iff_fn());     // "⇔"
+
+            // implicit arguments for builtin axioms
+            mark_implicit_arguments(env, mk_mp_fn(), 2);
+            mark_implicit_arguments(env, mk_discharge_fn(), 2);
+            mark_implicit_arguments(env, mk_refl_fn(), 1);
+            mark_implicit_arguments(env, mk_subst_fn(), 4);
+            mark_implicit_arguments(env, mk_eta_fn(), 2);
+            mark_implicit_arguments(env, mk_abst_fn(), 4);
+            mark_implicit_arguments(env, mk_imp_antisym_fn(), 2);
+            mark_implicit_arguments(env, mk_hsymm_fn(), 4);
+            mark_implicit_arguments(env, mk_htrans_fn(), 6);
+
+            if (kernel_only)
+                return;
 
             add_infixl(env, ios, "+", 65, mk_nat_add_fn());
             add_infixl(env, ios, "-", 65, mk_nat_sub_fn());
@@ -81,46 +95,6 @@ void init_builtin_notation(environment const & env, io_state & ios) {
             add_coercion(env, mk_nat_to_int_fn());
             add_coercion(env, mk_int_to_real_fn());
             add_coercion(env, mk_nat_to_real_fn());
-
-            // implicit arguments for builtin axioms
-            mark_implicit_arguments(env, mk_mp_fn(), 2);
-            mark_implicit_arguments(env, mk_discharge_fn(), 2);
-            mark_implicit_arguments(env, mk_refl_fn(), 1);
-            mark_implicit_arguments(env, mk_subst_fn(), 4);
-            add_alias(env, "Subst", "SubstP");
-            mark_implicit_arguments(env, "SubstP", 3);
-            mark_implicit_arguments(env, mk_eta_fn(), 2);
-            mark_implicit_arguments(env, mk_abst_fn(), 4);
-            mark_implicit_arguments(env, mk_imp_antisym_fn(), 2);
-            mark_implicit_arguments(env, mk_hsymm_fn(), 4);
-            mark_implicit_arguments(env, mk_htrans_fn(), 6);
-
-            // implicit arguments for basic theorems
-            mark_implicit_arguments(env, mk_absurd_fn(), 1);
-            mark_implicit_arguments(env, mk_double_neg_elim_fn(), 1);
-            mark_implicit_arguments(env, mk_mt_fn(), 2);
-            mark_implicit_arguments(env, mk_contrapos_fn(), 2);
-            mark_implicit_arguments(env, mk_eq_mp_fn(), 2);
-            mark_implicit_arguments(env, mk_not_imp1_fn(), 2);
-            mark_implicit_arguments(env, mk_not_imp2_fn(), 2);
-            mark_implicit_arguments(env, mk_conj_fn(), 2);
-            mark_implicit_arguments(env, mk_conjunct1_fn(), 2);
-            mark_implicit_arguments(env, mk_conjunct2_fn(), 2);
-            mark_implicit_arguments(env, mk_disj1_fn(), 1);
-            mark_implicit_arguments(env, mk_disj2_fn(), 1);
-            mark_implicit_arguments(env, mk_disj_cases_fn(), 3);
-            mark_implicit_arguments(env, mk_refute_fn(), 1);
-            mark_implicit_arguments(env, mk_symm_fn(), 3);
-            mark_implicit_arguments(env, mk_trans_fn(), 4);
-            mark_implicit_arguments(env, mk_eqt_elim_fn(), 1);
-            mark_implicit_arguments(env, mk_eqt_intro_fn(), 1);
-            mark_implicit_arguments(env, mk_congr1_fn(), 4);
-            mark_implicit_arguments(env, mk_congr2_fn(), 4);
-            mark_implicit_arguments(env, mk_congr_fn(),  6);
-            mark_implicit_arguments(env, mk_forall_elim_fn(), 2);
-            mark_implicit_arguments(env, mk_forall_intro_fn(), 2);
-            mark_implicit_arguments(env, mk_exists_elim_fn(), 3);
-            mark_implicit_arguments(env, mk_exists_intro_fn(), 2);
         });
 }
 }

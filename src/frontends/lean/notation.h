@@ -12,5 +12,5 @@ constexpr unsigned g_arrow_precedence = 25;
 constexpr unsigned g_app_precedence   = std::numeric_limits<unsigned>::max();
 class environment;
 class io_state;
-void init_builtin_notation(environment const & env, io_state & st);
+void init_builtin_notation(environment const & env, io_state & st, bool kernel_only = false);
 }

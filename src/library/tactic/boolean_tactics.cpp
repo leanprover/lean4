@@ -277,7 +277,7 @@ optional<proof_state_pair> disj_tactic(proof_state const & s, name gname) {
         proof_builder pb     = s.get_proof_builder();
         proof_builder new_pb1 = mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
                 proof_map new_m(m);
-                new_m.insert(gname, Disj1(arg(*conclusion, 1), arg(*conclusion, 2), find(m, gname)));
+                new_m.insert(gname, Disj1(arg(*conclusion, 1), find(m, gname), arg(*conclusion, 2)));
                 return pb(new_m, a);
             });
         proof_builder new_pb2 = mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
@@ -332,7 +332,7 @@ tactic absurd_tactic() {
                         if (is_not(p1.second, a)) {
                             for (auto const & p2 : g.get_hypotheses()) {
                                 if (p2.second == a) {
-                                    expr pr = AbsurdImpAny(a, c, mk_constant(p2.first), mk_constant(p1.first));
+                                    expr pr = AbsurdElim(a, c, mk_constant(p2.first), mk_constant(p1.first));
                                     proofs.emplace_front(gname, pr);
                                     return optional<goal>(); // remove goal
                                 }

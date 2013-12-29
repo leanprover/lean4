@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "library/max_sharing.h"
 #include "library/deep_copy.h"
 #include "library/arith/arith.h"
-#include "library/all/all.h"
+#include "frontends/lean/frontend.h"
 using namespace lean;
 
 expr norm(expr const & e, environment & env) {
@@ -26,7 +26,7 @@ expr norm(expr const & e, environment & env) {
 }
 
 static void mk(expr const & a) {
-    environment env = mk_toplevel();
+    environment env; init_frontend(env);
     expr b = Const("b");
     for (unsigned i = 0; i < 100; i++) {
         expr h = Const("h");

@@ -16,7 +16,8 @@ namespace lean {
 /**
    \brief Import all definitions and notation.
 */
-void init_frontend(environment const & env, io_state & ios);
+void init_frontend(environment const & env, io_state & ios, bool kernel_only = false);
+void init_frontend(environment const & env);
 
 /**
    @name Notation for parsing and pretty printing.

@@ -93,7 +93,8 @@ static name g_infixl_kwd("Infixl");
 static name g_infixr_kwd("Infixr");
 static name g_notation_kwd("Notation");
 static name g_echo_kwd("Echo");
-static name g_set_kwd("SetOption");
+static name g_set_option_kwd("SetOption");
+static name g_set_opaque_kwd("SetOpaque");
 static name g_options_kwd("Options");
 static name g_env_kwd("Environment");
 static name g_import_kwd("Import");
@@ -113,8 +114,8 @@ static list<name> g_tactic_cmds = { g_apply, g_done, g_back, g_abort, g_assumpti
 /** \brief Table/List with all builtin command keywords */
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_variables_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
                                         g_show_kwd, g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_notation_kwd, g_echo_kwd,
-                                        g_set_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd, g_coercion_kwd, g_exit_kwd, g_push_kwd,
-                                        g_pop_kwd, g_scope_kwd, g_end_scope_kwd};
+                                        g_set_option_kwd, g_set_opaque_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd, g_coercion_kwd,
+                                        g_exit_kwd, g_push_kwd, g_pop_kwd, g_scope_kwd, g_end_scope_kwd};
 // ==========================================
 
 // ==========================================
@@ -2341,7 +2342,7 @@ class parser::imp {
     }
 
     /** Parse 'SetOption' [id] [value] */
-    void parse_set() {
+    void parse_set_option() {
         next();
         auto id_pos = pos();
         name id = check_identifier_next("invalid set options, identifier (i.e., option name) expected");
@@ -2391,6 +2392,29 @@ class parser::imp {
         updt_options();
         if (m_verbose)
             regular(m_io_state) << "  Set: " << id << endl;
+    }
+
+    /** Parse 'SetOpaque' [id] [true/false] */
+    void parse_set_opaque() {
+        next();
+        name id;
+        if (curr() == scanner::token::Forall) {
+            id = "forall";
+        } else if (curr() == scanner::token::Exists) {
+            id = "exists";
+        } else {
+            check_identifier("invalid set opaque, identifier expected");
+            id = curr_name();
+        }
+        next();
+        auto val_pos = pos();
+        name val = check_identifier_next("invalid opaque flag, true/false expected");
+        if (val == "true")
+            m_env->set_opaque(id, true);
+        else if (val == "false")
+            m_env->set_opaque(id, false);
+        else
+            throw parser_error("invalid opaque flag, true/false expected", val_pos);
     }
 
     optional<std::string> find_lua_file(std::string const & fname) {
@@ -2554,8 +2578,10 @@ class parser::imp {
             parse_notation_decl();
         } else if (cmd_id == g_echo_kwd) {
             parse_echo();
-        } else if (cmd_id == g_set_kwd) {
-            parse_set();
+        } else if (cmd_id == g_set_option_kwd) {
+            parse_set_option();
+        } else if (cmd_id == g_set_opaque_kwd) {
+            parse_set_opaque();
         } else if (cmd_id == g_import_kwd) {
             parse_import();
         } else if (cmd_id == g_help_kwd) {

@@ -14,13 +14,13 @@ Author: Leonardo de Moura
 #include "library/basic_thms.h"
 #include "library/placeholder.h"
 #include "library/arith/arith.h"
-#include "library/all/all.h"
 #include "library/elaborator/elaborator.h"
+#include "frontends/lean/frontend.h"
 using namespace lean;
 
 static void tst1() {
     environment env;
-    import_all(env);
+    init_frontend(env);
     metavar_env menv;
     buffer<unification_constraint> ucs;
     type_checker checker(env);
@@ -75,7 +75,7 @@ static void tst2() {
          ?m4 in { Id, nat2int, nat2real }
     */
     environment env;
-    import_all(env);
+    init_frontend(env);
     metavar_env menv;
     buffer<unification_constraint> ucs;
     type_checker checker(env);
@@ -116,7 +116,7 @@ static void tst3() {
         ?m5 in { Id, int2real }
     */
     environment env;
-    import_all(env);
+    init_frontend(env);
     metavar_env menv;
     buffer<unification_constraint> ucs;
     type_checker checker(env);
@@ -158,7 +158,7 @@ static void tst4() {
            ?m6 in { Id, int2real }
     */
     environment env;
-    import_all(env);
+    init_frontend(env);
     metavar_env menv;
     buffer<unification_constraint> ucs;
     type_checker checker(env);
@@ -202,7 +202,7 @@ static void tst5() {
            ?m4 in { Id, int2real }
     */
     environment env;
-    import_all(env);
+    init_frontend(env);
     metavar_env menv;
     buffer<unification_constraint> ucs;
     type_checker checker(env);
@@ -239,7 +239,7 @@ static void tst6() {
       Theorem T : (f a (f b b)) == a := Subst _ _ _ _ H1 H2
     */
     environment env;
-    import_all(env);
+    init_frontend(env);
     metavar_env menv;
     buffer<unification_constraint> ucs;
     type_checker checker(env);
@@ -307,7 +307,7 @@ static void unsolved(expr const & e, environment const & env) {
 static void tst7() {
     std::cout << "\nTST 7\n";
     environment env;
-    import_all(env);
+    init_frontend(env);
     expr A = Const("A");
     expr B = Const("B");
     expr F = Const("F");
@@ -328,7 +328,7 @@ static void tst7() {
 static void tst8() {
     std::cout << "\nTST 8\n";
     environment env;
-    import_all(env);
+    init_frontend(env);
     expr a  = Const("a");
     expr b  = Const("b");
     expr c  = Const("c");
@@ -354,7 +354,7 @@ static void tst8() {
 static void tst9() {
     std::cout << "\nTST 9\n";
     environment env;
-    import_all(env);
+    init_frontend(env);
     expr Nat = Const("N");
     env->add_var("N", Type());
     env->add_var("vec", Nat >> Type());
@@ -386,7 +386,7 @@ static void tst9() {
 static void tst10() {
     std::cout << "\nTST 10\n";
     environment env;
-    import_all(env);
+    init_frontend(env);
     expr Nat = Const("N");
     env->add_var("N", Type());
     expr R   = Const("R");
@@ -410,7 +410,7 @@ static void tst10() {
 static void tst11() {
     std::cout << "\nTST 11\n";
     environment env;
-    import_all(env);
+    init_frontend(env);
     expr A = Const("A");
     expr B = Const("B");
     expr a = Const("a");
@@ -428,7 +428,7 @@ static void tst11() {
 static void tst12() {
     std::cout << "\nTST 12\n";
     environment env;
-    import_all(env);
+    init_frontend(env);
     expr lst  = Const("list");
     expr nil  = Const("nil");
     expr cons = Const("cons");
@@ -449,7 +449,7 @@ static void tst12() {
 static void tst13() {
     std::cout << "\nTST 13\n";
     environment env;
-    import_all(env);
+    init_frontend(env);
     expr B = Const("B");
     expr A = Const("A");
     expr x = Const("x");
@@ -472,7 +472,7 @@ static void tst13() {
 static void tst14() {
     std::cout << "\nTST 14\n";
     environment env;
-    import_all(env);
+    init_frontend(env);
     expr A = Const("A");
     expr B = Const("B");
     expr f = Const("f");
@@ -513,7 +513,7 @@ static void tst14() {
 static void tst15() {
     std::cout << "\nTST 15\n";
     environment env;
-    import_all(env);
+    init_frontend(env);
     expr A = Const("A");
     expr B = Const("B");
     expr C = Const("C");
@@ -539,7 +539,7 @@ static void tst15() {
 static void tst16() {
     std::cout << "\nTST 16\n";
     environment env;
-    import_all(env);
+    init_frontend(env);
     expr a  = Const("a");
     expr b  = Const("b");
     expr c  = Const("c");
@@ -560,7 +560,7 @@ static void tst16() {
                 EqTIntro(c, EqMP(a, c, Symm(Bool, c, a, Trans(Bool, c, b, a, Symm(Bool, b, c, H2), Symm(Bool, a, b, H1))), H3))),
             env);
     environment env2;
-    import_all(env2);
+    init_frontend(env2);
     success(Fun({{a, Bool}, {b, Bool}, {c, Bool}, {H1, Eq(a, b)}, {H2, Eq(b, c)}, {H3, a}},
                 EqTIntro(_, EqMP(_, _, Symm(_, _, _, Trans(_, _, _, _, Symm(_, _, _, H2), Symm(_, _, _, H1))), H3))),
             Fun({{a, Bool}, {b, Bool}, {c, Bool}, {H1, Eq(a, b)}, {H2, Eq(b, c)}, {H3, a}},
@@ -577,7 +577,7 @@ static void tst16() {
 void tst17() {
     std::cout << "\nTST 17\n";
     environment env;
-    import_all(env);
+    init_frontend(env);
     expr A  = Const("A");
     expr B  = Const("B");
     expr a  = Const("a");
@@ -592,7 +592,7 @@ void tst17() {
 void tst18() {
     std::cout << "\nTST 18\n";
     environment env;
-    import_all(env);
+    init_frontend(env);
     expr A  = Const("A");
     expr h  = Const("h");
     expr f  = Const("f");
@@ -606,7 +606,7 @@ void tst18() {
 void tst19() {
     std::cout << "\nTST 19\n";
     environment env;
-    import_all(env);
+    init_frontend(env);
     expr R  = Const("R");
     expr A  = Const("A");
     expr r  = Const("r");
@@ -633,7 +633,7 @@ void tst19() {
 void tst20() {
     std::cout << "\nTST 20\n";
     environment env;
-    import_all(env);
+    init_frontend(env);
     metavar_env menv;
     expr N  = Const("N1");
     expr M  = Const("M1");
@@ -666,7 +666,7 @@ void tst20() {
 void tst21() {
     std::cout << "\nTST 21\n";
     environment env;
-    import_all(env);
+    init_frontend(env);
     metavar_env menv;
     expr N  = Const("N");
     expr M  = Const("M");
@@ -698,7 +698,7 @@ void tst21() {
 void tst22() {
     std::cout << "\nTST 22\n";
     environment env;
-    import_all(env);
+    init_frontend(env);
     metavar_env menv;
     expr N  = Const("N");
     env->add_var("N", Type());
@@ -733,7 +733,7 @@ void tst22() {
 void tst23() {
     std::cout << "\nTST 23\n";
     environment env;
-    import_all(env);
+    init_frontend(env);
     metavar_env menv;
     expr N  = Const("N");
     env->add_var("N", Type());
@@ -763,7 +763,7 @@ void tst23() {
 void tst24() {
     std::cout << "\nTST 24\n";
     environment env;
-    import_all(env);
+    init_frontend(env);
     metavar_env menv;
     expr N  = Const("N");
     env->add_var("N", Type());
@@ -783,7 +783,7 @@ void tst24() {
 void tst25() {
     std::cout << "\nTST 25\n";
     environment env;
-    import_all(env);
+    init_frontend(env);
     metavar_env menv;
     expr N  = Const("N");
     env->add_var("N", Type());
@@ -819,7 +819,7 @@ void tst26() {
       Axiom H : g _ a = a
     */
     environment env;
-    import_all(env);
+    init_frontend(env);
     metavar_env menv;
     buffer<unification_constraint> ucs;
     type_checker checker(env);
@@ -849,7 +849,7 @@ void tst27() {
       fun f : _, eq _ ((g _ f) a) a
     */
     environment env;
-    import_all(env);
+    init_frontend(env);
     metavar_env menv;
     buffer<unification_constraint> ucs;
     type_checker checker(env);

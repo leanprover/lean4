@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"
 #include "kernel/expr_sets.h"
+#include "kernel/builtin.h"
 #include "library/expr_pair.h"
 #include "library/expr_pair_maps.h"
 #include "library/io_state.h"
@@ -519,10 +520,17 @@ static lean_extension & to_ext(environment const & env) {
 /**
    \brief Import all definitions and notation.
 */
-void init_frontend(environment const & env, io_state & ios) {
+void init_frontend(environment const & env, io_state & ios, bool kernel_only) {
     ios.set_formatter(mk_pp_formatter(env));
-    import_all(env);
-    init_builtin_notation(env, ios);
+    if (kernel_only)
+        import_kernel(env);
+    else
+        import_all(env);
+    init_builtin_notation(env, ios, kernel_only);
+}
+void init_frontend(environment const & env) {
+    io_state ios;
+    init_frontend(env, ios);
 }
 
 void add_infix(environment const & env, io_state const & ios, name const & opn, unsigned p, expr const & d)  {

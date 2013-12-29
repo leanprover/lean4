@@ -43,7 +43,8 @@ class environment_cell {
     object_dictionary                       m_object_dictionary;
     std::unique_ptr<type_checker>           m_type_checker;
     std::set<name>                          m_imported_modules;   // set of imported files and builtin modules
-
+    bool                                    m_trust_imported; // if true, then imported modules are not type checked.
+    bool                                    m_type_check;     // auxiliary flag used to implement m_trust_imported.
     std::vector<std::unique_ptr<environment_extension>> m_extensions;
     friend class environment_extension;
 
@@ -323,6 +324,12 @@ public:
     bool import(std::string const & fname, io_state const & ios);
 
     void load(std::string const & fname, io_state const & ios);
+
+    /**
+        \brief When trusted_imported flag is true, the environment will
+        not type check imported modules.
+    */
+    void set_trusted_imported(bool flag);
 
     /**
        \brief Execute function \c fn. Any object created by \c fn

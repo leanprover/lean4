@@ -65,6 +65,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --luahook=num -c  how often the Lua interpreter checks the interrupted flag,\n";
     std::cout << "                    it is useful for interrupting non-terminating user scripts,\n";
     std::cout << "                    0 means 'do not check'.\n";
+    std::cout << "  --trust -t        trust imported modules\n";
 #if defined(LEAN_USE_BOOST)
     std::cout << "  --tstack=num -s   thread stack size in Kb\n";
 #endif
@@ -95,6 +96,7 @@ static struct option g_long_options[] = {
     {"luahook",    required_argument, 0, 'c'},
     {"githash",    no_argument,       0, 'g'},
     {"output",     required_argument, 0, 'o'},
+    {"trust",      no_argument,       0, 't'},
 #if defined(LEAN_USE_BOOST)
     {"tstack",     required_argument, 0, 's'},
 #endif
@@ -105,12 +107,13 @@ int main(int argc, char ** argv) {
     try {
         lean::save_stack_info();
         lean::register_modules();
-        bool kernel_only = false;
+        bool kernel_only    = false;
         bool export_objects = false;
+        bool trust_imported = false;
         std::string output;
         input_kind default_k = input_kind::Lean; // default
         while (true) {
-            int c = getopt_long(argc, argv, "klupgvhc:012s:012o:", g_long_options, NULL);
+            int c = getopt_long(argc, argv, "tklupgvhc:012s:012o:", g_long_options, NULL);
             if (c == -1)
                 break; // end of command line
             switch (c) {
@@ -148,6 +151,9 @@ int main(int argc, char ** argv) {
                 output = optarg;
                 export_objects = true;
                 break;
+            case 't':
+                trust_imported = true;
+                break;
             default:
                 std::cerr << "Unknown command line option\n";
                 display_help(std::cerr);
@@ -164,6 +170,7 @@ int main(int argc, char ** argv) {
                 std::cout << "Type Ctrl-D or 'Exit.' to exit or 'Help.' for help."<< std::endl;
 #endif
                 environment env;
+                env->set_trusted_imported(trust_imported);
                 io_state ios;
                 init_frontend(env, ios, kernel_only);
                 script_state S;
@@ -179,6 +186,7 @@ int main(int argc, char ** argv) {
             }
         } else {
             environment env;
+            env->set_trusted_imported(trust_imported);
             io_state    ios;
             init_frontend(env, ios, kernel_only);
             script_state S;

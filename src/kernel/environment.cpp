@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "util/realpath.h"
 #include "util/sstream.h"
 #include "util/lean_path.h"
+#include "util/flet.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/find_fn.h"
 #include "kernel/kernel_exception.h"
@@ -355,10 +356,12 @@ void environment_cell::check_no_cached_type(expr const & e) {
    v is not convertible to \c t.
 */
 void environment_cell::check_type(name const & n, expr const & t, expr const & v) {
-    m_type_checker->check_type(t);
-    expr v_t = m_type_checker->check(v);
-    if (!m_type_checker->is_convertible(v_t, t))
-        throw def_type_mismatch_exception(env(), n, t, v, v_t);
+    if (m_type_check) {
+        m_type_checker->check_type(t);
+        expr v_t = m_type_checker->check(v);
+        if (!m_type_checker->is_convertible(v_t, t))
+            throw def_type_mismatch_exception(env(), n, t, v, v_t);
+    }
 }
 
 /** \brief Throw exception if it is not a valid new definition */
@@ -407,7 +410,11 @@ void environment_cell::add_definition(name const & n, expr const & t, expr const
 void environment_cell::add_definition(name const & n, expr const & v, bool opaque) {
     check_no_cached_type(v);
     check_name(n);
-    expr v_t = m_type_checker->check(v);
+    expr v_t;
+    if (m_type_check)
+        v_t = m_type_checker->check(v);
+    else
+        v_t = m_type_checker->infer_type(v);
     unsigned w = get_max_weight(v) + 1;
     register_named_object(mk_definition(n, v_t, v, w));
     if (opaque)
@@ -434,7 +441,8 @@ void environment_cell::set_opaque(name const & n, bool opaque) {
 void environment_cell::add_axiom(name const & n, expr const & t) {
     check_no_cached_type(t);
     check_name(n);
-    m_type_checker->check_type(t);
+    if (m_type_check)
+        m_type_checker->check_type(t);
     register_named_object(mk_axiom(n, t));
 }
 
@@ -442,7 +450,8 @@ void environment_cell::add_axiom(name const & n, expr const & t) {
 void environment_cell::add_var(name const & n, expr const & t) {
     check_no_cached_type(t);
     check_name(n);
-    m_type_checker->check_type(t);
+    if (m_type_check)
+        m_type_checker->check_type(t);
     register_named_object(mk_var_decl(n, t));
 }
 
@@ -534,6 +543,10 @@ void environment_cell::import_builtin(char const * id, std::function<void()> fn)
     }
 }
 
+void environment_cell::set_trusted_imported(bool flag) {
+    m_trust_imported = flag;
+}
+
 static char const * g_olean_header   = "oleanfile";
 static char const * g_olean_end_file = "EndFile";
 void environment_cell::export_objects(std::string const & fname) {
@@ -598,6 +611,7 @@ bool environment_cell::load_core(std::string const & fname, io_state const & ios
 }
 
 bool environment_cell::import(std::string const & fname, io_state const & ios) {
+    flet<bool> set(m_type_check, !m_trust_imported);
     return load_core(realpath(find_file(fname, {".olean"}).c_str()), ios, optional<std::string>(fname));
 }
 
@@ -607,12 +621,16 @@ void environment_cell::load(std::string const & fname, io_state const & ios) {
 
 environment_cell::environment_cell():
     m_num_children(0) {
+    m_trust_imported = false;
+    m_type_check     = true;
     init_uvars();
 }
 
 environment_cell::environment_cell(std::shared_ptr<environment_cell> const & parent):
     m_num_children(0),
     m_parent(parent) {
+    m_trust_imported = false;
+    m_type_check     = true;
     parent->inc_children();
 }
 

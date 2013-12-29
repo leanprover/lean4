@@ -193,7 +193,7 @@ class definition_object_cell : public named_typed_object_cell {
     unsigned m_weight;
 public:
     definition_object_cell(name const & n, expr const & t, expr const & v, unsigned weight):
-        named_typed_object_cell(object_kind::Definition, n, t), m_value(v), m_weight(weight) {}
+        named_typed_object_cell(object_kind::Definition, n, t), m_value(v), m_opaque(false), m_weight(weight) {}
     virtual ~definition_object_cell() {}
 
     virtual bool is_definition() const   { return true; }

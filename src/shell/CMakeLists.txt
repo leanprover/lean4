@@ -1,5 +1,4 @@
 add_executable(lean lean.cpp)
-add_dependencies(lean githash)
 target_link_libraries(lean ${EXTRA_LIBS})
 
 install(TARGETS lean DESTINATION bin)

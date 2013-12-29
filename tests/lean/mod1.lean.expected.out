@@ -1,10 +1,8 @@
   Set: pp::colors
   Set: pp::unicode
-  Imported 'simple'
-  Skipped 'simple'
-  Imported 'simple.lean'
-  Skipped 'simple.lean'
-x + y : ℤ
-  Assumed: z
-z : ℤ
-Error (line: 14, pos: 6) unknown identifier 'z'
+  Imported 'cast'
+  Skipped 'cast'
+  Imported 'cast'
+  Skipped 'cast'
+@cast : Π (A B : (Type U)), A == B → A → B
+@cast : Π (A B : (Type U)), A == B → A → B

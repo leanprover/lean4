@@ -78,7 +78,7 @@ class environment_cell {
 
     bool already_imported(name const & n) const;
     bool mark_imported_core(name n);
-
+    bool load_core(std::string const & fname, io_state const & ios, optional<std::string> const & mod_name);
 
 public:
     environment_cell();
@@ -322,6 +322,8 @@ public:
 
     bool import(std::string const & fname, io_state const & ios);
 
+    void load(std::string const & fname, io_state const & ios);
+
     /**
        \brief Execute function \c fn. Any object created by \c fn
        is not exported by the environment.
@@ -393,6 +395,13 @@ public:
 
 /** \brief Return true iff the given object marks the begin of the of a sequence of imported objects. */
 bool is_begin_import(object const & obj);
+/** \brief Return true iff the given object marks the begin of the of a sequence of builtin imported objects. */
+bool is_begin_builtin_import(object const & obj);
 /** \brief Return true iff the given object marks the end of the of a sequence of imported objects. */
 bool is_end_import(object const & obj);
+/**
+    \brief Return the module imported by the given import object.
+    Return none if \c obj is not an import object.
+*/
+optional<std::string> get_imported_module(object const & obj);
 }

@@ -13,28 +13,6 @@ target_link_libraries(lean ${EXTRA_LIBS})
 
 install(TARGETS lean DESTINATION bin)
 
-function(add_extra_dependency indir file)
-  get_filename_component(FNAME ${file} NAME)
-  add_custom_command(OUTPUT ${LEAN_BINARY_DIR}/shell/${indir}/${FNAME}
-    COMMAND ${CMAKE_COMMAND} -E copy ${file} ${LEAN_BINARY_DIR}/shell/${indir}/${FNAME}
-    MAIN_DEPENDENCY ${file})
-  add_custom_target("${FNAME}_extra" DEPENDS ${LEAN_BINARY_DIR}/shell/${indir}/${FNAME})
-  add_dependencies(lean "${FNAME}_extra")
-endfunction()
-
-function(add_extra_module indir)
-  file(GLOB EXTRA_LUA_FILES "${LEAN_SOURCE_DIR}/extra/${indir}/*.lua")
-  foreach(FILE ${EXTRA_LUA_FILES})
-    add_extra_dependency(${indir} ${FILE})
-  endforeach(FILE)
-  file(GLOB EXTRA_LEAN_FILES "${LEAN_SOURCE_DIR}/extra/${indir}/*.lean")
-  foreach(FILE ${EXTRA_LEAN_FILES})
-    add_extra_dependency(${indir} ${FILE})
-  endforeach(FILE)
-endfunction()
-
-add_extra_module(.)
-
 add_test(example1_stdin1 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
 add_test(example1_stdin2 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_CURRENT_BINARY_DIR}/lean "-l" "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
 add_test(example1_stdin3 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_CURRENT_BINARY_DIR}/lean "--lean" "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")

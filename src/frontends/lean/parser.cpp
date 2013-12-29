@@ -2176,6 +2176,11 @@ class parser::imp {
                     if (is_begin_import(obj)) {
                         lean_assert(num_imports > 0);
                         num_imports--;
+                        if (num_imports == 0)
+                            to_display.push_back(obj);
+                    } else if (is_begin_builtin_import(obj)) {
+                        lean_assert(num_imports > 0);
+                        num_imports--;
                     } else if (is_end_import(obj)) {
                         num_imports++;
                     } else if (is_hidden_object(obj)) {
@@ -2187,7 +2192,11 @@ class parser::imp {
                 }
                 std::reverse(to_display.begin(), to_display.end());
                 for (auto obj : to_display) {
-                    regular(m_io_state) << obj << endl;
+                    if (is_begin_import(obj)) {
+                        regular(m_io_state) << "Import \"" << *get_imported_module(obj) << "\"" << endl;
+                    } else {
+                        regular(m_io_state) << obj << endl;
+                    }
                 }
             } else if (opt_id == g_options_kwd) {
                 regular(m_io_state) << pp(m_io_state.get_options()) << endl;
@@ -2384,26 +2393,12 @@ class parser::imp {
             regular(m_io_state) << "  Set: " << id << endl;
     }
 
-    bool import_lean_file(std::string const & fname) {
-        std::ifstream in(fname);
-        if (!in.is_open())
-            throw parser_error(sstream() << "invalid import command, failed to open file '" << fname << "'", m_last_cmd_pos);
-        if (!m_env->mark_imported(fname.c_str())) {
-            // module already imported
-            return false;
-        }
+    optional<std::string> find_lua_file(std::string const & fname) {
         try {
-            script_state state; // Empty state object for the imported module
-            io_state ios = m_io_state;
-            ios.set_option(g_parser_verbose, false);
-            parser import_parser(m_env, ios, in, &state, true /* use exceptions */, false /* not interactive */);
-            import_parser();
-        } catch (interrupted &) {
-            throw;
-        } catch (exception &) {
-            throw parser_error(sstream() << "failed to import file '" << fname << "'", m_last_cmd_pos);
+            return some(find_file(fname, {".lua"}));
+        } catch (...) {
+            return optional<std::string>();
         }
-        return true;
     }
 
     void parse_import() {
@@ -2415,17 +2410,14 @@ class parser::imp {
         } else {
             fname  = check_string_next("invalid import command, string (i.e., file name) or identifier expected");
         }
-        std::string ffname = find_file(fname);
         bool r = false;
-        if (is_lean_file(ffname)) {
-            r = import_lean_file(ffname);
-        } else if (is_lua_file(ffname)) {
+        if (auto lua_fname = find_lua_file(fname)) {
             if (!m_script_state)
-                throw parser_error(sstream() << "failed to import Lua file '" << fname << "', parser does not have an intepreter", m_last_cmd_pos);
-            r = m_script_state->import_explicit(ffname.c_str());
+                throw parser_error(sstream() << "failed to import Lua file '" << *lua_fname << "', parser does not have an intepreter",
+                                   m_last_cmd_pos);
+            r = m_script_state->import_explicit(lua_fname->c_str());
         } else {
-            // assume is a Lean file
-            r = import_lean_file(ffname);
+            r = m_env->import(fname, m_io_state);
         }
         if (m_verbose) {
             if (r)

@@ -48,6 +48,7 @@ public:
     virtual ~import_command() {}
     virtual char const * keyword() const { return "Import"; }
     virtual void write(serializer & s) const { s << "Import" << m_mod_name; }
+    std::string const & get_module() const { return m_mod_name; }
 };
 static void read_import(environment const & env, io_state const & ios, deserializer & d) {
     std::string n = d.read_string();
@@ -73,7 +74,19 @@ public:
 };
 
 bool is_begin_import(object const & obj) {
-    return dynamic_cast<import_command const*>(obj.cell()) || dynamic_cast<begin_import_mark const*>(obj.cell());
+    return dynamic_cast<import_command const*>(obj.cell());
+}
+
+optional<std::string> get_imported_module(object const & obj) {
+    if (is_begin_import(obj)) {
+        return optional<std::string>(static_cast<import_command const*>(obj.cell())->get_module());
+    } else {
+        return optional<std::string>();
+    }
+}
+
+bool is_begin_builtin_import(object const & obj) {
+    return dynamic_cast<begin_import_mark const*>(obj.cell());
 }
 
 bool is_end_import(object const & obj) {
@@ -548,36 +561,48 @@ void environment_cell::export_objects(std::string const & fname) {
     s << g_olean_end_file;
 }
 
-bool environment_cell::import(std::string const & fname, io_state const & ios) {
-    std::string full_fname = realpath(find_file(fname, {".olean"}).c_str());
-    if (mark_imported_core(full_fname)) {
+bool environment_cell::load_core(std::string const & fname, io_state const & ios, optional<std::string> const & mod_name) {
+    if (!mod_name || mark_imported_core(fname)) {
         std::ifstream in(fname);
+        if (!in.good())
+            throw exception(sstream() << "failed to open file '" << fname << "'");
         deserializer d(in);
         std::string header;
         d >> header;
         if (header != g_olean_header)
-            throw exception(sstream() << "file '" << full_fname << "' does not seem to be a valid object Lean file");
+            throw exception(sstream() << "file '" << fname << "' does not seem to be a valid object Lean file");
         unsigned major, minor;
         // Perhaps we should enforce the right version number
         d >> major >> minor;
         try {
-            add_neutral_object(new import_command(fname));
+            if (mod_name)
+                add_neutral_object(new import_command(*mod_name));
             while (true) {
                 std::string k;
                 d >> k;
                 if (k == g_olean_end_file) {
-                    add_neutral_object(new end_import_mark());
+                    if (mod_name)
+                        add_neutral_object(new end_import_mark());
                     return true;
                 }
                 read_object(env(), ios, k, d);
             }
         } catch (...) {
-            add_neutral_object(new end_import_mark());
+            if (mod_name)
+                add_neutral_object(new end_import_mark());
             throw;
         }
     } else {
         return false;
     }
+}
+
+bool environment_cell::import(std::string const & fname, io_state const & ios) {
+    return load_core(realpath(find_file(fname, {".olean"}).c_str()), ios, optional<std::string>(fname));
+}
+
+void environment_cell::load(std::string const & fname, io_state const & ios) {
+    load_core(fname, ios, optional<std::string>());
 }
 
 environment_cell::environment_cell():

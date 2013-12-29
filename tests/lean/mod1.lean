@@ -1,14 +1,11 @@
-Import simple
-Import simple
+Import cast
+Import cast
 (**
    local env = environment() -- create new environment
    parse_lean_cmds([[
-      Import "simple.lean"
-      Import "simple.lean"
-      Check x + y
-      Variable z : Int
-      Check z
+      Import cast
+      Import cast
+      Check @cast
    ]], env)
-   -- Remark: z is not defined in the main environment
 **)
-Check z
+Check @cast

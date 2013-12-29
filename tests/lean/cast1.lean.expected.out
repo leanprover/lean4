@@ -1,6 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
-  Imported 'cast.lean'
+  Imported 'cast'
   Assumed: vector
   Assumed: N0
   Proved: V0

@@ -1,6 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
-  Imported 'cast.lean'
+  Imported 'cast'
   Set: pp::colors
   Defined: TypeM
   Defined: TypeU

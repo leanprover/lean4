@@ -1,4 +1,4 @@
-Import "cast.lean"
+Import cast
 Variable A : Type
 Variable B : Type
 Variable A' : Type

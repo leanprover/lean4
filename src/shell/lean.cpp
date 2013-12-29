@@ -197,7 +197,7 @@ int main(int argc, char ** argv) {
                     ok = false;
             } else if (k == input_kind::OLean) {
                 try {
-                    env->import(std::string(argv[i]), ios);
+                    env->load(std::string(argv[i]), ios);
                 } catch (lean::exception & ex) {
                     std::cerr << "Failed to load binary file '" << argv[i] << "': " << ex.what() << "\n";
                     ok = false;

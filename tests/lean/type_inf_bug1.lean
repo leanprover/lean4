@@ -1,4 +1,4 @@
-Import "cast.lean"
+Import cast
 SetOption pp::colors false
 
 Definition TypeM := (Type M)

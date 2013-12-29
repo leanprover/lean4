@@ -14,4 +14,6 @@ class frontend;
 class environment;
 formatter mk_pp_formatter(ro_environment const & env);
 std::ostream & operator<<(std::ostream & out, frontend const & fe);
+/** \brief Return true iff the given object is supported by this pretty printer. */
+bool supported_by_pp(object const & obj);
 }

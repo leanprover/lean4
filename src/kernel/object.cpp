@@ -22,8 +22,7 @@ void object_cell::register_deserializer(std::string const & k, reader rd) {
     lean_assert(readers.find(k) == readers.end());
     readers[k] = rd;
 }
-static void read_object(environment const & env, io_state const & ios, deserializer & d) {
-    auto k  = d.read_string();
+void read_object(environment const & env, io_state const & ios, std::string const & k, deserializer & d) {
     object_readers & readers = get_object_readers();
     auto it = readers.find(k);
     lean_assert(it != readers.end());

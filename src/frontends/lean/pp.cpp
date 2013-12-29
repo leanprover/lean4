@@ -154,6 +154,18 @@ expr replace_var_with_name(expr const & a, name const & n) {
         });
 }
 
+bool is_notation_decl(object const & obj) {
+    return dynamic_cast<notation_declaration const *>(obj.cell());
+}
+
+bool is_coercion_decl(object const & obj) {
+    return dynamic_cast<coercion_declaration const *>(obj.cell());
+}
+
+bool supported_by_pp(object const & obj) {
+    return obj.kind() != object_kind::Neutral || is_notation_decl(obj) || is_coercion_decl(obj);
+}
+
 /** \brief Functional object for pretty printing expressions */
 class pp_fn {
     typedef scoped_map<expr, name, expr_hash_alloc, expr_eqp> aliases;
@@ -1375,9 +1387,9 @@ public:
         case object_kind::Builtin:          return pp_postulate(obj, opts);
         case object_kind::BuiltinSet:       return pp_builtin_set(obj, opts);
         case object_kind::Neutral:
-            if (dynamic_cast<notation_declaration const *>(obj.cell())) {
+            if (is_notation_decl(obj)) {
                 return pp_notation_decl(obj, opts);
-            } else if (dynamic_cast<coercion_declaration const *>(obj.cell())) {
+            } else if (is_coercion_decl(obj)) {
                 return pp_coercion_decl(obj, opts);
             } else {
                 // If the object is not notation or coercion
@@ -1392,13 +1404,16 @@ public:
     virtual format operator()(ro_environment const & env, options const & opts) {
         format r;
         bool first = true;
-        std::for_each(env->begin_objects(),
-                      env->end_objects(),
-                      [&](object const & obj) {
-                          check_interrupted();
-                          if (first) first = false; else r += line();
-                          r += operator()(obj, opts);
-                      });
+        auto it  = env->begin_objects();
+        auto end = env->end_objects();
+        for (; it != end; ++it) {
+            check_interrupted();
+            auto obj = *it;
+            if (supported_by_pp(obj)) {
+                if (first) first = false; else r += line();
+                r += operator()(obj, opts);
+            }
+        }
         return r;
     }
 

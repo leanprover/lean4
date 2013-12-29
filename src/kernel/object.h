@@ -139,6 +139,8 @@ public:
     bool is_builtin_set() const { return m_ptr->is_builtin_set(); }
     bool in_builtin_set(expr const & e) const { return m_ptr->in_builtin_set(e); }
 
+    void write(serializer & s) const { m_ptr->write(s); }
+
     object_cell const * cell() const { return m_ptr; }
 };
 
@@ -154,6 +156,8 @@ object mk_theorem(name const & n, expr const & t, expr const & v);
 object mk_axiom(name const & n, expr const & t);
 object mk_var_decl(name const & n, expr const & t);
 inline object mk_neutral(neutral_object_cell * c) { lean_assert(c->get_rc() == 1); return object(c); }
+
+void read_object(environment const & env, io_state const & ios, std::string const & k, deserializer & d);
 
 /**
    \brief Helper function whether we should unfold an definition or not.

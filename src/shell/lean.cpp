@@ -36,7 +36,7 @@ using lean::notify_assertion_violation;
 using lean::environment;
 using lean::io_state;
 
-enum class input_kind { Unspecified, Lean, Lua };
+enum class input_kind { Unspecified, Lean, OLean, Lua };
 
 static void on_ctrl_c(int ) {
     lean::request_interrupt();
@@ -51,12 +51,15 @@ static void display_help(std::ostream & out) {
     std::cout << "Input format:\n";
     std::cout << "  --lean            use parser for Lean default input format for files,\n";
     std::cout << "                    with unknown extension (default)\n";
+    std::cout << "  --olean           use parser for Lean binary input format for files\n";
+    std::cout << "                    with unknown extension\n";
     std::cout << "  --lua             use Lua parser for files with unknown extension\n";
     std::cout << "Miscellaneous:\n";
     std::cout << "  --help -h         display this message\n";
     std::cout << "  --version -v      display version number\n";
     std::cout << "  --githash         display the git commit hash number used to build this binary\n";
     std::cout << "  --path            display the path used for finding Lean libraries and extensions\n";
+    std::cout << "  --output=file -o  save the final environment in binary format in the given file\n";
     std::cout << "  --luahook=num -c  how often the Lua interpreter checks the interrupted flag,\n";
     std::cout << "                    it is useful for interrupting non-terminating user scripts,\n";
     std::cout << "                    0 means 'do not check'.\n";
@@ -83,10 +86,12 @@ static struct option g_long_options[] = {
     {"version",    no_argument,       0, 'v'},
     {"help",       no_argument,       0, 'h'},
     {"lean",       no_argument,       0, 'l'},
+    {"olean",      no_argument,       0, 'b'},
     {"lua",        no_argument,       0, 'u'},
     {"path",       no_argument,       0, 'p'},
     {"luahook",    required_argument, 0, 'c'},
     {"githash",    no_argument,       0, 'g'},
+    {"output",     required_argument, 0, 'o'},
 #if defined(LEAN_USE_BOOST)
     {"tstack",     required_argument, 0, 's'},
 #endif
@@ -96,9 +101,11 @@ static struct option g_long_options[] = {
 int main(int argc, char ** argv) {
     lean::save_stack_info();
     lean::register_modules();
+    bool export_objects = false;
+    std::string output;
     input_kind default_k = input_kind::Lean; // default
     while (true) {
-        int c = getopt_long(argc, argv, "lupgvhc:012s:012", g_long_options, NULL);
+        int c = getopt_long(argc, argv, "lupgvhc:012s:012o:", g_long_options, NULL);
         if (c == -1)
             break; // end of command line
         switch (c) {
@@ -117,6 +124,9 @@ int main(int argc, char ** argv) {
         case 'u':
             default_k = input_kind::Lua;
             break;
+        case 'b':
+            default_k = input_kind::OLean;
+            break;
         case 'c':
             script_state::set_check_interrupt_freq(atoi(optarg));
             break;
@@ -125,6 +135,10 @@ int main(int argc, char ** argv) {
             return 0;
         case 's':
             lean::set_thread_stack_size(atoi(optarg)*1024);
+            break;
+        case 'o':
+            output = optarg;
+            export_objects = true;
             break;
         default:
             std::cerr << "Unknown command line option\n";
@@ -146,7 +160,10 @@ int main(int argc, char ** argv) {
             init_frontend(env, ios);
             script_state S;
             shell sh(env, &S);
-            return sh() ? 0 : 1;
+            int status = sh() ? 0 : 1;
+            if (export_objects)
+                env->export_objects(output);
+            return status;
         } else {
             lean_assert(default_k == input_kind::Lua);
             script_state S;
@@ -164,6 +181,8 @@ int main(int argc, char ** argv) {
             if (ext) {
                 if (strcmp(ext, "lean") == 0) {
                     k = input_kind::Lean;
+                } else if (strcmp(ext, "olean") == 0) {
+                    k = input_kind::OLean;
                 } else if (strcmp(ext, "lua") == 0) {
                     k = input_kind::Lua;
                 }
@@ -176,6 +195,13 @@ int main(int argc, char ** argv) {
                 }
                 if (!parse_commands(env, ios, in, &S, false, false))
                     ok = false;
+            } else if (k == input_kind::OLean) {
+                try {
+                    env->import(std::string(argv[i]), ios);
+                } catch (lean::exception & ex) {
+                    std::cerr << "Failed to load binary file '" << argv[i] << "': " << ex.what() << "\n";
+                    ok = false;
+                }
             } else if (k == input_kind::Lua) {
                 try {
                     S.dofile(argv[i]);
@@ -187,6 +213,8 @@ int main(int argc, char ** argv) {
                 lean_unreachable(); // LCOV_EXCL_LINE
             }
         }
+        if (export_objects)
+            env->export_objects(output);
         return ok ? 0 : 1;
     }
 }

@@ -155,7 +155,7 @@ std::string name_to_file(name const & fname) {
     return fname.to_string(g_sep_str.c_str());
 }
 
-std::string find_file(std::string fname) {
+std::string find_file(std::string fname, std::initializer_list<char const *> const & extensions) {
     bool is_known = is_known_file_ext(fname);
     fname = normalize_path(fname);
     for (auto path : g_lean_path_vector) {
@@ -163,13 +163,17 @@ std::string find_file(std::string fname) {
             if (auto r = check_file(path, fname))
                 return *r;
         } else {
-            for (auto ext : { ".olean", ".lean", ".lua" }) {
+            for (auto ext : extensions) {
                 if (auto r = check_file(path, fname, ext))
                     return *r;
             }
         }
     }
     throw exception(sstream() << "file '" << fname << "' not found in the LEAN_PATH");
+}
+
+std::string find_file(std::string fname) {
+    return find_file(fname, {".olean", ".lean", ".lua"});
 }
 
 char const * get_lean_path() {

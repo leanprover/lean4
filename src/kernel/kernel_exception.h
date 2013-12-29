@@ -73,7 +73,7 @@ public:
     already_declared_exception(ro_environment const & env, name const & n):kernel_exception(env), m_name(n) {}
     virtual ~already_declared_exception() noexcept {}
     name const & get_name() const { return m_name; }
-    virtual char const * what() const noexcept { return "invalid object declaration, environment already has an object the given name"; }
+    virtual char const * what() const noexcept { return "invalid object declaration, environment already has an object with the given name"; }
     virtual format pp(formatter const & fmt, options const & opts) const;
     virtual exception * clone() const { return new already_declared_exception(m_env, m_name); }
     virtual void rethrow() const { throw *this; }

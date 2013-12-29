@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include <vector>
 #include <set>
+#include <string>
 #include "util/lua.h"
 #include "util/shared_mutex.h"
 #include "util/name_map.h"
@@ -314,11 +315,18 @@ public:
         It will also mark the file as imported.
     */
     bool mark_imported(char const * fname);
+
+    void import_builtin(char const * id, std::function<void()> fn);
+
+    void export_objects(std::string const & fname);
+
+    bool import(std::string const & fname, io_state const & ios);
+
     /**
-        \brief Return true iff the given builtin id was not already marked as imported.
-        It will also mark the id as imported.
+       \brief Execute function \c fn. Any object created by \c fn
+       is not exported by the environment.
     */
-    bool mark_builtin_imported(char const * id);
+    void auxiliary_section(std::function<void()> fn);
 };
 
 /**
@@ -382,4 +390,9 @@ public:
     environment_cell const * operator->() const { return m_ptr.get(); }
     environment_cell const & operator*() const { return *(m_ptr.get()); }
 };
+
+/** \brief Return true iff the given object marks the begin of the of a sequence of imported objects. */
+bool is_begin_import(object const & obj);
+/** \brief Return true iff the given object marks the end of the of a sequence of imported objects. */
+bool is_end_import(object const & obj);
 }

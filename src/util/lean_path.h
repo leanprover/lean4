@@ -18,6 +18,9 @@ char const * get_lean_path();
 */
 std::string find_file(std::string fname);
 
+std::string find_file(std::string fname, std::initializer_list<char const *> const & exts);
+
+
 /** \brief Return true iff fname ends with ".lean" */
 bool is_lean_file(std::string const & fname);
 /** \brief Return true iff fname ends with ".olean" */

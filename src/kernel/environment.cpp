@@ -8,10 +8,13 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <vector>
 #include <tuple>
+#include <fstream>
+#include <string>
 #include "util/thread.h"
 #include "util/safe_arith.h"
 #include "util/realpath.h"
 #include "util/sstream.h"
+#include "util/lean_path.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/find_fn.h"
 #include "kernel/kernel_exception.h"
@@ -19,6 +22,7 @@ Author: Leonardo de Moura
 #include "kernel/threadsafe_environment.h"
 #include "kernel/type_checker.h"
 #include "kernel/normalizer.h"
+#include "version.h"
 
 namespace lean {
 class set_opaque_command : public neutral_object_cell {
@@ -36,6 +40,45 @@ static void read_set_opaque(environment const & env, io_state const &, deseriali
     env->set_opaque(n, o);
 }
 static object_cell::register_deserializer_fn set_opaque_ds("SetOpaque", read_set_opaque);
+
+class import_command : public neutral_object_cell {
+    std::string m_mod_name;
+public:
+    import_command(std::string const & n):m_mod_name(n) {}
+    virtual ~import_command() {}
+    virtual char const * keyword() const { return "Import"; }
+    virtual void write(serializer & s) const { s << "Import" << m_mod_name; }
+};
+static void read_import(environment const & env, io_state const & ios, deserializer & d) {
+    std::string n = d.read_string();
+    env->import(n, ios);
+}
+static object_cell::register_deserializer_fn import_ds("Import", read_import);
+
+class end_import_mark : public neutral_object_cell {
+public:
+    end_import_mark() {}
+    virtual ~end_import_mark() {}
+    virtual char const * keyword() const { return "EndImport"; }
+    virtual void write(serializer &) const {}
+};
+
+// For Importing builtin modules
+class begin_import_mark : public neutral_object_cell {
+public:
+    begin_import_mark() {}
+    virtual ~begin_import_mark() {}
+    virtual char const * keyword() const { return "BeginImport"; }
+    virtual void write(serializer &) const {}
+};
+
+bool is_begin_import(object const & obj) {
+    return dynamic_cast<import_command const*>(obj.cell()) || dynamic_cast<begin_import_mark const*>(obj.cell());
+}
+
+bool is_end_import(object const & obj) {
+    return dynamic_cast<end_import_mark const*>(obj.cell());
+}
 
 static name g_builtin_module("builtin_module");
 class extension_factory {
@@ -461,8 +504,80 @@ bool environment_cell::mark_imported(char const * fname) {
     return mark_imported_core(name(realpath(fname)));
 }
 
-bool environment_cell::mark_builtin_imported(char const * id) {
-    return mark_imported_core(name(g_builtin_module, id));
+void environment_cell::auxiliary_section(std::function<void()> fn) {
+    add_neutral_object(new begin_import_mark());
+    try {
+        fn();
+        add_neutral_object(new end_import_mark());
+    } catch (...) {
+        add_neutral_object(new end_import_mark());
+        throw;
+    }
+}
+
+void environment_cell::import_builtin(char const * id, std::function<void()> fn) {
+    if (mark_imported_core(name(g_builtin_module, id))) {
+        auxiliary_section(fn);
+    }
+}
+
+static char const * g_olean_header   = "oleanfile";
+static char const * g_olean_end_file = "EndFile";
+void environment_cell::export_objects(std::string const & fname) {
+    std::ofstream out(fname);
+    serializer s(out);
+    s << g_olean_header << LEAN_VERSION_MAJOR << LEAN_VERSION_MINOR;
+    auto it  = begin_objects();
+    auto end = end_objects();
+    unsigned num_imports = 0;
+    for (; it != end; ++it) {
+        object const & obj = *it;
+        if (dynamic_cast<import_command const*>(obj.cell())) {
+            if (num_imports == 0)
+                obj.write(s);
+            num_imports++;
+        } else if (dynamic_cast<end_import_mark const*>(obj.cell())) {
+            lean_assert(num_imports > 0);
+            num_imports--;
+        } else if (dynamic_cast<begin_import_mark const*>(obj.cell())) {
+            num_imports++;
+        } else if (num_imports == 0) {
+            obj.write(s);
+        }
+    }
+    s << g_olean_end_file;
+}
+
+bool environment_cell::import(std::string const & fname, io_state const & ios) {
+    std::string full_fname = realpath(find_file(fname, {".olean"}).c_str());
+    if (mark_imported_core(full_fname)) {
+        std::ifstream in(fname);
+        deserializer d(in);
+        std::string header;
+        d >> header;
+        if (header != g_olean_header)
+            throw exception(sstream() << "file '" << full_fname << "' does not seem to be a valid object Lean file");
+        unsigned major, minor;
+        // Perhaps we should enforce the right version number
+        d >> major >> minor;
+        try {
+            add_neutral_object(new import_command(fname));
+            while (true) {
+                std::string k;
+                d >> k;
+                if (k == g_olean_end_file) {
+                    add_neutral_object(new end_import_mark());
+                    return true;
+                }
+                read_object(env(), ios, k, d);
+            }
+        } catch (...) {
+            add_neutral_object(new end_import_mark());
+            throw;
+        }
+    } else {
+        return false;
+    }
 }
 
 environment_cell::environment_cell():

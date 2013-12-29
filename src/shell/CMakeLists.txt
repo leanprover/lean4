@@ -7,8 +7,6 @@ add_custom_target(githash
   DEPENDS ${LEAN_BINARY_DIR}/githash.h ${LEAN_SOURCE_DIR}/../.git/HEAD ${LEAN_SOURCE_DIR}/../.git/index
 )
 
-configure_file("${LEAN_SOURCE_DIR}/shell/version.h.in" "${LEAN_BINARY_DIR}/version.h")
-include_directories("${LEAN_BINARY_DIR}")
 add_executable(lean lean.cpp)
 add_dependencies(lean githash)
 target_link_libraries(lean ${EXTRA_LIBS})

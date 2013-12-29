@@ -2140,7 +2140,7 @@ class parser::imp {
 
     /** \brief Return true iff \c obj is an object that should be ignored by the Show command */
     bool is_hidden_object(object const & obj) const {
-        return obj.is_definition() && is_explicit(m_env, obj.get_name());
+        return (obj.is_definition() && is_explicit(m_env, obj.get_name())) || !supported_by_pp(obj);
     }
 
     /** \brief Parse
@@ -2155,7 +2155,8 @@ class parser::imp {
             name opt_id = curr_name();
             next();
             if (opt_id == g_env_kwd) {
-                unsigned beg = get_initial_size(m_env);
+                buffer<object> to_display;
+                bool     all = false;
                 unsigned end = m_env->get_num_objects(false);
                 unsigned i;
                 if (curr_is_nat()) {
@@ -2163,20 +2164,30 @@ class parser::imp {
                 } else if (curr_is_identifier() && curr_name() == "all") {
                     next();
                     i   = std::numeric_limits<unsigned>::max();
-                    beg = 0;
+                    all = true;
                 } else {
                     i = std::numeric_limits<unsigned>::max();
                 }
-                unsigned it  = end;
-                while (it != beg && i != 0) {
+                unsigned it          = end;
+                unsigned num_imports = 0;
+                while (it != 0 && i != 0) {
                     --it;
-                    if (!is_hidden_object(m_env->get_object(it, false)))
-                        --i;
-                }
-                for (; it != end; ++it) {
                     auto obj = m_env->get_object(it, false);
-                    if (!is_hidden_object(obj))
-                        regular(m_io_state) << obj << endl;
+                    if (is_begin_import(obj)) {
+                        lean_assert(num_imports > 0);
+                        num_imports--;
+                    } else if (is_end_import(obj)) {
+                        num_imports++;
+                    } else if (is_hidden_object(obj)) {
+                        // skip
+                    } else if (num_imports == 0 || all) {
+                        to_display.push_back(obj);
+                        --i;
+                    }
+                }
+                std::reverse(to_display.begin(), to_display.end());
+                for (auto obj : to_display) {
+                    regular(m_io_state) << obj << endl;
                 }
             } else if (opt_id == g_options_kwd) {
                 regular(m_io_state) << pp(m_io_state.get_options()) << endl;

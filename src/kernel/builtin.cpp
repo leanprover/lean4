@@ -220,91 +220,93 @@ MK_CONSTANT(htrans_fn,      name("HTrans"));
 MK_CONSTANT(hsymm_fn,       name("HSymm"));
 
 void import_basic(environment const & env) {
-    if (!env->mark_builtin_imported("basic"))
-        return;
-    env->add_uvar(uvar_name(m_lvl), level() + LEAN_DEFAULT_LEVEL_SEPARATION);
-    env->add_uvar(uvar_name(u_lvl), m_lvl + LEAN_DEFAULT_LEVEL_SEPARATION);
+    env->import_builtin
+        ("basic",
+         [&]() {
+            env->add_uvar(uvar_name(m_lvl), level() + LEAN_DEFAULT_LEVEL_SEPARATION);
+            env->add_uvar(uvar_name(u_lvl), m_lvl + LEAN_DEFAULT_LEVEL_SEPARATION);
 
-    expr p1        = Bool >> Bool;
-    expr p2        = Bool >> p1;
-    expr f         = Const("f");
-    expr g         = Const("g");
-    expr a         = Const("a");
-    expr b         = Const("b");
-    expr c         = Const("c");
-    expr x         = Const("x");
-    expr y         = Const("y");
-    expr A         = Const("A");
-    expr A_pred    = A >> Bool;
-    expr B         = Const("B");
-    expr C         = Const("C");
-    expr q_type    = Pi({A, TypeU}, A_pred >> Bool);
-    expr piABx     = Pi({x, A}, B(x));
-    expr A_arrow_u = A >> TypeU;
-    expr P         = Const("P");
-    expr H         = Const("H");
-    expr H1        = Const("H1");
-    expr H2        = Const("H2");
+            expr p1        = Bool >> Bool;
+            expr p2        = Bool >> p1;
+            expr f         = Const("f");
+            expr g         = Const("g");
+            expr a         = Const("a");
+            expr b         = Const("b");
+            expr c         = Const("c");
+            expr x         = Const("x");
+            expr y         = Const("y");
+            expr A         = Const("A");
+            expr A_pred    = A >> Bool;
+            expr B         = Const("B");
+            expr C         = Const("C");
+            expr q_type    = Pi({A, TypeU}, A_pred >> Bool);
+            expr piABx     = Pi({x, A}, B(x));
+            expr A_arrow_u = A >> TypeU;
+            expr P         = Const("P");
+            expr H         = Const("H");
+            expr H1        = Const("H1");
+            expr H2        = Const("H2");
 
-    env->add_builtin(mk_bool_type());
-    env->add_builtin(mk_bool_value(true));
-    env->add_builtin(mk_bool_value(false));
-    env->add_builtin(mk_if_fn());
+            env->add_builtin(mk_bool_type());
+            env->add_builtin(mk_bool_value(true));
+            env->add_builtin(mk_bool_value(false));
+            env->add_builtin(mk_if_fn());
 
-    // implies(x, y) := if x y True
-    env->add_opaque_definition(implies_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, bIf(x, y, True)));
+            // implies(x, y) := if x y True
+            env->add_opaque_definition(implies_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, bIf(x, y, True)));
 
-    // iff(x, y) := x = y
-    env->add_opaque_definition(iff_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, Eq(x, y)));
+            // iff(x, y) := x = y
+            env->add_opaque_definition(iff_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, Eq(x, y)));
 
-    // not(x) := if x False True
-    env->add_opaque_definition(not_fn_name, p1, Fun({x, Bool}, bIf(x, False, True)));
+            // not(x) := if x False True
+            env->add_opaque_definition(not_fn_name, p1, Fun({x, Bool}, bIf(x, False, True)));
 
-    // or(x, y) := Not(x) => y
-    env->add_opaque_definition(or_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, Implies(Not(x), y)));
+            // or(x, y) := Not(x) => y
+            env->add_opaque_definition(or_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, Implies(Not(x), y)));
 
-    // and(x, y) := Not(x => Not(y))
-    env->add_opaque_definition(and_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, Not(Implies(x, Not(y)))));
+            // and(x, y) := Not(x => Not(y))
+            env->add_opaque_definition(and_fn_name, p2, Fun({{x, Bool}, {y, Bool}}, Not(Implies(x, Not(y)))));
 
-    // forall : Pi (A : Type u), (A -> Bool) -> Bool
-    env->add_opaque_definition(forall_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Eq(P, Fun({x, A}, True))));
-    // TODO(Leo): introduce epsilon
-    env->add_definition(exists_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Not(Forall(A, Fun({x, A}, Not(P(x)))))));
-    // Aliases for forall and exists
-    env->add_definition(Forall_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Forall(A, P)));
-    env->add_definition(Exists_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Exists(A, P)));
+            // forall : Pi (A : Type u), (A -> Bool) -> Bool
+            env->add_opaque_definition(forall_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Eq(P, Fun({x, A}, True))));
+            // TODO(Leo): introduce epsilon
+            env->add_definition(exists_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Not(Forall(A, Fun({x, A}, Not(P(x)))))));
+            // Aliases for forall and exists
+            env->add_definition(Forall_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Forall(A, P)));
+            env->add_definition(Exists_fn_name, q_type, Fun({{A, TypeU}, {P, A_pred}}, Exists(A, P)));
 
-    // homogeneous equality
-    env->add_definition(homo_eq_fn_name, Pi({{A, TypeU}, {x, A}, {y, A}}, Bool), Fun({{A, TypeU}, {x, A}, {y, A}}, Eq(x, y)));
+            // homogeneous equality
+            env->add_definition(homo_eq_fn_name, Pi({{A, TypeU}, {x, A}, {y, A}}, Bool), Fun({{A, TypeU}, {x, A}, {y, A}}, Eq(x, y)));
 
-    // MP : Pi (a b : Bool) (H1 : a => b) (H2 : a), b
-    env->add_axiom(mp_fn_name, Pi({{a, Bool}, {b, Bool}, {H1, Implies(a, b)}, {H2, a}}, b));
+            // MP : Pi (a b : Bool) (H1 : a => b) (H2 : a), b
+            env->add_axiom(mp_fn_name, Pi({{a, Bool}, {b, Bool}, {H1, Implies(a, b)}, {H2, a}}, b));
 
-    // Discharge : Pi (a b : Bool) (H : a -> b), a => b
-    env->add_axiom(discharge_fn_name, Pi({{a, Bool}, {b, Bool}, {H, a >> b}}, Implies(a, b)));
+            // Discharge : Pi (a b : Bool) (H : a -> b), a => b
+            env->add_axiom(discharge_fn_name, Pi({{a, Bool}, {b, Bool}, {H, a >> b}}, Implies(a, b)));
 
-    // Case : Pi (P : Bool -> Bool) (H1 : P True) (H2 : P False) (a : Bool), P a
-    env->add_axiom(case_fn_name, Pi({{P, Bool >> Bool}, {H1, P(True)}, {H2, P(False)}, {a, Bool}}, P(a)));
+            // Case : Pi (P : Bool -> Bool) (H1 : P True) (H2 : P False) (a : Bool), P a
+            env->add_axiom(case_fn_name, Pi({{P, Bool >> Bool}, {H1, P(True)}, {H2, P(False)}, {a, Bool}}, P(a)));
 
-    // Refl : Pi (A : Type u) (a : A), a = a
-    env->add_axiom(refl_fn_name, Pi({{A, TypeU}, {a, A}}, Eq(a, a)));
+            // Refl : Pi (A : Type u) (a : A), a = a
+            env->add_axiom(refl_fn_name, Pi({{A, TypeU}, {a, A}}, Eq(a, a)));
 
-    // Subst : Pi (A : Type u) (a b : A) (P : A -> bool) (H1 : P a) (H2 : a = b), P b
-    env->add_axiom(subst_fn_name, Pi({{A, TypeU}, {a, A}, {b, A}, {P, A_pred}, {H1, P(a)}, {H2, Eq(a, b)}}, P(b)));
+            // Subst : Pi (A : Type u) (a b : A) (P : A -> bool) (H1 : P a) (H2 : a = b), P b
+            env->add_axiom(subst_fn_name, Pi({{A, TypeU}, {a, A}, {b, A}, {P, A_pred}, {H1, P(a)}, {H2, Eq(a, b)}}, P(b)));
 
-    // Eta : Pi (A : Type u) (B : A -> Type u), f : (Pi x : A, B x), (Fun x : A => f x) = f
-    env->add_axiom(eta_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}}, Eq(Fun({x, A}, f(x)), f)));
+            // Eta : Pi (A : Type u) (B : A -> Type u), f : (Pi x : A, B x), (Fun x : A => f x) = f
+            env->add_axiom(eta_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}}, Eq(Fun({x, A}, f(x)), f)));
 
-    // ImpliesAntisym : Pi (a b : Bool) (H1 : a => b) (H2 : b => a), a = b
-    env->add_axiom(imp_antisym_fn_name, Pi({{a, Bool}, {b, Bool}, {H1, Implies(a, b)}, {H2, Implies(b, a)}}, Eq(a, b)));
+            // ImpliesAntisym : Pi (a b : Bool) (H1 : a => b) (H2 : b => a), a = b
+            env->add_axiom(imp_antisym_fn_name, Pi({{a, Bool}, {b, Bool}, {H1, Implies(a, b)}, {H2, Implies(b, a)}}, Eq(a, b)));
 
-    // Abst : Pi (A : Type u) (B : A -> Type u), f g : (Pi x : A, B x), H : (Pi x : A, (f x) = (g x)), f = g
-    env->add_axiom(abst_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {H, Pi(x, A, Eq(f(x), g(x)))}}, Eq(f, g)));
+            // Abst : Pi (A : Type u) (B : A -> Type u), f g : (Pi x : A, B x), H : (Pi x : A, (f x) = (g x)), f = g
+            env->add_axiom(abst_fn_name, Pi({{A, TypeU}, {B, A_arrow_u}, {f, piABx}, {g, piABx}, {H, Pi(x, A, Eq(f(x), g(x)))}}, Eq(f, g)));
 
-    // HSymm : Pi (A B : Type u) (a : A) (b : B) (H1 : a = b), b = a
-    env->add_axiom(hsymm_fn_name, Pi({{A, TypeU}, {B, TypeU}, {a, A}, {b, B}, {H1, Eq(a, b)}}, Eq(b, a)));
+            // HSymm : Pi (A B : Type u) (a : A) (b : B) (H1 : a = b), b = a
+            env->add_axiom(hsymm_fn_name, Pi({{A, TypeU}, {B, TypeU}, {a, A}, {b, B}, {H1, Eq(a, b)}}, Eq(b, a)));
 
-    // HTrans : Pi (A B C: Type u) (a : A) (b : B) (c : C) (H1 : a = b) (H2 : b = c), a = c
-    env->add_axiom(htrans_fn_name, Pi({{A, TypeU}, {B, TypeU}, {C, TypeU}, {a, A}, {b, B}, {c, C}, {H1, Eq(a, b)}, {H2, Eq(b, c)}}, Eq(a, c)));
+            // HTrans : Pi (A B C: Type u) (a : A) (b : B) (c : C) (H1 : a = b) (H2 : b = c), a = c
+            env->add_axiom(htrans_fn_name, Pi({{A, TypeU}, {B, TypeU}, {C, TypeU}, {a, A}, {b, B}, {c, C}, {H1, Eq(a, b)}, {H2, Eq(b, c)}}, Eq(a, c)));
+        });
 }
 }

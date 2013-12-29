@@ -78,19 +78,9 @@ struct lean_extension : public environment_extension {
     coercion_map          m_coercion_map; // mapping from (given_type, expected_type) -> coercion
     coercion_set          m_coercion_set; // Set of coercions
     expr_to_coercions     m_type_coercions; // mapping type -> list (to-type, function)
-    unsigned              m_initial_size; // size of the environment after init_frontend was invoked
     name_set              m_explicit_names; // set of explicit version of constants with implicit parameters
 
     lean_extension() {
-        m_initial_size = 0;
-    }
-
-    void set_initial_size(unsigned sz) {
-        m_initial_size = sz;
-    }
-
-    unsigned get_initial_size() const {
-        return m_initial_size;
     }
 
     lean_extension const * get_parent() const {
@@ -373,11 +363,14 @@ struct lean_extension : public environment_extension {
         m_implicit_table[n] = mk_pair(v, explicit_version);
         expr body = mk_explicit_definition_body(type, n, 0, num_args);
         m_explicit_names.insert(explicit_version);
-        if (obj.is_axiom() || obj.is_theorem()) {
-            env->add_theorem(explicit_version, type, body);
-        } else {
-            env->add_definition(explicit_version, type, body);
-        }
+        env->add_neutral_object(new mark_implicit_command(n, sz, implicit));
+        env->auxiliary_section([&]() {
+                if (obj.is_axiom() || obj.is_theorem()) {
+                    env->add_theorem(explicit_version, type, body);
+                } else {
+                    env->add_definition(explicit_version, type, body);
+                }
+            });
     }
 
     bool has_implicit_arguments(name const & n) const {
@@ -530,11 +523,6 @@ void init_frontend(environment const & env, io_state & ios) {
     ios.set_formatter(mk_pp_formatter(env));
     import_all(env);
     init_builtin_notation(env, ios);
-    to_ext(env).set_initial_size(env->get_num_objects(false));
-}
-
-unsigned get_initial_size(ro_environment const & env) {
-    return to_ext(env).get_initial_size();
 }
 
 void add_infix(environment const & env, io_state const & ios, name const & opn, unsigned p, expr const & d)  {

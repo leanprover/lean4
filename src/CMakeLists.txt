@@ -189,6 +189,8 @@ FOREACH(FILE ${LEANLIB})
 ENDFOREACH(FILE)
 
 include_directories(${LEAN_SOURCE_DIR})
+configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
+include_directories("${LEAN_BINARY_DIR}")
 
 add_subdirectory(util)
 set(LEAN_LIBS ${LEAN_LIBS} util)

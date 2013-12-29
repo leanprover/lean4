@@ -1,5 +1,7 @@
 Import macros
+
 Definition TypeU := (Type U)
+Definition TypeM := (Type M)
 
 Definition SubstP {A : TypeU} {a b : A} (P : A → Bool) (H1 : P a) (H2 : a == b) : P b
 := Subst H1 H2.

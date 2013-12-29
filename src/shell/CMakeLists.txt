@@ -1,10 +1,24 @@
+# In our build, githash.h should not depend on .git/index.
+# The problem is that we store automatically generated files in the repository because we want to support cross-compilation.
+# Soonho and Leo also use custom shell prompts that invoke git to produce visual cues when files were modified.
+# So, the following vicious cycle may happen if we use .git/index.
+#   1- Build lean, then automatically generated files are created.
+#   2- If we do anything in the shell (even pressing RETURN), the custom shell prompt invokes git, that checks for changes.
+#   3- Even if the automatically generated files are not modified, the .git/index date changes.
+#   4- If we try to build again, the builds detects that .git/index date changed, and generates githash.h again
+#   5- Then, lean executable is built again
+#   6- Then, automatically generated files are created again using the lean executable.
+#   7- Cycle continues at step 2.
+# To avoid this cycle, we are using .git/COMMIT_EDITMSG and .git/FETCH_HEAD as the actual dependencies for githash.h
+# It is not clear whether this really fixes the problem or not.
+set(GITHASH_DEPS ${LEAN_SOURCE_DIR}/../.git/COMMIT_EDITMSG ${LEAN_SOURCE_DIR}/../.git/FETCH_HEAD)
 add_custom_command(
   OUTPUT ${LEAN_BINARY_DIR}/githash.h
   COMMAND ${LEAN_SOURCE_DIR}/cmake/mk_githash_dot_h.sh ${LEAN_BINARY_DIR}
-  DEPENDS ${LEAN_SOURCE_DIR}/../.git/HEAD ${LEAN_SOURCE_DIR}/../.git/index
+  DEPENDS ${GITHASH_DEPS}
 )
 add_custom_target(githash
-  DEPENDS ${LEAN_BINARY_DIR}/githash.h ${LEAN_SOURCE_DIR}/../.git/HEAD ${LEAN_SOURCE_DIR}/../.git/index
+  DEPENDS ${LEAN_BINARY_DIR}/githash.h ${GITHASH_DEPS}
 )
 
 add_executable(lean lean.cpp)

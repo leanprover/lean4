@@ -161,16 +161,6 @@ MK_BUILTIN(if_fn, if_fn_value);
 expr read_if(deserializer & ) { return mk_if_fn(); }
 static register_deserializer_fn if_ds("if", read_if);
 MK_IS_BUILTIN(is_if_fn, mk_if_fn());
-bool is_if(expr const & n, expr & c, expr & t, expr & e) {
-    if (is_if(n)) {
-        c = arg(n, 2);
-        t = arg(n, 3);
-        e = arg(n, 4);
-        return true;
-    } else {
-        return false;
-    }
-}
 // =======================================
 
 MK_CONSTANT(implies_fn, name("implies"));
@@ -180,18 +170,7 @@ MK_CONSTANT(or_fn,      name("or"));
 MK_CONSTANT(not_fn,     name("not"));
 MK_CONSTANT(forall_fn,  name("forall"));
 MK_CONSTANT(exists_fn,  name("exists"));
-
 MK_CONSTANT(homo_eq_fn, name("eq"));
-bool is_homo_eq(expr const & e, expr & lhs, expr & rhs) {
-    if (is_homo_eq(e)) {
-        lhs = arg(e, 2);
-        rhs = arg(e, 3);
-        return true;
-    } else {
-        return false;
-    }
-}
-
 // Axioms
 MK_CONSTANT(mp_fn,          name("MP"));
 MK_CONSTANT(discharge_fn,   name("Discharge"));

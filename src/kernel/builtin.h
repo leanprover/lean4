@@ -53,7 +53,6 @@ bool is_false(expr const & e);
 expr mk_if_fn();
 bool is_if_fn(expr const & e);
 inline bool is_if(expr const & e) { return is_app(e) && is_if_fn(arg(e, 0)); }
-bool is_if(expr const & n, expr & c, expr & t, expr & e);
 /** \brief Return the term (if A c t e) */
 inline expr mk_if(expr const & A, expr const & c, expr const & t, expr const & e) { return mk_app(mk_if_fn(), A, c, t, e); }
 inline expr If(expr const & A, expr const & c, expr const & t, expr const & e) { return mk_if(A, c, t, e); }
@@ -75,7 +74,6 @@ inline expr Implies(std::initializer_list<expr> const & l) { return mk_implies(l
 expr mk_iff_fn();
 bool is_iff_fn(expr const & e);
 inline bool is_iff(expr const & e) { return is_app(e) && is_iff_fn(arg(e, 0)); }
-bool is_iff(expr const & e, expr & a1, expr & a2);
 /** \brief Return (e1 iff e2) */
 inline expr mk_iff(expr const & e1, expr const & e2) { return mk_app(mk_iff_fn(), e1, e2); }
 inline expr mk_iff(unsigned num_args, expr const * args) { return mk_bin_rop(mk_iff_fn(), True, num_args, args); }
@@ -130,7 +128,6 @@ inline expr Exists(expr const & A, expr const & P) { return mk_exists(A, P); }
 expr mk_homo_eq_fn();
 bool is_homo_eq_fn(expr const & e);
 inline bool is_homo_eq(expr const & e) { return is_app(e) && is_homo_eq_fn(arg(e, 0)); }
-bool is_homo_eq(expr const & e, expr & a1, expr & a2);
 /** \brief Return the term (homo_eq A l r) */
 inline expr mk_homo_eq(expr const & A, expr const & l, expr const & r) { return mk_app(mk_homo_eq_fn(), A, l, r); }
 inline expr hEq(expr const & A, expr const & l, expr const & r) { return mk_homo_eq(A, l, r); }

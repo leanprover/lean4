@@ -2545,6 +2545,13 @@ class parser::imp {
         parse_macro(m.m_arg_kinds, m.m_fn, m.m_precedence, args, p);
     }
 
+    void parse_universe() {
+        next();
+        name id   = check_identifier_next("invalid universe declaration, identifier expected");
+        level lvl = parse_level();
+        m_env->add_uvar(id, lvl);
+    }
+
     /** \brief Parse a Lean command. */
     bool parse_command() {
         m_elaborator.clear();
@@ -2597,6 +2604,8 @@ class parser::imp {
             parse_pop();
         } else if (cmd_id == g_end_scope_kwd) {
             parse_end_scope();
+        } else if (cmd_id == g_universe_kwd) {
+            parse_universe();
         } else if (m_cmd_macros && m_cmd_macros->find(cmd_id) != m_cmd_macros->end()) {
             parse_cmd_macro(cmd_id, m_last_cmd_pos);
         } else {

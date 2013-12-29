@@ -55,22 +55,10 @@ expr const TypeU = Type(u_lvl);
 
 // =======================================
 // Boolean Type
-static char const * g_Bool_str = "Bool";
-static name g_Bool_name(g_Bool_str);
-static format g_Bool_fmt(g_Bool_str);
-
-class bool_type_value : public value {
-public:
-    virtual ~bool_type_value() {}
-    virtual expr get_type() const { return Type(); }
-    virtual name get_name() const { return g_Bool_name; }
-    virtual void write(serializer & s) const { s << g_Bool_str; }
-};
-expr const Bool = mk_value(*(new bool_type_value()));
-expr read_bool_type(deserializer & ) { return Bool; }
-static register_deserializer_fn bool_ds(g_Bool_str, read_bool_type);
-expr mk_bool_type() { return Bool; }
-MK_IS_BUILTIN(is_bool, Bool)
+MK_CONSTANT(Bool, "Bool");
+expr const Bool = mk_Bool();
+expr mk_bool_type() { return mk_Bool(); }
+bool is_bool(expr const & t) { return is_Bool(t); }
 // =======================================
 
 // =======================================
@@ -188,9 +176,9 @@ void import_kernel(environment const & env) {
     env->import_builtin
         ("kernel",
          [&]() {
+            env->add_var(Bool_name, Type());
             env->add_uvar(uvar_name(m_lvl), level() + LEAN_DEFAULT_LEVEL_SEPARATION);
             env->add_uvar(uvar_name(u_lvl), m_lvl + LEAN_DEFAULT_LEVEL_SEPARATION);
-            env->add_builtin(mk_bool_type());
             env->add_builtin(mk_bool_value(true));
             env->add_builtin(mk_bool_value(false));
             env->add_builtin(mk_if_fn());

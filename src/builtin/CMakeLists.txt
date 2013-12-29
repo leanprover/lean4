@@ -21,6 +21,8 @@ FOREACH(FILE ${LEANLIB})
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} DESTINATION library)
 ENDFOREACH(FILE)
 
+# The following command invokes the lean binary.
+# So, it CANNOT be executed if we are cross-compiling.
 function(add_theory_core FILE ARG EXTRA_DEPS)
   get_filename_component(BASENAME ${FILE} NAME_WE)
   set(FNAME "${BASENAME}.olean")
@@ -34,12 +36,34 @@ function(add_theory_core FILE ARG EXTRA_DEPS)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} DESTINATION library)
 endfunction()
 
+# When cross compiling, we cannot execute lean during the build.
+# So, we just copy the precompiled .olean files.
+function(copy_olean FILE)
+  get_filename_component(BASENAME ${FILE} NAME_WE)
+  set(FNAME "${BASENAME}.olean")
+  add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${FNAME}
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${FNAME} ${CMAKE_CURRENT_BINARY_DIR}/${FNAME}
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${FNAME} ${SHELL_DIR}/${FNAME}
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${FNAME})
+  add_custom_target(${FNAME}_builtin DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${FNAME})
+  add_dependencies(builtin ${FNAME}_builtin)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} DESTINATION library)
+endfunction()
+
 function(add_kernel_theory FILE)
-  add_theory_core(${FILE} "-k" "${CMAKE_CURRENT_BINARY_DIR}/macros.lua")
+  if(CMAKE_CROSSCOMPILING)
+    copy_olean(${FILE})
+  else()
+    add_theory_core(${FILE} "-k" "${CMAKE_CURRENT_BINARY_DIR}/macros.lua")
+  endif()
 endfunction()
 
 function(add_theory FILE)
-  add_theory_core(${FILE} "" "${CMAKE_CURRENT_BINARY_DIR}/basic.olean")
+  if(CMAKE_CROSSCOMPILING)
+    copy_olean(${FILE})
+  else()
+    add_theory_core(${FILE} "" "${CMAKE_CURRENT_BINARY_DIR}/basic.olean")
+  endif()
 endfunction()
 
 add_kernel_theory("basic.lean")

@@ -174,22 +174,10 @@ bool is_if(expr const & n, expr & c, expr & t, expr & e) {
 // =======================================
 
 MK_CONSTANT(implies_fn, name("implies"));
-MK_IS_BINARY_APP(is_implies)
 MK_CONSTANT(iff_fn,     name("iff"));
-MK_IS_BINARY_APP(is_iff)
 MK_CONSTANT(and_fn,     name("and"));
-MK_IS_BINARY_APP(is_and)
 MK_CONSTANT(or_fn,      name("or"));
-MK_IS_BINARY_APP(is_or)
 MK_CONSTANT(not_fn,     name("not"));
-bool is_not(expr const & e, expr & a) {
-    if (is_not(e)) {
-        a = arg(e, 1);
-        return true;
-    } else {
-        return false;
-    }
-}
 MK_CONSTANT(forall_fn,  name("forall"));
 MK_CONSTANT(exists_fn,  name("exists"));
 

@@ -25,8 +25,9 @@ tactic conj_tactic(bool all) {
                 check_interrupted();
                 goal const & g = p.second;
                 expr const & c = g.get_conclusion();
-                expr c1, c2;
-                if ((all || !found) && is_and(c, c1, c2)) {
+                if ((all || !found) && is_and(c)) {
+                    expr c1 = arg(c, 1);
+                    expr c2 = arg(c, 2);
                     found = true;
                     name const & n = p.first;
                     proof_info.emplace_front(n, c);
@@ -64,8 +65,9 @@ tactic imp_tactic(name const & H_name, bool all) {
             list<std::tuple<name, name, expr>> proof_info;
             goals new_goals = map_goals(s, [&](name const & g_name, goal const & g) -> optional<goal> {
                     expr const & c  = g.get_conclusion();
-                    expr new_h, new_c;
-                    if ((all || !found) && is_implies(c, new_h, new_c)) {
+                    if ((all || !found) && is_implies(c)) {
+                        expr new_h = arg(c, 1);
+                        expr new_c = arg(c, 2);
                         found = true;
                         name new_h_name = g.mk_unique_hypothesis_name(H_name);
                         proof_info.emplace_front(g_name, new_h_name, c);
@@ -107,8 +109,9 @@ tactic conj_hyp_tactic(bool all) {
                         for (auto const & p : g.get_hypotheses()) {
                             name const & H_name = p.first;
                             expr const & H_prop = p.second;
-                            expr H1, H2;
-                            if ((all || !found) && is_and(H_prop, H1, H2)) {
+                            if ((all || !found) && is_and(H_prop)) {
+                                expr H1 = arg(H_prop, 1);
+                                expr H2 = arg(H_prop, 2);
                                 found       = true;
                                 proof_info_data = add_hypothesis(p, proof_info_data);
                                 new_hyp_buf.emplace_back(name(H_name, 1), H1);
@@ -257,8 +260,9 @@ optional<proof_state_pair> disj_tactic(proof_state const & s, name gname) {
         if (!conclusion && ((gname.is_anonymous() && is_or(c)) || p.first == gname)) {
             gname = p.first;
             conclusion = c;
-            expr c1, c2;
-            if (is_or(c, c1, c2)) {
+            if (is_or(c)) {
+                expr c1 = arg(c, 1);
+                expr c2 = arg(c, 2);
                 new_goals_buf1.emplace_back(gname, update(g, c1));
                 new_goals_buf2.emplace_back(gname, update(g, c2));
             } else {
@@ -328,8 +332,8 @@ tactic absurd_tactic() {
                     expr const & c  = g.get_conclusion();
                     for (auto const & p1 : g.get_hypotheses()) {
                         check_interrupted();
-                        expr a;
-                        if (is_not(p1.second, a)) {
+                        if (is_not(p1.second)) {
+                            expr a = arg(p1.second, 1);
                             for (auto const & p2 : g.get_hypotheses()) {
                                 if (p2.second == a) {
                                     expr pr = AbsurdElim(a, c, mk_constant(p2.first), mk_constant(p1.first));

@@ -5,12 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/environment.h"
-#include "kernel/abstract.h"
-#include "kernel/type_checker.h"
 #include "library/io_state.h"
 #include "library/basic_thms.h"
-
-#include "kernel/kernel_exception.h"
 
 namespace lean {
 

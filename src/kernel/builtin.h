@@ -65,7 +65,6 @@ inline expr bIf(expr const & c, expr const & t, expr const & e) { return mk_bool
 expr mk_implies_fn();
 bool is_implies_fn(expr const & e);
 inline bool is_implies(expr const & e) { return is_app(e) && is_implies_fn(arg(e, 0)); }
-bool is_implies(expr const & e, expr & a1, expr & a2);
 /** \brief Return the term (e1 => e2) */
 inline expr mk_implies(expr const & e1, expr const & e2) { return mk_app(mk_implies_fn(), e1, e2); }
 inline expr mk_implies(unsigned num_args, expr const * args) { lean_assert(num_args >= 2); return mk_bin_rop(mk_implies_fn(), False, num_args, args); }
@@ -87,7 +86,6 @@ inline expr Iff(std::initializer_list<expr> const & l) { return mk_iff(l.size(),
 expr mk_and_fn();
 bool is_and_fn(expr const & e);
 inline bool is_and(expr const & e) { return is_app(e) && is_and_fn(arg(e, 0)); }
-bool is_and(expr const & e, expr & a1, expr & a2);
 /** \brief Return (e1 and e2) */
 inline expr mk_and(expr const & e1, expr const & e2) { return mk_app(mk_and_fn(), e1, e2); }
 inline expr mk_and(unsigned num_args, expr const * args) { return mk_bin_rop(mk_and_fn(), True, num_args, args); }
@@ -98,7 +96,6 @@ inline expr And(std::initializer_list<expr> const & l) { return mk_and(l.size(),
 expr mk_or_fn();
 bool is_or_fn(expr const & e);
 inline bool is_or(expr const & e) { return is_app(e) && is_or_fn(arg(e, 0)); }
-bool is_or(expr const & e, expr & a1, expr & a2);
 /** \brief Return (e1 Or e2) */
 inline expr mk_or(expr const & e1, expr const & e2) { return mk_app(mk_or_fn(), e1, e2); }
 inline expr mk_or(unsigned num_args, expr const * args) { return mk_bin_rop(mk_or_fn(), False, num_args, args); }
@@ -109,7 +106,6 @@ inline expr Or(std::initializer_list<expr> const & l) { return mk_or(l.size(), l
 expr mk_not_fn();
 bool is_not_fn(expr const & e);
 inline bool is_not(expr const & e) { return is_app(e) && is_not_fn(arg(e, 0)); }
-bool is_not(expr const & e, expr & a1);
 /** \brief Return (Not e) */
 inline expr mk_not(expr const & e) { return mk_app(mk_not_fn(), e); }
 inline expr Not(expr const & e) { return mk_not(e); }
@@ -223,16 +219,5 @@ bool is_ ## Name(expr const & e) {                                      \
 bool Name(expr const & e) {                                             \
     expr const & v = Builtin;                                           \
     return e == v || (is_constant(e) && const_name(e) == to_value(v).get_name()); \
-}
-
-#define MK_IS_BINARY_APP(Name)                          \
-bool Name(expr const & e, expr & a1, expr & a2) {       \
-    if (Name(e)) {                                      \
-        a1 = arg(e, 1);                                 \
-        a2 = arg(e, 2);                                 \
-        return true;                                    \
-    } else {                                            \
-        return false;                                   \
-    }                                                   \
 }
 }

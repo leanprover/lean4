@@ -54,6 +54,22 @@ static void read_mark_implicit(environment const & env, io_state const &, deseri
 }
 static object_cell::register_deserializer_fn mark_implicit_ds("MarkImplicit", read_mark_implicit);
 
+class alias_command : public neutral_object_cell {
+    name m_name;
+    expr m_expr;
+public:
+    alias_command(name const & n, expr const & e):m_name(n), m_expr(e) {}
+    virtual ~alias_command() {}
+    virtual char const * keyword() const { return "Alias"; }
+    virtual void write(serializer & s) const { s << "Alias" << m_name << m_expr; }
+};
+static void read_alias(environment const & env, io_state const &, deserializer & d) {
+    name n = read_name(d);
+    expr e = read_expr(d);
+    add_alias(env, n, e);
+}
+static object_cell::register_deserializer_fn add_alias_ds("Alias", read_alias);
+
 static std::vector<bool> g_empty_vector;
 /**
    \brief Environment extension object for the Lean default frontend.
@@ -68,6 +84,7 @@ struct lean_extension : public environment_extension {
     typedef expr_pair_struct_map<expr>           coercion_map;
     typedef expr_struct_map<list<expr_pair>>     expr_to_coercions;
     typedef expr_struct_set coercion_set;
+    typedef expr_struct_map<list<name>>          inv_aliases;
 
     operator_table        m_nud; // nud table for Pratt's parser
     operator_table        m_led; // led table for Pratt's parser
@@ -80,6 +97,8 @@ struct lean_extension : public environment_extension {
     coercion_set          m_coercion_set; // Set of coercions
     expr_to_coercions     m_type_coercions; // mapping type -> list (to-type, function)
     name_set              m_explicit_names; // set of explicit version of constants with implicit parameters
+    name_map<expr>        m_aliases;
+    inv_aliases           m_inv_aliases;  // inverse map for m_aliases
 
     lean_extension() {
     }
@@ -498,6 +517,40 @@ struct lean_extension : public environment_extension {
         lean_extension const * parent = get_parent();
         return parent && parent->is_coercion(f);
     }
+
+    optional<expr> get_alias(name const & n) const {
+        auto it = m_aliases.find(n);
+        if (it != m_aliases.end())
+            return some_expr(it->second);
+        lean_extension const * parent = get_parent();
+        if (parent)
+            return parent->get_alias(n);
+        else
+            return none_expr();
+    }
+
+    optional<list<name>> get_aliased(expr const & e) const {
+        auto it = m_inv_aliases.find(e);
+        if (it != m_inv_aliases.end())
+            return optional<list<name>>(it->second);
+        lean_extension const * parent = get_parent();
+        if (parent)
+            return parent->get_aliased(e);
+        else
+            return optional<list<name>>();
+    }
+
+    void add_alias(name const & n, expr const & e, environment const & env) {
+        if (get_alias(n))
+            throw exception(sstream() << "alias '" << n << "' was already defined");
+        m_aliases[n]     = e;
+        auto l = get_aliased(e);
+        if (l)
+            m_inv_aliases[e] = list<name>(n, *l);
+        else
+            m_inv_aliases[e] = list<name>(n);
+        env->add_neutral_object(new alias_command(n, e));
+    }
 };
 
 struct lean_extension_initializer {
@@ -636,5 +689,14 @@ list<expr_pair> get_coercions(ro_environment const & env, expr const & from_type
 }
 bool is_coercion(ro_environment const & env, expr const & f) {
     return to_ext(env).is_coercion(f);
+}
+optional<expr> get_alias(ro_environment const & env, name const & n) {
+    return to_ext(env).get_alias(n);
+}
+optional<list<name>> get_aliased(ro_environment const & env, expr const & e) {
+    return to_ext(env).get_aliased(e);
+}
+void add_alias(environment const & env, name const & n, expr const & e) {
+    to_ext(env).add_alias(n, e, env);
 }
 }

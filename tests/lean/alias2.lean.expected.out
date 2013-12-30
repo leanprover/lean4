@@ -1,0 +1,13 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: Natural
+  Assumed: x
+Variable x : ℕℕ
+  Set: pp::unicode
+Variable x : Natural
+  Set: pp::unicode
+Variable x : ℕℕ
+Variable x : NN
+Variable x : ℕℕℕ
+  Set: pp::unicode
+Variable x : NN

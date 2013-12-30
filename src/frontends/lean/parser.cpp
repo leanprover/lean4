@@ -79,6 +79,7 @@ bool     get_parser_show_errors(options const & opts)  { return opts.get_bool(g_
 
 // ==========================================
 // Builtin commands
+static name g_alias_kwd("Alias");
 static name g_definition_kwd("Definition");
 static name g_variable_kwd("Variable");
 static name g_variables_kwd("Variables");
@@ -115,7 +116,7 @@ static list<name> g_tactic_cmds = { g_apply, g_done, g_back, g_abort, g_assumpti
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_variables_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
                                         g_show_kwd, g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_notation_kwd, g_echo_kwd,
                                         g_set_option_kwd, g_set_opaque_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd, g_coercion_kwd,
-                                        g_exit_kwd, g_push_kwd, g_pop_kwd, g_scope_kwd, g_end_scope_kwd};
+                                        g_exit_kwd, g_push_kwd, g_pop_kwd, g_scope_kwd, g_end_scope_kwd, g_alias_kwd};
 // ==========================================
 
 // ==========================================
@@ -1162,6 +1163,8 @@ class parser::imp {
             return save(mk_var(m_num_local_decls - it->second - 1), p);
         } else if (m_expr_macros && m_expr_macros->find(id) != m_expr_macros->end()) {
             return parse_expr_macro(id, p);
+        } else if (auto alias = get_alias(m_env, id)) {
+            return save(*alias, p);
         } else {
             operator_info op = find_nud(m_env, id);
             if (op) {
@@ -2468,6 +2471,7 @@ class parser::imp {
             }
         } else {
             regular(m_io_state) << "Available commands:" << endl
+                                << "  Alias [id] : [expr]    define an alias for the given expression" << endl
                                 << "  Axiom [id] : [type]    assert/postulate a new axiom" << endl
                                 << "  Check [expr]           type check the given expression" << endl
                                 << "  Definition [id] : [type] := [expr]   define a new element" << endl
@@ -2552,6 +2556,14 @@ class parser::imp {
         m_env->add_uvar(id, lvl);
     }
 
+    void parse_alias() {
+        next();
+        name id   = check_identifier_next("invalid alias declaration, identifier expected");
+        check_colon_next("invalid alias declaration, ':' expected");
+        expr e    = parse_expr();
+        add_alias(m_env, id, e);
+    }
+
     /** \brief Parse a Lean command. */
     bool parse_command() {
         m_elaborator.clear();
@@ -2606,6 +2618,8 @@ class parser::imp {
             parse_end_scope();
         } else if (cmd_id == g_universe_kwd) {
             parse_universe();
+        } else if (cmd_id == g_alias_kwd) {
+            parse_alias();
         } else if (m_cmd_macros && m_cmd_macros->find(cmd_id) != m_cmd_macros->end()) {
             parse_cmd_macro(cmd_id, m_last_cmd_pos);
         } else {

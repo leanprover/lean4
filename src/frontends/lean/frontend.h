@@ -159,4 +159,13 @@ optional<expr> get_coercion(ro_environment const & env, expr const & from_type, 
 */
 list<expr_pair> get_coercions(ro_environment const & env, expr const & from_type);
 /*@}*/
+
+/**
+   @name Aliases
+*/
+/*@{*/
+optional<expr> get_alias(ro_environment const & env, name const & n);
+optional<list<name>> get_aliased(ro_environment const & env, expr const & e);
+void add_alias(environment const & env, name const & n, expr const & e);
+/*@}*/
 }

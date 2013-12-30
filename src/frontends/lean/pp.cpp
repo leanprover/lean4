@@ -83,14 +83,14 @@ static format g_geq_fmt       = format("\u2265");
 static format g_lift_fmt      = highlight_keyword(format("lift"));
 static format g_inst_fmt      = highlight_keyword(format("inst"));
 
-static name g_pp_max_depth       {"lean", "pp", "max_depth"};
-static name g_pp_max_steps       {"lean", "pp", "max_steps"};
-static name g_pp_implicit        {"lean", "pp", "implicit"};
-static name g_pp_notation        {"lean", "pp", "notation"};
-static name g_pp_extra_lets      {"lean", "pp", "extra_lets"};
-static name g_pp_alias_min_weight{"lean", "pp", "alias_min_weight"};
-static name g_pp_coercion        {"lean", "pp", "coercion"};
-static name g_pp_def_value       {"lean", "pp", "definition_value"};
+static name g_pp_max_depth        {"lean", "pp", "max_depth"};
+static name g_pp_max_steps        {"lean", "pp", "max_steps"};
+static name g_pp_implicit         {"lean", "pp", "implicit"};
+static name g_pp_notation         {"lean", "pp", "notation"};
+static name g_pp_extra_lets       {"lean", "pp", "extra_lets"};
+static name g_pp_alias_min_weight {"lean", "pp", "alias_min_weight"};
+static name g_pp_coercion         {"lean", "pp", "coercion"};
+static name g_pp_def_value        {"lean", "pp", "definition_value"};
 
 RegisterUnsignedOption(g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH, "(lean pretty printer) maximum expression depth, after that it will use ellipsis");
 RegisterUnsignedOption(g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS, "(lean pretty printer) maximum number of visited expressions, after that it will use ellipsis");
@@ -111,7 +111,7 @@ unsigned get_pp_alias_min_weight(options const & opts) { return opts.get_unsigne
 bool     get_pp_def_value(options const & opts)        { return opts.get_bool(g_pp_def_value, LEAN_DEFAULT_PP_DEFINITION_VALUE); }
 
 // =======================================
-// Prefixes for naming aliases (auxiliary local decls)
+// Prefixes for naming local aliases (auxiliary local decls)
 static name g_kappa("\u03BA");
 static name g_pho("\u03C1");
 static name g_nu("\u03BD");
@@ -168,38 +168,38 @@ bool supported_by_pp(object const & obj) {
 
 /** \brief Functional object for pretty printing expressions */
 class pp_fn {
-    typedef scoped_map<expr, name, expr_hash_alloc, expr_eqp> aliases;
-    typedef std::vector<std::pair<name, format>>              aliases_defs;
+    typedef scoped_map<expr, name, expr_hash_alloc, expr_eqp> local_aliases;
+    typedef std::vector<std::pair<name, format>>              local_aliases_defs;
     typedef scoped_set<name, name_hash, name_eq>              local_names;
     ro_environment   m_env;
     // State
-    aliases          m_aliases;
-    aliases_defs     m_aliases_defs;
-    local_names      m_local_names;
-    unsigned         m_num_steps;
-    name             m_aux;
+    local_aliases      m_local_aliases;
+    local_aliases_defs m_local_aliases_defs;
+    local_names        m_local_names;
+    unsigned           m_num_steps;
+    name               m_aux;
     // Configuration
-    unsigned         m_indent;
-    unsigned         m_max_depth;
-    unsigned         m_max_steps;
-    bool             m_implict;          //!< if true show implicit arguments
-    bool             m_unicode;          //!< if true use unicode chars
-    bool             m_coercion;         //!< if true show coercions
-    bool             m_notation;         //!< if true use notation
-    bool             m_extra_lets;       //!< introduce extra let-expression to cope with sharing.
-    unsigned         m_alias_min_weight; //!< minimal weight for creating an alias
+    unsigned           m_indent;
+    unsigned           m_max_depth;
+    unsigned           m_max_steps;
+    bool               m_implict;          //!< if true show implicit arguments
+    bool               m_unicode;          //!< if true use unicode chars
+    bool               m_coercion;         //!< if true show coercions
+    bool               m_notation;         //!< if true use notation
+    bool               m_extra_lets;       //!< introduce extra let-expression to cope with sharing.
+    unsigned           m_alias_min_weight; //!< minimal weight for creating an alias
 
     // Create a scope for local definitions
     struct mk_scope {
         pp_fn &  m_fn;
         unsigned m_old_size;
-        mk_scope(pp_fn & fn):m_fn(fn), m_old_size(fn.m_aliases_defs.size()) {
-            m_fn.m_aliases.push();
+        mk_scope(pp_fn & fn):m_fn(fn), m_old_size(fn.m_local_aliases_defs.size()) {
+            m_fn.m_local_aliases.push();
         }
         ~mk_scope() {
-            lean_assert(m_old_size <= m_fn.m_aliases_defs.size());
-            m_fn.m_aliases.pop();
-            m_fn.m_aliases_defs.resize(m_old_size);
+            lean_assert(m_old_size <= m_fn.m_local_aliases_defs.size());
+            m_fn.m_local_aliases.pop();
+            m_fn.m_local_aliases_defs.resize(m_old_size);
         }
     };
 
@@ -215,6 +215,10 @@ class pp_fn {
        \brief Return true iff \c e is an atomic operation.
     */
     bool is_atomic(expr const & e) {
+        if (auto aliased_list = get_aliased(m_env, e)) {
+            if (m_unicode || std::any_of(aliased_list->begin(), aliased_list->end(), [](name const & a) { return a.is_safe_ascii(); }))
+                return true;
+        }
         switch (e.kind()) {
         case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type:
             return true;
@@ -774,7 +778,7 @@ class pp_fn {
         } else {
             mk_scope s(*this);
             result r = pp(e, depth + 1, true);
-            if (m_aliases_defs.size() == s.m_old_size) {
+            if (m_local_aliases_defs.size() == s.m_old_size) {
                 if (prec <= get_operator_precedence(e))
                     return r;
                 else
@@ -783,9 +787,9 @@ class pp_fn {
                 format r_format   = g_let_fmt;
                 unsigned r_weight = 2;
                 unsigned begin    = s.m_old_size;
-                unsigned end      = m_aliases_defs.size();
+                unsigned end      = m_local_aliases_defs.size();
                 for (unsigned i = begin; i < end; i++) {
-                    auto b = m_aliases_defs[i];
+                    auto b = m_local_aliases_defs[i];
                     name const & n = b.first;
                     format beg = i == begin ? space() : line();
                     format sep = i < end - 1 ? comma() : format();
@@ -1105,9 +1109,19 @@ class pp_fn {
             return pp_ellipsis();
         } else {
             m_num_steps++;
+            if (auto aliased_list = get_aliased(m_env, e)) {
+                if (m_unicode) {
+                    return mk_result(format(head(*aliased_list)), 1);
+                } else {
+                    for (auto n : *aliased_list) {
+                        if (n.is_safe_ascii())
+                            return mk_result(format(n), 1);
+                    }
+                }
+            }
             if (m_extra_lets && is_shared(e)) {
-                auto it = m_aliases.find(e);
-                if (it != m_aliases.end())
+                auto it = m_local_aliases.find(e);
+                if (it != m_local_aliases.end())
                     return mk_result(format(it->second), 1);
             }
             result r;
@@ -1128,9 +1142,9 @@ class pp_fn {
                 }
             }
             if (!main && m_extra_lets && is_shared(e) && r.second > m_alias_min_weight) {
-                name new_aux = name(m_aux, m_aliases_defs.size()+1);
-                m_aliases.insert(e, new_aux);
-                m_aliases_defs.emplace_back(new_aux, r.first);
+                name new_aux = name(m_aux, m_local_aliases_defs.size()+1);
+                m_local_aliases.insert(e, new_aux);
+                m_local_aliases_defs.emplace_back(new_aux, r.first);
                 return mk_result(format(new_aux), 1);
             }
             return r;
@@ -1175,8 +1189,8 @@ class pp_fn {
     }
 
     void init(expr const & e) {
-        m_aliases.clear();
-        m_aliases_defs.clear();
+        m_local_aliases.clear();
+        m_local_aliases_defs.clear();
         m_num_steps = 0;
         m_aux = find_unused_prefix(e);
     }

@@ -51,6 +51,11 @@ Definition eq {A : TypeU} (a b : A) : Bool
 
 Infix 50 = : eq.
 
+Definition neq {A : TypeU} (a b : A) : Bool
+:= ¬ (a == b).
+
+Infix 50 ≠ : neq.
+
 Axiom MP {a b : Bool} (H1 : a ⇒ b) (H2 : a) : b.
 
 Axiom Discharge {a b : Bool} (H : a → b) : a ⇒ b.
@@ -329,3 +334,22 @@ Theorem NotExists (A : (Type U)) (P : A → Bool) : (¬ (∃ x : A, P x)) == (�
 := let L1 : (¬ (∃ x : A, P x)) == (¬ (¬ (∀ x : A, ¬ (P x)))) := Refl (¬ (∃ x : A, P x)),
        L2 : (¬ (¬ (∀ x : A, ¬ (P x)))) == (∀ x : A, ¬ (P x)) := DoubleNeg (∀ x : A, ¬ (P x))
    in Trans L1 L2.
+
+Theorem UnfoldExists1 {A : TypeU} {P : A → Bool} (a : A) (H : ∃ x : A, P x) : P a ∨ (∃ x : A, x ≠ a ∧ P x)
+:= ExistsElim H
+     (λ (w : A) (H1 : P w),
+        DisjCases (EM (w = a))
+          (λ Heq : w = a, Disj1 (Subst H1 Heq) (∃ x : A, x ≠ a ∧ P x))
+          (λ Hne : w ≠ a, Disj2 (P a) (ExistsIntro w (Conj Hne H1)))).
+
+Theorem UnfoldExists2 {A : TypeU} {P : A → Bool} (a : A) (H : P a ∨ (∃ x : A, x ≠ a ∧ P x)) : ∃ x : A, P x
+:= DisjCases (EM (P a))
+      (λ Hpos : P a,   ExistsIntro a Hpos)
+      (λ Hneg : ¬ P a,
+          ExistsElim (Resolve1 H Hneg)
+               (λ (w : A) (Hw : w ≠ a ∧ P w),
+                  ExistsIntro w (Conjunct2 Hw))).
+
+Theorem UnfoldExists {A : TypeU} (P : A → Bool) (a : A) : (∃ x : A, P x) = (P a ∨ (∃ x : A, x ≠ a ∧ P x))
+:= ImpAntisym (assume H : (∃ x : A, P x), UnfoldExists1 a H)
+              (assume H : (P a ∨ (∃ x : A, x ≠ a ∧ P x)), UnfoldExists2 a H).

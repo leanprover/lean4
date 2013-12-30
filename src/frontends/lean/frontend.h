@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include <vector>
 #include "kernel/environment.h"
-#include "library/io_state.h"
+#include "kernel/io_state.h"
 #include "library/expr_pair.h"
 #include "frontends/lean/operator_info.h"
 

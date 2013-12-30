@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/thread.h"
 #include "util/lazy_list.h"
-#include "library/io_state.h"
+#include "kernel/io_state.h"
 #include "library/tactic/proof_state.h"
 
 namespace lean {

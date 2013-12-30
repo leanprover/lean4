@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 #include "util/optional.h"
 #include "util/name_set.h"
-#include "library/io_state.h"
+#include "kernel/io_state.h"
 #include "library/tactic/goal.h"
 #include "library/tactic/proof_builder.h"
 #include "library/tactic/cex_builder.h"

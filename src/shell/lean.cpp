@@ -20,7 +20,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/formatter.h"
-#include "library/io_state.h"
+#include "kernel/io_state.h"
 #include "library/kernel_bindings.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/frontend.h"

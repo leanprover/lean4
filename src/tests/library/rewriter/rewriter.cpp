@@ -10,7 +10,7 @@ Author: Soonho Kong
 #include "kernel/context.h"
 #include "kernel/expr.h"
 #include "kernel/printer.h"
-#include "library/io_state.h"
+#include "kernel/io_state.h"
 #include "library/all/all.h"
 #include "library/arith/arith.h"
 #include "library/arith/nat.h"

@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include "util/lua.h"
 #include "kernel/environment.h"
-#include "library/io_state.h"
+#include "kernel/io_state.h"
 
 namespace lean {
 class script_state;

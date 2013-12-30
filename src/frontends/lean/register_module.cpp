@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "util/lua.h"
 #include "util/script_state.h"
 #include "util/sexpr/options.h"
-#include "library/io_state.h"
+#include "kernel/io_state.h"
 #include "library/kernel_bindings.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/frontend.h"

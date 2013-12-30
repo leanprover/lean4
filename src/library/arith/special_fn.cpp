@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/environment.h"
 #include "kernel/abstract.h"
-#include "library/io_state.h"
+#include "kernel/io_state.h"
 #include "library/arith/special_fn.h"
 #include "library/arith/real.h"
 

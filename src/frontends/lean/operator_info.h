@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "util/name.h"
 #include "util/list.h"
 #include "util/sexpr/format.h"
-#include "library/io_state.h"
+#include "kernel/io_state.h"
 #include "kernel/object.h"
 
 namespace lean {

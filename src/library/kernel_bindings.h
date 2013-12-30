@@ -21,6 +21,7 @@ UDATA_DEFS(object)
 UDATA_DEFS(environment)
 UDATA_DEFS(justification)
 UDATA_DEFS(metavar_env)
+UDATA_DEFS(io_state)
 int push_environment(lua_State * L, ro_environment const & env);
 int push_optional_expr(lua_State * L, optional<expr> const & e);
 int push_optional_justification(lua_State * L, optional<justification> const & j);
@@ -73,4 +74,22 @@ public:
     rw_shared_environment(lua_State * L, int idx);
     rw_shared_environment(lua_State * L);
 };
+/**
+   \brief Auxiliary class for temporarily setting the Lua registry of a Lua state
+   with a Lean io_state object.
+*/
+class set_io_state {
+    lua_State * m_state;
+    io_state *  m_prev;
+    options     m_prev_options;
+public:
+    set_io_state(lua_State * L, io_state & st);
+    ~set_io_state();
+};
+/**
+   \brief Return the Lean state object associated with the given Lua state.
+   Return nullptr is there is none.
+*/
+io_state * get_io_state(lua_State * L);
+void open_io_state(lua_State * L);
 }

@@ -19,8 +19,8 @@ Author: Leonardo de Moura
 #include "kernel/printer.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/builtin.h"
+#include "kernel/io_state.h"
 #include "library/placeholder.h"
-#include "library/io_state.h"
 #include "library/arith/arith.h"
 #include "frontends/lean/frontend.h"
 using namespace lean;

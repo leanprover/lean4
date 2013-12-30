@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/environment.h"
 #include "kernel/value.h"
-#include "library/io_state.h"
+#include "kernel/io_state.h"
 #include "library/kernel_bindings.h"
 #include "library/arith/int.h"
 #include "library/arith/nat.h"

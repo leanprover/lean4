@@ -9,5 +9,5 @@ Variable f : Int -> Int -> Int
  print(b)
  assert(not b:closed())
  local env = get_environment()
- assert(d == env:find_object("Int"):get_value())
+ assert(env:find_object("Int"):get_name() == name("Int"))
 **)

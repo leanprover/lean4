@@ -162,8 +162,12 @@ bool is_coercion_decl(object const & obj) {
     return dynamic_cast<coercion_declaration const *>(obj.cell());
 }
 
+bool is_alias_decl(object const & obj) {
+    return dynamic_cast<alias_declaration const *>(obj.cell());
+}
+
 bool supported_by_pp(object const & obj) {
-    return obj.kind() != object_kind::Neutral || is_notation_decl(obj) || is_coercion_decl(obj);
+    return obj.kind() != object_kind::Neutral || is_notation_decl(obj) || is_coercion_decl(obj) || is_alias_decl(obj);
 }
 
 /** \brief Functional object for pretty printing expressions */
@@ -1363,6 +1367,13 @@ class pp_formatter_cell : public formatter_cell {
         return group(format{highlight_command(format(n.keyword())), nest(indent, format({line(), pp(c, opts)}))});
     }
 
+    format pp_alias_decl(object const & obj, options const & opts) {
+        alias_declaration const & alias_decl = *static_cast<alias_declaration const *>(obj.cell());
+        name const & n = alias_decl.get_alias_name();
+        expr const & d = alias_decl.get_expr();
+        format d_fmt   = is_constant(d) ? format(const_name(d)) : pp(d, opts);
+        return format{highlight_command(format(alias_decl.keyword())), space(), ::lean::pp(n), space(), colon(), space(), d_fmt};
+    }
 public:
     pp_formatter_cell(ro_environment const & env):
         m_env(env) {
@@ -1405,6 +1416,8 @@ public:
                 return pp_notation_decl(obj, opts);
             } else if (is_coercion_decl(obj)) {
                 return pp_coercion_decl(obj, opts);
+            } else if (is_alias_decl(obj)) {
+                return pp_alias_decl(obj, opts);
             } else {
                 // If the object is not notation or coercion
                 // declaration, then the object was created in

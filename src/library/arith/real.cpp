@@ -7,22 +7,16 @@ Author: Leonardo de Moura
 #include <string>
 #include "kernel/abstract.h"
 #include "kernel/environment.h"
+#include "kernel/value.h"
 #include "library/kernel_bindings.h"
 #include "library/arith/real.h"
 #include "library/arith/int.h"
 #include "library/arith/nat.h"
-#include "library/arith/num_type.h"
 
 namespace lean {
-class real_type_value : public num_type_value {
-public:
-    real_type_value():num_type_value("Real", "\u211D") /* ℝ */ {}
-    virtual void write(serializer & s) const { s << "Real"; }
-};
-expr const Real = mk_value(*(new real_type_value()));
-expr mk_real_type() { return Real; }
-expr read_real(deserializer & ) { return Real; }
-static register_deserializer_fn if_ds("Real", read_real);
+MK_CONSTANT(Real, "Real");
+expr const Real = mk_Real();
+expr mk_real_type() { return mk_Real(); }
 
 /**
    \brief Semantic attachment for "Real" values.
@@ -159,7 +153,7 @@ void import_real(environment const & env) {
             expr x    = Const("x");
             expr y    = Const("y");
 
-            env->add_builtin(Real);
+            env->add_var(Real_name, Type());
             env->add_builtin_set(rVal(0));
             env->add_builtin(mk_real_add_fn());
             env->add_builtin(mk_real_mul_fn());

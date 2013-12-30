@@ -218,4 +218,13 @@ io_state_stream const & operator<<(io_state_stream const & out, operator_info co
     out.get_stream() << mk_pair(pp(o), out.get_options());
     return out;
 }
+
+char const * alias_declaration::keyword() const { return "Alias"; }
+void alias_declaration::write(serializer & s) const { s << "Alias" << m_name << m_expr; }
+static void read_alias(environment const & env, io_state const &, deserializer & d) {
+    name n = read_name(d);
+    expr e = read_expr(d);
+    add_alias(env, n, e);
+}
+static object_cell::register_deserializer_fn add_alias_ds("Alias", read_alias);
 }

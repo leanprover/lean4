@@ -8,6 +8,11 @@ Variable x : Natural
   Set: pp::unicode
 Variable x : ℕℕ
 Variable x : NN
+Alias NN : Natural
 Variable x : ℕℕℕ
+Alias NN : Natural
+Alias ℕℕℕ : Natural
   Set: pp::unicode
 Variable x : NN
+Alias NN : Natural
+Alias ℕℕℕ : Natural

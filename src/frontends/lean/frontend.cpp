@@ -54,22 +54,6 @@ static void read_mark_implicit(environment const & env, io_state const &, deseri
 }
 static object_cell::register_deserializer_fn mark_implicit_ds("MarkImplicit", read_mark_implicit);
 
-class alias_command : public neutral_object_cell {
-    name m_name;
-    expr m_expr;
-public:
-    alias_command(name const & n, expr const & e):m_name(n), m_expr(e) {}
-    virtual ~alias_command() {}
-    virtual char const * keyword() const { return "Alias"; }
-    virtual void write(serializer & s) const { s << "Alias" << m_name << m_expr; }
-};
-static void read_alias(environment const & env, io_state const &, deserializer & d) {
-    name n = read_name(d);
-    expr e = read_expr(d);
-    add_alias(env, n, e);
-}
-static object_cell::register_deserializer_fn add_alias_ds("Alias", read_alias);
-
 static std::vector<bool> g_empty_vector;
 /**
    \brief Environment extension object for the Lean default frontend.
@@ -549,7 +533,7 @@ struct lean_extension : public environment_extension {
             m_inv_aliases[e] = list<name>(n, *l);
         else
             m_inv_aliases[e] = list<name>(n);
-        env->add_neutral_object(new alias_command(n, e));
+        env->add_neutral_object(new alias_declaration(n, e));
     }
 };
 

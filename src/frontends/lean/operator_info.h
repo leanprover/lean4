@@ -128,4 +128,16 @@ public:
     expr const & get_expr() const { return m_expr; }
     virtual void write(serializer & s) const;
 };
+
+class alias_declaration : public neutral_object_cell {
+    name m_name;
+    expr m_expr;
+public:
+    alias_declaration(name const & n, expr const & e):m_name(n), m_expr(e) {}
+    virtual ~alias_declaration() {}
+    virtual char const * keyword() const;
+    name const & get_alias_name() const { return m_name; }
+    expr const & get_expr() const { return m_expr; }
+    virtual void write(serializer & s) const;
+};
 }

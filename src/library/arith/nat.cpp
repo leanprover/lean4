@@ -7,23 +7,14 @@ Author: Leonardo de Moura
 #include <string>
 #include "kernel/abstract.h"
 #include "kernel/environment.h"
+#include "kernel/value.h"
 #include "library/kernel_bindings.h"
 #include "library/arith/nat.h"
-#include "library/arith/num_type.h"
 
 namespace lean {
-/**
-   \brief Semantic attachment for Nat type
-*/
-class nat_type_value : public num_type_value {
-public:
-    nat_type_value():num_type_value("Nat", "\u2115") /* ℕ */ {}
-    virtual void write(serializer & s) const { s << "Nat"; }
-};
-expr const Nat = mk_value(*(new nat_type_value()));
-expr mk_nat_type() { return Nat; }
-expr read_nat(deserializer & ) { return Nat; }
-static register_deserializer_fn if_ds("Nat", read_nat);
+MK_CONSTANT(Nat, "Nat");
+expr const Nat = mk_Nat();
+expr mk_nat_type() { return mk_Nat(); }
 
 class nat_value_value : public value {
     mpz m_val;
@@ -129,8 +120,7 @@ void import_nat(environment const & env) {
             expr nn_b = Nat >> (Nat >> Bool);
             expr x    = Const("x");
             expr y    = Const("y");
-
-            env->add_builtin(Nat);
+            env->add_var(Nat_name, Type());
             env->add_builtin_set(nVal(0));
             env->add_builtin(mk_nat_add_fn());
             env->add_builtin(mk_nat_mul_fn());

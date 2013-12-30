@@ -1199,6 +1199,8 @@ class parser::imp {
             return save(mk_app(left, save(mk_var(m_num_local_decls - it->second - 1), p)), p2);
         } else if (m_expr_macros && m_expr_macros->find(id) != m_expr_macros->end()) {
             return save(mk_app(left, parse_expr_macro(id, p)), p2);
+        } else if (auto alias = get_alias(m_env, id)) {
+            return save(mk_app(left, save(*alias, p)), p2);
         } else {
             operator_info op = find_led(m_env, id);
             if (op) {

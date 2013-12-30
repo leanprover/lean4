@@ -1,4 +1,4 @@
   Set: pp::colors
   Set: pp::unicode
-Variable x : Int
+Variable x : ℤ
 done

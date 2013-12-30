@@ -7,24 +7,15 @@ Author: Leonardo de Moura
 #include <string>
 #include "kernel/abstract.h"
 #include "kernel/environment.h"
+#include "kernel/value.h"
 #include "library/kernel_bindings.h"
 #include "library/arith/int.h"
 #include "library/arith/nat.h"
-#include "library/arith/num_type.h"
 
 namespace lean {
-/**
-   \brief Semantic attachment for Int type.
-*/
-class int_type_value : public num_type_value {
-public:
-    int_type_value():num_type_value("Int", "\u2124") /* ℤ */ {}
-    virtual void write(serializer & s) const { s << "Int"; }
-};
-expr const Int = mk_value(*(new int_type_value()));
-expr mk_int_type() { return Int; }
-expr read_int(deserializer & ) { return Int; }
-static register_deserializer_fn if_ds("Int", read_int);
+MK_CONSTANT(Int, "Int");
+expr const Int = mk_Int();
+expr mk_int_type() { return mk_Int(); }
 
 class int_value_value : public value {
     mpz m_val;
@@ -174,7 +165,7 @@ void import_int(environment const & env) {
             expr x    = Const("x");
             expr y    = Const("y");
 
-            env->add_builtin(Int);
+            env->add_var(Int_name, Type());
             env->add_builtin_set(iVal(0));
             env->add_builtin(mk_int_add_fn());
             env->add_builtin(mk_int_mul_fn());

@@ -9,7 +9,7 @@ Variable f : Int -> Int -> Int
  print(b)
  assert(not b:closed())
  local env = get_environment()
- assert(d == env:find_object("Int"):get_value())
+ assert(env:find_object("Int"):get_name() == name("Int"))
  parse_lean_cmds([[
     Eval 10 + 20
     Check x + y
@@ -19,4 +19,3 @@ Variable f : Int -> Int -> Int
 **)
 
 Check g (f x 10)
-

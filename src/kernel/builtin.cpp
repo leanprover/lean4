@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/abstract.h"
 #include "kernel/io_state.h"
+#include "kernel/decl_macros.h"
 
 namespace lean {
 // =======================================

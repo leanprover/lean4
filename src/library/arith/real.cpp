@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/value.h"
 #include "kernel/io_state.h"
+#include "kernel/decl_macros.h"
 #include "library/kernel_bindings.h"
 #include "library/arith/real.h"
 #include "library/arith/int.h"

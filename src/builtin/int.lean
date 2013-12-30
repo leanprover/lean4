@@ -6,16 +6,16 @@ Alias ℤ : Int.
 
 Builtin Int::numeral.
 
-Builtin Int::add : Int -> Int -> Int.
+Builtin Int::add : Int → Int → Int.
 Infixl 65 + : Int::add.
 
-Builtin Int::mul : Int -> Int -> Int.
+Builtin Int::mul : Int → Int → Int.
 Infixl 70 * : Int::mul.
 
-Builtin Int::div : Int -> Int -> Int.
+Builtin Int::div : Int → Int → Int.
 Infixl 70 div : Int::div.
 
-Builtin Int::le : Int -> Int -> Bool.
+Builtin Int::le : Int → Int → Bool.
 Infix  50 <= : Int::le.
 Infix  50 ≤  : Int::le.
 
@@ -38,7 +38,7 @@ Notation 75 - _ : Int::neg.
 Definition Int::mod (a b : Int) : Int := a - b * (a div b).
 Infixl 70 mod : Int::mod.
 
-Builtin nat_to_int : Nat -> Int.
+Builtin nat_to_int : Nat → Int.
 Coercion nat_to_int.
 
 Definition Int::divides (a b : Int) : Bool := (b mod a) = 0.

@@ -5,13 +5,13 @@ Alias ℕ : Nat.
 
 Builtin Nat::numeral.
 
-Builtin Nat::add : Nat -> Nat -> Nat.
+Builtin Nat::add : Nat → Nat → Nat.
 Infixl 65 +  : Nat::add.
 
-Builtin Nat::mul : Nat -> Nat -> Nat.
+Builtin Nat::mul : Nat → Nat → Nat.
 Infixl 70 *  : Nat::mul.
 
-Builtin Nat::le  : Nat -> Nat -> Bool.
+Builtin Nat::le  : Nat → Nat → Bool.
 Infix  50 <= : Nat::le.
 Infix  50 ≤  : Nat::le.
 

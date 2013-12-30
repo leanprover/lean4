@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/environment.h"
 #include "kernel/abstract.h"
+#include "library/io_state.h"
 #include "library/arith/special_fn.h"
 #include "library/arith/real.h"
 
@@ -29,34 +30,7 @@ MK_CONSTANT(sech_fn, name("sech"));
 MK_CONSTANT(csch_fn, name("csch"));
 
 void import_special_fn(environment const & env) {
-    env->import_builtin(
-        "special_fn",
-        [&]() {
-            import_real(env);
-
-            expr r_r  = Real >> Real;
-            expr x    = Const("x");
-
-            env->add_var(exp_fn_name, r_r);
-            env->add_var(log_fn_name, r_r);
-
-            env->add_var(real_pi_name, Real);
-            env->add_definition(name("pi"), Real, mk_real_pi()); // alias for pi
-            env->add_var(sin_fn_name, r_r);
-            env->add_opaque_definition(cos_fn_name, r_r, Fun({x, Real}, Sin(rSub(x, rDiv(mk_real_pi(), rVal(2))))));
-            env->add_opaque_definition(tan_fn_name, r_r, Fun({x, Real}, rDiv(Sin(x), Cos(x))));
-            env->add_opaque_definition(cot_fn_name, r_r, Fun({x, Real}, rDiv(Cos(x), Sin(x))));
-            env->add_opaque_definition(sec_fn_name, r_r, Fun({x, Real}, rDiv(rVal(1), Cos(x))));
-            env->add_opaque_definition(csc_fn_name, r_r, Fun({x, Real}, rDiv(rVal(1), Sin(x))));
-
-            env->add_opaque_definition(sinh_fn_name, r_r, Fun({x, Real}, rDiv(rSub(rVal(1), Exp(rMul(rVal(-2), x))),
-                                                                              rMul(rVal(2), Exp(rNeg(x))))));
-            env->add_opaque_definition(cosh_fn_name, r_r, Fun({x, Real}, rDiv(rAdd(rVal(1), Exp(rMul(rVal(-2), x))),
-                                                                              rMul(rVal(2), Exp(rNeg(x))))));
-            env->add_opaque_definition(tanh_fn_name, r_r, Fun({x, Real}, rDiv(Sinh(x), Cosh(x))));
-            env->add_opaque_definition(coth_fn_name, r_r, Fun({x, Real}, rDiv(Cosh(x), Sinh(x))));
-            env->add_opaque_definition(sech_fn_name, r_r, Fun({x, Real}, rDiv(rVal(1), Cosh(x))));
-            env->add_opaque_definition(csch_fn_name, r_r, Fun({x, Real}, rDiv(rVal(1), Sinh(x))));
-        });
+    io_state ios;
+    env->import("specialfn", ios);
 }
 }

@@ -2453,11 +2453,8 @@ class parser::imp {
         } else {
             r = m_env->import(fname, m_io_state);
         }
-        if (m_verbose) {
-            if (r)
-                regular(m_io_state) << "  Imported '" << fname << "'" << endl;
-            else
-                regular(m_io_state) << "  Skipped '" << fname << "'" << endl;
+        if (m_verbose && r) {
+            regular(m_io_state) << "  Imported '" << fname << "'" << endl;
         }
     }
 

@@ -1,8 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
   Imported 'cast'
-  Skipped 'cast'
   Imported 'cast'
-  Skipped 'cast'
 @cast : Π (A B : (Type U)), A == B → A → B
 @cast : Π (A B : (Type U)), A == B → A → B

@@ -333,6 +333,16 @@ local_context read_local_context(deserializer & d) {
     return to_list(entries.begin(), entries.end());
 }
 
+// To save space, we pack the number of arguments in small applications in the kind byte.
+// The extra kinds start at g_first_app_size_kind. This value should be bigger than the
+// real kinds. Moreover g_first_app_size_kind + g_small_app_num_args should fit in a byte.
+constexpr char g_first_app_size_kind = 32;
+constexpr char g_small_app_num_args  = 32;
+constexpr bool is_small(expr_kind k) { return 0 <= static_cast<char>(k) && static_cast<char>(k) < g_first_app_size_kind; }
+static_assert(is_small(expr_kind::Var) && is_small(expr_kind::Constant) && is_small(expr_kind::Value) && is_small(expr_kind::App) &&
+              is_small(expr_kind::Lambda) && is_small(expr_kind::Pi) && is_small(expr_kind::Type) && is_small(expr_kind::Eq) &&
+              is_small(expr_kind::Let) && is_small(expr_kind::MetaVar), "expr_kind is too big");
+
 class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp> {
     typedef object_serializer<expr, expr_hash_alloc, expr_eqp> super;
 public:
@@ -350,6 +360,13 @@ public:
         super::write(a, [&]() {
                 serializer & s = get_owner();
                 auto k = a.kind();
+                if (k == expr_kind::App && num_args(a) < g_small_app_num_args) {
+                    // compressed application
+                    s << static_cast<char>(g_first_app_size_kind + num_args(a));
+                    for (unsigned i = 0; i < num_args(a); i++)
+                        write(arg(a, i));
+                    return;
+                }
                 s << static_cast<char>(k);
                 switch (k) {
                 case expr_kind::Var:       s << var_idx(a); break;
@@ -386,7 +403,16 @@ public:
     expr read() {
         return super::read([&]() {
                 deserializer & d = get_owner();
-                auto k = static_cast<expr_kind>(d.read_char());
+                char c = d.read_char();
+                if (c >= g_first_app_size_kind) {
+                    // compressed application
+                    unsigned num = c - g_first_app_size_kind;
+                    buffer<expr> args;
+                    for (unsigned i = 0; i < num; i++)
+                        args.push_back(read());
+                    return mk_app(args);
+                }
+                auto k = static_cast<expr_kind>(c);
                 switch (k) {
                 case expr_kind::Var:
                     return mk_var(d.read_unsigned());

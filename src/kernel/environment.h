@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <set>
 #include <string>
+#include <utility>
 #include "util/lua.h"
 #include "util/shared_mutex.h"
 #include "util/name_map.h"
@@ -411,4 +412,21 @@ bool is_end_import(object const & obj);
     Return none if \c obj is not an import object.
 */
 optional<std::string> get_imported_module(object const & obj);
+
+typedef std::function<expr()> mk_builtin_fn;
+/**
+   \brief Register a builtin or builtin-set that is available to be added to
+   a Lean environment.
+*/
+void register_available_builtin(name const & n, mk_builtin_fn mk, bool is_builtin_set);
+struct register_available_builtin_fn {
+    register_available_builtin_fn(name const & n, mk_builtin_fn mk, bool is_builtin_set = false) {
+        register_available_builtin(n, mk, is_builtin_set);
+    }
+};
+/**
+   \brief Return a builtin/builtin-set associated with the name \c n.
+   Return none if there is no builtin associated the given name.
+*/
+optional<std::pair<expr, bool>> get_builtin(name const & n);
 }

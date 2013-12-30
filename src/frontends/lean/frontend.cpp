@@ -559,9 +559,7 @@ static lean_extension & to_ext(environment const & env) {
 */
 void init_frontend(environment const & env, io_state & ios, bool kernel_only) {
     ios.set_formatter(mk_pp_formatter(env));
-    if (kernel_only)
-        import_kernel(env);
-    else
+    if (!kernel_only)
         import_all(env);
     init_builtin_notation(env, ios, kernel_only);
 }

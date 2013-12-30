@@ -106,6 +106,7 @@ static name g_push_kwd("Push");
 static name g_pop_kwd("Pop");
 static name g_scope_kwd("Scope");
 static name g_end_scope_kwd("EndScope");
+static name g_builtin_kwd("Builtin");
 static name g_apply("apply");
 static name g_done("done");
 static name g_back("back");
@@ -116,7 +117,7 @@ static list<name> g_tactic_cmds = { g_apply, g_done, g_back, g_abort, g_assumpti
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_variables_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
                                         g_show_kwd, g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_notation_kwd, g_echo_kwd,
                                         g_set_option_kwd, g_set_opaque_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd, g_coercion_kwd,
-                                        g_exit_kwd, g_push_kwd, g_pop_kwd, g_scope_kwd, g_end_scope_kwd, g_alias_kwd};
+                                        g_exit_kwd, g_push_kwd, g_pop_kwd, g_scope_kwd, g_end_scope_kwd, g_alias_kwd, g_builtin_kwd};
 // ==========================================
 
 // ==========================================
@@ -2554,6 +2555,7 @@ class parser::imp {
     void parse_universe() {
         next();
         name id   = check_identifier_next("invalid universe declaration, identifier expected");
+        check_colon_next("invalid universe declaration, ':' expected");
         level lvl = parse_level();
         m_env->add_uvar(id, lvl);
     }
@@ -2564,6 +2566,44 @@ class parser::imp {
         check_colon_next("invalid alias declaration, ':' expected");
         expr e    = parse_expr();
         add_alias(m_env, id, e);
+    }
+
+    void parse_builtin() {
+        next();
+        auto id_pos = pos();
+        name id = check_identifier_next("invalid builtin declaration, identifier expected");
+        auto d  = get_builtin(id);
+        if (!d)
+            throw parser_error(sstream() << "unknown builtin '" << id << "'", id_pos);
+        expr b = d->first;
+        if (d->second) {
+            m_env->add_builtin_set(b);
+            return;
+        }
+        bindings_buffer bindings;
+        expr type;
+        if (curr_is_colon()) {
+            next();
+            auto p = m_elaborator(parse_expr());
+            check_no_metavar(p, "invalid builtin declaration, type still contains metavariables after elaboration");
+            type = p.first;
+        } else {
+            mk_scope scope(*this);
+            parse_var_decl_bindings(bindings);
+            check_colon_next("invalid builtin declaration, ':' expected");
+            expr type_body = parse_expr();
+            auto p = m_elaborator(mk_abstraction(false, bindings, type_body));
+            check_no_metavar(p, "invalid declaration, type still contains metavariables after elaboration");
+            type = p.first;
+        }
+        if (to_value(b).get_type() != type) {
+            diagnostic(m_io_state) << "Error, builtin expected type: " << to_value(b).get_type() << ", given: " << type << "\n";
+            throw parser_error(sstream() << "given type does not match builtin type", id_pos);
+        }
+        m_env->add_builtin(d->first);
+        if (m_verbose)
+            regular(m_io_state) << "  Added: " << id << endl;
+        register_implicit_arguments(id, bindings);
     }
 
     /** \brief Parse a Lean command. */
@@ -2622,6 +2662,8 @@ class parser::imp {
             parse_universe();
         } else if (cmd_id == g_alias_kwd) {
             parse_alias();
+        } else if (cmd_id == g_builtin_kwd) {
+            parse_builtin();
         } else if (m_cmd_macros && m_cmd_macros->find(cmd_id) != m_cmd_macros->end()) {
             parse_cmd_macro(cmd_id, m_last_cmd_pos);
         } else {

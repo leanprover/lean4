@@ -17,7 +17,7 @@ void init_builtin_notation(environment const & env, io_state & ios, bool kernel_
     env->import_builtin(
         "lean_notation",
         [&]() {
-            mark_implicit_arguments(env, mk_if_fn(), 1);
+            // mark_implicit_arguments(env, mk_if_fn(), 1);
 
 
             if (kernel_only)

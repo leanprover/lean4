@@ -59,6 +59,8 @@ public:
 };
 expr const True  = mk_value(*(new bool_value_value(true)));
 expr const False = mk_value(*(new bool_value_value(false)));
+register_available_builtin_fn g_true_value("true", []() { return  True; });
+register_available_builtin_fn g_false_value("false", []() { return False; });
 expr read_true(deserializer & ) { return True; }
 expr read_false(deserializer & ) { return False; }
 static value::register_deserializer_fn true_ds("true", read_true);
@@ -114,6 +116,7 @@ public:
     virtual void write(serializer & s) const { s << "if"; }
 };
 MK_BUILTIN(if_fn, if_fn_value);
+register_available_builtin_fn g_if_value("if", []() { return mk_if_fn(); });
 expr read_if(deserializer & ) { return mk_if_fn(); }
 static value::register_deserializer_fn if_ds("if", read_if);
 MK_IS_BUILTIN(is_if_fn, mk_if_fn());
@@ -139,17 +142,4 @@ MK_CONSTANT(abst_fn,        name("Abst"));
 
 MK_CONSTANT(htrans_fn,      name("HTrans"));
 MK_CONSTANT(hsymm_fn,       name("HSymm"));
-
-void import_kernel(environment const & env) {
-    env->import_builtin
-        ("kernel",
-         [&]() {
-            env->add_var(Bool_name, Type());
-            env->add_uvar(uvar_name(m_lvl), level() + LEAN_DEFAULT_LEVEL_SEPARATION);
-            env->add_uvar(uvar_name(u_lvl), m_lvl + LEAN_DEFAULT_LEVEL_SEPARATION);
-            env->add_builtin(mk_bool_value(true));
-            env->add_builtin(mk_bool_value(false));
-            env->add_builtin(mk_if_fn());
-        });
-}
 }

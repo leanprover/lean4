@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include <tuple>
 #include <fstream>
 #include <string>
+#include <utility>
 #include "util/thread.h"
 #include "util/safe_arith.h"
 #include "util/realpath.h"
@@ -380,7 +381,9 @@ void environment_cell::add_builtin(expr const & v) {
     check_name(u);
     register_named_object(mk_builtin(v));
     if (u != n) {
-        add_definition(u, to_value(v).get_type(), mk_constant(n), false);
+        auxiliary_section([&]() {
+                add_definition(u, to_value(v).get_type(), mk_constant(n), false);
+            });
     }
 }
 
@@ -701,4 +704,26 @@ read_write_shared_environment::read_write_shared_environment(environment const &
     m_lock(m_env.m_ptr->m_mutex) {
 }
 read_write_shared_environment::~read_write_shared_environment() {}
+
+static std::unique_ptr<name_map<std::pair<mk_builtin_fn, bool>>> g_available_builtins;
+name_map<std::pair<mk_builtin_fn, bool>> & get_available_builtins() {
+    if (!g_available_builtins)
+        g_available_builtins.reset(new name_map<std::pair<mk_builtin_fn, bool>>());
+    return *g_available_builtins;
+}
+
+void register_available_builtin(name const & n, mk_builtin_fn mk, bool is_builtin_set) {
+    auto & bs = get_available_builtins();
+    if (bs.find(n) != bs.end())
+        throw exception("invalid builtin object, system already has a builtin object with the given name");
+    bs[n] = mk_pair(mk, is_builtin_set);
+}
+
+optional<std::pair<expr, bool>> get_builtin(name const & n) {
+    auto it = get_available_builtins().find(n);
+    if (it != get_available_builtins().end())
+        return optional<std::pair<expr, bool>>(it->second.first(), it->second.second);
+    else
+        return optional<std::pair<expr, bool>>();
+}
 }

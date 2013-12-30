@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 void import_all(environment const & env) {
-    import_kernel(env);
     import_basic_thms(env);
     import_arith(env);
 }

@@ -1,5 +1,14 @@
 Import macros
 
+Universe M : 512.
+Universe U : M+512.
+
+Variable Bool : Type.
+(* The following builtin declarations can be removed as soon as Lean supports inductive datatypes and match expressions. *)
+Builtin true : Bool.
+Builtin false : Bool.
+Builtin if {A : (Type U)} : Bool → A → A → A.
+
 Definition TypeU := (Type U)
 Definition TypeM := (Type M)
 

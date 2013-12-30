@@ -164,10 +164,6 @@ inline expr HTrans(expr const & A, expr const & B, expr const & C, expr const & 
     return mk_app({mk_htrans_fn(), A, B, C, a, b, c, H1, H2});
 }
 
-class environment;
-/** \brief Initialize the environment with basic builtin declarations and axioms */
-void import_kernel(environment const & env);
-
 /**
    \brief Helper macro for defining constants such as bool_type, int_type, int_add, etc.
 */

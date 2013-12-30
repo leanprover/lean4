@@ -11,7 +11,6 @@ Author: Soonho Kong
 #include "kernel/metavar.h"
 #include "kernel/printer.h"
 #include "kernel/builtin.h"
-#include "library/all/all.h"
 #include "library/arith/arith.h"
 #include "library/arith/nat.h"
 #include "library/rewriter/fo_match.h"

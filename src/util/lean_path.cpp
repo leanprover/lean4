@@ -17,9 +17,9 @@ namespace lean {
 #if defined(LEAN_WINDOWS)
 // Windows version
 #include <windows.h>
-static char g_path_sep = ';';
-static char g_sep      = '\\';
-static char g_bad_sep  = '/';
+static char g_path_sep     = ';';
+static char g_sep          = '\\';
+static char g_bad_sep      = '/';
 static std::string get_exe_location() {
     HMODULE hModule = GetModuleHandleW(NULL);
     WCHAR path[MAX_PATH];
@@ -31,9 +31,9 @@ static std::string get_exe_location() {
 // OSX version
 #include <mach-o/dyld.h>
 #include <limits.h>
-static char g_path_sep = ':';
-static char g_sep      = '/';
-static char g_bad_sep  = '\\';
+static char g_path_sep     = ':';
+static char g_sep          = '/';
+static char g_bad_sep      = '\\';
 static std::string get_exe_location() {
     char buf[PATH_MAX];
     uint32_t bufsize = PATH_MAX;
@@ -49,9 +49,9 @@ static std::string get_exe_location() {
 #include <sys/stat.h>
 #include <limits.h> // NOLINT
 #include <stdio.h>
-static char g_path_sep = ':';
-static char g_sep      = '/';
-static char g_bad_sep  = '\\';
+static char g_path_sep     = ':';
+static char g_sep          = '/';
+static char g_bad_sep      = '\\';
 static std::string get_exe_location() {
     char path[PATH_MAX];
     char dest[PATH_MAX];
@@ -66,11 +66,51 @@ static std::string get_exe_location() {
 }
 #endif
 
+#if defined(LEAN_CYGWIN)
+/**
+   \brief Cleanup path when using cygwin.
+   This procedure performs two fixes, if the string contains '/'.
+
+   1- It replaces '/' with '\\' and ':' with ';'
+
+   2- Then, it replaces "\cygdrive\c\" with "c:"
+*/
+static std::string fix_cygwin_path(std::string f) {
+    if (f.find('/') != std::string::npos) {
+        // Step 1.
+        for (auto & c : f) {
+            if (c == g_bad_sep)
+                c = g_sep;
+            else if (c == ':')
+                c = g_path_sep;
+        }
+        // Step 2.
+        size_t pos = 0;
+        size_t matchpos;
+        std::string cygdrive("\\cygdrive\\");
+        while ((matchpos = f.find(cygdrive, pos)) != std::string::npos) {
+            // erase "\cygdrive\"
+            f = f.replace(matchpos, cygdrive.size(), "");
+            // replace the next "\" with ":\"
+            if ((matchpos = f.find("\\", matchpos)) != std::string::npos) {
+                f.replace(matchpos, 1, ":\\");
+            }
+            pos = matchpos;
+        }
+    }
+    return f;
+}
+#endif
+
 std::string normalize_path(std::string f) {
+#if defined(LEAN_CYGWIN)
+    f = fix_cygwin_path(f);
+#else
     for (auto & c : f) {
         if (c == g_bad_sep)
             c = g_sep;
     }
+#endif
     return f;
 }
 

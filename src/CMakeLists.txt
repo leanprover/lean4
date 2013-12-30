@@ -30,6 +30,10 @@ if((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_WINDOWS -D LEAN_WIN_STACK_SIZE=${LEAN_WIN_STACK_SIZE}")
 endif()
 
+if("${CYGWIN}" EQUAL "1")
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_CYGWIN")
+endif()
+
 if("${MULTI_THREAD}" MATCHES "OFF")
   message(STATUS "Disabled multi-thread support, it will not be safe to run multiple threads in parallel")
 else()

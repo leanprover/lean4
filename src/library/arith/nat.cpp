@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/value.h"
 #include "library/kernel_bindings.h"
+#include "library/io_state.h"
 #include "library/arith/nat.h"
 
 namespace lean {
@@ -44,6 +45,7 @@ expr mk_nat_value(mpz const & v) {
 }
 expr read_nat_value(deserializer & d) { return mk_nat_value(read_mpz(d)); }
 static value::register_deserializer_fn nat_value_ds("nat", read_nat_value);
+register_available_builtin_fn g_nat_value(name({"Nat", "numeral"}), []() { return mk_nat_value(mpz(0)); }, true);
 
 bool is_nat_value(expr const & e) {
     return is_value(e) && dynamic_cast<nat_value_value const *>(&to_value(e)) != nullptr;
@@ -79,6 +81,7 @@ typedef nat_bin_op<nat_add_name, nat_add_eval> nat_add_value;
 MK_BUILTIN(nat_add_fn, nat_add_value);
 expr read_nat_add(deserializer & ) { return mk_nat_add_fn(); }
 static value::register_deserializer_fn nat_add_ds("nat_add", read_nat_add);
+register_available_builtin_fn g_nat_add_value(name({"Nat", "add"}), []() { return mk_nat_add_fn(); });
 
 constexpr char nat_mul_name[] = "mul";
 /** \brief Evaluator for * : Nat -> Nat -> Nat */
@@ -87,6 +90,7 @@ typedef nat_bin_op<nat_mul_name, nat_mul_eval> nat_mul_value;
 MK_BUILTIN(nat_mul_fn, nat_mul_value);
 expr read_nat_mul(deserializer & ) { return mk_nat_mul_fn(); }
 static value::register_deserializer_fn nat_mul_ds("nat_mul", read_nat_mul);
+register_available_builtin_fn g_nat_mul_value(name({"Nat", "mul"}), []() { return mk_nat_mul_fn(); });
 
 /**
    \brief Semantic attachment for less than or equal to operator with type
@@ -107,6 +111,7 @@ public:
 MK_BUILTIN(nat_le_fn, nat_le_value);
 expr read_nat_le(deserializer & ) { return mk_nat_le_fn(); }
 static value::register_deserializer_fn nat_le_ds("nat_le", read_nat_le);
+register_available_builtin_fn g_nat_le_value(name({"Nat", "le"}), []() { return mk_nat_le_fn(); });
 
 MK_CONSTANT(nat_ge_fn,  name({"Nat", "ge"}));
 MK_CONSTANT(nat_lt_fn,  name({"Nat", "lt"}));
@@ -114,23 +119,8 @@ MK_CONSTANT(nat_gt_fn,  name({"Nat", "gt"}));
 MK_CONSTANT(nat_id_fn,  name({"Nat", "id"}));
 
 void import_nat(environment const & env) {
-    env->import_builtin(
-        "nat",
-        [&]() {
-            expr nn_b = Nat >> (Nat >> Bool);
-            expr x    = Const("x");
-            expr y    = Const("y");
-            env->add_var(Nat_name, Type());
-            env->add_builtin_set(nVal(0));
-            env->add_builtin(mk_nat_add_fn());
-            env->add_builtin(mk_nat_mul_fn());
-            env->add_builtin(mk_nat_le_fn());
-
-            env->add_opaque_definition(nat_ge_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, nLe(y, x)));
-            env->add_opaque_definition(nat_lt_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, Not(nLe(y, x))));
-            env->add_opaque_definition(nat_gt_fn_name, nn_b, Fun({{x, Nat}, {y, Nat}}, Not(nLe(x, y))));
-            env->add_opaque_definition(nat_id_fn_name, Nat >> Nat, Fun({x, Nat}, x));
-        });
+    io_state ios;
+    env->import("nat", ios);
 }
 
 static int mk_nat_value(lua_State * L) {

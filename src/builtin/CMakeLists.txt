@@ -31,8 +31,8 @@ function(add_theory_core FILE ARG EXTRA_DEPS)
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} ${SHELL_DIR}/${FNAME}
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} ${CMAKE_CURRENT_SOURCE_DIR}/${FNAME}
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} ${SHELL_DIR}/lean ${EXTRA_DEPS})
-  add_custom_target(${FNAME}_builtin DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${FNAME})
-  add_dependencies(builtin ${FNAME}_builtin)
+  add_custom_target("${BASENAME}_builtin" DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${FNAME})
+  add_dependencies(builtin ${BASENAME}_builtin)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} DESTINATION library)
 endfunction()
 
@@ -45,8 +45,8 @@ function(copy_olean FILE)
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${FNAME} ${CMAKE_CURRENT_BINARY_DIR}/${FNAME}
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${FNAME} ${SHELL_DIR}/${FNAME}
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${FNAME})
-  add_custom_target(${FNAME}_builtin DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${FNAME})
-  add_dependencies(builtin ${FNAME}_builtin)
+  add_custom_target("${BASENAME}_builtin" DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${FNAME})
+  add_dependencies(builtin ${BASENAME}_builtin)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} DESTINATION library)
 endfunction()
 
@@ -67,4 +67,12 @@ function(add_theory FILE)
 endfunction()
 
 add_kernel_theory("basic.lean")
+add_kernel_theory("nat.lean")
+add_dependencies(nat_builtin basic_builtin)
+add_kernel_theory("int.lean")
+add_dependencies(int_builtin nat_builtin)
+add_dependencies(int_builtin basic_builtin)
 add_theory("cast.lean")
+# TODO(Leo): Remove the following dependencies after cleanup
+add_dependencies(cast_builtin nat_builtin)
+add_dependencies(cast_builtin int_builtin)

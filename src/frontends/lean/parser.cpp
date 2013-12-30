@@ -343,7 +343,7 @@ class parser::imp {
     /** \brief Return true iff the current token is a '_" */
     bool curr_is_placeholder() const { return curr() == scanner::token::Placeholder; }
     /** \brief Return true iff the current token is a natural number */
-    bool curr_is_nat() const { return curr() == scanner::token::NatVal; }
+    bool curr_is_nat() const { return curr() == scanner::token::IntVal && m_scanner.get_num_val() >= 0; }
     /** \brief Return true iff the current token is a '(' */
     bool curr_is_lparen() const { return curr() == scanner::token::LeftParen; }
     /** \brief Return true iff the current token is a '{' */
@@ -615,6 +615,8 @@ class parser::imp {
         auto p  = pos();
         mpz val = curr_num().get_numerator();
         next();
+        if (val < 0)
+            throw parser_error("invalid level expression, value is negative", p);
         if (!val.is_unsigned_int())
             throw parser_error("invalid level expression, value does not fit in a machine integer", p);
         return level() + val.get_unsigned_int();
@@ -630,7 +632,7 @@ class parser::imp {
     level parse_level_nud() {
         switch (curr()) {
         case scanner::token::Id:        return parse_level_nud_id();
-        case scanner::token::NatVal:    return parse_level_nud_int();
+        case scanner::token::IntVal:    return parse_level_nud_int();
         case scanner::token::LeftParen: return parse_level_lparen();
         default:
             throw parser_error("invalid level expression", pos());
@@ -1468,10 +1470,12 @@ class parser::imp {
         }
     }
 
-    /** \brief Parse a natural number value. */
-    expr parse_nat() {
+    /** \brief Parse a natural/integer number value. */
+    expr parse_nat_int() {
         auto p = pos();
-        expr r = save(mk_nat_value(m_scanner.get_num_val().get_numerator()), p);
+        mpz v  = m_scanner.get_num_val().get_numerator();
+        expr r = v >= 0 ? mk_nat_value(v) : mk_int_value(v);
+        r = save(r, p);
         next();
         return r;
     }
@@ -1604,7 +1608,7 @@ class parser::imp {
         case scanner::token::Forall:      return parse_forall();
         case scanner::token::Exists:      return parse_exists();
         case scanner::token::Let:         return parse_let();
-        case scanner::token::NatVal:      return parse_nat();
+        case scanner::token::IntVal:      return parse_nat_int();
         case scanner::token::DecimalVal:  return parse_decimal();
         case scanner::token::StringVal:   return parse_string();
         case scanner::token::Placeholder: return parse_placeholder();
@@ -1636,7 +1640,7 @@ class parser::imp {
         case scanner::token::Eq:          return parse_eq(left);
         case scanner::token::Arrow:       return parse_arrow(left);
         case scanner::token::LeftParen:   return mk_app_left(left, parse_lparen());
-        case scanner::token::NatVal:      return mk_app_left(left, parse_nat());
+        case scanner::token::IntVal:      return mk_app_left(left, parse_nat_int());
         case scanner::token::DecimalVal:  return mk_app_left(left, parse_decimal());
         case scanner::token::StringVal:   return mk_app_left(left, parse_string());
         case scanner::token::Placeholder: return mk_app_left(left, parse_placeholder());
@@ -1665,7 +1669,7 @@ class parser::imp {
         }
         case scanner::token::Eq : return g_eq_precedence;
         case scanner::token::Arrow : return g_arrow_precedence;
-        case scanner::token::LeftParen: case scanner::token::NatVal: case scanner::token::DecimalVal:
+        case scanner::token::LeftParen: case scanner::token::IntVal: case scanner::token::DecimalVal:
         case scanner::token::StringVal: case scanner::token::Type: case scanner::token::Placeholder:
             return g_app_precedence;
         default:
@@ -2382,7 +2386,7 @@ class parser::imp {
             m_io_state.set_option(id, curr_string());
             next();
             break;
-        case scanner::token::NatVal:
+        case scanner::token::IntVal:
             if (k != IntOption && k != UnsignedOption)
                 throw parser_error("invalid option value, given option is not an integer", pos());
             m_io_state.set_option(id, parse_unsigned("invalid option value, value does not fit in a machine integer"));

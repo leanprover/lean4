@@ -57,9 +57,10 @@ public:
         set('_',  'a');
         set('\'', 'a');
         set('@', 'a');
+        set('-', '-');
 
         // characters that can be used to create ids of group b
-        for (unsigned char b : {'=', '<', '>', '^', '|', '&', '~', '+', '-', '*', '/', '\\', '$', '%', '?', ';', '[', ']', '#'})
+        for (unsigned char b : {'=', '<', '>', '^', '|', '&', '~', '+', '*', '/', '\\', '$', '%', '?', ';', '[', ']', '#'})
             set(b, 'b');
 
         // punctuation
@@ -241,13 +242,15 @@ scanner::token scanner::read_a_symbol() {
     }
 }
 
-scanner::token scanner::read_b_symbol() {
-    lean_assert(normalize(curr()) == 'b');
+scanner::token scanner::read_b_symbol(char prev) {
+    lean_assert(normalize(curr()) == 'b' || curr() == '-');
     m_buffer.clear();
+    if (prev != 0)
+        m_buffer += prev;
     m_buffer += curr();
     next();
     while (true) {
-        if (normalize(curr()) == 'b') {
+        if (normalize(curr()) == 'b' || curr() == '-') {
             m_buffer += curr();
             next();
         } else {
@@ -289,7 +292,7 @@ scanner::token scanner::read_c_symbol() {
     }
 }
 
-scanner::token scanner::read_number() {
+scanner::token scanner::read_number(bool pos) {
     lean_assert('0' <= curr() && curr() <= '9');
     mpq q(1);
     m_num_val = curr() - '0';
@@ -319,7 +322,9 @@ scanner::token scanner::read_number() {
     }
     if (is_decimal)
         m_num_val /= q;
-    return is_decimal ? token::DecimalVal : token::NatVal;
+    if (!pos)
+        m_num_val.neg();
+    return is_decimal ? token::DecimalVal : token::IntVal;
 }
 
 scanner::token scanner::read_string() {
@@ -426,9 +431,20 @@ scanner::token scanner::scan() {
         case '{':  next(); return token::LeftCurlyBracket;
         case '}':  next(); return token::RightCurlyBracket;
         case 'a':  return read_a_symbol();
-        case 'b':  return read_b_symbol();
+        case 'b':  return read_b_symbol(0);
         case 'c':  return read_c_symbol();
-        case '0':  return read_number();
+        case '-':
+            next();
+            if (normalize(curr()) == '0') {
+                return read_number(false);
+            } else if (normalize(curr()) == 'b' || curr() == '-') {
+                return read_b_symbol('-');
+            } else {
+                m_name_val = name("-");
+                return token::Id;
+            }
+            break;
+        case '0':  return read_number(true);
         case '\"': return read_string();
         case -1:   return token::Eof;
         default:   lean_unreachable(); // LCOV_EXCL_LINE
@@ -454,7 +470,7 @@ std::ostream & operator<<(std::ostream & out, scanner::token const & t) {
     case scanner::token::In:                out << "in"; break;
     case scanner::token::Id:                out << "Id"; break;
     case scanner::token::CommandId:         out << "CId"; break;
-    case scanner::token::NatVal:            out << "Nat"; break;
+    case scanner::token::IntVal:            out << "Int"; break;
     case scanner::token::DecimalVal:        out << "Dec"; break;
     case scanner::token::StringVal:         out << "String"; break;
     case scanner::token::Eq:                out << "=="; break;

@@ -597,14 +597,24 @@ void add_mixfixo(environment const & env, io_state const & ios, unsigned sz, nam
 }
 operator_info find_op_for(ro_environment const & env, expr const & n, bool unicode) {
     operator_info r = to_ext(env).find_op_for(n, unicode);
-    if (r || !is_constant(n)) {
+    if (r) {
         return r;
-    } else {
+    } else if (is_constant(n)) {
         optional<object> obj = env->find_object(const_name(n));
-        if (obj && obj->is_builtin() && obj->get_name() == const_name(n))
+        if (obj && obj->is_builtin() && obj->get_name() == const_name(n)) {
+            // n is a constant that is referencing a builtin object.
+            // If the notation is associated with the builtin object, we should try it.
+            // TODO(Leo): Remark: in the new approach using .Lean files, the table is populated with constants.
+            // So, this branch is not really needed anymore.
             return to_ext(env).find_op_for(obj->get_value(), unicode);
-        else
+        } else {
             return r;
+        }
+    } else if (is_value(n)) {
+        // Check whether the notation was declared for a constant referencing this builtin object.
+        return to_ext(env).find_op_for(mk_constant(to_value(n).get_name()), unicode);
+    } else {
+        return r;
     }
 }
 operator_info find_nud(ro_environment const & env, name const & n) {

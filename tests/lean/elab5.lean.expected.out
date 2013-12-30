@@ -6,6 +6,8 @@
   Proved: R2
   Set: lean::pp::implicit
 Import "basic"
+Import "nat"
+Import "int"
 Variable C {A B : Type} (H : @eq Type A B) (a : A) : B
 Variable D {A A' : Type} {B : A → Type} {B' : A' → Type} (H : @eq Type (Π x : A, B x) (Π x : A', B' x)) :
     @eq Type A A'

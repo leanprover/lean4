@@ -4,8 +4,8 @@
 2
 2
 1
-- 8 mod 3
+-8 mod 3
   Set: lean::pp::notation
-Int::mod (Nat::neg 8) 3
+Int::mod -8 3
 -2
 -8

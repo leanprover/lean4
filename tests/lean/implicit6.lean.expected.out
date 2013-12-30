@@ -8,4 +8,4 @@
   Set: lean::pp::coercion
 f ⊤ ⊥
 Nat::add 10 20
-Int::add (nat_to_int 10) (Nat::neg 20)
+Int::add (nat_to_int 10) (Int::neg (nat_to_int 20))

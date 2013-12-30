@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/environment.h"
 #include "kernel/value.h"
+#include "library/io_state.h"
 #include "library/kernel_bindings.h"
 #include "library/arith/int.h"
 #include "library/arith/nat.h"
@@ -35,7 +36,7 @@ public:
     virtual void display(std::ostream & out) const { out << m_val; }
     virtual format pp() const { return pp(false, false); }
     virtual format pp(bool unicode, bool coercion) const {
-        if (coercion)
+        if (coercion && m_val >= 0)
             return format{to_value(mk_nat_to_int_fn()).pp(unicode, coercion), space(), format(m_val)};
         else
             return format(m_val);
@@ -51,6 +52,7 @@ expr mk_int_value(mpz const & v) {
 }
 expr read_int_value(deserializer & d) { return mk_int_value(read_mpz(d)); }
 static value::register_deserializer_fn int_value_ds("int", read_int_value);
+register_available_builtin_fn g_int_value(name({"Int", "numeral"}), []() { return mk_int_value(mpz(0)); }, true);
 
 bool is_int_value(expr const & e) {
     return is_value(e) && dynamic_cast<int_value_value const *>(&to_value(e)) != nullptr;
@@ -85,6 +87,7 @@ typedef int_bin_op<int_add_name, int_add_eval> int_add_value;
 MK_BUILTIN(int_add_fn, int_add_value);
 expr read_int_add(deserializer & ) { return mk_int_add_fn(); }
 static value::register_deserializer_fn int_add_ds("int_add", read_int_add);
+register_available_builtin_fn g_int_add_value(name({"Int", "add"}), []() { return mk_int_add_fn(); });
 
 constexpr char int_mul_name[] = "mul";
 struct int_mul_eval { mpz operator()(mpz const & v1, mpz const & v2) { return v1 * v2; }; };
@@ -92,6 +95,7 @@ typedef int_bin_op<int_mul_name, int_mul_eval> int_mul_value;
 MK_BUILTIN(int_mul_fn, int_mul_value);
 expr read_int_mul(deserializer & ) { return mk_int_mul_fn(); }
 static value::register_deserializer_fn int_mul_ds("int_mul", read_int_mul);
+register_available_builtin_fn g_int_mul_value(name({"Int", "mul"}), []() { return mk_int_mul_fn(); });
 
 constexpr char int_div_name[] = "div";
 struct int_div_eval {
@@ -106,6 +110,7 @@ typedef int_bin_op<int_div_name, int_div_eval> int_div_value;
 MK_BUILTIN(int_div_fn, int_div_value);
 expr read_int_div(deserializer & ) { return mk_int_div_fn(); }
 static value::register_deserializer_fn int_div_ds("int_div", read_int_div);
+register_available_builtin_fn g_int_div_value(name({"Int", "div"}), []() { return mk_int_div_fn(); });
 
 class int_le_value : public const_value {
 public:
@@ -122,6 +127,7 @@ public:
 MK_BUILTIN(int_le_fn, int_le_value);
 expr read_int_le(deserializer & ) { return mk_int_le_fn(); }
 static value::register_deserializer_fn int_le_ds("int_le", read_int_le);
+register_available_builtin_fn g_int_le_value(name({"Int", "le"}), []() { return mk_int_le_fn(); });
 
 MK_CONSTANT(int_sub_fn, name({"Int", "sub"}));
 MK_CONSTANT(int_neg_fn, name({"Int", "neg"}));
@@ -150,41 +156,14 @@ public:
 MK_BUILTIN(nat_to_int_fn, nat_to_int_value);
 expr read_nat_to_int(deserializer & ) { return mk_nat_to_int_fn(); }
 static value::register_deserializer_fn nat_to_int_ds("nat_to_int", read_nat_to_int);
+register_available_builtin_fn g_n2i_value(name({"nat_to_int"}), []() { return mk_nat_to_int_fn(); });
 
 MK_CONSTANT(nat_sub_fn, name({"Nat", "sub"}));
 MK_CONSTANT(nat_neg_fn, name({"Nat", "neg"}));
 
 void import_int(environment const & env) {
-    env->import_builtin(
-        "int",
-        [&]() {
-            import_nat(env);
-            expr i_i  = Int >> Int;
-            expr ii_b = Int >> (Int >> Bool);
-            expr ii_i = Int >> (Int >> Int);
-            expr x    = Const("x");
-            expr y    = Const("y");
-
-            env->add_var(Int_name, Type());
-            env->add_builtin_set(iVal(0));
-            env->add_builtin(mk_int_add_fn());
-            env->add_builtin(mk_int_mul_fn());
-            env->add_builtin(mk_int_div_fn());
-            env->add_builtin(mk_int_le_fn());
-            env->add_builtin(mk_nat_to_int_fn());
-
-            env->add_opaque_definition(int_sub_fn_name, ii_i, Fun({{x, Int}, {y, Int}}, iAdd(x, iMul(iVal(-1), y))));
-            env->add_opaque_definition(int_neg_fn_name, i_i, Fun({x, Int}, iMul(iVal(-1), x)));
-            env->add_opaque_definition(int_mod_fn_name, ii_i, Fun({{x, Int}, {y, Int}}, iSub(x, iMul(y, iDiv(x, y)))));
-            env->add_opaque_definition(int_divides_fn_name, ii_b, Fun({{x, Int}, {y, Int}}, Eq(iMod(y, x), iVal(0))));
-            env->add_opaque_definition(int_ge_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, iLe(y, x)));
-            env->add_opaque_definition(int_lt_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, Not(iLe(y, x))));
-            env->add_opaque_definition(int_gt_fn_name, ii_b,  Fun({{x, Int}, {y, Int}}, Not(iLe(x, y))));
-            env->add_opaque_definition(int_abs_fn_name, i_i, Fun({x, Int}, iIf(iLe(iVal(0), x), x, iNeg(x))));
-
-            env->add_opaque_definition(nat_sub_fn_name, Nat >> (Nat >> Int), Fun({{x, Nat}, {y, Nat}}, iSub(n2i(x), n2i(y))));
-            env->add_opaque_definition(nat_neg_fn_name, Nat >> Int, Fun({x, Nat}, iNeg(n2i(x))));
-        });
+    io_state ios;
+    env->import("int", ios);
 }
 
 static int mk_int_value(lua_State * L) {

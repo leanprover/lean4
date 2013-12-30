@@ -20,7 +20,7 @@ class scanner {
 public:
     enum class token {
         LeftParen, RightParen, LeftCurlyBracket, RightCurlyBracket, Colon, Comma, Period, Lambda, Pi, Arrow,
-        Let, In, Forall, Exists, Id, CommandId, NatVal, DecimalVal, StringVal, Eq, Assign, Type, Placeholder,
+        Let, In, Forall, Exists, Id, CommandId, IntVal, DecimalVal, StringVal, Eq, Assign, Type, Placeholder,
         Show, By, ScriptBlock, Eof
     };
 protected:
@@ -49,9 +49,9 @@ protected:
     void  read_comment();
     name  mk_name(name const & curr, std::string const & buf, bool only_digits);
     token read_a_symbol();
-    token read_b_symbol();
+    token read_b_symbol(char prev);
     token read_c_symbol();
-    token read_number();
+    token read_number(bool pos);
     token read_string();
     token read_script_block();
     bool  is_command(name const & n) const;

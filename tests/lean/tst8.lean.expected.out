@@ -1,5 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
+  Imported 'int'
 λ (A : Type) (a : A), let b := a in b : Π (A : Type), A → A
   Assumed: g
   Defined: f

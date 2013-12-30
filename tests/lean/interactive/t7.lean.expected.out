@@ -1,6 +1,7 @@
 #   Set: pp::colors
   Set: pp::unicode
-  Assumed: q
+  Imported 'int'
+#   Assumed: q
 #   Assumed: p
 #   Assumed: Ax
 #   Assumed: a

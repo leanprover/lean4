@@ -1,3 +1,4 @@
+Import int.
 Variable P : Int -> Int -> Int -> Bool
 Axiom Ax1 : exists x y z, P x y z
 Axiom Ax2 : forall x y z, not (P x y z)

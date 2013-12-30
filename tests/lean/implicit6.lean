@@ -1,3 +1,4 @@
+Import int.
 Variable f {A : Type} : A -> A -> A
 Infixl 65 + : f
 Show true + false

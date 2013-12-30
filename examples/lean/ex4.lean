@@ -1,4 +1,5 @@
 Import tactic
+Import int
 Definition a : Nat := 10
 (* Trivial indicates a "proof by evaluation" *)
 Theorem T1 : a > 0 := (by trivial)

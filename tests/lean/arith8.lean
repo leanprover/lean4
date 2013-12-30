@@ -1,3 +1,4 @@
+Import real.
 Eval 10.3
 Eval 0.3
 Eval 0.3 + 0.1

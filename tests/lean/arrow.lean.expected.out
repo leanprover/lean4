@@ -1,5 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
+  Imported 'int'
 (ℤ → ℤ) → ℤ
 ℤ → ℤ → ℤ
 ℤ → ℤ → ℤ

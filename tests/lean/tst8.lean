@@ -1,3 +1,4 @@
+Import int
 Check fun (A : Type) (a : A),
           let b := a
           in b

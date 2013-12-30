@@ -546,7 +546,7 @@ static void tst26() {
     */
     std::cout << "\ntst26\n";
     environment  env;
-    init_frontend(env);
+    init_full_frontend(env);
     metavar_env menv;
     buffer<unification_constraint> up;
     type_checker checker(env);
@@ -588,7 +588,7 @@ static void tst27() {
     */
     std::cout << "\ntst27\n";
     environment  env;
-    init_frontend(env);
+    init_full_frontend(env);
     metavar_env menv;
     buffer<unification_constraint> up;
     type_checker checker(env);

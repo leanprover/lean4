@@ -1,4 +1,4 @@
-
+Import int.
 Variables a b : Int
 
 (**

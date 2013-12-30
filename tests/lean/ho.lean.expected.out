@@ -1,5 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
+  Imported 'int'
   Assumed: g
   Assumed: a
   Assumed: b

@@ -1,3 +1,4 @@
+Import int.
 Eval | -2 |
 (*
    Unfortunately, we can't write |-2|, because |- is considered a single token.

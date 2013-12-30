@@ -1,3 +1,4 @@
+Import int.
 Eval 8 mod 3
 Eval 8 div 4
 Eval 7 div 3

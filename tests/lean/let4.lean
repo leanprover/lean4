@@ -1,3 +1,4 @@
+Import int.
 
 Show
 let b := true,

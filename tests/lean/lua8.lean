@@ -1,3 +1,4 @@
+Import int.
 Variable x : Int
 
 (**

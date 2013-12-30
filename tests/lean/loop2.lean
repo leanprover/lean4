@@ -1,3 +1,5 @@
+Import int.
+
 (**
  function add_paren(code)
     return "(" .. "** " .. code .. " **" .. ")"

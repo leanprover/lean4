@@ -1,5 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
+  Imported 'int'
   Assumed: i
 i = 0 : Bool
   Set: lean::pp::coercion

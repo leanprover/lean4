@@ -16,7 +16,7 @@ using namespace lean;
 
 static void tst0() {
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     normalizer  norm(env);
     env->add_var("n", Nat);
     expr n = Const("n");
@@ -47,7 +47,7 @@ static void tst0() {
 
 static void tst1() {
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     expr e = mk_int_value(mpz(10));
     lean_assert(is_int_value(e));
     lean_assert(type_check(e, env) == Int);
@@ -56,7 +56,7 @@ static void tst1() {
 
 static void tst2() {
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     expr e = iAdd(iVal(10), iVal(30));
     std::cout << e << "\n";
     std::cout << normalize(e, env) << "\n";
@@ -73,7 +73,7 @@ static void tst2() {
 
 static void tst3() {
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     expr e = iMul(iVal(10), iVal(30));
     std::cout << e << "\n";
     std::cout << normalize(e, env) << "\n";
@@ -90,7 +90,7 @@ static void tst3() {
 
 static void tst4() {
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     expr e = iSub(iVal(10), iVal(30));
     std::cout << e << "\n";
     std::cout << normalize(e, env) << "\n";
@@ -107,7 +107,7 @@ static void tst4() {
 
 static void tst5() {
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     env->add_var(name("a"), Int);
     expr e = Eq(iVal(3), iVal(4));
     std::cout << e << " --> " << normalize(e, env) << "\n";

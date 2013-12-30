@@ -1,3 +1,4 @@
+Import int.
 Variable a : Int
 Variable P : Int -> Int -> Bool
 Variable f : Int -> Int -> Int

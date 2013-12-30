@@ -21,7 +21,9 @@ Author: Leonardo de Moura
 #include "kernel/io_state.h"
 #include "library/expr_pair.h"
 #include "library/expr_pair_maps.h"
-#include "library/all/all.h"
+#include "library/arith/nat.h"
+#include "library/arith/int.h"
+#include "library/arith/real.h"
 #include "frontends/lean/operator_info.h"
 #include "frontends/lean/coercion.h"
 #include "frontends/lean/frontend.h"
@@ -554,17 +556,21 @@ static lean_extension & to_ext(environment const & env) {
     return env->get_extension<lean_extension>(g_lean_extension_initializer.m_extid);
 }
 
-/**
-   \brief Import all definitions and notation.
-*/
 void init_frontend(environment const & env, io_state & ios, bool no_kernel) {
     ios.set_formatter(mk_pp_formatter(env));
-    if (!no_kernel)
-        import_all(env);
+    if (!no_kernel) {
+        import_kernel(env);
+        import_nat(env);
+    }
 }
-void init_frontend(environment const & env) {
-    io_state ios;
+void init_full_frontend(environment const & env, io_state & ios) {
     init_frontend(env, ios);
+    import_int(env);
+    import_real(env);
+}
+void init_full_frontend(environment const & env) {
+    io_state ios;
+    init_full_frontend(env, ios);
 }
 
 void add_infix(environment const & env, io_state const & ios, name const & opn, unsigned p, expr const & d)  {

@@ -78,7 +78,7 @@ static void tst2() {
 
 static void tst3() {
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     expr f = Fun("a", Bool, Eq(Const("a"), True));
     std::cout << type_check(f, env) << "\n";
     lean_assert(type_check(f, env) == mk_arrow(Bool, Bool));
@@ -88,7 +88,7 @@ static void tst3() {
 
 static void tst4() {
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     expr a = Eq(iVal(1), iVal(2));
     expr pr   = mk_lambda("x", a, Var(0));
     std::cout << type_check(pr, env) << "\n";
@@ -96,7 +96,7 @@ static void tst4() {
 
 static void tst5() {
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     env->add_var("P", Bool);
     expr P = Const("P");
     expr H = Const("H");
@@ -114,7 +114,7 @@ static void tst5() {
 
 static void tst6() {
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     expr A = Const("A");
     expr f = Const("f");
     expr x = Const("x");
@@ -129,7 +129,7 @@ static void tst6() {
 
 static void tst7() {
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     expr A = Const(name{"foo", "bla", "bla", "foo"});
     expr f = Const("f");
     expr x = Const("x");
@@ -144,7 +144,7 @@ static void tst7() {
 
 static void tst8() {
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     env->add_var("P", mk_arrow(Int, mk_arrow(Int, Bool)));
     env->add_var("x", Int);
     expr P = Const("P");
@@ -164,7 +164,7 @@ static void tst8() {
 
 static void tst9() {
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     env->add_var("P", mk_arrow(Int, mk_arrow(Int, Bool)));
     env->add_var("x", Int);
     expr P = Const("P");
@@ -184,7 +184,7 @@ static void tst9() {
 
 static void tst10() {
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     env->add_var("f", mk_arrow(Int, Int));
     env->add_var("b", Int);
     expr f = Const("f");
@@ -201,7 +201,7 @@ static void tst10() {
 
 static void tst11() {
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     env->add_var("f", Int >> (Int >> Int));
     env->add_var("a", Int);
     unsigned n = 1000;
@@ -232,7 +232,7 @@ static void tst12() {
 #if !defined(__APPLE__) && defined(LEAN_MULTI_THREAD)
     expr t = mk_big(18);
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     env->add_var("f", Int >> (Int >> Int));
     env->add_var("a", Int);
     type_checker checker(env);
@@ -255,7 +255,7 @@ static void tst12() {
 
 static void tst13() {
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     env->add_var("f", Type() >> Type());
     expr f = Const("f");
     std::cout << type_check(f(Bool), env) << "\n";
@@ -264,7 +264,7 @@ static void tst13() {
 
 static void tst14() {
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     expr f = Const("f");
     expr a = Const("a");
     env->add_var("f", Int >> Int);
@@ -282,7 +282,7 @@ static void tst14() {
 
 static void tst15() {
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     context ctx1, ctx2;
     expr A = Const("A");
     expr vec1 = Const("vec1");
@@ -350,7 +350,7 @@ static void f2(type_checker & tc, expr const & F) {
 
 static void tst17() {
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     type_checker tc(env);
     expr A = Const("A");
     expr F;
@@ -374,7 +374,7 @@ static std::ostream & operator<<(std::ostream & out, buffer<unification_constrai
 
 static void tst18() {
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     type_inferer type_of(env);
     expr f = Const("f");
     expr g = Const("g");
@@ -406,7 +406,7 @@ static expr mk_big(unsigned val, unsigned depth) {
 
 static void tst19() {
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     type_inferer type_of(env);
     type_checker  type_of_slow(env);
     expr t = mk_big(0, 10);
@@ -428,7 +428,7 @@ static void tst19() {
 
 static void tst20() {
     environment env;
-    init_frontend(env);
+    init_full_frontend(env);
     context ctx1, ctx2;
     expr A = Const("A");
     expr vec1 = Const("vec1");
@@ -456,7 +456,7 @@ static void tst20() {
 
 static void tst21() {
     environment  env;
-    init_frontend(env);
+    init_full_frontend(env);
     metavar_env menv;
     buffer<unification_constraint> uc;
     type_inferer inferer(env);

@@ -1,3 +1,4 @@
+Import int.
 Variable i : Int.
 Check fun x, x + i
 Check fun x, x + 1

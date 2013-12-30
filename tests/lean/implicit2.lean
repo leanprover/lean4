@@ -1,3 +1,4 @@
+Import real.
 Variable f {A : Type} (x y : A) : A
 Check f 10 20
 Check f 10

@@ -1139,6 +1139,24 @@ static int environment_is_opaque(lua_State * L) {
     return 1;
 }
 
+static int environment_import(lua_State * L) {
+    rw_shared_environment env(L, 1);
+    int nargs = lua_gettop(L);
+    if (nargs == 3) {
+        env->import(luaL_checkstring(L, 2), to_io_state(L, 3));
+    } else {
+        io_state * ios = get_io_state(L);
+        if (ios) {
+            env->import(luaL_checkstring(L, 2), *ios);
+        } else {
+            io_state ios;
+            ios.set_options(get_global_options(L));
+            env->import(luaL_checkstring(L, 2), ios);
+        }
+    }
+    return 0;
+}
+
 static const struct luaL_Reg environment_m[] = {
     {"__gc",           environment_gc}, // never throws
     {"__tostring",     safe_function<environment_tostring>},
@@ -1162,6 +1180,7 @@ static const struct luaL_Reg environment_m[] = {
     {"local_objects",  safe_function<environment_local_objects>},
     {"set_opaque",     safe_function<environment_set_opaque>},
     {"is_opaque",      safe_function<environment_is_opaque>},
+    {"import",         safe_function<environment_import>},
     {0, 0}
 };
 

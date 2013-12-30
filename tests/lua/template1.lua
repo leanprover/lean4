@@ -1,6 +1,7 @@
 import("util.lua")
 import("template.lua")
 local env = environment()
+env:import("int")
 parse_lean_cmds([[
    Variables a b c : Int
    Variables f : Int -> Int

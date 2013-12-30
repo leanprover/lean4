@@ -1,3 +1,4 @@
+Import int.
 Definition id (A : Type) : (Type U) := A.
 Variable p : (Int -> Int) -> Bool.
 Check fun (x : id Int), x.

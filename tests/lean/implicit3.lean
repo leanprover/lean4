@@ -1,3 +1,5 @@
+Import int.
+
 Show 10 = 20
 Variable f : Int -> Int -> Int
 Variable g : Int -> Int -> Int -> Int

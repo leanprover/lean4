@@ -42,7 +42,7 @@ static void parse_error(environment const & env, io_state const & ios, char cons
 }
 
 static void tst1() {
-    environment env; io_state ios; init_frontend(env, ios);
+    environment env; io_state ios; init_full_frontend(env, ios);
     parse(env, ios, "Variable x : Bool Variable y : Bool Axiom H : x && y || x => x");
     parse(env, ios, "Eval true && true");
     parse(env, ios, "Show true && false Eval true && false");
@@ -63,7 +63,7 @@ static void check(environment const & env, io_state & ios, char const * str, exp
 }
 
 static void tst2() {
-    environment env; io_state ios; init_frontend(env, ios);
+    environment env; io_state ios; init_full_frontend(env, ios);
     env->add_var("x", Bool);
     env->add_var("y", Bool);
     env->add_var("z", Bool);
@@ -80,7 +80,7 @@ static void tst2() {
 }
 
 static void tst3() {
-    environment env; io_state ios; init_frontend(env, ios);
+    environment env; io_state ios; init_full_frontend(env, ios);
     parse(env, ios, "Help");
     parse(env, ios, "Help Options");
     parse_error(env, ios, "Help Echo");

@@ -1,3 +1,4 @@
+Import real.
 Variable f {A : Type} (a b : A) : Bool
 Variable a : Int
 Variable b : Real

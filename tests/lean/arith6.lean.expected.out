@@ -1,5 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
+  Imported 'int'
   Set: pp::unicode
 3 | 6
 true

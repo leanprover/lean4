@@ -1,5 +1,6 @@
 import("util.lua")
 local env = environment()
+env:import("int")
 print(get_options())
 parse_lean_cmds([[
 Variable f : Int -> Int -> Int
@@ -21,6 +22,7 @@ parse_lean_cmds([[
 ]], env)
 
 local env2 = environment()
+env2:import("int")
 parse_lean_cmds([[
 Variable f : Int -> Int -> Int
 Variables a b : Int

@@ -1,3 +1,5 @@
+Import int.
+Import real.
 Variable f {A : Type} (a1 a2 : A) : A
 Variable g : Int -> Int -> Int
 Variable h : Int -> Int -> Real -> Int

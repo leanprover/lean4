@@ -14,10 +14,16 @@ Author: Leonardo de Moura
 
 namespace lean {
 /**
-   \brief Import all definitions and notation.
+   \brief Load kernel, nat and set pretty printer.
 */
 void init_frontend(environment const & env, io_state & ios, bool no_kernel = false);
-void init_frontend(environment const & env);
+
+/*
+  \brief Load kernel, nat, int, real and set pretty printer.
+  It is used for testing.
+*/
+void init_full_frontend(environment const & env, io_state & ios);
+void init_full_frontend(environment const & env);
 
 /**
    @name Notation for parsing and pretty printing.

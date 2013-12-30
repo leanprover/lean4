@@ -1,5 +1,7 @@
   Set: pp::colors
   Set: pp::unicode
+  Imported 'int'
+  Imported 'real'
 1 / 2
 2/3
 3 div 2

@@ -1,3 +1,4 @@
+Import int.
 
 Scope
   Variable A : Type

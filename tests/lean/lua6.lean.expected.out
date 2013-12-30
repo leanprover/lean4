@@ -1,5 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
+  Imported 'int'
   Assumed: x
   Set: lean::pp::notation
 ⟨lean::pp::notation ↦ false, pp::unicode ↦ true, pp::colors ↦ false⟩

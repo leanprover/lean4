@@ -1,5 +1,7 @@
   Set: pp::colors
   Set: pp::unicode
+  Imported 'tactic'
+  Imported 'int'
   Assumed: f
   Assumed: P
   Assumed: Ax1

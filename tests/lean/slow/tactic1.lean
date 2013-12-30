@@ -1,3 +1,4 @@
+Import int.
 Definition double {A : Type} (f : A -> A) : A -> A := fun x, f (f x).
 Definition big {A : Type} (f : A -> A) : A -> A := (double (double (double (double (double (double (double f))))))).
 

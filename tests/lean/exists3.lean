@@ -1,3 +1,4 @@
+Import int.
 Variable P : Int -> Int -> Bool
 
 Theorem T1 (R1 : not (exists x y, P x y)) : forall x y, not (P x y) :=

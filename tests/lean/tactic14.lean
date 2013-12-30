@@ -1,3 +1,4 @@
+Import int.
 (**
 
 -- Tactic for trying to prove goal using Reflexivity, Congruence and available assumptions

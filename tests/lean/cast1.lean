@@ -1,4 +1,5 @@
-Import cast
+Import cast.
+Import int.
 
 Variable vector : Type -> Nat -> Type
 Axiom N0 (n : Nat) : n + 0 = n

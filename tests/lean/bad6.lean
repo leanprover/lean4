@@ -1,3 +1,5 @@
+Import int.
+Import real.
 Variable f {A : Type} (a : A) : A
 Variable a : Int
 Variable b : Real

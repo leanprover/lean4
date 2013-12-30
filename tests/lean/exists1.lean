@@ -1,3 +1,4 @@
+Import int.
 Variable a : Int
 Variable P : Int -> Int -> Bool
 Axiom H : P a a

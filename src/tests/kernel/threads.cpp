@@ -26,7 +26,7 @@ expr norm(expr const & e, environment & env) {
 }
 
 static void mk(expr const & a) {
-    environment env; init_frontend(env);
+    environment env; init_full_frontend(env);
     expr b = Const("b");
     for (unsigned i = 0; i < 100; i++) {
         expr h = Const("h");

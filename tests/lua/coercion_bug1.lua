@@ -1,5 +1,5 @@
 local env = environment()
-
+env:import("int")
 parse_lean_cmds([[
   Variable f : Int -> Int -> Int
   Notation 20 _ +++ _ : f

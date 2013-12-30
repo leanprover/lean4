@@ -1,3 +1,4 @@
+Import int.
 Variables x y z : Int
 Variable f : Int -> Int -> Int
 

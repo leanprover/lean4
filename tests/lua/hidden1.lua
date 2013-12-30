@@ -1,4 +1,5 @@
 local env = environment()
+env:import("int")
 assert(env:is_opaque("and"))
 assert(env:is_opaque("or"))
 assert(env:is_opaque({"Int", "lt"}))

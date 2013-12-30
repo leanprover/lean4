@@ -1,3 +1,4 @@
+Import int.
 (** import("tactic.lua") **)
 Variable q : Int -> Int -> Bool.
 Variable p : Int -> Bool.

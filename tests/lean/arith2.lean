@@ -1,3 +1,5 @@
+Import int.
+Import real.
 Show 1/2
 Eval 4/6
 Show 3 div 2

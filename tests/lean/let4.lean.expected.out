@@ -1,23 +1,24 @@
   Set: pp::colors
   Set: pp::unicode
+  Imported 'int'
 let b := ⊤, a : ℤ := b in a
   Assumed: vector
   Assumed: const
 let a := 10, v1 := const a ⊤, v2 := v1 in v2 : vector Bool 10
 let a := 10, v1 : vector Bool a := const a ⊤, v2 : vector Bool a := v1 in v2
 let a := 10, v1 : vector Bool a := const a ⊤, v2 : vector Bool a := v1 in v2 : vector Bool 10
-Error (line: 31, pos: 26) type mismatch at definition 'v2', expected type
+Error (line: 32, pos: 26) type mismatch at definition 'v2', expected type
     vector ℤ a
 Given type:
     vector Bool a
   Assumed: foo
   Coercion foo
-Error (line: 40, pos: 26) type mismatch at definition 'v2', expected type
+Error (line: 41, pos: 26) type mismatch at definition 'v2', expected type
     vector ℤ a
 Given type:
     vector Bool a
   Set: lean::pp::coercion
-Error (line: 48, pos: 26) type mismatch at definition 'v2', expected type
+Error (line: 49, pos: 26) type mismatch at definition 'v2', expected type
     vector ℤ a
 Given type:
     vector Bool a

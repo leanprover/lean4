@@ -1,3 +1,4 @@
+Import int.
 Variables a b c : Int
 Variables d b e : Int
 Variables d e f : Int

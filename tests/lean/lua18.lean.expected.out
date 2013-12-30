@@ -1,5 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
+  Imported 'int'
 10 + 20 + 20
 0
 10 + 20 + 30 + 40

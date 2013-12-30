@@ -1,9 +1,10 @@
   Set: pp::colors
   Set: pp::unicode
+  Imported 'int'
   Assumed: a
   Assumed: b
   Assumed: c
-Error (line: 2, pos: 0) invalid object declaration, environment already has an object named 'b'
+Error (line: 3, pos: 0) invalid object declaration, environment already has an object named 'b'
   Assumed: d
   Assumed: e
   Assumed: f

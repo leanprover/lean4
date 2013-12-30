@@ -1,3 +1,4 @@
+Import int
 Import tactic
 SetOption pp::implicit true
 SetOption pp::coercion true

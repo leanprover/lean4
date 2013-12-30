@@ -2,111 +2,23 @@
   Set: pp::unicode
   Assumed: f
 Failed to solve
- ⊢ (?M::1 ≈ λ x : ℕ, x) ⊕ (?M::1 ≈ nat_to_int) ⊕ (?M::1 ≈ nat_to_real)
-    (line: 4: pos: 8) Coercion for
-        10
-    Failed to solve
-     ⊢ Bool ≺ ℕ
-        Substitution
-         ⊢ Bool ≺ ?M::0
-            (line: 4: pos: 6) Type of argument 3 must be convertible to the expected type in the application of
+ ⊢ Bool ≺ ℕ
+    Substitution
+     ⊢ Bool ≺ ?M::0
+        (line: 4: pos: 6) Type of argument 3 must be convertible to the expected type in the application of
+            @f
+        with arguments:
+            ?M::0
+            10
+            ⊤
+        Assignment
+         ⊢ ℕ ≺ ?M::0
+            (line: 4: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
                 @f
             with arguments:
                 ?M::0
-                ?M::1 10
+                10
                 ⊤
-            Assignment
-             ⊢ ℕ ≺ ?M::0
-                Substitution
-                 ⊢ ?M::5[inst:0 (10)] ≺ ?M::0
-                    (line: 4: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
-                        @f
-                    with arguments:
-                        ?M::0
-                        ?M::1 10
-                        ⊤
-                    Assignment
-                    x : ℕ ⊢ ℕ ≈ ?M::5
-                        Destruct/Decompose
-                         ⊢ ℕ → ℕ ≈ Π x : ?M::4, ?M::5
-                            Substitution
-                             ⊢ ?M::3 ≈ Π x : ?M::4, ?M::5
-                                 Function expected at
-                                    ?M::1 10
-                                Assignment
-                                 ⊢ ℕ → ℕ ≺ ?M::3
-                                    Propagate type, ?M::1 : ?M::3
-                                        Assignment
-                                         ⊢ ?M::1 ≈ λ x : ℕ, x
-                                            Assumption 0
-    Failed to solve
-     ⊢ Bool ≺ ℤ
-        Substitution
-         ⊢ Bool ≺ ?M::0
-            (line: 4: pos: 6) Type of argument 3 must be convertible to the expected type in the application of
-                @f
-            with arguments:
-                ?M::0
-                ?M::1 10
-                ⊤
-            Assignment
-             ⊢ ℤ ≺ ?M::0
-                Substitution
-                 ⊢ ?M::5[inst:0 (10)] ≺ ?M::0
-                    (line: 4: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
-                        @f
-                    with arguments:
-                        ?M::0
-                        ?M::1 10
-                        ⊤
-                    Assignment
-                    a : ℕ ⊢ ℤ ≈ ?M::5
-                        Destruct/Decompose
-                         ⊢ ℕ → ℤ ≈ Π x : ?M::4, ?M::5
-                            Substitution
-                             ⊢ ?M::3 ≈ Π x : ?M::4, ?M::5
-                                 Function expected at
-                                    ?M::1 10
-                                Assignment
-                                 ⊢ ℕ → ℤ ≺ ?M::3
-                                    Propagate type, ?M::1 : ?M::3
-                                        Assignment
-                                         ⊢ ?M::1 ≈ nat_to_int
-                                            Assumption 1
-    Failed to solve
-     ⊢ Bool ≺ ℝ
-        Substitution
-         ⊢ Bool ≺ ?M::0
-            (line: 4: pos: 6) Type of argument 3 must be convertible to the expected type in the application of
-                @f
-            with arguments:
-                ?M::0
-                ?M::1 10
-                ⊤
-            Assignment
-             ⊢ ℝ ≺ ?M::0
-                Substitution
-                 ⊢ ?M::5[inst:0 (10)] ≺ ?M::0
-                    (line: 4: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
-                        @f
-                    with arguments:
-                        ?M::0
-                        ?M::1 10
-                        ⊤
-                    Assignment
-                    a : ℕ ⊢ ℝ ≈ ?M::5
-                        Destruct/Decompose
-                         ⊢ ℕ → ℝ ≈ Π x : ?M::4, ?M::5
-                            Substitution
-                             ⊢ ?M::3 ≈ Π x : ?M::4, ?M::5
-                                 Function expected at
-                                    ?M::1 10
-                                Assignment
-                                 ⊢ ℕ → ℝ ≺ ?M::3
-                                    Propagate type, ?M::1 : ?M::3
-                                        Assignment
-                                         ⊢ ?M::1 ≈ nat_to_real
-                                            Assumption 2
   Assumed: g
 Error (line: 7, pos: 8) invalid expression, it still contains metavariables after elaboration, metavariable: ?M::1, type:
 Type

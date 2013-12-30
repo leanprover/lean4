@@ -1,5 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
+  Imported 'int'
   Assumed: x
 type of x is ℤ
 x + y : ℤ

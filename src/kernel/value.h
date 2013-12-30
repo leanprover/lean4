@@ -30,14 +30,4 @@ public:
     virtual ~const_value() {}
     virtual expr get_type() const { return m_type; }
 };
-
-/**
-   \brief Base class for values that have a hierarchical name attached to it, and
-   have type Type().
-*/
-class type_value : public named_value {
-public:
-    type_value(name const & n):named_value(n) {}
-    virtual expr get_type() const { return Type(); }
-};
 }

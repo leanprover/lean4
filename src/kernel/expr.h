@@ -301,9 +301,9 @@ public:
     virtual void write(serializer & s) const = 0;
     typedef expr (*reader)(deserializer & d);
     static void register_deserializer(std::string const & k, reader rd);
-};
-struct register_deserializer_fn {
-    register_deserializer_fn(std::string const & k, value::reader rd) { value::register_deserializer(k, rd); }
+    struct register_deserializer_fn {
+        register_deserializer_fn(std::string const & k, value::reader rd) { value::register_deserializer(k, rd); }
+    };
 };
 
 /** \brief Semantic attachments */

@@ -61,8 +61,8 @@ expr const True  = mk_value(*(new bool_value_value(true)));
 expr const False = mk_value(*(new bool_value_value(false)));
 expr read_true(deserializer & ) { return True; }
 expr read_false(deserializer & ) { return False; }
-static register_deserializer_fn true_ds("true", read_true);
-static register_deserializer_fn false_ds("false", read_false);
+static value::register_deserializer_fn true_ds("true", read_true);
+static value::register_deserializer_fn false_ds("false", read_false);
 expr mk_bool_value(bool v) {
     return v ? True : False;
 }
@@ -115,7 +115,7 @@ public:
 };
 MK_BUILTIN(if_fn, if_fn_value);
 expr read_if(deserializer & ) { return mk_if_fn(); }
-static register_deserializer_fn if_ds("if", read_if);
+static value::register_deserializer_fn if_ds("if", read_if);
 MK_IS_BUILTIN(is_if_fn, mk_if_fn());
 // =======================================
 

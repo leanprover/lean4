@@ -43,7 +43,7 @@ expr mk_nat_value(mpz const & v) {
     return mk_value(*(new nat_value_value(v)));
 }
 expr read_nat_value(deserializer & d) { return mk_nat_value(read_mpz(d)); }
-static register_deserializer_fn nat_value_ds("nat", read_nat_value);
+static value::register_deserializer_fn nat_value_ds("nat", read_nat_value);
 
 bool is_nat_value(expr const & e) {
     return is_value(e) && dynamic_cast<nat_value_value const *>(&to_value(e)) != nullptr;
@@ -78,7 +78,7 @@ struct nat_add_eval { mpz operator()(mpz const & v1, mpz const & v2) { return v1
 typedef nat_bin_op<nat_add_name, nat_add_eval> nat_add_value;
 MK_BUILTIN(nat_add_fn, nat_add_value);
 expr read_nat_add(deserializer & ) { return mk_nat_add_fn(); }
-static register_deserializer_fn nat_add_ds("nat_add", read_nat_add);
+static value::register_deserializer_fn nat_add_ds("nat_add", read_nat_add);
 
 constexpr char nat_mul_name[] = "mul";
 /** \brief Evaluator for * : Nat -> Nat -> Nat */
@@ -86,7 +86,7 @@ struct nat_mul_eval { mpz operator()(mpz const & v1, mpz const & v2) { return v1
 typedef nat_bin_op<nat_mul_name, nat_mul_eval> nat_mul_value;
 MK_BUILTIN(nat_mul_fn, nat_mul_value);
 expr read_nat_mul(deserializer & ) { return mk_nat_mul_fn(); }
-static register_deserializer_fn nat_mul_ds("nat_mul", read_nat_mul);
+static value::register_deserializer_fn nat_mul_ds("nat_mul", read_nat_mul);
 
 /**
    \brief Semantic attachment for less than or equal to operator with type
@@ -106,7 +106,7 @@ public:
 };
 MK_BUILTIN(nat_le_fn, nat_le_value);
 expr read_nat_le(deserializer & ) { return mk_nat_le_fn(); }
-static register_deserializer_fn nat_le_ds("nat_le", read_nat_le);
+static value::register_deserializer_fn nat_le_ds("nat_le", read_nat_le);
 
 MK_CONSTANT(nat_ge_fn,  name({"Nat", "ge"}));
 MK_CONSTANT(nat_lt_fn,  name({"Nat", "lt"}));

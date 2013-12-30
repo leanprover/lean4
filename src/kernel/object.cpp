@@ -157,14 +157,14 @@ public:
     axiom_object_cell(name const & n, expr const & t):postulate_object_cell(n, t) {}
     virtual char const * keyword() const { return "Axiom"; }
     virtual bool is_axiom() const { return true; }
-    virtual void write(serializer & s) const { s << "Axiom" << get_name() << get_type(); }
+    virtual void write(serializer & s) const { s << "Ax" << get_name() << get_type(); }
 };
 static void read_axiom(environment const & env, io_state const &, deserializer & d) {
     name n    = read_name(d);
     expr t    = read_expr(d);
     env->add_axiom(n, t);
 }
-static object_cell::register_deserializer_fn axiom_ds("Axiom", read_axiom);
+static object_cell::register_deserializer_fn axiom_ds("Ax", read_axiom);
 
 
 /**
@@ -175,14 +175,14 @@ public:
     variable_decl_object_cell(name const & n, expr const & t):postulate_object_cell(n, t) {}
     virtual char const * keyword() const { return "Variable"; }
     virtual bool is_var_decl() const { return true; }
-    virtual void write(serializer & s) const { s << "Variable" << get_name() << get_type(); }
+    virtual void write(serializer & s) const { s << "Var" << get_name() << get_type(); }
 };
 static void read_variable(environment const & env, io_state const &, deserializer & d) {
     name n    = read_name(d);
     expr t    = read_expr(d);
     env->add_var(n, t);
 }
-static object_cell::register_deserializer_fn var_decl_ds("Variable", read_variable);
+static object_cell::register_deserializer_fn var_decl_ds("Var", read_variable);
 
 /**
    \brief Base class for definitions: theorems and definitions.
@@ -202,7 +202,7 @@ public:
     virtual expr get_value() const       { return m_value; }
     virtual char const * keyword() const { return "Definition"; }
     virtual unsigned get_weight() const  { return m_weight; }
-    virtual void write(serializer & s) const { s << "Definition" << get_name() << get_type() << get_value(); }
+    virtual void write(serializer & s) const { s << "Def" << get_name() << get_type() << get_value(); }
 };
 static void read_definition(environment const & env, io_state const &, deserializer & d) {
     name n    = read_name(d);
@@ -210,7 +210,7 @@ static void read_definition(environment const & env, io_state const &, deseriali
     expr v    = read_expr(d);
     env->add_definition(n, t, v);
 }
-static object_cell::register_deserializer_fn definition_ds("Definition", read_definition);
+static object_cell::register_deserializer_fn definition_ds("Def", read_definition);
 
 /**
    \brief Theorems
@@ -223,7 +223,7 @@ public:
     }
     virtual char const * keyword() const { return "Theorem"; }
     virtual bool is_theorem() const { return true; }
-    virtual void write(serializer & s) const { s << "Theorem" << get_name() << get_type() << get_value(); }
+    virtual void write(serializer & s) const { s << "Th" << get_name() << get_type() << get_value(); }
 };
 static void read_theorem(environment const & env, io_state const &, deserializer & d) {
     name n    = read_name(d);
@@ -231,7 +231,7 @@ static void read_theorem(environment const & env, io_state const &, deserializer
     expr v    = read_expr(d);
     env->add_theorem(n, t, v);
 }
-static object_cell::register_deserializer_fn theorem_ds("Theorem", read_theorem);
+static object_cell::register_deserializer_fn theorem_ds("Th", read_theorem);
 
 object mk_uvar_decl(name const & n, level const & l) { return object(new uvar_declaration_object_cell(n, l)); }
 object mk_definition(name const & n, expr const & t, expr const & v, unsigned weight) { return object(new definition_object_cell(n, t, v, weight)); }

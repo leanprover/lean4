@@ -39,7 +39,7 @@ public:
     virtual char const * keyword() const { return "MarkImplicit"; }
     virtual void write(serializer & s) const {
         unsigned sz = m_implicit.size();
-        s << "MarkImplicit" << m_obj_name << sz;
+        s << "Imp" << m_obj_name << sz;
         for (auto b : m_implicit)
             s << b;
     }
@@ -52,7 +52,7 @@ static void read_mark_implicit(environment const & env, io_state const &, deseri
         implicit.push_back(d.read_bool());
     mark_implicit_arguments(env, n, implicit.size(), implicit.data());
 }
-static object_cell::register_deserializer_fn mark_implicit_ds("MarkImplicit", read_mark_implicit);
+static object_cell::register_deserializer_fn mark_implicit_ds("Imp", read_mark_implicit);
 
 static std::vector<bool> g_empty_vector;
 /**

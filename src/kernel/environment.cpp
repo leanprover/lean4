@@ -33,14 +33,14 @@ public:
     set_opaque_command(name const & n, bool opaque):m_obj_name(n), m_opaque(opaque) {}
     virtual ~set_opaque_command() {}
     virtual char const * keyword() const { return "SetOpaque"; }
-    virtual void write(serializer & s) const { s << "SetOpaque" << m_obj_name << m_opaque; }
+    virtual void write(serializer & s) const { s << "Opa" << m_obj_name << m_opaque; }
 };
 static void read_set_opaque(environment const & env, io_state const &, deserializer & d) {
     name n = read_name(d);
     bool o = d.read_bool();
     env->set_opaque(n, o);
 }
-static object_cell::register_deserializer_fn set_opaque_ds("SetOpaque", read_set_opaque);
+static object_cell::register_deserializer_fn set_opaque_ds("Opa", read_set_opaque);
 
 class import_command : public neutral_object_cell {
     std::string m_mod_name;

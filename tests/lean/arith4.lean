@@ -1,3 +1,4 @@
+Import specialfn.
 Variable x : Real
 Eval sin(x)
 Eval cos(x)

@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "library/arith/nat.h"
 #include "library/arith/int.h"
 #include "library/arith/real.h"
-#include "library/arith/special_fn.h"
 
 namespace lean {
 class environment;

@@ -1,3 +1,4 @@
+Import specialfn.
 Variable x : Real
 Eval sinh(x)
 Eval cosh(x)

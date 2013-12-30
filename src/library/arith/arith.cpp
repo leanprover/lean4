@@ -11,6 +11,5 @@ void import_arith(environment const & env) {
     import_nat(env);
     import_int(env);
     import_real(env);
-    import_special_fn(env);
 }
 }

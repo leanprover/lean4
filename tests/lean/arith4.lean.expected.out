@@ -1,5 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
+  Imported 'specialfn'
   Assumed: x
 sin x
 sin (x + -1 * (π / 2))

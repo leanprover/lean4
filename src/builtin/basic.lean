@@ -324,15 +324,15 @@ Theorem ForallEqIntro {A : (Type U)} {P Q : A → Bool} (H : Pi x : A, P x == Q 
 Theorem ExistsEqIntro {A : (Type U)} {P Q : A → Bool} (H : Pi x : A, P x == Q x) : (∃ x : A, P x) == (∃ x : A, Q x)
 := Congr2 (Exists A) (Abst H).
 
-Theorem NotForall (A : (Type U)) (P : A → Bool) : (¬ (∀ x : A, P x)) == (∃ x : A, ¬ (P x))
-:= let L1 : (¬ (∀ x : A, ¬ (¬ (P x)))) == (∃ x : A, (¬ (P x))) := Refl (∃ x : A, ¬ (P x)),
-       L2 : (¬ (∀ x : A, P x)) == (¬ (∀ x : A, ¬ (¬ (P x)))) :=
+Theorem NotForall (A : (Type U)) (P : A → Bool) : (¬ (∀ x : A, P x)) == (∃ x : A, ¬ P x)
+:= let L1 : (¬ ∀ x : A, ¬ ¬ P x) == (∃ x : A, ¬ P x) := Refl (∃ x : A, ¬ P x),
+       L2 : (¬ ∀ x : A, P x) == (¬ ∀ x : A, ¬ ¬ P x) :=
             NotCongr (ForallEqIntro (λ x : A, (Symm (DoubleNeg (P x)))))
    in Trans L2 L1.
 
-Theorem NotExists (A : (Type U)) (P : A → Bool) : (¬ (∃ x : A, P x)) == (∀ x : A, ¬ (P x))
-:= let L1 : (¬ (∃ x : A, P x)) == (¬ (¬ (∀ x : A, ¬ (P x)))) := Refl (¬ (∃ x : A, P x)),
-       L2 : (¬ (¬ (∀ x : A, ¬ (P x)))) == (∀ x : A, ¬ (P x)) := DoubleNeg (∀ x : A, ¬ (P x))
+Theorem NotExists (A : (Type U)) (P : A → Bool) : (¬ ∃ x : A, P x) == (∀ x : A, ¬ P x)
+:= let L1 : (¬ ∃ x : A, P x) == (¬ ¬ ∀ x : A, ¬ P x) := Refl (¬ ∃ x : A, P x),
+       L2 : (¬ ¬ ∀ x : A, ¬ P x) == (∀ x : A, ¬ P x) := DoubleNeg (∀ x : A, ¬ P x)
    in Trans L1 L2.
 
 Theorem UnfoldExists1 {A : TypeU} {P : A → Bool} (a : A) (H : ∃ x : A, P x) : P a ∨ (∃ x : A, x ≠ a ∧ P x)

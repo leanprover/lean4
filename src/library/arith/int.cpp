@@ -51,9 +51,8 @@ public:
 expr mk_int_value(mpz const & v) {
     return mk_value(*(new int_value_value(v)));
 }
-expr read_int_value(deserializer & d) { return mk_int_value(read_mpz(d)); }
-static value::register_deserializer_fn int_value_ds("int", read_int_value);
-static register_available_builtin_fn g_int_value(name({"Int", "numeral"}), []() { return mk_int_value(mpz(0)); }, true);
+static value::register_deserializer_fn int_value_ds("int", [](deserializer & d) { return mk_int_value(read_mpz(d)); });
+static register_builtin_fn int_value_blt(name({"Int", "numeral"}), []() { return mk_int_value(mpz(0)); }, true);
 
 bool is_int_value(expr const & e) {
     return is_value(e) && dynamic_cast<int_value_value const *>(&to_value(e)) != nullptr;
@@ -86,17 +85,15 @@ constexpr char int_add_name[] = "add";
 struct int_add_eval { mpz operator()(mpz const & v1, mpz const & v2) { return v1 + v2; }; };
 typedef int_bin_op<int_add_name, int_add_eval> int_add_value;
 MK_BUILTIN(int_add_fn, int_add_value);
-expr read_int_add(deserializer & ) { return mk_int_add_fn(); }
-static value::register_deserializer_fn int_add_ds("int_add", read_int_add);
-static register_available_builtin_fn g_int_add_value(name({"Int", "add"}), []() { return mk_int_add_fn(); });
+static value::register_deserializer_fn int_add_ds("int_add", [](deserializer & ) { return mk_int_add_fn(); });
+static register_builtin_fn g_int_add_value(name({"Int", "add"}), []() { return mk_int_add_fn(); });
 
 constexpr char int_mul_name[] = "mul";
 struct int_mul_eval { mpz operator()(mpz const & v1, mpz const & v2) { return v1 * v2; }; };
 typedef int_bin_op<int_mul_name, int_mul_eval> int_mul_value;
 MK_BUILTIN(int_mul_fn, int_mul_value);
-expr read_int_mul(deserializer & ) { return mk_int_mul_fn(); }
-static value::register_deserializer_fn int_mul_ds("int_mul", read_int_mul);
-static register_available_builtin_fn g_int_mul_value(name({"Int", "mul"}), []() { return mk_int_mul_fn(); });
+static value::register_deserializer_fn int_mul_ds("int_mul", [](deserializer & ) { return mk_int_mul_fn(); });
+static register_builtin_fn int_mul_blt(name({"Int", "mul"}), []() { return mk_int_mul_fn(); });
 
 constexpr char int_div_name[] = "div";
 struct int_div_eval {
@@ -109,9 +106,8 @@ struct int_div_eval {
 };
 typedef int_bin_op<int_div_name, int_div_eval> int_div_value;
 MK_BUILTIN(int_div_fn, int_div_value);
-expr read_int_div(deserializer & ) { return mk_int_div_fn(); }
-static value::register_deserializer_fn int_div_ds("int_div", read_int_div);
-static register_available_builtin_fn g_int_div_value(name({"Int", "div"}), []() { return mk_int_div_fn(); });
+static value::register_deserializer_fn int_div_ds("int_div", [](deserializer & ) { return mk_int_div_fn(); });
+static register_builtin_fn int_div_blt(name({"Int", "div"}), []() { return mk_int_div_fn(); });
 
 class int_le_value : public const_value {
 public:
@@ -126,9 +122,8 @@ public:
     virtual void write(serializer & s) const { s << "int_le"; }
 };
 MK_BUILTIN(int_le_fn, int_le_value);
-expr read_int_le(deserializer & ) { return mk_int_le_fn(); }
-static value::register_deserializer_fn int_le_ds("int_le", read_int_le);
-static register_available_builtin_fn g_int_le_value(name({"Int", "le"}), []() { return mk_int_le_fn(); });
+static value::register_deserializer_fn int_le_ds("int_le", [](deserializer & ) { return mk_int_le_fn(); });
+static register_builtin_fn int_le_blt(name({"Int", "le"}), []() { return mk_int_le_fn(); });
 
 MK_CONSTANT(int_sub_fn, name({"Int", "sub"}));
 MK_CONSTANT(int_neg_fn, name({"Int", "neg"}));
@@ -155,9 +150,8 @@ public:
     virtual void write(serializer & s) const { s << "nat_to_int"; }
 };
 MK_BUILTIN(nat_to_int_fn, nat_to_int_value);
-expr read_nat_to_int(deserializer & ) { return mk_nat_to_int_fn(); }
-static value::register_deserializer_fn nat_to_int_ds("nat_to_int", read_nat_to_int);
-register_available_builtin_fn g_n2i_value(name({"nat_to_int"}), []() { return mk_nat_to_int_fn(); });
+static value::register_deserializer_fn nat_to_int_ds("nat_to_int", [](deserializer & ) { return mk_nat_to_int_fn(); });
+static register_builtin_fn nat_to_int_blt("nat_to_int", []() { return mk_nat_to_int_fn(); });
 
 MK_CONSTANT(nat_sub_fn, name({"Nat", "sub"}));
 MK_CONSTANT(nat_neg_fn, name({"Nat", "neg"}));

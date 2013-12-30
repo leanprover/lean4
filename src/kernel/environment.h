@@ -418,10 +418,10 @@ typedef std::function<expr()> mk_builtin_fn;
    \brief Register a builtin or builtin-set that is available to be added to
    a Lean environment.
 */
-void register_available_builtin(name const & n, mk_builtin_fn mk, bool is_builtin_set);
-struct register_available_builtin_fn {
-    register_available_builtin_fn(name const & n, mk_builtin_fn mk, bool is_builtin_set = false) {
-        register_available_builtin(n, mk, is_builtin_set);
+void register_builtin(name const & n, mk_builtin_fn mk, bool is_builtin_set);
+struct register_builtin_fn {
+    register_builtin_fn(name const & n, mk_builtin_fn mk, bool is_builtin_set = false) {
+        register_builtin(n, mk, is_builtin_set);
     }
 };
 /**

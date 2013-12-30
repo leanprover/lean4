@@ -712,7 +712,7 @@ name_map<std::pair<mk_builtin_fn, bool>> & get_available_builtins() {
     return *g_available_builtins;
 }
 
-void register_available_builtin(name const & n, mk_builtin_fn mk, bool is_builtin_set) {
+void register_builtin(name const & n, mk_builtin_fn mk, bool is_builtin_set) {
     auto & bs = get_available_builtins();
     if (bs.find(n) != bs.end())
         throw exception("invalid builtin object, system already has a builtin object with the given name");

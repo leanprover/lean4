@@ -44,9 +44,8 @@ public:
 expr mk_nat_value(mpz const & v) {
     return mk_value(*(new nat_value_value(v)));
 }
-expr read_nat_value(deserializer & d) { return mk_nat_value(read_mpz(d)); }
-static value::register_deserializer_fn nat_value_ds("nat", read_nat_value);
-register_available_builtin_fn g_nat_value(name({"Nat", "numeral"}), []() { return mk_nat_value(mpz(0)); }, true);
+static value::register_deserializer_fn nat_value_ds("nat", [](deserializer & d) { return mk_nat_value(read_mpz(d)); });
+static register_builtin_fn nat_value_blt(name({"Nat", "numeral"}), []() { return mk_nat_value(mpz(0)); }, true);
 
 bool is_nat_value(expr const & e) {
     return is_value(e) && dynamic_cast<nat_value_value const *>(&to_value(e)) != nullptr;
@@ -80,18 +79,16 @@ constexpr char nat_add_name[] = "add";
 struct nat_add_eval { mpz operator()(mpz const & v1, mpz const & v2) { return v1 + v2; }; };
 typedef nat_bin_op<nat_add_name, nat_add_eval> nat_add_value;
 MK_BUILTIN(nat_add_fn, nat_add_value);
-expr read_nat_add(deserializer & ) { return mk_nat_add_fn(); }
-static value::register_deserializer_fn nat_add_ds("nat_add", read_nat_add);
-register_available_builtin_fn g_nat_add_value(name({"Nat", "add"}), []() { return mk_nat_add_fn(); });
+static value::register_deserializer_fn nat_add_ds("nat_add", [](deserializer & ) { return mk_nat_add_fn(); });
+static register_builtin_fn nat_add_blt(name({"Nat", "add"}), []() { return mk_nat_add_fn(); });
 
 constexpr char nat_mul_name[] = "mul";
 /** \brief Evaluator for * : Nat -> Nat -> Nat */
 struct nat_mul_eval { mpz operator()(mpz const & v1, mpz const & v2) { return v1 * v2; }; };
 typedef nat_bin_op<nat_mul_name, nat_mul_eval> nat_mul_value;
 MK_BUILTIN(nat_mul_fn, nat_mul_value);
-expr read_nat_mul(deserializer & ) { return mk_nat_mul_fn(); }
-static value::register_deserializer_fn nat_mul_ds("nat_mul", read_nat_mul);
-register_available_builtin_fn g_nat_mul_value(name({"Nat", "mul"}), []() { return mk_nat_mul_fn(); });
+static value::register_deserializer_fn nat_mul_ds("nat_mul", [](deserializer & ) { return mk_nat_mul_fn(); });
+static register_builtin_fn nat_mul_blt(name({"Nat", "mul"}), []() { return mk_nat_mul_fn(); });
 
 /**
    \brief Semantic attachment for less than or equal to operator with type
@@ -110,9 +107,8 @@ public:
     virtual void write(serializer & s) const { s << "nat_le"; }
 };
 MK_BUILTIN(nat_le_fn, nat_le_value);
-expr read_nat_le(deserializer & ) { return mk_nat_le_fn(); }
-static value::register_deserializer_fn nat_le_ds("nat_le", read_nat_le);
-register_available_builtin_fn g_nat_le_value(name({"Nat", "le"}), []() { return mk_nat_le_fn(); });
+static value::register_deserializer_fn nat_le_ds("nat_le", [](deserializer & ) { return mk_nat_le_fn(); });
+static register_builtin_fn nat_le_blt(name({"Nat", "le"}), []() { return mk_nat_le_fn(); });
 
 MK_CONSTANT(nat_ge_fn,  name({"Nat", "ge"}));
 MK_CONSTANT(nat_lt_fn,  name({"Nat", "lt"}));

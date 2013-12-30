@@ -357,25 +357,29 @@ name operator+(name const & n1, name const & n2) {
     }
 }
 
+enum name_ll_kind { LL_ANON = 0, LL_STRING = 1, LL_INT = 2, LL_STRING_PREFIX = 3, LL_INT_PREFIX = 4 };
+name_ll_kind ll_kind(name const & n) {
+    if (n.is_anonymous())
+        return LL_ANON;
+    if (n.is_atomic())
+        return n.is_string() ? LL_STRING : LL_INT;
+    else
+        return n.is_string() ? LL_STRING_PREFIX : LL_INT_PREFIX;
+}
+
 class name_serializer : public object_serializer<name, name::ptr_hash, name::ptr_eq> {
     typedef object_serializer<name, name::ptr_hash, name::ptr_eq> super;
 public:
     void write(name const & n) {
-        super::write(n, [&]() {
+        name_ll_kind k = ll_kind(n);
+        super::write_core(n, k, [&]() {
                 serializer & s = get_owner();
-                s.write_char(static_cast<char>(n.kind()));
-                if (n.is_anonymous())
-                    return;
-                if (n.is_atomic()) {
-                    s.write_bool(false);
-                } else {
-                    s.write_bool(true);
-                    write(n.get_prefix());
-                }
-                if (n.is_string()) {
-                    s.write_string(n.get_string());
-                } else {
-                    s.write_unsigned(n.get_numeral());
+                switch (k) {
+                case LL_ANON:            break;
+                case LL_STRING:          s.write_string(n.get_string()); break;
+                case LL_INT:             s.write_unsigned(n.get_numeral()); break;
+                case LL_STRING_PREFIX:   write(n.get_prefix()); s.write_string(n.get_string()); break;
+                case LL_INT_PREFIX:      write(n.get_prefix()); s.write_unsigned(n.get_numeral()); break;
                 }
             });
     }
@@ -385,20 +389,22 @@ class name_deserializer : public object_deserializer<name> {
     typedef object_deserializer<name> super;
 public:
     name read() {
-        return super::read([&]() {
+        return super::read_core([&](char c) {
                 deserializer & d = get_owner();
-                auto k = static_cast<name_kind>(d.read_char());
-                if (k == name_kind::ANONYMOUS)
-                    return name();
-                name prefix;
-                if (d.read_bool())
-                    prefix = read();
-                if (k == name_kind::STRING) {
+                name_ll_kind k = static_cast<name_ll_kind>(c);
+                switch (k) {
+                case LL_ANON:          return name();
+                case LL_STRING:        return name(d.read_string().c_str());
+                case LL_INT:           return name(name(), d.read_unsigned());
+                case LL_STRING_PREFIX: {
+                    name prefix = read();
                     return name(prefix, d.read_string().c_str());
-                } else {
-                    lean_assert(k == name_kind::NUMERAL);
-                    return name(prefix, d.read_unsigned());
                 }
+                case LL_INT_PREFIX: {
+                    name prefix = read();
+                    return name(prefix, d.read_unsigned());
+                }}
+                lean_unreachable(); // LCOV_EXCL_LINE
             });
     }
 };

@@ -357,17 +357,21 @@ public:
     }
 
     void write(expr const & a) {
-        super::write(a, [&]() {
+        auto k = a.kind();
+        char kc;
+        if (k == expr_kind::App && num_args(a) < g_small_app_num_args) {
+            kc = static_cast<char>(g_first_app_size_kind + num_args(a));
+        } else {
+            kc = static_cast<char>(k);
+        }
+        super::write_core(a, kc, [&]() {
                 serializer & s = get_owner();
-                auto k = a.kind();
-                if (k == expr_kind::App && num_args(a) < g_small_app_num_args) {
+                if (kc >= static_cast<char>(g_first_app_size_kind)) {
                     // compressed application
-                    s << static_cast<char>(g_first_app_size_kind + num_args(a));
                     for (unsigned i = 0; i < num_args(a); i++)
                         write(arg(a, i));
                     return;
                 }
-                s << static_cast<char>(k);
                 switch (k) {
                 case expr_kind::Var:       s << var_idx(a); break;
                 case expr_kind::Constant:  s << const_name(a); write(const_type(a)); break;
@@ -401,9 +405,8 @@ public:
     }
 
     expr read() {
-        return super::read([&]() {
+        return super::read_core([&](char c) {
                 deserializer & d = get_owner();
-                char c = d.read_char();
                 if (c >= g_first_app_size_kind) {
                     // compressed application
                     unsigned num = c - g_first_app_size_kind;

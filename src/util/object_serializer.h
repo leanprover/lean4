@@ -22,18 +22,24 @@ class object_serializer : public serializer::extension {
     std::unordered_map<T, unsigned, HashFn, EqFn> m_table;
 public:
     object_serializer(HashFn const & h = HashFn(), EqFn const & e = EqFn()):m_table(LEAN_OBJECT_SERIALIZER_BUCKET_SIZE, h, e) {}
+
     template<typename F>
-    void write(T const & v, F && f) {
+    void write_core(T const & v, char k, F && f) {
         auto it = m_table.find(v);
         serializer & s = get_owner();
         if (it == m_table.end()) {
-            s.write_bool(true);
+            s.write_char(k + 1);
             f();
             m_table.insert(std::make_pair(v, m_table.size()));
         } else {
-            s.write_bool(false);
+            s.write_char(0);
             s.write_unsigned(it->second);
         }
+    }
+
+    template<typename F>
+    void write(T const & v, F && f) {
+        write_core(v, 0, f);
     }
 };
 
@@ -45,10 +51,11 @@ class object_deserializer : public deserializer::extension {
     std::vector<T> m_table;
 public:
     template<typename F>
-    T read(F && f) {
+    T read_core(F && f) {
         deserializer & d = get_owner();
-        if (d.read_bool()) {
-            T r = f();
+        char c = d.read_char();
+        if (c > 0) {
+            T r = f(c-1);
             m_table.push_back(r);
             return r;
         } else {
@@ -56,6 +63,11 @@ public:
             lean_assert(i < m_table.size());
             return m_table[i];
         }
+    }
+
+    template<typename F>
+    T read(F && f) {
+        return read_core([&](char ) { return f(); });
     }
 };
 }

@@ -343,10 +343,10 @@ Theorem UnfoldExists1 {A : TypeU} {P : A → Bool} (a : A) (H : ∃ x : A, P x) 
           (λ Hne : w ≠ a, Disj2 (P a) (ExistsIntro w (Conj Hne H1)))).
 
 Theorem UnfoldExists2 {A : TypeU} {P : A → Bool} (a : A) (H : P a ∨ (∃ x : A, x ≠ a ∧ P x)) : ∃ x : A, P x
-:= DisjCases (EM (P a))
-      (λ Hpos : P a,   ExistsIntro a Hpos)
-      (λ Hneg : ¬ P a,
-          ExistsElim (Resolve1 H Hneg)
+:= DisjCases H
+      (λ H1 : P a, ExistsIntro a H1)
+      (λ H2 : (∃ x : A, x ≠ a ∧ P x),
+          ExistsElim H2
                (λ (w : A) (Hw : w ≠ a ∧ P w),
                   ExistsIntro w (Conjunct2 Hw))).
 

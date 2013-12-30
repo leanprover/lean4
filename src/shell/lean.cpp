@@ -91,7 +91,7 @@ static struct option g_long_options[] = {
     {"lean",       no_argument,       0, 'l'},
     {"olean",      no_argument,       0, 'b'},
     {"lua",        no_argument,       0, 'u'},
-    {"kernel",     no_argument,       0, 'k'},
+    {"nokernel",   no_argument,       0, 'n'},
     {"path",       no_argument,       0, 'p'},
     {"luahook",    required_argument, 0, 'c'},
     {"githash",    no_argument,       0, 'g'},
@@ -107,13 +107,13 @@ int main(int argc, char ** argv) {
     try {
         lean::save_stack_info();
         lean::register_modules();
-        bool kernel_only    = false;
+        bool no_kernel      = false;
         bool export_objects = false;
         bool trust_imported = false;
         std::string output;
         input_kind default_k = input_kind::Lean; // default
         while (true) {
-            int c = getopt_long(argc, argv, "tklupgvhc:012s:012o:", g_long_options, NULL);
+            int c = getopt_long(argc, argv, "tnlupgvhc:012s:012o:", g_long_options, NULL);
             if (c == -1)
                 break; // end of command line
             switch (c) {
@@ -144,8 +144,8 @@ int main(int argc, char ** argv) {
             case 's':
                 lean::set_thread_stack_size(atoi(optarg)*1024);
                 break;
-            case 'k':
-                kernel_only = true;
+            case 'n':
+                no_kernel = true;
                 break;
             case 'o':
                 output = optarg;
@@ -172,7 +172,7 @@ int main(int argc, char ** argv) {
                 environment env;
                 env->set_trusted_imported(trust_imported);
                 io_state ios;
-                init_frontend(env, ios, kernel_only);
+                init_frontend(env, ios, no_kernel);
                 script_state S;
                 shell sh(env, &S);
                 int status = sh() ? 0 : 1;
@@ -188,7 +188,7 @@ int main(int argc, char ** argv) {
             environment env;
             env->set_trusted_imported(trust_imported);
             io_state    ios;
-            init_frontend(env, ios, kernel_only);
+            init_frontend(env, ios, no_kernel);
             script_state S;
             bool ok = true;
             for (int i = optind; i < argc; i++) {

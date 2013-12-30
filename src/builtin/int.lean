@@ -1,4 +1,3 @@
-Import basic.
 Import nat.
 
 Variable Int : Type.

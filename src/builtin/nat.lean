@@ -1,4 +1,4 @@
-Import basic.
+Import kernel.
 
 Variable Nat : Type.
 Alias ℕ : Nat.

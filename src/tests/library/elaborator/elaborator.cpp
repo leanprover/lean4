@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/normalizer.h"
 #include "kernel/instantiate.h"
-#include "library/basic_thms.h"
+#include "kernel/builtin.h"
 #include "library/placeholder.h"
 #include "library/arith/arith.h"
 #include "library/elaborator/elaborator.h"

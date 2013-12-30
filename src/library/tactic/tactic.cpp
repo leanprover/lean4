@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "kernel/update_expr.h"
 #include "kernel/builtin.h"
 #include "library/kernel_bindings.h"
-#include "library/basic_thms.h"
 #include "library/tactic/tactic.h"
 
 namespace lean {

@@ -21,7 +21,6 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/type_checker_justification.h"
 #include "kernel/io_state.h"
-#include "library/basic_thms.h"
 #include "library/arith/arith.h"
 #include "frontends/lean/frontend.h"
 using namespace lean;

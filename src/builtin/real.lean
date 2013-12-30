@@ -1,5 +1,3 @@
-Import basic.
-Import nat.
 Import int.
 
 Variable Real : Type.

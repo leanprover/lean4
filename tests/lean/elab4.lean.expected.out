@@ -5,7 +5,7 @@
   Assumed: R
   Proved: R2
   Set: lean::pp::implicit
-Import "basic"
+Import "kernel"
 Import "nat"
 Import "int"
 Import "real"

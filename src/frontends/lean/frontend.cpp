@@ -557,9 +557,9 @@ static lean_extension & to_ext(environment const & env) {
 /**
    \brief Import all definitions and notation.
 */
-void init_frontend(environment const & env, io_state & ios, bool kernel_only) {
+void init_frontend(environment const & env, io_state & ios, bool no_kernel) {
     ios.set_formatter(mk_pp_formatter(env));
-    if (!kernel_only)
+    if (!no_kernel)
         import_all(env);
 }
 void init_frontend(environment const & env) {

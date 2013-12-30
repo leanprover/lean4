@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "kernel/builtin.h"
 #include "kernel/abstract.h"
 #include "kernel/occurs.h"
-#include "library/basic_thms.h"
 #include "library/tactic/goal.h"
 #include "library/tactic/proof_builder.h"
 #include "library/tactic/proof_state.h"

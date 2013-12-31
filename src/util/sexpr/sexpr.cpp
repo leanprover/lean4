@@ -336,7 +336,7 @@ public:
                     sexpr t = read();
                     return sexpr(h, t);
                 }}
-                lean_unreachable();
+                throw_corrupted_file();
             });
     }
 };

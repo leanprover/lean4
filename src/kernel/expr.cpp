@@ -459,7 +459,7 @@ public:
                     name n = read_name(d);
                     return mk_metavar(n, read_local_context(d));
                 }}
-                lean_unreachable(); // LCOV_EXCL_LINE
+                throw_corrupted_file();
             });
     }
 };

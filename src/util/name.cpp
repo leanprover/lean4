@@ -404,7 +404,7 @@ public:
                     name prefix = read();
                     return name(prefix, d.read_unsigned());
                 }}
-                lean_unreachable(); // LCOV_EXCL_LINE
+                throw_corrupted_file();
             });
     }
 };

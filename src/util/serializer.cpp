@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <stdio.h>
 #include <ios>
 #include "util/serializer.h"
+#include "util/exception.h"
 
 namespace lean {
 void serializer_core::write_unsigned(unsigned i) {
@@ -68,5 +69,9 @@ double deserializer_core::read_double() {
     double r;
     in >> r;
     return r;
+}
+
+void throw_corrupted_file() {
+    throw exception("corrupted binary file");
 }
 }

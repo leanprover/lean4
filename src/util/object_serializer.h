@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #pragma once
 #include <unordered_map>
 #include <vector>
-#include "util/exception.h"
 #include "util/serializer.h"
 
 #ifndef LEAN_OBJECT_SERIALIZER_BUCKET_SIZE
@@ -62,7 +61,7 @@ public:
         } else {
             unsigned i = d.read_unsigned();
             if (i >= m_table.size())
-                throw exception("corrupted binary file");
+                throw_corrupted_file();
             return m_table[i];
         }
     }

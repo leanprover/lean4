@@ -308,7 +308,7 @@ public:
                     }
                     return max_core(lvls.size(), lvls.data());
                 }}
-                lean_unreachable();
+                throw_corrupted_file();
             });
     }
 };

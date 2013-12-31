@@ -63,4 +63,6 @@ inline deserializer & operator>>(deserializer & d, int & i) { i = d.read_int(); 
 inline deserializer & operator>>(deserializer & d, char & c) { c = d.read_char(); return d; }
 inline deserializer & operator>>(deserializer & d, bool & b) { b = d.read_bool(); return d; }
 inline deserializer & operator>>(deserializer & d, double & b) { b = d.read_double(); return d; }
+
+[[ noreturn ]] void throw_corrupted_file();
 }

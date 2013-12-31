@@ -553,7 +553,7 @@ void environment_cell::set_trusted_imported(bool flag) {
 static char const * g_olean_header   = "oleanfile";
 static char const * g_olean_end_file = "EndFile";
 void environment_cell::export_objects(std::string const & fname) {
-    std::ofstream out(fname);
+    std::ofstream out(fname, std::ofstream::binary);
     serializer s(out);
     s << g_olean_header << LEAN_VERSION_MAJOR << LEAN_VERSION_MINOR;
     auto it  = begin_objects();
@@ -579,7 +579,7 @@ void environment_cell::export_objects(std::string const & fname) {
 
 bool environment_cell::load_core(std::string const & fname, io_state const & ios, optional<std::string> const & mod_name) {
     if (!mod_name || mark_imported_core(fname)) {
-        std::ifstream in(fname);
+        std::ifstream in(fname, std::ifstream::binary);
         if (!in.good())
             throw exception(sstream() << "failed to open file '" << fname << "'");
         deserializer d(in);

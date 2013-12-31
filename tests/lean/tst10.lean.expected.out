@@ -16,7 +16,7 @@ a ∨ a ∨ b
 a ⇒ b ⇒ a
 a ⇒ b : Bool
 if a a ⊤
-a
+if ⊤ a ⊤
   Assumed: H1
   Assumed: H2
 @MP : Π (a b : Bool), (a ⇒ b) → a → b

@@ -101,7 +101,7 @@ public:
     virtual expr get_type() const { return m_type; }
     virtual name get_name() const { return g_if_name; }
     virtual optional<expr> normalize(unsigned num_args, expr const * args) const {
-        if (num_args == 5 && is_bool_value(args[2])) {
+        if (num_args == 5 && is_bool_value(args[2]) && is_value(args[3]) && is_value(args[4])) {
             if (to_bool(args[2]))
                 return some_expr(args[3]); // if A true a b  --> a
             else

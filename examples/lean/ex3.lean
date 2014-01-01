@@ -1,10 +1,13 @@
-Theorem and_comm (a b : Bool) : (a ∧ b) ⇒ (b ∧ a) :=
-    Discharge (λ H_ab, Conj (Conjunct2 H_ab) (Conjunct1 H_ab))
+Import macros.
 
-Theorem or_comm (a b : Bool) : (a ∨ b) ⇒ (b ∨ a) :=
-    Discharge (λ H_ab, DisjCases H_ab
-                                 (λ H_a, Disj2 b H_a)
-                                 (λ H_b, Disj1 H_b a))
+Theorem and_comm (a b : Bool) : (a ∧ b) ⇒ (b ∧ a)
+:= assume H_ab, Conj (Conjunct2 H_ab) (Conjunct1 H_ab).
+
+Theorem or_comm (a b : Bool) : (a ∨ b) ⇒ (b ∨ a)
+:= assume H_ab,
+      DisjCases H_ab
+                (λ H_a, Disj2 b H_a)
+                (λ H_b, Disj1 H_b a).
 
 (* ---------------------------------
 (EM a) is the excluded middle  a ∨ ¬a
@@ -19,9 +22,9 @@ NotImp1 applied to
 produces
         a
 ----------------------------------- *)
-Theorem pierce (a b : Bool) : ((a ⇒ b) ⇒ a) ⇒ a :=
-    Discharge (λ H, DisjCases (EM a)
-                              (λ H_a, H_a)
-                              (λ H_na, NotImp1 (MT H H_na)))
+Theorem pierce (a b : Bool) : ((a ⇒ b) ⇒ a) ⇒ a
+:= assume H, DisjCases (EM a)
+                       (λ H_a, H_a)
+                       (λ H_na, NotImp1 (MT H H_na)).
 
-Show Environment 3
+Show Environment 3.

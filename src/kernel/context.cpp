@@ -87,18 +87,4 @@ optional<context> context::remove(unsigned s, unsigned n, metavar_env const & me
         return optional<context>();
     }
 }
-
-static list<context_entry> insert_at_core(list<context_entry> const & l, unsigned i, name const & n, expr const & d,
-                                                metavar_env const & menv) {
-    if (i == 0) {
-        return cons(context_entry(n, d), l);
-    } else {
-        lean_assert(l);
-        return cons(lift_free_vars(head(l), i-1, 1, menv), insert_at_core(tail(l), i-1, n, d, menv));
-    }
-}
-
-context context::insert_at(unsigned i, name const & n, expr const & d, metavar_env const & menv) const {
-    return context(insert_at_core(m_list, i, n, d, menv));
-}
 }

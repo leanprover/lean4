@@ -78,18 +78,6 @@ public:
        That is, the lower operations must be valid.
     */
     optional<context> remove(unsigned s, unsigned n, metavar_env const & menv) const;
-    /**
-       \brief Return a new context where then entry n : d is inserted at position i.
-
-       The entries from [0, i) are lifted
-       That is, if this context is of the form
-       [ce_m, ..., ce_i, ce_{i-1}, ..., ce_0]
-       Then, the resultant context is of the form
-       [ce_m, ..., ce_i, n := v, lift(ce_{i-1}, 0, 1), ..., lift(ce_0, i-1, 1)]
-
-       \pre size() >= i
-    */
-    context insert_at(unsigned i, name const & n, expr const & d, metavar_env const & menv) const;
     friend bool operator==(context const & ctx1, context const & ctx2) { return ctx1.m_list == ctx2.m_list; }
     friend bool operator!=(context const & ctx1, context const & ctx2) { return !(ctx1 == ctx2); }
 };

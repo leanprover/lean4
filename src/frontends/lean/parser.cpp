@@ -107,6 +107,8 @@ static name g_pop_kwd("Pop");
 static name g_scope_kwd("Scope");
 static name g_end_scope_kwd("EndScope");
 static name g_builtin_kwd("Builtin");
+static name g_namespace_kwd("Namespace");
+static name g_end_namespace_kwd("EndNamespace");
 static name g_apply("apply");
 static name g_done("done");
 static name g_back("back");
@@ -117,7 +119,8 @@ static list<name> g_tactic_cmds = { g_apply, g_done, g_back, g_abort, g_assumpti
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_variables_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
                                         g_show_kwd, g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_notation_kwd, g_echo_kwd,
                                         g_set_option_kwd, g_set_opaque_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd, g_coercion_kwd,
-                                        g_exit_kwd, g_push_kwd, g_pop_kwd, g_scope_kwd, g_end_scope_kwd, g_alias_kwd, g_builtin_kwd};
+                                        g_exit_kwd, g_push_kwd, g_pop_kwd, g_scope_kwd, g_end_scope_kwd, g_alias_kwd, g_builtin_kwd,
+                                        g_namespace_kwd, g_end_namespace_kwd};
 // ==========================================
 
 // ==========================================
@@ -222,6 +225,7 @@ class parser::imp {
     pos_info            m_last_cmd_pos;
     pos_info            m_last_script_pos;
     tactic_hints        m_tactic_hints;
+    std::vector<name>   m_namespace_prefixes;
     // If true then return error when parsing identifiers and it is not local or global.
     // We set this flag off when parsing tactics. The apply_tac may reference
     // a hypothesis in the proof state. This hypothesis is not visible until we
@@ -912,37 +916,43 @@ class parser::imp {
        to check if \c id is a builtin symbol. If it is not throws an error.
     */
     expr get_name_ref(name const & id, pos_info const & p) {
-        optional<object> obj = m_env->find_object(id);
-        if (obj) {
-            object_kind k      = obj->kind();
-            if (k == object_kind::Definition || k == object_kind::Postulate || k == object_kind::Builtin) {
-                if (has_implicit_arguments(m_env, obj->get_name())) {
-                    std::vector<bool> const & imp_args = get_implicit_arguments(m_env, obj->get_name());
-                    buffer<expr> args;
-                    pos_info p = pos();
-                    expr f = (k == object_kind::Builtin) ? obj->get_value() : mk_constant(obj->get_name());
-                    args.push_back(save(f, p));
-                    for (unsigned i = 0; i < imp_args.size(); i++) {
-                        if (imp_args[i]) {
-                            args.push_back(save(mk_placeholder(), pos()));
-                        } else {
-                            args.push_back(parse_expr(g_app_precedence));
+        lean_assert(!m_namespace_prefixes.empty());
+        auto it    = m_namespace_prefixes.end();
+        auto begin = m_namespace_prefixes.begin();
+        while (it != begin) {
+            --it;
+            name nid = *it + id;
+            optional<object> obj = m_env->find_object(nid);
+            if (obj) {
+                object_kind k      = obj->kind();
+                if (k == object_kind::Definition || k == object_kind::Postulate || k == object_kind::Builtin) {
+                    if (has_implicit_arguments(m_env, obj->get_name())) {
+                        std::vector<bool> const & imp_args = get_implicit_arguments(m_env, obj->get_name());
+                        buffer<expr> args;
+                        pos_info p = pos();
+                        expr f = (k == object_kind::Builtin) ? obj->get_value() : mk_constant(obj->get_name());
+                        args.push_back(save(f, p));
+                        for (unsigned i = 0; i < imp_args.size(); i++) {
+                            if (imp_args[i]) {
+                                args.push_back(save(mk_placeholder(), pos()));
+                            } else {
+                                args.push_back(parse_expr(g_app_precedence));
+                            }
                         }
+                        return mk_app(args);
+                    } else if (k == object_kind::Builtin) {
+                        return obj->get_value();
+                    } else {
+                        return mk_constant(obj->get_name());
                     }
-                    return mk_app(args);
-                } else if (k == object_kind::Builtin) {
-                    return obj->get_value();
                 } else {
-                    return mk_constant(obj->get_name());
+                    throw parser_error(sstream() << "invalid object reference, object '" << nid << "' is not an expression.", p);
                 }
-            } else {
-                throw parser_error(sstream() << "invalid object reference, object '" << id << "' is not an expression.", p);
+            } else if (!m_check_identifiers) {
+                return mk_constant(nid);
             }
-        } else if (!m_check_identifiers) {
-            return mk_constant(id);
-        } else {
-            throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
         }
+        throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
     }
 
     void propagate_position(expr const & e, pos_info p) {
@@ -1984,6 +1994,13 @@ class parser::imp {
         return menv->instantiate_metavars(val);
     }
 
+    /**
+       \brief Return a fully qualified name (i.e., include current namespace)
+    */
+    name mk_full_name(name const & n) {
+        return m_namespace_prefixes.back() + n;
+    }
+
     /** \brief Auxiliary method used for parsing definitions and theorems. */
     void parse_def_core(bool is_definition) {
         next();
@@ -2035,16 +2052,17 @@ class parser::imp {
             check_no_metavar(val, menv, "invalid definition, value still contains metavariables after elaboration");
         }
         lean_assert(!has_metavar(val));
+        name full_id = mk_full_name(id);
         if (is_definition) {
-            m_env->add_definition(id, type, val);
+            m_env->add_definition(full_id, type, val);
             if (m_verbose)
-                regular(m_io_state) << "  Defined: " << id << endl;
+                regular(m_io_state) << "  Defined: " << full_id << endl;
         } else {
-            m_env->add_theorem(id, type, val);
+            m_env->add_theorem(full_id, type, val);
             if (m_verbose)
-                regular(m_io_state) << "  Proved: " << id << endl;
+                regular(m_io_state) << "  Proved: " << full_id << endl;
         }
-        register_implicit_arguments(id, bindings);
+        register_implicit_arguments(full_id, bindings);
     }
 
     /**
@@ -2089,13 +2107,14 @@ class parser::imp {
             check_no_metavar(p, "invalid declaration, type still contains metavariables after elaboration");
             type = p.first;
         }
+        name full_id = mk_full_name(id);
         if (is_var)
-            m_env->add_var(id, type);
+            m_env->add_var(full_id, type);
         else
-            m_env->add_axiom(id, type);
+            m_env->add_axiom(full_id, type);
         if (m_verbose)
-            regular(m_io_state) << "  Assumed: " << id << endl;
-        register_implicit_arguments(id, bindings);
+            regular(m_io_state) << "  Assumed: " << full_id << endl;
+        register_implicit_arguments(full_id, bindings);
     }
 
     /** \brief Parse one of the two forms:
@@ -2117,16 +2136,16 @@ class parser::imp {
         bindings_buffer bindings;
         parse_simple_bindings(bindings, false, false);
         for (auto b : bindings) {
-            name const & id = std::get<1>(b);
-            if (m_env->find_object(id))
-                throw already_declared_exception(m_env, id);
+            name full_id = mk_full_name(std::get<1>(b));
+            if (m_env->find_object(full_id))
+                throw already_declared_exception(m_env, full_id);
         }
         for (auto b : bindings) {
-            name const & id = std::get<1>(b);
+            name full_id = mk_full_name(std::get<1>(b));
             expr const & type = std::get<2>(b);
-            m_env->add_var(id, type);
+            m_env->add_var(full_id, type);
             if (m_verbose)
-                regular(m_io_state) << "  Assumed: " << id << endl;
+                regular(m_io_state) << "  Assumed: " << full_id << endl;
         }
     }
 
@@ -2417,12 +2436,13 @@ class parser::imp {
             id = curr_name();
         }
         next();
+        name full_id = mk_full_name(id);
         auto val_pos = pos();
         name val = check_identifier_next("invalid opaque flag, true/false expected");
         if (val == "true")
-            m_env->set_opaque(id, true);
+            m_env->set_opaque(full_id, true);
         else if (val == "false")
-            m_env->set_opaque(id, false);
+            m_env->set_opaque(full_id, false);
         else
             throw parser_error("invalid opaque flag, true/false expected", val_pos);
     }
@@ -2607,6 +2627,19 @@ class parser::imp {
         register_implicit_arguments(id, bindings);
     }
 
+    void parse_namespace() {
+        next();
+        name id   = check_identifier_next("invalid namespace declaration, identifier expected");
+        m_namespace_prefixes.push_back(m_namespace_prefixes.back() + id);
+    }
+
+    void parse_end_namespace() {
+        next();
+        if (m_namespace_prefixes.size() <= 1)
+            throw parser_error("invalid end namespace command, there are no open namespaces", m_last_cmd_pos);
+        m_namespace_prefixes.pop_back();
+    }
+
     /** \brief Parse a Lean command. */
     bool parse_command() {
         m_elaborator.clear();
@@ -2665,6 +2698,10 @@ class parser::imp {
             parse_alias();
         } else if (cmd_id == g_builtin_kwd) {
             parse_builtin();
+        } else if (cmd_id == g_namespace_kwd) {
+            parse_namespace();
+        } else if (cmd_id == g_end_namespace_kwd) {
+            parse_end_namespace();
         } else if (m_cmd_macros && m_cmd_macros->find(cmd_id) != m_cmd_macros->end()) {
             parse_cmd_macro(cmd_id, m_last_cmd_pos);
         } else {
@@ -2710,6 +2747,7 @@ public:
         m_interactive(interactive),
         m_script_state(S),
         m_set_parser(m_script_state, this) {
+        m_namespace_prefixes.push_back(name());
         m_check_identifiers = true;
         updt_options();
         m_found_errors = false;

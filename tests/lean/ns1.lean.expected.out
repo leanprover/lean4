@@ -1,0 +1,16 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Imported 'int'
+  Assumed: foo::a
+  Defined: foo::b
+  Proved: foo::T
+  Assumed: foo::H
+  Assumed: foo::bla::a
+  Assumed: foo::bla::c
+  Assumed: foo::bla::d
+foo::bla::a + foo::b + foo::bla::c : ℤ
+foo::T : foo::a = foo::b
+foo::H : foo::b ≥ foo::a
+foo::a : ℕ
+foo::bla::a : ℤ
+Error (line: 19, pos: 0) invalid end namespace command, there are no open namespaces

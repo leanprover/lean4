@@ -344,6 +344,8 @@ std::ostream & operator<<(std::ostream & out, name const & n) {
 name operator+(name const & n1, name const & n2) {
     if (n2.is_anonymous()) {
         return n1;
+    } else if (n1.is_anonymous()) {
+        return n2;
     } else {
         name prefix;
         if (!n2.is_atomic())

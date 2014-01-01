@@ -1318,7 +1318,7 @@ class elaborator::imp {
         r = process_metavar(c, b, a, false);
         if (r != Continue) { return r == Processed; }
 
-        if (normalize_head(a, b, c)) { return true; }
+        if (!is_meta_app(a) && !is_meta_app(b) && normalize_head(a, b, c)) { return true; }
 
         if (!eq) {
             // TODO(Leo): use is_actual_lower and is_actual_upper

@@ -1300,6 +1300,16 @@ class elaborator::imp {
         bool eq = is_eq(c);
         if (a == b)
             return true;
+        if (!has_metavar(a) && !has_metavar(b)) {
+            if (!eq) {
+                if (m_type_inferer.is_convertible(a, b, ctx)) {
+                    return true;
+                } else {
+                    m_conflict = justification(new unification_failure_justification(c));
+                    return false;
+                }
+            }
+        }
 
         if (process_assigned_metavar(c, a, true) || process_assigned_metavar(c, b, false))
             return true;

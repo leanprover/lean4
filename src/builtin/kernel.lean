@@ -362,3 +362,5 @@ Theorem UnfoldExists2 {A : TypeU} {P : A → Bool} (a : A) (H : P a ∨ (∃ x :
 Theorem UnfoldExists {A : TypeU} (P : A → Bool) (a : A) : (∃ x : A, P x) = (P a ∨ (∃ x : A, x ≠ a ∧ P x))
 := ImpAntisym (assume H : (∃ x : A, P x), UnfoldExists1 a H)
               (assume H : (P a ∨ (∃ x : A, x ≠ a ∧ P x)), UnfoldExists2 a H).
+
+SetOpaque exists true.

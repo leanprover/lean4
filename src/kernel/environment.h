@@ -429,4 +429,19 @@ struct register_builtin_fn {
    Return none if there is no builtin associated the given name.
 */
 optional<std::pair<expr, bool>> get_builtin(name const & n);
+
+/**
+   \brief Return true iff \c obj is a SetOpaque command mark.
+*/
+bool is_set_opaque(object const & obj);
+/**
+   \brief Return the identifier of a SetOpaque command.
+   \pre is_set_opaque(obj)
+*/
+name const & get_set_opaque_id(object const & obj);
+/**
+   \brief Return the flag of a SetOpaque command.
+   \pre is_set_opaque(obj)
+*/
+bool get_set_opaque_flag(object const & obj);
 }

@@ -167,7 +167,7 @@ bool is_alias_decl(object const & obj) {
 }
 
 bool supported_by_pp(object const & obj) {
-    return obj.kind() != object_kind::Neutral || is_notation_decl(obj) || is_coercion_decl(obj) || is_alias_decl(obj);
+    return obj.kind() != object_kind::Neutral || is_notation_decl(obj) || is_coercion_decl(obj) || is_alias_decl(obj) || is_set_opaque(obj);
 }
 
 /** \brief Functional object for pretty printing expressions */
@@ -1374,6 +1374,11 @@ class pp_formatter_cell : public formatter_cell {
         format d_fmt   = is_constant(d) ? format(const_name(d)) : pp(d, opts);
         return format{highlight_command(format(alias_decl.keyword())), space(), ::lean::pp(n), space(), colon(), space(), d_fmt};
     }
+
+    format pp_set_opaque(object const & obj) {
+        return format{highlight_command(format(obj.keyword())), space(), format(get_set_opaque_id(obj)), space(),
+                format(get_set_opaque_flag(obj) ? "true" : "false")};
+    }
 public:
     pp_formatter_cell(ro_environment const & env):
         m_env(env) {
@@ -1418,6 +1423,8 @@ public:
                 return pp_coercion_decl(obj, opts);
             } else if (is_alias_decl(obj)) {
                 return pp_alias_decl(obj, opts);
+            } else if (is_set_opaque(obj)) {
+                return pp_set_opaque(obj);
             } else {
                 // If the object is not notation or coercion
                 // declaration, then the object was created in

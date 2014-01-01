@@ -35,6 +35,8 @@ public:
     virtual ~set_opaque_command() {}
     virtual char const * keyword() const { return "SetOpaque"; }
     virtual void write(serializer & s) const { s << "Opa" << m_obj_name << m_opaque; }
+    name const & get_obj_name() const { return m_obj_name; }
+    bool get_flag() const { return m_opaque; }
 };
 static void read_set_opaque(environment const & env, io_state const &, deserializer & d) {
     name n = read_name(d);
@@ -42,6 +44,20 @@ static void read_set_opaque(environment const & env, io_state const &, deseriali
     env->set_opaque(n, o);
 }
 static object_cell::register_deserializer_fn set_opaque_ds("Opa", read_set_opaque);
+
+bool is_set_opaque(object const & obj) {
+    return dynamic_cast<set_opaque_command const *>(obj.cell());
+}
+
+name const & get_set_opaque_id(object const & obj) {
+    lean_assert(is_set_opaque(obj));
+    return static_cast<set_opaque_command const *>(obj.cell())->get_obj_name();
+}
+
+bool get_set_opaque_flag(object const & obj) {
+    lean_assert(is_set_opaque(obj));
+    return static_cast<set_opaque_command const *>(obj.cell())->get_flag();
+}
 
 class import_command : public neutral_object_cell {
     std::string m_mod_name;

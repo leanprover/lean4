@@ -1,4 +1,4 @@
-Import int.
+Import Int.
 Show Int -> Int -> Int
 Variable f : Int -> Int -> Int
 Eval f 0

@@ -1,6 +1,6 @@
 assert(not pcall(function() get_environment() end))
 local env = environment()
-env:import("int")
+env:import("Int")
 env:add_uvar("Z", level(level("M"), 1))
 assert(env:is_ge(level("Z"), level("M")))
 local child = env:mk_child()

@@ -1,4 +1,4 @@
-Import int.
+Import Int.
 Variable a : Int
 Variable n : Nat
 Axiom H1 : a + a + a = 10

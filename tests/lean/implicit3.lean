@@ -1,4 +1,4 @@
-Import int.
+Import Int.
 
 Show 10 = 20
 Variable f : Int -> Int -> Int

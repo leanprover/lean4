@@ -1,4 +1,4 @@
-Import int.
+Import Int.
 Variable f {A : Type} : A -> A -> A
 Variable module::g {A : Type} : A -> A -> A
 Check @f

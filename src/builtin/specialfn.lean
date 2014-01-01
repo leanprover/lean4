@@ -1,4 +1,4 @@
-Import real.
+Import Real.
 
 Variable exp : Real → Real.
 Variable log : Real → Real.

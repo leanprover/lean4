@@ -1,6 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
-  Imported 'real'
+  Imported 'Real'
   Assumed: f
 f 10 20 : ℕ
 f 10 : ℕ → ℕ

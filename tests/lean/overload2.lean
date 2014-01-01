@@ -1,5 +1,5 @@
-Import int
-Import real
+Import Int
+Import Real
 Show 1 + true
 Variable R : Type
 Variable T : Type

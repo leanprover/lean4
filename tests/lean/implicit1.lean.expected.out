@@ -1,7 +1,7 @@
   Set: pp::colors
   Set: pp::unicode
-  Imported 'int'
-  Imported 'real'
+  Imported 'Int'
+  Imported 'Real'
   Assumed: f
 ∀ a : ℤ, f a a > 0
 ∀ a b : ℤ, f a b > 0

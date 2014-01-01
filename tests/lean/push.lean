@@ -1,4 +1,4 @@
-Import int.
+Import Int.
 
 Variable first : Bool
 

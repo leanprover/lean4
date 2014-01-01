@@ -158,7 +158,7 @@ MK_CONSTANT(nat_neg_fn, name({"Nat", "neg"}));
 
 void import_int(environment const & env) {
     io_state ios;
-    env->import("int", ios);
+    env->import("Int", ios);
 }
 
 static int mk_int_value(lua_State * L) {

@@ -1,4 +1,4 @@
-Import int.
+Import Int.
 
 Namespace foo.
   Variable a : Nat.

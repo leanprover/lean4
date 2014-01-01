@@ -1,4 +1,4 @@
-Import int.
+Import Int.
 (**
 macro("MyMacro", { macro_arg.Expr, macro_arg.Comma, macro_arg.Expr },
      function (env, e1, e2)

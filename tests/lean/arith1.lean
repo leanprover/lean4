@@ -1,4 +1,4 @@
-Import int.
+Import Int.
 Check 10 + 20
 Check 10
 Check 10 - 20

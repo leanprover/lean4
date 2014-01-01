@@ -1,4 +1,4 @@
-Import int.
+Import Int.
 SetOption pp::unicode false
 Show 3 | 6
 Eval 3 | 6

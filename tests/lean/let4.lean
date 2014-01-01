@@ -1,4 +1,4 @@
-Import int.
+Import Int.
 
 Show
 let b := true,

@@ -1,4 +1,4 @@
-Import int.
+Import Int.
 
 Variable Real : Type.
 Alias ℝ : Real.

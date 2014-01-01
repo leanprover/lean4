@@ -159,7 +159,7 @@ MK_CONSTANT(nat_to_real_fn, name("nat_to_real"));
 
 void import_real(environment const & env) {
     io_state ios;
-    env->import("real", ios);
+    env->import("Real", ios);
 }
 
 static int mk_real_value(lua_State * L) {

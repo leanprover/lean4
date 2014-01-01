@@ -1,4 +1,4 @@
-Import int.
+Import Int.
 Variable g {A : Type} (a : A) : A
 Variable a : Int
 Variable b : Int

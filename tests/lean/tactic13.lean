@@ -1,4 +1,4 @@
-Import int.
+Import Int.
 (** import("tactic.lua") **)
 Variable f : Int -> Int -> Int
 

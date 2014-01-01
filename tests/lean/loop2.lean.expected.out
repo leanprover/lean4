@@ -1,5 +1,5 @@
   Set: pp::colors
   Set: pp::unicode
-  Imported 'int'
+  Imported 'Int'
 Variable x : ℤ
 done

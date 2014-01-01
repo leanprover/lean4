@@ -1,4 +1,4 @@
-Import int.
+Import Int.
 Variable List : Type -> Type
 Variable nil  {A : Type} : List A
 Variable cons {A : Type} (head : A) (tail : List A) : List A

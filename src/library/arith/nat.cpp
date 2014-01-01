@@ -117,7 +117,7 @@ MK_CONSTANT(nat_id_fn,  name({"Nat", "id"}));
 
 void import_nat(environment const & env) {
     io_state ios;
-    env->import("nat", ios);
+    env->import("Nat", ios);
 }
 
 static int mk_nat_value(lua_State * L) {

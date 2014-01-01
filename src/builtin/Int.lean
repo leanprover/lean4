@@ -1,4 +1,4 @@
-Import nat.
+Import Nat.
 
 Variable Int : Type.
 Alias ℤ : Int.

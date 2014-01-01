@@ -1,4 +1,4 @@
-Import int.
+Import Int.
 Definition revapp {A : (Type U)} {B : A -> (Type U)} (a : A) (f : Pi (x : A), B x) : (B a) := f a.
 Infixl 100 |> : revapp
 

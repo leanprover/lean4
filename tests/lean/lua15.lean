@@ -1,4 +1,4 @@
-Import int.
+Import Int.
 Variables i j : Int
 Variable p : Bool
 

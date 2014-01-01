@@ -1,4 +1,4 @@
-Import int.
+Import Int.
 Variable P : Int -> Int -> Bool
 
 SetOpaque exists false.

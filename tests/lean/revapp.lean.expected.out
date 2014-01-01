@@ -1,6 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
-  Imported 'int'
+  Imported 'Int'
   Defined: revapp
 -21
   Defined: revcomp

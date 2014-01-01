@@ -1,4 +1,4 @@
-Import int.
+Import Int.
 (**
 
  local env = get_environment()

@@ -1,4 +1,4 @@
-Import int.
+Import Int.
 Variables a b c : Int.
 Show a + b + c.
 Check a + b.

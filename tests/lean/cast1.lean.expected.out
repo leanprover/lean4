@@ -1,7 +1,7 @@
   Set: pp::colors
   Set: pp::unicode
   Imported 'cast'
-  Imported 'int'
+  Imported 'Int'
   Assumed: vector
   Assumed: N0
   Proved: V0

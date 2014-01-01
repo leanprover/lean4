@@ -1,4 +1,4 @@
-Import int.
+Import Int.
 
 Variable magic : Pi (H : Bool), H
 

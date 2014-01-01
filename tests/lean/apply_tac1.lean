@@ -1,5 +1,5 @@
 Import tactic.
-Import int.
+Import Int.
 
 Variable f : Int -> Int -> Bool
 Variable P : Int -> Int -> Bool

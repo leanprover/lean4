@@ -1,4 +1,4 @@
-Import int.
+Import Int.
 Definition f1 (f : Int -> Int) (x : Int) : Int := f (f (f (f x)))
 Definition f2 (f : Int -> Int) (x : Int) : Int := f1 (f1 (f1 (f1 f))) x
 Definition f3 (f : Int -> Int) (x : Int) : Int := f1 (f2 (f2 f)) x

@@ -1,6 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
-  Imported 'int'
+  Imported 'Int'
 let a : ℕ := 10, b : ℕ := 20, c : ℕ := 30, d : ℕ := 10 in a + b + c + d
 let a : ℕ := 1000000000000000000,
     b : ℕ := 20000000000000000000,

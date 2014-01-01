@@ -1,6 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
-  Imported 'int'
+  Imported 'Int'
 ℤ → ℤ → ℤ
   Assumed: f
 f 0

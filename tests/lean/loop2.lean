@@ -1,4 +1,4 @@
-Import int.
+Import Int.
 
 (**
  function add_paren(code)

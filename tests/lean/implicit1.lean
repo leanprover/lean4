@@ -1,5 +1,5 @@
-Import int.
-Import real.
+Import Int.
+Import Real.
 Variable f : Int -> Int -> Int
 Show forall a, f a a > 0
 Show forall a b, f a b > 0

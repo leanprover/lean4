@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/printer.h"
 #include "kernel/metavar.h"
+#include "kernel/free_vars.h"
 #include "library/deep_copy.h"
 #include "library/arith/int.h"
 #include "frontends/lean/frontend.h"
@@ -312,8 +313,34 @@ static void tst10() {
     context ctx({{"x", Bool}, {"y", Bool}});
     expr m  = menv->mk_metavar(ctx);
     ctx     = extend(ctx, "z", none_expr(), m);
-    std::cout << normalizer(env)(Var(0), ctx) << "\n";
-    lean_assert_eq(normalizer(env)(Var(0), ctx), add_lift(m, 0, 1));
+    expr N  = normalizer(env)(Var(0), ctx);
+    expr f  = Const("f");
+    metavar_env menv_copy1 = menv.copy();
+    lean_verify(menv_copy1->assign(m, f(Var(0))));
+    lean_assert_eq(menv_copy1->instantiate_metavars(N), f(Var(1)));
+    metavar_env menv_copy2 = menv.copy();
+    lean_verify(menv_copy2->assign(m, f(Var(1))));
+    lean_assert_eq(menv_copy2->instantiate_metavars(N), f(Var(2)));
+}
+
+static void tst11() {
+    environment env;
+    metavar_env menv;
+    context ctx({{"A", Type()}});
+    expr m1   = menv->mk_metavar(extend(ctx, "x", Type()));
+    expr x    = Const("x");
+    expr e    = Fun({x, Type()}, m1);
+    expr T    = Fun({x, Type()}, lift_free_vars(e, 0, 1)(x));
+    context ctx2 = extend(ctx, "C", Type());
+    expr T1   = lift_free_vars(T, 0, 1);
+    expr N    = normalizer(env)(T1, ctx2, menv);
+    std::cout << m1 << " context: " << menv->get_context(m1) << "\n";
+    std::cout << T1 << " AT " << ctx2 << "\n==>\n" << N << "\n";
+    lean_verify(menv->assign(m1, Var(1)));
+    std::cout << menv->instantiate_metavars(T1) << "\n";
+    std::cout << menv->instantiate_metavars(N)  << "\n";
+    lean_assert_eq(normalizer(env)(menv->instantiate_metavars(T1), ctx2),
+                   menv->instantiate_metavars(N));
 }
 
 int main() {
@@ -329,5 +356,6 @@ int main() {
     tst8();
     tst9();
     tst10();
+    tst11();
     return has_violations() ? 1 : 0;
 }

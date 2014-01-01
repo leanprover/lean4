@@ -133,7 +133,10 @@ class normalizer::imp {
             });
     }
 
-    /** \brief Return true iff the value_stack does affect the context of a metavariable */
+    /**
+        \brief Return true iff the value_stack does not affect the context of a metavariable
+        See big comment at reify_closure.
+    */
     bool is_identity_stack(value_stack const & s, unsigned k) {
         unsigned i = 0;
         for (auto e : s) {
@@ -149,9 +152,9 @@ class normalizer::imp {
         expr const & e        = c.get_expr();
         context const & ctx   = c.get_context();
         value_stack const & s = c.get_stack();
-        freset<cache>    reset(m_cache);
-        flet<context>    set(m_ctx, ctx);
         if (is_abstraction(e)) {
+            freset<cache>    reset(m_cache);
+            flet<context>    set(m_ctx, ctx);
             return update_abst(e, [&](expr const & d, expr const & b) {
                     expr new_d = reify(normalize(d, s, k), k);
                     m_cache.clear(); // make sure we do not reuse cached values from the previous call
@@ -160,23 +163,58 @@ class normalizer::imp {
                 });
         } else {
             lean_assert(is_metavar(e));
-            local_context lctx     = metavar_lctx(e);
-            unsigned len_s         = length(s);
-            unsigned len_ctx       = ctx.size();
-            lean_assert(k >= len_ctx);
-            expr r;
-            if (k > len_ctx + len_s)
-                r = add_lift(e, len_s, k - len_ctx - len_s);
-            else
-                r = e;
-            if (is_identity_stack(s, k)) {
-                return r;
-            }
+            // We use the following trick to reify a metavariable in the context of the value_stack s, and context ctx.
+            // Let v_0, ..., v_{n-1} be the values on the stack s. We assume v_0 is the top of the stack.
+            // Let v_i' be reify(v_i, k). Then, v_i' is the "value" of the free variable #i in the metavariable e.
+            // Let m be the size of the context ctx. Thus
+            //
+            // The metavariable e may contain free variables.
+            // Moreover, if we instantiate e with T[x_0, ..., x_{n-1}, x_n, ..., x_{n+m-1}]
+            // Then, in this occurrence of e, we must have
+            //
+            //          T[v_0', ..., v_{n-1}', reify(#{m-1}, k), ..., reify(#0, k)]
+            //
+            // reify(#j, k) is the index of j-th variable in the context ctx.
+            // It is just the variable #{k - j - 1}.
+            // So, we get
+            //
+            //          T[v_0', ..., v_{n-1}', #{k - m}, ..., #{k - 1}]
+            //
+            // Thus, we implement this operation as:
+            //
+            //         instantiate(e, {#{k - 1}, ..., #{k - m}, v_{n-1}', ..., v_1', v_0'}))
+            //
+            // This operation is equivalent to R_{n+m} defined as
+            //         R_0     = e
+            //         R_1     = instantiate(R_0, v_0')
+            //         ...
+            //         R_n     = instantiate(R_{n-1}, v_{n-1}')
+            //         R_{n+1} = instantiate(R_n, #{k - m})
+            //         ...
+            //         R_{n+m} = instantiate(R_{n+m-1}, #{k-1})
+            //
+            //
+            // Finally, we also use the following optimization.
+            // If all v_i' are equal to #i and n + m == k, then we just return e, because
+            //
+            //         T[#0, ..., #n-1, #{n + m - m}, ..., #{m + n - 1}]
+            //         ==
+            //         T[#0, ..., #n-1, #n, ..., #{m + n - 1}]
+            //         ==
+            //         e
+            //
+            unsigned n = length(s);
+            unsigned m = ctx.size();
+            if (k == n + m && is_identity_stack(s, k))
+                return e;
             buffer<expr> subst;
             for (auto v : s)
                 subst.push_back(reify(v, k));
+            for (unsigned i = m; i >= 1; i--)
+                subst.push_back(mk_var(k - i));
+            lean_assert(subst.size() == n + m);
             std::reverse(subst.begin(), subst.end());
-            return instantiate(r, subst.size(), subst.data());
+            return instantiate(e, subst.size(), subst.data());
         }
     }
 

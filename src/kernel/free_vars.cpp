@@ -333,6 +333,12 @@ bool has_free_var(expr const & e, unsigned i, optional<metavar_env> const & menv
 bool has_free_var(expr const & e, unsigned i, metavar_env const & menv) { return has_free_var(e, i, i+1, menv); }
 bool has_free_var(expr const & e, unsigned i) { return has_free_var(e, i, i+1); }
 
+bool has_free_var(context_entry const & e, unsigned low, unsigned high, metavar_env const & menv) {
+    auto d = e.get_domain();
+    auto b = e.get_body();
+    return (d && has_free_var(*d, low, high, menv)) || (b && has_free_var(*b, low, high, menv));
+}
+
 expr lower_free_vars(expr const & e, unsigned s, unsigned d, optional<metavar_env> const & DEBUG_CODE(menv)) {
     lean_assert(s >= d);
     lean_assert(!has_free_var(e, s-d, s, menv));
@@ -350,6 +356,17 @@ expr lower_free_vars(expr const & e, unsigned s, unsigned d) { return lower_free
 expr lower_free_vars(expr const & e, unsigned d, optional<metavar_env> const & menv) { return lower_free_vars(e, d, d, menv); }
 expr lower_free_vars(expr const & e, unsigned d, metavar_env const & menv) { return lower_free_vars(e, d, d, menv); }
 expr lower_free_vars(expr const & e, unsigned d) { return lower_free_vars(e, d, d); }
+
+context_entry lower_free_vars(context_entry const & e, unsigned s, unsigned d, metavar_env const & menv) {
+    auto domain = e.get_domain();
+    auto body   = e.get_body();
+    if (domain && body)
+        return context_entry(e.get_name(), lower_free_vars(*domain, s, d, menv), lower_free_vars(*body, s, d, menv));
+    else if (domain)
+        return context_entry(e.get_name(), lower_free_vars(*domain, s, d, menv));
+    else
+        return context_entry(e.get_name(), none_expr(), lower_free_vars(*body, s, d, menv));
+}
 
 expr lift_free_vars(expr const & e, unsigned s, unsigned d, optional<metavar_env> const & menv) {
     if (d == 0)
@@ -369,4 +386,15 @@ expr lift_free_vars(expr const & e, unsigned s, unsigned d) { return lift_free_v
 expr lift_free_vars(expr const & e, unsigned d, optional<metavar_env> const & menv) { return lift_free_vars(e, 0, d, menv); }
 expr lift_free_vars(expr const & e, unsigned d) { return lift_free_vars(e, 0, d); }
 expr lift_free_vars(expr const & e, unsigned d, metavar_env const & menv) { return lift_free_vars(e, 0, d, menv); }
+
+context_entry lift_free_vars(context_entry const & e, unsigned s, unsigned d, metavar_env const & menv) {
+    auto domain = e.get_domain();
+    auto body   = e.get_body();
+    if (domain && body)
+        return context_entry(e.get_name(), lift_free_vars(*domain, s, d, menv), lift_free_vars(*body, s, d, menv));
+    else if (domain)
+        return context_entry(e.get_name(), lift_free_vars(*domain, s, d, menv));
+    else
+        return context_entry(e.get_name(), none_expr(), lift_free_vars(*body, s, d, menv));
+}
 }

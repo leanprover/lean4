@@ -54,12 +54,14 @@ bool has_free_var(expr const & e, unsigned i, optional<metavar_env> const & menv
 bool has_free_var(expr const & e, unsigned i, metavar_env const & menv);
 bool has_free_var(expr const & e, unsigned i);
 
+bool has_free_var(context_entry const & e, unsigned low, unsigned high, metavar_env const & menv);
+
 /**
    \brief Lower the free variables >= s in \c e by \c d. That is, a free variable <tt>(var i)</tt> s.t.
    <tt>i >= s</tt> is mapped into <tt>(var i-d)</tt>.
 
    \pre s >= d
-   \pre !has_free_var(e, s-d, d, menv)
+   \pre !has_free_var(e, s-d, s, menv)
 
    \remark The parameter menv is only used for debugging purposes
 */
@@ -69,6 +71,8 @@ expr lower_free_vars(expr const & e, unsigned s, unsigned d);
 expr lower_free_vars(expr const & e, unsigned d, optional<metavar_env> const & menv);
 expr lower_free_vars(expr const & e, unsigned d, metavar_env const & menv);
 expr lower_free_vars(expr const & e, unsigned d);
+
+context_entry lower_free_vars(context_entry const & e, unsigned s, unsigned d, metavar_env const & menv);
 
 /**
    \brief Lift free variables >= s in \c e by d.
@@ -82,4 +86,6 @@ expr lift_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const & 
 expr lift_free_vars(expr const & e, unsigned d, optional<metavar_env> const & menv);
 expr lift_free_vars(expr const & e, unsigned d, metavar_env const & menv);
 expr lift_free_vars(expr const & e, unsigned d);
+
+context_entry lift_free_vars(context_entry const & e, unsigned s, unsigned d, metavar_env const & menv);
 }

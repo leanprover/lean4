@@ -462,15 +462,29 @@ class elaborator::imp {
                 }
                 local_entry const & me = head(metavar_lctx(a));
                 if (me.is_lift()) {
-                    if (!has_free_var(b, me.s(), me.s() + me.n(), m_state.m_menv)) {
-                        // Case 3
+                    // Case 3
+                    // a is of the form ?m[lift:s:n]
+                    unsigned s = me.s();
+                    unsigned n = me.n();
+                    // Let ctx be of the form
+                    //  [ce_{m-1}, ..., ce_{s+n}, ce_{s+n-1}, ..., ce_s, ce_{s-1}, ..., ce_0]
+                    // Then, we reduce
+                    //  [ce_{m-1}, ..., ce_{s+n}, ce_{s+n-1}, ..., ce_s, ce_{s-1}, ..., ce_0] |- ?m[lift:s:n] == b
+                    // to
+                    //  [ce_{m-1}, ..., ce_{s+n},    lower(ce_{s-1}, n, n), ..., lower(ce_0, s + n - 1, n)] |- ?m == lower(b, s + n, n)
+                    //
+                    // Remark: we have to check if the lower operations are applicable using the operation has_free_var.
+                    //
+                    if (!has_free_var(b, s, s + n, m_state.m_menv)) {
+                        optional<context> new_ctx = ctx.remove(s, n, m_state.m_menv); // method remove will lower the entries ce_0, ..., ce_{s-1}
+                        if (!new_ctx)
+                            return Continue; // rule is not applicable because we cannot lower the entries.
                         justification new_jst(new normalize_justification(c));
-                        expr new_a = pop_meta_context(a);
-                        expr new_b = lower_free_vars(b, me.s() + me.n(), me.n(), m_state.m_menv);
-                        context new_ctx = ctx.remove(me.s(), me.n());
+                        expr new_a      = pop_meta_context(a);
+                        expr new_b      = lower_free_vars(b, s + n, n, m_state.m_menv);
                         if (!is_lhs)
                             swap(new_a, new_b);
-                        push_new_constraint(is_eq(c), new_ctx, new_a, new_b, new_jst);
+                        push_new_constraint(is_eq(c), *new_ctx, new_a, new_b, new_jst);
                         return Processed;
                     } else if (!has_metavar(b)) {
                         // Failure, there is no way to unify
@@ -487,7 +501,7 @@ class elaborator::imp {
                     justification new_jst(new normalize_justification(c));
                     expr new_a = pop_meta_context(a);
                     expr new_b = lift_free_vars(b, me.s(), 1, m_state.m_menv);
-                    context new_ctx = ctx.insert_at(me.s(), g_x_name, Type()); // insert a dummy at position s
+                    context new_ctx = ctx.insert_at(me.s(), g_x_name, Type(), m_state.m_menv); // insert a dummy at position s
                     if (!is_lhs)
                         swap(new_a, new_b);
                     push_new_constraint(is_eq(c), new_ctx, new_a, new_b, new_jst);
@@ -902,111 +916,235 @@ class elaborator::imp {
     }
 
     /**
+       \brief Collect possible solutions for ?m given a constraint of the form
+                 ctx |- ?m[lctx] == b
+       where b is a Constant, Type, Value or Variable.
+
+       We only need the local context \c lctx and \c b for computing the set of possible solutions.
+       The result is stored in \c solutions.
+
+       We may have more than one solution. Here is an example:
+
+          ?m[inst:3:b, lift:1:1, inst:2:b] == b
+
+       The possible solutions is the set of solutions for
+       1- ?m[lift:1:1, inst:2:b] == #3
+       2- ?m[lift:1:1, inst:2:b] == b
+
+       The solutions for constraints 1 and 2 are the solutions for
+       1.1-  ?m[inst:2:b] == #2
+       2.1-  ?m[inst:2:b] == b
+
+       And 1.1 has two possible solutions
+       1.1.1 ?m == #3
+       1.1.2 ?m == b
+
+       And 2.1 has also two possible solutions
+       2.1.1 ?m == #2
+       2.1.2 ?m == b
+
+       Thus, the resulting set of solutions is {#3, b, #2}
+    */
+    void collect_metavar_solutions(local_context const & lctx, expr const & b, buffer<expr> & solutions) {
+        lean_assert(is_constant(b) || is_type(b) || is_value(b) || is_var(b));
+        if (lctx) {
+            local_entry const & e = head(lctx);
+            if (e.is_inst()) {
+                if (e.v() == b || has_metavar(e.v())) {
+                    // There is an extra possible solution #{e.s()}
+                    // If e.v() has metavariables, then it may become equal to b.
+                    collect_metavar_solutions(tail(lctx), mk_var(e.s()), solutions);
+                }
+                if (is_var(b) && var_idx(b) >= e.s()) {
+                    collect_metavar_solutions(tail(lctx), mk_var(var_idx(b) + 1), solutions);
+                } else {
+                    collect_metavar_solutions(tail(lctx), b, solutions);
+                }
+            } else {
+                lean_assert(e.is_lift());
+                if (is_var(b) && var_idx(b) >= e.s() + e.n()) {
+                    collect_metavar_solutions(tail(lctx), mk_var(var_idx(b) - e.n()), solutions);
+                } else {
+                    collect_metavar_solutions(tail(lctx), b, solutions);
+                }
+            }
+        } else {
+            lean_assert(length(lctx) == 0);
+            if (std::find(solutions.begin(), solutions.end(), b) == solutions.end())
+                solutions.push_back(b); // insert new solution
+        }
+    }
+
+    /**
+       \brief Return true if the local context contains a metavariable.
+    */
+    bool local_context_has_metavar(local_context const & lctx) {
+        for (auto const & e : lctx) {
+            if (e.is_inst() && has_metavar(e.v()))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+       \brief Solve a constraint of the form
+            ctx |- a == b
+       where
+            a is of the form ?m[...]  i.e., metavariable with a non-empty local context.
+            b is an abstraction
+
+       We solve the constraint by assigning a to an abstraction with fresh metavariables.
+    */
+    void imitate_abstraction(expr const & a, expr const & b, unification_constraint const & c) {
+        lean_assert(is_metavar(a));
+        lean_assert(is_abstraction(b));
+        lean_assert(!is_assigned(a));
+        lean_assert(has_local_context(a));
+        // imitate
+        push_active(c);
+        // a <- (fun x : ?h1, ?h2)  or (Pi x : ?h1, ?h2)
+        // ?h1 is in the same context where 'a' was defined
+        // ?h2 is in the context of 'a' + domain of b
+        expr m        = mk_metavar(metavar_name(a));
+        context ctx_m = m_state.m_menv->get_context(m);
+        expr h_1 = m_state.m_menv->mk_metavar(ctx_m);
+        expr h_2 = m_state.m_menv->mk_metavar(extend(ctx_m, abst_name(b), abst_domain(b)));
+        expr imitation = update_abstraction(b, h_1, h_2);
+        justification new_jst(new imitation_justification(c));
+        push_new_constraint(true, ctx_m, m, imitation, new_jst);
+    }
+
+    /**
+       \brief Similar to imitate_abstraction, but b is an application, where the function
+       is a Variable, Constant or Value.
+    */
+    void imitate_application(expr const & a, expr const & b, unification_constraint const & c) {
+        lean_assert(is_metavar(a));
+        lean_assert(is_app(b) && (is_var(arg(b, 0)) || is_constant(arg(b, 0)) || is_value(arg(b, 0))));
+        lean_assert(!is_assigned(a));
+        lean_assert(has_local_context(a));
+        // Create a fresh meta variable for each argument of b.
+        // The new metavariables have the same context of a.
+        expr m        = mk_metavar(metavar_name(a));
+        context ctx_m = m_state.m_menv->get_context(m);
+        expr f_b      = arg(b, 0);
+        buffer<expr> new_args;
+        new_args.push_back(expr()); // save space.
+        unsigned num = num_args(b);
+        for (unsigned i = 1; i < num; i++)
+            new_args.push_back(m_state.m_menv->mk_metavar(ctx_m));
+        // We may have many different imitations.
+        local_context  lctx = metavar_lctx(a);
+        buffer<expr> solutions;
+        collect_metavar_solutions(lctx, f_b, solutions);
+        lean_assert(solutions.size() >= 1);
+        if (solutions.size() == 1) {
+            new_args[0] = solutions[0];
+            expr imitation = mk_app(new_args);
+            justification new_jst(new imitation_justification(c));
+            push_active(c);
+            push_new_constraint(true, ctx_m, m, imitation, new_jst);
+        } else {
+            // More than one solution. We must create a case-split.
+            std::unique_ptr<generic_case_split> new_cs(new generic_case_split(c, m_state));
+            for (auto s : solutions) {
+                new_args[0]    = s;
+                expr imitation = mk_app(new_args);
+                state new_state(m_state);
+                justification new_assumption = mk_assumption();
+                push_front(new_state.m_active_cnstrs, c);
+                push_new_eq_constraint(new_state.m_active_cnstrs, ctx_m, m, imitation, new_assumption);
+                new_cs->push_back(new_state, new_assumption);
+            }
+            lean_verify(new_cs->next(*this));
+            m_case_splits.push_back(std::move(new_cs));
+        }
+    }
+
+    /**
+       \brief Similar to imitate_abstraction, but b is a heterogeneous equality.
+    */
+    void imitate_equality(expr const & a, expr const & b, unification_constraint const & c) {
+        lean_assert(is_metavar(a));
+        lean_assert(is_eq(b));
+        lean_assert(!is_assigned(a));
+        lean_assert(has_local_context(a));
+        // imitate
+        push_active(c);
+        // Create a fresh meta variable for the lhs and rhs of b.
+        // The new metavariables have the same context of a.
+        expr m         = mk_metavar(metavar_name(a));
+        context ctx_m  = m_state.m_menv->get_context(m);
+        expr h1        = m_state.m_menv->mk_metavar(ctx_m);
+        expr h2        = m_state.m_menv->mk_metavar(ctx_m);
+        expr imitation = mk_eq(h1, h2);
+        justification new_jst(new imitation_justification(c));
+        push_new_constraint(true, ctx_m, m, imitation, new_jst);
+    }
+
+    /**
        \brief Process a constraint <tt>ctx |- a == b</tt> where \c a is of the form <tt>?m[(inst:i t), ...]</tt>.
        We perform a "case split",
        Case 1) ?m[...] == #i and t == b
        Case 2) imitate b
     */
     bool process_metavar_inst(expr const & a, expr const & b, bool is_lhs, unification_constraint const & c) {
-        if (is_metavar_inst(a) && !is_metavar_inst(b) && !is_meta_app(b) &&
-            (is_eq(c) || (is_lhs && !is_actual_upper(b)) || (!is_lhs && !is_actual_lower(b)))) {
-            context const & ctx = get_context(c);
-            local_context  lctx = metavar_lctx(a);
-            unsigned i          = head(lctx).s();
-            expr t              = head(lctx).v();
-
-            metavar_env & menv  = m_state.m_menv;
-            buffer<unification_constraint> ucs;
-            expr b_type = m_type_inferer(b, ctx, menv, ucs);
-            push_active(ucs);
-            context ctx_with_i = ctx.insert_at(i, g_x_name, b_type); // must add entry for variable #i in the context
-
-            std::unique_ptr<generic_case_split> new_cs(new generic_case_split(c, m_state));
-            {
-                // Case 1
-                state new_state(m_state);
-                justification new_assumption = mk_assumption();
-                // add ?m[...] == #1
-                push_new_eq_constraint(new_state.m_active_cnstrs, ctx_with_i, pop_meta_context(a), mk_var(i), new_assumption);
-                // add t == b (t << b)
-                expr new_a = t;
-                expr new_b = b;
-                if (!is_lhs)
-                    swap(new_a, new_b);
-                push_new_constraint(new_state.m_active_cnstrs, is_eq(c), ctx, new_a, new_b, new_assumption);
-                new_cs->push_back(new_state, new_assumption);
-            }
-            {
-                // Case 2
-                state new_state(m_state);
-                justification new_assumption = mk_assumption();
-                expr  imitation;
-                if (is_app(b)) {
-                    // Imitation for applications b == f(s_1, ..., s_k)
-                    // mname <- f(?h_1, ..., ?h_k)
-                    expr f_b          = arg(b, 0);
-                    unsigned num_b    = num_args(b);
-                    buffer<expr> imitation_args;
-                    imitation_args.push_back(f_b);
-                    for (unsigned j = 1; j < num_b; j++) {
-                        expr h_j = new_state.m_menv->mk_metavar(ctx);
-                        imitation_args.push_back(h_j);
-                        push_new_eq_constraint(new_state.m_active_cnstrs, ctx, h_j, lift_free_vars(arg(b, j), i, 1, new_state.m_menv), new_assumption);
-                    }
-                    imitation = mk_app(imitation_args);
-                } else if (is_eq(b)) {
-                    // Imitation for equality b == Eq(s1, s2)
-                    // mname <- Eq(?h_1, ?h_2)
-                    expr h_1 = new_state.m_menv->mk_metavar(ctx);
-                    expr h_2 = new_state.m_menv->mk_metavar(ctx);
-                    imitation = mk_eq(h_1, h_2);
-                    push_new_eq_constraint(new_state.m_active_cnstrs, ctx, h_1, lift_free_vars(eq_lhs(b), i, 1, new_state.m_menv), new_assumption);
-                    push_new_eq_constraint(new_state.m_active_cnstrs, ctx, h_2, lift_free_vars(eq_rhs(b), i, 1, new_state.m_menv), new_assumption);
-                } else if (is_abstraction(b)) {
-                    // Lambdas and Pis
-                    // Imitation for Lambdas and Pis, b == Fun(x:T) B
-                    // mname <- Fun (x:?h_1) ?h_2
-                    expr h_1 = new_state.m_menv->mk_metavar(ctx);
-                    push_new_eq_constraint(new_state.m_active_cnstrs, ctx, h_1, lift_free_vars(abst_domain(b), i, 1, new_state.m_menv),
-                                           new_assumption);
-                    context new_ctx = extend(ctx, abst_name(b), abst_domain(b));
-                    expr h_2 = new_state.m_menv->mk_metavar(new_ctx);
-                    imitation = update_abstraction(b, h_1, h_2);
-                    push_new_eq_constraint(new_state.m_active_cnstrs, new_ctx, h_2, lift_free_vars(abst_body(b), i+1, 1, new_state.m_menv),
-                                           new_assumption);
+        if (is_metavar_inst(a) && (is_eq(c) || (is_lhs && !is_actual_upper(b)) || (!is_lhs && !is_actual_lower(b)))) {
+            lean_assert(!is_assigned(a));
+            if (is_constant(b) || is_type(b) || is_value(b) || is_var(b)) {
+                local_context  lctx = metavar_lctx(a);
+                buffer<expr> solutions;
+                collect_metavar_solutions(lctx, b, solutions);
+                lean_assert(solutions.size() >= 1);
+                bool keep_c   = local_context_has_metavar(lctx);
+                expr m        = mk_metavar(metavar_name(a));
+                context ctx_m = m_state.m_menv->get_context(m);
+                if (solutions.size() == 1) {
+                    justification new_jst(new destruct_justification(c));
+                    if (keep_c)
+                        push_active(c);
+                    push_new_eq_constraint(ctx_m, m, solutions[0], new_jst);
+                    return true;
                 } else {
-                    imitation = lift_free_vars(b, i, 1, new_state.m_menv);
+                    // More than one solution. We must create a case-split.
+                    std::unique_ptr<generic_case_split> new_cs(new generic_case_split(c, m_state));
+                    for (auto s : solutions) {
+                        state new_state(m_state);
+                        justification new_assumption = mk_assumption();
+                        if (keep_c)
+                            push_front(new_state.m_active_cnstrs, c);
+                        push_new_eq_constraint(new_state.m_active_cnstrs, ctx_m, m, s, new_assumption);
+                        new_cs->push_back(new_state, new_assumption);
+                    }
+                    bool r = new_cs->next(*this);
+                    lean_assert(r);
+                    m_case_splits.push_back(std::move(new_cs));
+                    return r;
                 }
-                push_new_eq_constraint(new_state.m_active_cnstrs, ctx_with_i, pop_meta_context(a), imitation, new_assumption);
-                new_cs->push_back(new_state, new_assumption);
+            } else if (is_lambda(b) || is_pi(b)) {
+                imitate_abstraction(a, b, c);
+                return true;
+            } else if (is_app(b) && !has_metavar(arg(b, 0))) {
+                imitate_application(a, b, c);
+                return true;
+            } else if (is_eq(b)) {
+                imitate_equality(a, b, c);
+                return true;
             }
-            bool r = new_cs->next(*this);
-            lean_assert(r);
-            m_case_splits.push_back(std::move(new_cs));
-            return r;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
        \brief Process a constraint of the form <tt>ctx |- ?m[lift, ...] == b</tt> where \c b is an abstraction.
        That is, \c b is a Pi or Lambda. In both cases, ?m must have the same kind.
        We just add a new assignment that forces ?m to have the corresponding kind.
+
+       Remark: we can expand this method and support application and equality
     */
     bool process_metavar_lift_abstraction(expr const & a, expr const & b, unification_constraint const & c) {
         if (is_metavar_lift(a) && is_abstraction(b)) {
-            push_active(c);
-            // a <- (fun x : ?h1, ?h2)  or (Pi x : ?h1, ?h2)
-            // ?h1 is in the same context where 'a' was defined
-            // ?h2 is in the context of 'a' + domain of b
-            context ctx_a = m_state.m_menv->get_context(metavar_name(a));
-            expr h_1 = m_state.m_menv->mk_metavar(ctx_a);
-            expr h_2 = m_state.m_menv->mk_metavar(extend(ctx_a, abst_name(b), abst_domain(b)));
-            expr imitation = update_abstraction(b, h_1, h_2);
-            expr ma  = mk_metavar(metavar_name(a));
-            justification new_jst(new imitation_justification(c));
-            push_new_constraint(true, ctx_a, ma, imitation, new_jst);
+            imitate_abstraction(a, b, c);
             return true;
         } else {
             return false;

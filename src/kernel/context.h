@@ -31,6 +31,8 @@ public:
     friend bool operator!=(context_entry const & e1, context_entry const & e2) { return !(e1 == e2); }
 };
 
+class metavar_env;
+
 /**
    \brief A context is essentially a mapping from free-variables to types (and definition/body).
 */
@@ -58,17 +60,36 @@ public:
     iterator end() const { return m_list.end(); }
     friend bool is_eqp(context const & c1, context const & c2) { return is_eqp(c1.m_list, c2.m_list); }
     /**
+       \brief Return a new context where entries at positions >= s are removed.
+    */
+    context truncate(unsigned s) const;
+    /**
        \brief Return a new context where the entries at positions [s, s+n) were removed.
 
+       The free variables in entries [0, s) are lowered.
+       That is, if this context is of the form
+       [ce_m, ..., ce_{s+n}, ce_{s+n-1}, ..., ce_s, ce_{s-1}, ..., ce_0]
+       Then, the resultant context is of the form
+       [ce_m, ..., ce_{s+n}, lower(ce_{s-1}, n, n), ..., lower(ce_0, s+n-1, n)]
+
        \pre size() >= s + n
+
+       If for some i in [0, s), has_free_var(ce_i, s - 1 - i, s + n - 1 - i), then return none.
+       That is, the lower operations must be valid.
     */
-    context remove(unsigned s, unsigned n) const;
+    optional<context> remove(unsigned s, unsigned n, metavar_env const & menv) const;
     /**
        \brief Return a new context where then entry n : d is inserted at position i.
 
+       The entries from [0, i) are lifted
+       That is, if this context is of the form
+       [ce_m, ..., ce_i, ce_{i-1}, ..., ce_0]
+       Then, the resultant context is of the form
+       [ce_m, ..., ce_i, n := v, lift(ce_{i-1}, 0, 1), ..., lift(ce_0, i-1, 1)]
+
        \pre size() >= i
     */
-    context insert_at(unsigned i, name const & n, expr const & d) const;
+    context insert_at(unsigned i, name const & n, expr const & d, metavar_env const & menv) const;
     friend bool operator==(context const & ctx1, context const & ctx2) { return ctx1.m_list == ctx2.m_list; }
     friend bool operator!=(context const & ctx1, context const & ctx2) { return !(ctx1 == ctx2); }
 };

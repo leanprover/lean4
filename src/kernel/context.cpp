@@ -7,6 +7,8 @@ Author: Leonardo de Moura
 #include <utility>
 #include "util/exception.h"
 #include "kernel/context.h"
+#include "kernel/metavar.h"
+#include "kernel/free_vars.h"
 
 namespace lean {
 context::context(std::initializer_list<std::pair<char const *, expr const &>> const & l) {
@@ -47,36 +49,56 @@ optional<context_entry> context::find(unsigned i) const {
     return optional<context_entry>();
 }
 
-static list<context_entry> remove_core(list<context_entry> const & l, unsigned s, unsigned n) {
+list<context_entry> truncate_core(list<context_entry> const & l, unsigned s) {
+    if (s == 0) {
+        return list<context_entry>();
+    } else {
+        return cons(head(l), truncate_core(tail(l), s-1));
+    }
+}
+
+context context::truncate(unsigned s) const {
+    return context(truncate_core(m_list, s));
+}
+
+struct remove_no_applicable {};
+static list<context_entry> remove_core(list<context_entry> const & l, unsigned s, unsigned n, metavar_env const & menv) {
     if (l) {
         if (s == 0) {
             if (n > 0) {
-                return remove_core(tail(l), 0, n-1);
+                return remove_core(tail(l), 0, n-1, menv);
             } else {
                 return l;
             }
         } else {
-            return cons(head(l), remove_core(tail(l), s-1, n));
+            if (has_free_var(head(l), s-1, s+n-1, menv))
+                throw remove_no_applicable();
+            return cons(lower_free_vars(head(l), s+n-1, n, menv), remove_core(tail(l), s-1, n, menv));
         }
     } else {
         return l;
     }
 }
 
-context context::remove(unsigned s, unsigned n) const {
-    return context(remove_core(m_list, s, n));
+optional<context> context::remove(unsigned s, unsigned n, metavar_env const & menv) const {
+    try {
+        return some(context(remove_core(m_list, s, n, menv)));
+    } catch (remove_no_applicable&) {
+        return optional<context>();
+    }
 }
 
-static list<context_entry> insert_at_core(list<context_entry> const & l, unsigned i, name const & n, expr const & d) {
+static list<context_entry> insert_at_core(list<context_entry> const & l, unsigned i, name const & n, expr const & d,
+                                                metavar_env const & menv) {
     if (i == 0) {
         return cons(context_entry(n, d), l);
     } else {
         lean_assert(l);
-        return cons(head(l), insert_at_core(tail(l), i - 1, n, d));
+        return cons(lift_free_vars(head(l), i-1, 1, menv), insert_at_core(tail(l), i-1, n, d, menv));
     }
 }
 
-context context::insert_at(unsigned i, name const & n, expr const & d) const {
-    return context(insert_at_core(m_list, i, n, d));
+context context::insert_at(unsigned i, name const & n, expr const & d, metavar_env const & menv) const {
+    return context(insert_at_core(m_list, i, n, d, menv));
 }
 }

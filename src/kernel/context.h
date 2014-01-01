@@ -36,6 +36,7 @@ public:
 */
 class context {
     list<context_entry> m_list;
+    explicit context(list<context_entry> const & l):m_list(l) {}
 public:
     context() {}
     context(context const & c, name const & n, optional<expr> const & d, expr const & b):m_list(context_entry(n, d, b), c.m_list) {}
@@ -43,8 +44,8 @@ public:
     context(context const & c, name const & n, expr const & d, expr const & b):m_list(context_entry(n, d, b), c.m_list) {}
     context(context const & c, name const & n, expr const & d):m_list(context_entry(n, d), c.m_list) {}
     context(context const & c, context_entry const & e):m_list(e, c.m_list) {}
+    context(unsigned sz, context_entry const * es):context(to_list(es, es + sz)) {}
     context(std::initializer_list<std::pair<char const *, expr const &>> const & l);
-    explicit context(list<context_entry> const & l):m_list(l) {}
     context_entry const & lookup(unsigned vidx) const;
     std::pair<context_entry const &, context> lookup_ext(unsigned vidx) const;
     /** \brief Similar to lookup, but always succeed */

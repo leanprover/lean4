@@ -1921,7 +1921,7 @@ class parser::imp {
             else
                 new_entries.emplace_back(e.get_name(), d, *b);
         }
-        context mvar_ctx(to_list(new_entries.begin(), new_entries.end()));
+        context mvar_ctx(new_entries.size(), new_entries.data());
         return mk_pair(mvar_type, mvar_ctx);
     }
 

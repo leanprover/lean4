@@ -914,8 +914,11 @@ class parser::imp {
        \brief Try to find an object (Definition or Postulate) named \c
        id in the frontend/environment. If there isn't one, then tries
        to check if \c id is a builtin symbol. If it is not throws an error.
+
+       If \c implicit_args is true, then we also parse explicit arguments until
+       we have a placeholder forall implicit ones.
     */
-    expr get_name_ref(name const & id, pos_info const & p) {
+    expr get_name_ref(name const & id, pos_info const & p, bool implicit_args = true) {
         lean_assert(!m_namespace_prefixes.empty());
         auto it    = m_namespace_prefixes.end();
         auto begin = m_namespace_prefixes.begin();
@@ -926,7 +929,7 @@ class parser::imp {
             if (obj) {
                 object_kind k      = obj->kind();
                 if (k == object_kind::Definition || k == object_kind::Postulate || k == object_kind::Builtin) {
-                    if (has_implicit_arguments(m_env, obj->get_name())) {
+                    if (implicit_args && has_implicit_arguments(m_env, obj->get_name())) {
                         std::vector<bool> const & imp_args = get_implicit_arguments(m_env, obj->get_name());
                         buffer<expr> args;
                         pos_info p = pos();
@@ -2278,8 +2281,9 @@ class parser::imp {
         unsigned prec = parse_precedence();
         name op_id = parse_op_id();
         check_colon_next("invalid operator definition, ':' expected");
+        auto name_pos = pos();
         name name_id = check_identifier_next("invalid operator definition, identifier expected");
-        expr d     = mk_constant(name_id);
+        expr d       = get_name_ref(name_id, name_pos, false);
         switch (fx) {
         case fixity::Infix:   add_infix(m_env, m_io_state, op_id, prec, d); break;
         case fixity::Infixl:  add_infixl(m_env, m_io_state, op_id, prec, d); break;
@@ -2319,8 +2323,9 @@ class parser::imp {
                     if (parts.size() == 0) {
                         throw parser_error("invalid notation declaration, it must have at least one identifier", p);
                     }
+                    auto id_pos = pos();
                     name name_id = check_identifier_next("invalid notation declaration, identifier expected");
-                    expr d     = mk_constant(name_id);
+                    expr d       = get_name_ref(name_id, id_pos, false);
                     if (parts.size() == 1) {
                         if (first_placeholder && prev_placeholder) {
                             // infix: _ ID _
@@ -2593,9 +2598,10 @@ class parser::imp {
         next();
         auto id_pos = pos();
         name id = check_identifier_next("invalid builtin declaration, identifier expected");
-        auto d  = get_builtin(id);
+        name full_id = mk_full_name(id);
+        auto d  = get_builtin(full_id);
         if (!d)
-            throw parser_error(sstream() << "unknown builtin '" << id << "'", id_pos);
+            throw parser_error(sstream() << "unknown builtin '" << full_id << "'", id_pos);
         expr b = d->first;
         if (d->second) {
             m_env->add_builtin_set(b);
@@ -2623,8 +2629,8 @@ class parser::imp {
         }
         m_env->add_builtin(d->first);
         if (m_verbose)
-            regular(m_io_state) << "  Added: " << id << endl;
-        register_implicit_arguments(id, bindings);
+            regular(m_io_state) << "  Added: " << full_id << endl;
+        register_implicit_arguments(full_id, bindings);
     }
 
     void parse_namespace() {

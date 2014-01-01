@@ -3,32 +3,36 @@ Import kernel.
 Variable Nat : Type.
 Alias ℕ : Nat.
 
-Builtin Nat::numeral.
+Namespace Nat.
 
-Builtin Nat::add : Nat → Nat → Nat.
-Infixl 65 +  : Nat::add.
+Builtin numeral.
 
-Builtin Nat::mul : Nat → Nat → Nat.
-Infixl 70 *  : Nat::mul.
+Builtin add : Nat → Nat → Nat.
+Infixl 65 +  : add.
 
-Builtin Nat::le  : Nat → Nat → Bool.
-Infix  50 <= : Nat::le.
-Infix  50 ≤  : Nat::le.
+Builtin mul : Nat → Nat → Nat.
+Infixl 70 *  : mul.
 
-Definition Nat::ge (a b : Nat) := b ≤ a.
-Infix 50 >= : Nat::ge.
-Infix 50 ≥  : Nat::ge.
+Builtin le  : Nat → Nat → Bool.
+Infix  50 <= : le.
+Infix  50 ≤  : le.
 
-Definition Nat::lt (a b : Nat) := ¬ (a ≥ b).
-Infix 50 <  : Nat::lt.
+Definition ge (a b : Nat) := b ≤ a.
+Infix 50 >= : ge.
+Infix 50 ≥  : ge.
 
-Definition Nat::gt (a b : Nat) := ¬ (a ≤ b).
-Infix 50 >  : Nat::gt.
+Definition lt (a b : Nat) := ¬ (a ≥ b).
+Infix 50 <  : lt.
 
-Definition Nat::id (a : Nat) := a.
-Notation 55 | _ | : Nat::id.
+Definition gt (a b : Nat) := ¬ (a ≤ b).
+Infix 50 >  : gt.
 
-SetOpaque Nat::ge true.
-SetOpaque Nat::lt true.
-SetOpaque Nat::gt true.
-SetOpaque Nat::id true.
+Definition id (a : Nat) := a.
+Notation 55 | _ | : id.
+
+SetOpaque ge true.
+SetOpaque lt true.
+SetOpaque gt true.
+SetOpaque id true.
+
+EndNamespace.

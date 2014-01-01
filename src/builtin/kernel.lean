@@ -306,11 +306,17 @@ Theorem NotAnd (a b : Bool) : (¬ (a ∧ b)) == (¬ a ∨ ¬ b)
         (Case (λ y, (¬ (false ∧ y)) == (¬ false ∨ ¬ y)) Trivial Trivial b)
         a
 
+Theorem NotAndElim {a b : Bool} (H : ¬ (a ∧ b)) : ¬ a ∨ ¬ b
+:= EqMP (NotAnd a b) H.
+
 Theorem NotOr (a b : Bool) : (¬ (a ∨ b)) == (¬ a ∧ ¬ b)
 := Case (λ x, (¬ (x ∨ b)) == (¬ x ∧ ¬ b))
         (Case (λ y, (¬ (true ∨ y)) == (¬ true ∧ ¬ y))   Trivial Trivial b)
         (Case (λ y, (¬ (false ∨ y)) == (¬ false ∧ ¬ y)) Trivial Trivial b)
         a
+
+Theorem NotOrElim {a b : Bool} (H : ¬ (a ∨ b)) : ¬ a ∧ ¬ b
+:= EqMP (NotOr a b) H.
 
 Theorem NotEq (a b : Bool) : (¬ (a == b)) == ((¬ a) == b)
 := Case (λ x, (¬ (x == b)) == ((¬ x) == b))
@@ -318,11 +324,17 @@ Theorem NotEq (a b : Bool) : (¬ (a == b)) == ((¬ a) == b)
         (Case (λ y, (¬ (false == y)) == ((¬ false) == y)) Trivial Trivial b)
         a
 
+Theorem NotEqElim {a b : Bool} (H : ¬ (a == b)) : (¬ a) == b
+:= EqMP (NotEq a b) H.
+
 Theorem NotImp (a b : Bool) : (¬ (a ⇒ b)) == (a ∧ ¬ b)
 := Case (λ x, (¬ (x ⇒ b)) == (x ∧ ¬ b))
         (Case (λ y, (¬ (true ⇒ y)) == (true ∧ ¬ y)) Trivial Trivial b)
         (Case (λ y, (¬ (false ⇒ y)) == (false ∧ ¬ y)) Trivial Trivial b)
         a
+
+Theorem NotImpElim {a b : Bool} (H : ¬ (a ⇒ b)) : a ∧ ¬ b
+:= EqMP (NotImp a b) H.
 
 Theorem NotCongr {a b : Bool} (H : a == b) : (¬ a) == (¬ b)
 := Congr2 not H.
@@ -339,10 +351,16 @@ Theorem NotForall (A : (Type U)) (P : A → Bool) : (¬ (∀ x : A, P x)) == (�
             NotCongr (ForallEqIntro (λ x : A, (Symm (DoubleNeg (P x)))))
    in Trans L2 L1.
 
+Theorem NotForallElim {A : (Type U)} {P : A → Bool} (H : ¬ (∀ x : A, P x)) : ∃ x : A, ¬ P x
+:= EqMP (NotForall A P) H.
+
 Theorem NotExists (A : (Type U)) (P : A → Bool) : (¬ ∃ x : A, P x) == (∀ x : A, ¬ P x)
 := let L1 : (¬ ∃ x : A, P x) == (¬ ¬ ∀ x : A, ¬ P x) := Refl (¬ ∃ x : A, P x),
        L2 : (¬ ¬ ∀ x : A, ¬ P x) == (∀ x : A, ¬ P x) := DoubleNeg (∀ x : A, ¬ P x)
    in Trans L1 L2.
+
+Theorem NotExistsElim {A : (Type U)} {P : A → Bool} (H : ¬ ∃ x : A, P x) : ∀ x : A, ¬ P x
+:= EqMP (NotExists A P) H.
 
 Theorem UnfoldExists1 {A : TypeU} {P : A → Bool} (a : A) (H : ∃ x : A, P x) : P a ∨ (∃ x : A, x ≠ a ∧ P x)
 := ExistsElim H

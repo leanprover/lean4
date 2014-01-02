@@ -22,8 +22,8 @@ void init_frontend(environment const & env, io_state & ios, bool no_kernel = fal
   \brief Load kernel, nat, int, real and set pretty printer.
   It is used for testing.
 */
-void init_full_frontend(environment const & env, io_state & ios);
-void init_full_frontend(environment const & env);
+void init_test_frontend(environment const & env, io_state & ios);
+void init_test_frontend(environment const & env);
 
 /**
    @name Notation for parsing and pretty printing.

@@ -563,14 +563,15 @@ void init_frontend(environment const & env, io_state & ios, bool no_kernel) {
         import_nat(env);
     }
 }
-void init_full_frontend(environment const & env, io_state & ios) {
+void init_test_frontend(environment const & env, io_state & ios) {
+    env->set_trusted_imported(true);
     init_frontend(env, ios);
     import_int(env);
     import_real(env);
 }
-void init_full_frontend(environment const & env) {
+void init_test_frontend(environment const & env) {
     io_state ios;
-    init_full_frontend(env, ios);
+    init_test_frontend(env, ios);
 }
 
 void add_infix(environment const & env, io_state const & ios, name const & opn, unsigned p, expr const & d)  {

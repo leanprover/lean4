@@ -37,7 +37,7 @@ static void theorem_rewriter1_tst() {
                                    Eq(nAdd(Const("x"), Const("y")), nAdd(Const("y"), Const("x")))));
     expr add_comm_thm_body = Const("ADD_COMM");
 
-    environment env; init_full_frontend(env);
+    environment env; init_test_frontend(env);
     env->add_var("a", Nat);
     env->add_var("b", Nat);
     env->add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
@@ -69,7 +69,7 @@ static void theorem_rewriter2_tst() {
                            Eq(nAdd(Const("x"), zero), Const("x")));
     expr add_id_thm_body = Const("ADD_ID");
 
-    environment env; init_full_frontend(env);
+    environment env; init_test_frontend(env);
     env->add_var("a", Nat);
     env->add_axiom("ADD_ID", add_id_thm_type); // ADD_ID : Pi (x : N), x = x + 0
 
@@ -107,7 +107,7 @@ static void then_rewriter1_tst() {
                            Eq(nAdd(Const("x"), zero), Const("x")));
     expr add_id_thm_body = Const("ADD_ID");
 
-    environment env; init_full_frontend(env);
+    environment env; init_test_frontend(env);
     env->add_var("a", Nat);
     env->add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
     env->add_axiom("ADD_ID", add_id_thm_type); // ADD_ID : Pi (x : N), x = x + 0
@@ -163,7 +163,7 @@ static void then_rewriter2_tst() {
                            Eq(nAdd(Const("x"), zero), Const("x")));
     expr add_id_thm_body = Const("ADD_ID");
 
-    environment env; init_full_frontend(env);
+    environment env; init_test_frontend(env);
     env->add_var("a", Nat);
     env->add_axiom("ADD_ASSOC", add_assoc_thm_type); // ADD_ASSOC : Pi (x, y, z : N), x + (y + z) = (x + y) + z
     env->add_axiom("ADD_COMM", add_comm_thm_type);   // ADD_COMM  : Pi (x, y: N), x + y = y + z
@@ -222,7 +222,7 @@ static void orelse_rewriter1_tst() {
                               Eq(nAdd(Const("x"), zero), Const("x")));
     expr add_id_thm_body = Const("ADD_ID");
 
-    environment env; init_full_frontend(env);
+    environment env; init_test_frontend(env);
     env->add_var("a", Nat);
     env->add_var("b", Nat);
     env->add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
@@ -269,7 +269,7 @@ static void orelse_rewriter2_tst() {
                               Eq(nAdd(Const("x"), zero), Const("x")));
     expr add_id_thm_body = Const("ADD_ID");
 
-    environment env; init_full_frontend(env);
+    environment env; init_test_frontend(env);
     env->add_var("a", Nat);
     env->add_var("b", Nat);
     env->add_axiom("ADD_ASSOC", add_assoc_thm_type);
@@ -318,7 +318,7 @@ static void try_rewriter1_tst() {
                               Eq(nAdd(Const("x"), zero), Const("x")));
     expr add_id_thm_body = Const("ADD_ID");
 
-    environment env; init_full_frontend(env);
+    environment env; init_test_frontend(env);
     env->add_var("a", Nat);
     env->add_var("b", Nat);
     env->add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
@@ -369,7 +369,7 @@ static void try_rewriter2_tst() {
                               Eq(nAdd(Const("x"), zero), Const("x")));
     expr add_id_thm_body = Const("ADD_ID");
 
-    environment env; init_full_frontend(env);
+    environment env; init_test_frontend(env);
     env->add_var("a", Nat);
     env->add_var("b", Nat);
     env->add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
@@ -415,7 +415,7 @@ static void app_rewriter1_tst() {
                                    Eq(nAdd(Const("x"), Const("y")), nAdd(Const("y"), Const("x")))));
     expr add_comm_thm_body = Const("ADD_COMM");
 
-    environment env; init_full_frontend(env);
+    environment env; init_test_frontend(env);
     env->add_var("f1", Nat >> Nat);
     env->add_var("f2", Nat >> (Nat >> Nat));
     env->add_var("f3", Nat >> (Nat >> (Nat >> Nat)));
@@ -505,7 +505,7 @@ static void repeat_rewriter1_tst() {
                            Eq(nAdd(Const("x"), zero), Const("x")));
     expr add_id_thm_body = Const("ADD_ID");
 
-    environment env; init_full_frontend(env);
+    environment env; init_test_frontend(env);
     env->add_var("a", Nat);
     env->add_axiom("ADD_ASSOC", add_assoc_thm_type); // ADD_ASSOC : Pi (x, y, z : N), x + (y + z) = (x + y) + z
     env->add_axiom("ADD_COMM", add_comm_thm_type);   // ADD_COMM  : Pi (x, y: N), x + y = y + z
@@ -563,7 +563,7 @@ static void repeat_rewriter2_tst() {
                            Eq(nAdd(Const("x"), zero), Const("x")));
     expr add_id_thm_body = Const("ADD_ID");
 
-    environment env; init_full_frontend(env);
+    environment env; init_test_frontend(env);
     env->add_var("a", Nat);
     env->add_axiom("ADD_ASSOC", add_assoc_thm_type); // ADD_ASSOC : Pi (x, y, z : N), x + (y + z) = (x + y) + z
     env->add_axiom("ADD_COMM", add_comm_thm_type);   // ADD_COMM  : Pi (x, y: N), x + y = y + z
@@ -610,7 +610,7 @@ static void depth_rewriter1_tst() {
                                    Eq(nAdd(Const("x"), Const("y")), nAdd(Const("y"), Const("x")))));
     expr add_comm_thm_body = Const("ADD_COMM");
 
-    environment env; init_full_frontend(env);
+    environment env; init_test_frontend(env);
     env->add_var("f1", Nat >> Nat);
     env->add_var("f2", Nat >> (Nat >> Nat));
     env->add_var("f3", Nat >> (Nat >> (Nat >> Nat)));
@@ -657,7 +657,7 @@ static void lambda_body_rewriter_tst() {
                                    Eq(nAdd(Const("x"), Const("y")), nAdd(Const("y"), Const("x")))));
     expr add_comm_thm_body = Const("ADD_COMM");
 
-    environment env; init_full_frontend(env);
+    environment env; init_test_frontend(env);
     env->add_var("f1", Nat >> Nat);
     env->add_var("f2", Nat >> (Nat >> Nat));
     env->add_var("f3", Nat >> (Nat >> (Nat >> Nat)));
@@ -702,7 +702,7 @@ static void lambda_type_rewriter_tst() {
     // Result :     fun (x : vec(Nat, b + a)), x
     cout << "=== lambda_type_rewriter_tst() ===" << std::endl;
     context ctx;
-    environment env; init_full_frontend(env);
+    environment env; init_test_frontend(env);
     expr a = Const("a");   // a  : Nat
     env->add_var("a", Nat);
     expr b = Const("b");   // b  : Nat

@@ -93,16 +93,7 @@ class parser_imp {
             });
     }
 
-    template<typename F>
-    void code_with_callbacks(F && f) {
-        m_script_state->apply([&](lua_State * L) {
-                set_io_state    set1(L, m_io_state);
-                set_environment set2(L, m_env);
-                m_script_state->exec_unprotected([&]() {
-                        f();
-                    });
-            });
-    }
+    void code_with_callbacks(std::function<void()> && f);
 
     /**
         \brief Auxiliar struct for creating/destroying a new scope for

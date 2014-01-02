@@ -31,6 +31,16 @@ bool     get_parser_verbose(options const & opts)      { return opts.get_bool(g_
 bool     get_parser_show_errors(options const & opts)  { return opts.get_bool(g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS); }
 // ==========================================
 
+void parser_imp::code_with_callbacks(std::function<void()> && f) {
+    m_script_state->apply([&](lua_State * L) {
+            set_io_state    set1(L, m_io_state);
+            set_environment set2(L, m_env);
+            m_script_state->exec_unprotected([&]() {
+                    f();
+                });
+        });
+}
+
 parser_imp::mk_scope::mk_scope(parser_imp & fn):
     m_fn(fn),
     m_scope(fn.m_local_decls),

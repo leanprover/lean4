@@ -1053,6 +1053,7 @@ class elaborator::imp {
     */
     void imitate_equality(expr const & a, expr const & b, unification_constraint const & c) {
         lean_assert(is_metavar(a));
+        static_cast<void>(b); // this line is just to avoid a warning, b is only used in an assertion
         lean_assert(is_eq(b));
         lean_assert(!is_assigned(a));
         lean_assert(has_local_context(a));

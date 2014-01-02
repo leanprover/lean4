@@ -34,50 +34,50 @@ Axiom PlusZero (a : Nat)   : a + 0 = a.
 Axiom PlusSucc (a b : Nat) : a + (b + 1) = (a + b) + 1.
 Axiom MulZero (a : Nat)    : a * 0 = 0.
 Axiom MulSucc (a b : Nat)  : a * (b + 1) = a * b + a.
-Axiom Induction {P : Nat → Bool} (Hb : P 0) (Hi : Π (n : Nat) (H : P n), P (n + 1)) (a : Nat) : P a.
+Axiom Induction {P : Nat → Bool} (Hb : P 0) (iH : Π (n : Nat) (H : P n), P (n + 1)) (a : Nat) : P a.
 
 Theorem ZeroNeOne : 0 ≠ 1 := Trivial.
 
 Theorem ZeroPlus (a : Nat) : 0 + a = a
 := Induction (show 0 + 0 = 0, Trivial)
-             (λ (n : Nat) (Hi : 0 + n = n),
+             (λ (n : Nat) (iH : 0 + n = n),
                 calc  0 + (n + 1)  =  (0 + n) + 1   :  PlusSucc 0 n
-                              ...  =  n + 1         :  { Hi })
+                              ...  =  n + 1         :  { iH })
              a.
 
 Theorem SuccPlus (a b : Nat) : (a + 1) + b = (a + b) + 1
 := Induction (calc (a + 1) + 0   =  a + 1        :  PlusZero (a + 1)
                         ...      =  (a + 0) + 1  :  { Symm (PlusZero a) })
-             (λ (n : Nat) (Hi : (a + 1) + n = (a + n) + 1),
+             (λ (n : Nat) (iH : (a + 1) + n = (a + n) + 1),
                 calc   (a + 1) + (n + 1)   =   ((a + 1) + n) + 1  :  PlusSucc (a + 1) n
-                                   ...     =   ((a + n) + 1) + 1  :  { Hi }
+                                   ...     =   ((a + n) + 1) + 1  :  { iH }
                                    ...     =   (a + (n + 1)) + 1  :  { show (a + n) + 1 = a + (n + 1), Symm (PlusSucc a n) })
              b.
 
 Theorem PlusComm (a b : Nat) : a + b = b + a
 := Induction (calc a + 0   = a     : PlusZero a
                      ...   = 0 + a : Symm (ZeroPlus a))
-             (λ (n : Nat) (Hi : a + n = n + a),
+             (λ (n : Nat) (iH : a + n = n + a),
                 calc   a + (n + 1)   =   (a + n) + 1 : PlusSucc a n
-                             ...     =   (n + a) + 1 : { Hi }
+                             ...     =   (n + a) + 1 : { iH }
                              ...     =   (n + 1) + a : Symm (SuccPlus n a))
              b.
 
 Theorem PlusAssoc (a b c : Nat) : a + (b + c) = (a + b) + c
 := Induction (calc 0 + (b + c)  =  b + c        : ZeroPlus (b + c)
                          ...    =  (0 + b) + c  : { Symm (ZeroPlus b) })
-             (λ (n : Nat) (Hi : n + (b + c) = (n + b) + c),
+             (λ (n : Nat) (iH : n + (b + c) = (n + b) + c),
                 calc (n + 1) + (b + c)   =    (n + (b + c)) + 1   :  SuccPlus n (b + c)
-                                  ...    =    ((n + b) + c) + 1   :  { Hi }
+                                  ...    =    ((n + b) + c) + 1   :  { iH }
                                   ...    =    ((n + b) + 1) + c   :  Symm (SuccPlus (n + b) c)
                                   ...    =    ((n + 1) + b) + c   :  { show (n + b) + 1 = (n + 1) + b,  Symm (SuccPlus n b) })
              a.
 
 Theorem ZeroMul (a : Nat) : 0 * a = 0
 := Induction (show 0 * 0 = 0, Trivial)
-             (λ (n : Nat) (Hi : 0 * n = 0),
+             (λ (n : Nat) (iH : 0 * n = 0),
                 calc  0 * (n + 1)  =  (0 * n) + 0 : MulSucc 0 n
-                              ...  =  0 + 0       : { Hi }
+                              ...  =  0 + 0       : { iH }
                               ...  =  0           : Trivial)
              a.
 
@@ -85,9 +85,9 @@ Theorem SuccMul (a b : Nat) : (a + 1) * b = a * b + b
 := Induction (calc (a + 1) * 0   =  0         : MulZero (a + 1)
                            ...   =  a * 0     : Symm (MulZero a)
                            ...   =  a * 0 + 0 : Symm (PlusZero (a * 0)))
-             (λ (n : Nat) (Hi : (a + 1) * n = a * n + n),
+             (λ (n : Nat) (iH : (a + 1) * n = a * n + n),
                 calc   (a + 1) * (n + 1)  =    (a + 1) * n + (a + 1)  :  MulSucc (a + 1) n
-                                   ...    = a * n + n + (a + 1)       :  { Hi }
+                                   ...    = a * n + n + (a + 1)       :  { iH }
                                    ...    = a * n + n + a + 1         :  PlusAssoc (a * n + n) a 1
                                    ...    = a * n + (n + a) + 1       :  { show  a * n + n + a = a * n + (n + a), Symm (PlusAssoc (a * n) n a) }
                                    ...    = a * n + (a + n) + 1       :  { PlusComm n a }
@@ -98,24 +98,24 @@ Theorem SuccMul (a b : Nat) : (a + 1) * b = a * b + b
 
 Theorem OneMul (a : Nat) : 1 * a = a
 := Induction (show 1 * 0 = 0, Trivial)
-             (λ (n : Nat) (Hi : 1 * n = n),
+             (λ (n : Nat) (iH : 1 * n = n),
                 calc  1 * (n + 1)  =  1 * n + 1 :  MulSucc 1 n
-                              ...  =  n + 1     : { Hi })
+                              ...  =  n + 1     : { iH })
              a.
 
 Theorem MulOne (a : Nat) : a * 1 = a
 := Induction (show 0 * 1 = 0, Trivial)
-             (λ (n : Nat) (Hi : n * 1 = n),
+             (λ (n : Nat) (iH : n * 1 = n),
                 calc  (n + 1) * 1  =  n * 1 + 1 : SuccMul n 1
-                             ...   =  n + 1     : { Hi })
+                             ...   =  n + 1     : { iH })
              a.
 
 Theorem MulComm (a b : Nat) : a * b = b * a
 := Induction (calc a * 0  = 0      : MulZero a
                      ...  = 0 * a  : Symm (ZeroMul a))
-             (λ (n : Nat) (Hi : a * n = n * a),
+             (λ (n : Nat) (iH : a * n = n * a),
                 calc  a * (n + 1)   =   a * n + a   : MulSucc a n
-                              ...   =   n * a + a   : { Hi }
+                              ...   =   n * a + a   : { iH }
                               ...   =   (n + 1) * a : Symm (SuccMul n a))
              b.
 
@@ -125,9 +125,9 @@ Theorem Distribute (a b c : Nat) : a * (b + c) = a * b + a * c
                            ...   = 0 + 0          : Trivial
                            ...   = 0 * b + 0      : { Symm (ZeroMul b) }
                            ...   = 0 * b + 0 * c  : { Symm (ZeroMul c) })
-             (λ (n : Nat) (Hi : n * (b + c) = n * b + n * c),
+             (λ (n : Nat) (iH : n * (b + c) = n * b + n * c),
                 calc  (n + 1) * (b + c)  =   n * (b + c) + (b + c)     : SuccMul n (b + c)
-                                ...      =   n * b + n * c + (b + c)   : { Hi }
+                                ...      =   n * b + n * c + (b + c)   : { iH }
                                 ...      =   n * b + n * c + b + c     : PlusAssoc (n * b + n * c) b c
                                 ...      =   n * b + (n * c + b) + c   : { Symm (PlusAssoc (n * b) (n * c) b) }
                                 ...      =   n * b + (b + n * c) + c   : { PlusComm (n * c) b }
@@ -147,9 +147,9 @@ Theorem MulAssoc (a b c : Nat) : a * (b * c) = a * b * c
 := Induction (calc  0 * (b * c)    =  0           : ZeroMul (b * c)
                             ...    =  0 * c       : Symm (ZeroMul c)
                             ...    =  (0 * b) * c : { Symm (ZeroMul b) })
-             (λ (n : Nat) (Hi : n * (b * c) = n * b * c),
+             (λ (n : Nat) (iH : n * (b * c) = n * b * c),
                 calc  (n + 1) * (b * c)    =   n * (b * c) + (b * c)   :  SuccMul n (b * c)
-                                  ...      =   n * b * c + (b * c)     :  { Hi }
+                                  ...      =   n * b * c + (b * c)     :  { iH }
                                   ...      =   (n * b + b) * c         :  Symm (Distribute2 (n * b) b c)
                                   ...      =   (n + 1) * b * c         :  { Symm (SuccMul n b) })
              a.

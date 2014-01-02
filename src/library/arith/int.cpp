@@ -156,8 +156,7 @@ static register_builtin_fn nat_to_int_blt("nat_to_int", []() { return mk_nat_to_
 MK_CONSTANT(nat_sub_fn, name({"Nat", "sub"}));
 MK_CONSTANT(nat_neg_fn, name({"Nat", "neg"}));
 
-void import_int(environment const & env) {
-    io_state ios;
+void import_int(environment const & env, io_state const & ios) {
     env->import("Int", ios);
 }
 

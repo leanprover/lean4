@@ -55,7 +55,7 @@ inline expr nIf(expr const & c, expr const & t, expr const & e) { return mk_if(N
 
 class environment;
 /** \brief Import Natural number library in the given environment (if it has not been imported already). */
-void import_nat(environment const & env);
+void import_nat(environment const & env, io_state const & ios);
 
 void open_nat(lua_State * L);
 }

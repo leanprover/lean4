@@ -14,5 +14,5 @@ class environment;
 /**
    \brief Import all arithmetic related builtin libraries.
 */
-void import_arith(environment const & env);
+void import_arith(environment const & env, io_state const & ios);
 }

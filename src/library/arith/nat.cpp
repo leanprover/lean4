@@ -115,8 +115,7 @@ MK_CONSTANT(nat_lt_fn,  name({"Nat", "lt"}));
 MK_CONSTANT(nat_gt_fn,  name({"Nat", "gt"}));
 MK_CONSTANT(nat_id_fn,  name({"Nat", "id"}));
 
-void import_nat(environment const & env) {
-    io_state ios;
+void import_nat(environment const & env, io_state const & ios) {
     env->import("Nat", ios);
 }
 

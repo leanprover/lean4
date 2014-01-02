@@ -157,8 +157,7 @@ MK_CONSTANT(real_lt_fn, name({"Real", "lt"}));
 MK_CONSTANT(real_gt_fn, name({"Real", "gt"}));
 MK_CONSTANT(nat_to_real_fn, name("nat_to_real"));
 
-void import_real(environment const & env) {
-    io_state ios;
+void import_real(environment const & env, io_state const & ios) {
     env->import("Real", ios);
 }
 

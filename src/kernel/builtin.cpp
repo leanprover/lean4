@@ -171,8 +171,7 @@ MK_CONSTANT(forall_intro_fn,    name("ForallIntro"));
 MK_CONSTANT(exists_elim_fn,     name("ExistsElim"));
 MK_CONSTANT(exists_intro_fn,    name("ExistsIntro"));
 
-void import_kernel(environment const & env) {
-    io_state ios;
+void import_kernel(environment const & env, io_state const & ios) {
     env->import("kernel", ios);
 }
 }

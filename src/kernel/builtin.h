@@ -218,6 +218,6 @@ inline expr ExistsElim(expr const & A, expr const & P, expr const & B, expr cons
 
 expr mk_exists_intro_fn();
 inline expr ExistsIntro(expr const & A, expr const & P, expr const & a, expr const & H) { return mk_app(mk_exists_intro_fn(), A, P, a, H); }
-
-void import_kernel(environment const & env);
+class io_state;
+void import_kernel(environment const & env, io_state const & ios);
 }

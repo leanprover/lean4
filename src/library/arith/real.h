@@ -67,7 +67,7 @@ inline expr rIf(expr const & c, expr const & t, expr const & e) { return mk_if(R
 
 class environment;
 /** \brief Import (basic) Real number library in the given environment (if it has not been imported already). */
-void import_real(environment const & env);
+void import_real(environment const & env, io_state const & ios);
 
 /** \brief Coercion from int to real */
 expr mk_int_to_real_fn();

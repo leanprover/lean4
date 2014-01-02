@@ -559,15 +559,15 @@ static lean_extension & to_ext(environment const & env) {
 void init_frontend(environment const & env, io_state & ios, bool no_kernel) {
     ios.set_formatter(mk_pp_formatter(env));
     if (!no_kernel) {
-        import_kernel(env);
-        import_nat(env);
+        import_kernel(env, ios);
+        import_nat(env, ios);
     }
 }
 void init_test_frontend(environment const & env, io_state & ios) {
     env->set_trusted_imported(true);
     init_frontend(env, ios);
-    import_int(env);
-    import_real(env);
+    import_int(env, ios);
+    import_real(env, ios);
 }
 void init_test_frontend(environment const & env) {
     io_state ios;

@@ -87,6 +87,25 @@ expr calc_proof_parser::parse_op(parser_imp & imp) const {
     return e;
 }
 
+static expr parse_step_pr(parser_imp & imp, expr const & lhs) {
+    auto p = imp.pos();
+    imp.check_colon_next("invalid calculational proof, ':' expected");
+    if (imp.curr_is_lcurly()) {
+        imp.next();
+        expr eq_pr = imp.parse_expr();
+        imp.check_rcurly_next("invalid calculational proof, '}' expected");
+        // Using axiom Subst {A : TypeU} {a b : A} {P : A → Bool} (H1 : P a) (H2 : a == b) : P b.
+        return Subst(imp.save(mk_placeholder(), p),
+                     imp.save(mk_placeholder(), p),
+                     imp.save(mk_placeholder(), p),
+                     imp.save(mk_placeholder(), p), // let elaborator compute the first four arguments
+                     Refl(imp.save(mk_placeholder(), p), lhs),
+                     eq_pr);
+    } else {
+        return imp.parse_expr();
+    }
+}
+
 /**
    \brief Parse
 
@@ -105,11 +124,10 @@ expr calc_proof_parser::parse(parser_imp & imp) const {
         throw parser_error("invalid calculational proof, first expression is not an application of a supported operator", p);
     if (num_args(first) < 3)
         throw parser_error("invalid calculational proof, first expression must be an application of a binary operator (modulo implicit arguments)", p);
-    imp.check_colon_next("invalid calculational proof, ':' expected");
     unsigned num = num_args(first);
-    expr result  = imp.parse_expr();
-    expr rhs     = arg(first, num - 2);
-    expr lhs     = arg(first, num - 1);
+    expr lhs     = arg(first, num - 2);
+    expr rhs     = arg(first, num - 1);
+    expr result  = parse_step_pr(imp, lhs);
     while (imp.curr() == scanner::token::Ellipsis) {
         imp.next();
         p = imp.pos();
@@ -117,26 +135,23 @@ expr calc_proof_parser::parse(parser_imp & imp) const {
         auto tdata = find_trans_data(op, new_op);
         if (!tdata)
             throw parser_error("invalid calculational proof, operators cannot be combined", p);
-        expr new_lhs = imp.parse_expr();
-        p = imp.pos();
-        imp.check_colon_next("invalid calculational proof, ':' expected");
-        expr step_pr = imp.parse_expr();
+        expr new_rhs = imp.parse_expr();
+        expr step_pr = parse_step_pr(imp, rhs);
         buffer<expr> args;
         args.push_back(tdata->m_fn);
         for (unsigned i = 0; i < tdata->m_num_args - 5; i++) {
             // transitivity step has implicit arguments
             args.push_back(imp.save(mk_placeholder(), p));
         }
-        args.push_back(rhs);
         args.push_back(lhs);
-        args.push_back(new_lhs);
+        args.push_back(rhs);
+        args.push_back(new_rhs);
         args.push_back(result);
         args.push_back(step_pr);
         result = mk_app(args);
         op  = tdata->m_rop;
-        lhs = new_lhs;
+        rhs = new_rhs;
     }
-    std::cout << result << "\n";
     return result;
 }
 }

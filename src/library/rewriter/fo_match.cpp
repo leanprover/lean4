@@ -7,7 +7,7 @@ Author: Soonho Kong
 #include <utility>
 #include "util/trace.h"
 #include "kernel/expr.h"
-#include "kernel/printer.h"
+#include "library/printer.h"
 #include "library/arith/nat.h"
 #include "library/arith/arith.h"
 #include "library/rewriter/fo_match.h"

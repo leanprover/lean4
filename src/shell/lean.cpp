@@ -16,11 +16,11 @@ Author: Leonardo de Moura
 #include "util/script_state.h"
 #include "util/thread.h"
 #include "util/lean_path.h"
-#include "kernel/printer.h"
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/formatter.h"
 #include "kernel/io_state.h"
+#include "library/printer.h"
 #include "library/kernel_bindings.h"
 #include "library/io_state_stream.h"
 #include "frontends/lean/parser.h"
@@ -173,8 +173,7 @@ int main(int argc, char ** argv) {
 #endif
                 environment env;
                 env->set_trusted_imported(trust_imported);
-                io_state ios;
-                init_frontend(env, ios, no_kernel);
+                io_state ios = init_frontend(env, no_kernel);
                 script_state S;
                 shell sh(env, &S);
                 int status = sh() ? 0 : 1;
@@ -189,8 +188,7 @@ int main(int argc, char ** argv) {
         } else {
             environment env;
             env->set_trusted_imported(trust_imported);
-            io_state    ios;
-            init_frontend(env, ios, no_kernel);
+            io_state    ios = init_frontend(env, no_kernel);
             script_state S;
             bool ok = true;
             for (int i = optind; i < argc; i++) {

@@ -557,22 +557,21 @@ static lean_extension & to_ext(environment const & env) {
     return env->get_extension<lean_extension>(g_lean_extension_initializer.m_extid);
 }
 
-void init_frontend(environment const & env, io_state & ios, bool no_kernel) {
-    ios.set_formatter(mk_pp_formatter(env));
+io_state init_frontend(environment const & env, bool no_kernel) {
+    io_state ios(mk_pp_formatter(env));
     if (!no_kernel) {
         import_kernel(env, ios);
         import_nat(env, ios);
     }
+    return ios;
 }
-void init_test_frontend(environment const & env, io_state & ios) {
+
+io_state init_test_frontend(environment const & env) {
     env->set_trusted_imported(true);
-    init_frontend(env, ios);
+    io_state ios = init_frontend(env);
     import_int(env, ios);
     import_real(env, ios);
-}
-void init_test_frontend(environment const & env) {
-    io_state ios;
-    init_test_frontend(env, ios);
+    return ios;
 }
 
 void add_infix(environment const & env, io_state const & ios, name const & opn, unsigned p, expr const & d)  {

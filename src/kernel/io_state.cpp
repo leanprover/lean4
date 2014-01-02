@@ -8,8 +8,8 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 
 namespace lean {
-io_state::io_state():
-    m_formatter(mk_simple_formatter()),
+io_state::io_state(formatter const & fmt):
+    m_formatter(fmt),
     m_regular_channel(std::make_shared<stdout_channel>()),
     m_diagnostic_channel(std::make_shared<stderr_channel>()) {
 }

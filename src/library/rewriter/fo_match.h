@@ -5,10 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Soonho Kong
 */
 #pragma once
-#include "kernel/printer.h"
 #include "util/scoped_map.h"
 #include "kernel/expr.h"
 #include "kernel/context.h"
+#include "library/printer.h"
 
 namespace lean {
 using subst_map = scoped_map<unsigned, expr>;

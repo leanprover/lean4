@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
-#include "kernel/printer.h"
+#include "library/printer.h"
 #include "library/max_sharing.h"
 #include "library/bin_op.h"
 #include "library/arith/arith.h"

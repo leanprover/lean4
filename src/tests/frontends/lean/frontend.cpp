@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/builtin.h"
 #include "kernel/abstract.h"
-#include "kernel/printer.h"
+#include "library/printer.h"
 #include "library/bin_op.h"
 #include "library/io_state_stream.h"
 #include "frontends/lean/frontend.h"
@@ -19,7 +19,7 @@ Author: Leonardo de Moura
 using namespace lean;
 
 static void tst1() {
-    environment env; io_state ios; init_frontend(env, ios);
+    environment env; io_state ios = init_frontend(env);
     env->add_uvar("tst");
     environment c = env->mk_child();
     lean_assert(c->get_uvar("tst") == env->get_uvar("tst"));
@@ -61,7 +61,7 @@ static void tst3() {
 }
 
 static void tst4() {
-    environment env; io_state ios; init_frontend(env, ios);
+    environment env; io_state ios = init_frontend(env);
     formatter fmt = mk_pp_formatter(env);
     context c;
     c = extend(c, "x", Bool);
@@ -75,7 +75,7 @@ static void tst4() {
 
 static void tst5() {
     std::cout << "=================\n";
-    environment env; io_state ios; init_frontend(env, ios);
+    environment env; io_state ios = init_frontend(env);
     formatter fmt = mk_pp_formatter(env);
     env->add_var("A", Type());
     env->add_var("x", Const("A"));
@@ -104,27 +104,27 @@ public:
 
 static void tst6() {
     std::cout << "=================\n";
-    environment env; io_state ios; init_frontend(env, ios);
+    environment env; io_state ios = init_frontend(env);
     env->add_neutral_object(new alien_cell());
     formatter fmt = mk_pp_formatter(env);
     std::cout << fmt(env) << "\n";
 }
 
 static void tst7() {
-    environment env; io_state ios; init_frontend(env, ios);
+    environment env; io_state ios = init_frontend(env);
     formatter fmt = mk_pp_formatter(env);
     std::cout << fmt(And(Const("x"), Const("y"))) << "\n";
 }
 
 static void tst8() {
-    environment env; io_state ios; init_frontend(env, ios);
+    environment env; io_state ios = init_frontend(env);
     formatter fmt = mk_pp_formatter(env);
     add_infixl(env, ios, "<-$->", 10, mk_refl_fn());
     std::cout << fmt(*(env->find_object("Trivial"))) << "\n";
 }
 
 static void tst9() {
-    environment env; io_state ios; init_frontend(env, ios);
+    environment env; io_state ios = init_frontend(env);
     lean_assert(!env->has_children());
     {
         environment c = env->mk_child();
@@ -156,7 +156,7 @@ static void tst9() {
 }
 
 static void tst10() {
-    environment env; io_state ios; init_frontend(env, ios);
+    environment env; io_state ios = init_frontend(env);
     formatter fmt = mk_pp_formatter(env);
     expr x = Const("xxxxxxxxxxxx");
     expr y = Const("y");
@@ -167,7 +167,7 @@ static void tst10() {
 }
 
 static void tst11() {
-    environment env; io_state ios; init_frontend(env, ios);
+    environment env; io_state ios = init_frontend(env);
     expr A = Const("A");
     env->add_var("g", Pi({A, Type()}, A >> (A >> A)));
     lean_assert(!has_implicit_arguments(env, "g"));

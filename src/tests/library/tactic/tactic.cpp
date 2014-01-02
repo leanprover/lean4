@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/builtin.h"
 #include "kernel/kernel_exception.h"
 #include "library/io_state_stream.h"
+#include "library/printer.h"
 #include "library/tactic/goal.h"
 #include "library/tactic/proof_builder.h"
 #include "library/tactic/proof_state.h"

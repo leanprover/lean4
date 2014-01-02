@@ -91,8 +91,7 @@ static readline_config g_readline_config;
 shell::shell(environment const & env, io_state const & ios, script_state * S):m_env(env), m_io_state(ios), m_script_state(S) {
 }
 
-shell::shell(environment const & env, script_state * S):m_env(env), m_io_state(), m_script_state(S) {
-    m_io_state.set_formatter(mk_pp_formatter(m_env));
+shell::shell(environment const & env, script_state * S):m_env(env), m_io_state(mk_pp_formatter(m_env)), m_script_state(S) {
 }
 
 shell::~shell() {

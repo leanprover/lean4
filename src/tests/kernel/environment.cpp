@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/builtin.h"
 #include "kernel/normalizer.h"
 #include "kernel/abstract.h"
-#include "kernel/printer.h"
+#include "library/printer.h"
 #include "library/io_state_stream.h"
 #include "library/arith/arith.h"
 #include "frontends/lean/frontend.h"

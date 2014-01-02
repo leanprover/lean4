@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/abstract.h"
 #include "kernel/formatter.h"
+#include "library/printer.h"
 using namespace lean;
 
 static void check(format const & f, char const * expected) {

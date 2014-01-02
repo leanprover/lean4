@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "kernel/builtin.h"
 #include "kernel/type_checker.h"
 #include "kernel/update_expr.h"
+#include "library/printer.h"
 #include "library/eq_heq.h"
 #include "library/elaborator/elaborator.h"
 #include "library/elaborator/elaborator_justification.h"

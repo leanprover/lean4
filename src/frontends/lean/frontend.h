@@ -16,14 +16,13 @@ namespace lean {
 /**
    \brief Load kernel, nat and set pretty printer.
 */
-void init_frontend(environment const & env, io_state & ios, bool no_kernel = false);
+io_state init_frontend(environment const & env, bool no_kernel = false);
 
 /*
   \brief Load kernel, nat, int, real and set pretty printer.
   It is used for testing.
 */
-void init_test_frontend(environment const & env, io_state & ios);
-void init_test_frontend(environment const & env);
+io_state init_test_frontend(environment const & env);
 
 /**
    @name Notation for parsing and pretty printing.

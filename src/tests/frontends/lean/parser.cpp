@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "util/exception.h"
 #include "util/numerics/mpq.h"
 #include "kernel/builtin.h"
-#include "kernel/printer.h"
+#include "library/printer.h"
 #include "library/io_state_stream.h"
 #include "library/arith/arith.h"
 #include "frontends/lean/parser.h"
@@ -43,7 +43,7 @@ static void parse_error(environment const & env, io_state const & ios, char cons
 }
 
 static void tst1() {
-    environment env; io_state ios; init_test_frontend(env, ios);
+    environment env; io_state ios = init_test_frontend(env);
     parse(env, ios, "Variable x : Bool Variable y : Bool Axiom H : x && y || x => x");
     parse(env, ios, "Eval true && true");
     parse(env, ios, "Show true && false Eval true && false");
@@ -64,7 +64,7 @@ static void check(environment const & env, io_state & ios, char const * str, exp
 }
 
 static void tst2() {
-    environment env; io_state ios; init_test_frontend(env, ios);
+    environment env; io_state ios = init_test_frontend(env);
     env->add_var("x", Bool);
     env->add_var("y", Bool);
     env->add_var("z", Bool);
@@ -81,7 +81,7 @@ static void tst2() {
 }
 
 static void tst3() {
-    environment env; io_state ios; init_test_frontend(env, ios);
+    environment env; io_state ios = init_test_frontend(env);
     parse(env, ios, "Help");
     parse(env, ios, "Help Options");
     parse_error(env, ios, "Help Echo");

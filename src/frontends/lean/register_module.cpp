@@ -127,8 +127,7 @@ static int parse_lean_cmds(lua_State * L) {
 
 static int mk_environment(lua_State * L) {
     environment env;
-    io_state ios;
-    init_frontend(env, ios);
+    io_state ios = init_frontend(env);
     return push_environment(L, env);
 }
 

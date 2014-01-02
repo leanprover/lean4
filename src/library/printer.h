@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include "kernel/expr.h"
 #include "kernel/context.h"
+#include "kernel/formatter.h"
 
 namespace lean {
 class ro_environment;
@@ -18,6 +19,10 @@ std::ostream & operator<<(std::ostream & out, std::pair<expr const &, context co
 class object;
 std::ostream & operator<<(std::ostream & out, object const & obj);
 std::ostream & operator<<(std::ostream & out, ro_environment const & env);
+/**
+   \brief Create a simple formatter object based on \c print function.
+*/
+formatter mk_simple_formatter();
 }
 void print(lean::expr const & a);
 void print(lean::expr const & a, lean::context const & c);

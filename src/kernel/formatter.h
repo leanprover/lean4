@@ -60,9 +60,4 @@ public:
 template<typename FCell> formatter mk_formatter(FCell && fcell) {
     return formatter(new FCell(std::forward<FCell>(fcell)));
 }
-
-/**
-   \brief Create a simple formatter object based on \c print function.
-*/
-formatter mk_simple_formatter();
 }

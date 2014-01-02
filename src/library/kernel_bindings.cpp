@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/expr_lt.h"
 #include "library/kernel_bindings.h"
+#include "library/printer.h"
 
 // Lua Bindings for the Kernel classes. We do not include the Lua
 // bindings in the kernel because we do not want to inflate the Kernel.
@@ -1150,7 +1151,7 @@ static int environment_import(lua_State * L) {
         if (ios) {
             env->import(luaL_checkstring(L, 2), *ios);
         } else {
-            io_state ios;
+            io_state ios(mk_simple_formatter());
             ios.set_options(get_global_options(L));
             env->import(luaL_checkstring(L, 2), ios);
         }
@@ -1700,7 +1701,7 @@ DECL_UDATA(io_state)
 int mk_io_state(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 0)
-        return push_io_state(L, io_state());
+        return push_io_state(L, io_state(mk_simple_formatter()));
     else if (nargs == 1)
         return push_io_state(L, io_state(to_io_state(L, 1)));
     else

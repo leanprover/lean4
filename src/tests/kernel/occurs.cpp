@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "kernel/occurs.h"
 #include "kernel/abstract.h"
-#include "kernel/printer.h"
+#include "library/printer.h"
 using namespace lean;
 
 static void tst1() {

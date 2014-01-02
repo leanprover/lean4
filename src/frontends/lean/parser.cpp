@@ -16,8 +16,7 @@ parser::parser(environment const & env, io_state const & ios, std::istream & in,
 }
 
 parser::parser(environment const & env, std::istream & in, script_state * S, bool use_exceptions, bool interactive):
-    parser(env, io_state(), in, S, use_exceptions, interactive) {
-    m_ptr->m_io_state.set_formatter(mk_pp_formatter(m_ptr->m_env));
+    parser(env, io_state(mk_pp_formatter(m_ptr->m_env)), in, S, use_exceptions, interactive) {
 }
 
 parser::~parser() {

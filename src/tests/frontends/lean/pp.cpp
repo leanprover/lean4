@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "kernel/abstract.h"
 #include "kernel/builtin.h"
-#include "kernel/printer.h"
+#include "library/printer.h"
 #include "library/io_state_stream.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/pp.h"
@@ -23,7 +23,7 @@ static expr mk_shared_expr(unsigned depth) {
 }
 
 static void tst1() {
-    environment env; io_state ios; init_frontend(env, ios);
+    environment env; io_state ios = init_frontend(env);
     formatter fmt = mk_pp_formatter(env);
     std::cout << "Basic printer\n";
     std::cout << mk_shared_expr(10) << std::endl;
@@ -32,7 +32,7 @@ static void tst1() {
 }
 
 static void tst2() {
-    environment env; io_state ios; init_frontend(env, ios);
+    environment env; io_state ios = init_frontend(env);
     formatter fmt = mk_pp_formatter(env);
     expr a = Const("a");
     expr t = Fun({a, Type()}, mk_shared_expr(10));
@@ -43,7 +43,7 @@ static void tst2() {
 }
 
 static void tst3() {
-    environment env; io_state ios; init_frontend(env, ios);
+    environment env; io_state ios = init_frontend(env);
     formatter fmt = mk_pp_formatter(env);
     expr g = Const("g");
     expr a = Const("\u03BA");
@@ -59,7 +59,7 @@ static void tst3() {
 }
 
 static void tst4() {
-    environment env; io_state ios; init_frontend(env, ios);
+    environment env; io_state ios = init_frontend(env);
     io_state const & s1 = ios;
     io_state s2 = ios;
     regular(s1) << And(Const("a"), Const("b")) << "\n";
@@ -72,7 +72,7 @@ static void tst4() {
 }
 
 static void tst5() {
-    environment env; io_state ios; init_frontend(env, ios);
+    environment env; io_state ios = init_frontend(env);
     std::shared_ptr<string_output_channel> out(std::make_shared<string_output_channel>());
     ios.set_regular_channel(out);
     ios.set_option(name{"pp", "unicode"}, true);
@@ -92,7 +92,7 @@ static expr mk_deep(unsigned depth) {
 }
 
 static void tst6() {
-    environment env; io_state ios; init_frontend(env, ios);
+    environment env; io_state ios = init_frontend(env);
     std::shared_ptr<string_output_channel> out(std::make_shared<string_output_channel>());
     ios.set_regular_channel(out);
     expr t = mk_deep(10);

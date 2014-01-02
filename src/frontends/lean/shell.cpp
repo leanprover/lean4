@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include <unistd.h>
 #include <algorithm>
 #endif
+#include <string>
 #include "frontends/lean/shell.h"
 #include "frontends/lean/pp.h"
 

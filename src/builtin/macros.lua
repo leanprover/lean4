@@ -25,7 +25,7 @@
 -- elaborator.
 function binder_macro(name, f, farity, typepos, lambdapos)
    local precedence = 0
-   macro(name, { macro_arg.Bindings, macro_arg.Comma, macro_arg.Expr },
+   macro(name, { macro_arg.Parameters, macro_arg.Comma, macro_arg.Expr },
          function (env, bindings, body)
             local r = body
             for i = #bindings, 1, -1 do

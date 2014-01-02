@@ -4,14 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#ifdef LEAN_USE_READLINE
-#include <stdio.h>
-#include <readline/readline.h>
-#include <readline/history.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <algorithm>
-#endif
 #include <utility>
 #include <string>
 #include <tuple>
@@ -50,6 +42,8 @@ Author: Leonardo de Moura
 #include "library/elaborator/elaborator.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/frontend_elaborator.h"
+#include "frontends/lean/parser_error.h"
+#include "frontends/lean/parser_types.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/notation.h"
@@ -137,7 +131,7 @@ static unsigned g_level_cup_prec  = 5;
 // are syntax sugar for (Pi (_ : A), B)
 static name g_unused = name::mk_internal_unique_name();
 
-enum class macro_arg_kind { Expr, Exprs, Bindings, Id, Int, String, Comma, Assign, Tactic, Tactics };
+enum class macro_arg_kind { Expr, Exprs, Parameters, Id, Int, String, Comma, Assign, Tactic, Tactics };
 struct macro {
     list<macro_arg_kind> m_arg_kinds;
     luaref               m_fn;
@@ -204,10 +198,8 @@ class parser::imp {
     friend int mk_cmd_macro(lua_State * L);
     typedef scoped_map<name, unsigned, name_hash, name_eq> local_decls;
     typedef name_map<expr> builtins;
-    typedef std::pair<unsigned, unsigned> pos_info;
     typedef expr_map<pos_info> expr_pos_info;
     typedef expr_map<tactic>   tactic_hints; // a mapping from placeholder to tactic
-    typedef buffer<std::tuple<pos_info, name, expr, bool>> bindings_buffer;
     environment         m_env;
     io_state            m_io_state;
     scanner             m_scanner;
@@ -237,32 +229,6 @@ class parser::imp {
 
     bool                m_verbose;
     bool                m_show_errors;
-
-    /** \brief Exception used to track parsing erros, it does not leak outside of this class. */
-    struct parser_error : public exception {
-        pos_info m_pos;
-        parser_error(char const * msg, pos_info const & p):exception(msg), m_pos(p) {}
-        parser_error(sstream const & msg, pos_info const & p):exception(msg), m_pos(p) {}
-        virtual exception * clone() const { return new parser_error(m_msg.c_str(), m_pos); }
-        virtual void rethrow() const { throw *this; }
-    };
-
-    struct tactic_cmd_error : public parser_error {
-        proof_state m_state;
-        tactic_cmd_error(char const * msg, pos_info const & p, proof_state const & s):parser_error(msg, p), m_state(s) {}
-        tactic_cmd_error(sstream const & msg, pos_info const & p, proof_state const & s):parser_error(msg, p), m_state(s) {}
-        virtual exception * clone() const { return new tactic_cmd_error(m_msg.c_str(), m_pos, m_state); }
-        virtual void rethrow() const { throw *this; }
-    };
-
-    struct metavar_not_synthesized_exception : public exception {
-        context m_mvar_ctx;
-        expr    m_mvar;
-        expr    m_mvar_type;
-    public:
-        metavar_not_synthesized_exception(context const & ctx, expr const & mvar, expr const & mvar_type, char const * msg):
-            exception(msg), m_mvar_ctx(ctx), m_mvar(mvar), m_mvar_type(mvar_type) {}
-    };
 
     template<typename F>
     typename std::result_of<F(lua_State * L)>::type using_script(F && f) {
@@ -1023,11 +989,11 @@ class parser::imp {
                 args.emplace_back(k, &exprs);
                 return parse_macro(tail(arg_kinds), fn, prec, args, p);
             }
-            case macro_arg_kind::Bindings: {
+            case macro_arg_kind::Parameters: {
                 mk_scope scope(*this);
-                bindings_buffer bindings;
-                parse_expr_bindings(bindings);
-                args.emplace_back(k, &bindings);
+                parameter_buffer parameters;
+                parse_expr_parameters(parameters);
+                args.emplace_back(k, &parameters);
                 return parse_macro(tail(arg_kinds), fn, prec, args, p);
             }
             case macro_arg_kind::Comma:
@@ -1090,15 +1056,15 @@ class parser::imp {
                             }
                             break;
                         }
-                        case macro_arg_kind::Bindings: {
-                            bindings_buffer const & bindings = *static_cast<bindings_buffer*>(arg);
+                        case macro_arg_kind::Parameters: {
+                            parameter_buffer const & parameters = *static_cast<parameter_buffer*>(arg);
                             lua_newtable(L);
                             int i = 1;
-                            for (auto const & b : bindings) {
+                            for (auto const & p : parameters) {
                                 lua_newtable(L);
-                                push_name(L, std::get<1>(b));
+                                push_name(L, p.m_name);
                                 lua_rawseti(L, -2, 1);
-                                push_expr(L, std::get<2>(b));
+                                push_expr(L, p.m_type);
                                 lua_rawseti(L, -2, 2);
                                 lua_rawseti(L, -2, i);
                                 i = i + 1;
@@ -1286,7 +1252,7 @@ class parser::imp {
         \brief Parse <tt>ID ... ID ':' expr</tt>, where the expression
         represents the type of the identifiers.
 
-        \remark If \c implicit_decl is true, then the bindings should be
+        \remark If \c implicit_decl is true, then the parameters should be
         marked as implicit. This flag is set to true, for example,
         when we are parsing definitions such as:
         <code> Definition f {A : Type} (a b : A), A := ... </code>
@@ -1295,7 +1261,7 @@ class parser::imp {
         \remark If \c suppress_type is true, then the type doesn't
         need to be provided. That is, we automatically include a placeholder.
     */
-    void parse_simple_bindings(bindings_buffer & result, bool implicit_decl, bool suppress_type) {
+    void parse_simple_parameters(parameter_buffer & result, bool implicit_decl, bool suppress_type) {
         buffer<std::pair<pos_info, name>> names;
         parse_names(names);
         optional<expr> type;
@@ -1317,7 +1283,7 @@ class parser::imp {
                 arg_type = lift_free_vars(*type, i);
             else
                 arg_type = save(mk_placeholder(), names[i].first);
-            result[sz + i] = std::make_tuple(names[i].first, names[i].second, arg_type, implicit_decl);
+            result[sz + i] = parameter(names[i].first, names[i].second, arg_type, implicit_decl);
         }
     }
 
@@ -1332,11 +1298,11 @@ class parser::imp {
         arguments. Such as:
         <code> Definition f {A : Type} (a b : A) : A := ... </code>
 
-        \see parse_simple_bindings
+        \see parse_simple_parameters
     */
-    void parse_bindings(bindings_buffer & result, bool implicit_decls, bool suppress_type) {
+    void parse_parameters(parameter_buffer & result, bool implicit_decls, bool suppress_type) {
         if (curr_is_identifier()) {
-            parse_simple_bindings(result, false, suppress_type);
+            parse_simple_parameters(result, false, suppress_type);
         } else {
             // (ID ... ID : type) ... (ID ... ID : type)
             if (implicit_decls) {
@@ -1348,7 +1314,7 @@ class parser::imp {
             }
             bool implicit = curr_is_lcurly();
             next();
-            parse_simple_bindings(result, implicit, suppress_type);
+            parse_simple_parameters(result, implicit, suppress_type);
             if (!implicit)
                 check_rparen_next("invalid binder, ')' expected");
             else
@@ -1356,7 +1322,7 @@ class parser::imp {
             while (curr_is_lparen() || (implicit_decls && curr_is_lcurly())) {
                 bool implicit = curr_is_lcurly();
                 next();
-                parse_simple_bindings(result, implicit, suppress_type);
+                parse_simple_parameters(result, implicit, suppress_type);
                 if (!implicit)
                     check_rparen_next("invalid binder, ')' expected");
                 else
@@ -1365,35 +1331,35 @@ class parser::imp {
         }
     }
 
-    /** \brief Parse bindings for expressions such as: lambda, pi, forall, exists */
-    void parse_expr_bindings(bindings_buffer & result) {
-        parse_bindings(result, false, true);
+    /** \brief Parse parameters for expressions such as: lambda, pi, forall, exists */
+    void parse_expr_parameters(parameter_buffer & result) {
+        parse_parameters(result, false, true);
     }
 
-    /** \brief Parse bindings for object such as: axioms, variables ... */
-    void parse_var_decl_bindings(bindings_buffer & result) {
-        parse_bindings(result, true, false);
+    /** \brief Parse parameters for object such as: axioms, variables ... */
+    void parse_var_decl_parameters(parameter_buffer & result) {
+        parse_parameters(result, true, false);
     }
 
-    /** \brief Parse bindings for object such as: theorems, definitions ... */
-    void parse_definition_bindings(bindings_buffer & result) {
-        parse_bindings(result, true, true);
+    /** \brief Parse parameters for object such as: theorems, definitions ... */
+    void parse_definition_parameters(parameter_buffer & result) {
+        parse_parameters(result, true, true);
     }
 
     /**
         \brief Create a lambda/Pi abstraction, using the giving binders
         and body.
     */
-    expr mk_abstraction(bool is_lambda, bindings_buffer const & bindings, expr const & body) {
+    expr mk_abstraction(bool is_lambda, parameter_buffer const & parameters, expr const & body) {
         expr result = body;
-        unsigned i = bindings.size();
+        unsigned i = parameters.size();
         while (i > 0) {
             --i;
-            pos_info p = std::get<0>(bindings[i]);
+            pos_info p = parameters[i].m_pos;
             if (is_lambda)
-                result = save(mk_lambda(std::get<1>(bindings[i]), std::get<2>(bindings[i]), result), p);
+                result = save(mk_lambda(parameters[i].m_name, parameters[i].m_type, result), p);
             else
-                result = save(mk_pi(std::get<1>(bindings[i]), std::get<2>(bindings[i]), result), p);
+                result = save(mk_pi(parameters[i].m_name, parameters[i].m_type, result), p);
         }
         return result;
     }
@@ -1402,11 +1368,11 @@ class parser::imp {
     expr parse_abstraction(bool is_lambda) {
         next();
         mk_scope scope(*this);
-        bindings_buffer bindings;
-        parse_expr_bindings(bindings);
+        parameter_buffer parameters;
+        parse_expr_parameters(parameters);
         check_comma_next("invalid abstraction, ',' expected");
         expr result = parse_expr();
-        return mk_abstraction(is_lambda, bindings, result);
+        return mk_abstraction(is_lambda, parameters, result);
     }
 
     /** \brief Parse lambda abstraction. */
@@ -1423,29 +1389,29 @@ class parser::imp {
     expr parse_quantifier(bool is_forall) {
         next();
         mk_scope scope(*this);
-        bindings_buffer bindings;
-        parse_expr_bindings(bindings);
+        parameter_buffer parameters;
+        parse_expr_parameters(parameters);
         check_comma_next("invalid quantifier, ',' expected");
         expr result = parse_expr();
-        unsigned i = bindings.size();
+        unsigned i = parameters.size();
         while (i > 0) {
             --i;
-            pos_info p = std::get<0>(bindings[i]);
-            expr lambda = save(mk_lambda(std::get<1>(bindings[i]), std::get<2>(bindings[i]), result), p);
+            pos_info p = parameters[i].m_pos;
+            expr lambda = save(mk_lambda(parameters[i].m_name, parameters[i].m_type, result), p);
             if (is_forall)
-                result = save(mk_forall(std::get<2>(bindings[i]), lambda), p);
+                result = save(mk_forall(parameters[i].m_type, lambda), p);
             else
-                result = save(mk_exists(std::get<2>(bindings[i]), lambda), p);
+                result = save(mk_exists(parameters[i].m_type, lambda), p);
         }
         return result;
     }
 
-    /** \brief Parse <tt>'forall' bindings ',' expr</tt>. */
+    /** \brief Parse <tt>'forall' parameters ',' expr</tt>. */
     expr parse_forall() {
         return parse_quantifier(true);
     }
 
-    /** \brief Parse <tt>'exists' bindings ',' expr</tt>. */
+    /** \brief Parse <tt>'exists' parameters ',' expr</tt>. */
     expr parse_exists() {
         return parse_quantifier(false);
     }
@@ -1454,7 +1420,7 @@ class parser::imp {
     expr parse_let() {
         next();
         mk_scope scope(*this);
-        buffer<std::tuple<pos_info, name, optional<expr>, expr>> bindings;
+        buffer<std::tuple<pos_info, name, optional<expr>, expr>> parameters;
         while (true) {
             auto p   = pos();
             name id  = check_identifier_next("invalid let expression, identifier expected");
@@ -1466,15 +1432,15 @@ class parser::imp {
             check_assign_next("invalid let expression, ':=' expected");
             expr val = parse_expr();
             register_binding(id);
-            bindings.emplace_back(p, id, type, val);
+            parameters.emplace_back(p, id, type, val);
             if (curr_is_in()) {
                 next();
                 expr r = parse_expr();
-                unsigned i = bindings.size();
+                unsigned i = parameters.size();
                 while (i > 0) {
                     --i;
-                    auto p = std::get<0>(bindings[i]);
-                    r = save(mk_let(std::get<1>(bindings[i]), std::get<2>(bindings[i]), std::get<3>(bindings[i]), r), p);
+                    auto p = std::get<0>(parameters[i]);
+                    r = save(mk_let(std::get<1>(parameters[i]), std::get<2>(parameters[i]), std::get<3>(parameters[i]), r), p);
                 }
                 return r;
             } else {
@@ -1707,14 +1673,14 @@ class parser::imp {
 
     /**
         \brief Register implicit arguments for the definition or
-        postulate named \c n. The fourth element in the tuple bindings
+        postulate named \c n. The fourth element in the tuple parameters
         is a flag indiciating whether the argument is implicit or not.
     */
-    void register_implicit_arguments(name const & n, bindings_buffer & bindings) {
+    void register_implicit_arguments(name const & n, parameter_buffer & parameters) {
         bool found = false;
         buffer<bool> imp_args;
-        for (unsigned i = 0; i < bindings.size(); i++) {
-            imp_args.push_back(std::get<3>(bindings[i]));
+        for (unsigned i = 0; i < parameters.size(); i++) {
+            imp_args.push_back(parameters[i].m_implicit);
             if (imp_args.back())
                 found = true;
         }
@@ -2009,7 +1975,7 @@ class parser::imp {
         next();
         expr pre_type, pre_val;
         name id = check_identifier_next("invalid definition, identifier expected");
-        bindings_buffer bindings;
+        parameter_buffer parameters;
         if (curr_is_colon()) {
             next();
             pre_type = parse_expr();
@@ -2026,7 +1992,7 @@ class parser::imp {
             pre_val  = parse_expr();
         } else {
             mk_scope scope(*this);
-            parse_definition_bindings(bindings);
+            parse_definition_parameters(parameters);
             expr type_body;
             if (curr_is_colon()) {
                 next();
@@ -2035,13 +2001,13 @@ class parser::imp {
                 auto p = pos();
                 type_body = save(mk_placeholder(), p);
             }
-            pre_type  = mk_abstraction(false, bindings, type_body);
+            pre_type  = mk_abstraction(false, parameters, type_body);
             if (!is_definition && curr_is_period()) {
-                pre_val = mk_abstraction(true, bindings, mk_placeholder());
+                pre_val = mk_abstraction(true, parameters, mk_placeholder());
             } else {
                 check_assign_next("invalid definition, ':=' expected");
                 expr val_body  = parse_expr();
-                pre_val   = mk_abstraction(true, bindings, val_body);
+                pre_val   = mk_abstraction(true, parameters, val_body);
             }
         }
         auto r = m_elaborator(id, pre_type, pre_val);
@@ -2065,7 +2031,7 @@ class parser::imp {
             if (m_verbose)
                 regular(m_io_state) << "  Proved: " << full_id << endl;
         }
-        register_implicit_arguments(full_id, bindings);
+        register_implicit_arguments(full_id, parameters);
     }
 
     /**
@@ -2073,7 +2039,7 @@ class parser::imp {
 
         1) 'Definition' ID ':' expr ':=' expr
 
-        2) 'Definition' ID bindings ':' expr ':=' expr
+        2) 'Definition' ID parameters ':' expr ':=' expr
     */
     void parse_definition() {
         parse_def_core(true);
@@ -2084,7 +2050,7 @@ class parser::imp {
 
         1) 'Theorem' ID ':' expr ':=' expr
 
-        2) 'Theorem' ID bindings ':' expr ':=' expr
+        2) 'Theorem' ID parameters ':' expr ':=' expr
     */
     void parse_theorem() {
         parse_def_core(false);
@@ -2094,7 +2060,7 @@ class parser::imp {
     void parse_variable_core(bool is_var) {
         next();
         name id = check_identifier_next("invalid variable/axiom declaration, identifier expected");
-        bindings_buffer bindings;
+        parameter_buffer parameters;
         expr type;
         if (curr_is_colon()) {
             next();
@@ -2103,10 +2069,10 @@ class parser::imp {
             type = p.first;
         } else {
             mk_scope scope(*this);
-            parse_var_decl_bindings(bindings);
+            parse_var_decl_parameters(parameters);
             check_colon_next("invalid variable/axiom declaration, ':' expected");
             expr type_body = parse_expr();
-            auto p = m_elaborator(mk_abstraction(false, bindings, type_body));
+            auto p = m_elaborator(mk_abstraction(false, parameters, type_body));
             check_no_metavar(p, "invalid declaration, type still contains metavariables after elaboration");
             type = p.first;
         }
@@ -2117,14 +2083,14 @@ class parser::imp {
             m_env->add_axiom(full_id, type);
         if (m_verbose)
             regular(m_io_state) << "  Assumed: " << full_id << endl;
-        register_implicit_arguments(full_id, bindings);
+        register_implicit_arguments(full_id, parameters);
     }
 
     /** \brief Parse one of the two forms:
 
         1) 'Variable' ID ':' type
 
-        2) 'Variable' ID bindings ':' type
+        2) 'Variable' ID parameters ':' type
     */
     void parse_variable() {
         parse_variable_core(true);
@@ -2136,16 +2102,16 @@ class parser::imp {
     void parse_variables() {
         next();
         mk_scope scope(*this);
-        bindings_buffer bindings;
-        parse_simple_bindings(bindings, false, false);
-        for (auto b : bindings) {
-            name full_id = mk_full_name(std::get<1>(b));
+        parameter_buffer parameters;
+        parse_simple_parameters(parameters, false, false);
+        for (auto p : parameters) {
+            name full_id = mk_full_name(p.m_name);
             if (m_env->find_object(full_id))
                 throw already_declared_exception(m_env, full_id);
         }
-        for (auto b : bindings) {
-            name full_id = mk_full_name(std::get<1>(b));
-            expr const & type = std::get<2>(b);
+        for (auto p : parameters) {
+            name full_id = mk_full_name(p.m_name);
+            expr const & type = p.m_type;
             m_env->add_var(full_id, type);
             if (m_verbose)
                 regular(m_io_state) << "  Assumed: " << full_id << endl;
@@ -2156,7 +2122,7 @@ class parser::imp {
 
         1) 'Axiom' ID ':' type
 
-        2) 'Axiom' ID bindings ':' type
+        2) 'Axiom' ID parameters ':' type
     */
     void parse_axiom() {
         parse_variable_core(false);
@@ -2607,7 +2573,7 @@ class parser::imp {
             m_env->add_builtin_set(b);
             return;
         }
-        bindings_buffer bindings;
+        parameter_buffer parameters;
         expr type;
         if (curr_is_colon()) {
             next();
@@ -2616,10 +2582,10 @@ class parser::imp {
             type = p.first;
         } else {
             mk_scope scope(*this);
-            parse_var_decl_bindings(bindings);
+            parse_var_decl_parameters(parameters);
             check_colon_next("invalid builtin declaration, ':' expected");
             expr type_body = parse_expr();
-            auto p = m_elaborator(mk_abstraction(false, bindings, type_body));
+            auto p = m_elaborator(mk_abstraction(false, parameters, type_body));
             check_no_metavar(p, "invalid declaration, type still contains metavariables after elaboration");
             type = p.first;
         }
@@ -2630,7 +2596,7 @@ class parser::imp {
         m_env->add_builtin(d->first);
         if (m_verbose)
             regular(m_io_state) << "  Added: " << full_id << endl;
-        register_implicit_arguments(full_id, bindings);
+        register_implicit_arguments(full_id, parameters);
     }
 
     void parse_namespace() {
@@ -2857,97 +2823,6 @@ io_state parser::get_io_state() const {
     return m_ptr->m_io_state;
 }
 
-#ifdef LEAN_USE_READLINE
-// Hackish wrapper for implementing a streambuf on top of the readline library
-class readline_streambuf : public std::streambuf {
-    std::string      m_buffer;
-    std::streamsize  m_curr;
-    std::streamsize  m_high;
-protected:
-    virtual int_type underflow() {
-        while (m_curr == m_high) {
-            char * line = readline("");
-            if (!line) {
-                // EOF received
-                return traits_type::eof();
-            } else if (strlen(line) == 0) {
-                // ignore blank line
-                m_buffer.push_back('\n');
-                free(line);
-            } else {
-                add_history(line);
-                m_buffer += line;
-                m_buffer.push_back('\n');
-                free(line);
-                m_high = m_buffer.size();
-            }
-        }
-
-        return traits_type::to_int_type(m_buffer[m_curr]);
-    }
-
-    virtual int_type uflow() {
-        int_type r = underflow();
-        if (r != traits_type::eof())
-            m_curr++;
-        return r;
-    }
-
-    virtual int_type pbackfail(int_type c) {
-        if (m_curr == 0)
-            return traits_type::eof();
-        m_curr--;
-        if (c != traits_type::eof())
-            m_buffer[m_curr] = c;
-        return traits_type::eof() + 1; // something different from eof()
-    }
-
-    virtual std::streamsize showmanyc() {
-        return m_high - m_curr;
-    }
-
-public:
-    readline_streambuf():
-        m_curr(0), m_high(0) {
-        setbuf(0, 0);
-    }
-};
-
-struct readline_config {
-    FILE * m_devnull;
-    readline_config() {
-        // By default, the readline library echos the input in the standard output.
-        // We can change this behavior by setting rl_outstream to /dev/null
-        m_devnull = fopen("/dev/null", "a");
-        rl_outstream = m_devnull;
-    }
-    ~readline_config() {
-        fclose(m_devnull);
-    }
-};
-static readline_config g_readline_config;
-#endif
-
-shell::shell(environment const & env, io_state const & ios, script_state * S):m_env(env), m_io_state(ios), m_script_state(S) {
-}
-
-shell::shell(environment const & env, script_state * S):m_env(env), m_io_state(), m_script_state(S) {
-    m_io_state.set_formatter(mk_pp_formatter(m_env));
-}
-
-shell::~shell() {
-}
-
-bool shell::operator()() {
-#ifdef LEAN_USE_READLINE
-    readline_streambuf buf;
-    std::istream is(&buf);
-    parser p(m_env, m_io_state, is, m_script_state, false, true);
-#else
-    parser p(m_env, m_io_state, std::cin, m_script_state, false, true);
-#endif
-    return p();
-}
 
 bool parse_commands(environment const & env, io_state & ios, std::istream & in, script_state * S, bool use_exceptions, bool interactive) {
     parser p(env, ios, in, S, use_exceptions, interactive);
@@ -3045,16 +2920,16 @@ void open_macros(lua_State * L) {
     SET_GLOBAL_FUN(mk_tactic_macro, "tactic_macro");
 
     lua_newtable(L);
-    SET_ENUM("Expr",     macro_arg_kind::Expr);
-    SET_ENUM("Exprs",    macro_arg_kind::Exprs);
-    SET_ENUM("Bindings", macro_arg_kind::Bindings);
-    SET_ENUM("Id",       macro_arg_kind::Id);
-    SET_ENUM("String",   macro_arg_kind::String);
-    SET_ENUM("Int",      macro_arg_kind::Int);
-    SET_ENUM("Comma",    macro_arg_kind::Comma);
-    SET_ENUM("Assign",   macro_arg_kind::Assign);
-    SET_ENUM("Tactic",   macro_arg_kind::Tactic);
-    SET_ENUM("Tactics",  macro_arg_kind::Tactics);
+    SET_ENUM("Expr",       macro_arg_kind::Expr);
+    SET_ENUM("Exprs",      macro_arg_kind::Exprs);
+    SET_ENUM("Parameters", macro_arg_kind::Parameters);
+    SET_ENUM("Id",         macro_arg_kind::Id);
+    SET_ENUM("String",     macro_arg_kind::String);
+    SET_ENUM("Int",        macro_arg_kind::Int);
+    SET_ENUM("Comma",      macro_arg_kind::Comma);
+    SET_ENUM("Assign",     macro_arg_kind::Assign);
+    SET_ENUM("Tactic",     macro_arg_kind::Tactic);
+    SET_ENUM("Tactics",    macro_arg_kind::Tactics);
     lua_setglobal(L, "macro_arg");
 }
 }

@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "kernel/io_state.h"
 #include "library/kernel_bindings.h"
 #include "frontends/lean/parser.h"
+#include "frontends/lean/shell.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lua/register_modules.h"
 #include "shell/lua_repl.h"

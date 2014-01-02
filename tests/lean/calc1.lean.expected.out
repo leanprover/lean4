@@ -1,0 +1,14 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Imported 'tactic'
+  Assumed: a
+  Assumed: b
+  Assumed: c
+  Assumed: d
+  Assumed: e
+  Assumed: H1
+  Assumed: H2
+  Assumed: H3
+  Assumed: H4
+ImpEqTrans a d e (ImpTrans a c d (ImpEqTrans a b c H1 H2) _) H4
+  Proved: T

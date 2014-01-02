@@ -106,6 +106,15 @@ Theorem Absurd {a : Bool} (H1 : a) (H2 : ¬ a) : false
 Theorem EqMP {a b : Bool} (H1 : a == b) (H2 : a) : b
 := Subst H2 H1.
 
+Theorem ImpTrans {a b c : Bool} (H1 : a ⇒ b) (H2 : b ⇒ c) : a ⇒ c
+:= assume Ha, MP H2 (MP H1 Ha).
+
+Theorem ImpEqTrans {a b c : Bool} (H1 : a ⇒ b) (H2 : b == c) : a ⇒ c
+:= assume Ha, EqMP H2 (MP H1 Ha).
+
+Theorem EqImpTrans {a b c : Bool} (H1 : a == b) (H2 : b ⇒ c) : a ⇒ c
+:= assume Ha, MP H2 (EqMP H1 Ha).
+
 Theorem DoubleNeg (a : Bool) : (¬ ¬ a) == a
 := Case (λ x, (¬ ¬ x) == x) Trivial Trivial a.
 
@@ -224,7 +233,6 @@ effectiveness of Lean's elaborator.
 *)
 
 SetOpaque implies true.
-SetOpaque iff     true.
 SetOpaque not     true.
 SetOpaque or      true.
 SetOpaque and     true.

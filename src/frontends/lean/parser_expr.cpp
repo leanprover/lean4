@@ -20,12 +20,14 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser_imp.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/notation.h"
+#include "frontends/lean/parser_calc.h"
 
 namespace lean {
 // A name that can't be created by the user.
 // It is used as placeholder for parsing A -> B expressions which
 // are syntax sugar for (Pi (_ : A), B)
 static name g_unused = name::mk_internal_unique_name();
+static name g_calc("calc");
 
 /**
    \brief Return the size of the implicit vector associated with the given denotation.
@@ -478,6 +480,10 @@ expr parser_imp::parse_expr_macro(name const & id, pos_info const & p) {
     }
 }
 
+expr parser_imp::parse_calc() {
+    return get_calc_proof_parser().parse(*this);
+}
+
 /**
    \brief Parse an identifier that has a "null denotation" (See
    paper: "Top down operator precedence"). A nud identifier is a
@@ -497,6 +503,8 @@ expr parser_imp::parse_nud_id() {
         return parse_expr_macro(id, p);
     } else if (auto alias = get_alias(m_env, id)) {
         return save(*alias, p);
+    } else if (id == g_calc) {
+        return parse_calc();
     } else {
         operator_info op = find_nud(m_env, id);
         if (op) {
@@ -533,6 +541,8 @@ expr parser_imp::parse_led_id(expr const & left) {
         return save(mk_app(left, parse_expr_macro(id, p)), p2);
     } else if (auto alias = get_alias(m_env, id)) {
         return save(mk_app(left, save(*alias, p)), p2);
+    } else if (id == g_calc) {
+        return save(mk_app(left, parse_calc()), p2);
     } else {
         operator_info op = find_led(m_env, id);
         if (op) {

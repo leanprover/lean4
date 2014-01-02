@@ -412,7 +412,17 @@ scanner::token scanner::scan() {
                 return token::Colon;
             }
         case ',':  next(); return token::Comma;
-        case '.':  next(); return token::Period;
+        case '.':
+            next();
+            if (curr() == '.') {
+                next();
+                if (curr() != '.')
+                    throw_exception("invalid character sequence, '...' ellipsis expected");
+                next();
+                return token::Ellipsis;
+            } else {
+                return token::Period;
+            }
         case '(':
             next();
             if (curr() == '*') {
@@ -480,6 +490,7 @@ std::ostream & operator<<(std::ostream & out, scanner::token const & t) {
     case scanner::token::ScriptBlock:       out << "Script"; break;
     case scanner::token::Show:              out << "show"; break;
     case scanner::token::By:                out << "by"; break;
+    case scanner::token::Ellipsis:          out << "..."; break;
     case scanner::token::Eof:               out << "EOF"; break;
     }
     return out;

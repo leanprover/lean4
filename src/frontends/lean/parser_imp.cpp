@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include "frontends/lean/parser_imp.h"
 #include "frontends/lean/parser_macros.h"
+#include "frontends/lean/parser_calc.h"
 
 #ifndef LEAN_DEFAULT_PARSER_SHOW_ERRORS
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true
@@ -49,6 +50,12 @@ parser_imp::mk_scope::mk_scope(parser_imp & fn):
 
 parser_imp::mk_scope::~mk_scope() {
     m_fn.m_num_local_decls = m_old_num_local_decls;
+}
+
+calc_proof_parser & parser_imp::get_calc_proof_parser() {
+    if (!m_calc_proof_parser)
+        m_calc_proof_parser.reset(new calc_proof_parser());
+    return *m_calc_proof_parser;
 }
 
 pos_info parser_imp::pos_of(expr const & e, pos_info default_pos) {
@@ -156,6 +163,8 @@ parser_imp::parser_imp(environment const & env, io_state const & st, std::istrea
     }
     scan();
 }
+
+parser_imp::~parser_imp() {}
 
 void parser_imp::show_prompt(bool interactive, io_state const & ios) {
     if (interactive) {

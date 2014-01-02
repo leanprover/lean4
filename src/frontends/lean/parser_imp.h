@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 class parser_imp;
+class calc_proof_parser;
 
 bool get_parser_verbose(options const & opts);
 bool get_parser_show_errors(options const & opts);
@@ -72,6 +73,10 @@ class parser_imp {
     pos_info            m_last_script_pos;
     tactic_hints        m_tactic_hints;
     std::vector<name>   m_namespace_prefixes;
+
+    std::unique_ptr<calc_proof_parser> m_calc_proof_parser;
+
+
     // If true then return error when parsing identifiers and it is not local or global.
     // We set this flag off when parsing tactics. The apply_tac may reference
     // a hypothesis in the proof state. This hypothesis is not visible until we
@@ -107,7 +112,11 @@ class parser_imp {
         ~mk_scope();
     };
 
+    calc_proof_parser & get_calc_proof_parser();
+
 public:
+    environment const & get_environment() const { return m_env; }
+
     /** \brief Return the current position information */
     pos_info pos() const { return mk_pair(m_scanner.get_line(), m_scanner.get_pos()); }
 
@@ -293,6 +302,7 @@ private:
     expr parse_type(bool level_expected);
     tactic parse_tactic_macro(name tac_id, pos_info const & p);
     expr parse_show_expr();
+    expr parse_calc();
     expr parse_nud_id();
     expr parse_nud();
     expr parse_led(expr const & left);
@@ -412,6 +422,7 @@ private:
 
 public:
     parser_imp(environment const & env, io_state const & st, std::istream & in, script_state * S, bool use_exceptions, bool interactive);
+    ~parser_imp();
     static void show_prompt(bool interactive, io_state const & ios);
     void show_prompt();
     void show_tactic_prompt();

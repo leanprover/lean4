@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/fo_unify.h"
 #include "library/expr_pair.h"
 #include "library/kernel_bindings.h"
+#include "library/eq_heq.h"
 
 namespace lean {
 static void assign(substitution & s, expr const & mvar, expr const & e) {
@@ -18,18 +19,6 @@ static void assign(substitution & s, expr const & mvar, expr const & e) {
 
 static bool is_metavar_wo_local_context(expr const & e) {
     return is_metavar(e) && !metavar_lctx(e);
-}
-
-static bool is_eq_heq(expr const & e) {
-    return is_eq(e) || is_homo_eq(e);
-}
-
-static expr_pair eq_heq_args(expr const & e) {
-    lean_assert(is_eq(e) || is_homo_eq(e));
-    if (is_eq(e))
-        return expr_pair(eq_lhs(e), eq_rhs(e));
-    else
-        return expr_pair(arg(e, 2), arg(e, 3));
 }
 
 optional<substitution> fo_unify(expr e1, expr e2) {

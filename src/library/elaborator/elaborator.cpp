@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "kernel/builtin.h"
 #include "kernel/type_checker.h"
 #include "kernel/update_expr.h"
+#include "library/eq_heq.h"
 #include "library/elaborator/elaborator.h"
 #include "library/elaborator/elaborator_justification.h"
 
@@ -1318,6 +1319,36 @@ class elaborator::imp {
         r = process_metavar(c, b, a, false);
         if (r != Continue) { return r == Processed; }
 
+        if (is_eq_heq(a) && is_eq_heq(b)) {
+            expr_pair p1 = eq_heq_args(a);
+            expr_pair p2 = eq_heq_args(b);
+            justification new_jst(new destruct_justification(c));
+            push_new_eq_constraint(ctx, p1.first,  p2.first,  new_jst);
+            push_new_eq_constraint(ctx, p1.second, p2.second, new_jst);
+            return true;
+        }
+
+        if (a.kind() == b.kind()) {
+            switch (a.kind()) {
+            case expr_kind::Pi: {
+                justification new_jst(new destruct_justification(c));
+                push_new_eq_constraint(ctx, abst_domain(a), abst_domain(b), new_jst);
+                context new_ctx = extend(ctx, abst_name(a), abst_domain(a));
+                push_new_constraint(eq, new_ctx, abst_body(a), abst_body(b), new_jst);
+                return true;
+            }
+            case expr_kind::Lambda: {
+                justification new_jst(new destruct_justification(c));
+                push_new_eq_constraint(ctx, abst_domain(a), abst_domain(b), new_jst);
+                context new_ctx = extend(ctx, abst_name(a), abst_domain(a));
+                push_new_eq_constraint(new_ctx, abst_body(a), abst_body(b), new_jst);
+                return true;
+            }
+            default:
+                break;
+            }
+        }
+
         if (!is_meta_app(a) && !is_meta_app(b) && normalize_head(a, b, c)) { return true; }
 
         if (!eq) {
@@ -1361,26 +1392,6 @@ class elaborator::imp {
                     m_conflict = justification(new unification_failure_justification(c));
                     return false;
                 }
-            case expr_kind::Eq: {
-                justification new_jst(new destruct_justification(c));
-                push_new_eq_constraint(ctx, eq_lhs(a), eq_lhs(b), new_jst);
-                push_new_eq_constraint(ctx, eq_rhs(a), eq_rhs(b), new_jst);
-                return true;
-            }
-            case expr_kind::Pi: {
-                justification new_jst(new destruct_justification(c));
-                push_new_eq_constraint(ctx, abst_domain(a), abst_domain(b), new_jst);
-                context new_ctx = extend(ctx, abst_name(a), abst_domain(a));
-                push_new_constraint(eq, new_ctx, abst_body(a), abst_body(b), new_jst);
-                return true;
-            }
-            case expr_kind::Lambda: {
-                justification new_jst(new destruct_justification(c));
-                push_new_eq_constraint(ctx, abst_domain(a), abst_domain(b), new_jst);
-                context new_ctx = extend(ctx, abst_name(a), abst_domain(a));
-                push_new_eq_constraint(new_ctx, abst_body(a), abst_body(b), new_jst);
-                return true;
-            }
             case expr_kind::App:
                 if (!is_meta_app(a) && !is_meta_app(b)) {
                     if (num_args(a) == num_args(b)) {

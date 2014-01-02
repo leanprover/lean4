@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/builtin.h"
 #include "library/placeholder.h"
+#include "library/io_state_stream.h"
 #include "frontends/lean/parser_calc.h"
 #include "frontends/lean/parser_imp.h"
 #include "frontends/lean/operator_info.h"

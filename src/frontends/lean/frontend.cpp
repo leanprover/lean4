@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "kernel/expr_sets.h"
 #include "kernel/builtin.h"
 #include "kernel/io_state.h"
+#include "library/io_state_stream.h"
 #include "library/expr_pair.h"
 #include "library/expr_pair_maps.h"
 #include "library/arith/nat.h"

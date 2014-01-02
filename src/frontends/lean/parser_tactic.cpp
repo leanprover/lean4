@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/type_checker_justification.h"
 #include "kernel/unification_constraint.h"
+#include "library/io_state_stream.h"
 #include "library/expr_lt.h"
 #include "library/elaborator/elaborator.h"
 #include "frontends/lean/parser_imp.h"

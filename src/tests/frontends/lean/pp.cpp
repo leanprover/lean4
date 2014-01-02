@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/builtin.h"
 #include "kernel/printer.h"
+#include "library/io_state_stream.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/pp.h"
 using namespace lean;

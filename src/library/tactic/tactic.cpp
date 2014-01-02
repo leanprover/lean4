@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/interrupt.h"
 #include "util/lazy_list_fn.h"
+#include "library/io_state_stream.h"
 #include "kernel/replace_visitor.h"
 #include "kernel/instantiate.h"
 #include "kernel/update_expr.h"

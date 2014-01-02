@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/replace_fn.h"
 #include "kernel/abstract.h"
+#include "library/io_state_stream.h"
 #include "frontends/lean/frontend.h"
 
 namespace lean {

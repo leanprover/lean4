@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "kernel/normalizer.h"
 #include "kernel/type_checker.h"
 #include "library/placeholder.h"
+#include "library/io_state_stream.h"
 #include "frontends/lean/parser_imp.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/pp.h"

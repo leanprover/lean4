@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "library/context_to_lambda.h"
 #include "library/placeholder.h"
+#include "library/io_state_stream.h"
 #include "frontends/lean/notation.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/frontend.h"

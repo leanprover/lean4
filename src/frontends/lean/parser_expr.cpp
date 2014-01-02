@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/builtin.h"
 #include "library/placeholder.h"
+#include "library/io_state_stream.h"
 #include "library/arith/nat.h"
 #include "library/arith/int.h"
 #include "library/arith/real.h"

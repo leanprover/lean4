@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/normalizer.h"
 #include "kernel/instantiate.h"
 #include "kernel/builtin.h"
+#include "library/io_state_stream.h"
 #include "library/placeholder.h"
 #include "library/arith/arith.h"
 #include "library/elaborator/elaborator.h"

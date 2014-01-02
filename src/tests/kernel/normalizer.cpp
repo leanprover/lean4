@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "kernel/printer.h"
 #include "kernel/metavar.h"
 #include "kernel/free_vars.h"
+#include "library/io_state_stream.h"
 #include "library/deep_copy.h"
 #include "library/arith/int.h"
 #include "frontends/lean/frontend.h"

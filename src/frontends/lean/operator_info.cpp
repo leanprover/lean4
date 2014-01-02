@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/rc.h"
+#include "library/io_state_stream.h"
 #include "frontends/lean/operator_info.h"
 #include "frontends/lean/frontend.h"
 

@@ -12,6 +12,7 @@ Author: Soonho Kong
 #include "kernel/printer.h"
 #include "kernel/io_state.h"
 #include "kernel/builtin.h"
+#include "library/io_state_stream.h"
 #include "library/arith/arith.h"
 #include "library/arith/nat.h"
 #include "library/rewriter/fo_match.h"

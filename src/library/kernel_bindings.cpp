@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "kernel/builtin.h"
 #include "kernel/io_state.h"
 #include "kernel/type_checker.h"
+#include "library/io_state_stream.h"
 #include "library/expr_lt.h"
 #include "library/kernel_bindings.h"
 

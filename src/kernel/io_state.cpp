@@ -40,33 +40,4 @@ void io_state::set_options(options const & opts) {
 void io_state::set_formatter(formatter const & f) {
     m_formatter = f;
 }
-
-io_state_stream const & operator<<(io_state_stream const & out, endl_class) {
-    out.get_stream() << std::endl;
-    return out;
-}
-
-io_state_stream const & operator<<(io_state_stream const & out, expr const & e) {
-    options const & opts = out.get_options();
-    out.get_stream() << mk_pair(out.get_formatter()(e, opts), opts);
-    return out;
-}
-
-io_state_stream const & operator<<(io_state_stream const & out, object const & obj) {
-    options const & opts = out.get_options();
-    out.get_stream() << mk_pair(out.get_formatter()(obj, opts), opts);
-    return out;
-}
-
-io_state_stream const & operator<<(io_state_stream const & out, environment const & env) {
-    options const & opts = out.get_options();
-    out.get_stream() << mk_pair(out.get_formatter()(env, opts), opts);
-    return out;
-}
-
-io_state_stream const & operator<<(io_state_stream const & out, kernel_exception const & ex) {
-    options const & opts = out.get_options();
-    out.get_stream() << mk_pair(ex.pp(out.get_formatter(), opts), opts);
-    return out;
-}
 }

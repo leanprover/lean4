@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "kernel/unification_constraint.h"
 #include "kernel/instantiate.h"
 #include "kernel/builtin.h"
+#include "library/io_state_stream.h"
 #include "library/placeholder.h"
 #include "library/elaborator/elaborator.h"
 #include "frontends/lean/frontend.h"

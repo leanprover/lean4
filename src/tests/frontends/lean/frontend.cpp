@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/printer.h"
 #include "library/bin_op.h"
+#include "library/io_state_stream.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/operator_info.h"
 #include "frontends/lean/pp.h"

@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <string>
 #include <vector>
+#include "library/io_state_stream.h"
 #include "frontends/lean/parser_imp.h"
 #include "frontends/lean/parser_macros.h"
 #include "frontends/lean/parser_calc.h"

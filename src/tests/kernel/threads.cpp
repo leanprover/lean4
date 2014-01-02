@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/abstract.h"
 #include "kernel/normalizer.h"
+#include "library/io_state_stream.h"
 #include "library/max_sharing.h"
 #include "library/deep_copy.h"
 #include "library/arith/arith.h"

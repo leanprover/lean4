@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "kernel/builtin.h"
 #include "kernel/type_checker.h"
+#include "library/io_state_stream.h"
 #include "library/kernel_bindings.h"
 #include "library/tactic/proof_state.h"
 

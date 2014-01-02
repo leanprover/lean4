@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <utility>
 #include "kernel/kernel_exception.h"
+#include "library/io_state_stream.h"
 #include "frontends/lean/parser_imp.h"
 
 namespace lean {

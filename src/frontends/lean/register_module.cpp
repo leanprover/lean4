@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/sexpr/options.h"
 #include "kernel/io_state.h"
 #include "library/kernel_bindings.h"
+#include "library/io_state_stream.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/pp.h"

@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/replace_visitor.h"
+#include "library/io_state_stream.h"
 #include "library/fo_unify.h"
 #include "library/placeholder.h"
 #include "library/kernel_bindings.h"

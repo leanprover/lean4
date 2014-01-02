@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "kernel/formatter.h"
 #include "kernel/io_state.h"
 #include "library/kernel_bindings.h"
+#include "library/io_state_stream.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/shell.h"
 #include "frontends/lean/frontend.h"

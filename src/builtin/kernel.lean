@@ -177,6 +177,15 @@ Theorem Refute {a : Bool} (H : ¬ a → false) : a
 Theorem Symm {A : TypeU} {a b : A} (H : a == b) : b == a
 := Subst (Refl a) H.
 
+Theorem NeSymm {A : TypeU} {a b : A} (H : a ≠ b) : b ≠ a
+:= assume H1 : b = a, MP H (Symm H1).
+
+Theorem EqNeTrans {A : TypeU} {a b c : A} (H1 : a = b) (H2 : b ≠ c) : a ≠ c
+:= Subst H2 (Symm H1).
+
+Theorem NeEqTrans {A : TypeU} {a b c : A} (H1 : a ≠ b) (H2 : b = c) : a ≠ c
+:= Subst H1 H2.
+
 Theorem Trans {A : TypeU} {a b c : A} (H1 : a == b) (H2 : b == c) : a == c
 := Subst H1 H2.
 

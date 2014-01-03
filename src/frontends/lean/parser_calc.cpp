@@ -44,22 +44,34 @@ void calc_proof_parser::add_trans_step(expr const & op1, expr const & op2, trans
     m_trans_ops.emplace_front(op1, op2, d);
 }
 
+static name g_eq_imp_trans("EqImpTrans");
+static name g_imp_eq_trans("ImpEqTrans");
+static name g_imp_trans("ImpTrans");
+static name g_eq_ne_trans("EqNeTrans");
+static name g_ne_eq_trans("NeEqTrans");
+static name g_neq("neq");
+
 calc_proof_parser::calc_proof_parser() {
     expr imp = mk_implies_fn();
     expr eq  = mk_homo_eq_fn();
     expr iff = mk_iff_fn();
+    expr neq = mk_constant(g_neq);
+
     add_supported_operator(op_data(imp, 2));
     add_supported_operator(op_data(eq, 3));
     add_supported_operator(op_data(iff, 2));
+    add_supported_operator(op_data(neq, 3));
     add_trans_step(eq, eq,    trans_data(mk_trans_fn(), 6, eq));
-    add_trans_step(eq, imp,   trans_data(mk_constant("EqImpTrans"), 5, imp));
-    add_trans_step(imp, eq,   trans_data(mk_constant("ImpEqTrans"), 5, imp));
-    add_trans_step(imp, imp,  trans_data(mk_constant("ImpTrans"), 5, imp));
+    add_trans_step(eq, imp,   trans_data(mk_constant(g_eq_imp_trans), 5, imp));
+    add_trans_step(imp, eq,   trans_data(mk_constant(g_imp_eq_trans), 5, imp));
+    add_trans_step(imp, imp,  trans_data(mk_constant(g_imp_trans), 5, imp));
     add_trans_step(iff, iff,  trans_data(mk_trans_fn(), 6, iff));
-    add_trans_step(iff, imp,  trans_data(mk_constant("EqImpTrans"), 5, imp));
-    add_trans_step(imp, iff,  trans_data(mk_constant("ImpEqTrans"), 5, imp));
+    add_trans_step(iff, imp,  trans_data(mk_constant(g_eq_imp_trans), 5, imp));
+    add_trans_step(imp, iff,  trans_data(mk_constant(g_imp_eq_trans), 5, imp));
     add_trans_step(eq, iff,   trans_data(mk_trans_fn(), 6, iff));
     add_trans_step(iff, eq,   trans_data(mk_trans_fn(), 6, iff));
+    add_trans_step(eq,  neq,  trans_data(mk_constant(g_eq_ne_trans), 6, neq));
+    add_trans_step(neq, eq,   trans_data(mk_constant(g_ne_eq_trans), 6, neq));
 }
 
 optional<expr> calc_proof_parser::find_op(operator_info const & op, pos_info const & p) const {

@@ -88,3 +88,51 @@ binder_macro("assume", Const("Discharge"), 3, 1, 3)
 nary_macro("instantiate", Const("ForallElim"), 4)
 nary_macro("mp", Const("MP"), 4)
 nary_macro("subst", Const("Subst"), 6)
+
+-- ExistsElim syntax-sugar
+-- Example:
+-- Assume we have the following two axioms
+--      Axiom Ax1: exists x y, P x y
+--      Axiom Ax2: forall x y, not P x y
+-- Now, the following macro expression
+--    obtain (a b : Nat) (H : P a b) from Ax1,
+--         show false, Absurd H (instantiate Ax2 a b)
+-- expands to
+--    ExistsElim Ax1
+--        (fun (a : Nat) (Haux : ...),
+--           ExistsElim Haux
+--              (fun (b : Na) (H : P a b),
+--                   show false, Absurd H (instantiate Ax2 a b)
+macro("obtain", { macro_arg.Parameters, macro_arg.Comma, macro_arg.Id, macro_arg.Expr, macro_arg.Comma, macro_arg.Expr },
+      function (env, bindings, fromid, exPr, body)
+         local n = #bindings
+         if n < 2 then
+            error("invalid 'obtain' expression at least two bindings must be provided")
+         end
+         if fromid ~= name("from") then
+            error("invalid 'obtain' expression, 'from' keyword expected, got '" .. tostring(fromid) .. "'")
+         end
+         local exElim = mk_constant("ExistsElim")
+         local H_name = bindings[n][1]
+         local H_type = bindings[n][2]
+         local a_name = bindings[n-1][1]
+         local a_type = bindings[n-1][2]
+         for i = n - 2, 1, -1 do
+            local Haux = name("obtain", "macro", "H", i)
+            body = mk_app(exElim, mk_placeholder(), mk_placeholder(), mk_placeholder(), mk_constant(Haux),
+                          fun(a_name, a_type, fun(H_name, H_type, body)))
+            H_name = Haux
+            H_type = mk_placeholder()
+            a_name = bindings[i][1]
+            a_type = bindings[i][2]
+            -- We added a new binding, so we must lift free vars
+            body = body:lift_free_vars(0, 1)
+         end
+         -- exPr occurs after the bindings, so it is in the context of them.
+         -- However, this is not the case for ExistsElim.
+         -- So, we must lower the free variables there
+         exPr = exPr:lower_free_vars(n, n)
+         return mk_app(exElim, mk_placeholder(), mk_placeholder(), mk_placeholder(), exPr,
+                       fun(a_name, a_type, fun(H_name, H_type, body)))
+      end,
+      0)

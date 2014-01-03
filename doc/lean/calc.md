@@ -80,3 +80,5 @@ The Lean `let` construct can also be used to build calculational-like proofs.
              s3 : P a b                   :=   Subst s2 (Axf b)
          in s3.
 ```
+
+Finally, the [Nat (natural number) builtin library](../../src/builtin/Nat.lean) makes extensive use of calculational proofs.

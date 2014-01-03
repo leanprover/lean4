@@ -1,4 +1,5 @@
 Import kernel.
+Import macros.
 
 Variable Nat : Type.
 Alias ℕ : Nat.
@@ -34,6 +35,7 @@ Axiom PlusZero (a : Nat)   : a + 0 = a.
 Axiom PlusSucc (a b : Nat) : a + (b + 1) = (a + b) + 1.
 Axiom MulZero (a : Nat)    : a * 0 = 0.
 Axiom MulSucc (a b : Nat)  : a * (b + 1) = a * b + a.
+Axiom LeDef (a b : Nat) : a ≤ b ⇔ ∃ c : Nat, a + c = b.
 Axiom Induction {P : Nat → Bool} (Hb : P 0) (iH : Π (n : Nat) (H : P n), P (n + 1)) (a : Nat) : P a.
 
 Theorem ZeroNeOne : 0 ≠ 1 := Trivial.
@@ -153,6 +155,55 @@ Theorem MulAssoc (a b c : Nat) : a * (b * c) = a * b * c
                                   ...      =   (n * b + b) * c         :  Symm (Distribute2 (n * b) b c)
                                   ...      =   (n + 1) * b * c         :  { Symm (SuccMul n b) })
              a.
+
+Theorem PlusInj' (a b c : Nat) : a + b = a + c ⇒ b = c
+:= Induction (assume H : 0 + b = 0 + c,
+                     calc b   =  0 + b   : Symm (ZeroPlus b)
+                          ... =  0 + c   : H
+                          ... =  c       : ZeroPlus c)
+             (λ (n : Nat) (iH : n + b = n + c ⇒ b = c),
+                assume H : n + 1 + b = n + 1 + c,
+                    let L1 : n + b + 1 = n + c + 1
+                           := (calc n + b + 1  =  n + (b + 1)  : Symm (PlusAssoc n b 1)
+                                       ...     =  n + (1 + b)  : { PlusComm b 1 }
+                                       ...     =  n + 1 + b    : PlusAssoc n 1 b
+                                       ...     =  n + 1 + c    : H
+                                       ...     =  n + (1 + c)  : Symm (PlusAssoc n 1 c)
+                                       ...     =  n + (c + 1)  : { PlusComm 1 c }
+                                       ...     =  n + c + 1    : PlusAssoc n c 1),
+                        L2 : n + b = n + c := SuccInj L1
+                    in MP iH L2)
+             a.
+
+Theorem PlusInj {a b c : Nat} (H : a + b = a + c) : b = c
+:= MP (PlusInj' a b c) H.
+
+Theorem LeIntro {a b c : Nat} (H : a + c = b) : a ≤ b
+:= EqMP (Symm (LeDef a b)) (show (∃ x, a + x = b), ExistsIntro c H).
+
+Theorem LeElim {a b : Nat} (H : a ≤ b) : ∃ x, a + x = b
+:= EqMP (LeDef a b) H.
+
+Theorem LeRefl (a : Nat) : a ≤ a := LeIntro (PlusZero a).
+
+Theorem LeZero (a : Nat) : 0 ≤ a := LeIntro (ZeroPlus a).
+
+Theorem LeTrans {a b c : Nat} (H1 : a ≤ b) (H2 : b ≤ c) : a ≤ c
+:= ExistsElim (LeElim H1)
+     (λ (w1 : Nat) (Hw1 : a + w1 = b),
+        ExistsElim (LeElim H2)
+           (λ (w2 : Nat) (Hw2 : b + w2 = c),
+              LeIntro (calc a + (w1 + w2) =  a + w1 + w2  :  PlusAssoc a w1 w2
+                                     ...  =  b + w2       :  { Hw1 }
+                                     ...  =  c            :  Hw2))).
+
+Theorem LeInj {a b : Nat} (H : a ≤ b) (c : Nat) : a + c ≤ b + c
+:= ExistsElim (LeElim H)
+    (λ (w : Nat) (Hw : a + w = b),
+       LeIntro (calc a + c + w  = a + (c + w)   :  Symm (PlusAssoc a c w)
+                          ...   = a + (w + c)   :  { PlusComm c w }
+                          ...   = a + w + c     :  PlusAssoc a w c
+                          ...   = b + c         :  { Hw })).
 
 SetOpaque ge true.
 SetOpaque lt true.

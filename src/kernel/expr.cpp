@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/expr_eq.h"
 #include "kernel/metavar.h"
+#include "kernel/max_sharing.h"
 
 namespace lean {
 static expr g_dummy(mk_var(0));
@@ -345,18 +346,19 @@ static_assert(is_small(expr_kind::Var) && is_small(expr_kind::Constant) && is_sm
 
 class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp> {
     typedef object_serializer<expr, expr_hash_alloc, expr_eqp> super;
-public:
-    void write(optional<expr> const & a) {
+    max_sharing_fn m_max_sharing_fn;
+
+    void write_core(optional<expr> const & a) {
         serializer & s = get_owner();
         if (a) {
             s << true;
-            write(*a);
+            write_core(*a);
         } else {
             s << false;
         }
     }
 
-    void write(expr const & a) {
+    void write_core(expr const & a) {
         auto k = a.kind();
         char kc;
         if (k == expr_kind::App && num_args(a) < g_small_app_num_args) {
@@ -369,26 +371,30 @@ public:
                 if (kc >= static_cast<char>(g_first_app_size_kind)) {
                     // compressed application
                     for (unsigned i = 0; i < num_args(a); i++)
-                        write(arg(a, i));
+                        write_core(arg(a, i));
                     return;
                 }
                 switch (k) {
                 case expr_kind::Var:       s << var_idx(a); break;
-                case expr_kind::Constant:  s << const_name(a); write(const_type(a)); break;
+                case expr_kind::Constant:  s << const_name(a); write_core(const_type(a)); break;
                 case expr_kind::Type:      s << ty_level(a); break;
                 case expr_kind::Value:     to_value(a).write(s); break;
                 case expr_kind::App:
                     s << num_args(a);
                     for (unsigned i = 0; i < num_args(a); i++)
-                        write(arg(a, i));
+                        write_core(arg(a, i));
                     break;
-                case expr_kind::Eq:        write(eq_lhs(a)); write(eq_rhs(a)); break;
+                case expr_kind::Eq:        write_core(eq_lhs(a)); write_core(eq_rhs(a)); break;
                 case expr_kind::Lambda:
-                case expr_kind::Pi:        s << abst_name(a); write(abst_domain(a)); write(abst_body(a)); break;
-                case expr_kind::Let:       s << let_name(a); write(let_type(a)); write(let_value(a)); write(let_body(a)); break;
+                case expr_kind::Pi:        s << abst_name(a); write_core(abst_domain(a)); write_core(abst_body(a)); break;
+                case expr_kind::Let:       s << let_name(a); write_core(let_type(a)); write_core(let_value(a)); write_core(let_body(a)); break;
                 case expr_kind::MetaVar:   s << metavar_name(a) << metavar_lctx(a); break;
                 }
             });
+    }
+public:
+    void write(expr const & a) {
+        write_core(m_max_sharing_fn(a));
     }
 };
 

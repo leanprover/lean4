@@ -892,6 +892,8 @@ tactic parser_imp::parse_tactic_expr() {
     }
 }
 
+static name g_show_expr("show_expr");
+
 /** \brief Parse <tt>'show' expr 'by' tactic</tt> */
 expr parser_imp::parse_show_expr() {
     auto p = pos();
@@ -900,7 +902,7 @@ expr parser_imp::parse_show_expr() {
     if (curr_is_comma()) {
         next();
         expr b = parse_expr();
-        return mk_let("show-expression", t, b, Var(0));
+        return mk_let(g_show_expr, t, b, Var(0));
     } else {
         check_next(scanner::token::By, "invalid 'show' expression, 'by' or ',' expected");
         tactic tac = parse_tactic_expr();

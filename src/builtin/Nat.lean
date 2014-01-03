@@ -30,15 +30,38 @@ Infix 50 >  : gt.
 Definition id (a : Nat) := a.
 Notation 55 | _ | : id.
 
+Axiom SuccNeZero (a : Nat) : a + 1 ≠ 0.
 Axiom SuccInj {a b : Nat} (H : a + 1 = b + 1) : a = b
 Axiom PlusZero (a : Nat)   : a + 0 = a.
 Axiom PlusSucc (a b : Nat) : a + (b + 1) = (a + b) + 1.
 Axiom MulZero (a : Nat)    : a * 0 = 0.
 Axiom MulSucc (a b : Nat)  : a * (b + 1) = a * b + a.
-Axiom LeDef (a b : Nat) : a ≤ b ⇔ ∃ c : Nat, a + c = b.
+Axiom LeDef (a b : Nat) : a ≤ b ⇔ ∃ c, a + c = b.
 Axiom Induction {P : Nat → Bool} (Hb : P 0) (iH : Π (n : Nat) (H : P n), P (n + 1)) (a : Nat) : P a.
 
 Theorem ZeroNeOne : 0 ≠ 1 := Trivial.
+
+Theorem NeZeroPred' (a : Nat) : a ≠ 0 ⇒ ∃ b, b + 1 = a
+:= Induction (show 0 ≠ 0 ⇒ ∃ b, b + 1 = 0,
+                 assume H : 0 ≠ 0, FalseElim (∃ b, b + 1 = 0) H)
+             (λ (n : Nat) (iH : n ≠ 0 ⇒ ∃ b, b + 1 = n),
+                  assume H : n + 1 ≠ 0,
+                      DisjCases (EM (n = 0))
+                                (λ Heq0 : n = 0, ExistsIntro 0 (calc 0 + 1 = n + 1 : { Symm Heq0 }))
+                                (λ Hne0 : n ≠ 0,
+                                    ExistsElim (MP iH Hne0)
+                                       (λ (w : Nat) (Hw : w + 1 = n),
+                                          ExistsIntro (w + 1) (calc w + 1 + 1 = n + 1 : { Hw }))))
+             a.
+
+Theorem NeZeroPred {a : Nat} (H : a ≠ 0) : ∃ b, b + 1 = a
+:= MP (NeZeroPred' a) H.
+
+Theorem Destruct {B : Bool} {a : Nat} (H1: a = 0 → B) (H2 : Π n, a = n + 1 → B) : B
+:= DisjCases (EM (a = 0))
+             (λ Heq0 : a = 0, H1 Heq0)
+             (λ Hne0 : a ≠ 0, ExistsElim (NeZeroPred Hne0)
+                                (λ (w : Nat) (Hw : w + 1 = a), H2 w (Symm Hw))).
 
 Theorem ZeroPlus (a : Nat) : 0 + a = a
 := Induction (show 0 + 0 = 0, Trivial)
@@ -178,6 +201,16 @@ Theorem PlusInj' (a b c : Nat) : a + b = a + c ⇒ b = c
 Theorem PlusInj {a b c : Nat} (H : a + b = a + c) : b = c
 := MP (PlusInj' a b c) H.
 
+Theorem PlusEq0 {a b : Nat} (H : a + b = 0) : a = 0
+:= Destruct (λ H1 : a = 0, H1)
+            (λ (n : Nat) (H1 : a = n + 1),
+               AbsurdElim (a = 0)
+                          H (calc a + b  =  n + 1 + b   : { H1 }
+                                    ...  =  n + (1 + b) : Symm (PlusAssoc n 1 b)
+                                    ...  =  n + (b + 1) : { PlusComm 1 b }
+                                    ...  =  n + b + 1   : PlusAssoc n b 1
+                                    ...  ≠  0           : SuccNeZero (n + b)))
+
 Theorem LeIntro {a b c : Nat} (H : a + c = b) : a ≤ b
 := EqMP (Symm (LeDef a b)) (show (∃ x, a + x = b), ExistsIntro c H).
 
@@ -204,6 +237,21 @@ Theorem LeInj {a b : Nat} (H : a ≤ b) (c : Nat) : a + c ≤ b + c
                           ...   = a + (w + c)   :  { PlusComm c w }
                           ...   = a + w + c     :  PlusAssoc a w c
                           ...   = b + c         :  { Hw })).
+
+Theorem LeAntiSymm {a b : Nat} (H1 : a ≤ b) (H2 : b ≤ a) : a = b
+:= ExistsElim (LeElim H1)
+     (λ (w1 : Nat) (Hw1 : a + w1 = b),
+        ExistsElim (LeElim H2)
+           (λ (w2 : Nat) (Hw2 : b + w2 = a),
+              let L1 : w1 + w2 = 0
+                  := PlusInj (calc a + (w1 + w2) = a + w1 + w2 : { PlusAssoc a w1 w2 }
+                                            ...  = b + w2      : { Hw1 }
+                                            ...  = a           : Hw2
+                                            ...  = a + 0       : Symm (PlusZero a)),
+                  L2 : w1 = 0  := PlusEq0 L1
+              in calc a  =  a  + 0  :  Symm (PlusZero a)
+                     ... =  a  + w1 : { Symm L2 }
+                     ... =  b       : Hw1)).
 
 SetOpaque ge true.
 SetOpaque lt true.

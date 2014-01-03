@@ -106,6 +106,8 @@ Theorem Absurd {a : Bool} (H1 : a) (H2 : ¬ a) : false
 Theorem EqMP {a b : Bool} (H1 : a == b) (H2 : a) : b
 := Subst H2 H1.
 
+(* assume is a 'macro' that expands into a Discharge *)
+
 Theorem ImpTrans {a b c : Bool} (H1 : a ⇒ b) (H2 : b ⇒ c) : a ⇒ c
 := assume Ha, MP H2 (MP H1 Ha).
 

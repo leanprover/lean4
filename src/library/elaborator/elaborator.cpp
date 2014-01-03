@@ -183,15 +183,23 @@ class elaborator::imp {
             push_active(c);
     }
 
+    void collect_mvars(expr const & e, name_set & r) {
+        for_each(e, [&](expr const & m, unsigned) {
+                if (is_metavar(m) && !r.contains(metavar_name(m))) {
+                    r.insert(metavar_name(m));
+                    for (auto const & entry : metavar_lctx(m)) {
+                        if (entry.is_inst())
+                            collect_mvars(entry.v(), r);
+                    }
+                }
+                return true;
+            });
+    }
+
     /** \brief Collect metavars in \c c */
     name_list collect_mvars(unification_constraint const & c) {
-        buffer<name> r;
-        auto f = [&](expr const & m, unsigned) {
-            if (is_metavar(m))
-                r.push_back(metavar_name(m));
-            return true;
-        };
-        for_each_fn<decltype(f)> proc(f);
+        name_set s;
+        auto proc = [&](expr const & e) { return collect_mvars(e, s); };
         switch (c.kind()) {
         case unification_constraint_kind::Eq:
             proc(eq_lhs(c)); proc(eq_rhs(c)); break;
@@ -203,10 +211,7 @@ class elaborator::imp {
             lean_unreachable(); // we never delay Choice
             break;
         }
-        std::sort(r.begin(), r.end(), name_quick_cmp());
-        auto new_end = std::unique(r.begin(), r.end());
-        r.resize(r.size() + r.end() - new_end);
-        return to_list(r.begin(), r.end());
+        return s.fold([](name const & n, name_list const & l) { return cons(n, l); }, name_list());
     }
 
     /** \brief Add given constraint to the delayed list */
@@ -1074,10 +1079,23 @@ class elaborator::imp {
     /**
        \brief Process a constraint <tt>ctx |- a == b</tt> where \c a is of the form <tt>?m[(inst:i t), ...]</tt>.
        We perform a "case split",
-       Case 1) ?m[...] == #i and t == b
+       Case 1) ?m[...] == #i and t == b  (for constants, variables, values and Type)
        Case 2) imitate b
     */
     bool process_metavar_inst(expr const & a, expr const & b, bool is_lhs, unification_constraint const & c) {
+        // This method is miss some cases. In particular the local context of \c a contains metavariables.
+        //
+        //     (f#2 #1) == ?M2[i:1 ?M1]
+        //
+        // A possible solution for this constraint is:
+        //       ?M2 == #1
+        //       ?M1 == f#2 #1
+        //
+        // TODO(Leo): consider the following alternative design: We do NOT use approximations, since it is quite
+        // hard to understand what happened when they do not work. Instead, we rely on user provided plugins
+        // for handling the nasty cases.
+        //
+        // TODO(Leo): another possible design is to inform the user where approximation was used.
         if (is_metavar_inst(a) && (is_eq(c) || (is_lhs && !is_actual_upper(b)) || (!is_lhs && !is_actual_lower(b)))) {
             lean_assert(!is_assigned(a));
             if (is_constant(b) || is_type(b) || is_value(b) || is_var(b)) {
@@ -1085,7 +1103,7 @@ class elaborator::imp {
                 buffer<expr> solutions;
                 collect_metavar_solutions(lctx, b, solutions);
                 lean_assert(solutions.size() >= 1);
-                bool keep_c   = local_context_has_metavar(lctx);
+                bool keep_c   = local_context_has_metavar(metavar_lctx(a));
                 expr m        = mk_metavar(metavar_name(a));
                 context ctx_m = m_state.m_menv->get_context(m);
                 if (solutions.size() == 1) {

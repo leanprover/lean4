@@ -303,9 +303,17 @@ bool metavar_env_cell::has_assigned_metavar(expr const & e) const {
                     return false;
                 if (!has_metavar(n))
                     return false;
-                if (is_metavar(n) && is_assigned(n)) {
-                    result = true;
-                    return false;
+                if (is_metavar(n)) {
+                    if (is_assigned(n)) {
+                        result = true;
+                        return false;
+                    }
+                    for (auto const & entry : metavar_lctx(n)) {
+                        if (entry.is_inst() && has_assigned_metavar(entry.v())) {
+                            result = true;
+                            return false;
+                        }
+                    }
                 }
                 return true;
             });
@@ -339,6 +347,7 @@ protected:
     }
 
     virtual expr visit_metavar(expr const & m, context const & ctx) {
+        local_context const & lctx = metavar_lctx(m);
         if (is_metavar(m) && m_menv->is_assigned(m)) {
             auto p = m_menv->get_subst_jst(m);
             lean_assert(p);
@@ -349,6 +358,17 @@ protected:
             } else {
                 return r;
             }
+        } else if (std::find_if(lctx.begin(), lctx.end(), [&](local_entry const & e) { return e.is_inst() && m_menv->has_assigned_metavar(e.v()); })
+                   != lctx.end()) {
+            // local context has assigned metavariables
+            buffer<local_entry> new_lctx;
+            for (auto const & e : lctx) {
+                if (e.is_inst())
+                    new_lctx.push_back(mk_inst(e.s(), visit(e.v(), ctx)));
+                else
+                    new_lctx.push_back(e);
+            }
+            return mk_metavar(metavar_name(m), to_list(new_lctx.begin(), new_lctx.end()));
         } else {
             return m;
         }

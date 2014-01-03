@@ -1,0 +1,8 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Set: lean::pp::implicit
+  Set: pp::colors
+  Assumed: N
+λ (a : N) (f : N → N) (H : f a == a),
+  let calc1 : f a == a := @SubstP N (f a) a (λ x : N, f a == x) (@Refl N (f a)) H in calc1 :
+    Π (a : N) (f : N → N), f a == a → f a == a

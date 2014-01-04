@@ -83,11 +83,11 @@ function nary_macro(name, f, farity)
    end)
 end
 
-binder_macro("for", Const("ForallIntro"), 3, 1, 3)
-binder_macro("assume", Const("Discharge"), 3, 1, 3)
-nary_macro("instantiate", Const("ForallElim"), 4)
-nary_macro("mp", Const("MP"), 4)
-nary_macro("subst", Const("Subst"), 6)
+binder_macro("For", Const("ForallIntro"), 3, 1, 3)
+binder_macro("Assume", Const("Discharge"), 3, 1, 3)
+nary_macro("Instantiate", Const("ForallElim"), 4)
+nary_macro("MP'", Const("MP"), 4)
+nary_macro("Subst'", Const("Subst"), 6)
 
 -- ExistsElim syntax-sugar
 -- Example:
@@ -103,7 +103,7 @@ nary_macro("subst", Const("Subst"), 6)
 --           ExistsElim Haux
 --              (fun (b : Na) (H : P a b),
 --                   show false, Absurd H (instantiate Ax2 a b)
-macro("obtain", { macro_arg.Parameters, macro_arg.Comma, macro_arg.Id, macro_arg.Expr, macro_arg.Comma, macro_arg.Expr },
+macro("Obtain", { macro_arg.Parameters, macro_arg.Comma, macro_arg.Id, macro_arg.Expr, macro_arg.Comma, macro_arg.Expr },
       function (env, bindings, fromid, exPr, body)
          local n = #bindings
          if n < 2 then

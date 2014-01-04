@@ -43,13 +43,13 @@ Theorem ZeroNeOne : 0 ≠ 1 := Trivial.
 
 Theorem NeZeroPred' (a : Nat) : a ≠ 0 ⇒ ∃ b, b + 1 = a
 := Induction a
-    (assume H : 0 ≠ 0, FalseElim (∃ b, b + 1 = 0) H)
+    (Assume H : 0 ≠ 0, FalseElim (∃ b, b + 1 = 0) H)
     (λ (n : Nat) (iH : n ≠ 0 ⇒ ∃ b, b + 1 = n),
-        assume H : n + 1 ≠ 0,
+        Assume H : n + 1 ≠ 0,
             DisjCases (EM (n = 0))
                       (λ Heq0 : n = 0, ExistsIntro 0 (calc 0 + 1 = n + 1 : { Symm Heq0 }))
                       (λ Hne0 : n ≠ 0,
-                          obtain (w : Nat) (Hw : w + 1 = n), from (MP iH Hne0),
+                          Obtain (w : Nat) (Hw : w + 1 = n), from (MP iH Hne0),
                                  ExistsIntro (w + 1) (calc w + 1 + 1 = n + 1 : { Hw }))).
 
 Theorem NeZeroPred {a : Nat} (H : a ≠ 0) : ∃ b, b + 1 = a
@@ -58,7 +58,7 @@ Theorem NeZeroPred {a : Nat} (H : a ≠ 0) : ∃ b, b + 1 = a
 Theorem Destruct {B : Bool} {a : Nat} (H1: a = 0 → B) (H2 : Π n, a = n + 1 → B) : B
 := DisjCases (EM (a = 0))
              (λ Heq0 : a = 0, H1 Heq0)
-             (λ Hne0 : a ≠ 0, obtain (w : Nat) (Hw : w + 1 = a), from (NeZeroPred Hne0),
+             (λ Hne0 : a ≠ 0, Obtain (w : Nat) (Hw : w + 1 = a), from (NeZeroPred Hne0),
                                 H2 w (Symm Hw)).
 
 Theorem ZeroPlus (a : Nat) : 0 + a = a
@@ -178,12 +178,12 @@ Theorem MulAssoc (a b c : Nat) : a * (b * c) = a * b * c
 
 Theorem PlusInj' (a b c : Nat) : a + b = a + c ⇒ b = c
 := Induction a
-    (assume H : 0 + b = 0 + c,
+    (Assume H : 0 + b = 0 + c,
         calc b   =  0 + b   : Symm (ZeroPlus b)
              ... =  0 + c   : H
              ... =  c       : ZeroPlus c)
     (λ (n : Nat) (iH : n + b = n + c ⇒ b = c),
-        assume H : n + 1 + b = n + 1 + c,
+        Assume H : n + 1 + b = n + 1 + c,
             let L1 : n + b + 1 = n + c + 1
                    := (calc n + b + 1  =  n + (b + 1)  : Symm (PlusAssoc n b 1)
                                ...     =  n + (1 + b)  : { PlusComm b 1 }
@@ -219,22 +219,22 @@ Theorem LeRefl (a : Nat) : a ≤ a := LeIntro (PlusZero a).
 Theorem LeZero (a : Nat) : 0 ≤ a := LeIntro (ZeroPlus a).
 
 Theorem LeTrans {a b c : Nat} (H1 : a ≤ b) (H2 : b ≤ c) : a ≤ c
-:= obtain (w1 : Nat) (Hw1 : a + w1 = b), from (LeElim H1),
-   obtain (w2 : Nat) (Hw2 : b + w2 = c), from (LeElim H2),
+:= Obtain (w1 : Nat) (Hw1 : a + w1 = b), from (LeElim H1),
+   Obtain (w2 : Nat) (Hw2 : b + w2 = c), from (LeElim H2),
       LeIntro (calc a + (w1 + w2) =  a + w1 + w2  :  PlusAssoc a w1 w2
                              ...  =  b + w2       :  { Hw1 }
                              ...  =  c            :  Hw2).
 
 Theorem LeInj {a b : Nat} (H : a ≤ b) (c : Nat) : a + c ≤ b + c
-:= obtain (w : Nat) (Hw : a + w = b), from (LeElim H),
+:= Obtain (w : Nat) (Hw : a + w = b), from (LeElim H),
       LeIntro (calc a + c + w  = a + (c + w)   :  Symm (PlusAssoc a c w)
                          ...   = a + (w + c)   :  { PlusComm c w }
                          ...   = a + w + c     :  PlusAssoc a w c
                          ...   = b + c         :  { Hw }).
 
 Theorem LeAntiSymm {a b : Nat} (H1 : a ≤ b) (H2 : b ≤ a) : a = b
-:= obtain (w1 : Nat) (Hw1 : a + w1 = b), from (LeElim H1),
-   obtain (w2 : Nat) (Hw2 : b + w2 = a), from (LeElim H2),
+:= Obtain (w1 : Nat) (Hw1 : a + w1 = b), from (LeElim H1),
+   Obtain (w2 : Nat) (Hw2 : b + w2 = a), from (LeElim H2),
     let L1 : w1 + w2 = 0
            := PlusInj (calc a + (w1 + w2) = a + w1 + w2 : { PlusAssoc a w1 w2 }
                                      ...  = b + w2      : { Hw1 }

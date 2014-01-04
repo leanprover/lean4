@@ -106,16 +106,16 @@ Theorem Absurd {a : Bool} (H1 : a) (H2 : ¬ a) : false
 Theorem EqMP {a b : Bool} (H1 : a == b) (H2 : a) : b
 := Subst H2 H1.
 
-(* assume is a 'macro' that expands into a Discharge *)
+(* Assume is a 'macro' that expands into a Discharge *)
 
 Theorem ImpTrans {a b c : Bool} (H1 : a ⇒ b) (H2 : b ⇒ c) : a ⇒ c
-:= assume Ha, MP H2 (MP H1 Ha).
+:= Assume Ha, MP H2 (MP H1 Ha).
 
 Theorem ImpEqTrans {a b c : Bool} (H1 : a ⇒ b) (H2 : b == c) : a ⇒ c
-:= assume Ha, EqMP H2 (MP H1 Ha).
+:= Assume Ha, EqMP H2 (MP H1 Ha).
 
 Theorem EqImpTrans {a b c : Bool} (H1 : a == b) (H2 : b ⇒ c) : a ⇒ c
-:= assume Ha, MP H2 (EqMP H1 Ha).
+:= Assume Ha, MP H2 (EqMP H1 Ha).
 
 Theorem DoubleNeg (a : Bool) : (¬ ¬ a) == a
 := Case (λ x, (¬ ¬ x) == x) Trivial Trivial a.
@@ -124,10 +124,10 @@ Theorem DoubleNegElim {a : Bool} (H : ¬ ¬ a) : a
 := EqMP (DoubleNeg a) H.
 
 Theorem MT {a b : Bool} (H1 : a ⇒ b) (H2 : ¬ b) : ¬ a
-:= assume H : a, Absurd (MP H1 H) H2.
+:= Assume H : a, Absurd (MP H1 H) H2.
 
 Theorem Contrapos {a b : Bool} (H : a ⇒ b) : ¬ b ⇒ ¬ a
-:= assume H1 : ¬ b, MT H H1.
+:= Assume H1 : ¬ b, MT H H1.
 
 Theorem AbsurdElim {a : Bool} (b : Bool) (H1 : a) (H2 : ¬ a) : b
 := FalseElim b (Absurd H1 H2).
@@ -135,17 +135,17 @@ Theorem AbsurdElim {a : Bool} (b : Bool) (H1 : a) (H2 : ¬ a) : b
 Theorem NotImp1 {a b : Bool} (H : ¬ (a ⇒ b)) : a
 := DoubleNegElim
       (show ¬ ¬ a,
-       assume H1 : ¬ a, Absurd (show a ⇒ b,     assume H2 : a, AbsurdElim b H2 H1)
+       Assume H1 : ¬ a, Absurd (show a ⇒ b,     Assume H2 : a, AbsurdElim b H2 H1)
                                (show ¬ (a ⇒ b), H)).
 
 Theorem NotImp2 {a b : Bool} (H : ¬ (a ⇒ b)) : ¬ b
-:= assume H1 : b, Absurd (show a ⇒ b, assume H2 : a, H1)
+:= Assume H1 : b, Absurd (show a ⇒ b, Assume H2 : a, H1)
                          (show ¬ (a ⇒ b), H).
 
 (* Remark: conjunction is defined as ¬ (a ⇒ ¬ b) in Lean *)
 
 Theorem Conj {a b : Bool} (H1 : a) (H2 : b) : a ∧ b
-:= assume H : a ⇒ ¬ b, Absurd H2 (MP H H1).
+:= Assume H : a ⇒ ¬ b, Absurd H2 (MP H H1).
 
 Theorem Conjunct1 {a b : Bool} (H : a ∧ b) : a
 := NotImp1 H.
@@ -156,20 +156,20 @@ Theorem Conjunct2 {a b : Bool} (H : a ∧ b) : b
 (* Remark: disjunction is defined as ¬ a ⇒ b in Lean *)
 
 Theorem Disj1 {a : Bool} (H : a) (b : Bool) : a ∨ b
-:= assume H1 : ¬ a, AbsurdElim b H H1.
+:= Assume H1 : ¬ a, AbsurdElim b H H1.
 
 Theorem Disj2 {b : Bool} (a : Bool) (H : b) : a ∨ b
-:= assume H1 : ¬ a, H.
+:= Assume H1 : ¬ a, H.
 
 Theorem ArrowToImplies {a b : Bool} (H : a → b) : a ⇒ b
-:= assume H1 : a, H H1.
+:= Assume H1 : a, H H1.
 
 Theorem Resolve1 {a b : Bool} (H1 : a ∨ b) (H2 : ¬ a) : b
 := MP H1 H2.
 
 Theorem DisjCases {a b c : Bool} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
 := DoubleNegElim
-     (assume H : ¬ c,
+     (Assume H : ¬ c,
         Absurd (show c, H3 (show b, Resolve1 H1 (show ¬ a, (MT (ArrowToImplies H2) H))))
                H)
 
@@ -180,7 +180,7 @@ Theorem Symm {A : TypeU} {a b : A} (H : a == b) : b == a
 := Subst (Refl a) H.
 
 Theorem NeSymm {A : TypeU} {a b : A} (H : a ≠ b) : b ≠ a
-:= assume H1 : b = a, MP H (Symm H1).
+:= Assume H1 : b = a, MP H (Symm H1).
 
 Theorem EqNeTrans {A : TypeU} {a b c : A} (H1 : a = b) (H2 : b ≠ c) : a ≠ c
 := Subst H2 (Symm H1).
@@ -195,8 +195,8 @@ Theorem EqTElim {a : Bool} (H : a == true) : a
 := EqMP (Symm H) Trivial.
 
 Theorem EqTIntro {a : Bool} (H : a) : a == true
-:= ImpAntisym (assume H1 : a, Trivial)
-              (assume H2 : true, H).
+:= ImpAntisym (Assume H1 : a, Trivial)
+              (Assume H2 : true, H).
 
 Theorem Congr1 {A : TypeU} {B : A → TypeU} {f g : Π x : A, B x} (a : A) (H : f == g) : f a == g a
 := SubstP (fun h : (Π x : A, B x), f a == h a) (Refl (f a)) H.
@@ -229,11 +229,11 @@ Theorem ForallIntro {A : TypeU} {P : A → Bool} (H : Π x : A, P x) : Forall A 
 
 Theorem ExistsElim {A : TypeU} {P : A → Bool} {B : Bool} (H1 : Exists A P) (H2 : Π (a : A) (H : P a), B) : B
 := Refute (λ R : ¬ B,
-             Absurd (ForallIntro (λ a : A, MT (assume H : P a, H2 a H) R))
+             Absurd (ForallIntro (λ a : A, MT (Assume H : P a, H2 a H) R))
                     H1).
 
 Theorem ExistsIntro {A : TypeU} {P : A → Bool} (a : A) (H : P a) : Exists A P
-:= assume H1 : (∀ x : A, ¬ P x),
+:= Assume H1 : (∀ x : A, ¬ P x),
       Absurd H (ForallElim H1 a).
 
 (*
@@ -250,26 +250,26 @@ SetOpaque and     true.
 SetOpaque forall  true.
 
 Theorem OrComm (a b : Bool) : (a ∨ b) == (b ∨ a)
-:= ImpAntisym (assume H, DisjCases H (λ H1, Disj2 b H1) (λ H2, Disj1 H2 a))
-              (assume H, DisjCases H (λ H1, Disj2 a H1) (λ H2, Disj1 H2 b)).
+:= ImpAntisym (Assume H, DisjCases H (λ H1, Disj2 b H1) (λ H2, Disj1 H2 a))
+              (Assume H, DisjCases H (λ H1, Disj2 a H1) (λ H2, Disj1 H2 b)).
 
 
 Theorem OrAssoc (a b c : Bool) : ((a ∨ b) ∨ c) == (a ∨ (b ∨ c))
-:= ImpAntisym (assume H : (a ∨ b) ∨ c,
+:= ImpAntisym (Assume H : (a ∨ b) ∨ c,
                       DisjCases H (λ H1 : a ∨ b, DisjCases H1 (λ Ha : a, Disj1 Ha (b ∨ c)) (λ Hb : b, Disj2 a (Disj1 Hb c)))
                                   (λ Hc : c, Disj2 a (Disj2 b Hc)))
-              (assume H : a ∨ (b ∨ c),
+              (Assume H : a ∨ (b ∨ c),
                       DisjCases H (λ Ha : a, (Disj1 (Disj1 Ha b) c))
                                   (λ H1 : b ∨ c, DisjCases H1 (λ Hb : b, Disj1 (Disj2 a Hb) c)
                                                               (λ Hc : c, Disj2 (a ∨ b) Hc))).
 
 Theorem OrId (a : Bool) : (a ∨ a) == a
-:= ImpAntisym (assume H, DisjCases H (λ H1, H1) (λ H2, H2))
-              (assume H, Disj1 H a).
+:= ImpAntisym (Assume H, DisjCases H (λ H1, H1) (λ H2, H2))
+              (Assume H, Disj1 H a).
 
 Theorem OrRhsFalse (a : Bool) : (a ∨ false) == a
-:= ImpAntisym (assume H, DisjCases H (λ H1, H1) (λ H2, FalseElim a H2))
-              (assume H, Disj1 H false).
+:= ImpAntisym (Assume H, DisjCases H (λ H1, H1) (λ H2, FalseElim a H2))
+              (Assume H, Disj1 H false).
 
 Theorem OrLhsFalse (a : Bool) : (false ∨ a) == a
 := Trans (OrComm false a) (OrRhsFalse a).
@@ -284,34 +284,34 @@ Theorem OrAnotA (a : Bool) : (a ∨ ¬ a) == true
 := EqTIntro (EM a).
 
 Theorem AndComm (a b : Bool) : (a ∧ b) == (b ∧ a)
-:= ImpAntisym (assume H, Conj (Conjunct2 H) (Conjunct1 H))
-              (assume H, Conj (Conjunct2 H) (Conjunct1 H)).
+:= ImpAntisym (Assume H, Conj (Conjunct2 H) (Conjunct1 H))
+              (Assume H, Conj (Conjunct2 H) (Conjunct1 H)).
 
 Theorem AndId (a : Bool) : (a ∧ a) == a
-:= ImpAntisym (assume H, Conjunct1 H)
-              (assume H, Conj H H).
+:= ImpAntisym (Assume H, Conjunct1 H)
+              (Assume H, Conj H H).
 
 Theorem AndAssoc (a b c : Bool) : ((a ∧ b) ∧ c) == (a ∧ (b ∧ c))
-:= ImpAntisym (assume H, Conj (Conjunct1 (Conjunct1 H)) (Conj (Conjunct2 (Conjunct1 H)) (Conjunct2 H)))
-              (assume H, Conj (Conj (Conjunct1 H) (Conjunct1 (Conjunct2 H))) (Conjunct2 (Conjunct2 H))).
+:= ImpAntisym (Assume H, Conj (Conjunct1 (Conjunct1 H)) (Conj (Conjunct2 (Conjunct1 H)) (Conjunct2 H)))
+              (Assume H, Conj (Conj (Conjunct1 H) (Conjunct1 (Conjunct2 H))) (Conjunct2 (Conjunct2 H))).
 
 Theorem AndRhsTrue (a : Bool) : (a ∧ true) == a
-:= ImpAntisym (assume H : a ∧ true,  Conjunct1 H)
-              (assume H : a,         Conj H Trivial).
+:= ImpAntisym (Assume H : a ∧ true,  Conjunct1 H)
+              (Assume H : a,         Conj H Trivial).
 
 Theorem AndLhsTrue (a : Bool) : (true ∧ a) == a
 := Trans (AndComm true a) (AndRhsTrue a).
 
 Theorem AndRhsFalse (a : Bool) : (a ∧ false) == false
-:= ImpAntisym (assume H, Conjunct2 H)
-              (assume H, FalseElim (a ∧ false) H).
+:= ImpAntisym (Assume H, Conjunct2 H)
+              (Assume H, FalseElim (a ∧ false) H).
 
 Theorem AndLhsFalse (a : Bool) : (false ∧ a) == false
 := Trans (AndComm false a) (AndRhsFalse a).
 
 Theorem AndAnotA (a : Bool) : (a ∧ ¬ a) == false
-:= ImpAntisym (assume H, Absurd (Conjunct1 H) (Conjunct2 H))
-              (assume H, FalseElim (a ∧ ¬ a) H).
+:= ImpAntisym (Assume H, Absurd (Conjunct1 H) (Conjunct2 H))
+              (Assume H, FalseElim (a ∧ ¬ a) H).
 
 Theorem NotTrue : (¬ true) == false
 := Trivial
@@ -397,7 +397,7 @@ Theorem UnfoldExists2 {A : TypeU} {P : A → Bool} (a : A) (H : P a ∨ (∃ x :
                   ExistsIntro w (Conjunct2 Hw))).
 
 Theorem UnfoldExists {A : TypeU} (P : A → Bool) (a : A) : (∃ x : A, P x) = (P a ∨ (∃ x : A, x ≠ a ∧ P x))
-:= ImpAntisym (assume H : (∃ x : A, P x), UnfoldExists1 a H)
-              (assume H : (P a ∨ (∃ x : A, x ≠ a ∧ P x)), UnfoldExists2 a H).
+:= ImpAntisym (Assume H : (∃ x : A, P x), UnfoldExists1 a H)
+              (Assume H : (P a ∨ (∃ x : A, x ≠ a ∧ P x)), UnfoldExists2 a H).
 
 SetOpaque exists true.

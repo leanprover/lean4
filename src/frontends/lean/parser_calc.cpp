@@ -108,12 +108,12 @@ static expr parse_step_pr(parser_imp & imp, expr const & lhs) {
         expr eq_pr = imp.parse_expr();
         imp.check_rcurly_next("invalid calculational proof, '}' expected");
         // Using axiom Subst {A : TypeU} {a b : A} {P : A → Bool} (H1 : P a) (H2 : a == b) : P b.
-        return Subst(imp.save(mk_placeholder(), p),
-                     imp.save(mk_placeholder(), p),
-                     imp.save(mk_placeholder(), p),
-                     imp.save(mk_placeholder(), p), // let elaborator compute the first four arguments
-                     Refl(imp.save(mk_placeholder(), p), lhs),
-                     eq_pr);
+        return imp.save(Subst(imp.save(mk_placeholder(), p),
+                              imp.save(mk_placeholder(), p),
+                              imp.save(mk_placeholder(), p),
+                              imp.save(mk_placeholder(), p), // let elaborator compute the first four arguments
+                              imp.save(Refl(imp.save(mk_placeholder(), p), lhs), p),
+                              eq_pr), p);
     } else {
         return imp.parse_expr();
     }
@@ -161,7 +161,7 @@ expr calc_proof_parser::parse(parser_imp & imp) const {
         args.push_back(new_rhs);
         args.push_back(result);
         args.push_back(step_pr);
-        result = mk_app(args);
+        result = imp.save(mk_app(args), p);
         op  = tdata->m_rop;
         rhs = new_rhs;
     }

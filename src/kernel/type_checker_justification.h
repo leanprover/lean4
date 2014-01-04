@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/context.h"
 
 namespace lean {
+class metavar_env;
 /**
    \brief Justification produced by the type checker when the application \c m_app
    is an application <tt>(f ...)</tt>, the type \c T of \c f contains metavariables, and
@@ -27,7 +28,7 @@ class function_expected_justification_cell : public justification_cell {
 public:
     function_expected_justification_cell(context const & c, expr const & app):m_ctx(c), m_app(app) {}
     virtual ~function_expected_justification_cell();
-    virtual format pp_header(formatter const & fmt, options const & opts) const;
+    virtual format pp_header(formatter const & fmt, options const & opts, optional<metavar_env> const & menv) const;
     virtual void get_children(buffer<justification_cell*> &) const;
     virtual optional<expr> get_main_expr() const;
     context const & get_context() const { return m_ctx; }
@@ -52,7 +53,7 @@ class app_type_match_justification_cell : public justification_cell {
 public:
     app_type_match_justification_cell(context const & c, expr const & a, unsigned i):m_ctx(c), m_app(a), m_i(i) {}
     virtual ~app_type_match_justification_cell();
-    virtual format pp_header(formatter const & fmt, options const & opts) const;
+    virtual format pp_header(formatter const & fmt, options const & opts, optional<metavar_env> const & menv) const;
     virtual void get_children(buffer<justification_cell*> &) const;
     virtual optional<expr> get_main_expr() const;
     context const & get_context() const { return m_ctx; }
@@ -75,7 +76,7 @@ class type_expected_justification_cell : public justification_cell {
 public:
     type_expected_justification_cell(context const & c, expr const & t):m_ctx(c), m_type(t) {}
     virtual ~type_expected_justification_cell();
-    virtual format pp_header(formatter const & fmt, options const & opts) const;
+    virtual format pp_header(formatter const & fmt, options const & opts, optional<metavar_env> const & menv) const;
     virtual void get_children(buffer<justification_cell*> &) const;
     virtual optional<expr> get_main_expr() const;
     context const & get_context() const { return m_ctx; }
@@ -112,7 +113,7 @@ class def_type_match_justification_cell : public justification_cell {
 public:
     def_type_match_justification_cell(context const & c, name const & n, expr const & v):m_ctx(c), m_name(n), m_value(v) {}
     virtual ~def_type_match_justification_cell();
-    virtual format pp_header(formatter const & fmt, options const & opts) const;
+    virtual format pp_header(formatter const & fmt, options const & opts, optional<metavar_env> const & menv) const;
     virtual void get_children(buffer<justification_cell*> &) const;
     virtual optional<expr> get_main_expr() const;
     context const & get_context() const { return m_ctx; }
@@ -131,7 +132,7 @@ class type_match_justification_cell : public justification_cell {
 public:
     type_match_justification_cell(context const & c, expr const & t, expr const & v):m_ctx(c), m_type(t), m_value(v) {}
     virtual ~type_match_justification_cell();
-    virtual format pp_header(formatter const & fmt, options const & opts) const;
+    virtual format pp_header(formatter const & fmt, options const & opts, optional<metavar_env> const & menv) const;
     virtual void get_children(buffer<justification_cell*> &) const;
     virtual optional<expr> get_main_expr() const;
     context const & get_context() const { return m_ctx; }

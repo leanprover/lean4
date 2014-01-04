@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include "kernel/kernel_exception.h"
 #include "library/io_state_stream.h"
+#include "library/elaborator/elaborator_justification.h"
 #include "frontends/lean/parser_imp.h"
 
 namespace lean {
@@ -69,7 +70,9 @@ void parser_imp::display_error(elaborator_exception const & ex) {
     formatter fmt = m_io_state.get_formatter();
     options opts  = m_io_state.get_options();
     lean_pos_info_provider pos_provider(*this);
-    regular(m_io_state) << mk_pair(ex.get_justification().pp(fmt, opts, &pos_provider, true), opts) << endl;
+    auto j = ex.get_justification();
+    j = remove_detail(j);
+    regular(m_io_state) << mk_pair(j.pp(fmt, opts, &pos_provider, true), opts) << endl;
 }
 
 void parser_imp::display_error(script_exception const & ex) {

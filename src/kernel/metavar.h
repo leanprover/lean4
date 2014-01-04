@@ -131,7 +131,7 @@ public:
        \pre !is_assigned(m)
 
        \remark The method returns false if the assignment cannot be performed
-       because \c t contain free variables that are not available in the context 
+       because \c t contain free variables that are not available in the context
        associated with \c m.
     */
     bool assign(name const & m, expr const & t, justification const & j);
@@ -141,9 +141,9 @@ public:
        \brief Assign metavariable \c m to \c t.
 
        \remark The method returns false if the assignment cannot be performed
-       because \c t contain free variables that are not available in the context 
+       because \c t contain free variables that are not available in the context
        associated with \c m.
-       
+
        \pre is_metavar(m)
        \pre !has_meta_context(m)
        \pre !is_assigned(m)
@@ -193,6 +193,7 @@ public:
         buffer<justification> tmp;
         return instantiate_metavars(e, tmp);
     }
+    context instantiate_metavars(context const & ctx) const;
 };
 
 /**
@@ -223,6 +224,20 @@ SPECIALIZE_OPTIONAL_FOR_SMART_PTR(metavar_env)
 inline optional<metavar_env> none_menv() { return optional<metavar_env>(); }
 inline optional<metavar_env> some_menv(metavar_env const & e) { return optional<metavar_env>(e); }
 inline optional<metavar_env> some_menv(metavar_env && e) { return optional<metavar_env>(std::forward<metavar_env>(e)); }
+
+inline expr instantiate_metavars(optional<metavar_env> const & menv, expr const & e) {
+    if (menv)
+        return (*menv)->instantiate_metavars(e);
+    else
+        return e;
+}
+
+inline context instantiate_metavars(optional<metavar_env> const & menv, context const & ctx) {
+    if (menv)
+        return (*menv)->instantiate_metavars(ctx);
+    else
+        return ctx;
+}
 
 /**
    \brief Read-only reference to metavariable environment (cell).

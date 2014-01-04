@@ -21,18 +21,19 @@ void propagation_justification::get_children(buffer<justification_cell*> & r) co
 optional<expr> propagation_justification::get_main_expr() const {
     return none_expr();
 }
-format propagation_justification::pp_header(formatter const & fmt, options const & opts) const {
+format propagation_justification::pp_header(formatter const & fmt, options const & opts, optional<metavar_env> const & menv) const {
     format r;
     r += format(get_prop_name());
-    r += compose(line(), get_constraint().pp(fmt, opts, nullptr, false));
+    r += compose(line(), get_constraint().pp(fmt, opts, nullptr, false, menv));
     return r;
 }
 
 // -------------------------
 // Unification failure (by cases)
 // -------------------------
-unification_failure_by_cases_justification::unification_failure_by_cases_justification(unification_constraint const & c, unsigned num, justification const * cs):
-    unification_failure_justification(c),
+unification_failure_by_cases_justification::unification_failure_by_cases_justification(
+    unification_constraint const & c, unsigned num, justification const * cs, metavar_env const & menv):
+    unification_failure_justification(c, menv),
     m_cases(cs, cs + num) {
 }
 unification_failure_by_cases_justification::~unification_failure_by_cases_justification() {
@@ -79,7 +80,7 @@ typeof_mvar_justification::typeof_mvar_justification(context const & ctx, expr c
 }
 typeof_mvar_justification::~typeof_mvar_justification() {
 }
-format typeof_mvar_justification::pp_header(formatter const & fmt, options const & opts) const {
+format typeof_mvar_justification::pp_header(formatter const & fmt, options const & opts, optional<metavar_env> const & menv) const {
     format r;
     unsigned indent = get_pp_indent(opts);
     r += format("Propagate type,");
@@ -88,7 +89,7 @@ format typeof_mvar_justification::pp_header(formatter const & fmt, options const
         body += fmt(m_context, m_mvar, false, opts);
         body += space();
         body += colon();
-        body += nest(indent, compose(line(), fmt(m_context, m_typeof_mvar, false, opts)));
+        body += nest(indent, compose(line(), fmt(m_context, instantiate_metavars(menv, m_typeof_mvar), false, opts)));
         r += nest(indent, compose(line(), body));
     }
     return group(r);
@@ -105,7 +106,7 @@ next_solution_justification::next_solution_justification(unsigned num, justifica
 }
 next_solution_justification::~next_solution_justification() {
 }
-format next_solution_justification::pp_header(formatter const &, options const &) const {
+format next_solution_justification::pp_header(formatter const &, options const &, optional<metavar_env> const &) const {
     return format("next solution");
 }
 void next_solution_justification::get_children(buffer<justification_cell*> & r) const {
@@ -113,5 +114,45 @@ void next_solution_justification::get_children(buffer<justification_cell*> & r) 
 }
 optional<expr> next_solution_justification::get_main_expr() const {
     return none_expr();
+}
+
+bool is_derived_constraint(unification_constraint const & uc) {
+    auto j = uc.get_justification();
+    return j && dynamic_cast<propagation_justification*>(j.raw());
+}
+
+unification_constraint const & get_non_derived_constraint(unification_constraint const & uc) {
+    auto jcell = uc.get_justification().raw();
+    if (auto pcell = dynamic_cast<propagation_justification*>(jcell)) {
+        return get_non_derived_constraint(pcell->get_constraint());
+    } else {
+        return uc;
+    }
+}
+
+justification remove_detail(justification const & j) {
+    auto jcell = j.raw();
+
+    if (auto fc_cell = dynamic_cast<unification_failure_by_cases_justification*>(jcell)) {
+        auto uc = fc_cell->get_constraint();
+        if (is_derived_constraint(uc)) {
+            // we usually don't care about internal case-splits
+            unification_constraint const & new_uc = get_non_derived_constraint(uc);
+            return justification(new unification_failure_justification(new_uc, fc_cell->get_menv()));
+        } else {
+            buffer<justification> new_js;
+            for (auto const & j : fc_cell->get_cases())
+                new_js.push_back(remove_detail(j));
+            return justification(new unification_failure_by_cases_justification(uc, new_js.size(), new_js.data(), fc_cell->get_menv()));
+        }
+        return j;
+    } else if (auto f_cell = dynamic_cast<unification_failure_justification*>(jcell)) {
+        unification_constraint const & new_uc = get_non_derived_constraint(f_cell->get_constraint());
+        return justification(new unification_failure_justification(new_uc, f_cell->get_menv()));
+    } else if (auto p_cell = dynamic_cast<propagation_justification*>(jcell)) {
+        return remove_detail(p_cell->get_constraint().get_justification());
+    } else {
+        return j;
+    }
 }
 }

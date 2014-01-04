@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "kernel/pos_info_provider.h"
 
 namespace lean {
+class metavar_env;
 class justification;
 /**
    \brief Base class used to represent justification objects.
@@ -30,8 +31,9 @@ protected:
 public:
     justification_cell():m_rc(0) {}
     virtual ~justification_cell() {}
-    virtual format pp_header(formatter const & fmt, options const & opts) const = 0;
-    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool display_children) const;
+    virtual format pp_header(formatter const & fmt, options const & opts, optional<metavar_env> const & menv) const = 0;
+    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p,
+                      bool display_children, optional<metavar_env> const & menv) const;
     virtual void get_children(buffer<justification_cell*> & r) const = 0;
     virtual optional<expr> get_main_expr() const { return none_expr(); }
     bool is_shared() const { return get_rc() > 1; }
@@ -46,7 +48,7 @@ public:
     assumption_justification(unsigned idx);
     virtual void get_children(buffer<justification_cell*> &) const;
     virtual optional<expr> get_main_expr() const;
-    virtual format pp_header(formatter const &, options const &) const;
+    virtual format pp_header(formatter const &, options const &, optional<metavar_env> const & menv) const;
 };
 
 /**
@@ -69,10 +71,9 @@ public:
 
     justification & operator=(justification const & s) { LEAN_COPY_REF(s); }
     justification & operator=(justification && s) { LEAN_MOVE_REF(s); }
-    format pp(formatter const & fmt, options const & opts, pos_info_provider const * p = nullptr, bool display_children = true) const {
-        lean_assert(m_ptr);
-        return m_ptr->pp(fmt, opts, p, display_children);
-    }
+    format pp(formatter const & fmt, options const & opts, pos_info_provider const * p,
+              bool display_children, optional<metavar_env> const & menv) const;
+    format pp(formatter const & fmt, options const & opts, pos_info_provider const * p = nullptr, bool display_children = true) const;
     optional<expr> get_main_expr() const { return m_ptr ? m_ptr->get_main_expr() : none_expr(); }
     void get_children(buffer<justification_cell*> & r) const { if (m_ptr) m_ptr->get_children(r); }
     bool has_children() const;

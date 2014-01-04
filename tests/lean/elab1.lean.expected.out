@@ -3,22 +3,12 @@
   Assumed: f
 Failed to solve
  ⊢ Bool ≺ ℕ
-    Substitution
-     ⊢ Bool ≺ ?M::0
-        (line: 4: pos: 6) Type of argument 3 must be convertible to the expected type in the application of
-            @f
-        with arguments:
-            ?M::0
-            10
-            ⊤
-        Assignment
-         ⊢ ℕ ≺ ?M::0
-            (line: 4: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
-                @f
-            with arguments:
-                ?M::0
-                10
-                ⊤
+    (line: 4: pos: 6) Type of argument 3 must be convertible to the expected type in the application of
+        @f
+    with arguments:
+        ℕ
+        10
+        ⊤
   Assumed: g
 Error (line: 7, pos: 8) invalid expression, it still contains metavariables after elaboration, metavariable: ?M::1, type:
 Type
@@ -44,244 +34,34 @@ A : Type, B : Type, a : ?M::0, b : ?M::1, C : Type ⊢ ?M::0[lift:0:3] ≺ C
   Assumed: H
 Failed to solve
  ⊢ ?M::0 ⇒ ?M::3 ∧ a ≺ b
-    Substitution
-     ⊢ ?M::0 ⇒ ?M::1 ≺ b
-        (line: 20: pos: 18) Type of definition 't1' must be convertible to expected type.
-        Assignment
-        H1 : ?M::2 ⊢ ?M::3 ∧ a ≺ ?M::1
-            Substitution
-            H1 : ?M::2 ⊢ ?M::3 ∧ ?M::4 ≺ ?M::1
-                Destruct/Decompose
-                 ⊢ Π H1 : ?M::2, ?M::3 ∧ ?M::4 ≺ Π a : ?M::0, ?M::1
-                    (line: 20: pos: 18) Type of argument 3 must be convertible to the expected type in the application of
-                        @Discharge
-                    with arguments:
-                        ?M::0
-                        ?M::1
-                        λ H1 : ?M::2, Conj H1 (Conjunct1 H)
-                Assignment
-                H1 : ?M::2 ⊢ a ≺ ?M::4
-                    Substitution
-                    H1 : ?M::2 ⊢ ?M::5 ≺ ?M::4
-                        (line: 20: pos: 37) Type of argument 4 must be convertible to the expected type in the application of
-                            @Conj
-                        with arguments:
-                            ?M::3
-                            ?M::4
-                            H1
-                            Conjunct1 H
-                        Assignment
-                        H1 : ?M::2 ⊢ a ≈ ?M::5
-                            Destruct/Decompose
-                            H1 : ?M::2 ⊢ a ∧ b ≺ ?M::5 ∧ ?M::6
-                                (line: 20: pos: 45) Type of argument 3 must be convertible to the expected type in the application of
-                                    @Conjunct1
-                                with arguments:
-                                    ?M::5
-                                    ?M::6
-                                    H
+    (line: 20: pos: 18) Type of definition 't1' must be convertible to expected type.
 Failed to solve
- ⊢ b ≈ a
-    Substitution
-     ⊢ b ≈ ?M::3
-        Destruct/Decompose
-         ⊢ b == b ≺ ?M::3 == ?M::4
-            (line: 22: pos: 22) Type of argument 6 must be convertible to the expected type in the application of
-                @Trans
-            with arguments:
-                ?M::1
-                ?M::2
-                ?M::3
-                ?M::4
-                Refl a
-                Refl b
-        Assignment
-         ⊢ a ≈ ?M::3
-            Destruct/Decompose
-             ⊢ a == a ≺ ?M::2 == ?M::3
-                (line: 22: pos: 22) Type of argument 5 must be convertible to the expected type in the application of
-                    @Trans
-                with arguments:
-                    ?M::1
-                    ?M::2
-                    ?M::3
-                    ?M::4
-                    Refl a
-                    Refl b
+ ⊢ b == b ≺ a == b
+    (line: 22: pos: 22) Type of argument 6 must be convertible to the expected type in the application of
+        @Trans
+    with arguments:
+        ?M::1
+        a
+        a
+        b
+        Refl a
+        Refl b
 Failed to solve
- ⊢ (?M::1 ≈ Type) ⊕ (?M::1 ≈ Bool)
-    Destruct/Decompose
-     ⊢ ?M::1 ≺ Type
-        (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
-            @f
-        with arguments:
-            ?M::0
-            Bool
-            Bool
-    Failed to solve
-     ⊢ (?M::0 ≈ Type) ⊕ (?M::0 ≈ (Type 1)) ⊕ (?M::0 ≈ (Type M)) ⊕ (?M::0 ≈ (Type U))
-        Destruct/Decompose
-         ⊢ Type ≺ ?M::0
-            (line: 24: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
-                @f
-            with arguments:
-                ?M::0
-                Bool
-                Bool
-        Failed to solve
-         ⊢ (Type 1) ≺ Type
-            Substitution
-             ⊢ (Type 1) ≺ ?M::1
-                Propagate type, ?M::0 : ?M::1
-                    Assignment
-                     ⊢ ?M::0 ≈ Type
-                        Assumption 1
-                Assignment
-                 ⊢ ?M::1 ≈ Type
-                    Assumption 0
-        Failed to solve
-         ⊢ (Type 2) ≺ Type
-            Substitution
-             ⊢ (Type 2) ≺ ?M::1
-                Propagate type, ?M::0 : ?M::1
-                    Assignment
-                     ⊢ ?M::0 ≈ (Type 1)
-                        Assumption 2
-                Assignment
-                 ⊢ ?M::1 ≈ Type
-                    Assumption 0
-        Failed to solve
-         ⊢ (Type M+1) ≺ Type
-            Substitution
-             ⊢ (Type M+1) ≺ ?M::1
-                Propagate type, ?M::0 : ?M::1
-                    Assignment
-                     ⊢ ?M::0 ≈ (Type M)
-                        Assumption 3
-                Assignment
-                 ⊢ ?M::1 ≈ Type
-                    Assumption 0
-        Failed to solve
-         ⊢ (Type U+1) ≺ Type
-            Substitution
-             ⊢ (Type U+1) ≺ ?M::1
-                Propagate type, ?M::0 : ?M::1
-                    Assignment
-                     ⊢ ?M::0 ≈ (Type U)
-                        Assumption 4
-                Assignment
-                 ⊢ ?M::1 ≈ Type
-                    Assumption 0
-    Failed to solve
-     ⊢ (?M::0 ≈ Type) ⊕ (?M::0 ≈ (Type 1)) ⊕ (?M::0 ≈ (Type M)) ⊕ (?M::0 ≈ (Type U))
-        Destruct/Decompose
-         ⊢ Type ≺ ?M::0
-            (line: 24: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
-                @f
-            with arguments:
-                ?M::0
-                Bool
-                Bool
-        Failed to solve
-         ⊢ (Type 1) ≺ Bool
-            Substitution
-             ⊢ (Type 1) ≺ ?M::1
-                Propagate type, ?M::0 : ?M::1
-                    Assignment
-                     ⊢ ?M::0 ≈ Type
-                        Assumption 6
-                Assignment
-                 ⊢ ?M::1 ≈ Bool
-                    Assumption 5
-        Failed to solve
-         ⊢ (Type 2) ≺ Bool
-            Substitution
-             ⊢ (Type 2) ≺ ?M::1
-                Propagate type, ?M::0 : ?M::1
-                    Assignment
-                     ⊢ ?M::0 ≈ (Type 1)
-                        Assumption 7
-                Assignment
-                 ⊢ ?M::1 ≈ Bool
-                    Assumption 5
-        Failed to solve
-         ⊢ (Type M+1) ≺ Bool
-            Substitution
-             ⊢ (Type M+1) ≺ ?M::1
-                Propagate type, ?M::0 : ?M::1
-                    Assignment
-                     ⊢ ?M::0 ≈ (Type M)
-                        Assumption 8
-                Assignment
-                 ⊢ ?M::1 ≈ Bool
-                    Assumption 5
-        Failed to solve
-         ⊢ (Type U+1) ≺ Bool
-            Substitution
-             ⊢ (Type U+1) ≺ ?M::1
-                Propagate type, ?M::0 : ?M::1
-                    Assignment
-                     ⊢ ?M::0 ≈ (Type U)
-                        Assumption 9
-                Assignment
-                 ⊢ ?M::1 ≈ Bool
-                    Assumption 5
+ ⊢ ?M::1 ≺ Type
+    (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
+        @f
+    with arguments:
+        ?M::0
+        Bool
+        Bool
 Failed to solve
-a : Bool, b : Bool, H : ?M::2, H_a : ?M::6 ⊢ (a ⇒ b) ⇒ a ≺ a
-    Substitution
-    a : Bool, b : Bool, H : ?M::2, H_a : ?M::6 ⊢ (a ⇒ b) ⇒ a ≺ ?M::5[lift:0:1]
-        Substitution
-        a : Bool, b : Bool, H : ?M::2, H_a : ?M::6 ⊢ ?M::2[lift:0:2] ≺ ?M::5[lift:0:1]
-            Destruct/Decompose
-            a : Bool, b : Bool, H : ?M::2 ⊢ Π H_a : ?M::6, ?M::2[lift:0:2] ≺ Π a : ?M::3, ?M::5[lift:0:1]
-                (line: 27: pos: 21) Type of argument 5 must be convertible to the expected type in the application of
-                    @DisjCases
-                with arguments:
-                    ?M::3
-                    ?M::4
-                    ?M::5
-                    EM a
-                    λ H_a : ?M::6, H
-                    λ H_na : ?M::7, NotImp1 (MT H H_na)
-             Normalize assignment
-                ?M::0
-                Assignment
-                a : Bool, b : Bool ⊢ ?M::2 ≈ ?M::0
-                    Destruct/Decompose
-                    a : Bool, b : Bool ⊢ Π H : ?M::2, ?M::5 ≺ Π a : ?M::0, ?M::1[lift:0:1]
-                        (line: 27: pos: 4) Type of argument 3 must be convertible to the expected type in the application of
-                            @Discharge
-                        with arguments:
-                            ?M::0
-                            ?M::1
-                            λ H : ?M::2, DisjCases (EM a) (λ H_a : ?M::6, H) (λ H_na : ?M::7, NotImp1 (MT H H_na))
-                Assignment
-                a : Bool, b : Bool ⊢ ?M::0 ≈ (a ⇒ b) ⇒ a
-                    Destruct/Decompose
-                    a : Bool, b : Bool ⊢ ?M::0 ⇒ ?M::1 ≺ ((a ⇒ b) ⇒ a) ⇒ a
-                        Destruct/Decompose
-                        a : Bool ⊢ Π b : Bool, ?M::0 ⇒ ?M::1 ≺ Π b : Bool, ((a ⇒ b) ⇒ a) ⇒ a
-                            Destruct/Decompose
-                             ⊢ Π a b : Bool, ?M::0 ⇒ ?M::1 ≺ Π a b : Bool, ((a ⇒ b) ⇒ a) ⇒ a
-                                (line: 26: pos: 16) Type of definition 'pierce' must be convertible to expected type.
-        Assignment
-        a : Bool, b : Bool, H : ?M::2 ⊢ ?M::5 ≺ a
-            Substitution
-            a : Bool, b : Bool, H : ?M::2 ⊢ ?M::5 ≺ ?M::1[lift:0:1]
-                Destruct/Decompose
-                a : Bool, b : Bool ⊢ Π H : ?M::2, ?M::5 ≺ Π a : ?M::0, ?M::1[lift:0:1]
-                    (line: 27: pos: 4) Type of argument 3 must be convertible to the expected type in the application of
-                        @Discharge
-                    with arguments:
-                        ?M::0
-                        ?M::1
-                        λ H : ?M::2, DisjCases (EM a) (λ H_a : ?M::6, H) (λ H_na : ?M::7, NotImp1 (MT H H_na))
-                Assignment
-                a : Bool, b : Bool ⊢ ?M::1 ≈ a
-                    Destruct/Decompose
-                    a : Bool, b : Bool ⊢ ?M::0 ⇒ ?M::1 ≺ ((a ⇒ b) ⇒ a) ⇒ a
-                        Destruct/Decompose
-                        a : Bool ⊢ Π b : Bool, ?M::0 ⇒ ?M::1 ≺ Π b : Bool, ((a ⇒ b) ⇒ a) ⇒ a
-                            Destruct/Decompose
-                             ⊢ Π a b : Bool, ?M::0 ⇒ ?M::1 ≺ Π a b : Bool, ((a ⇒ b) ⇒ a) ⇒ a
-                                (line: 26: pos: 16) Type of definition 'pierce' must be convertible to expected type.
+a : Bool, b : Bool, H : (a ⇒ b) ⇒ a ⊢ a → (a ⇒ b) ⇒ a ≺ a → a
+    (line: 27: pos: 21) Type of argument 5 must be convertible to the expected type in the application of
+        @DisjCases
+    with arguments:
+        a
+        ¬ a
+        a
+        EM a
+        λ H_a : a, H
+        λ H_na : ¬ a, NotImp1 (MT H H_na)

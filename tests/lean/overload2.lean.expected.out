@@ -8,97 +8,25 @@ Failed to solve
         (Real::add | Int::add | Nat::add) 1 ⊤
     Failed to solve
      ⊢ Bool ≺ ℕ
-        Substitution
-         ⊢ Bool ≺ ?M::8
-            (line: 3: pos: 9) Type of argument 2 must be convertible to the expected type in the application of
-                ?M::0
-            with arguments:
-                ?M::1 1
-                ⊤
-            Assignment
-             ⊢ ℕ ≈ ?M::8
-                Destruct/Decompose
-                 ⊢ ℕ → ℕ ≈ Π x : ?M::8, ?M::9
-                    Substitution
-                     ⊢ ?M::7[inst:0 (?M::1 1)] ≈ Π x : ?M::8, ?M::9
-                        (line: 3: pos: 9) Function expected at
-                            ?M::0 (?M::1 1) ⊤
-                        Assignment
-                        a : ℕ ⊢ ℕ → ℕ ≈ ?M::7
-                            Destruct/Decompose
-                             ⊢ ℕ → ℕ → ℕ ≈ Π x : ?M::6, ?M::7
-                                Substitution
-                                 ⊢ ?M::2 ≈ Π x : ?M::6, ?M::7
-                                    (line: 3: pos: 9) Function expected at
-                                        ?M::0 (?M::1 1) ⊤
-                                    Assignment
-                                     ⊢ ℕ → ℕ → ℕ ≺ ?M::2
-                                        Propagate type, ?M::0 : ?M::2
-                                            Assignment
-                                             ⊢ ?M::0 ≈ Nat::add
-                                                Assumption 0
+        (line: 3: pos: 9) Type of argument 2 must be convertible to the expected type in the application of
+            Nat::add
+        with arguments:
+            1
+            ⊤
     Failed to solve
      ⊢ Bool ≺ ℤ
-        Substitution
-         ⊢ Bool ≺ ?M::8
-            (line: 3: pos: 9) Type of argument 2 must be convertible to the expected type in the application of
-                ?M::0
-            with arguments:
-                ?M::1 1
-                ⊤
-            Assignment
-             ⊢ ℤ ≈ ?M::8
-                Destruct/Decompose
-                 ⊢ ℤ → ℤ ≈ Π x : ?M::8, ?M::9
-                    Substitution
-                     ⊢ ?M::7[inst:0 (?M::1 1)] ≈ Π x : ?M::8, ?M::9
-                        (line: 3: pos: 9) Function expected at
-                            ?M::0 (?M::1 1) ⊤
-                        Assignment
-                        a : ℤ ⊢ ℤ → ℤ ≈ ?M::7
-                            Destruct/Decompose
-                             ⊢ ℤ → ℤ → ℤ ≈ Π x : ?M::6, ?M::7
-                                Substitution
-                                 ⊢ ?M::2 ≈ Π x : ?M::6, ?M::7
-                                    (line: 3: pos: 9) Function expected at
-                                        ?M::0 (?M::1 1) ⊤
-                                    Assignment
-                                     ⊢ ℤ → ℤ → ℤ ≺ ?M::2
-                                        Propagate type, ?M::0 : ?M::2
-                                            Assignment
-                                             ⊢ ?M::0 ≈ Int::add
-                                                Assumption 2
+        (line: 3: pos: 9) Type of argument 2 must be convertible to the expected type in the application of
+            Int::add
+        with arguments:
+            1
+            ⊤
     Failed to solve
      ⊢ Bool ≺ ℝ
-        Substitution
-         ⊢ Bool ≺ ?M::8
-            (line: 3: pos: 9) Type of argument 2 must be convertible to the expected type in the application of
-                ?M::0
-            with arguments:
-                ?M::1 1
-                ⊤
-            Assignment
-             ⊢ ℝ ≈ ?M::8
-                Destruct/Decompose
-                 ⊢ ℝ → ℝ ≈ Π x : ?M::8, ?M::9
-                    Substitution
-                     ⊢ ?M::7[inst:0 (?M::1 1)] ≈ Π x : ?M::8, ?M::9
-                        (line: 3: pos: 9) Function expected at
-                            ?M::0 (?M::1 1) ⊤
-                        Assignment
-                        a : ℝ ⊢ ℝ → ℝ ≈ ?M::7
-                            Destruct/Decompose
-                             ⊢ ℝ → ℝ → ℝ ≈ Π x : ?M::6, ?M::7
-                                Substitution
-                                 ⊢ ?M::2 ≈ Π x : ?M::6, ?M::7
-                                    (line: 3: pos: 9) Function expected at
-                                        ?M::0 (?M::1 1) ⊤
-                                    Assignment
-                                     ⊢ ℝ → ℝ → ℝ ≺ ?M::2
-                                        Propagate type, ?M::0 : ?M::2
-                                            Assignment
-                                             ⊢ ?M::0 ≈ Real::add
-                                                Assumption 5
+        (line: 3: pos: 9) Type of argument 2 must be convertible to the expected type in the application of
+            Real::add
+        with arguments:
+            1
+            ⊤
   Assumed: R
   Assumed: T
   Assumed: r2t

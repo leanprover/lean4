@@ -12,6 +12,8 @@ Author: Leonardo de Moura
 #include "kernel/justification.h"
 
 namespace lean {
+class metavar_env;
+class unification_constraint;
 /**
    \brief There are four kinds of unification constraints in Lean
 
@@ -47,7 +49,8 @@ public:
     unification_constraint_kind kind() const { return m_kind; }
     justification const & get_justification() const { return m_justification; }
     context const & get_context() const { return m_ctx; }
-    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_justification) const = 0;
+    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_justification,
+                      optional<metavar_env> const & menv) const = 0;
     void set_justification(justification const & j) { lean_assert(!m_justification); m_justification = j; }
 };
 
@@ -72,10 +75,9 @@ public:
 
     unification_constraint_kind kind() const { return m_ptr->kind(); }
 
-    format pp(formatter const & fmt, options const & opts, pos_info_provider const * p = nullptr, bool include_justification = false) const {
-        return m_ptr->pp(fmt, opts, p, include_justification);
-    }
-
+    format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_justification,
+              optional<metavar_env> const & menv) const;
+    format pp(formatter const & fmt, options const & opts, pos_info_provider const * p = nullptr, bool include_justification = false) const;
     justification const & get_justification() const { return m_ptr->get_justification(); }
     void set_justification(justification const & j) { lean_assert(!get_justification()); lean_assert(m_ptr); m_ptr->set_justification(j); }
 
@@ -103,7 +105,8 @@ public:
     virtual ~unification_constraint_eq();
     expr const & get_lhs() const { return m_lhs; }
     expr const & get_rhs() const { return m_rhs; }
-    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_justification) const;
+    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_justification,
+                      optional<metavar_env> const & menv) const;
 };
 
 /**
@@ -119,7 +122,8 @@ public:
     virtual ~unification_constraint_convertible();
     expr const & get_from() const { return m_from; }
     expr const & get_to() const   { return m_to; }
-    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_justification) const;
+    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_justification,
+                      optional<metavar_env> const & menv) const;
 };
 
 /**
@@ -135,7 +139,8 @@ public:
     expr const & get_lhs1() const { return m_lhs1; }
     expr const & get_lhs2() const { return m_lhs2; }
     expr const & get_rhs() const  { return m_rhs; }
-    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_justification) const;
+    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_justification,
+                      optional<metavar_env> const & menv) const;
 };
 
 /**
@@ -152,7 +157,8 @@ public:
     expr const & get_choice(unsigned idx) const { return m_choices[idx]; }
     std::vector<expr>::const_iterator begin_choices() const { return m_choices.begin(); }
     std::vector<expr>::const_iterator end_choices() const   { return m_choices.end(); }
-    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_justification) const;
+    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_justification,
+                      optional<metavar_env> const & menv) const;
 };
 
 unification_constraint mk_eq_constraint(context const & c, expr const & lhs, expr const & rhs, justification const & j);

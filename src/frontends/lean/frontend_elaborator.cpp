@@ -80,9 +80,9 @@ class coercion_justification_cell : public justification_cell {
 public:
     coercion_justification_cell(context const & c, expr const & src):m_ctx(c), m_src(src) {}
     virtual ~coercion_justification_cell() {}
-    virtual format pp_header(formatter const & fmt, options const & opts) const {
+    virtual format pp_header(formatter const & fmt, options const & opts, optional<metavar_env> const & menv) const {
         unsigned indent = get_pp_indent(opts);
-        format expr_fmt = fmt(m_ctx, m_src, false, opts);
+        format expr_fmt = fmt(m_ctx, instantiate_metavars(menv, m_src), false, opts);
         format r;
         r += format("Coercion for");
         r += nest(indent, compose(line(), expr_fmt));
@@ -99,9 +99,9 @@ class overload_justification_cell : public justification_cell {
 public:
     overload_justification_cell(context const & c, expr const & app):m_ctx(c), m_app(app) {}
     virtual ~overload_justification_cell() {}
-    virtual format pp_header(formatter const & fmt, options const & opts) const {
+    virtual format pp_header(formatter const & fmt, options const & opts, optional<metavar_env> const & menv) const {
         unsigned indent = get_pp_indent(opts);
-        format expr_fmt = fmt(m_ctx, m_app, false, opts);
+        format expr_fmt = fmt(m_ctx, instantiate_metavars(menv, m_app), false, opts);
         format r;
         r += format("Overloading at");
         r += nest(indent, compose(line(), expr_fmt));

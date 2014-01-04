@@ -35,9 +35,9 @@ public:
         std::reverse(m_jsts.begin(), m_jsts.end());
     }
 
-    virtual format pp_header(formatter const & fmt, options const & opts) const {
+    virtual format pp_header(formatter const & fmt, options const & opts, optional<metavar_env> const & menv) const {
         unsigned indent = get_pp_indent(opts);
-        format expr_fmt = fmt(m_ctx, m_expr, false, opts);
+        format expr_fmt = fmt(instantiate_metavars(menv, m_ctx), instantiate_metavars(menv, m_expr), false, opts);
         format r;
         r += format("Normalize assignment");
         r += nest(indent, compose(line(), expr_fmt));
@@ -404,6 +404,24 @@ expr metavar_env_cell::instantiate_metavars(expr const & e, buffer<justification
         lean_assert(!has_assigned_metavar(r));
         return r;
     }
+}
+
+context metavar_env_cell::instantiate_metavars(context const & ctx) const {
+    buffer<context_entry> new_entries;
+    auto it  = ctx.begin();
+    auto end = ctx.end();
+    for (; it != end; ++it) {
+        auto n = it->get_name();
+        auto d = it->get_domain();
+        auto b = it->get_body();
+        if (d && b)
+            new_entries.emplace_back(n, instantiate_metavars(*d), instantiate_metavars(*b));
+        else if (d)
+            new_entries.emplace_back(n, instantiate_metavars(*d));
+        else
+            new_entries.emplace_back(n, none_expr(), instantiate_metavars(*b));
+    }
+    return context(new_entries.size(), new_entries.data());
 }
 
 bool cached_metavar_env::update(optional<metavar_env> const & menv) {

@@ -11,55 +11,15 @@ Failed to solve
         (Int::add | Nat::add) i p
     Failed to solve
      ⊢ ℤ ≺ ℕ
-        Substitution
-         ⊢ ℤ ≺ ?M::2
-             Type of argument 1 must be convertible to the expected type in the application of
-                ?M::0
-            with arguments:
-                i
-                p
-            Assignment
-             ⊢ ℕ ≈ ?M::2
-                Destruct/Decompose
-                 ⊢ ℕ → ℕ → ℕ ≈ Π x : ?M::2, ?M::3
-                    Substitution
-                     ⊢ ?M::1 ≈ Π x : ?M::2, ?M::3
-                         Function expected at
-                            ?M::0 i p
-                        Assignment
-                         ⊢ ℕ → ℕ → ℕ ≺ ?M::1
-                            Propagate type, ?M::0 : ?M::1
-                                Assignment
-                                 ⊢ ?M::0 ≈ Nat::add
-                                    Assumption 0
+         Type of argument 1 must be convertible to the expected type in the application of
+            Nat::add
+        with arguments:
+            i
+            p
     Failed to solve
      ⊢ Bool ≺ ℤ
-        Substitution
-         ⊢ Bool ≺ ?M::4
-             Type of argument 2 must be convertible to the expected type in the application of
-                ?M::0
-            with arguments:
-                i
-                p
-            Assignment
-             ⊢ ℤ ≈ ?M::4
-                Destruct/Decompose
-                 ⊢ ℤ → ℤ ≈ Π x : ?M::4, ?M::5
-                    Substitution
-                     ⊢ ?M::3[inst:0 i] ≈ Π x : ?M::4, ?M::5
-                         Function expected at
-                            ?M::0 i p
-                        Assignment
-                        a : ℤ ⊢ ℤ → ℤ ≈ ?M::3
-                            Destruct/Decompose
-                             ⊢ ℤ → ℤ → ℤ ≈ Π x : ?M::2, ?M::3
-                                Substitution
-                                 ⊢ ?M::1 ≈ Π x : ?M::2, ?M::3
-                                     Function expected at
-                                        ?M::0 i p
-                                    Assignment
-                                     ⊢ ℤ → ℤ → ℤ ≺ ?M::1
-                                        Propagate type, ?M::0 : ?M::1
-                                            Assignment
-                                             ⊢ ?M::0 ≈ Int::add
-                                                Assumption 1
+         Type of argument 2 must be convertible to the expected type in the application of
+            Int::add
+        with arguments:
+            i
+            p

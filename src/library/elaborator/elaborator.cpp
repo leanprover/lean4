@@ -392,6 +392,10 @@ class elaborator::imp {
         push_updated_constraint(c, new_a, new_b, justification(new normalize_justification(c)));
     }
 
+    justification mk_failure_justification(unification_constraint const & c) {
+        return justification(new unification_failure_justification(c, m_state.m_menv.copy()));
+    }
+
     /**
        \brief Assign \c v to \c m with justification \c tr in the current state.
     */
@@ -403,7 +407,7 @@ class elaborator::imp {
         justification jst(new assignment_justification(c));
         metavar_env const & menv = m_state.m_menv;
         if (!menv->assign(m, v, jst)) {
-            m_conflict = justification(new unification_failure_justification(c));
+            m_conflict = mk_failure_justification(c);
             return false;
         }
         if (menv->has_type(m)) {
@@ -453,7 +457,7 @@ class elaborator::imp {
             if (!has_local_context(a)) {
                 // Case 2
                 if (has_metavar(b, a)) {
-                    m_conflict = justification(new unification_failure_justification(c));
+                    m_conflict = mk_failure_justification(c);
                     return Failed;
                 } else if (is_eq(c) || is_proposition(b, ctx)) {
                     // At this point, we only assign metavariables if the constraint is an equational constraint,
@@ -464,7 +468,7 @@ class elaborator::imp {
                 }
             } else {
                 if (!is_metavar(b) && has_metavar(b, a)) {
-                    m_conflict = justification(new unification_failure_justification(c));
+                    m_conflict = mk_failure_justification(c);
                     return Failed;
                 }
                 local_entry const & me = head(metavar_lctx(a));
@@ -496,7 +500,7 @@ class elaborator::imp {
                     } else if (!has_metavar(b)) {
                         // Failure, there is no way to unify
                         // ?m[lift:s:n, ...] with a term that contains variables in [s, s+n]
-                        m_conflict = justification(new unification_failure_justification(c));
+                        m_conflict = mk_failure_justification(c);
                         return Failed;
                     }
                 }
@@ -1312,7 +1316,7 @@ class elaborator::imp {
                 if (m_type_inferer.is_convertible(a, b, ctx)) {
                     return true;
                 } else {
-                    m_conflict = justification(new unification_failure_justification(c));
+                    m_conflict = mk_failure_justification(c);
                     return false;
                 }
             }
@@ -1402,14 +1406,14 @@ class elaborator::imp {
                 if (a == b) {
                     return true;
                 } else {
-                    m_conflict = justification(new unification_failure_justification(c));
+                    m_conflict = mk_failure_justification(c);
                     return false;
                 }
             case expr_kind::Type:
                 if ((!eq && m_env->is_ge(ty_level(b), ty_level(a))) || (eq && a == b)) {
                     return true;
                 } else {
-                    m_conflict = justification(new unification_failure_justification(c));
+                    m_conflict = mk_failure_justification(c);
                     return false;
                 }
             case expr_kind::App:
@@ -1420,7 +1424,7 @@ class elaborator::imp {
                             push_new_eq_constraint(ctx, arg(a, i), arg(b, i), new_jst);
                         return true;
                     } else {
-                        m_conflict = justification(new unification_failure_justification(c));
+                        m_conflict = mk_failure_justification(c);
                         return false;
                     }
                 }
@@ -1449,7 +1453,7 @@ class elaborator::imp {
         if (a.kind() != b.kind() && !is_metavar(a) && !is_metavar(b) &&
             !(is_app(a) && has_metavar(arg(a, 0))) && !(is_app(b) && has_metavar(arg(b, 0)))) {
             // std::cout << "CONFLICT: "; display(std::cout, c); std::cout << "\n";
-            m_conflict = justification(new unification_failure_justification(c));
+            m_conflict = mk_failure_justification(c);
             return false;
         }
 
@@ -1528,7 +1532,7 @@ class elaborator::imp {
 
         if ((!has_metavar(lhs1) && !is_type(lhs1)) ||
             (!has_metavar(lhs2) && !is_type(lhs2))) {
-            m_conflict = justification(new unification_failure_justification(c));
+            m_conflict = mk_failure_justification(c);
             return false;
         }
         // std::cout << "Postponed: "; display(std::cout, c);
@@ -1577,7 +1581,8 @@ class elaborator::imp {
             return true;
         } else {
             m_conflict = justification(new unification_failure_by_cases_justification(choice, s.m_failed_justifications.size(),
-                                                                                      s.m_failed_justifications.data()));
+                                                                                      s.m_failed_justifications.data(),
+                                                                                      s.m_prev_state.m_menv));
             return false;
         }
     }
@@ -1592,7 +1597,8 @@ class elaborator::imp {
             return true;
         } else {
             m_conflict = justification(new unification_failure_by_cases_justification(s.m_constraint, s.m_failed_justifications.size(),
-                                                                                      s.m_failed_justifications.data()));
+                                                                                      s.m_failed_justifications.data(),
+                                                                                      s.m_prev_state.m_menv));
             return false;
         }
     }
@@ -1611,7 +1617,8 @@ class elaborator::imp {
             return true;
         } catch (exception & ex) {
             m_conflict = justification(new unification_failure_by_cases_justification(s.m_constraint, s.m_failed_justifications.size(),
-                                                                                      s.m_failed_justifications.data()));
+                                                                                      s.m_failed_justifications.data(),
+                                                                                      s.m_prev_state.m_menv));
             return false;
         }
     }

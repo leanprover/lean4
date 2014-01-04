@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include "kernel/justification.h"
 #include "kernel/unification_constraint.h"
+#include "kernel/metavar.h"
 
 namespace lean {
 /**
@@ -22,7 +23,7 @@ public:
     virtual ~propagation_justification();
     virtual void get_children(buffer<justification_cell*> & r) const;
     virtual optional<expr> get_main_expr() const;
-    virtual format pp_header(formatter const &, options const &) const;
+    virtual format pp_header(formatter const &, options const &, optional<metavar_env> const &) const;
     unification_constraint const & get_constraint() const { return m_constraint; }
 };
 
@@ -31,9 +32,20 @@ public:
 */
 class unification_failure_justification : public propagation_justification {
 protected:
+    // We store the menv at the time of failure. We use it to produce less cryptic error messages.
+    metavar_env m_menv;
     virtual char const * get_prop_name() const { return "Failed to solve"; }
 public:
-    unification_failure_justification(unification_constraint const & c):propagation_justification(c) {}
+    unification_failure_justification(unification_constraint const & c, metavar_env const & menv):
+        propagation_justification(c), m_menv(menv) {}
+    virtual format pp_header(formatter const & fmt, options const & opts, optional<metavar_env> const &) const {
+        return propagation_justification::pp_header(fmt, opts, optional<metavar_env>(m_menv));
+    }
+    virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool display_children,
+                      optional<metavar_env> const &) const {
+        return propagation_justification::pp(fmt, opts, p, display_children, optional<metavar_env>(m_menv));
+    }
+    metavar_env get_menv() const { return m_menv; }
 };
 
 /**
@@ -44,9 +56,10 @@ public:
 class unification_failure_by_cases_justification : public unification_failure_justification {
     std::vector<justification> m_cases; // why each case failed
 public:
-    unification_failure_by_cases_justification(unification_constraint const & c, unsigned num, justification const * cs);
+    unification_failure_by_cases_justification(unification_constraint const & c, unsigned num, justification const * cs, metavar_env const & menv);
     virtual ~unification_failure_by_cases_justification();
     virtual void get_children(buffer<justification_cell*> & r) const;
+    std::vector<justification> const & get_cases() const { return m_cases; }
 };
 
 /**
@@ -149,7 +162,7 @@ class typeof_mvar_justification : public justification_cell {
 public:
     typeof_mvar_justification(context const & ctx, expr const & m, expr const & mt, expr const & t, justification const & tr);
     virtual ~typeof_mvar_justification();
-    virtual format pp_header(formatter const &, options const &) const;
+    virtual format pp_header(formatter const &, options const &, optional<metavar_env> const & menv) const;
     virtual void get_children(buffer<justification_cell*> & r) const;
 };
 
@@ -161,8 +174,16 @@ class next_solution_justification : public justification_cell {
 public:
     next_solution_justification(unsigned num, justification const * as);
     virtual ~next_solution_justification();
-    virtual format pp_header(formatter const &, options const &) const;
+    virtual format pp_header(formatter const &, options const &, optional<metavar_env> const & menv) const;
     virtual void get_children(buffer<justification_cell*> & r) const;
     virtual optional<expr> get_main_expr() const;
 };
+
+/**
+   \brief Create a new justification object where we eliminate
+   intermediate steps and assignment justifications. This function
+   produces a new justification object that is better for
+   pretty printing.
+*/
+justification remove_detail(justification const & j);
 };

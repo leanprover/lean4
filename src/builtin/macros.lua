@@ -83,7 +83,7 @@ function nary_macro(name, f, farity)
    end)
 end
 
-binder_macro("For", Const("ForallIntro"), 3, 1, 3)
+binder_macro("take", Const("ForallIntro"), 3, 1, 3)
 binder_macro("Assume", Const("Discharge"), 3, 1, 3)
 nary_macro("Instantiate", Const("ForallElim"), 4)
 nary_macro("MP'", Const("MP"), 4)

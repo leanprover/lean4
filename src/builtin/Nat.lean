@@ -63,7 +63,7 @@ Theorem Destruct {B : Bool} {a : Nat} (H1: a = 0 → B) (H2 : Π n, a = n + 1 �
 
 Theorem ZeroPlus (a : Nat) : 0 + a = a
 := Induction a
-    (show 0 + 0 = 0, Trivial)
+    (have 0 + 0 = 0 : Trivial)
     (λ (n : Nat) (iH : 0 + n = n),
         calc  0 + (n + 1)  =  (0 + n) + 1   :  PlusSucc 0 n
                       ...  =  n + 1         :  { iH }).
@@ -75,7 +75,7 @@ Theorem SuccPlus (a b : Nat) : (a + 1) + b = (a + b) + 1
     (λ (n : Nat) (iH : (a + 1) + n = (a + n) + 1),
         calc   (a + 1) + (n + 1)   =   ((a + 1) + n) + 1  :  PlusSucc (a + 1) n
                            ...     =   ((a + n) + 1) + 1  :  { iH }
-                           ...     =   (a + (n + 1)) + 1  :  { show (a + n) + 1 = a + (n + 1), Symm (PlusSucc a n) }).
+                           ...     =   (a + (n + 1)) + 1  :  { have (a + n) + 1 = a + (n + 1) : Symm (PlusSucc a n) }).
 
 Theorem PlusComm (a b : Nat) : a + b = b + a
 := Induction b
@@ -94,11 +94,11 @@ Theorem PlusAssoc (a b c : Nat) : a + (b + c) = (a + b) + c
         calc (n + 1) + (b + c)   =    (n + (b + c)) + 1   :  SuccPlus n (b + c)
                           ...    =    ((n + b) + c) + 1   :  { iH }
                           ...    =    ((n + b) + 1) + c   :  Symm (SuccPlus (n + b) c)
-                          ...    =    ((n + 1) + b) + c   :  { show (n + b) + 1 = (n + 1) + b,  Symm (SuccPlus n b) }).
+                          ...    =    ((n + 1) + b) + c   :  { have (n + b) + 1 = (n + 1) + b :  Symm (SuccPlus n b) }).
 
 Theorem ZeroMul (a : Nat) : 0 * a = 0
 := Induction a
-    (show 0 * 0 = 0, Trivial)
+    (have 0 * 0 = 0 : Trivial)
     (λ (n : Nat) (iH : 0 * n = 0),
         calc  0 * (n + 1)  =  (0 * n) + 0 : MulSucc 0 n
                       ...  =  0 + 0       : { iH }
@@ -113,7 +113,7 @@ Theorem SuccMul (a b : Nat) : (a + 1) * b = a * b + b
         calc   (a + 1) * (n + 1)  =    (a + 1) * n + (a + 1)  :  MulSucc (a + 1) n
                            ...    = a * n + n + (a + 1)       :  { iH }
                            ...    = a * n + n + a + 1         :  PlusAssoc (a * n + n) a 1
-                           ...    = a * n + (n + a) + 1       :  { show  a * n + n + a = a * n + (n + a), Symm (PlusAssoc (a * n) n a) }
+                           ...    = a * n + (n + a) + 1       :  { have  a * n + n + a = a * n + (n + a) : Symm (PlusAssoc (a * n) n a) }
                            ...    = a * n + (a + n) + 1       :  { PlusComm n a }
                            ...    = a * n + a + n + 1         :  { PlusAssoc (a * n) a n }
                            ...    = a * (n + 1) + n + 1       :  { Symm (MulSucc a n) }
@@ -121,14 +121,14 @@ Theorem SuccMul (a b : Nat) : (a + 1) * b = a * b + b
 
 Theorem OneMul (a : Nat) : 1 * a = a
 := Induction a
-    (show 1 * 0 = 0, Trivial)
+    (have 1 * 0 = 0 : Trivial)
     (λ (n : Nat) (iH : 1 * n = n),
         calc  1 * (n + 1)  =  1 * n + 1 :  MulSucc 1 n
                       ...  =  n + 1     : { iH }).
 
 Theorem MulOne (a : Nat) : a * 1 = a
 := Induction a
-    (show 0 * 1 = 0, Trivial)
+    (have 0 * 1 = 0 : Trivial)
     (λ (n : Nat) (iH : n * 1 = n),
         calc  (n + 1) * 1  =  n * 1 + 1 : SuccMul n 1
                      ...   =  n + 1     : { iH }).
@@ -209,7 +209,7 @@ Theorem PlusEq0 {a b : Nat} (H : a + b = 0) : a = 0
                                     ...  ≠  0           : SuccNeZero (n + b)))
 
 Theorem LeIntro {a b c : Nat} (H : a + c = b) : a ≤ b
-:= EqMP (Symm (LeDef a b)) (show (∃ x, a + x = b), ExistsIntro c H).
+:= EqMP (Symm (LeDef a b)) (have (∃ x, a + x = b) : ExistsIntro c H).
 
 Theorem LeElim {a b : Nat} (H : a ≤ b) : ∃ x, a + x = b
 := EqMP (LeDef a b) H.

@@ -10,9 +10,9 @@ Infix 50 ⊆ : subset
 
 Theorem SubsetTrans (A : Type) : ∀ s1 s2 s3 : Set A, s1 ⊆ s2 ⇒ s2 ⊆ s3 ⇒ s1 ⊆ s3 :=
    take s1 s2 s3, Assume (H1 : s1 ⊆ s2) (H2 : s2 ⊆ s3),
-      show s1 ⊆ s3,
+      have s1 ⊆ s3 :
         take x, Assume Hin : x ∈ s1,
-           show x ∈ s3,
+           have x ∈ s3 :
              let L1 : x ∈ s2 := MP (Instantiate H1 x) Hin
              in MP (Instantiate H2 x) L1
 
@@ -22,11 +22,11 @@ Theorem SubsetExt (A : Type) : ∀ s1 s2 : Set A, (∀ x, x ∈ s1 = x ∈ s2) �
 
 Theorem SubsetAntiSymm (A : Type) : ∀ s1 s2 : Set A, s1 ⊆ s2 ⇒ s2 ⊆ s1 ⇒ s1 = s2 :=
    take s1 s2, Assume (H1 : s1 ⊆ s2) (H2 : s2 ⊆ s1),
-       show s1 = s2,
-            MP (show (∀ x, x ∈ s1 = x ∈ s2) ⇒ s1 = s2,
+       have s1 = s2 :
+            MP (have (∀ x, x ∈ s1 = x ∈ s2) ⇒ s1 = s2 :
                      Instantiate (SubsetExt A) s1 s2)
-               (show (∀ x, x ∈ s1 = x ∈ s2),
-                     take x, show x ∈ s1 = x ∈ s2,
+               (have (∀ x, x ∈ s1 = x ∈ s2) :
+                     take x, have x ∈ s1 = x ∈ s2 :
                                  let L1 : x ∈ s1 ⇒ x ∈ s2 := Instantiate H1 x,
                                      L2 : x ∈ s2 ⇒ x ∈ s1 := Instantiate H2 x
                                      in ImpAntisym L1 L2)

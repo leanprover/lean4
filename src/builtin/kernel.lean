@@ -133,13 +133,13 @@ Theorem AbsurdElim {a : Bool} (b : Bool) (H1 : a) (H2 : ¬ a) : b
 
 Theorem NotImp1 {a b : Bool} (H : ¬ (a ⇒ b)) : a
 := DoubleNegElim
-      (show ¬ ¬ a,
-       Assume H1 : ¬ a, Absurd (show a ⇒ b,     Assume H2 : a, AbsurdElim b H2 H1)
-                               (show ¬ (a ⇒ b), H)).
+      (have ¬ ¬ a :
+       Assume H1 : ¬ a, Absurd (have a ⇒ b     : Assume H2 : a, AbsurdElim b H2 H1)
+                               (have ¬ (a ⇒ b) : H)).
 
 Theorem NotImp2 {a b : Bool} (H : ¬ (a ⇒ b)) : ¬ b
-:= Assume H1 : b, Absurd (show a ⇒ b, Assume H2 : a, H1)
-                         (show ¬ (a ⇒ b), H).
+:= Assume H1 : b, Absurd (have a ⇒ b : Assume H2 : a, H1)
+                         (have ¬ (a ⇒ b) : H).
 
 -- Remark: conjunction is defined as ¬ (a ⇒ ¬ b) in Lean
 
@@ -169,7 +169,7 @@ Theorem Resolve1 {a b : Bool} (H1 : a ∨ b) (H2 : ¬ a) : b
 Theorem DisjCases {a b c : Bool} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
 := DoubleNegElim
      (Assume H : ¬ c,
-        Absurd (show c, H3 (show b, Resolve1 H1 (show ¬ a, (MT (ArrowToImplies H2) H))))
+        Absurd (have c : H3 (have b : Resolve1 H1 (have ¬ a : (MT (ArrowToImplies H2) H))))
                H)
 
 Theorem Refute {a : Bool} (H : ¬ a → false) : a

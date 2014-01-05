@@ -8,6 +8,6 @@ congr_tac = Try(unfold_tac("eq")) .. Repeat(OrElse(apply_tac("Refl"), apply_tac(
 
 Theorem T1 (a b : Int) (f : Int -> Int) : a = b -> (f (f a)) = (f (f b)) :=
    fun assumption : a = b,
-      show (f (f a)) = (f (f b)) by congr_tac
+      have (f (f a)) = (f (f b)) by congr_tac
 
 print Environment 1.

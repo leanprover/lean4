@@ -8,7 +8,7 @@ Theorem T1 (A B : Bool) : A /\ B -> B /\ A :=
      fun assumption : A /\ B,
           let lemma1     : A      := (by auto),
               lemma2     : B      := (by auto)
-          in (show B /\ A by auto)
+          in (have B /\ A by auto)
 
 print Environment 1. -- print proof for the previous theorem
 
@@ -34,6 +34,6 @@ Theorem T4 (A B : Bool) : A /\ B -> B /\ A :=
      fun assumption : A /\ B,
           let lemma1     : A      := _,
               lemma2     : B      := _
-          in (show B /\ A by auto).
+          in (have B /\ A by auto).
    conj_hyp. exact. done.
    conj_hyp. exact. done.

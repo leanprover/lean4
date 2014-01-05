@@ -892,19 +892,19 @@ tactic parser_imp::parse_tactic_expr() {
     }
 }
 
-static name g_show_expr("show_expr");
+static name g_have_expr("have_expr");
 
-/** \brief Parse <tt>'show' expr 'by' tactic</tt> */
-expr parser_imp::parse_show_expr() {
+/** \brief Parse <tt>'have' expr 'by' tactic</tt> and <tt>'have' expr ':' expr</tt> */
+expr parser_imp::parse_have_expr() {
     auto p = pos();
     next();
     expr t = parse_expr();
-    if (curr_is_comma()) {
+    if (curr_is_colon()) {
         next();
         expr b = parse_expr();
-        return mk_let(g_show_expr, t, b, Var(0));
+        return mk_let(g_have_expr, t, b, Var(0));
     } else {
-        check_next(scanner::token::By, "invalid 'show' expression, 'by' or ',' expected");
+        check_next(scanner::token::By, "invalid 'have' expression, 'by' or ':' expected");
         tactic tac = parse_tactic_expr();
         expr r = mk_placeholder(some_expr(t));
         m_tactic_hints.insert(mk_pair(r, tac));
@@ -939,7 +939,7 @@ expr parser_imp::parse_nud() {
     case scanner::token::StringVal:   return parse_string();
     case scanner::token::Placeholder: return parse_placeholder();
     case scanner::token::Type:        return parse_type(false);
-    case scanner::token::Show:        return parse_show_expr();
+    case scanner::token::Have:        return parse_have_expr();
     case scanner::token::By:          return parse_by_expr();
     default:
         throw parser_error("invalid expression, unexpected token", pos());

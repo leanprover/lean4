@@ -30,7 +30,8 @@ static name g_exists_name("exists");
 static name g_Exists_name("Exists");
 static name g_exists_unicode("\u2203");
 static name g_placeholder_name("_");
-static name g_show_name("show");
+static name g_have_name("have");
+static name g_using_name("using");
 static name g_by_name("by");
 
 static char g_normalized[256];
@@ -239,8 +240,8 @@ scanner::token scanner::read_a_symbol() {
                 return token::In;
             } else if (m_name_val == g_placeholder_name) {
                 return token::Placeholder;
-            } else if (m_name_val == g_show_name) {
-                return token::Show;
+            } else if (m_name_val == g_have_name) {
+                return token::Have;
             } else if (m_name_val == g_by_name) {
                 return token::By;
             } else if (m_name_val == g_Forall_name) {
@@ -487,7 +488,7 @@ std::ostream & operator<<(std::ostream & out, scanner::token const & t) {
     case scanner::token::Type:              out << "Type"; break;
     case scanner::token::Placeholder:       out << "_"; break;
     case scanner::token::ScriptBlock:       out << "Script"; break;
-    case scanner::token::Show:              out << "show"; break;
+    case scanner::token::Have:              out << "have"; break;
     case scanner::token::By:                out << "by"; break;
     case scanner::token::Ellipsis:          out << "..."; break;
     case scanner::token::Eof:               out << "EOF"; break;

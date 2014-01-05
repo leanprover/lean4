@@ -76,6 +76,15 @@ FOREACH(T ${LEANLUATESTS})
            COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T})
 ENDFOREACH(T)
 
+# LEAN DOCS
+file(GLOB LEANDOCS "${LEAN_SOURCE_DIR}/../doc/lean/*.md")
+FOREACH(T ${LEANDOCS})
+  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+  add_test(NAME "leandoc_${T_NAME}"
+           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../doc/lean"
+           COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T})
+ENDFOREACH(T)
+
 # LEAN LUA DOCS
 file(GLOB LEANLUADOCS "${LEAN_SOURCE_DIR}/../doc/lua/*.md")
 FOREACH(T ${LEANLUADOCS})

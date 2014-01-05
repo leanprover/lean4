@@ -25,13 +25,13 @@ in `<expr>_{i-1}`.
 Here is an example
 
 ```lean
-        Variables a b c d e : Nat.
-        Axiom Ax1 : a = b.
-        Axiom Ax2 : b = c + 1.
-        Axiom Ax3 : c = d.
-        Axiom Ax4 : e = 1 + d.
+        variables a b c d e : Nat.
+        axiom Ax1 : a = b.
+        axiom Ax2 : b = c + 1.
+        axiom Ax3 : c = d.
+        axiom Ax4 : e = 1 + d.
 
-        Theorem T : a = e
+        theorem T : a = e
         := calc a    =  b     : Ax1
                 ...  =  c + 1 : Ax2
                 ...  =  d + 1 : { Ax3 }
@@ -49,7 +49,7 @@ gaps in our calculational proofs. In the previous examples, we can use `_` as ar
 Here is the same example using placeholders.
 
 ```lean
-        Theorem T' : a = e
+        theorem T' : a = e
         := calc a    =  b     : Ax1
                 ...  =  c + 1 : Ax2
                 ...  =  d + 1 : { Ax3 }
@@ -61,7 +61,7 @@ We can also use the operators `=>`, `⇒`, `<=>`, `⇔` and `≠` in calculation
 Here is an example.
 
 ```lean
-       Theorem T2 (a b c : Nat) (H1 : a = b) (H2 : b = c + 1) : a ≠ 0
+       theorem T2 (a b c : Nat) (H1 : a = b) (H2 : b = c + 1) : a ≠ 0
        := calc  a = b      : H1
               ... = c + 1  : H2
               ... ≠ 0      : Nat::SuccNeZero _.
@@ -70,11 +70,11 @@ Here is an example.
 The Lean `let` construct can also be used to build calculational-like proofs.
 
 ```lean
-      Variable P : Nat → Nat → Bool.
-      Variable f : Nat → Nat.
-      Axiom Axf (a : Nat) : f (f a) = a.
+      variable P : Nat → Nat → Bool.
+      variable f : Nat → Nat.
+      axiom Axf (a : Nat) : f (f a) = a.
 
-      Theorem T3 (a b : Nat) (H : P (f (f (f (f a)))) (f (f b))) : P a b
+      theorem T3 (a b : Nat) (H : P (f (f (f (f a)))) (f (f b))) : P a b
       := let s1 : P (f (f a)) (f (f b))   :=   Subst H  (Axf a),
              s2 : P a (f (f b))           :=   Subst s1 (Axf a),
              s3 : P a b                   :=   Subst s2 (Axf b)

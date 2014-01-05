@@ -13,56 +13,47 @@ and _Types_.
 ## Constants
 
 Constants are essentially references to variable declarations, definitions, axioms and theorems in the
-environment. In the following example, we use the command `Variables` to declare `x` and `y` as integers.
-The `Check` command displays the type of the given expression. The `x` and `y` in the `Check` command
-are constants. They reference the objects declared using the command `Variables`.
+environment. In the following example, we use the command `variables` to declare `x` and `y` as integers.
+The `check` command displays the type of the given expression. The `x` and `y` in the `check` command
+are constants. They reference the objects declared using the command `variables`.
 
 ```lean
-Variables x y : Int.
-Check x + y.
+variables x y : Nat
+check x + y
 ```
 
-In the following example, we define the constant `s` as the sum of `x` and `y` using the `Definition` command.
-The `Eval` command evaluates (normalizes) the expression `s + 1`. In this example, `Eval` will just expand
+In the following example, we define the constant `s` as the sum of `x` and `y` using the `definition` command.
+The `eval` command evaluates (normalizes) the expression `s + 1`. In this example, `eval` will just expand
 the definition of `s`, and return `x + y + 1`.
 
 ```lean
-Definition s := x + y.
-Eval s + 1.
+definition s := x + y
+eval s + 1
 ```
 
 ## Function applications
 
 In Lean, the expression `f t` is a function application, where `f` is a function that is applied to `t`.
-In the following example, we define the function `max`. The `Eval` command evaluates the application `max 1 2`,
+In the following example, we define the function `max`. The `eval` command evaluates the application `max 1 2`,
 and returns the value `2`. Note that, the expression `if (x >= y) x y` is also a function application.
 
 ```lean
-Definition max (x y : Int) : Int := if (x >= y) x y.
-Eval max 1 2.
+definition max (x y : Nat) : Nat := if (x >= y) x y
+eval max 1 2
 ```
 
-The expression `max 1` is also a valid expression in Lean, and it has type `Int -> Int`.
+The expression `max 1` is also a valid expression in Lean, and it has type `Nat -> Nat`.
 
 ```lean
-Check max 1.
-```
-
-Remark: we can make the expression `if (x >= y) x y` more "user-friendly" by using custom "Notation".
-The following `Notation` command defines the usual `if-then-else` expression. The value `40` is the precedence
-of the new notation.
-
-```lean
-Notation 40 if _ then _ else _ : if
-Check if x >= y then x else y.
+check max 1
 ```
 
 In the following command, we define the function `inc`, and evaluate some expressions using `inc` and `max`.
 
 ```lean
-Definition inc (x : Int) : Int := x + 1.
-Eval inc (inc (inc 2)).
-Eval max (inc 2) 2 = 3.
+definition inc (x : Nat) : Nat := x + 1
+eval inc (inc (inc 2))
+eval max (inc 2) 2 = 3
 ```
 
 ## Heterogeneous equality
@@ -74,14 +65,14 @@ The expression `t == s` is a heterogenous equality that is true iff `t` and `s` 
 In the following example, we evaluate the expressions `1 == 2` and `2 == 2`. The first evaluates to `false` and the second to `true`.
 
 ```lean
-Eval 1 == 2.
-Eval 2 == 2.
+eval 1 == 2
+eval 2 == 2
 ```
 
 Since we can compare elements of different types, the following expression is type correct and evaluates to `false`.
 
 ```lean
-Eval 1 == true.
+eval 1 == true
 ```
 
 This is consistent with the set theoretic semantics used in Lean, where the interpretation of all expressions are sets.
@@ -93,21 +84,21 @@ It expects `t` and `s` to have the same type. Thus, the expression `1 = true` is
 The symbol `=` is just notation. Internally, homogeneous equality is defined as:
 
 ```
-Definition eq {A : (Type U)} (x y : A) : Bool := x == y.
-Infix 50 = : eq.
+definition eq {A : (Type U)} (x y : A) : Bool := x == y
+infix 50 = : eq
 ```
 
 The curly braces indicate that the first argument of `eq` is implicit. The symbol `=` is just a syntax sugar for `eq`.
-In the following example, we use the `SetOption` command to force Lean to display implicit arguments and
+In the following example, we use the `setoption` command to force Lean to display implicit arguments and
 disable notation when pretty printing expressions.
 
 ```lean
-SetOption pp::implicit true.
-SetOption pp::notation false.
-Check 1 = 2.
+setoption pp::implicit true
+setoption pp::notation false
+check 1 = 2
 
-(* restore default configuration *)
-SetOption pp::implicit false.
-SetOption pp::notation true.
-Check 1 = 2.
+-- restore default configuration
+setoption pp::implicit false
+setoption pp::notation true
+check 1 = 2
 ```

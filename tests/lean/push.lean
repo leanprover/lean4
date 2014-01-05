@@ -1,22 +1,22 @@
-Import Int.
+import Int.
 
-Variable first : Bool
+variable first : Bool
 
-Push
-  Variables a b c : Int
-  Variable f : Int -> Int
-  Eval f a
-Pop
+scope
+  variables a b c : Int
+  variable f : Int -> Int
+  eval f a
+pop::scope
 
-Eval f a -- should produce an error
+eval f a -- should produce an error
 
-print Environment 1
+print environment 1
 
-Push
-  Infixl 100 ++ : Int::add
-  Check 10 ++ 20
-Pop
+scope
+  infixl 100 ++ : Int::add
+  check 10 ++ 20
+pop::scope
 
-Check 10 ++ 20 -- should produce an error
+check 10 ++ 20 -- should produce an error
 
-Pop -- should produce an error
+pop::scope -- should produce an error

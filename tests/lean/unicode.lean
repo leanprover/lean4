@@ -1,8 +1,8 @@
 print true /\ false
-SetOption pp::unicode false
+setoption pp::unicode false
 print true /\ false
-SetOption pp::unicode true
-SetOption lean::pp::notation false
+setoption pp::unicode true
+setoption lean::pp::notation false
 print true /\ false
-SetOption pp::unicode false
+setoption pp::unicode false
 print true /\ false

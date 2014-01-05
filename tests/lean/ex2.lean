@@ -1,18 +1,18 @@
 -- comment
 print true
-SetOption lean::pp::notation false
+setoption lean::pp::notation false
 print true && false
-SetOption pp::unicode false
+setoption pp::unicode false
 print true && false
-Variable a : Bool
-Variable a : Bool
-Variable b : Bool
+variable a : Bool
+variable a : Bool
+variable b : Bool
 print a && b
-Variable A : Type
-Check a && A
-print Environment 1
-print Options
-SetOption lean::p::notation true
-SetOption lean::pp::notation 10
-SetOption lean::pp::notation true
+variable A : Type
+check a && A
+print environment 1
+print options
+setoption lean::p::notation true
+setoption lean::pp::notation 10
+setoption lean::pp::notation true
 print a && b

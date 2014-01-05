@@ -1,3 +1,3 @@
-Import Int.
-Variable x : Int
-Variable y : Int
+import Int.
+variable x : Int
+variable y : Int

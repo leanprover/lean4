@@ -1,11 +1,11 @@
-Import Int.
+import Int.
 
 print 10 = 20
-Variable f : Int -> Int -> Int
-Variable g : Int -> Int -> Int -> Int
-Notation 10 _ ++ _ : f
-Notation 10 _ ++ _ : g
-SetOption pp::implicit true
-SetOption pp::notation false
+variable f : Int -> Int -> Int
+variable g : Int -> Int -> Int -> Int
+notation 10 _ ++ _ : f
+notation 10 _ ++ _ : g
+setoption pp::implicit true
+setoption pp::notation false
 print (10 ++ 20)
 print (10 ++ 20) 10

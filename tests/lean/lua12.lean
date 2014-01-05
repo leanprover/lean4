@@ -1,5 +1,5 @@
-Import Int.
-Variables x y z : Int
+import Int.
+variables x y z : Int
 
 (*
  import("util.lua")
@@ -11,4 +11,4 @@ Variables x y z : Int
  env:add_definition("sum", def)
 *)
 
-Eval sum + 3
+eval sum + 3

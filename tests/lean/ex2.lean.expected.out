@@ -17,7 +17,7 @@ Function type:
 Arguments types:
     a : Bool
     A : Type
-Variable A : Type
+variable A : Type
 (lean::pp::notation := false, pp::unicode := false, pp::colors := false)
 Error (line: 15, pos: 10) unknown option 'lean::p::notation', type 'Help Options.' for list of available options
 Error (line: 16, pos: 29) invalid option value, given option is not an integer

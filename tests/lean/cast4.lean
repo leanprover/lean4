@@ -1,7 +1,7 @@
-Import cast
-SetOption pp::colors false
+import cast
+setoption pp::colors false
 
-Check fun (A A': TypeM)
+check fun (A A': TypeM)
           (B   : A -> TypeM)
           (B'  : A' -> TypeM)
           (f   : Pi x : A, B x)

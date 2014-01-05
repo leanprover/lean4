@@ -3,15 +3,15 @@ local env = environment()
 env:import("Int")
 print(get_options())
 parse_lean_cmds([[
-Variable f : Int -> Int -> Int
-Variable g : Bool -> Bool -> Bool
-Variables a b : Int
-Variables i j : Int
-Variables p q : Bool
-Notation 100 _ ++ _ : f
-Notation 100 _ ++ _ : g
-SetOption pp::colors true
-SetOption pp::width  300
+variable f : Int -> Int -> Int
+variable g : Bool -> Bool -> Bool
+variables a b : Int
+variables i j : Int
+variables p q : Bool
+notation 100 _ ++ _ : f
+notation 100 _ ++ _ : g
+setoption pp::colors true
+setoption pp::width  300
 ]], env)
 print(get_options())
 assert(get_options():get{"pp", "colors"})
@@ -24,10 +24,10 @@ parse_lean_cmds([[
 local env2 = environment()
 env2:import("Int")
 parse_lean_cmds([[
-Variable f : Int -> Int -> Int
-Variables a b : Int
+variable f : Int -> Int -> Int
+variables a b : Int
 print f a b
-Notation 100 _ -+ _ : f
+notation 100 _ -+ _ : f
 ]], env2)
 
 local f, a, b = Consts("f, a, b")

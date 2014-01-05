@@ -6,5 +6,5 @@ a : Bool ⊢ a
 ## Proof state:
 no goals
 ##   Proved: T
-# Theorem T (a : Bool) : a := magic a
+# theorem T (a : Bool) : a := magic a
 # 

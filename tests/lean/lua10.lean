@@ -1,5 +1,5 @@
-Variables x1 x2 x3 : Bool
-Definition F : Bool := x1 /\ (x2 \/ x3)
+variables x1 x2 x3 : Bool
+definition F : Bool := x1 /\ (x2 \/ x3)
 
 (*
  local env    = get_environment()

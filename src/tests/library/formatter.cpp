@@ -24,7 +24,7 @@ static void tst1() {
     environment env;
     env->add_var("N", Type());
     formatter fmt = mk_simple_formatter();
-    check(fmt(env), "Variable N : Type\n");
+    check(fmt(env), "variable N : Type\n");
     expr f  = Const("f");
     expr a  = Const("a");
     expr x  = Const("x");
@@ -32,7 +32,7 @@ static void tst1() {
     expr N  = Const("N");
     expr F  = Fun({x, Pi({x, N}, x >> x)}, Let({y, f(a)}, f(Eq(x, f(y, a)))));
     check(fmt(F), "fun x : (Pi x : N, (x#0 -> x#1)), (let y := f a in (f (x#1 == (f y#0 a))))");
-    check(fmt(env->get_object("N")), "Variable N : Type");
+    check(fmt(env->get_object("N")), "variable N : Type");
     context ctx;
     ctx = extend(ctx, "x", f(a));
     ctx = extend(ctx, "y", f(Var(0), N >> N));

@@ -1,13 +1,13 @@
-Import Int.
-Import Real.
+import Int.
+import Real.
 print 1/2
-Eval 4/6
+eval 4/6
 print 3 div 2
-Variable x : Real
-Variable i : Int
-Variable n : Nat
+variable x : Real
+variable i : Int
+variable n : Nat
 print x + i + 1 + n
-SetOption lean::pp::coercion true
+setoption lean::pp::coercion true
 print x + i + 1 + n
 print x * i + x
 print x - i + x - x >= 0

@@ -111,15 +111,15 @@ operator_info mixfixo(unsigned num_parts, name const * parts, unsigned precedenc
 
 char const * to_string(fixity f) {
     switch (f) {
-    case fixity::Infix:   return "Infix";
-    case fixity::Infixl:  return "Infixl";
-    case fixity::Infixr:  return "Infixr";
-    case fixity::Prefix:  return "Prefix";
-    case fixity::Postfix: return "Postfix";
-    case fixity::Mixfixl: return "Mixfixl";
-    case fixity::Mixfixr: return "Mixfixr";
-    case fixity::Mixfixc: return "Mixfixc";
-    case fixity::Mixfixo: return "Mixfixo";
+    case fixity::Infix:   return "infix";
+    case fixity::Infixl:  return "infixl";
+    case fixity::Infixr:  return "infixr";
+    case fixity::Prefix:  return "prefix";
+    case fixity::Postfix: return "postfix";
+    case fixity::Mixfixl: return "mixfixl";
+    case fixity::Mixfixr: return "mixfixr";
+    case fixity::Mixfixc: return "mixfixc";
+    case fixity::Mixfixo: return "mixfixo";
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
@@ -141,7 +141,7 @@ format pp(operator_info const & o) {
     case fixity::Mixfixr:
     case fixity::Mixfixc:
     case fixity::Mixfixo:
-        r = highlight_command(format("Notation"));
+        r = highlight_command(format("notation"));
         if (o.get_precedence() > 1)
             r += format{space(), format(o.get_precedence())};
         switch (o.get_fixity()) {
@@ -220,12 +220,12 @@ io_state_stream const & operator<<(io_state_stream const & out, operator_info co
     return out;
 }
 
-char const * alias_declaration::keyword() const { return "Alias"; }
-void alias_declaration::write(serializer & s) const { s << "Alias" << m_name << m_expr; }
+char const * alias_declaration::keyword() const { return "alias"; }
+void alias_declaration::write(serializer & s) const { s << "alias" << m_name << m_expr; }
 static void read_alias(environment const & env, io_state const &, deserializer & d) {
     name n = read_name(d);
     expr e = read_expr(d);
     add_alias(env, n, e);
 }
-static object_cell::register_deserializer_fn add_alias_ds("Alias", read_alias);
+static object_cell::register_deserializer_fn add_alias_ds("alias", read_alias);
 }

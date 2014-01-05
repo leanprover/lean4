@@ -12,17 +12,17 @@
   Defined: update
   Defined: select
   Defined: map
-Variable one : N
-Variable two : N
-Variable three : N
-Infix 50 < : lt
-Axiom two_lt_three : two < three
-Definition vector (A : Type) (n : N) : Type := Π (i : N), i < n → A
-Definition const {A : Type} (n : N) (d : A) : vector A n := λ (i : N) (H : i < n), d
-Definition update {A : Type} {n : N} (v : vector A n) (i : N) (d : A) : vector A n :=
+variable one : N
+variable two : N
+variable three : N
+infix 50 < : lt
+axiom two_lt_three : two < three
+definition vector (A : Type) (n : N) : Type := Π (i : N), i < n → A
+definition const {A : Type} (n : N) (d : A) : vector A n := λ (i : N) (H : i < n), d
+definition update {A : Type} {n : N} (v : vector A n) (i : N) (d : A) : vector A n :=
     λ (j : N) (H : j < n), if (j = i) d (v j H)
-Definition select {A : Type} {n : N} (v : vector A n) (i : N) (H : i < n) : A := v i H
-Definition map {A B C : Type} {n : N} (f : A → B → C) (v1 : vector A n) (v2 : vector B n) : vector C n :=
+definition select {A : Type} {n : N} (v : vector A n) (i : N) (H : i < n) : A := v i H
+definition map {A B C : Type} {n : N} (f : A → B → C) (v1 : vector A n) (v2 : vector B n) : vector C n :=
     λ (i : N) (H : i < n), f (v1 i H) (v2 i H)
 select (update (const three ⊥) two ⊤) two two_lt_three : Bool
 if (two == two) ⊤ ⊥

@@ -1,5 +1,5 @@
-Import Int.
-Variable x : Int
+import Int.
+variable x : Int
 
 (*
 local env = get_environment()

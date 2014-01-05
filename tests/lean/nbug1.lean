@@ -1,1 +1,1 @@
-Notation 100 ++ : and
+notation 100 ++ : and

@@ -5,4 +5,4 @@
   Assumed: P
   Assumed: H
   Proved: T
-Theorem T : ∃ x : ℤ, P a a := ExistsIntro a H
+theorem T : ∃ x : ℤ, P a a := ExistsIntro a H

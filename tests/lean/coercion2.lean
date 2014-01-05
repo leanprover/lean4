@@ -1,32 +1,32 @@
-Variable T : Type
-Variable R : Type
-Variable t2r : T -> R
-Coercion t2r
-Variable g : R -> R -> R
-Variable a : T
+variable T : Type
+variable R : Type
+variable t2r : T -> R
+coercion t2r
+variable g : R -> R -> R
+variable a : T
 print g a a
-Variable b : R
+variable b : R
 print g a b
 print g b a
-SetOption lean::pp::coercion true
+setoption lean::pp::coercion true
 print g a a
 print g a b
 print g b a
-SetOption lean::pp::coercion false
-Variable S : Type
-Variable s : S
-Variable r : S
-Variable h : S -> S -> S
-Infixl 10 ++ : g
-Infixl 10 ++ : h
-SetOption lean::pp::notation false
+setoption lean::pp::coercion false
+variable S : Type
+variable s : S
+variable r : S
+variable h : S -> S -> S
+infixl 10 ++ : g
+infixl 10 ++ : h
+setoption lean::pp::notation false
 print a ++ b ++ a
 print r ++ s ++ r
-Check a ++ b ++ a
-Check r ++ s ++ r
-SetOption lean::pp::coercion true
+check a ++ b ++ a
+check r ++ s ++ r
+setoption lean::pp::coercion true
 print a ++ b ++ a
 print r ++ s ++ r
-SetOption lean::pp::notation true
+setoption lean::pp::notation true
 print a ++ b ++ a
 print r ++ s ++ r

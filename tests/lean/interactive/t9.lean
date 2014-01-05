@@ -1,5 +1,5 @@
 (* import("tactic.lua") *)
-Theorem T1 (A B : Bool) : A /\ B => B /\ A :=
+theorem T1 (A B : Bool) : A /\ B => B /\ A :=
      Discharge (fun H : A /\ B,
                    let main : B /\ A :=
                        (let H1 : B := _,
@@ -20,7 +20,7 @@ Theorem T1 (A B : Bool) : A /\ B => B /\ A :=
 simple_tac = Repeat(OrElse(conj_hyp_tac(), conj_tac(), assumption_tac()))
 *)
 
-Theorem T2 (A B : Bool) : A /\ B => B /\ A :=
+theorem T2 (A B : Bool) : A /\ B => B /\ A :=
      Discharge (fun H : A /\ B,
                  let H1 : A := _,
                      H2 : B := _,

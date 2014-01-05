@@ -8,7 +8,7 @@
   Assumed: f
 f a
 Error (line: 11, pos: 5) unknown identifier 'f'
-Variable first : Bool
+variable first : Bool
 10 ++ 20 : ℤ
 Error (line: 20, pos: 9) unknown identifier '++'
 Error (line: 22, pos: 0) main scope cannot be removed

@@ -2,5 +2,5 @@
   Set: pp::unicode
   Defined: f
   Proved: T
-Theorem T (a b : Bool) : a ∨ b ⇒ f b ⇒ a :=
+theorem T (a b : Bool) : a ∨ b ⇒ f b ⇒ a :=
     Discharge (λ H : a ∨ b, Discharge (λ H::1 : f b, DisjCases H (λ H : a, H) (λ H : b, AbsurdElim a H H::1)))

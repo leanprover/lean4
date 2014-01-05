@@ -8,6 +8,6 @@ Proof state:
 H::1 : b, H : a, a : Bool, b : Bool ⊢ a ∧ b
 #   Assumed: a
   Assumed: b
-# Variable a : Bool
-Variable b : Bool
+# variable a : Bool
+variable b : Bool
 # 

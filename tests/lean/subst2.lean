@@ -1,5 +1,5 @@
 (* import("tactic.lua") *)
-Theorem T (A : Type) (p : A -> Bool) (f : A -> A -> A) : forall x y z, p (f x x) => x = y => x = z => p (f y z).
+theorem T (A : Type) (p : A -> Bool) (f : A -> A -> A) : forall x y z, p (f x x) => x = y => x = z => p (f y z).
    apply ForallIntro.
    beta.
    apply ForallIntro.
@@ -12,4 +12,4 @@ Theorem T (A : Type) (p : A -> Bool) (f : A -> A -> A) : forall x y z, p (f x x)
    apply (Subst (Subst H H::1) H::2)
    done.
 
-print Environment 1.
+print environment 1.

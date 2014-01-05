@@ -1,3 +1,3 @@
--- SetOption default configuration for tests
-SetOption pp::colors  false
-SetOption pp::unicode true
+-- setoption default configuration for tests
+setoption pp::colors  false
+setoption pp::unicode true

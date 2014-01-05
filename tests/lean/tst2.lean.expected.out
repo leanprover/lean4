@@ -7,8 +7,8 @@ a ∧ b
   Set: lean::pp::notation
 ⟨lean::pp::notation ↦ false, pp::unicode ↦ true, pp::colors ↦ false⟩
 and a b
-Variable a : Bool
-Variable b : Bool
+variable a : Bool
+variable b : Bool
   Set: lean::pp::notation
 ⟨lean::pp::notation ↦ true, pp::unicode ↦ true, pp::colors ↦ false⟩
 a ∧ b

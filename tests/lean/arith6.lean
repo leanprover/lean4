@@ -1,13 +1,13 @@
-Import Int.
-SetOption pp::unicode false
+import Int.
+setoption pp::unicode false
 print 3 | 6
-Eval 3 | 6
-Eval 3 | 7
-Eval 2 | 6
-Eval 1 | 6
-Variable x : Int
-Eval x | 3
-Eval 3 | x
-Eval 6 | 3
-SetOption pp::notation false
+eval 3 | 6
+eval 3 | 7
+eval 2 | 6
+eval 1 | 6
+variable x : Int
+eval x | 3
+eval 3 | x
+eval 6 | 3
+setoption pp::notation false
 print 3 | x

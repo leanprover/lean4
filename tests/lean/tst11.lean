@@ -1,12 +1,12 @@
-Definition xor (x y : Bool) : Bool := (not x) = y
-Infixr 50 ⊕ : xor
+definition xor (x y : Bool) : Bool := (not x) = y
+infixr 50 ⊕ : xor
 print xor true false
-Eval xor true true
-Eval xor true false
-Variable a : Bool
+eval xor true true
+eval xor true false
+variable a : Bool
 print a ⊕ a ⊕ a
-Check @Subst
-Theorem EM2 (a : Bool) : a \/ (not a) :=
+check @Subst
+theorem EM2 (a : Bool) : a \/ (not a) :=
    Case (fun x : Bool, x \/ (not x)) Trivial Trivial a
-Check EM2
-Check EM2 a
+check EM2
+check EM2 a

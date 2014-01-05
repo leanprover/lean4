@@ -4,8 +4,8 @@
   Assumed: R
   Assumed: f
   Coercion f
-Variable f : T → R
-Coercion f
+variable f : T → R
+coercion f
   Assumed: g
 Error (line: 8, pos: 0) invalid coercion declaration, frontend already has a coercion for the given types
   Assumed: h

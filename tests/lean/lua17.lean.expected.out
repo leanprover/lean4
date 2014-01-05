@@ -10,5 +10,5 @@ Int::add a b
 λ x : ℤ, a + x
 ⟨pp::unicode ↦ true, pp::colors ↦ false⟩
 ⟨pp::unicode ↦ true, pp::colors ↦ false⟩
-Variable a : ℤ
-Variable b : ℤ
+variable a : ℤ
+variable b : ℤ

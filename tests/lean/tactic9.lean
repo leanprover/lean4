@@ -1,7 +1,7 @@
 (* import("tactic.lua") *)
-Definition f(a : Bool) : Bool := not a.
+definition f(a : Bool) : Bool := not a.
 
-Theorem T (a b : Bool) : a \/ b => (f b) => a := _.
+theorem T (a b : Bool) : a \/ b => (f b) => a := _.
      apply Discharge
      apply Discharge
      disj_hyp
@@ -10,4 +10,4 @@ Theorem T (a b : Bool) : a \/ b => (f b) => a := _.
      absurd
      done
 
-print Environment 1.
+print environment 1.

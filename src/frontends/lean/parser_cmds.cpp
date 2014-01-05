@@ -24,41 +24,39 @@ Author: Leonardo de Moura
 namespace lean {
 // ==========================================
 // Builtin commands
-static name g_alias_kwd("Alias");
-static name g_definition_kwd("Definition");
-static name g_variable_kwd("Variable");
-static name g_variables_kwd("Variables");
-static name g_theorem_kwd("Theorem");
-static name g_axiom_kwd("Axiom");
-static name g_universe_kwd("Universe");
-static name g_eval_kwd("Eval");
-static name g_check_kwd("Check");
-static name g_infix_kwd("Infix");
-static name g_infixl_kwd("Infixl");
-static name g_infixr_kwd("Infixr");
-static name g_notation_kwd("Notation");
-static name g_set_option_kwd("SetOption");
-static name g_set_opaque_kwd("SetOpaque");
-static name g_options_kwd("Options");
-static name g_env_kwd("Environment");
-static name g_import_kwd("Import");
+static name g_alias_kwd("alias");
+static name g_definition_kwd("definition");
+static name g_variable_kwd("variable");
+static name g_variables_kwd("variables");
+static name g_theorem_kwd("theorem");
+static name g_axiom_kwd("axiom");
+static name g_universe_kwd("universe");
+static name g_eval_kwd("eval");
+static name g_check_kwd("check");
+static name g_infix_kwd("infix");
+static name g_infixl_kwd("infixl");
+static name g_infixr_kwd("infixr");
+static name g_notation_kwd("notation");
+static name g_set_option_kwd("setoption");
+static name g_set_opaque_kwd("setopaque");
+static name g_options_kwd("options");
+static name g_env_kwd("environment");
+static name g_import_kwd("import");
 static name g_help_kwd("help");
-static name g_coercion_kwd("Coercion");
-static name g_exit_kwd("Exit");
+static name g_coercion_kwd("coercion");
+static name g_exit_kwd("exit");
 static name g_print_kwd("print");
-static name g_push_kwd("Push");
-static name g_pop_kwd("Pop");
-static name g_scope_kwd("Scope");
-static name g_end_scope_kwd("EndScope");
-static name g_builtin_kwd("Builtin");
-static name g_namespace_kwd("Namespace");
-static name g_end_namespace_kwd("EndNamespace");
+static name g_pop_kwd("pop", "scope");
+static name g_scope_kwd("scope");
+static name g_builtin_kwd("builtin");
+static name g_namespace_kwd("namespace");
+static name g_end_kwd("end");
 /** \brief Table/List with all builtin command keywords */
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_variables_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
                                         g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_notation_kwd,
                                         g_set_option_kwd, g_set_opaque_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd, g_coercion_kwd,
-                                        g_exit_kwd, g_print_kwd, g_push_kwd, g_pop_kwd, g_scope_kwd, g_end_scope_kwd, g_alias_kwd, g_builtin_kwd,
-                                        g_namespace_kwd, g_end_namespace_kwd};
+                                        g_exit_kwd, g_print_kwd, g_pop_kwd, g_scope_kwd, g_alias_kwd, g_builtin_kwd,
+                                        g_namespace_kwd, g_end_kwd};
 // ==========================================
 
 list<name> const & parser_imp::get_command_keywords() {
@@ -327,7 +325,7 @@ void parser_imp::parse_print() {
             std::reverse(to_display.begin(), to_display.end());
             for (auto obj : to_display) {
                 if (is_begin_import(obj)) {
-                    regular(m_io_state) << "Import \"" << *get_imported_module(obj) << "\"" << endl;
+                    regular(m_io_state) << "import \"" << *get_imported_module(obj) << "\"" << endl;
                 } else {
                     regular(m_io_state) << obj << endl;
                 }
@@ -598,30 +596,28 @@ void parser_imp::parse_help() {
         }
     } else {
         regular(m_io_state) << "Available commands:" << endl
-                            << "  Alias [id] : [expr]    define an alias for the given expression" << endl
-                            << "  Axiom [id] : [type]    assert/postulate a new axiom" << endl
-                            << "  Check [expr]           type check the given expression" << endl
-                            << "  Definition [id] : [type] := [expr]   define a new element" << endl
-                            << "  Echo [string]          display the given string" << endl
-                            << "  EndScope               end the current scope and import its objects into the parent scope" << endl
-                            << "  Eval [expr]            evaluate the given expression" << endl
-                            << "  Exit                   exit" << endl
-                            << "  Help                   display this message" << endl
-                            << "  Help Options           display available options" << endl
-                            << "  Help Notation          describe commands for defining infix, mixfix, postfix operators" << endl
-                            << "  Import [string]        load the given file" << endl
-                            << "  Push                   create a scope (it is just an alias for the command Scope)" << endl
-                            << "  Pop                    discard the current scope" << endl
+                            << "  alias [id] : [expr]    define an alias for the given expression" << endl
+                            << "  axiom [id] : [type]    assert/postulate a new axiom" << endl
+                            << "  check [expr]           type check the given expression" << endl
+                            << "  definition [id] : [type] := [expr]   define a new element" << endl
+                            << "  end                    end the current scope/namespace" << endl
+                            << "  eval [expr]            evaluate the given expression" << endl
+                            << "  exit                   exit" << endl
+                            << "  help                   display this message" << endl
+                            << "  help options           display available options" << endl
+                            << "  help notation          describe commands for defining infix, mixfix, postfix operators" << endl
+                            << "  import [string]        load the given file" << endl
+                            << "  pop::scope             discard the current scope" << endl
                             << "  print [expr]           pretty print the given expression" << endl
                             << "  print Options          print current the set of assigned options" << endl
                             << "  print [string]         print the given string" << endl
                             << "  print Environment      print objects in the environment, if [Num] provided, then show only the last [Num] objects" << endl
                             << "  print Environment [num] show the last num objects in the environment" << endl
-                            << "  Scope                  create a scope" << endl
-                            << "  SetOption [id] [value] set option [id] with value [value]" << endl
-                            << "  Theorem [id] : [type] := [expr]      define a new theorem" << endl
-                            << "  Variable [id] : [type] declare/postulate an element of the given type" << endl
-                            << "  Universe [id] [level]  declare a new universe variable that is >= the given level" << endl;
+                            << "  scope                  create a scope" << endl
+                            << "  setoption [id] [value] set option [id] with value [value]" << endl
+                            << "  theorem [id] : [type] := [expr]      define a new theorem" << endl
+                            << "  variable [id] : [type] declare/postulate an element of the given type" << endl
+                            << "  universe [id] [level]  declare a new universe variable that is >= the given level" << endl;
 #if !defined(LEAN_WINDOWS)
         regular(m_io_state) << "Type Ctrl-D to exit" << endl;
 #endif
@@ -641,32 +637,6 @@ void parser_imp::reset_env(environment env) {
     m_env = env;
     m_elaborator.reset(env);
     m_io_state.set_formatter(mk_pp_formatter(env));
-}
-
-void parser_imp::parse_scope() {
-    next();
-    reset_env(m_env->mk_child());
-}
-
-void parser_imp::parse_pop() {
-    next();
-    if (!m_env->has_parent())
-        throw parser_error("main scope cannot be removed", m_last_cmd_pos);
-    reset_env(m_env->parent());
-}
-
-void parser_imp::parse_end_scope() {
-    next();
-    if (!m_env->has_parent())
-        throw parser_error("main scope cannot be removed", m_last_cmd_pos);
-    auto new_objects = export_local_objects(m_env);
-    reset_env(m_env->parent());
-    for (auto const & obj : new_objects) {
-        if (obj.is_theorem())
-            m_env->add_theorem(obj.get_name(), obj.get_type(), obj.get_value());
-        else
-            m_env->add_definition(obj.get_name(), obj.get_type(), obj.get_value(), obj.is_opaque());
-    }
 }
 
 void parser_imp::parse_cmd_macro(name cmd_id, pos_info const & p) {
@@ -732,17 +702,56 @@ void parser_imp::parse_builtin() {
     register_implicit_arguments(full_id, parameters);
 }
 
+void parser_imp::parse_scope() {
+    next();
+    m_scope_kinds.push_back(scope_kind::Scope);
+    reset_env(m_env->mk_child());
+}
+
+void parser_imp::parse_pop() {
+    next();
+    if (m_scope_kinds.empty())
+        throw parser_error("main scope cannot be removed", m_last_cmd_pos);
+    if (m_scope_kinds.back() != scope_kind::Scope)
+        throw parser_error("invalid pop command, it is not inside of a scope", m_last_cmd_pos);
+    if (!m_env->has_parent())
+        throw parser_error("main scope cannot be removed", m_last_cmd_pos);
+    m_scope_kinds.pop_back();
+    reset_env(m_env->parent());
+}
+
 void parser_imp::parse_namespace() {
     next();
     name id   = check_identifier_next("invalid namespace declaration, identifier expected");
+    m_scope_kinds.push_back(scope_kind::Namespace);
     m_namespace_prefixes.push_back(m_namespace_prefixes.back() + id);
 }
 
-void parser_imp::parse_end_namespace() {
+void parser_imp::parse_end() {
     next();
-    if (m_namespace_prefixes.size() <= 1)
-        throw parser_error("invalid end namespace command, there are no open namespaces", m_last_cmd_pos);
-    m_namespace_prefixes.pop_back();
+    if (m_scope_kinds.empty())
+        throw parser_error("invalid 'end', not inside of a scope or namespace", m_last_cmd_pos);
+    scope_kind k = m_scope_kinds.back();
+    m_scope_kinds.pop_back();
+    switch (k) {
+    case scope_kind::Scope: {
+        if (!m_env->has_parent())
+            throw parser_error("main scope cannot be removed", m_last_cmd_pos);
+        auto new_objects = export_local_objects(m_env);
+        reset_env(m_env->parent());
+        for (auto const & obj : new_objects) {
+            if (obj.is_theorem())
+                m_env->add_theorem(obj.get_name(), obj.get_type(), obj.get_value());
+            else
+                m_env->add_definition(obj.get_name(), obj.get_type(), obj.get_value(), obj.is_opaque());
+        }
+        break;
+    }
+    case scope_kind::Namespace:
+        if (m_namespace_prefixes.size() <= 1)
+            throw parser_error("invalid end namespace command, there are no open namespaces", m_last_cmd_pos);
+        m_namespace_prefixes.pop_back();
+    }
 }
 
 /** \brief Parse a Lean command. */
@@ -789,12 +798,10 @@ bool parser_imp::parse_command() {
     } else if (cmd_id == g_exit_kwd) {
         next();
         return false;
-    } else if (cmd_id == g_push_kwd || cmd_id == g_scope_kwd) {
+    } else if (cmd_id == g_scope_kwd) {
         parse_scope();
     } else if (cmd_id == g_pop_kwd) {
         parse_pop();
-    } else if (cmd_id == g_end_scope_kwd) {
-        parse_end_scope();
     } else if (cmd_id == g_universe_kwd) {
         parse_universe();
     } else if (cmd_id == g_alias_kwd) {
@@ -803,8 +810,8 @@ bool parser_imp::parse_command() {
         parse_builtin();
     } else if (cmd_id == g_namespace_kwd) {
         parse_namespace();
-    } else if (cmd_id == g_end_namespace_kwd) {
-        parse_end_namespace();
+    } else if (cmd_id == g_end_kwd) {
+        parse_end();
     } else if (m_cmd_macros && m_cmd_macros->find(cmd_id) != m_cmd_macros->end()) {
         parse_cmd_macro(cmd_id, m_last_cmd_pos);
     } else {

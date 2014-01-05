@@ -17,7 +17,7 @@ class coercion_declaration : public neutral_object_cell {
 public:
     coercion_declaration(expr const & c):m_coercion(c) {}
     virtual ~coercion_declaration() {}
-    virtual char const * keyword() const { return "Coercion"; }
+    virtual char const * keyword() const { return "coercion"; }
     expr const & get_coercion() const { return m_coercion; }
     virtual void write(serializer & s) const;
 };

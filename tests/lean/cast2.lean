@@ -1,12 +1,12 @@
-Import cast
-Variable A : Type
-Variable B : Type
-Variable A' : Type
-Variable B' : Type
-Axiom H : (A -> B) = (A' -> B')
-Variable a : A
-Check DomInj H
-Theorem BeqB' : B = B' := RanInj H a
-SetOption pp::implicit true
+import cast
+variable A : Type
+variable B : Type
+variable A' : Type
+variable B' : Type
+axiom H : (A -> B) = (A' -> B')
+variable a : A
+check DomInj H
+theorem BeqB' : B = B' := RanInj H a
+setoption pp::implicit true
 print DomInj H
 print RanInj H a

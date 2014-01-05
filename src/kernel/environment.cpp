@@ -33,7 +33,7 @@ class set_opaque_command : public neutral_object_cell {
 public:
     set_opaque_command(name const & n, bool opaque):m_obj_name(n), m_opaque(opaque) {}
     virtual ~set_opaque_command() {}
-    virtual char const * keyword() const { return "SetOpaque"; }
+    virtual char const * keyword() const { return "setopaque"; }
     virtual void write(serializer & s) const { s << "Opa" << m_obj_name << m_opaque; }
     name const & get_obj_name() const { return m_obj_name; }
     bool get_flag() const { return m_opaque; }
@@ -64,15 +64,15 @@ class import_command : public neutral_object_cell {
 public:
     import_command(std::string const & n):m_mod_name(n) {}
     virtual ~import_command() {}
-    virtual char const * keyword() const { return "Import"; }
-    virtual void write(serializer & s) const { s << "Import" << m_mod_name; }
+    virtual char const * keyword() const { return "import"; }
+    virtual void write(serializer & s) const { s << "import" << m_mod_name; }
     std::string const & get_module() const { return m_mod_name; }
 };
 static void read_import(environment const & env, io_state const & ios, deserializer & d) {
     std::string n = d.read_string();
     env->import(n, ios);
 }
-static object_cell::register_deserializer_fn import_ds("Import", read_import);
+static object_cell::register_deserializer_fn import_ds("import", read_import);
 
 class end_import_mark : public neutral_object_cell {
 public:

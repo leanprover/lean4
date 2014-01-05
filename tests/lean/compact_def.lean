@@ -1,5 +1,5 @@
-Import specialfn.
-Definition f x y := x + y
-Definition g x y := sin x + y
-Definition h x y := x * sin (x + y)
-print Environment 3
+import specialfn.
+definition f x y := x + y
+definition g x y := sin x + y
+definition h x y := x * sin (x + y)
+print environment 3

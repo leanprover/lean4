@@ -1,68 +1,68 @@
-Import Nat.
+import Nat
 
-Variable Int : Type.
-Alias ℤ : Int.
-Builtin nat_to_int : Nat → Int.
-Coercion nat_to_int.
+variable Int : Type
+alias ℤ : Int
+builtin nat_to_int : Nat → Int
+coercion nat_to_int
 
-Namespace Int.
-Builtin numeral.
+namespace Int
+builtin numeral
 
-Builtin add : Int → Int → Int.
-Infixl 65 + : add.
+builtin add : Int → Int → Int
+infixl 65 + : add
 
-Builtin mul : Int → Int → Int.
-Infixl 70 * : mul.
+builtin mul : Int → Int → Int
+infixl 70 * : mul
 
-Builtin div : Int → Int → Int.
-Infixl 70 div : div.
+builtin div : Int → Int → Int
+infixl 70 div : div
 
-Builtin le : Int → Int → Bool.
-Infix  50 <= : le.
-Infix  50 ≤  : le.
+builtin le : Int → Int → Bool
+infix  50 <= : le
+infix  50 ≤  : le
 
-Definition ge (a b : Int) : Bool := b ≤ a.
-Infix 50 >= : ge.
-Infix 50 ≥  : ge.
+definition ge (a b : Int) : Bool := b ≤ a
+infix 50 >= : ge
+infix 50 ≥  : ge
 
-Definition lt (a b : Int) : Bool := ¬ (a ≥ b).
-Infix 50 <  : lt.
+definition lt (a b : Int) : Bool := ¬ (a ≥ b)
+infix 50 <  : lt
 
-Definition gt (a b : Int) : Bool := ¬ (a ≤ b).
-Infix 50 >  : gt.
+definition gt (a b : Int) : Bool := ¬ (a ≤ b)
+infix 50 >  : gt
 
-Definition sub (a b : Int) : Int := a + -1 * b.
-Infixl 65 - : sub.
+definition sub (a b : Int) : Int := a + -1 * b
+infixl 65 - : sub
 
-Definition neg (a : Int) : Int := -1 * a.
-Notation 75 - _ : neg.
+definition neg (a : Int) : Int := -1 * a
+notation 75 - _ : neg
 
-Definition mod (a b : Int) : Int := a - b * (a div b).
-Infixl 70 mod : mod.
+definition mod (a b : Int) : Int := a - b * (a div b)
+infixl 70 mod : mod
 
-Definition divides (a b : Int) : Bool := (b mod a) = 0.
-Infix 50 | : divides.
+definition divides (a b : Int) : Bool := (b mod a) = 0
+infix 50 | : divides
 
-Definition abs (a : Int) : Int := if (0 ≤ a) a (- a).
-Notation 55 | _ | : abs.
+definition abs (a : Int) : Int := if (0 ≤ a) a (- a)
+notation 55 | _ | : abs
 
-SetOpaque sub true.
-SetOpaque neg true.
-SetOpaque mod true.
-SetOpaque divides true.
-SetOpaque abs true.
-SetOpaque ge true.
-SetOpaque lt true.
-SetOpaque gt true.
-EndNamespace.
+setopaque sub true
+setopaque neg true
+setopaque mod true
+setopaque divides true
+setopaque abs true
+setopaque ge true
+setopaque lt true
+setopaque gt true
+end
 
-Namespace Nat.
-Definition sub (a b : Nat) : Int := nat_to_int a - nat_to_int b.
-Infixl 65 - : sub.
+namespace Nat
+definition sub (a b : Nat) : Int := nat_to_int a - nat_to_int b
+infixl 65 - : sub
 
-Definition neg (a : Nat) : Int := - (nat_to_int a).
-Notation 75 - _ : neg.
+definition neg (a : Nat) : Int := - (nat_to_int a)
+notation 75 - _ : neg
 
-SetOpaque sub true.
-SetOpaque neg true.
-EndNamespace.
+setopaque sub true
+setopaque neg true
+end

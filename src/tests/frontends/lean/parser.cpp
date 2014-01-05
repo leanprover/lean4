@@ -44,13 +44,13 @@ static void parse_error(environment const & env, io_state const & ios, char cons
 
 static void tst1() {
     environment env; io_state ios = init_test_frontend(env);
-    parse(env, ios, "Variable x : Bool Variable y : Bool Axiom H : x && y || x => x");
-    parse(env, ios, "Eval true && true");
-    parse(env, ios, "print true && false Eval true && false");
-    parse(env, ios, "Infixl 35 & : and print true & false & false Eval true & false");
-    parse(env, ios, "Notation 100 if _ then _ fi : implies print if true then false fi");
+    parse(env, ios, "variable x : Bool variable y : Bool axiom H : x && y || x => x");
+    parse(env, ios, "eval true && true");
+    parse(env, ios, "print true && false eval true && false");
+    parse(env, ios, "infixl 35 & : and print true & false & false eval true & false");
+    parse(env, ios, "notation 100 if _ then _ fi : implies print if true then false fi");
     parse(env, ios, "print Pi (A : Type), A -> A");
-    parse(env, ios, "Check Pi (A : Type), A -> A");
+    parse(env, ios, "check Pi (A : Type), A -> A");
 }
 
 static void check(environment const & env, io_state & ios, char const * str, expr const & expected) {
@@ -83,27 +83,27 @@ static void tst2() {
 static void tst3() {
     environment env; io_state ios = init_test_frontend(env);
     parse(env, ios, "help");
-    parse(env, ios, "help Options");
+    parse(env, ios, "help options");
     parse_error(env, ios, "help print");
     check(env, ios, "10.3", mk_real_value(mpq(103, 10)));
-    parse(env, ios, "Variable f : Real -> Real. Check f 10.3.");
-    parse(env, ios, "Variable g : (Type 1) -> Type. Check g Type");
-    parse_error(env, ios, "Check fun .");
-    parse_error(env, ios, "Definition foo .");
-    parse_error(env, ios, "Check a");
-    parse_error(env, ios, "Check U");
-    parse(env, ios, "Variable h : Real -> Real -> Real. Notation 10 [ _ ; _ ] : h. Check [ 10.3 ; 20.1 ].");
-    parse_error(env, ios, "Variable h : Real -> Real -> Real. Notation 10 [ _ ; _ ] : h. Check [ 10.3 | 20.1 ].");
-    parse_error(env, ios, "SetOption pp::indent true");
-    parse(env, ios, "SetOption pp::indent 10");
-    parse_error(env, ios, "SetOption pp::colors foo");
-    parse_error(env, ios, "SetOption pp::colors \"foo\"");
-    parse(env, ios, "SetOption pp::colors true");
-    parse_error(env, ios, "Notation 10 : Int::add");
-    parse_error(env, ios, "Notation 10 _ : Int::add");
-    parse(env, ios, "Notation 10 _ ++ _ : Int::add. Eval 10 ++ 20.");
-    parse(env, ios, "Notation 10 _ -+ : Int::neg. Eval 10 -+");
-    parse(env, ios, "Notation 30 -+ _ : Int::neg. Eval -+ 10");
+    parse(env, ios, "variable f : Real -> Real. check f 10.3.");
+    parse(env, ios, "variable g : (Type 1) -> Type. check g Type");
+    parse_error(env, ios, "check fun .");
+    parse_error(env, ios, "definition foo .");
+    parse_error(env, ios, "check a");
+    parse_error(env, ios, "check U");
+    parse(env, ios, "variable h : Real -> Real -> Real. notation 10 [ _ ; _ ] : h. check [ 10.3 ; 20.1 ].");
+    parse_error(env, ios, "variable h : Real -> Real -> Real. notation 10 [ _ ; _ ] : h. check [ 10.3 | 20.1 ].");
+    parse_error(env, ios, "setoption pp::indent true");
+    parse(env, ios, "setoption pp::indent 10");
+    parse_error(env, ios, "setoption pp::colors foo");
+    parse_error(env, ios, "setoption pp::colors \"foo\"");
+    parse(env, ios, "setoption pp::colors true");
+    parse_error(env, ios, "notation 10 : Int::add");
+    parse_error(env, ios, "notation 10 _ : Int::add");
+    parse(env, ios, "notation 10 _ ++ _ : Int::add. eval 10 ++ 20.");
+    parse(env, ios, "notation 10 _ -+ : Int::neg. eval 10 -+");
+    parse(env, ios, "notation 30 -+ _ : Int::neg. eval -+ 10");
     parse_error(env, ios, "10 + 30");
 }
 

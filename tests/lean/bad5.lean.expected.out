@@ -7,5 +7,5 @@
   Assumed: H1
   Assumed: H2
   Proved: T1
-Axiom H2 : g a > 0
-Theorem T1 : g b > 0 := SubstP (λ x : ℤ, g x > 0) H2 H1
+axiom H2 : g a > 0
+theorem T1 : g b > 0 := SubstP (λ x : ℤ, g x > 0) H2 H1

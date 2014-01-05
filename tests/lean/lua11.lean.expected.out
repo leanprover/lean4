@@ -2,5 +2,5 @@
   Set: pp::unicode
   Imported 'Int'
 Int::add
-BuiltinSet Nat::numeral
+builtinset Nat::numeral
 512

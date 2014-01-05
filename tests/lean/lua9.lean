@@ -1,5 +1,5 @@
-Import Int.
-Variable x : Bool
+import Int.
+variable x : Bool
 
 (*
  import("util.lua")
@@ -33,6 +33,6 @@ Variable x : Bool
  env:add_definition("sum1", s)
 *)
 
-print Environment 1
-Eval sum1
-Variable y : Bool
+print environment 1
+eval sum1
+variable y : Bool

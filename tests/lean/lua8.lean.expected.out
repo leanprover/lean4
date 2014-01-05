@@ -3,5 +3,5 @@
   Imported 'Int'
   Assumed: x
 x : ℤ, y : ℤ
-Variable x : ℤ
+variable x : ℤ
 nil

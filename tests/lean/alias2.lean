@@ -1,16 +1,16 @@
-Push
-  Variable Natural : Type.
-  Alias ℕℕ : Natural.
-  Variable x : Natural.
-  print Environment 1.
-  SetOption pp::unicode false.
-  print Environment 1.
-  SetOption pp::unicode true.
-  print Environment 1.
-  Alias NN : Natural.
-  print Environment 2.
-  Alias ℕℕℕ : Natural.
-  print Environment 3.
-  SetOption pp::unicode false.
-  print Environment 3.
-Pop
+scope
+  variable Natural : Type.
+  alias ℕℕ : Natural.
+  variable x : Natural.
+  print environment 1.
+  setoption pp::unicode false.
+  print environment 1.
+  setoption pp::unicode true.
+  print environment 1.
+  alias NN : Natural.
+  print environment 2.
+  alias ℕℕℕ : Natural.
+  print environment 3.
+  setoption pp::unicode false.
+  print environment 3.
+pop::scope

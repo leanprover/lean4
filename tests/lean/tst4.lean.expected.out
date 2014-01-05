@@ -18,8 +18,8 @@
   Assumed: g
   Assumed: H1
   Proved: Pr
-Axiom H1 : @eq N a b ∧ @eq N b c
-Theorem Pr : @eq N (g a) (g c) :=
+axiom H1 : @eq N a b ∧ @eq N b c
+theorem Pr : @eq N (g a) (g c) :=
     @Congr N
            (λ x : N, N)
            g

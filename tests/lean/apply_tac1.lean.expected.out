@@ -10,5 +10,5 @@
   Assumed: Ax2
   Proved: T2
   Proved: T3
-Theorem T2 (a : ℤ) : P a a ⇒ f a a := Discharge (λ H : P a a, Ax1 a a H)
-Theorem T3 (a : ℤ) : P a a ⇒ f a a := Discharge (λ H : P a a, Ax1 a a H)
+theorem T2 (a : ℤ) : P a a ⇒ f a a := Discharge (λ H : P a a, Ax1 a a H)
+theorem T3 (a : ℤ) : P a a ⇒ f a a := Discharge (λ H : P a a, Ax1 a a H)

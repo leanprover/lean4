@@ -1,10 +1,10 @@
-Import Int.
+import Int.
 (* import("tactic.lua") *)
-Variable q : Int -> Int -> Bool.
-Variable p : Int -> Bool.
-Axiom Ax (a b : Int) (H : q a b) : p b.
-Variable a : Int.
-Theorem T (x : Int) : (q a x) => (p x).
+variable q : Int -> Int -> Bool.
+variable p : Int -> Bool.
+axiom Ax (a b : Int) (H : q a b) : p b.
+variable a : Int.
+theorem T (x : Int) : (q a x) => (p x).
     (* imp_tac() *).
     apply (Ax a).
     exact.

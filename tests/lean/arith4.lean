@@ -1,8 +1,8 @@
-Import specialfn.
-Variable x : Real
-Eval sin(x)
-Eval cos(x)
-Eval tan(x)
-Eval cot(x)
-Eval sec(x)
-Eval csc(x)
+import specialfn.
+variable x : Real
+eval sin(x)
+eval cos(x)
+eval tan(x)
+eval cot(x)
+eval sec(x)
+eval csc(x)

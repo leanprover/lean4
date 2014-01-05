@@ -9,5 +9,5 @@
   Set: lean::pp::coercion
   Set: lean::pp::notation
   Set: lean::pp::implicit
-Theorem T : @eq ℤ (Int::add (Int::add a (nat_to_int n)) a) (nat_to_int 10) :=
+theorem T : @eq ℤ (Int::add (Int::add a (nat_to_int n)) a) (nat_to_int 10) :=
     @Subst ℤ a (nat_to_int n) (λ x : ℤ, @eq ℤ (Int::add (Int::add a x) a) (nat_to_int 10)) H1 H2

@@ -1,2 +1,2 @@
-Theorem (a : Bool) : a.
+theorem (a : Bool) : a.
 print "done".

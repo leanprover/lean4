@@ -6,7 +6,7 @@
 -- Example: the command
 --       Find "^[cC]on"
 -- Displays all objects that start with the string "con" or "Con"
-cmd_macro("Find",
+cmd_macro("find",
           { macro_arg.String },
           function(env, pattern)
              local opts  = get_options()

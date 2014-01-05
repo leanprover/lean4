@@ -1,4 +1,4 @@
-Variable x : Bool
+variable x : Bool
 
 (*
  a = {}
@@ -11,4 +11,4 @@ Variable x : Bool
  rint ("ok")
 *)
 
-Variable y : Bool
+variable y : Bool

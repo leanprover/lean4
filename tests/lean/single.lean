@@ -1,7 +1,7 @@
-Import Int.
-Variables a b c : Int.
+import Int.
+variables a b c : Int.
 print a + b + c.
-Check a + b.
-Exit.
+check a + b.
+exit.
 -- the following line should be executed
-Check a + true.
+check a + true.

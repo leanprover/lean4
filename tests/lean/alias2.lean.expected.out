@@ -2,17 +2,17 @@
   Set: pp::unicode
   Assumed: Natural
   Assumed: x
-Variable x : ℕℕ
+variable x : ℕℕ
   Set: pp::unicode
-Variable x : Natural
+variable x : Natural
   Set: pp::unicode
-Variable x : ℕℕ
-Variable x : NN
-Alias NN : Natural
-Variable x : ℕℕℕ
-Alias NN : Natural
-Alias ℕℕℕ : Natural
+variable x : ℕℕ
+variable x : NN
+alias NN : Natural
+variable x : ℕℕℕ
+alias NN : Natural
+alias ℕℕℕ : Natural
   Set: pp::unicode
-Variable x : NN
-Alias NN : Natural
-Alias ℕℕℕ : Natural
+variable x : NN
+alias NN : Natural
+alias ℕℕℕ : Natural

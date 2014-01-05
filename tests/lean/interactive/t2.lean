@@ -1,9 +1,9 @@
-Theorem T2 (a b : Bool) : a => b => a /\ b.
+theorem T2 (a b : Bool) : a => b => a /\ b.
 (* imp_tac() *)
 (* imp_tac2() *)
 foo.
 (* imp_tac() *)
 abort.
 
-Variables a b : Bool.
-print Environment 2.
+variables a b : Bool.
+print environment 2.

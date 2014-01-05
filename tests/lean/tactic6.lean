@@ -1,5 +1,5 @@
 (* import("tactic.lua") *)
-Theorem T (a b c : Bool): a => b /\ c => c /\ a /\ b := _.
+theorem T (a b c : Bool): a => b /\ c => c /\ a /\ b := _.
    apply Discharge
    apply Discharge
    conj_hyp
@@ -8,7 +8,7 @@ Theorem T (a b c : Bool): a => b /\ c => c /\ a /\ b := _.
    exact
    done
 
-Theorem T2 (a b c : Bool): a => b /\ c => c /\ a /\ b := _.
+theorem T2 (a b c : Bool): a => b /\ c => c /\ a /\ b := _.
    apply Discharge
    apply Discharge
    conj_hyp

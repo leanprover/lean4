@@ -8,6 +8,6 @@ x1 + x2
 ℤ → ℤ
 x1 + x1 + x1 + x2 + x2
 ℤ
-Definition sum1 : ℤ := x1 + x1 + x1 + x2 + x2
+definition sum1 : ℤ := x1 + x1 + x1 + x2 + x2
 x1 + x1 + x1 + x2 + x2
   Assumed: y

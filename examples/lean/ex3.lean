@@ -1,9 +1,9 @@
-Import macros.
+import macros.
 
-Theorem and_comm (a b : Bool) : (a ∧ b) ⇒ (b ∧ a)
+theorem and_comm (a b : Bool) : (a ∧ b) ⇒ (b ∧ a)
 := Assume H_ab, Conj (Conjunct2 H_ab) (Conjunct1 H_ab).
 
-Theorem or_comm (a b : Bool) : (a ∨ b) ⇒ (b ∨ a)
+theorem or_comm (a b : Bool) : (a ∨ b) ⇒ (b ∨ a)
 := Assume H_ab,
       DisjCases H_ab
                 (λ H_a, Disj2 b H_a)
@@ -20,9 +20,9 @@ Theorem or_comm (a b : Bool) : (a ∨ b) ⇒ (b ∨ a)
 --        (MT H H_na) : ¬(a ⇒ b)
 -- produces
 --        a
-Theorem pierce (a b : Bool) : ((a ⇒ b) ⇒ a) ⇒ a
+theorem pierce (a b : Bool) : ((a ⇒ b) ⇒ a) ⇒ a
 := Assume H, DisjCases (EM a)
                        (λ H_a, H_a)
                        (λ H_na, NotImp1 (MT H H_na)).
 
-print Environment 3.
+print environment 3.

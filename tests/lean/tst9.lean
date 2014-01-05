@@ -1,5 +1,5 @@
-Variable f : Pi A : Type, A -> A -> A
-Variable N : Type
-Variable g : N -> N -> Bool
-Variable a : N
-Check g true (f _ a a)
+variable f : Pi A : Type, A -> A -> A
+variable N : Type
+variable g : N -> N -> Bool
+variable a : N
+check g true (f _ a a)

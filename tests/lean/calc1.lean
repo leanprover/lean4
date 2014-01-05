@@ -1,12 +1,12 @@
-Import tactic.
+import tactic.
 
-Variables a b c d e : Bool.
-Axiom H1 : a => b.
-Axiom H2 : b = c.
-Axiom H3 : c => d.
-Axiom H4 : d <=> e.
+variables a b c d e : Bool.
+axiom H1 : a => b.
+axiom H2 : b = c.
+axiom H3 : c => d.
+axiom H4 : d <=> e.
 
-Theorem T : a => e
+theorem T : a => e
 := calc a  =>  b : H1
       ...  =   c : H2
       ...  =>  d : (by apply H3)

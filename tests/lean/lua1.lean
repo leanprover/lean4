@@ -1,8 +1,8 @@
-Import Int.
-Variable x : Int
+import Int.
+variable x : Int
 
 (*
 print("hello world from Lua")
 *)
 
-Variable y : Int
+variable y : Int

@@ -9,7 +9,7 @@
   Assumed: read
   Assumed: V1
   Defined: D
-Definition D : ℤ := @read ℤ 10 V1 1 Trivial
+definition D : ℤ := @read ℤ 10 V1 1 Trivial
   Assumed: b
   Defined: a
   Proved: T

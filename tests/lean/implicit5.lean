@@ -1,12 +1,12 @@
-Import Int.
-Import Real.
-Variable f {A : Type} (a1 a2 : A) : A
-Variable g : Int -> Int -> Int
-Variable h : Int -> Int -> Real -> Int
-Variable p {A B : Type} (a1 a2 : A) (b : B) : A
-Infix ++ : f
-Infix ++ : g
-Infix ++ : h
-Infix ++ : p
-Variable p2 {A B : Type} (a1 a2 : A) (b : B) {C : Type} (c : C) : A
-Infix ++ : p2
+import Int.
+import Real.
+variable f {A : Type} (a1 a2 : A) : A
+variable g : Int -> Int -> Int
+variable h : Int -> Int -> Real -> Int
+variable p {A B : Type} (a1 a2 : A) (b : B) : A
+infix ++ : f
+infix ++ : g
+infix ++ : h
+infix ++ : p
+variable p2 {A B : Type} (a1 a2 : A) (b : B) {C : Type} (c : C) : A
+infix ++ : p2

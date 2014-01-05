@@ -1,9 +1,9 @@
-Variable myeq : Pi (A : Type), A -> A -> Bool
+variable myeq : Pi (A : Type), A -> A -> Bool
 print myeq _ true false
-Variable T : Type
-Variable a : T
-Check myeq _ true a
-Variable myeq2 {A:Type} (a b : A) : Bool
-Infix 50 === : myeq2
-SetOption lean::pp::implicit true
-Check true === a
+variable T : Type
+variable a : T
+check myeq _ true a
+variable myeq2 {A:Type} (a b : A) : Bool
+infix 50 === : myeq2
+setoption lean::pp::implicit true
+check true === a

@@ -1,5 +1,5 @@
-Import Int.
-Variable x : Int
+import Int.
+variable x : Int
 
 (*
 local N   = 100
@@ -11,5 +11,5 @@ for i = 1, N do
 end
 *)
 
-print Environment 101
-Check x + y_1 + y_2
+print environment 101
+check x + y_1 + y_2

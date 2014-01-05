@@ -1,5 +1,5 @@
-Import Int.
-Variables a b : Int
+import Int.
+variables a b : Int
 
 (*
   local ios = io_state()

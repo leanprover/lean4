@@ -1,4 +1,4 @@
-Import Int.
-Variable P : Int -> Bool
-Axiom Ax (x : Int) : P x
-Check ForallIntro Ax
+import Int.
+variable P : Int -> Bool
+axiom Ax (x : Int) : P x
+check ForallIntro Ax

@@ -1,10 +1,10 @@
   Set: pp::colors
   Set: pp::unicode
-Notation 10 if _ then _ : implies
+notation 10 if _ then _ : implies
 if ⊤ then ⊥
 if ⊤ then (if a then ⊥)
 implies ⊤ (implies a ⊥)
-Notation 100 _ |- _ ; _ : f
+notation 100 _ |- _ ; _ : f
 f c d e
 c |- d ; e
 (c !) !
@@ -13,9 +13,9 @@ The precedence of ';' changed from 100 to 30.
 [ c ; d ]
 [ c ; ([ d ; e ]) ]
 g c (g d e)
-Notation 40 _ << _ end : h
-d << e end
-[ c ; d << e end ]
+notation 40 _ << _ >> : h
+d << e >>
+[ c ; d << e >> ]
 g c (h d e)
 c ** d ++ e ** c
 p1 ∨ p2 ∧ p3

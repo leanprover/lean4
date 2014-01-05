@@ -1,6 +1,6 @@
-Import tactic
+import tactic
 
-Theorem T1 (a b : Bool) : a \/ b => b \/ a.
+theorem T1 (a b : Bool) : a \/ b => b \/ a.
     apply Discharge.
     (* disj_hyp_tac() *)
     (* disj_tac() *)
@@ -14,8 +14,8 @@ Theorem T1 (a b : Bool) : a \/ b => b \/ a.
 simple_tac = Repeat(OrElse(imp_tac(), assumption_tac(), disj_hyp_tac(), disj_tac())) .. now_tac()
 *)
 
-Theorem T2 (a b : Bool) : a \/ b => b \/ a.
+theorem T2 (a b : Bool) : a \/ b => b \/ a.
     simple_tac.
     done.
 
-print Environment 1.
+print environment 1.

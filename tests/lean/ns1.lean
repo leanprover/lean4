@@ -1,19 +1,19 @@
-Import Int.
+import Int.
 
-Namespace foo.
-  Variable a : Nat.
-  Definition b := a.
-  Theorem T : a = b := Refl a.
-  Axiom H : b >= a.
-  Namespace bla.
-     Variables a c d : Int.
-     Check a + b + c.
-  EndNamespace.
-EndNamespace.
+namespace foo.
+  variable a : Nat.
+  definition b := a.
+  theorem T : a = b := Refl a.
+  axiom H : b >= a.
+  namespace bla.
+     variables a c d : Int.
+     check a + b + c.
+  end.
+end.
 
-Check foo::T.
-Check foo::H.
-Check foo::a.
-Check foo::bla::a.
+check foo::T.
+check foo::H.
+check foo::a.
+check foo::bla::a.
 
-EndNamespace.
+end

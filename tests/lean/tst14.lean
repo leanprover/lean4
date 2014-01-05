@@ -1,6 +1,6 @@
-Import Int.
+import Int.
 print Int -> Int -> Int
-Variable f : Int -> Int -> Int
-Eval f 0
-Check f 0
-Check f 0 1
+variable f : Int -> Int -> Int
+eval f 0
+check f 0
+check f 0 1

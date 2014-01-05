@@ -5,4 +5,4 @@
   Assumed: a
   Assumed: b
   Defined: tst
-Definition tst : Bool := (λ x y : ℝ, f x y) a b
+definition tst : Bool := (λ x y : ℝ, f x y) a b

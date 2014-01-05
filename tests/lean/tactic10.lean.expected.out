@@ -5,5 +5,5 @@
   Proved: T1
   Defined: h
   Proved: T2
-Theorem T2 (a b : Bool) : h a b ⇒ f b ⇒ a :=
+theorem T2 (a b : Bool) : h a b ⇒ f b ⇒ a :=
     Discharge (λ H : a ∨ b, Discharge (λ H::1 : ¬ b, DisjCases H (λ H : a, H) (λ H : b, AbsurdElim a H H::1)))

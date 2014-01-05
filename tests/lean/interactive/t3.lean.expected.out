@@ -14,5 +14,5 @@ H : b, a : Bool, b : Bool ⊢ b
 ## Proof state:
 no goals
 ##   Proved: T2
-# Theorem T2 (a b : Bool) : b ⇒ a ∨ b := Discharge (λ H : b, Disj2 a H)
+# theorem T2 (a b : Bool) : b ⇒ a ∨ b := Discharge (λ H : b, Disj2 a H)
 # 

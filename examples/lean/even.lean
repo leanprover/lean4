@@ -1,9 +1,9 @@
-Import macros.
+import macros.
 
 -- In this example, we prove two simple theorems about even/odd numbers.
 -- First, we define the predicates even and odd.
-Definition even (a : Nat) := ∃ b, a = 2*b.
-Definition odd  (a : Nat) := ∃ b, a = 2*b + 1.
+definition even (a : Nat) := ∃ b, a = 2*b.
+definition odd  (a : Nat) := ∃ b, a = 2*b + 1.
 
 -- Prove that the sum of two even numbers is even.
 --
@@ -28,7 +28,7 @@ Definition odd  (a : Nat) := ∃ b, a = 2*b + 1.
 --  We use a calculational proof 'calc' expression to derive
 --  the witness w1+w2 for the fact that a+b is also even.
 --  That is, we provide a derivation showing that a+b = 2*(w1 + w2)
-Theorem EvenPlusEven {a b : Nat} (H1 : even a) (H2 : even b) : even (a + b)
+theorem EvenPlusEven {a b : Nat} (H1 : even a) (H2 : even b) : even (a + b)
 := Obtain (w1 : Nat) (Hw1 : a = 2*w1), from H1,
    Obtain (w2 : Nat) (Hw2 : b = 2*w2), from H2,
      ExistsIntro (w1 + w2)
@@ -41,7 +41,7 @@ Theorem EvenPlusEven {a b : Nat} (H1 : even a) (H2 : even b) : even (a + b)
 --
 -- Refl is the reflexivity proof. (Refl a) is a proof that two
 -- definitionally equal terms are indeed equal.
--- "Definitionally equal" means that they have the same normal form.
+-- "definitionally equal" means that they have the same normal form.
 -- We can also view it as "Proof by computation".
 -- The normal form of (1+1), and 2*1 is 2.
 --
@@ -49,7 +49,7 @@ Theorem EvenPlusEven {a b : Nat} (H1 : even a) (H2 : even b) : even (a + b)
 -- The gotcha is that '2*w + 1 + 1' is actually '(2*w + 1) + 1' since +
 -- is left associative. Moreover, Lean normalizer does not use
 -- any theorems such as + associativity.
-Theorem OddPlusOne {a : Nat} (H : odd a) : even (a + 1)
+theorem OddPlusOne {a : Nat} (H : odd a) : even (a + 1)
 := Obtain (w : Nat) (Hw : a = 2*w + 1), from H,
    ExistsIntro (w + 1)
                (calc a + 1 = 2*w + 1 + 1   : { Hw }
@@ -59,13 +59,13 @@ Theorem OddPlusOne {a : Nat} (H : odd a) : even (a + 1)
 
 -- The following command displays the proof object produced by Lean after
 -- expanding macros, and infering implicit/missing arguments.
-print Environment 2.
+print environment 2.
 
 -- By default, Lean does not display implicit arguments.
 -- The following command will force it to display them.
-SetOption pp::implicit true.
+setoption pp::implicit true.
 
-print Environment 2.
+print environment 2.
 
 -- As an exercise, prove that the sum of two odd numbers is even,
 -- and other similar theorems.

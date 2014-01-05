@@ -1,13 +1,13 @@
-Import Int.
-Variable list : Type -> Type
-Variable nil  {A : Type} : list A
-Variable cons {A : Type} (head : A) (tail : list A) : list A
-Definition n1 : list Int := cons (nat_to_int 10) nil
-Definition n2 : list Nat := cons 10 nil
-Definition n3 : list Int := cons 10 nil
-Definition n4 : list Int := nil
-Definition n5 : _ := cons 10 nil
+import Int.
+variable list : Type -> Type
+variable nil  {A : Type} : list A
+variable cons {A : Type} (head : A) (tail : list A) : list A
+definition n1 : list Int := cons (nat_to_int 10) nil
+definition n2 : list Nat := cons 10 nil
+definition n3 : list Int := cons 10 nil
+definition n4 : list Int := nil
+definition n5 : _ := cons 10 nil
 
-SetOption pp::coercion true
-SetOption pp::implicit true
-print Environment 1.
+setoption pp::coercion true
+setoption pp::implicit true
+print environment 1.

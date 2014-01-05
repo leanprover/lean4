@@ -2,5 +2,5 @@
   Set: pp::unicode
   Imported 'Int'
   Proved: T1
-Theorem T1 (a b : ℤ) (f : ℤ → ℤ) (assumption : a = b) : f (f a) = f (f b) :=
+theorem T1 (a b : ℤ) (f : ℤ → ℤ) (assumption : a = b) : f (f a) = f (f b) :=
     Congr (Refl f) (Congr (Refl f) assumption)

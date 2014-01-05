@@ -1,5 +1,5 @@
-Import Int.
-Variable x : Int
+import Int.
+variable x : Int
 
 (*
 -- Add a variable to the environment using Lua
@@ -11,4 +11,4 @@ print("type of x is " .. tostring(typeofx))
 env:add_var("y", typeofx)
 *)
 
-Check x + y
+check x + y

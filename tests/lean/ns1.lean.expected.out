@@ -13,4 +13,4 @@ foo::T : foo::a = foo::b
 foo::H : foo::b ≥ foo::a
 foo::a : ℕ
 foo::bla::a : ℤ
-Error (line: 19, pos: 0) invalid end namespace command, there are no open namespaces
+Error (line: 19, pos: 0) invalid 'end', not inside of a scope or namespace

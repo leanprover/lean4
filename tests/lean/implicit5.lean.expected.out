@@ -8,7 +8,7 @@
   Assumed: p
   Assumed: p2
 The denotation(s) for the existing notation:
-  Infix ++
+  infix ++
 have been replaced with the new denotation:
   @p2
 because they conflict on how implicit arguments are used.

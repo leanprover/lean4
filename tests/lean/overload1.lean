@@ -1,12 +1,12 @@
-Variable N : Type
-Variable f : Bool -> Bool -> Bool
-Variable g : N -> N -> N
-Infixl 10 ++ : f
-Infixl 10 ++ : g
+variable N : Type
+variable f : Bool -> Bool -> Bool
+variable g : N -> N -> N
+infixl 10 ++ : f
+infixl 10 ++ : g
 print true ++ false ++ true
-SetOption lean::pp::notation false
+setoption lean::pp::notation false
 print true ++ false ++ true
-Variable a : N
-Variable b : N
+variable a : N
+variable b : N
 print a ++ b ++ a
 print true ++ false ++ false

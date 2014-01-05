@@ -1,11 +1,11 @@
-Import cast
-Import cast
+import cast
+import cast
 (*
    local env = environment() -- create new environment
    parse_lean_cmds([[
-      Import cast
-      Import cast
-      Check @cast
+      import cast
+      import cast
+      check @cast
    ]], env)
 *)
-Check @cast
+check @cast

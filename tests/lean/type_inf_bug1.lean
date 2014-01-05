@@ -1,7 +1,7 @@
-Import cast
-SetOption pp::colors false
+import cast
+setoption pp::colors false
 
-Check fun (A A': TypeM)
+check fun (A A': TypeM)
           (a   : A)
           (b   : A')
           (L2  : A' == A),
@@ -9,7 +9,7 @@ Check fun (A A': TypeM)
        L3 : b == b'  := CastEq L2 b
    in L3
 
-Check fun (A A': TypeM)
+check fun (A A': TypeM)
           (B   : A -> TypeM)
           (B'  : A' -> TypeM)
           (f   : Pi x : A, B x)

@@ -1,6 +1,6 @@
-Import Int.
-Variable a : Int
-Variable P : Int -> Int -> Bool
-Axiom H : P a a
-Theorem T : exists x : Int, P a a := ExistsIntro a H.
-print Environment 1.
+import Int.
+variable a : Int
+variable P : Int -> Int -> Bool
+axiom H : P a a
+theorem T : exists x : Int, P a a := ExistsIntro a H.
+print environment 1.

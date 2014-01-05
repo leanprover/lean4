@@ -1,4 +1,4 @@
-Theorem T2 (a b : Bool) : a => b => a /\ b.
+theorem T2 (a b : Bool) : a => b => a /\ b.
 done.
 done.
 (* imp_tac() *).

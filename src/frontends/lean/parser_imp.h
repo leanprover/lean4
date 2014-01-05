@@ -73,6 +73,8 @@ class parser_imp {
     pos_info            m_last_script_pos;
     tactic_hints        m_tactic_hints;
     std::vector<name>   m_namespace_prefixes;
+    enum class scope_kind { Scope, Namespace };
+    std::vector<scope_kind> m_scope_kinds;
 
     std::unique_ptr<calc_proof_parser> m_calc_proof_parser;
 
@@ -409,13 +411,12 @@ private:
     void reset_env(environment env);
     void parse_scope();
     void parse_pop();
-    void parse_end_scope();
     void parse_cmd_macro(name cmd_id, pos_info const & p);
     void parse_universe();
     void parse_alias();
     void parse_builtin();
     void parse_namespace();
-    void parse_end_namespace();
+    void parse_end();
     bool parse_command();
     /*@}*/
 

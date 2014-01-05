@@ -1,7 +1,7 @@
 (* import("tactic.lua") *)
-Variables a b c : Bool
-Axiom H : a \/ b
-Theorem T (a b : Bool) : a \/ b => b \/ a.
+variables a b c : Bool
+axiom H : a \/ b
+theorem T (a b : Bool) : a \/ b => b \/ a.
    apply Discharge.
    apply (DisjCases H).
    apply Disj2.

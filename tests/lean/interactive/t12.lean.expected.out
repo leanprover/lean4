@@ -1,7 +1,7 @@
 #   Set: pp::colors
   Set: pp::unicode
   Proved: T1
-Theorem T1 (A B : Bool) (assumption : A ∧ B) : B ∧ A :=
+theorem T1 (A B : Bool) (assumption : A ∧ B) : B ∧ A :=
     let lemma1 : A := Conjunct1 assumption, lemma2 : B := Conjunct2 assumption in Conj lemma2 lemma1
 # Proof state:
 A : Bool, B : Bool, assumption : A ∧ B ⊢ A

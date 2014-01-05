@@ -1,6 +1,6 @@
-Import Int.
-Definition double {A : Type} (f : A -> A) : A -> A := fun x, f (f x).
-Definition big {A : Type} (f : A -> A) : A -> A := (double (double (double (double (double (double (double f))))))).
+import Int.
+definition double {A : Type} (f : A -> A) : A -> A := fun x, f (f x).
+definition big {A : Type} (f : A -> A) : A -> A := (double (double (double (double (double (double (double f))))))).
 
 (*
 
@@ -20,14 +20,14 @@ lazy_tac = OrElse(Then(Try(unfold_tac("eq")), congr_tac, now_tac()),
 
 *)
 
-Theorem T1 (a b : Int) (f : Int -> Int) (H : a = b) : (big f a) = (big f b).
+theorem T1 (a b : Int) (f : Int -> Int) (H : a = b) : (big f a) = (big f b).
         eager_tac.
         done.
 
-Theorem T2 (a b : Int) (f : Int -> Int) (H : a = b) : (big f a) = (big f b).
+theorem T2 (a b : Int) (f : Int -> Int) (H : a = b) : (big f a) = (big f b).
         lazy_tac.
         done.
 
-Theorem T3 (a b : Int) (f : Int -> Int) (H : a = b) : (big f a) = ((double (double (double (double (double (double (double f))))))) b).
+theorem T3 (a b : Int) (f : Int -> Int) (H : a = b) : (big f a) = ((double (double (double (double (double (double (double f))))))) b).
         lazy_tac.
         done.

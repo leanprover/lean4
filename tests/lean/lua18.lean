@@ -1,4 +1,4 @@
-Import Int.
+import Int.
 (*
 macro("MyMacro", { macro_arg.Expr, macro_arg.Comma, macro_arg.Expr },
      function (env, e1, e2)
@@ -22,4 +22,4 @@ print (MyMacro 10, 20) + 20
 print (Sum)
 print Sum 10 20 30 40
 print fun x, Sum x 10 x 20
-Eval (fun x, Sum x 10 x 20) 100
+eval (fun x, Sum x 10 x 20) 100

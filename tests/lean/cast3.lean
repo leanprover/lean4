@@ -1,24 +1,24 @@
-Import cast
+import cast
 
-Variables A A' B B' : Type
-Variable x : A
-Eval cast (Refl A) x
-Eval x = (cast (Refl A) x)
-Variable b : B
-Definition f (x : A) : B := b
-Axiom H : (A -> B) = (A' -> B)
-Variable a' : A'
-Eval (cast H f) a'
-Axiom H2 : (A -> B) = (A' -> B')
-Definition g (x : B') : Nat := 0
-Eval g ((cast H2 f) a')
-Check g ((cast H2 f) a')
+variables A A' B B' : Type
+variable x : A
+eval cast (Refl A) x
+eval x = (cast (Refl A) x)
+variable b : B
+definition f (x : A) : B := b
+axiom H : (A -> B) = (A' -> B)
+variable a' : A'
+eval (cast H f) a'
+axiom H2 : (A -> B) = (A' -> B')
+definition g (x : B') : Nat := 0
+eval g ((cast H2 f) a')
+check g ((cast H2 f) a')
 
-Eval (cast H2 f) a'
+eval (cast H2 f) a'
 
-Variables A1 A2 A3 : Type
-Axiom Ha : A1 = A2
-Axiom Hb : A2 = A3
-Variable a : A1
-Eval (cast Hb (cast Ha a))
-Check (cast Hb (cast Ha a))
+variables A1 A2 A3 : Type
+axiom Ha : A1 = A2
+axiom Hb : A2 = A3
+variable a : A1
+eval (cast Hb (cast Ha a))
+check (cast Hb (cast Ha a))

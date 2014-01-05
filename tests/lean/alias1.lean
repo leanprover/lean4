@@ -1,3 +1,3 @@
-Alias BB : Bool.
-Variable x : BB.
-print Environment 1.
+alias BB : Bool.
+variable x : BB.
+print environment 1.

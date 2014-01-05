@@ -1,10 +1,10 @@
-Import Int.
-Eval 8 mod 3
-Eval 8 div 4
-Eval 7 div 3
-Eval 7 mod 3
+import Int.
+eval 8 mod 3
+eval 8 div 4
+eval 7 div 3
+eval 7 mod 3
 print -8 mod 3
-SetOption lean::pp::notation false
+setoption lean::pp::notation false
 print -8 mod 3
-Eval -8 mod 3
-Eval (-8 div 3)*3 + (-8 mod 3)
+eval -8 mod 3
+eval (-8 div 3)*3 + (-8 mod 3)

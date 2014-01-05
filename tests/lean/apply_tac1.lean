@@ -1,25 +1,25 @@
-Import tactic.
-Import Int.
+import tactic.
+import Int.
 
-Variable f : Int -> Int -> Bool
-Variable P : Int -> Int -> Bool
-Axiom Ax1 (x y : Int) (H : P x y) : (f x y)
-Theorem T1 (a : Int) : (P a a) => (f a a).
+variable f : Int -> Int -> Bool
+variable P : Int -> Int -> Bool
+axiom Ax1 (x y : Int) (H : P x y) : (f x y)
+theorem T1 (a : Int) : (P a a) => (f a a).
       apply Discharge.
       apply Ax1.
       exact.
       done.
-Variable b : Int
-Axiom Ax2 (x : Int) : (f x b)
+variable b : Int
+axiom Ax2 (x : Int) : (f x b)
 (*
 simple_tac = Repeat(OrElse(imp_tac(), assumption_tac(), apply_tac("Ax2"), apply_tac("Ax1")))
 *)
-Theorem T2 (a : Int) : (P a a) => (f a a).
+theorem T2 (a : Int) : (P a a) => (f a a).
      simple_tac.
      done.
 
-Theorem T3 (a : Int) : (P a a) => (f a a).
+theorem T3 (a : Int) : (P a a) => (f a a).
      Repeat (OrElse (apply Discharge) exact (apply Ax2) (apply Ax1)).
      done.
 
-print Environment 2.
+print environment 2.

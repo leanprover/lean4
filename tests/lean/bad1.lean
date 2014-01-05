@@ -1,4 +1,4 @@
-Import Int.
-Variable g : Pi A : Type, A -> A.
-Variables a b : Int
-Axiom H1 : g _ a > 0
+import Int.
+variable g : Pi A : Type, A -> A.
+variables a b : Int
+axiom H1 : g _ a > 0

@@ -1,6 +1,6 @@
-Import Int.
-Variables x y z : Int
-Variable f : Int -> Int -> Int
+import Int.
+variables x y z : Int
+variable f : Int -> Int -> Int
 
 (*
  local t = parse_lean("fun w, f w (f y 0)")
@@ -12,11 +12,11 @@ Variable f : Int -> Int -> Int
  local env = get_environment()
  assert(env:find_object("Int"):get_name() == name("Int"))
  parse_lean_cmds([[
-    Eval 10 + 20
-    Check x + y
-    Variable g : Int -> Int
+    eval 10 + 20
+    check x + y
+    variable g : Int -> Int
  ]])
 
 *)
 
-Check g (f x 10)
+check g (f x 10)

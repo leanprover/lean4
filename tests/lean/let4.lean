@@ -1,14 +1,14 @@
-Import Int.
+import Int.
 
 print
 let b := true,
     a : Int := b
 in a
 
-Variable vector : Type -> Nat -> Type
-Variable const {A : Type} (n : Nat) (a : A) : vector A n
+variable vector : Type -> Nat -> Type
+variable const {A : Type} (n : Nat) (a : A) : vector A n
 
-Check
+check
 let a  := 10,
     v1 := const a true,
     v2 := v1
@@ -20,28 +20,28 @@ let a  := 10,
     v2 : vector Bool a := v1
 in v2
 
-Check
+check
 let a  := 10,
     v1 : vector Bool a := const a true,
     v2 : vector Bool a := v1
 in v2
 
-Check
+check
 let a  := 10,
     v1 : vector Bool a := const a true,
     v2 : vector Int  a := v1
 in v2
 
-Variable foo : (vector Bool 10) -> (vector Int 10)
-Coercion foo
+variable foo : (vector Bool 10) -> (vector Int 10)
+coercion foo
 
-Check
+check
 let a  := 10,
     v1 : vector Bool a := const a true,
     v2 : vector Int  a := v1
 in v2
 
-SetOption pp::coercion true
+setoption pp::coercion true
 
 print
 let a  := 10,

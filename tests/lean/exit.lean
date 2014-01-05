@@ -1,2 +1,2 @@
-Exit
+exit
 print "FAILED"

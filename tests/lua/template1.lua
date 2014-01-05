@@ -3,8 +3,8 @@ import("template.lua")
 local env = environment()
 env:import("Int")
 parse_lean_cmds([[
-   Variables a b c : Int
-   Variables f : Int -> Int
+   variables a b c : Int
+   variables f : Int -> Int
 ]], env)
 local a, b, c = Consts("a, b, c")
 print(parse_template("%1 + f %2 + %1 + %1", {a, b}, env))

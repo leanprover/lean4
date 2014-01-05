@@ -1,6 +1,6 @@
-Import Int.
-Variables x y z : Int
-Variable f : Int -> Int -> Int
+import Int.
+variables x y z : Int
+variable f : Int -> Int -> Int
 
 (*
  local t = parse_lean("fun w, f w (f y 0)")

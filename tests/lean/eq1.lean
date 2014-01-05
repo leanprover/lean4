@@ -1,5 +1,5 @@
-Import Int.
-Variable i : Int
-Check i = 0
-SetOption pp::coercion true
-Check i = 0
+import Int.
+variable i : Int
+check i = 0
+setoption pp::coercion true
+check i = 0

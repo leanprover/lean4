@@ -1,11 +1,11 @@
-print Options
-Variable a : Bool
-Variable b : Bool
+print options
+variable a : Bool
+variable b : Bool
 print a/\b
-SetOption lean::pp::notation false
-print Options
+setoption lean::pp::notation false
+print options
 print a/\b
-print Environment 2
-SetOption lean::pp::notation true
-print Options
+print environment 2
+setoption lean::pp::notation true
+print options
 print a/\b

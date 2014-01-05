@@ -1,8 +1,8 @@
-SetOption pp::implicit true.
-SetOption pp::colors   false.
-Variable N : Type.
+setoption pp::implicit true.
+setoption pp::colors   false.
+variable N : Type.
 
-Definition T (a : N) (f : _ -> _) (H : f a == a) : f (f _) == f _ :=
+definition T (a : N) (f : _ -> _) (H : f a == a) : f (f _) == f _ :=
 SubstP (fun x : N, f (f a) == _) (Refl (f (f _))) H.
 
-print Environment 1.
+print environment 1.

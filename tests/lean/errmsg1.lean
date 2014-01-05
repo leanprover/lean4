@@ -1,8 +1,8 @@
-Eval fun x, x
+eval fun x, x
 print fun x, x
 
-Check fun x, x
-Theorem T (A : Type) (x : A) : Pi (y : A), A
+check fun x, x
+theorem T (A : Type) (x : A) : Pi (y : A), A
 := _.
 
-Theorem T (x : _) : x = x := Refl x.
+theorem T (x : _) : x = x := Refl x.

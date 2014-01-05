@@ -1,21 +1,21 @@
-Variable f {A : Type} (a b : A) : A
-Variable N : Type
-Variable n1 : N
-Variable n2 : N
-SetOption lean::pp::implicit true
+variable f {A : Type} (a b : A) : A
+variable N : Type
+variable n1 : N
+variable n2 : N
+setoption lean::pp::implicit true
 print f n1 n2
 print f (fun x : N -> N, x) (fun y : _, y)
-Variable EqNice {A : Type} (lhs rhs : A) : Bool
-Infix 50 === : EqNice
+variable EqNice {A : Type} (lhs rhs : A) : Bool
+infix 50 === : EqNice
 print n1 === n2
-Check f n1 n2
-Check @Congr
+check f n1 n2
+check @Congr
 print f n1 n2
-Variable a : N
-Variable b : N
-Variable c : N
-Variable g : N -> N
-Axiom H1 : a = b && b = c
-Theorem Pr : (g a) = (g c) :=
+variable a : N
+variable b : N
+variable c : N
+variable g : N -> N
+axiom H1 : a = b && b = c
+theorem Pr : (g a) = (g c) :=
     Congr (Refl g) (Trans (Conjunct1 H1) (Conjunct2 H1))
-print Environment 2
+print environment 2

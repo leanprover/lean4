@@ -1,4 +1,4 @@
-Import Int.
+import Int.
 (*
 
  local env = get_environment()
@@ -7,7 +7,7 @@ Import Int.
  assert(is_kernel_object(o1))
  assert(o1)
  assert(o1:is_builtin())
- assert(o1:keyword() == "Builtin")
+ assert(o1:keyword() == "builtin")
  assert(o1:get_name() == name("Int", "add"))
  local o2  = env:find_object("xyz31213")
  assert(not o2)

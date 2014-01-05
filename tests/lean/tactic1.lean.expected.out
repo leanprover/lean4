@@ -3,4 +3,4 @@
   Assumed: p
   Assumed: q
   Assumed: r
-Theorem T1 : p ⇒ q ⇒ p ∧ q := Discharge (λ H : p, Discharge (λ H::1 : q, Conj H H::1))
+theorem T1 : p ⇒ q ⇒ p ∧ q := Discharge (λ H : p, Discharge (λ H::1 : q, Conj H H::1))

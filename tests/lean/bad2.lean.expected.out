@@ -11,4 +11,4 @@
   Defined: n5
   Set: lean::pp::coercion
   Set: lean::pp::implicit
-Definition n5 : list ℕ := @cons ℕ 10 (@nil ℕ)
+definition n5 : list ℕ := @cons ℕ 10 (@nil ℕ)

@@ -64,9 +64,9 @@
  -- Now, the tactic conj_in_lua can be used when proving theorems in Lean.
 *)
 
-Theorem T (a b : Bool) : a => b => a /\ b := _.
+theorem T (a b : Bool) : a => b => a /\ b := _.
    (* Then(Repeat(OrElse(imp_tac(), conj_in_lua)), assumption_tac()) *)
    done
 
 -- print proof created using our script
-print Environment 1.
+print environment 1.

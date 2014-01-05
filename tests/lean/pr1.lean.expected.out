@@ -1,4 +1,4 @@
   Set: pp::colors
   Set: pp::unicode
   Proved: T
-Theorem T (C A B : Bool) (H : C) (H : A) (H::1 : B) : A := H
+theorem T (C A B : Bool) (H : C) (H : A) (H::1 : B) : A := H

@@ -6,7 +6,7 @@
   Assumed: p
   Assumed: h
 The denotation(s) for the existing notation:
-  Infix ++
+  infix ++
 have been replaced with the new denotation:
   @h
 because they conflict on how implicit arguments are used.

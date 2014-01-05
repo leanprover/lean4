@@ -1,12 +1,12 @@
-Variable f {A : Type} (a : A) {B : Type} : A -> B -> A
-Variable g {A B : Type} (a : A) {C : Type} : B -> C -> C
-Notation 100 _ ; _ ; _ : f
-Notation 100 _ ; _ ; _ : g
-Check 10 ; true ; false
-Check 10 ; 10 ; true
-SetOption pp::notation false
-Check 10 ; true ; false
-Check 10 ; 10 ; true
-SetOption pp::implicit true
-Check 10 ; true ; false
-Check 10 ; 10 ; true
+variable f {A : Type} (a : A) {B : Type} : A -> B -> A
+variable g {A B : Type} (a : A) {C : Type} : B -> C -> C
+notation 100 _ ; _ ; _ : f
+notation 100 _ ; _ ; _ : g
+check 10 ; true ; false
+check 10 ; 10 ; true
+setoption pp::notation false
+check 10 ; true ; false
+check 10 ; 10 ; true
+setoption pp::implicit true
+check 10 ; true ; false
+check 10 ; 10 ; true

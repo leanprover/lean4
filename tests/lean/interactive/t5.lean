@@ -1,8 +1,8 @@
 (* import("tactic.lua") *)
-Axiom magic (a : Bool) : a.
+axiom magic (a : Bool) : a.
 
-Theorem T (a : Bool) : a.
+theorem T (a : Bool) : a.
     apply magic.
     done.
 
-print Environment 1.
+print environment 1.

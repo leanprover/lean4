@@ -1,6 +1,6 @@
-Import Int.
-Variables i j : Int
-Variable p : Bool
+import Int.
+variables i j : Int
+variable p : Bool
 
 (*
  local env = get_environment()

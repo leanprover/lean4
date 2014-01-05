@@ -1,9 +1,9 @@
-Import Int.
+import Int.
 
-Variable magic : Pi (H : Bool), H
+variable magic : Pi (H : Bool), H
 
-SetOption pp::notation false
-SetOption pp::coercion true
+setoption pp::notation false
+setoption pp::coercion true
 print let a : Int   := 1,
          H : a > 0 := magic (a > 0)
      in H

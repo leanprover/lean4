@@ -1,29 +1,29 @@
 
 
-Variable f {A : Type} (a b : A) : A.
-Check f 10 true
+variable f {A : Type} (a b : A) : A.
+check f 10 true
 
-Variable g {A B : Type} (a : A) : A.
-Check g 10
+variable g {A B : Type} (a : A) : A.
+check g 10
 
-Variable h : Pi (A : Type), A -> A.
+variable h : Pi (A : Type), A -> A.
 
-Check fun x, fun A : Type, h A x
+check fun x, fun A : Type, h A x
 
-Variable my_eq : Pi A : Type, A -> A -> Bool.
+variable my_eq : Pi A : Type, A -> A -> Bool.
 
-Check fun (A B : Type) (a : _) (b : _) (C : Type), my_eq C a b.
+check fun (A B : Type) (a : _) (b : _) (C : Type), my_eq C a b.
 
-Variable a : Bool
-Variable b : Bool
-Variable H : a /\ b
-Theorem t1 : b := Discharge (fun H1, Conj H1 (Conjunct1 H)).
+variable a : Bool
+variable b : Bool
+variable H : a /\ b
+theorem t1 : b := Discharge (fun H1, Conj H1 (Conjunct1 H)).
 
-Theorem t2 : a = b := Trans (Refl a) (Refl b).
+theorem t2 : a = b := Trans (Refl a) (Refl b).
 
-Check f Bool Bool.
+check f Bool Bool.
 
-Theorem pierce (a b : Bool) : ((a ⇒ b) ⇒ a) ⇒ a :=
+theorem pierce (a b : Bool) : ((a ⇒ b) ⇒ a) ⇒ a :=
     Discharge (λ H, DisjCases (EM a)
                               (λ H_a, H)
                               (λ H_na, NotImp1 (MT H H_na)))

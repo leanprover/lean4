@@ -8,4 +8,4 @@ Variables p q r : Bool
  env:add_theorem("T1", conjecture, proof)
 *)
 
-Show Environment 1.
+print Environment 1.

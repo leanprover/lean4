@@ -18,4 +18,4 @@ Theorem T2 (a b : Bool) : a \/ b => b \/ a.
     simple_tac.
     done.
 
-Show Environment 1.
+print Environment 1.

@@ -24,7 +24,7 @@ Theorem T1 (A B : Bool) : A /\ B -> B /\ A :=
               lemma2     : B      := (by auto)
           in (show B /\ A by auto)
 
-Show Environment 1. -- Show proof for the previous theorem
+print Environment 1. -- print proof for the previous theorem
 
 -- When hints are not provided, the user must fill the (remaining) holes using tactic command sequences.
 -- Each hole must be filled with a tactic command sequence that terminates with the command 'done' and

@@ -45,7 +45,7 @@ Push
                   let L1 : R w x := Symmetry ! x ! w << H
                   in Transitivity ! x ! w ! x << H << L1))
 
-    Show Environment 1
+    print Environment 1
 Pop
 
 Scope
@@ -70,4 +70,4 @@ Scope
 EndScope
 
 -- Display the last two theorems
-Show Environment 2
+print Environment 2

@@ -59,13 +59,13 @@ Theorem OddPlusOne {a : Nat} (H : odd a) : even (a + 1)
 
 -- The following command displays the proof object produced by Lean after
 -- expanding macros, and infering implicit/missing arguments.
-Show Environment 2.
+print Environment 2.
 
 -- By default, Lean does not display implicit arguments.
 -- The following command will force it to display them.
 SetOption pp::implicit true.
 
-Show Environment 2.
+print Environment 2.
 
 -- As an exercise, prove that the sum of two odd numbers is even,
 -- and other similar theorems.

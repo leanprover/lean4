@@ -1,5 +1,5 @@
 Variable myeq : Pi (A : Type), A -> A -> Bool
-Show myeq _ true false
+print myeq _ true false
 Variable T : Type
 Variable a : T
 Check myeq _ true a

@@ -17,8 +17,8 @@ print(get_options())
 assert(get_options():get{"pp", "colors"})
 assert(get_options():get{"pp", "width"} == 300)
 parse_lean_cmds([[
-  Show i ++ j
-  Show f i j
+  print i ++ j
+  print f i j
 ]], env)
 
 local env2 = environment()
@@ -26,7 +26,7 @@ env2:import("Int")
 parse_lean_cmds([[
 Variable f : Int -> Int -> Int
 Variables a b : Int
-Show f a b
+print f a b
 Notation 100 _ -+ _ : f
 ]], env2)
 
@@ -41,7 +41,7 @@ local fmt = lean_formatter(env)
 -- We can parse commands with respect to environment env2,
 -- but using a formatter based on env.
 parse_lean_cmds([[
-Show f a b
+print f a b
 ]], env2, options(), fmt)
 
 set_formatter(fmt)

@@ -13,4 +13,4 @@ Theorem T3 : exists x y z : N, P x y z := ExistsIntro _ (ExistsIntro _ (ExistsIn
 
 Theorem T4 (H : P a a b) : exists x y z, P x y z := ExistsIntro _ (ExistsIntro _ (ExistsIntro _ H))
 
-Show Environment 4
+print Environment 4

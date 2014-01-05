@@ -33,6 +33,6 @@ Variable x : Bool
  env:add_definition("sum1", s)
 *)
 
-Show Environment 1
+print Environment 1
 Eval sum1
 Variable y : Bool

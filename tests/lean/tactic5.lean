@@ -6,4 +6,4 @@ Theorem T4 (a b : Bool) : a => b => a /\ b /\ a := _.
         simple_tac
         done
 
-Show Environment 1.
+print Environment 1.

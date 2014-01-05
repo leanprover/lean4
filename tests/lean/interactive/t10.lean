@@ -12,4 +12,4 @@ Theorem T2 (A B : Bool) : A /\ B => B /\ A :=
    simple2_tac. done.
    simple_tac. done.
 
-Echo "echo command after failure"
+print "echo command after failure"

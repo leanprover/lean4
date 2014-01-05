@@ -8,4 +8,4 @@ back.
 exact.
 done.
 
-Show Environment 1.
+print Environment 1.

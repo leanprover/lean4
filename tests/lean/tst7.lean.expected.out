@@ -4,7 +4,7 @@
 λ (A B : Type) (a : B), f B a
 Failed to solve
 A : Type, a : ?M::0, B : Type ⊢ ?M::0[lift:0:2] ≺ B
-    (line: 4: pos: 41) Type of argument 2 must be convertible to the expected type in the application of
+    (line: 4: pos: 42) Type of argument 2 must be convertible to the expected type in the application of
         f
     with arguments:
         B

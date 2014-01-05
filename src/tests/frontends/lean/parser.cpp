@@ -46,10 +46,10 @@ static void tst1() {
     environment env; io_state ios = init_test_frontend(env);
     parse(env, ios, "Variable x : Bool Variable y : Bool Axiom H : x && y || x => x");
     parse(env, ios, "Eval true && true");
-    parse(env, ios, "Show true && false Eval true && false");
-    parse(env, ios, "Infixl 35 & : and Show true & false & false Eval true & false");
-    parse(env, ios, "Notation 100 if _ then _ fi : implies Show if true then false fi");
-    parse(env, ios, "Show Pi (A : Type), A -> A");
+    parse(env, ios, "print true && false Eval true && false");
+    parse(env, ios, "Infixl 35 & : and print true & false & false Eval true & false");
+    parse(env, ios, "Notation 100 if _ then _ fi : implies print if true then false fi");
+    parse(env, ios, "print Pi (A : Type), A -> A");
     parse(env, ios, "Check Pi (A : Type), A -> A");
 }
 
@@ -82,9 +82,9 @@ static void tst2() {
 
 static void tst3() {
     environment env; io_state ios = init_test_frontend(env);
-    parse(env, ios, "Help");
-    parse(env, ios, "Help Options");
-    parse_error(env, ios, "Help Echo");
+    parse(env, ios, "help");
+    parse(env, ios, "help Options");
+    parse_error(env, ios, "help print");
     check(env, ios, "10.3", mk_real_value(mpq(103, 10)));
     parse(env, ios, "Variable f : Real -> Real. Check f 10.3.");
     parse(env, ios, "Variable g : (Type 1) -> Type. Check g Type");

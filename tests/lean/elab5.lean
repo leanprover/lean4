@@ -9,4 +9,4 @@ Theorem R2 : Pi (A1 A2 B1 B2 : Type), ((A1 -> B1) = (A2 -> B2)) -> A1 -> (B1 = B
     fun A1 A2 B1 B2 H a, R H a
 
 SetOption pp::implicit true
-Show Environment 7.
+print Environment 7.

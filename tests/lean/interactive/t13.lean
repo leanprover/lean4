@@ -9,4 +9,4 @@ Theorem T1 (A B : Bool) : A /\ B -> B /\ A :=
               lemma2 := (show B by auto)
           in (show B /\ A by auto)
 
-Show Environment 1.
+print Environment 1.

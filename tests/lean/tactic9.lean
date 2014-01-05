@@ -10,4 +10,4 @@ Theorem T (a b : Bool) : a \/ b => (f b) => a := _.
      absurd
      done
 
-Show Environment 1.
+print Environment 1.

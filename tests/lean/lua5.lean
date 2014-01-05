@@ -11,5 +11,5 @@ for i = 1, N do
 end
 *)
 
-Show Environment 101
+print Environment 101
 Check x + y_1 + y_2

@@ -7,4 +7,4 @@ Theorem simple (p q r : Bool) : (p ⇒ q) ∧ (q ⇒ r) ⇒ p ⇒ r :=
             P_q  : q       := MP P_pq H_p
         in MP P_qr P_q))
 
-Show Environment 1
+print Environment 1

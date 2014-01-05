@@ -8,7 +8,7 @@ Theorem simple (p q r : Bool) : (p ⇒ q) ∧ (q ⇒ r) ⇒ p ⇒ r
         in MP P_qr P_q.
 
 SetOption pp::implicit true.
-Show Environment 1.
+print Environment 1.
 
 Theorem simple2 (a b c : Bool) : (a ⇒ b ⇒ c) ⇒ (a ⇒ b) ⇒ a ⇒ c
 := Assume H_abc H_ab H_a,
@@ -16,4 +16,4 @@ Theorem simple2 (a b c : Bool) : (a ⇒ b ⇒ c) ⇒ (a ⇒ b) ⇒ a ⇒ c
             P_bc := (MP H_abc H_a)
         in MP P_bc P_b.
 
-Show Environment 1.
+print Environment 1.

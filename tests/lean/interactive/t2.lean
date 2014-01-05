@@ -6,4 +6,4 @@ foo.
 abort.
 
 Variables a b : Bool.
-Show Environment 2.
+print Environment 2.

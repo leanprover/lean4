@@ -18,8 +18,8 @@ macro("Sum", { macro_arg.Exprs },
       end)
 *)
 
-Show (MyMacro 10, 20) + 20
-Show (Sum)
-Show Sum 10 20 30 40
-Show fun x, Sum x 10 x 20
+print (MyMacro 10, 20) + 20
+print (Sum)
+print Sum 10 20 30 40
+print fun x, Sum x 10 x 20
 Eval (fun x, Sum x 10 x 20) 100

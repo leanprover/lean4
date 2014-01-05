@@ -1,2 +1,2 @@
 Exit
-Show "FAILED"
+print "FAILED"

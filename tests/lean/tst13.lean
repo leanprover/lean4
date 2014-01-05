@@ -1,5 +1,5 @@
-Show fun x : Bool, (fun x : Bool, x).
-Show let x := true,
+print fun x : Bool, (fun x : Bool, x).
+print let x := true,
          y := true
      in (let z := x /\ y,
              f := (fun x y : Bool, x /\ y <=>

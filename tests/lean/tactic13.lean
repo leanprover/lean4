@@ -19,4 +19,4 @@ Theorem T2 (a b c : Int) (H1 : a = b) (H2 : a = c) : (f (f a c)) = (f (f b a)).
    auto.
    done.
 
-Show Environment 2.
+print Environment 2.

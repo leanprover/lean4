@@ -1,6 +1,6 @@
 Import Int.
 SetOption pp::unicode false
-Show 3 | 6
+print 3 | 6
 Eval 3 | 6
 Eval 3 | 7
 Eval 2 | 6
@@ -10,4 +10,4 @@ Eval x | 3
 Eval 3 | x
 Eval 6 | 3
 SetOption pp::notation false
-Show 3 | x
+print 3 | x

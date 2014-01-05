@@ -3,4 +3,4 @@ Theorem T (C A B : Bool) : C -> A -> B -> A.
    exact.
    done.
 
-Show Environment 1.
+print Environment 1.

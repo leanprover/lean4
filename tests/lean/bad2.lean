@@ -10,4 +10,4 @@ Definition n5 : _ := cons 10 nil
 
 SetOption pp::coercion true
 SetOption pp::implicit true
-Show Environment 1.
+print Environment 1.

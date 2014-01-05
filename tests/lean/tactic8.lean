@@ -6,4 +6,4 @@ Theorem T (a b : Bool) : a \/ b => (not b) => a := _.
      exact
      absurd
      done
-Show Environment 1.
+print Environment 1.

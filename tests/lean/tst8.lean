@@ -10,5 +10,5 @@ Definition f (A: Type) (a : A) : A :=
        c := g A b
    in c
 
-Show f _ 10.
-Show f _ (- 10).
+print f _ 10.
+print f _ (- 10).

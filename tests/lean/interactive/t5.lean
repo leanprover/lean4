@@ -5,4 +5,4 @@ Theorem T (a : Bool) : a.
     apply magic.
     done.
 
-Show Environment 1.
+print Environment 1.

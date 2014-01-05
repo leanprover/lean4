@@ -22,4 +22,4 @@ Theorem T3 (a : Int) : (P a a) => (f a a).
      Repeat (OrElse (apply Discharge) exact (apply Ax2) (apply Ax1)).
      done.
 
-Show Environment 2.
+print Environment 2.

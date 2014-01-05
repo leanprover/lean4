@@ -1,6 +1,6 @@
 Import Int.
 
-Show
+print
 let b := true,
     a : Int := b
 in a
@@ -14,7 +14,7 @@ let a  := 10,
     v2 := v1
 in v2
 
-Show
+print
 let a  := 10,
     v1 : vector Bool a := const a true,
     v2 : vector Bool a := v1
@@ -43,10 +43,8 @@ in v2
 
 SetOption pp::coercion true
 
-Show
+print
 let a  := 10,
     v1 : vector Bool a := const a true,
     v2 : vector Int  a := v1
 in v2
-
-

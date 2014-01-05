@@ -2,7 +2,7 @@ Variable T : Type
 Variable R : Type
 Variable f : T -> R
 Coercion f
-Show Environment 2
+print Environment 2
 Variable g : T -> R
 Coercion g
 Variable h : Pi (x : Type), x

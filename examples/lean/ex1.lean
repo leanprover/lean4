@@ -27,9 +27,9 @@ Theorem T2 : (h a (h a b)) = (h a (h c e)) :=
     CongrH (Refl a) T1
 
 -- Display the last two objects (i.e., theorems) added to the environment
-Show Environment 2
+print Environment 2
 
--- Show implicit arguments
+-- print implicit arguments
 SetOption lean::pp::implicit true
 SetOption pp::width 150
-Show Environment 2
+print Environment 2

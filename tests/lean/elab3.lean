@@ -9,4 +9,4 @@ Theorem R2 : Pi (A1 A2 B1 B2 : Type) (H : (A1 -> B1) = (A2 -> B2)) (a : A1), B1 
     fun A1 A2 B1 B2 H a,
         R _ _ _ _ H a
 
-Show Environment 1.
+print Environment 1.

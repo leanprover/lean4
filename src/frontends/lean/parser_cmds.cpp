@@ -32,21 +32,20 @@ static name g_theorem_kwd("Theorem");
 static name g_axiom_kwd("Axiom");
 static name g_universe_kwd("Universe");
 static name g_eval_kwd("Eval");
-static name g_show_kwd("Show");
 static name g_check_kwd("Check");
 static name g_infix_kwd("Infix");
 static name g_infixl_kwd("Infixl");
 static name g_infixr_kwd("Infixr");
 static name g_notation_kwd("Notation");
-static name g_echo_kwd("Echo");
 static name g_set_option_kwd("SetOption");
 static name g_set_opaque_kwd("SetOpaque");
 static name g_options_kwd("Options");
 static name g_env_kwd("Environment");
 static name g_import_kwd("Import");
-static name g_help_kwd("Help");
+static name g_help_kwd("help");
 static name g_coercion_kwd("Coercion");
 static name g_exit_kwd("Exit");
+static name g_print_kwd("print");
 static name g_push_kwd("Push");
 static name g_pop_kwd("Pop");
 static name g_scope_kwd("Scope");
@@ -56,9 +55,9 @@ static name g_namespace_kwd("Namespace");
 static name g_end_namespace_kwd("EndNamespace");
 /** \brief Table/List with all builtin command keywords */
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_variables_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
-                                        g_show_kwd, g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_notation_kwd, g_echo_kwd,
+                                        g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_notation_kwd,
                                         g_set_option_kwd, g_set_opaque_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd, g_coercion_kwd,
-                                        g_exit_kwd, g_push_kwd, g_pop_kwd, g_scope_kwd, g_end_scope_kwd, g_alias_kwd, g_builtin_kwd,
+                                        g_exit_kwd, g_print_kwd, g_push_kwd, g_pop_kwd, g_scope_kwd, g_end_scope_kwd, g_alias_kwd, g_builtin_kwd,
                                         g_namespace_kwd, g_end_namespace_kwd};
 // ==========================================
 
@@ -278,12 +277,13 @@ bool parser_imp::is_hidden_object(object const & obj) const {
 }
 
 /** \brief Parse
-    'Show' expr
-    'Show' Environment [num]
-    'Show' Environment all
-    'Show' Options
+    'print' expr
+    'print' Environment [num]
+    'print' Environment all
+    'print' Options
+    'print' [string]
 */
-void parser_imp::parse_show() {
+void parser_imp::parse_print() {
     next();
     if (curr() == scanner::token::CommandId) {
         name opt_id = curr_name();
@@ -337,6 +337,10 @@ void parser_imp::parse_show() {
         } else {
             throw parser_error("invalid Show command, expression, 'Options' or 'Environment' expected", m_last_cmd_pos);
         }
+    } else if (curr() == scanner::token::StringVal) {
+        std::string msg = curr_string();
+        next();
+        regular(m_io_state) << msg << endl;
     } else {
         expr v = m_elaborator(parse_expr()).first;
         regular(m_io_state) << v << endl;
@@ -467,13 +471,6 @@ void parser_imp::parse_notation_decl() {
             }
         }
     }
-}
-
-/** Parse 'Echo' [string] */
-void parser_imp::parse_echo() {
-    next();
-    std::string msg = check_string_next("invalid echo command, string expected");
-    regular(m_io_state) << msg << endl;
 }
 
 /** Parse 'SetOption' [id] [value] */
@@ -615,12 +612,13 @@ void parser_imp::parse_help() {
                             << "  Import [string]        load the given file" << endl
                             << "  Push                   create a scope (it is just an alias for the command Scope)" << endl
                             << "  Pop                    discard the current scope" << endl
+                            << "  print [expr]           pretty print the given expression" << endl
+                            << "  print Options          print current the set of assigned options" << endl
+                            << "  print [string]         print the given string" << endl
+                            << "  print Environment      print objects in the environment, if [Num] provided, then show only the last [Num] objects" << endl
+                            << "  print Environment [num] show the last num objects in the environment" << endl
                             << "  Scope                  create a scope" << endl
                             << "  SetOption [id] [value] set option [id] with value [value]" << endl
-                            << "  Show [expr]            pretty print the given expression" << endl
-                            << "  Show Options           show current the set of assigned options" << endl
-                            << "  Show Environment       show objects in the environment, if [Num] provided, then show only the last [Num] objects" << endl
-                            << "  Show Environment [num] show the last num objects in the environment" << endl
                             << "  Theorem [id] : [type] := [expr]      define a new theorem" << endl
                             << "  Variable [id] : [type] declare/postulate an element of the given type" << endl
                             << "  Universe [id] [level]  declare a new universe variable that is >= the given level" << endl;
@@ -766,8 +764,8 @@ bool parser_imp::parse_command() {
         parse_axiom();
     } else if (cmd_id == g_eval_kwd) {
         parse_eval();
-    } else if (cmd_id == g_show_kwd) {
-        parse_show();
+    } else if (cmd_id == g_print_kwd) {
+        parse_print();
     } else if (cmd_id == g_check_kwd) {
         parse_check();
     } else if (cmd_id == g_infix_kwd) {
@@ -778,8 +776,6 @@ bool parser_imp::parse_command() {
         parse_op(fixity::Infixr);
     } else if (cmd_id == g_notation_kwd) {
         parse_notation_decl();
-    } else if (cmd_id == g_echo_kwd) {
-        parse_echo();
     } else if (cmd_id == g_set_option_kwd) {
         parse_set_option();
     } else if (cmd_id == g_set_opaque_kwd) {

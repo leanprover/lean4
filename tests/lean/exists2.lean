@@ -15,4 +15,4 @@ Theorem T6 : exists x y : Int, P x y := ExistsIntro _ (ExistsIntro _ H3)
 Theorem T7 : exists x : Int, P (f x x) x := ExistsIntro _ H3
 Theorem T8 : exists x y : Int, P (f x x) y := ExistsIntro _ (ExistsIntro _ H3)
 
-Show Environment 8.
+print Environment 8.

@@ -10,7 +10,7 @@ Theorem T1 (A B : Bool) : A /\ B -> B /\ A :=
               lemma2     : B      := (by auto)
           in (show B /\ A by auto)
 
-Show Environment 1. -- Show proof for the previous theorem
+print Environment 1. -- print proof for the previous theorem
 
 Theorem T2 (A B : Bool) : A /\ B -> B /\ A :=
      fun assumption : A /\ B,

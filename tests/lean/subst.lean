@@ -7,4 +7,4 @@ Theorem T : a + n + a = 10 := Subst H1 H2
 SetOption pp::coercion true
 SetOption pp::notation false
 SetOption pp::implicit true
-Show Environment 1.
+print Environment 1.

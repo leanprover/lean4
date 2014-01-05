@@ -25,4 +25,4 @@ Theorem pierce (a b : Bool) : ((a ⇒ b) ⇒ a) ⇒ a
                        (λ H_a, H_a)
                        (λ H_na, NotImp1 (MT H H_na)).
 
-Show Environment 3.
+print Environment 3.

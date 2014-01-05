@@ -1,5 +1,5 @@
 Import Int.
-Show (Int -> Int) -> Int
-Show Int -> Int -> Int
-Show Int -> (Int -> Int)
-Show (Int -> Int) -> (Int -> Int) -> Int
+print (Int -> Int) -> Int
+print Int -> Int -> Int
+print Int -> (Int -> Int)
+print (Int -> Int) -> (Int -> Int) -> Int

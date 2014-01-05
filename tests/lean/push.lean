@@ -10,7 +10,7 @@ Pop
 
 Eval f a -- should produce an error
 
-Show Environment 1
+print Environment 1
 
 Push
   Infixl 100 ++ : Int::add

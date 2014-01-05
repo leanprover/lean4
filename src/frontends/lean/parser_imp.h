@@ -394,13 +394,12 @@ private:
     void parse_axiom();
     void parse_eval();
     bool is_hidden_object(object const & obj) const;
-    void parse_show();
+    void parse_print();
     void parse_check();
     unsigned parse_precedence();
     name parse_op_id();
     void parse_op(fixity fx);
     void parse_notation_decl();
-    void parse_echo();
     void parse_set_option();
     void parse_set_opaque();
     optional<std::string> find_lua_file(std::string const & fname);

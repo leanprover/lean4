@@ -1,6 +1,6 @@
 Import Int.
 Variables a b c : Int.
-Show a + b + c.
+print a + b + c.
 Check a + b.
 Exit.
 -- the following line should be executed

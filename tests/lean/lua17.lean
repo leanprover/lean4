@@ -1,6 +1,6 @@
 Import Int.
 Variables a b : Int
-Show Options
+print Options
 (*
   local ios = io_state()
 
@@ -10,5 +10,5 @@ Show Options
   print(parse_lean("fun x, a + x"))
   print(get_options())
 *)
-Show Options
-Show Environment 2
+print Options
+print Environment 2

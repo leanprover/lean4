@@ -23,5 +23,5 @@ Scope
          in Trans L5 L3.
 EndScope
 
-Show Environment 3.
+print Environment 3.
 Eval g Int Int::sub 10 20

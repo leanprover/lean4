@@ -8,5 +8,5 @@ Variable a : A
 Check DomInj H
 Theorem BeqB' : B = B' := RanInj H a
 SetOption pp::implicit true
-Show DomInj H
-Show RanInj H a
+print DomInj H
+print RanInj H a

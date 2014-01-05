@@ -1,6 +1,6 @@
 Import Int
 Import Real
-Show 1 + true
+print 1 + true
 Variable R : Type
 Variable T : Type
 Variable r2t : R -> T
@@ -12,10 +12,10 @@ Variable a : T
 Variable b : R
 SetOption lean::pp::coercion true
 SetOption lean::pp::notation false
-Show f a b
-Show f b a
+print f a b
+print f b a
 Variable g : R -> T -> R
 Infix 10 ++ : f
 Infix 10 ++ : g
-Show a ++ b
-Show b ++ a
+print a ++ b
+print b ++ a

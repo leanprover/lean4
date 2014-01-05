@@ -1,1 +1,1 @@
-Echo "test"
+print "test"

@@ -21,4 +21,4 @@ Theorem T2 (a b : Bool) : (h a b) => (f b) => a := _.
      simple_tac
      done.
 
-Show Environment 1.
+print Environment 1.

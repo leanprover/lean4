@@ -4,25 +4,25 @@
   Imported 'Real'
 Failed to solve
  ⊢ (?M::0 ≈ Nat::add) ⊕ (?M::0 ≈ Int::add) ⊕ (?M::0 ≈ Real::add)
-    (line: 3: pos: 9) Overloading at
+    (line: 3: pos: 10) Overloading at
         (Real::add | Int::add | Nat::add) 1 ⊤
     Failed to solve
      ⊢ Bool ≺ ℕ
-        (line: 3: pos: 9) Type of argument 2 must be convertible to the expected type in the application of
+        (line: 3: pos: 10) Type of argument 2 must be convertible to the expected type in the application of
             Nat::add
         with arguments:
             1
             ⊤
     Failed to solve
      ⊢ Bool ≺ ℤ
-        (line: 3: pos: 9) Type of argument 2 must be convertible to the expected type in the application of
+        (line: 3: pos: 10) Type of argument 2 must be convertible to the expected type in the application of
             Int::add
         with arguments:
             1
             ⊤
     Failed to solve
      ⊢ Bool ≺ ℝ
-        (line: 3: pos: 9) Type of argument 2 must be convertible to the expected type in the application of
+        (line: 3: pos: 10) Type of argument 2 must be convertible to the expected type in the application of
             Real::add
         with arguments:
             1

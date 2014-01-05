@@ -1,3 +1,3 @@
 SetOption pp::colors  false
-Echo "===BEGIN ENVIRONMENT==="
-Show Environment
+print "===BEGIN ENVIRONMENT==="
+print Environment

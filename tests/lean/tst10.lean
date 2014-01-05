@@ -1,20 +1,20 @@
 Variable a : Bool
 Variable b : Bool
 -- Conjunctions
-Show a && b
-Show a && b && a
-Show a /\ b
-Show a ∧ b
-Show (and a b)
-Show and a b
+print a && b
+print a && b && a
+print a /\ b
+print a ∧ b
+print (and a b)
+print and a b
 -- Disjunctions
-Show a || b
-Show a \/ b
-Show a ∨ b
-Show (or a b)
-Show or a (or a b)
+print a || b
+print a \/ b
+print a ∨ b
+print (or a b)
+print or a (or a b)
 -- Simple Formulas
-Show a => b => a
+print a => b => a
 Check a => b
 Eval a => a
 Eval true => a
@@ -22,5 +22,5 @@ Eval true => a
 Axiom H1 : a
 Axiom H2 : a => b
 Check @MP
-Show MP H2 H1
+print MP H2 H1
 Check MP H2 H1

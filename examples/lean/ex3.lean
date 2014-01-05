@@ -9,19 +9,17 @@ Theorem or_comm (a b : Bool) : (a ∨ b) ⇒ (b ∨ a)
                 (λ H_a, Disj2 b H_a)
                 (λ H_b, Disj1 H_b a).
 
-(* ---------------------------------
-(EM a) is the excluded middle  a ∨ ¬a
-(MT H H_na) is Modus Tollens with
-       H    : (a ⇒ b) ⇒ a)
-       H_na : ¬a
-produces
-       ¬(a ⇒ b)
-
-NotImp1 applied to
-        (MT H H_na) : ¬(a ⇒ b)
-produces
-        a
------------------------------------ *)
+-- (EM a) is the excluded middle  a ∨ ¬a
+-- (MT H H_na) is Modus Tollens with
+--       H    : (a ⇒ b) ⇒ a)
+--       H_na : ¬a
+-- produces
+--       ¬(a ⇒ b)
+--
+-- NotImp1 applied to
+--        (MT H H_na) : ¬(a ⇒ b)
+-- produces
+--        a
 Theorem pierce (a b : Bool) : ((a ⇒ b) ⇒ a) ⇒ a
 := Assume H, DisjCases (EM a)
                        (λ H_a, H_a)

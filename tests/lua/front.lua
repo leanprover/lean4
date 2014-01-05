@@ -27,7 +27,7 @@ parse_lean_cmds([[
 Variable f : Int -> Int -> Int
 Variables a b : Int
 Show f a b
-Notation 100 _ -- _ : f
+Notation 100 _ -+ _ : f
 ]], env2)
 
 local f, a, b = Consts("f, a, b")
@@ -35,7 +35,7 @@ assert(tostring(f(a, b)) == "f a b")
 set_formatter(lean_formatter(env))
 assert(tostring(f(a, b)) == "a ++ b")
 set_formatter(lean_formatter(env2))
-assert(tostring(f(a, b)) == "a -- b")
+assert(tostring(f(a, b)) == "a -+ b")
 
 local fmt = lean_formatter(env)
 -- We can parse commands with respect to environment env2,

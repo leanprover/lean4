@@ -8,7 +8,7 @@ Push
   Eval f a
 Pop
 
-Eval f a (* should produce an error *)
+Eval f a -- should produce an error
 
 Show Environment 1
 
@@ -17,6 +17,6 @@ Push
   Check 10 ++ 20
 Pop
 
-Check 10 ++ 20 (* should produce an error *)
+Check 10 ++ 20 -- should produce an error
 
-Pop (* should produce an error *)
+Pop -- should produce an error

@@ -13,9 +13,7 @@ Push
 Pop
 
 Push
-  (*
-    Same example but using ∀ instead of Π and ⇒ instead of →
-  *)
+  -- Same example but using ∀ instead of Π and ⇒ instead of →
   Theorem ReflIf (A : Type)
                  (R : A → A → Bool)
                  (Symmetry : ∀ x y, R x y ⇒ R y x)
@@ -29,7 +27,7 @@ Push
                 let L1 : R w x := (MP (ForallElim (ForallElim Symmetry x) w) H)
                 in (MP (MP (ForallElim (ForallElim (ForallElim Transitivity x) w) x) H) L1)))
 
-    (* We can make the previous example less verbose by using custom notation *)
+    -- We can make the previous example less verbose by using custom notation
 
     Infixl 50 !  : ForallElim
     Infixl 30 << : MP
@@ -51,7 +49,7 @@ Push
 Pop
 
 Scope
-  (* Same example again. *)
+  -- Same example again.
   Variable A : Type
   Variable R : A → A → Bool
   Axiom Symmetry  {x y : A} : R x y → R y x
@@ -63,15 +61,13 @@ Scope
             let L1 : R w x := Symmetry H
             in Transitivity H L1)
 
-  (* Even more compact proof of the same theorem *)
+  -- Even more compact proof of the same theorem
   Theorem ReflIf2 (x : A) : R x x :=
       ExistsElim (Linked x) (fun w H, Transitivity H (Symmetry H))
 
-(*
-  The command EndScope exports both theorem to the main scope
-  The variables and axioms in the scope become parameters to both theorems.
-*)
+  -- The command EndScope exports both theorem to the main scope
+  -- The variables and axioms in the scope become parameters to both theorems.
 EndScope
 
-(* Display the last two theorems *)
+-- Display the last two theorems
 Show Environment 2

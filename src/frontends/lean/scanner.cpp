@@ -165,6 +165,20 @@ void scanner::read_comment() {
     }
 }
 
+void scanner::read_single_line_comment() {
+    while (true) {
+        if (curr() == '\n') {
+            new_line();
+            next();
+            return;
+        } else if (curr() == EOF) {
+            return;
+        } else {
+            next();
+        }
+    }
+}
+
 bool scanner::is_command(name const & n) const {
     return std::any_of(m_commands.begin(), m_commands.end(), [&](name const & c) { return c == n; });
 }
@@ -431,7 +445,7 @@ scanner::token scanner::scan() {
                     next();
                     return read_script_block();
                 } else {
-                    read_comment();
+                    throw_exception("old comment style");
                     break;
                 }
             } else {
@@ -447,7 +461,10 @@ scanner::token scanner::scan() {
             next();
             if (normalize(curr()) == '0') {
                 return read_number(false);
-            } else if (normalize(curr()) == 'b' || curr() == '-') {
+            } else if (curr() == '-') {
+                read_single_line_comment();
+                break;
+            } else if (normalize(curr()) == 'b') {
                 return read_b_symbol('-');
             } else {
                 m_name_val = name("-");

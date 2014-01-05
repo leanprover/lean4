@@ -47,6 +47,7 @@ protected:
     bool  check_next(char c);
     bool  check_next_is_digit();
     void  read_comment();
+    void  read_single_line_comment();
     name  mk_name(name const & curr, std::string const & buf, bool only_digits);
     token read_a_symbol();
     token read_b_symbol(char prev);

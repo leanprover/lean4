@@ -69,8 +69,7 @@ static void check_name(char const * str, name const & expected) {
 }
 
 static void tst1() {
-    scan("fun(x: Pi A : Type, A -> A), (* (* test *) *) x+1 = 2.0 λ");
-    scan_error("(* (* foo *)");
+    scan("fun(x: Pi A : Type, A -> A), x+1 = 2.0 λ");
 }
 
 static void tst2() {
@@ -80,11 +79,11 @@ static void tst2() {
     check("fun (x : Bool), x", {st::Lambda, st::LeftParen, st::Id, st::Colon, st::Id, st::RightParen, st::Comma, st::Id});
     check("+++", {st::Id});
     check("x+y", {st::Id, st::Id, st::Id});
-    check("(* testing *)", {});
+    check("-- testing", {});
     check(" 2.31  ", {st::DecimalVal});
     check(" 333 22", {st::IntVal, st::IntVal});
     check("Int -> Int", {st::Id, st::Arrow, st::Id});
-    check("Int --> Int", {st::Id, st::Id, st::Id});
+    check("Int -+-> Int", {st::Id, st::Id, st::Id});
     check("x := 10", {st::Id, st::Assign, st::IntVal});
     check("(x+1):Int", {st::LeftParen, st::Id, st::Id, st::IntVal, st::RightParen, st::Colon, st::Id});
     check("{x}", {st::LeftCurlyBracket, st::Id, st::RightCurlyBracket});

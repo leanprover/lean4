@@ -31,7 +31,7 @@ Theorem SubsetAntiSymm (A : Type) : ∀ s1 s2 : Set A, s1 ⊆ s2 ⇒ s2 ⊆ s1 �
                                      L2 : x ∈ s2 ⇒ x ∈ s1 := Instantiate H2 x
                                      in ImpAntisym L1 L2)
 
-(* Compact (but less readable) version of the previous theorem *)
+-- Compact (but less readable) version of the previous theorem
 Theorem SubsetAntiSymm2 (A : Type) : ∀ s1 s2 : Set A, s1 ⊆ s2 ⇒ s2 ⊆ s1 ⇒ s1 = s2 :=
    For s1 s2, Assume H1 H2,
       MP (Instantiate (SubsetExt A) s1 s2)

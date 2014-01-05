@@ -4,7 +4,7 @@ Universe M : 512.
 Universe U : M+512.
 
 Variable Bool : Type.
-(* The following builtin declarations can be removed as soon as Lean supports inductive datatypes and match expressions. *)
+-- The following builtin declarations can be removed as soon as Lean supports inductive datatypes and match expressions.
 Builtin true : Bool.
 Builtin false : Bool.
 Builtin if {A : (Type U)} : Bool → A → A → A.
@@ -43,12 +43,11 @@ Infixr 35 && : and.
 Infixr 35 /\ : and.
 Infixr 35 ∧  : and.
 
-(* Forall is a macro for the identifier forall, we use that
-   because the Lean parser has the builtin syntax sugar:
-      forall x : T, P x
-   for
-      (forall T (fun x : T, P x))
-*)
+-- Forall is a macro for the identifier forall, we use that
+--   because the Lean parser has the builtin syntax sugar:
+--      forall x : T, P x
+--   for
+--      (forall T (fun x : T, P x))
 Definition Forall (A : TypeU) (P : A → Bool) : Bool
 := P == (λ x : A, true).
 
@@ -106,7 +105,7 @@ Theorem Absurd {a : Bool} (H1 : a) (H2 : ¬ a) : false
 Theorem EqMP {a b : Bool} (H1 : a == b) (H2 : a) : b
 := Subst H2 H1.
 
-(* Assume is a 'macro' that expands into a Discharge *)
+-- Assume is a 'macro' that expands into a Discharge
 
 Theorem ImpTrans {a b c : Bool} (H1 : a ⇒ b) (H2 : b ⇒ c) : a ⇒ c
 := Assume Ha, MP H2 (MP H1 Ha).
@@ -142,7 +141,7 @@ Theorem NotImp2 {a b : Bool} (H : ¬ (a ⇒ b)) : ¬ b
 := Assume H1 : b, Absurd (show a ⇒ b, Assume H2 : a, H1)
                          (show ¬ (a ⇒ b), H).
 
-(* Remark: conjunction is defined as ¬ (a ⇒ ¬ b) in Lean *)
+-- Remark: conjunction is defined as ¬ (a ⇒ ¬ b) in Lean
 
 Theorem Conj {a b : Bool} (H1 : a) (H2 : b) : a ∧ b
 := Assume H : a ⇒ ¬ b, Absurd H2 (MP H H1).
@@ -153,7 +152,7 @@ Theorem Conjunct1 {a b : Bool} (H : a ∧ b) : a
 Theorem Conjunct2 {a b : Bool} (H : a ∧ b) : b
 := DoubleNegElim (NotImp2 H).
 
-(* Remark: disjunction is defined as ¬ a ⇒ b in Lean *)
+-- Remark: disjunction is defined as ¬ a ⇒ b in Lean
 
 Theorem Disj1 {a : Bool} (H : a) (b : Bool) : a ∨ b
 := Assume H1 : ¬ a, AbsurdElim b H H1.
@@ -201,19 +200,15 @@ Theorem EqTIntro {a : Bool} (H : a) : a == true
 Theorem Congr1 {A : TypeU} {B : A → TypeU} {f g : Π x : A, B x} (a : A) (H : f == g) : f a == g a
 := SubstP (fun h : (Π x : A, B x), f a == h a) (Refl (f a)) H.
 
-(*
-Remark: we must use heterogeneous equality in the following theorem because the types of (f a) and (f b)
-are not "definitionally equal". They are (B a) and (B b).
-They are provably equal, we just have to apply Congr1.
-*)
+-- Remark: we must use heterogeneous equality in the following theorem because the types of (f a) and (f b)
+-- are not "definitionally equal". They are (B a) and (B b).
+-- They are provably equal, we just have to apply Congr1.
 
 Theorem Congr2 {A : TypeU} {B : A → TypeU} {a b : A} (f : Π x : A, B x) (H : a == b) : f a == f b
 := SubstP (fun x : A, f a == f x) (Refl (f a)) H.
 
-(*
-Remark: like the previous theorem we use heterogeneous equality. We cannot use Trans theorem
-because the types are not definitionally equal.
-*)
+-- Remark: like the previous theorem we use heterogeneous equality. We cannot use Trans theorem
+-- because the types are not definitionally equal.
 
 Theorem Congr {A : TypeU} {B : A → TypeU} {f g : Π x : A, B x} {a b : A} (H1 : f == g) (H2 : a == b) : f a == g b
 := HTrans (Congr2 f H2) (Congr1 b H1).
@@ -225,7 +220,7 @@ Theorem ForallIntro {A : TypeU} {P : A → Bool} (H : Π x : A, P x) : Forall A 
 := Trans (Symm (Eta P))
          (Abst (λ x, EqTIntro (H x))).
 
-(* Remark: the existential is defined as (¬ (forall x : A, ¬ P x)) *)
+-- Remark: the existential is defined as (¬ (forall x : A, ¬ P x))
 
 Theorem ExistsElim {A : TypeU} {P : A → Bool} {B : Bool} (H1 : Exists A P) (H2 : Π (a : A) (H : P a), B) : B
 := Refute (λ R : ¬ B,
@@ -236,12 +231,10 @@ Theorem ExistsIntro {A : TypeU} {P : A → Bool} (a : A) (H : P a) : Exists A P
 := Assume H1 : (∀ x : A, ¬ P x),
       Absurd H (ForallElim H1 a).
 
-(*
-At this point, we have proved the theorems we need using the
-definitions of forall, exists, and, or, =>, not.  We mark (some of)
-them as opaque. Opaque definitions improve performance, and
-effectiveness of Lean's elaborator.
-*)
+-- At this point, we have proved the theorems we need using the
+-- definitions of forall, exists, and, or, =>, not.  We mark (some of)
+-- them as opaque. Opaque definitions improve performance, and
+-- effectiveness of Lean's elaborator.
 
 SetOpaque implies true.
 SetOpaque not     true.

@@ -1,5 +1,4 @@
-(* comment *)
-(* (* nested comment *) *)
+-- comment
 Show true
 SetOption lean::pp::notation false
 Show true && false

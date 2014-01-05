@@ -68,5 +68,5 @@ Theorem T (a b : Bool) : a => b => a /\ b := _.
    (** Then(Repeat(OrElse(imp_tac(), conj_in_lua)), assumption_tac()) **)
    done
 
-(* Show proof created using our script *)
+-- Show proof created using our script
 Show Environment 1.

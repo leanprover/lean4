@@ -1,4 +1,4 @@
-(* Define a "fake" type to simulate the natural numbers. This is just a test. *)
+-- Define a "fake" type to simulate the natural numbers. This is just a test.
 Variable N : Type
 Variable lt : N -> N -> Bool
 Variable zero : N

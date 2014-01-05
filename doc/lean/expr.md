@@ -111,5 +111,3 @@ SetOption pp::implicit false.
 SetOption pp::notation true.
 Check 1 = 2.
 ```
-
-Note that, like the SML programming language, `(* comment *)` is a comment.

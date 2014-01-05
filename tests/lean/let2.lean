@@ -1,5 +1,4 @@
-
-(* Annotating lemmas *)
+-- Annotating lemmas
 
 Theorem simple (p q r : Bool) : (p ⇒ q) ∧ (q ⇒ r) ⇒ p ⇒ r :=
     Discharge (λ H_pq_qr, Discharge (λ H_p,

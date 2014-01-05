@@ -102,8 +102,8 @@ static void tst3() {
     parse_error(env, ios, "Notation 10 : Int::add");
     parse_error(env, ios, "Notation 10 _ : Int::add");
     parse(env, ios, "Notation 10 _ ++ _ : Int::add. Eval 10 ++ 20.");
-    parse(env, ios, "Notation 10 _ -- : Int::neg. Eval 10 --");
-    parse(env, ios, "Notation 30 -- _ : Int::neg. Eval -- 10");
+    parse(env, ios, "Notation 10 _ -+ : Int::neg. Eval 10 -+");
+    parse(env, ios, "Notation 30 -+ _ : Int::neg. Eval -+ 10");
     parse_error(env, ios, "10 + 30");
 }
 

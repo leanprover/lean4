@@ -4,56 +4,36 @@ import("tactic.lua")
 auto = Repeat(OrElse(assumption_tac(), conj_tac(), conj_hyp_tac()))
 **)
 
-(*
-The (by [tactic]) expression is essentially creating a "hole" and associating a "hint" to it.
-The "hint" is a tactic that should be used to fill the "hole".
-In the following example, we use the tactic "auto" defined by the Lua code above.
-
-The (show [expr] by [tactic]) expression is also creating a "hole" and associating a "hint" to it.
-The expression [expr] after the shows is fixing the type of the "hole"
-*)
 Theorem T1 (A B : Bool) : A /\ B -> B /\ A :=
      fun assumption : A /\ B,
           let lemma1     : A      := (by auto),
               lemma2     : B      := (by auto)
           in (show B /\ A by auto)
 
-Show Environment 1. (* Show proof for the previous theorem *)
+Show Environment 1. -- Show proof for the previous theorem
 
-(*
-When hints are not provided, the user must fill the (remaining) holes using tactic command sequences.
-Each hole must be filled with a tactic command sequence that terminates with the command 'done' and
-successfully produces a proof term for filling the hole. Here is the same example without hints
-This style is more convenient for interactive proofs
-*)
 Theorem T2 (A B : Bool) : A /\ B -> B /\ A :=
      fun assumption : A /\ B,
-          let lemma1     : A      := _,  (* first hole *)
-              lemma2     : B      := _   (* second hole *)
-          in _. (* third hole *)
-   auto. done. (* tactic command sequence for the first hole *)
-   auto. done. (* tactic command sequence for the second hole *)
-   auto. done. (* tactic command sequence for the third hole *)
+          let lemma1     : A      := _,
+              lemma2     : B      := _
+          in _.
+   auto. done.
+   auto. done.
+   auto. done.
 
-(*
-In the following example, instead of using the "auto" tactic, we apply a sequence of even simpler tactics.
-*)
 Theorem T3 (A B : Bool) : A /\ B -> B /\ A :=
      fun assumption : A /\ B,
-          let lemma1     : A      := _,  (* first hole *)
-              lemma2     : B      := _   (* second hole *)
-          in _. (* third hole *)
-   conj_hyp. exact. done.   (* tactic command sequence for the first hole *)
-   conj_hyp. exact. done.   (* tactic command sequence for the second hole *)
-   apply Conj. exact. done. (* tactic command sequence for the third hole *)
+          let lemma1     : A      := _,
+              lemma2     : B      := _
+          in _.
+   conj_hyp. exact. done.
+   conj_hyp. exact. done.
+   apply Conj. exact. done.
 
-(*
-We can also mix the two styles (hints and command sequences)
-*)
 Theorem T4 (A B : Bool) : A /\ B -> B /\ A :=
      fun assumption : A /\ B,
-          let lemma1     : A      := _,  (* first hole *)
-              lemma2     : B      := _   (* second hole *)
+          let lemma1     : A      := _,
+              lemma2     : B      := _
           in (show B /\ A by auto).
-   conj_hyp. exact. done.  (* tactic command sequence for the first hole *)
-   conj_hyp. exact. done.  (* tactic command sequence for the second hole *)
+   conj_hyp. exact. done.
+   conj_hyp. exact. done.

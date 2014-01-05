@@ -1,4 +1,4 @@
-(**
+(*
 cmd_macro("Simple",
           { macro_arg.String },
           function (env, str)
@@ -9,12 +9,12 @@ cmd_macro("Simple",
 parse_lean_cmds([[
    Simple "foo"
 ]])
-**)
+*)
 
 Simple "testing"
 
-(**
+(*
 parse_lean_cmds([[
    Simple "bla"
 ]])
-**)
+*)

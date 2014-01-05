@@ -1,8 +1,8 @@
-(** import("tactic.lua") **)
+(* import("tactic.lua") *)
 
 Theorem T2 (a b : Bool) : b => a \/ b.
-(** imp_tac() **).
-(** disj_tac() **).
+(* imp_tac() *).
+(* disj_tac() *).
 back.
 back.
 exact.

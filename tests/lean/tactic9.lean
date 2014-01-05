@@ -1,4 +1,4 @@
-(** import("tactic.lua") **)
+(* import("tactic.lua") *)
 Definition f(a : Bool) : Bool := not a.
 
 Theorem T (a b : Bool) : a \/ b => (f b) => a := _.

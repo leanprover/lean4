@@ -1,4 +1,4 @@
-(** import("tactic.lua") **)
+(* import("tactic.lua") *)
 Theorem T (C A B : Bool) : C -> A -> B -> A.
    exact.
    done.

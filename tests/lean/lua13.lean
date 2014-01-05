@@ -2,7 +2,7 @@ Import Int.
 Variables x y z : Int
 Variable f : Int -> Int -> Int
 
-(**
+(*
  local t = parse_lean("fun w, f w (f y 0)")
  print(t)
  assert(t:closed())
@@ -11,4 +11,4 @@ Variable f : Int -> Int -> Int
  assert(not b:closed())
  local env = get_environment()
  assert(env:find_object("Int"):get_name() == name("Int"))
-**)
+*)

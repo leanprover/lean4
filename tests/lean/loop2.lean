@@ -1,8 +1,8 @@
 Import Int.
 
-(**
+(*
  function add_paren(code)
-    return "(" .. "** " .. code .. " **" .. ")"
+    return "(" .. "* " .. code .. " *" .. ")"
  end
  parse_lean_cmds(add_paren([[
      local env = get_environment()
@@ -10,4 +10,4 @@ Import Int.
      print(env:find_object("x"))
   ]]))
  print("done")
-**)
+*)

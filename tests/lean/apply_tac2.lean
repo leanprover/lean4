@@ -1,4 +1,4 @@
-(** import("tactic.lua") **)
+(* import("tactic.lua") *)
 Check @Discharge
 Theorem T (a b : Bool) : a => b => b => a.
    apply Discharge.

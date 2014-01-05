@@ -1,4 +1,4 @@
-(** import("tactic.lua") **)
+(* import("tactic.lua") *)
 Definition f(a : Bool) : Bool := not a.
 Definition g(a b : Bool) : Bool := a \/ b.
 
@@ -11,9 +11,9 @@ Theorem T1 (a b : Bool) : (g a b) => (f b) => a := _.
      absurd
      done.
 
-(**
+(*
 simple_tac   = Repeat(unfold_tac()) .. Repeat(OrElse(imp_tac(), conj_hyp_tac(), assumption_tac(), absurd_tac(), conj_hyp_tac(), disj_hyp_tac()))
-**)
+*)
 
 Definition h(a b : Bool) : Bool := g a b.
 

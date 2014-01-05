@@ -380,23 +380,11 @@ scanner::token scanner::read_script_block() {
         next();
         if (c1 == '*') {
             char c2 = curr();
+            next();
             if (c2 == EOF)
                 throw_exception("unexpected end of script");
-            next();
-            if (c2 == '*') {
-                char c3 = curr();
-                if (c3 == EOF)
-                    throw_exception("unexpected end of script");
-                next();
-                if (c3 == ')') {
-                    return token::ScriptBlock;
-                } else {
-                    if (c3 == '\n')
-                        new_line();
-                    m_buffer += c1;
-                    m_buffer += c2;
-                    m_buffer += c3;
-                }
+            if (c2 == ')') {
+                return token::ScriptBlock;
             } else {
                 if (c2 == '\n')
                     new_line();
@@ -441,13 +429,7 @@ scanner::token scanner::scan() {
             next();
             if (curr() == '*') {
                 next();
-                if (curr() == '*')  {
-                    next();
-                    return read_script_block();
-                } else {
-                    throw_exception("old comment style");
-                    break;
-                }
+                return read_script_block();
             } else {
                 return token::LeftParen;
             }

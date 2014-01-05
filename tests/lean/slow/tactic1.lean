@@ -2,7 +2,7 @@ Import Int.
 Definition double {A : Type} (f : A -> A) : A -> A := fun x, f (f x).
 Definition big {A : Type} (f : A -> A) : A -> A := (double (double (double (double (double (double (double f))))))).
 
-(**
+(*
 
  -- Tactic for trying to prove goal using Reflexivity, Congruence and available assumptions
 local congr_tac = Repeat(OrElse(apply_tac("Refl"), apply_tac("Congr"), assumption_tac()))
@@ -18,7 +18,7 @@ eager_tac = Then(-- unfold homogeneous equality
 lazy_tac = OrElse(Then(Try(unfold_tac("eq")), congr_tac, now_tac()),
                   eager_tac)
 
-**)
+*)
 
 Theorem T1 (a b : Int) (f : Int -> Int) (H : a = b) : (big f a) = (big f b).
         eager_tac.

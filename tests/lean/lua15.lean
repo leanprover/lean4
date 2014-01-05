@@ -2,7 +2,7 @@ Import Int.
 Variables i j : Int
 Variable p : Bool
 
-(**
+(*
  local env = get_environment()
  ok, ex = pcall(
     function()
@@ -12,4 +12,4 @@ Variable p : Bool
  assert(is_exception(ex))
  print(ex:what())
  ex:rethrow()
-**)
+*)

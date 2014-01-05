@@ -1,4 +1,4 @@
-(** import("tactic.lua") **)
+(* import("tactic.lua") *)
 Theorem T (a b : Bool) : ((fun x, x /\ b) a) => ((fun x, x) a).
    beta.
    apply Discharge.

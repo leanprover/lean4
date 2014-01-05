@@ -1,4 +1,4 @@
-(** import("tactic.lua") **)
+(* import("tactic.lua") *)
 Axiom magic (a : Bool) : a.
 
 Theorem T (a : Bool) : a.

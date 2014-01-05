@@ -1,7 +1,7 @@
 Import Int.
 Variable x : Bool
 
-(**
+(*
  import("util.lua")
  local env    = get_environment()
  local Int    = Const("Int")
@@ -31,7 +31,7 @@ Variable x : Bool
  print(s)
  print(env:type_check(s))
  env:add_definition("sum1", s)
-**)
+*)
 
 Show Environment 1
 Eval sum1

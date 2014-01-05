@@ -1,7 +1,7 @@
 Import Int.
 Variable x : Int
 
-(**
+(*
 local env = get_environment()
 ty_x = env:type_check(Const("x"))
 c = context()
@@ -12,4 +12,4 @@ o = env:find_object("x")
 print(o)
 o = env:find_object("y")
 print(o)
-**)
+*)

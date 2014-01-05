@@ -1,4 +1,4 @@
-(** import("tactic.lua") **)
+(* import("tactic.lua") *)
 Variables a b c : Bool
 Axiom H : a \/ b
 Theorem T (a b : Bool) : a \/ b => b \/ a.

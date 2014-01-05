@@ -10,4 +10,4 @@ Definition D := read V1 1 (by trivial)
 Show Environment 1
 Variable b : Bool
 Definition a := b
-Theorem T : b => a := (by (** imp_tac() .. normalize_tac() .. assumption_tac() **))
+Theorem T : b => a := (by (* imp_tac() .. normalize_tac() .. assumption_tac() *))

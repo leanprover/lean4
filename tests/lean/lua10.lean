@@ -1,8 +1,7 @@
-
 Variables x1 x2 x3 : Bool
 Definition F : Bool := x1 /\ (x2 \/ x3)
 
-(**
+(*
  local env    = get_environment()
  local F      = env:find_object("F"):get_value()
  print(F)
@@ -15,5 +14,4 @@ Definition F : Bool := x1 /\ (x2 \/ x3)
 
  print(expr_size(F))
 
-**)
-
+*)

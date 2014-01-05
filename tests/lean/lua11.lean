@@ -1,5 +1,5 @@
 Import Int.
-(**
+(*
 
  local env = get_environment()
  local o1  = env:find_object(name("Int", "add"))
@@ -49,4 +49,4 @@ Import Int.
  assert(env:find_object("Refl"):is_axiom())
  assert(env:find_object(name("Int", "sub")):is_definition())
  assert(env:find_object("x"):is_var_decl())
-**)
+*)

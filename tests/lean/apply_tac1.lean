@@ -11,9 +11,9 @@ Theorem T1 (a : Int) : (P a a) => (f a a).
       done.
 Variable b : Int
 Axiom Ax2 (x : Int) : (f x b)
-(**
+(*
 simple_tac = Repeat(OrElse(imp_tac(), assumption_tac(), apply_tac("Ax2"), apply_tac("Ax1")))
-**)
+*)
 Theorem T2 (a : Int) : (P a a) => (f a a).
      simple_tac.
      done.

@@ -1,5 +1,5 @@
 Import Int.
-(**
+(*
 macro("MyMacro", { macro_arg.Expr, macro_arg.Comma, macro_arg.Expr },
      function (env, e1, e2)
         return Const({"Int", "add"})(e1, e2)
@@ -16,7 +16,7 @@ macro("Sum", { macro_arg.Exprs },
          end
          return r
       end)
-**)
+*)
 
 Show (MyMacro 10, 20) + 20
 Show (Sum)

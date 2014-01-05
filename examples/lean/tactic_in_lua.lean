@@ -1,4 +1,4 @@
-(**
+(*
  -- This example demonstrates how to create a new tactic using Lua.
  -- The basic idea is to reimplement the tactic conj_tactic in Lua.
 
@@ -62,10 +62,10 @@
  end
  conj_in_lua = tactic(conj_fn) -- Create a new tactic object using the Lua function conj_fn
  -- Now, the tactic conj_in_lua can be used when proving theorems in Lean.
-**)
+*)
 
 Theorem T (a b : Bool) : a => b => a /\ b := _.
-   (** Then(Repeat(OrElse(imp_tac(), conj_in_lua)), assumption_tac()) **)
+   (* Then(Repeat(OrElse(imp_tac(), conj_in_lua)), assumption_tac()) *)
    done
 
 -- Show proof created using our script

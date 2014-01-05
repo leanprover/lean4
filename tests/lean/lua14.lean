@@ -2,7 +2,7 @@ Import Int.
 Variables x y z : Int
 Variable f : Int -> Int -> Int
 
-(**
+(*
  local t = parse_lean("fun w, f w (f y 0)")
  print(t)
  assert(t:closed())
@@ -17,6 +17,6 @@ Variable f : Int -> Int -> Int
     Variable g : Int -> Int
  ]])
 
-**)
+*)
 
 Check g (f x 10)

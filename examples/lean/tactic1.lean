@@ -1,7 +1,7 @@
 -- This example demonstrates how to specify a proof skeleton that contains
 -- "holes" that must be filled using user-defined tactics.
 
-(**
+(*
 -- Import useful macros for creating tactics
 import("tactic.lua")
 
@@ -10,7 +10,7 @@ auto = Repeat(OrElse(assumption_tac(), conj_tac(), conj_hyp_tac()))
 
 conj_hyp = conj_hyp_tac()
 conj     = conj_tac()
-**)
+*)
 
 -- The (by [tactic]) expression is essentially creating a "hole" and associating a "hint" to it.
 -- The "hint" is a tactic that should be used to fill the "hole".

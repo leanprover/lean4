@@ -207,10 +207,10 @@ theorem plus::eqz {a b : Nat} (H : a + b = 0) : a = 0
                              ...  ≠  0           : succ::nz (n + b)))
 
 theorem le::intro {a b c : Nat} (H : a + c = b) : a ≤ b
-:= (symm (le::def a b)) ◆ (have (∃ x, a + x = b) : exists::intro c H)
+:= (symm (le::def a b)) ◂ (have (∃ x, a + x = b) : exists::intro c H)
 
 theorem le::elim {a b : Nat} (H : a ≤ b) : ∃ x, a + x = b
-:= (le::def a b) ◆ H
+:= (le::def a b) ◂ H
 
 theorem le::refl (a : Nat) : a ≤ a := le::intro (plus::zeror a)
 

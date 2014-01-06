@@ -105,8 +105,8 @@ theorem absurd {a : Bool} (H1 : a) (H2 : ¬ a) : false
 theorem eq::mp {a b : Bool} (H1 : a == b) (H2 : a) : b
 := subst H2 H1
 
-infixl 100 <|> : eq::mp
-infixl 100 ◆   : eq::mp
+infixl 100 <| : eq::mp
+infixl 100 ◂  : eq::mp
 
 -- assume is a 'macro' that expands into a discharge
 
@@ -114,16 +114,16 @@ theorem imp::trans {a b c : Bool} (H1 : a ⇒ b) (H2 : b ⇒ c) : a ⇒ c
 := assume Ha, H2 ◂ (H1 ◂ Ha)
 
 theorem imp::eq::trans {a b c : Bool} (H1 : a ⇒ b) (H2 : b == c) : a ⇒ c
-:= assume Ha, H2 ◆ (H1 ◂ Ha)
+:= assume Ha, H2 ◂ (H1 ◂ Ha)
 
 theorem eq::imp::trans {a b c : Bool} (H1 : a == b) (H2 : b ⇒ c) : a ⇒ c
-:= assume Ha, H2 ◂ (H1 ◆ Ha)
+:= assume Ha, H2 ◂ (H1 ◂ Ha)
 
 theorem not::not::eq (a : Bool) : (¬ ¬ a) == a
 := case (λ x, (¬ ¬ x) == x) trivial trivial a
 
 theorem not::not::elim {a : Bool} (H : ¬ ¬ a) : a
-:= (not::not::eq a) ◆ H
+:= (not::not::eq a) ◂ H
 
 theorem mt {a b : Bool} (H1 : a ⇒ b) (H2 : ¬ b) : ¬ a
 := assume H : a, absurd (H1 ◂ H) H2
@@ -193,7 +193,7 @@ theorem ne::eq::trans {A : TypeU} {a b c : A} (H1 : a ≠ b) (H2 : b = c) : a �
 := subst H1 H2
 
 theorem eqt::elim {a : Bool} (H : a == true) : a
-:= (symm H) ◆ trivial
+:= (symm H) ◂ trivial
 
 theorem eqt::intro {a : Bool} (H : a) : a == true
 := iff::intro (assume H1 : a, trivial)
@@ -218,8 +218,8 @@ theorem congr {A : TypeU} {B : A → TypeU} {f g : Π x : A, B x} {a b : A} (H1 
 theorem forall::elim {A : TypeU} {P : A → Bool} (H : Forall A P) (a : A) : P a
 := eqt::elim (congr1 a H)
 
-infixl 100 ! : forall::elim
-infixl 100 ↓ : forall::elim
+infixl 100 <| : forall::elim
+infixl 100 ◂  : forall::elim
 
 theorem forall::intro {A : TypeU} {P : A → Bool} (H : Π x : A, P x) : Forall A P
 := (symm (eta P)) ⋈ (abst (λ x, eqt::intro (H x)))
@@ -322,7 +322,7 @@ theorem not::and (a b : Bool) : (¬ (a ∧ b)) == (¬ a ∨ ¬ b)
         a
 
 theorem not::and::elim {a b : Bool} (H : ¬ (a ∧ b)) : ¬ a ∨ ¬ b
-:= (not::and a b) ◆ H
+:= (not::and a b) ◂ H
 
 theorem not::or (a b : Bool) : (¬ (a ∨ b)) == (¬ a ∧ ¬ b)
 := case (λ x, (¬ (x ∨ b)) == (¬ x ∧ ¬ b))
@@ -331,7 +331,7 @@ theorem not::or (a b : Bool) : (¬ (a ∨ b)) == (¬ a ∧ ¬ b)
         a
 
 theorem not::or::elim {a b : Bool} (H : ¬ (a ∨ b)) : ¬ a ∧ ¬ b
-:= (not::or a b) ◆ H
+:= (not::or a b) ◂ H
 
 theorem not::iff (a b : Bool) : (¬ (a == b)) == ((¬ a) == b)
 := case (λ x, (¬ (x == b)) == ((¬ x) == b))
@@ -340,7 +340,7 @@ theorem not::iff (a b : Bool) : (¬ (a == b)) == ((¬ a) == b)
         a
 
 theorem not::iff::elim {a b : Bool} (H : ¬ (a == b)) : (¬ a) == b
-:= (not::iff a b) ◆ H
+:= (not::iff a b) ◂ H
 
 theorem not::implies (a b : Bool) : (¬ (a ⇒ b)) == (a ∧ ¬ b)
 := case (λ x, (¬ (x ⇒ b)) == (x ∧ ¬ b))
@@ -349,7 +349,7 @@ theorem not::implies (a b : Bool) : (¬ (a ⇒ b)) == (a ∧ ¬ b)
         a
 
 theorem not::implies::elim {a b : Bool} (H : ¬ (a ⇒ b)) : a ∧ ¬ b
-:= (not::implies a b) ◆ H
+:= (not::implies a b) ◂ H
 
 theorem not::congr {a b : Bool} (H : a == b) : (¬ a) == (¬ b)
 := congr2 not H
@@ -365,14 +365,14 @@ theorem not::forall (A : (Type U)) (P : A → Bool) : (¬ (∀ x : A, P x)) == (
                    ...    = (∃ x : A, ¬ P x)      : refl (∃ x : A, ¬ P x)
 
 theorem not::forall::elim {A : (Type U)} {P : A → Bool} (H : ¬ (∀ x : A, P x)) : ∃ x : A, ¬ P x
-:= (not::forall A P) ◆ H
+:= (not::forall A P) ◂ H
 
 theorem not::exists (A : (Type U)) (P : A → Bool) : (¬ ∃ x : A, P x) == (∀ x : A, ¬ P x)
 := calc (¬ ∃ x : A, P x) = (¬ ¬ ∀ x : A, ¬ P x) : refl (¬ ∃ x : A, P x)
                      ... = (∀ x : A, ¬ P x)     : not::not::eq (∀ x : A, ¬ P x)
 
 theorem not::exists::elim {A : (Type U)} {P : A → Bool} (H : ¬ ∃ x : A, P x) : ∀ x : A, ¬ P x
-:= (not::exists A P) ◆ H
+:= (not::exists A P) ◂ H
 
 theorem exists::unfold1 {A : TypeU} {P : A → Bool} (a : A) (H : ∃ x : A, P x) : P a ∨ (∃ x : A, x ≠ a ∧ P x)
 := exists::elim H

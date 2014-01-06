@@ -5,20 +5,20 @@
 variable cast {A B : (Type U)} : A == B → A → B.
 
 -- The CastEq axiom states that for any cast of x is equal to x.
-axiom CastEq  {A B : (Type U)} (H : A == B) (x : A) : x == cast H x.
+axiom cast::eq {A B : (Type U)} (H : A == B) (x : A) : x == cast H x.
 
 -- The CastApp axiom "propagates" the cast over application
-axiom CastApp {A A' : (Type U)} {B : A → (Type U)} {B' : A' → (Type U)}
+axiom cast::app {A A' : (Type U)} {B : A → (Type U)} {B' : A' → (Type U)}
               (H1 : (Π x : A, B x) == (Π x : A', B' x)) (H2 : A == A')
               (f : Π x : A, B x) (x : A) :
     cast H1 f (cast H2 x) == f x.
 
 -- If two (dependent) function spaces are equal, then their domains are equal.
-axiom DomInj {A A' : (Type U)} {B : A → (Type U)} {B' : A' → (Type U)}
+axiom dominj {A A' : (Type U)} {B : A → (Type U)} {B' : A' → (Type U)}
              (H : (Π x : A, B x) == (Π x : A', B' x)) :
     A == A'.
 
 -- If two (dependent) function spaces are equal, then their ranges are equal.
-axiom RanInj {A A' : (Type U)} {B : A → (Type U)} {B' : A' → (Type U)}
+axiom raninj {A A' : (Type U)} {B : A → (Type U)} {B' : A' → (Type U)}
              (H : (Π x : A, B x) == (Π x : A', B' x)) (a : A) :
-    B a == B' (cast (DomInj H) a).
+    B a == B' (cast (dominj H) a).

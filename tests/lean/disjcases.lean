@@ -2,10 +2,10 @@
 variables a b c : Bool
 axiom H : a \/ b
 theorem T (a b : Bool) : a \/ b => b \/ a.
-   apply Discharge.
-   apply (DisjCases H).
-   apply Disj2.
+   apply discharge.
+   apply (or::elim H).
+   apply or::intror.
    exact.
-   apply Disj1.
+   apply or::introl.
    exact.
    done.

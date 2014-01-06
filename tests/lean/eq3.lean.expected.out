@@ -7,6 +7,6 @@
   Assumed: v3
   Assumed: H1
   Assumed: H2
-HTrans H1 H2 : v1 == v3
+htrans H1 H2 : v1 == v3
   Set: lean::pp::implicit
-@HTrans (Vector n) (Vector (n + 0)) (Vector (0 + n)) v1 v2 v3 H1 H2 : v1 == v3
+@htrans (Vector n) (Vector (n + 0)) (Vector (0 + n)) v1 v2 v3 H1 H2 : v1 == v3

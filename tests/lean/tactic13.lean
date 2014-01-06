@@ -3,10 +3,10 @@ import Int.
 variable f : Int -> Int -> Int
 
 (*
-refl_tac           = apply_tac("Refl")
-congr_tac          = apply_tac("Congr")
-symm_tac           = apply_tac("Symm")
-trans_tac          = apply_tac("Trans")
+refl_tac           = apply_tac("refl")
+congr_tac          = apply_tac("congr")
+symm_tac           = apply_tac("symm")
+trans_tac          = apply_tac("trans")
 unfold_homo_eq_tac = unfold_tac("eq")
 auto = unfold_homo_eq_tac .. Repeat(OrElse(refl_tac, congr_tac, assumption_tac(), Then(symm_tac, assumption_tac(), now_tac())))
 *)

@@ -6,4 +6,4 @@
   Defined: h
   Proved: T2
 theorem T2 (a b : Bool) : h a b ⇒ f b ⇒ a :=
-    Discharge (λ H : a ∨ b, Discharge (λ H::1 : ¬ b, DisjCases H (λ H : a, H) (λ H : b, AbsurdElim a H H::1)))
+    discharge (λ H : a ∨ b, discharge (λ H::1 : ¬ b, or::elim H (λ H : a, H) (λ H : b, absurd::elim a H H::1)))

@@ -83,11 +83,9 @@ function nary_macro(name, f, farity)
    end)
 end
 
-binder_macro("take", Const("ForallIntro"), 3, 1, 3)
-binder_macro("Assume", Const("Discharge"), 3, 1, 3)
-nary_macro("Instantiate", Const("ForallElim"), 4)
-nary_macro("MP'", Const("MP"), 4)
-nary_macro("Subst'", Const("Subst"), 6)
+binder_macro("take", Const({"forall", "intro"}), 3, 1, 3)
+binder_macro("assume", Const("discharge"), 3, 1, 3)
+nary_macro("instantiate", Const({"forall", "elim"}), 4)
 
 -- ExistsElim syntax-sugar
 -- Example:
@@ -96,14 +94,14 @@ nary_macro("Subst'", Const("Subst"), 6)
 --      Axiom Ax2: forall x y, not P x y
 -- Now, the following macro expression
 --    obtain (a b : Nat) (H : P a b) from Ax1,
---         show false, Absurd H (instantiate Ax2 a b)
+--         have false : absurd H (instantiate Ax2 a b)
 -- expands to
---    ExistsElim Ax1
+--    exists::elim Ax1
 --        (fun (a : Nat) (Haux : ...),
---           ExistsElim Haux
+--           exists::elim Haux
 --              (fun (b : Na) (H : P a b),
---                   show false, Absurd H (instantiate Ax2 a b)
-macro("Obtain", { macro_arg.Parameters, macro_arg.Comma, macro_arg.Id, macro_arg.Expr, macro_arg.Comma, macro_arg.Expr },
+--                   have false : absurd H (instantiate Ax2 a b)
+macro("obtain", { macro_arg.Parameters, macro_arg.Comma, macro_arg.Id, macro_arg.Expr, macro_arg.Comma, macro_arg.Expr },
       function (env, bindings, fromid, exPr, body)
          local n = #bindings
          if n < 2 then
@@ -112,7 +110,7 @@ macro("Obtain", { macro_arg.Parameters, macro_arg.Comma, macro_arg.Id, macro_arg
          if fromid ~= name("from") then
             error("invalid 'obtain' expression, 'from' keyword expected, got '" .. tostring(fromid) .. "'")
          end
-         local exElim = mk_constant("ExistsElim")
+         local exElim = mk_constant({"exists", "elim"})
          local H_name = bindings[n][1]
          local H_type = bindings[n][2]
          local a_name = bindings[n-1][1]

@@ -1,6 +1,6 @@
 variable a : Bool
 variable b : Bool
--- Conjunctions
+-- and::introunctions
 print a && b
 print a && b && a
 print a /\ b
@@ -21,6 +21,6 @@ eval true => a
 -- Simple proof
 axiom H1 : a
 axiom H2 : a => b
-check @MP
-print MP H2 H1
-check MP H2 H1
+check @mp
+print mp H2 H1
+check mp H2 H1

@@ -1,8 +1,8 @@
 import Int.
 (*
 
--- Tactic for trying to prove goal using Reflexivity, Congruence and available assumptions
-congr_tac = Try(unfold_tac("eq")) .. Repeat(OrElse(apply_tac("Refl"), apply_tac("Congr"), assumption_tac()))
+-- Tactic for trying to prove goal using reflexivity, congruence and available assumptions
+congr_tac = Try(unfold_tac("eq")) .. Repeat(OrElse(apply_tac("refl"), apply_tac("congr"), assumption_tac()))
 
 *)
 

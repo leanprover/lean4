@@ -5,4 +5,4 @@ check fun x, x
 theorem T (A : Type) (x : A) : Pi (y : A), A
 := _.
 
-theorem T (x : _) : x = x := Refl x.
+theorem T (x : _) : x = x := refl x.

@@ -44,11 +44,11 @@ void calc_proof_parser::add_trans_step(expr const & op1, expr const & op2, trans
     m_trans_ops.emplace_front(op1, op2, d);
 }
 
-static name g_eq_imp_trans("EqImpTrans");
-static name g_imp_eq_trans("ImpEqTrans");
-static name g_imp_trans("ImpTrans");
-static name g_eq_ne_trans("EqNeTrans");
-static name g_ne_eq_trans("NeEqTrans");
+static name g_eq_imp_trans({"eq", "imp", "trans"});
+static name g_imp_eq_trans({"imp", "eq", "trans"});
+static name g_imp_trans({"imp", "trans"});
+static name g_eq_ne_trans({"eq", "ne", "trans"});
+static name g_ne_eq_trans({"ne", "eq", "trans"});
 static name g_neq("neq");
 
 calc_proof_parser::calc_proof_parser() {

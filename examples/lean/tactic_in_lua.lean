@@ -42,7 +42,7 @@
     local pb     = s:proof_builder()
     local new_pb =
        function(m, a)
-          local Conj  = Const("Conj")
+          local Conj  = Const({"and", "intro"})
           local new_m = proof_map(m) -- Copy proof map m
           for _, p in ipairs(proof_info) do
              local n = p[1]  -- n is the name of the goal splitted by this tactic

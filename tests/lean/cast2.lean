@@ -5,8 +5,8 @@ variable A' : Type
 variable B' : Type
 axiom H : (A -> B) = (A' -> B')
 variable a : A
-check DomInj H
-theorem BeqB' : B = B' := RanInj H a
+check dominj H
+theorem BeqB' : B = B' := raninj H a
 setoption pp::implicit true
-print DomInj H
-print RanInj H a
+print dominj H
+print raninj H a

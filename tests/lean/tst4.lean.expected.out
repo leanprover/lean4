@@ -10,7 +10,7 @@
   Assumed: EqNice
 @EqNice N n1 n2
 @f N n1 n2 : N
-@Congr : Π (A : TypeU) (B : A → TypeU) (f g : Π x : A, B x) (a b : A), f == g → a == b → f a == g b
+@congr : Π (A : TypeU) (B : A → TypeU) (f g : Π x : A, B x) (a b : A), f == g → a == b → f a == g b
 @f N n1 n2
   Assumed: a
   Assumed: b
@@ -20,11 +20,11 @@
   Proved: Pr
 axiom H1 : @eq N a b ∧ @eq N b c
 theorem Pr : @eq N (g a) (g c) :=
-    @Congr N
+    @congr N
            (λ x : N, N)
            g
            g
            a
            c
-           (@Refl (N → N) g)
-           (@Trans N a b c (@Conjunct1 (@eq N a b) (@eq N b c) H1) (@Conjunct2 (@eq N a b) (@eq N b c) H1))
+           (@refl (N → N) g)
+           (@trans N a b c (and::@eliml (@eq N a b) (@eq N b c) H1) (and::@elimr (@eq N a b) (@eq N b c) H1))

@@ -7,8 +7,8 @@
   Assumed: B'
   Assumed: H
   Assumed: a
-DomInj H : A == A'
+dominj H : A == A'
   Proved: BeqB'
   Set: lean::pp::implicit
-@DomInj A A' (λ x : A, B) (λ x : A', B') H
-@RanInj A A' (λ x : A, B) (λ x : A', B') H a
+@dominj A A' (λ x : A, B) (λ x : A', B') H
+@raninj A A' (λ x : A, B) (λ x : A', B') H a

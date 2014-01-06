@@ -341,7 +341,7 @@ static void try_rewriter1_tst() {
     cout << "         " << concl << " := " << proof << std::endl;
 
     lean_assert_eq(concl, mk_eq(a_plus_b, a_plus_b));
-    lean_assert_eq(proof, Const("Refl")(Nat, a_plus_b));
+    lean_assert_eq(proof, Const("refl")(Nat, a_plus_b));
     env->add_theorem("New_theorem6", concl, proof);
 }
 
@@ -451,7 +451,7 @@ static void app_rewriter1_tst() {
          << "Proof = " << proof << std::endl;
     lean_assert_eq(concl, mk_eq(v, f1(b_plus_a)));
     lean_assert_eq(proof,
-                   Const("Congr2")(Nat, Fun(name("_"), Nat, Nat), a_plus_b, b_plus_a, f1, Const("ADD_COMM")(a, b)));
+                   Const("congr2")(Nat, Fun(name("_"), Nat, Nat), a_plus_b, b_plus_a, f1, Const("ADD_COMM")(a, b)));
     env->add_theorem("app_rewriter2", concl, proof);
     cout << "====================================================" << std::endl;
     v = f4(nVal(0), a_plus_b, nVal(0), b_plus_a);
@@ -464,11 +464,11 @@ static void app_rewriter1_tst() {
     // Congr Nat (fun _ : Nat, Nat) (f4 0 (Nat::add a b) 0) (f4 0 (Nat::add b a) 0) (Nat::add b a) (Nat::add a b) (Congr1 Nat (fun _ : Nat, (Nat -> Nat)) (f4 0 (Nat::add a b)) (f4 0 (Nat::add b a)) 0 (Congr2 Nat (fun _ : Nat, (Nat -> Nat -> Nat)) (Nat::add a b) (Nat::add b a) (f4 0) (ADD_COMM a b))) (ADD_COMM b a)
 
     lean_assert_eq(proof,
-                   Const("Congr")(Nat, Fun(name("_"), Nat, Nat), f4(zero, a_plus_b, zero), f4(zero, b_plus_a, zero),
+                   Const("congr")(Nat, Fun(name("_"), Nat, Nat), f4(zero, a_plus_b, zero), f4(zero, b_plus_a, zero),
                                   b_plus_a, a_plus_b,
-                                  Const("Congr1")(Nat, Fun(name("_"), Nat, Nat >> Nat), f4(zero, a_plus_b),
+                                  Const("congr1")(Nat, Fun(name("_"), Nat, Nat >> Nat), f4(zero, a_plus_b),
                                                   f4(zero, b_plus_a), zero,
-                                                  Const("Congr2")(Nat, Fun(name("_"), Nat, Nat >> (Nat >> Nat)),
+                                                  Const("congr2")(Nat, Fun(name("_"), Nat, Nat >> (Nat >> Nat)),
                                                                   a_plus_b, b_plus_a, f4(zero),
                                                                   Const("ADD_COMM")(a, b))),
                                   Const("ADD_COMM")(b, a)));

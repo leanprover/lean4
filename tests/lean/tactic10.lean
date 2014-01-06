@@ -4,8 +4,8 @@ definition g(a b : Bool) : Bool := a \/ b.
 
 theorem T1 (a b : Bool) : (g a b) => (f b) => a := _.
      unfold_all
-     apply Discharge
-     apply Discharge
+     apply discharge
+     apply discharge
      disj_hyp
      exact
      absurd

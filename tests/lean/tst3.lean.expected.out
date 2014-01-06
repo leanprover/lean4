@@ -7,6 +7,11 @@ implies ⊤ (implies a ⊥)
 notation 100 _ |- _ ; _ : f
 f c d e
 c |- d ; e
+Notation has been redefined, the existing notation:
+  infixl 100 !
+has been replaced with:
+  notation 20 _ !
+because they conflict with each other.
 (c !) !
 fact (fact c)
 The precedence of ';' changed from 100 to 30.

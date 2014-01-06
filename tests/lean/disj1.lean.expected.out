@@ -4,4 +4,4 @@
   Proved: T1
   Proved: T2
 theorem T2 (a b : Bool) : a ∨ b ⇒ b ∨ a :=
-    Discharge (λ H : a ∨ b, DisjCases H (λ H : a, Disj2 b H) (λ H : b, Disj1 H a))
+    discharge (λ H : a ∨ b, or::elim H (λ H : a, or::intror b H) (λ H : b, or::introl H a))

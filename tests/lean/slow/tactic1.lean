@@ -5,7 +5,7 @@ definition big {A : Type} (f : A -> A) : A -> A := (double (double (double (doub
 (*
 
  -- Tactic for trying to prove goal using Reflexivity, Congruence and available assumptions
-local congr_tac = Repeat(OrElse(apply_tac("Refl"), apply_tac("Congr"), assumption_tac()))
+local congr_tac = Repeat(OrElse(apply_tac("refl"), apply_tac("congr"), assumption_tac()))
 
 -- Create an eager tactic that only tries to prove goal after unfolding everything
 eager_tac = Then(-- unfold homogeneous equality

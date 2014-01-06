@@ -6,8 +6,8 @@
   Assumed: B
   Assumed: B'
   Assumed: x
-cast (Refl A) x
-x == cast (Refl A) x
+cast (refl A) x
+x == cast (refl A) x
   Assumed: b
   Defined: f
   Assumed: H

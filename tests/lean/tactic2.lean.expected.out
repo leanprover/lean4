@@ -5,16 +5,21 @@
   Assumed: r
   Proved: T1
   Proved: T2
-theorem T2 : p ⇒ q ⇒ p ∧ q ∧ p := Discharge (λ H : p, Discharge (λ H::1 : q, Conj H (Conj H::1 H)))
+theorem T2 : p ⇒ q ⇒ p ∧ q ∧ p :=
+    discharge (λ H : p, discharge (λ H::1 : q, and::intro H (and::intro H::1 H)))
   Proved: T3
 theorem T3 : p ⇒ p ∧ q ⇒ r ⇒ q ∧ r ∧ p :=
-    Discharge
+    discharge
         (λ H : p,
-           Discharge (λ H::1 : p ∧ q, Discharge (λ H::2 : r, Conj (Conjunct2 H::1) (Conj H::2 (Conjunct1 H::1)))))
+           discharge
+               (λ H::1 : p ∧ q,
+                  discharge (λ H::2 : r, and::intro (and::elimr H::1) (and::intro H::2 (and::eliml H::1)))))
   Proved: T4
 theorem T4 : p ⇒ p ∧ q ⇒ r ⇒ q ∧ r ∧ p :=
-    Discharge
+    discharge
         (λ H : p,
-           Discharge
+           discharge
                (λ H::1 : p ∧ q,
-                  Discharge (λ H::2 : r, Conj (Conjunct2 H::1) (let H::1::1 := Conjunct1 H::1 in Conj H::2 H::1::1))))
+                  discharge
+                      (λ H::2 : r,
+                         and::intro (and::elimr H::1) (let H::1::1 := and::eliml H::1 in and::intro H::2 H::1::1))))

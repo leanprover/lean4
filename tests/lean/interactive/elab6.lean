@@ -5,5 +5,5 @@
 local env = get_environment()
 env:set_opaque("forall", false)
 *)
-theorem ForallIntro2 (A : (Type U)) (P : A -> Bool) (H : Pi x, P x) : forall x, P x :=
-        Abst (fun x, EqTIntro (H x))
+theorem forall::intro2 (A : (Type U)) (P : A -> Bool) (H : Pi x, P x) : forall x, P x :=
+        abst (fun x, eqt::intro (H x))

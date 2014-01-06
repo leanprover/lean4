@@ -9,7 +9,7 @@ variable EqNice {A : Type} (lhs rhs : A) : Bool
 infix 50 === : EqNice
 print n1 === n2
 check f n1 n2
-check @Congr
+check @congr
 print f n1 n2
 variable a : N
 variable b : N
@@ -17,5 +17,5 @@ variable c : N
 variable g : N -> N
 axiom H1 : a = b && b = c
 theorem Pr : (g a) = (g c) :=
-    Congr (Refl g) (Trans (Conjunct1 H1) (Conjunct2 H1))
+    congr (refl g) (trans (and::eliml H1) (and::elimr H1))
 print environment 2

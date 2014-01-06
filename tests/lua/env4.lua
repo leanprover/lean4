@@ -23,7 +23,7 @@ local ok, msg = pcall(function() child:add_definition("val3", Const("Int"), Cons
 assert(not ok)
 print(msg)
 assert(child:normalize(Const("val2")) == Const("val2"))
-child:add_theorem("Th1", Eq(iVal(0), iVal(0)), Const("Trivial"))
+child:add_theorem("Th1", Eq(iVal(0), iVal(0)), Const("trivial"))
 child:add_axiom("H1", Eq(Const("x"), iVal(0)))
 assert(child:has_object("H1"))
 local ctx = context(context(), "x", Const("Int"), iVal(10))

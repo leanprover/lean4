@@ -3,4 +3,4 @@
   Imported 'Int'
   Assumed: P
   Assumed: Ax
-ForallIntro Ax : ∀ x : ℤ, P x
+forall::intro Ax : ∀ x : ℤ, P x

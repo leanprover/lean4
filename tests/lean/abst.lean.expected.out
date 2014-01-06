@@ -3,7 +3,7 @@
   Imported 'Int'
   Assumed: PlusComm
   Assumed: a
-Abst (λ x : ℤ, PlusComm a x) : (λ x : ℤ, a + x) == (λ x : ℤ, x + a)
+abst (λ x : ℤ, PlusComm a x) : (λ x : ℤ, a + x) == (λ x : ℤ, x + a)
   Set: lean::pp::implicit
-@Abst ℤ (λ x : ℤ, ℤ) (λ x : ℤ, a + x) (λ x : ℤ, x + a) (λ x : ℤ, PlusComm a x) :
+@abst ℤ (λ x : ℤ, ℤ) (λ x : ℤ, a + x) (λ x : ℤ, x + a) (λ x : ℤ, PlusComm a x) :
     (λ x : ℤ, a + x) == (λ x : ℤ, x + a)

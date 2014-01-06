@@ -2,8 +2,8 @@ variable N : Type
 variable h : N -> N -> N
 
 -- Specialize congruence theorem for h-applications
-theorem CongrH {a1 a2 b1 b2 : N} (H1 : a1 = b1) (H2 : a2 = b2) : (h a1 a2) = (h b1 b2) :=
-   Congr (Congr (Refl h) H1) H2
+theorem congrh {a1 a2 b1 b2 : N} (H1 : a1 = b1) (H2 : a2 = b2) : (h a1 a2) = (h b1 b2) :=
+   congr (congr (refl h) H1) H2
 
 -- Declare some variables
 variable a : N
@@ -18,13 +18,13 @@ axiom H2 : b = e
 
 -- Proof that (h a b) = (h c e)
 theorem T1 : (h a b) = (h c e) :=
-    DisjCases H1
-              (λ C1, CongrH (Trans (Conjunct1 C1) (Conjunct2 C1)) H2)
-              (λ C2, CongrH (Trans (Conjunct2 C2) (Conjunct1 C2)) H2)
+    or::elim H1
+        (λ C1, congrh ((and::eliml C1) ⋈ (and::elimr C1)) H2)
+        (λ C2, congrh ((and::elimr C2) ⋈ (and::eliml C2)) H2)
 
 -- We can use theorem T1 to prove other theorems
 theorem T2 : (h a (h a b)) = (h a (h c e)) :=
-    CongrH (Refl a) T1
+    congrh (refl a) T1
 
 -- Display the last two objects (i.e., theorems) added to the environment
 print environment 2

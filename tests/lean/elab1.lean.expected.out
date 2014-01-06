@@ -3,19 +3,19 @@
   Assumed: f
 Failed to solve
  ⊢ Bool ≺ ℕ
-    (line: 4: pos: 6) Type of argument 3 must be convertible to the expected type in the application of
+    (line: 2: pos: 6) Type of argument 3 must be convertible to the expected type in the application of
         @f
     with arguments:
         ℕ
         10
         ⊤
   Assumed: g
-Error (line: 7, pos: 8) invalid expression, it still contains metavariables after elaboration, metavariable: ?M::1, type:
+Error (line: 5, pos: 8) invalid expression, it still contains metavariables after elaboration, metavariable: ?M::1, type:
 Type
   Assumed: h
 Failed to solve
 x : ?M::0, A : Type ⊢ ?M::0 ≺ A
-    (line: 11: pos: 27) Type of argument 2 must be convertible to the expected type in the application of
+    (line: 9: pos: 27) Type of argument 2 must be convertible to the expected type in the application of
         h
     with arguments:
         A
@@ -23,7 +23,7 @@ x : ?M::0, A : Type ⊢ ?M::0 ≺ A
   Assumed: my_eq
 Failed to solve
 A : Type, B : Type, a : ?M::0, b : ?M::1, C : Type ⊢ ?M::0[lift:0:3] ≺ C
-    (line: 15: pos: 51) Type of argument 2 must be convertible to the expected type in the application of
+    (line: 13: pos: 51) Type of argument 2 must be convertible to the expected type in the application of
         my_eq
     with arguments:
         C
@@ -34,34 +34,24 @@ A : Type, B : Type, a : ?M::0, b : ?M::1, C : Type ⊢ ?M::0[lift:0:3] ≺ C
   Assumed: H
 Failed to solve
  ⊢ ?M::0 ⇒ ?M::3 ∧ a ≺ b
-    (line: 20: pos: 18) Type of definition 't1' must be convertible to expected type.
+    (line: 18: pos: 18) Type of definition 't1' must be convertible to expected type.
 Failed to solve
  ⊢ b == b ≺ a == b
-    (line: 22: pos: 22) Type of argument 6 must be convertible to the expected type in the application of
-        @Trans
+    (line: 20: pos: 22) Type of argument 6 must be convertible to the expected type in the application of
+        @trans
     with arguments:
         ?M::1
         a
         a
         b
-        Refl a
-        Refl b
+        refl a
+        refl b
 Failed to solve
  ⊢ ?M::1 ≺ Type
-    (line: 24: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
+    (line: 22: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
         @f
     with arguments:
         ?M::0
         Bool
         Bool
-Failed to solve
-a : Bool, b : Bool, H : (a ⇒ b) ⇒ a ⊢ a → (a ⇒ b) ⇒ a ≺ a → a
-    (line: 27: pos: 21) Type of argument 5 must be convertible to the expected type in the application of
-        @DisjCases
-    with arguments:
-        a
-        ¬ a
-        a
-        EM a
-        λ H_a : a, H
-        λ H_na : ¬ a, NotImp1 (MT H H_na)
+Error (line: 25, pos: 31) unknown identifier 'EM'

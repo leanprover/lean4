@@ -8,31 +8,30 @@ infix 60 ∈ : element
 definition subset {A : Type} (s1 : Set A) (s2 : Set A) := ∀ x, x ∈ s1 ⇒ x ∈ s2
 infix 50 ⊆ : subset
 
-theorem SubsetTrans (A : Type) : ∀ s1 s2 s3 : Set A, s1 ⊆ s2 ⇒ s2 ⊆ s3 ⇒ s1 ⊆ s3 :=
-   take s1 s2 s3, Assume (H1 : s1 ⊆ s2) (H2 : s2 ⊆ s3),
+theorem subset::trans (A : Type) : ∀ s1 s2 s3 : Set A, s1 ⊆ s2 ⇒ s2 ⊆ s3 ⇒ s1 ⊆ s3 :=
+   take s1 s2 s3, assume (H1 : s1 ⊆ s2) (H2 : s2 ⊆ s3),
       have s1 ⊆ s3 :
-        take x, Assume Hin : x ∈ s1,
+        take x, assume Hin : x ∈ s1,
            have x ∈ s3 :
-             let L1 : x ∈ s2 := MP (Instantiate H1 x) Hin
-             in MP (Instantiate H2 x) L1
+             let L1 : x ∈ s2 := H1 ↓ x ◂ Hin
+             in H2 ↓ x ◂ L1
 
-theorem SubsetExt (A : Type) : ∀ s1 s2 : Set A, (∀ x, x ∈ s1 = x ∈ s2) ⇒ s1 = s2 :=
-   take s1 s2, Assume (H : ∀ x, x ∈ s1 = x ∈ s2),
-       Abst (fun x, Instantiate H x)
+theorem subset::ext (A : Type) : ∀ s1 s2 : Set A, (∀ x, x ∈ s1 = x ∈ s2) ⇒ s1 = s2 :=
+   take s1 s2, assume (H : ∀ x, x ∈ s1 = x ∈ s2),
+       abst (λ x, H ↓ x)
 
-theorem SubsetAntiSymm (A : Type) : ∀ s1 s2 : Set A, s1 ⊆ s2 ⇒ s2 ⊆ s1 ⇒ s1 = s2 :=
-   take s1 s2, Assume (H1 : s1 ⊆ s2) (H2 : s2 ⊆ s1),
+theorem subset::antisym (A : Type) : ∀ s1 s2 : Set A, s1 ⊆ s2 ⇒ s2 ⊆ s1 ⇒ s1 = s2 :=
+   take s1 s2, assume (H1 : s1 ⊆ s2) (H2 : s2 ⊆ s1),
        have s1 = s2 :
-            MP (have (∀ x, x ∈ s1 = x ∈ s2) ⇒ s1 = s2 :
-                     Instantiate (SubsetExt A) s1 s2)
-               (have (∀ x, x ∈ s1 = x ∈ s2) :
-                     take x, have x ∈ s1 = x ∈ s2 :
-                                 let L1 : x ∈ s1 ⇒ x ∈ s2 := Instantiate H1 x,
-                                     L2 : x ∈ s2 ⇒ x ∈ s1 := Instantiate H2 x
-                                     in ImpAntisym L1 L2)
+            (have (∀ x, x ∈ s1 = x ∈ s2) ⇒ s1 = s2 :
+                  (subset::ext A) ↓ s1 ↓ s2)
+            ◂ (have (∀ x, x ∈ s1 = x ∈ s2) :
+                    take x, have x ∈ s1 = x ∈ s2 :
+                       iff::intro (have x ∈ s1 ⇒ x ∈ s2 : H1 ↓ x)
+                                  (have x ∈ s2 ⇒ x ∈ s1 : H2 ↓ x))
+
 
 -- Compact (but less readable) version of the previous theorem
-theorem SubsetAntiSymm2 (A : Type) : ∀ s1 s2 : Set A, s1 ⊆ s2 ⇒ s2 ⊆ s1 ⇒ s1 = s2 :=
-   take s1 s2, Assume H1 H2,
-      MP (Instantiate (SubsetExt A) s1 s2)
-         (take x, ImpAntisym (Instantiate H1 x) (Instantiate H2 x))
+theorem subset::antisym2 (A : Type) : ∀ s1 s2 : Set A, s1 ⊆ s2 ⇒ s2 ⊆ s1 ⇒ s1 = s2 :=
+   take s1 s2, assume H1 H2,
+     (subset::ext A) ↓ s1 ↓ s2 ◂ (take x, iff::intro (H1 ↓ x) (H2 ↓ x))

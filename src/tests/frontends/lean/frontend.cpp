@@ -120,7 +120,7 @@ static void tst8() {
     environment env; io_state ios = init_frontend(env);
     formatter fmt = mk_pp_formatter(env);
     add_infixl(env, ios, "<-$->", 10, mk_refl_fn());
-    std::cout << fmt(*(env->find_object("Trivial"))) << "\n";
+    std::cout << fmt(*(env->find_object("trivial"))) << "\n";
 }
 
 static void tst9() {

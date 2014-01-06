@@ -3,7 +3,7 @@ import Int.
 namespace foo.
   variable a : Nat.
   definition b := a.
-  theorem T : a = b := Refl a.
+  theorem T : a = b := refl a.
   axiom H : b >= a.
   namespace bla.
      variables a c d : Int.

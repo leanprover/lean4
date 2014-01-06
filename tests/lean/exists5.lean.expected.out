@@ -7,4 +7,4 @@
   Assumed: P
   Proved: T1
 theorem T1 (f : N → N) (H : P (f a) b (f (f c))) : ∃ x y z : N, P x y z :=
-    ExistsIntro (f a) (ExistsIntro b (ExistsIntro (f (f c)) H))
+    exists::intro (f a) (exists::intro b (exists::intro (f (f c)) H))

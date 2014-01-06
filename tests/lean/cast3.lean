@@ -2,8 +2,8 @@ import cast
 
 variables A A' B B' : Type
 variable x : A
-eval cast (Refl A) x
-eval x = (cast (Refl A) x)
+eval cast (refl A) x
+eval x = (cast (refl A) x)
 variable b : B
 definition f (x : A) : B := b
 axiom H : (A -> B) = (A' -> B)

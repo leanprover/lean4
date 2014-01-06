@@ -3,13 +3,13 @@
   Proved: T
 theorem T (A : Type) (p : A → Bool) (f : A → A → A) : ∀ x y z : A,
         p (f x x) ⇒ x = y ⇒ x = z ⇒ p (f y z) :=
-    ForallIntro
+    forall::intro
         (λ x : A,
-           ForallIntro
+           forall::intro
                (λ x::1 : A,
-                  ForallIntro
+                  forall::intro
                       (λ x::2 : A,
-                         Discharge
+                         discharge
                              (λ H : p (f x x),
-                                Discharge
-                                    (λ H::1 : x = x::1, Discharge (λ H::2 : x = x::2, Subst (Subst H H::1) H::2))))))
+                                discharge
+                                    (λ H::1 : x = x::1, discharge (λ H::2 : x = x::2, subst (subst H H::1) H::2))))))

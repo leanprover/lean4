@@ -4,7 +4,7 @@ import Int.
 variable vector : Type -> Nat -> Type
 axiom N0 (n : Nat) : n + 0 = n
 theorem V0 (T : Type) (n : Nat) : (vector T (n + 0)) = (vector T n) :=
-   Congr (Refl (vector T)) (N0 n)
+   congr (refl (vector T)) (N0 n)
 variable f (n : Nat) (v : vector Int n) : Int
 variable m : Nat
 variable v1 : vector Int (m + 0)

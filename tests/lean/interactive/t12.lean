@@ -28,7 +28,7 @@ theorem T3 (A B : Bool) : A /\ B -> B /\ A :=
           in _.
    conj_hyp. exact. done.
    conj_hyp. exact. done.
-   apply Conj. exact. done.
+   apply and::intro. exact. done.
 
 theorem T4 (A B : Bool) : A /\ B -> B /\ A :=
      fun assumption : A /\ B,

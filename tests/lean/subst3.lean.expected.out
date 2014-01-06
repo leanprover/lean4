@@ -1,14 +1,15 @@
   Set: pp::colors
   Set: pp::unicode
+  Imported 'macros'
   Proved: T
 theorem T (A : Type) (p : A → Bool) (f : A → A → A) : ∀ x y z : A,
         p (f x x) ⇒ x = y ⇒ x = z ⇒ p (f y z) :=
-    ForallIntro
+    forall::intro
         (λ x : A,
-           ForallIntro
+           forall::intro
                (λ y : A,
-                  ForallIntro
+                  forall::intro
                       (λ z : A,
-                         Discharge
+                         discharge
                              (λ H1 : p (f x x),
-                                Discharge (λ H2 : x = y, Discharge (λ H3 : x = z, Subst (Subst H1 H2) H3))))))
+                                discharge (λ H2 : x = y, discharge (λ H3 : x = z, subst (subst H1 H2) H3))))))

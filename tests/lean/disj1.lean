@@ -1,7 +1,7 @@
 import tactic
 
 theorem T1 (a b : Bool) : a \/ b => b \/ a.
-    apply Discharge.
+    apply discharge.
     (* disj_hyp_tac() *)
     (* disj_tac() *)
     back

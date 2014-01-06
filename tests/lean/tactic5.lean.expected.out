@@ -2,4 +2,4 @@
   Set: pp::unicode
   Proved: T4
 theorem T4 (a b : Bool) : a ⇒ b ⇒ a ∧ b ∧ a :=
-    Discharge (λ H : a, Discharge (λ H::1 : b, Conj H (Conj H::1 H)))
+    discharge (λ H : a, discharge (λ H::1 : b, and::intro H (and::intro H::1 H)))

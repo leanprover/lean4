@@ -3,4 +3,4 @@
   Imported 'Int'
   Proved: T1
 theorem T1 (a b : ℤ) (f : ℤ → ℤ) (assumption : a = b) : f (f a) = f (f b) :=
-    Congr (Refl f) (Congr (Refl f) assumption)
+    congr (refl f) (congr (refl f) assumption)

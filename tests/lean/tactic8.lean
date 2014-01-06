@@ -1,7 +1,7 @@
 (* import("tactic.lua") *)
 theorem T (a b : Bool) : a \/ b => (not b) => a := _.
-     apply Discharge
-     apply Discharge
+     apply discharge
+     apply discharge
      disj_hyp
      exact
      absurd

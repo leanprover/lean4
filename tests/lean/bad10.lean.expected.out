@@ -5,4 +5,4 @@
   Assumed: N
   Defined: T
 definition T (a : N) (f : N → N) (H : f a == a) : f (f a) == f (f a) :=
-    @SubstP N (f a) a (λ x : N, f (f a) == f (f a)) (@Refl N (f (f a))) H
+    @substp N (f a) a (λ x : N, f (f a) == f (f a)) (@refl N (f (f a))) H

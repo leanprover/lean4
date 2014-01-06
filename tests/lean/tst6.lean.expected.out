@@ -2,70 +2,68 @@
   Set: pp::unicode
   Assumed: N
   Assumed: h
-  Proved: CongrH
+  Proved: congrH
   Set: lean::pp::implicit
 variable h : N → N → N
-theorem CongrH {a1 a2 b1 b2 : N} (H1 : @eq N a1 b1) (H2 : @eq N a2 b2) : @eq N (h a1 a2) (h b1 b2) :=
-    @Congr N (λ x : N, N) (h a1) (h b1) a2 b2 (@Congr N (λ x : N, N → N) h h a1 b1 (@Refl (N → N → N) h) H1) H2
+theorem congrH {a1 a2 b1 b2 : N} (H1 : @eq N a1 b1) (H2 : @eq N a2 b2) : @eq N (h a1 a2) (h b1 b2) :=
+    @congr N (λ x : N, N) (h a1) (h b1) a2 b2 (@congr N (λ x : N, N → N) h h a1 b1 (@refl (N → N → N) h) H1) H2
   Set: lean::pp::implicit
 variable h : N → N → N
-theorem CongrH {a1 a2 b1 b2 : N} (H1 : a1 = b1) (H2 : a2 = b2) : h a1 a2 = h b1 b2 := Congr (Congr (Refl h) H1) H2
+theorem congrH {a1 a2 b1 b2 : N} (H1 : a1 = b1) (H2 : a2 = b2) : h a1 a2 = h b1 b2 := congr (congr (refl h) H1) H2
   Proved: Example1
   Set: lean::pp::implicit
 theorem Example1 (a b c d : N) (H : @eq N a b ∧ @eq N b c ∨ @eq N a d ∧ @eq N d c) : @eq N (h a b) (h c b) :=
-    @DisjCases
+    or::@elim
         (@eq N a b ∧ @eq N b c)
         (@eq N a d ∧ @eq N d c)
         (h a b == h c b)
         H
         (λ H1 : @eq N a b ∧ @eq N b c,
-           @CongrH a
+           @congrH a
                    b
                    c
                    b
-                   (@Trans N a b c (@Conjunct1 (@eq N a b) (@eq N b c) H1) (@Conjunct2 (@eq N a b) (@eq N b c) H1))
-                   (@Refl N b))
+                   (@trans N a b c (and::@eliml (@eq N a b) (@eq N b c) H1) (and::@elimr (@eq N a b) (@eq N b c) H1))
+                   (@refl N b))
         (λ H1 : @eq N a d ∧ @eq N d c,
-           @CongrH a
+           @congrH a
                    b
                    c
                    b
-                   (@Trans N a d c (@Conjunct1 (@eq N a d) (@eq N d c) H1) (@Conjunct2 (@eq N a d) (@eq N d c) H1))
-                   (@Refl N b))
+                   (@trans N a d c (and::@eliml (@eq N a d) (@eq N d c) H1) (and::@elimr (@eq N a d) (@eq N d c) H1))
+                   (@refl N b))
   Proved: Example2
   Set: lean::pp::implicit
 theorem Example2 (a b c d : N) (H : @eq N a b ∧ @eq N b c ∨ @eq N a d ∧ @eq N d c) : @eq N (h a b) (h c b) :=
-    @DisjCases
+    or::@elim
         (@eq N a b ∧ @eq N b c)
         (@eq N a d ∧ @eq N d c)
         (@eq N (h a b) (h c b))
         H
         (λ H1 : @eq N a b ∧ @eq N b c,
-           @CongrH a
+           @congrH a
                    b
                    c
                    b
-                   (@Trans N a b c (@Conjunct1 (a == b) (@eq N b c) H1) (@Conjunct2 (@eq N a b) (b == c) H1))
-                   (@Refl N b))
+                   (@trans N a b c (and::@eliml (a == b) (@eq N b c) H1) (and::@elimr (@eq N a b) (b == c) H1))
+                   (@refl N b))
         (λ H1 : @eq N a d ∧ @eq N d c,
-           @CongrH a
+           @congrH a
                    b
                    c
                    b
-                   (@Trans N a d c (@Conjunct1 (a == d) (@eq N d c) H1) (@Conjunct2 (@eq N a d) (d == c) H1))
-                   (@Refl N b))
+                   (@trans N a d c (and::@eliml (a == d) (@eq N d c) H1) (and::@elimr (@eq N a d) (d == c) H1))
+                   (@refl N b))
   Proved: Example3
   Set: lean::pp::implicit
 theorem Example3 (a b c d e : N) (H : a = b ∧ b = e ∧ b = c ∨ a = d ∧ d = c) : h a b = h c b :=
-    DisjCases
-        H
-        (λ H1 : a = b ∧ b = e ∧ b = c, CongrH (Trans (Conjunct1 H1) (Conjunct2 (Conjunct2 H1))) (Refl b))
-        (λ H1 : a = d ∧ d = c, CongrH (Trans (Conjunct1 H1) (Conjunct2 H1)) (Refl b))
+    or::elim H
+             (λ H1 : a = b ∧ b = e ∧ b = c, congrH (and::eliml H1 ⋈ and::elimr (and::elimr H1)) (refl b))
+             (λ H1 : a = d ∧ d = c, congrH (and::eliml H1 ⋈ and::elimr H1) (refl b))
   Proved: Example4
   Set: lean::pp::implicit
 theorem Example4 (a b c d e : N) (H : a = b ∧ b = e ∧ b = c ∨ a = d ∧ d = c) : h a c = h c a :=
-    DisjCases
-        H
-        (λ H1 : a = b ∧ b = e ∧ b = c,
-           let AeqC := Trans (Conjunct1 H1) (Conjunct2 (Conjunct2 H1)) in CongrH AeqC (Symm AeqC))
-        (λ H1 : a = d ∧ d = c, let AeqC := Trans (Conjunct1 H1) (Conjunct2 H1) in CongrH AeqC (Symm AeqC))
+    or::elim H
+             (λ H1 : a = b ∧ b = e ∧ b = c,
+                let AeqC := and::eliml H1 ⋈ and::elimr (and::elimr H1) in congrH AeqC (symm AeqC))
+             (λ H1 : a = d ∧ d = c, let AeqC := and::eliml H1 ⋈ and::elimr H1 in congrH AeqC (symm AeqC))

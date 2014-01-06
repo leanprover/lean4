@@ -36,3 +36,6 @@ set_tests_properties(metavar PROPERTIES ENVIRONMENT "LEAN_PATH=${LEAN_BINARY_DIR
 add_executable(instantiate instantiate.cpp)
 target_link_libraries(instantiate ${EXTRA_LIBS})
 add_test(instantiate ${CMAKE_CURRENT_BINARY_DIR}/instantiate)
+add_executable(universe_constraints universe_constraints.cpp)
+target_link_libraries(universe_constraints ${EXTRA_LIBS})
+add_test(universe_constraints ${CMAKE_CURRENT_BINARY_DIR}/universe_constraints)

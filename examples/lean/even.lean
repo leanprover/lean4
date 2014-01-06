@@ -37,10 +37,10 @@ theorem EvenPlusEven {a b : Nat} (H1 : even a) (H2 : even b) : even (a + b)
                 ...  =  2*w1 + 2*w2   : { Hw2 }
                 ...  =  2*(w1 + w2)   : symm (distribute 2 w1 w2))
 
--- In the following example, we omit the arguments for Nat::PlusAssoc, Refl and Nat::Distribute.
+-- In the following example, we omit the arguments for add::assoc, refl and distribute.
 -- Lean can infer them automatically.
 --
--- Refl is the reflexivity proof. (Refl a) is a proof that two
+-- refl is the reflexivity proof. (refl a) is a proof that two
 -- definitionally equal terms are indeed equal.
 -- "definitionally equal" means that they have the same normal form.
 -- We can also view it as "Proof by computation".

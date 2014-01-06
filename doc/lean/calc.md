@@ -35,7 +35,7 @@ Here is an example
         := calc a    =  b     : Ax1
                 ...  =  c + 1 : Ax2
                 ...  =  d + 1 : { Ax3 }
-                ...  =  1 + d : Nat::plus::comm d 1
+                ...  =  1 + d : Nat::add::comm d 1
                 ...  =  e     : symm Ax4.
 ```
 
@@ -45,7 +45,7 @@ proof expression using the given tactic or solver.
 
 Even when tactics and solvers are not used, we can still use the elaboration engine to fill
 gaps in our calculational proofs. In the previous examples, we can use `_` as arguments for the
-`Nat::plus::comm` theorem. The Lean elaboration engine will infer `d` and `1` for us.
+`Nat::add::comm` theorem. The Lean elaboration engine will infer `d` and `1` for us.
 Here is the same example using placeholders.
 
 ```lean
@@ -53,7 +53,7 @@ Here is the same example using placeholders.
         := calc a    =  b     : Ax1
                 ...  =  c + 1 : Ax2
                 ...  =  d + 1 : { Ax3 }
-                ...  =  1 + d : Nat::plus::comm _ _
+                ...  =  1 + d : Nat::add::comm _ _
                 ...  =  e     : symm Ax4.
 ```
 

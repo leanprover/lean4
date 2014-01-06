@@ -54,7 +54,7 @@ theorem OddPlusOne {a : Nat} (H : odd a) : even (a + 1)
 := obtain (w : Nat) (Hw : a = 2*w + 1), from H,
    exists::intro (w + 1)
         (calc a + 1 = 2*w + 1 + 1   : { Hw }
-                ... = 2*w + (1 + 1) : symm (plus::assoc _ _ _)
+                ... = 2*w + (1 + 1) : symm (add::assoc _ _ _)
                 ... = 2*w + 2*1     : refl _
                 ... = 2*(w + 1)     : symm (distribute _ _ _))
 

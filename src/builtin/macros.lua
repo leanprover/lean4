@@ -11,15 +11,15 @@
 --
 -- Example: suppose we invoke
 --
---    binder_macro("for", Const("ForallIntro"), 3, 1, 3)
+--    binder_macro("take", Const({"forall", "intro"}), 3, 1, 3)
 --
 -- Then, the macro expression
 --
---     for x y : Int, H x y
+--     take x y : Int, H x y
 --
 -- produces the expression
 --
---     ForallIntro Int _ (fun x : Int, ForallIntro Int _ (fun y : Int, H x y))
+--     forall::intro Int _ (fun x : Int, forall::intro Int _ (fun y : Int, H x y))
 --
 -- The _ are placeholders (aka) holes that will be filled by the Lean
 -- elaborator.
@@ -49,18 +49,18 @@ function binder_macro(name, f, farity, typepos, lambdapos)
          precedence)
 end
 
--- The following macro is used to create nary versions of operators such as MP and ForallElim.
+-- The following macro is used to create nary versions of operators such as mp.
 -- Example: suppose we invoke
 --
---    nary_macro("mp", Const("MP"), 4)
+--    nary_macro("mp'", Const("mp"), 4)
 --
 -- Then, the macro expression
 --
---     mp Foo H1 H2 H3
+--     mp' Foo H1 H2 H3
 --
 -- produces the expression
 --
---     (MP (MP (MP Foo H1) H2) H3)
+--     (mp (mp (mp Foo H1) H2) H3)
 function nary_macro(name, f, farity)
    local bin_app = function(e1, e2)
       local args = {}

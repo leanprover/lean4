@@ -240,11 +240,11 @@ theorem exists::intro {A : TypeU} {P : A → Bool} (a : A) (H : P a) : Exists A 
 -- them as opaque Opaque definitions improve performance, and
 -- effectiveness of Lean's elaborator
 
-setopaque implies true
-setopaque not     true
-setopaque or      true
-setopaque and     true
-setopaque forall  true
+set::opaque implies true
+set::opaque not     true
+set::opaque or      true
+set::opaque and     true
+set::opaque forall  true
 
 theorem or::comm (a b : Bool) : (a ∨ b) == (b ∨ a)
 := iff::intro (assume H, or::elim H (λ H1, or::intror b H1) (λ H2, or::introl H2 a))
@@ -393,4 +393,4 @@ theorem exists::unfold {A : TypeU} (P : A → Bool) (a : A) : (∃ x : A, P x) =
 := iff::intro (assume H : (∃ x : A, P x), exists::unfold1 a H)
               (assume H : (P a ∨ (∃ x : A, x ≠ a ∧ P x)), exists::unfold2 a H)
 
-setopaque exists true
+set::opaque exists true

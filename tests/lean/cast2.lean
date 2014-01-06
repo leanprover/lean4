@@ -7,6 +7,6 @@ axiom H : (A -> B) = (A' -> B')
 variable a : A
 check dominj H
 theorem BeqB' : B = B' := raninj H a
-setoption pp::implicit true
+set::option pp::implicit true
 print dominj H
 print raninj H a

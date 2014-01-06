@@ -6,5 +6,5 @@ variable v3 : Vector (0 + n)
 axiom H1 : v1 == v2
 axiom H2 : v2 == v3
 check htrans H1 H2
-setoption pp::implicit true
+set::option pp::implicit true
 check htrans H1 H2

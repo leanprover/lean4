@@ -94,11 +94,11 @@ static void tst3() {
     parse_error(env, ios, "check U");
     parse(env, ios, "variable h : Real -> Real -> Real. notation 10 [ _ ; _ ] : h. check [ 10.3 ; 20.1 ].");
     parse_error(env, ios, "variable h : Real -> Real -> Real. notation 10 [ _ ; _ ] : h. check [ 10.3 | 20.1 ].");
-    parse_error(env, ios, "setoption pp::indent true");
-    parse(env, ios, "setoption pp::indent 10");
-    parse_error(env, ios, "setoption pp::colors foo");
-    parse_error(env, ios, "setoption pp::colors \"foo\"");
-    parse(env, ios, "setoption pp::colors true");
+    parse_error(env, ios, "set::option pp::indent true");
+    parse(env, ios, "set::option pp::indent 10");
+    parse_error(env, ios, "set::option pp::colors foo");
+    parse_error(env, ios, "set::option pp::colors \"foo\"");
+    parse(env, ios, "set::option pp::colors true");
     parse_error(env, ios, "notation 10 : Int::add");
     parse_error(env, ios, "notation 10 _ : Int::add");
     parse(env, ios, "notation 10 _ ++ _ : Int::add. eval 10 ++ 20.");

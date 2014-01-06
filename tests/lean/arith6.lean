@@ -1,5 +1,5 @@
 import Int.
-setoption pp::unicode false
+set::option pp::unicode false
 print 3 | 6
 eval 3 | 6
 eval 3 | 7
@@ -9,5 +9,5 @@ variable x : Int
 eval x | 3
 eval 3 | x
 eval 6 | 3
-setoption pp::notation false
+set::option pp::notation false
 print 3 | x

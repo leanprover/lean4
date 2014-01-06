@@ -17,5 +17,5 @@ theorem T2 : (fun (x1 : A) (x2 : B), F1 x1 x2) = F2 := abst (fun a, (abst (fun b
 theorem T3 : F1 = (fun (x1 : A) (x2 : B), F2 x1 x2) := abst (fun a, (abst (fun b, H a b)))
 theorem T4 : (fun (x1 : A) (x2 : B), F1 x1 x2) = (fun (x1 : A) (x2 : B), F2 x1 x2) := abst (fun a, (abst (fun b, H a b)))
 print environment 4
-setoption pp::implicit true
+set::option pp::implicit true
 print environment 4

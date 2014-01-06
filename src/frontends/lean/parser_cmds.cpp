@@ -37,8 +37,8 @@ static name g_infix_kwd("infix");
 static name g_infixl_kwd("infixl");
 static name g_infixr_kwd("infixr");
 static name g_notation_kwd("notation");
-static name g_set_option_kwd("setoption");
-static name g_set_opaque_kwd("setopaque");
+static name g_set_option_kwd("set", "option");
+static name g_set_opaque_kwd("set", "opaque");
 static name g_options_kwd("options");
 static name g_env_kwd("environment");
 static name g_import_kwd("import");
@@ -596,28 +596,29 @@ void parser_imp::parse_help() {
         }
     } else {
         regular(m_io_state) << "Available commands:" << endl
-                            << "  alias [id] : [expr]    define an alias for the given expression" << endl
-                            << "  axiom [id] : [type]    assert/postulate a new axiom" << endl
-                            << "  check [expr]           type check the given expression" << endl
+                            << "  alias [id] : [expr]      define an alias for the given expression" << endl
+                            << "  axiom [id] : [type]      assert/postulate a new axiom" << endl
+                            << "  check [expr]             type check the given expression" << endl
                             << "  definition [id] : [type] := [expr]   define a new element" << endl
-                            << "  end                    end the current scope/namespace" << endl
-                            << "  eval [expr]            evaluate the given expression" << endl
-                            << "  exit                   exit" << endl
-                            << "  help                   display this message" << endl
-                            << "  help options           display available options" << endl
-                            << "  help notation          describe commands for defining infix, mixfix, postfix operators" << endl
-                            << "  import [string]        load the given file" << endl
-                            << "  pop::scope             discard the current scope" << endl
-                            << "  print [expr]           pretty print the given expression" << endl
-                            << "  print Options          print current the set of assigned options" << endl
-                            << "  print [string]         print the given string" << endl
-                            << "  print Environment      print objects in the environment, if [Num] provided, then show only the last [Num] objects" << endl
-                            << "  print Environment [num] show the last num objects in the environment" << endl
-                            << "  scope                  create a scope" << endl
-                            << "  setoption [id] [value] set option [id] with value [value]" << endl
-                            << "  theorem [id] : [type] := [expr]      define a new theorem" << endl
-                            << "  variable [id] : [type] declare/postulate an element of the given type" << endl
-                            << "  universe [id] [level]  declare a new universe variable that is >= the given level" << endl;
+                            << "  end                      end the current scope/namespace" << endl
+                            << "  eval [expr]              evaluate the given expression" << endl
+                            << "  exit                     exit" << endl
+                            << "  help                     display this message" << endl
+                            << "  help options             display available options" << endl
+                            << "  help notation            describe commands for defining infix, mixfix, postfix operators" << endl
+                            << "  import [string]          load the given file" << endl
+                            << "  pop::scope               discard the current scope" << endl
+                            << "  print [expr]             pretty print the given expression" << endl
+                            << "  print Options            print current the set of assigned options" << endl
+                            << "  print [string]           print the given string" << endl
+                            << "  print Environment        print objects in the environment, if [Num] provided, then show only the last [Num] objects" << endl
+                            << "  print Environment [num]  show the last num objects in the environment" << endl
+                            << "  scope                    create a scope" << endl
+                            << "  set::option [id] [value] set option [id] with value [value]" << endl
+                            << "  set::opaque [id] [bool]  set the given definition as opaque/transparent" << endl
+                            << "  theorem [id] : [type] := [expr]    define a new theorem" << endl
+                            << "  variable [id] : [type]   declare/postulate an element of the given type" << endl
+                            << "  universe [id] [level]    declare a new universe variable that is >= the given level" << endl;
 #if !defined(LEAN_WINDOWS)
         regular(m_io_state) << "Type Ctrl-D to exit" << endl;
 #endif

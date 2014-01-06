@@ -30,6 +30,6 @@ theorem T2 : (h a (h a b)) = (h a (h c e)) :=
 print environment 2
 
 -- print implicit arguments
-setoption lean::pp::implicit true
-setoption pp::width 150
+set::option lean::pp::implicit true
+set::option pp::width 150
 print environment 2

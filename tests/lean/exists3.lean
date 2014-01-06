@@ -1,7 +1,7 @@
 import Int.
 variable P : Int -> Int -> Bool
 
-setopaque exists false.
+set::opaque exists false.
 
 theorem T1 (R1 : not (exists x y, P x y)) : forall x y, not (P x y) :=
          forall::intro (fun a,

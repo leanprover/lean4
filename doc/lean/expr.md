@@ -89,16 +89,16 @@ infix 50 = : eq
 ```
 
 The curly braces indicate that the first argument of `eq` is implicit. The symbol `=` is just a syntax sugar for `eq`.
-In the following example, we use the `setoption` command to force Lean to display implicit arguments and
+In the following example, we use the `set::option` command to force Lean to display implicit arguments and
 disable notation when pretty printing expressions.
 
 ```lean
-setoption pp::implicit true
-setoption pp::notation false
+set::option pp::implicit true
+set::option pp::notation false
 check 1 = 2
 
 -- restore default configuration
-setoption pp::implicit false
-setoption pp::notation true
+set::option pp::implicit false
+set::option pp::notation true
 check 1 = 2
 ```

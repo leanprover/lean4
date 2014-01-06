@@ -10,8 +10,8 @@ variables i j : Int
 variables p q : Bool
 notation 100 _ ++ _ : f
 notation 100 _ ++ _ : g
-setoption pp::colors true
-setoption pp::width  300
+set::option pp::colors true
+set::option pp::width  300
 ]], env)
 print(get_options())
 assert(get_options():get{"pp", "colors"})

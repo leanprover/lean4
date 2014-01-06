@@ -4,9 +4,9 @@ notation 100 _ ; _ ; _ : f
 notation 100 _ ; _ ; _ : g
 check 10 ; true ; false
 check 10 ; 10 ; true
-setoption pp::notation false
+set::option pp::notation false
 check 10 ; true ; false
 check 10 ; 10 ; true
-setoption pp::implicit true
+set::option pp::implicit true
 check 10 ; true ; false
 check 10 ; 10 ; true

@@ -3,7 +3,7 @@ variable a : N
 variable b : N
 print a = b
 check a = b
-setoption lean::pp::implicit true
+set::option lean::pp::implicit true
 print a = b
 print (Type 1) = (Type 1)
 print true = false

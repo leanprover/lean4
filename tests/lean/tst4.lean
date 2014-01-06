@@ -2,7 +2,7 @@ variable f {A : Type} (a b : A) : A
 variable N : Type
 variable n1 : N
 variable n2 : N
-setoption lean::pp::implicit true
+set::option lean::pp::implicit true
 print f n1 n2
 print f (fun x : N -> N, x) (fun y : _, y)
 variable EqNice {A : Type} (lhs rhs : A) : Bool

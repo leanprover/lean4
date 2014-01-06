@@ -4,7 +4,7 @@ variable g : N -> N -> N
 infixl 10 ++ : f
 infixl 10 ++ : g
 print true ++ false ++ true
-setoption lean::pp::notation false
+set::option lean::pp::notation false
 print true ++ false ++ true
 variable a : N
 variable b : N

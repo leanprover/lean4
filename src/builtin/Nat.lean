@@ -243,8 +243,8 @@ theorem le::antisym {a b : Nat} (H1 : a ≤ b) (H2 : b ≤ a) : a = b
           ...  =  a  + w1 : { symm L2 }
           ...  =  b       : Hw1
 
-setopaque ge true
-setopaque lt true
-setopaque gt true
-setopaque id true
+set::opaque ge true
+set::opaque lt true
+set::opaque gt true
+set::opaque id true
 end

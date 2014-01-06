@@ -1,5 +1,5 @@
 import cast
-setoption pp::colors false
+set::option pp::colors false
 
 check fun (A A': TypeM)
           (a   : A)

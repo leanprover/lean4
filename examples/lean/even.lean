@@ -63,7 +63,7 @@ print environment 2.
 
 -- By default, Lean does not display implicit arguments.
 -- The following command will force it to display them.
-setoption pp::implicit true.
+set::option pp::implicit true.
 
 print environment 2.
 

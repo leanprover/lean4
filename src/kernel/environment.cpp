@@ -33,7 +33,7 @@ class set_opaque_command : public neutral_object_cell {
 public:
     set_opaque_command(name const & n, bool opaque):m_obj_name(n), m_opaque(opaque) {}
     virtual ~set_opaque_command() {}
-    virtual char const * keyword() const { return "setopaque"; }
+    virtual char const * keyword() const { return "set::opaque"; }
     virtual void write(serializer & s) const { s << "Opa" << m_obj_name << m_opaque; }
     name const & get_obj_name() const { return m_obj_name; }
     bool get_flag() const { return m_opaque; }

@@ -6,7 +6,7 @@ theorem simple (p q r : Bool) : (p ⇒ q) ∧ (q ⇒ r) ⇒ p ⇒ r
             P_qr := and::elimr H_pq_qr
         in P_qr ◂ (P_pq ◂ H_p)
 
-setoption pp::implicit true.
+set::option pp::implicit true.
 print environment 1.
 
 theorem simple2 (a b c : Bool) : (a ⇒ b ⇒ c) ⇒ (a ⇒ b) ⇒ a ⇒ c

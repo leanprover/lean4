@@ -733,6 +733,7 @@ void parser_imp::parse_end() {
         throw parser_error("invalid 'end', not inside of a scope or namespace", m_last_cmd_pos);
     scope_kind k = m_scope_kinds.back();
     m_scope_kinds.pop_back();
+    m_script_state->apply([&](lua_State * L) { lua_gc(L, LUA_GCCOLLECT, LUA_TUSERDATA); });
     switch (k) {
     case scope_kind::Scope: {
         if (!m_env->has_parent())

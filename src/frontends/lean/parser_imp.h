@@ -55,6 +55,7 @@ class parser_imp {
     typedef name_map<expr> builtins;
     typedef expr_map<pos_info> expr_pos_info;
     typedef expr_map<tactic>   tactic_hints; // a mapping from placeholder to tactic
+    typedef scoped_map<name, expr, name_hash, name_eq>      using_decls;
     environment         m_env;
     io_state            m_io_state;
     scanner             m_scanner;
@@ -72,6 +73,7 @@ class parser_imp {
     pos_info            m_last_cmd_pos;
     pos_info            m_last_script_pos;
     tactic_hints        m_tactic_hints;
+    using_decls         m_using_decls;
     std::vector<name>   m_namespace_prefixes;
     enum class scope_kind { Scope, Namespace };
     std::vector<scope_kind> m_scope_kinds;
@@ -417,6 +419,7 @@ private:
     void parse_builtin();
     void parse_namespace();
     void parse_end();
+    void parse_using();
     bool parse_command();
     /*@}*/
 

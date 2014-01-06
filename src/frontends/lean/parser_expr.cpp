@@ -247,40 +247,45 @@ expr parser_imp::parse_mixfixc(operator_info const & op) {
 }
 
 expr parser_imp::get_name_ref(name const & id, pos_info const & p, bool implicit_args) {
-    lean_assert(!m_namespace_prefixes.empty());
-    auto it    = m_namespace_prefixes.end();
-    auto begin = m_namespace_prefixes.begin();
-    while (it != begin) {
-        --it;
-        name nid = *it + id;
-        optional<object> obj = m_env->find_object(nid);
-        if (obj) {
-            object_kind k      = obj->kind();
-            if (k == object_kind::Definition || k == object_kind::Postulate || k == object_kind::Builtin) {
-                if (implicit_args && has_implicit_arguments(m_env, obj->get_name())) {
-                    std::vector<bool> const & imp_args = get_implicit_arguments(m_env, obj->get_name());
-                    buffer<expr> args;
-                    pos_info p = pos();
-                    expr f = (k == object_kind::Builtin) ? obj->get_value() : mk_constant(obj->get_name());
-                    args.push_back(save(f, p));
-                    for (unsigned i = 0; i < imp_args.size(); i++) {
-                        if (imp_args[i]) {
-                            args.push_back(save(mk_placeholder(), pos()));
-                        } else {
-                            args.push_back(parse_expr(g_app_precedence));
+    auto it = m_using_decls.find(id);
+    if (it != m_using_decls.end()) {
+        return it->second;
+    } else {
+        lean_assert(!m_namespace_prefixes.empty());
+        auto it    = m_namespace_prefixes.end();
+        auto begin = m_namespace_prefixes.begin();
+        while (it != begin) {
+            --it;
+            name nid = *it + id;
+            optional<object> obj = m_env->find_object(nid);
+            if (obj) {
+                object_kind k      = obj->kind();
+                if (k == object_kind::Definition || k == object_kind::Postulate || k == object_kind::Builtin) {
+                    if (implicit_args && has_implicit_arguments(m_env, obj->get_name())) {
+                        std::vector<bool> const & imp_args = get_implicit_arguments(m_env, obj->get_name());
+                        buffer<expr> args;
+                        pos_info p = pos();
+                        expr f = (k == object_kind::Builtin) ? obj->get_value() : mk_constant(obj->get_name());
+                        args.push_back(save(f, p));
+                        for (unsigned i = 0; i < imp_args.size(); i++) {
+                            if (imp_args[i]) {
+                                args.push_back(save(mk_placeholder(), pos()));
+                            } else {
+                                args.push_back(parse_expr(g_app_precedence));
+                            }
                         }
+                        return mk_app(args);
+                    } else if (k == object_kind::Builtin) {
+                        return obj->get_value();
+                    } else {
+                        return mk_constant(obj->get_name());
                     }
-                    return mk_app(args);
-                } else if (k == object_kind::Builtin) {
-                    return obj->get_value();
                 } else {
-                    return mk_constant(obj->get_name());
+                    throw parser_error(sstream() << "invalid object reference, object '" << nid << "' is not an expression.", p);
                 }
-            } else {
-                throw parser_error(sstream() << "invalid object reference, object '" << nid << "' is not an expression.", p);
+            } else if (!m_check_identifiers) {
+                return mk_constant(nid);
             }
-        } else if (!m_check_identifiers) {
-            return mk_constant(nid);
         }
     }
     throw parser_error(sstream() << "unknown identifier '" << id << "'", p);

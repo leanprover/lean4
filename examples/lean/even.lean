@@ -1,9 +1,10 @@
-import macros.
+import macros
+using Nat
 
 -- In this example, we prove two simple theorems about even/odd numbers.
 -- First, we define the predicates even and odd.
-definition even (a : Nat) := ∃ b, a = 2*b.
-definition odd  (a : Nat) := ∃ b, a = 2*b + 1.
+definition even (a : Nat) := ∃ b, a = 2*b
+definition odd  (a : Nat) := ∃ b, a = 2*b + 1
 
 -- Prove that the sum of two even numbers is even.
 --
@@ -34,7 +35,7 @@ theorem EvenPlusEven {a b : Nat} (H1 : even a) (H2 : even b) : even (a + b)
      exists::intro (w1 + w2)
         (calc a + b  =  2*w1 + b      : { Hw1 }
                 ...  =  2*w1 + 2*w2   : { Hw2 }
-                ...  =  2*(w1 + w2)   : symm (Nat::distribute 2 w1 w2)).
+                ...  =  2*(w1 + w2)   : symm (distribute 2 w1 w2))
 
 -- In the following example, we omit the arguments for Nat::PlusAssoc, Refl and Nat::Distribute.
 -- Lean can infer them automatically.
@@ -53,19 +54,19 @@ theorem OddPlusOne {a : Nat} (H : odd a) : even (a + 1)
 := obtain (w : Nat) (Hw : a = 2*w + 1), from H,
    exists::intro (w + 1)
         (calc a + 1 = 2*w + 1 + 1   : { Hw }
-                ... = 2*w + (1 + 1) : symm (Nat::plus::assoc _ _ _)
+                ... = 2*w + (1 + 1) : symm (plus::assoc _ _ _)
                 ... = 2*w + 2*1     : refl _
-                ... = 2*(w + 1)     : symm (Nat::distribute _ _ _)).
+                ... = 2*(w + 1)     : symm (distribute _ _ _))
 
 -- The following command displays the proof object produced by Lean after
 -- expanding macros, and infering implicit/missing arguments.
-print environment 2.
+print environment 2
 
 -- By default, Lean does not display implicit arguments.
 -- The following command will force it to display them.
-set::option pp::implicit true.
+set::option pp::implicit true
 
-print environment 2.
+print environment 2
 
 -- As an exercise, prove that the sum of two odd numbers is even,
 -- and other similar theorems.

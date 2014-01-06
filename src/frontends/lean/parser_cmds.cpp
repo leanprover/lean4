@@ -51,12 +51,13 @@ static name g_scope_kwd("scope");
 static name g_builtin_kwd("builtin");
 static name g_namespace_kwd("namespace");
 static name g_end_kwd("end");
+static name g_using_kwd("using");
 /** \brief Table/List with all builtin command keywords */
 static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_variables_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
                                         g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_notation_kwd,
                                         g_set_option_kwd, g_set_opaque_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd, g_coercion_kwd,
                                         g_exit_kwd, g_print_kwd, g_pop_kwd, g_scope_kwd, g_alias_kwd, g_builtin_kwd,
-                                        g_namespace_kwd, g_end_kwd};
+                                        g_namespace_kwd, g_end_kwd, g_using_kwd};
 // ==========================================
 
 list<name> const & parser_imp::get_command_keywords() {
@@ -618,7 +619,8 @@ void parser_imp::parse_help() {
                             << "  set::opaque [id] [bool]  set the given definition as opaque/transparent" << endl
                             << "  theorem [id] : [type] := [expr]    define a new theorem" << endl
                             << "  variable [id] : [type]   declare/postulate an element of the given type" << endl
-                            << "  universe [id] [level]    declare a new universe variable that is >= the given level" << endl;
+                            << "  universe [id] [level]    declare a new universe variable that is >= the given level" << endl
+                            << "  using [id]_1 [id]_2?     create an alias for object starting with the prefix [id]_1 using the [id]_2" << endl;
 #if !defined(LEAN_WINDOWS)
         regular(m_io_state) << "Type Ctrl-D to exit" << endl;
 #endif
@@ -707,6 +709,7 @@ void parser_imp::parse_scope() {
     next();
     m_scope_kinds.push_back(scope_kind::Scope);
     reset_env(m_env->mk_child());
+    m_using_decls.push();
 }
 
 void parser_imp::parse_pop() {
@@ -719,6 +722,7 @@ void parser_imp::parse_pop() {
         throw parser_error("main scope cannot be removed", m_last_cmd_pos);
     m_scope_kinds.pop_back();
     reset_env(m_env->parent());
+    m_using_decls.pop();
 }
 
 void parser_imp::parse_namespace() {
@@ -726,6 +730,7 @@ void parser_imp::parse_namespace() {
     name id   = check_identifier_next("invalid namespace declaration, identifier expected");
     m_scope_kinds.push_back(scope_kind::Namespace);
     m_namespace_prefixes.push_back(m_namespace_prefixes.back() + id);
+    m_using_decls.push();
 }
 
 void parser_imp::parse_end() {
@@ -754,6 +759,52 @@ void parser_imp::parse_end() {
             throw parser_error("invalid end namespace command, there are no open namespaces", m_last_cmd_pos);
         m_namespace_prefixes.pop_back();
     }
+    m_using_decls.pop();
+}
+
+static name replace_prefix(name const & n, name const & prefix, name const & new_prefix) {
+    if (n == prefix)
+        return new_prefix;
+    name p = replace_prefix(n.get_prefix(), prefix, new_prefix);
+    if (n.is_string())
+        return name(p, n.get_string());
+    else
+        return name(p, n.get_numeral());
+}
+
+void parser_imp::parse_using() {
+    next();
+    name prefix = check_identifier_next("invalid using command, identifier expected");
+    name new_prefix;
+    if (curr_is_identifier()) {
+        new_prefix = curr_name();
+        next();
+    }
+    buffer<std::pair<name, expr>> to_add;
+    for (auto it = m_env->begin_objects(); it != m_env->end_objects(); ++it) {
+        if (it->has_type() && it->has_name() && !is_hidden_object(*it) && is_prefix_of(prefix, it->get_name())) {
+            auto n = replace_prefix(it->get_name(), prefix, new_prefix);
+            if (!n.is_anonymous())
+                to_add.emplace_back(n, mk_constant(it->get_name()));
+        }
+    }
+    for (auto p : to_add) {
+        auto n  = p.first;
+        if (m_verbose) {
+            auto it = m_using_decls.find(n);
+            if (it != m_using_decls.end())
+                diagnostic(m_io_state) << "warning: " << n << " will shadow " << it->second << endl;
+            auto obj = m_env->find_object(n);
+            if (obj)
+                diagnostic(m_io_state) << "warning: " << n << " will shadow " << obj->get_name() << endl;
+        }
+        m_using_decls.insert(n, p.second);
+    }
+    if (m_verbose)
+        regular(m_io_state) << "  Using: " << prefix;
+    if (new_prefix)
+        regular(m_io_state) << " as " << new_prefix;
+    regular(m_io_state) << endl;
 }
 
 /** \brief Parse a Lean command. */
@@ -814,6 +865,8 @@ bool parser_imp::parse_command() {
         parse_namespace();
     } else if (cmd_id == g_end_kwd) {
         parse_end();
+    } else if (cmd_id == g_using_kwd) {
+        parse_using();
     } else if (m_cmd_macros && m_cmd_macros->find(cmd_id) != m_cmd_macros->end()) {
         parse_cmd_macro(cmd_id, m_last_cmd_pos);
     } else {

@@ -342,12 +342,11 @@ level environment_cell::add_uvar_cnstr(name const & n, level const & l) {
     check_consistency(n, l, 0);
     if (it == uvs.end()) {
         r = add_uvar_core(n);
-        register_named_object(mk_uvar_cnstr(n, l));
     } else {
         // universe n already exists, we must check consistency of the new constraint.
         r = *it;
-        m_objects.push_back(mk_uvar_cnstr(n, l));
     }
+    m_objects.push_back(mk_uvar_cnstr(n, l));
     add_constraints(n, l, 0);
     return r;
 }

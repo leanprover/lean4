@@ -3,4 +3,3 @@
   Imported 'Int'
 Int::add
 builtinset Nat::numeral
-512

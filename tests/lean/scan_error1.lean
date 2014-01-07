@@ -1,0 +1,4 @@
+..
+print "begin"
+..
+print "done"

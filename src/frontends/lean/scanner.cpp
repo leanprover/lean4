@@ -353,9 +353,9 @@ scanner::token scanner::read_script_block() {
         next();
         if (c1 == '*') {
             char c2 = curr();
-            next();
             if (c2 == EOF)
                 throw_exception("unexpected end of script");
+            next();
             if (c2 == ')') {
                 return token::ScriptBlock;
             } else {

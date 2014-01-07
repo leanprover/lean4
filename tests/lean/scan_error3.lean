@@ -1,0 +1,1 @@
+(* print("from lua") *

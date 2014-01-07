@@ -656,11 +656,15 @@ static name g_geq(">=");
 void parser_imp::parse_universe() {
     next();
     name id   = check_identifier_next("invalid universe constraint, identifier expected");
-    name geq  = check_identifier_next("invalid universe constraint, '>=' expected");
-    if (geq != g_geq && geq != g_geq_unicode)
-        throw parser_error("invalid universe constraint, '>=' expected", m_last_cmd_pos);
-    level lvl = parse_level();
-    m_env->add_uvar_cnstr(id, lvl);
+    if (curr_is_identifier()) {
+        name geq  = check_identifier_next("invalid universe constraint, '>=' expected");
+        if (geq != g_geq && geq != g_geq_unicode)
+            throw parser_error("invalid universe constraint, '>=' expected", m_last_cmd_pos);
+        level lvl = parse_level();
+        m_env->add_uvar_cnstr(id, lvl);
+    } else {
+        m_env->add_uvar_cnstr(id);
+    }
 }
 
 void parser_imp::parse_alias() {
@@ -728,6 +732,7 @@ void parser_imp::parse_pop() {
     m_scope_kinds.pop_back();
     reset_env(m_env->parent());
     m_using_decls.pop();
+    m_script_state->apply([&](lua_State * L) { lua_gc(L, LUA_GCCOLLECT, 0); });
 }
 
 void parser_imp::parse_namespace() {
@@ -744,7 +749,7 @@ void parser_imp::parse_end() {
         throw parser_error("invalid 'end', not inside of a scope or namespace", m_last_cmd_pos);
     scope_kind k = m_scope_kinds.back();
     m_scope_kinds.pop_back();
-    m_script_state->apply([&](lua_State * L) { lua_gc(L, LUA_GCCOLLECT, LUA_TUSERDATA); });
+    m_script_state->apply([&](lua_State * L) { lua_gc(L, LUA_GCCOLLECT, 0); });
     switch (k) {
     case scope_kind::Scope: {
         if (!m_env->has_parent())

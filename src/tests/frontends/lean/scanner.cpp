@@ -90,7 +90,7 @@ static void tst2() {
     check("\u03BB \u03A0 \u2192", {st::Lambda, st::Pi, st::Arrow});
     scan("++\u2295++x\u2296\u2296");
     check("++\u2295++x\u2296\u2296", {st::Id, st::Id, st::Id, st::Id, st::Id});
-    scan("x10");
+    scan("x10 ... == (* print('hello') *) have by");
     check_name("x10", name("x10"));
     check_name("x::10", name(name("x"), 10));
     check_name("x::10::bla::0", name(name(name(name("x"), 10), "bla"), 0u));

@@ -289,9 +289,6 @@ public:
     object_iterator end_local_objects() const { return object_iterator(m_this.lock(), get_num_objects(true), true); }
     // =======================================
 
-    /** \brief Display universal variable constraints and objects stored in this environment and its parents. */
-    void display(std::ostream & out) const;
-
     /**
        \brief Register an environment extension. Every environment
        object will contain this extension. The funciton mk creates a

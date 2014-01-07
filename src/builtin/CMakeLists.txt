@@ -34,7 +34,7 @@ function(add_theory_core FILE ARG EXTRA_DEPS)
   add_custom_target("${BASENAME}_builtin" DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} ${EXTRA_DEPS})
   add_dependencies(builtin ${BASENAME}_builtin)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} DESTINATION library)
-  add_test("${BASENAME}_builtin_test" ${SHELL_DIR}/lean ${ARG} ${CMAKE_CURRENT_SOURCE_DIR}/${FILE})
+  add_test("${BASENAME}_builtin_test" ${SHELL_DIR}/lean -o ${CMAKE_CURRENT_BINARY_DIR}/${FNAME}_test ${ARG} ${CMAKE_CURRENT_SOURCE_DIR}/${FILE})
 endfunction()
 
 # When cross compiling, we cannot execute lean during the build.

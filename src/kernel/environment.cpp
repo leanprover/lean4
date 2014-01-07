@@ -386,7 +386,7 @@ void environment_cell::init_uvars() {
 */
 void environment_cell::check_no_cached_type(expr const & e) {
     if (find(e, [](expr const & a) { return is_constant(a) && const_type(a); }))
-        throw kernel_exception(env(), "expression has a constant with a cached type, this is a bug in one of Lean tactics and/or solvers");
+        throw kernel_exception(env(), "expression has a constant with a cached type, this is a bug in one of Lean tactics and/or solvers"); // LCOV_EXCL_LINE
 }
 
 /**
@@ -411,7 +411,7 @@ void environment_cell::check_new_definition(name const & n, expr const & t, expr
 /** \brief Add a new builtin value to this environment */
 void environment_cell::add_builtin(expr const & v) {
     if (!is_value(v))
-        throw invalid_builtin_value_declaration(env(), v);
+        throw invalid_builtin_value_declaration(env(), v); // LCOV_EXCL_LINE
     name const & n = to_value(v).get_name();
     check_name(n);
     name const & u = to_value(v).get_unicode_name();
@@ -427,7 +427,7 @@ void environment_cell::add_builtin(expr const & v) {
 /** \brief Add a new builtin value set to this environment */
 void environment_cell::add_builtin_set(expr const & r) {
     if (!is_value(r))
-        throw invalid_builtin_value_declaration(env(), r);
+        throw invalid_builtin_value_declaration(env(), r); // LCOV_EXCL_LINE
     check_name(to_value(r).get_name());
     register_named_object(mk_builtin_set(r));
 }
@@ -529,17 +529,6 @@ expr environment_cell::infer_type(expr const & e, context const & ctx) const {
 
 expr environment_cell::normalize(expr const & e, context const & ctx, bool unfold_opaque) const {
     return m_type_checker->get_normalizer()(e, ctx, unfold_opaque);
-}
-
-/** \brief Display universal variable constraints and objects stored in this environment and its parents. */
-void environment_cell::display(std::ostream & out) const {
-    if (has_parent())
-        m_parent->display(out);
-    for (object const & obj : m_objects) {
-        if (obj.has_name()) {
-            out << obj.keyword() << " " << obj.get_name() << "\n";
-        }
-    }
 }
 
 bool environment_cell::already_imported(name const & n) const {
@@ -752,7 +741,7 @@ name_map<std::pair<mk_builtin_fn, bool>> & get_available_builtins() {
 void register_builtin(name const & n, mk_builtin_fn mk, bool is_builtin_set) {
     auto & bs = get_available_builtins();
     if (bs.find(n) != bs.end())
-        throw exception("invalid builtin object, system already has a builtin object with the given name");
+        throw exception("invalid builtin object, system already has a builtin object with the given name"); // LCOV_EXCL_LINE
     bs[n] = mk_pair(mk, is_builtin_set);
 }
 

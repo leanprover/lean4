@@ -41,6 +41,24 @@ bool universe_constraints::is_consistent(name const & n1, name const & n2, int k
     return !is_implied(n2, n1, safe_add(safe_sub(0, k), 1));
 }
 
+bool universe_constraints::overflows(name const & n1, name const & n2, int k) const {
+    try {
+        auto it1 = m_incoming_edges.find(n1);
+        if (it1 != m_incoming_edges.end()) {
+            for (auto const & in : it1->second)
+                safe_add(in.second, k);
+        }
+        auto it2 = m_outgoing_edges.find(n2);
+        if (it2 != m_outgoing_edges.end()) {
+            for (auto const & out : it2->second)
+                safe_add(out.second, k);
+        }
+        return false;
+    } catch (...) {
+        return true;
+    }
+}
+
 /**
     \brief Add the pair (n, k) to entries if it does not contain an entry (n, k').
     Otherwise, replace entry (n, k') with (n, k).

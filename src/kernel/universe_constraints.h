@@ -49,6 +49,11 @@ public:
     /** \brief Return true iff n1 < n2 + k is not implied by this set of constraints. */
     bool is_consistent(name const & n1, name const & n2, int k) const;
     /**
+       \brief Return true iff the constraint n1 >= n2 + k produces an integer overflow when added
+       to the set of constraints.
+    */
+    bool overflows(name const & n1, name const & n2, int k) const;
+    /**
         \brief Add new constraint n1 >= n2 + k.
 
         \pre is_consistent(n1, n2, k)

@@ -322,6 +322,8 @@ void environment_cell::check_consistency(name const & n, level const & l, int k)
     case level_kind::UVar:
         if (!get_ro_ucs().is_consistent(n, uvar_name(l), k))
             throw kernel_exception(env(), sstream() << "universe constraint inconsistency: " << n << " >= " << l << " + " << k);
+        if (get_ro_ucs().overflows(n, uvar_name(l), k))
+            throw kernel_exception(env(), sstream() << "universe constraint produces an integer overflow: " << n << " >= " << l << " + " << k);
         return;
     case level_kind::Lift: check_consistency(n, lift_of(l), safe_add(k, lift_offset(l))); return;
     case level_kind::Max:  std::for_each(max_begin_levels(l), max_end_levels(l), [&](level const & l1) { check_consistency(n, l1, k); }); return;
@@ -336,12 +338,12 @@ level environment_cell::add_uvar_cnstr(name const & n, level const & l) {
     level r;
     auto const & uvs = get_ro_universes().m_uvars;
     auto it = std::find_if(uvs.begin(), uvs.end(), [&](level const & l) { return uvar_name(l) == n; });
+    check_consistency(n, l, 0);
     if (it == uvs.end()) {
         r = add_uvar_core(n);
         register_named_object(mk_uvar_cnstr(n, l));
     } else {
         // universe n already exists, we must check consistency of the new constraint.
-        check_consistency(n, l, 0);
         r = *it;
         m_objects.push_back(mk_uvar_cnstr(n, l));
     }

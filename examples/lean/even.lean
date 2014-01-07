@@ -35,7 +35,7 @@ theorem EvenPlusEven {a b : Nat} (H1 : even a) (H2 : even b) : even (a + b)
      exists::intro (w1 + w2)
         (calc a + b  =  2*w1 + b      : { Hw1 }
                 ...  =  2*w1 + 2*w2   : { Hw2 }
-                ...  =  2*(w1 + w2)   : symm (distribute 2 w1 w2))
+                ...  =  2*(w1 + w2)   : symm (distributer 2 w1 w2))
 
 -- In the following example, we omit the arguments for add::assoc, refl and distribute.
 -- Lean can infer them automatically.
@@ -56,7 +56,7 @@ theorem OddPlusOne {a : Nat} (H : odd a) : even (a + 1)
         (calc a + 1 = 2*w + 1 + 1   : { Hw }
                 ... = 2*w + (1 + 1) : symm (add::assoc _ _ _)
                 ... = 2*w + 2*1     : refl _
-                ... = 2*(w + 1)     : symm (distribute _ _ _))
+                ... = 2*(w + 1)     : symm (distributer _ _ _))
 
 -- The following command displays the proof object produced by Lean after
 -- expanding macros, and infering implicit/missing arguments.

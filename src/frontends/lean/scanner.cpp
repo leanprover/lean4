@@ -138,34 +138,6 @@ bool scanner::check_next_is_digit() {
     return r;
 }
 
-void scanner::read_comment() {
-    int nest = 1;
-    while (true) {
-        if (curr() == '*') {
-            next();
-            if (curr() == ')') {
-                next();
-                nest--;
-                if (nest == 0)
-                    return;
-            }
-        } else if (curr() == '(') {
-            next();
-            if (curr() == '*') {
-                next();
-                nest++;
-            }
-        } else if (curr() == '\n') {
-            new_line();
-            next();
-        } else if (curr() == EOF) {
-            throw_exception("unexpected end of comment");
-        } else {
-            next();
-        }
-    }
-}
-
 void scanner::read_single_line_comment() {
     while (true) {
         if (curr() == '\n') {

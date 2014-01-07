@@ -263,6 +263,10 @@ universe_constraints const & environment_cell::get_ro_ucs() const {
     return get_ro_universes().m_constraints;
 }
 
+optional<int> environment_cell::get_universe_distance(name const & u1, name const & u2) const {
+    return get_ro_ucs().get_distance(u1, u2);
+}
+
 /** \brief Return true iff l1 >= l2 + k by asserted universe constraints. */
 bool environment_cell::is_ge(level const & l1, level const & l2, int k) const {
     if (l1 == l2)

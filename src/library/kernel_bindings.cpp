@@ -1159,6 +1159,16 @@ static int environment_import(lua_State * L) {
     return 0;
 }
 
+static int environment_get_universe_distance(lua_State * L) {
+    ro_shared_environment env(L, 1);
+    auto r = env->get_universe_distance(to_name_ext(L, 2), to_name_ext(L, 3));
+    if (r)
+        lua_pushinteger(L, *r);
+    else
+        lua_pushnil(L);
+    return 1;
+}
+
 static const struct luaL_Reg environment_m[] = {
     {"__gc",           environment_gc}, // never throws
     {"__tostring",     safe_function<environment_tostring>},
@@ -1167,6 +1177,7 @@ static const struct luaL_Reg environment_m[] = {
     {"has_children",   safe_function<environment_has_children>},
     {"parent",         safe_function<environment_parent>},
     {"add_uvar_cnstr", safe_function<environment_add_uvar_cnstr>},
+    {"get_universe_distance", safe_function<environment_get_universe_distance>},
     {"is_ge",          safe_function<environment_is_ge>},
     {"get_uvar",       safe_function<environment_get_uvar>},
     {"add_definition", safe_function<environment_add_definition>},

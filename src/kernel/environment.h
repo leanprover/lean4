@@ -127,6 +127,13 @@ public:
     bool is_ge(level const & l1, level const & l2) const;
 
     /**
+       \brief Return the (minimal) distance between two universes.
+       That is, the biggest \c k s.t. <tt>u1 >= u2 + k</tt>.
+       Return none if there is no such \c k.
+    */
+    optional<int> get_universe_distance(name const & u1, name const & u2) const;
+
+    /**
        \brief Return universal variable with the given name.
        Throw an exception if variable is not defined in this environment.
     */

@@ -98,12 +98,6 @@ operator_info find_op_for(ro_environment const & env, expr const & e, bool unico
 */
 void mark_implicit_arguments(environment const & env, name const & n, unsigned sz, bool const * implicit);
 void mark_implicit_arguments(environment const & env, name const & n, std::initializer_list<bool> const & l);
-void mark_implicit_arguments(environment const & env, expr const & n, std::initializer_list<bool> const & l);
-/**
-   \brief Syntax sugar for mark_implicit_arguments(n, {true, ..., true}), with prefix_sz true's.
-*/
-void mark_implicit_arguments(environment const & env, name const & n, unsigned prefix_sz);
-void mark_implicit_arguments(environment const & env, expr const & n, unsigned prefix_sz);
 /**
     \brief Return true iff \c n has implicit arguments
 */

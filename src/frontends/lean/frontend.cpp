@@ -635,28 +635,8 @@ optional<unsigned> get_lbp(ro_environment const & env, name const & n) {
 void mark_implicit_arguments(environment const & env, name const & n, unsigned sz, bool const * implicit) {
     to_ext(env).mark_implicit_arguments(n, sz, implicit, env);
 }
-void mark_implicit_arguments(environment const & env, name const & n, unsigned prefix_sz) {
-    buffer<bool> implicit; implicit.resize(prefix_sz, true);
-    mark_implicit_arguments(env, n, implicit.size(), implicit.data());
-}
-void mark_implicit_arguments(environment const & env, expr const & n, unsigned prefix_sz) {
-    if (is_constant(n)) {
-        mark_implicit_arguments(env, const_name(n), prefix_sz);
-    } else {
-        lean_assert(is_value(n));
-        mark_implicit_arguments(env, to_value(n).get_name(), prefix_sz);
-    }
-}
 void mark_implicit_arguments(environment const & env, name const & n, std::initializer_list<bool> const & l) {
     mark_implicit_arguments(env, n, l.size(), l.begin());
-}
-void mark_implicit_arguments(environment const & env, expr const & n, std::initializer_list<bool> const & l) {
-    if (is_constant(n)) {
-        mark_implicit_arguments(env, const_name(n), l);
-    } else {
-        lean_assert(is_value(n));
-        mark_implicit_arguments(env, to_value(n).get_name(), l);
-    }
 }
 bool has_implicit_arguments(ro_environment const & env, name const & n) {
     return to_ext(env).has_implicit_arguments(n);

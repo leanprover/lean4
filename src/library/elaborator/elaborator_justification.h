@@ -164,6 +164,7 @@ public:
     virtual ~typeof_mvar_justification();
     virtual format pp_header(formatter const &, options const &, optional<metavar_env> const & menv) const;
     virtual void get_children(buffer<justification_cell*> & r) const;
+    justification const & get_justification() const { return m_justification; }
 };
 
 /**

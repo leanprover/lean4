@@ -121,18 +121,18 @@ bool is_derived_constraint(unification_constraint const & uc) {
     return j && dynamic_cast<propagation_justification*>(j.raw());
 }
 
-unification_constraint const & get_non_derived_constraint(unification_constraint const & uc) {
-    auto jcell = uc.get_justification().raw();
+unification_constraint get_non_derived_constraint(unification_constraint const & uc) {
+    auto j     = uc.get_justification();
+    auto jcell = j.raw();
     if (auto pcell = dynamic_cast<propagation_justification*>(jcell)) {
         return get_non_derived_constraint(pcell->get_constraint());
     } else {
-        return uc;
+        return uc.updt_justification(remove_detail(j));
     }
 }
 
 justification remove_detail(justification const & j) {
     auto jcell = j.raw();
-
     if (auto fc_cell = dynamic_cast<unification_failure_by_cases_justification*>(jcell)) {
         auto uc = fc_cell->get_constraint();
         if (is_derived_constraint(uc)) {
@@ -145,12 +145,13 @@ justification remove_detail(justification const & j) {
                 new_js.push_back(remove_detail(j));
             return justification(new unification_failure_by_cases_justification(uc, new_js.size(), new_js.data(), fc_cell->get_menv()));
         }
-        return j;
     } else if (auto f_cell = dynamic_cast<unification_failure_justification*>(jcell)) {
         unification_constraint const & new_uc = get_non_derived_constraint(f_cell->get_constraint());
         return justification(new unification_failure_justification(new_uc, f_cell->get_menv()));
     } else if (auto p_cell = dynamic_cast<propagation_justification*>(jcell)) {
         return remove_detail(p_cell->get_constraint().get_justification());
+    } else if (auto t_cell = dynamic_cast<typeof_mvar_justification*>(jcell)) {
+        return remove_detail(t_cell->get_justification());
     } else {
         return j;
     }

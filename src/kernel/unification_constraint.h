@@ -52,6 +52,8 @@ public:
     virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_justification,
                       optional<metavar_env> const & menv) const = 0;
     void set_justification(justification const & j) { lean_assert(!m_justification); m_justification = j; }
+    /** \brief Return a new constraint equal to this one, but with the new justification */
+    virtual unification_constraint updt_justification(justification const & j) const = 0;
 };
 
 class unification_constraint_eq;
@@ -83,6 +85,8 @@ public:
 
     context const & get_context() const { return m_ptr->get_context(); }
 
+    virtual unification_constraint updt_justification(justification const & j) const { lean_assert(m_ptr); return m_ptr->updt_justification(j); }
+
     friend unification_constraint mk_eq_constraint(context const & c, expr const & lhs, expr const & rhs, justification const & j);
     friend unification_constraint mk_convertible_constraint(context const & c, expr const & from, expr const & to, justification const & j);
     friend unification_constraint mk_max_constraint(context const & c, expr const & lhs1, expr const & lhs2, expr const & rhs, justification const & j);
@@ -107,6 +111,7 @@ public:
     expr const & get_rhs() const { return m_rhs; }
     virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_justification,
                       optional<metavar_env> const & menv) const;
+    virtual unification_constraint updt_justification(justification const & j) const;
 };
 
 /**
@@ -124,6 +129,7 @@ public:
     expr const & get_to() const   { return m_to; }
     virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_justification,
                       optional<metavar_env> const & menv) const;
+    virtual unification_constraint updt_justification(justification const & j) const;
 };
 
 /**
@@ -141,6 +147,7 @@ public:
     expr const & get_rhs() const  { return m_rhs; }
     virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_justification,
                       optional<metavar_env> const & menv) const;
+    virtual unification_constraint updt_justification(justification const & j) const;
 };
 
 /**
@@ -159,6 +166,7 @@ public:
     std::vector<expr>::const_iterator end_choices() const   { return m_choices.end(); }
     virtual format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_justification,
                       optional<metavar_env> const & menv) const;
+    virtual unification_constraint updt_justification(justification const & j) const;
 };
 
 unification_constraint mk_eq_constraint(context const & c, expr const & lhs, expr const & rhs, justification const & j);

@@ -62,6 +62,10 @@ format unification_constraint_eq::pp(formatter const & fmt, options const & opts
     return add_justification(fmt, opts, body, m_justification, p, include_justification, menv);
 }
 
+unification_constraint unification_constraint_eq::updt_justification(justification const & j) const {
+    return mk_eq_constraint(m_ctx, m_lhs, m_rhs, j);
+}
+
 unification_constraint_convertible::unification_constraint_convertible(context const & c, expr const & from, expr const & to, justification const & j):
     unification_constraint_cell(unification_constraint_kind::Convertible, c, j),
     m_from(from),
@@ -78,6 +82,10 @@ format unification_constraint_convertible::pp(formatter const & fmt, options con
     format body  = mk_binary(fmt, opts, m_ctx, m_from, m_to, op, menv);
     body = add_context(fmt, opts, m_ctx, body, menv);
     return add_justification(fmt, opts, body, m_justification, p, include_justification, menv);
+}
+
+unification_constraint unification_constraint_convertible::updt_justification(justification const & j) const {
+    return mk_convertible_constraint(m_ctx, m_from, m_to, j);
 }
 
 unification_constraint_max::unification_constraint_max(context const & c, expr const & lhs1, expr const & lhs2, expr const & rhs, justification const & j):
@@ -99,6 +107,10 @@ format unification_constraint_max::pp(formatter const & fmt, options const & opt
     format body     = group(format{format("max"), lp(), lhs1_fmt, comma(), nest(4, compose(line(), lhs2_fmt)), rp(), space(), op, line(), rhs_fmt});
     body = add_context(fmt, opts, m_ctx, body, menv);
     return add_justification(fmt, opts, body, m_justification, p, include_justification, menv);
+}
+
+unification_constraint unification_constraint_max::updt_justification(justification const & j) const {
+    return mk_max_constraint(m_ctx, m_lhs1, m_lhs2, m_rhs, j);
 }
 
 unification_constraint_choice::unification_constraint_choice(context const & c, expr const & mvar, unsigned num, expr const * choices, justification const & j):
@@ -125,6 +137,10 @@ format unification_constraint_choice::pp(formatter const & fmt, options const & 
     body = group(body);
     body = add_context(fmt, opts, m_ctx, body, menv);
     return add_justification(fmt, opts, body, m_justification, p, include_justification, menv);
+}
+
+unification_constraint unification_constraint_choice::updt_justification(justification const & j) const {
+    return mk_choice_constraint(m_ctx, m_mvar, m_choices.size(), m_choices.data(), j);
 }
 
 format unification_constraint::pp(formatter const & fmt, options const & opts, pos_info_provider const * p, bool include_justification,

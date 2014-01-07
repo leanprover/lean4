@@ -1,0 +1,104 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Imported 'macros'
+  Using: Nat
+  Assumed: Induction
+Failed to solve
+ ⊢ (?M::10 ≈ @mp) ⊕ (?M::10 ≈ eq::@mp) ⊕ (?M::10 ≈ forall::@elim)
+    (line: 11: pos: 5) Overloading at
+        (forall::@elim | eq::@mp | @mp) _ _ Induction _
+    Failed to solve
+     ⊢ (ℕ → Bool) → Bool ≺ Bool
+        (line: 11: pos: 5) Type of argument 3 must be convertible to the expected type in the application of
+            @mp
+        with arguments:
+            ?M::7
+            λ P : ℕ → Bool, P 0 ⇒ (∀ n : ℕ, P n ⇒ P (n + 1)) ⇒ (∀ n : ℕ, P n)
+            Induction
+            ?M::9
+    Failed to solve
+     ⊢ ∀ P : ℕ → Bool, P 0 ⇒ (∀ n : ℕ, P n ⇒ P (n + 1)) ⇒ (∀ n : ℕ, P n) ≺ ?M::7 == ?M::8
+        (line: 11: pos: 5) Type of argument 3 must be convertible to the expected type in the application of
+            eq::@mp
+        with arguments:
+            ?M::7
+            ?M::8
+            Induction
+            ?M::9
+    Failed to solve
+     ⊢ (?M::17 ≈ @mp) ⊕ (?M::17 ≈ eq::@mp) ⊕ (?M::17 ≈ forall::@elim)
+        (line: 12: pos: 6) Overloading at
+            (forall::@elim | eq::@mp | @mp)
+                _
+                _
+                ((forall::@elim | eq::@mp | @mp) _ _ Induction _)
+                (forall::intro (λ m : _, Nat::add::zerol m ⋈ symm (Nat::add::zeror m)))
+        Failed to solve
+         ⊢ (?M::34 ≈ @mp) ⊕ (?M::34 ≈ eq::@mp) ⊕ (?M::34 ≈ forall::@elim)
+            (line: 15: pos: 5) Overloading at
+                let κ::1 := (forall::@elim | eq::@mp | @mp)
+                                 _
+                                 _
+                                 ((forall::@elim | eq::@mp | @mp) _ _ Induction _)
+                                 (forall::intro (λ m : _, Nat::add::zerol m ⋈ symm (Nat::add::zeror m))),
+                    κ::2 := λ n : _,
+                               discharge
+                                   (λ iH : _,
+                                      forall::intro
+                                          (λ m : _,
+                                             Nat::add::succl n m ⋈ subst (refl (n + m + 1)) iH ⋈
+                                             symm (Nat::add::succr m n)))
+                in (forall::@elim | eq::@mp | @mp) _ _ κ::1 (forall::intro κ::2)
+            Failed to solve
+             ⊢ ∀ n : ℕ, ?M::9 n ≺ ∀ n m : ℕ, n + m = m + n
+                (line: 15: pos: 5) Type of definition 'Comm1' must be convertible to expected type.
+            Failed to solve
+             ⊢ (∀ n : ℕ, ?M::9 n ⇒ ?M::9 (n + 1)) ⇒ (∀ n : ℕ, ?M::9 n) ≺ ?M::3 == ?M::4
+                (line: 15: pos: 5) Type of argument 3 must be convertible to the expected type in the application of
+                    eq::@mp
+                with arguments:
+                    ?M::3
+                    ?M::4
+                    Induction ◂ ?M::9 ◂ forall::intro (λ m : ℕ, Nat::add::zerol m ⋈ symm (Nat::add::zeror m))
+                    forall::intro
+                        (λ n : ℕ,
+                           discharge
+                               (λ iH : ?M::20,
+                                  forall::intro
+                                      (λ m : ℕ,
+                                         Nat::add::succl n m ⋈ subst (refl (n + m + 1)) iH ⋈
+                                         symm (Nat::add::succr m n))))
+            Failed to solve
+             ⊢ Bool ≺ ?M::3 → Bool
+                (line: 15: pos: 5) Type of argument 3 must be convertible to the expected type in the application of
+                    forall::@elim
+                with arguments:
+                    ?M::3
+                    ∀ n : ℕ, ?M::9 n
+                    Induction ◂ ?M::9 ◂ forall::intro (λ m : ℕ, Nat::add::zerol m ⋈ symm (Nat::add::zeror m))
+                    forall::intro
+                        (λ n : ℕ,
+                           discharge
+                               (λ iH : ?M::20,
+                                  forall::intro
+                                      (λ m : ℕ,
+                                         Nat::add::succl n m ⋈ subst (refl (n + m + 1)) iH ⋈
+                                         symm (Nat::add::succr m n))))
+        Failed to solve
+         ⊢ ?M::9 0 ⇒ (∀ n : ℕ, ?M::9 n ⇒ ?M::9 (n + 1)) ⇒ (∀ n : ℕ, ?M::9 n) ≺ ?M::5 == ?M::6
+            (line: 12: pos: 6) Type of argument 3 must be convertible to the expected type in the application of
+                eq::@mp
+            with arguments:
+                ?M::5
+                ?M::6
+                Induction ◂ ?M::9
+                forall::intro (λ m : ℕ, Nat::add::zerol m ⋈ symm (Nat::add::zeror m))
+        Failed to solve
+         ⊢ Bool ≺ ?M::5 → Bool
+            (line: 12: pos: 6) Type of argument 3 must be convertible to the expected type in the application of
+                forall::@elim
+            with arguments:
+                ?M::5
+                (∀ n : ℕ, ?M::9 n ⇒ ?M::9 (n + 1)) ⇒ (∀ n : ℕ, ?M::9 n)
+                Induction ◂ ?M::9
+                forall::intro (λ m : ℕ, Nat::add::zerol m ⋈ symm (Nat::add::zeror m))

@@ -30,10 +30,11 @@ function(add_theory_core FILE ARG EXTRA_DEPS)
     COMMAND ${SHELL_DIR}/lean ${ARG} -o ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} ${CMAKE_CURRENT_SOURCE_DIR}/${FILE}
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} ${SHELL_DIR}/${FNAME}
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} ${CMAKE_CURRENT_SOURCE_DIR}/obj/${FNAME}
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} ${SHELL_DIR}/lean ${EXTRA_DEPS})
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} ${EXTRA_DEPS})
   add_custom_target("${BASENAME}_builtin" DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} ${EXTRA_DEPS})
   add_dependencies(builtin ${BASENAME}_builtin)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} DESTINATION library)
+  add_test("${BASENAME}_builtin_test" ${SHELL_DIR}/lean ${ARG} ${CMAKE_CURRENT_SOURCE_DIR}/${FILE})
 endfunction()
 
 # When cross compiling, we cannot execute lean during the build.
@@ -73,3 +74,5 @@ add_theory("Int.lean"       "${CMAKE_CURRENT_BINARY_DIR}/Nat.olean")
 add_theory("Real.lean"      "${CMAKE_CURRENT_BINARY_DIR}/Int.olean")
 add_theory("specialfn.lean" "${CMAKE_CURRENT_BINARY_DIR}/Real.olean")
 add_theory("cast.lean"      "${CMAKE_CURRENT_BINARY_DIR}/Nat.olean")
+
+

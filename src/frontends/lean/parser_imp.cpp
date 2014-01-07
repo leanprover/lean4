@@ -132,6 +132,15 @@ void parser_imp::parse_script(bool as_expr) {
 
 void parser_imp::parse_script_expr() { return parse_script(true); }
 
+void parser_imp::sync_command() {
+    // Keep consuming tokens until we find a Command or End-of-file
+    show_prompt();
+    while (curr() != scanner::token::CommandId && curr() != scanner::token::Eof && curr() != scanner::token::Period)
+        next();
+    if (curr_is_period())
+        next();
+}
+
 parser_imp::parser_imp(environment const & env, io_state const & st, std::istream & in,
                        script_state * S, bool use_exceptions, bool interactive):
     m_env(env),
@@ -162,7 +171,8 @@ parser_imp::parser_imp(environment const & env, io_state const & st, std::istrea
         m_tactic_macros = nullptr;
         m_cmd_macros    = nullptr;
     }
-    scan();
+    protected_call([&]() { scan(); },
+                   [&]() { sync_command(); });
 }
 
 parser_imp::~parser_imp() {}
@@ -199,14 +209,8 @@ bool parser_imp::parse_commands() {
                 default:
                     throw parser_error("Command expected", pos());
                 }
-            }, [&]() {
-                // Keep consuming tokens until we find a Command or End-of-file
-                show_prompt();
-                while (curr() != scanner::token::CommandId && curr() != scanner::token::Eof && curr() != scanner::token::Period)
-                    next();
-                if (curr_is_period())
-                    next();
-            });
+            },
+            [&]() { sync_command(); });
     }
     return !m_found_errors;
 }

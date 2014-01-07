@@ -421,6 +421,7 @@ private:
     void parse_end();
     void parse_using();
     bool parse_command();
+    void sync_command();
     /*@}*/
 
 public:

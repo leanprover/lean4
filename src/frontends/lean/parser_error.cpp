@@ -97,6 +97,14 @@ void parser_imp::display_error(tactic_cmd_error const & ex) {
     display_proof_state(ex.m_state);
 }
 
+#define CATCH_CORE(ShowError, ThrowError)       \
+m_found_errors = true;                          \
+if (m_show_errors) { ShowError ; }              \
+sync();                                         \
+if (m_use_exceptions) { ThrowError ; }
+
+#define CATCH(ShowError) CATCH_CORE(ShowError, throw;)
+
 /**
    \brief Execute the given function \c f, and handle exceptions occurring
    when executing \c f.
@@ -106,63 +114,29 @@ void parser_imp::protected_call(std::function<void()> && f, std::function<void()
     try {
         f();
     } catch (tactic_cmd_error & ex) {
-        m_found_errors = true;
-        if (m_show_errors)
-            display_error(ex);
-        sync();
-        if (m_use_exceptions)
-            throw;
+        CATCH(display_error(ex));
+    } catch (parser_exception & ex) {
+        CATCH(regular(m_io_state) << "Error " << ex.what() << endl;);
     } catch (parser_error & ex) {
-        m_found_errors = true;
-        if (m_show_errors)
-            display_error(ex.what(), ex.m_pos.first, ex.m_pos.second);
-        sync();
-        if (m_use_exceptions) {
-            throw parser_exception(ex.what(), ex.m_pos.first, ex.m_pos.second);
-        }
+        CATCH_CORE(display_error(ex.what(), ex.m_pos.first, ex.m_pos.second), throw parser_exception(ex.what(), ex.m_pos.first, ex.m_pos.second));
     } catch (kernel_exception & ex) {
-        m_found_errors = true;
-        if (m_show_errors)
-            display_error(ex);
-        sync();
-        if (m_use_exceptions)
-            throw;
+        CATCH(display_error(ex));
     } catch (elaborator_exception & ex) {
-        m_found_errors = true;
-        if (m_show_errors)
-            display_error(ex);
-        sync();
-        if (m_use_exceptions)
-            throw;
+        CATCH(display_error(ex));
     } catch (metavar_not_synthesized_exception & ex) {
-        m_found_errors = true;
-        if (m_show_errors)
-            display_error(ex);
-        sync();
-        if (m_use_exceptions)
-            throw;
+        CATCH(display_error(ex));
     } catch (script_exception & ex) {
-        m_found_errors = true;
         reset_interrupt();
-        if (m_show_errors)
-            display_error(ex);
-        sync();
-        if (m_use_exceptions)
-            throw;
+        CATCH(display_error(ex));
     } catch (interrupted & ex) {
+        reset_interrupt();
         if (m_verbose)
             regular(m_io_state) << "!!!Interrupted!!!" << endl;
-        reset_interrupt();
         sync();
         if (m_use_exceptions)
             throw;
     } catch (exception & ex) {
-        m_found_errors = true;
-        if (m_show_errors)
-            display_error(ex.what());
-        sync();
-        if (m_use_exceptions)
-            throw;
+        CATCH(display_error(ex.what()););
     }
 }
 }

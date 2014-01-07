@@ -1318,7 +1318,7 @@ class pp_formatter_cell : public formatter_cell {
         }
     }
 
-    format pp_uvar_decl(object const & obj, options const & opts) {
+    format pp_uvar_cnstr(object const & obj, options const & opts) {
         bool unicode = get_pp_unicode(opts);
         return format{highlight_command(format(obj.keyword())), space(), format(obj.get_name()), space(), format(unicode ? "\u2265" : ">="), space(), ::lean::pp(obj.get_cnstr_level(), unicode)};
     }
@@ -1412,7 +1412,7 @@ public:
 
     virtual format operator()(object const & obj, options const & opts) {
         switch (obj.kind()) {
-        case object_kind::UVarDeclaration:  return pp_uvar_decl(obj, opts);
+        case object_kind::UVarConstraint:   return pp_uvar_cnstr(obj, opts);
         case object_kind::Postulate:        return pp_postulate(obj, opts);
         case object_kind::Definition:       return pp_definition(obj, opts);
         case object_kind::Builtin:          return pp_postulate(obj, opts);

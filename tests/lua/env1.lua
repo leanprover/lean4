@@ -1,7 +1,7 @@
 import("util.lua")
 e = environment()
 assert(is_environment(e))
-e:add_uvar("M1")
+e:add_uvar_cnstr("M1")
 print(e:get_uvar("M1"))
 e:add_var("N", Type())
 N, M = Consts("N M")

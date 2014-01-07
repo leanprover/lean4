@@ -36,8 +36,8 @@ static void tst1() {
     expr f = mk_pi("_", t0, t0);
     std::cout << type_check(f, env) << "\n";
     lean_assert(type_check(f, env) == Type(level()+1));
-    level u = env->add_uvar("u", level() + 1);
-    level v = env->add_uvar("v", level() + 1);
+    level u = env->add_uvar_cnstr("u", level() + 1);
+    level v = env->add_uvar_cnstr("v", level() + 1);
     expr g = mk_pi("_", Type(u), Type(v));
     std::cout << type_check(g, env) << "\n";
     lean_assert(type_check(g, env) == Type(max(u+1, v+1)));
@@ -59,7 +59,7 @@ static void tst1() {
 static void tst2() {
     try{
         environment env;
-        level l1      = env->add_uvar("l1", level() + 1);
+        level l1      = env->add_uvar_cnstr("l1", level() + 1);
         expr t0       = Type();
         expr t1       = Type(l1);
         expr F =

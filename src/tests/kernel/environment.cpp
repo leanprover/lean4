@@ -21,8 +21,8 @@ using namespace lean;
 
 static void tst1() {
     environment env;
-    level u = env->add_uvar("u", level() + 1);
-    level w = env->add_uvar("w", u + 1);
+    level u = env->add_uvar_cnstr("u", level() + 1);
+    level w = env->add_uvar_cnstr("w", u + 1);
     lean_assert(!env->has_children());
     lean_assert(!env->has_parent());
     {
@@ -34,21 +34,21 @@ static void tst1() {
         lean_assert(child->has_parent());
         lean_assert(!env->has_parent());
         try {
-            level o = env->add_uvar("o", w + 1);
+            level o = env->add_uvar_cnstr("o", w + 1);
             lean_unreachable();
         } catch (exception const & ex) {
             std::cout << "expected error: " << ex.what() << "\n";
         }
     }
     std::cout << "tst1 checkpoint" << std::endl;
-    level o = env->add_uvar("o", w + 1);
+    level o = env->add_uvar_cnstr("o", w + 1);
     lean_assert(!env->has_children());
     std::cout << env;
 }
 
 static environment mk_child() {
     environment env;
-    level u = env->add_uvar("u", level() + 1);
+    level u = env->add_uvar_cnstr("u", level() + 1);
     return env->mk_child();
 }
 
@@ -134,8 +134,8 @@ static void tst5() {
 
 static void tst6() {
     environment env; init_test_frontend(env);
-    level u = env->add_uvar("u", level() + 1);
-    level w = env->add_uvar("w", u + 1);
+    level u = env->add_uvar_cnstr("u", level() + 1);
+    level w = env->add_uvar_cnstr("w", u + 1);
     env->add_var("f", mk_arrow(Type(u), Type(u)));
     expr t = Const("f")(Int);
     std::cout << "type of " << t << " is " << type_check(t, env) << "\n";
@@ -194,16 +194,10 @@ static void tst8() {
 }
 
 static void tst9() {
-    try {
-        environment env;
-        env->add_uvar("u1", level());
-        env->add_uvar("u2", level());
-        env->add_uvar("u1", level("u2"));
-    } catch (already_declared_exception & ex) {
-        std::cout << ex.what() << "\n";
-        level l = ex.get_environment()->get_uvar(ex.get_name());
-        std::cout << l << "\n";
-    }
+    environment env;
+    env->add_uvar_cnstr("u1", level());
+    env->add_uvar_cnstr("u2", level());
+    env->add_uvar_cnstr("u1", level("u2"));
 }
 
 static void tst10() {

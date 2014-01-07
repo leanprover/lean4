@@ -18,7 +18,7 @@ Author: Leonardo de Moura
 namespace lean {
 class io_state;
 class object;
-enum class object_kind { UVarDeclaration, Definition, Postulate, Builtin, BuiltinSet, Neutral };
+enum class object_kind { UVarConstraint, Definition, Postulate, Builtin, BuiltinSet, Neutral };
 
 class object_cell {
 protected:
@@ -111,7 +111,7 @@ public:
 
     object_kind kind() const { return m_ptr->kind(); }
 
-    friend object mk_uvar_decl(name const & n, level const & l);
+    friend object mk_uvar_cnstr(name const & n, level const & l);
     friend object mk_definition(name const & n, expr const & t, expr const & v, unsigned weight);
     friend object mk_theorem(name const & n, expr const & t, expr const & v);
     friend object mk_axiom(name const & n, expr const & t);
@@ -148,7 +148,7 @@ inline optional<object> none_object() { return optional<object>(); }
 inline optional<object> some_object(object const & o) { return optional<object>(o); }
 inline optional<object> some_object(object && o) { return optional<object>(std::forward<object>(o)); }
 
-object mk_uvar_decl(name const & n, level const & l);
+object mk_uvar_cnstr(name const & n, level const & l);
 object mk_builtin(expr const & v);
 object mk_builtin_set(expr const & r);
 object mk_definition(name const & n, expr const & t, expr const & v, unsigned weight);

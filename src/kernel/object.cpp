@@ -47,26 +47,26 @@ public:
 };
 
 /**
-   \brief Universe variable name declaration.
+   \brief Universe variable constraint.
 */
-class uvar_declaration_object_cell : public named_object_cell {
+class uvar_constraint_object_cell : public named_object_cell {
     level m_level;
 public:
-    uvar_declaration_object_cell(name const & n, level const & l):
-        named_object_cell(object_kind::UVarDeclaration, n), m_level(l) {}
-    virtual ~uvar_declaration_object_cell() {}
+    uvar_constraint_object_cell(name const & n, level const & l):
+        named_object_cell(object_kind::UVarConstraint, n), m_level(l) {}
+    virtual ~uvar_constraint_object_cell() {}
 
     virtual bool has_cnstr_level() const  { return true; }
     virtual level get_cnstr_level() const { return m_level; }
     virtual char const * keyword() const  { return "universe"; }
     virtual void write(serializer & s) const { s << "universe" << get_name() << m_level; }
 };
-static void read_uvar_decl(environment const & env, io_state const &, deserializer & d) {
+static void read_uvar_cnstr(environment const & env, io_state const &, deserializer & d) {
     name n    = read_name(d);
     level lvl = read_level(d);
-    env->add_uvar(n, lvl);
+    env->add_uvar_cnstr(n, lvl);
 }
-static object_cell::register_deserializer_fn uvar_ds("universe", read_uvar_decl);
+static object_cell::register_deserializer_fn uvar_ds("universe", read_uvar_cnstr);
 
 /**
    \brief Builtin object.
@@ -233,7 +233,7 @@ static void read_theorem(environment const & env, io_state const &, deserializer
 }
 static object_cell::register_deserializer_fn theorem_ds("th", read_theorem);
 
-object mk_uvar_decl(name const & n, level const & l) { return object(new uvar_declaration_object_cell(n, l)); }
+object mk_uvar_cnstr(name const & n, level const & l) { return object(new uvar_constraint_object_cell(n, l)); }
 object mk_definition(name const & n, expr const & t, expr const & v, unsigned weight) { return object(new definition_object_cell(n, t, v, weight)); }
 object mk_theorem(name const & n, expr const & t, expr const & v) { return object(new theorem_object_cell(n, t, v)); }
 object mk_axiom(name const & n, expr const & t) { return object(new axiom_object_cell(n, t)); }

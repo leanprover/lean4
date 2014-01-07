@@ -23,6 +23,8 @@ class environment;
 class ro_environment;
 class type_checker;
 class environment_extension;
+class universe_constraints;
+class universes;
 
 /** \brief Implementation of the Lean environment. */
 class environment_cell {
@@ -34,8 +36,7 @@ class environment_cell {
     typedef std::tuple<level, level, int> constraint;
     std::weak_ptr<environment_cell>         m_this;
     // Universe variable management
-    std::vector<constraint>                 m_constraints;
-    std::vector<level>                      m_uvars;
+    std::unique_ptr<universes>              m_universes;
     // Children environment management
     atomic<unsigned>                        m_num_children;
     std::shared_ptr<environment_cell>       m_parent;
@@ -68,11 +69,15 @@ class environment_cell {
     void register_named_object(object const & new_obj);
     optional<object> get_object_core(name const & n) const;
 
-    bool is_implied(level const & u, level const & v, int k) const;
-    bool is_ge(level const & l1, level const & l2, int k) const;
+    universes & get_rw_universes();
+    universes const & get_ro_universes() const;
+    universe_constraints & get_rw_ucs();
+    universe_constraints const & get_ro_ucs() const;
+
     level add_uvar_core(name const & n);
-    void add_constraint(level const & u, level const & v, int d);
-    void add_constraints(level const & n, level const & l, int k);
+    bool is_ge(level const & l1, level const & l2, int k) const;
+    void check_consistency(name const & n, level const & l, int k) const;
+    void add_constraints(name const & n, level const & l, int k);
     void init_uvars();
     void check_no_cached_type(expr const & e);
     void check_type(name const & n, expr const & t, expr const & v);
@@ -107,13 +112,13 @@ public:
     // =======================================
     // Universe variables
     /**
-       \brief Add a new universe variable with name \c n and constraint <tt>n >= l</tt>.
-       Return the new variable.
+       \brief Add a new universe variable constraint of the form <tt>n >= l</tt>.
+       Return the level of \c n.
 
        \remark An exception is thrown if a universe inconsistency is detected.
     */
-    level add_uvar(name const & n, level const & l);
-    level add_uvar(name const & n) { return add_uvar(n, level()); }
+    level add_uvar_cnstr(name const & n, level const & l);
+    level add_uvar_cnstr(name const & n) { return add_uvar_cnstr(n, level()); }
 
     /**
        \brief Return true iff the constraint l1 >= l2 is implied by the constraints

@@ -29,7 +29,7 @@ static void tst0() {
     std::for_each(env->begin_objects(), env->end_objects(), [&](object const & obj) {
             std::cout << obj.keyword() << "\n";
         });
-    level l1 = env->add_uvar(name(name("l1"), "suffix"), level());
+    level l1 = env->add_uvar_cnstr(name(name("l1"), "suffix"), level());
     lean_assert(env->begin_objects() != env->end_objects());
     std::for_each(env->begin_objects(), env->end_objects(), [&](object const & obj) {
             std::cout << obj.keyword() << "\n";
@@ -39,10 +39,10 @@ static void tst0() {
 
 static void tst1() {
     environment env;
-    level l1 = env->add_uvar(name(name("l1"), "suffix"), level());
-    level l2 = env->add_uvar("l2", l1 + 10);
-    level l3 = env->add_uvar("l3", max(l2, l1 + 3));
-    level l4 = env->add_uvar("l4", max(l1 + 8, max(l2 + 2, l3 + 20)));
+    level l1 = env->add_uvar_cnstr(name(name("l1"), "suffix"), level());
+    level l2 = env->add_uvar_cnstr("l2", l1 + 10);
+    level l3 = env->add_uvar_cnstr("l3", max(l2, l1 + 3));
+    level l4 = env->add_uvar_cnstr("l4", max(l1 + 8, max(l2 + 2, l3 + 20)));
     check_serializer(l1);
     check_serializer(l2);
     check_serializer(l3);
@@ -57,23 +57,17 @@ static void tst1() {
 
 static void tst2() {
     environment env;
-    level l1 = env->add_uvar("l1", level());
-    try {
-        level l2 = env->add_uvar("l1", level());
-        lean_unreachable();
-    }
-    catch (exception & ex) {
-        std::cout << "ok\n";
-    }
+    level l1 = env->add_uvar_cnstr("l1", level());
+    level l2 = env->add_uvar_cnstr("l1", level());
 }
 
 static void tst3() {
     environment env;
-    level l1 = env->add_uvar("l1", level());
-    level l2 = env->add_uvar("l2", l1 + ((1<<30) + 1024));
+    level l1 = env->add_uvar_cnstr("l1", level());
+    level l2 = env->add_uvar_cnstr("l2", l1 + ((1<<30) + 1024));
     check_serializer(l2);
     try {
-        level l3 = env->add_uvar("l3", l2 + (1<<30));
+        level l3 = env->add_uvar_cnstr("l3", l2 + (1<<30));
         lean_unreachable();
     }
     catch (exception & ex) {
@@ -83,12 +77,12 @@ static void tst3() {
 
 static void tst4() {
     environment env;
-    level l1 = env->add_uvar("l1", level() + 1);
-    level l2 = env->add_uvar("l2", level() + 1);
-    level l3 = env->add_uvar("l3", max(l1, l2) + 1);
-    level l4 = env->add_uvar("l4", l3 + 1);
-    level l5 = env->add_uvar("l5", l3 + 1);
-    level l6 = env->add_uvar("l6", max(l4, l5) + 1);
+    level l1 = env->add_uvar_cnstr("l1", level() + 1);
+    level l2 = env->add_uvar_cnstr("l2", level() + 1);
+    level l3 = env->add_uvar_cnstr("l3", max(l1, l2) + 1);
+    level l4 = env->add_uvar_cnstr("l4", l3 + 1);
+    level l5 = env->add_uvar_cnstr("l5", l3 + 1);
+    level l6 = env->add_uvar_cnstr("l6", max(l4, l5) + 1);
     check_serializer(l1);
     check_serializer(l2);
     check_serializer(l3);
@@ -117,8 +111,8 @@ static void tst4() {
 
 static void tst5() {
     environment env;
-    level l1 = env->add_uvar("l1", level() + 1);
-    level l2 = env->add_uvar("l2", level() + 1);
+    level l1 = env->add_uvar_cnstr("l1", level() + 1);
+    level l2 = env->add_uvar_cnstr("l2", level() + 1);
     std::cout << max(l1, l1) << "\n";
     lean_assert(max(l1, l1) == l1);
     lean_assert(max(l1+1, l1+1) == l1+1);

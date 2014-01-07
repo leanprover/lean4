@@ -202,7 +202,7 @@ std::ostream & operator<<(std::ostream & out, context const & ctx) {
 std::ostream & operator<<(std::ostream & out, object const & obj) {
     out << obj.keyword() << " ";
     switch (obj.kind()) {
-    case object_kind::UVarDeclaration:
+    case object_kind::UVarConstraint:
         out << obj.get_name() << " >= " << obj.get_cnstr_level(); break;
     case object_kind::Postulate:
         out << obj.get_name() << " : " << obj.get_type(); break;

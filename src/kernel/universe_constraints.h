@@ -6,6 +6,9 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <unordered_map>
+#include <utility>
+#include <functional>
+#include <vector>
 #include "util/name.h"
 #include "util/hash.h"
 #include "util/name_map.h"
@@ -42,7 +45,7 @@ public:
     */
     bool contains(name const & n) const;
     /** \brief Return true iff n1 >= n2 + k is implied by this set of constraints. */
-    bool is_implied(name const & n1, name const & n2, int k) const ;
+    bool is_implied(name const & n1, name const & n2, int k) const;
     /** \brief Return true iff n1 < n2 + k is not implied by this set of constraints. */
     bool is_consistent(name const & n1, name const & n2, int k) const;
     /**

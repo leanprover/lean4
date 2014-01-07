@@ -619,7 +619,7 @@ void parser_imp::parse_help() {
                             << "  set::opaque [id] [bool]  set the given definition as opaque/transparent" << endl
                             << "  theorem [id] : [type] := [expr]    define a new theorem" << endl
                             << "  variable [id] : [type]   declare/postulate an element of the given type" << endl
-                            << "  universe [id] [level]    declare a new universe variable that is >= the given level" << endl
+                            << "  universe [id] >= [level] declare a new universe constraint" << endl
                             << "  using [id]_1 [id]_2?     create an alias for object starting with the prefix [id]_1 using the [id]_2" << endl;
 #if !defined(LEAN_WINDOWS)
         regular(m_io_state) << "Type Ctrl-D to exit" << endl;
@@ -650,12 +650,17 @@ void parser_imp::parse_cmd_macro(name cmd_id, pos_info const & p) {
     parse_macro(m.m_arg_kinds, m.m_fn, m.m_precedence, args, p);
 }
 
+static name g_geq_unicode("\u2265"); // ≥
+static name g_geq(">=");
+
 void parser_imp::parse_universe() {
     next();
-    name id   = check_identifier_next("invalid universe declaration, identifier expected");
-    check_colon_next("invalid universe declaration, ':' expected");
+    name id   = check_identifier_next("invalid universe constraint, identifier expected");
+    name geq  = check_identifier_next("invalid universe constraint, '>=' expected");
+    if (geq != g_geq && geq != g_geq_unicode)
+        throw parser_error("invalid universe constraint, '>=' expected", m_last_cmd_pos);
     level lvl = parse_level();
-    m_env->add_uvar(id, lvl);
+    m_env->add_uvar_cnstr(id, lvl);
 }
 
 void parser_imp::parse_alias() {

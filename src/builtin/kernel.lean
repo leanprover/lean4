@@ -1,7 +1,7 @@
 import macros
 
-universe M : 512
-universe U : M+512
+universe M ≥ 512
+universe U ≥ M+512
 
 variable Bool : Type
 -- The following builtin declarations can be removed as soon as Lean supports inductive datatypes and match expressions

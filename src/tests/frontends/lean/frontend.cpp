@@ -20,7 +20,7 @@ using namespace lean;
 
 static void tst1() {
     environment env; io_state ios = init_frontend(env);
-    env->add_uvar("tst");
+    env->add_uvar_cnstr("tst");
     environment c = env->mk_child();
     lean_assert(c->get_uvar("tst") == env->get_uvar("tst"));
     lean_assert(env->has_children());
@@ -131,7 +131,7 @@ static void tst9() {
         lean_assert(env->has_children());
     }
     lean_assert(!env->has_children());
-    env->add_uvar("l", level()+1);
+    env->add_uvar_cnstr("l", level()+1);
     lean_assert(env->get_uvar("l") == level("l"));
     try { env->get_uvar("l2"); lean_unreachable(); }
     catch (exception &) {}

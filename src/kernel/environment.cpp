@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "kernel/threadsafe_environment.h"
 #include "kernel/type_checker.h"
 #include "kernel/normalizer.h"
+#include "kernel/universe_constraints.h"
 #include "version.h"
 
 namespace lean {
@@ -232,17 +233,34 @@ object environment_cell::get_object(name const & n) const {
     }
 }
 
-/**
-   \brief Return true if u >= v + k is implied by constraints
-   \pre is_uvar(u) && is_uvar(v)
-*/
-bool environment_cell::is_implied(level const & u, level const & v, int k) const {
-    lean_assert(is_uvar(u) && is_uvar(v));
-    if (u == v)
-        return k <= 0;
-    else
-        return std::any_of(m_constraints.begin(), m_constraints.end(),
-                           [&](constraint const & c) { return std::get<0>(c) == u && std::get<1>(c) == v && std::get<2>(c) >= k; });
+struct universes {
+    std::vector<level>                  m_uvars;
+    universe_constraints                m_constraints;
+};
+
+universes & environment_cell::get_rw_universes() {
+    if (!m_universes) {
+        lean_assert(has_parent());
+        m_universes.reset(new universes(m_parent->get_rw_universes()));
+    }
+    return *m_universes;
+}
+
+universes const & environment_cell::get_ro_universes() const {
+    if (m_universes) {
+        return *m_universes;
+    } else {
+        lean_assert(has_parent());
+        return m_parent->get_ro_universes();
+    }
+}
+
+universe_constraints & environment_cell::get_rw_ucs() {
+    return get_rw_universes().m_constraints;
+}
+
+universe_constraints const & environment_cell::get_ro_ucs() const {
+    return get_ro_universes().m_constraints;
 }
 
 /** \brief Return true iff l1 >= l2 + k by asserted universe constraints. */
@@ -252,7 +270,7 @@ bool environment_cell::is_ge(level const & l1, level const & l2, int k) const {
     switch (kind(l2)) {
     case level_kind::UVar:
         switch (kind(l1)) {
-        case level_kind::UVar: return is_implied(l1, l2, k);
+        case level_kind::UVar: return get_ro_ucs().is_implied(uvar_name(l1), uvar_name(l2), k);
         case level_kind::Lift: return is_ge(lift_of(l1), l2, safe_sub(k, lift_offset(l1)));
         case level_kind::Max:  return std::any_of(max_begin_levels(l1), max_end_levels(l1), [&](level const & l) { return is_ge(l, l2, k); });
         }
@@ -264,43 +282,17 @@ bool environment_cell::is_ge(level const & l1, level const & l2, int k) const {
 
 /** \brief Return true iff l1 >= l2 is implied by asserted universe constraints. */
 bool environment_cell::is_ge(level const & l1, level const & l2) const {
-    if (has_parent())
-        return m_parent->is_ge(l1, l2);
-    else
-        return is_ge(l1, l2, 0);
+    return is_ge(l1, l2, 0);
 }
 
 /** \brief Add a new universe variable */
 level environment_cell::add_uvar_core(name const & n) {
     check_name(n);
+    universes & u = get_rw_universes();
+    u.m_constraints.add_var(n);
     level r(n);
-    m_uvars.push_back(r);
+    u.m_uvars.push_back(r);
     return r;
-}
-
-/**
-   \brief Add basic constraint u >= v + d, and all basic
-   constraints implied by transitivity.
-
-   \pre is_uvar(u) && is_uvar(v)
-*/
-void environment_cell::add_constraint(level const & u, level const & v, int d) {
-    lean_assert(is_uvar(u) && is_uvar(v));
-    if (is_implied(u, v, d))
-        return; // redundant
-    buffer<constraint> to_add;
-    for (constraint const & c : m_constraints) {
-        if (std::get<0>(c) == v) {
-            level const & l3 = std::get<1>(c);
-            int u_l3_d = safe_add(d, std::get<2>(c));
-            if (!is_implied(u, l3, u_l3_d))
-                to_add.emplace_back(u, l3, u_l3_d);
-        }
-    }
-    m_constraints.emplace_back(u, v, d);
-    for (constraint const & c : to_add) {
-        m_constraints.push_back(c);
-    }
 }
 
 /**
@@ -309,25 +301,47 @@ void environment_cell::add_constraint(level const & u, level const & v, int d) {
    A basic constraint is a constraint of the form u >= v + k
    where u and v are universe variables.
 */
-void environment_cell::add_constraints(level const & n, level const & l, int k) {
-    lean_assert(is_uvar(n));
+void environment_cell::add_constraints(name const & n, level const & l, int k) {
     switch (kind(l)) {
-    case level_kind::UVar: add_constraint(n, l, k); return;
+    case level_kind::UVar: get_rw_ucs().add_constraint(n, uvar_name(l), k); return;
     case level_kind::Lift: add_constraints(n, lift_of(l), safe_add(k, lift_offset(l))); return;
     case level_kind::Max:  std::for_each(max_begin_levels(l), max_end_levels(l), [&](level const & l1) { add_constraints(n, l1, k); }); return;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
+/**
+   \brief Check if n >= l + k is consistent with the existing constraints.
+*/
+void environment_cell::check_consistency(name const & n, level const & l, int k) const {
+    switch (kind(l)) {
+    case level_kind::UVar:
+        if (!get_ro_ucs().is_consistent(n, uvar_name(l), k))
+            throw kernel_exception(env(), sstream() << "universe constraint inconsistency: " << n << " >= " << l << " + " << k);
+        return;
+    case level_kind::Lift: check_consistency(n, lift_of(l), safe_add(k, lift_offset(l))); return;
+    case level_kind::Max:  std::for_each(max_begin_levels(l), max_end_levels(l), [&](level const & l1) { check_consistency(n, l1, k); }); return;
+    }
+    lean_unreachable(); // LCOV_EXCL_LINE
+}
+
 /** \brief Add a new universe variable with constraint n >= l */
-level environment_cell::add_uvar(name const & n, level const & l) {
-    if (has_parent())
-        throw kernel_exception(env(), "invalid universe declaration, universe variables can only be declared in top-level environments");
+level environment_cell::add_uvar_cnstr(name const & n, level const & l) {
     if (has_children())
         throw read_only_environment_exception(env());
-    level r = add_uvar_core(n);
-    add_constraints(r, l, 0);
-    register_named_object(mk_uvar_decl(n, l));
+    level r;
+    auto const & uvs = get_ro_universes().m_uvars;
+    auto it = std::find_if(uvs.begin(), uvs.end(), [&](level const & l) { return uvar_name(l) == n; });
+    if (it == uvs.end()) {
+        r = add_uvar_core(n);
+        register_named_object(mk_uvar_cnstr(n, l));
+    } else {
+        // universe n already exists, we must check consistency of the new constraint.
+        check_consistency(n, l, 0);
+        r = *it;
+        m_objects.push_back(mk_uvar_cnstr(n, l));
+    }
+    add_constraints(n, l, 0);
     return r;
 }
 
@@ -337,22 +351,23 @@ level environment_cell::add_uvar(name const & n, level const & l) {
    contain a universe variable named \c n.
 */
 level environment_cell::get_uvar(name const & n) const {
-    if (has_parent()) {
-        return m_parent->get_uvar(n);
-    } else {
-        auto it = std::find_if(m_uvars.begin(), m_uvars.end(), [&](level const & l) { return uvar_name(l) == n; });
-        if (it == m_uvars.end())
-            throw unknown_universe_variable_exception(env(), n);
-        else
-            return *it;
-    }
+    auto const & uvs = get_ro_universes().m_uvars;
+    auto it = std::find_if(uvs.begin(), uvs.end(), [&](level const & l) { return uvar_name(l) == n; });
+    if (it == uvs.end())
+        throw unknown_universe_variable_exception(env(), n);
+    else
+        return *it;
 }
 
 /**
    \brief Initialize the set of universe variables with bottom
 */
 void environment_cell::init_uvars() {
-    m_uvars.emplace_back();
+    m_universes.reset(new universes());
+    universes & u = get_rw_universes();
+    level bottom;
+    u.m_uvars.push_back(bottom);
+    u.m_constraints.add_var(uvar_name(bottom));
 }
 
 /**

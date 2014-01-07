@@ -986,13 +986,13 @@ static int environment_parent(lua_State * L) {
     return push_environment(L, env->parent());
 }
 
-static int environment_add_uvar(lua_State * L) {
+static int environment_add_uvar_cnstr(lua_State * L) {
     rw_shared_environment env(L, 1);
     int nargs = lua_gettop(L);
     if (nargs == 2)
-        env->add_uvar(to_name_ext(L, 2));
+        env->add_uvar_cnstr(to_name_ext(L, 2));
     else
-        env->add_uvar(to_name_ext(L, 2), to_level(L, 3));
+        env->add_uvar_cnstr(to_name_ext(L, 2), to_level(L, 3));
     return 0;
 }
 
@@ -1166,7 +1166,7 @@ static const struct luaL_Reg environment_m[] = {
     {"has_parent",     safe_function<environment_has_parent>},
     {"has_children",   safe_function<environment_has_children>},
     {"parent",         safe_function<environment_parent>},
-    {"add_uvar",       safe_function<environment_add_uvar>},
+    {"add_uvar_cnstr", safe_function<environment_add_uvar_cnstr>},
     {"is_ge",          safe_function<environment_is_ge>},
     {"get_uvar",       safe_function<environment_get_uvar>},
     {"add_definition", safe_function<environment_add_definition>},

@@ -3,38 +3,37 @@
 ## Reserved keywords
 
 This is the list of reserved keywords in Lean:
-`Axiom`,
-`Check`,
-`Coercion`,
-`Definition`,
-`Echo`,
-`EndScope`,
-`Environment`,
-`Eval`,
-`Exit`,
-`Help`,
-`Import`,
-`Infix`,
-`Infixr`,
-`Notation`,
-`Options`,
-`Pi`,
-`Pop`,
-`Push`,
-`Scope`,
-`Show`,
-`Theorem`,
-`Type`,
-`Universe`,
-`Variable`,
-`Variables`,
+`axiom`,
+`check`,
+`coercion`,
+`definition`,
+`echo`,
+`environment`,
+`eval`,
+`exit`,
+`have`,
+`help`,
+`import`,
+`infix`,
+`infixr`,
+`infixl`,
+`notation`,
+`options`,
+`pi`,
+`pop::context`,
+`print`,
+`scope`,
+`theorem`,
+`type`,
+`universe`,
+`variable`,
+`variables`,
 `by`,
 `exists`,
 `forall`,
 `fun`,
 `in`,
-`let`,
-`show`
+`let`
 
 Remark: Lean commands always start with a upper case letter.
 
@@ -69,3 +68,7 @@ Natural numbers have type Nat, and decimal numbers have type Real. Lean automati
 ## Strings
 
 Strings are defined as usual as `"[any sequence of characters excluded "]"`.
+
+## Comments
+
+A comment starts anywhere with a double hyphen `--` and runs until the of the line.

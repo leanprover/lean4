@@ -1141,22 +1141,35 @@ static int environment_is_opaque(lua_State * L) {
     return 1;
 }
 
-static int environment_import(lua_State * L) {
+template<typename F>
+static int environment_import_core(lua_State * L, F && import) {
     rw_shared_environment env(L, 1);
     int nargs = lua_gettop(L);
     if (nargs == 3) {
-        env->import(luaL_checkstring(L, 2), to_io_state(L, 3));
+        import(env, luaL_checkstring(L, 2), to_io_state(L, 3));
     } else {
         io_state * ios = get_io_state(L);
         if (ios) {
-            env->import(luaL_checkstring(L, 2), *ios);
+            import(env, luaL_checkstring(L, 2), *ios);
         } else {
             io_state ios(mk_simple_formatter());
             ios.set_options(get_global_options(L));
-            env->import(luaL_checkstring(L, 2), ios);
+            import(env, luaL_checkstring(L, 2), ios);
         }
     }
     return 0;
+}
+
+static int environment_import(lua_State * L) {
+    return environment_import_core(L, [](rw_shared_environment & env, char const * fname, io_state const & ios) {
+            return env->import(fname, ios);
+        });
+}
+
+static int environment_load(lua_State * L) {
+    return environment_import_core(L, [](rw_shared_environment & env, char const * fname, io_state const & ios) {
+            return env->load(fname, ios);
+        });
 }
 
 static int environment_get_universe_distance(lua_State * L) {
@@ -1194,6 +1207,7 @@ static const struct luaL_Reg environment_m[] = {
     {"set_opaque",     safe_function<environment_set_opaque>},
     {"is_opaque",      safe_function<environment_is_opaque>},
     {"import",         safe_function<environment_import>},
+    {"load",           safe_function<environment_load>},
     {0, 0}
 };
 

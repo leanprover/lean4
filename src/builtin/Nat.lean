@@ -53,7 +53,7 @@ theorem pred::nz' (a : Nat) : a ≠ 0 ⇒ ∃ b, b + 1 = a
 theorem pred::nz {a : Nat} (H : a ≠ 0) : ∃ b, b + 1 = a
 := (pred::nz' a) ◂ H
 
-theorem destruct {B : Bool} {a : Nat} (H1: a = 0 → B) (H2 : Π n, a = n + 1 → B) : B
+theorem discriminate {B : Bool} {a : Nat} (H1: a = 0 → B) (H2 : Π n, a = n + 1 → B) : B
 := or::elim (em (a = 0))
              (λ Heq0 : a = 0, H1 Heq0)
              (λ Hne0 : a ≠ 0, obtain (w : Nat) (Hw : w + 1 = a), from (pred::nz Hne0),
@@ -197,14 +197,15 @@ theorem add::inj {a b c : Nat} (H : a + b = a + c) : b = c
 := (add::inj' a b c) ◂ H
 
 theorem add::eqz {a b : Nat} (H : a + b = 0) : a = 0
-:= destruct (λ H1 : a = 0, H1)
-            (λ (n : Nat) (H1 : a = n + 1),
-               absurd::elim (a = 0)
-                   H (calc a + b  =  n + 1 + b   : { H1 }
-                             ...  =  n + (1 + b) : symm (add::assoc n 1 b)
-                             ...  =  n + (b + 1) : { add::comm 1 b }
-                             ...  =  n + b + 1   : add::assoc n b 1
-                             ...  ≠  0           : succ::nz (n + b)))
+:= discriminate
+     (λ H1 : a = 0, H1)
+     (λ (n : Nat) (H1 : a = n + 1),
+         absurd::elim (a = 0)
+            H (calc a + b  =  n + 1 + b   : { H1 }
+                   ...  =  n + (1 + b) : symm (add::assoc n 1 b)
+                   ...  =  n + (b + 1) : { add::comm 1 b }
+                   ...  =  n + b + 1   : add::assoc n b 1
+                   ...  ≠  0           : succ::nz (n + b)))
 
 theorem le::intro {a b c : Nat} (H : a + c = b) : a ≤ b
 := (symm (le::def a b)) ◂ (have (∃ x, a + x = b) : exists::intro c H)

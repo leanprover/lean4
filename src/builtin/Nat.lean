@@ -117,14 +117,14 @@ theorem mul::succl (a b : Nat) : (a + 1) * b = a * b + b
                             ...   = a * (n + 1) + n + 1       :  { symm (mul::succr a n) }
                             ...   = a * (n + 1) + (n + 1)     :  symm (add::assoc (a * (n + 1)) n 1))
 
-theorem mul::lhs::one (a : Nat) : 1 * a = a
+theorem mul::onel (a : Nat) : 1 * a = a
 := induction a
     (have 1 * 0 = 0 : trivial)
     (λ (n : Nat) (iH : 1 * n = n),
         calc  1 * (n + 1)  =  1 * n + 1 :  mul::succr 1 n
                       ...  =  n + 1     : { iH })
 
-theorem mul::rhs::one (a : Nat) : a * 1 = a
+theorem mul::oner (a : Nat) : a * 1 = a
 := induction a
     (have 0 * 1 = 0 : trivial)
     (λ (n : Nat) (iH : n * 1 = n),
@@ -140,7 +140,7 @@ theorem mul::comm (a b : Nat) : a * b = b * a
                        ...   =   n * a + a   : { iH }
                        ...   =   (n + 1) * a : symm (mul::succl n a))
 
-theorem distribute (a b c : Nat) : a * (b + c) = a * b + a * c
+theorem distributer (a b c : Nat) : a * (b + c) = a * b + a * c
 := induction a
     (calc 0 * (b + c)   = 0              : mul::zerol (b + c)
                   ...   = 0 + 0          : trivial
@@ -157,9 +157,9 @@ theorem distribute (a b c : Nat) : a * (b + c) = a * b + a * c
                             ...  =   (n + 1) * b + (n * c + c) : symm (add::assoc ((n + 1) * b) (n * c) c)
                             ...  =   (n + 1) * b + (n + 1) * c : { symm (mul::succl n c) })
 
-theorem distribute2 (a b c : Nat) : (a + b) * c = a * c + b * c
+theorem distributel (a b c : Nat) : (a + b) * c = a * c + b * c
 := calc (a + b) * c  =  c * (a + b)    :  mul::comm (a + b) c
-                ...  =  c * a + c * b  :  distribute c a b
+                ...  =  c * a + c * b  :  distributer c a b
                 ...  =  a * c + c * b  :  { mul::comm c a }
                 ...  =  a * c + b * c  :  { mul::comm c b }
 
@@ -171,7 +171,7 @@ theorem mul::assoc (a b c : Nat) : a * (b * c) = a * b * c
     (λ (n : Nat) (iH : n * (b * c) = n * b * c),
         calc  (n + 1) * (b * c)    =   n * (b * c) + (b * c)   :  mul::succl n (b * c)
                             ...    =   n * b * c + (b * c)     :  { iH }
-                            ...    =   (n * b + b) * c         :  symm (distribute2 (n * b) b c)
+                            ...    =   (n * b + b) * c         :  symm (distributel (n * b) b c)
                             ...    =   (n + 1) * b * c         :  { symm (mul::succl n b) })
 
 theorem add::inj' (a b c : Nat) : a + b = a + c ⇒ b = c

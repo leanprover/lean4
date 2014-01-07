@@ -233,7 +233,8 @@ object environment_cell::get_object(name const & n) const {
     }
 }
 
-struct universes {
+class universes {
+public:
     std::vector<level>                  m_uvars;
     universe_constraints                m_constraints;
 };

@@ -31,10 +31,10 @@ protected:
 
     void expand() {
         unsigned new_capacity = m_capacity << 1;
-        T * new_buffer        = reinterpret_cast<T*>(new char[sizeof(T) * new_capacity]);
+        char * new_buffer        = new char[sizeof(T) * new_capacity];
         std::memcpy(new_buffer, m_buffer, m_pos * sizeof(T));
         free_memory();
-        m_buffer              = new_buffer;
+        m_buffer              = reinterpret_cast<T*>(new_buffer);
         m_capacity            = new_capacity;
     }
 

@@ -1,0 +1,15 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: N
+  Assumed: a
+Error (line: 3, pos: 14) type expected, got
+    a
+Error (line: 4, pos: 6) function expected at
+    a a
+  Assumed: f
+Error (line: 6, pos: 6) type mismatch at application
+    f (λ x : N, x)
+Function type:
+    N → N
+Argument type:
+    (λ x : N, x) : N → N

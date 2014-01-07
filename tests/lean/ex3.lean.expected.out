@@ -16,7 +16,7 @@ Failed to solve
   Set: lean::pp::implicit
 Failed to solve
  ⊢ Bool ≺ T
-    (line: 9: pos: 15) Type of argument 2 must be convertible to the expected type in the application of
+    (line: 9: pos: 11) Type of argument 2 must be convertible to the expected type in the application of
         @myeq2
     with arguments:
         T

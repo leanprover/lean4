@@ -10,7 +10,7 @@ Error (line: 8, pos: 0) invalid object declaration, environment already has an o
   Assumed: b
 and a b
   Assumed: A
-Error (line: 12, pos: 11) type mismatch at application
+Error (line: 12, pos: 8) type mismatch at application
     and a A
 Function type:
     Bool -> Bool -> Bool

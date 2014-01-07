@@ -146,26 +146,23 @@ expr parser_imp::parse_prefix(operator_info const & op) {
 }
 
 /** \brief Parse a user defined postfix operator. */
-expr parser_imp::parse_postfix(expr const & left, operator_info const & op) {
-    return mk_application(op, pos(), left);
+expr parser_imp::parse_postfix(expr const & left, operator_info const & op, pos_info const & op_pos) {
+    return mk_application(op, op_pos, left);
 }
 
 /** \brief Parse a user defined infix operator. */
-expr parser_imp::parse_infix(expr const & left, operator_info const & op) {
-    auto p = pos();
-    return mk_application(op, p, {left, parse_expr(op.get_precedence()+1)});
+expr parser_imp::parse_infix(expr const & left, operator_info const & op, pos_info const & op_pos) {
+    return mk_application(op, op_pos, {left, parse_expr(op.get_precedence()+1)});
 }
 
 /** \brief Parse a user defined infix-left operator. */
-expr parser_imp::parse_infixl(expr const & left, operator_info const & op) {
-    auto p = pos();
-    return mk_application(op, p, {left, parse_expr(op.get_precedence())});
+expr parser_imp::parse_infixl(expr const & left, operator_info const & op, pos_info const & op_pos) {
+    return mk_application(op, op_pos, {left, parse_expr(op.get_precedence())});
 }
 
 /** \brief Parse a user defined infix-right operator. */
-expr parser_imp::parse_infixr(expr const & left, operator_info const & op) {
-    auto p = pos();
-    return mk_application(op, p, {left, parse_expr(op.get_precedence()-1)});
+expr parser_imp::parse_infixr(expr const & left, operator_info const & op, pos_info const & op_pos) {
+    return mk_application(op, op_pos, {left, parse_expr(op.get_precedence()-1)});
 }
 
 /**
@@ -204,8 +201,7 @@ expr parser_imp::parse_mixfixl(operator_info const & op) {
 }
 
 /** \brief Parse user defined mixfixr operator. It has the form: _ ID ... _ ID */
-expr parser_imp::parse_mixfixr(expr const & left, operator_info const & op) {
-    auto p = pos();
+expr parser_imp::parse_mixfixr(expr const & left, operator_info const & op, pos_info const & op_pos) {
     buffer<expr> args;
     args.push_back(left);
     auto parts = op.get_op_name_parts();
@@ -216,17 +212,16 @@ expr parser_imp::parse_mixfixr(expr const & left, operator_info const & op) {
         check_op_part(*it);
         ++it;
     }
-    return mk_application(op, p, args);
+    return mk_application(op, op_pos, args);
 }
 
 /** \brief Parse user defined mixfixr operator. It has the form: _ ID ... _ ID _ */
-expr parser_imp::parse_mixfixo(expr const & left, operator_info const & op) {
-    auto p = pos();
+expr parser_imp::parse_mixfixo(expr const & left, operator_info const & op, pos_info const & op_pos) {
     buffer<expr> args;
     args.push_back(left);
     args.push_back(parse_expr(op.get_precedence()));
     parse_mixfix_args(op.get_op_name_parts(), op.get_precedence(), args);
-    return mk_application(op, p, args);
+    return mk_application(op, op_pos, args);
 }
 
 /** \brief Parse user defined mixfixc operator. It has the form: ID _ ID ... _ ID */
@@ -553,12 +548,12 @@ expr parser_imp::parse_led_id(expr const & left) {
         operator_info op = find_led(m_env, id);
         if (op) {
             switch (op.get_fixity()) {
-            case fixity::Infix:   return parse_infix(left, op);
-            case fixity::Infixl:  return parse_infixl(left, op);
-            case fixity::Infixr:  return parse_infixr(left, op);
-            case fixity::Mixfixr: return parse_mixfixr(left, op);
-            case fixity::Mixfixo: return parse_mixfixo(left, op);
-            case fixity::Postfix: return parse_postfix(left, op);
+            case fixity::Infix:   return parse_infix(left, op, p);
+            case fixity::Infixl:  return parse_infixl(left, op, p);
+            case fixity::Infixr:  return parse_infixr(left, op, p);
+            case fixity::Mixfixr: return parse_mixfixr(left, op, p);
+            case fixity::Mixfixo: return parse_mixfixo(left, op, p);
+            case fixity::Postfix: return parse_postfix(left, op, p);
             default: lean_unreachable(); // LCOV_EXCL_LINE
             }
         } else {

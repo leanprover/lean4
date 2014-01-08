@@ -67,8 +67,6 @@ public:
     typedef void (*reg_fn)(lua_State *); // NOLINT
     static void register_module(reg_fn f);
 
-    static void register_code(char const * code);
-
     /**
        \brief Auxiliary function for writing API bindings
        that release the lock to this object while executing

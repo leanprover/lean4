@@ -25,14 +25,8 @@ extern "C" void * lua_realloc(void *, void * q, size_t, size_t new_size) { retur
 
 namespace lean {
 static std::vector<script_state::reg_fn> g_modules;
-static std::vector<char const *> g_code;
-
 void script_state::register_module(reg_fn f) {
     g_modules.push_back(f);
-}
-
-void script_state::register_code(char const * code) {
-    g_code.push_back(code);
 }
 
 static unsigned g_check_interrupt_freq = 1048576;
@@ -95,10 +89,6 @@ struct script_state::imp {
 
         for (auto f : g_modules) {
             f(m_state);
-        }
-
-        for (auto c : g_code) {
-            dostring(c);
         }
     }
 

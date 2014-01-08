@@ -17,13 +17,13 @@ In Lean, we allow users to provide partially specified objects such as definitio
 
 We use `_` to denote holes. In the simple example above, the "whole proof" must be automatically computed by Lean. Here is another simple example:
 
-    variable f : Pi (A : Type), A -> A -> A
+    variable f : forall (A : Type), A -> A -> A
     definition f00 : Nat := f _ 0 0
 
 In this example, Lean will automatically fill the hole with `Nat` (the type of the natural numbers).
 Here is another example with multiple holes.
 
-    variable g : Pi (A : Type), A -> A
+    variable g : forall (A : Type), A -> A
     variable a : Nat
     variable b : Nat
     axiom H1 : a = b

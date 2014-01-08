@@ -1,7 +1,6 @@
 (* import("tactic.lua") *)
 
-theorem T2 (a b : Bool) : b => a \/ b.
-(* imp_tac() *).
+theorem T2 (a b : Bool) : b → a \/ b.
 (* disj_tac() *).
 back.
 back.

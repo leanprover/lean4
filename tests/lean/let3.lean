@@ -1,6 +1,6 @@
 import Int.
 
-variable magic : Pi (H : Bool), H
+variable magic : forall (H : Bool), H
 
 set::option pp::notation false
 set::option pp::coercion true

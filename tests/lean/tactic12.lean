@@ -1,14 +1,12 @@
 (* import("tactic.lua") *)
-theorem T (a b : Bool) : ((fun x, x /\ b) a) => ((fun x, x) a).
+theorem T (a b : Bool) : ((fun x, x /\ b) a) → ((fun x, x) a).
    beta.
-   apply discharge.
    conj_hyp.
    exact.
    done.
 
 variables p q : Bool.
-theorem T2 : p /\ q => q.
-   apply discharge.
+theorem T2 : p /\ q → q.
    conj_hyp.
    exact.
    done.

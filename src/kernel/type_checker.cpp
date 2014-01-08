@@ -41,25 +41,19 @@ class type_checker::imp {
     expr normalize(expr const & e, context const & ctx, bool unfold_opaque) { return m_normalizer(e, ctx, m_menv.to_some_menv(), unfold_opaque); }
 
     expr check_type(expr const & e, expr const & s, context const & ctx) {
-        if (is_type(e))
+        if (is_type(e) || is_bool(e))
             return e;
-        if (is_bool(e))
-            return Type();
         expr u = normalize(e, ctx, false);
-        if (is_type(u))
+        if (is_type(u) || is_bool(u))
             return u;
-        if (is_bool(u))
-            return Type();
         if (has_metavar(u) && m_menv && m_uc) {
             justification jst = mk_type_expected_justification(ctx, s);
             m_uc->push_back(mk_convertible_constraint(ctx, e, TypeU, jst));
             return u;
         }
         u = normalize(e, ctx, true);
-        if (is_type(u))
+        if (is_type(u) || is_bool(u))
             return u;
-        if (is_bool(u))
-            return Type();
         throw type_expected_exception(env(), ctx, s);
     }
 
@@ -265,19 +259,23 @@ class type_checker::imp {
             }
         case expr_kind::Pi: {
             expr t1  = check_type(infer_type_core(abst_domain(e), ctx), abst_domain(e), ctx);
-            optional<expr> t2;
+            if (is_bool(t1))
+                t1 = Type();
+            expr t2;
             context new_ctx = extend(ctx, abst_name(e), abst_domain(e));
             {
                 freset<cache> reset(m_cache);
                 t2 = check_type(infer_type_core(abst_body(e), new_ctx), abst_body(e), new_ctx);
             }
-            if (is_type(t1) && is_type(*t2)) {
-                return save_result(e, mk_type(max(ty_level(t1), ty_level(*t2))), shared);
+            if (is_bool(t2))
+                return t2;
+            if (is_type(t1) && is_type(t2)) {
+                return save_result(e, mk_type(max(ty_level(t1), ty_level(t2))), shared);
             } else {
                 lean_assert(m_uc);
                 justification jst = mk_max_type_justification(ctx, e);
                 expr r = m_menv->mk_metavar(ctx);
-                m_uc->push_back(mk_max_constraint(new_ctx, lift_free_vars(t1, 0, 1), *t2, r, jst));
+                m_uc->push_back(mk_max_constraint(new_ctx, lift_free_vars(t1, 0, 1), t2, r, jst));
                 return save_result(e, r, shared);
             }
         }

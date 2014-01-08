@@ -529,9 +529,7 @@ void parser_imp::parse_set_option() {
 void parser_imp::parse_set_opaque() {
     next();
     name id;
-    if (curr() == scanner::token::Forall) {
-        id = "forall";
-    } else if (curr() == scanner::token::Exists) {
+    if (curr() == scanner::token::Exists) {
         id = "exists";
     } else {
         check_identifier("invalid set opaque, identifier expected");

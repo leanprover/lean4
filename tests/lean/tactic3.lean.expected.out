@@ -4,9 +4,4 @@
   Assumed: q
   Assumed: r
   Proved: T1
-theorem T1 : p ⇒ p ∧ q ⇒ r ⇒ q ∧ r ∧ p :=
-    discharge
-        (λ H : p,
-           discharge
-               (λ H::1 : p ∧ q,
-                  discharge (λ H::2 : r, and::intro (and::elimr H::1) (and::intro H::2 (and::eliml H::1)))))
+theorem T1 (H : p) (H::1 : p ∧ q) (H::2 : r) : q ∧ r ∧ p := and::intro (and::elimr H::1) (and::intro H::2 H)

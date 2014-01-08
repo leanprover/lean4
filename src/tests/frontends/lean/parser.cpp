@@ -44,13 +44,13 @@ static void parse_error(environment const & env, io_state const & ios, char cons
 
 static void tst1() {
     environment env; io_state ios = init_test_frontend(env);
-    parse(env, ios, "variable x : Bool variable y : Bool axiom H : x && y || x => x");
+    parse(env, ios, "variable x : Bool variable y : Bool axiom H : x && y || x -> x");
     parse(env, ios, "eval true && true");
     parse(env, ios, "print true && false eval true && false");
     parse(env, ios, "infixl 35 & : and print true & false & false eval true & false");
     parse(env, ios, "notation 100 if _ then _ fi : implies print if true then false fi");
-    parse(env, ios, "print Pi (A : Type), A -> A");
-    parse(env, ios, "check Pi (A : Type), A -> A");
+    parse(env, ios, "print forall (A : Type), A -> A");
+    parse(env, ios, "check forall (A : Type), A -> A");
 }
 
 static void check(environment const & env, io_state & ios, char const * str, expr const & expected) {
@@ -73,11 +73,11 @@ static void tst2() {
     check(env, ios, "x && y || z", Or(And(x, y), z));
     check(env, ios, "x || y && z", Or(x, And(y, z)));
     check(env, ios, "x || y || x && z", Or(x, Or(y, And(x, z))));
-    check(env, ios, "x || y || x && z => x && y", Implies(Or(x, Or(y, And(x, z))), And(x, y)));
-    check(env, ios, "x ∨ y ∨ x ∧ z ⇒ x ∧ y", Implies(Or(x, Or(y, And(x, z))), And(x, y)));
-    check(env, ios, "x⇒y⇒z⇒x", Implies(x, Implies(y, Implies(z, x))));
-    check(env, ios, "x=>y=>z=>x", Implies(x, Implies(y, Implies(z, x))));
-    check(env, ios, "x=>(y=>z)=>x", Implies(x, Implies(Implies(y, z), x)));
+    check(env, ios, "x || y || x && z -> x && y", mk_arrow(Or(x, Or(y, And(x, z))), And(x, y)));
+    check(env, ios, "x ∨ y ∨ x ∧ z → x ∧ y", mk_arrow(Or(x, Or(y, And(x, z))), And(x, y)));
+    check(env, ios, "x→y→z→x", mk_arrow(x, mk_arrow(y, mk_arrow(z, x))));
+    check(env, ios, "x->y->z->x", mk_arrow(x, mk_arrow(y, mk_arrow(z, x))));
+    check(env, ios, "x->(y->z)->x", mk_arrow(x, mk_arrow(mk_arrow(y, z), x)));
 }
 
 static void tst3() {

@@ -1,8 +1,7 @@
 (* import("tactic.lua") *)
 variables a b c : Bool
 axiom H : a \/ b
-theorem T (a b : Bool) : a \/ b => b \/ a.
-   apply discharge.
+theorem T (a b : Bool) : a \/ b → b \/ a.
    apply (or::elim H).
    apply or::intror.
    exact.

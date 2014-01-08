@@ -20,7 +20,7 @@ class scanner {
 public:
     enum class token {
         LeftParen, RightParen, LeftCurlyBracket, RightCurlyBracket, Colon, Comma, Period, Lambda, Pi, Arrow,
-        Let, In, Forall, Exists, Id, CommandId, IntVal, DecimalVal, StringVal, Eq, Assign, Type, Placeholder,
+        Let, In, Exists, Id, CommandId, IntVal, DecimalVal, StringVal, Eq, Assign, Type, Placeholder,
         Have, By, ScriptBlock, Ellipsis, Eof
     };
 protected:

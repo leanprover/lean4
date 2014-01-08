@@ -637,6 +637,9 @@ template<typename F> expr update_abst(expr const & e, F f) {
         return e;
     }
 }
+inline expr update_abst(expr const & e, expr const & new_d, expr const & new_b) {
+    return update_abst(e, [&](expr const &, expr const &) { return mk_pair(new_d, new_b); });
+}
 template<typename F> expr update_let(expr const & e, F f) {
     static_assert(std::is_same<typename std::result_of<F(optional<expr> const &, expr const &, expr const &)>::type,
                   std::tuple<optional<expr>, expr, expr>>::value,

@@ -3,15 +3,15 @@
   Imported 'cast'
   Set: pp::colors
 λ (A A' : TypeM) (a : A) (b : A') (L2 : A' == A), let b' : A := cast L2 b, L3 : b == b' := cast::eq L2 b in L3 :
-    Π (A A' : TypeM) (a : A) (b : A') (L2 : A' == A), b == cast L2 b
+    ∀ (A A' : TypeM) (a : A) (b : A') (L2 : A' == A), b == cast L2 b
 λ (A A' : TypeM)
   (B : A → TypeM)
   (B' : A' → TypeM)
-  (f : Π x : A, B x)
-  (g : Π x : A', B' x)
+  (f : ∀ x : A, B x)
+  (g : ∀ x : A', B' x)
   (a : A)
   (b : A')
-  (H1 : (Π x : A, B x) == (Π x : A', B' x))
+  (H1 : (∀ x : A, B x) == (∀ x : A', B' x))
   (H2 : f == g)
   (H3 : a == b),
   let L1 : A == A' := dominj H1,
@@ -21,12 +21,12 @@
       L4 : a == b' := htrans H3 L3,
       L5 : f a == f b' := congr2 f L4
   in L5 :
-    Π (A A' : TypeM)
+    ∀ (A A' : TypeM)
       (B : A → TypeM)
       (B' : A' → TypeM)
-      (f : Π x : A, B x)
-      (g : Π x : A', B' x)
+      (f : ∀ x : A, B x)
+      (g : ∀ x : A', B' x)
       (a : A)
       (b : A')
-      (H1 : (Π x : A, B x) == (Π x : A', B' x)),
+      (H1 : (∀ x : A, B x) == (∀ x : A', B' x)),
       f == g → a == b → f a == f (cast (symm (dominj H1)) b)

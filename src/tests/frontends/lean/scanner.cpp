@@ -69,7 +69,7 @@ static void check_name(char const * str, name const & expected) {
 }
 
 static void tst1() {
-    scan("fun(x: Pi A : Type, A -> A), x+1 = 2.0 λ");
+    scan("fun(x: forall A : Type, A -> A), x+1 = 2.0 λ");
 }
 
 static void tst2() {
@@ -87,7 +87,7 @@ static void tst2() {
     check("x := 10", {st::Id, st::Assign, st::IntVal});
     check("(x+1):Int", {st::LeftParen, st::Id, st::Id, st::IntVal, st::RightParen, st::Colon, st::Id});
     check("{x}", {st::LeftCurlyBracket, st::Id, st::RightCurlyBracket});
-    check("\u03BB \u03A0 \u2192", {st::Lambda, st::Pi, st::Arrow});
+    check("\u03BB \u2200 \u2192", {st::Lambda, st::Pi, st::Arrow});
     scan("++\u2295++x\u2296\u2296");
     check("++\u2295++x\u2296\u2296", {st::Id, st::Id, st::Id, st::Id, st::Id});
     scan("x10 ... == (* print('hello') *) have by");

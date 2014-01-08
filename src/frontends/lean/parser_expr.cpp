@@ -730,35 +730,22 @@ expr parser_imp::parse_pi() {
     return parse_abstraction(false);
 }
 
-/** \brief Parse forall/exists */
-expr parser_imp::parse_quantifier(bool is_forall) {
+/** \brief Parse exists */
+expr parser_imp::parse_exists() {
     next();
     mk_scope scope(*this);
     parameter_buffer parameters;
     parse_expr_parameters(parameters);
-    check_comma_next("invalid quantifier, ',' expected");
+    check_comma_next("invalid exists, ',' expected");
     expr result = parse_expr();
     unsigned i = parameters.size();
     while (i > 0) {
         --i;
         pos_info p = parameters[i].m_pos;
         expr lambda = save(mk_lambda(parameters[i].m_name, parameters[i].m_type, result), p);
-        if (is_forall)
-            result = save(mk_forall(parameters[i].m_type, lambda), p);
-        else
-            result = save(mk_exists(parameters[i].m_type, lambda), p);
+        result = save(mk_exists(parameters[i].m_type, lambda), p);
     }
     return result;
-}
-
-/** \brief Parse <tt>'forall' parameters ',' expr</tt>. */
-expr parser_imp::parse_forall() {
-    return parse_quantifier(true);
-}
-
-/** \brief Parse <tt>'exists' parameters ',' expr</tt>. */
-expr parser_imp::parse_exists() {
-    return parse_quantifier(false);
 }
 
 /** \brief Parse Let expression. */
@@ -931,7 +918,6 @@ expr parser_imp::parse_nud() {
     case scanner::token::LeftParen:   return parse_lparen();
     case scanner::token::Lambda:      return parse_lambda();
     case scanner::token::Pi:          return parse_pi();
-    case scanner::token::Forall:      return parse_forall();
     case scanner::token::Exists:      return parse_exists();
     case scanner::token::Let:         return parse_let();
     case scanner::token::IntVal:      return parse_nat_int();

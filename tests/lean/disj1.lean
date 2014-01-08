@@ -1,7 +1,6 @@
 import tactic
 
-theorem T1 (a b : Bool) : a \/ b => b \/ a.
-    apply discharge.
+theorem T1 (a b : Bool) : a \/ b → b \/ a.
     (* disj_hyp_tac() *)
     (* disj_tac() *)
     back
@@ -11,10 +10,10 @@ theorem T1 (a b : Bool) : a \/ b => b \/ a.
     done.
 
 (*
-simple_tac = Repeat(OrElse(imp_tac(), assumption_tac(), disj_hyp_tac(), disj_tac())) .. now_tac()
+simple_tac = Repeat(OrElse(assumption_tac(), disj_hyp_tac(), disj_tac())) .. now_tac()
 *)
 
-theorem T2 (a b : Bool) : a \/ b => b \/ a.
+theorem T2 (a b : Bool) : a \/ b → b \/ a.
     simple_tac.
     done.
 

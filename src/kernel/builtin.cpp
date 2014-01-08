@@ -147,7 +147,7 @@ MK_CONSTANT(double_neg_elim_fn, name({"doubleneg", "elim"}));
 MK_CONSTANT(mt_fn,              name("mt"));
 MK_CONSTANT(contrapos_fn,       name("contrapos"));
 MK_CONSTANT(absurd_elim_fn,     name({"absurd", "elim"}));
-MK_CONSTANT(eq_mp_fn,           name({"eq", "mp"}));
+MK_CONSTANT(eq_mp_fn,           name("eqmp"));
 MK_CONSTANT(not_imp1_fn,        name({"not", "imp", "eliml"}));
 MK_CONSTANT(not_imp2_fn,        name({"not", "imp", "elimr"}));
 MK_CONSTANT(conj_fn,            name({"and", "intro"}));

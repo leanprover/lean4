@@ -9,16 +9,16 @@ axiom cast::eq {A B : (Type U)} (H : A == B) (x : A) : x == cast H x.
 
 -- The CastApp axiom "propagates" the cast over application
 axiom cast::app {A A' : (Type U)} {B : A → (Type U)} {B' : A' → (Type U)}
-              (H1 : (Π x : A, B x) == (Π x : A', B' x)) (H2 : A == A')
-              (f : Π x : A, B x) (x : A) :
+              (H1 : (∀ x : A, B x) == (∀ x : A', B' x)) (H2 : A == A')
+              (f : ∀ x : A, B x) (x : A) :
     cast H1 f (cast H2 x) == f x.
 
 -- If two (dependent) function spaces are equal, then their domains are equal.
 axiom dominj {A A' : (Type U)} {B : A → (Type U)} {B' : A' → (Type U)}
-             (H : (Π x : A, B x) == (Π x : A', B' x)) :
+             (H : (∀ x : A, B x) == (∀ x : A', B' x)) :
     A == A'.
 
 -- If two (dependent) function spaces are equal, then their ranges are equal.
 axiom raninj {A A' : (Type U)} {B : A → (Type U)} {B' : A' → (Type U)}
-             (H : (Π x : A, B x) == (Π x : A', B' x)) (a : A) :
+             (H : (∀ x : A, B x) == (∀ x : A', B' x)) (a : A) :
     B a == B' (cast (dominj H) a).

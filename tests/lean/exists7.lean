@@ -3,7 +3,6 @@ variable N : Type
 variables a b c : N
 variables P : N -> N -> N -> Bool
 
-set::opaque forall  false.
 set::opaque exists  false.
 set::opaque not     false.
 

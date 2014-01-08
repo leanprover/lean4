@@ -4,6 +4,4 @@
   Assumed: g
 ∀ a b : Type, ∃ c : Type, g a b = f c
 ∀ a b : Type, ∃ c : Type, g a b = f c : Bool
-(λ a : Type,
-   (λ b : Type, if ((λ x : Type, if (g a b == f x) ⊥ ⊤) == (λ x : Type, ⊤)) ⊥ ⊤) == (λ x : Type, ⊤)) ==
-(λ x : Type, ⊤)
+∀ (a b : Type), (∀ (x : Type), g a b == f x → ⊥) → ⊥

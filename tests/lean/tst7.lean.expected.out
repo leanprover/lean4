@@ -10,9 +10,9 @@ A : Type, a : ?M::0, B : Type ⊢ ?M::0[lift:0:2] ≺ B
         B
         a
   Assumed: myeq
-myeq (Π (A : Type), A → A) (λ (A : Type) (a : A), a) (λ (B : Type) (b : B), b)
-myeq (Π (A : Type), A → A) (λ (A : Type) (a : A), a) (λ (B : Type) (b : B), b) : Bool
+myeq (∀ (A : Type), A → A) (λ (A : Type) (a : A), a) (λ (B : Type) (b : B), b)
+myeq (∀ (A : Type), A → A) (λ (A : Type) (a : A), a) (λ (B : Type) (b : B), b) : Bool
   Assumed: R
   Assumed: h
-λ (H : Bool) (f1 g1 : Π A : Type, R A) (G : Π A : Type, myeq (R A) (f1 A) (g1 A)), h f1 :
-    Bool → (Π (f1 g1 : Π A : Type, R A), (Π A : Type, myeq (R A) (f1 A) (g1 A)) → Bool)
+λ (H : Bool) (f1 g1 : ∀ A : Type, R A) (G : ∀ A : Type, myeq (R A) (f1 A) (g1 A)), h f1 :
+    Bool → (∀ (f1 g1 : ∀ A : Type, R A), (∀ A : Type, myeq (R A) (f1 A) (g1 A)) → Bool)

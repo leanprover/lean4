@@ -1,4 +1,4 @@
-variable myeq : Pi (A : Type), A -> A -> Bool
+variable myeq : forall (A : Type), A -> A -> Bool
 print myeq _ true false
 variable T : Type
 variable a : T

@@ -299,8 +299,6 @@ private:
     expr parse_abstraction(bool is_lambda);
     expr parse_lambda();
     expr parse_pi();
-    expr parse_quantifier(bool is_forall);
-    expr parse_forall();
     expr parse_exists();
     expr parse_let();
     expr parse_type(bool level_expected);

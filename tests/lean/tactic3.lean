@@ -1,7 +1,7 @@
 (* import("tactic.lua") *)
 variables p q r : Bool
 
-theorem T1 : p => p /\ q => r => q /\ r /\ p := _.
+theorem T1 : p → p /\ q → r → q /\ r /\ p := _.
     (* Repeat(OrElse(imp_tac(), conj_tac(), conj_hyp_tac(), assumption_tac())) *)
     done
 

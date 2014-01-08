@@ -6,11 +6,9 @@
   Proved: Comm1
   Proved: Comm2
 theorem Comm2 : ∀ n m : ℕ, n + m = m + n :=
-    forall::intro
-        (λ n : ℕ,
-           Induction ◂ (λ x : ℕ, n + x == x + n) ◂ (Nat::add::zeror n ⋈ symm (Nat::add::zerol n)) ◂
-           forall::intro
-               (λ m : ℕ,
-                  discharge
-                      (λ iH : n + m = m + n,
-                         Nat::add::succr n m ⋈ subst (refl (n + m + 1)) iH ⋈ symm (Nat::add::succl m n))))
+    λ n : ℕ,
+      Induction
+          (λ x : ℕ, n + x == x + n)
+          (Nat::add::zeror n ⋈ symm (Nat::add::zerol n))
+          (λ (m : ℕ) (iH : n + m = m + n),
+             Nat::add::succr n m ⋈ subst (refl (n + m + 1)) iH ⋈ symm (Nat::add::succl m n))

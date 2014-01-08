@@ -2,7 +2,7 @@ variables A B C : (Type U)
 variable P : A -> Bool
 variable F1 : A -> B -> C
 variable F2 : A -> B -> C
-variable H : Pi (a : A) (b : B), (F1 a b) == (F2 a b)
+variable H : forall (a : A) (b : B), (F1 a b) == (F2 a b)
 variable a : A
 check eta (F2 a)
 check abst (fun a : A,

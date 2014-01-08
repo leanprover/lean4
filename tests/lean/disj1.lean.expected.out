@@ -3,5 +3,4 @@
   Imported 'tactic'
   Proved: T1
   Proved: T2
-theorem T2 (a b : Bool) : a ∨ b ⇒ b ∨ a :=
-    discharge (λ H : a ∨ b, or::elim H (λ H : a, or::intror b H) (λ H : b, or::introl H a))
+theorem T2 (a b : Bool) (H : a ∨ b) : b ∨ a := or::elim H (λ H : a, or::intror b H) (λ H : b, or::introl H a)

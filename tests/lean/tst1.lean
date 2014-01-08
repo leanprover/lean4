@@ -7,7 +7,7 @@ variable two : N
 variable three : N
 infix 50 < : lt
 axiom two_lt_three : two < three
-definition vector (A : Type) (n : N) : Type := Pi (i : N) (H : i < n), A
+definition vector (A : Type) (n : N) : Type := forall (i : N) (H : i < n), A
 definition const {A : Type} (n : N) (d : A) : vector A n := fun (i : N) (H : i < n), d
 definition update {A : Type} {n : N} (v : vector A n) (i : N) (d : A) : vector A n := fun (j : N) (H : j < n), if (j = i) d (v j H)
 definition select {A : Type} {n : N} (v : vector A n) (i : N) (H : i < n) : A := v i H

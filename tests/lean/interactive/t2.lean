@@ -1,8 +1,5 @@
-theorem T2 (a b : Bool) : a => b => a /\ b.
-(* imp_tac() *)
-(* imp_tac2() *)
+theorem T2 (a b : Bool) : a → b → a /\ b.
 foo.
-(* imp_tac() *)
 abort.
 
 variables a b : Bool.

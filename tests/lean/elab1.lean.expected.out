@@ -33,7 +33,7 @@ A : Type, B : Type, a : ?M::0, b : ?M::1, C : Type ⊢ ?M::0[lift:0:3] ≺ C
   Assumed: b
   Assumed: H
 Failed to solve
- ⊢ ?M::0 ⇒ ?M::3 ∧ a ≺ b
+ ⊢ ∀ H1 : ?M::0, ?M::1 ∧ a ≺ b
     (line: 18: pos: 18) Type of definition 't1' must be convertible to expected type.
 Failed to solve
  ⊢ b == b ≺ a == b
@@ -54,4 +54,4 @@ Failed to solve
         ?M::0
         Bool
         Bool
-Error (line: 25, pos: 31) unknown identifier 'EM'
+Error (line: 25, pos: 19) unknown identifier 'EM'

@@ -155,12 +155,10 @@ class normalizer::imp {
         if (is_abstraction(e)) {
             freset<cache>    reset(m_cache);
             flet<context>    set(m_ctx, ctx);
-            return update_abst(e, [&](expr const & d, expr const & b) {
-                    expr new_d = reify(normalize(d, s, k), k);
-                    m_cache.clear(); // make sure we do not reuse cached values from the previous call
-                    expr new_b = reify(normalize(b, extend(s, mk_var(k)), k+1), k+1);
-                    return mk_pair(new_d, new_b);
-                });
+            expr new_d = reify(normalize(abst_domain(e), s, k), k);
+            m_cache.clear(); // make sure we do not reuse cached values from the previous call
+            expr new_b = reify(normalize(abst_body(e), extend(s, mk_var(k)), k+1), k+1);
+            return update_abst(e, new_d, new_b);
         } else {
             lean_assert(is_metavar(e));
             // We use the following trick to reify a metavariable in the context of the value_stack s, and context ctx.
@@ -234,7 +232,22 @@ class normalizer::imp {
 
         expr r;
         switch (a.kind()) {
-        case expr_kind::MetaVar: case expr_kind::Pi: case expr_kind::Lambda:
+        case expr_kind::Pi: {
+            if (is_arrow(a)) {
+                expr new_d = reify(normalize(abst_domain(a), s, k), k);
+                if (is_bool_value(new_d)) {
+                    m_cache.clear();
+                    expr new_b = reify(normalize(abst_body(a), extend(s, mk_var(k)), k+1), k+1);
+                    if (is_bool_value(new_b)) {
+                        r = mk_bool_value(is_false(new_d) || is_true(new_b));
+                        break;
+                    }
+                }
+            }
+            r = mk_closure(a, m_ctx, s);
+            break;
+        }
+        case expr_kind::MetaVar: case expr_kind::Lambda:
             r = mk_closure(a, m_ctx, s);
             break;
         case expr_kind::Var:

@@ -1,5 +1,5 @@
 import Int.
-definition revapp {A : (Type U)} {B : A -> (Type U)} (a : A) (f : Pi (x : A), B x) : (B a) := f a.
+definition revapp {A : (Type U)} {B : A -> (Type U)} (a : A) (f : forall (x : A), B x) : (B a) := f a.
 infixl 100 |> : revapp
 
 eval 10 |> (fun x, x + 1)

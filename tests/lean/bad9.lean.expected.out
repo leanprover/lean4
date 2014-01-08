@@ -5,4 +5,4 @@
   Assumed: N
 λ (a : N) (f : N → N) (H : f a == a),
   let calc1 : f a == a := @substp N (f a) a (λ x : N, f a == x) (@refl N (f a)) H in calc1 :
-    Π (a : N) (f : N → N), f a == a → f a == a
+    ∀ (a : N) (f : N → N), f a == a → f a == a

@@ -1,18 +1,16 @@
 #   Set: pp::colors
   Set: pp::unicode
 Proof state:
-a : Bool, b : Bool ⊢ b ⇒ a ∨ b
+a : Bool, b : Bool, H : b ⊢ a ∨ b
 ## Proof state:
-H : b, a : Bool, b : Bool ⊢ a ∨ b
+a : Bool, b : Bool, H : b ⊢ a
 ## Proof state:
-H : b, a : Bool, b : Bool ⊢ a
-## Proof state:
-H : b, a : Bool, b : Bool ⊢ b
-## Error (line: 10, pos: 0) failed to backtrack
+a : Bool, b : Bool, H : b ⊢ b
+## Error (line: 9, pos: 0) failed to backtrack
 Proof state:
-H : b, a : Bool, b : Bool ⊢ b
+a : Bool, b : Bool, H : b ⊢ b
 ## Proof state:
 no goals
 ##   Proved: T2
-# theorem T2 (a b : Bool) : b ⇒ a ∨ b := discharge (λ H : b, or::intror a H)
+# theorem T2 (a b : Bool) (H : b) : a ∨ b := or::intror a H
 # 

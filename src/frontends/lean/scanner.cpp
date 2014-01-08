@@ -14,18 +14,15 @@ Author: Leonardo de Moura
 namespace lean {
 
 static name g_lambda_unicode("\u03BB");
-static name g_pi_unicode("\u03A0");
+static name g_pi_unicode("\u2200");
 static name g_arrow_unicode("\u2192");
 static name g_lambda_name("fun");
 static name g_type_name("Type");
-static name g_pi_name("Pi");
+static name g_pi_name("forall");
 static name g_let_name("let");
 static name g_in_name("in");
 static name g_arrow_name("->");
 static name g_eq_name("==");
-static name g_forall_name("forall");
-static name g_Forall_name("Forall");
-static name g_forall_unicode("\u2200");
 static name g_exists_name("exists");
 static name g_Exists_name("Exists");
 static name g_exists_unicode("\u2203");
@@ -200,8 +197,6 @@ scanner::token scanner::read_a_symbol() {
                 return token::Lambda;
             } else if (m_name_val == g_pi_name) {
                 return token::Pi;
-            } else if (m_name_val == g_forall_name) {
-                return token::Forall;
             } else if (m_name_val == g_exists_name) {
                 return token::Exists;
             } else if (m_name_val == g_type_name) {
@@ -216,9 +211,6 @@ scanner::token scanner::read_a_symbol() {
                 return token::Have;
             } else if (m_name_val == g_by_name) {
                 return token::By;
-            } else if (m_name_val == g_Forall_name) {
-                m_name_val = g_forall_name;
-                return token::Id;
             } else if (m_name_val == g_Exists_name) {
                 m_name_val = g_exists_name;
                 return token::Id;
@@ -269,8 +261,6 @@ scanner::token scanner::read_c_symbol() {
                 return token::Lambda;
             else if (m_name_val == g_pi_unicode)
                 return token::Pi;
-            else if (m_name_val == g_forall_unicode)
-                return token::Forall;
             else if (m_name_val == g_exists_unicode)
                 return token::Exists;
             else
@@ -445,7 +435,6 @@ std::ostream & operator<<(std::ostream & out, scanner::token const & t) {
     case scanner::token::Period:            out << "."; break;
     case scanner::token::Lambda:            out << g_lambda_unicode; break;
     case scanner::token::Pi:                out << g_pi_unicode; break;
-    case scanner::token::Forall:            out << g_forall_unicode; break;
     case scanner::token::Exists:            out << g_exists_unicode; break;
     case scanner::token::Arrow:             out << g_arrow_unicode; break;
     case scanner::token::Let:               out << "let"; break;

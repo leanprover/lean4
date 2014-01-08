@@ -1487,6 +1487,11 @@ class elaborator::imp {
             push_active(mk_max_constraint(get_context(c), new_lhs1, new_lhs2, new_rhs, new_jst));
             return true;
         }
+        if (is_bool(lhs2)) {
+            justification new_jst(new normalize_justification(c));
+            push_new_eq_constraint(get_context(c), lhs2, rhs, new_jst);
+            return true;
+        }
         if (!is_metavar(lhs1) && !is_type(lhs1)) {
             new_lhs1 = normalize(get_context(c), lhs1);
             modified = (lhs1 != new_lhs1);

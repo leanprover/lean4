@@ -13,12 +13,9 @@ a ∨ b
 a ∨ b
 a ∨ b
 a ∨ a ∨ b
-a ⇒ b ⇒ a
-a ⇒ b : Bool
-if a a ⊤
-if ⊤ a ⊤
+a → b → a
+a → b : Bool
+a → a
+⊤ → a
   Assumed: H1
   Assumed: H2
-@mp : Π (a b : Bool), (a ⇒ b) → a → b
-H2 ◂ H1
-H2 ◂ H1 : b

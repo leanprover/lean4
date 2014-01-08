@@ -36,28 +36,24 @@ axiom add::zeror (a : Nat)   : a + 0 = a
 axiom add::succr (a b : Nat) : a + (b + 1) = (a + b) + 1
 axiom mul::zeror (a : Nat)    : a * 0 = 0
 axiom mul::succr (a b : Nat)  : a * (b + 1) = a * b + a
-axiom le::def (a b : Nat) : a ≤ b ⇔ ∃ c, a + c = b
-axiom induction {P : Nat → Bool} (a : Nat) (H1 : P 0) (H2 : Π (n : Nat) (iH : P n), P (n + 1)) : P a
+axiom le::def (a b : Nat) : a ≤ b = ∃ c, a + c = b
+axiom induction {P : Nat → Bool} (a : Nat) (H1 : P 0) (H2 : ∀ (n : Nat) (iH : P n), P (n + 1)) : P a
 
-theorem pred::nz' (a : Nat) : a ≠ 0 ⇒ ∃ b, b + 1 = a
+theorem pred::nz {a : Nat} : a ≠ 0 → ∃ b, b + 1 = a
 := induction a
-    (assume H : 0 ≠ 0, false::elim (∃ b, b + 1 = 0) H)
-    (λ (n : Nat) (iH : n ≠ 0 ⇒ ∃ b, b + 1 = n),
-        assume H : n + 1 ≠ 0,
-            or::elim (em (n = 0))
-                      (λ Heq0 : n = 0, exists::intro 0 (calc 0 + 1 = n + 1 : { symm Heq0 }))
-                      (λ Hne0 : n ≠ 0,
-                          obtain (w : Nat) (Hw : w + 1 = n), from (iH ◂ Hne0),
-                                 exists::intro (w + 1) (calc w + 1 + 1 = n + 1 : { Hw })))
+    (λ H : 0 ≠ 0, false::elim (∃ b, b + 1 = 0) H)
+    (λ (n : Nat) (iH : n ≠ 0 → ∃ b, b + 1 = n) (H : n + 1 ≠ 0),
+       or::elim (em (n = 0))
+           (λ Heq0 : n = 0, exists::intro 0 (calc 0 + 1 = n + 1 : { symm Heq0 }))
+           (λ Hne0 : n ≠ 0,
+                 obtain (w : Nat) (Hw : w + 1 = n), from (iH Hne0),
+                    exists::intro (w + 1) (calc w + 1 + 1 = n + 1 : { Hw })))
 
-theorem pred::nz {a : Nat} (H : a ≠ 0) : ∃ b, b + 1 = a
-:= (pred::nz' a) ◂ H
-
-theorem discriminate {B : Bool} {a : Nat} (H1: a = 0 → B) (H2 : Π n, a = n + 1 → B) : B
+theorem discriminate {B : Bool} {a : Nat} (H1: a = 0 → B) (H2 : ∀ n, a = n + 1 → B) : B
 := or::elim (em (a = 0))
              (λ Heq0 : a = 0, H1 Heq0)
              (λ Hne0 : a ≠ 0, obtain (w : Nat) (Hw : w + 1 = a), from (pred::nz Hne0),
-                                H2 w (symm Hw))
+                  H2 w (symm Hw))
 
 theorem add::zerol (a : Nat) : 0 + a = a
 := induction a
@@ -174,27 +170,23 @@ theorem mul::assoc (a b c : Nat) : a * (b * c) = a * b * c
                             ...    =   (n * b + b) * c         :  symm (distributel (n * b) b c)
                             ...    =   (n + 1) * b * c         :  { symm (mul::succl n b) })
 
-theorem add::inj' (a b c : Nat) : a + b = a + c ⇒ b = c
+theorem add::inj {a b c : Nat} : a + b = a + c → b = c
 := induction a
-    (assume H : 0 + b = 0 + c,
+    (λ H : 0 + b = 0 + c,
         calc b   =  0 + b   : symm (add::zerol b)
            ...   =  0 + c   : H
            ...   =  c       : add::zerol c)
-    (λ (n : Nat) (iH : n + b = n + c ⇒ b = c),
-        assume H : n + 1 + b = n + 1 + c,
-            let L1 : n + b + 1 = n + c + 1
-                   := (calc n + b + 1  =  n + (b + 1)  : symm (add::assoc n b 1)
-                                  ...  =  n + (1 + b)  : { add::comm b 1 }
-                                  ...  =  n + 1 + b    : add::assoc n 1 b
-                                  ...  =  n + 1 + c    : H
-                                  ...  =  n + (1 + c)  : symm (add::assoc n 1 c)
-                                  ...  =  n + (c + 1)  : { add::comm 1 c }
-                                  ...  =  n + c + 1    : add::assoc n c 1),
-                L2 : n + b = n + c := succ::inj L1
-            in iH ◂ L2)
-
-theorem add::inj {a b c : Nat} (H : a + b = a + c) : b = c
-:= (add::inj' a b c) ◂ H
+    (λ (n : Nat) (iH : n + b = n + c → b = c) (H : n + 1 + b = n + 1 + c),
+       let L1 : n + b + 1 = n + c + 1
+           := (calc n + b + 1  =  n + (b + 1)  : symm (add::assoc n b 1)
+                          ...  =  n + (1 + b)  : { add::comm b 1 }
+                          ...  =  n + 1 + b    : add::assoc n 1 b
+                          ...  =  n + 1 + c    : H
+                          ...  =  n + (1 + c)  : symm (add::assoc n 1 c)
+                          ...  =  n + (c + 1)  : { add::comm 1 c }
+                          ...  =  n + c + 1    : add::assoc n c 1),
+           L2 : n + b = n + c := succ::inj L1
+       in iH L2)
 
 theorem add::eqz {a b : Nat} (H : a + b = 0) : a = 0
 := discriminate
@@ -216,6 +208,7 @@ theorem le::elim {a b : Nat} (H : a ≤ b) : ∃ x, a + x = b
 theorem le::refl (a : Nat) : a ≤ a := le::intro (add::zeror a)
 
 theorem le::zero (a : Nat) : 0 ≤ a := le::intro (add::zerol a)
+
 
 theorem le::trans {a b c : Nat} (H1 : a ≤ b) (H2 : b ≤ c) : a ≤ c
 := obtain (w1 : Nat) (Hw1 : a + w1 = b), from (le::elim H1),

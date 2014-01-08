@@ -2,12 +2,10 @@
   Set: pp::unicode
   Set: tactic::proof_state::goal_names
 # Proof state:
-main: a : Bool ⊢ a ⇒ a ∧ a
+main: a : Bool, H : a ⊢ a ∧ a
 ## Proof state:
-main::1: H : a, a : Bool ⊢ a ∧ a
-## Proof state:
-main::1::1: H : a, a : Bool ⊢ a
-main::1::2: H : a, a : Bool ⊢ a
+main::1: a : Bool, H : a ⊢ a
+main::2: a : Bool, H : a ⊢ a
 ## Proof state:
 no goals
 ##   Proved: T

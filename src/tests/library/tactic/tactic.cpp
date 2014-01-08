@@ -114,40 +114,8 @@ static void tst1() {
     std::cout << "done\n";
 }
 
-static void tst2() {
-    environment env;
-    io_state io(options(), mk_simple_formatter());
-    init_test_frontend(env);
-    env->add_var("p", Bool);
-    env->add_var("q", Bool);
-    env->add_var("r", Bool);
-    env->add_var("s", Bool);
-    expr p = Const("p");
-    expr q = Const("q");
-    expr r = Const("r");
-    expr s = Const("s");
-    context ctx;
-    ctx = extend(ctx, "H1", p);
-    ctx = extend(ctx, "H2", q);
-    std::cout << "proof: " << (repeat(conj_tactic()) << assumption_tactic()).solve(env, io, ctx, And(And(p, q), And(p, p))).get_proof()
-              << "\n";
-    std::cout << "-------------\n";
-    // Theorem to be proved
-    expr F   = Implies(And(p, And(r, s)), Implies(q, And(And(p, q), And(r, p))));
-    // Tactic
-    tactic T = append(id_tactic() << assumption_tactic(),
-                      repeat(conj_tactic() || conj_hyp_tactic() || imp_tactic()) << trace_state_tactic() << assumption_tactic());
-    // Generate proof using tactic
-    expr pr  = T.solve(env, io, context(), F).get_proof();
-    // Print proof
-    std::cout << pr << "\n";
-    // Check whether the proof is correct or not.
-    std::cout << env->type_check(pr) << "\n";
-}
-
 int main() {
     save_stack_info();
     tst1();
-    tst2();
     return has_violations() ? 1 : 0;
 }

@@ -1,5 +1,4 @@
   Set: pp::colors
   Set: pp::unicode
   Imported 'tactic'
-@discharge : Π (a b : Bool), (a → b) → (a ⇒ b)
   Proved: T

@@ -108,9 +108,6 @@ static void tst5() {
         pr   = Conj(P, prop, H, pr);
         prop = And(P, prop);
     }
-    expr impPr = Discharge(P, prop, Fun({H, P}, pr));
-    expr prop2 = type_check(impPr, env);
-    lean_assert(Implies(P, prop) == prop2);
 }
 
 static void tst6() {

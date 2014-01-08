@@ -66,14 +66,12 @@ namespace lean {
 static format g_Type_fmt      = highlight_builtin(format("Type"));
 static format g_eq_fmt        = format("==");
 static format g_lambda_n_fmt  = highlight_keyword(format("\u03BB"));
-static format g_Pi_n_fmt      = highlight_keyword(format("\u03A0"));
+static format g_Pi_n_fmt      = highlight_keyword(format("\u2200"));
 static format g_lambda_fmt    = highlight_keyword(format("fun"));
-static format g_Pi_fmt        = highlight_keyword(format("Pi"));
+static format g_Pi_fmt        = highlight_keyword(format("forall"));
 static format g_arrow_n_fmt   = highlight_keyword(format("\u2192"));
 static format g_arrow_fmt     = highlight_keyword(format("->"));
-static format g_forall_n_fmt  = highlight_keyword(format("\u2200"));
 static format g_exists_n_fmt  = highlight_keyword(format("\u2203"));
-static format g_forall_fmt    = highlight_keyword(format("forall"));
 static format g_exists_fmt    = highlight_keyword(format("exists"));
 static format g_ellipsis_n_fmt= highlight(format("\u2026"));
 static format g_ellipsis_fmt  = highlight(format("..."));
@@ -263,9 +261,6 @@ class pp_fn {
         name const & n = const_name(e);
         if (is_placeholder(e)) {
             return mk_result(format("_"), 1);
-        } else if (is_forall_fn(e)) {
-            // use alias when forall is used as a function symbol
-            return mk_result(format("Forall"), 1);
         } else if (is_exists_fn(e)) {
             // use alias when exists is used as a function symbol
             return mk_result(format("Exists"), 1);
@@ -320,16 +315,8 @@ class pp_fn {
             return pp_child_with_paren(e, depth);
     }
 
-    bool is_forall_expr(expr const & e) {
-        return is_app(e) && arg(e, 0) == mk_forall_fn() && num_args(e) == 3;
-    }
-
     bool is_exists_expr(expr const & e) {
         return is_app(e) && arg(e, 0) == mk_exists_fn() && num_args(e) == 3;
-    }
-
-    bool is_quant_expr(expr const & e, bool is_forall) {
-        return is_forall ? is_forall_expr(e) : is_exists_expr(e);
     }
 
     /**
@@ -338,43 +325,40 @@ class pp_fn {
        and associated domains. Return the body of the sequence of
        nested quantifiers.
     */
-    expr collect_nested_quantifiers(expr const & e, bool is_forall, buffer<std::pair<name, expr>> & r) {
-        lean_assert(is_quant_expr(e, is_forall));
+    expr collect_nested_quantifiers(expr const & e, buffer<std::pair<name, expr>> & r) {
+        lean_assert(is_exists_expr(e));
         if (is_lambda(arg(e, 2))) {
             expr lambda = arg(e, 2);
             name n1 = get_unused_name(lambda);
             m_local_names.insert(n1);
             r.emplace_back(n1, abst_domain(lambda));
             expr b  = replace_var_with_name(abst_body(lambda), n1);
-            if (is_quant_expr(b, is_forall))
-                return collect_nested_quantifiers(b, is_forall, r);
+            if (is_exists_expr(b))
+                return collect_nested_quantifiers(b, r);
             else
                 return b;
         } else {
             // Quantifier is not in normal form. That is, it might be
-            //   (forall t p)  or (exists t p)  where p is not a lambda
+            //   (exists t p)  where p is not a lambda
             //   abstraction
             // So, we put it in normal form
-            //   (forall t (fun x : t, p x))
-            //   or
             //   (exists t (fun x : t, p x))
             expr new_body = mk_lambda("x", arg(e, 1), mk_app(lift_free_vars(arg(e, 2), 1), mk_var(0)));
             expr normal_form = mk_app(arg(e, 0), arg(e, 1), new_body);
-            return collect_nested_quantifiers(normal_form, is_forall, r);
+            return collect_nested_quantifiers(normal_form, r);
         }
     }
 
-    /** \brief Auxiliary function for pretty printing exists and
-        forall formulas */
-    result pp_quantifier(expr const & e, unsigned depth, bool is_forall) {
+    /** \brief Auxiliary function for pretty printing exists formulas */
+    result pp_exists(expr const & e, unsigned depth) {
         buffer<std::pair<name, expr>> nested;
         local_names::mk_scope mk(m_local_names);
-        expr b = collect_nested_quantifiers(e, is_forall, nested);
+        expr b = collect_nested_quantifiers(e, nested);
         format head;
         if (m_unicode)
-            head = is_forall ? g_forall_n_fmt : g_exists_n_fmt;
+            head = g_exists_n_fmt;
         else
-            head = is_forall ? g_forall_fmt : g_exists_fmt;
+            head = g_exists_fmt;
         format sep  = comma();
         expr domain0 = nested[0].second;
         // TODO(Leo): the following code is very similar to pp_abstraction
@@ -416,14 +400,6 @@ class pp_fn {
         }
     }
 
-    result pp_forall(expr const & e, unsigned depth) {
-        return pp_quantifier(e, depth, true);
-    }
-
-    result pp_exists(expr const & e, unsigned depth) {
-        return pp_quantifier(e, depth, false);
-    }
-
     operator_info find_op_for(expr const & e) const {
         if (is_constant(e) && m_local_names.find(const_name(e)) != m_local_names.end())
             return operator_info();
@@ -463,7 +439,7 @@ class pp_fn {
             return g_eq_precedence;
         } else if (is_arrow(e)) {
             return g_arrow_precedence;
-        } else if (is_lambda(e) || is_pi(e) || is_let(e) || is_forall(e) || is_exists(e)) {
+        } else if (is_lambda(e) || is_pi(e) || is_let(e) || is_exists(e)) {
             return 0;
         } else {
             return g_app_precedence;
@@ -723,15 +699,13 @@ class pp_fn {
                 return mk_result(group(r_format), r_weight);
             }}
             lean_unreachable(); // LCOV_EXCL_LINE
-        } else if (m_notation && is_forall_expr(e)) {
-            return pp_forall(e, depth);
         } else if (m_notation && is_exists_expr(e)) {
             return pp_exists(e, depth);
         } else {
             // standard function application
             expr const & f  = app.get_function();
             result p;
-            bool is_const = is_constant(f) && !is_forall_fn(f) && !is_exists_fn(f);
+            bool is_const = is_constant(f) && !is_exists_fn(f);
             if (is_const)
                 p = mk_result(format(const_name(f)), 1);
             else if (is_choice(f))

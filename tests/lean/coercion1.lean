@@ -5,7 +5,7 @@ coercion f
 print environment 2
 variable g : T -> R
 coercion g
-variable h : Pi (x : Type), x
+variable h : forall (x : Type), x
 coercion h
 definition T2 : Type := T
 definition R2 : Type := R

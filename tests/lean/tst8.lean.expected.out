@@ -1,7 +1,7 @@
   Set: pp::colors
   Set: pp::unicode
   Imported 'Int'
-λ (A : Type) (a : A), let b := a in b : Π (A : Type), A → A
+λ (A : Type) (a : A), let b := a in b : ∀ (A : Type), A → A
   Assumed: g
   Defined: f
 f ℕ 10

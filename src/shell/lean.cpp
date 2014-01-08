@@ -27,7 +27,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/shell.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lua/register_modules.h"
-#include "shell/lua_repl.h"
 #include "version.h"
 #include "githash.h" // NOLINT
 
@@ -183,7 +182,7 @@ int main(int argc, char ** argv) {
             } else {
                 lean_assert(default_k == input_kind::Lua);
                 script_state S;
-                S.dostring(g_lua_repl);
+                S.import("repl");
             }
         } else {
             environment env;

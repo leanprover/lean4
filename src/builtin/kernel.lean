@@ -321,12 +321,8 @@ theorem eq::exists::intro {A : (Type U)} {P Q : A → Bool} (H : ∀ x : A, P x 
 := congr2 (Exists A) (abst H)
 
 theorem not::forall (A : (Type U)) (P : A → Bool) : (¬ (∀ x : A, P x)) == (∃ x : A, ¬ P x)
-:= let
-       l1 : ∀ x : A, P x == ¬ ¬ P x                    := λ x : A, symm (not::not::eq (P x)),
-       l2 : (∀ x : A, P x) == (∀ x : A, ¬ ¬ P x)       := abstpi l1,
-       s1 : (¬ ∀ x : A, P x) == (¬ ∀ x : A, ¬ ¬ P x)   := not::congr l2,
-       s2 : (¬ ∀ x : A, ¬ ¬ P x) == (∃ x : A, ¬ P x)   := refl (∃ x : A, ¬ P x)
-   in trans s1 s2
+:= calc (¬ ∀ x : A, P x) = (¬ ∀ x : A, ¬ ¬ P x) : not::congr (abstpi (λ x : A, symm (not::not::eq (P x))))
+              ...         = (∃ x : A, ¬ P x)     : refl (∃ x : A, ¬ P x)
 
 theorem not::forall::elim {A : (Type U)} {P : A → Bool} (H : ¬ (∀ x : A, P x)) : ∃ x : A, ¬ P x
 := (not::forall A P) ◂ H

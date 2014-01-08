@@ -1307,6 +1307,45 @@ class elaborator::imp {
         }
     }
 
+    /**
+       \brief Resolve constraints of the form
+
+       ctx |- ?m << Pi(x : A, B)              (param is_lhs is true)
+       and
+       ctx |- Pi(x : A, B) << ?m              (param is_lhs is false)
+
+       where ?m is not assigned and does not have a local context.
+
+       We replace
+           ctx | ?m << Pi(x : A, B)
+       with
+           ctx        |- ?m == Pi(x : A, ?m1)
+           ctx, x : A |- ?m1 << B
+    */
+    void process_metavar_conv_pi(unification_constraint const & c, expr const & m, expr const & pi, bool is_lhs) {
+        lean_assert(!is_eq(c));
+        lean_assert(is_metavar(m) && !has_local_context(m));
+        lean_assert(!is_assigned(m));
+        lean_assert(is_pi(pi));
+        lean_assert(is_lhs  || is_eqp(convertible_to(c), m));
+        lean_assert(!is_lhs || is_eqp(convertible_from(c), m));
+        context ctx     = get_context(c);
+        context new_ctx = extend(ctx, abst_name(pi), abst_domain(pi));
+        expr m1         = m_state.m_menv->mk_metavar(new_ctx);
+        justification new_jst(new destruct_justification(c));
+
+        // Add   ctx, x : A |- ?m1 << B       when is_lhs == true,
+        //   and ctx, x : A |- B << ?m1       when is_lhs == false
+        expr lhs = m1;
+        expr rhs = abst_body(pi);
+        if (!is_lhs)
+            swap(lhs, rhs);
+        push_new_constraint(false, new_ctx, lhs, rhs, new_jst);
+
+        // Add ctx |- ?m == Pi(x : A, ?m1)
+        push_new_eq_constraint(ctx, m, update_abstraction(pi, abst_domain(pi), m1), new_jst);
+    }
+
     bool process_eq_convertible(context const & ctx, expr const & a, expr const & b, unification_constraint const & c) {
         bool eq = is_eq(c);
         if (a == b)
@@ -1376,22 +1415,29 @@ class elaborator::imp {
         if (!is_meta_app(a) && !is_meta_app(b) && normalize_head(a, b, c)) { return true; }
 
         if (!eq) {
-            // TODO(Leo): use is_actual_lower and is_actual_upper
-
             // Try to assign convertability constraints.
-            if (!is_type(b) && !is_meta(b) && is_metavar(a) && !is_assigned(a) && !has_local_context(a)) {
-                // We can assign a <- b at this point IF b is not (Type lvl) or Metavariable
-                lean_assert(!has_metavar(b, a));
-                return assign(a, b, c, true);
+            if (is_metavar(a) && !is_assigned(a) && !has_local_context(a)) {
+                if (is_pi(b)) {
+                    process_metavar_conv_pi(c, a, b, true);
+                    return true;
+                } else if (!is_type(b) && !is_meta(b)) {
+                    // We can assign a <- b at this point IF b is not (Type lvl) or Metavariable
+                    lean_assert(!has_metavar(b, a));
+                    return assign(a, b, c, true);
+                }
             }
-            if (!is_type(a) && !is_meta(a) && a != Bool && is_metavar(b) && !is_assigned(b) && !has_local_context(b)) {
-                // We can assign b <- a at this point IF a is not (Type lvl) or Metavariable or Bool.
-                lean_assert(!has_metavar(a, b));
-                return assign(b, a, c, false);
+
+            if (is_metavar(b) && !is_assigned(b) && !has_local_context(b)) {
+                if (is_pi(a)) {
+                    process_metavar_conv_pi(c, b, a, false);
+                    return true;
+                } else if (!is_type(a) && !is_meta(a) && a != Bool) {
+                    // We can assign b <- a at this point IF a is not (Type lvl) or Metavariable or Bool.
+                    lean_assert(!has_metavar(a, b));
+                    return assign(b, a, c, false);
+                }
             }
         }
-
-        // TODO(Leo): normalize pi domain... to make sure we are not missing solutions in process_simple_ho_match
 
         if (process_simple_ho_match(ctx, a, b, true, c) ||
             process_simple_ho_match(ctx, b, a, false, c))
@@ -1511,8 +1557,6 @@ class elaborator::imp {
         }
         if (is_bool(lhs1))
             lhs1 = Type();
-        if (is_bool(lhs2))
-            lhs2 = Type();
         if (is_type(lhs1) && is_type(lhs2)) {
             justification new_jst(new normalize_justification(c));
             expr new_lhs = mk_type(max(ty_level(lhs1), ty_level(lhs2)));
@@ -1526,10 +1570,16 @@ class elaborator::imp {
             justification new_jst(new normalize_justification(c));
             push_active(mk_convertible_constraint(get_context(c), lhs2, rhs, new_jst));
             return true;
-        } else if (lhs2 == rhs) {
-            // ctx |- max(lhs1, lhs2) == rhs
+        } else if (lhs2 == rhs && is_type(lhs2)) {
+            // ctx |- max(lhs1, lhs2) == rhs   IF lhs2 is a Type
             // ==>  IF lhs1 = rhs
             // ctx |- lhs2 << rhs
+
+            // Remark: this rule is not applicable when lhs2 == Bool.
+            // Recall that max is actually a constraint generated for a Pi(x : A, B)
+            // where lhs1 and lhs2 represent the types of A and B.
+            // If lhs2 == Bool, the type of Pi(x : A, B) is Bool, and the type
+            // of A (lhs1) can be as big as we want
             justification new_jst(new normalize_justification(c));
             push_active(mk_convertible_constraint(get_context(c), lhs1, rhs, new_jst));
             return true;

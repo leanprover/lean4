@@ -508,14 +508,14 @@ static int name_get_prefix(lua_State * L) {
 }
 
 static int name_get_numeral(lua_State * L) {
-    if (to_name(L, 1).is_numeral())
+    if (!to_name(L, 1).is_numeral())
         throw exception("invalid get_numeral, hierarchical name with numeric head expected");
     lua_pushinteger(L, to_name(L, 1).get_numeral());
     return 1;
 }
 
 static int name_get_string(lua_State * L) {
-    if (to_name(L, 1).is_string())
+    if (!to_name(L, 1).is_string())
         throw exception("invalid get_string,  hierarchical name with string head expected");
     lua_pushstring(L, to_name(L, 1).get_string());
     return 1;

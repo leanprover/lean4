@@ -1337,6 +1337,16 @@ OBJECT_PRED(is_var_decl)
 OBJECT_PRED(is_builtin)
 OBJECT_PRED(is_builtin_set)
 
+#define OBJECT_EXTRA_PRED(P)                    \
+static int object_ ## P(lua_State * L) {        \
+    lua_pushboolean(L, P(to_object(L, 1)));     \
+    return 1;                                   \
+}
+
+OBJECT_EXTRA_PRED(is_begin_import)
+OBJECT_EXTRA_PRED(is_begin_builtin_import)
+OBJECT_EXTRA_PRED(is_end_import)
+
 static int object_in_builtin_set(lua_State * L) {
     lua_pushboolean(L, to_object(L, 1).in_builtin_set(to_expr(L, 2)));
     return 1;
@@ -1371,6 +1381,9 @@ static const struct luaL_Reg object_m[] = {
     {"is_builtin",      safe_function<object_is_builtin>},
     {"is_builtin_set",  safe_function<object_is_builtin_set>},
     {"in_builtin_set",  safe_function<object_in_builtin_set>},
+    {"is_begin_import", safe_function<object_is_begin_import>},
+    {"is_begin_builtin_import", safe_function<object_is_begin_builtin_import>},
+    {"is_end_import",   safe_function<object_is_end_import>},
     {0, 0}
 };
 

@@ -135,12 +135,19 @@ static int mk_lean_formatter(lua_State * L) {
     return push_formatter(L, mk_pp_formatter(to_environment(L, 1)));
 }
 
+static int is_explicit(lua_State * L) {
+    ro_shared_environment env(L, 1);
+    lua_pushboolean(L, is_explicit(env, to_name_ext(L, 2)));
+    return 1;
+}
+
 void open_frontend_lean(lua_State * L) {
     open_macros(L);
     SET_GLOBAL_FUN(mk_environment,    "environment");
     SET_GLOBAL_FUN(mk_lean_formatter, "lean_formatter");
     SET_GLOBAL_FUN(parse_lean_expr,   "parse_lean");
     SET_GLOBAL_FUN(parse_lean_cmds,   "parse_lean_cmds");
+    SET_GLOBAL_FUN(is_explicit,       "is_explicit");
 }
 
 void register_frontend_lean_module() {

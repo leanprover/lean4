@@ -14,6 +14,10 @@
     ("leq"     "≤")
     ("Nat"    "ℕ")
     ("Int"    "ℤ")
+    ("var"    "variable")
+    ("vars"   "variables")
+    ("def"    "definition")
+    ("th"     "theorem")
     ))
 
 (define-generic-mode

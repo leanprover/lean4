@@ -19,17 +19,20 @@ class unification_constraint;
 
    1-  ctx |- t == s                         t is (definitionally) equal to s
    2-  ctx |- t << s                         t is convertible to s (this is weaker than equality)
-   3-  ctx |- max(t1, t2) == s               The maximum of t1 and t2 is equal to s
+   3-  ctx |- max(t1, t2) == s               The maximum of t1 and t2 is equal to s, if t2 is Bool, then s is Bool.
    4-  ctx |- ?m == t_1 Or ... Or ?m == t_k  The metavariable ?m is equal to t_1, ..., or t_k
 
    \remark The constraint <tt>ctx |- t == s</tt> implies that <tt>ctx |- t << s</tt>, but
    the converse is not true. Example: <tt>ctx |- Type 1 << Type 2</tt>, but
    we don't have <tt>ctx |- Type 1 == Type 2</tt>.
 
-   \remark In the max constraint, \c t1 and \c t2 must be eventually unifiable with a Type term.
+   \remark In the max constraint, \c t1 and \c t2 must be eventually unifiable with a Type term or Bool.
    For example, assume the constraint <tt>ctx |- max(?m1, Type 1) == ?m2</tt>. Now, suppose
    <tt>?m2</tt> is assigned to <tt>Type 1</tt>. Then, <tt>?m1</tt> can be assigned to <tt>Type 0</tt>
    or <tt>Type 1</tt>.
+
+   \remark The max constraint is produced when type checking Pi expressions of the form (Pi x : A, B),
+   and the type of A is t1 and the type of B is t2. So, if t2 == Bool, then max(t1, t2) == Bool
 */
 enum class unification_constraint_kind { Eq, Convertible, Max, Choice };
 

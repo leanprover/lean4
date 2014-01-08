@@ -490,12 +490,50 @@ static int name_hash(lua_State * L) {
     return 1;
 }
 
+#define NAME_PRED(P)                            \
+static int name_ ## P(lua_State * L) {          \
+    lua_pushboolean(L, to_name(L, 1).P());      \
+    return 1;                                   \
+}
+
+NAME_PRED(is_atomic)
+NAME_PRED(is_anonymous)
+NAME_PRED(is_string)
+NAME_PRED(is_numeral)
+
+static int name_get_prefix(lua_State * L) {
+    if (to_name(L, 1).is_atomic())
+        throw exception("invalid get_prefix, non-atomic name expected");
+    return push_name(L, to_name(L, 1).get_prefix());
+}
+
+static int name_get_numeral(lua_State * L) {
+    if (to_name(L, 1).is_numeral())
+        throw exception("invalid get_numeral, hierarchical name with numeric head expected");
+    lua_pushinteger(L, to_name(L, 1).get_numeral());
+    return 1;
+}
+
+static int name_get_string(lua_State * L) {
+    if (to_name(L, 1).is_string())
+        throw exception("invalid get_string,  hierarchical name with string head expected");
+    lua_pushstring(L, to_name(L, 1).get_string());
+    return 1;
+}
+
 static const struct luaL_Reg name_m[] = {
-    {"__gc",       name_gc}, // never throws
-    {"__tostring", safe_function<name_tostring>},
-    {"__eq",       safe_function<name_eq>},
-    {"__lt",       safe_function<name_lt>},
-    {"hash",       safe_function<name_hash>},
+    {"__gc",         name_gc}, // never throws
+    {"__tostring",   safe_function<name_tostring>},
+    {"__eq",         safe_function<name_eq>},
+    {"__lt",         safe_function<name_lt>},
+    {"is_atomic",    safe_function<name_is_atomic>},
+    {"is_anonymous", safe_function<name_is_anonymous>},
+    {"is_numeral",   safe_function<name_is_numeral>},
+    {"is_string",    safe_function<name_is_string>},
+    {"get_prefix",   safe_function<name_get_prefix>},
+    {"get_numeral",  safe_function<name_get_numeral>},
+    {"get_string",   safe_function<name_get_string>},
+    {"hash",         safe_function<name_hash>},
     {0, 0}
 };
 

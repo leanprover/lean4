@@ -1,5 +1,8 @@
 import cast
 set::option pp::colors false
+universe M >= 1
+universe U >= M + 1
+definition TypeM := (Type M)
 
 check fun (A A': TypeM)
           (B   : A -> TypeM)

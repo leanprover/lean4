@@ -1,4 +1,5 @@
   Set: pp::colors
   Set: pp::unicode
-Error (line: 27, pos: 0) universe constraint produces an integer overflow: Z2 >= Z1 + 1073741824
-Error (line: 40, pos: 0) universe constraint inconsistency: U1 >= U4 + 0
+  Defined: TypeM
+Error (line: 30, pos: 0) universe constraint produces an integer overflow: Z2 >= Z1 + 1073741824
+Error (line: 43, pos: 0) universe constraint inconsistency: U1 >= U4 + 0

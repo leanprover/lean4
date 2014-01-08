@@ -1,5 +1,4 @@
   Set: pp::colors
   Set: pp::unicode
-import "kernel"
-import "Nat"
+universe U ≥ M+1
 universe Z ≥ U+1 ⊔ M+1

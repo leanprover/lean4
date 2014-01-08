@@ -1,3 +1,4 @@
+universe U >= 3
 variable N : Type
 variable a : N
 variable b : N

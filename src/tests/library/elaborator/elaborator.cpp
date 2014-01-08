@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/builtin.h"
 #include "library/io_state_stream.h"
 #include "library/placeholder.h"
+#include "library/printer.h"
 #include "library/arith/arith.h"
 #include "library/elaborator/elaborator.h"
 #include "frontends/lean/frontend.h"
@@ -821,6 +822,7 @@ void tst26() {
     */
     environment env;
     init_test_frontend(env);
+    env->add_uvar_cnstr("U", level() + 2);
     metavar_env menv;
     buffer<unification_constraint> ucs;
     type_checker checker(env);
@@ -861,7 +863,7 @@ void tst27() {
     expr eq = Const("my_eq");
     env->add_var("my_eq", Pi({A, TypeU}, A >> (A >> Bool)));
     env->add_var("g", Pi({A, TypeU}, A >> A));
-    env->add_var("a", TypeM);
+    env->add_var("a", Type());
     expr m1 = menv->mk_metavar();
     expr m2 = menv->mk_metavar();
     expr m3 = menv->mk_metavar();
@@ -872,7 +874,7 @@ void tst27() {
     metavar_env s = elb.next();
     std::cout << s->instantiate_metavars(F) << "\n";
     lean_assert_eq(s->instantiate_metavars(F),
-                   Fun({f, TypeM >> TypeM}, eq(TypeM, g(TypeM >> TypeM, f)(a), a)));
+                   Fun({f, Type() >> Type()}, eq(Type(), g(Type() >> Type(), f)(a), a)));
 }
 
 int main() {

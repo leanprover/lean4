@@ -13,9 +13,7 @@ Author: Leonardo de Moura
 namespace lean {
 // =======================================
 // Bultin universe variables m and u
-static level m_lvl(name("M"));
 static level u_lvl(name("U"));
-expr const TypeM = Type(m_lvl);
 expr const TypeU = Type(u_lvl);
 // =======================================
 

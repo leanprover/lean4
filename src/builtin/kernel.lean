@@ -1,7 +1,6 @@
 import macros
 
-universe M ≥ 512
-universe U ≥ M+512
+universe U ≥ 1
 
 variable Bool : Type
 -- The following builtin declarations can be removed as soon as Lean supports inductive datatypes and match expressions
@@ -10,7 +9,6 @@ builtin false : Bool
 builtin if {A : (Type U)} : Bool → A → A → A
 
 definition TypeU := (Type U)
-definition TypeM := (Type M)
 
 definition not (a : Bool) : Bool
 := a → false

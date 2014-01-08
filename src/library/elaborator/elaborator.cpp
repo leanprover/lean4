@@ -148,7 +148,6 @@ class elaborator::imp {
     justification                            m_conflict;
     bool                                     m_first;
     level                                    m_U; // universe U used for builtin kernel axioms
-    level                                    m_M; // universe M
 
     // options
     bool                                     m_use_justifications;
@@ -1179,19 +1178,15 @@ class elaborator::imp {
             // We approximate and only consider the most useful ones.
             justification new_jst(new destruct_justification(c));
             if (is_bool(a)) {
-                expr choices[5] = { Bool, Type(), Type(level() + 1), TypeM, TypeU };
+                expr choices[5] = { Bool, Type(), Type(level() + 1), TypeU };
                 push_active(mk_choice_constraint(get_context(c), b, 5, choices, new_jst));
                 return true;
             } else if (m_env->is_ge(ty_level(a), m_U)) {
                 expr choices[2] = { a, Type(ty_level(a) + 1) };
                 push_active(mk_choice_constraint(get_context(c), b, 2, choices, new_jst));
                 return true;
-            } else if (m_env->is_ge(ty_level(a), m_M)) {
-                expr choices[3] = { a, Type(ty_level(a) + 1), TypeU };
-                push_active(mk_choice_constraint(get_context(c), b, 3, choices, new_jst));
-                return true;
             } else {
-                expr choices[4] = { a, Type(ty_level(a) + 1), TypeM, TypeU };
+                expr choices[4] = { a, Type(ty_level(a) + 1), TypeU };
                 push_active(mk_choice_constraint(get_context(c), b, 4, choices, new_jst));
                 return true;
             }
@@ -1254,12 +1249,8 @@ class elaborator::imp {
                 push_active(mk_choice_constraint(get_context(c), a, 2, choices, new_jst));
                 return true;
             } else if (b == TypeU) {
-                expr choices[5] = { TypeU, TypeM, Type(level() + 1), Type(), Bool };
+                expr choices[5] = { TypeU, Type(level() + 1), Type(), Bool };
                 push_active(mk_choice_constraint(get_context(c), a, 5, choices, new_jst));
-                return true;
-            } else if (b == TypeM) {
-                expr choices[4] = { TypeM, Type(level() + 1), Type(), Bool };
-                push_active(mk_choice_constraint(get_context(c), a, 4, choices, new_jst));
                 return true;
             } else {
                 level const & lvl = ty_level(b);
@@ -1772,7 +1763,6 @@ public:
         m_next_id     = 0;
         m_first       = true;
         m_U           = m_env->get_uvar("U");
-        m_M           = m_env->get_uvar("M");
         // display(std::cout);
     }
 

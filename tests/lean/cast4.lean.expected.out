@@ -2,6 +2,7 @@
   Set: pp::unicode
   Imported 'cast'
   Set: pp::colors
+  Defined: TypeM
 λ (A A' : TypeM)
   (B : A → TypeM)
   (B' : A' → TypeM)

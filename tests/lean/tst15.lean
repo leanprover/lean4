@@ -1,3 +1,5 @@
+universe M >= 1
+universe U >= M + 1
 variable x : (Type max U+1+2 M+1 M+2 3)
 check x
 variable f : (Type U+10) -> Type

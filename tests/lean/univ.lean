@@ -1,4 +1,7 @@
 
+universe M >= 1
+universe U >= M + 1
+definition TypeM := (Type M)
 universe Z ≥ M+3
 (*
 local env = get_environment()

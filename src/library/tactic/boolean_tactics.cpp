@@ -58,46 +58,6 @@ tactic conj_tactic(bool all) {
         });
 }
 
-tactic imp_tactic(name const & H_name, bool all) {
-    return mk_tactic01([=](ro_environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
-            expr impfn = mk_implies_fn();
-            bool found = false;
-            list<std::tuple<name, name, expr>> proof_info;
-            goals new_goals = map_goals(s, [&](name const & g_name, goal const & g) -> optional<goal> {
-                    expr const & c  = g.get_conclusion();
-                    if ((all || !found) && is_implies(c)) {
-                        expr new_h = arg(c, 1);
-                        expr new_c = arg(c, 2);
-                        found = true;
-                        name new_h_name = g.mk_unique_hypothesis_name(H_name);
-                        proof_info.emplace_front(g_name, new_h_name, c);
-                        return optional<goal>(goal(add_hypothesis(new_h_name, new_h, g.get_hypotheses()), new_c));
-                    } else {
-                        return optional<goal>(g);
-                    }
-                });
-            if (found) {
-                proof_builder pr_builder     = s.get_proof_builder();
-                proof_builder new_pr_builder = mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
-                        proof_map new_m(m);
-                        for (auto const & info : proof_info) {
-                            name const & goal_name = std::get<0>(info);
-                            name const & hyp_name  = std::get<1>(info);  // new hypothesis name
-                            expr const & old_c     = std::get<2>(info);  // old conclusion of the form H => C
-                            expr const & h         = arg(old_c, 1); // new hypothesis: antencedent of the old conclusion
-                            expr const & c         = arg(old_c, 2); // new conclusion: consequent of the old conclusion
-                            expr const & c_pr      = find(m, goal_name);   // proof for the new conclusion
-                            new_m.insert(goal_name, Discharge(h, c, Fun(hyp_name, h, c_pr)));
-                        }
-                        return pr_builder(new_m, a);
-                    });
-                return some_proof_state(s, new_goals, new_pr_builder);
-            } else {
-                return none_proof_state();
-            }
-        });
-}
-
 tactic conj_hyp_tactic(bool all) {
     return mk_tactic01([=](ro_environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             bool found = false;
@@ -357,11 +317,6 @@ static int mk_conj_tactic(lua_State * L) {
     return push_tactic(L, conj_tactic(nargs == 0 ? true : lua_toboolean(L, 1)));
 }
 
-static int mk_imp_tactic(lua_State * L) {
-    int nargs = lua_gettop(L);
-    return push_tactic(L, imp_tactic(nargs >= 1 ? to_name_ext(L, 1) : name("H"), nargs == 2 ? lua_toboolean(L, 2) : true));
-}
-
 static int mk_conj_hyp_tactic(lua_State * L) {
     int nargs = lua_gettop(L);
     return push_tactic(L, conj_hyp_tactic(nargs == 0 ? true : lua_toboolean(L, 1)));
@@ -393,7 +348,6 @@ static int mk_absurd_tactic(lua_State * L) {
 
 void open_boolean_tactics(lua_State * L) {
     SET_GLOBAL_FUN(mk_conj_tactic,     "conj_tac");
-    SET_GLOBAL_FUN(mk_imp_tactic,      "imp_tac");
     SET_GLOBAL_FUN(mk_conj_hyp_tactic, "conj_hyp_tac");
     SET_GLOBAL_FUN(mk_disj_hyp_tactic, "disj_hyp_tac");
     SET_GLOBAL_FUN(mk_disj_tactic,     "disj_tac");

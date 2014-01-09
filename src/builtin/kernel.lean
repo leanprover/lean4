@@ -113,12 +113,12 @@ theorem absurd_elim {a : Bool} (b : Bool) (H1 : a) (H2 : ¬ a) : b
 theorem not_imp_eliml {a b : Bool} (Hnab : ¬ (a → b)) : a
 := not_not_elim
       (have ¬ ¬ a :
-       λ Hna : ¬ a, absurd (have a → b     : λ Ha : a, absurd_elim b Ha Hna)
-                           Hnab)
+          λ Hna : ¬ a, absurd (λ Ha : a, absurd_elim b Ha Hna)
+                              Hnab)
 
 theorem not_imp_elimr {a b : Bool} (H : ¬ (a → b)) : ¬ b
-:= λ Hb : b, absurd (have a → b : λ Ha : a, Hb)
-                    (have ¬ (a → b) : H)
+:= λ Hb : b, absurd (λ Ha : a, Hb)
+                    H
 
 theorem resolve1 {a b : Bool} (H1 : a ∨ b) (H2 : ¬ a) : b
 := H1 H2
@@ -197,7 +197,8 @@ theorem boolext {a b : Bool} (Hab : a → b) (Hba : b → a) : a == b
            (λ Hbt : b == true,  false_elim (a == b) (subst (Hba (eqt_elim Hbt)) Haf))
            (λ Hbf : b == false, trans Haf (symm Hbf)))
 
-definition iff_intro {a b : Bool} (Hab : a → b) (Hba : b → a) := boolext Hab Hba
+theorem iff_intro {a b : Bool} (Hab : a → b) (Hba : b → a) : a == b
+:= boolext Hab Hba
 
 theorem eqt_intro {a : Bool} (H : a) : a == true
 := boolext (λ H1 : a, trivial)
@@ -209,12 +210,13 @@ theorem or_comm (a b : Bool) : (a ∨ b) == (b ∨ a)
 
 theorem or_assoc (a b c : Bool) : ((a ∨ b) ∨ c) == (a ∨ (b ∨ c))
 := boolext (λ H : (a ∨ b) ∨ c,
-                      or_elim H (λ H1 : a ∨ b, or_elim H1 (λ Ha : a, or_introl Ha (b ∨ c)) (λ Hb : b, or_intror a (or_introl Hb c)))
-                                  (λ Hc : c, or_intror a (or_intror b Hc)))
+                      or_elim H (λ H1 : a ∨ b, or_elim H1 (λ Ha : a, or_introl Ha (b ∨ c))
+                                                          (λ Hb : b, or_intror a (or_introl Hb c)))
+                                (λ Hc : c, or_intror a (or_intror b Hc)))
            (λ H : a ∨ (b ∨ c),
                       or_elim H (λ Ha : a, (or_introl (or_introl Ha b) c))
-                                  (λ H1 : b ∨ c, or_elim H1 (λ Hb : b, or_introl (or_intror a Hb) c)
-                                                              (λ Hc : c, or_intror (a ∨ b) Hc)))
+                                (λ H1 : b ∨ c, or_elim H1 (λ Hb : b, or_introl (or_intror a Hb) c)
+                                                          (λ Hc : c, or_intror (a ∨ b) Hc)))
 
 theorem or_id (a : Bool) : (a ∨ a) == a
 := boolext (λ H, or_elim H (λ H1, H1) (λ H2, H2))
@@ -316,7 +318,7 @@ theorem eq_exists_intro {A : (Type U)} {P Q : A → Bool} (H : ∀ x : A, P x ==
 
 theorem not_forall (A : (Type U)) (P : A → Bool) : (¬ (∀ x : A, P x)) == (∃ x : A, ¬ P x)
 := calc (¬ ∀ x : A, P x) = (¬ ∀ x : A, ¬ ¬ P x) : not_congr (allext (λ x : A, symm (not_not_eq (P x))))
-              ...         = (∃ x : A, ¬ P x)     : refl (∃ x : A, ¬ P x)
+              ...        = (∃ x : A, ¬ P x)     : refl (∃ x : A, ¬ P x)
 
 theorem not_forall_elim {A : (Type U)} {P : A → Bool} (H : ¬ (∀ x : A, P x)) : ∃ x : A, ¬ P x
 := (not_forall A P) ◂ H

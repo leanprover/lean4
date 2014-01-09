@@ -12,7 +12,9 @@
   '("\\.lean$")                    ;; files for which to activate this mode
   '((lambda()
       (set-input-method "Lean")
-      (abbrev-mode 1)))
+      (set (make-local-variable 'lisp-indent-function)
+           'common-lisp-indent-function)
+      ))
   "A mode for Lean files"          ;; doc string for this mode
   )
 

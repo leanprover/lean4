@@ -32,11 +32,7 @@
 #endif
 
 #ifndef LEAN_DEFAULT_PP_COLORS
-#ifdef LEAN_WINDOWS
 #define LEAN_DEFAULT_PP_COLORS false
-#else
-#define LEAN_DEFAULT_PP_COLORS true
-#endif
 #endif
 
 #ifndef LEAN_KEYWORD_HIGHLIGHT_COLOR

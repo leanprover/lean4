@@ -46,19 +46,21 @@ definition neq {A : TypeU} (a b : A) := ¬ (a == b)
 
 infix 50 ≠ : neq
 
+theorem em (a : Bool) : a ∨ ¬ a
+:= λ Hna : ¬ a, Hna
+
+-- Boolean completeness
+axiom case (P : Bool → Bool) (H1 : P true) (H2 : P false) (a : Bool) : P a
+
 axiom refl {A : TypeU} (a : A) : a == a
 
 axiom subst {A : TypeU} {a b : A} {P : A → Bool} (H1 : P a) (H2 : a == b) : P b
-
-axiom iff::intro {a b : Bool} (H1 : a → b) (H2 : b → a) : a == b
 
 -- Function extensionality
 axiom funext {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} (H : ∀ x : A, f x == g x) : f == g
 
 -- Forall extensionality
 axiom allext {A : TypeU} {B C : A → TypeU} (H : ∀ x : A, B x == C x) : (∀ x : A, B x) == (∀ x : A, C x)
-
-axiom case (P : Bool → Bool) (H1 : P true) (H2 : P false) (a : Bool) : P a
 
 -- Alias for subst where we can provide P explicitly, but keep A,a,b implicit
 definition substp {A : TypeU} {a b : A} (P : A → Bool) (H1 : P a) (H2 : a == b) : P b
@@ -70,12 +72,6 @@ theorem eta {A : TypeU} {B : A → TypeU} (f : ∀ x : A, B x) : (λ x : A, f x)
 theorem trivial : true
 := refl true
 
-theorem em (a : Bool) : a ∨ ¬ a
-:= case (λ x, x ∨ ¬ x) trivial trivial a
-
-theorem false::elim (a : Bool) (H : false) : a
-:= case (λ x, x) trivial H a
-
 theorem absurd {a : Bool} (H1 : a) (H2 : ¬ a) : false
 := H2 H1
 
@@ -84,6 +80,12 @@ theorem eqmp {a b : Bool} (H1 : a == b) (H2 : a) : b
 
 infixl 100 <| : eqmp
 infixl 100 ◂  : eqmp
+
+theorem boolcomplete (a : Bool) : a == true ∨ a == false
+:= case (λ x, x == true ∨ x == false) trivial trivial a
+
+theorem false::elim (a : Bool) (H : false) : a
+:= case (λ x, x) trivial H a
 
 theorem imp::trans {a b c : Bool} (H1 : a → b) (H2 : b → c) : a → c
 := λ Ha, H2 (H1 Ha)
@@ -168,10 +170,6 @@ theorem ne::eq::trans {A : TypeU} {a b c : A} (H1 : a ≠ b) (H2 : b = c) : a �
 theorem eqt::elim {a : Bool} (H : a == true) : a
 := (symm H) ◂ trivial
 
-theorem eqt::intro {a : Bool} (H : a) : a == true
-:= iff::intro (λ H1 : a, trivial)
-              (λ H2 : true, H)
-
 theorem congr1 {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} (a : A) (H : f == g) : f a == g a
 := substp (fun h : (∀ x : A, B x), f a == h a) (refl (f a)) H
 
@@ -191,26 +189,41 @@ theorem exists::intro {A : TypeU} {P : A → Bool} (a : A) (H : P a) : Exists A 
 := λ H1 : (∀ x : A, ¬ P x),
       absurd H (H1 a)
 
+theorem boolext {a b : Bool} (Hab : a → b) (Hba : b → a) : a == b
+:= or::elim (boolcomplete a)
+       (λ Hat : a == true,  or::elim (boolcomplete b)
+           (λ Hbt : b == true,  trans Hat (symm Hbt))
+           (λ Hbf : b == false, false::elim (a == b) (subst (Hab (eqt::elim Hat)) Hbf)))
+       (λ Haf : a == false, or::elim (boolcomplete b)
+           (λ Hbt : b == true,  false::elim (a == b) (subst (Hba (eqt::elim Hbt)) Haf))
+           (λ Hbf : b == false, trans Haf (symm Hbf)))
+
+definition iff::intro {a b : Bool} (Hab : a → b) (Hba : b → a) := boolext Hab Hba
+
+theorem eqt::intro {a : Bool} (H : a) : a == true
+:= boolext (λ H1 : a, trivial)
+           (λ H2 : true, H)
+
 theorem or::comm (a b : Bool) : (a ∨ b) == (b ∨ a)
-:= iff::intro (λ H, or::elim H (λ H1, or::intror b H1) (λ H2, or::introl H2 a))
-              (λ H, or::elim H (λ H1, or::intror a H1) (λ H2, or::introl H2 b))
+:= boolext (λ H, or::elim H (λ H1, or::intror b H1) (λ H2, or::introl H2 a))
+           (λ H, or::elim H (λ H1, or::intror a H1) (λ H2, or::introl H2 b))
 
 theorem or::assoc (a b c : Bool) : ((a ∨ b) ∨ c) == (a ∨ (b ∨ c))
-:= iff::intro (λ H : (a ∨ b) ∨ c,
+:= boolext (λ H : (a ∨ b) ∨ c,
                       or::elim H (λ H1 : a ∨ b, or::elim H1 (λ Ha : a, or::introl Ha (b ∨ c)) (λ Hb : b, or::intror a (or::introl Hb c)))
                                   (λ Hc : c, or::intror a (or::intror b Hc)))
-              (λ H : a ∨ (b ∨ c),
+           (λ H : a ∨ (b ∨ c),
                       or::elim H (λ Ha : a, (or::introl (or::introl Ha b) c))
                                   (λ H1 : b ∨ c, or::elim H1 (λ Hb : b, or::introl (or::intror a Hb) c)
                                                               (λ Hc : c, or::intror (a ∨ b) Hc)))
 
 theorem or::id (a : Bool) : (a ∨ a) == a
-:= iff::intro (λ H, or::elim H (λ H1, H1) (λ H2, H2))
-              (λ H, or::introl H a)
+:= boolext (λ H, or::elim H (λ H1, H1) (λ H2, H2))
+           (λ H, or::introl H a)
 
 theorem or::falsel (a : Bool) : (a ∨ false) == a
-:= iff::intro (λ H, or::elim H (λ H1, H1) (λ H2, false::elim a H2))
-              (λ H, or::introl H false)
+:= boolext (λ H, or::elim H (λ H1, H1) (λ H2, false::elim a H2))
+           (λ H, or::introl H false)
 
 theorem or::falser (a : Bool) : (false ∨ a) == a
 := (or::comm false a) ⋈ (or::falsel a)
@@ -225,34 +238,34 @@ theorem or::tauto (a : Bool) : (a ∨ ¬ a) == true
 := eqt::intro (em a)
 
 theorem and::comm (a b : Bool) : (a ∧ b) == (b ∧ a)
-:= iff::intro (λ H, and::intro (and::elimr H) (and::eliml H))
-              (λ H, and::intro (and::elimr H) (and::eliml H))
+:= boolext (λ H, and::intro (and::elimr H) (and::eliml H))
+           (λ H, and::intro (and::elimr H) (and::eliml H))
 
 theorem and::id (a : Bool) : (a ∧ a) == a
-:= iff::intro (λ H, and::eliml H)
-              (λ H, and::intro H H)
+:= boolext (λ H, and::eliml H)
+           (λ H, and::intro H H)
 
 theorem and::assoc (a b c : Bool) : ((a ∧ b) ∧ c) == (a ∧ (b ∧ c))
-:= iff::intro (λ H, and::intro (and::eliml (and::eliml H)) (and::intro (and::elimr (and::eliml H)) (and::elimr H)))
-              (λ H, and::intro (and::intro (and::eliml H) (and::eliml (and::elimr H))) (and::elimr (and::elimr H)))
+:= boolext (λ H, and::intro (and::eliml (and::eliml H)) (and::intro (and::elimr (and::eliml H)) (and::elimr H)))
+           (λ H, and::intro (and::intro (and::eliml H) (and::eliml (and::elimr H))) (and::elimr (and::elimr H)))
 
 theorem and::truer (a : Bool) : (a ∧ true) == a
-:= iff::intro (λ H : a ∧ true,  and::eliml H)
-              (λ H : a,         and::intro H trivial)
+:= boolext (λ H : a ∧ true,  and::eliml H)
+           (λ H : a,         and::intro H trivial)
 
 theorem and::truel (a : Bool) : (true ∧ a) == a
 := trans (and::comm true a) (and::truer a)
 
 theorem and::falsel (a : Bool) : (a ∧ false) == false
-:= iff::intro (λ H, and::elimr H)
-              (λ H, false::elim (a ∧ false) H)
+:= boolext (λ H, and::elimr H)
+           (λ H, false::elim (a ∧ false) H)
 
 theorem and::falser (a : Bool) : (false ∧ a) == false
 := (and::comm false a) ⋈ (and::falsel a)
 
 theorem and::absurd (a : Bool) : (a ∧ ¬ a) == false
-:= iff::intro (λ H, absurd (and::eliml H) (and::elimr H))
-              (λ H, false::elim (a ∧ ¬ a) H)
+:= boolext (λ H, absurd (and::eliml H) (and::elimr H))
+           (λ H, false::elim (a ∧ ¬ a) H)
 
 theorem not::true : (¬ true) == false
 := trivial
@@ -332,8 +345,8 @@ theorem exists::unfold2 {A : TypeU} {P : A → Bool} (a : A) (H : P a ∨ (∃ x
                   exists::intro w (and::elimr Hw)))
 
 theorem exists::unfold {A : TypeU} (P : A → Bool) (a : A) : (∃ x : A, P x) = (P a ∨ (∃ x : A, x ≠ a ∧ P x))
-:= iff::intro (λ H : (∃ x : A, P x), exists::unfold1 a H)
-              (λ H : (P a ∨ (∃ x : A, x ≠ a ∧ P x)), exists::unfold2 a H)
+:= boolext (λ H : (∃ x : A, P x), exists::unfold1 a H)
+           (λ H : (P a ∨ (∃ x : A, x ≠ a ∧ P x)), exists::unfold2 a H)
 
 set::opaque exists  true
 set::opaque not     true

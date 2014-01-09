@@ -20,5 +20,5 @@ theorem subset::ext {A : Type} {s1 s2 : Set A} (H : ∀ x, x ∈ s1 = x ∈ s2) 
 theorem subset::antisym {A : Type} {s1 s2 : Set A} (H1 : s1 ⊆ s2) (H2 : s2 ⊆ s1) :  s1 = s2
 := subset::ext (have (∀ x, x ∈ s1 = x ∈ s2) :
                    λ x, have x ∈ s1 = x ∈ s2 :
-                       iff::intro (have x ∈ s1 → x ∈ s2 : H1 x)
-                                  (have x ∈ s2 → x ∈ s1 : H2 x))
+                       boolext (have x ∈ s1 → x ∈ s2 : H1 x)
+                               (have x ∈ s2 → x ∈ s1 : H2 x))

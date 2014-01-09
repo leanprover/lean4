@@ -66,6 +66,10 @@ std::pair<unsigned, unsigned> parser_imp::lean_pos_info_provider::get_pos_info(e
     return it->second;
 }
 
+char const * parser_imp::lean_pos_info_provider::get_file_name(expr const & ) const {
+    return m_ref.m_strm_name.c_str();
+}
+
 void parser_imp::display_error(elaborator_exception const & ex) {
     formatter fmt = m_io_state.get_formatter();
     options opts  = m_io_state.get_options();

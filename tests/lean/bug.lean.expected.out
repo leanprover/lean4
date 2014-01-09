@@ -2,7 +2,7 @@
   Set: pp::unicode
 Failed to solve
 A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≺ TypeU
-    (line: 1: pos: 44) Type of argument 1 must be convertible to the expected type in the application of
+    bug.lean:1:44: Type of argument 1 must be convertible to the expected type in the application of
         @symm
     with arguments:
         ?M::0

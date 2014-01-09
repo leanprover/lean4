@@ -6,7 +6,7 @@ myeq Bool ⊤ ⊥
   Assumed: a
 Failed to solve
  ⊢ Bool ≺ T
-    (line: 5: pos: 6) Type of argument 2 must be convertible to the expected type in the application of
+    ex3.lean:5:6: Type of argument 2 must be convertible to the expected type in the application of
         myeq
     with arguments:
         T
@@ -16,7 +16,7 @@ Failed to solve
   Set: lean::pp::implicit
 Failed to solve
  ⊢ Bool ≺ T
-    (line: 9: pos: 11) Type of argument 2 must be convertible to the expected type in the application of
+    ex3.lean:9:11: Type of argument 2 must be convertible to the expected type in the application of
         @myeq2
     with arguments:
         T

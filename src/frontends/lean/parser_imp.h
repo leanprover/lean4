@@ -211,6 +211,7 @@ private:
         parser_imp const & m_ref;
         lean_pos_info_provider(parser_imp const & r):m_ref(r) {}
         virtual std::pair<unsigned, unsigned> get_pos_info(expr const & e) const;
+        virtual char const * get_file_name(expr const & e) const;
     };
 
     void display_error(elaborator_exception const & ex);

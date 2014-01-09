@@ -7,10 +7,13 @@ Author: Leonardo de Moura
 #include "kernel/pos_info_provider.h"
 
 namespace lean {
+char const * pos_info_provider::get_file_name(expr const & ) const {
+    return "unknown";
+}
 format pos_info_provider::pp(expr const & e) const {
     try {
         auto p = get_pos_info(e);
-        return paren(format{format("line"), colon(), space(), format(p.first), colon(), space(), format("pos"), colon(), space(), format(p.second)});
+        return format{format(get_file_name(e)), colon(), format(p.first), colon(), format(p.second), colon()};
     } catch (exception &) {
         return format();
     }

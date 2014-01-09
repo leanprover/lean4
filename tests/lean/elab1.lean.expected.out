@@ -3,7 +3,7 @@
   Assumed: f
 Failed to solve
  ⊢ Bool ≺ ℕ
-    (line: 2: pos: 6) Type of argument 3 must be convertible to the expected type in the application of
+    elab1.lean:2:6: Type of argument 3 must be convertible to the expected type in the application of
         @f
     with arguments:
         ℕ
@@ -15,7 +15,7 @@ Type
   Assumed: h
 Failed to solve
 x : ?M::0, A : Type ⊢ ?M::0 ≺ A
-    (line: 9: pos: 27) Type of argument 2 must be convertible to the expected type in the application of
+    elab1.lean:9:27: Type of argument 2 must be convertible to the expected type in the application of
         h
     with arguments:
         A
@@ -23,7 +23,7 @@ x : ?M::0, A : Type ⊢ ?M::0 ≺ A
   Assumed: my_eq
 Failed to solve
 A : Type, B : Type, a : ?M::0, b : ?M::1, C : Type ⊢ ?M::0[lift:0:3] ≺ C
-    (line: 13: pos: 51) Type of argument 2 must be convertible to the expected type in the application of
+    elab1.lean:13:51: Type of argument 2 must be convertible to the expected type in the application of
         my_eq
     with arguments:
         C
@@ -34,10 +34,10 @@ A : Type, B : Type, a : ?M::0, b : ?M::1, C : Type ⊢ ?M::0[lift:0:3] ≺ C
   Assumed: H
 Failed to solve
  ⊢ ∀ H1 : ?M::0, ?M::1 ∧ a ≺ b
-    (line: 18: pos: 18) Type of definition 't1' must be convertible to expected type.
+    elab1.lean:18:18: Type of definition 't1' must be convertible to expected type.
 Failed to solve
  ⊢ b == b ≺ a == b
-    (line: 20: pos: 22) Type of argument 6 must be convertible to the expected type in the application of
+    elab1.lean:20:22: Type of argument 6 must be convertible to the expected type in the application of
         @trans
     with arguments:
         ?M::1
@@ -48,7 +48,7 @@ Failed to solve
         refl b
 Failed to solve
  ⊢ ?M::1 ≺ Type
-    (line: 22: pos: 6) Type of argument 1 must be convertible to the expected type in the application of
+    elab1.lean:22:6: Type of argument 1 must be convertible to the expected type in the application of
         @f
     with arguments:
         ?M::0

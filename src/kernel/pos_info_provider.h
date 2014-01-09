@@ -20,6 +20,7 @@ public:
        Throws an exception if the given expression does not have this kind of information associated with it.
     */
     virtual std::pair<unsigned, unsigned> get_pos_info(expr const & e) const = 0;
+    virtual char const * get_file_name(expr const & e) const;
     unsigned get_line(expr const & e) const { return get_pos_info(e).first; }
     unsigned get_pos(expr const & e) const { return get_pos_info(e).second; }
     /**

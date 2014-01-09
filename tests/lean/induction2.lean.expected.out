@@ -5,7 +5,7 @@
   Assumed: Induction
 Failed to solve
  ⊢ ∀ m : ℕ, 0 + m == m + 0 ≺ ?M::3 0
-    (line: 10: pos: 3) Type of argument 2 must be convertible to the expected type in the application of
+    induction2.lean:10:3: Type of argument 2 must be convertible to the expected type in the application of
         Induction
     with arguments:
         ?M::3

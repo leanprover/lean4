@@ -1,24 +1,5 @@
 (require 'generic-x)
-
-(define-abbrev-table 'lean-mode-abbrev-table '(
-    ;; math/unicode symbols
-    ("forall" "∀")
-    ("exists" "∃")
-    ("fun"    "λ")
-    ("imp"    "→")
-    ("and"    "∧")
-    ("or"     "∨")
-    ("not"    "¬")
-    ("neq"     "≠")
-    ("geq"     "≥")
-    ("leq"     "≤")
-    ("Nat"    "ℕ")
-    ("Int"    "ℤ")
-    ("var"    "variable")
-    ("vars"   "variables")
-    ("def"    "definition")
-    ("th"     "theorem")
-    ))
+(require 'lean-input)
 
 (define-generic-mode
     'lean-mode     ;; name of the mode to create
@@ -30,11 +11,12 @@
     ("\\(->\\|/\\\\\\|==\\|\\\\/\\|[*+/:<=>¬λ→∀∃∧∨≠≤≥-]\\)" . 'font-lock-constant-face))
   '("\\.lean$")                    ;; files for which to activate this mode
   '((lambda()
-      (setq local-abbrev-table lean-mode-abbrev-table)
+      (set-input-method "Lean")
       (abbrev-mode 1)))
   "A mode for Lean files"          ;; doc string for this mode
   )
 
+(provide 'lean-mode)
 
 ; (regexp-opt '("Int" "Bool" "Nat" "Type" "Real") t)
 ; (regexp-opt '("let" "in" "have" "calc" "forall" "exists") t)

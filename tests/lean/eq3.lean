@@ -1,3 +1,4 @@
+import cast
 variable Vector : Nat -> Type
 variable n  : Nat
 variable v1 : Vector n

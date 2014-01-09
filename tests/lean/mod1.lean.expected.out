@@ -2,5 +2,5 @@
   Set: pp::unicode
   Imported 'cast'
   Imported 'cast'
-@cast : ∀ (A B : (Type U)), A == B → A → B
-@cast : ∀ (A B : (Type U)), A == B → A → B
+@cast : ∀ (A B : TypeU), A == B → A → B
+@cast : ∀ (A B : TypeU), A == B → A → B

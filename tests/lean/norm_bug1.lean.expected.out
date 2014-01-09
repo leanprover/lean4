@@ -2,7 +2,6 @@
   Set: pp::unicode
   Imported 'cast'
   Set: pp::colors
-  Defined: TypeM
 λ (A A' : TypeM) (a : A) (b : A') (L2 : A' == A), let b' : A := cast L2 b, L3 : b == b' := cast::eq L2 b in L3 :
     ∀ (A A' : TypeM) (a : A) (b : A') (L2 : A' == A), b == cast L2 b
 λ (A A' : TypeM)
@@ -12,10 +11,9 @@
   (g : ∀ x : A', B' x)
   (a : A)
   (b : A')
-  (H1 : (∀ x : A, B x) == (∀ x : A', B' x))
   (H2 : f == g)
   (H3 : a == b),
-  let L1 : A == A' := dominj H1,
+  let L1 : A == A' := type::eq H3,
       L2 : A' == A := symm L1,
       b' : A := cast L2 b,
       L3 : b == b' := cast::eq L2 b,
@@ -29,5 +27,6 @@
       (g : ∀ x : A', B' x)
       (a : A)
       (b : A')
-      (H1 : (∀ x : A, B x) == (∀ x : A', B' x)),
-      f == g → a == b → f a == f (cast (symm (dominj H1)) b)
+      (H2 : f == g)
+      (H3 : a == b),
+      f a == f (cast (symm (type::eq H3)) b)

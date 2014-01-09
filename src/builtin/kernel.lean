@@ -45,16 +45,9 @@ definition neq {A : TypeU} (a b : A) : Bool
 
 infix 50 ≠ : neq
 
-axiom case (P : Bool → Bool) (H1 : P true) (H2 : P false) (a : Bool) : P a
-
 axiom refl {A : TypeU} (a : A) : a == a
 
 axiom subst {A : TypeU} {a b : A} {P : A → Bool} (H1 : P a) (H2 : a == b) : P b
-
-definition substp {A : TypeU} {a b : A} (P : A → Bool) (H1 : P a) (H2 : a == b) : P b
-:= subst H1 H2
-
-axiom eta {A : TypeU} {B : A → TypeU} (f : ∀ x : A, B x) : (λ x : A, f x) == f
 
 axiom iff::intro {a b : Bool} (H1 : a → b) (H2 : b → a) : a == b
 
@@ -62,9 +55,13 @@ axiom abst {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} (H : ∀ x : A, 
 
 axiom abstpi {A : TypeU} {B C : A → TypeU} (H : ∀ x : A, B x == C x) : (∀ x : A, B x) == (∀ x : A, C x)
 
-axiom hsymm {A B : TypeU} {a : A} {b : B} (H : a == b) : b == a
+axiom eta {A : TypeU} {B : A → TypeU} (f : ∀ x : A, B x) : (λ x : A, f x) == f
 
-axiom htrans {A B C : TypeU} {a : A} {b : B} {c : C} (H1 : a == b) (H2 : b == c) : a == c
+axiom case (P : Bool → Bool) (H1 : P true) (H2 : P false) (a : Bool) : P a
+
+-- Alias for subst where we can provide P explicitly, but keep A,a,b implicit
+definition substp {A : TypeU} {a b : A} (P : A → Bool) (H1 : P a) (H2 : a == b) : P b
+:= subst H1 H2
 
 theorem trivial : true
 := refl true
@@ -189,7 +186,7 @@ theorem congr2 {A : TypeU} {B : A → TypeU} {a b : A} (f : ∀ x : A, B x) (H :
 -- because the types are not definitionally equal
 
 theorem congr {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} {a b : A} (H1 : f == g) (H2 : a == b) : f a == g b
-:= htrans (congr2 f H2) (congr1 b H1)
+:= subst (congr2 f H2) (congr1 b H1)
 
 -- Remark: the existential is defined as (¬ (forall x : A, ¬ P x))
 

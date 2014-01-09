@@ -92,7 +92,7 @@ macro("obtain", { macro_arg.Parameters, macro_arg.Comma, macro_arg.Id, macro_arg
          if fromid ~= name("from") then
             error("invalid 'obtain' expression, 'from' keyword expected, got '" .. tostring(fromid) .. "'")
          end
-         local exElim = mk_constant({"exists", "elim"})
+         local exElim = mk_constant("exists_elim")
          local H_name = bindings[n][1]
          local H_type = bindings[n][2]
          local a_name = bindings[n-1][1]

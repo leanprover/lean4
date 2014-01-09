@@ -1,6 +1,6 @@
 variable a : Bool
 variable b : Bool
--- and::introunctions
+-- Conjunctions
 print a && b
 print a && b && a
 print a /\ b

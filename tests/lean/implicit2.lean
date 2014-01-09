@@ -8,6 +8,6 @@ check g 10 20 true
 check let r : Real -> Real -> Real := g 10 20
       in r
 check g 10
-set::option pp::implicit true
+set_option pp::implicit true
 check let r : Real -> Real -> Real := g 10 20
       in r

@@ -41,7 +41,7 @@ let a  := 10,
     v2 : vector Int  a := v1
 in v2
 
-set::option pp::coercion true
+set_option pp::coercion true
 
 print
 let a  := 10,

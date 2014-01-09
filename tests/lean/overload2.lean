@@ -10,8 +10,8 @@ coercion t2r
 variable f : T -> R -> T
 variable a : T
 variable b : R
-set::option lean::pp::coercion true
-set::option lean::pp::notation false
+set_option lean::pp::coercion true
+set_option lean::pp::notation false
 print f a b
 print f b a
 variable g : R -> T -> R

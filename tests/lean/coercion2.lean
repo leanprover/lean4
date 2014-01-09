@@ -8,25 +8,25 @@ print g a a
 variable b : R
 print g a b
 print g b a
-set::option lean::pp::coercion true
+set_option lean::pp::coercion true
 print g a a
 print g a b
 print g b a
-set::option lean::pp::coercion false
+set_option lean::pp::coercion false
 variable S : Type
 variable s : S
 variable r : S
 variable h : S -> S -> S
 infixl 10 ++ : g
 infixl 10 ++ : h
-set::option lean::pp::notation false
+set_option lean::pp::notation false
 print a ++ b ++ a
 print r ++ s ++ r
 check a ++ b ++ a
 check r ++ s ++ r
-set::option lean::pp::coercion true
+set_option lean::pp::coercion true
 print a ++ b ++ a
 print r ++ s ++ r
-set::option lean::pp::notation true
+set_option lean::pp::notation true
 print a ++ b ++ a
 print r ++ s ++ r

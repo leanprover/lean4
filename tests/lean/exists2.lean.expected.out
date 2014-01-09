@@ -16,11 +16,11 @@
   Proved: T6
   Proved: T7
   Proved: T8
-theorem T1 : ∃ x y : ℤ, P (f y x) (f y x) := exists::intro (g a) (exists::intro a H1)
-theorem T2 : ∃ x : ℤ, P (f x (g x)) (f x (g x)) := exists::intro a H1
-theorem T3 : ∃ x : ℤ, P (f x x) (f x x) := exists::intro (g a) H2
-theorem T4 : ∃ x : ℤ, P (f (g a) x) (f x x) := exists::intro (g a) H2
-theorem T5 : ∃ x : ℤ, P x x := exists::intro (f (g a) (g a)) H2
-theorem T6 : ∃ x y : ℤ, P x y := exists::intro (f (g a) (g a)) (exists::intro (g a) H3)
-theorem T7 : ∃ x : ℤ, P (f x x) x := exists::intro (g a) H3
-theorem T8 : ∃ x y : ℤ, P (f x x) y := exists::intro (g a) (exists::intro (g a) H3)
+theorem T1 : ∃ x y : ℤ, P (f y x) (f y x) := exists_intro (g a) (exists_intro a H1)
+theorem T2 : ∃ x : ℤ, P (f x (g x)) (f x (g x)) := exists_intro a H1
+theorem T3 : ∃ x : ℤ, P (f x x) (f x x) := exists_intro (g a) H2
+theorem T4 : ∃ x : ℤ, P (f (g a) x) (f x x) := exists_intro (g a) H2
+theorem T5 : ∃ x : ℤ, P x x := exists_intro (f (g a) (g a)) H2
+theorem T6 : ∃ x y : ℤ, P x y := exists_intro (f (g a) (g a)) (exists_intro (g a) H3)
+theorem T7 : ∃ x : ℤ, P (f x x) x := exists_intro (g a) H3
+theorem T8 : ∃ x y : ℤ, P (f x x) y := exists_intro (g a) (exists_intro (g a) H3)

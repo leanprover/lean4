@@ -11,11 +11,11 @@
   Proved: T3
   Proved: T4
 theorem T1 : ∃ x y z : N, P x y z :=
-    exists::@intro
+    @exists_intro
         N
         (λ x : N, ∃ y z : N, P x y z)
         a
-        (exists::@intro N (λ y : N, ∃ z : N, P a y z) b (exists::@intro N (λ z : N, P a b z) c H3))
-theorem T2 : ∃ x y z : N, P x y z := exists::intro a (exists::intro b (exists::intro c H3))
-theorem T3 : ∃ x y z : N, P x y z := exists::intro a (exists::intro b (exists::intro c H3))
-theorem T4 (H : P a a b) : ∃ x y z : N, P x y z := exists::intro a (exists::intro a (exists::intro b H))
+        (@exists_intro N (λ y : N, ∃ z : N, P a y z) b (@exists_intro N (λ z : N, P a b z) c H3))
+theorem T2 : ∃ x y z : N, P x y z := exists_intro a (exists_intro b (exists_intro c H3))
+theorem T3 : ∃ x y z : N, P x y z := exists_intro a (exists_intro b (exists_intro c H3))
+theorem T4 (H : P a a b) : ∃ x y z : N, P x y z := exists_intro a (exists_intro a (exists_intro b H))

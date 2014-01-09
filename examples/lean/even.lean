@@ -14,7 +14,7 @@ definition odd  (a : Nat) := ∃ b, a = 2*b + 1
 --   It is syntax sugar for existential elimination.
 --   It expands to
 --
---     exists::elim [expr]_1 (fun [binding], [expr]_2)
+--     exists_elim [expr]_1 (fun [binding], [expr]_2)
 --
 --   It is defined in the file macros.lua.
 --
@@ -32,12 +32,12 @@ definition odd  (a : Nat) := ∃ b, a = 2*b + 1
 theorem EvenPlusEven {a b : Nat} (H1 : even a) (H2 : even b) : even (a + b)
 := obtain (w1 : Nat) (Hw1 : a = 2*w1), from H1,
    obtain (w2 : Nat) (Hw2 : b = 2*w2), from H2,
-     exists::intro (w1 + w2)
+     exists_intro (w1 + w2)
         (calc a + b  =  2*w1 + b      : { Hw1 }
                 ...  =  2*w1 + 2*w2   : { Hw2 }
                 ...  =  2*(w1 + w2)   : symm (distributer 2 w1 w2))
 
--- In the following example, we omit the arguments for add::assoc, refl and distribute.
+-- In the following example, we omit the arguments for add_assoc, refl and distribute.
 -- Lean can infer them automatically.
 --
 -- refl is the reflexivity proof. (refl a) is a proof that two
@@ -52,9 +52,9 @@ theorem EvenPlusEven {a b : Nat} (H1 : even a) (H2 : even b) : even (a + b)
 -- any theorems such as + associativity.
 theorem OddPlusOne {a : Nat} (H : odd a) : even (a + 1)
 := obtain (w : Nat) (Hw : a = 2*w + 1), from H,
-   exists::intro (w + 1)
+   exists_intro (w + 1)
         (calc a + 1 = 2*w + 1 + 1   : { Hw }
-                ... = 2*w + (1 + 1) : symm (add::assoc _ _ _)
+                ... = 2*w + (1 + 1) : symm (add_assoc _ _ _)
                 ... = 2*w + 2*1     : refl _
                 ... = 2*(w + 1)     : symm (distributer _ _ _))
 
@@ -64,7 +64,7 @@ print environment 2
 
 -- By default, Lean does not display implicit arguments.
 -- The following command will force it to display them.
-set::option pp::implicit true
+set_option pp::implicit true
 
 print environment 2
 

@@ -8,5 +8,5 @@ variable R {A A' : Type} {B : A -> Type} {B' : A' -> Type} (H : (forall x : A, B
 theorem R2 : forall (A1 A2 B1 B2 : Type), ((A1 -> B1) = (A2 -> B2)) -> A1 -> (B1 = B2) :=
     fun A1 A2 B1 B2 H a, R H a
 
-set::option pp::implicit true
+set_option pp::implicit true
 print environment 7.

@@ -23,7 +23,7 @@
 (define-generic-mode
     'lean-mode     ;; name of the mode to create
   '("--")          ;; comments start with
-  '("import" "definition" "variable" "variables" "print" "axiom" "theorem" "universe" "alias" "help" "set::option" "set::opaque" "environment" "options" "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end" "using" "namespace" "builtin" "scope" "pop::scope") ;; some keywords
+  '("import" "definition" "variable" "variables" "print" "axiom" "theorem" "universe" "alias" "help" "set_option" "set_opaque" "environment" "options" "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end" "using" "namespace" "builtin" "scope" "pop_scope") ;; some keywords
   '(("\\<\\(Bool\\|Int\\|Nat\\|Real\\|Type\\|TypeU\\|ℕ\\|ℤ\\)\\>" . 'font-lock-type-face)
     ("\\<\\(calc\\|have\\|in\\|let\\)\\>" . font-lock-keyword-face)
     ("\"[^\"]*\"" . 'font-lock-string-face)

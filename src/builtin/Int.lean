@@ -46,14 +46,14 @@ infix 50 | : divides
 definition abs (a : Int) : Int := if (0 ≤ a) a (- a)
 notation 55 | _ | : abs
 
-set::opaque sub true
-set::opaque neg true
-set::opaque mod true
-set::opaque divides true
-set::opaque abs true
-set::opaque ge true
-set::opaque lt true
-set::opaque gt true
+set_opaque sub true
+set_opaque neg true
+set_opaque mod true
+set_opaque divides true
+set_opaque abs true
+set_opaque ge true
+set_opaque lt true
+set_opaque gt true
 end
 
 namespace Nat
@@ -63,6 +63,6 @@ infixl 65 - : sub
 definition neg (a : Nat) : Int := - (nat_to_int a)
 notation 75 - _ : neg
 
-set::opaque sub true
-set::opaque neg true
+set_opaque sub true
+set_opaque neg true
 end

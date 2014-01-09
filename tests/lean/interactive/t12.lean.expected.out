@@ -2,7 +2,7 @@
   Set: pp::unicode
   Proved: T1
 theorem T1 (A B : Bool) (assumption : A ∧ B) : B ∧ A :=
-    let lemma1 : A := and::eliml assumption, lemma2 : B := and::elimr assumption in and::intro lemma2 lemma1
+    let lemma1 : A := and_eliml assumption, lemma2 : B := and_elimr assumption in and_intro lemma2 lemma1
 # Proof state:
 A : Bool, B : Bool, assumption : A ∧ B ⊢ A
 ## Proof state:

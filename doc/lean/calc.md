@@ -35,7 +35,7 @@ Here is an example
         := calc a    =  b     : Ax1
                 ...  =  c + 1 : Ax2
                 ...  =  d + 1 : { Ax3 }
-                ...  =  1 + d : Nat::add::comm d 1
+                ...  =  1 + d : Nat::add_comm d 1
                 ...  =  e     : symm Ax4.
 ```
 
@@ -45,7 +45,7 @@ proof expression using the given tactic or solver.
 
 Even when tactics and solvers are not used, we can still use the elaboration engine to fill
 gaps in our calculational proofs. In the previous examples, we can use `_` as arguments for the
-`Nat::add::comm` theorem. The Lean elaboration engine will infer `d` and `1` for us.
+`Nat::add_comm` theorem. The Lean elaboration engine will infer `d` and `1` for us.
 Here is the same example using placeholders.
 
 ```lean
@@ -53,7 +53,7 @@ Here is the same example using placeholders.
         := calc a    =  b     : Ax1
                 ...  =  c + 1 : Ax2
                 ...  =  d + 1 : { Ax3 }
-                ...  =  1 + d : Nat::add::comm _ _
+                ...  =  1 + d : Nat::add_comm _ _
                 ...  =  e     : symm Ax4.
 ```
 
@@ -64,7 +64,7 @@ Here is an example.
        theorem T2 (a b c : Nat) (H1 : a = b) (H2 : b = c + 1) : a ≠ 0
        := calc  a = b      : H1
               ... = c + 1  : H2
-              ... ≠ 0      : Nat::succ::nz _.
+              ... ≠ 0      : Nat::succ_nz _.
 ```
 
 The Lean `let` construct can also be used to build calculational-like proofs.

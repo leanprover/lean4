@@ -4,4 +4,4 @@
   Assumed: q
   Assumed: r
   Proved: T1
-theorem T1 (H : p) (H::1 : p ∧ q) (H::2 : r) : q ∧ r ∧ p := and::intro (and::elimr H::1) (and::intro H::2 H)
+theorem T1 (H : p) (H::1 : p ∧ q) (H::2 : r) : q ∧ r ∧ p := and_intro (and_elimr H::1) (and_intro H::2 H)

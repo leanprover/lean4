@@ -6,5 +6,5 @@ check let a : Nat := 10 in a + 1
 eval let a : Nat := 20 in a + 10
 eval let a := 20 in a + 10
 check let a : Int := 20 in a + 10
-set::option pp::coercion true
+set_option pp::coercion true
 print let a : Int := 20 in a + 10

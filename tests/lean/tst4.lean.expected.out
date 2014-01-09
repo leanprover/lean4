@@ -27,4 +27,4 @@ theorem Pr : @eq N (g a) (g c) :=
            a
            c
            (@refl (N → N) g)
-           (@trans N a b c (and::@eliml (@eq N a b) (@eq N b c) H1) (and::@elimr (@eq N a b) (@eq N b c) H1))
+           (@trans N a b c (@and_eliml (@eq N a b) (@eq N b c) H1) (@and_elimr (@eq N a b) (@eq N b c) H1))

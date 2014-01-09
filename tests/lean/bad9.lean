@@ -1,5 +1,5 @@
-set::option pp::implicit true.
-set::option pp::colors   false.
+set_option pp::implicit true.
+set_option pp::colors   false.
 variable N : Type.
 
 check

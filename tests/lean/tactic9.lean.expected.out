@@ -2,4 +2,4 @@
   Set: pp::unicode
   Defined: f
   Proved: T
-theorem T (a b : Bool) (H : a ∨ b) (H::1 : f b) : a := or::elim H (λ H : a, H) (λ H : b, absurd::elim a H H::1)
+theorem T (a b : Bool) (H : a ∨ b) (H::1 : f b) : a := or_elim H (λ H : a, H) (λ H : b, absurd_elim a H H::1)

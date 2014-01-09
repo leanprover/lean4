@@ -13,57 +13,55 @@ theorem congrH {a1 a2 b1 b2 : N} (H1 : a1 = b1) (H2 : a2 = b2) : h a1 a2 = h b1 
   Proved: Example1
   Set: lean::pp::implicit
 theorem Example1 (a b c d : N) (H : @eq N a b ∧ @eq N b c ∨ @eq N a d ∧ @eq N d c) : @eq N (h a b) (h c b) :=
-    or::@elim
-        (@eq N a b ∧ @eq N b c)
-        (@eq N a d ∧ @eq N d c)
-        (h a b == h c b)
-        H
-        (λ H1 : @eq N a b ∧ @eq N b c,
-           @congrH a
-                   b
-                   c
-                   b
-                   (@trans N a b c (and::@eliml (@eq N a b) (@eq N b c) H1) (and::@elimr (@eq N a b) (@eq N b c) H1))
-                   (@refl N b))
-        (λ H1 : @eq N a d ∧ @eq N d c,
-           @congrH a
-                   b
-                   c
-                   b
-                   (@trans N a d c (and::@eliml (@eq N a d) (@eq N d c) H1) (and::@elimr (@eq N a d) (@eq N d c) H1))
-                   (@refl N b))
+    @or_elim (@eq N a b ∧ @eq N b c)
+             (@eq N a d ∧ @eq N d c)
+             (h a b == h c b)
+             H
+             (λ H1 : @eq N a b ∧ @eq N b c,
+                @congrH a
+                        b
+                        c
+                        b
+                        (@trans N a b c (@and_eliml (@eq N a b) (@eq N b c) H1) (@and_elimr (@eq N a b) (@eq N b c) H1))
+                        (@refl N b))
+             (λ H1 : @eq N a d ∧ @eq N d c,
+                @congrH a
+                        b
+                        c
+                        b
+                        (@trans N a d c (@and_eliml (@eq N a d) (@eq N d c) H1) (@and_elimr (@eq N a d) (@eq N d c) H1))
+                        (@refl N b))
   Proved: Example2
   Set: lean::pp::implicit
 theorem Example2 (a b c d : N) (H : @eq N a b ∧ @eq N b c ∨ @eq N a d ∧ @eq N d c) : @eq N (h a b) (h c b) :=
-    or::@elim
-        (@eq N a b ∧ @eq N b c)
-        (@eq N a d ∧ @eq N d c)
-        (@eq N (h a b) (h c b))
-        H
-        (λ H1 : @eq N a b ∧ @eq N b c,
-           @congrH a
-                   b
-                   c
-                   b
-                   (@trans N a b c (and::@eliml (a == b) (@eq N b c) H1) (and::@elimr (@eq N a b) (b == c) H1))
-                   (@refl N b))
-        (λ H1 : @eq N a d ∧ @eq N d c,
-           @congrH a
-                   b
-                   c
-                   b
-                   (@trans N a d c (and::@eliml (a == d) (@eq N d c) H1) (and::@elimr (@eq N a d) (d == c) H1))
-                   (@refl N b))
+    @or_elim (@eq N a b ∧ @eq N b c)
+             (@eq N a d ∧ @eq N d c)
+             (@eq N (h a b) (h c b))
+             H
+             (λ H1 : @eq N a b ∧ @eq N b c,
+                @congrH a
+                        b
+                        c
+                        b
+                        (@trans N a b c (@and_eliml (a == b) (@eq N b c) H1) (@and_elimr (@eq N a b) (b == c) H1))
+                        (@refl N b))
+             (λ H1 : @eq N a d ∧ @eq N d c,
+                @congrH a
+                        b
+                        c
+                        b
+                        (@trans N a d c (@and_eliml (a == d) (@eq N d c) H1) (@and_elimr (@eq N a d) (d == c) H1))
+                        (@refl N b))
   Proved: Example3
   Set: lean::pp::implicit
 theorem Example3 (a b c d e : N) (H : a = b ∧ b = e ∧ b = c ∨ a = d ∧ d = c) : h a b = h c b :=
-    or::elim H
-             (λ H1 : a = b ∧ b = e ∧ b = c, congrH (and::eliml H1 ⋈ and::elimr (and::elimr H1)) (refl b))
-             (λ H1 : a = d ∧ d = c, congrH (and::eliml H1 ⋈ and::elimr H1) (refl b))
+    or_elim H
+            (λ H1 : a = b ∧ b = e ∧ b = c, congrH (and_eliml H1 ⋈ and_elimr (and_elimr H1)) (refl b))
+            (λ H1 : a = d ∧ d = c, congrH (and_eliml H1 ⋈ and_elimr H1) (refl b))
   Proved: Example4
   Set: lean::pp::implicit
 theorem Example4 (a b c d e : N) (H : a = b ∧ b = e ∧ b = c ∨ a = d ∧ d = c) : h a c = h c a :=
-    or::elim H
-             (λ H1 : a = b ∧ b = e ∧ b = c,
-                let AeqC := and::eliml H1 ⋈ and::elimr (and::elimr H1) in congrH AeqC (symm AeqC))
-             (λ H1 : a = d ∧ d = c, let AeqC := and::eliml H1 ⋈ and::elimr H1 in congrH AeqC (symm AeqC))
+    or_elim H
+            (λ H1 : a = b ∧ b = e ∧ b = c,
+               let AeqC := and_eliml H1 ⋈ and_elimr (and_elimr H1) in congrH AeqC (symm AeqC))
+            (λ H1 : a = d ∧ d = c, let AeqC := and_eliml H1 ⋈ and_elimr H1 in congrH AeqC (symm AeqC))

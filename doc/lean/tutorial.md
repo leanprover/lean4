@@ -76,7 +76,7 @@ In the following example we prove that `double x = 2 * x`
 ```lean
       theorem double_x_eq_2x (x : Nat) : double x = 2 * x :=
         calc double x  =  x + x      :   refl (double x)
-                   ... =  1*x + 1*x  :   { symm (mul::onel x) }
+                   ... =  1*x + 1*x  :   { symm (mul_onel x) }
                    ... =  (1 + 1)*x  :   symm (distributel 1 1 x)
                    ... =  2 * x      :   { refl (1 + 1) }
 ```
@@ -84,7 +84,7 @@ In the following example we prove that `double x = 2 * x`
 In the example above, we provided the proof manually using a calculational proof style.
 The terms after `:` are proof terms. They justify the equalities in the left-hand-side.
 The proof term `refl (double x)` produces a proof for `t = s` where `t` and `s` have the same
-normal form of `(double x)`.  The proof term `{ symm (mul::onel x) }` is a justification for
+normal form of `(double x)`.  The proof term `{ symm (mul_onel x) }` is a justification for
 the equality `x = 1*x`. The curly braces instruct Lean to replace `x` with `1*x`.
 Similarly `{ symm (distributel 1 1 x) }` is a proof for `1*x + 1*x = (1 + 1)*x`.
 The exact semantics of these expressions is not important at this point.

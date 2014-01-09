@@ -1,6 +1,6 @@
 (* import("tactic.lua") *)
-set::option tactic::proof_state::goal_names true.
+set_option tactic::proof_state::goal_names true.
 theorem T (a : Bool) : a → a /\ a.
-   apply and::intro.
+   apply and_intro.
    exact.
    done.

@@ -9,6 +9,6 @@ Failed to solve
         Induction
     with arguments:
         ?M::3
-        λ m : ℕ, Nat::add::zerol m ⋈ symm (Nat::add::zeror m)
+        λ m : ℕ, Nat::add_zerol m ⋈ symm (Nat::add_zeror m)
         λ (n : ℕ) (iH : ?M::3 n) (m : ℕ),
-          Nat::add::succl n m ⋈ subst (refl (n + m + 1)) iH ⋈ symm (Nat::add::succr m n)
+          Nat::add_succl n m ⋈ subst (refl (n + m + 1)) iH ⋈ symm (Nat::add_succr m n)

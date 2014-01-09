@@ -1,6 +1,6 @@
 import Int.
 variable x : Int
-set::option pp::notation false
+set_option pp::notation false
 (*
 print(get_options())
 *)

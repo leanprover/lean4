@@ -2,7 +2,7 @@ variable f {A : Type} (a b : A) : A
 variable N : Type
 variable n1 : N
 variable n2 : N
-set::option lean::pp::implicit true
+set_option lean::pp::implicit true
 print f n1 n2
 print f (fun x : N -> N, x) (fun y : _, y)
 variable EqNice {A : Type} (lhs rhs : A) : Bool
@@ -17,5 +17,5 @@ variable c : N
 variable g : N -> N
 axiom H1 : a = b && b = c
 theorem Pr : (g a) = (g c) :=
-    congr (refl g) (trans (and::eliml H1) (and::elimr H1))
+    congr (refl g) (trans (and_eliml H1) (and_elimr H1))
 print environment 2

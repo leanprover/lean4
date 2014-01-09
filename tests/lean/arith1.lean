@@ -10,9 +10,9 @@ variable n : Nat
 variable m : Nat
 print n + m
 print n + x + m
-set::option lean::pp::coercion true
+set_option lean::pp::coercion true
 print n + x + m + 10
 print x + n + m + 10
 print n + m + 10 + x
-set::option lean::pp::notation false
+set_option lean::pp::notation false
 print n + m + 10 + x

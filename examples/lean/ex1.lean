@@ -18,9 +18,9 @@ axiom H2 : b = e
 
 -- Proof that (h a b) = (h c e)
 theorem T1 : (h a b) = (h c e) :=
-    or::elim H1
-        (λ C1, congrh ((and::eliml C1) ⋈ (and::elimr C1)) H2)
-        (λ C2, congrh ((and::elimr C2) ⋈ (and::eliml C2)) H2)
+    or_elim H1
+        (λ C1, congrh ((and_eliml C1) ⋈ (and_elimr C1)) H2)
+        (λ C2, congrh ((and_elimr C2) ⋈ (and_eliml C2)) H2)
 
 -- We can use theorem T1 to prove other theorems
 theorem T2 : (h a (h a b)) = (h a (h c e)) :=
@@ -30,6 +30,6 @@ theorem T2 : (h a (h a b)) = (h a (h c e)) :=
 print environment 2
 
 -- print implicit arguments
-set::option lean::pp::implicit true
-set::option pp::width 150
+set_option lean::pp::implicit true
+set_option pp::width 150
 print environment 2

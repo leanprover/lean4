@@ -11,6 +11,6 @@ eval |x + 1| > 0
 variable y : Int
 eval |x + y|
 print |x + y| > x
-set::option pp::notation false
+set_option pp::notation false
 print |x + y| > x
 print |x + y| + |y + x| > x

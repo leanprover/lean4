@@ -12,7 +12,7 @@ scope
             let L1 : R w x := Symm x w H
             in Trans x w x H L1
 
-pop::scope
+pop_scope
 
 scope
   -- Same example again.

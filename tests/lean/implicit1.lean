@@ -6,7 +6,7 @@ print forall a b, f a b > 0
 variable g : Int -> Real -> Int
 print forall a b, g a b > 0
 print forall a b, g a (f a b) > 0
-set::option pp::coercion true
+set_option pp::coercion true
 print forall a b, g a (f a b) > 0
 print fun a, a + 1
 print fun a b, a + b

@@ -12,7 +12,7 @@ theorem T1 (A B : Bool) : A /\ B → B /\ A :=
   conj_hyp.
   exact.
   done.
-  apply and::intro.
+  apply and_intro.
   exact.
   done.
 

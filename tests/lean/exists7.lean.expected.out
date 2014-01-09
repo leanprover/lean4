@@ -8,4 +8,4 @@
   Assumed: P
   Proved: T1
 theorem T1 (f : N → N) (H : P (f a) b (f (f c))) : ∃ x y z : N, P x y z :=
-    exists::intro (f a) (exists::intro b (exists::intro (f (f c)) H))
+    exists_intro (f a) (exists_intro b (exists_intro (f (f c)) H))

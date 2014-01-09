@@ -1,7 +1,6 @@
-
 variable x : Nat
 
-set::opaque x true.
+set_opaque x true.
 
 print "before import"
 (*
@@ -26,4 +25,3 @@ print "before load3"
 local env = get_environment()
 env:load("fake2.olean")
 *)
-

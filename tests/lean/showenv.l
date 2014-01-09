@@ -1,3 +1,3 @@
-set::option pp::colors  false
+set_option pp::colors  false
 print "===BEGIN ENVIRONMENT==="
 print environment

@@ -1,4 +1,4 @@
   Set: pp::colors
   Set: pp::unicode
   Proved: T
-theorem T (a b : Bool) (H : a ∨ b) (H::1 : ¬ b) : a := or::elim H (λ H : a, H) (λ H : b, absurd::elim a H H::1)
+theorem T (a b : Bool) (H : a ∨ b) (H::1 : ¬ b) : a := or_elim H (λ H : a, H) (λ H : b, absurd_elim a H H::1)

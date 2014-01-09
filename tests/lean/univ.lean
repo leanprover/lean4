@@ -1,4 +1,3 @@
-
 universe M >= 1
 universe U >= M + 1
 definition TypeM := (Type M)
@@ -18,7 +17,7 @@ scope
               env:get_universe_distance("Z", "U") +
               env:get_universe_distance("U", "M"))
   *)
-pop::scope
+pop_scope
 
 (*
 local env = get_environment()

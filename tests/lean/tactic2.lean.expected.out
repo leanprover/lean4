@@ -5,8 +5,8 @@
   Assumed: r
   Proved: T1
   Proved: T2
-theorem T2 (H : p) (H::1 : q) : p ∧ q ∧ p := and::intro H (and::intro H::1 H)
+theorem T2 (H : p) (H::1 : q) : p ∧ q ∧ p := and_intro H (and_intro H::1 H)
   Proved: T3
-theorem T3 (H : p) (H::1 : p ∧ q) (H::2 : r) : q ∧ r ∧ p := and::intro (and::elimr H::1) (and::intro H::2 H)
+theorem T3 (H : p) (H::1 : p ∧ q) (H::2 : r) : q ∧ r ∧ p := and_intro (and_elimr H::1) (and_intro H::2 H)
   Proved: T4
-theorem T4 (H : p) (H::1 : p ∧ q) (H::2 : r) : q ∧ r ∧ p := and::intro (and::elimr H::1) (and::intro H::2 H)
+theorem T4 (H : p) (H::1 : p ∧ q) (H::2 : r) : q ∧ r ∧ p := and_intro (and_elimr H::1) (and_intro H::2 H)

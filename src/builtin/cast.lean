@@ -1,7 +1,7 @@
 -- "Type casting" library.
 
 -- Heterogeneous substitution
-axiom hsubst {A B : TypeU} {a : A} {b : B} (P : ∀ (T : TypeU), T -> Bool) : P A a → a == b → P B b
+axiom hsubst {A B : TypeU} {a : A} {b : B} (P : ∀ T : TypeU, T → Bool) : P A a → a == b → P B b
 
 universe M >= 1
 universe U >= M + 1
@@ -28,30 +28,30 @@ axiom cast_eq {A B : TypeU} (H : A == B) (x : A) : x == cast H x
 
 -- The CastApp axiom "propagates" the cast over application
 axiom cast_app {A A' : TypeU} {B : A → TypeU} {B' : A' → TypeU}
-                (H1 : (∀ x : A, B x) == (∀ x : A', B' x)) (H2 : A == A')
-                (f : ∀ x : A, B x) (x : A) :
+                (H1 : (∀ x, B x) == (∀ x, B' x)) (H2 : A == A')
+                (f : ∀ x, B x) (x : A) :
     cast H1 f (cast H2 x) == f x
 
 -- Heterogeneous congruence
 theorem hcongr
             {A A' : TypeM} {B : A → TypeM} {B' : A' → TypeM}
-            {f : ∀ x : A, B x} {g : ∀ x : A', B' x} {a : A} {b : A'}
+            {f : ∀ x, B x} {g : ∀ x, B' x} {a : A} {b : A'}
             (H1 : f == g)
             (H2 : a == b)
          : f a == g b
-:= let L1 : A  == A'                             := type_eq H2,
-       L2 : A' == A                              := symm L1,
-       b' : A                                    := cast L2 b,
-       L3 : b == b'                              := cast_eq L2 b,
-       L4 : a == b'                              := htrans H2 L3,
-       L5 : f a == f b'                          := congr2 f L4,
-       S1 : (∀ x : A', B' x) == (∀ x : A, B x) := symm (type_eq H1),
-       g' : (∀ x : A, B x)                      := cast S1 g,
-       L6 : g == g'                              := cast_eq S1 g,
-       L7 : f == g'                              := htrans H1 L6,
-       L8 : f b' == g' b'                        := congr1 b' L7,
-       L9 : f a == g' b'                         := htrans L5 L8,
-      L10 : g' b' == g b                         := cast_app S1 L2 g b
+:= let L1 : A  == A'                    := type_eq H2,
+       L2 : A' == A                     := symm L1,
+       b' : A                           := cast L2 b,
+       L3 : b == b'                     := cast_eq L2 b,
+       L4 : a == b'                     := htrans H2 L3,
+       L5 : f a == f b'                 := congr2 f L4,
+       S1 : (∀ x, B' x) == (∀ x, B x)   := symm (type_eq H1),
+       g' : (∀ x, B x)                  := cast S1 g,
+       L6 : g == g'                     := cast_eq S1 g,
+       L7 : f == g'                     := htrans H1 L6,
+       L8 : f b' == g' b'               := congr1 b' L7,
+       L9 : f a == g' b'                := htrans L5 L8,
+      L10 : g' b' == g b                := cast_app S1 L2 g b
    in htrans L9 L10
 
 exit -- Stop here, the following axiom is not sound
@@ -74,6 +74,6 @@ let L1 : (∀ x : true, true)                         := (λ x : true,  trivial)
     -- When we keep Pi/forall as different things, the following two steps can't be used
     L3 : (∀ x : true, true) = true                  := eqt_intro L1,
     L4 : (∀ x : false, true) = true                 := eqt_intro L2,
-    L5 : (∀ x : true, true) = (∀ x : false, true)  := trans L3 (symm L4),
-    L6 : true = false                                := dominj L5
+    L5 : (∀ x : true, true) = (∀ x : false, true)   := trans L3 (symm L4),
+    L6 : true = false                               := dominj L5
 in L6

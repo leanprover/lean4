@@ -236,6 +236,7 @@ set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ft
 set(EXTRA_LIBS ${LEAN_LIBS} ${EXTRA_LIBS})
 add_subdirectory(shell)
 add_subdirectory(builtin)
+add_subdirectory(emacs)
 
 add_subdirectory(tests/util)
 add_subdirectory(tests/util/numerics)

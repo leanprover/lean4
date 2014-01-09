@@ -17,15 +17,18 @@ exception::exception(sstream const & strm):m_msg(strm.str()) {}
 exception::~exception() noexcept {}
 char const * exception::what() const noexcept { return m_msg.c_str(); }
 
-parser_exception::parser_exception(char const * msg, unsigned l, unsigned p):exception(msg), m_line(l), m_pos(p) {}
-parser_exception::parser_exception(std::string const & msg, unsigned l, unsigned p):exception(msg), m_line(l), m_pos(p) {}
-parser_exception::parser_exception(sstream const & msg, unsigned l, unsigned p):exception(msg), m_line(l), m_pos(p) {}
+parser_exception::parser_exception(char const * msg, char const * fname, unsigned l, unsigned p):
+    exception(msg), m_fname(fname), m_line(l), m_pos(p) {}
+parser_exception::parser_exception(std::string const & msg, char const * fname, unsigned l, unsigned p):
+    exception(msg), m_fname(fname), m_line(l), m_pos(p) {}
+parser_exception::parser_exception(sstream const & msg, char const * fname, unsigned l, unsigned p):
+    exception(msg), m_fname(fname), m_line(l), m_pos(p) {}
 parser_exception::~parser_exception() noexcept {}
 char const * parser_exception::what() const noexcept {
     try {
         static LEAN_THREAD_LOCAL std::string buffer;
         std::ostringstream s;
-        s << "(line: " << m_line << ", pos: " << m_pos << ") " << m_msg;
+        s << m_fname << ":" << m_line << ":" << m_pos << " error: " << m_msg;
         buffer = s.str();
         return buffer.c_str();
     } catch (std::exception & ex) {

@@ -36,7 +36,7 @@ FOREACH(T ${LEANTESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leantest_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
-           COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T})
+           COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
 ENDFOREACH(T)
 
 # LEAN PP TESTS
@@ -55,7 +55,7 @@ FOREACH(T ${LEANINTERACTIVETESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leaninteractivetest_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/interactive"
-           COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T})
+           COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
 ENDFOREACH(T)
 
 # LEAN SLOW TESTS
@@ -64,7 +64,7 @@ FOREACH(T ${LEANSLOWTESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leanslowtest_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/slow"
-           COMMAND "../test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T})
+           COMMAND "../test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
 ENDFOREACH(T)
 
 # LEAN LUA TESTS
@@ -73,7 +73,7 @@ FOREACH(T ${LEANLUATESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leanluatest_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lua"
-           COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T})
+           COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
 ENDFOREACH(T)
 
 # LEAN DOCS

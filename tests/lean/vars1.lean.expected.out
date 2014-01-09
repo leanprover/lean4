@@ -4,7 +4,7 @@
   Assumed: a
   Assumed: b
   Assumed: c
-Error (line: 3, pos: 0) invalid object declaration, environment already has an object named 'b'
+vars1.lean:3:0 error: invalid object declaration, environment already has an object named 'b'
   Assumed: d
   Assumed: e
   Assumed: f

@@ -10,7 +10,7 @@ Failed to solve
         10
         ⊤
   Assumed: g
-Error (line: 5, pos: 8) invalid expression, it still contains metavariables after elaboration, metavariable: ?M::1, type:
+elab1.lean:5:8 error: invalid expression, it still contains metavariables after elaboration, metavariable: ?M::1, type:
 Type
   Assumed: h
 Failed to solve
@@ -54,4 +54,4 @@ Failed to solve
         ?M::0
         Bool
         Bool
-Error (line: 25, pos: 18) unknown identifier 'EM'
+elab1.lean:25:18 error: unknown identifier 'EM'

@@ -30,6 +30,7 @@ protected:
     int                m_line;  // line
     int                m_pos;   // start position of the token
     std::istream &     m_stream;
+    std::string        m_stream_name;
 
     int                m_script_line; // hack for saving beginning of script block line and pos
     int                m_script_pos;
@@ -57,7 +58,7 @@ protected:
     bool  is_command(name const & n) const;
 
 public:
-    scanner(std::istream& stream);
+    scanner(std::istream& stream, char const * strm_name);
     ~scanner();
 
     /** \brief Register a new command keyword. */

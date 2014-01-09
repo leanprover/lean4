@@ -8,6 +8,6 @@ f 10 : ℕ → ℕ
   Assumed: g
 g 10 20 ⊤ : Bool → Bool
 let r : ℝ → ℝ → ℝ := g 10 20 in r : ℝ → ℝ → ℝ
-Error (line: 11, pos: 0) invalid expression, unexpected token
+implicit2.lean:11:0 error: invalid expression, unexpected token
   Set: lean::pp::implicit
 let r : ℝ → ℝ → ℝ := @g ℕ 10 20 ℝ in r : ℝ → ℝ → ℝ

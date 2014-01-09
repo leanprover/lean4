@@ -12,10 +12,10 @@ Author: Leonardo de Moura
 
 namespace lean {
 void parser_imp::display_error_pos(unsigned line, unsigned pos) {
-    regular(m_io_state) << "Error (line: " << line;
+    regular(m_io_state) << m_strm_name << ":" << line;
     if (pos != static_cast<unsigned>(-1))
-        regular(m_io_state) << ", pos: " << pos;
-    regular(m_io_state) << ")";
+        regular(m_io_state) << ":" << pos;
+    regular(m_io_state) << " error:";
 }
 
 void parser_imp::display_error_pos(pos_info const & p) { display_error_pos(p.first, p.second); }
@@ -116,9 +116,10 @@ void parser_imp::protected_call(std::function<void()> && f, std::function<void()
     } catch (tactic_cmd_error & ex) {
         CATCH(display_error(ex));
     } catch (parser_exception & ex) {
-        CATCH(regular(m_io_state) << "Error " << ex.what() << endl;);
+        CATCH(regular(m_io_state) << ex.what() << endl;);
     } catch (parser_error & ex) {
-        CATCH_CORE(display_error(ex.what(), ex.m_pos.first, ex.m_pos.second), throw parser_exception(ex.what(), ex.m_pos.first, ex.m_pos.second));
+        CATCH_CORE(display_error(ex.what(), ex.m_pos.first, ex.m_pos.second),
+                   throw parser_exception(ex.what(), m_strm_name.c_str(), ex.m_pos.first, ex.m_pos.second));
     } catch (kernel_exception & ex) {
         CATCH(display_error(ex));
     } catch (elaborator_exception & ex) {

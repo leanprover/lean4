@@ -22,7 +22,7 @@ static void parse(environment const & env, io_state const & ios, char const * st
     environment child = env->mk_child();
     io_state ios_copy = ios;
     std::istringstream in(str);
-    if (parse_commands(child, ios_copy, in)) {
+    if (parse_commands(child, ios_copy, in, "[string]")) {
         formatter fmt = mk_pp_formatter(env);
         std::for_each(child->begin_local_objects(),
                       child->end_local_objects(),
@@ -56,7 +56,7 @@ static void tst1() {
 static void check(environment const & env, io_state & ios, char const * str, expr const & expected) {
     std::istringstream in(str);
     try {
-        expr got = parse_expr(env, ios, in);
+        expr got = parse_expr(env, ios, in, "[string]");
         lean_assert(expected == got);
     } catch (exception &) {
         lean_unreachable();

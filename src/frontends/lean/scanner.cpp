@@ -92,12 +92,13 @@ char normalize(char c) {
     return g_normalized[static_cast<unsigned char>(c)];
 }
 
-scanner::scanner(std::istream& stream):
+scanner::scanner(std::istream& stream, char const * strm_name):
     m_spos(0),
     m_curr(0),
     m_line(1),
     m_pos(0),
     m_stream(stream),
+    m_stream_name(strm_name),
     m_script_line(1),
     m_script_pos(0) {
     next();
@@ -111,7 +112,7 @@ void scanner::add_command_keyword(name const & n) {
 }
 
 void scanner::throw_exception(char const * msg) {
-    throw parser_exception(msg, m_line, m_spos);
+    throw parser_exception(msg, m_stream_name.c_str(), m_line, m_spos);
 }
 
 void scanner::next() {

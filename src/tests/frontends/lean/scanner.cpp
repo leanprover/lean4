@@ -15,7 +15,7 @@ using namespace lean;
 
 static void scan(char const * str, list<name> const & cmds = list<name>()) {
     std::istringstream in(str);
-    scanner s(in);
+    scanner s(in, "[string]");
     for (name const & n : cmds) s.add_command_keyword(n);
     while (true) {
         st t = s.scan();
@@ -45,7 +45,7 @@ static void scan_error(char const * str) {
 static void check(char const * str, std::initializer_list<scanner::token> const & l, list<name> const & cmds = list<name>()) {
     auto it = l.begin();
     std::istringstream in(str);
-    scanner s(in);
+    scanner s(in, "[string]");
     for (name const & n : cmds) s.add_command_keyword(n);
     while (true) {
         st t = s.scan();
@@ -61,7 +61,7 @@ static void check(char const * str, std::initializer_list<scanner::token> const 
 
 static void check_name(char const * str, name const & expected) {
     std::istringstream in(str);
-    scanner s(in);
+    scanner s(in, "[string]");
     st t = s.scan();
     lean_assert(t == st::Id);
     lean_assert(s.get_name_val() == expected);

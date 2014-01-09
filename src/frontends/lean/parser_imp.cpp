@@ -141,11 +141,12 @@ void parser_imp::sync_command() {
         next();
 }
 
-parser_imp::parser_imp(environment const & env, io_state const & st, std::istream & in,
+parser_imp::parser_imp(environment const & env, io_state const & st, std::istream & in, char const * strm_name,
                        script_state * S, bool use_exceptions, bool interactive):
     m_env(env),
     m_io_state(st),
-    m_scanner(in),
+    m_scanner(in, strm_name),
+    m_strm_name(strm_name),
     m_elaborator(env),
     m_use_exceptions(use_exceptions),
     m_interactive(interactive),
@@ -222,7 +223,7 @@ expr parser_imp::parse_expr_main() {
         check_no_metavar(p, "invalid expression, it still contains metavariables after elaboration");
         return p.first;
     } catch (parser_error & ex) {
-        throw parser_exception(ex.what(), ex.m_pos.first, ex.m_pos.second);
+        throw parser_exception(ex.what(), m_strm_name.c_str(), ex.m_pos.first, ex.m_pos.second);
     }
 }
 };

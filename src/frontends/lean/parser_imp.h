@@ -59,6 +59,7 @@ class parser_imp {
     environment         m_env;
     io_state            m_io_state;
     scanner             m_scanner;
+    std::string         m_strm_name; // input stream name
     frontend_elaborator m_elaborator;
     macros const *      m_expr_macros;
     macros const *      m_cmd_macros;
@@ -423,7 +424,8 @@ private:
     /*@}*/
 
 public:
-    parser_imp(environment const & env, io_state const & st, std::istream & in, script_state * S, bool use_exceptions, bool interactive);
+    parser_imp(environment const & env, io_state const & st, std::istream & in, char const * strm_name,
+               script_state * S, bool use_exceptions, bool interactive);
     ~parser_imp();
     static void show_prompt(bool interactive, io_state const & ios);
     void show_prompt();

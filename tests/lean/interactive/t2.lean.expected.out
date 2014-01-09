@@ -2,8 +2,8 @@
   Set: pp::unicode
 Proof state:
 a : Bool, b : Bool, H : a, H::1 : b ⊢ a ∧ b
-## Error (line: 5, pos: 0) unknown tactic 'foo'
-## Error (line: 6, pos: 5) failed to prove theorem, proof has been aborted
+## stdin:5:0 error: unknown tactic 'foo'
+## stdin:6:5 error: failed to prove theorem, proof has been aborted
 Proof state:
 a : Bool, b : Bool, H : a, H::1 : b ⊢ a ∧ b
 #   Assumed: a

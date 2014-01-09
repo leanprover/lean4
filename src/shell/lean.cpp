@@ -183,6 +183,7 @@ int main(int argc, char ** argv) {
                 lean_assert(default_k == input_kind::Lua);
                 script_state S;
                 S.import("repl");
+                return 0;
             }
         } else {
             environment env;
@@ -203,12 +204,7 @@ int main(int argc, char ** argv) {
                     }
                 }
                 if (k == input_kind::Lean) {
-                    std::ifstream in(argv[i]);
-                    if (in.bad() || in.fail()) {
-                        std::cerr << "Failed to open file '" << argv[i] << "'\n";
-                        return 1;
-                    }
-                    if (!parse_commands(env, ios, in, &S, false, false))
+                    if (!parse_commands(env, ios, argv[i], &S, false, false))
                         ok = false;
                 } else if (k == input_kind::OLean) {
                     try {
@@ -234,7 +230,10 @@ int main(int argc, char ** argv) {
         }
     } catch (lean::kernel_exception & ex) {
         std::cerr << "Error: " << ex.pp(lean::mk_simple_formatter(), lean::options()) << "\n";
+    } catch (lean::parser_exception & ex) {
+        std::cerr << ex.what() << "\n";
     } catch (lean::exception & ex) {
         std::cerr << "Error: " << ex.what() << "\n";
     }
+    return 1;
 }

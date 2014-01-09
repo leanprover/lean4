@@ -1,4 +1,4 @@
   Set: pp::colors
   Set: pp::unicode
 a
-Error (line: 7, pos: 0) Command expected
+scan_test2.lean:7:0 error: Command expected

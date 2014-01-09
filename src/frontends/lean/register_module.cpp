@@ -23,7 +23,7 @@ static int parse_lean_expr_core(lua_State * L, rw_shared_environment const & env
     script_state S   = to_script_state(L);
     expr r;
     S.exec_unprotected([&]() {
-            r = parse_expr(env, st, in, &S);
+            r = parse_expr(env, st, in, "[string]", &S);
         });
     return push_expr(L, r);
 }
@@ -81,7 +81,7 @@ static void parse_lean_cmds_core(lua_State * L, rw_shared_environment const & en
     std::istringstream in(src);
     script_state S   = to_script_state(L);
     S.exec_unprotected([&]() {
-            parse_commands(env, st, in, &S);
+            parse_commands(env, st, in, "[string]", &S);
         });
 }
 

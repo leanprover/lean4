@@ -101,9 +101,9 @@ bool shell::operator()() {
 #ifdef LEAN_USE_READLINE
     readline_streambuf buf;
     std::istream is(&buf);
-    parser p(m_env, m_io_state, is, m_script_state, false, true);
+    parser p(m_env, m_io_state, is, "stdin", m_script_state, false, true);
 #else
-    parser p(m_env, m_io_state, std::cin, m_script_state, false, true);
+    parser p(m_env, m_io_state, std::cin, "stdin", m_script_state, false, true);
 #endif
     return p();
 }

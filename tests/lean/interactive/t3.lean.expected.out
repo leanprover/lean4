@@ -6,7 +6,7 @@ a : Bool, b : Bool, H : b ⊢ a ∨ b
 a : Bool, b : Bool, H : b ⊢ a
 ## Proof state:
 a : Bool, b : Bool, H : b ⊢ b
-## Error (line: 9, pos: 0) failed to backtrack
+## stdin:9:0 error: failed to backtrack
 Proof state:
 a : Bool, b : Bool, H : b ⊢ b
 ## Proof state:

@@ -28,17 +28,18 @@ public:
 /** \brief Exception produced by a Lean parser. */
 class parser_exception : public exception {
 protected:
-    unsigned m_line;
-    unsigned m_pos;
+    std::string m_fname;
+    unsigned    m_line;
+    unsigned    m_pos;
 public:
-    parser_exception(char const * msg, unsigned l, unsigned p);
-    parser_exception(std::string const & msg, unsigned l, unsigned p);
-    parser_exception(sstream const & strm, unsigned l, unsigned p);
+    parser_exception(char const * msg, char const * fname, unsigned l, unsigned p);
+    parser_exception(std::string const & msg, char const * fname, unsigned l, unsigned p);
+    parser_exception(sstream const & strm, char const * fname, unsigned l, unsigned p);
     virtual ~parser_exception() noexcept;
     virtual char const * what() const noexcept;
     unsigned get_line() const { return m_line; }
     unsigned get_pos() const { return m_pos; }
-    virtual exception * clone() const { return new parser_exception(m_msg, m_line, m_pos); }
+    virtual exception * clone() const { return new parser_exception(m_msg, m_fname.c_str(), m_line, m_pos); }
     virtual void rethrow() const { throw *this; }
 };
 /** \brief Exception used to sign that a computation was interrupted */

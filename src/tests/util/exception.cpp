@@ -20,17 +20,17 @@ static void tst1() {
 
 static void tst2() {
     try {
-        throw parser_exception(std::string("foo"), 10, 100);
+        throw parser_exception(std::string("foo"), "[string]", 10, 100);
     } catch (parser_exception & ex) {
-        lean_assert(std::string("(line: 10, pos: 100) foo") == ex.what());
+        lean_assert(std::string("[string]:10:100 error: foo") == ex.what());
     }
 }
 
 static void tst3() {
     try {
-        throw parser_exception(sstream() << "msg " << 10 << " " << 20, 10, 100);
+        throw parser_exception(sstream() << "msg " << 10 << " " << 20, "[stream]", 10, 100);
     } catch (parser_exception & ex) {
-        lean_assert(std::string("(line: 10, pos: 100) msg 10 20") == ex.what());
+        lean_assert(std::string("[stream]:10:100 error: msg 10 20") == ex.what());
     }
 }
 

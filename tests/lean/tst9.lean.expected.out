@@ -4,7 +4,7 @@
   Assumed: N
   Assumed: g
   Assumed: a
-Error (line: 5, pos: 6) type mismatch at application
+tst9.lean:5:6 error: type mismatch at application
     g ⊤ (f ?M::0 a a)
 Function type:
     N → N → Bool

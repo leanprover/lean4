@@ -2,12 +2,12 @@
   Set: pp::unicode
   Assumed: N
   Assumed: a
-Error (line: 3, pos: 14) type expected, got
+kernel_ex1.lean:3:14 error: type expected, got
     a
-Error (line: 4, pos: 6) function expected at
+kernel_ex1.lean:4:6 error: function expected at
     a a
   Assumed: f
-Error (line: 6, pos: 6) type mismatch at application
+kernel_ex1.lean:6:6 error: type mismatch at application
     f (λ x : N, x)
 Function type:
     N → N

@@ -18,8 +18,7 @@ class parser {
 private:
     std::unique_ptr<parser_imp> m_ptr;
 public:
-    parser(environment const & env, io_state const & st, std::istream & in, script_state * S, bool use_exceptions = true, bool interactive = false);
-    parser(environment const & env, std::istream & in, script_state * S, bool use_exceptions = true, bool interactive = false);
+    parser(environment const & env, io_state const & st, std::istream & in, char const * strm_name, script_state * S, bool use_exceptions = true, bool interactive = false);
     ~parser();
 
     /** \brief Parse a sequence of commands */
@@ -31,7 +30,8 @@ public:
     io_state get_io_state() const;
 };
 
-bool parse_commands(environment const & env, io_state & st, std::istream & in, script_state * S = nullptr, bool use_exceptions = true, bool interactive = false);
-expr parse_expr(environment const & env, io_state & st, std::istream & in, script_state * S = nullptr, bool use_exceptions = true);
+bool parse_commands(environment const & env, io_state & st, std::istream & in, char const * strm_name, script_state * S = nullptr, bool use_exceptions = true, bool interactive = false);
+bool parse_commands(environment const & env, io_state & st, char const * fname, script_state * S = nullptr, bool use_exceptions = true, bool interactive = false);
+expr parse_expr(environment const & env, io_state & st, std::istream & in, char const * strm_name, script_state * S = nullptr, bool use_exceptions = true);
 void open_macros(lua_State * L);
 }

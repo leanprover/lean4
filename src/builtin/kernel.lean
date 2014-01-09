@@ -10,38 +10,39 @@ builtin if {A : (Type U)} : Bool → A → A → A
 
 definition TypeU := (Type U)
 
-definition not (a : Bool) : Bool
-:= a → false
+definition not (a : Bool) := a → false
 
 notation 40 ¬ _ : not
 
-definition or (a b : Bool) : Bool
-:= ¬ a → b
+definition or (a b : Bool) := ¬ a → b
 
 infixr 30 || : or
 infixr 30 \/ : or
 infixr 30 ∨  : or
 
-definition and (a b : Bool) : Bool
-:= ¬ (a → ¬ b)
+definition and (a b : Bool) := ¬ (a → ¬ b)
 
-definition implies (a b : Bool) : Bool
-:= a → b
+definition implies (a b : Bool) := a → b
 
 infixr 35 && : and
 infixr 35 /\ : and
 infixr 35 ∧  : and
 
-definition Exists (A : TypeU) (P : A → Bool) : Bool
-:= ¬ (∀ x : A, ¬ (P x))
+-- The Lean parser has special treatment for the constant exists.
+-- It allows us to write
+--      exists x y : A, P x y   and    ∃ x y : A, P x y
+-- as syntax sugar for
+--      exists A (fun x : A, exists A (fun y : A, P x y))
+-- That is, it treats the exists as an extra binder such as fun and forall.
+-- It also provides an alias (Exists) that should be used when we
+-- want to treat exists as a constant.
+definition Exists (A : TypeU) (P : A → Bool) := ¬ (∀ x : A, ¬ (P x))
 
-definition eq {A : TypeU} (a b : A) : Bool
-:= a == b
+definition eq {A : TypeU} (a b : A) := a == b
 
 infix 50 = : eq
 
-definition neq {A : TypeU} (a b : A) : Bool
-:= ¬ (a == b)
+definition neq {A : TypeU} (a b : A) := ¬ (a == b)
 
 infix 50 ≠ : neq
 
@@ -81,8 +82,6 @@ theorem eqmp {a b : Bool} (H1 : a == b) (H2 : a) : b
 infixl 100 <| : eqmp
 infixl 100 ◂  : eqmp
 
--- assume is a 'macro' that expands into a discharge
-
 theorem imp::trans {a b c : Bool} (H1 : a → b) (H2 : b → c) : a → c
 := λ Ha, H2 (H1 Ha)
 
@@ -120,8 +119,7 @@ theorem not::imp::elimr {a b : Bool} (H : ¬ (a → b)) : ¬ b
 theorem resolve1 {a b : Bool} (H1 : a ∨ b) (H2 : ¬ a) : b
 := H1 H2
 
--- Remark: conjunction is defined as ¬ (a → ¬ b) in Lean
-
+-- Recall that and is defined as ¬ (a → ¬ b)
 theorem and::intro {a b : Bool} (H1 : a) (H2 : b) : a ∧ b
 := λ H : a → ¬ b, absurd H2 (H H1)
 
@@ -131,8 +129,7 @@ theorem and::eliml {a b : Bool} (H : a ∧ b) : a
 theorem and::elimr {a b : Bool} (H : a ∧ b) : b
 := not::not::elim (not::imp::elimr H)
 
--- Remark: disjunction is defined as ¬ a → b in Lean
-
+-- Recall that or is defined as ¬ a → b
 theorem or::introl {a : Bool} (H : a) (b : Bool) : a ∨ b
 := λ H1 : ¬ a, absurd::elim b H H1
 
@@ -175,21 +172,13 @@ theorem eqt::intro {a : Bool} (H : a) : a == true
 theorem congr1 {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} (a : A) (H : f == g) : f a == g a
 := substp (fun h : (∀ x : A, B x), f a == h a) (refl (f a)) H
 
--- Remark: we must use heterogeneous equality in the following theorem because the types of (f a) and (f b)
--- are not "definitionally equal" They are (B a) and (B b)
--- They are provably equal, we just have to apply Congr1
-
 theorem congr2 {A : TypeU} {B : A → TypeU} {a b : A} (f : ∀ x : A, B x) (H : a == b) : f a == f b
 := substp (fun x : A, f a == f x) (refl (f a)) H
-
--- Remark: like the previous theorem we use heterogeneous equality We cannot use Trans theorem
--- because the types are not definitionally equal
 
 theorem congr {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} {a b : A} (H1 : f == g) (H2 : a == b) : f a == g b
 := subst (congr2 f H2) (congr1 b H1)
 
--- Remark: the existential is defined as (¬ (forall x : A, ¬ P x))
-
+-- Recall that exists is defined as ¬ ∀ x : A, ¬ P x
 theorem exists::elim {A : TypeU} {P : A → Bool} {B : Bool} (H1 : Exists A P) (H2 : ∀ (a : A) (H : P a), B) : B
 := refute (λ R : ¬ B,
              absurd (λ a : A, mt (λ H : P a, H2 a H) R)
@@ -198,11 +187,6 @@ theorem exists::elim {A : TypeU} {P : A → Bool} {B : Bool} (H1 : Exists A P) (
 theorem exists::intro {A : TypeU} {P : A → Bool} (a : A) (H : P a) : Exists A P
 := λ H1 : (∀ x : A, ¬ P x),
       absurd H (H1 a)
-
--- At this point, we have proved the theorems we need using the
--- definitions of forall, exists, and, or, =>, not  We mark (some of)
--- them as opaque Opaque definitions improve performance, and
--- effectiveness of Lean's elaborator
 
 theorem or::comm (a b : Bool) : (a ∨ b) == (b ∨ a)
 := iff::intro (λ H, or::elim H (λ H1, or::intror b H1) (λ H2, or::introl H2 a))
@@ -352,3 +336,4 @@ set::opaque exists  true
 set::opaque not     true
 set::opaque or      true
 set::opaque and     true
+set::opaque implies true

@@ -1,5 +1,5 @@
 import if_then_else
-set_option lean::parser::verbose false.
+set_option verbose false.
 notation 10 if _ then _ : implies.
 print environment 1.
 print if true then false.

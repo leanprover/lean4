@@ -13,7 +13,7 @@ fi
 NUM_ERRORS=0
 for f in `ls *.lean`; do
     echo "-- testing $f"
-    $LEAN config.lean $f &> $f.produced.out
+    $LEAN -t config.lean $f &> $f.produced.out
     if test -f $f.expected.out; then
         if diff -I "executing external script" $f.produced.out $f.expected.out; then
             echo "-- checked"

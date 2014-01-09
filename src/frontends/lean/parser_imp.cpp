@@ -16,20 +16,13 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true
 #endif
 
-#ifndef LEAN_DEFAULT_PARSER_VERBOSE
-#define LEAN_DEFAULT_PARSER_VERBOSE true
-#endif
-
 namespace lean {
 // ==========================================
 // Parser configuration options
-static name g_parser_verbose     {"lean", "parser", "verbose"};
 static name g_parser_show_errors {"lean", "parser", "show_errors"};
 
-RegisterBoolOption(g_parser_verbose,  LEAN_DEFAULT_PARSER_VERBOSE, "(lean parser) disable/enable parser verbose messages");
 RegisterBoolOption(g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS, "(lean parser) display error messages in the regular output channel");
 
-bool     get_parser_verbose(options const & opts)      { return opts.get_bool(g_parser_verbose, LEAN_DEFAULT_PARSER_VERBOSE); }
 bool     get_parser_show_errors(options const & opts)  { return opts.get_bool(g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS); }
 // ==========================================
 
@@ -108,7 +101,7 @@ double parser_imp::parse_double() {
 }
 
 void parser_imp::updt_options() {
-    m_verbose = get_parser_verbose(m_io_state.get_options());
+    m_verbose = get_verbose(m_io_state.get_options());
     m_show_errors = get_parser_show_errors(m_io_state.get_options());
 }
 

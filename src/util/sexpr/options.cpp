@@ -11,7 +11,15 @@ Author: Leonardo de Moura
 #include "util/sexpr/option_declarations.h"
 #include "util/sexpr/sexpr_fn.h"
 
+#ifndef LEAN_DEFAULT_VERBOSE
+#define LEAN_DEFAULT_VERBOSE true
+#endif
+
 namespace lean {
+static name g_verbose("verbose");
+RegisterBoolOption(g_verbose,  LEAN_DEFAULT_VERBOSE, "disable/enable verbose messages");
+bool get_verbose(options const & opts) { return opts.get_bool(g_verbose, LEAN_DEFAULT_VERBOSE); }
+
 std::ostream & operator<<(std::ostream & out, option_kind k) {
     switch (k) {
     case BoolOption: out << "Bool"; break;

@@ -70,6 +70,7 @@ public:
 
     friend bool operator==(options const & a, options const & b) { return a.m_value == b.m_value; }
 };
+bool get_verbose(options const & opts);
 
 inline options read_options(deserializer & d) { return options(read_sexpr(d)); }
 inline deserializer & operator>>(deserializer & d, options & o) { o = read_options(d); return d; }

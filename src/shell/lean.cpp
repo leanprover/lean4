@@ -67,6 +67,7 @@ static void display_help(std::ostream & out) {
     std::cout << "                    it is useful for interrupting non-terminating user scripts,\n";
     std::cout << "                    0 means 'do not check'.\n";
     std::cout << "  --trust -t        trust imported modules\n";
+    std::cout << "  --quiet -q        do not print verbose messages\n";
 #if defined(LEAN_USE_BOOST)
     std::cout << "  --tstack=num -s   thread stack size in Kb\n";
 #endif
@@ -98,6 +99,7 @@ static struct option g_long_options[] = {
     {"githash",    no_argument,       0, 'g'},
     {"output",     required_argument, 0, 'o'},
     {"trust",      no_argument,       0, 't'},
+    {"quiet",      no_argument,       0, 'q'},
 #if defined(LEAN_USE_BOOST)
     {"tstack",     required_argument, 0, 's'},
 #endif
@@ -111,10 +113,11 @@ int main(int argc, char ** argv) {
         bool no_kernel      = false;
         bool export_objects = false;
         bool trust_imported = false;
+        bool quiet          = false;
         std::string output;
         input_kind default_k = input_kind::Lean; // default
         while (true) {
-            int c = getopt_long(argc, argv, "tnlupgvhc:012s:012o:", g_long_options, NULL);
+            int c = getopt_long(argc, argv, "qtnlupgvhc:012s:012o:", g_long_options, NULL);
             if (c == -1)
                 break; // end of command line
             switch (c) {
@@ -155,6 +158,9 @@ int main(int argc, char ** argv) {
             case 't':
                 trust_imported = true;
                 break;
+            case 'q':
+                quiet = true;
+                break;
             default:
                 std::cerr << "Unknown command line option\n";
                 display_help(std::cerr);
@@ -173,6 +179,8 @@ int main(int argc, char ** argv) {
                 environment env;
                 env->set_trusted_imported(trust_imported);
                 io_state ios = init_frontend(env, no_kernel);
+                if (quiet)
+                    ios.set_option("verbose", false);
                 script_state S;
                 shell sh(env, &S);
                 int status = sh() ? 0 : 1;
@@ -189,6 +197,8 @@ int main(int argc, char ** argv) {
             environment env;
             env->set_trusted_imported(trust_imported);
             io_state    ios = init_frontend(env, no_kernel);
+            if (quiet)
+                ios.set_option("verbose", false);
             script_state S;
             bool ok = true;
             for (int i = optind; i < argc; i++) {

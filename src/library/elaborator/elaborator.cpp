@@ -1342,13 +1342,11 @@ class elaborator::imp {
         if (a == b)
             return true;
         if (!has_metavar(a) && !has_metavar(b)) {
-            if (!eq) {
-                if (m_type_inferer.is_convertible(a, b, ctx)) {
-                    return true;
-                } else {
-                    m_conflict = mk_failure_justification(c);
-                    return false;
-                }
+            if (m_type_inferer.is_convertible(a, b, ctx)) {
+                return true;
+            } else {
+                m_conflict = mk_failure_justification(c);
+                return false;
             }
         }
 

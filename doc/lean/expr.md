@@ -35,10 +35,12 @@ eval s + 1
 
 In Lean, the expression `f t` is a function application, where `f` is a function that is applied to `t`.
 In the following example, we define the function `max`. The `eval` command evaluates the application `max 1 2`,
-and returns the value `2`. Note that, the expression `if (x >= y) x y` is also a function application.
+and returns the value `2`. Note that, the expression `if (x >= y) then x else y` is also a function application.
+It is notation for `ite (x >= y) x y`.
 
 ```lean
-definition max (x y : Nat) : Nat := if (x >= y) x y
+import if_then_else
+definition max (x y : Nat) : Nat := if (x >= y) then x else y
 eval max 1 2
 ```
 

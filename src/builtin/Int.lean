@@ -1,4 +1,5 @@
 import Nat
+import if_then_else
 
 variable Int : Type
 alias ℤ : Int
@@ -43,7 +44,7 @@ infixl 70 mod : mod
 definition divides (a b : Int) : Bool := (b mod a) = 0
 infix 50 | : divides
 
-definition abs (a : Int) : Int := if (0 ≤ a) a (- a)
+definition abs (a : Int) : Int := if (0 ≤ a) then a else (- a)
 notation 55 | _ | : abs
 
 set_opaque sub true

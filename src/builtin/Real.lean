@@ -1,4 +1,5 @@
 import Int
+import if_then_else
 
 variable Real : Type
 alias ℝ : Real
@@ -39,6 +40,6 @@ infixl 65 - : sub
 definition neg (a : Real) : Real := -1.0 * a
 notation 75 - _ : neg
 
-definition abs (a : Real) : Real := if (0.0 ≤ a) a (- a)
+definition abs (a : Real) : Real := if (0.0 ≤ a) then a else (- a)
 notation 55 | _ | : abs
 end

@@ -260,7 +260,7 @@ expr parser_imp::get_name_ref(name const & id, pos_info const & p, bool implicit
                         std::vector<bool> const & imp_args = get_implicit_arguments(m_env, obj->get_name());
                         buffer<expr> args;
                         pos_info p = pos();
-                        expr f = (k == object_kind::Builtin) ? obj->get_value() : mk_constant(obj->get_name());
+                        expr f = mk_constant(obj->get_name());
                         args.push_back(save(f, p));
                         for (unsigned i = 0; i < imp_args.size(); i++) {
                             if (imp_args[i]) {
@@ -270,8 +270,6 @@ expr parser_imp::get_name_ref(name const & id, pos_info const & p, bool implicit
                             }
                         }
                         return mk_app(args);
-                    } else if (k == object_kind::Builtin) {
-                        return obj->get_value();
                     } else {
                         return mk_constant(obj->get_name());
                     }

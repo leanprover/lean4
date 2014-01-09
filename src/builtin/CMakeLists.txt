@@ -70,9 +70,8 @@ endfunction()
 add_kernel_theory("kernel.lean"    "${CMAKE_CURRENT_BINARY_DIR}/macros.lua")
 add_kernel_theory("Nat.lean"       "${CMAKE_CURRENT_BINARY_DIR}/kernel.olean")
 
-add_theory("Int.lean"       "${CMAKE_CURRENT_BINARY_DIR}/Nat.olean")
-add_theory("Real.lean"      "${CMAKE_CURRENT_BINARY_DIR}/Int.olean")
-add_theory("specialfn.lean" "${CMAKE_CURRENT_BINARY_DIR}/Real.olean")
-add_theory("cast.lean"      "${CMAKE_CURRENT_BINARY_DIR}/Nat.olean")
-
-
+add_theory("if_then_else.lean" "${CMAKE_CURRENT_BINARY_DIR}/Nat.olean")
+add_theory("Int.lean"          "${CMAKE_CURRENT_BINARY_DIR}/if_then_else.olean")
+add_theory("Real.lean"         "${CMAKE_CURRENT_BINARY_DIR}/Int.olean")
+add_theory("specialfn.lean"    "${CMAKE_CURRENT_BINARY_DIR}/Real.olean")
+add_theory("cast.lean"         "${CMAKE_CURRENT_BINARY_DIR}/Nat.olean")

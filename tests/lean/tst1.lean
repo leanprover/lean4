@@ -1,3 +1,4 @@
+import if_then_else
 -- Define a "fake" type to simulate the natural numbers. This is just a test.
 variable N : Type
 variable lt : N -> N -> Bool
@@ -9,7 +10,7 @@ infix 50 < : lt
 axiom two_lt_three : two < three
 definition vector (A : Type) (n : N) : Type := forall (i : N) (H : i < n), A
 definition const {A : Type} (n : N) (d : A) : vector A n := fun (i : N) (H : i < n), d
-definition update {A : Type} {n : N} (v : vector A n) (i : N) (d : A) : vector A n := fun (j : N) (H : j < n), if (j = i) d (v j H)
+definition update {A : Type} {n : N} (v : vector A n) (i : N) (d : A) : vector A n := fun (j : N) (H : j < n), if (j = i) then d else (v j H)
 definition select {A : Type} {n : N} (v : vector A n) (i : N) (H : i < n) : A := v i H
 definition map {A B C : Type} {n : N} (f : A -> B -> C) (v1 : vector A n) (v2 : vector B n) : vector C n := fun (i : N) (H : i < n), f (v1 i H) (v2 i H)
 print environment 10

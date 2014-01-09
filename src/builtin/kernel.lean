@@ -6,7 +6,6 @@ variable Bool : Type
 -- The following builtin declarations can be removed as soon as Lean supports inductive datatypes and match expressions
 builtin true : Bool
 builtin false : Bool
-builtin if {A : (Type U)} : Bool → A → A → A
 
 definition TypeU := (Type U)
 

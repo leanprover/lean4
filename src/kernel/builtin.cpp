@@ -80,7 +80,7 @@ bool is_false(expr const & e) {
 
 // =======================================
 // If-then-else builtin operator
-static name   g_if_name("if");
+static name   g_if_name("ite");
 static format g_if_fmt(g_if_name);
 /**
    \brief Semantic attachment for if-then-else operator with type
@@ -108,12 +108,12 @@ public:
             return none_expr();
         }
     }
-    virtual void write(serializer & s) const { s << "if"; }
+    virtual void write(serializer & s) const { s << "ite"; }
 };
 MK_BUILTIN(if_fn, if_fn_value);
 MK_IS_BUILTIN(is_if_fn, mk_if_fn());
-static register_builtin_fn if_blt("if", []() { return mk_if_fn(); });
-static value::register_deserializer_fn if_ds("if", [](deserializer & ) { return mk_if_fn(); });
+static register_builtin_fn if_blt("ite", []() { return mk_if_fn(); });
+static value::register_deserializer_fn if_ds("ite", [](deserializer & ) { return mk_if_fn(); });
 // =======================================
 
 MK_CONSTANT(implies_fn, name("implies"));

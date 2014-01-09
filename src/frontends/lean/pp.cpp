@@ -257,6 +257,15 @@ class pp_fn {
         return ::lean::has_implicit_arguments(m_env, n) && m_local_names.find(n) == m_local_names.end();
     }
 
+    result pp_value(expr const & e) {
+        value const & v = to_value(e);
+        if (has_implicit_arguments(v.get_name())) {
+            return mk_result(format(get_explicit_version(m_env, v.get_name())), 1);
+        } else {
+            return mk_result(v.pp(m_unicode, m_coercion), 1);
+        }
+    }
+
     result pp_constant(expr const & e) {
         name const & n = const_name(e);
         if (is_placeholder(e)) {
@@ -267,16 +276,13 @@ class pp_fn {
         } else if (has_implicit_arguments(n)) {
             return mk_result(format(get_explicit_version(m_env, n)), 1);
         } else {
-            return mk_result(format(n), 1);
-        }
-    }
-
-    result pp_value(expr const & e) {
-        value const & v = to_value(e);
-        if (has_implicit_arguments(v.get_name())) {
-            return mk_result(format(get_explicit_version(m_env, v.get_name())), 1);
-        } else {
-            return mk_result(v.pp(m_unicode, m_coercion), 1);
+            optional<object> obj = m_env->find_object(const_name(e));
+            if (obj && obj->is_builtin() && obj->get_name() == const_name(e)) {
+                // e is a constant that is referencing a builtin object.
+                return pp_value(obj->get_value());
+            } else {
+                return mk_result(format(n), 1);
+            }
         }
     }
 

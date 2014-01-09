@@ -69,18 +69,17 @@ eval 1 == 2
 eval 2 == 2
 ```
 
-Since we can compare elements of different types, the following expression is type correct and evaluates to `false`.
+Since we can compare elements of different types, the following
+expression is type correct, but Lean normalizer/evaluator will *not*
+reduce it.
 
 ```lean
-eval 1 == true
+eval 2 == true
 ```
 
-This is consistent with the set theoretic semantics used in Lean, where the interpretation of all expressions are sets.
-The interpretation of heterogeneous equality is just set equality in the Lean seamtics.
-
 We strongly discourage users from directly using heterogeneous equality. The main problem is that it is very easy to
-write expressions that are false like the one above. The expression `t = s` is a homogeneous equality.
-It expects `t` and `s` to have the same type. Thus, the expression `1 = true` is type incorrect in Lean.
+write nonsensical expressions like the one above. The expression `t = s` is a homogeneous equality.
+It expects `t` and `s` to have the same type. Thus, the expression `2 = true` is type incorrect in Lean.
 The symbol `=` is just notation. Internally, homogeneous equality is defined as:
 
 ```

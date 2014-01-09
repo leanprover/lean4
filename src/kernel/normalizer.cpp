@@ -312,7 +312,7 @@ class normalizer::imp {
         case expr_kind::Eq: {
             expr new_lhs = normalize(eq_lhs(a), s, k);
             expr new_rhs = normalize(eq_rhs(a), s, k);
-            if (is_value(new_lhs) && is_value(new_rhs) && !is_closure(new_lhs) && !is_closure(new_rhs)) {
+            if (is_value(new_lhs) && is_value(new_rhs) && !is_closure(new_lhs) && !is_closure(new_rhs) && typeid(to_value(new_lhs)) == typeid(to_value(new_rhs))) {
                 r = mk_bool_value(new_lhs == new_rhs);
             } else {
                 r = mk_eq(new_lhs, new_rhs);

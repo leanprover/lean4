@@ -13,4 +13,4 @@ foo::T : foo::a = foo::b
 foo::H : foo::b ≥ foo::a
 foo::a : ℕ
 foo::bla::a : ℤ
-ns1.lean:19:0 error: invalid 'end', not inside of a scope or namespace
+ns1.lean:19:0: error: invalid 'end', not inside of a scope or namespace

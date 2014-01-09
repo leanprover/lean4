@@ -7,18 +7,18 @@ let b := ⊤, a : ℤ := b in a
 let a := 10, v1 := const a ⊤, v2 := v1 in v2 : vector Bool 10
 let a := 10, v1 : vector Bool a := const a ⊤, v2 : vector Bool a := v1 in v2
 let a := 10, v1 : vector Bool a := const a ⊤, v2 : vector Bool a := v1 in v2 : vector Bool 10
-let4.lean:32:26 error: type mismatch at definition 'v2', expected type
+let4.lean:32:26: error: type mismatch at definition 'v2', expected type
     vector ℤ a
 Given type:
     vector Bool a
   Assumed: foo
   Coercion foo
-let4.lean:41:26 error: type mismatch at definition 'v2', expected type
+let4.lean:41:26: error: type mismatch at definition 'v2', expected type
     vector ℤ a
 Given type:
     vector Bool a
   Set: lean::pp::coercion
-let4.lean:49:26 error: type mismatch at definition 'v2', expected type
+let4.lean:49:26: error: type mismatch at definition 'v2', expected type
     vector ℤ a
 Given type:
     vector Bool a

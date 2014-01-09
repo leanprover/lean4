@@ -6,15 +6,15 @@ A : Bool, B : Bool, H : A ∧ B ⊢ A
 no goals
 ## Proof state:
 A : Bool, B : Bool, H : A ∧ B, H1 : A ⊢ B
-## stdin:15:3 error: unknown tactic 'simple2_tac'
-## stdin:15:16 error: invalid 'done' command, proof cannot be produced from this state
+## stdin:15:3: error: unknown tactic 'simple2_tac'
+## stdin:15:16: error: invalid 'done' command, proof cannot be produced from this state
 Proof state:
 A : Bool, B : Bool, H : A ∧ B, H1 : A ⊢ B
 ## Proof state:
 no goals
 ## Proof state:
 A : Bool, B : Bool, H : A ∧ B, H1 : A, H2 : B ⊢ B ∧ A
-## stdin:18:0 error: failed to prove theorem, proof has been aborted
+## stdin:18:0: error: failed to prove theorem, proof has been aborted
 Proof state:
 A : Bool, B : Bool, H : A ∧ B, H1 : A, H2 : B ⊢ B ∧ A
 # echo command after failure

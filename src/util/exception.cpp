@@ -28,7 +28,7 @@ char const * parser_exception::what() const noexcept {
     try {
         static LEAN_THREAD_LOCAL std::string buffer;
         std::ostringstream s;
-        s << m_fname << ":" << m_line << ":" << m_pos << " error: " << m_msg;
+        s << m_fname << ":" << m_line << ":" << m_pos << ": error: " << m_msg;
         buffer = s.str();
         return buffer.c_str();
     } catch (std::exception & ex) {

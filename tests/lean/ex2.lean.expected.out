@@ -6,11 +6,11 @@ and ⊤ ⊥
   Set: pp::unicode
 and true false
   Assumed: a
-ex2.lean:8:0 error: invalid object declaration, environment already has an object named 'a'
+ex2.lean:8:0: error: invalid object declaration, environment already has an object named 'a'
   Assumed: b
 and a b
   Assumed: A
-ex2.lean:12:8 error: type mismatch at application
+ex2.lean:12:8: error: type mismatch at application
     and a A
 Function type:
     Bool -> Bool -> Bool
@@ -19,7 +19,7 @@ Arguments types:
     A : Type
 variable A : Type
 (lean::pp::notation := false, pp::unicode := false, pp::colors := false)
-ex2.lean:15:11 error: unknown option 'lean::p::notation', type 'Help Options.' for list of available options
-ex2.lean:16:30 error: invalid option value, given option is not an integer
+ex2.lean:15:11: error: unknown option 'lean::p::notation', type 'Help Options.' for list of available options
+ex2.lean:16:30: error: invalid option value, given option is not an integer
   Set: lean::pp::notation
 a /\ b

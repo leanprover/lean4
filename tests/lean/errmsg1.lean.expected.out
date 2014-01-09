@@ -2,9 +2,9 @@
   Set: pp::unicode
 λ x : ?M::0, x
 λ x : ?M::0, x
-errmsg1.lean:4:10 error: invalid expression, it still contains metavariables after elaboration, metavariable: ?M::0, type:
+errmsg1.lean:4:10: error: invalid expression, it still contains metavariables after elaboration, metavariable: ?M::0, type:
 (Type U)
-errmsg1.lean:6:3 error: failed to synthesize metavar, its type is not a proposition, metavariable: ?M::0, type:
+errmsg1.lean:6:3: error: failed to synthesize metavar, its type is not a proposition, metavariable: ?M::0, type:
 A : Type, x : A ⊢ A → A
-errmsg1.lean:8:34 error: invalid definition, type still contains metavariables after elaboration, metavariable: ?M::3, type:
+errmsg1.lean:8:34: error: invalid definition, type still contains metavariables after elaboration, metavariable: ?M::3, type:
 (Type U)

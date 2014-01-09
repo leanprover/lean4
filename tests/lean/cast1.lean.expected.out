@@ -8,7 +8,7 @@
   Assumed: f
   Assumed: m
   Assumed: v1
-cast1.lean:13:7 error: type mismatch at application
+cast1.lean:13:7: error: type mismatch at application
     f m v1
 Function type:
     ∀ (n : ℕ), vector ℤ n → ℤ

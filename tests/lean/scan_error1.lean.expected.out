@@ -1,3 +1,3 @@
   Set: pp::colors
   Set: pp::unicode
-scan_error1.lean:1:3 error: invalid character sequence, '...' ellipsis expected
+scan_error1.lean:1:3: error: invalid character sequence, '...' ellipsis expected

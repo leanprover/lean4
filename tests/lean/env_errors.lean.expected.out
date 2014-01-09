@@ -1,12 +1,12 @@
   Set: pp::colors
   Set: pp::unicode
   Assumed: x
-env_errors.lean:3:0 error: set_opaque failed, 'x' is not a definition
+env_errors.lean:3:0: error: set_opaque failed, 'x' is not a definition
 before import
-env_errors.lean:11:0 error: file 'tstblafoo.lean' not found in the LEAN_PATH
+env_errors.lean:11:0: error: file 'tstblafoo.lean' not found in the LEAN_PATH
 before load1
-env_errors.lean:17:0 error: failed to open file 'tstblafoo.lean'
+env_errors.lean:17:0: error: failed to open file 'tstblafoo.lean'
 before load2
-env_errors.lean:23:0 error: corrupted binary file
+env_errors.lean:23:0: error: corrupted binary file
 before load3
-env_errors.lean:28:0 error: file 'fake2.olean' does not seem to be a valid object Lean file
+env_errors.lean:28:0: error: file 'fake2.olean' does not seem to be a valid object Lean file

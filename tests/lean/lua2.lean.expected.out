@@ -3,5 +3,5 @@
   Assumed: x
 hello world
 ok
-lua2.lean:11 error: executing script, attempt to call global 'rint' (a nil value)
+lua2.lean:11: error: executing script, attempt to call global 'rint' (a nil value)
   Assumed: y

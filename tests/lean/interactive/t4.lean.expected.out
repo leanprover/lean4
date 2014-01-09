@@ -1,5 +1,5 @@
 #   Set: pp::colors
   Set: pp::unicode
-stdin:4:8 error: invalid definition, identifier expected
+stdin:4:8: error: invalid definition, identifier expected
 # done
 # 

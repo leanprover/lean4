@@ -12,9 +12,9 @@ Author: Leonardo de Moura
 
 namespace lean {
 void parser_imp::display_error_pos(unsigned line, unsigned pos) {
-    regular(m_io_state) << m_strm_name << ":" << line;
+    regular(m_io_state) << m_strm_name << ":" << line << ":";
     if (pos != static_cast<unsigned>(-1))
-        regular(m_io_state) << ":" << pos;
+        regular(m_io_state) << pos << ":";
     regular(m_io_state) << " error:";
 }
 

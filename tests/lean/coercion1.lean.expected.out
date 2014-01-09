@@ -7,12 +7,12 @@
 variable f : T → R
 coercion f
   Assumed: g
-coercion1.lean:8:0 error: invalid coercion declaration, frontend already has a coercion for the given types
+coercion1.lean:8:0: error: invalid coercion declaration, frontend already has a coercion for the given types
   Assumed: h
-coercion1.lean:10:0 error: invalid coercion declaration, a coercion must have an arrow type (i.e., a non-dependent functional type)
+coercion1.lean:10:0: error: invalid coercion declaration, a coercion must have an arrow type (i.e., a non-dependent functional type)
   Defined: T2
   Defined: R2
   Assumed: f2
-coercion1.lean:14:0 error: invalid coercion declaration, frontend already has a coercion for the given types
+coercion1.lean:14:0: error: invalid coercion declaration, frontend already has a coercion for the given types
   Assumed: id
-coercion1.lean:16:0 error: invalid coercion declaration, 'from' and 'to' types are the same
+coercion1.lean:16:0: error: invalid coercion declaration, 'from' and 'to' types are the same

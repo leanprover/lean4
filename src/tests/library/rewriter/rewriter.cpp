@@ -11,6 +11,7 @@ Author: Soonho Kong
 #include "kernel/expr.h"
 #include "kernel/io_state.h"
 #include "kernel/builtin.h"
+#include "kernel/kernel_exception.h"
 #include "library/printer.h"
 #include "library/io_state_stream.h"
 #include "library/arith/arith.h"

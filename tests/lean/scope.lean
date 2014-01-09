@@ -9,7 +9,7 @@ scope
   variable hinv : B -> A
   axiom Inv (x : A) : hinv (h x) = x
   axiom H1 (x y : A) : f x y = f y x
-  theorem f_eq_g : f = g := abst (fun x, (abst (fun y,
+  theorem f_eq_g : f = g := funext (fun x, (funext (fun y,
                                       let L1 : f x y = f y x := H1 x y,
                                           L2 : f y x = g x y := refl (g x y)
                                       in trans L1 L2)))

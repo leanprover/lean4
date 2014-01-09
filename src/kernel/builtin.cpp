@@ -130,12 +130,12 @@ MK_CONSTANT(discharge_fn,   name("discharge"));
 MK_CONSTANT(case_fn,        name("case"));
 MK_CONSTANT(refl_fn,        name("refl"));
 MK_CONSTANT(subst_fn,       name("subst"));
-MK_CONSTANT(eta_fn,         name("eta"));
 MK_CONSTANT(imp_antisym_fn, name({"iff", "intro"}));
-MK_CONSTANT(abst_fn,        name("abst"));
+MK_CONSTANT(abst_fn,        name("funext"));
 MK_CONSTANT(htrans_fn,      name("htrans"));
 MK_CONSTANT(hsymm_fn,       name("hsymm"));
 // Theorems
+MK_CONSTANT(eta_fn,         name("eta"));
 MK_CONSTANT(trivial,            name("trivial"));
 MK_CONSTANT(false_elim_fn,      name({"false", "elim"}));
 MK_CONSTANT(absurd_fn,          name("absurd"));

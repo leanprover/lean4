@@ -52,17 +52,20 @@ axiom subst {A : TypeU} {a b : A} {P : A → Bool} (H1 : P a) (H2 : a == b) : P 
 
 axiom iff::intro {a b : Bool} (H1 : a → b) (H2 : b → a) : a == b
 
-axiom abst {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} (H : ∀ x : A, f x == g x) : f == g
+-- Function extensionality
+axiom funext {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} (H : ∀ x : A, f x == g x) : f == g
 
-axiom abstpi {A : TypeU} {B C : A → TypeU} (H : ∀ x : A, B x == C x) : (∀ x : A, B x) == (∀ x : A, C x)
-
-axiom eta {A : TypeU} {B : A → TypeU} (f : ∀ x : A, B x) : (λ x : A, f x) == f
+-- Forall extensionality
+axiom allext {A : TypeU} {B C : A → TypeU} (H : ∀ x : A, B x == C x) : (∀ x : A, B x) == (∀ x : A, C x)
 
 axiom case (P : Bool → Bool) (H1 : P true) (H2 : P false) (a : Bool) : P a
 
 -- Alias for subst where we can provide P explicitly, but keep A,a,b implicit
 definition substp {A : TypeU} {a b : A} (P : A → Bool) (H1 : P a) (H2 : a == b) : P b
 := subst H1 H2
+
+theorem eta {A : TypeU} {B : A → TypeU} (f : ∀ x : A, B x) : (λ x : A, f x) == f
+:= funext (λ x : A, refl (f x))
 
 theorem trivial : true
 := refl true
@@ -297,10 +300,10 @@ theorem not::congr {a b : Bool} (H : a == b) : (¬ a) == (¬ b)
 := congr2 not H
 
 theorem eq::exists::intro {A : (Type U)} {P Q : A → Bool} (H : ∀ x : A, P x == Q x) : (∃ x : A, P x) == (∃ x : A, Q x)
-:= congr2 (Exists A) (abst H)
+:= congr2 (Exists A) (funext H)
 
 theorem not::forall (A : (Type U)) (P : A → Bool) : (¬ (∀ x : A, P x)) == (∃ x : A, ¬ P x)
-:= calc (¬ ∀ x : A, P x) = (¬ ∀ x : A, ¬ ¬ P x) : not::congr (abstpi (λ x : A, symm (not::not::eq (P x))))
+:= calc (¬ ∀ x : A, P x) = (¬ ∀ x : A, ¬ ¬ P x) : not::congr (allext (λ x : A, symm (not::not::eq (P x))))
               ...         = (∃ x : A, ¬ P x)     : refl (∃ x : A, ¬ P x)
 
 theorem not::forall::elim {A : (Type U)} {P : A → Bool} (H : ¬ (∀ x : A, P x)) : ∃ x : A, ¬ P x

@@ -13,8 +13,9 @@
   Proved: Inj
 definition g (A : Type) (f : A → A → A) (x y : A) : A := f y x
 theorem f_eq_g (A : Type) (f : A → A → A) (H1 : ∀ x y : A, f x y = f y x) : f = g A f :=
-    abst (λ x : A,
-            abst (λ y : A, let L1 : f x y = f y x := H1 x y, L2 : f y x = g A f x y := refl (g A f x y) in L1 ⋈ L2))
+    funext (λ x : A,
+              funext (λ y : A,
+                        let L1 : f x y = f y x := H1 x y, L2 : f y x = g A f x y := refl (g A f x y) in L1 ⋈ L2))
 theorem Inj (A B : Type)
     (h : A → B)
     (hinv : B → A)

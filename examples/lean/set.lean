@@ -15,7 +15,7 @@ theorem subset::trans {A : Type} {s1 s2 s3 : Set A} (H1 : s1 ⊆ s2) (H2 : s2 �
         in H2 x L1
 
 theorem subset::ext {A : Type} {s1 s2 : Set A} (H : ∀ x, x ∈ s1 = x ∈ s2) : s1 = s2
-:= abst H
+:= funext H
 
 theorem subset::antisym {A : Type} {s1 s2 : Set A} (H1 : s1 ⊆ s2) (H2 : s2 ⊆ s1) :  s1 = s2
 := subset::ext (have (∀ x, x ∈ s1 = x ∈ s2) :

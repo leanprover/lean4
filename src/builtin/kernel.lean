@@ -49,7 +49,6 @@ infix 50 ≠ : neq
 theorem em (a : Bool) : a ∨ ¬ a
 := λ Hna : ¬ a, Hna
 
--- Boolean completeness
 axiom case (P : Bool → Bool) (H1 : P true) (H2 : P false) (a : Bool) : P a
 
 axiom refl {A : TypeU} (a : A) : a == a

@@ -9,20 +9,6 @@
 -- typepos is the position of (A : Type) argument
 -- lambdapos is the position of the (Pi x : A, ...) argument
 --
--- Example: suppose we invoke
---
---    binder_macro("take", Const({"forall", "intro"}), 3, 1, 3)
---
--- Then, the macro expression
---
---     take x y : Int, H x y
---
--- produces the expression
---
---     forall::intro Int _ (fun x : Int, forall::intro Int _ (fun y : Int, H x y))
---
--- The _ are placeholders (aka) holes that will be filled by the Lean
--- elaborator.
 function binder_macro(name, f, farity, typepos, lambdapos)
    local precedence = 0
    macro(name, { macro_arg.Parameters, macro_arg.Comma, macro_arg.Expr },
@@ -52,15 +38,15 @@ end
 -- The following macro is used to create nary versions of operators such as mp.
 -- Example: suppose we invoke
 --
---    nary_macro("mp'", Const("mp"), 4)
+--    nary_macro("eqmp'", Const("eqmp"), 4)
 --
 -- Then, the macro expression
 --
---     mp' Foo H1 H2 H3
+--     eqmp' Foo H1 H2 H3
 --
 -- produces the expression
 --
---     (mp (mp (mp Foo H1) H2) H3)
+--     (eqmp (eqmp (eqmp Foo H1) H2) H3)
 function nary_macro(name, f, farity)
    local bin_app = function(e1, e2)
       local args = {}
@@ -83,11 +69,7 @@ function nary_macro(name, f, farity)
    end)
 end
 
-binder_macro("take", Const({"forall", "intro"}), 3, 1, 3)
-binder_macro("assume", Const("discharge"), 3, 1, 3)
-nary_macro("instantiate", Const({"forall", "elim"}), 4)
-
--- ExistsElim syntax-sugar
+-- exists::elim syntax-sugar
 -- Example:
 -- Assume we have the following two axioms
 --      Axiom Ax1: exists x y, P x y

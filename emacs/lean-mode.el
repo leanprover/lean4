@@ -1,5 +1,18 @@
 (require 'generic-x)
 (require 'lean-input)
+(require 'compile)
+
+(defvar lean-exe "lean"
+  "Path for the Lean executable")
+
+(defun lean-execute ()
+  "Execute Lean in the current buffer"
+  (interactive)
+  (compile (format "%s %s" lean-exe (buffer-file-name))))
+
+(defun lean-set-keys ()
+  (local-set-key "\C-c\C-x" 'lean-execute)
+  (local-set-key "\C-c\C-l" 'lean-execute))
 
 (define-generic-mode
     'lean-mode     ;; name of the mode to create
@@ -14,6 +27,7 @@
       (set-input-method "Lean")
       (set (make-local-variable 'lisp-indent-function)
            'common-lisp-indent-function)
+      (lean-set-keys)
       ))
   "A mode for Lean files"          ;; doc string for this mode
   )

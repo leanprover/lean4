@@ -27,10 +27,10 @@ function(add_theory_core FILE ARG EXTRA_DEPS)
   get_filename_component(BASENAME ${FILE} NAME_WE)
   set(FNAME "${BASENAME}.olean")
   add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${FNAME}
-    COMMAND ${SHELL_DIR}/lean ${ARG} -q -o ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} ${CMAKE_CURRENT_SOURCE_DIR}/${FILE}
+    COMMAND ${SHELL_DIR}/lean.sh ${ARG} -q -o ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} ${CMAKE_CURRENT_SOURCE_DIR}/${FILE}
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} ${SHELL_DIR}/${FNAME}
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} ${CMAKE_CURRENT_SOURCE_DIR}/obj/${FNAME}
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} ${SHELL_DIR}/lean ${EXTRA_DEPS})
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} ${SHELL_DIR}/lean.sh ${EXTRA_DEPS})
   add_custom_target("${BASENAME}_builtin" DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} ${EXTRA_DEPS})
   add_dependencies(builtin ${BASENAME}_builtin)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} DESTINATION library)
@@ -73,11 +73,16 @@ function(update_interface FILE DEST ARG)
   get_filename_component(BASENAME ${FILE} NAME_WE)
   set(CPPFILE "${LEAN_SOURCE_DIR}/${DEST}/${BASENAME}_decls.cpp")
   set(HFILE "${LEAN_SOURCE_DIR}/${DEST}/${BASENAME}_decls.h")
-  add_custom_command(OUTPUT ${CPPFILE} ${HFILE}
-    COMMAND ${SHELL_DIR}/lean ${ARG} -q ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} ${CMAKE_CURRENT_SOURCE_DIR}/name_conv.lua ${CMAKE_CURRENT_SOURCE_DIR}/lean2cpp.lean > ${CPPFILE}
-    COMMAND ${SHELL_DIR}/lean ${ARG} -q ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} ${CMAKE_CURRENT_SOURCE_DIR}/name_conv.lua ${CMAKE_CURRENT_SOURCE_DIR}/lean2h.lean > ${HFILE}
-    DEPENDS ${FILE})
-  add_custom_target("${BASENAME}_decls" DEPENDS ${CPPFILE})
+  # We also create a fake .h file, it serves as the output for the following
+  # custom command. We don't use CPPFILE and HFILE as the output to avoid
+  # a cyclic dependency.
+  set(HFILE_fake "${LEAN_BINARY_DIR}/${DEST}/${BASENAME}_fake.h")
+  add_custom_command(OUTPUT ${HFILE_fake}
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/lean2cpp.sh "${SHELL_DIR}/lean.sh" "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/${FILE}" "${CPPFILE}" "${ARG}$"
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/lean2h.sh   "${SHELL_DIR}/lean.sh" "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/${FILE}" "${HFILE}"   "${ARG}$"
+    COMMAND ${CMAKE_COMMAND} -E copy ${HFILE} ${HFILE_fake}
+    DEPENDS ${FILE} ${SHELL_DIR}/lean.sh)
+  add_custom_target("${BASENAME}_decls" DEPENDS ${HFILE_fake})
   add_dependencies(builtin ${BASENAME}_decls)
 endfunction()
 
@@ -90,7 +95,7 @@ add_theory("Real.lean"         "${CMAKE_CURRENT_BINARY_DIR}/Int.olean")
 add_theory("specialfn.lean"    "${CMAKE_CURRENT_BINARY_DIR}/Real.olean")
 add_theory("cast.lean"         "${CMAKE_CURRENT_BINARY_DIR}/Nat.olean")
 
-update_interface("kernel.lean" "kernel" "-n")
-update_interface("Nat.lean"    "library/arith" "-n")
-update_interface("Int.lean"    "library/arith" "")
-update_interface("Real.lean"   "library/arith" "")
+update_interface("kernel.olean" "kernel" "-n")
+update_interface("Nat.olean"    "library/arith" "-n")
+update_interface("Int.olean"    "library/arith" "")
+update_interface("Real.olean"   "library/arith" "")

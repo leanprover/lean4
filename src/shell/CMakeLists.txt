@@ -106,3 +106,16 @@ if((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Linux"))
     ENDFOREACH(T)
   endif()
 endif()
+
+# Create the script lean.sh
+# This is used to create a soft dependency on the Lean executable
+# Some rules can only be applied if the lean executable exists,
+# but we don't want a dependency on the executable because
+# the rules would be applied whenever the executable is rebuilt.
+# These are the rules for automatically generating .olean files and
+# C++/Lean interface files.
+add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/lean.sh
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/mk_lean_sh.sh ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/lean)
+add_custom_target(lean_sh DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/lean.sh)
+

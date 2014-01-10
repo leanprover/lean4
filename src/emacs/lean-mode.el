@@ -24,12 +24,15 @@
 (define-generic-mode
     'lean-mode     ;; name of the mode to create
   '("--")          ;; comments start with
-  '("import" "definition" "variable" "variables" "print" "axiom" "theorem" "universe" "alias" "help" "set_option" "set_opaque" "environment" "options" "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end" "using" "namespace" "builtin" "scope" "pop_scope") ;; some keywords
+  '("import" "definition" "variable" "variables" "print" "theorem" "axiom" "universe" "alias" "help" "environment" "options" "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end" "using" "namespace" "builtin" "scope" "pop_scope" "set_opaque" "set_option") ;; some keywords
   '(("\\<\\(Bool\\|Int\\|Nat\\|Real\\|Type\\|TypeU\\|ℕ\\|ℤ\\)\\>" . 'font-lock-type-face)
-    ("\\<\\(calc\\|have\\|in\\|let\\)\\>" . font-lock-keyword-face)
+    ("\\<\\(calc\\|have\\|in\\|let\\|forall\\|exists\\|[λ→∃∀:]\\)\\>" . font-lock-keyword-face)
     ("\"[^\"]*\"" . 'font-lock-string-face)
-    ("\\(->\\|/\\\\\\|==\\|\\\\/\\|[*+/:<=>¬λ→∀∃∧∨≠≤≥-]\\)" . 'font-lock-constant-face)
-    ("\\(\\b.*_tac\\|Cond\\|OrElse\\|T\\(?:hen\\|ry\\)\\|When\\|a\\(?:bsurd\\|pply\\)\\|b\\(?:ack\\|eta\\)\\|done\\|exact\\|trivial\\|unfold\\(?:_all\\)?\\)" . 'font-lock-function-name-face)
+    ("\\(->\\|/\\\\\\|==\\|\\\\/\\|[*+/<=>¬∧∨≠≤≥-]\\)" . 'font-lock-constant-face)
+    ("\\(\\b.*_tac\\|Cond\\|OrElse\\|T\\(?:hen\\|ry\\)\\|When\\|apply\\|b\\(?:ack\\|eta\\)\\|done\\|exact\\)" . 'font-lock-constant-face)
+    ("\\(universe\\|theorem\\|axiom\\|definition\\|variable\\|builtin\\)[ \t]*\\([^ \t\n]*\\)" (2 'font-lock-function-name-face))
+    ("variables[ \t]\\([^:]*\\)" (1 'font-lock-function-name-face))
+    ("\\(set_opaque\\|set_option\\)[ \t]*\\([^ \t\n]*\\)" (2 'font-lock-constant-face))
     ;;
     )
   '("\\.lean$")                    ;; files for which to activate this mode

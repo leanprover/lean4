@@ -30,7 +30,4 @@ inline expr And(std::initializer_list<expr> const & l) { return mk_and(l.size(),
 
 inline expr mk_or(unsigned num_args, expr const * args) { return mk_bin_rop(mk_or_fn(), False, num_args, args); }
 inline expr Or(std::initializer_list<expr> const & l) { return mk_or(l.size(), l.begin()); }
-
-inline expr mk_iff(unsigned num_args, expr const * args) { return mk_bin_rop(mk_iff_fn(), True, num_args, args); }
-inline expr Iff(std::initializer_list<expr> const & l) { return mk_iff(l.size(), l.begin()); }
 }

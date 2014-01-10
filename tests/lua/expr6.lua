@@ -22,7 +22,7 @@ function print_leaves(e, ctx)
       print("abstraction var name: " .. tostring(name))
       print_leaves(domain, ctx)
       print_leaves(body, ctx:extend(name, domain))
-   elseif k == expr_kind.Eq then
+   elseif k == expr_kind.HEq then
       local lhs, rhs = e:fields()
       print_leaves(lhs, ctx)
       print_leaves(rhs, ctx)
@@ -43,6 +43,6 @@ local x, y, z = Consts("x, y, z")
 assert(is_expr(f))
 
 local F = fun(h, mk_arrow(N, N),
-              Let(x, h(a), Eq(f(x), h(x))))
+              Let(x, h(a), HEq(f(x), h(x))))
 print(F)
 print_leaves(F, context())

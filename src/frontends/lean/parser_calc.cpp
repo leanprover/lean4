@@ -44,34 +44,20 @@ void calc_proof_parser::add_trans_step(expr const & op1, expr const & op2, trans
     m_trans_ops.emplace_front(op1, op2, d);
 }
 
-static name g_eq_imp_trans("eq_imp_trans");
-static name g_imp_eq_trans("imp_eq_trans");
-static name g_imp_trans("imp_trans");
-static name g_eq_ne_trans("eq_ne_trans");
-static name g_ne_eq_trans("ne_eq_trans");
-static name g_neq("neq");
-
 calc_proof_parser::calc_proof_parser() {
     expr imp = mk_implies_fn();
-    expr eq  = mk_homo_eq_fn();
-    expr iff = mk_iff_fn();
-    expr neq = mk_constant(g_neq);
+    expr eq  = mk_eq_fn();
+    expr neq = mk_neq_fn();
 
     add_supported_operator(op_data(imp, 2));
     add_supported_operator(op_data(eq, 3));
-    add_supported_operator(op_data(iff, 2));
     add_supported_operator(op_data(neq, 3));
     add_trans_step(eq, eq,    trans_data(mk_trans_fn(), 6, eq));
-    add_trans_step(eq, imp,   trans_data(mk_constant(g_eq_imp_trans), 5, imp));
-    add_trans_step(imp, eq,   trans_data(mk_constant(g_imp_eq_trans), 5, imp));
-    add_trans_step(imp, imp,  trans_data(mk_constant(g_imp_trans), 5, imp));
-    add_trans_step(iff, iff,  trans_data(mk_trans_fn(), 6, iff));
-    add_trans_step(iff, imp,  trans_data(mk_constant(g_eq_imp_trans), 5, imp));
-    add_trans_step(imp, iff,  trans_data(mk_constant(g_imp_eq_trans), 5, imp));
-    add_trans_step(eq, iff,   trans_data(mk_trans_fn(), 6, iff));
-    add_trans_step(iff, eq,   trans_data(mk_trans_fn(), 6, iff));
-    add_trans_step(eq,  neq,  trans_data(mk_constant(g_eq_ne_trans), 6, neq));
-    add_trans_step(neq, eq,   trans_data(mk_constant(g_ne_eq_trans), 6, neq));
+    add_trans_step(eq, imp,   trans_data(mk_eq_imp_trans_fn(), 5, imp));
+    add_trans_step(imp, eq,   trans_data(mk_imp_eq_trans_fn(), 5, imp));
+    add_trans_step(imp, imp,  trans_data(mk_imp_trans_fn(), 5, imp));
+    add_trans_step(eq,  neq,  trans_data(mk_eq_ne_trans_fn(), 6, neq));
+    add_trans_step(neq, eq,   trans_data(mk_ne_eq_trans_fn(), 6, neq));
 }
 
 optional<expr> calc_proof_parser::find_op(operator_info const & op, pos_info const & p) const {
@@ -108,12 +94,12 @@ static expr parse_step_pr(parser_imp & imp, expr const & lhs) {
         expr eq_pr = imp.parse_expr();
         imp.check_rcurly_next("invalid calculational proof, '}' expected");
         // Using axiom Subst {A : TypeU} {a b : A} {P : A → Bool} (H1 : P a) (H2 : a == b) : P b.
-        return imp.save(Subst(imp.save(mk_placeholder(), p),
-                              imp.save(mk_placeholder(), p),
-                              imp.save(mk_placeholder(), p),
-                              imp.save(mk_placeholder(), p), // let elaborator compute the first four arguments
-                              imp.save(Refl(imp.save(mk_placeholder(), p), lhs), p),
-                              eq_pr), p);
+        return imp.save(mk_subst_th(imp.save(mk_placeholder(), p),
+                                    imp.save(mk_placeholder(), p),
+                                    imp.save(mk_placeholder(), p),
+                                    imp.save(mk_placeholder(), p), // let elaborator compute the first four arguments
+                                    imp.save(mk_refl_th(imp.save(mk_placeholder(), p), lhs), p),
+                                    eq_pr), p);
     } else {
         return imp.parse_expr();
     }

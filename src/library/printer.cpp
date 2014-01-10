@@ -18,7 +18,7 @@ bool is_atomic(expr const & e) {
     case expr_kind::Type: case expr_kind::MetaVar:
         return true;
     case expr_kind::App: case expr_kind::Lambda: case expr_kind::Pi:
-    case expr_kind::Eq: case expr_kind::Let:
+    case expr_kind::HEq: case expr_kind::Let:
         return false;
     }
     return false;
@@ -55,10 +55,10 @@ struct print_expr_fn {
         }
     }
 
-    void print_eq(expr const & a, context const & c) {
-        print_child(eq_lhs(a), c);
+    void print_heq(expr const & a, context const & c) {
+        print_child(heq_lhs(a), c);
         out() << " == ";
-        print_child(eq_rhs(a), c);
+        print_child(heq_rhs(a), c);
     }
 
     void print_app(expr const & e, context const & c) {
@@ -114,8 +114,8 @@ struct print_expr_fn {
         case expr_kind::App:
             print_app(a, c);
             break;
-        case expr_kind::Eq:
-            print_eq(a, c);
+        case expr_kind::HEq:
+            print_heq(a, c);
             break;
         case expr_kind::Lambda:
             out() << "fun " << abst_name(a) << " : ";

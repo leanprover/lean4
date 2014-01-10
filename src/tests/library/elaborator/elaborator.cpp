@@ -95,7 +95,7 @@ static void tst2() {
     expr F  = m1(g(m2, m3(a)), m4(nVal(0)));
     std::cout << F << "\n";
     std::cout << checker.check(F, context(), menv, ucs) << "\n";
-    ucs.push_back(mk_choice_constraint(context(), m1, { mk_nat_le_fn(), mk_int_le_fn(), mk_real_le_fn() }, justification()));
+    ucs.push_back(mk_choice_constraint(context(), m1, { mk_Nat_le_fn(), mk_Int_le_fn(), mk_Real_le_fn() }, justification()));
     ucs.push_back(mk_choice_constraint(context(), m3, { int_id, mk_int_to_real_fn() }, justification()));
     ucs.push_back(mk_choice_constraint(context(), m4, { nat_id, mk_nat_to_int_fn(), mk_nat_to_real_fn() }, justification()));
     elaborator elb(env, menv, ucs.size(), ucs.data());
@@ -138,7 +138,7 @@ static void tst3() {
     expr F = Fun({x, m1}, m2(f(m3, x), m4(nVal(10))))(m5(a));
     std::cout << F << "\n";
     std::cout << checker.check(F, context(), menv, ucs) << "\n";
-    ucs.push_back(mk_choice_constraint(context(), m2, { mk_nat_le_fn(), mk_int_le_fn(), mk_real_le_fn() }, justification()));
+    ucs.push_back(mk_choice_constraint(context(), m2, { mk_Nat_le_fn(), mk_Int_le_fn(), mk_Real_le_fn() }, justification()));
     ucs.push_back(mk_choice_constraint(context(), m4, { nat_id, mk_nat_to_int_fn(), mk_nat_to_real_fn() }, justification()));
     ucs.push_back(mk_choice_constraint(context(), m5, { int_id, mk_int_to_real_fn() }, justification()));
     elaborator elb(env, menv, ucs.size(), ucs.data());
@@ -183,7 +183,7 @@ static void tst4() {
     expr F = Fun({{x, m1}, {y, m2}}, m3(f(m4, x), f(m5, y)))(m6(a), b);
     std::cout << F << "\n";
     std::cout << checker.check(F, context(), menv, ucs) << "\n";
-    ucs.push_back(mk_choice_constraint(context(), m3, { mk_nat_le_fn(), mk_int_le_fn(), mk_real_le_fn() }, justification()));
+    ucs.push_back(mk_choice_constraint(context(), m3, { mk_Nat_le_fn(), mk_Int_le_fn(), mk_Real_le_fn() }, justification()));
     ucs.push_back(mk_choice_constraint(context(), m6, { int_id, mk_int_to_real_fn() }, justification()));
     elaborator elb(env, menv, ucs.size(), ucs.data());
     elb.next();
@@ -257,10 +257,10 @@ static void tst6() {
     env->add_var("f", Int >> (Int >> Int));
     env->add_var("a", Int);
     env->add_var("b", Int);
-    env->add_axiom("H1", Eq(f(a, f(a, b)), a));
-    env->add_axiom("H2", Eq(a, b));
-    expr V = Subst(m1, m2, m3, m4, H1, H2);
-    expr expected = Eq(f(a, f(b, b)), a);
+    env->add_axiom("H1", HEq(f(a, f(a, b)), a));
+    env->add_axiom("H2", HEq(a, b));
+    expr V = mk_subst_th(m1, m2, m3, m4, H1, H2);
+    expr expected = HEq(f(a, f(b, b)), a);
     expr given    = checker.check(V, context(), menv, ucs);
     ucs.push_back(mk_eq_constraint(context(), expected, given, justification()));
     elaborator elb(env, menv, ucs.size(), ucs.data());
@@ -339,17 +339,17 @@ static void tst8() {
     env->add_var("a", Bool);
     env->add_var("b", Bool);
     env->add_var("c", Bool);
-    env->add_axiom("H1", Eq(a, b));
-    env->add_axiom("H2", Eq(b, c));
-    success(Trans(_, _, _, _, H1, H2), Trans(Bool, a, b, c, H1, H2), env);
-    success(Trans(_, _, _, _, Symm(_, _, _, H2), Symm(_, _, _, H1)),
-            Trans(Bool, c, b, a, Symm(Bool, b, c, H2), Symm(Bool, a, b, H1)), env);
-    success(Symm(_, _, _, Trans(_, _ , _ , _ , Symm(_, _, _, H2), Symm(_, _, _, H1))),
-            Symm(Bool, c, a, Trans(Bool, c, b, a, Symm(Bool, b, c, H2), Symm(Bool, a, b, H1))), env);
+    env->add_axiom("H1", HEq(a, b));
+    env->add_axiom("H2", HEq(b, c));
+    success(mk_trans_th(_, _, _, _, H1, H2), mk_trans_th(Bool, a, b, c, H1, H2), env);
+    success(mk_trans_th(_, _, _, _, mk_symm_th(_, _, _, H2), mk_symm_th(_, _, _, H1)),
+            mk_trans_th(Bool, c, b, a, mk_symm_th(Bool, b, c, H2), mk_symm_th(Bool, a, b, H1)), env);
+    success(mk_symm_th(_, _, _, mk_trans_th(_, _ , _ , _ , mk_symm_th(_, _, _, H2), mk_symm_th(_, _, _, H1))),
+            mk_symm_th(Bool, c, a, mk_trans_th(Bool, c, b, a, mk_symm_th(Bool, b, c, H2), mk_symm_th(Bool, a, b, H1))), env);
     env->add_axiom("H3", a);
     expr H3 = Const("H3");
-    success(EqTIntro(_, EqMP(_, _, Symm(_, _, _, Trans(_, _, _, _, Symm(_, _, _, H2), Symm(_, _, _, H1))), H3)),
-            EqTIntro(c, EqMP(a, c, Symm(Bool, c, a, Trans(Bool, c, b, a, Symm(Bool, b, c, H2), Symm(Bool, a, b, H1))), H3)),
+    success(mk_eqt_intro_th(_, mk_eqmp_th(_, _, mk_symm_th(_, _, _, mk_trans_th(_, _, _, _, mk_symm_th(_, _, _, H2), mk_symm_th(_, _, _, H1))), H3)),
+            mk_eqt_intro_th(c, mk_eqmp_th(a, c, mk_symm_th(Bool, c, a, mk_trans_th(Bool, c, b, a, mk_symm_th(Bool, b, c, H2), mk_symm_th(Bool, a, b, H1))), H3)),
             env);
 }
 
@@ -370,19 +370,19 @@ static void tst9() {
     expr fact = Const("fact");
     env->add_var("a", Nat);
     env->add_var("b", Nat);
-    env->add_definition("fact", Bool, Eq(a, b));
+    env->add_definition("fact", Bool, HEq(a, b));
     env->add_axiom("H", fact);
-    success(Congr2(_, _, _, _, f, H),
-            Congr2(Nat, Fun({n, Nat}, vec(n) >> Nat), a, b, f, H), env);
+    success(mk_congr2_th(_, _, _, _, f, H),
+            mk_congr2_th(Nat, Fun({n, Nat}, vec(n) >> Nat), a, b, f, H), env);
     env->add_var("g", Pi({n, Nat}, vec(n) >> Nat));
     expr g = Const("g");
-    env->add_axiom("H2", Eq(f, g));
+    env->add_axiom("H2", HEq(f, g));
     expr H2 = Const("H2");
-    success(Congr(_, _, _, _, _, _, H2, H),
-            Congr(Nat, Fun({n, Nat}, vec(n) >> Nat), f, g, a, b, H2, H), env);
-    success(Congr(_, _, _, _, _, _, Refl(_, f), H),
-            Congr(Nat, Fun({n, Nat}, vec(n) >> Nat), f, f, a, b, Refl(Pi({n, Nat}, vec(n) >> Nat), f), H), env);
-    success(Refl(_, a), Refl(Nat, a), env);
+    success(mk_congr_th(_, _, _, _, _, _, H2, H),
+            mk_congr_th(Nat, Fun({n, Nat}, vec(n) >> Nat), f, g, a, b, H2, H), env);
+    success(mk_congr_th(_, _, _, _, _, _, mk_refl_th(_, f), H),
+            mk_congr_th(Nat, Fun({n, Nat}, vec(n) >> Nat), f, f, a, b, mk_refl_th(Pi({n, Nat}, vec(n) >> Nat), f), H), env);
+    success(mk_refl_th(_, a), mk_refl_th(Nat, a), env);
 }
 
 static void tst10() {
@@ -402,11 +402,11 @@ static void tst10() {
     expr z   = Const("z");
     success(Fun({{x, _}, {y, _}}, f(x, y)),
             Fun({{x, Nat}, {y, R >> Nat}}, f(x, y)), env);
-    success(Fun({{x, _}, {y, _}, {z, _}}, Eq(f(x, y), f(x, z))),
-            Fun({{x, Nat}, {y, R >> Nat}, {z, R >> Nat}}, Eq(f(x, y), f(x, z))), env);
+    success(Fun({{x, _}, {y, _}, {z, _}}, HEq(f(x, y), f(x, z))),
+            Fun({{x, Nat}, {y, R >> Nat}, {z, R >> Nat}}, HEq(f(x, y), f(x, z))), env);
     expr A   = Const("A");
-    success(Fun({{A, Type()}, {x, _}, {y, _}, {z, _}}, Eq(f(x, y), f(x, z))),
-            Fun({{A, Type()}, {x, Nat}, {y, R >> Nat}, {z, R >> Nat}}, Eq(f(x, y), f(x, z))), env);
+    success(Fun({{A, Type()}, {x, _}, {y, _}, {z, _}}, HEq(f(x, y), f(x, z))),
+            Fun({{A, Type()}, {x, Nat}, {y, R >> Nat}, {z, R >> Nat}}, HEq(f(x, y), f(x, z))), env);
 }
 
 static void tst11() {
@@ -464,11 +464,11 @@ static void tst13() {
             Fun({{A, Type()}, {x, A}}, f(A, x)), env);
     success(Fun({{A, Type()}, {B, Type()}, {x, _}}, f(A, x)),
             Fun({{A, Type()}, {B, Type()}, {x, A}}, f(A, x)), env);
-    success(Fun({{A, Type()}, {B, Type()}, {x, _}}, Eq(f(B, x), f(_, x))),
-            Fun({{A, Type()}, {B, Type()}, {x, B}}, Eq(f(B, x), f(B, x))), env);
-    success(Fun({{A, Type()}, {B, Type()}, {x, _}}, Eq(f(B, x), f(_, x))),
-            Fun({{A, Type()}, {B, Type()}, {x, B}}, Eq(f(B, x), f(B, x))), env);
-    unsolved(Fun({{A, _}, {B, _}, {x, _}}, Eq(f(B, x), f(_, x))), env);
+    success(Fun({{A, Type()}, {B, Type()}, {x, _}}, HEq(f(B, x), f(_, x))),
+            Fun({{A, Type()}, {B, Type()}, {x, B}}, HEq(f(B, x), f(B, x))), env);
+    success(Fun({{A, Type()}, {B, Type()}, {x, _}}, HEq(f(B, x), f(_, x))),
+            Fun({{A, Type()}, {B, Type()}, {x, B}}, HEq(f(B, x), f(B, x))), env);
+    unsolved(Fun({{A, _}, {B, _}, {x, _}}, HEq(f(B, x), f(_, x))), env);
 }
 
 static void tst14() {
@@ -495,20 +495,20 @@ static void tst14() {
             env);
     success(Fun({g, Pi({A, Type()}, A >> (A >> Bool))},
                 g(_,
-                  Fun({{x, _}, {y, _}}, Eq(f(_, x), f(_, y))),
+                  Fun({{x, _}, {y, _}}, HEq(f(_, x), f(_, y))),
                   Fun({{x, N}, {y, Bool}}, True))),
             Fun({g, Pi({A, Type()}, A >> (A >> Bool))},
                 g((N >> (Bool >> Bool)),
-                  Fun({{x, N}, {y, Bool}}, Eq(f(N, x), f(Bool, y))),
+                  Fun({{x, N}, {y, Bool}}, HEq(f(N, x), f(Bool, y))),
                   Fun({{x, N}, {y, Bool}}, True))), env);
 
     success(Fun({g, Pi({A, Type()}, A >> (A >> Bool))},
                 g(_,
-                  Fun({{x, N}, {y, _}}, Eq(f(_, x), f(_, y))),
+                  Fun({{x, N}, {y, _}}, HEq(f(_, x), f(_, y))),
                   Fun({{x, _}, {y, Bool}}, True))),
             Fun({g, Pi({A, Type()}, A >> (A >> Bool))},
                 g((N >> (Bool >> Bool)),
-                  Fun({{x, N}, {y, Bool}}, Eq(f(N, x), f(Bool, y))),
+                  Fun({{x, N}, {y, Bool}}, HEq(f(N, x), f(Bool, y))),
                   Fun({{x, N}, {y, Bool}}, True))), env);
 }
 
@@ -550,29 +550,29 @@ static void tst16() {
     env->add_var("a", Bool);
     env->add_var("b", Bool);
     env->add_var("c", Bool);
-    success(Fun({{H1, Eq(a, b)}, {H2, Eq(b, c)}},
-                Trans(_, _, _, _, H1, H2)),
-            Fun({{H1, Eq(a, b)}, {H2, Eq(b, c)}},
-                Trans(Bool, a, b, c, H1, H2)),
+    success(Fun({{H1, HEq(a, b)}, {H2, HEq(b, c)}},
+                mk_trans_th(_, _, _, _, H1, H2)),
+            Fun({{H1, HEq(a, b)}, {H2, HEq(b, c)}},
+                mk_trans_th(Bool, a, b, c, H1, H2)),
             env);
     expr H3 = Const("H3");
-    success(Fun({{H1, Eq(a, b)}, {H2, Eq(b, c)}, {H3, a}},
-                EqTIntro(_, EqMP(_, _, Symm(_, _, _, Trans(_, _, _, _, Symm(_, _, _, H2), Symm(_, _, _, H1))), H3))),
-            Fun({{H1, Eq(a, b)}, {H2, Eq(b, c)}, {H3, a}},
-                EqTIntro(c, EqMP(a, c, Symm(Bool, c, a, Trans(Bool, c, b, a, Symm(Bool, b, c, H2), Symm(Bool, a, b, H1))), H3))),
+    success(Fun({{H1, HEq(a, b)}, {H2, HEq(b, c)}, {H3, a}},
+                mk_eqt_intro_th(_, mk_eqmp_th(_, _, mk_symm_th(_, _, _, mk_trans_th(_, _, _, _, mk_symm_th(_, _, _, H2), mk_symm_th(_, _, _, H1))), H3))),
+            Fun({{H1, HEq(a, b)}, {H2, HEq(b, c)}, {H3, a}},
+                mk_eqt_intro_th(c, mk_eqmp_th(a, c, mk_symm_th(Bool, c, a, mk_trans_th(Bool, c, b, a, mk_symm_th(Bool, b, c, H2), mk_symm_th(Bool, a, b, H1))), H3))),
             env);
     environment env2;
     init_test_frontend(env2);
-    success(Fun({{a, Bool}, {b, Bool}, {c, Bool}, {H1, Eq(a, b)}, {H2, Eq(b, c)}, {H3, a}},
-                EqTIntro(_, EqMP(_, _, Symm(_, _, _, Trans(_, _, _, _, Symm(_, _, _, H2), Symm(_, _, _, H1))), H3))),
-            Fun({{a, Bool}, {b, Bool}, {c, Bool}, {H1, Eq(a, b)}, {H2, Eq(b, c)}, {H3, a}},
-                EqTIntro(c, EqMP(a, c, Symm(Bool, c, a, Trans(Bool, c, b, a, Symm(Bool, b, c, H2), Symm(Bool, a, b, H1))), H3))),
+    success(Fun({{a, Bool}, {b, Bool}, {c, Bool}, {H1, HEq(a, b)}, {H2, HEq(b, c)}, {H3, a}},
+                mk_eqt_intro_th(_, mk_eqmp_th(_, _, mk_symm_th(_, _, _, mk_trans_th(_, _, _, _, mk_symm_th(_, _, _, H2), mk_symm_th(_, _, _, H1))), H3))),
+            Fun({{a, Bool}, {b, Bool}, {c, Bool}, {H1, HEq(a, b)}, {H2, HEq(b, c)}, {H3, a}},
+                mk_eqt_intro_th(c, mk_eqmp_th(a, c, mk_symm_th(Bool, c, a, mk_trans_th(Bool, c, b, a, mk_symm_th(Bool, b, c, H2), mk_symm_th(Bool, a, b, H1))), H3))),
             env2);
     expr A = Const("A");
-    success(Fun({{A, Type()}, {a, A}, {b, A}, {c, A}, {H1, Eq(a, b)}, {H2, Eq(b, c)}},
-                Symm(_, _, _, Trans(_, _, _, _, Symm(_, _, _, H2), Symm(_, _, _, H1)))),
-            Fun({{A, Type()}, {a, A}, {b, A}, {c, A}, {H1, Eq(a, b)}, {H2, Eq(b, c)}},
-                Symm(A, c, a, Trans(A, c, b, a, Symm(A, b, c, H2), Symm(A, a, b, H1)))),
+    success(Fun({{A, Type()}, {a, A}, {b, A}, {c, A}, {H1, HEq(a, b)}, {H2, HEq(b, c)}},
+                mk_symm_th(_, _, _, mk_trans_th(_, _, _, _, mk_symm_th(_, _, _, H2), mk_symm_th(_, _, _, H1)))),
+            Fun({{A, Type()}, {a, A}, {b, A}, {c, A}, {H1, HEq(a, b)}, {H2, HEq(b, c)}},
+                mk_symm_th(A, c, a, mk_trans_th(A, c, b, a, mk_symm_th(A, b, c, H2), mk_symm_th(A, a, b, H1)))),
             env2);
 }
 
@@ -682,7 +682,7 @@ void tst21() {
     expr b  = Const("b");
     expr m1 = menv->mk_metavar();
     expr l = m1(b, a);
-    expr r = Fun({x, N}, f(x, Eq(a, b)));
+    expr r = Fun({x, N}, f(x, HEq(a, b)));
     elaborator elb(env, menv, context(), l, r);
     while (true) {
         try {
@@ -715,8 +715,8 @@ void tst22() {
     expr f  = Const("f");
     expr a  = Const("a");
     expr b  = Const("b");
-    expr l = f(m1(a), iAdd(m3, iAdd(iVal(1), iVal(1))));
-    expr r = f(m2(b), iAdd(iVal(1), iVal(2)));
+    expr l = f(m1(a), mk_Int_add(m3, mk_Int_add(iVal(1), iVal(1))));
+    expr r = f(m2(b), mk_Int_add(iVal(1), iVal(2)));
     elaborator elb(env, menv, context(), l, r);
     while (true) {
         try {
@@ -745,8 +745,8 @@ void tst23() {
     expr f  = Const("f");
     expr m1 = menv->mk_metavar();
     expr m2 = menv->mk_metavar();
-    expr l  = Fun({{x, N}, {y, N}}, Eq(y, f(x, m1)));
-    expr r  = Fun({{x, N}, {y, N}}, Eq(m2, f(m1, x)));
+    expr l  = Fun({{x, N}, {y, N}}, HEq(y, f(x, m1)));
+    expr r  = Fun({{x, N}, {y, N}}, HEq(m2, f(m1, x)));
     elaborator elb(env, menv, context(), l, r);
     while (true) {
         try {
@@ -832,13 +832,13 @@ void tst26() {
     expr a = Const("a");
     env->add_var("a", Type(level()+1));
     expr m1 = menv->mk_metavar();
-    expr F  = Eq(g(m1, a), a);
+    expr F  = HEq(g(m1, a), a);
     std::cout << F << "\n";
     std::cout << checker.check(F, context(), menv, ucs) << "\n";
     elaborator elb(env, menv, ucs.size(), ucs.data());
     metavar_env s = elb.next();
     std::cout << s->instantiate_metavars(F) << "\n";
-    lean_assert_eq(s->instantiate_metavars(F), Eq(g(Type(level()+1), a), a));
+    lean_assert_eq(s->instantiate_metavars(F), HEq(g(Type(level()+1), a), a));
 }
 
 void tst27() {

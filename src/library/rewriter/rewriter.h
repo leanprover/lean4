@@ -382,14 +382,14 @@ class apply_rewriter_fn {
             result = rewrite_app(env, ctx, v, results);
             std::pair<expr, expr> tmp = m_rw(env, ctx, result.first);
             if (result.first != tmp.first) {
-                tmp.second = Trans(ty_v, v, result.first, tmp.first, result.second, tmp.second);
+                tmp.second = mk_trans_th(ty_v, v, result.first, tmp.first, result.second, tmp.second);
                 result = tmp;
             }
         }
             break;
-        case expr_kind::Eq: {
-            expr const & lhs = eq_lhs(v);
-            expr const & rhs = eq_rhs(v);
+        case expr_kind::HEq: {
+            expr const & lhs = heq_lhs(v);
+            expr const & rhs = heq_rhs(v);
             std::pair<expr, expr> result_lhs = apply(env, ctx, lhs);
             std::pair<expr, expr> result_rhs = apply(env, ctx, rhs);
             expr const & new_lhs = result_lhs.first;
@@ -408,12 +408,12 @@ class apply_rewriter_fn {
                     result = rewrite_eq_rhs(env, ctx, v, result_rhs);
                 } else {
                     // nothing changed
-                    result = std::make_pair(v, Refl(ti(v, ctx), v));
+                    result = std::make_pair(v, mk_refl_th(ti(v, ctx), v));
                 }
             }
             std::pair<expr, expr> tmp = m_rw(env, ctx, result.first);
             if (result.first != tmp.first) {
-                tmp.second = Trans(ty_v, v, result.first, tmp.first, result.second, tmp.second);
+                tmp.second = mk_trans_th(ty_v, v, result.first, tmp.first, result.second, tmp.second);
                 result = tmp;
             }
         }
@@ -439,12 +439,12 @@ class apply_rewriter_fn {
                     result = rewrite_lambda_body(env, ctx, v, result_body);
                 } else {
                     // nothing changed
-                    result = std::make_pair(v, Refl(ti(v, ctx), v));
+                    result = std::make_pair(v, mk_refl_th(ti(v, ctx), v));
                 }
             }
             std::pair<expr, expr> tmp = m_rw(env, ctx, result.first);
             if (result.first != tmp.first) {
-                tmp.second = Trans(ty_v, v, result.first, tmp.first, result.second, tmp.second);
+                tmp.second = mk_trans_th(ty_v, v, result.first, tmp.first, result.second, tmp.second);
                 result = tmp;
             }
         }
@@ -471,12 +471,12 @@ class apply_rewriter_fn {
                     result = rewrite_pi_body(env, ctx, v, result_body);
                 } else {
                     // nothing changed
-                    result = std::make_pair(v, Refl(ti(v, ctx), v));
+                    result = std::make_pair(v, mk_refl_th(ti(v, ctx), v));
                 }
             }
             std::pair<expr, expr> tmp = m_rw(env, ctx, result.first);
             if (result.first != tmp.first) {
-                tmp.second = Trans(ty_v, v, result.first, tmp.first, result.second, tmp.second);
+                tmp.second = mk_trans_th(ty_v, v, result.first, tmp.first, result.second, tmp.second);
                 result = tmp;
             }
         }
@@ -489,7 +489,7 @@ class apply_rewriter_fn {
 
             expr new_v = v;
             expr ty_v = ti(v, ctx);
-            expr pf = Refl(ty_v, v);
+            expr pf = mk_refl_th(ty_v, v);
             bool changed = false;
 
             if (ty) {
@@ -507,7 +507,7 @@ class apply_rewriter_fn {
             if (val != result_val.first) {
                 result = rewrite_let_value(env, ctx, new_v, result_val);
                 if (changed) {
-                    pf = Trans(ty_v, v, new_v, result.first, pf, result.second);
+                    pf = mk_trans_th(ty_v, v, new_v, result.first, pf, result.second);
                 } else {
                     pf = result.second;
                 }
@@ -520,7 +520,7 @@ class apply_rewriter_fn {
             if (body != result_body.first) {
                 result = rewrite_let_body(env, ctx, new_v, result_body);
                 if (changed) {
-                    pf = Trans(ty_v, v, new_v, result.first, pf, result.second);
+                    pf = mk_trans_th(ty_v, v, new_v, result.first, pf, result.second);
                 } else {
                     pf = result.second;
                 }
@@ -531,7 +531,7 @@ class apply_rewriter_fn {
 
             std::pair<expr, expr> tmp = m_rw(env, ctx, result.first);
             if (result.first != tmp.first) {
-                tmp.second = Trans(ty_v, v, result.first, tmp.first, result.second, tmp.second);
+                tmp.second = mk_trans_th(ty_v, v, result.first, tmp.first, result.second, tmp.second);
                 result = tmp;
             }
         }

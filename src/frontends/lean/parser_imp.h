@@ -291,7 +291,7 @@ private:
                              pos_info const & p);
     expr parse_expr_macro(name const & id, pos_info const & p);
     expr parse_led_id(expr const & left);
-    expr parse_eq(expr const & left);
+    expr parse_heq(expr const & left);
     expr parse_arrow(expr const & left);
     expr parse_lparen();
     void parse_names(buffer<std::pair<pos_info, name>> & result);

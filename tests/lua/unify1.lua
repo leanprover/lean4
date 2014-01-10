@@ -16,7 +16,7 @@ function must_unify(t1, t2)
    assert(s:apply(t1) == s:apply(t2))
 end
 Bool = Const("Bool")
-must_unify(Eq(a, m1), Eq(m2, m2))
+must_unify(HEq(a, m1), HEq(m2, m2))
 must_unify(Type(), m1)
 must_unify(fun(x, Bool, x), fun(x, Bool, m1))
 must_unify(Pi(x, Bool, x), Pi(x, Bool, m1))

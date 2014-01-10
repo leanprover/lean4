@@ -43,5 +43,5 @@ expr update_let(expr const & let, optional<expr> const & t, expr const & v, expr
 
    \remark Return \c eq if the given lhs and rhs are (pointer) equal to the ones in \c eq.
 */
-expr update_eq(expr const & eq, expr const & l, expr const & r);
+expr update_heq(expr const & eq, expr const & l, expr const & r);
 }

@@ -18,7 +18,7 @@ static void tst1() {
     expr z = Const("z");
     local_context lctx{mk_lift(0, 1), mk_inst(0, a)};
     expr m = mk_metavar("a", lctx);
-    expr F = mk_let("z", Type(), Type(level()+1), mk_pi("y", t, mk_lambda("x", t, f(f(f(x, a), Const("10")), Eq(x, m)))));
+    expr F = mk_let("z", Type(), Type(level()+1), mk_pi("y", t, mk_lambda("x", t, f(f(f(x, a), Const("10")), HEq(x, m)))));
     expr G = deep_copy(F);
     lean_assert(F == G);
     lean_assert(!is_eqp(F, G));

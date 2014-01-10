@@ -176,7 +176,7 @@ class type_checker::imp {
             }
         case expr_kind::Type:
             return mk_type(ty_level(e) + 1);
-        case expr_kind::Eq:
+        case expr_kind::HEq:
             // cheap when we are just inferring types
             if (m_infer_only)
                 return mk_bool_type();
@@ -241,10 +241,10 @@ class type_checker::imp {
                     f_t = check_pi(f_t, e, ctx);
                 }
             }
-        case expr_kind::Eq:
+        case expr_kind::HEq:
             lean_assert(!m_infer_only);
-            infer_type_core(eq_lhs(e), ctx);
-            infer_type_core(eq_rhs(e), ctx);
+            infer_type_core(heq_lhs(e), ctx);
+            infer_type_core(heq_rhs(e), ctx);
             return save_result(e, mk_bool_type(), shared);
         case expr_kind::Lambda:
             if (!m_infer_only) {
@@ -422,7 +422,7 @@ public:
         // Catch easy cases
         switch (e.kind()) {
         case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Type: return false;
-        case expr_kind::Eq: return true;
+        case expr_kind::HEq: return true;
         default: break;
         }
         expr t = infer_type(e, ctx, menv, nullptr);

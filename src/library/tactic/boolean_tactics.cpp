@@ -44,7 +44,7 @@ tactic conj_tactic(bool all) {
                         for (auto nc : proof_info) {
                             name const & n = nc.first;
                             expr const & c = nc.second;
-                            new_m.insert(n, Conj(arg(c, 1), arg(c, 2), find(m, name(n, 1)), find(m, name(n, 2))));
+                            new_m.insert(n, mk_and_intro_th(arg(c, 1), arg(c, 2), find(m, name(n, 1)), find(m, name(n, 2))));
                             new_m.erase(name(n, 1));
                             new_m.erase(name(n, 2));
                         }
@@ -104,9 +104,9 @@ tactic conj_hyp_tactic(bool all) {
                                 expr const & H_1      = mk_constant(name(H_name, 1));
                                 expr const & H_2      = mk_constant(name(H_name, 2));
                                 if (occurs(H_1, pr))
-                                    pr = Let_simp(H_1, Conjunct1(arg(H_prop, 1), arg(H_prop, 2), mk_constant(H_name)), pr);
+                                    pr = Let_simp(H_1, mk_and_eliml_th(arg(H_prop, 1), arg(H_prop, 2), mk_constant(H_name)), pr);
                                 if (occurs(H_2, pr))
-                                    pr = Let_simp(H_2, Conjunct2(arg(H_prop, 1), arg(H_prop, 2), mk_constant(H_name)), pr);
+                                    pr = Let_simp(H_2, mk_and_elimr_th(arg(H_prop, 1), arg(H_prop, 2), mk_constant(H_name)), pr);
                             }
                             new_m.insert(goal_name, pr);
                         }
@@ -161,7 +161,7 @@ optional<proof_state> disj_hyp_tactic_core(name const & goal_name, name const & 
             expr pr2 = find(m, name(goal_name, 2));
             pr1 = Fun(hyp_name, arg(Href, 1), pr1);
             pr2 = Fun(hyp_name, arg(Href, 2), pr2);
-            new_m.insert(goal_name, DisjCases(arg(Href, 1), arg(Href, 2), conclusion, mk_constant(hyp_name), pr1, pr2));
+            new_m.insert(goal_name, mk_or_elim_th(arg(Href, 1), arg(Href, 2), conclusion, mk_constant(hyp_name), pr1, pr2));
             new_m.erase(name(goal_name, 1));
             new_m.erase(name(goal_name, 2));
             return pb(new_m, a);
@@ -241,12 +241,12 @@ optional<proof_state_pair> disj_tactic(proof_state const & s, name gname) {
         proof_builder pb     = s.get_proof_builder();
         proof_builder new_pb1 = mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
                 proof_map new_m(m);
-                new_m.insert(gname, Disj1(arg(*conclusion, 1), find(m, gname), arg(*conclusion, 2)));
+                new_m.insert(gname, mk_or_introl_th(arg(*conclusion, 1), find(m, gname), arg(*conclusion, 2)));
                 return pb(new_m, a);
             });
         proof_builder new_pb2 = mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
                 proof_map new_m(m);
-                new_m.insert(gname, Disj2(arg(*conclusion, 2), arg(*conclusion, 1), find(m, gname)));
+                new_m.insert(gname, mk_or_intror_th(arg(*conclusion, 2), arg(*conclusion, 1), find(m, gname)));
                 return pb(new_m, a);
             });
         proof_state s1(precision::Over, new_gs1, s.get_menv(), new_pb1, s.get_cex_builder());
@@ -296,7 +296,7 @@ tactic absurd_tactic() {
                             expr a = arg(p1.second, 1);
                             for (auto const & p2 : g.get_hypotheses()) {
                                 if (p2.second == a) {
-                                    expr pr = AbsurdElim(a, c, mk_constant(p2.first), mk_constant(p1.first));
+                                    expr pr = mk_absurd_elim_th(a, c, mk_constant(p2.first), mk_constant(p1.first));
                                     proofs.emplace_front(gname, pr);
                                     return optional<goal>(); // remove goal
                                 }

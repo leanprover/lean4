@@ -215,7 +215,7 @@ tactic trivial_tactic() {
             goals new_gs = map_goals(s, [&](name const & gname, goal const & g) -> optional<goal> {
                     expr const & c  = env->normalize(g.get_conclusion(), context(), true);
                     if (c == True) {
-                        proofs.emplace_front(gname, Trivial);
+                        proofs.emplace_front(gname, mk_trivial());
                         return optional<goal>();
                     } else {
                         return some(g);

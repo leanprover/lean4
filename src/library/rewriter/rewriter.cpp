@@ -47,7 +47,7 @@ pair<expr, expr> rewrite_lambda_type(environment const & env, context & ctx, exp
     expr const & new_ty = result_ty.first;
     expr const & ty_v   = ti(v, ctx);
     if (ty == new_ty) {
-        return make_pair(v, Refl(ty_v, v));
+        return make_pair(v, mk_refl_th(ty_v, v));
     } else {
         name const & n         = abst_name(v);
         expr const & body      = abst_body(v);
@@ -55,10 +55,10 @@ pair<expr, expr> rewrite_lambda_type(environment const & env, context & ctx, exp
         expr const & new_v     = mk_lambda(n, new_ty, body);
         expr const & ty_ty     = ti(ty, ctx);
         lean_assert_eq(ty_ty, ti(new_ty, ctx)); // TODO(soonhok): generalize for hetreogeneous types
-        expr const & proof     = Subst(ty_ty, ty, new_ty,
+        expr const & proof     = mk_subst_th(ty_ty, ty, new_ty,
                                        Fun({Const("T"), ty_ty},
-                                           mk_eq(v, mk_lambda(n, Const("T"), body))),
-                                       Refl(ty_v, v), pf_ty);
+                                           mk_heq(v, mk_lambda(n, Const("T"), body))),
+                                       mk_refl_th(ty_v, v), pf_ty);
         return make_pair(new_v, proof);
     }
 }
@@ -83,7 +83,7 @@ pair<expr, expr> rewrite_lambda_body(environment const & env, context & ctx, exp
     expr const & new_body = result_body.first;
     expr const & ty_v     = ti(v, ctx);
     if (body == new_body) {
-        return make_pair(v, Refl(ty_v, v));
+        return make_pair(v, mk_refl_th(ty_v, v));
     } else {
         name const & n       = abst_name(v);
         expr const & ty      = abst_domain(v);
@@ -91,7 +91,7 @@ pair<expr, expr> rewrite_lambda_body(environment const & env, context & ctx, exp
         expr const & new_v   = mk_lambda(n, ty, new_body);
         expr const & ty_body = ti(body, extend(ctx, n, ty));
         lean_assert_eq(ty_body, ti(new_body, ctx)); // TODO(soonhok): generalize for hetreogeneous types
-        expr const & proof = Abst(ty, mk_lambda(n, ty, ty_body), v, new_v, mk_lambda(n, ty, pf_body));
+        expr const & proof = mk_funext_th(ty, mk_lambda(n, ty, ty_body), v, new_v, mk_lambda(n, ty, pf_body));
         return make_pair(new_v, proof);
     }
 }
@@ -128,18 +128,18 @@ pair<expr, expr> rewrite_lambda(environment const & env, context & ctx, expr con
     expr const & ty_new_v1 = ti(v, ctx);
     expr const & new_v2    = mk_lambda(n, new_ty, new_body);
     // proof1 : v = new_v1
-    expr const & proof1    = Subst(ty_ty, ty, new_ty,
-                                   Fun({Const("T"), ty_ty},
-                                       mk_eq(v, mk_lambda(n, Const("T"), body))),
-                                   Refl(ty_v, v),
-                                   pf_ty);
+    expr const & proof1    = mk_subst_th(ty_ty, ty, new_ty,
+                                         Fun({Const("T"), ty_ty},
+                                             mk_heq(v, mk_lambda(n, Const("T"), body))),
+                                         mk_refl_th(ty_v, v),
+                                         pf_ty);
     // proof2 : new_v1 = new_v2
-    expr const & proof2    = Subst(ty_body, body, new_body,
-                                   Fun({Const("e"), ty_body},
-                                       mk_eq(new_v1, mk_lambda(n, new_ty, Const("e")))),
-                                   Refl(ty_new_v1, new_v1),
-                                   pf_body);
-    expr const & proof     = Trans(ty_v, v, new_v1, new_v2, proof1, proof2);
+    expr const & proof2    = mk_subst_th(ty_body, body, new_body,
+                                         Fun({Const("e"), ty_body},
+                                             mk_heq(new_v1, mk_lambda(n, new_ty, Const("e")))),
+                                         mk_refl_th(ty_new_v1, new_v1),
+                                         pf_body);
+    expr const & proof     = mk_trans_th(ty_v, v, new_v1, new_v2, proof1, proof2);
     return make_pair(new_v2, proof);
 }
 
@@ -166,11 +166,11 @@ pair<expr, expr> rewrite_pi_type(environment const & env, context & ctx, expr co
     expr const & new_v  = mk_pi(n, new_ty, body);
     expr const & ty_ty  = ti(ty, ctx);
     expr const & ty_v   = ti(v, ctx);
-    expr const & proof  = Subst(ty_ty, ty, new_ty,
-                                Fun({Const("T"), ty_ty},
-                                    mk_eq(v, mk_pi(n, Const("T"), body))),
-                                Refl(ty_v, v),
-                                pf);
+    expr const & proof  = mk_subst_th(ty_ty, ty, new_ty,
+                                      Fun({Const("T"), ty_ty},
+                                          mk_heq(v, mk_pi(n, Const("T"), body))),
+                                      mk_refl_th(ty_v, v),
+                                      pf);
     return make_pair(new_v, proof);
 }
 
@@ -198,10 +198,10 @@ pair<expr, expr> rewrite_pi_body(environment const & env, context & ctx, expr co
     expr const & new_v    = mk_pi(n, ty, new_body);
     expr const & ty_body  = ti(body, extend(ctx, n, ty));
     expr const & ty_v     = ti(v, ctx);
-    expr const & proof    = Subst(ty_body, body, new_body,
+    expr const & proof    = mk_subst_th(ty_body, body, new_body,
                                   Fun({Const("e"), ty_body},
-                                      mk_eq(v, mk_pi(n, ty, Const("e")))),
-                                  Refl(ty_v, v),
+                                      mk_heq(v, mk_pi(n, ty, Const("e")))),
+                                  mk_refl_th(ty_v, v),
                                   pf);
     return make_pair(new_v, proof);
 }
@@ -237,17 +237,17 @@ pair<expr, expr> rewrite_pi(environment const & env, context & ctx, expr const &
     expr const & new_v1    = mk_pi(n, new_ty, body);
     expr const & ty_new_v1 = ti(v, ctx);
     expr const & new_v2    = mk_pi(n, new_ty, new_body);
-    expr const & proof1    = Subst(ty_ty, ty, new_ty,
+    expr const & proof1    = mk_subst_th(ty_ty, ty, new_ty,
                                    Fun({Const("T"), ty_ty},
-                                       mk_eq(v, mk_pi(n, Const("T"), body))),
-                                   Refl(ty_v, v),
+                                       mk_heq(v, mk_pi(n, Const("T"), body))),
+                                   mk_refl_th(ty_v, v),
                                    pf_ty);
-    expr const & proof2    = Subst(ty_body, body, new_body,
+    expr const & proof2    = mk_subst_th(ty_body, body, new_body,
                                    Fun({Const("e"), ty_body},
-                                       mk_eq(new_v1, mk_pi(n, new_ty, Const("e")))),
-                                   Refl(ty_new_v1, new_v1),
+                                       mk_heq(new_v1, mk_pi(n, new_ty, Const("e")))),
+                                   mk_refl_th(ty_new_v1, new_v1),
                                    pf_body);
-    expr const & proof     = Trans(ty_v, v, new_v1, new_v2, proof1, proof2);
+    expr const & proof     = mk_trans_th(ty_v, v, new_v1, new_v2, proof1, proof2);
     return make_pair(new_v2, proof);
 }
 
@@ -264,19 +264,19 @@ pair<expr, expr> rewrite_pi(environment const & env, context & ctx, expr const &
    \return pair of v' = (lhs' = rhs), and proof of v = v'
 */
 pair<expr, expr> rewrite_eq_lhs(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_lhs) {
-    lean_assert(is_eq(v));
+    lean_assert(is_heq(v));
     type_inferer ti(env);
-    expr const & lhs     = eq_lhs(v);
-    expr const & rhs     = eq_rhs(v);
+    expr const & lhs     = heq_lhs(v);
+    expr const & rhs     = heq_rhs(v);
     expr const & new_lhs = result_lhs.first;
     expr const & pf      = result_lhs.second;
-    expr const & new_v   = mk_eq(new_lhs, rhs);
+    expr const & new_v   = mk_heq(new_lhs, rhs);
     expr const & ty_lhs  = ti(lhs, ctx);
     expr const & ty_v    = ti(v, ctx);
-    expr const & proof   = Subst(ty_lhs, lhs, new_lhs,
+    expr const & proof   = mk_subst_th(ty_lhs, lhs, new_lhs,
                                  Fun({Const("x"), ty_lhs},
-                                     mk_eq(v, mk_eq(Const("x"), rhs))),
-                                 Refl(ty_v, v),
+                                     mk_heq(v, mk_heq(Const("x"), rhs))),
+                                 mk_refl_th(ty_v, v),
                                  pf);
     return make_pair(new_v, proof);
 }
@@ -294,19 +294,19 @@ pair<expr, expr> rewrite_eq_lhs(environment const & env, context & ctx, expr con
    \return pair of v' = (lhs = rhs'), and proof of v = v'
 */
 pair<expr, expr> rewrite_eq_rhs(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_rhs) {
-    lean_assert(is_eq(v));
+    lean_assert(is_heq(v));
     type_inferer ti(env);
-    expr const & lhs     = eq_lhs(v);
-    expr const & rhs     = eq_rhs(v);
+    expr const & lhs     = heq_lhs(v);
+    expr const & rhs     = heq_rhs(v);
     expr const & new_rhs = result_rhs.first;
     expr const & pf      = result_rhs.second;
-    expr const & new_v   = mk_eq(rhs, new_rhs);
+    expr const & new_v   = mk_heq(rhs, new_rhs);
     expr const & ty_rhs  = ti(rhs, ctx);
     expr const & ty_v    = ti(v, ctx);
-    expr const & proof   = Subst(ty_rhs, rhs, new_rhs,
+    expr const & proof   = mk_subst_th(ty_rhs, rhs, new_rhs,
                                  Fun({Const("x"), ty_rhs},
-                                     mk_eq(v, mk_eq(lhs, Const("x")))),
-                                 Refl(ty_v, v),
+                                     mk_heq(v, mk_heq(lhs, Const("x")))),
+                                 mk_refl_th(ty_v, v),
                                  pf);
     return make_pair(new_v, proof);
 }
@@ -326,31 +326,31 @@ pair<expr, expr> rewrite_eq_rhs(environment const & env, context & ctx, expr con
    \return pair of v' = (lhs' = rhs'), and proof of v = v'
 */
 pair<expr, expr> rewrite_eq(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_lhs, pair<expr, expr> const & result_rhs) {
-    lean_assert(is_eq(v));
+    lean_assert(is_heq(v));
     type_inferer ti(env);
-    expr const & lhs       = eq_lhs(v);
-    expr const & rhs       = eq_rhs(v);
+    expr const & lhs       = heq_lhs(v);
+    expr const & rhs       = heq_rhs(v);
     expr const & new_lhs   = result_lhs.first;
     expr const & pf_lhs    = result_lhs.second;
     expr const & new_rhs   = result_rhs.first;
     expr const & pf_rhs    = result_rhs.second;
-    expr const & new_v1    = mk_eq(new_lhs, rhs);
-    expr const & new_v2    = mk_eq(new_lhs, new_rhs);
+    expr const & new_v1    = mk_heq(new_lhs, rhs);
+    expr const & new_v2    = mk_heq(new_lhs, new_rhs);
     expr const & ty_lhs    = ti(lhs, ctx);
     expr const & ty_rhs    = ti(rhs, ctx);
     expr const & ty_v      = ti(v, ctx);
     expr const & ty_new_v1 = ti(new_v1, ctx);
-    expr const & proof1 = Subst(ty_lhs, lhs, new_lhs,
+    expr const & proof1 = mk_subst_th(ty_lhs, lhs, new_lhs,
                                 Fun({Const("x"), ty_lhs},
-                                    mk_eq(v, mk_eq(Const("x"), rhs))),
-                                Refl(ty_v, v),
+                                    mk_heq(v, mk_heq(Const("x"), rhs))),
+                                mk_refl_th(ty_v, v),
                                 pf_lhs);
-    expr const & proof2 = Subst(ty_rhs, rhs, new_rhs,
+    expr const & proof2 = mk_subst_th(ty_rhs, rhs, new_rhs,
                                 Fun({Const("x"), ty_rhs},
-                                    mk_eq(v, mk_eq(lhs, Const("x")))),
-                                Refl(ty_new_v1, new_v1),
+                                    mk_heq(v, mk_heq(lhs, Const("x")))),
+                                mk_refl_th(ty_new_v1, new_v1),
                                 pf_rhs);
-    expr const & proof  = Trans(ty_v, v, new_v1, new_v2, proof1, proof2);
+    expr const & proof  = mk_trans_th(ty_v, v, new_v1, new_v2, proof1, proof2);
     return make_pair(new_v2, proof);
 }
 
@@ -379,10 +379,10 @@ pair<expr, expr> rewrite_let_type(environment const & env, context & ctx, expr c
         expr const & new_v   = mk_let(n, new_ty, val, body);
         expr const & ty_ty   = ti(ty, ctx);
         expr const & ty_v    = ti(v, ctx);
-        expr const & proof   = Subst(ty_ty, ty, new_ty,
+        expr const & proof   = mk_subst_th(ty_ty, ty, new_ty,
                                      Fun({Const("x"), ty_ty},
-                                         mk_eq(v, mk_let(n, Const("x"), val, body))),
-                                     Refl(ty_v, v),
+                                         mk_heq(v, mk_let(n, Const("x"), val, body))),
+                                     mk_refl_th(ty_v, v),
                                      pf);
         return make_pair(new_v, proof);
     } else {
@@ -414,10 +414,10 @@ pair<expr, expr> rewrite_let_value(environment const & env, context & ctx, expr 
     expr const & new_v   = mk_let(n, ty, new_val, body);
     expr const & ty_val  = ti(val, ctx);
     expr const & ty_v    = ti(v, ctx);
-    expr const & proof   = Subst(ty_val, val, new_val,
+    expr const & proof   = mk_subst_th(ty_val, val, new_val,
                                  Fun({Const("x"), ty_val},
-                                     mk_eq(v, mk_let(n, ty, Const("x"), body))),
-                                 Refl(ty_v, v),
+                                     mk_heq(v, mk_let(n, ty, Const("x"), body))),
+                                 mk_refl_th(ty_v, v),
                                  pf);
     return make_pair(new_v, proof);
 }
@@ -447,10 +447,10 @@ pair<expr, expr> rewrite_let_body(environment const & env, context & ctx, expr c
     expr const & new_v    = mk_let(n, ty, val, new_body);
     expr const & ty_body  = ti(body, extend(ctx, n, ty, body));
     expr const & ty_v     = ti(v, ctx);
-    expr const & proof    = Subst(ty_body, body, new_body,
+    expr const & proof    = mk_subst_th(ty_body, body, new_body,
                                   Fun({Const("e"), ty_body},
-                                      mk_eq(v, mk_let(n, ty, val, Const("e")))),
-                                  Refl(ty_v, v),
+                                      mk_heq(v, mk_let(n, ty, val, Const("e")))),
+                                  mk_refl_th(ty_v, v),
                                   pf);
     return make_pair(new_v, proof);
 }
@@ -483,22 +483,22 @@ pair<expr, expr> rewrite_app(environment const & env, context & ctx, expr const 
         bool f_changed = f != new_f;
         if (f_changed) {
             if (arg(v, i) != results[i].first) {
-                // Congr : Pi (A : Type u) (B : A -> Type u) (f g : Pi
+                // congr : Pi (A : Type u) (B : A -> Type u) (f g : Pi
                 // (x : A) B x) (a b : A) (H1 : f = g) (H2 : a = b), f
                 // a = g b
-                pf = Congr(f_ty_domain, f_ty_body, f, new_f, e_i, new_e_i, pf, pf_e_i);
+                pf = mk_congr_th(f_ty_domain, f_ty_body, f, new_f, e_i, new_e_i, pf, pf_e_i);
             } else {
-                // Congr1 : Pi (A : Type u) (B : A -> Type u) (f g: Pi
+                // congr1 : Pi (A : Type u) (B : A -> Type u) (f g: Pi
                 // (x : A) B x) (a : A) (H : f = g), f a = g a
-                pf = Congr1(f_ty_domain, f_ty_body, f, new_f, e_i, pf);
+                pf = mk_congr1_th(f_ty_domain, f_ty_body, f, new_f, e_i, pf);
             }
         } else {
             if (arg(v, i) != results[i].first) {
-                // Congr2 : Pi (A : Type u) (B : A -> Type u)  (a b : A) (f : Pi (x : A) B x) (H : a = b), f a = f b
-                pf = Congr2(f_ty_domain, f_ty_body, e_i, new_e_i, f, pf_e_i);
+                // congr2 : Pi (A : Type u) (B : A -> Type u)  (a b : A) (f : Pi (x : A) B x) (H : a = b), f a = f b
+                pf = mk_congr2_th(f_ty_domain, f_ty_body, e_i, new_e_i, f, pf_e_i);
             } else {
-                // Refl
-                pf = Refl(ti(f(e_i), ctx), f(e_i));
+                // refl
+                pf = mk_refl_th(ti(f(e_i), ctx), f(e_i));
             }
         }
         f = f (e_i);
@@ -527,12 +527,12 @@ theorem_rewriter_cell::theorem_rewriter_cell(expr const & type, expr const & bod
         m_pattern = abst_body(m_pattern);
         m_num_args++;
     }
-    if (!is_eq(m_pattern)) {
+    if (!is_heq(m_pattern)) {
         lean_trace("rewriter", tout << "Theorem " << m_type << " is not in the form of "
                    << "Pi (x_1 : t_1 ... x_n : t_n), pattern = rhs" << endl;);
     }
-    m_rhs = eq_rhs(m_pattern);
-    m_pattern = eq_lhs(m_pattern);
+    m_rhs = heq_rhs(m_pattern);
+    m_pattern = heq_lhs(m_pattern);
 
     lean_trace("rewriter", tout << "Number of Arg = " << m_num_args << endl;);
 }
@@ -631,7 +631,7 @@ pair<expr, expr> then_rewriter_cell::operator()(environment const & env, context
         expr const & ty = type_inferer(env)(v, ctx);
         if (v != new_result.first) {
             result = make_pair(new_result.first,
-                               Trans(ty, v, result.first, new_result.first, result.second, new_result.second));
+                               mk_trans_th(ty, v, result.first, new_result.first, result.second, new_result.second));
         }
     }
     return result;
@@ -661,7 +661,7 @@ pair<expr, expr> try_rewriter_cell::operator()(environment const & env, context 
     }
     // If the execution reaches here, it means every rewriter failed.
     expr const & t = type_inferer(env)(v, ctx);
-    return make_pair(v, Refl(t, v));
+    return make_pair(v, mk_refl_th(t, v));
 }
 ostream & try_rewriter_cell::display(ostream & out) const {
     out << "Try_RW({";
@@ -705,7 +705,7 @@ pair<expr, expr> lambda_type_rewriter_cell::operator()(environment const & env, 
         return rewrite_lambda_type(env, ctx, v, result_ty);
     } else {
         // nothing changed
-        return make_pair(v, Refl(ti(v, ctx), v));
+        return make_pair(v, mk_refl_th(ti(v, ctx), v));
     }
 }
 ostream & lambda_type_rewriter_cell::display(ostream & out) const {
@@ -733,7 +733,7 @@ pair<expr, expr> lambda_body_rewriter_cell::operator()(environment const & env, 
     } else {
         // nothing changed
         type_inferer ti(env);
-        return make_pair(v, Refl(ti(v, ctx), v));
+        return make_pair(v, mk_refl_th(ti(v, ctx), v));
     }
 }
 ostream & lambda_body_rewriter_cell::display(ostream & out) const {
@@ -774,7 +774,7 @@ pair<expr, expr> pi_type_rewriter_cell::operator()(environment const & env, cont
     } else {
         // nothing changed
         type_inferer ti(env);
-        return make_pair(v, Refl(ti(v, ctx), v));
+        return make_pair(v, mk_refl_th(ti(v, ctx), v));
     }
 }
 ostream & pi_type_rewriter_cell::display(ostream & out) const {
@@ -802,7 +802,7 @@ pair<expr, expr> pi_body_rewriter_cell::operator()(environment const & env, cont
     } else {
         // nothing changed
         type_inferer ti(env);
-        return make_pair(v, Refl(ti(v, ctx), v));
+        return make_pair(v, mk_refl_th(ti(v, ctx), v));
     }
 }
 ostream & pi_body_rewriter_cell::display(ostream & out) const {
@@ -842,7 +842,7 @@ pair<expr, expr> let_type_rewriter_cell::operator()(environment const & env, con
         return rewrite_let_type(env, ctx, v, result_ty);
     } else {
         type_inferer ti(env);
-        return make_pair(v, Refl(ti(v, ctx), v));
+        return make_pair(v, mk_refl_th(ti(v, ctx), v));
     }
 }
 ostream & let_type_rewriter_cell::display(ostream & out) const {
@@ -865,7 +865,7 @@ pair<expr, expr> let_value_rewriter_cell::operator()(environment const & env, co
         return rewrite_let_value(env, ctx, v, result_val);
     } else {
         type_inferer ti(env);
-        return make_pair(v, Refl(ti(v, ctx), v));
+        return make_pair(v, mk_refl_th(ti(v, ctx), v));
     }
 }
 ostream & let_value_rewriter_cell::display(ostream & out) const {
@@ -890,7 +890,7 @@ pair<expr, expr> let_body_rewriter_cell::operator()(environment const & env, con
         return rewrite_let_body(env, ctx, v, result_body);
     } else {
         type_inferer ti(env);
-        return make_pair(v, Refl(ti(v, ctx), v));
+        return make_pair(v, mk_refl_th(ti(v, ctx), v));
     }
 }
 ostream & let_body_rewriter_cell::display(ostream & out) const {
@@ -931,7 +931,7 @@ success_rewriter_cell::success_rewriter_cell():rewriter_cell(rewriter_kind::Succ
 success_rewriter_cell::~success_rewriter_cell() { }
 pair<expr, expr> success_rewriter_cell::operator()(environment const & env, context & ctx, expr const & v) const throw(rewriter_exception) {
     expr const & t = type_inferer(env)(v, ctx);
-    return make_pair(v, Refl(t, v));
+    return make_pair(v, mk_refl_th(t, v));
 }
 ostream & success_rewriter_cell::display(ostream & out) const {
     out << "Success_RW()";
@@ -951,7 +951,7 @@ pair<expr, expr> repeat_rewriter_cell::operator()(environment const & env, conte
                 break;
             expr const & ty = ti(v, ctx);
             result = make_pair(new_result.first,
-                               Trans(ty, v, result.first, new_result.first, result.second, new_result.second));
+                               mk_trans_th(ty, v, result.first, new_result.first, result.second, new_result.second));
         }
     } catch (rewriter_exception &) {
         return result;

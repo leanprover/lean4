@@ -56,8 +56,8 @@ struct max_sharing_fn::imp {
             cache(r);
             return r;
         }
-        case expr_kind::Eq : {
-            expr r = update_eq(a, [=](expr const & l, expr const & r) { return std::make_pair(apply(l), apply(r)); });
+        case expr_kind::HEq : {
+            expr r = update_heq(a, [=](expr const & l, expr const & r) { return std::make_pair(apply(l), apply(r)); });
             cache(r);
             return r;
         }

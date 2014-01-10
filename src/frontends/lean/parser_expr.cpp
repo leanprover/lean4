@@ -561,11 +561,11 @@ expr parser_imp::parse_led_id(expr const & left) {
 }
 
 /** \brief Parse <tt>expr '=' expr</tt>. */
-expr parser_imp::parse_eq(expr const & left) {
+expr parser_imp::parse_heq(expr const & left) {
     auto p = pos();
     next();
     expr right = parse_expr(g_eq_precedence);
-    return save(mk_eq(left, right), p);
+    return save(mk_heq(left, right), p);
 }
 
 /** \brief Parse <tt>expr '->' expr</tt>. */
@@ -947,7 +947,7 @@ expr parser_imp::mk_app_left(expr const & left, expr const & arg) {
 expr parser_imp::parse_led(expr const & left) {
     switch (curr()) {
     case scanner::token::Id:          return parse_led_id(left);
-    case scanner::token::Eq:          return parse_eq(left);
+    case scanner::token::Eq:          return parse_heq(left);
     case scanner::token::Arrow:       return parse_arrow(left);
     case scanner::token::LeftParen:   return mk_app_left(left, parse_lparen());
     case scanner::token::IntVal:      return mk_app_left(left, parse_nat_int());

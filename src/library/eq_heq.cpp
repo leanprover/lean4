@@ -9,13 +9,13 @@ Author: Leonardo de Moura
 
 namespace lean {
 bool is_eq_heq(expr const & e) {
-    return is_eq(e) || is_homo_eq(e);
+    return is_heq(e) || is_eq(e);
 }
 
 expr_pair eq_heq_args(expr const & e) {
-    lean_assert(is_eq(e) || is_homo_eq(e));
-    if (is_eq(e))
-        return expr_pair(eq_lhs(e), eq_rhs(e));
+    lean_assert(is_heq(e) || is_eq(e));
+    if (is_heq(e))
+        return expr_pair(heq_lhs(e), heq_rhs(e));
     else
         return expr_pair(arg(e, 2), arg(e, 3));
 }

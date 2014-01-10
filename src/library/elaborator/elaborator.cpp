@@ -621,7 +621,7 @@ class elaborator::imp {
     }
 
     void process_eq(context const & ctx, expr & a) {
-        if (is_eq(a) && m_use_normalizer) {
+        if (is_heq(a) && m_use_normalizer) {
             a = normalize(ctx, a);
         }
     }
@@ -840,16 +840,17 @@ class elaborator::imp {
                 push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_i), arg(b, i), new_assumption);
             }
             imitation = mk_lambda(arg_types, mk_app(imitation_args));
-        } else if (is_eq(b)) {
+        } else if (is_heq(b)) {
             // Imitation for equality
             // Assign f_a <- fun (x_1 : T_1) ... (x_{num_a} : T_{num_a}), (h_1 x_1 ... x_{num_a}) = (h_2 x_1 ... x_{num_a})
             // New constraints (h_1 a_1 ... a_{num_a}) == eq_lhs(b)
             //                 (h_2 a_1 ... a_{num_a}) == eq_rhs(b)
             expr h_1 = new_state.m_menv->mk_metavar(ctx);
             expr h_2 = new_state.m_menv->mk_metavar(ctx);
-            push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_1), eq_lhs(b), new_assumption);
-            push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_2), eq_rhs(b), new_assumption);
-            imitation = mk_lambda(arg_types, mk_eq(mk_app_vars(add_lift(h_1, 0, num_a - 1), num_a - 1), mk_app_vars(add_lift(h_2, 0, num_a - 1), num_a - 1)));
+            push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_1), heq_lhs(b), new_assumption);
+            push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_2), heq_rhs(b), new_assumption);
+            imitation = mk_lambda(arg_types, mk_heq(mk_app_vars(add_lift(h_1, 0, num_a - 1), num_a - 1),
+                                                    mk_app_vars(add_lift(h_2, 0, num_a - 1), num_a - 1)));
         } else if (is_abstraction(b)) {
             // Imitation for lambdas and Pis
             // Assign f_a <- fun (x_1 : T_1) ... (x_{num_a} : T_{num_a}),
@@ -1063,7 +1064,7 @@ class elaborator::imp {
     void imitate_equality(expr const & a, expr const & b, unification_constraint const & c) {
         lean_assert(is_metavar(a));
         static_cast<void>(b); // this line is just to avoid a warning, b is only used in an assertion
-        lean_assert(is_eq(b));
+        lean_assert(is_heq(b));
         lean_assert(!is_assigned(a));
         lean_assert(has_local_context(a));
         // imitate
@@ -1074,7 +1075,7 @@ class elaborator::imp {
         context ctx_m  = m_state.m_menv->get_context(m);
         expr h1        = m_state.m_menv->mk_metavar(ctx_m);
         expr h2        = m_state.m_menv->mk_metavar(ctx_m);
-        expr imitation = mk_eq(h1, h2);
+        expr imitation = mk_heq(h1, h2);
         justification new_jst(new imitation_justification(c));
         push_new_constraint(true, ctx_m, m, imitation, new_jst);
     }
@@ -1137,7 +1138,7 @@ class elaborator::imp {
             } else if (is_app(b) && !has_metavar(arg(b, 0))) {
                 imitate_application(a, b, c);
                 return true;
-            } else if (is_eq(b)) {
+            } else if (is_heq(b)) {
                 imitate_equality(a, b, c);
                 return true;
             }

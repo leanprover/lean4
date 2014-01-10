@@ -14,9 +14,9 @@ Author: Leonardo de Moura
 #include "library/arith/real.h"
 #include "library/arith/int.h"
 #include "library/arith/nat.h"
+#include "library/arith/Real_decls.cpp"
 
 namespace lean {
-MK_CONSTANT(Real, "Real");
 expr const Real = mk_Real();
 expr mk_real_type() { return mk_Real(); }
 
@@ -85,18 +85,18 @@ constexpr char real_add_name[] = "add";
 /** \brief Evaluator for + : Real -> Real -> Real */
 struct real_add_eval { mpq operator()(mpq const & v1, mpq const & v2) { return v1 + v2; }; };
 typedef real_bin_op<real_add_name, real_add_eval> real_add_value;
-MK_BUILTIN(real_add_fn, real_add_value);
-static value::register_deserializer_fn real_add_ds("real_add", [](deserializer & ) { return mk_real_add_fn(); });
-static register_builtin_fn real_add_blt(name({"Real", "add"}), []() { return mk_real_add_fn(); });
+MK_BUILTIN(Real_add_fn, real_add_value);
+static value::register_deserializer_fn real_add_ds("real_add", [](deserializer & ) { return mk_Real_add_fn(); });
+static register_builtin_fn real_add_blt(name({"Real", "add"}), []() { return mk_Real_add_fn(); });
 
 
 constexpr char real_mul_name[] = "mul";
 /** \brief Evaluator for * : Real -> Real -> Real */
 struct real_mul_eval { mpq operator()(mpq const & v1, mpq const & v2) { return v1 * v2; }; };
 typedef real_bin_op<real_mul_name, real_mul_eval> real_mul_value;
-MK_BUILTIN(real_mul_fn, real_mul_value);
-static value::register_deserializer_fn real_mul_ds("real_mul", [](deserializer & ) { return mk_real_mul_fn(); });
-static register_builtin_fn real_mul_blt(name({"Real", "mul"}), []() { return mk_real_mul_fn(); });
+MK_BUILTIN(Real_mul_fn, real_mul_value);
+static value::register_deserializer_fn real_mul_ds("real_mul", [](deserializer & ) { return mk_Real_mul_fn(); });
+static register_builtin_fn real_mul_blt(name({"Real", "mul"}), []() { return mk_Real_mul_fn(); });
 
 constexpr char real_div_name[] = "div";
 /** \brief Evaluator for / : Real -> Real -> Real */
@@ -109,9 +109,9 @@ struct real_div_eval {
     };
 };
 typedef real_bin_op<real_div_name, real_div_eval> real_div_value;
-MK_BUILTIN(real_div_fn, real_div_value);
-static value::register_deserializer_fn real_div_ds("real_div", [](deserializer & ) { return mk_real_div_fn(); });
-static register_builtin_fn real_div_blt(name({"Real", "div"}), []() { return mk_real_div_fn(); });
+MK_BUILTIN(Real_div_fn, real_div_value);
+static value::register_deserializer_fn real_div_ds("real_div", [](deserializer & ) { return mk_Real_div_fn(); });
+static register_builtin_fn real_div_blt(name({"Real", "div"}), []() { return mk_Real_div_fn(); });
 
 /**
    \brief Semantic attachment for less than or equal to operator with type
@@ -129,9 +129,9 @@ public:
     }
     virtual void write(serializer & s) const { s << "real_le"; }
 };
-MK_BUILTIN(real_le_fn, real_le_value);
-static value::register_deserializer_fn real_le_ds("real_le", [](deserializer & ) { return mk_real_le_fn(); });
-static register_builtin_fn real_le_btl(name({"Real", "le"}), []() { return mk_real_le_fn(); });
+MK_BUILTIN(Real_le_fn, real_le_value);
+static value::register_deserializer_fn real_le_ds("real_le", [](deserializer & ) { return mk_Real_le_fn(); });
+static register_builtin_fn real_le_btl(name({"Real", "le"}), []() { return mk_Real_le_fn(); });
 
 class int_to_real_value : public const_value {
 public:
@@ -148,14 +148,6 @@ public:
 MK_BUILTIN(int_to_real_fn,  int_to_real_value);
 static value::register_deserializer_fn int_to_real_ds("int_to_real", [](deserializer & ) { return mk_int_to_real_fn(); });
 static register_builtin_fn int_to_real_blt("int_to_real", []() { return mk_int_to_real_fn(); });
-
-MK_CONSTANT(real_sub_fn, name({"Real", "sub"}));
-MK_CONSTANT(real_neg_fn, name({"Real", "neg"}));
-MK_CONSTANT(real_abs_fn, name({"Real", "abs"}));
-MK_CONSTANT(real_ge_fn, name({"Real", "ge"}));
-MK_CONSTANT(real_lt_fn, name({"Real", "lt"}));
-MK_CONSTANT(real_gt_fn, name({"Real", "gt"}));
-MK_CONSTANT(nat_to_real_fn, name("nat_to_real"));
 
 void import_real(environment const & env, io_state const & ios) {
     env->import("Real", ios);

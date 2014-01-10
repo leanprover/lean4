@@ -13,9 +13,11 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 #include "library/arith/int.h"
 #include "library/arith/nat.h"
+#include "library/arith/Int_decls.cpp"
 
 namespace lean {
-MK_CONSTANT(Int, "Int");
+expr mk_nat_to_int_fn();
+
 expr const Int = mk_Int();
 expr mk_int_type() { return mk_Int(); }
 
@@ -84,16 +86,16 @@ public:
 constexpr char int_add_name[] = "add";
 struct int_add_eval { mpz operator()(mpz const & v1, mpz const & v2) { return v1 + v2; }; };
 typedef int_bin_op<int_add_name, int_add_eval> int_add_value;
-MK_BUILTIN(int_add_fn, int_add_value);
-static value::register_deserializer_fn int_add_ds("int_add", [](deserializer & ) { return mk_int_add_fn(); });
-static register_builtin_fn g_int_add_value(name({"Int", "add"}), []() { return mk_int_add_fn(); });
+MK_BUILTIN(Int_add_fn, int_add_value);
+static value::register_deserializer_fn int_add_ds("int_add", [](deserializer & ) { return mk_Int_add_fn(); });
+static register_builtin_fn g_int_add_value(name({"Int", "add"}), []() { return mk_Int_add_fn(); });
 
 constexpr char int_mul_name[] = "mul";
 struct int_mul_eval { mpz operator()(mpz const & v1, mpz const & v2) { return v1 * v2; }; };
 typedef int_bin_op<int_mul_name, int_mul_eval> int_mul_value;
-MK_BUILTIN(int_mul_fn, int_mul_value);
-static value::register_deserializer_fn int_mul_ds("int_mul", [](deserializer & ) { return mk_int_mul_fn(); });
-static register_builtin_fn int_mul_blt(name({"Int", "mul"}), []() { return mk_int_mul_fn(); });
+MK_BUILTIN(Int_mul_fn, int_mul_value);
+static value::register_deserializer_fn int_mul_ds("int_mul", [](deserializer & ) { return mk_Int_mul_fn(); });
+static register_builtin_fn int_mul_blt(name({"Int", "mul"}), []() { return mk_Int_mul_fn(); });
 
 constexpr char int_div_name[] = "div";
 struct int_div_eval {
@@ -105,9 +107,9 @@ struct int_div_eval {
     };
 };
 typedef int_bin_op<int_div_name, int_div_eval> int_div_value;
-MK_BUILTIN(int_div_fn, int_div_value);
-static value::register_deserializer_fn int_div_ds("int_div", [](deserializer & ) { return mk_int_div_fn(); });
-static register_builtin_fn int_div_blt(name({"Int", "div"}), []() { return mk_int_div_fn(); });
+MK_BUILTIN(Int_div_fn, int_div_value);
+static value::register_deserializer_fn int_div_ds("int_div", [](deserializer & ) { return mk_Int_div_fn(); });
+static register_builtin_fn int_div_blt(name({"Int", "div"}), []() { return mk_Int_div_fn(); });
 
 class int_le_value : public const_value {
 public:
@@ -121,18 +123,9 @@ public:
     }
     virtual void write(serializer & s) const { s << "int_le"; }
 };
-MK_BUILTIN(int_le_fn, int_le_value);
-static value::register_deserializer_fn int_le_ds("int_le", [](deserializer & ) { return mk_int_le_fn(); });
-static register_builtin_fn int_le_blt(name({"Int", "le"}), []() { return mk_int_le_fn(); });
-
-MK_CONSTANT(int_sub_fn, name({"Int", "sub"}));
-MK_CONSTANT(int_neg_fn, name({"Int", "neg"}));
-MK_CONSTANT(int_mod_fn, name({"Int", "mod"}));
-MK_CONSTANT(int_divides_fn, name({"Int", "divides"}));
-MK_CONSTANT(int_abs_fn, name({"Int", "abs"}));
-MK_CONSTANT(int_ge_fn, name({"Int", "ge"}));
-MK_CONSTANT(int_lt_fn, name({"Int", "lt"}));
-MK_CONSTANT(int_gt_fn, name({"Int", "gt"}));
+MK_BUILTIN(Int_le_fn, int_le_value);
+static value::register_deserializer_fn int_le_ds("int_le", [](deserializer & ) { return mk_Int_le_fn(); });
+static register_builtin_fn int_le_blt(name({"Int", "le"}), []() { return mk_Int_le_fn(); });
 
 /**
    \brief Semantic attachment for the Nat to Int coercion.
@@ -152,9 +145,6 @@ public:
 MK_BUILTIN(nat_to_int_fn, nat_to_int_value);
 static value::register_deserializer_fn nat_to_int_ds("nat_to_int", [](deserializer & ) { return mk_nat_to_int_fn(); });
 static register_builtin_fn nat_to_int_blt("nat_to_int", []() { return mk_nat_to_int_fn(); });
-
-MK_CONSTANT(nat_sub_fn, name({"Nat", "sub"}));
-MK_CONSTANT(nat_neg_fn, name({"Nat", "neg"}));
 
 void import_int(environment const & env, io_state const & ios) {
     env->import("Int", ios);

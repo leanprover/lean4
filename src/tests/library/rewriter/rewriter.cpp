@@ -32,11 +32,11 @@ static void theorem_rewriter1_tst() {
     // Result :     (b + a, ADD_COMM a b)
     expr a        = Const("a");                  // a  : Nat
     expr b        = Const("b");                  // b  : Nat
-    expr a_plus_b = nAdd(a, b);
-    expr b_plus_a = nAdd(b, a);
+    expr a_plus_b = mk_Nat_add(a, b);
+    expr b_plus_a = mk_Nat_add(b, a);
     expr add_comm_thm_type = Pi("x", Nat,
                                 Pi("y", Nat,
-                                   Eq(nAdd(Const("x"), Const("y")), nAdd(Const("y"), Const("x")))));
+                                   HEq(mk_Nat_add(Const("x"), Const("y")), mk_Nat_add(Const("y"), Const("x")))));
     expr add_comm_thm_body = Const("ADD_COMM");
 
     environment env; init_test_frontend(env);
@@ -48,13 +48,13 @@ static void theorem_rewriter1_tst() {
     rewriter add_comm_thm_rewriter = mk_theorem_rewriter(add_comm_thm_type, add_comm_thm_body);
     context ctx;
     pair<expr, expr> result = add_comm_thm_rewriter(env, ctx, a_plus_b);
-    expr concl = mk_eq(a_plus_b, result.first);
+    expr concl = mk_heq(a_plus_b, result.first);
     expr proof = result.second;
 
     cout << "Theorem: " << add_comm_thm_type << " := " << add_comm_thm_body << std::endl;
     cout << "         " << concl << " := " << proof << std::endl;
 
-    lean_assert_eq(concl, mk_eq(a_plus_b, b_plus_a));
+    lean_assert_eq(concl, mk_heq(a_plus_b, b_plus_a));
     lean_assert_eq(proof, Const("ADD_COMM")(a, b));
     env->add_theorem("New_theorem1", concl, proof);
 }
@@ -66,9 +66,9 @@ static void theorem_rewriter2_tst() {
     // Result :     (a, ADD_ID a)
     expr a           = Const("a");                  // a    : at
     expr zero        = nVal(0);                     // zero : Nat
-    expr a_plus_zero = nAdd(a, zero);
+    expr a_plus_zero = mk_Nat_add(a, zero);
     expr add_id_thm_type = Pi("x", Nat,
-                           Eq(nAdd(Const("x"), zero), Const("x")));
+                           HEq(mk_Nat_add(Const("x"), zero), Const("x")));
     expr add_id_thm_body = Const("ADD_ID");
 
     environment env; init_test_frontend(env);
@@ -79,13 +79,13 @@ static void theorem_rewriter2_tst() {
     rewriter add_id_thm_rewriter = mk_theorem_rewriter(add_id_thm_type, add_id_thm_body);
     context ctx;
     pair<expr, expr> result = add_id_thm_rewriter(env, ctx, a_plus_zero);
-    expr concl = mk_eq(a_plus_zero, result.first);
+    expr concl = mk_heq(a_plus_zero, result.first);
     expr proof = result.second;
 
     cout << "Theorem: " << add_id_thm_type << " := " << add_id_thm_body << std::endl;
     cout << "         " << concl << " := " << proof << std::endl;
 
-    lean_assert_eq(concl, mk_eq(a_plus_zero, a));
+    lean_assert_eq(concl, mk_heq(a_plus_zero, a));
     lean_assert_eq(proof, Const("ADD_ID")(a));
     env->add_theorem("New_theorem2", concl, proof);
 }
@@ -99,14 +99,14 @@ static void then_rewriter1_tst() {
 
     expr a           = Const("a");                  // a  : Nat
     expr zero        = nVal(0);                     // zero : Nat
-    expr a_plus_zero = nAdd(a, zero);
-    expr zero_plus_a = nAdd(zero, a);
+    expr a_plus_zero = mk_Nat_add(a, zero);
+    expr zero_plus_a = mk_Nat_add(zero, a);
     expr add_comm_thm_type = Pi("x", Nat,
                                 Pi("y", Nat,
-                                   Eq(nAdd(Const("x"), Const("y")), nAdd(Const("y"), Const("x")))));
+                                   HEq(mk_Nat_add(Const("x"), Const("y")), mk_Nat_add(Const("y"), Const("x")))));
     expr add_comm_thm_body = Const("ADD_COMM");
     expr add_id_thm_type = Pi("x", Nat,
-                           Eq(nAdd(Const("x"), zero), Const("x")));
+                           HEq(mk_Nat_add(Const("x"), zero), Const("x")));
     expr add_id_thm_body = Const("ADD_ID");
 
     environment env; init_test_frontend(env);
@@ -120,15 +120,15 @@ static void then_rewriter1_tst() {
     rewriter then_rewriter1 = mk_then_rewriter(add_comm_thm_rewriter, add_id_thm_rewriter);
     context ctx;
     pair<expr, expr> result = then_rewriter1(env, ctx, zero_plus_a);
-    expr concl = mk_eq(zero_plus_a, result.first);
+    expr concl = mk_heq(zero_plus_a, result.first);
     expr proof = result.second;
 
     cout << "Theorem: " << add_comm_thm_type << " := " << add_comm_thm_body << std::endl;
     cout << "Theorem: " << add_id_thm_type << " := " << add_id_thm_body << std::endl;
     cout << "         " << concl << " := " << proof << std::endl;
 
-    lean_assert_eq(concl, mk_eq(zero_plus_a, a));
-    lean_assert(proof == Trans(Nat, zero_plus_a, a_plus_zero, a,
+    lean_assert_eq(concl, mk_heq(zero_plus_a, a));
+    lean_assert(proof == mk_trans_th(Nat, zero_plus_a, a_plus_zero, a,
                                Const("ADD_COMM")(zero, a), Const("ADD_ID")(a)));
 
     env->add_theorem("New_theorem3", concl, proof);
@@ -147,22 +147,22 @@ static void then_rewriter2_tst() {
 
     expr a           = Const("a");                  // a  : Nat
     expr zero        = nVal(0);                     // zero : Nat
-    expr zero_plus_a  = nAdd(zero, a);
-    expr a_plus_zero  = nAdd(a, zero);
-    expr zero_plus_a_plus_zero  = nAdd(zero, nAdd(a, zero));
-    expr zero_plus_a_plus_zero_ = nAdd(nAdd(zero, a), zero);
+    expr zero_plus_a  = mk_Nat_add(zero, a);
+    expr a_plus_zero  = mk_Nat_add(a, zero);
+    expr zero_plus_a_plus_zero  = mk_Nat_add(zero, mk_Nat_add(a, zero));
+    expr zero_plus_a_plus_zero_ = mk_Nat_add(mk_Nat_add(zero, a), zero);
     expr add_assoc_thm_type = Pi("x", Nat,
                                 Pi("y", Nat,
                                    Pi("z", Nat,
-                                      Eq(nAdd(Const("x"), nAdd(Const("y"), Const("z"))),
-                                         nAdd(nAdd(Const("x"), Const("y")), Const("z"))))));
+                                      HEq(mk_Nat_add(Const("x"), mk_Nat_add(Const("y"), Const("z"))),
+                                         mk_Nat_add(mk_Nat_add(Const("x"), Const("y")), Const("z"))))));
     expr add_assoc_thm_body = Const("ADD_ASSOC");
     expr add_comm_thm_type = Pi("x", Nat,
                                 Pi("y", Nat,
-                                   Eq(nAdd(Const("x"), Const("y")), nAdd(Const("y"), Const("x")))));
+                                   HEq(mk_Nat_add(Const("x"), Const("y")), mk_Nat_add(Const("y"), Const("x")))));
     expr add_comm_thm_body = Const("ADD_COMM");
     expr add_id_thm_type = Pi("x", Nat,
-                           Eq(nAdd(Const("x"), zero), Const("x")));
+                           HEq(mk_Nat_add(Const("x"), zero), Const("x")));
     expr add_id_thm_body = Const("ADD_ID");
 
     environment env; init_test_frontend(env);
@@ -181,17 +181,17 @@ static void then_rewriter2_tst() {
                                                 add_id_thm_rewriter});
     context ctx;
     pair<expr, expr> result = then_rewriter2(env, ctx, zero_plus_a_plus_zero);
-    expr concl = mk_eq(zero_plus_a_plus_zero, result.first);
+    expr concl = mk_heq(zero_plus_a_plus_zero, result.first);
     expr proof = result.second;
     cout << "Theorem: " << add_assoc_thm_type << " := " << add_assoc_thm_body << std::endl;
     cout << "Theorem: " << add_comm_thm_type << " := " << add_comm_thm_body << std::endl;
     cout << "Theorem: " << add_id_thm_type << " := " << add_id_thm_body << std::endl;
     cout << "         " << concl << " := " << proof << std::endl;
 
-    lean_assert_eq(concl, mk_eq(zero_plus_a_plus_zero, a));
-    lean_assert(proof == Trans(Nat, zero_plus_a_plus_zero, a_plus_zero, a,
-                               Trans(Nat, zero_plus_a_plus_zero, zero_plus_a, a_plus_zero,
-                                     Trans(Nat, zero_plus_a_plus_zero, zero_plus_a_plus_zero_, zero_plus_a,
+    lean_assert_eq(concl, mk_heq(zero_plus_a_plus_zero, a));
+    lean_assert(proof == mk_trans_th(Nat, zero_plus_a_plus_zero, a_plus_zero, a,
+                               mk_trans_th(Nat, zero_plus_a_plus_zero, zero_plus_a, a_plus_zero,
+                                     mk_trans_th(Nat, zero_plus_a_plus_zero, zero_plus_a_plus_zero_, zero_plus_a,
                                            Const("ADD_ASSOC")(zero, a, zero), Const("ADD_ID")(zero_plus_a)),
                                      Const("ADD_COMM")(zero, a)),
                                Const("ADD_ID")(a)));
@@ -208,20 +208,20 @@ static void orelse_rewriter1_tst() {
     expr a        = Const("a");                  // a  : Nat
     expr b        = Const("b");                  // b  : Nat
     expr zero     = nVal(0);                     // zero : Nat
-    expr a_plus_b = nAdd(a, b);
-    expr b_plus_a = nAdd(b, a);
+    expr a_plus_b = mk_Nat_add(a, b);
+    expr b_plus_a = mk_Nat_add(b, a);
     expr add_assoc_thm_type = Pi("x", Nat,
                                 Pi("y", Nat,
                                    Pi("z", Nat,
-                                      Eq(nAdd(Const("x"), nAdd(Const("y"), Const("z"))),
-                                         nAdd(nAdd(Const("x"), Const("y")), Const("z"))))));
+                                      HEq(mk_Nat_add(Const("x"), mk_Nat_add(Const("y"), Const("z"))),
+                                         mk_Nat_add(mk_Nat_add(Const("x"), Const("y")), Const("z"))))));
     expr add_assoc_thm_body = Const("ADD_ASSOC");
     expr add_comm_thm_type = Pi("x", Nat,
                                 Pi("y", Nat,
-                                   Eq(nAdd(Const("x"), Const("y")), nAdd(Const("y"), Const("x")))));
+                                   HEq(mk_Nat_add(Const("x"), Const("y")), mk_Nat_add(Const("y"), Const("x")))));
     expr add_comm_thm_body = Const("ADD_COMM");
     expr add_id_thm_type = Pi("x", Nat,
-                              Eq(nAdd(Const("x"), zero), Const("x")));
+                              HEq(mk_Nat_add(Const("x"), zero), Const("x")));
     expr add_id_thm_body = Const("ADD_ID");
 
     environment env; init_test_frontend(env);
@@ -238,7 +238,7 @@ static void orelse_rewriter1_tst() {
                                                                   add_id_thm_rewriter});
     context ctx;
     pair<expr, expr> result = add_assoc_or_comm_thm_rewriter(env, ctx, a_plus_b);
-    expr concl = mk_eq(a_plus_b, result.first);
+    expr concl = mk_heq(a_plus_b, result.first);
     expr proof = result.second;
 
     cout << "Theorem: " << add_assoc_thm_type << " := " << add_assoc_thm_body << std::endl;
@@ -246,7 +246,7 @@ static void orelse_rewriter1_tst() {
     cout << "Theorem: " << add_id_thm_type << " := " << add_id_thm_body << std::endl;
     cout << "         " << concl << " := " << proof << std::endl;
 
-    lean_assert_eq(concl, mk_eq(a_plus_b, b_plus_a));
+    lean_assert_eq(concl, mk_heq(a_plus_b, b_plus_a));
     lean_assert_eq(proof, Const("ADD_COMM")(a, b));
     env->add_theorem("New_theorem5", concl, proof);
 }
@@ -259,16 +259,16 @@ static void orelse_rewriter2_tst() {
     expr a        = Const("a");                  // a  : Nat
     expr b        = Const("b");                  // b  : Nat
     expr zero     = nVal(0);                     // zero : Nat
-    expr a_plus_b = nAdd(a, b);
-    expr b_plus_a = nAdd(b, a);
+    expr a_plus_b = mk_Nat_add(a, b);
+    expr b_plus_a = mk_Nat_add(b, a);
     expr add_assoc_thm_type = Pi("x", Nat,
                                 Pi("y", Nat,
                                    Pi("z", Nat,
-                                      Eq(nAdd(Const("x"), nAdd(Const("y"), Const("z"))),
-                                         nAdd(nAdd(Const("x"), Const("y")), Const("z"))))));
+                                      HEq(mk_Nat_add(Const("x"), mk_Nat_add(Const("y"), Const("z"))),
+                                         mk_Nat_add(mk_Nat_add(Const("x"), Const("y")), Const("z"))))));
     expr add_assoc_thm_body = Const("ADD_ASSOC");
     expr add_id_thm_type = Pi("x", Nat,
-                              Eq(nAdd(Const("x"), zero), Const("x")));
+                              HEq(mk_Nat_add(Const("x"), zero), Const("x")));
     expr add_id_thm_body = Const("ADD_ID");
 
     environment env; init_test_frontend(env);
@@ -304,20 +304,20 @@ static void try_rewriter1_tst() {
     expr a        = Const("a");                  // a  : Nat
     expr b        = Const("b");                  // b  : Nat
     expr zero     = nVal(0);                     // zero : Nat
-    expr a_plus_b = nAdd(a, b);
-    expr b_plus_a = nAdd(b, a);
+    expr a_plus_b = mk_Nat_add(a, b);
+    expr b_plus_a = mk_Nat_add(b, a);
     expr add_assoc_thm_type = Pi("x", Nat,
                                 Pi("y", Nat,
                                    Pi("z", Nat,
-                                      Eq(nAdd(Const("x"), nAdd(Const("y"), Const("z"))),
-                                         nAdd(nAdd(Const("x"), Const("y")), Const("z"))))));
+                                      HEq(mk_Nat_add(Const("x"), mk_Nat_add(Const("y"), Const("z"))),
+                                         mk_Nat_add(mk_Nat_add(Const("x"), Const("y")), Const("z"))))));
     expr add_assoc_thm_body = Const("ADD_ASSOC");
     expr add_comm_thm_type = Pi("x", Nat,
                                 Pi("y", Nat,
-                                   Eq(nAdd(Const("x"), Const("y")), nAdd(Const("y"), Const("x")))));
+                                   HEq(mk_Nat_add(Const("x"), Const("y")), mk_Nat_add(Const("y"), Const("x")))));
     expr add_comm_thm_body = Const("ADD_COMM");
     expr add_id_thm_type = Pi("x", Nat,
-                              Eq(nAdd(Const("x"), zero), Const("x")));
+                              HEq(mk_Nat_add(Const("x"), zero), Const("x")));
     expr add_id_thm_body = Const("ADD_ID");
 
     environment env; init_test_frontend(env);
@@ -333,7 +333,7 @@ static void try_rewriter1_tst() {
                                                  add_id_thm_rewriter});
     context ctx;
     pair<expr, expr> result = add_try_rewriter(env, ctx, a_plus_b);
-    expr concl = mk_eq(a_plus_b, result.first);
+    expr concl = mk_heq(a_plus_b, result.first);
     expr proof = result.second;
 
     cout << "Theorem: " << add_assoc_thm_type << " := " << add_assoc_thm_body << std::endl;
@@ -341,7 +341,7 @@ static void try_rewriter1_tst() {
     cout << "Theorem: " << add_id_thm_type << " := " << add_id_thm_body << std::endl;
     cout << "         " << concl << " := " << proof << std::endl;
 
-    lean_assert_eq(concl, mk_eq(a_plus_b, a_plus_b));
+    lean_assert_eq(concl, mk_heq(a_plus_b, a_plus_b));
     lean_assert_eq(proof, Const("refl")(Nat, a_plus_b));
     env->add_theorem("New_theorem6", concl, proof);
 }
@@ -355,20 +355,20 @@ static void try_rewriter2_tst() {
     expr a        = Const("a");                  // a  : Nat
     expr b        = Const("b");                  // b  : Nat
     expr zero     = nVal(0);                     // zero : Nat
-    expr a_plus_b = nAdd(a, b);
-    expr b_plus_a = nAdd(b, a);
+    expr a_plus_b = mk_Nat_add(a, b);
+    expr b_plus_a = mk_Nat_add(b, a);
     expr add_assoc_thm_type = Pi("x", Nat,
                                 Pi("y", Nat,
                                    Pi("z", Nat,
-                                      Eq(nAdd(Const("x"), nAdd(Const("y"), Const("z"))),
-                                         nAdd(nAdd(Const("x"), Const("y")), Const("z"))))));
+                                      HEq(mk_Nat_add(Const("x"), mk_Nat_add(Const("y"), Const("z"))),
+                                         mk_Nat_add(mk_Nat_add(Const("x"), Const("y")), Const("z"))))));
     expr add_assoc_thm_body = Const("ADD_ASSOC");
     expr add_comm_thm_type = Pi("x", Nat,
                                 Pi("y", Nat,
-                                   Eq(nAdd(Const("x"), Const("y")), nAdd(Const("y"), Const("x")))));
+                                   HEq(mk_Nat_add(Const("x"), Const("y")), mk_Nat_add(Const("y"), Const("x")))));
     expr add_comm_thm_body = Const("ADD_COMM");
     expr add_id_thm_type = Pi("x", Nat,
-                              Eq(nAdd(Const("x"), zero), Const("x")));
+                              HEq(mk_Nat_add(Const("x"), zero), Const("x")));
     expr add_id_thm_body = Const("ADD_ID");
 
     environment env; init_test_frontend(env);
@@ -385,7 +385,7 @@ static void try_rewriter2_tst() {
                                                  add_id_thm_rewriter});
     context ctx;
     pair<expr, expr> result = add_try_rewriter(env, ctx, a_plus_b);
-    expr concl = mk_eq(a_plus_b, result.first);
+    expr concl = mk_heq(a_plus_b, result.first);
     expr proof = result.second;
 
     cout << "Theorem: " << add_assoc_thm_type << " := " << add_assoc_thm_body << std::endl;
@@ -393,7 +393,7 @@ static void try_rewriter2_tst() {
     cout << "Theorem: " << add_id_thm_type << " := " << add_id_thm_body << std::endl;
     cout << "         " << concl << " := " << proof << std::endl;
 
-    lean_assert_eq(concl, mk_eq(a_plus_b, b_plus_a));
+    lean_assert_eq(concl, mk_heq(a_plus_b, b_plus_a));
     lean_assert_eq(proof, Const("ADD_COMM")(a, b));
     env->add_theorem("try2", concl, proof);
 }
@@ -410,11 +410,11 @@ static void app_rewriter1_tst() {
     expr f3       = Const("f3");  // f  : Nat -> Nat -> Nat -> Nat
     expr f4       = Const("f4");  // f  : Nat -> Nat -> Nat -> Nat -> Nat
     expr zero     = nVal(0);      // zero : Nat
-    expr a_plus_b = nAdd(a, b);
-    expr b_plus_a = nAdd(b, a);
+    expr a_plus_b = mk_Nat_add(a, b);
+    expr b_plus_a = mk_Nat_add(b, a);
     expr add_comm_thm_type = Pi("x", Nat,
                                 Pi("y", Nat,
-                                   Eq(nAdd(Const("x"), Const("y")), nAdd(Const("y"), Const("x")))));
+                                   HEq(mk_Nat_add(Const("x"), Const("y")), mk_Nat_add(Const("y"), Const("x")))));
     expr add_comm_thm_body = Const("ADD_COMM");
 
     environment env; init_test_frontend(env);
@@ -436,32 +436,32 @@ static void app_rewriter1_tst() {
 
     expr v = f1(nVal(0));
     pair<expr, expr> result = app_try_comm_rewriter(env, ctx, v);
-    expr concl = mk_eq(v, result.first);
+    expr concl = mk_heq(v, result.first);
     expr proof = result.second;
     cout << "Concl = " << concl << std::endl
          << "Proof = " << proof << std::endl;
-    lean_assert_eq(concl, mk_eq(v, f1(nVal(0))));
-    lean_assert_eq(proof, Refl(Nat, f1(nVal(0))));
+    lean_assert_eq(concl, mk_heq(v, f1(nVal(0))));
+    lean_assert_eq(proof, mk_refl_th(Nat, f1(nVal(0))));
     env->add_theorem("app_rewriter1", concl, proof);
     cout << "====================================================" << std::endl;
     v = f1(a_plus_b);
     result = app_try_comm_rewriter(env, ctx, v);
-    concl = mk_eq(v, result.first);
+    concl = mk_heq(v, result.first);
     proof = result.second;
     cout << "Concl = " << concl << std::endl
          << "Proof = " << proof << std::endl;
-    lean_assert_eq(concl, mk_eq(v, f1(b_plus_a)));
+    lean_assert_eq(concl, mk_heq(v, f1(b_plus_a)));
     lean_assert_eq(proof,
                    Const("congr2")(Nat, Fun(name("_"), Nat, Nat), a_plus_b, b_plus_a, f1, Const("ADD_COMM")(a, b)));
     env->add_theorem("app_rewriter2", concl, proof);
     cout << "====================================================" << std::endl;
     v = f4(nVal(0), a_plus_b, nVal(0), b_plus_a);
     result = app_try_comm_rewriter(env, ctx, v);
-    concl = mk_eq(v, result.first);
+    concl = mk_heq(v, result.first);
     proof = result.second;
     cout << "Concl = " << concl << std::endl
          << "Proof = " << proof << std::endl;
-    lean_assert_eq(concl, mk_eq(v, f4(nVal(0), b_plus_a, nVal(0), a_plus_b)));
+    lean_assert_eq(concl, mk_heq(v, f4(nVal(0), b_plus_a, nVal(0), a_plus_b)));
     // Congr Nat (fun _ : Nat, Nat) (f4 0 (Nat::add a b) 0) (f4 0 (Nat::add b a) 0) (Nat::add b a) (Nat::add a b) (Congr1 Nat (fun _ : Nat, (Nat -> Nat)) (f4 0 (Nat::add a b)) (f4 0 (Nat::add b a)) 0 (Congr2 Nat (fun _ : Nat, (Nat -> Nat -> Nat)) (Nat::add a b) (Nat::add b a) (f4 0) (ADD_COMM a b))) (ADD_COMM b a)
 
     lean_assert_eq(proof,
@@ -489,22 +489,22 @@ static void repeat_rewriter1_tst() {
 
     expr a           = Const("a");                  // a  : Nat
     expr zero        = nVal(0);                     // zero : Nat
-    expr zero_plus_a  = nAdd(zero, a);
-    expr a_plus_zero  = nAdd(a, zero);
-    expr zero_plus_a_plus_zero  = nAdd(zero, nAdd(a, zero));
-    expr zero_plus_a_plus_zero_ = nAdd(nAdd(zero, a), zero);
+    expr zero_plus_a  = mk_Nat_add(zero, a);
+    expr a_plus_zero  = mk_Nat_add(a, zero);
+    expr zero_plus_a_plus_zero  = mk_Nat_add(zero, mk_Nat_add(a, zero));
+    expr zero_plus_a_plus_zero_ = mk_Nat_add(mk_Nat_add(zero, a), zero);
     expr add_assoc_thm_type = Pi("x", Nat,
                                 Pi("y", Nat,
                                    Pi("z", Nat,
-                                      Eq(nAdd(Const("x"), nAdd(Const("y"), Const("z"))),
-                                         nAdd(nAdd(Const("x"), Const("y")), Const("z"))))));
+                                      HEq(mk_Nat_add(Const("x"), mk_Nat_add(Const("y"), Const("z"))),
+                                         mk_Nat_add(mk_Nat_add(Const("x"), Const("y")), Const("z"))))));
     expr add_assoc_thm_body = Const("ADD_ASSOC");
     expr add_comm_thm_type = Pi("x", Nat,
                                 Pi("y", Nat,
-                                   Eq(nAdd(Const("x"), Const("y")), nAdd(Const("y"), Const("x")))));
+                                   HEq(mk_Nat_add(Const("x"), Const("y")), mk_Nat_add(Const("y"), Const("x")))));
     expr add_comm_thm_body = Const("ADD_COMM");
     expr add_id_thm_type = Pi("x", Nat,
-                           Eq(nAdd(Const("x"), zero), Const("x")));
+                           HEq(mk_Nat_add(Const("x"), zero), Const("x")));
     expr add_id_thm_body = Const("ADD_ID");
 
     environment env; init_test_frontend(env);
@@ -523,14 +523,14 @@ static void repeat_rewriter1_tst() {
     rewriter repeat_rw = mk_repeat_rewriter(or_rewriter);
     context ctx;
     pair<expr, expr> result = repeat_rw(env, ctx, zero_plus_a_plus_zero);
-    expr concl = mk_eq(zero_plus_a_plus_zero, result.first);
+    expr concl = mk_heq(zero_plus_a_plus_zero, result.first);
     expr proof = result.second;
     cout << "Theorem: " << add_assoc_thm_type << " := " << add_assoc_thm_body << std::endl;
     cout << "Theorem: " << add_comm_thm_type << " := " << add_comm_thm_body << std::endl;
     cout << "Theorem: " << add_id_thm_type << " := " << add_id_thm_body << std::endl;
     cout << "         " << concl << " := " << proof << std::endl;
 
-    lean_assert_eq(concl, mk_eq(zero_plus_a_plus_zero, a));
+    lean_assert_eq(concl, mk_heq(zero_plus_a_plus_zero, a));
     env->add_theorem("repeat_thm1", concl, proof);
 }
 
@@ -547,22 +547,22 @@ static void repeat_rewriter2_tst() {
 
     expr a           = Const("a");                  // a  : Nat
     expr zero        = nVal(0);                     // zero : Nat
-    expr zero_plus_a  = nAdd(zero, a);
-    expr a_plus_zero  = nAdd(a, zero);
-    expr zero_plus_a_plus_zero  = nAdd(zero, nAdd(a, zero));
-    expr zero_plus_a_plus_zero_ = nAdd(nAdd(zero, a), zero);
+    expr zero_plus_a  = mk_Nat_add(zero, a);
+    expr a_plus_zero  = mk_Nat_add(a, zero);
+    expr zero_plus_a_plus_zero  = mk_Nat_add(zero, mk_Nat_add(a, zero));
+    expr zero_plus_a_plus_zero_ = mk_Nat_add(mk_Nat_add(zero, a), zero);
     expr add_assoc_thm_type = Pi("x", Nat,
                                 Pi("y", Nat,
                                    Pi("z", Nat,
-                                      Eq(nAdd(Const("x"), nAdd(Const("y"), Const("z"))),
-                                         nAdd(nAdd(Const("x"), Const("y")), Const("z"))))));
+                                      HEq(mk_Nat_add(Const("x"), mk_Nat_add(Const("y"), Const("z"))),
+                                         mk_Nat_add(mk_Nat_add(Const("x"), Const("y")), Const("z"))))));
     expr add_assoc_thm_body = Const("ADD_ASSOC");
     expr add_comm_thm_type = Pi("x", Nat,
                                 Pi("y", Nat,
-                                   Eq(nAdd(Const("x"), Const("y")), nAdd(Const("y"), Const("x")))));
+                                   HEq(mk_Nat_add(Const("x"), Const("y")), mk_Nat_add(Const("y"), Const("x")))));
     expr add_comm_thm_body = Const("ADD_COMM");
     expr add_id_thm_type = Pi("x", Nat,
-                           Eq(nAdd(Const("x"), zero), Const("x")));
+                           HEq(mk_Nat_add(Const("x"), zero), Const("x")));
     expr add_id_thm_body = Const("ADD_ID");
 
     environment env; init_test_frontend(env);
@@ -582,14 +582,14 @@ static void repeat_rewriter2_tst() {
     rewriter repeat_rw = mk_repeat_rewriter(try_rw);
     context ctx;
     pair<expr, expr> result = repeat_rw(env, ctx, zero_plus_a_plus_zero);
-    expr concl = mk_eq(zero_plus_a_plus_zero, result.first);
+    expr concl = mk_heq(zero_plus_a_plus_zero, result.first);
     expr proof = result.second;
     cout << "Theorem: " << add_assoc_thm_type << " := " << add_assoc_thm_body << std::endl;
     cout << "Theorem: " << add_comm_thm_type << " := " << add_comm_thm_body << std::endl;
     cout << "Theorem: " << add_id_thm_type << " := " << add_id_thm_body << std::endl;
     cout << "         " << concl << " := " << proof << std::endl;
 
-    lean_assert_eq(concl, mk_eq(zero_plus_a_plus_zero, a));
+    lean_assert_eq(concl, mk_heq(zero_plus_a_plus_zero, a));
     env->add_theorem("repeat_thm2", concl, proof);
 }
 
@@ -605,11 +605,11 @@ static void depth_rewriter1_tst() {
     expr f3       = Const("f3");  // f  : Nat -> Nat -> Nat -> Nat
     expr f4       = Const("f4");  // f  : Nat -> Nat -> Nat -> Nat -> Nat
     expr zero     = nVal(0);      // zero : Nat
-    expr a_plus_b = nAdd(a, b);
-    expr b_plus_a = nAdd(b, a);
+    expr a_plus_b = mk_Nat_add(a, b);
+    expr b_plus_a = mk_Nat_add(b, a);
     expr add_comm_thm_type = Pi("x", Nat,
                                 Pi("y", Nat,
-                                   Eq(nAdd(Const("x"), Const("y")), nAdd(Const("y"), Const("x")))));
+                                   HEq(mk_Nat_add(Const("x"), Const("y")), mk_Nat_add(Const("y"), Const("x")))));
     expr add_comm_thm_body = Const("ADD_COMM");
 
     environment env; init_test_frontend(env);
@@ -629,13 +629,13 @@ static void depth_rewriter1_tst() {
 
     cout << "RW = " << depth_rewriter << std::endl;
 
-    expr v = nAdd(f1(nAdd(a, b)), f3(a, b, nAdd(a, b)));
+    expr v = mk_Nat_add(f1(mk_Nat_add(a, b)), f3(a, b, mk_Nat_add(a, b)));
     pair<expr, expr> result = depth_rewriter(env, ctx, v);
-    expr concl = mk_eq(v, result.first);
+    expr concl = mk_heq(v, result.first);
     expr proof = result.second;
     cout << "Concl = " << concl << std::endl
          << "Proof = " << proof << std::endl;
-    lean_assert_eq(concl, mk_eq(v, nAdd(f3(a, b, nAdd(b, a)), f1(nAdd(b, a)))));
+    lean_assert_eq(concl, mk_heq(v, mk_Nat_add(f3(a, b, mk_Nat_add(b, a)), f1(mk_Nat_add(b, a)))));
     env->add_theorem("depth_rewriter1", concl, proof);
     cout << "====================================================" << std::endl;
 }
@@ -652,11 +652,11 @@ static void lambda_body_rewriter_tst() {
     expr f3       = Const("f3");  // f  : Nat -> Nat -> Nat -> Nat
     expr f4       = Const("f4");  // f  : Nat -> Nat -> Nat -> Nat -> Nat
     expr zero     = nVal(0);      // zero : Nat
-    expr a_plus_b = nAdd(a, b);
-    expr b_plus_a = nAdd(b, a);
+    expr a_plus_b = mk_Nat_add(a, b);
+    expr b_plus_a = mk_Nat_add(b, a);
     expr add_comm_thm_type = Pi("x", Nat,
                                 Pi("y", Nat,
-                                   Eq(nAdd(Const("x"), Const("y")), nAdd(Const("y"), Const("x")))));
+                                   HEq(mk_Nat_add(Const("x"), Const("y")), mk_Nat_add(Const("y"), Const("x")))));
     expr add_comm_thm_body = Const("ADD_COMM");
 
     environment env; init_test_frontend(env);
@@ -673,27 +673,27 @@ static void lambda_body_rewriter_tst() {
     rewriter lambda_rewriter = mk_lambda_body_rewriter(add_comm_thm_rewriter);
     context ctx;
     cout << "RW = " << lambda_rewriter << std::endl;
-    expr v = mk_lambda("x", Nat, nAdd(b, a));
+    expr v = mk_lambda("x", Nat, mk_Nat_add(b, a));
     pair<expr, expr> result = lambda_rewriter(env, ctx, v);
-    expr concl = mk_eq(v, result.first);
+    expr concl = mk_heq(v, result.first);
     expr proof = result.second;
     cout << "v     = " << v     << std::endl;
     cout << "Concl = " << concl << std::endl
          << "Proof = " << proof << std::endl;
-    lean_assert_eq(concl, mk_eq(v, mk_lambda("x", Nat, nAdd(a, b))));
+    lean_assert_eq(concl, mk_heq(v, mk_lambda("x", Nat, mk_Nat_add(a, b))));
     env->add_theorem("lambda_rewriter1", concl, proof);
 
     // Theorem:     Pi(x y : N),  x + y       = y + x       := ADD_COMM x y
     // Term   :     fun (x : Nat), (x + a)
     // Result :     fun (x : Nat), (a + x)
-    v = mk_lambda("x", Nat, nAdd(Var(0), a));
+    v = mk_lambda("x", Nat, mk_Nat_add(Var(0), a));
     result = lambda_rewriter(env, ctx, v);
-    concl = mk_eq(v, result.first);
+    concl = mk_heq(v, result.first);
     proof = result.second;
     cout << "v     = " << v     << std::endl;
     cout << "Concl = " << concl << std::endl
          << "Proof = " << proof << std::endl;
-    lean_assert_eq(concl, mk_eq(v, mk_lambda("x", Nat, nAdd(a, Var(0)))));
+    lean_assert_eq(concl, mk_heq(v, mk_lambda("x", Nat, mk_Nat_add(a, Var(0)))));
     env->add_theorem("lambda_rewriter2", concl, proof);
     cout << "====================================================" << std::endl;
 }
@@ -711,7 +711,7 @@ static void lambda_type_rewriter_tst() {
     env->add_var("b", Nat);
     expr vec = Const("vec");
     env->add_var("vec", Type() >> (Nat >> Type())); // vec : Type -> Nat -> Type
-    expr add_comm_thm_type = Pi("x", Nat, Pi("y", Nat, Eq(nAdd(Const("x"), Const("y")), nAdd(Const("y"), Const("x")))));
+    expr add_comm_thm_type = Pi("x", Nat, Pi("y", Nat, HEq(mk_Nat_add(Const("x"), Const("y")), mk_Nat_add(Const("y"), Const("x")))));
     expr add_comm_thm_body = Const("ADD_COMM");
     env->add_axiom("ADD_COMM", add_comm_thm_type); // ADD_COMM : Pi (x, y: N), x + y = y + z
     rewriter add_comm_thm_rewriter = mk_theorem_rewriter(add_comm_thm_type, add_comm_thm_body);
@@ -719,14 +719,14 @@ static void lambda_type_rewriter_tst() {
     rewriter depth_rewriter = mk_depth_rewriter(try_rewriter);
     rewriter lambda_rewriter = mk_lambda_type_rewriter(depth_rewriter);
 
-    expr v = mk_lambda("x", vec(Nat, nAdd(a, b)), Var(0));
+    expr v = mk_lambda("x", vec(Nat, mk_Nat_add(a, b)), Var(0));
     pair<expr, expr> result = lambda_rewriter(env, ctx, v);
-    expr concl = mk_eq(v, result.first);
+    expr concl = mk_heq(v, result.first);
     expr proof = result.second;
     cout << "v     = " << v     << std::endl;
     cout << "Concl = " << concl << std::endl
          << "Proof = " << proof << std::endl;
-    lean_assert_eq(concl, mk_eq(v, mk_lambda("x", vec(Nat, nAdd(b, a)), Var(0))));
+    lean_assert_eq(concl, mk_heq(v, mk_lambda("x", vec(Nat, mk_Nat_add(b, a)), Var(0))));
     env->add_theorem("lambda_type_rewriter", concl, proof);
     cout << "====================================================" << std::endl;
 }

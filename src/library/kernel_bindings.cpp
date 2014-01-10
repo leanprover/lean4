@@ -322,8 +322,8 @@ static int expr_mk_app(lua_State * L) {
     return push_expr(L, mk_app(args));
 }
 
-static int expr_mk_eq(lua_State * L) {
-    return push_expr(L, mk_eq(to_expr(L, 1), to_expr(L, 2)));
+static int expr_mk_heq(lua_State * L) {
+    return push_expr(L, mk_heq(to_expr(L, 1), to_expr(L, 2)));
 }
 
 static int expr_mk_lambda(lua_State * L) {
@@ -437,7 +437,7 @@ static int expr_ ## P(lua_State * L) {                  \
 EXPR_PRED(is_constant)
 EXPR_PRED(is_var)
 EXPR_PRED(is_app)
-EXPR_PRED(is_eq)
+EXPR_PRED(is_heq)
 EXPR_PRED(is_lambda)
 EXPR_PRED(is_pi)
 EXPR_PRED(is_abstraction)
@@ -450,12 +450,8 @@ EXPR_PRED(has_metavar)
 EXPR_PRED(is_not)
 EXPR_PRED(is_and)
 EXPR_PRED(is_or)
-EXPR_PRED(is_if)
-EXPR_PRED(is_iff)
 EXPR_PRED(is_implies)
-EXPR_PRED(is_forall)
 EXPR_PRED(is_exists)
-EXPR_PRED(is_homo_eq)
 
 /**
    \brief Iterator (closure base function) for application args. See \c expr_args
@@ -502,7 +498,7 @@ static int expr_fields(lua_State * L) {
     case expr_kind::Type:     return push_level(L, ty_level(e));
     case expr_kind::Value:    return to_value(e).push_lua(L);
     case expr_kind::App:      lua_pushinteger(L, num_args(e)); expr_args(L); return 2;
-    case expr_kind::Eq:       push_expr(L, eq_lhs(e)); push_expr(L, eq_rhs(e)); return 2;
+    case expr_kind::HEq:      push_expr(L, heq_lhs(e)); push_expr(L, heq_rhs(e)); return 2;
     case expr_kind::Lambda:
     case expr_kind::Pi:
         push_name(L, abst_name(e)); push_expr(L, abst_domain(e)); push_expr(L, abst_body(e)); return 3;
@@ -617,7 +613,7 @@ static const struct luaL_Reg expr_m[] = {
     {"is_var",          safe_function<expr_is_var>},
     {"is_constant",     safe_function<expr_is_constant>},
     {"is_app",          safe_function<expr_is_app>},
-    {"is_eq",           safe_function<expr_is_eq>},
+    {"is_heq",          safe_function<expr_is_heq>},
     {"is_lambda",       safe_function<expr_is_lambda>},
     {"is_pi",           safe_function<expr_is_pi>},
     {"is_abstraction",  safe_function<expr_is_abstraction>},
@@ -644,12 +640,8 @@ static const struct luaL_Reg expr_m[] = {
     {"is_not",          safe_function<expr_is_not>},
     {"is_and",          safe_function<expr_is_and>},
     {"is_or",           safe_function<expr_is_or>},
-    {"is_if",           safe_function<expr_is_if>},
-    {"is_iff",          safe_function<expr_is_iff>},
     {"is_implies",      safe_function<expr_is_implies>},
-    {"is_forall",       safe_function<expr_is_forall>},
     {"is_exists",       safe_function<expr_is_exists>},
-    {"is_home_eq",      safe_function<expr_is_homo_eq>},
     {0, 0}
 };
 
@@ -669,8 +661,8 @@ static void open_expr(lua_State * L) {
     SET_GLOBAL_FUN(expr_mk_var,      "mk_var");
     SET_GLOBAL_FUN(expr_mk_var,      "Var");
     SET_GLOBAL_FUN(expr_mk_app,      "mk_app");
-    SET_GLOBAL_FUN(expr_mk_eq,       "mk_eq");
-    SET_GLOBAL_FUN(expr_mk_eq,       "Eq");
+    SET_GLOBAL_FUN(expr_mk_heq,      "mk_heq");
+    SET_GLOBAL_FUN(expr_mk_heq,      "HEq");
     SET_GLOBAL_FUN(expr_mk_lambda,   "mk_lambda");
     SET_GLOBAL_FUN(expr_mk_pi,       "mk_pi");
     SET_GLOBAL_FUN(expr_mk_arrow,    "mk_arrow");
@@ -690,7 +682,7 @@ static void open_expr(lua_State * L) {
     SET_ENUM("Type",     expr_kind::Type);
     SET_ENUM("Value",    expr_kind::Value);
     SET_ENUM("App",      expr_kind::App);
-    SET_ENUM("Eq",       expr_kind::Eq);
+    SET_ENUM("HEq",      expr_kind::HEq);
     SET_ENUM("Lambda",   expr_kind::Lambda);
     SET_ENUM("Pi",       expr_kind::Pi);
     SET_ENUM("Let",      expr_kind::Let);

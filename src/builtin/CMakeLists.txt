@@ -67,6 +67,20 @@ function(add_theory FILE DEPS)
   endif()
 endfunction()
 
+# The following command invokes the lean binary to update .cpp/.h interface files
+# associated with a .lean file.
+function(update_interface FILE DEST ARG)
+  get_filename_component(BASENAME ${FILE} NAME_WE)
+  set(CPPFILE "${LEAN_SOURCE_DIR}/${DEST}/${BASENAME}_decls.cpp")
+  set(HFILE "${LEAN_SOURCE_DIR}/${DEST}/${BASENAME}_decls.h")
+  add_custom_command(OUTPUT ${CPPFILE} ${HFILE}
+    COMMAND ${SHELL_DIR}/lean ${ARG} -q ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} ${CMAKE_CURRENT_SOURCE_DIR}/name_conv.lua ${CMAKE_CURRENT_SOURCE_DIR}/lean2cpp.lean > ${CPPFILE}
+    COMMAND ${SHELL_DIR}/lean ${ARG} -q ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} ${CMAKE_CURRENT_SOURCE_DIR}/name_conv.lua ${CMAKE_CURRENT_SOURCE_DIR}/lean2h.lean > ${HFILE}
+    DEPENDS ${FILE})
+  add_custom_target("${BASENAME}_decls" DEPENDS ${CPPFILE})
+  add_dependencies(builtin ${BASENAME}_decls)
+endfunction()
+
 add_kernel_theory("kernel.lean"    "${CMAKE_CURRENT_BINARY_DIR}/macros.lua")
 add_kernel_theory("Nat.lean"       "${CMAKE_CURRENT_BINARY_DIR}/kernel.olean")
 
@@ -75,3 +89,8 @@ add_theory("Int.lean"          "${CMAKE_CURRENT_BINARY_DIR}/if_then_else.olean")
 add_theory("Real.lean"         "${CMAKE_CURRENT_BINARY_DIR}/Int.olean")
 add_theory("specialfn.lean"    "${CMAKE_CURRENT_BINARY_DIR}/Real.olean")
 add_theory("cast.lean"         "${CMAKE_CURRENT_BINARY_DIR}/Nat.olean")
+
+update_interface("kernel.lean" "kernel" "-n")
+update_interface("Nat.lean"    "library/arith" "-n")
+update_interface("Int.lean"    "library/arith" "")
+update_interface("Real.lean"   "library/arith" "")

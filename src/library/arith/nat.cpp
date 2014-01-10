@@ -12,9 +12,9 @@ Author: Leonardo de Moura
 #include "kernel/decl_macros.h"
 #include "library/kernel_bindings.h"
 #include "library/arith/nat.h"
+#include "library/arith/Nat_decls.cpp"
 
 namespace lean {
-MK_CONSTANT(Nat, "Nat");
 expr const Nat = mk_Nat();
 expr mk_nat_type() { return mk_Nat(); }
 
@@ -78,17 +78,17 @@ constexpr char nat_add_name[] = "add";
 /** \brief Evaluator for + : Nat -> Nat -> Nat */
 struct nat_add_eval { mpz operator()(mpz const & v1, mpz const & v2) { return v1 + v2; }; };
 typedef nat_bin_op<nat_add_name, nat_add_eval> nat_add_value;
-MK_BUILTIN(nat_add_fn, nat_add_value);
-static value::register_deserializer_fn nat_add_ds("nat_add", [](deserializer & ) { return mk_nat_add_fn(); });
-static register_builtin_fn nat_add_blt(name({"Nat", "add"}), []() { return mk_nat_add_fn(); });
+MK_BUILTIN(Nat_add_fn, nat_add_value);
+static value::register_deserializer_fn nat_add_ds("nat_add", [](deserializer & ) { return mk_Nat_add_fn(); });
+static register_builtin_fn nat_add_blt(name({"Nat", "add"}), []() { return mk_Nat_add_fn(); });
 
 constexpr char nat_mul_name[] = "mul";
 /** \brief Evaluator for * : Nat -> Nat -> Nat */
 struct nat_mul_eval { mpz operator()(mpz const & v1, mpz const & v2) { return v1 * v2; }; };
 typedef nat_bin_op<nat_mul_name, nat_mul_eval> nat_mul_value;
-MK_BUILTIN(nat_mul_fn, nat_mul_value);
-static value::register_deserializer_fn nat_mul_ds("nat_mul", [](deserializer & ) { return mk_nat_mul_fn(); });
-static register_builtin_fn nat_mul_blt(name({"Nat", "mul"}), []() { return mk_nat_mul_fn(); });
+MK_BUILTIN(Nat_mul_fn, nat_mul_value);
+static value::register_deserializer_fn nat_mul_ds("nat_mul", [](deserializer & ) { return mk_Nat_mul_fn(); });
+static register_builtin_fn nat_mul_blt(name({"Nat", "mul"}), []() { return mk_Nat_mul_fn(); });
 
 /**
    \brief Semantic attachment for less than or equal to operator with type
@@ -106,14 +106,9 @@ public:
     }
     virtual void write(serializer & s) const { s << "nat_le"; }
 };
-MK_BUILTIN(nat_le_fn, nat_le_value);
-static value::register_deserializer_fn nat_le_ds("nat_le", [](deserializer & ) { return mk_nat_le_fn(); });
-static register_builtin_fn nat_le_blt(name({"Nat", "le"}), []() { return mk_nat_le_fn(); });
-
-MK_CONSTANT(nat_ge_fn,  name({"Nat", "ge"}));
-MK_CONSTANT(nat_lt_fn,  name({"Nat", "lt"}));
-MK_CONSTANT(nat_gt_fn,  name({"Nat", "gt"}));
-MK_CONSTANT(nat_id_fn,  name({"Nat", "id"}));
+MK_BUILTIN(Nat_le_fn, nat_le_value);
+static value::register_deserializer_fn nat_le_ds("nat_le", [](deserializer & ) { return mk_Nat_le_fn(); });
+static register_builtin_fn nat_le_blt(name({"Nat", "le"}), []() { return mk_Nat_le_fn(); });
 
 void import_nat(environment const & env, io_state const & ios) {
     env->import("Nat", ios);

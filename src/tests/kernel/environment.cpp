@@ -71,12 +71,12 @@ static void tst3() {
     } catch (exception const & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
     }
-    env->add_definition("a", Int, iAdd(iVal(1), iVal(2)));
+    env->add_definition("a", Int, mk_Int_add(iVal(1), iVal(2)));
     std::cout << env << "\n";
-    expr t = iAdd(Const("a"), iVal(1));
+    expr t = mk_Int_add(Const("a"), iVal(1));
     std::cout << t << " --> " << normalize(t, env) << "\n";
     lean_assert(normalize(t, env) == iVal(4));
-    env->add_definition("b", Int, iMul(iVal(2), Const("a")));
+    env->add_definition("b", Int, mk_Int_mul(iVal(2), Const("a")));
     std::cout << "b --> " << normalize(Const("b"), env) << "\n";
     lean_assert(normalize(Const("b"), env) == iVal(6));
     try {
@@ -111,21 +111,21 @@ static void tst4() {
     std::cout << "tst4\n";
     environment env; init_test_frontend(env);
     env->add_definition("a", Int, iVal(1), true); // add opaque definition
-    expr t = iAdd(Const("a"), iVal(1));
+    expr t = mk_Int_add(Const("a"), iVal(1));
     std::cout << t << " --> " << normalize(t, env) << "\n";
     lean_assert(normalize(t, env) == t);
-    env->add_definition("b", Int, iAdd(Const("a"), iVal(1)));
-    expr t2 = iSub(Const("b"), iVal(9));
+    env->add_definition("b", Int, mk_Int_add(Const("a"), iVal(1)));
+    expr t2 = mk_Int_sub(Const("b"), iVal(9));
     std::cout << t2 << " --> " << normalize(t2, env) << "\n";
     lean_assert_eq(normalize(t2, env, context()),
-                   iSub(iAdd(Const("a"), iVal(1)), iVal(9)));
+                   mk_Int_sub(mk_Int_add(Const("a"), iVal(1)), iVal(9)));
 }
 
 static void tst5() {
     environment env; init_test_frontend(env);
     env->add_definition("a", Int, iVal(1), true); // add opaque definition
     try {
-        std::cout << type_check(iAdd(Const("a"), Int), env) << "\n";
+        std::cout << type_check(mk_Int_add(Const("a"), Int), env) << "\n";
         lean_unreachable();
     } catch (exception const & ex) {
         std::cout << "expected error: " << ex.what() << "\n";
@@ -163,10 +163,6 @@ static void tst7() {
     environment env; init_test_frontend(env);
     env->add_var("a", Int);
     env->add_var("b", Int);
-    expr t = If(Int, True, Const("a"), Const("b"));
-    std::cout << t << " --> " << normalize(t, env) << "\n";
-    std::cout << type_check(t, env) << "\n";
-    std::cout << "Environment\n" << env;
 }
 
 static void tst8() {
@@ -208,11 +204,11 @@ static void tst10() {
     expr a = Const("a");
     expr b = Const("b");
     expr c = Const("c");
-    env->add_definition("b", Int, iAdd(a, a));
+    env->add_definition("b", Int, mk_Int_add(a, a));
     lean_assert(env->get_object("b").get_weight() == 2);
-    env->add_definition("c", Int, iAdd(a, b));
+    env->add_definition("c", Int, mk_Int_add(a, b));
     lean_assert(env->get_object("c").get_weight() == 3);
-    env->add_definition("d", Int, iAdd(b, b));
+    env->add_definition("d", Int, mk_Int_add(b, b));
     lean_assert(env->get_object("d").get_weight() == 3);
 }
 

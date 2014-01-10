@@ -15,10 +15,10 @@ static void tst1() {
     max_sharing_fn max_fn;
     expr a1 = Const("a");
     expr a2 = Const("a");
-    expr F1 = Eq(a1, a2);
-    lean_assert(!is_eqp(eq_lhs(F1), eq_rhs(F1)));
+    expr F1 = HEq(a1, a2);
+    lean_assert(!is_eqp(heq_lhs(F1), heq_rhs(F1)));
     expr F2 = max_fn(F1);
-    lean_assert(is_eqp(eq_lhs(F2), eq_rhs(F2)));
+    lean_assert(is_eqp(heq_lhs(F2), heq_rhs(F2)));
     expr x = Const("x");
     expr y = Const("y");
     expr f = Const("f");

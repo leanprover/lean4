@@ -62,7 +62,7 @@ optional<substitution> fo_unify(expr e1, expr e2) {
                         }
                     }
                     break;
-                case expr_kind::Eq:
+                case expr_kind::HEq:
                     lean_unreachable(); break; // LCOV_EXCL_LINE
                 case expr_kind::Lambda: case expr_kind::Pi:
                     todo.emplace_back(abst_body(e1), abst_body(e2));

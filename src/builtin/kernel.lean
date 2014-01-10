@@ -61,7 +61,7 @@ axiom funext {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} (H : ∀ x : A
 axiom allext {A : TypeU} {B C : A → TypeU} (H : ∀ x : A, B x == C x) : (∀ x : A, B x) == (∀ x : A, C x)
 
 -- Alias for subst where we can provide P explicitly, but keep A,a,b implicit
-definition substp {A : TypeU} {a b : A} (P : A → Bool) (H1 : P a) (H2 : a == b) : P b
+theorem substp {A : TypeU} {a b : A} (P : A → Bool) (H1 : P a) (H2 : a == b) : P b
 := subst H1 H2
 
 theorem eta {A : TypeU} {B : A → TypeU} (f : ∀ x : A, B x) : (λ x : A, f x) == f
@@ -266,12 +266,6 @@ theorem and_falser (a : Bool) : (false ∧ a) == false
 theorem and_absurd (a : Bool) : (a ∧ ¬ a) == false
 := boolext (λ H, absurd (and_eliml H) (and_elimr H))
            (λ H, false_elim (a ∧ ¬ a) H)
-
-theorem not_true : (¬ true) == false
-:= trivial
-
-theorem not_false : (¬ false) == true
-:= trivial
 
 theorem not_and (a b : Bool) : (¬ (a ∧ b)) == (¬ a ∨ ¬ b)
 := case (λ x, (¬ (x ∧ b)) == (¬ x ∨ ¬ b))

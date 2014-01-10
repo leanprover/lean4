@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/io_state.h"
 #include "kernel/decl_macros.h"
+#include "kernel/kernel_decls.cpp"
 
 namespace lean {
 // =======================================
@@ -19,7 +20,6 @@ expr const TypeU = Type(u_lvl);
 
 // =======================================
 // Boolean Type
-MK_CONSTANT(Bool, "Bool");
 expr const Bool = mk_Bool();
 expr mk_bool_type() { return mk_Bool(); }
 bool is_bool(expr const & t) { return is_Bool(t); }
@@ -115,57 +115,6 @@ MK_IS_BUILTIN(is_if_fn, mk_if_fn());
 static register_builtin_fn if_blt("ite", []() { return mk_if_fn(); });
 static value::register_deserializer_fn if_ds("ite", [](deserializer & ) { return mk_if_fn(); });
 // =======================================
-
-MK_CONSTANT(implies_fn, name("implies"));
-MK_CONSTANT(iff_fn,     name("iff"));
-MK_CONSTANT(and_fn,     name("and"));
-MK_CONSTANT(or_fn,      name("or"));
-MK_CONSTANT(not_fn,     name("not"));
-MK_CONSTANT(forall_fn,  name("forall"));
-MK_CONSTANT(exists_fn,  name("exists"));
-MK_CONSTANT(homo_eq_fn, name("eq"));
-// Axioms
-MK_CONSTANT(mp_fn,          name("mp"));
-MK_CONSTANT(discharge_fn,   name("discharge"));
-MK_CONSTANT(case_fn,        name("case"));
-MK_CONSTANT(refl_fn,        name("refl"));
-MK_CONSTANT(subst_fn,       name("subst"));
-MK_CONSTANT(abst_fn,        name("funext"));
-MK_CONSTANT(htrans_fn,      name("htrans"));
-MK_CONSTANT(hsymm_fn,       name("hsymm"));
-// Theorems
-MK_CONSTANT(eta_fn,             name("eta"));
-MK_CONSTANT(imp_antisym_fn,     name("iffintro"));
-MK_CONSTANT(trivial,            name("trivial"));
-MK_CONSTANT(false_elim_fn,      name("false_elim"));
-MK_CONSTANT(absurd_fn,          name("absurd"));
-MK_CONSTANT(em_fn,              name("em"));
-MK_CONSTANT(double_neg_fn,      name("doubleneg"));
-MK_CONSTANT(double_neg_elim_fn, name("doubleneg_elim"));
-MK_CONSTANT(mt_fn,              name("mt"));
-MK_CONSTANT(contrapos_fn,       name("contrapos"));
-MK_CONSTANT(absurd_elim_fn,     name("absurd_elim"));
-MK_CONSTANT(eq_mp_fn,           name("eqmp"));
-MK_CONSTANT(not_imp1_fn,        name("not_imp_eliml"));
-MK_CONSTANT(not_imp2_fn,        name("not_imp_elimr"));
-MK_CONSTANT(conj_fn,            name("and_intro"));
-MK_CONSTANT(conjunct1_fn,       name("and_eliml"));
-MK_CONSTANT(conjunct2_fn,       name("and_elimr"));
-MK_CONSTANT(disj1_fn,           name("or_introl"));
-MK_CONSTANT(disj2_fn,           name("or_intror"));
-MK_CONSTANT(disj_cases_fn,      name("or_elim"));
-MK_CONSTANT(refute_fn,          name("refute"));
-MK_CONSTANT(symm_fn,            name("symm"));
-MK_CONSTANT(trans_fn,           name("trans"));
-MK_CONSTANT(congr1_fn,          name("congr1"));
-MK_CONSTANT(congr2_fn,          name("congr2"));
-MK_CONSTANT(congr_fn,           name("congr"));
-MK_CONSTANT(eqt_elim_fn,        name("eqt_elim"));
-MK_CONSTANT(eqt_intro_fn,       name("eqt_intro"));
-MK_CONSTANT(forall_elim_fn,     name("forall_elim"));
-MK_CONSTANT(forall_intro_fn,    name("forall_intro"));
-MK_CONSTANT(exists_elim_fn,     name("exists_elim"));
-MK_CONSTANT(exists_intro_fn,    name("exists_intro"));
 
 void import_kernel(environment const & env, io_state const & ios) {
     env->import("kernel", ios);

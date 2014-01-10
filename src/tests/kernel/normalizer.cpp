@@ -76,8 +76,8 @@ unsigned count_core(expr const & a, expr_set & s) {
     case expr_kind::App:
         return std::accumulate(begin_args(a), end_args(a), 1,
                                [&](unsigned sum, expr const & arg){ return sum + count_core(arg, s); });
-    case expr_kind::Eq:
-        return count_core(eq_lhs(a), s) + count_core(eq_rhs(a), s) + 1;
+    case expr_kind::HEq:
+        return count_core(heq_lhs(a), s) + count_core(heq_rhs(a), s) + 1;
     case expr_kind::Lambda: case expr_kind::Pi:
         return count_core(abst_domain(a), s) + count_core(abst_body(a), s) + 1;
     case expr_kind::Let:
@@ -197,9 +197,9 @@ static void tst3() {
     env->add_var("a", Bool);
     expr t1 = Const("a");
     expr t2 = Const("a");
-    expr e = Eq(t1, t2);
+    expr e = HEq(t1, t2);
     std::cout << e << " --> " << normalize(e, env) << "\n";
-    lean_assert(normalize(e, env) == Eq(t1, t2));
+    lean_assert(normalize(e, env) == HEq(t1, t2));
 }
 
 static void tst4() {
@@ -286,7 +286,7 @@ static void tst8() {
     expr P = Const("P");
     expr v0 = Var(0);
     expr v1 = Var(1);
-    expr F = mk_forall(Int, mk_lambda("x", Int, Not(mk_lambda("x", Int, mk_exists(Int, mk_lambda("y", Int, P(v1, v0))))(v0))));
+    expr F = mk_pi("x", Int, Not(mk_lambda("x", Int, mk_exists(Int, mk_lambda("y", Int, P(v1, v0))))(v0)));
     normalizer proc(env);
     expr N1 = proc(F);
     expr N2 = proc(deep_copy(F));

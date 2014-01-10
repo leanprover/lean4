@@ -117,11 +117,11 @@ bool fo_match::match_type(expr const & p, expr const & t, unsigned, subst_map &)
     return p == t;
 }
 
-bool fo_match::match_eq(expr const & p, expr const & t, unsigned o, subst_map & s) {
+bool fo_match::match_heq(expr const & p, expr const & t, unsigned o, subst_map & s) {
     lean_trace("fo_match", tout << "match_eq : (" << p << ", " << t << ", " << o << ", " << s << ")" << endl;); // LCOV_EXCL_LINE
-    if (!is_eq(t))
+    if (!is_heq(t))
         return false;
-    return match_main(eq_lhs(p), eq_lhs(t), o, s) && match_main(eq_rhs(p), eq_rhs(t), o, s);
+    return match_main(heq_lhs(p), heq_lhs(t), o, s) && match_main(heq_rhs(p), heq_rhs(t), o, s);
 }
 
 bool fo_match::match_let(expr const & p, expr const & t, unsigned o, subst_map & s) {
@@ -176,8 +176,8 @@ bool fo_match::match_main(expr const & p, expr const & t, unsigned o, subst_map 
         return match_pi(p, t, o, s);
     case expr_kind::Type:
         return match_type(p, t, o, s);
-    case expr_kind::Eq:
-        return match_eq(p, t, o, s);
+    case expr_kind::HEq:
+        return match_heq(p, t, o, s);
     case expr_kind::Let:
         return match_let(p, t, o, s);
     case expr_kind::MetaVar:

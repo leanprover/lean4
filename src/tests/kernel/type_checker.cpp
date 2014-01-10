@@ -80,7 +80,7 @@ static void tst2() {
 static void tst3() {
     environment env;
     init_test_frontend(env);
-    expr f = Fun("a", Bool, Eq(Const("a"), True));
+    expr f = Fun("a", Bool, HEq(Const("a"), True));
     std::cout << type_check(f, env) << "\n";
     lean_assert(type_check(f, env) == mk_arrow(Bool, Bool));
     expr t = mk_let("a", none_expr(), True, Var(0));
@@ -90,7 +90,7 @@ static void tst3() {
 static void tst4() {
     environment env;
     init_test_frontend(env);
-    expr a = Eq(iVal(1), iVal(2));
+    expr a = HEq(iVal(1), iVal(2));
     expr pr   = mk_lambda("x", a, Var(0));
     std::cout << type_check(pr, env) << "\n";
 }
@@ -105,7 +105,7 @@ static void tst5() {
     expr prop = P;
     expr pr   = H;
     for (unsigned i = 1; i < n; i++) {
-        pr   = Conj(P, prop, H, pr);
+        pr   = mk_and_intro_th(P, prop, H, pr);
         prop = And(P, prop);
     }
 }
@@ -191,8 +191,8 @@ static void tst10() {
     expr t1 = Let({{a, f(b)}, {a, f(a)}}, f(a));
     expr t2 = f(f(f(b)));
     std::cout << t1 << " --> " << normalize(t1, env) << "\n";
-    expr prop  = Eq(t1, t2);
-    expr proof = Refl(Int, t1);
+    expr prop  = HEq(t1, t2);
+    expr proof = mk_refl_th(Int, t1);
     env->add_theorem("simp_eq", prop, proof);
     std::cout << env->get_object("simp_eq").get_name() << "\n";
 }
@@ -215,8 +215,8 @@ static void tst11() {
         t3 = f(t3, t3);
     }
     lean_assert(t1 != t2);
-    env->add_theorem("eqs1", Eq(t1, t2), Refl(Int, t1));
-    env->add_theorem("eqs2", Eq(t1, t3), Refl(Int, t1));
+    env->add_theorem("eqs1", HEq(t1, t2), mk_refl_th(Int, t1));
+    env->add_theorem("eqs2", HEq(t1, t3), mk_refl_th(Int, t1));
 }
 
 static expr mk_big(unsigned depth) {
@@ -257,7 +257,7 @@ static void tst13() {
     env->add_var("f", Type() >> Type());
     expr f = Const("f");
     std::cout << type_check(f(Bool), env) << "\n";
-    std::cout << type_check(f(Eq(True, False)), env) << "\n";
+    std::cout << type_check(f(HEq(True, False)), env) << "\n";
 }
 
 static void tst14() {
@@ -383,8 +383,8 @@ static void tst18() {
     lean_assert(type_of(f(a, a)) == Int);
     lean_assert(type_of(f(a)) == Int >> Int);
     lean_assert(is_bool(type_of(And(a, f(a)))));
-    lean_assert(type_of(Fun({a, Int}, iAdd(a, iVal(1)))) == Int >> Int);
-    lean_assert(type_of(Let({a, iVal(10)}, iAdd(a, b))) == Int);
+    lean_assert(type_of(Fun({a, Int}, mk_Int_add(a, iVal(1)))) == Int >> Int);
+    lean_assert(type_of(Let({a, iVal(10)}, mk_Int_add(a, b))) == Int);
     lean_assert(type_of(Type()) == Type(level() + 1));
     lean_assert(type_of(Bool) == Type());
     lean_assert(type_of(Pi({a, Type()}, Type(level() + 2))) == Type(level() + 3));
@@ -399,7 +399,7 @@ static expr mk_big(unsigned val, unsigned depth) {
     if (depth == 0)
         return iVal(val);
     else
-        return iAdd(mk_big(val*2, depth-1), mk_big(val*2 + 1, depth-1));
+        return mk_Int_add(mk_big(val*2, depth-1), mk_big(val*2 + 1, depth-1));
 }
 
 static void tst19() {

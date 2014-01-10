@@ -234,7 +234,7 @@ class pp_fn {
                 return is_atomic(arg(e, 1));
             else
                 return false;
-        case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Eq: case expr_kind::Let:
+        case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::HEq: case expr_kind::Let:
             return false;
         }
         return false;
@@ -441,7 +441,7 @@ class pp_fn {
         operator_info op = get_operator(e);
         if (op) {
             return op.get_precedence();
-        } else if (is_eq(e)) {
+        } else if (is_heq(e)) {
             return g_eq_precedence;
         } else if (is_arrow(e)) {
             return g_arrow_precedence;
@@ -459,7 +459,7 @@ class pp_fn {
         operator_info op = get_operator(e);
         if (op) {
             return op.get_fixity() == fx;
-        } else if (is_eq(e)) {
+        } else if (is_heq(e)) {
             return fixity::Infix == fx;
         } else if (is_arrow(e)) {
             return fixity::Infixr == fx;
@@ -1022,7 +1022,7 @@ class pp_fn {
     }
 
     /** \brief Pretty print the child of an equality. */
-    result pp_eq_child(expr const & e, unsigned depth) {
+    result pp_heq_child(expr const & e, unsigned depth) {
         if (is_atomic(e)) {
             return pp(e, depth + 1);
         } else {
@@ -1034,11 +1034,11 @@ class pp_fn {
     }
 
     /** \brief Pretty print an equality */
-    result pp_eq(expr const & e, unsigned depth) {
+    result pp_heq(expr const & e, unsigned depth) {
         result p_arg1, p_arg2;
         format r_format;
-        p_arg1 = pp_eq_child(eq_lhs(e), depth);
-        p_arg2 = pp_eq_child(eq_rhs(e), depth);
+        p_arg1 = pp_heq_child(heq_lhs(e), depth);
+        p_arg2 = pp_heq_child(heq_rhs(e), depth);
         r_format = group(format{p_arg1.first, space(), g_eq_fmt, line(), p_arg2.first});
         return mk_result(r_format, p_arg1.second + p_arg2.second + 1);
     }
@@ -1121,7 +1121,7 @@ class pp_fn {
                 case expr_kind::Lambda:
                 case expr_kind::Pi:         r = pp_abstraction(e, depth); break;
                 case expr_kind::Type:       r = pp_type(e);               break;
-                case expr_kind::Eq:         r = pp_eq(e, depth);          break;
+                case expr_kind::HEq:        r = pp_heq(e, depth);         break;
                 case expr_kind::Let:        r = pp_let(e, depth);         break;
                 case expr_kind::MetaVar:    r = pp_metavar(e, depth);     break;
                 }

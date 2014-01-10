@@ -156,12 +156,12 @@ public:
                 pop_rs(num);
                 break;
             }
-            case expr_kind::Eq:
-                if (check_index(f, 0) && !visit(eq_lhs(e), offset))
+            case expr_kind::HEq:
+                if (check_index(f, 0) && !visit(heq_lhs(e), offset))
                     goto begin_loop;
-                if (check_index(f, 1) && !visit(eq_rhs(e), offset))
+                if (check_index(f, 1) && !visit(heq_rhs(e), offset))
                     goto begin_loop;
-                r = update_eq(e, rs(-2), rs(-1));
+                r = update_heq(e, rs(-2), rs(-1));
                 pop_rs(2);
                 break;
             case expr_kind::Pi: case expr_kind::Lambda:

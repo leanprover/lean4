@@ -31,7 +31,7 @@ protected:
     virtual expr visit_var(expr const &, context const &);
     virtual expr visit_metavar(expr const &, context const &);
     virtual expr visit_app(expr const &, context const &);
-    virtual expr visit_eq(expr const &, context const &);
+    virtual expr visit_heq(expr const &, context const &);
     virtual expr visit_abst(expr const &, context const &);
     virtual expr visit_lambda(expr const &, context const &);
     virtual expr visit_pi(expr const &, context const &);

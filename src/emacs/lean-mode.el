@@ -14,6 +14,13 @@
   (local-set-key "\C-c\C-x" 'lean-execute)
   (local-set-key "\C-c\C-l" 'lean-execute))
 
+(define-abbrev-table 'lean-mode-abbrev-table '(
+    ("var"    "variable")
+    ("vars"   "variables")
+    ("def"    "definition")
+    ("th"     "theorem")
+    ))
+
 (define-generic-mode
     'lean-mode     ;; name of the mode to create
   '("--")          ;; comments start with
@@ -28,6 +35,8 @@
       (set (make-local-variable 'lisp-indent-function)
            'common-lisp-indent-function)
       (lean-set-keys)
+      (setq local-abbrev-table lean-mode-abbrev-table)
+      (abbrev-mode 1)
       ))
   "A mode for Lean files"          ;; doc string for this mode
   )

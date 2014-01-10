@@ -22,6 +22,7 @@ MK_CONSTANT(subst_fn, name("subst"));
 MK_CONSTANT(funext_fn, name("funext"));
 MK_CONSTANT(allext_fn, name("allext"));
 MK_CONSTANT(substp_fn, name("substp"));
+MK_CONSTANT(not_intro_fn, name("not_intro"));
 MK_CONSTANT(eta_fn, name("eta"));
 MK_CONSTANT(trivial, name("trivial"));
 MK_CONSTANT(absurd_fn, name("absurd"));

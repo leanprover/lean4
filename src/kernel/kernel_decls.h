@@ -58,6 +58,9 @@ inline expr mk_allext_th(expr const & e1, expr const & e2, expr const & e3, expr
 expr mk_substp_fn();
 bool is_substp_fn(expr const & e);
 inline expr mk_substp_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_substp_fn(), e1, e2, e3, e4, e5, e6}); }
+expr mk_not_intro_fn();
+bool is_not_intro_fn(expr const & e);
+inline expr mk_not_intro_th(expr const & e1, expr const & e2) { return mk_app({mk_not_intro_fn(), e1, e2}); }
 expr mk_eta_fn();
 bool is_eta_fn(expr const & e);
 inline expr mk_eta_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_eta_fn(), e1, e2, e3}); }

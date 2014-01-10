@@ -47,6 +47,9 @@ inline expr mk_Nat_le_def_th(expr const & e1, expr const & e2) { return mk_app({
 expr mk_Nat_induction_fn();
 bool is_Nat_induction_fn(expr const & e);
 inline expr mk_Nat_induction_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_Nat_induction_fn(), e1, e2, e3, e4}); }
+expr mk_Nat_induction_on_fn();
+bool is_Nat_induction_on_fn(expr const & e);
+inline expr mk_Nat_induction_on_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_Nat_induction_on_fn(), e1, e2, e3, e4}); }
 expr mk_Nat_pred_nz_fn();
 bool is_Nat_pred_nz_fn(expr const & e);
 inline expr mk_Nat_pred_nz_th(expr const & e1, expr const & e2) { return mk_app({mk_Nat_pred_nz_fn(), e1, e2}); }
@@ -89,9 +92,12 @@ inline expr mk_Nat_distributel_th(expr const & e1, expr const & e2, expr const &
 expr mk_Nat_mul_assoc_fn();
 bool is_Nat_mul_assoc_fn(expr const & e);
 inline expr mk_Nat_mul_assoc_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_Nat_mul_assoc_fn(), e1, e2, e3}); }
-expr mk_Nat_add_inj_fn();
-bool is_Nat_add_inj_fn(expr const & e);
-inline expr mk_Nat_add_inj_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_Nat_add_inj_fn(), e1, e2, e3, e4}); }
+expr mk_Nat_add_injr_fn();
+bool is_Nat_add_injr_fn(expr const & e);
+inline expr mk_Nat_add_injr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_Nat_add_injr_fn(), e1, e2, e3, e4}); }
+expr mk_Nat_add_injl_fn();
+bool is_Nat_add_injl_fn(expr const & e);
+inline expr mk_Nat_add_injl_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_Nat_add_injl_fn(), e1, e2, e3, e4}); }
 expr mk_Nat_add_eqz_fn();
 bool is_Nat_add_eqz_fn(expr const & e);
 inline expr mk_Nat_add_eqz_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_Nat_add_eqz_fn(), e1, e2, e3}); }
@@ -116,4 +122,37 @@ inline expr mk_Nat_le_add_th(expr const & e1, expr const & e2, expr const & e3, 
 expr mk_Nat_le_antisym_fn();
 bool is_Nat_le_antisym_fn(expr const & e);
 inline expr mk_Nat_le_antisym_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_Nat_le_antisym_fn(), e1, e2, e3, e4}); }
+expr mk_Nat_not_lt_0_fn();
+bool is_Nat_not_lt_0_fn(expr const & e);
+inline expr mk_Nat_not_lt_0_th(expr const & e1) { return mk_app({mk_Nat_not_lt_0_fn(), e1}); }
+expr mk_Nat_lt_intro_fn();
+bool is_Nat_lt_intro_fn(expr const & e);
+inline expr mk_Nat_lt_intro_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_Nat_lt_intro_fn(), e1, e2, e3, e4}); }
+expr mk_Nat_lt_elim_fn();
+bool is_Nat_lt_elim_fn(expr const & e);
+inline expr mk_Nat_lt_elim_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_Nat_lt_elim_fn(), e1, e2, e3}); }
+expr mk_Nat_lt_le_fn();
+bool is_Nat_lt_le_fn(expr const & e);
+inline expr mk_Nat_lt_le_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_Nat_lt_le_fn(), e1, e2, e3}); }
+expr mk_Nat_lt_ne_fn();
+bool is_Nat_lt_ne_fn(expr const & e);
+inline expr mk_Nat_lt_ne_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_Nat_lt_ne_fn(), e1, e2, e3}); }
+expr mk_Nat_lt_nrefl_fn();
+bool is_Nat_lt_nrefl_fn(expr const & e);
+inline expr mk_Nat_lt_nrefl_th(expr const & e1) { return mk_app({mk_Nat_lt_nrefl_fn(), e1}); }
+expr mk_Nat_lt_trans_fn();
+bool is_Nat_lt_trans_fn(expr const & e);
+inline expr mk_Nat_lt_trans_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_Nat_lt_trans_fn(), e1, e2, e3, e4, e5}); }
+expr mk_Nat_lt_le_trans_fn();
+bool is_Nat_lt_le_trans_fn(expr const & e);
+inline expr mk_Nat_lt_le_trans_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_Nat_lt_le_trans_fn(), e1, e2, e3, e4, e5}); }
+expr mk_Nat_le_lt_trans_fn();
+bool is_Nat_le_lt_trans_fn(expr const & e);
+inline expr mk_Nat_le_lt_trans_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_Nat_le_lt_trans_fn(), e1, e2, e3, e4, e5}); }
+expr mk_Nat_ne_lt_succ_fn();
+bool is_Nat_ne_lt_succ_fn(expr const & e);
+inline expr mk_Nat_ne_lt_succ_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_Nat_ne_lt_succ_fn(), e1, e2, e3, e4}); }
+expr mk_Nat_strong_induction_fn();
+bool is_Nat_strong_induction_fn(expr const & e);
+inline expr mk_Nat_strong_induction_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_Nat_strong_induction_fn(), e1, e2, e3}); }
 }

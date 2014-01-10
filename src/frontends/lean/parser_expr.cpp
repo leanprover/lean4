@@ -844,11 +844,10 @@ tactic parser_imp::parse_tactic_expr() {
     if (curr() == scanner::token::ScriptBlock) {
         parse_script_expr();
         return using_script([&](lua_State * L) {
-                try {
+                if (is_tactic(L, -1))
                     return to_tactic(L, -1);
-                } catch (...) {
+                else
                     throw parser_error("invalid script-block, it must return a tactic", p);
-                }
             });
     } else if (curr_is_identifier() && m_tactic_macros && m_tactic_macros->find(curr_name()) != m_tactic_macros->end()) {
         return parse_tactic_macro(curr_name(), p);

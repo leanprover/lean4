@@ -1,0 +1,6 @@
+  Set: pp::colors
+  Set: pp::unicode
+tacluacrash.lean:2:0: error: invalid script-block, it must return a tactic
+tacluacrash.lean:3:0: error: invalid tactic command, unexpected end of file
+Proof state:
+a : Bool, H : a ⊢ a

@@ -291,4 +291,31 @@ inline expr mk_exists_unfold2_th(expr const & e1, expr const & e2, expr const & 
 expr mk_exists_unfold_fn();
 bool is_exists_unfold_fn(expr const & e);
 inline expr mk_exists_unfold_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_exists_unfold_fn(), e1, e2, e3}); }
+expr mk_imp_congrr_fn();
+bool is_imp_congrr_fn(expr const & e);
+inline expr mk_imp_congrr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_imp_congrr_fn(), e1, e2, e3, e4, e5, e6}); }
+expr mk_imp_congrl_fn();
+bool is_imp_congrl_fn(expr const & e);
+inline expr mk_imp_congrl_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_imp_congrl_fn(), e1, e2, e3, e4, e5, e6}); }
+expr mk_imp_congr_fn();
+bool is_imp_congr_fn(expr const & e);
+inline expr mk_imp_congr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_imp_congr_fn(), e1, e2, e3, e4, e5, e6}); }
+expr mk_or_congrr_fn();
+bool is_or_congrr_fn(expr const & e);
+inline expr mk_or_congrr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_or_congrr_fn(), e1, e2, e3, e4, e5, e6}); }
+expr mk_or_congrl_fn();
+bool is_or_congrl_fn(expr const & e);
+inline expr mk_or_congrl_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_or_congrl_fn(), e1, e2, e3, e4, e5, e6}); }
+expr mk_or_congr_fn();
+bool is_or_congr_fn(expr const & e);
+inline expr mk_or_congr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_or_congr_fn(), e1, e2, e3, e4, e5, e6}); }
+expr mk_and_congrr_fn();
+bool is_and_congrr_fn(expr const & e);
+inline expr mk_and_congrr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_and_congrr_fn(), e1, e2, e3, e4, e5, e6}); }
+expr mk_and_congrl_fn();
+bool is_and_congrl_fn(expr const & e);
+inline expr mk_and_congrl_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_and_congrl_fn(), e1, e2, e3, e4, e5, e6}); }
+expr mk_and_congr_fn();
+bool is_and_congr_fn(expr const & e);
+inline expr mk_and_congr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_and_congr_fn(), e1, e2, e3, e4, e5, e6}); }
 }

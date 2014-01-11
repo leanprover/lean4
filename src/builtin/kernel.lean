@@ -365,6 +365,90 @@ theorem exists_unfold {A : TypeU} (P : A → Bool) (a : A) : (∃ x : A, P x) = 
 := boolext (λ H : (∃ x : A, P x), exists_unfold1 a H)
            (λ H : (P a ∨ (∃ x : A, x ≠ a ∧ P x)), exists_unfold2 a H)
 
+-- Congruence theorems for contextual simplification
+
+-- Simplify a → b, by first simplifying a to c using the fact that ¬ b is true, and then
+-- b to d using the fact that c is true
+theorem imp_congrr {a b c d : Bool} (H_ac : ∀ (H_nb : ¬ b), a = c) (H_bd : ∀ (H_c : c), b = d) : (a → b) = (c → d)
+:= or_elim (em b)
+      (λ H_b : b,
+          or_elim (em c)
+             (λ H_c : c,
+                 calc (a → b) = (a → true)  : { eqt_intro H_b }
+                          ...  = true          : imp_truer a
+                          ...  = (c → true)  :  symm (imp_truer c)
+                          ...  = (c → b)     : { symm (eqt_intro H_b) }
+                          ...  = (c → d)     : { H_bd H_c })
+             (λ H_nc : ¬ c,
+                 calc (a → b) = (a → true)   : { eqt_intro H_b }
+                          ...  = true          : imp_truer a
+                          ...  = (false → d)  : symm (imp_falsel d)
+                          ...  = (c → d)      : { symm (eqf_intro H_nc) }))
+      (λ H_nb : ¬ b,
+          or_elim (em c)
+             (λ H_c : c,
+                 calc (a → b) = (c → b)  : { H_ac H_nb }
+                          ...  = (c → d)  : { H_bd H_c })
+             (λ H_nc : ¬ c,
+                 calc (a → b) = (c → b) : { H_ac H_nb }
+                          ...  = (false → b) : { eqf_intro H_nc }
+                          ...  = true         : imp_falsel b
+                          ...  = (false → d) : symm (imp_falsel d)
+                          ...  = (c → d)  :  { symm (eqf_intro H_nc) }))
+
+
+-- Simplify a → b, by first simplifying b to d using the fact that a is true, and then
+-- b to d using the fact that ¬ d is true.
+-- This kind of congruence seems to be useful in very rare cases.
+theorem imp_congrl {a b c d : Bool} (H_ac : ∀ (H_nd : ¬ d), a = c) (H_bd : ∀ (H_a : a), b = d) : (a → b) = (c → d)
+:= or_elim (em a)
+      (λ H_a : a,
+          or_elim (em d)
+             (λ H_d : d,
+                 calc (a → b) = (a → d)    : { H_bd H_a }
+                          ...  = (a → true) : { eqt_intro H_d }
+                          ...  = true         :  imp_truer a
+                          ...  = (c → true)  : symm (imp_truer c)
+                          ...  = (c → d)     : { symm (eqt_intro H_d) })
+             (λ H_nd : ¬ d,
+                 calc (a → b) = (c → b)   : { H_ac H_nd }
+                          ...  = (c → d)   : { H_bd H_a }))
+      (λ H_na : ¬ a,
+          or_elim (em d)
+             (λ H_d : d,
+                 calc (a → b) = (false → b)   :  { eqf_intro H_na }
+                          ...  = true           : imp_falsel b
+                          ...  = (c → true)    : symm (imp_truer c)
+                          ...  = (c → d)       : { symm (eqt_intro H_d) })
+             (λ H_nd : ¬ d,
+                 calc (a → b) = (false → b) : { eqf_intro H_na }
+                          ...  = true         : imp_falsel b
+                          ...  = (false → d) : symm (imp_falsel d)
+                          ...  = (a → d)  :  { symm (eqf_intro H_na) }
+                          ...  = (c → d)  :  { H_ac H_nd }))
+
+-- (Common case) simplify a to c, and then b to d using the fact that c is true
+theorem imp_congr {a b c d : Bool} (H_ac : a = c) (H_bd : ∀ (H_c : c), b = d) : (a → b) = (c → d)
+:= imp_congrr (λ H, H_ac) H_bd
+
+-- In the following theorems we are using the fact that a ∨ b is defined as ¬ a → b
+theorem or_congrr {a b c d : Bool} (H_ac : ∀ (H_nb : ¬ b), a = c) (H_bd : ∀ (H_nc : ¬ c), b = d) : (a ∨ b) = (c ∨ d)
+:= imp_congrr (λ H_nb : ¬ b, congr2 not (H_ac H_nb)) H_bd
+theorem or_congrl {a b c d : Bool} (H_ac : ∀ (H_nd : ¬ d), a = c) (H_bd : ∀ (H_na : ¬ a), b = d) : (a ∨ b) = (c ∨ d)
+:= imp_congrl (λ H_nd : ¬ d, congr2 not (H_ac H_nd)) H_bd
+-- (Common case) simplify a to c, and then b to d using the fact that ¬ c is true
+theorem or_congr {a b c d : Bool} (H_ac : a = c) (H_bd : ∀ (H_nc : ¬ c), b = d) : (a ∨ b) = (c ∨ d)
+:= or_congrr (λ H, H_ac) H_bd
+
+-- In the following theorems we are using the fact hat a ∧ b is defined as ¬ (a → ¬ b)
+theorem and_congrr {a b c d : Bool} (H_ac : ∀ (H_b : b), a = c) (H_bd : ∀ (H_c : c), b = d) : (a ∧ b) = (c ∧ d)
+:= congr2 not (imp_congrr (λ (H_nnb : ¬ ¬ b), H_ac (not_not_elim H_nnb)) (λ H_c : c, congr2 not (H_bd H_c)))
+theorem and_congrl {a b c d : Bool} (H_ac : ∀ (H_d : d), a = c) (H_bd : ∀ (H_a : a), b = d) : (a ∧ b) = (c ∧ d)
+:= congr2 not (imp_congrl (λ (H_nnd : ¬ ¬ d), H_ac (not_not_elim H_nnd)) (λ H_a : a, congr2 not (H_bd H_a)))
+-- (Common case) simplify a to c, and then b to d using the fact that c is true
+theorem and_congr {a b c d : Bool} (H_ac : a = c) (H_bd : ∀ (H_c : c), b = d) : (a ∧ b) = (c ∧ d)
+:= and_congrr (λ H, H_ac) H_bd
+
 set_opaque exists  true
 set_opaque not     true
 set_opaque or      true

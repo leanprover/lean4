@@ -100,4 +100,13 @@ MK_CONSTANT(not_exists_elim_fn, name("not_exists_elim"));
 MK_CONSTANT(exists_unfold1_fn, name("exists_unfold1"));
 MK_CONSTANT(exists_unfold2_fn, name("exists_unfold2"));
 MK_CONSTANT(exists_unfold_fn, name("exists_unfold"));
+MK_CONSTANT(imp_congrr_fn, name("imp_congrr"));
+MK_CONSTANT(imp_congrl_fn, name("imp_congrl"));
+MK_CONSTANT(imp_congr_fn, name("imp_congr"));
+MK_CONSTANT(or_congrr_fn, name("or_congrr"));
+MK_CONSTANT(or_congrl_fn, name("or_congrl"));
+MK_CONSTANT(or_congr_fn, name("or_congr"));
+MK_CONSTANT(and_congrr_fn, name("and_congrr"));
+MK_CONSTANT(and_congrl_fn, name("and_congrl"));
+MK_CONSTANT(and_congr_fn, name("and_congr"));
 }

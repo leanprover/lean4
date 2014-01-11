@@ -30,7 +30,7 @@ function(add_theory_core FILE ARG EXTRA_DEPS)
     COMMAND ${SHELL_DIR}/lean.sh ${ARG} -q -o ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} ${CMAKE_CURRENT_SOURCE_DIR}/${FILE}
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} ${SHELL_DIR}/${FNAME}
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} ${CMAKE_CURRENT_SOURCE_DIR}/obj/${FNAME}
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} ${SHELL_DIR}/lean.sh ${EXTRA_DEPS})
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${FILE} lean_sh ${EXTRA_DEPS})
   add_custom_target("${BASENAME}_builtin" DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} ${EXTRA_DEPS})
   add_dependencies(builtin ${BASENAME}_builtin)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} DESTINATION library)
@@ -81,7 +81,7 @@ function(update_interface FILE DEST ARG)
     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/lean2cpp.sh "${SHELL_DIR}/lean.sh" "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/${FILE}" "${CPPFILE}" "${ARG}$"
     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/lean2h.sh   "${SHELL_DIR}/lean.sh" "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/${FILE}" "${HFILE}"   "${ARG}$"
     COMMAND ${CMAKE_COMMAND} -E copy ${HFILE} ${HFILE_fake}
-    DEPENDS ${FILE} ${SHELL_DIR}/lean.sh)
+    DEPENDS ${FILE} lean_sh)
   add_custom_target("${BASENAME}_decls" DEPENDS ${HFILE_fake})
   add_dependencies(builtin ${BASENAME}_decls)
 endfunction()

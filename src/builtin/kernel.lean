@@ -172,6 +172,9 @@ theorem ne_eq_trans {A : TypeU} {a b c : A} (H1 : a ≠ b) (H2 : b = c) : a ≠ 
 theorem eqt_elim {a : Bool} (H : a == true) : a
 := (symm H) ◂ trivial
 
+theorem eqf_elim {a : Bool} (H : a == false) : ¬ a
+:= not_intro (λ Ha : a, H ◂ Ha)
+
 theorem congr1 {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} (a : A) (H : f == g) : f a == g a
 := substp (fun h : (∀ x : A, B x), f a == h a) (refl (f a)) H
 
@@ -206,6 +209,10 @@ theorem iff_intro {a b : Bool} (Hab : a → b) (Hba : b → a) : a == b
 theorem eqt_intro {a : Bool} (H : a) : a == true
 := boolext (λ H1 : a, trivial)
            (λ H2 : true, H)
+
+theorem eqf_intro {a : Bool} (H : ¬ a) : a == false
+:= boolext (λ H1 : a, absurd H1 H)
+           (λ H2 : false, false_elim a H2)
 
 theorem or_comm (a b : Bool) : (a ∨ b) == (b ∨ a)
 := boolext (λ H, or_elim H (λ H1, or_intror b H1) (λ H2, or_introl H2 a))

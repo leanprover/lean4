@@ -150,6 +150,9 @@ inline expr mk_ne_eq_trans_th(expr const & e1, expr const & e2, expr const & e3,
 expr mk_eqt_elim_fn();
 bool is_eqt_elim_fn(expr const & e);
 inline expr mk_eqt_elim_th(expr const & e1, expr const & e2) { return mk_app({mk_eqt_elim_fn(), e1, e2}); }
+expr mk_eqf_elim_fn();
+bool is_eqf_elim_fn(expr const & e);
+inline expr mk_eqf_elim_th(expr const & e1, expr const & e2) { return mk_app({mk_eqf_elim_fn(), e1, e2}); }
 expr mk_congr1_fn();
 bool is_congr1_fn(expr const & e);
 inline expr mk_congr1_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_congr1_fn(), e1, e2, e3, e4, e5, e6}); }
@@ -174,6 +177,9 @@ inline expr mk_iff_intro_th(expr const & e1, expr const & e2, expr const & e3, e
 expr mk_eqt_intro_fn();
 bool is_eqt_intro_fn(expr const & e);
 inline expr mk_eqt_intro_th(expr const & e1, expr const & e2) { return mk_app({mk_eqt_intro_fn(), e1, e2}); }
+expr mk_eqf_intro_fn();
+bool is_eqf_intro_fn(expr const & e);
+inline expr mk_eqf_intro_th(expr const & e1, expr const & e2) { return mk_app({mk_eqf_intro_fn(), e1, e2}); }
 expr mk_or_comm_fn();
 bool is_or_comm_fn(expr const & e);
 inline expr mk_or_comm_th(expr const & e1, expr const & e2) { return mk_app({mk_or_comm_fn(), e1, e2}); }

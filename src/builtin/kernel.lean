@@ -278,6 +278,18 @@ theorem and_absurd (a : Bool) : (a ∧ ¬ a) == false
 := boolext (λ H, absurd (and_eliml H) (and_elimr H))
            (λ H, false_elim (a ∧ ¬ a) H)
 
+theorem imp_truer (a : Bool) : (a → true) == true
+:= case (λ x, (x → true) == true) trivial trivial a
+
+theorem imp_truel (a : Bool) : (true → a) == a
+:= case (λ x, (true → x) == x) trivial trivial a
+
+theorem imp_falser (a : Bool) : (a → false) == ¬ a
+:= refl _
+
+theorem imp_falsel (a : Bool) : (false → a) == true
+:= case (λ x, (false → x) == true) trivial trivial a
+
 theorem not_and (a b : Bool) : (¬ (a ∧ b)) == (¬ a ∨ ¬ b)
 := case (λ x, (¬ (x ∧ b)) == (¬ x ∨ ¬ b))
         (case (λ y, (¬ (true ∧ y)) == (¬ true ∨ ¬ y))   trivial trivial b)

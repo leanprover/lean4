@@ -323,7 +323,7 @@ theorem ne_lt_succ {a b : Nat} (H1 : a ≠ b) (H2 : a < b + 1) : a < b
                                                                         ...  =  b             : L))
 
 theorem strong_induction {P : Nat → Bool} (H : ∀ n, (∀ m, m < n → P m) → P n) : ∀ a, P a
-:= λ a,
+:= take a,
     let stronger : P a ∧ ∀ m, m < a → P m :=
       -- we prove a stronger result by regular induction on a
       induction_on a

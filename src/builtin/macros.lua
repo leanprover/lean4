@@ -116,3 +116,27 @@ macro("obtain", { macro_arg.Parameters, macro_arg.Comma, macro_arg.Id, macro_arg
                        fun(a_name, a_type, fun(H_name, H_type, body)))
       end,
       0)
+
+function mk_lambdas(bindings, body)
+   local r = body
+   for i = #bindings, 1, -1 do
+      r = fun(bindings[i][1], bindings[i][2], r)
+   end
+   return r
+end
+
+-- Allow (assume x : A, B) to be used instead of (fun x : A, B).
+-- It can be used to make scripts more readable, when (fun x : A, B) is being used to encode a discharge
+macro("assume", { macro_arg.Parameters, macro_arg.Comma, macro_arg.Expr},
+      function (env, bindings, body)
+         return mk_lambdas(bindings, body)
+      end,
+      0)
+
+-- Allow (assume x : A, B) to be used instead of (fun x : A, B).
+-- It can be used to make scripts more readable, when (fun x : A, B) is being used to encode a forall_intro
+macro("take", { macro_arg.Parameters, macro_arg.Comma, macro_arg.Expr},
+      function (env, bindings, body)
+         return mk_lambdas(bindings, body)
+      end,
+      0)

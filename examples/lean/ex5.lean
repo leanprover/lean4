@@ -8,7 +8,8 @@ scope
                   (Linked : ∀ x, ∃ y, R x y)
                   :
                   ∀ x, R x x :=
-       λ x, obtain (w : A) (H : R x w), from (Linked x),
+       take x,
+         obtain (w : A) (H : R x w), from (Linked x),
             let L1 : R w x := Symm x w H
             in Trans x w x H L1
 

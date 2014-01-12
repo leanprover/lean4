@@ -1,10 +1,10 @@
 import macros.
 
 theorem my_and_comm (a b : Bool) : (a ∧ b) → (b ∧ a)
-:= λ H_ab, and_intro (and_elimr H_ab) (and_eliml H_ab).
+:= assume H_ab, and_intro (and_elimr H_ab) (and_eliml H_ab).
 
 theorem my_or_comm (a b : Bool) : (a ∨ b) → (b ∨ a)
-:= λ H_ab,
+:= assume H_ab,
       or_elim H_ab
          (λ H_a, or_intror b H_a)
          (λ H_b, or_introl H_b a).
@@ -21,8 +21,8 @@ theorem my_or_comm (a b : Bool) : (a ∨ b) → (b ∨ a)
 -- produces
 --        a
 theorem pierce (a b : Bool) : ((a → b) → a) → a
-:= λ H, or_elim (em a)
-            (λ H_a, H_a)
-            (λ H_na, not_imp_eliml (mt H H_na)).
+:= assume H, or_elim (em a)
+               (λ H_a, H_a)
+               (λ H_na, not_imp_eliml (mt H H_na)).
 
 print environment 3.

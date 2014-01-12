@@ -365,6 +365,20 @@ theorem exists_unfold {A : TypeU} (P : A → Bool) (a : A) : (∃ x : A, P x) = 
 := boolext (λ H : (∃ x : A, P x), exists_unfold1 a H)
            (λ H : (P a ∨ (∃ x : A, x ≠ a ∧ P x)), exists_unfold2 a H)
 
+
+-- Remark: ordered rewriting + assoc + comm + left_comm sorts a term lexicographically
+theorem left_comm {A : TypeU} {R : A -> A -> A} (comm : ∀ x y, R x y = R y x) (assoc : ∀ x y z, R (R x y) z = R x (R y z)) :
+        ∀ x y z, R x (R y z) = R y (R x z)
+:= λ x y z, calc R x (R y z) = R (R x y) z : symm (assoc x y z)
+                      ...    = R (R y x) z : { comm x y }
+                      ...    = R y (R x z) : assoc y x z
+
+theorem and_left_comm (a b c : Bool) : (a ∧ (b ∧ c)) = (b ∧ (a ∧ c))
+:= left_comm and_comm and_assoc a b c
+
+theorem or_left_comm (a b c : Bool) : (a ∨ (b ∨ c)) = (b ∨ (a ∨ c))
+:= left_comm or_comm or_assoc a b c
+
 -- Congruence theorems for contextual simplification
 
 -- Simplify a → b, by first simplifying a to c using the fact that ¬ b is true, and then

@@ -88,4 +88,10 @@ expr lift_free_vars(expr const & e, unsigned d, metavar_env const & menv);
 expr lift_free_vars(expr const & e, unsigned d);
 
 context_entry lift_free_vars(context_entry const & e, unsigned s, unsigned d, metavar_env const & menv);
+
+/**
+   \brief Return the index of the max free var occurring in \c e.
+   Return none if \c e does not contain free variables.
+*/
+optional<unsigned> max_free_var(expr const & e);
 }

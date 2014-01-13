@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/expr_sets.h"
 #include "kernel/replace_fn.h"
+#include "kernel/for_each_fn.h"
 #include "kernel/metavar.h"
 
 namespace lean {
@@ -396,5 +397,21 @@ context_entry lift_free_vars(context_entry const & e, unsigned s, unsigned d, me
         return context_entry(e.get_name(), lift_free_vars(*domain, s, d, menv));
     else
         return context_entry(e.get_name(), none_expr(), lift_free_vars(*body, s, d, menv));
+}
+
+optional<unsigned> max_free_var(expr const & e) {
+    optional<unsigned> r;
+    for_each(e, [&](expr const & v, unsigned offset) {
+            if (is_var(v)) {
+                unsigned vidx = var_idx(v);
+                if (vidx >= offset) {
+                    vidx -= offset;
+                    if (!r || vidx > *r)
+                        r = vidx;
+                }
+            }
+            return true;
+        });
+    return r;
 }
 }

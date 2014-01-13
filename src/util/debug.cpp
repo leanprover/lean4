@@ -60,6 +60,8 @@ void invoke_debugger() {
     g_has_violations = true;
     int * x = 0;
     for (;;) {
+        if (std::cin.eof())
+            exit(1);
         #ifdef _WINDOWS
         std::cerr << "(C)ontinue, (A)bort, (S)top\n";
         #else
@@ -73,6 +75,7 @@ void invoke_debugger() {
             return;
         case 'A':
         case 'a':
+        case EOF:
             exit(1);
         case 'S':
         case 's':

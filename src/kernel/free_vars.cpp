@@ -334,7 +334,9 @@ public:
     bool operator()(expr const & e) { return apply(e, 0); }
 };
 
-bool has_free_var(expr const & e, unsigned low, unsigned high, optional<metavar_env> const & menv) { return has_free_var_in_range_fn(low, high, menv)(e); }
+bool has_free_var(expr const & e, unsigned low, unsigned high, optional<metavar_env> const & menv) {
+    return high > low && has_free_var_in_range_fn(low, high, menv)(e);
+}
 bool has_free_var(expr const & e, unsigned low, unsigned high, metavar_env const & menv) { return has_free_var(e, low, high, some_menv(menv)); }
 bool has_free_var(expr const & e, unsigned low, unsigned high) { return has_free_var(e, low, high, none_menv()); }
 bool has_free_var(expr const & e, unsigned i, optional<metavar_env> const & menv) { return has_free_var(e, i, i+1, menv); }
@@ -342,12 +344,16 @@ bool has_free_var(expr const & e, unsigned i, metavar_env const & menv) { return
 bool has_free_var(expr const & e, unsigned i) { return has_free_var(e, i, i+1); }
 
 bool has_free_var(context_entry const & e, unsigned low, unsigned high, metavar_env const & menv) {
+    if (high <= low)
+        return false;
     auto d = e.get_domain();
     auto b = e.get_body();
     return (d && has_free_var(*d, low, high, menv)) || (b && has_free_var(*b, low, high, menv));
 }
 
 expr lower_free_vars(expr const & e, unsigned s, unsigned d, optional<metavar_env> const & DEBUG_CODE(menv)) {
+    if (d == 0)
+        return e;
     lean_assert(s >= d);
     lean_assert(!has_free_var(e, s-d, s, menv));
     return replace(e, [=](expr const & e, unsigned offset) -> expr {

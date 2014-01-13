@@ -44,8 +44,8 @@ Failed to solve
         a
         a
         b
-        refl a
-        refl b
+        @refl ?M::5 a
+        @refl ?M::6 b
 Failed to solve
  ⊢ ?M::1 ≺ Type
     elab1.lean:22:6: Type of argument 1 must be convertible to the expected type in the application of

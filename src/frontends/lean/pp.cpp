@@ -640,7 +640,7 @@ class pp_fn {
     result pp_app(expr const & e, unsigned depth) {
         if (!m_coercion && is_coercion(e))
             return pp(arg(e, 1), depth);
-        application app(e, *this, m_implict);
+        application app(e, *this, m_implict || has_metavar(e));
         operator_info op;
         if (m_notation && app.notation_enabled() && (op = get_operator(e)) && has_expected_num_args(app, op)) {
             result   p_arg;

@@ -11,4 +11,19 @@ Failed to solve
         ?M::3
         λ m : ℕ, Nat::add_zerol m ⋈ symm (Nat::add_zeror m)
         λ (n : ℕ) (iH : ?M::3 n) (m : ℕ),
-          Nat::add_succl n m ⋈ subst (refl (n + m + 1)) iH ⋈ symm (Nat::add_succr m n)
+          @trans ℕ
+                 (n + 1 + m)
+                 (m + n + 1)
+                 (m + (n + 1))
+                 (@trans ℕ
+                         (n + 1 + m)
+                         (n + m + 1)
+                         (m + n + 1)
+                         (Nat::add_succl n m)
+                         (@subst ?M::14
+                                 ?M::15
+                                 ?M::16
+                                 (λ x : ?M::14, (?M::48[lift:0:1]) x == (?M::49[lift:0:1]) x)
+                                 (refl (n + m + 1))
+                                 iH))
+                 (symm (Nat::add_succr m n))

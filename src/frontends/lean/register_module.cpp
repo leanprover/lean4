@@ -94,6 +94,7 @@ static void parse_lean_cmds_core(lua_State * L, rw_shared_environment const & en
         set_global_options(L, s.get_options());
     } else {
         parse_lean_cmds_core(L, env, *io);
+        set_global_options(L, io->get_options());
     }
 }
 

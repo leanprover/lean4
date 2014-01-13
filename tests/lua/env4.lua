@@ -1,4 +1,3 @@
-assert(not pcall(function() get_environment() end))
 local env = environment()
 env:import("Int")
 env:add_uvar_cnstr("M", level(level(), 1))

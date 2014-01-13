@@ -227,7 +227,13 @@ int main(int argc, char ** argv) {
                     }
                 } else if (k == input_kind::Lua) {
                     try {
-                        S.dofile(argv[i]);
+                        S.apply([&](lua_State * L) {
+                                lean::set_io_state    set1(L, ios);
+                                lean::set_environment set2(L, env);
+                                S.exec_unprotected([&]() {
+                                        S.dofile(argv[i]);
+                                    });
+                            });
                     } catch (lean::exception & ex) {
                         std::cerr << ex.what() << std::endl;
                         ok = false;

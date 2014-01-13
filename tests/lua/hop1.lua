@@ -1,5 +1,5 @@
 import("util.lua")
-local env = environment()
+local env = get_environment()
 parse_lean_cmds([[
   axiom Ax1 {A : TypeU} (P Q : A -> Bool) : (forall x : A, P x /\ Q x) = ((forall x : A, P x) /\ (forall x : A, Q x))
   variable f : Nat -> Nat -> Nat

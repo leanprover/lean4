@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "frontends/lean/shell.h"
 #include "frontends/lean/frontend.h"
+#include "frontends/lean/register_module.h"
 #include "frontends/lua/register_modules.h"
 #include "version.h"
 #include "githash.h" // NOLINT
@@ -157,6 +158,7 @@ int main(int argc, char ** argv) {
                 break;
             case 't':
                 trust_imported = true;
+                lean::set_default_trust_imported_for_lua(true);
                 break;
             case 'q':
                 quiet = true;

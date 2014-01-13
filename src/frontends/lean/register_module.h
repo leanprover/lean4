@@ -9,4 +9,5 @@ Author: Leonardo de Moura
 namespace lean {
 void open_frontend_lean(lua_State * L);
 void register_frontend_lean_module();
+void set_default_trust_imported_for_lua(bool f);
 }

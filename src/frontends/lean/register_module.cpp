@@ -125,8 +125,19 @@ static int parse_lean_cmds(lua_State * L) {
     }
 }
 
+static bool g_default_trust_imported = false;
+
+void set_default_trust_imported_for_lua(bool f) {
+    g_default_trust_imported = f;
+}
+
 static int mk_environment(lua_State * L) {
+    int nargs = lua_gettop(L);
     environment env;
+    if (nargs == 0)
+        env->set_trusted_imported(g_default_trust_imported);
+    else
+        env->set_trusted_imported(lua_toboolean(L, 1));
     io_state ios = init_frontend(env);
     return push_environment(L, env);
 }

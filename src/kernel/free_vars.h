@@ -36,6 +36,7 @@ class metavar_env;
    [lift:s:n] R  ===>  if s >= R then R else R + n
 */
 unsigned free_var_range(expr const & e, metavar_env const & menv);
+unsigned free_var_range(expr const & e);
 
 /**
     \brief Return true iff \c e constains a free variable <tt>(var i)</tt> s.t. \c i in <tt>[low, high)</tt>.
@@ -88,10 +89,4 @@ expr lift_free_vars(expr const & e, unsigned d, metavar_env const & menv);
 expr lift_free_vars(expr const & e, unsigned d);
 
 context_entry lift_free_vars(context_entry const & e, unsigned s, unsigned d, metavar_env const & menv);
-
-/**
-   \brief Return the index of the max free var occurring in \c e.
-   Return none if \c e does not contain free variables.
-*/
-optional<unsigned> max_free_var(expr const & e);
 }

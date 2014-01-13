@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
+#include <limits>
 #include "kernel/free_vars.h"
 #include "kernel/expr_sets.h"
 #include "kernel/replace_fn.h"
@@ -113,7 +114,7 @@ bool has_free_vars(expr const & e) {
 */
 class free_var_range_fn {
     expr_map<unsigned>  m_cached;
-    metavar_env const & m_menv;
+    optional<metavar_env> const & m_menv;
 
     static unsigned dec(unsigned s) { return (s == 0) ? 0 : s - 1; }
 
@@ -129,7 +130,9 @@ class free_var_range_fn {
     */
     unsigned process_metavar(expr const & m) {
         lean_assert(is_metavar(m));
-        context ctx = m_menv->get_context(metavar_name(m));
+        if (!m_menv)
+            return std::numeric_limits<unsigned>::max(); // metavariable environment is not available, assume the worst.
+        context ctx = (*m_menv)->get_context(metavar_name(m));
         unsigned R  = ctx.size();
         if (has_local_context(m)) {
             local_context lctx = metavar_lctx(m);
@@ -218,12 +221,16 @@ class free_var_range_fn {
         return result;
     }
 public:
-    free_var_range_fn(metavar_env const & menv):m_menv(menv) {}
+    free_var_range_fn(optional<metavar_env> const & menv):m_menv(menv) {}
     unsigned operator()(expr const & e) { return apply(e); }
 };
 
 unsigned free_var_range(expr const & e, metavar_env const & menv) {
-    return free_var_range_fn(menv)(e);
+    return free_var_range_fn(some_menv(menv))(e);
+}
+
+unsigned free_var_range(expr const & e) {
+    return free_var_range_fn(none_menv())(e);
 }
 
 /**
@@ -322,7 +329,7 @@ public:
         m_high(high) {
         lean_assert(low < high);
         if (menv)
-            m_range_fn.reset(new free_var_range_fn(*menv));
+            m_range_fn.reset(new free_var_range_fn(menv));
     }
     bool operator()(expr const & e) { return apply(e, 0); }
 };
@@ -397,21 +404,5 @@ context_entry lift_free_vars(context_entry const & e, unsigned s, unsigned d, me
         return context_entry(e.get_name(), lift_free_vars(*domain, s, d, menv));
     else
         return context_entry(e.get_name(), none_expr(), lift_free_vars(*body, s, d, menv));
-}
-
-optional<unsigned> max_free_var(expr const & e) {
-    optional<unsigned> r;
-    for_each(e, [&](expr const & v, unsigned offset) {
-            if (is_var(v)) {
-                unsigned vidx = var_idx(v);
-                if (vidx >= offset) {
-                    vidx -= offset;
-                    if (!r || vidx > *r)
-                        r = vidx;
-                }
-            }
-            return true;
-        });
-    return r;
 }
 }

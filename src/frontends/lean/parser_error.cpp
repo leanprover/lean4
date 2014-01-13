@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <utility>
 #include "kernel/kernel_exception.h"
+#include "kernel/for_each_fn.h"
 #include "library/io_state_stream.h"
 #include "library/elaborator/elaborator_justification.h"
 #include "frontends/lean/parser_imp.h"
@@ -50,12 +51,26 @@ void parser_imp::display_error(kernel_exception const & ex) {
     regular(m_io_state) << " " << ex << endl;
 }
 
-void parser_imp::display_error(metavar_not_synthesized_exception const & ex) {
-    display_error_pos(some_expr(m_elaborator.get_original(ex.m_mvar)));
-    regular(m_io_state) << " " << ex.what() << ", metavariable: " << ex.m_mvar << ", type:\n";
+void parser_imp::display_error(unsolved_metavar_exception const & ex) {
+    display_error_pos(some_expr(m_elaborator.get_original(ex.get_expr())));
     formatter fmt = m_io_state.get_formatter();
     options opts  = m_io_state.get_options();
-    regular(m_io_state) << mk_pair(fmt(ex.m_mvar_ctx, ex.m_mvar_type, true, opts), opts) << "\n";
+    unsigned indent = get_pp_indent(opts);
+    format r = nest(indent, compose(line(), fmt(ex.get_expr(), opts)));
+    regular(m_io_state) << " " << ex.what() << mk_pair(r, opts) << endl;
+    name_set already_displayed;
+    for_each(ex.get_expr(), [&](expr const & e, unsigned) -> bool {
+            if (is_metavar(e)) {
+                name const & m = metavar_name(e);
+                if (already_displayed.find(m) == already_displayed.end()) {
+                    already_displayed.insert(m);
+                    for (unsigned i = 0; i < indent; i++) regular(m_io_state) << " ";
+                    display_error_pos(some_expr(m_elaborator.get_original(e)));
+                    regular(m_io_state) << " unsolved metavar " << m << endl;
+                }
+            }
+            return true;
+        });
 }
 
 std::pair<unsigned, unsigned> parser_imp::lean_pos_info_provider::get_pos_info(expr const & e) const {
@@ -128,7 +143,7 @@ void parser_imp::protected_call(std::function<void()> && f, std::function<void()
         CATCH(display_error(ex));
     } catch (elaborator_exception & ex) {
         CATCH(display_error(ex));
-    } catch (metavar_not_synthesized_exception & ex) {
+    } catch (unsolved_metavar_exception & ex) {
         CATCH(display_error(ex));
     } catch (script_exception & ex) {
         reset_interrupt();

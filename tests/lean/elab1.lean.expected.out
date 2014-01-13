@@ -10,8 +10,9 @@ Failed to solve
         10
         ⊤
   Assumed: g
-elab1.lean:5:8: error: invalid expression, it still contains metavariables after elaboration, metavariable: ?M::1, type:
-Type
+elab1.lean:5:0: error: invalid expression, it still contains metavariables after elaboration
+    @g ℕ ?M::1 10
+    elab1.lean:5:8: error: unsolved metavar M::1
   Assumed: h
 Failed to solve
 x : ?M::0, A : Type ⊢ ?M::0 ≺ A

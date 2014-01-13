@@ -29,14 +29,4 @@ struct tactic_cmd_error : public parser_error {
     virtual exception * clone() const { return new tactic_cmd_error(m_msg.c_str(), m_pos, m_state); }
     virtual void rethrow() const { throw *this; }
 };
-
-/** \brief Exception used to report that a metavariable could not be synthesized. */
-struct metavar_not_synthesized_exception : public exception {
-    context m_mvar_ctx;
-    expr    m_mvar;
-    expr    m_mvar_type;
-public:
-    metavar_not_synthesized_exception(context const & ctx, expr const & mvar, expr const & mvar_type, char const * msg):
-        exception(msg), m_mvar_ctx(ctx), m_mvar(mvar), m_mvar_type(mvar_type) {}
-};
 }

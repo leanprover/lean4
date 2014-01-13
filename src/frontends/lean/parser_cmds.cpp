@@ -84,11 +84,8 @@ void parser_imp::register_implicit_arguments(name const & n, parameter_buffer & 
 
 /** \brief Throw an exception if \c e contains a metavariable */
 void parser_imp::check_no_metavar(expr const & e, metavar_env const & menv, char const * msg) {
-    auto m = find(e, [](expr const & e) -> bool { return is_metavar(e); });
-    if (m) {
-        auto p = get_metavar_ctx_and_type(*m, menv);
-        throw metavar_not_synthesized_exception(p.second, *m, p.first, msg);
-    }
+    if (has_metavar(e))
+        throw unsolved_metavar_exception(msg, e);
 }
 
 void parser_imp::check_no_metavar(std::pair<expr, metavar_env> const & p, char const * msg) {

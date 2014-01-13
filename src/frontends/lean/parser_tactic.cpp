@@ -264,8 +264,7 @@ expr parser_imp::apply_tactics(expr const & val, metavar_env & menv) {
         expr mvar_type   = p.first;
         context mvar_ctx = p.second;
         if (has_metavar(mvar_type))
-            throw metavar_not_synthesized_exception(mvar_ctx, mvar, mvar_type,
-                                                    "failed to synthesize metavar, its type contains metavariables");
+            throw unsolved_metavar_exception(sstream() << "failed to synthesize metavars, type of " << metavar_name(mvar) << " still contains metavariables", val);
         try {
             proof_state s = to_proof_state(m_env, mvar_ctx, mvar_type);
             std::pair<optional<tactic>, pos_info> hint_and_pos = get_tactic_for(mvar);
@@ -283,7 +282,8 @@ expr parser_imp::apply_tactics(expr const & val, metavar_env & menv) {
                 menv->assign(mvar, mvar_val);
             }
         } catch (type_is_not_proposition_exception &) {
-            throw metavar_not_synthesized_exception(mvar_ctx, mvar, mvar_type, "failed to synthesize metavar, its type is not a proposition");
+            throw unsolved_metavar_exception(sstream() << "failed to synthesize metavar " << metavar_name(mvar) << ", it could not be synthesized by type inference and its type is not a proposition",
+                                             val);
         }
     }
     return menv->instantiate_metavars(val);

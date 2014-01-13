@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 #include "library/tactic/tactic.h"
 #include "library/elaborator/elaborator_exception.h"
+#include "library/unsolved_metavar_exception.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/parser_types.h"
 #include "frontends/lean/parser_error.h"
@@ -205,7 +206,7 @@ private:
     void display_error(char const * msg, unsigned line, unsigned pos);
     void display_error(char const * msg);
     void display_error(kernel_exception const & ex);
-    void display_error(metavar_not_synthesized_exception const & ex);
+    void display_error(unsolved_metavar_exception const & ex);
 
     struct lean_pos_info_provider : public pos_info_provider {
         parser_imp const & m_ref;

@@ -6,9 +6,9 @@
 -- We can use ';', ' ', ',', tabs ad line breaks for separating the constant names
 --    local a, b, c = Consts("a b c")
 function Consts(s)
-   r = {}
-   i = 1
-   for c in string.gmatch(s, '[^ ,;\\t\\n]+') do
+   local r = {}
+   local i = 1
+   for c in string.gmatch(s, '[^ ,;\t\n]+') do
       r[i] = Const(c)
       i = i + 1
    end

@@ -9,4 +9,4 @@ module::@g : ∀ (A : Type), A → A → A
 h::1::explicit : ∀ (A B : Type), A → B → A
   Assumed: @h
   Assumed: h
-explicit.lean:9:37: error: failed to mark implicit arguments for 'h', the frontend already has an object named '@h'
+explicit.lean:9:0: error: failed to mark implicit arguments for 'h', the frontend already has an object named '@h'

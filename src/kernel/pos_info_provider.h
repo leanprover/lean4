@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#pragma once
 #include <utility>
 #include "util/sexpr/format.h"
 #include "kernel/expr.h"
@@ -20,7 +21,9 @@ public:
        Throws an exception if the given expression does not have this kind of information associated with it.
     */
     virtual std::pair<unsigned, unsigned> get_pos_info(expr const & e) const = 0;
-    virtual char const * get_file_name(expr const & e) const;
+    virtual char const * get_file_name() const;
+    virtual std::pair<unsigned, unsigned> get_some_pos() const = 0;
+
     unsigned get_line(expr const & e) const { return get_pos_info(e).first; }
     unsigned get_pos(expr const & e) const { return get_pos_info(e).second; }
     /**

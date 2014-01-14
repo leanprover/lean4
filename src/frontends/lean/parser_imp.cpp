@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <vector>
 #include "library/io_state_stream.h"
+#include "library/parser_nested_exception.h"
 #include "frontends/lean/parser_imp.h"
 #include "frontends/lean/parser_macros.h"
 #include "frontends/lean/parser_calc.h"
@@ -217,6 +218,9 @@ expr parser_imp::parse_expr_main() {
         return p.first;
     } catch (parser_error & ex) {
         throw parser_exception(ex.what(), m_strm_name.c_str(), ex.m_pos.first, ex.m_pos.second);
+    } catch (exception & ex) {
+        throw parser_nested_exception(std::shared_ptr<exception>(ex.clone()),
+                                      std::shared_ptr<pos_info_provider>(new lean_pos_info_provider(m_this.lock(), m_last_cmd_pos)));
     }
 }
 };

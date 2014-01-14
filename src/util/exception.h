@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/lua.h"
 #include <exception>
 #include <string>
+#include <memory>
 
 namespace lean {
 class sstream;
@@ -39,9 +40,12 @@ public:
     virtual char const * what() const noexcept;
     unsigned get_line() const { return m_line; }
     unsigned get_pos() const { return m_pos; }
+    std::string const & get_file_name() const { return m_fname; }
     virtual exception * clone() const { return new parser_exception(m_msg, m_fname.c_str(), m_line, m_pos); }
     virtual void rethrow() const { throw *this; }
+    parser_exception update_line(unsigned line_delta) const { return parser_exception(m_msg, m_fname.c_str(), m_line + line_delta, m_pos); }
 };
+
 /** \brief Exception used to sign that a computation was interrupted */
 class interrupted : public exception {
 public:

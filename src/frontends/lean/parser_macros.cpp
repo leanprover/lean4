@@ -24,9 +24,9 @@ parser_imp * get_parser(lua_State * L) {
 }
 
 set_parser::set_parser(script_state * S, parser_imp * ptr) {
-    m_state = S;
-    if (m_state) {
-        m_state->apply([&](lua_State * L) {
+    if (S) {
+        m_state = S->to_weak_ref();
+        S->apply([&](lua_State * L) {
                 m_prev  = get_parser(L);
                 lua_pushlightuserdata(L, static_cast<void *>(&g_set_parser_key));
                 lua_pushlightuserdata(L, ptr);
@@ -35,8 +35,9 @@ set_parser::set_parser(script_state * S, parser_imp * ptr) {
     }
 }
 set_parser::~set_parser() {
-    if (m_state) {
-        m_state->apply([&](lua_State * L) {
+    if (!m_state.expired()) {
+        script_state S(m_state);
+        S.apply([&](lua_State * L) {
                 lua_pushlightuserdata(L, static_cast<void *>(&g_set_parser_key));
                 lua_pushlightuserdata(L, m_prev);
                 lua_settable(L, LUA_REGISTRYINDEX);

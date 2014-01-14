@@ -16,7 +16,7 @@ class parser_imp;
 /** \brief Functional object for parsing commands and expressions */
 class parser {
 private:
-    std::unique_ptr<parser_imp> m_ptr;
+    std::shared_ptr<parser_imp> m_ptr;
 public:
     parser(environment const & env, io_state const & st, std::istream & in, char const * strm_name, script_state * S, bool use_exceptions = true, bool interactive = false);
     ~parser();

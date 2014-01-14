@@ -1,0 +1,6 @@
+  Set: pp::colors
+  Set: pp::unicode
+parser1.lean:6: error: executing script, attempt to call global 'foo' (a nil value)
+checkpoint
+parser1.lean:14: error: executing script
+[string]:2: error: executing script, attempt to call global 'foo' (a nil value)

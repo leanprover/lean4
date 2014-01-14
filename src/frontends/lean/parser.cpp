@@ -14,6 +14,7 @@ namespace lean {
 parser::parser(environment const & env, io_state const & ios, std::istream & in, char const * strm_name, script_state * S, bool use_exceptions, bool interactive) {
     parser_imp::show_prompt(interactive, ios);
     m_ptr.reset(new parser_imp(env, ios, in, strm_name, S, use_exceptions, interactive));
+    m_ptr->m_this = m_ptr;
 }
 
 parser::~parser() {

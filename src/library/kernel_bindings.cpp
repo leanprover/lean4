@@ -1205,11 +1205,15 @@ static const struct luaL_Reg environment_m[] = {
 
 static char g_set_environment_key;
 
+void set_global_environment(lua_State * L, environment const & env) {
+    lua_pushlightuserdata(L, static_cast<void *>(&g_set_environment_key));
+    push_environment(L, env);
+    lua_settable(L, LUA_REGISTRYINDEX);
+}
+
 set_environment::set_environment(lua_State * L, environment const & env) {
     m_state = L;
-    lua_pushlightuserdata(m_state, static_cast<void *>(&g_set_environment_key));
-    push_environment(m_state, env);
-    lua_settable(m_state, LUA_REGISTRYINDEX);
+    set_global_environment(L, env);
 }
 
 set_environment::~set_environment() {
@@ -1831,6 +1835,13 @@ void open_io_state(lua_State * L) {
 }
 
 static char g_set_state_key;
+
+void set_global_io_state(lua_State * L, io_state & ios) {
+    lua_pushlightuserdata(L, static_cast<void *>(&g_set_state_key));
+    lua_pushlightuserdata(L, &ios);
+    lua_settable(L, LUA_REGISTRYINDEX);
+    set_global_options(L, ios.get_options());
+}
 
 set_io_state::set_io_state(lua_State * L, io_state & st) {
     m_state = L;

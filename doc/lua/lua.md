@@ -304,7 +304,7 @@ print(o2)
 -- An error is raised if the option is not known.
 local ok, ex = pcall(function() options({"pp", "foo"}, true) end)
 assert(not ok)
-assert(ex:what() == "unknown option 'pp::foo'")
+assert(ex:what():find("unknown option 'pp::foo'"))
 ```
 
 Options objects are non-mutable values. The method `update` returns a new

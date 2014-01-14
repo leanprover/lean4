@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/printer.h"
 #include "library/kernel_bindings.h"
 #include "library/io_state_stream.h"
+#include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/shell.h"
 #include "frontends/lean/frontend.h"
@@ -108,67 +109,77 @@ static struct option g_long_options[] = {
 };
 
 int main(int argc, char ** argv) {
-    try {
-        lean::save_stack_info();
-        lean::register_modules();
-        bool no_kernel      = false;
-        bool export_objects = false;
-        bool trust_imported = false;
-        bool quiet          = false;
-        std::string output;
-        input_kind default_k = input_kind::Lean; // default
-        while (true) {
-            int c = getopt_long(argc, argv, "qtnlupgvhc:012s:012o:", g_long_options, NULL);
-            if (c == -1)
-                break; // end of command line
-            switch (c) {
-            case 'v':
-                display_header(std::cout);
-                return 0;
-            case 'g':
-                std::cout << g_githash << "\n";
-                return 0;
-            case 'h':
-                display_help(std::cout);
-                return 0;
-            case 'l':
-                default_k = input_kind::Lean;
-                break;
-            case 'u':
-                default_k = input_kind::Lua;
-                break;
-            case 'b':
-                default_k = input_kind::OLean;
-                break;
-            case 'c':
-                script_state::set_check_interrupt_freq(atoi(optarg));
-                break;
-            case 'p':
-                std::cout << lean::get_lean_path() << "\n";
-                return 0;
-            case 's':
-                lean::set_thread_stack_size(atoi(optarg)*1024);
-                break;
-            case 'n':
-                no_kernel = true;
-                break;
-            case 'o':
-                output = optarg;
-                export_objects = true;
-                break;
-            case 't':
-                trust_imported = true;
-                lean::set_default_trust_imported_for_lua(true);
-                break;
-            case 'q':
-                quiet = true;
-                break;
-            default:
-                std::cerr << "Unknown command line option\n";
-                display_help(std::cerr);
-                return 1;
-            }
+    lean::save_stack_info();
+    lean::register_modules();
+    bool no_kernel      = false;
+    bool export_objects = false;
+    bool trust_imported = false;
+    bool quiet          = false;
+    std::string output;
+    input_kind default_k = input_kind::Lean; // default
+    while (true) {
+        int c = getopt_long(argc, argv, "qtnlupgvhc:012s:012o:", g_long_options, NULL);
+        if (c == -1)
+            break; // end of command line
+        switch (c) {
+        case 'v':
+            display_header(std::cout);
+            return 0;
+        case 'g':
+            std::cout << g_githash << "\n";
+            return 0;
+        case 'h':
+            display_help(std::cout);
+            return 0;
+        case 'l':
+            default_k = input_kind::Lean;
+            break;
+        case 'u':
+            default_k = input_kind::Lua;
+            break;
+        case 'b':
+            default_k = input_kind::OLean;
+            break;
+        case 'c':
+            script_state::set_check_interrupt_freq(atoi(optarg));
+            break;
+        case 'p':
+            std::cout << lean::get_lean_path() << "\n";
+            return 0;
+        case 's':
+            lean::set_thread_stack_size(atoi(optarg)*1024);
+            break;
+        case 'n':
+            no_kernel = true;
+            break;
+        case 'o':
+            output = optarg;
+            export_objects = true;
+            break;
+        case 't':
+            trust_imported = true;
+            lean::set_default_trust_imported_for_lua(true);
+            break;
+        case 'q':
+            quiet = true;
+            break;
+        default:
+            std::cerr << "Unknown command line option\n";
+            display_help(std::cerr);
+            return 1;
         }
+    }
+    environment env;
+    env->set_trusted_imported(trust_imported);
+    io_state ios = init_frontend(env, no_kernel);
+    if (quiet)
+        ios.set_option("verbose", false);
+    script_state S;
+    S.apply([&](lua_State * L) {
+            set_global_environment(L, env);
+            set_global_io_state(L, ios);
+        });
+    try {
         if (optind >= argc) {
             display_header(std::cout);
             signal(SIGINT, on_ctrl_c);
@@ -178,12 +189,6 @@ int main(int argc, char ** argv) {
 #else
                 std::cout << "Type Ctrl-D or 'Exit.' to exit or 'Help.' for help."<< std::endl;
 #endif
-                environment env;
-                env->set_trusted_imported(trust_imported);
-                io_state ios = init_frontend(env, no_kernel);
-                if (quiet)
-                    ios.set_option("verbose", false);
-                script_state S;
                 shell sh(env, &S);
                 int status = sh() ? 0 : 1;
                 if (export_objects)
@@ -191,17 +196,10 @@ int main(int argc, char ** argv) {
                 return status;
             } else {
                 lean_assert(default_k == input_kind::Lua);
-                script_state S;
                 S.import("repl");
                 return 0;
             }
         } else {
-            environment env;
-            env->set_trusted_imported(trust_imported);
-            io_state    ios = init_frontend(env, no_kernel);
-            if (quiet)
-                ios.set_option("verbose", false);
-            script_state S;
             bool ok = true;
             for (int i = optind; i < argc; i++) {
                 char const * ext = get_file_extension(argv[i]);
@@ -227,15 +225,9 @@ int main(int argc, char ** argv) {
                     }
                 } else if (k == input_kind::Lua) {
                     try {
-                        S.apply([&](lua_State * L) {
-                                lean::set_io_state    set1(L, ios);
-                                lean::set_environment set2(L, env);
-                                S.exec_unprotected([&]() {
-                                        S.dofile(argv[i]);
-                                    });
-                            });
+                        S.dofile(argv[i]);
                     } catch (lean::exception & ex) {
-                        std::cerr << ex.what() << std::endl;
+                        ::lean::display_error(ios, nullptr, ex);
                         ok = false;
                     }
                 } else {
@@ -246,12 +238,8 @@ int main(int argc, char ** argv) {
                 env->export_objects(output);
             return ok ? 0 : 1;
         }
-    } catch (lean::kernel_exception & ex) {
-        std::cerr << "Error: " << ex.pp(lean::mk_simple_formatter(), lean::options()) << "\n";
-    } catch (lean::parser_exception & ex) {
-        std::cerr << ex.what() << "\n";
     } catch (lean::exception & ex) {
-        std::cerr << "Error: " << ex.what() << "\n";
+        ::lean::display_error(ios, nullptr, ex);
     }
     return 1;
 }

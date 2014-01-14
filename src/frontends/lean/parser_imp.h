@@ -34,7 +34,7 @@ bool get_parser_show_errors(options const & opts);
 
 /** \brief Auxiliary object that stores a reference to the parser object inside the Lua State */
 struct set_parser {
-    script_state * m_state;
+    script_state::weak_ref m_state;
     parser_imp *   m_prev;
     set_parser(script_state * S, parser_imp * ptr);
     ~set_parser();
@@ -57,29 +57,30 @@ class parser_imp {
     typedef expr_map<pos_info> expr_pos_info;
     typedef expr_map<tactic>   tactic_hints; // a mapping from placeholder to tactic
     typedef scoped_map<name, expr, name_hash, name_eq>      using_decls;
-    environment         m_env;
-    io_state            m_io_state;
-    scanner             m_scanner;
-    std::string         m_strm_name; // input stream name
-    frontend_elaborator m_elaborator;
-    macros const *      m_expr_macros;
-    macros const *      m_cmd_macros;
-    macros const *      m_tactic_macros;
-    scanner::token      m_curr;
-    bool                m_use_exceptions;
-    bool                m_interactive;
-    bool                m_found_errors;
-    local_decls         m_local_decls;
-    unsigned            m_num_local_decls;
-    expr_pos_info       m_expr_pos_info;
-    pos_info            m_last_cmd_pos;
-    pos_info            m_last_script_pos;
-    tactic_hints        m_tactic_hints;
-    using_decls         m_using_decls;
-    std::vector<name>   m_namespace_prefixes;
     enum class scope_kind { Scope, Namespace };
-    std::vector<scope_kind> m_scope_kinds;
 
+    std::weak_ptr<parser_imp>          m_this;
+    environment                        m_env;
+    io_state                           m_io_state;
+    scanner                            m_scanner;
+    std::string                        m_strm_name; // input stream name
+    frontend_elaborator                m_elaborator;
+    macros const *                     m_expr_macros;
+    macros const *                     m_cmd_macros;
+    macros const *                     m_tactic_macros;
+    scanner::token                     m_curr;
+    bool                               m_use_exceptions;
+    bool                               m_interactive;
+    bool                               m_found_errors;
+    local_decls                        m_local_decls;
+    unsigned                           m_num_local_decls;
+    expr_pos_info                      m_expr_pos_info;
+    pos_info                           m_last_cmd_pos;
+    pos_info                           m_last_script_pos;
+    tactic_hints                       m_tactic_hints;
+    using_decls                        m_using_decls;
+    std::vector<name>                  m_namespace_prefixes;
+    std::vector<scope_kind>            m_scope_kinds;
     std::unique_ptr<calc_proof_parser> m_calc_proof_parser;
 
 
@@ -202,22 +203,20 @@ public:
 private:
     void display_error_pos(unsigned line, unsigned pos);
     void display_error_pos(pos_info const & p);
-    void display_error_pos(optional<expr> const & e);
     void display_error(char const * msg, unsigned line, unsigned pos);
-    void display_error(char const * msg);
-    void display_error(kernel_exception const & ex);
-    void display_error(unsolved_metavar_exception const & ex);
 
     struct lean_pos_info_provider : public pos_info_provider {
-        parser_imp const & m_ref;
-        lean_pos_info_provider(parser_imp const & r):m_ref(r) {}
+        std::shared_ptr<parser_imp> m_parser;
+        pos_info                    m_pos;
+        lean_pos_info_provider(std::shared_ptr<parser_imp> const & p, pos_info const & pos):m_parser(p), m_pos(pos) {}
         virtual std::pair<unsigned, unsigned> get_pos_info(expr const & e) const;
-        virtual char const * get_file_name(expr const & e) const;
+        virtual std::pair<unsigned, unsigned> get_some_pos() const { return m_pos; }
+        virtual char const * get_file_name() const;
     };
 
-    void display_error(elaborator_exception const & ex);
-    void display_error(script_exception const & ex);
     void display_error(tactic_cmd_error const & ex);
+    void display_error(script_exception const & ex);
+    void display_error(exception const & ex);
 public:
     void protected_call(std::function<void()> && f, std::function<void()> && sync);
     /*@}*/

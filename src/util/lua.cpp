@@ -91,10 +91,11 @@ static void exec(lua_State * L) {
 
 void check_result(lua_State * L, int result) {
     if (result) {
-        if (is_exception(L, -1))
+        if (is_exception(L, -1)) {
             to_exception(L, -1).rethrow();
-        else
+        } else {
             throw script_exception(lua_tostring(L, -1));
+        }
     }
 }
 
@@ -137,10 +138,16 @@ bool resume(lua_State * L, int nargs) {
 int safe_function_wrapper(lua_State * L, lua_CFunction f) {
     try {
         return f(L);
-    } catch (script_exception & e) {
-        lua_pushstring(L, e.what());
     } catch (exception & e) {
-        push_exception(L, e);
+        lua_Debug ar;
+        lua_getstack(L, 1, &ar);
+        lua_getinfo(L, "Sl", &ar);
+        if (ar.source && *(ar.source) == '@')
+            push_exception(L, script_nested_exception(true, ar.source+1, ar.currentline, std::shared_ptr<exception>(e.clone())));
+        else if (ar.source)
+            push_exception(L, script_nested_exception(false, ar.source, ar.currentline, std::shared_ptr<exception>(e.clone())));
+        else
+            push_exception(L, e);
     } catch (std::bad_alloc &) {
         lua_pushstring(L, "out of memory");
     } catch (std::exception & e) {

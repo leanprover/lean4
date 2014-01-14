@@ -55,7 +55,7 @@ script_exception::script_exception(char const * lua_error) {
 script_exception::~script_exception() {
 }
 
-char const * script_exception::get_filename() const {
+char const * script_exception::get_file_name() const {
     lean_assert(get_source() == source::File);
     return m_file.c_str();
 }
@@ -72,11 +72,29 @@ char const * script_exception::get_msg() const noexcept {
 char const * script_exception::what() const noexcept {
     static thread_local std::string buffer;
     std::ostringstream strm;
+    char const * msg = get_msg();
+    char const * space = msg && *msg == ' ' ? "" : " ";
     switch (get_source()) {
-    case source::String:  strm << "[string]:" << get_line() << ":" << get_msg() << "\n"; break;
-    case source::File:    strm << get_filename() << ":" << get_line() << ":" << get_msg() << "\n"; break;
+    case source::String:  strm << "[string]:" << get_line() << ":" << space << get_msg(); break;
+    case source::File:    strm << get_file_name() << ":" << get_line() << ":" << space << get_msg(); break;
     case source::Unknown: return get_msg();
     }
+    buffer = strm.str();
+    return buffer.c_str();
+}
+
+script_nested_exception::script_nested_exception(source s, std::string f, unsigned l, std::shared_ptr<exception> const & ex):
+    script_exception(s, f, l, "Lean exception"),
+    m_exception(ex) {
+    lean_assert(ex);
+}
+
+script_nested_exception::~script_nested_exception() {}
+
+char const * script_nested_exception::what() const noexcept {
+    static thread_local std::string buffer;
+    std::ostringstream strm;
+    strm << script_exception::what() << "\n" << get_exception().what();
     buffer = strm.str();
     return buffer.c_str();
 }

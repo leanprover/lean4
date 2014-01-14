@@ -44,8 +44,11 @@ formatter get_global_formatter(lua_State * L);
    Otherwise, we update the registry of \c L.
 */
 void set_global_formatter(lua_State * L, formatter const & fmt);
+
+/** \brief Set the Lua registry of a Lua state with an environment object. */
+void set_global_environment(lua_State * L, environment const & env);
 /**
-   \brief Auxiliary class for setting the Lua registry of a Lua state
+   \brief Auxiliary class for temporarily setting the Lua registry of a Lua state
    with an environment object.
 */
 class set_environment {
@@ -74,6 +77,9 @@ public:
     rw_shared_environment(lua_State * L, int idx);
     rw_shared_environment(lua_State * L);
 };
+
+/** \brief Set the Lua registry of a Lua state with an io_state object. */
+void set_global_io_state(lua_State * L, io_state & ios);
 /**
    \brief Auxiliary class for temporarily setting the Lua registry of a Lua state
    with a Lean io_state object.

@@ -250,6 +250,27 @@ protected:
         return e && apply(*e, offset);
     }
 
+    // Return true iff  m_low + offset <= vidx
+    bool ge_lower(unsigned vidx, unsigned offset) const {
+        unsigned low1 = m_low + offset;
+        if (low1 < m_low)
+            return false; // overflow, vidx can't be >= max unsigned
+        return vidx >= low1;
+    }
+
+    // Return true iff vidx < m_high + offset
+    bool lt_upper(unsigned vidx, unsigned offset) const {
+        unsigned high1 = m_high + offset;
+        if (high1 < m_high)
+            return true;  // overflow, vidx is always < max unsigned
+        return vidx < high1;
+    }
+
+    // Return true iff   m_low + offset <= vidx < m_high + offset
+    bool in_interval(unsigned vidx, unsigned offset) const {
+        return ge_lower(vidx, offset) && lt_upper(vidx, offset);
+    }
+
     bool apply(expr const & e, unsigned offset) {
         // handle easy cases
         switch (e.kind()) {
@@ -265,7 +286,7 @@ protected:
             else
                 return true; // assume that any free variable can occur in the metavariable
         case expr_kind::Var:
-            return var_idx(e) >= offset + m_low && var_idx(e) < offset + m_high;
+            return in_interval(var_idx(e), offset);
         case expr_kind::App: case expr_kind::HEq: case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Let:
             break;
         }
@@ -296,7 +317,7 @@ protected:
             unsigned R = (*m_range_fn)(e);
             if (R > 0) {
                 unsigned max_fvar_idx = R - 1;
-                result = max_fvar_idx >= offset + m_low;
+                result = ge_lower(max_fvar_idx, offset);
                 // Remark: Variable #0 may occur in \c e.
                 // So, we don't have to check the upper bound offset + m_high;
             }
@@ -320,7 +341,6 @@ protected:
         if (!result && shared) {
             m_cached.insert(expr_cell_offset(e.raw(), offset));
         }
-
         return result;
     }
 public:
@@ -350,6 +370,9 @@ bool has_free_var(context_entry const & e, unsigned low, unsigned high, metavar_
     auto b = e.get_body();
     return (d && has_free_var(*d, low, high, menv)) || (b && has_free_var(*b, low, high, menv));
 }
+
+bool has_free_var_ge(expr const & e, unsigned low, metavar_env const & menv) { return has_free_var(e, low, std::numeric_limits<unsigned>::max(), menv); }
+bool has_free_var_ge(expr const & e, unsigned low) { return has_free_var(e, low, std::numeric_limits<unsigned>::max()); }
 
 expr lower_free_vars(expr const & e, unsigned s, unsigned d, optional<metavar_env> const & DEBUG_CODE(menv)) {
     if (d == 0)

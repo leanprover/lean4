@@ -58,6 +58,15 @@ bool has_free_var(expr const & e, unsigned i);
 bool has_free_var(context_entry const & e, unsigned low, unsigned high, metavar_env const & menv);
 
 /**
+   \brief Return true iff \c e contains a free variable >= low.
+
+   \remark If menv is provided, then we use \c free_var_range to compute the free variables that may
+    occur in a metavariable.
+*/
+bool has_free_var_ge(expr const & e, unsigned low, metavar_env const & menv);
+bool has_free_var_ge(expr const & e, unsigned low);
+
+/**
    \brief Lower the free variables >= s in \c e by \c d. That is, a free variable <tt>(var i)</tt> s.t.
    <tt>i >= s</tt> is mapped into <tt>(var i-d)</tt>.
 

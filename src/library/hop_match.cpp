@@ -104,12 +104,29 @@ class hop_match_fn {
             return some_expr(r);
     }
 
+    // We say \c t has a simple projection when it is of the form (f v1 ... vn)
+    // where f does no contain locally bound variables, and v1 ... vn are exactly the variables in vars.
+    // In this case, the proj procedure can return f instead of (fun xn .... x1, f x1 ... xn)
+    bool is_simple_proj(expr const & t, unsigned ctx_size, buffer<expr> const & vars) {
+        if (is_app(t) && !has_locally_bound_var(arg(t, 0), ctx_size) && num_args(t) == vars.size() + 1) {
+            for (unsigned i = 0; i < vars.size(); i++)
+                if (arg(t, i+1) != vars[i])
+                    return false;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /**
        \brief Return <tt>(fun (x1 ... xn) t')</tt> if all locally bound variables in \c t occur in vars.
        \c n is the size of \c vars.
        None is returned if \c t contains a locally bound variable that does not occur in \c vars.
     */
     optional<expr> proj(expr const & t, context const & ctx, unsigned ctx_size, buffer<expr> const & vars) {
+        if (is_simple_proj(t, ctx_size, vars)) {
+            return some_expr(lower_free_vars(arg(t, 0), ctx_size, ctx_size));
+        }
         optional<expr> t_prime = proj_core(t, ctx_size, vars, vars.size());
         if (!t_prime)
             return none_expr();
@@ -137,39 +154,40 @@ class hop_match_fn {
         if (is_free_var(p, ctx_size)) {
             auto s = get_subst(p, ctx_size);
             if (s) {
-                return match(lift_free_vars(*s, ctx_size), t, ctx, ctx_size);
+                return lift_free_vars(*s, ctx_size) == t;
             } else if (has_locally_bound_var(t, ctx_size)) {
                 return false;
             } else {
                 assign(p, lower_free_vars(t, ctx_size, ctx_size), ctx_size);
                 return true;
             }
-        } else if (is_app(p) && is_free_var(arg(p, 0), ctx_size)) {
+        } else if (is_app(p) && is_free_var(arg(p, 0), ctx_size) && args_are_distinct_locally_bound_vars(p, ctx_size, m_vars)) {
+            // higher-order pattern case
             auto s = get_subst(arg(p, 0), ctx_size);
             unsigned num = num_args(p);
             if (s) {
                 expr f     = lift_free_vars(*s, ctx_size);
                 expr new_p = apply_beta(f, num - 1, &(arg(p, 1)));
-                return match(new_p, t, ctx, ctx_size);
+                return new_p == t;
             } else {
-                // Check if p is a higher-order pattern.
-                // That is, all arguments are distinct locally bound variables
-                if (args_are_distinct_locally_bound_vars(p, ctx_size, m_vars)) {
-                    optional<expr> new_t = proj(t, ctx, ctx_size, m_vars);
-                    if (new_t) {
-                        assign(arg(p, 0), *new_t, ctx_size);
-                        return true;
-                    } else {
-                        return false;
-                    }
+                optional<expr> new_t = proj(t, ctx, ctx_size, m_vars);
+                if (new_t) {
+                    assign(arg(p, 0), *new_t, ctx_size);
+                    return true;
                 }
+                // fallback to the first-order case
             }
         }
 
-        if (p == t)
+        if (p == t && !has_free_var_ge(p, ctx_size)) {
             return true;
+        }
 
-        if (is_eq_heq(p) && is_eq_heq(t)) {
+        if (is_eq_heq(p) && is_eq_heq(t) && (is_heq(p) || is_heq(t))) {
+            // Remark: if p and t are homogeneous equality, then we handle as an application (in the else branch)
+            // We do that because we can get more information. For example, the pattern
+            // may be    (eq #1 a b).
+            // This branch ignores the type.
             expr_pair p1 = eq_heq_args(p);
             expr_pair p2 = eq_heq_args(t);
             return match(p1.first, p2.first, ctx, ctx_size) && match(p1.second, p2.second, ctx, ctx_size);
@@ -187,11 +205,9 @@ class hop_match_fn {
                     --i1;
                     --i2;
                     if (i1 == 0 && i2 > 0) {
-                        if (!match(arg(p, i1), mk_app(i2+1, begin_args(t)), ctx, ctx_size))
-                            return false;
+                        return match(arg(p, i1), mk_app(i2+1, begin_args(t)), ctx, ctx_size);
                     } else if (i2 == 0 && i1 > 0) {
-                        if (!match(mk_app(i1+1, begin_args(p)), arg(t, i2), ctx, ctx_size))
-                            return false;
+                        return match(mk_app(i1+1, begin_args(p)), arg(t, i2), ctx, ctx_size);
                     } else {
                         if (!match(arg(p, i1), arg(t, i2), ctx, ctx_size))
                             return false;

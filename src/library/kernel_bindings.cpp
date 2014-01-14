@@ -603,45 +603,55 @@ static int expr_hash(lua_State * L) {
     return 1;
 }
 
+static int expr_head_beta_reduce(lua_State * L) {
+    return push_expr(L, head_beta_reduce(to_expr(L, 1)));
+}
+
+static int expr_beta_reduce(lua_State * L) {
+    return push_expr(L, beta_reduce(to_expr(L, 1)));
+}
+
 static const struct luaL_Reg expr_m[] = {
-    {"__gc",            expr_gc}, // never throws
-    {"__tostring",      safe_function<expr_tostring>},
-    {"__eq",            safe_function<expr_eq>},
-    {"__lt",            safe_function<expr_lt>},
-    {"__call",          safe_function<expr_mk_app>},
-    {"kind",            safe_function<expr_get_kind>},
-    {"is_var",          safe_function<expr_is_var>},
-    {"is_constant",     safe_function<expr_is_constant>},
-    {"is_app",          safe_function<expr_is_app>},
-    {"is_heq",          safe_function<expr_is_heq>},
+    {"__gc",             expr_gc}, // never throws
+    {"__tostring",       safe_function<expr_tostring>},
+    {"__eq",             safe_function<expr_eq>},
+    {"__lt",             safe_function<expr_lt>},
+    {"__call",           safe_function<expr_mk_app>},
+    {"kind",             safe_function<expr_get_kind>},
+    {"is_var",           safe_function<expr_is_var>},
+    {"is_constant",      safe_function<expr_is_constant>},
+    {"is_app",           safe_function<expr_is_app>},
+    {"is_heq",           safe_function<expr_is_heq>},
     {"is_lambda",       safe_function<expr_is_lambda>},
-    {"is_pi",           safe_function<expr_is_pi>},
-    {"is_abstraction",  safe_function<expr_is_abstraction>},
-    {"is_let",          safe_function<expr_is_let>},
-    {"is_value",        safe_function<expr_is_value>},
-    {"is_metavar",      safe_function<expr_is_metavar>},
-    {"fields",          safe_function<expr_fields>},
-    {"data",            safe_function<expr_fields>},
-    {"args",            safe_function<expr_args>},
-    {"num_args",        safe_function<expr_num_args>},
-    {"arg",             safe_function<expr_arg>},
-    {"for_each",        safe_function<expr_for_each>},
-    {"has_free_vars",   safe_function<expr_has_free_vars>},
-    {"closed",          safe_function<expr_closed>},
-    {"has_free_var",    safe_function<expr_has_free_var>},
-    {"lift_free_vars",  safe_function<expr_lift_free_vars>},
-    {"lower_free_vars", safe_function<expr_lower_free_vars>},
-    {"instantiate",     safe_function<expr_instantiate>},
-    {"abstract",        safe_function<expr_abstract>},
-    {"occurs",          safe_function<expr_occurs>},
-    {"has_metavar",     safe_function<expr_has_metavar>},
-    {"is_eqp",          safe_function<expr_is_eqp>},
-    {"hash",            safe_function<expr_hash>},
-    {"is_not",          safe_function<expr_is_not>},
-    {"is_and",          safe_function<expr_is_and>},
-    {"is_or",           safe_function<expr_is_or>},
-    {"is_implies",      safe_function<expr_is_implies>},
-    {"is_exists",       safe_function<expr_is_exists>},
+    {"is_pi",            safe_function<expr_is_pi>},
+    {"is_abstraction",   safe_function<expr_is_abstraction>},
+    {"is_let",           safe_function<expr_is_let>},
+    {"is_value",         safe_function<expr_is_value>},
+    {"is_metavar",       safe_function<expr_is_metavar>},
+    {"fields",           safe_function<expr_fields>},
+    {"data",             safe_function<expr_fields>},
+    {"args",             safe_function<expr_args>},
+    {"num_args",         safe_function<expr_num_args>},
+    {"arg",              safe_function<expr_arg>},
+    {"for_each",         safe_function<expr_for_each>},
+    {"has_free_vars",    safe_function<expr_has_free_vars>},
+    {"closed",           safe_function<expr_closed>},
+    {"has_free_var",     safe_function<expr_has_free_var>},
+    {"lift_free_vars",   safe_function<expr_lift_free_vars>},
+    {"lower_free_vars",  safe_function<expr_lower_free_vars>},
+    {"instantiate",      safe_function<expr_instantiate>},
+    {"beta_reduce",      safe_function<expr_beta_reduce>},
+    {"head_beta_reduce", safe_function<expr_head_beta_reduce>},
+    {"abstract",         safe_function<expr_abstract>},
+    {"occurs",           safe_function<expr_occurs>},
+    {"has_metavar",      safe_function<expr_has_metavar>},
+    {"is_eqp",           safe_function<expr_is_eqp>},
+    {"hash",             safe_function<expr_hash>},
+    {"is_not",           safe_function<expr_is_not>},
+    {"is_and",           safe_function<expr_is_and>},
+    {"is_or",            safe_function<expr_is_or>},
+    {"is_implies",       safe_function<expr_is_implies>},
+    {"is_exists",        safe_function<expr_is_exists>},
     {0, 0}
 };
 

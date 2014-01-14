@@ -40,11 +40,10 @@ class hop_match_fn {
 
     void assign(expr const & p, expr const & t, unsigned ctx_size) {
         lean_assert(is_free_var(p, ctx_size));
-        lean_assert(!has_locally_bound_var(t, ctx_size));
         lean_assert(!get_subst(p, ctx_size));
         unsigned vidx = var_idx(p) - ctx_size;
         unsigned sz = m_subst.size();
-        m_subst[sz - vidx - 1] = lower_free_vars(t, ctx_size, ctx_size);
+        m_subst[sz - vidx - 1] = t;
     }
 
     bool args_are_distinct_locally_bound_vars(expr const & p, unsigned ctx_size, buffer<expr> & vars) {
@@ -142,7 +141,7 @@ class hop_match_fn {
             } else if (has_locally_bound_var(t, ctx_size)) {
                 return false;
             } else {
-                assign(p, t, ctx_size);
+                assign(p, lower_free_vars(t, ctx_size, ctx_size), ctx_size);
                 return true;
             }
         } else if (is_app(p) && is_free_var(arg(p, 0), ctx_size)) {

@@ -112,4 +112,10 @@ MK_CONSTANT(or_congr_fn, name("or_congr"));
 MK_CONSTANT(and_congrr_fn, name("and_congrr"));
 MK_CONSTANT(and_congrl_fn, name("and_congrl"));
 MK_CONSTANT(and_congr_fn, name("and_congr"));
+MK_CONSTANT(forall_or_distributer_fn, name("forall_or_distributer"));
+MK_CONSTANT(forall_or_distributel_fn, name("forall_or_distributel"));
+MK_CONSTANT(forall_and_distribute_fn, name("forall_and_distribute"));
+MK_CONSTANT(exists_and_distributer_fn, name("exists_and_distributer"));
+MK_CONSTANT(exists_and_distributel_fn, name("exists_and_distributel"));
+MK_CONSTANT(exists_or_distribute_fn, name("exists_or_distribute"));
 }

@@ -327,4 +327,22 @@ inline expr mk_and_congrl_th(expr const & e1, expr const & e2, expr const & e3, 
 expr mk_and_congr_fn();
 bool is_and_congr_fn(expr const & e);
 inline expr mk_and_congr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_and_congr_fn(), e1, e2, e3, e4, e5, e6}); }
+expr mk_forall_or_distributer_fn();
+bool is_forall_or_distributer_fn(expr const & e);
+inline expr mk_forall_or_distributer_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_forall_or_distributer_fn(), e1, e2, e3}); }
+expr mk_forall_or_distributel_fn();
+bool is_forall_or_distributel_fn(expr const & e);
+inline expr mk_forall_or_distributel_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_forall_or_distributel_fn(), e1, e2, e3}); }
+expr mk_forall_and_distribute_fn();
+bool is_forall_and_distribute_fn(expr const & e);
+inline expr mk_forall_and_distribute_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_forall_and_distribute_fn(), e1, e2, e3}); }
+expr mk_exists_and_distributer_fn();
+bool is_exists_and_distributer_fn(expr const & e);
+inline expr mk_exists_and_distributer_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_exists_and_distributer_fn(), e1, e2, e3}); }
+expr mk_exists_and_distributel_fn();
+bool is_exists_and_distributel_fn(expr const & e);
+inline expr mk_exists_and_distributel_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_exists_and_distributel_fn(), e1, e2, e3}); }
+expr mk_exists_or_distribute_fn();
+bool is_exists_or_distribute_fn(expr const & e);
+inline expr mk_exists_or_distribute_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_exists_or_distribute_fn(), e1, e2, e3}); }
 }

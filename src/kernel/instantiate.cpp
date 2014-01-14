@@ -80,22 +80,28 @@ bool is_head_beta(expr const & t) {
 }
 
 expr apply_beta(expr f, unsigned num_args, expr const * args, optional<metavar_env> const & menv) {
-    lean_assert(is_lambda(f));
-    unsigned m = 1;
-    while (is_lambda(abst_body(f)) && m < num_args) {
-        f = abst_body(f);
-        m++;
-    }
-    lean_assert(m <= num_args);
-    expr r = instantiate(abst_body(f), m, args, menv);
-    if (m == num_args) {
-        return r;
-    } else {
+    if (!is_lambda(f)) {
         buffer<expr> new_args;
-        new_args.push_back(r);
-        for (; m < num_args; m++)
-            new_args.push_back(args[m]);
+        new_args.push_back(f);
+        new_args.append(num_args, args);
         return mk_app(new_args);
+    } else {
+        unsigned m = 1;
+        while (is_lambda(abst_body(f)) && m < num_args) {
+            f = abst_body(f);
+            m++;
+        }
+        lean_assert(m <= num_args);
+        expr r = instantiate(abst_body(f), m, args, menv);
+        if (m == num_args) {
+            return r;
+        } else {
+            buffer<expr> new_args;
+            new_args.push_back(r);
+            for (; m < num_args; m++)
+                new_args.push_back(args[m]);
+            return mk_app(new_args);
+        }
     }
 }
 expr apply_beta(expr f, unsigned num_args, expr const * args, metavar_env const & menv) { return apply_beta(f, num_args, args, some_menv(menv)); }

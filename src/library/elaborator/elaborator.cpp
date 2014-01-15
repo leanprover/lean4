@@ -1354,7 +1354,7 @@ class elaborator::imp {
         if (process_assigned_metavar(c, a, true) || process_assigned_metavar(c, b, false))
             return true;
 
-        if (m_assume_injectivity && is_app(a) && is_app(b) && num_args(a) == num_args(b) && arg(a, 0) == arg(b, 0)) {
+        if (m_assume_injectivity && is_app(a) && is_app(b) && num_args(a) == num_args(b) && arg(a, 0) == arg(b, 0) && !is_metavar(arg(a, 0))) {
             // If m_assume_injectivity is true, we apply the following rule
             // ctx |- (f a1 a2) == (f b1 b2)
             // ===>

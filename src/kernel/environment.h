@@ -231,6 +231,11 @@ public:
     expr normalize(expr const & e, context const & ctx = context(), bool unfold_opaque = false) const;
 
     /**
+       \brief Return true iff \c e is a proposition.
+    */
+    bool is_proposition(expr const & e, context const & ctx = context()) const;
+
+    /**
        \brief Low-level function for accessing objects. Consider using iterators.
     */
     unsigned get_num_objects(bool local) const;

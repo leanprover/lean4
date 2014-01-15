@@ -1123,6 +1123,16 @@ static int environment_infer_type(lua_State * L) {
         return push_expr(L, env->infer_type(to_expr(L, 2), to_context(L, 3)));
 }
 
+static int environment_is_proposition(lua_State * L) {
+    int nargs = lua_gettop(L);
+    ro_shared_environment env(L, 1);
+    if (nargs == 2)
+        lua_pushboolean(L, env->is_proposition(to_expr(L, 2)));
+    else
+        lua_pushboolean(L, env->is_proposition(to_expr(L, 2), to_context(L, 3)));
+    return 1;
+}
+
 static int environment_tostring(lua_State * L) {
     ro_shared_environment env(L, 1);
     std::ostringstream out;
@@ -1213,6 +1223,7 @@ static const struct luaL_Reg environment_m[] = {
     {"type_check",     safe_function<environment_type_check>},
     {"infer_type",     safe_function<environment_infer_type>},
     {"normalize",      safe_function<environment_normalize>},
+    {"is_proposition", safe_function<environment_is_proposition>},
     {"objects",        safe_function<environment_objects>},
     {"local_objects",  safe_function<environment_local_objects>},
     {"set_opaque",     safe_function<environment_set_opaque>},

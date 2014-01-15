@@ -530,6 +530,10 @@ expr environment_cell::normalize(expr const & e, context const & ctx, bool unfol
     return m_type_checker->get_normalizer()(e, ctx, unfold_opaque);
 }
 
+bool environment_cell::is_proposition(expr const & e, context const & ctx) const {
+    return m_type_checker->is_proposition(e, ctx);
+}
+
 bool environment_cell::already_imported(name const & n) const {
     if (m_imported_modules.find(n) != m_imported_modules.end())
         return true;

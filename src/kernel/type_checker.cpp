@@ -421,9 +421,14 @@ public:
     bool is_proposition(expr const & e, context const & ctx, optional<metavar_env> const & menv) {
         // Catch easy cases
         switch (e.kind()) {
-        case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Type: return false;
-        case expr_kind::HEq: return true;
-        default: break;
+        case expr_kind::Lambda: case expr_kind::Type:
+            return false;
+        case expr_kind::HEq:
+            return true;
+        case expr_kind::Pi:
+            return is_proposition(abst_body(e), extend(ctx, abst_name(e), abst_domain(e)), menv);
+        default:
+            break;
         }
         expr t = infer_type(e, ctx, menv, nullptr);
         if (is_bool(t))

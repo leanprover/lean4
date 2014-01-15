@@ -1,3 +1,5 @@
+import macros
+
 -- if_then_else expression support
 builtin ite {A : (Type U)} : Bool → A → A → A
 notation 60 if _ then _ else _ : ite
@@ -24,5 +26,16 @@ theorem if_congr {A : TypeU} {b c : Bool} {x y u v : A} (H_bc : b = c) (H_xu : �
                                          ...  = v                        : H_yv H_nc
                                          ...  = (if false then u else v) : symm (if_false _ _)
                                          ...  = (if c then u else v)     : { symm (eqf_intro H_nc) })
+
+theorem if_imp_then {a b c : Bool} (H : if a then b else c) : a → b
+:= assume Ha : a, eqt_elim (calc   b = (if true then b else c) : symm (if_true b c)
+                                 ... = (if a then b else c)    : { symm (eqt_intro Ha) }
+                                 ... = true                    : eqt_intro H)
+
+theorem if_imp_else {a b c : Bool} (H : if a then b else c) : ¬ a → c
+:= assume Hna : ¬ a, eqt_elim (calc   c = (if false then b else c) : symm (if_false b c)
+                                    ... = (if a then b else c)     : { symm (eqf_intro Hna) }
+                                    ... = true                     : eqt_intro H)
+
 
 set_opaque ite true

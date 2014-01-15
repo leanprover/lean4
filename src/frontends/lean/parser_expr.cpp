@@ -152,17 +152,20 @@ expr parser_imp::parse_postfix(expr const & left, operator_info const & op, pos_
 
 /** \brief Parse a user defined infix operator. */
 expr parser_imp::parse_infix(expr const & left, operator_info const & op, pos_info const & op_pos) {
-    return mk_application(op, op_pos, {left, parse_expr(op.get_precedence()+1)});
+    expr right = parse_expr(op.get_precedence()+1);
+    return mk_application(op, op_pos, {left, right});
 }
 
 /** \brief Parse a user defined infix-left operator. */
 expr parser_imp::parse_infixl(expr const & left, operator_info const & op, pos_info const & op_pos) {
-    return mk_application(op, op_pos, {left, parse_expr(op.get_precedence())});
+    expr right = parse_expr(op.get_precedence());
+    return mk_application(op, op_pos, {left, right});
 }
 
 /** \brief Parse a user defined infix-right operator. */
 expr parser_imp::parse_infixr(expr const & left, operator_info const & op, pos_info const & op_pos) {
-    return mk_application(op, op_pos, {left, parse_expr(op.get_precedence()-1)});
+    expr right = parse_expr(op.get_precedence()-1);
+    return mk_application(op, op_pos, {left, right});
 }
 
 /**

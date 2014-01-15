@@ -83,9 +83,11 @@ class environment_cell {
     void check_type(name const & n, expr const & t, expr const & v);
     void check_new_definition(name const & n, expr const & t, expr const & v);
 
-    bool already_imported(name const & n) const;
     bool mark_imported_core(name n);
     bool load_core(std::string const & fname, io_state const & ios, optional<std::string> const & mod_name);
+    bool already_imported(name const & n) const;
+    /** \brief Return true iff the given file was not already marked as imported. It will also mark the file as imported. */
+    bool mark_imported(char const * fname);
 
 public:
     environment_cell();
@@ -321,19 +323,11 @@ public:
         return static_cast<Ext&>(ext);
     }
 
-    /**
-        \brief Return true iff the given file was not already marked as imported.
-        It will also mark the file as imported.
-    */
-    bool mark_imported(char const * fname);
-
-    void import_builtin(char const * id, std::function<void()> fn);
-
     void export_objects(std::string const & fname);
-
     bool import(std::string const & fname, io_state const & ios);
-
     void load(std::string const & fname, io_state const & ios);
+    /** \brief Return true iff module \c n has already been imported */
+    bool imported(std::string const & n) const;
 
     /**
         \brief When trusted_imported flag is true, the environment will

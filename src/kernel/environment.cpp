@@ -112,7 +112,6 @@ bool is_end_import(object const & obj) {
     return dynamic_cast<end_import_mark const*>(obj.cell());
 }
 
-static name g_builtin_module("builtin_module");
 class extension_factory {
     std::vector<environment_cell::mk_extension> m_makers;
     mutex                                       m_makers_mutex;
@@ -566,12 +565,6 @@ void environment_cell::auxiliary_section(std::function<void()> fn) {
     }
 }
 
-void environment_cell::import_builtin(char const * id, std::function<void()> fn) {
-    if (mark_imported_core(name(g_builtin_module, id))) {
-        auxiliary_section(fn);
-    }
-}
-
 void environment_cell::set_trusted_imported(bool flag) {
     m_trust_imported = flag;
 }
@@ -646,6 +639,10 @@ bool environment_cell::import(std::string const & fname, io_state const & ios) {
 
 void environment_cell::load(std::string const & fname, io_state const & ios) {
     load_core(fname, ios, optional<std::string>());
+}
+
+bool environment_cell::imported(std::string const & n) const {
+    return already_imported(name(realpath(find_file(n, {".olean"}).c_str())));
 }
 
 environment_cell::environment_cell():

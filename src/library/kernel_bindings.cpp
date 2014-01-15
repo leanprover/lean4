@@ -1184,6 +1184,12 @@ static int environment_get_universe_distance(lua_State * L) {
     return 1;
 }
 
+static int environment_imported(lua_State * L) {
+    ro_shared_environment env(L, 1);
+    lua_pushboolean(L, env->imported(std::string(luaL_checkstring(L, 2))));
+    return 1;
+}
+
 static const struct luaL_Reg environment_m[] = {
     {"__gc",           environment_gc}, // never throws
     {"__tostring",     safe_function<environment_tostring>},
@@ -1209,6 +1215,7 @@ static const struct luaL_Reg environment_m[] = {
     {"set_opaque",     safe_function<environment_set_opaque>},
     {"is_opaque",      safe_function<environment_is_opaque>},
     {"import",         safe_function<environment_import>},
+    {"imported",       safe_function<environment_imported>},
     {"load",           safe_function<environment_load>},
     {0, 0}
 };

@@ -31,7 +31,7 @@ local t2 = tactic(function(env, ios, s)
                      end
                   end)
 
-local T = (t1:par(t2)):try_for(150)
+local T = (t1:par(t2)):try_for(500)
 T:solve(env, ios, ctx, p)
 assert(counter2 > 2)
 S:eval([[ assert(counter1 > 2) ]])

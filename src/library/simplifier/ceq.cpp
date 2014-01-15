@@ -7,12 +7,16 @@ Author: Leonardo de Moura
 #include "util/list_fn.h"
 #include "kernel/builtin.h"
 #include "kernel/free_vars.h"
+#include "kernel/for_each_fn.h"
 #include "library/expr_pair.h"
 #include "library/ite.h"
 #include "library/kernel_bindings.h"
+#include "library/eq_heq.h"
 
 namespace lean {
 static name g_Hc("Hc"); // auxiliary name for if-then-else
+
+bool is_ceq(ro_environment const & env, expr e);
 
 /**
    \brief Auxiliary functional object for creating "conditional equations"
@@ -96,12 +100,45 @@ public:
     to_ceqs_fn(ro_environment const & env):m_env(env), m_idx(0) {}
 
     list<expr_pair> operator()(expr const & e, expr const & H) {
-        return apply(e, H);
+        return filter(apply(e, H), [&](expr_pair const & p) { return is_ceq(m_env, p.first); });
     }
 };
 
 list<expr_pair> to_ceqs(ro_environment const & env, expr const & e, expr const & H) {
     return to_ceqs_fn(env)(e, H);
+}
+
+bool is_ceq(ro_environment const & env, expr e) {
+    buffer<bool> in_lhs;
+    context ctx;
+    while (is_pi(e)) {
+        // If a variable is a proposition, than if doesn't need to occurr in the lhs.
+        // So, we mark it as true.
+        in_lhs.push_back(env->is_proposition(abst_domain(e), ctx));
+        ctx = extend(ctx, abst_name(e), abst_domain(e));
+        e = abst_body(e);
+    }
+    if (is_eq_heq(e)) {
+        auto lhs_rhs = eq_heq_args(e);
+        // traverse lhs, and mark all variables that occur there in is_lhs.
+        for_each(lhs_rhs.first, [&](expr const & e, unsigned offset) {
+                if (is_var(e)) {
+                    unsigned vidx = var_idx(e);
+                    if (vidx >= offset) {
+                        vidx -= offset;
+                        if (vidx >= in_lhs.size()) {
+                            // it is a free variable
+                        } else {
+                            in_lhs[in_lhs.size() - vidx - 1] = true;
+                        }
+                    }
+                }
+                return true;
+            });
+        return std::find(in_lhs.begin(), in_lhs.end(), false) == in_lhs.end();
+    } else {
+        return false;
+    }
 }
 
 static int to_ceqs(lua_State * L) {
@@ -121,7 +158,14 @@ static int to_ceqs(lua_State * L) {
     return 1;
 }
 
+static int is_ceq(lua_State * L) {
+    ro_shared_environment env(L, 1);
+    lua_pushboolean(L, is_ceq(env, to_expr(L, 2)));
+    return 1;
+}
+
 void open_ceq(lua_State * L) {
     SET_GLOBAL_FUN(to_ceqs, "to_ceqs");
+    SET_GLOBAL_FUN(is_ceq,  "is_ceq");
 }
 }

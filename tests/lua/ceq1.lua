@@ -1,17 +1,10 @@
 local env  = get_environment()
 
-function is_ceq(e)
-   while e:is_pi() do
-      _, _, e = e:fields()
-   end
-   return e:is_eq() or e:is_heq()
-end
-
 function show_ceqs(ceqs)
    for i = 1, #ceqs do
       print(ceqs[i][1], ceqs[i][2])
       env:type_check(ceqs[i][2])
-      assert(is_ceq(ceqs[i][1]))
+      assert(is_ceq(env, ceqs[i][1]))
    end
 end
 
@@ -29,9 +22,13 @@ parse_lean_cmds([[
    axiom Ax2 : forall x : Nat, x < 0 -> f (f x) = x
    variable g : Nat -> Nat -> Nat
    axiom Ax3 : forall x : Nat, not (x = 1) -> if (x < 0) then (g x x = 0) else (g x x < 0 /\ g x 0 = 1 /\ g 0 x = 2)
+   axiom Ax4 : forall x y : Nat, f x = x
+   axiom Ax5 : forall x y : Nat, f x = y /\ g x y = x
 ]])
 
 test_ceq("Ax1", 2)
 test_ceq("Ax2", 1)
 test_ceq("Ax3", 4)
+test_ceq("Ax4", 0)
+test_ceq("Ax5", 1)
 

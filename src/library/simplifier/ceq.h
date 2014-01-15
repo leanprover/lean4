@@ -21,8 +21,25 @@ namespace lean {
    [forall x : A, P]    --->   forall x : A, [P]
 
    P                    --->   P = true   (if none of the rules above apply and P is not an equality)
+
+   \remark if the left-hand-side of an equation does not contain all variables, then it is
+   discarded. That is, all elements in the resultant list satisfy the predicate \c is_ceq.
 */
 list<expr_pair> to_ceqs(ro_environment const & env, expr const & e, expr const & H);
+/**
+   \brief Return true iff \c e is a conditional equation.
+
+   A conditional equation ceq has the form
+   <code>
+         ceq := (forall x : A, ceq)
+             |  lhs = rhs
+             |  lhs == rhs
+   </code>
+
+   Moreover, for <tt>(forall x : A, ceq)</tt>, the variable x must occur in the \c ceq left-hand-size
+   when \c A is not a proposition.
+*/
+bool is_ceq(ro_environment const & env, expr e);
 void open_ceq(lua_State * L);
 }
 

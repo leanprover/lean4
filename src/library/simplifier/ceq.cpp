@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "library/expr_pair.h"
 #include "library/ite.h"
 #include "library/kernel_bindings.h"
-#include "library/eq_heq.h"
 
 namespace lean {
 static name g_Hc("Hc"); // auxiliary name for if-then-else
@@ -45,11 +44,11 @@ class to_ceqs_fn {
     }
 
     list<expr_pair> apply(expr const & e, expr const & H) {
-        if (is_eq(e) || is_heq(e)) {
+        if (is_eq(e)) {
             return mk_singleton(e, H);
         } else if (is_not(e)) {
             expr a     = arg(e, 1);
-            expr new_e = mk_heq(a, False);
+            expr new_e = mk_eq(Bool, a, False);
             expr new_H = mk_eqf_intro_th(a, H);
             return mk_singleton(new_e, new_H);
         } else if (is_and(e)) {
@@ -93,7 +92,7 @@ class to_ceqs_fn {
                 });
             return append(new_then_ceqs, new_else_ceqs);
         } else {
-            return mk_singleton(mk_heq(e, True), mk_eqt_intro_th(e, H));
+            return mk_singleton(mk_eq(Bool, e, True), mk_eqt_intro_th(e, H));
         }
     }
 public:
@@ -118,10 +117,10 @@ bool is_ceq(ro_environment const & env, expr e) {
         ctx = extend(ctx, abst_name(e), abst_domain(e));
         e = abst_body(e);
     }
-    if (is_eq_heq(e)) {
-        auto lhs_rhs = eq_heq_args(e);
+    if (is_eq(e)) {
+        expr lhs = arg(e, 2);
         // traverse lhs, and mark all variables that occur there in is_lhs.
-        for_each(lhs_rhs.first, [&](expr const & e, unsigned offset) {
+        for_each(lhs, [&](expr const & e, unsigned offset) {
                 if (is_var(e)) {
                     unsigned vidx = var_idx(e);
                     if (vidx >= offset) {

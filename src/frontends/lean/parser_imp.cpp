@@ -166,6 +166,10 @@ parser_imp::parser_imp(environment const & env, io_state const & st, std::istrea
         m_tactic_macros = nullptr;
         m_cmd_macros    = nullptr;
     }
+    // Initialize m_curr with some value. We need that because scan()
+    // may fail, and m_curr will remain uninitialized.
+    // In thi case, Valgrind would report unit var errors.
+    m_curr = scanner::token::Id;
     protected_call([&]() { scan(); },
                    [&]() { sync_command(); });
 }

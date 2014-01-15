@@ -1,4 +1,5 @@
 local env  = get_environment()
+assert(env:find_object("neq_elim"))
 
 function show_ceqs(ceqs)
    for i = 1, #ceqs do
@@ -24,6 +25,7 @@ parse_lean_cmds([[
    axiom Ax3 : forall x : Nat, not (x = 1) -> if (x < 0) then (g x x = 0) else (g x x < 0 /\ g x 0 = 1 /\ g 0 x = 2)
    axiom Ax4 : forall x y : Nat, f x = x
    axiom Ax5 : forall x y : Nat, f x = y /\ g x y = x
+   axiom Ax6 : forall x : Nat, f x ≠ 0
 ]])
 
 test_ceq("Ax1", 2)
@@ -31,6 +33,7 @@ test_ceq("Ax2", 1)
 test_ceq("Ax3", 4)
 test_ceq("Ax4", 0)
 test_ceq("Ax5", 1)
+test_ceq("Ax6", 1)
 -- test_ceq("eta", 1)
 test_ceq("not_not_eq", 1)
 test_ceq("or_comm", 1)

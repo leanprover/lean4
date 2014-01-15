@@ -19,6 +19,7 @@ namespace lean {
    [if P then Q else R] --->   P -> [Q],  not P -> [Q]
    [P -> Q]             --->   P -> [Q]
    [forall x : A, P]    --->   forall x : A, [P]
+   [a ≠ b]              --->   (a = b) = false
 
    P                    --->   P = true   (if none of the rules above apply and P is not an equality)
 

@@ -46,6 +46,13 @@ class to_ceqs_fn {
     list<expr_pair> apply(expr const & e, expr const & H) {
         if (is_eq(e)) {
             return mk_singleton(e, H);
+        } else if (is_neq(e)) {
+            expr T   = arg(e, 1);
+            expr lhs = arg(e, 2);
+            expr rhs = arg(e, 3);
+            expr new_e = mk_eq(Bool, mk_eq(T, lhs, rhs), False);
+            expr new_H = mk_neq_elim_th(T, lhs, rhs, H);
+            return mk_singleton(new_e, new_H);
         } else if (is_not(e)) {
             expr a     = arg(e, 1);
             expr new_e = mk_eq(Bool, a, False);

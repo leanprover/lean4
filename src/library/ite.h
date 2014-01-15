@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 namespace lean {
 expr mk_ite_fn();
 bool is_ite_fn(expr const & e);
+inline bool is_ite(expr const & e) { return is_app(e) && is_ite_fn(arg(e, 0)); }
 inline expr mk_ite(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app(mk_ite_fn(), e1, e2, e3, e4); }
 void import_ite(environment const & env, io_state const & ios);
 void open_ite(lua_State * L);

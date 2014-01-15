@@ -452,6 +452,7 @@ EXPR_PRED(is_and)
 EXPR_PRED(is_or)
 EXPR_PRED(is_implies)
 EXPR_PRED(is_exists)
+EXPR_PRED(is_eq)
 
 /**
    \brief Iterator (closure base function) for application args. See \c expr_args
@@ -652,6 +653,7 @@ static const struct luaL_Reg expr_m[] = {
     {"is_or",            safe_function<expr_is_or>},
     {"is_implies",       safe_function<expr_is_implies>},
     {"is_exists",        safe_function<expr_is_exists>},
+    {"is_eq",            safe_function<expr_is_eq>},
     {0, 0}
 };
 

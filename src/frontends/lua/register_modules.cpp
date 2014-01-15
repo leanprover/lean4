@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/register_module.h"
 #include "library/io_state_stream.h"
 #include "library/arith/register_module.h"
+#include "library/simplifier/register_module.h"
 #include "library/tactic/register_module.h"
 #include "frontends/lean/register_module.h"
 
@@ -19,6 +20,7 @@ void register_modules() {
     register_sexpr_module();
     register_core_module();
     register_arith_module();
+    register_simplifier_module();
     register_tactic_module();
     register_frontend_lean_module();
 }

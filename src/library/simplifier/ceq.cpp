@@ -156,6 +156,70 @@ bool is_ceq(ro_environment const & env, expr e) {
     }
 }
 
+static bool is_permutation(expr const & lhs, expr const & rhs, unsigned offset, buffer<optional<unsigned>> & p) {
+    if (lhs.kind() != rhs.kind())
+        return false;
+    switch (lhs.kind()) {
+    case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value: case expr_kind::MetaVar:
+        return lhs == rhs;
+    case expr_kind::Var:
+        if (var_idx(lhs) < offset) {
+            return lhs == rhs; // locally bound variable
+        } else if (var_idx(lhs) - offset < p.size()) {
+            if (p[var_idx(lhs) - offset]) {
+                return *(p[var_idx(lhs) - offset]) == var_idx(rhs);
+            } else {
+                p[var_idx(lhs) - offset] = var_idx(rhs);
+                return true;
+            }
+        } else {
+            return lhs == rhs; // free variable
+        }
+    case expr_kind::Lambda: case expr_kind::Pi:
+        return
+            is_permutation(abst_domain(lhs), abst_domain(rhs), offset, p) &&
+            is_permutation(abst_body(lhs), abst_body(rhs), offset+1, p);
+    case expr_kind::HEq:
+        return
+            is_permutation(heq_lhs(lhs), heq_lhs(rhs), offset, p) &&
+            is_permutation(heq_rhs(lhs), heq_rhs(rhs), offset, p);
+    case expr_kind::App:
+        if (num_args(lhs) == num_args(rhs)) {
+            for (unsigned i = 0; i < num_args(lhs); i++) {
+                if (!is_permutation(arg(lhs, i), arg(rhs, i), offset, p))
+                    return false;
+            }
+            return true;
+        } else {
+            return false;
+        }
+    case expr_kind::Let:
+        if (static_cast<bool>(let_type(lhs)) != static_cast<bool>(let_type(rhs)))
+            return false;
+        if (static_cast<bool>(let_type(lhs)) && !is_permutation(*let_type(lhs), *let_type(rhs), offset, p))
+            return false;
+        return
+            is_permutation(let_value(lhs), let_value(rhs), offset, p) &&
+            is_permutation(let_body(lhs), let_value(rhs), offset+1, p);
+    }
+    lean_unreachable();
+}
+
+bool is_permutation_ceq(expr e) {
+    unsigned num_args = 0;
+    while (is_pi(e)) {
+        e = abst_body(e);
+        num_args++;
+    }
+    if (!is_eq(e))
+        return false;
+    expr lhs = arg(e, 2);
+    expr rhs = arg(e, 3);
+    buffer<optional<unsigned>> permutation;
+    permutation.resize(num_args);
+    return is_permutation(lhs, rhs, 0, permutation);
+}
+
 static int to_ceqs(lua_State * L) {
     ro_shared_environment env(L, 1);
     auto r = to_ceqs(env, to_expr(L, 2), to_expr(L, 3));
@@ -179,8 +243,14 @@ static int is_ceq(lua_State * L) {
     return 1;
 }
 
+static int is_permutation_ceq(lua_State * L) {
+    lua_pushboolean(L, is_permutation_ceq(to_expr(L, 1)));
+    return 1;
+}
+
 void open_ceq(lua_State * L) {
     SET_GLOBAL_FUN(to_ceqs, "to_ceqs");
     SET_GLOBAL_FUN(is_ceq,  "is_ceq");
+    SET_GLOBAL_FUN(is_permutation_ceq, "is_permutation_ceq");
 }
 }

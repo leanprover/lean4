@@ -41,7 +41,10 @@ list<expr_pair> to_ceqs(ro_environment const & env, expr const & e, expr const &
    when \c A is not a proposition.
 */
 bool is_ceq(ro_environment const & env, expr e);
+/**
+   \brief Return true iff the lhs is identical to the rhs modulo a
+   permutation of the conditional equation arguments.
+*/
+bool is_permutation_ceq(expr e);
 void open_ceq(lua_State * L);
 }
-
-

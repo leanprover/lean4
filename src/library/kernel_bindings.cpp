@@ -613,6 +613,26 @@ static int expr_beta_reduce(lua_State * L) {
     return push_expr(L, beta_reduce(to_expr(L, 1)));
 }
 
+static void check_abstraction(lua_State * L, int idx, char const * msg) {
+    if (!is_abstraction(to_expr(L, idx)))
+        throw exception(msg);
+}
+
+static int expr_abst_name(lua_State * L) {
+    check_abstraction(L, 1, "invalid abst_name call, expression is not an abstraction");
+    return push_name(L, abst_name(to_expr(L, 1)));
+}
+
+static int expr_abst_domain(lua_State * L) {
+    check_abstraction(L, 1, "invalid abst_domain call, expression is not an abstraction");
+    return push_expr(L, abst_domain(to_expr(L, 1)));
+}
+
+static int expr_abst_body(lua_State * L) {
+    check_abstraction(L, 1, "invalid abst_body call, expression is not an abstraction");
+    return push_expr(L, abst_body(to_expr(L, 1)));
+}
+
 static const struct luaL_Reg expr_m[] = {
     {"__gc",             expr_gc}, // never throws
     {"__tostring",       safe_function<expr_tostring>},
@@ -635,6 +655,9 @@ static const struct luaL_Reg expr_m[] = {
     {"args",             safe_function<expr_args>},
     {"num_args",         safe_function<expr_num_args>},
     {"arg",              safe_function<expr_arg>},
+    {"abst_name",        safe_function<expr_abst_name>},
+    {"abst_domain",      safe_function<expr_abst_domain>},
+    {"abst_body",        safe_function<expr_abst_body>},
     {"for_each",         safe_function<expr_for_each>},
     {"has_free_vars",    safe_function<expr_has_free_vars>},
     {"closed",           safe_function<expr_closed>},

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/expr_pair.h"
 #include "library/ite.h"
 #include "library/kernel_bindings.h"
+#include "library/equality.h"
 
 namespace lean {
 static name g_Hc("Hc"); // auxiliary name for if-then-else
@@ -44,18 +45,18 @@ class to_ceqs_fn {
     }
 
     list<expr_pair> apply(expr const & e, expr const & H) {
-        if (is_eq(e)) {
+        if (is_equality(e)) {
             return mk_singleton(e, H);
         } else if (is_neq(e)) {
             expr T   = arg(e, 1);
             expr lhs = arg(e, 2);
             expr rhs = arg(e, 3);
-            expr new_e = mk_eq(Bool, mk_eq(T, lhs, rhs), False);
+            expr new_e = mk_iff(mk_eq(T, lhs, rhs), False);
             expr new_H = mk_neq_elim_th(T, lhs, rhs, H);
             return mk_singleton(new_e, new_H);
         } else if (is_not(e)) {
             expr a     = arg(e, 1);
-            expr new_e = mk_eq(Bool, a, False);
+            expr new_e = mk_iff(a, False);
             expr new_H = mk_eqf_intro_th(a, H);
             return mk_singleton(new_e, new_H);
         } else if (is_and(e)) {
@@ -99,7 +100,7 @@ class to_ceqs_fn {
                 });
             return append(new_then_ceqs, new_else_ceqs);
         } else {
-            return mk_singleton(mk_eq(Bool, e, True), mk_eqt_intro_th(e, H));
+            return mk_singleton(mk_iff(e, True), mk_eqt_intro_th(e, H));
         }
     }
 public:
@@ -146,8 +147,8 @@ bool is_ceq(ro_environment const & env, expr e) {
         ctx = extend(ctx, abst_name(e), abst_domain(e));
         e = abst_body(e);
     }
-    if (is_eq(e)) {
-        expr lhs = arg(e, 2);
+    expr lhs, rhs;
+    if (is_equality(e, lhs, rhs)) {
         // traverse lhs, and mark all variables that occur there in is_lhs.
         for_each(lhs, visitor_fn);
         return std::find(found_args.begin(), found_args.end(), false) == found_args.end();
@@ -211,13 +212,14 @@ bool is_permutation_ceq(expr e) {
         e = abst_body(e);
         num_args++;
     }
-    if (!is_eq(e))
+    expr lhs, rhs;
+    if (is_equality(e, lhs, rhs)) {
+        buffer<optional<unsigned>> permutation;
+        permutation.resize(num_args);
+        return is_permutation(lhs, rhs, 0, permutation);
+    } else {
         return false;
-    expr lhs = arg(e, 2);
-    expr rhs = arg(e, 3);
-    buffer<optional<unsigned>> permutation;
-    permutation.resize(num_args);
-    return is_permutation(lhs, rhs, 0, permutation);
+    }
 }
 
 static int to_ceqs(lua_State * L) {

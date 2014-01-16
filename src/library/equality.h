@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "library/expr_pair.h"
 
 namespace lean {
-bool is_eq_heq(expr const & e);
-expr_pair eq_heq_args(expr const & e);
+bool is_equality(expr const & e);
+bool is_equality(expr const & e, expr & lhs, expr & rhs);
+expr_pair get_equality_args(expr const & e);
 }

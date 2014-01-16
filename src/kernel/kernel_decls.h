@@ -25,6 +25,10 @@ expr mk_implies_fn();
 bool is_implies_fn(expr const & e);
 inline bool is_implies(expr const & e) { return is_app(e) && is_implies_fn(arg(e, 0)); }
 inline expr mk_implies(expr const & e1, expr const & e2) { return mk_app({mk_implies_fn(), e1, e2}); }
+expr mk_iff_fn();
+bool is_iff_fn(expr const & e);
+inline bool is_iff(expr const & e) { return is_app(e) && is_iff_fn(arg(e, 0)); }
+inline expr mk_iff(expr const & e1, expr const & e2) { return mk_app({mk_iff_fn(), e1, e2}); }
 expr mk_exists_fn();
 bool is_exists_fn(expr const & e);
 inline bool is_exists(expr const & e) { return is_app(e) && is_exists_fn(arg(e, 0)); }

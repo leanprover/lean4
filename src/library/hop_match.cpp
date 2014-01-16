@@ -8,7 +8,8 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "kernel/free_vars.h"
 #include "kernel/instantiate.h"
-#include "library/eq_heq.h"
+#include "kernel/kernel.h"
+#include "library/equality.h"
 #include "library/kernel_bindings.h"
 
 namespace lean {
@@ -183,13 +184,13 @@ class hop_match_fn {
             return true;
         }
 
-        if (is_eq_heq(p) && is_eq_heq(t) && (is_heq(p) || is_heq(t))) {
+        if (is_equality(p) && is_equality(t) && (!is_eq(p) || !is_eq(t))) {
             // Remark: if p and t are homogeneous equality, then we handle as an application (in the else branch)
             // We do that because we can get more information. For example, the pattern
             // may be    (eq #1 a b).
             // This branch ignores the type.
-            expr_pair p1 = eq_heq_args(p);
-            expr_pair p2 = eq_heq_args(t);
+            expr_pair p1 = get_equality_args(p);
+            expr_pair p2 = get_equality_args(t);
             return match(p1.first, p2.first, ctx, ctx_size) && match(p1.second, p2.second, ctx, ctx_size);
         } else {
             if (p.kind() != t.kind())

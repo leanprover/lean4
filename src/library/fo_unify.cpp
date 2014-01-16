@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "library/fo_unify.h"
 #include "library/expr_pair.h"
 #include "library/kernel_bindings.h"
-#include "library/eq_heq.h"
+#include "library/equality.h"
 
 namespace lean {
 static void assign(substitution & s, expr const & mvar, expr const & e) {
@@ -36,9 +36,9 @@ optional<substitution> fo_unify(expr e1, expr e2) {
                 assign(s, e1, e2);
             } else if (is_metavar_wo_local_context(e2)) {
                 assign(s, e2, e1);
-            } else if (is_eq_heq(e1) && is_eq_heq(e2)) {
-                expr_pair p1 = eq_heq_args(e1);
-                expr_pair p2 = eq_heq_args(e2);
+            } else if (is_equality(e1) && is_equality(e2)) {
+                expr_pair p1 = get_equality_args(e1);
+                expr_pair p2 = get_equality_args(e2);
                 todo.emplace_back(p1.second, p2.second);
                 todo.emplace_back(p1.first,  p2.first);
             } else {

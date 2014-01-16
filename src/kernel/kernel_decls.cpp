@@ -12,6 +12,7 @@ MK_CONSTANT(not_fn, name("not"));
 MK_CONSTANT(or_fn, name("or"));
 MK_CONSTANT(and_fn, name("and"));
 MK_CONSTANT(implies_fn, name("implies"));
+MK_CONSTANT(iff_fn, name("iff"));
 MK_CONSTANT(exists_fn, name("exists"));
 MK_CONSTANT(eq_fn, name("eq"));
 MK_CONSTANT(neq_fn, name("neq"));

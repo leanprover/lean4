@@ -21,7 +21,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/update_expr.h"
 #include "library/printer.h"
-#include "library/eq_heq.h"
+#include "library/equality.h"
 #include "library/elaborator/elaborator.h"
 #include "library/elaborator/elaborator_justification.h"
 
@@ -1372,9 +1372,9 @@ class elaborator::imp {
         r = process_metavar(c, b, a, false);
         if (r != Continue) { return r == Processed; }
 
-        if (is_eq_heq(a) && is_eq_heq(b)) {
-            expr_pair p1 = eq_heq_args(a);
-            expr_pair p2 = eq_heq_args(b);
+        if (is_equality(a) && is_equality(b)) {
+            expr_pair p1 = get_equality_args(a);
+            expr_pair p2 = get_equality_args(b);
             justification new_jst(new destruct_justification(c));
             push_new_eq_constraint(ctx, p1.first,  p2.first,  new_jst);
             push_new_eq_constraint(ctx, p1.second, p2.second, new_jst);

@@ -115,33 +115,42 @@ list<expr_pair> to_ceqs(ro_environment const & env, expr const & e, expr const &
 }
 
 bool is_ceq(ro_environment const & env, expr e) {
-    buffer<bool> in_lhs;
+    buffer<bool> found_args;
+    // Define a procedure for marking arguments found.
+    auto visitor_fn = [&](expr const & e, unsigned offset) {
+        if (is_var(e)) {
+            unsigned vidx = var_idx(e);
+            if (vidx >= offset) {
+                vidx -= offset;
+                if (vidx >= found_args.size()) {
+                    // it is a free variable
+                } else {
+                    found_args[found_args.size() - vidx - 1] = true;
+                }
+            }
+        }
+        return true;
+    };
+
     context ctx;
     while (is_pi(e)) {
+        if (!found_args.empty()) {
+            // Support for dependent types.
+            // We may find the instantiation for the previous variables
+            // by matching the type.
+            for_each(abst_domain(e), visitor_fn);
+        }
         // If a variable is a proposition, than if doesn't need to occurr in the lhs.
         // So, we mark it as true.
-        in_lhs.push_back(env->is_proposition(abst_domain(e), ctx));
+        found_args.push_back(env->is_proposition(abst_domain(e), ctx));
         ctx = extend(ctx, abst_name(e), abst_domain(e));
         e = abst_body(e);
     }
     if (is_eq(e)) {
         expr lhs = arg(e, 2);
         // traverse lhs, and mark all variables that occur there in is_lhs.
-        for_each(lhs, [&](expr const & e, unsigned offset) {
-                if (is_var(e)) {
-                    unsigned vidx = var_idx(e);
-                    if (vidx >= offset) {
-                        vidx -= offset;
-                        if (vidx >= in_lhs.size()) {
-                            // it is a free variable
-                        } else {
-                            in_lhs[in_lhs.size() - vidx - 1] = true;
-                        }
-                    }
-                }
-                return true;
-            });
-        return std::find(in_lhs.begin(), in_lhs.end(), false) == in_lhs.end();
+        for_each(lhs, visitor_fn);
+        return std::find(found_args.begin(), found_args.end(), false) == found_args.end();
     } else {
         return false;
     }

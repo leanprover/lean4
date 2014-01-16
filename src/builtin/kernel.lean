@@ -68,7 +68,7 @@ theorem substp {A : TypeU} {a b : A} (P : A → Bool) (H1 : P a) (H2 : a == b) :
 theorem not_intro {a : Bool} (H : a → false) : ¬ a
 := H
 
-theorem eta {A : TypeU} {B : A → TypeU} (f : ∀ x : A, B x) : (λ x : A, f x) == f
+theorem eta {A : TypeU} {B : A → TypeU} (f : ∀ x : A, B x) : (λ x : A, f x) = f
 := funext (λ x : A, refl (f x))
 
 theorem trivial : true

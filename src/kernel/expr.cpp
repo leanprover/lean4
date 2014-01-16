@@ -103,7 +103,6 @@ expr_app::expr_app(unsigned num_args, bool has_mv):
     expr_cell(expr_kind::App, 0, has_mv),
     m_num_args(num_args) {
 }
-expr_app::~expr_app() {}
 void expr_app::dealloc(buffer<expr_cell*> & todelete) {
     unsigned i = m_num_args;
     while (i > 0) {

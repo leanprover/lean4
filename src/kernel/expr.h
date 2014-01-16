@@ -208,7 +208,6 @@ class expr_app : public expr_cell {
     void dealloc(buffer<expr_cell*> & todelete);
 public:
     expr_app(unsigned size, bool has_mv);
-    ~expr_app();
     unsigned     get_num_args() const        { return m_num_args; }
     expr const & get_arg(unsigned idx) const { lean_assert(idx < m_num_args); return m_args[idx]; }
     expr const * begin_args() const          { return m_args; }

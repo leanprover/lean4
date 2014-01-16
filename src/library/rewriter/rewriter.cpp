@@ -7,7 +7,7 @@
   Author: Soonho Kong
 */
 #include "kernel/abstract.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "kernel/context.h"
 #include "kernel/environment.h"
 #include "kernel/expr.h"

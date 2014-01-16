@@ -18,7 +18,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/occurs.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "kernel/io_state.h"
 #include "kernel/type_checker.h"
 #include "library/io_state_stream.h"

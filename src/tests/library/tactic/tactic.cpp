@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/test.h"
 #include "util/interrupt.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "kernel/kernel_exception.h"
 #include "library/io_state_stream.h"
 #include "library/printer.h"

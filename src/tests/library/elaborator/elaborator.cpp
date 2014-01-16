@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/normalizer.h"
 #include "kernel/instantiate.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "library/io_state_stream.h"
 #include "library/placeholder.h"
 #include "library/printer.h"

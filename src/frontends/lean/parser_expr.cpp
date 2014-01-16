@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/free_vars.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "library/placeholder.h"
 #include "library/io_state_stream.h"
 #include "library/arith/nat.h"

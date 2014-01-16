@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_visitor.h"
 #include "kernel/instantiate.h"
 #include "kernel/update_expr.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "library/kernel_bindings.h"
 #include "library/tactic/tactic.h"
 

@@ -15,7 +15,7 @@ Author: Soonho Kong
 #include "kernel/expr.h"
 #include "kernel/replace_fn.h"
 #include "kernel/type_checker.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "library/rewriter/rewriter.h"
 #include "util/exception.h"
 #include "util/scoped_map.h"

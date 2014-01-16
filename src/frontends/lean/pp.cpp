@@ -18,7 +18,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/find_fn.h"
 #include "kernel/occurs.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "kernel/free_vars.h"
 #include "kernel/replace_fn.h"
 #include "library/context_to_lambda.h"

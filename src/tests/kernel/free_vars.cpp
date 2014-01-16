@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/abstract.h"
 #include "kernel/metavar.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 using namespace lean;
 
 static void tst1() {

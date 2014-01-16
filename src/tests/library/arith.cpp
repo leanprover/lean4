@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include "util/thread.h"
 #include "util/test.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "kernel/normalizer.h"
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"

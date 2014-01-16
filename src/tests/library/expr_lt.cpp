@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include "util/test.h"
 #include "kernel/abstract.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "library/expr_lt.h"
 #include "library/arith/nat.h"
 #include "library/arith/int.h"

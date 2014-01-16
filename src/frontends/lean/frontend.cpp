@@ -17,7 +17,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"
 #include "kernel/expr_sets.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "kernel/io_state.h"
 #include "library/io_state_stream.h"
 #include "library/ite.h"

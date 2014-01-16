@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/normalizer.h"
 #include "kernel/instantiate.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "kernel/free_vars.h"
 #include "kernel/type_checker_justification.h"
 

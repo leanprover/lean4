@@ -17,7 +17,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/type_checker.h"
 #include "kernel/kernel_exception.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "kernel/io_state.h"
 #include "library/printer.h"
 #include "library/io_state_stream.h"

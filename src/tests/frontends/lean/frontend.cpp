@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "kernel/abstract.h"
 #include "library/printer.h"
 #include "library/bin_op.h"

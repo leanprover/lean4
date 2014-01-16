@@ -17,7 +17,7 @@ Author: Leonardo de Moura
 #include "kernel/expr_maps.h"
 #include "kernel/context.h"
 #include "kernel/environment.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "kernel/metavar.h"
 #include "kernel/free_vars.h"
 #include "kernel/instantiate.h"

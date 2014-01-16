@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <utility>
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "library/fo_unify.h"
 #include "library/expr_pair.h"
 #include "library/kernel_bindings.h"

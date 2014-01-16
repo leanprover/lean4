@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <utility>
 #include "util/interrupt.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "kernel/abstract.h"
 #include "kernel/occurs.h"
 #include "library/io_state_stream.h"

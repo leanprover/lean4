@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/environment.h"
 #include "kernel/abstract.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "kernel/normalizer.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/type_checker_justification.h"

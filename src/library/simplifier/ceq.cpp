@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/list_fn.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "kernel/free_vars.h"
 #include "kernel/for_each_fn.h"
 #include "library/expr_pair.h"

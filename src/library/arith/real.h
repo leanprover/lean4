@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "util/lua.h"
 #include "util/numerics/mpq.h"
 #include "kernel/expr.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "library/arith/Real_decls.h"
 
 namespace lean {

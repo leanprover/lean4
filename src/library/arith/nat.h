@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/lua.h"
 #include "kernel/expr.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "util/numerics/mpz.h"
 #include "library/arith/Nat_decls.h"
 

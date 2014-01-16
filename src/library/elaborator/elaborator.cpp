@@ -17,7 +17,7 @@ Author: Leonardo de Moura
 #include "kernel/normalizer.h"
 #include "kernel/instantiate.h"
 #include "kernel/replace_fn.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "kernel/type_checker.h"
 #include "kernel/update_expr.h"
 #include "library/printer.h"

@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include "util/test.h"
 #include "kernel/abstract.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "library/printer.h"
 #include "library/io_state_stream.h"
 #include "frontends/lean/frontend.h"

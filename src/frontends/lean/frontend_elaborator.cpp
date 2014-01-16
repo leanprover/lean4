@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_visitor.h"
 #include "kernel/unification_constraint.h"
 #include "kernel/instantiate.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "library/io_state_stream.h"
 #include "library/placeholder.h"
 #include "library/elaborator/elaborator.h"

@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <utility>
 #include "util/sstream.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "kernel/type_checker.h"
 #include "library/io_state_stream.h"
 #include "library/kernel_bindings.h"

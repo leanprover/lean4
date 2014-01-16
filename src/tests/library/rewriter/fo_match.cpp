@@ -9,7 +9,7 @@ Author: Soonho Kong
 #include "kernel/abstract.h"
 #include "kernel/expr.h"
 #include "kernel/metavar.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "library/printer.h"
 #include "library/arith/arith.h"
 #include "library/arith/nat.h"

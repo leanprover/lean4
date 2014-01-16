@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "library/placeholder.h"
 #include "library/io_state_stream.h"
 #include "frontends/lean/parser_calc.h"

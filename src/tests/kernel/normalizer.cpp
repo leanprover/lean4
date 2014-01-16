@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "util/exception.h"
 #include "util/interrupt.h"
 #include "kernel/normalizer.h"
-#include "kernel/builtin.h"
+#include "kernel/kernel.h"
 #include "kernel/expr_sets.h"
 #include "kernel/abstract.h"
 #include "kernel/kernel_exception.h"

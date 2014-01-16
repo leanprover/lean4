@@ -162,6 +162,12 @@ inline expr mk_congr2_th(expr const & e1, expr const & e2, expr const & e3, expr
 expr mk_congr_fn();
 bool is_congr_fn(expr const & e);
 inline expr mk_congr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6, expr const & e7, expr const & e8) { return mk_app({mk_congr_fn(), e1, e2, e3, e4, e5, e6, e7, e8}); }
+expr mk_scongr2_fn();
+bool is_scongr2_fn(expr const & e);
+inline expr mk_scongr2_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_scongr2_fn(), e1, e2, e3, e4, e5, e6}); }
+expr mk_scongr_fn();
+bool is_scongr_fn(expr const & e);
+inline expr mk_scongr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6, expr const & e7, expr const & e8) { return mk_app({mk_scongr_fn(), e1, e2, e3, e4, e5, e6, e7, e8}); }
 expr mk_exists_elim_fn();
 bool is_exists_elim_fn(expr const & e);
 inline expr mk_exists_elim_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_exists_elim_fn(), e1, e2, e3, e4, e5}); }

@@ -41,7 +41,7 @@ definition eq {A : TypeU} (a b : A) := a == b
 
 infix 50 = : eq
 
-definition neq {A : TypeU} (a b : A) := ¬ (a == b)
+definition neq {A : TypeU} (a b : A) := ¬ (a = b)
 
 infix 50 ≠ : neq
 
@@ -50,9 +50,9 @@ theorem em (a : Bool) : a ∨ ¬ a
 
 axiom case (P : Bool → Bool) (H1 : P true) (H2 : P false) (a : Bool) : P a
 
-axiom refl {A : TypeU} (a : A) : a == a
+axiom refl {A : TypeU} (a : A) : a = a
 
-axiom subst {A : TypeU} {a b : A} {P : A → Bool} (H1 : P a) (H2 : a == b) : P b
+axiom subst {A : TypeU} {a b : A} {P : A → Bool} (H1 : P a) (H2 : a = b) : P b
 
 -- Function extensionality
 axiom funext {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} (H : ∀ x : A, f x == g x) : f == g
@@ -61,7 +61,7 @@ axiom funext {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} (H : ∀ x : A
 axiom allext {A : TypeU} {B C : A → TypeU} (H : ∀ x : A, B x == C x) : (∀ x : A, B x) == (∀ x : A, C x)
 
 -- Alias for subst where we can provide P explicitly, but keep A,a,b implicit
-theorem substp {A : TypeU} {a b : A} (P : A → Bool) (H1 : P a) (H2 : a == b) : P b
+theorem substp {A : TypeU} {a b : A} (P : A → Bool) (H1 : P a) (H2 : a = b) : P b
 := subst H1 H2
 
 -- We will mark not as opaque later
@@ -152,10 +152,10 @@ theorem or_elim {a b c : Bool} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
 theorem refute {a : Bool} (H : ¬ a → false) : a
 := or_elim (em a) (λ H1 : a, H1) (λ H1 : ¬ a, false_elim a (H H1))
 
-theorem symm {A : TypeU} {a b : A} (H : a == b) : b == a
+theorem symm {A : TypeU} {a b : A} (H : a = b) : b = a
 := subst (refl a) H
 
-theorem trans {A : TypeU} {a b c : A} (H1 : a == b) (H2 : b == c) : a == c
+theorem trans {A : TypeU} {a b c : A} (H1 : a = b) (H2 : b = c) : a = c
 := subst H1 H2
 
 infixl 100 ⋈ : trans
@@ -175,14 +175,23 @@ theorem eqt_elim {a : Bool} (H : a = true) : a
 theorem eqf_elim {a : Bool} (H : a = false) : ¬ a
 := not_intro (λ Ha : a, H ◂ Ha)
 
-theorem congr1 {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} (a : A) (H : f == g) : f a == g a
-:= substp (fun h : (∀ x : A, B x), f a == h a) (refl (f a)) H
+theorem congr1 {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} (a : A) (H : f = g) : f a = g a
+:= substp (fun h : (∀ x : A, B x), f a = h a) (refl (f a)) H
 
-theorem congr2 {A : TypeU} {B : A → TypeU} {a b : A} (f : ∀ x : A, B x) (H : a == b) : f a == f b
+-- We must use heterogenous equality in this theorem because (f a) : (B a) and (f b) : (B b)
+theorem congr2 {A : TypeU} {B : A → TypeU} {a b : A} (f : ∀ x : A, B x) (H : a = b) : f a == f b
 := substp (fun x : A, f a == f x) (refl (f a)) H
 
-theorem congr {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} {a b : A} (H1 : f == g) (H2 : a == b) : f a == g b
+theorem congr {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} {a b : A} (H1 : f = g) (H2 : a = b) : f a == g b
 := subst (congr2 f H2) (congr1 b H1)
+
+-- Simpler version of congr2 theorem for arrows (i.e., non-dependent types)
+theorem scongr2 {A B : TypeU} {a b : A} (f : A → B) (H : a = b) : f a = f b
+:= substp (fun x : A, f a = f x) (refl (f a)) H
+
+-- Simpler version of congr theorem for arrows (i.e., non-dependent types)
+theorem scongr {A B : TypeU} {f g : A → B} {a b : A} (H1 : f = g) (H2 : a = b) : f a = g b
+:= subst (scongr2 f H2) (congr1 b H1)
 
 -- Recall that exists is defined as ¬ ∀ x : A, ¬ P x
 theorem exists_elim {A : TypeU} {P : A → Bool} {B : Bool} (H1 : Exists A P) (H2 : ∀ (a : A) (H : P a), B) : B

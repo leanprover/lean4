@@ -57,6 +57,8 @@ MK_CONSTANT(eqf_elim_fn, name("eqf_elim"));
 MK_CONSTANT(congr1_fn, name("congr1"));
 MK_CONSTANT(congr2_fn, name("congr2"));
 MK_CONSTANT(congr_fn, name("congr"));
+MK_CONSTANT(scongr2_fn, name("scongr2"));
+MK_CONSTANT(scongr_fn, name("scongr"));
 MK_CONSTANT(exists_elim_fn, name("exists_elim"));
 MK_CONSTANT(exists_intro_fn, name("exists_intro"));
 MK_CONSTANT(boolext_fn, name("boolext"));

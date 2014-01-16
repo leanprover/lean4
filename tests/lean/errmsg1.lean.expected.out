@@ -9,5 +9,5 @@ errmsg1.lean:5:11: error: failed to synthesize metavar M::0, it could not be syn
     λ (A : Type) (x : A), ?M::0
     errmsg1.lean:6:3: error: unsolved metavar M::0
 errmsg1.lean:8:0: error: invalid definition, type still contains metavariables after elaboration
-    ∀ x : ?M::3, @eq ?M::3 x x
-    errmsg1.lean:8:34: error: unsolved metavar M::3
+    ∀ x : ?M::1, @eq ?M::1 x x
+    errmsg1.lean:8:22: error: unsolved metavar M::1

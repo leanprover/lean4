@@ -4,7 +4,7 @@
   Using: Nat
   Assumed: Induction
 Failed to solve
- ⊢ ∀ m : ℕ, 0 + m == m + 0 ≺ ?M::3 0
+ ⊢ ∀ m : ℕ, 0 + m = m + 0 ≺ ?M::3 0
     induction2.lean:10:3: Type of argument 2 must be convertible to the expected type in the application of
         Induction
     with arguments:
@@ -23,7 +23,8 @@ Failed to solve
                          (@subst ?M::14
                                  ?M::15
                                  ?M::16
-                                 (λ x : ?M::14, (?M::48[lift:0:1]) x == (?M::49[lift:0:1]) x)
+                                 (λ x : ?M::14,
+                                    @eq ((?M::48[lift:0:1]) x) ((?M::49[lift:0:1]) x) ((?M::50[lift:0:1]) x))
                                  (refl (n + m + 1))
                                  iH))
                  (symm (Nat::add_succr m n))

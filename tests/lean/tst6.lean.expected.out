@@ -43,14 +43,14 @@ theorem Example2 (a b c d : N) (H : @eq N a b ∧ @eq N b c ∨ @eq N a d ∧ @e
                         b
                         c
                         b
-                        (@trans N a b c (@and_eliml (a == b) (@eq N b c) H1) (@and_elimr (@eq N a b) (b == c) H1))
+                        (@trans N a b c (@and_eliml (@eq N a b) (@eq N b c) H1) (@and_elimr (@eq N a b) (@eq N b c) H1))
                         (@refl N b))
              (λ H1 : @eq N a d ∧ @eq N d c,
                 @congrH a
                         b
                         c
                         b
-                        (@trans N a d c (@and_eliml (a == d) (@eq N d c) H1) (@and_elimr (@eq N a d) (d == c) H1))
+                        (@trans N a d c (@and_eliml (@eq N a d) (@eq N d c) H1) (@and_elimr (@eq N a d) (@eq N d c) H1))
                         (@refl N b))
   Proved: Example3
   Set: lean::pp::implicit

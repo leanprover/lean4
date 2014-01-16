@@ -2,9 +2,3 @@
   Set: pp::unicode
   Imported 'Int'
   Assumed: f
-  Proved: T1
-  Proved: T2
-theorem T1 (a b c : ℤ) (H1 : a = b) (H2 : a = c) : f (f a a) b = f (f b c) a :=
-    congr (congr (refl f) (congr (congr (refl f) H1) H2)) (symm H1)
-theorem T2 (a b c : ℤ) (H1 : a = b) (H2 : a = c) : f (f a c) = f (f b a) :=
-    congr (refl f) (congr (congr (refl f) H1) (symm H2))

@@ -37,7 +37,7 @@ Failed to solve
  ⊢ ∀ H1 : ?M::0, ?M::1 ∧ a ≺ b
     elab1.lean:18:18: Type of definition 't1' must be convertible to expected type.
 Failed to solve
- ⊢ b == b ≺ a == b
+ ⊢ @eq ?M::6 b b ≺ @eq ?M::1 a b
     elab1.lean:20:22: Type of argument 6 must be convertible to the expected type in the application of
         @trans
     with arguments:
@@ -45,7 +45,7 @@ Failed to solve
         a
         a
         b
-        @refl ?M::5 a
+        @refl ?M::1 a
         @refl ?M::6 b
 Failed to solve
  ⊢ ?M::1 ≺ Type

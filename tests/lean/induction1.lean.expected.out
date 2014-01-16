@@ -8,7 +8,7 @@
 theorem Comm2 : ∀ n m : ℕ, n + m = m + n :=
     λ n : ℕ,
       Induction
-          (λ x : ℕ, n + x == x + n)
+          (λ x : ℕ, n + x = x + n)
           (Nat::add_zeror n ⋈ symm (Nat::add_zerol n))
           (λ (m : ℕ) (iH : n + m = m + n),
              Nat::add_succr n m ⋈ subst (refl (n + m + 1)) iH ⋈ symm (Nat::add_succl m n))

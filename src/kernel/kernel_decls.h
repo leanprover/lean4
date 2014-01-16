@@ -151,6 +151,15 @@ inline expr mk_eq_ne_trans_th(expr const & e1, expr const & e2, expr const & e3,
 expr mk_ne_eq_trans_fn();
 bool is_ne_eq_trans_fn(expr const & e);
 inline expr mk_ne_eq_trans_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_ne_eq_trans_fn(), e1, e2, e3, e4, e5, e6}); }
+expr mk_heq_congr_fn();
+bool is_heq_congr_fn(expr const & e);
+inline expr mk_heq_congr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6, expr const & e7) { return mk_app({mk_heq_congr_fn(), e1, e2, e3, e4, e5, e6, e7}); }
+expr mk_heq_congrl_fn();
+bool is_heq_congrl_fn(expr const & e);
+inline expr mk_heq_congrl_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_heq_congrl_fn(), e1, e2, e3, e4, e5}); }
+expr mk_heq_congrr_fn();
+bool is_heq_congrr_fn(expr const & e);
+inline expr mk_heq_congrr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_heq_congrr_fn(), e1, e2, e3, e4, e5}); }
 expr mk_eqt_elim_fn();
 bool is_eqt_elim_fn(expr const & e);
 inline expr mk_eqt_elim_th(expr const & e1, expr const & e2) { return mk_app({mk_eqt_elim_fn(), e1, e2}); }

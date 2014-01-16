@@ -45,7 +45,7 @@ theorem hcongr
        L3 : b == b'                     := cast_eq L2 b,
        L4 : a == b'                     := htrans H2 L3,
        L5 : f a == f b'                 := congr2 f L4,
-       S1 : (∀ x, B' x) == (∀ x, B x)   := symm (type_eq H1),
+       S1 : (∀ x, B' x) == (∀ x, B x)  := symm (type_eq H1),
        g' : (∀ x, B x)                  := cast S1 g,
        L6 : g == g'                     := cast_eq S1 g,
        L7 : f == g'                     := htrans H1 L6,
@@ -53,6 +53,17 @@ theorem hcongr
        L9 : f a == g' b'                := htrans L5 L8,
       L10 : g' b' == g b                := cast_app S1 L2 g b
    in htrans L9 L10
+
+theorem hfunext
+     {A : TypeM} {B B' : A → TypeM} {f : ∀ x : A, B x} {g : ∀ x : A, B' x} (H : ∀ x : A, f x == g x) : f == g
+:= let L1   : (∀ x : A, B x = B' x)             := λ x : A, type_eq (H x),
+       L2   : (∀ x : A, B x) = (∀ x : A, B' x) := allext L1,
+       g'   : (∀ x : A, B x)                    := cast (symm L2) g,
+       Hgg  : g == g'                            := cast_eq (symm L2) g,
+       Hggx : (∀ x : A, g x == g' x)            := λ x : A, hcongr Hgg (refl x) ,
+       L3   : (∀ x : A, f x == g' x)            := λ x : A, htrans (H x) (Hggx x),
+       Hfg  : f == g'                            := funext L3
+   in htrans Hfg (hsymm Hgg)
 
 exit -- Stop here, the following axiom is not sound
 

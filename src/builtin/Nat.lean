@@ -36,7 +36,7 @@ axiom add_zeror (a : Nat)   : a + 0 = a
 axiom add_succr (a b : Nat) : a + (b + 1) = (a + b) + 1
 axiom mul_zeror (a : Nat)    : a * 0 = 0
 axiom mul_succr (a b : Nat)  : a * (b + 1) = a * b + a
-axiom le_def (a b : Nat) : a ≤ b ⟷ ∃ c, a + c = b
+axiom le_def (a b : Nat) : a ≤ b ↔ ∃ c, a + c = b
 axiom induction {P : Nat → Bool} (H1 : P 0) (H2 : ∀ (n : Nat) (iH : P n), P (n + 1)) : ∀ a, P a
 
 theorem induction_on {P : Nat → Bool} (a : Nat) (H1 : P 0) (H2 : ∀ (n : Nat) (iH : P n), P (n + 1)) : P a

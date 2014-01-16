@@ -386,6 +386,22 @@ static void tst19() {
     lean_assert(extend(extend(context(), "a", T2), "b", T2) != context({{"a", T1}, {"b", T2}}));
 }
 
+static void tst20() {
+    expr f = Const("f");
+    expr a = Const("a");
+    expr b = Const("b");
+    expr c = Const("c");
+    buffer<expr> args;
+    args.push_back(f);
+    for (unsigned i = 0; i < 200; i++) {
+        args.push_back(a);
+        args.push_back(b);
+    }
+    args.push_back(c);
+    expr t = mk_app(args);
+    check_serializer(t);
+}
+
 int main() {
     save_stack_info();
     lean_assert(sizeof(expr) == sizeof(optional<expr>));
@@ -408,6 +424,7 @@ int main() {
     tst17();
     tst18();
     tst19();
+    tst20();
     std::cout << "sizeof(expr):            " << sizeof(expr) << "\n";
     std::cout << "sizeof(expr_app):        " << sizeof(expr_app) << "\n";
     std::cout << "sizeof(expr_cell):       " << sizeof(expr_cell) << "\n";

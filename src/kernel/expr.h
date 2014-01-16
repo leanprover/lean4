@@ -544,8 +544,6 @@ inline name const &  metavar_name(expr const & e)         { return to_metavar(e)
 inline local_context const & metavar_lctx(expr const & e) { return to_metavar(e)->get_lctx(); }
 
 inline bool has_metavar(expr const & e) { return e.has_metavar(); }
-
-bool is_heq(expr const & e, expr & lhs, expr & rhs);
 // =======================================
 
 // =======================================

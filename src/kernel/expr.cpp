@@ -279,16 +279,6 @@ bool is_arrow(expr const & t) {
     }
 }
 
-bool is_heq(expr const & e, expr & lhs, expr & rhs) {
-    if (is_heq(e)) {
-        lhs = heq_lhs(e);
-        rhs = heq_rhs(e);
-        return true;
-    } else {
-        return false;
-    }
-}
-
 expr copy(expr const & a) {
     switch (a.kind()) {
     case expr_kind::Var:      return mk_var(var_idx(a));
@@ -465,7 +455,7 @@ public:
                     name n = read_name(d);
                     return mk_metavar(n, read_local_context(d));
                 }}
-                throw_corrupted_file();
+                throw_corrupted_file(); // LCOV_EXCL_LINE
             });
     }
 };

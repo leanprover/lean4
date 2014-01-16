@@ -21,15 +21,18 @@ theorem tcls_refl {A : TypeU} (R : A → A → Bool) : ∀ a, R⁺ a a
 := take a P, assume Hrefl Htrans Hsub,
       Hrefl a
 
-theorem tcls_sub {A : TypeU} {R : A → A → Bool} {a b : A} (H : R a b) : R⁺ a b
-:= take P, assume Hrefl Htrans Hsub,
-      Hsub a b H
+theorem tcls_sub {A : TypeU} (R : A → A → Bool) : R ⊆ R⁺
+:= take a b,
+     assume Hab : R a b,
+          have R⁺ a b :
+             take P, assume Hrefl Htrans Hsub,
+                Hsub a b Hab
 
 theorem tcls_step {A : TypeU} {R : A → A → Bool} {a b c : A} (H1 : R a b) (H2 : R⁺ b c) : R⁺ a c
 := take P, assume Hrefl Htrans Hsub,
       Htrans a b c (Hsub a b H1) (H2 P Hrefl Htrans Hsub)
 
-theorem tcls_smallest {A : TypeU} {R : A → A → Bool} : ∀ P, (reflexive P) → (transitive P) → (R ⊆ P) → (R⁺ ⊆ P)
+theorem tcls_smallest {A : TypeU} (R : A → A → Bool) : ∀ P, (reflexive P) → (transitive P) → (R ⊆ P) → (R⁺ ⊆ P)
 := take P, assume Hrefl Htrans Hsub,
      take a b, assume H : R⁺ a b,
          have P a b : H P Hrefl Htrans Hsub

@@ -261,7 +261,7 @@ static int hop_match(lua_State * L) {
             if (s) {
                 push_expr(L, *s);
             } else {
-                lua_pushnil(L);
+                lua_pushboolean(L, false);
             }
             lua_rawseti(L, -2, i);
             i = i + 1;

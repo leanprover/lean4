@@ -273,7 +273,7 @@ static void match_let_tst1() {
 
 static void match_let_tst2() {
     cout << "--- match_let_tst2() ---" << endl;
-    expr t = HEq(Const("a"), Const("b"));
+    expr t = mk_eq(Const("A"), Const("a"), Const("b"));
     expr l = mk_let("a", Type(), Const("b"), Var(0));
     subst_map s;
     bool result = test_match(l, t, 0, s);
@@ -283,7 +283,7 @@ static void match_let_tst2() {
 
 static void match_let_tst3() {
     cout << "--- match_let_tst3() ---" << endl;
-    expr t = HEq(Const("a"), Const("b"));
+    expr t = mk_eq(Const("A"), Const("a"), Const("b"));
     expr l1 = mk_let("a", Var(0), Const("b"), Var(0));
     expr l2 = mk_let("a", Int, Const("b"), Var(0));
     subst_map s;
@@ -295,7 +295,7 @@ static void match_let_tst3() {
 
 static void match_let_tst4() {
     cout << "--- match_let_tst4() ---" << endl;
-    expr t = HEq(Const("a"), Const("b"));
+    expr t = mk_eq(Const("A"), Const("a"), Const("b"));
     expr l1 = mk_let("a", Nat, Const("b"), Var(0));
     expr l2 = mk_let("a", Int, Const("b"), Var(0));
     subst_map s;
@@ -306,7 +306,7 @@ static void match_let_tst4() {
 
 static void match_let_tst5() {
     cout << "--- match_let_tst5() ---" << endl;
-    expr t = HEq(Const("a"), Const("b"));
+    expr t = mk_eq(Const("A"), Const("a"), Const("b"));
     expr l1 = mk_let("a", Int, Var(3), Var(0));
     expr l2 = mk_let("a", Int, Const("b"), Const("b"));
     subst_map s;
@@ -317,7 +317,7 @@ static void match_let_tst5() {
 
 static void match_let_tst6() {
     cout << "--- match_let_tst6() ---" << endl;
-    expr t = HEq(Const("a"), Const("b"));
+    expr t = mk_eq(Const("A"), Const("a"), Const("b"));
     expr l1 = mk_let("a", Var(0), Var(1), Var(0));
     expr l2 = mk_let("a", Int, Const("b"), Const("b"));
     subst_map s;
@@ -328,7 +328,7 @@ static void match_let_tst6() {
 
 static void match_let_tst7() {
     cout << "--- match_let_tst7() ---" << endl;
-    expr t = HEq(Const("a"), Const("b"));
+    expr t = mk_eq(Const("A"), Const("a"), Const("b"));
     expr l1 = mk_let("a", Var(0), Var(1), Var(0));
     expr l2 = mk_let("a", Int, Const("b"), Var(0));
     subst_map s;
@@ -341,7 +341,7 @@ static void match_let_tst7() {
 
 static void match_let_tst8() {
     cout << "--- match_let_tst8() ---" << endl;
-    expr t = HEq(Const("a"), Const("b"));
+    expr t = mk_eq(Const("A"), Const("a"), Const("b"));
     expr l1 = mk_let("a", Nat, Var(1), Var(0));
     expr l2 = mk_let("a", Int, Const("b"), Var(0));
     subst_map s;
@@ -352,7 +352,7 @@ static void match_let_tst8() {
 
 static void match_let_tst9() {
     cout << "--- match_let_tst9() ---" << endl;
-    expr t = HEq(Const("a"), Const("b"));
+    expr t = mk_eq(Const("A"), Const("a"), Const("b"));
     expr l1 = mk_let("a", Var(0), Var(0), Var(0));
     expr l2 = mk_let("a", Nat, Const("b"), Const("a"));
     subst_map s;
@@ -367,7 +367,7 @@ static void match_eq_tst1() {
     expr f = Const("f");
     expr a = Const("a");
     subst_map s;
-    bool result = test_match(mk_heq(x, a), mk_heq(f, a), 0, s);
+    bool result = test_match(mk_eq(Const("A"), x, a), mk_eq(Const("A"), f, a), 0, s);
     lean_assert_eq(result, true);
     lean_assert_eq(s.find(0)->second, f);
     lean_assert_eq(s.size(), 1);
@@ -379,7 +379,7 @@ static void match_eq_tst2() {
     expr f = Const("f");
     expr a = Const("a");
     subst_map s;
-    bool result = test_match(mk_heq(mk_Nat_add(x, a), x), mk_heq(mk_Nat_add(f, a), f), 0, s);
+    bool result = test_match(mk_eq(Nat, mk_Nat_add(x, a), x), mk_eq(Nat, mk_Nat_add(f, a), f), 0, s);
     lean_assert_eq(result, true);
     lean_assert_eq(s.find(0)->second, f);
     lean_assert_eq(s.size(), 1);
@@ -391,7 +391,7 @@ static void match_eq_tst3() {
     expr f = Const("f");
     expr a = Const("a");
     subst_map s;
-    bool result = test_match(mk_heq(mk_Nat_add(x, a), x), f, 0, s);
+    bool result = test_match(mk_eq(Nat, mk_Nat_add(x, a), x), f, 0, s);
     lean_assert_eq(result, false);
     lean_assert_eq(s.empty(), true);
 }

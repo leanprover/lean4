@@ -309,16 +309,6 @@ class normalizer::imp {
             }
             break;
         }
-        case expr_kind::HEq: {
-            expr new_lhs = normalize(heq_lhs(a), s, k);
-            expr new_rhs = normalize(heq_rhs(a), s, k);
-            if (is_value(new_lhs) && is_value(new_rhs) && !is_closure(new_lhs) && !is_closure(new_rhs) && typeid(to_value(new_lhs)) == typeid(to_value(new_rhs))) {
-                r = mk_bool_value(new_lhs == new_rhs);
-            } else {
-                r = mk_heq(new_lhs, new_rhs);
-            }
-            break;
-        }
         case expr_kind::Let: {
             expr v = normalize(let_value(a), s, k);
             {

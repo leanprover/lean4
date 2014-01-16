@@ -1,4 +1,8 @@
 -- Output a C++ statement that creates the given name
+function sanitize(s)
+   s, _ = string.gsub(s, "'", "_")
+   return s
+end
 function name_to_cpp_expr(n)
    function rec(n)
       if not n:is_atomic() then
@@ -6,7 +10,8 @@ function name_to_cpp_expr(n)
          io.write(", ")
       end
       if n:is_string() then
-         io.write("\"" .. n:get_string() .. "\"")
+         local s = n:get_string()
+         io.write("\"" .. sanitize(s) .. "\"")
       else
          error("numeral hierarchical names are not supported in the C++ interface: " .. tostring(n))
       end
@@ -31,7 +36,8 @@ function name_to_cpp_decl(n)
       io.write("_")
    end
    if n:is_string() then
-      io.write(n:get_string())
+      local s = n:get_string()
+      io.write(sanitize(s))
    else
       error("numeral hierarchical names are not supported in the C++ interface: " .. tostring(n))
    end

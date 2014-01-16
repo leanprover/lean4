@@ -40,7 +40,7 @@ protected:
             return true;
         case expr_kind::Var:
             return var_idx(e) >= offset;
-        case expr_kind::App: case expr_kind::HEq: case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Let:
+        case expr_kind::App: case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Let:
             break;
         }
 
@@ -77,9 +77,6 @@ protected:
             lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::App:
             result = std::any_of(begin_args(e), end_args(e), [=](expr const & arg){ return apply(arg, offset); });
-            break;
-        case expr_kind::HEq:
-            result = apply(heq_lhs(e), offset) || apply(heq_rhs(e), offset);
             break;
         case expr_kind::Lambda:
         case expr_kind::Pi:
@@ -170,7 +167,7 @@ class free_var_range_fn {
             return 0;
         case expr_kind::Var:
             return var_idx(e) + 1;
-        case expr_kind::MetaVar: case expr_kind::App: case expr_kind::HEq:
+        case expr_kind::MetaVar: case expr_kind::App:
         case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Let:
             break;
         }
@@ -202,9 +199,6 @@ class free_var_range_fn {
         case expr_kind::App:
             for (auto const & c : args(e))
                 result = std::max(result, apply(c));
-            break;
-        case expr_kind::HEq:
-            result = std::max(apply(heq_lhs(e)), apply(heq_rhs(e)));
             break;
         case expr_kind::Lambda:
         case expr_kind::Pi:
@@ -287,7 +281,7 @@ protected:
                 return true; // assume that any free variable can occur in the metavariable
         case expr_kind::Var:
             return in_interval(var_idx(e), offset);
-        case expr_kind::App: case expr_kind::HEq: case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Let:
+        case expr_kind::App: case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Let:
             break;
         }
 
@@ -325,9 +319,6 @@ protected:
         }
         case expr_kind::App:
             result = std::any_of(begin_args(e), end_args(e), [=](expr const & arg){ return apply(arg, offset); });
-            break;
-        case expr_kind::HEq:
-            result = apply(heq_lhs(e), offset) || apply(heq_rhs(e), offset);
             break;
         case expr_kind::Lambda:
         case expr_kind::Pi:

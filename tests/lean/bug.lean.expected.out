@@ -1,11 +1,10 @@
   Set: pp::colors
   Set: pp::unicode
 Failed to solve
-A : (Type U), A' : (Type U), H : A == A' ⊢ ?M::3 ≺ TypeU
-    bug.lean:1:44: Type of argument 1 must be convertible to the expected type in the application of
-        @symm
+A : (Type U'), A' : (Type U') ⊢ ?M::4 ≺ (Type U')
+    bug.lean:1:37: Type of argument 1 must be convertible to the expected type in the application of
+        @eq
     with arguments:
         ?M::0
         A
         A'
-        H

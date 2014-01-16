@@ -1,13 +1,10 @@
   Set: pp::colors
   Set: pp::unicode
-  Imported 'cast'
   Assumed: Vector
   Assumed: n
   Assumed: v1
   Assumed: v2
   Assumed: v3
+  Assumed: cast
   Assumed: H1
   Assumed: H2
-htrans H1 H2 : v1 == v3
-  Set: lean::pp::implicit
-@htrans (Vector n) (Vector (n + 0)) (Vector (0 + n)) v1 v2 v3 H1 H2 : v1 == v3

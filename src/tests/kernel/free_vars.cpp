@@ -75,11 +75,9 @@ static void tst4() {
     lean_assert(fn(Fun({x, Type()}, Var(0))) == 0);
     lean_assert(fn(Fun({x, Var(0)}, Var(0))) == 1);
     lean_assert(fn(Fun({x, Var(0)}, Var(2))) == 2);
-    lean_assert(fn(Fun({x, Var(0)}, HEq(Var(2), Var(1)))) == 2);
     lean_assert(fn(Pi({x, Type()}, Var(0))) == 0);
     lean_assert(fn(Pi({x, Var(0)}, Var(0))) == 1);
     lean_assert(fn(Pi({x, Var(0)}, Var(2))) == 2);
-    lean_assert(fn(Pi({x, Var(0)}, HEq(Var(2), Var(1)))) == 2);
     context ctx;
     ctx = extend(ctx, name("x"), Bool);
     ctx = extend(ctx, name("y"), Bool);

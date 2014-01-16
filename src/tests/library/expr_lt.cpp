@@ -34,10 +34,6 @@ static void tst1() {
     lt(Const("a"), Const("b"), true);
     lt(Const("a"), Const("a"), false);
     lt(Var(1), Const("a"), true);
-    lt(HEq(Var(0), Var(1)), HEq(Var(1), Var(1)), true);
-    lt(HEq(Var(1), Var(0)), HEq(Var(1), Var(1)), true);
-    lt(HEq(Var(1), Var(1)), HEq(Var(1), Var(1)), false);
-    lt(HEq(Var(2), Var(1)), HEq(Var(1), Var(1)), false);
     lt(Const("f")(Var(0)), Const("f")(Var(0), Const("a")), true);
     lt(Const("f")(Var(0), Const("a"), Const("b")), Const("f")(Var(0), Const("a")), false);
     lt(Const("f")(Var(0), Const("a")), Const("g")(Var(0), Const("a")), true);

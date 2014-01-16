@@ -4,4 +4,4 @@
   Assumed: g
 ∀ a b : Type, ∃ c : Type, g a b = f c
 ∀ a b : Type, ∃ c : Type, g a b = f c : Bool
-∀ (a b : Type), (∀ (x : Type), g a b == f x → ⊥) → ⊥
+∀ (a b : Type), (∀ (x : Type), g a b = f x → ⊥) → ⊥

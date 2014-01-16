@@ -85,10 +85,6 @@ class for_each_fn {
                 }
                 goto begin_loop;
             }
-            case expr_kind::HEq:
-                todo.emplace_back(heq_rhs(e), offset);
-                todo.emplace_back(heq_lhs(e), offset);
-                goto begin_loop;
             case expr_kind::Lambda:
             case expr_kind::Pi:
                 todo.emplace_back(abst_body(e), offset + 1);

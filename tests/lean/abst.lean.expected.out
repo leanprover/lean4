@@ -3,7 +3,7 @@
   Imported 'Int'
   Assumed: PlusComm
   Assumed: a
-funext (λ x : ℤ, PlusComm a x) : (λ x : ℤ, a + x) == (λ x : ℤ, x + a)
+funext (λ x : ℤ, PlusComm a x) : (λ x : ℤ, a + x) = (λ x : ℤ, x + a)
   Set: lean::pp::implicit
 @funext ℤ (λ x : ℤ, ℤ) (λ x : ℤ, a + x) (λ x : ℤ, x + a) (λ x : ℤ, PlusComm a x) :
-    (λ x : ℤ, a + x) == (λ x : ℤ, x + a)
+    @eq (∀ x : ℤ, (λ x : ℤ, ℤ) x) (λ x : ℤ, a + x) (λ x : ℤ, x + a)

@@ -44,10 +44,18 @@ void calc_proof_parser::add_trans_step(expr const & op1, expr const & op2, trans
     m_trans_ops.emplace_front(op1, op2, d);
 }
 
+static expr get_value_op(expr const & op) {
+    if (is_value(op))
+        return mk_constant(to_value(op).get_name());
+    else
+        return op;
+}
+
+
 calc_proof_parser::calc_proof_parser() {
-    expr imp = mk_implies_fn();
-    expr eq  = mk_eq_fn();
-    expr neq = mk_neq_fn();
+    expr imp = get_value_op(mk_implies_fn());
+    expr eq  = get_value_op(mk_eq_fn());
+    expr neq = get_value_op(mk_neq_fn());
 
     add_supported_operator(op_data(imp, 2));
     add_supported_operator(op_data(eq, 3));

@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 bool is_equality(expr const & e) {
-    return is_eq(e) || is_iff(e) || is_heq(e);
+    return is_eq(e) || is_iff(e);
 }
 
 bool is_equality(expr const & e, expr & lhs, expr & rhs) {
@@ -21,10 +21,6 @@ bool is_equality(expr const & e, expr & lhs, expr & rhs) {
         lhs = arg(e, 1);
         rhs = arg(e, 2);
         return true;
-    } else if (is_heq(e)) {
-        lhs = heq_lhs(e);
-        rhs = heq_rhs(e);
-        return true;
     } else {
         return false;
     }
@@ -35,8 +31,6 @@ expr_pair get_equality_args(expr const & e) {
         return mk_pair(arg(e, 2), arg(e, 3));
     } else if (is_iff(e)) {
         return mk_pair(arg(e, 1), arg(e, 2));
-    } else if (is_heq(e)) {
-        return mk_pair(heq_lhs(e), heq_rhs(e));
     } else {
         lean_unreachable(); // LCOV_EXCL_LINE
     }

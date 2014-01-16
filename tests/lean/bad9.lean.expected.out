@@ -3,6 +3,6 @@
   Set: lean::pp::implicit
   Set: pp::colors
   Assumed: N
-λ (a : N) (f : N → N) (H : f a == a),
-  let calc1 : f a == a := @substp N (f a) a (λ x : N, f a == x) (@refl N (f a)) H in calc1 :
-    ∀ (a : N) (f : N → N), f a == a → f a == a
+λ (a : N) (f : N → N) (H : @eq N (f a) a),
+  let calc1 : @eq N (f a) a := @substp N (f a) a (λ x : N, @eq N (f a) x) (@refl N (f a)) H in calc1 :
+    ∀ (a : N) (f : N → N), @eq N (f a) a → @eq N (f a) a

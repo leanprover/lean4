@@ -141,17 +141,6 @@ expr mk_app(unsigned n, expr const * as) {
     to_app(r)->m_hash = hash_args(new_n, m_args);
     return r;
 }
-expr_heq::expr_heq(expr const & lhs, expr const & rhs):
-    expr_cell(expr_kind::HEq, ::lean::hash(lhs.hash(), rhs.hash()), lhs.has_metavar() || rhs.has_metavar()),
-    m_lhs(lhs),
-    m_rhs(rhs) {
-}
-expr_heq::~expr_heq() {}
-void expr_heq::dealloc(buffer<expr_cell*> & todelete) {
-    dec_ref(m_rhs, todelete);
-    dec_ref(m_lhs, todelete);
-    delete(this);
-}
 expr_abstraction::expr_abstraction(expr_kind k, name const & n, expr const & t, expr const & b):
     expr_cell(k, ::lean::hash(t.hash(), b.hash()), t.has_metavar() || b.has_metavar()),
     m_name(n),
@@ -245,7 +234,6 @@ void expr_cell::dealloc() {
             case expr_kind::MetaVar:    delete static_cast<expr_metavar*>(it); break;
             case expr_kind::Type:       delete static_cast<expr_type*>(it); break;
             case expr_kind::Constant:   static_cast<expr_const*>(it)->dealloc(todo); break;
-            case expr_kind::HEq:        static_cast<expr_heq*>(it)->dealloc(todo); break;
             case expr_kind::App:        static_cast<expr_app*>(it)->dealloc(todo); break;
             case expr_kind::Lambda:     static_cast<expr_lambda*>(it)->dealloc(todo); break;
             case expr_kind::Pi:         static_cast<expr_pi*>(it)->dealloc(todo); break;
@@ -285,7 +273,6 @@ expr copy(expr const & a) {
     case expr_kind::Type:     return mk_type(ty_level(a));
     case expr_kind::Value:    return mk_value(static_cast<expr_value*>(a.raw())->m_val);
     case expr_kind::App:      return mk_app(num_args(a), begin_args(a));
-    case expr_kind::HEq:      return mk_heq(heq_lhs(a), heq_rhs(a));
     case expr_kind::Lambda:   return mk_lambda(abst_name(a), abst_domain(a), abst_body(a));
     case expr_kind::Pi:       return mk_pi(abst_name(a), abst_domain(a), abst_body(a));
     case expr_kind::Let:      return mk_let(let_name(a), let_type(a), let_value(a), let_body(a));
@@ -330,7 +317,7 @@ constexpr char g_first_app_size_kind = 32;
 constexpr char g_small_app_num_args  = 32;
 constexpr bool is_small(expr_kind k) { return 0 <= static_cast<char>(k) && static_cast<char>(k) < g_first_app_size_kind; }
 static_assert(is_small(expr_kind::Var) && is_small(expr_kind::Constant) && is_small(expr_kind::Value) && is_small(expr_kind::App) &&
-              is_small(expr_kind::Lambda) && is_small(expr_kind::Pi) && is_small(expr_kind::Type) && is_small(expr_kind::HEq) &&
+              is_small(expr_kind::Lambda) && is_small(expr_kind::Pi) && is_small(expr_kind::Type) &&
               is_small(expr_kind::Let) && is_small(expr_kind::MetaVar), "expr_kind is too big");
 
 class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp> {
@@ -373,7 +360,6 @@ class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp
                     for (unsigned i = 0; i < num_args(a); i++)
                         write_core(arg(a, i));
                     break;
-                case expr_kind::HEq:       write_core(heq_lhs(a)); write_core(heq_rhs(a)); break;
                 case expr_kind::Lambda:
                 case expr_kind::Pi:        s << abst_name(a); write_core(abst_domain(a)); write_core(abst_body(a)); break;
                 case expr_kind::Let:       s << let_name(a); write_core(let_type(a)); write_core(let_value(a)); write_core(let_body(a)); break;
@@ -429,10 +415,6 @@ public:
                     for (unsigned i = 0; i < num; i++)
                         args.push_back(read());
                     return mk_app(args);
-                }
-                case expr_kind::HEq: {
-                    expr lhs = read();
-                    return mk_heq(lhs, read());
                 }
                 case expr_kind::Lambda: {
                     name n = read_name(d);

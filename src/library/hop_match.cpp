@@ -216,8 +216,6 @@ class hop_match_fn {
                 }
                 return true;
             }
-            case expr_kind::HEq:
-                lean_unreachable(); break; // LCOV_EXCL_LINE
             case expr_kind::Lambda: case expr_kind::Pi:
                 return
                     match(abst_domain(p), abst_domain(t), ctx, ctx_size) &&

@@ -7,7 +7,7 @@ variable H : (N -> N -> N) -> N
 eval fun f : N -> N, (fun x y : N, g x) (f a)
 eval fun (a : N) (f : N -> N) (g : (N -> N) -> N -> N) (h : N -> N -> N),
      (fun (x : N) (y : N) (z : N), h x y) (g (fun x : N, f (f x)) (f a)) (f a)
-eval fun (a b : N) (g : Bool -> N), (fun x y : Bool, g x) (a == b)
+eval fun (a b : N) (g : Bool -> N), (fun x y : Bool, g x) (a = b)
 eval fun (a : Type) (b : a -> Type) (g : (Type U) -> Bool), (fun x y : (Type U), g x) (forall x : a, b x)
 eval fun f : N -> N, (fun x y z : N, g x) (f a)
 eval fun f g : N -> N, (fun x y z : N, g x) (f a)

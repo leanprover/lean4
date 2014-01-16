@@ -9,6 +9,8 @@ expr mk_Bool();
 bool is_Bool(expr const & e);
 expr mk_TypeU();
 bool is_TypeU(expr const & e);
+expr mk_TypeU_();
+bool is_TypeU_(expr const & e);
 expr mk_not_fn();
 bool is_not_fn(expr const & e);
 inline bool is_not(expr const & e) { return is_app(e) && is_not_fn(arg(e, 0)); }
@@ -21,6 +23,10 @@ expr mk_and_fn();
 bool is_and_fn(expr const & e);
 inline bool is_and(expr const & e) { return is_app(e) && is_and_fn(arg(e, 0)); }
 inline expr mk_and(expr const & e1, expr const & e2) { return mk_app({mk_and_fn(), e1, e2}); }
+expr mk_neq_fn();
+bool is_neq_fn(expr const & e);
+inline bool is_neq(expr const & e) { return is_app(e) && is_neq_fn(arg(e, 0)); }
+inline expr mk_neq(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_neq_fn(), e1, e2, e3}); }
 expr mk_implies_fn();
 bool is_implies_fn(expr const & e);
 inline bool is_implies(expr const & e) { return is_app(e) && is_implies_fn(arg(e, 0)); }
@@ -33,14 +39,6 @@ expr mk_exists_fn();
 bool is_exists_fn(expr const & e);
 inline bool is_exists(expr const & e) { return is_app(e) && is_exists_fn(arg(e, 0)); }
 inline expr mk_exists(expr const & e1, expr const & e2) { return mk_app({mk_exists_fn(), e1, e2}); }
-expr mk_eq_fn();
-bool is_eq_fn(expr const & e);
-inline bool is_eq(expr const & e) { return is_app(e) && is_eq_fn(arg(e, 0)); }
-inline expr mk_eq(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_eq_fn(), e1, e2, e3}); }
-expr mk_neq_fn();
-bool is_neq_fn(expr const & e);
-inline bool is_neq(expr const & e) { return is_app(e) && is_neq_fn(arg(e, 0)); }
-inline expr mk_neq(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_neq_fn(), e1, e2, e3}); }
 expr mk_em_fn();
 bool is_em_fn(expr const & e);
 inline expr mk_em_th(expr const & e1) { return mk_app({mk_em_fn(), e1}); }
@@ -151,15 +149,6 @@ inline expr mk_eq_ne_trans_th(expr const & e1, expr const & e2, expr const & e3,
 expr mk_ne_eq_trans_fn();
 bool is_ne_eq_trans_fn(expr const & e);
 inline expr mk_ne_eq_trans_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_ne_eq_trans_fn(), e1, e2, e3, e4, e5, e6}); }
-expr mk_heq_congr_fn();
-bool is_heq_congr_fn(expr const & e);
-inline expr mk_heq_congr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6, expr const & e7) { return mk_app({mk_heq_congr_fn(), e1, e2, e3, e4, e5, e6, e7}); }
-expr mk_heq_congrl_fn();
-bool is_heq_congrl_fn(expr const & e);
-inline expr mk_heq_congrl_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_heq_congrl_fn(), e1, e2, e3, e4, e5}); }
-expr mk_heq_congrr_fn();
-bool is_heq_congrr_fn(expr const & e);
-inline expr mk_heq_congrr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_heq_congrr_fn(), e1, e2, e3, e4, e5}); }
 expr mk_eqt_elim_fn();
 bool is_eqt_elim_fn(expr const & e);
 inline expr mk_eqt_elim_th(expr const & e1, expr const & e2) { return mk_app({mk_eqt_elim_fn(), e1, e2}); }
@@ -175,12 +164,6 @@ inline expr mk_congr2_th(expr const & e1, expr const & e2, expr const & e3, expr
 expr mk_congr_fn();
 bool is_congr_fn(expr const & e);
 inline expr mk_congr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6, expr const & e7, expr const & e8) { return mk_app({mk_congr_fn(), e1, e2, e3, e4, e5, e6, e7, e8}); }
-expr mk_scongr2_fn();
-bool is_scongr2_fn(expr const & e);
-inline expr mk_scongr2_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_scongr2_fn(), e1, e2, e3, e4, e5, e6}); }
-expr mk_scongr_fn();
-bool is_scongr_fn(expr const & e);
-inline expr mk_scongr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6, expr const & e7, expr const & e8) { return mk_app({mk_scongr_fn(), e1, e2, e3, e4, e5, e6, e7, e8}); }
 expr mk_exists_elim_fn();
 bool is_exists_elim_fn(expr const & e);
 inline expr mk_exists_elim_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_exists_elim_fn(), e1, e2, e3, e4, e5}); }

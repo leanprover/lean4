@@ -21,7 +21,7 @@ assert(env:is_proposition(parse_lean([[true -> false]])))
 assert(env:is_proposition(parse_lean([[Nat -> false]])))
 assert(not env:is_proposition(parse_lean([[true -> Nat]])))
 assert(not env:is_proposition(parse_lean([[Type]])))
-assert(env:is_proposition(parse_lean([[0 == 1]])))
+assert(env:is_proposition(parse_lean([[0 = 1]])))
 assert(env:is_proposition(parse_lean([[q]])))
 
 

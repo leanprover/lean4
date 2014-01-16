@@ -64,7 +64,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 static format g_Type_fmt      = highlight_builtin(format("Type"));
-static format g_eq_fmt        = format("==");
 static format g_lambda_n_fmt  = highlight_keyword(format("\u03BB"));
 static format g_Pi_n_fmt      = highlight_keyword(format("\u2200"));
 static format g_lambda_fmt    = highlight_keyword(format("fun"));
@@ -234,7 +233,7 @@ class pp_fn {
                 return is_atomic(arg(e, 1));
             else
                 return false;
-        case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::HEq: case expr_kind::Let:
+        case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Let:
             return false;
         }
         return false;
@@ -441,8 +440,6 @@ class pp_fn {
         operator_info op = get_operator(e);
         if (op) {
             return op.get_precedence();
-        } else if (is_heq(e)) {
-            return g_eq_precedence;
         } else if (is_arrow(e)) {
             return g_arrow_precedence;
         } else if (is_lambda(e) || is_pi(e) || is_let(e) || is_exists(e)) {
@@ -459,8 +456,6 @@ class pp_fn {
         operator_info op = get_operator(e);
         if (op) {
             return op.get_fixity() == fx;
-        } else if (is_heq(e)) {
-            return fixity::Infix == fx;
         } else if (is_arrow(e)) {
             return fixity::Infixr == fx;
         } else {
@@ -1021,28 +1016,6 @@ class pp_fn {
         return mk_pair(group(r_format), r_weight);
     }
 
-    /** \brief Pretty print the child of an equality. */
-    result pp_heq_child(expr const & e, unsigned depth) {
-        if (is_atomic(e)) {
-            return pp(e, depth + 1);
-        } else {
-            if (g_eq_precedence < get_operator_precedence(e))
-                return pp(e, depth + 1);
-            else
-                return pp_child_with_paren(e, depth);
-        }
-    }
-
-    /** \brief Pretty print an equality */
-    result pp_heq(expr const & e, unsigned depth) {
-        result p_arg1, p_arg2;
-        format r_format;
-        p_arg1 = pp_heq_child(heq_lhs(e), depth);
-        p_arg2 = pp_heq_child(heq_rhs(e), depth);
-        r_format = group(format{p_arg1.first, space(), g_eq_fmt, line(), p_arg2.first});
-        return mk_result(r_format, p_arg1.second + p_arg2.second + 1);
-    }
-
     result pp_choice(expr const & e, unsigned depth) {
         lean_assert(is_choice(e));
         unsigned num = get_num_choices(e);
@@ -1121,7 +1094,6 @@ class pp_fn {
                 case expr_kind::Lambda:
                 case expr_kind::Pi:         r = pp_abstraction(e, depth); break;
                 case expr_kind::Type:       r = pp_type(e);               break;
-                case expr_kind::HEq:        r = pp_heq(e, depth);         break;
                 case expr_kind::Let:        r = pp_let(e, depth);         break;
                 case expr_kind::MetaVar:    r = pp_metavar(e, depth);     break;
                 }

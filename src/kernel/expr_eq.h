@@ -64,7 +64,6 @@ class expr_eq_fn {
                 if (!apply(arg(a, i), arg(b, i)))
                     return false;
             return true;
-        case expr_kind::HEq:      return apply(heq_lhs(a), heq_lhs(b)) && apply(heq_rhs(a), heq_rhs(b));
         case expr_kind::Lambda:   // Remark: we ignore get_abs_name because we want alpha-equivalence
         case expr_kind::Pi:       return apply(abst_domain(a), abst_domain(b)) && apply(abst_body(a), abst_body(b));
         case expr_kind::Type:     return ty_level(a) == ty_level(b);

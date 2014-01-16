@@ -37,11 +37,6 @@ bool is_lt(expr const & a, expr const & b, bool use_hash) {
                 return is_lt(arg(a, i), arg(b, i), use_hash);
         }
         lean_unreachable(); // LCOV_EXCL_LINE
-    case expr_kind::HEq:
-        if (heq_lhs(a) != heq_lhs(b))
-            return is_lt(heq_lhs(a), heq_lhs(b), use_hash);
-        else
-            return is_lt(heq_rhs(a), heq_rhs(b), use_hash);
     case expr_kind::Lambda:   // Remark: we ignore get_abs_name because we want alpha-equivalence
     case expr_kind::Pi:
         if (abst_domain(a) != abst_domain(b))

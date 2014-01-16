@@ -43,9 +43,6 @@ std::pair<expr, expr> rewrite_lambda(environment const & env, context & ctx, exp
 std::pair<expr, expr> rewrite_pi_type(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_ty);
 std::pair<expr, expr> rewrite_pi_body(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_body);
 std::pair<expr, expr> rewrite_pi(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_ty, std::pair<expr, expr> const & result_body);
-std::pair<expr, expr> rewrite_eq_lhs(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_lhs);
-std::pair<expr, expr> rewrite_eq_rhs(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_rhs);
-std::pair<expr, expr> rewrite_eq(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_lhs, std::pair<expr, expr> const & result_rhs);
 std::pair<expr, expr> rewrite_let_type(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_ty);
 std::pair<expr, expr> rewrite_let_value(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_value);
 std::pair<expr, expr> rewrite_let_body(environment const & env, context & ctx, expr const & v, std::pair<expr, expr> const & result_body);
@@ -380,37 +377,6 @@ class apply_rewriter_fn {
                 results.push_back(apply(env, ctx, arg(v, i)));
             }
             result = rewrite_app(env, ctx, v, results);
-            std::pair<expr, expr> tmp = m_rw(env, ctx, result.first);
-            if (result.first != tmp.first) {
-                tmp.second = mk_trans_th(ty_v, v, result.first, tmp.first, result.second, tmp.second);
-                result = tmp;
-            }
-        }
-            break;
-        case expr_kind::HEq: {
-            expr const & lhs = heq_lhs(v);
-            expr const & rhs = heq_rhs(v);
-            std::pair<expr, expr> result_lhs = apply(env, ctx, lhs);
-            std::pair<expr, expr> result_rhs = apply(env, ctx, rhs);
-            expr const & new_lhs = result_lhs.first;
-            expr const & new_rhs = result_rhs.first;
-            if (lhs != new_lhs) {
-                if (rhs != new_rhs) {
-                    // lhs & rhs changed
-                    result = rewrite_eq(env, ctx, v, result_lhs, result_rhs);
-                } else {
-                    // only lhs changed
-                    result = rewrite_eq_lhs(env, ctx, v, result_lhs);
-                }
-            } else {
-                if (rhs != new_rhs) {
-                    // only rhs changed
-                    result = rewrite_eq_rhs(env, ctx, v, result_rhs);
-                } else {
-                    // nothing changed
-                    result = std::make_pair(v, mk_refl_th(ti(v, ctx), v));
-                }
-            }
             std::pair<expr, expr> tmp = m_rw(env, ctx, result.first);
             if (result.first != tmp.first) {
                 tmp.second = mk_trans_th(ty_v, v, result.first, tmp.first, result.second, tmp.second);

@@ -22,7 +22,6 @@ static name g_pi_name("forall");
 static name g_let_name("let");
 static name g_in_name("in");
 static name g_arrow_name("->");
-static name g_eq_name("==");
 static name g_exists_name("exists");
 static name g_Exists_name("Exists");
 static name g_exists_unicode("\u2203");
@@ -237,8 +236,6 @@ scanner::token scanner::read_b_symbol(char prev) {
             m_name_val = name(m_buffer.c_str());
             if (m_name_val == g_arrow_name)
                 return token::Arrow;
-            else if (m_name_val == g_eq_name)
-                return token::Eq;
             else
                 return token::Id;
         }

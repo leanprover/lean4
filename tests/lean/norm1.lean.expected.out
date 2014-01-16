@@ -7,7 +7,7 @@
   Assumed: H
 λ (f : N → N) (y : N), g (f a)
 λ (a : N) (f : N → N) (g : (N → N) → N → N) (h : N → N → N) (z : N), h (g (λ x : N, f (f x)) (f a)) (f a)
-λ (a b : N) (g : Bool → N) (y : Bool), g (a == b)
+λ (a b : N) (g : Bool → N) (y : Bool), g (a = b)
 λ (a : Type) (b : a → Type) (g : (Type U) → Bool) (y : (Type U)), g (∀ x : a, b x)
 λ (f : N → N) (y z : N), g (f a)
 λ (f g : N → N) (y z : N), g (f a)

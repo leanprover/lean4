@@ -1,10 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
   Imported 'Int'
-1 == ⊤
-1 == 1
-1 == 1
-⊤ == 1
-Nat::add == 1
-Nat::add == Nat::mul
-Int::add == Int::mul
+  Imported 'Real'
+⊤
+⊤

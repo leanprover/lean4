@@ -80,7 +80,7 @@ static void tst2() {
 static void tst3() {
     environment env;
     init_test_frontend(env);
-    expr f = Fun("a", Bool, HEq(Const("a"), True));
+    expr f = Fun("a", Bool, mk_eq(Bool, Const("a"), True));
     std::cout << type_check(f, env) << "\n";
     lean_assert(type_check(f, env) == mk_arrow(Bool, Bool));
     expr t = mk_let("a", none_expr(), True, Var(0));
@@ -90,7 +90,7 @@ static void tst3() {
 static void tst4() {
     environment env;
     init_test_frontend(env);
-    expr a = HEq(iVal(1), iVal(2));
+    expr a = mk_eq(Int, iVal(1), iVal(2));
     expr pr   = mk_lambda("x", a, Var(0));
     std::cout << type_check(pr, env) << "\n";
 }
@@ -191,7 +191,7 @@ static void tst10() {
     expr t1 = Let({{a, f(b)}, {a, f(a)}}, f(a));
     expr t2 = f(f(f(b)));
     std::cout << t1 << " --> " << normalize(t1, env) << "\n";
-    expr prop  = HEq(t1, t2);
+    expr prop  = mk_eq(Int, t1, t2);
     expr proof = mk_refl_th(Int, t1);
     env->add_theorem("simp_eq", prop, proof);
     std::cout << env->get_object("simp_eq").get_name() << "\n";
@@ -215,8 +215,8 @@ static void tst11() {
         t3 = f(t3, t3);
     }
     lean_assert(t1 != t2);
-    env->add_theorem("eqs1", HEq(t1, t2), mk_refl_th(Int, t1));
-    env->add_theorem("eqs2", HEq(t1, t3), mk_refl_th(Int, t1));
+    env->add_theorem("eqs1", mk_eq(Int, t1, t2), mk_refl_th(Int, t1));
+    env->add_theorem("eqs2", mk_eq(Int, t1, t3), mk_refl_th(Int, t1));
 }
 
 static expr mk_big(unsigned depth) {
@@ -257,7 +257,7 @@ static void tst13() {
     env->add_var("f", Type() >> Type());
     expr f = Const("f");
     std::cout << type_check(f(Bool), env) << "\n";
-    std::cout << type_check(f(HEq(True, False)), env) << "\n";
+    std::cout << type_check(f(mk_eq(Bool, True, False)), env) << "\n";
 }
 
 static void tst14() {

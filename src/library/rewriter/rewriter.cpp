@@ -51,14 +51,17 @@ pair<expr, expr> rewrite_lambda_type(environment const & env, context & ctx, exp
     } else {
         name const & n         = abst_name(v);
         expr const & body      = abst_body(v);
-        expr const & pf_ty     = result_ty.second;
+        // expr const & pf_ty     = result_ty.second;
         expr const & new_v     = mk_lambda(n, new_ty, body);
         expr const & ty_ty     = ti(ty, ctx);
         lean_assert_eq(ty_ty, ti(new_ty, ctx)); // TODO(soonhok): generalize for hetreogeneous types
-        expr const & proof     = mk_subst_th(ty_ty, ty, new_ty,
-                                       Fun({Const("T"), ty_ty},
-                                           mk_heq(v, mk_lambda(n, Const("T"), body))),
-                                       mk_refl_th(ty_v, v), pf_ty);
+        expr proof;
+#if 0  // TODO(Leo): we don't have heterogeneous equality anymore
+            = mk_subst_th(ty_ty, ty, new_ty,
+                          Fun({Const("T"), ty_ty},
+                              mk_heq(v, mk_lambda(n, Const("T"), body))),
+                          mk_refl_th(ty_v, v), pf_ty);
+#endif
         return make_pair(new_v, proof);
     }
 }
@@ -111,35 +114,38 @@ pair<expr, expr> rewrite_lambda_body(environment const & env, context & ctx, exp
           body')
    \return pair of v' = \f$(\lambda n : ty'. body')\f$, and proof of v = v'
 */
-pair<expr, expr> rewrite_lambda(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_ty, pair<expr, expr> const & result_body) {
+pair<expr, expr> rewrite_lambda(environment const & env, context & /* ctx */,  expr const & v, pair<expr, expr> const & result_ty, pair<expr, expr> const & result_body) {
     lean_assert(is_lambda(v));
     type_inferer ti(env);
     name const & n         = abst_name(v);
-    expr const & ty        = abst_domain(v);
-    expr const & body      = abst_body(v);
+    // expr const & ty        = abst_domain(v);
+    // expr const & body      = abst_body(v);
     expr const & new_ty    = result_ty.first;
-    expr const & pf_ty     = result_ty.second;
+    // expr const & pf_ty     = result_ty.second;
     expr const & new_body  = result_body.first;
-    expr const & pf_body   = result_body.second;
-    expr const & ty_ty     = ti(ty, ctx);
-    expr const & ty_body   = ti(body, ctx);
-    expr const & ty_v      = ti(v, ctx);
-    expr const & new_v1    = mk_lambda(n, new_ty, body);
-    expr const & ty_new_v1 = ti(v, ctx);
+    // expr const & pf_body   = result_body.second;
+    // expr const & ty_ty     = ti(ty, ctx);
+    // expr const & ty_body   = ti(body, ctx);
+    // expr const & ty_v      = ti(v, ctx);
+    // expr const & new_v1    = mk_lambda(n, new_ty, body);
+    // expr const & ty_new_v1 = ti(v, ctx);
     expr const & new_v2    = mk_lambda(n, new_ty, new_body);
     // proof1 : v = new_v1
-    expr const & proof1    = mk_subst_th(ty_ty, ty, new_ty,
+
+    expr proof;
+#if 0 // TODO(Leo): we don't have heterogeneous equality anymore
+    expr proof1 = mk_subst_th(ty_ty, ty, new_ty,
                                          Fun({Const("T"), ty_ty},
                                              mk_heq(v, mk_lambda(n, Const("T"), body))),
                                          mk_refl_th(ty_v, v),
                                          pf_ty);
-    // proof2 : new_v1 = new_v2
-    expr const & proof2    = mk_subst_th(ty_body, body, new_body,
+    expr proof2 = mk_subst_th(ty_body, body, new_body,
                                          Fun({Const("e"), ty_body},
                                              mk_heq(new_v1, mk_lambda(n, new_ty, Const("e")))),
                                          mk_refl_th(ty_new_v1, new_v1),
                                          pf_body);
     expr const & proof     = mk_trans_th(ty_v, v, new_v1, new_v2, proof1, proof2);
+#endif
     return make_pair(new_v2, proof);
 }
 
@@ -155,22 +161,25 @@ pair<expr, expr> rewrite_lambda(environment const & env, context & ctx, expr con
           rewritten type of ty and pf_ty the proof of (ty = ty')
    \return pair of v' = \f$(\Pi n : ty'. body)\f$, and proof of v = v'
 */
-pair<expr, expr> rewrite_pi_type(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_ty) {
+pair<expr, expr> rewrite_pi_type(environment const & env, context & /* ctx */, expr const & v, pair<expr, expr> const & result_ty) {
     lean_assert(is_pi(v));
     type_inferer ti(env);
     name const & n      = abst_name(v);
-    expr const & ty     = abst_domain(v);
+    // expr const & ty     = abst_domain(v);
     expr const & body   = abst_body(v);
     expr const & new_ty = result_ty.first;
-    expr const & pf     = result_ty.second;
+    // expr const & pf     = result_ty.second;
     expr const & new_v  = mk_pi(n, new_ty, body);
-    expr const & ty_ty  = ti(ty, ctx);
-    expr const & ty_v   = ti(v, ctx);
-    expr const & proof  = mk_subst_th(ty_ty, ty, new_ty,
+    // expr const & ty_ty  = ti(ty, ctx);
+    // expr const & ty_v   = ti(v, ctx);
+    expr proof;
+#if 0 // TODO(Leo): HEq is gone
+    = mk_subst_th(ty_ty, ty, new_ty,
                                       Fun({Const("T"), ty_ty},
                                           mk_heq(v, mk_pi(n, Const("T"), body))),
                                       mk_refl_th(ty_v, v),
                                       pf);
+#endif
     return make_pair(new_v, proof);
 }
 
@@ -187,22 +196,25 @@ pair<expr, expr> rewrite_pi_type(environment const & env, context & ctx, expr co
           body')
    \return pair of v' = \f$(\Pi n : ty. body')\f$, and proof of v = v'
 */
-pair<expr, expr> rewrite_pi_body(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_body) {
+pair<expr, expr> rewrite_pi_body(environment const & env, context & /* ctx */, expr const & v, pair<expr, expr> const & result_body) {
     lean_assert(is_pi(v));
     type_inferer ti(env);
     name const & n        = abst_name(v);
     expr const & ty       = abst_domain(v);
-    expr const & body     = abst_body(v);
+    // expr const & body     = abst_body(v);
     expr const & new_body = result_body.first;
-    expr const & pf       = result_body.second;
+    // expr const & pf       = result_body.second;
     expr const & new_v    = mk_pi(n, ty, new_body);
-    expr const & ty_body  = ti(body, extend(ctx, n, ty));
-    expr const & ty_v     = ti(v, ctx);
+    // expr const & ty_body  = ti(body, extend(ctx, n, ty));
+    // expr const & ty_v     = ti(v, ctx);
+    expr proof;
+#if 0 // TODO(Leo): HEq is gone
     expr const & proof    = mk_subst_th(ty_body, body, new_body,
                                   Fun({Const("e"), ty_body},
                                       mk_heq(v, mk_pi(n, ty, Const("e")))),
                                   mk_refl_th(ty_v, v),
                                   pf);
+#endif
     return make_pair(new_v, proof);
 }
 
@@ -221,22 +233,24 @@ pair<expr, expr> rewrite_pi_body(environment const & env, context & ctx, expr co
           body')
    \return pair of v' = \f$(\Pi n : ty'. body')\f$, and proof of v = v'
 */
-pair<expr, expr> rewrite_pi(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_ty, pair<expr, expr> const & result_body) {
+pair<expr, expr> rewrite_pi(environment const & env, context & /*ctx*/, expr const & v, pair<expr, expr> const & result_ty, pair<expr, expr> const & result_body) {
     lean_assert(is_pi(v));
     type_inferer ti(env);
     name const & n         = abst_name(v);
-    expr const & ty        = abst_domain(v);
-    expr const & body      = abst_body(v);
+    // expr const & ty        = abst_domain(v);
+    // expr const & body      = abst_body(v);
     expr const & new_ty    = result_ty.first;
-    expr const & pf_ty     = result_ty.second;
+    // expr const & pf_ty     = result_ty.second;
     expr const & new_body  = result_body.first;
-    expr const & pf_body   = result_body.second;
-    expr const & ty_ty     = ti(ty, ctx);
-    expr const & ty_body   = ti(body, ctx);
-    expr const & ty_v      = ti(v, ctx);
-    expr const & new_v1    = mk_pi(n, new_ty, body);
-    expr const & ty_new_v1 = ti(v, ctx);
+    // expr const & pf_body   = result_body.second;
+    // expr const & ty_ty     = ti(ty, ctx);
+    // expr const & ty_body   = ti(body, ctx);
+    // expr const & ty_v      = ti(v, ctx);
+    // expr const & new_v1    = mk_pi(n, new_ty, body);
+    // expr const & ty_new_v1 = ti(v, ctx);
     expr const & new_v2    = mk_pi(n, new_ty, new_body);
+    expr proof;
+#if 0 // TODO(Leo): HEq is gone
     expr const & proof1    = mk_subst_th(ty_ty, ty, new_ty,
                                    Fun({Const("T"), ty_ty},
                                        mk_heq(v, mk_pi(n, Const("T"), body))),
@@ -248,109 +262,7 @@ pair<expr, expr> rewrite_pi(environment const & env, context & ctx, expr const &
                                    mk_refl_th(ty_new_v1, new_v1),
                                    pf_body);
     expr const & proof     = mk_trans_th(ty_v, v, new_v1, new_v2, proof1, proof2);
-    return make_pair(new_v2, proof);
-}
-
-/**
-   \brief For a Eq term v = (lhs = rhs) and the rewriting result for
-   lhs, it constructs a new rewriting result for v' = (lhs' = rhs)
-   with the proof of v = v'.
-
-   \param env environment
-   \param ctx context
-   \param v (lhs = rhs)
-   \param result_lhs rewriting result of lhs -- pair of lhs'
-          rewritten term of lhs and pf_lhs the proof of (lhs = lhs')
-   \return pair of v' = (lhs' = rhs), and proof of v = v'
-*/
-pair<expr, expr> rewrite_eq_lhs(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_lhs) {
-    lean_assert(is_heq(v));
-    type_inferer ti(env);
-    expr const & lhs     = heq_lhs(v);
-    expr const & rhs     = heq_rhs(v);
-    expr const & new_lhs = result_lhs.first;
-    expr const & pf      = result_lhs.second;
-    expr const & new_v   = mk_heq(new_lhs, rhs);
-    expr const & ty_lhs  = ti(lhs, ctx);
-    expr const & ty_v    = ti(v, ctx);
-    expr const & proof   = mk_subst_th(ty_lhs, lhs, new_lhs,
-                                 Fun({Const("x"), ty_lhs},
-                                     mk_heq(v, mk_heq(Const("x"), rhs))),
-                                 mk_refl_th(ty_v, v),
-                                 pf);
-    return make_pair(new_v, proof);
-}
-
-/**
-   \brief For a Eq term v = (lhs = rhs)and the rewriting
-   result for rhs, it constructs a new rewriting result for v'
-   = (lhs = rhs') with the proof of v = v'.
-
-   \param env environment
-   \param ctx context
-   \param v (lhs = rhs)
-   \param result_rhs rewriting result of rhs -- pair of rhs'
-          rewritten term of rhs and pf_rhs the proof of (rhs = rhs')
-   \return pair of v' = (lhs = rhs'), and proof of v = v'
-*/
-pair<expr, expr> rewrite_eq_rhs(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_rhs) {
-    lean_assert(is_heq(v));
-    type_inferer ti(env);
-    expr const & lhs     = heq_lhs(v);
-    expr const & rhs     = heq_rhs(v);
-    expr const & new_rhs = result_rhs.first;
-    expr const & pf      = result_rhs.second;
-    expr const & new_v   = mk_heq(rhs, new_rhs);
-    expr const & ty_rhs  = ti(rhs, ctx);
-    expr const & ty_v    = ti(v, ctx);
-    expr const & proof   = mk_subst_th(ty_rhs, rhs, new_rhs,
-                                 Fun({Const("x"), ty_rhs},
-                                     mk_heq(v, mk_heq(lhs, Const("x")))),
-                                 mk_refl_th(ty_v, v),
-                                 pf);
-    return make_pair(new_v, proof);
-}
-
-/**
-   \brief For a Eq term v = (lhs = rhs)and the rewriting result for
-   lhs and rhs, it constructs a new rewriting result for v' = (lhs' =
-   rhs') with the proof of v = v'.
-
-   \param env environment
-   \param ctx context
-   \param v (lhs = rhs)
-   \param result_lhs rewriting result of lhs -- pair of lhs'
-          rewritten term of lhs and pf_lhs the proof of (lhs = lhs')
-   \param result_rhs rewriting result of rhs -- pair of rhs'
-          rewritten term of rhs and pf_rhs the proof of (rhs = rhs')
-   \return pair of v' = (lhs' = rhs'), and proof of v = v'
-*/
-pair<expr, expr> rewrite_eq(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_lhs, pair<expr, expr> const & result_rhs) {
-    lean_assert(is_heq(v));
-    type_inferer ti(env);
-    expr const & lhs       = heq_lhs(v);
-    expr const & rhs       = heq_rhs(v);
-    expr const & new_lhs   = result_lhs.first;
-    expr const & pf_lhs    = result_lhs.second;
-    expr const & new_rhs   = result_rhs.first;
-    expr const & pf_rhs    = result_rhs.second;
-    expr const & new_v1    = mk_heq(new_lhs, rhs);
-    expr const & new_v2    = mk_heq(new_lhs, new_rhs);
-    expr const & ty_lhs    = ti(lhs, ctx);
-    expr const & ty_rhs    = ti(rhs, ctx);
-    expr const & ty_v      = ti(v, ctx);
-    expr const & ty_new_v1 = ti(new_v1, ctx);
-    expr const & proof1 = mk_subst_th(ty_lhs, lhs, new_lhs,
-                                Fun({Const("x"), ty_lhs},
-                                    mk_heq(v, mk_heq(Const("x"), rhs))),
-                                mk_refl_th(ty_v, v),
-                                pf_lhs);
-    expr const & proof2 = mk_subst_th(ty_rhs, rhs, new_rhs,
-                                Fun({Const("x"), ty_rhs},
-                                    mk_heq(v, mk_heq(lhs, Const("x")))),
-                                mk_refl_th(ty_new_v1, new_v1),
-                                pf_rhs);
-    expr const & proof  = mk_trans_th(ty_v, v, new_v1, new_v2, proof1, proof2);
+#endif
     return make_pair(new_v2, proof);
 }
 
@@ -366,24 +278,27 @@ pair<expr, expr> rewrite_eq(environment const & env, context & ctx, expr const &
           rewritten type of ty and \c pf_ty the proof of (ty = ty')
    \return pair of v' = (let n : ty' = val in body), and proof of v = v'
 */
-pair<expr, expr> rewrite_let_type(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_ty) {
+pair<expr, expr> rewrite_let_type(environment const & env, context & /* ctx */, expr const & v, pair<expr, expr> const & result_ty) {
     lean_assert(is_let(v));
     type_inferer ti(env);
     if (!let_type(v)) {
         name const & n       = let_name(v);
-        expr const & ty      = *let_type(v);
+        // expr const & ty      = *let_type(v);
         expr const & val     = let_value(v);
         expr const & body    = let_body(v);
         expr const & new_ty  = result_ty.first;
-        expr const & pf      = result_ty.second;
+        // expr const & pf      = result_ty.second;
         expr const & new_v   = mk_let(n, new_ty, val, body);
-        expr const & ty_ty   = ti(ty, ctx);
-        expr const & ty_v    = ti(v, ctx);
+        // expr const & ty_ty   = ti(ty, ctx);
+        // expr const & ty_v    = ti(v, ctx);
+        expr proof;
+#if 0 // TODO(Leo): HEq is gone
         expr const & proof   = mk_subst_th(ty_ty, ty, new_ty,
                                      Fun({Const("x"), ty_ty},
                                          mk_heq(v, mk_let(n, Const("x"), val, body))),
                                      mk_refl_th(ty_v, v),
                                      pf);
+#endif
         return make_pair(new_v, proof);
     } else {
         throw rewriter_exception();
@@ -402,23 +317,26 @@ pair<expr, expr> rewrite_let_type(environment const & env, context & ctx, expr c
           rewritten term of val and \c pf_val the proof of (val = val')
    \return pair of v' = (let n : ty = val' in body), and proof of v = v'
 */
-pair<expr, expr> rewrite_let_value(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_value) {
+pair<expr, expr> rewrite_let_value(environment const & env, context & /* ctx */, expr const & v, pair<expr, expr> const & result_value) {
     lean_assert(is_let(v));
     type_inferer ti(env);
     name const & n       = let_name(v);
     optional<expr> const & ty = let_type(v);
-    expr const & val     = let_value(v);
+    // expr const & val     = let_value(v);
     expr const & body    = let_body(v);
     expr const & new_val = result_value.first;
-    expr const & pf      = result_value.second;
+    // expr const & pf      = result_value.second;
     expr const & new_v   = mk_let(n, ty, new_val, body);
-    expr const & ty_val  = ti(val, ctx);
-    expr const & ty_v    = ti(v, ctx);
+    // expr const & ty_val  = ti(val, ctx);
+    // expr const & ty_v    = ti(v, ctx);
+    expr proof;
+    #if 0 // TODO(Leo): HEq is gone
     expr const & proof   = mk_subst_th(ty_val, val, new_val,
                                  Fun({Const("x"), ty_val},
                                      mk_heq(v, mk_let(n, ty, Const("x"), body))),
                                  mk_refl_th(ty_v, v),
                                  pf);
+    #endif
     return make_pair(new_v, proof);
 }
 
@@ -435,23 +353,26 @@ pair<expr, expr> rewrite_let_value(environment const & env, context & ctx, expr 
           body')
    \return pair of v' = (let n : ty = val in body'), and proof of v = v'
 */
-pair<expr, expr> rewrite_let_body(environment const & env, context & ctx, expr const & v, pair<expr, expr> const & result_body) {
+pair<expr, expr> rewrite_let_body(environment const & env, context & /* ctx */, expr const & v, pair<expr, expr> const & result_body) {
     lean_assert(is_let(v));
     type_inferer ti(env);
     name const & n        = let_name(v);
     optional<expr> const & ty = let_type(v);
     expr const & val      = let_value(v);
-    expr const & body     = let_body(v);
+    // expr const & body     = let_body(v);
     expr const & new_body = result_body.first;
-    expr const & pf       = result_body.second;
+    // expr const & pf       = result_body.second;
     expr const & new_v    = mk_let(n, ty, val, new_body);
-    expr const & ty_body  = ti(body, extend(ctx, n, ty, body));
-    expr const & ty_v     = ti(v, ctx);
+    // expr const & ty_body  = ti(body, extend(ctx, n, ty, body));
+    // expr const & ty_v     = ti(v, ctx);
+    expr proof;
+#if 0 // TODO(Leo): HEq is gone
     expr const & proof    = mk_subst_th(ty_body, body, new_body,
                                   Fun({Const("e"), ty_body},
                                       mk_heq(v, mk_let(n, ty, val, Const("e")))),
                                   mk_refl_th(ty_v, v),
                                   pf);
+#endif
     return make_pair(new_v, proof);
 }
 
@@ -527,6 +448,7 @@ theorem_rewriter_cell::theorem_rewriter_cell(expr const & type, expr const & bod
         m_pattern = abst_body(m_pattern);
         m_num_args++;
     }
+#if 0 // HEq is gone
     if (!is_heq(m_pattern)) {
         lean_trace("rewriter", tout << "Theorem " << m_type << " is not in the form of "
                    << "Pi (x_1 : t_1 ... x_n : t_n), pattern = rhs" << endl;);
@@ -535,6 +457,7 @@ theorem_rewriter_cell::theorem_rewriter_cell(expr const & type, expr const & bod
     m_pattern = heq_lhs(m_pattern);
 
     lean_trace("rewriter", tout << "Number of Arg = " << m_num_args << endl;);
+#endif
 }
 theorem_rewriter_cell::~theorem_rewriter_cell() { }
 pair<expr, expr> theorem_rewriter_cell::operator()(environment const &, context &, expr const & v) const throw(rewriter_exception) {

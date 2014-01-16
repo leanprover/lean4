@@ -48,7 +48,7 @@ class type_checker::imp {
             return u;
         if (has_metavar(u) && m_menv && m_uc) {
             justification jst = mk_type_expected_justification(ctx, s);
-            m_uc->push_back(mk_convertible_constraint(ctx, e, TypeU, jst));
+            m_uc->push_back(mk_convertible_constraint(ctx, e, TypeUp, jst));
             return u;
         }
         u = normalize(e, ctx, true);
@@ -176,10 +176,6 @@ class type_checker::imp {
             }
         case expr_kind::Type:
             return mk_type(ty_level(e) + 1);
-        case expr_kind::HEq:
-            // cheap when we are just inferring types
-            if (m_infer_only)
-                return mk_bool_type();
         case expr_kind::App: case expr_kind::Lambda:
         case expr_kind::Pi:  case expr_kind::Let:
             break; // expensive cases
@@ -241,11 +237,6 @@ class type_checker::imp {
                     f_t = check_pi(f_t, e, ctx);
                 }
             }
-        case expr_kind::HEq:
-            lean_assert(!m_infer_only);
-            infer_type_core(heq_lhs(e), ctx);
-            infer_type_core(heq_rhs(e), ctx);
-            return save_result(e, mk_bool_type(), shared);
         case expr_kind::Lambda:
             if (!m_infer_only) {
                 expr d = infer_type_core(abst_domain(e), ctx);
@@ -423,8 +414,6 @@ public:
         switch (e.kind()) {
         case expr_kind::Lambda: case expr_kind::Type:
             return false;
-        case expr_kind::HEq:
-            return true;
         case expr_kind::Pi:
             return is_proposition(abst_body(e), extend(ctx, abst_name(e), abst_domain(e)), menv);
         default:

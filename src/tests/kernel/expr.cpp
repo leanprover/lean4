@@ -76,8 +76,6 @@ static unsigned depth2(expr const & e) {
             std::accumulate(begin_args(e), end_args(e), 0,
                             [](unsigned m, expr const & arg){ return std::max(depth2(arg), m); })
             + 1;
-    case expr_kind::HEq:
-        return std::max(depth2(heq_lhs(e)), depth2(heq_rhs(e))) + 1;
     case expr_kind::Lambda: case expr_kind::Pi:
         return std::max(depth2(abst_domain(e)), depth2(abst_body(e))) + 1;
     case expr_kind::Let:
@@ -135,8 +133,6 @@ static unsigned count_core(expr const & a, expr_set & s) {
     case expr_kind::App:
         return std::accumulate(begin_args(a), end_args(a), 1,
                           [&](unsigned sum, expr const & arg){ return sum + count_core(arg, s); });
-    case expr_kind::HEq:
-        return count_core(heq_lhs(a), s) + count_core(heq_rhs(a), s) + 1;
     case expr_kind::Lambda: case expr_kind::Pi:
         return count_core(abst_domain(a), s) + count_core(abst_body(a), s) + 1;
     case expr_kind::Let:
@@ -295,7 +291,7 @@ static void tst13() {
 }
 
 static void tst14() {
-    expr t = HEq(Const("a"), Const("b"));
+    expr t = mk_eq(Const("A"), Const("a"), Const("b"));
     check_serializer(t);
     std::cout << t << "\n";
     expr l = mk_let("a", none_expr(), Const("b"), Var(0));
@@ -329,9 +325,6 @@ static void tst15() {
     lean_assert(has_metavar(f(a, a, m)));
     lean_assert(has_metavar(f(a, m, a, a)));
     lean_assert(!has_metavar(f(a, a, a, a)));
-    lean_assert(!has_metavar(HEq(a, f(a))));
-    lean_assert(has_metavar(HEq(m, f(a))));
-    lean_assert(has_metavar(HEq(a, f(m))));
 }
 
 static void check_copy(expr const & e) {
@@ -346,7 +339,6 @@ static void tst16() {
     expr a = Const("a");
     check_copy(iVal(10));
     check_copy(f(a));
-    check_copy(HEq(f(a), a));
     check_copy(mk_metavar("M"));
     check_copy(mk_lambda("x", a, Var(0)));
     check_copy(mk_pi("x", a, Var(0)));

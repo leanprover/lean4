@@ -76,8 +76,6 @@ unsigned count_core(expr const & a, expr_set & s) {
     case expr_kind::App:
         return std::accumulate(begin_args(a), end_args(a), 1,
                                [&](unsigned sum, expr const & arg){ return sum + count_core(arg, s); });
-    case expr_kind::HEq:
-        return count_core(heq_lhs(a), s) + count_core(heq_rhs(a), s) + 1;
     case expr_kind::Lambda: case expr_kind::Pi:
         return count_core(abst_domain(a), s) + count_core(abst_body(a), s) + 1;
     case expr_kind::Let:
@@ -197,9 +195,9 @@ static void tst3() {
     env->add_var("a", Bool);
     expr t1 = Const("a");
     expr t2 = Const("a");
-    expr e = HEq(t1, t2);
+    expr e = mk_eq(Bool, t1, t2);
     std::cout << e << " --> " << normalize(e, env) << "\n";
-    lean_assert(normalize(e, env) == HEq(t1, t2));
+    lean_assert(normalize(e, env) == mk_eq(Bool, t1, t2));
 }
 
 static void tst4() {

@@ -620,18 +620,11 @@ class elaborator::imp {
         }
     }
 
-    void process_eq(context const & ctx, expr & a) {
-        if (is_heq(a) && m_use_normalizer) {
-            a = normalize(ctx, a);
-        }
-    }
-
     expr normalize_step(context const & ctx, expr const & a) {
         expr new_a = a;
         process_let(new_a);
         process_var(ctx, new_a);
         process_app(ctx, new_a);
-        process_eq(ctx, new_a);
         return new_a;
     }
 
@@ -840,17 +833,6 @@ class elaborator::imp {
                 push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_i), arg(b, i), new_assumption);
             }
             imitation = mk_lambda(arg_types, mk_app(imitation_args));
-        } else if (is_heq(b)) {
-            // Imitation for equality
-            // Assign f_a <- fun (x_1 : T_1) ... (x_{num_a} : T_{num_a}), (h_1 x_1 ... x_{num_a}) = (h_2 x_1 ... x_{num_a})
-            // New constraints (h_1 a_1 ... a_{num_a}) == eq_lhs(b)
-            //                 (h_2 a_1 ... a_{num_a}) == eq_rhs(b)
-            expr h_1 = new_state.m_menv->mk_metavar(ctx);
-            expr h_2 = new_state.m_menv->mk_metavar(ctx);
-            push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_1), heq_lhs(b), new_assumption);
-            push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_2), heq_rhs(b), new_assumption);
-            imitation = mk_lambda(arg_types, mk_heq(mk_app_vars(add_lift(h_1, 0, num_a - 1), num_a - 1),
-                                                    mk_app_vars(add_lift(h_2, 0, num_a - 1), num_a - 1)));
         } else if (is_abstraction(b)) {
             // Imitation for lambdas and Pis
             // Assign f_a <- fun (x_1 : T_1) ... (x_{num_a} : T_{num_a}),
@@ -1059,28 +1041,6 @@ class elaborator::imp {
     }
 
     /**
-       \brief Similar to imitate_abstraction, but b is a heterogeneous equality.
-    */
-    void imitate_equality(expr const & a, expr const & b, unification_constraint const & c) {
-        lean_assert(is_metavar(a));
-        static_cast<void>(b); // this line is just to avoid a warning, b is only used in an assertion
-        lean_assert(is_heq(b));
-        lean_assert(!is_assigned(a));
-        lean_assert(has_local_context(a));
-        // imitate
-        push_active(c);
-        // Create a fresh meta variable for the lhs and rhs of b.
-        // The new metavariables have the same context of a.
-        expr m         = mk_metavar(metavar_name(a));
-        context ctx_m  = m_state.m_menv->get_context(m);
-        expr h1        = m_state.m_menv->mk_metavar(ctx_m);
-        expr h2        = m_state.m_menv->mk_metavar(ctx_m);
-        expr imitation = mk_heq(h1, h2);
-        justification new_jst(new imitation_justification(c));
-        push_new_constraint(true, ctx_m, m, imitation, new_jst);
-    }
-
-    /**
        \brief Process a constraint <tt>ctx |- a == b</tt> where \c a is of the form <tt>?m[(inst:i t), ...]</tt>.
        We perform a "case split",
        Case 1) ?m[...] == #i and t == b  (for constants, variables, values and Type)
@@ -1138,9 +1098,6 @@ class elaborator::imp {
             } else if (is_app(b) && !has_metavar(arg(b, 0))) {
                 imitate_application(a, b, c);
                 return true;
-            } else if (is_heq(b)) {
-                imitate_equality(a, b, c);
-                return true;
             }
         }
         return false;
@@ -1179,16 +1136,16 @@ class elaborator::imp {
             // We approximate and only consider the most useful ones.
             justification new_jst(new destruct_justification(c));
             if (is_bool(a)) {
-                expr choices[3] = { Bool, Type(), TypeU };
-                push_active(mk_choice_constraint(get_context(c), b, 3, choices, new_jst));
+                expr choices[4] = { Bool, Type(), TypeU, TypeUp };
+                push_active(mk_choice_constraint(get_context(c), b, 4, choices, new_jst));
                 return true;
             } else if (m_env->is_ge(ty_level(a), m_U)) {
-                expr choices[2] = { a, Type(ty_level(a) + 1) };
-                push_active(mk_choice_constraint(get_context(c), b, 2, choices, new_jst));
+                expr choices[3] = { a, Type(ty_level(a) + 1), TypeUp };
+                push_active(mk_choice_constraint(get_context(c), b, 3, choices, new_jst));
                 return true;
             } else {
-                expr choices[3] = { a, Type(ty_level(a) + 1), TypeU };
-                push_active(mk_choice_constraint(get_context(c), b, 3, choices, new_jst));
+                expr choices[4] = { a, Type(ty_level(a) + 1), TypeU };
+                push_active(mk_choice_constraint(get_context(c), b, 4, choices, new_jst));
                 return true;
             }
         } else {
@@ -1252,6 +1209,10 @@ class elaborator::imp {
             } else if (b == TypeU) {
                 expr choices[4] = { TypeU, Type(level() + 1), Type(), Bool };
                 push_active(mk_choice_constraint(get_context(c), a, 4, choices, new_jst));
+                return true;
+            } else if (b == TypeUp) {
+                expr choices[5] = { TypeUp, TypeU, Type(level() + 1), Type(), Bool };
+                push_active(mk_choice_constraint(get_context(c), a, 5, choices, new_jst));
                 return true;
             } else {
                 level const & lvl = ty_level(b);
@@ -1376,6 +1337,8 @@ class elaborator::imp {
             expr_pair p1 = get_equality_args(a);
             expr_pair p2 = get_equality_args(b);
             justification new_jst(new destruct_justification(c));
+            if (is_eq(a) && is_eq(b))
+                push_new_eq_constraint(ctx, arg(a, 1), arg(b, 1), new_jst);
             push_new_eq_constraint(ctx, p1.first,  p2.first,  new_jst);
             push_new_eq_constraint(ctx, p1.second, p2.second, new_jst);
             return true;

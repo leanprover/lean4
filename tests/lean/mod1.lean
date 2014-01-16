@@ -1,11 +1,11 @@
-import cast
-import cast
+import specialfn
+import specialfn
 (*
    local env = environment() -- create new environment
    parse_lean_cmds([[
-      import cast
-      import cast
-      check @cast
+      import specialfn
+      import specialfn
+      check sin
    ]], env)
 *)
-check @cast
+check sin

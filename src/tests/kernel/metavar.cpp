@@ -275,7 +275,7 @@ static void tst14() {
     expr y = Const("y");
     env->add_var("h", Pi({N, Type()}, N >> (N >> N)));
     expr F1 = Fun({{N, Type()}, {a, N}, {f, N >> N}},
-                  (Fun({{x, N}, {y, N}}, HEq(f(m1), y)))(a));
+                  (Fun({{x, N}, {y, N}}, mk_eq(N, f(m1), y)))(a));
     metavar_env menv2 = menv.copy();
     menv2->assign(m1, h(Var(4), Var(1), Var(3)));
     normalizer norm(env);
@@ -287,12 +287,6 @@ static void tst14() {
     std::cout << norm(menv2->instantiate_metavars(F1)) << "\n";
     lean_assert(menv2->instantiate_metavars(norm(F1)) ==
                 norm(menv2->instantiate_metavars(F1)));
-    expr F2 = (Fun({{N, Type()}, {f, N >> N}, {a, N}, {b, N}},
-                   (Fun({{x, N}, {y, N}}, HEq(f(m1), y)))(a, m2)))(M);
-    std::cout << norm(F2) << "\n";
-    expr F3 = (Fun({{N, Type()}, {f, N >> N}, {a, N}, {b, N}},
-                   (Fun({{x, N}, {y, N}}, HEq(f(m1), y)))(b, m2)))(M);
-    std::cout << norm(F3) << "\n";
 }
 
 static void tst15() {

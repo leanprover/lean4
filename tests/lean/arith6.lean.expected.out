@@ -8,8 +8,8 @@ false
 true
 true
   Assumed: x
-3 + -1 * (x * (3 div x)) == 0
-x + -1 * (3 * (x div 3)) == 0
+3 + -1 * (x * (3 div x)) = 0
+x + -1 * (3 * (x div 3)) = 0
 false
   Set: lean::pp::notation
 Int::divides 3 x

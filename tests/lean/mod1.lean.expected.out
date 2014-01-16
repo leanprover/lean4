@@ -1,6 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
-  Imported 'cast'
-  Imported 'cast'
-@cast : ∀ (A B : TypeU), A == B → A → B
-@cast : ∀ (A B : TypeU), A == B → A → B
+  Imported 'specialfn'
+  Imported 'specialfn'
+sin : ℝ → ℝ
+sin : ℝ → ℝ

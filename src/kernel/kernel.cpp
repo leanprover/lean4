@@ -16,6 +16,8 @@ namespace lean {
 // Bultin universe variables m and u
 static level u_lvl(name("U"));
 expr const TypeU = Type(u_lvl);
+static level up_lvl(name("U'"));
+expr const TypeUp = Type(up_lvl);
 // =======================================
 
 // =======================================
@@ -77,6 +79,42 @@ bool is_false(expr const & e) {
     return is_bool_value(e) && !to_bool(e);
 }
 // =======================================
+
+// =======================================
+// Equality
+static name   g_eq_name("eq");
+static format g_eq_fmt(g_eq_name);
+/**
+   \brief Semantic attachment for if-then-else operator with type
+   <code>Pi (A : Type), Bool -> A -> A -> A</code>
+*/
+class eq_fn_value : public value {
+    expr m_type;
+    static expr mk_type() {
+        expr A    = Const("A");
+        // Pi (A: TypeUp), A -> A -> Bool
+        return Pi({A, TypeUp}, (A >> (A >> Bool)));
+    }
+public:
+    eq_fn_value():m_type(mk_type()) {}
+    virtual ~eq_fn_value() {}
+    virtual expr get_type() const { return m_type; }
+    virtual name get_name() const { return g_eq_name; }
+    virtual optional<expr> normalize(unsigned num_args, expr const * args) const {
+        if (num_args == 4 && is_value(args[2]) && is_value(args[3]) && typeid(to_value(args[2])) == typeid(to_value(args[3]))) {
+            return some_expr(mk_bool_value(args[2] == args[3]));
+        } else {
+            return none_expr();
+        }
+    }
+    virtual void write(serializer & s) const { s << "eq"; }
+};
+MK_BUILTIN(eq_fn, eq_fn_value);
+MK_IS_BUILTIN(is_eq_fn, mk_eq_fn());
+static register_builtin_fn eq_blt("eq", []() { return mk_eq_fn(); });
+static value::register_deserializer_fn eq_ds("eq", [](deserializer & ) { return mk_eq_fn(); });
+// =======================================
+
 
 void import_kernel(environment const & env, io_state const & ios) {
     env->import("kernel", ios);

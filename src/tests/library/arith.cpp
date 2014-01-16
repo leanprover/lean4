@@ -110,10 +110,10 @@ static void tst5() {
     environment env;
     init_test_frontend(env);
     env->add_var(name("a"), Int);
-    expr e = HEq(iVal(3), iVal(4));
+    expr e = mk_eq(Int, iVal(3), iVal(4));
     std::cout << e << " --> " << normalize(e, env) << "\n";
     lean_assert(normalize(e, env) == False);
-    lean_assert(normalize(HEq(Const("a"), iVal(3)), env) == HEq(Const("a"), iVal(3)));
+    lean_assert(normalize(mk_eq(Int, Const("a"), iVal(3)), env) == mk_eq(Int, Const("a"), iVal(3)));
 }
 
 static void tst6() {

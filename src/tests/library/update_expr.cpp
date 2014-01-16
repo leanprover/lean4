@@ -12,12 +12,6 @@ using namespace lean;
 static void tst1() {
     expr a = Const("a");
     expr b = Const("b");
-    expr eq1 = HEq(a, b);
-    expr eq2 = update_heq(eq1, a, a);
-    expr eq3 = update_heq(eq1, a, b);
-    lean_assert(heq_lhs(eq3) == a);
-    lean_assert(heq_rhs(eq3) == b);
-    lean_assert(is_eqp(eq1, eq3));
 }
 
 static void tst2() {

@@ -22,7 +22,6 @@ private:
     bool match_lambda(expr const & p, expr const & t, unsigned o, subst_map & s);
     bool match_pi(expr const & p, expr const & t, unsigned o, subst_map & s);
     bool match_type(expr const & p, expr const & t, unsigned o, subst_map & s);
-    bool match_heq(expr const & p, expr const & t, unsigned o, subst_map & s);
     bool match_let(expr const & p, expr const & t, unsigned o, subst_map & s);
     bool match_metavar(expr const & p, expr const & t, unsigned o, subst_map & s);
     bool match_main(expr const & p, expr const & t, unsigned o, subst_map & s);

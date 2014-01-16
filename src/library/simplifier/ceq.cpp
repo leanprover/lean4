@@ -180,10 +180,6 @@ static bool is_permutation(expr const & lhs, expr const & rhs, unsigned offset, 
         return
             is_permutation(abst_domain(lhs), abst_domain(rhs), offset, p) &&
             is_permutation(abst_body(lhs), abst_body(rhs), offset+1, p);
-    case expr_kind::HEq:
-        return
-            is_permutation(heq_lhs(lhs), heq_lhs(rhs), offset, p) &&
-            is_permutation(heq_rhs(lhs), heq_rhs(rhs), offset, p);
     case expr_kind::App:
         if (num_args(lhs) == num_args(rhs)) {
             for (unsigned i = 0; i < num_args(lhs); i++) {

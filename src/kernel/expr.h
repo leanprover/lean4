@@ -34,7 +34,6 @@ class value;
           |   Lambda        name expr expr
           |   Pi            name expr expr
           |   Type          universe
-          |   Eq            expr expr         (heterogeneous equality)
           |   Let           name expr expr expr
           |   Metavar       name local_context
 
@@ -52,7 +51,7 @@ The main API is divided in the following sections
 - Miscellaneous
 ======================================= */
 class expr;
-enum class expr_kind { Var, Constant, Value, App, Lambda, Pi, Type, HEq, Let, MetaVar };
+enum class expr_kind { Var, Constant, Value, App, Lambda, Pi, Type, Let, MetaVar };
 class local_entry;
 /**
    \brief A metavariable local context is just a list of local_entries.
@@ -142,7 +141,6 @@ public:
     friend expr mk_constant(name const & n, optional<expr> const & t);
     friend expr mk_value(value & v);
     friend expr mk_app(unsigned num_args, expr const * args);
-    friend expr mk_heq(expr const & l, expr const & r);
     friend expr mk_lambda(name const & n, expr const & t, expr const & e);
     friend expr mk_pi(name const & n, expr const & t, expr const & e);
     friend expr mk_type(level const & l);
@@ -212,18 +210,6 @@ public:
     expr const & get_arg(unsigned idx) const { lean_assert(idx < m_num_args); return m_args[idx]; }
     expr const * begin_args() const          { return m_args; }
     expr const * end_args() const            { return m_args + m_num_args; }
-};
-/** \brief Heterogeneous equality */
-class expr_heq : public expr_cell {
-    expr m_lhs;
-    expr m_rhs;
-    friend class expr_cell;
-    void dealloc(buffer<expr_cell*> & todelete);
-public:
-    expr_heq(expr const & lhs, expr const & rhs);
-    ~expr_heq();
-    expr const & get_lhs() const { return m_lhs; }
-    expr const & get_rhs() const { return m_rhs; }
 };
 /** \brief Super class for lambda abstraction and pi (functional spaces). */
 class expr_abstraction : public expr_cell {
@@ -391,7 +377,6 @@ inline bool is_var(expr_cell * e)         { return e->kind() == expr_kind::Var; 
 inline bool is_constant(expr_cell * e)    { return e->kind() == expr_kind::Constant; }
 inline bool is_value(expr_cell * e)       { return e->kind() == expr_kind::Value; }
 inline bool is_app(expr_cell * e)         { return e->kind() == expr_kind::App; }
-inline bool is_heq(expr_cell * e)         { return e->kind() == expr_kind::HEq; }
 inline bool is_lambda(expr_cell * e)      { return e->kind() == expr_kind::Lambda; }
 inline bool is_pi(expr_cell * e)          { return e->kind() == expr_kind::Pi; }
 inline bool is_type(expr_cell * e)        { return e->kind() == expr_kind::Type; }
@@ -403,7 +388,6 @@ inline bool is_var(expr const & e)         { return e.kind() == expr_kind::Var; 
 inline bool is_constant(expr const & e)    { return e.kind() == expr_kind::Constant; }
 inline bool is_value(expr const & e)       { return e.kind() == expr_kind::Value; }
 inline bool is_app(expr const & e)         { return e.kind() == expr_kind::App; }
-inline bool is_heq(expr const & e)         { return e.kind() == expr_kind::HEq; }
 inline bool is_lambda(expr const & e)      { return e.kind() == expr_kind::Lambda; }
 inline bool is_pi(expr const & e)          { return e.kind() == expr_kind::Pi; }
        bool is_arrow(expr const & e);
@@ -430,8 +414,6 @@ inline expr mk_app(expr const & e1, expr const & e2) { return mk_app({e1, e2}); 
 inline expr mk_app(expr const & e1, expr const & e2, expr const & e3) { return mk_app({e1, e2, e3}); }
 inline expr mk_app(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({e1, e2, e3, e4}); }
 inline expr mk_app(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({e1, e2, e3, e4, e5}); }
-inline expr mk_heq(expr const & l, expr const & r) { return expr(new expr_heq(l, r)); }
-inline expr HEq(expr const & l, expr const & r) { return mk_heq(l, r); }
 inline expr mk_lambda(name const & n, expr const & t, expr const & e) { return expr(new expr_lambda(n, t, e)); }
 inline expr mk_pi(name const & n, expr const & t, expr const & e) { return expr(new expr_pi(n, t, e)); }
 inline bool is_default_arrow_var_name(name const & n) { return n == "a"; }
@@ -463,7 +445,6 @@ inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, 
 inline expr_var *         to_var(expr_cell * e)         { lean_assert(is_var(e));         return static_cast<expr_var*>(e); }
 inline expr_const *       to_constant(expr_cell * e)    { lean_assert(is_constant(e));    return static_cast<expr_const*>(e); }
 inline expr_app *         to_app(expr_cell * e)         { lean_assert(is_app(e));         return static_cast<expr_app*>(e); }
-inline expr_heq *         to_heq(expr_cell * e)         { lean_assert(is_heq(e));         return static_cast<expr_heq*>(e); }
 inline expr_abstraction * to_abstraction(expr_cell * e) { lean_assert(is_abstraction(e)); return static_cast<expr_abstraction*>(e); }
 inline expr_lambda *      to_lambda(expr_cell * e)      { lean_assert(is_lambda(e));      return static_cast<expr_lambda*>(e); }
 inline expr_pi *          to_pi(expr_cell * e)          { lean_assert(is_pi(e));          return static_cast<expr_pi*>(e); }
@@ -474,7 +455,6 @@ inline expr_metavar *     to_metavar(expr_cell * e)     { lean_assert(is_metavar
 inline expr_var *         to_var(expr const & e)         { return to_var(e.raw()); }
 inline expr_const *       to_constant(expr const & e)    { return to_constant(e.raw()); }
 inline expr_app *         to_app(expr const & e)         { return to_app(e.raw()); }
-inline expr_heq *         to_heq(expr const & e)         { return to_heq(e.raw()); }
 inline expr_abstraction * to_abstraction(expr const & e) { return to_abstraction(e.raw()); }
 inline expr_lambda *      to_lambda(expr const & e)      { return to_lambda(e.raw()); }
 inline expr_pi *          to_pi(expr const & e)          { return to_pi(e.raw()); }
@@ -496,8 +476,6 @@ inline optional<expr> const &  const_type(expr_cell * e) { return to_constant(e)
 inline value const & to_value(expr_cell * e)             { lean_assert(is_value(e)); return static_cast<expr_value*>(e)->get_value(); }
 inline unsigned      num_args(expr_cell * e)             { return to_app(e)->get_num_args(); }
 inline expr const &  arg(expr_cell * e, unsigned idx)    { return to_app(e)->get_arg(idx); }
-inline expr const &  heq_lhs(expr_cell * e)              { return to_heq(e)->get_lhs(); }
-inline expr const &  heq_rhs(expr_cell * e)              { return to_heq(e)->get_rhs(); }
 inline name const &  abst_name(expr_cell * e)            { return to_abstraction(e)->get_name(); }
 inline expr const &  abst_domain(expr_cell * e)          { return to_abstraction(e)->get_domain(); }
 inline expr const &  abst_body(expr_cell * e)            { return to_abstraction(e)->get_body(); }
@@ -529,8 +507,6 @@ inline unsigned      num_args(expr const & e)             { return to_app(e)->ge
 inline expr const &  arg(expr const & e, unsigned idx)    { return to_app(e)->get_arg(idx); }
 inline expr const *  begin_args(expr const & e)           { return to_app(e)->begin_args(); }
 inline expr const *  end_args(expr const & e)             { return to_app(e)->end_args(); }
-inline expr const &  heq_lhs(expr const & e)              { return to_heq(e)->get_lhs(); }
-inline expr const &  heq_rhs(expr const & e)              { return to_heq(e)->get_rhs(); }
 inline name const &  abst_name(expr const & e)            { return to_abstraction(e)->get_name(); }
 inline expr const &  abst_domain(expr const & e)          { return to_abstraction(e)->get_domain(); }
 inline expr const &  abst_body(expr const & e)            { return to_abstraction(e)->get_body(); }
@@ -647,18 +623,6 @@ template<typename F> expr update_let(expr const & e, F f) {
     std::tuple<optional<expr>, expr, expr> r = f(old_t, old_v, old_b);
     if (!is_eqp(std::get<0>(r), old_t) || !is_eqp(std::get<1>(r), old_v) || !is_eqp(std::get<2>(r), old_b))
         return mk_let(let_name(e), std::get<0>(r), std::get<1>(r), std::get<2>(r));
-    else
-        return e;
-}
-template<typename F> expr update_heq(expr const & e, F f) {
-    static_assert(std::is_same<typename std::result_of<F(expr const &, expr const &)>::type,
-                  std::pair<expr, expr>>::value,
-                  "update_heq: return type of f is not pair<expr, expr>");
-    expr const & old_l = heq_lhs(e);
-    expr const & old_r = heq_rhs(e);
-    std::pair<expr, expr> p = f(old_l, old_r);
-    if (!is_eqp(p.first, old_l) || !is_eqp(p.second, old_r))
-        return mk_heq(p.first, p.second);
     else
         return e;
 }

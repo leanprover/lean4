@@ -66,11 +66,4 @@ expr update_let(expr const & let, optional<expr> const & t, expr const & v, expr
     else
         return mk_let(let_name(let), t, v, b);
 }
-
-expr update_heq(expr const & eq, expr const & l, expr const & r) {
-    if (is_eqp(heq_lhs(eq), l) && is_eqp(heq_rhs(eq), r))
-        return eq;
-    else
-        return mk_heq(l, r);
-}
 }

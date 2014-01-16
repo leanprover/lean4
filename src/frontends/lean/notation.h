@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #pragma once
 #include <limits>
 namespace lean {
-constexpr unsigned g_eq_precedence    = 50;
 constexpr unsigned g_arrow_precedence = 25;
 constexpr unsigned g_app_precedence   = std::numeric_limits<unsigned>::max();
 }

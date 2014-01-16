@@ -402,6 +402,16 @@ static void tst20() {
     check_serializer(t);
 }
 
+static void tst21() {
+    local_context lctx;
+    lctx = cons(mk_lift(1, 2), lctx);
+    lctx = cons(mk_inst(1, Const("a")), lctx);
+    lctx = cons(mk_lift(0, 1), lctx);
+    expr m = mk_metavar("m1", lctx);
+    expr t = Const("f")(m, m, mk_metavar("m2"));
+    check_serializer(t);
+}
+
 int main() {
     save_stack_info();
     lean_assert(sizeof(expr) == sizeof(optional<expr>));
@@ -425,6 +435,7 @@ int main() {
     tst18();
     tst19();
     tst20();
+    tst21();
     std::cout << "sizeof(expr):            " << sizeof(expr) << "\n";
     std::cout << "sizeof(expr_app):        " << sizeof(expr_app) << "\n";
     std::cout << "sizeof(expr_cell):       " << sizeof(expr_cell) << "\n";

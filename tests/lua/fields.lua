@@ -1,0 +1,8 @@
+assert(nVal(0):fields() == mpz(0))
+assert(iVal(-1):fields() == mpz(-1))
+assert(rVal("1/2"):fields() == mpq("1/2"))
+local env = get_environment()
+local add = env:find_object({"Nat", "add"})
+assert(add)
+assert(add:get_value():fields() == nil)
+assert(add:get_value():is_value())

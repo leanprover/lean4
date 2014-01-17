@@ -8,13 +8,13 @@ universe H ≥ 1
 universe U ≥ H + 1
 definition TypeH := (Type H)
 
-axiom heq_eq {A : TypeH} (a : A) : a == a ↔ a = a
+axiom heq_eq {A : TypeH} (a b : A) : a == b ↔ a = b
 
-definition to_eq {A : TypeH} {a : A} (H : a == a) : a = a
-:= (heq_eq a) ◂ H
+definition to_eq {A : TypeH} {a b : A} (H : a == b) : a = b
+:= (heq_eq a b) ◂ H
 
-definition to_heq {A : TypeH} {a : A} (H : a = a) : a == a
-:= (symm (heq_eq a)) ◂ H
+definition to_heq {A : TypeH} {a b : A} (H : a = b) : a == b
+:= (symm (heq_eq a b)) ◂ H
 
 theorem hrefl {A : TypeH} (a : A) : a == a
 := to_heq (refl a)
@@ -34,15 +34,3 @@ axiom hpiext {A A' : TypeH} {B : A → TypeH} {B' : A' → TypeH} :
 
 axiom hallext {A A' : TypeH} {B : A → Bool} {B' : A' → Bool} :
       A = A' → (∀ x x', x == x' → B x == B' x') → (∀ x, B x) == (∀ x, B' x)
-
-variable cast {A B : TypeH} : A = B → A → B
-
-axiom cast_eq {A B : TypeH} (H : A = B) (a : A) : a == cast H a
-
-theorem cast_app {A A' : TypeH} {B : A → TypeH} {B' : A' → TypeH} {f : ∀ x, B x} {a : A} (Ha : A = A') (Hb : (∀ x, B x) = (∀ x, B' x)) :
-      cast Hb f (cast Ha a) == f a
-:= let s1 : cast Hb f == f  := hsymm (cast_eq Hb f),
-       s2 : cast Ha a == a  := hsymm (cast_eq Ha a)
-   in hcongr s1 s2
-
-

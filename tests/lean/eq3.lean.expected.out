@@ -1,10 +1,11 @@
   Set: pp::colors
   Set: pp::unicode
+  Imported 'heq'
   Assumed: Vector
   Assumed: n
   Assumed: v1
   Assumed: v2
   Assumed: v3
-  Assumed: cast
   Assumed: H1
   Assumed: H2
+htrans H1 H2 : v1 == v3

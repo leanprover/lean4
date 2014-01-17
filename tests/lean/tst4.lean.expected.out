@@ -10,7 +10,7 @@
   Assumed: EqNice
 @EqNice N n1 n2
 @f N n1 n2 : N
-@congr : ∀ (A B : TypeU') (f g : A → B) (a b : A), @eq (A → B) f g → @eq A a b → @eq B (f a) (g b)
+@congr : ∀ (A B : TypeU) (f g : A → B) (a b : A), @eq (A → B) f g → @eq A a b → @eq B (f a) (g b)
 @f N n1 n2
   Assumed: a
   Assumed: b

@@ -1,8 +1,8 @@
   Set: pp::colors
   Set: pp::unicode
   Imported 'find'
-theorem congr1 {A : TypeU'} {B : A → TypeU'} {f g : ∀ x : A, B x} (a : A) (H : f = g) : f a = g a
-theorem congr2 {A B : TypeU'} {a b : A} (f : A → B) (H : a = b) : f a = f b
-theorem congr {A B : TypeU'} {f g : A → B} {a b : A} (H1 : f = g) (H2 : a = b) : f a = g b
+theorem congr1 {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} (a : A) (H : f = g) : f a = g a
+theorem congr2 {A B : TypeU} {a b : A} (f : A → B) (H : a = b) : f a = f b
+theorem congr {A B : TypeU} {f g : A → B} {a b : A} (H1 : f = g) (H2 : a = b) : f a = g b
 find.lean:3:0: error: executing external script (/home/leo/projects/lean/build/debug/shell/find.lua:24), no object name in the environment matches the regular expression 'foo'
 find.lean:4:0: error: executing external script (/home/leo/projects/lean/build/debug/shell/find.lua:18), unfinished capture

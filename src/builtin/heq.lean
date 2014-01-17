@@ -1,5 +1,3 @@
-import macros
-
 -- Heterogenous equality
 variable heq {A B : TypeU} : A → B → Bool
 infixl 50 == : heq

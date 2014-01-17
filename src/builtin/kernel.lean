@@ -201,7 +201,7 @@ theorem boolext {a b : Bool} (Hab : a → b) (Hba : b → a) : a = b
            (λ Hbt : b = true,  false_elim (a = b) (subst (Hba (eqt_elim Hbt)) Haf))
            (λ Hbf : b = false, trans Haf (symm Hbf)))
 
-theorem iff_intro {a b : Bool} (Hab : a → b) (Hba : b → a) : a = b
+theorem iff_intro {a b : Bool} (Hab : a → b) (Hba : b → a) : a ↔ b
 := boolext Hab Hba
 
 theorem eqt_intro {a : Bool} (H : a) : a = true

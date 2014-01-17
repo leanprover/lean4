@@ -28,7 +28,7 @@
   '(("\\_<\\(Bool\\|Int\\|Nat\\|Real\\|Type\\|TypeU\\|ℕ\\|ℤ\\)\\_>" . 'font-lock-type-face)
     ("\\_<\\(calc\\|have\\|in\\|let\\|forall\\|exists\\|if\\|then\\|else\\|assume\\|take\\|obtain\\|from\\)\\_>" . font-lock-keyword-face)
     ("\"[^\"]*\"" . 'font-lock-string-face)
-    ("\\(->\\|/\\\\\\|==\\|\\\\/\\|[*+/<=>¬∧∨≠≤≥-⟷]\\)" . 'font-lock-constant-face)
+    ("\\(->\\|↔\\|/\\\\\\|==\\|\\\\/\\|[*+/<=>¬∧∨≠≤≥-]\\)" . 'font-lock-constant-face)
     ("\\(λ\\|→\\|∃\\|∀\\|:\\|:=\\)" . font-lock-constant-face)
     ("\\_<\\(\\b.*_tac\\|Cond\\|OrElse\\|T\\(?:hen\\|ry\\)\\|When\\|apply\\|b\\(?:ack\\|eta\\)\\|done\\|exact\\)\\_>" . 'font-lock-constant-face)
     ("\\(universe\\|theorem\\|axiom\\|definition\\|variable\\|builtin\\)[ \t]*\\([^ \t\n]*\\)" (2 'font-lock-function-name-face))

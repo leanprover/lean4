@@ -53,8 +53,8 @@ pair<expr, expr> rewrite_lambda_type(environment const & env, context & ctx, exp
         expr const & body      = abst_body(v);
         // expr const & pf_ty     = result_ty.second;
         expr const & new_v     = mk_lambda(n, new_ty, body);
-        expr const & ty_ty     = ti(ty, ctx);
-        lean_assert_eq(ty_ty, ti(new_ty, ctx)); // TODO(soonhok): generalize for hetreogeneous types
+        // expr const & ty_ty     = ti(ty, ctx);
+        // lean_assert_eq(ty_ty, ti(new_ty, ctx)); // TODO(soonhok): generalize for hetreogeneous types
         expr proof;
 #if 0  // TODO(Leo): we don't have heterogeneous equality anymore
             = mk_subst_th(ty_ty, ty, new_ty,

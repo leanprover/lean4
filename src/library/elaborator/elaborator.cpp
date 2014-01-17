@@ -1136,12 +1136,12 @@ class elaborator::imp {
             // We approximate and only consider the most useful ones.
             justification new_jst(new destruct_justification(c));
             if (is_bool(a)) {
-                expr choices[4] = { Bool, Type(), TypeU, TypeUp };
-                push_active(mk_choice_constraint(get_context(c), b, 4, choices, new_jst));
+                expr choices[3] = { Bool, Type(), TypeU };
+                push_active(mk_choice_constraint(get_context(c), b, 3, choices, new_jst));
                 return true;
             } else if (m_env->is_ge(ty_level(a), m_U)) {
-                expr choices[3] = { a, Type(ty_level(a) + 1), TypeUp };
-                push_active(mk_choice_constraint(get_context(c), b, 3, choices, new_jst));
+                expr choices[2] = { a, Type(ty_level(a) + 1) };
+                push_active(mk_choice_constraint(get_context(c), b, 2, choices, new_jst));
                 return true;
             } else {
                 expr choices[4] = { a, Type(ty_level(a) + 1), TypeU };
@@ -1209,10 +1209,6 @@ class elaborator::imp {
             } else if (b == TypeU) {
                 expr choices[4] = { TypeU, Type(level() + 1), Type(), Bool };
                 push_active(mk_choice_constraint(get_context(c), a, 4, choices, new_jst));
-                return true;
-            } else if (b == TypeUp) {
-                expr choices[5] = { TypeUp, TypeU, Type(level() + 1), Type(), Bool };
-                push_active(mk_choice_constraint(get_context(c), a, 5, choices, new_jst));
                 return true;
             } else {
                 level const & lvl = ty_level(b);

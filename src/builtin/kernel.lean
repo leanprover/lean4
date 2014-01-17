@@ -1,21 +1,14 @@
 import macros
 
-universe U   ≥ 1
-universe U' >= U + 1
+universe U ≥ 1
+definition TypeU  := (Type U)
 
 variable Bool : Type
 -- The following builtin declarations can be removed as soon as Lean supports inductive datatypes and match expressions
 builtin true : Bool
 builtin false : Bool
 
-definition TypeU  := (Type U)
-definition TypeU' := (Type U')
-
-builtin eq {A : (Type U')} (a b : A) : Bool
-infix 50 = : eq
-
 definition not (a : Bool) := a → false
-
 notation 40 ¬ _ : not
 
 definition or (a b : Bool) := ¬ a → b
@@ -28,10 +21,13 @@ infixr 35 && : and
 infixr 35 /\ : and
 infixr 35 ∧  : and
 
+definition implies (a b : Bool) := a → b
+
+builtin eq {A : (Type U)} (a b : A) : Bool
+infix 50 = : eq
+
 definition neq {A : TypeU} (a b : A) := ¬ (a = b)
 infix 50 ≠ : neq
-
-definition implies (a b : Bool) := a → b
 
 definition iff (a b : Bool) := a = b
 infixr 25 <-> : iff
@@ -52,25 +48,25 @@ theorem em (a : Bool) : a ∨ ¬ a
 
 axiom case (P : Bool → Bool) (H1 : P true) (H2 : P false) (a : Bool) : P a
 
-axiom refl {A : TypeU'} (a : A) : a = a
+axiom refl {A : TypeU} (a : A) : a = a
 
-axiom subst {A : TypeU'} {a b : A} {P : A → Bool} (H1 : P a) (H2 : a = b) : P b
+axiom subst {A : TypeU} {a b : A} {P : A → Bool} (H1 : P a) (H2 : a = b) : P b
 
 -- Function extensionality
-axiom funext {A : TypeU'} {B : A → TypeU'} {f g : ∀ x : A, B x} (H : ∀ x : A, f x = g x) : f = g
+axiom funext {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} (H : ∀ x : A, f x = g x) : f = g
 
 -- Forall extensionality
 axiom allext {A : TypeU} {B C : A → Bool} (H : ∀ x : A, B x = C x) : (∀ x : A, B x) = (∀ x : A, C x)
 
 -- Alias for subst where we can provide P explicitly, but keep A,a,b implicit
-theorem substp {A : TypeU'} {a b : A} (P : A → Bool) (H1 : P a) (H2 : a = b) : P b
+theorem substp {A : TypeU} {a b : A} (P : A → Bool) (H1 : P a) (H2 : a = b) : P b
 := subst H1 H2
 
 -- We will mark not as opaque later
 theorem not_intro {a : Bool} (H : a → false) : ¬ a
 := H
 
-theorem eta {A : TypeU'} {B : A → TypeU} (f : ∀ x : A, B x) : (λ x : A, f x) = f
+theorem eta {A : TypeU} {B : A → TypeU} (f : ∀ x : A, B x) : (λ x : A, f x) = f
 := funext (λ x : A, refl (f x))
 
 theorem trivial : true
@@ -154,10 +150,10 @@ theorem or_elim {a b c : Bool} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
 theorem refute {a : Bool} (H : ¬ a → false) : a
 := or_elim (em a) (λ H1 : a, H1) (λ H1 : ¬ a, false_elim a (H H1))
 
-theorem symm {A : TypeU'} {a b : A} (H : a = b) : b = a
+theorem symm {A : TypeU} {a b : A} (H : a = b) : b = a
 := subst (refl a) H
 
-theorem trans {A : TypeU'} {a b c : A} (H1 : a = b) (H2 : b = c) : a = c
+theorem trans {A : TypeU} {a b c : A} (H1 : a = b) (H2 : b = c) : a = c
 := subst H1 H2
 
 infixl 100 ⋈ : trans
@@ -177,13 +173,13 @@ theorem eqt_elim {a : Bool} (H : a = true) : a
 theorem eqf_elim {a : Bool} (H : a = false) : ¬ a
 := not_intro (λ Ha : a, H ◂ Ha)
 
-theorem congr1 {A : TypeU'} {B : A → TypeU'} {f g : ∀ x : A, B x} (a : A) (H : f = g) : f a = g a
+theorem congr1 {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} (a : A) (H : f = g) : f a = g a
 := substp (fun h : (∀ x : A, B x), f a = h a) (refl (f a)) H
 
-theorem congr2 {A B : TypeU'} {a b : A} (f : A → B) (H : a = b) : f a = f b
+theorem congr2 {A B : TypeU} {a b : A} (f : A → B) (H : a = b) : f a = f b
 := substp (fun x : A, f a = f x) (refl (f a)) H
 
-theorem congr {A B : TypeU'} {f g : A → B} {a b : A} (H1 : f = g) (H2 : a = b) : f a = g b
+theorem congr {A B : TypeU} {f g : A → B} {a b : A} (H1 : f = g) (H2 : a = b) : f a = g b
 := subst (congr2 f H2) (congr1 b H1)
 
 -- Recall that exists is defined as ¬ ∀ x : A, ¬ P x

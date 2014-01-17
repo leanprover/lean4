@@ -16,8 +16,6 @@ namespace lean {
 // Bultin universe variables m and u
 static level u_lvl(name("U"));
 expr const TypeU = Type(u_lvl);
-static level up_lvl(name("U'"));
-expr const TypeUp = Type(up_lvl);
 // =======================================
 
 // =======================================
@@ -92,8 +90,8 @@ class eq_fn_value : public value {
     expr m_type;
     static expr mk_type() {
         expr A    = Const("A");
-        // Pi (A: TypeUp), A -> A -> Bool
-        return Pi({A, TypeUp}, (A >> (A >> Bool)));
+        // Pi (A: TypeU), A -> A -> Bool
+        return Pi({A, TypeU}, (A >> (A >> Bool)));
     }
 public:
     eq_fn_value():m_type(mk_type()) {}

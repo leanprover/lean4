@@ -5,12 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 // Automatically generated file, DO NOT EDIT
 #include "kernel/expr.h"
 namespace lean {
-expr mk_Bool();
-bool is_Bool(expr const & e);
 expr mk_TypeU();
 bool is_TypeU(expr const & e);
-expr mk_TypeU_();
-bool is_TypeU_(expr const & e);
+expr mk_Bool();
+bool is_Bool(expr const & e);
 expr mk_not_fn();
 bool is_not_fn(expr const & e);
 inline bool is_not(expr const & e) { return is_app(e) && is_not_fn(arg(e, 0)); }
@@ -23,14 +21,14 @@ expr mk_and_fn();
 bool is_and_fn(expr const & e);
 inline bool is_and(expr const & e) { return is_app(e) && is_and_fn(arg(e, 0)); }
 inline expr mk_and(expr const & e1, expr const & e2) { return mk_app({mk_and_fn(), e1, e2}); }
-expr mk_neq_fn();
-bool is_neq_fn(expr const & e);
-inline bool is_neq(expr const & e) { return is_app(e) && is_neq_fn(arg(e, 0)); }
-inline expr mk_neq(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_neq_fn(), e1, e2, e3}); }
 expr mk_implies_fn();
 bool is_implies_fn(expr const & e);
 inline bool is_implies(expr const & e) { return is_app(e) && is_implies_fn(arg(e, 0)); }
 inline expr mk_implies(expr const & e1, expr const & e2) { return mk_app({mk_implies_fn(), e1, e2}); }
+expr mk_neq_fn();
+bool is_neq_fn(expr const & e);
+inline bool is_neq(expr const & e) { return is_app(e) && is_neq_fn(arg(e, 0)); }
+inline expr mk_neq(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_neq_fn(), e1, e2, e3}); }
 expr mk_iff_fn();
 bool is_iff_fn(expr const & e);
 inline bool is_iff(expr const & e) { return is_app(e) && is_iff_fn(arg(e, 0)); }

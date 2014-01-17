@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 namespace lean {
 // See src/builtin/kernel.lean for signatures.
 extern expr const TypeU;
-extern expr const TypeUp;
 
 /** \brief Return the Lean Boolean type. */
 expr mk_bool_type();

@@ -6,14 +6,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 #include "kernel/environment.h"
 #include "kernel/decl_macros.h"
 namespace lean {
-MK_CONSTANT(Bool, name("Bool"));
 MK_CONSTANT(TypeU, name("TypeU"));
-MK_CONSTANT(TypeU_, name("TypeU_"));
+MK_CONSTANT(Bool, name("Bool"));
 MK_CONSTANT(not_fn, name("not"));
 MK_CONSTANT(or_fn, name("or"));
 MK_CONSTANT(and_fn, name("and"));
-MK_CONSTANT(neq_fn, name("neq"));
 MK_CONSTANT(implies_fn, name("implies"));
+MK_CONSTANT(neq_fn, name("neq"));
 MK_CONSTANT(iff_fn, name("iff"));
 MK_CONSTANT(exists_fn, name("exists"));
 MK_CONSTANT(em_fn, name("em"));

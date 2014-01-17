@@ -27,13 +27,13 @@ axiom hcongr {A A' : TypeH} {B : A → TypeH} {B' : A' → TypeH} {f : ∀ x, B 
       f == f' → a == a' → f a == f' a'
 
 axiom hfunext {A A' : TypeH} {B : A → TypeH} {B' : A' → TypeH} {f : ∀ x, B x} {f' : ∀ x, B' x} :
-      A = A' → (∀ x x', f x == f' x') → f == f'
+      A = A' → (∀ x x', x == x' → f x == f' x') → f == f'
 
 axiom hpiext {A A' : TypeH} {B : A → TypeH} {B' : A' → TypeH} :
-      A = A' → (∀ x x', B x == B' x') → (∀ x, B x) == (∀ x, B' x)
+      A = A' → (∀ x x', x == x' → B x == B' x') → (∀ x, B x) == (∀ x, B' x)
 
 axiom hallext {A A' : TypeH} {B : A → Bool} {B' : A' → Bool} :
-      A = A' → (∀ x x', B x == B' x') → (∀ x, B x) == (∀ x, B' x)
+      A = A' → (∀ x x', x == x' → B x == B' x') → (∀ x, B x) == (∀ x, B' x)
 
 variable cast {A B : TypeH} : A = B → A → B
 

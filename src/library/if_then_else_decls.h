@@ -23,4 +23,13 @@ inline expr mk_if_imp_then_th(expr const & e1, expr const & e2, expr const & e3,
 expr mk_if_imp_else_fn();
 bool is_if_imp_else_fn(expr const & e);
 inline expr mk_if_imp_else_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_if_imp_else_fn(), e1, e2, e3, e4, e5}); }
+expr mk_app_if_distribute_fn();
+bool is_app_if_distribute_fn(expr const & e);
+inline expr mk_app_if_distribute_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_app_if_distribute_fn(), e1, e2, e3, e4, e5, e6}); }
+expr mk_eq_if_distributer_fn();
+bool is_eq_if_distributer_fn(expr const & e);
+inline expr mk_eq_if_distributer_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_eq_if_distributer_fn(), e1, e2, e3, e4, e5}); }
+expr mk_eq_if_distributel_fn();
+bool is_eq_if_distributel_fn(expr const & e);
+inline expr mk_eq_if_distributel_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_eq_if_distributel_fn(), e1, e2, e3, e4, e5}); }
 }

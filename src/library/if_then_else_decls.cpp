@@ -12,4 +12,7 @@ MK_CONSTANT(if_a_a_fn, name("if_a_a"));
 MK_CONSTANT(if_congr_fn, name("if_congr"));
 MK_CONSTANT(if_imp_then_fn, name("if_imp_then"));
 MK_CONSTANT(if_imp_else_fn, name("if_imp_else"));
+MK_CONSTANT(app_if_distribute_fn, name("app_if_distribute"));
+MK_CONSTANT(eq_if_distributer_fn, name("eq_if_distributer"));
+MK_CONSTANT(eq_if_distributel_fn, name("eq_if_distributel"));
 }

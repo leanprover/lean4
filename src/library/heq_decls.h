@@ -14,12 +14,10 @@ bool is_heq_eq_fn(expr const & e);
 inline expr mk_heq_eq_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_heq_eq_fn(), e1, e2, e3}); }
 expr mk_to_eq_fn();
 bool is_to_eq_fn(expr const & e);
-inline bool is_to_eq(expr const & e) { return is_app(e) && is_to_eq_fn(arg(e, 0)); }
-inline expr mk_to_eq(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_to_eq_fn(), e1, e2, e3, e4}); }
+inline expr mk_to_eq_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_to_eq_fn(), e1, e2, e3, e4}); }
 expr mk_to_heq_fn();
 bool is_to_heq_fn(expr const & e);
-inline bool is_to_heq(expr const & e) { return is_app(e) && is_to_heq_fn(arg(e, 0)); }
-inline expr mk_to_heq(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_to_heq_fn(), e1, e2, e3, e4}); }
+inline expr mk_to_heq_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_to_heq_fn(), e1, e2, e3, e4}); }
 expr mk_hrefl_fn();
 bool is_hrefl_fn(expr const & e);
 inline expr mk_hrefl_th(expr const & e1, expr const & e2) { return mk_app({mk_hrefl_fn(), e1, e2}); }

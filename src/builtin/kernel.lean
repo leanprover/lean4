@@ -173,8 +173,8 @@ theorem eqt_elim {a : Bool} (H : a = true) : a
 theorem eqf_elim {a : Bool} (H : a = false) : ¬ a
 := not_intro (λ Ha : a, H ◂ Ha)
 
-theorem congr1 {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} (a : A) (H : f = g) : f a = g a
-:= substp (fun h : (∀ x : A, B x), f a = h a) (refl (f a)) H
+theorem congr1 {A B : TypeU} {f g : A → B} (a : A) (H : f = g) : f a = g a
+:= substp (fun h : A → B, f a = h a) (refl (f a)) H
 
 theorem congr2 {A B : TypeU} {a b : A} (f : A → B) (H : a = b) : f a = f b
 := substp (fun x : A, f a = f x) (refl (f a)) H

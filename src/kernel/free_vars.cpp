@@ -220,7 +220,10 @@ public:
 };
 
 unsigned free_var_range(expr const & e, metavar_env const & menv) {
-    return free_var_range_fn(some_menv(menv))(e);
+    if (closed(e))
+        return 0;
+    else
+        return free_var_range_fn(some_menv(menv))(e);
 }
 
 unsigned free_var_range(expr const & e) {
@@ -346,7 +349,7 @@ public:
 };
 
 bool has_free_var(expr const & e, unsigned low, unsigned high, optional<metavar_env> const & menv) {
-    return high > low && has_free_var_in_range_fn(low, high, menv)(e);
+    return high > low && !closed(e) && has_free_var_in_range_fn(low, high, menv)(e);
 }
 bool has_free_var(expr const & e, unsigned low, unsigned high, metavar_env const & menv) { return has_free_var(e, low, high, some_menv(menv)); }
 bool has_free_var(expr const & e, unsigned low, unsigned high) { return has_free_var(e, low, high, none_menv()); }
@@ -366,7 +369,7 @@ bool has_free_var_ge(expr const & e, unsigned low, metavar_env const & menv) { r
 bool has_free_var_ge(expr const & e, unsigned low) { return has_free_var(e, low, std::numeric_limits<unsigned>::max()); }
 
 expr lower_free_vars(expr const & e, unsigned s, unsigned d, optional<metavar_env> const & DEBUG_CODE(menv)) {
-    if (d == 0)
+    if (d == 0 || closed(e))
         return e;
     lean_assert(s >= d);
     lean_assert(!has_free_var(e, s-d, s, menv));
@@ -397,7 +400,7 @@ context_entry lower_free_vars(context_entry const & e, unsigned s, unsigned d, m
 }
 
 expr lift_free_vars(expr const & e, unsigned s, unsigned d, optional<metavar_env> const & menv) {
-    if (d == 0)
+    if (d == 0 || closed(e))
         return e;
     return replace(e, [=](expr const & e, unsigned offset) -> expr {
             if (is_var(e) && var_idx(e) >= s + offset) {

@@ -4,10 +4,10 @@ infixl 50 == : heq
 
 axiom heq_eq {A : TypeU} (a b : A) : a == b ↔ a = b
 
-definition to_eq {A : TypeU} {a b : A} (H : a == b) : a = b
+theorem to_eq {A : TypeU} {a b : A} (H : a == b) : a = b
 := (heq_eq a b) ◂ H
 
-definition to_heq {A : TypeU} {a b : A} (H : a = b) : a == b
+theorem to_heq {A : TypeU} {a b : A} (H : a = b) : a == b
 := (symm (heq_eq a b)) ◂ H
 
 theorem hrefl {A : TypeU} (a : A) : a == a

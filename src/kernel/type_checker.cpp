@@ -18,6 +18,16 @@ Author: Leonardo de Moura
 #include "kernel/type_checker_justification.h"
 
 namespace lean {
+expr pi_body_at(expr const & pi, expr const & a) {
+    lean_assert(is_pi(pi));
+    if (closed(abst_body(pi)))
+        return abst_body(pi);
+    else if (closed(a))
+        return instantiate_with_closed(abst_body(pi), a);
+    else
+        return instantiate(abst_body(pi), a);
+}
+
 static name g_x_name("x");
 /** \brief Auxiliary functional object used to implement infer_type. */
 class type_checker::imp {
@@ -225,12 +235,7 @@ class type_checker::imp {
                     auto mk_justification = [&](){ return mk_app_type_match_justification(ctx, e, i); };
                     if (!is_convertible(c_t, abst_domain(f_t), ctx, mk_justification))
                         throw app_type_mismatch_exception(env(), ctx, e, arg_types.size(), arg_types.data());
-                    if (closed(abst_body(f_t)))
-                        f_t = abst_body(f_t);
-                    else if (closed(c))
-                        f_t = instantiate_with_closed(abst_body(f_t), c);
-                    else
-                        f_t = instantiate(abst_body(f_t), c);
+                    f_t = pi_body_at(f_t, c);
                     i++;
                     if (i == num)
                         return save_result(e, f_t, shared);
@@ -426,6 +431,16 @@ public:
             return is_bool(normalize(t, ctx, true));
     }
 
+    expr ensure_pi(expr const & e, context const & ctx) {
+        set_ctx(ctx);
+        update_menv(none_menv());
+        try {
+            return check_pi(e, expr(), ctx);
+        } catch (exception &) {
+            throw exception("internal bug, expression is not a Pi");
+        }
+    }
+
     void clear_cache() {
         m_cache.clear();
         m_normalizer.clear();
@@ -473,6 +488,9 @@ bool type_checker::is_convertible(expr const & t1, expr const & t2, context cons
 }
 void type_checker::check_type(expr const & e, context const & ctx) {
     m_ptr->check_type(e, ctx);
+}
+expr type_checker::ensure_pi(expr const & e, context const & ctx) {
+    return m_ptr->ensure_pi(e, ctx);
 }
 bool type_checker::is_proposition(expr const & e, context const & ctx, optional<metavar_env> const & menv) {
     return m_ptr->is_proposition(e, ctx, menv);

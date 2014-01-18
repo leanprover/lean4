@@ -14,6 +14,15 @@ Author: Leonardo de Moura
 namespace lean {
 class environment;
 class normalizer;
+
+/**
+   \brief Given pi == (Pi x : A, B x), return (B a)
+
+   \pre is_pi(pi)
+   \pre type of a is A
+*/
+expr pi_body_at(expr const & pi, expr const & a);
+
 /**
    \brief Lean Type Checker. It can also be used to infer types, universes and check whether a
    type \c A is convertible to a type \c B.
@@ -86,6 +95,9 @@ public:
     bool is_flex_proposition(expr e, context ctx, optional<metavar_env> const & menv);
     bool is_flex_proposition(expr const & e, context const & ctx, metavar_env const & menv);
     bool is_flex_proposition(expr const & e, context const & ctx = context());
+
+    /** \brief Return a Pi if \c e is convertible to Pi. Throw an exception otherwise. */
+    expr ensure_pi(expr const & e, context const & ctx = context());
 
     /** \brief Reset internal caches */
     void clear();

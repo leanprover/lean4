@@ -2,11 +2,11 @@
   Set: pp::unicode
   Imported 'if_then_else'
 Notation has been redefined, the existing notation:
-  notation 60 if _ then _ else _
+  notation 45 if _ then _ else _
 has been replaced with:
   notation 10 if _ then _
 because they conflict with each other.
-The precedence of 'then' changed from 60 to 10.
+The precedence of 'then' changed from 45 to 10.
 notation 10 if _ then _ : implies
 if ⊤ then ⊥
 if ⊤ then (if a then ⊥)

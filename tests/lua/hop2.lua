@@ -16,14 +16,19 @@ function funbody(e)
    return e
 end
 
-function hoptst(rule, target, expected)
+function hoptst(rule, target, expected, perfect_match, no_env)
    if expected == nil then
       expected = true
    end
    local th  = parse_lean(rule)
    local p   = pibody(th):arg(2)
    local t   = funbody(parse_lean(target))
-   local r   = hop_match(p, t)
+   local r
+   if no_env then
+      r = hop_match(p, t, nil)
+   else
+      r = hop_match(p, t)
+   end
    -- print(p, t)
    if (r and not expected) or (not r and expected) then
       error("test failed: " .. tostring(rule) .. " === " .. tostring(target))
@@ -35,13 +40,15 @@ function hoptst(rule, target, expected)
          print("#" .. tostring(i) .. " <--- " .. tostring(r[i]))
       end
       print ""
-      t = t:beta_reduce()
-      if s ~= t then
-         print("Mismatch")
-         print(s)
-         print(t)
+      if perfect_match then
+         t = t:beta_reduce()
+         if s ~= t then
+            print("Mismatch")
+            print(s)
+            print(t)
+         end
+         assert(s == t)
       end
-      assert(s == t)
    end
 end
 
@@ -118,8 +125,9 @@ hoptst([[forall (h : Nat -> Bool), (forall x y : Nat, h x) = true]],
 hoptst([[forall (h : Nat -> Bool), (forall x y : Nat, h y) = true]],
        [[fun (a b : Nat), forall x y : Nat,  (fun z : Nat, z + y) (fun w1 w2 : Nat, w1 + w2 + y)]])
 
+parse_lean_cmds([[
+   definition ww := 0
+]])
 
-
-
-
-
+hoptst('ww = 0', '0', true, false)
+hoptst('ww = 0', '0', false, false, true)

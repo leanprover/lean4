@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/lua.h"
 #include "kernel/expr.h"
+#include "kernel/environment.h"
 
 namespace lean {
 /**
@@ -24,7 +25,11 @@ namespace lean {
       2- A free variable is the function, but all other arguments are distinct locally bound variables.
 
    \pre \c subst must be big enough to store all free variables occurring in subst
+
+   If an environment is provided, then a constant \c c matches a term \c t if
+   \c c is definitionally equal to \c t.
 */
-bool hop_match(expr const & p, expr const & t, buffer<optional<expr>> & subst);
+bool hop_match(expr const & p, expr const & t, buffer<optional<expr>> & subst,
+               optional<ro_environment> const & env = optional<ro_environment>());
 void open_hop_match(lua_State * L);
 }

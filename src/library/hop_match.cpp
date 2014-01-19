@@ -11,12 +11,14 @@ Author: Leonardo de Moura
 #include "kernel/kernel.h"
 #include "library/equality.h"
 #include "library/kernel_bindings.h"
+#include "library/hop_match.h"
 
 namespace lean {
 
 class hop_match_fn {
     buffer<optional<expr>> & m_subst;
     buffer<expr>             m_vars;
+    optional<ro_environment> m_env;
 
     bool is_free_var(expr const & x, unsigned ctx_size) const {
         return is_var(x) && var_idx(x) >= ctx_size;
@@ -61,7 +63,6 @@ class hop_match_fn {
         }
         return true;
     }
-
 
     /**
        \brief Return t' when all locally bound variables in \c t occur in vars at positions [0, vars_size).
@@ -150,6 +151,24 @@ class hop_match_fn {
         return some_expr(r);
     }
 
+    optional<expr> unfold_constant(expr const & c) {
+        if (is_constant(c)) {
+            auto obj = (*m_env)->find_object(const_name(c));
+            if (obj && (obj->is_definition() || obj->is_builtin()))
+                return some_expr(obj->get_value());
+        }
+        return none_expr();
+    }
+
+    bool match_constant(expr const & p, expr const & t) {
+        if (p == t)
+            return true;
+        auto new_p = unfold_constant(p);
+        if (new_p)
+            return match_constant(*new_p, t);
+        return false;
+    }
+
     bool match(expr const & p, expr const & t, context const & ctx, unsigned ctx_size) {
         lean_assert(ctx.size() == ctx_size);
         if (is_free_var(p, ctx_size)) {
@@ -182,6 +201,10 @@ class hop_match_fn {
 
         if (p == t && !has_free_var_ge(p, ctx_size)) {
             return true;
+        }
+
+        if (m_env && is_constant(p)) {
+            return match_constant(p, t);
         }
 
         if (is_equality(p) && is_equality(t) && (!is_eq(p) || !is_eq(t))) {
@@ -228,32 +251,32 @@ class hop_match_fn {
         lean_unreachable();
     }
 public:
-    hop_match_fn(buffer<optional<expr>> & subst):m_subst(subst) {}
+    hop_match_fn(buffer<optional<expr>> & subst, optional<ro_environment> const & env):m_subst(subst), m_env(env) {}
 
     bool operator()(expr const & p, expr const & t) {
         return match(p, t, context(), 0);
     }
 };
 
-bool hop_match(expr const & p, expr const & t, buffer<optional<expr>> & subst) {
-    return hop_match_fn(subst)(p, t);
+bool hop_match(expr const & p, expr const & t, buffer<optional<expr>> & subst, optional<ro_environment> const & env) {
+    return hop_match_fn(subst, env)(p, t);
 }
 
-static int hop_match(lua_State * L) {
+static int hop_match_core(lua_State * L, optional<ro_environment> const & env) {
     int nargs = lua_gettop(L);
     expr p    = to_expr(L, 1);
     expr t    = to_expr(L, 2);
     int k     = 0;
-    if (nargs == 3) {
-        k = luaL_checkinteger(L, 3);
+    if (nargs >= 4) {
+        k = luaL_checkinteger(L, 4);
         if (k < 0)
-            throw exception("hop_match, arg #3 must be non-negative");
+            throw exception("hop_match, arg #4 must be non-negative");
     } else {
         k = free_var_range(p);
     }
     buffer<optional<expr>> subst;
     subst.resize(k);
-    if (hop_match(p, t, subst)) {
+    if (hop_match(p, t, subst, env)) {
         lua_newtable(L);
         int i = 1;
         for (auto s : subst) {
@@ -269,6 +292,21 @@ static int hop_match(lua_State * L) {
         lua_pushnil(L);
     }
     return 1;
+}
+
+static int hop_match(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs >= 3) {
+        if (!lua_isnil(L, 3)) {
+            ro_shared_environment env(L, 3);
+            return hop_match_core(L, optional<ro_environment>(env));
+        } else {
+            return hop_match_core(L, optional<ro_environment>());
+        }
+    } else {
+        ro_shared_environment env(L);
+        return hop_match_core(L, optional<ro_environment>(env));
+    }
 }
 
 void open_hop_match(lua_State * L) {

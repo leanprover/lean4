@@ -4,8 +4,6 @@
   Proved: trans_refl_left
   Proved: trans_assoc
   Proved: symm_trans
-  Proved: trans_valley1
-  Proved: trans_valley2
   Assumed: a1
   Assumed: a2
   Assumed: a3

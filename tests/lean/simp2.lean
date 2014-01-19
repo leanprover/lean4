@@ -16,15 +16,6 @@ theorem symm_trans {A : TypeU} {a b c : A} (Hab : a = b) (Hbc : b = c) :
          symm (trans Hab Hbc) = trans (symm Hbc) (symm Hab)
 := proof_irrel (symm (trans Hab Hbc)) (trans (symm Hbc) (symm Hab))
 
-theorem trans_valley1 {A : TypeU} {a b c d : A} (Hab : a = b) (Hbc : b = c) (Hcb : c = b) (Hbd : b = d) :
-         trans Hab (trans Hbc (trans Hcb Hbd)) = trans Hab Hbd
-:= proof_irrel (trans Hab (trans Hbc (trans Hcb Hbd))) (trans Hab Hbd)
-
-theorem trans_valley2 {A : TypeU} {a b c d e : A} (Hab : a = b) (Hbc : b = c) (Hcb : c = b) (Hbd : b = d) (Hde : d = e) :
-         trans Hab (trans Hbc (trans Hcb (trans Hbd Hde))) = trans Hab (trans Hbd Hde)
-:= proof_irrel (trans Hab (trans Hbc (trans Hcb (trans Hbd Hde)))) (trans Hab (trans Hbd Hde))
-
-
 -- Now, we define a new rewrite rule set for these theorems
 rewrite_set proof_simp
 add_rewrite trans_refl_right trans_refl_left trans_assoc symm_trans : proof_simp

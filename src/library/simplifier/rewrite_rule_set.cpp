@@ -15,15 +15,10 @@ Author: Leonardo de Moura
 #include "library/simplifier/rewrite_rule_set.h"
 
 namespace lean {
-struct rewrite_rule_set::rewrite_rule {
-    name m_id;
-    expr m_lhs;
-    expr m_ceq;
-    expr m_proof;
-    bool m_is_permutation;
-    rewrite_rule(name const & id, expr const & lhs, expr const & ceq, expr const & proof, bool is_permutation):
-        m_id(id), m_lhs(lhs), m_ceq(ceq), m_proof(proof), m_is_permutation(is_permutation) {}
-};
+rewrite_rule::rewrite_rule(name const & id, expr const & lhs, expr const & rhs, expr const & ceq, expr const & proof,
+                           unsigned num_args, bool is_permutation):
+    m_id(id), m_lhs(lhs), m_rhs(rhs), m_ceq(ceq), m_proof(proof), m_num_args(num_args), m_is_permutation(is_permutation) {
+}
 
 rewrite_rule_set::rewrite_rule_set(ro_environment const & env):m_env(env.to_weak_ref()) {}
 rewrite_rule_set::rewrite_rule_set(rewrite_rule_set const & other):
@@ -36,13 +31,16 @@ void rewrite_rule_set::insert(name const & id, expr const & th, expr const & pro
         expr const & ceq   = p.first;
         expr const & proof = p.second;
         bool is_perm       = is_permutation_ceq(ceq);
-        expr lhs = ceq;
-        while (is_pi(lhs)) {
-            lhs = abst_body(lhs);
+        expr eq = ceq;
+        unsigned num = 0;
+        while (is_pi(eq)) {
+            eq = abst_body(eq);
+            num++;
         }
-        lean_assert(is_equality(lhs));
-        lhs = arg(lhs, num_args(lhs) - 2);
-        m_rule_set.emplace_front(id, lhs, ceq, proof, is_perm);
+        lean_assert(is_equality(eq));
+        m_rule_set = cons(rewrite_rule(id, arg(eq, num_args(eq) - 2), arg(eq, num_args(eq) - 1),
+                                       ceq, proof, num, is_perm),
+                          m_rule_set);
     }
 }
 
@@ -57,7 +55,7 @@ void rewrite_rule_set::insert(name const & th_name) {
 }
 
 bool rewrite_rule_set::enabled(rewrite_rule const & rule) const {
-    return !m_disabled_rules.contains(rule.m_id);
+    return !m_disabled_rules.contains(rule.get_id());
 }
 
 bool rewrite_rule_set::enabled(name const & id) const {
@@ -71,18 +69,19 @@ void rewrite_rule_set::enable(name const & id, bool f) {
         m_disabled_rules.insert(id);
 }
 
-void rewrite_rule_set::for_each_match_candidate(expr const &, match_fn const & fn) const {
+bool rewrite_rule_set::find_match(expr const &, match_fn const & fn) const {
     auto l = m_rule_set;
     for (auto const & rule : l) {
-        if (enabled(rule) && fn(rule.m_lhs, rule.m_ceq, rule.m_is_permutation, rule.m_proof))
-            return;
+        if (enabled(rule) && fn(rule))
+            return true;
     }
+    return false;
 }
 
 void rewrite_rule_set::for_each(visit_fn const & fn) const {
     auto l = m_rule_set;
     for (auto const & rule : l) {
-        fn(rule.m_id, rule.m_ceq, rule.m_proof, enabled(rule));
+        fn(rule, enabled(rule));
     }
 }
 
@@ -90,16 +89,16 @@ format rewrite_rule_set::pp(formatter const & fmt, options const & opts) const {
     format r;
     bool first = true;
     unsigned indent = get_pp_indent(opts);
-    for_each([&](name const & name, expr const & ceq, expr const &, bool enabled) {
+    for_each([&](rewrite_rule const & rule, bool enabled) {
             if (first)
                 first = false;
             else
                 r += line();
-            r += format(name);
+            r += format(rule.get_id());
             if (!enabled)
                 r += format(" [disabled]");
             r += format{space(), colon(), space()};
-            r += nest(indent, fmt(ceq, opts));
+            r += nest(indent, fmt(rule.get_ceq(), opts));
         });
     return r;
 }

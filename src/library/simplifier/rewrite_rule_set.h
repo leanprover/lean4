@@ -15,11 +15,32 @@ Author: Leonardo de Moura
 #include "kernel/formatter.h"
 
 namespace lean {
+class rewrite_rule_set;
+class rewrite_rule {
+    friend class rewrite_rule_set;
+    name     m_id;
+    expr     m_lhs;
+    expr     m_rhs;
+    expr     m_ceq;
+    expr     m_proof;
+    unsigned m_num_args;
+    bool     m_is_permutation;
+    rewrite_rule(name const & id, expr const & lhs, expr const & rhs, expr const & ceq, expr const & proof,
+                 unsigned num_args, bool is_permutation);
+public:
+    name const & get_id() const { return m_id; }
+    expr const & get_lhs() const { return m_lhs; }
+    expr const & get_rhs() const { return m_rhs; }
+    expr const & get_ceq() const { return m_ceq; }
+    expr const & get_proof() const { return m_proof; }
+    unsigned get_num_args() const { return m_num_args; }
+    bool is_permutation() const { return m_is_permutation; }
+};
+
 /**
    \brief Actual implementation of the \c rewrite_rule_set class.
 */
 class rewrite_rule_set {
-    struct rewrite_rule;
     typedef splay_tree<name, name_quick_cmp> name_set;
     ro_environment::weak_ref m_env;
     list<rewrite_rule>       m_rule_set; // TODO(Leo): use better data-structure, e.g., discrimination trees
@@ -51,22 +72,17 @@ public:
     /** \brief Enable/disable the conditional rewrite rules tagged with the given identifier. */
     void enable(name const & id, bool f);
 
-    typedef std::function<bool(expr const &, expr const &, bool is_permutation, expr const &)> match_fn; // NOLINT
-    typedef std::function<void(name const &, expr const &, expr const &, bool)> visit_fn;
+    typedef std::function<bool(rewrite_rule const &)> match_fn; // NOLINT
+    typedef std::function<void(rewrite_rule const &, bool)> visit_fn;
 
     /**
-       \brief Execute <tt>fn(lhs, ceq, is_perm, proof)</tt> for each (enabled) rule whose the left-hand-side may
+       \brief Execute <tt>fn(rule)</tt> for each (enabled) rule whose the left-hand-side may
        match \c e.
        The traversal is interrupted as soon as \c fn returns true.
-
-       The redundant argument \c lhs is the left-hand-side of \c ceq.
-       The redundant argument \c is_perm is true iff \c ceq is a permutation rule.
-
-       The argument \c proof is the proof for \c ceq.
     */
-    void for_each_match_candidate(expr const &, match_fn const & fn) const;
+    bool find_match(expr const &, match_fn const & fn) const;
 
-    /** \brief Execute <tt>fn(id, ceq, proof, enabled)</tt> for each rule in this rule set. */
+    /** \brief Execute <tt>fn(rule, enabled)</tt> for each rule in this rule set. */
     void for_each(visit_fn const & fn) const;
 
     /** \brief Pretty print this rule set. */

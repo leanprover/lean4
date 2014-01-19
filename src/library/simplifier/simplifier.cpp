@@ -92,6 +92,16 @@ class simplifier_fn {
     bool           m_unfold;
     unsigned       m_max_steps;
 
+    struct match_fn {
+        simplifier_fn & m_simp;
+        match_fn(simplifier_fn & s):m_simp(s) {}
+        bool operator()(rewrite_rule const & rule) const {
+            return m_simp.match(rule);
+        }
+    };
+
+    match_fn               m_match_fn;
+
     struct result {
         expr           m_out;
         optional<expr> m_proof;
@@ -126,20 +136,20 @@ class simplifier_fn {
 
     expr mk_congr1_th(expr const & f_type, expr const & f, expr const & new_f, expr const & a, expr const & Heq_f) {
         expr const & A = abst_domain(f_type);
-        expr const & B = lower_free_vars(abst_body(f_type), 1, 1);
+        expr B = lower_free_vars(abst_body(f_type), 1, 1);
         return ::lean::mk_congr1_th(A, B, f, new_f, a, Heq_f);
     }
 
     expr mk_congr2_th(expr const & f_type, expr const & a, expr const & new_a, expr const & f, expr const & Heq_a) {
         expr const & A = abst_domain(f_type);
-        expr const & B = lower_free_vars(abst_body(f_type), 1, 1);
+        expr B = lower_free_vars(abst_body(f_type), 1, 1);
         return ::lean::mk_congr2_th(A, B, a, new_a, f, Heq_a);
     }
 
     expr mk_congr_th(expr const & f_type, expr const & f, expr const & new_f, expr const & a, expr const & new_a,
                      expr const & Heq_f, expr const & Heq_a) {
         expr const & A = abst_domain(f_type);
-        expr const & B = lower_free_vars(abst_body(f_type), 1, 1);
+        expr B = lower_free_vars(abst_body(f_type), 1, 1);
         return ::lean::mk_congr_th(A, B, f, new_f, a, new_a, Heq_f, Heq_a);
     }
 
@@ -150,6 +160,65 @@ class simplifier_fn {
                                     mk_lambda(f_type, abst_body(f_type)),
                                     mk_lambda(new_f_type, abst_body(new_f_type)),
                                     f, new_f, a, new_a, Heq_f, Heq_a);
+    }
+
+    result mk_trans_result(expr const & a, result const & b_res, expr const & c, expr const & H_bc) {
+        if (m_proofs_enabled) {
+            if (!b_res.m_proof) {
+                // The proof of a = b is reflexivity
+                return result(c, H_bc);
+            } else {
+                expr const & b = b_res.m_out;
+                expr new_proof;
+                bool heq_proof = false;
+                if (b_res.m_heq_proof) {
+                    expr b_type = infer_type(b);
+                    new_proof = ::lean::mk_htrans_th(infer_type(a), b_type, b_type, /* b and c must have the same type */
+                                                     a, b, c, *b_res.m_proof, mk_to_heq_th(b_type, b, c, H_bc));
+                    heq_proof = true;
+                } else {
+                    new_proof = ::lean::mk_trans_th(infer_type(a), a, b, c, *b_res.m_proof, H_bc);
+                }
+                return result(c, new_proof, heq_proof);
+            }
+        } else {
+            return result(c);
+        }
+    }
+
+    result mk_trans_result(expr const & a, result const & b_res, result const & c_res) {
+        if (m_proofs_enabled) {
+            if (!b_res.m_proof) {
+                // the proof of a == b is reflexivity
+                return c_res;
+            } else if (!c_res.m_proof) {
+                // the proof of b == c is reflexivity
+                return result(c_res.m_out, *b_res.m_proof, b_res.m_heq_proof);
+            } else {
+                bool heq_proof = b_res.m_heq_proof || c_res.m_heq_proof;
+                expr new_proof;
+                expr const & b = b_res.m_out;
+                expr const & c = c_res.m_out;
+                if (heq_proof) {
+                    expr a_type = infer_type(a);
+                    expr b_type = infer_type(b);
+                    expr c_type = infer_type(c);
+                    expr H_ab   = *b_res.m_proof;
+                    if (!b_res.m_heq_proof)
+                        H_ab = mk_to_heq_th(a_type, a, b, H_ab);
+                    expr H_bc   = *c_res.m_proof;
+                    if (!c_res.m_heq_proof)
+                        H_bc = mk_to_heq_th(b_type, b, c, H_bc);
+                    new_proof = ::lean::mk_htrans_th(a_type, b_type, c_type, a, b, c, H_ab, H_bc);
+                } else {
+                    new_proof = ::lean::mk_trans_th(infer_type(a), a, b, c, *b_res.m_proof, *c_res.m_proof);
+                }
+                return result(c, new_proof, heq_proof);
+            }
+        } else {
+            // proof generation is disabled
+            return c_res;
+        }
     }
 
     expr mk_app_prefix(unsigned i, expr const & a) {
@@ -225,9 +294,9 @@ class simplifier_fn {
         }
 
         if (!changed) {
-            return rewrite_app(result(e));
+            return rewrite(e, result(e));
         } else if (!m_proofs_enabled) {
-            return rewrite_app(result(mk_app(new_args)));
+            return rewrite(e, result(mk_app(new_args)));
         } else {
             expr out = mk_app(new_args);
             unsigned i = 0;
@@ -272,11 +341,76 @@ class simplifier_fn {
                     pr = mk_congr1_th(f_types[i-1], f, new_f, arg(e, i), pr);
                 }
             }
-            return rewrite_app(result(out, pr, heq_proof));
+            return rewrite(e, result(out, pr, heq_proof));
         }
     }
 
-    result rewrite_app(result const & r) {
+    expr                   m_target;    // temp field
+    buffer<optional<expr>> m_subst;     // temp field
+    buffer<expr>           m_new_args;  // temp field
+    expr                   m_new_rhs;   // temp field
+    expr                   m_new_proof; // temp field
+
+    void reset_subst(unsigned num_args) {
+        if (m_subst.size() < num_args) {
+            m_subst.resize(num_args);
+            m_new_args.resize(num_args+1);
+        }
+        for (unsigned i = 0; i < num_args; i++)
+            m_subst[i] = none_expr();
+    }
+
+    bool found_all_args(unsigned num_args) {
+        for (unsigned i = 0; i < num_args; i++) {
+            if (!m_subst[i])
+                return false;
+            m_new_args[i+1] = *m_subst[i];
+        }
+        return true;
+    }
+
+    /**
+       \brief Auxiliary function used by m_match_fn, it tries to match the given rule and
+       the expression in the temporary field \c m_target.
+       If it succeeds, then the resultant expression is stored in the temporary field m_new_rhs,
+       and the proof in m_new_proof (if proofs are enabled).
+    */
+    bool match(rewrite_rule const & rule) {
+        unsigned num = rule.get_num_args();
+        reset_subst(num);
+        if (hop_match(rule.get_lhs(), m_target, m_subst)) {
+            if (found_all_args(num)) {
+                // easy case: all arguments found
+                m_new_rhs   = instantiate(rule.get_rhs(), num, m_new_args.data() + 1);
+                if (m_proofs_enabled) {
+                    if (num > 0) {
+                        m_new_args[0] = rule.get_proof();
+                        m_new_proof   = mk_app(m_new_args);
+                    } else {
+                        m_new_proof   = rule.get_proof();
+                    }
+                }
+                return true;
+            }
+            // TODO(Leo): conditional rewriting
+        }
+        return false;
+    }
+
+    result rewrite(expr const & e, result const & r) {
+        m_target = r.m_out;
+        for (rewrite_rule_set const & rs : m_rule_sets) {
+            if (rs.find_match(m_target, m_match_fn)) {
+                // the result is in m_new_rhs and proof at m_new_proof
+                result new_r1 = mk_trans_result(e, r, m_new_rhs, m_new_proof);
+                if (m_single_pass) {
+                    return new_r1;
+                } else {
+                    result new_r2 = simplify(new_r1.m_out);
+                    return mk_trans_result(e, new_r1, new_r2);
+                }
+            }
+        }
         return r;
     }
 
@@ -302,17 +436,7 @@ class simplifier_fn {
                 }
             }
         }
-#if 1
-        if (const_name(e) == "a") {
-            auto obj = m_env->find_object("a_eq_0");
-            if (obj) {
-                expr r = arg(obj->get_type(), 3);
-                return result(r, mk_constant("a_eq_0"));
-            }
-        }
-#endif
-
-        return result(e);
+        return rewrite(e, result(e));
     }
 
     result simplify_lambda(expr const & e) {
@@ -328,11 +452,11 @@ class simplifier_fn {
             if (is_eqp(new_body, abst_body(e)))
                 return result(e);
             expr out = mk_lambda(e, new_body);
-            if (!m_proofs_enabled)
+            if (!m_proofs_enabled || !res_body.m_proof)
                 return result(out);
             expr body_type = infer_type(abst_body(e));
             expr pr  = mk_funext_th(abst_domain(e), mk_lambda(e, body_type), e, out,
-                                    mk_lambda(e, *(res_body.m_proof)));
+                                    mk_lambda(e, *res_body.m_proof));
             return result(out, pr);
         }
     }
@@ -350,12 +474,12 @@ class simplifier_fn {
             if (is_eqp(new_body, abst_body(e)))
                 return result(e);
             expr out = mk_pi(abst_name(e), abst_domain(e), new_body);
-            if (!m_proofs_enabled)
+            if (!m_proofs_enabled || !res_body.m_proof)
                 return result(out);
             expr pr  = mk_allext_th(abst_domain(e),
                                     mk_lambda(e, abst_body(e)),
                                     mk_lambda(e, abst_body(out)),
-                                    mk_lambda(e, *(res_body.m_proof)));
+                                    mk_lambda(e, *res_body.m_proof));
             return result(out, pr);
         } else {
             // if the environment does not contain heq axioms, then we don't simplify Pi's that are not forall's
@@ -384,13 +508,13 @@ class simplifier_fn {
         m_contextual     = get_simplifier_contextual(o);
         m_single_pass    = get_simplifier_single_pass(o);
         m_beta           = get_simplifier_beta(o);
-        m_unfold         = true; // get_simplifier_unfold(o);
+        m_unfold         = get_simplifier_unfold(o);
         m_max_steps      = get_simplifier_max_steps(o);
     }
 
 public:
     simplifier_fn(ro_environment const & env, options const & o, unsigned num_rs, rewrite_rule_set const * rs):
-        m_env(env), m_tc(env), m_rule_sets(rs, rs + num_rs) {
+        m_env(env), m_tc(env), m_rule_sets(rs, rs + num_rs), m_match_fn(*this) {
         m_has_heq = m_env->imported("heq");
         set_options(o);
     }

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <utility>
+#include <vector>
 #include "util/flet.h"
 #include "util/interrupt.h"
 #include "kernel/type_checker.h"
@@ -15,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 #include "library/expr_pair.h"
 #include "library/hop_match.h"
+#include "library/simplifier/rewrite_rule_set.h"
 
 #ifndef LEAN_SIMPLIFIER_PROOFS
 #define LEAN_SIMPLIFIER_PROOFS true
@@ -75,10 +77,12 @@ unsigned get_simplifier_max_steps(options const & opts) {
 }
 
 class simplifier_fn {
+    typedef std::vector<rewrite_rule_set> rule_sets;
     ro_environment m_env;
     type_checker   m_tc;
     bool           m_has_heq;
     context        m_ctx;
+    rule_sets      m_rule_sets;
 
     // Configuration
     bool           m_proofs_enabled;
@@ -385,8 +389,8 @@ class simplifier_fn {
     }
 
 public:
-    simplifier_fn(ro_environment const & env, options const & o):
-        m_env(env), m_tc(env) {
+    simplifier_fn(ro_environment const & env, options const & o, unsigned num_rs, rewrite_rule_set const * rs):
+        m_env(env), m_tc(env), m_rule_sets(rs, rs + num_rs) {
         m_has_heq = m_env->imported("heq");
         set_options(o);
     }
@@ -402,19 +406,42 @@ public:
     }
 };
 
-expr_pair simplify(expr const & e, ro_environment const & env, context const & ctx, options const & opts) {
-    return simplifier_fn(env, opts)(e, ctx);
+expr_pair simplify(expr const & e, ro_environment const & env, context const & ctx, options const & opts,
+                   unsigned num_rs, rewrite_rule_set const * rs) {
+    return simplifier_fn(env, opts, num_rs, rs)(e, ctx);
 }
 
-static int simplify_core(lua_State * L, expr const & e, ro_shared_environment const & env) {
+expr_pair simplify(expr const & e, ro_environment const & env, context const & ctx, options const & opts,
+                   unsigned num_ns, name const * ns) {
+    buffer<rewrite_rule_set> rules;
+    for (unsigned i = 0; i < num_ns; i++)
+        rules.push_back(get_rewrite_rule_set(env, ns[i]));
+    return simplify(e, env, ctx, opts, num_ns, rules.data());
+}
+
+static int simplify_core(lua_State * L, ro_shared_environment const & env) {
     int nargs = lua_gettop(L);
+    expr const & e = to_expr(L, 1);
+    buffer<rewrite_rule_set> rules;
+    if (nargs == 1) {
+        rules.push_back(get_rewrite_rule_set(env));
+    } else {
+        luaL_checktype(L, 2, LUA_TTABLE);
+        name r;
+        int n = objlen(L, 2);
+        for (int i = 1; i <= n; i++) {
+            lua_rawgeti(L, 2, i);
+            rules.push_back(get_rewrite_rule_set(env, to_name_ext(L, -1)));
+            lua_pop(L, 1);
+        }
+    }
     context ctx;
     options opts;
-    if (nargs >= 3)
-        ctx = to_context(L, 3);
     if (nargs >= 4)
-        opts = to_options(L, 4);
-    auto r = simplify(e, env, ctx, opts);
+        ctx = to_context(L, 4);
+    if (nargs >= 5)
+        opts = to_options(L, 5);
+    auto r = simplify(e, env, ctx, opts, rules.size(), rules.data());
     push_expr(L, r.first);
     push_expr(L, r.second);
     return 2;
@@ -422,11 +449,10 @@ static int simplify_core(lua_State * L, expr const & e, ro_shared_environment co
 
 static int simplify(lua_State * L) {
     int nargs = lua_gettop(L);
-    expr const & e = to_expr(L, 1);
-    if (nargs == 1)
-        return simplify_core(L, e, ro_shared_environment(L));
+    if (nargs <= 2)
+        return simplify_core(L, ro_shared_environment(L));
     else
-        return simplify_core(L, e, ro_shared_environment(L, 2));
+        return simplify_core(L, ro_shared_environment(L, 3));
 }
 
 void open_simplifier(lua_State * L) {

@@ -10,6 +10,9 @@ Author: Leonardo de Moura
 #include "library/expr_pair.h"
 
 namespace lean {
-expr_pair simplify(expr const & e, ro_environment const & env, context const & ctx, options const & opts);
+expr_pair simplify(expr const & e, ro_environment const & env, context const & ctx, options const & pts,
+                   unsigned num_rs, rewrite_rule_set const * rs);
+expr_pair simplify(expr const & e, ro_environment const & env, context const & ctx, options const & opts,
+                   unsigned num_ns, name const * ns);
 void open_simplifier(lua_State * L);
 }

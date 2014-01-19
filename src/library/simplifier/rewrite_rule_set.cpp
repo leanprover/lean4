@@ -103,6 +103,11 @@ format rewrite_rule_set::pp(formatter const & fmt, options const & opts) const {
     return r;
 }
 
+io_state_stream const & operator<<(io_state_stream const & out, rewrite_rule_set const & rs) {
+    out << mk_pair(rs.pp(out.get_formatter(), out.get_options()), out.get_options());
+    return out;
+}
+
 class mk_rewrite_rule_set_obj : public neutral_object_cell {
     name m_rule_set_id;
 public:

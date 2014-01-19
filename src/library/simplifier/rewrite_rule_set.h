@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "util/name.h"
 #include "kernel/environment.h"
 #include "kernel/formatter.h"
+#include "library/io_state_stream.h"
 
 namespace lean {
 class rewrite_rule_set;
@@ -88,6 +89,7 @@ public:
     /** \brief Pretty print this rule set. */
     format pp(formatter const & fmt, options const & opts) const;
 };
+io_state_stream const & operator<<(io_state_stream const & out, rewrite_rule_set const & rs);
 
 name const & get_default_rewrite_rule_set_id();
 /**

@@ -694,13 +694,17 @@ static int simplify_core(lua_State * L, ro_shared_environment const & env) {
     if (nargs == 1) {
         rules.push_back(get_rewrite_rule_set(env));
     } else {
-        luaL_checktype(L, 2, LUA_TTABLE);
-        name r;
-        int n = objlen(L, 2);
-        for (int i = 1; i <= n; i++) {
-            lua_rawgeti(L, 2, i);
-            rules.push_back(get_rewrite_rule_set(env, to_name_ext(L, -1)));
-            lua_pop(L, 1);
+        if (lua_isstring(L, 2)) {
+            rules.push_back(get_rewrite_rule_set(env, to_name_ext(L, 2)));
+        } else {
+            luaL_checktype(L, 2, LUA_TTABLE);
+            name r;
+            int n = objlen(L, 2);
+            for (int i = 1; i <= n; i++) {
+                lua_rawgeti(L, 2, i);
+                rules.push_back(get_rewrite_rule_set(env, to_name_ext(L, -1)));
+                lua_pop(L, 1);
+            }
         }
     }
     context ctx;

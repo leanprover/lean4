@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/placeholder.h"
 #include "library/io_state_stream.h"
+#include "library/simplifier/rewrite_rule_set.h"
 #include "frontends/lean/parser_imp.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/pp.h"
@@ -52,12 +53,19 @@ static name g_builtin_kwd("builtin");
 static name g_namespace_kwd("namespace");
 static name g_end_kwd("end");
 static name g_using_kwd("using");
+static name g_rewrite_set_kwd("rewrite_set");
+static name g_add_rewrite_kwd("add_rewrite");
+static name g_enable_rewrite_kwd("enable_rewrite");
+static name g_disable_rewrite_kwd("disable_rewrite");
 /** \brief Table/List with all builtin command keywords */
-static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_variables_kwd, g_theorem_kwd, g_axiom_kwd, g_universe_kwd, g_eval_kwd,
+static list<name> g_command_keywords = {g_definition_kwd, g_variable_kwd, g_variables_kwd, g_theorem_kwd,
+                                        g_axiom_kwd, g_universe_kwd, g_eval_kwd,
                                         g_check_kwd, g_infix_kwd, g_infixl_kwd, g_infixr_kwd, g_notation_kwd,
-                                        g_set_option_kwd, g_set_opaque_kwd, g_env_kwd, g_options_kwd, g_import_kwd, g_help_kwd, g_coercion_kwd,
+                                        g_set_option_kwd, g_set_opaque_kwd, g_env_kwd, g_options_kwd,
+                                        g_import_kwd, g_help_kwd, g_coercion_kwd,
                                         g_exit_kwd, g_print_kwd, g_pop_kwd, g_scope_kwd, g_alias_kwd, g_builtin_kwd,
-                                        g_namespace_kwd, g_end_kwd, g_using_kwd};
+                                        g_namespace_kwd, g_end_kwd, g_using_kwd, g_rewrite_set_kwd, g_add_rewrite_kwd,
+                                        g_enable_rewrite_kwd, g_disable_rewrite_kwd};
 // ==========================================
 
 list<name> const & parser_imp::get_command_keywords() {
@@ -330,6 +338,16 @@ void parser_imp::parse_print() {
             }
         } else if (opt_id == g_options_kwd) {
             regular(m_io_state) << pp(m_io_state.get_options()) << endl;
+        } else if (opt_id == g_rewrite_set_kwd) {
+            name rsid;
+            if (curr_is_identifier()) {
+                rsid = curr_name();
+                next();
+            } else {
+                rsid = get_default_rewrite_rule_set_id();
+            }
+            rewrite_rule_set rs = get_rewrite_rule_set(m_env, rsid);
+            regular(m_io_state) << rs << endl;
         } else {
             throw parser_error("invalid Show command, expression, 'Options' or 'Environment' expected", m_last_cmd_pos);
         }
@@ -812,6 +830,47 @@ void parser_imp::parse_using() {
     regular(m_io_state) << endl;
 }
 
+void parser_imp::parse_rewrite_set() {
+    next();
+    name id = check_identifier_next("invalid rewrite set declaration, identifier expected");
+    mk_rewrite_rule_set(m_env, id);
+}
+
+void parser_imp::parse_ids_and_rsid(buffer<name> & ids, name & rsid) {
+    while (curr_is_identifier()) {
+        ids.push_back(curr_name());
+        next();
+    }
+    if (ids.empty())
+        throw parser_error("invalid command, at least one identifier expected", m_last_cmd_pos);
+    if (curr_is_colon()) {
+        next();
+        rsid = check_identifier_next("invalid command, rewrite set name expected");
+    } else {
+        rsid = get_default_rewrite_rule_set_id();
+    }
+}
+
+void parser_imp::parse_add_rewrite() {
+    next();
+    buffer<name> th_names;
+    name rsid;
+    parse_ids_and_rsid(th_names, rsid);
+    for (auto id : th_names) {
+        add_rewrite_rules(m_env, rsid, id);
+    }
+}
+
+void parser_imp::parse_enable_rewrite(bool flag) {
+    next();
+    buffer<name> ids;
+    name rsid;
+    parse_ids_and_rsid(ids, rsid);
+    for (auto id : ids) {
+        enable_rewrite_rules(m_env, rsid, id, flag);
+    }
+}
+
 /** \brief Parse a Lean command. */
 bool parser_imp::parse_command() {
     m_elaborator.clear();
@@ -872,6 +931,14 @@ bool parser_imp::parse_command() {
         parse_end();
     } else if (cmd_id == g_using_kwd) {
         parse_using();
+    } else if (cmd_id == g_rewrite_set_kwd) {
+        parse_rewrite_set();
+    } else if (cmd_id == g_add_rewrite_kwd) {
+        parse_add_rewrite();
+    } else if (cmd_id == g_enable_rewrite_kwd) {
+        parse_enable_rewrite(true);
+    } else if (cmd_id == g_disable_rewrite_kwd) {
+        parse_enable_rewrite(false);
     } else if (m_cmd_macros && m_cmd_macros->find(cmd_id) != m_cmd_macros->end()) {
         parse_cmd_macro(cmd_id, m_last_cmd_pos);
     } else {

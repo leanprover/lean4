@@ -1,0 +1,14 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: f
+  Assumed: g
+  Assumed: Axf1
+  Assumed: Axfg
+  Assumed: a
+  Assumed: b
+Axfg : ∀ x : ℕ, g x x = x
+Axf1 : ∀ x : ℕ, f (f x) = x
+a	trans (congr2 (g a) (Axf1 a)) (Axfg a)
+g a a	congr2 (g a) (Axf1 a)
+a	trans (congr2 (g a) (Axf1 a)) (Axfg a)
+a	trans (congr2 (g a) (Axf1 a)) (Axfg a)

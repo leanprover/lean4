@@ -24,7 +24,7 @@
 (define-generic-mode
     'lean-mode     ;; name of the mode to create
   '("--")          ;; comments start with
-  '("import" "definition" "variable" "variables" "print" "theorem" "axiom" "universe" "alias" "help" "environment" "options" "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end" "using" "namespace" "builtin" "scope" "pop_scope" "set_opaque" "set_option") ;; some keywords
+  '("import" "definition" "variable" "variables" "print" "theorem" "axiom" "universe" "alias" "help" "environment" "options" "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end" "using" "namespace" "builtin" "scope" "pop_scope" "set_opaque" "set_option" "rewrite_set" "add_rewrite" "enable_rewrite" "disable_rewrite") ;; some keywords
   '(("\\_<\\(Bool\\|Int\\|Nat\\|Real\\|Type\\|TypeU\\|ℕ\\|ℤ\\)\\_>" . 'font-lock-type-face)
     ("\\_<\\(calc\\|have\\|in\\|let\\|forall\\|fun\\|exists\\|if\\|then\\|else\\|assume\\|take\\|obtain\\|from\\)\\_>" . font-lock-keyword-face)
     ("\"[^\"]*\"" . 'font-lock-string-face)

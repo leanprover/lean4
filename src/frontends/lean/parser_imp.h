@@ -419,6 +419,10 @@ private:
     void parse_namespace();
     void parse_end();
     void parse_using();
+    void parse_rewrite_set();
+    void parse_ids_and_rsid(buffer<name> & ids, name & rsid);
+    void parse_add_rewrite();
+    void parse_enable_rewrite(bool flag);
     bool parse_command();
     void sync_command();
     /*@}*/

@@ -26,7 +26,7 @@
   '("--")          ;; comments start with
   '("import" "definition" "variable" "variables" "print" "theorem" "axiom" "universe" "alias" "help" "environment" "options" "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end" "using" "namespace" "builtin" "scope" "pop_scope" "set_opaque" "set_option") ;; some keywords
   '(("\\_<\\(Bool\\|Int\\|Nat\\|Real\\|Type\\|TypeU\\|ℕ\\|ℤ\\)\\_>" . 'font-lock-type-face)
-    ("\\_<\\(calc\\|have\\|in\\|let\\|forall\\|exists\\|if\\|then\\|else\\|assume\\|take\\|obtain\\|from\\)\\_>" . font-lock-keyword-face)
+    ("\\_<\\(calc\\|have\\|in\\|let\\|forall\\|fun\\|exists\\|if\\|then\\|else\\|assume\\|take\\|obtain\\|from\\)\\_>" . font-lock-keyword-face)
     ("\"[^\"]*\"" . 'font-lock-string-face)
     ("\\(->\\|↔\\|/\\\\\\|==\\|\\\\/\\|[*+/<=>¬∧∨≠≤≥-]\\)" . 'font-lock-constant-face)
     ("\\(λ\\|→\\|∃\\|∀\\|:\\|:=\\)" . font-lock-constant-face)

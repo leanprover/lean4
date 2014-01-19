@@ -196,6 +196,12 @@ class simplifier_fn {
                                     f, new_f, a, new_a, Heq_f, Heq_a);
     }
 
+    /**
+       \brief Given
+                a           = b_res.m_out  with proof b_res.m_proof
+                b_res.m_out = c            with proof H_bc
+       This method returns a new result r s.t. r.m_out == c and a proof of a = c
+    */
     result mk_trans_result(expr const & a, result const & b_res, expr const & c, expr const & H_bc) {
         if (m_proofs_enabled) {
             if (!b_res.m_proof) {
@@ -220,6 +226,13 @@ class simplifier_fn {
         }
     }
 
+    /**
+       \brief Given
+                a           = b_res.m_out    with proof b_res.m_proof
+                b_res.m_out = c_res.m_out    with proof c_res.m_proof
+
+       This method returns a new result r s.t. r.m_out == c and a proof of a = c_res.m_out
+    */
     result mk_trans_result(expr const & a, result const & b_res, result const & c_res) {
         if (m_proofs_enabled) {
             if (!b_res.m_proof) {
@@ -458,21 +471,28 @@ class simplifier_fn {
         return false;
     }
 
-    result rewrite(expr const & e, result const & r) {
-        m_target = r.m_out;
+    /**
+       \brief Given lhs and rhs s.t. lhs = rhs.m_out with proof rhs.m_proof,
+       this method applies rewrite rules, beta and evaluation to \c rhs.m_out,
+       and return a new result object new_rhs s.t.
+                lhs = new_rhs.m_out
+       with proof new_rhs.m_proof
+    */
+    result rewrite(expr const & lhs, result const & rhs) {
+        m_target = rhs.m_out;
         for (rewrite_rule_set const & rs : m_rule_sets) {
             if (rs.find_match(m_target, m_match_fn)) {
                 // the result is in m_new_rhs and proof at m_new_proof
-                result new_r1 = mk_trans_result(e, r, m_new_rhs, m_new_proof);
+                result new_r1 = mk_trans_result(lhs, rhs, m_new_rhs, m_new_proof);
                 if (m_single_pass) {
                     return new_r1;
                 } else {
                     result new_r2 = simplify(new_r1.m_out);
-                    return mk_trans_result(e, new_r1, new_r2);
+                    return mk_trans_result(lhs, new_r1, new_r2);
                 }
             }
         }
-        return r;
+        return rhs;
     }
 
     result simplify_var(expr const & e) {
@@ -503,6 +523,16 @@ class simplifier_fn {
         return rewrite(e, result(e));
     }
 
+    /**
+       \brief Return true iff Eta-reduction can be applied to \c e.
+
+       \remark Actually this is a partial test. Given,
+                  fun x : T, f x
+       This method does not check whether f has type
+                   Pi x : T, B x
+       This check must be performed in the caller.
+       Otherwise the proof (eta T (fun x : T, B x) f) will not type check.
+    */
     bool is_eta_target(expr const & e) const {
         if (is_lambda(e)) {
             expr b = abst_body(e);
@@ -514,10 +544,20 @@ class simplifier_fn {
         }
     }
 
-    result rewrite_lambda(expr const & e, result const & r) {
-        lean_assert(is_lambda(r.m_out));
-        if (m_eta && is_eta_target(r.m_out)) {
-            expr b = abst_body(r.m_out);
+    /**
+       \brief Given (lambdas) lhs and rhs s.t. lhs = rhs.m_out
+       with proof rhs.m_proof, this method applies rewrite rules, and
+       eta reduction, and return a new result object new_rhs s.t.
+              lhs = new_rhs.m_out with proof new_rhs.m_proof
+
+       \pre is_lambda(lhs)
+       \pre is_lambda(rhs.m_out)
+    */
+    result rewrite_lambda(expr const & lhs, result const & rhs) {
+        lean_assert(is_lambda(lhs));
+        lean_assert(is_lambda(rhs.m_out));
+        if (m_eta && is_eta_target(rhs.m_out)) {
+            expr b = abst_body(rhs.m_out);
             expr new_rhs;
             if (num_args(b) > 2) {
                 new_rhs = mk_app(num_args(b) - 1, &arg(b, 0));
@@ -526,18 +566,18 @@ class simplifier_fn {
             }
             new_rhs           = lower_free_vars(new_rhs, 1, 1);
             expr new_rhs_type = ensure_pi(infer_type(new_rhs));
-            if (m_tc.is_eq_convertible(abst_domain(new_rhs_type), abst_domain(r.m_out), m_ctx)) {
+            if (m_tc.is_eq_convertible(abst_domain(new_rhs_type), abst_domain(rhs.m_out), m_ctx)) {
                 if (m_proofs_enabled) {
-                    expr new_proof = mk_eta_th(abst_domain(r.m_out),
-                                               mk_lambda(r.m_out, abst_body(new_rhs_type)),
+                    expr new_proof = mk_eta_th(abst_domain(rhs.m_out),
+                                               mk_lambda(rhs.m_out, abst_body(new_rhs_type)),
                                                new_rhs);
-                    return rewrite(e, mk_trans_result(e, r, new_rhs, new_proof));
+                    return rewrite(lhs, mk_trans_result(lhs, rhs, new_rhs, new_proof));
                 } else {
-                    return rewrite(e, result(new_rhs));
+                    return rewrite(lhs, result(new_rhs));
                 }
             }
         }
-        return rewrite(e, r);
+        return rewrite(lhs, rhs);
     }
 
     result simplify_lambda(expr const & e) {

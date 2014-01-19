@@ -58,6 +58,9 @@ axiom funext {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} (H : ∀ x : A
 -- Forall extensionality
 axiom allext {A : TypeU} {B C : A → Bool} (H : ∀ x : A, B x = C x) : (∀ x : A, B x) = (∀ x : A, C x)
 
+-- Proof irrelevance
+axiom proof_irrel {a : Bool} (H1 H2 : a) : H1 = H2
+
 -- Alias for subst where we can provide P explicitly, but keep A,a,b implicit
 theorem substp {A : TypeU} {a b : A} (P : A → Bool) (H1 : P a) (H2 : a = b) : P b
 := subst H1 H2

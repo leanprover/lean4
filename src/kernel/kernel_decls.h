@@ -55,6 +55,9 @@ inline expr mk_funext_th(expr const & e1, expr const & e2, expr const & e3, expr
 expr mk_allext_fn();
 bool is_allext_fn(expr const & e);
 inline expr mk_allext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_allext_fn(), e1, e2, e3, e4}); }
+expr mk_proof_irrel_fn();
+bool is_proof_irrel_fn(expr const & e);
+inline expr mk_proof_irrel_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_proof_irrel_fn(), e1, e2, e3}); }
 expr mk_substp_fn();
 bool is_substp_fn(expr const & e);
 inline expr mk_substp_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_substp_fn(), e1, e2, e3, e4, e5, e6}); }

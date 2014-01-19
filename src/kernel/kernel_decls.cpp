@@ -21,6 +21,7 @@ MK_CONSTANT(refl_fn, name("refl"));
 MK_CONSTANT(subst_fn, name("subst"));
 MK_CONSTANT(funext_fn, name("funext"));
 MK_CONSTANT(allext_fn, name("allext"));
+MK_CONSTANT(proof_irrel_fn, name("proof_irrel"));
 MK_CONSTANT(substp_fn, name("substp"));
 MK_CONSTANT(not_intro_fn, name("not_intro"));
 MK_CONSTANT(eta_fn, name("eta"));

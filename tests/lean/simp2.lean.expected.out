@@ -1,0 +1,18 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Proved: trans_refl_right
+  Proved: trans_refl_left
+  Proved: trans_assoc
+  Proved: symm_trans
+  Proved: trans_valley1
+  Proved: trans_valley2
+  Assumed: a1
+  Assumed: a2
+  Assumed: a3
+  Assumed: a4
+  Assumed: Ax1
+  Assumed: Ax2
+  Assumed: Ax3
+  Assumed: Ax4
+symm (trans (trans (trans (refl a1) (trans (trans Ax1 (refl a2)) Ax2)) (refl a3)) (trans Ax3 Ax4))
+trans (symm Ax4) (symm Ax1)

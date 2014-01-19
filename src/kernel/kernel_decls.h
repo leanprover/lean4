@@ -183,6 +183,9 @@ inline expr mk_eqf_intro_th(expr const & e1, expr const & e2) { return mk_app({m
 expr mk_neq_elim_fn();
 bool is_neq_elim_fn(expr const & e);
 inline expr mk_neq_elim_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_neq_elim_fn(), e1, e2, e3, e4}); }
+expr mk_eq_id_fn();
+bool is_eq_id_fn(expr const & e);
+inline expr mk_eq_id_th(expr const & e1, expr const & e2) { return mk_app({mk_eq_id_fn(), e1, e2}); }
 expr mk_or_comm_fn();
 bool is_or_comm_fn(expr const & e);
 inline expr mk_or_comm_th(expr const & e1, expr const & e2) { return mk_app({mk_or_comm_fn(), e1, e2}); }

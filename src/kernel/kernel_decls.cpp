@@ -64,6 +64,7 @@ MK_CONSTANT(iff_intro_fn, name("iff_intro"));
 MK_CONSTANT(eqt_intro_fn, name("eqt_intro"));
 MK_CONSTANT(eqf_intro_fn, name("eqf_intro"));
 MK_CONSTANT(neq_elim_fn, name("neq_elim"));
+MK_CONSTANT(eq_id_fn, name("eq_id"));
 MK_CONSTANT(or_comm_fn, name("or_comm"));
 MK_CONSTANT(or_assoc_fn, name("or_assoc"));
 MK_CONSTANT(or_id_fn, name("or_id"));

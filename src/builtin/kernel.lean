@@ -213,6 +213,9 @@ theorem eqf_intro {a : Bool} (H : ¬ a) : a = false
 theorem neq_elim {A : TypeU} {a b : A} (H : a ≠ b) : a = b ↔ false
 := eqf_intro H
 
+theorem eq_id {A : TypeU} (a : A) : (a = a) ↔ true
+:= eqt_intro (refl a)
+
 theorem or_comm (a b : Bool) : (a ∨ b) = (b ∨ a)
 := boolext (assume H, or_elim H (λ H1, or_intror b H1) (λ H2, or_introl H2 a))
            (assume H, or_elim H (λ H1, or_intror a H1) (λ H2, or_introl H2 b))

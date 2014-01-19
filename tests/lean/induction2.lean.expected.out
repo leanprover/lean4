@@ -9,7 +9,7 @@ Failed to solve
         Induction
     with arguments:
         ?M::3
-        λ m : ℕ, Nat::add_zerol m ⋈ symm (Nat::add_zeror m)
+        λ m : ℕ, trans (Nat::add_zerol m) (symm (Nat::add_zeror m))
         λ (n : ℕ) (iH : (?M::3[lift:0:1]) n) (m : ℕ),
           @trans ℕ
                  (n + 1 + m)

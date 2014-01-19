@@ -156,9 +156,6 @@ theorem symm {A : TypeU} {a b : A} (H : a = b) : b = a
 theorem trans {A : TypeU} {a b c : A} (H1 : a = b) (H2 : b = c) : a = c
 := subst H1 H2
 
-infixl 100 >< : trans
-infixl 100 ⋈  : trans
-
 theorem ne_symm {A : TypeU} {a b : A} (H : a ≠ b) : b ≠ a
 := assume H1 : b = a, H (symm H1)
 
@@ -239,13 +236,13 @@ theorem or_falsel (a : Bool) : a ∨ false ↔ a
            (assume H, or_introl H false)
 
 theorem or_falser (a : Bool) : false ∨ a ↔ a
-:= (or_comm false a) ⋈ (or_falsel a)
+:= trans (or_comm false a) (or_falsel a)
 
 theorem or_truel (a : Bool) : true ∨ a ↔ true
 := eqt_intro (case (λ x : Bool, true ∨ x) trivial trivial a)
 
 theorem or_truer (a : Bool) : a ∨ true ↔ true
-:= (or_comm a true) ⋈ (or_truel a)
+:= trans (or_comm a true) (or_truel a)
 
 theorem or_tauto (a : Bool) : a ∨ ¬ a ↔ true
 := eqt_intro (em a)
@@ -274,7 +271,7 @@ theorem and_falsel (a : Bool) : a ∧ false ↔ false
            (assume H, false_elim (a ∧ false) H)
 
 theorem and_falser (a : Bool) : false ∧ a ↔ false
-:= (and_comm false a) ⋈ (and_falsel a)
+:= trans (and_comm false a) (and_falsel a)
 
 theorem and_absurd (a : Bool) : a ∧ ¬ a ↔ false
 := boolext (assume H, absurd (and_eliml H) (and_elimr H))

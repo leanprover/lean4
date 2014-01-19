@@ -1,4 +1,3 @@
-mk_rewrite_rule_set()
 add_rewrite_rules({"Nat", "add_zerol"})
 add_rewrite_rules({"Nat", "add_zeror"})
 parse_lean_cmds([[

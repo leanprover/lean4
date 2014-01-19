@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/operator_info.h"
 #include "frontends/lean/pp.h"
+#include "frontends/lua/register_modules.h"
 using namespace lean;
 
 static void tst1() {
@@ -208,6 +209,7 @@ static void tst11() {
 
 int main() {
     save_stack_info();
+    register_modules();
     tst1();
     tst2();
     tst3();

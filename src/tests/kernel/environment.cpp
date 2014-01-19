@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/arith/arith.h"
 #include "frontends/lean/frontend.h"
+#include "frontends/lua/register_modules.h"
 using namespace lean;
 
 static void tst1() {
@@ -272,6 +273,7 @@ static void tst13() {
 
 int main() {
     save_stack_info();
+    register_modules();
     enable_trace("is_convertible");
     tst1();
     tst2();

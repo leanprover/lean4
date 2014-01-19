@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/deep_copy.h"
 #include "library/arith/arith.h"
 #include "frontends/lean/frontend.h"
+#include "frontends/lua/register_modules.h"
 using namespace lean;
 
 expr norm(expr const & e, environment & env) {
@@ -65,6 +66,7 @@ static void tst1() {
 
 int main() {
     save_stack_info();
+    register_modules();
     tst1();
     return 0;
 }

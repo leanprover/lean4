@@ -133,9 +133,9 @@ class simplifier_fn {
     match_fn               m_match_fn;
 
     struct result {
-        expr           m_out;
-        optional<expr> m_proof;
-        bool           m_heq_proof;
+        expr           m_out;    // the result of a simplification step
+        optional<expr> m_proof;  // a proof that the result is equal to the input (when m_proofs_enabled)
+        bool           m_heq_proof; // true if the proof is for heterogeneous equality
         explicit result(expr const & out, bool heq_proof = false):
             m_out(out), m_heq_proof(heq_proof) {}
         result(expr const & out, expr const & pr, bool heq_proof = false):

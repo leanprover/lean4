@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/deep_copy.h"
 #include "library/arith/int.h"
 #include "frontends/lean/frontend.h"
+#include "frontends/lua/register_modules.h"
 using namespace lean;
 
 expr normalize(expr const & e) {
@@ -344,6 +345,7 @@ static void tst11() {
 
 int main() {
     save_stack_info();
+    register_modules();
     tst_church_numbers();
     tst1();
     tst2();

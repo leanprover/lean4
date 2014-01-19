@@ -69,6 +69,9 @@ theorem not_intro {a : Bool} (H : a → false) : ¬ a
 theorem eta {A : TypeU} {B : A → TypeU} (f : ∀ x : A, B x) : (λ x : A, f x) = f
 := funext (λ x : A, refl (f x))
 
+-- create default rewrite rule set
+(* mk_rewrite_rule_set() *)
+
 theorem trivial : true
 := refl true
 

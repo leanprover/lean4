@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/arith/arith.h"
 #include "frontends/lean/frontend.h"
+#include "frontends/lua/register_modules.h"
 using namespace lean;
 
 expr c(char const * n) { return mk_constant(n); }
@@ -488,6 +489,7 @@ static void tst21() {
 
 int main() {
     save_stack_info();
+    register_modules();
     tst1();
     tst2();
     tst3();

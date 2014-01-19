@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/pp.h"
+#include "frontends/lua/register_modules.h"
 using namespace lean;
 
 static void parse(environment const & env, io_state const & ios, char const * str) {
@@ -109,6 +110,7 @@ static void tst3() {
 
 int main() {
     save_stack_info();
+    register_modules();
     tst1();
     tst2();
     tst3();

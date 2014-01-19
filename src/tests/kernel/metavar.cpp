@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/arith/arith.h"
 #include "frontends/lean/frontend.h"
+#include "frontends/lua/register_modules.h"
 using namespace lean;
 
 static std::ostream & operator<<(std::ostream & out, metavar_env const & menv) {
@@ -631,6 +632,7 @@ static void tst28() {
 
 int main() {
     save_stack_info();
+    register_modules();
     tst1();
     tst2();
     tst3();

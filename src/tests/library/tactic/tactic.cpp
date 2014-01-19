@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic.h"
 #include "library/tactic/boolean_tactics.h"
 #include "frontends/lean/frontend.h"
+#include "frontends/lua/register_modules.h"
 using namespace lean;
 
 tactic loop_tactic() {
@@ -116,6 +117,7 @@ static void tst1() {
 
 int main() {
     save_stack_info();
+    register_modules();
     tst1();
     return has_violations() ? 1 : 0;
 }

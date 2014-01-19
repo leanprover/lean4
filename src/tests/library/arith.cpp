@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/arith/arith.h"
 #include "frontends/lean/frontend.h"
+#include "frontends/lua/register_modules.h"
 using namespace lean;
 
 static void tst0() {
@@ -132,6 +133,7 @@ static void tst6() {
 
 int main() {
     save_stack_info();
+    register_modules();
     tst0();
     tst1();
     tst2();

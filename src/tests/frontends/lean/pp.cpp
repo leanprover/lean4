@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/pp.h"
+#include "frontends/lua/register_modules.h"
 using namespace lean;
 
 static expr mk_shared_expr(unsigned depth) {
@@ -105,6 +106,7 @@ static void tst6() {
 
 int main() {
     save_stack_info();
+    register_modules();
     tst1();
     tst2();
     tst3();

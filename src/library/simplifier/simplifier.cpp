@@ -38,6 +38,10 @@ Author: Leonardo de Moura
 #define LEAN_SIMPLIFIER_ETA true
 #endif
 
+#ifndef LEAN_SIMPLIFIER_EVAL
+#define LEAN_SIMPLIFIER_EVAL true
+#endif
+
 #ifndef LEAN_SIMPLIFIER_UNFOLD
 #define LEAN_SIMPLIFIER_UNFOLD false
 #endif
@@ -56,6 +60,7 @@ static name g_simplifier_contextual   {"simplifier", "contextual"};
 static name g_simplifier_single_pass  {"simplifier", "single_pass"};
 static name g_simplifier_beta         {"simplifier", "beta"};
 static name g_simplifier_eta          {"simplifier", "eta"};
+static name g_simplifier_eval         {"simplifier", "eval"};
 static name g_simplifier_unfold       {"simplifier", "unfold"};
 static name g_simplifier_conditional  {"simplifier", "conditional"};
 static name g_simplifier_max_steps    {"simplifier", "max_steps"};
@@ -65,6 +70,7 @@ RegisterBoolOption(g_simplifier_contextual, LEAN_SIMPLIFIER_CONTEXTUAL, "(simpli
 RegisterBoolOption(g_simplifier_single_pass, LEAN_SIMPLIFIER_SINGLE_PASS, "(simplifier) if false then the simplifier keeps applying simplifications as long as possible");
 RegisterBoolOption(g_simplifier_beta, LEAN_SIMPLIFIER_BETA, "(simplifier) use beta-reduction");
 RegisterBoolOption(g_simplifier_eta, LEAN_SIMPLIFIER_ETA, "(simplifier) use eta-reduction");
+RegisterBoolOption(g_simplifier_eval, LEAN_SIMPLIFIER_EVAL, "(simplifier) apply reductions based on computation");
 RegisterBoolOption(g_simplifier_unfold, LEAN_SIMPLIFIER_UNFOLD, "(simplifier) unfolds non-opaque definitions");
 RegisterBoolOption(g_simplifier_conditional, LEAN_SIMPLIFIER_CONDITIONAL, "(simplifier) conditional rewriting");
 RegisterUnsignedOption(g_simplifier_max_steps, LEAN_SIMPLIFIER_MAX_STEPS, "(simplifier) maximum number of steps");
@@ -83,6 +89,9 @@ bool get_simplifier_beta(options const & opts) {
 }
 bool get_simplifier_eta(options const & opts) {
     return opts.get_bool(g_simplifier_eta, LEAN_SIMPLIFIER_ETA);
+}
+bool get_simplifier_eval(options const & opts) {
+    return opts.get_bool(g_simplifier_eval, LEAN_SIMPLIFIER_EVAL);
 }
 bool get_simplifier_unfold(options const & opts) {
     return opts.get_bool(g_simplifier_unfold, LEAN_SIMPLIFIER_UNFOLD);
@@ -108,6 +117,7 @@ class simplifier_fn {
     bool           m_single_pass;
     bool           m_beta;
     bool           m_eta;
+    bool           m_eval;
     bool           m_unfold;
     bool           m_conditional;
     unsigned       m_max_steps;
@@ -329,7 +339,7 @@ class simplifier_fn {
                 i++;
             }
             if (i == num)
-                return result(out);
+                return rewrite_app(e, result(out));
             expr pr;
             bool heq_proof = false;
             if (i == 0) {
@@ -369,11 +379,35 @@ class simplifier_fn {
         }
     }
 
-    result rewrite_app(expr const & e, result const & r) {
-        if (m_beta && is_lambda(arg(r.m_out, 0)))
-            return rewrite(e, result(head_beta_reduce(r.m_out), r.m_proof, r.m_heq_proof));
-        else
-            return rewrite(e, r);
+    /**
+       \brief Given (applications) lhs and rhs s.t. lhs = rhs.m_out
+       with proof rhs.m_proof, this method applies rewrite rules, beta
+       and evaluation to \c rhs.m_out, and return a new result object
+       new_rhs s.t.  lhs = new_rhs.m_out with proof new_rhs.m_proof
+
+       \pre is_app(lhs)
+       \pre is_app(rhs.m_out)
+    */
+    result rewrite_app(expr const & lhs, result const & rhs) {
+        lean_assert(is_app(rhs.m_out));
+        lean_assert(is_app(lhs));
+        expr f   = arg(rhs.m_out, 0);
+        if (m_eval && is_value(f)) {
+            optional<expr> new_rhs = to_value(f).normalize(num_args(rhs.m_out), &arg(rhs.m_out, 0));
+            if (new_rhs) {
+                // We don't need to create a new proof term since rhs.m_out and new_rhs are
+                // definitionally equal.
+                return rewrite(lhs, result(*new_rhs, rhs.m_proof, rhs.m_heq_proof));
+            }
+        }
+
+        if (m_beta && is_lambda(f)) {
+            expr new_rhs = head_beta_reduce(rhs.m_out);
+            // rhs.m_out and new_rhs are also definitionally equal
+            return rewrite(lhs, result(new_rhs, rhs.m_proof, rhs.m_heq_proof));
+        }
+
+        return rewrite(lhs, rhs);
     }
 
     expr                   m_target;    // temp field
@@ -382,17 +416,8 @@ class simplifier_fn {
     expr                   m_new_rhs;   // temp field
     expr                   m_new_proof; // temp field
 
-    void reset_subst(unsigned num_args) {
-        if (m_subst.size() < num_args) {
-            m_subst.resize(num_args);
-            m_new_args.resize(num_args+1);
-        }
-        for (unsigned i = 0; i < num_args; i++)
-            m_subst[i] = none_expr();
-    }
-
-    bool found_all_args(unsigned num_args) {
-        for (unsigned i = 0; i < num_args; i++) {
+    bool found_all_args(unsigned num) {
+        for (unsigned i = 0; i < num; i++) {
             if (!m_subst[i])
                 return false;
             m_new_args[i+1] = *m_subst[i];
@@ -408,8 +433,11 @@ class simplifier_fn {
     */
     bool match(rewrite_rule const & rule) {
         unsigned num = rule.get_num_args();
-        reset_subst(num);
-        if (hop_match(rule.get_lhs(), m_target, m_subst)) {
+        m_subst.clear();
+        m_subst.resize(num);
+        if (hop_match(rule.get_lhs(), m_target, m_subst, optional<ro_environment>(m_env))) {
+            m_new_args.clear();
+            m_new_args.resize(num+1);
             if (found_all_args(num)) {
                 // easy case: all arguments found
                 m_new_rhs   = instantiate(rule.get_rhs(), num, m_new_args.data() + 1);
@@ -423,7 +451,9 @@ class simplifier_fn {
                 }
                 return true;
             }
-            // TODO(Leo): conditional rewriting
+            // Conditional rewriting: we try to fill the missing
+            // arguments by trying to find a proof for ones that are
+            // propositions.
         }
         return false;
     }
@@ -456,15 +486,18 @@ class simplifier_fn {
 
     result simplify_constant(expr const & e) {
         lean_assert(is_constant(e));
-        if (m_unfold) {
+        if (m_unfold || m_eval) {
             auto obj = m_env->find_object(const_name(e));
-            if (should_unfold(obj)) {
+            if (m_unfold && should_unfold(obj)) {
                 expr e = obj->get_value();
                 if (m_single_pass) {
                     return result(e);
                 } else {
                     return simplify(e);
                 }
+            }
+            if (m_eval && obj->is_builtin()) {
+                return result(obj->get_value());
             }
         }
         return rewrite(e, result(e));
@@ -577,6 +610,7 @@ class simplifier_fn {
         m_single_pass    = get_simplifier_single_pass(o);
         m_beta           = get_simplifier_beta(o);
         m_eta            = get_simplifier_eta(o);
+        m_eval           = get_simplifier_eval(o);
         m_unfold         = get_simplifier_unfold(o);
         m_conditional    = get_simplifier_conditional(o);
         m_max_steps      = get_simplifier_max_steps(o);

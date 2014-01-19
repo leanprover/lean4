@@ -407,6 +407,20 @@ public:
         return is_convertible(t1, t2, ctx, mk_justification);
     }
 
+    bool is_eq_convertible(expr const & t1, expr const & t2, context const & ctx) {
+        set_ctx(ctx);
+        update_menv(none_menv());
+        if (t1 == t2)
+            return true;
+        expr new_t1 = normalize(t1, ctx, false);
+        expr new_t2 = normalize(t2, ctx, false);
+        if (new_t1 == new_t2)
+            return true;
+        new_t1 = normalize(new_t1, ctx, true);
+        new_t2 = normalize(new_t2, ctx, true);
+        return new_t1 == new_t2;
+    }
+
     void check_type(expr const & e, context const & ctx) {
         set_ctx(ctx);
         update_menv(none_menv());
@@ -485,6 +499,9 @@ expr type_checker::check(expr const & e, context const & ctx) {
 }
 bool type_checker::is_convertible(expr const & t1, expr const & t2, context const & ctx) {
     return m_ptr->is_convertible(t1, t2, ctx);
+}
+bool type_checker::is_eq_convertible(expr const & t1, expr const & t2, context const & ctx) {
+    return m_ptr->is_eq_convertible(t1, t2, ctx);
 }
 void type_checker::check_type(expr const & e, context const & ctx) {
     m_ptr->check_type(e, ctx);

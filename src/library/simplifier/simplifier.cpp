@@ -34,6 +34,10 @@ Author: Leonardo de Moura
 #define LEAN_SIMPLIFIER_BETA true
 #endif
 
+#ifndef LEAN_SIMPLIFIER_ETA
+#define LEAN_SIMPLIFIER_ETA true
+#endif
+
 #ifndef LEAN_SIMPLIFIER_UNFOLD
 #define LEAN_SIMPLIFIER_UNFOLD false
 #endif
@@ -51,6 +55,7 @@ static name g_simplifier_proofs       {"simplifier", "proofs"};
 static name g_simplifier_contextual   {"simplifier", "contextual"};
 static name g_simplifier_single_pass  {"simplifier", "single_pass"};
 static name g_simplifier_beta         {"simplifier", "beta"};
+static name g_simplifier_eta          {"simplifier", "eta"};
 static name g_simplifier_unfold       {"simplifier", "unfold"};
 static name g_simplifier_conditional  {"simplifier", "conditional"};
 static name g_simplifier_max_steps    {"simplifier", "max_steps"};
@@ -58,7 +63,8 @@ static name g_simplifier_max_steps    {"simplifier", "max_steps"};
 RegisterBoolOption(g_simplifier_proofs, LEAN_SIMPLIFIER_PROOFS, "(simplifier) generate proofs");
 RegisterBoolOption(g_simplifier_contextual, LEAN_SIMPLIFIER_CONTEXTUAL, "(simplifier) contextual simplification");
 RegisterBoolOption(g_simplifier_single_pass, LEAN_SIMPLIFIER_SINGLE_PASS, "(simplifier) if false then the simplifier keeps applying simplifications as long as possible");
-RegisterBoolOption(g_simplifier_beta, LEAN_SIMPLIFIER_BETA, "(simplifier) use beta-reductions");
+RegisterBoolOption(g_simplifier_beta, LEAN_SIMPLIFIER_BETA, "(simplifier) use beta-reduction");
+RegisterBoolOption(g_simplifier_eta, LEAN_SIMPLIFIER_ETA, "(simplifier) use eta-reduction");
 RegisterBoolOption(g_simplifier_unfold, LEAN_SIMPLIFIER_UNFOLD, "(simplifier) unfolds non-opaque definitions");
 RegisterBoolOption(g_simplifier_conditional, LEAN_SIMPLIFIER_CONDITIONAL, "(simplifier) conditional rewriting");
 RegisterUnsignedOption(g_simplifier_max_steps, LEAN_SIMPLIFIER_MAX_STEPS, "(simplifier) maximum number of steps");
@@ -74,6 +80,9 @@ bool get_simplifier_single_pass(options const & opts) {
 }
 bool get_simplifier_beta(options const & opts) {
     return opts.get_bool(g_simplifier_beta, LEAN_SIMPLIFIER_BETA);
+}
+bool get_simplifier_eta(options const & opts) {
+    return opts.get_bool(g_simplifier_eta, LEAN_SIMPLIFIER_ETA);
 }
 bool get_simplifier_unfold(options const & opts) {
     return opts.get_bool(g_simplifier_unfold, LEAN_SIMPLIFIER_UNFOLD);
@@ -98,6 +107,7 @@ class simplifier_fn {
     bool           m_contextual;
     bool           m_single_pass;
     bool           m_beta;
+    bool           m_eta;
     bool           m_unfold;
     bool           m_conditional;
     unsigned       m_max_steps;
@@ -460,9 +470,41 @@ class simplifier_fn {
         return rewrite(e, result(e));
     }
 
-    result rewrite_lambda(expr const & e, result const & r) {
+    bool is_eta_target(expr const & e) const {
+        if (is_lambda(e)) {
+            expr b = abst_body(e);
+            return
+                is_app(b) && is_var(arg(b, num_args(b) - 1), 0) &&
+                std::all_of(begin_args(b), end_args(b) - 1, [](expr const & a) { return !has_free_var(a, 0); });
+        } else {
+            return false;
+        }
+    }
 
-        rewrite(e, r);
+    result rewrite_lambda(expr const & e, result const & r) {
+        lean_assert(is_lambda(r.m_out));
+        if (m_eta && is_eta_target(r.m_out)) {
+            expr b = abst_body(r.m_out);
+            expr new_rhs;
+            if (num_args(b) > 2) {
+                new_rhs = mk_app(num_args(b) - 1, &arg(b, 0));
+            } else {
+                new_rhs = arg(b, 0);
+            }
+            new_rhs           = lower_free_vars(new_rhs, 1, 1);
+            expr new_rhs_type = ensure_pi(infer_type(new_rhs));
+            if (m_tc.is_eq_convertible(abst_domain(new_rhs_type), abst_domain(r.m_out), m_ctx)) {
+                if (m_proofs_enabled) {
+                    expr new_proof = mk_eta_th(abst_domain(r.m_out),
+                                               mk_lambda(r.m_out, abst_body(new_rhs_type)),
+                                               new_rhs);
+                    return rewrite(e, mk_trans_result(e, r, new_rhs, new_proof));
+                } else {
+                    return rewrite(e, result(new_rhs));
+                }
+            }
+        }
+        return rewrite(e, r);
     }
 
     result simplify_lambda(expr const & e) {
@@ -534,6 +576,7 @@ class simplifier_fn {
         m_contextual     = get_simplifier_contextual(o);
         m_single_pass    = get_simplifier_single_pass(o);
         m_beta           = get_simplifier_beta(o);
+        m_eta            = get_simplifier_eta(o);
         m_unfold         = get_simplifier_unfold(o);
         m_conditional    = get_simplifier_conditional(o);
         m_max_steps      = get_simplifier_max_steps(o);

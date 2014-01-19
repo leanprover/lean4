@@ -156,7 +156,8 @@ theorem symm {A : TypeU} {a b : A} (H : a = b) : b = a
 theorem trans {A : TypeU} {a b c : A} (H1 : a = b) (H2 : b = c) : a = c
 := subst H1 H2
 
-infixl 100 ⋈ : trans
+infixl 100 >< : trans
+infixl 100 ⋈  : trans
 
 theorem ne_symm {A : TypeU} {a b : A} (H : a ≠ b) : b ≠ a
 := assume H1 : b = a, H (symm H1)

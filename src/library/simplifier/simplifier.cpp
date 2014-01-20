@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/free_vars.h"
 #include "kernel/instantiate.h"
+#include "kernel/normalizer.h"
 #include "kernel/kernel.h"
 #include "library/heq_decls.h"
 #include "library/kernel_bindings.h"
@@ -166,6 +167,11 @@ class simplifier_fn {
 
     expr ensure_pi(expr const & e) {
         return m_tc.ensure_pi(e, m_ctx);
+    }
+
+    expr normalize(expr const & e) {
+        normalizer & proc = m_tc.get_normalizer();
+        return proc(e, m_ctx, true);
     }
 
     expr mk_congr1_th(expr const & f_type, expr const & f, expr const & new_f, expr const & a, expr const & Heq_f) {
@@ -392,6 +398,38 @@ class simplifier_fn {
         }
     }
 
+    /** \brief Return true when \c e is a value from the point of view of the simplifier */
+    static bool is_value(expr const & e) {
+        // Currently only semantic attachments are treated as value.
+        // We may relax that in the future.
+        return ::lean::is_value(e);
+    }
+
+    /**
+       \brief Return true iff the simplifier should use the evaluator/normalizer to reduce application
+    */
+    bool evaluate_app(expr const & e) const {
+        lean_assert(is_app(e));
+        // only evaluate if it is enabled
+        if (!m_eval)
+            return false;
+        // if all arguments are values, we should evaluate
+        if (std::all_of(args(e).begin()+1, args(e).end(), [](expr const & a) { return is_value(a); }))
+            return true;
+        // The previous test fails for equality/disequality because the first arguments are types.
+        // Should we have something more general for cases like that?
+        // Some possibilities:
+        //   - We have a table mapping constants to argument positions. The positions tell the simplifier
+        //     which arguments must be value to trigger evaluation.
+        //   - We have an external predicate that is invoked by the simplifier to decide whether to normalize/evaluate an
+        //     expression.
+        unsigned num = num_args(e);
+        return
+            (is_eq(e) || is_neq(e) || is_heq(e)) &&
+            is_value(arg(e, num-2)) &&
+            is_value(arg(e, num-1));
+    }
+
     /**
        \brief Given (applications) lhs and rhs s.t. lhs = rhs.m_out
        with proof rhs.m_proof, this method applies rewrite rules, beta
@@ -404,16 +442,17 @@ class simplifier_fn {
     result rewrite_app(expr const & lhs, result const & rhs) {
         lean_assert(is_app(rhs.m_out));
         lean_assert(is_app(lhs));
-        expr f   = arg(rhs.m_out, 0);
-        if (m_eval && is_value(f)) {
-            optional<expr> new_rhs = to_value(f).normalize(num_args(rhs.m_out), &arg(rhs.m_out, 0));
-            if (new_rhs) {
+        if (evaluate_app(rhs.m_out)) {
+            // try to evaluate if all arguments are values.
+            expr new_rhs = normalize(rhs.m_out);
+            if (is_value(new_rhs)) {
                 // We don't need to create a new proof term since rhs.m_out and new_rhs are
                 // definitionally equal.
-                return rewrite(lhs, result(*new_rhs, rhs.m_proof, rhs.m_heq_proof));
+                return rewrite(lhs, result(new_rhs, rhs.m_proof, rhs.m_heq_proof));
             }
         }
 
+        expr f   = arg(rhs.m_out, 0);
         if (m_beta && is_lambda(f)) {
             expr new_rhs = head_beta_reduce(rhs.m_out);
             // rhs.m_out and new_rhs are also definitionally equal
@@ -492,7 +531,12 @@ class simplifier_fn {
                 }
             }
         }
-        return rhs;
+        if (!m_single_pass && lhs != rhs.m_out) {
+            result new_rhs = simplify(rhs.m_out);
+            return mk_trans_result(lhs, rhs, new_rhs);
+        } else {
+            return rhs;
+        }
     }
 
     result simplify_var(expr const & e) {
@@ -604,6 +648,7 @@ class simplifier_fn {
 
     result simplify_pi(expr const & e) {
         lean_assert(is_pi(e));
+        // TODO(Leo): handle implication, i.e., e is_proposition and is_arrow
         if (m_has_heq) {
             // TODO(Leo)
             return result(e);

@@ -1,0 +1,35 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Defined: double
+⊤
+⊤
+9
+⊥
+2 + 2 + (2 + 2) + 1 ≥ 3
+3 ≤ 2 * 2 + 2 * 2 + 2 * 2 + 2 * 2 + 1
+  Assumed: a
+  Assumed: b
+  Assumed: c
+  Assumed: d
+  Imported 'if_then_else'
+a * c + a * d + b * c + b * d
+trans (Nat::distributel a b (c + d))
+      (trans (congr (congr2 Nat::add (Nat::distributer a c d)) (Nat::distributer b c d))
+             (Nat::add_assoc (a * c + a * d) (b * c) (b * d)))
+  Proved: congr2_congr1
+  Proved: congr2_congr2
+  Proved: congr1_congr2
+⊤
+trans (congr (congr2 eq
+                     (congr1 10
+                             (congr2 Nat::add (trans (congr2 (ite (a > 0) b) (Nat::add_zeror b)) (if_a_a (a > 0) b)))))
+             (congr1 10 (congr2 Nat::add (if_a_a (a > 0) b))))
+      (eq_id (b + 10))
+let κ::1 := congr2 (λ x : ℕ → ℕ, eq (x 10))
+                    (congr2 Nat::add (trans (congr2 (ite (a > 0) b) (Nat::add_zeror b)) (if_a_a (a > 0) b)))
+in trans (congr κ::1 (congr1 10 (congr2 Nat::add (if_a_a (a > 0) b)))) (eq_id (b + 10))
+a * a + a * b + b * a + b * b
+⊤ → ⊥	refl (⊤ → ⊥)
+⊤ → ⊤	refl (⊤ → ⊤)
+⊥ → ⊥	refl (⊥ → ⊥)
+⊥	refl ⊥

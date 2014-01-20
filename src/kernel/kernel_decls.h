@@ -249,6 +249,10 @@ inline expr mk_imp_falser_th(expr const & e1) { return mk_app({mk_imp_falser_fn(
 expr mk_imp_falsel_fn();
 bool is_imp_falsel_fn(expr const & e);
 inline expr mk_imp_falsel_th(expr const & e1) { return mk_app({mk_imp_falsel_fn(), e1}); }
+expr mk_not_true();
+bool is_not_true(expr const & e);
+expr mk_not_false();
+bool is_not_false(expr const & e);
 expr mk_not_and_fn();
 bool is_not_and_fn(expr const & e);
 inline expr mk_not_and_th(expr const & e1, expr const & e2) { return mk_app({mk_not_and_fn(), e1, e2}); }

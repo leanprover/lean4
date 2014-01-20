@@ -298,6 +298,12 @@ theorem imp_falser (a : Bool) : (a → false) ↔ ¬ a
 theorem imp_falsel (a : Bool) : (false → a) ↔ true
 := case (λ x, (false → x) ↔ true) trivial trivial a
 
+theorem not_true : ¬ true ↔ false
+:= trivial
+
+theorem not_false : ¬ false ↔ true
+:= trivial
+
 theorem not_and (a b : Bool) : ¬ (a ∧ b) ↔ ¬ a ∨ ¬ b
 := case (λ x, ¬ (x ∧ b) ↔ ¬ x ∨ ¬ b)
         (case (λ y, ¬ (true ∧ y) ↔ ¬ true ∨ ¬ y)   trivial trivial b)

@@ -34,6 +34,8 @@ MK_CONSTANT(Nat_mul_comm_fn, name({"Nat", "mul_comm"}));
 MK_CONSTANT(Nat_distributer_fn, name({"Nat", "distributer"}));
 MK_CONSTANT(Nat_distributel_fn, name({"Nat", "distributel"}));
 MK_CONSTANT(Nat_mul_assoc_fn, name({"Nat", "mul_assoc"}));
+MK_CONSTANT(Nat_add_left_comm_fn, name({"Nat", "add_left_comm"}));
+MK_CONSTANT(Nat_mul_left_comm_fn, name({"Nat", "mul_left_comm"}));
 MK_CONSTANT(Nat_add_injr_fn, name({"Nat", "add_injr"}));
 MK_CONSTANT(Nat_add_injl_fn, name({"Nat", "add_injl"}));
 MK_CONSTANT(Nat_add_eqz_fn, name({"Nat", "add_eqz"}));

@@ -83,15 +83,15 @@ theorem add_comm (a b : Nat) : a + b = b + a
                        ...   =   (n + a) + 1 : { iH }
                        ...   =   (n + 1) + a : symm (add_succl n a))
 
-theorem add_assoc (a b c : Nat) : a + (b + c) = (a + b) + c
-:= induction_on a
+theorem add_assoc (a b c : Nat) : (a + b) + c = a + (b + c)
+:= symm (induction_on a
     (calc 0 + (b + c)  =  b + c        : add_zerol (b + c)
                   ...  =  (0 + b) + c  : { symm (add_zerol b) })
     (λ (n : Nat) (iH : n + (b + c) = (n + b) + c),
         calc (n + 1) + (b + c)   =    (n + (b + c)) + 1   :  add_succl n (b + c)
                           ...    =    ((n + b) + c) + 1   :  { iH }
                           ...    =    ((n + b) + 1) + c   :  symm (add_succl (n + b) c)
-                          ...    =    ((n + 1) + b) + c   :  { have (n + b) + 1 = (n + 1) + b :  symm (add_succl n b) })
+                          ...    =    ((n + 1) + b) + c   :  { have (n + b) + 1 = (n + 1) + b :  symm (add_succl n b) }))
 
 theorem mul_zerol (a : Nat) : 0 * a = 0
 := induction_on a
@@ -109,12 +109,12 @@ theorem mul_succl (a b : Nat) : (a + 1) * b = a * b + b
     (λ (n : Nat) (iH : (a + 1) * n = a * n + n),
         calc   (a + 1) * (n + 1)  =    (a + 1) * n + (a + 1)  :  mul_succr (a + 1) n
                             ...   = a * n + n + (a + 1)       :  { iH }
-                            ...   = a * n + n + a + 1         :  add_assoc (a * n + n) a 1
-                            ...   = a * n + (n + a) + 1       :  { have  a * n + n + a = a * n + (n + a) : symm (add_assoc (a * n) n a) }
+                            ...   = a * n + n + a + 1         :  symm (add_assoc (a * n + n) a 1)
+                            ...   = a * n + (n + a) + 1       :  { have  a * n + n + a = a * n + (n + a) : add_assoc (a * n) n a }
                             ...   = a * n + (a + n) + 1       :  { add_comm n a }
-                            ...   = a * n + a + n + 1         :  { add_assoc (a * n) a n }
+                            ...   = a * n + a + n + 1         :  { symm (add_assoc (a * n) a n) }
                             ...   = a * (n + 1) + n + 1       :  { symm (mul_succr a n) }
-                            ...   = a * (n + 1) + (n + 1)     :  symm (add_assoc (a * (n + 1)) n 1))
+                            ...   = a * (n + 1) + (n + 1)     :  add_assoc (a * (n + 1)) n 1)
 
 theorem mul_onel (a : Nat) : 1 * a = a
 := induction_on a
@@ -148,12 +148,12 @@ theorem distributer (a b c : Nat) : a * (b + c) = a * b + a * c
     (λ (n : Nat) (iH : n * (b + c) = n * b + n * c),
         calc  (n + 1) * (b + c)  =   n * (b + c) + (b + c)     : mul_succl n (b + c)
                             ...  =   n * b + n * c + (b + c)   : { iH }
-                            ...  =   n * b + n * c + b + c     : add_assoc (n * b + n * c) b c
-                            ...  =   n * b + (n * c + b) + c   : { symm (add_assoc (n * b) (n * c) b) }
+                            ...  =   n * b + n * c + b + c     : symm (add_assoc (n * b + n * c) b c)
+                            ...  =   n * b + (n * c + b) + c   : { add_assoc (n * b) (n * c) b }
                             ...  =   n * b + (b + n * c) + c   : { add_comm (n * c) b }
-                            ...  =   n * b + b + n * c + c     : { add_assoc (n * b) b (n * c) }
+                            ...  =   n * b + b + n * c + c     : { symm (add_assoc (n * b) b (n * c)) }
                             ...  =   (n + 1) * b + n * c + c   : { symm (mul_succl n b) }
-                            ...  =   (n + 1) * b + (n * c + c) : symm (add_assoc ((n + 1) * b) (n * c) c)
+                            ...  =   (n + 1) * b + (n * c + c) : add_assoc ((n + 1) * b) (n * c) c
                             ...  =   (n + 1) * b + (n + 1) * c : { symm (mul_succl n c) })
 
 theorem distributel (a b c : Nat) : (a + b) * c = a * c + b * c
@@ -162,8 +162,8 @@ theorem distributel (a b c : Nat) : (a + b) * c = a * c + b * c
                 ...  =  a * c + c * b  :  { mul_comm c a }
                 ...  =  a * c + b * c  :  { mul_comm c b }
 
-theorem mul_assoc (a b c : Nat) : a * (b * c) = a * b * c
-:= induction_on a
+theorem mul_assoc (a b c : Nat) : (a * b) * c = a * (b * c)
+:= symm (induction_on a
     (calc  0 * (b * c)    =  0           : mul_zerol (b * c)
                    ...    =  0 * c       : symm (mul_zerol c)
                    ...    =  (0 * b) * c : { symm (mul_zerol b) })
@@ -171,7 +171,13 @@ theorem mul_assoc (a b c : Nat) : a * (b * c) = a * b * c
         calc  (n + 1) * (b * c)    =   n * (b * c) + (b * c)   :  mul_succl n (b * c)
                             ...    =   n * b * c + (b * c)     :  { iH }
                             ...    =   (n * b + b) * c         :  symm (distributel (n * b) b c)
-                            ...    =   (n + 1) * b * c         :  { symm (mul_succl n b) })
+                            ...    =   (n + 1) * b * c         :  { symm (mul_succl n b) }))
+
+theorem add_left_comm (a b c : Nat) : a + (b + c) = b + (a + c)
+:= left_comm add_comm add_assoc a b c
+
+theorem mul_left_comm (a b c : Nat) : a * (b * c) = b * (a * c)
+:= left_comm mul_comm mul_assoc a b c
 
 theorem add_injr {a b c : Nat} : a + b = a + c → b = c
 := induction_on a
@@ -181,13 +187,13 @@ theorem add_injr {a b c : Nat} : a + b = a + c → b = c
            ...   =  c       : add_zerol c)
     (λ (n : Nat) (iH : n + b = n + c → b = c) (H : n + 1 + b = n + 1 + c),
        let L1 : n + b + 1 = n + c + 1
-           := (calc n + b + 1  =  n + (b + 1)  : symm (add_assoc n b 1)
+           := (calc n + b + 1  =  n + (b + 1)  : add_assoc n b 1
                           ...  =  n + (1 + b)  : { add_comm b 1 }
-                          ...  =  n + 1 + b    : add_assoc n 1 b
+                          ...  =  n + 1 + b    : symm (add_assoc n 1 b)
                           ...  =  n + 1 + c    : H
-                          ...  =  n + (1 + c)  : symm (add_assoc n 1 c)
+                          ...  =  n + (1 + c)  : add_assoc n 1 c
                           ...  =  n + (c + 1)  : { add_comm 1 c }
-                          ...  =  n + c + 1    : add_assoc n c 1),
+                          ...  =  n + c + 1    : symm (add_assoc n c 1)),
            L2 : n + b = n + c := succ_inj L1
        in iH L2)
 
@@ -202,9 +208,9 @@ theorem add_eqz {a b : Nat} (H : a + b = 0) : a = 0
      (λ (n : Nat) (H1 : a = n + 1),
          absurd_elim (a = 0)
             H (calc a + b  =  n + 1 + b   : { H1 }
-                   ...  =  n + (1 + b) : symm (add_assoc n 1 b)
+                   ...  =  n + (1 + b) : add_assoc n 1 b
                    ...  =  n + (b + 1) : { add_comm 1 b }
-                   ...  =  n + b + 1   : add_assoc n b 1
+                   ...  =  n + b + 1   : symm (add_assoc n b 1)
                    ...  ≠  0           : succ_nz (n + b)))
 
 theorem le_intro {a b c : Nat} (H : a + c = b) : a ≤ b
@@ -221,22 +227,22 @@ theorem le_zero (a : Nat) : 0 ≤ a := le_intro (add_zerol a)
 theorem le_trans {a b c : Nat} (H1 : a ≤ b) (H2 : b ≤ c) : a ≤ c
 := obtain (w1 : Nat) (Hw1 : a + w1 = b), from (le_elim H1),
    obtain (w2 : Nat) (Hw2 : b + w2 = c), from (le_elim H2),
-      le_intro (calc a + (w1 + w2) =  a + w1 + w2  :  add_assoc a w1 w2
+      le_intro (calc a + (w1 + w2) =  a + w1 + w2  :  symm (add_assoc a w1 w2)
                                 ... =  b + w2         :  { Hw1 }
                                 ... =  c              :  Hw2)
 
 theorem le_add {a b : Nat} (H : a ≤ b) (c : Nat) : a + c ≤ b + c
 := obtain (w : Nat) (Hw : a + w = b), from (le_elim H),
-      le_intro (calc a + c + w  = a + (c + w) :  symm (add_assoc a c w)
+      le_intro (calc a + c + w  = a + (c + w) :  add_assoc a c w
                             ...  = a + (w + c)   :  { add_comm c w }
-                            ...  = a + w + c     :  add_assoc a w c
+                            ...  = a + w + c     :  symm (add_assoc a w c)
                             ...  = b + c         :  { Hw })
 
 theorem le_antisym {a b : Nat} (H1 : a ≤ b) (H2 : b ≤ a) : a = b
 := obtain (w1 : Nat) (Hw1 : a + w1 = b), from (le_elim H1),
    obtain (w2 : Nat) (Hw2 : b + w2 = a), from (le_elim H2),
     let L1 : w1 + w2 = 0
-           := add_injr (calc a + (w1 + w2) = a + w1 + w2 : { add_assoc a w1 w2 }
+           := add_injr (calc a + (w1 + w2) = a + w1 + w2 : { symm (add_assoc a w1 w2) }
                                        ... = b + w2        : { Hw1 }
                                        ... = a             : Hw2
                                        ... = a + 0         : symm (add_zeror a)),
@@ -249,9 +255,9 @@ theorem not_lt_0 (a : Nat) : ¬ a < 0
 := not_intro (λ H : a + 1 ≤ 0,
                obtain (w : Nat) (Hw1 : a + 1 + w = 0), from (le_elim H),
                   absurd
-                    (calc a + w + 1  =  a + (w + 1)  : symm (add_assoc _ _ _)
+                    (calc a + w + 1  =  a + (w + 1)  : add_assoc _ _ _
                                 ...  =  a + (1 + w)  : { add_comm _ _ }
-                                ...  =  a + 1 + w    : add_assoc _ _ _
+                                ...  =  a + 1 + w    : symm (add_assoc _ _ _)
                                 ...  =  0            : Hw1)
                     (succ_nz (a + w)))
 
@@ -263,7 +269,7 @@ theorem lt_elim {a b : Nat} (H : a < b) : ∃ x, a + 1 + x = b
 
 theorem lt_le {a b : Nat} (H : a < b) : a ≤ b
 := obtain (w : Nat) (Hw : a + 1 + w = b), from (le_elim H),
-     le_intro (calc a + (1 + w) =  a + 1 + w  :  add_assoc _ _ _
+     le_intro (calc a + (1 + w) =  a + 1 + w  :  symm (add_assoc _ _ _)
                             ... =  b          : Hw)
 
 theorem lt_ne {a b : Nat} (H : a < b) : a ≠ b
@@ -271,7 +277,7 @@ theorem lt_ne {a b : Nat} (H : a < b) : a ≠ b
       obtain (w : Nat) (Hw : a + 1 + w = b), from (lt_elim H),
           absurd (calc w + 1 = 1 + w     : add_comm _ _
                         ...  = 0         :
-                               add_injr (calc b + (1 + w)  = b + 1 + w   : add_assoc b 1 w
+                               add_injr (calc b + (1 + w)  = b + 1 + w   : symm (add_assoc b 1 w)
                                                     ...    = a + 1 + w   : { symm H1 }
                                                     ...    =  b          : Hw
                                                     ...    =  b + 0      : symm (add_zeror b)))
@@ -284,40 +290,40 @@ theorem lt_nrefl (a : Nat) : ¬ a < a
 theorem lt_trans {a b c : Nat} (H1 : a < b) (H2 : b < c) : a < c
 := obtain (w1 : Nat) (Hw1 : a + 1 + w1 = b), from (lt_elim H1),
    obtain (w2 : Nat) (Hw2 : b + 1 + w2 = c), from (lt_elim H2),
-      lt_intro (calc a + 1 + (w1 + 1 + w2) = a + 1 + (w1 + (1 + w2))   : { symm (add_assoc w1 1 w2) }
-                                       ... = (a + 1 + w1) + (1 + w2)   : add_assoc _ _ _
+      lt_intro (calc a + 1 + (w1 + 1 + w2) = a + 1 + (w1 + (1 + w2))   : { add_assoc w1 1 w2 }
+                                       ... = (a + 1 + w1) + (1 + w2)   : symm (add_assoc _ _ _)
                                        ... =  b + (1 + w2)             :  { Hw1 }
-                                       ... =  b + 1 + w2               : add_assoc _ _ _
+                                       ... =  b + 1 + w2               : symm (add_assoc _ _ _)
                                        ... =  c                        :  Hw2)
 
 theorem lt_le_trans {a b c : Nat} (H1 : a < b) (H2 : b ≤ c) : a < c
 := obtain (w1 : Nat) (Hw1 : a + 1 + w1 = b), from (lt_elim H1),
    obtain (w2 : Nat) (Hw2 : b + w2 = c), from (le_elim H2),
-      lt_intro (calc a + 1 + (w1 + w2) = a + 1 + w1 + w2   : add_assoc _ _ _
+      lt_intro (calc a + 1 + (w1 + w2) = a + 1 + w1 + w2   : symm (add_assoc _ _ _)
                                    ... =  b + w2             :  { Hw1 }
                                    ... =  c                  :  Hw2)
 
 theorem le_lt_trans {a b c : Nat} (H1 : a ≤ b) (H2 : b < c) : a < c
 := obtain (w1 : Nat) (Hw1 : a + w1 = b), from (le_elim H1),
    obtain (w2 : Nat) (Hw2 : b + 1 + w2 = c), from (lt_elim H2),
-      lt_intro (calc a + 1 + (w1 + w2) = a + 1 + w1 + w2   : add_assoc _ _ _
-                                   ... = a + (1 + w1) + w2 : { symm (add_assoc a 1 w1) }
+      lt_intro (calc a + 1 + (w1 + w2) = a + 1 + w1 + w2   : symm (add_assoc _ _ _)
+                                   ... = a + (1 + w1) + w2 : { add_assoc a 1 w1 }
                                    ... = a + (w1 + 1) + w2 : { add_comm 1 w1 }
-                                   ... = a + w1 + 1 + w2   : { add_assoc a w1 1 }
+                                   ... = a + w1 + 1 + w2   : { symm (add_assoc a w1 1) }
                                    ... = b + 1 + w2        : { Hw1 }
                                    ... = c                 : Hw2)
 
 theorem ne_lt_succ {a b : Nat} (H1 : a ≠ b) (H2 : a < b + 1) : a < b
 := obtain (w : Nat) (Hw : a + 1 + w = b + 1), from (lt_elim H2),
-     let L : a + w = b := add_injl (calc a + w + 1  =  a + (w + 1)  : symm (add_assoc _ _ _)
+     let L : a + w = b := add_injl (calc a + w + 1  =  a + (w + 1)  : add_assoc _ _ _
                                                 ... =  a + (1 + w)  : { add_comm _ _ }
-                                                ... =  a + 1 + w    : add_assoc _ _ _
+                                                ... =  a + 1 + w    : symm (add_assoc _ _ _)
                                                 ... =  b + 1        : Hw)
      in discriminate (λ Hz : w = 0, absurd_elim (a < b) (calc a   = a + 0  : symm (add_zeror _)
                                                               ... = a + w  : { symm Hz }
                                                               ... = b      : L)
                                                          H1)
-                     (λ (p : Nat) (Hp : w = p + 1), lt_intro (calc a + 1 + p =  a + (1 + p)   : symm (add_assoc _ _ _)
+                     (λ (p : Nat) (Hp : w = p + 1), lt_intro (calc a + 1 + p =  a + (1 + p)   : add_assoc _ _ _
                                                                         ...  =  a + (p + 1)   : { add_comm _ _ }
                                                                         ...  =  a + w         : { symm Hp }
                                                                         ...  =  b             : L))

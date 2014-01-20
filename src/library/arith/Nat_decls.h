@@ -92,6 +92,12 @@ inline expr mk_Nat_distributel_th(expr const & e1, expr const & e2, expr const &
 expr mk_Nat_mul_assoc_fn();
 bool is_Nat_mul_assoc_fn(expr const & e);
 inline expr mk_Nat_mul_assoc_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_Nat_mul_assoc_fn(), e1, e2, e3}); }
+expr mk_Nat_add_left_comm_fn();
+bool is_Nat_add_left_comm_fn(expr const & e);
+inline expr mk_Nat_add_left_comm_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_Nat_add_left_comm_fn(), e1, e2, e3}); }
+expr mk_Nat_mul_left_comm_fn();
+bool is_Nat_mul_left_comm_fn(expr const & e);
+inline expr mk_Nat_mul_left_comm_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_Nat_mul_left_comm_fn(), e1, e2, e3}); }
 expr mk_Nat_add_injr_fn();
 bool is_Nat_add_injr_fn(expr const & e);
 inline expr mk_Nat_add_injr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_Nat_add_injr_fn(), e1, e2, e3, e4}); }

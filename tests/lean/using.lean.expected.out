@@ -2,7 +2,7 @@
   Set: pp::unicode
   Using: Nat
 0 + 1
-Nat::add_assoc : ∀ a b c : ℕ, a + (b + c) = a + b + c
+Nat::add_assoc : ∀ a b c : ℕ, a + b + c = a + (b + c)
 using.lean:7:6: error: unknown identifier 'add'
   Using: Nat
 0 + 1

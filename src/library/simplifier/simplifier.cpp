@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 #include "library/expr_pair.h"
 #include "library/hop_match.h"
+#include "library/expr_lt.h"
 #include "library/simplifier/rewrite_rule_set.h"
 
 #ifndef LEAN_SIMPLIFIER_PROOFS
@@ -477,6 +478,14 @@ class simplifier_fn {
         return true;
     }
 
+    bool sorted_args(unsigned num, expr const * args) {
+        for (unsigned i = 1; i < num; i++) {
+            if (!is_lt(args[i-1], args[i], false))
+                return false;
+        }
+        return true;
+    }
+
     /**
        \brief Auxiliary function used by m_match_fn, it tries to match the given rule and
        the expression in the temporary field \c m_target.
@@ -491,6 +500,8 @@ class simplifier_fn {
             m_new_args.clear();
             m_new_args.resize(num+1);
             if (found_all_args(num)) {
+                if (rule.is_permutation() && sorted_args(num, m_new_args.begin()+1))
+                    return false;
                 // easy case: all arguments found
                 m_new_rhs   = instantiate(rule.get_rhs(), num, m_new_args.data() + 1);
                 if (m_proofs_enabled) {

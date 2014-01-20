@@ -553,15 +553,18 @@ class simplifier_fn {
 
     result simplify_constant(expr const & e) {
         lean_assert(is_constant(e));
-        if (m_unfold) {
+        if (m_unfold || m_eval) {
             auto obj = m_env->find_object(const_name(e));
-            if (should_unfold(obj)) {
+            if (m_unfold && should_unfold(obj)) {
                 expr e = obj->get_value();
                 if (m_single_pass) {
                     return result(e);
                 } else {
                     return simplify(e);
                 }
+            }
+            if (m_eval && obj->is_builtin()) {
+                return result(obj->get_value());
             }
         }
         return rewrite(e, result(e));

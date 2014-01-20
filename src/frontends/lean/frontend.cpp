@@ -649,6 +649,8 @@ std::vector<bool> const & get_implicit_arguments(ro_environment const & env, nam
 std::vector<bool> const & get_implicit_arguments(ro_environment const & env, expr const & n) {
     if (is_constant(n))
         return get_implicit_arguments(env, const_name(n));
+    else if (is_value(n))
+        return get_implicit_arguments(env, to_value(n).get_name());
     else
         return g_empty_vector;
 }

@@ -15,7 +15,9 @@ Author: Leonardo de Moura
 namespace lean {
 bool calc_proof_parser::supports(expr const & op1) const {
     return
-        std::find_if(m_supported_operators.begin(), m_supported_operators.end(), [&](op_data const & op2) { return op1 == op2.m_fn; })
+        std::find_if(m_supported_operators.begin(), m_supported_operators.end(), [&](op_data const & op2) {
+                return op1 == op2.m_fn;
+            })
         != m_supported_operators.end();
 }
 
@@ -44,18 +46,10 @@ void calc_proof_parser::add_trans_step(expr const & op1, expr const & op2, trans
     m_trans_ops.emplace_front(op1, op2, d);
 }
 
-static expr get_value_op(expr const & op) {
-    if (is_value(op))
-        return mk_constant(to_value(op).get_name());
-    else
-        return op;
-}
-
-
 calc_proof_parser::calc_proof_parser() {
-    expr imp = get_value_op(mk_implies_fn());
-    expr eq  = get_value_op(mk_eq_fn());
-    expr neq = get_value_op(mk_neq_fn());
+    expr imp = mk_implies_fn();
+    expr eq  = mk_eq_fn();
+    expr neq = mk_neq_fn();
 
     add_supported_operator(op_data(imp, 2));
     add_supported_operator(op_data(eq, 3));

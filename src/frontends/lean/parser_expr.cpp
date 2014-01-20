@@ -257,13 +257,13 @@ expr parser_imp::get_name_ref(name const & id, pos_info const & p, bool implicit
             name nid = *it + id;
             optional<object> obj = m_env->find_object(nid);
             if (obj) {
-                object_kind k      = obj->kind();
+                expr f        = obj->is_builtin() ? obj->get_value() : mk_constant(obj->get_name());
+                object_kind k = obj->kind();
                 if (k == object_kind::Definition || k == object_kind::Postulate || k == object_kind::Builtin) {
                     if (implicit_args && has_implicit_arguments(m_env, obj->get_name())) {
                         std::vector<bool> const & imp_args = get_implicit_arguments(m_env, obj->get_name());
                         buffer<expr> args;
                         pos_info p = pos();
-                        expr f = mk_constant(obj->get_name());
                         args.push_back(save(f, p));
                         for (unsigned i = 0; i < imp_args.size(); i++) {
                             if (imp_args[i]) {
@@ -274,7 +274,7 @@ expr parser_imp::get_name_ref(name const & id, pos_info const & p, bool implicit
                         }
                         return mk_app(args);
                     } else {
-                        return mk_constant(obj->get_name());
+                        return f;
                     }
                 } else {
                     throw parser_error(sstream() << "invalid object reference, object '" << nid << "' is not an expression.", p);

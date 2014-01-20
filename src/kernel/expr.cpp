@@ -129,16 +129,21 @@ expr mk_app(unsigned n, expr const * as) {
     expr * m_args = to_app(r)->m_args;
     unsigned i = 0;
     unsigned j = 0;
+    unsigned total_size = 1;
     if (new_n != n) {
-        for (; i < n0; i++)
+        for (; i < n0; ++i) {
             new (m_args+i) expr(arg(arg0, i));
+            total_size += get_size(m_args[i]);
+        }
         j++;
     }
     for (; i < new_n; ++i, ++j) {
         lean_assert(j < n);
         new (m_args+i) expr(as[j]);
+        total_size += get_size(m_args[i]);
     }
-    to_app(r)->m_hash = hash_args(new_n, m_args);
+    to_app(r)->m_hash       = hash_args(new_n, m_args);
+    to_app(r)->m_total_size = total_size;
     return r;
 }
 expr_abstraction::expr_abstraction(expr_kind k, name const & n, expr const & t, expr const & b):
@@ -146,6 +151,7 @@ expr_abstraction::expr_abstraction(expr_kind k, name const & n, expr const & t, 
     m_name(n),
     m_domain(t),
     m_body(b) {
+    m_total_size = 1 + get_size(m_domain) + get_size(m_body);
 }
 void expr_abstraction::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_body, todelete);
@@ -165,6 +171,9 @@ expr_let::expr_let(name const & n, optional<expr> const & t, expr const & v, exp
     m_type(t),
     m_value(v),
     m_body(b) {
+    m_total_size = 1 + get_size(m_value) + get_size(m_body);
+    if (m_type)
+        m_total_size += get_size(*m_type);
 }
 void expr_let::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_body, todelete);
@@ -263,6 +272,20 @@ bool is_arrow(expr const & t) {
         bool res = is_pi(t) && !has_free_var(abst_body(t), 0);
         t.raw()->set_is_arrow(res);
         return res;
+    }
+}
+
+unsigned get_size(expr const & e) {
+    switch (e.kind()) {
+    case expr_kind::Var:   case expr_kind::Constant:  case expr_kind::Type:
+    case expr_kind::Value: case expr_kind::MetaVar:
+        return 1;
+    case expr_kind::App:
+        return to_app(e)->m_total_size;
+    case expr_kind::Pi: case expr_kind::Lambda:
+        return to_abstraction(e)->m_total_size;
+    case expr_kind::Let:
+        return to_let(e)->m_total_size;
     }
 }
 

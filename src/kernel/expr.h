@@ -75,7 +75,7 @@ protected:
     //    2    - term contains metavariables
     //    3-4  - term is an arrow (0 - not initialized, 1 - is arrow, 2 - is not arrow)
     atomic_ushort      m_flags;
-    unsigned m_hash;  // hash based on the structure of the expression (this is a good hash for structural equality)
+    unsigned m_hash;       // hash based on the structure of the expression (this is a good hash for structural equality)
     unsigned m_hash_alloc; // hash based on 'time' of allocation (this is a good hash for pointer-based equality)
     MK_LEAN_RC(); // Declare m_rc counter
     void dealloc();
@@ -199,11 +199,13 @@ public:
 };
 /** \brief Function Applications */
 class expr_app : public expr_cell {
+    unsigned m_total_size;
     unsigned m_num_args;
     expr     m_args[0];
     friend expr mk_app(unsigned num_args, expr const * args);
     friend expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
+    friend unsigned get_size(expr const & e);
 public:
     expr_app(unsigned size, bool has_mv);
     unsigned     get_num_args() const        { return m_num_args; }
@@ -213,11 +215,13 @@ public:
 };
 /** \brief Super class for lambda abstraction and pi (functional spaces). */
 class expr_abstraction : public expr_cell {
+    unsigned m_total_size;
     name     m_name;
     expr     m_domain;
     expr     m_body;
     friend class expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
+    friend unsigned get_size(expr const & e);
 public:
     expr_abstraction(expr_kind k, name const & n, expr const & t, expr const & e);
     name const & get_name() const   { return m_name; }
@@ -236,19 +240,21 @@ public:
 };
 /** \brief Let expressions */
 class expr_let : public expr_cell {
+    unsigned       m_total_size;
     name           m_name;
     optional<expr> m_type;
     expr           m_value;
     expr           m_body;
     friend class expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
+    friend unsigned get_size(expr const & e);
 public:
     expr_let(name const & n, optional<expr> const & t, expr const & v, expr const & b);
     ~expr_let();
-    name const & get_name() const  { return m_name; }
+    name const & get_name() const           { return m_name; }
     optional<expr> const & get_type() const { return m_type; }
-    expr const & get_value() const { return m_value; }
-    expr const & get_body() const  { return m_body; }
+    expr const & get_value() const          { return m_value; }
+    expr const & get_body() const           { return m_body; }
 };
 /** \brief Type */
 class expr_type : public expr_cell {
@@ -517,6 +523,8 @@ inline expr const &  let_value(expr const & e)            { return to_let(e)->ge
 inline expr const &  let_body(expr const & e)             { return to_let(e)->get_body(); }
 inline name const &  metavar_name(expr const & e)         { return to_metavar(e)->get_name(); }
 inline local_context const & metavar_lctx(expr const & e) { return to_metavar(e)->get_lctx(); }
+/** \brief Return the size of the given expression */
+unsigned get_size(expr const & e);
 
 inline bool has_metavar(expr const & e) { return e.has_metavar(); }
 // =======================================

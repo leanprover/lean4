@@ -862,7 +862,8 @@ class pp_fn {
 
        \remark if T != 0, then T is Pi(x : A), B
     */
-    result pp_abstraction_core(expr const & e, unsigned depth, optional<expr> T, std::vector<bool> const * implicit_args = nullptr) {
+    result pp_abstraction_core(expr const & e, unsigned depth, optional<expr> T,
+                               std::vector<bool> const * implicit_args = nullptr) {
         local_names::mk_scope mk(m_local_names);
         if (is_arrow(e) && !implicit_args) {
             lean_assert(!T);
@@ -889,7 +890,7 @@ class pp_fn {
             }
             format body_sep;
             if (T) {
-                format T_f = pp(*T, 0).first;
+                format T_f = pp_scoped_child(*T, 0).first;
                 body_sep = format{space(), colon(), space(), T_f, space(), g_assign_fmt};
             } else if (implicit_args) {
                 // This is a little hack to pretty print Variable and

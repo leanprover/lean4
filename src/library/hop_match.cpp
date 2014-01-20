@@ -9,6 +9,8 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/instantiate.h"
 #include "kernel/kernel.h"
+#include "kernel/for_each_fn.h"
+#include "kernel/replace_visitor.h"
 #include "library/equality.h"
 #include "library/kernel_bindings.h"
 #include "library/hop_match.h"
@@ -169,6 +171,63 @@ class hop_match_fn {
         return false;
     }
 
+    /**
+       \brief Return true iff all free variables in the pattern \c p are assigned.
+    */
+    bool all_free_vars_are_assigned(expr const & p, unsigned ctx_size) const {
+        bool result = true;
+        for_each(p, [&](expr const & v, unsigned offset) {
+                if (!result)
+                    return false;
+                if (is_var(v) && is_free_var(v, ctx_size + offset) && !get_subst(v, ctx_size + offset)) {
+                    result = false;
+                }
+                return true;
+            });
+        return result;
+    }
+
+    /**
+       \brief Auxiliary functional object for instantiating the free variables in a pattern.
+    */
+    class instantiate_free_vars_proc : public replace_visitor {
+    protected:
+        hop_match_fn &  m_ref;
+        unsigned        m_ctx_size;
+
+        virtual expr visit_var(expr const & x, context const & ctx) {
+            unsigned real_ctx_sz = ctx.size() + m_ctx_size;
+            if (m_ref.is_free_var(x, real_ctx_sz)) {
+                optional<expr> r = m_ref.get_subst(x, real_ctx_sz);
+                lean_assert(r);
+                return lift_free_vars(*r, real_ctx_sz);
+            } else {
+                return x;
+            }
+        }
+
+        virtual expr visit_app(expr const & e, context const & ctx) {
+            unsigned real_ctx_sz = ctx.size() + m_ctx_size;
+            expr const & f = arg(e, 0);
+            if (is_var(f) && m_ref.is_free_var(f, real_ctx_sz)) {
+                buffer<expr> new_args;
+                for (unsigned i = 0; i < num_args(e); i++)
+                    new_args.push_back(visit(arg(e, i), ctx));
+                if (is_lambda(new_args[0]))
+                    return apply_beta(new_args[0], new_args.size() - 1, new_args.data() + 1);
+                else
+                    return mk_app(new_args);
+            } else {
+                return replace_visitor::visit_app(e, ctx);
+            }
+        }
+
+    public:
+        instantiate_free_vars_proc(hop_match_fn & fn, unsigned ctx_size):
+            m_ref(fn), m_ctx_size(ctx_size) {
+        }
+    };
+
     bool match(expr const & p, expr const & t, context const & ctx, unsigned ctx_size) {
         lean_assert(ctx.size() == ctx_size);
         if (is_free_var(p, ctx_size)) {
@@ -181,22 +240,28 @@ class hop_match_fn {
                 assign(p, lower_free_vars(t, ctx_size, ctx_size), ctx_size);
                 return true;
             }
-        } else if (is_app(p) && is_free_var(arg(p, 0), ctx_size) && args_are_distinct_locally_bound_vars(p, ctx_size, m_vars)) {
-            // higher-order pattern case
-            auto s = get_subst(arg(p, 0), ctx_size);
-            unsigned num = num_args(p);
-            if (s) {
-                expr f     = lift_free_vars(*s, ctx_size);
-                expr new_p = apply_beta(f, num - 1, &(arg(p, 1)));
-                return new_p == t;
-            } else {
-                optional<expr> new_t = proj(t, ctx, ctx_size, m_vars);
-                if (new_t) {
-                    assign(arg(p, 0), *new_t, ctx_size);
-                    return true;
+        } else if (is_app(p) && is_free_var(arg(p, 0), ctx_size)) {
+            if (args_are_distinct_locally_bound_vars(p, ctx_size, m_vars)) {
+                // higher-order pattern case
+                auto s = get_subst(arg(p, 0), ctx_size);
+                unsigned num = num_args(p);
+                if (s) {
+                    expr f     = lift_free_vars(*s, ctx_size);
+                    expr new_p = apply_beta(f, num - 1, &(arg(p, 1)));
+                    return new_p == t;
+                } else {
+                    optional<expr> new_t = proj(t, ctx, ctx_size, m_vars);
+                    if (new_t) {
+                        assign(arg(p, 0), *new_t, ctx_size);
+                        return true;
+                    }
                 }
-                // fallback to the first-order case
+            } if (all_free_vars_are_assigned(p, ctx_size)) {
+                instantiate_free_vars_proc proc(*this, ctx_size);
+                expr new_p = proc(p);
+                return new_p == t;
             }
+            // fallback to the first-order case
         }
 
         if (p == t && !has_free_var_ge(p, ctx_size)) {

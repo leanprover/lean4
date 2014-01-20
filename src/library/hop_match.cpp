@@ -256,7 +256,7 @@ class hop_match_fn {
                         return true;
                     }
                 }
-            } if (all_free_vars_are_assigned(p, ctx_size)) {
+            } else if (all_free_vars_are_assigned(p, ctx_size)) {
                 instantiate_free_vars_proc proc(*this, ctx_size);
                 expr new_p = proc(p);
                 return new_p == t;

@@ -51,7 +51,7 @@ The main API is divided in the following sections
 - Miscellaneous
 ======================================= */
 class expr;
-enum class expr_kind { Var, Constant, Value, App, Lambda, Pi, Type, Let, MetaVar };
+enum class expr_kind { Value, Var, Constant, App, Lambda, Pi, Type, Let, MetaVar };
 class local_entry;
 /**
    \brief A metavariable local context is just a list of local_entries.

@@ -478,14 +478,6 @@ class simplifier_fn {
         return true;
     }
 
-    bool sorted_args(unsigned num, expr const * args) {
-        for (unsigned i = 1; i < num; i++) {
-            if (!is_lt(args[i-1], args[i], false))
-                return false;
-        }
-        return true;
-    }
-
     /**
        \brief Auxiliary function used by m_match_fn, it tries to match the given rule and
        the expression in the temporary field \c m_target.
@@ -500,10 +492,10 @@ class simplifier_fn {
             m_new_args.clear();
             m_new_args.resize(num+1);
             if (found_all_args(num)) {
-                if (rule.is_permutation() && sorted_args(num, m_new_args.begin()+1))
-                    return false;
                 // easy case: all arguments found
                 m_new_rhs   = instantiate(rule.get_rhs(), num, m_new_args.data() + 1);
+                if (rule.is_permutation() && !is_lt(m_new_rhs, m_target, false))
+                    return false;
                 if (m_proofs_enabled) {
                     if (num > 0) {
                         m_new_args[0] = rule.get_proof();
@@ -561,18 +553,15 @@ class simplifier_fn {
 
     result simplify_constant(expr const & e) {
         lean_assert(is_constant(e));
-        if (m_unfold || m_eval) {
+        if (m_unfold) {
             auto obj = m_env->find_object(const_name(e));
-            if (m_unfold && should_unfold(obj)) {
+            if (should_unfold(obj)) {
                 expr e = obj->get_value();
                 if (m_single_pass) {
                     return result(e);
                 } else {
                     return simplify(e);
                 }
-            }
-            if (m_eval && obj->is_builtin()) {
-                return result(obj->get_value());
             }
         }
         return rewrite(e, result(e));

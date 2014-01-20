@@ -1,0 +1,11 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: matrix
+  Assumed: mul
+  Assumed: mul_assoc
+  Assumed: m1
+  Assumed: m2
+  Assumed: m3
+  Assumed: m4
+before simp: m1 * (m2 * (m3 * m4))
+after simp:  m1 * m2 * m3 * m4

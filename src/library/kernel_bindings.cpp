@@ -636,6 +636,11 @@ static int expr_size(lua_State * L) {
     return 1;
 }
 
+static int expr_is_lt(lua_State * L) {
+    lua_pushboolean(L, is_lt(to_expr(L, 1), to_expr(L, 2), false));
+    return 1;
+}
+
 static const struct luaL_Reg expr_m[] = {
     {"__gc",             expr_gc}, // never throws
     {"__tostring",       safe_function<expr_tostring>},
@@ -674,6 +679,7 @@ static const struct luaL_Reg expr_m[] = {
     {"occurs",           safe_function<expr_occurs>},
     {"has_metavar",      safe_function<expr_has_metavar>},
     {"is_eqp",           safe_function<expr_is_eqp>},
+    {"is_lt",            safe_function<expr_is_lt>},
     {"hash",             safe_function<expr_hash>},
     {"is_not",           safe_function<expr_is_not>},
     {"is_and",           safe_function<expr_is_and>},

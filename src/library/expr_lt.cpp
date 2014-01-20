@@ -17,10 +17,14 @@ static bool is_lt(optional<expr> const & a, optional<expr> const & b, bool use_h
 
 bool is_lt(expr const & a, expr const & b, bool use_hash) {
     if (is_eqp(a, b))                    return false;
+    unsigned a_sz = get_size(a);
+    unsigned b_sz = get_size(b);
+    if (a_sz < b_sz)                     return true;
+    if (a_sz > b_sz)                     return false;
     if (a.kind() != b.kind())            return a.kind() < b.kind();
     if (use_hash) {
-        if (a.hash() < b.hash()) return true;
-        if (a.hash() > b.hash()) return false;
+        if (a.hash() < b.hash())         return true;
+        if (a.hash() > b.hash())         return false;
     }
     if (a == b)                          return false;
     if (is_var(a))                       return var_idx(a) < var_idx(b);

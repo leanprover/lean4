@@ -287,6 +287,7 @@ unsigned get_size(expr const & e) {
     case expr_kind::Let:
         return to_let(e)->m_total_size;
     }
+    lean_unreachable(); // LCOV_EXCL_LINE
 }
 
 expr copy(expr const & a) {

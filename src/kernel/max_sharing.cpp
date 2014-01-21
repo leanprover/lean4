@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <unordered_set>
 #include <functional>
 #include "util/buffer.h"
+#include "util/interrupt.h"
 #include "kernel/max_sharing.h"
 
 namespace lean {
@@ -33,6 +34,7 @@ struct max_sharing_fn::imp {
     }
 
     expr apply(expr const & a) {
+        check_system("max_sharing");
         auto r = m_cache.find(a);
         if (r != m_cache.end()) {
             lean_assert((*r).raw()->max_shared());

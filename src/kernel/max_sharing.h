@@ -29,7 +29,6 @@ public:
     void clear();
 };
 
-
 /**
    \brief The resultant expression is structurally identical to the input one, but
    it uses maximally shared sub-expressions.

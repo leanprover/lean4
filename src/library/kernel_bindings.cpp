@@ -631,8 +631,8 @@ static int expr_mk_eq(lua_State * L) {
     return push_expr(L, mk_eq(to_expr(L, 1), to_expr(L, 2), to_expr(L, 3)));
 }
 
-static int expr_size(lua_State * L) {
-    lua_pushinteger(L, get_size(to_expr(L, 1)));
+static int expr_depth(lua_State * L) {
+    lua_pushinteger(L, get_depth(to_expr(L, 1)));
     return 1;
 }
 
@@ -651,7 +651,7 @@ static const struct luaL_Reg expr_m[] = {
     {"is_var",           safe_function<expr_is_var>},
     {"is_constant",      safe_function<expr_is_constant>},
     {"is_app",           safe_function<expr_is_app>},
-    {"is_lambda",       safe_function<expr_is_lambda>},
+    {"is_lambda",        safe_function<expr_is_lambda>},
     {"is_pi",            safe_function<expr_is_pi>},
     {"is_abstraction",   safe_function<expr_is_abstraction>},
     {"is_let",           safe_function<expr_is_let>},
@@ -661,7 +661,7 @@ static const struct luaL_Reg expr_m[] = {
     {"data",             safe_function<expr_fields>},
     {"args",             safe_function<expr_args>},
     {"num_args",         safe_function<expr_num_args>},
-    {"size",             safe_function<expr_size>},
+    {"depth",            safe_function<expr_depth>},
     {"arg",              safe_function<expr_arg>},
     {"abst_name",        safe_function<expr_abst_name>},
     {"abst_domain",      safe_function<expr_abst_domain>},

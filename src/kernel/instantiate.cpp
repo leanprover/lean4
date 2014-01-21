@@ -12,28 +12,39 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 
 namespace lean {
-expr instantiate_with_closed(expr const & a, unsigned n, expr const * s, optional<metavar_env> const & menv) {
-    lean_assert(std::all_of(s, s+n, [&](expr const & e) { return !has_free_var(e, 0, std::numeric_limits<unsigned>::max(), menv); }));
+template<bool ClosedSubst>
+expr instantiate_core(expr const & a, unsigned s, unsigned n, expr const * subst, optional<metavar_env> const & menv) {
     return replace(a, [=](expr const & m, unsigned offset) -> expr {
             if (is_var(m)) {
                 unsigned vidx = var_idx(m);
-                if (vidx >= offset) {
-                    if (vidx < offset + n)
-                        return s[n - (vidx - offset) - 1];
-                    else
+                if (vidx >= offset + s) {
+                    if (vidx < offset + s + n) {
+                        if (ClosedSubst)
+                            return subst[n - (vidx - s - offset) - 1];
+                        else
+                            return lift_free_vars(subst[n - (vidx - s - offset) - 1], offset, menv);
+                    } else {
                         return mk_var(vidx - n);
+                    }
                 } else {
                     return m;
                 }
             } else if (is_metavar(m)) {
                 expr r = m;
-                for (unsigned i = 0; i < n; i++)
-                    r = add_inst(r, offset + n - i - 1, s[i], menv);
+                for (unsigned i = 0; i < n; i++) {
+                    expr v = ClosedSubst ? subst[i] : lift_free_vars(subst[i], offset + n - i - 1, menv);
+                    r = add_inst(r, offset + s + n - i - 1, v, menv);
+                }
                 return r;
             } else {
                 return m;
             }
         });
+}
+
+expr instantiate_with_closed(expr const & a, unsigned n, expr const * s, optional<metavar_env> const & menv) {
+    lean_assert(std::all_of(s, s+n, [&](expr const & e) { return !has_free_var(e, 0, std::numeric_limits<unsigned>::max(), menv); }));
+    return instantiate_core<true>(a, 0, n, s, menv);
 }
 expr instantiate_with_closed(expr const & e, unsigned n, expr const * s, metavar_env const & menv) { return instantiate_with_closed(e, n, s, some_menv(menv)); }
 expr instantiate_with_closed(expr const & e, unsigned n, expr const * s) { return instantiate_with_closed(e, n, s, none_menv()); }
@@ -43,26 +54,7 @@ expr instantiate_with_closed(expr const & e, expr const & s) { return instantiat
 expr instantiate_with_closed(expr const & e, expr const & s, metavar_env const & menv) { return instantiate_with_closed(e, s, some_menv(menv)); }
 
 expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst, optional<metavar_env> const & menv) {
-    return replace(a, [=](expr const & m, unsigned offset) -> expr {
-            if (is_var(m)) {
-                unsigned vidx = var_idx(m);
-                if (vidx >= offset + s) {
-                    if (vidx < offset + s + n)
-                        return lift_free_vars(subst[n - (vidx - s - offset) - 1], offset, menv);
-                    else
-                        return mk_var(vidx - n);
-                } else {
-                    return m;
-                }
-            } else if (is_metavar(m)) {
-                expr r = m;
-                for (unsigned i = 0; i < n; i++)
-                    r = add_inst(r, offset + s + n - i - 1, lift_free_vars(subst[i], offset + n - i - 1, menv), menv);
-                return r;
-            } else {
-                return m;
-            }
-        });
+    return instantiate_core<false>(a, s, n, subst, menv);
 }
 expr instantiate(expr const & e, unsigned n, expr const * s, optional<metavar_env> const & menv) { return instantiate(e, 0, n, s, menv); }
 expr instantiate(expr const & e, unsigned n, expr const * s, metavar_env const & menv) { return instantiate(e, n, s, some_menv(menv)); }

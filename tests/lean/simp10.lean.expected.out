@@ -1,0 +1,9 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: f
+  Assumed: g
+  Assumed: a
+  Assumed: fid
+  Assumed: gcnst
+a
+fid a (eqt_elim (congr1 0 (congr2 neq (gcnst a))))

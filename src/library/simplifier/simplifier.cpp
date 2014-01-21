@@ -151,16 +151,6 @@ class simplifier_fn {
     bool           m_memoize;
     unsigned       m_max_steps;
 
-    struct match_fn {
-        simplifier_fn & m_simp;
-        match_fn(simplifier_fn & s):m_simp(s) {}
-        bool operator()(rewrite_rule const & rule) const {
-            return m_simp.match(rule);
-        }
-    };
-
-    match_fn               m_match_fn;
-
     struct set_context {
         flet<context> m_set;
         freset<cache> m_reset_cache;
@@ -479,54 +469,14 @@ class simplifier_fn {
         return rewrite(lhs, rhs);
     }
 
-    expr                   m_target;    // temp field
-    buffer<optional<expr>> m_subst;     // temp field
-    buffer<expr>           m_new_args;  // temp field
-    expr                   m_new_rhs;   // temp field
-    expr                   m_new_proof; // temp field
 
-    bool found_all_args(unsigned num) {
+    bool found_all_args(unsigned num, buffer<optional<expr>> const & subst, buffer<expr> & new_args) {
         for (unsigned i = 0; i < num; i++) {
-            if (!m_subst[i])
+            if (!subst[i])
                 return false;
-            m_new_args[i+1] = *m_subst[i];
+            new_args[i+1] = *subst[i];
         }
         return true;
-    }
-
-    /**
-       \brief Auxiliary function used by m_match_fn, it tries to match the given rule and
-       the expression in the temporary field \c m_target.
-       If it succeeds, then the resultant expression is stored in the temporary field m_new_rhs,
-       and the proof in m_new_proof (if proofs are enabled).
-    */
-    bool match(rewrite_rule const & rule) {
-        unsigned num = rule.get_num_args();
-        m_subst.clear();
-        m_subst.resize(num);
-        if (hop_match(rule.get_lhs(), m_target, m_subst, optional<ro_environment>(m_env))) {
-            m_new_args.clear();
-            m_new_args.resize(num+1);
-            if (found_all_args(num)) {
-                // easy case: all arguments found
-                m_new_rhs   = instantiate(rule.get_rhs(), num, m_new_args.data() + 1);
-                if (rule.is_permutation() && !is_lt(m_new_rhs, m_target, false))
-                    return false;
-                if (m_proofs_enabled) {
-                    if (num > 0) {
-                        m_new_args[0] = rule.get_proof();
-                        m_new_proof   = mk_app(m_new_args);
-                    } else {
-                        m_new_proof   = rule.get_proof();
-                    }
-                }
-                return true;
-            }
-            // Conditional rewriting: we try to fill the missing
-            // arguments by trying to find a proof for ones that are
-            // propositions.
-        }
-        return false;
     }
 
     /**
@@ -537,11 +487,94 @@ class simplifier_fn {
        with proof new_rhs.m_proof
     */
     result rewrite(expr const & lhs, result const & rhs) {
-        m_target = rhs.m_out;
+        expr target = rhs.m_out;
+        buffer<optional<expr>> subst;
+        buffer<expr>           new_args;
+        expr                   new_rhs;
+        expr                   new_proof;
+        auto check_rule_fn = [&](rewrite_rule const & rule) -> bool {
+            unsigned num = rule.get_num_args();
+            subst.clear();
+            subst.resize(num);
+            if (hop_match(rule.get_lhs(), target, subst, optional<ro_environment>(m_env))) {
+                new_args.clear();
+                new_args.resize(num+1);
+                if (found_all_args(num, subst, new_args)) {
+                    // easy case: all arguments found
+                    new_rhs   = instantiate(rule.get_rhs(), num, new_args.data() + 1);
+                    if (rule.is_permutation() && !is_lt(new_rhs, target, false))
+                        return false;
+                    if (m_proofs_enabled) {
+                        if (num > 0) {
+                            new_args[0] = rule.get_proof();
+                            new_proof   = mk_app(new_args);
+                        } else {
+                            new_proof   = rule.get_proof();
+                        }
+                    }
+                    return true;
+                } else {
+                    // Conditional rewriting: we try to fill the missing
+                    // arguments by trying to find a proof for ones that are
+                    // propositions.
+                    expr ceq = rule.get_ceq();
+                    buffer<expr> & proof_args = new_args;
+                    proof_args.clear();
+                    if (m_proofs_enabled)
+                        proof_args.push_back(rule.get_proof());
+                    for (unsigned i = 0; i < num; i++) {
+                        lean_assert(is_pi(ceq));
+                        if (subst[i]) {
+                            ceq = instantiate(abst_body(ceq), *subst[i]);
+                            if (m_proofs_enabled)
+                                proof_args.push_back(*subst[i]);
+                        } else {
+                            expr d = abst_domain(ceq);
+                            if (is_proposition(d)) {
+                                result d_res = simplify(d);
+                                if (d_res.m_out == True) {
+                                    if (m_proofs_enabled) {
+                                        expr d_proof;
+                                        if (!d_res.m_proof) {
+                                            // No proof available. So d should be definitionally equal to True
+                                            d_proof = mk_trivial();
+                                        } else {
+                                            d_proof = mk_eqt_elim_th(d, *d_res.m_proof);
+                                        }
+                                        ceq = instantiate(abst_body(ceq), d_proof);
+                                        proof_args.push_back(d_proof);
+                                    } else if (is_arrow(ceq)) {
+                                        ceq = lower_free_vars(abst_body(ceq), 1, 1);
+                                    } else {
+                                        // The body of ceq depends on this argument,
+                                        // but proof generation is not enabled.
+                                        // So, we should fail
+                                        return false;
+                                    }
+                                } else {
+                                    // failed to prove proposition
+                                    return false;
+                                }
+                            } else {
+                                // failed the argument is not a proposition
+                                return false;
+                            }
+                        }
+                    }
+                    new_proof = mk_app(proof_args);
+                    new_rhs   = arg(ceq, num_args(ceq) - 1);
+                    if (rule.is_permutation() && !is_lt(new_rhs, target, false))
+                        return false;
+                    return true;
+                }
+            }
+            return false;
+        };
+        // Traverse all rule sets
         for (rewrite_rule_set const & rs : m_rule_sets) {
-            if (rs.find_match(m_target, m_match_fn)) {
-                // the result is in m_new_rhs and proof at m_new_proof
-                result new_r1 = mk_trans_result(lhs, rhs, m_new_rhs, m_new_proof);
+            if (rs.find_match(target, check_rule_fn)) {
+                // the result is in new_rhs and proof at new_proof
+                result new_r1 = mk_trans_result(lhs, rhs, new_rhs, new_proof);
                 if (m_single_pass) {
                     return new_r1;
                 } else {
@@ -740,7 +773,7 @@ class simplifier_fn {
 
 public:
     simplifier_fn(ro_environment const & env, options const & o, unsigned num_rs, rewrite_rule_set const * rs):
-        m_env(env), m_tc(env), m_rule_sets(rs, rs + num_rs), m_match_fn(*this) {
+        m_env(env), m_tc(env), m_rule_sets(rs, rs + num_rs) {
         m_has_heq = m_env->imported("heq");
         set_options(o);
     }

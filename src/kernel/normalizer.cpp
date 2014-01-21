@@ -371,24 +371,3 @@ expr normalize(expr const & e, ro_environment const & env, context const & ctx, 
     return normalizer(env)(e, ctx, unfold_opaque);
 }
 }
-
-/*
-  Remark:
-
-  Eta-reduction + Cumulativity + Set theoretic interpretation is unsound.
-  Example:
-     f : (Type 2) -> (Type 2)
-     (fun (x : (Type 1)) (f x)) : (Type 1) -> (Type 2)
-     The domains of these two terms are different. So, they must have different denotations.
-
-     However, by eta-reduction, we have:
-     (fun (x : (Type 1)) (f x)) == f
-
-     For now, we will disable it.
-     REMARK: we can workaround this problem by applying only when the domain of f is equal
-     to the domain of the lambda abstraction.
-
-  Cody Roux suggested we use Eta-expanded normal forms.
-
-  Remark: The source code for eta-reduction can be found in the commit 519a290f320c6a
-*/

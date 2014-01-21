@@ -139,6 +139,8 @@ class simplifier_fn {
     cache          m_cache;
     max_sharing_fn m_max_sharing;
 
+    unsigned       m_num_steps; // number of steps performed
+
     // Configuration
     bool           m_proofs_enabled;
     bool           m_contextual;
@@ -556,7 +558,7 @@ class simplifier_fn {
                                     return false;
                                 }
                             } else {
-                                // failed the argument is not a proposition
+                                // failed, the argument is not a proposition
                                 return false;
                             }
                         }
@@ -737,6 +739,9 @@ class simplifier_fn {
 
     result simplify(expr e) {
         check_system("simplifier");
+        m_num_steps++;
+        if (m_num_steps > m_max_steps)
+            throw exception("simplifier failed, maximum number of steps exceeded");
         if (m_memoize) {
             e = m_max_sharing(e);
             auto it = m_cache.find(e);
@@ -780,6 +785,7 @@ public:
 
     expr_pair operator()(expr const & e, context const & ctx) {
         set_context set(*this, ctx);
+        m_num_steps = 0;
         auto r = simplify(e);
         if (r.m_proof) {
             return mk_pair(r.m_out, *(r.m_proof));

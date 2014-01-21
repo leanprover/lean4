@@ -428,7 +428,7 @@ theorem imp_congrr {a b c d : Bool} (H_ac : ∀ (H_nb : ¬ b), a = c) (H_bd : �
 -- Simplify a → b, by first simplifying b to d using the fact that a is true, and then
 -- b to d using the fact that ¬ d is true.
 -- This kind of congruence seems to be useful in very rare cases.
-theorem imp_congrl {a b c d : Bool} (H_ac : ∀ (H_nd : ¬ d), a = c) (H_bd : ∀ (H_a : a), b = d) : (a → b) = (c → d)
+theorem imp_congrl {a b c d : Bool} (H_bd : ∀ (H_a : a), b = d) (H_ac : ∀ (H_nd : ¬ d), a = c) : (a → b) = (c → d)
 := or_elim (em a)
       (λ H_a : a,
           or_elim (em d)
@@ -462,8 +462,8 @@ theorem imp_congr {a b c d : Bool} (H_ac : a = c) (H_bd : ∀ (H_c : c), b = d) 
 -- In the following theorems we are using the fact that a ∨ b is defined as ¬ a → b
 theorem or_congrr {a b c d : Bool} (H_ac : ∀ (H_nb : ¬ b), a = c) (H_bd : ∀ (H_nc : ¬ c), b = d) : a ∨ b ↔ c ∨ d
 := imp_congrr (λ H_nb : ¬ b, congr2 not (H_ac H_nb)) H_bd
-theorem or_congrl {a b c d : Bool} (H_ac : ∀ (H_nd : ¬ d), a = c) (H_bd : ∀ (H_na : ¬ a), b = d) : a ∨ b ↔ c ∨ d
-:= imp_congrl (λ H_nd : ¬ d, congr2 not (H_ac H_nd)) H_bd
+theorem or_congrl {a b c d : Bool} (H_bd : ∀ (H_na : ¬ a), b = d) (H_ac : ∀ (H_nd : ¬ d), a = c) : a ∨ b ↔ c ∨ d
+:= imp_congrl H_bd (λ H_nd : ¬ d, congr2 not (H_ac H_nd))
 -- (Common case) simplify a to c, and then b to d using the fact that ¬ c is true
 theorem or_congr {a b c d : Bool} (H_ac : a = c) (H_bd : ∀ (H_nc : ¬ c), b = d) : a ∨ b ↔ c ∨ d
 := or_congrr (λ H, H_ac) H_bd
@@ -471,8 +471,8 @@ theorem or_congr {a b c d : Bool} (H_ac : a = c) (H_bd : ∀ (H_nc : ¬ c), b = 
 -- In the following theorems we are using the fact hat a ∧ b is defined as ¬ (a → ¬ b)
 theorem and_congrr {a b c d : Bool} (H_ac : ∀ (H_b : b), a = c) (H_bd : ∀ (H_c : c), b = d) : a ∧ b ↔ c ∧ d
 := congr2 not (imp_congrr (λ (H_nnb : ¬ ¬ b), H_ac (not_not_elim H_nnb)) (λ H_c : c, congr2 not (H_bd H_c)))
-theorem and_congrl {a b c d : Bool} (H_ac : ∀ (H_d : d), a = c) (H_bd : ∀ (H_a : a), b = d) : a ∧ b ↔ c ∧ d
-:= congr2 not (imp_congrl (λ (H_nnd : ¬ ¬ d), H_ac (not_not_elim H_nnd)) (λ H_a : a, congr2 not (H_bd H_a)))
+theorem and_congrl {a b c d : Bool} (H_bd : ∀ (H_a : a), b = d) (H_ac : ∀ (H_d : d), a = c) : a ∧ b ↔ c ∧ d
+:= congr2 not (imp_congrl (λ H_a : a, congr2 not (H_bd H_a)) (λ (H_nnd : ¬ ¬ d), H_ac (not_not_elim H_nnd)))
 -- (Common case) simplify a to c, and then b to d using the fact that c is true
 theorem and_congr {a b c d : Bool} (H_ac : a = c) (H_bd : ∀ (H_c : c), b = d) : a ∧ b ↔ c ∧ d
 := and_congrr (λ H, H_ac) H_bd

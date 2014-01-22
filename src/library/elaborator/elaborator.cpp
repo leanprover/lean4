@@ -305,13 +305,13 @@ class elaborator::imp {
     }
 
     /**
-       \brief Return (f x_{num_vars - 1} ... x_0)
+       \brief Return (f x_{num_vars + first - 1} ... x_first)
     */
-    expr mk_app_vars(expr const & f, unsigned num_vars) {
+    expr mk_app_vars(expr const & f, unsigned num_vars, unsigned first = 0) {
         buffer<expr> args;
         args.push_back(f);
-        unsigned i = num_vars;
-        while (i > 0) {
+        unsigned i = num_vars + first;
+        while (i > first) {
             --i;
             args.push_back(mk_var(i));
         }
@@ -704,21 +704,6 @@ class elaborator::imp {
     }
 
     /**
-       \brief Return true iff all arguments of the application \c a are variables that do
-       not have a definition in \c ctx.
-    */
-    static bool are_args_vars(context const & ctx, expr const & a) {
-        lean_assert(is_app(a));
-        for (unsigned i = 1; i < num_args(a); i++) {
-            if (!is_var(arg(a, i)))
-                return false;
-            if (has_body(ctx, var_idx(arg(a, i))))
-                return false;
-        }
-        return true;
-    }
-
-    /**
        \brief Return true iff \c a may be an actual lower bound for a convertibility constraint.
        That is, if the result is false, it means the convertability constraint is essentially
        an equality constraint.
@@ -736,14 +721,6 @@ class elaborator::imp {
         return is_type(a) || is_metavar(a) || (is_pi(a) && is_actual_upper(abst_body(a)));
     }
 
-    /**
-       \brief See \c process_simple_ho_match
-    */
-    bool is_simple_ho_match(context const & ctx, expr const & a, expr const & b, bool is_lhs, unification_constraint const & c) {
-        return is_meta_app(a) && !has_local_context(arg(a, 0)) && are_args_vars(ctx, a) && closed(b) &&
-            (is_eq(c) || (is_lhs && !is_actual_upper(b)) || (!is_lhs && !is_actual_lower(b)));
-    }
-
     optional<expr> try_get_type(context const & ctx, expr const & e) {
         try {
             return some_expr(m_type_inferer(e, ctx));
@@ -753,16 +730,104 @@ class elaborator::imp {
     }
 
     /**
+       \brief Return true iff all arguments of the application \c a are variables that do
+       not have a definition in \c ctx.
+    */
+    static bool are_args_vars(context const & ctx, expr const & a) {
+        lean_assert(is_app(a));
+        for (unsigned i = 1; i < num_args(a); i++) {
+            if (!is_var(arg(a, i)))
+                return false;
+            if (has_body(ctx, var_idx(arg(a, i))))
+                return false;
+        }
+        return true;
+    }
+
+    /**
+       \brief are_args_vars(a) && all variables are distinct
+    */
+    static bool are_args_distinct_vars(context const & ctx, expr const & a) {
+        if (!are_args_vars(ctx, a))
+            return false;
+        buffer<bool> found;
+        for (unsigned i = 1; i < num_args(a); i++) {
+            unsigned vidx = var_idx(arg(a, i));
+            if (vidx >= found.size())
+                found.resize(vidx+1, false);
+            if (found[vidx])
+                return false;
+            found[vidx] = true;
+        }
+        return true;
+    }
+
+    /**
+       \brief See \c process_simple_ho_match (case 1)
+    */
+    bool is_simple_ho_match_closed(context const & ctx, expr const & a, expr const & b, bool is_lhs, unification_constraint const & c) {
+        return is_meta_app(a) && are_args_vars(ctx, a) && closed(b) &&
+            (is_eq(c) || (is_lhs && !is_actual_upper(b)) || (!is_lhs && !is_actual_lower(b)));
+    }
+
+    /**
+       \brief See \c process_simple_ho_match (case 2)
+    */
+    bool is_simple_ho_match_app(context const & ctx, expr const & a, expr const & b, bool is_lhs, unification_constraint const & c) {
+        if (is_meta_app(a) && are_args_distinct_vars(ctx, a) && is_app(b) && !is_meta_app(b) &&
+            num_args(a) == num_args(b) &&
+            (is_eq(c) || (is_lhs && !is_actual_upper(b)) || (!is_lhs && !is_actual_lower(b)))) {
+            // check if a and b have the same arguments
+            for (unsigned i = 1; i < num_args(a); i++) {
+                if (arg(a, i) != arg(b, i))
+                    return false;
+            }
+            // a is of the form (?m x1 ... xn) AND  b is of the form (f x1 ... xn)
+            // f should not contain any xi
+            bool failed = false;
+            for_each(arg(b, 0), [&](expr const & e, unsigned offset) {
+                    if (failed)
+                        return false; // abort search
+                    if (is_var(e)) {
+                        unsigned vidx = var_idx(e);
+                        if (vidx >= offset) {
+                            vidx -= offset;
+                            for (unsigned i = 1; i < num_args(a); i++) {
+                                if (var_idx(arg(a, i)) == vidx) {
+                                    failed = true;
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                    return true; // continue search
+                });
+            return !failed;
+        } else {
+            return false;
+        }
+    }
+
+    /**
         \brief Return true iff ctx |- a == b is a "simple" higher-order matching constraint. By simple, we mean
-        a constraint of the form
-               ctx |- (?m x) == c
-        The constraint is solved by assigning ?m to (fun (x : T), c).
+
+        1) a constraint of the form
+               ctx |- (?m x1 ... xn) == c          where c is closed
+           The constraint is solved by assigning ?m to (fun x1 ... xn, c).
+           The arguments may contain duplicate occurrences of variables.
+
+
+        2) a constraint of the form
+               ctx |- (?m x1 ... xn) == (f x1 ... xn)      where f does not contain x1 ... xn, and x1 ... xn are distinct
+           The constraint is solved by assigning ?m to f OR ?m to (fun x1 ... xn, f x1 ... xn)
     */
     bool process_simple_ho_match(context const & ctx, expr const & a, expr const & b, bool is_lhs, unification_constraint const & c) {
         // Solve constraint of the form
         //    ctx |- (?m x) == c
         // using imitation
-        if (is_simple_ho_match(ctx, a, b, is_lhs, c)) {
+        bool eq_closed = is_simple_ho_match_closed(ctx, a, b, is_lhs, c);
+        bool eq_app    = is_simple_ho_match_app(ctx, a, b, is_lhs, c);
+        if (eq_closed || eq_app) {
             expr m = arg(a, 0);
             buffer<expr> types;
             for (unsigned i = 1; i < num_args(a); i++) {
@@ -772,12 +837,37 @@ class elaborator::imp {
                 else
                     return false;
             }
-            justification new_jst(new destruct_justification(c));
-            expr s = mk_lambda(types, b);
-            if (!is_lhs)
-                swap(m, s);
-            push_new_eq_constraint(ctx, m, s, new_jst);
-            return true;
+            if (eq_closed) {
+                justification new_jst(new destruct_justification(c));
+                expr s = mk_lambda(types, b);
+                push_new_eq_constraint(ctx, m, s, new_jst);
+                return true;
+            } else {
+                lean_assert(eq_app);
+                expr f = arg(b, 0);
+                std::unique_ptr<generic_case_split> new_cs(new generic_case_split(c, m_state));
+                {
+                    // eta-expanded version: m = fun x1 ... xn, f x1 ... xn
+                    unsigned n = types.size();
+                    expr s = mk_lambda(types, mk_app_vars(lift_free_vars(f, 0, n), n));
+                    state new_state(m_state);
+                    justification new_assumption = mk_assumption();
+                    push_new_eq_constraint(new_state.m_active_cnstrs, ctx, m, s, new_assumption);
+                    new_cs->push_back(new_state, new_assumption);
+                }
+                {
+                    // m = f
+                    state new_state(m_state);
+                    justification new_assumption = mk_assumption();
+                    push_new_eq_constraint(new_state.m_active_cnstrs, ctx, m, f, new_assumption);
+                    new_cs->push_back(new_state, new_assumption);
+                }
+                // add case split
+                bool r = new_cs->next(*this);
+                lean_assert(r);
+                m_case_splits.push_back(std::move(new_cs));
+                return r;
+            }
         } else {
             return false;
         }
@@ -843,9 +933,15 @@ class elaborator::imp {
             context new_ctx = extend(ctx, abst_name(b), abst_domain(b));
             expr h_2 = new_state.m_menv->mk_metavar(extend(ctx, abst_name(b), abst_domain(b)));
             push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_1), abst_domain(b), new_assumption);
-            push_new_eq_constraint(new_state.m_active_cnstrs, new_ctx,
-                                   mk_app(update_app(lift_free_vars(a, 1), 0, h_2), mk_var(0)), abst_body(b), new_assumption);
-            imitation = mk_lambda(arg_types, update_abstraction(b, mk_app_vars(add_lift(h_1, 0, num_a - 1), num_a - 1), mk_app_vars(add_lift(h_2, 1, num_a - 1), num_a)));
+            if (is_arrow(b)) {
+                push_new_eq_constraint(new_state.m_active_cnstrs, new_ctx,
+                                       update_app(lift_free_vars(a, 1), 0, h_2), abst_body(b), new_assumption);
+                imitation = mk_lambda(arg_types, update_abstraction(b, mk_app_vars(add_lift(h_1, 0, num_a - 1), num_a - 1), mk_app_vars(add_lift(h_2, 1, num_a - 1), num_a - 1, 1)));
+            } else {
+                push_new_eq_constraint(new_state.m_active_cnstrs, new_ctx,
+                                       mk_app(update_app(lift_free_vars(a, 1), 0, h_2), mk_var(0)), abst_body(b), new_assumption);
+                imitation = mk_lambda(arg_types, update_abstraction(b, mk_app_vars(add_lift(h_1, 0, num_a - 1), num_a - 1), mk_app_vars(add_lift(h_2, 1, num_a - 1), num_a)));
+            }
         } else {
             // "Dumb imitation" aka the constant function
             // Assign f_a <- fun (x_1 : T_1) ... (x_{num_a} : T_{num_a}), b

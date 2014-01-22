@@ -216,7 +216,7 @@ theorem nonempty_ex_intro {A : TypeU} {P : A → Bool} (H : ∃ x, P x) : nonemp
 
 theorem exists_to_eps {A : TypeU} {P : A → Bool} (H : ∃ x, P x) : P (ε (nonempty_ex_intro H) P)
 := obtain (w : A) (Hw : P w), from H,
-      @eps_ax A (nonempty_ex_intro H) P w Hw
+      eps_ax (nonempty_ex_intro H) w Hw
 
 theorem axiom_of_choice {A : TypeU} {B : A → TypeU} {R : ∀ x : A, B x → Bool} (H : ∀ x, ∃ y, R x y) : ∃ f, ∀ x, R x (f x)
 := exists_intro
@@ -238,8 +238,7 @@ theorem iff_intro {a b : Bool} (Hab : a → b) (Hba : b → a) : a ↔ b
 theorem skolem_th {A : TypeU} {B : A → TypeU} {P : ∀ x : A, B x → Bool} :
         (∀ x, ∃ y, P x y) ↔ ∃ f, (∀ x, P x (f x))
 := iff_intro
-      (λ H : (∀ x, ∃ y, P x y),
-             @axiom_of_choice A B P H)
+      (λ H : (∀ x, ∃ y, P x y), axiom_of_choice H)
       (λ H : (∃ f, (∀ x, P x (f x))),
              take x, obtain (fw : ∀ x, B x) (Hw : ∀ x, P x (fw x)), from H,
                   exists_intro (fw x) (Hw x))

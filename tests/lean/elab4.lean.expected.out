@@ -15,6 +15,6 @@ variable R {A A' : Type}
     {B' : A' → Type}
     (H : @eq Type (∀ x : A, B x) (∀ x : A', B' x))
     (a : A) :
-    @eq Type (B a) (B' (@C A A' (@D A A' (λ x : A, B x) (λ x : A', B' x) H) a))
+    @eq Type (B a) (B' (@C A A' (@D A A' B B' H) a))
 theorem R2 (A1 A2 B1 B2 : Type) (H : @eq Type (A1 → B1) (A2 → B2)) (a : A1) : @eq Type B1 B2 :=
     @R A1 A2 (λ x : A1, B1) (λ x : A2, B2) H a

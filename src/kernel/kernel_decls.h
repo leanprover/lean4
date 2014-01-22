@@ -203,6 +203,9 @@ inline expr mk_boolext_th(expr const & e1, expr const & e2, expr const & e3, exp
 expr mk_iff_intro_fn();
 bool is_iff_intro_fn(expr const & e);
 inline expr mk_iff_intro_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_iff_intro_fn(), e1, e2, e3, e4}); }
+expr mk_skolem_th_fn();
+bool is_skolem_th_fn(expr const & e);
+inline expr mk_skolem_th_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_skolem_th_fn(), e1, e2, e3}); }
 expr mk_eqt_intro_fn();
 bool is_eqt_intro_fn(expr const & e);
 inline expr mk_eqt_intro_th(expr const & e1, expr const & e2) { return mk_app({mk_eqt_intro_fn(), e1, e2}); }

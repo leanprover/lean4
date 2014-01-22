@@ -211,10 +211,12 @@ theorem exists_intro {A : TypeU} {P : A → Bool} (a : A) (H : P a) : Exists A P
       absurd H (H1 a)
 
 theorem nonempty_ex_intro {A : TypeU} {P : A → Bool} (H : ∃ x, P x) : nonempty A
-:= exists_elim H (λ (w : A) (Hw : P w), exists_intro w trivial)
+:= obtain (w : A) (Hw : P w), from H,
+      exists_intro w trivial
 
 theorem exists_to_eps {A : TypeU} {P : A → Bool} (H : ∃ x, P x) : P (ε (nonempty_ex_intro H) P)
-:= exists_elim H (λ (w : A) (Hw : P w), @eps_ax A (nonempty_ex_intro H) P w Hw)
+:= obtain (w : A) (Hw : P w), from H,
+      @eps_ax A (nonempty_ex_intro H) P w Hw
 
 theorem axiom_of_choice {A : TypeU} {B : TypeU} {R : A → B → Bool} (H : ∀ x, ∃ y, R x y) : ∃ f, ∀ x, R x (f x)
 := exists_intro
@@ -232,6 +234,15 @@ theorem boolext {a b : Bool} (Hab : a → b) (Hba : b → a) : a = b
 
 theorem iff_intro {a b : Bool} (Hab : a → b) (Hba : b → a) : a ↔ b
 := boolext Hab Hba
+
+theorem skolem_th {A : TypeU} {B : TypeU} {P : A → B → Bool} :
+        (∀ x, ∃ y, P x y) ↔ ∃ f, (∀ x, P x (f x))
+:= iff_intro
+      (λ H : (∀ x, ∃ y, P x y),
+             @axiom_of_choice A B P H)
+      (λ H : (∃ f, (∀ x, P x (f x))),
+             take x, obtain (fw : A → B) (Hw : ∀ x, P x (fw x)), from H,
+                  exists_intro (fw x) (Hw x))
 
 theorem eqt_intro {a : Bool} (H : a) : a = true
 := boolext (assume H1 : a,    trivial)

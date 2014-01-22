@@ -45,7 +45,8 @@ definition Exists (A : TypeU) (P : A → Bool) := ¬ (∀ x, ¬ (P x))
 
 definition nonempty (A : TypeU) := ∃ x : A, true
 
-theorem nonempty_intro {A : TypeU} (a : A) : (nonempty A)
+-- If we have an element of type A, then A is nonempty
+theorem nonempty_intro {A : TypeU} (a : A) : nonempty A
 := assume H : (∀ x, ¬ true), (H a)
 
 theorem em (a : Bool) : a ∨ ¬ a
@@ -66,10 +67,13 @@ axiom allext {A : TypeU} {B C : A → Bool} (H : ∀ x : A, B x = C x) : (∀ x 
 -- Epsilon (Hilbert's operator)
 variable eps {A : TypeU} (H : nonempty A) (P : A → Bool) : A
 alias ε : eps
-axiom eps_ax {A : TypeU} {P : A → Bool} {a : A} : P a → P (ε (nonempty_intro a) P)
+axiom eps_ax {A : TypeU} (H : nonempty A) {P : A → Bool} (a : A) : P a → P (ε H P)
 
 -- Proof irrelevance
 axiom proof_irrel {a : Bool} (H1 H2 : a) : H1 = H2
+
+theorem eps_th {A : TypeU} {P : A → Bool} (a : A) : P a → P (ε (nonempty_intro a) P)
+:= assume H : P a, @eps_ax A (nonempty_intro a) P a H
 
 -- Alias for subst where we can provide P explicitly, but keep A,a,b implicit
 theorem substp {A : TypeU} {a b : A} (P : A → Bool) (H1 : P a) (H2 : a = b) : P b
@@ -210,16 +214,12 @@ theorem nonempty_ex_intro {A : TypeU} {P : A → Bool} (H : ∃ x, P x) : nonemp
 := exists_elim H (λ (w : A) (Hw : P w), exists_intro w trivial)
 
 theorem exists_to_eps {A : TypeU} {P : A → Bool} (H : ∃ x, P x) : P (ε (nonempty_ex_intro H) P)
-:= exists_elim H (λ (w : A) (Hw : P w),
-                    let Peps : P (ε (nonempty_intro w) P)                 := @eps_ax A P w Hw,
-                        eqpr : (nonempty_intro w) = (nonempty_ex_intro H) := proof_irrel (nonempty_intro w) (nonempty_ex_intro H)
-                        in subst Peps eqpr)
+:= exists_elim H (λ (w : A) (Hw : P w), @eps_ax A (nonempty_ex_intro H) P w Hw)
 
-theorem axiom_of_choice {A : TypeU} {B : TypeU} {R : A → B → Bool} (Hne : nonempty A) (H : ∀ x, ∃ y, R x y) :
-        ∃ f, ∀ x, R x (f x)
+theorem axiom_of_choice {A : TypeU} {B : TypeU} {R : A → B → Bool} (H : ∀ x, ∃ y, R x y) : ∃ f, ∀ x, R x (f x)
 := exists_intro
-      (λ x, ε (nonempty_ex_intro (H x)) (λ y, R x y))  -- witness for f
-      (λ x, exists_to_eps (H x))                       -- proof that witness satisfies ∀ x, R x (f x)
+      (λ x, ε (nonempty_ex_intro (H x)) (λ y, R x y)) -- witness for f
+      (λ x, exists_to_eps (H x))                      -- proof that witness satisfies ∀ x, R x (f x)
 
 theorem boolext {a b : Bool} (Hab : a → b) (Hba : b → a) : a = b
 := or_elim (boolcomplete a)

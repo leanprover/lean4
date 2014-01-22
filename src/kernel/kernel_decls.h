@@ -37,6 +37,13 @@ expr mk_exists_fn();
 bool is_exists_fn(expr const & e);
 inline bool is_exists(expr const & e) { return is_app(e) && is_exists_fn(arg(e, 0)); }
 inline expr mk_exists(expr const & e1, expr const & e2) { return mk_app({mk_exists_fn(), e1, e2}); }
+expr mk_nonempty_fn();
+bool is_nonempty_fn(expr const & e);
+inline bool is_nonempty(expr const & e) { return is_app(e) && is_nonempty_fn(arg(e, 0)); }
+inline expr mk_nonempty(expr const & e1) { return mk_app({mk_nonempty_fn(), e1}); }
+expr mk_nonempty_intro_fn();
+bool is_nonempty_intro_fn(expr const & e);
+inline expr mk_nonempty_intro_th(expr const & e1, expr const & e2) { return mk_app({mk_nonempty_intro_fn(), e1, e2}); }
 expr mk_em_fn();
 bool is_em_fn(expr const & e);
 inline expr mk_em_th(expr const & e1) { return mk_app({mk_em_fn(), e1}); }
@@ -58,13 +65,16 @@ inline expr mk_allext_th(expr const & e1, expr const & e2, expr const & e3, expr
 expr mk_eps_fn();
 bool is_eps_fn(expr const & e);
 inline bool is_eps(expr const & e) { return is_app(e) && is_eps_fn(arg(e, 0)); }
-inline expr mk_eps(expr const & e1, expr const & e2) { return mk_app({mk_eps_fn(), e1, e2}); }
+inline expr mk_eps(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_eps_fn(), e1, e2, e3}); }
 expr mk_eps_ax_fn();
 bool is_eps_ax_fn(expr const & e);
-inline expr mk_eps_ax_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_eps_ax_fn(), e1, e2, e3, e4}); }
+inline expr mk_eps_ax_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_eps_ax_fn(), e1, e2, e3, e4, e5}); }
 expr mk_proof_irrel_fn();
 bool is_proof_irrel_fn(expr const & e);
 inline expr mk_proof_irrel_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_proof_irrel_fn(), e1, e2, e3}); }
+expr mk_eps_th_fn();
+bool is_eps_th_fn(expr const & e);
+inline expr mk_eps_th_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_eps_th_fn(), e1, e2, e3, e4}); }
 expr mk_substp_fn();
 bool is_substp_fn(expr const & e);
 inline expr mk_substp_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_substp_fn(), e1, e2, e3, e4, e5, e6}); }
@@ -178,6 +188,9 @@ inline expr mk_exists_elim_th(expr const & e1, expr const & e2, expr const & e3,
 expr mk_exists_intro_fn();
 bool is_exists_intro_fn(expr const & e);
 inline expr mk_exists_intro_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_exists_intro_fn(), e1, e2, e3, e4}); }
+expr mk_nonempty_ex_intro_fn();
+bool is_nonempty_ex_intro_fn(expr const & e);
+inline expr mk_nonempty_ex_intro_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_nonempty_ex_intro_fn(), e1, e2, e3}); }
 expr mk_exists_to_eps_fn();
 bool is_exists_to_eps_fn(expr const & e);
 inline expr mk_exists_to_eps_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_exists_to_eps_fn(), e1, e2, e3}); }

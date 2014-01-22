@@ -218,7 +218,7 @@ theorem exists_to_eps {A : TypeU} {P : A → Bool} (H : ∃ x, P x) : P (ε (non
 := obtain (w : A) (Hw : P w), from H,
       @eps_ax A (nonempty_ex_intro H) P w Hw
 
-theorem axiom_of_choice {A : TypeU} {B : TypeU} {R : A → B → Bool} (H : ∀ x, ∃ y, R x y) : ∃ f, ∀ x, R x (f x)
+theorem axiom_of_choice {A : TypeU} {B : A → TypeU} {R : ∀ x : A, B x → Bool} (H : ∀ x, ∃ y, R x y) : ∃ f, ∀ x, R x (f x)
 := exists_intro
       (λ x, ε (nonempty_ex_intro (H x)) (λ y, R x y)) -- witness for f
       (λ x, exists_to_eps (H x))                      -- proof that witness satisfies ∀ x, R x (f x)
@@ -235,13 +235,13 @@ theorem boolext {a b : Bool} (Hab : a → b) (Hba : b → a) : a = b
 theorem iff_intro {a b : Bool} (Hab : a → b) (Hba : b → a) : a ↔ b
 := boolext Hab Hba
 
-theorem skolem_th {A : TypeU} {B : TypeU} {P : A → B → Bool} :
+theorem skolem_th {A : TypeU} {B : A → TypeU} {P : ∀ x : A, B x → Bool} :
         (∀ x, ∃ y, P x y) ↔ ∃ f, (∀ x, P x (f x))
 := iff_intro
       (λ H : (∀ x, ∃ y, P x y),
              @axiom_of_choice A B P H)
       (λ H : (∃ f, (∀ x, P x (f x))),
-             take x, obtain (fw : A → B) (Hw : ∀ x, P x (fw x)), from H,
+             take x, obtain (fw : ∀ x, B x) (Hw : ∀ x, P x (fw x)), from H,
                   exists_intro (fw x) (Hw x))
 
 theorem eqt_intro {a : Bool} (H : a) : a = true

@@ -69,6 +69,15 @@ void rewrite_rule_set::enable(name const & id, bool f) {
         m_disabled_rules.insert(id);
 }
 
+void rewrite_rule_set::insert_congr(expr const & e) {
+    ro_environment env(m_env);
+    m_congr_thms.emplace_front(check_congr_theorem(env, e));
+}
+
+void rewrite_rule_set::insert_congr(name const & th_name) {
+    insert_congr(mk_constant(th_name));
+}
+
 bool rewrite_rule_set::find_match(expr const &, match_fn const & fn) const {
     auto l = m_rule_set;
     for (auto const & rule : l) {
@@ -156,6 +165,22 @@ static void read_enable_rr(environment const & env, io_state const &, deserializ
 }
 static object_cell::register_deserializer_fn enable_rr_ds("enable_rr", read_enable_rr);
 
+class add_congr_theorem_obj : public neutral_object_cell {
+    name m_rule_set_id;
+    name m_th_name;
+public:
+    add_congr_theorem_obj(name const & rsid, name const & th_name):m_rule_set_id(rsid), m_th_name(th_name) {}
+    virtual ~add_congr_theorem_obj() {}
+    virtual char const * keyword() const { return "add_congr_theorem"; }
+    virtual void write(serializer & s) const { s << "add_ct" << m_rule_set_id << m_th_name; }
+};
+static void read_ct(environment const & env, io_state const &, deserializer & d) {
+    name rsid = read_name(d);
+    name th   = read_name(d);
+    add_congr_theorem(env, rsid, th);
+}
+static object_cell::register_deserializer_fn add_ct_ds("add_ct", read_ct);
+
 /**
    \brief Extension for managing rewrite rule sets.
 */
@@ -218,6 +243,12 @@ struct rewrite_rule_set_extension : public environment_extension {
         env->add_neutral_object(new enable_rewrite_rules_obj(rule_set_id, rule_id, flag));
     }
 
+    void add_congr_theorem(environment const & env, name const & rule_set_id, name const & th_name) {
+        auto & rs = find_rw(rule_set_id);
+        rs.insert_congr(th_name);
+        env->add_neutral_object(new add_congr_theorem_obj(rule_set_id, th_name));
+    }
+
     rewrite_rule_set get_rewrite_rule_set(name const & rule_set_id) const {
         return find_ro(rule_set_id);
     }
@@ -259,6 +290,10 @@ void enable_rewrite_rules(environment const & env, name const & rule_set_id, nam
     to_ext(env).enable_rewrite_rules(env, rule_set_id, rule_id, flag);
 }
 
+void add_congr_theorem(environment const & env, name const & rule_set_id, name const & th_name) {
+    to_ext(env).add_congr_theorem(env, rule_set_id, th_name);
+}
+
 rewrite_rule_set get_rewrite_rule_set(ro_environment const & env, name const & rule_set_id) {
     return to_ext(env).get_rewrite_rule_set(rule_set_id);
 }
@@ -296,6 +331,17 @@ static int enable_rewrite_rules(lua_State * L) {
     return 0;
 }
 
+static int add_congr_theorem(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs == 1)
+        add_congr_theorem(rw_shared_environment(L), to_name_ext(L, 1));
+    else if (nargs == 2)
+        add_congr_theorem(rw_shared_environment(L), to_name_ext(L, 1), to_name_ext(L, 2));
+    else
+        add_congr_theorem(rw_shared_environment(L, 3), to_name_ext(L, 1), to_name_ext(L, 2));
+    return 0;
+}
+
 static int show_rewrite_rules(lua_State * L) {
     int nargs = lua_gettop(L);
     formatter fmt  = get_global_formatter(L);
@@ -319,6 +365,7 @@ void open_rewrite_rule_set(lua_State * L) {
     SET_GLOBAL_FUN(mk_rewrite_rule_set,  "mk_rewrite_rule_set");
     SET_GLOBAL_FUN(add_rewrite_rules,    "add_rewrite_rules");
     SET_GLOBAL_FUN(enable_rewrite_rules, "enable_rewrite_rules");
+    SET_GLOBAL_FUN(add_congr_theorem,    "add_congr_theorem");
     SET_GLOBAL_FUN(show_rewrite_rules,   "show_rewrite_rules");
 }
 }

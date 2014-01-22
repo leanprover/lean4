@@ -778,9 +778,14 @@ class simplifier_fn {
 
 public:
     simplifier_fn(ro_environment const & env, options const & o, unsigned num_rs, rewrite_rule_set const * rs):
-        m_env(env), m_tc(env), m_rule_sets(rs, rs + num_rs) {
+        m_env(env), m_tc(env) {
         m_has_heq = m_env->imported("heq");
         set_options(o);
+        if (m_contextual) {
+            // add a set of rewrite rules for contextual rewriting
+            m_rule_sets.push_back(rewrite_rule_set(env));
+        }
+        m_rule_sets.insert(m_rule_sets.end(), rs, rs + num_rs);
     }
 
     expr_pair operator()(expr const & e, context const & ctx) {

@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/formatter.h"
 #include "library/io_state_stream.h"
+#include "library/simplifier/congr.h"
 
 namespace lean {
 class rewrite_rule_set;
@@ -46,6 +47,7 @@ class rewrite_rule_set {
     ro_environment::weak_ref m_env;
     list<rewrite_rule>       m_rule_set; // TODO(Leo): use better data-structure, e.g., discrimination trees
     name_set                 m_disabled_rules;
+    list<congr_theorem_info> m_congr_thms; // This is probably ok since we usually have very few congruence theorems
 
     bool enabled(rewrite_rule const & rule) const;
 public:
@@ -72,6 +74,10 @@ public:
 
     /** \brief Enable/disable the conditional rewrite rules tagged with the given identifier. */
     void enable(name const & id, bool f);
+
+    /** \brief Add a new congruence theorem. */
+    void insert_congr(expr const & e);
+    void insert_congr(name const & th_name);
 
     typedef std::function<bool(rewrite_rule const &)> match_fn; // NOLINT
     typedef std::function<void(rewrite_rule const &, bool)> visit_fn;
@@ -119,6 +125,14 @@ inline void add_rewrite_rules(environment const & env, name const & th_name) {
 void enable_rewrite_rules(environment const & env, name const & rule_set_id, name const & rule_id, bool flag);
 inline void enable_rewrite_rules(environment const & env, name const & rule_id, bool flag) {
     enable_rewrite_rules(env, get_default_rewrite_rule_set_id(), rule_id, flag);
+}
+
+/**
+   \brief Add a new congruence theorem to the given rewrite rule set.
+*/
+void add_congr_theorem(environment const & env, name const & rule_set_id, name const & th_name);
+inline void add_congr_theorem(environment const & env, name const & th_name) {
+    add_congr_theorem(env, get_default_rewrite_rule_set_id(), th_name);
 }
 
 /**

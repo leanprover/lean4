@@ -31,7 +31,7 @@
     ("\\(->\\|↔\\|/\\\\\\|==\\|\\\\/\\|[*+/<=>¬∧∨≠≤≥-]\\)" . 'font-lock-constant-face)
     ("\\(λ\\|→\\|∃\\|∀\\|:\\|:=\\)" . font-lock-constant-face)
     ("\\_<\\(\\b.*_tac\\|Cond\\|OrElse\\|T\\(?:hen\\|ry\\)\\|When\\|apply\\|b\\(?:ack\\|eta\\)\\|done\\|exact\\)\\_>" . 'font-lock-constant-face)
-    ("\\(universe\\|theorem\\|axiom\\|definition\\|variable\\|builtin\\)[ \t]*\\([^ \t\n]*\\)" (2 'font-lock-function-name-face))
+    ("\\_<\\(universe\\|theorem\\|axiom\\|definition\\|variable\\|builtin\\)\\_>[ \t]*\\([^ \t\n]*\\)" (2 'font-lock-function-name-face))
     ("variables[ \t]\\([^:]*\\)" (1 'font-lock-function-name-face))
     ("\\(set_opaque\\|set_option\\)[ \t]*\\([^ \t\n]*\\)" (2 'font-lock-constant-face))
     ("\\_<_\\_>" . 'font-lock-preprocessor-face)

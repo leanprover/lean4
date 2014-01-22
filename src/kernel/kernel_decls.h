@@ -55,6 +55,13 @@ inline expr mk_funext_th(expr const & e1, expr const & e2, expr const & e3, expr
 expr mk_allext_fn();
 bool is_allext_fn(expr const & e);
 inline expr mk_allext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_allext_fn(), e1, e2, e3, e4}); }
+expr mk_eps_fn();
+bool is_eps_fn(expr const & e);
+inline bool is_eps(expr const & e) { return is_app(e) && is_eps_fn(arg(e, 0)); }
+inline expr mk_eps(expr const & e1, expr const & e2) { return mk_app({mk_eps_fn(), e1, e2}); }
+expr mk_eps_ax_fn();
+bool is_eps_ax_fn(expr const & e);
+inline expr mk_eps_ax_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_eps_ax_fn(), e1, e2, e3, e4}); }
 expr mk_proof_irrel_fn();
 bool is_proof_irrel_fn(expr const & e);
 inline expr mk_proof_irrel_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_proof_irrel_fn(), e1, e2, e3}); }
@@ -171,6 +178,12 @@ inline expr mk_exists_elim_th(expr const & e1, expr const & e2, expr const & e3,
 expr mk_exists_intro_fn();
 bool is_exists_intro_fn(expr const & e);
 inline expr mk_exists_intro_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_exists_intro_fn(), e1, e2, e3, e4}); }
+expr mk_exists_to_eps_fn();
+bool is_exists_to_eps_fn(expr const & e);
+inline expr mk_exists_to_eps_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_exists_to_eps_fn(), e1, e2, e3}); }
+expr mk_axiom_of_choice_fn();
+bool is_axiom_of_choice_fn(expr const & e);
+inline expr mk_axiom_of_choice_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_axiom_of_choice_fn(), e1, e2, e3, e4}); }
 expr mk_boolext_fn();
 bool is_boolext_fn(expr const & e);
 inline expr mk_boolext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_boolext_fn(), e1, e2, e3, e4}); }

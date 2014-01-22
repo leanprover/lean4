@@ -41,7 +41,12 @@ infixr 25 ↔   : iff
 -- That is, it treats the exists as an extra binder such as fun and forall.
 -- It also provides an alias (Exists) that should be used when we
 -- want to treat exists as a constant.
-definition Exists (A : TypeU) (P : A → Bool) := ¬ (∀ x : A, ¬ (P x))
+definition Exists (A : TypeU) (P : A → Bool) := ¬ (∀ x, ¬ (P x))
+
+definition nonempty (A : TypeU) := ∃ x : A, true
+
+theorem nonempty_intro {A : TypeU} (a : A) : (nonempty A)
+:= assume H : (∀ x, ¬ true), (H a)
 
 theorem em (a : Bool) : a ∨ ¬ a
 := assume Hna : ¬ a, Hna
@@ -59,9 +64,9 @@ axiom funext {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} (H : ∀ x : A
 axiom allext {A : TypeU} {B C : A → Bool} (H : ∀ x : A, B x = C x) : (∀ x : A, B x) = (∀ x : A, C x)
 
 -- Epsilon (Hilbert's operator)
-variable eps {A : TypeU} (P : A → Bool) : A
+variable eps {A : TypeU} (H : nonempty A) (P : A → Bool) : A
 alias ε : eps
-axiom eps_ax {A : TypeU} {P : A → Bool} {a : A} : P a → P (ε P)
+axiom eps_ax {A : TypeU} {P : A → Bool} {a : A} : P a → P (ε (nonempty_intro a) P)
 
 -- Proof irrelevance
 axiom proof_irrel {a : Bool} (H1 H2 : a) : H1 = H2
@@ -201,13 +206,20 @@ theorem exists_intro {A : TypeU} {P : A → Bool} (a : A) (H : P a) : Exists A P
 := assume H1 : (∀ x : A, ¬ P x),
       absurd H (H1 a)
 
-theorem exists_to_eps {A : TypeU} {P : A → Bool} (H : ∃ x, P x) : P (ε P)
-:= exists_elim H (λ (w : A) (Hw : P w), @eps_ax A P w Hw)
+theorem nonempty_ex_intro {A : TypeU} {P : A → Bool} (H : ∃ x, P x) : nonempty A
+:= exists_elim H (λ (w : A) (Hw : P w), exists_intro w trivial)
 
-theorem axiom_of_choice {A : TypeU} {B : TypeU} {R : A → B → Bool} (H : ∀ x, ∃ y, R x y) : ∃ f, ∀ x, R x (f x)
+theorem exists_to_eps {A : TypeU} {P : A → Bool} (H : ∃ x, P x) : P (ε (nonempty_ex_intro H) P)
+:= exists_elim H (λ (w : A) (Hw : P w),
+                    let Peps : P (ε (nonempty_intro w) P)                 := @eps_ax A P w Hw,
+                        eqpr : (nonempty_intro w) = (nonempty_ex_intro H) := proof_irrel (nonempty_intro w) (nonempty_ex_intro H)
+                        in subst Peps eqpr)
+
+theorem axiom_of_choice {A : TypeU} {B : TypeU} {R : A → B → Bool} (Hne : nonempty A) (H : ∀ x, ∃ y, R x y) :
+        ∃ f, ∀ x, R x (f x)
 := exists_intro
-      (λ x, ε (λ y, R x y))       -- witness for f
-      (λ x, exists_to_eps (H x))  -- proof that witness satisfies ∀ x, R x (f x)
+      (λ x, ε (nonempty_ex_intro (H x)) (λ y, R x y))  -- witness for f
+      (λ x, exists_to_eps (H x))                       -- proof that witness satisfies ∀ x, R x (f x)
 
 theorem boolext {a b : Bool} (Hab : a → b) (Hba : b → a) : a = b
 := or_elim (boolcomplete a)

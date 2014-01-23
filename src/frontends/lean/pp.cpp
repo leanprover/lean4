@@ -180,6 +180,7 @@ class pp_fn {
     local_names        m_local_names;
     unsigned           m_num_steps;
     name               m_aux;
+    expr_map<unsigned> m_num_occs;
     // Configuration
     unsigned           m_indent;
     unsigned           m_max_depth;
@@ -193,17 +194,46 @@ class pp_fn {
 
     // Create a scope for local definitions
     struct mk_scope {
-        pp_fn &  m_fn;
-        unsigned m_old_size;
-        mk_scope(pp_fn & fn):m_fn(fn), m_old_size(fn.m_local_aliases_defs.size()) {
+        pp_fn &            m_fn;
+        unsigned           m_old_size;
+        expr_map<unsigned> m_num_occs;
+
+        void update_num_occs(expr const & e) {
+            buffer<expr> todo;
+            todo.push_back(e);
+            while (!todo.empty()) {
+                expr e = todo.back();
+                todo.pop_back();
+                unsigned & n = m_num_occs[e];
+                n++;
+                // we do not visit other composite expressions such as Let, Lambda and Pi, since they create new scopes
+                if (n == 1 && is_app(e)) {
+                    for (unsigned i = 0; i < num_args(e); i++)
+                        todo.push_back(arg(e, i));
+                }
+            }
+        }
+
+        mk_scope(pp_fn & fn, expr const & e):m_fn(fn), m_old_size(fn.m_local_aliases_defs.size()) {
             m_fn.m_local_aliases.push();
+            update_num_occs(e);
+            swap(m_fn.m_num_occs, m_num_occs);
         }
         ~mk_scope() {
             lean_assert(m_old_size <= m_fn.m_local_aliases_defs.size());
             m_fn.m_local_aliases.pop();
             m_fn.m_local_aliases_defs.resize(m_old_size);
+            swap(m_fn.m_num_occs, m_num_occs);
         }
     };
+
+    bool has_several_occs(expr const & e) const {
+        auto it = m_num_occs.find(e);
+        if (it != m_num_occs.end())
+            return it->second > 1;
+        else
+            return false;
+    }
 
     format nest(unsigned i, format const & f) { return ::lean::nest(i, f); }
 
@@ -357,7 +387,6 @@ class pp_fn {
     /** \brief Auxiliary function for pretty printing exists formulas */
     result pp_exists(expr const & e, unsigned depth) {
         buffer<std::pair<name, expr>> nested;
-        local_names::mk_scope mk(m_local_names);
         expr b = collect_nested_quantifiers(e, nested);
         format head;
         if (m_unicode)
@@ -756,7 +785,7 @@ class pp_fn {
         if (is_atomic(e)) {
             return pp(e, depth + 1, true);
         } else {
-            mk_scope s(*this);
+            mk_scope s(*this, e);
             result r = pp(e, depth + 1, true);
             if (m_local_aliases_defs.size() == s.m_old_size) {
                 if (prec <= get_operator_precedence(e))
@@ -864,7 +893,6 @@ class pp_fn {
     */
     result pp_abstraction_core(expr const & e, unsigned depth, optional<expr> T,
                                std::vector<bool> const * implicit_args = nullptr) {
-        local_names::mk_scope mk(m_local_names);
         if (is_arrow(e) && !implicit_args) {
             lean_assert(!T);
             result p_lhs    = pp_arrow_child(abst_domain(e), depth);
@@ -987,7 +1015,6 @@ class pp_fn {
     }
 
     result pp_let(expr const & e, unsigned depth) {
-        local_names::mk_scope mk(m_local_names);
         buffer<std::tuple<name, optional<expr>, expr>> bindings;
         expr body = collect_nested_let(e, bindings);
         unsigned r_weight = 2;
@@ -1011,7 +1038,7 @@ class pp_fn {
                 r_weight += p_def.second;
             }
         }
-        result p_body = pp(body, depth+1);
+        result p_body = pp_scoped_child(body, depth+1);
         r_weight += p_body.second;
         r_format += format{line(), g_in_fmt, space(), nest(2 + 1, p_body.first)};
         return mk_pair(group(r_format), r_weight);
@@ -1078,7 +1105,7 @@ class pp_fn {
                     }
                 }
             }
-            if (m_extra_lets && is_shared(e)) {
+            if (m_extra_lets && has_several_occs(e)) {
                 auto it = m_local_aliases.find(e);
                 if (it != m_local_aliases.end())
                     return mk_result(format(it->second), 1);
@@ -1099,7 +1126,7 @@ class pp_fn {
                 case expr_kind::MetaVar:    r = pp_metavar(e, depth);     break;
                 }
             }
-            if (!main && m_extra_lets && is_shared(e) && r.second > m_alias_min_weight) {
+            if (!main && m_extra_lets && has_several_occs(e) && r.second > m_alias_min_weight) {
                 name new_aux = name(m_aux, m_local_aliases_defs.size()+1);
                 m_local_aliases.insert(e, new_aux);
                 m_local_aliases_defs.emplace_back(new_aux, r.first);

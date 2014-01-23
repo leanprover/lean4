@@ -56,9 +56,16 @@ class to_ceqs_fn {
             return mk_singleton(new_e, new_H);
         } else if (is_not(e)) {
             expr a     = arg(e, 1);
-            expr new_e = mk_iff(a, False);
-            expr new_H = mk_eqf_intro_th(a, H);
-            return mk_singleton(new_e, new_H);
+            if (is_not(a)) {
+                return apply(arg(a, 1), mk_not_not_elim_th(arg(a, 1), H));
+            } else if (is_neq(a)) {
+                return mk_singleton(update_app(a, 0, mk_eq_fn()),
+                                    mk_not_neq_elim_th(arg(a, 1), arg(a, 2), arg(a, 3), H));
+            } else {
+                expr new_e = mk_iff(a, False);
+                expr new_H = mk_eqf_intro_th(a, H);
+                return mk_singleton(new_e, new_H);
+            }
         } else if (is_and(e)) {
             expr a1     = arg(e, 1);
             expr a2     = arg(e, 2);

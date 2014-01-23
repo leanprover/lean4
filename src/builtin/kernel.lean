@@ -339,6 +339,12 @@ theorem not_true : ¬ true ↔ false
 theorem not_false : ¬ false ↔ true
 := trivial
 
+theorem not_neq {A : TypeU} (a b : A) : ¬ (a ≠ b) ↔ a = b
+:= not_not_eq (a = b)
+
+theorem not_neq_elim {A : TypeU} {a b : A} (H : ¬ (a ≠ b)) : a = b
+:= (not_neq a b) ◂ H
+
 theorem not_and (a b : Bool) : ¬ (a ∧ b) ↔ ¬ a ∨ ¬ b
 := case (λ x, ¬ (x ∧ b) ↔ ¬ x ∨ ¬ b)
         (case (λ y, ¬ (true ∧ y) ↔ ¬ true ∨ ¬ y)   trivial trivial b)

@@ -282,6 +282,12 @@ expr mk_not_true();
 bool is_not_true(expr const & e);
 expr mk_not_false();
 bool is_not_false(expr const & e);
+expr mk_not_neq_fn();
+bool is_not_neq_fn(expr const & e);
+inline expr mk_not_neq_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_not_neq_fn(), e1, e2, e3}); }
+expr mk_not_neq_elim_fn();
+bool is_not_neq_elim_fn(expr const & e);
+inline expr mk_not_neq_elim_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_not_neq_elim_fn(), e1, e2, e3, e4}); }
 expr mk_not_and_fn();
 bool is_not_and_fn(expr const & e);
 inline expr mk_not_and_th(expr const & e1, expr const & e2) { return mk_app({mk_not_and_fn(), e1, e2}); }

@@ -97,6 +97,8 @@ MK_CONSTANT(imp_falser_fn, name("imp_falser"));
 MK_CONSTANT(imp_falsel_fn, name("imp_falsel"));
 MK_CONSTANT(not_true, name("not_true"));
 MK_CONSTANT(not_false, name("not_false"));
+MK_CONSTANT(not_neq_fn, name("not_neq"));
+MK_CONSTANT(not_neq_elim_fn, name("not_neq_elim"));
 MK_CONSTANT(not_and_fn, name("not_and"));
 MK_CONSTANT(not_and_elim_fn, name("not_and_elim"));
 MK_CONSTANT(not_or_fn, name("not_or"));

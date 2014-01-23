@@ -92,6 +92,11 @@ public:
     /** \brief Execute <tt>fn(rule, enabled)</tt> for each rule in this rule set. */
     void for_each(visit_fn const & fn) const;
 
+    typedef std::function<void(congr_theorem_info const &)> visit_congr_fn; // NOLINT
+
+    /** \brief Execute <tt>fn(congr_th)</tt> for each congruence theorem in this rule set. */
+    void for_each_congr(visit_congr_fn const & fn) const;
+
     /** \brief Pretty print this rule set. */
     format pp(formatter const & fmt, options const & opts) const;
 };

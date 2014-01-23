@@ -22,7 +22,7 @@ rewrite_rule::rewrite_rule(name const & id, expr const & lhs, expr const & rhs, 
 
 rewrite_rule_set::rewrite_rule_set(ro_environment const & env):m_env(env.to_weak_ref()) {}
 rewrite_rule_set::rewrite_rule_set(rewrite_rule_set const & other):
-    m_env(other.m_env), m_rule_set(other.m_rule_set), m_disabled_rules(other.m_disabled_rules) {}
+    m_env(other.m_env), m_rule_set(other.m_rule_set), m_disabled_rules(other.m_disabled_rules), m_congr_thms(other.m_congr_thms) {}
 rewrite_rule_set::~rewrite_rule_set() {}
 
 void rewrite_rule_set::insert(name const & id, expr const & th, expr const & proof) {
@@ -91,6 +91,12 @@ void rewrite_rule_set::for_each(visit_fn const & fn) const {
     auto l = m_rule_set;
     for (auto const & rule : l) {
         fn(rule, enabled(rule));
+    }
+}
+
+void rewrite_rule_set::for_each_congr(visit_congr_fn const & fn) const {
+    for (auto const & congr_th : m_congr_thms) {
+        fn(congr_th);
     }
 }
 

@@ -106,6 +106,7 @@ public:
         unsigned get_pos_at_proof() const { return m_proof_arg_pos; }
         optional<unsigned> const & get_new_pos_at_proof() const { return m_proof_new_arg_pos; }
         optional<unsigned> const & get_proof_pos_at_proof() const { return m_proof_proof_pos; }
+        bool should_simplify() const { return static_cast<bool>(get_new_pos_at_proof()); }
         void display(std::ostream & out) const;
     };
 

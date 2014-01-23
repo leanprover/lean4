@@ -1391,11 +1391,38 @@ class elaborator::imp {
         push_new_eq_constraint(ctx, m, update_abstraction(pi, abst_domain(pi), m1), new_jst);
     }
 
+    /**
+       \brief Return true iff \c a has not metavar and no free
+       variable that is assigned to a term containing metavariables in
+       ctx.
+    */
+    bool has_no_metavar(context const & ctx, expr const & a) {
+        if (has_metavar(a))
+            return false;
+        bool found = false;
+        for_each(a, [&](expr const & e, unsigned offset) {
+                if (found) return false; // stop the search
+                if (is_var(e)) {
+                    unsigned vidx = var_idx(e);
+                    if (vidx >= offset) {
+                        vidx -= offset;
+                        auto entry = find(ctx, vidx);
+                        if (entry && entry->get_body() && has_metavar(*entry->get_body())) {
+                            found = true;
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            });
+        return !found;
+    }
+
     bool process_eq_convertible(context const & ctx, expr const & a, expr const & b, unification_constraint const & c) {
         bool eq = is_eq(c);
         if (a == b)
             return true;
-        if (!has_metavar(a) && !has_metavar(b)) {
+        if (has_no_metavar(ctx, a) && has_no_metavar(ctx, b)) {
             if (m_type_inferer.is_convertible(a, b, ctx)) {
                 return true;
             } else {

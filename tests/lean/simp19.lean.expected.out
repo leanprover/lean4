@@ -1,0 +1,27 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Imported 'cast'
+  Assumed: vec
+  Assumed: concat
+  Assumed: concat_assoc
+  Assumed: empty
+  Assumed: concat_empty
+  Assumed: n
+  Assumed: v
+  Assumed: w
+  Assumed: f
+f (v ; w ; empty ; (v ; empty))
+===>
+f (v ; (w ; v))
+hcongr (hcongr (hrefl @f)
+               (to_heq (subst (refl (vec (n + n + 0 + (n + 0))))
+                              (congr2 vec
+                                      (trans (congr (congr2 Nat::add (Nat::add_zeror (n + n))) (Nat::add_zeror n))
+                                             (Nat::add_assoc n n n))))))
+       (htrans (htrans (hcongr (hcongr (hcongr (hcongr (hrefl @concat) (to_heq (Nat::add_zeror (n + n))))
+                                               (to_heq (Nat::add_zeror n)))
+                                       (htrans (to_heq (concat_empty (v ; w)))
+                                               (cast_heq (congr2 vec (symm (Nat::add_zeror (n + n)))) (v ; w))))
+                               (htrans (to_heq (concat_empty v)) (cast_heq (congr2 vec (symm (Nat::add_zeror n))) v)))
+                       (to_heq (concat_assoc v w v)))
+               (cast_heq (congr2 vec (symm (Nat::add_assoc n n n))) (v ; (w ; v))))

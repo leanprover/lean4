@@ -86,12 +86,11 @@ public:
     /** \brief Return true iff \c t1 is convertible to \c t2 in the context \c ctx. */
     bool is_convertible(expr const & t1, expr const & t2, context const & ctx = context());
 
-    /** \brief Return true iff \c t1 is convertible to \c t2 in the context \c ctx, but does not consider
-        universe commutativity.
+    /** \brief Return true iff \c t1 definitionally equal to \c t2 in the context \c ctx.
 
-        \remark is_eq_convertible(t1, t2, ctx) implies is_convertible(t1, t2, ctx)
+        \remark is_definitionally_equal(t1, t2, ctx) implies is_convertible(t1, t2, ctx)
     */
-    bool is_eq_convertible(expr const & t1, expr const & t2, context const & ctx = context());
+    bool is_definitionally_equal(expr const & t1, expr const & t2, context const & ctx = context());
 
     /** \brief Return true iff \c e is a proposition (i.e., it has type Bool) */
     bool is_proposition(expr const & e, context const & ctx, optional<metavar_env> const & menv);

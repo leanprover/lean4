@@ -1,0 +1,13 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Imported 'cast'
+  Set: lean::pp::implicit
+  Assumed: g
+  Assumed: B
+  Assumed: B'
+  Assumed: H
+g B
+===>
+g B'
+@congr2 TypeM TypeM B B' g (@subst Type B B' (λ x : Type, @eq TypeM B x) (@refl TypeM B) H)
+@eq TypeM (g B) (g B')

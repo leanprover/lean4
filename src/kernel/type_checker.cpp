@@ -407,7 +407,7 @@ public:
         return is_convertible(t1, t2, ctx, mk_justification);
     }
 
-    bool is_eq_convertible(expr const & t1, expr const & t2, context const & ctx) {
+    bool is_definitionally_equal(expr const & t1, expr const & t2, context const & ctx) {
         set_ctx(ctx);
         update_menv(none_menv());
         if (t1 == t2)
@@ -500,8 +500,8 @@ expr type_checker::check(expr const & e, context const & ctx) {
 bool type_checker::is_convertible(expr const & t1, expr const & t2, context const & ctx) {
     return m_ptr->is_convertible(t1, t2, ctx);
 }
-bool type_checker::is_eq_convertible(expr const & t1, expr const & t2, context const & ctx) {
-    return m_ptr->is_eq_convertible(t1, t2, ctx);
+bool type_checker::is_definitionally_equal(expr const & t1, expr const & t2, context const & ctx) {
+    return m_ptr->is_definitionally_equal(t1, t2, ctx);
 }
 void type_checker::check_type(expr const & e, context const & ctx) {
     m_ptr->check_type(e, ctx);

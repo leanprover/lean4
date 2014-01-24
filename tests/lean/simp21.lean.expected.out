@@ -1,0 +1,8 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: vec
+  Assumed: n
+vec n = vec (n + 0)
+===>
+⊤
+trans (congr2 (eq (vec n)) (congr2 vec (Nat::add_zeror n))) (eq_id (vec n))

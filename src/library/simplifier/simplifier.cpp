@@ -174,6 +174,10 @@ class simplifier_fn {
         return m_tc.is_proposition(e, m_ctx);
     }
 
+    bool is_convertible(expr const & t1, expr const & t2) {
+        return m_tc.is_convertible(t1, t2, m_ctx);
+    }
+
     bool is_definitionally_equal(expr const & t1, expr const & t2) {
         return m_tc.is_definitionally_equal(t1, t2, m_ctx);
     }
@@ -230,6 +234,8 @@ class simplifier_fn {
         expr const & new_A = abst_domain(new_f_type);
         expr a_type        = infer_type(a);
         expr new_a_type    = infer_type(new_a);
+        if (!is_convertible(new_a_type, new_A))
+            return none_expr(); // failed
         if (!is_definitionally_equal(A, a_type) || !is_definitionally_equal(new_A, new_a_type)) {
             if (Heq_a_is_heq) {
                 if (is_definitionally_equal(a_type, new_a_type) && is_definitionally_equal(A, new_A)) {

@@ -11,35 +11,35 @@ expr mk_Bool();
 bool is_Bool(expr const & e);
 expr mk_not_fn();
 bool is_not_fn(expr const & e);
-inline bool is_not(expr const & e) { return is_app(e) && is_not_fn(arg(e, 0)); }
+inline bool is_not(expr const & e) { return is_app(e) && is_not_fn(arg(e, 0)) && num_args(e) == 2; }
 inline expr mk_not(expr const & e1) { return mk_app({mk_not_fn(), e1}); }
 expr mk_or_fn();
 bool is_or_fn(expr const & e);
-inline bool is_or(expr const & e) { return is_app(e) && is_or_fn(arg(e, 0)); }
+inline bool is_or(expr const & e) { return is_app(e) && is_or_fn(arg(e, 0)) && num_args(e) == 3; }
 inline expr mk_or(expr const & e1, expr const & e2) { return mk_app({mk_or_fn(), e1, e2}); }
 expr mk_and_fn();
 bool is_and_fn(expr const & e);
-inline bool is_and(expr const & e) { return is_app(e) && is_and_fn(arg(e, 0)); }
+inline bool is_and(expr const & e) { return is_app(e) && is_and_fn(arg(e, 0)) && num_args(e) == 3; }
 inline expr mk_and(expr const & e1, expr const & e2) { return mk_app({mk_and_fn(), e1, e2}); }
 expr mk_implies_fn();
 bool is_implies_fn(expr const & e);
-inline bool is_implies(expr const & e) { return is_app(e) && is_implies_fn(arg(e, 0)); }
+inline bool is_implies(expr const & e) { return is_app(e) && is_implies_fn(arg(e, 0)) && num_args(e) == 3; }
 inline expr mk_implies(expr const & e1, expr const & e2) { return mk_app({mk_implies_fn(), e1, e2}); }
 expr mk_neq_fn();
 bool is_neq_fn(expr const & e);
-inline bool is_neq(expr const & e) { return is_app(e) && is_neq_fn(arg(e, 0)); }
+inline bool is_neq(expr const & e) { return is_app(e) && is_neq_fn(arg(e, 0)) && num_args(e) == 4; }
 inline expr mk_neq(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_neq_fn(), e1, e2, e3}); }
 expr mk_iff_fn();
 bool is_iff_fn(expr const & e);
-inline bool is_iff(expr const & e) { return is_app(e) && is_iff_fn(arg(e, 0)); }
+inline bool is_iff(expr const & e) { return is_app(e) && is_iff_fn(arg(e, 0)) && num_args(e) == 3; }
 inline expr mk_iff(expr const & e1, expr const & e2) { return mk_app({mk_iff_fn(), e1, e2}); }
 expr mk_exists_fn();
 bool is_exists_fn(expr const & e);
-inline bool is_exists(expr const & e) { return is_app(e) && is_exists_fn(arg(e, 0)); }
+inline bool is_exists(expr const & e) { return is_app(e) && is_exists_fn(arg(e, 0)) && num_args(e) == 3; }
 inline expr mk_exists(expr const & e1, expr const & e2) { return mk_app({mk_exists_fn(), e1, e2}); }
 expr mk_nonempty_fn();
 bool is_nonempty_fn(expr const & e);
-inline bool is_nonempty(expr const & e) { return is_app(e) && is_nonempty_fn(arg(e, 0)); }
+inline bool is_nonempty(expr const & e) { return is_app(e) && is_nonempty_fn(arg(e, 0)) && num_args(e) == 2; }
 inline expr mk_nonempty(expr const & e1) { return mk_app({mk_nonempty_fn(), e1}); }
 expr mk_nonempty_intro_fn();
 bool is_nonempty_intro_fn(expr const & e);
@@ -64,7 +64,7 @@ bool is_allext_fn(expr const & e);
 inline expr mk_allext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_allext_fn(), e1, e2, e3, e4}); }
 expr mk_eps_fn();
 bool is_eps_fn(expr const & e);
-inline bool is_eps(expr const & e) { return is_app(e) && is_eps_fn(arg(e, 0)); }
+inline bool is_eps(expr const & e) { return is_app(e) && is_eps_fn(arg(e, 0)) && num_args(e) == 4; }
 inline expr mk_eps(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_eps_fn(), e1, e2, e3}); }
 expr mk_eps_ax_fn();
 bool is_eps_ax_fn(expr const & e);

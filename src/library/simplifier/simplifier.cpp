@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "kernel/kernel.h"
 #include "kernel/max_sharing.h"
 #include "library/heq_decls.h"
+#include "library/cast_decls.h"
 #include "library/kernel_bindings.h"
 #include "library/expr_pair.h"
 #include "library/hop_match.h"
@@ -120,6 +121,7 @@ class simplifier_fn {
     ro_environment m_env;
     type_checker   m_tc;
     bool           m_has_heq;
+    bool           m_has_cast;
     context        m_ctx;
     rule_sets      m_rule_sets;
     cache          m_cache;
@@ -300,6 +302,38 @@ class simplifier_fn {
     }
 
     result simplify_app(expr const & e) {
+        if (m_has_cast && is_cast(e)) {
+            // e is of the form (cast A B H a)
+            expr A = arg(e, 1);
+            expr B = arg(e, 2);
+            expr H = arg(e, 3);
+            expr a = arg(e, 4);
+            if (m_proofs_enabled) {
+                result res_a = simplify(a);
+                expr c       = res_a.m_out;
+                if (res_a.m_proof) {
+                    expr Hec;
+                    expr Hac = *res_a.m_proof;
+                    if (!res_a.m_heq_proof) {
+                        Hec = ::lean::mk_htrans_th(A, B, B, e, a, c,
+                                                   update_app(e, 0, mk_cast_heq_fn()),  // cast A B H a == a
+                                                   mk_to_heq_th(B, a, c, Hac));         // a == c
+                    } else {
+                        Hec = ::lean::mk_htrans_th(A, B, infer_type(c), e, a, c,
+                                                   update_app(e, 0, mk_cast_heq_fn()),  // cast A B H a == a
+                                                   Hac);                                // a == c
+                    }
+                    return result(c, Hec, true);
+
+                } else {
+                    // c is definitionally equal to a
+                    // So, we use cast_heq theorem   cast_heq : cast A B H a == a
+                    return result(c, update_app(e, 0, mk_cast_heq_fn()), true);
+                }
+            } else {
+                return simplify(arg(e, 4));
+            }
+        }
         if (m_contextual) {
             expr const & f = arg(e, 0);
             for (auto congr_th : m_congr_thms) {
@@ -496,10 +530,13 @@ class simplifier_fn {
             if (i == 0) {
                 pr = *(proofs[0]);
                 heq_proof = m_has_heq && heq_proofs[0];
-            } else if (m_has_heq && heq_proofs[i]) {
+            } else if (m_has_heq && (heq_proofs[i] || !is_arrow(f_types[i-1]))) {
                 expr f = mk_app_prefix(i, new_args);
+                expr pr_i = *proofs[i];
+                if (!heq_proofs[i])
+                    pr_i = mk_to_heq_th(abst_domain(f_types[i-1]),  arg(e, i), new_args[i], pr_i);
                 pr = mk_hcongr_th(f_types[i-1], f_types[i-1], f, f, arg(e, i), new_args[i],
-                                  mk_hrefl_th(f_types[i-1], f), *(proofs[i]));
+                                  mk_hrefl_th(f_types[i-1], f), pr_i);
                 heq_proof = true;
             } else {
                 expr f = mk_app_prefix(i, new_args);
@@ -510,13 +547,17 @@ class simplifier_fn {
                 expr f     = mk_app_prefix(i, e);
                 expr new_f = mk_app_prefix(i, new_args);
                 if (proofs[i]) {
+                    expr pr_i = *proofs[i];
                     if (m_has_heq && heq_proofs[i]) {
                         if (!heq_proof)
                             pr = mk_to_heq_th(f_types[i], f, new_f, pr);
-                        pr = mk_hcongr_th(f_types[i-1], new_f_types[i-1], f, new_f, arg(e, i), new_args[i], pr, *(proofs[i]));
+                        pr = mk_hcongr_th(f_types[i-1], new_f_types[i-1], f, new_f, arg(e, i), new_args[i], pr, pr_i);
                         heq_proof = true;
+                    } else if (heq_proof) {
+                        pr_i = mk_to_heq_th(abst_domain(f_types[i-1]),  arg(e, i), new_args[i], pr_i);
+                        pr = mk_hcongr_th(f_types[i-1], new_f_types[i-1], f, new_f, arg(e, i), new_args[i], pr, pr_i);
                     } else {
-                        pr = mk_congr_th(f_types[i-1], f, new_f, arg(e, i), new_args[i], pr, *(proofs[i]));
+                        pr = mk_congr_th(f_types[i-1], f, new_f, arg(e, i), new_args[i], pr, pr_i);
                     }
                 } else if (heq_proof) {
                     pr = mk_hcongr_th(f_types[i-1], new_f_types[i-1], f, new_f, arg(e, i), arg(e, i),
@@ -916,7 +957,8 @@ class simplifier_fn {
 public:
     simplifier_fn(ro_environment const & env, options const & o, unsigned num_rs, rewrite_rule_set const * rs):
         m_env(env), m_tc(env) {
-        m_has_heq = m_env->imported("heq");
+        m_has_heq  = m_env->imported("heq");
+        m_has_cast = m_env->imported("cast");
         set_options(o);
         if (m_contextual) {
             // add a set of rewrite rules for contextual rewriting

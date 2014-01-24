@@ -41,7 +41,7 @@
           name_to_cpp_decl(obj:get_name())
           io.write("(expr const & e) { return is_app(e) && is_");
           name_to_cpp_decl(obj:get_name())
-          print("_fn(arg(e, 0)); }")
+          print("_fn(arg(e, 0)) && num_args(e) == " .. (arity+1) .. "; }")
        end
        if is_fn then
           io.write("inline expr mk_")

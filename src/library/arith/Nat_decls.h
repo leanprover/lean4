@@ -9,19 +9,19 @@ expr mk_Nat();
 bool is_Nat(expr const & e);
 expr mk_Nat_ge_fn();
 bool is_Nat_ge_fn(expr const & e);
-inline bool is_Nat_ge(expr const & e) { return is_app(e) && is_Nat_ge_fn(arg(e, 0)); }
+inline bool is_Nat_ge(expr const & e) { return is_app(e) && is_Nat_ge_fn(arg(e, 0)) && num_args(e) == 3; }
 inline expr mk_Nat_ge(expr const & e1, expr const & e2) { return mk_app({mk_Nat_ge_fn(), e1, e2}); }
 expr mk_Nat_lt_fn();
 bool is_Nat_lt_fn(expr const & e);
-inline bool is_Nat_lt(expr const & e) { return is_app(e) && is_Nat_lt_fn(arg(e, 0)); }
+inline bool is_Nat_lt(expr const & e) { return is_app(e) && is_Nat_lt_fn(arg(e, 0)) && num_args(e) == 3; }
 inline expr mk_Nat_lt(expr const & e1, expr const & e2) { return mk_app({mk_Nat_lt_fn(), e1, e2}); }
 expr mk_Nat_gt_fn();
 bool is_Nat_gt_fn(expr const & e);
-inline bool is_Nat_gt(expr const & e) { return is_app(e) && is_Nat_gt_fn(arg(e, 0)); }
+inline bool is_Nat_gt(expr const & e) { return is_app(e) && is_Nat_gt_fn(arg(e, 0)) && num_args(e) == 3; }
 inline expr mk_Nat_gt(expr const & e1, expr const & e2) { return mk_app({mk_Nat_gt_fn(), e1, e2}); }
 expr mk_Nat_id_fn();
 bool is_Nat_id_fn(expr const & e);
-inline bool is_Nat_id(expr const & e) { return is_app(e) && is_Nat_id_fn(arg(e, 0)); }
+inline bool is_Nat_id(expr const & e) { return is_app(e) && is_Nat_id_fn(arg(e, 0)) && num_args(e) == 2; }
 inline expr mk_Nat_id(expr const & e1) { return mk_app({mk_Nat_id_fn(), e1}); }
 expr mk_Nat_succ_nz_fn();
 bool is_Nat_succ_nz_fn(expr const & e);

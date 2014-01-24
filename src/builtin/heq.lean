@@ -33,7 +33,12 @@ axiom hfunext {A A' : TypeM} {B : A → TypeU} {B' : A' → TypeU} {f : ∀ x, B
       A = A' → (∀ x x', x == x' → f x == f' x') → f == f'
 
 axiom hpiext {A A' : TypeM} {B : A → TypeM} {B' : A' → TypeM} :
-      A = A' → (∀ x x', x == x' → B x == B' x') → (∀ x, B x) == (∀ x, B' x)
+      A = A' → (∀ x x', x == x' → B x = B' x') → (∀ x, B x) == (∀ x, B' x)
 
-axiom hallext {A A' : TypeM} {B : A → Bool} {B' : A' → Bool} :
-      A = A' → (∀ x x', x == x' → B x == B' x') → (∀ x, B x) == (∀ x, B' x)
+theorem hallext {A A' : TypeM} {B : A → Bool} {B' : A' → Bool} :
+      A = A' → (∀ x x', x == x' → B x = B' x') → (∀ x, B x) == (∀ x, B' x)
+-- We can't just invoke hpiext because the equality B x = B' x' is actually  (@eq Bool (B x) (B' x')),
+-- and hpiext expects (@eq TypeM (B x) (B' x')).
+-- We move (@eq Bool (B x) (B' x')) to (@eq TypeM (B x) (B' x')) by using
+-- the following trick. We say it is a "universe" bump.
+:= λ H1 H2, hpiext H1 (λ x x' Heq, subst (refl (B x)) (H2 x x' Heq))

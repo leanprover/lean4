@@ -1,0 +1,19 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Imported 'cast'
+  Assumed: vec
+  Assumed: concat
+  Assumed: concat_assoc
+  Assumed: empty
+  Assumed: concat_empty
+  Assumed: n
+  Assumed: v
+  Assumed: w
+  Assumed: f
+  Assumed: p
+  Assumed: fax
+p (f (v ; w ; empty ; (v ; empty))) ∧ v = cast (congr2 vec (Nat::add_zeror n)) (v ; empty)
+===>
+p (v ; (w ; v))
+checking proof
+(p (f (v ; w ; empty ; (v ; empty))) ∧ v = cast (congr2 vec (Nat::add_zeror n)) (v ; empty)) == p (v ; (w ; v))

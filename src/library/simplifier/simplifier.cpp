@@ -347,6 +347,8 @@ class simplifier_fn {
     result simplify_app(expr const & e) {
         if (m_has_cast && is_cast(e)) {
             // e is of the form (cast A B H a)
+            //   a : A
+            //   e : B
             expr A = arg(e, 1);
             expr B = arg(e, 2);
             expr H = arg(e, 3);
@@ -358,11 +360,11 @@ class simplifier_fn {
                     expr Hec;
                     expr Hac = *res_a.m_proof;
                     if (!res_a.m_heq_proof) {
-                        Hec = ::lean::mk_htrans_th(A, B, B, e, a, c,
+                        Hec = ::lean::mk_htrans_th(B, A, A, e, a, c,
                                                    update_app(e, 0, mk_cast_heq_fn()),  // cast A B H a == a
                                                    mk_to_heq_th(B, a, c, Hac));         // a == c
                     } else {
-                        Hec = ::lean::mk_htrans_th(A, B, infer_type(c), e, a, c,
+                        Hec = ::lean::mk_htrans_th(B, A, infer_type(c), e, a, c,
                                                    update_app(e, 0, mk_cast_heq_fn()),  // cast A B H a == a
                                                    Hac);                                // a == c
                     }

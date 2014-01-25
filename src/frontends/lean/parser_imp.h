@@ -56,7 +56,7 @@ class parser_imp {
     typedef name_map<expr> builtins;
     typedef expr_map<pos_info> expr_pos_info;
     typedef expr_map<tactic>   tactic_hints; // a mapping from placeholder to tactic
-    typedef scoped_map<name, expr, name_hash, name_eq>      using_decls;
+    typedef scoped_map<name, name, name_hash, name_eq>      using_decls;
     enum class scope_kind { Scope, Namespace };
 
     std::weak_ptr<parser_imp>          m_this;

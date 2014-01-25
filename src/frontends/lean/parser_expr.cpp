@@ -247,7 +247,7 @@ expr parser_imp::parse_mixfixc(operator_info const & op) {
 expr parser_imp::get_name_ref(name const & id, pos_info const & p, bool implicit_args) {
     auto it = m_using_decls.find(id);
     if (it != m_using_decls.end()) {
-        return it->second;
+        return get_name_ref(it->second, p, implicit_args);
     } else {
         lean_assert(!m_namespace_prefixes.empty());
         auto it    = m_namespace_prefixes.end();

@@ -1,0 +1,13 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: a
+  Assumed: b
+  Assumed: f
+  Assumed: g
+λ x x2 : ℕ, (∀ y : ℕ, g y = x) → x > x2 + x
+funext (λ x : ℕ,
+          funext (λ x2 : ℕ,
+                    imp_congr
+                        (refl (∀ y : ℕ, g y = x))
+                        (λ C::3 : ∀ y : ℕ, g y = x,
+                           congr (congr2 Nat::gt (C::3 (a + x + b))) (congr2 (Nat::add x2) (C::3 x)))))

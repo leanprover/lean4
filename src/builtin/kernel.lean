@@ -210,6 +210,10 @@ theorem exists_intro {A : TypeU} {P : A → Bool} (a : A) (H : P a) : Exists A P
 := assume H1 : (∀ x : A, ¬ P x),
       absurd H (H1 a)
 
+theorem nonempty_elim {A : TypeU} (H1 : nonempty A) {B : Bool} (H2 : A → B) : B
+:= obtain (w : A) (Hw : true), from H1,
+     H2 w
+
 theorem nonempty_ex_intro {A : TypeU} {P : A → Bool} (H : ∃ x, P x) : nonempty A
 := obtain (w : A) (Hw : P w), from H,
       exists_intro w trivial
@@ -333,6 +337,16 @@ theorem imp_falser (a : Bool) : (a → false) ↔ ¬ a
 theorem imp_falsel (a : Bool) : (false → a) ↔ true
 := case (λ x, (false → x) ↔ true) trivial trivial a
 
+theorem imp_or (a b : Bool) : (a → b) ↔ ¬ a ∨ b
+:= iff_intro
+     (assume H : a → b,
+        (or_elim (em a)
+           (λ Ha  : a,   or_intror (¬ a) (H Ha))
+           (λ Hna : ¬ a, or_introl Hna b)))
+     (assume H : ¬ a ∨ b,
+        assume Ha : a,
+          resolve1 H ((symm (not_not_eq a)) ◂ Ha))
+
 theorem not_true : ¬ true ↔ false
 := trivial
 
@@ -383,6 +397,21 @@ theorem not_implies_elim {a b : Bool} (H : ¬ (a → b)) : a ∧ ¬ b
 
 theorem not_congr {a b : Bool} (H : a ↔ b) : ¬ a ↔ ¬ b
 := congr2 not H
+
+theorem exists_rem {A : TypeU} (H : nonempty A) (p : Bool) : (∃ x : A, p) ↔ p
+:= iff_intro
+    (assume Hl : (∃ x : A, p),
+       obtain (w : A) (Hw : p), from Hl,
+         Hw)
+    (assume Hr : p,
+       nonempty_elim H (λ w, exists_intro w Hr))
+
+theorem forall_rem {A : TypeU} (H : nonempty A) (p : Bool) : (∀ x : A, p) ↔ p
+:= iff_intro
+    (assume Hl : (∀ x : A, p),
+       nonempty_elim H (λ w, Hl w))
+    (assume Hr : p,
+       take x, Hr)
 
 theorem eq_exists_intro {A : (Type U)} {P Q : A → Bool} (H : ∀ x : A, P x ↔ Q x) : (∃ x : A, P x) ↔ (∃ x : A, Q x)
 := congr2 (Exists A) (funext H)
@@ -572,6 +601,13 @@ theorem exists_or_distribute {A : TypeU} (φ ψ : A → Bool) : (∃ x, φ x ∨
             (λ H2 : (∃ x, ψ x),
                 obtain (w : A) (Hw : ψ w), from H2,
                     exists_intro w (or_intror (φ w) Hw)))
+
+
+theorem exists_imp_distribute {A : TypeU} (φ ψ : A → Bool) : (∃ x, φ x → ψ x) ↔ ((∀ x, φ x) → (∃ x, ψ x))
+:= calc (∃ x, φ x → ψ x) = (∃ x, ¬ φ x ∨ ψ x)           : eq_exists_intro (λ x, imp_or (φ x) (ψ x))
+                     ...   = (∃ x, ¬ φ x) ∨ (∃ x, ψ x)   : exists_or_distribute _ _
+                     ...   = ¬ (∀ x, φ x) ∨ (∃ x, ψ x)   : { symm (not_forall A φ) }
+                     ...   = (∀ x, φ x) → (∃ x, ψ x)     : symm (imp_or _ _)
 
 set_opaque exists  true
 set_opaque not     true

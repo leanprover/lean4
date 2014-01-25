@@ -59,7 +59,10 @@ static expr mk_ref(object const & obj, dependencies const & deps) {
         buffer<expr> args;
         args.push_back(mk_constant(obj.get_name()));
         for (auto d : deps) args.push_back(mk_constant(d));
-        return mk_app(args);
+        if (args.size() == 1)
+            return args[0];
+        else
+            return mk_app(args);
     }
 }
 

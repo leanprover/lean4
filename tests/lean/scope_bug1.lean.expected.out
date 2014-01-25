@@ -1,0 +1,11 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: a
+  Assumed: b
+  Assumed: c
+  Assumed: d
+  Assumed: H
+  Set: lean::pp::implicit
+  Using: Nat
+Nat::add_succr a : ∀ b : ℕ, @eq ℕ (a + (b + 1)) (a + b + 1)
+  Proved: mul_zerol2

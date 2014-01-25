@@ -130,7 +130,7 @@ class simplifier_fn {
     cache          m_cache;
     max_sharing_fn m_max_sharing;
     congr_thms     m_congr_thms;
-    unsigned       m_contextual_depth; // number of contextual simplification steps in the current branch
+    unsigned       m_next_idx;  // index used to create fresh constants
     unsigned       m_num_steps; // number of steps performed
 
     // Configuration
@@ -145,19 +145,18 @@ class simplifier_fn {
     bool           m_memoize;
     unsigned       m_max_steps;
 
-    struct set_context {
-        flet<context> m_set;
-        freset<cache> m_reset_cache;
-        set_context(simplifier_fn & s, context const & new_ctx):m_set(s.m_ctx, new_ctx), m_reset_cache(s.m_cache) {}
-    };
-
     struct updt_rule_set {
-        rewrite_rule_set & m_rs;
+        simplifier_fn &    m_fn;
         rewrite_rule_set   m_old;
-        updt_rule_set(rewrite_rule_set & rs, expr const & fact, expr const & proof):m_rs(rs), m_old(m_rs) {
-            m_rs.insert(g_local, fact, proof);
+        freset<cache>      m_reset_cache; // must reset the cache whenever we update the rule set.
+        updt_rule_set(simplifier_fn & fn, expr const & fact, expr const & proof):
+            m_fn(fn), m_old(m_fn.m_rule_sets[0]), m_reset_cache(m_fn.m_cache) {
+            m_fn.m_rule_sets[0].insert(g_local, fact, proof);
         }
-        ~updt_rule_set() { m_rs = m_old; }
+        ~updt_rule_set() {
+            m_fn.m_rule_sets[0] = m_old;
+            // Remark: m_reset_cache destructor will restore the cache
+        }
     };
 
 
@@ -465,22 +464,21 @@ class simplifier_fn {
                     if (!m_proofs_enabled) {
                         // Contextual reasoning without proofs.
                         expr dummy_proof; // we don't need a proof
-                        updt_rule_set update(m_rule_sets[0], H, dummy_proof);
+                        updt_rule_set update(*this, H, dummy_proof);
                         result res_a  = simplify(a);
                         new_args[pos] = res_a.m_out;
                     } else {
                         // We have to introduce H in the context, so first we lift the free variables in \c a
-                        flet<unsigned> set_depth(m_contextual_depth, m_contextual_depth+1);
-                        expr H_proof = mk_constant(name(g_unique, m_contextual_depth));
-                        updt_rule_set update(m_rule_sets[0], H, H_proof);
-                        freset<cache> m_reset_cache(m_cache); // must reset cache for the recursive call because we updated the rule_sets
+                        flet<unsigned> set_depth(m_next_idx, m_next_idx+1);
+                        expr H_proof = mk_constant(name(g_unique, m_next_idx));
+                        updt_rule_set update(*this, H, H_proof);
                         result res_a  = simplify(a);
                         if (!ensure_homogeneous(a, res_a))
                             return simplify_app_default(e); // fallback to default congruence
                         new_args[pos] = res_a.m_out;
                         proof_args[info.get_pos_at_proof()]        = a;
                         proof_args[*info.get_new_pos_at_proof()]   = new_args[pos];
-                        name C_name(g_C, m_contextual_depth); // H_name is a cryptic unique name
+                        name C_name(g_C, m_next_idx); // H_name is a cryptic unique name
                         proof_args[*info.get_proof_pos_at_proof()] = mk_lambda(C_name, H, abstract(get_proof(res_a), H_proof));
                     }
                 }
@@ -826,16 +824,18 @@ class simplifier_fn {
         lean_assert(is_constant(e));
         if (m_unfold || m_eval) {
             auto obj = m_env->find_object(const_name(e));
-            if (m_unfold && should_unfold(obj)) {
-                expr e = obj->get_value();
-                if (m_single_pass) {
-                    return result(e);
-                } else {
-                    return simplify(e);
+            if (obj) {
+                if (m_unfold && should_unfold(obj)) {
+                    expr e = obj->get_value();
+                    if (m_single_pass) {
+                        return result(e);
+                    } else {
+                        return simplify(e);
+                    }
                 }
-            }
-            if (m_eval && obj->is_builtin()) {
-                return result(obj->get_value());
+                if (m_eval && obj->is_builtin()) {
+                    return result(obj->get_value());
+                }
             }
         }
         return rewrite(e, result(e));
@@ -904,18 +904,20 @@ class simplifier_fn {
             // TODO(Leo)
             return result(e);
         } else {
-            set_context set(*this, extend(m_ctx, abst_name(e), abst_domain(e)));
-            result res_body = simplify(abst_body(e));
+            flet<unsigned> set_depth(m_next_idx, m_next_idx+1);
+            expr fresh_const = mk_constant(name(g_unique, m_next_idx), abst_domain(e));
+            expr b_c         = instantiate(abst_body(e), fresh_const);
+            result res_body  = simplify(b_c);
             lean_assert(!res_body.m_heq_proof);
-            expr new_body = res_body.m_out;
-            if (is_eqp(new_body, abst_body(e)))
+            expr new_body    = res_body.m_out;
+            if (is_eqp(new_body, b_c))
                 return rewrite_lambda(e, result(e));
-            expr out = mk_lambda(e, new_body);
+            expr out = mk_lambda(e, abstract(new_body, fresh_const));
             if (!m_proofs_enabled || !res_body.m_proof)
                 return rewrite_lambda(e, result(out));
             expr body_type = infer_type(abst_body(e));
             expr pr  = mk_funext_th(abst_domain(e), mk_lambda(e, body_type), e, out,
-                                    mk_lambda(e, *res_body.m_proof));
+                                    mk_lambda(e, abstract(*res_body.m_proof, fresh_const)));
             return rewrite_lambda(e, result(out, pr));
         }
     }
@@ -934,41 +936,38 @@ class simplifier_fn {
                 // And rewrite B to B' using A'
                 result res_d = simplify(d);
                 ensure_homogeneous(d, res_d);
-                flet<unsigned> set_depth(m_contextual_depth, m_contextual_depth+1);
-                expr H_proof = mk_constant(name(g_unique, m_contextual_depth));
+                flet<unsigned> set_depth(m_next_idx, m_next_idx+1);
+                expr H_proof = mk_constant(name(g_unique, m_next_idx));
+                expr b_c     = lower_free_vars(b, 1, 1);
                 result res_b;
                 {
-                    updt_rule_set update(m_rule_sets[0], res_d.m_out, H_proof);
-                    freset<cache> m_reset_cache(m_cache); // must reset cache for the recursive call because we updated the rule_sets
-                    set_context set(*this, extend(m_ctx, abst_name(e), res_d.m_out));
-                    res_b = simplify(b);
+                    updt_rule_set update(*this, res_d.m_out, H_proof);
+                    res_b = simplify(b_c);
                 }
-                ensure_homogeneous(b, res_b);
-                if (is_eqp(res_d.m_out, d) && is_eqp(res_b.m_out, b))
+                ensure_homogeneous(b_c, res_b);
+                if (is_eqp(res_d.m_out, d) && is_eqp(res_b.m_out, b_c))
                     return rewrite(e, result(e));
-                expr out = update_pi(e, res_d.m_out, res_b.m_out);
+                expr out = update_pi(e, res_d.m_out, lift_free_vars(res_b.m_out, 0, 1));
                 if (!m_proofs_enabled)
                     return rewrite(e, result(out));
-                name C_name(g_C, m_contextual_depth); // H_name is a cryptic unique name
-                expr proof = mk_imp_congr_th(d, lower_free_vars(b, 1, 1),
-                                             res_d.m_out, lower_free_vars(res_b.m_out, 1, 1),
+                name C_name(g_C, m_next_idx); // H_name is a cryptic unique name
+                expr proof = mk_imp_congr_th(d, b_c, res_d.m_out, res_b.m_out,
                                              get_proof(res_d), mk_lambda(C_name, res_d.m_out, abstract(get_proof(res_b), H_proof)));
                 return rewrite(e, result(out, proof));
             } else {
                 // Simplify A -> B (when m_contextual == false)
                 result res_d = simplify(d);
                 ensure_homogeneous(d, res_d);
-                set_context set(*this, extend(m_ctx, abst_name(e), res_d.m_out));
-                result res_b = simplify(b);
-                ensure_homogeneous(b, res_b);
-                if (is_eqp(res_d.m_out, d) && is_eqp(res_b.m_out, b))
+                expr b_c     = lower_free_vars(b, 1, 1);
+                result res_b = simplify(b_c);
+                ensure_homogeneous(b_c, res_b);
+                if (is_eqp(res_d.m_out, d) && is_eqp(res_b.m_out, b_c))
                     return rewrite(e, result(e));
-                expr out = update_pi(e, res_d.m_out, res_b.m_out);
+                expr out = update_pi(e, res_d.m_out, lift_free_vars(res_b.m_out, 0, 1));
                 if (!m_proofs_enabled)
                     return rewrite(e, result(out));
-                expr proof = mk_imp_congr_th(d, lower_free_vars(b, 1, 1),
-                                             res_d.m_out, lower_free_vars(res_b.m_out, 1, 1),
-                                             get_proof(res_d), mk_lambda(g_H, res_d.m_out, get_proof(res_b)));
+                expr proof = mk_imp_congr_th(d, b_c, res_d.m_out, res_b.m_out,
+                                             get_proof(res_d), mk_lambda(g_H, res_d.m_out, lift_free_vars(get_proof(res_b), 0, 1)));
                 return rewrite(e, result(out, proof));
             }
         } else if (m_has_heq) {
@@ -976,19 +975,21 @@ class simplifier_fn {
             return result(e);
         } else if (is_prop) {
             // Simplify (forall x : A, P x)
-            set_context set(*this, extend(m_ctx, abst_name(e), d));
-            result res_body = simplify(b);
+            flet<unsigned> set_depth(m_next_idx, m_next_idx+1);
+            expr fresh_const = mk_constant(name(g_unique, m_next_idx), abst_domain(e));
+            expr b_c         = instantiate(b, fresh_const);
+            result res_body  = simplify(b_c);
             lean_assert(!res_body.m_heq_proof);
             expr new_body = res_body.m_out;
-            if (is_eqp(new_body, b))
+            if (is_eqp(new_body, b_c))
                 return rewrite(e, result(e));
-            expr out = mk_pi(abst_name(e), d, new_body);
+            expr out = mk_pi(abst_name(e), d, abstract(new_body, fresh_const));
             if (!m_proofs_enabled || !res_body.m_proof)
                 return rewrite(e, result(out));
             expr pr  = mk_allext_th(d,
                                     mk_lambda(e, b),
                                     mk_lambda(e, abst_body(out)),
-                                    mk_lambda(e, *res_body.m_proof));
+                                    mk_lambda(e, abstract(*res_body.m_proof, fresh_const)));
             return rewrite(e, result(out, pr));
         } else {
             // if the environment does not contain heq axioms, then we don't simplify Pi's that are not forall's
@@ -1046,6 +1047,13 @@ class simplifier_fn {
         }
     }
 
+    void set_ctx(context const & ctx) {
+        if (!is_eqp(m_ctx, ctx)) {
+            m_cache.clear();
+            m_ctx = ctx;
+        }
+    }
+
     void set_options(options const & o) {
         m_proofs_enabled = get_simplifier_proofs(o);
         m_contextual     = get_simplifier_contextual(o);
@@ -1071,11 +1079,11 @@ public:
         }
         m_rule_sets.insert(m_rule_sets.end(), rs, rs + num_rs);
         collect_congr_thms();
-        m_contextual_depth = 0;
+        m_next_idx = 0;
     }
 
     expr_pair operator()(expr const & e, context const & ctx) {
-        set_context set(*this, ctx);
+        set_ctx(ctx);
         m_num_steps = 0;
         auto r = simplify(e);
         return mk_pair(r.m_out, get_proof(r));

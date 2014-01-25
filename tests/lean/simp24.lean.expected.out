@@ -9,4 +9,4 @@ funext (λ x : ℕ, trans (imp_congr (refl (x = a)) (λ H : x = a, eq_id x)) (im
 λ x : ℕ, ⊤
 funext (λ x : ℕ, trans (imp_congr (congr2 (eq x) (Nat::add_zeror a)) (λ H : x = a, eq_id a)) (imp_truer (x = a)))
 λ x : ℕ, a = 1 → x > 1
-funext (λ x : ℕ, imp_congr (congr1 1 (congr2 eq (Nat::add_zeror a))) (λ C::1 : a = 1, congr2 (Nat::gt x) C::1))
+funext (λ x : ℕ, imp_congr (congr1 1 (congr2 eq (Nat::add_zeror a))) (λ C::2 : a = 1, congr2 (Nat::gt x) C::2))

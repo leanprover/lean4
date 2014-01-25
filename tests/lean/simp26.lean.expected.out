@@ -1,0 +1,21 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: a
+  Assumed: b
+  Assumed: f
+λ x : ℕ, a = 1 → x > f (λ y : ℕ, y + 1)
+funext (λ x : ℕ,
+          imp_congr
+              (congr1 1 (congr2 eq (Nat::add_zeror a)))
+              (λ C::2 : a = 1, congr2 (Nat::gt x) (congr2 f (funext (λ y : ℕ, congr2 (Nat::add y) C::2)))))
+λ x : ℕ, a = 1 → x = 2 → 2 > f (λ y : ℕ, y + 1 + 2)
+funext (λ x : ℕ,
+          imp_congr
+              (congr1 1 (congr2 eq (Nat::add_zeror a)))
+              (λ C::2 : a = 1,
+                 imp_congr
+                     (refl (x = 2))
+                     (λ C::3 : x = 2,
+                        congr (congr2 Nat::gt C::3)
+                              (congr2 f
+                                      (funext (λ y : ℕ, congr (congr2 Nat::add (congr2 (Nat::add y) C::2)) C::3))))))

@@ -110,21 +110,15 @@ class simplifier_fn {
         expr           m_expr;      // the result of a simplification step
         optional<expr> m_proof;     // a proof that the result is equal to the input (when m_proofs_enabled)
         bool           m_heq_proof; // true if the proof has type lhs == rhs (i.e., it is a heterogeneous equality)
-        bool           m_typem;     // theorem lifted equality to (Type M) even if m_expr is from a lower universe.
         result() {}
         explicit result(expr const & out, bool heq_proof = false):
-            m_expr(out), m_heq_proof(heq_proof), m_typem(false) {}
-        result(expr const & out, expr const & pr, bool heq_proof = false, bool typem = false):
-            m_expr(out), m_proof(pr), m_heq_proof(heq_proof), m_typem(typem) {
-            lean_assert(!heq_proof || !typem);
-        }
-        result(expr const & out, optional<expr> const & pr, bool heq_proof = false, bool typem = false):
-            m_expr(out), m_proof(pr), m_heq_proof(heq_proof), m_typem(typem) {
-            lean_assert(!heq_proof || !typem);
-        }
+            m_expr(out), m_heq_proof(heq_proof) {}
+        result(expr const & out, expr const & pr, bool heq_proof = false):
+            m_expr(out), m_proof(pr), m_heq_proof(heq_proof) {}
+        result(expr const & out, optional<expr> const & pr, bool heq_proof = false):
+            m_expr(out), m_proof(pr), m_heq_proof(heq_proof) {}
         bool is_heq_proof() const { return m_heq_proof; }
-        bool is_typem() const { return m_typem; }
-        result update_expr(expr const & new_e) const { return result(new_e, m_proof, m_heq_proof, m_typem); }
+        result update_expr(expr const & new_e) const { return result(new_e, m_proof, m_heq_proof); }
     };
 
     typedef std::vector<rewrite_rule_set> rule_sets;
@@ -241,15 +235,8 @@ class simplifier_fn {
         }
     }
 
-    expr translate_eq_typem_proof(expr const & A, expr const & a, expr const & b, expr const & H) {
-        return translate_eq_proof(A, a, b, H, mk_TypeM());
-    }
-
     expr translate_eq_typem_proof(expr const & a, result const & b) {
-        if (b.is_typem())
-            return get_proof(b);
-        else
-            return translate_eq_proof(infer_type(a), a, b.m_expr, get_proof(b), mk_TypeM());
+        return translate_eq_proof(infer_type(a), a, b.m_expr, get_proof(b), mk_TypeM());
     }
 
     expr mk_congr1_th(expr const & f_type, expr const & f, expr const & new_f, expr const & a, expr const & Heq_f) {
@@ -263,7 +250,7 @@ class simplifier_fn {
         expr B = lower_free_vars(abst_body(f_type), 1, 1);
         expr a_type = infer_type(a);
         if (!is_definitionally_equal(A, a_type))
-            Heq_a = translate_eq_proof(a_type, a, new_a, Heq_a, A); // CHECK
+            Heq_a = translate_eq_proof(a_type, a, new_a, Heq_a, A);
         return ::lean::mk_congr2_th(A, B, a, new_a, f, Heq_a);
     }
 
@@ -273,7 +260,7 @@ class simplifier_fn {
         expr B = lower_free_vars(abst_body(f_type), 1, 1);
         expr a_type = infer_type(a);
         if (!is_definitionally_equal(A, a_type))
-            Heq_a = translate_eq_proof(a_type, a, new_a, Heq_a, A); // CHECK
+            Heq_a = translate_eq_proof(a_type, a, new_a, Heq_a, A);
         return ::lean::mk_congr_th(A, B, f, new_f, a, new_a, Heq_f, Heq_a);
     }
 
@@ -283,25 +270,6 @@ class simplifier_fn {
         } else {
             // lhs and rhs are definitionally equal
             return mk_refl_th(infer_type(rhs.m_expr), rhs.m_expr);
-        }
-    }
-
-    /**
-       \brief Return the type of equality.
-    */
-    expr get_eq_type(result const & rhs) {
-        if (rhs.is_typem()) {
-            return mk_TypeM();
-        } else {
-            #if LEAN_DEBUG
-            if (rhs.m_proof) {
-                expr type = infer_type(*rhs.m_proof);
-                if (is_eq(type)) {
-                    lean_assert_eq(arg(type, 1), infer_type(rhs.m_expr));
-                }
-            }
-            #endif
-            return infer_type(rhs.m_expr);
         }
     }
 
@@ -379,7 +347,7 @@ class simplifier_fn {
                         return none_expr(); // we don't know how to handle this case
                     }
                 }
-                Heq_a = translate_eq_proof(get_eq_type(new_a), a, new_a.m_expr, Heq_a, A);
+                Heq_a = translate_eq_proof(a_type, a, new_a.m_expr, Heq_a, A);
             }
             if (!is_heq_proof)
                 Heq_a = mk_to_heq_th(A, a, new_a.m_expr, Heq_a);
@@ -412,11 +380,9 @@ class simplifier_fn {
                                                      a, b, c, *b_res.m_proof, mk_to_heq_th(b_type, b, c, H_bc));
                     heq_proof = true;
                 } else {
-                    if (b_res.is_typem())
-                        H_bc = translate_eq_typem_proof(infer_type(b), b, c, H_bc);
-                    new_proof = ::lean::mk_trans_th(get_eq_type(b_res), a, b, c, *b_res.m_proof, H_bc);
+                    new_proof = ::lean::mk_trans_th(infer_type(a), a, b, c, *b_res.m_proof, H_bc);
                 }
-                return result(c, new_proof, heq_proof, b_res.is_typem());
+                return result(c, new_proof, heq_proof);
             }
         } else {
             return result(c);
@@ -443,7 +409,6 @@ class simplifier_fn {
                 expr new_proof;
                 expr const & b = b_res.m_expr;
                 expr const & c = c_res.m_expr;
-                bool typem = false;
                 if (heq_proof) {
                     expr a_type = infer_type(a);
                     expr b_type = infer_type(b);
@@ -455,21 +420,10 @@ class simplifier_fn {
                     if (!c_res.is_heq_proof())
                         H_bc = mk_to_heq_th(b_type, b, c, H_bc);
                     new_proof = ::lean::mk_htrans_th(a_type, b_type, c_type, a, b, c, H_ab, H_bc);
-                } else if (b_res.is_typem() && c_res.is_typem()) {
-                    new_proof = ::lean::mk_trans_th(mk_TypeM(), a, b, c, *b_res.m_proof, *c_res.m_proof);
-                    typem = true;
-                } else if (b_res.is_typem()) {
-                    expr H_bc = translate_eq_typem_proof(infer_type(b), b, c, *c_res.m_proof);
-                    new_proof = ::lean::mk_trans_th(mk_TypeM(), a, b, c, *b_res.m_proof, H_bc);
-                    typem = true;
-                } else if (c_res.is_typem()) {
-                    expr H_ab = translate_eq_typem_proof(infer_type(a), a, b, *b_res.m_proof);
-                    new_proof = ::lean::mk_trans_th(mk_TypeM(), a, b, c, H_ab, *c_res.m_proof);
-                    typem = true;
                 } else {
                     new_proof = ::lean::mk_trans_th(infer_type(a), a, b, c, *b_res.m_proof, *c_res.m_proof);
                 }
-                return result(c, new_proof, heq_proof, typem);
+                return result(c, new_proof, heq_proof);
             }
         } else {
             // proof generation is disabled
@@ -562,10 +516,7 @@ class simplifier_fn {
 
     void ensure_heterogeneous(expr const & lhs, result & rhs) {
         if (!rhs.is_heq_proof()) {
-            if (rhs.is_typem())
-                rhs.m_proof     = mk_to_heq_th(mk_TypeM(), lhs, rhs.m_expr, get_proof(rhs));
-            else
-                rhs.m_proof     = mk_to_heq_th(infer_type(lhs), lhs, rhs.m_expr, get_proof(rhs));
+            rhs.m_proof     = mk_to_heq_th(infer_type(lhs), lhs, rhs.m_expr, get_proof(rhs));
             rhs.m_heq_proof = true;
         }
     }
@@ -668,7 +619,6 @@ class simplifier_fn {
         buffer<optional<expr>> proofs;               // used only if m_proofs_enabled
         buffer<expr>           f_types, new_f_types; // used only if m_proofs_enabled
         buffer<bool>           heq_proofs;           // used only if m_has_heq && m_proofs_enabled
-        buffer<bool>           typem_flags;
         bool changed = false;
         expr f       = arg(e, 0);
         expr f_type  = infer_type(f);
@@ -683,10 +633,8 @@ class simplifier_fn {
             f_types.push_back(f_type);
             new_f_type = res_f.is_heq_proof() ? infer_type(new_f) : f_type;
             new_f_types.push_back(new_f_type);
-            if (m_has_heq) {
+            if (m_has_heq)
                 heq_proofs.push_back(res_f.is_heq_proof());
-                typem_flags.push_back(res_f.is_typem());
-            }
         }
         unsigned num = num_args(e);
         for (unsigned i = 1; i < num; i++) {
@@ -703,10 +651,8 @@ class simplifier_fn {
             new_args.push_back(new_a);
             if (m_proofs_enabled) {
                 proofs.push_back(res_a.m_proof);
-                if (m_has_heq) {
+                if (m_has_heq)
                     heq_proofs.push_back(res_a.is_heq_proof());
-                    typem_flags.push_back(res_a.is_typem());
-                }
                 bool changed_f_type = !is_eqp(f_type, new_f_type);
                 if (f_arrow) {
                     f_type     = lower_free_vars(abst_body(f_type), 1, 1);
@@ -745,7 +691,7 @@ class simplifier_fn {
                 expr f = mk_app_prefix(i, new_args);
                 expr pr_i = *proofs[i];
                 auto new_pr = mk_hcongr_th(f_types[i-1], f_types[i-1], f, f, mk_hrefl_th(f_types[i-1], f),
-                                           arg(e, i), result(new_args[i], pr_i, heq_proofs[i], typem_flags[i]));
+                                           arg(e, i), result(new_args[i], pr_i, heq_proofs[i]));
                 if (!new_pr)
                     return rewrite_app(e, result(e)); // failed to create congruence proof
                 pr = *new_pr;
@@ -772,7 +718,7 @@ class simplifier_fn {
                     } else if (heq_proof) {
                         lean_assert(!heq_proofs[i]);
                         auto new_pr = mk_hcongr_th(f_types[i-1], new_f_types[i-1], f, new_f, pr,
-                                                   arg(e, i), result(new_args[i], pr_i, false, typem_flags[i]));
+                                                   arg(e, i), result(new_args[i], pr_i, false));
                         if (!new_pr)
                             return rewrite_app(e, result(e)); // failed to create congruence proof
                         pr = *new_pr;

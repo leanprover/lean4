@@ -306,30 +306,18 @@ class simplifier_fn {
     }
 
     /**
-       \brief Some builtin constants (e.g., eq, neq and exists) have arguments of type (Type U).
-       The congruence axiom cannot be directly used in this constants. Since, they are in (Type U+1) and the congruence
-       axioms expect arguments from (Type U). We address this issue by creating custom congruence theorems
-       for these constants. The constant theorems can only be applied if the argument is actually in (Type M).
+       \brief Return true if \c e is definitionally equal to (Type U)
 
-       \remark M is a universe smaller than U
-
-       For example, the custom congruence theorem for equality is
-
-       theorem eq_hcongr {A A' : TypeM} (H : A = A') : (@eq A) == (@eq A')
+       This is an approximated solution. It may return false for cases where \c e
+       is definitionally to TypeU.
     */
-    optional<expr> mk_typem_congr_th(expr const & cgr_thm, expr const & a, result const & new_a) {
-        expr Heq_a  = get_proof(new_a);
-        expr a_type = infer_type(a);
-        if (new_a.is_heq_proof())
-            Heq_a  = mk_to_eq_th(a_type, a, new_a.m_expr, Heq_a);
-
-        if (!new_a.is_typem()) {
-            if (!is_convertible(a_type, mk_TypeM()))
-                return none_expr(); // failed
-            Heq_a = translate_eq_typem_proof(a_type, a, new_a.m_expr, Heq_a);
+    bool is_TypeU(expr const & e) {
+        if (is_type(e)) {
+            return e == TypeU;
+        } else if (is_constant(e)) {
+            auto obj = m_env->find_object(const_name(e));
+            return obj && obj->is_definition() && is_TypeU(obj->get_value());
         }
-
-        return some_expr(cgr_thm(a, new_a.m_expr, Heq_a));
     }
 
     /**
@@ -337,16 +325,42 @@ class simplifier_fn {
     */
     optional<expr> mk_hcongr_th(expr const & f_type, expr const & new_f_type, expr const & f, expr const & new_f,
                                 expr const & Heq_f, expr const & a, result const & new_a) {
-        // TODO(Leo): make the following code more "flexible".
-        // We should be able to "install" new custom congruence theorem
-        if (is_eq_fn(f) && is_eq_fn(new_f)) {
-            return mk_typem_congr_th(mk_eq_hcongr_fn(), a, new_a);
-        } else if (is_exists_fn(f) && is_exists_fn(new_f)) {
-            return mk_typem_congr_th(mk_exists_hcongr_fn(), a, new_a);
-        } else if (is_neq_fn(f) && is_neq_fn(new_f)) {
-            return mk_typem_congr_th(mk_neq_hcongr_fn(), a, new_a);
+        expr const & A     = abst_domain(f_type);
+        if (is_TypeU(A)) {
+            if (!is_definitionally_equal(f, new_f))
+                return none_expr(); // can't handle
+            // The congruence axiom cannot be used in this case.
+            // Type problem is that we would need provide a proof of (@eq (Type U) a new_a.m_expr),
+            // and (Type U) has type (Type U+1) the congruence axioms expect arguments from
+            // (Type U). We address this issue by using the following trick:
+            //
+            // We have
+            //      f  : Pi x : (Type U), B x
+            //      a  : (Type i)               s.t. U > i
+            //      a' : (Type i)               where a' := new_a.m_expr
+            //      H  : a = a'                 where H  := new_a.m_proof
+            //
+            // Then a proof term for (@heq (B a) (B a') (f a) (f a')) is
+            //
+            //    @subst (Type i) a a' (fun x : (Type i), (@heq (B a) (B x) (f a) (f x))) (@hrefl (B a) (f a)) H
+            expr a_type   = infer_type(a);
+            if (!is_convertible(a_type, A))
+                return none_expr(); // can't handle
+            expr a_prime  = new_a.m_expr;
+            expr H        = get_proof(new_a);
+            if (new_a.is_heq_proof())
+                H = mk_to_eq_th(a_type, a, a_prime, H);
+            expr Ba       = instantiate(abst_body(f_type), a);
+            expr Ba_prime = instantiate(abst_body(f_type), a_prime);
+            expr Bx       = abst_body(f_type);
+            expr fa       = new_f(a);
+            expr fx       = new_f(Var(0));
+            expr result   = mk_subst_th(a_type, a, a_prime,
+                                        mk_lambda(g_x, a_type, mk_heq(Ba, Bx, fa, fx)),
+                                        mk_hrefl_th(Ba, fa),
+                                        H);
+            return some_expr(result);
         } else {
-            expr const & A     = abst_domain(f_type);
             expr const & new_A = abst_domain(new_f_type);
             expr a_type        = infer_type(a);
             expr new_a_type    = infer_type(new_a.m_expr);

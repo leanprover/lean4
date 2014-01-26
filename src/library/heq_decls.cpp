@@ -19,7 +19,4 @@ MK_CONSTANT(hfunext_fn, name("hfunext"));
 MK_CONSTANT(hsfunext_fn, name("hsfunext"));
 MK_CONSTANT(hpiext_fn, name("hpiext"));
 MK_CONSTANT(hallext_fn, name("hallext"));
-MK_CONSTANT(eq_hcongr_fn, name("eq_hcongr"));
-MK_CONSTANT(neq_hcongr_fn, name("neq_hcongr"));
-MK_CONSTANT(exists_hcongr_fn, name("exists_hcongr"));
 }

@@ -45,12 +45,3 @@ axiom hpiext {A A' : TypeM} {B : A → TypeM} {B' : A' → TypeM} :
 
 axiom hallext {A A' : TypeM} {B : A → Bool} {B' : A' → Bool} :
       A = A' → (∀ x x', x == x' → B x = B' x') → (∀ x, B x) = (∀ x, B' x)
-
-theorem eq_hcongr {A A' : TypeM} (H : A = A') : (@eq A) == (@eq A')
-:= substp (λ x : TypeM, (@eq A) == (@eq x)) (hrefl (@eq A)) H
-
-theorem neq_hcongr {A A' : TypeM} (H : A = A') : (@neq A) == (@neq A')
-:= substp (λ x : TypeM, (@neq A) == (@neq x)) (hrefl (@neq A)) H
-
-theorem exists_hcongr {A A' : TypeM} (H : A = A') : (Exists A) == (Exists A')
-:= substp (λ x : TypeM, (Exists A) == (Exists x)) (hrefl (Exists A)) H

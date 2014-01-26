@@ -801,7 +801,11 @@ expr parser_imp::parse_type(bool level_expected) {
     auto p = pos();
     next();
     if (level_expected) {
-        return save(mk_type(parse_level()), p);
+        if (curr() == scanner::token::RightParen) {
+            return save(Type(), p);
+        } else {
+            return save(mk_type(parse_level()), p);
+        }
     } else {
         return save(Type(), p);
     }

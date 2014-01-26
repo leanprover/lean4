@@ -38,9 +38,6 @@ inline expr mk_hfunext_th(expr const & e1, expr const & e2, expr const & e3, exp
 expr mk_hsfunext_fn();
 bool is_hsfunext_fn(expr const & e);
 inline expr mk_hsfunext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_hsfunext_fn(), e1, e2, e3, e4, e5, e6}); }
-expr mk_hpiext_fn();
-bool is_hpiext_fn(expr const & e);
-inline expr mk_hpiext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_hpiext_fn(), e1, e2, e3, e4, e5, e6}); }
 expr mk_hallext_fn();
 bool is_hallext_fn(expr const & e);
 inline expr mk_hallext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_hallext_fn(), e1, e2, e3, e4, e5, e6}); }

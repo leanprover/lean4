@@ -40,8 +40,15 @@ theorem hsfunext {A : TypeM} {B B' : A → TypeU} {f : ∀ x, B x} {f' : ∀ x, 
                        s2 : f' x  == f' x' := hcongr (hrefl f') Hx
                    in htrans s1 s2)
 
-axiom hpiext {A A' : TypeM} {B : A → TypeM} {B' : A' → TypeM} :
-      A = A' → (∀ x x', x == x' → B x = B' x') → (∀ x, B x) = (∀ x, B' x)
-
 axiom hallext {A A' : TypeM} {B : A → Bool} {B' : A' → Bool} :
       A = A' → (∀ x x', x == x' → B x = B' x') → (∀ x, B x) = (∀ x, B' x)
+
+-- The following axiom is not very useful, since the resultant
+-- equality is actually (@eq TypeM (∀ x, B x) (∀ x, B' x)).
+-- This is the case even if A, A', B and B' live in smaller universes (e.g., Type)
+-- To support this kind of axiom, it seems we have two options:
+--    1) Universe level parameters like Agda
+--    2) Axiom schema/template, where we create instances of hpiext for different universes.
+--       BTW, this is essentially what Coq does since the levels are implicit in Coq.
+-- axiom hpiext {A A' : TypeM} {B : A → TypeM} {B' : A' → TypeM} :
+--      A = A' → (∀ x x', x == x' → B x = B' x') → (∀ x, B x) = (∀ x, B' x)

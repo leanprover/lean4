@@ -318,19 +318,6 @@ struct lean_extension : public environment_extension {
         env->add_neutral_object(new notation_declaration(new_op, d));
     }
 
-    expr mk_explicit_definition_body(expr type, name const & n, unsigned i, unsigned sz) {
-        if (i == sz) {
-            buffer<expr> args;
-            args.push_back(mk_constant(n));
-            unsigned j = sz;
-            while (j > 0) { --j; args.push_back(mk_var(j)); }
-            return mk_app(args);
-        } else {
-            lean_assert(is_pi(type));
-            return mk_lambda(abst_name(type), abst_domain(type), mk_explicit_definition_body(abst_body(type), n, i+1, sz));
-        }
-    }
-
     static name mk_explicit_name(name const & n) {
         if (n.is_anonymous()) {
             throw exception("anonymous names cannot be used in definitions");
@@ -369,7 +356,7 @@ struct lean_extension : public environment_extension {
             throw exception(sstream() << "failed to mark implicit arguments for '" << n << "', all arguments are explicit");
         std::vector<bool> v(implicit, implicit+sz);
         m_implicit_table[n] = mk_pair(v, explicit_version);
-        expr body = mk_explicit_definition_body(type, n, 0, num_args);
+        expr body = mk_constant(n);
         m_explicit_names.insert(explicit_version);
         env->add_neutral_object(new mark_implicit_command(n, sz, implicit));
         env->auxiliary_section([&]() {

@@ -337,7 +337,7 @@ class simplifier_fn {
     */
     optional<expr> mk_hcongr_th(expr const & f_type, expr const & new_f_type, expr const & f, expr const & new_f,
                                 expr const & Heq_f, expr const & a, result const & new_a) {
-        // TODO: make the following code more "customizable".
+        // TODO(Leo): make the following code more "flexible".
         // We should be able to "install" new custom congruence theorem
         if (is_eq_fn(f) && is_eq_fn(new_f)) {
             return mk_typem_congr_th(mk_eq_hcongr_fn(), a, new_a);

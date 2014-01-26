@@ -44,4 +44,13 @@ inline expr mk_hpiext_th(expr const & e1, expr const & e2, expr const & e3, expr
 expr mk_hallext_fn();
 bool is_hallext_fn(expr const & e);
 inline expr mk_hallext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_hallext_fn(), e1, e2, e3, e4, e5, e6}); }
+expr mk_eq_hcongr_fn();
+bool is_eq_hcongr_fn(expr const & e);
+inline expr mk_eq_hcongr_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_eq_hcongr_fn(), e1, e2, e3}); }
+expr mk_neq_hcongr_fn();
+bool is_neq_hcongr_fn(expr const & e);
+inline expr mk_neq_hcongr_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_neq_hcongr_fn(), e1, e2, e3}); }
+expr mk_exists_hcongr_fn();
+bool is_exists_hcongr_fn(expr const & e);
+inline expr mk_exists_hcongr_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_exists_hcongr_fn(), e1, e2, e3}); }
 }

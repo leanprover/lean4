@@ -107,16 +107,24 @@ static name g_unique = name::mk_internal_unique_name();
 
 class simplifier_fn {
     struct result {
-        expr           m_expr;    // the result of a simplification step
-        optional<expr> m_proof;  // a proof that the result is equal to the input (when m_proofs_enabled)
-        bool           m_heq_proof; // true if the proof is for heterogeneous equality
+        expr           m_expr;      // the result of a simplification step
+        optional<expr> m_proof;     // a proof that the result is equal to the input (when m_proofs_enabled)
+        bool           m_heq_proof; // true if the proof has type lhs == rhs (i.e., it is a heterogeneous equality)
+        bool           m_typem;     // theorem lifted equality to (Type M) even if m_expr is from a lower universe.
         result() {}
         explicit result(expr const & out, bool heq_proof = false):
-            m_expr(out), m_heq_proof(heq_proof) {}
-        result(expr const & out, expr const & pr, bool heq_proof = false):
-            m_expr(out), m_proof(pr), m_heq_proof(heq_proof) {}
-        result(expr const & out, optional<expr> const & pr, bool heq_proof = false):
-            m_expr(out), m_proof(pr), m_heq_proof(heq_proof) {}
+            m_expr(out), m_heq_proof(heq_proof), m_typem(false) {}
+        result(expr const & out, expr const & pr, bool heq_proof = false, bool typem = false):
+            m_expr(out), m_proof(pr), m_heq_proof(heq_proof), m_typem(typem) {
+            lean_assert(!heq_proof || !typem);
+        }
+        result(expr const & out, optional<expr> const & pr, bool heq_proof = false, bool typem = false):
+            m_expr(out), m_proof(pr), m_heq_proof(heq_proof), m_typem(typem) {
+            lean_assert(!heq_proof || !typem);
+        }
+        bool is_heq_proof() const { return m_heq_proof; }
+        bool is_typem() const { return m_typem; }
+        result update_expr(expr const & new_e) const { return result(new_e, m_proof, m_heq_proof, m_typem); }
     };
 
     typedef std::vector<rewrite_rule_set> rule_sets;
@@ -226,10 +234,22 @@ class simplifier_fn {
        type A is convertible to B, but not definitionally equal.
     */
     expr translate_eq_proof(expr const & A, expr const & a, expr const & b, expr const & H, expr const & B) {
-        if (A != B)
+        if (A != B) {
             return mk_subst_th(A, a, b, mk_lambda(g_x, A, mk_eq(B, a, mk_var(0))), mk_refl_th(B, a), H);
-        else
+        } else {
             return H;
+        }
+    }
+
+    expr translate_eq_typem_proof(expr const & A, expr const & a, expr const & b, expr const & H) {
+        return translate_eq_proof(A, a, b, H, mk_TypeM());
+    }
+
+    expr translate_eq_typem_proof(expr const & a, result const & b) {
+        if (b.is_typem())
+            return get_proof(b);
+        else
+            return translate_eq_proof(infer_type(a), a, b.m_expr, get_proof(b), mk_TypeM());
     }
 
     expr mk_congr1_th(expr const & f_type, expr const & f, expr const & new_f, expr const & a, expr const & Heq_f) {
@@ -243,7 +263,7 @@ class simplifier_fn {
         expr B = lower_free_vars(abst_body(f_type), 1, 1);
         expr a_type = infer_type(a);
         if (!is_definitionally_equal(A, a_type))
-            Heq_a = translate_eq_proof(a_type, a, new_a, Heq_a, A);
+            Heq_a = translate_eq_proof(a_type, a, new_a, Heq_a, A); // CHECK
         return ::lean::mk_congr2_th(A, B, a, new_a, f, Heq_a);
     }
 
@@ -253,36 +273,106 @@ class simplifier_fn {
         expr B = lower_free_vars(abst_body(f_type), 1, 1);
         expr a_type = infer_type(a);
         if (!is_definitionally_equal(A, a_type))
-            Heq_a = translate_eq_proof(a_type, a, new_a, Heq_a, A);
+            Heq_a = translate_eq_proof(a_type, a, new_a, Heq_a, A); // CHECK
         return ::lean::mk_congr_th(A, B, f, new_f, a, new_a, Heq_f, Heq_a);
     }
 
-    optional<expr> mk_hcongr_th(expr const & f_type, expr const & new_f_type, expr const & f, expr const & new_f,
-                                expr const & a, expr const & new_a, expr const & Heq_f, expr Heq_a, bool Heq_a_is_heq) {
-        expr const & A     = abst_domain(f_type);
-        expr const & new_A = abst_domain(new_f_type);
-        expr a_type        = infer_type(a);
-        expr new_a_type    = infer_type(new_a);
-        if (!is_convertible(new_a_type, new_A))
-            return none_expr(); // failed
-        if (!is_definitionally_equal(A, a_type) || !is_definitionally_equal(new_A, new_a_type)) {
-            if (Heq_a_is_heq) {
-                if (is_definitionally_equal(a_type, new_a_type) && is_definitionally_equal(A, new_A)) {
-                    Heq_a        = mk_to_eq_th(a_type, a, new_a, Heq_a);
-                    Heq_a_is_heq = false;
-                } else {
-                    return none_expr(); // we don't know how to handle this case
+    expr get_proof(result const & rhs) {
+        if (rhs.m_proof) {
+            return *rhs.m_proof;
+        } else {
+            // lhs and rhs are definitionally equal
+            return mk_refl_th(infer_type(rhs.m_expr), rhs.m_expr);
+        }
+    }
+
+    /**
+       \brief Return the type of equality.
+    */
+    expr get_eq_type(result const & rhs) {
+        if (rhs.is_typem()) {
+            return mk_TypeM();
+        } else {
+            #if LEAN_DEBUG
+            if (rhs.m_proof) {
+                expr type = infer_type(*rhs.m_proof);
+                if (is_eq(type)) {
+                    lean_assert_eq(arg(type, 1), infer_type(rhs.m_expr));
                 }
             }
-            Heq_a = translate_eq_proof(a_type, a, new_a, Heq_a, A);
+            #endif
+            return infer_type(rhs.m_expr);
         }
-        if (!Heq_a_is_heq)
-            Heq_a = mk_to_heq_th(A, a, new_a, Heq_a);
-        return some_expr(::lean::mk_hcongr_th(A,
-                                              new_A,
-                                              mk_lambda(f_type, abst_body(f_type)),
-                                              mk_lambda(new_f_type, abst_body(new_f_type)),
-                                              f, new_f, a, new_a, Heq_f, Heq_a));
+    }
+
+    /**
+       \brief Some builtin constants (e.g., eq, neq and exists) have arguments of type (Type U).
+       The congruence axiom cannot be directly used in this constants. Since, they are in (Type U+1) and the congruence
+       axioms expect arguments from (Type U). We address this issue by creating custom congruence theorems
+       for these constants. The constant theorems can only be applied if the argument is actually in (Type M).
+
+       \remark M is a universe smaller than U
+
+       For example, the custom congruence theorem for equality is
+
+       theorem eq_hcongr {A A' : TypeM} (H : A = A') : (@eq A) == (@eq A')
+    */
+    optional<expr> mk_typem_congr_th(expr const & cgr_thm, expr const & a, result const & new_a) {
+        expr Heq_a  = get_proof(new_a);
+        expr a_type = infer_type(a);
+        if (new_a.is_heq_proof())
+            Heq_a  = mk_to_eq_th(a_type, a, new_a.m_expr, Heq_a);
+
+        if (!new_a.is_typem()) {
+            if (!is_convertible(a_type, mk_TypeM()))
+                return none_expr(); // failed
+            Heq_a = translate_eq_typem_proof(a_type, a, new_a.m_expr, Heq_a);
+        }
+
+        return some_expr(cgr_thm(a, new_a.m_expr, Heq_a));
+    }
+
+    /**
+       \brief Create heterogeneous congruence proof.
+    */
+    optional<expr> mk_hcongr_th(expr const & f_type, expr const & new_f_type, expr const & f, expr const & new_f,
+                                expr const & Heq_f, expr const & a, result const & new_a) {
+        // TODO: make the following code more "customizable".
+        // We should be able to "install" new custom congruence theorem
+        if (is_eq_fn(f) && is_eq_fn(new_f)) {
+            return mk_typem_congr_th(mk_eq_hcongr_fn(), a, new_a);
+        } else if (is_exists_fn(f) && is_exists_fn(new_f)) {
+            return mk_typem_congr_th(mk_exists_hcongr_fn(), a, new_a);
+        } else if (is_neq_fn(f) && is_neq_fn(new_f)) {
+            return mk_typem_congr_th(mk_neq_hcongr_fn(), a, new_a);
+        } else {
+            expr const & A     = abst_domain(f_type);
+            expr const & new_A = abst_domain(new_f_type);
+            expr a_type        = infer_type(a);
+            expr new_a_type    = infer_type(new_a.m_expr);
+            if (!is_convertible(new_a_type, new_A))
+                return none_expr(); // failed
+            expr Heq_a         = get_proof(new_a);
+            bool is_heq_proof  = new_a.is_heq_proof();
+            if (!is_definitionally_equal(A, a_type)|| !is_definitionally_equal(new_A, new_a_type)) {
+                if (is_heq_proof) {
+                    if (is_definitionally_equal(a_type, new_a_type) && is_definitionally_equal(A, new_A)) {
+                        Heq_a        = mk_to_eq_th(a_type, a, new_a.m_expr, Heq_a);
+                        is_heq_proof = false;
+                    } else {
+                        return none_expr(); // we don't know how to handle this case
+                    }
+                }
+                Heq_a = translate_eq_proof(get_eq_type(new_a), a, new_a.m_expr, Heq_a, A);
+            }
+            if (!is_heq_proof)
+                Heq_a = mk_to_heq_th(A, a, new_a.m_expr, Heq_a);
+            return some_expr(::lean::mk_hcongr_th(A,
+                                                  new_A,
+                                                  mk_lambda(f_type, abst_body(f_type)),
+                                                  mk_lambda(new_f_type, abst_body(new_f_type)),
+                                                  f, new_f, a, new_a.m_expr, Heq_f, Heq_a));
+        }
     }
 
     /**
@@ -291,7 +381,7 @@ class simplifier_fn {
                 b_res.m_expr = c             with proof H_bc
        This method returns a new result r s.t. r.m_expr == c and a proof of a = c
     */
-    result mk_trans_result(expr const & a, result const & b_res, expr const & c, expr const & H_bc) {
+    result mk_trans_result(expr const & a, result const & b_res, expr const & c, expr H_bc) {
         if (m_proofs_enabled) {
             if (!b_res.m_proof) {
                 // The proof of a = b is reflexivity
@@ -300,15 +390,17 @@ class simplifier_fn {
                 expr const & b = b_res.m_expr;
                 expr new_proof;
                 bool heq_proof = false;
-                if (b_res.m_heq_proof) {
+                if (b_res.is_heq_proof()) {
                     expr b_type = infer_type(b);
                     new_proof = ::lean::mk_htrans_th(infer_type(a), b_type, b_type, /* b and c must have the same type */
                                                      a, b, c, *b_res.m_proof, mk_to_heq_th(b_type, b, c, H_bc));
                     heq_proof = true;
                 } else {
-                    new_proof = ::lean::mk_trans_th(infer_type(a), a, b, c, *b_res.m_proof, H_bc);
+                    if (b_res.is_typem())
+                        H_bc = translate_eq_typem_proof(infer_type(b), b, c, H_bc);
+                    new_proof = ::lean::mk_trans_th(get_eq_type(b_res), a, b, c, *b_res.m_proof, H_bc);
                 }
-                return result(c, new_proof, heq_proof);
+                return result(c, new_proof, heq_proof, b_res.is_typem());
             }
         } else {
             return result(c);
@@ -329,27 +421,39 @@ class simplifier_fn {
                 return c_res;
             } else if (!c_res.m_proof) {
                 // the proof of b == c is reflexivity
-                return result(c_res.m_expr, *b_res.m_proof, b_res.m_heq_proof);
+                return b_res.update_expr(c_res.m_expr);
             } else {
-                bool heq_proof = b_res.m_heq_proof || c_res.m_heq_proof;
+                bool heq_proof = b_res.is_heq_proof() || c_res.is_heq_proof();
                 expr new_proof;
                 expr const & b = b_res.m_expr;
                 expr const & c = c_res.m_expr;
+                bool typem = false;
                 if (heq_proof) {
                     expr a_type = infer_type(a);
                     expr b_type = infer_type(b);
                     expr c_type = infer_type(c);
                     expr H_ab   = *b_res.m_proof;
-                    if (!b_res.m_heq_proof)
+                    if (!b_res.is_heq_proof())
                         H_ab = mk_to_heq_th(a_type, a, b, H_ab);
                     expr H_bc   = *c_res.m_proof;
-                    if (!c_res.m_heq_proof)
+                    if (!c_res.is_heq_proof())
                         H_bc = mk_to_heq_th(b_type, b, c, H_bc);
                     new_proof = ::lean::mk_htrans_th(a_type, b_type, c_type, a, b, c, H_ab, H_bc);
+                } else if (b_res.is_typem() && c_res.is_typem()) {
+                    new_proof = ::lean::mk_trans_th(mk_TypeM(), a, b, c, *b_res.m_proof, *c_res.m_proof);
+                    typem = true;
+                } else if (b_res.is_typem()) {
+                    expr H_bc = translate_eq_typem_proof(infer_type(b), b, c, *c_res.m_proof);
+                    new_proof = ::lean::mk_trans_th(mk_TypeM(), a, b, c, *b_res.m_proof, H_bc);
+                    typem = true;
+                } else if (c_res.is_typem()) {
+                    expr H_ab = translate_eq_typem_proof(infer_type(a), a, b, *b_res.m_proof);
+                    new_proof = ::lean::mk_trans_th(mk_TypeM(), a, b, c, H_ab, *c_res.m_proof);
+                    typem = true;
                 } else {
                     new_proof = ::lean::mk_trans_th(infer_type(a), a, b, c, *b_res.m_proof, *c_res.m_proof);
                 }
-                return result(c, new_proof, heq_proof);
+                return result(c, new_proof, heq_proof, typem);
             }
         } else {
             // proof generation is disabled
@@ -388,7 +492,7 @@ class simplifier_fn {
                 if (res_a.m_proof) {
                     expr Hec;
                     expr Hac = *res_a.m_proof;
-                    if (!res_a.m_heq_proof) {
+                    if (!res_a.is_heq_proof()) {
                         Hec = ::lean::mk_htrans_th(B, A, A, e, a, c,
                                                    update_app(e, 0, mk_cast_heq_fn()),  // cast A B H a == a
                                                    mk_to_heq_th(B, a, c, Hac));         // a == c
@@ -423,7 +527,7 @@ class simplifier_fn {
        If it is not possible to transform it in a homogeneous equality proof, then return false.
     */
     bool ensure_homogeneous(expr const & lhs, result & rhs) {
-        if (rhs.m_heq_proof) {
+        if (rhs.is_heq_proof()) {
             // try to convert back to homogeneous
             lean_assert(rhs.m_proof);
             expr lhs_type = infer_type(lhs);
@@ -441,18 +545,12 @@ class simplifier_fn {
     }
 
     void ensure_heterogeneous(expr const & lhs, result & rhs) {
-        if (!rhs.m_heq_proof) {
-            rhs.m_proof     = mk_to_heq_th(infer_type(lhs), lhs, rhs.m_expr, get_proof(rhs));
+        if (!rhs.is_heq_proof()) {
+            if (rhs.is_typem())
+                rhs.m_proof     = mk_to_heq_th(mk_TypeM(), lhs, rhs.m_expr, get_proof(rhs));
+            else
+                rhs.m_proof     = mk_to_heq_th(infer_type(lhs), lhs, rhs.m_expr, get_proof(rhs));
             rhs.m_heq_proof = true;
-        }
-    }
-
-    expr get_proof(result const & rhs) {
-        if (rhs.m_proof) {
-            return *rhs.m_proof;
-        } else {
-            // lhs and rhs are definitionally equal
-            return mk_refl_th(infer_type(rhs.m_expr), rhs.m_expr);
         }
     }
 
@@ -554,6 +652,7 @@ class simplifier_fn {
         buffer<optional<expr>> proofs;               // used only if m_proofs_enabled
         buffer<expr>           f_types, new_f_types; // used only if m_proofs_enabled
         buffer<bool>           heq_proofs;           // used only if m_has_heq && m_proofs_enabled
+        buffer<bool>           typem_flags;
         bool changed = false;
         expr f       = arg(e, 0);
         expr f_type  = infer_type(f);
@@ -566,10 +665,12 @@ class simplifier_fn {
         if (m_proofs_enabled) {
             proofs.push_back(res_f.m_proof);
             f_types.push_back(f_type);
-            new_f_type = res_f.m_heq_proof ? infer_type(new_f) : f_type;
+            new_f_type = res_f.is_heq_proof() ? infer_type(new_f) : f_type;
             new_f_types.push_back(new_f_type);
-            if (m_has_heq)
-                heq_proofs.push_back(res_f.m_heq_proof);
+            if (m_has_heq) {
+                heq_proofs.push_back(res_f.is_heq_proof());
+                typem_flags.push_back(res_f.is_typem());
+            }
         }
         unsigned num = num_args(e);
         for (unsigned i = 1; i < num; i++) {
@@ -586,8 +687,10 @@ class simplifier_fn {
             new_args.push_back(new_a);
             if (m_proofs_enabled) {
                 proofs.push_back(res_a.m_proof);
-                if (m_has_heq)
-                    heq_proofs.push_back(res_a.m_heq_proof);
+                if (m_has_heq) {
+                    heq_proofs.push_back(res_a.is_heq_proof());
+                    typem_flags.push_back(res_a.is_typem());
+                }
                 bool changed_f_type = !is_eqp(f_type, new_f_type);
                 if (f_arrow) {
                     f_type     = lower_free_vars(abst_body(f_type), 1, 1);
@@ -625,8 +728,8 @@ class simplifier_fn {
             } else if (m_has_heq && (heq_proofs[i] || !is_arrow(f_types[i-1]))) {
                 expr f = mk_app_prefix(i, new_args);
                 expr pr_i = *proofs[i];
-                auto new_pr = mk_hcongr_th(f_types[i-1], f_types[i-1], f, f, arg(e, i), new_args[i],
-                                           mk_hrefl_th(f_types[i-1], f), pr_i, heq_proofs[i]);
+                auto new_pr = mk_hcongr_th(f_types[i-1], f_types[i-1], f, f, mk_hrefl_th(f_types[i-1], f),
+                                           arg(e, i), result(new_args[i], pr_i, heq_proofs[i], typem_flags[i]));
                 if (!new_pr)
                     return rewrite_app(e, result(e)); // failed to create congruence proof
                 pr = *new_pr;
@@ -644,13 +747,16 @@ class simplifier_fn {
                     if (m_has_heq && heq_proofs[i]) {
                         if (!heq_proof)
                             pr = mk_to_heq_th(f_types[i], f, new_f, pr);
-                        auto new_pr = mk_hcongr_th(f_types[i-1], new_f_types[i-1], f, new_f, arg(e, i), new_args[i], pr, pr_i, true);
+                        auto new_pr = mk_hcongr_th(f_types[i-1], new_f_types[i-1], f, new_f, pr,
+                                                   arg(e, i), result(new_args[i], pr_i, true));
                         if (!new_pr)
                             return rewrite_app(e, result(e)); // failed to create congruence proof
                         pr = *new_pr;
                         heq_proof = true;
                     } else if (heq_proof) {
-                        auto new_pr = mk_hcongr_th(f_types[i-1], new_f_types[i-1], f, new_f, arg(e, i), new_args[i], pr, pr_i, heq_proofs[i]);
+                        lean_assert(!heq_proofs[i]);
+                        auto new_pr = mk_hcongr_th(f_types[i-1], new_f_types[i-1], f, new_f, pr,
+                                                   arg(e, i), result(new_args[i], pr_i, false, typem_flags[i]));
                         if (!new_pr)
                             return rewrite_app(e, result(e)); // failed to create congruence proof
                         pr = *new_pr;
@@ -658,8 +764,8 @@ class simplifier_fn {
                         pr = mk_congr_th(f_types[i-1], f, new_f, arg(e, i), new_args[i], pr, pr_i);
                     }
                 } else if (heq_proof) {
-                    auto new_pr = mk_hcongr_th(f_types[i-1], new_f_types[i-1], f, new_f, arg(e, i), arg(e, i),
-                                               pr, mk_refl_th(infer_type(arg(e, i)), arg(e, i)), false);
+                    auto new_pr = mk_hcongr_th(f_types[i-1], new_f_types[i-1], f, new_f, pr,
+                                               arg(e, i), result(arg(e, i)));
                     if (!new_pr)
                         return rewrite_app(e, result(e)); // failed to create congruence proof
                     pr = *new_pr;
@@ -722,7 +828,7 @@ class simplifier_fn {
             if (is_value(new_rhs)) {
                 // We don't need to create a new proof term since rhs.m_expr and new_rhs are
                 // definitionally equal.
-                return rewrite(lhs, result(new_rhs, rhs.m_proof, rhs.m_heq_proof));
+                return rewrite(lhs, rhs.update_expr(new_rhs));
             }
         }
 
@@ -730,9 +836,8 @@ class simplifier_fn {
         if (m_beta && is_lambda(f)) {
             expr new_rhs = head_beta_reduce(rhs.m_expr);
             // rhs.m_expr and new_rhs are also definitionally equal
-            return rewrite(lhs, result(new_rhs, rhs.m_proof, rhs.m_heq_proof));
+            return rewrite(lhs, rhs.update_expr(new_rhs));
         }
-
         return rewrite(lhs, rhs);
     }
 
@@ -954,7 +1059,7 @@ class simplifier_fn {
         expr new_e = mk_lambda(e, abstract(new_bi, fresh_const));
         if (!m_proofs_enabled || !res_bi.m_proof)
             return rewrite_lambda(e, result(new_e));
-        if (res_bi.m_heq_proof) {
+        if (res_bi.is_heq_proof()) {
             lean_assert(m_has_heq);
             // Using
             // theorem hsfunext {A : TypeM} {B B' : A → TypeU} {f : ∀ x, B x} {f' : ∀ x, B' x} :
@@ -976,125 +1081,209 @@ class simplifier_fn {
         }
     }
 
+    /**
+       \brief Simplify a lambda abstraction when the heq module is available.
+       In this case, we can simplify the domain and body of the lambda expression.
+    */
+    result simplify_lambda_with_heq(expr const & e) {
+        expr const & d = abst_domain(e);
+        result res_d   = simplify(d);
+        expr new_d     = res_d.m_expr;
+        if (is_eqp(d, new_d))
+            return simplify_lambda_body(e);
+        if (is_definitionally_equal(d, new_d))
+            return simplify_lambda_body(update_lambda(e, new_d, abst_body(e)));
+        // d and new_d are only provably equal, so we need to use hfunext
+        expr x_old            = mk_fresh_const(d);
+        expr x_new            = mk_fresh_const(new_d);
+        expr x_old_eq_x_new   = mk_heq(d, new_d, x_old, x_new);
+        expr H_x_old_eq_x_new = mk_fresh_const(x_old_eq_x_new);
+        expr bi               = instantiate(abst_body(e), x_old);
+        result res_bi         = simplify_remapping_constant(bi, x_old, x_new, H_x_old_eq_x_new);
+        expr new_bi           = res_bi.m_expr;
+        if (occurs(x_old, new_bi)) {
+            // failed, simplifier didn't manage to replace x_old with x_new
+            return rewrite(e, result(e));
+        }
+        expr new_e   = update_lambda(e, new_d, abstract(new_bi, x_new));
+        if (!m_proofs_enabled)
+            return rewrite(e, result(new_e));
+        ensure_homogeneous(d, res_d);
+        ensure_heterogeneous(bi, res_bi);
+        // Using
+        // axiom hfunext {A A' : TypeM} {B : A → TypeU} {B' : A' → TypeU} {f : ∀ x, B x} {f' : ∀ x, B' x} :
+        //          A = A' → (∀ x x', x == x' → f x == f' x') → f == f'
+        // Remark: the argument with type A = A' is actually @eq TypeM A A',
+        // so we need to translate the proof d_eq_new_d_proof : d = new_d   to a TypeM equality proof
+        expr d_eq_new_d_proof = translate_eq_typem_proof(d, res_d);
+        expr new_proof = mk_hfunext_th(d,      // A
+                                       new_d,  // A'
+                                       Fun(x_old, d, infer_type(bi)),         // B
+                                       Fun(x_new, new_d, infer_type(new_bi)), // B'
+                                       e,      // f
+                                       new_e,  // f'
+                                       d_eq_new_d_proof, // A = A'
+                                       // fun (x_old : d) (x_new : new_d) (H : x_old == x_new), bi == new_bi
+                                       mk_lambda(abst_name(e), d,
+                                                 mk_lambda(name(abst_name(e), 1), lift_free_vars(new_d, 0, 1),
+                                                           mk_lambda(name(g_H, m_next_idx++), abstract(x_old_eq_x_new, {x_old, x_new}),
+                                                                     abstract(*res_bi.m_proof, {x_old, x_new, H_x_old_eq_x_new})))));
+        return rewrite(e, result(new_e, new_proof, true));
+    }
+
     result simplify_lambda(expr const & e) {
         lean_assert(is_lambda(e));
         if (m_has_heq) {
-            expr const & d = abst_domain(e);
-            result res_d   = simplify(d);
-            expr new_d     = res_d.m_expr;
-            if (is_eqp(d, new_d))
-                return simplify_lambda_body(e);
-            if (is_definitionally_equal(d, new_d))
-                return simplify_lambda_body(update_lambda(e, new_d, abst_body(e)));
-            // d and new_d are only provably equal, so we need to use hfunext
-            expr x_old            = mk_fresh_const(d);
-            expr x_new            = mk_fresh_const(new_d);
-            expr x_old_eq_x_new   = mk_heq(d, new_d, x_old, x_new);
-            expr H_x_old_eq_x_new = mk_fresh_const(x_old_eq_x_new);
-            expr bi               = instantiate(abst_body(e), x_old);
-            result res_bi         = simplify_remapping_constant(bi, x_old, x_new, H_x_old_eq_x_new);
-            expr new_bi           = res_bi.m_expr;
-            if (occurs(x_old, new_bi)) {
-                // failed, simplifier didn't manage to replace x_old with x_new
-                return rewrite(e, result(e));
-            }
-            expr new_e   = update_lambda(e, new_d, abstract(new_bi, x_new));
-            if (!m_proofs_enabled)
-                return rewrite(e, result(new_e));
-            ensure_homogeneous(d, res_d);
-            ensure_heterogeneous(bi, res_bi);
-            expr d_eq_new_d_proof = *res_d.m_proof;
-            // Using
-            // axiom hfunext {A A' : TypeM} {B : A → TypeU} {B' : A' → TypeU} {f : ∀ x, B x} {f' : ∀ x, B' x} :
-            //          A = A' → (∀ x x', x == x' → f x == f' x') → f == f'
-            // Remark: the argument with type A = A' is actually @eq TypeM A A',
-            // so we need to translate the proof d_eq_new_d_proof : d = new_d   to a TypeM equality proof
-            d_eq_new_d_proof = translate_eq_proof(infer_type(d), d, new_d, d_eq_new_d_proof, mk_TypeM());
-            expr new_proof = mk_hfunext_th(d,      // A
-                                           new_d,  // A'
-                                           Fun(x_old, d, infer_type(bi)),         // B
-                                           Fun(x_new, new_d, infer_type(new_bi)), // B'
-                                           e,      // f
-                                           new_e,  // f'
-                                           d_eq_new_d_proof, // A = A'
-                                           // fun (x_old : d) (x_new : new_d) (H : x_old == x_new), bi == new_bi
-                                           mk_lambda(abst_name(e), d,
-                                                     mk_lambda(name(abst_name(e), 1), lift_free_vars(new_d, 0, 1),
-                                                               mk_lambda(name(g_H, m_next_idx++), abstract(x_old_eq_x_new, {x_old, x_new}),
-                                                                         abstract(*res_bi.m_proof, {x_old, x_new, H_x_old_eq_x_new})))));
-            return rewrite(e, result(new_e, new_proof, true));
+            return simplify_lambda_with_heq(e);
         } else {
             return simplify_lambda_body(e);
         }
     }
 
-    result simplify_pi(expr const & e) {
-        lean_assert(is_pi(e));
+    /**
+       \brief Simplify A -> B
+    */
+    result simplify_implication(expr const & e) {
         expr const & d = abst_domain(e);
         expr b = abst_body(e);
-        bool is_prop   = is_proposition(e);
-        bool is_d_prop = is_proposition(d);
-        bool is_arr    = is_arrow(e);
-        if (is_d_prop && is_arr) {
-            if (m_contextual) {
-                // Contextual simplification for A -> B
-                // Rewrite A to A'
-                // And rewrite B to B' using A'
-                result res_d  = simplify(d);
-                ensure_homogeneous(d, res_d);
-                expr new_d    = res_d.m_expr;
-                expr H        = mk_fresh_const(new_d);
-                expr bi       = lower_free_vars(b, 1, 1);
-                result res_bi = simplify_using(bi, H);
-                expr new_bi   = res_bi.m_expr;
-                ensure_homogeneous(bi, res_bi);
-                if (is_eqp(new_d, d) && is_eqp(new_bi, bi))
-                    return rewrite(e, result(e));
-                expr new_e = update_pi(e, new_d, lift_free_vars(new_bi, 0, 1));
-                if (!m_proofs_enabled)
-                    return rewrite(e, result(new_e));
-                name C_name(g_C, m_next_idx++);
-                expr new_proof = mk_imp_congr_th(d, bi, new_d, new_bi,
-                                                 get_proof(res_d), mk_lambda(C_name, new_d, abstract(get_proof(res_bi), H)));
-                return rewrite(e, result(new_e, new_proof));
-            } else {
-                // Simplify A -> B (when m_contextual == false)
-                result res_d  = simplify(d);
-                expr new_d    = res_d.m_expr;
-                ensure_homogeneous(d, res_d);
-                expr bi       = lower_free_vars(b, 1, 1);
-                result res_bi = simplify(bi);
-                expr new_bi   = res_bi.m_expr;
-                ensure_homogeneous(bi, res_bi);
-                if (is_eqp(new_d, d) && is_eqp(new_bi, bi))
-                    return rewrite(e, result(e));
-                expr new_e = update_pi(e, new_d, lift_free_vars(new_bi, 0, 1));
-                if (!m_proofs_enabled)
-                    return rewrite(e, result(new_e));
-                expr new_proof = mk_imp_congr_th(d, bi, new_d, new_bi,
-                                                 get_proof(res_d), mk_lambda(g_H, new_d, lift_free_vars(get_proof(res_bi), 0, 1)));
-                return rewrite(e, result(new_e, new_proof));
-            }
-        } else if (m_has_heq) {
-            // TODO(Leo)
-            return result(e);
-        } else if (is_prop) {
-            // Simplify (forall x : A, P x)
-            expr fresh_const = mk_fresh_const(abst_domain(e));
-            expr bi          = instantiate(b, fresh_const);
-            result res_bi    = simplify(bi);
-            expr new_bi      = res_bi.m_expr;
-            lean_assert(!res_bi.m_heq_proof);
-            if (is_eqp(new_bi, bi))
+        if (m_contextual) {
+            // Contextual simplification for A -> B
+            // Rewrite A to A'
+            // And rewrite B to B' using A'
+            result res_d  = simplify(d);
+            ensure_homogeneous(d, res_d);
+            expr new_d    = res_d.m_expr;
+            expr H        = mk_fresh_const(new_d);
+            expr bi       = lower_free_vars(b, 1, 1);
+            result res_bi = simplify_using(bi, H);
+            expr new_bi   = res_bi.m_expr;
+            ensure_homogeneous(bi, res_bi);
+            if (is_eqp(new_d, d) && is_eqp(new_bi, bi))
                 return rewrite(e, result(e));
-            expr new_e = mk_pi(abst_name(e), d, abstract(new_bi, fresh_const));
-            if (!m_proofs_enabled || !res_bi.m_proof)
+            expr new_e = update_pi(e, new_d, lift_free_vars(new_bi, 0, 1));
+            if (!m_proofs_enabled)
                 return rewrite(e, result(new_e));
-            expr new_proof = mk_allext_th(d,
-                                          mk_lambda(e, b),
-                                          mk_lambda(e, abst_body(new_e)),
-                                          mk_lambda(e, abstract(*res_bi.m_proof, fresh_const)));
+            name C_name(g_C, m_next_idx++);
+            expr new_proof = mk_imp_congr_th(d, bi, new_d, new_bi,
+                                             get_proof(res_d), mk_lambda(C_name, new_d, abstract(get_proof(res_bi), H)));
             return rewrite(e, result(new_e, new_proof));
+        } else {
+            // Simplify A -> B (when m_contextual == false)
+            result res_d  = simplify(d);
+            expr new_d    = res_d.m_expr;
+            ensure_homogeneous(d, res_d);
+            expr bi       = lower_free_vars(b, 1, 1);
+            result res_bi = simplify(bi);
+            expr new_bi   = res_bi.m_expr;
+            ensure_homogeneous(bi, res_bi);
+            if (is_eqp(new_d, d) && is_eqp(new_bi, bi))
+                return rewrite(e, result(e));
+            expr new_e = update_pi(e, new_d, lift_free_vars(new_bi, 0, 1));
+            if (!m_proofs_enabled)
+                return rewrite(e, result(new_e));
+            expr new_proof = mk_imp_congr_th(d, bi, new_d, new_bi,
+                                             get_proof(res_d), mk_lambda(g_H, new_d, lift_free_vars(get_proof(res_bi), 0, 1)));
+            return rewrite(e, result(new_e, new_proof));
+        }
+    }
+
+    /**
+       \brief Simplify the body of (forall x : A, P x), when P x is a proposition.
+    */
+    result simplify_forall_body(expr const & e) {
+        expr fresh_const = mk_fresh_const(abst_domain(e));
+        expr const & d   = abst_domain(e);
+        expr b           = abst_body(e);
+        expr bi          = instantiate(b, fresh_const);
+        result res_bi    = simplify(bi);
+        expr new_bi      = res_bi.m_expr;
+        if (is_eqp(new_bi, bi))
+            return rewrite(e, result(e));
+        expr new_e = mk_pi(abst_name(e), d, abstract(new_bi, fresh_const));
+        if (!m_proofs_enabled || !res_bi.m_proof)
+            return rewrite(e, result(new_e));
+        ensure_homogeneous(bi, res_bi);
+        expr new_proof = mk_allext_th(d,
+                                      mk_lambda(e, b),
+                                      mk_lambda(e, abst_body(new_e)),
+                                      mk_lambda(e, abstract(*res_bi.m_proof, fresh_const)));
+        return rewrite(e, result(new_e, new_proof));
+    }
+
+    /**
+       \brief Simplify (forall x : A, P x) when the heq module is available.
+       In this case, we can simplify the domain and body of the Pi/forall expression.
+    */
+    result simplify_pi_with_heq(expr const & e) {
+        expr const & d = abst_domain(e);
+        result res_d   = simplify(d);
+        expr new_d     = res_d.m_expr;
+        bool is_prop   = is_proposition(e);
+        if (is_eqp(d, new_d) && is_prop)
+            return simplify_forall_body(e);
+        if (is_definitionally_equal(d, new_d) && is_prop)
+            return simplify_forall_body(update_pi(e, new_d, abst_body(e)));
+        // d and new_d are only provably equal, so we need to use hpiext or hallext
+        expr x_old            = mk_fresh_const(d);
+        expr x_new            = mk_fresh_const(new_d);
+        expr x_old_eq_x_new   = mk_heq(d, new_d, x_old, x_new);
+        expr H_x_old_eq_x_new = mk_fresh_const(x_old_eq_x_new);
+        expr bi               = instantiate(abst_body(e), x_old);
+        result res_bi         = simplify_remapping_constant(bi, x_old, x_new, H_x_old_eq_x_new);
+        expr new_bi           = res_bi.m_expr;
+        if (occurs(x_old, new_bi)) {
+            // failed, simplifier didn't manage to replace x_old with x_new
+            return rewrite(e, result(e));
+        }
+        expr new_e   = update_pi(e, new_d, abstract(new_bi, x_new));
+        if (!m_proofs_enabled || is_definitionally_equal(e, new_e))
+            return rewrite(e, result(new_e));
+        ensure_homogeneous(d, res_d);
+        ensure_homogeneous(bi, res_bi);
+        // Remark: the argument with type A = A' in hallext and hpiext is actually @eq TypeM A A',
+        // so we need to translate the proof d_eq_new_d_proof : d = new_d   to a TypeM equality proof
+        expr d_eq_new_d_proof = translate_eq_typem_proof(d, res_d);
+        expr bi_eq_new_bi_proof;
+        if (is_prop)
+            bi_eq_new_bi_proof  = get_proof(res_bi);
+        else
+            bi_eq_new_bi_proof  = translate_eq_typem_proof(bi, res_bi);
+        // Heqb : (∀ x x', x == x' → B x = B' x')
+        expr Heqb = mk_lambda(abst_name(e), d,
+                              mk_lambda(name(abst_name(e), 1), lift_free_vars(new_d, 0, 1),
+                                        mk_lambda(name(g_H, m_next_idx++), abstract(x_old_eq_x_new, {x_old, x_new}),
+                                                  abstract(bi_eq_new_bi_proof, {x_old, x_new, H_x_old_eq_x_new}))));
+        if (is_prop) {
+            // Using
+            // theorem hallext {A A' : TypeM} {B : A → Bool} {B' : A' → Bool} :
+            //    A = A' → (∀ x x', x == x' → B x = B' x') → (∀ x, B x) = (∀ x, B' x)
+            expr new_proof = mk_hallext_th(d, new_d,
+                                           Fun(x_old, d, bi),         // B
+                                           Fun(x_new, new_d, new_bi), // B'
+                                           d_eq_new_d_proof,          // A = A'
+                                           Heqb);
+            return rewrite(e, result(new_e, new_proof));
+        } else {
+            // Using
+            //  axiom hpiext {A A' : TypeM} {B : A → TypeM} {B' : A' → TypeM} :
+            //     A = A' → (∀ x x', x == x' → B x = B' x') → (∀ x, B x) = (∀ x, B' x)
+            expr new_proof = mk_hpiext_th(d, new_d,
+                                          Fun(x_old, d, bi),         // B
+                                          Fun(x_new, new_d, new_bi), // B'
+                                          d_eq_new_d_proof, // A = A'
+                                          Heqb);
+            return rewrite(e, result(new_e, new_proof, false, true));
+        }
+    }
+
+    result simplify_pi(expr const & e) {
+        lean_assert(is_pi(e));
+        if (is_proposition(abst_domain(e)) && is_arrow(e)) {
+            return simplify_implication(e);
+        } else if (m_has_heq) {
+            return simplify_pi_with_heq(e);
+        } else if (is_proposition(e)) {
+            return simplify_forall_body(e);
         } else {
             // if the environment does not contain heq axioms, then we don't simplify Pi's that are not forall's
             return result(e);
@@ -1103,7 +1292,7 @@ class simplifier_fn {
 
     result save(expr const & e, result const & r) {
         if (m_memoize) {
-            result new_r(m_max_sharing(r.m_expr), r.m_proof, r.m_heq_proof);
+            result new_r = r.update_expr(m_max_sharing(r.m_expr));
             m_cache.insert(mk_pair(e, new_r));
             return new_r;
         } else {

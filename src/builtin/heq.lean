@@ -41,12 +41,16 @@ theorem hsfunext {A : TypeM} {B B' : A → TypeU} {f : ∀ x, B x} {f' : ∀ x, 
                    in htrans s1 s2)
 
 axiom hpiext {A A' : TypeM} {B : A → TypeM} {B' : A' → TypeM} :
-      A = A' → (∀ x x', x == x' → B x = B' x') → (∀ x, B x) == (∀ x, B' x)
+      A = A' → (∀ x x', x == x' → B x = B' x') → (∀ x, B x) = (∀ x, B' x)
 
-theorem hallext {A A' : TypeM} {B : A → Bool} {B' : A' → Bool} :
-      A = A' → (∀ x x', x == x' → B x = B' x') → (∀ x, B x) == (∀ x, B' x)
--- We can't just invoke hpiext because the equality B x = B' x' is actually  (@eq Bool (B x) (B' x')),
--- and hpiext expects (@eq TypeM (B x) (B' x')).
--- We move (@eq Bool (B x) (B' x')) to (@eq TypeM (B x) (B' x')) by using
--- the following trick. We say it is a "universe" bump.
-:= λ H1 H2, hpiext H1 (λ x x' Heq, subst (refl (B x)) (H2 x x' Heq))
+axiom hallext {A A' : TypeM} {B : A → Bool} {B' : A' → Bool} :
+      A = A' → (∀ x x', x == x' → B x = B' x') → (∀ x, B x) = (∀ x, B' x)
+
+theorem eq_hcongr {A A' : TypeM} (H : A = A') : (@eq A) == (@eq A')
+:= substp (λ x : TypeM, (@eq A) == (@eq x)) (hrefl (@eq A)) H
+
+theorem neq_hcongr {A A' : TypeM} (H : A = A') : (@neq A) == (@neq A')
+:= substp (λ x : TypeM, (@neq A) == (@neq x)) (hrefl (@neq A)) H
+
+theorem exists_hcongr {A A' : TypeM} (H : A = A') : (Exists A) == (Exists A')
+:= substp (λ x : TypeM, (Exists A) == (Exists x)) (hrefl (Exists A)) H

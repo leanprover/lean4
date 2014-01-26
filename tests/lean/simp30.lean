@@ -15,33 +15,21 @@ add_rewrite Nat::add_assoc Nat::add_zeror eq_id : simple
 add_rewrite concat_assoc concat_empty Nat::add_assoc Nat::add_zeror : simple
 
 (*
-local t = parse_lean('λ n : Nat, λ v : vec n, v ; empty')
+local t = parse_lean('∀ (n : Nat) (v : vec (n + 0)) (w : vec n), v = w ; empty')
+print(t)
 local t2, pr = simplify(t, "simple")
+print("====>")
 print(t2)
--- print(pr)
-get_environment():type_check(pr)
-*)
-
-variable f {A : Type} : A → A
-
-(*
-local t = parse_lean('λ n : Nat, λ v : vec (n + 0), (f v) ; empty')
-local t2, pr = simplify(t, "simple")
-print(t2)
--- print(pr)
 get_environment():type_check(pr)
 *)
 
 print ""
 
-variable lheq {A B : TypeM} : A → B → Bool
-infixl 50 === : lheq
 (*
-local t = parse_lean('λ val : Nat, (λ n : Nat, λ v : vec (n + 0), (f v) ; empty) val === (λ n : Nat, λ v : vec (n + 0), v) val')
+local t = parse_lean('λ n : Nat, ∃ (v : vec (n + 0)) (w : vec n), v ≠ w ; empty')
 print(t)
-print("=====>")
 local t2, pr = simplify(t, "simple")
+print("====>")
 print(t2)
--- print(pr)
 get_environment():type_check(pr)
 *)

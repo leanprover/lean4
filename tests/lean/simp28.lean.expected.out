@@ -9,3 +9,8 @@
 λ (n : ℕ) (v : vec n), v
   Assumed: f
 λ n : ℕ, f
+
+  Assumed: lheq
+λ val : ℕ, (λ (n : ℕ) (v : vec (n + 0)), f v ; empty) val === (λ (n : ℕ) (v : vec (n + 0)), v) val
+=====>
+λ val : ℕ, f === (λ v : vec val, v)

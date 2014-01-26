@@ -317,6 +317,8 @@ class simplifier_fn {
         } else if (is_constant(e)) {
             auto obj = m_env->find_object(const_name(e));
             return obj && obj->is_definition() && is_TypeU(obj->get_value());
+        } else {
+            return false;
         }
     }
 
@@ -1155,7 +1157,7 @@ class simplifier_fn {
     }
 
     /**
-       \brief Simplify A -> B
+       \brief Simplify A -> B when A -> B is a proposition.
     */
     result simplify_implication(expr const & e) {
         expr const & d = abst_domain(e);
@@ -1199,6 +1201,81 @@ class simplifier_fn {
                                              get_proof(res_d), mk_lambda(g_H, new_d, lift_free_vars(get_proof(res_bi), 0, 1)));
             return rewrite(e, result(new_e, new_proof));
         }
+    }
+
+    /**
+       \brief Simplify the domain of an arrow type A -> B when it is not a proposition.
+
+       This procedure can be used even when the heq module is not available.
+    */
+    result simplify_arrow_domain(expr const & e) {
+        lean_assert(is_arrow(e));
+        expr const & A     = abst_domain(e);
+        result res_A       = simplify(A);
+        expr const & new_A = res_A.m_expr;
+        if (is_eqp(A, new_A)) {
+            return result(e);
+        } else if (!m_proofs_enabled || is_definitionally_equal(A, new_A)) {
+            return result(update_pi(e, new_A, abst_body(e)));
+        } else {
+            expr e_type        = infer_type(e);
+            if (is_TypeU(e_type) || !ensure_homogeneous(A, res_A)) {
+                return result(e); // failed, we can't use subst theorem
+            } else {
+                expr H = get_proof(res_A);
+                // We create the following proof term for (@eq (e_type) (A -> B) (new_A -> B))
+                //   @subst A_type A new_A (fun x : A_type, (@eq e_type (A -> B) (x -> B))) (@refl e_type (A -> B)) H
+                expr A_type    = infer_type(A);
+                expr x_arrow_B = update_pi(e, Var(0), abst_body(e));
+                expr new_proof = mk_subst_th(A_type, A, new_A,
+                                             mk_lambda(g_x, A_type, mk_eq(e_type, e, x_arrow_B)),
+                                             mk_refl_th(e_type, e),
+                                             H);
+                return result(update_pi(e, new_A, abst_body(e)), new_proof);
+            }
+        }
+    }
+
+    /**
+       \brief Simplify the body of an arrow type A -> B when it is not a proposition.
+
+       This procedure can be used even when the heq module is not available.
+    */
+    result simplify_arrow_body(expr const & e) {
+        lean_assert(is_arrow(e));
+        expr const & B     = lower_free_vars(abst_body(e), 1, 1);
+        result res_B       = simplify(B);
+        expr const & new_B = res_B.m_expr;
+        if (is_eqp(B, new_B)) {
+            return result(e);
+        } else if (!m_proofs_enabled || is_definitionally_equal(B, new_B)) {
+            return result(update_pi(e, abst_domain(e), lift_free_vars(new_B, 1, 1)));
+        } else {
+            expr e_type        = infer_type(e);
+            if (is_TypeU(e_type) || !ensure_homogeneous(B, res_B)) {
+                return result(e); // failed, we can't use subst theorem
+            } else {
+                expr H = get_proof(res_B);
+                // We create the following proof term for (@eq (e_type) (A -> B) (A -> new_B))
+                //   @subst B_type B new_B (fun x : B_type, (@eq e_type (A -> B) (A -> x))) (@refl e_type (A -> B)) H
+                expr B_type    = infer_type(B);
+                expr A_arrow_x = update_pi(e, abst_domain(e), Var(1));
+                expr new_proof = mk_subst_th(B_type, B, new_B,
+                                             mk_lambda(g_x, B_type, mk_eq(e_type, e, A_arrow_x)),
+                                             mk_refl_th(e_type, e),
+                                             H);
+                return result(update_pi(e, abst_domain(e), lift_free_vars(new_B, 1, 1)), new_proof);
+            }
+        }
+    }
+
+    /**
+       \brief Simplify A -> B when A -> B is a not proposition.
+    */
+    result simplify_arrow(expr const & e) {
+        result r1 = simplify_arrow_body(e);
+        result r2 = simplify_arrow_domain(r1.m_expr);
+        return rewrite(e, mk_trans_result(e, r1, r2));
     }
 
     /**
@@ -1292,8 +1369,11 @@ class simplifier_fn {
 
     result simplify_pi(expr const & e) {
         lean_assert(is_pi(e));
-        if (is_proposition(abst_domain(e)) && is_arrow(e)) {
-            return simplify_implication(e);
+        if (is_arrow(e)) {
+            if (is_proposition(abst_domain(e)))
+                return simplify_implication(e);
+            else
+                return simplify_arrow(e);
         } else if (m_has_heq) {
             return simplify_pi_with_heq(e);
         } else if (is_proposition(e)) {

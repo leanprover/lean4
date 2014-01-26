@@ -1282,6 +1282,7 @@ class simplifier_fn {
        \brief Simplify the body of (forall x : A, P x), when P x is a proposition.
     */
     result simplify_forall_body(expr const & e) {
+        lean_assert(is_pi(e) && is_proposition(e));
         expr fresh_const = mk_fresh_const(abst_domain(e));
         expr const & d   = abst_domain(e);
         expr b           = abst_body(e);
@@ -1302,17 +1303,24 @@ class simplifier_fn {
     }
 
     /**
-       \brief Simplify (forall x : A, P x) when the heq module is available.
-       In this case, we can simplify the domain and body of the Pi/forall expression.
+       \brief Simplify (forall x : A, P x) proposition when the heq module is available.
+       In this case, we can simplify the domain and body of the forall expression.
     */
-    result simplify_pi_with_heq(expr const & e) {
+    result simplify_forall_with_heq(expr const & e) {
+        lean_assert(is_pi(e) && is_proposition(e));
+        // We don't support Pi's that are not proposition yet.
+        // The problem is that
+        //  axiom hpiext {A A' : TypeM} {B : A → TypeM} {B' : A' → TypeM} :
+        //     A = A' → (∀ x x', x == x' → B x = B' x') → (∀ x, B x) = (∀ x, B' x)
+        //  produces an equality in TypeM even if A, A', B and B' live in smaller universes.
+        //
+        // This limitation does not seem to be a big problem in practice.
         expr const & d = abst_domain(e);
         result res_d   = simplify(d);
         expr new_d     = res_d.m_expr;
-        bool is_prop   = is_proposition(e);
-        if (is_eqp(d, new_d) && is_prop)
+        if (is_eqp(d, new_d))
             return simplify_forall_body(e);
-        if (is_definitionally_equal(d, new_d) && is_prop)
+        if (is_definitionally_equal(d, new_d))
             return simplify_forall_body(update_pi(e, new_d, abst_body(e)));
         // d and new_d are only provably equal, so we need to use hpiext or hallext
         expr x_old            = mk_fresh_const(d);
@@ -1333,38 +1341,22 @@ class simplifier_fn {
         ensure_homogeneous(bi, res_bi);
         // Remark: the argument with type A = A' in hallext and hpiext is actually @eq TypeM A A',
         // so we need to translate the proof d_eq_new_d_proof : d = new_d   to a TypeM equality proof
-        expr d_eq_new_d_proof = translate_eq_typem_proof(d, res_d);
-        expr bi_eq_new_bi_proof;
-        if (is_prop)
-            bi_eq_new_bi_proof  = get_proof(res_bi);
-        else
-            bi_eq_new_bi_proof  = translate_eq_typem_proof(bi, res_bi);
+        expr d_eq_new_d_proof   = translate_eq_typem_proof(d, res_d);
+        expr bi_eq_new_bi_proof = get_proof(res_bi);
         // Heqb : (∀ x x', x == x' → B x = B' x')
         expr Heqb = mk_lambda(abst_name(e), d,
                               mk_lambda(name(abst_name(e), 1), lift_free_vars(new_d, 0, 1),
                                         mk_lambda(name(g_H, m_next_idx++), abstract(x_old_eq_x_new, {x_old, x_new}),
                                                   abstract(bi_eq_new_bi_proof, {x_old, x_new, H_x_old_eq_x_new}))));
-        if (is_prop) {
-            // Using
-            // theorem hallext {A A' : TypeM} {B : A → Bool} {B' : A' → Bool} :
-            //    A = A' → (∀ x x', x == x' → B x = B' x') → (∀ x, B x) = (∀ x, B' x)
-            expr new_proof = mk_hallext_th(d, new_d,
-                                           Fun(x_old, d, bi),         // B
-                                           Fun(x_new, new_d, new_bi), // B'
-                                           d_eq_new_d_proof,          // A = A'
-                                           Heqb);
-            return rewrite(e, result(new_e, new_proof));
-        } else {
-            // Using
-            //  axiom hpiext {A A' : TypeM} {B : A → TypeM} {B' : A' → TypeM} :
-            //     A = A' → (∀ x x', x == x' → B x = B' x') → (∀ x, B x) = (∀ x, B' x)
-            expr new_proof = mk_hpiext_th(d, new_d,
-                                          Fun(x_old, d, bi),         // B
-                                          Fun(x_new, new_d, new_bi), // B'
-                                          d_eq_new_d_proof, // A = A'
-                                          Heqb);
-            return rewrite(e, result(new_e, new_proof, false, true));
-        }
+        // Using
+        // theorem hallext {A A' : TypeM} {B : A → Bool} {B' : A' → Bool} :
+        //    A = A' → (∀ x x', x == x' → B x = B' x') → (∀ x, B x) = (∀ x, B' x)
+        expr new_proof = mk_hallext_th(d, new_d,
+                                       Fun(x_old, d, bi),         // B
+                                       Fun(x_new, new_d, new_bi), // B'
+                                       d_eq_new_d_proof,          // A = A'
+                                       Heqb);
+        return rewrite(e, result(new_e, new_proof));
     }
 
     result simplify_pi(expr const & e) {
@@ -1374,12 +1366,13 @@ class simplifier_fn {
                 return simplify_implication(e);
             else
                 return simplify_arrow(e);
-        } else if (m_has_heq) {
-            return simplify_pi_with_heq(e);
         } else if (is_proposition(e)) {
-            return simplify_forall_body(e);
+            if (m_has_heq)
+                return simplify_forall_with_heq(e);
+            else
+                return simplify_forall_body(e);
         } else {
-            // if the environment does not contain heq axioms, then we don't simplify Pi's that are not forall's
+            // We currently do simplify (forall x : A, B x) when it is not a proposition.
             return result(e);
         }
     }

@@ -1,0 +1,11 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Imported 'cast'
+  Assumed: vec
+  Assumed: concat
+  Assumed: concat_assoc
+  Assumed: empty
+  Assumed: concat_empty
+λ (n : ℕ) (v : vec n), v
+  Assumed: f
+λ n : ℕ, f

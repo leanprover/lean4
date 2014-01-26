@@ -18,6 +18,7 @@ namespace lean {
 */
 expr abstract(expr const & e, unsigned n, expr const * s);
 inline expr abstract(expr const & e, expr const & s) { return abstract(e, 1, &s); }
+inline expr abstract(expr const & e, std::initializer_list<expr> const & l) { return abstract(e, l.size(), l.begin()); }
 
 /**
    \brief Replace the expressions s[0], ..., s[n-1] in e with var(n-1), ..., var(0).

@@ -6,13 +6,13 @@
 a = 1 ∧ (¬ b = 0 ∨ c ≠ 0)
 and_congr
     (refl (a = 1))
-    (λ C::1 : a = 1,
+    (λ C::7 : a = 1,
        or_congr (refl (¬ b = 0))
-                (λ C::2 : ¬ ¬ b = 0,
+                (λ C::4 : ¬ ¬ b = 0,
                    trans (or_congr (refl (c ≠ 0))
                                    (λ C::3 : ¬ c ≠ 0,
                                       congr (congr2 Nat::gt
-                                                    (congr (congr2 Nat::add (not_not_elim C::2)) (not_neq_elim C::3)))
-                                            C::1))
+                                                    (congr (congr2 Nat::add (not_not_elim C::4)) (not_neq_elim C::3)))
+                                            C::7))
                          (or_falsel (c ≠ 0))))
 a = 1 ∧ (¬ b = 0 ∨ c ≠ 0 ∨ b + c > a) ↔ a = 1 ∧ (¬ b = 0 ∨ c ≠ 0)

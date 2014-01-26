@@ -32,6 +32,14 @@ definition TypeM := (Type M)
 axiom hfunext {A A' : TypeM} {B : A → TypeU} {B' : A' → TypeU} {f : ∀ x, B x} {f' : ∀ x, B' x} :
       A = A' → (∀ x x', x == x' → f x == f' x') → f == f'
 
+theorem hsfunext {A : TypeM} {B B' : A → TypeU} {f : ∀ x, B x} {f' : ∀ x, B' x} :
+      (∀ x, f x == f' x) → f == f'
+:= λ Hb,
+     hfunext (refl A) (λ (x x' : A) (Hx : x == x'),
+                   let s1 : f x   == f' x  := Hb x,
+                       s2 : f' x  == f' x' := hcongr (hrefl f') Hx
+                   in htrans s1 s2)
+
 axiom hpiext {A A' : TypeM} {B : A → TypeM} {B' : A' → TypeM} :
       A = A' → (∀ x x', x == x' → B x = B' x') → (∀ x, B x) == (∀ x, B' x)
 

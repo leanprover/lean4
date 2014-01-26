@@ -16,6 +16,7 @@ MK_CONSTANT(htrans_fn, name("htrans"));
 MK_CONSTANT(hcongr_fn, name("hcongr"));
 MK_CONSTANT(TypeM, name("TypeM"));
 MK_CONSTANT(hfunext_fn, name("hfunext"));
+MK_CONSTANT(hsfunext_fn, name("hsfunext"));
 MK_CONSTANT(hpiext_fn, name("hpiext"));
 MK_CONSTANT(hallext_fn, name("hallext"));
 }

@@ -1,0 +1,8 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: a
+  Assumed: b
+  Assumed: f
+  Assumed: fNat
+(∀ x : ℕ, x > 0) ∧ (∀ x : Bool, f x)
+congr1 (∀ x : Bool, f x) (congr2 and (allext (λ x : ℕ, fNat x)))

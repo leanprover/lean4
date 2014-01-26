@@ -35,6 +35,9 @@ bool is_TypeM(expr const & e);
 expr mk_hfunext_fn();
 bool is_hfunext_fn(expr const & e);
 inline expr mk_hfunext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6, expr const & e7, expr const & e8) { return mk_app({mk_hfunext_fn(), e1, e2, e3, e4, e5, e6, e7, e8}); }
+expr mk_hsfunext_fn();
+bool is_hsfunext_fn(expr const & e);
+inline expr mk_hsfunext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_hsfunext_fn(), e1, e2, e3, e4, e5, e6}); }
 expr mk_hpiext_fn();
 bool is_hpiext_fn(expr const & e);
 inline expr mk_hpiext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_hpiext_fn(), e1, e2, e3, e4, e5, e6}); }

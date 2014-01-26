@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/normalizer.h"
 #include "kernel/kernel.h"
 #include "kernel/max_sharing.h"
+#include "kernel/occurs.h"
 #include "library/heq_decls.h"
 #include "library/cast_decls.h"
 #include "library/kernel_bindings.h"
@@ -106,21 +107,22 @@ static name g_unique = name::mk_internal_unique_name();
 
 class simplifier_fn {
     struct result {
-        expr           m_out;    // the result of a simplification step
+        expr           m_expr;    // the result of a simplification step
         optional<expr> m_proof;  // a proof that the result is equal to the input (when m_proofs_enabled)
         bool           m_heq_proof; // true if the proof is for heterogeneous equality
         result() {}
         explicit result(expr const & out, bool heq_proof = false):
-            m_out(out), m_heq_proof(heq_proof) {}
+            m_expr(out), m_heq_proof(heq_proof) {}
         result(expr const & out, expr const & pr, bool heq_proof = false):
-            m_out(out), m_proof(pr), m_heq_proof(heq_proof) {}
+            m_expr(out), m_proof(pr), m_heq_proof(heq_proof) {}
         result(expr const & out, optional<expr> const & pr, bool heq_proof = false):
-            m_out(out), m_proof(pr), m_heq_proof(heq_proof) {}
+            m_expr(out), m_proof(pr), m_heq_proof(heq_proof) {}
     };
 
     typedef std::vector<rewrite_rule_set> rule_sets;
     typedef expr_map<result> cache;
     typedef std::vector<congr_theorem_info const *> congr_thms;
+    typedef cache const_map;
     ro_environment m_env;
     type_checker   m_tc;
     bool           m_has_heq;
@@ -129,6 +131,7 @@ class simplifier_fn {
     rule_sets      m_rule_sets;
     cache          m_cache;
     max_sharing_fn m_max_sharing;
+    const_map      m_const_map;  // mapping from old to new constants in hfunext and hpiext
     congr_thms     m_congr_thms;
     unsigned       m_next_idx;  // index used to create fresh constants
     unsigned       m_num_steps; // number of steps performed
@@ -149,9 +152,15 @@ class simplifier_fn {
         simplifier_fn &    m_fn;
         rewrite_rule_set   m_old;
         freset<cache>      m_reset_cache; // must reset the cache whenever we update the rule set.
-        updt_rule_set(simplifier_fn & fn, expr const & fact, expr const & proof):
+        /**
+           \brief Update the rule set using a constant H : P, where P is a proposition.
+
+           \pre const_type(H)
+        */
+        updt_rule_set(simplifier_fn & fn, expr const & H):
             m_fn(fn), m_old(m_fn.m_rule_sets[0]), m_reset_cache(m_fn.m_cache) {
-            m_fn.m_rule_sets[0].insert(g_local, fact, proof);
+            lean_assert(const_type(H));
+            m_fn.m_rule_sets[0].insert(g_local, *const_type(H), H);
         }
         ~updt_rule_set() {
             m_fn.m_rule_sets[0] = m_old;
@@ -159,6 +168,17 @@ class simplifier_fn {
         }
     };
 
+    struct updt_const_map {
+        simplifier_fn &    m_fn;
+        expr const &       m_old_x;
+        updt_const_map(simplifier_fn & fn, expr const & old_x, expr const & new_x, expr const & H):
+            m_fn(fn), m_old_x(old_x) {
+            m_fn.m_const_map[old_x] = result(new_x, H, true);
+        }
+        ~updt_const_map() {
+            m_fn.m_const_map.erase(m_old_x);
+        }
+    };
 
     static expr mk_lambda(name const & n, expr const & d, expr const & b) {
         return ::lean::mk_lambda(n, d, b);
@@ -196,12 +216,20 @@ class simplifier_fn {
         return proc(e, m_ctx, true);
     }
 
+    expr mk_fresh_const(expr const & type) {
+        m_next_idx++;
+        return mk_constant(name(g_unique, m_next_idx), type);
+    }
+
     /**
        \brief Auxiliary method for converting a proof H of (@eq A a b) into (@eq B a b) when
        type A is convertible to B, but not definitionally equal.
     */
     expr translate_eq_proof(expr const & A, expr const & a, expr const & b, expr const & H, expr const & B) {
-        return mk_subst_th(A, a, b, mk_lambda(g_x, A, mk_eq(B, a, mk_var(0))), mk_refl_th(B, a), H);
+        if (A != B)
+            return mk_subst_th(A, a, b, mk_lambda(g_x, A, mk_eq(B, a, mk_var(0))), mk_refl_th(B, a), H);
+        else
+            return H;
     }
 
     expr mk_congr1_th(expr const & f_type, expr const & f, expr const & new_f, expr const & a, expr const & Heq_f) {
@@ -259,9 +287,9 @@ class simplifier_fn {
 
     /**
        \brief Given
-                a           = b_res.m_out  with proof b_res.m_proof
-                b_res.m_out = c            with proof H_bc
-       This method returns a new result r s.t. r.m_out == c and a proof of a = c
+                a            = b_res.m_expr  with proof b_res.m_proof
+                b_res.m_expr = c             with proof H_bc
+       This method returns a new result r s.t. r.m_expr == c and a proof of a = c
     */
     result mk_trans_result(expr const & a, result const & b_res, expr const & c, expr const & H_bc) {
         if (m_proofs_enabled) {
@@ -269,7 +297,7 @@ class simplifier_fn {
                 // The proof of a = b is reflexivity
                 return result(c, H_bc);
             } else {
-                expr const & b = b_res.m_out;
+                expr const & b = b_res.m_expr;
                 expr new_proof;
                 bool heq_proof = false;
                 if (b_res.m_heq_proof) {
@@ -289,10 +317,10 @@ class simplifier_fn {
 
     /**
        \brief Given
-                a           = b_res.m_out    with proof b_res.m_proof
-                b_res.m_out = c_res.m_out    with proof c_res.m_proof
+                a            = b_res.m_expr    with proof b_res.m_proof
+                b_res.m_expr = c_res.m_expr    with proof c_res.m_proof
 
-       This method returns a new result r s.t. r.m_out == c and a proof of a = c_res.m_out
+       This method returns a new result r s.t. r.m_expr == c and a proof of a = c_res.m_expr
     */
     result mk_trans_result(expr const & a, result const & b_res, result const & c_res) {
         if (m_proofs_enabled) {
@@ -301,12 +329,12 @@ class simplifier_fn {
                 return c_res;
             } else if (!c_res.m_proof) {
                 // the proof of b == c is reflexivity
-                return result(c_res.m_out, *b_res.m_proof, b_res.m_heq_proof);
+                return result(c_res.m_expr, *b_res.m_proof, b_res.m_heq_proof);
             } else {
                 bool heq_proof = b_res.m_heq_proof || c_res.m_heq_proof;
                 expr new_proof;
-                expr const & b = b_res.m_out;
-                expr const & c = c_res.m_out;
+                expr const & b = b_res.m_expr;
+                expr const & c = c_res.m_expr;
                 if (heq_proof) {
                     expr a_type = infer_type(a);
                     expr b_type = infer_type(b);
@@ -356,7 +384,7 @@ class simplifier_fn {
             expr a = arg(e, 4);
             if (m_proofs_enabled) {
                 result res_a = simplify(a);
-                expr c       = res_a.m_out;
+                expr c       = res_a.m_expr;
                 if (res_a.m_proof) {
                     expr Hec;
                     expr Hac = *res_a.m_proof;
@@ -399,10 +427,10 @@ class simplifier_fn {
             // try to convert back to homogeneous
             lean_assert(rhs.m_proof);
             expr lhs_type = infer_type(lhs);
-            expr rhs_type = infer_type(rhs.m_out);
+            expr rhs_type = infer_type(rhs.m_expr);
             if (is_definitionally_equal(lhs_type, rhs_type)) {
                 // move back to homogeneous equality using to_eq
-                rhs.m_proof = mk_to_eq_th(lhs_type, lhs, rhs.m_out, *rhs.m_proof);
+                rhs.m_proof = mk_to_eq_th(lhs_type, lhs, rhs.m_expr, *rhs.m_proof);
                 return true;
             } else {
                 return false;
@@ -412,13 +440,41 @@ class simplifier_fn {
         }
     }
 
+    void ensure_heterogeneous(expr const & lhs, result & rhs) {
+        if (!rhs.m_heq_proof) {
+            rhs.m_proof     = mk_to_heq_th(infer_type(lhs), lhs, rhs.m_expr, get_proof(rhs));
+            rhs.m_heq_proof = true;
+        }
+    }
+
     expr get_proof(result const & rhs) {
         if (rhs.m_proof) {
             return *rhs.m_proof;
         } else {
             // lhs and rhs are definitionally equal
-            return mk_refl_th(infer_type(rhs.m_out), rhs.m_out);
+            return mk_refl_th(infer_type(rhs.m_expr), rhs.m_expr);
         }
+    }
+
+    /**
+       \brief Simplify \c e under the new assumption \c H.
+
+       \remark \c H must be a constant of type P, where P is a proposition.
+
+       \pre is_constant(H) && const_type(H)
+    */
+    result simplify_using(expr const & e, expr const & H) {
+        lean_assert(is_constant(H) && const_type(H));
+        updt_rule_set update(*this, H);
+        return simplify(e);
+    }
+
+    /**
+       \brief Simplify \c e using H : old_x == new_x
+    */
+    result simplify_remapping_constant(expr const & e, expr const & old_x, expr const & new_x, expr const & H) {
+        updt_const_map update(*this, old_x, new_x, H);
+        return simplify(e);
     }
 
     /**
@@ -447,7 +503,7 @@ class simplifier_fn {
                 if (!ctx) {
                     // argument does not have a context
                     result res_a   = simplify(a);
-                    new_args[pos] = res_a.m_out;
+                    new_args[pos] = res_a.m_expr;
                     if (m_proofs_enabled) {
                         if (!ensure_homogeneous(a, res_a))
                             return simplify_app_default(e); // fallback to default congruence
@@ -457,29 +513,20 @@ class simplifier_fn {
                     }
                 } else {
                     unsigned dep_pos = ctx->get_arg_pos();
-                    expr H = ctx->use_new_val() ? new_args[dep_pos] : arg(e, dep_pos);
+                    expr C = ctx->use_new_val() ? new_args[dep_pos] : arg(e, dep_pos);
                     if (!ctx->is_pos_dep())
-                        H = mk_not(H);
-                    // We will simplify the \c a under the hypothesis H
-                    if (!m_proofs_enabled) {
-                        // Contextual reasoning without proofs.
-                        expr dummy_proof; // we don't need a proof
-                        updt_rule_set update(*this, H, dummy_proof);
-                        result res_a  = simplify(a);
-                        new_args[pos] = res_a.m_out;
-                    } else {
-                        // We have to introduce H in the context, so first we lift the free variables in \c a
-                        flet<unsigned> set_depth(m_next_idx, m_next_idx+1);
-                        expr H_proof = mk_constant(name(g_unique, m_next_idx));
-                        updt_rule_set update(*this, H, H_proof);
-                        result res_a  = simplify(a);
+                        C = mk_not(C);
+                    // We will simplify the \c a under the hypothesis C
+                    expr H = mk_fresh_const(C);
+                    result res_a  = simplify_using(a, H);
+                    new_args[pos] = res_a.m_expr;
+                    if (m_proofs_enabled) {
                         if (!ensure_homogeneous(a, res_a))
                             return simplify_app_default(e); // fallback to default congruence
-                        new_args[pos] = res_a.m_out;
                         proof_args[info.get_pos_at_proof()]        = a;
                         proof_args[*info.get_new_pos_at_proof()]   = new_args[pos];
-                        name C_name(g_C, m_next_idx); // H_name is a cryptic unique name
-                        proof_args[*info.get_proof_pos_at_proof()] = mk_lambda(C_name, H, abstract(get_proof(res_a), H_proof));
+                        name C_name(g_C, m_next_idx++); // H is a cryptic unique name
+                        proof_args[*info.get_proof_pos_at_proof()] = mk_lambda(C_name, C, abstract(get_proof(res_a), H));
                     }
                 }
                 if (new_args[pos] != a)
@@ -511,7 +558,7 @@ class simplifier_fn {
         expr f       = arg(e, 0);
         expr f_type  = infer_type(f);
         result res_f = simplify(f);
-        expr new_f   = res_f.m_out;
+        expr new_f   = res_f.m_expr;
         expr new_f_type;
         if (new_f != f)
             changed = true;
@@ -532,10 +579,10 @@ class simplifier_fn {
             result res_a(a);
             if (m_has_heq || f_arrow) {
                 res_a = simplify(a);
-                if (res_a.m_out != a)
+                if (res_a.m_expr != a)
                     changed = true;
             }
-            expr new_a = res_a.m_out;
+            expr new_a = res_a.m_expr;
             new_args.push_back(new_a);
             if (m_proofs_enabled) {
                 proofs.push_back(res_a.m_proof);
@@ -658,31 +705,31 @@ class simplifier_fn {
     }
 
     /**
-       \brief Given (applications) lhs and rhs s.t. lhs = rhs.m_out
+       \brief Given (applications) lhs and rhs s.t. lhs = rhs.m_expr
        with proof rhs.m_proof, this method applies rewrite rules, beta
-       and evaluation to \c rhs.m_out, and return a new result object
-       new_rhs s.t.  lhs = new_rhs.m_out with proof new_rhs.m_proof
+       and evaluation to \c rhs.m_expr, and return a new result object
+       new_rhs s.t.  lhs = new_rhs.m_expr with proof new_rhs.m_proof
 
        \pre is_app(lhs)
-       \pre is_app(rhs.m_out)
+       \pre is_app(rhs.m_expr)
     */
     result rewrite_app(expr const & lhs, result const & rhs) {
-        lean_assert(is_app(rhs.m_out));
+        lean_assert(is_app(rhs.m_expr));
         lean_assert(is_app(lhs));
-        if (evaluate_app(rhs.m_out)) {
+        if (evaluate_app(rhs.m_expr)) {
             // try to evaluate if all arguments are values.
-            expr new_rhs = normalize(rhs.m_out);
+            expr new_rhs = normalize(rhs.m_expr);
             if (is_value(new_rhs)) {
-                // We don't need to create a new proof term since rhs.m_out and new_rhs are
+                // We don't need to create a new proof term since rhs.m_expr and new_rhs are
                 // definitionally equal.
                 return rewrite(lhs, result(new_rhs, rhs.m_proof, rhs.m_heq_proof));
             }
         }
 
-        expr f   = arg(rhs.m_out, 0);
+        expr f   = arg(rhs.m_expr, 0);
         if (m_beta && is_lambda(f)) {
-            expr new_rhs = head_beta_reduce(rhs.m_out);
-            // rhs.m_out and new_rhs are also definitionally equal
+            expr new_rhs = head_beta_reduce(rhs.m_expr);
+            // rhs.m_expr and new_rhs are also definitionally equal
             return rewrite(lhs, result(new_rhs, rhs.m_proof, rhs.m_heq_proof));
         }
 
@@ -700,14 +747,14 @@ class simplifier_fn {
     }
 
     /**
-       \brief Given lhs and rhs s.t. lhs = rhs.m_out with proof rhs.m_proof,
-       this method applies rewrite rules, beta and evaluation to \c rhs.m_out,
+       \brief Given lhs and rhs s.t. lhs = rhs.m_expr with proof rhs.m_proof,
+       this method applies rewrite rules, beta and evaluation to \c rhs.m_expr,
        and return a new result object new_rhs s.t.
-                lhs = new_rhs.m_out
+                lhs = new_rhs.m_expr
        with proof new_rhs.m_proof
     */
     result rewrite(expr const & lhs, result const & rhs) {
-        expr target = rhs.m_out;
+        expr target = rhs.m_expr;
         buffer<optional<expr>> subst;
         buffer<expr>           new_args;
         expr                   new_rhs;
@@ -752,7 +799,7 @@ class simplifier_fn {
                             expr d = abst_domain(ceq);
                             if (is_proposition(d)) {
                                 result d_res = simplify(d);
-                                if (d_res.m_out == True) {
+                                if (d_res.m_expr == True) {
                                     if (m_proofs_enabled) {
                                         expr d_proof;
                                         if (!d_res.m_proof) {
@@ -798,31 +845,25 @@ class simplifier_fn {
                 if (m_single_pass) {
                     return new_r1;
                 } else {
-                    result new_r2 = simplify(new_r1.m_out);
+                    result new_r2 = simplify(new_r1.m_expr);
                     return mk_trans_result(lhs, new_r1, new_r2);
                 }
             }
         }
-        if (!m_single_pass && lhs != rhs.m_out) {
-            result new_rhs = simplify(rhs.m_out);
+        if (!m_single_pass && lhs != rhs.m_expr) {
+            result new_rhs = simplify(rhs.m_expr);
             return mk_trans_result(lhs, rhs, new_rhs);
         } else {
             return rhs;
         }
     }
 
-    result simplify_var(expr const & e) {
-        if (m_has_heq) {
-            // TODO(Leo)
-            return result(e);
-        } else {
-            return result(e);
-        }
-    }
-
     result simplify_constant(expr const & e) {
         lean_assert(is_constant(e));
-        if (m_unfold || m_eval) {
+        auto it = m_const_map.find(e);
+        if (it != m_const_map.end()) {
+            return it->second;
+        } else if (m_unfold || m_eval) {
             auto obj = m_env->find_object(const_name(e));
             if (obj) {
                 if (m_unfold && should_unfold(obj)) {
@@ -863,19 +904,19 @@ class simplifier_fn {
     }
 
     /**
-       \brief Given (lambdas) lhs and rhs s.t. lhs = rhs.m_out
+       \brief Given (lambdas) lhs and rhs s.t. lhs = rhs.m_expr
        with proof rhs.m_proof, this method applies rewrite rules, and
        eta reduction, and return a new result object new_rhs s.t.
-              lhs = new_rhs.m_out with proof new_rhs.m_proof
+              lhs = new_rhs.m_expr with proof new_rhs.m_proof
 
        \pre is_lambda(lhs)
-       \pre is_lambda(rhs.m_out)
+       \pre is_lambda(rhs.m_expr)
     */
     result rewrite_lambda(expr const & lhs, result const & rhs) {
         lean_assert(is_lambda(lhs));
-        lean_assert(is_lambda(rhs.m_out));
-        if (m_eta && is_eta_target(rhs.m_out)) {
-            expr b = abst_body(rhs.m_out);
+        lean_assert(is_lambda(rhs.m_expr));
+        if (m_eta && is_eta_target(rhs.m_expr)) {
+            expr b = abst_body(rhs.m_expr);
             expr new_rhs;
             if (num_args(b) > 2) {
                 new_rhs = mk_app(num_args(b) - 1, &arg(b, 0));
@@ -884,10 +925,10 @@ class simplifier_fn {
             }
             new_rhs           = lower_free_vars(new_rhs, 1, 1);
             expr new_rhs_type = ensure_pi(infer_type(new_rhs));
-            if (m_tc.is_definitionally_equal(abst_domain(new_rhs_type), abst_domain(rhs.m_out), m_ctx)) {
+            if (m_tc.is_definitionally_equal(abst_domain(new_rhs_type), abst_domain(rhs.m_expr), m_ctx)) {
                 if (m_proofs_enabled) {
-                    expr new_proof = mk_eta_th(abst_domain(rhs.m_out),
-                                               mk_lambda(rhs.m_out, abst_body(new_rhs_type)),
+                    expr new_proof = mk_eta_th(abst_domain(rhs.m_expr),
+                                               mk_lambda(rhs.m_expr, abst_body(new_rhs_type)),
                                                new_rhs);
                     return rewrite(lhs, mk_trans_result(lhs, rhs, new_rhs, new_proof));
                 } else {
@@ -898,27 +939,92 @@ class simplifier_fn {
         return rewrite(lhs, rhs);
     }
 
+    /**
+       \brief Simplify only the body of the lambda expression, it does not 'touch' the domain.
+    */
+    result simplify_lambda_body(expr const & e) {
+        lean_assert(is_lambda(e));
+        expr const & d   = abst_domain(e);
+        expr fresh_const = mk_fresh_const(d);
+        expr bi          = instantiate(abst_body(e), fresh_const);
+        result res_bi    = simplify(bi);
+        expr new_bi    = res_bi.m_expr;
+        if (is_eqp(new_bi, bi))
+            return rewrite_lambda(e, result(e));
+        expr new_e = mk_lambda(e, abstract(new_bi, fresh_const));
+        if (!m_proofs_enabled || !res_bi.m_proof)
+            return rewrite_lambda(e, result(new_e));
+        if (res_bi.m_heq_proof) {
+            lean_assert(m_has_heq);
+            // Using
+            // theorem hsfunext {A : TypeM} {B B' : A → TypeU} {f : ∀ x, B x} {f' : ∀ x, B' x} :
+            //     (∀ x, f x == f' x) → f == f'
+            expr new_proof = mk_hsfunext_th(d,  // A
+                                            mk_lambda(e, infer_type(abst_body(e))),                  // B
+                                            mk_lambda(e, abstract(infer_type(new_bi), fresh_const)), // B'
+                                            e,     // f
+                                            new_e, // f'
+                                            mk_lambda(g_x, d, abstract(*res_bi.m_proof, fresh_const)));
+            return rewrite_lambda(e, result(new_e, new_proof, true));
+        } else {
+            expr body_type = infer_type(abst_body(e));
+            // Using
+            // axiom funext {A : TypeU} {B : A → TypeU} {f g : ∀ x : A, B x} (H : ∀ x : A, f x = g x) : f = g
+            expr new_proof = mk_funext_th(d, mk_lambda(e, body_type), e, new_e,
+                                          mk_lambda(e, abstract(*res_bi.m_proof, fresh_const)));
+            return rewrite_lambda(e, result(new_e, new_proof));
+        }
+    }
+
     result simplify_lambda(expr const & e) {
         lean_assert(is_lambda(e));
         if (m_has_heq) {
-            // TODO(Leo)
-            return result(e);
+            expr const & d = abst_domain(e);
+            result res_d   = simplify(d);
+            expr new_d     = res_d.m_expr;
+            if (is_eqp(d, new_d))
+                return simplify_lambda_body(e);
+            if (is_definitionally_equal(d, new_d))
+                return simplify_lambda_body(update_lambda(e, new_d, abst_body(e)));
+            // d and new_d are only provably equal, so we need to use hfunext
+            expr x_old            = mk_fresh_const(d);
+            expr x_new            = mk_fresh_const(new_d);
+            expr x_old_eq_x_new   = mk_heq(d, new_d, x_old, x_new);
+            expr H_x_old_eq_x_new = mk_fresh_const(x_old_eq_x_new);
+            expr bi               = instantiate(abst_body(e), x_old);
+            result res_bi         = simplify_remapping_constant(bi, x_old, x_new, H_x_old_eq_x_new);
+            expr new_bi           = res_bi.m_expr;
+            if (occurs(x_old, new_bi)) {
+                // failed, simplifier didn't manage to replace x_old with x_new
+                return rewrite(e, result(e));
+            }
+            expr new_e   = update_lambda(e, new_d, abstract(new_bi, x_new));
+            if (!m_proofs_enabled)
+                return rewrite(e, result(new_e));
+            ensure_homogeneous(d, res_d);
+            ensure_heterogeneous(bi, res_bi);
+            expr d_eq_new_d_proof = *res_d.m_proof;
+            // Using
+            // axiom hfunext {A A' : TypeM} {B : A → TypeU} {B' : A' → TypeU} {f : ∀ x, B x} {f' : ∀ x, B' x} :
+            //          A = A' → (∀ x x', x == x' → f x == f' x') → f == f'
+            // Remark: the argument with type A = A' is actually @eq TypeM A A',
+            // so we need to translate the proof d_eq_new_d_proof : d = new_d   to a TypeM equality proof
+            d_eq_new_d_proof = translate_eq_proof(infer_type(d), d, new_d, d_eq_new_d_proof, mk_TypeM());
+            expr new_proof = mk_hfunext_th(d,      // A
+                                           new_d,  // A'
+                                           Fun(x_old, d, infer_type(bi)),         // B
+                                           Fun(x_new, new_d, infer_type(new_bi)), // B'
+                                           e,      // f
+                                           new_e,  // f'
+                                           d_eq_new_d_proof, // A = A'
+                                           // fun (x_old : d) (x_new : new_d) (H : x_old == x_new), bi == new_bi
+                                           mk_lambda(abst_name(e), d,
+                                                     mk_lambda(name(abst_name(e), 1), lift_free_vars(new_d, 0, 1),
+                                                               mk_lambda(name(g_H, m_next_idx++), abstract(x_old_eq_x_new, {x_old, x_new}),
+                                                                         abstract(*res_bi.m_proof, {x_old, x_new, H_x_old_eq_x_new})))));
+            return rewrite(e, result(new_e, new_proof, true));
         } else {
-            flet<unsigned> set_depth(m_next_idx, m_next_idx+1);
-            expr fresh_const = mk_constant(name(g_unique, m_next_idx), abst_domain(e));
-            expr b_c         = instantiate(abst_body(e), fresh_const);
-            result res_body  = simplify(b_c);
-            lean_assert(!res_body.m_heq_proof);
-            expr new_body    = res_body.m_out;
-            if (is_eqp(new_body, b_c))
-                return rewrite_lambda(e, result(e));
-            expr out = mk_lambda(e, abstract(new_body, fresh_const));
-            if (!m_proofs_enabled || !res_body.m_proof)
-                return rewrite_lambda(e, result(out));
-            expr body_type = infer_type(abst_body(e));
-            expr pr  = mk_funext_th(abst_domain(e), mk_lambda(e, body_type), e, out,
-                                    mk_lambda(e, abstract(*res_body.m_proof, fresh_const)));
-            return rewrite_lambda(e, result(out, pr));
+            return simplify_lambda_body(e);
         }
     }
 
@@ -934,63 +1040,61 @@ class simplifier_fn {
                 // Contextual simplification for A -> B
                 // Rewrite A to A'
                 // And rewrite B to B' using A'
-                result res_d = simplify(d);
+                result res_d  = simplify(d);
                 ensure_homogeneous(d, res_d);
-                flet<unsigned> set_depth(m_next_idx, m_next_idx+1);
-                expr H_proof = mk_constant(name(g_unique, m_next_idx));
-                expr b_c     = lower_free_vars(b, 1, 1);
-                result res_b;
-                {
-                    updt_rule_set update(*this, res_d.m_out, H_proof);
-                    res_b = simplify(b_c);
-                }
-                ensure_homogeneous(b_c, res_b);
-                if (is_eqp(res_d.m_out, d) && is_eqp(res_b.m_out, b_c))
+                expr new_d    = res_d.m_expr;
+                expr H        = mk_fresh_const(new_d);
+                expr bi       = lower_free_vars(b, 1, 1);
+                result res_bi = simplify_using(bi, H);
+                expr new_bi   = res_bi.m_expr;
+                ensure_homogeneous(bi, res_bi);
+                if (is_eqp(new_d, d) && is_eqp(new_bi, bi))
                     return rewrite(e, result(e));
-                expr out = update_pi(e, res_d.m_out, lift_free_vars(res_b.m_out, 0, 1));
+                expr new_e = update_pi(e, new_d, lift_free_vars(new_bi, 0, 1));
                 if (!m_proofs_enabled)
-                    return rewrite(e, result(out));
-                name C_name(g_C, m_next_idx); // H_name is a cryptic unique name
-                expr proof = mk_imp_congr_th(d, b_c, res_d.m_out, res_b.m_out,
-                                             get_proof(res_d), mk_lambda(C_name, res_d.m_out, abstract(get_proof(res_b), H_proof)));
-                return rewrite(e, result(out, proof));
+                    return rewrite(e, result(new_e));
+                name C_name(g_C, m_next_idx++);
+                expr new_proof = mk_imp_congr_th(d, bi, new_d, new_bi,
+                                                 get_proof(res_d), mk_lambda(C_name, new_d, abstract(get_proof(res_bi), H)));
+                return rewrite(e, result(new_e, new_proof));
             } else {
                 // Simplify A -> B (when m_contextual == false)
-                result res_d = simplify(d);
+                result res_d  = simplify(d);
+                expr new_d    = res_d.m_expr;
                 ensure_homogeneous(d, res_d);
-                expr b_c     = lower_free_vars(b, 1, 1);
-                result res_b = simplify(b_c);
-                ensure_homogeneous(b_c, res_b);
-                if (is_eqp(res_d.m_out, d) && is_eqp(res_b.m_out, b_c))
+                expr bi       = lower_free_vars(b, 1, 1);
+                result res_bi = simplify(bi);
+                expr new_bi   = res_bi.m_expr;
+                ensure_homogeneous(bi, res_bi);
+                if (is_eqp(new_d, d) && is_eqp(new_bi, bi))
                     return rewrite(e, result(e));
-                expr out = update_pi(e, res_d.m_out, lift_free_vars(res_b.m_out, 0, 1));
+                expr new_e = update_pi(e, new_d, lift_free_vars(new_bi, 0, 1));
                 if (!m_proofs_enabled)
-                    return rewrite(e, result(out));
-                expr proof = mk_imp_congr_th(d, b_c, res_d.m_out, res_b.m_out,
-                                             get_proof(res_d), mk_lambda(g_H, res_d.m_out, lift_free_vars(get_proof(res_b), 0, 1)));
-                return rewrite(e, result(out, proof));
+                    return rewrite(e, result(new_e));
+                expr new_proof = mk_imp_congr_th(d, bi, new_d, new_bi,
+                                                 get_proof(res_d), mk_lambda(g_H, new_d, lift_free_vars(get_proof(res_bi), 0, 1)));
+                return rewrite(e, result(new_e, new_proof));
             }
         } else if (m_has_heq) {
             // TODO(Leo)
             return result(e);
         } else if (is_prop) {
             // Simplify (forall x : A, P x)
-            flet<unsigned> set_depth(m_next_idx, m_next_idx+1);
-            expr fresh_const = mk_constant(name(g_unique, m_next_idx), abst_domain(e));
-            expr b_c         = instantiate(b, fresh_const);
-            result res_body  = simplify(b_c);
-            lean_assert(!res_body.m_heq_proof);
-            expr new_body = res_body.m_out;
-            if (is_eqp(new_body, b_c))
+            expr fresh_const = mk_fresh_const(abst_domain(e));
+            expr bi          = instantiate(b, fresh_const);
+            result res_bi    = simplify(bi);
+            expr new_bi      = res_bi.m_expr;
+            lean_assert(!res_bi.m_heq_proof);
+            if (is_eqp(new_bi, bi))
                 return rewrite(e, result(e));
-            expr out = mk_pi(abst_name(e), d, abstract(new_body, fresh_const));
-            if (!m_proofs_enabled || !res_body.m_proof)
-                return rewrite(e, result(out));
-            expr pr  = mk_allext_th(d,
-                                    mk_lambda(e, b),
-                                    mk_lambda(e, abst_body(out)),
-                                    mk_lambda(e, abstract(*res_body.m_proof, fresh_const)));
-            return rewrite(e, result(out, pr));
+            expr new_e = mk_pi(abst_name(e), d, abstract(new_bi, fresh_const));
+            if (!m_proofs_enabled || !res_bi.m_proof)
+                return rewrite(e, result(new_e));
+            expr new_proof = mk_allext_th(d,
+                                          mk_lambda(e, b),
+                                          mk_lambda(e, abst_body(new_e)),
+                                          mk_lambda(e, abstract(*res_bi.m_proof, fresh_const)));
+            return rewrite(e, result(new_e, new_proof));
         } else {
             // if the environment does not contain heq axioms, then we don't simplify Pi's that are not forall's
             return result(e);
@@ -999,7 +1103,7 @@ class simplifier_fn {
 
     result save(expr const & e, result const & r) {
         if (m_memoize) {
-            result new_r(m_max_sharing(r.m_out), r.m_proof, r.m_heq_proof);
+            result new_r(m_max_sharing(r.m_expr), r.m_proof, r.m_heq_proof);
             m_cache.insert(mk_pair(e, new_r));
             return new_r;
         } else {
@@ -1020,11 +1124,11 @@ class simplifier_fn {
             }
         }
         switch (e.kind()) {
-        case expr_kind::Var:      return save(e, simplify_var(e));
+        case expr_kind::Var:      return result(e);
         case expr_kind::Constant: return save(e, simplify_constant(e));
         case expr_kind::Type:
         case expr_kind::MetaVar:
-        case expr_kind::Value:    return save(e, result(e));
+        case expr_kind::Value:    return result(e);
         case expr_kind::App:      return save(e, simplify_app(e));
         case expr_kind::Lambda:   return save(e, simplify_lambda(e));
         case expr_kind::Pi:       return save(e, simplify_pi(e));
@@ -1074,7 +1178,7 @@ public:
         m_has_cast = m_env->imported("cast");
         set_options(o);
         if (m_contextual) {
-            // add a set of rewrite rules for contextual rewriting
+            // We need an extra rule set if we are performing contextual rewriting
             m_rule_sets.push_back(rewrite_rule_set(env));
         }
         m_rule_sets.insert(m_rule_sets.end(), rs, rs + num_rs);
@@ -1086,7 +1190,7 @@ public:
         set_ctx(ctx);
         m_num_steps = 0;
         auto r = simplify(e);
-        return mk_pair(r.m_out, get_proof(r));
+        return mk_pair(r.m_expr, get_proof(r));
     }
 };
 

@@ -487,6 +487,16 @@ static void tst21() {
     std::cout << uc << "\n";
 }
 
+static void tst22() {
+    environment  env;
+    init_test_frontend(env);
+    expr a = mk_arrow(Nat, Bool);
+    expr b = mk_arrow(Nat, Nat);
+    type_checker tc(env);
+    lean_assert(!tc.is_convertible(a, b));
+    lean_assert(!tc.is_convertible(b, a));
+}
+
 int main() {
     save_stack_info();
     register_modules();
@@ -511,5 +521,6 @@ int main() {
     tst19();
     tst20();
     tst21();
+    tst22();
     return has_violations() ? 1 : 0;
 }

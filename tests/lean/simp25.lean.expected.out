@@ -7,4 +7,4 @@
 funext (λ x : ℕ,
           and_congrr
               (λ C::2 : f (λ y z : ℕ, y + z > x), refl (x = 1))
-              (λ C::2 : x = 1, congr2 f (funext (λ y : ℕ, funext (λ z : ℕ, congr2 (Nat::gt (y + z)) C::2)))))
+              (λ C::9 : x = 1, congr2 f (funext (λ y : ℕ, funext (λ z : ℕ, congr2 (Nat::gt (y + z)) C::9)))))

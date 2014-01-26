@@ -6,8 +6,8 @@
 ⊥
 trans (and_congr
            (refl (a = 1))
-           (λ C::1 : a = 1,
-              trans (and_congr (refl (b = 0)) (λ C::2 : b = 0, congr (congr2 Nat::gt C::2) C::1))
+           (λ C::3 : a = 1,
+              trans (and_congr (refl (b = 0)) (λ C::2 : b = 0, congr (congr2 Nat::gt C::2) C::3))
                     (and_falsel (b = 0))))
       (and_falsel (a = 1))
 (a = 1 ∧ b = 0 ∧ b > a) = ⊥

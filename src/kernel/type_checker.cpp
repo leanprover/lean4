@@ -234,7 +234,7 @@ class type_checker::imp {
                     // thunk for creating justification object if needed
                     auto mk_justification = [&](){ return mk_app_type_match_justification(ctx, e, i); };
                     if (!is_convertible(c_t, abst_domain(f_t), ctx, mk_justification))
-                        throw app_type_mismatch_exception(env(), ctx, e, arg_types.size(), arg_types.data());
+                        throw app_type_mismatch_exception(env(), ctx, e, i, arg_types.size(), arg_types.data());
                     f_t = pi_body_at(f_t, c);
                     i++;
                     if (i == num)

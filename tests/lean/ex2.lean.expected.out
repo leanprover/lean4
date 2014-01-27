@@ -10,7 +10,7 @@ ex2.lean:8:0: error: invalid object declaration, environment already has an obje
   Assumed: b
 and a b
   Assumed: A
-ex2.lean:12:8: error: type mismatch at application
+ex2.lean:12:8: error: type mismatch in argument #2 at application
     and a A
 Function type:
     Bool -> Bool -> Bool

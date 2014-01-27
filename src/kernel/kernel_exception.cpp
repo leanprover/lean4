@@ -43,7 +43,7 @@ format app_type_mismatch_exception::pp(formatter const & fmt, options const & op
         arg_types_fmt += nest(indent, compose(line(), group(format{arg_fmt, space(), colon(), nest(indent, format{line(), arg_type_fmt})})));
     }
     format r;
-    r += format("type mismatch at application");
+    r += format{format("type mismatch in argument #"), format(m_arg_pos),  format(" at application")};
     r += nest(indent, compose(line(), app_fmt));
     r += compose(line(), format("Function type:"));
     r += nest(indent, compose(line(), f_type_fmt));

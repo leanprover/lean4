@@ -127,18 +127,21 @@ public:
 class app_type_mismatch_exception : public type_checker_exception {
     context           m_context;
     expr              m_app;
+    unsigned          m_arg_pos;
     std::vector<expr> m_arg_types;
 public:
-    app_type_mismatch_exception(ro_environment const & env, context const & ctx, expr const & app, unsigned num, expr const * arg_types):
-        type_checker_exception(env), m_context(ctx), m_app(app), m_arg_types(arg_types, arg_types+num) {}
+    app_type_mismatch_exception(ro_environment const & env, context const & ctx, expr const & app, unsigned arg_pos,
+                                unsigned num, expr const * arg_types):
+        type_checker_exception(env), m_context(ctx), m_app(app), m_arg_pos(arg_pos), m_arg_types(arg_types, arg_types+num) {}
     virtual ~app_type_mismatch_exception() {}
     context const & get_context() const { return m_context; }
     expr const & get_application() const { return m_app; }
     virtual optional<expr> get_main_expr() const { return some_expr(get_application()); }
+    unsigned get_arg_pos() const { return m_arg_pos; }
     std::vector<expr> const & get_arg_types() const { return m_arg_types; }
     virtual char const * what() const noexcept { return "application argument type mismatch"; }
     virtual format pp(formatter const & fmt, options const & opts) const;
-    virtual exception * clone() const { return new app_type_mismatch_exception(m_env, m_context, m_app, m_arg_types.size(), m_arg_types.data()); }
+    virtual exception * clone() const { return new app_type_mismatch_exception(m_env, m_context, m_app, m_arg_pos, m_arg_types.size(), m_arg_types.data()); }
     virtual void rethrow() const { throw *this; }
 };
 

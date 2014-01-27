@@ -554,7 +554,7 @@ class simplifier_fn {
         new_args.resize(num_args(e));
         new_args[0] = arg(e, 0);
         buffer<expr> proof_args_buf;
-        expr *       proof_args;
+        expr *       proof_args = nullptr;
         if (m_proofs_enabled) {
             proof_args_buf.resize(cg_thm.get_num_proof_args() + 1);
             proof_args_buf[0] = cg_thm.get_proof();

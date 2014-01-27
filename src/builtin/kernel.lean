@@ -242,6 +242,12 @@ theorem boolext {a b : Bool} (Hab : a → b) (Hba : b → a) : a = b
 theorem iff_intro {a b : Bool} (Hab : a → b) (Hba : b → a) : a ↔ b
 := boolext Hab Hba
 
+theorem iff_eliml {a b : Bool} (H : a ↔ b) : a → b
+:= (λ Ha : a, eqmp H Ha)
+
+theorem iff_elimr {a b : Bool} (H : a ↔ b) : b → a
+:= (λ Hb : b, eqmpr H Hb)
+
 theorem skolem_th {A : TypeU} {B : A → TypeU} {P : ∀ x : A, B x → Bool} :
         (∀ x, ∃ y, P x y) ↔ ∃ f, (∀ x, P x (f x))
 := iff_intro
@@ -262,6 +268,9 @@ theorem neq_elim {A : TypeU} {a b : A} (H : a ≠ b) : a = b ↔ false
 := eqf_intro H
 
 theorem eq_id {A : TypeU} (a : A) : (a = a) ↔ true
+:= eqt_intro (refl a)
+
+theorem iff_id (a : Bool) : (a ↔ a) ↔ true
 := eqt_intro (refl a)
 
 theorem or_comm (a b : Bool) : (a ∨ b) = (b ∨ a)

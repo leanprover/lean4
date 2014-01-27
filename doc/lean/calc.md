@@ -82,3 +82,16 @@ The Lean `let` construct can also be used to build calculational-like proofs.
 ```
 
 Finally, the [Nat (natural number) builtin library](../../src/builtin/Nat.lean) makes extensive use of calculational proofs.
+
+The Lean simplifier can be used to reduce the size of calculational proofs.
+In the following example, we create a rewrite rule set with basic theorems from the Natural number library, and some of the axioms
+declared above.
+
+```lean
+       import tactic
+       rewrite_set simple
+       add_rewrite Nat::add_comm Nat::add_assoc Nat::add_left_comm Ax1 Ax2 Ax3 eq_id : simple
+       theorem T'' : a = e
+        := calc a    =  1 + d : (by simp simple)
+                ...  =  e     : symm Ax4
+```

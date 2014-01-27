@@ -209,6 +209,12 @@ inline expr mk_boolext_th(expr const & e1, expr const & e2, expr const & e3, exp
 expr mk_iff_intro_fn();
 bool is_iff_intro_fn(expr const & e);
 inline expr mk_iff_intro_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_iff_intro_fn(), e1, e2, e3, e4}); }
+expr mk_iff_eliml_fn();
+bool is_iff_eliml_fn(expr const & e);
+inline expr mk_iff_eliml_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_iff_eliml_fn(), e1, e2, e3, e4}); }
+expr mk_iff_elimr_fn();
+bool is_iff_elimr_fn(expr const & e);
+inline expr mk_iff_elimr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_iff_elimr_fn(), e1, e2, e3, e4}); }
 expr mk_skolem_th_fn();
 bool is_skolem_th_fn(expr const & e);
 inline expr mk_skolem_th_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_skolem_th_fn(), e1, e2, e3}); }
@@ -224,6 +230,9 @@ inline expr mk_neq_elim_th(expr const & e1, expr const & e2, expr const & e3, ex
 expr mk_eq_id_fn();
 bool is_eq_id_fn(expr const & e);
 inline expr mk_eq_id_th(expr const & e1, expr const & e2) { return mk_app({mk_eq_id_fn(), e1, e2}); }
+expr mk_iff_id_fn();
+bool is_iff_id_fn(expr const & e);
+inline expr mk_iff_id_th(expr const & e1) { return mk_app({mk_iff_id_fn(), e1}); }
 expr mk_or_comm_fn();
 bool is_or_comm_fn(expr const & e);
 inline expr mk_or_comm_th(expr const & e1, expr const & e2) { return mk_app({mk_or_comm_fn(), e1, e2}); }

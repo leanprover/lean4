@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/hop_match.h"
 #include "library/expr_lt.h"
 #include "library/simplifier/rewrite_rule_set.h"
+#include "library/simplifier/simplifier.h"
 
 #ifndef LEAN_SIMPLIFIER_PROOFS
 #define LEAN_SIMPLIFIER_PROOFS true
@@ -137,6 +138,8 @@ class simplifier_fn {
     congr_thms     m_congr_thms;
     unsigned       m_next_idx;  // index used to create fresh constants
     unsigned       m_num_steps; // number of steps performed
+    unsigned       m_depth;     // recursion depth
+    std::shared_ptr<simplifier_monitor> m_monitor;
 
     // Configuration
     bool           m_proofs_enabled;
@@ -294,11 +297,16 @@ class simplifier_fn {
        \brief Create heterogeneous congruence proof.
     */
     optional<expr> mk_hcongr_th(expr const & f_type, expr const & new_f_type, expr const & f, expr const & new_f,
-                                expr const & Heq_f, expr const & a, result const & new_a) {
+                                expr const & Heq_f, expr const & a, result const & new_a,
+                                // the following two arguments are used only for invoking the simplifier monitor
+                                expr const & e, unsigned i) {
         expr const & A     = abst_domain(f_type);
         if (is_TypeU(A)) {
-            if (!is_definitionally_equal(f, new_f))
+            if (!is_definitionally_equal(f, new_f)) {
+                if (m_monitor)
+                    m_monitor->failed_app_eh(m_depth, e, i, simplifier_monitor::failure_kind::Unsupported);
                 return none_expr(); // can't handle
+            }
             // The congruence axiom cannot be used in this case.
             // Type problem is that we would need provide a proof of (@eq (Type U) a new_a.m_expr),
             // and (Type U) has type (Type U+1) the congruence axioms expect arguments from
@@ -314,8 +322,11 @@ class simplifier_fn {
             //
             //    @subst (Type i) a a' (fun x : (Type i), (@heq (B a) (B x) (f a) (f x))) (@hrefl (B a) (f a)) H
             expr a_type   = infer_type(a);
-            if (!is_convertible(a_type, A))
+            if (!is_convertible(a_type, A)) {
+                if (m_monitor)
+                    m_monitor->failed_app_eh(m_depth, e, i, simplifier_monitor::failure_kind::TypeMismatch);
                 return none_expr(); // can't handle
+            }
             expr a_prime  = new_a.m_expr;
             expr H        = get_proof(new_a);
             if (new_a.is_heq_proof())
@@ -334,8 +345,11 @@ class simplifier_fn {
             expr const & new_A = abst_domain(new_f_type);
             expr a_type        = infer_type(a);
             expr new_a_type    = infer_type(new_a.m_expr);
-            if (!is_convertible(new_a_type, new_A))
+            if (!is_convertible(new_a_type, new_A)) {
+                if (m_monitor)
+                    m_monitor->failed_app_eh(m_depth, e, i, simplifier_monitor::failure_kind::TypeMismatch);
                 return none_expr(); // failed
+            }
             expr Heq_a         = get_proof(new_a);
             bool is_heq_proof  = new_a.is_heq_proof();
             if (!is_definitionally_equal(A, a_type)|| !is_definitionally_equal(new_A, new_a_type)) {
@@ -344,6 +358,8 @@ class simplifier_fn {
                         Heq_a        = mk_to_eq_th(a_type, a, new_a.m_expr, Heq_a);
                         is_heq_proof = false;
                     } else {
+                        if (m_monitor)
+                            m_monitor->failed_app_eh(m_depth, e, i, simplifier_monitor::failure_kind::Unsupported);
                         return none_expr(); // we don't know how to handle this case
                     }
                 }
@@ -691,7 +707,8 @@ class simplifier_fn {
                 expr f = mk_app_prefix(i, new_args);
                 expr pr_i = *proofs[i];
                 auto new_pr = mk_hcongr_th(f_types[i-1], f_types[i-1], f, f, mk_hrefl_th(f_types[i-1], f),
-                                           arg(e, i), result(new_args[i], pr_i, heq_proofs[i]));
+                                           arg(e, i), result(new_args[i], pr_i, heq_proofs[i]),
+                                           e, i);
                 if (!new_pr)
                     return rewrite_app(e, result(e)); // failed to create congruence proof
                 pr = *new_pr;
@@ -710,7 +727,8 @@ class simplifier_fn {
                         if (!heq_proof)
                             pr = mk_to_heq_th(f_types[i], f, new_f, pr);
                         auto new_pr = mk_hcongr_th(f_types[i-1], new_f_types[i-1], f, new_f, pr,
-                                                   arg(e, i), result(new_args[i], pr_i, true));
+                                                   arg(e, i), result(new_args[i], pr_i, true),
+                                                   e, i);
                         if (!new_pr)
                             return rewrite_app(e, result(e)); // failed to create congruence proof
                         pr = *new_pr;
@@ -718,7 +736,8 @@ class simplifier_fn {
                     } else if (heq_proof) {
                         lean_assert(!heq_proofs[i]);
                         auto new_pr = mk_hcongr_th(f_types[i-1], new_f_types[i-1], f, new_f, pr,
-                                                   arg(e, i), result(new_args[i], pr_i, false));
+                                                   arg(e, i), result(new_args[i], pr_i, false),
+                                                   e, i);
                         if (!new_pr)
                             return rewrite_app(e, result(e)); // failed to create congruence proof
                         pr = *new_pr;
@@ -727,7 +746,8 @@ class simplifier_fn {
                     }
                 } else if (heq_proof) {
                     auto new_pr = mk_hcongr_th(f_types[i-1], new_f_types[i-1], f, new_f, pr,
-                                               arg(e, i), result(arg(e, i)));
+                                               arg(e, i), result(arg(e, i)),
+                                               e, i);
                     if (!new_pr)
                         return rewrite_app(e, result(e)); // failed to create congruence proof
                     pr = *new_pr;
@@ -846,6 +866,8 @@ class simplifier_fn {
                             new_proof   = rule.get_proof();
                         }
                     }
+                    if (m_monitor)
+                        m_monitor->rewrite_eh(m_depth, target, new_rhs, rule.get_ceq());
                     return true;
                 } else {
                     // Conditional rewriting: we try to fill the missing
@@ -883,23 +905,34 @@ class simplifier_fn {
                                         // The body of ceq depends on this argument,
                                         // but proof generation is not enabled.
                                         // So, we should fail
+                                        if (m_monitor)
+                                            m_monitor->failed_rewrite_eh(m_depth, target, rule.get_ceq(), i, simplifier_monitor::failure_kind::Unsupported);
                                         return false;
                                     }
                                 } else {
                                     // failed to prove proposition
+                                    if (m_monitor)
+                                        m_monitor->failed_rewrite_eh(m_depth, target, rule.get_ceq(), i, simplifier_monitor::failure_kind::AssumptionNotProved);
                                     return false;
                                 }
                             } else {
                                 // failed, the argument is not a proposition
+                                if (m_monitor)
+                                    m_monitor->failed_rewrite_eh(m_depth, target, rule.get_ceq(), i, simplifier_monitor::failure_kind::MissingArgument);
                                 return false;
                             }
                         }
                     }
                     new_proof = mk_app(proof_args);
                     new_rhs   = arg(ceq, num_args(ceq) - 1);
-                    if (rule.is_permutation() && !is_lt(new_rhs, target, false))
+                    if (rule.is_permutation() && !is_lt(new_rhs, target, false)) {
+                        if (m_monitor)
+                            m_monitor->failed_rewrite_eh(m_depth, target, rule.get_ceq(), 0, simplifier_monitor::failure_kind::PermutationGe);
                         return false;
-                    return true;
+                    }
+                    if (m_monitor)
+                        m_monitor->rewrite_eh(m_depth, target, new_rhs, rule.get_ceq());
+                   return true;
                 }
             }
             return false;
@@ -1065,6 +1098,8 @@ class simplifier_fn {
         expr new_bi           = res_bi.m_expr;
         if (occurs(x_old, new_bi)) {
             // failed, simplifier didn't manage to replace x_old with x_new
+            if (m_monitor)
+                m_monitor->failed_abstraction_eh(m_depth, e, simplifier_monitor::failure_kind::AbstractionBody);
             return rewrite(e, result(e));
         }
         expr new_e   = update_lambda(e, new_d, abstract(new_bi, x_new));
@@ -1166,6 +1201,8 @@ class simplifier_fn {
         } else {
             expr e_type        = infer_type(e);
             if (is_TypeU(e_type) || !ensure_homogeneous(A, res_A)) {
+                if (m_monitor)
+                    m_monitor->failed_abstraction_eh(m_depth, e, simplifier_monitor::failure_kind::TypeMismatch);
                 return result(e); // failed, we can't use subst theorem
             } else {
                 expr H = get_proof(res_A);
@@ -1199,6 +1236,8 @@ class simplifier_fn {
         } else {
             expr e_type        = infer_type(e);
             if (is_TypeU(e_type) || !ensure_homogeneous(B, res_B)) {
+                if (m_monitor)
+                    m_monitor->failed_abstraction_eh(m_depth, e, simplifier_monitor::failure_kind::TypeMismatch);
                 return result(e); // failed, we can't use subst theorem
             } else {
                 expr H = get_proof(res_B);
@@ -1278,11 +1317,16 @@ class simplifier_fn {
         expr new_bi           = res_bi.m_expr;
         if (occurs(x_old, new_bi)) {
             // failed, simplifier didn't manage to replace x_old with x_new
+            if (m_monitor)
+                m_monitor->failed_abstraction_eh(m_depth, e, simplifier_monitor::failure_kind::AbstractionBody);
             return rewrite(e, result(e));
         }
         expr new_e   = update_pi(e, new_d, abstract(new_bi, x_new));
-        if (!m_proofs_enabled || is_definitionally_equal(e, new_e))
+        if (!m_proofs_enabled || is_definitionally_equal(e, new_e)) {
+            if (m_monitor)
+                m_monitor->failed_abstraction_eh(m_depth, e, simplifier_monitor::failure_kind::TypeMismatch);
             return rewrite(e, result(new_e));
+        }
         ensure_homogeneous(d, res_d);
         ensure_homogeneous(bi, res_bi);
         // Remark: the argument with type A = A' in hallext and hpiext is actually @eq TypeM A A',
@@ -1319,6 +1363,8 @@ class simplifier_fn {
                 return simplify_forall_body(e);
         } else {
             // We currently do simplify (forall x : A, B x) when it is not a proposition.
+            if (m_monitor)
+                m_monitor->failed_abstraction_eh(m_depth, e, simplifier_monitor::failure_kind::Unsupported);
             return result(e);
         }
     }
@@ -1327,6 +1373,8 @@ class simplifier_fn {
         if (m_memoize) {
             result new_r = r.update_expr(m_max_sharing(r.m_expr));
             m_cache.insert(mk_pair(e, new_r));
+            if (m_monitor)
+                m_monitor->step_eh(m_depth, e, new_r.m_expr, new_r.m_proof);
             return new_r;
         } else {
             return r;
@@ -1336,6 +1384,7 @@ class simplifier_fn {
     result simplify(expr e) {
         check_system("simplifier");
         m_num_steps++;
+        flet<unsigned> inc_depth(m_depth, m_depth+1);
         if (m_num_steps > m_max_steps)
             throw exception("simplifier failed, maximum number of steps exceeded");
         if (m_memoize) {
@@ -1345,6 +1394,8 @@ class simplifier_fn {
                 return it->second;
             }
         }
+        if (m_monitor)
+            m_monitor->pre_eh(m_depth, e);
         switch (e.kind()) {
         case expr_kind::Var:      return result(e);
         case expr_kind::Constant: return save(e, simplify_constant(e));
@@ -1394,8 +1445,9 @@ class simplifier_fn {
     }
 
 public:
-    simplifier_fn(ro_environment const & env, options const & o, unsigned num_rs, rewrite_rule_set const * rs):
-        m_env(env), m_tc(env) {
+    simplifier_fn(ro_environment const & env, options const & o, unsigned num_rs, rewrite_rule_set const * rs,
+                  std::shared_ptr<simplifier_monitor> const & monitor):
+        m_env(env), m_tc(env), m_monitor(monitor) {
         m_has_heq  = m_env->imported("heq");
         m_has_cast = m_env->imported("cast");
         set_options(o);
@@ -1411,22 +1463,25 @@ public:
     expr_pair operator()(expr const & e, context const & ctx) {
         set_ctx(ctx);
         m_num_steps = 0;
+        m_depth     = 0;
         auto r = simplify(e);
         return mk_pair(r.m_expr, get_proof(r));
     }
 };
 
 expr_pair simplify(expr const & e, ro_environment const & env, context const & ctx, options const & opts,
-                   unsigned num_rs, rewrite_rule_set const * rs) {
-    return simplifier_fn(env, opts, num_rs, rs)(e, ctx);
+                   unsigned num_rs, rewrite_rule_set const * rs,
+                   std::shared_ptr<simplifier_monitor> const & monitor) {
+    return simplifier_fn(env, opts, num_rs, rs, monitor)(e, ctx);
 }
 
 expr_pair simplify(expr const & e, ro_environment const & env, context const & ctx, options const & opts,
-                   unsigned num_ns, name const * ns) {
+                   unsigned num_ns, name const * ns,
+                   std::shared_ptr<simplifier_monitor> const & monitor) {
     buffer<rewrite_rule_set> rules;
     for (unsigned i = 0; i < num_ns; i++)
         rules.push_back(get_rewrite_rule_set(env, ns[i]));
-    return simplify(e, env, ctx, opts, num_ns, rules.data());
+    return simplify(e, env, ctx, opts, num_ns, rules.data(), monitor);
 }
 
 static int simplify_core(lua_State * L, ro_shared_environment const & env) {

@@ -196,6 +196,7 @@ public:
     context instantiate_metavars(context const & ctx) const;
 };
 
+class ro_metavar_env;
 /**
    \brief Reference to metavariable environment (cell).
 */
@@ -205,6 +206,8 @@ class metavar_env {
     friend class metavar_env_cell;
     metavar_env_cell * m_ptr;
     explicit metavar_env(metavar_env_cell * ptr):m_ptr(ptr) { if (m_ptr) m_ptr->inc_ref(); }
+    friend class type_checker;
+    explicit metavar_env(ro_metavar_env const & s);
 public:
     metavar_env():m_ptr(new metavar_env_cell()) { m_ptr->inc_ref(); }
     metavar_env(name const & prefix):m_ptr(new metavar_env_cell(prefix)) { m_ptr->inc_ref(); }
@@ -243,6 +246,7 @@ inline context instantiate_metavars(optional<metavar_env> const & menv, context 
    \brief Read-only reference to metavariable environment (cell).
 */
 class ro_metavar_env {
+    friend class metavar_env;
     metavar_env_cell * m_ptr;
 public:
     ro_metavar_env():m_ptr(new metavar_env_cell()) { m_ptr->inc_ref(); }

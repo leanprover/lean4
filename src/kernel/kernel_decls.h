@@ -155,6 +155,9 @@ inline expr mk_refute_th(expr const & e1, expr const & e2) { return mk_app({mk_r
 expr mk_symm_fn();
 bool is_symm_fn(expr const & e);
 inline expr mk_symm_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_symm_fn(), e1, e2, e3, e4}); }
+expr mk_eqmpr_fn();
+bool is_eqmpr_fn(expr const & e);
+inline expr mk_eqmpr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_eqmpr_fn(), e1, e2, e3, e4}); }
 expr mk_trans_fn();
 bool is_trans_fn(expr const & e);
 inline expr mk_trans_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_trans_fn(), e1, e2, e3, e4, e5, e6}); }

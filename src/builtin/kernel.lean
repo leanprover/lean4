@@ -173,6 +173,9 @@ theorem refute {a : Bool} (H : ¬ a → false) : a
 theorem symm {A : TypeU} {a b : A} (H : a = b) : b = a
 := subst (refl a) H
 
+theorem eqmpr {a b : Bool} (H1 : a = b) (H2 : b) : a
+:= (symm H1) ◂ H2
+
 theorem trans {A : TypeU} {a b c : A} (H1 : a = b) (H2 : b = c) : a = c
 := subst H1 H2
 

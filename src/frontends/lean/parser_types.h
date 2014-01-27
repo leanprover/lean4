@@ -26,7 +26,7 @@ struct parameter {
 };
 typedef buffer<parameter> parameter_buffer;
 
-enum class macro_arg_kind { Expr, Exprs, Parameters, Id, Int, String, Comma, Assign, Tactic, Tactics };
+enum class macro_arg_kind { Expr, Exprs, Parameters, Id, Ids, Int, String, Comma, Assign, Tactic, Tactics };
 struct macro {
     list<macro_arg_kind> m_arg_kinds;
     luaref               m_fn;

@@ -16,3 +16,9 @@ const_tactic("unfold_all", unfold_tac)
 const_tactic("beta", beta_tac)
 tactic_macro("apply", { macro_arg.Expr }, function (env, e) return apply_tac(e) end)
 tactic_macro("unfold", { macro_arg.Id }, function (env, id) return unfold_tac(id) end)
+
+tactic_macro("simp", { macro_arg.Ids },
+             function (env, ids)
+                return simp_tac(ids)
+             end
+)

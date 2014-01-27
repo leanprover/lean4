@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/lua.h"
 #include "kernel/environment.h"
 #include "library/expr_pair.h"
+#include "library/simplifier/rewrite_rule_set.h"
 
 namespace lean {
 expr_pair simplify(expr const & e, ro_environment const & env, context const & ctx, options const & pts,

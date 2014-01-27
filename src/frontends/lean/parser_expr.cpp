@@ -372,6 +372,15 @@ parser_imp::macro_result parser_imp::parse_macro(list<macro_arg_kind> const & ar
             args.emplace_back(k, &n);
             return parse_macro(tail(arg_kinds), fn, prec, args, p);
         }
+        case macro_arg_kind::Ids: {
+            buffer<name> ns;
+            args.emplace_back(k, &ns);
+            while (curr_is_identifier()) {
+                ns.push_back(curr_name());
+                next();
+            }
+            return parse_macro(tail(arg_kinds), fn, prec, args, p);
+        }
         case macro_arg_kind::Tactic: {
             tactic t = parse_tactic_expr();
             args.emplace_back(k, &t);
@@ -428,6 +437,17 @@ parser_imp::macro_result parser_imp::parse_macro(list<macro_arg_kind> const & ar
                     case macro_arg_kind::Id:
                         push_name(L, *static_cast<name*>(arg));
                         break;
+                    case macro_arg_kind::Ids: {
+                        buffer<name> const & ids = *static_cast<buffer<name>*>(arg);
+                        lua_newtable(L);
+                        int i = 1;
+                        for (auto const & id : ids) {
+                            push_name(L, id);
+                            lua_rawseti(L, -2, i);
+                            i = i + 1;
+                        }
+                        break;
+                    }
                     case macro_arg_kind::String:
                         lua_pushstring(L, static_cast<std::string*>(arg)->c_str());
                         break;

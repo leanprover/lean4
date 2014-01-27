@@ -50,6 +50,7 @@ public:
     expr infer_type(expr const & e, context const & ctx, optional<metavar_env> const & menv, buffer<unification_constraint> * new_constraints);
     expr infer_type(expr const & e, context const & ctx, metavar_env const & menv, buffer<unification_constraint> & new_constraints);
     expr infer_type(expr const & e, context const & ctx, metavar_env const & menv);
+    expr infer_type(expr const & e, context const & ctx, ro_metavar_env const & menv);
 
     /**
         \brief Return the type of \c e in the context \c ctx.
@@ -95,6 +96,7 @@ public:
     /** \brief Return true iff \c e is a proposition (i.e., it has type Bool) */
     bool is_proposition(expr const & e, context const & ctx, optional<metavar_env> const & menv);
     bool is_proposition(expr const & e, context const & ctx, metavar_env const & menv);
+    bool is_proposition(expr const & e, context const & ctx, ro_metavar_env const & menv);
     bool is_proposition(expr const & e, context const & ctx = context());
 
     /** \brief Return true iff \c e is a proposition or is a Pi s.t. the range is a flex_proposition */

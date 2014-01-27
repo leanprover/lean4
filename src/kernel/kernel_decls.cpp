@@ -54,6 +54,7 @@ MK_CONSTANT(or_intror_fn, name("or_intror"));
 MK_CONSTANT(or_elim_fn, name("or_elim"));
 MK_CONSTANT(refute_fn, name("refute"));
 MK_CONSTANT(symm_fn, name("symm"));
+MK_CONSTANT(eqmpr_fn, name("eqmpr"));
 MK_CONSTANT(trans_fn, name("trans"));
 MK_CONSTANT(ne_symm_fn, name("ne_symm"));
 MK_CONSTANT(eq_ne_trans_fn, name("eq_ne_trans"));

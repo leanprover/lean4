@@ -62,6 +62,14 @@ public:
     */
     friend options join(options const & opts1, options const & opts2);
 
+    /**
+       \brief Return a new set of options based on \c opts by adding the prefix \c prefix.
+
+       The procedure throws an exception if \c opts contains an options (o, v), s.t. prefix + o is
+       an unknow option in Lean.
+    */
+    friend options add_prefix(name const & prefix, options const & opts);
+
     friend format pp(options const & o);
     friend std::ostream & operator<<(std::ostream & out, options const & o);
 
@@ -79,6 +87,8 @@ template<typename T> options update(options const & o, name const & n, T const &
 struct mk_option_declaration {
     mk_option_declaration(name const & n, option_kind k, char const * default_value, char const * description);
 };
+
+int mk_options(name const & prefix, lua_State * L);
 
 #define LEAN_MAKE_OPTION_NAME_CORE(LINE) LEAN_OPTION_ ## LINE
 #define LEAN_MAKE_OPTION_NAME(LINE) LEAN_MAKE_OPTION_NAME_CORE(LINE)

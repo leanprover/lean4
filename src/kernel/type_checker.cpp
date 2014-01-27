@@ -482,6 +482,10 @@ expr type_checker::infer_type(expr const & e, context const & ctx, metavar_env c
 expr type_checker::infer_type(expr const & e, context const & ctx, metavar_env const & menv) {
     return m_ptr->infer_type(e, ctx, some_menv(menv), nullptr);
 }
+expr type_checker::infer_type(expr const & e, context const & ctx, ro_metavar_env const & menv) {
+    // metavariable environment is not updated when unification constraints are not provided
+    return infer_type(e, ctx, metavar_env(menv));
+}
 expr type_checker::infer_type(expr const & e, context const & ctx) {
     return infer_type(e, ctx, none_menv(), nullptr);
 }
@@ -517,6 +521,10 @@ bool type_checker::is_proposition(expr const & e, context const & ctx) {
 }
 bool type_checker::is_proposition(expr const & e, context const & ctx, metavar_env const & menv) {
     return is_proposition(e, ctx, some_menv(menv));
+}
+bool type_checker::is_proposition(expr const & e, context const & ctx, ro_metavar_env const & menv) {
+    // metavariable environment is not updated when unification constraints are not provided
+    return is_proposition(e, ctx, metavar_env(menv));
 }
 bool type_checker::is_flex_proposition(expr e, context ctx, optional<metavar_env> const & menv) {
     while (is_pi(e)) {

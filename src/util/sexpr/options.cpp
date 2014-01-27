@@ -151,6 +151,23 @@ options join(options const & opts1, options const & opts2) {
     return options(r);
 }
 
+/**
+   \brief Return a new set of options based on \c opts by adding the prefix \c prefix.
+
+   The procedure throws an exception if \c opts contains an options (o, v), s.t. prefix + o is
+   an unknow option in Lean.
+*/
+options add_prefix(name const & prefix, options const & opts) {
+    std::cout << "prefix: " << prefix << "\n";
+    option_declarations const & decls = get_option_declarations();
+    return map(opts.m_value, [&](sexpr const & p) {
+            name n = prefix + to_name(car(p));
+            if (decls.find(n) == decls.end())
+                throw exception(sstream() << "unknown option '" << n << "'");
+            return cons(sexpr(n), cdr(p));
+        });
+}
+
 format pp(options const & o) {
     bool unicode = get_pp_unicode(o);
     format r;
@@ -182,13 +199,13 @@ std::ostream & operator<<(std::ostream & out, options const & o) {
 
 DECL_UDATA(options)
 
-static int mk_options(lua_State * L) {
+int mk_options(name const & prefix, lua_State * L) {
     options r;
     int nargs = lua_gettop(L);
     if (nargs % 2 != 0)
         throw exception("options expects an even number of arguments");
     for (int i = 1; i < nargs; i+=2) {
-        name k = to_name_ext(L, i);
+        name k = prefix + to_name_ext(L, i);
         auto it = get_option_declarations().find(k);
         if (it == get_option_declarations().end()) {
             throw exception(sstream() << "unknown option '" << k.to_string().c_str() << "'");
@@ -205,6 +222,10 @@ static int mk_options(lua_State * L) {
         }
     }
     return push_options(L, r);
+}
+
+static int mk_options(lua_State * L) {
+    return mk_options(name(), L);
 }
 
 static int options_tostring(lua_State * L) {
@@ -284,6 +305,10 @@ static int options_update_string(lua_State * L) {
     return push_options(L, to_options(L, 1).update(to_name_ext(L, 2), lua_tostring(L, 3)));
 }
 
+static int options_join(lua_State * L) {
+    return push_options(L, join(to_options(L, 1), to_options(L, 2)));
+}
+
 static int options_get(lua_State * L) {
     name k = to_name_ext(L, 2);
     auto it = get_option_declarations().find(k);
@@ -329,6 +354,7 @@ static const struct luaL_Reg options_m[] = {
     {"empty",           safe_function<options_empty>},
     {"get",             safe_function<options_get>},
     {"update",          safe_function<options_update>},
+    {"join",            safe_function<options_join>},
     // low-level API
     {"get_bool",        safe_function<options_get_bool>},
     {"get_int",         safe_function<options_get_int>},

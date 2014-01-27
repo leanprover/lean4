@@ -131,6 +131,7 @@ void open_macros(lua_State * L) {
     SET_ENUM("Exprs",      macro_arg_kind::Exprs);
     SET_ENUM("Parameters", macro_arg_kind::Parameters);
     SET_ENUM("Id",         macro_arg_kind::Id);
+    SET_ENUM("Ids",        macro_arg_kind::Ids);
     SET_ENUM("String",     macro_arg_kind::String);
     SET_ENUM("Int",        macro_arg_kind::Int);
     SET_ENUM("Comma",      macro_arg_kind::Comma);

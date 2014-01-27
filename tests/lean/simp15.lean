@@ -10,7 +10,7 @@ variables a b c : Nat
 (*
 local opts = options({"simplifier", "contextual"}, false)
 local t = parse_lean([[a = 1 ∧ (¬ b = 0 ∨ c ≠ 0 ∨ b + c > a)]])
-local s, pr = simplify(t, "simple", get_environment(), context(), opts)
+local s, pr = simplify(t, "simple", opts)
 print(s)
 print(pr)
 print(get_environment():type_check(pr))

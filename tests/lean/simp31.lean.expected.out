@@ -1,0 +1,42 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: a
+  Assumed: b
+  Assumed: c
+a + (b + 0) + a
+=====>
+Visit, depth: 1, a + (b + 0) + a
+Visit, depth: 2, Nat::add
+Visit, depth: 2, a + (b + 0)
+Visit, depth: 3, Nat::add
+Visit, depth: 3, a
+Step: a ===> a
+Visit, depth: 3, b + 0
+Visit, depth: 4, Nat::add
+Visit, depth: 4, b
+Step: b ===> b
+Visit, depth: 4, 0
+Rewrite using: Nat::add_zeror
+  b + 0 ===> b
+Step: b + 0 ===> b
+Visit, depth: 3, a + b
+Visit, depth: 4, Nat::add
+Step: a + b ===> a + b
+Step: a + (b + 0) ===> a + b
+Rewrite using: Nat::add_assoc
+  a + b + a ===> a + (b + a)
+Visit, depth: 2, a + (b + a)
+Visit, depth: 3, Nat::add
+Visit, depth: 3, b + a
+Visit, depth: 4, Nat::add
+Rewrite using: Nat::add_comm
+  b + a ===> a + b
+Step: b + a ===> a + b
+Visit, depth: 3, a + (a + b)
+Visit, depth: 4, Nat::add
+Step: a + (a + b) ===> a + (a + b)
+Step: a + (b + a) ===> a + (a + b)
+Step: a + (b + 0) + a ===> a + (a + b)
+a + (a + b)
+trans (trans (congr1 a (congr2 Nat::add (congr2 (Nat::add a) (Nat::add_zeror b)))) (Nat::add_assoc a b a))
+      (congr2 (Nat::add a) (Nat::add_comm b a))

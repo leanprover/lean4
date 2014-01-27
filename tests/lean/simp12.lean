@@ -6,7 +6,7 @@ local opts   = options({"simplifier", "single_pass"}, true)
 local t      = parse_lean("f + (c + f + d) + (e * (a + c) + (d + a))")
 print(t)
 for i = 1, 10 do
-  local t2, pr = simplify(t, "simple", get_environment(), context(), opts)
+  local t2, pr = simplify(t, "simple", opts)
   print("i: " .. i .. " ====>")
   print(t2)
   if t == t2 then

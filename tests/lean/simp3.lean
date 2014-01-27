@@ -15,7 +15,7 @@ show(simplify(t4))
 (*
 local opt = options({"simplifier", "unfold"}, true, {"simplifier", "eval"}, false)
 local t1  = parse_lean("double (double 2) + 1 ≥ 3")
-show(simplify(t1, 'default', get_environment(), context(), opt))
+show(simplify(t1, 'default', opt))
 *)
 
 set_opaque  Nat::ge false
@@ -26,7 +26,7 @@ add_rewrite Nat::distributel
 (*
 local opt = options({"simplifier", "unfold"}, true, {"simplifier", "eval"}, false)
 local t1  = parse_lean("2 * double (double 2) + 1 ≥ 3")
-show(simplify(t1, 'default', get_environment(), context(), opt))
+show(simplify(t1, 'default', opt))
 *)
 
 variables a b c d : Nat

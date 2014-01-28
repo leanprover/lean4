@@ -21,6 +21,7 @@ class hop_match_fn {
     buffer<optional<expr>> & m_subst;
     buffer<expr>             m_vars;
     optional<ro_environment> m_env;
+    name_map<name> *         m_name_subst;
 
     bool is_free_var(expr const & x, unsigned ctx_size) const {
         return is_var(x) && var_idx(x) >= ctx_size;
@@ -296,6 +297,8 @@ class hop_match_fn {
             return true;
         }
         case expr_kind::Lambda: case expr_kind::Pi:
+            if (m_name_subst)
+                (*m_name_subst)[abst_name(p)] = abst_name(t);
             return
                 match(abst_domain(p), abst_domain(t), ctx, ctx_size) &&
                 match(abst_body(p), abst_body(t), extend(ctx, abst_name(t), abst_domain(t)), ctx_size+1);
@@ -306,15 +309,17 @@ class hop_match_fn {
         lean_unreachable();
     }
 public:
-    hop_match_fn(buffer<optional<expr>> & subst, optional<ro_environment> const & env):m_subst(subst), m_env(env) {}
+    hop_match_fn(buffer<optional<expr>> & subst, optional<ro_environment> const & env,
+                 name_map<name> * name_subst):m_subst(subst), m_env(env), m_name_subst(name_subst) {}
 
     bool operator()(expr const & p, expr const & t) {
         return match(p, t, context(), 0);
     }
 };
 
-bool hop_match(expr const & p, expr const & t, buffer<optional<expr>> & subst, optional<ro_environment> const & env) {
-    return hop_match_fn(subst, env)(p, t);
+bool hop_match(expr const & p, expr const & t, buffer<optional<expr>> & subst, optional<ro_environment> const & env,
+               name_map<name> * name_subst) {
+    return hop_match_fn(subst, env, name_subst)(p, t);
 }
 
 static int hop_match_core(lua_State * L, optional<ro_environment> const & env) {

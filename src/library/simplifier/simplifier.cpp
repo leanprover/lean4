@@ -64,6 +64,10 @@ Author: Leonardo de Moura
 #define LEAN_SIMPLIFIER_MEMOIZE true
 #endif
 
+#ifndef LEAN_SIMPLIFIER_PRESERVE_BINDER_NAMES
+#define LEAN_SIMPLIFIER_PRESERVE_BINDER_NAMES true
+#endif
+
 #ifndef LEAN_SIMPLIFIER_MAX_STEPS
 #define LEAN_SIMPLIFIER_MAX_STEPS std::numeric_limits<unsigned>::max()
 #endif
@@ -79,6 +83,7 @@ static name g_simplifier_unfold       {"simplifier", "unfold"};
 static name g_simplifier_conditional  {"simplifier", "conditional"};
 static name g_simplifier_memoize      {"simplifier", "memoize"};
 static name g_simplifier_max_steps    {"simplifier", "max_steps"};
+static name g_simplifier_preserve_binder_names {"simplifier", "preserve_binder_names"};
 
 RegisterBoolOption(g_simplifier_proofs, LEAN_SIMPLIFIER_PROOFS, "(simplifier) generate proofs");
 RegisterBoolOption(g_simplifier_contextual, LEAN_SIMPLIFIER_CONTEXTUAL, "(simplifier) contextual simplification");
@@ -89,6 +94,8 @@ RegisterBoolOption(g_simplifier_eval, LEAN_SIMPLIFIER_EVAL, "(simplifier) apply 
 RegisterBoolOption(g_simplifier_unfold, LEAN_SIMPLIFIER_UNFOLD, "(simplifier) unfolds non-opaque definitions");
 RegisterBoolOption(g_simplifier_conditional, LEAN_SIMPLIFIER_CONDITIONAL, "(simplifier) conditional rewriting");
 RegisterBoolOption(g_simplifier_memoize, LEAN_SIMPLIFIER_MEMOIZE, "(simplifier) memoize/cache intermediate results");
+RegisterBoolOption(g_simplifier_preserve_binder_names, LEAN_SIMPLIFIER_PRESERVE_BINDER_NAMES,
+                   "(simplifier) (try to) preserve binder names when applying higher-order rewrite rules");
 RegisterUnsignedOption(g_simplifier_max_steps, LEAN_SIMPLIFIER_MAX_STEPS, "(simplifier) maximum number of steps");
 
 bool get_simplifier_proofs(options const & opts) { return opts.get_bool(g_simplifier_proofs, LEAN_SIMPLIFIER_PROOFS); }
@@ -100,6 +107,9 @@ bool get_simplifier_eval(options const & opts) { return opts.get_bool(g_simplifi
 bool get_simplifier_unfold(options const & opts) { return opts.get_bool(g_simplifier_unfold, LEAN_SIMPLIFIER_UNFOLD); }
 bool get_simplifier_conditional(options const & opts) { return opts.get_bool(g_simplifier_conditional, LEAN_SIMPLIFIER_CONDITIONAL); }
 bool get_simplifier_memoize(options const & opts) { return opts.get_bool(g_simplifier_memoize, LEAN_SIMPLIFIER_MEMOIZE); }
+bool get_simplifier_preserve_binder_names(options const & opts) {
+    return opts.get_bool(g_simplifier_preserve_binder_names, LEAN_SIMPLIFIER_PRESERVE_BINDER_NAMES);
+}
 unsigned get_simplifier_max_steps(options const & opts) { return opts.get_unsigned(g_simplifier_max_steps, LEAN_SIMPLIFIER_MAX_STEPS); }
 
 static name g_local("local");
@@ -145,6 +155,7 @@ class simplifier_cell::imp {
     unsigned       m_next_idx;  // index used to create fresh constants
     unsigned       m_num_steps; // number of steps performed
     unsigned       m_depth;     // recursion depth
+    name_map<name> m_name_subst;
     std::shared_ptr<simplifier_monitor> m_monitor;
 
     // Configuration
@@ -157,6 +168,7 @@ class simplifier_cell::imp {
     bool           m_unfold;
     bool           m_conditional;
     bool           m_memoize;
+    bool           m_preserve_binder_names;
     unsigned       m_max_steps;
 
     struct updt_rule_set {
@@ -839,6 +851,29 @@ class simplifier_cell::imp {
         return true;
     }
 
+    struct rename_binder_names_fn : public replace_visitor {
+        name_map<name> const & m_name_subst;
+        rename_binder_names_fn(name_map<name> const & s):m_name_subst(s) {}
+        virtual expr visit_abst(expr const & e, context const & ctx) {
+            auto it = m_name_subst.find(abst_name(e));
+            if (it != m_name_subst.end()) {
+                if (is_lambda(e))
+                    return replace_visitor::visit_abst(mk_lambda(it->second, abst_domain(e), abst_body(e)), ctx);
+                else
+                    return replace_visitor::visit_abst(mk_pi(it->second, abst_domain(e), abst_body(e)), ctx);
+            } else {
+                return replace_visitor::visit_abst(e, ctx);
+            }
+        }
+    };
+
+    expr rename_binder_names(expr const & e, name_map<name> const & name_subst) {
+        if (m_preserve_binder_names && !name_subst.empty())
+            return rename_binder_names_fn(name_subst)(e);
+        else
+            return e;
+    }
+
     /**
        \brief Given lhs and rhs s.t. lhs = rhs.m_expr with proof rhs.m_proof,
        this method applies rewrite rules, beta and evaluation to \c rhs.m_expr,
@@ -856,12 +891,14 @@ class simplifier_cell::imp {
             unsigned num = rule.get_num_args();
             subst.clear();
             subst.resize(num);
-            if (hop_match(rule.get_lhs(), target, subst, optional<ro_environment>(m_env))) {
+            m_name_subst.clear();
+            if (hop_match(rule.get_lhs(), target, subst, optional<ro_environment>(m_env), &m_name_subst)) {
                 new_args.clear();
                 new_args.resize(num+1);
                 if (found_all_args(num, subst, new_args)) {
                     // easy case: all arguments found
-                    new_rhs   = instantiate(rule.get_rhs(), num, new_args.data() + 1);
+                    expr rhs  = rename_binder_names(rule.get_rhs(), m_name_subst);
+                    new_rhs   = instantiate(rhs, num, new_args.data() + 1);
                     if (rule.is_permutation() && !is_lt(new_rhs, target, false))
                         return false;
                     if (m_proofs_enabled) {
@@ -879,7 +916,7 @@ class simplifier_cell::imp {
                     // Conditional rewriting: we try to fill the missing
                     // arguments by trying to find a proof for ones that are
                     // propositions.
-                    expr ceq = rule.get_ceq();
+                    expr ceq = rename_binder_names(rule.get_ceq(), m_name_subst);
                     buffer<expr> & proof_args = new_args;
                     proof_args.clear();
                     if (m_proofs_enabled)
@@ -1452,6 +1489,7 @@ class simplifier_cell::imp {
         m_conditional    = get_simplifier_conditional(o);
         m_memoize        = get_simplifier_memoize(o);
         m_max_steps      = get_simplifier_max_steps(o);
+        m_preserve_binder_names = get_simplifier_preserve_binder_names(o);
     }
 
 public:

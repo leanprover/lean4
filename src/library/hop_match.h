@@ -28,8 +28,13 @@ namespace lean {
 
    If an environment is provided, then a constant \c c matches a term \c t if
    \c c is definitionally equal to \c t.
+
+   If name_subst is different from nullptr, then the procedure stores in name_subst
+   a mapping for binder names. It maps the binder names used in the pattern \c p into
+   the binder names used in \c t.
 */
 bool hop_match(expr const & p, expr const & t, buffer<optional<expr>> & subst,
-               optional<ro_environment> const & env = optional<ro_environment>());
+               optional<ro_environment> const & env = optional<ro_environment>(),
+               name_map<name> * name_subst = nullptr);
 void open_hop_match(lua_State * L);
 }

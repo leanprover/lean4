@@ -398,18 +398,18 @@ public:
         return infer_check(e, ctx, menv, uc, false);
     }
 
-    bool is_convertible(expr const & t1, expr const & t2, context const & ctx) {
+    bool is_convertible(expr const & t1, expr const & t2, context const & ctx, optional<metavar_env> const & menv) {
         set_ctx(ctx);
-        update_menv(none_menv());
+        update_menv(menv);
         auto mk_justification = [](){
             lean_unreachable(); return justification(); // LCOV_EXCL_LINE
         };
         return is_convertible(t1, t2, ctx, mk_justification);
     }
 
-    bool is_definitionally_equal(expr const & t1, expr const & t2, context const & ctx) {
+    bool is_definitionally_equal(expr const & t1, expr const & t2, context const & ctx, optional<metavar_env> const & menv) {
         set_ctx(ctx);
-        update_menv(none_menv());
+        update_menv(menv);
         if (t1 == t2)
             return true;
         expr new_t1 = normalize(t1, ctx, false);
@@ -445,9 +445,9 @@ public:
             return is_bool(normalize(t, ctx, true));
     }
 
-    expr ensure_pi(expr const & e, context const & ctx) {
+    expr ensure_pi(expr const & e, context const & ctx, optional<metavar_env> const & menv) {
         set_ctx(ctx);
-        update_menv(none_menv());
+        update_menv(menv);
         try {
             return check_pi(e, expr(), ctx);
         } catch (exception &) {
@@ -502,17 +502,26 @@ expr type_checker::check(expr const & e, context const & ctx, ro_metavar_env con
 expr type_checker::check(expr const & e, context const & ctx) {
     return check(e, ctx, none_menv(), nullptr);
 }
+bool type_checker::is_convertible(expr const & t1, expr const & t2, context const & ctx, optional<ro_metavar_env> const & menv) {
+    return m_ptr->is_convertible(t1, t2, ctx, ro_metavar_env::to_rw(menv));
+}
 bool type_checker::is_convertible(expr const & t1, expr const & t2, context const & ctx) {
-    return m_ptr->is_convertible(t1, t2, ctx);
+    return m_ptr->is_convertible(t1, t2, ctx, none_menv());
+}
+bool type_checker::is_definitionally_equal(expr const & t1, expr const & t2, context const & ctx, optional<ro_metavar_env> const & menv) {
+    return m_ptr->is_definitionally_equal(t1, t2, ctx, ro_metavar_env::to_rw(menv));
 }
 bool type_checker::is_definitionally_equal(expr const & t1, expr const & t2, context const & ctx) {
-    return m_ptr->is_definitionally_equal(t1, t2, ctx);
+    return m_ptr->is_definitionally_equal(t1, t2, ctx, none_menv());
 }
 void type_checker::check_type(expr const & e, context const & ctx) {
     m_ptr->check_type(e, ctx);
 }
+expr type_checker::ensure_pi(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv) {
+    return m_ptr->ensure_pi(e, ctx, ro_metavar_env::to_rw(menv));
+}
 expr type_checker::ensure_pi(expr const & e, context const & ctx) {
-    return m_ptr->ensure_pi(e, ctx);
+    return m_ptr->ensure_pi(e, ctx, none_menv());
 }
 bool type_checker::is_proposition(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv) {
     return m_ptr->is_proposition(e, ctx, ro_metavar_env::to_rw(menv));

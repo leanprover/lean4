@@ -85,12 +85,14 @@ public:
     void check_type(expr const & e, context const & ctx = context());
 
     /** \brief Return true iff \c t1 is convertible to \c t2 in the context \c ctx. */
+    bool is_convertible(expr const & t1, expr const & t2, context const & ctx, optional<ro_metavar_env> const & menv);
     bool is_convertible(expr const & t1, expr const & t2, context const & ctx = context());
 
     /** \brief Return true iff \c t1 definitionally equal to \c t2 in the context \c ctx.
 
         \remark is_definitionally_equal(t1, t2, ctx) implies is_convertible(t1, t2, ctx)
     */
+    bool is_definitionally_equal(expr const & t1, expr const & t2, context const & ctx, optional<ro_metavar_env> const & menv);
     bool is_definitionally_equal(expr const & t1, expr const & t2, context const & ctx = context());
 
     /** \brief Return true iff \c e is a proposition (i.e., it has type Bool) */
@@ -104,6 +106,7 @@ public:
     bool is_flex_proposition(expr const & e, context const & ctx = context());
 
     /** \brief Return a Pi if \c e is convertible to Pi. Throw an exception otherwise. */
+    expr ensure_pi(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv);
     expr ensure_pi(expr const & e, context const & ctx = context());
 
     /** \brief Reset internal caches */

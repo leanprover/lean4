@@ -17,7 +17,7 @@ class simplifier_monitor;
 /** \brief Simplifier object cell. */
 class simplifier_cell {
     friend class simplifier;
-    struct imp;
+    class imp;
     std::unique_ptr<imp> m_ptr;
 public:
     simplifier_cell(ro_environment const & env, options const & o, unsigned num_rs, rewrite_rule_set const * rs,

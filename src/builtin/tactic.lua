@@ -19,6 +19,9 @@ tactic_macro("unfold", { macro_arg.Id }, function (env, id) return unfold_tac(id
 
 tactic_macro("simp", { macro_arg.Ids },
              function (env, ids)
+                if #ids == 0 then
+                   ids[1] = "default"
+                end
                 return simp_tac(ids)
              end
 )

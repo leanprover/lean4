@@ -1,0 +1,49 @@
+1- Coq expressivity + Z3 automation
+2- "Real" proof objects
+3- "Freedom to trust", semantic attachments
+    (speed) vs (trusted code base size)
+    Example: (by simp using t1 ... tn)
+4- Extensible system (without compromising soundness)
+5- Better support for "interactive proofs"
+    "Proofs with holes"
+    "Glue" different components
+    Script language
+    Extensibility
+    Proof maintenance
+    Unreliable automation produces "recipes" for reliable playback
+6- Every component is exposed in the script language API
+7- Lean is also a platform for implementing your own custom logic
+
+Status
+  * Elaboration engine
+     - Type inference,
+     - Fill holes by solving typing constraints
+     - Higher-order unification
+     - Non-chronological backtracking
+     - ...
+
+  * Generic bottom-up simplifier
+     - Extend by providing theorems/axioms
+     - Support for dependent types
+     - Predictable/Reliable
+
+  * Tactic framework
+     - "Glue" different engines
+     - Standard combinators +
+         timeout + parallel solving
+
+Next steps
+  * Generic tableaux like prover
+     - Extend by providing set of theorems that should be used as
+        alpha/beta/delta/gamma rules
+     - Non-chronological backtracking
+     - Callbacks: simplifier and decision procedures
+
+  * MCSat
+     - Model constructing satisfiability calculus.
+       New SMT engine
+
+  * Independent type/proof checker
+       - F-star
+
+  * Interface with existing tools: MiniSAT and Z3

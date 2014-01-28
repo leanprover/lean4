@@ -272,46 +272,36 @@ class hop_match_fn {
             return match_constant(p, t);
         }
 
-        if (is_equality(p) && is_equality(t) && (!is_eq(p) || !is_eq(t))) {
-            // Remark: if p and t are homogeneous equality, then we handle as an application (in the else branch)
-            // We do that because we can get more information. For example, the pattern
-            // may be    (eq #1 a b).
-            // This branch ignores the type.
-            expr_pair p1 = get_equality_args(p);
-            expr_pair p2 = get_equality_args(t);
-            return match(p1.first, p2.first, ctx, ctx_size) && match(p1.second, p2.second, ctx, ctx_size);
-        } else {
-            if (p.kind() != t.kind())
-                return false;
-            switch (p.kind()) {
-            case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type:
-            case expr_kind::Value: case expr_kind::MetaVar:
-                return false;
-            case expr_kind::App: {
-                unsigned i1 = num_args(p);
-                unsigned i2 = num_args(t);
-                while (i1 > 0 && i2 > 0) {
-                    --i1;
-                    --i2;
-                    if (i1 == 0 && i2 > 0) {
-                        return match(arg(p, i1), mk_app(i2+1, begin_args(t)), ctx, ctx_size);
-                    } else if (i2 == 0 && i1 > 0) {
-                        return match(mk_app(i1+1, begin_args(p)), arg(t, i2), ctx, ctx_size);
-                    } else {
-                        if (!match(arg(p, i1), arg(t, i2), ctx, ctx_size))
-                            return false;
-                    }
+        if (p.kind() != t.kind())
+            return false;
+        switch (p.kind()) {
+        case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type:
+        case expr_kind::Value: case expr_kind::MetaVar:
+            return false;
+        case expr_kind::App: {
+            unsigned i1 = num_args(p);
+            unsigned i2 = num_args(t);
+            while (i1 > 0 && i2 > 0) {
+                --i1;
+                --i2;
+                if (i1 == 0 && i2 > 0) {
+                    return match(arg(p, i1), mk_app(i2+1, begin_args(t)), ctx, ctx_size);
+                } else if (i2 == 0 && i1 > 0) {
+                    return match(mk_app(i1+1, begin_args(p)), arg(t, i2), ctx, ctx_size);
+                } else {
+                    if (!match(arg(p, i1), arg(t, i2), ctx, ctx_size))
+                        return false;
                 }
-                return true;
             }
-            case expr_kind::Lambda: case expr_kind::Pi:
-                return
-                    match(abst_domain(p), abst_domain(t), ctx, ctx_size) &&
-                    match(abst_body(p), abst_body(t), extend(ctx, abst_name(t), abst_domain(t)), ctx_size+1);
-            case expr_kind::Let:
-                // TODO(Leo)
-                return false;
-            }
+            return true;
+        }
+        case expr_kind::Lambda: case expr_kind::Pi:
+            return
+                match(abst_domain(p), abst_domain(t), ctx, ctx_size) &&
+                match(abst_body(p), abst_body(t), extend(ctx, abst_name(t), abst_domain(t)), ctx_size+1);
+        case expr_kind::Let:
+            // TODO(Leo)
+            return false;
         }
         lean_unreachable();
     }

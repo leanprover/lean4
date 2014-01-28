@@ -20,8 +20,8 @@ typedef splay_map<name, expr, name_quick_cmp> substitution;
 /**
    \brief Apply substitution \c s to \c e
 */
-expr apply(substitution & s, expr const & e, optional<metavar_env> const & menv = none_menv());
-inline expr apply(substitution & s, expr const & e, metavar_env const & menv) { return apply(s, e, some_menv(menv)); }
+expr apply(substitution & s, expr const & e, optional<ro_metavar_env> const & menv = none_ro_menv());
+inline expr apply(substitution & s, expr const & e, ro_metavar_env const & menv) { return apply(s, e, some_ro_menv(menv)); }
 
 expr find(substitution & s, expr e);
 UDATA_DEFS_CORE(substitution)

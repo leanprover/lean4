@@ -35,7 +35,7 @@ class metavar_env;
    [inst:s v] R  ===>  if s >= R then R else max(R-1, range_of(v))
    [lift:s:n] R  ===>  if s >= R then R else R + n
 */
-unsigned free_var_range(expr const & e, metavar_env const & menv);
+unsigned free_var_range(expr const & e, ro_metavar_env const & menv);
 unsigned free_var_range(expr const & e);
 
 /**
@@ -45,17 +45,17 @@ unsigned free_var_range(expr const & e);
     \remark If menv is not none, then we use \c free_var_range to compute the free variables that may
     occur in a metavariable.
 */
-bool has_free_var(expr const & e, unsigned low, unsigned high, optional<metavar_env> const & menv);
-bool has_free_var(expr const & e, unsigned low, unsigned high, metavar_env const & menv);
+bool has_free_var(expr const & e, unsigned low, unsigned high, optional<ro_metavar_env> const & menv);
+bool has_free_var(expr const & e, unsigned low, unsigned high, ro_metavar_env const & menv);
 bool has_free_var(expr const & e, unsigned low, unsigned high);
 /**
     \brief Return true iff \c e contains the free variable <tt>(var i)</tt>.
 */
-bool has_free_var(expr const & e, unsigned i, optional<metavar_env> const & menv);
-bool has_free_var(expr const & e, unsigned i, metavar_env const & menv);
+bool has_free_var(expr const & e, unsigned i, optional<ro_metavar_env> const & menv);
+bool has_free_var(expr const & e, unsigned i, ro_metavar_env const & menv);
 bool has_free_var(expr const & e, unsigned i);
 
-bool has_free_var(context_entry const & e, unsigned low, unsigned high, metavar_env const & menv);
+bool has_free_var(context_entry const & e, unsigned low, unsigned high, ro_metavar_env const & menv);
 
 /**
    \brief Return true iff \c e contains a free variable >= low.
@@ -63,7 +63,7 @@ bool has_free_var(context_entry const & e, unsigned low, unsigned high, metavar_
    \remark If menv is provided, then we use \c free_var_range to compute the free variables that may
     occur in a metavariable.
 */
-bool has_free_var_ge(expr const & e, unsigned low, metavar_env const & menv);
+bool has_free_var_ge(expr const & e, unsigned low, ro_metavar_env const & menv);
 bool has_free_var_ge(expr const & e, unsigned low);
 
 /**
@@ -75,14 +75,14 @@ bool has_free_var_ge(expr const & e, unsigned low);
 
    \remark The parameter menv is only used for debugging purposes
 */
-expr lower_free_vars(expr const & e, unsigned s, unsigned d, optional<metavar_env> const & menv);
-expr lower_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const & menv);
+expr lower_free_vars(expr const & e, unsigned s, unsigned d, optional<ro_metavar_env> const & menv);
+expr lower_free_vars(expr const & e, unsigned s, unsigned d, ro_metavar_env const & menv);
 expr lower_free_vars(expr const & e, unsigned s, unsigned d);
-expr lower_free_vars(expr const & e, unsigned d, optional<metavar_env> const & menv);
-expr lower_free_vars(expr const & e, unsigned d, metavar_env const & menv);
+expr lower_free_vars(expr const & e, unsigned d, optional<ro_metavar_env> const & menv);
+expr lower_free_vars(expr const & e, unsigned d, ro_metavar_env const & menv);
 expr lower_free_vars(expr const & e, unsigned d);
 
-context_entry lower_free_vars(context_entry const & e, unsigned s, unsigned d, metavar_env const & menv);
+context_entry lower_free_vars(context_entry const & e, unsigned s, unsigned d, ro_metavar_env const & menv);
 
 /**
    \brief Lift free variables >= s in \c e by d.
@@ -90,12 +90,12 @@ context_entry lower_free_vars(context_entry const & e, unsigned s, unsigned d, m
    \remark When the parameter menv is not none, this function will minimize the use
    of the local entry lift in metavariables occurring in \c e.
 */
-expr lift_free_vars(expr const & e, unsigned s, unsigned d, optional<metavar_env> const & menv);
+expr lift_free_vars(expr const & e, unsigned s, unsigned d, optional<ro_metavar_env> const & menv);
 expr lift_free_vars(expr const & e, unsigned s, unsigned d);
-expr lift_free_vars(expr const & e, unsigned s, unsigned d, metavar_env const & menv);
-expr lift_free_vars(expr const & e, unsigned d, optional<metavar_env> const & menv);
-expr lift_free_vars(expr const & e, unsigned d, metavar_env const & menv);
+expr lift_free_vars(expr const & e, unsigned s, unsigned d, ro_metavar_env const & menv);
+expr lift_free_vars(expr const & e, unsigned d, optional<ro_metavar_env> const & menv);
+expr lift_free_vars(expr const & e, unsigned d, ro_metavar_env const & menv);
 expr lift_free_vars(expr const & e, unsigned d);
 
-context_entry lift_free_vars(context_entry const & e, unsigned s, unsigned d, metavar_env const & menv);
+context_entry lift_free_vars(context_entry const & e, unsigned s, unsigned d, ro_metavar_env const & menv);
 }

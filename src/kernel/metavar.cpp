@@ -224,7 +224,7 @@ bool metavar_env_cell::assign(expr const & m, expr const & t) {
     return assign(m, t, j);
 }
 
-expr apply_local_context(expr const & a, local_context const & lctx, optional<metavar_env> const & menv) {
+expr apply_local_context(expr const & a, local_context const & lctx, optional<ro_metavar_env> const & menv) {
     if (lctx) {
         if (is_metavar(a)) {
             return mk_metavar(metavar_name(a), append(lctx, metavar_lctx(a)));
@@ -463,7 +463,7 @@ local_context add_lift(local_context const & lctx, unsigned s, unsigned n) {
     return cons(mk_lift(s, n), lctx);
 }
 
-expr add_lift(expr const & m, unsigned s, unsigned n, optional<metavar_env> const & menv) {
+expr add_lift(expr const & m, unsigned s, unsigned n, optional<ro_metavar_env> const & menv) {
     if (menv && s >= free_var_range(m, *menv))
         return m;
     return update_metavar(m, add_lift(metavar_lctx(m), s, n));
@@ -487,7 +487,7 @@ local_context add_inst(local_context const & lctx, unsigned s, expr const & v) {
     return cons(mk_inst(s, v), lctx);
 }
 
-expr add_inst(expr const & m, unsigned s, expr const & v, optional<metavar_env> const & menv) {
+expr add_inst(expr const & m, unsigned s, expr const & v, optional<ro_metavar_env> const & menv) {
     if (menv && s >= free_var_range(m, *menv))
         return m;
     return update_metavar(m, add_inst(metavar_lctx(m), s, v));

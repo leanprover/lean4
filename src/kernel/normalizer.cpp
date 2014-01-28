@@ -87,11 +87,11 @@ class normalizer::imp {
     ro_environment env() const { return ro_environment(m_env); }
 
     expr instantiate(expr const & e, unsigned n, expr const * s) {
-        return ::lean::instantiate(e, n, s, m_menv.to_some_menv());
+        return ::lean::instantiate(e, n, s, m_menv.to_some_ro_menv());
     }
 
     expr add_lift(expr const & m, unsigned s, unsigned n) {
-        return ::lean::add_lift(m, s, n, m_menv.to_some_menv());
+        return ::lean::add_lift(m, s, n, m_menv.to_some_ro_menv());
     }
 
     expr lookup(value_stack const & s, unsigned i) {

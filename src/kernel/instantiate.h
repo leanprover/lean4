@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
-class metavar_env;
+class ro_metavar_env;
 /**
    \brief Replace the free variables with indices 0, ..., n-1 with s[n-1], ..., s[0] in e.
 
@@ -17,12 +17,12 @@ class metavar_env;
    \remark When the parameter menv is not none, this function will minimize the use
    of the local entry inst in metavariables occurring in \c e.
 */
-expr instantiate_with_closed(expr const & e, unsigned n, expr const * s, optional<metavar_env> const & menv);
-expr instantiate_with_closed(expr const & e, unsigned n, expr const * s, metavar_env const & menv);
+expr instantiate_with_closed(expr const & e, unsigned n, expr const * s, optional<ro_metavar_env> const & menv);
+expr instantiate_with_closed(expr const & e, unsigned n, expr const * s, ro_metavar_env const & menv);
 expr instantiate_with_closed(expr const & e, unsigned n, expr const * s);
 expr instantiate_with_closed(expr const & e, std::initializer_list<expr> const & l);
-expr instantiate_with_closed(expr const & e, expr const & s, optional<metavar_env> const & menv);
-expr instantiate_with_closed(expr const & e, expr const & s, metavar_env const & menv);
+expr instantiate_with_closed(expr const & e, expr const & s, optional<ro_metavar_env> const & menv);
+expr instantiate_with_closed(expr const & e, expr const & s, ro_metavar_env const & menv);
 expr instantiate_with_closed(expr const & e, expr const & s);
 
 /**
@@ -31,34 +31,34 @@ expr instantiate_with_closed(expr const & e, expr const & s);
    \remark When the parameter menv is not none, this function will minimize the use
    of the local entry inst in metavariables occurring in \c e.
 */
-expr instantiate(expr const & e, unsigned n, expr const * s, optional<metavar_env> const & menv);
-expr instantiate(expr const & e, unsigned n, expr const * s, metavar_env const & menv);
+expr instantiate(expr const & e, unsigned n, expr const * s, optional<ro_metavar_env> const & menv);
+expr instantiate(expr const & e, unsigned n, expr const * s, ro_metavar_env const & menv);
 expr instantiate(expr const & e, unsigned n, expr const * s);
 expr instantiate(expr const & e, std::initializer_list<expr> const & l);
 /**
    \brief Replace free variable \c i with \c s in \c e.
 */
-expr instantiate(expr const & e, unsigned i, expr const & s, optional<metavar_env> const & menv);
-expr instantiate(expr const & e, unsigned i, expr const & s, metavar_env const & menv);
+expr instantiate(expr const & e, unsigned i, expr const & s, optional<ro_metavar_env> const & menv);
+expr instantiate(expr const & e, unsigned i, expr const & s, ro_metavar_env const & menv);
 expr instantiate(expr const & e, unsigned i, expr const & s);
 /**
    \brief Replace free variable \c 0 with \c s in \c e.
 */
-expr instantiate(expr const & e, expr const & s, optional<metavar_env> const & menv);
-expr instantiate(expr const & e, expr const & s, metavar_env const & menv);
+expr instantiate(expr const & e, expr const & s, optional<ro_metavar_env> const & menv);
+expr instantiate(expr const & e, expr const & s, ro_metavar_env const & menv);
 expr instantiate(expr const & e, expr const & s);
 
-expr apply_beta(expr f, unsigned num_args, expr const * args, optional<metavar_env> const & menv);
-expr apply_beta(expr f, unsigned num_args, expr const * args, metavar_env const & menv);
+expr apply_beta(expr f, unsigned num_args, expr const * args, optional<ro_metavar_env> const & menv);
+expr apply_beta(expr f, unsigned num_args, expr const * args, ro_metavar_env const & menv);
 expr apply_beta(expr f, unsigned num_args, expr const * args);
 
 bool is_head_beta(expr const & t);
 
-expr head_beta_reduce(expr const & t, optional<metavar_env> const & menv);
-expr head_beta_reduce(expr const & t, metavar_env const & menv);
+expr head_beta_reduce(expr const & t, optional<ro_metavar_env> const & menv);
+expr head_beta_reduce(expr const & t, ro_metavar_env const & menv);
 expr head_beta_reduce(expr const & t);
 
-expr beta_reduce(expr t, optional<metavar_env> const & menv);
-expr beta_reduce(expr t, metavar_env const & menv);
+expr beta_reduce(expr t, optional<ro_metavar_env> const & menv);
+expr beta_reduce(expr t, ro_metavar_env const & menv);
 expr beta_reduce(expr t);
 }

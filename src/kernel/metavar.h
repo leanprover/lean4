@@ -246,8 +246,10 @@ inline context instantiate_metavars(optional<metavar_env> const & menv, context 
    \brief Read-only reference to metavariable environment (cell).
 */
 class ro_metavar_env {
+    friend class optional<ro_metavar_env>;
     friend class metavar_env;
     metavar_env_cell * m_ptr;
+    explicit ro_metavar_env(metavar_env_cell * ptr):m_ptr(ptr) { if (m_ptr) m_ptr->inc_ref(); }
 public:
     ro_metavar_env():m_ptr(new metavar_env_cell()) { m_ptr->inc_ref(); }
     ro_metavar_env(metavar_env const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
@@ -259,7 +261,15 @@ public:
     metavar_env_cell const * operator->() const { return m_ptr; }
     metavar_env_cell const & operator*() const { return *m_ptr; }
     metavar_env copy() const { return metavar_env(new metavar_env_cell(*m_ptr)); }
+    friend bool is_eqp(ro_metavar_env const & menv1, ro_metavar_env const & menv2) { return menv1.m_ptr == menv2.m_ptr; }
+    friend bool operator==(ro_metavar_env const & menv1, ro_metavar_env const & menv2) { return is_eqp(menv1, menv2); }
 };
+
+SPECIALIZE_OPTIONAL_FOR_SMART_PTR(ro_metavar_env)
+inline optional<ro_metavar_env> none_ro_menv() { return optional<ro_metavar_env>(); }
+inline optional<ro_metavar_env> some_ro_menv(ro_metavar_env const & e) { return optional<ro_metavar_env>(e); }
+inline optional<ro_metavar_env> some_ro_menv(ro_metavar_env && e) { return optional<ro_metavar_env>(std::forward<ro_metavar_env>(e)); }
+inline optional<ro_metavar_env> const & to_ro_menv(optional<metavar_env> const & menv) { return reinterpret_cast<optional<ro_metavar_env> const &>(menv); }
 
 /**
    \brief A cached weak reference to a metavariable environment + timestamp at the time of
@@ -280,6 +290,7 @@ public:
     bool update(metavar_env const & menv) { return update(some(menv)); }
     explicit operator bool() const { return static_cast<bool>(m_menv); }
     optional<metavar_env> const & to_some_menv() const { return m_menv; }
+    optional<ro_metavar_env> const & to_some_ro_menv() const { return to_ro_menv(m_menv); }
     metavar_env operator*() const { return *m_menv; }
     metavar_env_cell * operator->() const { lean_assert(m_menv); return (*m_menv).operator->(); }
 };
@@ -287,9 +298,9 @@ public:
 /**
    \brief Apply the changes in \c lctx to \c a.
 */
-expr apply_local_context(expr const & a, local_context const & lctx, optional<metavar_env> const & menv);
-inline expr apply_local_context(expr const & a, local_context const & lctx, metavar_env const & menv) { return apply_local_context(a, lctx, some_menv(menv)); }
-inline expr apply_local_context(expr const & a, local_context const & lctx) { return apply_local_context(a, lctx, none_menv()); }
+expr apply_local_context(expr const & a, local_context const & lctx, optional<ro_metavar_env> const & menv);
+inline expr apply_local_context(expr const & a, local_context const & lctx, ro_metavar_env const & menv) { return apply_local_context(a, lctx, some_ro_menv(menv)); }
+inline expr apply_local_context(expr const & a, local_context const & lctx) { return apply_local_context(a, lctx, none_ro_menv()); }
 
 /**
     \brief Extend the local context \c lctx with the entry <tt>lift:s:n</tt>
@@ -305,9 +316,9 @@ local_context add_lift(local_context const & lctx, unsigned s, unsigned n);
    occur in \c m. If s > the maximum free variable that occurs in \c m, then
    we do not add a lift local entry to the local context.
 */
-expr add_lift(expr const & m, unsigned s, unsigned n, optional<metavar_env> const & menv);
-inline expr add_lift(expr const & m, unsigned s, unsigned n) { return add_lift(m, s, n, none_menv()); }
-inline expr add_lift(expr const & m, unsigned s, unsigned n, metavar_env const & menv) { return add_lift(m, s, n, some_menv(menv)); }
+expr add_lift(expr const & m, unsigned s, unsigned n, optional<ro_metavar_env> const & menv);
+inline expr add_lift(expr const & m, unsigned s, unsigned n) { return add_lift(m, s, n, none_ro_menv()); }
+inline expr add_lift(expr const & m, unsigned s, unsigned n, ro_metavar_env const & menv) { return add_lift(m, s, n, some_ro_menv(menv)); }
 
 /**
    \brief Extend the local context \c lctx with the entry <tt>inst:s v</tt>
@@ -323,9 +334,9 @@ local_context add_inst(local_context const & lctx, unsigned s, expr const & v);
    occur in \c m. If s > the maximum free variable that occurs in \c m, then
    we do not add an inst local entry to the local context.
 */
-expr add_inst(expr const & m, unsigned s, expr const & v, optional<metavar_env> const & menv);
-inline expr add_inst(expr const & m, unsigned s, expr const & v) { return add_inst(m, s, v, none_menv()); }
-inline expr add_inst(expr const & m, unsigned s, expr const & v, metavar_env const & menv) { return add_inst(m, s, v, some_menv(menv)); }
+expr add_inst(expr const & m, unsigned s, expr const & v, optional<ro_metavar_env> const & menv);
+inline expr add_inst(expr const & m, unsigned s, expr const & v) { return add_inst(m, s, v, none_ro_menv()); }
+inline expr add_inst(expr const & m, unsigned s, expr const & v, ro_metavar_env const & menv) { return add_inst(m, s, v, some_ro_menv(menv)); }
 
 /**
    \brief Return true iff the given metavariable has a non-empty
@@ -346,7 +357,7 @@ expr pop_meta_context(expr const & m);
 /**
    \brief Return true iff \c e has a metavariable that is assigned in \c menv.
 */
-bool has_assigned_metavar(expr const & e, metavar_env const & menv);
+bool has_assigned_metavar(expr const & e, ro_metavar_env const & menv);
 
 /**
    \brief Return true iff \c e contains the metavariable \c m.
@@ -354,5 +365,5 @@ bool has_assigned_metavar(expr const & e, metavar_env const & menv);
 
    \brief is_metavar(m)
 */
-bool has_metavar(expr const & e, expr const & m, metavar_env const & menv);
+bool has_metavar(expr const & e, expr const & m, ro_metavar_env const & menv);
 }

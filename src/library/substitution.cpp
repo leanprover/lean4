@@ -23,7 +23,7 @@ expr find(substitution & s, expr e) {
     }
 }
 
-expr apply(substitution & s, expr const & e, optional<metavar_env> const & menv) {
+expr apply(substitution & s, expr const & e, optional<ro_metavar_env> const & menv) {
     return replace(e, [&](expr const & e, unsigned) -> expr {
             if (is_metavar(e)) {
                 expr r = find(s, e);

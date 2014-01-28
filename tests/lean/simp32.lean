@@ -20,7 +20,6 @@ variable f {A : Type} : A → A
 local m = simplifier_monitor(nil, nil, nil,
                              function (s, e, i, k)
                                 print("App simplification failure, argument #" .. i)
-                                print(e)
                                 print("Kind: " .. k)
                                 print("-----------")
                              end,

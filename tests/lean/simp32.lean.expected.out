@@ -10,7 +10,6 @@
 λ val : ℕ, (λ (n : ℕ) (v : vec (n + 0)), f v ; empty) val == (λ (n : ℕ) (v : vec (n + 0)), v) val
 =====>
 App simplification failure, argument #2
-(λ (n : ℕ) (v : vec (n + 0)), f v ; empty) 2::1 == (λ (n : ℕ) (v : vec (n + 0)), v) 2::1
 Kind: 0
 -----------
 λ val : ℕ, (λ (n : ℕ) (v : vec (n + 0)), f v ; empty) val == (λ (n : ℕ) (v : vec (n + 0)), v) val

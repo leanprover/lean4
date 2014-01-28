@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 namespace lean {
 class environment;
 class options;
-class metavar_env;
+class ro_metavar_env;
 /** \brief Functional object for normalizing expressions */
 class normalizer {
     class imp;
@@ -24,8 +24,8 @@ public:
     normalizer(ro_environment const & env, options const & opts);
     ~normalizer();
 
-    expr operator()(expr const & e, context const & ctx, optional<metavar_env> const & menv, bool unfold_opaque = false);
-    expr operator()(expr const & e, context const & ctx, metavar_env const & menv, bool unfold_opaque = false);
+    expr operator()(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv, bool unfold_opaque = false);
+    expr operator()(expr const & e, context const & ctx, ro_metavar_env const & menv, bool unfold_opaque = false);
     expr operator()(expr const & e, context const & ctx = context(), bool unfold_opaque = false);
 
     void clear();

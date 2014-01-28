@@ -221,6 +221,7 @@ public:
     metavar_env copy() const { return metavar_env(new metavar_env_cell(*m_ptr)); }
     friend bool is_eqp(metavar_env const & menv1, metavar_env const & menv2) { return menv1.m_ptr == menv2.m_ptr; }
     friend bool operator==(metavar_env const & menv1, metavar_env const & menv2) { return is_eqp(menv1, menv2); }
+    typedef metavar_env_cell * ptr;
 };
 
 SPECIALIZE_OPTIONAL_FOR_SMART_PTR(metavar_env)
@@ -263,6 +264,7 @@ public:
     metavar_env copy() const { return metavar_env(new metavar_env_cell(*m_ptr)); }
     friend bool is_eqp(ro_metavar_env const & menv1, ro_metavar_env const & menv2) { return menv1.m_ptr == menv2.m_ptr; }
     friend bool operator==(ro_metavar_env const & menv1, ro_metavar_env const & menv2) { return is_eqp(menv1, menv2); }
+    typedef metavar_env_cell const * ptr;
 };
 
 SPECIALIZE_OPTIONAL_FOR_SMART_PTR(ro_metavar_env)
@@ -272,28 +274,38 @@ inline optional<ro_metavar_env> some_ro_menv(ro_metavar_env && e) { return optio
 inline optional<ro_metavar_env> const & to_ro_menv(optional<metavar_env> const & menv) { return reinterpret_cast<optional<ro_metavar_env> const &>(menv); }
 
 /**
-   \brief A cached weak reference to a metavariable environment + timestamp at the time of
-   the caching. This object may also cache optional references.
+   \brief Template for creating a cached reference to a metavariable
+   environment + timestamp at the time of the caching. This object may
+   also cache optional references.
+
+   We use this template for cached_metavar_env and cached_ro_metavar_env
 */
-class cached_metavar_env {
-    optional<metavar_env> m_menv;
-    unsigned              m_timestamp;
+template<typename MEnv>
+class cached_metavar_env_tpl {
+    optional<MEnv> m_menv;
+    unsigned       m_timestamp;
 public:
-    cached_metavar_env():m_timestamp(0) {}
-    void clear() { m_menv = none_menv(); m_timestamp = 0; }
+    cached_metavar_env_tpl():m_timestamp(0) {}
+    void clear() { m_menv = optional<MEnv>(); m_timestamp = 0; }
     /**
        \brief Updated the cached value with menv.
        Return true if menv is different from the the cached metavar_env, or if
        the timestamp is different.
     */
-    bool update(optional<metavar_env> const & menv);
-    bool update(metavar_env const & menv) { return update(some(menv)); }
+    bool update(optional<MEnv> const & menv);
+    bool update(MEnv const & menv) { return update(optional<MEnv>(menv)); }
     explicit operator bool() const { return static_cast<bool>(m_menv); }
-    optional<metavar_env> const & to_some_menv() const { return m_menv; }
-    optional<ro_metavar_env> const & to_some_ro_menv() const { return to_ro_menv(m_menv); }
-    metavar_env operator*() const { return *m_menv; }
-    metavar_env_cell * operator->() const { lean_assert(m_menv); return (*m_menv).operator->(); }
+    optional<MEnv> const & to_some_menv() const { return m_menv; }
+    MEnv operator*() const { return *m_menv; }
+    typename MEnv::ptr operator->() const { lean_assert(m_menv); return (*m_menv).operator->(); }
 };
+
+class cached_metavar_env : public cached_metavar_env_tpl<metavar_env> {
+public:
+    optional<ro_metavar_env> const & to_some_ro_menv() const { return to_ro_menv(to_some_menv()); }
+};
+
+typedef cached_metavar_env_tpl<ro_metavar_env> cached_ro_metavar_env;
 
 /**
    \brief Apply the changes in \c lctx to \c a.

@@ -48,7 +48,7 @@ class type_checker::imp {
     expr lower_free_vars(expr const & e, unsigned s, unsigned n) { return ::lean::lower_free_vars(e, s, n, m_menv.to_some_ro_menv()); }
     expr instantiate_with_closed(expr const & e, expr const & v) { return ::lean::instantiate_with_closed(e, v, m_menv.to_some_ro_menv()); }
     expr instantiate(expr const & e, expr const & v) { return ::lean::instantiate(e, v, m_menv.to_some_ro_menv()); }
-    expr normalize(expr const & e, context const & ctx, bool unfold_opaque) { return m_normalizer(e, ctx, m_menv.to_some_menv(), unfold_opaque); }
+    expr normalize(expr const & e, context const & ctx, bool unfold_opaque) { return m_normalizer(e, ctx, m_menv.to_some_ro_menv(), unfold_opaque); }
 
     expr check_type(expr const & e, expr const & s, context const & ctx) {
         if (is_type(e) || is_bool(e))

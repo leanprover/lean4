@@ -428,9 +428,10 @@ metavar_env::metavar_env(ro_metavar_env const & s):m_ptr(s.m_ptr) {
     if (m_ptr) m_ptr->inc_ref();
 }
 
-bool cached_metavar_env::update(optional<metavar_env> const & menv) {
+template<typename MEnv>
+bool cached_metavar_env_tpl<MEnv>::update(optional<MEnv> const & menv) {
     if (!menv) {
-        m_menv = none_menv();
+        m_menv = optional<MEnv>();
         if (m_timestamp != 0) {
             m_timestamp = 0;
             return true;
@@ -448,6 +449,8 @@ bool cached_metavar_env::update(optional<metavar_env> const & menv) {
         }
     }
 }
+template class cached_metavar_env_tpl<metavar_env>;
+template class cached_metavar_env_tpl<ro_metavar_env>;
 
 local_context add_lift(local_context const & lctx, unsigned s, unsigned n) {
     if (n == 0)

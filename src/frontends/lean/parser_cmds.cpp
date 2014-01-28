@@ -857,7 +857,11 @@ void parser_imp::parse_add_rewrite() {
     name rsid;
     parse_ids_and_rsid(th_names, rsid);
     for (auto id : th_names) {
-        add_rewrite_rules(m_env, rsid, id);
+        auto it = m_using_decls.find(id);
+        if (it != m_using_decls.end())
+            add_rewrite_rules(m_env, rsid, it->second);
+        else
+            add_rewrite_rules(m_env, rsid, id);
     }
 }
 

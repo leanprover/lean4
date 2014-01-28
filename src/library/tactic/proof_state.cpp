@@ -90,7 +90,7 @@ void proof_state::get_goal_names(name_set & r) const {
 }
 
 name arg_to_hypothesis_name(name const & n, expr const & d, ro_environment const & env, context const & ctx, optional<metavar_env> const & menv) {
-    if (is_default_arrow_var_name(n) && is_proposition(d, env, ctx, menv))
+    if (is_default_arrow_var_name(n) && is_proposition(d, env, ctx, to_ro_menv(menv)))
         return name("H");
     else
         return n;

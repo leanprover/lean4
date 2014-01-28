@@ -424,10 +424,6 @@ context metavar_env_cell::instantiate_metavars(context const & ctx) const {
     return context(new_entries.size(), new_entries.data());
 }
 
-metavar_env::metavar_env(ro_metavar_env const & s):m_ptr(s.m_ptr) {
-    if (m_ptr) m_ptr->inc_ref();
-}
-
 template<typename MEnv>
 bool cached_metavar_env_tpl<MEnv>::update(optional<MEnv> const & menv) {
     if (!menv) {

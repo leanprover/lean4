@@ -206,8 +206,6 @@ class metavar_env {
     friend class metavar_env_cell;
     metavar_env_cell * m_ptr;
     explicit metavar_env(metavar_env_cell * ptr):m_ptr(ptr) { if (m_ptr) m_ptr->inc_ref(); }
-    friend class type_checker;
-    explicit metavar_env(ro_metavar_env const & s);
 public:
     metavar_env():m_ptr(new metavar_env_cell()) { m_ptr->inc_ref(); }
     metavar_env(name const & prefix):m_ptr(new metavar_env_cell(prefix)) { m_ptr->inc_ref(); }
@@ -251,6 +249,16 @@ class ro_metavar_env {
     friend class metavar_env;
     metavar_env_cell * m_ptr;
     explicit ro_metavar_env(metavar_env_cell * ptr):m_ptr(ptr) { if (m_ptr) m_ptr->inc_ref(); }
+    friend class type_checker;
+    /*
+      \brief (Hack) The following two methods are used by the type_checker. Some methods
+      in the type checker only need read-only access when unification constraints are not
+      used. For these methods, we can relax the interface and accept a read-only metavariable
+      environment. However, the type checker internally uses the read-write version. So,
+      this constructor is a hack to workaround that.
+    */
+    static optional<metavar_env> const & to_rw(optional<ro_metavar_env> const & menv) { return reinterpret_cast<optional<metavar_env> const &>(menv); }
+    metavar_env const & to_rw() const { return reinterpret_cast<metavar_env const&>(*this); }
 public:
     ro_metavar_env():m_ptr(new metavar_env_cell()) { m_ptr->inc_ref(); }
     ro_metavar_env(metavar_env const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }

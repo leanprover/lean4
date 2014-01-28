@@ -479,12 +479,12 @@ expr type_checker::infer_type(expr const & e, context const & ctx, optional<meta
 expr type_checker::infer_type(expr const & e, context const & ctx, metavar_env const & menv, buffer<unification_constraint> & uc) {
     return m_ptr->infer_type(e, ctx, some_menv(menv), &uc);
 }
-expr type_checker::infer_type(expr const & e, context const & ctx, metavar_env const & menv) {
-    return m_ptr->infer_type(e, ctx, some_menv(menv), nullptr);
-}
 expr type_checker::infer_type(expr const & e, context const & ctx, ro_metavar_env const & menv) {
     // metavariable environment is not updated when unification constraints are not provided
-    return infer_type(e, ctx, metavar_env(menv));
+    return infer_type(e, ctx, some_menv(menv.to_rw()), nullptr);
+}
+expr type_checker::infer_type(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv) {
+    return infer_type(e, ctx, ro_metavar_env::to_rw(menv), nullptr);
 }
 expr type_checker::infer_type(expr const & e, context const & ctx) {
     return infer_type(e, ctx, none_menv(), nullptr);
@@ -495,8 +495,9 @@ expr type_checker::check(expr const & e, context const & ctx, optional<metavar_e
 expr type_checker::check(expr const & e, context const & ctx, metavar_env const & menv, buffer<unification_constraint> & uc) {
     return m_ptr->check(e, ctx, some_menv(menv), &uc);
 }
-expr type_checker::check(expr const & e, context const & ctx, metavar_env const & menv) {
-    return m_ptr->check(e, ctx, some_menv(menv), nullptr);
+expr type_checker::check(expr const & e, context const & ctx, ro_metavar_env const & menv) {
+    // metavariable environment is not updated when unification constraints are not provided
+    return check(e, ctx, some_menv(menv.to_rw()), nullptr);
 }
 expr type_checker::check(expr const & e, context const & ctx) {
     return check(e, ctx, none_menv(), nullptr);
@@ -513,31 +514,27 @@ void type_checker::check_type(expr const & e, context const & ctx) {
 expr type_checker::ensure_pi(expr const & e, context const & ctx) {
     return m_ptr->ensure_pi(e, ctx);
 }
-bool type_checker::is_proposition(expr const & e, context const & ctx, optional<metavar_env> const & menv) {
-    return m_ptr->is_proposition(e, ctx, menv);
+bool type_checker::is_proposition(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv) {
+    return m_ptr->is_proposition(e, ctx, ro_metavar_env::to_rw(menv));
 }
 bool type_checker::is_proposition(expr const & e, context const & ctx) {
-    return is_proposition(e, ctx, none_menv());
-}
-bool type_checker::is_proposition(expr const & e, context const & ctx, metavar_env const & menv) {
-    return is_proposition(e, ctx, some_menv(menv));
+    return is_proposition(e, ctx, none_ro_menv());
 }
 bool type_checker::is_proposition(expr const & e, context const & ctx, ro_metavar_env const & menv) {
-    // metavariable environment is not updated when unification constraints are not provided
-    return is_proposition(e, ctx, metavar_env(menv));
+    return is_proposition(e, ctx, some_ro_menv(menv));
 }
-bool type_checker::is_flex_proposition(expr e, context ctx, optional<metavar_env> const & menv) {
+bool type_checker::is_flex_proposition(expr e, context ctx, optional<ro_metavar_env> const & menv) {
     while (is_pi(e)) {
         ctx = extend(ctx, abst_name(e), abst_domain(e));
         e   = abst_body(e);
     }
     return is_proposition(e, ctx, menv);
 }
-bool type_checker::is_flex_proposition(expr const & e, context const & ctx, metavar_env const & menv) {
-    return is_flex_proposition(e, ctx, some_menv(menv));
+bool type_checker::is_flex_proposition(expr const & e, context const & ctx, ro_metavar_env const & menv) {
+    return is_flex_proposition(e, ctx, some_ro_menv(menv));
 }
 bool type_checker::is_flex_proposition(expr const & e, context const & ctx) {
-    return is_flex_proposition(e, ctx, none_menv());
+    return is_flex_proposition(e, ctx, none_ro_menv());
 }
 void type_checker::clear() { m_ptr->clear(); }
 normalizer & type_checker::get_normalizer() { return m_ptr->get_normalizer(); }
@@ -547,13 +544,13 @@ expr  type_check(expr const & e, ro_environment const & env, context const & ctx
 bool is_convertible(expr const & given, expr const & expected, ro_environment const & env, context const & ctx) {
     return type_checker(env).is_convertible(given, expected, ctx);
 }
-bool is_proposition(expr const & e, ro_environment const & env, context const & ctx, optional<metavar_env> const & menv) {
+bool is_proposition(expr const & e, ro_environment const & env, context const & ctx, optional<ro_metavar_env> const & menv) {
     return type_checker(env).is_proposition(e, ctx, menv);
 }
-bool is_proposition(expr const & e, ro_environment const & env, context const & ctx, metavar_env const & menv) {
-    return is_proposition(e, env, ctx, some_menv(menv));
+bool is_proposition(expr const & e, ro_environment const & env, context const & ctx, ro_metavar_env const & menv) {
+    return is_proposition(e, env, ctx, some_ro_menv(menv));
 }
 bool is_proposition(expr const & e, ro_environment const & env, context const & ctx) {
-    return is_proposition(e, env, ctx, none_menv());
+    return is_proposition(e, env, ctx, none_ro_menv());
 }
 }

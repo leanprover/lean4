@@ -49,8 +49,8 @@ public:
     */
     expr infer_type(expr const & e, context const & ctx, optional<metavar_env> const & menv, buffer<unification_constraint> * new_constraints);
     expr infer_type(expr const & e, context const & ctx, metavar_env const & menv, buffer<unification_constraint> & new_constraints);
-    expr infer_type(expr const & e, context const & ctx, metavar_env const & menv);
     expr infer_type(expr const & e, context const & ctx, ro_metavar_env const & menv);
+    expr infer_type(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv);
 
     /**
         \brief Return the type of \c e in the context \c ctx.
@@ -71,7 +71,7 @@ public:
     */
     expr check(expr const & e, context const & ctx, optional<metavar_env> const & menv, buffer<unification_constraint> * new_constraints);
     expr check(expr const & e, context const & ctx, metavar_env const & menv, buffer<unification_constraint> & new_constraints);
-    expr check(expr const & e, context const & ctx, metavar_env const & menv);
+    expr check(expr const & e, context const & ctx, ro_metavar_env const & menv);
 
     /**
         \brief Type check the given expression, and return the type of \c e in the context \c ctx.
@@ -94,14 +94,13 @@ public:
     bool is_definitionally_equal(expr const & t1, expr const & t2, context const & ctx = context());
 
     /** \brief Return true iff \c e is a proposition (i.e., it has type Bool) */
-    bool is_proposition(expr const & e, context const & ctx, optional<metavar_env> const & menv);
-    bool is_proposition(expr const & e, context const & ctx, metavar_env const & menv);
+    bool is_proposition(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv);
     bool is_proposition(expr const & e, context const & ctx, ro_metavar_env const & menv);
     bool is_proposition(expr const & e, context const & ctx = context());
 
     /** \brief Return true iff \c e is a proposition or is a Pi s.t. the range is a flex_proposition */
-    bool is_flex_proposition(expr e, context ctx, optional<metavar_env> const & menv);
-    bool is_flex_proposition(expr const & e, context const & ctx, metavar_env const & menv);
+    bool is_flex_proposition(expr e, context ctx, optional<ro_metavar_env> const & menv);
+    bool is_flex_proposition(expr const & e, context const & ctx, ro_metavar_env const & menv);
     bool is_flex_proposition(expr const & e, context const & ctx = context());
 
     /** \brief Return a Pi if \c e is convertible to Pi. Throw an exception otherwise. */
@@ -122,7 +121,7 @@ public:
     expr operator()(expr const & e, context const & ctx, metavar_env const & menv, buffer<unification_constraint> & new_constraints) {
         return infer_type(e, ctx, menv, new_constraints);
     }
-    expr operator()(expr const & e, context const & ctx, metavar_env const & menv) {
+    expr operator()(expr const & e, context const & ctx, ro_metavar_env const & menv) {
         return infer_type(e, ctx, menv);
     }
     expr operator()(expr const & e, context const & ctx = context()) {
@@ -131,7 +130,7 @@ public:
 };
 expr type_check(expr const & e, ro_environment const & env, context const & ctx = context());
 bool is_convertible(expr const & t1, expr const & t2, ro_environment const & env, context const & ctx = context());
-bool is_proposition(expr const & e, ro_environment const & env, context const & ctx, optional<metavar_env> const & menv);
-bool is_proposition(expr const & e, ro_environment const & env, context const & ctx, metavar_env const & menv);
+bool is_proposition(expr const & e, ro_environment const & env, context const & ctx, optional<ro_metavar_env> const & menv);
+bool is_proposition(expr const & e, ro_environment const & env, context const & ctx, ro_metavar_env const & menv);
 bool is_proposition(expr const & e, ro_environment const & env, context const & ctx = context());
 }

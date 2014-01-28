@@ -100,6 +100,7 @@ MK_CONSTANT(imp_truer_fn, name("imp_truer"));
 MK_CONSTANT(imp_truel_fn, name("imp_truel"));
 MK_CONSTANT(imp_falser_fn, name("imp_falser"));
 MK_CONSTANT(imp_falsel_fn, name("imp_falsel"));
+MK_CONSTANT(imp_id_fn, name("imp_id"));
 MK_CONSTANT(imp_or_fn, name("imp_or"));
 MK_CONSTANT(not_true, name("not_true"));
 MK_CONSTANT(not_false, name("not_false"));

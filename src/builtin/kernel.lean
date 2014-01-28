@@ -349,6 +349,9 @@ theorem imp_falser (a : Bool) : (a → false) ↔ ¬ a
 theorem imp_falsel (a : Bool) : (false → a) ↔ true
 := case (λ x, (false → x) ↔ true) trivial trivial a
 
+theorem imp_id (a : Bool) : (a → a) ↔ true
+:= eqt_intro (λ H : a, H)
+
 theorem imp_or (a b : Bool) : (a → b) ↔ ¬ a ∨ b
 := iff_intro
      (assume H : a → b,

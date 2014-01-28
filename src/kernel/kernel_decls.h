@@ -293,6 +293,9 @@ inline expr mk_imp_falser_th(expr const & e1) { return mk_app({mk_imp_falser_fn(
 expr mk_imp_falsel_fn();
 bool is_imp_falsel_fn(expr const & e);
 inline expr mk_imp_falsel_th(expr const & e1) { return mk_app({mk_imp_falsel_fn(), e1}); }
+expr mk_imp_id_fn();
+bool is_imp_id_fn(expr const & e);
+inline expr mk_imp_id_th(expr const & e1) { return mk_app({mk_imp_id_fn(), e1}); }
 expr mk_imp_or_fn();
 bool is_imp_or_fn(expr const & e);
 inline expr mk_imp_or_th(expr const & e1, expr const & e2) { return mk_app({mk_imp_or_fn(), e1, e2}); }

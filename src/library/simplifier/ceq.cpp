@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/kernel.h"
 #include "kernel/free_vars.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/type_checker.h"
 #include "library/expr_pair.h"
 #include "library/ite.h"
 #include "library/kernel_bindings.h"
@@ -16,7 +17,7 @@ Author: Leonardo de Moura
 namespace lean {
 static name g_Hc("Hc"); // auxiliary name for if-then-else
 
-bool is_ceq(ro_environment const & env, expr e);
+bool is_ceq(ro_environment const & env, optional<ro_metavar_env> const & menv, expr e);
 
 /**
    \brief Auxiliary functional object for creating "conditional equations"
@@ -122,7 +123,7 @@ public:
     to_ceqs_fn(ro_environment const & env, optional<ro_metavar_env> const & menv):m_env(env), m_menv(menv), m_idx(0) {}
 
     list<expr_pair> operator()(expr const & e, expr const & H) {
-        return filter(apply(e, H), [&](expr_pair const & p) { return is_ceq(m_env, p.first); });
+        return filter(apply(e, H), [&](expr_pair const & p) { return is_ceq(m_env, m_menv, p.first); });
     }
 };
 
@@ -130,7 +131,7 @@ list<expr_pair> to_ceqs(ro_environment const & env, optional<ro_metavar_env> con
     return to_ceqs_fn(env, menv)(e, H);
 }
 
-bool is_ceq(ro_environment const & env, expr e) {
+bool is_ceq(ro_environment const & env, optional<ro_metavar_env> const & menv, expr e) {
     buffer<bool> found_args;
     // Define a procedure for marking arguments found.
     auto visitor_fn = [&](expr const & e, unsigned offset) {
@@ -147,7 +148,7 @@ bool is_ceq(ro_environment const & env, expr e) {
         }
         return true;
     };
-
+    type_checker tc(env);
     context ctx;
     while (is_pi(e)) {
         if (!found_args.empty()) {
@@ -158,7 +159,7 @@ bool is_ceq(ro_environment const & env, expr e) {
         }
         // If a variable is a proposition, than if doesn't need to occurr in the lhs.
         // So, we mark it as true.
-        found_args.push_back(env->is_proposition(abst_domain(e), ctx));
+        found_args.push_back(tc.is_proposition(abst_domain(e), ctx, menv));
         ctx = extend(ctx, abst_name(e), abst_domain(e));
         e = abst_body(e);
     }
@@ -255,7 +256,10 @@ static int to_ceqs(lua_State * L) {
 
 static int is_ceq(lua_State * L) {
     ro_shared_environment env(L, 1);
-    lua_pushboolean(L, is_ceq(env, to_expr(L, 2)));
+    optional<ro_metavar_env> menv;
+    if (!lua_isnil(L, 2))
+        menv = to_metavar_env(L, 2);
+    lua_pushboolean(L, is_ceq(env, menv, to_expr(L, 3)));
     return 1;
 }
 

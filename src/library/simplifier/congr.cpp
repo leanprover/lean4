@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include "util/sstream.h"
 #include "kernel/kernel.h"
+#include "kernel/type_checker.h"
 #include "library/equality.h"
 #include "library/simplifier/congr.h"
 
@@ -89,7 +90,7 @@ void congr_theorem_info::display(std::ostream & out) const {
 }
 
 congr_theorem_info check_congr_theorem(ro_environment const & env, expr const & e) {
-    expr t = env->infer_type(e);
+    expr t = type_checker(env).infer_type(e);
     expr b = t;
     unsigned num = 0;
     while (is_pi(b)) {

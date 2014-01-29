@@ -41,7 +41,7 @@ list<expr_pair> to_ceqs(ro_environment const & env, optional<ro_metavar_env> con
    Moreover, for <tt>(forall x : A, ceq)</tt>, the variable x must occur in the \c ceq left-hand-size
    when \c A is not a proposition.
 */
-bool is_ceq(ro_environment const & env, expr e);
+bool is_ceq(ro_environment const & env, optional<ro_metavar_env> const & menv, expr e);
 /**
    \brief Return true iff the lhs is identical to the rhs modulo a
    permutation of the conditional equation arguments.

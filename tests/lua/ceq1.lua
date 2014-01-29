@@ -5,7 +5,7 @@ function show_ceqs(ceqs)
    for i = 1, #ceqs do
       print(ceqs[i][1], ceqs[i][2], is_permutation_ceq(ceqs[i][1]))
       env:type_check(ceqs[i][2])
-      assert(is_ceq(env, ceqs[i][1]))
+      assert(is_ceq(env, nil, ceqs[i][1]))
    end
 end
 

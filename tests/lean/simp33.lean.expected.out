@@ -1,0 +1,8 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Imported 'tactic'
+  Assumed: f
+  Assumed: Ax1
+  Assumed: Ax2
+  Proved: T1
+theorem T1 (a : ℕ) : f (f a > 0) := eqt_elim (trans (congr2 f (congr1 0 (congr2 Nat::gt (Ax2 a)))) (Ax1 ⊥))

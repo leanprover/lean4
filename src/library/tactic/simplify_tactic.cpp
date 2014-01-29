@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/sexpr/option_declarations.h"
 #include "kernel/type_checker.h"
 #include "kernel/kernel.h"
+#include "library/heq_decls.h"
 #include "library/simplifier/simplifier.h"
 #include "library/tactic/tactic.h"
 
@@ -51,12 +52,21 @@ static optional<proof_state> simplify_tactic(ro_environment const & env, io_stat
         rule_sets.push_back(get_rewrite_rule_set(env, ns[i]));
     }
 
-    expr conclusion      = g.get_conclusion();
-    auto r               = simplify(conclusion, env, context(), opts, rule_sets.size(), rule_sets.data(), some_ro_menv(menv));
-    expr new_conclusion  = r.first;
-    expr eq_proof        = r.second;
+    expr conclusion         = g.get_conclusion();
+    auto r                  = simplify(conclusion, env, context(), opts, rule_sets.size(), rule_sets.data(), some_ro_menv(menv));
+    expr new_conclusion     = r.get_expr();
     if (new_conclusion == g.get_conclusion())
         return optional<proof_state>(s);
+    expr eq_proof;
+    if (!r.get_proof()) {
+        // TODO(Leo): we should create a "by simplifier" proof
+        // For now, we just fail
+        return none_proof_state();
+    } else {
+        eq_proof = *r.get_proof();
+    }
+    if (r.is_heq_proof())
+        eq_proof = mk_to_eq_th(Bool, conclusion, new_conclusion, eq_proof);
     bool solved          = is_true(new_conclusion);
     goals rest_gs        = tail(s.get_goals());
     goals new_gs;

@@ -21,6 +21,9 @@ inline expr mk_to_heq_th(expr const & e1, expr const & e2, expr const & e3, expr
 expr mk_hrefl_fn();
 bool is_hrefl_fn(expr const & e);
 inline expr mk_hrefl_th(expr const & e1, expr const & e2) { return mk_app({mk_hrefl_fn(), e1, e2}); }
+expr mk_heqt_elim_fn();
+bool is_heqt_elim_fn(expr const & e);
+inline expr mk_heqt_elim_th(expr const & e1, expr const & e2) { return mk_app({mk_heqt_elim_fn(), e1, e2}); }
 expr mk_hsymm_fn();
 bool is_hsymm_fn(expr const & e);
 inline expr mk_hsymm_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_hsymm_fn(), e1, e2, e3, e4, e5}); }

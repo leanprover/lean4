@@ -21,10 +21,30 @@ class simplifier_cell {
     class imp;
     std::unique_ptr<imp> m_ptr;
 public:
+    /**
+       \brief Simplification result
+    */
+    class result {
+        friend class imp;
+        expr           m_expr;      // new expression
+        optional<expr> m_proof;     // a proof that the m_expr is equal to the input (when m_proofs_enabled)
+        bool           m_heq_proof; // true if the proof has type lhs == rhs (i.e., it is a heterogeneous equality)
+        explicit result(expr const & out, bool heq_proof = false):m_expr(out), m_heq_proof(heq_proof) {}
+        result(expr const & out, expr const & pr, bool heq_proof = false):m_expr(out), m_proof(pr), m_heq_proof(heq_proof) {}
+        result(expr const & out, optional<expr> const & pr, bool heq_proof = false):
+            m_expr(out), m_proof(pr), m_heq_proof(heq_proof) {}
+        result update_expr(expr const & new_e) const { return result(new_e, m_proof, m_heq_proof); }
+        result update_proof(expr const & new_pr) const { return result(m_expr, new_pr, m_heq_proof); }
+    public:
+        result() {}
+        expr get_expr() const { return m_expr; }
+        optional<expr> get_proof() const { return m_proof; }
+        bool is_heq_proof() const { return m_heq_proof; }
+    };
+
     simplifier_cell(ro_environment const & env, options const & o, unsigned num_rs, rewrite_rule_set const * rs,
                     std::shared_ptr<simplifier_monitor> const & monitor);
-
-    expr_pair operator()(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv);
+    result operator()(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv);
     void clear();
 
     unsigned get_depth() const;
@@ -38,11 +58,12 @@ class simplifier {
     friend class ro_simplifier;
     std::shared_ptr<simplifier_cell> m_ptr;
 public:
+    typedef simplifier_cell::result result;
     simplifier(ro_environment const & env, options const & o, unsigned num_rs, rewrite_rule_set const * rs,
                std::shared_ptr<simplifier_monitor> const & monitor);
     simplifier_cell * operator->() const { return m_ptr.get(); }
     simplifier_cell & operator*() const { return *(m_ptr.get()); }
-    expr_pair operator()(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv) {
+    result operator()(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv) {
         return (*m_ptr)(e, ctx, menv);
     }
 };
@@ -116,13 +137,13 @@ public:
     virtual void rethrow() const;
 };
 
-expr_pair simplify(expr const & e, ro_environment const & env, context const & ctx, options const & pts,
-                   unsigned num_rs, rewrite_rule_set const * rs,
-                   optional<ro_metavar_env> const & menv = none_ro_menv(),
-                   std::shared_ptr<simplifier_monitor> const & monitor = std::shared_ptr<simplifier_monitor>());
-expr_pair simplify(expr const & e, ro_environment const & env, context const & ctx, options const & opts,
-                   unsigned num_ns, name const * ns,
-                   optional<ro_metavar_env> const & menv = none_ro_menv(),
-                   std::shared_ptr<simplifier_monitor> const & monitor = std::shared_ptr<simplifier_monitor>());
+simplifier::result simplify(expr const & e, ro_environment const & env, context const & ctx, options const & pts,
+                            unsigned num_rs, rewrite_rule_set const * rs,
+                            optional<ro_metavar_env> const & menv = none_ro_menv(),
+                            std::shared_ptr<simplifier_monitor> const & monitor = std::shared_ptr<simplifier_monitor>());
+simplifier::result simplify(expr const & e, ro_environment const & env, context const & ctx, options const & opts,
+                            unsigned num_ns, name const * ns,
+                            optional<ro_metavar_env> const & menv = none_ro_menv(),
+                            std::shared_ptr<simplifier_monitor> const & monitor = std::shared_ptr<simplifier_monitor>());
 void open_simplifier(lua_State * L);
 }

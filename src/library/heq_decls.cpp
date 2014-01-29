@@ -11,6 +11,7 @@ MK_CONSTANT(heq_eq_fn, name("heq_eq"));
 MK_CONSTANT(to_eq_fn, name("to_eq"));
 MK_CONSTANT(to_heq_fn, name("to_heq"));
 MK_CONSTANT(hrefl_fn, name("hrefl"));
+MK_CONSTANT(heqt_elim_fn, name("heqt_elim"));
 MK_CONSTANT(hsymm_fn, name("hsymm"));
 MK_CONSTANT(htrans_fn, name("htrans"));
 MK_CONSTANT(hcongr_fn, name("hcongr"));

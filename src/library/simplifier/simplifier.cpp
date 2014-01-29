@@ -121,20 +121,6 @@ static name g_unique = name::mk_internal_unique_name();
 class simplifier_cell::imp {
     friend class simplifier_cell;
     friend class simplifier;
-    struct result {
-        expr           m_expr;      // the result of a simplification step
-        optional<expr> m_proof;     // a proof that the result is equal to the input (when m_proofs_enabled)
-        bool           m_heq_proof; // true if the proof has type lhs == rhs (i.e., it is a heterogeneous equality)
-        result() {}
-        explicit result(expr const & out, bool heq_proof = false):
-            m_expr(out), m_heq_proof(heq_proof) {}
-        result(expr const & out, expr const & pr, bool heq_proof = false):
-            m_expr(out), m_proof(pr), m_heq_proof(heq_proof) {}
-        result(expr const & out, optional<expr> const & pr, bool heq_proof = false):
-            m_expr(out), m_proof(pr), m_heq_proof(heq_proof) {}
-        bool is_heq_proof() const { return m_heq_proof; }
-        result update_expr(expr const & new_e) const { return result(new_e, m_proof, m_heq_proof); }
-    };
 
     typedef std::vector<rewrite_rule_set> rule_sets;
     typedef expr_map<result> cache;
@@ -931,6 +917,8 @@ class simplifier_cell::imp {
                                         if (!d_res.m_proof) {
                                             // No proof available. So d should be definitionally equal to True
                                             d_proof = mk_trivial();
+                                        } else if (d_res.m_heq_proof) {
+                                            d_proof = mk_heqt_elim_th(d, *d_res.m_proof);
                                         } else {
                                             d_proof = mk_eqt_elim_th(d, *d_res.m_proof);
                                         }
@@ -1502,7 +1490,7 @@ public:
         m_next_idx = 0;
     }
 
-    expr_pair operator()(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv) {
+    result operator()(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv) {
         set_ctx(ctx);
         if (m_menv.update(menv))
             m_cache.clear();
@@ -1510,7 +1498,10 @@ public:
         m_depth     = 0;
         try {
             auto r = simplify(e);
-            return mk_pair(r.m_expr, get_proof(r));
+            if (m_proofs_enabled && !r.get_proof())
+                return r.update_proof(get_proof(r));
+            else
+                return r;
         } catch (stack_space_exception & ex) {
             throw simplifier_stack_space_exception();
         }
@@ -1522,7 +1513,7 @@ simplifier_cell::simplifier_cell(ro_environment const & env, options const & o, 
     m_ptr(new imp(env, o, num_rs, rs, monitor)) {
 }
 
-expr_pair simplifier_cell::operator()(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv) {
+simplifier_cell::result simplifier_cell::operator()(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv) {
     return m_ptr->operator()(e, ctx, menv);
 }
 void simplifier_cell::clear() { return m_ptr->m_cache.clear(); }
@@ -1547,17 +1538,17 @@ ro_simplifier::ro_simplifier(weak_ref const & r) {
     m_ptr = r.lock();
 }
 
-expr_pair simplify(expr const & e, ro_environment const & env, context const & ctx, options const & opts,
-                   unsigned num_rs, rewrite_rule_set const * rs,
-                   optional<ro_metavar_env> const & menv,
-                   std::shared_ptr<simplifier_monitor> const & monitor) {
+simplifier::result simplify(expr const & e, ro_environment const & env, context const & ctx, options const & opts,
+                            unsigned num_rs, rewrite_rule_set const * rs,
+                            optional<ro_metavar_env> const & menv,
+                            std::shared_ptr<simplifier_monitor> const & monitor) {
     return simplifier(env, opts, num_rs, rs, monitor)(e, ctx, menv);
 }
 
-expr_pair simplify(expr const & e, ro_environment const & env, context const & ctx, options const & opts,
-                   unsigned num_ns, name const * ns,
-                   optional<ro_metavar_env> const & menv,
-                   std::shared_ptr<simplifier_monitor> const & monitor) {
+simplifier::result simplify(expr const & e, ro_environment const & env, context const & ctx, options const & opts,
+                            unsigned num_ns, name const * ns,
+                            optional<ro_metavar_env> const & menv,
+                            std::shared_ptr<simplifier_monitor> const & monitor) {
     buffer<rewrite_rule_set> rules;
     for (unsigned i = 0; i < num_ns; i++)
         rules.push_back(get_rewrite_rule_set(env, ns[i]));
@@ -1736,16 +1727,17 @@ static int mk_simplifier(lua_State * L) {
 
 static int simplifier_apply(lua_State * L) {
     int nargs = lua_gettop(L);
-    expr_pair r;
+    simplifier::result r;
     if (nargs == 2)
         r = to_simplifier(L, 1)(to_expr(L, 2), context(), none_ro_menv());
     else if (nargs == 3)
         r = to_simplifier(L, 1)(to_expr(L, 2), to_context(L, 3), none_ro_menv());
     else
         r = to_simplifier(L, 1)(to_expr(L, 2), to_context(L, 3), some_ro_menv(to_metavar_env(L, 4)));
-    push_expr(L, r.first);
-    push_expr(L, r.second);
-    return 2;
+    push_expr(L, r.get_expr());
+    push_optional_expr(L, r.get_proof());
+    lua_pushboolean(L, r.is_heq_proof());
+    return 3;
 }
 
 static int simplifier_clear(lua_State * L) { to_simplifier(L, 1)->clear(); return 0; }
@@ -1790,9 +1782,10 @@ static int simplify_core(lua_State * L, ro_shared_environment const & env) {
     if (nargs >= 5)
         ctx = to_context(L, 5);
     auto r = simplify(e, env, ctx, opts, rules.size(), rules.data());
-    push_expr(L, r.first);
-    push_expr(L, r.second);
-    return 2;
+    push_expr(L, r.get_expr());
+    push_optional_expr(L, r.get_proof());
+    lua_pushboolean(L, r.is_heq_proof());
+    return 3;
 }
 
 static int simplify(lua_State * L) {

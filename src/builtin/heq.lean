@@ -13,6 +13,9 @@ theorem to_heq {A : TypeU} {a b : A} (H : a = b) : a == b
 theorem hrefl {A : TypeU} (a : A) : a == a
 := to_heq (refl a)
 
+theorem heqt_elim {a : Bool} (H : a == true) : a
+:= eqt_elim (to_eq H)
+
 axiom hsymm {A B : TypeU} {a : A} {b : B} : a == b → b == a
 
 axiom htrans {A B C : TypeU} {a : A} {b : B} {c : C} : a == b → b == c → a == c

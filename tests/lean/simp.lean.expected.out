@@ -8,7 +8,7 @@
   Assumed: b
 Axfg : ∀ x : ℕ, g x x = x
 Axf1 : ∀ x : ℕ, f (f x) = x
-a	trans (congr2 (g a) (Axf1 a)) (Axfg a)
-g a a	congr2 (g a) (Axf1 a)
-a	trans (congr2 (g a) (Axf1 a)) (Axfg a)
-a	trans (congr2 (g a) (Axf1 a)) (Axfg a)
+a	trans (congr2 (g a) (Axf1 a)) (Axfg a)	false
+g a a	congr2 (g a) (Axf1 a)	false
+a	trans (congr2 (g a) (Axf1 a)) (Axfg a)	false
+a	trans (congr2 (g a) (Axf1 a)) (Axfg a)	false

@@ -30,7 +30,7 @@ trans (congr (congr2 (λ x : ℕ, eq ((λ x : ℕ, x + 10) x))
              (congr2 (λ x : ℕ, x + 10) (if_a_a (a > 0) b)))
       (eq_id (b + 10))
 a * a + (a * b + (b * a + b * b))
-⊤ → ⊥	refl (⊤ → ⊥)
-⊤ → ⊤	refl (⊤ → ⊤)
-⊥ → ⊥	refl (⊥ → ⊥)
-⊥	refl ⊥
+⊤ → ⊥	refl (⊤ → ⊥)	false
+⊤ → ⊤	refl (⊤ → ⊤)	false
+⊥ → ⊥	refl (⊥ → ⊥)	false
+⊥	refl ⊥	false

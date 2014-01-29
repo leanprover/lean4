@@ -105,6 +105,14 @@ public:
     virtual void failed_abstraction_eh(ro_simplifier const & s, expr const & e, failure_kind k) = 0;
 };
 
+class simplifier_stack_space_exception : public stack_space_exception {
+public:
+    simplifier_stack_space_exception();
+    virtual char const * what() const noexcept;
+    virtual exception * clone() const;
+    virtual void rethrow() const;
+};
+
 expr_pair simplify(expr const & e, ro_environment const & env, context const & ctx, options const & pts,
                    unsigned num_rs, rewrite_rule_set const * rs,
                    std::shared_ptr<simplifier_monitor> const & monitor = std::shared_ptr<simplifier_monitor>());

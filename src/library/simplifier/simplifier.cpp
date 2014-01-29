@@ -1512,8 +1512,12 @@ public:
         set_ctx(ctx);
         m_num_steps = 0;
         m_depth     = 0;
-        auto r = simplify(e);
-        return mk_pair(r.m_expr, get_proof(r));
+        try {
+            auto r = simplify(e);
+            return mk_pair(r.m_expr, get_proof(r));
+        } catch (stack_space_exception & ex) {
+            throw simplifier_stack_space_exception();
+        }
     }
 };
 
@@ -1559,6 +1563,13 @@ expr_pair simplify(expr const & e, ro_environment const & env, context const & c
         rules.push_back(get_rewrite_rule_set(env, ns[i]));
     return simplify(e, env, ctx, opts, num_ns, rules.data(), monitor);
 }
+
+simplifier_stack_space_exception::simplifier_stack_space_exception():stack_space_exception("simplifier") {}
+char const * simplifier_stack_space_exception::what() const noexcept {
+    return "deep recursion was detected at 'simplifier', this is probably due to a non-terminating set of rewrite rules, you may use a simplifier_monitor object to track the simplifier behavior (see the simplifier manual); if your problem is very big, you may try to increase stack space in your system";
+}
+exception * simplifier_stack_space_exception::clone() const { return new simplifier_stack_space_exception(); }
+void simplifier_stack_space_exception::rethrow() const { throw *this; }
 
 DECL_UDATA(simplifier)
 DECL_UDATA(ro_simplifier)

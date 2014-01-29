@@ -6,7 +6,6 @@ definition bracket (A : Type) : Bool :=
 
 rewrite_set basic
 add_rewrite imp_truel imp_truer imp_id eq_id : basic
-set_option simp_tac::assumptions false
 
 theorem bracket_eq (x : Bool) : bracket x = x
 := boolext

@@ -9,6 +9,8 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/type_checker.h"
+#include "kernel/instantiate.h"
+#include "kernel/occurs.h"
 #include "library/expr_pair.h"
 #include "library/ite.h"
 #include "library/kernel_bindings.h"
@@ -131,6 +133,8 @@ list<expr_pair> to_ceqs(ro_environment const & env, optional<ro_metavar_env> con
     return to_ceqs_fn(env, menv)(e, H);
 }
 
+static name g_unique = name::mk_internal_unique_name();
+
 bool is_ceq(ro_environment const & env, optional<ro_metavar_env> const & menv, expr e) {
     buffer<bool> found_args;
     // Define a procedure for marking arguments found.
@@ -150,6 +154,9 @@ bool is_ceq(ro_environment const & env, optional<ro_metavar_env> const & menv, e
     };
     type_checker tc(env);
     context ctx;
+    buffer<expr> hypothesis; // arguments that are propositions
+    expr e_prime = e;        // in e_prime we replace local variables with fresh constants
+    unsigned next_idx = 0;
     while (is_pi(e)) {
         if (!found_args.empty()) {
             // Support for dependent types.
@@ -159,15 +166,30 @@ bool is_ceq(ro_environment const & env, optional<ro_metavar_env> const & menv, e
         }
         // If a variable is a proposition, than if doesn't need to occurr in the lhs.
         // So, we mark it as true.
-        found_args.push_back(tc.is_proposition(abst_domain(e), ctx, menv));
+        if (tc.is_proposition(abst_domain(e), ctx, menv)) {
+            found_args.push_back(true);
+            hypothesis.push_back(abst_domain(e_prime));
+        } else {
+            found_args.push_back(false);
+        }
         ctx = extend(ctx, abst_name(e), abst_domain(e));
+        next_idx++;
+        e_prime = instantiate(abst_body(e_prime), mk_constant(name(g_unique, next_idx)), menv);
         e = abst_body(e);
     }
     expr lhs, rhs;
     if (is_equality(e, lhs, rhs)) {
         // traverse lhs, and mark all variables that occur there in is_lhs.
         for_each(lhs, visitor_fn);
-        return std::find(found_args.begin(), found_args.end(), false) == found_args.end();
+        if (std::find(found_args.begin(), found_args.end(), false) != found_args.end())
+            return false;
+        // basic looping ceq detection: the left-hand-side should not occur in the right-hand-side,
+        // nor it should occur in any of the hypothesis
+        expr lhs_prime, rhs_prime;
+        lean_verify(is_equality(e_prime, lhs_prime, rhs_prime));
+        return
+            !occurs(lhs_prime, rhs_prime) &&
+            std::all_of(hypothesis.begin(), hypothesis.end(), [&](expr const & h) { return !occurs(lhs_prime, h); });
     } else {
         return false;
     }

@@ -1,0 +1,7 @@
+  Set: pp::colors
+  Set: pp::unicode
+Type → Type : (Type 1)
+(Type → Type) → Type : (Type 1)
+(Type 1) : (Type 2)
+((Type 1) → Type) → Type : (Type 2)
+((Type 1) → (Type 2)) → Type : (Type 3)

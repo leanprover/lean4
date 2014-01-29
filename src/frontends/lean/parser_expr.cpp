@@ -823,6 +823,8 @@ expr parser_imp::parse_type(bool level_expected) {
     if (level_expected) {
         if (curr() == scanner::token::RightParen) {
             return save(Type(), p);
+        } else if (curr() == scanner::token::Arrow) {
+            return parse_arrow(save(Type(), p));
         } else {
             return save(mk_type(parse_level()), p);
         }

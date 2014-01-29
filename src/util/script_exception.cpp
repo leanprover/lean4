@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <sstream>
 #include <string>
 #include <cstdlib>
+#include "util/thread.h"
 #include "util/debug.h"
 #include "util/script_exception.h"
 
@@ -70,7 +71,7 @@ char const * script_exception::get_msg() const noexcept {
 }
 
 char const * script_exception::what() const noexcept {
-    static thread_local std::string buffer;
+    static LEAN_THREAD_LOCAL std::string buffer;
     std::ostringstream strm;
     char const * msg = get_msg();
     char const * space = msg && *msg == ' ' ? "" : " ";
@@ -92,10 +93,14 @@ script_nested_exception::script_nested_exception(source s, std::string f, unsign
 script_nested_exception::~script_nested_exception() {}
 
 char const * script_nested_exception::what() const noexcept {
-    static thread_local std::string buffer;
-    std::ostringstream strm;
-    strm << script_exception::what() << "\n" << get_exception().what();
-    buffer = strm.str();
-    return buffer.c_str();
+    std::string super_what  = script_exception::what();
+    std::string nested_what = get_exception().what();
+    {
+        static LEAN_THREAD_LOCAL std::string buffer;
+        std::ostringstream strm;
+        strm << super_what << "\n" << nested_what;
+        buffer = strm.str();
+        return buffer.c_str();
+    }
 }
 }

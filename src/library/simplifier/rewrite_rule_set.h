@@ -28,8 +28,9 @@ class rewrite_rule {
     expr     m_proof;
     unsigned m_num_args;
     bool     m_is_permutation;
+    bool     m_must_check_types; // if true, then we must check if the given types are convertible to the expected types
     rewrite_rule(name const & id, expr const & lhs, expr const & rhs, expr const & ceq, expr const & proof,
-                 unsigned num_args, bool is_permutation);
+                 unsigned num_args, bool is_permutation, bool must_check);
 public:
     name const & get_id() const { return m_id; }
     expr const & get_lhs() const { return m_lhs; }
@@ -38,6 +39,7 @@ public:
     expr const & get_proof() const { return m_proof; }
     unsigned get_num_args() const { return m_num_args; }
     bool is_permutation() const { return m_is_permutation; }
+    bool must_check_types() const { return m_must_check_types; }
 };
 
 /**

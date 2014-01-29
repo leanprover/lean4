@@ -16,8 +16,9 @@ Author: Leonardo de Moura
 
 namespace lean {
 rewrite_rule::rewrite_rule(name const & id, expr const & lhs, expr const & rhs, expr const & ceq, expr const & proof,
-                           unsigned num_args, bool is_permutation):
-    m_id(id), m_lhs(lhs), m_rhs(rhs), m_ceq(ceq), m_proof(proof), m_num_args(num_args), m_is_permutation(is_permutation) {
+                           unsigned num_args, bool is_permutation, bool must_check):
+    m_id(id), m_lhs(lhs), m_rhs(rhs), m_ceq(ceq), m_proof(proof), m_num_args(num_args),
+    m_is_permutation(is_permutation), m_must_check_types(must_check) {
 }
 
 rewrite_rule_set::rewrite_rule_set(ro_environment const & env):m_env(env.to_weak_ref()) {}
@@ -38,8 +39,9 @@ void rewrite_rule_set::insert(name const & id, expr const & th, expr const & pro
             num++;
         }
         lean_assert(is_equality(eq));
+        bool must_check = true; // TODO(Leo): call procedure to test whether we must check types or not.
         m_rule_set = cons(rewrite_rule(id, arg(eq, num_args(eq) - 2), arg(eq, num_args(eq) - 1),
-                                       ceq, proof, num, is_perm),
+                                       ceq, proof, num, is_perm, must_check),
                           m_rule_set);
     }
 }

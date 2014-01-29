@@ -881,6 +881,37 @@ class simplifier_cell::imp {
                     new_rhs   = instantiate(rhs, num, new_args.data() + 1);
                     if (rule.is_permutation() && !is_lt(new_rhs, target, false))
                         return false;
+                    if (rule.must_check_types()) {
+                        // This check is needed because of universe cumulativity.
+                        // Consider the following example:
+                        //
+                        // universe U >= 2
+                        // variable f (A : (Type 1)) : (Type 1)
+                        // axiom Ax1 (a : Type) : f a = a
+                        // rewrite_set S
+                        // add_rewrite Ax1 eq_id : S
+                        // theorem T1 (A : (Type 1)) : f A = A
+                        // := by simp S
+                        //
+                        // The axiom Ax1 is only for arguments convertible to Type (i.e., Type 0), but
+                        // argument A in T1 lives in (Type 1)
+                        //
+                        // In many cases, we can statically determine that this check is not needed.
+                        // By statically, we mean the time we are inserting ceqs into rewrite rule sets.
+                        expr ceq = rule.get_ceq();
+                        unsigned i = 0;
+                        while (is_pi(ceq)) {
+                            expr arg = new_args[i+1];
+                            if (!is_convertible(infer_type(arg), abst_domain(ceq))) {
+                                if (m_monitor)
+                                    m_monitor->failed_rewrite_eh(ro_simplifier(m_this), target, rule.get_ceq(), rule.get_id(),
+                                                                 i, simplifier_monitor::failure_kind::TypeMismatch);
+                                return false;
+                            }
+                            ceq = instantiate(abst_body(ceq), arg);
+                            i   = i + 1;
+                        }
+                    }
                     if (m_proofs_enabled) {
                         if (num > 0) {
                             new_args[0] = rule.get_proof();
@@ -904,6 +935,13 @@ class simplifier_cell::imp {
                     for (unsigned i = 0; i < num; i++) {
                         lean_assert(is_pi(ceq));
                         if (subst[i]) {
+                            if (rule.must_check_types() && !is_convertible(infer_type(*subst[i]), abst_domain(ceq))) {
+                                // See before the previous is_convertible
+                                if (m_monitor)
+                                    m_monitor->failed_rewrite_eh(ro_simplifier(m_this), target, rule.get_ceq(), rule.get_id(),
+                                                                 i, simplifier_monitor::failure_kind::TypeMismatch);
+                                return false;
+                            }
                             ceq = instantiate(abst_body(ceq), *subst[i]);
                             if (m_proofs_enabled)
                                 proof_args.push_back(*subst[i]);

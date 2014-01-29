@@ -1,0 +1,17 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Imported 'tactic'
+  Imported 'cast'
+  Set: lean::pp::implicit
+  Assumed: vec
+  Assumed: n
+  Assumed: m
+  Assumed: v1
+  Assumed: v2
+  Assumed: Ax1
+  Assumed: Ax2
+  Assumed: concat
+  Assumed: empty
+  Assumed: concat_assoc
+  Assumed: concat_empty
+  Proved: T1

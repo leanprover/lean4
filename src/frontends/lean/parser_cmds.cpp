@@ -152,12 +152,14 @@ void parser_imp::parse_def_core(bool is_definition) {
     expr type = std::get<0>(r);
     expr val  = std::get<1>(r);
     metavar_env menv = std::get<2>(r);
-    check_no_metavar(type, menv, "invalid definition, type still contains metavariables after elaboration");
-    if (has_metavar(val)) {
-        val = apply_tactics(val, menv);
-    } else {
-        check_no_metavar(val, menv, "invalid definition, value still contains metavariables after elaboration");
+    if (has_metavar(type)) {
+        type = apply_tactics(type, menv);
+        val  = menv->instantiate_metavars(val); // val may contain metavariables instantiated in the previous step
     }
+    check_no_metavar(type, menv, "invalid definition, type still contains metavariables after elaboration");
+    if (has_metavar(val))
+        val = apply_tactics(val, menv);
+    check_no_metavar(val, menv, "invalid definition, value still contains metavariables after elaboration");
     lean_assert(!has_metavar(val));
     name full_id = mk_full_name(id);
     if (is_definition) {
@@ -198,22 +200,24 @@ void parser_imp::parse_theorem() {
 void parser_imp::parse_variable_core(bool is_var) {
     next();
     name id = check_identifier_next("invalid variable/axiom declaration, identifier expected");
+    expr pre_type;
     parameter_buffer parameters;
-    expr type;
     if (curr_is_colon()) {
         next();
-        auto p = m_elaborator(parse_expr());
-        check_no_metavar(p, "invalid declaration, type still contains metavariables after elaboration");
-        type = p.first;
+        pre_type = parse_expr();
     } else {
         mk_scope scope(*this);
         parse_var_decl_parameters(parameters);
         check_colon_next("invalid variable/axiom declaration, ':' expected");
         expr type_body = parse_expr();
-        auto p = m_elaborator(mk_abstraction(false, parameters, type_body));
-        check_no_metavar(p, "invalid declaration, type still contains metavariables after elaboration");
-        type = p.first;
+        pre_type = mk_abstraction(false, parameters, type_body);
     }
+    auto p = m_elaborator(pre_type);
+    expr type = p.first;
+    metavar_env menv = p.second;
+    if (has_metavar(type))
+        type = apply_tactics(type, menv);
+    check_no_metavar(type, menv, "invalid variable/axiom, type still contains metavariables after elaboration");
     name full_id = mk_full_name(id);
     if (is_var)
         m_env->add_var(full_id, type);

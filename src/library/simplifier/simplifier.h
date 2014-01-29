@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include "util/lua.h"
 #include "kernel/environment.h"
+#include "kernel/metavar.h"
 #include "library/expr_pair.h"
 #include "library/simplifier/rewrite_rule_set.h"
 
@@ -23,7 +24,7 @@ public:
     simplifier_cell(ro_environment const & env, options const & o, unsigned num_rs, rewrite_rule_set const * rs,
                     std::shared_ptr<simplifier_monitor> const & monitor);
 
-    expr_pair operator()(expr const & e, context const & ctx);
+    expr_pair operator()(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv);
     void clear();
 
     unsigned get_depth() const;
@@ -41,7 +42,9 @@ public:
                std::shared_ptr<simplifier_monitor> const & monitor);
     simplifier_cell * operator->() const { return m_ptr.get(); }
     simplifier_cell & operator*() const { return *(m_ptr.get()); }
-    expr_pair operator()(expr const & e, context const & ctx) { return (*m_ptr)(e, ctx); }
+    expr_pair operator()(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv) {
+        return (*m_ptr)(e, ctx, menv);
+    }
 };
 
 /** \brief Read only reference to simplifier object */
@@ -115,9 +118,11 @@ public:
 
 expr_pair simplify(expr const & e, ro_environment const & env, context const & ctx, options const & pts,
                    unsigned num_rs, rewrite_rule_set const * rs,
+                   optional<ro_metavar_env> const & menv = none_ro_menv(),
                    std::shared_ptr<simplifier_monitor> const & monitor = std::shared_ptr<simplifier_monitor>());
 expr_pair simplify(expr const & e, ro_environment const & env, context const & ctx, options const & opts,
                    unsigned num_ns, name const * ns,
+                   optional<ro_metavar_env> const & menv = none_ro_menv(),
                    std::shared_ptr<simplifier_monitor> const & monitor = std::shared_ptr<simplifier_monitor>());
 void open_simplifier(lua_State * L);
 }

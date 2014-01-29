@@ -21,6 +21,7 @@ class hop_match_fn {
     buffer<optional<expr>> & m_subst;
     buffer<expr>             m_vars;
     optional<ro_environment> m_env;
+    optional<ro_metavar_env> m_menv;
     name_map<name> *         m_name_subst;
 
     bool is_free_var(expr const & x, unsigned ctx_size) const {
@@ -30,6 +31,13 @@ class hop_match_fn {
     bool is_locally_bound(expr const & x, unsigned ctx_size) const {
         return is_var(x) && var_idx(x) < ctx_size;
     }
+
+    expr lift_free_vars(expr const & e, unsigned d) const { return ::lean::lift_free_vars(e, d, m_menv); }
+    expr lower_free_vars(expr const & e, unsigned s, unsigned d) const { return ::lean::lower_free_vars(e, s, d, m_menv); }
+    bool has_free_var(expr const & e, unsigned i) const { return ::lean::has_free_var(e, i, m_menv); }
+    bool has_free_var(expr const & e, unsigned low, unsigned high) const { return ::lean::has_free_var(e, low, high, m_menv); }
+    expr apply_beta(expr f, unsigned num_args, expr const * args) const { return ::lean::apply_beta(f, num_args, args, m_menv); }
+    bool has_free_var_ge(expr const & e, unsigned low) const { return ::lean::has_free_var_ge(e, low, m_menv); }
 
     optional<expr> get_subst(expr const & x, unsigned ctx_size) const {
         lean_assert(is_free_var(x, ctx_size));
@@ -180,7 +188,7 @@ class hop_match_fn {
         for_each(p, [&](expr const & v, unsigned offset) {
                 if (!result)
                     return false;
-                if (is_var(v) && is_free_var(v, ctx_size + offset) && !get_subst(v, ctx_size + offset)) {
+                if (is_var(v) && this->is_free_var(v, ctx_size + offset) && !get_subst(v, ctx_size + offset)) {
                     result = false;
                 }
                 return true;
@@ -201,7 +209,7 @@ class hop_match_fn {
             if (m_ref.is_free_var(x, real_ctx_sz)) {
                 optional<expr> r = m_ref.get_subst(x, real_ctx_sz);
                 lean_assert(r);
-                return lift_free_vars(*r, real_ctx_sz);
+                return m_ref.lift_free_vars(*r, real_ctx_sz);
             } else {
                 return x;
             }
@@ -215,7 +223,7 @@ class hop_match_fn {
                 for (unsigned i = 0; i < num_args(e); i++)
                     new_args.push_back(visit(arg(e, i), ctx));
                 if (is_lambda(new_args[0]))
-                    return apply_beta(new_args[0], new_args.size() - 1, new_args.data() + 1);
+                    return m_ref.apply_beta(new_args[0], new_args.size() - 1, new_args.data() + 1);
                 else
                     return mk_app(new_args);
             } else {
@@ -310,7 +318,8 @@ class hop_match_fn {
     }
 public:
     hop_match_fn(buffer<optional<expr>> & subst, optional<ro_environment> const & env,
-                 name_map<name> * name_subst):m_subst(subst), m_env(env), m_name_subst(name_subst) {}
+                 optional<ro_metavar_env> const & menv, name_map<name> * name_subst):
+        m_subst(subst), m_env(env), m_menv(menv), m_name_subst(name_subst) {}
 
     bool operator()(expr const & p, expr const & t) {
         return match(p, t, context(), 0);
@@ -318,8 +327,8 @@ public:
 };
 
 bool hop_match(expr const & p, expr const & t, buffer<optional<expr>> & subst, optional<ro_environment> const & env,
-               name_map<name> * name_subst) {
-    return hop_match_fn(subst, env, name_subst)(p, t);
+               optional<ro_metavar_env> const & menv, name_map<name> * name_subst) {
+    return hop_match_fn(subst, env, menv, name_subst)(p, t);
 }
 
 static int hop_match_core(lua_State * L, optional<ro_environment> const & env) {
@@ -327,8 +336,11 @@ static int hop_match_core(lua_State * L, optional<ro_environment> const & env) {
     expr p    = to_expr(L, 1);
     expr t    = to_expr(L, 2);
     int k     = 0;
-    if (nargs >= 4) {
-        k = luaL_checkinteger(L, 4);
+    optional<ro_metavar_env> menv;
+    if (nargs >= 4 && !lua_isnil(L, 4))
+        menv = to_metavar_env(L, 4);
+    if (nargs >= 5) {
+        k = luaL_checkinteger(L, 5);
         if (k < 0)
             throw exception("hop_match, arg #4 must be non-negative");
     } else {
@@ -336,7 +348,7 @@ static int hop_match_core(lua_State * L, optional<ro_environment> const & env) {
     }
     buffer<optional<expr>> subst;
     subst.resize(k);
-    if (hop_match(p, t, subst, env)) {
+    if (hop_match(p, t, subst, env, menv)) {
         lua_newtable(L);
         int i = 1;
         for (auto s : subst) {

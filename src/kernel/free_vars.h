@@ -64,6 +64,7 @@ bool has_free_var(context_entry const & e, unsigned low, unsigned high, ro_metav
     occur in a metavariable.
 */
 bool has_free_var_ge(expr const & e, unsigned low, ro_metavar_env const & menv);
+bool has_free_var_ge(expr const & e, unsigned low, optional<ro_metavar_env> const & menv);
 bool has_free_var_ge(expr const & e, unsigned low);
 
 /**

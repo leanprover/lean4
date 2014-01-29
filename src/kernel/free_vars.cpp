@@ -365,7 +365,12 @@ bool has_free_var(context_entry const & e, unsigned low, unsigned high, ro_metav
     return (d && has_free_var(*d, low, high, menv)) || (b && has_free_var(*b, low, high, menv));
 }
 
-bool has_free_var_ge(expr const & e, unsigned low, ro_metavar_env const & menv) { return has_free_var(e, low, std::numeric_limits<unsigned>::max(), menv); }
+bool has_free_var_ge(expr const & e, unsigned low, ro_metavar_env const & menv) {
+    return has_free_var(e, low, std::numeric_limits<unsigned>::max(), menv);
+}
+bool has_free_var_ge(expr const & e, unsigned low, optional<ro_metavar_env> const & menv) {
+    return has_free_var(e, low, std::numeric_limits<unsigned>::max(), menv);
+}
 bool has_free_var_ge(expr const & e, unsigned low) { return has_free_var(e, low, std::numeric_limits<unsigned>::max()); }
 
 expr lower_free_vars(expr const & e, unsigned s, unsigned d, optional<ro_metavar_env> const & DEBUG_CODE(menv)) {

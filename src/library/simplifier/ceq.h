@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/lua.h"
 #include "kernel/environment.h"
+#include "kernel/metavar.h"
 #include "library/expr_pair.h"
 namespace lean {
 /**
@@ -26,7 +27,7 @@ namespace lean {
    \remark if the left-hand-side of an equation does not contain all variables, then it is
    discarded. That is, all elements in the resultant list satisfy the predicate \c is_ceq.
 */
-list<expr_pair> to_ceqs(ro_environment const & env, expr const & e, expr const & H);
+list<expr_pair> to_ceqs(ro_environment const & env, optional<ro_metavar_env> const & menv, expr const & e, expr const & H);
 /**
    \brief Return true iff \c e is a conditional equation.
 

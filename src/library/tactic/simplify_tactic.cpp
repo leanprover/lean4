@@ -43,7 +43,7 @@ static optional<proof_state> simplify_tactic(ro_environment const & env, io_stat
         for (auto const & p : g.get_hypotheses()) {
             if (tc.is_proposition(p.second, context(), menv)) {
                 expr H = mk_constant(p.first, p.second);
-                rs.insert(g_assumption, p.second, H);
+                rs.insert(g_assumption, p.second, H, some_ro_menv(menv));
             }
         }
     }

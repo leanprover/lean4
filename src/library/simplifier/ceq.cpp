@@ -22,8 +22,9 @@ bool is_ceq(ro_environment const & env, expr e);
    \brief Auxiliary functional object for creating "conditional equations"
 */
 class to_ceqs_fn {
-    ro_environment const & m_env;
-    unsigned               m_idx;
+    ro_environment const &           m_env;
+    optional<ro_metavar_env> const & m_menv;
+    unsigned                         m_idx;
 
     static list<expr_pair> mk_singleton(expr const & e, expr const & H) {
         return list<expr_pair>(mk_pair(e, H));
@@ -31,6 +32,10 @@ class to_ceqs_fn {
 
     bool imported_ite() {
         return m_env->imported("if_then_else");
+    }
+
+    expr lift_free_vars(expr const & e, unsigned d) {
+        return ::lean::lift_free_vars(e, d, m_menv);
     }
 
     name mk_aux_name() {
@@ -114,15 +119,15 @@ class to_ceqs_fn {
         }
     }
 public:
-    to_ceqs_fn(ro_environment const & env):m_env(env), m_idx(0) {}
+    to_ceqs_fn(ro_environment const & env, optional<ro_metavar_env> const & menv):m_env(env), m_menv(menv), m_idx(0) {}
 
     list<expr_pair> operator()(expr const & e, expr const & H) {
         return filter(apply(e, H), [&](expr_pair const & p) { return is_ceq(m_env, p.first); });
     }
 };
 
-list<expr_pair> to_ceqs(ro_environment const & env, expr const & e, expr const & H) {
-    return to_ceqs_fn(env)(e, H);
+list<expr_pair> to_ceqs(ro_environment const & env, optional<ro_metavar_env> const & menv, expr const & e, expr const & H) {
+    return to_ceqs_fn(env, menv)(e, H);
 }
 
 bool is_ceq(ro_environment const & env, expr e) {
@@ -230,7 +235,10 @@ bool is_permutation_ceq(expr e) {
 
 static int to_ceqs(lua_State * L) {
     ro_shared_environment env(L, 1);
-    auto r = to_ceqs(env, to_expr(L, 2), to_expr(L, 3));
+    optional<ro_metavar_env> menv;
+    if (!lua_isnil(L, 2))
+        menv = to_metavar_env(L, 2);
+    auto r = to_ceqs(env, menv, to_expr(L, 3), to_expr(L, 4));
     lua_newtable(L);
     int i = 1;
     for (auto p : r) {

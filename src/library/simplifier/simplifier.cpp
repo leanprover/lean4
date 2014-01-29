@@ -184,7 +184,7 @@ class simplifier_cell::imp {
         updt_rule_set(imp & fn, expr const & H):
             m_fn(fn), m_old(m_fn.m_rule_sets[0]), m_reset_cache(m_fn.m_cache) {
             lean_assert(const_type(H));
-            m_fn.m_rule_sets[0].insert(g_local, *const_type(H), H);
+            m_fn.m_rule_sets[0].insert(g_local, *const_type(H), H, m_fn.m_menv.to_some_menv());
         }
         ~updt_rule_set() {
             m_fn.m_rule_sets[0] = m_old;

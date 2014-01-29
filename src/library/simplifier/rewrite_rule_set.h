@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "util/splay_tree.h"
 #include "util/name.h"
 #include "kernel/environment.h"
+#include "kernel/metavar.h"
 #include "kernel/formatter.h"
 #include "library/io_state_stream.h"
 #include "library/simplifier/congr.h"
@@ -59,7 +60,7 @@ public:
        \brief Convert the theorem \c th with proof \c proof into conditional rewrite rules, and
        insert the rules into this rule set. The new rules are tagged with the given \c id.
     */
-    void insert(name const & id, expr const & th, expr const & proof);
+    void insert(name const & id, expr const & th, expr const & proof, optional<ro_metavar_env> const & menv);
 
     /**
        \brief Convert the theorem/axiom named \c th_name in the environment into conditional rewrite rules,

@@ -11,7 +11,7 @@ end
 
 function test_ceq(name, expected, is_perm)
    local obj = env:find_object(name)
-   local r   = to_ceqs(env, obj:get_type(), Const(name))
+   local r   = to_ceqs(env, nil, obj:get_type(), Const(name))
    show_ceqs(r)
    assert(#r == expected)
    if is_perm ~= nil then

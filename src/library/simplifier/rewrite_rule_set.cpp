@@ -25,9 +25,9 @@ rewrite_rule_set::rewrite_rule_set(rewrite_rule_set const & other):
     m_env(other.m_env), m_rule_set(other.m_rule_set), m_disabled_rules(other.m_disabled_rules), m_congr_thms(other.m_congr_thms) {}
 rewrite_rule_set::~rewrite_rule_set() {}
 
-void rewrite_rule_set::insert(name const & id, expr const & th, expr const & proof) {
+void rewrite_rule_set::insert(name const & id, expr const & th, expr const & proof, optional<ro_metavar_env> const & menv) {
     ro_environment env(m_env);
-    for (auto const & p : to_ceqs(env, th, proof)) {
+    for (auto const & p : to_ceqs(env, menv, th, proof)) {
         expr const & ceq   = p.first;
         expr const & proof = p.second;
         bool is_perm       = is_permutation_ceq(ceq);
@@ -48,7 +48,7 @@ void rewrite_rule_set::insert(name const & th_name) {
     ro_environment env(m_env);
     auto obj = env->find_object(th_name);
     if (obj && (obj->is_theorem() || obj->is_axiom())) {
-        insert(th_name, obj->get_type(), mk_constant(th_name));
+        insert(th_name, obj->get_type(), mk_constant(th_name), none_ro_menv());
     } else {
         throw exception(sstream() << "'" << th_name << "' is not a theorem nor an axiom");
     }

@@ -110,9 +110,9 @@ bool     get_pp_def_value(options const & opts)        { return opts.get_bool(g_
 
 // =======================================
 // Prefixes for naming local aliases (auxiliary local decls)
-static name g_kappa("\u03BA");
-static name g_pho("\u03C1");
-static name g_nu("\u03BD");
+static name g_a("a");
+static name g_b("b");
+static name g_c("c");
 // =======================================
 
 /**
@@ -1158,16 +1158,16 @@ class pp_fn {
     }
 
     name find_unused_prefix(expr const & e) {
-        if (!uses_prefix(e, g_kappa)) {
-            return g_kappa;
-        } else if (!uses_prefix(e, g_pho)) {
-            return g_pho;
+        if (!uses_prefix(e, g_a)) {
+            return g_a;
+        } else if (!uses_prefix(e, g_b)) {
+            return g_b;
         } else {
             unsigned i = 1;
-            name n(g_nu, i);
+            name n(g_c, i);
             while (uses_prefix(e, n)) {
                 i++;
-                n = name(g_nu, i);
+                n = name(g_c, i);
             }
             return n;
         }

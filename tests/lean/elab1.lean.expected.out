@@ -34,7 +34,7 @@ A : Type, B : Type, a : ?M::0, b : ?M::1, C : Type ⊢ ?M::0[lift:0:3] ≺ C
   Assumed: b
   Assumed: H
 Failed to solve
- ⊢ ∀ H1 : ?M::0, ?M::1 ∧ a ≺ b
+ ⊢ ∀ H1 : ?M::0, ?M::1 ∧ a ≈ b
     elab1.lean:18:18: Type of definition 't1' must be convertible to expected type.
 Failed to solve
  ⊢ @eq ?M::6 b b ≺ @eq ?M::1 a b

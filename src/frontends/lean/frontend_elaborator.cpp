@@ -469,8 +469,8 @@ public:
         if (has_metavar(new_e) || has_metavar(new_t)) {
             m_type_checker.check(new_t, context(), m_menv, m_ucs);
             expr new_e_t = m_type_checker.check(new_e, context(), m_menv, m_ucs);
-            m_ucs.push_back(mk_convertible_constraint(context(), new_e_t, new_t,
-                                                      mk_def_type_match_justification(context(), n, e)));
+            m_ucs.push_back(mk_eq_constraint(context(), new_e_t, new_t,
+                                             mk_def_type_match_justification(context(), n, e)));
             // for (auto c : m_ucs) {
             //    formatter fmt = mk_simple_formatter();
             //    std::cout << c.pp(fmt, options(), nullptr, false) << "\n";

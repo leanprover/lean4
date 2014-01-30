@@ -414,7 +414,7 @@ class elaborator::imp {
             expr tv = m_type_inferer(v, ctx, menv, ucs);
             push_active(ucs);
             justification new_jst(new typeof_mvar_justification(ctx, m, menv->get_type(m), tv, jst));
-            push_active(mk_convertible_constraint(ctx, tv, menv->get_type(m), new_jst));
+            push_active(mk_eq_constraint(ctx, tv, menv->get_type(m), new_jst));
         }
         m_state.m_recently_assigned.insert(metavar_name(m));
         return true;

@@ -1,9 +1,9 @@
-universe M >= 1
-universe U >= M + 1
-universe Z >= max U+1 M+1
-print environment 2
+universe M1 >= 1
+universe M2 >= 1
+universe Z >= max M1+1 M2+1
+print environment
 (*
 local env = get_environment()
-assert(env:get_universe_distance("Z", "U") == 1)
-assert(env:get_universe_distance("Z", "M") == 2)
+assert(env:get_universe_distance("Z", "M1") == 1)
+assert(env:get_universe_distance("Z", "M2") == 1)
 *)

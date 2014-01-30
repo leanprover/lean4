@@ -24,7 +24,6 @@ axiom hcongr {A A' : TypeU} {B : A → TypeU} {B' : A' → TypeU} {f : ∀ x, B 
       f == f' → a == a' → f a == f' a'
 
 universe M ≥ 1
-universe U ≥ M + 1
 definition TypeM := (Type M)
 
 -- In the following definitions the type of A and A' cannot be TypeU

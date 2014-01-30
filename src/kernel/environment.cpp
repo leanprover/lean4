@@ -25,6 +25,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/normalizer.h"
 #include "kernel/universe_constraints.h"
+#include "kernel/kernel.h"
 #include "version.h"
 
 namespace lean {
@@ -320,6 +321,9 @@ void environment_cell::add_constraints(name const & n, level const & l, int k) {
 void environment_cell::check_consistency(name const & n, level const & l, int k) const {
     switch (kind(l)) {
     case level_kind::UVar:
+        if (l == ty_level(TypeU))
+            throw kernel_exception(env(), sstream() << "invalid universe constraint: " << n << " >= " << l << " + " << k
+                                   << ", several modules in Lean assume that " << l << " is the maximal universe");
         if (!get_ro_ucs().is_consistent(n, uvar_name(l), k))
             throw kernel_exception(env(), sstream() << "universe constraint inconsistency: " << n << " >= " << l << " + " << k);
         if (get_ro_ucs().overflows(n, uvar_name(l), k))
@@ -338,15 +342,25 @@ level environment_cell::add_uvar_cnstr(name const & n, level const & l) {
     level r;
     auto const & uvs = get_ro_universes().m_uvars;
     auto it = std::find_if(uvs.begin(), uvs.end(), [&](level const & l) { return uvar_name(l) == n; });
+    bool new_universe;
     check_consistency(n, l, 0);
     if (it == uvs.end()) {
         r = add_uvar_core(n);
+        new_universe = true;
     } else {
         // universe n already exists, we must check consistency of the new constraint.
         r = *it;
+        new_universe = false;
     }
     m_objects.push_back(mk_uvar_cnstr(n, l));
     add_constraints(n, l, 0);
+    name const & Uname = uvar_name(ty_level(TypeU));
+    if (new_universe && n != Uname && !is_ge(ty_level(TypeU), r, 1)) {
+        // In Lean, U is the maximal universe, several Lean modules assume that,
+        // and the kernel axioms are all with respect to U.
+        // So, we force all other universes to smaller than U
+        add_uvar_cnstr(Uname, r+1);
+    }
     return r;
 }
 

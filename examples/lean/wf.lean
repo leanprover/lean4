@@ -11,7 +11,7 @@ theorem wf_induction {A : (Type U)} {R : A → A → Bool} {P : A → Bool} (Hwf
                      : ∀ x, P x
 := refute (λ N : ¬ ∀ x, P x,
      obtain (w : A) (Hw : ¬ P w), from not_forall_elim N,
-         -- The main "trick" is to define Q x and ¬ P x.
+         -- The main "trick" is to define Q x as ¬ P x.
          -- Since R is well-founded, there must be a R-minimal element r s.t. Q r (which is ¬ P r)
          let Q   : A → Bool                               := λ x, ¬ P x,
              Qw  : ∃ w, Q w                               := exists_intro w Hw,

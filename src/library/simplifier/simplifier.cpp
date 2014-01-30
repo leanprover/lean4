@@ -132,7 +132,6 @@ class simplifier_cell::imp {
     type_checker   m_tc;
     bool           m_has_heq;
     bool           m_has_cast;
-    context        m_ctx;
     rule_sets      m_rule_sets;
     cache          m_cache;
     max_sharing_fn m_max_sharing;
@@ -201,16 +200,16 @@ class simplifier_cell::imp {
         return mk_lambda(abst_name(abst), abst_domain(abst), new_body);
     }
 
-    bool is_proposition(expr const & e) { return m_tc.is_proposition(e, m_ctx, m_menv.to_some_menv()); }
-    bool is_convertible(expr const & t1, expr const & t2) { return m_tc.is_convertible(t1, t2, m_ctx, m_menv.to_some_menv()); }
+    bool is_proposition(expr const & e) { return m_tc.is_proposition(e, context(), m_menv.to_some_menv()); }
+    bool is_convertible(expr const & t1, expr const & t2) { return m_tc.is_convertible(t1, t2, context(), m_menv.to_some_menv()); }
     bool is_definitionally_equal(expr const & t1, expr const & t2) {
-        return m_tc.is_definitionally_equal(t1, t2, m_ctx, m_menv.to_some_menv());
+        return m_tc.is_definitionally_equal(t1, t2, context(), m_menv.to_some_menv());
     }
-    expr infer_type(expr const & e) { return m_tc.infer_type(e, m_ctx, m_menv.to_some_menv()); }
-    expr ensure_pi(expr const & e) { return m_tc.ensure_pi(e, m_ctx, m_menv.to_some_menv()); }
+    expr infer_type(expr const & e) { return m_tc.infer_type(e, context(), m_menv.to_some_menv()); }
+    expr ensure_pi(expr const & e) { return m_tc.ensure_pi(e, context(), m_menv.to_some_menv()); }
     expr normalize(expr const & e) {
         normalizer & proc = m_tc.get_normalizer();
-        return proc(e, m_ctx, m_menv.to_some_menv(), true);
+        return proc(e, context(), m_menv.to_some_menv(), true);
     }
     expr lift_free_vars(expr const & e, unsigned s, unsigned d) { return ::lean::lift_free_vars(e, s, d, m_menv.to_some_menv()); }
     expr lower_free_vars(expr const & e, unsigned s, unsigned d) { return ::lean::lower_free_vars(e, s, d, m_menv.to_some_menv()); }
@@ -1092,7 +1091,7 @@ class simplifier_cell::imp {
             }
             new_rhs           = lower_free_vars(new_rhs, 1, 1);
             expr new_rhs_type = ensure_pi(infer_type(new_rhs));
-            if (m_tc.is_definitionally_equal(abst_domain(new_rhs_type), abst_domain(rhs.m_expr), m_ctx)) {
+            if (is_definitionally_equal(abst_domain(new_rhs_type), abst_domain(rhs.m_expr))) {
                 if (m_proofs_enabled) {
                     expr new_proof = mk_eta_th(abst_domain(rhs.m_expr),
                                                mk_lambda(rhs.m_expr, abst_body(new_rhs_type)),
@@ -1491,13 +1490,6 @@ class simplifier_cell::imp {
         }
     }
 
-    void set_ctx(context const & ctx) {
-        if (!is_eqp(m_ctx, ctx)) {
-            m_cache.clear();
-            m_ctx = ctx;
-        }
-    }
-
     void set_options(options const & o) {
         m_proofs_enabled = get_simplifier_proofs(o);
         m_contextual     = get_simplifier_contextual(o);
@@ -1528,8 +1520,7 @@ public:
         m_next_idx = 0;
     }
 
-    result operator()(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv) {
-        set_ctx(ctx);
+    result operator()(expr const & e, optional<ro_metavar_env> const & menv) {
         if (m_menv.update(menv))
             m_cache.clear();
         m_num_steps = 0;
@@ -1551,12 +1542,11 @@ simplifier_cell::simplifier_cell(ro_environment const & env, options const & o, 
     m_ptr(new imp(env, o, num_rs, rs, monitor)) {
 }
 
-simplifier_cell::result simplifier_cell::operator()(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv) {
-    return m_ptr->operator()(e, ctx, menv);
+simplifier_cell::result simplifier_cell::operator()(expr const & e, optional<ro_metavar_env> const & menv) {
+    return m_ptr->operator()(e, menv);
 }
 void simplifier_cell::clear() { return m_ptr->m_cache.clear(); }
 unsigned simplifier_cell::get_depth() const { return m_ptr->m_depth; }
-context const & simplifier_cell::get_context() const { return m_ptr->m_ctx; }
 ro_environment const & simplifier_cell::get_environment() const { return m_ptr->m_env; }
 options const & simplifier_cell::get_options() const { return m_ptr->m_options; }
 
@@ -1576,21 +1566,21 @@ ro_simplifier::ro_simplifier(weak_ref const & r) {
     m_ptr = r.lock();
 }
 
-simplifier::result simplify(expr const & e, ro_environment const & env, context const & ctx, options const & opts,
+simplifier::result simplify(expr const & e, ro_environment const & env, options const & opts,
                             unsigned num_rs, rewrite_rule_set const * rs,
                             optional<ro_metavar_env> const & menv,
                             std::shared_ptr<simplifier_monitor> const & monitor) {
-    return simplifier(env, opts, num_rs, rs, monitor)(e, ctx, menv);
+    return simplifier(env, opts, num_rs, rs, monitor)(e, menv);
 }
 
-simplifier::result simplify(expr const & e, ro_environment const & env, context const & ctx, options const & opts,
+simplifier::result simplify(expr const & e, ro_environment const & env, options const & opts,
                             unsigned num_ns, name const * ns,
                             optional<ro_metavar_env> const & menv,
                             std::shared_ptr<simplifier_monitor> const & monitor) {
     buffer<rewrite_rule_set> rules;
     for (unsigned i = 0; i < num_ns; i++)
         rules.push_back(get_rewrite_rule_set(env, ns[i]));
-    return simplify(e, env, ctx, opts, num_ns, rules.data(), menv, monitor);
+    return simplify(e, env, opts, num_ns, rules.data(), menv, monitor);
 }
 
 simplifier_stack_space_exception::simplifier_stack_space_exception():stack_space_exception("simplifier") {}
@@ -1767,11 +1757,9 @@ static int simplifier_apply(lua_State * L) {
     int nargs = lua_gettop(L);
     simplifier::result r;
     if (nargs == 2)
-        r = to_simplifier(L, 1)(to_expr(L, 2), context(), none_ro_menv());
-    else if (nargs == 3)
-        r = to_simplifier(L, 1)(to_expr(L, 2), to_context(L, 3), none_ro_menv());
+        r = to_simplifier(L, 1)(to_expr(L, 2), none_ro_menv());
     else
-        r = to_simplifier(L, 1)(to_expr(L, 2), to_context(L, 3), some_ro_menv(to_metavar_env(L, 4)));
+        r = to_simplifier(L, 1)(to_expr(L, 2), some_ro_menv(to_metavar_env(L, 3)));
     push_expr(L, r.get_expr());
     push_optional_expr(L, r.get_proof());
     lua_pushboolean(L, r.is_heq_proof());
@@ -1780,11 +1768,9 @@ static int simplifier_apply(lua_State * L) {
 
 static int simplifier_clear(lua_State * L) { to_simplifier(L, 1)->clear(); return 0; }
 static int simplifier_depth(lua_State * L) { lua_pushinteger(L, to_simplifier(L, 1)->get_depth()); return 1; }
-static int simplifier_context(lua_State * L) { return push_context(L, to_simplifier(L, 1)->get_context()); }
 static int simplifier_environment(lua_State * L) { return push_environment(L, to_simplifier(L, 1)->get_environment()); }
 static int simplifier_options(lua_State * L) { return push_options(L, to_simplifier(L, 1)->get_options()); }
 static int ro_simplifier_depth(lua_State * L) { lua_pushinteger(L, to_ro_simplifier(L, 1)->get_depth()); return 1; }
-static int ro_simplifier_context(lua_State * L) { return push_context(L, to_ro_simplifier(L, 1)->get_context()); }
 static int ro_simplifier_environment(lua_State * L) { return push_environment(L, to_ro_simplifier(L, 1)->get_environment()); }
 static int ro_simplifier_options(lua_State * L) { return push_options(L, to_ro_simplifier(L, 1)->get_options()); }
 
@@ -1794,7 +1780,6 @@ static const struct luaL_Reg simplifier_m[] = {
     {"clear",           safe_function<simplifier_clear>},
     {"depth",           safe_function<simplifier_depth>},
     {"get_environment", safe_function<simplifier_environment>},
-    {"get_context",     safe_function<simplifier_context>},
     {"get_options",     safe_function<simplifier_options>},
     {0, 0}
 };
@@ -1803,7 +1788,6 @@ static const struct luaL_Reg ro_simplifier_m[] = {
     {"__gc",            ro_simplifier_gc},
     {"depth",           safe_function<ro_simplifier_depth>},
     {"get_environment", safe_function<ro_simplifier_environment>},
-    {"get_context",     safe_function<ro_simplifier_context>},
     {"get_options",     safe_function<ro_simplifier_options>},
     {0, 0}
 };
@@ -1813,13 +1797,10 @@ static int simplify_core(lua_State * L, ro_shared_environment const & env) {
     expr const & e = to_expr(L, 1);
     buffer<rewrite_rule_set> rules;
     get_rewrite_rule_set(L, 2, env, rules);
-    context ctx;
     options opts;
     if (nargs >= 3)
         opts = to_options(L, 3);
-    if (nargs >= 5)
-        ctx = to_context(L, 5);
-    auto r = simplify(e, env, ctx, opts, rules.size(), rules.data());
+    auto r = simplify(e, env, opts, rules.size(), rules.data());
     push_expr(L, r.get_expr());
     push_optional_expr(L, r.get_proof());
     lua_pushboolean(L, r.is_heq_proof());

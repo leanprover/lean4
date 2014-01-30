@@ -39,7 +39,7 @@ void rewrite_rule_set::insert(name const & id, expr const & th, expr const & pro
             num++;
         }
         lean_assert(is_equality(eq));
-        bool must_check = true; // TODO(Leo): call procedure to test whether we must check types or not.
+        bool must_check = !is_safe_to_skip_check_ceq_types(m_env, menv, ceq);
         m_rule_set = cons(rewrite_rule(id, arg(eq, num_args(eq) - 2), arg(eq, num_args(eq) - 1),
                                        ceq, proof, num, is_perm, must_check),
                           m_rule_set);
@@ -114,6 +114,8 @@ format rewrite_rule_set::pp(formatter const & fmt, options const & opts) const {
             r += format(rule.get_id());
             if (!enabled)
                 r += format(" [disabled]");
+            if (rule.must_check_types())
+                r += format(" [check]");
             r += format{space(), colon(), space()};
             r += nest(indent, fmt(rule.get_ceq(), opts));
         });

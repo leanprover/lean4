@@ -53,7 +53,7 @@ static optional<proof_state> simplify_tactic(ro_environment const & env, io_stat
     }
 
     expr conclusion         = g.get_conclusion();
-    auto r                  = simplify(conclusion, env, context(), opts, rule_sets.size(), rule_sets.data(), some_ro_menv(menv));
+    auto r                  = simplify(conclusion, env, opts, rule_sets.size(), rule_sets.data(), some_ro_menv(menv));
     expr new_conclusion     = r.get_expr();
     if (new_conclusion == g.get_conclusion())
         return optional<proof_state>(s);

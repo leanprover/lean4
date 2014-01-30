@@ -256,6 +256,119 @@ bool is_permutation_ceq(expr e) {
     }
 }
 
+// Quick approximate test for e == (Type U).
+// If the result is true, then \c e is definitionally equal to TypeU.
+// If the result is false, then it may or may not be.
+static bool is_TypeU(ro_environment const & env, expr const & e) {
+    if (is_type(e)) {
+        return e == TypeU;
+    } else if (is_constant(e)) {
+        auto obj = env->find_object(const_name(e));
+        return obj && obj->is_definition() && is_TypeU(obj->get_value());
+    } else {
+        return false;
+    }
+}
+
+bool is_safe_to_skip_check_ceq_types(ro_environment const & env, optional<ro_metavar_env> const & menv, expr ceq) {
+    lean_assert(is_ceq(env, menv, ceq));
+    type_checker tc(env);
+    buffer<expr> args;
+    buffer<bool> skip;
+    unsigned next_idx = 0;
+    bool to_check = false;
+    while (is_pi(ceq)) {
+        expr d = abst_domain(ceq);
+        expr a = mk_constant(name(g_unique, next_idx), d);
+        args.push_back(a);
+        if (tc.is_proposition(d, context(), menv) ||
+            is_TypeU(env, d)) {
+            // See comment at ceq.h
+            // 1- The argument has type (Type U). In Lean, (Type U) is the maximal universe.
+            // 2- The argument is a proposition.
+            skip.push_back(true);
+        } else {
+            skip.push_back(false);
+            to_check = true;
+        }
+        ceq = instantiate(abst_body(ceq), a);
+        next_idx++;
+    }
+    if (!to_check)
+        return true;
+
+    expr lhs, rhs;
+    lean_verify(is_equality(ceq, lhs, rhs));
+
+    auto arg_idx_core_fn = [&](expr const & e) -> optional<unsigned> {
+        if (is_constant(e)) {
+            name const & n = const_name(e);
+            if (!n.is_atomic() && n.get_prefix() == g_unique) {
+                return some(n.get_numeral());
+            }
+        }
+        return optional<unsigned>();
+    };
+
+    auto arg_idx_fn = [&](expr const & e) -> optional<unsigned> {
+        if (is_app(e))
+            return arg_idx_core_fn(arg(e, 0));
+        else if (is_lambda(e))
+            return arg_idx_core_fn(abst_body(e));
+        else
+            return arg_idx_core_fn(e);
+    };
+
+    // Return true if the application \c e has an argument or an
+    // application (f ...) where f is an argument.
+    auto has_target_fn = [&](expr const & e) -> bool {
+        lean_assert(is_app(e));
+        for (unsigned i = 1; i < num_args(e); i++) {
+            expr const & a = arg(e, i);
+            if (arg_idx_fn(a))
+                return true;
+        }
+        return false;
+    };
+
+    // 3- There is an application (f x) in the left-hand-side, and
+    //    the type expected by f is definitionally equal to the argument type.
+    // 4- There is an application (f (x ...)) in the left-hand-side, and
+    //    the type expected by f is definitionally equal to the type of (x ...)
+    // 5- There is an application (f (fun y, x)) in the left-hand-side,
+    //    and the type expected by f is definitionally equal to the type of (fun y, x)
+    std::function<void(expr const &, context const & ctx)> visit_fn =
+        [&](expr const & e, context const & ctx) {
+        if (is_app(e)) {
+            expr const & f = arg(e, 0);
+            if (has_target_fn(e)) {
+                expr f_type = tc.infer_type(f, ctx, menv);
+                for (unsigned i = 1; i < num_args(e); i++) {
+                    f_type         = tc.ensure_pi(f_type, ctx, menv);
+                    expr const & a = arg(e, i);
+                    auto arg_idx = arg_idx_fn(a);
+                    if (arg_idx && !skip[*arg_idx]) {
+                        expr const & expected_type = abst_domain(f_type);
+                        expr const & given_type    = tc.infer_type(a, ctx, menv);
+                        if (tc.is_definitionally_equal(given_type, expected_type)) {
+                            skip[*arg_idx] = true;
+                        }
+                    }
+                    f_type = instantiate(abst_body(f_type), a);
+                }
+            }
+            for (expr const & a : ::lean::args(e))
+                visit_fn(a, ctx);
+        } else if (is_abstraction(e)) {
+            visit_fn(abst_domain(e), ctx);
+            visit_fn(abst_body(e), extend(ctx, abst_name(e), abst_body(e)));
+        }
+    };
+
+    visit_fn(lhs, context());
+    return std::all_of(skip.begin(), skip.end(), [](bool b) { return b; });
+}
+
 static int to_ceqs(lua_State * L) {
     ro_shared_environment env(L, 1);
     optional<ro_metavar_env> menv;

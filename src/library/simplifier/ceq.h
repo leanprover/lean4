@@ -47,5 +47,44 @@ bool is_ceq(ro_environment const & env, optional<ro_metavar_env> const & menv, e
    permutation of the conditional equation arguments.
 */
 bool is_permutation_ceq(expr e);
+/*
+  Given a ceq C, in principle, whenever we want to create an application (C t1 ... tn),
+  we must check whether the types of t1 ... tn are convertible to the expected types by C.
+
+  This check is needed because of universe cumulativity.
+  Here is an example that illustrates the issue:
+
+    universe U >= 2
+    variable f (A : (Type 1)) : (Type 1)
+    axiom Ax1 (a : Type) : f a = a
+    rewrite_set S
+    add_rewrite Ax1 eq_id : S
+    theorem T1 (A : (Type 1)) : f A = A
+    := by simp S
+
+  In this example, Ax1 is a ceq. It has an argument of type Type.
+  Note that f expects an element of type (Type 1). So, the term (f a) is type correct.
+
+  The axiom Ax1 is only for arguments convertible to Type (i.e., Type 0), but
+  argument A in T1 lives in (Type 1)
+
+  Scenarios like the one above do not occur very frequently. Moveover, it is quite expensive
+  to check if the types are convertible for each application of a ceq.
+
+  In most cases, we can statically determine that the checks are not needed when applying
+  a ceq. Here is a sufficient condition for skipping the test: if for all
+  arguments x of ceq, one of the following conditions must hold:
+     1- The argument has type (Type U). In Lean, (Type U) is the maximal universe.
+     2- The argument is a proposition.
+     3- There is an application (f x) in the left-hand-side, and
+        the type expected by f is definitionally equal to the argument type.
+     4- There is an application (f (x ...)) in the left-hand-side,  and
+        the type expected by f is definitionally equal to the type of (x ...)
+     5- There is an application (f (fun y, x)) in the left-hand-side,
+        and the type expected by f is definitionally equal to the type of (fun y, x)
+  \pre is_ceq(env, menv, ceq)
+*/
+bool is_safe_to_skip_check_ceq_types(ro_environment const & env, optional<ro_metavar_env> const & menv, expr ceq);
+
 void open_ceq(lua_State * L);
 }

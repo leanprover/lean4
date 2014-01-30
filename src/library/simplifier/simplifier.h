@@ -44,11 +44,10 @@ public:
 
     simplifier_cell(ro_environment const & env, options const & o, unsigned num_rs, rewrite_rule_set const * rs,
                     std::shared_ptr<simplifier_monitor> const & monitor);
-    result operator()(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv);
+    result operator()(expr const & e, optional<ro_metavar_env> const & menv);
     void clear();
 
     unsigned get_depth() const;
-    context const & get_context() const;
     ro_environment const & get_environment() const;
     options const & get_options() const;
 };
@@ -63,8 +62,8 @@ public:
                std::shared_ptr<simplifier_monitor> const & monitor);
     simplifier_cell * operator->() const { return m_ptr.get(); }
     simplifier_cell & operator*() const { return *(m_ptr.get()); }
-    result operator()(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv) {
-        return (*m_ptr)(e, ctx, menv);
+    result operator()(expr const & e, optional<ro_metavar_env> const & menv) {
+        return (*m_ptr)(e, menv);
     }
 };
 
@@ -137,11 +136,11 @@ public:
     virtual void rethrow() const;
 };
 
-simplifier::result simplify(expr const & e, ro_environment const & env, context const & ctx, options const & pts,
+simplifier::result simplify(expr const & e, ro_environment const & env, options const & pts,
                             unsigned num_rs, rewrite_rule_set const * rs,
                             optional<ro_metavar_env> const & menv = none_ro_menv(),
                             std::shared_ptr<simplifier_monitor> const & monitor = std::shared_ptr<simplifier_monitor>());
-simplifier::result simplify(expr const & e, ro_environment const & env, context const & ctx, options const & opts,
+simplifier::result simplify(expr const & e, ro_environment const & env, options const & opts,
                             unsigned num_ns, name const * ns,
                             optional<ro_metavar_env> const & menv = none_ro_menv(),
                             std::shared_ptr<simplifier_monitor> const & monitor = std::shared_ptr<simplifier_monitor>());

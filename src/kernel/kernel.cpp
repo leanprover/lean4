@@ -16,6 +16,7 @@ namespace lean {
 // Bultin universe variables m and u
 static level u_lvl(name("U"));
 expr const TypeU = Type(u_lvl);
+expr const TypeU1 = Type(u_lvl+1);
 // =======================================
 
 // =======================================

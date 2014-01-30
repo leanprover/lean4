@@ -58,7 +58,7 @@ class type_checker::imp {
             return u;
         if (has_metavar(u) && m_menv && m_uc) {
             justification jst = mk_type_expected_justification(ctx, s);
-            m_uc->push_back(mk_convertible_constraint(ctx, e, TypeU, jst));
+            m_uc->push_back(mk_convertible_constraint(ctx, e, TypeU1, jst));
             return u;
         }
         u = normalize(e, ctx, true);

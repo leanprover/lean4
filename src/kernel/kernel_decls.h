@@ -81,6 +81,9 @@ inline expr mk_eps_th_th(expr const & e1, expr const & e2, expr const & e3, expr
 expr mk_eps_singleton_fn();
 bool is_eps_singleton_fn(expr const & e);
 inline expr mk_eps_singleton_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_eps_singleton_fn(), e1, e2, e3}); }
+expr mk_nonempty_fun_fn();
+bool is_nonempty_fun_fn(expr const & e);
+inline expr mk_nonempty_fun_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_nonempty_fun_fn(), e1, e2, e3}); }
 expr mk_ite_fn();
 bool is_ite_fn(expr const & e);
 inline bool is_ite(expr const & e) { return is_app(e) && is_ite_fn(arg(e, 0)) && num_args(e) == 5; }

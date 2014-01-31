@@ -29,6 +29,7 @@ MK_CONSTANT(proof_irrel_fn, name("proof_irrel"));
 MK_CONSTANT(substp_fn, name("substp"));
 MK_CONSTANT(eps_th_fn, name("eps_th"));
 MK_CONSTANT(eps_singleton_fn, name("eps_singleton"));
+MK_CONSTANT(nonempty_fun_fn, name("nonempty_fun"));
 MK_CONSTANT(ite_fn, name("ite"));
 MK_CONSTANT(not_intro_fn, name("not_intro"));
 MK_CONSTANT(eta_fn, name("eta"));

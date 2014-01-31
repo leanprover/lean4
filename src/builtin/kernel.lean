@@ -85,6 +85,10 @@ theorem eps_singleton {A : TypeU} (H : nonempty A) (a : A) : ε H (λ x, x = a) 
        Ha : P a  :=  refl a
    in eps_ax H a Ha
 
+-- A function space (∀ x : A, B x) is nonempty if forall a : A, we have nonempty (B a)
+theorem nonempty_fun {A : TypeU} {B : A → TypeU} (Hn : ∀ a, nonempty (B a)) : nonempty (∀ x, B x)
+:= nonempty_intro (λ x, ε (Hn x) (λ y, true))
+
 -- if-then-else expression
 definition ite {A : TypeU} (c : Bool) (a b : A) : A
 := ε (nonempty_intro a) (λ r, (c → r = a) ∧ (¬ c → r = b))

@@ -145,4 +145,21 @@ simplifier::result simplify(expr const & e, ro_environment const & env, options 
                             optional<ro_metavar_env> const & menv = none_ro_menv(),
                             std::shared_ptr<simplifier_monitor> const & monitor = std::shared_ptr<simplifier_monitor>());
 void open_simplifier(lua_State * L);
+/**
+   \brief Associate the given simplifier monitor with the lua_State object \c L.
+*/
+void set_global_simplifier_monitor(lua_State * L, std::shared_ptr<simplifier_monitor> const & monitor);
+/**
+   \brief Return the simplifier monitor associated with the given lua_State.
+   The result is nullptr if the lua_State object does not have a monitor associated with it.
+*/
+std::shared_ptr<simplifier_monitor> get_global_simplifier_monitor(lua_State * L);
+/**
+   \brief Return a simplifier object at position \c i on the Lua stack. If there is a nil stored
+   on this position of the stack, then return \c get_global_simplifier_monitor.
+
+   \remark This procedure throws an exception if the object stored at position \c i not a
+   simplifier monitor nor nil.
+*/
+std::shared_ptr<simplifier_monitor> get_simplifier_monitor(lua_State * L, int i);
 }

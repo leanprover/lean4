@@ -25,7 +25,8 @@ bool get_simp_tac_assumptions(options const & opts) { return opts.get_bool(g_sim
 static name g_assumption("assump");
 
 static optional<proof_state> simplify_tactic(ro_environment const & env, io_state const & ios, proof_state const & s,
-                                             unsigned num_ns, name const * ns, options const & extra_opts) {
+                                             unsigned num_ns, name const * ns, options const & extra_opts,
+                                             std::shared_ptr<simplifier_monitor> const & monitor) {
     if (empty(s.get_goals()))
         return none_proof_state();
     options opts = join(extra_opts, ios.get_options());
@@ -53,7 +54,7 @@ static optional<proof_state> simplify_tactic(ro_environment const & env, io_stat
     }
 
     expr conclusion         = g.get_conclusion();
-    auto r                  = simplify(conclusion, env, opts, rule_sets.size(), rule_sets.data(), some_ro_menv(menv));
+    auto r                  = simplify(conclusion, env, opts, rule_sets.size(), rule_sets.data(), some_ro_menv(menv), monitor);
     expr new_conclusion     = r.get_expr();
     if (new_conclusion == g.get_conclusion())
         return optional<proof_state>(s);
@@ -86,19 +87,19 @@ static optional<proof_state> simplify_tactic(ro_environment const & env, io_stat
     return some(proof_state(s, new_gs, new_pb));
 }
 
-tactic simplify_tactic(unsigned num_ns, name const * ns, options const & opts) {
+tactic simplify_tactic(unsigned num_ns, name const * ns, options const & opts, std::shared_ptr<simplifier_monitor> const & monitor) {
     std::vector<name> names(ns, ns + num_ns);
     return mk_tactic01([=](ro_environment const & env, io_state const & ios, proof_state const & s) -> optional<proof_state> {
-            return simplify_tactic(env, ios, s, names.size(), names.data(), opts);
+            return simplify_tactic(env, ios, s, names.size(), names.data(), opts, monitor);
         });
 }
 
 static int mk_simplify_tactic(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 0) {
-        return push_tactic(L, simplify_tactic(1, &get_default_rewrite_rule_set_id(), options()));
+        return push_tactic(L, simplify_tactic(1, &get_default_rewrite_rule_set_id(), options(), get_global_simplifier_monitor(L)));
     } else if (nargs == 1 && is_options(L, 1)) {
-        return push_tactic(L, simplify_tactic(1, &get_default_rewrite_rule_set_id(), to_options(L, 1)));
+        return push_tactic(L, simplify_tactic(1, &get_default_rewrite_rule_set_id(), to_options(L, 1), get_global_simplifier_monitor(L)));
     } else {
         buffer<name> rs;
         if (lua_isstring(L, 1)) {
@@ -116,7 +117,7 @@ static int mk_simplify_tactic(lua_State * L) {
         options opts;
         if (nargs >= 2)
             opts = to_options(L, 2);
-        return push_tactic(L, simplify_tactic(rs.size(), rs.data(), opts));
+        return push_tactic(L, simplify_tactic(rs.size(), rs.data(), opts, get_simplifier_monitor(L, 3)));
     }
 }
 

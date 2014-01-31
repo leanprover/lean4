@@ -1815,6 +1815,48 @@ static int simplify(lua_State * L) {
         return simplify_core(L, ro_shared_environment(L, 4));
 }
 
+static char g_set_simplifier_monitor_key;
+
+void set_global_simplifier_monitor(lua_State * L, std::shared_ptr<simplifier_monitor> const & monitor) {
+    lua_pushlightuserdata(L, static_cast<void *>(&g_set_simplifier_monitor_key));
+    push_simplifier_monitor_ptr(L, monitor);
+    lua_settable(L, LUA_REGISTRYINDEX);
+}
+
+std::shared_ptr<simplifier_monitor> get_global_simplifier_monitor(lua_State * L) {
+    lua_pushlightuserdata(L, static_cast<void *>(&g_set_simplifier_monitor_key));
+    lua_gettable(L, LUA_REGISTRYINDEX);
+    if (lua_isnil(L, -1)) {
+        lua_pop(L, 1);
+        return std::shared_ptr<simplifier_monitor>();
+    } else {
+        std::shared_ptr<simplifier_monitor> r(to_simplifier_monitor_ptr(L, -1));
+        lua_pop(L, 1);
+        return r;
+    }
+}
+
+std::shared_ptr<simplifier_monitor> get_simplifier_monitor(lua_State * L, int i) {
+    if (i > lua_gettop(L) || lua_isnil(L, i))
+        return get_global_simplifier_monitor(L);
+    else
+        return to_simplifier_monitor_ptr(L, 3);
+}
+
+static int set_simplifier_monitor(lua_State * L) {
+    set_global_simplifier_monitor(L, to_simplifier_monitor_ptr(L, 1));
+    return 0;
+}
+
+static int get_simplifier_monitor(lua_State * L) {
+    auto r = get_global_simplifier_monitor(L);
+    if (r)
+        push_simplifier_monitor_ptr(L, r);
+    else
+        lua_pushnil(L);
+    return 1;
+}
+
 void open_simplifier(lua_State * L) {
     luaL_newmetatable(L, simplifier_mt);
     lua_pushvalue(L, -1);
@@ -1848,5 +1890,7 @@ void open_simplifier(lua_State * L) {
     lua_setglobal(L, "simplifier_failure");
 
     SET_GLOBAL_FUN(simplify, "simplify");
+    SET_GLOBAL_FUN(set_simplifier_monitor, "set_simplifier_monitor");
+    SET_GLOBAL_FUN(get_simplifier_monitor, "get_simplifier_monitor");
 }
 }

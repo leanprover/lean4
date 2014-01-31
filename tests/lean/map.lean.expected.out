@@ -1,0 +1,68 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Imported 'tactic'
+  Assumed: list
+  Assumed: nil
+  Assumed: cons
+  Assumed: map
+  Assumed: map_cons
+  Assumed: map_nil
+Visit, depth: 1, map (λ x : ℕ, x + 1) (cons 1 (cons 2 nil)) = cons 2 (cons 3 nil)
+Visit, depth: 2, @eq
+Visit, depth: 2, map (λ x : ℕ, x + 1) (cons 1 (cons 2 nil))
+Visit, depth: 3, @map
+Step: @map ===> @map
+Visit, depth: 3, λ x : ℕ, x + 1
+Visit, depth: 4, 3::1 + 1
+Visit, depth: 5, Nat::add
+Visit, depth: 5, 3::1
+Step: 3::1 ===> 3::1
+Visit, depth: 5, 1
+Step: 3::1 + 1 ===> 3::1 + 1
+Step: λ x : ℕ, x + 1 ===> λ x : ℕ, x + 1
+Visit, depth: 3, cons 1 (cons 2 nil)
+Visit, depth: 4, @cons
+Step: @cons ===> @cons
+Visit, depth: 4, 1
+Visit, depth: 4, cons 2 nil
+Visit, depth: 5, 2
+Visit, depth: 5, nil
+Visit, depth: 6, @nil
+Step: @nil ===> @nil
+Step: nil ===> nil
+Step: cons 2 nil ===> cons 2 nil
+Step: cons 1 (cons 2 nil) ===> cons 1 (cons 2 nil)
+Rewrite using: map_cons
+  map (λ x : ℕ, x + 1) (cons 1 (cons 2 nil)) ===> cons ((λ x : ℕ, x + 1) 1) (map (λ x : ℕ, x + 1) (cons 2 nil))
+Visit, depth: 3, cons ((λ x : ℕ, x + 1) 1) (map (λ x : ℕ, x + 1) (cons 2 nil))
+Visit, depth: 4, (λ x : ℕ, x + 1) 1
+Visit, depth: 5, 1
+Visit, depth: 5, 2
+Step: (λ x : ℕ, x + 1) 1 ===> 2
+Visit, depth: 4, map (λ x : ℕ, x + 1) (cons 2 nil)
+Rewrite using: map_cons
+  map (λ x : ℕ, x + 1) (cons 2 nil) ===> cons ((λ x : ℕ, x + 1) 2) (map (λ x : ℕ, x + 1) nil)
+Visit, depth: 5, cons ((λ x : ℕ, x + 1) 2) (map (λ x : ℕ, x + 1) nil)
+Visit, depth: 6, (λ x : ℕ, x + 1) 2
+Visit, depth: 7, 2
+Visit, depth: 7, 3
+Step: (λ x : ℕ, x + 1) 2 ===> 3
+Visit, depth: 6, map (λ x : ℕ, x + 1) nil
+Rewrite using: map_nil
+  map (λ x : ℕ, x + 1) nil ===> nil
+Step: map (λ x : ℕ, x + 1) nil ===> nil
+Visit, depth: 6, cons 3 nil
+Visit, depth: 7, 3
+Step: cons 3 nil ===> cons 3 nil
+Step: cons ((λ x : ℕ, x + 1) 2) (map (λ x : ℕ, x + 1) nil) ===> cons 3 nil
+Step: map (λ x : ℕ, x + 1) (cons 2 nil) ===> cons 3 nil
+Visit, depth: 4, cons 2 (cons 3 nil)
+Visit, depth: 5, 2
+Step: cons 2 (cons 3 nil) ===> cons 2 (cons 3 nil)
+Step: cons ((λ x : ℕ, x + 1) 1) (map (λ x : ℕ, x + 1) (cons 2 nil)) ===> cons 2 (cons 3 nil)
+Step: map (λ x : ℕ, x + 1) (cons 1 (cons 2 nil)) ===> cons 2 (cons 3 nil)
+Rewrite using: eq_id
+  cons 2 (cons 3 nil) = cons 2 (cons 3 nil) ===> ⊤
+Visit, depth: 2, ⊤
+Step: map (λ x : ℕ, x + 1) (cons 1 (cons 2 nil)) = cons 2 (cons 3 nil) ===> ⊤
+  Proved: T1

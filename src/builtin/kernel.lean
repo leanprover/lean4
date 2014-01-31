@@ -1,4 +1,5 @@
 import macros
+import tactic
 
 universe U ≥ 1
 definition TypeU  := (Type U)
@@ -72,14 +73,24 @@ axiom eps_ax {A : TypeU} (H : nonempty A) {P : A → Bool} (a : A) : P a → P (
 -- Proof irrelevance
 axiom proof_irrel {a : Bool} (H1 H2 : a) : H1 = H2
 
-theorem eps_th {A : TypeU} {P : A → Bool} (a : A) : P a → P (ε (nonempty_intro a) P)
-:= assume H : P a, @eps_ax A (nonempty_intro a) P a H
-
 -- Alias for subst where we can provide P explicitly, but keep A,a,b implicit
 theorem substp {A : TypeU} {a b : A} (P : A → Bool) (H1 : P a) (H2 : a = b) : P b
 := subst H1 H2
 
--- We will mark not as opaque later
+theorem eps_th {A : TypeU} {P : A → Bool} (a : A) : P a → P (ε (nonempty_intro a) P)
+:= assume H : P a, @eps_ax A (nonempty_intro a) P a H
+
+theorem eps_singleton {A : TypeU} (H : nonempty A) (a : A) : ε H (λ x, x = a) = a
+:= let P         :=  λ x, x = a,
+       Ha : P a  :=  refl a
+   in eps_ax H a Ha
+
+-- if-then-else expression
+definition ite {A : TypeU} (c : Bool) (a b : A) : A
+:= ε (nonempty_intro a) (λ r, (c → r = a) ∧ (¬ c → r = b))
+notation 45 if _ then _ else _ : ite
+
+-- We will mark 'not' as opaque later
 theorem not_intro {a : Bool} (H : a → false) : ¬ a
 := H
 
@@ -118,6 +129,8 @@ theorem eq_imp_trans {a b c : Bool} (H1 : a = b) (H2 : b → c) : a → c
 
 theorem not_not_eq (a : Bool) : ¬ ¬ a ↔ a
 := case (λ x, ¬ ¬ x ↔ x) trivial trivial a
+
+add_rewrite not_not_eq
 
 theorem not_not_elim {a : Bool} (H : ¬ ¬ a) : a
 := (not_not_eq a) ◂ H
@@ -273,6 +286,15 @@ theorem eq_id {A : TypeU} (a : A) : (a = a) ↔ true
 theorem iff_id (a : Bool) : (a ↔ a) ↔ true
 := eqt_intro (refl a)
 
+add_rewrite eq_id iff_id
+
+-- Remark: ordered rewriting + assoc + comm + left_comm sorts a term lexicographically
+theorem left_comm {A : TypeU} {R : A -> A -> A} (comm : ∀ x y, R x y = R y x) (assoc : ∀ x y z, R (R x y) z = R x (R y z)) :
+        ∀ x y z, R x (R y z) = R y (R x z)
+:= take x y z, calc R x (R y z) = R (R x y) z : symm (assoc x y z)
+                         ...    = R (R y x) z : { comm x y }
+                         ...    = R y (R x z) : assoc y x z
+
 theorem or_comm (a b : Bool) : (a ∨ b) = (b ∨ a)
 := boolext (assume H, or_elim H (λ H1, or_intror b H1) (λ H2, or_introl H2 a))
            (assume H, or_elim H (λ H1, or_intror a H1) (λ H2, or_introl H2 b))
@@ -307,6 +329,11 @@ theorem or_truer (a : Bool) : a ∨ true ↔ true
 theorem or_tauto (a : Bool) : a ∨ ¬ a ↔ true
 := eqt_intro (em a)
 
+theorem or_left_comm (a b c : Bool) : a ∨ (b ∨ c) ↔ b ∨ (a ∨ c)
+:= left_comm or_comm or_assoc a b c
+
+add_rewrite or_comm or_assoc or_id or_falsel or_falser or_truel or_truer or_tauto or_left_comm
+
 theorem and_comm (a b : Bool) : a ∧ b ↔ b ∧ a
 := boolext (assume H, and_intro (and_elimr H) (and_eliml H))
            (assume H, and_intro (and_elimr H) (and_eliml H))
@@ -337,6 +364,11 @@ theorem and_absurd (a : Bool) : a ∧ ¬ a ↔ false
 := boolext (assume H, absurd (and_eliml H) (and_elimr H))
            (assume H, false_elim (a ∧ ¬ a) H)
 
+theorem and_left_comm (a b c : Bool) : a ∧ (b ∧ c) ↔ b ∧ (a ∧ c)
+:= left_comm and_comm and_assoc a b c
+
+add_rewrite and_comm and_assoc and_id and_falsel and_falser and_truel and_truer and_absurd and_left_comm
+
 theorem imp_truer (a : Bool) : (a → true) ↔ true
 := case (λ x, (x → true) ↔ true) trivial trivial a
 
@@ -351,6 +383,8 @@ theorem imp_falsel (a : Bool) : (false → a) ↔ true
 
 theorem imp_id (a : Bool) : (a → a) ↔ true
 := eqt_intro (λ H : a, H)
+
+add_rewrite imp_truer imp_truel imp_falser imp_falsel imp_id
 
 theorem imp_or (a b : Bool) : (a → b) ↔ ¬ a ∨ b
 := iff_intro
@@ -370,6 +404,8 @@ theorem not_false : ¬ false ↔ true
 
 theorem not_neq {A : TypeU} (a b : A) : ¬ (a ≠ b) ↔ a = b
 := not_not_eq (a = b)
+
+add_rewrite not_true not_false not_neq
 
 theorem not_neq_elim {A : TypeU} {a b : A} (H : ¬ (a ≠ b)) : a = b
 := (not_neq a b) ◂ H
@@ -464,20 +500,6 @@ theorem exists_unfold {A : TypeU} (P : A → Bool) (a : A) : (∃ x : A, P x) �
 := boolext (assume H : (∃ x : A, P x),                 exists_unfold1 a H)
            (assume H : (P a ∨ (∃ x : A, x ≠ a ∧ P x)), exists_unfold2 a H)
 
-
--- Remark: ordered rewriting + assoc + comm + left_comm sorts a term lexicographically
-theorem left_comm {A : TypeU} {R : A -> A -> A} (comm : ∀ x y, R x y = R y x) (assoc : ∀ x y z, R (R x y) z = R x (R y z)) :
-        ∀ x y z, R x (R y z) = R y (R x z)
-:= take x y z, calc R x (R y z) = R (R x y) z : symm (assoc x y z)
-                         ...    = R (R y x) z : { comm x y }
-                         ...    = R y (R x z) : assoc y x z
-
-theorem and_left_comm (a b c : Bool) : a ∧ (b ∧ c) ↔ b ∧ (a ∧ c)
-:= left_comm and_comm and_assoc a b c
-
-theorem or_left_comm (a b c : Bool) : a ∨ (b ∨ c) ↔ b ∨ (a ∨ c)
-:= left_comm or_comm or_assoc a b c
-
 -- Congruence theorems for contextual simplification
 
 -- Simplify a → b, by first simplifying a to c using the fact that ¬ b is true, and then
@@ -487,11 +509,11 @@ theorem imp_congrr {a b c d : Bool} (H_ac : ∀ (H_nb : ¬ b), a = c) (H_bd : �
       (λ H_b : b,
           or_elim (em c)
              (λ H_c : c,
-                 calc (a → b) = (a → true)  : { eqt_intro H_b }
-                          ...  = true          : imp_truer a
-                          ...  = (c → true)  :  symm (imp_truer c)
-                          ...  = (c → b)     : { symm (eqt_intro H_b) }
-                          ...  = (c → d)     : { H_bd H_c })
+                   calc (a → b) =  (a → true)  : { eqt_intro H_b }
+                            ...  = true          : imp_truer a
+                            ...  = (c → true)  :  symm (imp_truer c)
+                            ...  = (c → b)     : { symm (eqt_intro H_b) }
+                            ...  = (c → d)     : { H_bd H_c })
              (λ H_nc : ¬ c,
                  calc (a → b) = (a → true)   : { eqt_intro H_b }
                           ...  = true          : imp_truer a
@@ -624,8 +646,74 @@ theorem exists_imp_distribute {A : TypeU} (φ ψ : A → Bool) : (∃ x, φ x �
                      ...   = ¬ (∀ x, φ x) ∨ (∃ x, ψ x)   : { symm (not_forall A φ) }
                      ...   = (∀ x, φ x) → (∃ x, ψ x)     : symm (imp_or _ _)
 
+theorem if_true {A : TypeU} (a b : A) : (if true then a else b) = a
+:= calc (if true then a else b) = ε (nonempty_intro a) (λ r, (true → r = a) ∧ (¬ true → r = b)) : refl (if true then a else b)
+                           ...  = ε (nonempty_intro a) (λ r, r = a)                               : by simp
+                           ...  = a        : eps_singleton (nonempty_intro a) a
+
+theorem if_false {A : TypeU} (a b : A) : (if false then a else b) = b
+:= calc (if false then a else b) = ε (nonempty_intro a) (λ r, (false → r = a) ∧ (¬ false → r = b)) : refl (if false then a else b)
+                            ...  = ε (nonempty_intro a) (λ r, r = b)              : by simp
+                            ...  = b                                              : eps_singleton (nonempty_intro a) b
+
+theorem if_a_a {A : TypeU} (c : Bool) (a: A) : (if c then a else a) = a
+:= or_elim (em c)
+     (λ H : c,   calc (if c then a else a) = (if true then a else a)  : { eqt_intro H }
+                                   ...   = a                          : if_true a a)
+     (λ H : ¬ c, calc (if c then a else a) = (if false then a else a) : { eqf_intro H }
+                                    ...  = a                          : if_false a a)
+
+theorem if_congr {A : TypeU} {b c : Bool} {x y u v : A} (H_bc : b = c)
+                 (H_xu : ∀ (H_c : c), x = u) (H_yv : ∀ (H_nc : ¬ c), y = v) :
+        (if b then x else y) = if c then u else v
+:= or_elim (em c)
+     (λ H_c : c, calc
+          (if b then x else y) = if c then x else y      : { H_bc }
+                          ...  = if true then x else y   : { eqt_intro H_c }
+                          ...  = x                       : if_true _ _
+                          ...  = u                       : H_xu H_c
+                          ...  = if true then u else v   : symm (if_true _ _)
+                          ...  = if c then u else v      : { symm (eqt_intro H_c) })
+     (λ H_nc : ¬ c, calc
+          (if b then x else y) = if c then x else y      : { H_bc }
+                          ...  = if false then x else y  : { eqf_intro H_nc }
+                          ...  = y                       : if_false _ _
+                          ...  = v                       : H_yv H_nc
+                          ...  = if false then u else v  : symm (if_false _ _)
+                          ...  = if c then u else v      : { symm (eqf_intro H_nc) })
+
+theorem if_imp_then {a b c : Bool} (H : if a then b else c)  : a → b
+:= assume Ha : a, eqt_elim (calc   b = if true then b else c : symm (if_true b c)
+                                 ... = if a then b else c    : { symm (eqt_intro Ha) }
+                                 ... = true                  : eqt_intro H)
+
+theorem if_imp_else {a b c : Bool} (H : if a then b else c) : ¬ a → c
+:= assume Hna : ¬ a, eqt_elim (calc   c = if false then b else c : symm (if_false b c)
+                                    ... = if a then b else c     : { symm (eqf_intro Hna) }
+                                    ... = true                   : eqt_intro H)
+
+theorem app_if_distribute {A B : TypeU} (c : Bool) (f : A → B) (a b : A) : f (if c then a else b) = if c then f a else f b
+:= or_elim (em c)
+     (λ Hc : c , calc
+          f (if c then a else b) = f (if true then a else b)    : { eqt_intro Hc }
+                            ...  = f a                          : { if_true a b }
+                            ...  = if true then f a else f b    : symm (if_true (f a) (f b))
+                            ...  = if c then f a else f b       : { symm (eqt_intro Hc) })
+     (λ Hnc : ¬ c, calc
+          f (if c then a else b) = f (if false then a else b)   : { eqf_intro Hnc }
+                            ...  = f b                          : { if_false a b }
+                            ...  = if false then f a else f b   : symm (if_false (f a) (f b))
+                            ...  = if c then f a else f b       : { symm (eqf_intro Hnc) })
+
+theorem eq_if_distributer {A : TypeU} (c : Bool) (a b v : A) : (v = (if c then a else b)) = if c then v = a else v = b
+:= app_if_distribute c (eq v) a b
+
+theorem eq_if_distributel {A : TypeU} (c : Bool) (a b v : A) : ((if c then a else b) = v) = if c then a = v else b = v
+:= app_if_distribute c (λ x, x = v) a b
+
 set_opaque exists  true
 set_opaque not     true
 set_opaque or      true
 set_opaque and     true
 set_opaque implies true
+set_opaque ite     true

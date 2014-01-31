@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/occurs.h"
 #include "library/expr_pair.h"
-#include "library/ite.h"
 #include "library/kernel_bindings.h"
 #include "library/equality.h"
 
@@ -31,10 +30,6 @@ class to_ceqs_fn {
 
     static list<expr_pair> mk_singleton(expr const & e, expr const & H) {
         return list<expr_pair>(mk_pair(e, H));
-    }
-
-    bool imported_ite() {
-        return m_env->imported("if_then_else");
     }
 
     expr lift_free_vars(expr const & e, unsigned d) {
@@ -96,7 +91,7 @@ class to_ceqs_fn {
                         return mk_pair(new_e, new_H);
                     });
             }
-        } else if (is_ite(e) && imported_ite()) {
+        } else if (is_ite(e)) {
             expr c     = arg(e, 2);
             expr not_c = mk_not(c);
             expr c1    = lift_free_vars(c, 1);

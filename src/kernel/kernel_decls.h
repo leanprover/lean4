@@ -72,12 +72,19 @@ inline expr mk_eps_ax_th(expr const & e1, expr const & e2, expr const & e3, expr
 expr mk_proof_irrel_fn();
 bool is_proof_irrel_fn(expr const & e);
 inline expr mk_proof_irrel_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_proof_irrel_fn(), e1, e2, e3}); }
-expr mk_eps_th_fn();
-bool is_eps_th_fn(expr const & e);
-inline expr mk_eps_th_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_eps_th_fn(), e1, e2, e3, e4}); }
 expr mk_substp_fn();
 bool is_substp_fn(expr const & e);
 inline expr mk_substp_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_substp_fn(), e1, e2, e3, e4, e5, e6}); }
+expr mk_eps_th_fn();
+bool is_eps_th_fn(expr const & e);
+inline expr mk_eps_th_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_eps_th_fn(), e1, e2, e3, e4}); }
+expr mk_eps_singleton_fn();
+bool is_eps_singleton_fn(expr const & e);
+inline expr mk_eps_singleton_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_eps_singleton_fn(), e1, e2, e3}); }
+expr mk_ite_fn();
+bool is_ite_fn(expr const & e);
+inline bool is_ite(expr const & e) { return is_app(e) && is_ite_fn(arg(e, 0)) && num_args(e) == 5; }
+inline expr mk_ite(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_ite_fn(), e1, e2, e3, e4}); }
 expr mk_not_intro_fn();
 bool is_not_intro_fn(expr const & e);
 inline expr mk_not_intro_th(expr const & e1, expr const & e2) { return mk_app({mk_not_intro_fn(), e1, e2}); }
@@ -233,6 +240,9 @@ inline expr mk_eq_id_th(expr const & e1, expr const & e2) { return mk_app({mk_eq
 expr mk_iff_id_fn();
 bool is_iff_id_fn(expr const & e);
 inline expr mk_iff_id_th(expr const & e1) { return mk_app({mk_iff_id_fn(), e1}); }
+expr mk_left_comm_fn();
+bool is_left_comm_fn(expr const & e);
+inline expr mk_left_comm_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6, expr const & e7) { return mk_app({mk_left_comm_fn(), e1, e2, e3, e4, e5, e6, e7}); }
 expr mk_or_comm_fn();
 bool is_or_comm_fn(expr const & e);
 inline expr mk_or_comm_th(expr const & e1, expr const & e2) { return mk_app({mk_or_comm_fn(), e1, e2}); }
@@ -257,6 +267,9 @@ inline expr mk_or_truer_th(expr const & e1) { return mk_app({mk_or_truer_fn(), e
 expr mk_or_tauto_fn();
 bool is_or_tauto_fn(expr const & e);
 inline expr mk_or_tauto_th(expr const & e1) { return mk_app({mk_or_tauto_fn(), e1}); }
+expr mk_or_left_comm_fn();
+bool is_or_left_comm_fn(expr const & e);
+inline expr mk_or_left_comm_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_or_left_comm_fn(), e1, e2, e3}); }
 expr mk_and_comm_fn();
 bool is_and_comm_fn(expr const & e);
 inline expr mk_and_comm_th(expr const & e1, expr const & e2) { return mk_app({mk_and_comm_fn(), e1, e2}); }
@@ -281,6 +294,9 @@ inline expr mk_and_falser_th(expr const & e1) { return mk_app({mk_and_falser_fn(
 expr mk_and_absurd_fn();
 bool is_and_absurd_fn(expr const & e);
 inline expr mk_and_absurd_th(expr const & e1) { return mk_app({mk_and_absurd_fn(), e1}); }
+expr mk_and_left_comm_fn();
+bool is_and_left_comm_fn(expr const & e);
+inline expr mk_and_left_comm_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_and_left_comm_fn(), e1, e2, e3}); }
 expr mk_imp_truer_fn();
 bool is_imp_truer_fn(expr const & e);
 inline expr mk_imp_truer_th(expr const & e1) { return mk_app({mk_imp_truer_fn(), e1}); }
@@ -366,15 +382,6 @@ inline expr mk_exists_unfold2_th(expr const & e1, expr const & e2, expr const & 
 expr mk_exists_unfold_fn();
 bool is_exists_unfold_fn(expr const & e);
 inline expr mk_exists_unfold_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_exists_unfold_fn(), e1, e2, e3}); }
-expr mk_left_comm_fn();
-bool is_left_comm_fn(expr const & e);
-inline expr mk_left_comm_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6, expr const & e7) { return mk_app({mk_left_comm_fn(), e1, e2, e3, e4, e5, e6, e7}); }
-expr mk_and_left_comm_fn();
-bool is_and_left_comm_fn(expr const & e);
-inline expr mk_and_left_comm_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_and_left_comm_fn(), e1, e2, e3}); }
-expr mk_or_left_comm_fn();
-bool is_or_left_comm_fn(expr const & e);
-inline expr mk_or_left_comm_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_or_left_comm_fn(), e1, e2, e3}); }
 expr mk_imp_congrr_fn();
 bool is_imp_congrr_fn(expr const & e);
 inline expr mk_imp_congrr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_imp_congrr_fn(), e1, e2, e3, e4, e5, e6}); }
@@ -423,4 +430,31 @@ inline expr mk_exists_or_distribute_th(expr const & e1, expr const & e2, expr co
 expr mk_exists_imp_distribute_fn();
 bool is_exists_imp_distribute_fn(expr const & e);
 inline expr mk_exists_imp_distribute_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_exists_imp_distribute_fn(), e1, e2, e3}); }
+expr mk_if_true_fn();
+bool is_if_true_fn(expr const & e);
+inline expr mk_if_true_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_if_true_fn(), e1, e2, e3}); }
+expr mk_if_false_fn();
+bool is_if_false_fn(expr const & e);
+inline expr mk_if_false_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_if_false_fn(), e1, e2, e3}); }
+expr mk_if_a_a_fn();
+bool is_if_a_a_fn(expr const & e);
+inline expr mk_if_a_a_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_if_a_a_fn(), e1, e2, e3}); }
+expr mk_if_congr_fn();
+bool is_if_congr_fn(expr const & e);
+inline expr mk_if_congr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6, expr const & e7, expr const & e8, expr const & e9, expr const & e10) { return mk_app({mk_if_congr_fn(), e1, e2, e3, e4, e5, e6, e7, e8, e9, e10}); }
+expr mk_if_imp_then_fn();
+bool is_if_imp_then_fn(expr const & e);
+inline expr mk_if_imp_then_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_if_imp_then_fn(), e1, e2, e3, e4, e5}); }
+expr mk_if_imp_else_fn();
+bool is_if_imp_else_fn(expr const & e);
+inline expr mk_if_imp_else_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_if_imp_else_fn(), e1, e2, e3, e4, e5}); }
+expr mk_app_if_distribute_fn();
+bool is_app_if_distribute_fn(expr const & e);
+inline expr mk_app_if_distribute_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_app_if_distribute_fn(), e1, e2, e3, e4, e5, e6}); }
+expr mk_eq_if_distributer_fn();
+bool is_eq_if_distributer_fn(expr const & e);
+inline expr mk_eq_if_distributer_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_eq_if_distributer_fn(), e1, e2, e3, e4, e5}); }
+expr mk_eq_if_distributel_fn();
+bool is_eq_if_distributel_fn(expr const & e);
+inline expr mk_eq_if_distributel_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_eq_if_distributel_fn(), e1, e2, e3, e4, e5}); }
 }

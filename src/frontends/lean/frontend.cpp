@@ -20,7 +20,6 @@ Author: Leonardo de Moura
 #include "kernel/kernel.h"
 #include "kernel/io_state.h"
 #include "library/io_state_stream.h"
-#include "library/ite.h"
 #include "library/expr_pair.h"
 #include "library/expr_pair_maps.h"
 #include "library/arith/nat.h"
@@ -557,7 +556,6 @@ io_state init_frontend(environment const & env, bool no_kernel) {
 io_state init_test_frontend(environment const & env) {
     env->set_trusted_imported(true);
     io_state ios = init_frontend(env);
-    import_ite(env, ios);
     import_int(env, ios);
     import_real(env, ios);
     return ios;

@@ -1,5 +1,4 @@
 import Nat
-import if_then_else
 
 variable Int : Type
 alias ℤ : Int

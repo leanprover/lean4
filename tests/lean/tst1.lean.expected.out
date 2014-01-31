@@ -1,6 +1,5 @@
   Set: pp::colors
   Set: pp::unicode
-  Imported 'if_then_else'
   Assumed: N
   Assumed: lt
   Assumed: zero
@@ -26,7 +25,7 @@ definition select {A : Type} {n : N} (v : vector A n) (i : N) (H : i < n) : A :=
 definition map {A B C : Type} {n : N} (f : A → B → C) (v1 : vector A n) (v2 : vector B n) : vector C n :=
     λ (i : N) (H : i < n), f (v1 i H) (v2 i H)
 select (update (const three ⊥) two ⊤) two two_lt_three : Bool
-if two = two then ⊤ else ⊥
+eps (nonempty_intro ⊤) (λ r : Bool, ((two = two → r = ⊤) → ((two = two → ⊥) → r = ⊥) → ⊥) → ⊥)
 update (const three ⊥) two ⊤ : vector Bool three
 
 --------
@@ -46,4 +45,5 @@ map normal form -->
   f (v1 i H) (v2 i H)
 
 update normal form --> 
-λ (A : Type) (n : N) (v : ∀ (i : N), i < n → A) (i : N) (d : A) (j : N) (H : j < n), if j = i then d else v j H
+λ (A : Type) (n : N) (v : ∀ (i : N), i < n → A) (i : N) (d : A) (j : N) (H : j < n),
+  eps (nonempty_intro d) (λ r : A, ((j = i → r = d) → ((j = i → ⊥) → r = v j H) → ⊥) → ⊥)

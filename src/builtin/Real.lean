@@ -1,5 +1,4 @@
 import Int
-import if_then_else
 
 variable Real : Type
 alias ℝ : Real

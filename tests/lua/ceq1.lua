@@ -22,7 +22,6 @@ function test_ceq(name, expected, is_perm)
 end
 
 parse_lean_cmds([[
-   import if_then_else
    variable f : Nat -> Nat
    axiom Ax1 : forall x : Nat, x > 0 -> f x < 0 /\ not (f x = 1)
    axiom Ax2 : forall x : Nat, x < 0 -> f (f x) = x

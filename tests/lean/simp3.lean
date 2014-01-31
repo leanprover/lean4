@@ -19,29 +19,22 @@ show(simplify(t1, 'default', opt))
 *)
 
 set_opaque  Nat::ge false
-add_rewrite Nat::add_assoc
-add_rewrite Nat::distributer
-add_rewrite Nat::distributel
+rewrite_set basic
+add_rewrite Nat::add_assoc Nat::distributer Nat::distributel : basic
 
 (*
 local opt = options({"simplifier", "unfold"}, true, {"simplifier", "eval"}, false)
 local t1  = parse_lean("2 * double (double 2) + 1 ≥ 3")
-show(simplify(t1, 'default', opt))
+show(simplify(t1, "basic", opt))
 *)
 
 variables a b c d : Nat
 
-import if_then_else
-add_rewrite if_true
-add_rewrite if_false
-add_rewrite if_a_a
-add_rewrite Nat::add_zeror
-add_rewrite Nat::add_zerol
-add_rewrite eq_id
+add_rewrite if_true if_false if_a_a Nat::add_zeror Nat::add_zerol eq_id : basic
 
 (*
 local t1  = parse_lean("(a + b) * (c + d)")
-local r, pr = simplify(t1)
+local r, pr = simplify(t1, "basic")
 print(r)
 print(pr)
 *)
@@ -63,7 +56,7 @@ add_rewrite congr2_congr1 congr2_congr2 congr1_congr2 : proofsimp
 
 (*
 local t2 = parse_lean("(if a > 0 then b else b + 0) + 10 = (if a > 0 then b else b) + 10")
-local r, pr = simplify(t2)
+local r, pr = simplify(t2, "basic")
 print(r)
 print(pr)
 show(simplify(pr, 'proofsimp'))
@@ -72,7 +65,7 @@ show(simplify(pr, 'proofsimp'))
 
 (*
 local t1  = parse_lean("(a + b) * (a + b)")
-local t2 = simplify(t1)
+local t2 = simplify(t1, "basic")
 print(t2)
 *)
 
@@ -81,20 +74,20 @@ print(t2)
 
 (*
 local t1  = parse_lean("true → false")
-print(simplify(t1))
+print(simplify(t1, "basic"))
 *)
 
 (*
 local t1  = parse_lean("true → true")
-print(simplify(t1))
+print(simplify(t1, "basic"))
 *)
 
 (*
 local t1  = parse_lean("false → false")
-print(simplify(t1))
+print(simplify(t1, "basic"))
 *)
 
 (*
 local t1 = parse_lean("true ↔ false")
-print(simplify(t1))
+print(simplify(t1, "basic"))
 *)

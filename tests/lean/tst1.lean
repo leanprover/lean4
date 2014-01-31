@@ -1,4 +1,3 @@
-import if_then_else
 -- Define a "fake" type to simulate the natural numbers. This is just a test.
 variable N : Type
 variable lt : N -> N -> Bool

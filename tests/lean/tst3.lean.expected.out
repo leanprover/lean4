@@ -1,6 +1,5 @@
   Set: pp::colors
   Set: pp::unicode
-  Imported 'if_then_else'
 Notation has been redefined, the existing notation:
   notation 45 if _ then _ else _
 has been replaced with:

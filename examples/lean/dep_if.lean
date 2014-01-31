@@ -69,3 +69,23 @@ theorem dep_if_congr {A : TypeM} (c1 c2 : Bool)
                      (He : e1 = cast (by simp) e2)
     : dep_if c1 t1 e1 = dep_if c2 t2 e2
 := by simp
+
+scope
+   -- Here is an example where dep_if is useful
+   -- Suppose we have a (div s t H) where H is a proof for t ≠ 0
+   variable div (s : Nat) (t : Nat) (H : t ≠ 0) : Nat
+   -- Now, we want to define a function that
+   --        returns 0              if x = 0
+   --        and div 10 x _         otherwise
+   -- We can't use the standard if-the-else, because we don't have a way to synthesize the proof for x ≠ 0
+   check λ x, dep_if (x = 0) (λ H, 0) (λ H : ¬ x = 0, div 10 x H)
+pop_scope
+
+-- If the dependent then/else branches do not use the proofs Hc : c and Hn : ¬ c, then we
+-- can reduce the dependent-if to a regular if
+theorem dep_if_if {A : TypeU} (c : Bool) (t e : A) : dep_if c (λ Hc, t) (λ Hn, e) = if c then t else e
+:= or_elim (em c)
+     (assume Hc : c,   calc dep_if c (λ Hc, t) (λ Hn, e) = (λ Hc, t) Hc          : dep_if_true _ _ _ Hc
+                                                    ...  = if c then t else e    : by simp)
+     (assume Hn : ¬ c, calc dep_if c (λ Hc, t) (λ Hn, e) = (λ Hn, e) Hn          : dep_if_false _ _ _ Hn
+                                                    ...  = if c then t else e    : by simp)

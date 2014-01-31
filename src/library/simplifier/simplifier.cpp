@@ -1418,7 +1418,7 @@ class simplifier_cell::imp {
     result simplify_pi(expr const & e) {
         lean_assert(is_pi(e));
         if (is_arrow(e)) {
-            if (is_proposition(abst_domain(e)))
+            if (is_proposition(abst_domain(e)) && is_proposition(abst_body(e)))
                 return simplify_implication(e);
             else
                 return simplify_arrow(e);

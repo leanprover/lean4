@@ -147,6 +147,7 @@ MK_CONSTANT(exists_and_distributer_fn, name("exists_and_distributer"));
 MK_CONSTANT(exists_and_distributel_fn, name("exists_and_distributel"));
 MK_CONSTANT(exists_or_distribute_fn, name("exists_or_distribute"));
 MK_CONSTANT(exists_imp_distribute_fn, name("exists_imp_distribute"));
+MK_CONSTANT(nonempty_range_fn, name("nonempty_range"));
 MK_CONSTANT(if_true_fn, name("if_true"));
 MK_CONSTANT(if_false_fn, name("if_false"));
 MK_CONSTANT(if_a_a_fn, name("if_a_a"));

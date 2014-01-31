@@ -650,6 +650,16 @@ theorem exists_imp_distribute {A : TypeU} (φ ψ : A → Bool) : (∃ x, φ x �
                      ...   = ¬ (∀ x, φ x) ∨ (∃ x, ψ x)   : { symm (not_forall A φ) }
                      ...   = (∀ x, φ x) → (∃ x, ψ x)     : symm (imp_or _ _)
 
+-- If a function space is non-empty, then for every 'a' in the domain, the range (B a) is not empty
+theorem nonempty_range {A : TypeU} {B : A → TypeU} (H : nonempty (∀ x, B x)) (a : A) : nonempty (B a)
+:= refute (λ N : ¬ nonempty (B a),
+     let s1 : ¬ ∃ x : B a, true       := N,
+         s2 : ∀ x : B a, false        := not_exists_elim s1,
+         s3 : ∃ y : (∀ x, B x), true := H
+     in obtain (w : (∀ x, B x)) (Hw : true), from s3,
+           let s4 : B a := w a
+           in s2 s4)
+
 theorem if_true {A : TypeU} (a b : A) : (if true then a else b) = a
 := calc (if true then a else b) = ε (nonempty_intro a) (λ r, (true → r = a) ∧ (¬ true → r = b)) : refl (if true then a else b)
                            ...  = ε (nonempty_intro a) (λ r, r = a)                               : by simp

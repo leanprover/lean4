@@ -433,6 +433,9 @@ inline expr mk_exists_or_distribute_th(expr const & e1, expr const & e2, expr co
 expr mk_exists_imp_distribute_fn();
 bool is_exists_imp_distribute_fn(expr const & e);
 inline expr mk_exists_imp_distribute_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_exists_imp_distribute_fn(), e1, e2, e3}); }
+expr mk_nonempty_range_fn();
+bool is_nonempty_range_fn(expr const & e);
+inline expr mk_nonempty_range_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_nonempty_range_fn(), e1, e2, e3, e4}); }
 expr mk_if_true_fn();
 bool is_if_true_fn(expr const & e);
 inline expr mk_if_true_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_if_true_fn(), e1, e2, e3}); }

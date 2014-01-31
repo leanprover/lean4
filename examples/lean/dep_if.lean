@@ -32,12 +32,15 @@ theorem then_simp (A : TypeU) (c : Bool) (r : A) (t : c → A) (e : ¬ c → A) 
    in by simp
 
 -- Given H : c,    (dep_if c t e) = t H
-theorem dep_if_true  {A : TypeU} (c : Bool) (t : c → A) (e : ¬ c → A) (H : c)   : dep_if c t e = t H
+theorem dep_if_elim_then  {A : TypeU} (c : Bool) (t : c → A) (e : ¬ c → A) (H : c)   : dep_if c t e = t H
 := let s1 : (λ r, (∀ Hc : c, r = t Hc) ∧ (∀ Hnc : ¬ c, r = e Hnc)) = (λ r, r = t H)
           := funext (λ r, then_simp A c r t e H)
    in calc dep_if c t e  =  ε (nonempty_resolve t e) (λ r, (∀ Hc : c, r = t Hc) ∧ (∀ Hnc : ¬ c, r = e Hnc)) : refl (dep_if c t e)
                   ...    =  ε (nonempty_resolve t e) (λ r, r = t H) : { s1 }
                   ...    =  t H                                     : eps_singleton (nonempty_resolve t e) (t H)
+
+theorem dep_if_true {A : TypeU} (t : true → A) (e : ¬ true → A) : dep_if true t e = t trivial
+:= dep_if_elim_then true t e trivial
 
 theorem else_simp (A : TypeU) (c : Bool) (r : A) (t : c → A) (e : ¬ c → A) (H : ¬ c)
                   : (∀ Hc : c, r = t Hc) ∧ (∀ Hnc : ¬ c, r = e Hnc) ↔ r = e H
@@ -52,12 +55,15 @@ theorem else_simp (A : TypeU) (c : Bool) (r : A) (t : c → A) (e : ¬ c → A) 
    in by simp
 
 -- Given H : ¬ c,  (dep_if c t e) = e H
-theorem dep_if_false {A : TypeU} (c : Bool) (t : c → A) (e : ¬ c → A) (H : ¬ c) : dep_if c t e = e H
+theorem dep_if_elim_else {A : TypeU} (c : Bool) (t : c → A) (e : ¬ c → A) (H : ¬ c) : dep_if c t e = e H
 := let s1 : (λ r, (∀ Hc : c, r = t Hc) ∧ (∀ Hnc : ¬ c, r = e Hnc)) = (λ r, r = e H)
           := funext (λ r, else_simp A c r t e H)
    in calc dep_if c t e = ε (nonempty_resolve t e) (λ r, (∀ Hc : c, r = t Hc) ∧ (∀ Hnc : ¬ c, r = e Hnc)) : refl (dep_if c t e)
                     ... = ε (nonempty_resolve t e) (λ r, r = e H) : { s1 }
                     ... = e H                                     : eps_singleton (nonempty_resolve t e) (e H)
+
+theorem dep_if_false {A : TypeU} (t : false → A) (e : ¬ false → A) : dep_if false t e = e trivial
+:= dep_if_elim_else false t e trivial
 
 import cast
 
@@ -85,7 +91,7 @@ pop_scope
 -- can reduce the dependent-if to a regular if
 theorem dep_if_if {A : TypeU} (c : Bool) (t e : A) : dep_if c (λ Hc, t) (λ Hn, e) = if c then t else e
 := or_elim (em c)
-     (assume Hc : c,   calc dep_if c (λ Hc, t) (λ Hn, e) = (λ Hc, t) Hc          : dep_if_true _ _ _ Hc
+     (assume Hc : c,   calc dep_if c (λ Hc, t) (λ Hn, e) = (λ Hc, t) Hc          : dep_if_elim_then _ _ _ Hc
                                                     ...  = if c then t else e    : by simp)
-     (assume Hn : ¬ c, calc dep_if c (λ Hc, t) (λ Hn, e) = (λ Hn, e) Hn          : dep_if_false _ _ _ Hn
+     (assume Hn : ¬ c, calc dep_if c (λ Hc, t) (λ Hn, e) = (λ Hn, e) Hn          : dep_if_elim_else _ _ _ Hn
                                                     ...  = if c then t else e    : by simp)

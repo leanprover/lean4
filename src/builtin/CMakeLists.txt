@@ -23,7 +23,8 @@ ENDFOREACH(FILE)
 
 # The following command invokes the lean binary.
 # So, it CANNOT be executed if we are cross-compiling.
-function(add_theory_core FILE ARG EXTRA_DEPS)
+function(add_theory_core FILE ARG)
+  set(EXTRA_DEPS ${ARGN})
   get_filename_component(BASENAME ${FILE} NAME_WE)
   set(FNAME "${BASENAME}.olean")
   add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${FNAME}
@@ -51,19 +52,19 @@ function(copy_olean FILE)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${FNAME} DESTINATION library)
 endfunction()
 
-function(add_kernel_theory FILE DEPS)
+function(add_kernel_theory FILE)
   if(CMAKE_CROSSCOMPILING)
     copy_olean(${FILE})
   else()
-    add_theory_core(${FILE} "-n" "${DEPS}")
+    add_theory_core(${FILE} "-n" ${ARGN})
   endif()
 endfunction()
 
-function(add_theory FILE DEPS)
+function(add_theory FILE)
   if(CMAKE_CROSSCOMPILING)
     copy_olean(${FILE})
   else()
-    add_theory_core(${FILE} "" "${DEPS}")
+    add_theory_core(${FILE} "" ${ARGN})
   endif()
 endfunction()
 
@@ -86,8 +87,8 @@ function(update_interface FILE DEST ARG)
   add_dependencies(builtin ${BASENAME}_decls)
 endfunction()
 
-add_kernel_theory("kernel.lean"    "${CMAKE_CURRENT_BINARY_DIR}/macros.lua")
-add_kernel_theory("Nat.lean"       "${CMAKE_CURRENT_BINARY_DIR}/kernel.olean")
+add_kernel_theory("kernel.lean"    ${CMAKE_CURRENT_BINARY_DIR}/macros.lua ${CMAKE_CURRENT_BINARY_DIR}/tactic.lua)
+add_kernel_theory("Nat.lean"       ${CMAKE_CURRENT_BINARY_DIR}/kernel.olean)
 
 add_theory("Int.lean"          "${CMAKE_CURRENT_BINARY_DIR}/Nat.olean")
 add_theory("Real.lean"         "${CMAKE_CURRENT_BINARY_DIR}/Int.olean")

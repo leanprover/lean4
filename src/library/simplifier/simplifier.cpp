@@ -1465,9 +1465,9 @@ class simplifier_cell::imp {
         switch (e.kind()) {
         case expr_kind::Var:      return result(e);
         case expr_kind::Constant: return save(e, simplify_constant(e));
-        case expr_kind::Type:
+        case expr_kind::Type:     return result(e);
         case expr_kind::MetaVar:
-        case expr_kind::Value:    return result(e);
+        case expr_kind::Value:    return rewrite(e, result(e));
         case expr_kind::App:      return save(e, simplify_app(e));
         case expr_kind::Lambda:   return save(e, simplify_lambda(e));
         case expr_kind::Pi:       return save(e, simplify_pi(e));

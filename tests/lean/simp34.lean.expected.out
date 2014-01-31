@@ -1,0 +1,7 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Imported 'tactic'
+  Proved: T
+import "kernel"
+import "Nat"
+theorem T (H : ⊥) : ⊥ := eqt_elim (eqt_intro H)

@@ -677,6 +677,8 @@ theorem if_a_a {A : TypeU} (c : Bool) (a: A) : (if c then a else a) = a
      (λ H : ¬ c, calc (if c then a else a) = (if false then a else a) : { eqf_intro H }
                                     ...  = a                          : if_false a a)
 
+add_rewrite if_true if_false if_a_a
+
 theorem if_congr {A : TypeU} {b c : Bool} {x y u v : A} (H_bc : b = c)
                  (H_xu : ∀ (H_c : c), x = u) (H_yv : ∀ (H_nc : ¬ c), y = v) :
         (if b then x else y) = if c then u else v

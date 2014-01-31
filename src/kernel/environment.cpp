@@ -660,7 +660,12 @@ void environment_cell::load(std::string const & fname, io_state const & ios) {
 }
 
 bool environment_cell::imported(std::string const & n) const {
-    return already_imported(name(realpath(find_file(n, {".olean"}).c_str())));
+    try {
+        return already_imported(name(realpath(find_file(n, {".olean"}).c_str())));
+    } catch (...) {
+        // module named n does not even exist
+        return false;
+    }
 }
 
 environment_cell::environment_cell():

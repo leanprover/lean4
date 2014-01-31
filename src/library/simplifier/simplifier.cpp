@@ -911,6 +911,12 @@ class simplifier_cell::imp {
                             i   = i + 1;
                         }
                     }
+                    if (new_rhs == target) {
+                        if (m_monitor)
+                            m_monitor->failed_rewrite_eh(ro_simplifier(m_this), target, rule.get_ceq(), rule.get_id(),
+                                                         0, simplifier_monitor::failure_kind::LoopPrevention);
+                        return false;
+                    }
                     if (m_proofs_enabled) {
                         if (num > 0) {
                             new_args[0] = rule.get_proof();
@@ -990,10 +996,10 @@ class simplifier_cell::imp {
                     }
                     new_proof = mk_app(proof_args);
                     new_rhs   = arg(ceq, num_args(ceq) - 1);
-                    if (rule.is_permutation() && !is_lt(new_rhs, target, false)) {
+                    if (new_rhs == target || (rule.is_permutation() && !is_lt(new_rhs, target, false))) {
                         if (m_monitor)
                             m_monitor->failed_rewrite_eh(ro_simplifier(m_this), target, rule.get_ceq(), rule.get_id(),
-                                                         0, simplifier_monitor::failure_kind::PermutationGe);
+                                                         0, simplifier_monitor::failure_kind::LoopPrevention);
                         return false;
                     }
                     if (m_monitor)
@@ -1800,7 +1806,10 @@ static int simplify_core(lua_State * L, ro_shared_environment const & env) {
     options opts;
     if (nargs >= 3)
         opts = to_options(L, 3);
-    auto r = simplify(e, env, opts, rules.size(), rules.data());
+    optional<ro_metavar_env> menv;
+    if (nargs >= 5)
+        menv = some_ro_menv(to_metavar_env(L, 5));
+    auto r = simplify(e, env, opts, rules.size(), rules.data(), menv, get_simplifier_monitor(L, 6));
     push_expr(L, r.get_expr());
     push_optional_expr(L, r.get_proof());
     lua_pushboolean(L, r.is_heq_proof());
@@ -1885,7 +1894,7 @@ void open_simplifier(lua_State * L) {
     SET_ENUM("TypeMismatch",        simplifier_monitor::failure_kind::TypeMismatch);
     SET_ENUM("AssumptionNotProved", simplifier_monitor::failure_kind::AssumptionNotProved);
     SET_ENUM("MissingArgument",     simplifier_monitor::failure_kind::MissingArgument);
-    SET_ENUM("PermutationGe",       simplifier_monitor::failure_kind::PermutationGe);
+    SET_ENUM("LoopPrevention",      simplifier_monitor::failure_kind::LoopPrevention);
     SET_ENUM("AbstractionBody",     simplifier_monitor::failure_kind::AbstractionBody);
     lua_setglobal(L, "simplifier_failure");
 

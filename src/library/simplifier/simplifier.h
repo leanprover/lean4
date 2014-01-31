@@ -102,7 +102,7 @@ public:
     */
     virtual void rewrite_eh(ro_simplifier const & s, expr const & e, expr const & new_e, expr const & ceq, name const & ceq_id) = 0;
 
-    enum class failure_kind { Unsupported, TypeMismatch, AssumptionNotProved, MissingArgument, PermutationGe, AbstractionBody };
+    enum class failure_kind { Unsupported, TypeMismatch, AssumptionNotProved, MissingArgument, LoopPrevention, AbstractionBody };
 
     /**
        \brief This method is invoked when the simplifier fails to rewrite an application \c e.

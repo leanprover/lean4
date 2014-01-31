@@ -17,6 +17,7 @@ parse_lean_cmds([[
 add_rewrite_rules("a_eq_1")
 add_rewrite_rules("f_id")
 add_rewrite_rules("eq_id")
+
 -- set_option({"lean", "pp", "implicit"}, true)
 e, pr = simplify(parse_lean('fun x, f (f x (0 + a)) (g (b + 0))'))
 print(e)

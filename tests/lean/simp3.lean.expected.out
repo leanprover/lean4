@@ -31,5 +31,5 @@ trans (congr (congr2 (λ x : ℕ, eq ((λ x : ℕ, x + 10) x))
 a * a + (a * b + (b * a + b * b))
 ⊤ → ⊥	refl (⊤ → ⊥)	false
 ⊤ → ⊤	refl (⊤ → ⊤)	false
-⊥ → ⊥	refl (⊥ → ⊥)	false
+⊥ → ⊤	imp_congr (refl ⊥) (λ C::1 : ⊥, eqt_intro C::1)	false
 ⊥	refl ⊥	false

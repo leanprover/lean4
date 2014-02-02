@@ -1,4 +1,4 @@
-import   cast
+import   heq
 variable vec    : Nat → Type
 variable concat {n m : Nat} (v : vec n) (w : vec m) : vec (n + m)
 infixl   65 ; : concat
@@ -26,4 +26,3 @@ print(t2)
 print(pr)
 get_environment():type_check(pr)
 *)
-

@@ -20,7 +20,6 @@ Author: Leonardo de Moura
 #include "kernel/max_sharing.h"
 #include "kernel/occurs.h"
 #include "library/heq_decls.h"
-#include "library/cast_decls.h"
 #include "library/kernel_bindings.h"
 #include "library/expr_pair.h"
 #include "library/hop_match.h"
@@ -131,7 +130,6 @@ class simplifier_cell::imp {
     options        m_options;
     type_checker   m_tc;
     bool           m_has_heq;
-    bool           m_has_cast;
     rule_sets      m_rule_sets;
     cache          m_cache;
     max_sharing_fn m_max_sharing;
@@ -460,7 +458,7 @@ class simplifier_cell::imp {
     }
 
     result simplify_app(expr const & e) {
-        if (m_has_cast && is_cast(e)) {
+        if (m_has_heq && is_cast(e)) {
             // e is of the form (cast A B H a)
             //   a : A
             //   e : B
@@ -1515,7 +1513,6 @@ public:
         std::shared_ptr<simplifier_monitor> const & monitor):
         m_env(env), m_options(o), m_tc(env), m_monitor(monitor) {
         m_has_heq  = m_env->imported("heq");
-        m_has_cast = m_env->imported("cast");
         set_options(o);
         if (m_contextual) {
             // We need an extra rule set if we are performing contextual rewriting

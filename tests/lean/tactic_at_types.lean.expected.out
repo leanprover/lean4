@@ -1,7 +1,7 @@
   Set: pp::colors
   Set: pp::unicode
   Imported 'tactic'
-  Imported 'cast'
+  Imported 'heq'
   Set: lean::pp::implicit
   Assumed: vec
   Assumed: n

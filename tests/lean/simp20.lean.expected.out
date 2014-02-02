@@ -1,6 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
-  Imported 'cast'
+  Imported 'heq'
   Set: lean::pp::implicit
   Assumed: g
   Assumed: B

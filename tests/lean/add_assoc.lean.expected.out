@@ -5,7 +5,7 @@
   Proved: add_assoc
 Nat::add_zerol : ∀ a : ℕ, 0 + a = a
 Nat::add_succl : ∀ a b : ℕ, a + 1 + b = a + b + 1
-@eq_id : ∀ (A : TypeU) (a : A), a = a ↔ ⊤
+@eq_id : ∀ (A : (Type U)) (a : A), a = a ↔ ⊤
 theorem add_assoc (a b c : ℕ) : a + (b + c) = a + b + c :=
     Nat::induction_on
         a

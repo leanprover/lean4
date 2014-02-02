@@ -1,12 +1,12 @@
   Set: pp::colors
   Set: pp::unicode
   Imported 'Int'
+8 mod 3
 2
 2
-2
-1
+7 mod 3
 -8 mod 3
   Set: lean::pp::notation
 Int::mod -8 3
--2
--8
+Int::mod -8 3
+Int::add -6 (Int::mod -8 3)

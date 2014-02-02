@@ -6,17 +6,17 @@ Released under Apache 2.0 license as described in the file LICENSE.
 #include "kernel/environment.h"
 #include "kernel/decl_macros.h"
 namespace lean {
-MK_CONSTANT(heq_fn, name("heq"));
-MK_CONSTANT(heq_eq_fn, name("heq_eq"));
-MK_CONSTANT(to_eq_fn, name("to_eq"));
-MK_CONSTANT(to_heq_fn, name("to_heq"));
-MK_CONSTANT(hrefl_fn, name("hrefl"));
-MK_CONSTANT(heqt_elim_fn, name("heqt_elim"));
+MK_CONSTANT(TypeM, name("TypeM"));
+MK_CONSTANT(cast_fn, name("cast"));
+MK_CONSTANT(cast_heq_fn, name("cast_heq"));
 MK_CONSTANT(hsymm_fn, name("hsymm"));
 MK_CONSTANT(htrans_fn, name("htrans"));
 MK_CONSTANT(hcongr_fn, name("hcongr"));
-MK_CONSTANT(TypeM, name("TypeM"));
 MK_CONSTANT(hfunext_fn, name("hfunext"));
 MK_CONSTANT(hsfunext_fn, name("hsfunext"));
 MK_CONSTANT(hallext_fn, name("hallext"));
+MK_CONSTANT(cast_app_fn, name("cast_app"));
+MK_CONSTANT(cast_eq_fn, name("cast_eq"));
+MK_CONSTANT(cast_trans_fn, name("cast_trans"));
+MK_CONSTANT(cast_pull_fn, name("cast_pull"));
 }

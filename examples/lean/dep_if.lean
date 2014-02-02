@@ -10,14 +10,14 @@ import tactic
 -- We define the "dependent" if-then-else using Hilbert's choice operator ε.
 -- Note that ε is only applicable to non-empty types. Thus, we first
 -- prove the following auxiliary theorem.
-theorem nonempty_resolve {A : TypeU} {c : Bool} (t : c → A) (e : ¬ c → A) : nonempty A
+theorem inhabited_resolve {A : TypeU} {c : Bool} (t : c → A) (e : ¬ c → A) : inhabited A
 := or_elim (em c)
-      (λ Hc,  nonempty_range (nonempty_intro t) Hc)
-      (λ Hnc, nonempty_range (nonempty_intro e) Hnc)
+      (λ Hc,  inhabited_range (inhabited_intro t) Hc)
+      (λ Hnc, inhabited_range (inhabited_intro e) Hnc)
 
 -- The actual definition
 definition dep_if {A : TypeU} (c : Bool) (t : c → A) (e : ¬ c → A) : A
-:= ε (nonempty_resolve t e) (λ r, (∀ Hc : c, r = t Hc) ∧ (∀ Hnc : ¬ c, r = e Hnc))
+:= ε (inhabited_resolve t e) (λ r, (∀ Hc : c, r = t Hc) ∧ (∀ Hnc : ¬ c, r = e Hnc))
 
 theorem then_simp (A : TypeU) (c : Bool) (r : A) (t : c → A) (e : ¬ c → A) (H : c)
                   : (∀ Hc : c, r = t Hc) ∧ (∀ Hnc : ¬ c, r = e Hnc) ↔ r = t H
@@ -35,9 +35,9 @@ theorem then_simp (A : TypeU) (c : Bool) (r : A) (t : c → A) (e : ¬ c → A) 
 theorem dep_if_elim_then  {A : TypeU} (c : Bool) (t : c → A) (e : ¬ c → A) (H : c)   : dep_if c t e = t H
 := let s1 : (λ r, (∀ Hc : c, r = t Hc) ∧ (∀ Hnc : ¬ c, r = e Hnc)) = (λ r, r = t H)
           := funext (λ r, then_simp A c r t e H)
-   in calc dep_if c t e  =  ε (nonempty_resolve t e) (λ r, (∀ Hc : c, r = t Hc) ∧ (∀ Hnc : ¬ c, r = e Hnc)) : refl (dep_if c t e)
-                  ...    =  ε (nonempty_resolve t e) (λ r, r = t H) : { s1 }
-                  ...    =  t H                                     : eps_singleton (nonempty_resolve t e) (t H)
+   in calc dep_if c t e  =  ε (inhabited_resolve t e) (λ r, (∀ Hc : c, r = t Hc) ∧ (∀ Hnc : ¬ c, r = e Hnc)) : refl (dep_if c t e)
+                  ...    =  ε (inhabited_resolve t e) (λ r, r = t H) : { s1 }
+                  ...    =  t H                                     : eps_singleton (inhabited_resolve t e) (t H)
 
 theorem dep_if_true {A : TypeU} (t : true → A) (e : ¬ true → A) : dep_if true t e = t trivial
 := dep_if_elim_then true t e trivial
@@ -58,12 +58,12 @@ theorem else_simp (A : TypeU) (c : Bool) (r : A) (t : c → A) (e : ¬ c → A) 
 theorem dep_if_elim_else {A : TypeU} (c : Bool) (t : c → A) (e : ¬ c → A) (H : ¬ c) : dep_if c t e = e H
 := let s1 : (λ r, (∀ Hc : c, r = t Hc) ∧ (∀ Hnc : ¬ c, r = e Hnc)) = (λ r, r = e H)
           := funext (λ r, else_simp A c r t e H)
-   in calc dep_if c t e = ε (nonempty_resolve t e) (λ r, (∀ Hc : c, r = t Hc) ∧ (∀ Hnc : ¬ c, r = e Hnc)) : refl (dep_if c t e)
-                    ... = ε (nonempty_resolve t e) (λ r, r = e H) : { s1 }
-                    ... = e H                                     : eps_singleton (nonempty_resolve t e) (e H)
+   in calc dep_if c t e = ε (inhabited_resolve t e) (λ r, (∀ Hc : c, r = t Hc) ∧ (∀ Hnc : ¬ c, r = e Hnc)) : refl (dep_if c t e)
+                    ... = ε (inhabited_resolve t e) (λ r, r = e H) : { s1 }
+                    ... = e H                                     : eps_singleton (inhabited_resolve t e) (e H)
 
-theorem dep_if_false {A : TypeU} (t : false → A) (e : ¬ false → A) : dep_if false t e = e trivial
-:= dep_if_elim_else false t e trivial
+theorem dep_if_false {A : TypeU} (t : false → A) (e : ¬ false → A) : dep_if false t e = e not_false_trivial
+:= dep_if_elim_else false t e not_false_trivial
 
 import cast
 

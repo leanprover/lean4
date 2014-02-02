@@ -5,8 +5,6 @@ Cond result: true
   Proved: T1
 Cond result: false
   Proved: T2
-  Defined: x
-  Proved: T3
 When result: true
   Proved: T4
 When result: false

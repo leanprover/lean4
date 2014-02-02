@@ -209,7 +209,7 @@ class simplifier_cell::imp {
     expr ensure_pi(expr const & e) { return m_tc.ensure_pi(e, context(), m_menv.to_some_menv()); }
     expr normalize(expr const & e) {
         normalizer & proc = m_tc.get_normalizer();
-        return proc(e, context(), m_menv.to_some_menv(), true);
+        return proc(e, context(), m_menv.to_some_menv());
     }
     expr lift_free_vars(expr const & e, unsigned s, unsigned d) { return ::lean::lift_free_vars(e, s, d, m_menv.to_some_menv()); }
     expr lower_free_vars(expr const & e, unsigned s, unsigned d) { return ::lean::lower_free_vars(e, s, d, m_menv.to_some_menv()); }
@@ -760,7 +760,7 @@ class simplifier_cell::imp {
     static bool is_value(expr const & e) {
         // Currently only semantic attachments are treated as value.
         // We may relax that in the future.
-        return ::lean::is_value(e);
+        return ::lean::is_value(e) || is_true(e) || is_false(e);
     }
 
     /**

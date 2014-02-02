@@ -232,21 +232,9 @@ class normalizer::imp {
 
         expr r;
         switch (a.kind()) {
-        case expr_kind::Pi: {
-            if (is_arrow(a)) {
-                expr new_d = reify(normalize(abst_domain(a), s, k), k);
-                if (is_bool_value(new_d)) {
-                    m_cache.clear();
-                    expr new_b = reify(normalize(abst_body(a), extend(s, mk_var(k)), k+1), k+1);
-                    if (is_bool_value(new_b)) {
-                        r = mk_bool_value(is_false(new_d) || is_true(new_b));
-                        break;
-                    }
-                }
-            }
+        case expr_kind::Pi:
             r = mk_closure(a, m_ctx, s);
             break;
-        }
         case expr_kind::MetaVar: case expr_kind::Lambda:
             r = mk_closure(a, m_ctx, s);
             break;

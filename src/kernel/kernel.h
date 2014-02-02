@@ -29,15 +29,6 @@ bool is_bool_value(expr const & e);
     \pre is_bool_value(e)
 */
 bool to_bool(expr const & e);
-/** \brief Return true iff \c e is the Lean true value. */
-bool is_true(expr const & e);
-/** \brief Return true iff \c e is the Lean false value. */
-bool is_false(expr const & e);
-
-expr mk_eq_fn();
-bool is_eq_fn(expr const & e);
-inline expr mk_eq(expr const & A, expr const & lhs, expr const & rhs) { return mk_app(mk_eq_fn(), A, lhs, rhs); }
-inline bool is_eq(expr const & e) { return is_app(e) && is_eq_fn(arg(e, 0)) && num_args(e) == 4; }
 
 inline expr Implies(expr const & e1, expr const & e2) { return mk_implies(e1, e2); }
 inline expr And(expr const & e1, expr const & e2) { return mk_and(e1, e2); }

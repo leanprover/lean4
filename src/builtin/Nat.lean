@@ -44,7 +44,7 @@ theorem induction_on {P : Nat → Bool} (a : Nat) (H1 : P 0) (H2 : ∀ (n : Nat)
 
 theorem pred_nz {a : Nat} : a ≠ 0 → ∃ b, b + 1 = a
 := induction_on a
-    (λ H : 0 ≠ 0, false_elim (∃ b, b + 1 = 0) H)
+    (λ H : 0 ≠ 0, false_elim (∃ b, b + 1 = 0) (a_neq_a_elim H))
     (λ (n : Nat) (iH : n ≠ 0 → ∃ b, b + 1 = n) (H : n + 1 ≠ 0),
        or_elim (em (n = 0))
            (λ Heq0 : n = 0, exists_intro 0 (calc 0 + 1 = n + 1 : { symm Heq0 }))
@@ -60,7 +60,7 @@ theorem discriminate {B : Bool} {a : Nat} (H1: a = 0 → B) (H2 : ∀ n, a = n +
 
 theorem add_zerol (a : Nat) : 0 + a = a
 := induction_on a
-    (have 0 + 0 = 0 : trivial)
+    (have 0 + 0 = 0 : add_zeror 0)
     (λ (n : Nat) (iH : 0 + n = n),
         calc  0 + (n + 1)  =  (0 + n) + 1   :  add_succr 0 n
                     ...    =  n + 1         :  { iH })
@@ -95,11 +95,11 @@ theorem add_assoc (a b c : Nat) : (a + b) + c = a + (b + c)
 
 theorem mul_zerol (a : Nat) : 0 * a = 0
 := induction_on a
-    (have 0 * 0 = 0 : trivial)
+    (have 0 * 0 = 0 : mul_zeror 0)
     (λ (n : Nat) (iH : 0 * n = 0),
         calc  0 * (n + 1)  =  (0 * n) + 0 : mul_succr 0 n
                       ...  =  0 + 0       : { iH }
-                      ...  =  0           : trivial)
+                      ...  =  0           : add_zerol 0)
 
 theorem mul_succl (a b : Nat) : (a + 1) * b = a * b + b
 := induction_on b
@@ -118,14 +118,14 @@ theorem mul_succl (a b : Nat) : (a + 1) * b = a * b + b
 
 theorem mul_onel (a : Nat) : 1 * a = a
 := induction_on a
-    (have 1 * 0 = 0 : trivial)
+    (have 1 * 0 = 0 : mul_zeror 1)
     (λ (n : Nat) (iH : 1 * n = n),
         calc  1 * (n + 1)  =  1 * n + 1 :  mul_succr 1 n
                       ...  =  n + 1     : { iH })
 
 theorem mul_oner (a : Nat) : a * 1 = a
 := induction_on a
-    (have 0 * 1 = 0 : trivial)
+    (have 0 * 1 = 0 : mul_zeror 1)
     (λ (n : Nat) (iH : n * 1 = n),
         calc  (n + 1) * 1  =  n * 1 + 1 : mul_succl n 1
                       ...  =  n + 1     : { iH })
@@ -142,7 +142,7 @@ theorem mul_comm (a b : Nat) : a * b = b * a
 theorem distributer (a b c : Nat) : a * (b + c) = a * b + a * c
 := induction_on a
     (calc 0 * (b + c)   = 0              : mul_zerol (b + c)
-                  ...   = 0 + 0          : trivial
+                  ...   = 0 + 0          : add_zeror 0
                   ...   = 0 * b + 0      : { symm (mul_zerol b) }
                   ...   = 0 * b + 0 * c  : { symm (mul_zerol c) })
     (λ (n : Nat) (iH : n * (b + c) = n * b + n * c),
@@ -222,7 +222,6 @@ theorem le_elim {a b : Nat} (H : a ≤ b) : ∃ x, a + x = b
 theorem le_refl (a : Nat) : a ≤ a := le_intro (add_zeror a)
 
 theorem le_zero (a : Nat) : 0 ≤ a := le_intro (add_zerol a)
-
 
 theorem le_trans {a b c : Nat} (H1 : a ≤ b) (H2 : b ≤ c) : a ≤ c
 := obtain (w1 : Nat) (Hw1 : a + w1 = b), from (le_elim H1),
@@ -353,8 +352,9 @@ set_opaque add true
 set_opaque mul true
 set_opaque le true
 set_opaque id true
-set_opaque ge true
-set_opaque lt true
-set_opaque gt true
-set_opaque id true
+-- We should only mark constants as opaque after we proved the theorems/properties we need.
+-- set_opaque ge true
+-- set_opaque lt true
+-- set_opaque gt true
+-- set_opaque id true
 end

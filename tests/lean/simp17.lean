@@ -1,5 +1,5 @@
 rewrite_set simple
-add_rewrite and_truer and_truel and_falser and_falsel or_falsel Nat::add_zeror : simple
+add_rewrite and_truer and_truel and_falser and_falsel or_falsel Nat::add_zeror a_neq_a : simple
 (*
   add_congr_theorem("simple", "and_congrr")
 *)

@@ -927,9 +927,12 @@ class pp_fn {
             } else {
                 body_sep = comma();
             }
-            expr domain0 = nested[0].second;
-            if (std::all_of(nested.begin() + 1, nested.end(), [&](std::pair<name, expr> const & p) { return p.second == domain0; }) && !implicit_args) {
+            if (!nested.empty() &&
+                std::all_of(nested.begin() + 1, nested.end(), [&](std::pair<name, expr> const & p) {
+                        return p.second == nested[0].second; }) &&
+                !implicit_args) {
                 // Domain of all binders is the same
+                expr domain0    = nested[0].second;
                 format names    = pp_bnames(nested.begin(), nested.end(), false);
                 result p_domain = pp_scoped_child(domain0, depth);
                 result p_body   = pp_scoped_child(b, depth);

@@ -8,8 +8,9 @@
   Assumed: vector
   Assumed: read
   Assumed: V1
+  Assumed: H
   Defined: D
-definition D : ℤ := @read ℤ 10 V1 1 trivial
+definition D : ℤ := @read ℤ 10 V1 1 (@eqt_elim (Nat::lt 1 10) (@refl Bool ⊤))
   Assumed: b
   Defined: a
   Proved: T

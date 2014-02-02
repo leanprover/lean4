@@ -1,11 +1,11 @@
   Set: pp::colors
   Set: pp::unicode
   Defined: double
-⊤
+¬ 0 = 1
 ⊤
 9
-⊥
-2 + 2 + (2 + 2) + 1 ≥ 3
+0 = 1
+3 ≤ 2 + 2 + (2 + 2) + 1
 3 ≤ 2 * 2 + (2 * 2 + (2 * 2 + (2 * 2 + 1)))
   Assumed: a
   Assumed: b
@@ -32,4 +32,4 @@ a * a + (a * b + (b * a + b * b))
 ⊤ → ⊥	refl (⊤ → ⊥)	false
 ⊤ → ⊤	refl (⊤ → ⊤)	false
 ⊥ → ⊤	imp_congr (refl ⊥) (λ C::1 : ⊥, eqt_intro C::1)	false
-⊥	refl ⊥	false
+⊤ ↔ ⊥	refl (⊤ ↔ ⊥)	false

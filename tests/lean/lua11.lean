@@ -38,7 +38,7 @@ import Int.
  assert(env:find_object("val"):get_weight() == 1)
  assert(env:find_object("congr"):is_opaque())
  assert(env:find_object("congr"):is_theorem())
- assert(env:find_object("refl"):is_axiom())
+ assert(env:find_object("hrefl"):is_axiom())
  assert(env:find_object(name("Int", "sub")):is_definition())
  assert(env:find_object("x"):is_var_decl())
 *)

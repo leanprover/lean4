@@ -275,7 +275,7 @@ void parser_imp::parse_eval() {
     next();
     expr v = m_elaborator(parse_expr()).first;
     normalizer norm(m_env);
-    expr r = norm(v, context(), true);
+    expr r = norm(v);
     regular(m_io_state) << r << endl;
 }
 

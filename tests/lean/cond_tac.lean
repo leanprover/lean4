@@ -27,12 +27,6 @@ theorem T2 (a b : Bool) : a -> a ∨ b.
   (* simple_tac *)
   done
 
-definition x := 10
-theorem T3 : x + 20 +2 >= 2*x.
-  (* eval_tac() *)
-  (* trivial_tac() *)
-  done
-
 theorem T4 (a b c : Bool) : a -> b -> c -> a ∧ b.
   (* simple2_tac *)
   exact

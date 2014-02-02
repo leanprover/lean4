@@ -9,6 +9,7 @@
   Assumed: map_nil
 Visit, depth: 1, map (λ x : ℕ, x + 1) (cons 1 (cons 2 nil)) = cons 2 (cons 3 nil)
 Visit, depth: 2, @eq
+Step: @eq ===> @eq
 Visit, depth: 2, map (λ x : ℕ, x + 1) (cons 1 (cons 2 nil))
 Visit, depth: 3, @map
 Step: @map ===> @map
@@ -64,5 +65,6 @@ Step: map (λ x : ℕ, x + 1) (cons 1 (cons 2 nil)) ===> cons 2 (cons 3 nil)
 Rewrite using: eq_id
   cons 2 (cons 3 nil) = cons 2 (cons 3 nil) ===> ⊤
 Visit, depth: 2, ⊤
+Step: ⊤ ===> ⊤
 Step: map (λ x : ℕ, x + 1) (cons 1 (cons 2 nil)) = cons 2 (cons 3 nil) ===> ⊤
   Proved: T1

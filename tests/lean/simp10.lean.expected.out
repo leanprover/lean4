@@ -5,5 +5,8 @@
   Assumed: a
   Assumed: fid
   Assumed: gcnst
+  Proved: one_neq_0
 a
-fid a (eqt_elim (congr1 0 (congr2 neq (gcnst a))))
+fid a
+    (eqt_elim (trans (trans (congr1 0 (congr2 neq (gcnst a))) neq_to_not_eq)
+                     (trans (congr2 not (neq_elim one_neq_0)) not_false)))

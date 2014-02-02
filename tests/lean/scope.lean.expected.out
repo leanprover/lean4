@@ -28,4 +28,4 @@ theorem Inj (A B : Type)
         L4 : x = hinv (h x) := symm L2,
         L5 : x = hinv (h y) := trans L4 L1
     in trans L5 L3
-10
+20 - 10

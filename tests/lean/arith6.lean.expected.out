@@ -3,13 +3,13 @@
   Imported 'Int'
   Set: pp::unicode
 3 | 6
-true
-false
-true
-true
+3 | 6
+3 | 7
+2 | 6
+1 | 6
   Assumed: x
-3 + -1 * (x * (3 div x)) = 0
-x + -1 * (3 * (x div 3)) = 0
-false
+x | 3
+3 | x
+6 | 3
   Set: lean::pp::notation
 Int::divides 3 x

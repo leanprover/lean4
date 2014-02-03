@@ -10,14 +10,13 @@ add_rewrite map_cons map_nil
 
 (*
 local m = simplifier_monitor(function(s, e)
-                                print("Visit, depth: " .. s:depth() .. ", " .. tostring(e))
+                                print("Visit, depth: " .. s:depth())
                              end,
                              function(s, e, new_e, pr)
-                                print("Step: " .. tostring(e) .. " ===> " .. tostring(new_e))
+                                print("Step: " .. s:depth())
                              end,
                              function(s, e, new_e, ceq, ceq_id)
                                 print("Rewrite using: " .. tostring(ceq_id))
-                                print("  " .. tostring(e) .. " ===> " .. tostring(new_e))
                              end
 )
 set_simplifier_monitor(m)

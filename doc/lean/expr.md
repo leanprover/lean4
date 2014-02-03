@@ -23,7 +23,7 @@ check x + y
 ```
 
 In the following example, we define the constant `s` as the sum of `x` and `y` using the `definition` command.
-The `eval` command evaluates (normalizes) the expression `s + 1`. In this example, `eval` will just expand
+The `eval` command normalizes the expression `s + 1`. In this example, `eval` will just expand
 the definition of `s`, and return `x + y + 1`.
 
 ```lean
@@ -34,19 +34,15 @@ eval s + 1
 ## Function applications
 
 In Lean, the expression `f t` is a function application, where `f` is a function that is applied to `t`.
-In the following example, we define the function `max`. The `eval` command evaluates the application `double 3`,
-and returns the value `6`.
+We define the function `double`
 
 ```lean
 import tactic    -- load basic tactics such as 'simp'
 definition double (x : Nat) : Nat := x + x
-eval double 3
 ```
 
 In the following command, we define the function `inc`, and evaluate some expressions using `inc` and `max`.
 
 ```lean
 definition inc (x : Nat) : Nat := x + 1
-eval inc (inc (inc 2))
-eval double (inc 3)
 ```

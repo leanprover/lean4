@@ -27,15 +27,11 @@ to execute
        lean hello.lean
 
 As a more complex example, the next example defines a function that doubles
-the input value, and then evaluates it on different values.
+the input value.
 
 ```lean
       -- defines the double function
       definition double (x : Nat) := x + x
-
-      eval double 10
-      eval double 2
-      eval double 3 > 4
 ```
 
 Basics
@@ -89,7 +85,7 @@ The command `variables n m o : Nat` can be used a shorthand for the three comman
 
 In Lean, proofs are also expressions, and all functionality provided for manipulating
 expressions is also available for manipulating proofs. For example, `refl n` is a proof
-for `n = n`. In Lean, `refl` is the reflexivity axiom.
+for `n = n`. In Lean, `refl` is the reflexivity theorem.
 
 ```lean
      check refl n
@@ -105,7 +101,7 @@ The following commands postulate two axioms `Ax1` and `Ax2` that state that `n =
 ```
 
 `Ax1` and `Ax2` are not just names. For example, `trans Ax1 Ax2` is a proof that
-`n = o`, where `trans` is the transitivity axiom.
+`n = o`, where `trans` is the transitivity theorem.
 
 ```lean
       check trans Ax1 Ax2
@@ -155,9 +151,9 @@ example.
 ```
 
 The theorem `nat_trans3` is somewhat inconvenient to use because it has 7 parameters.
-However, the first four parameters can be inferred from the last 3. We can use `_` as placeholder
+However, the first four parameters can be inferred from the last 3. We can use `_` as a placeholder
 that instructs Lean to synthesize this expression. The synthesis process is based on type inference, and it is
-the most basic forms of automation provided by Lean.
+the most basic form of automation provided by Lean.
 
 ```lean
       check nat_trans3 _ _ _ _ Hxy Hzy Hzw
@@ -190,7 +186,7 @@ The explicit version uses the same name with a `@` prefix.
       check @nat_trans3i
 ```
 
-The axiom `refl`, and the theorems `trans` and `symm` all have implicit arguments.
+The theorems `refl`, `trans` and `symm` all have implicit arguments.
 
 ```lean
       check @refl
@@ -210,7 +206,7 @@ This is useful when debugging non-trivial problems.
 In the previous example, the `check` command stated that `nat_trans3i Hxy Hzy Hzw`
 has type `@eq ℕ x w`. The expression `x = w` is just notational convenience.
 
-We have seen many occurrences of `TypeU`. It is just a definition for: `(Type U)`, where `U` is a _universe variable_.
+We have seen many occurrences of `(Type U)`, where `U` is a _universe variable_.
 In Lean, the type of `Nat` and `Bool` is `Type`.
 
 ```lean
@@ -226,17 +222,19 @@ We say `Type` is the type of all _small_ types, but what is the type of `Type`?
 
 Lean returns `(Type 1)`. Similarly, the type of `(Type 1)` is `(Type 2)`. In Lean, we also have _universe cumulativity_.
 That is, we can provide an element of type `(Type i)` where an element of type `(Type j)` is expected when `i ≤ j`.
-This makes the system more convenient to use. Otherwise, we would need a reflexivity axiom for `Type` (i.e., `(Type 0)`),
+This makes the system more convenient to use. Otherwise, we would need a reflexivity theorem for `Type` (i.e., `(Type 0)`),
 `Type 1`, `Type 2`, etc. Universe cumulativity improves usability, but it is not enough because
 we would still have the question: how big should `i` be? Moreover, if we choose an `i` that is not big enough
 we have to go back and correct all libraries. This is not satisfactory and not modular.
-So, in Lean, we allow user to declare _universe variables_ and simple constraints between them. The Lean kernel defines
+So, in Lean, we allow users to declare _universe variables_ and simple constraints between them. The Lean kernel defines
 one universe variable `U`, and states that `U ≥ 1` using the command `universe U ≥ 1`.
-The Lean type casting library defines another universe variable called `M` and states that `universe M ≥ 1` and `universe M ≥ U + 1`.
+The Lean type casting library defines another universe variable called `M` and states that `universe M ≥ 1`.
+In Lean, whenever we declare a new universe `V`, the system automatically adds the constraint `U ≥ V + 1`.
+That is, `U` the _maximal_ universe in Lean.
 Lean reports an universe inconsistency if the universe constraints are inconsistent. For example, it will return an error
 if execute the command `universe M ≥ U`. We can view universe variables as placeholders, and we can always solve
 the universe constraints and find and assignment for the universe variables used in our developments.
-This assignment allows us to produce a Lean specification that is not based on this particular feature.
+This assignment allows us to automatically generate a Lean specification that is not based on this particular feature.
 
 Propositional logic
 -------------------
@@ -317,8 +315,6 @@ Lean supports _currying_ `and true` is a function from `Bool` to `Bool`.
 ```lean
    check and true
    definition id := and true
-   eval id true
-   eval id false
 ```
 
 Functions
@@ -340,7 +336,7 @@ examples.
 ```
 
 In many cases, Lean can automatically infer the type of the variable. Actually,
-In all examples above, the type can be automatically inferred.
+In all examples above, the type can be inferred automatically.
 
 ```lean
    check fun x, x + 1
@@ -351,19 +347,19 @@ In all examples above, the type can be automatically inferred.
 ```
 
 However, Lean will complain that it cannot infer the type of the
-variable in `fun x, x` because any type would work in this example.
+variable `x` in `fun x, x` because any type would work in this example.
 
 The following example shows how to use lambda abstractions in
 function applications
 
 ```lean
-   eval (fun x y, x + 2 * y) 1
-   eval (fun x y, x + 2 * y) 1 2
-   eval (fun x y, not (x ∧ y)) true false
+   check (fun x y, x + 2 * y) 1
+   check (fun x y, x + 2 * y) 1 2
+   check (fun x y, not (x ∧ y)) true false
 ```
 
 Lambda abstractions are also used to create proofs for propositions of the form `A → B`.
-This should be natural since Lean views `A → B` as the type of functions that given
+This should be natural since we can "view" `A → B` as the type of functions that given
 a proof for `A` returns a proof for `B`.
 For example, a proof for `p → p` is just `fun H : p, H` (the identity function).
 
@@ -374,10 +370,10 @@ For example, a proof for `p → p` is just `fun H : p, H` (the identity function
 Definitional equality
 ---------------------
 
-Recall that the command `eval t` computes a normal form for the term `t`.
+The command `eval t` computes a normal form for the term `t`.
 In Lean, we say two terms are _definitionally equal_ if the have the same
-normal proof. For example, the terms `(λ x : Nat, x + 1) a` and `a + 1`
-are definitionally equal. The Lean type/proof checker uses the normalizer/evaluator when
+normal form. For example, the terms `(λ x : Nat, x + 1) a` and `a + 1`
+are definitionally equal. The Lean type/proof checker uses the normalizer when
 checking types/proofs. So, we can prove that two definitionally equal terms
 are equal using just `refl`. Here is a simple example.
 
@@ -544,3 +540,145 @@ tedious steps. Here is a very simple example.
         (fun H : a ∧ b, (by simp simple))
         (fun H : b ∧ a, (by simp simple))
 ```
+
+### Dependent functions and quantifiers
+
+Lean supports _dependent functions_. In type theory, they are also called dependent product types or Pi-types.
+The idea is quite simple, suppose we have a type `A` in some universe `(Type i)`, and a family of types `B : A → (Type j)` which assigns to each `a : A` a type `B a`. So a dependent function is a function whose range varies depending on its arguments.
+In lean, the dependent functions is written as `forall a : A, B a`, or `∀ x : A, B a` using unicode.
+The proposition as types paradigm is based on dependent functions. In the previous examples, we have seen many examples of dependent functions. The theorems `refl`, `trans` and `symm`, and the equality are all dependent functions,
+
+```lean
+    check @refl
+    check @trans
+    check @symm
+    check @eq
+```
+
+The universal quantifier is also a dependent function. In Lean, if we have a family of types `B : A → Bool`, then `∀ x : A, B a` has type `Bool`. This features complicates the Lean set-theoretic model, but it improves usability. Several theorem provers have a `forall elimination` (aka instantiation) proof rule. In Lean (and other systems based on proposition as types), this rule is just function application. In the following example we add an axiom stating that `f x` is `0` forall `x`. Then we instantiate the axiom using function application.
+
+```lean
+    variable f : Nat → Nat
+    axiom fzero : ∀ x, f x = 0
+    check fzero 1
+    check fzero x
+```
+
+Since we instantiate quantifiers using function application, it is
+natural to create proof terms for universal quantifiers using lambda
+abstraction. In the following example, we create a proof term showing that for all
+`x` and `y`, `f x = f y`.
+
+```lean
+   check λ x y, trans (fzero x) (symm (fzero y))
+```
+
+We can view the proof term above as a simple function or "recipe" for showing that
+`f x = f y` for any `x` and `y`. The function "invokes" `fzero` for creating
+proof terms for `f x = 0` and `f y = 0`. Then, it uses symmetry `symm` to create
+a proof term for `0 = f y`. Finally, transitivity is used to combine the proofs
+for `f x = 0` and `0 = f y`.
+
+In Lean, the existential quantifier `exists x : A, B x` is defined as `¬ forall x : A, ¬ B x`.
+We can also write existential quantifiers as `∃ x : A, B x`. Actually both versions are just
+notational convenience for `Exists A (fun x : A, B x)`. That is, the existential quantifier
+is actually a constant defined in the file `kernel.lean`. This file also defines the
+`exists_intro` and `exists_elim` theorems. To build a proof for `∃ x : A, B x`, we should
+provide a term `w : A` and a proof term `Hw : B w` to `exists_intro`.
+We say `w` is the witness for the existential introduction. In previous examples,
+`nat_trans3i Hxy Hzy Hzw` was a proof term for `x = w`. Then, we can create a proof term
+for `∃ a : Nat, a = w` using
+
+```lean
+    theorem ex_a_eq_w : exists a, a = w  := exists_intro x (nat_trans3i Hxy Hzy Hzw)
+    check ex_a_eq_w
+```
+
+Note that `exists_intro` also has implicit arguments. For example, Lean has to infer the implicit argument
+`P : A → Bool`, a predicate (aka function to Bool). This creates complications. For example, suppose
+we have `Hg : g 0 0 = 0` and we invoke `exists_intro 0 Hg`. There are different possible values for `P`.
+Each possible value corresponds to a different theorem: `∃ x, g x x = x`, `∃ x, g x x = 0`,
+`∃ x, g x 0 = x`, etc. Lean uses the context where `exists_intro` occurs to infer the users intent.
+In the example above, we were trying to prove the theorem `∃ a, a = w`. So, we are implicitly telling
+Lean how to choose `P`. In the following example, we demonstrate this issue. We ask Lean to display
+the implicit arguments using the option `pp::implicit`. We see that each instance of `exists_intro 0 Hg`
+has different values for the implicit argument `P`.
+
+```lean
+   check @exists_intro
+   variable g : Nat → Nat → Nat
+   axiom Hg : g 0 0 = 0
+   theorem gex1 : ∃ x, g x x = x := exists_intro 0 Hg
+   theorem gex2 : ∃ x, g x 0 = x := exists_intro 0 Hg
+   theorem gex3 : ∃ x, g 0 0 = x := exists_intro 0 Hg
+   theorem gex4 : ∃ x, g x x = 0 := exists_intro 0 Hg
+   set_option pp::implicit true  -- display implicit arguments
+   print environment 4           -- print the last four theorems
+   set_option pp::implicit false -- hide implicit arguments
+```
+
+We can view `exists_intro` (aka existential introduction) as an information hiding procedure.
+We are "hiding" what is the witness for some fact. The existential elimination performs the opposite
+operation. The `exists_elim` theorem allows us to prove some proposition `B` from `∃ x : A, B x`
+if we can derive `B` using an "abstract" witness `w` and a proof term `Hw : B w`.
+
+```lean
+   check @exists_elim
+```
+
+In the following example, we define `even a` as `∃ b, a = 2*b`, and then we show that the sum
+of two even numbers is an even number.
+
+```lean
+   definition even (a : Nat) := ∃ b, a = 2*b
+   theorem EvenPlusEven {a b : Nat} (H1 : even a) (H2 : even b) : even (a + b)
+   := exists_elim H1 (fun (w1 : Nat) (Hw1 : a = 2*w1),
+      exists_elim H2 (fun (w2 : Nat) (Hw2 : b = 2*w2),
+           exists_intro (w1 + w2)
+              (calc a + b  =  2*w1 + b      : { Hw1 }
+                      ...  =  2*w1 + 2*w2   : { Hw2 }
+                      ...  =  2*(w1 + w2)   : symm (distributer 2 w1 w2))))
+
+```
+
+The example above also uses [_calculational proofs_](calc.md) to show that `a + b = 2*(w1 + w2)`.
+The `calc` construct is just syntax sugar for creating proofs using transitivity and substitution.
+
+The module `macros` provides notation for making proof terms more readable.
+For example, it defines the `obtain _, from _, _` macro as syntax sugar for `exists_elim`.
+With this macro we can write the example above as:
+
+```lean
+   import macros
+   theorem EvenPlusEven2 {a b : Nat} (H1 : even a) (H2 : even b) : even (a + b)
+   := obtain (w1 : Nat) (Hw1 : a = 2*w1), from H1,
+      obtain (w2 : Nat) (Hw2 : b = 2*w2), from H2,
+           exists_intro (w1 + w2)
+              (calc a + b  =  2*w1 + b      : { Hw1 }
+                      ...  =  2*w1 + 2*w2   : { Hw2 }
+                      ...  =  2*(w1 + w2)   : symm (distributer 2 w1 w2))
+
+```
+
+The module `macros` also defines `take x : A, H` and `assume x : A, H`
+as syntax sugar for `fun x : A, H`. This may been silly, but it allows us to simulate [Mizar](http://en.wikipedia.org/wiki/Mizar_system)-style declarative proofs in Lean. Using these macros, we can write
+
+```lean
+   definition Set (A : Type) : Type := A → Bool
+
+   definition element {A : Type} (x : A) (s : Set A) := s x
+   infix 60 ∈ : element
+
+   definition subset {A : Type} (s1 : Set A) (s2 : Set A) := ∀ x, x ∈ s1 → x ∈ s2
+   infix 50 ⊆ : subset
+
+   theorem subset_trans {A : Type} {s1 s2 s3 : Set A} (H1 : s1 ⊆ s2) (H2 : s2 ⊆ s3) : s1 ⊆ s3
+   := take x : A,
+        assume Hin : x ∈ s1,
+            have x ∈ s3 :
+               let L1 : x ∈ s2 := H1 x Hin
+               in H2 x L1
+```
+
+Finally, the construct `have A : H` means "have" a proof for `A` using `H`. It is just syntax sugar for
+`let L : A := H in L`. It is useful to document intermediate steps in manually constructed proofs.

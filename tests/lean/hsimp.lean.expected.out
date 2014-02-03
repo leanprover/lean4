@@ -1,0 +1,16 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Imported 'heq'
+  Imported 'tactic'
+  Assumed: vec
+  Assumed: concat
+  Assumed: concat_assoc
+  Assumed: empty
+  Assumed: concat_empty
+∀ (n : ℕ) (v : vec (n + 0)) (w : vec n), v = w ; empty
+====>
+∀ (n : ℕ) (v w : vec n), v = w
+
+λ n : ℕ, ∃ (v : vec (n + 0)) (w : vec n), v ≠ w ; empty
+====>
+λ n : ℕ, ∃ v w : vec n, ¬ v = w

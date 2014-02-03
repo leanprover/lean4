@@ -34,37 +34,33 @@ Step: 5
 Step: 4
 Step: 3
 Rewrite using: map_cons
-  map (λ x : ℕ, x + 1) (cons 1 (cons 2 nil)) ===> cons ((λ x : ℕ, x + 1) 1) (map (λ x : ℕ, x + 1) (cons 2 nil))
-Visit, depth: 3, cons ((λ x : ℕ, x + 1) 1) (map (λ x : ℕ, x + 1) (cons 2 nil))
-Visit, depth: 4, (λ x : ℕ, x + 1) 1
-Visit, depth: 5, 1
-Visit, depth: 5, 2
-Step: (λ x : ℕ, x + 1) 1 ===> 2
-Visit, depth: 4, map (λ x : ℕ, x + 1) (cons 2 nil)
+Visit, depth: 3
+Visit, depth: 4
+Visit, depth: 5
+Visit, depth: 5
+Step: 4
+Visit, depth: 4
 Rewrite using: map_cons
-  map (λ x : ℕ, x + 1) (cons 2 nil) ===> cons ((λ x : ℕ, x + 1) 2) (map (λ x : ℕ, x + 1) nil)
-Visit, depth: 5, cons ((λ x : ℕ, x + 1) 2) (map (λ x : ℕ, x + 1) nil)
-Visit, depth: 6, (λ x : ℕ, x + 1) 2
-Visit, depth: 7, 2
-Visit, depth: 7, 3
-Step: (λ x : ℕ, x + 1) 2 ===> 3
-Visit, depth: 6, map (λ x : ℕ, x + 1) nil
+Visit, depth: 5
+Visit, depth: 6
+Visit, depth: 7
+Visit, depth: 7
+Step: 6
+Visit, depth: 6
 Rewrite using: map_nil
-  map (λ x : ℕ, x + 1) nil ===> nil
-Step: map (λ x : ℕ, x + 1) nil ===> nil
-Visit, depth: 6, cons 3 nil
-Visit, depth: 7, 3
-Step: cons 3 nil ===> cons 3 nil
-Step: cons ((λ x : ℕ, x + 1) 2) (map (λ x : ℕ, x + 1) nil) ===> cons 3 nil
-Step: map (λ x : ℕ, x + 1) (cons 2 nil) ===> cons 3 nil
-Visit, depth: 4, cons 2 (cons 3 nil)
-Visit, depth: 5, 2
-Step: cons 2 (cons 3 nil) ===> cons 2 (cons 3 nil)
-Step: cons ((λ x : ℕ, x + 1) 1) (map (λ x : ℕ, x + 1) (cons 2 nil)) ===> cons 2 (cons 3 nil)
-Step: map (λ x : ℕ, x + 1) (cons 1 (cons 2 nil)) ===> cons 2 (cons 3 nil)
+Step: 6
+Visit, depth: 6
+Visit, depth: 7
+Step: 6
+Step: 5
+Step: 4
+Visit, depth: 4
+Visit, depth: 5
+Step: 4
+Step: 3
+Step: 2
 Rewrite using: eq_id
-  cons 2 (cons 3 nil) = cons 2 (cons 3 nil) ===> ⊤
-Visit, depth: 2, ⊤
-Step: ⊤ ===> ⊤
-Step: map (λ x : ℕ, x + 1) (cons 1 (cons 2 nil)) = cons 2 (cons 3 nil) ===> ⊤
+Visit, depth: 2
+Step: 2
+Step: 1
   Proved: T1

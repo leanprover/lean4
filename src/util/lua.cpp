@@ -9,9 +9,11 @@ Author: Leonardo de Moura
 #include <sstream>
 #include <vector>
 #include <memory>
+#include <cstring>
 #include "util/lua.h"
 #include "util/script_exception.h"
 #include "util/debug.h"
+#include "util/sstream.h"
 
 namespace lean {
 /**
@@ -129,6 +131,16 @@ bool resume(lua_State * L, int nargs) {
     check_result(L, result);
     lean_unreachable();
     return true;
+}
+
+void throw_bad_arg_error(lua_State * L, int i, char const * expected_type) {
+    lua_Debug ar;
+    if (!lua_getstack(L, 0, &ar))  /* no stack frame? */
+        throw exception(sstream() << "bad argument #" << i << " (" << expected_type << " expected)");
+    lua_getinfo(L, "n", &ar);
+    if (strcmp(ar.namewhat, "method") == 0 || ar.name == nullptr)
+        throw exception(sstream() << "bad argument #" << i << " (" << expected_type << " expected)");
+    throw exception(sstream() << "bad argument #" << i << " to '" << ar.name << "' (" << expected_type << " expected)");
 }
 
 /**

@@ -71,6 +71,8 @@ static int T ## _pred(lua_State * L) {                                  \
     return 1;                                                           \
 }
 
+void throw_bad_arg_error(lua_State * L, int i, char const * expected_type);
+
 /**
    \brief Create basic declarations for adding a new kind of userdata in Lua
    T is a Lean object type.
@@ -85,11 +87,11 @@ static int T ## _pred(lua_State * L) {                                  \
      int push_expr(lua_State * L, expr const & e);
      int push_expr(lua_State * L, expr && e);
 */
-#define DECL_UDATA(T)                                                    \
+#define DECL_UDATA(T)                                                   \
 constexpr char const * T ## _mt = #T;                                   \
-T & to_ ## T(lua_State * L, int i) { return *static_cast<T*>(luaL_checkudata(L, i, T ## _mt)); } \
-DECL_PRED(T)                                                             \
-DECL_GC(T)                                                               \
+DECL_PRED(T)                                                            \
+T & to_ ## T(lua_State * L, int i) { if (!is_ ## T(L, i)) throw_bad_arg_error(L, i, T ## _mt); return *static_cast<T*>(luaL_checkudata(L, i, T ## _mt)); } \
+DECL_GC(T)                                                              \
 DECL_PUSH(T)
 
 /**

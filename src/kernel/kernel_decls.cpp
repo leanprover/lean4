@@ -186,5 +186,6 @@ MK_CONSTANT(injective_fn, name("injective"));
 MK_CONSTANT(non_surjective_fn, name("non_surjective"));
 MK_CONSTANT(ind, name("ind"));
 MK_CONSTANT(infinity, name("infinity"));
+MK_CONSTANT(pairext_fn, name("pairext"));
 MK_CONSTANT(proof_irrel_fn, name("proof_irrel"));
 }

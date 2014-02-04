@@ -85,8 +85,17 @@ class for_each_fn {
                 }
                 goto begin_loop;
             }
+            case expr_kind::Pair:
+                todo.emplace_back(pair_first(e), offset);
+                todo.emplace_back(pair_second(e), offset);
+                todo.emplace_back(pair_type(e), offset);
+                goto begin_loop;
+            case expr_kind::Proj:
+                todo.emplace_back(proj_arg(e), offset);
+                goto begin_loop;
             case expr_kind::Lambda:
             case expr_kind::Pi:
+            case expr_kind::Sigma:
                 todo.emplace_back(abst_body(e), offset + 1);
                 todo.emplace_back(abst_domain(e), offset);
                 goto begin_loop;

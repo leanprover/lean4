@@ -64,6 +64,9 @@ class expr_eq_fn {
                 if (!apply(arg(a, i), arg(b, i)))
                     return false;
             return true;
+        case expr_kind::Pair:     return pair_first(a) == pair_first(b) && pair_second(a) == pair_second(b) && pair_type(a) == pair_type(b);
+        case expr_kind::Proj:     return proj_first(a) == proj_first(b) && proj_arg(a) == proj_arg(b);
+        case expr_kind::Sigma:
         case expr_kind::Lambda:   // Remark: we ignore get_abs_name because we want alpha-equivalence
         case expr_kind::Pi:       return apply(abst_domain(a), abst_domain(b)) && apply(abst_body(a), abst_body(b));
         case expr_kind::Type:     return ty_level(a) == ty_level(b);

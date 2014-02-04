@@ -144,6 +144,22 @@ public:
             switch (e.kind()) {
             case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value: case expr_kind::Var: case expr_kind::MetaVar:
                 lean_unreachable(); // LCOV_EXCL_LINE
+            case expr_kind::Pair:
+                if (check_index(f, 0) && !visit(pair_first(e), offset))
+                    goto begin_loop;
+                if (check_index(f, 1) && !visit(pair_second(e), offset))
+                    goto begin_loop;
+                if (check_index(f, 2) && !visit(pair_type(e), offset))
+                    goto begin_loop;
+                r = update_pair(e, rs(-3), rs(-2), rs(-1));
+                pop_rs(3);
+                break;
+            case expr_kind::Proj:
+                if (check_index(f, 0) && !visit(proj_arg(e), offset))
+                    goto begin_loop;
+                r = update_proj(e, rs(-1));
+                pop_rs(1);
+                break;
             case expr_kind::App: {
                 unsigned num = num_args(e);
                 while (f.m_index < num) {
@@ -156,7 +172,7 @@ public:
                 pop_rs(num);
                 break;
             }
-            case expr_kind::Pi: case expr_kind::Lambda:
+            case expr_kind::Sigma: case expr_kind::Pi: case expr_kind::Lambda:
                 if (check_index(f, 0) && !visit(abst_domain(e), offset))
                     goto begin_loop;
                 if (check_index(f, 1) && !visit(abst_body(e), offset + 1))

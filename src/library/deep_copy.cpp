@@ -43,8 +43,11 @@ class deep_copy_fn {
                 new_args.push_back(apply(old_arg));
             return save_result(a, mk_app(new_args), sh);
         }
+        case expr_kind::Pair:     return save_result(a, mk_pair(apply(pair_first(a)), apply(pair_second(a)), apply(pair_type(a))), sh);
+        case expr_kind::Proj:     return save_result(a, mk_proj(proj_first(a), apply(proj_arg(a))), sh);
         case expr_kind::Lambda:   return save_result(a, mk_lambda(abst_name(a), apply(abst_domain(a)), apply(abst_body(a))), sh);
         case expr_kind::Pi:       return save_result(a, mk_pi(abst_name(a), apply(abst_domain(a)), apply(abst_body(a))), sh);
+        case expr_kind::Sigma:    return save_result(a, mk_sigma(abst_name(a), apply(abst_domain(a)), apply(abst_body(a))), sh);
         case expr_kind::Let:      return save_result(a, mk_let(let_name(a), apply(let_type(a)), apply(let_value(a)), apply(let_body(a))), sh);
         case expr_kind::MetaVar:
             return save_result(a,

@@ -209,7 +209,14 @@ static bool is_permutation(expr const & lhs, expr const & rhs, unsigned offset, 
         } else {
             return lhs == rhs; // free variable
         }
-    case expr_kind::Lambda: case expr_kind::Pi:
+    case expr_kind::Proj:
+        return proj_first(lhs) == proj_first(rhs) && is_permutation(proj_arg(lhs), proj_arg(rhs), offset, p);
+    case expr_kind::Pair:
+        return
+            is_permutation(pair_first(lhs),  pair_first(rhs), offset, p) &&
+            is_permutation(pair_second(lhs), pair_second(rhs), offset, p) &&
+            is_permutation(pair_type(lhs),   pair_type(rhs), offset, p);
+    case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
         return
             is_permutation(abst_domain(lhs), abst_domain(rhs), offset, p) &&
             is_permutation(abst_body(lhs), abst_body(rhs), offset+1, p);

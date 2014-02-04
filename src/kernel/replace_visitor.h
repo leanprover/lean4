@@ -30,10 +30,13 @@ protected:
     virtual expr visit_constant(expr const &, context const &);
     virtual expr visit_var(expr const &, context const &);
     virtual expr visit_metavar(expr const &, context const &);
+    virtual expr visit_pair(expr const &, context const &);
+    virtual expr visit_proj(expr const &, context const &);
     virtual expr visit_app(expr const &, context const &);
     virtual expr visit_abst(expr const &, context const &);
     virtual expr visit_lambda(expr const &, context const &);
     virtual expr visit_pi(expr const &, context const &);
+    virtual expr visit_sigma(expr const &, context const &);
     virtual expr visit_let(expr const &, context const &);
     virtual expr visit(expr const &, context const &);
     optional<expr> visit(optional<expr> const &, context const &);

@@ -304,7 +304,14 @@ class hop_match_fn {
             }
             return true;
         }
-        case expr_kind::Lambda: case expr_kind::Pi:
+        case expr_kind::Proj:
+            return proj_first(p) == proj_first(t) && match(proj_arg(p), proj_arg(t), ctx, ctx_size);
+        case expr_kind::Pair:
+            return
+                match(pair_first(p),  pair_first(t), ctx, ctx_size) &&
+                match(pair_second(p), pair_second(t), ctx, ctx_size) &&
+                match(pair_type(p),   pair_type(t), ctx, ctx_size);
+        case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
             if (m_name_subst)
                 (*m_name_subst)[abst_name(p)] = abst_name(t);
             return

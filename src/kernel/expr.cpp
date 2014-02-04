@@ -99,7 +99,23 @@ void expr_const::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_type, todelete);
     delete(this);
 }
-
+expr_dep_pair::expr_dep_pair(expr const & f, expr const & s, expr const & t):
+    expr_cell(expr_kind::Pair, ::lean::hash(f.hash(), s.hash()), f.has_metavar() || s.has_metavar() || t.has_metavar()),
+    m_first(f), m_second(s), m_type(t), m_depth(std::max(get_depth(f), get_depth(s))+1) {
+}
+void expr_dep_pair::dealloc(buffer<expr_cell*> & todelete) {
+    dec_ref(m_first,  todelete);
+    dec_ref(m_second, todelete);
+    dec_ref(m_type,   todelete);
+    delete(this);
+}
+expr_proj::expr_proj(bool f, expr const & e):
+    expr_cell(expr_kind::Proj, ::lean::hash(17, e.hash()), e.has_metavar()),
+    m_first(f), m_depth(get_depth(e)+1), m_expr(e) {}
+void expr_proj::dealloc(buffer<expr_cell*> & todelete) {
+    dec_ref(m_expr, todelete);
+    delete(this);
+}
 expr_app::expr_app(unsigned num_args, bool has_mv):
     expr_cell(expr_kind::App, 0, has_mv),
     m_num_args(num_args) {
@@ -161,6 +177,7 @@ void expr_abstraction::dealloc(buffer<expr_cell*> & todelete) {
 }
 expr_lambda::expr_lambda(name const & n, expr const & t, expr const & e):expr_abstraction(expr_kind::Lambda, n, t, e) {}
 expr_pi::expr_pi(name const & n, expr const & t, expr const & e):expr_abstraction(expr_kind::Pi, n, t, e) {}
+expr_sigma::expr_sigma(name const & n, expr const & t, expr const & e):expr_abstraction(expr_kind::Sigma, n, t, e) {}
 expr_type::expr_type(level const & l):
     expr_cell(expr_kind::Type, l.hash(), false),
     m_level(l) {
@@ -245,9 +262,12 @@ void expr_cell::dealloc() {
             case expr_kind::MetaVar:    delete static_cast<expr_metavar*>(it); break;
             case expr_kind::Type:       delete static_cast<expr_type*>(it); break;
             case expr_kind::Constant:   static_cast<expr_const*>(it)->dealloc(todo); break;
+            case expr_kind::Pair:       static_cast<expr_dep_pair*>(it)->dealloc(todo); break;
+            case expr_kind::Proj:       static_cast<expr_proj*>(it)->dealloc(todo); break;
             case expr_kind::App:        static_cast<expr_app*>(it)->dealloc(todo); break;
             case expr_kind::Lambda:     static_cast<expr_lambda*>(it)->dealloc(todo); break;
             case expr_kind::Pi:         static_cast<expr_pi*>(it)->dealloc(todo); break;
+            case expr_kind::Sigma:      static_cast<expr_sigma*>(it)->dealloc(todo); break;
             case expr_kind::Let:        static_cast<expr_let*>(it)->dealloc(todo); break;
             }
         }
@@ -282,9 +302,13 @@ unsigned get_depth(expr const & e) {
     case expr_kind::Var:   case expr_kind::Constant:  case expr_kind::Type:
     case expr_kind::Value: case expr_kind::MetaVar:
         return 1;
+    case expr_kind::Pair:
+        return to_pair(e)->m_depth;
+    case expr_kind::Proj:
+        return to_proj(e)->m_depth;
     case expr_kind::App:
         return to_app(e)->m_depth;
-    case expr_kind::Pi: case expr_kind::Lambda:
+    case expr_kind::Pi: case expr_kind::Lambda: case expr_kind::Sigma:
         return to_abstraction(e)->m_depth;
     case expr_kind::Let:
         return to_let(e)->m_depth;
@@ -298,9 +322,12 @@ expr copy(expr const & a) {
     case expr_kind::Constant: return mk_constant(const_name(a), const_type(a));
     case expr_kind::Type:     return mk_type(ty_level(a));
     case expr_kind::Value:    return mk_value(static_cast<expr_value*>(a.raw())->m_val);
+    case expr_kind::Pair:     return mk_pair(pair_first(a), pair_second(a), pair_type(a));
+    case expr_kind::Proj:     return mk_proj(proj_first(a), proj_arg(a));
     case expr_kind::App:      return mk_app(num_args(a), begin_args(a));
     case expr_kind::Lambda:   return mk_lambda(abst_name(a), abst_domain(a), abst_body(a));
     case expr_kind::Pi:       return mk_pi(abst_name(a), abst_domain(a), abst_body(a));
+    case expr_kind::Sigma:    return mk_sigma(abst_name(a), abst_domain(a), abst_body(a));
     case expr_kind::Let:      return mk_let(let_name(a), let_type(a), let_value(a), let_body(a));
     case expr_kind::MetaVar:  return mk_metavar(metavar_name(a), metavar_lctx(a));
     }
@@ -343,7 +370,8 @@ constexpr char g_first_app_size_kind = 32;
 constexpr char g_small_app_num_args  = 32;
 constexpr bool is_small(expr_kind k) { return 0 <= static_cast<char>(k) && static_cast<char>(k) < g_first_app_size_kind; }
 static_assert(is_small(expr_kind::Var) && is_small(expr_kind::Constant) && is_small(expr_kind::Value) && is_small(expr_kind::App) &&
-              is_small(expr_kind::Lambda) && is_small(expr_kind::Pi) && is_small(expr_kind::Type) &&
+              is_small(expr_kind::Pair) && is_small(expr_kind::Proj) &&
+              is_small(expr_kind::Lambda) && is_small(expr_kind::Pi) && is_small(expr_kind::Sigma) && is_small(expr_kind::Type) &&
               is_small(expr_kind::Let) && is_small(expr_kind::MetaVar), "expr_kind is too big");
 
 class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp> {
@@ -381,13 +409,16 @@ class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp
                 case expr_kind::Constant:  s << const_name(a); write_core(const_type(a)); break;
                 case expr_kind::Type:      s << ty_level(a); break;
                 case expr_kind::Value:     to_value(a).write(s); break;
+                case expr_kind::Pair:      write_core(pair_first(a)); write_core(pair_second(a)); write_core(pair_type(a)); break;
+                case expr_kind::Proj:      s << proj_first(a); write_core(proj_arg(a)); break;
                 case expr_kind::App:
                     s << num_args(a);
                     for (unsigned i = 0; i < num_args(a); i++)
                         write_core(arg(a, i));
                     break;
                 case expr_kind::Lambda:
-                case expr_kind::Pi:        s << abst_name(a); write_core(abst_domain(a)); write_core(abst_body(a)); break;
+                case expr_kind::Pi:
+                case expr_kind::Sigma:     s << abst_name(a); write_core(abst_domain(a)); write_core(abst_body(a)); break;
                 case expr_kind::Let:       s << let_name(a); write_core(let_type(a)); write_core(let_value(a)); write_core(let_body(a)); break;
                 case expr_kind::MetaVar:   s << metavar_name(a) << metavar_lctx(a); break;
                 }
@@ -435,6 +466,15 @@ public:
                     break;
                 case expr_kind::Value:
                     return read_value(d);
+                case expr_kind::Pair: {
+                    expr f = read();
+                    expr s = read();
+                    return mk_pair(f, s, read());
+                }
+                case expr_kind::Proj: {
+                    bool f = d.read_bool();
+                    return mk_proj(f, read());
+                }
                 case expr_kind::App: {
                     buffer<expr> args;
                     unsigned num = d.read_unsigned();
@@ -451,6 +491,11 @@ public:
                     name n = read_name(d);
                     expr d = read();
                     return mk_pi(n, d, read());
+                }
+                case expr_kind::Sigma: {
+                    name n = read_name(d);
+                    expr d = read();
+                    return mk_sigma(n, d, read());
                 }
                 case expr_kind::Let: {
                     name n = read_name(d);

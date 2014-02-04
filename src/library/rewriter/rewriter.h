@@ -384,6 +384,9 @@ class apply_rewriter_fn {
             }
         }
             break;
+        case expr_kind::Proj: case expr_kind::Pair: case expr_kind::Sigma:
+            // TODO(Leo):
+            break;
         case expr_kind::Lambda: {
             name const & n = abst_name(v);
             expr const & ty = abst_domain(v);

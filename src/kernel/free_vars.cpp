@@ -40,7 +40,9 @@ protected:
             return true;
         case expr_kind::Var:
             return var_idx(e) >= offset;
-        case expr_kind::App: case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Let:
+        case expr_kind::App: case expr_kind::Lambda:
+        case expr_kind::Pi: case expr_kind::Let: case expr_kind::Sigma:
+        case expr_kind::Proj: case expr_kind::Pair:
             break;
         }
 
@@ -78,12 +80,17 @@ protected:
         case expr_kind::App:
             result = std::any_of(begin_args(e), end_args(e), [=](expr const & arg){ return apply(arg, offset); });
             break;
-        case expr_kind::Lambda:
-        case expr_kind::Pi:
+        case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
             result = apply(abst_domain(e), offset) || apply(abst_body(e), offset + 1);
             break;
         case expr_kind::Let:
             result = apply(let_type(e), offset) || apply(let_value(e), offset) || apply(let_body(e), offset + 1);
+            break;
+        case expr_kind::Proj:
+            result = apply(proj_arg(e), offset);
+            break;
+        case expr_kind::Pair:
+            result = apply(pair_first(e), offset) || apply(pair_second(e), offset) || apply(pair_type(e), offset);
             break;
         }
 
@@ -168,7 +175,9 @@ class free_var_range_fn {
         case expr_kind::Var:
             return var_idx(e) + 1;
         case expr_kind::MetaVar: case expr_kind::App:
-        case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Let:
+        case expr_kind::Lambda: case expr_kind::Pi:
+        case expr_kind::Let: case expr_kind::Sigma:
+        case expr_kind::Proj: case expr_kind::Pair:
             break;
         }
 
@@ -200,12 +209,17 @@ class free_var_range_fn {
             for (auto const & c : args(e))
                 result = std::max(result, apply(c));
             break;
-        case expr_kind::Lambda:
-        case expr_kind::Pi:
+        case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
             result = std::max(apply(abst_domain(e)), dec(apply(abst_body(e))));
             break;
         case expr_kind::Let:
             result = std::max({apply(let_type(e)), apply(let_value(e)), dec(apply(let_body(e)))});
+            break;
+        case expr_kind::Proj:
+            result = apply(proj_arg(e));
+            break;
+        case expr_kind::Pair:
+            result = std::max({apply(pair_first(e)), apply(pair_second(e)), apply(pair_type(e))});
             break;
         }
 
@@ -284,7 +298,9 @@ protected:
                 return true; // assume that any free variable can occur in the metavariable
         case expr_kind::Var:
             return in_interval(var_idx(e), offset);
-        case expr_kind::App: case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Let:
+        case expr_kind::App: case expr_kind::Lambda: case expr_kind::Pi:
+        case expr_kind::Let:  case expr_kind::Sigma:
+        case expr_kind::Proj: case expr_kind::Pair:
             break;
         }
 
@@ -323,12 +339,17 @@ protected:
         case expr_kind::App:
             result = std::any_of(begin_args(e), end_args(e), [=](expr const & arg){ return apply(arg, offset); });
             break;
-        case expr_kind::Lambda:
-        case expr_kind::Pi:
+        case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
             result = apply(abst_domain(e), offset) || apply(abst_body(e), offset + 1);
             break;
         case expr_kind::Let:
             result = apply(let_type(e), offset) || apply(let_value(e), offset) || apply(let_body(e), offset + 1);
+            break;
+        case expr_kind::Proj:
+            result = apply(proj_arg(e), offset);
+            break;
+        case expr_kind::Pair:
+            result = apply(pair_first(e), offset) || apply(pair_second(e), offset) || apply(pair_type(e), offset);
             break;
         }
 

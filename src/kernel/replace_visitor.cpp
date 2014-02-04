@@ -18,6 +18,15 @@ expr replace_visitor::visit_constant(expr const & e, context const & ctx) {
     lean_assert(is_constant(e));
     return update_const(e, visit(const_type(e), ctx));
 }
+expr replace_visitor::visit_pair(expr const & e, context const & ctx) {
+    lean_assert(is_pair(e));
+    return update_pair(e, [&](expr const & f, expr const & s, expr const & t) {
+            return std::make_tuple(visit(f, ctx), visit(s, ctx), visit(t, ctx));
+        });
+}
+expr replace_visitor::visit_proj(expr const & e, context const & ctx) {
+    return update_proj(e, visit(proj_arg(e), ctx));
+}
 expr replace_visitor::visit_app(expr const & e, context const & ctx) {
     lean_assert(is_app(e));
     return update_app(e, [&](expr const & c) { return visit(c, ctx); });
@@ -41,7 +50,10 @@ expr replace_visitor::visit_pi(expr const & e, context const & ctx) {
     lean_assert(is_pi(e));
     return visit_abst(e, ctx);
 }
-
+expr replace_visitor::visit_sigma(expr const & e, context const & ctx) {
+    lean_assert(is_pi(e));
+    return visit_abst(e, ctx);
+}
 expr replace_visitor::visit_let(expr const & e, context const & ctx) {
     lean_assert(is_let(e));
     return update_let(e, [&](optional<expr> const & t, expr const & v, expr const & b) {
@@ -75,9 +87,12 @@ expr replace_visitor::visit(expr const & e, context const & ctx) {
     case expr_kind::Constant:  return save_result(e, visit_constant(e, ctx), shared);
     case expr_kind::Var:       return save_result(e, visit_var(e, ctx), shared);
     case expr_kind::MetaVar:   return save_result(e, visit_metavar(e, ctx), shared);
+    case expr_kind::Pair:      return save_result(e, visit_pair(e, ctx), shared);
+    case expr_kind::Proj:      return save_result(e, visit_proj(e, ctx), shared);
     case expr_kind::App:       return save_result(e, visit_app(e, ctx), shared);
     case expr_kind::Lambda:    return save_result(e, visit_lambda(e, ctx), shared);
     case expr_kind::Pi:        return save_result(e, visit_pi(e, ctx), shared);
+    case expr_kind::Sigma:     return save_result(e, visit_sigma(e, ctx), shared);
     case expr_kind::Let:       return save_result(e, visit_let(e, ctx), shared);
     }
 

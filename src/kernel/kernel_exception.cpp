@@ -56,11 +56,32 @@ format app_type_mismatch_exception::pp(formatter const & fmt, options const & op
     return r;
 }
 
-format function_expected_exception::pp(formatter const & fmt, options const & opts) const {
+format pair_type_mismatch_exception::pp(formatter const & fmt, options const & opts) const {
+    unsigned indent     = get_pp_indent(opts);
+    context const & ctx = get_context();
+    expr const & pair   = get_pair();
+    format pair_fmt     = fmt(ctx, pair, false, opts);
+    format r = format("type mismatch in the ");
+    if (m_first)
+        r += format("1st");
+    else
+        r += format("2nd");
+    r += format(" argument of the pair");
+    r += nest(indent, compose(line(), pair_fmt));
+    r += compose(line(), format("Pair type:"));
+    r += nest(indent, compose(line(), fmt(ctx, m_sig_type, false, opts)));
+    r += line();
+    r += format("Arguments type:");
+    r += nest(indent, compose(line(), fmt(ctx, m_arg_type, false, opts)));
+    return r;
+}
+
+format abstraction_expected_exception::pp(formatter const & fmt, options const & opts) const {
     unsigned indent = get_pp_indent(opts);
     format expr_fmt = fmt(get_context(), get_expr(), false, opts);
     format r;
-    r += format("function expected at");
+    r += format(what());
+    r += format(" at");
     r += nest(indent, compose(line(), expr_fmt));
     return r;
 }

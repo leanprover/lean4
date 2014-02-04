@@ -173,6 +173,9 @@ bool fo_match::match_main(expr const & p, expr const & t, unsigned o, subst_map 
         return match_let(p, t, o, s);
     case expr_kind::MetaVar:
         return match_metavar(p, t, o, s);
+    case expr_kind::Proj: case expr_kind::Pair: case expr_kind::Sigma:
+        // TODO(Leo):
+        break;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }

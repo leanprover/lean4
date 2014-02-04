@@ -41,8 +41,21 @@ bool is_lt(expr const & a, expr const & b, bool use_hash) {
                 return is_lt(arg(a, i), arg(b, i), use_hash);
         }
         lean_unreachable(); // LCOV_EXCL_LINE
-    case expr_kind::Lambda:   // Remark: we ignore get_abs_name because we want alpha-equivalence
-    case expr_kind::Pi:
+    case expr_kind::Pair:
+        if (pair_first(a) != pair_first(b))
+            return is_lt(pair_first(a), pair_first(b), use_hash);
+        else if (pair_second(a) != pair_second(b))
+            return is_lt(pair_second(a), pair_second(b), use_hash);
+        else
+            return is_lt(pair_type(a), pair_type(b), use_hash);
+    case expr_kind::Proj:
+        if (proj_first(a) != proj_first(b))
+            return proj_first(a) && !proj_first(b); // first projection is smaller than the second one.
+        else
+            return is_lt(proj_arg(a), proj_arg(b), use_hash);
+    case expr_kind::Sigma:
+    case expr_kind::Lambda:
+    case expr_kind::Pi: // Remark: we ignore get_abs_name because we want alpha-equivalence
         if (abst_domain(a) != abst_domain(b))
             return is_lt(abst_domain(a), abst_domain(b), use_hash);
         else

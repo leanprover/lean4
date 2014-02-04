@@ -495,8 +495,11 @@ static int expr_fields(lua_State * L) {
     case expr_kind::Type:     return push_level(L, ty_level(e));
     case expr_kind::Value:    return to_value(e).push_lua(L);
     case expr_kind::App:      lua_pushinteger(L, num_args(e)); expr_args(L); return 2;
+    case expr_kind::Pair:     push_expr(L, pair_first(e)); push_expr(L, pair_second(e)); push_expr(L, pair_type(e)); return 3;
+    case expr_kind::Proj:     lua_pushboolean(L, proj_first(e)); push_expr(L, proj_arg(e)); return 2;
     case expr_kind::Lambda:
     case expr_kind::Pi:
+    case expr_kind::Sigma:
         push_name(L, abst_name(e)); push_expr(L, abst_domain(e)); push_expr(L, abst_body(e)); return 3;
     case expr_kind::Let:
         push_name(L, let_name(e));  push_optional_expr(L, let_type(e)); push_expr(L, let_value(e)); push_expr(L, let_body(e)); return 4;

@@ -109,6 +109,10 @@ public:
     expr ensure_pi(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv);
     expr ensure_pi(expr const & e, context const & ctx = context());
 
+    /** \brief Return a Sigma if \c e is convertible to Sigma. Throw an exception otherwise. */
+    expr ensure_sigma(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv);
+    expr ensure_sigma(expr const & e, context const & ctx = context());
+
     /** \brief Reset internal caches */
     void clear();
 

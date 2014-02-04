@@ -76,10 +76,14 @@ static unsigned depth2(expr const & e) {
             std::accumulate(begin_args(e), end_args(e), 0,
                             [](unsigned m, expr const & arg){ return std::max(depth2(arg), m); })
             + 1;
-    case expr_kind::Lambda: case expr_kind::Pi:
+    case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
         return std::max(depth2(abst_domain(e)), depth2(abst_body(e))) + 1;
     case expr_kind::Let:
         return std::max(depth2(let_value(e)), depth2(let_body(e))) + 1;
+    case expr_kind::Proj:
+        return depth2(proj_arg(e)) + 1;
+    case expr_kind::Pair:
+        return std::max(depth2(pair_first(e)), depth2(pair_second(e))) + 1;
     }
     return 0;
 }
@@ -133,10 +137,14 @@ static unsigned count_core(expr const & a, expr_set & s) {
     case expr_kind::App:
         return std::accumulate(begin_args(a), end_args(a), 1,
                           [&](unsigned sum, expr const & arg){ return sum + count_core(arg, s); });
-    case expr_kind::Lambda: case expr_kind::Pi:
+    case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
         return count_core(abst_domain(a), s) + count_core(abst_body(a), s) + 1;
     case expr_kind::Let:
         return count_core(let_value(a), s) + count_core(let_body(a), s) + 1;
+    case expr_kind::Proj:
+        return count_core(proj_arg(a), s) + 1;
+    case expr_kind::Pair:
+        return count_core(pair_first(a), s) + count_core(pair_second(a), s) + count_core(pair_type(a), s) + 1;
     }
     return 0;
 }

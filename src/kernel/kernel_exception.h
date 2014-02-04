@@ -145,27 +145,64 @@ public:
     virtual void rethrow() const { throw *this; }
 };
 
+class pair_type_mismatch_exception : public type_checker_exception {
+    context     m_context;
+    expr        m_pair;
+    bool        m_first;
+    expr        m_arg_type;
+    expr        m_sig_type;
+public:
+    pair_type_mismatch_exception(ro_environment const & env, context const & ctx, expr const & pair,
+                                 bool first, expr const & arg_type, expr const & sig_type):
+        type_checker_exception(env), m_context(ctx), m_pair(pair), m_first(first), m_arg_type(arg_type), m_sig_type(sig_type) {}
+    virtual ~pair_type_mismatch_exception() {}
+    context const & get_context() const { return m_context; }
+    expr const & get_pair() const { return m_pair; }
+    virtual optional<expr> get_main_expr() const { return some_expr(get_pair()); }
+    bool first() const { return m_first; }
+    virtual char const * what() const noexcept { return "pair argument type mismatch"; }
+    virtual format pp(formatter const & fmt, options const & opts) const;
+    virtual exception * clone() const { return new pair_type_mismatch_exception(m_env, m_context, m_pair, m_first, m_arg_type, m_sig_type); }
+    virtual void rethrow() const { throw *this; }
+};
+
 /**
    \brief Exception used to report than an expression that is not a
-   function is being used as a function.
+   function (pair) is being used as a function (pair)
 
    Explanation:
    In the environment get_environment() and local context
-   get_context(), the expression get_expr() is expected to be a function.
+   get_context(), the expression get_expr() is expected to be a function (pair).
 */
-class function_expected_exception : public type_checker_exception {
+class abstraction_expected_exception : public type_checker_exception {
+protected:
     context m_context;
     expr    m_expr;
 public:
-    function_expected_exception(ro_environment const & env, context const & ctx, expr const & e):
+    abstraction_expected_exception(ro_environment const & env, context const & ctx, expr const & e):
         type_checker_exception(env), m_context(ctx), m_expr(e) {}
-    virtual ~function_expected_exception() {}
+    virtual ~abstraction_expected_exception() {}
     context const & get_context() const { return m_context; }
     expr const & get_expr() const { return m_expr; }
     virtual optional<expr> get_main_expr() const { return some_expr(get_expr()); }
-    virtual char const * what() const noexcept { return "function expected"; }
     virtual format pp(formatter const & fmt, options const & opts) const;
+};
+
+class function_expected_exception : public abstraction_expected_exception {
+public:
+    function_expected_exception(ro_environment const & env, context const & ctx, expr const & e):
+        abstraction_expected_exception(env, ctx, e) {}
+    virtual char const * what() const noexcept { return "function expected"; }
     virtual exception * clone() const { return new function_expected_exception(m_env, m_context, m_expr); }
+    virtual void rethrow() const { throw *this; }
+};
+
+class pair_expected_exception : public abstraction_expected_exception {
+public:
+    pair_expected_exception(ro_environment const & env, context const & ctx, expr const & e):
+        abstraction_expected_exception(env, ctx, e) {}
+    virtual char const * what() const noexcept { return "pair expected"; }
+    virtual exception * clone() const { return new pair_expected_exception(m_env, m_context, m_expr); }
     virtual void rethrow() const { throw *this; }
 };
 

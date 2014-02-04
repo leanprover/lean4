@@ -62,7 +62,17 @@ optional<substitution> fo_unify(expr e1, expr e2) {
                         }
                     }
                     break;
-                case expr_kind::Lambda: case expr_kind::Pi:
+                case expr_kind::Proj:
+                    if (proj_first(e1) != proj_first(e2))
+                        return optional<substitution>();
+                    todo.emplace_back(proj_arg(e1), proj_arg(e2));
+                    break;
+                case expr_kind::Pair:
+                    todo.emplace_back(pair_first(e1), pair_first(e2));
+                    todo.emplace_back(pair_second(e1), pair_second(e2));
+                    todo.emplace_back(pair_type(e1), pair_type(e2));
+                    break;
+                case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
                     todo.emplace_back(abst_body(e1), abst_body(e2));
                     todo.emplace_back(abst_domain(e1), abst_domain(e2));
                     break;

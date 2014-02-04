@@ -44,44 +44,46 @@ struct max_sharing_fn::imp {
             m_cache.insert(a);
             return a;
         }
+        expr res;
         switch (a.kind()) {
-        case expr_kind::Constant: {
-            expr r = update_const(a, apply(const_type(a)));
-            cache(r);
-            return r;
-        }
+        case expr_kind::Constant:
+            res = update_const(a, apply(const_type(a)));
+            break;
         case expr_kind::Var: case expr_kind::Type: case expr_kind::Value:
-            cache(a);
-            return a;
-        case expr_kind::App: {
-            expr r = update_app(a, [=](expr const & c) { return apply(c); });
-            cache(r);
-            return r;
-        }
+            res = a;
+            break;
+        case expr_kind::Pair:
+            res = update_pair(a, [=](expr const & f, expr const & s, expr const & t) {
+                    return std::make_tuple(apply(f), apply(s), apply(t));
+                });
+            break;
+        case expr_kind::Proj:
+            res = update_proj(a, apply(proj_arg(a)));
+            break;
+        case expr_kind::App:
+            res = update_app(a, [=](expr const & c) { return apply(c); });
+            break;
+        case expr_kind::Sigma:
         case expr_kind::Lambda:
-        case expr_kind::Pi: {
-            expr r = update_abst(a, [=](expr const & t, expr const & b) { return std::make_pair(apply(t), apply(b)); });
-            cache(r);
-            return r;
-        }
-        case expr_kind::Let: {
-            expr r = update_let(a, [=](optional<expr> const & t, expr const & v, expr const & b) {
+        case expr_kind::Pi:
+            res = update_abst(a, [=](expr const & t, expr const & b) { return std::make_pair(apply(t), apply(b)); });
+            break;
+        case expr_kind::Let:
+            res = update_let(a, [=](optional<expr> const & t, expr const & v, expr const & b) {
                     return std::make_tuple(apply(t), apply(v), apply(b));
                 });
-            cache(r);
-            return r;
-        }
+            break;
         case expr_kind::MetaVar: {
-            expr r = update_metavar(a, [=](local_entry const & e) -> local_entry {
+            res = update_metavar(a, [=](local_entry const & e) -> local_entry {
                     if (e.is_inst())
                         return mk_inst(e.s(), apply(e.v()));
                     else
                         return e;
                 });
-            cache(r);
-            return r;
+            break;
         }}
-        lean_unreachable(); // LCOV_EXCL_LINE
+        cache(res);
+        return res;
     }
     expr operator()(expr const & a) { return apply(a); }
 };

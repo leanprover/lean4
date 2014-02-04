@@ -14,11 +14,12 @@ Author: Leonardo de Moura
 namespace lean {
 bool is_atomic(expr const & e) {
     switch (e.kind()) {
-    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Value:
+    case expr_kind::Var:  case expr_kind::Constant: case expr_kind::Value:
     case expr_kind::Type: case expr_kind::MetaVar:
         return true;
-    case expr_kind::App: case expr_kind::Lambda: case expr_kind::Pi:
-    case expr_kind::Let:
+    case expr_kind::App:  case expr_kind::Lambda: case expr_kind::Pi:
+    case expr_kind::Let:  case expr_kind::Sigma:  case expr_kind::Proj:
+    case expr_kind::Pair:
         return false;
     }
     return false;
@@ -89,6 +90,15 @@ struct print_expr_fn {
         }
     }
 
+    void print_pair(expr const & e, context const & c) {
+        out() << "pair ";
+        print_child(pair_first(e), c);
+        out() << " ";
+        print_child(pair_second(e), c);
+        out() << " ";
+        print_child(pair_type(e), c);
+    }
+
     void print(expr const & a, context const & c) {
         switch (a.kind()) {
         case expr_kind::MetaVar:
@@ -107,6 +117,19 @@ struct print_expr_fn {
             break;
         case expr_kind::App:
             print_app(a, c);
+            break;
+        case expr_kind::Pair:
+            print_pair(a, c);
+            break;
+        case expr_kind::Proj:
+            out() << "proj" << (proj_first(a) ? "1" : "2") << " ";
+            print_child(proj_arg(a), c);
+            break;
+        case expr_kind::Sigma:
+            out() << "Sigma " << abst_name(a) << " : ";
+            print_child(abst_domain(a), c);
+            out() << ", ";
+            print_child(abst_body(a), extend(c, abst_name(a), abst_domain(a)));
             break;
         case expr_kind::Lambda:
             out() << "fun " << abst_name(a) << " : ";

@@ -89,6 +89,30 @@ class type_checker::imp {
         throw function_expected_exception(env(), ctx, s);
     }
 
+    // TODO(Leo): we should consider merging check_pi and check_sigma.
+    // They are very similar
+    expr check_sigma(expr const & e, expr const & s, context const & ctx) {
+        if (is_sigma(e))
+            return e;
+        expr r = normalize(e, ctx, false);
+        if (is_sigma(r))
+            return r;
+        if (has_metavar(r) && m_menv && m_uc) {
+            // Create two fresh variables A and B,
+            // and assign r == (Pi(x : A), B)
+            expr A   = m_menv->mk_metavar(ctx);
+            expr B   = m_menv->mk_metavar(extend(ctx, g_x_name, A));
+            expr p   = mk_sigma(g_x_name, A, B);
+            justification jst = mk_pair_expected_justification(ctx, s);
+            m_uc->push_back(mk_eq_constraint(ctx, e, p, jst));
+            return p;
+        }
+        r = normalize(e, ctx, true);
+        if (is_sigma(r))
+            return r;
+        throw pair_expected_exception(env(), ctx, s);
+    }
+
     /**
        \brief Given \c t (a Pi term), this method returns the body (aka range)
        of the function space for the element e in the domain of the Pi.
@@ -188,6 +212,8 @@ class type_checker::imp {
             return mk_type(ty_level(e) + 1);
         case expr_kind::App: case expr_kind::Lambda:
         case expr_kind::Pi:  case expr_kind::Let:
+        case expr_kind::Sigma: case expr_kind::Proj:
+        case expr_kind::Pair:
             break; // expensive cases
         }
 
@@ -242,6 +268,35 @@ class type_checker::imp {
                     f_t = check_pi(f_t, e, ctx);
                 }
             }
+        case expr_kind::Pair:
+            if (m_infer_only) {
+                return pair_type(e);
+            } else {
+                expr const & t = pair_type(e);
+                expr sig       = check_sigma(infer_type_core(t, ctx), e, ctx);
+                expr f_t       = infer_type_core(pair_first(e), ctx);
+                expr s_t       = infer_type_core(pair_second(e), ctx);
+                auto mk_fst_justification = [&]() { return mk_pair_type_match_justification(ctx, e, true); };
+                if (!is_convertible(f_t, abst_domain(sig), ctx, mk_fst_justification))
+                    throw pair_type_mismatch_exception(env(), ctx, e, true, f_t, sig);
+                auto mk_snd_justification = [&]() { return mk_pair_type_match_justification(ctx, e, false); };
+                expr expected  = instantiate(abst_body(sig), f_t);
+                if (!is_convertible(s_t, expected, ctx, mk_snd_justification))
+                    throw pair_type_mismatch_exception(env(), ctx, e, false, s_t, sig);
+                return sig;
+            }
+        case expr_kind::Proj: {
+            expr t = check_sigma(infer_type_core(proj_arg(e), ctx), e, ctx);
+            if (proj_first(t)) {
+                return abst_domain(t);
+            } else {
+                expr const & b = abst_body(t);
+                if (closed(b))
+                    return b;
+                else
+                    return instantiate(b, mk_proj1(e));
+            }
+        }
         case expr_kind::Lambda:
             if (!m_infer_only) {
                 expr d = infer_type_core(abst_domain(e), ctx);
@@ -253,7 +308,7 @@ class type_checker::imp {
                                    mk_pi(abst_name(e), abst_domain(e), infer_type_core(abst_body(e), extend(ctx, abst_name(e), abst_domain(e)))),
                                    shared);
             }
-        case expr_kind::Pi: {
+        case expr_kind::Sigma: case expr_kind::Pi: {
             expr t1  = check_type(infer_type_core(abst_domain(e), ctx), abst_domain(e), ctx);
             if (is_bool(t1))
                 t1 = Type();
@@ -263,7 +318,7 @@ class type_checker::imp {
                 freset<cache> reset(m_cache);
                 t2 = check_type(infer_type_core(abst_body(e), new_ctx), abst_body(e), new_ctx);
             }
-            if (is_bool(t2))
+            if (is_pi(e) && is_bool(t2))
                 return t2;
             if (is_type(t1) && is_type(t2)) {
                 return save_result(e, mk_type(max(ty_level(t1), ty_level(t2))), shared);
@@ -455,6 +510,16 @@ public:
         }
     }
 
+    expr ensure_sigma(expr const & e, context const & ctx, optional<metavar_env> const & menv) {
+        set_ctx(ctx);
+        update_menv(menv);
+        try {
+            return check_sigma(e, expr(), ctx);
+        } catch (exception &) {
+            throw exception("internal bug, expression is not a Sigma");
+        }
+    }
+
     void clear_cache() {
         m_cache.clear();
         m_normalizer.clear();
@@ -522,6 +587,12 @@ expr type_checker::ensure_pi(expr const & e, context const & ctx, optional<ro_me
 }
 expr type_checker::ensure_pi(expr const & e, context const & ctx) {
     return m_ptr->ensure_pi(e, ctx, none_menv());
+}
+expr type_checker::ensure_sigma(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv) {
+    return m_ptr->ensure_sigma(e, ctx, ro_metavar_env::to_rw(menv));
+}
+expr type_checker::ensure_sigma(expr const & e, context const & ctx) {
+    return m_ptr->ensure_sigma(e, ctx, none_menv());
 }
 bool type_checker::is_proposition(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv) {
     return m_ptr->is_proposition(e, ctx, ro_metavar_env::to_rw(menv));

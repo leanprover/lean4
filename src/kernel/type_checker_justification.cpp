@@ -8,24 +8,29 @@ Author: Leonardo de Moura
 #include "kernel/metavar.h"
 
 namespace lean {
-function_expected_justification_cell::~function_expected_justification_cell() {
+abstraction_expected_justification_cell::~abstraction_expected_justification_cell() {
 }
 
-format function_expected_justification_cell::pp_header(formatter const & fmt, options const & opts, optional<metavar_env> const & menv) const {
+format abstraction_expected_justification_cell::pp_header(formatter const & fmt, options const & opts, optional<metavar_env> const & menv) const {
     unsigned indent = get_pp_indent(opts);
-    format expr_fmt = fmt(instantiate_metavars(menv, m_ctx), instantiate_metavars(menv, m_app), false, opts);
+    format expr_fmt = fmt(instantiate_metavars(menv, m_ctx), instantiate_metavars(menv, m_expr), false, opts);
     format r;
-    r += format("Function expected at");
+    r += format(get_abst_str());
+    r += format(" expected at");
     r += nest(indent, compose(line(), expr_fmt));
     return r;
 }
 
-void function_expected_justification_cell::get_children(buffer<justification_cell*> &) const {
+void abstraction_expected_justification_cell::get_children(buffer<justification_cell*> &) const {
 }
 
-optional<expr> function_expected_justification_cell::get_main_expr() const {
-    return some_expr(m_app);
+optional<expr> abstraction_expected_justification_cell::get_main_expr() const {
+    return some_expr(m_expr);
 }
+
+char const * function_expected_justification_cell::get_abst_str() const { return "Function"; }
+
+char const * pair_expected_justification_cell::get_abst_str() const { return "Pair"; }
 
 app_type_match_justification_cell::~app_type_match_justification_cell() {
 }
@@ -54,6 +59,30 @@ void app_type_match_justification_cell::get_children(buffer<justification_cell*>
 
 optional<expr> app_type_match_justification_cell::get_main_expr() const {
     return some_expr(m_app);
+}
+
+pair_type_match_justification_cell::~pair_type_match_justification_cell() {
+}
+
+format pair_type_match_justification_cell::pp_header(formatter const & fmt, options const & opts, optional<metavar_env> const & menv) const {
+    unsigned indent = get_pp_indent(opts);
+    format r;
+    r += format("Type of ");
+    if (m_first)
+        r += format("1st");
+    else
+        r += format("2nd");
+    r += format(" component must be convertible to the expected type in the pair");
+    expr new_expr = instantiate_metavars(menv, m_expr);
+    r += nest(indent, compose(line(), fmt(instantiate_metavars(menv, m_ctx), new_expr, false, opts)));
+    return r;
+}
+
+void pair_type_match_justification_cell::get_children(buffer<justification_cell*> &) const {
+}
+
+optional<expr> pair_type_match_justification_cell::get_main_expr() const {
+    return some_expr(m_expr);
 }
 
 type_expected_justification_cell::~type_expected_justification_cell() {

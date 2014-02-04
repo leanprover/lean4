@@ -232,9 +232,7 @@ class normalizer::imp {
 
         expr r;
         switch (a.kind()) {
-        case expr_kind::Pi:
-            r = mk_closure(a, m_ctx, s);
-            break;
+        case expr_kind::Sigma: case expr_kind::Pi:
         case expr_kind::MetaVar: case expr_kind::Lambda:
             r = mk_closure(a, m_ctx, s);
             break;
@@ -248,6 +246,25 @@ class normalizer::imp {
                 r = normalize(obj->get_value(), value_stack(), 0);
             } else {
                 r = a;
+            }
+            break;
+        }
+        case expr_kind::Pair: {
+            expr new_first  = normalize(pair_first(a), s, k);
+            expr new_second = normalize(pair_second(a), s, k);
+            expr new_type   = normalize(pair_type(a), s, k);
+            r = update_pair(a, new_first, new_second, new_type);
+            break;
+        }
+        case expr_kind::Proj: {
+            expr new_arg = normalize(proj_arg(a), s, k);
+            if (is_pair(new_arg)) {
+                if (proj_first(a))
+                    r = pair_first(new_arg);
+                else
+                    r = pair_second(new_arg);
+            } else {
+                r = update_proj(a, new_arg);
             }
             break;
         }

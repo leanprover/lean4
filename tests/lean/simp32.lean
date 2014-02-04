@@ -1,4 +1,3 @@
-import heq
 variable vec    : Nat → Type
 variable concat {n m : Nat} (v : vec n) (w : vec m) : vec (n + m)
 infixl   65 ; : concat
@@ -17,6 +16,7 @@ add_rewrite concat_assoc concat_empty Nat::add_assoc Nat::add_zeror : simple
 variable f {A : Type} : A → A
 
 (*
+local opts = options({"simplifier", "heq"}, true)
 local m = simplifier_monitor(nil, nil, nil,
                              function (s, e, i, k)
                                 print("App simplification failure, argument #" .. i)
@@ -30,7 +30,7 @@ local m = simplifier_monitor(nil, nil, nil,
                                 print("Abst failure: " .. tostring(e))
                              end
 )
-local s = simplifier("simple", options(), m)
+local s = simplifier("simple", opts, m)
 local t = parse_lean('λ val : Nat, (λ n : Nat, λ v : vec (n + 0), (f v) ; empty) val == (λ n : Nat, λ v : vec (n + 0), v) val')
 print(t)
 print("=====>")

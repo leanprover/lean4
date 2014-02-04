@@ -65,7 +65,7 @@ theorem dep_if_elim_else {A : TypeU} (c : Bool) (t : c → A) (e : ¬ c → A) (
 theorem dep_if_false {A : TypeU} (t : false → A) (e : ¬ false → A) : dep_if false t e = e not_false_trivial
 := dep_if_elim_else false t e not_false_trivial
 
-import heq
+set_option simplifier::heq true -- enable heterogeneous equality support
 
 theorem dep_if_congr {A : TypeM} (c1 c2 : Bool)
                      (t1 :   c1 → A) (t2 :   c2 → A)

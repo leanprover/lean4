@@ -1,6 +1,5 @@
   Set: pp::colors
   Set: pp::unicode
-  Imported 'heq'
   Assumed: vec
   Assumed: concat
   Assumed: concat_assoc

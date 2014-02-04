@@ -1,4 +1,3 @@
-import heq
 variable vec    : Nat → Type
 variable concat {n m : Nat} (v : vec n) (w : vec m) : vec (n + m)
 infixl   65 ; : concat
@@ -15,8 +14,9 @@ add_rewrite Nat::add_assoc Nat::add_zeror eq_id : simple
 add_rewrite concat_assoc concat_empty Nat::add_assoc Nat::add_zeror : simple
 
 (*
+local opts = options({"simplifier", "heq"}, true)
 local t = parse_lean('λ n : Nat, λ v : vec n, v ; empty')
-local t2, pr = simplify(t, "simple")
+local t2, pr = simplify(t, "simple", opts)
 print(t2)
 -- print(pr)
 get_environment():type_check(pr)
@@ -25,8 +25,9 @@ get_environment():type_check(pr)
 variable f {A : Type} : A → A
 
 (*
+local opts = options({"simplifier", "heq"}, true)
 local t = parse_lean('λ n : Nat, λ v : vec (n + 0), (f v) ; empty')
-local t2, pr = simplify(t, "simple")
+local t2, pr = simplify(t, "simple", opts)
 print(t2)
 -- print(pr)
 get_environment():type_check(pr)
@@ -37,10 +38,11 @@ print ""
 variable lheq {A B : TypeM} : A → B → Bool
 infixl 50 === : lheq
 (*
+local opts = options({"simplifier", "heq"}, true)
 local t = parse_lean('λ val : Nat, (λ n : Nat, λ v : vec (n + 0), (f v) ; empty) val === (λ n : Nat, λ v : vec (n + 0), v) val')
 print(t)
 print("=====>")
-local t2, pr = simplify(t, "simple")
+local t2, pr = simplify(t, "simple", opts)
 print(t2)
 -- print(pr)
 get_environment():type_check(pr)

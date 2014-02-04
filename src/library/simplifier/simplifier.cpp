@@ -19,7 +19,6 @@ Author: Leonardo de Moura
 #include "kernel/kernel.h"
 #include "kernel/max_sharing.h"
 #include "kernel/occurs.h"
-#include "library/heq_decls.h"
 #include "library/kernel_bindings.h"
 #include "library/expr_pair.h"
 #include "library/hop_match.h"
@@ -63,6 +62,10 @@ Author: Leonardo de Moura
 #define LEAN_SIMPLIFIER_MEMOIZE true
 #endif
 
+#ifndef LEAN_SIMPLIFIER_HEQ
+#define LEAN_SIMPLIFIER_HEQ false
+#endif
+
 #ifndef LEAN_SIMPLIFIER_PRESERVE_BINDER_NAMES
 #define LEAN_SIMPLIFIER_PRESERVE_BINDER_NAMES true
 #endif
@@ -82,6 +85,7 @@ static name g_simplifier_unfold       {"simplifier", "unfold"};
 static name g_simplifier_conditional  {"simplifier", "conditional"};
 static name g_simplifier_memoize      {"simplifier", "memoize"};
 static name g_simplifier_max_steps    {"simplifier", "max_steps"};
+static name g_simplifier_heq          {"simplifier", "heq"};
 static name g_simplifier_preserve_binder_names {"simplifier", "preserve_binder_names"};
 
 RegisterBoolOption(g_simplifier_proofs, LEAN_SIMPLIFIER_PROOFS, "(simplifier) generate proofs");
@@ -95,6 +99,7 @@ RegisterBoolOption(g_simplifier_conditional, LEAN_SIMPLIFIER_CONDITIONAL, "(simp
 RegisterBoolOption(g_simplifier_memoize, LEAN_SIMPLIFIER_MEMOIZE, "(simplifier) memoize/cache intermediate results");
 RegisterBoolOption(g_simplifier_preserve_binder_names, LEAN_SIMPLIFIER_PRESERVE_BINDER_NAMES,
                    "(simplifier) (try to) preserve binder names when applying higher-order rewrite rules");
+RegisterBoolOption(g_simplifier_heq, LEAN_SIMPLIFIER_HEQ, "(simplifier) use heterogeneous equality support");
 RegisterUnsignedOption(g_simplifier_max_steps, LEAN_SIMPLIFIER_MAX_STEPS, "(simplifier) maximum number of steps");
 
 bool get_simplifier_proofs(options const & opts) { return opts.get_bool(g_simplifier_proofs, LEAN_SIMPLIFIER_PROOFS); }
@@ -106,6 +111,7 @@ bool get_simplifier_eval(options const & opts) { return opts.get_bool(g_simplifi
 bool get_simplifier_unfold(options const & opts) { return opts.get_bool(g_simplifier_unfold, LEAN_SIMPLIFIER_UNFOLD); }
 bool get_simplifier_conditional(options const & opts) { return opts.get_bool(g_simplifier_conditional, LEAN_SIMPLIFIER_CONDITIONAL); }
 bool get_simplifier_memoize(options const & opts) { return opts.get_bool(g_simplifier_memoize, LEAN_SIMPLIFIER_MEMOIZE); }
+bool get_simplifier_heq(options const & opts) { return opts.get_bool(g_simplifier_heq, LEAN_SIMPLIFIER_HEQ); }
 bool get_simplifier_preserve_binder_names(options const & opts) {
     return opts.get_bool(g_simplifier_preserve_binder_names, LEAN_SIMPLIFIER_PRESERVE_BINDER_NAMES);
 }
@@ -129,7 +135,6 @@ class simplifier_cell::imp {
     ro_environment m_env;
     options        m_options;
     type_checker   m_tc;
-    bool           m_has_heq;
     rule_sets      m_rule_sets;
     cache          m_cache;
     max_sharing_fn m_max_sharing;
@@ -153,6 +158,7 @@ class simplifier_cell::imp {
     bool           m_conditional;
     bool           m_memoize;
     bool           m_preserve_binder_names;
+    bool           m_use_heq;
     unsigned       m_max_steps;
 
     struct updt_rule_set {
@@ -458,7 +464,7 @@ class simplifier_cell::imp {
     }
 
     result simplify_app(expr const & e) {
-        if (m_has_heq && is_cast(e)) {
+        if (m_use_heq && is_cast(e)) {
             // e is of the form (cast A B H a)
             //   a : A
             //   e : B
@@ -628,7 +634,7 @@ class simplifier_cell::imp {
         buffer<expr>           new_args;
         buffer<optional<expr>> proofs;               // used only if m_proofs_enabled
         buffer<expr>           f_types, new_f_types; // used only if m_proofs_enabled
-        buffer<bool>           heq_proofs;           // used only if m_has_heq && m_proofs_enabled
+        buffer<bool>           heq_proofs;           // used only if m_use_heq && m_proofs_enabled
         bool changed = false;
         expr f       = arg(e, 0);
         expr f_type  = infer_type(f);
@@ -643,7 +649,7 @@ class simplifier_cell::imp {
             f_types.push_back(f_type);
             new_f_type = res_f.is_heq_proof() ? infer_type(new_f) : f_type;
             new_f_types.push_back(new_f_type);
-            if (m_has_heq)
+            if (m_use_heq)
                 heq_proofs.push_back(res_f.is_heq_proof());
         }
         unsigned num = num_args(e);
@@ -652,7 +658,7 @@ class simplifier_cell::imp {
             bool f_arrow   = is_arrow(f_type);
             expr const & a = arg(e, i);
             result res_a(a);
-            if (m_has_heq || f_arrow) {
+            if (m_use_heq || f_arrow) {
                 res_a = simplify(a);
                 if (res_a.m_expr != a)
                     changed = true;
@@ -661,7 +667,7 @@ class simplifier_cell::imp {
             new_args.push_back(new_a);
             if (m_proofs_enabled) {
                 proofs.push_back(res_a.m_proof);
-                if (m_has_heq)
+                if (m_use_heq)
                     heq_proofs.push_back(res_a.is_heq_proof());
                 bool changed_f_type = !is_eqp(f_type, new_f_type);
                 if (f_arrow) {
@@ -696,8 +702,8 @@ class simplifier_cell::imp {
             bool heq_proof = false;
             if (i == 0) {
                 pr = *(proofs[0]);
-                heq_proof = m_has_heq && heq_proofs[0];
-            } else if (m_has_heq && (heq_proofs[i] || !is_arrow(f_types[i-1]))) {
+                heq_proof = m_use_heq && heq_proofs[0];
+            } else if (m_use_heq && (heq_proofs[i] || !is_arrow(f_types[i-1]))) {
                 expr f = mk_app_prefix(i, new_args);
                 expr pr_i = *proofs[i];
                 auto new_pr = mk_hcongr_th(f_types[i-1], f_types[i-1], f, f, mk_hrefl_th(f_types[i-1], f),
@@ -717,7 +723,7 @@ class simplifier_cell::imp {
                 expr new_f = mk_app_prefix(i, new_args);
                 if (proofs[i]) {
                     expr pr_i = *proofs[i];
-                    if (m_has_heq && heq_proofs[i]) {
+                    if (m_use_heq && heq_proofs[i]) {
                         if (!heq_proof)
                             pr = mk_to_heq_th(f_types[i], f, new_f, pr);
                         auto new_pr = mk_hcongr_th(f_types[i-1], new_f_types[i-1], f, new_f, pr,
@@ -1125,7 +1131,7 @@ class simplifier_cell::imp {
         if (!m_proofs_enabled || !res_bi.m_proof)
             return rewrite_lambda(e, result(new_e));
         if (res_bi.is_heq_proof()) {
-            lean_assert(m_has_heq);
+            lean_assert(m_use_heq);
             // Using
             // theorem hsfunext {A : TypeM} {B B' : A → TypeU} {f : ∀ x, B x} {f' : ∀ x, B' x} :
             //     (∀ x, f x == f' x) → f == f'
@@ -1200,7 +1206,7 @@ class simplifier_cell::imp {
 
     result simplify_lambda(expr const & e) {
         lean_assert(is_lambda(e));
-        if (m_has_heq) {
+        if (m_use_heq) {
             return simplify_lambda_with_heq(e);
         } else {
             return simplify_lambda_body(e);
@@ -1427,7 +1433,7 @@ class simplifier_cell::imp {
             else
                 return simplify_arrow(e);
         } else if (is_proposition(e)) {
-            if (m_has_heq)
+            if (m_use_heq)
                 return simplify_forall_with_heq(e);
             else
                 return simplify_forall_body(e);
@@ -1505,6 +1511,7 @@ class simplifier_cell::imp {
         m_conditional    = get_simplifier_conditional(o);
         m_memoize        = get_simplifier_memoize(o);
         m_max_steps      = get_simplifier_max_steps(o);
+        m_use_heq        = get_simplifier_heq(o);
         m_preserve_binder_names = get_simplifier_preserve_binder_names(o);
     }
 
@@ -1512,7 +1519,6 @@ public:
     imp(ro_environment const & env, options const & o, unsigned num_rs, rewrite_rule_set const * rs,
         std::shared_ptr<simplifier_monitor> const & monitor):
         m_env(env), m_options(o), m_tc(env), m_monitor(monitor) {
-        m_has_heq  = m_env->imported("heq");
         set_options(o);
         if (m_contextual) {
             // We need an extra rule set if we are performing contextual rewriting

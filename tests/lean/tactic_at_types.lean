@@ -1,5 +1,5 @@
 import tactic
-import heq
+set_option simplifier::heq true
 set_option pp::implicit true -- to be able to parse output produced by Lean
 variable vec : Nat → Type
 variables n m : Nat

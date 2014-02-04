@@ -1,4 +1,3 @@
-import heq
 import tactic
 add_rewrite Nat::add_assoc Nat::add_zeror
 
@@ -14,9 +13,10 @@ axiom    concat_empty {n : Nat} (v : vec n) :
 add_rewrite concat_assoc concat_empty
 
 (*
+local opts = options({"simplifier", "heq"}, true)
 local t = parse_lean('∀ (n : Nat) (v : vec (n + 0)) (w : vec n), v = w ; empty')
 print(t)
-local t2, pr = simplify(t)
+local t2, pr = simplify(t, "default", opts)
 print("====>")
 print(t2)
 get_environment():type_check(pr)
@@ -25,9 +25,10 @@ get_environment():type_check(pr)
 print ""
 
 (*
+local opts = options({"simplifier", "heq"}, true)
 local t = parse_lean('λ n : Nat, ∃ (v : vec (n + 0)) (w : vec n), v ≠ w ; empty')
 print(t)
-local t2, pr = simplify(t)
+local t2, pr = simplify(t, "default", opts)
 print("====>")
 print(t2)
 get_environment():type_check(pr)

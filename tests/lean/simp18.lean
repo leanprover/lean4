@@ -1,4 +1,3 @@
-import   heq
 variable vec    : Nat → Type
 variable concat {n m : Nat} (v : vec n) (w : vec m) : vec (n + m)
 infixl   65 ; : concat
@@ -18,10 +17,11 @@ variable v : vec n
 variable w : vec n
 
 (*
+local opts = options({"simplifier", "heq"}, true)
 local t = parse_lean([[ (v ; w) ; empty ; (v ; empty) ]])
 print(t)
 print("===>")
-local t2, pr = simplify(t, "simple")
+local t2, pr = simplify(t, "simple", opts)
 print(t2)
 print(pr)
 get_environment():type_check(pr)

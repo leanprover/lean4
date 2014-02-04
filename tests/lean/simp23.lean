@@ -1,4 +1,3 @@
-import   heq
 variable vec    : Nat → Type
 variable concat {n m : Nat} (v : vec n) (w : vec m) : vec (n + m)
 infixl   65 ; : concat
@@ -22,10 +21,11 @@ axiom fax {n m : Nat} (v : vec n) (w : vec m) : f (v; (w; v)) = v; (w; v)
 add_rewrite fax : simple
 
 (*
+local opts = options({"simplifier", "heq"}, true)
 local t = parse_lean([[ p (f ((v ; w) ; empty ; (v ; empty))) ∧ v = cast (congr2 vec (Nat::add_zeror n)) (v ; empty) ]])
 print(t)
 print("===>")
-local t2, pr = simplify(t, "simple")
+local t2, pr = simplify(t, "simple", opts)
 print(t2)
 print("checking proof")
 print (get_environment():type_check(pr))

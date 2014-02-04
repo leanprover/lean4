@@ -1,4 +1,3 @@
-import heq
 variable vec    : Nat → Type
 variable concat {n m : Nat} (v : vec n) (w : vec m) : vec (n + m)
 infixl   65 ; : concat
@@ -15,9 +14,10 @@ add_rewrite Nat::add_assoc Nat::add_zeror eq_id : simple
 add_rewrite concat_assoc concat_empty Nat::add_assoc Nat::add_zeror : simple
 
 (*
+local opts = options({"simplifier", "heq"}, true)
 local t = parse_lean('∀ (n : Nat) (v : vec (n + 0)) (w : vec n), v = w ; empty')
 print(t)
-local t2, pr = simplify(t, "simple")
+local t2, pr = simplify(t, "simple", opts)
 print("====>")
 print(t2)
 get_environment():type_check(pr)
@@ -26,9 +26,10 @@ get_environment():type_check(pr)
 print ""
 
 (*
+local opts = options({"simplifier", "heq"}, true)
 local t = parse_lean('λ n : Nat, ∃ (v : vec (n + 0)) (w : vec n), v ≠ w ; empty')
 print(t)
-local t2, pr = simplify(t, "simple")
+local t2, pr = simplify(t, "simple", opts)
 print("====>")
 print(t2)
 get_environment():type_check(pr)

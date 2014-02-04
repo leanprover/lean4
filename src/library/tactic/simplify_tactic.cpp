@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "util/sexpr/option_declarations.h"
 #include "kernel/type_checker.h"
 #include "kernel/kernel.h"
-#include "library/heq_decls.h"
 #include "library/simplifier/simplifier.h"
 #include "library/tactic/tactic.h"
 

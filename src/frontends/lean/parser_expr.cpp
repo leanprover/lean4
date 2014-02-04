@@ -857,19 +857,19 @@ expr parser_imp::parse_tuple() {
     auto p = pos();
     next();
     buffer<expr> args;
-    expr first = parse_expr();
+    expr first = parse_expr(g_app_precedence);
     expr type;
     if (curr_is_colon()) {
         next();
         type = first;
-        args.push_back(parse_expr());
+        args.push_back(parse_expr(g_app_precedence));
     } else {
         args.push_back(first);
         type = save(mk_placeholder(), p);
     }
     while (curr_is_comma()) {
         next();
-        args.push_back(parse_expr());
+        args.push_back(parse_expr(g_app_precedence));
     }
     unsigned num = args.size();
     if (num < 2)
@@ -903,7 +903,7 @@ expr parser_imp::parse_proj(bool first) {
             throw parser_error(sstream() << "invalid tuple/pair projection, optional index is >= "
                                << LEAN_MAX_PROJECTION << " (internal limit)", p);
     }
-    expr t = parse_expr();
+    expr t = parse_expr(g_app_precedence);
     while (i > 0) {
         --i;
         t = save(mk_proj2(t), p);

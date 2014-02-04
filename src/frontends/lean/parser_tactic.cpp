@@ -254,7 +254,11 @@ expr parser_imp::apply_tactics(expr const & val, metavar_env & menv) {
     buffer<expr> mvars;
     for_each(val, [&](expr const & e, unsigned) {
             if (is_metavar(e)) {
-                mvars.push_back(e);
+                expr m = e;
+                if (has_local_context(m))
+                    m = mk_metavar(metavar_name(m));
+                if (std::find(mvars.begin(), mvars.end(), m) == mvars.end())
+                    mvars.push_back(m);
             }
             return true;
         });

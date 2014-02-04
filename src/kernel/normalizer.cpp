@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "util/interrupt.h"
 #include "util/sexpr/options.h"
+#include "kernel/update_expr.h"
 #include "kernel/normalizer.h"
 #include "kernel/expr.h"
 #include "kernel/expr_maps.h"
@@ -158,7 +159,7 @@ class normalizer::imp {
             expr new_d = reify(normalize(abst_domain(e), s, k), k);
             m_cache.clear(); // make sure we do not reuse cached values from the previous call
             expr new_b = reify(normalize(abst_body(e), extend(s, mk_var(k)), k+1), k+1);
-            return update_abst(e, new_d, new_b);
+            return update_abstraction(e, new_d, new_b);
         } else {
             lean_assert(is_metavar(e));
             // We use the following trick to reify a metavariable in the context of the value_stack s, and context ctx.

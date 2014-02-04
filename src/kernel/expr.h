@@ -433,7 +433,7 @@ inline bool is_sigma(expr_cell * e)       { return e->kind() == expr_kind::Sigma
 inline bool is_type(expr_cell * e)        { return e->kind() == expr_kind::Type; }
 inline bool is_let(expr_cell * e)         { return e->kind() == expr_kind::Let; }
 inline bool is_metavar(expr_cell * e)     { return e->kind() == expr_kind::MetaVar; }
-inline bool is_abstraction(expr_cell * e) { return is_lambda(e) || is_pi(e); }
+inline bool is_abstraction(expr_cell * e) { return is_lambda(e) || is_pi(e) || is_sigma(e); }
 
 inline bool is_var(expr const & e)         { return e.kind() == expr_kind::Var; }
 inline bool is_constant(expr const & e)    { return e.kind() == expr_kind::Constant; }
@@ -444,11 +444,12 @@ inline bool is_app(expr const & e)         { return e.kind() == expr_kind::App; 
 inline bool is_lambda(expr const & e)      { return e.kind() == expr_kind::Lambda; }
 inline bool is_pi(expr const & e)          { return e.kind() == expr_kind::Pi; }
        bool is_arrow(expr const & e);
+       bool is_cartesian(expr const & e);
 inline bool is_sigma(expr const & e)       { return e.kind() == expr_kind::Sigma; }
 inline bool is_type(expr const & e)        { return e.kind() == expr_kind::Type; }
 inline bool is_let(expr const & e)         { return e.kind() == expr_kind::Let; }
 inline bool is_metavar(expr const & e)     { return e.kind() == expr_kind::MetaVar; }
-inline bool is_abstraction(expr const & e) { return is_lambda(e) || is_pi(e); }
+inline bool is_abstraction(expr const & e) { return is_lambda(e) || is_pi(e) || is_sigma(e); }
 // =======================================
 
 // =======================================
@@ -477,6 +478,7 @@ inline expr mk_pi(name const & n, expr const & t, expr const & e) { return expr(
 inline expr mk_sigma(name const & n, expr const & t, expr const & e) { return expr(new expr_sigma(n, t, e)); }
 inline bool is_default_arrow_var_name(name const & n) { return n == "a"; }
 inline expr mk_arrow(expr const & t, expr const & e) { return mk_pi(name("a"), t, e); }
+inline expr mk_cartesian_product(expr const & t, expr const & e) { return mk_sigma(name("a"), t, e); }
 inline expr operator>>(expr const & t, expr const & e) { return mk_arrow(t, e); }
 inline expr mk_let(name const & n, optional<expr> const & t, expr const & v, expr const & e) { return expr(new expr_let(n, t, v, e)); }
 inline expr mk_let(name const & n, expr const & t, expr const & v, expr const & e) { return mk_let(n, some_expr(t), v, e); }
@@ -691,9 +693,6 @@ template<typename F> expr update_abst(expr const & e, F f) {
     } else {
         return e;
     }
-}
-inline expr update_abst(expr const & e, expr const & new_d, expr const & new_b) {
-    return update_abst(e, [&](expr const &, expr const &) { return mk_pair(new_d, new_b); });
 }
 template<typename F> expr update_let(expr const & e, F f) {
     static_assert(std::is_same<typename std::result_of<F(optional<expr> const &, expr const &, expr const &)>::type,

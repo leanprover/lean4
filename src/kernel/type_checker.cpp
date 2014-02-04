@@ -318,8 +318,12 @@ class type_checker::imp {
                 freset<cache> reset(m_cache);
                 t2 = check_type(infer_type_core(abst_body(e), new_ctx), abst_body(e), new_ctx);
             }
-            if (is_pi(e) && is_bool(t2))
-                return t2;
+            if (is_bool(t2)) {
+                if (is_pi(e))
+                    return t2;
+                else
+                    t2 = Type();
+            }
             if (is_type(t1) && is_type(t2)) {
                 return save_result(e, mk_type(max(ty_level(t1), ty_level(t2))), shared);
             } else {

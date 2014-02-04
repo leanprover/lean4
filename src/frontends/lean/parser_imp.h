@@ -292,14 +292,16 @@ private:
     expr parse_expr_macro(name const & id, pos_info const & p);
     expr parse_led_id(expr const & left);
     expr parse_arrow(expr const & left);
+    expr parse_cartesian_product(expr const & left);
     expr parse_lparen();
     void parse_names(buffer<std::pair<pos_info, name>> & result);
     void register_binding(name const & n);
     void parse_simple_parameters(parameter_buffer & result, bool implicit_decl, bool suppress_type);
-    expr mk_abstraction(bool is_lambda, parameter_buffer const & parameters, expr const & body);
-    expr parse_abstraction(bool is_lambda);
+    expr mk_abstraction(expr_kind k, parameter_buffer const & parameters, expr const & body);
+    expr parse_abstraction(expr_kind k);
     expr parse_lambda();
     expr parse_pi();
+    expr parse_sig();
     expr parse_exists();
     expr parse_let();
     expr parse_type(bool level_expected);

@@ -139,13 +139,13 @@ void parser_imp::parse_def_core(bool is_definition) {
             auto p = pos();
             type_body = save(mk_placeholder(), p);
         }
-        pre_type  = mk_abstraction(false, parameters, type_body);
+        pre_type  = mk_abstraction(expr_kind::Pi, parameters, type_body);
         if (!is_definition && curr_is_period()) {
-            pre_val = mk_abstraction(true, parameters, mk_placeholder());
+            pre_val = mk_abstraction(expr_kind::Lambda, parameters, mk_placeholder());
         } else {
             check_assign_next("invalid definition, ':=' expected");
             expr val_body  = parse_expr();
-            pre_val   = mk_abstraction(true, parameters, val_body);
+            pre_val   = mk_abstraction(expr_kind::Lambda, parameters, val_body);
         }
     }
     auto r = m_elaborator(id, pre_type, pre_val);
@@ -210,7 +210,7 @@ void parser_imp::parse_variable_core(bool is_var) {
         parse_var_decl_parameters(parameters);
         check_colon_next("invalid variable/axiom declaration, ':' expected");
         expr type_body = parse_expr();
-        pre_type = mk_abstraction(false, parameters, type_body);
+        pre_type = mk_abstraction(expr_kind::Pi, parameters, type_body);
     }
     auto p = m_elaborator(pre_type);
     expr type = p.first;
@@ -717,7 +717,7 @@ void parser_imp::parse_builtin() {
         parse_var_decl_parameters(parameters);
         check_colon_next("invalid builtin declaration, ':' expected");
         expr type_body = parse_expr();
-        auto p = m_elaborator(mk_abstraction(false, parameters, type_body));
+        auto p = m_elaborator(mk_abstraction(expr_kind::Pi, parameters, type_body));
         check_no_metavar(p, "invalid declaration, type still contains metavariables after elaboration");
         type = p.first;
     }

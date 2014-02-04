@@ -80,6 +80,9 @@ static format g_assign_fmt    = highlight_keyword(format(":="));
 static format g_geq_fmt       = format("\u2265");
 static format g_lift_fmt      = highlight_keyword(format("lift"));
 static format g_inst_fmt      = highlight_keyword(format("inst"));
+static format g_sig_fmt       = highlight_keyword(format("sig"));
+static format g_cartesian_product_fmt   = highlight_keyword(format("#"));
+static format g_cartesian_product_n_fmt = highlight_keyword(format("\u2A2F"));
 
 static name g_pp_max_depth        {"lean", "pp", "max_depth"};
 static name g_pp_max_steps        {"lean", "pp", "max_steps"};
@@ -471,7 +474,9 @@ class pp_fn {
             return op.get_precedence();
         } else if (is_arrow(e)) {
             return g_arrow_precedence;
-        } else if (is_lambda(e) || is_pi(e) || is_let(e) || is_exists(e)) {
+        } else if (is_cartesian(e)) {
+            return g_cartesian_product_precedence;
+        } else if (is_lambda(e) || is_pi(e) || is_let(e) || is_exists(e) || is_sigma(e)) {
             return 0;
         } else {
             return g_app_precedence;
@@ -821,6 +826,14 @@ class pp_fn {
         return pp_scoped_child(e, depth, g_arrow_precedence);
     }
 
+    result pp_cartesian_child(expr const & e, unsigned depth) {
+        return pp_scoped_child(e, depth, g_cartesian_product_precedence + 1);
+    }
+
+    result pp_cartesian_body(expr const & e, unsigned depth) {
+        return pp_scoped_child(e, depth, g_cartesian_product_precedence);
+    }
+
     template<typename It>
     format pp_bnames(It const & begin, It const & end, bool use_line) {
         auto it = begin;
@@ -899,6 +912,13 @@ class pp_fn {
             result p_rhs    = pp_arrow_body(abst_body(e), depth);
             format r_format = group(format{p_lhs.first, space(), m_unicode ? g_arrow_n_fmt : g_arrow_fmt, line(), p_rhs.first});
             return mk_result(r_format, p_lhs.second + p_rhs.second + 1);
+        } else if (is_cartesian(e) && !implicit_args) {
+            lean_assert(!T);
+            result p_lhs    = pp_cartesian_child(abst_domain(e), depth);
+            result p_rhs    = pp_cartesian_body(abst_body(e), depth);
+            format r_format = group(format{p_lhs.first, space(), m_unicode ? g_cartesian_product_n_fmt : g_cartesian_product_fmt,
+                        line(), p_rhs.first});
+            return mk_result(r_format, p_lhs.second + p_rhs.second + 1);
         } else {
             unsigned arrow_starting_at = get_arrow_starting_at(e);
             buffer<std::pair<name, expr>> nested;
@@ -909,11 +929,11 @@ class pp_fn {
             format head;
             if (!T && !implicit_args) {
                 if (m_unicode) {
-                    head = is_lambda(e) ? g_lambda_n_fmt : g_Pi_n_fmt;
-                    head_indent = 2;
+                    head = is_lambda(e) ? g_lambda_n_fmt : (is_pi(e) ? g_Pi_n_fmt : g_sig_fmt);
+                    head_indent = is_sigma(e) ? 4 : 2;
                 } else {
-                    head = is_lambda(e) ? g_lambda_fmt : g_Pi_fmt;
-                    head_indent = is_lambda(e) ? 4 : 3;
+                    head = is_lambda(e) ? g_lambda_fmt : (is_pi(e) ? g_Pi_fmt : g_sig_fmt);
+                    head_indent = is_pi(e) ? 3 : 4;
                 }
             }
             format body_sep;
@@ -1123,6 +1143,7 @@ class pp_fn {
                 case expr_kind::Value:      r = pp_value(e);              break;
                 case expr_kind::App:        r = pp_app(e, depth);         break;
                 case expr_kind::Lambda:
+                case expr_kind::Sigma:
                 case expr_kind::Pi:         r = pp_abstraction(e, depth); break;
                 case expr_kind::Type:       r = pp_type(e);               break;
                 case expr_kind::Let:        r = pp_let(e, depth);         break;

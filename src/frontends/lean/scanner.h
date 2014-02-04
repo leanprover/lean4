@@ -20,8 +20,8 @@ class scanner {
 public:
     enum class token {
         LeftParen, RightParen, LeftCurlyBracket, RightCurlyBracket, Colon, Comma, Period, Lambda, Pi, Arrow,
-        Let, In, Exists, Id, CommandId, IntVal, DecimalVal, StringVal, Eq, Assign, Type, Placeholder,
-        Have, By, ScriptBlock, Ellipsis, Eof
+        Sig, Tuple, Proj, Let, In, Exists, Id, CommandId, IntVal, DecimalVal, StringVal, Assign, Type, Placeholder,
+        Have, By, ScriptBlock, Ellipsis, CartesianProduct, Eof
     };
 protected:
     int                m_spos; // position in the current line of the stream

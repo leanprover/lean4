@@ -51,7 +51,7 @@ expr replace_visitor::visit_pi(expr const & e, context const & ctx) {
     return visit_abst(e, ctx);
 }
 expr replace_visitor::visit_sigma(expr const & e, context const & ctx) {
-    lean_assert(is_pi(e));
+    lean_assert(is_sigma(e));
     return visit_abst(e, ctx);
 }
 expr replace_visitor::visit_let(expr const & e, context const & ctx) {

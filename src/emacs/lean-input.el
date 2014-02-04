@@ -519,6 +519,8 @@ order for the change to take effect."
 
   ("fun" . ("λ"))
 
+  ("X" . ("⨯"))
+
   ;; Primes.
 
   ("'" . ,(lean-input-to-string-list "′″‴⁗"))

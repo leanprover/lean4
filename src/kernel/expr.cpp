@@ -297,6 +297,10 @@ bool is_arrow(expr const & t) {
     }
 }
 
+bool is_cartesian(expr const & t) {
+    return is_sigma(t) && !has_free_var(abst_body(t), 0);
+}
+
 unsigned get_depth(expr const & e) {
     switch (e.kind()) {
     case expr_kind::Var:   case expr_kind::Constant:  case expr_kind::Type:

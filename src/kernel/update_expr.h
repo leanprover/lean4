@@ -23,11 +23,17 @@ inline expr update_app(expr const & app, buffer<expr> const & new_args) { return
 */
 expr update_lambda(expr const & lambda, expr const & d, expr const & b);
 /**
-   \brief Return a pi expression based on \c pi with domain \c d and \c body b.
+   \brief Return a Pi expression based on \c pi with domain \c d and \c body b.
 
    \remark Return \c pi if the given domain and body are (pointer) equal to the ones in \c pi.
 */
 expr update_pi(expr const & pi, expr const & d, expr const & b);
+/**
+   \brief Return a Sigma expression based on \c sig with domain \c d and \c body b.
+
+   \remark Return \c sig if the given domain and body are (pointer) equal to the ones in \c sig.
+*/
+expr update_sigma(expr const & sig, expr const & d, expr const & b);
 /**
    \brief Return a lambda/pi expression based on \c abst with domain \c d and \c body b.
 */

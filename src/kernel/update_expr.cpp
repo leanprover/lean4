@@ -53,11 +53,20 @@ expr update_pi(expr const & pi, expr const & d, expr const & b) {
         return mk_pi(abst_name(pi), d, b);
 }
 
-expr update_abstraction(expr const & abst, expr const & d, expr const & b) {
-    if (is_lambda(abst))
-        return update_lambda(abst, d, b);
+expr update_sigma(expr const & sig, expr const & d, expr const & b) {
+    if (is_eqp(abst_domain(sig), d) && is_eqp(abst_body(sig), b))
+        return sig;
     else
-        return update_pi(abst, d, b);
+        return mk_sigma(abst_name(sig), d, b);
+}
+
+expr update_abstraction(expr const & abst, expr const & d, expr const & b) {
+    switch (abst.kind()) {
+    case expr_kind::Lambda: return update_lambda(abst, d, b);
+    case expr_kind::Pi:     return update_pi(abst, d, b);
+    case expr_kind::Sigma:  return update_sigma(abst, d, b);
+    default: lean_unreachable();
+    }
 }
 
 expr update_let(expr const & let, optional<expr> const & t, expr const & v, expr const & b) {

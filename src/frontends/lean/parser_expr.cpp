@@ -594,6 +594,17 @@ expr parser_imp::parse_arrow(expr const & left) {
     return save(mk_arrow(left, right), p);
 }
 
+/** \brief Parse <tt>expr '#' expr</tt>. */
+expr parser_imp::parse_cartesian_product(expr const & left) {
+    auto p = pos();
+    next();
+    mk_scope scope(*this);
+    register_binding(g_unused);
+    // The -1 is a trick to get right associativity in Pratt's parsers
+    expr right = parse_expr(g_cartesian_product_precedence-1);
+    return save(mk_cartesian_product(left, right), p);
+}
+
 /** \brief Parse <tt>'(' expr ')'</tt>. */
 expr parser_imp::parse_lparen() {
     auto p = pos();
@@ -708,39 +719,46 @@ void parser_imp::parse_definition_parameters(parameter_buffer & result) {
    \brief Create a lambda/Pi abstraction, using the giving binders
    and body.
 */
-expr parser_imp::mk_abstraction(bool is_lambda, parameter_buffer const & parameters, expr const & body) {
+expr parser_imp::mk_abstraction(expr_kind k, parameter_buffer const & parameters, expr const & body) {
     expr result = body;
     unsigned i = parameters.size();
     while (i > 0) {
         --i;
         pos_info p = parameters[i].m_pos;
-        if (is_lambda)
-            result = save(mk_lambda(parameters[i].m_name, parameters[i].m_type, result), p);
-        else
-            result = save(mk_pi(parameters[i].m_name, parameters[i].m_type, result), p);
+        switch (k) {
+        case expr_kind::Lambda:  result = save(mk_lambda(parameters[i].m_name, parameters[i].m_type, result), p); break;
+        case expr_kind::Pi:      result = save(mk_pi(parameters[i].m_name, parameters[i].m_type, result), p); break;
+        case expr_kind::Sigma:   result = save(mk_sigma(parameters[i].m_name, parameters[i].m_type, result), p); break;
+        default: lean_unreachable(); break;
+        }
     }
     return result;
 }
 
 /** \brief Parse lambda/Pi abstraction. */
-expr parser_imp::parse_abstraction(bool is_lambda) {
+expr parser_imp::parse_abstraction(expr_kind k) {
     next();
     mk_scope scope(*this);
     parameter_buffer parameters;
     parse_expr_parameters(parameters);
     check_comma_next("invalid abstraction, ',' expected");
     expr result = parse_expr();
-    return mk_abstraction(is_lambda, parameters, result);
+    return mk_abstraction(k, parameters, result);
 }
 
 /** \brief Parse lambda abstraction. */
 expr parser_imp::parse_lambda() {
-    return parse_abstraction(true);
+    return parse_abstraction(expr_kind::Lambda);
 }
 
 /** \brief Parse Pi abstraction. */
 expr parser_imp::parse_pi() {
-    return parse_abstraction(false);
+    return parse_abstraction(expr_kind::Pi);
+}
+
+/** \brief Parse Sigma type */
+expr parser_imp::parse_sig() {
+    return parse_abstraction(expr_kind::Sigma);
 }
 
 /** \brief Parse exists */
@@ -825,6 +843,8 @@ expr parser_imp::parse_type(bool level_expected) {
             return save(Type(), p);
         } else if (curr() == scanner::token::Arrow) {
             return parse_arrow(save(Type(), p));
+        } else if (curr() == scanner::token::CartesianProduct) {
+            return parse_cartesian_product(save(Type(), p));
         } else {
             return save(mk_type(parse_level()), p);
         }
@@ -936,6 +956,7 @@ expr parser_imp::parse_nud() {
     case scanner::token::LeftParen:   return parse_lparen();
     case scanner::token::Lambda:      return parse_lambda();
     case scanner::token::Pi:          return parse_pi();
+    case scanner::token::Sig:         return parse_sig();
     case scanner::token::Exists:      return parse_exists();
     case scanner::token::Let:         return parse_let();
     case scanner::token::IntVal:      return parse_nat_int();
@@ -966,15 +987,16 @@ expr parser_imp::mk_app_left(expr const & left, expr const & arg) {
 */
 expr parser_imp::parse_led(expr const & left) {
     switch (curr()) {
-    case scanner::token::Id:          return parse_led_id(left);
-    case scanner::token::Arrow:       return parse_arrow(left);
-    case scanner::token::LeftParen:   return mk_app_left(left, parse_lparen());
-    case scanner::token::IntVal:      return mk_app_left(left, parse_nat_int());
-    case scanner::token::DecimalVal:  return mk_app_left(left, parse_decimal());
-    case scanner::token::StringVal:   return mk_app_left(left, parse_string());
-    case scanner::token::Placeholder: return mk_app_left(left, parse_placeholder());
-    case scanner::token::Type:        return mk_app_left(left, parse_type(false));
-    default:                          return left;
+    case scanner::token::Id:               return parse_led_id(left);
+    case scanner::token::Arrow:            return parse_arrow(left);
+    case scanner::token::CartesianProduct: return parse_cartesian_product(left);
+    case scanner::token::LeftParen:        return mk_app_left(left, parse_lparen());
+    case scanner::token::IntVal:           return mk_app_left(left, parse_nat_int());
+    case scanner::token::DecimalVal:       return mk_app_left(left, parse_decimal());
+    case scanner::token::StringVal:        return mk_app_left(left, parse_string());
+    case scanner::token::Placeholder:      return mk_app_left(left, parse_placeholder());
+    case scanner::token::Type:             return mk_app_left(left, parse_type(false));
+    default:                               return left;
     }
 }
 
@@ -996,7 +1018,8 @@ unsigned parser_imp::curr_lbp() {
                 return g_app_precedence;
         }
     }
-    case scanner::token::Arrow : return g_arrow_precedence;
+    case scanner::token::Arrow :           return g_arrow_precedence;
+    case scanner::token::CartesianProduct: return g_cartesian_product_precedence;
     case scanner::token::LeftParen: case scanner::token::IntVal: case scanner::token::DecimalVal:
     case scanner::token::StringVal: case scanner::token::Type: case scanner::token::Placeholder:
         return g_app_precedence;

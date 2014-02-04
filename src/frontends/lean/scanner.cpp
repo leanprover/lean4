@@ -29,6 +29,11 @@ static name g_placeholder_name("_");
 static name g_have_name("have");
 static name g_using_name("using");
 static name g_by_name("by");
+static name g_sig_name("sig");
+static name g_tuple_name("tuple");
+static name g_proj_name("proj");
+static name g_cartesian_product_unicode("\u2A2F");
+static name g_cartesian_product("#");
 
 static char g_normalized[256];
 
@@ -205,6 +210,12 @@ scanner::token scanner::read_a_symbol() {
                 return token::Let;
             } else if (m_name_val == g_in_name) {
                 return token::In;
+            } else if (m_name_val == g_sig_name) {
+                return token::Sig;
+            } else if (m_name_val == g_tuple_name) {
+                return token::Tuple;
+            } else if (m_name_val == g_proj_name) {
+                return token::Proj;
             } else if (m_name_val == g_placeholder_name) {
                 return token::Placeholder;
             } else if (m_name_val == g_have_name) {
@@ -236,6 +247,8 @@ scanner::token scanner::read_b_symbol(char prev) {
             m_name_val = name(m_buffer.c_str());
             if (m_name_val == g_arrow_name)
                 return token::Arrow;
+            else if (m_name_val == g_cartesian_product)
+                return token::CartesianProduct;
             else
                 return token::Id;
         }
@@ -255,6 +268,8 @@ scanner::token scanner::read_c_symbol() {
             m_name_val = name(m_buffer.c_str());
             if (m_name_val == g_arrow_unicode)
                 return token::Arrow;
+            if (m_name_val == g_cartesian_product_unicode)
+                return token::CartesianProduct;
             else if (m_name_val == g_lambda_unicode)
                 return token::Lambda;
             else if (m_name_val == g_pi_unicode)
@@ -442,12 +457,15 @@ std::ostream & operator<<(std::ostream & out, scanner::token const & t) {
     case scanner::token::IntVal:            out << "Int"; break;
     case scanner::token::DecimalVal:        out << "Dec"; break;
     case scanner::token::StringVal:         out << "String"; break;
-    case scanner::token::Eq:                out << "=="; break;
     case scanner::token::Assign:            out << ":="; break;
     case scanner::token::Type:              out << "Type"; break;
+    case scanner::token::Sig:               out << "sig"; break;
+    case scanner::token::Proj:              out << "proj"; break;
+    case scanner::token::Tuple:             out << "tuple"; break;
     case scanner::token::Placeholder:       out << "_"; break;
     case scanner::token::ScriptBlock:       out << "Script"; break;
     case scanner::token::Have:              out << "have"; break;
+    case scanner::token::CartesianProduct:  out << "#"; break;
     case scanner::token::By:                out << "by"; break;
     case scanner::token::Ellipsis:          out << "..."; break;
     case scanner::token::Eof:               out << "EOF"; break;

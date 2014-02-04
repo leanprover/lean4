@@ -480,7 +480,7 @@ class pp_fn {
             return g_arrow_precedence;
         } else if (is_cartesian(e)) {
             return g_cartesian_product_precedence;
-        } else if (is_lambda(e) || is_pi(e) || is_let(e) || is_exists(e) || is_sigma(e)) {
+        } else if (is_lambda(e) || is_pi(e) || is_let(e) || is_exists(e) || is_sigma(e) || is_pair(e)) {
             return 0;
         } else {
             return g_app_precedence;

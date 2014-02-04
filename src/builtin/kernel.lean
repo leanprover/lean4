@@ -898,4 +898,7 @@ axiom pairext {A : (Type U)} {B : A → (Type U)} {a b : sig x, B x}
 -- In this model, the interpretation of Bool is the set {{*}, {}}.
 -- Thus, if A : Bool is inhabited, then its interpretation must be {*}.
 -- So, the interpretation of H1 and H2 must be *.
-axiom proof_irrel {a b : Bool} (H1 : a) (H2 : b) : H1 == H2
+axiom hproof_irrel {a b : Bool} (H1 : a) (H2 : b) : H1 == H2
+
+theorem proof_irrel {a : Bool} (H1 H2 : a) : H1 = H2
+:= to_eq (hproof_irrel H1 H2)

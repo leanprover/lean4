@@ -547,7 +547,10 @@ bool is_infinity(expr const & e);
 expr mk_pairext_fn();
 bool is_pairext_fn(expr const & e);
 inline expr mk_pairext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_pairext_fn(), e1, e2, e3, e4, e5, e6}); }
+expr mk_hproof_irrel_fn();
+bool is_hproof_irrel_fn(expr const & e);
+inline expr mk_hproof_irrel_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_hproof_irrel_fn(), e1, e2, e3, e4}); }
 expr mk_proof_irrel_fn();
 bool is_proof_irrel_fn(expr const & e);
-inline expr mk_proof_irrel_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_proof_irrel_fn(), e1, e2, e3, e4}); }
+inline expr mk_proof_irrel_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_proof_irrel_fn(), e1, e2, e3}); }
 }

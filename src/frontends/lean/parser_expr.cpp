@@ -857,19 +857,19 @@ expr parser_imp::parse_tuple() {
     auto p = pos();
     next();
     buffer<expr> args;
-    expr first = parse_expr(g_app_precedence);
+    expr first = parse_expr();
     expr type;
     if (curr_is_colon()) {
         next();
         type = first;
-        args.push_back(parse_expr(g_app_precedence));
+        args.push_back(parse_expr());
     } else {
         args.push_back(first);
         type = save(mk_placeholder(), p);
     }
     while (curr_is_comma()) {
         next();
-        args.push_back(parse_expr(g_app_precedence));
+        args.push_back(parse_expr());
     }
     unsigned num = args.size();
     if (num < 2)

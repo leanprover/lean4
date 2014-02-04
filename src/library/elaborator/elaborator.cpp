@@ -620,11 +620,29 @@ class elaborator::imp {
         }
     }
 
+    void process_proj(context const & ctx, expr & a) {
+        if (is_proj(a)) {
+            expr const & arg = proj_arg(a);
+            expr new_arg     = arg;
+            if (m_use_normalizer)
+                new_arg = normalize(ctx, arg);
+            if (is_pair(new_arg)) {
+                if (proj_first(a))
+                    a = pair_first(new_arg);
+                else
+                    a = pair_second(new_arg);
+            } else {
+                a = update_proj(a, new_arg);
+            }
+        }
+    }
+
     expr normalize_step(context const & ctx, expr const & a) {
         expr new_a = a;
         process_let(new_a);
         process_var(ctx, new_a);
         process_app(ctx, new_a);
+        process_proj(ctx, new_a);
         return new_a;
     }
 
@@ -908,6 +926,12 @@ class elaborator::imp {
         state new_state(m_state);
         justification new_assumption = mk_assumption();
         expr imitation;
+        // Auxiliary function for creating the term
+        //    (h[lift:0:num_a-1] #0 ... #(num_a-1))
+        auto mk_app_h_vars = [&](expr const & h) {
+            lean_assert(is_metavar(h));
+            return mk_app_vars(add_lift(h, 0, num_a - 1), num_a - 1);
+        };
         lean_assert(arg_types.size() == num_a - 1);
         if (is_app(b)) {
             // Imitation for applications
@@ -919,12 +943,12 @@ class elaborator::imp {
             imitation_args.push_back(lift_free_vars(f_b, 0, num_a - 1, new_state.m_menv));
             for (unsigned i = 1; i < num_b; i++) {
                 expr h_i = new_state.m_menv->mk_metavar(ctx);
-                imitation_args.push_back(mk_app_vars(add_lift(h_i, 0, num_a - 1), num_a - 1));
+                imitation_args.push_back(mk_app_h_vars(h_i));
                 push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_i), arg(b, i), new_assumption);
             }
             imitation = mk_lambda(arg_types, mk_app(imitation_args));
         } else if (is_abstraction(b)) {
-            // Imitation for lambdas and Pis
+            // Imitation for lambdas, Pis, and Sigmas
             // Assign f_a <- fun (x_1 : T_1) ... (x_{num_a} : T_{num_a}),
             //                        fun (x_b : (?h_1 x_1 ... x_{num_a})), (?h_2 x_1 ... x_{num_a} x_b)
             // New constraints (h_1 a_1 ... a_{num_a}) == abst_domain(b)
@@ -936,12 +960,26 @@ class elaborator::imp {
             if (is_arrow(b)) {
                 push_new_eq_constraint(new_state.m_active_cnstrs, new_ctx,
                                        update_app(lift_free_vars(a, 1), 0, h_2), abst_body(b), new_assumption);
-                imitation = mk_lambda(arg_types, update_abstraction(b, mk_app_vars(add_lift(h_1, 0, num_a - 1), num_a - 1), mk_app_vars(add_lift(h_2, 1, num_a - 1), num_a - 1, 1)));
+                imitation = mk_lambda(arg_types, update_abstraction(b, mk_app_h_vars(h_1), mk_app_vars(add_lift(h_2, 1, num_a - 1), num_a - 1, 1)));
             } else {
                 push_new_eq_constraint(new_state.m_active_cnstrs, new_ctx,
                                        mk_app(update_app(lift_free_vars(a, 1), 0, h_2), mk_var(0)), abst_body(b), new_assumption);
-                imitation = mk_lambda(arg_types, update_abstraction(b, mk_app_vars(add_lift(h_1, 0, num_a - 1), num_a - 1), mk_app_vars(add_lift(h_2, 1, num_a - 1), num_a)));
+                imitation = mk_lambda(arg_types, update_abstraction(b, mk_app_h_vars(h_1), mk_app_vars(add_lift(h_2, 1, num_a - 1), num_a)));
             }
+        } else if (is_pair(b)) {
+            // Imitation for dependent pairs
+            expr h_f = new_state.m_menv->mk_metavar(ctx);
+            expr h_s = new_state.m_menv->mk_metavar(ctx);
+            expr h_t = new_state.m_menv->mk_metavar(ctx);
+            push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_f), pair_first(b), new_assumption);
+            push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_s), pair_second(b), new_assumption);
+            push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_t), pair_type(b), new_assumption);
+            imitation = mk_lambda(arg_types, mk_pair(mk_app_h_vars(h_f), mk_app_h_vars(h_s), mk_app_h_vars(h_t)));
+        } else if (is_proj(b)) {
+            // Imitation for pair-projection
+            expr h_a = new_state.m_menv->mk_metavar(ctx);
+            push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_a), proj_arg(b), new_assumption);
+            imitation = mk_lambda(arg_types, mk_proj(proj_first(b), mk_app_h_vars(h_a)));
         } else {
             // "Dumb imitation" aka the constant function
             // Assign f_a <- fun (x_1 : T_1) ... (x_{num_a} : T_{num_a}), b

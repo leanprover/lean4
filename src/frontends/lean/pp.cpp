@@ -1117,15 +1117,23 @@ class pp_fn {
     result pp_tuple(expr a, unsigned depth) {
         buffer<expr> args;
         args.push_back(pair_first(a));
-        while (is_pair(pair_second(a))) {
+        expr t = pair_type(a);
+        bool cartesian = is_cartesian(t);
+        while (is_pair(pair_second(a)) && !has_metavar(pair_second(a))) {
             a = pair_second(a);
+            if (!is_cartesian(pair_type(a)))
+                cartesian = false;
             args.push_back(pair_first(a));
         }
         args.push_back(pair_second(a));
-        args.push_back(pair_type(a));
         unsigned indent   = 6;
         format r_format   = g_tuple_fmt;
         unsigned r_weight = 1;
+        if (!cartesian) {
+            auto t_r = pp_child(t, depth);
+            r_format += nest(indent, compose(line(), format{t_r.first, space(), colon()}));
+            r_weight += t_r.second;
+        }
         for (unsigned i = 0; i < args.size(); i++) {
             auto arg_r = pp_child(args[i], depth);
             if (i > 0)

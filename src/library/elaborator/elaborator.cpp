@@ -1188,7 +1188,7 @@ class elaborator::imp {
                     m_case_splits.push_back(std::move(new_cs));
                     return r;
                 }
-            } else if (is_lambda(b) || is_pi(b)) {
+            } else if (is_abstraction(b)) {
                 imitate_abstraction(a, b, c);
                 return true;
             } else if (is_app(b) && !has_metavar(arg(b, 0))) {
@@ -1472,7 +1472,7 @@ class elaborator::imp {
                 push_new_constraint(eq, new_ctx, abst_body(a), abst_body(b), new_jst);
                 return true;
             }
-            case expr_kind::Lambda: {
+            case expr_kind::Lambda: case expr_kind::Sigma: {
                 justification new_jst(new destruct_justification(c));
                 push_new_eq_constraint(ctx, abst_domain(a), abst_domain(b), new_jst);
                 context new_ctx = extend(ctx, abst_name(a), abst_domain(a));
@@ -1534,6 +1534,22 @@ class elaborator::imp {
                     m_conflict = mk_failure_justification(c);
                     return false;
                 }
+            case expr_kind::Proj:
+                if (proj_first(a) != proj_first(b)) {
+                    m_conflict = mk_failure_justification(c);
+                    return false;
+                } else {
+                    justification new_jst(new destruct_justification(c));
+                    push_new_eq_constraint(ctx, proj_arg(a), proj_arg(b), new_jst);
+                    return true;
+                }
+            case expr_kind::Pair: {
+                justification new_jst(new destruct_justification(c));
+                push_new_eq_constraint(ctx, pair_first(a), pair_first(b), new_jst);
+                push_new_eq_constraint(ctx, pair_second(a), pair_second(b), new_jst);
+                push_new_eq_constraint(ctx, pair_type(a), pair_type(b), new_jst);
+                return true;
+            }
             case expr_kind::App:
                 if (!is_meta_app(a) && !is_meta_app(b)) {
                     if (num_args(a) == num_args(b)) {
@@ -1550,7 +1566,8 @@ class elaborator::imp {
             case expr_kind::Let:
                 lean_unreachable(); // LCOV_EXCL_LINE
                 return true;
-            default:
+            case expr_kind::Pi: case expr_kind::Lambda:
+            case expr_kind::Sigma: case expr_kind::MetaVar:
                 break;
             }
         }

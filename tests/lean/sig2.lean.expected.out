@@ -1,24 +1,26 @@
   Set: pp::colors
   Set: pp::unicode
 sig x : ℕ, x > 0 : Type
-tuple 10, 20, (ℕ ⨯ ℕ) : ℕ ⨯ ℕ
-sig2.lean:3:6: error: type mismatch in the 2nd argument of the pair
-    tuple 10, ⊤, (ℕ ⨯ ℕ)
-Pair type:
-    ℕ ⨯ ℕ
-Argument type:
-    Bool
-sig2.lean:4:6: error: type mismatch in the 1st argument of the pair
-    tuple ⊤, 20, (ℕ ⨯ ℕ)
-Pair type:
-    ℕ ⨯ ℕ
-Argument type:
-    Bool
-tuple ⊤, 20, (Bool ⨯ ℕ) : Bool ⨯ ℕ
-tuple ⊤, ⊤, (Bool ⨯ Bool) : Bool ⨯ Bool
-tuple ⊤, ⊤, (Bool ⨯ Bool) : Bool ⨯ Bool
+tuple 10, 20 : ℕ ⨯ ℕ
+tuple 10, ⊤ : ℕ ⨯ Bool
+tuple ⊤, 20 : Bool ⨯ ℕ
+tuple ⊤, 20 : Bool ⨯ ℕ
+tuple ⊤, ⊤ : Bool ⨯ Bool
+tuple ⊤, ⊤ : Bool ⨯ Bool
   Assumed: a
   Assumed: Ha
   Defined: NZ
 NZ : Type
-tuple a, Ha, NZ : sig x : ℕ, 1 ≤ x
+tuple NZ : a, Ha : sig x : ℕ, 1 ≤ x
+sig2.lean:13:6: error: type mismatch in the 1st argument of the pair
+    tuple ⊤, 20
+Pair type:
+    ℕ ⨯ ℕ
+Argument type:
+    Bool
+sig2.lean:14:6: error: type mismatch in the 2nd argument of the pair
+    tuple ⊤, 20
+Pair type:
+    Bool ⨯ Bool
+Argument type:
+    ℕ

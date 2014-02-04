@@ -857,25 +857,33 @@ expr parser_imp::parse_tuple() {
     auto p = pos();
     next();
     buffer<expr> args;
-    args.push_back(parse_expr());
+    expr first = parse_expr();
+    expr type;
+    if (curr_is_colon()) {
+        next();
+        type = first;
+        args.push_back(parse_expr());
+    } else {
+        args.push_back(first);
+        type = save(mk_placeholder(), p);
+    }
     while (curr_is_comma()) {
         next();
         args.push_back(parse_expr());
     }
     unsigned num = args.size();
-    if (num < 3)
-        throw parser_error("invalid tuple/pair, it must have at least three arguments", p);
-    expr t = args[num-1];
-    if (num == 3) {
-        return save(mk_pair(args[num-3], args[num-2], t), p);
+    if (num < 2)
+        throw parser_error("invalid tuple/pair, it must have at least two arguments", p);
+    if (num == 2) {
+        return save(mk_pair(args[num-2], args[num-1], type), p);
     } else {
-        expr r = save(mk_pair(args[num-3], args[num-2], save(mk_placeholder(), p)), p);
-        unsigned i = num-3;
+        expr r = save(mk_pair(args[num-2], args[num-1], save(mk_placeholder(), p)), p);
+        unsigned i = num-2;
         while (true) {
             lean_assert(i > 0);
             --i;
             if (i == 0) {
-                return save(mk_pair(args[0], r, t), p);
+                return save(mk_pair(args[0], r, type), p);
             } else {
                 r = save(mk_pair(args[i], r, save(mk_placeholder(), p)), p);
             }

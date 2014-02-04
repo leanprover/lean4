@@ -1,0 +1,10 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Assumed: vec
+  Defined: vec_with_len
+  Assumed: n
+  Assumed: v
+tuple n, v : ℕ ⨯ vec n
+let have_expr : vec_with_len := tuple (sig x : ℕ, vec x) : n, v in have_expr : vec_with_len
+let v2 : vec_with_len := tuple (sig x : ℕ, vec x) : n, v in v2 : vec_with_len
+tuple vec_with_len : n, v : sig len : ℕ, vec len

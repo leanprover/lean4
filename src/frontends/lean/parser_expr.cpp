@@ -853,6 +853,36 @@ expr parser_imp::parse_type(bool level_expected) {
     }
 }
 
+expr parser_imp::parse_tuple() {
+    auto p = pos();
+    next();
+    buffer<expr> args;
+    args.push_back(parse_expr());
+    while (curr_is_comma()) {
+        next();
+        args.push_back(parse_expr());
+    }
+    unsigned num = args.size();
+    if (num < 3)
+        throw parser_error("invalid tuple/pair, it must have at least three arguments", p);
+    expr t = args[num-1];
+    if (num == 3) {
+        return save(mk_pair(args[num-3], args[num-2], t), p);
+    } else {
+        expr r = save(mk_pair(args[num-3], args[num-2], save(mk_placeholder(), p)), p);
+        unsigned i = num-3;
+        while (true) {
+            lean_assert(i > 0);
+            --i;
+            if (i == 0) {
+                return save(mk_pair(args[0], r, t), p);
+            } else {
+                r = save(mk_pair(args[i], r, save(mk_placeholder(), p)), p);
+            }
+        }
+    }
+}
+
 /** \brief Parse \c _ a hole that must be filled by the elaborator. */
 expr parser_imp::parse_placeholder() {
     auto p = pos();
@@ -965,6 +995,7 @@ expr parser_imp::parse_nud() {
     case scanner::token::Placeholder: return parse_placeholder();
     case scanner::token::Type:        return parse_type(false);
     case scanner::token::Have:        return parse_have_expr();
+    case scanner::token::Tuple:       return parse_tuple();
     case scanner::token::By:          return parse_by_expr();
     default:
         throw parser_error("invalid expression, unexpected token", pos());

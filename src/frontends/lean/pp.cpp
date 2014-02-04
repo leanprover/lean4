@@ -76,6 +76,7 @@ static format g_ellipsis_n_fmt= highlight(format("\u2026"));
 static format g_ellipsis_fmt  = highlight(format("..."));
 static format g_let_fmt       = highlight_keyword(format("let"));
 static format g_in_fmt        = highlight_keyword(format("in"));
+static format g_tuple_fmt     = highlight_keyword(format("tuple"));
 static format g_assign_fmt    = highlight_keyword(format(":="));
 static format g_geq_fmt       = format("\u2265");
 static format g_lift_fmt      = highlight_keyword(format("lift"));
@@ -267,6 +268,7 @@ class pp_fn {
             else
                 return false;
         case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Let:
+        case expr_kind::Sigma: case expr_kind::Pair: case expr_kind::Proj:
             return false;
         }
         return false;
@@ -1112,6 +1114,28 @@ class pp_fn {
         }
     }
 
+    result pp_tuple(expr a, unsigned depth) {
+        buffer<expr> args;
+        args.push_back(pair_first(a));
+        while (is_pair(pair_second(a))) {
+            a = pair_second(a);
+            args.push_back(pair_first(a));
+        }
+        args.push_back(pair_second(a));
+        args.push_back(pair_type(a));
+        unsigned indent   = 6;
+        format r_format   = g_tuple_fmt;
+        unsigned r_weight = 1;
+        for (unsigned i = 0; i < args.size(); i++) {
+            auto arg_r = pp_child(args[i], depth);
+            if (i > 0)
+                r_format += comma();
+            r_format += nest(indent, compose(line(), arg_r.first));
+            r_weight += arg_r.second;
+        }
+        return result(group(r_format), r_weight);
+    }
+
     result pp(expr const & e, unsigned depth, bool main = false) {
         check_system("pretty printer");
         if (!is_atomic(e) && (m_num_steps > m_max_steps || depth > m_max_depth)) {
@@ -1148,6 +1172,7 @@ class pp_fn {
                 case expr_kind::Type:       r = pp_type(e);               break;
                 case expr_kind::Let:        r = pp_let(e, depth);         break;
                 case expr_kind::MetaVar:    r = pp_metavar(e, depth);     break;
+                case expr_kind::Pair:       r = pp_tuple(e, depth);       break;
                 }
             }
             if (!main && m_extra_lets && has_several_occs(e) && r.second > m_alias_min_weight) {

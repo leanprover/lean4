@@ -71,7 +71,7 @@ format pair_type_mismatch_exception::pp(formatter const & fmt, options const & o
     r += compose(line(), format("Pair type:"));
     r += nest(indent, compose(line(), fmt(ctx, m_sig_type, false, opts)));
     r += line();
-    r += format("Arguments type:");
+    r += format("Argument type:");
     r += nest(indent, compose(line(), fmt(ctx, m_arg_type, false, opts)));
     return r;
 }

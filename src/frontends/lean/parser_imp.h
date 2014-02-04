@@ -305,6 +305,7 @@ private:
     expr parse_exists();
     expr parse_let();
     expr parse_type(bool level_expected);
+    expr parse_tuple();
     tactic parse_tactic_macro(name tac_id, pos_info const & p);
     expr parse_have_expr();
     expr parse_calc();

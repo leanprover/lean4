@@ -273,16 +273,17 @@ class type_checker::imp {
                 return pair_type(e);
             } else {
                 expr const & t = pair_type(e);
-                expr sig       = check_sigma(infer_type_core(t, ctx), e, ctx);
+                expr sig       = check_sigma(t, t, ctx);
                 expr f_t       = infer_type_core(pair_first(e), ctx);
                 expr s_t       = infer_type_core(pair_second(e), ctx);
                 auto mk_fst_justification = [&]() { return mk_pair_type_match_justification(ctx, e, true); };
                 if (!is_convertible(f_t, abst_domain(sig), ctx, mk_fst_justification))
                     throw pair_type_mismatch_exception(env(), ctx, e, true, f_t, sig);
                 auto mk_snd_justification = [&]() { return mk_pair_type_match_justification(ctx, e, false); };
-                expr expected  = instantiate(abst_body(sig), f_t);
-                if (!is_convertible(s_t, expected, ctx, mk_snd_justification))
+                expr expected  = instantiate(abst_body(sig), pair_first(e));
+                if (!is_convertible(s_t, expected, ctx, mk_snd_justification)) {
                     throw pair_type_mismatch_exception(env(), ctx, e, false, s_t, sig);
+                }
                 return sig;
             }
         case expr_kind::Proj: {

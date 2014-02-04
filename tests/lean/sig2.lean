@@ -2,7 +2,7 @@ check sig x : Nat, x > 0
 check tuple 10, 20
 check tuple 10, true
 check tuple true, 20
-check tuple (Bool # Nat) : true, 20
+check tuple Bool # Nat : true, 20
 check tuple true, true
 check tuple Bool ⨯ Bool : true, true
 variable a : Nat

@@ -25,6 +25,17 @@ Author: Leonardo de Moura
 #include "frontends/lean/operator_info.h"
 #include "frontends/lean/frontend_elaborator.h"
 
+// Lean encodes
+//    proj1 i t
+// as
+//    proj1 (proj2 (proj2 ... t) ...)
+// So, a big \c i may make Lean run out of memory.
+// The default limit is 10000. I don't believe anybody needs to create a tuple with
+// more than 10000 entries
+#ifndef LEAN_MAX_PROJECTION
+#define LEAN_MAX_PROJECTION 10000
+#endif
+
 namespace lean {
 class parser_imp;
 class calc_proof_parser;
@@ -306,6 +317,7 @@ private:
     expr parse_let();
     expr parse_type(bool level_expected);
     expr parse_tuple();
+    expr parse_proj(bool first);
     tactic parse_tactic_macro(name tac_id, pos_info const & p);
     expr parse_have_expr();
     expr parse_calc();

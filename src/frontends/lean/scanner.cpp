@@ -31,7 +31,8 @@ static name g_using_name("using");
 static name g_by_name("by");
 static name g_sig_name("sig");
 static name g_tuple_name("tuple");
-static name g_proj_name("proj");
+static name g_proj1_name("proj1");
+static name g_proj2_name("proj2");
 static name g_cartesian_product_unicode("\u2A2F");
 static name g_cartesian_product("#");
 
@@ -214,8 +215,10 @@ scanner::token scanner::read_a_symbol() {
                 return token::Sig;
             } else if (m_name_val == g_tuple_name) {
                 return token::Tuple;
-            } else if (m_name_val == g_proj_name) {
-                return token::Proj;
+            } else if (m_name_val == g_proj1_name) {
+                return token::Proj1;
+            } else if (m_name_val == g_proj2_name) {
+                return token::Proj2;
             } else if (m_name_val == g_placeholder_name) {
                 return token::Placeholder;
             } else if (m_name_val == g_have_name) {
@@ -460,7 +463,8 @@ std::ostream & operator<<(std::ostream & out, scanner::token const & t) {
     case scanner::token::Assign:            out << ":="; break;
     case scanner::token::Type:              out << "Type"; break;
     case scanner::token::Sig:               out << "sig"; break;
-    case scanner::token::Proj:              out << "proj"; break;
+    case scanner::token::Proj1:             out << "proj1"; break;
+    case scanner::token::Proj2:             out << "proj2"; break;
     case scanner::token::Tuple:             out << "tuple"; break;
     case scanner::token::Placeholder:       out << "_"; break;
     case scanner::token::ScriptBlock:       out << "Script"; break;

@@ -891,6 +891,29 @@ expr parser_imp::parse_tuple() {
     }
 }
 
+expr parser_imp::parse_proj(bool first) {
+    auto p = pos();
+    next();
+    unsigned i = 0;
+    if (curr() == scanner::token::IntVal) {
+        i = parse_unsigned("invalid tuple/pair projection, index does not fit in a machine integer");
+        if (i == 0)
+            throw parser_error("invalid tuple/pair projection, optional index must be >= 1", p);
+        if (i > LEAN_MAX_PROJECTION)
+            throw parser_error(sstream() << "invalid tuple/pair projection, optional index is >= "
+                               << LEAN_MAX_PROJECTION << " (internal limit)", p);
+    }
+    expr t = parse_expr();
+    while (i > 0) {
+        --i;
+        t = save(mk_proj2(t), p);
+    }
+    if (first)
+        return save(mk_proj1(t), p);
+    else
+        return save(mk_proj2(t), p);
+}
+
 /** \brief Parse \c _ a hole that must be filled by the elaborator. */
 expr parser_imp::parse_placeholder() {
     auto p = pos();
@@ -1004,6 +1027,8 @@ expr parser_imp::parse_nud() {
     case scanner::token::Type:        return parse_type(false);
     case scanner::token::Have:        return parse_have_expr();
     case scanner::token::Tuple:       return parse_tuple();
+    case scanner::token::Proj1:       return parse_proj(true);
+    case scanner::token::Proj2:       return parse_proj(false);
     case scanner::token::By:          return parse_by_expr();
     default:
         throw parser_error("invalid expression, unexpected token", pos());

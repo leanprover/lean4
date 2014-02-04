@@ -77,6 +77,8 @@ static format g_ellipsis_fmt  = highlight(format("..."));
 static format g_let_fmt       = highlight_keyword(format("let"));
 static format g_in_fmt        = highlight_keyword(format("in"));
 static format g_tuple_fmt     = highlight_keyword(format("tuple"));
+static format g_proj1_fmt     = highlight_keyword(format("proj1"));
+static format g_proj2_fmt     = highlight_keyword(format("proj2"));
 static format g_assign_fmt    = highlight_keyword(format(":="));
 static format g_geq_fmt       = format("\u2265");
 static format g_lift_fmt      = highlight_keyword(format("lift"));
@@ -1144,6 +1146,23 @@ class pp_fn {
         return result(group(r_format), r_weight);
     }
 
+    result pp_proj(expr a, unsigned depth) {
+        unsigned i = 0;
+        bool first = proj_first(a);
+        while (is_proj(proj_arg(a)) && !proj_first(proj_arg(a))) {
+            a = proj_arg(a);
+            i++;
+        }
+        auto arg_r = pp_child(proj_arg(a), depth);
+        unsigned indent   = 6;
+        format r_format   = first ? g_proj1_fmt : g_proj2_fmt;
+        unsigned r_weight = 1 + arg_r.second;;
+        if (i > 0)
+            r_format += format{space(), format(i)};
+        r_format += nest(indent, compose(line(), arg_r.first));
+        return result(group(r_format), r_weight);
+    }
+
     result pp(expr const & e, unsigned depth, bool main = false) {
         check_system("pretty printer");
         if (!is_atomic(e) && (m_num_steps > m_max_steps || depth > m_max_depth)) {
@@ -1181,6 +1200,7 @@ class pp_fn {
                 case expr_kind::Let:        r = pp_let(e, depth);         break;
                 case expr_kind::MetaVar:    r = pp_metavar(e, depth);     break;
                 case expr_kind::Pair:       r = pp_tuple(e, depth);       break;
+                case expr_kind::Proj:       r = pp_proj(e, depth);        break;
                 }
             }
             if (!main && m_extra_lets && has_several_occs(e) && r.second > m_alias_min_weight) {

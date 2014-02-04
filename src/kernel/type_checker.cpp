@@ -288,14 +288,14 @@ class type_checker::imp {
             }
         case expr_kind::Proj: {
             expr t = check_sigma(infer_type_core(proj_arg(e), ctx), e, ctx);
-            if (proj_first(t)) {
+            if (proj_first(e)) {
                 return abst_domain(t);
             } else {
                 expr const & b = abst_body(t);
                 if (closed(b))
                     return b;
                 else
-                    return instantiate(b, mk_proj1(e));
+                    return instantiate(b, mk_proj1(proj_arg(e)));
             }
         }
         case expr_kind::Lambda:

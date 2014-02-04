@@ -1,20 +1,20 @@
-universe M >= 1
-universe U >= M + 1
-definition TypeM := (Type M)
-universe Z ≥ M+3
+universe M1 >= 1
+universe U >= M1 + 1
+definition TypeM1 := (Type M1)
+universe Z ≥ M1+3
 (*
 local env = get_environment()
-assert(env:get_universe_distance("Z", "M") == 3)
+assert(env:get_universe_distance("Z", "M1") == 3)
 assert(not env:get_universe_distance("Z", "U"))
 *)
 
 (*
 local env = get_environment()
-assert(env:get_universe_distance("Z", "M") == 3)
+assert(env:get_universe_distance("Z", "M1") == 3)
 assert(not env:get_universe_distance("Z", "U"))
 *)
 
-universe Z1 ≥ M + 1073741824.
+universe Z1 ≥ M1 + 1073741824.
 universe Z2 ≥ Z1 + 1073741824.
 
 universe U1

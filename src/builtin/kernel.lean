@@ -1,3 +1,6 @@
+-- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+-- Released under Apache 2.0 license as described in the file LICENSE.
+-- Author: Leonardo de Moura
 import macros
 import tactic
 
@@ -894,11 +897,70 @@ axiom pairext {A : (Type U)} {B : A → (Type U)} {a b : sig x, B x}
               (H1 : proj1 a = proj1 b) (H2 : proj2 a == proj2 b)
               : a = b
 
--- Proof irrelevance, this is true in the set theoretic model we have for Lean.
--- In this model, the interpretation of Bool is the set {{*}, {}}.
--- Thus, if A : Bool is inhabited, then its interpretation must be {*}.
--- So, the interpretation of H1 and H2 must be *.
-axiom hproof_irrel {a b : Bool} (H1 : a) (H2 : b) : H1 == H2
+-- Heterogeneous equality axioms and theorems
 
-theorem proof_irrel {a : Bool} (H1 H2 : a) : H1 = H2
-:= to_eq (hproof_irrel H1 H2)
+-- In the following definitions the type of A and B cannot be (Type U)
+-- because A = B would be @eq (Type U+1) A B, and
+-- the type of eq is (∀T : (Type U), T → T → bool).
+-- So, we define M a universe smaller than U.
+universe M ≥ 1
+definition TypeM := (Type M)
+
+-- We can "type-cast" an A expression into a B expression, if we can prove that A = B
+variable cast {A B : (Type M)} : A = B → A → B
+axiom cast_heq {A B : (Type M)} (H : A = B) (a : A) : cast H a == a
+
+-- Heterogeneous equality satisfies the usual properties: symmetry, transitivity, congruence and function extensionality
+axiom hsymm {A B : (Type U)} {a : A} {b : B} : a == b → b == a
+axiom htrans {A B C : (Type U)} {a : A} {b : B} {c : C} : a == b → b == c → a == c
+axiom hcongr {A A' : (Type U)} {B : A → (Type U)} {B' : A' → (Type U)} {f : ∀ x, B x} {f' : ∀ x, B' x} {a : A} {a' : A'} :
+      f == f' → a == a' → f a == f' a'
+axiom hfunext {A A' : (Type M)} {B : A → (Type U)} {B' : A' → (Type U)} {f : ∀ x, B x} {f' : ∀ x, B' x} :
+      A = A' → (∀ x x', x == x' → f x == f' x') → f == f'
+
+-- Heterogeneous version of the allext theorem
+theorem hallext {A A' : (Type M)} {B : A → Bool} {B' : A' → Bool}
+                (Ha : A = A') (Hb : ∀ x x', x == x' → B x = B' x') : (∀ x, B x) = (∀ x, B' x)
+:= boolext
+     (assume (H : ∀ x : A, B x),
+        take x' : A', (Hb (cast (symm Ha) x') x' (cast_heq (symm Ha) x')) ◂ (H (cast (symm Ha) x')))
+     (assume (H : ∀ x' : A', B' x'),
+        take x : A, (symm (Hb x (cast Ha x) (hsymm (cast_heq Ha x)))) ◂ (H (cast Ha x)))
+
+-- Simpler version of hfunext axiom, we use it to build proofs
+theorem hsfunext {A : (Type M)} {B B' : A → (Type U)} {f : ∀ x, B x} {f' : ∀ x, B' x} :
+      (∀ x, f x == f' x) → f == f'
+:= λ Hb,
+     hfunext (refl A) (λ (x x' : A) (Hx : x == x'),
+                   let s1 : f x   == f' x  := Hb x,
+                       s2 : f' x  == f' x' := hcongr (hrefl f') Hx
+                   in htrans s1 s2)
+
+-- Some theorems that are useful for applying simplifications.
+theorem cast_eq {A : (Type M)} (H : A = A) (a : A) : cast H a = a
+:= to_eq (cast_heq H a)
+
+theorem cast_trans {A B C : (Type M)} (Hab : A = B) (Hbc : B = C) (a : A) : cast Hbc (cast Hab a) = cast (trans Hab Hbc) a
+:= let s1 : cast Hbc (cast Hab a)  == cast Hab a              :=  cast_heq Hbc (cast Hab a),
+       s2 : cast Hab a             == a                       :=  cast_heq Hab a,
+       s3 : cast (trans Hab Hbc) a == a                       :=  cast_heq (trans Hab Hbc) a,
+       s4 : cast Hbc (cast Hab a)  == cast (trans Hab Hbc) a  :=  htrans (htrans s1 s2) (hsymm s3)
+   in to_eq s4
+
+theorem cast_pull {A : (Type M)} {B B' : A → (Type M)}
+                 (f : ∀ x, B x) (a : A) (Hb : (∀ x, B x) = (∀ x, B' x)) (Hba : (B a) = (B' a)) :
+      cast Hb f a = cast Hba (f a)
+:= let s1 : cast Hb f a    == f a    :=  hcongr (cast_heq Hb f) (hrefl a),
+       s2 : cast Hba (f a) == f a    :=  cast_heq Hba (f a)
+   in to_eq (htrans s1 (hsymm s2))
+
+-- Proof irrelevance is true in the set theoretic model we have for Lean.
+axiom proof_irrel {a : Bool} (H1 H2 : a) : H1 = H2
+
+-- A more general version of proof_irrel that can be be derived using proof_irrel, heq axioms and boolext/iff_intro
+theorem hproof_irrel {a b : Bool} (H1 : a) (H2 : b) : H1 == H2
+:= let H1b       : b                     := cast (by simp) H1,
+       H1_eq_H1b : H1 == H1b             := hsymm (cast_heq (by simp) H1),
+       H1b_eq_H2 : H1b == H2             := to_heq (proof_irrel H1b H2)
+   in  htrans H1_eq_H1b H1b_eq_H2
+

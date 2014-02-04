@@ -1,6 +1,6 @@
   Set: pp::colors
   Set: pp::unicode
-  Defined: TypeM
+  Defined: TypeM1
 univ.lean:18:0: error: universe constraint produces an integer overflow: Z2 >= Z1 + 1073741824
 univ.lean:31:0: error: universe constraint inconsistency: U1 >= U4 + 0
 univ.lean:33:0: error: invalid universe constraint: Z >= U + 0, several modules in Lean assume that U is the maximal universe

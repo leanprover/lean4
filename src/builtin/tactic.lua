@@ -25,3 +25,25 @@ tactic_macro("simp", { macro_arg.Ids },
                 return simp_tac(ids)
              end
 )
+
+-- Create a 'bogus' tactic that consume all goals, but it does not create a valid proof.
+-- This tactic is useful for momentarily ignoring/skipping a "hole" in a big proof.
+-- Remark: the kernel will not accept a proof built using this tactic.
+skip_tac = tactic(function (env, ios, s)
+                     local gs      = s:goals()
+                     local pb      = s:proof_builder()
+                     local trivial = mk_constant("trivial")
+                     local new_pb  =
+                        function(m, a)
+                           -- We provide a "fake/incorrect" proof for all goals in gs
+                           local new_m = proof_map(m) -- Copy proof map m
+                           for n, g in gs:pairs() do
+                              new_m:insert(n, trivial)
+                           end
+                           return pb(new_m, a)
+                        end
+                     local new_gs = {}
+                     return  proof_state(s, goals(new_gs), proof_builder(new_pb))
+                  end)
+
+const_tactic("skip", function() return skip_tac end)

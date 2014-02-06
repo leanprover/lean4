@@ -1,4 +1,3 @@
-import heq
 rewrite_set simple
 
 set_option pp::implicit true

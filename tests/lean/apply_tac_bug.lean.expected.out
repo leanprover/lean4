@@ -1,6 +1,5 @@
   Set: pp::colors
   Set: pp::unicode
-  Imported 'heq'
   Imported 'macros'
   Imported 'tactic'
   Proved: my_proof_irrel

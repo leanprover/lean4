@@ -1,6 +1,5 @@
   Set: pp::colors
   Set: pp::unicode
-  Imported 'heq'
   Assumed: Vector
   Assumed: n
   Assumed: v1

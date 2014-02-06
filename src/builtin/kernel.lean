@@ -244,9 +244,9 @@ theorem not_not_elim {a : Bool} (H : ¬ ¬ a) : a
 
 theorem not_imp_eliml {a b : Bool} (Hnab : ¬ (a → b)) : a
 := not_not_elim
-      (have ¬ ¬ a :
-          assume Hna : ¬ a, absurd (assume Ha : a, absurd_elim b Ha Hna)
-                                   Hnab)
+      (show ¬ ¬ a,
+       from assume Hna : ¬ a, absurd (assume Ha : a, absurd_elim b Ha Hna)
+                                      Hnab)
 
 theorem not_imp_elimr {a b : Bool} (H : ¬ (a → b)) : ¬ b
 := assume Hb : b, absurd (assume Ha : a, Hb)
@@ -265,7 +265,7 @@ theorem and_elimr {a b : Bool} (H : a ∧ b) : b
 theorem or_elim {a b c : Bool} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
 := not_not_elim
      (assume H : ¬ c,
-        absurd (have c : H3 (have b : resolve1 H1 (have ¬ a : (mt (assume Ha : a, H2 Ha) H))))
+        absurd (H3 (resolve1 H1 (mt (assume Ha : a, H2 Ha) H)))
                H)
 
 theorem refute {a : Bool} (H : ¬ a → false) : a
@@ -966,4 +966,3 @@ theorem hproof_irrel {a b : Bool} (H1 : a) (H2 : b) : H1 == H2
        H1_eq_H1b : H1 == H1b             := hsymm (cast_heq (by simp) H1),
        H1b_eq_H2 : H1b == H2             := to_heq (proof_irrel H1b H2)
    in  htrans H1_eq_H1b H1b_eq_H2
-

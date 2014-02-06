@@ -978,23 +978,27 @@ tactic parser_imp::parse_tactic_expr() {
     }
 }
 
-static name g_have_expr("have_expr");
+static name g_H_show("H_show");
+static name g_from("from");
 
-/** \brief Parse <tt>'have' expr 'by' tactic</tt> and <tt>'have' expr ':' expr</tt> */
-expr parser_imp::parse_have_expr() {
+/** \brief Parse <tt>'show' expr, 'from' expr</tt> and <tt>'show' expr, 'by' expr</tt>*/
+expr parser_imp::parse_show_expr() {
     auto p = pos();
     next();
     expr t = parse_expr();
-    if (curr_is_colon()) {
+    check_comma_next("invalid 'show' expression, ',' expected");
+    if (curr() == scanner::token::By) {
         next();
-        expr b = parse_expr();
-        return mk_let(g_have_expr, t, b, Var(0));
-    } else {
-        check_next(scanner::token::By, "invalid 'have' expression, 'by' or ':' expected");
         tactic tac = parse_tactic_expr();
         expr r = mk_placeholder(some_expr(t));
         m_tactic_hints.insert(mk_pair(r, tac));
         return save(r, p);
+    } else if (curr_is_identifier() && curr_name() == g_from) {
+        next();
+        expr b = parse_expr();
+        return mk_let(g_H_show, t, b, Var(0));
+    } else {
+        throw parser_error("invalid 'show' expected, 'from' or 'by' expected", p);
     }
 }
 
@@ -1025,7 +1029,7 @@ expr parser_imp::parse_nud() {
     case scanner::token::StringVal:   return parse_string();
     case scanner::token::Placeholder: return parse_placeholder();
     case scanner::token::Type:        return parse_type(false);
-    case scanner::token::Have:        return parse_have_expr();
+    case scanner::token::Show:        return parse_show_expr();
     case scanner::token::Tuple:       return parse_tuple();
     case scanner::token::Proj1:       return parse_proj(true);
     case scanner::token::Proj2:       return parse_proj(false);

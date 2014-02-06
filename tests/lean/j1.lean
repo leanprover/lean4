@@ -10,7 +10,7 @@ add_rewrite imp_truel imp_truer imp_id eq_id : basic
 theorem bracket_eq (x : Bool) : bracket x = x
 := boolext
     (assume H : ∀ p : Bool, (x → p) → p,
-       (have ((x → x) → x) = x : by simp basic) ◂ H x)
+       (show ((x → x) → x) = x, by simp basic) ◂ H x)
     (assume H : x,
        take p,
           assume Hxp : x → p,

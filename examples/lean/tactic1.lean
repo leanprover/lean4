@@ -14,13 +14,13 @@ conj     = conj_tac()
 -- The "hint" is a tactic that should be used to fill the "hole".
 -- In the following example, we use the tactic "auto" defined by the Lua code above.
 --
--- The (have [expr] by [tactic]) expression is also creating a "hole" and associating a "hint" to it.
+-- The (show [expr], by [tactic]) expression is also creating a "hole" and associating a "hint" to it.
 -- The expression [expr] after the shows is fixing the type of the "hole"
 theorem T1 (A B : Bool) : A /\ B -> B /\ A :=
      fun assumption : A /\ B,
           let lemma1     : A      := (by auto),
               lemma2     : B      := (by auto)
-          in (have B /\ A by auto)
+          in (show B /\ A, by auto)
 
 print environment 1. -- print proof for the previous theorem
 
@@ -52,6 +52,6 @@ theorem T4 (A B : Bool) : A /\ B -> B /\ A :=
      fun assumption : A /\ B,
           let lemma1     : A      := _,  -- first hole
               lemma2     : B      := _   -- second hole
-          in (have B /\ A by auto).
+          in (show B /\ A, by auto).
    auto. done.  -- tactic command sequence for the first hole
    auto. done.  -- tactic command sequence for the second hole

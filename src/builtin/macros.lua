@@ -76,13 +76,13 @@ end
 --      Axiom Ax2: forall x y, not P x y
 -- Now, the following macro expression
 --    obtain (a b : Nat) (H : P a b) from Ax1,
---         have false : absurd H (instantiate Ax2 a b)
+--         show false, from absurd H (instantiate Ax2 a b)
 -- expands to
 --    exists::elim Ax1
 --        (fun (a : Nat) (Haux : ...),
 --           exists::elim Haux
 --              (fun (b : Na) (H : P a b),
---                   have false : absurd H (instantiate Ax2 a b)
+--                   show false, from absurd H (instantiate Ax2 a b)
 macro("obtain", { macro_arg.Parameters, macro_arg.Comma, macro_arg.Id, macro_arg.Expr, macro_arg.Comma, macro_arg.Expr },
       function (env, bindings, fromid, exPr, body)
          local n = #bindings

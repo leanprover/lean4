@@ -60,7 +60,7 @@ theorem discriminate {B : Bool} {a : Nat} (H1: a = 0 → B) (H2 : ∀ n, a = n +
 
 theorem add_zerol (a : Nat) : 0 + a = a
 := induction_on a
-    (have 0 + 0 = 0 : add_zeror 0)
+    (show 0 + 0 = 0, from add_zeror 0)
     (λ (n : Nat) (iH : 0 + n = n),
         calc  0 + (n + 1)  =  (0 + n) + 1   :  add_succr 0 n
                     ...    =  n + 1         :  { iH })
@@ -72,7 +72,7 @@ theorem add_succl (a b : Nat) : (a + 1) + b = (a + b) + 1
     (λ (n : Nat) (iH : (a + 1) + n = (a + n) + 1),
         calc   (a + 1) + (n + 1)   =   ((a + 1) + n) + 1  :  add_succr (a + 1) n
                               ...  =   ((a + n) + 1) + 1  :  { iH }
-                              ...  =   (a + (n + 1)) + 1  :  { have (a + n) + 1 = a + (n + 1) : symm (add_succr a n) })
+                              ...  =   (a + (n + 1)) + 1  :  { show (a + n) + 1 = a + (n + 1), from symm (add_succr a n) })
 
 theorem add_comm (a b : Nat) : a + b = b + a
 := induction_on b
@@ -91,11 +91,11 @@ theorem add_assoc (a b c : Nat) : (a + b) + c = a + (b + c)
         calc (n + 1) + (b + c)   =    (n + (b + c)) + 1   :  add_succl n (b + c)
                           ...    =    ((n + b) + c) + 1   :  { iH }
                           ...    =    ((n + b) + 1) + c   :  symm (add_succl (n + b) c)
-                          ...    =    ((n + 1) + b) + c   :  { have (n + b) + 1 = (n + 1) + b :  symm (add_succl n b) }))
+                          ...    =    ((n + 1) + b) + c   :  { show (n + b) + 1 = (n + 1) + b, from symm (add_succl n b) }))
 
 theorem mul_zerol (a : Nat) : 0 * a = 0
 := induction_on a
-    (have 0 * 0 = 0 : mul_zeror 0)
+    (show 0 * 0 = 0, from mul_zeror 0)
     (λ (n : Nat) (iH : 0 * n = 0),
         calc  0 * (n + 1)  =  (0 * n) + 0 : mul_succr 0 n
                       ...  =  0 + 0       : { iH }
@@ -110,7 +110,8 @@ theorem mul_succl (a b : Nat) : (a + 1) * b = a * b + b
         calc   (a + 1) * (n + 1)  =    (a + 1) * n + (a + 1)  :  mul_succr (a + 1) n
                             ...   = a * n + n + (a + 1)       :  { iH }
                             ...   = a * n + n + a + 1         :  symm (add_assoc (a * n + n) a 1)
-                            ...   = a * n + (n + a) + 1       :  { have  a * n + n + a = a * n + (n + a) : add_assoc (a * n) n a }
+                            ...   = a * n + (n + a) + 1       :  { show  a * n + n + a = a * n + (n + a),
+                                                                   from add_assoc (a * n) n a }
                             ...   = a * n + (a + n) + 1       :  { add_comm n a }
                             ...   = a * n + a + n + 1         :  { symm (add_assoc (a * n) a n) }
                             ...   = a * (n + 1) + n + 1       :  { symm (mul_succr a n) }
@@ -118,14 +119,14 @@ theorem mul_succl (a b : Nat) : (a + 1) * b = a * b + b
 
 theorem mul_onel (a : Nat) : 1 * a = a
 := induction_on a
-    (have 1 * 0 = 0 : mul_zeror 1)
+    (show 1 * 0 = 0, from mul_zeror 1)
     (λ (n : Nat) (iH : 1 * n = n),
         calc  1 * (n + 1)  =  1 * n + 1 :  mul_succr 1 n
                       ...  =  n + 1     : { iH })
 
 theorem mul_oner (a : Nat) : a * 1 = a
 := induction_on a
-    (have 0 * 1 = 0 : mul_zeror 1)
+    (show 0 * 1 = 0, from mul_zeror 1)
     (λ (n : Nat) (iH : n * 1 = n),
         calc  (n + 1) * 1  =  n * 1 + 1 : mul_succl n 1
                       ...  =  n + 1     : { iH })
@@ -214,7 +215,7 @@ theorem add_eqz {a b : Nat} (H : a + b = 0) : a = 0
                    ...  ≠  0           : succ_nz (n + b)))
 
 theorem le_intro {a b c : Nat} (H : a + c = b) : a ≤ b
-:= (symm (le_def a b)) ◂ (have (∃ x, a + x = b) : exists_intro c H)
+:= (symm (le_def a b)) ◂ (show (∃ x, a + x = b), from exists_intro c H)
 
 theorem le_elim {a b : Nat} (H : a ≤ b) : ∃ x, a + x = b
 := (le_def a b) ◂ H
@@ -332,12 +333,12 @@ theorem strong_induction {P : Nat → Bool} (H : ∀ n, (∀ m, m < n → P m) �
     let stronger : P a ∧ ∀ m, m < a → P m :=
       -- we prove a stronger result by regular induction on a
       induction_on a
-        (have P 0 ∧ ∀ m, m < 0 → P m :
+        (show P 0 ∧ ∀ m, m < 0 → P m, from
             let c2 : ∀ m, m < 0 → P m := λ (m : Nat) (Hlt : m < 0), absurd_elim (P m) Hlt (not_lt_0 m),
                 c1 : P 0                := H 0 c2
             in and_intro c1 c2)
         (λ (n : Nat) (iH : P n ∧ ∀ m, m < n → P m),
-            have P (n + 1) ∧ ∀ m, m < n + 1 → P m :
+            show P (n + 1) ∧ ∀ m, m < n + 1 → P m, from
               let iH1 : P n                    := and_eliml iH,
                   iH2 : ∀ m, m < n → P m     := and_elimr iH,
                   c2  : ∀ m, m < n + 1 → P m := λ (m : Nat) (Hlt : m < n + 1),

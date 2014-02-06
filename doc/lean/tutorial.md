@@ -675,10 +675,10 @@ as syntax sugar for `fun x : A, H`. This may been silly, but it allows us to sim
    theorem subset_trans {A : Type} {s1 s2 s3 : Set A} (H1 : s1 ⊆ s2) (H2 : s2 ⊆ s3) : s1 ⊆ s3
    := take x : A,
         assume Hin : x ∈ s1,
-            have x ∈ s3 :
+            show x ∈ s3, from
                let L1 : x ∈ s2 := H1 x Hin
                in H2 x L1
 ```
 
-Finally, the construct `have A : H` means "have" a proof for `A` using `H`. It is just syntax sugar for
-`let L : A := H in L`. It is useful to document intermediate steps in manually constructed proofs.
+Finally, the construct `show A, from H` means "have" a proof for `A` using `H`. It is just syntax sugar for
+`let H_show : A := H in H_show`. It is useful to document intermediate steps in manually constructed proofs.

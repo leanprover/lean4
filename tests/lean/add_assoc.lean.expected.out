@@ -9,15 +9,9 @@ Nat::add_succl : ∀ a b : ℕ, a + 1 + b = a + b + 1
 theorem add_assoc (a b c : ℕ) : a + (b + c) = a + b + c :=
     Nat::induction_on
         a
-        (let have_expr : 0 + (b + c) = 0 + b + c :=
-                 eqt_elim (trans (congr (congr2 eq (Nat::add_zerol (b + c)))
-                                        (congr1 c (congr2 Nat::add (Nat::add_zerol b))))
-                                 (eq_id (b + c)))
-         in have_expr)
+        (eqt_elim (trans (congr (congr2 eq (Nat::add_zerol (b + c))) (congr1 c (congr2 Nat::add (Nat::add_zerol b))))
+                         (eq_id (b + c))))
         (λ (n : ℕ) (iH : n + (b + c) = n + b + c),
-           let have_expr : n + 1 + (b + c) = n + 1 + b + c :=
-                   eqt_elim (trans (congr (congr2 eq (trans (Nat::add_succl n (b + c)) (congr1 1 (congr2 Nat::add iH))))
-                                          (trans (congr1 c (congr2 Nat::add (Nat::add_succl n b)))
-                                                 (Nat::add_succl (n + b) c)))
-                                   (eq_id (n + b + c + 1)))
-           in have_expr)
+           eqt_elim (trans (congr (congr2 eq (trans (Nat::add_succl n (b + c)) (congr1 1 (congr2 Nat::add iH))))
+                                  (trans (congr1 c (congr2 Nat::add (Nat::add_succl n b))) (Nat::add_succl (n + b) c)))
+                           (eq_id (n + b + c + 1))))

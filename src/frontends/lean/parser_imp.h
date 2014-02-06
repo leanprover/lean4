@@ -319,7 +319,7 @@ private:
     expr parse_tuple();
     expr parse_proj(bool first);
     tactic parse_tactic_macro(name tac_id, pos_info const & p);
-    expr parse_have_expr();
+    expr parse_show_expr();
     expr parse_calc();
     expr parse_nud_id();
     expr parse_nud();

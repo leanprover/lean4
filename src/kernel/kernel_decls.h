@@ -72,6 +72,10 @@ expr mk_exists_fn();
 bool is_exists_fn(expr const & e);
 inline bool is_exists(expr const & e) { return is_app(e) && is_exists_fn(arg(e, 0)) && num_args(e) == 3; }
 inline expr mk_exists(expr const & e1, expr const & e2) { return mk_app({mk_exists_fn(), e1, e2}); }
+expr mk_exists_unique_fn();
+bool is_exists_unique_fn(expr const & e);
+inline bool is_exists_unique(expr const & e) { return is_app(e) && is_exists_unique_fn(arg(e, 0)) && num_args(e) == 3; }
+inline expr mk_exists_unique(expr const & e1, expr const & e2) { return mk_app({mk_exists_unique_fn(), e1, e2}); }
 expr mk_case_fn();
 bool is_case_fn(expr const & e);
 inline expr mk_case_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_case_fn(), e1, e2, e3, e4}); }

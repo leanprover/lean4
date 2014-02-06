@@ -27,6 +27,7 @@ MK_CONSTANT(em_fn, name("em"));
 MK_CONSTANT(not_intro_fn, name("not_intro"));
 MK_CONSTANT(absurd_fn, name("absurd"));
 MK_CONSTANT(exists_fn, name("exists"));
+MK_CONSTANT(exists_unique_fn, name("exists_unique"));
 MK_CONSTANT(case_fn, name("case"));
 MK_CONSTANT(false_elim_fn, name("false_elim"));
 MK_CONSTANT(mt_fn, name("mt"));

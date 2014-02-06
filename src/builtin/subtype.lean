@@ -1,6 +1,4 @@
-import heq
 import macros
-
 -- Simulate "subtypes" using Sigma types and proof irrelevance
 definition subtype (A : (Type U)) (P : A → Bool) := sig x, P x
 
@@ -30,23 +28,16 @@ theorem abst_rep {A : (Type U)} {P : A → Bool} (H : inhabited (subtype A P)) (
                 @eps_ax (subtype A P) H (λ x, rep x = rep a) a (refl (rep a))
    in rep_inj s1
 
-theorem rep_abst {A : (Type U)} {P : A → Bool} (H : inhabited (subtype A P)) : ∀ r, P r ↔ rep (abst r H) = r
-:= take r, iff_intro
-     (assume Hl : P r,
-         @eps_ax (subtype A P) H (λ x, rep x = r) (tuple (subtype A P) : r, Hl) (refl r))
-     (assume Hr : rep (abst r H) = r,
-         let s1 : P (rep (abst r H)) := P_rep (abst r H)
-         in  subst s1 Hr)
+theorem rep_abst {A : (Type U)} {P : A → Bool} (H : inhabited (subtype A P)) : ∀ r, P r → rep (abst r H) = r
+:= take r, assume Hl : P r,
+     @eps_ax (subtype A P) H (λ x, rep x = r) (tuple (subtype A P) : r, Hl) (refl r)
 
-theorem abst_abst {A : (Type U)} {P : A → Bool} (H : inhabited (subtype A P)) {r r' : A} :
-                  P r → P r' → (abst r H = abst r' H ↔ r = r')
-:= assume Hr Hr', iff_intro
-     (assume Heq : abst r H = abst r' H,
-         calc r    = rep (abst r  H)  :  symm ((rep_abst H r) ◂ Hr)
-              ...  = rep (abst r' H)  :  { Heq }
-              ...  = r'               :  (rep_abst H r') ◂ Hr')
-     (assume Heq : r = r',
-         calc abst r H = abst r' H  : { Heq })
+theorem abst_inj {A : (Type U)} {P : A → Bool} (H : inhabited (subtype A P)) {r r' : A} :
+                 P r → P r' → abst r H = abst r' H → r = r'
+:= assume Hr Hr' Heq,
+      calc r    = rep (abst r  H)  :  symm (rep_abst H r Hr)
+           ...  = rep (abst r' H)  :  { Heq }
+           ...  = r'               :  rep_abst H r' Hr'
 
 theorem ex_rep {A : (Type U)} {P : A → Bool} (H : inhabited (subtype A P)) :
                ∀ a, ∃ r, abst r H = a ∧ P r

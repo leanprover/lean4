@@ -88,6 +88,9 @@ theorem absurd {a : Bool} (H1 : a) (H2 : ¬ a) : false
 definition Exists (A : (Type U)) (P : A → Bool)
 := ¬ (∀ x, ¬ (P x))
 
+definition exists_unique {A : (Type U)} (p : A → Bool)
+:= ∃ x, p x ∧ ∀ y, y ≠ x → ¬ p y
+
 axiom case (P : Bool → Bool) (H1 : P true) (H2 : P false) (a : Bool) : P a
 
 theorem false_elim (a : Bool) (H : false) : a

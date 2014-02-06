@@ -23,22 +23,26 @@ theorem    pairext_proj {A B : (Type U)} {p : A # B} {a : A} {b : B} (H1 : proj1
 
 theorem inl_pred {A : (Type U)} (a : A) (B : (Type U)) : sum_pred A B (pair (some a) none)
 := not_intro
-     (λ N : (some a = none) = (none = (optional::@none B)),
-        let eq  :   some a = none := (symm N) ◂ (refl (optional::@none B))
-        in absurd eq (distinct a))
+     (assume N  : (some a = none) = (none = (optional::@none B)),
+      have   eq :   some a = none,
+         from (symm N) ◂ (refl (optional::@none B)),
+      show false,
+         from absurd eq (distinct a))
 
 theorem inr_pred (A : (Type U)) {B : (Type U)} (b : B) : sum_pred A B (pair none (some b))
 := not_intro
-     (λ N : (none = (optional::@none A)) = (some b = none),
-        let eq  :   some b = none := N ◂ (refl (optional::@none A))
-        in absurd eq (distinct b))
+     (assume N  : (none = (optional::@none A)) = (some b = none),
+      have   eq :   some b = none,
+         from N ◂ (refl (optional::@none A)),
+      show false,
+        from absurd eq (distinct b))
 
 theorem inhabl {A : (Type U)} (H : inhabited A) (B : (Type U)) : inhabited (sum A B)
-:= inhabited_elim H (λ w : A,
+:= inhabited_elim H (take w : A,
       subtype_inhabited (exists_intro (pair (some w) none) (inl_pred w B)))
 
 theorem inhabr (A : (Type U)) {B : (Type U)} (H : inhabited B) : inhabited (sum A B)
-:= inhabited_elim H (λ w : B,
+:= inhabited_elim H (take w : B,
       subtype_inhabited (exists_intro (pair none (some w)) (inr_pred A w)))
 
 definition inl {A : (Type U)} (a : A) (B : (Type U)) : sum A B
@@ -49,71 +53,92 @@ definition inr (A : (Type U)) {B : (Type U)} (b : B) : sum A B
 
 theorem inl_inj {A B : (Type U)} {a1 a2 : A} : inl a1 B = inl a2 B → a1 = a2
 := assume Heq : inl a1 B = inl a2 B,
-     let eq1    : inl a1 B = abst (pair (some a1) none) (inhabl (inhabited_intro a1) B) := refl (inl a1 B),
-         eq2    : inl a2 B = abst (pair (some a2) none) (inhabl (inhabited_intro a1) B)
-                := subst (refl (inl a2 B)) (proof_irrel (inhabl (inhabited_intro a2) B) (inhabl (inhabited_intro a1) B)),
-         rep_eq : (pair (some a1) none) = (pair (some a2) none)
-                := abst_inj (inhabl (inhabited_intro a1) B) (inl_pred a1 B) (inl_pred a2 B) (trans (trans (symm eq1) Heq) eq2)
-     in optional::injectivity
+     have eq1    : inl a1 B = abst (pair (some a1) none) (inhabl (inhabited_intro a1) B),
+        from refl (inl a1 B),
+     have eq2    : inl a2 B = abst (pair (some a2) none) (inhabl (inhabited_intro a1) B),
+        from subst (refl (inl a2 B)) (proof_irrel (inhabl (inhabited_intro a2) B) (inhabl (inhabited_intro a1) B)),
+     have rep_eq : (pair (some a1) none) = (pair (some a2) none),
+        from abst_inj (inhabl (inhabited_intro a1) B) (inl_pred a1 B) (inl_pred a2 B) (trans (trans (symm eq1) Heq) eq2),
+     show a1 = a2,
+        from optional::injectivity
             (calc some a1 = proj1 (pair (some a1) (optional::@none B))  : refl (some a1)
                       ... = proj1 (pair (some a2) (optional::@none B))  : pair_inj1 rep_eq
                       ... = some a2                                     : refl (some a2))
 
 theorem inr_inj {A B : (Type U)} {b1 b2 : B} : inr A b1 = inr A b2 → b1 = b2
 := assume Heq : inr A b1   = inr A b2,
-     let eq1    : inr A b1 = abst (pair none (some b1)) (inhabr A (inhabited_intro b1)) := refl (inr A b1),
-         eq2    : inr A b2 = abst (pair none (some b2)) (inhabr A (inhabited_intro b1))
-                := subst (refl (inr A b2)) (proof_irrel (inhabr A (inhabited_intro b2)) (inhabr A (inhabited_intro b1))),
-         rep_eq : (pair none (some b1)) = (pair none (some b2))
-                := abst_inj (inhabr A (inhabited_intro b1)) (inr_pred A b1) (inr_pred A b2) (trans (trans (symm eq1) Heq) eq2)
-     in optional::injectivity
+     have eq1    :  inr A b1 = abst (pair none (some b1)) (inhabr A (inhabited_intro b1)),
+        from refl (inr A b1),
+     have eq2    :  inr A b2 = abst (pair none (some b2)) (inhabr A (inhabited_intro b1)),
+        from subst (refl (inr A b2)) (proof_irrel (inhabr A (inhabited_intro b2)) (inhabr A (inhabited_intro b1))),
+     have rep_eq : (pair none (some b1)) = (pair none (some b2)),
+        from abst_inj (inhabr A (inhabited_intro b1)) (inr_pred A b1) (inr_pred A b2) (trans (trans (symm eq1) Heq) eq2),
+     show b1 = b2,
+        from optional::injectivity
             (calc some b1 = proj2 (pair (optional::@none A) (some b1))  : refl (some b1)
                       ... = proj2 (pair (optional::@none A) (some b2))  : pair_inj2 rep_eq
                       ... = some b2                                     : refl (some b2))
 
 theorem distinct {A B : (Type U)} (a : A) (b : B) : inl a B ≠ inr A b
 := assume N : inl a B = inr A b,
-     let eq1    : inl a B = abst (pair (some a) none) (inhabl (inhabited_intro a) B) := refl (inl a B),
-         eq2    : inr A b = abst (pair none (some b)) (inhabl (inhabited_intro a) B)
-                := subst (refl (inr A b)) (proof_irrel (inhabr A (inhabited_intro b)) (inhabl (inhabited_intro a) B)),
-         rep_eq : (pair (some a) none) = (pair none (some b))
-                := abst_inj (inhabl (inhabited_intro a) B) (inl_pred a B) (inr_pred A b) (trans (trans (symm eq1) N) eq2)
-     in absurd (pair_inj1 rep_eq) (optional::distinct a)
+     have eq1   : inl a B = abst (pair (some a) none) (inhabl (inhabited_intro a) B),
+        from refl (inl a B),
+     have eq2   : inr A b = abst (pair none (some b)) (inhabl (inhabited_intro a) B),
+        from subst (refl (inr A b)) (proof_irrel (inhabr A (inhabited_intro b)) (inhabl (inhabited_intro a) B)),
+     have rep_eq : (pair (some a) none) = (pair none (some b)),
+        from abst_inj (inhabl (inhabited_intro a) B) (inl_pred a B) (inr_pred A b) (trans (trans (symm eq1) N) eq2),
+     show false,
+        from absurd (pair_inj1 rep_eq) (optional::distinct a)
 
 theorem dichotomy {A B : (Type U)} (n : sum A B) : (∃ a, n = inl a B) ∨ (∃ b, n = inr A b)
 := let pred : (proj1 (rep n) = none) ≠ (proj2 (rep n) = none) := P_rep n
    in or_elim (em (proj1 (rep n) = none))
-         (λ Heq,  let neq_none : ¬ proj2 (rep n) = (optional::@none B) := (symm (not_iff_elim (ne_symm pred))) ◂ Heq,
-                      ex_some  : ∃ b, proj2 (rep n) = some b          := resolve1 (optional::dichotomy (proj2 (rep n))) neq_none
-                  in obtain (b : B) (Hb : proj2 (rep n) = some b), from ex_some,
-                     or_intror (∃ a, n = inl a B)
-                               (let rep_eq   : rep n         = pair none (some b)
-                                             := pairext_proj Heq Hb,
-                                    rep_inr  : rep (inr A b) = pair none (some b)
-                                             := rep_abst (inhabr A (inhabited_intro b)) (pair none (some b)) (inr_pred A b),
-                                    n_eq_inr : n = inr A b
-                                             := rep_inj (trans rep_eq (symm rep_inr))
-                                in exists_intro b n_eq_inr))
-         (λ Hne, let eq_none : proj2 (rep n) = (optional::@none B) := (not_iff_elim pred) ◂ Hne,
-                     ex_some : ∃ a, proj1 (rep n) = some a := resolve1 (optional::dichotomy (proj1 (rep n))) Hne
-                 in obtain (a : A) (Ha : proj1 (rep n) = some a), from ex_some,
-                    or_introl (let rep_eq   : rep n  = pair (some a) none
-                                            := pairext_proj Ha eq_none,
-                                   rep_inl  : rep (inl a B) = pair (some a) none
-                                            := rep_abst (inhabl (inhabited_intro a) B) (pair (some a) none) (inl_pred a B),
-                                   n_eq_inl : n = inl a B
-                                            := rep_inj (trans rep_eq (symm rep_inl))
-                               in exists_intro a n_eq_inl)
-                              (∃ b, n = inr A b))
+         (assume Heq : proj1 (rep n) = none,
+          have neq_none : ¬ proj2 (rep n) = (optional::@none B),
+             from (symm (not_iff_elim (ne_symm pred))) ◂ Heq,
+          have ex_some  : ∃ b, proj2 (rep n) = some b,
+             from resolve1 (optional::dichotomy (proj2 (rep n))) neq_none,
+          obtain (b : B) (Hb : proj2 (rep n) = some b),
+             from ex_some,
+          show (∃ a, n = inl a B) ∨ (∃ b, n = inr A b),
+             from or_intror (∃ a, n = inl a B)
+                (have rep_eq   : rep n         = pair none (some b),
+                    from pairext_proj Heq Hb,
+                 have rep_inr  : rep (inr A b) = pair none (some b),
+                    from rep_abst (inhabr A (inhabited_intro b)) (pair none (some b)) (inr_pred A b),
+                 have n_eq_inr : n = inr A b,
+                    from rep_inj (trans rep_eq (symm rep_inr)),
+                 show (∃ b, n = inr A b),
+                    from exists_intro b n_eq_inr))
+         (assume Hne : ¬ proj1 (rep n) = none,
+          have eq_none : proj2 (rep n) = (optional::@none B),
+             from (not_iff_elim pred) ◂ Hne,
+          have ex_some : ∃ a, proj1 (rep n) = some a,
+             from resolve1 (optional::dichotomy (proj1 (rep n))) Hne,
+          obtain (a : A) (Ha : proj1 (rep n) = some a),
+             from ex_some,
+          show (∃ a, n = inl a B) ∨ (∃ b, n = inr A b),
+            from or_introl
+               (have rep_eq   : rep n  = pair (some a) none,
+                   from pairext_proj Ha eq_none,
+                have rep_inl  : rep (inl a B) = pair (some a) none,
+                   from rep_abst (inhabl (inhabited_intro a) B) (pair (some a) none) (inl_pred a B),
+                have n_eq_inl : n = inl a B,
+                   from rep_inj (trans rep_eq (symm rep_inl)),
+                show ∃ a, n = inl a B,
+                   from exists_intro a n_eq_inl)
+                (∃ b, n = inr A b))
 
 theorem induction {A B : (Type U)} {P : sum A B → Bool} (H1 : ∀ a, P (inl a B)) (H2 : ∀ b, P (inr A b)) : ∀ n, P n
 := take n, or_elim (sum::dichotomy n)
-    (λ Hex : ∃ a, n = inl a B,
-        obtain (a : A) (Ha : n = inl a B), from Hex,
-          subst (H1 a) (symm Ha))
-    (λ Hex : ∃ b, n = inr A b,
-        obtain (b : B) (Hb : n = inr A b), from Hex,
-           subst (H2 b) (symm Hb))
+    (assume Hex : ∃ a, n = inl a B,
+     obtain (a : A) (Ha : n = inl a B), from Hex,
+     show P n,
+        from subst (H1 a) (symm Ha))
+    (assume Hex : ∃ b, n = inr A b,
+     obtain (b : B) (Hb : n = inr A b), from Hex,
+     show P n,
+        from subst (H2 b) (symm Hb))
 
 set_opaque inl true
 set_opaque inr true

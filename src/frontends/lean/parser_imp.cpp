@@ -126,6 +126,14 @@ void parser_imp::parse_script(bool as_expr) {
 
 void parser_imp::parse_script_expr() { return parse_script(true); }
 
+std::pair<expr, metavar_env> parser_imp::elaborate(expr const & e) {
+    return m_elaborator(e, m_io_state.get_options());
+}
+
+std::tuple<expr, expr, metavar_env> parser_imp::elaborate(name const & n, expr const & t, expr const & e) {
+    return m_elaborator(n, t, e, m_io_state.get_options());
+}
+
 void parser_imp::sync_command() {
     // Keep consuming tokens until we find a Command or End-of-file
     show_prompt();
@@ -217,7 +225,7 @@ bool parser_imp::parse_commands() {
 /** \brief Parse an expression. */
 expr parser_imp::parse_expr_main() {
     try {
-        auto p = m_elaborator(parse_expr());
+        auto p = elaborate(parse_expr());
         check_no_metavar(p, "invalid expression, it still contains metavariables after elaboration");
         return p.first;
     } catch (parser_error & ex) {

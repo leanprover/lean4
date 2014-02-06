@@ -29,13 +29,13 @@ public:
     /**
        \brief Elaborate the given expression.
     */
-    std::pair<expr, metavar_env> operator()(expr const & e);
+    std::pair<expr, metavar_env> operator()(expr const & e, options const & opts);
     /**
        \brief Elaborate the given type and expression. The typeof(e) == t.
        This information is used by the elaborator. The result is a new
        elaborated type and expression.
     */
-    std::tuple<expr, expr, metavar_env> operator()(name const & n, expr const & t, expr const & e);
+    std::tuple<expr, expr, metavar_env> operator()(name const & n, expr const & t, expr const & e, options const & opts);
 
     /**
         \brief If \c e is an expression instantiated by the elaborator, then it

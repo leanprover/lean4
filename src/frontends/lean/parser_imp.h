@@ -242,6 +242,15 @@ private:
     void parse_script(bool as_expr = false);
     void parse_script_expr();
 
+    /**
+       @name Elaborator interface
+    */
+    /*@{*/
+private:
+    std::pair<expr, metavar_env> elaborate(expr const & e);
+    std::tuple<expr, expr, metavar_env> elaborate(name const & n, expr const & t, expr const & e);
+    /*@}*/
+
 
     /**
        @name Parse Universe levels

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "util/list.h"
 #include "util/splay_tree.h"
 #include "util/interrupt.h"
+#include "util/sstream.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/formatter.h"
 #include "kernel/free_vars.h"
@@ -25,8 +26,39 @@ Author: Leonardo de Moura
 #include "library/elaborator/elaborator.h"
 #include "library/elaborator/elaborator_justification.h"
 
+#ifndef LEAN_ELABORATOR_MAX_STEPS
+#define LEAN_ELABORATOR_MAX_STEPS 100000
+#endif
+
+#ifndef LEAN_ELABORATOR_USE_NORMALIZER
+#define LEAN_ELABORATOR_USE_NORMALIZER true
+#endif
+
+#ifndef LEAN_ELABORATOR_INJECTIVITY
+#define LEAN_ELABORATOR_INJECTIVITY true
+#endif
+
 namespace lean {
 static name g_x_name("x");
+
+static name g_elaborator_max_steps      {"elaborator", "max_steps"};
+static name g_elaborator_use_normalizer {"elaborator", "use_normalizer"};
+static name g_elaborator_injectivity    {"elaborator", "injectivity"};
+
+RegisterUnsignedOption(g_elaborator_max_steps, LEAN_ELABORATOR_MAX_STEPS, "(elaborator) maximum number of steps");
+RegisterBoolOption(g_elaborator_use_normalizer, LEAN_ELABORATOR_USE_NORMALIZER,
+                   "(elaborator) invoke normalizer during elaboration");
+RegisterBoolOption(g_elaborator_injectivity, LEAN_ELABORATOR_INJECTIVITY, "(elaborator) reduce unification constrainst of the form f(t1, t2) ≈ f(s1, s2)  into t1 ≈ s1 and t2 ≈ s2 even if f-applications are not in head normal form");
+
+unsigned get_elaborator_max_steps(options const & opts) {
+    return opts.get_unsigned(g_elaborator_max_steps, LEAN_ELABORATOR_MAX_STEPS);
+}
+bool get_elaborator_use_normalizer(options const & opts) {
+    return opts.get_bool(g_elaborator_use_normalizer, LEAN_ELABORATOR_USE_NORMALIZER);
+}
+bool get_elaborator_injectivity(options const & opts) {
+    return opts.get_bool(g_elaborator_injectivity, LEAN_ELABORATOR_INJECTIVITY);
+}
 
 class elaborator::imp {
     typedef splay_tree<name, name_cmp>                         name_set;
@@ -148,16 +180,26 @@ class elaborator::imp {
     justification                            m_conflict;
     bool                                     m_first;
     level                                    m_U; // universe U used for builtin kernel axioms
+    unsigned                                 m_num_steps;
 
     // options
     bool                                     m_use_justifications;
     bool                                     m_use_normalizer;
     bool                                     m_assume_injectivity;
+    unsigned                                 m_max_steps;
 
-    void set_options(options const &) {
+    void set_options(options const & o) {
         m_use_justifications = true;
-        m_use_normalizer     = true;
-        m_assume_injectivity = true;
+        m_use_normalizer     = get_elaborator_use_normalizer(o);
+        m_assume_injectivity = get_elaborator_injectivity(o);
+        m_max_steps          = get_elaborator_max_steps(o);
+    }
+
+    void check_system() {
+        check_interrupted();
+        if (m_num_steps > m_max_steps)
+            throw exception(sstream() << "elaborator maximum number of steps (" << m_max_steps << ") exceeded, the maximum number of steps can be increased by setting the option elaborator::max_steps (remark: the elaborator uses higher order unification, which may trigger non-termination");
+        m_num_steps++;
     }
 
     justification mk_assumption() {
@@ -683,7 +725,7 @@ class elaborator::imp {
         context const & ctx = get_context(c);
         bool modified = false;
         while (true) {
-            check_interrupted();
+            check_system();
             expr new_a = normalize_step(ctx, a);
             expr new_b = normalize_step(ctx, b);
             if (new_a == a && new_b == b) {
@@ -1899,11 +1941,13 @@ public:
         m_next_id     = 0;
         m_first       = true;
         m_U           = m_env->get_uvar("U");
+        m_num_steps   = 0;
         // display(std::cout);
     }
 
     metavar_env next() {
-        check_interrupted();
+        m_num_steps = 0;
+        check_system();
         if (m_conflict)
             throw elaborator_exception(m_conflict);
         if (!m_case_splits.empty()) {
@@ -1920,7 +1964,7 @@ public:
             throw elaborator_exception(m_conflict);
         }
         while (true) {
-            check_interrupted();
+            check_system();
             cnstr_list & active_cnstrs = m_state.m_active_cnstrs;
             if (!empty(active_cnstrs)) {
                 unification_constraint c = head(active_cnstrs);

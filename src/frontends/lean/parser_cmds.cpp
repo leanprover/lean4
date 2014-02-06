@@ -148,7 +148,7 @@ void parser_imp::parse_def_core(bool is_definition) {
             pre_val   = mk_abstraction(expr_kind::Lambda, parameters, val_body);
         }
     }
-    auto r = m_elaborator(id, pre_type, pre_val);
+    auto r = elaborate(id, pre_type, pre_val);
     expr type = std::get<0>(r);
     expr val  = std::get<1>(r);
     metavar_env menv = std::get<2>(r);
@@ -212,7 +212,7 @@ void parser_imp::parse_variable_core(bool is_var) {
         expr type_body = parse_expr();
         pre_type = mk_abstraction(expr_kind::Pi, parameters, type_body);
     }
-    auto p = m_elaborator(pre_type);
+    auto p = elaborate(pre_type);
     expr type = p.first;
     metavar_env menv = p.second;
     if (has_metavar(type))
@@ -273,7 +273,7 @@ void parser_imp::parse_axiom() {
 /** \brief Parse 'Eval' expr */
 void parser_imp::parse_eval() {
     next();
-    expr v = m_elaborator(parse_expr()).first;
+    expr v = elaborate(parse_expr()).first;
     normalizer norm(m_env);
     expr r = norm(v);
     regular(m_io_state) << r << endl;
@@ -360,7 +360,7 @@ void parser_imp::parse_print() {
         next();
         regular(m_io_state) << msg << endl;
     } else {
-        expr v = m_elaborator(parse_expr()).first;
+        expr v = elaborate(parse_expr()).first;
         regular(m_io_state) << v << endl;
     }
 }
@@ -368,7 +368,7 @@ void parser_imp::parse_print() {
 /** \brief Parse 'Check' expr */
 void parser_imp::parse_check() {
     next();
-    auto p = m_elaborator(parse_expr());
+    auto p = elaborate(parse_expr());
     check_no_metavar(p, "invalid expression, it still contains metavariables after elaboration");
     expr v = p.first;
     expr t = type_check(v, m_env);
@@ -709,7 +709,7 @@ void parser_imp::parse_builtin() {
     expr type;
     if (curr_is_colon()) {
         next();
-        auto p = m_elaborator(parse_expr());
+        auto p = elaborate(parse_expr());
         check_no_metavar(p, "invalid builtin declaration, type still contains metavariables after elaboration");
         type = p.first;
     } else {
@@ -717,7 +717,7 @@ void parser_imp::parse_builtin() {
         parse_var_decl_parameters(parameters);
         check_colon_next("invalid builtin declaration, ':' expected");
         expr type_body = parse_expr();
-        auto p = m_elaborator(mk_abstraction(expr_kind::Pi, parameters, type_body));
+        auto p = elaborate(mk_abstraction(expr_kind::Pi, parameters, type_body));
         check_no_metavar(p, "invalid declaration, type still contains metavariables after elaboration");
         type = p.first;
     }

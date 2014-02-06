@@ -6,19 +6,19 @@ import subtype
 import optional
 using subtype
 using optional
--- We are encoding the (sum A B) as a subtype of (optional A) ⨯ (optional B), where
+-- We are encoding the (sum A B) as a subtype of (optional A) # (optional B), where
 --    (proj1 n = none) ≠ (proj2 n = none)
-definition sum_pred (A B : (Type U)) := λ p : (optional A) ⨯ (optional B), (proj1 p = none) ≠ (proj2 p = none)
-definition sum (A B : (Type U)) := subtype ((optional A) ⨯ (optional B)) (sum_pred A B)
+definition sum_pred (A B : (Type U)) := λ p : (optional A) # (optional B), (proj1 p = none) ≠ (proj2 p = none)
+definition sum (A B : (Type U)) := subtype ((optional A) # (optional B)) (sum_pred A B)
 
 namespace sum
 -- TODO: move pair, pair_inj1 and pair_inj2 to separate file
 definition pair {A : (Type U)} {B : (Type U)} (a : A) (b : B) := tuple a, b
 theorem    pair_inj1 {A : (Type U)} {B : A → (Type U)} {a b : sig x, B x} (H : a = b) : proj1 a = proj1 b
 := subst (refl (proj1 a)) H
-theorem    pair_inj2 {A B : (Type U)} {a b : A ⨯ B} (H : a = b) : proj2 a = proj2 b
+theorem    pair_inj2 {A B : (Type U)} {a b : A # B} (H : a = b) : proj2 a = proj2 b
 := subst (refl (proj2 a)) H
-theorem    pairext_proj {A B : (Type U)} {p : A ⨯ B} {a : A} {b : B} (H1 : proj1 p = a) (H2 : proj2 p = b) : p = (pair a b)
+theorem    pairext_proj {A B : (Type U)} {p : A # B} {a : A} {b : B} (H1 : proj1 p = a) (H2 : proj2 p = b) : p = (pair a b)
 := @pairext A (λ x, B) p (pair a b) H1 (to_heq H2)
 
 theorem inl_pred {A : (Type U)} (a : A) (B : (Type U)) : sum_pred A B (pair (some a) none)
@@ -47,7 +47,7 @@ definition inl {A : (Type U)} (a : A) (B : (Type U)) : sum A B
 definition inr (A : (Type U)) {B : (Type U)} (b : B) : sum A B
 := abst (pair none (some b)) (inhabr A (inhabited_intro b))
 
-theorem inl_inj {A : (Type U)} (a1 a2 : A) (B : (Type U)) : inl a1 B = inl a2 B → a1 = a2
+theorem inl_inj {A B : (Type U)} {a1 a2 : A} : inl a1 B = inl a2 B → a1 = a2
 := assume Heq : inl a1 B = inl a2 B,
      let eq1    : inl a1 B = abst (pair (some a1) none) (inhabl (inhabited_intro a1) B) := refl (inl a1 B),
          eq2    : inl a2 B = abst (pair (some a2) none) (inhabl (inhabited_intro a1) B)
@@ -59,7 +59,7 @@ theorem inl_inj {A : (Type U)} (a1 a2 : A) (B : (Type U)) : inl a1 B = inl a2 B 
                       ... = proj1 (pair (some a2) (optional::@none B))  : pair_inj1 rep_eq
                       ... = some a2                                     : refl (some a2))
 
-theorem inr_inj (A : (Type U)) {B : (Type U)} (b1 b2 : B) : inr A b1 = inr A b2 → b1 = b2
+theorem inr_inj {A B : (Type U)} {b1 b2 : B} : inr A b1 = inr A b2 → b1 = b2
 := assume Heq : inr A b1   = inr A b2,
      let eq1    : inr A b1 = abst (pair none (some b1)) (inhabr A (inhabited_intro b1)) := refl (inr A b1),
          eq2    : inr A b2 = abst (pair none (some b2)) (inhabr A (inhabited_intro b1))

@@ -908,20 +908,6 @@ class elaborator::imp {
             arg_types.push_back(m_type_inferer(arg(a, i), ctx, menv, ucs));
             push_active(ucs);
         }
-        // Add projections
-        for (unsigned i = 1; i < num_a; i++) {
-            // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), x_i
-            state new_state(m_state);
-            justification new_assumption = mk_assumption();
-            expr proj            = mk_lambda(arg_types, mk_var(num_a - i - 1));
-            expr new_a           = arg(a, i);
-            expr new_b           = b;
-            if (!is_lhs)
-                swap(new_a, new_b);
-            push_new_constraint(new_state.m_active_cnstrs, is_eq(c), ctx, new_a, new_b, new_assumption);
-            push_new_eq_constraint(new_state.m_active_cnstrs, ctx, f_a, proj, new_assumption);
-            new_cs->push_back(new_state, new_assumption);
-        }
         // Add imitation
         state new_state(m_state);
         justification new_assumption = mk_assumption();
@@ -987,6 +973,20 @@ class elaborator::imp {
         }
         push_new_eq_constraint(new_state.m_active_cnstrs, ctx, f_a, imitation, new_assumption);
         new_cs->push_back(new_state, new_assumption);
+        // Add projections
+        for (unsigned i = 1; i < num_a; i++) {
+            // Assign f_a <- fun (x_1 : T_0) ... (x_{num_a-1} : T_{num_a-1}), x_i
+            state new_state(m_state);
+            justification new_assumption = mk_assumption();
+            expr proj            = mk_lambda(arg_types, mk_var(num_a - i - 1));
+            expr new_a           = arg(a, i);
+            expr new_b           = b;
+            if (!is_lhs)
+                swap(new_a, new_b);
+            push_new_constraint(new_state.m_active_cnstrs, is_eq(c), ctx, new_a, new_b, new_assumption);
+            push_new_eq_constraint(new_state.m_active_cnstrs, ctx, f_a, proj, new_assumption);
+            new_cs->push_back(new_state, new_assumption);
+        }
     }
 
     /**

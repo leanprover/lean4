@@ -1,0 +1,8 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Imported 'macros'
+  Imported 'tactic'
+  Using: Nat
+induct.lean:7:0: error: invalid tactic command, unexpected end of file
+Proof state:
+a : ℕ, b : ℕ, n : ℕ, iH : a + n = n + a ⊢ a + (n + 1) = n + 1 + a

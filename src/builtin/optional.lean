@@ -32,14 +32,18 @@ definition some {A : (Type U)} (a : A) : optional A
 definition is_some {A : (Type U)} (n : optional A) := ∃ x : A, some x = n
 
 theorem injectivity {A : (Type U)} {a a' : A} : some a = some a' → a = a'
-:= assume Heq,
-     let eq_reps : (λ x, x = a) = (λ x, x = a') := abst_inj (inhab A) (some_pred a) (some_pred a') Heq
-     in  (congr1 a eq_reps) ◂ (refl a)
+:= assume Heq : some a = some a',
+   have eq_reps : (λ x, x = a) = (λ x, x = a'),
+      from abst_inj (inhab A) (some_pred a) (some_pred a') Heq,
+   show a = a',
+      from (congr1 a eq_reps) ◂ (refl a)
 
 theorem distinct {A : (Type U)} (a : A) : some a ≠ none
 := assume N : some a = none,
-     let eq_reps : (λ x, x = a) = (λ x, false) := abst_inj (inhab A) (some_pred a) (none_pred A) N
-     in (congr1 a eq_reps) ◂ (refl a)
+   have eq_reps : (λ x, x = a) = (λ x, false),
+      from abst_inj (inhab A) (some_pred a) (none_pred A) N,
+   show false,
+      from (congr1 a eq_reps) ◂ (refl a)
 
 definition value {A : (Type U)} (n : optional A) (H : is_some n) : A
 := ε (inhabited_ex_intro H) (λ x, some x = n)
@@ -49,44 +53,67 @@ theorem is_some_some {A : (Type U)} (a : A) : is_some (some a)
 
 theorem not_is_some_none {A : (Type U)} : ¬ is_some (@none A)
 := assume N : is_some (@none A),
-     obtain (w : A) (Hw : some w = @none A), from N,
-       absurd Hw (distinct w)
+   obtain (w : A) (Hw : some w = @none A),
+      from N,
+   show false,
+      from absurd Hw (distinct w)
 
 theorem value_some {A : (Type U)} (a : A) (H : is_some (some a)) : value (some a) H = a
-:= let eq1  : some (value (some a) H) = some a := eps_ax (inhabited_ex_intro H) a (refl (some a))
-   in injectivity eq1
+:= have eq1  : some (value (some a) H) = some a,
+      from eps_ax (inhabited_ex_intro H) a (refl (some a)),
+   show value (some a) H = a,
+      from injectivity eq1
 
 theorem false_pred {A : (Type U)} {p : A → Bool} (H : ∀ x, ¬ p x) : p = λ x, false
 := funext (λ x, eqf_intro (H x))
 
 theorem singleton_pred {A : (Type U)} {p : A → Bool} {w : A} (H : p w ∧ ∀ y, y ≠ w → ¬ p y) : p = (λ x, x = w)
-:= funext (λ x,
-      iff_intro
-         (λ Hpx : p x,   refute (λ N : x ≠ w, absurd Hpx (and_elimr H x N)))
-         (λ Heq : x = w, subst (and_eliml H) (symm Heq)))
+:= funext (take x, iff_intro
+     (assume Hpx : p x,
+      show x = w,
+         from refute (assume N : x ≠ w,
+                      show false,
+                         from absurd Hpx (and_elimr H x N)))
+     (assume Heq : x = w,
+      show p x,
+         from subst (and_eliml H) (symm Heq)))
 
 theorem dichotomy {A : (Type U)} (n : optional A) : n = none ∨ ∃ a, n = some a
-:= let pred : optional_pred A (rep n) :=  P_rep n
-   in or_elim pred
-        (λ Hl, let rep_n_eq     : rep n    = λ x, false    := false_pred Hl,
-                   rep_none_eq  : rep none = λ x, false    := rep_abst (inhab A) (λ x, false) (none_pred A)
-               in  or_introl (rep_inj (trans rep_n_eq (symm rep_none_eq)))
-                             (∃ a, n = some a))
-        (λ Hr : ∃ x, rep n x ∧ ∀ y, y ≠ x → ¬ rep n y,
-           obtain (w : A) (Hw : rep n w ∧ ∀ y, y ≠ w → ¬ rep n y), from Hr,
-              let rep_n_eq    : rep n        = λ x, x = w   := singleton_pred Hw,
-                  rep_some_eq : rep (some w) = λ x, x = w   := rep_abst (inhab A) (λ x, x = w) (some_pred w),
-                  n_eq_some   : n = some w                  := rep_inj (trans rep_n_eq (symm rep_some_eq))
-              in or_intror (n = none)
+:= have pred : optional_pred A (rep n),
+      from P_rep n,
+   show n = none ∨ ∃ a, n = some a,
+      from or_elim pred
+        (assume Hl : ∀ x : A, ¬ rep n x,
+         have rep_n_eq     : rep n    = λ x, false,
+            from false_pred Hl,
+         have rep_none_eq  : rep none = λ x, false,
+            from rep_abst (inhab A) (λ x, false) (none_pred A),
+         show n = none ∨ ∃ a, n = some a,
+            from or_introl (rep_inj (trans rep_n_eq (symm rep_none_eq)))
+                           (∃ a, n = some a))
+        (assume Hr : ∃ x, rep n x ∧ ∀ y, y ≠ x → ¬ rep n y,
+         obtain (w : A) (Hw : rep n w ∧ ∀ y, y ≠ w → ¬ rep n y),
+            from Hr,
+         have rep_n_eq    : rep n        = λ x, x = w,
+            from singleton_pred Hw,
+         have rep_some_eq : rep (some w) = λ x, x = w,
+            from rep_abst (inhab A) (λ x, x = w) (some_pred w),
+         have n_eq_some   : n = some w,
+            from rep_inj (trans rep_n_eq (symm rep_some_eq)),
+         show n = none ∨ ∃ a, n = some a,
+            from or_intror (n = none)
                            (exists_intro w n_eq_some))
 
 theorem induction {A : (Type U)} {P : optional A → Bool} (H1 : P none) (H2 : ∀ x, P (some x)) : ∀ n, P n
 := take n, or_elim (dichotomy n)
-    (λ Heq : n = none,
-        subst H1 (symm Heq))
-    (λ Hex : ∃ a, n = some a,
-        obtain (w : A) (Hw : n = some w), from Hex,
-           subst (H2 w) (symm Hw))
+    (assume Heq : n = none,
+     show P n,
+        from subst H1 (symm Heq))
+    (assume Hex : ∃ a, n = some a,
+     obtain (w : A) (Hw : n = some w),
+        from Hex,
+     show P n,
+        from subst (H2 w) (symm Hw))
 
 set_opaque some           true
 set_opaque none           true

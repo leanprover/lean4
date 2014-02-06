@@ -2,6 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 import macros
+import pair
 import subtype
 import optional
 using subtype
@@ -12,15 +13,6 @@ definition sum_pred (A B : (Type U)) := λ p : (optional A) # (optional B), (pro
 definition sum (A B : (Type U)) := subtype ((optional A) # (optional B)) (sum_pred A B)
 
 namespace sum
--- TODO: move pair, pair_inj1 and pair_inj2 to separate file
-definition pair {A : (Type U)} {B : (Type U)} (a : A) (b : B) := tuple a, b
-theorem    pair_inj1 {A : (Type U)} {B : A → (Type U)} {a b : sig x, B x} (H : a = b) : proj1 a = proj1 b
-:= subst (refl (proj1 a)) H
-theorem    pair_inj2 {A B : (Type U)} {a b : A # B} (H : a = b) : proj2 a = proj2 b
-:= subst (refl (proj2 a)) H
-theorem    pairext_proj {A B : (Type U)} {p : A # B} {a : A} {b : B} (H1 : proj1 p = a) (H2 : proj2 p = b) : p = (pair a b)
-:= @pairext A (λ x, B) p (pair a b) H1 (to_heq H2)
-
 theorem inl_pred {A : (Type U)} (a : A) (B : (Type U)) : sum_pred A B (pair (some a) none)
 := not_intro
      (assume N  : (some a = none) = (none = (optional::@none B)),

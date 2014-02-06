@@ -20,25 +20,25 @@ theorem some_pred {A : (Type U)} (a : A) : optional_pred A (λ x, x = a)
 theorem none_pred (A : (Type U)) : optional_pred A (λ x, false)
 := or_introl (take x, not_false_trivial) (exists_unique (λ x, false))
 
-theorem optional_inhabited (A : (Type U)) : inhabited (optional A)
+theorem inhab (A : (Type U)) : inhabited (optional A)
 := subtype_inhabited (exists_intro (λ x, false) (none_pred A))
 
 definition none {A : (Type U)} : optional A
-:= abst (λ x, false) (optional_inhabited A)
+:= abst (λ x, false) (inhab A)
 
 definition some {A : (Type U)} (a : A) : optional A
-:= abst (λ x, x = a) (optional_inhabited A)
+:= abst (λ x, x = a) (inhab A)
 
 definition is_some {A : (Type U)} (n : optional A) := ∃ x : A, some x = n
 
 theorem injectivity {A : (Type U)} {a a' : A} : some a = some a' → a = a'
 := assume Heq,
-     let eq_reps : (λ x, x = a) = (λ x, x = a') := abst_inj (optional_inhabited A) (some_pred a) (some_pred a') Heq
+     let eq_reps : (λ x, x = a) = (λ x, x = a') := abst_inj (inhab A) (some_pred a) (some_pred a') Heq
      in  (congr1 a eq_reps) ◂ (refl a)
 
 theorem distinct {A : (Type U)} (a : A) : some a ≠ none
 := assume N : some a = none,
-     let eq_reps : (λ x, x = a) = (λ x, false) := abst_inj (optional_inhabited A) (some_pred a) (none_pred A) N
+     let eq_reps : (λ x, x = a) = (λ x, false) := abst_inj (inhab A) (some_pred a) (none_pred A) N
      in (congr1 a eq_reps) ◂ (refl a)
 
 definition value {A : (Type U)} (n : optional A) (H : is_some n) : A
@@ -69,13 +69,13 @@ theorem dichotomy {A : (Type U)} (n : optional A) : n = none ∨ ∃ a, n = some
 := let pred : optional_pred A (rep n) :=  P_rep n
    in or_elim pred
         (λ Hl, let rep_n_eq     : rep n    = λ x, false    := false_pred Hl,
-                   rep_none_eq  : rep none = λ x, false    := rep_abst (optional_inhabited A) (λ x, false) (none_pred A)
+                   rep_none_eq  : rep none = λ x, false    := rep_abst (inhab A) (λ x, false) (none_pred A)
                in  or_introl (rep_inj (trans rep_n_eq (symm rep_none_eq)))
                              (∃ a, n = some a))
         (λ Hr : ∃ x, rep n x ∧ ∀ y, y ≠ x → ¬ rep n y,
            obtain (w : A) (Hw : rep n w ∧ ∀ y, y ≠ w → ¬ rep n y), from Hr,
               let rep_n_eq    : rep n        = λ x, x = w   := singleton_pred Hw,
-                  rep_some_eq : rep (some w) = λ x, x = w   := rep_abst (optional_inhabited A) (λ x, x = w) (some_pred w),
+                  rep_some_eq : rep (some w) = λ x, x = w   := rep_abst (inhab A) (λ x, x = w) (some_pred w),
                   n_eq_some   : n = some w                  := rep_inj (trans rep_n_eq (symm rep_some_eq))
               in or_intror (n = none)
                            (exists_intro w n_eq_some))
@@ -96,5 +96,5 @@ end
 
 set_opaque optional       true
 set_opaque optional_pred  true
-definition optional_inhabited := optional::optional_inhabited
+definition optional_inhabited := optional::inhab
 add_rewrite optional::is_some_some optional::not_is_some_none optional::distinct optional::value_some

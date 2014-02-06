@@ -1522,8 +1522,6 @@ class elaborator::imp {
             }
         }
 
-        if (!is_meta_app(a) && !is_meta_app(b) && normalize_head(a, b, c)) { return true; }
-
         if (!eq) {
             // Try to assign convertability constraints.
             if (is_metavar(a) && !is_assigned(a) && !has_local_context(a)) {
@@ -1548,6 +1546,8 @@ class elaborator::imp {
                 }
             }
         }
+
+        if (!is_meta_app(a) && !is_meta_app(b) && normalize_head(a, b, c)) { return true; }
 
         if (process_simple_ho_match(ctx, a, b, true, c) ||
             process_simple_ho_match(ctx, b, a, false, c))

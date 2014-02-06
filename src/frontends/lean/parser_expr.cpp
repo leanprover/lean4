@@ -1002,6 +1002,34 @@ expr parser_imp::parse_show_expr() {
     }
 }
 
+/** \brief Parse <tt>'have' Id ':' expr, 'from' expr, expr</tt> and
+                 <tt>'have' Id ':' expr, 'by' expr, expr</tt>
+*/
+expr parser_imp::parse_have_expr() {
+    auto p = pos();
+    next();
+    mk_scope scope(*this);
+    name id  = check_identifier_next("invalid 'have' expression, identifier expected");
+    check_colon_next("invalid 'have' expression, ':' expected");
+    expr t   = parse_expr();
+    check_comma_next("invalid 'have' expression, ',' expected");
+    expr val;
+    if (curr() == scanner::token::By) {
+        next();
+        tactic tac = parse_tactic_expr();
+        expr r = mk_placeholder(some_expr(t));
+        m_tactic_hints.insert(mk_pair(r, tac));
+        val = save(r, p);
+    } else if (curr_is_identifier() && curr_name() == g_from) {
+        next();
+        val = parse_expr();
+    }
+    check_comma_next("invalid 'have' expression, ',' expected");
+    register_binding(id);
+    expr body = parse_expr();
+    return mk_let(id, t, val, body);
+}
+
 /** \brief Parse <tt>'by' tactic</tt> */
 expr parser_imp::parse_by_expr() {
     auto p = pos();
@@ -1030,10 +1058,11 @@ expr parser_imp::parse_nud() {
     case scanner::token::Placeholder: return parse_placeholder();
     case scanner::token::Type:        return parse_type(false);
     case scanner::token::Show:        return parse_show_expr();
+    case scanner::token::Have:        return parse_have_expr();
+    case scanner::token::By:          return parse_by_expr();
     case scanner::token::Tuple:       return parse_tuple();
     case scanner::token::Proj1:       return parse_proj(true);
     case scanner::token::Proj2:       return parse_proj(false);
-    case scanner::token::By:          return parse_by_expr();
     default:
         throw parser_error("invalid expression, unexpected token", pos());
     }

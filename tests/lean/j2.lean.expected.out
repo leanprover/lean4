@@ -1,0 +1,9 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Imported 'macros'
+  Imported 'tactic'
+  Using: Nat
+  Defined: dvd
+  Proved: dvd_trans
+  Defined: prime
+  Proved: not_prime_eq

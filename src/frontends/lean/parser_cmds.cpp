@@ -177,9 +177,9 @@ void parser_imp::parse_def_core(bool is_definition) {
 /**
    \brief Parse a Definition. It has one of the following two forms:
 
-   1) 'Definition' ID ':' expr ':=' expr
+   1) 'definition' ID ':' expr ':=' expr
 
-   2) 'Definition' ID parameters ':' expr ':=' expr
+   2) 'definition' ID parameters ':' expr ':=' expr
 */
 void parser_imp::parse_definition() {
     parse_def_core(true);
@@ -188,9 +188,9 @@ void parser_imp::parse_definition() {
 /**
    \brief Parse a Theorem. It has one of the following two forms:
 
-   1) 'Theorem' ID ':' expr ':=' expr
+   1) 'theorem' ID ':' expr ':=' expr
 
-   2) 'Theorem' ID parameters ':' expr ':=' expr
+   2) 'theorem' ID parameters ':' expr ':=' expr
 */
 void parser_imp::parse_theorem() {
     parse_def_core(false);
@@ -230,16 +230,16 @@ void parser_imp::parse_variable_core(bool is_var) {
 
 /** \brief Parse one of the two forms:
 
-    1) 'Variable' ID ':' type
+    1) 'variable' ID ':' type
 
-    2) 'Variable' ID parameters ':' type
+    2) 'variable' ID parameters ':' type
 */
 void parser_imp::parse_variable() {
     parse_variable_core(true);
 }
 
 /** \brief Parse the form:
-    'Variables' ID+ ':' type
+    'variables' ID+ ':' type
 */
 void parser_imp::parse_variables() {
     next();
@@ -262,9 +262,9 @@ void parser_imp::parse_variables() {
 
 /** \brief Parse one of the two forms:
 
-    1) 'Axiom' ID ':' type
+    1) 'axiom' ID ':' type
 
-    2) 'Axiom' ID parameters ':' type
+    2) 'axiom' ID parameters ':' type
 */
 void parser_imp::parse_axiom() {
     parse_variable_core(false);
@@ -418,7 +418,7 @@ void parser_imp::parse_op(fixity fx) {
 /**
    \brief Parse notation declaration unified format
 
-   'Notation' [Num] parts ':' ID
+   'notation' [Num] parts ':' ID
 */
 void parser_imp::parse_notation_decl() {
     auto p = pos();
@@ -491,7 +491,7 @@ void parser_imp::parse_notation_decl() {
     }
 }
 
-/** Parse 'SetOption' [id] [value] */
+/** Parse 'set_option' [id] [value] */
 void parser_imp::parse_set_option() {
     next();
     auto id_pos = pos();
@@ -544,7 +544,7 @@ void parser_imp::parse_set_option() {
         regular(m_io_state) << "  Set: " << id << endl;
 }
 
-/** Parse 'SetOpaque' [id] [true/false] */
+/** Parse 'set_opaque' [id] [true/false] */
 void parser_imp::parse_set_opaque() {
     next();
     auto p = pos();

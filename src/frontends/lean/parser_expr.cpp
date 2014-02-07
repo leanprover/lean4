@@ -996,7 +996,7 @@ expr parser_imp::parse_show_expr() {
     } else if (curr_is_identifier() && curr_name() == g_from) {
         next();
         expr b = parse_expr();
-        return mk_let(g_H_show, t, b, Var(0));
+        return save(mk_let(g_H_show, t, b, Var(0)), p);
     } else {
         throw parser_error("invalid 'show' expected, 'from' or 'by' expected", p);
     }
@@ -1015,11 +1015,12 @@ expr parser_imp::parse_have_expr() {
     check_comma_next("invalid 'have' expression, ',' expected");
     expr val;
     if (curr() == scanner::token::By) {
+        auto p2 = pos();
         next();
         tactic tac = parse_tactic_expr();
         expr r = mk_placeholder(some_expr(t));
         m_tactic_hints.insert(mk_pair(r, tac));
-        val = save(r, p);
+        val = save(r, p2);
     } else if (curr_is_identifier() && curr_name() == g_from) {
         next();
         val = parse_expr();
@@ -1027,7 +1028,7 @@ expr parser_imp::parse_have_expr() {
     check_comma_next("invalid 'have' expression, ',' expected");
     register_binding(id);
     expr body = parse_expr();
-    return mk_let(id, t, val, body);
+    return save(mk_let(id, t, val, body), p);
 }
 
 /** \brief Parse <tt>'by' tactic</tt> */

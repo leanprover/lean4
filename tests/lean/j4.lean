@@ -24,11 +24,11 @@ theorem not_prime_eq (n : Nat) (H1 : n ≥ 2) (H2 : ¬ prime n) : ∃ m, m | n �
 := have H3 : ¬ n ≥ 2 ∨ ¬ (∀ m : Nat, m | n → m = 1 ∨ m = n),
      from (not_and _ _ ◂ H2),
    have H4 : ¬ ¬ n ≥ 2,
-     from by skip, -- Ignore this hole
+     by skip, -- Ignore this hole
    obtain (m : Nat) (H5 :  ¬ (m | n → m = 1 ∨ m = n)),
      from (not_forall_elim (resolve1 H3 H4)),
    have H6 : m | n ∧ ¬ (m = 1 ∨ m = n),
-     from _,       -- <<< Lean will display the proof state for this hole
+     by id,       -- <<< id is the "do-nothing" tactic, it will fail and Lean will display the proof state for this hole
    have H7 : ¬ (m = 1 ∨ m = n) ↔ (m ≠ 1 ∧ m ≠ n),
      from (not_or (m = 1) (m = n)),
    have H8 : m | n ∧ m ≠ 1 ∧ m ≠ n,

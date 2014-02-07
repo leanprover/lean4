@@ -83,7 +83,7 @@ expr parser_imp::mk_proof_for(proof_state const & s, pos_info const & p, context
         }
         return pr;
     } else {
-        throw tactic_cmd_error("invalid 'done' command, proof cannot be produced from this state", p, s);
+        throw tactic_cmd_error("failed to create proof for the following proof state", p, s);
     }
 }
 

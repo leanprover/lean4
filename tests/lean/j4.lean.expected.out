@@ -8,7 +8,7 @@
   Proved: dvd_intro
   Proved: dvd_trans
   Defined: prime
-j4.lean:38:0: error: invalid tactic command, unexpected end of file
+j4.lean:31:5: error: failed to create proof for the following proof state
 Proof state:
 n :
     ℕ,

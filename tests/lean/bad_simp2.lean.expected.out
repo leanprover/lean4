@@ -4,13 +4,13 @@
   Assumed: f
   Assumed: Ax1
   Proved: T1a
-bad_simp2.lean:14:3: error: invalid 'done' command, proof cannot be produced from this state
+bad_simp2.lean:14:3: error: failed to create proof for the following proof state
 Proof state:
 A : (Type 1) ⊢ f A = A
   Assumed: g
   Assumed: Ax2
   Proved: T2a
-bad_simp2.lean:24:3: error: invalid 'done' command, proof cannot be produced from this state
+bad_simp2.lean:24:3: error: failed to create proof for the following proof state
 Proof state:
 A : Type → (Type 1) ⊢ g A = A Bool
   Assumed: h
@@ -18,13 +18,13 @@ A : Type → (Type 1) ⊢ g A = A Bool
   Proved: T3a
   Assumed: Ax4
   Proved: T4a
-bad_simp2.lean:40:3: error: invalid 'done' command, proof cannot be produced from this state
+bad_simp2.lean:40:3: error: failed to create proof for the following proof state
 Proof state:
 A : Type, B : (Type 1) ⊢ h A B = B
   Assumed: h2
   Assumed: Ax5
   Proved: T5a
-bad_simp2.lean:51:3: error: invalid 'done' command, proof cannot be produced from this state
+bad_simp2.lean:51:3: error: failed to create proof for the following proof state
 Proof state:
 A : Type, B : (Type 1) ⊢ h2 A B = A
 theorem T5a (A B : Type) : h2 A B = A :=

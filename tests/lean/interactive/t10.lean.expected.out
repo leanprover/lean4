@@ -7,7 +7,7 @@ no goals
 ## Proof state:
 A : Bool, B : Bool, H : A ∧ B, H1 : A ⊢ B
 ## [stdin]:15:3: error: unknown tactic 'simple2_tac'
-## [stdin]:15:16: error: invalid 'done' command, proof cannot be produced from this state
+## [stdin]:15:16: error: failed to create proof for the following proof state
 Proof state:
 A : Bool, B : Bool, H : A ∧ B, H1 : A ⊢ B
 ## Proof state:

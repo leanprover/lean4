@@ -16,7 +16,7 @@ namespace sum
 theorem inl_pred {A : (Type U)} (a : A) (B : (Type U)) : sum_pred A B (pair (some a) none)
 := not_intro
      (assume N  : (some a = none) = (none = (@none B)),
-      have   eq :   some a = none,
+      have   eq : some a = none,
          from (symm N) ◂ (refl (@none B)),
       show false,
          from absurd eq (distinct a))
@@ -24,7 +24,7 @@ theorem inl_pred {A : (Type U)} (a : A) (B : (Type U)) : sum_pred A B (pair (som
 theorem inr_pred (A : (Type U)) {B : (Type U)} (b : B) : sum_pred A B (pair none (some b))
 := not_intro
      (assume N  : (none = (@none A)) = (some b = none),
-      have   eq :   some b = none,
+      have   eq : some b = none,
          from N ◂ (refl (@none A)),
       show false,
         from absurd eq (distinct b))
@@ -55,10 +55,10 @@ theorem inl_inj {A B : (Type U)} {a1 a2 : A} : inl a1 B = inl a2 B → a1 = a2
         from optional::injectivity
             (calc some a1 = proj1 (pair (some a1) (@none B))  : refl (some a1)
                       ... = proj1 (pair (some a2) (@none B))  : pair_inj1 rep_eq
-                      ... = some a2                                     : refl (some a2))
+                      ... = some a2                           : refl (some a2))
 
 theorem inr_inj {A B : (Type U)} {b1 b2 : B} : inr A b1 = inr A b2 → b1 = b2
-:= assume Heq : inr A b1   = inr A b2,
+:= assume Heq : inr A b1 = inr A b2,
      have eq1    :  inr A b1 = abst (pair none (some b1)) (inhabr A (inhabited_intro b1)),
         from refl (inr A b1),
      have eq2    :  inr A b2 = abst (pair none (some b2)) (inhabr A (inhabited_intro b1)),

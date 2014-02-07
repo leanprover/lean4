@@ -15,17 +15,17 @@ definition sum (A B : (Type U)) := subtype ((optional A) # (optional B)) (sum_pr
 namespace sum
 theorem inl_pred {A : (Type U)} (a : A) (B : (Type U)) : sum_pred A B (pair (some a) none)
 := not_intro
-     (assume N  : (some a = none) = (none = (optional::@none B)),
+     (assume N  : (some a = none) = (none = (@none B)),
       have   eq :   some a = none,
-         from (symm N) ◂ (refl (optional::@none B)),
+         from (symm N) ◂ (refl (@none B)),
       show false,
          from absurd eq (distinct a))
 
 theorem inr_pred (A : (Type U)) {B : (Type U)} (b : B) : sum_pred A B (pair none (some b))
 := not_intro
-     (assume N  : (none = (optional::@none A)) = (some b = none),
+     (assume N  : (none = (@none A)) = (some b = none),
       have   eq :   some b = none,
-         from N ◂ (refl (optional::@none A)),
+         from N ◂ (refl (@none A)),
       show false,
         from absurd eq (distinct b))
 
@@ -53,8 +53,8 @@ theorem inl_inj {A B : (Type U)} {a1 a2 : A} : inl a1 B = inl a2 B → a1 = a2
         from abst_inj (inhabl (inhabited_intro a1) B) (inl_pred a1 B) (inl_pred a2 B) (trans (trans (symm eq1) Heq) eq2),
      show a1 = a2,
         from optional::injectivity
-            (calc some a1 = proj1 (pair (some a1) (optional::@none B))  : refl (some a1)
-                      ... = proj1 (pair (some a2) (optional::@none B))  : pair_inj1 rep_eq
+            (calc some a1 = proj1 (pair (some a1) (@none B))  : refl (some a1)
+                      ... = proj1 (pair (some a2) (@none B))  : pair_inj1 rep_eq
                       ... = some a2                                     : refl (some a2))
 
 theorem inr_inj {A B : (Type U)} {b1 b2 : B} : inr A b1 = inr A b2 → b1 = b2
@@ -67,9 +67,9 @@ theorem inr_inj {A B : (Type U)} {b1 b2 : B} : inr A b1 = inr A b2 → b1 = b2
         from abst_inj (inhabr A (inhabited_intro b1)) (inr_pred A b1) (inr_pred A b2) (trans (trans (symm eq1) Heq) eq2),
      show b1 = b2,
         from optional::injectivity
-            (calc some b1 = proj2 (pair (optional::@none A) (some b1))  : refl (some b1)
-                      ... = proj2 (pair (optional::@none A) (some b2))  : pair_inj2 rep_eq
-                      ... = some b2                                     : refl (some b2))
+            (calc some b1 = proj2 (pair (@none A) (some b1))  : refl (some b1)
+                      ... = proj2 (pair (@none A) (some b2))  : pair_inj2 rep_eq
+                      ... = some b2                           : refl (some b2))
 
 theorem distinct {A B : (Type U)} (a : A) (b : B) : inl a B ≠ inr A b
 := assume N : inl a B = inr A b,
@@ -86,7 +86,7 @@ theorem dichotomy {A B : (Type U)} (n : sum A B) : (∃ a, n = inl a B) ∨ (∃
 := let pred : (proj1 (rep n) = none) ≠ (proj2 (rep n) = none) := P_rep n
    in or_elim (em (proj1 (rep n) = none))
          (assume Heq : proj1 (rep n) = none,
-          have neq_none : ¬ proj2 (rep n) = (optional::@none B),
+          have neq_none : ¬ proj2 (rep n) = (@none B),
              from (symm (not_iff_elim (ne_symm pred))) ◂ Heq,
           have ex_some  : ∃ b, proj2 (rep n) = some b,
              from resolve1 (optional::dichotomy (proj2 (rep n))) neq_none,
@@ -103,7 +103,7 @@ theorem dichotomy {A B : (Type U)} (n : sum A B) : (∃ a, n = inl a B) ∨ (∃
                  show (∃ b, n = inr A b),
                     from exists_intro b n_eq_inr))
          (assume Hne : ¬ proj1 (rep n) = none,
-          have eq_none : proj2 (rep n) = (optional::@none B),
+          have eq_none : proj2 (rep n) = (@none B),
              from (not_iff_elim pred) ◂ Hne,
           have ex_some : ∃ a, proj1 (rep n) = some a,
              from resolve1 (optional::dichotomy (proj1 (rep n))) Hne,

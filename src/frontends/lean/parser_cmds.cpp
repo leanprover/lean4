@@ -809,7 +809,7 @@ void parser_imp::parse_using() {
     }
     buffer<std::pair<name, name>> to_add;
     for (auto it = m_env->begin_objects(); it != m_env->end_objects(); ++it) {
-        if (it->has_type() && it->has_name() && !is_hidden_object(*it) && is_prefix_of(prefix, it->get_name())) {
+        if (it->has_type() && it->has_name() && supported_by_pp(*it) && is_prefix_of(prefix, it->get_name())) {
             auto n = replace_prefix(it->get_name(), prefix, new_prefix);
             if (!n.is_anonymous())
                 to_add.emplace_back(n, it->get_name());

@@ -1650,7 +1650,7 @@ class elaborator::imp {
             }
         }
 
-        if (!is_meta_app(a) && !is_meta_app(b) && normalize_head(a, b, c)) { return true; }
+        if (!is_meta(a) && !is_meta(b) && normalize_head(a, b, c)) { return true; }
 
         if (process_simple_ho_match(ctx, a, b, true, c) ||
             process_simple_ho_match(ctx, b, a, false, c))

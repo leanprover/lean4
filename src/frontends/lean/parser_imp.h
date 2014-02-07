@@ -311,6 +311,7 @@ private:
                              pos_info const & p);
     expr parse_expr_macro(name const & id, pos_info const & p);
     expr parse_led_id(expr const & left);
+    expr parse_heq(expr const & left);
     expr parse_arrow(expr const & left);
     expr parse_cartesian_product(expr const & left);
     expr parse_lparen();

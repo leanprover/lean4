@@ -1,6 +1,7 @@
   Set: pp::colors
   Set: pp::unicode
   Set: lean::pp::implicit
+  Defined: TypeM
   Assumed: g
   Assumed: B
   Assumed: B'
@@ -8,5 +9,5 @@
 g B
 ===>
 g B'
-@congr2 TypeM TypeM B B' g (@subst Type B B' (λ x : Type, @eq TypeM B x) (@refl TypeM B) H)
+@congr2 TypeM TypeM B B' g (@to_eq TypeM B B' (@to_heq Type B B' H))
 @eq TypeM (g B) (g B')

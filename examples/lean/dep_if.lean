@@ -10,16 +10,16 @@ import tactic
 -- We define the "dependent" if-then-else using Hilbert's choice operator ε.
 -- Note that ε is only applicable to non-empty types. Thus, we first
 -- prove the following auxiliary theorem.
-theorem inhabited_resolve {A : TypeU} {c : Bool} (t : c → A) (e : ¬ c → A) : inhabited A
+theorem inhabited_resolve {A : (Type U)} {c : Bool} (t : c → A) (e : ¬ c → A) : inhabited A
 := or_elim (em c)
       (λ Hc,  inhabited_range (inhabited_intro t) Hc)
       (λ Hnc, inhabited_range (inhabited_intro e) Hnc)
 
 -- The actual definition
-definition dep_if {A : TypeU} (c : Bool) (t : c → A) (e : ¬ c → A) : A
+definition dep_if {A : (Type U)} (c : Bool) (t : c → A) (e : ¬ c → A) : A
 := ε (inhabited_resolve t e) (λ r, (∀ Hc : c, r = t Hc) ∧ (∀ Hnc : ¬ c, r = e Hnc))
 
-theorem then_simp (A : TypeU) (c : Bool) (r : A) (t : c → A) (e : ¬ c → A) (H : c)
+theorem then_simp (A : (Type U)) (c : Bool) (r : A) (t : c → A) (e : ¬ c → A) (H : c)
                   : (∀ Hc : c, r = t Hc) ∧ (∀ Hnc : ¬ c, r = e Hnc) ↔ r = t H
 := let s1 : (∀ Hc : c, r = t Hc) ↔ r = t H
           := iff_intro
@@ -32,17 +32,17 @@ theorem then_simp (A : TypeU) (c : Bool) (r : A) (t : c → A) (e : ¬ c → A) 
    in by simp
 
 -- Given H : c,    (dep_if c t e) = t H
-theorem dep_if_elim_then  {A : TypeU} (c : Bool) (t : c → A) (e : ¬ c → A) (H : c)   : dep_if c t e = t H
+theorem dep_if_elim_then  {A : (Type U)} (c : Bool) (t : c → A) (e : ¬ c → A) (H : c)   : dep_if c t e = t H
 := let s1 : (λ r, (∀ Hc : c, r = t Hc) ∧ (∀ Hnc : ¬ c, r = e Hnc)) = (λ r, r = t H)
           := funext (λ r, then_simp A c r t e H)
    in calc dep_if c t e  =  ε (inhabited_resolve t e) (λ r, (∀ Hc : c, r = t Hc) ∧ (∀ Hnc : ¬ c, r = e Hnc)) : refl (dep_if c t e)
                   ...    =  ε (inhabited_resolve t e) (λ r, r = t H) : { s1 }
                   ...    =  t H                                     : eps_singleton (inhabited_resolve t e) (t H)
 
-theorem dep_if_true {A : TypeU} (t : true → A) (e : ¬ true → A) : dep_if true t e = t trivial
+theorem dep_if_true {A : (Type U)} (t : true → A) (e : ¬ true → A) : dep_if true t e = t trivial
 := dep_if_elim_then true t e trivial
 
-theorem else_simp (A : TypeU) (c : Bool) (r : A) (t : c → A) (e : ¬ c → A) (H : ¬ c)
+theorem else_simp (A : (Type U)) (c : Bool) (r : A) (t : c → A) (e : ¬ c → A) (H : ¬ c)
                   : (∀ Hc : c, r = t Hc) ∧ (∀ Hnc : ¬ c, r = e Hnc) ↔ r = e H
 := let s1 : (∀ Hc : c, r = t Hc) ↔ true
           := eqt_intro (λ Hc : c, absurd_elim (r = t Hc) Hc H),
@@ -55,19 +55,21 @@ theorem else_simp (A : TypeU) (c : Bool) (r : A) (t : c → A) (e : ¬ c → A) 
    in by simp
 
 -- Given H : ¬ c,  (dep_if c t e) = e H
-theorem dep_if_elim_else {A : TypeU} (c : Bool) (t : c → A) (e : ¬ c → A) (H : ¬ c) : dep_if c t e = e H
+theorem dep_if_elim_else {A : (Type U)} (c : Bool) (t : c → A) (e : ¬ c → A) (H : ¬ c) : dep_if c t e = e H
 := let s1 : (λ r, (∀ Hc : c, r = t Hc) ∧ (∀ Hnc : ¬ c, r = e Hnc)) = (λ r, r = e H)
           := funext (λ r, else_simp A c r t e H)
    in calc dep_if c t e = ε (inhabited_resolve t e) (λ r, (∀ Hc : c, r = t Hc) ∧ (∀ Hnc : ¬ c, r = e Hnc)) : refl (dep_if c t e)
                     ... = ε (inhabited_resolve t e) (λ r, r = e H) : { s1 }
                     ... = e H                                     : eps_singleton (inhabited_resolve t e) (e H)
 
-theorem dep_if_false {A : TypeU} (t : false → A) (e : ¬ false → A) : dep_if false t e = e not_false_trivial
+theorem dep_if_false {A : (Type U)} (t : false → A) (e : ¬ false → A) : dep_if false t e = e not_false_trivial
 := dep_if_elim_else false t e not_false_trivial
 
 set_option simplifier::heq true -- enable heterogeneous equality support
 
-theorem dep_if_congr {A : TypeM} (c1 c2 : Bool)
+universe M >= 1
+
+theorem dep_if_congr {A : (Type M)} (c1 c2 : Bool)
                      (t1 :   c1 → A) (t2 :   c2 → A)
                      (e1 : ¬ c1 → A) (e2 : ¬ c2 → A)
                      (Hc : c1 = c2)
@@ -89,7 +91,7 @@ pop_scope
 
 -- If the dependent then/else branches do not use the proofs Hc : c and Hn : ¬ c, then we
 -- can reduce the dependent-if to a regular if
-theorem dep_if_if {A : TypeU} (c : Bool) (t e : A) : dep_if c (λ Hc, t) (λ Hn, e) = if c then t else e
+theorem dep_if_if {A : (Type U)} (c : Bool) (t e : A) : dep_if c (λ Hc, t) (λ Hn, e) = if c then t else e
 := or_elim (em c)
      (assume Hc : c,   calc dep_if c (λ Hc, t) (λ Hn, e) = (λ Hc, t) Hc          : dep_if_elim_then _ _ _ Hc
                                                     ...  = if c then t else e    : by simp)

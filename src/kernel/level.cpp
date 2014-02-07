@@ -100,6 +100,8 @@ level const & _lift_of(level const & l)     { return is_lift(l) ? lift_of(l) : l
 unsigned      _lift_offset(level const & l) { return is_lift(l) ? lift_offset(l) : 0; }
 
 void push_back(buffer<level> & ls, level const & l) {
+    if (l.is_bottom())
+        return;
     for (unsigned i = 0; i < ls.size(); i++) {
         if (_lift_of(ls[i]) == _lift_of(l)) {
             if (_lift_offset(ls[i]) < _lift_offset(l))
@@ -114,7 +116,10 @@ level max_core(unsigned sz1, level const * ls1, unsigned sz2, level const * ls2)
     buffer<level> new_lvls;
     std::for_each(ls1, ls1 + sz1, [&](level const & l) { push_back(new_lvls, l); });
     std::for_each(ls2, ls2 + sz2, [&](level const & l) { push_back(new_lvls, l); });
-    if (new_lvls.size() == 1)
+    unsigned sz = new_lvls.size();
+    if (sz == 0)
+        return level();
+    else if (sz == 1)
         return new_lvls[0];
     else
         return max_core(new_lvls.size(), new_lvls.data());

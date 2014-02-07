@@ -375,7 +375,7 @@ class elaborator::imp {
     }
 
     /**
-       \brief Push a new equality constraint <tt>new_ctx |- new_a == new_b</tt> into the active_cnstrs using
+       \brief Push a new equality constraint <tt>new_ctx |- new_a ≈ new_b</tt> into the active_cnstrs using
        justification \c new_jst.
     */
     void push_new_eq_constraint(cnstr_list & active_cnstrs,
@@ -482,7 +482,7 @@ class elaborator::imp {
     }
 
     /**
-       Process <tt>ctx |- a == b</tt> and <tt>ctx |- a << b</tt> when:
+       Process <tt>ctx |- a ≈ b</tt> and <tt>ctx |- a << b</tt> when:
        1- \c a is an assigned metavariable
        2- \c a is a unassigned metavariable without a metavariable context.
        3- \c a is a unassigned metavariable of the form <tt>?m[lift:s:n, ...]</tt>, and \c b does not have
@@ -521,9 +521,9 @@ class elaborator::imp {
                     // Let ctx be of the form
                     //  [ce_{m-1}, ..., ce_{s+n}, ce_{s+n-1}, ..., ce_s, ce_{s-1}, ..., ce_0]
                     // Then, we reduce
-                    //  [ce_{m-1}, ..., ce_{s+n}, ce_{s+n-1}, ..., ce_s, ce_{s-1}, ..., ce_0] |- ?m[lift:s:n] == b
+                    //  [ce_{m-1}, ..., ce_{s+n}, ce_{s+n-1}, ..., ce_s, ce_{s-1}, ..., ce_0] |- ?m[lift:s:n] ≈ b
                     // to
-                    //  [ce_{m-1}, ..., ce_{s+n},    lower(ce_{s-1}, n, n), ..., lower(ce_0, s + n - 1, n)] |- ?m == lower(b, s + n, n)
+                    //  [ce_{m-1}, ..., ce_{s+n},    lower(ce_{s-1}, n, n), ..., lower(ce_0, s + n - 1, n)] |- ?m ≈ lower(b, s + n, n)
                     //
                     // Remark: we have to check if the lower operations are applicable using the operation has_free_var.
                     //
@@ -869,21 +869,21 @@ class elaborator::imp {
     }
 
     /**
-        \brief Return true iff ctx |- a == b is a "simple" higher-order matching constraint. By simple, we mean
+        \brief Return true iff ctx |- a ≈ b is a "simple" higher-order matching constraint. By simple, we mean
 
         1) a constraint of the form
-               ctx |- (?m x1 ... xn) == c          where c is closed
+               ctx |- (?m x1 ... xn) ≈ c          where c is closed
            The constraint is solved by assigning ?m to (fun x1 ... xn, c).
            The arguments may contain duplicate occurrences of variables.
 
 
         2) a constraint of the form
-               ctx |- (?m x1 ... xn) == (f x1 ... xn)      where f does not contain x1 ... xn, and x1 ... xn are distinct
+               ctx |- (?m x1 ... xn) ≈ (f x1 ... xn)      where f does not contain x1 ... xn, and x1 ... xn are distinct
            The constraint is solved by assigning ?m to f OR ?m to (fun x1 ... xn, f x1 ... xn)
     */
     bool process_simple_ho_match(context const & ctx, expr const & a, expr const & b, bool is_lhs, unification_constraint const & c) {
         // Solve constraint of the form
-        //    ctx |- (?m x) == c
+        //    ctx |- (?m x) ≈ c
         // using imitation
         bool eq_closed = is_simple_ho_match_closed(ctx, a, b, is_lhs, c);
         bool eq_app    = is_simple_ho_match_app(ctx, a, b, is_lhs, c);
@@ -966,7 +966,7 @@ class elaborator::imp {
             expr f_b          = arg(b, 0);
             unsigned num_b    = num_args(b);
             // Assign f_a <- fun (x_1 : T_1) ... (x_{num_a} : T_{num_a}), f_b (h_1 x_1 ... x_{num_a}) ... (h_{num_b} x_1 ... x_{num_a})
-            // New constraints (h_i a_1 ... a_{num_a}) == arg(b, i)
+            // New constraints (h_i a_1 ... a_{num_a}) ≈ arg(b, i)
             buffer<expr> imitation_args; // arguments for the imitation
             imitation_args.push_back(lift_free_vars(f_b, 0, num_a - 1, new_state.m_menv));
             for (unsigned i = 1; i < num_b; i++) {
@@ -979,8 +979,8 @@ class elaborator::imp {
             // Imitation for lambdas, Pis, and Sigmas
             // Assign f_a <- fun (x_1 : T_1) ... (x_{num_a} : T_{num_a}),
             //                        fun (x_b : (?h_1 x_1 ... x_{num_a})), (?h_2 x_1 ... x_{num_a} x_b)
-            // New constraints (h_1 a_1 ... a_{num_a}) == abst_domain(b)
-            //                 (h_2 a_1 ... a_{num_a} x_b) == abst_body(b)
+            // New constraints (h_1 a_1 ... a_{num_a}) ≈ abst_domain(b)
+            //                 (h_2 a_1 ... a_{num_a} x_b) ≈ abst_body(b)
             expr h_1 = new_state.m_menv->mk_metavar(ctx);
             context new_ctx = extend(ctx, abst_name(b), abst_domain(b));
             expr h_2 = new_state.m_menv->mk_metavar(extend(ctx, abst_name(b), abst_domain(b)));
@@ -994,6 +994,13 @@ class elaborator::imp {
                                        mk_app(update_app(lift_free_vars(a, 1), 0, h_2), mk_var(0)), abst_body(b), new_assumption);
                 imitation = mk_lambda(arg_types, update_abstraction(b, mk_app_h_vars(h_1), mk_app_vars(add_lift(h_2, 1, num_a - 1), num_a)));
             }
+        } else if (is_heq(b)) {
+            // Imitation for heterogeneous equality
+            expr h_1 = new_state.m_menv->mk_metavar(ctx);
+            expr h_2 = new_state.m_menv->mk_metavar(ctx);
+            push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_1), heq_lhs(b), new_assumption);
+            push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_2), heq_rhs(b), new_assumption);
+            imitation = mk_lambda(arg_types, mk_heq(mk_app_h_vars(h_1), mk_app_h_vars(h_2)));
         } else if (is_pair(b)) {
             // Imitation for dependent pairs
             expr h_f = new_state.m_menv->mk_metavar(ctx);
@@ -1072,7 +1079,7 @@ class elaborator::imp {
 
     /**
        \brief Collect possible solutions for ?m given a constraint of the form
-                 ctx |- ?m[lctx] == b
+                 ctx |- ?m[lctx] ≈ b
        where b is a Constant, Type, Value or Variable.
 
        We only need the local context \c lctx and \c b for computing the set of possible solutions.
@@ -1080,23 +1087,23 @@ class elaborator::imp {
 
        We may have more than one solution. Here is an example:
 
-          ?m[inst:3:b, lift:1:1, inst:2:b] == b
+          ?m[inst:3:b, lift:1:1, inst:2:b] ≈ b
 
        The possible solutions is the set of solutions for
-       1- ?m[lift:1:1, inst:2:b] == #3
-       2- ?m[lift:1:1, inst:2:b] == b
+       1- ?m[lift:1:1, inst:2:b] ≈ #3
+       2- ?m[lift:1:1, inst:2:b] ≈ b
 
        The solutions for constraints 1 and 2 are the solutions for
-       1.1-  ?m[inst:2:b] == #2
-       2.1-  ?m[inst:2:b] == b
+       1.1-  ?m[inst:2:b] ≈ #2
+       2.1-  ?m[inst:2:b] ≈ b
 
        And 1.1 has two possible solutions
-       1.1.1 ?m == #3
-       1.1.2 ?m == b
+       1.1.1 ?m ≈ #3
+       1.1.2 ?m ≈ b
 
        And 2.1 has also two possible solutions
-       2.1.1 ?m == #2
-       2.1.2 ?m == b
+       2.1.1 ?m ≈ #2
+       2.1.2 ?m ≈ b
 
        Thus, the resulting set of solutions is {#3, b, #2}
     */
@@ -1143,7 +1150,7 @@ class elaborator::imp {
 
     /**
        \brief Solve a constraint of the form
-            ctx |- a == b
+            ctx |- a ≈ b
        where
             a is of the form ?m[...]  i.e., metavariable with a non-empty local context.
             b is an abstraction
@@ -1217,7 +1224,7 @@ class elaborator::imp {
     }
     /**
        \brief Solve a constraint of the form
-            ctx |- a == b
+            ctx |- a ≈ b
        where
             a is of the form ?m[...]  i.e., metavariable with a non-empty local context.
             b is a pair projection.
@@ -1244,7 +1251,7 @@ class elaborator::imp {
 
     /**
        \brief Solve a constraint of the form
-            ctx |- a == b
+            ctx |- a ≈ b
        where
             a is of the form ?m[...]  i.e., metavariable with a non-empty local context.
             b is a dependent pair
@@ -1272,19 +1279,46 @@ class elaborator::imp {
     }
 
     /**
-       \brief Process a constraint <tt>ctx |- a == b</tt> where \c a is of the form <tt>?m[(inst:i t), ...]</tt>.
+       \brief Solve a constraint of the form
+            ctx |- a ≈ b
+       where
+            a is of the form ?m[...]  i.e., metavariable with a non-empty local context.
+            b is a heterogeneous equality
+
+       We solve the constraint by assigning a to an abstraction with fresh metavariables.
+    */
+    void imitate_heq(expr const & a, expr const & b, unification_constraint const & c) {
+        lean_assert(is_metavar(a));
+        lean_assert(is_heq(b));
+        lean_assert(!is_assigned(a));
+        lean_assert(has_local_context(a));
+        // imitate
+        push_active(c);
+        // a <- ?h_1 == ?h_2
+        // ?h_i are in the same context where 'a' was defined
+        expr m        = mk_metavar(metavar_name(a));
+        context ctx_m = m_state.m_menv->get_context(m);
+        expr h_1 = m_state.m_menv->mk_metavar(ctx_m);
+        expr h_2 = m_state.m_menv->mk_metavar(ctx_m);
+        expr imitation = mk_heq(h_1, h_2);
+        justification new_jst(new imitation_justification(c));
+        push_new_constraint(true, ctx_m, m, imitation, new_jst);
+    }
+
+    /**
+       \brief Process a constraint <tt>ctx |- a ≈ b</tt> where \c a is of the form <tt>?m[(inst:i t), ...]</tt>.
        We perform a "case split",
-       Case 1) ?m[...] == #i and t == b  (for constants, variables, values and Type)
+       Case 1) ?m[...] ≈ #i and t ≈ b  (for constants, variables, values and Type)
        Case 2) imitate b
     */
     bool process_metavar_inst(expr const & a, expr const & b, bool is_lhs, unification_constraint const & c) {
         // This method is miss some cases. In particular the local context of \c a contains metavariables.
         //
-        //     (f#2 #1) == ?M2[i:1 ?M1]
+        //     (f#2 #1) ≈ ?M2[i:1 ?M1]
         //
         // A possible solution for this constraint is:
-        //       ?M2 == #1
-        //       ?M1 == f#2 #1
+        //       ?M2 ≈ #1
+        //       ?M1 ≈ f#2 #1
         //
         // TODO(Leo): consider the following alternative design: We do NOT use approximations, since it is quite
         // hard to understand what happened when they do not work. Instead, we rely on user provided plugins
@@ -1332,6 +1366,9 @@ class elaborator::imp {
             } else if (is_proj(b)) {
                 imitate_proj(a, b, c);
                 return true;
+            } else if (is_heq(b)) {
+                imitate_heq(a, b, c);
+                return true;
             } else if (is_pair(b)) {
                 imitate_pair(a, b, c);
                 return true;
@@ -1341,7 +1378,7 @@ class elaborator::imp {
     }
 
     /**
-       \brief Process a constraint of the form <tt>ctx |- ?m[lift, ...] == b</tt> where \c b is an abstraction.
+       \brief Process a constraint of the form <tt>ctx |- ?m[lift, ...] ≈ b</tt> where \c b is an abstraction.
        That is, \c b is a Pi or Lambda. In both cases, ?m must have the same kind.
        We just add a new assignment that forces ?m to have the corresponding kind.
 
@@ -1407,7 +1444,7 @@ class elaborator::imp {
     }
 
     /**
-       \brief Return true iff the current queue has a max constraint of the form <tt>ctx |- max(L1, L2) == a</tt>.
+       \brief Return true iff the current queue has a max constraint of the form <tt>ctx |- max(L1, L2) ≈ a</tt>.
 
        \pre is_metavar(a)
     */
@@ -1433,7 +1470,7 @@ class elaborator::imp {
             // We approximate and only consider the most useful ones.
             //
             // Remark: we only consider \c a if the queue does not have a constraint
-            // of the form ctx |- max(L1, L2) == a.
+            // of the form ctx |- max(L1, L2) ≈ a.
             // If it does, we don't need to guess. We wait \c a to be assigned
             // and just check if the upper bound is satisfied.
             //
@@ -1505,7 +1542,7 @@ class elaborator::imp {
        We replace
            ctx | ?m << Pi(x : A, B)
        with
-           ctx        |- ?m == Pi(x : A, ?m1)
+           ctx        |- ?m ≈ Pi(x : A, ?m1)
            ctx, x : A |- ?m1 << B
     */
     void process_metavar_conv_pi(unification_constraint const & c, expr const & m, expr const & pi, bool is_lhs) {
@@ -1520,15 +1557,15 @@ class elaborator::imp {
         expr m1         = m_state.m_menv->mk_metavar(new_ctx);
         justification new_jst(new destruct_justification(c));
 
-        // Add   ctx, x : A |- ?m1 << B       when is_lhs == true,
-        //   and ctx, x : A |- B << ?m1       when is_lhs == false
+        // Add   ctx, x : A |- ?m1 << B       when is_lhs ≈ true,
+        //   and ctx, x : A |- B << ?m1       when is_lhs ≈ false
         expr lhs = m1;
         expr rhs = abst_body(pi);
         if (!is_lhs)
             swap(lhs, rhs);
         push_new_constraint(false, new_ctx, lhs, rhs, new_jst);
 
-        // Add ctx |- ?m == Pi(x : A, ?m1)
+        // Add ctx |- ?m ≈ Pi(x : A, ?m1)
         push_new_eq_constraint(ctx, m, update_abstraction(pi, abst_domain(pi), m1), new_jst);
     }
 
@@ -1577,10 +1614,10 @@ class elaborator::imp {
 
         if (m_assume_injectivity && is_app(a) && is_app(b) && num_args(a) == num_args(b) && arg(a, 0) == arg(b, 0) && !is_metavar(arg(a, 0))) {
             // If m_assume_injectivity is true, we apply the following rule
-            // ctx |- (f a1 a2) == (f b1 b2)
-            // ===>
-            // ctx |- a1 == b1
-            // ctx |- a2 == b2
+            // ctx |- (f a1 a2) ≈ (f b1 b2)
+            // ==>
+            // ctx |- a1 ≈ b1
+            // ctx |- a2 ≈ b2
             justification new_jst(new destruct_justification(c));
             for (unsigned i = 1; i < num_args(a); i++)
                 push_new_eq_constraint(ctx, arg(a, i), arg(b, i), new_jst);
@@ -1800,14 +1837,14 @@ class elaborator::imp {
             return true;
         }
         if (lhs1 == rhs) {
-            // ctx |- max(lhs1, lhs2) == rhs
+            // ctx |- max(lhs1, lhs2) ≈ rhs
             // ==>  IF lhs1 = rhs
             // ctx |- lhs2 << rhs
             justification new_jst(new normalize_justification(c));
             push_active(mk_convertible_constraint(get_context(c), lhs2, rhs, new_jst));
             return true;
         } else if (lhs2 == rhs && is_type(lhs2)) {
-            // ctx |- max(lhs1, lhs2) == rhs   IF lhs2 is a Type
+            // ctx |- max(lhs1, lhs2) ≈ rhs   IF lhs2 is a Type
             // ==>  IF lhs1 = rhs
             // ctx |- lhs2 << rhs
 

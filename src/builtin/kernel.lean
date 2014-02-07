@@ -11,12 +11,11 @@ definition TypeU := (Type U)
 (* mk_rewrite_rule_set() *)
 
 variable Bool : Type
--- Heterogeneous equality
-variable heq2 {A B : (Type U)} (a : A) (b : B) : Bool
-infixl 50 == : heq2
 
 -- Reflexivity for heterogeneous equality
-axiom hrefl {A : (Type U)} (a : A) : a == a
+-- We use universe U+1 in heterogeneous equality axioms because we want to be able
+-- to state the equality between A and B of (Type U)
+axiom hrefl {A : (Type U+1)} (a : A) : a == a
 
 -- Homogeneous equality
 definition eq {A : (Type U)} (a b : A) := a == b
@@ -177,10 +176,10 @@ theorem imp_eq_trans {a b c : Bool} (H1 : a → b) (H2 : b = c) : a → c
 theorem eq_imp_trans {a b c : Bool} (H1 : a = b) (H2 : b → c) : a → c
 := assume Ha, H2 (H1 ◂ Ha)
 
-theorem to_eq {A : TypeU} {a b : A} (H : a == b) : a = b
+theorem to_eq {A : (Type U)} {a b : A} (H : a == b) : a = b
 := (heq_eq a b) ◂ H
 
-theorem to_heq {A : TypeU} {a b : A} (H : a = b) : a == b
+theorem to_heq {A : (Type U)} {a b : A} (H : a = b) : a == b
 := (symm (heq_eq a b)) ◂ H
 
 theorem iff_eliml {a b : Bool} (H : a ↔ b) : a → b
@@ -189,13 +188,13 @@ theorem iff_eliml {a b : Bool} (H : a ↔ b) : a → b
 theorem iff_elimr {a b : Bool} (H : a ↔ b) : b → a
 := (λ Hb : b, eqmpr H Hb)
 
-theorem ne_symm {A : TypeU} {a b : A} (H : a ≠ b) : b ≠ a
+theorem ne_symm {A : (Type U)} {a b : A} (H : a ≠ b) : b ≠ a
 := assume H1 : b = a, H (symm H1)
 
-theorem eq_ne_trans {A : TypeU} {a b c : A} (H1 : a = b) (H2 : b ≠ c) : a ≠ c
+theorem eq_ne_trans {A : (Type U)} {a b c : A} (H1 : a = b) (H2 : b ≠ c) : a ≠ c
 := subst H2 (symm H1)
 
-theorem ne_eq_trans {A : TypeU} {a b c : A} (H1 : a ≠ b) (H2 : b = c) : a ≠ c
+theorem ne_eq_trans {A : (Type U)} {a b c : A} (H1 : a ≠ b) (H2 : b = c) : a ≠ c
 := subst H1 H2
 
 theorem eqt_elim {a : Bool} (H : a = true) : a
@@ -231,12 +230,12 @@ theorem not_not_eq (a : Bool) : (¬ ¬ a) = a
 
 add_rewrite not_not_eq
 
-theorem not_neq {A : TypeU} (a b : A) : ¬ (a ≠ b) ↔ a = b
+theorem not_neq {A : (Type U)} (a b : A) : ¬ (a ≠ b) ↔ a = b
 := not_not_eq (a = b)
 
 add_rewrite not_neq
 
-theorem not_neq_elim {A : TypeU} {a b : A} (H : ¬ (a ≠ b)) : a = b
+theorem not_neq_elim {A : (Type U)} {a b : A} (H : ¬ (a ≠ b)) : a = b
 := (not_neq a b) ◂ H
 
 theorem not_not_elim {a : Bool} (H : ¬ ¬ a) : a
@@ -301,6 +300,9 @@ theorem eq_id {A : (Type U)} (a : A) : (a = a) ↔ true
 
 theorem iff_id (a : Bool) : (a ↔ a) ↔ true
 := eqt_intro (refl a)
+
+theorem heq_id (A : (Type U+1)) (a : A) : (a == a) ↔ true
+:= eqt_intro (hrefl a)
 
 theorem neq_elim {A : (Type U)} {a b : A} (H : a ≠ b) : a = b ↔ false
 := eqf_intro H
@@ -429,12 +431,12 @@ theorem not_congr {a b : Bool} (H : a ↔ b) : ¬ a ↔ ¬ b
 := congr2 not H
 
 -- Recall that exists is defined as ¬ ∀ x : A, ¬ P x
-theorem exists_elim {A : TypeU} {P : A → Bool} {B : Bool} (H1 : Exists A P) (H2 : ∀ (a : A) (H : P a), B) : B
+theorem exists_elim {A : (Type U)} {P : A → Bool} {B : Bool} (H1 : Exists A P) (H2 : ∀ (a : A) (H : P a), B) : B
 := refute (λ R : ¬ B,
              absurd (take a : A, mt (assume H : P a, H2 a H) R)
                     H1)
 
-theorem exists_intro {A : TypeU} {P : A → Bool} (a : A) (H : P a) : Exists A P
+theorem exists_intro {A : (Type U)} {P : A → Bool} (a : A) (H : P a) : Exists A P
 := assume H1 : (∀ x : A, ¬ P x),
       absurd H (H1 a)
 
@@ -445,14 +447,14 @@ theorem not_exists (A : (Type U)) (P : A → Bool) : ¬ (∃ x : A, P x) ↔ (�
 theorem not_exists_elim {A : (Type U)} {P : A → Bool} (H : ¬ ∃ x : A, P x) : ∀ x : A, ¬ P x
 := (not_exists A P) ◂ H
 
-theorem exists_unfold1 {A : TypeU} {P : A → Bool} (a : A) (H : ∃ x : A, P x) : P a ∨ (∃ x : A, x ≠ a ∧ P x)
+theorem exists_unfold1 {A : (Type U)} {P : A → Bool} (a : A) (H : ∃ x : A, P x) : P a ∨ (∃ x : A, x ≠ a ∧ P x)
 := exists_elim H
      (λ (w : A) (H1 : P w),
         or_elim (em (w = a))
           (λ Heq : w = a, or_introl (subst H1 Heq) (∃ x : A, x ≠ a ∧ P x))
           (λ Hne : w ≠ a, or_intror (P a) (exists_intro w (and_intro Hne H1))))
 
-theorem exists_unfold2 {A : TypeU} {P : A → Bool} (a : A) (H : P a ∨ (∃ x : A, x ≠ a ∧ P x)) : ∃ x : A, P x
+theorem exists_unfold2 {A : (Type U)} {P : A → Bool} (a : A) (H : P a ∨ (∃ x : A, x ≠ a ∧ P x)) : ∃ x : A, P x
 := or_elim H
       (λ H1 : P a, exists_intro a H1)
       (λ H2 : (∃ x : A, x ≠ a ∧ P x),
@@ -460,7 +462,7 @@ theorem exists_unfold2 {A : TypeU} {P : A → Bool} (a : A) (H : P a ∨ (∃ x 
                (λ (w : A) (Hw : w ≠ a ∧ P w),
                   exists_intro w (and_elimr Hw)))
 
-theorem exists_unfold {A : TypeU} (P : A → Bool) (a : A) : (∃ x : A, P x) ↔ (P a ∨ (∃ x : A, x ≠ a ∧ P x))
+theorem exists_unfold {A : (Type U)} (P : A → Bool) (a : A) : (∃ x : A, P x) ↔ (P a ∨ (∃ x : A, x ≠ a ∧ P x))
 := boolext (assume H : (∃ x : A, P x),                 exists_unfold1 a H)
            (assume H : (P a ∨ (∃ x : A, x ≠ a ∧ P x)), exists_unfold2 a H)
 
@@ -468,19 +470,19 @@ definition inhabited (A : (Type U))
 := ∃ x : A, true
 
 -- If we have an element of type A, then A is inhabited
-theorem inhabited_intro {A : TypeU} (a : A) : inhabited A
+theorem inhabited_intro {A : (Type U)} (a : A) : inhabited A
 := assume H : (∀ x, ¬ true), absurd_not_true (H a)
 
-theorem inhabited_elim {A : TypeU} (H1 : inhabited A) {B : Bool} (H2 : A → B) : B
+theorem inhabited_elim {A : (Type U)} (H1 : inhabited A) {B : Bool} (H2 : A → B) : B
 := obtain (w : A) (Hw : true), from H1,
      H2 w
 
-theorem inhabited_ex_intro {A : TypeU} {P : A → Bool} (H : ∃ x, P x) : inhabited A
+theorem inhabited_ex_intro {A : (Type U)} {P : A → Bool} (H : ∃ x, P x) : inhabited A
 := obtain (w : A) (Hw : P w), from H,
       exists_intro w trivial
 
 -- If a function space is non-empty, then for every 'a' in the domain, the range (B a) is not empty
-theorem inhabited_range {A : TypeU} {B : A → TypeU} (H : inhabited (∀ x, B x)) (a : A) : inhabited (B a)
+theorem inhabited_range {A : (Type U)} {B : A → (Type U)} (H : inhabited (∀ x, B x)) (a : A) : inhabited (B a)
 := refute (λ N : ¬ inhabited (B a),
      let s1 : ¬ ∃ x : B a, true       := N,
          s2 : ∀ x : B a, false        := take x : B a, absurd_not_true (not_exists_elim s1 x),
@@ -489,7 +491,7 @@ theorem inhabited_range {A : TypeU} {B : A → TypeU} (H : inhabited (∀ x, B x
            let s4 : B a := w a
            in s2 s4)
 
-theorem exists_rem {A : TypeU} (H : inhabited A) (p : Bool) : (∃ x : A, p) ↔ p
+theorem exists_rem {A : (Type U)} (H : inhabited A) (p : Bool) : (∃ x : A, p) ↔ p
 := iff_intro
     (assume Hl : (∃ x : A, p),
        obtain (w : A) (Hw : p), from Hl,
@@ -497,7 +499,7 @@ theorem exists_rem {A : TypeU} (H : inhabited A) (p : Bool) : (∃ x : A, p) ↔
     (assume Hr : p,
        inhabited_elim H (λ w, exists_intro w Hr))
 
-theorem forall_rem {A : TypeU} (H : inhabited A) (p : Bool) : (∀ x : A, p) ↔ p
+theorem forall_rem {A : (Type U)} (H : inhabited A) (p : Bool) : (∀ x : A, p) ↔ p
 := iff_intro
     (assume Hl : (∀ x : A, p),
        inhabited_elim H (λ w, Hl w))
@@ -669,7 +671,7 @@ theorem not_iff (a b : Bool) : ¬ (a ↔ b) ↔ (¬ a ↔ b)
 theorem not_iff_elim {a b : Bool} (H : ¬ (a ↔ b)) : (¬ a) ↔ b
 := (not_iff a b) ◂ H
 
-theorem forall_or_distributer {A : TypeU} (p : Bool) (φ : A → Bool) : (∀ x, p ∨ φ x) = (p ∨ ∀ x, φ x)
+theorem forall_or_distributer {A : (Type U)} (p : Bool) (φ : A → Bool) : (∀ x, p ∨ φ x) = (p ∨ ∀ x, φ x)
 := boolext
      (assume H : (∀ x, p ∨ φ x),
         or_elim (em p)
@@ -694,14 +696,14 @@ theorem forall_or_distributel {A : Type} (p : Bool) (φ : A → Bool) : (∀ x, 
               (λ H1 : (∀ x, φ x), or_introl (H1 x) p)
               (λ H2 : p,           or_intror (φ x) H2))
 
-theorem forall_and_distribute {A : TypeU} (φ ψ : A → Bool) : (∀ x, φ x ∧ ψ x) ↔ (∀ x, φ x) ∧ (∀ x, ψ x)
+theorem forall_and_distribute {A : (Type U)} (φ ψ : A → Bool) : (∀ x, φ x ∧ ψ x) ↔ (∀ x, φ x) ∧ (∀ x, ψ x)
 := boolext
      (assume H : (∀ x, φ x ∧ ψ x),
         and_intro (take x, and_eliml (H x)) (take x, and_elimr (H x)))
      (assume H : (∀ x, φ x) ∧ (∀ x, ψ x),
         take x, and_intro (and_eliml H x) (and_elimr H x))
 
-theorem exists_and_distributer {A : TypeU} (p : Bool) (φ : A → Bool) : (∃ x, p ∧ φ x) ↔ p ∧ ∃ x, φ x
+theorem exists_and_distributer {A : (Type U)} (p : Bool) (φ : A → Bool) : (∃ x, p ∧ φ x) ↔ p ∧ ∃ x, φ x
 := boolext
      (assume H : (∃ x, p ∧ φ x),
         obtain (w : A) (Hw : p ∧ φ w), from H,
@@ -711,7 +713,7 @@ theorem exists_and_distributer {A : TypeU} (p : Bool) (φ : A → Bool) : (∃ x
             exists_intro w (and_intro (and_eliml H) Hw))
 
 
-theorem exists_or_distribute {A : TypeU} (φ ψ : A → Bool) : (∃ x, φ x ∨ ψ x) ↔ (∃ x, φ x) ∨ (∃ x, ψ x)
+theorem exists_or_distribute {A : (Type U)} (φ ψ : A → Bool) : (∃ x, φ x ∨ ψ x) ↔ (∃ x, φ x) ∨ (∃ x, ψ x)
 := boolext
     (assume H : (∃ x, φ x ∨ ψ x),
         obtain (w : A) (Hw : φ w ∨ ψ w), from H,
@@ -743,12 +745,12 @@ theorem not_forall (A : (Type U)) (P : A → Bool) : ¬ (∀ x : A, P x) ↔ (�
 theorem not_forall_elim {A : (Type U)} {P : A → Bool} (H : ¬ (∀ x : A, P x)) : ∃ x : A, ¬ P x
 := (not_forall A P) ◂ H
 
-theorem exists_and_distributel {A : TypeU} (p : Bool) (φ : A → Bool) : (∃ x, φ x ∧ p) ↔ (∃ x, φ x) ∧ p
+theorem exists_and_distributel {A : (Type U)} (p : Bool) (φ : A → Bool) : (∃ x, φ x ∧ p) ↔ (∃ x, φ x) ∧ p
 := calc (∃ x, φ x ∧ p) = (∃ x, p ∧ φ x)   : eq_exists_intro (λ x, and_comm (φ x) p)
                  ...   = (p ∧ (∃ x, φ x)) : exists_and_distributer p φ
                  ...   = ((∃ x, φ x) ∧ p) : and_comm p (∃ x, φ x)
 
-theorem exists_imp_distribute {A : TypeU} (φ ψ : A → Bool) : (∃ x, φ x → ψ x) ↔ ((∀ x, φ x) → (∃ x, ψ x))
+theorem exists_imp_distribute {A : (Type U)} (φ ψ : A → Bool) : (∃ x, φ x → ψ x) ↔ ((∀ x, φ x) → (∃ x, ψ x))
 := calc (∃ x, φ x → ψ x) = (∃ x, ¬ φ x ∨ ψ x)           : eq_exists_intro (λ x, imp_or (φ x) (ψ x))
                      ...   = (∃ x, ¬ φ x) ∨ (∃ x, ψ x)   : exists_or_distribute _ _
                      ...   = ¬ (∀ x, φ x) ∨ (∃ x, ψ x)   : { symm (not_forall A φ) }
@@ -770,36 +772,36 @@ theorem allext {A : (Type U)} {B C : A → Bool} (H : ∀ x : A, B x = C x) : (�
 axiom funext {A : (Type U)} {B : A → (Type U)} {f g : ∀ x : A, B x} (H : ∀ x : A, f x = g x) : f = g
 
 -- Eta is a consequence of function extensionality
-theorem eta {A : TypeU} {B : A → TypeU} (f : ∀ x : A, B x) : (λ x : A, f x) = f
+theorem eta {A : (Type U)} {B : A → (Type U)} (f : ∀ x : A, B x) : (λ x : A, f x) = f
 := funext (λ x : A, refl (f x))
 
 -- Epsilon (Hilbert's operator)
-variable eps {A : TypeU} (H : inhabited A) (P : A → Bool) : A
+variable eps {A : (Type U)} (H : inhabited A) (P : A → Bool) : A
 alias ε : eps
-axiom eps_ax {A : TypeU} (H : inhabited A) {P : A → Bool} (a : A) : P a → P (ε H P)
+axiom eps_ax {A : (Type U)} (H : inhabited A) {P : A → Bool} (a : A) : P a → P (ε H P)
 
-theorem eps_th {A : TypeU} {P : A → Bool} (a : A) : P a → P (ε (inhabited_intro a) P)
+theorem eps_th {A : (Type U)} {P : A → Bool} (a : A) : P a → P (ε (inhabited_intro a) P)
 := assume H : P a, @eps_ax A (inhabited_intro a) P a H
 
-theorem eps_singleton {A : TypeU} (H : inhabited A) (a : A) : ε H (λ x, x = a) = a
+theorem eps_singleton {A : (Type U)} (H : inhabited A) (a : A) : ε H (λ x, x = a) = a
 := let P         :=  λ x, x = a,
        Ha : P a  :=  refl a
    in eps_ax H a Ha
 
 -- A function space (∀ x : A, B x) is inhabited if forall a : A, we have inhabited (B a)
-theorem inhabited_fun {A : TypeU} {B : A → TypeU} (Hn : ∀ a, inhabited (B a)) : inhabited (∀ x, B x)
+theorem inhabited_fun {A : (Type U)} {B : A → (Type U)} (Hn : ∀ a, inhabited (B a)) : inhabited (∀ x, B x)
 := inhabited_intro (λ x, ε (Hn x) (λ y, true))
 
-theorem exists_to_eps {A : TypeU} {P : A → Bool} (H : ∃ x, P x) : P (ε (inhabited_ex_intro H) P)
+theorem exists_to_eps {A : (Type U)} {P : A → Bool} (H : ∃ x, P x) : P (ε (inhabited_ex_intro H) P)
 := obtain (w : A) (Hw : P w), from H,
       eps_ax (inhabited_ex_intro H) w Hw
 
-theorem axiom_of_choice {A : TypeU} {B : A → TypeU} {R : ∀ x : A, B x → Bool} (H : ∀ x, ∃ y, R x y) : ∃ f, ∀ x, R x (f x)
+theorem axiom_of_choice {A : (Type U)} {B : A → (Type U)} {R : ∀ x : A, B x → Bool} (H : ∀ x, ∃ y, R x y) : ∃ f, ∀ x, R x (f x)
 := exists_intro
       (λ x, ε (inhabited_ex_intro (H x)) (λ y, R x y)) -- witness for f
       (λ x, exists_to_eps (H x))                      -- proof that witness satisfies ∀ x, R x (f x)
 
-theorem skolem_th {A : TypeU} {B : A → TypeU} {P : ∀ x : A, B x → Bool} :
+theorem skolem_th {A : (Type U)} {B : A → (Type U)} {P : ∀ x : A, B x → Bool} :
         (∀ x, ∃ y, P x y) ↔ ∃ f, (∀ x, P x (f x))
 := iff_intro
       (λ H : (∀ x, ∃ y, P x y), axiom_of_choice H)
@@ -808,21 +810,21 @@ theorem skolem_th {A : TypeU} {B : A → TypeU} {P : ∀ x : A, B x → Bool} :
                   exists_intro (fw x) (Hw x))
 
 -- if-then-else expression, we define it using Hilbert's operator
-definition ite {A : TypeU} (c : Bool) (a b : A) : A
+definition ite {A : (Type U)} (c : Bool) (a b : A) : A
 := ε (inhabited_intro a) (λ r, (c → r = a) ∧ (¬ c → r = b))
 notation 45 if _ then _ else _ : ite
 
-theorem if_true {A : TypeU} (a b : A) : (if true then a else b) = a
+theorem if_true {A : (Type U)} (a b : A) : (if true then a else b) = a
 := calc (if true then a else b) = ε (inhabited_intro a) (λ r, (true → r = a) ∧ (¬ true → r = b)) : refl (if true then a else b)
                            ...  = ε (inhabited_intro a) (λ r, r = a)                               : by simp
                            ...  = a        : eps_singleton (inhabited_intro a) a
 
-theorem if_false {A : TypeU} (a b : A) : (if false then a else b) = b
+theorem if_false {A : (Type U)} (a b : A) : (if false then a else b) = b
 := calc (if false then a else b) = ε (inhabited_intro a) (λ r, (false → r = a) ∧ (¬ false → r = b)) : refl (if false then a else b)
                             ...  = ε (inhabited_intro a) (λ r, r = b)              : by simp
                             ...  = b                                              : eps_singleton (inhabited_intro a) b
 
-theorem if_a_a {A : TypeU} (c : Bool) (a: A) : (if c then a else a) = a
+theorem if_a_a {A : (Type U)} (c : Bool) (a: A) : (if c then a else a) = a
 := or_elim (em c)
      (λ H : c,   calc (if c then a else a) = (if true then a else a)  : { eqt_intro H }
                                    ...   = a                          : if_true a a)
@@ -831,7 +833,7 @@ theorem if_a_a {A : TypeU} (c : Bool) (a: A) : (if c then a else a) = a
 
 add_rewrite if_true if_false if_a_a
 
-theorem if_congr {A : TypeU} {b c : Bool} {x y u v : A} (H_bc : b = c)
+theorem if_congr {A : (Type U)} {b c : Bool} {x y u v : A} (H_bc : b = c)
                  (H_xu : ∀ (H_c : c), x = u) (H_yv : ∀ (H_nc : ¬ c), y = v) :
         (if b then x else y) = if c then u else v
 := or_elim (em c)
@@ -860,7 +862,7 @@ theorem if_imp_else {a b c : Bool} (H : if a then b else c) : ¬ a → c
                                     ... = if a then b else c     : { symm (eqf_intro Hna) }
                                     ... = true                   : eqt_intro H)
 
-theorem app_if_distribute {A B : TypeU} (c : Bool) (f : A → B) (a b : A) : f (if c then a else b) = if c then f a else f b
+theorem app_if_distribute {A B : (Type U)} (c : Bool) (f : A → B) (a b : A) : f (if c then a else b) = if c then f a else f b
 := or_elim (em c)
      (λ Hc : c , calc
           f (if c then a else b) = f (if true then a else b)    : { eqt_intro Hc }
@@ -873,10 +875,10 @@ theorem app_if_distribute {A B : TypeU} (c : Bool) (f : A → B) (a b : A) : f (
                             ...  = if false then f a else f b   : symm (if_false (f a) (f b))
                             ...  = if c then f a else f b       : { symm (eqf_intro Hnc) })
 
-theorem eq_if_distributer {A : TypeU} (c : Bool) (a b v : A) : (v = (if c then a else b)) = if c then v = a else v = b
+theorem eq_if_distributer {A : (Type U)} (c : Bool) (a b v : A) : (v = (if c then a else b)) = if c then v = a else v = b
 := app_if_distribute c (eq v) a b
 
-theorem eq_if_distributel {A : TypeU} (c : Bool) (a b v : A) : ((if c then a else b) = v) = if c then a = v else b = v
+theorem eq_if_distributel {A : (Type U)} (c : Bool) (a b v : A) : ((if c then a else b) = v) = if c then a = v else b = v
 := app_if_distribute c (λ x, x = v) a b
 
 set_opaque exists  true
@@ -902,67 +904,98 @@ axiom pairext {A : (Type U)} {B : A → (Type U)} {a b : sig x, B x}
 
 -- Heterogeneous equality axioms and theorems
 
--- In the following definitions the type of A and B cannot be (Type U)
--- because A = B would be @eq (Type U+1) A B, and
--- the type of eq is (∀T : (Type U), T → T → bool).
--- So, we define M a universe smaller than U.
-universe M ≥ 1
-definition TypeM := (Type M)
+-- We can "type-cast" an A expression into a B expression, if we can prove that A == B
+-- Remark: we use A == B instead of A = B, because A = B would be type incorrect.
+-- A = B is actually (@eq (Type U) A B), which is type incorrect because
+-- the first argument of eq must have type (Type U) and the type of (Type U) is (Type U+1)
+variable cast {A B : (Type U+1)} : A == B → A → B
 
--- We can "type-cast" an A expression into a B expression, if we can prove that A = B
-variable cast {A B : (Type M)} : A = B → A → B
-axiom cast_heq {A B : (Type M)} (H : A = B) (a : A) : cast H a == a
+axiom cast_heq {A B : (Type U+1)} (H : A == B) (a : A) : cast H a == a
 
--- Heterogeneous equality satisfies the usual properties: symmetry, transitivity, congruence and function extensionality
-axiom hsymm {A B : (Type U)} {a : A} {b : B} : a == b → b == a
-axiom htrans {A B C : (Type U)} {a : A} {b : B} {c : C} : a == b → b == c → a == c
-axiom hcongr {A A' : (Type U)} {B : A → (Type U)} {B' : A' → (Type U)} {f : ∀ x, B x} {f' : ∀ x, B' x} {a : A} {a' : A'} :
+-- Heterogeneous equality satisfies the usual properties: symmetry, transitivity, congruence, function extensionality, ...
+
+-- Heterogeneous version of subst
+axiom hsubst {A B : (Type U+1)} {a : A} {b : B} (P : ∀ T : (Type U+1), T → Bool) : P A a → a == b → P B b
+
+theorem hsymm {A B : (Type U+1)} {a : A} {b : B} (H : a == b) : b == a
+:= hsubst (λ (T : (Type U+1)) (x : T), x == a) (hrefl a) H
+
+theorem htrans {A B C : (Type U+1)} {a : A} {b : B} {c : C} (H1 : a == b) (H2 : b == c) : a == c
+:= hsubst (λ (T : (Type U+1)) (x : T), a == x) H1 H2
+
+axiom hcongr {A A' : (Type U+1)} {B : A → (Type U+1)} {B' : A' → (Type U+1)} {f : ∀ x, B x} {f' : ∀ x, B' x} {a : A} {a' : A'} :
       f == f' → a == a' → f a == f' a'
-axiom hfunext {A A' : (Type M)} {B : A → (Type U)} {B' : A' → (Type U)} {f : ∀ x, B x} {f' : ∀ x, B' x} :
-      A = A' → (∀ x x', x == x' → f x == f' x') → f == f'
+
+axiom hfunext {A A' : (Type U+1)} {B : A → (Type U+1)} {B' : A' → (Type U+1)} {f : ∀ x, B x} {f' : ∀ x, B' x} :
+      A == A' → (∀ x x', x == x' → f x == f' x') → f == f'
+
+axiom hpiext {A A' : (Type U+1)} {B : A → (Type U+1)} {B' : A' → (Type U+1)} :
+      A == A' → (∀ x x', x == x' → B x == B' x') → (∀ x, B x) == (∀ x, B' x)
+
+axiom hsigext {A A' : (Type U+1)} {B : A → (Type U+1)} {B' : A' → (Type U+1)} :
+      A == A' → (∀ x x', x == x' → B x == B' x') → (sig x, B x) == (sig x, B' x)
 
 -- Heterogeneous version of the allext theorem
-theorem hallext {A A' : (Type M)} {B : A → Bool} {B' : A' → Bool}
-                (Ha : A = A') (Hb : ∀ x x', x == x' → B x = B' x') : (∀ x, B x) = (∀ x, B' x)
-:= boolext
-     (assume (H : ∀ x : A, B x),
-        take x' : A', (Hb (cast (symm Ha) x') x' (cast_heq (symm Ha) x')) ◂ (H (cast (symm Ha) x')))
-     (assume (H : ∀ x' : A', B' x'),
-        take x : A, (symm (Hb x (cast Ha x) (hsymm (cast_heq Ha x)))) ◂ (H (cast Ha x)))
+theorem hallext {A A' : (Type U+1)} {B : A → Bool} {B' : A' → Bool}
+                (Ha : A == A') (Hb : ∀ x x', x == x' → B x = B' x') : (∀ x, B x) = (∀ x, B' x)
+:= to_eq (hpiext Ha (λ x x' Heq, to_heq (Hb x x' Heq)))
 
 -- Simpler version of hfunext axiom, we use it to build proofs
-theorem hsfunext {A : (Type M)} {B B' : A → (Type U)} {f : ∀ x, B x} {f' : ∀ x, B' x} :
+theorem hsfunext {A : (Type U)} {B B' : A → (Type U)} {f : ∀ x, B x} {f' : ∀ x, B' x} :
       (∀ x, f x == f' x) → f == f'
 := λ Hb,
-     hfunext (refl A) (λ (x x' : A) (Hx : x == x'),
+     hfunext (hrefl A) (λ (x x' : A) (Heq : x == x'),
                    let s1 : f x   == f' x  := Hb x,
-                       s2 : f' x  == f' x' := hcongr (hrefl f') Hx
+                       s2 : f' x  == f' x' := hcongr (hrefl f') Heq
                    in htrans s1 s2)
 
+theorem heq_congr {A B : (Type U)} {a a' : A} {b b' : B} (H1 : a = a') (H2 : b = b') : (a == b) = (a' == b')
+:= calc (a == b) = (a' == b)  : { H1 }
+            ...  = (a' == b') : { H2 }
+
+theorem hheq_congr {A A' B B' : (Type U+1)} {a : A} {a' : A'} {b : B} {b' : B'} (H1 : a == a') (H2 : b == b') : (a == b) = (a' == b')
+:= have Heq1 : (a == b) = (a' == b),
+     from (hsubst (λ (T : (Type U+1)) (x : T), (a == b)  = (x  == b)) (refl (a == b))  H1),
+   have Heq2 : (a' == b) = (a' == b'),
+     from (hsubst (λ (T : (Type U+1)) (x : T), (a' == b) = (a' == x)) (refl (a' == b)) H2),
+   show (a == b) = (a' == b'),
+     from trans Heq1 Heq2
+
+theorem type_eq {A B : (Type U)} {a : A} {b : B} (H : a == b) : A == B
+:= hsubst (λ (T : (Type U+1)) (x : T), A == T) (hrefl A) H
+
 -- Some theorems that are useful for applying simplifications.
-theorem cast_eq {A : (Type M)} (H : A = A) (a : A) : cast H a = a
+theorem cast_eq {A : (Type U)} (H : A == A) (a : A) : cast H a = a
 := to_eq (cast_heq H a)
 
-theorem cast_trans {A B C : (Type M)} (Hab : A = B) (Hbc : B = C) (a : A) : cast Hbc (cast Hab a) = cast (trans Hab Hbc) a
-:= let s1 : cast Hbc (cast Hab a)  == cast Hab a              :=  cast_heq Hbc (cast Hab a),
-       s2 : cast Hab a             == a                       :=  cast_heq Hab a,
-       s3 : cast (trans Hab Hbc) a == a                       :=  cast_heq (trans Hab Hbc) a,
-       s4 : cast Hbc (cast Hab a)  == cast (trans Hab Hbc) a  :=  htrans (htrans s1 s2) (hsymm s3)
-   in to_eq s4
+theorem cast_trans {A B C : (Type U)} (Hab : A == B) (Hbc : B == C) (a : A) : cast Hbc (cast Hab a) = cast (htrans Hab Hbc) a
+:= have Heq1 : cast Hbc (cast Hab a)   == cast Hab a,
+     from cast_heq Hbc (cast Hab a),
+   have Heq2 : cast Hab a              == a,
+     from cast_heq Hab a,
+   have Heq3 : cast (htrans Hab Hbc) a == a,
+     from cast_heq (htrans Hab Hbc) a,
+   show cast Hbc (cast Hab a) = cast (htrans Hab Hbc) a,
+     from to_eq (htrans (htrans Heq1 Heq2) (hsymm Heq3))
 
-theorem cast_pull {A : (Type M)} {B B' : A → (Type M)}
-                 (f : ∀ x, B x) (a : A) (Hb : (∀ x, B x) = (∀ x, B' x)) (Hba : (B a) = (B' a)) :
+theorem cast_pull {A : (Type U)} {B B' : A → (Type U)}
+                 (f : ∀ x, B x) (a : A) (Hb : (∀ x, B x) == (∀ x, B' x)) (Hba : (B a) == (B' a)) :
       cast Hb f a = cast Hba (f a)
-:= let s1 : cast Hb f a    == f a    :=  hcongr (cast_heq Hb f) (hrefl a),
-       s2 : cast Hba (f a) == f a    :=  cast_heq Hba (f a)
-   in to_eq (htrans s1 (hsymm s2))
+:= have s1 : cast Hb f a    == f a,
+     from hcongr (cast_heq Hb f) (hrefl a),
+   have s2 : cast Hba (f a) == f a,
+     from cast_heq Hba (f a),
+   show cast Hb f a = cast Hba (f a),
+     from to_eq (htrans s1 (hsymm s2))
 
 -- Proof irrelevance is true in the set theoretic model we have for Lean.
 axiom proof_irrel {a : Bool} (H1 H2 : a) : H1 = H2
 
 -- A more general version of proof_irrel that can be be derived using proof_irrel, heq axioms and boolext/iff_intro
 theorem hproof_irrel {a b : Bool} (H1 : a) (H2 : b) : H1 == H2
-:= let H1b       : b                     := cast (by simp) H1,
-       H1_eq_H1b : H1 == H1b             := hsymm (cast_heq (by simp) H1),
+:= let Hab       : a == b                := to_heq (iff_intro (assume Ha, H2) (assume Hb, H1)),
+       H1b       : b                     := cast Hab H1,
+       H1_eq_H1b : H1 == H1b             := hsymm (cast_heq Hab H1),
        H1b_eq_H2 : H1b == H2             := to_heq (proof_irrel H1b H2)
    in  htrans H1_eq_H1b H1b_eq_H2
+

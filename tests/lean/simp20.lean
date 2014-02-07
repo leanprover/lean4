@@ -2,6 +2,8 @@ rewrite_set simple
 
 set_option pp::implicit true
 
+universe M >= 1
+definition TypeM := (Type M)
 variable g  : TypeM → TypeM
 variable B  : Type
 variable B' : Type

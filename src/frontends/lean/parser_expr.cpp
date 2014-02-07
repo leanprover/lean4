@@ -583,6 +583,14 @@ expr parser_imp::parse_led_id(expr const & left) {
     }
 }
 
+/** \brief Parse <tt>expr '==' expr</tt>. */
+expr parser_imp::parse_heq(expr const & left) {
+    auto p = pos();
+    next();
+    expr right = parse_expr(g_heq_precedence);
+    return save(mk_heq(left, right), p);
+}
+
 /** \brief Parse <tt>expr '->' expr</tt>. */
 expr parser_imp::parse_arrow(expr const & left) {
     auto p = pos();
@@ -1087,6 +1095,7 @@ expr parser_imp::parse_led(expr const & left) {
     switch (curr()) {
     case scanner::token::Id:               return parse_led_id(left);
     case scanner::token::Arrow:            return parse_arrow(left);
+    case scanner::token::HEq:              return parse_heq(left);
     case scanner::token::CartesianProduct: return parse_cartesian_product(left);
     case scanner::token::LeftParen:        return mk_app_left(left, parse_lparen());
     case scanner::token::IntVal:           return mk_app_left(left, parse_nat_int());
@@ -1118,6 +1127,7 @@ unsigned parser_imp::curr_lbp() {
     }
     case scanner::token::Arrow :           return g_arrow_precedence;
     case scanner::token::CartesianProduct: return g_cartesian_product_precedence;
+    case scanner::token::HEq:              return g_heq_precedence;
     case scanner::token::LeftParen: case scanner::token::IntVal: case scanner::token::DecimalVal:
     case scanner::token::StringVal: case scanner::token::Type: case scanner::token::Placeholder:
         return g_app_precedence;

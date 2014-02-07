@@ -21,6 +21,7 @@ static name g_type_name("Type");
 static name g_pi_name("forall");
 static name g_let_name("let");
 static name g_in_name("in");
+static name g_heq_name("==");
 static name g_arrow_name("->");
 static name g_exists_name("exists");
 static name g_Exists_name("Exists");
@@ -255,6 +256,8 @@ scanner::token scanner::read_b_symbol(char prev) {
                 return token::Arrow;
             else if (m_name_val == g_cartesian_product)
                 return token::CartesianProduct;
+            else if (m_name_val == g_heq_name)
+                return token::HEq;
             else
                 return token::Id;
         }
@@ -476,6 +479,7 @@ std::ostream & operator<<(std::ostream & out, scanner::token const & t) {
     case scanner::token::Show:              out << "show"; break;
     case scanner::token::By:                out << "by"; break;
     case scanner::token::Ellipsis:          out << "..."; break;
+    case scanner::token::HEq:               out << "=="; break;
     case scanner::token::Eof:               out << "EOF"; break;
     }
     return out;

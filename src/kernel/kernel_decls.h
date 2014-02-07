@@ -9,10 +9,6 @@ expr mk_TypeU();
 bool is_TypeU(expr const & e);
 expr mk_Bool();
 bool is_Bool(expr const & e);
-expr mk_heq2_fn();
-bool is_heq2_fn(expr const & e);
-inline bool is_heq2(expr const & e) { return is_app(e) && is_heq2_fn(arg(e, 0)) && num_args(e) == 5; }
-inline expr mk_heq2(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_heq2_fn(), e1, e2, e3, e4}); }
 expr mk_hrefl_fn();
 bool is_hrefl_fn(expr const & e);
 inline expr mk_hrefl_th(expr const & e1, expr const & e2) { return mk_app({mk_hrefl_fn(), e1, e2}); }
@@ -237,6 +233,9 @@ inline expr mk_eq_id_th(expr const & e1, expr const & e2) { return mk_app({mk_eq
 expr mk_iff_id_fn();
 bool is_iff_id_fn(expr const & e);
 inline expr mk_iff_id_th(expr const & e1) { return mk_app({mk_iff_id_fn(), e1}); }
+expr mk_heq_id_fn();
+bool is_heq_id_fn(expr const & e);
+inline expr mk_heq_id_th(expr const & e1, expr const & e2) { return mk_app({mk_heq_id_fn(), e1, e2}); }
 expr mk_neq_elim_fn();
 bool is_neq_elim_fn(expr const & e);
 inline expr mk_neq_elim_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_neq_elim_fn(), e1, e2, e3, e4}); }
@@ -551,8 +550,6 @@ bool is_infinity(expr const & e);
 expr mk_pairext_fn();
 bool is_pairext_fn(expr const & e);
 inline expr mk_pairext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_pairext_fn(), e1, e2, e3, e4, e5, e6}); }
-expr mk_TypeM();
-bool is_TypeM(expr const & e);
 expr mk_cast_fn();
 bool is_cast_fn(expr const & e);
 inline bool is_cast(expr const & e) { return is_app(e) && is_cast_fn(arg(e, 0)) && num_args(e) == 5; }
@@ -560,6 +557,9 @@ inline expr mk_cast(expr const & e1, expr const & e2, expr const & e3, expr cons
 expr mk_cast_heq_fn();
 bool is_cast_heq_fn(expr const & e);
 inline expr mk_cast_heq_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_cast_heq_fn(), e1, e2, e3, e4}); }
+expr mk_hsubst_fn();
+bool is_hsubst_fn(expr const & e);
+inline expr mk_hsubst_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6, expr const & e7) { return mk_app({mk_hsubst_fn(), e1, e2, e3, e4, e5, e6, e7}); }
 expr mk_hsymm_fn();
 bool is_hsymm_fn(expr const & e);
 inline expr mk_hsymm_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_hsymm_fn(), e1, e2, e3, e4, e5}); }
@@ -572,12 +572,27 @@ inline expr mk_hcongr_th(expr const & e1, expr const & e2, expr const & e3, expr
 expr mk_hfunext_fn();
 bool is_hfunext_fn(expr const & e);
 inline expr mk_hfunext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6, expr const & e7, expr const & e8) { return mk_app({mk_hfunext_fn(), e1, e2, e3, e4, e5, e6, e7, e8}); }
+expr mk_hpiext_fn();
+bool is_hpiext_fn(expr const & e);
+inline expr mk_hpiext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_hpiext_fn(), e1, e2, e3, e4, e5, e6}); }
+expr mk_hsigext_fn();
+bool is_hsigext_fn(expr const & e);
+inline expr mk_hsigext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_hsigext_fn(), e1, e2, e3, e4, e5, e6}); }
 expr mk_hallext_fn();
 bool is_hallext_fn(expr const & e);
 inline expr mk_hallext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_hallext_fn(), e1, e2, e3, e4, e5, e6}); }
 expr mk_hsfunext_fn();
 bool is_hsfunext_fn(expr const & e);
 inline expr mk_hsfunext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_hsfunext_fn(), e1, e2, e3, e4, e5, e6}); }
+expr mk_heq_congr_fn();
+bool is_heq_congr_fn(expr const & e);
+inline expr mk_heq_congr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6, expr const & e7, expr const & e8) { return mk_app({mk_heq_congr_fn(), e1, e2, e3, e4, e5, e6, e7, e8}); }
+expr mk_hheq_congr_fn();
+bool is_hheq_congr_fn(expr const & e);
+inline expr mk_hheq_congr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6, expr const & e7, expr const & e8, expr const & e9, expr const & e10) { return mk_app({mk_hheq_congr_fn(), e1, e2, e3, e4, e5, e6, e7, e8, e9, e10}); }
+expr mk_type_eq_fn();
+bool is_type_eq_fn(expr const & e);
+inline expr mk_type_eq_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_type_eq_fn(), e1, e2, e3, e4, e5}); }
 expr mk_cast_eq_fn();
 bool is_cast_eq_fn(expr const & e);
 inline expr mk_cast_eq_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_cast_eq_fn(), e1, e2, e3}); }

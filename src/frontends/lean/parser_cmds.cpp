@@ -547,6 +547,7 @@ void parser_imp::parse_set_option() {
 /** Parse 'SetOpaque' [id] [true/false] */
 void parser_imp::parse_set_opaque() {
     next();
+    auto p = pos();
     name id;
     if (curr() == scanner::token::Exists) {
         id = "exists";
@@ -555,13 +556,20 @@ void parser_imp::parse_set_opaque() {
         id = curr_name();
     }
     next();
-    name full_id = mk_full_name(id);
+    expr d = get_name_ref(id, p, false);
+    name real_id;
+    if (is_constant(d))
+        real_id = const_name(d);
+    else if (is_value(d))
+        real_id = to_value(d).get_name();
+    else
+        throw parser_error(sstream() << "invalid set opaque, identifier '" << id << "' cannot be set opaque", p);
     auto val_pos = pos();
     name val = check_identifier_next("invalid opaque flag, true/false expected");
     if (val == "true")
-        m_env->set_opaque(full_id, true);
+        m_env->set_opaque(real_id, true);
     else if (val == "false")
-        m_env->set_opaque(full_id, false);
+        m_env->set_opaque(real_id, false);
     else
         throw parser_error("invalid opaque flag, true/false expected", val_pos);
 }

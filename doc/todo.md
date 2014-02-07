@@ -1,7 +1,6 @@
 To Do List
 ----------
 
-- Add heterogeneous equality back into the kernel.
 - Finish Sigma-type support.
 - Build Nat and List theories.
 - Fix usability issues identified when formalizing optional and sum types.

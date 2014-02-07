@@ -23,7 +23,7 @@ x : ?M::0, A : Type ⊢ ?M::0 ≺ A
         x
   Assumed: my_eq
 Failed to solve
-A : Type, B : Type, a : ?M::0, b : ?M::1, C : Type ⊢ ?M::0[lift:0:3] ≺ C
+A : Type, B : Type, a : ?M::0, b : ?M::1, C : Type ⊢ ?M::0[lift:0 3] ≺ C
     elab1.lean:13:51: Type of argument 2 must be convertible to the expected type in the application of
         my_eq
     with arguments:

@@ -3,7 +3,7 @@
   Assumed: f
 λ (A B : Type) (a : B), f B a
 Failed to solve
-A : Type, a : ?M::0, B : Type ⊢ ?M::0[lift:0:2] ≺ B
+A : Type, a : ?M::0, B : Type ⊢ ?M::0[lift:0 2] ≺ B
     tst7.lean:4:42: Type of argument 2 must be convertible to the expected type in the application of
         f
     with arguments:

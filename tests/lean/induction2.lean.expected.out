@@ -10,7 +10,7 @@ Failed to solve
     with arguments:
         ?M::3
         λ m : ℕ, trans (Nat::add_zerol m) (symm (Nat::add_zeror m))
-        λ (n : ℕ) (iH : (?M::3[lift:0:1]) n) (m : ℕ),
+        λ (n : ℕ) (iH : (?M::3[lift:0 1]) n) (m : ℕ),
           @trans ℕ
                  (n + 1 + m)
                  (m + n + 1)
@@ -24,7 +24,7 @@ Failed to solve
                                  ?M::15
                                  ?M::16
                                  (λ x : ?M::14,
-                                    @eq ((?M::48[lift:0:1]) x) ((?M::49[lift:0:1]) x) ((?M::50[lift:0:1]) x))
+                                    @eq ((?M::48[lift:0 1]) x) ((?M::49[lift:0 1]) x) ((?M::50[lift:0 1]) x))
                                  (refl (n + m + 1))
                                  iH))
                  (symm (Nat::add_succr m n))

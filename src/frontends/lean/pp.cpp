@@ -1096,7 +1096,7 @@ class pp_fn {
             for (local_entry const & e : metavar_lctx(a)) {
                 format e_fmt;
                 if (e.is_lift()) {
-                    e_fmt = format{g_lift_fmt, colon(), format(e.s()), colon(), format(e.n())};
+                    e_fmt = format{g_lift_fmt, colon(), format(e.s()), space(), format(e.n())};
                 } else {
                     lean_assert(e.is_inst());
                     auto p_e = pp_child_with_paren(e.v(), depth);

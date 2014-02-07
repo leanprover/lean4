@@ -19,7 +19,7 @@ bool is_atomic(expr const & e) {
         return true;
     case expr_kind::App:  case expr_kind::Lambda: case expr_kind::Pi:
     case expr_kind::Let:  case expr_kind::Sigma:  case expr_kind::Proj:
-    case expr_kind::Pair:
+    case expr_kind::Pair: case expr_kind::HEq:
         return false;
     }
     return false;
@@ -117,6 +117,11 @@ struct print_expr_fn {
             break;
         case expr_kind::App:
             print_app(a, c);
+            break;
+        case expr_kind::HEq:
+            print_child(heq_lhs(a), c);
+            out() << " == ";
+            print_child(heq_rhs(a), c);
             break;
         case expr_kind::Pair:
             print_pair(a, c);

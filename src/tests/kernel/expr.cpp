@@ -84,6 +84,8 @@ static unsigned depth2(expr const & e) {
         return depth2(proj_arg(e)) + 1;
     case expr_kind::Pair:
         return std::max(depth2(pair_first(e)), depth2(pair_second(e))) + 1;
+    case expr_kind::HEq:
+        return std::max(depth2(heq_lhs(e)), depth2(heq_rhs(e))) + 1;
     }
     return 0;
 }
@@ -145,6 +147,8 @@ static unsigned count_core(expr const & a, expr_set & s) {
         return count_core(proj_arg(a), s) + 1;
     case expr_kind::Pair:
         return count_core(pair_first(a), s) + count_core(pair_second(a), s) + count_core(pair_type(a), s) + 1;
+    case expr_kind::HEq:
+        return count_core(heq_lhs(a), s) + count_core(heq_rhs(a), s);
     }
     return 0;
 }

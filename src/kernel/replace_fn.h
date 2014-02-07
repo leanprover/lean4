@@ -144,6 +144,14 @@ public:
             switch (e.kind()) {
             case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value: case expr_kind::Var: case expr_kind::MetaVar:
                 lean_unreachable(); // LCOV_EXCL_LINE
+            case expr_kind::HEq:
+                if (check_index(f, 0) && !visit(heq_lhs(e), offset))
+                    goto begin_loop;
+                if (check_index(f, 1) && !visit(heq_rhs(e), offset))
+                    goto begin_loop;
+                r = update_heq(e, rs(-2), rs(-1));
+                pop_rs(2);
+                break;
             case expr_kind::Pair:
                 if (check_index(f, 0) && !visit(pair_first(e), offset))
                     goto begin_loop;

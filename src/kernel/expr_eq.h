@@ -64,6 +64,7 @@ class expr_eq_fn {
                 if (!apply(arg(a, i), arg(b, i)))
                     return false;
             return true;
+        case expr_kind::HEq:      return heq_lhs(a) == heq_lhs(b) && heq_rhs(a) == heq_rhs(b);
         case expr_kind::Pair:     return pair_first(a) == pair_first(b) && pair_second(a) == pair_second(b) && pair_type(a) == pair_type(b);
         case expr_kind::Proj:     return proj_first(a) == proj_first(b) && proj_arg(a) == proj_arg(b);
         case expr_kind::Sigma:

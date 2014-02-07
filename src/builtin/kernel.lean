@@ -12,8 +12,8 @@ definition TypeU := (Type U)
 
 variable Bool : Type
 -- Heterogeneous equality
-variable heq {A B : (Type U)} (a : A) (b : B) : Bool
-infixl 50 == : heq
+variable heq2 {A B : (Type U)} (a : A) (b : B) : Bool
+infixl 50 == : heq2
 
 -- Reflexivity for heterogeneous equality
 axiom hrefl {A : (Type U)} (a : A) : a == a

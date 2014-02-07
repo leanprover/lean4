@@ -495,6 +495,7 @@ static int expr_fields(lua_State * L) {
     case expr_kind::Type:     return push_level(L, ty_level(e));
     case expr_kind::Value:    return to_value(e).push_lua(L);
     case expr_kind::App:      lua_pushinteger(L, num_args(e)); expr_args(L); return 2;
+    case expr_kind::HEq:      push_expr(L, heq_lhs(e)); push_expr(L, heq_rhs(e)); return 3;
     case expr_kind::Pair:     push_expr(L, pair_first(e)); push_expr(L, pair_second(e)); push_expr(L, pair_type(e)); return 3;
     case expr_kind::Proj:     lua_pushboolean(L, proj_first(e)); push_expr(L, proj_arg(e)); return 2;
     case expr_kind::Lambda:
@@ -728,10 +729,14 @@ static void open_expr(lua_State * L) {
     SET_ENUM("Constant", expr_kind::Constant);
     SET_ENUM("Type",     expr_kind::Type);
     SET_ENUM("Value",    expr_kind::Value);
+    SET_ENUM("Pair",     expr_kind::Pair);
+    SET_ENUM("Proj",     expr_kind::Proj);
     SET_ENUM("App",      expr_kind::App);
+    SET_ENUM("Sigma",    expr_kind::Sigma);
     SET_ENUM("Lambda",   expr_kind::Lambda);
     SET_ENUM("Pi",       expr_kind::Pi);
     SET_ENUM("Let",      expr_kind::Let);
+    SET_ENUM("HEq",      expr_kind::HEq);
     SET_ENUM("MetaVar",  expr_kind::MetaVar);
     lua_setglobal(L, "expr_kind");
 }

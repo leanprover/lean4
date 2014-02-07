@@ -384,7 +384,7 @@ class apply_rewriter_fn {
             }
         }
             break;
-        case expr_kind::Proj: case expr_kind::Pair: case expr_kind::Sigma:
+        case expr_kind::HEq: case expr_kind::Proj: case expr_kind::Pair: case expr_kind::Sigma:
             // TODO(Leo):
             break;
         case expr_kind::Lambda: {

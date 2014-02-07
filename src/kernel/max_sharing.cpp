@@ -52,6 +52,9 @@ struct max_sharing_fn::imp {
         case expr_kind::Var: case expr_kind::Type: case expr_kind::Value:
             res = a;
             break;
+        case expr_kind::HEq:
+            res = update_heq(a, apply(heq_lhs(a)), apply(heq_rhs(a)));
+            break;
         case expr_kind::Pair:
             res = update_pair(a, [=](expr const & f, expr const & s, expr const & t) {
                     return std::make_tuple(apply(f), apply(s), apply(t));

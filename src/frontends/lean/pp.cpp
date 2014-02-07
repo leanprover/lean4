@@ -84,6 +84,7 @@ static format g_geq_fmt       = format("\u2265");
 static format g_lift_fmt      = highlight_keyword(format("lift"));
 static format g_inst_fmt      = highlight_keyword(format("inst"));
 static format g_sig_fmt       = highlight_keyword(format("sig"));
+static format g_heq_fmt       = highlight_keyword(format("=="));
 static format g_cartesian_product_fmt   = highlight_keyword(format("#"));
 static format g_cartesian_product_n_fmt = highlight_keyword(format("\u2A2F"));
 
@@ -271,6 +272,7 @@ class pp_fn {
                 return false;
         case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Let:
         case expr_kind::Sigma: case expr_kind::Pair: case expr_kind::Proj:
+        case expr_kind::HEq:
             return false;
         }
         return false;
@@ -482,6 +484,8 @@ class pp_fn {
             return g_cartesian_product_precedence;
         } else if (is_lambda(e) || is_pi(e) || is_let(e) || is_exists(e) || is_sigma(e) || is_pair(e)) {
             return 0;
+        } else if (is_heq(e)) {
+            return g_heq_precedence;
         } else {
             return g_app_precedence;
         }
@@ -1163,6 +1167,13 @@ class pp_fn {
         return result(group(r_format), r_weight);
     }
 
+    result pp_heq(expr const & a, unsigned depth) {
+        result p_lhs    = pp_child(heq_lhs(a), depth);
+        result p_rhs    = pp_child(heq_rhs(a), depth);
+        format r_format = group(format{p_lhs.first, space(), g_heq_fmt, line(), p_rhs.first});
+        return mk_result(r_format, p_lhs.second + p_rhs.second + 1);
+    }
+
     result pp(expr const & e, unsigned depth, bool main = false) {
         check_system("pretty printer");
         if (!is_atomic(e) && (m_num_steps > m_max_steps || depth > m_max_depth)) {
@@ -1199,6 +1210,7 @@ class pp_fn {
                 case expr_kind::Type:       r = pp_type(e);               break;
                 case expr_kind::Let:        r = pp_let(e, depth);         break;
                 case expr_kind::MetaVar:    r = pp_metavar(e, depth);     break;
+                case expr_kind::HEq:        r = pp_heq(e, depth);         break;
                 case expr_kind::Pair:       r = pp_tuple(e, depth);       break;
                 case expr_kind::Proj:       r = pp_proj(e, depth);        break;
                 }

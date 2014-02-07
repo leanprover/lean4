@@ -85,6 +85,10 @@ class for_each_fn {
                 }
                 goto begin_loop;
             }
+            case expr_kind::HEq:
+                todo.emplace_back(heq_lhs(e), offset);
+                todo.emplace_back(heq_rhs(e), offset);
+                goto begin_loop;
             case expr_kind::Pair:
                 todo.emplace_back(pair_first(e), offset);
                 todo.emplace_back(pair_second(e), offset);

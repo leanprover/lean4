@@ -31,6 +31,10 @@ expr replace_visitor::visit_app(expr const & e, context const & ctx) {
     lean_assert(is_app(e));
     return update_app(e, [&](expr const & c) { return visit(c, ctx); });
 }
+expr replace_visitor::visit_heq(expr const & e, context const & ctx) {
+    lean_assert(is_heq(e));
+    return update_heq(e, visit(heq_lhs(e), ctx), visit(heq_rhs(e), ctx));
+}
 expr replace_visitor::visit_abst(expr const & e, context const & ctx) {
     lean_assert(is_abstraction(e));
     return update_abst(e, [&](expr const & t, expr const & b) {
@@ -87,6 +91,7 @@ expr replace_visitor::visit(expr const & e, context const & ctx) {
     case expr_kind::Constant:  return save_result(e, visit_constant(e, ctx), shared);
     case expr_kind::Var:       return save_result(e, visit_var(e, ctx), shared);
     case expr_kind::MetaVar:   return save_result(e, visit_metavar(e, ctx), shared);
+    case expr_kind::HEq:       return save_result(e, visit_heq(e, ctx), shared);
     case expr_kind::Pair:      return save_result(e, visit_pair(e, ctx), shared);
     case expr_kind::Proj:      return save_result(e, visit_proj(e, ctx), shared);
     case expr_kind::App:       return save_result(e, visit_app(e, ctx), shared);

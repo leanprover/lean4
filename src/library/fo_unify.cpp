@@ -62,6 +62,10 @@ optional<substitution> fo_unify(expr e1, expr e2) {
                         }
                     }
                     break;
+                case expr_kind::HEq:
+                    todo.emplace_back(heq_lhs(e1), heq_lhs(e2));
+                    todo.emplace_back(heq_rhs(e1), heq_rhs(e2));
+                    break;
                 case expr_kind::Proj:
                     if (proj_first(e1) != proj_first(e2))
                         return optional<substitution>();

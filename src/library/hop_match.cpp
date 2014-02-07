@@ -306,6 +306,10 @@ class hop_match_fn {
         }
         case expr_kind::Proj:
             return proj_first(p) == proj_first(t) && match(proj_arg(p), proj_arg(t), ctx, ctx_size);
+        case expr_kind::HEq:
+            return
+                match(heq_lhs(p), heq_lhs(t), ctx, ctx_size) &&
+                match(heq_rhs(p), heq_rhs(t), ctx, ctx_size);
         case expr_kind::Pair:
             return
                 match(pair_first(p),  pair_first(t), ctx, ctx_size) &&

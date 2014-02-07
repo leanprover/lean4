@@ -1675,6 +1675,12 @@ class elaborator::imp {
                     m_conflict = mk_failure_justification(c);
                     return false;
                 }
+            case expr_kind::HEq: {
+                justification new_jst(new destruct_justification(c));
+                push_new_eq_constraint(ctx, heq_lhs(a), heq_lhs(b), new_jst);
+                push_new_eq_constraint(ctx, heq_rhs(a), heq_rhs(b), new_jst);
+                return true;
+            }
             case expr_kind::Proj:
                 if (proj_first(a) != proj_first(b)) {
                     m_conflict = mk_failure_justification(c);

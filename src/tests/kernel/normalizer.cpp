@@ -85,6 +85,8 @@ unsigned count_core(expr const & a, expr_set & s) {
         return count_core(proj_arg(a), s) + 1;
     case expr_kind::Pair:
         return count_core(pair_first(a), s) + count_core(pair_second(a), s) + count_core(pair_type(a), s) + 1;
+    case expr_kind::HEq:
+        return count_core(heq_lhs(a), s) + count_core(heq_rhs(a), s);
     }
     return 0;
 }

@@ -38,6 +38,7 @@ class value;
           |   Sigma         name expr expr
           |   Type          universe
           |   Let           name expr expr expr
+          |   HEq           expr expr           Heterogeneous equality
           |   Metavar       name local_context
 
    local_context ::= [local_entry]
@@ -54,7 +55,7 @@ The main API is divided in the following sections
 - Miscellaneous
 ======================================= */
 class expr;
-enum class expr_kind { Value, Var, Constant, App, Pair, Proj, Lambda, Pi, Sigma, Type, Let, MetaVar };
+enum class expr_kind { Value, Var, Constant, App, Pair, Proj, Lambda, Pi, Sigma, Type, Let, HEq, MetaVar };
 class local_entry;
 /**
    \brief A metavariable local context is just a list of local_entries.
@@ -151,6 +152,7 @@ public:
     friend expr mk_sigma(name const & n, expr const & t, expr const & e);
     friend expr mk_type(level const & l);
     friend expr mk_let(name const & n, optional<expr> const & t, expr const & v, expr const & e);
+    friend expr mk_heq(expr const & lhs, expr const & rhs);
     friend expr mk_metavar(name const & n, local_context const & ctx);
 
     friend bool is_eqp(expr const & a, expr const & b) { return a.m_ptr == b.m_ptr; }
@@ -349,6 +351,22 @@ public:
 
     value const & get_value() const { return m_val; }
 };
+
+/** \brief Heterogeneous equality */
+class expr_heq : public expr_cell {
+    expr     m_lhs;
+    expr     m_rhs;
+    unsigned m_depth;
+    friend expr_cell;
+    friend expr mk_heq(expr const & lhs, expr const & rhs);
+    void dealloc(buffer<expr_cell*> & todelete);
+    friend unsigned get_depth(expr const & e);
+public:
+    expr_heq(expr const & lhs, expr const & rhs);
+    expr const & get_lhs() const { return m_lhs; }
+    expr const & get_rhs() const { return m_rhs; }
+};
+
 /**
    \see local_entry
 */
@@ -432,6 +450,7 @@ inline bool is_pi(expr_cell * e)          { return e->kind() == expr_kind::Pi; }
 inline bool is_sigma(expr_cell * e)       { return e->kind() == expr_kind::Sigma; }
 inline bool is_type(expr_cell * e)        { return e->kind() == expr_kind::Type; }
 inline bool is_let(expr_cell * e)         { return e->kind() == expr_kind::Let; }
+inline bool is_heq(expr_cell * e)         { return e->kind() == expr_kind::HEq; }
 inline bool is_metavar(expr_cell * e)     { return e->kind() == expr_kind::MetaVar; }
 inline bool is_abstraction(expr_cell * e) { return is_lambda(e) || is_pi(e) || is_sigma(e); }
 
@@ -448,6 +467,7 @@ inline bool is_pi(expr const & e)          { return e.kind() == expr_kind::Pi; }
 inline bool is_sigma(expr const & e)       { return e.kind() == expr_kind::Sigma; }
 inline bool is_type(expr const & e)        { return e.kind() == expr_kind::Type; }
 inline bool is_let(expr const & e)         { return e.kind() == expr_kind::Let; }
+inline bool is_heq(expr const & e)         { return e.kind() == expr_kind::HEq; }
 inline bool is_metavar(expr const & e)     { return e.kind() == expr_kind::MetaVar; }
 inline bool is_abstraction(expr const & e) { return is_lambda(e) || is_pi(e) || is_sigma(e); }
 // =======================================
@@ -487,6 +507,7 @@ inline expr mk_type(level const & l) { return expr(new expr_type(l)); }
        expr mk_type();
 inline expr Type(level const & l) { return mk_type(l); }
 inline expr Type() { return mk_type(); }
+inline expr mk_heq(expr const & lhs, expr const & rhs) { return expr(new expr_heq(lhs, rhs)); }
 inline expr mk_metavar(name const & n, local_context const & ctx = local_context()) {
     return expr(new expr_metavar(n, ctx));
 }
@@ -514,6 +535,7 @@ inline expr_pi *          to_pi(expr_cell * e)          { lean_assert(is_pi(e));
 inline expr_sigma *       to_sigma(expr_cell * e)       { lean_assert(is_sigma(e));       return static_cast<expr_sigma*>(e); }
 inline expr_type *        to_type(expr_cell * e)        { lean_assert(is_type(e));        return static_cast<expr_type*>(e); }
 inline expr_let *         to_let(expr_cell * e)         { lean_assert(is_let(e));         return static_cast<expr_let*>(e); }
+inline expr_heq *         to_heq(expr_cell * e)         { lean_assert(is_heq(e));         return static_cast<expr_heq*>(e); }
 inline expr_metavar *     to_metavar(expr_cell * e)     { lean_assert(is_metavar(e));     return static_cast<expr_metavar*>(e); }
 
 inline expr_var *         to_var(expr const & e)         { return to_var(e.raw()); }
@@ -527,6 +549,7 @@ inline expr_pi *          to_pi(expr const & e)          { return to_pi(e.raw())
 inline expr_sigma *       to_sigma(expr const & e)       { return to_sigma(e.raw()); }
 inline expr_let *         to_let(expr const & e)         { return to_let(e.raw()); }
 inline expr_type *        to_type(expr const & e)        { return to_type(e.raw()); }
+inline expr_heq *         to_heq(expr const & e)         { return to_heq(e.raw()); }
 inline expr_metavar *     to_metavar(expr const & e)     { return to_metavar(e.raw()); }
 
 // =======================================
@@ -556,6 +579,8 @@ inline name const &  let_name(expr_cell * e)             { return to_let(e)->get
 inline expr const &  let_value(expr_cell * e)            { return to_let(e)->get_value(); }
 inline optional<expr> const &  let_type(expr_cell * e)   { return to_let(e)->get_type(); }
 inline expr const &  let_body(expr_cell * e)             { return to_let(e)->get_body(); }
+inline expr const &  heq_lhs(expr_cell * e)              { return to_heq(e)->get_lhs(); }
+inline expr const &  heq_rhs(expr_cell * e)              { return to_heq(e)->get_rhs(); }
 inline name const &  metavar_name(expr_cell * e)         { return to_metavar(e)->get_name(); }
 inline local_context const & metavar_lctx(expr_cell * e) { return to_metavar(e)->get_lctx(); }
 
@@ -592,6 +617,8 @@ inline name const &  let_name(expr const & e)             { return to_let(e)->ge
 inline optional<expr> const &  let_type(expr const & e)   { return to_let(e)->get_type(); }
 inline expr const &  let_value(expr const & e)            { return to_let(e)->get_value(); }
 inline expr const &  let_body(expr const & e)             { return to_let(e)->get_body(); }
+inline expr const &  heq_lhs(expr const & e)              { return to_heq(e)->get_lhs(); }
+inline expr const &  heq_rhs(expr const & e)              { return to_heq(e)->get_rhs(); }
 inline name const &  metavar_name(expr const & e)         { return to_metavar(e)->get_name(); }
 inline local_context const & metavar_lctx(expr const & e) { return to_metavar(e)->get_lctx(); }
 /** \brief Return the depth of the given expression */
@@ -762,6 +789,12 @@ inline expr update_pair(expr const & e, expr const & new_f, expr const & new_s, 
 inline expr update_proj(expr const & e, expr const & new_arg) {
     if (!is_eqp(proj_arg(e), new_arg))
         return mk_proj(proj_first(e), new_arg);
+    else
+        return e;
+}
+inline expr update_heq(expr const & e, expr const & new_lhs, expr const & new_rhs) {
+    if (!is_eqp(heq_lhs(e), new_lhs) || !is_eqp(heq_rhs(e), new_rhs))
+        return mk_heq(new_lhs, new_rhs);
     else
         return e;
 }

@@ -210,6 +210,10 @@ class type_checker::imp {
             }
         case expr_kind::Type:
             return mk_type(ty_level(e) + 1);
+        case expr_kind::HEq:
+            if (m_infer_only)
+                return Bool;
+            break;
         case expr_kind::App: case expr_kind::Lambda:
         case expr_kind::Pi:  case expr_kind::Let:
         case expr_kind::Sigma: case expr_kind::Proj:
@@ -225,6 +229,7 @@ class type_checker::imp {
                 return it->second;
         }
 
+        expr r;
         switch (e.kind()) {
         case expr_kind::MetaVar: case expr_kind::Constant: case expr_kind::Type: case expr_kind::Value:
             lean_unreachable(); // LCOV_EXCL_LINE;
@@ -238,13 +243,14 @@ class type_checker::imp {
             optional<expr> const & b = def.get_body();
             lean_assert(b);
             expr t = infer_type_core(*b, def_ctx);
-            return save_result(e, lift_free_vars(t, var_idx(e) + 1), shared);
+            r = lift_free_vars(t, var_idx(e) + 1);
+            break;
         }
         case expr_kind::App:
             if (m_infer_only) {
                 expr const & f = arg(e, 0);
                 expr f_t = infer_type_core(f, ctx);
-                return save_result(e, get_range(f_t, e, ctx), shared);
+                r = get_range(f_t, e, ctx);
             } else {
                 unsigned num = num_args(e);
                 lean_assert(num >= 2);
@@ -263,14 +269,23 @@ class type_checker::imp {
                         throw app_type_mismatch_exception(env(), ctx, e, i, arg_types.size(), arg_types.data());
                     f_t = pi_body_at(f_t, c);
                     i++;
-                    if (i == num)
-                        return save_result(e, f_t, shared);
+                    if (i == num) {
+                        r = f_t;
+                        break;
+                    }
                     f_t = check_pi(f_t, e, ctx);
                 }
             }
+            break;
+        case expr_kind::HEq:
+            lean_assert(!m_infer_only);
+            infer_type_core(heq_lhs(e), ctx);
+            infer_type_core(heq_rhs(e), ctx);
+            r = Bool;
+            break;
         case expr_kind::Pair:
             if (m_infer_only) {
-                return pair_type(e);
+                r = pair_type(e);
             } else {
                 expr const & t = pair_type(e);
                 expr sig       = check_sigma(t, t, ctx);
@@ -284,19 +299,21 @@ class type_checker::imp {
                 if (!is_convertible(s_t, expected, ctx, mk_snd_justification)) {
                     throw pair_type_mismatch_exception(env(), ctx, e, false, s_t, sig);
                 }
-                return sig;
+                r = sig;
             }
+            break;
         case expr_kind::Proj: {
             expr t = check_sigma(infer_type_core(proj_arg(e), ctx), e, ctx);
             if (proj_first(e)) {
-                return abst_domain(t);
+                r = abst_domain(t);
             } else {
                 expr const & b = abst_body(t);
                 if (closed(b))
-                    return b;
+                    r = b;
                 else
-                    return instantiate(b, mk_proj1(proj_arg(e)));
+                    r = instantiate(b, mk_proj1(proj_arg(e)));
             }
+            break;
         }
         case expr_kind::Lambda:
             if (!m_infer_only) {
@@ -305,10 +322,9 @@ class type_checker::imp {
             }
             {
                 freset<cache> reset(m_cache);
-                return save_result(e,
-                                   mk_pi(abst_name(e), abst_domain(e), infer_type_core(abst_body(e), extend(ctx, abst_name(e), abst_domain(e)))),
-                                   shared);
+                r = mk_pi(abst_name(e), abst_domain(e), infer_type_core(abst_body(e), extend(ctx, abst_name(e), abst_domain(e))));
             }
+            break;
         case expr_kind::Sigma: case expr_kind::Pi: {
             expr t1  = check_type(infer_type_core(abst_domain(e), ctx), abst_domain(e), ctx);
             if (is_bool(t1))
@@ -320,20 +336,22 @@ class type_checker::imp {
                 t2 = check_type(infer_type_core(abst_body(e), new_ctx), abst_body(e), new_ctx);
             }
             if (is_bool(t2)) {
-                if (is_pi(e))
-                    return t2;
-                else
+                if (is_pi(e)) {
+                    r = Bool;
+                    break;
+                } else {
                     t2 = Type();
+                }
             }
             if (is_type(t1) && is_type(t2)) {
-                return save_result(e, mk_type(max(ty_level(t1), ty_level(t2))), shared);
+                r = mk_type(max(ty_level(t1), ty_level(t2)));
             } else {
                 lean_assert(m_uc);
                 justification jst = mk_max_type_justification(ctx, e);
-                expr r = m_menv->mk_metavar(ctx);
+                r = m_menv->mk_metavar(ctx);
                 m_uc->push_back(mk_max_constraint(new_ctx, lift_free_vars(t1, 0, 1), t2, r, jst));
-                return save_result(e, r, shared);
             }
+            break;
         }
         case expr_kind::Let: {
             optional<expr> lt;
@@ -356,10 +374,11 @@ class type_checker::imp {
             {
                 freset<cache> reset(m_cache);
                 expr t = infer_type_core(let_body(e), extend(ctx, let_name(e), lt, let_value(e)));
-                return save_result(e, instantiate(t, let_value(e)), shared);
+                r = instantiate(t, let_value(e));
             }
+            break;
         }}
-        lean_unreachable(); // LCOV_EXCL_LINE
+        return save_result(e, r, shared);
     }
 
     bool is_convertible_core(expr const & given, expr const & expected) {

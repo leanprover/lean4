@@ -250,6 +250,12 @@ class normalizer::imp {
             }
             break;
         }
+        case expr_kind::HEq: {
+            expr new_lhs = normalize(heq_lhs(a), s, k);
+            expr new_rhs = normalize(heq_rhs(a), s, k);
+            r = update_heq(a, new_lhs, new_rhs);
+            break;
+        }
         case expr_kind::Pair: {
             expr new_first  = normalize(pair_first(a), s, k);
             expr new_second = normalize(pair_second(a), s, k);

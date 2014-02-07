@@ -42,7 +42,7 @@ protected:
             return var_idx(e) >= offset;
         case expr_kind::App: case expr_kind::Lambda:
         case expr_kind::Pi: case expr_kind::Let: case expr_kind::Sigma:
-        case expr_kind::Proj: case expr_kind::Pair:
+        case expr_kind::Proj: case expr_kind::Pair: case expr_kind::HEq:
             break;
         }
 
@@ -85,6 +85,9 @@ protected:
             break;
         case expr_kind::Let:
             result = apply(let_type(e), offset) || apply(let_value(e), offset) || apply(let_body(e), offset + 1);
+            break;
+        case expr_kind::HEq:
+            result = apply(heq_lhs(e), offset) || apply(heq_rhs(e), offset);
             break;
         case expr_kind::Proj:
             result = apply(proj_arg(e), offset);
@@ -178,6 +181,7 @@ class free_var_range_fn {
         case expr_kind::Lambda: case expr_kind::Pi:
         case expr_kind::Let: case expr_kind::Sigma:
         case expr_kind::Proj: case expr_kind::Pair:
+        case expr_kind::HEq:
             break;
         }
 
@@ -214,6 +218,9 @@ class free_var_range_fn {
             break;
         case expr_kind::Let:
             result = std::max({apply(let_type(e)), apply(let_value(e)), dec(apply(let_body(e)))});
+            break;
+        case expr_kind::HEq:
+            result = std::max(apply(heq_lhs(e)), apply(heq_rhs(e)));
             break;
         case expr_kind::Proj:
             result = apply(proj_arg(e));
@@ -301,6 +308,7 @@ protected:
         case expr_kind::App: case expr_kind::Lambda: case expr_kind::Pi:
         case expr_kind::Let:  case expr_kind::Sigma:
         case expr_kind::Proj: case expr_kind::Pair:
+        case expr_kind::HEq:
             break;
         }
 
@@ -344,6 +352,9 @@ protected:
             break;
         case expr_kind::Let:
             result = apply(let_type(e), offset) || apply(let_value(e), offset) || apply(let_body(e), offset + 1);
+            break;
+        case expr_kind::HEq:
+            result = apply(heq_lhs(e), offset) || apply(heq_rhs(e), offset);
             break;
         case expr_kind::Proj:
             result = apply(proj_arg(e), offset);

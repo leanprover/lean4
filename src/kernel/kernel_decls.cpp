@@ -8,7 +8,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 namespace lean {
 MK_CONSTANT(TypeU, name("TypeU"));
 MK_CONSTANT(Bool, name("Bool"));
-MK_CONSTANT(heq_fn, name("heq"));
+MK_CONSTANT(heq2_fn, name("heq2"));
 MK_CONSTANT(hrefl_fn, name("hrefl"));
 MK_CONSTANT(eq_fn, name("eq"));
 MK_CONSTANT(refl_fn, name("refl"));

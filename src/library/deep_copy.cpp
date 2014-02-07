@@ -43,6 +43,7 @@ class deep_copy_fn {
                 new_args.push_back(apply(old_arg));
             return save_result(a, mk_app(new_args), sh);
         }
+        case expr_kind::HEq:      return save_result(a, mk_heq(apply(heq_lhs(a)), apply(heq_rhs(a))), sh);
         case expr_kind::Pair:     return save_result(a, mk_pair(apply(pair_first(a)), apply(pair_second(a)), apply(pair_type(a))), sh);
         case expr_kind::Proj:     return save_result(a, mk_proj(proj_first(a), apply(proj_arg(a))), sh);
         case expr_kind::Lambda:   return save_result(a, mk_lambda(abst_name(a), apply(abst_domain(a)), apply(abst_body(a))), sh);

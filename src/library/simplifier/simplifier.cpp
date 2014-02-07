@@ -193,6 +193,14 @@ class simplifier_cell::imp {
         }
     };
 
+    static bool is_heq(expr const & e) {
+        return is_heq2(e);
+    }
+
+    static expr mk_heq(expr const & A, expr const & B, expr const & a, expr const & b) {
+        return mk_heq2(A, B, a, b);
+    }
+
     static expr mk_lambda(name const & n, expr const & d, expr const & b) {
         return ::lean::mk_lambda(n, d, b);
     }

@@ -9,10 +9,10 @@ expr mk_TypeU();
 bool is_TypeU(expr const & e);
 expr mk_Bool();
 bool is_Bool(expr const & e);
-expr mk_heq_fn();
-bool is_heq_fn(expr const & e);
-inline bool is_heq(expr const & e) { return is_app(e) && is_heq_fn(arg(e, 0)) && num_args(e) == 5; }
-inline expr mk_heq(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_heq_fn(), e1, e2, e3, e4}); }
+expr mk_heq2_fn();
+bool is_heq2_fn(expr const & e);
+inline bool is_heq2(expr const & e) { return is_app(e) && is_heq2_fn(arg(e, 0)) && num_args(e) == 5; }
+inline expr mk_heq2(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_heq2_fn(), e1, e2, e3, e4}); }
 expr mk_hrefl_fn();
 bool is_hrefl_fn(expr const & e);
 inline expr mk_hrefl_th(expr const & e1, expr const & e2) { return mk_app({mk_hrefl_fn(), e1, e2}); }

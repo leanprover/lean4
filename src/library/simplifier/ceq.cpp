@@ -209,6 +209,10 @@ static bool is_permutation(expr const & lhs, expr const & rhs, unsigned offset, 
         } else {
             return lhs == rhs; // free variable
         }
+    case expr_kind::HEq:
+        return
+            is_permutation(heq_lhs(lhs),  heq_lhs(rhs), offset, p) &&
+            is_permutation(heq_rhs(lhs),  heq_rhs(rhs), offset, p);
     case expr_kind::Proj:
         return proj_first(lhs) == proj_first(rhs) && is_permutation(proj_arg(lhs), proj_arg(rhs), offset, p);
     case expr_kind::Pair:

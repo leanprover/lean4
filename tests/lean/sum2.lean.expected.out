@@ -1,0 +1,31 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Imported 'macros'
+  Imported 'pair'
+  Imported 'subtype'
+  Imported 'optional'
+  Using: subtype
+  Using: optional
+  Defined: sum_pred
+  Defined: sum
+  Proved: sum::inl_pred
+  Proved: sum::inr_pred
+  Proved: sum::inhabl
+  Proved: sum::inhabr
+  Defined: sum::inl
+  Defined: sum::inr
+  Proved: sum::inl_inj
+  Proved: sum::inr_inj
+  Proved: sum::distinct
+sum2.lean:88:0: error: invalid tactic command, unexpected end of file
+Proof state:
+A :
+    (Type U),
+B :
+    (Type U),
+n :
+    sum A B,
+pred :
+    (proj1 (subtype::rep n) = optional::none) ≠ (proj2 (subtype::rep n) = optional::none)
+⊢ (∃ a : A, n = subtype::abst (tuple (optional::some a), optional::none) (sum::inhabl (inhabited_intro a) B)) ∨
+    (∃ b : B, n = subtype::abst (tuple optional::none, (optional::some b)) (sum::inhabr A (inhabited_intro b)))

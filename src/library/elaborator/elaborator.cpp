@@ -1157,7 +1157,7 @@ class elaborator::imp {
         lean_assert(has_local_context(a));
         // imitate
         push_active(c);
-        // a <- (fun x : ?h1, ?h2)  or (Pi x : ?h1, ?h2)
+        // a <- (fun x : ?h1, ?h2),  or (Pi x : ?h1, ?h2), or (Sigma x : ?h1, ?h2)
         // ?h1 is in the same context where 'a' was defined
         // ?h2 is in the context of 'a' + domain of b
         expr m        = mk_metavar(metavar_name(a));
@@ -1214,6 +1214,61 @@ class elaborator::imp {
             lean_verify(new_cs->next(*this));
             m_case_splits.push_back(std::move(new_cs));
         }
+    }
+    /**
+       \brief Solve a constraint of the form
+            ctx |- a == b
+       where
+            a is of the form ?m[...]  i.e., metavariable with a non-empty local context.
+            b is a pair projection.
+
+       We solve the constraint by assigning a to an abstraction with fresh metavariables.
+    */
+
+    void imitate_proj(expr const & a, expr const & b, unification_constraint const & c) {
+        lean_assert(is_metavar(a));
+        lean_assert(is_proj(b));
+        lean_assert(!is_assigned(a));
+        lean_assert(has_local_context(a));
+        // imitate
+        push_active(c);
+        // a <- (proj1/2  ?h_1)
+        // ?h_1 is in the same context where 'a' was defined
+        expr m        = mk_metavar(metavar_name(a));
+        context ctx_m = m_state.m_menv->get_context(m);
+        expr h_1 = m_state.m_menv->mk_metavar(ctx_m);
+        expr imitation = update_proj(b, h_1);
+        justification new_jst(new imitation_justification(c));
+        push_new_constraint(true, ctx_m, m, imitation, new_jst);
+    }
+
+    /**
+       \brief Solve a constraint of the form
+            ctx |- a == b
+       where
+            a is of the form ?m[...]  i.e., metavariable with a non-empty local context.
+            b is a dependent pair
+
+       We solve the constraint by assigning a to an abstraction with fresh metavariables.
+    */
+
+    void imitate_pair(expr const & a, expr const & b, unification_constraint const & c) {
+        lean_assert(is_metavar(a));
+        lean_assert(is_pair(b));
+        lean_assert(!is_assigned(a));
+        lean_assert(has_local_context(a));
+        // imitate
+        push_active(c);
+        // a <- (pair ?h_1 ?h_2 ?h_3)
+        // ?h_i are in the same context where 'a' was defined
+        expr m        = mk_metavar(metavar_name(a));
+        context ctx_m = m_state.m_menv->get_context(m);
+        expr h_1 = m_state.m_menv->mk_metavar(ctx_m);
+        expr h_2 = m_state.m_menv->mk_metavar(ctx_m);
+        expr h_3 = m_state.m_menv->mk_metavar(ctx_m);
+        expr imitation = mk_pair(h_1, h_2, h_3);
+        justification new_jst(new imitation_justification(c));
+        push_new_constraint(true, ctx_m, m, imitation, new_jst);
     }
 
     /**
@@ -1273,6 +1328,12 @@ class elaborator::imp {
                 return true;
             } else if (is_app(b) && !has_metavar(arg(b, 0))) {
                 imitate_application(a, b, c);
+                return true;
+            } else if (is_proj(b)) {
+                imitate_proj(a, b, c);
+                return true;
+            } else if (is_pair(b)) {
+                imitate_pair(a, b, c);
                 return true;
             }
         }

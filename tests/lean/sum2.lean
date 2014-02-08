@@ -2,11 +2,11 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 import macros
-import pair
 import subtype
 import optional
 using subtype
 using optional
+
 -- We are encoding the (sum A B) as a subtype of (optional A) # (optional B), where
 --    (proj1 n = none) ≠ (proj2 n = none)
 definition sum_pred (A B : (Type U)) := λ p : (optional A) # (optional B), (proj1 p = none) ≠ (proj2 p = none)
@@ -16,7 +16,7 @@ namespace sum
 theorem inl_pred {A : (Type U)} (a : A) (B : (Type U)) : sum_pred A B (pair (some a) none)
 := not_intro
      (assume N  : (some a = none) = (none = (@none B)),
-      have   eq :   some a = none,
+      have   eq : some a = none,
          from (symm N) ◂ (refl (@none B)),
       show false,
          from absurd eq (distinct a))
@@ -24,7 +24,7 @@ theorem inl_pred {A : (Type U)} (a : A) (B : (Type U)) : sum_pred A B (pair (som
 theorem inr_pred (A : (Type U)) {B : (Type U)} (b : B) : sum_pred A B (pair none (some b))
 := not_intro
      (assume N  : (none = (@none A)) = (some b = none),
-      have   eq :   some b = none,
+      have   eq : some b = none,
          from N ◂ (refl (@none A)),
       show false,
         from absurd eq (distinct b))
@@ -54,11 +54,11 @@ theorem inl_inj {A B : (Type U)} {a1 a2 : A} : inl a1 B = inl a2 B → a1 = a2
      show a1 = a2,
         from optional::injectivity
             (calc some a1 = proj1 (pair (some a1) (@none B))  : refl (some a1)
-                      ... = proj1 (pair (some a2) (@none B))  : pair_inj1 rep_eq
-                      ... = some a2                                     : refl (some a2))
+                      ... = proj1 (pair (some a2) (@none B))  : proj1_congr rep_eq
+                      ... = some a2                           : refl (some a2))
 
 theorem inr_inj {A B : (Type U)} {b1 b2 : B} : inr A b1 = inr A b2 → b1 = b2
-:= assume Heq : inr A b1   = inr A b2,
+:= assume Heq : inr A b1 = inr A b2,
      have eq1    :  inr A b1 = abst (pair none (some b1)) (inhabr A (inhabited_intro b1)),
         from refl (inr A b1),
      have eq2    :  inr A b2 = abst (pair none (some b2)) (inhabr A (inhabited_intro b1)),
@@ -68,7 +68,7 @@ theorem inr_inj {A B : (Type U)} {b1 b2 : B} : inr A b1 = inr A b2 → b1 = b2
      show b1 = b2,
         from optional::injectivity
             (calc some b1 = proj2 (pair (@none A) (some b1))  : refl (some b1)
-                      ... = proj2 (pair (@none A) (some b2))  : pair_inj2 rep_eq
+                      ... = proj2 (pair (@none A) (some b2))  : @proj2_congr _ _ (pair (@none A) (some b1)) (pair (@none A) (some b2)) rep_eq
                       ... = some b2                           : refl (some b2))
 
 theorem distinct {A B : (Type U)} (a : A) (b : B) : inl a B ≠ inr A b
@@ -80,7 +80,7 @@ theorem distinct {A B : (Type U)} (a : A) (b : B) : inl a B ≠ inr A b
      have rep_eq : (pair (some a) none) = (pair none (some b)),
         from abst_inj (inhabl (inhabited_intro a) B) (inl_pred a B) (inr_pred A b) (trans (trans (symm eq1) N) eq2),
      show false,
-        from absurd (pair_inj1 rep_eq) (optional::distinct a)
+        from absurd (proj1_congr rep_eq) (optional::distinct a)
 
 theorem dichotomy {A B : (Type U)} (n : sum A B) : (∃ a, n = inl a B) ∨ (∃ b, n = inr A b)
 := let pred : (proj1 (rep n) = none) ≠ (proj2 (rep n) = none) := P_rep n

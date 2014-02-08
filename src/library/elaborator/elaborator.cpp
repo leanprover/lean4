@@ -668,7 +668,7 @@ class elaborator::imp {
             expr new_arg     = arg;
             if (m_use_normalizer)
                 new_arg = normalize(ctx, arg);
-            if (is_pair(new_arg)) {
+            if (is_dep_pair(new_arg)) {
                 if (proj_first(a))
                     a = pair_first(new_arg);
                 else
@@ -1001,7 +1001,7 @@ class elaborator::imp {
             push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_1), heq_lhs(b), new_assumption);
             push_new_eq_constraint(new_state.m_active_cnstrs, ctx, update_app(a, 0, h_2), heq_rhs(b), new_assumption);
             imitation = mk_lambda(arg_types, mk_heq(mk_app_h_vars(h_1), mk_app_h_vars(h_2)));
-        } else if (is_pair(b)) {
+        } else if (is_dep_pair(b)) {
             // Imitation for dependent pairs
             expr h_f = new_state.m_menv->mk_metavar(ctx);
             expr h_s = new_state.m_menv->mk_metavar(ctx);
@@ -1261,7 +1261,7 @@ class elaborator::imp {
 
     void imitate_pair(expr const & a, expr const & b, unification_constraint const & c) {
         lean_assert(is_metavar(a));
-        lean_assert(is_pair(b));
+        lean_assert(is_dep_pair(b));
         lean_assert(!is_assigned(a));
         lean_assert(has_local_context(a));
         // imitate
@@ -1369,7 +1369,7 @@ class elaborator::imp {
             } else if (is_heq(b)) {
                 imitate_heq(a, b, c);
                 return true;
-            } else if (is_pair(b)) {
+            } else if (is_dep_pair(b)) {
                 imitate_pair(a, b, c);
                 return true;
             }

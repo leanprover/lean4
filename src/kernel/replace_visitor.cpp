@@ -19,7 +19,7 @@ expr replace_visitor::visit_constant(expr const & e, context const & ctx) {
     return update_const(e, visit(const_type(e), ctx));
 }
 expr replace_visitor::visit_pair(expr const & e, context const & ctx) {
-    lean_assert(is_pair(e));
+    lean_assert(is_dep_pair(e));
     return update_pair(e, [&](expr const & f, expr const & s, expr const & t) {
             return std::make_tuple(visit(f, ctx), visit(s, ctx), visit(t, ctx));
         });

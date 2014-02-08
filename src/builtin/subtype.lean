@@ -20,7 +20,7 @@ theorem P_rep {A : (Type U)} {P : A → Bool} (a : subtype A P) : P (rep a)
 := proj2 a
 
 theorem rep_inj {A : (Type U)} {P : A → Bool} {a b : subtype A P} (H : rep a = rep b) : a = b
-:= pairext H (hproof_irrel (proj2 a) (proj2 b))
+:= pairext _ _ H (hproof_irrel (proj2 a) (proj2 b))
 
 theorem ex_abst {A : (Type U)} {P : A → Bool} {r : A} (H : P r) : ∃ a, rep a = r
 := exists_intro (tuple (subtype A P) : r, H) (refl r)

@@ -442,7 +442,7 @@ public:
 inline bool is_var(expr_cell * e)         { return e->kind() == expr_kind::Var; }
 inline bool is_constant(expr_cell * e)    { return e->kind() == expr_kind::Constant; }
 inline bool is_value(expr_cell * e)       { return e->kind() == expr_kind::Value; }
-inline bool is_pair(expr_cell * e)        { return e->kind() == expr_kind::Pair; }
+inline bool is_dep_pair(expr_cell * e)    { return e->kind() == expr_kind::Pair; }
 inline bool is_proj(expr_cell * e)        { return e->kind() == expr_kind::Proj; }
 inline bool is_app(expr_cell * e)         { return e->kind() == expr_kind::App; }
 inline bool is_lambda(expr_cell * e)      { return e->kind() == expr_kind::Lambda; }
@@ -457,7 +457,7 @@ inline bool is_abstraction(expr_cell * e) { return is_lambda(e) || is_pi(e) || i
 inline bool is_var(expr const & e)         { return e.kind() == expr_kind::Var; }
 inline bool is_constant(expr const & e)    { return e.kind() == expr_kind::Constant; }
 inline bool is_value(expr const & e)       { return e.kind() == expr_kind::Value; }
-inline bool is_pair(expr const & e)        { return e.kind() == expr_kind::Pair; }
+inline bool is_dep_pair(expr const & e)    { return e.kind() == expr_kind::Pair; }
 inline bool is_proj(expr const & e)        { return e.kind() == expr_kind::Proj; }
 inline bool is_app(expr const & e)         { return e.kind() == expr_kind::App; }
 inline bool is_lambda(expr const & e)      { return e.kind() == expr_kind::Lambda; }
@@ -526,7 +526,7 @@ inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, 
 // Casting (these functions are only needed for low-level code)
 inline expr_var *         to_var(expr_cell * e)         { lean_assert(is_var(e));         return static_cast<expr_var*>(e); }
 inline expr_const *       to_constant(expr_cell * e)    { lean_assert(is_constant(e));    return static_cast<expr_const*>(e); }
-inline expr_dep_pair *    to_pair(expr_cell * e)        { lean_assert(is_pair(e));        return static_cast<expr_dep_pair*>(e); }
+inline expr_dep_pair *    to_pair(expr_cell * e)        { lean_assert(is_dep_pair(e));    return static_cast<expr_dep_pair*>(e); }
 inline expr_proj *        to_proj(expr_cell * e)        { lean_assert(is_proj(e));        return static_cast<expr_proj*>(e); }
 inline expr_app *         to_app(expr_cell * e)         { lean_assert(is_app(e));         return static_cast<expr_app*>(e); }
 inline expr_abstraction * to_abstraction(expr_cell * e) { lean_assert(is_abstraction(e)); return static_cast<expr_abstraction*>(e); }

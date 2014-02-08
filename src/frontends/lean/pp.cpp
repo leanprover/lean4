@@ -482,7 +482,7 @@ class pp_fn {
             return g_arrow_precedence;
         } else if (is_cartesian(e)) {
             return g_cartesian_product_precedence;
-        } else if (is_lambda(e) || is_pi(e) || is_let(e) || is_exists(e) || is_sigma(e) || is_pair(e)) {
+        } else if (is_lambda(e) || is_pi(e) || is_let(e) || is_exists(e) || is_sigma(e) || is_dep_pair(e)) {
             return 0;
         } else if (is_heq(e)) {
             return g_heq_precedence;
@@ -1125,7 +1125,7 @@ class pp_fn {
         args.push_back(pair_first(a));
         expr t = pair_type(a);
         bool cartesian = is_cartesian(t);
-        while (is_pair(pair_second(a)) && !has_metavar(pair_second(a))) {
+        while (is_dep_pair(pair_second(a)) && !has_metavar(pair_second(a))) {
             a = pair_second(a);
             if (!is_cartesian(pair_type(a)))
                 cartesian = false;

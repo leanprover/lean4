@@ -473,6 +473,19 @@ inline expr mk_forall_uninhabited_th(expr const & e1, expr const & e2, expr cons
 expr mk_allext_fn();
 bool is_allext_fn(expr const & e);
 inline expr mk_allext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_allext_fn(), e1, e2, e3, e4}); }
+expr mk_proj1_congr_fn();
+bool is_proj1_congr_fn(expr const & e);
+inline expr mk_proj1_congr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_proj1_congr_fn(), e1, e2, e3, e4, e5}); }
+expr mk_proj2_congr_fn();
+bool is_proj2_congr_fn(expr const & e);
+inline expr mk_proj2_congr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_proj2_congr_fn(), e1, e2, e3, e4, e5}); }
+expr mk_hproj2_congr_fn();
+bool is_hproj2_congr_fn(expr const & e);
+inline expr mk_hproj2_congr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_hproj2_congr_fn(), e1, e2, e3, e4, e5}); }
+expr mk_pair_fn();
+bool is_pair_fn(expr const & e);
+inline bool is_pair(expr const & e) { return is_app(e) && is_pair_fn(arg(e, 0)) && num_args(e) == 5; }
+inline expr mk_pair(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_pair_fn(), e1, e2, e3, e4}); }
 expr mk_funext_fn();
 bool is_funext_fn(expr const & e);
 inline expr mk_funext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_funext_fn(), e1, e2, e3, e4, e5}); }
@@ -550,6 +563,18 @@ bool is_infinity(expr const & e);
 expr mk_pairext_fn();
 bool is_pairext_fn(expr const & e);
 inline expr mk_pairext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_pairext_fn(), e1, e2, e3, e4, e5, e6}); }
+expr mk_pair_proj_eq_fn();
+bool is_pair_proj_eq_fn(expr const & e);
+inline expr mk_pair_proj_eq_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_pair_proj_eq_fn(), e1, e2, e3}); }
+expr mk_pair_congr_fn();
+bool is_pair_congr_fn(expr const & e);
+inline expr mk_pair_congr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6, expr const & e7, expr const & e8) { return mk_app({mk_pair_congr_fn(), e1, e2, e3, e4, e5, e6, e7, e8}); }
+expr mk_pairext_proj_fn();
+bool is_pairext_proj_fn(expr const & e);
+inline expr mk_pairext_proj_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6, expr const & e7) { return mk_app({mk_pairext_proj_fn(), e1, e2, e3, e4, e5, e6, e7}); }
+expr mk_hpairext_proj_fn();
+bool is_hpairext_proj_fn(expr const & e);
+inline expr mk_hpairext_proj_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6, expr const & e7) { return mk_app({mk_hpairext_proj_fn(), e1, e2, e3, e4, e5, e6, e7}); }
 expr mk_cast_fn();
 bool is_cast_fn(expr const & e);
 inline bool is_cast(expr const & e) { return is_app(e) && is_cast_fn(arg(e, 0)) && num_args(e) == 5; }

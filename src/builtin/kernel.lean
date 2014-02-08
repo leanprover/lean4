@@ -766,6 +766,17 @@ theorem allext {A : (Type U)} {B C : A → Bool} (H : ∀ x : A, B x = C x) : (�
      (assume Hl, take x, (H x) ◂ (Hl x))
      (assume Hr, take x, (symm (H x)) ◂ (Hr x))
 
+theorem proj1_congr {A : (Type U)} {B : A → (Type U)} {a b : sig x, B x} (H : a = b) : proj1 a = proj1 b
+:= subst (refl (proj1 a)) H
+
+theorem proj2_congr {A B : (Type U)} {a b : A # B} (H : a = b) : proj2 a = proj2 b
+:= subst (refl (proj2 a)) H
+
+theorem hproj2_congr {A : (Type U)} {B : A → (Type U)} {a b : sig x, B x} (H : a = b) : proj2 a == proj2 b
+:= subst (hrefl (proj2 a)) H
+
+definition pair {A : (Type U)} {B : A → (Type U)} (a : A) (b : B a) := tuple (sig x : A, B x) : a, b
+
 -- Up to this point, we proved all theorems using just reflexivity, substitution and case (proof by cases)
 
 -- Function extensionality
@@ -898,9 +909,33 @@ variable ind : Type
 axiom infinity : ∃ f : ind → ind, injective f ∧ non_surjective f
 
 -- Pair extensionality
-axiom pairext {A : (Type U)} {B : A → (Type U)} {a b : sig x, B x}
+axiom pairext {A : (Type U)} {B : A → (Type U)} (a b : sig x, B x)
               (H1 : proj1 a = proj1 b) (H2 : proj2 a == proj2 b)
               : a = b
+
+theorem pair_proj_eq {A : (Type U)} {B : A → (Type U)} (a : sig x, B x) : pair (proj1 a) (proj2 a) = a
+:= have Heq1 : proj1 (pair (proj1 a) (proj2 a)) = proj1 a,
+     from refl (proj1 a),
+   have Heq2 : proj2 (pair (proj1 a) (proj2 a)) == proj2 a,
+     from hrefl (proj2 a),
+   show pair (proj1 a) (proj2 a) = a,
+     from pairext (pair (proj1 a) (proj2 a)) a Heq1 Heq2
+
+theorem pair_congr {A : (Type U)} {B : A → (Type U)} {a a' : A} {b : B a} {b' : B a'} (Ha : a = a') (Hb : b == b')
+                   : (pair a b) = (pair a' b')
+:= have Heq1 : proj1 (pair a b) = proj1 (pair a' b'),
+     from Ha,
+   have Heq2 : proj2 (pair a b) == proj2 (pair a' b'),
+     from Hb,
+   show (pair a b) = (pair a' b'),
+     from pairext (pair a b) (pair a' b') Heq1 Heq2
+
+theorem pairext_proj {A B : (Type U)} {p : A # B} {a : A} {b : B} (H1 : proj1 p = a) (H2 : proj2 p = b) : p = (pair a b)
+:= pairext p (pair a b) H1 (to_heq H2)
+
+theorem hpairext_proj {A : (Type U)} {B : A → (Type U)} {p : sig x, B x} {a : A} {b : B a}
+                      (H1 : proj1 p = a) (H2 : proj2 p == b) : p = (pair a b)
+:= pairext p (pair a b) H1 H2
 
 -- Heterogeneous equality axioms and theorems
 

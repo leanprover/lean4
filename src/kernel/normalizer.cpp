@@ -265,7 +265,7 @@ class normalizer::imp {
         }
         case expr_kind::Proj: {
             expr new_arg = normalize(proj_arg(a), s, k);
-            if (is_pair(new_arg)) {
+            if (is_dep_pair(new_arg)) {
                 if (proj_first(a))
                     r = pair_first(new_arg);
                 else

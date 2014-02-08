@@ -121,19 +121,20 @@ std::pair<goal, goal_proof_fn> to_goal(ro_environment const & env, context const
     buffer<hypothesis> hypotheses;   // normalized names and types of the entries processed so far
     buffer<optional<expr>> bodies;   // normalized bodies of the entries processed so far
     std::vector<expr> consts;        // cached consts[i] == mk_constant(names[i], hypotheses[i])
+    buffer<expr> padded_consts;      // similar to consts, but it is padded to make sure bodies.size() == padded_consts.size()
     auto replace_vars = [&](expr const & e, unsigned offset) -> expr {
         if (is_var(e)) {
             unsigned vidx = var_idx(e);
             if (vidx >= offset) {
                 unsigned nvidx = vidx - offset;
-                unsigned nfv   = consts.size();
+                unsigned nfv   = padded_consts.size();
                 if (nvidx >= nfv)
                     throw exception("failed to create goal, unknown free variable");
                 unsigned lvl   = nfv - nvidx - 1;
                 if (bodies[lvl])
                     return *(bodies[lvl]);
                 else
-                    return consts[lvl];
+                    return padded_consts[lvl];
             }
         }
         return e;
@@ -154,12 +155,14 @@ std::pair<goal, goal_proof_fn> to_goal(ro_environment const & env, context const
         replacer.clear();
         if (b && !inferer.is_proposition(*d)) {
             bodies.push_back(b);
-            consts.push_back(expr());
+            padded_consts.push_back(expr());
         } else {
             lean_assert(d);
             hypotheses.emplace_back(n, *d);
             bodies.push_back(none_expr());
-            consts.push_back(mk_constant(n, *d));
+            expr c = mk_constant(n, *d);
+            padded_consts.push_back(c);
+            consts.push_back(c);
         }
     }
     expr conclusion = replacer(t);

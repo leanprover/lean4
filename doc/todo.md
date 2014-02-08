@@ -15,5 +15,5 @@ To Do List
 - Module for reading [OpenTheory](http://www.gilith.com/research/opentheory/) proofs.
 - Re-implement apply-tactic.
 - Improve performance of `is_convertible` and `is_definitionally_equal` predicates.
-- Create notation sets. We are currently all notation in a "single bag".
+- Create notation sets. We are currently puting all notation decls in a "single bag".
 - Improve macro support, and allow users to provide arbitrary parser extensions using Lua.

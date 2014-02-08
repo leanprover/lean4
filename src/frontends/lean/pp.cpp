@@ -262,7 +262,7 @@ class pp_fn {
         case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type:
             return true;
         case expr_kind::Value:
-            return !is_choice(e);
+            return to_value(e).is_atomic_pp(m_unicode, m_coercion);
         case expr_kind::MetaVar:
             return !metavar_lctx(e);
         case expr_kind::App:

@@ -538,11 +538,6 @@ class elaborator::imp {
                             swap(new_a, new_b);
                         push_new_constraint(is_eq(c), *new_ctx, new_a, new_b, new_jst);
                         return Processed;
-                    } else if (!has_metavar(b)) {
-                        // Failure, there is no way to unify
-                        // ?m[lift:s:n, ...] with a term that contains variables in [s, s+n]
-                        m_conflict = mk_failure_justification(c);
-                        return Failed;
                     }
                 }
             }
@@ -560,6 +555,28 @@ class elaborator::imp {
             return Processed;
         }
         return Continue;
+    }
+
+    bool check_metavar_lift(unification_constraint const & c, expr const & a, expr const & b) {
+        if (is_metavar(a) && has_local_context(a) && !has_metavar(b)) {
+            lean_assert(!is_assigned(a));
+            local_entry const & me = head(metavar_lctx(a));
+            if (me.is_lift()) {
+                // a is of the form ?m[lift:s:n]
+                unsigned s = me.s();
+                unsigned n = me.n();
+                if (has_free_var(b, s, s + n, m_state.m_menv)) {
+                    // Failure, there is no way to unify
+                    // ?m[lift:s:n, ...] with a term that contains variables in [s, s+n]
+
+                    // In older commits, this check was being done inside of process_metavar.
+                    // This was incorrect. This check must be performed AFTER b is normalized.
+                    m_conflict = mk_failure_justification(c);
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     justification mk_subst_justification(unification_constraint const & c, buffer<justification> const & subst_justifications) {
@@ -729,6 +746,8 @@ class elaborator::imp {
             expr new_a = normalize_step(ctx, a);
             expr new_b = normalize_step(ctx, b);
             if (new_a == a && new_b == b) {
+                if (is_meta(a) || is_meta(b))
+                    break; // we do not unfold if one of the arguments is a metavar or metavar_app
                 int w_a = get_unfolding_weight(a);
                 int w_b = get_unfolding_weight(b);
                 if (w_a >= 0 || w_b >= 0) {
@@ -1687,7 +1706,9 @@ class elaborator::imp {
             }
         }
 
-        if (!is_meta(a) && !is_meta(b) && normalize_head(a, b, c)) { return true; }
+        if (!is_meta_app(a) && !is_meta_app(b) && normalize_head(a, b, c)) { return true; }
+
+        if (!check_metavar_lift(c, a, b) || !check_metavar_lift(c, b, a)) { return false; }
 
         if (process_simple_ho_match(ctx, a, b, true, c) ||
             process_simple_ho_match(ctx, b, a, false, c))

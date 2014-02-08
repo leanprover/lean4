@@ -67,6 +67,7 @@ public:
     expr const & get_expr() const { return m_expr; }
     context const & get_context() const { return m_ctx; }
     value_stack const & get_stack() const { return m_stack; }
+    virtual bool is_atomic_pp(bool /* unicode */, bool /* coercion */) const { return false; } // NOLINT
 };
 
 expr mk_closure(expr const & e, context const & ctx, value_stack const & s) { return mk_value(*(new closure(e, ctx, s))); }

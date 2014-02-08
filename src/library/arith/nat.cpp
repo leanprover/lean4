@@ -36,6 +36,7 @@ public:
     virtual void display(std::ostream & out) const { out << m_val; }
     virtual format pp() const { return format(m_val); }
     virtual format pp(bool, bool) const { return pp(); }
+    virtual bool is_atomic_pp(bool /* unicode */, bool /* coercion */) const { return true; } // NOLINT
     virtual unsigned hash() const { return m_val.hash(); }
     virtual int push_lua(lua_State * L) const { return push_mpz(L, m_val); }
     mpz const & get_num() const { return m_val; }

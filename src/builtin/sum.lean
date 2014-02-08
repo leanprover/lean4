@@ -68,7 +68,7 @@ theorem inr_inj {A B : (Type U)} {b1 b2 : B} : inr A b1 = inr A b2 → b1 = b2
      show b1 = b2,
         from optional::injectivity
             (calc some b1 = proj2 (pair (@none A) (some b1))  : refl (some b1)
-                      ... = proj2 (pair (@none A) (some b2))  : @proj2_congr _ _ (pair (@none A) (some b1)) (pair (@none A) (some b2)) rep_eq
+                      ... = proj2 (pair (@none A) (some b2))  : proj2_congr rep_eq
                       ... = some b2                           : refl (some b2))
 
 theorem distinct {A B : (Type U)} (a : A) (b : B) : inl a B ≠ inr A b

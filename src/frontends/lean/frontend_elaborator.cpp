@@ -41,6 +41,7 @@ struct choice_value : public value {
     virtual expr get_type() const { lean_unreachable(); } // LCOV_EXCL_LINE
     virtual void write(serializer & ) const { lean_unreachable(); } // LCOV_EXCL_LINE
     virtual name get_name() const { return name("Choice"); }
+    virtual bool is_atomic_pp(bool /* unicode */, bool /* coercion */) const { return false; } // NOLINT
     virtual void display(std::ostream & out) const {
         out << "(Choice";
         for (auto c : m_choices) {

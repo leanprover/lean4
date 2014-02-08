@@ -331,6 +331,7 @@ public:
     virtual void display(std::ostream & out) const;
     virtual format pp() const;
     virtual format pp(bool unicode, bool coercion) const;
+    virtual bool is_atomic_pp(bool unicode, bool coercion) const = 0;
     virtual int push_lua(lua_State * L) const;
     virtual unsigned hash() const;
     virtual void write(serializer & s) const = 0;

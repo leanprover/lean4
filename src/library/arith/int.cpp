@@ -44,6 +44,7 @@ public:
         else
             return format(m_val);
     }
+    virtual bool is_atomic_pp(bool /* unicode */, bool coercion) const { return !coercion || m_val < 0; }
     virtual unsigned hash() const { return m_val.hash(); }
     virtual int push_lua(lua_State * L) const { return push_mpz(L, m_val); }
     mpz const & get_num() const { return m_val; }

@@ -17,6 +17,7 @@ public:
     named_value(name const & n):m_name(n) {}
     virtual ~named_value() {}
     virtual name get_name() const { return m_name; }
+    virtual bool is_atomic_pp(bool /* unicode */, bool /* coercion */) const { return true; } // NOLINT
 };
 
 /**

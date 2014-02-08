@@ -14,4 +14,6 @@ To Do List
 - Independent type checker using a different programming language (e.g., F* or OCaml).
 - Module for reading [OpenTheory](http://www.gilith.com/research/opentheory/) proofs.
 - Re-implement apply-tactic.
-- Improve performance of `is_convertible` and `is_definitionally_equal` predicates
+- Improve performance of `is_convertible` and `is_definitionally_equal` predicates.
+- Create notation sets. We are currently all notation in a "single bag".
+- Improve macro support, and allow users to provide arbitrary parser extensions using Lua.

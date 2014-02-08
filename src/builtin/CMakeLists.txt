@@ -96,6 +96,7 @@ add_theory("specialfn.lean"    "${CMAKE_CURRENT_BINARY_DIR}/Real.olean")
 add_theory("subtype.lean"      "${CMAKE_CURRENT_BINARY_DIR}/Nat.olean")
 add_theory("optional.lean"     "${CMAKE_CURRENT_BINARY_DIR}/subtype.olean")
 add_theory("sum.lean"          "${CMAKE_CURRENT_BINARY_DIR}/optional.olean")
+add_theory("num.lean"          "${CMAKE_CURRENT_BINARY_DIR}/Nat.olean")
 
 update_interface("kernel.olean"       "kernel" "-n")
 update_interface("Nat.olean"          "library/arith" "-n")

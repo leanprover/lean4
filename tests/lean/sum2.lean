@@ -72,7 +72,7 @@ theorem inr_inj {A B : (Type U)} {b1 b2 : B} : inr A b1 = inr A b2 → b1 = b2
                       ... = some b2                           : refl (some b2))
 
 theorem distinct {A B : (Type U)} (a : A) (b : B) : inl a B ≠ inr A b
-:= assume N : inl a B = inr A b,
+:= not_intro (assume N : inl a B = inr A b,
      have eq1   : inl a B = abst (pair (some a) none) (inhabl (inhabited_intro a) B),
         from refl (inl a B),
      have eq2   : inr A b = abst (pair none (some b)) (inhabl (inhabited_intro a) B),
@@ -80,7 +80,7 @@ theorem distinct {A B : (Type U)} (a : A) (b : B) : inl a B ≠ inr A b
      have rep_eq : (pair (some a) none) = (pair none (some b)),
         from abst_inj (inhabl (inhabited_intro a) B) (inl_pred a B) (inr_pred A b) (trans (trans (symm eq1) N) eq2),
      show false,
-        from absurd (proj1_congr rep_eq) (optional::distinct a)
+        from absurd (proj1_congr rep_eq) (optional::distinct a))
 
 theorem dichotomy {A B : (Type U)} (n : sum A B) : (∃ a, n = inl a B) ∨ (∃ b, n = inr A b)
 := let pred : (proj1 (rep n) = none) ≠ (proj2 (rep n) = none) := P_rep n

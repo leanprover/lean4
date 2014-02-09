@@ -1,5 +1,4 @@
 import macros
-import pair
 import subtype
 import optional
 using subtype

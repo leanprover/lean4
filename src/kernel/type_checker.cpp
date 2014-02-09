@@ -61,9 +61,6 @@ class type_checker::imp {
             m_uc->push_back(mk_convertible_constraint(ctx, e, TypeU1, jst));
             return u;
         }
-        u = normalize(e, ctx, true);
-        if (is_type(u) || is_bool(u))
-            return u;
         throw type_expected_exception(env(), ctx, s);
     }
 
@@ -83,9 +80,6 @@ class type_checker::imp {
             m_uc->push_back(mk_eq_constraint(ctx, e, p, jst));
             return p;
         }
-        r = normalize(e, ctx, true);
-        if (is_pi(r))
-            return r;
         throw function_expected_exception(env(), ctx, s);
     }
 
@@ -107,9 +101,6 @@ class type_checker::imp {
             m_uc->push_back(mk_eq_constraint(ctx, e, p, jst));
             return p;
         }
-        r = normalize(e, ctx, true);
-        if (is_sigma(r))
-            return r;
         throw pair_expected_exception(env(), ctx, s);
     }
 
@@ -145,12 +136,7 @@ class type_checker::imp {
                     m_uc->push_back(mk_eq_constraint(ctx, t, p, jst));
                     t        = get_pi_body(p, a);
                 } else {
-                    t = normalize(t, ctx, true);
-                    if (is_pi(t)) {
-                        t = get_pi_body(t, a);
-                    } else {
-                        throw function_expected_exception(env(), ctx, e);
-                    }
+                    throw function_expected_exception(env(), ctx, e);
                 }
             }
         }
@@ -418,10 +404,6 @@ class type_checker::imp {
             m_uc->push_back(mk_convertible_constraint(ctx, given, expected, mk_justification()));
             return true;
         }
-        new_given    = normalize(new_given, ctx, true);
-        new_expected = normalize(new_expected, ctx, true);
-        if (is_convertible_core(new_given, new_expected))
-            return true;
         return false;
     }
 
@@ -493,10 +475,6 @@ public:
             return true;
         expr new_t1 = normalize(t1, ctx, false);
         expr new_t2 = normalize(t2, ctx, false);
-        if (new_t1 == new_t2)
-            return true;
-        new_t1 = normalize(new_t1, ctx, true);
-        new_t2 = normalize(new_t2, ctx, true);
         return new_t1 == new_t2;
     }
 
@@ -521,7 +499,7 @@ public:
         if (is_bool(t))
             return true;
         else
-            return is_bool(normalize(t, ctx, true));
+            return is_bool(normalize(t, ctx, false));
     }
 
     expr ensure_pi(expr const & e, context const & ctx, optional<metavar_env> const & menv) {

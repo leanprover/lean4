@@ -39,11 +39,11 @@ theorem injectivity {A : (Type U)} {a a' : A} : some a = some a' → a = a'
       from (congr1 a eq_reps) ◂ (refl a)
 
 theorem distinct {A : (Type U)} (a : A) : some a ≠ none
-:= assume N : some a = none,
+:= not_intro (assume N : some a = none,
    have eq_reps : (λ x, x = a) = (λ x, false),
       from abst_inj (inhab A) (some_pred a) (none_pred A) N,
    show false,
-      from (congr1 a eq_reps) ◂ (refl a)
+      from (congr1 a eq_reps) ◂ (refl a))
 
 definition value {A : (Type U)} (n : optional A) (H : is_some n) : A
 := ε (inhabited_ex_intro H) (λ x, some x = n)
@@ -52,11 +52,11 @@ theorem is_some_some {A : (Type U)} (a : A) : is_some (some a)
 := exists_intro a (refl (some a))
 
 theorem not_is_some_none {A : (Type U)} : ¬ is_some (@none A)
-:= assume N : is_some (@none A),
+:= not_intro (assume N : is_some (@none A),
    obtain (w : A) (Hw : some w = @none A),
       from N,
    show false,
-      from absurd Hw (distinct w)
+      from absurd Hw (distinct w))
 
 theorem value_some {A : (Type U)} (a : A) (H : is_some (some a)) : value (some a) H = a
 := have eq1  : some (value (some a) H) = some a,

@@ -850,7 +850,15 @@ void parser_imp::parse_rewrite_set() {
 
 void parser_imp::parse_ids_and_rsid(buffer<name> & ids, name & rsid) {
     while (curr_is_identifier()) {
-        ids.push_back(curr_name());
+        auto p  = pos();
+        name id = curr_name();
+        expr d  = get_name_ref(id, p, false);
+        if (is_constant(d))
+            ids.push_back(const_name(d));
+        else if (is_value(d))
+            ids.push_back(to_value(d).get_name());
+        else
+            throw parser_error(sstream() << "'" << id << "' does not name a theorem or axiom", p);
         next();
     }
     if (ids.empty())
@@ -869,11 +877,7 @@ void parser_imp::parse_add_rewrite() {
     name rsid;
     parse_ids_and_rsid(th_names, rsid);
     for (auto id : th_names) {
-        auto it = m_using_decls.find(id);
-        if (it != m_using_decls.end())
-            add_rewrite_rules(m_env, rsid, it->second);
-        else
-            add_rewrite_rules(m_env, rsid, id);
+        add_rewrite_rules(m_env, rsid, id);
     }
 }
 

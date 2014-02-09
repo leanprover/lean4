@@ -74,7 +74,7 @@ theorem succ_nz (a : num) : ¬ (succ a = zero)
    show false,
       from absurd Heq1 (S_ne_Z (rep a))
 
-add_rewrite num::succ_nz
+add_rewrite succ_nz
 
 theorem induction {P : num → Bool} (H1 : P zero) (H2 : ∀ n, P n → P (succ n)) : ∀ a, P a
 := take a,
@@ -111,6 +111,8 @@ theorem sn_ne_n (n : num) : succ n ≠ n
           (assume R : succ (succ n) = succ n,
               absurd (succ_inj R) iH))
 
+add_rewrite sn_ne_n
+
 set_opaque num  true
 set_opaque Z    true
 set_opaque S    true
@@ -136,7 +138,7 @@ theorem lt_nrefl (n : num) : ¬ (n < n)
      (assume N : n < n,
       lt_elim N (λ P Pred Pn nPn, absurd Pn nPn))
 
-add_rewrite num::lt_nrefl
+add_rewrite lt_nrefl
 
 theorem lt_succ {m n : num} : succ m < n → m < n
 := assume H : succ m < n,
@@ -159,6 +161,8 @@ theorem not_lt_zero (n : num) : ¬ (n < zero)
                      from lt_succ N,
                    show false,
                      from absurd nLTzero iH))
+
+add_rewrite not_lt_zero
 
 theorem zero_lt_succ_zero : zero < succ zero
 := let P : num → Bool := λ x, x = zero
@@ -221,6 +225,8 @@ theorem n_lt_succ_n (n : num) : n < succ n
      (λ (n : num) (iH : n < succ n),
         succ_mono_lt iH)
 
+add_rewrite n_lt_succ_n
+
 theorem lt_to_neq {m n : num} : m < n → m ≠ n
 := assume H : m < n,
    lt_elim H
@@ -239,7 +245,7 @@ theorem zero_lt_succ_n {n : num} : zero < succ n
      (λ (n : num) (iH : zero < succ n),
         lt_to_lt_succ iH)
 
-add_rewrite num::zero_lt_succ_n
+add_rewrite zero_lt_succ_n
 
 theorem lt_succ_to_disj {m n : num} : m < succ n → m = n ∨ m < n
 := assume H : m < succ n,
@@ -507,6 +513,8 @@ theorem mul_zeror (a : num) : a * zero = zero
 
 theorem mul_succr (a b : num) : a * (succ b) = a * b + a
 := prim_rec_succ zero (λ x n, x + a) b
+
+add_rewrite add_zeror add_succr mul_zeror mul_succr
 
 set_opaque add true
 set_opaque mul true

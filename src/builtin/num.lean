@@ -476,11 +476,40 @@ theorem prim_rec_thm {A : (Type U)} (x : A) (f : A → num → A)
    show prim_rec x f zero = x ∧ ∀ m, prim_rec x f (succ m) = f (prim_rec x f m) m,
      from and_intro Hz Hs
 
+theorem prim_rec_zero {A : (Type U)} (x : A) (f : A → num → A) : prim_rec x f zero = x
+:= and_eliml (prim_rec_thm x f)
+
+theorem prim_rec_succ {A : (Type U)} (x : A) (f : A → num → A) (m : num) : prim_rec x f (succ m) = f (prim_rec x f m) m
+:= and_elimr (prim_rec_thm x f) m
+
 set_opaque simp_rec_rel true
 set_opaque simp_rec_fun true
 set_opaque simp_rec     true
 set_opaque prim_rec_fun true
 set_opaque prim_rec     true
+
+definition add (a b : num) : num
+:= prim_rec a (λ x n, succ x) b
+infixl 65 + : add
+
+theorem add_zeror (a : num) : a + zero = a
+:= prim_rec_zero a (λ x n, succ x)
+
+theorem add_succr (a b : num) : a + succ b = succ (a + b)
+:= prim_rec_succ a (λ x n, succ x) b
+
+definition mul (a b : num) : num
+:= prim_rec zero (λ x n, x + a) b
+infixl 70 * : mul
+
+theorem mul_zeror (a : num) : a * zero = zero
+:= prim_rec_zero zero (λ x n, x + a)
+
+theorem mul_succr (a b : num) : a * (succ b) = a * b + a
+:= prim_rec_succ zero (λ x n, x + a) b
+
+set_opaque add true
+set_opaque mul true
 end
 
 definition num := num::num

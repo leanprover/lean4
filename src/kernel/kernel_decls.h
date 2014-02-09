@@ -505,6 +505,9 @@ inline expr mk_eps_th_th(expr const & e1, expr const & e2, expr const & e3, expr
 expr mk_eps_singleton_fn();
 bool is_eps_singleton_fn(expr const & e);
 inline expr mk_eps_singleton_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_eps_singleton_fn(), e1, e2, e3}); }
+expr mk_inhabited_dfun_fn();
+bool is_inhabited_dfun_fn(expr const & e);
+inline expr mk_inhabited_dfun_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_inhabited_dfun_fn(), e1, e2, e3}); }
 expr mk_inhabited_fun_fn();
 bool is_inhabited_fun_fn(expr const & e);
 inline expr mk_inhabited_fun_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_inhabited_fun_fn(), e1, e2, e3}); }

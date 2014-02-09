@@ -800,8 +800,11 @@ theorem eps_singleton {A : (Type U)} (H : inhabited A) (a : A) : ε H (λ x, x =
    in eps_ax H a Ha
 
 -- A function space (∀ x : A, B x) is inhabited if forall a : A, we have inhabited (B a)
-theorem inhabited_fun {A : (Type U)} {B : A → (Type U)} (Hn : ∀ a, inhabited (B a)) : inhabited (∀ x, B x)
+theorem inhabited_dfun {A : (Type U)} {B : A → (Type U)} (Hn : ∀ a, inhabited (B a)) : inhabited (∀ x, B x)
 := inhabited_intro (λ x, ε (Hn x) (λ y, true))
+
+theorem inhabited_fun (A : (Type U)) {B : (Type U)} (H : inhabited B) : inhabited (A → B)
+:= inhabited_intro (λ x, ε H (λ y, true))
 
 theorem exists_to_eps {A : (Type U)} {P : A → Bool} (H : ∃ x, P x) : P (ε (inhabited_ex_intro H) P)
 := obtain (w : A) (Hw : P w), from H,
@@ -1033,4 +1036,3 @@ theorem hproof_irrel {a b : Bool} (H1 : a) (H2 : b) : H1 == H2
        H1_eq_H1b : H1 == H1b             := hsymm (cast_heq Hab H1),
        H1b_eq_H2 : H1b == H2             := to_heq (proof_irrel H1b H2)
    in  htrans H1_eq_H1b H1b_eq_H2
-

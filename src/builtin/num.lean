@@ -1,5 +1,9 @@
+-- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+-- Released under Apache 2.0 license as described in the file LICENSE.
+-- Author: Leonardo de Moura
 import macros
 import subtype
+import tactic
 using subtype
 
 namespace num
@@ -54,7 +58,7 @@ theorem succ_pred (n : num) : N (S (rep n))
    show N (S (rep n)),
      from N_S N_n
 
-theorem succ_inj (a b : num) : succ a = succ b → a = b
+theorem succ_inj {a b : num} : succ a = succ b → a = b
 := assume Heq1 : succ a = succ b,
    have Heq2 : S (rep a) = S (rep b),
       from abst_inj inhab (succ_pred a) (succ_pred b) Heq1,
@@ -97,6 +101,20 @@ theorem induction {P : num → Bool} (H1 : P zero) (H2 : ∀ n, P n → P (succ 
 theorem induction_on {P : num → Bool} (a : num) (H1 : P zero) (H2 : ∀ n, P n → P (succ n)) : P a
 := induction H1 H2 a
 
+theorem sn_ne_n (n : num) : succ n ≠ n
+:= induction_on n
+     (succ_nz zero)
+     (λ (n : num) (iH : succ n ≠ n),
+        not_intro
+          (assume R : succ (succ n) = succ n,
+              absurd (succ_inj R) iH))
+
+set_opaque num  true
+set_opaque Z    true
+set_opaque S    true
+set_opaque zero true
+set_opaque succ true
+
 definition lt (m n : num) := ∃ P, (∀ i, P (succ i) → P i) ∧ P m ∧ ¬ P n
 infix 50 < : lt
 
@@ -138,9 +156,9 @@ theorem not_lt_zero (n : num) : ¬ (n < zero)
                    show false,
                      from absurd nLTzero iH))
 
-theorem z_lt_succ_z : zero < succ zero
+theorem zero_lt_succ_zero : zero < succ zero
 := let P : num → Bool := λ x, x = zero
-   in have Pred : ∀ i, P (succ i) → P i,
+   in have Ppred : ∀ i, P (succ i) → P i,
         from take i, assume Ps : P (succ i),
                have si_eq_z : succ i = zero,
                   from Ps,
@@ -153,14 +171,210 @@ theorem z_lt_succ_z : zero < succ zero
       have nPs : ¬ P (succ zero),
         from succ_nz zero,
       show zero < succ zero,
-        from lt_intro Pred Pz nPs
+        from lt_intro Ppred Pz nPs
 
-set_opaque num  true
-set_opaque Z    true
-set_opaque S    true
-set_opaque zero true
-set_opaque succ true
-set_opaque lt   true
+theorem succ_mono_lt {m n : num} : m < n → succ m < succ n
+:= assume H : m < n,
+   lt_elim H
+     (λ (P : num → Bool) (Ppred : ∀ i, P (succ i) → P i) (Pm : P m) (nPn : ¬ P n),
+        let Q : num → Bool := λ x, x = succ m ∨ P x
+        in have Qpred : ∀ i, Q (succ i) → Q i,
+             from take i, assume Qsi : Q (succ i),
+                    or_elim Qsi
+                      (assume Hl : succ i = succ m,
+                         have Him : i = m, from succ_inj Hl,
+                         have Pi  : P i,   from subst Pm (symm Him),
+                           or_intror (i = succ m) Pi)
+                      (assume Hr : P (succ i),
+                         have Pi  : P i,   from Ppred i Hr,
+                           or_intror (i = succ m) Pi),
+           have Qsm   : Q (succ m),
+             from or_introl (refl (succ m)) (P (succ m)),
+           have nQsn  : ¬ Q (succ n),
+             from not_intro
+               (assume R : Q (succ n),
+                  or_elim R
+                    (assume Hl : succ n = succ m,
+                       absurd Pm (subst nPn (succ_inj Hl)))
+                    (assume Hr : P (succ n), absurd (Ppred n Hr) nPn)),
+           show succ m < succ n,
+             from lt_intro Qpred Qsm nQsn)
+
+theorem lt_to_lt_succ {m n : num} : m < n → m < succ n
+:= assume H : m < n,
+   lt_elim H
+     (λ (P : num → Bool) (Ppred : ∀ i, P (succ i) → P i) (Pm : P m) (nPn : ¬ P n),
+        have nPsn : ¬ P (succ n),
+          from not_intro
+            (assume R : P (succ n),
+               absurd (Ppred n R) nPn),
+        show m < succ n,
+          from lt_intro Ppred Pm nPsn)
+
+theorem n_lt_succ_n (n : num) : n < succ n
+:= induction_on n
+     zero_lt_succ_zero
+     (λ (n : num) (iH : n < succ n),
+        succ_mono_lt iH)
+
+theorem lt_to_neq {m n : num} : m < n → m ≠ n
+:= assume H : m < n,
+   lt_elim H
+     (λ (P : num → Bool) (Ppred : ∀ i, P (succ i) → P i) (Pm : P m) (nPn : ¬ P n),
+       not_intro
+         (assume R : m = n,
+            absurd Pm (subst nPn (symm R))))
+
+theorem eq_to_not_lt {m n : num} : m = n → ¬ (m < n)
+:= assume Heq : m = n,
+     not_intro (assume R : m < n, absurd (subst R Heq) (lt_nrefl n))
+
+theorem zero_lt_succ_n {n : num} : zero < succ n
+:= induction_on n
+     zero_lt_succ_zero
+     (λ (n : num) (iH : zero < succ n),
+        lt_to_lt_succ iH)
+
+theorem lt_succ_to_disj {m n : num} : m < succ n → m = n ∨ m < n
+:= assume H : m < succ n,
+   lt_elim H
+     (λ (P : num → Bool) (Ppred : ∀ i, P (succ i) → P i) (Pm : P m) (nPsn : ¬ P (succ n)),
+        or_elim (em (m = n))
+          (assume Heq : m = n, or_introl Heq (m < n))
+          (assume Hne : m ≠ n,
+             let Q : num → Bool := λ x, x ≠ n ∧ P x
+             in have Qpred : ∀ i, Q (succ i) → Q i,
+                  from take i, assume Hsi : Q (succ i),
+                     have H1 : succ i ≠ n,
+                       from and_eliml Hsi,
+                     have Psi : P (succ i),
+                       from and_elimr Hsi,
+                     have Pi  : P i,
+                       from Ppred i Psi,
+                     have neq : i ≠ n,
+                       from not_intro (assume N : i = n,
+                           absurd (subst Psi N) nPsn),
+                     and_intro neq Pi,
+                have Qm : Q m,
+                  from and_intro Hne Pm,
+                have nQn : ¬ Q n,
+                  from not_intro
+                        (assume N : n ≠ n ∧ P n,
+                           absurd (refl n) (and_eliml N)),
+                show m = n ∨ m < n,
+                  from or_intror (m = n) (lt_intro Qpred Qm nQn)))
+
+theorem disj_to_lt_succ {m n : num} : m = n ∨ m < n → m < succ n
+:= assume H : m = n ∨ m < n,
+     or_elim H
+       (λ Hl : m = n,
+          have H1 : n < succ n,
+            from n_lt_succ_n n,
+          show m < succ n,
+            from substp (λ x, x < succ n) H1 (symm Hl)) -- TODO, improve elaborator to catch this case
+       (λ Hr : m < n, lt_to_lt_succ Hr)
+
+theorem lt_succ_ne_to_lt {m n : num} : m < succ n → m ≠ n → m < n
+:= assume (H1 : m < succ n) (H2 : m ≠ n),
+     resolve1 (lt_succ_to_disj H1) H2
+
+definition simp_rec_rel {A : (Type U)} (fn : num → A) (x : A) (f : A → A) (n : num)
+:= fn zero = x ∧ (∀ m, m < n → fn (succ m) = f (fn m))
+
+definition simp_rec_fun {A : (Type U)} (x : A) (f : A → A) (n : num) : num → A
+:= ε (inhabited_fun num (inhabited_intro x)) (λ fn : num → A, simp_rec_rel fn x f n)
+
+-- The basic idea is:
+--   (simp_rec_fun x f n) returns a function that 'works' for all m < n
+-- We have that n < succ n, then we can define (simp_rec x f n) as:
+definition simp_rec {A : (Type U)} (x : A) (f : A → A) (n : num) : A
+:= simp_rec_fun x f (succ n) n
+
+theorem simp_rec_lemma1 {A : (Type U)} (x : A) (f : A → A) (n : num)
+                        : (∃ fn, simp_rec_rel fn x f n)
+                          ↔
+                          (simp_rec_fun x f n zero = x ∧
+                           ∀ m, m < n → simp_rec_fun x f n (succ m) = f (simp_rec_fun x f n m))
+:= iff_intro
+    (assume Hl : (∃ fn, simp_rec_rel fn x f n),
+       obtain (fn : num → A) (Hfn : simp_rec_rel fn x f n),
+         from Hl,
+       have inhab : inhabited (num → A),
+         from (inhabited_fun num (inhabited_intro x)),
+       show simp_rec_rel (simp_rec_fun x f n) x f n,
+         from @eps_ax (num → A) inhab (λ fn, simp_rec_rel fn x f n) fn Hfn)
+    (assume Hr,
+       have H1 : simp_rec_rel (simp_rec_fun x f n) x f n,
+         from Hr,
+       show (∃ fn, simp_rec_rel fn x f n),
+         from exists_intro (simp_rec_fun x f n) H1)
+
+theorem simp_rec_lemma2 {A : (Type U)} (x : A) (f : A → A) (n : num)
+                        : ∃ fn, simp_rec_rel fn x f n
+:= induction_on n
+     (let fn : num → A := λ n, x in
+      have fz  : fn zero = x,
+        from refl (fn zero),
+      have fs  : ∀ m, m < zero → fn (succ m) = f (fn m),
+        from take m, assume Hmn : m < zero,
+                absurd_elim (fn (succ m) = f (fn m))
+                            Hmn
+                            (not_lt_zero m),
+      show ∃ fn, simp_rec_rel fn x f zero,
+        from exists_intro fn (and_intro fz fs))
+    (λ (n : num) (iH : ∃ fn, simp_rec_rel fn x f n),
+       obtain (fn : num → A) (Hfn : simp_rec_rel fn x f n),
+         from iH,
+       let fn1 : num → A := λ m, if succ n = m then f (fn n) else fn m in
+       have f1z : fn1 zero = x,
+         from calc fn1 zero  = if succ n = zero then f (fn n) else fn zero  : refl (fn1 zero)
+                        ...  = if false then f (fn n) else fn zero          : { eqf_intro (succ_nz n) }
+                        ...  = fn zero                                      : if_false _ _
+                        ...  = x                                            : and_eliml Hfn,
+       have f1s : ∀ m, m < succ n → fn1 (succ m) = f (fn1 m),
+         from take m, assume Hlt : m < succ n,
+                 or_elim (lt_succ_to_disj Hlt)
+                   (assume Hl : m = n,
+                       have Hrw1  : (succ n = succ m) ↔ true,
+                         from eqt_intro (symm (congr2 succ Hl)),
+                       have Haux1 : (succ n = m) ↔ false,
+                         from eqf_intro (subst (sn_ne_n m) Hl),
+                       have Hrw2  : fn n = fn1 m,
+                         from symm (calc fn1 m = if succ n = m then f (fn n) else fn m  : refl (fn1 m)
+                                           ... = if false then f (fn n) else fn m       : { Haux1 }
+                                           ... = fn m                                   : if_false _ _
+                                           ... = fn n                                   : congr2 fn Hl),
+                       calc fn1 (succ m) = if succ n = succ m then f (fn n) else fn (succ m)  : refl (fn1 (succ m))
+                                 ...     = if true then f (fn n) else fn (succ m)             : { Hrw1 }
+                                 ...     = f (fn n)                                           : if_true _ _
+                                 ...     = f (fn1 m)                                          : { Hrw2 })
+                   (assume Hr : m < n,
+                       have Haux1 : fn (succ m) = f (fn m),
+                         from (and_elimr Hfn m Hr),
+                       have Hrw1 : (succ n = succ m) ↔ false,
+                         from eqf_intro (not_intro (assume N : succ n = succ m,
+                                  have nLt : ¬ m < n,
+                                    from eq_to_not_lt (symm (succ_inj N)),
+                                  absurd Hr nLt)),
+                       have Haux2 : m < succ n,
+                         from lt_to_lt_succ Hr,
+                       have Haux3 : (succ n = m) ↔ false,
+                         from eqf_intro (ne_symm (lt_to_neq Haux2)),
+                       have Hrw2 : fn m = fn1 m,
+                          from symm (calc fn1 m = if succ n = m then f (fn n) else fn m : refl (fn1 m)
+                                            ... = if false then f (fn n) else fn m      : { Haux3 }
+                                            ... = fn m                                  : if_false _ _),
+                       calc fn1 (succ m) = if succ n = succ m then f (fn n) else fn (succ m) : refl (fn1 (succ m))
+                                    ...  = if false then f (fn n) else fn (succ m)           : { Hrw1 }
+                                    ...  = fn (succ m)                                       : if_false _ _
+                                    ...  = f (fn m)                                          : Haux1
+                                    ...  = f (fn1 m)                                         : { Hrw2 }),
+       show ∃ fn, simp_rec_rel fn x f (succ n),
+         from exists_intro fn1 (and_intro f1z f1s))
+
+set_opaque simp_rec_rel true
+set_opaque simp_rec_fun true
+set_opaque simp_rec     true
 end
 
 definition num := num::num

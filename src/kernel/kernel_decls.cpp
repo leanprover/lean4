@@ -173,6 +173,7 @@ MK_CONSTANT(eps_fn, name("eps"));
 MK_CONSTANT(eps_ax_fn, name("eps_ax"));
 MK_CONSTANT(eps_th_fn, name("eps_th"));
 MK_CONSTANT(eps_singleton_fn, name("eps_singleton"));
+MK_CONSTANT(inhabited_dfun_fn, name("inhabited_dfun"));
 MK_CONSTANT(inhabited_fun_fn, name("inhabited_fun"));
 MK_CONSTANT(exists_to_eps_fn, name("exists_to_eps"));
 MK_CONSTANT(axiom_of_choice_fn, name("axiom_of_choice"));

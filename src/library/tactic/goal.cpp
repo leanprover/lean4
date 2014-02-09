@@ -109,6 +109,9 @@ static name mk_unique_name(name_set & s, name const & suggestion) {
     }
 }
 
+static name g_unused       = name::mk_internal_unique_name();
+static expr g_unused_const = mk_constant(g_unused);
+
 std::pair<goal, goal_proof_fn> to_goal(ro_environment const & env, context const & ctx, expr const & t) {
     type_inferer inferer(env);
     if (!inferer.is_proposition(t, ctx))
@@ -121,20 +124,19 @@ std::pair<goal, goal_proof_fn> to_goal(ro_environment const & env, context const
     buffer<hypothesis> hypotheses;   // normalized names and types of the entries processed so far
     buffer<optional<expr>> bodies;   // normalized bodies of the entries processed so far
     std::vector<expr> consts;        // cached consts[i] == mk_constant(names[i], hypotheses[i])
-    buffer<expr> padded_consts;      // similar to consts, but it is padded to make sure bodies.size() == padded_consts.size()
     auto replace_vars = [&](expr const & e, unsigned offset) -> expr {
         if (is_var(e)) {
             unsigned vidx = var_idx(e);
             if (vidx >= offset) {
                 unsigned nvidx = vidx - offset;
-                unsigned nfv   = padded_consts.size();
+                unsigned nfv   = consts.size();
                 if (nvidx >= nfv)
                     throw exception("failed to create goal, unknown free variable");
                 unsigned lvl   = nfv - nvidx - 1;
                 if (bodies[lvl])
                     return *(bodies[lvl]);
                 else
-                    return padded_consts[lvl];
+                    return consts[lvl];
             }
         }
         return e;
@@ -155,13 +157,14 @@ std::pair<goal, goal_proof_fn> to_goal(ro_environment const & env, context const
         replacer.clear();
         if (b && !inferer.is_proposition(*d)) {
             bodies.push_back(b);
-            padded_consts.push_back(expr());
+            // Insert a dummy just to make sure consts has the right size.
+            // The dummy must be a closed term, and should not be used anywhere else.
+            consts.push_back(g_unused_const);
         } else {
             lean_assert(d);
             hypotheses.emplace_back(n, *d);
             bodies.push_back(none_expr());
             expr c = mk_constant(n, *d);
-            padded_consts.push_back(c);
             consts.push_back(c);
         }
     }

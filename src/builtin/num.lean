@@ -325,8 +325,7 @@ theorem simp_rec_ex {A : (Type U)} (x : A) (f : A → A) (n : num)
                     : ∃ fn, simp_rec_rel fn x f n
 := induction_on n
      (let fn : num → A := λ n, x in
-      have fz  : fn zero = x,
-        from refl (fn zero),
+      have fz  : fn zero = x, by simp,
       have fs  : ∀ m, m < zero → fn (succ m) = f (fn m),
         from take m, assume Hmn : m < zero,
                 absurd_elim (fn (succ m) = f (fn m))
@@ -335,31 +334,14 @@ theorem simp_rec_ex {A : (Type U)} (x : A) (f : A → A) (n : num)
       show ∃ fn, simp_rec_rel fn x f zero,
         from exists_intro fn (and_intro fz fs))
     (λ (n : num) (iH : ∃ fn, simp_rec_rel fn x f n),
-       obtain (fn : num → A) (Hfn : simp_rec_rel fn x f n),
-         from iH,
+       obtain (fn : num → A) (Hfn : simp_rec_rel fn x f n), from iH,
        let fn1 : num → A := λ m, if succ n = m then f (fn n) else fn m in
-       have f1z : fn1 zero = x,
-         from calc fn1 zero  = if succ n = zero then f (fn n) else fn zero  : refl (fn1 zero)
-                        ...  = if false then f (fn n) else fn zero          : { eqf_intro (succ_nz n) }
-                        ...  = fn zero                                      : if_false _ _
-                        ...  = x                                            : and_eliml Hfn,
+       have fnz : fn zero = x,  from and_eliml Hfn,
+       have f1z : fn1 zero = x, by simp,
        have f1s : ∀ m, m < succ n → fn1 (succ m) = f (fn1 m),
          from take m, assume Hlt : m < succ n,
                  or_elim (lt_succ_to_disj Hlt)
-                   (assume Hl : m = n,
-                       have Hrw1  : (succ n = succ m) ↔ true,
-                         from eqt_intro (symm (congr2 succ Hl)),
-                       have Haux1 : (succ n = m) ↔ false,
-                         from eqf_intro (subst (sn_ne_n m) Hl),
-                       have Hrw2  : fn n = fn1 m,
-                         from symm (calc fn1 m = if succ n = m then f (fn n) else fn m  : refl (fn1 m)
-                                           ... = if false then f (fn n) else fn m       : { Haux1 }
-                                           ... = fn m                                   : if_false _ _
-                                           ... = fn n                                   : congr2 fn Hl),
-                       calc fn1 (succ m) = if succ n = succ m then f (fn n) else fn (succ m)  : refl (fn1 (succ m))
-                                 ...     = if true then f (fn n) else fn (succ m)             : { Hrw1 }
-                                 ...     = f (fn n)                                           : if_true _ _
-                                 ...     = f (fn1 m)                                          : { Hrw2 })
+                   (assume Hl : m = n, by simp)
                    (assume Hr : m < n,
                        have Haux1 : fn (succ m) = f (fn m),
                          from (and_elimr Hfn m Hr),
@@ -370,12 +352,10 @@ theorem simp_rec_ex {A : (Type U)} (x : A) (f : A → A) (n : num)
                                   absurd Hr nLt)),
                        have Haux2 : m < succ n,
                          from lt_to_lt_succ Hr,
-                       have Haux3 : (succ n = m) ↔ false,
-                         from eqf_intro (ne_symm (lt_to_neq Haux2)),
+                       have Haux3 : ¬ (succ n = m),
+                         from ne_symm (lt_to_neq Haux2),
                        have Hrw2 : fn m = fn1 m,
-                          from symm (calc fn1 m = if succ n = m then f (fn n) else fn m : refl (fn1 m)
-                                            ... = if false then f (fn n) else fn m      : { Haux3 }
-                                            ... = fn m                                  : if_false _ _),
+                          by simp,
                        calc fn1 (succ m) = if succ n = succ m then f (fn n) else fn (succ m) : refl (fn1 (succ m))
                                     ...  = if false then f (fn n) else fn (succ m)           : { Hrw1 }
                                     ...  = fn (succ m)                                       : if_false _ _
@@ -383,6 +363,7 @@ theorem simp_rec_ex {A : (Type U)} (x : A) (f : A → A) (n : num)
                                     ...  = f (fn1 m)                                         : { Hrw2 }),
        show ∃ fn, simp_rec_rel fn x f (succ n),
          from exists_intro fn1 (and_intro f1z f1s))
+
 
 theorem simp_rec_lemma1 {A : (Type U)} (x : A) (f : A → A) (n : num)
                        : simp_rec_fun x f n zero = x ∧
@@ -407,9 +388,7 @@ theorem simp_rec_lemma2 {A : (Type U)} (x : A) (f : A → A) (n m1 m2 : num)
           from iH H1 H2,
         have Heq3 : simp_rec_fun x f m2 (succ n) = f (simp_rec_fun x f m2 n),
           from and_elimr (simp_rec_lemma1 x f m2) n H2,
-        calc simp_rec_fun x f m1 (succ n) = f (simp_rec_fun x f m1 n)    : Heq1
-                                    ...   = f (simp_rec_fun x f m2 n)    : congr2 f Heq2
-                                    ...   = simp_rec_fun x f m2 (succ n) : symm Heq3)
+        by simp)
 
 theorem simp_rec_thm {A : (Type U)} (x : A) (f : A → A)
                      : simp_rec x f zero = x ∧

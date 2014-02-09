@@ -67,12 +67,14 @@ theorem succ_inj {a b : num} : succ a = succ b → a = b
    show a = b,
       from rep_inj rep_eq
 
-theorem succ_nz (a : num) : succ a ≠ zero
+theorem succ_nz (a : num) : ¬ (succ a = zero)
 := assume R : succ a = zero,
    have Heq1 : S (rep a) = Z,
       from abst_inj inhab (succ_pred a) zero_pred R,
    show false,
       from absurd Heq1 (S_ne_Z (rep a))
+
+add_rewrite num::succ_nz
 
 theorem induction {P : num → Bool} (H1 : P zero) (H2 : ∀ n, P n → P (succ n)) : ∀ a, P a
 := take a,
@@ -133,6 +135,8 @@ theorem lt_nrefl (n : num) : ¬ (n < n)
 := not_intro
      (assume N : n < n,
       lt_elim N (λ P Pred Pn nPn, absurd Pn nPn))
+
+add_rewrite num::lt_nrefl
 
 theorem lt_succ {m n : num} : succ m < n → m < n
 := assume H : succ m < n,
@@ -235,6 +239,8 @@ theorem zero_lt_succ_n {n : num} : zero < succ n
      (λ (n : num) (iH : zero < succ n),
         lt_to_lt_succ iH)
 
+add_rewrite num::zero_lt_succ_n
+
 theorem lt_succ_to_disj {m n : num} : m < succ n → m = n ∨ m < n
 := assume H : m < succ n,
    lt_elim H
@@ -290,11 +296,11 @@ definition simp_rec_fun {A : (Type U)} (x : A) (f : A → A) (n : num) : num →
 definition simp_rec {A : (Type U)} (x : A) (f : A → A) (n : num) : A
 := simp_rec_fun x f (succ n) n
 
-theorem simp_rec_lemma1 {A : (Type U)} (x : A) (f : A → A) (n : num)
-                        : (∃ fn, simp_rec_rel fn x f n)
-                          ↔
-                          (simp_rec_fun x f n zero = x ∧
-                           ∀ m, m < n → simp_rec_fun x f n (succ m) = f (simp_rec_fun x f n m))
+theorem simp_rec_def {A : (Type U)} (x : A) (f : A → A) (n : num)
+                     : (∃ fn, simp_rec_rel fn x f n)
+                       ↔
+                       (simp_rec_fun x f n zero = x ∧
+                        ∀ m, m < n → simp_rec_fun x f n (succ m) = f (simp_rec_fun x f n m))
 := iff_intro
     (assume Hl : (∃ fn, simp_rec_rel fn x f n),
        obtain (fn : num → A) (Hfn : simp_rec_rel fn x f n),
@@ -309,8 +315,8 @@ theorem simp_rec_lemma1 {A : (Type U)} (x : A) (f : A → A) (n : num)
        show (∃ fn, simp_rec_rel fn x f n),
          from exists_intro (simp_rec_fun x f n) H1)
 
-theorem simp_rec_lemma2 {A : (Type U)} (x : A) (f : A → A) (n : num)
-                        : ∃ fn, simp_rec_rel fn x f n
+theorem simp_rec_ex {A : (Type U)} (x : A) (f : A → A) (n : num)
+                    : ∃ fn, simp_rec_rel fn x f n
 := induction_on n
      (let fn : num → A := λ n, x in
       have fz  : fn zero = x,
@@ -372,9 +378,109 @@ theorem simp_rec_lemma2 {A : (Type U)} (x : A) (f : A → A) (n : num)
        show ∃ fn, simp_rec_rel fn x f (succ n),
          from exists_intro fn1 (and_intro f1z f1s))
 
+theorem simp_rec_lemma1 {A : (Type U)} (x : A) (f : A → A) (n : num)
+                       : simp_rec_fun x f n zero = x ∧
+                         ∀ m, m < n → simp_rec_fun x f n (succ m) = f (simp_rec_fun x f n m)
+:= (simp_rec_def x f n) ◂ (simp_rec_ex x f n)
+
+theorem simp_rec_lemma2 {A : (Type U)} (x : A) (f : A → A) (n m1 m2 : num)
+                        : n < m1 → n < m2 → simp_rec_fun x f m1 n = simp_rec_fun x f m2 n
+:= induction_on n
+     (assume H1 H2,
+          calc simp_rec_fun x f m1 zero = x                         : and_eliml (simp_rec_lemma1 x f m1)
+                                   ...  = simp_rec_fun x f m2 zero  : symm (and_eliml (simp_rec_lemma1 x f m2)))
+     (λ (n : num) (iH : n < m1 → n < m2 → simp_rec_fun x f m1 n = simp_rec_fun x f m2 n),
+        assume (Hs1 : succ n < m1) (Hs2 : succ n < m2),
+        have H1  : n < m1,
+          from lt_succ Hs1,
+        have H2  : n < m2,
+          from lt_succ Hs2,
+        have Heq1 : simp_rec_fun x f m1 (succ n) = f (simp_rec_fun x f m1 n),
+          from and_elimr (simp_rec_lemma1 x f m1) n H1,
+        have Heq2 : simp_rec_fun x f m1 n = simp_rec_fun x f m2 n,
+          from iH H1 H2,
+        have Heq3 : simp_rec_fun x f m2 (succ n) = f (simp_rec_fun x f m2 n),
+          from and_elimr (simp_rec_lemma1 x f m2) n H2,
+        calc simp_rec_fun x f m1 (succ n) = f (simp_rec_fun x f m1 n)    : Heq1
+                                    ...   = f (simp_rec_fun x f m2 n)    : congr2 f Heq2
+                                    ...   = simp_rec_fun x f m2 (succ n) : symm Heq3)
+
+theorem simp_rec_thm {A : (Type U)} (x : A) (f : A → A)
+                     : simp_rec x f zero = x ∧
+                       ∀ m, simp_rec x f (succ m) = f (simp_rec x f m)
+:= have Heqz : simp_rec_fun x f (succ zero) zero = x,
+     from and_eliml (simp_rec_lemma1 x f (succ zero)),
+   have Hz : simp_rec x f zero = x,
+     from calc simp_rec x f zero = simp_rec_fun x f (succ zero) zero : refl _
+                           ...   = x                                 : Heqz,
+   have Hs : ∀ m, simp_rec x f (succ m) = f (simp_rec x f m),
+     from take m,
+       have Hlt1 : m < succ (succ m),
+         from lt_to_lt_succ (n_lt_succ_n m),
+       have Hlt2 : m < succ m,
+         from n_lt_succ_n m,
+       have Heq1 : simp_rec_fun x f (succ (succ m)) (succ m) = f (simp_rec_fun x f (succ (succ m)) m),
+         from and_elimr (simp_rec_lemma1 x f (succ (succ m))) m Hlt1,
+       have Heq2 : simp_rec_fun x f (succ (succ m)) m = simp_rec_fun x f (succ m) m,
+         from simp_rec_lemma2 x f m (succ (succ m)) (succ m) Hlt1 Hlt2,
+       calc simp_rec x f (succ m) = simp_rec_fun x f (succ (succ m)) (succ m) : refl _
+                           ...    = f (simp_rec_fun x f (succ (succ m)) m)    : Heq1
+                           ...    = f (simp_rec_fun x f (succ m) m)           : { Heq2 }
+                           ...    = f (simp_rec x f m)                        : refl _,
+   show simp_rec x f zero = x ∧ ∀ m, simp_rec x f (succ m) = f (simp_rec x f m),
+     from and_intro Hz Hs
+
+definition pre (m : num) := if m = zero then zero else ε inhab (λ n, succ n = m)
+
+set_option simplifier::unfold true
+
+theorem pre_zero : pre zero = zero
+:= by simp
+
+theorem pre_succ (m : num) : pre (succ m) = m
+:= have Heq : (λ n, succ n = succ m) = (λ n, n = m),
+     from funext (λ n, iff_intro (assume Hl, succ_inj Hl)
+                                 (assume Hr, congr2 succ Hr)),
+   calc pre (succ m) = ε inhab (λ n, succ n = succ m)  : by simp
+                 ... = ε inhab (λ n, n = m)            : { Heq }
+                 ... = m                               : eps_singleton inhab m
+
+definition prim_rec_fun {A : (Type U)} (x : A) (f : A → num → A)
+:= simp_rec (λ n : num, x) (λ fn n, f (fn (pre n)) n)
+
+definition prim_rec {A : (Type U)} (x : A) (f : A → num → A) (m : num)
+:= prim_rec_fun x f m (pre m)
+
+theorem prim_rec_thm {A : (Type U)} (x : A) (f : A → num → A)
+                     : prim_rec x f zero = x ∧
+                       ∀ m, prim_rec x f (succ m) = f (prim_rec x f m) m
+:= let faux := λ fn n, f (fn (pre n)) n in
+   have Hz : prim_rec x f zero = x,
+     from have Heq1 : simp_rec (λ n, x) faux zero = (λ n : num, x),
+            from and_eliml (simp_rec_thm (λ n, x) faux),
+          calc prim_rec x f zero = prim_rec_fun x f zero (pre zero)       : refl _
+                           ...   = prim_rec_fun x f zero zero             : { pre_zero }
+                           ...   = simp_rec (λ n, x) faux zero zero       : refl _
+                           ...   = x                                      : congr1 zero Heq1,
+   have Hs : ∀ m, prim_rec x f (succ m) = f (prim_rec x f m) m,
+     from take m,
+        have Heq1 : pre (succ m) = m,
+          from pre_succ m,
+        have Heq2 : simp_rec (λ n, x) faux (succ m) = faux (simp_rec (λ n, x) faux m),
+          from and_elimr (simp_rec_thm (λ n, x) faux) m,
+        calc prim_rec x f (succ m) = prim_rec_fun x f (succ m) (pre (succ m)) : refl _
+                              ...  = prim_rec_fun x f (succ m) m              : congr2 (prim_rec_fun x f (succ m)) Heq1
+                              ...  = simp_rec (λ n, x) faux (succ m) m        : refl _
+                              ...  = faux (simp_rec (λ n, x) faux m) m        : congr1 m Heq2
+                              ...  = f (prim_rec x f m) m                     : refl _,
+   show prim_rec x f zero = x ∧ ∀ m, prim_rec x f (succ m) = f (prim_rec x f m) m,
+     from and_intro Hz Hs
+
 set_opaque simp_rec_rel true
 set_opaque simp_rec_fun true
 set_opaque simp_rec     true
+set_opaque prim_rec_fun true
+set_opaque prim_rec     true
 end
 
 definition num := num::num

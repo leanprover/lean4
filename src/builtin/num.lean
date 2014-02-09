@@ -557,8 +557,6 @@ add_rewrite mul_onel mul_oner
 theorem mul_comm (a b : num) : a * b = b * a
 := induction_on b (by simp) (by simp)
 
-exit
-
 theorem distributer (a b c : num) : a * (b + c) = a * b + a * c
 := induction_on a (by simp) (by simp)
 

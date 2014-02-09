@@ -68,11 +68,11 @@ theorem succ_inj {a b : num} : succ a = succ b → a = b
       from rep_inj rep_eq
 
 theorem succ_nz (a : num) : ¬ (succ a = zero)
-:= assume R : succ a = zero,
+:= not_intro (assume R : succ a = zero,
    have Heq1 : S (rep a) = Z,
       from abst_inj inhab (succ_pred a) zero_pred R,
    show false,
-      from absurd Heq1 (S_ne_Z (rep a))
+      from absurd Heq1 (S_ne_Z (rep a)))
 
 add_rewrite succ_nz
 
@@ -518,6 +518,64 @@ add_rewrite add_zeror add_succr mul_zeror mul_succr
 
 set_opaque add true
 set_opaque mul true
+
+theorem add_zerol (a : num) : zero + a = a
+:= induction_on a (by simp) (by simp)
+
+theorem add_succl (a b : num) : (succ a) + b = succ (a + b)
+:= induction_on b (by simp) (by simp)
+
+add_rewrite add_zerol add_succl
+
+theorem add_comm (a b : num) : a + b = b + a
+:= induction_on b (by simp) (by simp)
+
+theorem add_assoc (a b c : num) : (a + b) + c = a + (b + c)
+:= induction_on a (by simp) (by simp)
+
+theorem add_left_comm (a b c : num) : a + (b + c) = b + (a + c)
+:= left_comm add_comm add_assoc a b c
+
+add_rewrite add_assoc add_comm add_left_comm
+
+theorem mul_zerol (a : num) : zero * a = zero
+:= induction_on a (by simp) (by simp)
+
+theorem mul_succl (a b : num) : (succ a) * b = a * b + b
+:= induction_on b (by simp) (by simp)
+
+add_rewrite mul_zerol mul_succl
+
+theorem mul_onel (a : num) : (succ zero) * a = a
+:= induction_on a (by simp) (by simp)
+
+theorem mul_oner (a : num) : a * (succ zero) = a
+:= induction_on a (by simp) (by simp)
+
+add_rewrite mul_onel mul_oner
+
+theorem mul_comm (a b : num) : a * b = b * a
+:= induction_on b (by simp) (by simp)
+
+exit
+
+theorem distributer (a b c : num) : a * (b + c) = a * b + a * c
+:= induction_on a (by simp) (by simp)
+
+add_rewrite mul_comm distributer
+
+theorem distributel (a b c : num) : (a + b) * c = a * c + b * c
+:= induction_on a (by simp) (by simp)
+
+add_rewrite distributel
+
+theorem mul_assoc (a b c : num) : (a * b) * c = a * (b * c)
+:= induction_on b (by simp) (by simp)
+
+theorem mul_left_comm (a b c : num) : a * (b * c) = b * (a * c)
+:= left_comm mul_comm mul_assoc a b c
+
+add_rewrite mul_assoc mul_left_comm
 end
 
 definition num := num::num

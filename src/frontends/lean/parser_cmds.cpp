@@ -830,7 +830,7 @@ void parser_imp::parse_using() {
             if (it != m_using_decls.end())
                 diagnostic(m_io_state) << "warning: " << n << " will shadow " << it->second << endl;
             auto obj = m_env->find_object(n);
-            if (obj)
+            if (obj && n != obj->get_name())
                 diagnostic(m_io_state) << "warning: " << n << " will shadow " << obj->get_name() << endl;
         }
         m_using_decls.insert(n, p.second);

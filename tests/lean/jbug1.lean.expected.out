@@ -1,0 +1,5 @@
+  Set: pp::colors
+  Set: pp::unicode
+  Imported 'macros'
+  Imported 'tactic'
+jbug1.lean:4:0: error: unknown object 'invalid proof built using skip tactic'

@@ -31,15 +31,15 @@ tactic_macro("simp", { macro_arg.Ids },
 -- This tactic is useful for momentarily ignoring/skipping a "hole" in a big proof.
 -- Remark: the kernel will not accept a proof built using this tactic.
 skip_tac = tactic(function (env, ios, s)
-                     local gs      = s:goals()
-                     local pb      = s:proof_builder()
-                     local trivial = mk_constant("trivial")
-                     local new_pb  =
+                     local gs       = s:goals()
+                     local pb       = s:proof_builder()
+                     local buggy_pr = mk_constant("invalid proof built using skip tactic")
+                     local new_pb   =
                         function(m, a)
                            -- We provide a "fake/incorrect" proof for all goals in gs
                            local new_m = proof_map(m) -- Copy proof map m
                            for n, g in gs:pairs() do
-                              new_m:insert(n, trivial)
+                              new_m:insert(n, buggy_pr)
                            end
                            return pb(new_m, a)
                         end

@@ -239,8 +239,12 @@ class simplifier_cell::imp {
 
     expr mk_congr1_th(expr const & f_type, expr const & f, expr const & new_f, expr const & a, expr const & Heq_f) {
         expr const & A = abst_domain(f_type);
-        expr B = lower_free_vars(abst_body(f_type), 1, 1);
-        return ::lean::mk_congr1_th(A, B, f, new_f, Heq_f, a);
+        if (is_arrow(f_type)) {
+            expr B = lower_free_vars(abst_body(f_type), 1, 1);
+            return ::lean::mk_congr1_th(A, B, f, new_f, Heq_f, a);
+        } else {
+            return ::lean::mk_hcongr1_th(A, mk_lambda(g_x, A, abst_body(f_type)), f, new_f, Heq_f, a);
+        }
     }
 
     expr mk_congr2_th(expr const & f_type, expr const & a, expr const & new_a, expr const & f, expr Heq_a) {

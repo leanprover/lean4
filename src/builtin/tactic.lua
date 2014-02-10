@@ -27,6 +27,15 @@ tactic_macro("simp", { macro_arg.Ids },
              end
 )
 
+tactic_macro("simp_no_assump", { macro_arg.Ids },
+             function (env, ids)
+                if #ids == 0 then
+                   ids[1] = "default"
+                end
+                return simp_tac(ids, options({"simp_tac", "assumptions"}, false))
+             end
+)
+
 -- Create a 'bogus' tactic that consume all goals, but it does not create a valid proof.
 -- This tactic is useful for momentarily ignoring/skipping a "hole" in a big proof.
 -- Remark: the kernel will not accept a proof built using this tactic.

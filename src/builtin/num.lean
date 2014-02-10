@@ -67,6 +67,13 @@ theorem succ_inj {a b : num} : succ a = succ b → a = b
    show a = b,
       from rep_inj rep_eq
 
+theorem succ_inj_rw {a b : num} : succ a = succ b ↔ a = b
+:= iff_intro
+     (assume Hl, succ_inj Hl)
+     (assume Hr, congr2 succ Hr)
+
+add_rewrite succ_inj_rw
+
 theorem succ_nz (a : num) : ¬ (succ a = zero)
 := not_intro (assume R : succ a = zero,
    have Heq1 : S (rep a) = Z,
@@ -102,6 +109,12 @@ theorem induction {P : num → Bool} (H1 : P zero) (H2 : ∀ n, P n → P (succ 
 
 theorem induction_on {P : num → Bool} (a : num) (H1 : P zero) (H2 : ∀ n, P n → P (succ n)) : P a
 := induction H1 H2 a
+
+theorem dichotomy (m : num) : m = zero ∨ (∃ n, m = succ n)
+:= induction_on m
+     (by simp)
+     (λ n iH, or_intror _
+                        (@exists_intro _ (λ x, succ n = succ x) n (refl (succ n))))
 
 theorem sn_ne_n (n : num) : succ n ≠ n
 := induction_on n
@@ -192,12 +205,12 @@ theorem succ_mono_lt {m n : num} : m < n → succ m < succ n
                       (assume Hl : succ i = succ m,
                          have Him : i = m, from succ_inj Hl,
                          have Pi  : P i,   from subst Pm (symm Him),
-                           or_intror (i = succ m) Pi)
+                           or_intror _ Pi)
                       (assume Hr : P (succ i),
                          have Pi  : P i,   from Ppred i Hr,
-                           or_intror (i = succ m) Pi),
+                           or_intror _ Pi),
            have Qsm   : Q (succ m),
-             from or_introl (refl (succ m)) (P (succ m)),
+             from or_introl (refl (succ m)) _,
            have nQsn  : ¬ Q (succ n),
              from not_intro
                (assume R : Q (succ n),
@@ -252,7 +265,7 @@ theorem lt_succ_to_disj {m n : num} : m < succ n → m = n ∨ m < n
    lt_elim H
      (λ (P : num → Bool) (Ppred : ∀ i, P (succ i) → P i) (Pm : P m) (nPsn : ¬ P (succ n)),
         or_elim (em (m = n))
-          (assume Heq : m = n, or_introl Heq (m < n))
+          (assume Heq : m = n, or_introl Heq _)
           (assume Hne : m ≠ n,
              let Q : num → Bool := λ x, x ≠ n ∧ P x
              in have Qpred : ∀ i, Q (succ i) → Q i,
@@ -274,7 +287,7 @@ theorem lt_succ_to_disj {m n : num} : m < succ n → m = n ∨ m < n
                         (assume N : n ≠ n ∧ P n,
                            absurd (refl n) (and_eliml N)),
                 show m = n ∨ m < n,
-                  from or_intror (m = n) (lt_intro Qpred Qm nQn)))
+                  from or_intror _ (lt_intro Qpred Qm nQn)))
 
 theorem disj_to_lt_succ {m n : num} : m = n ∨ m < n → m < succ n
 := assume H : m = n ∨ m < n,
@@ -388,7 +401,8 @@ theorem simp_rec_lemma2 {A : (Type U)} (x : A) (f : A → A) (n m1 m2 : num)
           from iH H1 H2,
         have Heq3 : simp_rec_fun x f m2 (succ n) = f (simp_rec_fun x f m2 n),
           from and_elimr (simp_rec_lemma1 x f m2) n H2,
-        by simp)
+        show simp_rec_fun x f m1 (succ n) = simp_rec_fun x f m2 (succ n),
+          by simp)
 
 theorem simp_rec_thm {A : (Type U)} (x : A) (f : A → A)
                      : simp_rec x f zero = x ∧
@@ -417,18 +431,30 @@ theorem simp_rec_thm {A : (Type U)} (x : A) (f : A → A)
 
 definition pre (m : num) := if m = zero then zero else ε inhab (λ n, succ n = m)
 
-set_option simplifier::unfold true
-
 theorem pre_zero : pre zero = zero
-:= by simp
+:= by (Then (unfold num::pre) simp)
 
 theorem pre_succ (m : num) : pre (succ m) = m
 := have Heq : (λ n, succ n = succ m) = (λ n, n = m),
      from funext (λ n, iff_intro (assume Hl, succ_inj Hl)
                                  (assume Hr, congr2 succ Hr)),
-   calc pre (succ m) = ε inhab (λ n, succ n = succ m)  : by simp
+   calc pre (succ m) = ε inhab (λ n, succ n = succ m)  : by (Then (unfold num::pre) simp)
                  ... = ε inhab (λ n, n = m)            : { Heq }
                  ... = m                               : eps_singleton inhab m
+
+add_rewrite pre_zero pre_succ
+
+theorem succ_pre (m : num) : m ≠ zero → succ (pre m) = m
+:= assume H : m ≠ zero,
+   have H1 : ∃ n, m = succ n,
+     from resolve1 (dichotomy m) H,
+   obtain (w : num) (H2 : m = succ w), from H1,
+   have H3 : (λ n, succ n = m) = (λ n, n = w),
+     from funext (λ n, by simp),
+   calc succ (pre m) = succ (if m = zero then zero else ε inhab (λ n, succ n = m)) : refl _
+                 ... = succ (ε inhab (λ n, n = w))                                 : by simp
+                 ... = succ w                                                      : { eps_singleton inhab w }
+                 ... = m                                                           : symm H2
 
 definition prim_rec_fun {A : (Type U)} (x : A) (f : A → num → A)
 := simp_rec (λ n : num, x) (λ fn n, f (fn (pre n)) n)
@@ -553,6 +579,110 @@ theorem mul_left_comm (a b c : num) : a * (b * c) = b * (a * c)
 := left_comm mul_comm mul_assoc a b c
 
 add_rewrite mul_assoc mul_left_comm
+
+theorem lt_addr {a b : num} (c : num) : a < b → a + c < b + c
+:= assume H : a < b,
+   induction_on c
+     (by simp)
+     (λ (c : num) (iH : a + c < b + c),
+        have H1 : succ (a + c) < succ (b + c),
+          from succ_mono_lt iH,
+        show a + succ c < b + succ c,
+          from subst (subst H1 (symm (add_succr a c))) (symm (add_succr b c)))
+
+theorem addl_lt {a b c : num} : a + c < b → a < b
+:= induction_on c
+     (assume H : a + zero < b, subst H (add_zeror a))
+     (λ (c : num) (iH : a + c < b → a < b),
+        assume H : a + (succ c) < b,
+        have H1 : succ (a + c) < b,
+          from subst H (add_succr a c),
+        have H2 : a + c < b,
+          from lt_succ H1,
+        show a < b, from iH H2)
+
+theorem lt_to_nez {a b : num} (H : a < b) : b ≠ zero
+:= not_intro (assume N : b = zero,
+     absurd (subst H N) (not_lt_zero a))
+
+theorem lt_ex1 {a b : num} : a < b → ∃ c, a + (succ c) = b
+:= induction_on a
+    (assume H : zero < b,
+     have H1 : b ≠ zero, from lt_to_nez H,
+     have H2 : succ (pre b) = b, from succ_pre b H1,
+        show ∃ c, zero + (succ c) = b,
+          from exists_intro (pre b) (by simp))
+    (λ (a : num) (iH : a < b → ∃ c, a + (succ c) = b),
+      assume H : succ a < b,
+      have H1 : a < b, from lt_succ H,
+      obtain (c : num) (Hc : a + (succ c) = b), from iH H1,
+      have Hcnz : c ≠ zero,
+        from not_intro (assume L1 : c = zero,
+           have Hb : b = a + (succ c), from symm Hc,
+           have L2 : succ a = b, by simp,
+           show false, from absurd L2 (lt_to_neq H)),
+      have Hspc : succ (pre c) = c,
+        from succ_pre c Hcnz,
+      show ∃ c, (succ a) + (succ c) = b,
+          from exists_intro (pre c) (calc (succ a) + (succ (pre c)) = succ (a + c) : by simp
+                                                                ... = a + (succ c) : symm (add_succr _ _)
+                                                                ... = b            : Hc ))
+
+theorem lt_ex2 {a b : num} : (∃ c, a + (succ c) = b) → a < b
+:= assume Hex : ∃ c, a + (succ c) = b,
+   obtain (c : num) (Hc : a + (succ c) = b), from Hex,
+   have H1 : succ (a + c) = b,
+      from subst Hc (add_succr a c),
+   have H2 : a + c < b,
+      from subst (n_lt_succ_n (a + c)) H1,
+   show a < b,
+      from addl_lt H2
+
+theorem lt_ex (a b : num) : a < b ↔ ∃ c, a + (succ c) = b
+:= iff_intro (assume Hl, lt_ex1 Hl) (assume Hr, lt_ex2 Hr)
+
+theorem lt_to_ex {a b : num} (H : a < b) : ∃ c, a + (succ c) = b
+:= lt_ex1 H
+
+theorem ex_to_lt {a b c : num} (H : a + succ c = b) : a < b
+:= lt_ex2 (exists_intro c H)
+
+theorem lt_trans {a b c : num} : a < b → b < c → a < c
+:= assume H1 H2,
+   obtain (w1 : num) (Hw1 : a + succ w1 = b), from lt_to_ex H1,
+   obtain (w2 : num) (Hw2 : b + succ w2 = c), from lt_to_ex H2,
+   have Hac : a + succ (succ (w1 + w2)) = c,
+     from calc a + succ (succ (w1 + w2)) = (a + succ w1) + succ w2 : by simp_no_assump
+                                     ... = b + succ w2             : { Hw1 }
+                                     ... = c                       : { Hw2 },
+   ex_to_lt Hac
+
+theorem strong_induction {P : num → Bool} (H : ∀ n, (∀ m, m < n → P m) → P n) : ∀ a, P a
+:= take a : num,
+   have stronger : P a ∧ ∀ m, m < a → P m,
+    from induction_on a  -- we prove a stronger result by regular induction on a
+       (have c2 : ∀ m, m < zero → P m,
+          from λ (m : num) (Hlt : m < zero), absurd_elim (P m) Hlt (not_lt_zero m),
+        have c1 : P zero,
+          from H zero c2,
+        show P zero ∧ ∀ m, m < zero → P m,
+          from and_intro c1 c2)
+       (λ (n : num) (iH : P n ∧ ∀ m, m < n → P m),
+        have iH1 : P n,
+          from and_eliml iH,
+        have iH2 : ∀ m, m < n → P m,
+          from and_elimr iH,
+        have c2  : ∀ m, m < succ n → P m,
+          from take m : num, assume Hlt : m < succ n,
+                 or_elim (em (m = n))
+                   (assume Heq : m = n, subst iH1 (symm Heq))
+                   (assume Hne : m ≠ n, iH2 m (lt_succ_ne_to_lt Hlt Hne)),
+        have c1  : P (succ n),
+          from H (succ n) c2,
+        and_intro c1 c2),
+   show P a,
+     from and_eliml stronger
+
 end
 
 definition num := num::num

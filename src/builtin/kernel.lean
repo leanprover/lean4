@@ -809,7 +809,7 @@ theorem inhabited_fun (A : (Type U)) {B : (Type U)} (H : inhabited B) : inhabite
 
 theorem exists_to_eps {A : (Type U)} {P : A → Bool} (H : ∃ x, P x) : P (ε (inhabited_ex_intro H) P)
 := obtain (w : A) (Hw : P w), from H,
-      eps_ax (inhabited_ex_intro H) w Hw
+      @eps_ax _ (inhabited_ex_intro H) P w Hw
 
 theorem axiom_of_choice {A : (Type U)} {B : A → (Type U)} {R : ∀ x : A, B x → Bool} (H : ∀ x, ∃ y, R x y) : ∃ f, ∀ x, R x (f x)
 := exists_intro
@@ -819,7 +819,7 @@ theorem axiom_of_choice {A : (Type U)} {B : A → (Type U)} {R : ∀ x : A, B x 
 theorem skolem_th {A : (Type U)} {B : A → (Type U)} {P : ∀ x : A, B x → Bool} :
         (∀ x, ∃ y, P x y) ↔ ∃ f, (∀ x, P x (f x))
 := iff_intro
-      (λ H : (∀ x, ∃ y, P x y), axiom_of_choice H)
+      (λ H : (∀ x, ∃ y, P x y), @axiom_of_choice _ _ P H)
       (λ H : (∃ f, (∀ x, P x (f x))),
              take x, obtain (fw : ∀ x, B x) (Hw : ∀ x, P x (fw x)), from H,
                   exists_intro (fw x) (Hw x))

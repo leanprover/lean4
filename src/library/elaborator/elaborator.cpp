@@ -895,7 +895,8 @@ class elaborator::imp {
            The constraint is solved by assigning ?m to (fun x1 ... xn, c).
            The arguments may contain duplicate occurrences of variables.
 
-
+        The following case is INCORRECT, and restricts the set of solutions that can be found.
+        IT WAS DISABLED.
         2) a constraint of the form
                ctx |- (?m x1 ... xn) ≈ (f x1 ... xn)      where f does not contain x1 ... xn, and x1 ... xn are distinct
            The constraint is solved by assigning ?m to f OR ?m to (fun x1 ... xn, f x1 ... xn)
@@ -922,6 +923,14 @@ class elaborator::imp {
                 push_new_eq_constraint(ctx, m, s, new_jst);
                 return true;
             } else {
+                return false;
+                #if 0
+                // This code was disabled because it removes valid solutions.
+                // For example, when this piece of code is enabled, we can't
+                // solve
+                //    theorem or_imp (p q : Bool) : (p ∨ q) ↔ (¬ p → q)
+                //    := subst (symm (imp_or (¬ p) q)) (not_not_eq p)
+                // TODO(Leo): delete this piece of code
                 lean_assert(eq_app);
                 expr f = arg(b, 0);
                 std::unique_ptr<generic_case_split> new_cs(new generic_case_split(c, m_state));
@@ -946,6 +955,7 @@ class elaborator::imp {
                 lean_assert(r);
                 m_case_splits.push_back(std::move(new_cs));
                 return r;
+                #endif
             }
         } else {
             return false;

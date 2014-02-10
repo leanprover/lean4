@@ -9,8 +9,9 @@
   Assumed: H
   Assumed: a
 eta (F2 a) : (λ x : B, F2 a x) = F2 a
-funext (λ a : A, trans (symm (eta (F1 a))) (trans (funext (λ b : B, H a b)) (eta (F2 a)))) : F1 = F2
-funext (λ a : A, funext (λ b : B, H a b)) : F1 = F2
+funext (λ a : A, trans (symm (eta (F1 a))) (trans (funext (λ b : B, H a b)) (eta (F2 a)))) :
+    (λ x : A, F1 x) = (λ x : A, F2 x)
+funext (λ a : A, funext (λ b : B, H a b)) : (λ (x : A) (x::1 : B), F1 x x::1) = (λ (x : A) (x::1 : B), F2 x x::1)
   Proved: T1
   Proved: T2
   Proved: T3

@@ -2,8 +2,8 @@ variable vec : Nat → Type
 definition vec_with_len := sig len, vec len
 variable n : Nat
 variable v : vec n
-check tuple n, v
-check (show vec_with_len, from tuple n, v)
-check (let v2 : vec_with_len := tuple n, v
+check pair n v
+check (show vec_with_len, from pair n v)
+check (let v2 : vec_with_len := pair n v
        in v2)
-check (tuple vec_with_len : n, v)
+check (pair n v : vec_with_len)

@@ -485,10 +485,6 @@ inline expr mk_proj2_congr_th(expr const & e1, expr const & e2, expr const & e3,
 expr mk_hproj2_congr_fn();
 bool is_hproj2_congr_fn(expr const & e);
 inline expr mk_hproj2_congr_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_hproj2_congr_fn(), e1, e2, e3, e4, e5}); }
-expr mk_pair_fn();
-bool is_pair_fn(expr const & e);
-inline bool is_pair(expr const & e) { return is_app(e) && is_pair_fn(arg(e, 0)) && num_args(e) == 5; }
-inline expr mk_pair(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_pair_fn(), e1, e2, e3, e4}); }
 expr mk_funext_fn();
 bool is_funext_fn(expr const & e);
 inline expr mk_funext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) { return mk_app({mk_funext_fn(), e1, e2, e3, e4, e5}); }

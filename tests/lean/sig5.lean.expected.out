@@ -4,7 +4,7 @@
   Defined: vec_with_len
   Assumed: n
   Assumed: v
-tuple n, v : ℕ ⨯ vec n
-let H_show : vec_with_len := tuple (sig x : ℕ, vec x) : n, v in H_show : vec_with_len
-let v2 : vec_with_len := tuple (sig x : ℕ, vec x) : n, v in v2 : vec_with_len
-tuple vec_with_len : n, v : sig len : ℕ, vec len
+pair n v : ℕ ⨯ vec n
+let H_show : vec_with_len := pair n v : (sig x : ℕ, vec x) in H_show : vec_with_len
+let v2 : vec_with_len := pair n v : (sig x : ℕ, vec x) in v2 : vec_with_len
+pair n v : vec_with_len : sig len : ℕ, vec len

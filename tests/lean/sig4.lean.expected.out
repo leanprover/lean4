@@ -1,11 +1,11 @@
   Set: pp::colors
   Set: pp::unicode
-proj1 (tuple 10, 20) : ℕ
+proj1 (pair 10 20) : ℕ
 10
 20
-tuple 20, 30
+pair 20 30
+10
 20
-30
 40
   Defined: NZ
   Assumed: t

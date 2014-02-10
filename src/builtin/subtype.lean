@@ -14,7 +14,7 @@ definition abst {A : (Type U)} {P : A → Bool} (r : A) (H : inhabited (subtype 
 
 theorem subtype_inhabited {A : (Type U)} {P : A → Bool} (H : ∃ x, P x) : inhabited (subtype A P)
 := obtain (w : A) (Hw : P w), from H,
-     inhabited_intro (tuple (subtype A P) : w, Hw)
+     inhabited_intro (pair w Hw)
 
 theorem P_rep {A : (Type U)} {P : A → Bool} (a : subtype A P) : P (rep a)
 := proj2 a
@@ -23,7 +23,7 @@ theorem rep_inj {A : (Type U)} {P : A → Bool} {a b : subtype A P} (H : rep a =
 := pairext _ _ H (hproof_irrel (proj2 a) (proj2 b))
 
 theorem ex_abst {A : (Type U)} {P : A → Bool} {r : A} (H : P r) : ∃ a, rep a = r
-:= exists_intro (tuple (subtype A P) : r, H) (refl r)
+:= exists_intro (pair r H) (refl r)
 
 theorem abst_rep {A : (Type U)} {P : A → Bool} (H : inhabited (subtype A P)) (a : subtype A P)
                  : abst (rep a) H = a
@@ -33,7 +33,7 @@ theorem abst_rep {A : (Type U)} {P : A → Bool} (H : inhabited (subtype A P)) (
 
 theorem rep_abst {A : (Type U)} {P : A → Bool} (H : inhabited (subtype A P)) : ∀ r, P r → rep (abst r H) = r
 := take r, assume Hl : P r,
-     @eps_ax (subtype A P) H (λ x, rep x = r) (tuple (subtype A P) : r, Hl) (refl r)
+     @eps_ax (subtype A P) H (λ x, rep x = r) (pair r Hl) (refl r)
 
 theorem abst_inj {A : (Type U)} {P : A → Bool} (H : inhabited (subtype A P)) {r r' : A} :
                  P r → P r' → abst r H = abst r' H → r = r'

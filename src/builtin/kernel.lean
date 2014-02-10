@@ -778,8 +778,6 @@ theorem proj2_congr {A B : (Type U)} {a b : A # B} (H : a = b) : proj2 a = proj2
 theorem hproj2_congr {A : (Type U)} {B : A → (Type U)} {a b : sig x, B x} (H : a = b) : proj2 a == proj2 b
 := subst (hrefl (proj2 a)) H
 
-definition pair {A : (Type U)} {B : A → (Type U)} (a : A) (b : B a) := tuple (sig x : A, B x) : a, b
-
 -- Up to this point, we proved all theorems using just reflexivity, substitution and case (proof by cases)
 
 -- Function extensionality

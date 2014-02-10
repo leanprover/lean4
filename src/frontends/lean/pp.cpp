@@ -76,7 +76,7 @@ static format g_ellipsis_n_fmt= highlight(format("\u2026"));
 static format g_ellipsis_fmt  = highlight(format("..."));
 static format g_let_fmt       = highlight_keyword(format("let"));
 static format g_in_fmt        = highlight_keyword(format("in"));
-static format g_tuple_fmt     = highlight_keyword(format("tuple"));
+static format g_pair_fmt      = highlight_keyword(format("pair"));
 static format g_proj1_fmt     = highlight_keyword(format("proj1"));
 static format g_proj2_fmt     = highlight_keyword(format("proj2"));
 static format g_assign_fmt    = highlight_keyword(format(":="));
@@ -1120,32 +1120,23 @@ class pp_fn {
         }
     }
 
-    result pp_tuple(expr a, unsigned depth) {
+    result pp_pair(expr a, unsigned depth) {
         buffer<expr> args;
-        args.push_back(pair_first(a));
-        expr t = pair_type(a);
-        bool cartesian = is_cartesian(t);
-        while (is_dep_pair(pair_second(a)) && !has_metavar(pair_second(a))) {
-            a = pair_second(a);
-            if (!is_cartesian(pair_type(a)))
-                cartesian = false;
-            args.push_back(pair_first(a));
-        }
-        args.push_back(pair_second(a));
-        unsigned indent   = 6;
-        format r_format   = g_tuple_fmt;
+        unsigned indent   = 5;
+        format r_format   = g_pair_fmt;
         unsigned r_weight = 1;
-        if (!cartesian) {
+
+        auto f_r = pp_child(pair_first(a), depth);
+        auto s_r = pp_child(pair_second(a), depth);
+        r_format += nest(indent, compose(line(), f_r.first));
+        r_format += nest(indent, compose(line(), s_r.first));
+        r_weight += f_r.second + s_r.second;
+
+        expr t = pair_type(a);
+        if (!is_cartesian(t)) {
             auto t_r = pp_child(t, depth);
-            r_format += nest(indent, compose(line(), format{t_r.first, space(), colon()}));
+            r_format += nest(indent, compose(line(), format{colon(), space(), t_r.first}));
             r_weight += t_r.second;
-        }
-        for (unsigned i = 0; i < args.size(); i++) {
-            auto arg_r = pp_child(args[i], depth);
-            if (i > 0)
-                r_format += comma();
-            r_format += nest(indent, compose(line(), arg_r.first));
-            r_weight += arg_r.second;
         }
         return result(group(r_format), r_weight);
     }
@@ -1211,7 +1202,7 @@ class pp_fn {
                 case expr_kind::Let:        r = pp_let(e, depth);         break;
                 case expr_kind::MetaVar:    r = pp_metavar(e, depth);     break;
                 case expr_kind::HEq:        r = pp_heq(e, depth);         break;
-                case expr_kind::Pair:       r = pp_tuple(e, depth);       break;
+                case expr_kind::Pair:       r = pp_pair(e, depth);        break;
                 case expr_kind::Proj:       r = pp_proj(e, depth);        break;
                 }
             }

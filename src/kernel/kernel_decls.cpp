@@ -167,7 +167,6 @@ MK_CONSTANT(allext_fn, name("allext"));
 MK_CONSTANT(proj1_congr_fn, name("proj1_congr"));
 MK_CONSTANT(proj2_congr_fn, name("proj2_congr"));
 MK_CONSTANT(hproj2_congr_fn, name("hproj2_congr"));
-MK_CONSTANT(pair_fn, name("pair"));
 MK_CONSTANT(funext_fn, name("funext"));
 MK_CONSTANT(eta_fn, name("eta"));
 MK_CONSTANT(eps_fn, name("eps"));

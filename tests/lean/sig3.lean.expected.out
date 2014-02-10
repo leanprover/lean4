@@ -1,5 +1,5 @@
   Set: pp::colors
   Set: pp::unicode
-tuple 10, 20 : ℕ ⨯ ℕ
-tuple 10, 20, 30 : ℕ ⨯ ℕ ⨯ ℕ
-tuple 10, ⊤, (λ x : ℕ, x > 10) : ℕ ⨯ Bool ⨯ (ℕ → Bool)
+pair 10 20 : ℕ ⨯ ℕ
+pair 10 (pair 20 30) : ℕ ⨯ ℕ ⨯ ℕ
+pair 10 (pair ⊤ (λ x : ℕ, x > 10)) : ℕ ⨯ Bool ⨯ (ℕ → Bool)

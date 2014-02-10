@@ -861,61 +861,26 @@ expr parser_imp::parse_type(bool level_expected) {
     }
 }
 
-expr parser_imp::parse_tuple() {
+expr parser_imp::parse_pair() {
     auto p = pos();
     next();
     buffer<expr> args;
-    expr first = parse_expr();
+    expr first  = parse_expr(g_app_precedence);
+    expr second = parse_expr(g_app_precedence);
     expr type;
     if (curr_is_colon()) {
         next();
-        type = first;
-        args.push_back(parse_expr());
+        type = parse_expr();
     } else {
-        args.push_back(first);
         type = save(mk_placeholder(), p);
     }
-    while (curr_is_comma()) {
-        next();
-        args.push_back(parse_expr());
-    }
-    unsigned num = args.size();
-    if (num < 2)
-        throw parser_error("invalid tuple/pair, it must have at least two arguments", p);
-    if (num == 2) {
-        return save(mk_pair(args[num-2], args[num-1], type), p);
-    } else {
-        expr r = save(mk_pair(args[num-2], args[num-1], save(mk_placeholder(), p)), p);
-        unsigned i = num-2;
-        while (true) {
-            lean_assert(i > 0);
-            --i;
-            if (i == 0) {
-                return save(mk_pair(args[0], r, type), p);
-            } else {
-                r = save(mk_pair(args[i], r, save(mk_placeholder(), p)), p);
-            }
-        }
-    }
+    return save(mk_pair(first, second, type), p);
 }
 
 expr parser_imp::parse_proj(bool first) {
     auto p = pos();
     next();
-    unsigned i = 0;
-    if (curr() == scanner::token::IntVal) {
-        i = parse_unsigned("invalid tuple/pair projection, index does not fit in a machine integer");
-        if (i == 0)
-            throw parser_error("invalid tuple/pair projection, optional index must be >= 1", p);
-        if (i > LEAN_MAX_PROJECTION)
-            throw parser_error(sstream() << "invalid tuple/pair projection, optional index is >= "
-                               << LEAN_MAX_PROJECTION << " (internal limit)", p);
-    }
     expr t = parse_expr(g_app_precedence);
-    while (i > 0) {
-        --i;
-        t = save(mk_proj2(t), p);
-    }
     if (first)
         return save(mk_proj1(t), p);
     else
@@ -1069,7 +1034,7 @@ expr parser_imp::parse_nud() {
     case scanner::token::Show:        return parse_show_expr();
     case scanner::token::Have:        return parse_have_expr();
     case scanner::token::By:          return parse_by_expr();
-    case scanner::token::Tuple:       return parse_tuple();
+    case scanner::token::Pair:        return parse_pair();
     case scanner::token::Proj1:       return parse_proj(true);
     case scanner::token::Proj2:       return parse_proj(false);
     default:

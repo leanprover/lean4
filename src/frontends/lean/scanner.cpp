@@ -32,7 +32,7 @@ static name g_have_name("have");
 static name g_show_name("show");
 static name g_by_name("by");
 static name g_sig_name("sig");
-static name g_tuple_name("tuple");
+static name g_pair_name("pair");
 static name g_proj1_name("proj1");
 static name g_proj2_name("proj2");
 static name g_cartesian_product_unicode("\u2A2F");
@@ -215,8 +215,8 @@ scanner::token scanner::read_a_symbol() {
                 return token::In;
             } else if (m_name_val == g_sig_name) {
                 return token::Sig;
-            } else if (m_name_val == g_tuple_name) {
-                return token::Tuple;
+            } else if (m_name_val == g_pair_name) {
+                return token::Pair;
             } else if (m_name_val == g_proj1_name) {
                 return token::Proj1;
             } else if (m_name_val == g_proj2_name) {
@@ -471,7 +471,7 @@ std::ostream & operator<<(std::ostream & out, scanner::token const & t) {
     case scanner::token::Sig:               out << "sig"; break;
     case scanner::token::Proj1:             out << "proj1"; break;
     case scanner::token::Proj2:             out << "proj2"; break;
-    case scanner::token::Tuple:             out << "tuple"; break;
+    case scanner::token::Pair:              out << "pair"; break;
     case scanner::token::Placeholder:       out << "_"; break;
     case scanner::token::ScriptBlock:       out << "Script"; break;
     case scanner::token::CartesianProduct:  out << "#"; break;

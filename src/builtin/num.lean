@@ -296,7 +296,7 @@ theorem disj_to_lt_succ {m n : num} : m = n ∨ m < n → m < succ n
           have H1 : n < succ n,
             from n_lt_succ_n n,
           show m < succ n,
-            from substp (λ x, x < succ n) H1 (symm Hl)) -- TODO, improve elaborator to catch this case
+            from subst H1 (symm Hl))
        (λ Hr : m < n, lt_to_lt_succ Hr)
 
 theorem lt_succ_ne_to_lt {m n : num} : m < succ n → m ≠ n → m < n
@@ -480,7 +480,7 @@ theorem prim_rec_thm {A : (Type U)} (x : A) (f : A → num → A)
         have Heq2 : simp_rec (λ n, x) faux (succ m) = faux (simp_rec (λ n, x) faux m),
           from and_elimr (simp_rec_thm (λ n, x) faux) m,
         calc prim_rec x f (succ m) = prim_rec_fun x f (succ m) (pre (succ m)) : refl _
-                              ...  = prim_rec_fun x f (succ m) m              : congr2 (prim_rec_fun x f (succ m)) Heq1
+                              ...  = prim_rec_fun x f (succ m) m              : { Heq1 }
                               ...  = simp_rec (λ n, x) faux (succ m) m        : refl _
                               ...  = faux (simp_rec (λ n, x) faux m) m        : congr1 Heq2 m
                               ...  = f (prim_rec x f m) m                     : refl _,

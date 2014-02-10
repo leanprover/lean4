@@ -68,3 +68,44 @@ infixr 50 ⋆ : product
 -- It would be nice to be able to write (p1 p2 : g1 ⋆ g2 ⋆ g3)
 check λ (g1 g2 g3 : group) (p1 p2 : carrier (g1 ⋆ g2 ⋆ g3)), p1 * p2 = p2 * p1
 
+theorem group_inhab (g : group) : inhabited (carrier g)
+:= inhabited_intro (@one g)
+
+definition inv {g : group} (a : carrier g) : carrier g
+:= ε (group_inhab g) (λ x : carrier g, a * x = one)
+
+theorem G_idl {g : group} (x : carrier g) : x * one = x
+:= G_id x
+
+theorem G_invl {g : group} (x : carrier g) : x * inv x = one
+:= obtain (y : carrier g) (Hy : x * y = one), from G_inv x,
+   eps_ax (group_inhab g) y Hy
+
+theorem G_inv_aux {g : group} (x : carrier g) : inv x = (inv x * x) * inv x
+:= symm (calc (inv x * x) * inv x = inv x * (x * inv x) : G_assoc (inv x) x (inv x)
+                           ...    = inv x * one         : { G_invl x }
+                           ...    = inv x               : G_idl (inv x))
+
+theorem G_invr {g : group} (x : carrier g) : inv x * x = one
+:= calc inv x * x  = (inv x * x) * one                   :  symm (G_idl (inv x * x))
+               ... = (inv x * x) * (inv x * inv (inv x)) :  { symm (G_invl (inv x)) }
+               ... = ((inv x * x) * inv x) * inv (inv x) :  symm (G_assoc (inv x * x) (inv x) (inv (inv x)))
+               ... = (inv x * (x * inv x)) * inv (inv x) :  { G_assoc (inv x) x (inv x) }
+               ... = (inv x * one) * inv (inv x)         :  { G_invl x }
+               ... = (inv x) * inv (inv x)               :  { G_idl (inv x) }
+               ... = one                                 :  G_invl (inv x)
+
+theorem G_idr {g : group} (x : carrier g) : one * x = x
+:= calc one * x = (x * inv x) * x   : { symm (G_invl x) }
+           ...  = x * (inv x * x)   : G_assoc x (inv x) x
+           ...  = x * one           : { G_invr x }
+           ...  = x                 : G_idl x
+
+theorem G_inv_inv {g : group} (x : carrier g) : inv (inv x) = x
+:= calc inv (inv x)  =  inv (inv x) * one          : symm (G_idl (inv (inv x)))
+                ...  =  inv (inv x) * (inv x * x)  : { symm (G_invr x) }
+                ...  =  (inv (inv x) * inv x) * x  : symm (G_assoc (inv (inv x)) (inv x) x)
+                ...  =  one * x                    : { G_invr (inv x) }
+                ...  =  x                          : G_idr x
+
+

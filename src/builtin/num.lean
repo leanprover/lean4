@@ -446,7 +446,7 @@ theorem prim_rec_thm {A : (Type U)} (x : A) (f : A → num → A)
           calc prim_rec x f zero = prim_rec_fun x f zero (pre zero)       : refl _
                            ...   = prim_rec_fun x f zero zero             : { pre_zero }
                            ...   = simp_rec (λ n, x) faux zero zero       : refl _
-                           ...   = x                                      : congr1 zero Heq1,
+                           ...   = x                                      : congr1 Heq1 zero,
    have Hs : ∀ m, prim_rec x f (succ m) = f (prim_rec x f m) m,
      from take m,
         have Heq1 : pre (succ m) = m,
@@ -456,7 +456,7 @@ theorem prim_rec_thm {A : (Type U)} (x : A) (f : A → num → A)
         calc prim_rec x f (succ m) = prim_rec_fun x f (succ m) (pre (succ m)) : refl _
                               ...  = prim_rec_fun x f (succ m) m              : congr2 (prim_rec_fun x f (succ m)) Heq1
                               ...  = simp_rec (λ n, x) faux (succ m) m        : refl _
-                              ...  = faux (simp_rec (λ n, x) faux m) m        : congr1 m Heq2
+                              ...  = faux (simp_rec (λ n, x) faux m) m        : congr1 Heq2 m
                               ...  = f (prim_rec x f m) m                     : refl _,
    show prim_rec x f zero = x ∧ ∀ m, prim_rec x f (succ m) = f (prim_rec x f m) m,
      from and_intro Hz Hs

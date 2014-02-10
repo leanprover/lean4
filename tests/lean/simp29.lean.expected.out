@@ -5,4 +5,4 @@
   Assumed: f
   Assumed: fNat
 (∀ x : ℕ, x > 0) ∧ (∀ x : Bool, f x)
-congr1 (∀ x : Bool, f x) (congr2 and (allext (λ x : ℕ, fNat x)))
+congr1 (congr2 and (allext (λ x : ℕ, fNat x))) (∀ x : Bool, f x)

@@ -20,9 +20,9 @@ trans (Nat::distributel a b (c + d))
   Proved: congr1_congr2
 ⊤
 trans (congr (congr2 eq
-                     (congr1 10
-                             (congr2 Nat::add (trans (congr2 (ite (a > 0) b) (Nat::add_zeror b)) (if_a_a (a > 0) b)))))
-             (congr1 10 (congr2 Nat::add (if_a_a (a > 0) b))))
+                     (congr1 (congr2 Nat::add (trans (congr2 (ite (a > 0) b) (Nat::add_zeror b)) (if_a_a (a > 0) b)))
+                             10))
+             (congr1 (congr2 Nat::add (if_a_a (a > 0) b)) 10))
       (eq_id (b + 10))
 trans (congr (congr2 (λ x : ℕ, eq ((λ x : ℕ, x + 10) x))
                      (trans (congr2 (ite (a > 0) b) (Nat::add_zeror b)) (if_a_a (a > 0) b)))

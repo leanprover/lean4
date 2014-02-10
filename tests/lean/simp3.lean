@@ -40,16 +40,16 @@ print(pr)
 *)
 
 theorem congr2_congr1 {A B C : TypeU} {f g : A → B} (h : B → C) (Hfg : f = g) (a : A) :
-        congr2 h (congr1 a Hfg) = congr2 (λ x, h (x a)) Hfg
-:= proof_irrel (congr2 h (congr1 a Hfg)) (congr2 (λ x, h (x a)) Hfg)
+        congr2 h (congr1 Hfg a) = congr2 (λ x, h (x a)) Hfg
+:= proof_irrel (congr2 h (congr1 Hfg a)) (congr2 (λ x, h (x a)) Hfg)
 
 theorem congr2_congr2 {A B C : TypeU} {a b : A} (f : A → B) (h : B → C) (Hab : a = b) :
         congr2 h (congr2 f Hab) = congr2 (λ x, h (f x)) Hab
 := proof_irrel (congr2 h (congr2 f Hab)) (congr2 (λ x, h (f x)) Hab)
 
 theorem congr1_congr2 {A B C : TypeU} {a b : A} (f : A → B → C) (Hab : a = b) (c : B):
-        congr1 c (congr2 f Hab) = congr2 (λ x, f x c) Hab
-:= proof_irrel (congr1 c (congr2 f Hab)) (congr2 (λ x, f x c) Hab)
+        congr1 (congr2 f Hab) c = congr2 (λ x, f x c) Hab
+:= proof_irrel (congr1 (congr2 f Hab) c) (congr2 (λ x, f x c) Hab)
 
 rewrite_set proofsimp
 add_rewrite congr2_congr1 congr2_congr2 congr1_congr2 : proofsimp

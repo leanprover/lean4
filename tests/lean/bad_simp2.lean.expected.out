@@ -28,5 +28,5 @@ bad_simp2.lean:51:3: error: failed to create proof for the following proof state
 Proof state:
 A : Type, B : (Type 1) ⊢ h2 A B = A
 theorem T5a (A B : Type) : h2 A B = A :=
-    eqt_elim (trans (congr1 A (congr2 eq (Ax5 A B (eqt_elim (trans (congr1 A (congr2 eq (Ax1 A))) (eq_id A))))))
+    eqt_elim (trans (congr1 (congr2 eq (Ax5 A B (eqt_elim (trans (congr1 (congr2 eq (Ax1 A)) A) (eq_id A))))) A)
                     (eq_id A))

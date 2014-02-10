@@ -138,14 +138,17 @@ theorem symm {A : (Type U)} {a b : A} (H : a = b) : b = a
 theorem trans {A : (Type U)} {a b c : A} (H1 : a = b) (H2 : b = c) : a = c
 := subst H1 H2
 
-theorem congr1 {A B : (Type U)} {f g : A → B} (a : A) (H : f = g) : f a = g a
-:= substp (fun h : A → B, f a = h a) (refl (f a)) H
+theorem hcongr1 {A : (Type U)} {B : A → (Type U)} {f g : ∀ x, B x} (H : f = g) (a : A) : f a = g a
+:= substp (fun h, f a = h a) (refl (f a)) H
+
+theorem congr1 {A B : (Type U)} {f g : A → B} (H : f = g) (a : A) : f a = g a
+:= hcongr1 H a
 
 theorem congr2 {A B : (Type U)} {a b : A} (f : A → B) (H : a = b) : f a = f b
 := substp (fun x : A, f a = f x) (refl (f a)) H
 
 theorem congr {A B : (Type U)} {f g : A → B} {a b : A} (H1 : f = g) (H2 : a = b) : f a = g b
-:= subst (congr2 f H2) (congr1 b H1)
+:= subst (congr2 f H2) (congr1 H1 b)
 
 theorem true_ne_false : ¬ true = false
 := assume H : true = false,
@@ -621,7 +624,7 @@ theorem not_or_elim {a b : Bool} (H : ¬ (a ∨ b)) : ¬ a ∧ ¬ b
 theorem not_implies (a b : Bool) : ¬ (a → b) ↔ a ∧ ¬ b
 := calc (¬ (a → b)) = ¬ (¬ a ∨ b)  : { imp_or a b }
                  ... = ¬ ¬ a ∧ ¬ b  : not_or (¬ a) b
-                 ... = a ∧ ¬ b      : by simp
+                 ... = a ∧ ¬ b      : congr2 (λ x, x ∧ ¬ b) (not_not_eq a)
 
 theorem not_implies_elim {a b : Bool} (H : ¬ (a → b)) : a ∧ ¬ b
 := (not_implies a b) ◂ H

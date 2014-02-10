@@ -36,14 +36,14 @@ theorem injectivity {A : (Type U)} {a a' : A} : some a = some a' → a = a'
    have eq_reps : (λ x, x = a) = (λ x, x = a'),
       from abst_inj (inhab A) (some_pred a) (some_pred a') Heq,
    show a = a',
-      from (congr1 a eq_reps) ◂ (refl a)
+      from (congr1 eq_reps a) ◂ (refl a)
 
 theorem distinct {A : (Type U)} (a : A) : some a ≠ none
 := not_intro (assume N : some a = none,
    have eq_reps : (λ x, x = a) = (λ x, false),
       from abst_inj (inhab A) (some_pred a) (none_pred A) N,
    show false,
-      from (congr1 a eq_reps) ◂ (refl a))
+      from (congr1 eq_reps a) ◂ (refl a))
 
 definition value {A : (Type U)} (n : optional A) (H : is_some n) : A
 := ε (inhabited_ex_intro H) (λ x, some x = n)

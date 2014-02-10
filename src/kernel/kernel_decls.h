@@ -114,6 +114,9 @@ inline expr mk_symm_th(expr const & e1, expr const & e2, expr const & e3, expr c
 expr mk_trans_fn();
 bool is_trans_fn(expr const & e);
 inline expr mk_trans_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_trans_fn(), e1, e2, e3, e4, e5, e6}); }
+expr mk_hcongr1_fn();
+bool is_hcongr1_fn(expr const & e);
+inline expr mk_hcongr1_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_hcongr1_fn(), e1, e2, e3, e4, e5, e6}); }
 expr mk_congr1_fn();
 bool is_congr1_fn(expr const & e);
 inline expr mk_congr1_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_congr1_fn(), e1, e2, e3, e4, e5, e6}); }

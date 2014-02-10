@@ -41,6 +41,7 @@ MK_CONSTANT(subst_fn, name("subst"));
 MK_CONSTANT(substp_fn, name("substp"));
 MK_CONSTANT(symm_fn, name("symm"));
 MK_CONSTANT(trans_fn, name("trans"));
+MK_CONSTANT(hcongr1_fn, name("hcongr1"));
 MK_CONSTANT(congr1_fn, name("congr1"));
 MK_CONSTANT(congr2_fn, name("congr2"));
 MK_CONSTANT(congr_fn, name("congr"));

@@ -1389,7 +1389,7 @@ class elaborator::imp {
             } else if (is_abstraction(b)) {
                 imitate_abstraction(a, b, c);
                 return true;
-            } else if (is_app(b) && !has_metavar(arg(b, 0))) {
+            } else if (is_app(b) && (is_var(arg(b, 0)) || is_constant(arg(b, 0)) || is_value(arg(b, 0)))) {
                 imitate_application(a, b, c);
                 return true;
             } else if (is_proj(b)) {

@@ -583,26 +583,34 @@ optional<std::string> parser_imp::find_lua_file(std::string const & fname) {
 }
 
 void parser_imp::parse_import() {
+    auto p = pos();
     next();
-    std::string fname;
-    if (curr_is_identifier()) {
-        fname = name_to_file(curr_name());
-        next();
-    } else {
-        fname  = check_string_next("invalid import command, string (i.e., file name) or identifier expected");
+    unsigned num = 0;
+    while (curr_is_identifier() || curr_is_string()) {
+        std::string fname;
+        if (curr_is_identifier()) {
+            fname = name_to_file(curr_name());
+            next();
+        } else {
+            fname  = curr_string();
+            next();
+        }
+        bool r = false;
+        if (auto lua_fname = find_lua_file(fname)) {
+            if (!m_script_state)
+                throw parser_error(sstream() << "failed to import Lua file '" << *lua_fname << "', parser does not have an intepreter",
+                                   m_last_cmd_pos);
+            r = m_script_state->import_explicit(lua_fname->c_str());
+        } else {
+            r = m_env->import(fname, m_io_state);
+        }
+        if (m_verbose && r) {
+            regular(m_io_state) << "  Imported '" << fname << "'" << endl;
+        }
+        num++;
     }
-    bool r = false;
-    if (auto lua_fname = find_lua_file(fname)) {
-        if (!m_script_state)
-            throw parser_error(sstream() << "failed to import Lua file '" << *lua_fname << "', parser does not have an intepreter",
-                               m_last_cmd_pos);
-        r = m_script_state->import_explicit(lua_fname->c_str());
-    } else {
-        r = m_env->import(fname, m_io_state);
-    }
-    if (m_verbose && r) {
-        regular(m_io_state) << "  Imported '" << fname << "'" << endl;
-    }
+    if (num == 0)
+        throw parser_error("invalid import command, string (i.e., file name) or identifier expected", p);
 }
 
 void parser_imp::parse_help() {

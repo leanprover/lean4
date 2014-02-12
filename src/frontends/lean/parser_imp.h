@@ -165,6 +165,8 @@ public:
 
     /** \brief Return true iff the current token is an identifier */
     bool curr_is_identifier() const { return curr() == scanner::token::Id; }
+    /** \brief Return true iff the current token is a string literal */
+    bool curr_is_string() const { return curr() == scanner::token::StringVal; }
     /** \brief Return true iff the current token is a '_" */
     bool curr_is_placeholder() const { return curr() == scanner::token::Placeholder; }
     /** \brief Return true iff the current token is a natural number */

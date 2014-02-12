@@ -9,7 +9,7 @@ definition wf {A : (Type U)} (R : A → A → Bool) : Bool
 -- Well-founded induction theorem
 theorem wf_induction {A : (Type U)} {R : A → A → Bool} {P : A → Bool} (Hwf : wf R) (iH : ∀ x, (∀ y, R y x → P y) → P x)
                      : ∀ x, P x
-:= refute (λ N : ¬ ∀ x, P x,
+:= by_contradiction (assume N : ¬ ∀ x, P x,
      obtain (w : A) (Hw : ¬ P w), from not_forall_elim N,
          -- The main "trick" is to define Q x as ¬ P x.
          -- Since R is well-founded, there must be a R-minimal element r s.t. Q r (which is ¬ P r)

@@ -32,7 +32,7 @@ theorem strong_induction_on {P : Nat → Bool} (a : Nat) (H : ∀ n, (∀ m, m <
 theorem one_ne_zero : 1 ≠ 0 := succ_nz 0
 theorem two_ne_zero : 2 ≠ 0 := succ_nz 1
 
--- 
+--
 -- observation: the proof of lt_le_trans in Nat is not needed
 --
 
@@ -74,21 +74,21 @@ theorem lt_succ_eq (a b : Nat) : a < b + 1 ↔ a ≤ b
 theorem le_or_lt (a : Nat) : ∀ b : Nat, a ≤ b ∨ b < a
 :=
   induction_on a (
-    show ∀b, 0 ≤ b ∨ b < 0, 
+    show ∀b, 0 ≤ b ∨ b < 0,
       from take b, or_introl (le_zero b) _
   ) (
     take a,
     assume ih : ∀b, a ≤ b ∨ b < a,
-    show ∀b, a + 1 ≤ b ∨ b < a + 1, 
-      from 
+    show ∀b, a + 1 ≤ b ∨ b < a + 1,
+      from
         take b,
         cases_on b (
-          show a + 1 ≤ 0 ∨ 0 < a + 1, 
+          show a + 1 ≤ 0 ∨ 0 < a + 1,
             from or_intror _ (le_add (le_zero a) 1)
         ) (
           take b,
           have H : a ≤ b ∨ b < a, from ih b,
-          show a + 1 ≤ b + 1 ∨ b + 1 < a + 1, 
+          show a + 1 ≤ b + 1 ∨ b + 1 < a + 1,
             from or_elim H (
               assume H1 : a ≤ b,
                 or_introl (le_add H1 1) (b + 1 < a + 1)
@@ -118,23 +118,23 @@ theorem not_lt_iff {a b : Nat} : ¬ a < b ↔ b ≤ a
 := iff_intro (@not_lt_le a b) (@le_not_lt b a)
 
 theorem le_iff {a b : Nat} : a ≤ b ↔ a < b ∨ a = b
-:= 
+:=
   iff_intro (
-    assume H : a ≤ b, 
-    show a < b ∨ a = b, 
+    assume H : a ≤ b,
+    show a < b ∨ a = b,
       from or_elim (em (a = b)) (
         take H1 : a = b,
         show a < b ∨ a = b, from or_intror _ H1
       ) (
         take H2 : a ≠ b,
-        have H3 : ¬ b ≤ a, 
-          from not_intro (take H4: b ≤ a, absurd (le_antisym H H4) H2), 
+        have H3 : ¬ b ≤ a,
+          from not_intro (take H4: b ≤ a, absurd (le_antisym H H4) H2),
         have H4 : a < b, from resolve1 (le_or_lt b a) H3,
         show a < b ∨ a = b, from or_introl H4 _
       )
   )(
-    assume H : a < b ∨ a = b, 
-    show a ≤ b, 
+    assume H : a < b ∨ a = b,
+    show a ≤ b,
       from or_elim H (
         take H1 : a < b, lt_le H1
       ) (
@@ -147,12 +147,12 @@ theorem ne_symm_iff {A : (Type U)} (a b : A) : a ≠ b ↔ b ≠ a
 
 theorem lt_iff (a b : Nat) : a < b ↔ a ≤ b ∧ a ≠ b
 :=
-  calc 
+  calc
     a < b = ¬ b ≤ a            : symm (not_le_iff)
        ... = ¬ (b < a ∨ b = a) : { le_iff }
        ... = ¬ b < a ∧ b ≠ a   : not_or _ _
        ... = a ≤ b ∧ b ≠ a     : { not_lt_iff }
-       ... = a ≤ b ∧ a ≠ b     : { ne_symm_iff _ _ } 
+       ... = a ≤ b ∧ a ≠ b     : { ne_symm_iff _ _ }
 
 theorem ne_zero_ge_one {x : Nat} (H : x ≠ 0) : x ≥ 1
 := resolve2 (le_iff ◂ (le_zero x)) (ne_symm H)
@@ -163,14 +163,14 @@ theorem ne_zero_one_ge_two {x : Nat} (H0 : x ≠ 0) (H1 : x ≠ 1) : x ≥ 2
 -- the forward direction can be replaced by ne_zero_ge_one, but
 -- note the comments below
 theorem ne_zero_iff (n : Nat) : n ≠ 0 ↔ n > 0
-:= 
+:=
   iff_intro (
     assume H : n ≠ 0,
-    refute (
+    by_contradiction (
       assume H1 : ¬ n > 0,
       -- curious: if you make the arguments implicit in the next line,
       -- it fails (the evaluator is getting in the way, I think)
-      have H2 : n = 0, from le_antisym (@not_lt_le 0 n H1) (le_zero n), 
+      have H2 : n = 0, from le_antisym (@not_lt_le 0 n H1) (le_zero n),
       absurd H2 H
     )
   ) (
@@ -181,11 +181,11 @@ theorem ne_zero_iff (n : Nat) : n ≠ 0 ↔ n > 0
 -- Note: this differs from Leo's naming conventions
 theorem mul_right_mono {x y : Nat} (H : x ≤ y) (z : Nat) : x * z ≤ y * z
 :=
-  obtain (w : Nat) (Hw : x + w = y), 
+  obtain (w : Nat) (Hw : x + w = y),
     from le_elim H,
   le_intro (
-    show x * z + w * z = y * z, 
-      from calc 
+    show x * z + w * z = y * z,
+      from calc
         x * z + w * z = (x + w) * z : symm (distributel x w z)
                   ... = y * z       : { Hw }
   )
@@ -204,15 +204,15 @@ theorem add_left_mono {a b : Nat} (c : Nat) (H : a ≤ b) : c + a ≤ c + b
 
 theorem mul_right_strict_mono {x y z : Nat} (H : x < y) (znez : z ≠ 0) : x * z < y * z
 :=
-  obtain (w : Nat) (Hw : x + 1 + w = y), 
+  obtain (w : Nat) (Hw : x + 1 + w = y),
     from le_elim H,
-  have H1 : y * z = x * z + w * z + z, 
+  have H1 : y * z = x * z + w * z + z,
     from calc
       y * z = (x + 1 + w) * z      : { symm Hw }
         ... = (x + (1 + w)) * z    : { add_assoc _ _ _ }
         ... = (x + (w + 1)) * z    : { add_comm _ _ }
         ... = (x + w + 1) * z      : { symm (add_assoc _ _ _) }
-        ... = (x + w) * z + 1 * z  : distributel _ _ _ 
+        ... = (x + w) * z + 1 * z  : distributel _ _ _
         ... = (x + w) * z + z      : { mul_onel _ }
         ... = x * z + w * z + z    : { distributel _ _ _ },
   have H2 : x * z ≤ x * z + w * z, from le_addr _ _,
@@ -222,26 +222,26 @@ theorem mul_right_strict_mono {x y z : Nat} (H : x < y) (znez : z ≠ 0) : x * z
 theorem mul_left_strict_mono {x y z : Nat} (H : x < y) (znez : z ≠ 0) : z * x < z * y
 := subst (subst (mul_right_strict_mono H znez) (mul_comm x z)) (mul_comm y z)
 
-theorem mul_left_le_cancel {a b c : Nat} (H : a * b ≤ a * c) (anez : a ≠ 0) : b ≤ c 
+theorem mul_left_le_cancel {a b c : Nat} (H : a * b ≤ a * c) (anez : a ≠ 0) : b ≤ c
 :=
-  refute (
+  by_contradiction (
     assume H1 : ¬ b ≤ c,
     have H2 : a * c < a * b, from mul_left_strict_mono (not_le_lt H1) anez,
     show false, from absurd H (lt_not_le H2)
   )
 
-theorem mul_right_le_cancel {a b c : Nat} (H : b * a ≤ c * a) (anez : a ≠ 0) : b ≤ c 
+theorem mul_right_le_cancel {a b c : Nat} (H : b * a ≤ c * a) (anez : a ≠ 0) : b ≤ c
 := mul_left_le_cancel (subst (subst H (mul_comm b a)) (mul_comm c a)) anez
 
 theorem mul_left_lt_cancel {a b c : Nat} (H : a * b < a * c) : b < c
 :=
-  refute (
+  by_contradiction (
     assume H1 : ¬ b < c,
     have H2 : a * c ≤ a * b, from mul_left_mono a (not_lt_le H1),
     show false, from absurd H (le_not_lt H2)
   )
 
-theorem mul_right_lt_cancel {a b c : Nat} (H : b * a < c * a) : b < c 
+theorem mul_right_lt_cancel {a b c : Nat} (H : b * a < c * a) : b < c
 := mul_left_lt_cancel (subst (subst H (mul_comm b a)) (mul_comm c a))
 
 theorem add_right_comm (a b c : Nat) : a + b + c = a + c + b
@@ -286,7 +286,7 @@ theorem dvd_intro {a b c : Nat} (H : a * c = b) : a | b
 
 theorem dvd_elim {a b : Nat} (H : a | b) : ∃ c, a * c = b
 := H
-  
+
 theorem dvd_self (n : Nat) : n | n := dvd_intro (mul_oner n)
 
 theorem one_dvd (a : Nat) : 1 | a
@@ -301,7 +301,7 @@ theorem dvd_zero (a : Nat) : a | 0
 := exists_intro 0 (mul_zeror _)
 
 theorem dvd_trans {a b c} (H1 : a | b) (H2 : b | c) : a | c
-:= 
+:=
   obtain (w1 : Nat) (Hw1 : a * w1 = b), from H1,
   obtain (w2 : Nat) (Hw2 : b * w2 = c), from H2,
     exists_intro (w1 * w2)
@@ -325,7 +325,7 @@ theorem dvd_mul_right {a b : Nat} (H : a | b) (c : Nat) : a | b * c
 :=
   obtain (d : Nat) (Hd : a * d = b), from dvd_elim H,
   dvd_intro (
-    calc 
+    calc
       a * (d * c) = (a * d) * c : symm (mul_assoc _ _ _)
               ... = b * c       : { Hd }
   )
@@ -338,7 +338,7 @@ theorem dvd_add {a b c : Nat} (H1 : a | b) (H2 : a | c) : a | b + c
   obtain (w1 : Nat) (Hw1 : a * w1 = b), from H1,
   obtain (w2 : Nat) (Hw2 : a * w2 = c), from H2,
     exists_intro (w1 + w2)
-      calc a * (w1 + w2) = a * w1 + a * w2 : distributer _ _ _ 
+      calc a * (w1 + w2) = a * w1 + a * w2 : distributer _ _ _
                      ... = b + a * w2 : { Hw1 }
                      ... = b + c : { Hw2 }
 
@@ -346,13 +346,13 @@ theorem dvd_add_cancel {a b c : Nat} (H1 : a | b + c) (H2 : a | b) : a | c
 :=
   or_elim (em (a = 0)) (
     assume az : a = 0,
-    have H3 : c = 0, from 
+    have H3 : c = 0, from
       calc c = 0 + c : symm (add_zerol _)
          ... = b + c : { symm (zero_dvd (subst H2 az)) }
          ... = 0     : zero_dvd (subst H1 az),
     show a | c, from subst (dvd_zero a) (symm H3)
   ) (
-    assume anz : a ≠ 0,  
+    assume anz : a ≠ 0,
     obtain (w1 : Nat) (Hw1 : a * w1 = b + c), from H1,
     obtain (w2 : Nat) (Hw2 : a * w2 = b), from H2,
     have H3 : a * w1 = a * w2 + c, from subst Hw1 (symm Hw2),
@@ -360,7 +360,7 @@ theorem dvd_add_cancel {a b c : Nat} (H1 : a | b + c) (H2 : a | b) : a | c
     have H5 : w2 ≤ w1, from mul_left_le_cancel H4 anz,
     obtain (w3 : Nat) (Hw3 : w2 + w3 = w1), from le_elim H5,
     have H6 : b + a * w3 = b + c, from
-      calc 
+      calc
         b + a * w3 = a * w2 + a * w3 : { symm Hw2 }
                ... = a * (w2 + w3)   : symm (distributer _ _ _)
                ... = a * w1          : { Hw3 }
@@ -376,7 +376,7 @@ theorem dvd_add_cancel {a b c : Nat} (H1 : a | b + c) (H2 : a | b) : a | c
 definition prime p := p ≥ 2 ∧ forall m, m | p → m = 1 ∨ m = p
 
 theorem not_prime_has_divisor {n : Nat} (H1 : n ≥ 2) (H2 : ¬ prime n) : ∃ m, m | n ∧ m ≠ 1 ∧ m ≠ n
-:= 
+:=
   have H3 : ¬ n ≥ 2 ∨ ¬ (∀ m : Nat, m | n → m = 1 ∨ m = n),
     from not_and _ _ ◂ H2,
   have H4 : ¬ ¬ n ≥ 2,
@@ -392,7 +392,7 @@ theorem not_prime_has_divisor {n : Nat} (H1 : n ≥ 2) (H2 : ¬ prime n) : ∃ m
   show ∃ m, m | n ∧ m ≠ 1 ∧ m ≠ n,
     from exists_intro m H8
 
-theorem not_prime_has_divisor2 {n : Nat} (H1 : n ≥ 2) (H2 : ¬ prime n) : 
+theorem not_prime_has_divisor2 {n : Nat} (H1 : n ≥ 2) (H2 : ¬ prime n) :
   ∃ m, m | n ∧ m ≥ 2 ∧ m < n
 :=
   have n_ne_0 : n ≠ 0, from
@@ -402,7 +402,7 @@ theorem not_prime_has_divisor2 {n : Nat} (H1 : n ≥ 2) (H2 : ¬ prime n) :
   let m_dvd_n := and_eliml Hm in
   let m_ne_1 := and_eliml (and_elimr Hm) in
   let m_ne_n := and_elimr (and_elimr Hm) in
-  have m_ne_0 : m ≠ 0, from 
+  have m_ne_0 : m ≠ 0, from
     not_intro (
       take m0 : m = 0,
       have n0 : n = 0, from zero_dvd (subst m_dvd_n m0),
@@ -431,7 +431,7 @@ theorem has_prime_divisor {n : Nat} : n ≥ 2 → ∃ p, prime p ∧ p | n
         exists_intro n (and_intro H (dvd_self n))
       ) (
         assume H : ¬ prime n,
-        obtain (m : Nat) (Hm : m | n ∧ m ≥ 2 ∧ m < n), 
+        obtain (m : Nat) (Hm : m | n ∧ m ≥ 2 ∧ m < n),
           from not_prime_has_divisor2 n_ge_2 H,
         obtain (p : Nat) (Hp : prime p ∧ p | m),
           from ih m (and_elimr (and_elimr Hm)) (and_eliml (and_elimr Hm)),
@@ -475,15 +475,15 @@ theorem fact_ne_0 (n : Nat) : fact n ≠ 0
       assume H : fact (n + 1) = 0,
       have H1 : n + 1 = 0, from
         mul_right_cancel (
-          calc 
+          calc
             (n + 1) * fact n = fact (n + 1) : symm (fact_succ n)
                          ... = 0            : H
                          ... = 0 * fact n   : symm (mul_zerol _)
         ) ih,
       absurd H1 (succ_nz _)
     )
-  ) 
- 
+  )
+
 theorem dvd_fact {m n : Nat} (m_gt_0 : m > 0) (m_le_n : m ≤ n) : m | fact n
 :=
   obtain (m' : Nat) (Hm' : 1 + m' = m), from le_elim m_gt_0,
@@ -498,28 +498,28 @@ theorem dvd_fact {m n : Nat} (m_gt_0 : m > 0) (m_le_n : m ≤ n) : m | fact n
         from calc
           m' + 1 = 0 + 1 : { le_antisym m'_le_0 (le_zero m') }
              ... = 1     : add_zerol _,
-      show m' + 1 | fact (0 + 1), from subst (one_dvd _) (symm Hm')  
+      show m' + 1 | fact (0 + 1), from subst (one_dvd _) (symm Hm')
     ) (
       take n',
       assume ih : ∀m', m' ≤ n' → m' + 1 | fact (n' + 1),
       take m',
-      assume Hm' : m' ≤ n' + 1, 
+      assume Hm' : m' ≤ n' + 1,
       have H1 : m' < n' + 1 ∨ m' = n' + 1, from le_iff ◂ Hm',
       or_elim H1 (
         assume H2 : m' < n' + 1,
         have H3 : m' ≤ n', from lt_succ H2,
         have H4 : m' + 1 | fact (n' + 1), from ih _ H3,
-        have H5 : m' + 1 | (n' + 1 + 1) * fact (n' + 1), from dvd_mul_left H4 _, 
+        have H5 : m' + 1 | (n' + 1 + 1) * fact (n' + 1), from dvd_mul_left H4 _,
         show m' + 1 | fact (n' + 1 + 1), from subst H5 (symm (fact_succ _))
       ) (
         assume H2 : m' = n' + 1,
         have H3 : m' + 1 | n' + 1 + 1, from subst (dvd_self _) H2,
-        have H4 : m' + 1 | (n' + 1 + 1) * fact (n' + 1), from dvd_mul_right H3 _, 
-        show m' + 1 | fact (n' + 1 + 1), from subst H4 (symm (fact_succ _))         
+        have H4 : m' + 1 | (n' + 1 + 1) * fact (n' + 1), from dvd_mul_right H3 _,
+        show m' + 1 | fact (n' + 1 + 1), from subst H4 (symm (fact_succ _))
       )
     ),
   have H1 : m' + 1 | fact (n' + 1), from H _ _ m'_le_n',
-  show m | fact n, 
+  show m | fact n,
     from (subst (subst (subst (subst H1 (add_comm m' 1)) Hm') (add_comm n' 1)) Hn')
 
 theorem primes_infinite (n : Nat) : ∃ p, p ≥ n ∧ prime p
@@ -534,9 +534,9 @@ theorem primes_infinite (n : Nat) : ∃ p, p ≥ n ∧ prime p
   have p_ge_2 : p ≥ 2, from and_eliml prime_p,
   have two_gt_0 : 2 > 0, from (ne_zero_iff 2) ◂ (succ_nz 1),
   -- fails if arguments are left implicit
-  have p_gt_0 : p > 0, from @lt_le_trans 0 2 p two_gt_0 p_ge_2, 
+  have p_gt_0 : p > 0, from @lt_le_trans 0 2 p two_gt_0 p_ge_2,
   have p_ge_n : p ≥ n, from
-    refute (
+    by_contradiction (
       assume H1 : ¬ p ≥ n,
       have H2 : p < n, from not_le_lt H1,
       have H3 : p ≤ n + 1, from lt_le (lt_le_trans H2 (le_addr n 1)),
@@ -547,4 +547,3 @@ theorem primes_infinite (n : Nat) : ∃ p, p ≥ n ∧ prime p
       absurd H7 (lt_nrefl 1)
     ),
   exists_intro p (and_intro p_ge_n prime_p)
-  

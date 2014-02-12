@@ -75,7 +75,7 @@ MK_CONSTANT(and_intro_fn, name("and_intro"));
 MK_CONSTANT(and_eliml_fn, name("and_eliml"));
 MK_CONSTANT(and_elimr_fn, name("and_elimr"));
 MK_CONSTANT(or_elim_fn, name("or_elim"));
-MK_CONSTANT(refute_fn, name("refute"));
+MK_CONSTANT(by_contradiction_fn, name("by_contradiction"));
 MK_CONSTANT(boolext_fn, name("boolext"));
 MK_CONSTANT(iff_intro_fn, name("iff_intro"));
 MK_CONSTANT(eqt_intro_fn, name("eqt_intro"));

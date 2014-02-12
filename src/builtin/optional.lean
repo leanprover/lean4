@@ -70,9 +70,8 @@ theorem singleton_pred {A : (Type U)} {p : A → Bool} {w : A} (H : p w ∧ ∀ 
 := funext (take x, iff_intro
      (assume Hpx : p x,
       show x = w,
-         from refute (assume N : x ≠ w,
-                      show false,
-                         from absurd Hpx (and_elimr H x N)))
+         from by_contradiction (assume N : x ≠ w,
+                show false, from absurd Hpx (and_elimr H x N)))
      (assume Heq : x = w,
       show p x,
          from subst (and_eliml H) (symm Heq)))

@@ -212,9 +212,9 @@ inline expr mk_and_elimr_th(expr const & e1, expr const & e2, expr const & e3) {
 expr mk_or_elim_fn();
 bool is_or_elim_fn(expr const & e);
 inline expr mk_or_elim_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5, expr const & e6) { return mk_app({mk_or_elim_fn(), e1, e2, e3, e4, e5, e6}); }
-expr mk_refute_fn();
-bool is_refute_fn(expr const & e);
-inline expr mk_refute_th(expr const & e1, expr const & e2) { return mk_app({mk_refute_fn(), e1, e2}); }
+expr mk_by_contradiction_fn();
+bool is_by_contradiction_fn(expr const & e);
+inline expr mk_by_contradiction_th(expr const & e1, expr const & e2) { return mk_app({mk_by_contradiction_fn(), e1, e2}); }
 expr mk_boolext_fn();
 bool is_boolext_fn(expr const & e);
 inline expr mk_boolext_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_boolext_fn(), e1, e2, e3, e4}); }

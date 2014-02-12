@@ -269,7 +269,7 @@ theorem or_elim {a b c : Bool} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
         absurd (H3 (resolve1 H1 (mt (assume Ha : a, H2 Ha) H)))
                H)
 
-theorem refute {a : Bool} (H : ¬ a → false) : a
+theorem by_contradiction {a : Bool} (H : ¬ a → false) : a
 := or_elim (em a) (λ H1 : a, H1) (λ H1 : ¬ a, false_elim a (H H1))
 
 theorem boolext {a b : Bool} (Hab : a → b) (Hba : b → a) : a = b
@@ -434,7 +434,7 @@ theorem not_congr {a b : Bool} (H : a ↔ b) : ¬ a ↔ ¬ b
 
 -- Recall that exists is defined as ¬ ∀ x : A, ¬ P x
 theorem exists_elim {A : (Type U)} {P : A → Bool} {B : Bool} (H1 : Exists A P) (H2 : ∀ (a : A) (H : P a), B) : B
-:= refute (λ R : ¬ B,
+:= by_contradiction (assume R : ¬ B,
              absurd (take a : A, mt (assume H : P a, H2 a H) R)
                     H1)
 
@@ -485,7 +485,7 @@ theorem inhabited_ex_intro {A : (Type U)} {P : A → Bool} (H : ∃ x, P x) : in
 
 -- If a function space is non-empty, then for every 'a' in the domain, the range (B a) is not empty
 theorem inhabited_range {A : (Type U)} {B : A → (Type U)} (H : inhabited (∀ x, B x)) (a : A) : inhabited (B a)
-:= refute (λ N : ¬ inhabited (B a),
+:= by_contradiction (assume N : ¬ inhabited (B a),
      let s1 : ¬ ∃ x : B a, true       := N,
          s2 : ∀ x : B a, false        := take x : B a, absurd_not_true (not_exists_elim s1 x),
          s3 : ∃ y : (∀ x, B x), true := H
@@ -738,7 +738,7 @@ theorem eq_exists_intro {A : (Type U)} {P Q : A → Bool} (H : ∀ x : A, P x �
 
 theorem not_forall (A : (Type U)) (P : A → Bool) : ¬ (∀ x : A, P x) ↔ (∃ x : A, ¬ P x)
 := boolext
-    (assume H, refute (λ N : ¬ (∃ x, ¬ P x),
+    (assume H, by_contradiction (assume N : ¬ (∃ x, ¬ P x),
         absurd (take x, not_not_elim (not_exists_elim N x)) H))
     (assume (H : ∃ x, ¬ P x) (N : ∀ x, P x),
         obtain w Hw, from H,
@@ -759,7 +759,7 @@ theorem exists_imp_distribute {A : (Type U)} (φ ψ : A → Bool) : (∃ x, φ x
                      ...   = (∀ x, φ x) → (∃ x, ψ x)     : symm (imp_or _ _)
 
 theorem forall_uninhabited {A : (Type U)} {B : A → Bool} (H : ¬ inhabited A) : ∀ x, B x
-:= refute (λ N : ¬ (∀ x, B x),
+:= by_contradiction (assume N : ¬ (∀ x, B x),
       obtain w Hw, from not_forall_elim N,
          absurd (inhabited_intro w) H)
 

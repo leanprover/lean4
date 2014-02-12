@@ -175,7 +175,12 @@ theorem not_lt_zero (n : num) : ¬ (n < zero)
 
 add_rewrite not_lt_zero
 
-theorem zero_lt_succ_zero : zero < succ zero
+definition one := succ zero
+
+theorem one_eq_succ_zero : one = succ zero
+:= refl one
+
+theorem zero_lt_one : zero < one
 := let P : num → Bool := λ x, x = zero
    in have Ppred : ∀ i, P (succ i) → P i,
         from take i, assume Ps : P (succ i),
@@ -232,7 +237,7 @@ theorem lt_to_lt_succ {m n : num} : m < n → m < succ n
 
 theorem n_lt_succ_n (n : num) : n < succ n
 := induction_on n
-     zero_lt_succ_zero
+     (show zero < succ zero, from zero_lt_one)
      (λ (n : num) (iH : n < succ n),
         succ_mono_lt iH)
 
@@ -252,7 +257,7 @@ theorem eq_to_not_lt {m n : num} : m = n → ¬ (m < n)
 
 theorem zero_lt_succ_n {n : num} : zero < succ n
 := induction_on n
-     zero_lt_succ_zero
+     (show zero < succ zero, from zero_lt_one)
      (λ (n : num) (iH : zero < succ n),
         lt_to_lt_succ iH)
 
@@ -681,6 +686,26 @@ theorem strong_induction {P : num → Bool} (H : ∀ n, (∀ m, m < n → P m) �
    show P a,
      from and_eliml stronger
 
+definition fact (a : num) : num
+:= prim_rec one (λ x n, n * x) a
+
+theorem fact_zero : fact zero = one
+:= prim_rec_zero one (λ x n : num, n * x)
+
+theorem fact_succ (n : num) : fact (succ n) = n * fact n
+:= prim_rec_succ one (λ x n : num, n * x) n
+
+definition exp (a b : num) : num
+:= prim_rec one (λ x n, a * x) b
+
+theorem exp_zero (a : num) : exp a zero = one
+:= prim_rec_zero one (λ x n, a * x)
+
+theorem exp_succ (a b : num) : exp a (succ b) = a * (exp a b)
+:= prim_rec_succ one (λ x n, a * x) b
+
+set_opaque fact true
+set_opaque exp  true
 end
 
 definition num := num::num

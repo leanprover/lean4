@@ -444,6 +444,7 @@ public:
 
     expr infer_check(expr const & e, context const & ctx, optional<metavar_env> const & menv, buffer<unification_constraint> * uc,
                      bool infer_only) {
+        clear_cache(); // temp hack
         set_infer_only set(*this, infer_only);
         set_ctx(ctx);
         update_menv(menv);

@@ -75,7 +75,7 @@ metavar_env_cell::metavar_env_cell(metavar_env_cell const & other):
     m_name_generator(other.m_name_generator),
     m_metavar_data(other.m_metavar_data),
     m_beta_reduce_mv(other.m_beta_reduce_mv),
-    m_timestamp(0),
+    m_timestamp(1),
     m_rc(0) {
 }
 

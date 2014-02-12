@@ -687,13 +687,13 @@ theorem strong_induction {P : num → Bool} (H : ∀ n, (∀ m, m < n → P m) �
      from and_eliml stronger
 
 definition fact (a : num) : num
-:= prim_rec one (λ x n, n * x) a
+:= prim_rec one (λ x n, succ n * x) a
 
 theorem fact_zero : fact zero = one
-:= prim_rec_zero one (λ x n : num, n * x)
+:= prim_rec_zero one (λ x n : num, succ n * x)
 
-theorem fact_succ (n : num) : fact (succ n) = n * fact n
-:= prim_rec_succ one (λ x n : num, n * x) n
+theorem fact_succ (n : num) : fact (succ n) = succ n * fact n
+:= prim_rec_succ one (λ x n : num, succ n * x) n
 
 definition exp (a b : num) : num
 := prim_rec one (λ x n, a * x) b

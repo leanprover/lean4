@@ -1,4 +1,4 @@
-add_library(kernel level.cpp
+add_library(kernel level.cpp diff_cnstrs.cpp
 # expr.cpp
 # free_vars.cpp abstract.cpp instantiate.cpp
 # normalizer.cpp context.cpp level.cpp object.cpp environment.cpp

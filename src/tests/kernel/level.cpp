@@ -7,8 +7,7 @@ Author: Leonardo de Moura
 #include <locale>
 #include "util/test.h"
 #include "util/exception.h"
-#include "kernel/environment.h"
-#include "library/printer.h"
+#include "kernel/level.h"
 using namespace lean;
 
 static void check_serializer(level const & l) {
@@ -19,10 +18,33 @@ static void check_serializer(level const & l) {
     deserializer d(in);
     level l1, l2;
     d >> l1 >> l2;
-    lean_assert(l == l1);
-    lean_assert(l == l2);
+    lean_assert_eq(l, l1);
+    lean_assert_eq(l, l2);
 }
 
+static void tst1() {
+    level zero;
+    level one = mk_succ(zero);
+    level two = mk_succ(one);
+    lean_assert(mk_max(one, two) == two);
+    lean_assert(mk_imax(one, two) == two);
+    lean_assert(mk_imax(two, zero) == zero);
+    check_serializer(two);
+    check_serializer(one);
+    level p = mk_param_univ(0);
+    lean_assert(mk_imax(p, zero) == zero);
+    lean_assert(mk_max(zero, p) == p);
+    lean_assert(mk_max(p, zero) == p);
+    lean_assert(mk_max(p, one) != p);
+    check_serializer(mk_max(p, one));
+    check_serializer(mk_imax(p, one));
+    check_serializer(mk_imax(one, p));
+    check_serializer(mk_imax(mk_succ(p), p));
+    std::cout << pp(mk_max(p, mk_max(mk_succ(mk_param_univ(1)), one))) << "\n";
+}
+
+
+#if 0
 static void tst0() {
     environment env;
     lean_assert(env->begin_objects() == env->end_objects());
@@ -123,14 +145,18 @@ static void tst5() {
     std::cout << max(l1, max(l2, l1+1)) << "\n";
     lean_assert(max(l1, max(l2, l1+1)) == max(l1+1, l2));
 }
+#endif
 
 int main() {
     save_stack_info();
+    tst1();
+#if 0
     tst0();
     tst1();
     tst2();
     tst3();
     tst4();
     tst5();
+#endif
     return has_violations() ? 1 : 0;
 }

@@ -13,12 +13,13 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "util/object_serializer.h"
 #include "kernel/expr.h"
-#include "kernel/free_vars.h"
-#include "kernel/expr_eq.h"
-#include "kernel/metavar.h"
-#include "kernel/max_sharing.h"
+// #include "kernel/free_vars.h"
+// #include "kernel/expr_eq.h"
+// #include "kernel/metavar.h"
+// #include "kernel/max_sharing.h"
 
 namespace lean {
+#if 0
 static expr g_dummy(mk_var(0));
 expr::expr():expr(g_dummy) {}
 
@@ -576,4 +577,5 @@ serializer & operator<<(serializer & s, expr const & n) {
 expr read_expr(deserializer & d) {
     return d.get_extension<expr_deserializer>(g_expr_sd.m_d_extid).read();
 }
+#endif
 }

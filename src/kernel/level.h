@@ -129,5 +129,44 @@ inline deserializer & operator>>(deserializer & d, level & l) { l = read_level(d
 format pp(level l, bool unicode, unsigned indent);
 /** \brief Pretty print the given level expression using the given configuration options. */
 format pp(level const & l, options const & opts = options());
+
+/**
+   \brief Auxiliary class used to manage universe constraints.
+*/
+class universe_context {
+    struct imp;
+    std::unique_ptr<imp> m_ptr;
+public:
+    universe_context();
+    universe_context(universe_context const & s);
+    ~universe_context();
+
+    /**
+       \brief Add the universe level constraint l1 <= l2.
+    */
+    void add_le(level const & l1, level const & l2);
+
+    /**
+       \brief Quick check wether l1 <= l2. No backtracking search is performed.
+       If the result is true, then l1 <= l2 is implied. The result is false,
+       if we could not establish that.
+    */
+    bool is_implied_cheap(level const & l1, level const & l2) const;
+
+    /**
+       \brief Expensive l1 <= l2 test. It performs a backtracking search.
+    */
+    bool is_implied(level const & l1, level const & l2);
+
+    /**
+       \brief Create a backtracking point.
+    */
+    void push();
+
+    /**
+       \brief Backtrack.
+    */
+    void pop(unsigned num_scopes);
+};
 }
 void print(lean::level const & l);

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <unordered_map>
 #include <vector>
+#include <functional>
 #include "util/hash.h"
 #include "util/safe_arith.h"
 #include "kernel/diff_cnstrs.h"

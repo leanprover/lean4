@@ -72,9 +72,6 @@ expr mk_exists_unique_fn();
 bool is_exists_unique_fn(expr const & e);
 inline bool is_exists_unique(expr const & e) { return is_app(e) && is_exists_unique_fn(arg(e, 0)) && num_args(e) == 3; }
 inline expr mk_exists_unique(expr const & e1, expr const & e2) { return mk_app({mk_exists_unique_fn(), e1, e2}); }
-expr mk_case_fn();
-bool is_case_fn(expr const & e);
-inline expr mk_case_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_case_fn(), e1, e2, e3, e4}); }
 expr mk_false_elim_fn();
 bool is_false_elim_fn(expr const & e);
 inline expr mk_false_elim_th(expr const & e1, expr const & e2) { return mk_app({mk_false_elim_fn(), e1, e2}); }
@@ -93,12 +90,6 @@ inline expr mk_or_introl_th(expr const & e1, expr const & e2, expr const & e3) {
 expr mk_or_intror_fn();
 bool is_or_intror_fn(expr const & e);
 inline expr mk_or_intror_th(expr const & e1, expr const & e2, expr const & e3) { return mk_app({mk_or_intror_fn(), e1, e2, e3}); }
-expr mk_boolcomplete_fn();
-bool is_boolcomplete_fn(expr const & e);
-inline expr mk_boolcomplete_th(expr const & e1) { return mk_app({mk_boolcomplete_fn(), e1}); }
-expr mk_boolcomplete_swapped_fn();
-bool is_boolcomplete_swapped_fn(expr const & e);
-inline expr mk_boolcomplete_swapped_th(expr const & e1) { return mk_app({mk_boolcomplete_swapped_fn(), e1}); }
 expr mk_resolve1_fn();
 bool is_resolve1_fn(expr const & e);
 inline expr mk_resolve1_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_resolve1_fn(), e1, e2, e3, e4}); }
@@ -178,6 +169,15 @@ inline expr mk_eqf_elim_th(expr const & e1, expr const & e2) { return mk_app({mk
 expr mk_heqt_elim_fn();
 bool is_heqt_elim_fn(expr const & e);
 inline expr mk_heqt_elim_th(expr const & e1, expr const & e2) { return mk_app({mk_heqt_elim_fn(), e1, e2}); }
+expr mk_case_fn();
+bool is_case_fn(expr const & e);
+inline expr mk_case_th(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({mk_case_fn(), e1, e2, e3, e4}); }
+expr mk_boolcomplete_fn();
+bool is_boolcomplete_fn(expr const & e);
+inline expr mk_boolcomplete_th(expr const & e1) { return mk_app({mk_boolcomplete_fn(), e1}); }
+expr mk_boolcomplete_swapped_fn();
+bool is_boolcomplete_swapped_fn(expr const & e);
+inline expr mk_boolcomplete_swapped_th(expr const & e1) { return mk_app({mk_boolcomplete_swapped_fn(), e1}); }
 expr mk_not_true();
 bool is_not_true(expr const & e);
 expr mk_not_false();

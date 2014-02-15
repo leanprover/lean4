@@ -37,7 +37,6 @@ set_opaque true true
 definition false : Bool
 := ∀ x : Bool, x
 
-set_opaque false true
 alias ⊤ : true
 alias ⊥ : false
 
@@ -89,10 +88,10 @@ definition Exists (A : (Type U)) (P : A → Bool)
 definition exists_unique {A : (Type U)} (p : A → Bool)
 := ∃ x, p x ∧ ∀ y, y ≠ x → ¬ p y
 
-axiom case (P : Bool → Bool) (H1 : P true) (H2 : P false) (a : Bool) : P a
-
 theorem false_elim (a : Bool) (H : false) : a
-:= case (λ x, x) trivial H a
+:= H a
+
+set_opaque false true
 
 theorem mt {a b : Bool} (H1 : a → b) (H2 : ¬ b) : ¬ a
 := assume Ha : a, absurd (H1 Ha) H2
@@ -109,18 +108,6 @@ theorem or_introl {a : Bool} (H : a) (b : Bool) : a ∨ b
 
 theorem or_intror {b : Bool} (a : Bool) (H : b) : a ∨ b
 := assume H1 : ¬ a, H
-
-theorem boolcomplete (a : Bool) : a = true ∨ a = false
-:= case (λ x, x = true ∨ x = false)
-        (or_introl (refl true) (true = false))
-        (or_intror (false = true) (refl false))
-        a
-
-theorem boolcomplete_swapped (a : Bool) : a = false ∨ a = true
-:= case (λ x, x = false ∨ x = true)
-        (or_intror (true = false) (refl true))
-        (or_introl (refl false) (false = true))
-        a
 
 theorem resolve1 {a b : Bool} (H1 : a ∨ b) (H2 : ¬ a) : b
 := H1 H2
@@ -207,6 +194,20 @@ theorem eqf_elim {a : Bool} (H : a = false) : ¬ a
 
 theorem heqt_elim {a : Bool} (H : a == true) : a
 := eqt_elim (to_eq H)
+
+axiom case (P : Bool → Bool) (H1 : P true) (H2 : P false) (a : Bool) : P a
+
+theorem boolcomplete (a : Bool) : a = true ∨ a = false
+:= case (λ x, x = true ∨ x = false)
+        (or_introl (refl true) (true = false))
+        (or_intror (false = true) (refl false))
+        a
+
+theorem boolcomplete_swapped (a : Bool) : a = false ∨ a = true
+:= case (λ x, x = false ∨ x = true)
+        (or_intror (true = false) (refl true))
+        (or_introl (refl false) (false = true))
+        a
 
 theorem not_true : (¬ true) = false
 := let aux : ¬ (¬ true) = true

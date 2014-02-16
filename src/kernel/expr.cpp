@@ -9,35 +9,33 @@ Author: Leonardo de Moura
 #include <sstream>
 #include <string>
 #include <algorithm>
+#include "util/list_fn.h"
 #include "util/hash.h"
 #include "util/buffer.h"
 #include "util/object_serializer.h"
 #include "kernel/expr.h"
+#include "kernel/expr_eq_fn.h"
 // #include "kernel/free_vars.h"
-// #include "kernel/expr_eq.h"
 // #include "kernel/metavar.h"
 // #include "kernel/max_sharing.h"
 
 namespace lean {
-#if 0
 static expr g_dummy(mk_var(0));
 expr::expr():expr(g_dummy) {}
 
-// Local context entries
-local_entry::local_entry(unsigned s, unsigned n):m_kind(local_entry_kind::Lift), m_s(s), m_n(n) {}
-local_entry::local_entry(unsigned s, expr const & v):m_kind(local_entry_kind::Inst), m_s(s), m_v(v) {}
-local_entry::~local_entry() {}
-bool local_entry::operator==(local_entry const & e) const {
-    if (m_kind != e.m_kind || m_s != e.m_s)
-        return false;
-    if (is_inst())
-        return m_v == e.m_v;
-    else
-        return m_n == e.m_n;
+unsigned hash_levels(levels const & ls) {
+    unsigned r = 23;
+    for (auto const & l : ls)
+        r = hash(hash(l), r);
+    return r;
 }
 
-unsigned hash_args(unsigned size, expr const * args) {
-    return hash(size, [&args](unsigned i){ return args[i].hash(); });
+bool has_meta(levels const & ls) {
+    for (auto const & l : ls) {
+        if (has_meta(l))
+            return true;
+    }
+    return false;
 }
 
 expr_cell::expr_cell(expr_kind k, unsigned h, bool has_mv):
@@ -46,7 +44,7 @@ expr_cell::expr_cell(expr_kind k, unsigned h, bool has_mv):
     m_hash(h),
     m_rc(0) {
     // m_hash_alloc does not need to be a unique identifier.
-    // We want diverse hash codes such that given expr_cell * c1 and expr_cell * c2,
+    // We want diverse hash codes because given expr_cell * c1 and expr_cell * c2,
     // if c1 != c2, then there is high probability c1->m_hash_alloc != c2->m_hash_alloc.
     // Remark: using pointer address as a hash code is not a good idea.
     //    - each execution run will behave differently.
@@ -95,30 +93,31 @@ expr_var::expr_var(unsigned idx):
     m_vidx(idx) {}
 
 // Expr constants
-expr_const::expr_const(name const & n, optional<expr> const & t):
-    expr_cell(expr_kind::Constant, n.hash(), t && t->has_metavar()),
+expr_const::expr_const(name const & n, levels const & ls):
+    expr_cell(expr_kind::Constant, ::lean::hash(n.hash(), hash_levels(ls)), has_meta(ls)),
+    m_name(n),
+    m_levels(ls) {}
+
+// Expr metavariables and local variables
+expr_mlocal::expr_mlocal(bool is_meta, name const & n, expr const & t):
+    expr_cell(is_meta ? expr_kind::Meta : expr_kind::Local, n.hash(), t.has_metavar()),
     m_name(n),
     m_type(t) {}
-void expr_const::dealloc(buffer<expr_cell*> & todelete) {
+void expr_mlocal::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_type, todelete);
     delete(this);
 }
 
-// Expr heterogeneous equality
-expr_heq::expr_heq(expr const & lhs, expr const & rhs):
-    expr_cell(expr_kind::HEq, ::lean::hash(lhs.hash(), rhs.hash()), lhs.has_metavar() || rhs.has_metavar()),
-    m_lhs(lhs), m_rhs(rhs), m_depth(std::max(get_depth(lhs), get_depth(rhs))+1) {
-}
-void expr_heq::dealloc(buffer<expr_cell*> & todelete) {
-    dec_ref(m_lhs, todelete);
-    dec_ref(m_rhs, todelete);
-    delete(this);
-}
+// Composite expressions
+expr_composite::expr_composite(expr_kind k, unsigned h, bool has_mv, unsigned d):
+    expr_cell(k, h, has_mv),
+    m_depth(d) {}
 
 // Expr dependent pairs
 expr_dep_pair::expr_dep_pair(expr const & f, expr const & s, expr const & t):
-    expr_cell(expr_kind::Pair, ::lean::hash(f.hash(), s.hash()), f.has_metavar() || s.has_metavar() || t.has_metavar()),
-    m_first(f), m_second(s), m_type(t), m_depth(std::max(get_depth(f), get_depth(s))+1) {
+    expr_composite(expr_kind::Pair, ::lean::hash(f.hash(), s.hash()), f.has_metavar() || s.has_metavar() || t.has_metavar(),
+                   std::max(get_depth(f), get_depth(s))+1),
+    m_first(f), m_second(s), m_type(t) {
 }
 void expr_dep_pair::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_first,  todelete);
@@ -129,100 +128,54 @@ void expr_dep_pair::dealloc(buffer<expr_cell*> & todelete) {
 
 // Expr pair projection
 expr_proj::expr_proj(bool f, expr const & e):
-    expr_cell(expr_kind::Proj, ::lean::hash(17, e.hash()), e.has_metavar()),
-    m_first(f), m_depth(get_depth(e)+1), m_expr(e) {}
+    expr_composite(f ? expr_kind::Fst : expr_kind::Snd, ::lean::hash(17, e.hash()), e.has_metavar(), get_depth(e)+1),
+    m_expr(e) {}
 void expr_proj::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_expr, todelete);
     delete(this);
 }
 
 // Expr applications
-expr_app::expr_app(unsigned num_args, bool has_mv):
-    expr_cell(expr_kind::App, 0, has_mv),
-    m_num_args(num_args) {
-}
+expr_app::expr_app(expr const & fn, expr const & arg):
+    expr_composite(expr_kind::App, ::lean::hash(fn.hash(), arg.hash()), fn.has_metavar() || arg.has_metavar(),
+                   std::max(get_depth(fn), get_depth(arg)) + 1),
+    m_fn(fn), m_arg(arg) {}
 void expr_app::dealloc(buffer<expr_cell*> & todelete) {
-    unsigned i = m_num_args;
-    while (i > 0) {
-        --i;
-        dec_ref(m_args[i], todelete);
-    }
-    delete[] reinterpret_cast<char*>(this);
-}
-expr mk_app(unsigned n, expr const * as) {
-    lean_assert(n > 1);
-    unsigned new_n;
-    unsigned n0 = 0;
-    expr const & arg0 = as[0];
-    bool has_mv = std::any_of(as, as + n, [](expr const & c) { return c.has_metavar(); });
-    // Remark: we represent ((app a b) c) as (app a b c)
-    if (is_app(arg0)) {
-        n0    = num_args(arg0);
-        new_n = n + n0 - 1;
-    } else {
-        new_n = n;
-    }
-    char * mem   = new char[sizeof(expr_app) + new_n*sizeof(expr)];
-    expr r(new (mem) expr_app(new_n, has_mv));
-    expr * m_args = to_app(r)->m_args;
-    unsigned i = 0;
-    unsigned j = 0;
-    unsigned depth = 0;
-    if (new_n != n) {
-        for (; i < n0; ++i) {
-            new (m_args+i) expr(arg(arg0, i));
-            depth = std::max(depth, get_depth(m_args[i]));
-        }
-        j++;
-    }
-    for (; i < new_n; ++i, ++j) {
-        lean_assert(j < n);
-        new (m_args+i) expr(as[j]);
-        depth = std::max(depth, get_depth(m_args[i]));
-    }
-    to_app(r)->m_hash  = hash_args(new_n, m_args);
-    to_app(r)->m_depth = depth + 1;
-    return r;
+    dec_ref(m_fn, todelete);
+    dec_ref(m_arg, todelete);
+    delete(this);
 }
 
-// Expr abstractions (and subclasses: Lambda, Pi and Sigma)
-expr_abstraction::expr_abstraction(expr_kind k, name const & n, expr const & t, expr const & b):
-    expr_cell(k, ::lean::hash(t.hash(), b.hash()), t.has_metavar() || b.has_metavar()),
+// Expr binders (Lambda, Pi and Sigma)
+expr_binder::expr_binder(expr_kind k, name const & n, expr const & t, expr const & b):
+    expr_composite(k, ::lean::hash(t.hash(), b.hash()), t.has_metavar() || b.has_metavar(),
+                   std::max(get_depth(m_domain), get_depth(m_body)) + 1),
     m_name(n),
     m_domain(t),
     m_body(b) {
-    m_depth = 1 + std::max(get_depth(m_domain), get_depth(m_body));
+    lean_assert(k == expr_kind::Lambda || k == expr_kind::Pi || k == expr_kind::Sigma);
 }
-void expr_abstraction::dealloc(buffer<expr_cell*> & todelete) {
+void expr_binder::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_body, todelete);
     dec_ref(m_domain, todelete);
     delete(this);
 }
 
-expr_lambda::expr_lambda(name const & n, expr const & t, expr const & e):expr_abstraction(expr_kind::Lambda, n, t, e) {}
-
-expr_pi::expr_pi(name const & n, expr const & t, expr const & e):expr_abstraction(expr_kind::Pi, n, t, e) {}
-
-expr_sigma::expr_sigma(name const & n, expr const & t, expr const & e):expr_abstraction(expr_kind::Sigma, n, t, e) {}
-
-// Expr Type
-expr_type::expr_type(level const & l):
-    expr_cell(expr_kind::Type, l.hash(), false),
+// Expr Sort
+expr_sort::expr_sort(level const & l):
+    expr_cell(expr_kind::Sort, ::lean::hash(l), has_meta(l)),
     m_level(l) {
 }
-expr_type::~expr_type() {}
+expr_sort::~expr_sort() {}
 
 // Expr Let
 expr_let::expr_let(name const & n, optional<expr> const & t, expr const & v, expr const & b):
-    expr_cell(expr_kind::Let, ::lean::hash(v.hash(), b.hash()), v.has_metavar() || b.has_metavar() || (t && t->has_metavar())),
+    expr_composite(expr_kind::Let, ::lean::hash(v.hash(), b.hash()), v.has_metavar() || b.has_metavar() || ::lean::has_metavar(t),
+                   std::max({get_depth(t), get_depth(v), get_depth(b)}) + 1),
     m_name(n),
     m_type(t),
     m_value(v),
     m_body(b) {
-    unsigned depth = std::max(get_depth(m_value), get_depth(m_body));
-    if (m_type)
-        depth = std::max(depth, get_depth(*m_type));
-    m_depth = 1 + depth;
 }
 void expr_let::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_body, todelete);
@@ -232,55 +185,49 @@ void expr_let::dealloc(buffer<expr_cell*> & todelete) {
 }
 expr_let::~expr_let() {}
 
-// Expr Semantic attachment
-name value::get_unicode_name() const { return get_name(); }
-optional<expr> value::normalize(unsigned, expr const *) const { return none_expr(); }
-void value::display(std::ostream & out) const { out << get_name(); }
-bool value::operator==(value const & other) const { return typeid(*this) == typeid(other); }
-bool value::operator<(value const & other) const {
+// Macro attachment
+int macro::push_lua(lua_State *) const { return 0; } // NOLINT
+void macro::display(std::ostream & out) const { out << get_name(); }
+bool macro::operator==(macro const & other) const { return typeid(*this) == typeid(other); }
+bool macro::operator<(macro const & other) const {
     if (get_name() == other.get_name())
         return lt(other);
     else
         return get_name() < other.get_name();
 }
-format value::pp() const { return format(get_name()); }
-format value::pp(bool unicode, bool) const { return unicode ? format(get_unicode_name()) : pp(); }
-unsigned value::hash() const { return get_name().hash(); }
-int value::push_lua(lua_State *) const { return 0; } // NOLINT
-expr_value::expr_value(value & v):
-    expr_cell(expr_kind::Value, v.hash(), false),
-    m_val(v) {
-    m_val.inc_ref();
-}
-expr_value::~expr_value() {
-    m_val.dec_ref();
-}
-typedef std::unordered_map<std::string, value::reader> value_readers;
-static std::unique_ptr<value_readers> g_value_readers;
-value_readers & get_value_readers() {
-    if (!g_value_readers)
-        g_value_readers.reset(new value_readers());
-    return *(g_value_readers.get());
+format macro::pp(formatter const &, options const &) const { return format(get_name()); }
+bool macro::is_atomic_pp(bool, bool) const { return true; }
+unsigned macro::hash() const { return get_name().hash(); }
+
+typedef std::unordered_map<std::string, macro::reader> macro_readers;
+static std::unique_ptr<macro_readers> g_macro_readers;
+macro_readers & get_macro_readers() {
+    if (!g_macro_readers)
+        g_macro_readers.reset(new macro_readers());
+    return *(g_macro_readers.get());
 }
 
-void value::register_deserializer(std::string const & k, value::reader rd) {
-    value_readers & readers = get_value_readers();
+void macro::register_deserializer(std::string const & k, macro::reader rd) {
+    macro_readers & readers = get_macro_readers();
     lean_assert(readers.find(k) == readers.end());
     readers[k] = rd;
 }
-static expr read_value(deserializer & d) {
+static expr read_macro(deserializer & d) {
     auto k  = d.read_string();
-    value_readers & readers = get_value_readers();
+    macro_readers & readers = get_macro_readers();
     auto it = readers.find(k);
     lean_assert(it != readers.end());
     return it->second(d);
 }
 
-// Expr Metavariable
-expr_metavar::expr_metavar(name const & n, local_context const & lctx):
-    expr_cell(expr_kind::MetaVar, n.hash(), true),
-    m_name(n), m_lctx(lctx) {}
-expr_metavar::~expr_metavar() {}
+expr_macro::expr_macro(macro * m):
+    expr_cell(expr_kind::Macro, m->hash(), false),
+    m_macro(m) {
+    m_macro->inc_ref();
+}
+expr_macro::~expr_macro() {
+    m_macro->dec_ref();
+}
 
 void expr_cell::dealloc() {
     try {
@@ -292,17 +239,18 @@ void expr_cell::dealloc() {
             lean_assert(it->get_rc() == 0);
             switch (it->kind()) {
             case expr_kind::Var:        delete static_cast<expr_var*>(it); break;
-            case expr_kind::Value:      delete static_cast<expr_value*>(it); break;
-            case expr_kind::MetaVar:    delete static_cast<expr_metavar*>(it); break;
-            case expr_kind::Type:       delete static_cast<expr_type*>(it); break;
-            case expr_kind::Constant:   static_cast<expr_const*>(it)->dealloc(todo); break;
+            case expr_kind::Macro:      delete static_cast<expr_macro*>(it); break;
+            case expr_kind::Meta:
+            case expr_kind::Local:      static_cast<expr_mlocal*>(it)->dealloc(todo); break;
+            case expr_kind::Constant:   delete static_cast<expr_const*>(it); break;
+            case expr_kind::Sort:       delete static_cast<expr_sort*>(it); break;
             case expr_kind::Pair:       static_cast<expr_dep_pair*>(it)->dealloc(todo); break;
-            case expr_kind::Proj:       static_cast<expr_proj*>(it)->dealloc(todo); break;
+            case expr_kind::Fst:
+            case expr_kind::Snd:        static_cast<expr_proj*>(it)->dealloc(todo); break;
             case expr_kind::App:        static_cast<expr_app*>(it)->dealloc(todo); break;
-            case expr_kind::Lambda:     static_cast<expr_lambda*>(it)->dealloc(todo); break;
-            case expr_kind::Pi:         static_cast<expr_pi*>(it)->dealloc(todo); break;
-            case expr_kind::Sigma:      static_cast<expr_sigma*>(it)->dealloc(todo); break;
-            case expr_kind::HEq:        static_cast<expr_heq*>(it)->dealloc(todo); break;
+            case expr_kind::Lambda:
+            case expr_kind::Pi:
+            case expr_kind::Sigma:      static_cast<expr_binder*>(it)->dealloc(todo); break;
             case expr_kind::Let:        static_cast<expr_let*>(it)->dealloc(todo); break;
             }
         }
@@ -312,14 +260,43 @@ void expr_cell::dealloc() {
     }
 }
 
-expr mk_type() {
-    static LEAN_THREAD_LOCAL expr r = mk_type(level());
+// Auxiliary constructors
+expr mk_app(unsigned num_args, expr const * args) {
+    lean_assert(num_args >= 2);
+    expr r = mk_app(args[0], args[1]);
+    for (unsigned i = 2; i < num_args; i++)
+        r = mk_app(r, args[i]);
     return r;
 }
 
-bool operator==(expr const & a, expr const & b) {
-    return expr_eq_fn<>()(a, b);
+static name g_default_var_name("a");
+bool is_default_var_name(name const & n) { return n == g_default_var_name; }
+expr mk_arrow(expr const & t, expr const & e) { return mk_pi(g_default_var_name, t, e); }
+expr mk_cartesian_product(expr const & t, expr const & e) { return mk_sigma(g_default_var_name, t, e); }
+
+expr Bool = mk_sort(mk_level_zero());
+expr Type = mk_sort(mk_level_one());
+expr mk_Bool() { return Bool; }
+expr mk_Type() { return Type; }
+
+unsigned get_depth(expr const & e) {
+    switch (e.kind()) {
+    case expr_kind::Var:  case expr_kind::Constant: case expr_kind::Sort:
+    case expr_kind::Meta: case expr_kind::Local:    case expr_kind::Macro:
+        return 1;
+    case expr_kind::Lambda: case expr_kind::Pi:   case expr_kind::Sigma:
+    case expr_kind::Pair:   case expr_kind::Fst:  case expr_kind::Snd:
+    case expr_kind::App:    case expr_kind::Let:
+        return static_cast<expr_composite*>(e.raw())->m_depth;
+    }
+    lean_unreachable(); // LCOV_EXCL_LINE
 }
+
+bool operator==(expr const & a, expr const & b) { return expr_eq_fn()(a, b); }
+
+#if 0
+
+
 
 bool is_arrow(expr const & t) {
     optional<bool> r = t.raw()->is_arrow();
@@ -336,26 +313,6 @@ bool is_cartesian(expr const & t) {
     return is_sigma(t) && !has_free_var(abst_body(t), 0);
 }
 
-unsigned get_depth(expr const & e) {
-    switch (e.kind()) {
-    case expr_kind::Var:   case expr_kind::Constant:  case expr_kind::Type:
-    case expr_kind::Value: case expr_kind::MetaVar:
-        return 1;
-    case expr_kind::HEq:
-        return to_heq(e)->m_depth;
-    case expr_kind::Pair:
-        return to_pair(e)->m_depth;
-    case expr_kind::Proj:
-        return to_proj(e)->m_depth;
-    case expr_kind::App:
-        return to_app(e)->m_depth;
-    case expr_kind::Pi: case expr_kind::Lambda: case expr_kind::Sigma:
-        return to_abstraction(e)->m_depth;
-    case expr_kind::Let:
-        return to_let(e)->m_depth;
-    }
-    lean_unreachable(); // LCOV_EXCL_LINE
-}
 
 expr copy(expr const & a) {
     switch (a.kind()) {

@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "kernel/expr_sets.h"
 #include "kernel/replace_fn.h"
 #include "kernel/for_each_fn.h"
-#include "kernel/metavar.h"
 
 namespace lean {
 /**
@@ -30,19 +29,14 @@ protected:
     bool apply(expr const & e, unsigned offset) {
         // handle easy cases
         switch (e.kind()) {
-        case expr_kind::Constant:
-            if (!const_type(e))
-                return false;
-            break;
-        case expr_kind::Type: case expr_kind::Value:
+        case expr_kind::Constant: case expr_kind::Sort: case expr_kind::Macro:
             return false;
-        case expr_kind::MetaVar:
-            return true;
         case expr_kind::Var:
             return var_idx(e) >= offset;
-        case expr_kind::App: case expr_kind::Lambda:
-        case expr_kind::Pi: case expr_kind::Let: case expr_kind::Sigma:
-        case expr_kind::Proj: case expr_kind::Pair: case expr_kind::HEq:
+        case expr_kind::App:    case expr_kind::Let:
+        case expr_kind::Meta:   case expr_kind::Local:
+        case expr_kind::Lambda: case expr_kind::Pi:  case expr_kind::Sigma:
+        case expr_kind::Pair:   case expr_kind::Fst: case expr_kind::Snd:
             break;
         }
 
@@ -70,27 +64,22 @@ protected:
         bool result = false;
 
         switch (e.kind()) {
-        case expr_kind::Constant:
-            lean_assert(const_type(e));
-            result = apply(const_type(e), offset);
-            break;
-        case expr_kind::Type: case expr_kind::Value: case expr_kind::Var: case expr_kind::MetaVar:
-            // easy cases were already handled
+        case expr_kind::Constant: case expr_kind::Sort: case expr_kind::Macro:
+        case expr_kind::Var:
             lean_unreachable(); // LCOV_EXCL_LINE
+        case expr_kind::Meta:   case expr_kind::Local:
+            result = apply(mlocal_type(e), offset);
         case expr_kind::App:
-            result = std::any_of(begin_args(e), end_args(e), [=](expr const & arg){ return apply(arg, offset); });
+            result = apply(app_fn(e), offset) || apply(app_arg(e), offset);
+            break;
+        case expr_kind::Fst: case expr_kind::Snd:
+            result = apply(proj_arg(e), offset);
             break;
         case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
-            result = apply(abst_domain(e), offset) || apply(abst_body(e), offset + 1);
+            result = apply(binder_domain(e), offset) || apply(binder_body(e), offset + 1);
             break;
         case expr_kind::Let:
             result = apply(let_type(e), offset) || apply(let_value(e), offset) || apply(let_body(e), offset + 1);
-            break;
-        case expr_kind::HEq:
-            result = apply(heq_lhs(e), offset) || apply(heq_rhs(e), offset);
-            break;
-        case expr_kind::Proj:
-            result = apply(proj_arg(e), offset);
             break;
         case expr_kind::Pair:
             result = apply(pair_first(e), offset) || apply(pair_second(e), offset) || apply(pair_type(e), offset);
@@ -121,46 +110,8 @@ bool has_free_vars(expr const & e) {
 */
 class free_var_range_fn {
     expr_map<unsigned>  m_cached;
-    optional<ro_metavar_env> const & m_menv;
 
     static unsigned dec(unsigned s) { return (s == 0) ? 0 : s - 1; }
-
-    /*
-      \brief If a metavariable \c m was defined in a context \c ctx and <tt>ctx.size() == R</tt>,
-      then \c m can only contain free variables in the range <tt>[0, R)</tt>
-
-      So, if \c m does not have an associated local context, the answer is just \c R.
-      If \c m has an associated local context, we process it using the following rules
-
-           [inst:s v] R  ===>  if s >= R then R else max(R-1, range_of(v))
-           [lift:s:n] R  ===>  if s >= R then R else R + n
-    */
-    unsigned process_metavar(expr const & m) {
-        lean_assert(is_metavar(m));
-        if (!m_menv)
-            return std::numeric_limits<unsigned>::max(); // metavariable environment is not available, assume the worst.
-        context ctx = (*m_menv)->get_context(metavar_name(m));
-        unsigned R  = ctx.size();
-        if (has_local_context(m)) {
-            local_context lctx = metavar_lctx(m);
-            buffer<local_entry> lentries;
-            to_buffer(lctx, lentries);
-            unsigned i = lentries.size();
-            while (i > 0) {
-                --i;
-                local_entry const & entry = lentries[i];
-                if (entry.is_inst()) {
-                    if (entry.s() < R) {
-                        R = std::max(dec(R), apply(entry.v()));
-                    }
-                } else {
-                    if (entry.s() < R)
-                        R += entry.n();
-                }
-            }
-        }
-        return R;
-    }
 
     unsigned apply(optional<expr> const & e) {
         return e ? apply(*e) : 0;
@@ -169,19 +120,14 @@ class free_var_range_fn {
     unsigned apply(expr const & e) {
         // handle easy cases
         switch (e.kind()) {
-        case expr_kind::Constant:
-            if (!const_type(e))
-                return 0;
-            break;
-        case expr_kind::Type: case expr_kind::Value:
+        case expr_kind::Constant: case expr_kind::Sort: case expr_kind::Macro:
             return 0;
         case expr_kind::Var:
             return var_idx(e) + 1;
-        case expr_kind::MetaVar: case expr_kind::App:
-        case expr_kind::Lambda: case expr_kind::Pi:
-        case expr_kind::Let: case expr_kind::Sigma:
-        case expr_kind::Proj: case expr_kind::Pair:
-        case expr_kind::HEq:
+        case expr_kind::App:    case expr_kind::Let:
+        case expr_kind::Meta:   case expr_kind::Local:
+        case expr_kind::Lambda: case expr_kind::Pi:  case expr_kind::Sigma:
+        case expr_kind::Pair:   case expr_kind::Fst: case expr_kind::Snd:
             break;
         }
 
@@ -199,30 +145,21 @@ class free_var_range_fn {
         unsigned result = 0;
 
         switch (e.kind()) {
-        case expr_kind::Constant:
-            lean_assert(const_type(e));
-            result = apply(const_type(e));
-            break;
-        case expr_kind::Type: case expr_kind::Value: case expr_kind::Var:
-            // easy cases were already handled
+        case expr_kind::Constant: case expr_kind::Sort: case expr_kind::Macro:
+        case expr_kind::Var:
             lean_unreachable(); // LCOV_EXCL_LINE
-        case expr_kind::MetaVar:
-            result = process_metavar(e);
-            break;
+        case expr_kind::Meta: case expr_kind::Local:
+            result = apply(mlocal_type(e));
         case expr_kind::App:
-            for (auto const & c : args(e))
-                result = std::max(result, apply(c));
+            result = std::max(apply(app_fn(e)), apply(app_arg(e)));
             break;
         case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
-            result = std::max(apply(abst_domain(e)), dec(apply(abst_body(e))));
+            result = std::max(apply(binder_domain(e)), dec(apply(binder_body(e))));
             break;
         case expr_kind::Let:
             result = std::max({apply(let_type(e)), apply(let_value(e)), dec(apply(let_body(e)))});
             break;
-        case expr_kind::HEq:
-            result = std::max(apply(heq_lhs(e)), apply(heq_rhs(e)));
-            break;
-        case expr_kind::Proj:
+        case expr_kind::Fst: case expr_kind::Snd:
             result = apply(proj_arg(e));
             break;
         case expr_kind::Pair:
@@ -236,26 +173,16 @@ class free_var_range_fn {
         return result;
     }
 public:
-    free_var_range_fn(optional<ro_metavar_env> const & menv):m_menv(menv) {}
+    free_var_range_fn() {}
     unsigned operator()(expr const & e) { return apply(e); }
 };
 
-unsigned free_var_range(expr const & e, ro_metavar_env const & menv) {
-    if (closed(e))
-        return 0;
-    else
-        return free_var_range_fn(some_ro_menv(menv))(e);
-}
-
 unsigned free_var_range(expr const & e) {
-    return free_var_range_fn(none_ro_menv())(e);
+    return free_var_range_fn()(e);
 }
 
 /**
     \brief Functional object for checking whether a kernel expression has a free variable in the range <tt>[low, high)</tt> or not.
-
-    \remark We assume that a metavariable contains free variables.
-    This is an approximation, since we don't know how the metavariable will be instantiated.
 */
 class has_free_var_in_range_fn {
 protected:
@@ -292,23 +219,14 @@ protected:
     bool apply(expr const & e, unsigned offset) {
         // handle easy cases
         switch (e.kind()) {
-        case expr_kind::Constant:
-            if (!const_type(e))
-                return false;
-            break;
-        case expr_kind::Type: case expr_kind::Value:
+        case expr_kind::Constant: case expr_kind::Sort: case expr_kind::Macro:
             return false;
-        case expr_kind::MetaVar:
-            if (m_range_fn)
-                break; // it is not cheap
-            else
-                return true; // assume that any free variable can occur in the metavariable
         case expr_kind::Var:
             return in_interval(var_idx(e), offset);
-        case expr_kind::App: case expr_kind::Lambda: case expr_kind::Pi:
-        case expr_kind::Let:  case expr_kind::Sigma:
-        case expr_kind::Proj: case expr_kind::Pair:
-        case expr_kind::HEq:
+        case expr_kind::App:    case expr_kind::Let:
+        case expr_kind::Meta:   case expr_kind::Local:
+        case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
+        case expr_kind::Pair:   case expr_kind::Fst: case expr_kind::Snd:
             break;
         }
 
@@ -326,37 +244,21 @@ protected:
         bool result = false;
 
         switch (e.kind()) {
-        case expr_kind::Constant:
-            lean_assert(const_type(e));
-            result = apply(const_type(e), offset);
-            break;
-        case expr_kind::Type: case expr_kind::Value: case expr_kind::Var:
-            // easy cases were already handled
+        case expr_kind::Constant: case expr_kind::Sort: case expr_kind::Macro:
+        case expr_kind::Var:
             lean_unreachable(); // LCOV_EXCL_LINE
-        case expr_kind::MetaVar: {
-            lean_assert(m_range_fn);
-            unsigned R = (*m_range_fn)(e);
-            if (R > 0) {
-                unsigned max_fvar_idx = R - 1;
-                result = ge_lower(max_fvar_idx, offset);
-                // Remark: Variable #0 may occur in \c e.
-                // So, we don't have to check the upper bound offset + m_high;
-            }
-            break;
-        }
+        case expr_kind::Meta:   case expr_kind::Local:
+            result = apply(mlocal_type(e), offset);
         case expr_kind::App:
-            result = std::any_of(begin_args(e), end_args(e), [=](expr const & arg){ return apply(arg, offset); });
+            result = apply(app_fn(e), offset) || apply(app_arg(e), offset);
             break;
         case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
-            result = apply(abst_domain(e), offset) || apply(abst_body(e), offset + 1);
+            result = apply(binder_domain(e), offset) || apply(binder_body(e), offset + 1);
             break;
         case expr_kind::Let:
             result = apply(let_type(e), offset) || apply(let_value(e), offset) || apply(let_body(e), offset + 1);
             break;
-        case expr_kind::HEq:
-            result = apply(heq_lhs(e), offset) || apply(heq_rhs(e), offset);
-            break;
-        case expr_kind::Proj:
+        case expr_kind::Fst: case expr_kind::Snd:
             result = apply(proj_arg(e), offset);
             break;
         case expr_kind::Pair:
@@ -370,46 +272,28 @@ protected:
         return result;
     }
 public:
-    has_free_var_in_range_fn(unsigned low, unsigned high, optional<ro_metavar_env> const & menv):
+    has_free_var_in_range_fn(unsigned low, unsigned high):
         m_low(low),
         m_high(high) {
         lean_assert(low < high);
-        if (menv)
-            m_range_fn.reset(new free_var_range_fn(menv));
     }
     bool operator()(expr const & e) { return apply(e, 0); }
 };
 
-bool has_free_var(expr const & e, unsigned low, unsigned high, optional<ro_metavar_env> const & menv) {
-    return high > low && !closed(e) && has_free_var_in_range_fn(low, high, menv)(e);
+bool has_free_var(expr const & e, unsigned low, unsigned high) {
+    return high > low && !closed(e) && has_free_var_in_range_fn(low, high)(e);
 }
-bool has_free_var(expr const & e, unsigned low, unsigned high, ro_metavar_env const & menv) { return has_free_var(e, low, high, some_ro_menv(menv)); }
-bool has_free_var(expr const & e, unsigned low, unsigned high) { return has_free_var(e, low, high, none_ro_menv()); }
-bool has_free_var(expr const & e, unsigned i, optional<ro_metavar_env> const & menv) { return has_free_var(e, i, i+1, menv); }
-bool has_free_var(expr const & e, unsigned i, ro_metavar_env const & menv) { return has_free_var(e, i, i+1, menv); }
 bool has_free_var(expr const & e, unsigned i) { return has_free_var(e, i, i+1); }
 
-bool has_free_var(context_entry const & e, unsigned low, unsigned high, ro_metavar_env const & menv) {
-    if (high <= low)
-        return false;
-    auto d = e.get_domain();
-    auto b = e.get_body();
-    return (d && has_free_var(*d, low, high, menv)) || (b && has_free_var(*b, low, high, menv));
+bool has_free_var_ge(expr const & e, unsigned low) {
+    return has_free_var(e, low, std::numeric_limits<unsigned>::max());
 }
 
-bool has_free_var_ge(expr const & e, unsigned low, ro_metavar_env const & menv) {
-    return has_free_var(e, low, std::numeric_limits<unsigned>::max(), menv);
-}
-bool has_free_var_ge(expr const & e, unsigned low, optional<ro_metavar_env> const & menv) {
-    return has_free_var(e, low, std::numeric_limits<unsigned>::max(), menv);
-}
-bool has_free_var_ge(expr const & e, unsigned low) { return has_free_var(e, low, std::numeric_limits<unsigned>::max()); }
-
-expr lower_free_vars(expr const & e, unsigned s, unsigned d, optional<ro_metavar_env> const & DEBUG_CODE(menv)) {
+expr lower_free_vars(expr const & e, unsigned s, unsigned d) {
     if (d == 0 || closed(e))
         return e;
     lean_assert(s >= d);
-    lean_assert(!has_free_var(e, s-d, s, menv));
+    lean_assert(!has_free_var(e, s-d, s));
     return replace(e, [=](expr const & e, unsigned offset) -> expr {
             if (is_var(e) && var_idx(e) >= s + offset) {
                 lean_assert(var_idx(e) >= offset + d);
@@ -419,50 +303,18 @@ expr lower_free_vars(expr const & e, unsigned s, unsigned d, optional<ro_metavar
             }
         });
 }
-expr lower_free_vars(expr const & e, unsigned s, unsigned d, ro_metavar_env const & menv) { return lower_free_vars(e, s, d, some_ro_menv(menv)); }
-expr lower_free_vars(expr const & e, unsigned s, unsigned d) { return lower_free_vars(e, s, d, none_ro_menv()); }
-expr lower_free_vars(expr const & e, unsigned d, optional<ro_metavar_env> const & menv) { return lower_free_vars(e, d, d, menv); }
-expr lower_free_vars(expr const & e, unsigned d, ro_metavar_env const & menv) { return lower_free_vars(e, d, d, menv); }
 expr lower_free_vars(expr const & e, unsigned d) { return lower_free_vars(e, d, d); }
 
-context_entry lower_free_vars(context_entry const & e, unsigned s, unsigned d, ro_metavar_env const & menv) {
-    auto domain = e.get_domain();
-    auto body   = e.get_body();
-    if (domain && body)
-        return context_entry(e.get_name(), lower_free_vars(*domain, s, d, menv), lower_free_vars(*body, s, d, menv));
-    else if (domain)
-        return context_entry(e.get_name(), lower_free_vars(*domain, s, d, menv));
-    else
-        return context_entry(e.get_name(), none_expr(), lower_free_vars(*body, s, d, menv));
-}
-
-expr lift_free_vars(expr const & e, unsigned s, unsigned d, optional<ro_metavar_env> const & menv) {
+expr lift_free_vars(expr const & e, unsigned s, unsigned d) {
     if (d == 0 || closed(e))
         return e;
     return replace(e, [=](expr const & e, unsigned offset) -> expr {
             if (is_var(e) && var_idx(e) >= s + offset) {
                 return mk_var(var_idx(e) + d);
-            } else if (is_metavar(e)) {
-                return add_lift(e, s + offset, d, menv);
             } else {
                 return e;
             }
         });
 }
-expr lift_free_vars(expr const & e, unsigned s, unsigned d, ro_metavar_env const & menv) { return lift_free_vars(e, s, d, some_ro_menv(menv)); }
-expr lift_free_vars(expr const & e, unsigned s, unsigned d) { return lift_free_vars(e, s, d, none_ro_menv()); }
-expr lift_free_vars(expr const & e, unsigned d, optional<ro_metavar_env> const & menv) { return lift_free_vars(e, 0, d, menv); }
 expr lift_free_vars(expr const & e, unsigned d) { return lift_free_vars(e, 0, d); }
-expr lift_free_vars(expr const & e, unsigned d, ro_metavar_env const & menv) { return lift_free_vars(e, 0, d, menv); }
-
-context_entry lift_free_vars(context_entry const & e, unsigned s, unsigned d, ro_metavar_env const & menv) {
-    auto domain = e.get_domain();
-    auto body   = e.get_body();
-    if (domain && body)
-        return context_entry(e.get_name(), lift_free_vars(*domain, s, d, menv), lift_free_vars(*body, s, d, menv));
-    else if (domain)
-        return context_entry(e.get_name(), lift_free_vars(*domain, s, d, menv));
-    else
-        return context_entry(e.get_name(), none_expr(), lift_free_vars(*body, s, d, menv));
-}
 }

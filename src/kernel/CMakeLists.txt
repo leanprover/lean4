@@ -1,6 +1,6 @@
 add_library(kernel level.cpp diff_cnstrs.cpp expr.cpp expr_eq_fn.cpp
-for_each_fn.cpp occurs.cpp replace_fn.cpp
-# free_vars.cpp abstract.cpp instantiate.cpp
+for_each_fn.cpp occurs.cpp replace_fn.cpp free_vars.cpp
+# abstract.cpp instantiate.cpp
 # normalizer.cpp context.cpp level.cpp object.cpp environment.cpp
 # type_checker.cpp kernel.cpp occurs.cpp metavar.cpp
 # justification.cpp unification_constraint.cpp kernel_exception.cpp

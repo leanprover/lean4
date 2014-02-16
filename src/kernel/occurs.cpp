@@ -8,17 +8,11 @@ Author: Leonardo de Moura
 #include "kernel/find_fn.h"
 
 namespace lean {
-bool occurs(name const & n, context const * c, unsigned sz, expr const * es) {
-    return static_cast<bool>(find(c, sz, es, [&](expr const & e) { return is_constant(e) && const_name(e) == n; }));
+bool occurs(expr const & n, expr const & m) {
+    return static_cast<bool>(find(m, [&](expr const & e) { return n == e; }));
 }
 
-bool occurs(expr const & n, context const * c, unsigned sz, expr const * es) {
-    return static_cast<bool>(find(c, sz, es, [&](expr const & e) { return e == n; }));
+bool occurs(name const & n, expr const & m) {
+    return static_cast<bool>(find(m, [&](expr const & e) { return is_constant(e) && const_name(e) == n; }));
 }
-bool occurs(expr const & n, expr const & m) { return occurs(n, nullptr, 1, &m); }
-bool occurs(name const & n, expr const & m) { return occurs(n, nullptr, 1, &m); }
-bool occurs(expr const & n, context const & c) { return occurs(n, &c, 0, nullptr); }
-bool occurs(name const & n, context const & c) { return occurs(n, &c, 0, nullptr); }
-bool occurs(expr const & n, context const & c, unsigned sz, expr const * es) { return occurs(n, &c, sz, es); }
-bool occurs(name const & n, context const & c, unsigned sz, expr const * es) { return occurs(n, &c, sz, es); }
 }

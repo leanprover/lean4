@@ -40,15 +40,8 @@ class for_each_fn {
             unsigned offset = p.second;
             if (!CacheAtomic) {
                 switch (e.kind()) {
-                case expr_kind::Constant:
-                    if (!const_type(e)) {
-                        // only constants without cached types are considered atomic
-                        m_f(e, offset);
-                        goto begin_loop;
-                    }
-                    break;
-                case expr_kind::Type: case expr_kind::Value:
-                case expr_kind::Var: case expr_kind::MetaVar:
+                case expr_kind::Constant: case expr_kind::Var:
+                case expr_kind::Sort:     case expr_kind::Macro:
                     m_f(e, offset);
                     goto begin_loop;
                 default:
@@ -69,39 +62,27 @@ class for_each_fn {
                 goto begin_loop;
 
             switch (e.kind()) {
-            case expr_kind::Constant:
-                if (const_type(e))
-                    todo.emplace_back(*const_type(e), offset);
+            case expr_kind::Constant: case expr_kind::Var:
+            case expr_kind::Sort:     case expr_kind::Macro:
                 goto begin_loop;
-            case expr_kind::Type: case expr_kind::Value:
-            case expr_kind::Var: case expr_kind::MetaVar:
+            case expr_kind::Meta: case expr_kind::Local:
+                todo.emplace_back(mlocal_type(e), offset);
                 goto begin_loop;
-            case expr_kind::App: {
-                auto it    = end_args(e);
-                auto begin = begin_args(e);
-                while (it != begin) {
-                    --it;
-                    todo.emplace_back(*it, offset);
-                }
-                goto begin_loop;
-            }
-            case expr_kind::HEq:
-                todo.emplace_back(heq_lhs(e), offset);
-                todo.emplace_back(heq_rhs(e), offset);
+            case expr_kind::App:
+                todo.emplace_back(app_arg(e), offset);
+                todo.emplace_back(app_fn(e), offset);
                 goto begin_loop;
             case expr_kind::Pair:
-                todo.emplace_back(pair_first(e), offset);
-                todo.emplace_back(pair_second(e), offset);
                 todo.emplace_back(pair_type(e), offset);
+                todo.emplace_back(pair_second(e), offset);
+                todo.emplace_back(pair_first(e), offset);
                 goto begin_loop;
-            case expr_kind::Proj:
+            case expr_kind::Fst: case expr_kind::Snd:
                 todo.emplace_back(proj_arg(e), offset);
                 goto begin_loop;
-            case expr_kind::Lambda:
-            case expr_kind::Pi:
-            case expr_kind::Sigma:
-                todo.emplace_back(abst_body(e), offset + 1);
-                todo.emplace_back(abst_domain(e), offset);
+            case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
+                todo.emplace_back(binder_body(e), offset + 1);
+                todo.emplace_back(binder_domain(e), offset);
                 goto begin_loop;
             case expr_kind::Let:
                 todo.emplace_back(let_body(e), offset + 1);

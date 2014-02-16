@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/for_each_fn.h"
-#include "kernel/context.h"
+#include "kernel/expr.h"
 
 namespace lean {
 template<typename P>
@@ -39,32 +39,5 @@ public:
 template<typename P>
 optional<expr> find(expr const & e, P p) {
     return find_fn<P>(p)(e);
-}
-
-/**
-   \brief Return an expression \c e that satisfies \c p and occurs in \c c or \c es.
-*/
-template<typename P>
-optional<expr> find(context const * c, unsigned sz, expr const * es, P p) {
-    find_fn<P> finder(p);
-    if (c) {
-        for (auto const & e : *c) {
-            auto const & d = e.get_domain();
-            if (d) {
-                if (optional<expr> r = finder(*d))
-                    return r;
-            }
-            auto const & b = e.get_body();
-            if (b) {
-                if (optional<expr> r = finder(*b))
-                    return r;
-            }
-        }
-    }
-    for (unsigned i = 0; i < sz; i++) {
-        if (optional<expr> r = finder(es[i]))
-            return r;
-    }
-    return none_expr();
 }
 }

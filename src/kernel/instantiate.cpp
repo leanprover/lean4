@@ -93,7 +93,7 @@ expr head_beta_reduce(expr const & t) {
         expr const * it = &t;
         while (true) {
             lean_assert(is_app(*it));
-            expr f = app_fn(*it);
+            expr const & f = app_fn(*it);
             args.push_back(app_arg(*it));
             if (is_lambda(f)) {
                 return apply_beta(f, args.size(), args.data());

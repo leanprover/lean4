@@ -149,7 +149,7 @@ void expr_app::dealloc(buffer<expr_cell*> & todelete) {
 // Expr binders (Lambda, Pi and Sigma)
 expr_binder::expr_binder(expr_kind k, name const & n, expr const & t, expr const & b):
     expr_composite(k, ::lean::hash(t.hash(), b.hash()), t.has_metavar() || b.has_metavar(),
-                   std::max(get_depth(m_domain), get_depth(m_body)) + 1),
+                   std::max(get_depth(t), get_depth(b)) + 1),
     m_name(n),
     m_domain(t),
     m_body(b) {

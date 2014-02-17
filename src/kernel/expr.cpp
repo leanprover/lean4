@@ -294,9 +294,49 @@ unsigned get_depth(expr const & e) {
 
 bool operator==(expr const & a, expr const & b) { return expr_eq_fn()(a, b); }
 
+expr update_app(expr const & e, expr const & new_fn, expr const & new_arg) {
+    if (!is_eqp(app_fn(e), new_fn) || !is_eqp(app_arg(e), new_arg))
+        return mk_app(new_fn, new_arg);
+    else
+        return e;
+}
+
+expr update_proj(expr const & e, expr const & new_arg) {
+    if (!is_eqp(proj_arg(e), new_arg))
+        return mk_proj(is_fst(e), new_arg);
+    else
+        return e;
+}
+
+expr update_pair(expr const & e, expr const & new_first, expr const & new_second, expr const & new_type) {
+    if (!is_eqp(pair_first(e), new_first) || !is_eqp(pair_second(e), new_second) || !is_eqp(pair_type(e), new_type))
+        return mk_pair(new_first, new_second, new_type);
+    else
+        return e;
+}
+
+expr update_binder(expr const & e, expr const & new_domain, expr const & new_body) {
+    if (!is_eqp(binder_domain(e), new_domain) || !is_eqp(binder_body(e), new_body))
+        return mk_binder(e.kind(), binder_name(e), new_domain, new_body);
+    else
+        return e;
+}
+
+expr update_let(expr const & e, optional<expr> const & new_type, expr const & new_val, expr const & new_body) {
+    if (!is_eqp(let_type(e), new_type) || !is_eqp(let_value(e), new_val) || !is_eqp(let_body(e), new_body))
+        return mk_let(let_name(e), new_type, new_val, new_body);
+    else
+        return e;
+}
+
+expr update_mlocal(expr const & e, expr const & new_type) {
+    if (!is_eqp(mlocal_type(e), new_type))
+        return mk_mlocal(is_metavar(e), mlocal_name(e), new_type);
+    else
+        return e;
+}
+
 #if 0
-
-
 
 bool is_arrow(expr const & t) {
     optional<bool> r = t.raw()->is_arrow();

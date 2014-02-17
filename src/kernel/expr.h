@@ -122,15 +122,11 @@ public:
     friend expr mk_var(unsigned idx);
     friend expr mk_sort(level const & l);
     friend expr mk_constant(name const & n, levels const & ls);
-    friend expr mk_metavar(name const & n, expr const & t);
-    friend expr mk_local(name const & n, expr const & t);
+    friend expr mk_mlocal(bool is_meta, name const & n, expr const & t);
     friend expr mk_app(expr const & f, expr const & a);
     friend expr mk_pair(expr const & f, expr const & s, expr const & t);
-    friend expr mk_fst(expr const & p);
-    friend expr mk_snd(expr const & p);
-    friend expr mk_lambda(name const & n, expr const & t, expr const & e);
-    friend expr mk_pi(name const & n, expr const & t, expr const & e);
-    friend expr mk_sigma(name const & n, expr const & t, expr const & e);
+    friend expr mk_proj(bool fst, expr const & p);
+    friend expr mk_binder(expr_kind k, name const & n, expr const & t, expr const & e);
     friend expr mk_let(name const & n, optional<expr> const & t, expr const & v, expr const & e);
     friend expr mk_macro(macro * m);
 
@@ -373,18 +369,21 @@ inline expr mk_constant(name const & n, levels const & ls) { return expr(new exp
 inline expr mk_constant(name const & n) { return mk_constant(n, levels()); }
 inline expr Const(name const & n) { return mk_constant(n); }
 inline expr mk_macro(macro * m) { return expr(new expr_macro(m)); }
-inline expr mk_metavar(name const & n, expr const & t) { return expr(new expr_mlocal(true, n, t)); }
-inline expr mk_local(name const & n, expr const & t) { return expr(new expr_mlocal(false, n, t)); }
+inline expr mk_mlocal(bool is_meta, name const & n, expr const & t) { return expr(new expr_mlocal(is_meta, n, t)); }
+inline expr mk_metavar(name const & n, expr const & t) { return mk_mlocal(true, n, t); }
+inline expr mk_local(name const & n, expr const & t) { return mk_mlocal(false, n, t); }
 inline expr mk_pair(expr const & f, expr const & s, expr const & t) { return expr(new expr_dep_pair(f, s, t)); }
-inline expr mk_fst(expr const & a) { return expr(new expr_proj(true, a)); }
-inline expr mk_snd(expr const & a) { return expr(new expr_proj(false, a)); }
+inline expr mk_proj(bool first, expr const & a) { return expr(new expr_proj(first, a)); }
+inline expr mk_fst(expr const & a) { return mk_proj(true, a); }
+inline expr mk_snd(expr const & a) { return mk_proj(false, a); }
 inline expr mk_app(expr const & f, expr const & a) { return expr(new expr_app(f, a)); }
        expr mk_app(unsigned num_args, expr const * args);
 inline expr mk_app(std::initializer_list<expr> const & l) { return mk_app(l.size(), l.begin()); }
 template<typename T> expr mk_app(T const & args) { return mk_app(args.size(), args.data()); }
-inline expr mk_lambda(name const & n, expr const & t, expr const & e) { return expr(new expr_binder(expr_kind::Lambda, n, t, e)); }
-inline expr mk_pi(name const & n, expr const & t, expr const & e) { return expr(new expr_binder(expr_kind::Pi, n, t, e)); }
-inline expr mk_sigma(name const & n, expr const & t, expr const & e) { return expr(new expr_binder(expr_kind::Sigma, n, t, e)); }
+inline expr mk_binder(expr_kind k, name const & n, expr const & t, expr const & e) { return expr(new expr_binder(k, n, t, e)); }
+inline expr mk_lambda(name const & n, expr const & t, expr const & e) { return mk_binder(expr_kind::Lambda, n, t, e); }
+inline expr mk_pi(name const & n, expr const & t, expr const & e) { return mk_binder(expr_kind::Pi, n, t, e); }
+inline expr mk_sigma(name const & n, expr const & t, expr const & e) { return mk_binder(expr_kind::Sigma, n, t, e); }
 inline expr mk_let(name const & n, optional<expr> const & t, expr const & v, expr const & e) {
     return expr(new expr_let(n, t, v, e));
 }
@@ -555,7 +554,6 @@ struct expr_cell_offset_eqp { unsigned operator()(expr_cell_offset const & p1, e
    \brief Return a shallow copy of \c e
 */
 expr copy(expr const & e);
-
 
 // =======================================
 // Update

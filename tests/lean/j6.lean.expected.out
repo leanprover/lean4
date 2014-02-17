@@ -1,4 +1,4 @@
   Set: pp::colors
   Set: pp::unicode
   Proved: symm_iff
-  Proved: or_imp
+  Proved: or_imp2

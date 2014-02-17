@@ -10,7 +10,7 @@ Nat::add_comm : ∀ a b : ℕ, a + b = b + a
 Nat::add_zeror : ∀ a : ℕ, a + 0 = a
 forall_rem [check] : ∀ (A : (Type U)) (H : inhabited A) (p : Bool), (A → p) ↔ p
 eq_id : ∀ (A : (Type U)) (a : A), a = a ↔ ⊤
-exists_rem : ∀ (A : (Type U)) (H : inhabited A) (p : Bool), (∃ x : A, p) ↔ p
+exists_rem : ∀ (A : (Type U)) (H : inhabited A) (p : Bool), (∃ Hb : A, p) ↔ p
 exists_and_distributel : ∀ (A : (Type U)) (p : Bool) (φ : A → Bool),
       (∃ x : A, φ x ∧ p) ↔ (∃ x : A, φ x) ∧ p
 exists_or_distribute : ∀ (A : (Type U)) (φ ψ : A → Bool),

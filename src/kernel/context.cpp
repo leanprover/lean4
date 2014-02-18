@@ -19,4 +19,11 @@ std::pair<name, expr> const & lookup(context const & c, unsigned i) {
     }
     throw exception("unknown free variable");
 }
+optional<std::pair<name, expr>> find(context const & c, unsigned i) {
+    try {
+        return optional<std::pair<name, expr>>(lookup(c, i));
+    } catch (exception &) {
+        return optional<std::pair<name, expr>>();
+    }
+}
 }

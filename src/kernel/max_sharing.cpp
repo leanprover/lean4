@@ -46,45 +46,29 @@ struct max_sharing_fn::imp {
         }
         expr res;
         switch (a.kind()) {
-        case expr_kind::Constant:
-            res = update_const(a, apply(const_type(a)));
-            break;
-        case expr_kind::Var: case expr_kind::Type: case expr_kind::Value:
+        case expr_kind::Constant: case expr_kind::Var:
+        case expr_kind::Sort:     case expr_kind::Macro:
             res = a;
             break;
-        case expr_kind::HEq:
-            res = update_heq(a, apply(heq_lhs(a)), apply(heq_rhs(a)));
-            break;
         case expr_kind::Pair:
-            res = update_pair(a, [=](expr const & f, expr const & s, expr const & t) {
-                    return std::make_tuple(apply(f), apply(s), apply(t));
-                });
+            res = update_pair(a, apply(pair_first(a)), apply(pair_second(a)), apply(pair_type(a)));
             break;
-        case expr_kind::Proj:
+        case expr_kind::Fst:   case expr_kind::Snd:
             res = update_proj(a, apply(proj_arg(a)));
             break;
         case expr_kind::App:
-            res = update_app(a, [=](expr const & c) { return apply(c); });
+            res = update_app(a, apply(app_fn(a)), apply(app_arg(a)));
             break;
-        case expr_kind::Sigma:
-        case expr_kind::Lambda:
-        case expr_kind::Pi:
-            res = update_abst(a, [=](expr const & t, expr const & b) { return std::make_pair(apply(t), apply(b)); });
+        case expr_kind::Sigma: case expr_kind::Lambda: case expr_kind::Pi:
+            res = update_binder(a, apply(binder_domain(a)), apply(binder_body(a)));
             break;
         case expr_kind::Let:
-            res = update_let(a, [=](optional<expr> const & t, expr const & v, expr const & b) {
-                    return std::make_tuple(apply(t), apply(v), apply(b));
-                });
+            res = update_let(a, apply(let_type(a)), apply(let_value(a)), apply(let_body(a)));
             break;
-        case expr_kind::MetaVar: {
-            res = update_metavar(a, [=](local_entry const & e) -> local_entry {
-                    if (e.is_inst())
-                        return mk_inst(e.s(), apply(e.v()));
-                    else
-                        return e;
-                });
+        case expr_kind::Meta:  case expr_kind::Local:
+            res = update_mlocal(a, apply(mlocal_type(a)));
             break;
-        }}
+        }
         cache(res);
         return res;
     }
@@ -102,4 +86,4 @@ expr max_sharing(expr const & a) {
     else
         return max_sharing_fn::imp()(a);
 }
-} // namespace lean
+}

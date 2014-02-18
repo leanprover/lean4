@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "kernel/expr_eq_fn.h"
 #include "kernel/free_vars.h"
-// #include "kernel/max_sharing.h"
+#include "kernel/max_sharing.h"
 
 namespace lean {
 static expr g_dummy(mk_var(0));
@@ -384,7 +384,21 @@ expr copy(expr const & a) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-#if 0
+serializer & operator<<(serializer & s, levels const & ls) {
+    s << length(ls);
+    for (auto const & l : ls)
+        s << l;
+    return s;
+}
+
+levels read_levels(deserializer & d) {
+    unsigned num = d.read_unsigned();
+    buffer<level> ls;
+    for (unsigned i = 0; i < num; i++)
+        ls.push_back(read_level(d));
+    return to_list(ls.begin(), ls.end());
+}
+
 class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp> {
     typedef object_serializer<expr, expr_hash_alloc, expr_eqp> super;
     max_sharing_fn m_max_sharing_fn;
@@ -401,26 +415,39 @@ class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp
 
     void write_core(expr const & a) {
         auto k = a.kind();
-        super::write_core(a, k, [&]() {
+        super::write_core(a, static_cast<char>(k), [&]() {
                 serializer & s = get_owner();
                 switch (k) {
-                case expr_kind::Var:       s << var_idx(a); break;
-                case expr_kind::Constant:  s << const_name(a); write_core(const_type(a)); break;
-                case expr_kind::Type:      s << ty_level(a); break;
-                case expr_kind::Value:     to_value(a).write(s); break;
-                case expr_kind::Pair:      write_core(pair_first(a)); write_core(pair_second(a)); write_core(pair_type(a)); break;
-                case expr_kind::Proj:      s << proj_first(a); write_core(proj_arg(a)); break;
-                case expr_kind::HEq:       write_core(heq_lhs(a)); write_core(heq_rhs(a)); break;
-                case expr_kind::App:
-                    s << num_args(a);
-                    for (unsigned i = 0; i < num_args(a); i++)
-                        write_core(arg(a, i));
+                case expr_kind::Var:
+                    s << var_idx(a);
                     break;
-                case expr_kind::Lambda:
-                case expr_kind::Pi:
-                case expr_kind::Sigma:     s << abst_name(a); write_core(abst_domain(a)); write_core(abst_body(a)); break;
-                case expr_kind::Let:       s << let_name(a); write_core(let_type(a)); write_core(let_value(a)); write_core(let_body(a)); break;
-                case expr_kind::MetaVar:   s << metavar_name(a) << metavar_lctx(a); break;
+                case expr_kind::Constant:
+                    s << const_name(a) << const_level_params(a);
+                    break;
+                case expr_kind::Sort:
+                    s << sort_level(a);
+                    break;
+                case expr_kind::Macro:
+                    to_macro(a).write(s);
+                    break;
+                case expr_kind::Pair:
+                    write_core(pair_first(a)); write_core(pair_second(a)); write_core(pair_type(a));
+                    break;
+                case expr_kind::Fst:  case expr_kind::Snd:
+                    write_core(proj_arg(a));
+                    break;
+                case expr_kind::App:
+                    write_core(app_fn(a)); write_core(app_arg(a));
+                    break;
+                case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
+                    s << binder_name(a); write_core(binder_domain(a)); write_core(binder_body(a));
+                    break;
+                case expr_kind::Let:
+                    s << let_name(a); write_core(let_type(a)); write_core(let_value(a)); write_core(let_body(a));
+                    break;
+                case expr_kind::Meta: case expr_kind::Local:
+                    s << mlocal_name(a); write_core(mlocal_type(a));
+                    break;
                 }
             });
     }
@@ -442,74 +469,57 @@ public:
         }
     }
 
+    expr read_binder(expr_kind k) {
+        deserializer & d = get_owner();
+        name n = read_name(d);
+        expr t = read();
+        return mk_binder(k, n, t, read());
+    }
+
     expr read() {
         return super::read_core([&](char c) {
                 deserializer & d = get_owner();
-                if (c >= g_first_app_size_kind) {
-                    // compressed application
-                    unsigned num = c - g_first_app_size_kind;
-                    buffer<expr> args;
-                    for (unsigned i = 0; i < num; i++)
-                        args.push_back(read());
-                    return mk_app(args);
-                }
                 auto k = static_cast<expr_kind>(c);
                 switch (k) {
                 case expr_kind::Var:
                     return mk_var(d.read_unsigned());
                 case expr_kind::Constant: {
                     auto n = read_name(d);
-                    return mk_constant(n, read_opt());
+                    return mk_constant(n, read_levels(d));
                 }
-                case expr_kind::Type:
-                    return mk_type(read_level(d));
+                case expr_kind::Sort:
+                    return mk_sort(read_level(d));
                     break;
-                case expr_kind::Value:
-                    return read_value(d);
+                case expr_kind::Macro:
+                    return read_macro(d);
                 case expr_kind::Pair: {
                     expr f = read();
                     expr s = read();
                     return mk_pair(f, s, read());
                 }
-                case expr_kind::HEq: {
-                    expr lhs = read();
-                    return mk_heq(lhs, read());
-                }
-                case expr_kind::Proj: {
-                    bool f = d.read_bool();
-                    return mk_proj(f, read());
-                }
+                case expr_kind::Fst:
+                    return mk_fst(read());
+                case expr_kind::Snd:
+                    return mk_snd(read());
                 case expr_kind::App: {
-                    buffer<expr> args;
-                    unsigned num = d.read_unsigned();
-                    for (unsigned i = 0; i < num; i++)
-                        args.push_back(read());
-                    return mk_app(args);
+                    expr f = read();
+                    return mk_app(f, read());
                 }
-                case expr_kind::Lambda: {
-                    name n = read_name(d);
-                    expr d = read();
-                    return mk_lambda(n, d, read());
-                }
-                case expr_kind::Pi: {
-                    name n = read_name(d);
-                    expr d = read();
-                    return mk_pi(n, d, read());
-                }
-                case expr_kind::Sigma: {
-                    name n = read_name(d);
-                    expr d = read();
-                    return mk_sigma(n, d, read());
-                }
+                case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
+                    return read_binder(k);
                 case expr_kind::Let: {
                     name n = read_name(d);
                     optional<expr> t = read_opt();
                     expr v = read();
                     return mk_let(n, t, v, read());
                 }
-                case expr_kind::MetaVar: {
+                case expr_kind::Meta: {
                     name n = read_name(d);
-                    return mk_metavar(n, read_local_context(d));
+                    return mk_metavar(n, read());
+                }
+                case expr_kind::Local: {
+                    name n = read_name(d);
+                    return mk_local(n, read());
                 }}
                 throw_corrupted_file(); // LCOV_EXCL_LINE
             });
@@ -534,5 +544,4 @@ serializer & operator<<(serializer & s, expr const & n) {
 expr read_expr(deserializer & d) {
     return d.get_extension<expr_deserializer>(g_expr_sd.m_d_extid).read();
 }
-#endif
 }

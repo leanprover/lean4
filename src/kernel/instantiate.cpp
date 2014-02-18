@@ -96,6 +96,7 @@ expr head_beta_reduce(expr const & t) {
             expr const & f = app_fn(*it);
             args.push_back(app_arg(*it));
             if (is_lambda(f)) {
+                std::reverse(args.begin(), args.end());
                 return apply_beta(f, args.size(), args.data());
             } else {
                 lean_assert(is_app(f));

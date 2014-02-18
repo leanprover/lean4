@@ -15,9 +15,6 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/max_sharing.h"
-#include "library/printer.h"
-#include "library/bin_op.h"
-#include "library/arith/arith.h"
 using namespace lean;
 
 static void check_serializer(expr const & e) {
@@ -40,11 +37,11 @@ static void tst1() {
     expr f;
     f = Var(0);
     expr fa = f(a);
-    expr ty = Type();
+    expr ty = Type;
     std::cout << fa << "\n";
     std::cout << fa(a) << "\n";
-    lean_assert(is_eqp(arg(fa, 0), f));
-    lean_assert(is_eqp(arg(fa, 1), a));
+    lean_assert(is_eqp(app_fn(fa), f));
+    lean_assert(is_eqp(app_arg(fa), a));
     lean_assert(!is_eqp(fa, f(a)));
     lean_assert(fa(a) == f(a, a));
     std::cout << fa(fa, fa) << "\n";
@@ -65,37 +62,12 @@ static expr mk_dag(unsigned depth, bool _closed = false) {
     return a;
 }
 
-// This is the fastest depth implementation in this file.
-static unsigned depth2(expr const & e) {
-    switch (e.kind()) {
-    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type:
-    case expr_kind::Value: case expr_kind::MetaVar:
-        return 1;
-    case expr_kind::App:
-        return
-            std::accumulate(begin_args(e), end_args(e), 0,
-                            [](unsigned m, expr const & arg){ return std::max(depth2(arg), m); })
-            + 1;
-    case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
-        return std::max(depth2(abst_domain(e)), depth2(abst_body(e))) + 1;
-    case expr_kind::Let:
-        return std::max(depth2(let_value(e)), depth2(let_body(e))) + 1;
-    case expr_kind::Proj:
-        return depth2(proj_arg(e)) + 1;
-    case expr_kind::Pair:
-        return std::max(depth2(pair_first(e)), depth2(pair_second(e))) + 1;
-    case expr_kind::HEq:
-        return std::max(depth2(heq_lhs(e)), depth2(heq_rhs(e))) + 1;
-    }
-    return 0;
-}
-
 static void tst2() {
     expr r1 = mk_dag(20);
     expr r2 = mk_dag(20);
     lean_assert(r1 == r2);
-    std::cout << depth2(r1) << "\n";
-    lean_assert(depth2(r1) == 21);
+    std::cout << get_depth(r1) << "\n";
+    lean_assert_eq(get_depth(r1), 41);
 }
 
 static expr mk_big(expr f, unsigned depth, unsigned val) {
@@ -133,22 +105,19 @@ static unsigned count_core(expr const & a, expr_set & s) {
         return 0;
     s.insert(a);
     switch (a.kind()) {
-    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Type:
-    case expr_kind::Value: case expr_kind::MetaVar:
+    case expr_kind::Var: case expr_kind::Constant: case expr_kind::Sort:
+    case expr_kind::Macro: case expr_kind::Meta: case expr_kind::Local:
         return 1;
     case expr_kind::App:
-        return std::accumulate(begin_args(a), end_args(a), 1,
-                          [&](unsigned sum, expr const & arg){ return sum + count_core(arg, s); });
+        return count_core(app_fn(a), s) + count_core(app_arg(a), s) + 1;
     case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
-        return count_core(abst_domain(a), s) + count_core(abst_body(a), s) + 1;
+        return count_core(binder_domain(a), s) + count_core(binder_body(a), s) + 1;
     case expr_kind::Let:
         return count_core(let_value(a), s) + count_core(let_body(a), s) + 1;
-    case expr_kind::Proj:
+    case expr_kind::Fst: case expr_kind::Snd:
         return count_core(proj_arg(a), s) + 1;
     case expr_kind::Pair:
         return count_core(pair_first(a), s) + count_core(pair_second(a), s) + count_core(pair_type(a), s) + 1;
-    case expr_kind::HEq:
-        return count_core(heq_lhs(a), s) + count_core(heq_rhs(a), s);
     }
     return 0;
 }
@@ -197,7 +166,7 @@ static void tst7() {
     expr a2 = max_sharing(f(v, v));
     lean_assert(!is_eqp(a1, a2));
     expr b  = max_sharing(f(a1, a2));
-    lean_assert(is_eqp(arg(b, 1), arg(b, 2)));
+    lean_assert(is_eqp(app_arg(app_fn(b)), app_arg(b)));
 }
 
 static void tst8() {
@@ -205,7 +174,7 @@ static void tst8() {
     expr x = Var(0);
     expr a = Const("a");
     expr n = Const("n");
-    expr p = Type();
+    expr p = Type;
     expr y = Var(1);
     lean_assert(closed(a));
     lean_assert(!closed(x));
@@ -263,7 +232,7 @@ static void tst11() {
     expr b = Const("b");
     expr x = Var(0);
     expr y = Var(1);
-    expr t = Type();
+    expr t = Type;
     std::cout << instantiate(mk_lambda("x", t, f(f(y, b), f(x, y))), f(a)) << "\n";
     lean_assert(instantiate(mk_lambda("x", t, f(f(y, b), f(x, y))), f(a)) ==
                 mk_lambda("x", t, f(f(f(a), b), f(x, f(a)))));
@@ -293,19 +262,16 @@ static void tst12() {
 }
 
 static void tst13() {
-    expr t0 = Type();
-    expr t1 = Type(level()+1);
+    expr t0 = Type;
+    expr t1 = mk_sort(mk_succ(mk_succ(level())));
     check_serializer(t0);
     check_serializer(t1);
-    lean_assert(ty_level(t1) == level()+1);
+    lean_assert(sort_level(t1) == mk_succ(mk_succ(level())));
     lean_assert(t0 != t1);
     std::cout << t0 << " " << t1 << "\n";
 }
 
 static void tst14() {
-    expr t = mk_eq(Const("A"), Const("a"), Const("b"));
-    check_serializer(t);
-    std::cout << t << "\n";
     expr l = mk_let("a", none_expr(), Const("b"), Var(0));
     check_serializer(l);
     std::cout << l << "\n";
@@ -316,24 +282,24 @@ static void tst15() {
     expr f = Const("f");
     expr x = Var(0);
     expr a = Const("a");
-    expr m = mk_metavar("m");
+    expr m = mk_metavar("m", Bool);
     check_serializer(m);
     lean_assert(has_metavar(m));
     lean_assert(has_metavar(f(m)));
     lean_assert(!has_metavar(f(a)));
     lean_assert(!has_metavar(f(x)));
-    lean_assert(!has_metavar(Pi({a, Type()}, a)));
-    lean_assert(!has_metavar(Type()));
-    lean_assert(!has_metavar(Fun({a, Type()}, a)));
-    lean_assert(has_metavar(Pi({a, Type()}, m)));
+    lean_assert(!has_metavar(Pi({a, Type}, a)));
+    lean_assert(!has_metavar(Type));
+    lean_assert(!has_metavar(Fun({a, Type}, a)));
+    lean_assert(has_metavar(Pi({a, Type}, m)));
     lean_assert(has_metavar(Pi({a, m}, a)));
-    lean_assert(has_metavar(Fun({a, Type()}, m)));
+    lean_assert(has_metavar(Fun({a, Type}, m)));
     lean_assert(has_metavar(Fun({a, m}, a)));
-    lean_assert(!has_metavar(Let({a, Type()}, a)));
-    lean_assert(!has_metavar(mk_let(name("a"), Type(), f(x), f(f(x)))));
+    lean_assert(!has_metavar(Let({a, Type}, a)));
+    lean_assert(!has_metavar(mk_let(name("a"), Type, f(x), f(f(x)))));
     lean_assert(has_metavar(mk_let(name("a"), m, f(x), f(f(x)))));
-    lean_assert(has_metavar(mk_let(name("a"), Type(), f(m), f(f(x)))));
-    lean_assert(has_metavar(mk_let(name("a"), Type(), f(x), f(f(m)))));
+    lean_assert(has_metavar(mk_let(name("a"), Type, f(m), f(f(x)))));
+    lean_assert(has_metavar(mk_let(name("a"), Type, f(x), f(f(m)))));
     lean_assert(has_metavar(f(a, a, m)));
     lean_assert(has_metavar(f(a, m, a, a)));
     lean_assert(!has_metavar(f(a, a, a, a)));
@@ -349,48 +315,14 @@ static void check_copy(expr const & e) {
 static void tst16() {
     expr f = Const("f");
     expr a = Const("a");
-    check_copy(iVal(10));
     check_copy(f(a));
-    check_copy(mk_metavar("M"));
+    check_copy(mk_metavar("M", Bool));
     check_copy(mk_lambda("x", a, Var(0)));
     check_copy(mk_pi("x", a, Var(0)));
     check_copy(mk_let("x", none_expr(), a, Var(0)));
 }
 
 static void tst17() {
-    lean_assert(is_true(True));
-    lean_assert(is_false(False));
-    lean_assert(!is_true(Const("a")));
-    lean_assert(!is_false(Const("a")));
-    check_serializer(True);
-    check_serializer(False);
-}
-
-static void tst18() {
-    expr f = Const("f");
-    expr a = Const("a");
-    lean_assert_eq(mk_bin_rop(f, a, 0, nullptr), a);
-    expr b = Const("b");
-    lean_assert_eq(mk_bin_rop(f, a, 1, &b), b);
-    expr a1 = Const("a1"); expr a2 = Const("a2"); expr a3 = Const("a3");
-    expr ar[] = { a1, a2, a3 };
-    lean_assert_eq(mk_bin_rop(f, a, 3, ar), f(a1, f(a2, a3)));
-    lean_assert_eq(mk_bin_rop(f, a, {a1, a2, a3}), f(a1, f(a2, a3)));
-    lean_assert_eq(mk_bin_lop(f, a, 0, nullptr), a);
-    lean_assert_eq(mk_bin_lop(f, a, 1, &b), b);
-    lean_assert_eq(mk_bin_lop(f, a, 3, ar), f(f(a1, a2), a3));
-    lean_assert_eq(mk_bin_lop(f, a, {a1, a2, a3}), f(f(a1, a2), a3));
-}
-
-static void tst19() {
-    expr T1 = Const("T1");
-    expr T2 = Const("T2");
-    lean_assert(extend(extend(context(), "a", T1), "b", T2) == context({{"a", T1}, {"b", T2}}));
-    lean_assert(extend(extend(context(), "a", T1), "b", T2) == context({{"b", T1}, {"a", T2}})); // names don't matter
-    lean_assert(extend(extend(context(), "a", T2), "b", T2) != context({{"a", T1}, {"b", T2}}));
-}
-
-static void tst20() {
     expr f = Const("f");
     expr a = Const("a");
     expr b = Const("b");
@@ -403,16 +335,6 @@ static void tst20() {
     }
     args.push_back(c);
     expr t = mk_app(args);
-    check_serializer(t);
-}
-
-static void tst21() {
-    local_context lctx;
-    lctx = cons(mk_lift(1, 2), lctx);
-    lctx = cons(mk_inst(1, Const("a")), lctx);
-    lctx = cons(mk_lift(0, 1), lctx);
-    expr m = mk_metavar("m1", lctx);
-    expr t = Const("f")(m, m, mk_metavar("m2"));
     check_serializer(t);
 }
 
@@ -436,10 +358,6 @@ int main() {
     tst15();
     tst16();
     tst17();
-    tst18();
-    tst19();
-    tst20();
-    tst21();
     std::cout << "sizeof(expr):            " << sizeof(expr) << "\n";
     std::cout << "sizeof(expr_app):        " << sizeof(expr_app) << "\n";
     std::cout << "sizeof(expr_cell):       " << sizeof(expr_cell) << "\n";

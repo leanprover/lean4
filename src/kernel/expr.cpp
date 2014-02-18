@@ -99,7 +99,7 @@ expr_const::expr_const(name const & n, levels const & ls):
 
 // Expr metavariables and local variables
 expr_mlocal::expr_mlocal(bool is_meta, name const & n, expr const & t):
-    expr_cell(is_meta ? expr_kind::Meta : expr_kind::Local, n.hash(), t.has_metavar()),
+    expr_cell(is_meta ? expr_kind::Meta : expr_kind::Local, n.hash(), is_meta || t.has_metavar()),
     m_name(n),
     m_type(t) {}
 void expr_mlocal::dealloc(buffer<expr_cell*> & todelete) {

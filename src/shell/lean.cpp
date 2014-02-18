@@ -185,9 +185,9 @@ int main(int argc, char ** argv) {
             signal(SIGINT, on_ctrl_c);
             if (default_k == input_kind::Lean) {
 #if defined(LEAN_WINDOWS)
-                std::cout << "Type 'Exit.' to exit or 'Help.' for help."<< std::endl;
+                std::cout << "Type 'exit.' to exit or 'help.' for help."<< std::endl;
 #else
-                std::cout << "Type Ctrl-D or 'Exit.' to exit or 'Help.' for help."<< std::endl;
+                std::cout << "Type Ctrl-D or 'exit.' to exit or 'help.' for help."<< std::endl;
 #endif
                 shell sh(env, &S);
                 int status = sh() ? 0 : 1;

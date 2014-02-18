@@ -502,7 +502,7 @@ void parser_imp::parse_set_option() {
         name lean_id = name("lean") + id;
         decl_it = get_option_declarations().find(lean_id);
         if (decl_it == get_option_declarations().end()) {
-            throw parser_error(sstream() << "unknown option '" << id << "', type 'Help Options.' for list of available options", id_pos);
+            throw parser_error(sstream() << "unknown option '" << id << "', type 'help options.' for list of available options", id_pos);
         } else {
             id = lean_id;
         }

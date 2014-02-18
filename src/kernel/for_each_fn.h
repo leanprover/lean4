@@ -26,7 +26,7 @@ namespace lean {
 */
 class for_each_fn {
     std::unique_ptr<expr_cell_offset_set>       m_visited;
-    std::function<bool(expr const &, unsigned)> m_f;
+    std::function<bool(expr const &, unsigned)> m_f; // NOLINT
     void apply(expr const & e, unsigned offset);
 public:
     template<typename F> for_each_fn(F && f):m_f(f) {}

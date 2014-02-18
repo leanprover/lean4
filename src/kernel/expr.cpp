@@ -364,66 +364,27 @@ bool is_cartesian(expr const & t) {
     return is_sigma(t) && !has_free_var(binder_body(t), 0);
 }
 
-#if 0
 expr copy(expr const & a) {
     switch (a.kind()) {
     case expr_kind::Var:      return mk_var(var_idx(a));
-    case expr_kind::Constant: return mk_constant(const_name(a), const_type(a));
-    case expr_kind::Type:     return mk_type(ty_level(a));
-    case expr_kind::Value:    return mk_value(static_cast<expr_value*>(a.raw())->m_val);
+    case expr_kind::Constant: return mk_constant(const_name(a), const_level_params(a));
+    case expr_kind::Sort:     return mk_sort(sort_level(a));
+    case expr_kind::Macro:    return mk_macro(static_cast<expr_macro*>(a.raw())->m_macro);
     case expr_kind::Pair:     return mk_pair(pair_first(a), pair_second(a), pair_type(a));
-    case expr_kind::Proj:     return mk_proj(proj_first(a), proj_arg(a));
-    case expr_kind::App:      return mk_app(num_args(a), begin_args(a));
-    case expr_kind::Lambda:   return mk_lambda(abst_name(a), abst_domain(a), abst_body(a));
-    case expr_kind::Pi:       return mk_pi(abst_name(a), abst_domain(a), abst_body(a));
-    case expr_kind::Sigma:    return mk_sigma(abst_name(a), abst_domain(a), abst_body(a));
+    case expr_kind::Fst:      return mk_fst(proj_arg(a));
+    case expr_kind::Snd:      return mk_snd(proj_arg(a));
+    case expr_kind::App:      return mk_app(app_fn(a), app_arg(a));
+    case expr_kind::Lambda:   return mk_lambda(binder_name(a), binder_domain(a), binder_body(a));
+    case expr_kind::Pi:       return mk_pi(binder_name(a), binder_domain(a), binder_body(a));
+    case expr_kind::Sigma:    return mk_sigma(binder_name(a), binder_domain(a), binder_body(a));
     case expr_kind::Let:      return mk_let(let_name(a), let_type(a), let_value(a), let_body(a));
-    case expr_kind::HEq:      return mk_heq(heq_lhs(a), heq_rhs(a));
-    case expr_kind::MetaVar:  return mk_metavar(metavar_name(a), metavar_lctx(a));
+    case expr_kind::Meta:     return mk_metavar(mlocal_name(a), mlocal_type(a));
+    case expr_kind::Local:    return mk_local(mlocal_name(a), mlocal_type(a));
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-serializer & operator<<(serializer & s, local_context const & lctx) {
-    s << length(lctx);
-    for (auto const & e : lctx) {
-        if (e.is_lift()) {
-            s << true << e.s() << e.n();
-        } else {
-            s << false << e.s() << e.v();
-        }
-    }
-    return s;
-}
-
-local_context read_local_context(deserializer & d) {
-    unsigned num = d.read_unsigned();
-    buffer<local_entry> entries;
-    for (unsigned i = 0; i < num; i++) {
-        if (d.read_bool()) {
-            unsigned s, n;
-            d >> s >> n;
-            entries.push_back(mk_lift(s, n));
-        } else {
-            unsigned s; expr v;
-            d >> s >> v;
-            entries.push_back(mk_inst(s, v));
-        }
-    }
-    return to_list(entries.begin(), entries.end());
-}
-
-// To save space, we pack the number of arguments in small applications in the kind byte.
-// The extra kinds start at g_first_app_size_kind. This value should be bigger than the
-// real kinds. Moreover g_first_app_size_kind + g_small_app_num_args should fit in a byte.
-constexpr char g_first_app_size_kind = 32;
-constexpr char g_small_app_num_args  = 32;
-constexpr bool is_small(expr_kind k) { return 0 <= static_cast<char>(k) && static_cast<char>(k) < g_first_app_size_kind; }
-static_assert(is_small(expr_kind::Var) && is_small(expr_kind::Constant) && is_small(expr_kind::Value) && is_small(expr_kind::App) &&
-              is_small(expr_kind::Pair) && is_small(expr_kind::Proj) &&
-              is_small(expr_kind::Lambda) && is_small(expr_kind::Pi) && is_small(expr_kind::Sigma) && is_small(expr_kind::Type) &&
-              is_small(expr_kind::Let) && is_small(expr_kind::HEq) && is_small(expr_kind::MetaVar), "expr_kind is too big");
-
+#if 0
 class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp> {
     typedef object_serializer<expr, expr_hash_alloc, expr_eqp> super;
     max_sharing_fn m_max_sharing_fn;
@@ -440,20 +401,8 @@ class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp
 
     void write_core(expr const & a) {
         auto k = a.kind();
-        char kc;
-        if (k == expr_kind::App && num_args(a) < g_small_app_num_args) {
-            kc = static_cast<char>(g_first_app_size_kind + num_args(a));
-        } else {
-            kc = static_cast<char>(k);
-        }
-        super::write_core(a, kc, [&]() {
+        super::write_core(a, k, [&]() {
                 serializer & s = get_owner();
-                if (kc >= static_cast<char>(g_first_app_size_kind)) {
-                    // compressed application
-                    for (unsigned i = 0; i < num_args(a); i++)
-                        write_core(arg(a, i));
-                    return;
-                }
                 switch (k) {
                 case expr_kind::Var:       s << var_idx(a); break;
                 case expr_kind::Constant:  s << const_name(a); write_core(const_type(a)); break;

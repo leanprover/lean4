@@ -52,7 +52,6 @@ class replace_fn {
     frame_stack                                     m_fs;
     result_stack                                    m_rs;
 
-    static bool is_atomic(expr const & e);
     void save_result(expr const & e, expr const & r, unsigned offset, bool shared);
     bool visit(expr const & e, unsigned offset);
     bool check_index(frame & f, unsigned idx);

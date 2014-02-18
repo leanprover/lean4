@@ -15,8 +15,7 @@ Author: Leonardo de Moura
 #include "util/object_serializer.h"
 #include "kernel/expr.h"
 #include "kernel/expr_eq_fn.h"
-// #include "kernel/free_vars.h"
-// #include "kernel/metavar.h"
+#include "kernel/free_vars.h"
 // #include "kernel/max_sharing.h"
 
 namespace lean {
@@ -336,24 +335,36 @@ expr update_mlocal(expr const & e, expr const & new_type) {
         return e;
 }
 
-#if 0
+bool is_atomic(expr const & e) {
+    switch (e.kind()) {
+    case expr_kind::Constant: case expr_kind::Sort:
+    case expr_kind::Macro:    case expr_kind::Var:
+        return true;
+    case expr_kind::App:      case expr_kind::Let:
+    case expr_kind::Meta:     case expr_kind::Local:
+    case expr_kind::Lambda:   case expr_kind::Pi:  case expr_kind::Sigma:
+    case expr_kind::Pair:     case expr_kind::Fst: case expr_kind::Snd:
+        return false;
+    }
+    lean_unreachable(); // LCOV_EXCL_LINE
+}
 
 bool is_arrow(expr const & t) {
     optional<bool> r = t.raw()->is_arrow();
     if (r) {
         return *r;
     } else {
-        bool res = is_pi(t) && !has_free_var(abst_body(t), 0);
+        bool res = is_pi(t) && !has_free_var(binder_body(t), 0);
         t.raw()->set_is_arrow(res);
         return res;
     }
 }
 
 bool is_cartesian(expr const & t) {
-    return is_sigma(t) && !has_free_var(abst_body(t), 0);
+    return is_sigma(t) && !has_free_var(binder_body(t), 0);
 }
 
-
+#if 0
 expr copy(expr const & a) {
     switch (a.kind()) {
     case expr_kind::Var:      return mk_var(var_idx(a));

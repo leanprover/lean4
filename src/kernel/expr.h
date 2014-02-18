@@ -359,6 +359,10 @@ inline bool is_let(expr const & e)        { return e.kind() == expr_kind::Let; }
 inline bool is_binder(expr const & e)     { return is_lambda(e) || is_pi(e) || is_sigma(e); }
 inline bool is_proj(expr const & e)       { return is_fst(e) || is_snd(e); }
 inline bool is_mlocal(expr const & e)     { return is_metavar(e) || is_local(e); }
+
+bool is_atomic(expr const & e);
+bool is_arrow(expr const & t);
+bool is_cartesian(expr const & t);
 // =======================================
 
 // =======================================

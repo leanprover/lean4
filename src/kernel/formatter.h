@@ -7,8 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <memory>
 #include "util/sexpr/options.h"
-#include "kernel/context.h"
-#include "kernel/environment.h"
+#include "kernel/expr.h"
 
 namespace lean {
 /**
@@ -19,16 +18,7 @@ public:
     virtual ~formatter_cell() {}
     /** \brief Format the given expression. */
     virtual format operator()(expr const & e, options const & opts) = 0;
-    /** \brief Format the given context. */
-    virtual format operator()(context const & c, options const & opts) = 0;
-    /**
-        \brief Format the given expression with respect to the given
-        context.
-
-        \remark If format_ctx == false, then the context is not formatted. It just provides names
-        for the free variables
-    */
-    virtual format operator()(context const & c, expr const & e, bool format_ctx, options const & opts) = 0;
+#if 0
     /** \brief Format the given object */
     virtual format operator()(object const & obj, options const & opts) = 0;
     /** \brief Format the given environment */
@@ -39,6 +29,7 @@ public:
         Not every formatter has an associated environment object.
     */
     virtual optional<ro_environment> get_environment() const { return optional<ro_environment>(); }
+#endif
 };
 /**
    \brief Smart-pointer for the actual formatter object (aka \c formatter_cell).
@@ -48,16 +39,21 @@ class formatter {
     formatter(formatter_cell * c):m_cell(c) {}
 public:
     format operator()(expr const & e, options const & opts = options()) const { return (*m_cell)(e, opts); }
-    format operator()(context const & c, options const & opts = options()) const { return (*m_cell)(c, opts); }
-    format operator()(context const & c, expr const & e, bool format_ctx = false, options const & opts = options()) const { return (*m_cell)(c, e, format_ctx, opts); }
+#if 0
     format operator()(object const & obj, options const & opts = options()) const { return (*m_cell)(obj, opts); }
     format operator()(ro_environment const & env, options const & opts = options()) const { return (*m_cell)(env, opts); }
     optional<ro_environment> get_environment() { return m_cell->get_environment(); }
-
+#endif
     template<typename FCell> friend formatter mk_formatter(FCell && fcell);
 };
 
 template<typename FCell> formatter mk_formatter(FCell && fcell) {
     return formatter(new FCell(std::forward<FCell>(fcell)));
 }
+
+std::ostream & operator<<(std::ostream & out, expr const & e);
+/**
+   \brief Create a simple formatter object based on operator<<
+*/
+formatter mk_simple_formatter();
 }

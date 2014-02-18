@@ -7,16 +7,6 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 
 namespace lean {
-bool replace_fn::is_atomic(expr const & e) {
-    switch (e.kind()) {
-    case expr_kind::Constant: case expr_kind::Sort:
-    case expr_kind::Macro:    case expr_kind::Var:
-        return true;
-    default:
-        return false;
-    }
-}
-
 void replace_fn::save_result(expr const & e, expr const & r, unsigned offset, bool shared) {
     if (shared)
         m_cache.insert(std::make_pair(expr_cell_offset(e.raw(), offset), r));

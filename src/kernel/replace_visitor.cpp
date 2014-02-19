@@ -10,65 +10,48 @@ Author: Leonardo de Moura
 #include "kernel/replace_visitor.h"
 
 namespace lean {
-expr replace_visitor::visit_type(expr const & e, context const &) { lean_assert(is_type(e)); return e; }
-expr replace_visitor::visit_value(expr const & e, context const &) { lean_assert(is_value(e)); return e; }
+expr replace_visitor::visit_sort(expr const & e, context const &) { lean_assert(is_sort(e)); return e; }
+expr replace_visitor::visit_macro(expr const & e, context const &) { lean_assert(is_macro(e)); return e; }
 expr replace_visitor::visit_var(expr const & e, context const &) { lean_assert(is_var(e)); return e; }
-expr replace_visitor::visit_metavar(expr const & e, context const &) { lean_assert(is_metavar(e)); return e; }
-expr replace_visitor::visit_constant(expr const & e, context const & ctx) {
-    lean_assert(is_constant(e));
-    return update_const(e, visit(const_type(e), ctx));
+expr replace_visitor::visit_constant(expr const & e, context const &) { lean_assert(is_constant(e)); return e; }
+expr replace_visitor::visit_mlocal(expr const & e, context const & ctx) {
+    lean_assert(is_mlocal(e));
+    return update_mlocal(e, visit(mlocal_type(e), ctx));
 }
+expr replace_visitor::visit_meta(expr const & e, context const & ctx) { return visit_mlocal(e, ctx); }
+expr replace_visitor::visit_local(expr const & e, context const & ctx) { return visit_mlocal(e, ctx); }
 expr replace_visitor::visit_pair(expr const & e, context const & ctx) {
     lean_assert(is_dep_pair(e));
-    return update_pair(e, [&](expr const & f, expr const & s, expr const & t) {
-            return std::make_tuple(visit(f, ctx), visit(s, ctx), visit(t, ctx));
-        });
+    return update_pair(e, visit(pair_first(e), ctx), visit(pair_second(e), ctx), visit(pair_type(e), ctx));
 }
 expr replace_visitor::visit_proj(expr const & e, context const & ctx) {
+    lean_assert(is_proj(e));
     return update_proj(e, visit(proj_arg(e), ctx));
 }
+expr replace_visitor::visit_fst(expr const & e, context const & ctx) { return visit_proj(e, ctx); }
+expr replace_visitor::visit_snd(expr const & e, context const & ctx) { return visit_proj(e, ctx); }
 expr replace_visitor::visit_app(expr const & e, context const & ctx) {
     lean_assert(is_app(e));
-    return update_app(e, [&](expr const & c) { return visit(c, ctx); });
+    return update_app(e, visit(app_fn(e), ctx), visit(app_arg(e), ctx));
 }
-expr replace_visitor::visit_heq(expr const & e, context const & ctx) {
-    lean_assert(is_heq(e));
-    return update_heq(e, visit(heq_lhs(e), ctx), visit(heq_rhs(e), ctx));
+expr replace_visitor::visit_binder(expr const & e, context const & ctx) {
+    lean_assert(is_binder(e));
+    expr new_d = visit(binder_domain(e), ctx);
+    freset<cache> reset(m_cache);
+    expr new_b = visit(binder_body(e), extend(ctx, binder_name(e), new_d));
+    return update_binder(e, new_d, new_b);
 }
-expr replace_visitor::visit_abst(expr const & e, context const & ctx) {
-    lean_assert(is_abstraction(e));
-    return update_abst(e, [&](expr const & t, expr const & b) {
-            expr new_t = visit(t, ctx);
-            {
-                freset<cache> reset(m_cache);
-                expr new_b = visit(b, extend(ctx, abst_name(e), new_t));
-                return std::make_pair(new_t, new_b);
-            }
-        });
-}
-expr replace_visitor::visit_lambda(expr const & e, context const & ctx) {
-    lean_assert(is_lambda(e));
-    return visit_abst(e, ctx);
-}
-expr replace_visitor::visit_pi(expr const & e, context const & ctx) {
-    lean_assert(is_pi(e));
-    return visit_abst(e, ctx);
-}
-expr replace_visitor::visit_sigma(expr const & e, context const & ctx) {
-    lean_assert(is_sigma(e));
-    return visit_abst(e, ctx);
-}
+expr replace_visitor::visit_lambda(expr const & e, context const & ctx) { return visit_binder(e, ctx); }
+expr replace_visitor::visit_pi(expr const & e, context const & ctx) { return visit_binder(e, ctx); }
+expr replace_visitor::visit_sigma(expr const & e, context const & ctx) { return visit_binder(e, ctx); }
 expr replace_visitor::visit_let(expr const & e, context const & ctx) {
     lean_assert(is_let(e));
-    return update_let(e, [&](optional<expr> const & t, expr const & v, expr const & b) {
-            optional<expr> new_t = visit(t, ctx);
-            expr new_v = visit(v, ctx);
-            {
-                freset<cache> reset(m_cache);
-                expr new_b = visit(b, extend(ctx, let_name(e), new_t, new_v));
-                return std::make_tuple(new_t, new_v, new_b);
-            }
-        });
+    optional<expr> new_t = visit(let_type(e), ctx);
+    expr new_v = visit(let_value(e), ctx);
+    freset<cache> reset(m_cache);
+    // TODO(Leo): decide what we should do with let-exprs
+    expr new_b; // = visit(let_body(e), extend(ctx, let_name(e), new_t, new_v));
+    return update_let(e, new_t, new_v, new_b);
 }
 expr replace_visitor::save_result(expr const & e, expr && r, bool shared) {
     if (shared)
@@ -86,14 +69,15 @@ expr replace_visitor::visit(expr const & e, context const & ctx) {
     }
 
     switch (e.kind()) {
-    case expr_kind::Type:      return save_result(e, visit_type(e, ctx), shared);
-    case expr_kind::Value:     return save_result(e, visit_value(e, ctx), shared);
+    case expr_kind::Sort:      return save_result(e, visit_sort(e, ctx), shared);
+    case expr_kind::Macro:     return save_result(e, visit_macro(e, ctx), shared);
     case expr_kind::Constant:  return save_result(e, visit_constant(e, ctx), shared);
     case expr_kind::Var:       return save_result(e, visit_var(e, ctx), shared);
-    case expr_kind::MetaVar:   return save_result(e, visit_metavar(e, ctx), shared);
-    case expr_kind::HEq:       return save_result(e, visit_heq(e, ctx), shared);
+    case expr_kind::Meta:      return save_result(e, visit_meta(e, ctx), shared);
+    case expr_kind::Local:     return save_result(e, visit_local(e, ctx), shared);
     case expr_kind::Pair:      return save_result(e, visit_pair(e, ctx), shared);
-    case expr_kind::Proj:      return save_result(e, visit_proj(e, ctx), shared);
+    case expr_kind::Fst:       return save_result(e, visit_fst(e, ctx), shared);
+    case expr_kind::Snd:       return save_result(e, visit_snd(e, ctx), shared);
     case expr_kind::App:       return save_result(e, visit_app(e, ctx), shared);
     case expr_kind::Lambda:    return save_result(e, visit_lambda(e, ctx), shared);
     case expr_kind::Pi:        return save_result(e, visit_pi(e, ctx), shared);

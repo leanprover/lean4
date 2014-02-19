@@ -47,86 +47,6 @@ public:
 };
 
 /**
-   \brief Universe variable constraint.
-*/
-class uvar_constraint_object_cell : public named_object_cell {
-    level m_level;
-public:
-    uvar_constraint_object_cell(name const & n, level const & l):
-        named_object_cell(object_kind::UVarConstraint, n), m_level(l) {}
-    virtual ~uvar_constraint_object_cell() {}
-
-    virtual bool has_cnstr_level() const  { return true; }
-    virtual level get_cnstr_level() const { return m_level; }
-    virtual char const * keyword() const  { return "universe"; }
-    virtual void write(serializer & s) const { s << "universe" << get_name() << m_level; }
-};
-static void read_uvar_cnstr(environment const & env, io_state const &, deserializer & d) {
-    name n    = read_name(d);
-    level lvl = read_level(d);
-    env->add_uvar_cnstr(n, lvl);
-}
-static object_cell::register_deserializer_fn uvar_ds("universe", read_uvar_cnstr);
-
-/**
-   \brief Builtin object.
-*/
-class builtin_object_cell : public object_cell {
-    expr m_value;
-    bool m_opaque;
-public:
-    builtin_object_cell(expr const & v):
-        object_cell(object_kind::Builtin), m_value(v), m_opaque(false) { lean_assert(is_value(v)); }
-    virtual ~builtin_object_cell() {}
-    virtual bool has_name() const        { return true; }
-    virtual name get_name() const        { return to_value(m_value).get_name(); }
-    virtual bool has_type() const        { return true; }
-    virtual expr get_type() const        { return to_value(m_value).get_type(); }
-    virtual bool is_definition() const   { return true; }
-    virtual bool is_opaque() const       { return m_opaque; }
-    virtual void set_opaque(bool f)      { m_opaque = f; }
-    virtual expr get_value() const       { return m_value; }
-    virtual char const * keyword() const { return "builtin"; }
-    virtual bool is_builtin() const      { return true; }
-    virtual void write(serializer & s) const { s << "builtin" << m_value; }
-};
-static void read_builtin(environment const & env, io_state const &, deserializer & d) {
-    expr v      = read_expr(d);
-    env->add_builtin(v);
-}
-static object_cell::register_deserializer_fn builtin_ds("builtin", read_builtin);
-
-
-/**
-   \brief Base class for capturing a set of builtin objects such as
-      a) the natural numbers 0, 1, 2, ...
-      b) the integers 0, -1, 1, -2, 2, ...
-      c) the reals
-      d) ...
-   This object represents an infinite set of declarations.
-   This is just a markup to sign that an environment depends on a
-   particular builtin set of values.
-*/
-class builtin_set_object_cell : public object_cell {
-    // The representative is only used to test if a builtin value
-    // is in the same C++ class of the representative.
-    expr m_representative;
-public:
-    builtin_set_object_cell(expr const & r):object_cell(object_kind::BuiltinSet), m_representative(r) { lean_assert(is_value(r)); }
-    virtual ~builtin_set_object_cell() {}
-    virtual bool has_name() const { return true; }
-    virtual name get_name() const { return to_value(m_representative).get_name(); }
-    virtual bool is_builtin_set() const { return true; }
-    virtual bool in_builtin_set(expr const & v) const { return is_value(v) && typeid(to_value(v)) == typeid(to_value(m_representative)); }
-    virtual char const * keyword() const { return "builtinset"; }
-    virtual void write(serializer & s) const { s << "builtinset" << m_representative; }
-};
-static void read_builtin_set(environment const & env, io_state const &, deserializer & d) {
-    env->add_builtin_set(read_expr(d));
-}
-static object_cell::register_deserializer_fn builtin_set_ds("builtinset", read_builtin_set);
-
-/**
    \brief Named (and typed) kernel objects.
 */
 class named_typed_object_cell : public named_object_cell {
@@ -233,11 +153,10 @@ static void read_theorem(environment const & env, io_state const &, deserializer
 }
 static object_cell::register_deserializer_fn theorem_ds("th", read_theorem);
 
-object mk_uvar_cnstr(name const & n, level const & l) { return object(new uvar_constraint_object_cell(n, l)); }
-object mk_definition(name const & n, expr const & t, expr const & v, unsigned weight) { return object(new definition_object_cell(n, t, v, weight)); }
+object mk_definition(name const & n, expr const & t, expr const & v, unsigned weight) {
+    return object(new definition_object_cell(n, t, v, weight));
+}
 object mk_theorem(name const & n, expr const & t, expr const & v) { return object(new theorem_object_cell(n, t, v)); }
 object mk_axiom(name const & n, expr const & t) { return object(new axiom_object_cell(n, t)); }
 object mk_var_decl(name const & n, expr const & t) { return object(new variable_decl_object_cell(n, t)); }
-object mk_builtin(expr const & v) { return object(new builtin_object_cell(v)); }
-object mk_builtin_set(expr const & r) { return object(new builtin_set_object_cell(r)); }
 }

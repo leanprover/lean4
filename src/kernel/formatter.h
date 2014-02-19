@@ -56,4 +56,6 @@ std::ostream & operator<<(std::ostream & out, expr const & e);
    \brief Create a simple formatter object based on operator<<
 */
 formatter mk_simple_formatter();
+
+typedef std::function<format(formatter const &, options const &)> pp_fn;
 }

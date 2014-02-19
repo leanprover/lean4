@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "util/lua.h"
 #include "util/shared_mutex.h"
 #include "util/name_map.h"
-#include "kernel/context.h"
 #include "kernel/object.h"
 #include "kernel/level.h"
 
@@ -23,8 +22,6 @@ class environment;
 class ro_environment;
 class type_checker;
 class environment_extension;
-class universe_constraints;
-class universes;
 
 /** \brief Implementation of the Lean environment. */
 class environment_cell {
@@ -35,15 +32,14 @@ class environment_cell {
     typedef name_map<object> object_dictionary;
     typedef std::tuple<level, level, int> constraint;
     std::weak_ptr<environment_cell>         m_this;
-    // Universe variable management
-    std::unique_ptr<universes>              m_universes;
     // Children environment management
     atomic<unsigned>                        m_num_children;
     std::shared_ptr<environment_cell>       m_parent;
     // Object management
     std::vector<object>                     m_objects;
     object_dictionary                       m_object_dictionary;
-    std::unique_ptr<type_checker>           m_type_checker;
+
+    // std::unique_ptr<type_checker>           m_type_checker;
     std::set<name>                          m_imported_modules;   // set of imported files and builtin modules
     bool                                    m_trust_imported; // if true, then imported modules are not type checked.
     bool                                    m_type_check;     // auxiliary flag used to implement m_trust_imported.
@@ -69,18 +65,9 @@ class environment_cell {
     void register_named_object(object const & new_obj);
     optional<object> get_object_core(name const & n) const;
 
-    universes & get_rw_universes();
-    universes const & get_ro_universes() const;
-    universe_constraints & get_rw_ucs();
-    universe_constraints const & get_ro_ucs() const;
-
-    level add_uvar_core(name const & n);
-    bool is_ge(level const & l1, level const & l2, int k) const;
-    void check_consistency(name const & n, level const & l, int k) const;
-    void add_constraints(name const & n, level const & l, int k);
-    void init_uvars();
-    void check_no_cached_type(expr const & e);
+    void check_no_mlocal(expr const & e);
     void check_type(name const & n, expr const & t, expr const & v);
+    void check_type(expr const & t);
     void check_new_definition(name const & n, expr const & t, expr const & v);
 
     bool mark_imported_core(name n);
@@ -112,58 +99,7 @@ public:
     environment mk_child() const;
 
     // =======================================
-    // Universe variables
-    /**
-       \brief Add a new universe variable constraint of the form <tt>n >= l</tt>.
-       Return the level of \c n.
-
-       \remark An exception is thrown if a universe inconsistency is detected.
-    */
-    level add_uvar_cnstr(name const & n, level const & l);
-    level add_uvar_cnstr(name const & n) { return add_uvar_cnstr(n, level()); }
-
-    /**
-       \brief Return true iff the constraint l1 >= l2 is implied by the constraints
-       in the environment.
-    */
-    bool is_ge(level const & l1, level const & l2) const;
-
-    /**
-       \brief Return the (minimal) distance between two universes.
-       That is, the biggest \c k s.t. <tt>u1 >= u2 + k</tt>.
-       Return none if there is no such \c k.
-    */
-    optional<int> get_universe_distance(name const & u1, name const & u2) const;
-
-    /**
-       \brief Return universal variable with the given name.
-       Throw an exception if variable is not defined in this environment.
-    */
-    level get_uvar(name const & n) const;
-    // =======================================
-
-    // =======================================
     // Environment Objects
-
-    /**
-        \brief Add builtin value to the environment.
-
-        \pre is_value(v)
-    */
-    void add_builtin(expr const & v);
-
-    /**
-       \brief Add a builtin value set to the environment.
-
-       The set is registered by providing a representative of the set.
-       Each builtin set of values is implemented by a C++ class.
-       The environment will only accept object of the same class of
-       the representative. This functionality is used to support
-       infinite set of builtin values such as the natural numbers.
-
-       \pre is_value(r);
-    */
-    void add_builtin_set(expr const & r);
 
     /**
        \brief Add a new definition n : t := v.
@@ -218,22 +154,22 @@ public:
     /**
        \brief Type check the given expression, and return the type of \c e in the given context and this environment.
     */
-    expr type_check(expr const & e, context const & ctx = context()) const;
+    expr type_check(expr const & e) const;
 
     /**
        \brief Return the type of \c e in the given context and this environment.
     */
-    expr infer_type(expr const & e, context const & ctx = context()) const;
+    expr infer_type(expr const & e) const;
 
     /**
        \brief Normalize \c e in the given context and this environment.
     */
-    expr normalize(expr const & e, context const & ctx = context(), bool unfold_opaque = false) const;
+    expr normalize(expr const & e) const;
 
     /**
        \brief Return true iff \c e is a proposition.
     */
-    bool is_proposition(expr const & e, context const & ctx = context()) const;
+    bool is_proposition(expr const & e) const;
 
     /**
        \brief Low-level function for accessing objects. Consider using iterators.
@@ -421,34 +357,17 @@ bool is_end_import(object const & obj);
 */
 optional<std::string> get_imported_module(object const & obj);
 
-typedef std::function<expr()> mk_builtin_fn;
 /**
-   \brief Register a builtin or builtin-set that is available to be added to
-   a Lean environment.
-*/
-void register_builtin(name const & n, mk_builtin_fn mk, bool is_builtin_set);
-struct register_builtin_fn {
-    register_builtin_fn(name const & n, mk_builtin_fn mk, bool is_builtin_set = false) {
-        register_builtin(n, mk, is_builtin_set);
-    }
-};
-/**
-   \brief Return a builtin/builtin-set associated with the name \c n.
-   Return none if there is no builtin associated the given name.
-*/
-optional<std::pair<expr, bool>> get_builtin(name const & n);
-
-/**
-   \brief Return true iff \c obj is a SetOpaque command mark.
+   \brief Return true iff \c obj is a set_opaque command mark.
 */
 bool is_set_opaque(object const & obj);
 /**
-   \brief Return the identifier of a SetOpaque command.
+   \brief Return the identifier of a set_opaque command.
    \pre is_set_opaque(obj)
 */
 name const & get_set_opaque_id(object const & obj);
 /**
-   \brief Return the flag of a SetOpaque command.
+   \brief Return the flag of a set_opaque command.
    \pre is_set_opaque(obj)
 */
 bool get_set_opaque_flag(object const & obj);

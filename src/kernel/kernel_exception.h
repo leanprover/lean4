@@ -34,65 +34,20 @@ public:
     virtual void rethrow() const { throw *this; }
 };
 
-/** \brief Base class for unknown universe or object exceptions. */
-class unknown_name_exception : public kernel_exception {
-protected:
-    name m_name;
-public:
-    unknown_name_exception(ro_environment const & env, name const & n):kernel_exception(env), m_name(n) {}
-    virtual ~unknown_name_exception() {}
-    name const & get_name() const { return m_name; }
-    virtual format pp(formatter const & fmt, options const & opts) const;
-    virtual exception * clone() const { return new unknown_name_exception(m_env, m_name); }
-    virtual void rethrow() const { throw *this; }
-};
+[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, char const * msg, optional<expr> const & m = none_expr());
+[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, sstream const & strm,
+                                           optional<expr> const & m = none_expr());
+[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, char const * msg,
+                                           pp_fn const & fn, optional<expr> const & m = none_expr());
+[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, pp_fn const & fn, optional<expr> const & m = none_expr());
 
-/** \brief Exception used to report that a universe variable is not known in a given environment. */
-class unknown_universe_variable_exception : public unknown_name_exception {
-public:
-    unknown_universe_variable_exception(ro_environment const & env, name const & n):unknown_name_exception(env, n) {}
-    virtual char const * what() const noexcept { return "unknown universe variable"; }
-    virtual exception * clone() const { return new unknown_universe_variable_exception(m_env, m_name); }
-    virtual void rethrow() const { throw *this; }
-};
+[[ noreturn ]] void throw_unknown_object(ro_environment const & env, name const & n);
+[[ noreturn ]] void throw_already_declared(ro_environment const & env, name const & n);
+[[ noreturn ]] void throw_read_only_environment(ro_environment const & env);
 
-/** \brief Exception used to report that an object is not known in a given environment. */
-class unknown_object_exception : public unknown_name_exception {
-public:
-    unknown_object_exception(ro_environment const & env, name const & n):unknown_name_exception(env, n) {}
-    virtual char const * what() const noexcept { return "unknown object"; }
-    virtual exception * clone() const { return new unknown_object_exception(m_env, m_name); }
-    virtual void rethrow() const { throw *this; }
-};
 
-/** \brief Base class for already declared object. */
-class already_declared_exception : public kernel_exception {
-protected:
-    name m_name;
-public:
-    already_declared_exception(ro_environment const & env, name const & n):kernel_exception(env), m_name(n) {}
-    virtual ~already_declared_exception() noexcept {}
-    name const & get_name() const { return m_name; }
-    virtual char const * what() const noexcept { return "invalid object declaration, environment already has an object with the given name"; }
-    virtual format pp(formatter const & fmt, options const & opts) const;
-    virtual exception * clone() const { return new already_declared_exception(m_env, m_name); }
-    virtual void rethrow() const { throw *this; }
-};
 
-/**
-    \brief Exception used to report that a update has been tried on a
-    read-only environment.
-
-    An environment is read-only if it has "children environments".
-*/
-class read_only_environment_exception : public kernel_exception {
-public:
-    read_only_environment_exception(ro_environment const & env):kernel_exception(env) {}
-    virtual char const * what() const noexcept { return "environment cannot be updated because it has children environments"; }
-    virtual exception * clone() const { return new read_only_environment_exception(m_env); }
-    virtual void rethrow() const { throw *this; }
-};
-
+#if 0
 /** \brief Base class for type checking related exceptions. */
 class type_checker_exception : public kernel_exception {
 public:
@@ -267,35 +222,6 @@ public:
 };
 
 /**
-    \brief Invalid builtin value declaration.
-*/
-class invalid_builtin_value_declaration : public kernel_exception {
-    expr m_expr;
-public:
-    invalid_builtin_value_declaration(ro_environment const & env, expr const & e):kernel_exception(env), m_expr(e) {}
-    virtual ~invalid_builtin_value_declaration() {}
-    virtual char const * what() const noexcept { return "invalid builtin value declaration, expression is not a builtin value"; }
-    virtual optional<expr> get_main_expr() const { return some_expr(m_expr); }
-    virtual exception * clone() const { return new invalid_builtin_value_declaration(m_env, m_expr); }
-    virtual void rethrow() const { throw *this; }
-};
-
-/**
-    \brief Exception used to report that a builtin value is not
-    declared in the environment.
-*/
-class invalid_builtin_value_reference : public kernel_exception {
-    expr m_expr;
-public:
-    invalid_builtin_value_reference(ro_environment const & env, expr const & e):kernel_exception(env), m_expr(e) {}
-    virtual ~invalid_builtin_value_reference() {}
-    virtual char const * what() const noexcept { return "invalid builtin value reference, this kind of builtin value was not declared in the environment"; }
-    virtual optional<expr> get_main_expr() const { return some_expr(m_expr); }
-    virtual exception * clone() const { return new invalid_builtin_value_reference(m_env, m_expr); }
-    virtual void rethrow() const { throw *this; }
-};
-
-/**
    \brief Unexpected metavariable occurrence
 */
 class unexpected_metavar_occurrence : public kernel_exception {
@@ -308,4 +234,5 @@ public:
     virtual exception * clone() const { return new unexpected_metavar_occurrence(m_env, m_expr); }
     virtual void rethrow() const { throw *this; }
 };
+#endif
 }

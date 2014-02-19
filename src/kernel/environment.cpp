@@ -22,10 +22,8 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/environment.h"
 #include "kernel/threadsafe_environment.h"
-#include "kernel/type_checker.h"
-#include "kernel/normalizer.h"
-#include "kernel/universe_constraints.h"
-#include "kernel/kernel.h"
+// #include "kernel/type_checker.h"
+// #include "kernel/normalizer.h"
 #include "version.h"
 
 namespace lean {
@@ -182,7 +180,7 @@ unsigned environment_cell::get_max_weight(expr const & e) {
         }
         return true;
         };
-    for_each_fn<decltype(proc)> visitor(proc);
+    for_each_fn visitor(proc);
     visitor(e);
     return w;
 }
@@ -192,12 +190,12 @@ void environment_cell::check_name_core(name const & n) {
     if (has_parent())
         m_parent->check_name_core(n);
     if (m_object_dictionary.find(n) != m_object_dictionary.end())
-        throw already_declared_exception(env(), n);
+        throw_already_declared(env(), n);
 }
 
 void environment_cell::check_name(name const & n) {
     if (has_children())
-        throw read_only_environment_exception(env());
+        throw_read_only_environment(env());
     check_name_core(n);
 }
 
@@ -229,177 +227,17 @@ object environment_cell::get_object(name const & n) const {
     if (obj) {
         return *obj;
     } else {
-        throw unknown_object_exception(env(), n);
+        throw_unknown_object(env(), n);
     }
-}
-
-class universes {
-public:
-    std::vector<level>                  m_uvars;
-    universe_constraints                m_constraints;
-};
-
-universes & environment_cell::get_rw_universes() {
-    if (!m_universes) {
-        lean_assert(has_parent());
-        m_universes.reset(new universes(m_parent->get_rw_universes()));
-    }
-    return *m_universes;
-}
-
-universes const & environment_cell::get_ro_universes() const {
-    if (m_universes) {
-        return *m_universes;
-    } else {
-        lean_assert(has_parent());
-        return m_parent->get_ro_universes();
-    }
-}
-
-universe_constraints & environment_cell::get_rw_ucs() {
-    return get_rw_universes().m_constraints;
-}
-
-universe_constraints const & environment_cell::get_ro_ucs() const {
-    return get_ro_universes().m_constraints;
-}
-
-optional<int> environment_cell::get_universe_distance(name const & u1, name const & u2) const {
-    return get_ro_ucs().get_distance(u1, u2);
-}
-
-/** \brief Return true iff l1 >= l2 + k by asserted universe constraints. */
-bool environment_cell::is_ge(level const & l1, level const & l2, int k) const {
-    if (l1 == l2)
-        return k <= 0;
-    switch (kind(l2)) {
-    case level_kind::UVar:
-        switch (kind(l1)) {
-        case level_kind::UVar: return get_ro_ucs().is_implied(uvar_name(l1), uvar_name(l2), k);
-        case level_kind::Lift: return is_ge(lift_of(l1), l2, safe_sub(k, lift_offset(l1)));
-        case level_kind::Max:  return std::any_of(max_begin_levels(l1), max_end_levels(l1), [&](level const & l) { return is_ge(l, l2, k); });
-        }
-    case level_kind::Lift: return is_ge(l1, lift_of(l2), safe_add(k, lift_offset(l2)));
-    case level_kind::Max:  return std::all_of(max_begin_levels(l2), max_end_levels(l2), [&](level const & l) { return is_ge(l1, l, k); });
-    }
-    lean_unreachable(); // LCOV_EXCL_LINE
-}
-
-/** \brief Return true iff l1 >= l2 is implied by asserted universe constraints. */
-bool environment_cell::is_ge(level const & l1, level const & l2) const {
-    return is_ge(l1, l2, 0);
-}
-
-/** \brief Add a new universe variable */
-level environment_cell::add_uvar_core(name const & n) {
-    check_name(n);
-    universes & u = get_rw_universes();
-    u.m_constraints.add_var(n);
-    level r(n);
-    u.m_uvars.push_back(r);
-    return r;
 }
 
 /**
-   \brief Add all basic constraints implied by n >= l + k
-
-   A basic constraint is a constraint of the form u >= v + k
-   where u and v are universe variables.
+   The kernel should *not* accept expressions containing Local or Meta.
+   Reason: they may introduce unsoundness.
 */
-void environment_cell::add_constraints(name const & n, level const & l, int k) {
-    switch (kind(l)) {
-    case level_kind::UVar: get_rw_ucs().add_constraint(n, uvar_name(l), k); return;
-    case level_kind::Lift: add_constraints(n, lift_of(l), safe_add(k, lift_offset(l))); return;
-    case level_kind::Max:  std::for_each(max_begin_levels(l), max_end_levels(l), [&](level const & l1) { add_constraints(n, l1, k); }); return;
-    }
-    lean_unreachable(); // LCOV_EXCL_LINE
-}
-
-/**
-   \brief Check if n >= l + k is consistent with the existing constraints.
-*/
-void environment_cell::check_consistency(name const & n, level const & l, int k) const {
-    switch (kind(l)) {
-    case level_kind::UVar:
-        if (l == ty_level(TypeU))
-            throw kernel_exception(env(), sstream() << "invalid universe constraint: " << n << " >= " << l << " + " << k
-                                   << ", several modules in Lean assume that " << l << " is the maximal universe");
-        if (!get_ro_ucs().is_consistent(n, uvar_name(l), k))
-            throw kernel_exception(env(), sstream() << "universe constraint inconsistency: " << n << " >= " << l << " + " << k);
-        if (get_ro_ucs().overflows(n, uvar_name(l), k))
-            throw kernel_exception(env(), sstream() << "universe constraint produces an integer overflow: " << n << " >= " << l << " + " << k);
-        return;
-    case level_kind::Lift: check_consistency(n, lift_of(l), safe_add(k, lift_offset(l))); return;
-    case level_kind::Max:  std::for_each(max_begin_levels(l), max_end_levels(l), [&](level const & l1) { check_consistency(n, l1, k); }); return;
-    }
-    lean_unreachable(); // LCOV_EXCL_LINE
-}
-
-/** \brief Add a new universe variable with constraint n >= l */
-level environment_cell::add_uvar_cnstr(name const & n, level const & l) {
-    if (has_children())
-        throw read_only_environment_exception(env());
-    level r;
-    auto const & uvs = get_ro_universes().m_uvars;
-    auto it = std::find_if(uvs.begin(), uvs.end(), [&](level const & l) { return uvar_name(l) == n; });
-    bool new_universe;
-    check_consistency(n, l, 0);
-    if (it == uvs.end()) {
-        r = add_uvar_core(n);
-        new_universe = true;
-    } else {
-        // universe n already exists, we must check consistency of the new constraint.
-        r = *it;
-        new_universe = false;
-    }
-    m_objects.push_back(mk_uvar_cnstr(n, l));
-    add_constraints(n, l, 0);
-    name const & Uname = uvar_name(ty_level(TypeU));
-    if (new_universe && n != Uname && !is_ge(ty_level(TypeU), r, 1)) {
-        // In Lean, U is the maximal universe, several Lean modules assume that,
-        // and the kernel axioms are all with respect to U.
-        // So, we force all other universes to smaller than U
-        add_uvar_cnstr(Uname, r+1);
-    }
-    return r;
-}
-
-/**
-   \brief Return the universe variable with given name. Throw an
-   exception if the environment and its ancestors do not
-   contain a universe variable named \c n.
-*/
-level environment_cell::get_uvar(name const & n) const {
-    auto const & uvs = get_ro_universes().m_uvars;
-    auto it = std::find_if(uvs.begin(), uvs.end(), [&](level const & l) { return uvar_name(l) == n; });
-    if (it == uvs.end())
-        throw unknown_universe_variable_exception(env(), n);
-    else
-        return *it;
-}
-
-/**
-   \brief Initialize the set of universe variables with bottom
-*/
-void environment_cell::init_uvars() {
-    m_universes.reset(new universes());
-    universes & u = get_rw_universes();
-    level bottom;
-    u.m_uvars.push_back(bottom);
-    u.m_constraints.add_var(uvar_name(bottom));
-}
-
-/**
-   The kernel should *not* accept expressions containing cached types.
-   Reason: Cached types may introduce unsoundness.
-   For example, in the environment env, the constant x may have type T.
-   Now suppose we are trying to add a new definition D that contains x,
-   and x is associated with a cached type T'. The cached type may allow
-   us to accept a definition that is type incorrect with respect to env.
-*/
-void environment_cell::check_no_cached_type(expr const & e) {
-    if (find(e, [](expr const & a) { return is_constant(a) && const_type(a); }))
-        throw kernel_exception(env(), "expression has a constant with a cached type, this is a bug in one of Lean tactics and/or solvers"); // LCOV_EXCL_LINE
+void environment_cell::check_no_mlocal(expr const & e) {
+    if (find(e, [](expr const & a, unsigned) { return is_mlocal(a); }))
+        throw_kernel_exception(env(), "expression has metavariable and/or local constants, this is a bug in one of Lean tactics and/or solvers"); // LCOV_EXCL_LINE
 }
 
 /**
@@ -407,12 +245,21 @@ void environment_cell::check_no_cached_type(expr const & e) {
    v is not convertible to \c t.
 */
 void environment_cell::check_type(name const & n, expr const & t, expr const & v) {
+#if 0
     if (m_type_check) {
         m_type_checker->check_type(t);
         expr v_t = m_type_checker->check(v);
         if (!m_type_checker->is_convertible(v_t, t))
             throw def_type_mismatch_exception(env(), n, t, v, v_t);
     }
+#endif
+}
+
+void environment_cell::check_type(expr const & t) {
+#if 0
+    if (m_type_check)
+        m_type_checker->check_type(t);
+#endif
 }
 
 /** \brief Throw exception if it is not a valid new definition */
@@ -421,34 +268,10 @@ void environment_cell::check_new_definition(name const & n, expr const & t, expr
     check_type(n, t, v);
 }
 
-/** \brief Add a new builtin value to this environment */
-void environment_cell::add_builtin(expr const & v) {
-    if (!is_value(v))
-        throw invalid_builtin_value_declaration(env(), v); // LCOV_EXCL_LINE
-    name const & n = to_value(v).get_name();
-    check_name(n);
-    name const & u = to_value(v).get_unicode_name();
-    check_name(u);
-    register_named_object(mk_builtin(v));
-    if (u != n) {
-        auxiliary_section([&]() {
-                add_definition(u, to_value(v).get_type(), mk_constant(n), false);
-            });
-    }
-}
-
-/** \brief Add a new builtin value set to this environment */
-void environment_cell::add_builtin_set(expr const & r) {
-    if (!is_value(r))
-        throw invalid_builtin_value_declaration(env(), r); // LCOV_EXCL_LINE
-    check_name(to_value(r).get_name());
-    register_named_object(mk_builtin_set(r));
-}
-
 /** \brief Add new definition. */
 void environment_cell::add_definition(name const & n, expr const & t, expr const & v, bool opaque) {
-    check_no_cached_type(t);
-    check_no_cached_type(v);
+    check_no_mlocal(t);
+    check_no_mlocal(v);
     check_new_definition(n, t, v);
     unsigned w = get_max_weight(v) + 1;
     register_named_object(mk_definition(n, t, v, w));
@@ -461,13 +284,15 @@ void environment_cell::add_definition(name const & n, expr const & t, expr const
    The type of the new definition is the type of \c v.
 */
 void environment_cell::add_definition(name const & n, expr const & v, bool opaque) {
-    check_no_cached_type(v);
+    check_no_mlocal(v);
     check_name(n);
     expr v_t;
+#if 0
     if (m_type_check)
         v_t = m_type_checker->check(v);
     else
         v_t = m_type_checker->infer_type(v);
+#endif
     unsigned w = get_max_weight(v) + 1;
     register_named_object(mk_definition(n, v_t, v, w));
     if (opaque)
@@ -476,8 +301,8 @@ void environment_cell::add_definition(name const & n, expr const & v, bool opaqu
 
 /** \brief Add new theorem. */
 void environment_cell::add_theorem(name const & n, expr const & t, expr const & v) {
-    check_no_cached_type(t);
-    check_no_cached_type(v);
+    check_no_mlocal(t);
+    check_no_mlocal(v);
     check_new_definition(n, t, v);
     register_named_object(mk_theorem(n, t, v));
 }
@@ -485,26 +310,24 @@ void environment_cell::add_theorem(name const & n, expr const & t, expr const & 
 void environment_cell::set_opaque(name const & n, bool opaque) {
     auto obj = find_object(n);
     if (!obj || !obj->is_definition())
-        throw kernel_exception(env(), sstream() << "set_opaque failed, '" << n << "' is not a definition");
+        throw_kernel_exception(env(), sstream() << "set_opaque failed, '" << n << "' is not a definition");
     obj->set_opaque(opaque);
     add_neutral_object(new set_opaque_command(n, opaque));
 }
 
 /** \brief Add new axiom. */
 void environment_cell::add_axiom(name const & n, expr const & t) {
-    check_no_cached_type(t);
+    check_no_mlocal(t);
     check_name(n);
-    if (m_type_check)
-        m_type_checker->check_type(t);
+    check_type(t);
     register_named_object(mk_axiom(n, t));
 }
 
 /** \brief Add new variable. */
 void environment_cell::add_var(name const & n, expr const & t) {
-    check_no_cached_type(t);
+    check_no_mlocal(t);
     check_name(n);
-    if (m_type_check)
-        m_type_checker->check_type(t);
+    check_type(t);
     register_named_object(mk_var_decl(n, t));
 }
 
@@ -532,20 +355,36 @@ object const & environment_cell::get_object(unsigned i, bool local) const {
     }
 }
 
-expr environment_cell::type_check(expr const & e, context const & ctx) const {
+expr environment_cell::type_check(expr const & e) const {
+#if 0
     return m_type_checker->check(e, ctx);
+#else
+    return e;
+#endif
 }
 
-expr environment_cell::infer_type(expr const & e, context const & ctx) const {
+expr environment_cell::infer_type(expr const & e) const {
+#if 0
     return m_type_checker->infer_type(e, ctx);
+#else
+    return e;
+#endif
 }
 
-expr environment_cell::normalize(expr const & e, context const & ctx, bool unfold_opaque) const {
+expr environment_cell::normalize(expr const & e) const {
+#if 0
     return m_type_checker->get_normalizer()(e, ctx, unfold_opaque);
+#else
+    return e;
+#endif
 }
 
-bool environment_cell::is_proposition(expr const & e, context const & ctx) const {
+bool environment_cell::is_proposition(expr const & e) const {
+#if 0
     return m_type_checker->is_proposition(e, ctx);
+#else
+    return false;
+#endif
 }
 
 bool environment_cell::already_imported(name const & n) const {
@@ -561,7 +400,7 @@ bool environment_cell::mark_imported_core(name n) {
     if (already_imported(n)) {
         return false;
     } else if (has_children()) {
-        throw read_only_environment_exception(env());
+        throw_read_only_environment(env());
     } else {
         m_imported_modules.insert(n);
         return true;
@@ -618,12 +457,12 @@ bool environment_cell::load_core(std::string const & fname, io_state const & ios
     if (!mod_name || mark_imported_core(fname)) {
         std::ifstream in(fname, std::ifstream::binary);
         if (!in.good())
-            throw exception(sstream() << "failed to open file '" << fname << "'");
+            throw_kernel_exception(env(), sstream() << "failed to open file '" << fname << "'");
         deserializer d(in);
         std::string header;
         d >> header;
         if (header != g_olean_header)
-            throw exception(sstream() << "file '" << fname << "' does not seem to be a valid object Lean file");
+            throw_kernel_exception(env(), sstream() << "file '" << fname << "' does not seem to be a valid object Lean file");
         unsigned major, minor;
         // Perhaps we should enforce the right version number
         d >> major >> minor;
@@ -672,7 +511,6 @@ environment_cell::environment_cell():
     m_num_children(0) {
     m_trust_imported = false;
     m_type_check     = true;
-    init_uvars();
 }
 
 environment_cell::environment_cell(std::shared_ptr<environment_cell> const & parent):
@@ -691,14 +529,18 @@ environment_cell::~environment_cell() {
 environment::environment():
     m_ptr(std::make_shared<environment_cell>()) {
     m_ptr->m_this = m_ptr;
+#if 0
     m_ptr->m_type_checker.reset(new type_checker(*this));
+#endif
 }
 
 // used when creating a new child environment
 environment::environment(std::shared_ptr<environment_cell> const & parent, bool):
     m_ptr(std::make_shared<environment_cell>(parent)) {
     m_ptr->m_this = m_ptr;
+#if 0
     m_ptr->m_type_checker.reset(new type_checker(*this));
+#endif
 }
 
 // used when creating a reference to the parent environment
@@ -712,7 +554,7 @@ ro_environment::ro_environment(environment const & env):
 
 ro_environment::ro_environment(weak_ref const & r) {
     if (r.expired())
-        throw exception("weak reference to environment object has expired (i.e., the environment has been deleted)");
+        throw_kernel_exception(*this, "weak reference to environment object has expired (i.e., the environment has been deleted)");
     m_ptr = r.lock();
 }
 
@@ -750,26 +592,4 @@ read_write_shared_environment::read_write_shared_environment(environment const &
     m_lock(m_env.m_ptr->m_mutex) {
 }
 read_write_shared_environment::~read_write_shared_environment() {}
-
-static std::unique_ptr<name_map<std::pair<mk_builtin_fn, bool>>> g_available_builtins;
-name_map<std::pair<mk_builtin_fn, bool>> & get_available_builtins() {
-    if (!g_available_builtins)
-        g_available_builtins.reset(new name_map<std::pair<mk_builtin_fn, bool>>());
-    return *g_available_builtins;
-}
-
-void register_builtin(name const & n, mk_builtin_fn mk, bool is_builtin_set) {
-    auto & bs = get_available_builtins();
-    if (bs.find(n) != bs.end())
-        throw exception("invalid builtin object, system already has a builtin object with the given name"); // LCOV_EXCL_LINE
-    bs[n] = mk_pair(mk, is_builtin_set);
-}
-
-optional<std::pair<expr, bool>> get_builtin(name const & n) {
-    auto it = get_available_builtins().find(n);
-    if (it != get_available_builtins().end())
-        return optional<std::pair<expr, bool>>(it->second.first(), it->second.second);
-    else
-        return optional<std::pair<expr, bool>>();
-}
 }

@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 #include "kernel/expr.h"
 #include "kernel/expr_maps.h"
-#include "kernel/update_expr.h"
 
 namespace lean {
 /**

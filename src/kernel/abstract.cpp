@@ -49,5 +49,4 @@ expr FName(std::initializer_list<std::pair<expr const &, expr const &>> const & 
 
 MkBinder(Fun);
 MkBinder(Pi);
-MkBinder(Let);
 }

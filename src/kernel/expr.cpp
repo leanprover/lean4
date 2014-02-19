@@ -62,11 +62,6 @@ void expr_cell::dec_ref(expr & e, buffer<expr_cell*> & todelete) {
     }
 }
 
-void expr_cell::dec_ref(optional<expr> & c, buffer<expr_cell*> & todelete) {
-    if (c)
-        dec_ref(*c, todelete);
-}
-
 optional<bool> expr_cell::is_arrow() const {
     // it is stored in bits 3-4
     unsigned r = (m_flags & (8+16)) >> 3;
@@ -168,8 +163,8 @@ expr_sort::expr_sort(level const & l):
 expr_sort::~expr_sort() {}
 
 // Expr Let
-expr_let::expr_let(name const & n, optional<expr> const & t, expr const & v, expr const & b):
-    expr_composite(expr_kind::Let, ::lean::hash(v.hash(), b.hash()), v.has_metavar() || b.has_metavar() || ::lean::has_metavar(t),
+expr_let::expr_let(name const & n, expr const & t, expr const & v, expr const & b):
+    expr_composite(expr_kind::Let, ::lean::hash(v.hash(), b.hash()), t.has_metavar() || v.has_metavar() || b.has_metavar(),
                    std::max({get_depth(t), get_depth(v), get_depth(b)}) + 1),
     m_name(n),
     m_type(t),
@@ -321,7 +316,7 @@ expr update_binder(expr const & e, expr const & new_domain, expr const & new_bod
         return e;
 }
 
-expr update_let(expr const & e, optional<expr> const & new_type, expr const & new_val, expr const & new_body) {
+expr update_let(expr const & e, expr const & new_type, expr const & new_val, expr const & new_body) {
     if (!is_eqp(let_type(e), new_type) || !is_eqp(let_value(e), new_val) || !is_eqp(let_body(e), new_body))
         return mk_let(let_name(e), new_type, new_val, new_body);
     else
@@ -403,16 +398,6 @@ class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp
     typedef object_serializer<expr, expr_hash_alloc, expr_eqp> super;
     max_sharing_fn m_max_sharing_fn;
 
-    void write_core(optional<expr> const & a) {
-        serializer & s = get_owner();
-        if (a) {
-            s << true;
-            write_core(*a);
-        } else {
-            s << false;
-        }
-    }
-
     void write_core(expr const & a) {
         auto k = a.kind();
         super::write_core(a, static_cast<char>(k), [&]() {
@@ -460,15 +445,6 @@ public:
 class expr_deserializer : public object_deserializer<expr> {
     typedef object_deserializer<expr> super;
 public:
-    optional<expr> read_opt() {
-        deserializer & d = get_owner();
-        if (d.read_bool()) {
-            return some_expr(read());
-        } else {
-            return none_expr();
-        }
-    }
-
     expr read_binder(expr_kind k) {
         deserializer & d = get_owner();
         name n = read_name(d);
@@ -509,7 +485,7 @@ public:
                     return read_binder(k);
                 case expr_kind::Let: {
                     name n = read_name(d);
-                    optional<expr> t = read_opt();
+                    expr t = read();
                     expr v = read();
                     return mk_let(n, t, v, read());
                 }

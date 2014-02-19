@@ -272,7 +272,7 @@ static void tst13() {
 }
 
 static void tst14() {
-    expr l = mk_let("a", none_expr(), Const("b"), Var(0));
+    expr l = mk_let("a", Bool, Const("b"), Var(0));
     check_serializer(l);
     std::cout << l << "\n";
     lean_assert(closed(l));
@@ -295,7 +295,7 @@ static void tst15() {
     lean_assert(has_metavar(Pi({a, m}, a)));
     lean_assert(has_metavar(Fun({a, Type}, m)));
     lean_assert(has_metavar(Fun({a, m}, a)));
-    lean_assert(!has_metavar(Let({a, Type}, a)));
+    lean_assert(!has_metavar(Let(a, Type, Bool, a)));
     lean_assert(!has_metavar(mk_let(name("a"), Type, f(x), f(f(x)))));
     lean_assert(has_metavar(mk_let(name("a"), m, f(x), f(f(x)))));
     lean_assert(has_metavar(mk_let(name("a"), Type, f(m), f(f(x)))));
@@ -319,7 +319,7 @@ static void tst16() {
     check_copy(mk_metavar("M", Bool));
     check_copy(mk_lambda("x", a, Var(0)));
     check_copy(mk_pi("x", a, Var(0)));
-    check_copy(mk_let("x", none_expr(), a, Var(0)));
+    check_copy(mk_let("x", Bool, a, Var(0)));
 }
 
 static void tst17() {

@@ -40,7 +40,7 @@ typedef list<level> levels;
           |   Lambda        name expr expr
           |   Pi            name expr expr
           |   Sigma         name expr expr
-          |   Let           name expr? expr expr
+          |   Let           name expr expr expr
 
           |   Macro         macro
 */
@@ -72,7 +72,6 @@ protected:
 
     friend class has_free_var_fn;
     static void dec_ref(expr & c, buffer<expr_cell*> & todelete);
-    static void dec_ref(optional<expr> & c, buffer<expr_cell*> & todelete);
 public:
     expr_cell(expr_kind k, unsigned h, bool has_mv);
     expr_kind kind() const { return static_cast<expr_kind>(m_kind); }
@@ -127,7 +126,7 @@ public:
     friend expr mk_pair(expr const & f, expr const & s, expr const & t);
     friend expr mk_proj(bool fst, expr const & p);
     friend expr mk_binder(expr_kind k, name const & n, expr const & t, expr const & e);
-    friend expr mk_let(name const & n, optional<expr> const & t, expr const & v, expr const & e);
+    friend expr mk_let(name const & n, expr const & t, expr const & v, expr const & e);
     friend expr mk_macro(macro * m);
 
     friend bool is_eqp(expr const & a, expr const & b) { return a.m_ptr == b.m_ptr; }
@@ -252,19 +251,19 @@ public:
 
 /** \brief Let expressions */
 class expr_let : public expr_composite {
-    name           m_name;
-    optional<expr> m_type;
-    expr           m_value;
-    expr           m_body;
+    name    m_name;
+    expr    m_type;
+    expr    m_value;
+    expr    m_body;
     friend class expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
 public:
-    expr_let(name const & n, optional<expr> const & t, expr const & v, expr const & b);
+    expr_let(name const & n, expr const & t, expr const & v, expr const & b);
     ~expr_let();
-    name const & get_name() const           { return m_name; }
-    optional<expr> const & get_type() const { return m_type; }
-    expr const & get_value() const          { return m_value; }
-    expr const & get_body() const           { return m_body; }
+    name const & get_name() const   { return m_name; }
+    expr const & get_type() const   { return m_type; }
+    expr const & get_value() const  { return m_value; }
+    expr const & get_body() const   { return m_body; }
 };
 
 /** \brief Sort */
@@ -388,11 +387,7 @@ inline expr mk_binder(expr_kind k, name const & n, expr const & t, expr const & 
 inline expr mk_lambda(name const & n, expr const & t, expr const & e) { return mk_binder(expr_kind::Lambda, n, t, e); }
 inline expr mk_pi(name const & n, expr const & t, expr const & e) { return mk_binder(expr_kind::Pi, n, t, e); }
 inline expr mk_sigma(name const & n, expr const & t, expr const & e) { return mk_binder(expr_kind::Sigma, n, t, e); }
-inline expr mk_let(name const & n, optional<expr> const & t, expr const & v, expr const & e) {
-    return expr(new expr_let(n, t, v, e));
-}
-inline expr mk_let(name const & n, expr const & t, expr const & v, expr const & e) { return mk_let(n, some_expr(t), v, e); }
-inline expr mk_let(name const & n, expr const & v, expr const & e) { return mk_let(n, none_expr(), v, e); }
+inline expr mk_let(name const & n, expr const & t, expr const & v, expr const & e) { return expr(new expr_let(n, t, v, e)); }
 inline expr mk_sort(level const & l) { return expr(new expr_sort(l)); }
 
 expr mk_Bool();
@@ -484,7 +479,7 @@ inline expr const &   binder_body(expr_cell * e)          { return to_binder(e)-
 inline level const &  sort_level(expr_cell * e)           { return to_sort(e)->get_level(); }
 inline name const &   let_name(expr_cell * e)             { return to_let(e)->get_name(); }
 inline expr const &   let_value(expr_cell * e)            { return to_let(e)->get_value(); }
-inline optional<expr> const &  let_type(expr_cell * e)    { return to_let(e)->get_type(); }
+inline expr const &   let_type(expr_cell * e)             { return to_let(e)->get_type(); }
 inline expr const &   let_body(expr_cell * e)             { return to_let(e)->get_body(); }
 inline name const &   mlocal_name(expr_cell * e)          { return to_mlocal(e)->get_name(); }
 inline expr const &   mlocal_type(expr_cell * e)          { return to_mlocal(e)->get_type(); }
@@ -508,16 +503,14 @@ inline expr const &   binder_body(expr const & e)          { return to_binder(e)
 inline level const &  sort_level(expr const & e)           { return to_sort(e)->get_level(); }
 inline name const &   let_name(expr const & e)             { return to_let(e)->get_name(); }
 inline expr const &   let_value(expr const & e)            { return to_let(e)->get_value(); }
-inline optional<expr> const &  let_type(expr const & e)    { return to_let(e)->get_type(); }
+inline expr const &   let_type(expr const & e)             { return to_let(e)->get_type(); }
 inline expr const &   let_body(expr const & e)             { return to_let(e)->get_body(); }
 inline name const &   mlocal_name(expr const & e)          { return to_mlocal(e)->get_name(); }
 inline expr const &   mlocal_type(expr const & e)          { return to_mlocal(e)->get_type(); }
 
 inline bool is_constant(expr const & e, name const & n) { return is_constant(e) && const_name(e) == n; }
 inline bool has_metavar(expr const & e) { return e.has_metavar(); }
-inline bool has_metavar(optional<expr> const & e) { return e && has_metavar(*e); }
 unsigned get_depth(expr const & e);
-inline unsigned get_depth(optional<expr> const & e) { return e ? get_depth(*e) : 0; }
 // =======================================
 
 
@@ -565,7 +558,7 @@ expr update_app(expr const & e, expr const & new_fn, expr const & new_arg);
 expr update_proj(expr const & e, expr const & new_arg);
 expr update_pair(expr const & e, expr const & new_first, expr const & new_second, expr const & new_type);
 expr update_binder(expr const & e, expr const & new_domain, expr const & new_body);
-expr update_let(expr const & e, optional<expr> const & new_type, expr const & new_val, expr const & new_body);
+expr update_let(expr const & e, expr const & new_type, expr const & new_val, expr const & new_body);
 expr update_mlocal(expr const & e, expr const & new_type);
 // =======================================
 

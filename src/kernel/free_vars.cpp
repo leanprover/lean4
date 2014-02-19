@@ -22,10 +22,6 @@ class has_free_vars_fn {
 protected:
     expr_cell_offset_set m_cached;
 
-    bool apply(optional<expr> const & e, unsigned offset) {
-        return e && apply(*e, offset);
-    }
-
     bool apply(expr const & e, unsigned offset) {
         // handle easy cases
         switch (e.kind()) {
@@ -113,10 +109,6 @@ class free_var_range_fn {
 
     static unsigned dec(unsigned s) { return (s == 0) ? 0 : s - 1; }
 
-    unsigned apply(optional<expr> const & e) {
-        return e ? apply(*e) : 0;
-    }
-
     unsigned apply(expr const & e) {
         // handle easy cases
         switch (e.kind()) {
@@ -190,10 +182,6 @@ protected:
     unsigned                           m_high;
     expr_cell_offset_set               m_cached;
     std::unique_ptr<free_var_range_fn> m_range_fn;
-
-    bool apply(optional<expr> const & e, unsigned offset) {
-        return e && apply(*e, offset);
-    }
 
     // Return true iff  m_low + offset <= vidx
     bool ge_lower(unsigned vidx, unsigned offset) const {

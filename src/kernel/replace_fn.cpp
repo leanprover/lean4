@@ -115,19 +115,14 @@ expr replace_fn::operator()(expr const & e) {
             pop_rs(2);
             break;
         case expr_kind::Let:
-            if (check_index(f, 0) && let_type(e) && !visit(*let_type(e), offset))
+            if (check_index(f, 0) && !visit(let_type(e), offset))
                 goto begin_loop;
             if (check_index(f, 1) && !visit(let_value(e), offset))
                 goto begin_loop;
             if (check_index(f, 2) && !visit(let_body(e), offset + 1))
                 goto begin_loop;
-            if (let_type(e)) {
-                r = update_let(e, some_expr(rs(-3)), rs(-2), rs(-1));
-                pop_rs(3);
-            } else {
-                r = update_let(e, none_expr(), rs(-2), rs(-1));
-                pop_rs(2);
-            }
+            r = update_let(e, rs(-3), rs(-2), rs(-1));
+            pop_rs(3);
             break;
         }
         save_result(e, r, offset, f.m_shared);

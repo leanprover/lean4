@@ -46,11 +46,10 @@ expr replace_visitor::visit_pi(expr const & e, context const & ctx) { return vis
 expr replace_visitor::visit_sigma(expr const & e, context const & ctx) { return visit_binder(e, ctx); }
 expr replace_visitor::visit_let(expr const & e, context const & ctx) {
     lean_assert(is_let(e));
-    optional<expr> new_t = visit(let_type(e), ctx);
+    expr new_t = visit(let_type(e), ctx);
     expr new_v = visit(let_value(e), ctx);
     freset<cache> reset(m_cache);
-    // TODO(Leo): decide what we should do with let-exprs
-    expr new_b; // = visit(let_body(e), extend(ctx, let_name(e), new_t, new_v));
+    expr new_b = visit(let_body(e), extend(ctx, let_name(e), new_t));
     return update_let(e, new_t, new_v, new_b);
 }
 expr replace_visitor::save_result(expr const & e, expr && r, bool shared) {
@@ -86,11 +85,5 @@ expr replace_visitor::visit(expr const & e, context const & ctx) {
     }
 
     lean_unreachable(); // LCOV_EXCL_LINE
-}
-optional<expr> replace_visitor::visit(optional<expr> const & e, context const & ctx) {
-    if (e)
-        return some_expr(visit(*e, ctx));
-    else
-        return none_expr();
 }
 }

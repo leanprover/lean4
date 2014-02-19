@@ -7,15 +7,6 @@ Author: Leonardo de Moura
 #include "kernel/expr_eq_fn.h"
 
 namespace lean {
-bool expr_eq_fn::apply(optional<expr> const & a0, optional<expr> const & b0) {
-    if (is_eqp(a0, b0))
-        return true;
-    else if (!a0 || !b0)
-        return false;
-    else
-        return apply(*a0, *b0);
-}
-
 bool expr_eq_fn::apply(expr const & a, expr const & b) {
     check_system("expression equality test");
     if (is_eqp(a, b))          return true;

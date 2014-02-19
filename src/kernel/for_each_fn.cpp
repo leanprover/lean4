@@ -67,8 +67,7 @@ void for_each_fn::apply(expr const & e, unsigned offset) {
         case expr_kind::Let:
             todo.emplace_back(let_body(e), offset + 1);
             todo.emplace_back(let_value(e), offset);
-            if (let_type(e))
-                todo.emplace_back(*let_type(e), offset);
+            todo.emplace_back(let_type(e), offset);
             goto begin_loop;
         }
     }

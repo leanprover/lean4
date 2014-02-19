@@ -36,7 +36,7 @@ static void tst2() {
     expr a = Const("a");
     expr f = Const("f");
     expr N = Const("N");
-    expr F1 = Let({x, a}, f(x));
+    expr F1 = Let(x, N, a, f(x));
     lean_assert(head_beta_reduce(F1) == F1);
 }
 

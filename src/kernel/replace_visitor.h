@@ -42,7 +42,6 @@ protected:
     virtual expr visit_sigma(expr const &, context const &);
     virtual expr visit_let(expr const &, context const &);
     virtual expr visit(expr const &, context const &);
-    optional<expr> visit(optional<expr> const &, context const &);
 
     void set_ctx(context const & ctx) {
         if (!is_eqp(m_ctx, ctx)) {

@@ -26,13 +26,6 @@ struct max_sharing_fn::imp {
         m_cache.insert(a);
     }
 
-    optional<expr> apply(optional<expr> const & a) {
-        if (a)
-            return some_expr(apply(*a));
-        else
-            return a;
-    }
-
     expr apply(expr const & a) {
         check_system("max_sharing");
         auto r = m_cache.find(a);

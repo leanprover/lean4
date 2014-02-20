@@ -11,8 +11,10 @@ Author: Leonardo de Moura
 namespace lean {
 /**
    \brief A generator of unique names modulo a prefix.
-   If the prefix is unique (i.e., it is not the prefix of any other name in the system), then
-   all generated names are unique.
+   If the initial prefix is independent of all other names in the system, then all generated names are unique.
+
+   \remark There is no risk of overflow in the m_next_idx. If m_next_idx reaches std::numeric_limits<unsigned>::max(),
+   then the prefix becomes name(m_prefix, m_next_idx), and m_next_idx is reset to 0
 */
 class name_generator {
     name     m_prefix;
@@ -23,11 +25,15 @@ public:
     name const & prefix() const { return m_prefix; }
 
     /** \brief Return a unique name modulo \c prefix. */
-    name next() { name r(m_prefix, m_next_idx); m_next_idx++; return r; }
+    name next();
 
-    friend void swap(name_generator & a, name_generator & b) {
-        swap(a.m_prefix, b.m_prefix);
-        std::swap(a.m_next_idx, b.m_next_idx);
-    }
+    /**
+        \brief Create a child name_generator, each child name_generator is guaranteed to produce
+        names different from this name_generator and any other name_generator created with this generator.
+    */
+    name_generator mk_child() { return name_generator(next()); }
+
+    friend void swap(name_generator & a, name_generator & b);
 };
+void swap(name_generator & a, name_generator & b);
 }

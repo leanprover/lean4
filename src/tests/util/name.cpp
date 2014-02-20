@@ -70,6 +70,11 @@ static void tst4() {
     lean_assert(!is_prefix_of(name{"foo"}, name{"fo", "bla", "foo"}));
     lean_assert(!is_prefix_of(name{"foo", "bla", "foo"}, name{"foo", "bla"}));
     lean_assert(is_prefix_of(name{"foo", "bla"}, name(name{"foo", "bla"}, 0u)));
+    lean_assert(is_prefix_of(name("aaa"), name("aaa")));
+    lean_assert(!is_prefix_of(name("aaa"), name("aaab")));
+    lean_assert(!is_prefix_of(name("aaab"), name("aaa")));
+    lean_assert(!is_prefix_of(name{"foo", "bla"}, name{"foo"}));
+    lean_assert(is_prefix_of(name{"foo"}, name{"foo", "bla"}));
 }
 
 static void tst5() {
@@ -157,6 +162,15 @@ static void tst12() {
     lean_assert(mk_unique(s, name("foo")) == name(name("foo"), 2));
 }
 
+static void tst13() {
+    name_generator g1("a");
+    name_generator c1 = g1.mk_child();
+    name_generator c2 = g1.mk_child();
+    lean_assert(c1.next() != c2.next());
+    std::cout << c1.next() << "\n";
+    std::cout << c2.next() << "\n";
+}
+
 int main() {
     tst1();
     tst2();
@@ -170,5 +184,6 @@ int main() {
     tst10();
     tst11();
     tst12();
+    tst13();
     return has_violations() ? 1 : 0;
 }

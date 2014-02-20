@@ -212,6 +212,8 @@ bool operator==(name const & a, name const & b) {
 }
 
 bool is_prefix_of(name const & n1, name const & n2) {
+    if (n2.is_atomic())
+        return n1 == n2;
     buffer<name::imp*> limbs1, limbs2;
     name::imp* i1 = n1.m_ptr;
     name::imp* i2 = n2.m_ptr;

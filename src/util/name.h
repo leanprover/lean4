@@ -129,6 +129,17 @@ struct name_eq { bool operator()(name const & n1, name const & n2) const { retur
 struct name_cmp { int operator()(name const & n1, name const & n2) const { return cmp(n1, n2); } };
 struct name_quick_cmp { int operator()(name const & n1, name const & n2) const { return quick_cmp(n1, n2); } };
 
+/**
+   \brief Return true iff the two given names are independent.
+   That \c a is not a prefix of \c b, nor \c b is a prefix of \c a
+
+   \remark forall a b c d,
+               independent(a, b) => independent(join(a, c), join(b, d))
+*/
+inline bool independent(name const & a, name const & b) {
+    return !is_prefix_of(a, b) && !is_prefix_of(b, a);
+}
+
 serializer & operator<<(serializer & s, name const & n);
 name read_name(deserializer & d);
 inline deserializer & operator>>(deserializer & d, name & n) { n = read_name(d); return d; }

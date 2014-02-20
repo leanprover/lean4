@@ -303,6 +303,15 @@ static void tst15() {
     lean_assert(has_metavar(f(a, a, m)));
     lean_assert(has_metavar(f(a, m, a, a)));
     lean_assert(!has_metavar(f(a, a, a, a)));
+    lean_assert(!has_metavar(mk_fst(a)));
+    lean_assert(!has_metavar(mk_snd(a)));
+    lean_assert(has_metavar(mk_fst(m)));
+    lean_assert(has_metavar(mk_snd(m)));
+    lean_assert(!has_metavar(mk_pair(a, x, x)));
+    lean_assert(has_metavar(mk_pair(f(m), x, x)));
+    lean_assert(has_metavar(mk_pair(f(a), m, x)));
+    lean_assert(has_metavar(mk_pair(f(a), a, m)));
+    lean_assert(has_metavar(mk_pair(f(a), a, f(m))));
 }
 
 static void check_copy(expr const & e) {
@@ -338,6 +347,52 @@ static void tst17() {
     check_serializer(t);
 }
 
+static void tst18() {
+    expr f = Const("f");
+    expr x = Var(0);
+    expr a = Const("a");
+    expr l = mk_local("m", Bool);
+    expr m = mk_metavar("m", Bool);
+    check_serializer(l);
+    lean_assert(!has_local(m));
+    lean_assert(has_local(l));
+    lean_assert(!has_local(f(m)));
+    lean_assert(has_local(f(l)));
+    lean_assert(!has_local(f(a)));
+    lean_assert(!has_local(f(x)));
+    lean_assert(!has_local(Pi({a, Type}, a)));
+    lean_assert(!has_local(Pi({a, m}, a)));
+    lean_assert(!has_local(Type));
+    lean_assert(!has_local(Pi({a, Type}, a)));
+    lean_assert(has_local(Pi({a, Type}, l)));
+    lean_assert(!has_metavar(Pi({a, Type}, l)));
+    lean_assert(has_local(Pi({a, l}, a)));
+    lean_assert(has_local(Fun({a, Type}, l)));
+    lean_assert(has_local(Fun({a, l}, a)));
+    lean_assert(!has_local(Let(a, Type, Bool, a)));
+    lean_assert(has_local(mk_let(name("a"), l, f(x), f(f(x)))));
+    lean_assert(has_local(mk_let(name("a"), Type, f(l), f(f(x)))));
+    lean_assert(has_local(mk_let(name("a"), Type, f(x), f(f(l)))));
+    lean_assert(has_local(f(a, a, l)));
+    lean_assert(has_local(f(a, l, a, a)));
+    lean_assert(!has_local(f(a, a, a, a)));
+    lean_assert(!has_local(mk_fst(a)));
+    lean_assert(!has_local(mk_snd(a)));
+    lean_assert(has_local(mk_fst(l)));
+    lean_assert(has_local(mk_snd(l)));
+    lean_assert(!has_local(mk_fst(m)));
+    lean_assert(!has_local(mk_snd(m)));
+    lean_assert(!has_local(mk_pair(a, x, x)));
+    lean_assert(has_local(mk_pair(f(l), x, x)));
+    lean_assert(has_local(mk_pair(f(a), l, x)));
+    lean_assert(has_local(mk_pair(f(a), a, l)));
+    lean_assert(has_local(mk_pair(f(a), a, f(l))));
+    lean_assert(!has_local(mk_pair(f(m), x, x)));
+    lean_assert(!has_local(mk_pair(f(a), m, x)));
+    lean_assert(!has_local(mk_pair(f(a), a, m)));
+    lean_assert(!has_local(mk_pair(f(a), a, f(m))));
+}
+
 int main() {
     save_stack_info();
     lean_assert(sizeof(expr) == sizeof(optional<expr>));
@@ -358,6 +413,7 @@ int main() {
     tst15();
     tst16();
     tst17();
+    tst18();
     std::cout << "sizeof(expr):            " << sizeof(expr) << "\n";
     std::cout << "sizeof(expr_app):        " << sizeof(expr_app) << "\n";
     std::cout << "sizeof(expr_cell):       " << sizeof(expr_cell) << "\n";

@@ -21,6 +21,7 @@ using std::mutex;
 using std::atomic;
 using std::atomic_bool;
 using std::atomic_ushort;
+using std::atomic_uchar;
 using std::condition_variable;
 using std::lock_guard;
 using std::unique_lock;
@@ -49,6 +50,7 @@ namespace chrono      = boost::chrono;
 namespace this_thread = boost::this_thread;
 typedef atomic<bool>           atomic_bool;
 typedef atomic<unsigned short> atomic_ushort;
+typedef atomic<unsigned char>  atomic_uchar;
 template<typename T> T atomic_load(atomic<T> const * a) { return a->load(); }
 template<typename T> T atomic_fetch_add_explicit(atomic<T> * a, T v, boost::memory_order mo) { return a->fetch_add(v, mo); }
 template<typename T> T atomic_fetch_sub_explicit(atomic<T> * a, T v, boost::memory_order mo) { return a->fetch_sub(v, mo); }
@@ -92,6 +94,7 @@ public:
     friend T atomic_fetch_sub_explicit(atomic * a, T const & v, int ) { T r(a->m_value); a->m_value -= v; return r; }
 };
 typedef atomic<unsigned short> atomic_ushort;
+typedef atomic<unsigned char>  atomic_uchar;
 typedef atomic<bool>           atomic_bool;
 class thread {
 public:

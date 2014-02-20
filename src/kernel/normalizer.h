@@ -7,13 +7,10 @@ Author: Leonardo de Moura
 #pragma once
 #include <memory>
 #include "kernel/expr.h"
-#include "kernel/environment.h"
-#include "kernel/context.h"
 
 namespace lean {
-class environment;
+class ro_environment;
 class options;
-class ro_metavar_env;
 /** \brief Functional object for normalizing expressions */
 class normalizer {
     class imp;
@@ -24,12 +21,10 @@ public:
     normalizer(ro_environment const & env, options const & opts);
     ~normalizer();
 
-    expr operator()(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv, bool unfold_opaque = false);
-    expr operator()(expr const & e, context const & ctx, ro_metavar_env const & menv, bool unfold_opaque = false);
-    expr operator()(expr const & e, context const & ctx = context(), bool unfold_opaque = false);
-
+    expr operator()(expr const & e);
     void clear();
 };
+
 /** \brief Normalize \c e using the environment \c env and context \c ctx */
-expr normalize(expr const & e, ro_environment const & env, context const & ctx = context(), bool unfold_opaque = false);
+expr normalize(expr const & e, ro_environment const & env);
 }

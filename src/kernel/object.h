@@ -141,17 +141,9 @@ void read_object(environment const & env, io_state const & ios, std::string cons
 /**
    \brief Helper function whether we should unfold an definition or not.
 
-   1- We unfold definitions.
+   1- We unfold non-opaque definitions.
    2- We never unfold theorems.
-   3- We unfold opaque definitions if \c unfold_opaque == true
 */
-inline bool should_unfold(object const & obj, bool unfold_opaque) {
-    return obj.is_definition() && !obj.is_theorem() && (unfold_opaque || !obj.is_opaque());
-}
-inline bool should_unfold(optional<object> const & obj, bool unfold_opaque) {
-    return obj && should_unfold(*obj, unfold_opaque);
-}
-inline bool should_unfold(optional<object> const & obj) {
-    return should_unfold(obj, false);
-}
+inline bool should_unfold(object const & obj) { return obj.is_definition() && !obj.is_theorem() && !obj.is_opaque(); }
+inline bool should_unfold(optional<object> const & obj) { return obj && should_unfold(*obj); }
 }

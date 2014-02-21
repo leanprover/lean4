@@ -419,6 +419,7 @@ int main() {
     std::cout << "sizeof(expr_cell):       " << sizeof(expr_cell) << "\n";
     std::cout << "sizeof(optional<expr>):  " << sizeof(optional<expr>) << "\n";
     std::cout << "sizeof(optional<sexpr>): " << sizeof(optional<sexpr>) << "\n";
+    std::cout << "sizeof(std::function):   " << sizeof(std::function<expr(expr const &, optional<expr> const &)>) << "\n";
     std::cout << "done" << "\n";
     return has_violations() ? 1 : 0;
 }

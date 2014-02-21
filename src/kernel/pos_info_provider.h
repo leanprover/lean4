@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 /**
-   \brief Abstract class for providing expression position information (line number and position).
+   \brief Abstract class for providing expression position information (line number and column).
 */
 class pos_info_provider {
 public:

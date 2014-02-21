@@ -116,11 +116,16 @@ static void tst4() {
     lean_assert_eq(s.str(), "() (foo bar) nil \"test\" (100 1/2)");
 }
 
+static void tst5() {
+    std::cout << "{" << format() << "}" << "\n";
+}
+
 int main() {
     save_stack_info();
     tst1();
     tst2();
     tst3();
     tst4();
+    tst5();
     return has_violations() ? 1 : 0;
 }

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/rc.h"
 #include "util/debug.h"
 #include "util/buffer.h"
+#include "util/optional.h"
 
 namespace lean {
 /**
@@ -245,13 +246,58 @@ class rb_tree : public CMP {
         }
     }
 
+    bool check_invariant(node_cell const * n, unsigned curr_black, optional<unsigned> & num_black) const {
+        // We check:
+        //  1) the nodes are really ordered, that is, left->value < n->value < right->value
+        //  2) there are no two consecutive red nodes
+        //  3) every path has the same number of black nodes
+        if (n) {
+            if (!n->m_red)
+                curr_black++;
+            if (n->m_left) {
+                lean_assert(!n->m_red || !n->m_left.is_red());
+                check_invariant(n->m_left.m_ptr, curr_black, num_black);
+                lean_assert(cmp(n->m_left->m_value, n->m_value) < 0);
+            }
+            if (n->m_right) {
+                lean_assert(!n->m_red || !n->m_right.is_red());
+                check_invariant(n->m_right.m_ptr, curr_black, num_black);
+                lean_assert(cmp(n->m_value, n->m_right->m_value) < 0);
+            }
+        } else {
+            // end of a path
+            if (num_black) {
+                lean_assert(curr_black == *num_black);
+            } else {
+                num_black = curr_black;
+            }
+        }
+        return true;
+    }
+
     node m_root;
 
 public:
-    void insert(T const & v) { m_root = set_black(insert(m_root.steal(), v));  }
-    void erase_min(T const & v) { m_root = set_black(erase_min(m_root.steal())); }
-    void erase_core(T const & v) { lean_assert(contains(v)); m_root = set_black(erase(m_root.steal(), v)); }
-    void erase(T const & v) { if (contains(v)) erase_core(v); }
+    void insert(T const & v) {
+        m_root = set_black(insert(m_root.steal(), v));
+        lean_assert(check_invariant());
+    }
+
+    void erase_min(T const & v) {
+        m_root = set_black(erase_min(m_root.steal()));
+        lean_assert(check_invariant());
+    }
+
+    void erase_core(T const & v) {
+        lean_assert(contains(v));
+        m_root = set_black(erase(m_root.steal(), v));
+        lean_assert(check_invariant());
+    }
+
+    void erase(T const & v) {
+        if (contains(v))
+            erase_core(v);
+    }
 
     T const * find(T const & v) const {
         node_cell const * h = m_root.m_ptr;
@@ -291,6 +337,11 @@ public:
     friend std::ostream & operator<<(std::ostream & out, rb_tree const & t) {
         t.display(out);
         return out;
+    }
+
+    bool check_invariant() const {
+        optional<unsigned> num_black;
+        return check_invariant(m_root.m_ptr, 0, num_black);
     }
 
     /**

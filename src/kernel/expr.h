@@ -384,9 +384,13 @@ inline expr mk_proj(bool first, expr const & a) { return expr(new expr_proj(firs
 inline expr mk_fst(expr const & a) { return mk_proj(true, a); }
 inline expr mk_snd(expr const & a) { return mk_proj(false, a); }
 inline expr mk_app(expr const & f, expr const & a) { return expr(new expr_app(f, a)); }
+       expr mk_app(expr const & f, unsigned num_args, expr const * args);
        expr mk_app(unsigned num_args, expr const * args);
 inline expr mk_app(std::initializer_list<expr> const & l) { return mk_app(l.size(), l.begin()); }
 template<typename T> expr mk_app(T const & args) { return mk_app(args.size(), args.data()); }
+       expr mk_rev_app(expr const & f, unsigned num_args, expr const * args);
+       expr mk_rev_app(unsigned num_args, expr const * args);
+template<typename T> expr mk_rev_app(T const & args) { return mk_rev_app(args.size(), args.data()); }
 inline expr mk_binder(expr_kind k, name const & n, expr const & t, expr const & e) { return expr(new expr_binder(k, n, t, e)); }
 inline expr mk_lambda(name const & n, expr const & t, expr const & e) { return mk_binder(expr_kind::Lambda, n, t, e); }
 inline expr mk_pi(name const & n, expr const & t, expr const & e) { return mk_binder(expr_kind::Pi, n, t, e); }
@@ -560,6 +564,8 @@ expr copy(expr const & e);
 // =======================================
 // Update
 expr update_app(expr const & e, expr const & new_fn, expr const & new_arg);
+expr update_rev_app(expr const & e, unsigned num, expr const * new_args);
+template<typename C> expr update_rev_app(expr const & e, C const & c) { return update_rev_app(e, c.size(), c.data()); }
 expr update_proj(expr const & e, expr const & new_arg);
 expr update_pair(expr const & e, expr const & new_first, expr const & new_second, expr const & new_type);
 expr update_binder(expr const & e, expr const & new_domain, expr const & new_body);

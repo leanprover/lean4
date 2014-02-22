@@ -37,4 +37,5 @@ std::pair<expr, justification> d_instantiate_metavars(expr const & e, substituti
    but does not return a justification object for the new expression.
 */
 expr instantiate_metavars_wo_jst(expr const & e, substitution const & s);
+expr d_instantiate_metavars_wo_jst(expr const & e, substitution & s);
 }

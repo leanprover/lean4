@@ -19,9 +19,9 @@ expr instantiate_core(expr const & a, unsigned s, unsigned n, expr const * subst
                 if (vidx >= offset + s) {
                     if (vidx < offset + s + n) {
                         if (ClosedSubst)
-                            return subst[n - (vidx - s - offset) - 1];
+                            return subst[vidx - s - offset];
                         else
-                            return lift_free_vars(subst[n - (vidx - s - offset) - 1], offset);
+                            return lift_free_vars(subst[vidx - s - offset], offset);
                     } else {
                         return mk_var(vidx - n);
                     }
@@ -60,11 +60,9 @@ bool is_head_beta(expr const & t) {
 }
 
 expr apply_beta(expr f, unsigned num_args, expr const * args) {
+    lean_assert(num_args > 0);
     if (!is_lambda(f)) {
-        buffer<expr> new_args;
-        new_args.push_back(f);
-        new_args.append(num_args, args);
-        return mk_app(new_args);
+        return mk_rev_app(f, num_args, args);
     } else {
         unsigned m = 1;
         while (is_lambda(binder_body(f)) && m < num_args) {
@@ -72,16 +70,7 @@ expr apply_beta(expr f, unsigned num_args, expr const * args) {
             m++;
         }
         lean_assert(m <= num_args);
-        expr r = instantiate(binder_body(f), m, args);
-        if (m == num_args) {
-            return r;
-        } else {
-            buffer<expr> new_args;
-            new_args.push_back(r);
-            for (; m < num_args; m++)
-                new_args.push_back(args[m]);
-            return mk_app(new_args);
-        }
+        return mk_rev_app(instantiate(binder_body(f), m, args + (num_args - m)), num_args - m, args);
     }
 }
 
@@ -96,7 +85,6 @@ expr head_beta_reduce(expr const & t) {
             expr const & f = app_fn(*it);
             args.push_back(app_arg(*it));
             if (is_lambda(f)) {
-                std::reverse(args.begin(), args.end());
                 return apply_beta(f, args.size(), args.data());
             } else {
                 lean_assert(is_app(f));

@@ -265,12 +265,31 @@ void expr_cell::dealloc() {
 }
 
 // Auxiliary constructors
-expr mk_app(unsigned num_args, expr const * args) {
-    lean_assert(num_args >= 2);
-    expr r = mk_app(args[0], args[1]);
-    for (unsigned i = 2; i < num_args; i++)
+expr mk_app(expr const & f, unsigned num_args, expr const * args) {
+    expr r = f;
+    for (unsigned i = 0; i < num_args; i++)
         r = mk_app(r, args[i]);
     return r;
+}
+
+expr mk_app(unsigned num_args, expr const * args) {
+    lean_assert(num_args >= 2);
+    return mk_app(mk_app(args[0], args[1]), num_args - 2, args+2);
+}
+
+expr mk_rev_app(expr const & f, unsigned num_args, expr const * args) {
+    expr r = f;
+    unsigned i = num_args;
+    while (i > 0) {
+        --i;
+        r = mk_app(r, args[i]);
+    }
+    return r;
+}
+
+expr mk_rev_app(unsigned num_args, expr const * args) {
+    lean_assert(num_args >= 2);
+    return mk_rev_app(mk_app(args[num_args-1], args[num_args-2]), num_args-2, args);
 }
 
 static name g_default_var_name("a");
@@ -303,6 +322,18 @@ expr update_app(expr const & e, expr const & new_fn, expr const & new_arg) {
         return mk_app(new_fn, new_arg);
     else
         return e;
+}
+
+expr update_rev_app(expr const & e, unsigned num, expr const * new_args) {
+    expr const * it = &e;
+    for (unsigned i = 0; i < num - 1; i++) {
+        if (!is_app(*it) || !is_eqp(app_arg(*it), new_args[i]))
+            return mk_rev_app(num, new_args);
+        it = &app_fn(*it);
+    }
+    if (!is_eqp(*it, new_args[num - 1]))
+        return mk_rev_app(num, new_args);
+    return e;
 }
 
 expr update_proj(expr const & e, expr const & new_arg) {

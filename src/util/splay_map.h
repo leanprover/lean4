@@ -65,14 +65,6 @@ public:
     */
     ref operator[](K const & k) { return ref(*this, k); }
 
-    template<typename F, typename R>
-    R fold(F f, R r) const {
-        static_assert(std::is_same<typename std::result_of<F(K const &, T const &, R const &)>::type, R>::value,
-                      "fold: return type of f(k : K, t : T, r : R) is not R");
-        auto f_prime = [&](entry const & e, R r) -> R { return f(e.first, e.second, r); };
-        return m_map.fold(f_prime, r);
-    }
-
     template<typename F>
     void for_each(F f) const {
         static_assert(std::is_same<typename std::result_of<F(K const &, T const &)>::type, void>::value,
@@ -102,12 +94,6 @@ splay_map<K, T, CMP> erase(splay_map<K, T, CMP> const & m, K const & k) {
     auto r = m;
     r.erase(k);
     return r;
-}
-template<typename K, typename T, typename CMP, typename F, typename R>
-R fold(splay_map<K, T, CMP> const & m, F f, R r) {
-    static_assert(std::is_same<typename std::result_of<F(K const &, T const &, R const &)>::type, R>::value,
-                  "fold: return type of f(k : K, t : T, r : R) is not R");
-    return m.fold(f, r);
 }
 template<typename K, typename T, typename CMP, typename F>
 void for_each(splay_map<K, T, CMP> const & m, F f) {

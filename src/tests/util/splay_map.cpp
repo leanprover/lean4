@@ -33,17 +33,6 @@ static void tst0() {
 }
 
 static void tst1() {
-    int2name m;
-    m[10] = name("t1");
-    m[20] = name("t2");
-    lean_assert(fold(m, [](int k, name const &, int a) { return k + a; }, 0) == 30);
-    std::ostringstream out;
-    for_each(m, [&](int, name const & v) { out << v << " "; });
-    std::cout << out.str() << "\n";
-    lean_assert(out.str() == "t1 t2 ");
-}
-
-static void tst2() {
     int2name m1, m2;
     m1[10] = name("t1");
     lean_assert(m1.size() == 1);
@@ -56,6 +45,5 @@ static void tst2() {
 int main() {
     tst0();
     tst1();
-    tst2();
     return has_violations() ? 1 : 0;
 }

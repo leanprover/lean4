@@ -45,9 +45,8 @@ static void tst4() {
 
 class ex : public exception {
     std::function<char const *()> m_f;
-    ex(std::function<char const *()> const & f):m_f(f) {}
 public:
-    template<typename F> ex(F && f):m_f(f) {}
+    ex(std::function<char const *()> const & f):m_f(f) {}
     virtual exception * clone() const { return new ex(m_f); }
     virtual void rethrow() const { throw *this; }
     virtual char const * what() const noexcept { return m_f(); }

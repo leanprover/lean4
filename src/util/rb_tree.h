@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <utility>
+#include <algorithm>
 #include "util/rc.h"
 #include "util/debug.h"
 #include "util/buffer.h"
@@ -69,8 +70,9 @@ class rb_tree : public CMP {
         if (n.is_shared()) {
             // std::cout << "SHARED\n";
             return node(new node_cell(*n.m_ptr));
-        } else
+        } else {
             return n;
+        }
     }
 
     static node set_black(node && n) {
@@ -290,7 +292,7 @@ public:
         lean_assert(check_invariant());
     }
 
-    void erase_min(T const & v) {
+    void erase_min() {
         m_root = set_black(erase_min(m_root.steal()));
         lean_assert(check_invariant());
     }

@@ -339,7 +339,7 @@ class level_deserializer : public object_deserializer<level> {
     typedef object_deserializer<level> super;
 public:
     level read() {
-        return super::read([&]() {
+        return super::read([&]() -> level {
                 deserializer & d = get_owner();
                 auto k = static_cast<level_kind>(d.read_char());
                 switch (k) {

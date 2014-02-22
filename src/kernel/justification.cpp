@@ -215,9 +215,17 @@ format justification::pp(formatter const & fmt, options const & opts, pos_info_p
 }
 
 justification mk_composite(justification const & j1, justification const & j2, pp_jst_fn const & fn, optional<expr> const & s) {
+    if (j1.is_none())
+        return j2;
+    if (j2.is_none())
+        return j1;
     return justification(new ext_composite_cell(j1, j2, fn, s));
 }
 justification mk_composite1(justification const & j1, justification const & j2) {
+    if (j1.is_none())
+        return j2;
+    if (j2.is_none())
+        return j1;
     return justification(new composite_cell(j1, j2));
 }
 justification mk_assumption_justification(unsigned idx, pp_jst_fn const & fn, optional<expr> const & s) {

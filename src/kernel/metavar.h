@@ -15,9 +15,9 @@ namespace lean {
 class substitution {
     rb_map<name, std::pair<expr, justification>, name_quick_cmp> m_subst;
 public:
-    substitution();
     bool is_assigned(name const & m) const;
     optional<std::pair<expr, justification>> get_assignment(name const & m) const;
+    optional<expr> get_expr(name const & m) const;
     void assign(name const & m, expr const & t, justification const & j);
     void assign(name const & m, expr const & t);
     void for_each(std::function<void(name const & n, expr const & e, justification const & j)> const & fn);

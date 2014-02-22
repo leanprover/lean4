@@ -278,6 +278,13 @@ class rb_tree : public CMP {
     node m_root;
 
 public:
+    rb_tree(CMP const & cmp = CMP()):CMP(cmp) {}
+    rb_tree(rb_tree const & s):CMP(s), m_root(s.m_root) {}
+    rb_tree(rb_tree && s):CMP(s), m_root(s.m_root) {}
+
+    rb_tree & operator=(rb_tree const & s) { m_root = s.m_root; return *this; }
+    rb_tree & operator=(rb_tree && s) { m_root = s.m_root; return *this; }
+
     void insert(T const & v) {
         m_root = set_black(insert(m_root.steal(), v));
         lean_assert(check_invariant());

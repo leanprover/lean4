@@ -151,6 +151,12 @@ public:
     virtual format operator()(expr const & e, options const &) {
         std::ostringstream s; s << e; return format(s.str());
     }
+    virtual format operator()(object const & /* obj */, options const & /* opts */) {
+        return format(); // TODO(Leo)
+    }
+    virtual format operator()(ro_environment const & /* env */, options const & /* opts */) {
+        return format(); // TODO(Leo)
+    }
 };
 formatter mk_simple_formatter() {
     return mk_formatter(simple_formatter_cell());

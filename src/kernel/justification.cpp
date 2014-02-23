@@ -154,7 +154,7 @@ justification const & composite_child1(justification const & j) {
 
 justification const & composite_child2(justification const & j) {
     lean_assert(j.is_composite());
-    return to_composite(j.raw())->m_child[0];
+    return to_composite(j.raw())->m_child[1];
 }
 
 unsigned assumption_idx(justification const & j) {
@@ -241,5 +241,20 @@ justification mk_justification(pp_jst_sfn const & fn, optional<expr> const & s) 
     return mk_justification([=](formatter const & fmt, options const & opts, pos_info_provider const * p, substitution const & subst) {
             return compose(to_pos(s, p), fn(fmt, opts, subst));
         }, s);
+}
+
+std::ostream & operator<<(std::ostream & out, justification const & j) {
+    if (j.is_none()) {
+        out << "none";
+    } else if (j.is_asserted()) {
+        out << "asserted";
+    } else if (j.is_assumption()) {
+        out << "(assumption " << assumption_idx(j) << ")";
+    } else if (j.is_composite()) {
+        out << "(join " << composite_child1(j) << " " << composite_child2(j) << ")";
+    } else {
+        out << "unexpected";
+    }
+    return out;
 }
 }

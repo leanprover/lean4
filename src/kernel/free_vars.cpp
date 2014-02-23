@@ -65,6 +65,7 @@ protected:
             lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::Meta:   case expr_kind::Local:
             result = apply(mlocal_type(e), offset);
+            break;
         case expr_kind::App:
             result = apply(app_fn(e), offset) || apply(app_arg(e), offset);
             break;
@@ -142,6 +143,7 @@ class free_var_range_fn {
             lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::Meta: case expr_kind::Local:
             result = apply(mlocal_type(e));
+            break;
         case expr_kind::App:
             result = std::max(apply(app_fn(e)), apply(app_arg(e)));
             break;
@@ -237,6 +239,7 @@ protected:
             lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::Meta:   case expr_kind::Local:
             result = apply(mlocal_type(e), offset);
+            break;
         case expr_kind::App:
             result = apply(app_fn(e), offset) || apply(app_arg(e), offset);
             break;

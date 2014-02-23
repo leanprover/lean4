@@ -132,4 +132,7 @@ unsigned assumption_idx(justification const & j);
 
 /** \brief Return true iff \c j depends on the assumption with index \c i. */
 bool depends_on(justification const & j, unsigned i);
+
+/** \brief Printer for debugging purposes */
+std::ostream & operator<<(std::ostream & out, justification const & j);
 }

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
@@ -8,65 +8,122 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <vector>
 #include <utility>
+#include <set>
 #include "util/test.h"
+#include "util/buffer.h"
 #include "kernel/metavar.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
-#include "kernel/free_vars.h"
-#include "kernel/normalizer.h"
-#include "kernel/environment.h"
-#include "kernel/type_checker.h"
-#include "kernel/kernel_exception.h"
-#include "kernel/kernel.h"
-#include "kernel/io_state.h"
-#include "library/printer.h"
-#include "library/io_state_stream.h"
-#include "library/placeholder.h"
-#include "library/arith/arith.h"
-#include "frontends/lean/frontend.h"
-#include "frontends/lua/register_modules.h"
+// #include "kernel/free_vars.h"
+// #include "kernel/normalizer.h"
+// #include "kernel/environment.h"
+// #include "kernel/type_checker.h"
+// #include "kernel/kernel_exception.h"
+// #include "kernel/kernel.h"
+// #include "kernel/io_state.h"
+// #include "library/printer.h"
+// #include "library/io_state_stream.h"
+// #include "library/placeholder.h"
+// #include "library/arith/arith.h"
+// #include "frontends/lean/frontend.h"
+// #include "frontends/lua/register_modules.h"
 using namespace lean;
 
-static std::ostream & operator<<(std::ostream & out, metavar_env const & menv) {
+void collect_assumptions(justification const & j, buffer<unsigned> & r) {
+    std::set<unsigned> already_found;
+    buffer<justification> todo;
+    todo.push_back(j);
+    while (!todo.empty()) {
+        justification j = todo.back();
+        todo.pop_back();
+        if (j.is_assumption()) {
+            unsigned idx = assumption_idx(j);
+            if (already_found.find(idx) == already_found.end()) {
+                already_found.insert(idx);
+                r.push_back(idx);
+            }
+        } else if (j.is_composite()) {
+            todo.push_back(composite_child1(j));
+            todo.push_back(composite_child2(j));
+        }
+    }
+}
+
+void display_assumptions(std::ostream & out, justification const & j) {
+    buffer<unsigned> ids;
+    collect_assumptions(j, ids);
+    for (unsigned i = 0; i < ids.size(); i++) {
+        if (i > 0) out << " ";
+        out << ids[i];
+    }
+}
+
+static std::ostream & operator<<(std::ostream & out, substitution const & s) {
     bool first = true;
-    menv->for_each_subst([&](name const & n, expr const & v) {
+    s.for_each([&](name const & n, expr const & v, justification const & j) {
             if (first) first = false; else out << "\n";
-            out << "?" << n << " <- " << v;
+            out << "?" << n << " <- " << v << " {";
+            display_assumptions(out, j);
+            out << "}";
         });
     return out;
 }
 
-static std::ostream & operator<<(std::ostream & out, buffer<unification_constraint> const & uc) {
-    formatter fmt = mk_simple_formatter();
-    for (auto c : uc) {
-        out << c.pp(fmt, options(), nullptr, true) << "\n";
+static bool check_assumptions(justification const & j, std::initializer_list<unsigned> const & ls) {
+    buffer<unsigned> ids;
+    collect_assumptions(j, ids);
+    lean_assert(ids.size() == ls.size());
+    for (unsigned id : ls) {
+        lean_assert(std::find(ids.begin(), ids.end(), id) != ids.end());
     }
-    return out;
+    return true;
 }
 
 static void tst1() {
-    metavar_env  menv;
-    expr m1 = menv->mk_metavar();
-    lean_assert(!menv->is_assigned(m1));
-    expr t1 = menv->get_type(m1);
-    lean_assert(is_metavar(t1));
-    lean_assert(is_eqp(menv->get_type(m1), t1));
-    lean_assert(is_eqp(menv->get_type(m1), t1));
-    lean_assert(!menv->is_assigned(m1));
-    expr m2 = menv->mk_metavar();
-    lean_assert(!menv->is_assigned(m1));
-    expr t2 = menv->get_type(m2);
-    lean_assert(is_metavar(m2));
-    lean_assert(!is_eqp(t1, t2));
-    lean_assert(t1 != t2);
+    substitution subst;
+    expr m1 = mk_metavar("m1", Bool);
+    lean_assert(!subst.is_assigned(m1));
+    expr m2 = mk_metavar("m2", Bool);
+    lean_assert(!is_eqp(m1, m2));
+    lean_assert(m1 != m2);
     expr f = Const("f");
     expr a = Const("a");
-    menv->assign(m1, f(a));
-    lean_assert(menv->is_assigned(m1));
-    lean_assert(!menv->is_assigned(m2));
-    lean_assert(*(menv->get_subst(m1)) == f(a));
+    subst.assign(m1, f(a));
+    lean_assert(subst.is_assigned(m1));
+    lean_assert(!subst.is_assigned(m2));
+    lean_assert(*subst.get_expr(m1) == f(a));
+    lean_assert(subst.instantiate_metavars(f(m1)).first == f(f(a)));
+    std::cout << subst << "\n";
 }
 
+static void tst2() {
+    substitution s;
+    expr m1 = mk_metavar("m1", Bool);
+    expr m2 = mk_metavar("m2", Bool);
+    expr m3 = mk_metavar("m3", Bool);
+    expr f = Const("f");
+    expr g = Const("g");
+    expr a = Const("a");
+    s.assign(m1, f(m2), mk_assumption_justification(1));
+    s.assign(m2, g(a),  mk_assumption_justification(2));
+    lean_assert(check_assumptions(s.get_assignment(m1)->second, {1}));
+    lean_assert(s.occurs(m1, f(m1)));
+    lean_assert(s.occurs(m2, f(m1)));
+    lean_assert(!s.occurs(m1, f(m2)));
+    lean_assert(!s.occurs(m1, f(a)));
+    lean_assert(!s.occurs(m3, f(m1)));
+    std::cout << s << "\n";
+    auto p1 = s.instantiate_metavars(g(m1));
+    check_assumptions(p1.second, {1, 2});
+    lean_assert(check_assumptions(s.get_assignment(m1)->second, {1}));
+    lean_assert(p1.first == g(f(g(a))));
+    auto p2 = s.d_instantiate_metavars(g(m1));
+    check_assumptions(p2.second, {1, 2});
+    std::cout << s << "\n";
+    lean_assert(check_assumptions(s.get_assignment(m1)->second, {1, 2}));
+}
+
+#if 0
 static void tst2() {
     metavar_env menv;
     expr f = Const("f");
@@ -629,12 +686,13 @@ static void tst28() {
     lean_assert(add_lift(m2, 2, 2, menv) == m2);
     lean_assert(add_lift(m2, 2, 2, menv) != add_lift(m2, 2, 2));
 }
+#endif
 
 int main() {
     save_stack_info();
-    register_modules();
     tst1();
     tst2();
+#if 0
     tst3();
     tst4();
     tst5();
@@ -661,5 +719,6 @@ int main() {
     tst26();
     tst27();
     tst28();
+#endif
     return has_violations() ? 1 : 0;
 }

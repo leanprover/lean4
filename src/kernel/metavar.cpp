@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_visitor.h"
 #include "kernel/justification.h"
 #include "kernel/instantiate.h"
+#include "kernel/find_fn.h"
 
 namespace lean {
 bool substitution::is_assigned(name const & m) const {
@@ -41,7 +42,7 @@ void substitution::assign(name const & m, expr const & t) {
     assign(m, t, justification());
 }
 
-void substitution::for_each(std::function<void(name const & n, expr const & e, justification const & j)> const & fn) {
+void substitution::for_each(std::function<void(name const & n, expr const & e, justification const & j)> const & fn) const {
     m_subst.for_each([=](name const & n, std::pair<expr, justification> const & a) {
             fn(n, a.first, a.second);
         });
@@ -66,23 +67,23 @@ protected:
                 return p1->first;
             } else if (m_use_jst) {
                 if (m_update) {
-                    auto p2 = d_instantiate_metavars(p1->first, m_subst);
+                    auto p2 = m_subst.d_instantiate_metavars(p1->first);
                     justification new_jst = mk_composite1(p1->second, p2.second);
                     m_subst.assign(m_name, p2.first, new_jst);
                     save_jst(new_jst);
                     return p2.first;
                 } else {
-                    auto p2 = instantiate_metavars(p1->first, m_subst);
+                    auto p2 = m_subst.instantiate_metavars(p1->first);
                     save_jst(mk_composite1(p1->second, p2.second));
                     return p2.first;
                 }
             } else {
                 if (m_update) {
-                    expr r = d_instantiate_metavars_wo_jst(p1->first, m_subst);
+                    expr r = m_subst.d_instantiate_metavars_wo_jst(p1->first);
                     m_subst.assign(m_name, r);
                     return r;
                 } else {
-                    return instantiate_metavars_wo_jst(p1->first, m_subst);
+                    return m_subst.instantiate_metavars_wo_jst(p1->first);
                 }
             }
         } else {
@@ -113,23 +114,39 @@ public:
     justification const & get_justification() const { return m_jst; }
 };
 
-std::pair<expr, justification> instantiate_metavars(expr const & e, substitution const & s) {
-    instantiate_metavars_fn fn(const_cast<substitution&>(s), true, false);
+std::pair<expr, justification> substitution::instantiate_metavars(expr const & e) const {
+    instantiate_metavars_fn fn(const_cast<substitution&>(*this), true, false);
     expr r = fn(e);
     return mk_pair(r, fn.get_justification());
 }
 
-std::pair<expr, justification> d_instantiate_metavars(expr const & e, substitution & s) {
-    instantiate_metavars_fn fn(s, true, true);
+std::pair<expr, justification> substitution::d_instantiate_metavars(expr const & e) {
+    instantiate_metavars_fn fn(*this, true, true);
     expr r = fn(e);
     return mk_pair(r, fn.get_justification());
 }
 
-expr instantiate_metavars_wo_jst(expr const & e, substitution const & s) {
-    return instantiate_metavars_fn(const_cast<substitution&>(s), false, false)(e);
+expr substitution::instantiate_metavars_wo_jst(expr const & e) const {
+    return instantiate_metavars_fn(const_cast<substitution&>(*this), false, false)(e);
 }
 
-expr d_instantiate_metavars_wo_jst(expr const & e, substitution & s) {
-    return instantiate_metavars_fn(s, false, true)(e);
+expr substitution::d_instantiate_metavars_wo_jst(expr const & e) {
+    return instantiate_metavars_fn(*this, false, true)(e);
+}
+
+bool substitution::occurs(name const & m, expr const & e) const {
+    if (!has_metavar(e))
+        return false;
+    auto it = find(e, [&](expr const & e, unsigned) {
+            if (is_metavar(e)) {
+                if (mlocal_name(e) == m)
+                    return true;
+                auto s = get_expr(e);
+                return s && occurs(m, *s);
+            } else {
+                return false;
+            }
+        });
+    return static_cast<bool>(it);
 }
 }

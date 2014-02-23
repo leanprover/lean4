@@ -19,4 +19,7 @@ inline bool operator<(expr const & a, expr const & b)  { return is_lt(a, b, true
 inline bool operator>(expr const & a, expr const & b)  { return is_lt(b, a, true); }
 inline bool operator<=(expr const & a, expr const & b) { return !is_lt(b, a, true); }
 inline bool operator>=(expr const & a, expr const & b) { return !is_lt(a, b, true); }
+
+bool is_lt(level const & a, level const & b, bool use_hash);
+bool is_lt(levels const & as, levels const & bs, bool use_hash);
 }

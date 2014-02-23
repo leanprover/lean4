@@ -7,9 +7,11 @@ Author: Leonardo de Moura
 #pragma once
 #include <iostream>
 #include <algorithm>
+#include <utility>
 #include "util/name.h"
 #include "util/optional.h"
 #include "util/serializer.h"
+#include "util/list.h"
 #include "util/sexpr/format.h"
 #include "util/sexpr/options.h"
 
@@ -119,6 +121,19 @@ inline bool has_meta(level const & l) { return get_meta_range(l) > 0; }
 */
 bool is_trivial(level const & lhs, level const & rhs);
 
+typedef list<level> levels;
+
+/**
+   \brief Simpler version of the constraint class.
+   We use in the definition of objects.
+*/
+typedef std::pair<level, level> level_cnstr;
+typedef list<level_cnstr> level_cnstrs;
+
+unsigned get_param_range(level_cnstr const & c);
+unsigned get_param_range(level_cnstrs const & cs);
+unsigned get_meta_range(level_cnstr const & c);
+unsigned get_meta_range(level_cnstrs const & cs);
 
 /**
    \brief Printer for debugging purposes
@@ -134,6 +149,12 @@ bool is_not_zero(level const & l);
 serializer & operator<<(serializer & s, level const & l);
 level read_level(deserializer & d);
 inline deserializer & operator>>(deserializer & d, level & l) { l = read_level(d); return d; }
+
+serializer & operator<<(serializer & s, levels const & ls);
+levels read_levels(deserializer & d);
+
+serializer & operator<<(serializer & s, level_cnstrs const & cs);
+level_cnstrs read_level_cnstrs(deserializer & d);
 
 /** \brief Pretty print the given level expression, unicode characters are used if \c unicode is \c true. */
 format pp(level l, bool unicode, unsigned indent);

@@ -394,6 +394,61 @@ level read_level(deserializer & d) {
     return d.get_extension<level_deserializer>(g_level_sd.m_d_extid).read();
 }
 
+serializer & operator<<(serializer & s, levels const & ls) {
+    s << length(ls);
+    for (auto const & l : ls)
+        s << l;
+    return s;
+}
+
+levels read_levels(deserializer & d) {
+    unsigned num = d.read_unsigned();
+    buffer<level> ls;
+    for (unsigned i = 0; i < num; i++)
+        ls.push_back(read_level(d));
+    return to_list(ls.begin(), ls.end());
+}
+
+serializer & operator<<(serializer & s, level_cnstrs const & cs) {
+    s << length(cs);
+    for (auto const & p : cs)
+        s << p.first << p.second;
+    return s;
+}
+
+level_cnstrs read_level_cnstrs(deserializer & d) {
+    unsigned num = d.read_unsigned();
+    buffer<level_cnstr> cs;
+    for (unsigned i = 0; i < num; i++) {
+        level lhs = read_level(d);
+        level rhs = read_level(d);
+        cs.push_back(level_cnstr(lhs, rhs));
+    }
+    return to_list(cs.begin(), cs.end());
+}
+
+unsigned get_param_range(level_cnstr const & c) {
+    return std::max(get_param_range(c.first), get_param_range(c.second));
+}
+
+unsigned get_param_range(level_cnstrs const & cs) {
+    unsigned r = 0;
+    for (auto const & c : cs)
+        r = std::max(r, get_param_range(c));
+    return r;
+}
+
+unsigned get_meta_range(level_cnstr const & c) {
+    return std::max(get_meta_range(c.first), get_meta_range(c.second));
+}
+
+unsigned get_meta_range(level_cnstrs const & cs) {
+    unsigned r = 0;
+    for (auto const & c : cs)
+        r = std::max(r, get_meta_range(c));
+    return r;
+}
+
 static void print(std::ostream & out, level l);
 
 static void print_child(std::ostream & out, level const & l) {

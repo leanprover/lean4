@@ -25,7 +25,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 class expr;
-typedef list<level> levels;
 /* =======================================
    Expressions
    expr ::=   Var           idx

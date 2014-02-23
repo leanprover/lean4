@@ -420,21 +420,6 @@ expr copy(expr const & a) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-serializer & operator<<(serializer & s, levels const & ls) {
-    s << length(ls);
-    for (auto const & l : ls)
-        s << l;
-    return s;
-}
-
-levels read_levels(deserializer & d) {
-    unsigned num = d.read_unsigned();
-    buffer<level> ls;
-    for (unsigned i = 0; i < num; i++)
-        ls.push_back(read_level(d));
-    return to_list(ls.begin(), ls.end());
-}
-
 class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp> {
     typedef object_serializer<expr, expr_hash_alloc, expr_eqp> super;
     max_sharing_fn m_max_sharing_fn;

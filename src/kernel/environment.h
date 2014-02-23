@@ -62,13 +62,15 @@ class environment_cell {
     void check_name_core(name const & n);
     void check_name(name const & n);
 
+    void check_level_cnstrs(unsigned num_param, level_cnstrs const & ls);
+
     void register_named_object(object const & new_obj);
     optional<object> get_object_core(name const & n) const;
 
     void check_no_mlocal(expr const & e);
     void check_type(name const & n, expr const & t, expr const & v);
     void check_type(expr const & t);
-    void check_new_definition(name const & n, expr const & t, expr const & v);
+    void check_new_definition(name const & n, unsigned num_param, level_cnstrs const & cs, expr const & t, expr const & v);
 
     bool mark_imported_core(name n);
     bool load_core(std::string const & fname, io_state const & ios, optional<std::string> const & mod_name);
@@ -106,15 +108,16 @@ public:
        It throws an exception if v does not have type t.
        It throws an exception if there is already an object with the given name.
     */
-    void add_definition(name const & n, expr const & t, expr const & v, bool opaque = false);
-    void add_opaque_definition(name const & n, expr const & t, expr const & v) { add_definition(n, t, v, true); }
-    void add_theorem(name const & n, expr const & t, expr const & v);
+    void add_definition(name const & n, unsigned num_param, level_cnstrs const & cs, expr const & t, expr const & v);
+    void add_theorem(name const & n, unsigned num_param, level_cnstrs const & cs, expr const & t, expr const & v);
+    void add_definition(name const & n, expr const & t, expr const & v) { add_definition(n, 0, level_cnstrs(), t, v); }
+    void add_theorem(name const & n, expr const & t, expr const & v) { add_theorem(n, 0, level_cnstrs(), t, v); }
 
     /**
        \brief Add a new definition n : infer_type(v) := v.
        It throws an exception if there is already an object with the given name.
     */
-    void add_definition(name const & n, expr const & v, bool opaque = false);
+    void add_definition(name const & n, expr const & v);
 
     /**
        \brief Set the given definition as opaque (or not)
@@ -127,8 +130,10 @@ public:
        \brief Add a new fact (Axiom or Fact) to the environment.
        It throws an exception if there is already an object with the given name.
     */
-    void add_axiom(name const & n, expr const & t);
-    void add_var(name const & n, expr const & t);
+    void add_axiom(name const & n, unsigned num_param, level_cnstrs const & cs, expr const & t);
+    void add_var(name const & n, unsigned num_param, level_cnstrs const & cs, expr const & t);
+    void add_axiom(name const & n, expr const & t) { add_axiom(n, 0, level_cnstrs(), t); }
+    void add_var(name const & n, expr const & t) { add_var(n, 0, level_cnstrs(), t); };
 
     /**
        \brief Register the given unanymous object in this environment.

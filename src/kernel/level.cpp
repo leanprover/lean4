@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "util/debug.h"
 #include "util/hash.h"
 #include "util/object_serializer.h"
+#include "util/interrupt.h"
 #include "kernel/level.h"
 
 namespace lean {
@@ -499,6 +500,33 @@ format pp(level l, bool unicode, unsigned indent) {
 format pp(level const & l, options const & opts) {
     return pp(l, get_pp_unicode(opts), get_pp_indent(opts));
 }
-}
 
+bool is_trivial(level const & lhs, level const & rhs) {
+    check_system("level constraints");
+    if (is_zero(lhs) || lhs == rhs) {
+        // 0 <= l
+        // l <= l
+        return true;
+    } else if (is_succ(lhs) && is_succ(rhs)) {
+        // is_trivial(l <= r) implies   is_trivial(succ l <= succ r)
+        return is_trivial(succ_of(lhs), succ_of(rhs));
+    } else if (is_succ(rhs)) {
+        // is_trivial(l <= r)  implies is_trivial(l <= succ^k r)
+        lean_assert(!is_succ(lhs));
+        level it = succ_of(rhs);
+        while (is_succ(it))
+            it = succ_of(it);
+        return is_trivial(lhs, it);
+    } else if (is_max(rhs)) {
+        // is_trivial(l <= l1) implies  is_trivial(l <= max(l1, l2))
+        // is_trivial(l <= l2) implies  is_trivial(l <= max(l1, l2))
+        return is_trivial(lhs, max_lhs(rhs)) || is_trivial(lhs, max_rhs(rhs));
+    } else if (is_imax(rhs)) {
+        // is_trivial(l <= l2) implies is_trivial(l <= imax(l1, l2))
+        return is_trivial(lhs, imax_rhs(rhs));
+    } else {
+        return false;
+    }
+}
+}
 void print(lean::level const & l) { std::cout << l << std::endl; }

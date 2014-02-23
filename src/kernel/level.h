@@ -111,6 +111,16 @@ bool is_explicit(level const & l);
 inline bool has_meta(level const & l) { return get_meta_range(l) > 0; }
 
 /**
+   \brief Return true if lhs <= rhs is a trivial constraint.
+   That is, it is a constraint that is always valid, and can be discarded.
+   This is not a complete procedure. It only "catches" the easy cases.
+
+   \remark The type checker produces many trivial constraints.
+*/
+bool is_trivial(level const & lhs, level const & rhs);
+
+
+/**
    \brief Printer for debugging purposes
 */
 std::ostream & operator<<(std::ostream & out, level const & l);

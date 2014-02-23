@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include "library/io_state_stream.h"
 #include "kernel/kernel_exception.h"
-#include "library/printer.h"
 namespace lean {
 io_state_stream const & operator<<(io_state_stream const & out, endl_class) {
     out.get_stream() << std::endl;

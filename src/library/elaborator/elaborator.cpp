@@ -1727,6 +1727,11 @@ class elaborator::imp {
         if (!eq && is_bool(a) && is_type(b))
             return true;
 
+        if ((is_proj(a) && instantiate_metavars(true, a, c)) ||
+            (is_proj(b) && instantiate_metavars(false, b, c))) {
+            return true;
+        }
+
         if (a.kind() == b.kind()) {
             switch (a.kind()) {
             case expr_kind::Constant: case expr_kind::Var: case expr_kind::Value:

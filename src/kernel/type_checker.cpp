@@ -7,49 +7,61 @@ Author: Leonardo de Moura
 #include "util/freset.h"
 #include "util/flet.h"
 #include "util/interrupt.h"
+#include "kernel/environment.h"
 #include "kernel/type_checker.h"
 #include "kernel/expr_maps.h"
-#include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/normalizer.h"
 #include "kernel/instantiate.h"
-#include "kernel/kernel.h"
 #include "kernel/free_vars.h"
-#include "kernel/type_checker_justification.h"
 
 namespace lean {
 expr pi_body_at(expr const & pi, expr const & a) {
     lean_assert(is_pi(pi));
-    if (closed(abst_body(pi)))
-        return abst_body(pi);
+    if (closed(binder_body(pi)))
+        return binder_body(pi);
     else if (closed(a))
-        return instantiate_with_closed(abst_body(pi), a);
+        return instantiate_with_closed(binder_body(pi), a);
     else
-        return instantiate(abst_body(pi), a);
+        return instantiate(binder_body(pi), a);
 }
 
-static name g_x_name("x");
 /** \brief Auxiliary functional object used to implement infer_type. */
 class type_checker::imp {
     typedef expr_map<expr> cache;
-    typedef buffer<unification_constraint> unification_constraints;
 
     ro_environment::weak_ref  m_env;
-    cache                     m_cache;
     normalizer                m_normalizer;
-    context                   m_ctx;
-    cached_metavar_env        m_menv;
-    unification_constraints * m_uc;
+    cache                     m_cache;
+    name_generator *          m_name_gen;
+    constraints               m_constraints; // constraints generated so far
     bool                      m_infer_only;
 
     ro_environment env() const { return ro_environment(m_env); }
-    expr lift_free_vars(expr const & e, unsigned s, unsigned d) { return ::lean::lift_free_vars(e, s, d, m_menv.to_some_ro_menv()); }
-    expr lift_free_vars(expr const & e, unsigned d) { return ::lean::lift_free_vars(e, d, m_menv.to_some_ro_menv()); }
-    expr lower_free_vars(expr const & e, unsigned s, unsigned n) { return ::lean::lower_free_vars(e, s, n, m_menv.to_some_ro_menv()); }
-    expr instantiate_with_closed(expr const & e, expr const & v) { return ::lean::instantiate_with_closed(e, v, m_menv.to_some_ro_menv()); }
-    expr instantiate(expr const & e, expr const & v) { return ::lean::instantiate(e, v, m_menv.to_some_ro_menv()); }
-    expr normalize(expr const & e, context const & ctx, bool unfold_opaque) { return m_normalizer(e, ctx, m_menv.to_some_ro_menv(), unfold_opaque); }
+    expr normalize(expr const & e) { return m_normalizer(e); }
 
+#if 0
+    expr check_sort(expr const & e, expr const & s) {
+        if (is_sort(e))
+            return e;
+        expr u = normalize(e);
+        if (is_sort(u))
+            return u;
+        if (has_metavar(u)) {
+            justification jst = mk_type_expected_justification(ctx, s);
+            m_uc->push_back(mk_convertible_constraint(ctx, e, TypeU1, jst));
+            return u;
+        }
+        throw type_expected_exception(env(), ctx, s);
+    }
+#endif
+};
+
+
+#if 0
+static name g_x_name("x");
+/** \brief Auxiliary functional object used to implement infer_type. */
+class type_checker::imp {
     expr check_type(expr const & e, expr const & s, context const & ctx) {
         if (is_type(e) || is_bool(e))
             return e;
@@ -196,10 +208,6 @@ class type_checker::imp {
             }
         case expr_kind::Type:
             return mk_type(ty_level(e) + 1);
-        case expr_kind::HEq:
-            if (m_infer_only)
-                return Bool;
-            break;
         case expr_kind::App: case expr_kind::Lambda:
         case expr_kind::Pi:  case expr_kind::Let:
         case expr_kind::Sigma: case expr_kind::Proj:
@@ -262,12 +270,6 @@ class type_checker::imp {
                     f_t = check_pi(f_t, e, ctx);
                 }
             }
-            break;
-        case expr_kind::HEq:
-            lean_assert(!m_infer_only);
-            infer_type_core(heq_lhs(e), ctx);
-            infer_type_core(heq_rhs(e), ctx);
-            r = Bool;
             break;
         case expr_kind::Pair:
             if (m_infer_only) {
@@ -636,4 +638,5 @@ bool is_proposition(expr const & e, ro_environment const & env, context const & 
 bool is_proposition(expr const & e, ro_environment const & env, context const & ctx) {
     return is_proposition(e, env, ctx, none_ro_menv());
 }
+#endif
 }

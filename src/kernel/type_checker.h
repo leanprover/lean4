@@ -6,10 +6,10 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
+#include <utility>
+#include "util/name_generator.h"
 #include "kernel/expr.h"
-#include "kernel/context.h"
-#include "kernel/unification_constraint.h"
-#include "kernel/metavar.h"
+#include "kernel/constraint.h"
 
 namespace lean {
 class environment;
@@ -26,92 +26,74 @@ expr pi_body_at(expr const & pi, expr const & a);
 /**
    \brief Lean Type Checker. It can also be used to infer types, universes and check whether a
    type \c A is convertible to a type \c B.
+
+   Remark: several methods take a \c name_generator as argument. The name generator is used
+   for creating fresh metavariables and local variables.
+
+   Remark: several methods return constraints. Three possible kinds of constraints a generated:
+   unification constraints, convertability constraints and universe level constraints.
+   See constraints.h for more details. The first two kinds of constraints are only generated
+   if the input expression contains meta-variables or meta-level-parameters.
 */
 class type_checker {
     class imp;
     std::unique_ptr<imp> m_ptr;
 public:
-    type_checker(ro_environment const & env, bool infer_only = false);
+    type_checker(ro_environment const & env);
     ~type_checker();
 
     /**
-       \brief Return the type of \c e in the context \c ctx.
+       \brief Return the type of \c e.
 
        It does not check whether the input expression is type correct or not.
        The contract is: IF the input expression is type correct, then the inferred
        type is correct.
+       Throw an exception if a type error is found.
 
-       \remark This method throws an exception if \c e is not type correct.
-
-       \remark If \c menv is not none, then \c e may contain metavariables.
-       New metavariables and unification constraints may be created by the type checker.
-       The new unification constraints are stored in \c new_constraints.
+       The result is meaningful only if the resultant set of constraints can be solved.
     */
-    expr infer_type(expr const & e, context const & ctx, optional<metavar_env> const & menv, buffer<unification_constraint> * new_constraints);
-    expr infer_type(expr const & e, context const & ctx, metavar_env const & menv, buffer<unification_constraint> & new_constraints);
-    expr infer_type(expr const & e, context const & ctx, ro_metavar_env const & menv);
-    expr infer_type(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv);
+    std::pair<expr, constraints> infer_type(expr const & e, name_generator & g);
 
     /**
-        \brief Return the type of \c e in the context \c ctx.
+       \brief Type check the given expression, and return the type of \c e.
+       Throw an exception if a type error is found.
 
-        \remark This method throws an exception if \c e is not type
-        correct, or if \c e contains metavariables.
+       The result is meaningful only if the resultant set of constraints can be solved.
     */
-    expr infer_type(expr const & e, context const & ctx = context());
+    std::pair<expr, constraints> check(expr const & e, name_generator & g);
 
     /**
-       \brief Type check the given expression, and return the type of \c e in the context \c ctx.
+        \brief Return a set of constraints that need to be solved for \c t1 to be convertible to \c t2.
 
-       \remark This method throws an exception if \c e is not type correct.
-
-       \remark If \c menv is not none, then \c e may contain metavariables.
-       New metavariables and unification constraints may be created by the type checker.
-       The new unification constraints are stored in \c new_constraints.
+        Return none if \c t1 is not convertible to \c t2.
     */
-    expr check(expr const & e, context const & ctx, optional<metavar_env> const & menv, buffer<unification_constraint> * new_constraints);
-    expr check(expr const & e, context const & ctx, metavar_env const & menv, buffer<unification_constraint> & new_constraints);
-    expr check(expr const & e, context const & ctx, ro_metavar_env const & menv);
+    optional<constraints> is_convertible(expr const & t1, expr const & t2, name_generator & g);
 
     /**
-        \brief Type check the given expression, and return the type of \c e in the context \c ctx.
+        \brief Return a set of constraints that need to be solved for \c t1 to be definitionally equal to \c t2.
 
-        \remark This method throws an exception if \c e is not type
-        correct, or if \c e contains metavariables.
+        Return none if \c t1 is not definitionally equal to \c t2.
     */
-    expr check(expr const & e, context const & ctx = context());
+    optional<constraints> is_definitionally_equal(expr const & t1, expr const & t2, name_generator & g);
 
-    /** \brief Throw an exception if \c e is not a type in the context \c ctx. */
-    void check_type(expr const & e, context const & ctx = context());
+    /**
+        \brief Return a set of constraints that need to be solved for \c e to be a proposition (i.e., it has type Bool)
 
-    /** \brief Return true iff \c t1 is convertible to \c t2 in the context \c ctx. */
-    bool is_convertible(expr const & t1, expr const & t2, context const & ctx, optional<ro_metavar_env> const & menv);
-    bool is_convertible(expr const & t1, expr const & t2, context const & ctx = context());
-
-    /** \brief Return true iff \c t1 definitionally equal to \c t2 in the context \c ctx.
-
-        \remark is_definitionally_equal(t1, t2, ctx) implies is_convertible(t1, t2, ctx)
+        Return none if \c e is not a proposition.
     */
-    bool is_definitionally_equal(expr const & t1, expr const & t2, context const & ctx, optional<ro_metavar_env> const & menv);
-    bool is_definitionally_equal(expr const & t1, expr const & t2, context const & ctx = context());
+    optional<constraints> is_proposition(expr const & e, name_generator & g);
 
-    /** \brief Return true iff \c e is a proposition (i.e., it has type Bool) */
-    bool is_proposition(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv);
-    bool is_proposition(expr const & e, context const & ctx, ro_metavar_env const & menv);
-    bool is_proposition(expr const & e, context const & ctx = context());
+    /**
+        \brief Return a Pi if \c e is convertible to a Pi type.
+       Throw an exception if a type error is found.
+    */
+    std::pair<expr, constraints> ensure_pi(expr const & e, name_generator & g);
 
-    /** \brief Return true iff \c e is a proposition or is a Pi s.t. the range is a flex_proposition */
-    bool is_flex_proposition(expr e, context ctx, optional<ro_metavar_env> const & menv);
-    bool is_flex_proposition(expr const & e, context const & ctx, ro_metavar_env const & menv);
-    bool is_flex_proposition(expr const & e, context const & ctx = context());
-
-    /** \brief Return a Pi if \c e is convertible to Pi. Throw an exception otherwise. */
-    expr ensure_pi(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv);
-    expr ensure_pi(expr const & e, context const & ctx = context());
-
-    /** \brief Return a Sigma if \c e is convertible to Sigma. Throw an exception otherwise. */
-    expr ensure_sigma(expr const & e, context const & ctx, optional<ro_metavar_env> const & menv);
-    expr ensure_sigma(expr const & e, context const & ctx = context());
+    /**
+        \brief Return a Sigma if \c e is convertible to a Sigma type.
+       Throw an exception if a type error is found.
+    */
+    std::pair<expr, constraints> ensure_sigma(expr const & e, name_generator & g);
 
     /** \brief Reset internal caches */
     void clear();
@@ -119,25 +101,4 @@ public:
     /** \brief Return reference to the normalizer used by this type checker. */
     normalizer & get_normalizer();
 };
-class type_inferer : public type_checker {
-public:
-    type_inferer(ro_environment const & env):type_checker(env, true) {}
-    expr operator()(expr const & e, context const & ctx, optional<metavar_env> const & menv, buffer<unification_constraint> * new_constraints) {
-        return infer_type(e, ctx, menv, new_constraints);
-    }
-    expr operator()(expr const & e, context const & ctx, metavar_env const & menv, buffer<unification_constraint> & new_constraints) {
-        return infer_type(e, ctx, menv, new_constraints);
-    }
-    expr operator()(expr const & e, context const & ctx, ro_metavar_env const & menv) {
-        return infer_type(e, ctx, menv);
-    }
-    expr operator()(expr const & e, context const & ctx = context()) {
-        return infer_type(e, ctx);
-    }
-};
-expr type_check(expr const & e, ro_environment const & env, context const & ctx = context());
-bool is_convertible(expr const & t1, expr const & t2, ro_environment const & env, context const & ctx = context());
-bool is_proposition(expr const & e, ro_environment const & env, context const & ctx, optional<ro_metavar_env> const & menv);
-bool is_proposition(expr const & e, ro_environment const & env, context const & ctx, ro_metavar_env const & menv);
-bool is_proposition(expr const & e, ro_environment const & env, context const & ctx = context());
 }

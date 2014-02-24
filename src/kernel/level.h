@@ -30,8 +30,8 @@ struct level_cell;
                     We use IMax to handle Pi-types, and Max for Sigma-types.
                     Their definitions "mirror" the typing rules for Pi and Sigma.
 
-   - Param(i)     : A parameter. In Lean, we have universe polymorphic definitions.
-   - Meta(i)      : Placeholder. It is the equivalent of a metavariable for universe levels.
+   - Param(n)     : A parameter. In Lean, we have universe polymorphic definitions.
+   - Meta(n)      : Placeholder. It is the equivalent of a metavariable for universe levels.
                     The elaborator is responsible for replacing Meta with level expressions
                     that do not contain Meta.
 */
@@ -52,6 +52,9 @@ public:
     level(level&& s);
     ~level();
 
+    level_kind kind() const;
+    unsigned hash() const;
+
     level & operator=(level const & l);
     level & operator=(level&& l);
 
@@ -68,8 +71,8 @@ level const & mk_level_one();
 level mk_max(level const & l1, level const & l2);
 level mk_imax(level const & l1, level const & l2);
 level mk_succ(level const & l);
-level mk_param_univ(unsigned i);
-level mk_meta_univ(unsigned i);
+level mk_param_univ(name const & n);
+level mk_meta_univ(name const & n);
 
 bool operator==(level const & l1, level const & l2);
 inline bool operator!=(level const & l1, level const & l2) { return !operator==(l1, l2); }
@@ -79,8 +82,8 @@ inline bool operator!=(level const & l1, level const & l2) { return !operator==(
 */
 bool is_lt(level const & l1, level const & l2);
 
-unsigned hash(level const & l);
-level_kind kind(level const & l);
+inline unsigned hash(level const & l) { return l.hash(); }
+inline level_kind kind(level const & l) { return l.kind(); }
 inline bool is_zero(level const & l)  { return kind(l) == level_kind::Zero; }
 inline bool is_param(level const & l) { return kind(l) == level_kind::Param; }
 inline bool is_meta(level const & l)  { return kind(l) == level_kind::Meta; }
@@ -89,16 +92,14 @@ inline bool is_max(level const & l)   { return kind(l) == level_kind::Max; }
 inline bool is_imax(level const & l)  { return kind(l) == level_kind::IMax; }
 
 unsigned get_depth(level const & l);
-unsigned get_param_range(level const & l);
-unsigned get_meta_range(level const & l);
 
 level const & max_lhs(level const & l);
 level const & max_rhs(level const & l);
 level const & imax_lhs(level const & l);
 level const & imax_rhs(level const & l);
 level const & succ_of(level const & l);
-unsigned param_id(level const & l);
-unsigned meta_id(level const & l);
+name const & param_id(level const & l);
+name const & meta_id(level const & l);
 /**
    \brief Return true iff \c l is an explicit level.
    We say a level l is explicit iff
@@ -107,10 +108,10 @@ unsigned meta_id(level const & l);
 */
 bool is_explicit(level const & l);
 
-/**
-   \brief Return true iff \c l contains placeholder (aka meta parameters).
-*/
-inline bool has_meta(level const & l) { return get_meta_range(l) > 0; }
+/** \brief Return true iff \c l contains placeholder (aka meta parameters). */
+bool has_meta(level const & l);
+/** \brief Return true iff \c l contains parameters */
+bool has_param(level const & l);
 
 /**
    \brief Return true if lhs <= rhs is a trivial constraint.
@@ -130,10 +131,16 @@ typedef list<level> levels;
 typedef std::pair<level, level> level_cnstr;
 typedef list<level_cnstr> level_cnstrs;
 
-unsigned get_param_range(level_cnstr const & c);
-unsigned get_param_range(level_cnstrs const & cs);
-unsigned get_meta_range(level_cnstr const & c);
-unsigned get_meta_range(level_cnstrs const & cs);
+bool has_param(level_cnstr const & c);
+bool has_param(level_cnstrs const & cs);
+bool has_meta(level_cnstr const & c);
+bool has_meta(level_cnstrs const & cs);
+
+/**
+   \brief If \c cs contains a parameter that is not in \c param_names, then return it.
+   Otherwise, return none.
+*/
+optional<name> get_undef_param(level_cnstrs const & cs, list<name> const & param_names);
 
 /**
    \brief Printer for debugging purposes

@@ -30,24 +30,22 @@ struct level_cell {
     level_cell(level_kind k, unsigned h):m_rc(1), m_kind(k), m_hash(h) {}
 };
 
-unsigned hash(level const & l) { return to_cell(l).m_hash; }
-level_kind kind(level const & l) { return to_cell(l).m_kind; }
-
 struct level_composite : public level_cell {
     unsigned   m_depth;
-    unsigned   m_param_range;
-    unsigned   m_meta_range;
-    level_composite(level_kind k, unsigned h, unsigned d, unsigned r1, unsigned r2):
-        level_cell(k, h), m_depth(d), m_param_range(r1), m_meta_range(r2) {}
+    unsigned   m_has_param:1;
+    unsigned   m_has_meta:1;
+    level_composite(level_kind k, unsigned h, unsigned d, bool has_param, bool has_meta):
+        level_cell(k, h), m_depth(d), m_has_param(has_param), m_has_meta(has_meta) {}
 };
 
 static bool is_composite(level const & l) {
     switch (kind(l)) {
     case level_kind::Succ: case level_kind::Max: case level_kind::IMax:
         return true;
-    default:
+    case level_kind::Param: case level_kind::Meta: case level_kind::Zero:
         return false;
     }
+    lean_unreachable(); // LCOV_EXCL_LINE
 }
 
 static level_composite const & to_composite(level const & l) {
@@ -59,7 +57,7 @@ struct level_succ : public level_composite {
     level m_l;
     bool  m_explicit;
     level_succ(level const & l):
-        level_composite(level_kind::Succ, hash(hash(l), 17u), get_depth(l) + 1, get_param_range(l), get_meta_range(l)),
+        level_composite(level_kind::Succ, hash(hash(l), 17u), get_depth(l) + 1, has_param(l), has_meta(l)),
         m_l(l),
         m_explicit(is_explicit(l)) {}
 };
@@ -74,8 +72,8 @@ struct level_max_core : public level_composite {
         level_composite(imax ? level_kind::IMax : level_kind::Max,
                         hash(hash(l1), hash(l2)),
                         std::max(get_depth(l1), get_depth(l2)) + 1,
-                        std::max(get_param_range(l1), get_param_range(l2)),
-                        std::max(get_meta_range(l1), get_meta_range(l2))),
+                        has_param(l1) || has_param(l2),
+                        has_meta(l1) || has_meta(l2)),
         m_lhs(l1), m_rhs(l2) {
         lean_assert(!is_explicit(l1) || !is_explicit(l2));
     }
@@ -92,9 +90,9 @@ level const & imax_lhs(level const & l) { lean_assert(is_imax(l)); return to_max
 level const & imax_rhs(level const & l) { lean_assert(is_imax(l)); return to_max_core(l).m_rhs; }
 
 struct level_param_core : public level_cell {
-    unsigned m_id;
-    level_param_core(bool is_param, unsigned id):
-        level_cell(is_param ? level_kind::Param : level_kind::Meta, hash(id, 11u)),
+    name m_id;
+    level_param_core(bool is_param, name const & id):
+        level_cell(is_param ? level_kind::Param : level_kind::Meta, hash(id.hash(), is_param ? 11u : 13u)),
         m_id(id) {}
 };
 
@@ -105,8 +103,8 @@ static level_param_core const & to_param_core(level const & l) {
     return static_cast<level_param_core const &>(to_cell(l));
 }
 
-unsigned param_id(level const & l) { lean_assert(is_param(l)); return to_param_core(l).m_id; }
-unsigned meta_id(level const & l)  { lean_assert(is_meta(l));  return to_param_core(l).m_id; }
+name const & param_id(level const & l) { lean_assert(is_param(l)); return to_param_core(l).m_id; }
+name const & meta_id(level const & l)  { lean_assert(is_meta(l));  return to_param_core(l).m_id; }
 
 void level_cell::dealloc() {
     switch (m_kind) {
@@ -135,26 +133,26 @@ unsigned get_depth(level const & l) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-unsigned get_param_range(level const & l) {
+bool has_param(level const & l) {
     switch (kind(l)) {
     case level_kind::Zero: case level_kind::Meta:
-        return 0;
+        return false;
     case level_kind::Param:
-        return to_param_core(l).m_id + 1;
+        return true;
     case level_kind::Succ: case level_kind::Max: case level_kind::IMax:
-        return to_composite(l).m_param_range;
+        return to_composite(l).m_has_param;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-unsigned get_meta_range(level const & l) {
+bool has_meta(level const & l) {
     switch (kind(l)) {
     case level_kind::Zero: case level_kind::Param:
-        return 0;
+        return false;
     case level_kind::Meta:
-        return to_param_core(l).m_id + 1;
+        return true;
     case level_kind::Succ: case level_kind::Max: case level_kind::IMax:
-        return to_composite(l).m_param_range;
+        return to_composite(l).m_has_meta;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
@@ -199,12 +197,12 @@ level mk_imax(level const & l1, level const & l2) {
         return level(new level_max_core(true,  l1, l2));
 }
 
-level mk_param_univ(unsigned i) {
-    return level(new level_param_core(true, i));
+level mk_param_univ(name const & n) {
+    return level(new level_param_core(true, n));
 }
 
-level mk_meta_univ(unsigned i) {
-    return level(new level_param_core(false, i));
+level mk_meta_univ(name const & n) {
+    return level(new level_param_core(false, n));
 }
 
 static level g_zero(new level_cell(level_kind::Zero, 7u));
@@ -215,22 +213,13 @@ level const & mk_level_one()  { return g_one; }
 
 level::level():level(g_zero) {}
 level::level(level_cell * ptr):m_ptr(ptr) { lean_assert(m_ptr->get_rc() == 1); }
-level::level(level const & s):
-    m_ptr(s.m_ptr) {
-    if (m_ptr)
-        m_ptr->inc_ref();
-}
-level::level(level && s):
-    m_ptr(s.m_ptr) {
-    s.m_ptr = nullptr;
-}
-level::~level() {
-    if (m_ptr)
-        m_ptr->dec_ref();
-}
-
+level::level(level const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
+level::level(level && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
+level::~level() { if (m_ptr) m_ptr->dec_ref(); }
 level & level::operator=(level const & l) { LEAN_COPY_REF(l); }
 level & level::operator=(level&& l) { LEAN_MOVE_REF(l); }
+level_kind level::kind() const { return m_ptr->m_kind; }
+unsigned level::hash() const { return m_ptr->m_hash; }
 
 bool operator==(level const & l1, level const & l2) {
     if (kind(l1) != kind(l2)) return false;
@@ -242,9 +231,7 @@ bool operator==(level const & l1, level const & l2) {
     case level_kind::Param: case level_kind::Meta:
         return to_param_core(l1).m_id == to_param_core(l2).m_id;
     case level_kind::Max: case level_kind::IMax: case level_kind::Succ:
-        if (to_composite(l1).m_depth != to_composite(l2).m_depth ||
-            to_composite(l1).m_param_range != to_composite(l2).m_param_range ||
-            to_composite(l1).m_meta_range != to_composite(l2).m_meta_range)
+        if (to_composite(l1).m_depth != to_composite(l2).m_depth)
             return false;
         break;
     }
@@ -346,14 +333,10 @@ public:
                 switch (k) {
                 case level_kind::Zero:
                     return mk_level_zero();
-                case level_kind::Param: {
-                    unsigned id = d.read_unsigned();
-                    return mk_param_univ(id);
-                }
-                case level_kind::Meta: {
-                    unsigned id = d.read_unsigned();
-                    return mk_meta_univ(id);
-                }
+                case level_kind::Param:
+                    return mk_param_univ(read_name(d));
+                case level_kind::Meta:
+                    return mk_meta_univ(read_name(d));
                 case level_kind::Max: {
                     level lhs = read();
                     return mk_max(lhs, read());
@@ -395,58 +378,86 @@ level read_level(deserializer & d) {
 }
 
 serializer & operator<<(serializer & s, levels const & ls) {
-    s << length(ls);
-    for (auto const & l : ls)
-        s << l;
-    return s;
+    return write_list<level>(s, ls);
 }
 
 levels read_levels(deserializer & d) {
-    unsigned num = d.read_unsigned();
-    buffer<level> ls;
-    for (unsigned i = 0; i < num; i++)
-        ls.push_back(read_level(d));
-    return to_list(ls.begin(), ls.end());
+    return read_list<level>(d, read_level);
 }
 
-serializer & operator<<(serializer & s, level_cnstrs const & cs) {
-    s << length(cs);
-    for (auto const & p : cs)
-        s << p.first << p.second;
+serializer & operator<<(serializer & s, level_cnstr const & c) {
+    s << c.first << c.second;
     return s;
 }
 
+level_cnstr read_level_cnstr(deserializer & d) {
+    level lhs = read_level(d);
+    level rhs = read_level(d);
+    return level_cnstr(lhs, rhs);
+}
+
+serializer & operator<<(serializer & s, level_cnstrs const & cs) {
+    return write_list<level_cnstr>(s, cs);
+}
+
 level_cnstrs read_level_cnstrs(deserializer & d) {
-    unsigned num = d.read_unsigned();
-    buffer<level_cnstr> cs;
-    for (unsigned i = 0; i < num; i++) {
-        level lhs = read_level(d);
-        level rhs = read_level(d);
-        cs.push_back(level_cnstr(lhs, rhs));
+    return read_list<level_cnstr>(d, read_level_cnstr);
+}
+
+bool has_param(level_cnstr const & c) {
+    return has_param(c.first) || has_param(c.second);
+}
+
+bool has_param(level_cnstrs const & cs) {
+    for (auto const & c : cs) {
+        if (has_param(c))
+            return true;
     }
-    return to_list(cs.begin(), cs.end());
+    return false;
 }
 
-unsigned get_param_range(level_cnstr const & c) {
-    return std::max(get_param_range(c.first), get_param_range(c.second));
+bool has_meta(level_cnstr const & c) {
+    return has_meta(c.first) || has_meta(c.second);
 }
 
-unsigned get_param_range(level_cnstrs const & cs) {
-    unsigned r = 0;
-    for (auto const & c : cs)
-        r = std::max(r, get_param_range(c));
-    return r;
+bool has_meta(level_cnstrs const & cs) {
+    for (auto const & c : cs) {
+        if (has_meta(c))
+            return true;
+    }
+    return false;
 }
 
-unsigned get_meta_range(level_cnstr const & c) {
-    return std::max(get_meta_range(c.first), get_meta_range(c.second));
+static optional<name> get_undef_param(level const & l, list<name> const & param_names) {
+    if (!has_meta(l))
+        return optional<name>();
+    switch (l.kind()) {
+    case level_kind::Succ:
+        return get_undef_param(succ_of(l), param_names);
+    case level_kind::Max: case level_kind::IMax:
+        if (auto it = get_undef_param(to_max_core(l).m_lhs, param_names))
+            return it;
+        else
+            return get_undef_param(to_max_core(l).m_rhs, param_names);
+    case level_kind::Param:
+        if (std::find(param_names.begin(), param_names.end(), param_id(l)) == param_names.end())
+            return optional<name>(param_id(l));
+        else
+            return optional<name>();
+    case level_kind::Zero: case level_kind::Meta:
+        lean_unreachable(); // LCOV_EXCL_LINE
+    }
+    lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-unsigned get_meta_range(level_cnstrs const & cs) {
-    unsigned r = 0;
-    for (auto const & c : cs)
-        r = std::max(r, get_meta_range(c));
-    return r;
+optional<name> get_undef_param(level_cnstrs const & cs, list<name> const & param_names) {
+    for (auto const & c : cs) {
+        if (auto it = get_undef_param(c.first, param_names))
+            return it;
+        if (auto it = get_undef_param(c.second, param_names))
+            return it;
+    }
+    return optional<name>();
 }
 
 static void print(std::ostream & out, level l);
@@ -470,7 +481,7 @@ static void print(std::ostream & out, level l) {
         case level_kind::Zero:
             lean_unreachable(); // LCOV_EXCL_LINE
         case level_kind::Param:
-            out << "l_" << param_id(l); break;
+            out << param_id(l); break;
         case level_kind::Meta:
             out << "?" << meta_id(l); break;
         case level_kind::Succ:
@@ -509,10 +520,6 @@ static format pp_child(level const & l, bool unicode, unsigned indent) {
     }
 }
 
-static char const * g_sub[10] = {
-    "\u2080", "\u2081", "\u2082", "\u2083", "\u2084", "\u2085", "\u2086", "\u2087", "\u2088", "\u2089"
-};
-
 format pp(level l, bool unicode, unsigned indent) {
     if (is_explicit(l)) {
         lean_assert(get_depth(l) > 0);
@@ -522,17 +529,7 @@ format pp(level l, bool unicode, unsigned indent) {
         case level_kind::Zero:
             lean_unreachable(); // LCOV_EXCL_LINE
         case level_kind::Param:
-            if (unicode) {
-                format r = format("ℓ");
-                if (param_id(l) == 0)
-                    return r;
-                else if (param_id(l) <= 9)
-                    return r + format(g_sub[param_id(l)]);
-                else
-                    return r + format{format("_"), format(param_id(l))};
-            } else {
-                return format{format("l_"), format(param_id(l))};
-            }
+            return format(param_id(l));
         case level_kind::Meta:
             return format{format("?"), format(meta_id(l))};
         case level_kind::Succ:

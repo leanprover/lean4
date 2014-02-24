@@ -199,10 +199,10 @@ void environment_cell::check_name(name const & n) {
     check_name_core(n);
 }
 
-void environment_cell::check_level_cnstrs(unsigned num_param, level_cnstrs const & ls) {
-    if (get_meta_range(ls) > 0)
+void environment_cell::check_level_cnstrs(param_names const & ps, level_cnstrs const & ls) {
+    if (has_meta(ls) > 0)
         throw_kernel_exception(env(), "invalid level constraint, it contains level placeholders (aka meta-parameters that must be synthesized by Lean's elaborator");
-    if (get_param_range(ls) > num_param)
+    if (auto it = get_undef_param(ls, ps))
         throw_kernel_exception(env(), "invalid level constraints, it contains undefined parameters");
 }
 
@@ -270,19 +270,19 @@ void environment_cell::check_type(expr const & t) {
 }
 
 /** \brief Throw exception if it is not a valid new definition */
-void environment_cell::check_new_definition(name const & n, unsigned num_param, level_cnstrs const & cs, expr const & t, expr const & v) {
+void environment_cell::check_new_definition(name const & n, param_names const & ps, level_cnstrs const & cs, expr const & t, expr const & v) {
     check_name(n);
-    check_level_cnstrs(num_param, cs);
+    check_level_cnstrs(ps, cs);
     check_type(n, t, v);
 }
 
 /** \brief Add new definition. */
-void environment_cell::add_definition(name const & n, unsigned num_param, level_cnstrs const & cs, expr const & t, expr const & v) {
+void environment_cell::add_definition(name const & n, param_names const & ps, level_cnstrs const & cs, expr const & t, expr const & v) {
     check_no_mlocal(t);
     check_no_mlocal(v);
-    check_new_definition(n, num_param, cs, t, v);
+    check_new_definition(n, ps, cs, t, v);
     unsigned w = get_max_weight(v) + 1;
-    register_named_object(mk_definition(n, num_param, cs, t, v, w));
+    register_named_object(mk_definition(n, ps, cs, t, v, w));
 }
 
 /**
@@ -300,15 +300,15 @@ void environment_cell::add_definition(name const & n, expr const & v) {
         v_t = m_type_checker->infer_type(v);
 #endif
     unsigned w = get_max_weight(v) + 1;
-    register_named_object(mk_definition(n, 0, level_cnstrs(), v_t, v, w));
+    register_named_object(mk_definition(n, param_names(), level_cnstrs(), v_t, v, w));
 }
 
 /** \brief Add new theorem. */
-void environment_cell::add_theorem(name const & n, unsigned num_param, level_cnstrs const & cs, expr const & t, expr const & v) {
+void environment_cell::add_theorem(name const & n, param_names const & ps, level_cnstrs const & cs, expr const & t, expr const & v) {
     check_no_mlocal(t);
     check_no_mlocal(v);
-    check_new_definition(n, num_param, cs, t, v);
-    register_named_object(mk_theorem(n, num_param, cs, t, v));
+    check_new_definition(n, ps, cs, t, v);
+    register_named_object(mk_theorem(n, ps, cs, t, v));
 }
 
 void environment_cell::set_opaque(name const & n, bool opaque) {
@@ -320,21 +320,21 @@ void environment_cell::set_opaque(name const & n, bool opaque) {
 }
 
 /** \brief Add new axiom. */
-void environment_cell::add_axiom(name const & n, unsigned num_param, level_cnstrs const & cs, expr const & t) {
+void environment_cell::add_axiom(name const & n, param_names const & ps, level_cnstrs const & cs, expr const & t) {
     check_no_mlocal(t);
     check_name(n);
-    check_level_cnstrs(num_param, cs);
+    check_level_cnstrs(ps, cs);
     check_type(t);
-    register_named_object(mk_axiom(n, num_param, cs, t));
+    register_named_object(mk_axiom(n, ps, cs, t));
 }
 
 /** \brief Add new variable. */
-void environment_cell::add_var(name const & n, unsigned num_param, level_cnstrs const & cs, expr const & t) {
+void environment_cell::add_var(name const & n, param_names const & ps, level_cnstrs const & cs, expr const & t) {
     check_no_mlocal(t);
     check_name(n);
-    check_level_cnstrs(num_param, cs);
+    check_level_cnstrs(ps, cs);
     check_type(t);
-    register_named_object(mk_var_decl(n, num_param, cs, t));
+    register_named_object(mk_var_decl(n, ps, cs, t));
 }
 
 void environment_cell::add_neutral_object(neutral_object_cell * o) {

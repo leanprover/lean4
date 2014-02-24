@@ -76,6 +76,7 @@ bool operator==(constraint const & c1, constraint const & c2) {
             cnstr_choice_expr(c1) == cnstr_choice_expr(c2) &&
             compare(cnstr_choice_set(c1), cnstr_choice_set(c2), [](expr const & e1, expr const & e2) { return e1 == e2; });
     }
+    lean_unreachable(); // LCOV_EXCL_LINE
 }
 
 expr const & cnstr_lhs_expr(constraint const & c) { lean_assert(is_eqc_cnstr(c)); return static_cast<eqc_constraint_cell*>(c.raw())->m_lhs; }

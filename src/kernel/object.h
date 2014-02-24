@@ -20,6 +20,8 @@ class io_state;
 class object;
 enum class object_kind { Definition, Postulate, Neutral };
 
+typedef list<name> param_names;
+
 class object_cell {
 protected:
     friend class object;
@@ -45,7 +47,7 @@ public:
     /** \brief Return object name. \pre has_name() */
     virtual name get_name() const { lean_unreachable(); } // LCOV_EXCL_LINE
     /** \brief Return number of level parameters */
-    virtual unsigned get_num_level_params() const { lean_unreachable(); }
+    virtual param_names const & get_params() const { lean_unreachable(); }
     /** \brief Return the level constraints associated with a definition/postulate. */
     virtual level_cnstrs const & get_level_cnstrs() const { lean_unreachable(); }
 
@@ -103,16 +105,16 @@ public:
 
     object_kind kind() const { return m_ptr->kind(); }
 
-    friend object mk_definition(name const & n, unsigned num_param, level_cnstrs const & cs, expr const & t, expr const & v, unsigned weight);
-    friend object mk_theorem(name const & n, unsigned num_param, level_cnstrs const & cs, expr const & t, expr const & v);
-    friend object mk_axiom(name const & n, unsigned num_param, level_cnstrs const & cs, expr const & t);
-    friend object mk_var_decl(name const & n, unsigned num_param, level_cnstrs const & cs, expr const & t);
+    friend object mk_definition(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t, expr const & v, unsigned weight);
+    friend object mk_theorem(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t, expr const & v);
+    friend object mk_axiom(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t);
+    friend object mk_var_decl(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t);
     friend object mk_neutral(neutral_object_cell * c);
 
     char const * keyword() const { return m_ptr->keyword(); }
     bool has_name() const { return m_ptr->has_name(); }
     name get_name() const { return m_ptr->get_name(); }
-    unsigned get_num_level_params() const { return m_ptr->get_num_level_params(); }
+    param_names const & get_params() const { return m_ptr->get_params(); }
     level_cnstrs const & get_level_cnstrs() const { return m_ptr->get_level_cnstrs(); }
     expr get_type() const { return m_ptr->get_type(); }
     bool is_definition() const { return m_ptr->is_definition(); }
@@ -132,10 +134,10 @@ inline optional<object> none_object() { return optional<object>(); }
 inline optional<object> some_object(object const & o) { return optional<object>(o); }
 inline optional<object> some_object(object && o) { return optional<object>(std::forward<object>(o)); }
 
-object mk_definition(name const & n, unsigned num_param, level_cnstrs const & cs, expr const & t, expr const & v, unsigned weight);
-object mk_theorem(name const & n, unsigned num_param, level_cnstrs const & cs, expr const & t, expr const & v);
-object mk_axiom(name const & n, unsigned num_param, level_cnstrs const & cs, expr const & t);
-object mk_var_decl(name const & n, unsigned num_param, level_cnstrs const & cs, expr const & t);
+object mk_definition(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t, expr const & v, unsigned weight);
+object mk_theorem(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t, expr const & v);
+object mk_axiom(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t);
+object mk_var_decl(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t);
 inline object mk_neutral(neutral_object_cell * c) { lean_assert(c->get_rc() == 1); return object(c); }
 
 void read_object(environment const & env, io_state const & ios, std::string const & k, deserializer & d);

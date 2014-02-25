@@ -30,4 +30,11 @@ expr apply_beta(expr f, unsigned num_args, expr const * args);
 bool is_head_beta(expr const & t);
 expr head_beta_reduce(expr const & t);
 expr beta_reduce(expr t);
+
+/**
+    \brief Instantiate the universe level parameters \c ps occurring in \c e with the levels \c ls.
+
+    \pre length(ps) == length(ls)
+*/
+expr instantiate_params(expr const & e, param_names const & ps, levels const & ls);
 }

@@ -428,19 +428,19 @@ bool has_meta(level_cnstrs const & cs) {
     return false;
 }
 
-static optional<name> get_undef_param(level const & l, list<name> const & param_names) {
+static optional<name> get_undef_param(level const & l, param_names const & ps) {
     if (!has_meta(l))
         return optional<name>();
     switch (l.kind()) {
     case level_kind::Succ:
-        return get_undef_param(succ_of(l), param_names);
+        return get_undef_param(succ_of(l), ps);
     case level_kind::Max: case level_kind::IMax:
-        if (auto it = get_undef_param(to_max_core(l).m_lhs, param_names))
+        if (auto it = get_undef_param(to_max_core(l).m_lhs, ps))
             return it;
         else
-            return get_undef_param(to_max_core(l).m_rhs, param_names);
+            return get_undef_param(to_max_core(l).m_rhs, ps);
     case level_kind::Param:
-        if (std::find(param_names.begin(), param_names.end(), param_id(l)) == param_names.end())
+        if (std::find(ps.begin(), ps.end(), param_id(l)) == ps.end())
             return optional<name>(param_id(l));
         else
             return optional<name>();
@@ -450,14 +450,67 @@ static optional<name> get_undef_param(level const & l, list<name> const & param_
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-optional<name> get_undef_param(level_cnstrs const & cs, list<name> const & param_names) {
+optional<name> get_undef_param(level_cnstrs const & cs, param_names const & ps) {
     for (auto const & c : cs) {
-        if (auto it = get_undef_param(c.first, param_names))
+        if (auto it = get_undef_param(c.first, ps))
             return it;
-        if (auto it = get_undef_param(c.second, param_names))
+        if (auto it = get_undef_param(c.second, ps))
             return it;
     }
     return optional<name>();
+}
+
+level update_succ(level const & l, level const & new_arg) {
+    if (is_eqp(succ_of(l), new_arg))
+        return l;
+    else
+        return mk_succ(new_arg);
+}
+
+level update_max(level const & l, level const & new_lhs, level const & new_rhs) {
+    if (is_eqp(to_max_core(l).m_lhs, new_lhs) && is_eqp(to_max_core(l).m_rhs, new_rhs))
+        return l;
+    else if (is_max(l))
+        return mk_max(new_lhs, new_rhs);
+    else
+        return mk_imax(new_lhs, new_rhs);
+}
+
+level replace_level_fn::apply(level const & l) {
+    optional<level> r = m_f(l);
+    if (r)
+        return *r;
+    switch (l.kind()) {
+    case level_kind::Succ:
+        return update_succ(l, apply(succ_of(l)));
+    case level_kind::Max: case level_kind::IMax:
+        return update_max(l, apply(to_max_core(l).m_lhs), apply(to_max_core(l).m_rhs));
+    case level_kind::Zero: case level_kind::Param: case level_kind::Meta:
+        return l;
+    }
+    lean_unreachable(); // LCOV_EXCL_LINE
+}
+
+level instantiate(level const & l, param_names const & ps, levels const & ls) {
+    lean_assert(length(ps) == length(ls));
+    return replace(l, [=](level const & l) {
+            if (!has_param(l)) {
+                return some_level(l);
+            } else if (is_param(l)) {
+                name const & id = param_id(l);
+                list<name> const *it1 = &ps;
+                list<level> const * it2 = &ls;
+                while (!is_nil(*it1)) {
+                    if (head(*it1) == id)
+                        return some_level(head(*it2));
+                    it1 = &tail(*it1);
+                    it2 = &tail(*it2);
+                }
+                return some_level(l);
+            } else {
+                return none_level();
+            }
+        });
 }
 
 static void print(std::ostream & out, level l);

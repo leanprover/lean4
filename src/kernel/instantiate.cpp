@@ -109,4 +109,9 @@ expr beta_reduce(expr t) {
             t = new_t;
     }
 }
+
+expr instantiate_params(expr const & e, param_names const & ps, levels const & ls) {
+    // TODO(Leo)
+    return e;
+}
 }

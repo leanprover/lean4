@@ -570,6 +570,8 @@ expr update_pair(expr const & e, expr const & new_first, expr const & new_second
 expr update_binder(expr const & e, expr const & new_domain, expr const & new_body);
 expr update_let(expr const & e, expr const & new_type, expr const & new_val, expr const & new_body);
 expr update_mlocal(expr const & e, expr const & new_type);
+expr update_sort(expr const & e, level const & new_level);
+expr update_constant(expr const & e, levels const & new_levels);
 // =======================================
 
 // =======================================

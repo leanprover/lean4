@@ -20,8 +20,6 @@ class io_state;
 class object;
 enum class object_kind { Definition, Postulate, Neutral };
 
-typedef list<name> param_names;
-
 class object_cell {
 protected:
     friend class object;

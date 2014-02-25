@@ -44,6 +44,7 @@ class level {
     friend class environment;
     level_cell * m_ptr;
     friend level_cell const & to_cell(level const & l);
+    friend class optional<level>;
 public:
     /** \brief Universe zero */
     level();
@@ -66,6 +67,15 @@ public:
     struct ptr_eq { bool operator()(level const & n1, level const & n2) const { return n1.m_ptr == n2.m_ptr; } };
 };
 
+bool operator==(level const & l1, level const & l2);
+inline bool operator!=(level const & l1, level const & l2) { return !operator==(l1, l2); }
+
+SPECIALIZE_OPTIONAL_FOR_SMART_PTR(level)
+
+inline optional<level> none_level() { return optional<level>(); }
+inline optional<level> some_level(level const & e) { return optional<level>(e); }
+inline optional<level> some_level(level && e) { return optional<level>(std::forward<level>(e)); }
+
 level const & mk_level_zero();
 level const & mk_level_one();
 level mk_max(level const & l1, level const & l2);
@@ -74,12 +84,7 @@ level mk_succ(level const & l);
 level mk_param_univ(name const & n);
 level mk_meta_univ(name const & n);
 
-bool operator==(level const & l1, level const & l2);
-inline bool operator!=(level const & l1, level const & l2) { return !operator==(l1, l2); }
-
-/**
-   \brief An arbitrary (monotonic) total order on universe level terms.
-*/
+/** \brief An arbitrary (monotonic) total order on universe level terms. */
 bool is_lt(level const & l1, level const & l2);
 
 inline unsigned hash(level const & l) { return l.hash(); }
@@ -114,6 +119,21 @@ bool has_meta(level const & l);
 bool has_param(level const & l);
 
 /**
+   \brief Return a new level expression based on <tt>l == succ(arg)</tt>, where \c arg is replaced with
+   \c new_arg.
+
+   \pre is_succ(l)
+*/
+level update_succ(level const & l, level const & new_arg);
+/**
+   \brief Return a new level expression based on <tt>l == max(lhs, rhs)</tt>, where \c lhs is replaced with
+   \c new_lhs and \c rhs is replaced with \c new_rhs.
+
+   \pre is_max(l) || is_imax(l)
+*/
+level update_max(level const & l, level const & new_lhs, level const & new_rhs);
+
+/**
    \brief Return true if lhs <= rhs is a trivial constraint.
    That is, it is a constraint that is always valid, and can be discarded.
    This is not a complete procedure. It only "catches" the easy cases.
@@ -136,15 +156,36 @@ bool has_param(level_cnstrs const & cs);
 bool has_meta(level_cnstr const & c);
 bool has_meta(level_cnstrs const & cs);
 
+typedef list<name> param_names;
+
 /**
    \brief If \c cs contains a parameter that is not in \c param_names, then return it.
    Otherwise, return none.
 */
-optional<name> get_undef_param(level_cnstrs const & cs, list<name> const & param_names);
+optional<name> get_undef_param(level_cnstrs const & cs, param_names const & ps);
 
 /**
-   \brief Printer for debugging purposes
+   \brief Functional for applying <tt>F</tt> to the level expressions.
 */
+class replace_level_fn {
+    std::function<optional<level>(level const &)>  m_f;
+    level apply(level const & l);
+public:
+    template<typename F> replace_level_fn(F const & f):m_f(f) {}
+    level operator()(level const & l) { return apply(l); }
+};
+
+template<typename F> level replace(level const & l, F const & f) {
+    return replace_level_fn(f)(l);
+}
+
+/**
+    \brief Instantiate the universe level parameters \c ps occurring in \c l with the levels \c ls.
+    \pre length(ps) == length(ls)
+*/
+level instantiate(level const & l, param_names const & ps, levels const & ls);
+
+/** \brief Printer for debugging purposes */
 std::ostream & operator<<(std::ostream & out, level const & l);
 
 /**
@@ -168,9 +209,7 @@ format pp(level l, bool unicode, unsigned indent);
 /** \brief Pretty print the given level expression using the given configuration options. */
 format pp(level const & l, options const & opts = options());
 
-/**
-   \brief Auxiliary class used to manage universe constraints.
-*/
+/** \brief Auxiliary class used to manage universe constraints. */
 class universe_context {
     struct imp;
     std::unique_ptr<imp> m_ptr;

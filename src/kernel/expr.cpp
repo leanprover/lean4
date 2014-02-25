@@ -371,6 +371,20 @@ expr update_mlocal(expr const & e, expr const & new_type) {
         return e;
 }
 
+expr update_sort(expr const & e, level const & new_level) {
+    if (!is_eqp(sort_level(e), new_level))
+        return mk_sort(new_level);
+    else
+        return e;
+}
+
+expr update_constant(expr const & e, levels const & new_levels) {
+    if (!is_eqp(const_level_params(e), new_levels))
+        return mk_constant(const_name(e), new_levels);
+    else
+        return e;
+}
+
 bool is_atomic(expr const & e) {
     switch (e.kind()) {
     case expr_kind::Constant: case expr_kind::Sort:

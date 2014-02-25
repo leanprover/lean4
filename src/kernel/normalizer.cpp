@@ -146,6 +146,7 @@ class normalizer::imp {
         case expr_kind::Constant: {
             optional<object> obj = env()->find_object(const_name(a));
             if (should_unfold(obj)) {
+                // TODO(Leo): instantiate level parameters
                 freset<cache> reset(m_cache);
                 r = normalize(obj->get_value(), value_stack(), 0);
             } else {

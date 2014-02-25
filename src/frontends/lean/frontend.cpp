@@ -437,7 +437,7 @@ struct lean_extension : public environment_extension {
 
     void add_coercion(expr const & f, environment const & env) {
         expr type      = env->type_check(f);
-        expr norm_type = env->normalize(type);
+        expr norm_type = type; // env->normalize(type);
         if (!is_arrow(norm_type))
             throw exception("invalid coercion declaration, a coercion must have an arrow type (i.e., a non-dependent functional type)");
         expr from      = coercion_type_normalization(abst_domain(norm_type), env);

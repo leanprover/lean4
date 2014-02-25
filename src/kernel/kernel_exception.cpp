@@ -37,13 +37,20 @@ public:
     throw_kernel_exception(env, strm.str().c_str(), m);
 }
 
-[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, char const * msg, pp_fn const & fn,
-                                           optional<expr> const & m) {
+[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, char const * msg, optional<expr> const & m, pp_fn const & fn) {
     throw generic_kernel_exception(env, msg, m, fn);
 }
 
-[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, pp_fn const & fn, optional<expr> const & m) {
+[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, optional<expr> const & m, pp_fn const & fn) {
     throw generic_kernel_exception(env, "kernel exception", m, fn);
+}
+
+[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, char const * msg, expr const & m, pp_fn const & fn) {
+    throw_kernel_exception(env, msg, some_expr(m), fn);
+}
+
+[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, expr const & m, pp_fn const & fn) {
+    throw_kernel_exception(env, some_expr(m), fn);
 }
 
 [[ noreturn ]] void throw_unknown_object(ro_environment const & env, name const & n) {

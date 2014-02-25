@@ -214,7 +214,7 @@ format justification::pp(formatter const & fmt, options const & opts, pos_info_p
     }
 }
 
-justification mk_composite(justification const & j1, justification const & j2, pp_jst_fn const & fn, optional<expr> const & s) {
+justification mk_composite(justification const & j1, justification const & j2, optional<expr> const & s, pp_jst_fn const & fn) {
     if (j1.is_none())
         return j2;
     if (j2.is_none())
@@ -228,19 +228,18 @@ justification mk_composite1(justification const & j1, justification const & j2) 
         return j1;
     return justification(new composite_cell(j1, j2));
 }
-justification mk_assumption_justification(unsigned idx, pp_jst_fn const & fn, optional<expr> const & s) {
+justification mk_assumption_justification(unsigned idx, optional<expr> const & s, pp_jst_fn const & fn) {
     return justification(new ext_assumption_cell(idx, fn, s));
 }
 justification mk_assumption_justification(unsigned idx) {
     return justification(new assumption_cell(idx));
 }
-justification mk_justification(pp_jst_fn const & fn, optional<expr> const & s) {
+justification mk_justification(optional<expr> const & s, pp_jst_fn const & fn) {
     return justification(new asserted_cell(fn, s));
 }
-justification mk_justification(pp_jst_sfn const & fn, optional<expr> const & s) {
-    return mk_justification([=](formatter const & fmt, options const & opts, pos_info_provider const * p, substitution const & subst) {
-            return compose(to_pos(s, p), fn(fmt, opts, subst));
-        }, s);
+justification mk_justification(optional<expr> const & s, pp_jst_sfn const & fn) {
+    return mk_justification(s, [=](formatter const & fmt, options const & opts, pos_info_provider const * p, substitution const & subst) {
+            return compose(to_pos(s, p), fn(fmt, opts, subst)); });
 }
 
 std::ostream & operator<<(std::ostream & out, justification const & j) {

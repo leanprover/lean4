@@ -63,6 +63,11 @@ public:
 bool operator==(constraint const & c1, constraint const & c2);
 inline bool operator!=(constraint const & c1, constraint const & c2) { return !(c1 == c2); }
 
+constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j);
+constraint mk_conv_cnstr(expr const & lhs, expr const & rhs, justification const & j);
+constraint mk_level_cnstr(level const & lhs, level const & rhs, justification const & j);
+constraint mk_choice_cnstr(expr const & t, list<expr> const & s, justification const & j);
+
 bool is_eq_cnstr(constraint const & c) { return c.kind() == constraint_kind::Eq; }
 bool is_conv_cnstr(constraint const & c) { return c.kind() == constraint_kind::Convertible; }
 bool is_level_cnstr(constraint const & c) { return c.kind() == constraint_kind::Level; }
@@ -95,4 +100,5 @@ constraint updt_level_cnstr(constraint const & c, level const & new_lhs, level c
 std::ostream & operator<<(std::ostream & out, constraint const & c);
 
 typedef list<constraint> constraints;
+inline constraints add(constraints const & cs, constraint const & c) { return cons(c, cs); }
 }

@@ -14,6 +14,9 @@ Author: Leonardo de Moura
 #include "kernel/normalizer.h"
 #include "kernel/instantiate.h"
 #include "kernel/free_vars.h"
+#include "kernel/error_msgs.h"
+#include "kernel/constraint.h"
+#include "kernel/metavar.h"
 
 namespace lean {
 expr pi_body_at(expr const & pi, expr const & a) {
@@ -40,7 +43,14 @@ class type_checker::imp {
     ro_environment env() const { return ro_environment(m_env); }
     expr normalize(expr const & e) { return m_normalizer(e); }
 
-#if 0
+    level mk_meta_univ() {
+        return ::lean::mk_meta_univ(m_name_gen->next());
+    }
+
+    void add_eq_constraint(expr const & t, expr const & s, justification const & j) {
+        m_constraints = add(m_constraints, mk_eq_cnstr(t, s, j));
+    }
+
     expr check_sort(expr const & e, expr const & s) {
         if (is_sort(e))
             return e;
@@ -48,41 +58,24 @@ class type_checker::imp {
         if (is_sort(u))
             return u;
         if (has_metavar(u)) {
-            justification jst = mk_type_expected_justification(ctx, s);
-            m_uc->push_back(mk_convertible_constraint(ctx, e, TypeU1, jst));
-            return u;
+            expr r = mk_sort(mk_meta_univ());
+            justification j = mk_justification(s, [=](formatter const & fmt, options const & o, substitution const & s) {
+                    return pp_type_expected(fmt, o, s.instantiate_metavars_wo_jst(e));
+                });
+            add_eq_constraint(e, r, j);
+            return r;
         }
-        throw type_expected_exception(env(), ctx, s);
+        throw_kernel_exception(env(), s, [=](formatter const & fmt, options const & o) { return pp_type_expected(fmt, o, e); });
     }
-#endif
-};
-
 
 #if 0
-static name g_x_name("x");
-/** \brief Auxiliary functional object used to implement infer_type. */
-class type_checker::imp {
-    expr check_type(expr const & e, expr const & s, context const & ctx) {
-        if (is_type(e) || is_bool(e))
-            return e;
-        expr u = normalize(e, ctx, false);
-        if (is_type(u) || is_bool(u))
-            return u;
-        if (has_metavar(u) && m_menv && m_uc) {
-            justification jst = mk_type_expected_justification(ctx, s);
-            m_uc->push_back(mk_convertible_constraint(ctx, e, TypeU1, jst));
-            return u;
-        }
-        throw type_expected_exception(env(), ctx, s);
-    }
-
     expr check_pi(expr const & e, expr const & s, context const & ctx) {
         if (is_pi(e))
             return e;
-        expr r = normalize(e, ctx, false);
-        if (is_pi(r))
-            return r;
-        if (has_metavar(r) && m_menv && m_uc) {
+        expr u = normalize(e);
+        if (is_pi(u))
+            return u;
+        if (has_metavar(u)) {
             // Create two fresh variables A and B,
             // and assign r == (Pi(x : A), B)
             expr A   = m_menv->mk_metavar(ctx);
@@ -94,6 +87,16 @@ class type_checker::imp {
         }
         throw function_expected_exception(env(), ctx, s);
     }
+#endif
+
+};
+
+
+#if 0
+static name g_x_name("x");
+/** \brief Auxiliary functional object used to implement infer_type. */
+class type_checker::imp {
+
 
     // TODO(Leo): we should consider merging check_pi and check_sigma.
     // They are very similar

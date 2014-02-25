@@ -37,10 +37,10 @@ public:
 [[ noreturn ]] void throw_kernel_exception(ro_environment const & env, char const * msg, optional<expr> const & m = none_expr());
 [[ noreturn ]] void throw_kernel_exception(ro_environment const & env, sstream const & strm,
                                            optional<expr> const & m = none_expr());
-[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, char const * msg,
-                                           pp_fn const & fn, optional<expr> const & m = none_expr());
-[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, pp_fn const & fn, optional<expr> const & m = none_expr());
-
+[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, char const * msg, optional<expr> const & m, pp_fn const & fn);
+[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, optional<expr> const & m, pp_fn const & fn);
+[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, char const * msg, expr const & m, pp_fn const & fn);
+[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, expr const & m, pp_fn const & fn);
 [[ noreturn ]] void throw_unknown_object(ro_environment const & env, name const & n);
 [[ noreturn ]] void throw_already_declared(ro_environment const & env, name const & n);
 [[ noreturn ]] void throw_read_only_environment(ro_environment const & env);

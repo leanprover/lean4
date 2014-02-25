@@ -67,11 +67,11 @@ public:
     */
     optional<expr> get_main_expr() const;
 
-    friend justification mk_composite(justification const & j1, justification const & j2, pp_jst_fn const & fn, optional<expr> const & s);
+    friend justification mk_composite(justification const & j1, justification const & j2, optional<expr> const & s, pp_jst_fn const & fn);
     friend justification mk_composite1(justification const & j1, justification const & j2);
-    friend justification mk_assumption_justification(unsigned idx, pp_jst_fn const & fn, optional<expr> const & s);
+    friend justification mk_assumption_justification(unsigned idx, optional<expr> const & s, pp_jst_fn const & fn);
     friend justification mk_assumption_justification(unsigned idx);
-    friend justification mk_justification(pp_jst_fn const & fn, optional<expr> const & s);
+    friend justification mk_justification(optional<expr> const & s, pp_jst_fn const & fn);
 };
 
 /**
@@ -86,7 +86,7 @@ format to_pos(optional<expr> const & e, pos_info_provider const * p);
    \brief Combine the two given justifications into a new justification object, and use
    the given function to convert the justification into a format object.
 */
-justification mk_composite(justification const & j1, justification const & j2, pp_jst_fn const & fn, optional<expr> const & s);
+justification mk_composite(justification const & j1, justification const & j2, optional<expr> const & s, pp_jst_fn const & fn);
 /**
    \brief Similar to \c mk_composite, but uses \c j1.pp to convert the
    resulting justification into a format object.
@@ -99,7 +99,7 @@ justification mk_substitution_justification(justification const & j1, justificat
 /**
    \brief Create a "case-split" justification with the given \c idx.
 */
-justification mk_assumption_justification(unsigned idx, pp_jst_fn const & fn, optional<expr> const & s);
+justification mk_assumption_justification(unsigned idx, optional<expr> const & s, pp_jst_fn const & fn);
 /**
    \brief Similar to the previous function, but fn just returns the format object "assumption idx", and s is the none.
 */
@@ -107,12 +107,15 @@ justification mk_assumption_justification(unsigned idx);
 /**
    \brief Create a justification for constraints produced by the type checker.
 */
-justification mk_justification(pp_jst_fn const & fn, optional<expr> const & s);
+justification mk_justification(optional<expr> const & s, pp_jst_fn const & fn);
 /**
    \brief Create a justification for constraints produced by the type checker.
    It is similar to the previous function, but the position of \c s will be automatically included.
 */
-justification mk_justification(pp_jst_sfn const & fn, optional<expr> const & s);
+justification mk_justification(optional<expr> const & s, pp_jst_sfn const & fn);
+inline justification mk_justification(expr const & s, pp_jst_sfn const & fn) {
+    return mk_justification(some_expr(s), fn);
+}
 
 /**
    \brief Return the first child of a composite justification.

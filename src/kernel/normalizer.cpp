@@ -95,16 +95,16 @@ class normalizer::imp {
 
     /** \brief Convert the value \c v back into an expression in a context that contains \c k binders. */
     expr reify(expr const & v, unsigned k) {
-        return replace(v, [&](expr const & e, unsigned DEBUG_CODE(offset)) -> expr {
+        return replace(v, [&](expr const & e, unsigned DEBUG_CODE(offset)) -> optional<expr> {
                 lean_assert(offset == 0);
                 lean_assert(!is_lambda(e) && !is_pi(e) && !is_sigma(e) && !is_let(e));
                 if (is_var(e)) {
                     // de Bruijn level --> de Bruijn index
-                    return mk_var(k - var_idx(e) - 1);
+                    return some_expr(mk_var(k - var_idx(e) - 1));
                 } else if (is_closure(e)) {
-                    return reify_closure(to_closure(e), k);
+                    return some_expr(reify_closure(to_closure(e), k));
                 } else {
-                    return e;
+                    return none_expr();
                 }
             });
     }

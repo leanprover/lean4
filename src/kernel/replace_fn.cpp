@@ -31,9 +31,12 @@ bool replace_fn::visit(expr const & e, unsigned offset) {
         shared = true;
     }
 
-    expr r = m_f(e, offset);
-    if (is_atomic(r) || !is_eqp(e, r)) {
-        save_result(e, r, offset, shared);
+    optional<expr> r = m_f(e, offset);
+    if (r) {
+        save_result(e, *r, offset, shared);
+        return true;
+    } else if (is_atomic(e)) {
+        save_result(e, e, offset, shared);
         return true;
     } else {
         m_fs.emplace_back(e, offset, shared);

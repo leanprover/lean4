@@ -45,11 +45,11 @@ class replace_fn {
     typedef buffer<frame>  frame_stack;
     typedef buffer<expr>   result_stack;
 
-    expr_cell_offset_map<expr>                      m_cache;
-    std::function<expr(expr const &, unsigned)>     m_f;
-    std::function<void(expr const &, expr const &)> m_post;
-    frame_stack                                     m_fs;
-    result_stack                                    m_rs;
+    expr_cell_offset_map<expr>                            m_cache;
+    std::function<optional<expr>(expr const &, unsigned)> m_f;
+    std::function<void(expr const &, expr const &)>       m_post;
+    frame_stack                                           m_fs;
+    result_stack                                          m_rs;
 
     void save_result(expr const & e, expr const & r, unsigned offset, bool shared);
     bool visit(expr const & e, unsigned offset);

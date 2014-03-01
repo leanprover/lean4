@@ -13,24 +13,21 @@ Author: Leonardo de Moura
 namespace lean {
 template<bool ClosedSubst>
 expr instantiate_core(expr const & a, unsigned s, unsigned n, expr const * subst) {
-    return replace(a, [=](expr const & m, unsigned offset) -> expr {
+    return replace(a, [=](expr const & m, unsigned offset) -> optional<expr> {
             if (is_var(m)) {
                 unsigned vidx = var_idx(m);
                 if (vidx >= offset + s) {
                     if (vidx < offset + s + n) {
                         if (ClosedSubst)
-                            return subst[vidx - s - offset];
+                            return some_expr(subst[vidx - s - offset]);
                         else
-                            return lift_free_vars(subst[vidx - s - offset], offset);
+                            return some_expr(lift_free_vars(subst[vidx - s - offset], offset));
                     } else {
-                        return mk_var(vidx - n);
+                        return some_expr(mk_var(vidx - n));
                     }
-                } else {
-                    return m;
                 }
-            } else {
-                return m;
             }
+            return none_expr();
         });
 }
 
@@ -95,11 +92,11 @@ expr head_beta_reduce(expr const & t) {
 }
 
 expr beta_reduce(expr t) {
-    auto f = [=](expr const & m, unsigned) -> expr {
+    auto f = [=](expr const & m, unsigned) -> optional<expr> {
         if (is_head_beta(m))
-            return head_beta_reduce(m);
+            return some_expr(head_beta_reduce(m));
         else
-            return m;
+            return none_expr();
     };
     while (true) {
         expr new_t = replace_fn(f)(t);

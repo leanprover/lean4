@@ -285,12 +285,12 @@ expr lower_free_vars(expr const & e, unsigned s, unsigned d) {
         return e;
     lean_assert(s >= d);
     lean_assert(!has_free_var(e, s-d, s));
-    return replace(e, [=](expr const & e, unsigned offset) -> expr {
+    return replace(e, [=](expr const & e, unsigned offset) -> optional<expr> {
             if (is_var(e) && var_idx(e) >= s + offset) {
                 lean_assert(var_idx(e) >= offset + d);
-                return mk_var(var_idx(e) - d);
+                return some_expr(mk_var(var_idx(e) - d));
             } else {
-                return e;
+                return none_expr();
             }
         });
 }
@@ -299,11 +299,11 @@ expr lower_free_vars(expr const & e, unsigned d) { return lower_free_vars(e, d, 
 expr lift_free_vars(expr const & e, unsigned s, unsigned d) {
     if (d == 0 || closed(e))
         return e;
-    return replace(e, [=](expr const & e, unsigned offset) -> expr {
+    return replace(e, [=](expr const & e, unsigned offset) -> optional<expr> {
             if (is_var(e) && var_idx(e) >= s + offset) {
-                return mk_var(var_idx(e) + d);
+                return some_expr(mk_var(var_idx(e) + d));
             } else {
-                return e;
+                return none_expr();
             }
         });
 }

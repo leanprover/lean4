@@ -13,26 +13,26 @@ Author: Leonardo de Moura
 namespace lean {
 expr abstract(expr const & e, unsigned n, expr const * s) {
     lean_assert(std::all_of(s, s+n, closed));
-    return replace(e, [=](expr const & e, unsigned offset) -> expr {
+    return replace(e, [=](expr const & e, unsigned offset) -> optional<expr> {
             unsigned i = n;
             while (i > 0) {
                 --i;
                 if (s[i] == e)
-                    return mk_var(offset + n - i - 1);
+                    return some_expr(mk_var(offset + n - i - 1));
             }
-            return e;
+            return none_expr();
         });
 }
 expr abstract_p(expr const & e, unsigned n, expr const * s) {
     lean_assert(std::all_of(s, s+n, closed));
-    return replace(e, [=](expr const & e, unsigned offset) -> expr {
+    return replace(e, [=](expr const & e, unsigned offset) -> optional<expr> {
             unsigned i = n;
             while (i > 0) {
                 --i;
                 if (is_eqp(s[i], e))
-                    return mk_var(offset + n - i - 1);
+                    return some_expr(mk_var(offset + n - i - 1));
             }
-            return e;
+            return none_expr();
         });
 }
 #define MkBinder(FName)                                                 \

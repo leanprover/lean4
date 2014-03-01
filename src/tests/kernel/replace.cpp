@@ -74,17 +74,17 @@ static void tst3() {
     expr d = Const("d");
     expr A = Const("A");
     expr_map<expr> trace;
-    auto proc = [&](expr const & x, unsigned offset) -> expr {
+    auto proc = [&](expr const & x, unsigned offset) -> optional<expr> {
         if (is_var(x)) {
             unsigned vidx = var_idx(x);
             if (vidx == offset)
-                return c;
+                return some_expr(c);
             else if (vidx > offset)
-                return mk_var(vidx-1);
+                return some_expr(mk_var(vidx-1));
             else
-                return x;
+                return none_expr();
         } else {
-            return x;
+            return none_expr();
         }
     };
     replace_fn replacer(proc, tracer(trace));

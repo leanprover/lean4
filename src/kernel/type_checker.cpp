@@ -88,16 +88,12 @@ class type_checker::imp {
         throw function_expected_exception(env(), ctx, s);
     }
 #endif
-
 };
-
 
 #if 0
 static name g_x_name("x");
 /** \brief Auxiliary functional object used to implement infer_type. */
 class type_checker::imp {
-
-
     // TODO(Leo): we should consider merging check_pi and check_sigma.
     // They are very similar
     expr check_sigma(expr const & e, expr const & s, context const & ctx) {

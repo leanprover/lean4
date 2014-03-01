@@ -29,19 +29,12 @@ unsigned hash_levels(levels const & ls) {
     return r;
 }
 
-bool has_meta(levels const & ls) {
-    for (auto const & l : ls) {
-        if (has_meta(l))
-            return true;
-    }
-    return false;
-}
-
-expr_cell::expr_cell(expr_kind k, unsigned h, bool has_mv, bool has_local):
+expr_cell::expr_cell(expr_kind k, unsigned h, bool has_mv, bool has_local, bool has_param_univ):
     m_kind(static_cast<unsigned>(k)),
     m_flags(0),
     m_has_mv(has_mv),
     m_has_local(has_local),
+    m_has_param_univ(has_param_univ),
     m_hash(h),
     m_rc(0) {
     // m_hash_alloc does not need to be a unique identifier.
@@ -85,18 +78,18 @@ void expr_cell::set_is_arrow(bool flag) {
 
 // Expr variables
 expr_var::expr_var(unsigned idx):
-    expr_cell(expr_kind::Var, idx, false, false),
+    expr_cell(expr_kind::Var, idx, false, false, false),
     m_vidx(idx) {}
 
 // Expr constants
 expr_const::expr_const(name const & n, levels const & ls):
-    expr_cell(expr_kind::Constant, ::lean::hash(n.hash(), hash_levels(ls)), has_meta(ls), false),
+    expr_cell(expr_kind::Constant, ::lean::hash(n.hash(), hash_levels(ls)), has_meta(ls), false, has_param(ls)),
     m_name(n),
     m_levels(ls) {}
 
 // Expr metavariables and local variables
 expr_mlocal::expr_mlocal(bool is_meta, name const & n, expr const & t):
-    expr_cell(is_meta ? expr_kind::Meta : expr_kind::Local, n.hash(), is_meta || t.has_metavar(), !is_meta || t.has_local()),
+    expr_cell(is_meta ? expr_kind::Meta : expr_kind::Local, n.hash(), is_meta || t.has_metavar(), !is_meta || t.has_local(), t.has_param_univ()),
     m_name(n),
     m_type(t) {}
 void expr_mlocal::dealloc(buffer<expr_cell*> & todelete) {
@@ -105,8 +98,8 @@ void expr_mlocal::dealloc(buffer<expr_cell*> & todelete) {
 }
 
 // Composite expressions
-expr_composite::expr_composite(expr_kind k, unsigned h, bool has_mv, bool has_local, unsigned d):
-    expr_cell(k, h, has_mv, has_local),
+expr_composite::expr_composite(expr_kind k, unsigned h, bool has_mv, bool has_local, bool has_param_univ, unsigned d):
+    expr_cell(k, h, has_mv, has_local, has_param_univ),
     m_depth(d) {}
 
 // Expr dependent pairs
@@ -114,6 +107,7 @@ expr_dep_pair::expr_dep_pair(expr const & f, expr const & s, expr const & t):
     expr_composite(expr_kind::Pair, ::lean::hash(f.hash(), s.hash()),
                    f.has_metavar() || s.has_metavar() || t.has_metavar(),
                    f.has_local() || s.has_local() || t.has_local(),
+                   f.has_param_univ() || s.has_param_univ() || t.has_param_univ(),
                    std::max(get_depth(f), get_depth(s))+1),
     m_first(f), m_second(s), m_type(t) {
 }
@@ -126,7 +120,8 @@ void expr_dep_pair::dealloc(buffer<expr_cell*> & todelete) {
 
 // Expr pair projection
 expr_proj::expr_proj(bool f, expr const & e):
-    expr_composite(f ? expr_kind::Fst : expr_kind::Snd, ::lean::hash(17, e.hash()), e.has_metavar(), e.has_local(), get_depth(e)+1),
+    expr_composite(f ? expr_kind::Fst : expr_kind::Snd, ::lean::hash(17, e.hash()), e.has_metavar(), e.has_local(), e.has_param_univ(),
+                   get_depth(e)+1),
     m_expr(e) {}
 void expr_proj::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_expr, todelete);
@@ -136,8 +131,9 @@ void expr_proj::dealloc(buffer<expr_cell*> & todelete) {
 // Expr applications
 expr_app::expr_app(expr const & fn, expr const & arg):
     expr_composite(expr_kind::App, ::lean::hash(fn.hash(), arg.hash()),
-                   fn.has_metavar() || arg.has_metavar(),
-                   fn.has_local()   || arg.has_local(),
+                   fn.has_metavar()    || arg.has_metavar(),
+                   fn.has_local()      || arg.has_local(),
+                   fn.has_param_univ() || arg.has_param_univ(),
                    std::max(get_depth(fn), get_depth(arg)) + 1),
     m_fn(fn), m_arg(arg) {}
 void expr_app::dealloc(buffer<expr_cell*> & todelete) {
@@ -149,8 +145,9 @@ void expr_app::dealloc(buffer<expr_cell*> & todelete) {
 // Expr binders (Lambda, Pi and Sigma)
 expr_binder::expr_binder(expr_kind k, name const & n, expr const & t, expr const & b):
     expr_composite(k, ::lean::hash(t.hash(), b.hash()),
-                   t.has_metavar() || b.has_metavar(),
-                   t.has_local() || b.has_local(),
+                   t.has_metavar()    || b.has_metavar(),
+                   t.has_local()      || b.has_local(),
+                   t.has_param_univ() || b.has_param_univ(),
                    std::max(get_depth(t), get_depth(b)) + 1),
     m_name(n),
     m_domain(t),
@@ -165,7 +162,7 @@ void expr_binder::dealloc(buffer<expr_cell*> & todelete) {
 
 // Expr Sort
 expr_sort::expr_sort(level const & l):
-    expr_cell(expr_kind::Sort, ::lean::hash(l), has_meta(l), false),
+    expr_cell(expr_kind::Sort, ::lean::hash(l), has_meta(l), false, has_param(l)),
     m_level(l) {
 }
 expr_sort::~expr_sort() {}
@@ -173,8 +170,9 @@ expr_sort::~expr_sort() {}
 // Expr Let
 expr_let::expr_let(name const & n, expr const & t, expr const & v, expr const & b):
     expr_composite(expr_kind::Let, ::lean::hash(v.hash(), b.hash()),
-                   t.has_metavar() || v.has_metavar() || b.has_metavar(),
-                   t.has_local() || v.has_local() || b.has_local(),
+                   t.has_metavar()    || v.has_metavar()    || b.has_metavar(),
+                   t.has_local()      || v.has_local()      || b.has_local(),
+                   t.has_param_univ() || v.has_param_univ() || b.has_param_univ(),
                    std::max({get_depth(t), get_depth(v), get_depth(b)}) + 1),
     m_name(n),
     m_type(t),
@@ -225,7 +223,7 @@ static expr read_macro(deserializer & d) {
 }
 
 expr_macro::expr_macro(macro * m):
-    expr_cell(expr_kind::Macro, m->hash(), false, false),
+    expr_cell(expr_kind::Macro, m->hash(), false, false, false),
     m_macro(m) {
     m_macro->inc_ref();
 }

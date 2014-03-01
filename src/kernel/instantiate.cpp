@@ -108,7 +108,20 @@ expr beta_reduce(expr t) {
 }
 
 expr instantiate_params(expr const & e, param_names const & ps, levels const & ls) {
-    // TODO(Leo)
-    return e;
+    if (!has_param_univ(e))
+        return e;
+    return replace(e, [&](expr const & e, unsigned) -> optional<expr> {
+            if (!has_param_univ(e))
+                return some_expr(e);
+            if (is_constant(e)) {
+                return some_expr(update_constant(e, map_reuse(const_level_params(e),
+                                                              [&](level const & l) { return instantiate(l, ps, ls); },
+                                                              [](level const & l1, level const & l2) { return is_eqp(l1, l2); })));
+            } else if (is_sort(e)) {
+                return some_expr(update_sort(e, instantiate(sort_level(e), ps, ls)));
+            } else {
+                return none_expr();
+            }
+        });
 }
 }

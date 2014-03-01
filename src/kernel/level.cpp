@@ -404,6 +404,22 @@ level_cnstrs read_level_cnstrs(deserializer & d) {
     return read_list<level_cnstr>(d, read_level_cnstr);
 }
 
+bool has_meta(levels const & ls) {
+    for (auto const & l : ls) {
+        if (has_meta(l))
+            return true;
+    }
+    return false;
+}
+
+bool has_param(levels const & ls) {
+    for (auto const & l : ls) {
+        if (has_param(l))
+            return true;
+    }
+    return false;
+}
+
 bool has_param(level_cnstr const & c) {
     return has_param(c.first) || has_param(c.second);
 }

@@ -144,6 +144,9 @@ bool is_trivial(level const & lhs, level const & rhs);
 
 typedef list<level> levels;
 
+bool has_meta(levels const & ls);
+bool has_param(levels const & ls);
+
 /**
    \brief Simpler version of the constraint class.
    We use in the definition of objects.

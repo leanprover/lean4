@@ -1,19 +1,14 @@
 To Do List
 ----------
 
-- Finish Sigma-type support.
-- Build Nat and List theories.
-- Fix usability issues identified when formalizing optional and sum types.
+- Universe polymorphism.
+- Inductive datatypes.
+- New representation for metavariables.
+- New elaborator
 - Add unification hints support in the Lean front-end.
-- Improve simp tactic interface (more configuration options).
-- Add ssreflect-like rewrite commands.
-- Add record-type (as syntax sugar for Sigma-types).
-- Implement inductive datatypes and recursive function package from first principles. The goal is to use the HOL/Isabelle approach.
+- Improved extensible parser and pretty printer.
+- Notation-sets for organizing user defined notation.
 - Generic Tableaux prover.
 - [MCSat](http://leodemoura.github.io/files/fmcad2013.pdf) framework.
 - Independent type checker using a different programming language (e.g., F* or OCaml).
-- Module for reading [OpenTheory](http://www.gilith.com/research/opentheory/) proofs.
-- Re-implement apply-tactic.
-- Improve performance of `is_convertible` and `is_definitionally_equal` predicates.
-- Create notation sets. We are currently puting all notation decls in a "single bag".
-- Improve macro support, and allow users to provide arbitrary parser extensions using Lua.
+- New apply-tactic.

@@ -11,6 +11,8 @@
   </tr>
 </table>
 
+**Remark: Lean 0.2 is under development. To try Lean, please use [version 0.1](https://github.com/leodemoura/lean0.1).**
+
 About
 -----
 

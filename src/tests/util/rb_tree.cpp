@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "util/rb_tree.h"
 #include "util/timeit.h"
+#include "util/thread.h"
 using namespace lean;
 
 struct int_lt { int operator()(int i1, int i2) const { return i1 < i2 ? -1 : (i1 > i2 ? 1 : 0); } };
@@ -179,12 +180,55 @@ static void tst5() {
     lean_assert(*(s.find(10)) == 10);
 }
 
+#if !defined(__APPLE__) && defined(LEAN_MULTI_THREAD)
+static void tst6() {
+    int_rb_tree t;
+    const unsigned SZ = 10000;
+    for (unsigned i = 0; i < SZ; i++) {
+        t.insert(i);
+    }
+    std::vector<int_rb_tree> trees;
+    const unsigned N = 30;
+    for (unsigned i = 0; i < N; i++) {
+        trees.push_back(t);
+    }
+    std::vector<thread> threads;
+    const unsigned STEP = 1000;
+    for (unsigned i = 0; i < N; i++) {
+        threads.push_back(thread([i,&trees]() {
+                    int_rb_tree t2 = trees[i];
+                    for (unsigned j = 0; j < SZ; j += STEP) {
+                        t2.contains(j+i);
+                        t2.erase(j+i);
+                    }
+                    trees[i] = t2;
+                }));
+    }
+    for (unsigned i = 0; i < N; i++) {
+        threads[i].join();
+    }
+    for (unsigned i = 0; i < N; i++) {
+        if (trees[i].size() != SZ - SZ/STEP) {
+            std::cout << "ERROR size: " << trees[i].size() << " " << (SZ - SZ/STEP) << "\n";
+            lean_unreachable();
+        }
+        for (unsigned j = 0; j < SZ; j++) {
+            if ((j % STEP == 0) == (!(j + i < SZ) || trees[i].contains(j+i))) {
+                std::cout << "ERROR elem: " << i << " " << j << "\n";
+                lean_unreachable();
+            }
+        }
+    }
+}
+#endif
+
 int main() {
     tst1();
     tst2();
     tst3();
     tst4();
     tst5();
+    tst6();
     return has_violations() ? 1 : 0;
 }
 

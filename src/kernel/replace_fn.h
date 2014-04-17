@@ -25,11 +25,12 @@ public:
    \brief Functional for applying <tt>F</tt> to the subexpressions of a given expression.
 
    The signature of \c F is
-   expr const &, unsigned -> expr
+   expr const &, unsigned -> optional(expr)
 
    F is invoked for each subexpression \c s of the input expression e.
    In a call <tt>F(s, n)</tt>, n is the scope level, i.e., the number of
-   bindings operators that enclosing \c s.
+   bindings operators that enclosing \c s. The replaces only visits children of \c e
+   if F return none_expr
 
    P is a "post-processing" functional object that is applied to each
    pair (old, new)

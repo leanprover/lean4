@@ -57,10 +57,24 @@ static void tst3() {
     }
 }
 
+static void tst4() {
+    expr f = Const("f");
+    expr x = Const("x");
+    expr y = Const("y");
+    expr B = Bool;
+    expr t = f(Fun({x, B}, Fun({y, B}, f(x, y)))(f(Var(1), Var(2))), x);
+    lean_assert_eq(lift_free_vars(t, 1, 2),
+                   f(Fun({x, B}, Fun({y, B}, f(x, y)))(f(Var(3), Var(4))), x));
+    lean_assert_eq(lift_free_vars(t, 0, 3),
+                   f(Fun({x, B}, Fun({y, B}, f(x, y)))(f(Var(4), Var(5))), x));
+    lean_assert_eq(lift_free_vars(t, 3, 2), t);
+}
+
 int main() {
     save_stack_info();
     tst1();
     tst2();
     tst3();
+    tst4();
     return has_violations() ? 1 : 0;
 }

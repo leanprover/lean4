@@ -99,12 +99,17 @@ bool has_free_var(expr const & e, unsigned low, unsigned high) {
 bool has_free_var(expr const & e, unsigned i) { return has_free_var(e, i, i+1); }
 
 expr lower_free_vars(expr const & e, unsigned s, unsigned d) {
-    if (d == 0 || closed(e))
+    if (d == 0 || s >= get_free_var_range(e))
         return e;
     lean_assert(s >= d);
     lean_assert(!has_free_var(e, s-d, s));
     return replace(e, [=](expr const & e, unsigned offset) -> optional<expr> {
-            if (is_var(e) && var_idx(e) >= s + offset) {
+            unsigned s1 = s + offset;
+            if (s1 < s)
+                return some_expr(e); // overflow, vidx can't be >= max unsigned
+            if (s1 >= get_free_var_range(e))
+                return some_expr(e); // expression e does not contain free variables with idx >= s1
+            if (is_var(e) && var_idx(e) >= s1) {
                 lean_assert(var_idx(e) >= offset + d);
                 return some_expr(mk_var(var_idx(e) - d));
             } else {
@@ -115,11 +120,19 @@ expr lower_free_vars(expr const & e, unsigned s, unsigned d) {
 expr lower_free_vars(expr const & e, unsigned d) { return lower_free_vars(e, d, d); }
 
 expr lift_free_vars(expr const & e, unsigned s, unsigned d) {
-    if (d == 0 || closed(e))
+    if (d == 0 || s >= get_free_var_range(e))
         return e;
     return replace(e, [=](expr const & e, unsigned offset) -> optional<expr> {
+            unsigned s1 = s + offset;
+            if (s1 < s)
+                return some_expr(e); // overflow, vidx can't be >= max unsigned
+            if (s1 >= get_free_var_range(e))
+                return some_expr(e); // expression e does not contain free variables with idx >= s1
             if (is_var(e) && var_idx(e) >= s + offset) {
-                return some_expr(mk_var(var_idx(e) + d));
+                unsigned new_idx = var_idx(e) + d;
+                if (new_idx < var_idx(e))
+                    throw exception("invalid lift_free_vars operation, index overflow");
+                return some_expr(mk_var(new_idx));
             } else {
                 return none_expr();
             }

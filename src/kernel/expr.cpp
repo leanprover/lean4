@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <sstream>
 #include <string>
 #include <algorithm>
+#include <limits>
 #include "util/list_fn.h"
 #include "util/hash.h"
 #include "util/buffer.h"

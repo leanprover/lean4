@@ -7,28 +7,17 @@ Author: Leonardo de Moura
 #pragma once
 #include <memory>
 #include "util/sexpr/options.h"
-#include "kernel/environment.h"
 #include "kernel/expr.h"
 
 namespace lean {
 /**
-   \brief API for formatting expressions, contexts and environments.
+   \brief API for formatting expressions
 */
 class formatter_cell {
 public:
     virtual ~formatter_cell() {}
     /** \brief Format the given expression. */
     virtual format operator()(expr const & e, options const & opts) = 0;
-    /** \brief Format the given object */
-    virtual format operator()(object const & obj, options const & opts) = 0;
-    /** \brief Format the given environment */
-    virtual format operator()(ro_environment const & env, options const & opts) = 0;
-
-    /**
-        \brief Return environment object associated with this formatter.
-        Not every formatter has an associated environment object.
-    */
-    virtual optional<ro_environment> get_environment() const { return optional<ro_environment>(); }
 };
 /**
    \brief Smart-pointer for the actual formatter object (aka \c formatter_cell).
@@ -38,9 +27,6 @@ class formatter {
     formatter(formatter_cell * c):m_cell(c) {}
 public:
     format operator()(expr const & e, options const & opts = options()) const { return (*m_cell)(e, opts); }
-    format operator()(object const & obj, options const & opts = options()) const { return (*m_cell)(obj, opts); }
-    format operator()(ro_environment const & env, options const & opts = options()) const { return (*m_cell)(env, opts); }
-    optional<ro_environment> get_environment() { return m_cell->get_environment(); }
     template<typename FCell> friend formatter mk_formatter(FCell && fcell);
 };
 

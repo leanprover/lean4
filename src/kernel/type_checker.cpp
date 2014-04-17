@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#if 0
 #include "util/freset.h"
 #include "util/flet.h"
 #include "util/interrupt.h"
@@ -66,7 +67,6 @@ class type_checker::imp {
         throw_kernel_exception(env(), s, [=](formatter const & fmt, options const & o) { return pp_type_expected(fmt, o, e); });
     }
 
-#if 0
     expr check_pi(expr const & e, expr const & s, context const & ctx) {
         if (is_pi(e))
             return e;
@@ -85,10 +85,8 @@ class type_checker::imp {
         }
         throw function_expected_exception(env(), ctx, s);
     }
-#endif
 };
 
-#if 0
 static name g_x_name("x");
 /** \brief Auxiliary functional object used to implement infer_type. */
 class type_checker::imp {
@@ -635,5 +633,5 @@ bool is_proposition(expr const & e, ro_environment const & env, context const & 
 bool is_proposition(expr const & e, ro_environment const & env, context const & ctx) {
     return is_proposition(e, env, ctx, none_ro_menv());
 }
-#endif
 }
+#endif

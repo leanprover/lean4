@@ -102,32 +102,6 @@ expr_composite::expr_composite(expr_kind k, unsigned h, bool has_mv, bool has_lo
     expr_cell(k, h, has_mv, has_local, has_param_univ),
     m_depth(d) {}
 
-// Expr dependent pairs
-expr_dep_pair::expr_dep_pair(expr const & f, expr const & s, expr const & t):
-    expr_composite(expr_kind::Pair, ::lean::hash(f.hash(), s.hash()),
-                   f.has_metavar() || s.has_metavar() || t.has_metavar(),
-                   f.has_local() || s.has_local() || t.has_local(),
-                   f.has_param_univ() || s.has_param_univ() || t.has_param_univ(),
-                   std::max(get_depth(f), get_depth(s))+1),
-    m_first(f), m_second(s), m_type(t) {
-}
-void expr_dep_pair::dealloc(buffer<expr_cell*> & todelete) {
-    dec_ref(m_first,  todelete);
-    dec_ref(m_second, todelete);
-    dec_ref(m_type,   todelete);
-    delete(this);
-}
-
-// Expr pair projection
-expr_proj::expr_proj(bool f, expr const & e):
-    expr_composite(f ? expr_kind::Fst : expr_kind::Snd, ::lean::hash(17, e.hash()), e.has_metavar(), e.has_local(), e.has_param_univ(),
-                   get_depth(e)+1),
-    m_expr(e) {}
-void expr_proj::dealloc(buffer<expr_cell*> & todelete) {
-    dec_ref(m_expr, todelete);
-    delete(this);
-}
-
 // Expr applications
 expr_app::expr_app(expr const & fn, expr const & arg):
     expr_composite(expr_kind::App, ::lean::hash(fn.hash(), arg.hash()),
@@ -142,7 +116,7 @@ void expr_app::dealloc(buffer<expr_cell*> & todelete) {
     delete(this);
 }
 
-// Expr binders (Lambda, Pi and Sigma)
+// Expr binders (Lambda, Pi)
 expr_binder::expr_binder(expr_kind k, name const & n, expr const & t, expr const & b):
     expr_composite(k, ::lean::hash(t.hash(), b.hash()),
                    t.has_metavar()    || b.has_metavar(),
@@ -152,7 +126,7 @@ expr_binder::expr_binder(expr_kind k, name const & n, expr const & t, expr const
     m_name(n),
     m_domain(t),
     m_body(b) {
-    lean_assert(k == expr_kind::Lambda || k == expr_kind::Pi || k == expr_kind::Sigma);
+    lean_assert(k == expr_kind::Lambda || k == expr_kind::Pi);
 }
 void expr_binder::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_body, todelete);
@@ -246,13 +220,9 @@ void expr_cell::dealloc() {
             case expr_kind::Local:      static_cast<expr_mlocal*>(it)->dealloc(todo); break;
             case expr_kind::Constant:   delete static_cast<expr_const*>(it); break;
             case expr_kind::Sort:       delete static_cast<expr_sort*>(it); break;
-            case expr_kind::Pair:       static_cast<expr_dep_pair*>(it)->dealloc(todo); break;
-            case expr_kind::Fst:
-            case expr_kind::Snd:        static_cast<expr_proj*>(it)->dealloc(todo); break;
             case expr_kind::App:        static_cast<expr_app*>(it)->dealloc(todo); break;
             case expr_kind::Lambda:
-            case expr_kind::Pi:
-            case expr_kind::Sigma:      static_cast<expr_binder*>(it)->dealloc(todo); break;
+            case expr_kind::Pi:         static_cast<expr_binder*>(it)->dealloc(todo); break;
             case expr_kind::Let:        static_cast<expr_let*>(it)->dealloc(todo); break;
             }
         }
@@ -293,7 +263,6 @@ expr mk_rev_app(unsigned num_args, expr const * args) {
 static name g_default_var_name("a");
 bool is_default_var_name(name const & n) { return n == g_default_var_name; }
 expr mk_arrow(expr const & t, expr const & e) { return mk_pi(g_default_var_name, t, e); }
-expr mk_cartesian_product(expr const & t, expr const & e) { return mk_sigma(g_default_var_name, t, e); }
 
 expr Bool = mk_sort(mk_level_zero());
 expr Type = mk_sort(mk_level_one());
@@ -305,8 +274,7 @@ unsigned get_depth(expr const & e) {
     case expr_kind::Var:  case expr_kind::Constant: case expr_kind::Sort:
     case expr_kind::Meta: case expr_kind::Local:    case expr_kind::Macro:
         return 1;
-    case expr_kind::Lambda: case expr_kind::Pi:   case expr_kind::Sigma:
-    case expr_kind::Pair:   case expr_kind::Fst:  case expr_kind::Snd:
+    case expr_kind::Lambda: case expr_kind::Pi:
     case expr_kind::App:    case expr_kind::Let:
         return static_cast<expr_composite*>(e.raw())->m_depth;
     }
@@ -332,20 +300,6 @@ expr update_rev_app(expr const & e, unsigned num, expr const * new_args) {
     if (!is_eqp(*it, new_args[num - 1]))
         return mk_rev_app(num, new_args);
     return e;
-}
-
-expr update_proj(expr const & e, expr const & new_arg) {
-    if (!is_eqp(proj_arg(e), new_arg))
-        return mk_proj(is_fst(e), new_arg);
-    else
-        return e;
-}
-
-expr update_pair(expr const & e, expr const & new_first, expr const & new_second, expr const & new_type) {
-    if (!is_eqp(pair_first(e), new_first) || !is_eqp(pair_second(e), new_second) || !is_eqp(pair_type(e), new_type))
-        return mk_pair(new_first, new_second, new_type);
-    else
-        return e;
 }
 
 expr update_binder(expr const & e, expr const & new_domain, expr const & new_body) {
@@ -390,8 +344,7 @@ bool is_atomic(expr const & e) {
         return true;
     case expr_kind::App:      case expr_kind::Let:
     case expr_kind::Meta:     case expr_kind::Local:
-    case expr_kind::Lambda:   case expr_kind::Pi:  case expr_kind::Sigma:
-    case expr_kind::Pair:     case expr_kind::Fst: case expr_kind::Snd:
+    case expr_kind::Lambda:   case expr_kind::Pi:
         return false;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
@@ -408,23 +361,15 @@ bool is_arrow(expr const & t) {
     }
 }
 
-bool is_cartesian(expr const & t) {
-    return is_sigma(t) && !has_free_var(binder_body(t), 0);
-}
-
 expr copy(expr const & a) {
     switch (a.kind()) {
     case expr_kind::Var:      return mk_var(var_idx(a));
     case expr_kind::Constant: return mk_constant(const_name(a), const_level_params(a));
     case expr_kind::Sort:     return mk_sort(sort_level(a));
     case expr_kind::Macro:    return mk_macro(static_cast<expr_macro*>(a.raw())->m_macro);
-    case expr_kind::Pair:     return mk_pair(pair_first(a), pair_second(a), pair_type(a));
-    case expr_kind::Fst:      return mk_fst(proj_arg(a));
-    case expr_kind::Snd:      return mk_snd(proj_arg(a));
     case expr_kind::App:      return mk_app(app_fn(a), app_arg(a));
     case expr_kind::Lambda:   return mk_lambda(binder_name(a), binder_domain(a), binder_body(a));
     case expr_kind::Pi:       return mk_pi(binder_name(a), binder_domain(a), binder_body(a));
-    case expr_kind::Sigma:    return mk_sigma(binder_name(a), binder_domain(a), binder_body(a));
     case expr_kind::Let:      return mk_let(let_name(a), let_type(a), let_value(a), let_body(a));
     case expr_kind::Meta:     return mk_metavar(mlocal_name(a), mlocal_type(a));
     case expr_kind::Local:    return mk_local(mlocal_name(a), mlocal_type(a));
@@ -453,16 +398,10 @@ class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp
                 case expr_kind::Macro:
                     to_macro(a).write(s);
                     break;
-                case expr_kind::Pair:
-                    write_core(pair_first(a)); write_core(pair_second(a)); write_core(pair_type(a));
-                    break;
-                case expr_kind::Fst:  case expr_kind::Snd:
-                    write_core(proj_arg(a));
-                    break;
                 case expr_kind::App:
                     write_core(app_fn(a)); write_core(app_arg(a));
                     break;
-                case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
+                case expr_kind::Lambda: case expr_kind::Pi:
                     s << binder_name(a); write_core(binder_domain(a)); write_core(binder_body(a));
                     break;
                 case expr_kind::Let:
@@ -506,20 +445,11 @@ public:
                     break;
                 case expr_kind::Macro:
                     return read_macro(d);
-                case expr_kind::Pair: {
-                    expr f = read();
-                    expr s = read();
-                    return mk_pair(f, s, read());
-                }
-                case expr_kind::Fst:
-                    return mk_fst(read());
-                case expr_kind::Snd:
-                    return mk_snd(read());
                 case expr_kind::App: {
                     expr f = read();
                     return mk_app(f, read());
                 }
-                case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
+                case expr_kind::Lambda: case expr_kind::Pi:
                     return read_binder(k);
                 case expr_kind::Let: {
                     name n = read_name(d);

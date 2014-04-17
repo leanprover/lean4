@@ -31,8 +31,7 @@ protected:
             return var_idx(e) >= offset;
         case expr_kind::App:    case expr_kind::Let:
         case expr_kind::Meta:   case expr_kind::Local:
-        case expr_kind::Lambda: case expr_kind::Pi:  case expr_kind::Sigma:
-        case expr_kind::Pair:   case expr_kind::Fst: case expr_kind::Snd:
+        case expr_kind::Lambda: case expr_kind::Pi:
             break;
         }
 
@@ -69,17 +68,11 @@ protected:
         case expr_kind::App:
             result = apply(app_fn(e), offset) || apply(app_arg(e), offset);
             break;
-        case expr_kind::Fst: case expr_kind::Snd:
-            result = apply(proj_arg(e), offset);
-            break;
-        case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
+        case expr_kind::Lambda: case expr_kind::Pi:
             result = apply(binder_domain(e), offset) || apply(binder_body(e), offset + 1);
             break;
         case expr_kind::Let:
             result = apply(let_type(e), offset) || apply(let_value(e), offset) || apply(let_body(e), offset + 1);
-            break;
-        case expr_kind::Pair:
-            result = apply(pair_first(e), offset) || apply(pair_second(e), offset) || apply(pair_type(e), offset);
             break;
         }
 
@@ -119,8 +112,7 @@ class free_var_range_fn {
             return var_idx(e) + 1;
         case expr_kind::App:    case expr_kind::Let:
         case expr_kind::Meta:   case expr_kind::Local:
-        case expr_kind::Lambda: case expr_kind::Pi:  case expr_kind::Sigma:
-        case expr_kind::Pair:   case expr_kind::Fst: case expr_kind::Snd:
+        case expr_kind::Lambda: case expr_kind::Pi:
             break;
         }
 
@@ -147,17 +139,11 @@ class free_var_range_fn {
         case expr_kind::App:
             result = std::max(apply(app_fn(e)), apply(app_arg(e)));
             break;
-        case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
+        case expr_kind::Lambda: case expr_kind::Pi:
             result = std::max(apply(binder_domain(e)), dec(apply(binder_body(e))));
             break;
         case expr_kind::Let:
             result = std::max({apply(let_type(e)), apply(let_value(e)), dec(apply(let_body(e)))});
-            break;
-        case expr_kind::Fst: case expr_kind::Snd:
-            result = apply(proj_arg(e));
-            break;
-        case expr_kind::Pair:
-            result = std::max({apply(pair_first(e)), apply(pair_second(e)), apply(pair_type(e))});
             break;
         }
 
@@ -215,8 +201,7 @@ protected:
             return in_interval(var_idx(e), offset);
         case expr_kind::App:    case expr_kind::Let:
         case expr_kind::Meta:   case expr_kind::Local:
-        case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
-        case expr_kind::Pair:   case expr_kind::Fst: case expr_kind::Snd:
+        case expr_kind::Lambda: case expr_kind::Pi:
             break;
         }
 
@@ -243,17 +228,11 @@ protected:
         case expr_kind::App:
             result = apply(app_fn(e), offset) || apply(app_arg(e), offset);
             break;
-        case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
+        case expr_kind::Lambda: case expr_kind::Pi:
             result = apply(binder_domain(e), offset) || apply(binder_body(e), offset + 1);
             break;
         case expr_kind::Let:
             result = apply(let_type(e), offset) || apply(let_value(e), offset) || apply(let_body(e), offset + 1);
-            break;
-        case expr_kind::Fst: case expr_kind::Snd:
-            result = apply(proj_arg(e), offset);
-            break;
-        case expr_kind::Pair:
-            result = apply(pair_first(e), offset) || apply(pair_second(e), offset) || apply(pair_type(e), offset);
             break;
         }
 

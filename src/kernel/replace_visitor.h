@@ -31,15 +31,10 @@ protected:
     virtual expr visit_mlocal(expr const &, context const &);
     virtual expr visit_meta(expr const &, context const &);
     virtual expr visit_local(expr const &, context const &);
-    virtual expr visit_pair(expr const &, context const &);
-    virtual expr visit_proj(expr const &, context const &);
-    virtual expr visit_fst(expr const &, context const &);
-    virtual expr visit_snd(expr const &, context const &);
     virtual expr visit_app(expr const &, context const &);
     virtual expr visit_binder(expr const &, context const &);
     virtual expr visit_lambda(expr const &, context const &);
     virtual expr visit_pi(expr const &, context const &);
-    virtual expr visit_sigma(expr const &, context const &);
     virtual expr visit_let(expr const &, context const &);
     virtual expr visit(expr const &, context const &);
 

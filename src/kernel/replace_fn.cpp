@@ -85,22 +85,6 @@ expr replace_fn::operator()(expr const & e) {
             r = update_mlocal(e, rs(-1));
             pop_rs(1);
             break;
-        case expr_kind::Pair:
-            if (check_index(f, 0) && !visit(pair_first(e), offset))
-                goto begin_loop;
-            if (check_index(f, 1) && !visit(pair_second(e), offset))
-                goto begin_loop;
-            if (check_index(f, 2) && !visit(pair_type(e), offset))
-                goto begin_loop;
-            r = update_pair(e, rs(-3), rs(-2), rs(-1));
-            pop_rs(3);
-            break;
-        case expr_kind::Fst: case expr_kind::Snd:
-            if (check_index(f, 0) && !visit(proj_arg(e), offset))
-                goto begin_loop;
-            r = update_proj(e, rs(-1));
-            pop_rs(1);
-            break;
         case expr_kind::App:
             if (check_index(f, 0) && !visit(app_fn(e), offset))
                 goto begin_loop;
@@ -109,7 +93,7 @@ expr replace_fn::operator()(expr const & e) {
             r = update_app(e, rs(-2), rs(-1));
             pop_rs(2);
             break;
-        case expr_kind::Sigma: case expr_kind::Pi: case expr_kind::Lambda:
+        case expr_kind::Pi: case expr_kind::Lambda:
             if (check_index(f, 0) && !visit(binder_domain(e), offset))
                 goto begin_loop;
             if (check_index(f, 1) && !visit(binder_body(e), offset + 1))

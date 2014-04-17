@@ -71,16 +71,7 @@ bool is_lt(expr const & a, expr const & b, bool use_hash) {
             return is_lt(app_fn(a), app_fn(b), use_hash);
         else
             return is_lt(app_arg(a), app_arg(b), use_hash);
-    case expr_kind::Pair:
-        if (pair_first(a) != pair_first(b))
-            return is_lt(pair_first(a), pair_first(b), use_hash);
-        else if (pair_second(a) != pair_second(b))
-            return is_lt(pair_second(a), pair_second(b), use_hash);
-        else
-            return is_lt(pair_type(a), pair_type(b), use_hash);
-    case expr_kind::Fst: case expr_kind::Snd:
-        return is_lt(proj_arg(a), proj_arg(b), use_hash);
-    case expr_kind::Sigma: case expr_kind::Lambda: case expr_kind::Pi:
+    case expr_kind::Lambda: case expr_kind::Pi:
         if (binder_domain(a) != binder_domain(b))
             return is_lt(binder_domain(a), binder_domain(b), use_hash);
         else

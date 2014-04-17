@@ -58,15 +58,6 @@ struct print_expr_fn {
             return print_child(a, c);
     }
 
-    void print_pair(expr const & e, context const & c) {
-        out() << "pair ";
-        print_child(pair_first(e), c);
-        out() << " ";
-        print_child(pair_second(e), c);
-        out() << " ";
-        print_child(pair_type(e), c);
-    }
-
     void print_binder(char const * bname, expr const & e, context const & c) {
         out() << bname << " " << binder_name(e) << " : ";
         print_child(binder_domain(e), c);
@@ -92,16 +83,6 @@ struct print_expr_fn {
             break;
         case expr_kind::App:
             print_app(a, c);
-            break;
-        case expr_kind::Pair:
-            print_pair(a, c);
-            break;
-        case expr_kind::Fst: case expr_kind::Snd:
-            out() << (is_fst(a) ? "fst" : "snd") << " ";
-            print_child(proj_arg(a), c);
-            break;
-        case expr_kind::Sigma:
-            print_binder("sig", a, c);
             break;
         case expr_kind::Lambda:
             print_binder("fun", a, c);

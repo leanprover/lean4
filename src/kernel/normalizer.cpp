@@ -97,7 +97,7 @@ class normalizer::imp {
     expr reify(expr const & v, unsigned k) {
         return replace(v, [&](expr const & e, unsigned DEBUG_CODE(offset)) -> optional<expr> {
                 lean_assert(offset == 0);
-                lean_assert(!is_lambda(e) && !is_pi(e) && !is_sigma(e) && !is_let(e));
+                lean_assert(!is_lambda(e) && !is_pi(e) && !is_let(e));
                 if (is_var(e)) {
                     // de Bruijn level --> de Bruijn index
                     return some_expr(mk_var(k - var_idx(e) - 1));
@@ -137,7 +137,7 @@ class normalizer::imp {
 
         expr r;
         switch (a.kind()) {
-        case expr_kind::Sigma: case expr_kind::Pi: case expr_kind::Lambda:
+        case expr_kind::Pi: case expr_kind::Lambda:
             r = mk_closure(a, s);
             break;
         case expr_kind::Var:
@@ -151,25 +151,6 @@ class normalizer::imp {
                 r = normalize(obj->get_value(), value_stack(), 0);
             } else {
                 r = a;
-            }
-            break;
-        }
-        case expr_kind::Pair: {
-            expr new_first  = normalize(pair_first(a), s, k);
-            expr new_second = normalize(pair_second(a), s, k);
-            expr new_type   = normalize(pair_type(a), s, k);
-            r = update_pair(a, new_first, new_second, new_type);
-            break;
-        }
-        case expr_kind::Fst: case expr_kind::Snd: {
-            expr new_arg = normalize(proj_arg(a), s, k);
-            if (is_dep_pair(new_arg)) {
-                if (is_fst(a))
-                    r = pair_first(new_arg);
-                else
-                    r = pair_second(new_arg);
-            } else {
-                r = update_proj(a, new_arg);
             }
             break;
         }

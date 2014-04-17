@@ -20,16 +20,6 @@ expr replace_visitor::visit_mlocal(expr const & e, context const & ctx) {
 }
 expr replace_visitor::visit_meta(expr const & e, context const & ctx) { return visit_mlocal(e, ctx); }
 expr replace_visitor::visit_local(expr const & e, context const & ctx) { return visit_mlocal(e, ctx); }
-expr replace_visitor::visit_pair(expr const & e, context const & ctx) {
-    lean_assert(is_dep_pair(e));
-    return update_pair(e, visit(pair_first(e), ctx), visit(pair_second(e), ctx), visit(pair_type(e), ctx));
-}
-expr replace_visitor::visit_proj(expr const & e, context const & ctx) {
-    lean_assert(is_proj(e));
-    return update_proj(e, visit(proj_arg(e), ctx));
-}
-expr replace_visitor::visit_fst(expr const & e, context const & ctx) { return visit_proj(e, ctx); }
-expr replace_visitor::visit_snd(expr const & e, context const & ctx) { return visit_proj(e, ctx); }
 expr replace_visitor::visit_app(expr const & e, context const & ctx) {
     lean_assert(is_app(e));
     return update_app(e, visit(app_fn(e), ctx), visit(app_arg(e), ctx));
@@ -43,7 +33,6 @@ expr replace_visitor::visit_binder(expr const & e, context const & ctx) {
 }
 expr replace_visitor::visit_lambda(expr const & e, context const & ctx) { return visit_binder(e, ctx); }
 expr replace_visitor::visit_pi(expr const & e, context const & ctx) { return visit_binder(e, ctx); }
-expr replace_visitor::visit_sigma(expr const & e, context const & ctx) { return visit_binder(e, ctx); }
 expr replace_visitor::visit_let(expr const & e, context const & ctx) {
     lean_assert(is_let(e));
     expr new_t = visit(let_type(e), ctx);
@@ -74,13 +63,9 @@ expr replace_visitor::visit(expr const & e, context const & ctx) {
     case expr_kind::Var:       return save_result(e, visit_var(e, ctx), shared);
     case expr_kind::Meta:      return save_result(e, visit_meta(e, ctx), shared);
     case expr_kind::Local:     return save_result(e, visit_local(e, ctx), shared);
-    case expr_kind::Pair:      return save_result(e, visit_pair(e, ctx), shared);
-    case expr_kind::Fst:       return save_result(e, visit_fst(e, ctx), shared);
-    case expr_kind::Snd:       return save_result(e, visit_snd(e, ctx), shared);
     case expr_kind::App:       return save_result(e, visit_app(e, ctx), shared);
     case expr_kind::Lambda:    return save_result(e, visit_lambda(e, ctx), shared);
     case expr_kind::Pi:        return save_result(e, visit_pi(e, ctx), shared);
-    case expr_kind::Sigma:     return save_result(e, visit_sigma(e, ctx), shared);
     case expr_kind::Let:       return save_result(e, visit_let(e, ctx), shared);
     }
 

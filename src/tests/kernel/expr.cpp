@@ -110,14 +110,10 @@ static unsigned count_core(expr const & a, expr_set & s) {
         return 1;
     case expr_kind::App:
         return count_core(app_fn(a), s) + count_core(app_arg(a), s) + 1;
-    case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
+    case expr_kind::Lambda: case expr_kind::Pi:
         return count_core(binder_domain(a), s) + count_core(binder_body(a), s) + 1;
     case expr_kind::Let:
         return count_core(let_value(a), s) + count_core(let_body(a), s) + 1;
-    case expr_kind::Fst: case expr_kind::Snd:
-        return count_core(proj_arg(a), s) + 1;
-    case expr_kind::Pair:
-        return count_core(pair_first(a), s) + count_core(pair_second(a), s) + count_core(pair_type(a), s) + 1;
     }
     return 0;
 }
@@ -303,15 +299,6 @@ static void tst15() {
     lean_assert(has_metavar(f(a, a, m)));
     lean_assert(has_metavar(f(a, m, a, a)));
     lean_assert(!has_metavar(f(a, a, a, a)));
-    lean_assert(!has_metavar(mk_fst(a)));
-    lean_assert(!has_metavar(mk_snd(a)));
-    lean_assert(has_metavar(mk_fst(m)));
-    lean_assert(has_metavar(mk_snd(m)));
-    lean_assert(!has_metavar(mk_pair(a, x, x)));
-    lean_assert(has_metavar(mk_pair(f(m), x, x)));
-    lean_assert(has_metavar(mk_pair(f(a), m, x)));
-    lean_assert(has_metavar(mk_pair(f(a), a, m)));
-    lean_assert(has_metavar(mk_pair(f(a), a, f(m))));
 }
 
 static void check_copy(expr const & e) {
@@ -376,21 +363,6 @@ static void tst18() {
     lean_assert(has_local(f(a, a, l)));
     lean_assert(has_local(f(a, l, a, a)));
     lean_assert(!has_local(f(a, a, a, a)));
-    lean_assert(!has_local(mk_fst(a)));
-    lean_assert(!has_local(mk_snd(a)));
-    lean_assert(has_local(mk_fst(l)));
-    lean_assert(has_local(mk_snd(l)));
-    lean_assert(!has_local(mk_fst(m)));
-    lean_assert(!has_local(mk_snd(m)));
-    lean_assert(!has_local(mk_pair(a, x, x)));
-    lean_assert(has_local(mk_pair(f(l), x, x)));
-    lean_assert(has_local(mk_pair(f(a), l, x)));
-    lean_assert(has_local(mk_pair(f(a), a, l)));
-    lean_assert(has_local(mk_pair(f(a), a, f(l))));
-    lean_assert(!has_local(mk_pair(f(m), x, x)));
-    lean_assert(!has_local(mk_pair(f(a), m, x)));
-    lean_assert(!has_local(mk_pair(f(a), a, m)));
-    lean_assert(!has_local(mk_pair(f(a), a, f(m))));
 }
 
 int main() {

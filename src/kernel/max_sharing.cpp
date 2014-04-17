@@ -43,16 +43,10 @@ struct max_sharing_fn::imp {
         case expr_kind::Sort:     case expr_kind::Macro:
             res = a;
             break;
-        case expr_kind::Pair:
-            res = update_pair(a, apply(pair_first(a)), apply(pair_second(a)), apply(pair_type(a)));
-            break;
-        case expr_kind::Fst:   case expr_kind::Snd:
-            res = update_proj(a, apply(proj_arg(a)));
-            break;
-        case expr_kind::App:
+          case expr_kind::App:
             res = update_app(a, apply(app_fn(a)), apply(app_arg(a)));
             break;
-        case expr_kind::Sigma: case expr_kind::Lambda: case expr_kind::Pi:
+        case expr_kind::Lambda: case expr_kind::Pi:
             res = update_binder(a, apply(binder_domain(a)), apply(binder_body(a)));
             break;
         case expr_kind::Let:

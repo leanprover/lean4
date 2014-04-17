@@ -36,14 +36,7 @@ bool expr_eq_fn::apply(expr const & a, expr const & b) {
         return
             apply(app_fn(a), app_fn(b)) &&
             apply(app_arg(a), app_arg(b));
-    case expr_kind::Pair:
-        return
-            apply(pair_first(a), pair_first(b)) &&
-            apply(pair_second(a), pair_second(b)) &&
-            apply(pair_type(a), pair_type(b));
-    case expr_kind::Fst: case expr_kind::Snd:
-        return apply(proj_arg(a), proj_arg(b));
-    case expr_kind::Sigma: case expr_kind::Lambda: case expr_kind::Pi:
+    case expr_kind::Lambda: case expr_kind::Pi:
         return
             apply(binder_domain(a), binder_domain(b)) &&
             apply(binder_body(a), binder_body(b));

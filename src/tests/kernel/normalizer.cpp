@@ -68,14 +68,10 @@ unsigned count_core(expr const & a, expr_set & s) {
         return 1;
     case expr_kind::App:
         return count_core(app_fn(a), s) + count_core(app_arg(a), s) + 1;
-    case expr_kind::Lambda: case expr_kind::Pi: case expr_kind::Sigma:
+    case expr_kind::Lambda: case expr_kind::Pi:
         return count_core(binder_domain(a), s) + count_core(binder_body(a), s) + 1;
     case expr_kind::Let:
         return count_core(let_value(a), s) + count_core(let_body(a), s) + 1;
-    case expr_kind::Fst: case expr_kind::Snd:
-        return count_core(proj_arg(a), s) + 1;
-    case expr_kind::Pair:
-        return count_core(pair_first(a), s) + count_core(pair_second(a), s) + count_core(pair_type(a), s) + 1;
     }
     return 0;
 }

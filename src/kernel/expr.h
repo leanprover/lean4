@@ -45,8 +45,7 @@ protected:
     unsigned short     m_kind;
     // The bits of the following field mean:
     //    0    - term is maximally shared
-    //    1    - term is closed
-    //    2-3  - term is an arrow (0 - not initialized, 1 - is arrow, 2 - is not arrow)
+    //    1-2  - term is an arrow (0 - not initialized, 1 - is arrow, 2 - is not arrow)
     // Remark: we use atomic_uchar because these flags are computed lazily (i.e., after the expression is created)
     atomic_uchar       m_flags;
     unsigned           m_has_mv:1;         // term contains metavariables
@@ -61,15 +60,11 @@ protected:
     void set_max_shared() { m_flags |= 1; }
     friend class max_sharing_fn;
 
-    bool is_closed() const { return (m_flags & 2) != 0; }
-    void set_closed() { m_flags |= 2; }
-
     optional<bool> is_arrow() const;
     void set_is_arrow(bool flag);
     friend bool is_arrow(expr const & e);
 
-    friend class has_free_var_fn;
-    static void dec_ref(expr & c, buffer<expr_cell*> & todelete);
+     static void dec_ref(expr & c, buffer<expr_cell*> & todelete);
 public:
     expr_cell(expr_kind k, unsigned h, bool has_mv, bool has_local, bool has_param_univ);
     expr_kind kind() const { return static_cast<expr_kind>(m_kind); }
@@ -194,9 +189,11 @@ public:
 /** \brief Composite expressions */
 class expr_composite : public expr_cell {
     unsigned m_depth;
+    unsigned m_free_var_range;
     friend unsigned get_depth(expr const & e);
+    friend unsigned get_free_var_range(expr const & e);
 public:
-    expr_composite(expr_kind k, unsigned h, bool has_mv, bool has_local, bool has_param_univ, unsigned d);
+    expr_composite(expr_kind k, unsigned h, bool has_mv, bool has_local, bool has_param_univ, unsigned d, unsigned fv_range);
 };
 
 /** \brief Applications */
@@ -464,6 +461,17 @@ inline bool has_metavar(expr const & e) { return e.has_metavar(); }
 inline bool has_local(expr const & e) { return e.has_local(); }
 inline bool has_param_univ(expr const & e) { return e.has_param_univ(); }
 unsigned get_depth(expr const & e);
+/**
+   \brief Return \c R s.t. the de Bruijn index of all free variables
+   occurring in \c e is in the interval <tt>[0, R)</tt>.
+*/
+unsigned get_free_var_range(expr const & e);
+/** \brief Return true iff the given expression has free variables. */
+inline bool has_free_vars(expr const & e) { return get_free_var_range(e) > 0; }
+/** \brief Return true iff the given expression does not have free variables. */
+inline bool closed(expr const & e) { return !has_free_vars(e); }
+/** \brief Return true iff \c e contains a free variable >= low. */
+inline bool has_free_var_ge(expr const & e, unsigned low) { return get_free_var_range(e) > low; }
 // =======================================
 
 

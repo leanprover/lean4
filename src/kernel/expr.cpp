@@ -58,8 +58,8 @@ void expr_cell::dec_ref(expr & e, buffer<expr_cell*> & todelete) {
 }
 
 optional<bool> expr_cell::is_arrow() const {
-    // it is stored in bits 2-3
-    unsigned r = (m_flags & (4+8)) >> 2;
+    // it is stored in bits 1-2
+    unsigned r = (m_flags & (2+4)) >> 1;
     if (r == 0) {
         return optional<bool>();
     } else if (r == 1) {
@@ -71,7 +71,7 @@ optional<bool> expr_cell::is_arrow() const {
 }
 
 void expr_cell::set_is_arrow(bool flag) {
-    unsigned mask = flag ? 4 : 8;
+    unsigned mask = flag ? 2 : 4;
     m_flags |= mask;
     lean_assert(is_arrow() && *is_arrow() == flag);
 }
@@ -98,9 +98,10 @@ void expr_mlocal::dealloc(buffer<expr_cell*> & todelete) {
 }
 
 // Composite expressions
-expr_composite::expr_composite(expr_kind k, unsigned h, bool has_mv, bool has_local, bool has_param_univ, unsigned d):
+expr_composite::expr_composite(expr_kind k, unsigned h, bool has_mv, bool has_local, bool has_param_univ, unsigned d, unsigned fv_range):
     expr_cell(k, h, has_mv, has_local, has_param_univ),
-    m_depth(d) {}
+    m_depth(d),
+    m_free_var_range(fv_range) {}
 
 // Expr applications
 expr_app::expr_app(expr const & fn, expr const & arg):
@@ -108,7 +109,8 @@ expr_app::expr_app(expr const & fn, expr const & arg):
                    fn.has_metavar()    || arg.has_metavar(),
                    fn.has_local()      || arg.has_local(),
                    fn.has_param_univ() || arg.has_param_univ(),
-                   std::max(get_depth(fn), get_depth(arg)) + 1),
+                   std::max(get_depth(fn), get_depth(arg)) + 1,
+                   std::max(get_free_var_range(fn), get_free_var_range(arg))),
     m_fn(fn), m_arg(arg) {}
 void expr_app::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_fn, todelete);
@@ -116,13 +118,16 @@ void expr_app::dealloc(buffer<expr_cell*> & todelete) {
     delete(this);
 }
 
+static unsigned dec(unsigned k) { return k == 0 ? 0 : k - 1; }
+
 // Expr binders (Lambda, Pi)
 expr_binder::expr_binder(expr_kind k, name const & n, expr const & t, expr const & b):
     expr_composite(k, ::lean::hash(t.hash(), b.hash()),
                    t.has_metavar()    || b.has_metavar(),
                    t.has_local()      || b.has_local(),
                    t.has_param_univ() || b.has_param_univ(),
-                   std::max(get_depth(t), get_depth(b)) + 1),
+                   std::max(get_depth(t), get_depth(b)) + 1,
+                   std::max(get_free_var_range(t), dec(get_free_var_range(b)))),
     m_name(n),
     m_domain(t),
     m_body(b) {
@@ -147,7 +152,8 @@ expr_let::expr_let(name const & n, expr const & t, expr const & v, expr const & 
                    t.has_metavar()    || v.has_metavar()    || b.has_metavar(),
                    t.has_local()      || v.has_local()      || b.has_local(),
                    t.has_param_univ() || v.has_param_univ() || b.has_param_univ(),
-                   std::max({get_depth(t), get_depth(v), get_depth(b)}) + 1),
+                   std::max({get_depth(t), get_depth(v), get_depth(b)}) + 1,
+                   std::max({get_free_var_range(t), dec(get_free_var_range(v)), dec(get_free_var_range(b))})),
     m_name(n),
     m_type(t),
     m_value(v),
@@ -277,6 +283,21 @@ unsigned get_depth(expr const & e) {
     case expr_kind::Lambda: case expr_kind::Pi:
     case expr_kind::App:    case expr_kind::Let:
         return static_cast<expr_composite*>(e.raw())->m_depth;
+    }
+    lean_unreachable(); // LCOV_EXCL_LINE
+}
+
+unsigned get_free_var_range(expr const & e) {
+    switch (e.kind()) {
+    case expr_kind::Var:
+        return var_idx(e) + 1;
+    case expr_kind::Constant: case expr_kind::Sort: case expr_kind::Macro:
+        return 0;
+    case expr_kind::Meta: case expr_kind::Local:
+        return get_free_var_range(mlocal_type(e));
+    case expr_kind::Lambda: case expr_kind::Pi:
+    case expr_kind::App:    case expr_kind::Let:
+        return static_cast<expr_composite*>(e.raw())->m_free_var_range;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }

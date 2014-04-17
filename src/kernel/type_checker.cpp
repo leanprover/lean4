@@ -23,8 +23,6 @@ expr pi_body_at(expr const & pi, expr const & a) {
     lean_assert(is_pi(pi));
     if (closed(binder_body(pi)))
         return binder_body(pi);
-    else if (closed(a))
-        return instantiate_with_closed(binder_body(pi), a);
     else
         return instantiate(binder_body(pi), a);
 }

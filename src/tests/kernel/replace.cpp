@@ -31,12 +31,12 @@ static void tst1() {
 
 static void tst2() {
     expr r = mk_lambda("x", Type, mk_app({Var(0), Var(1), Var(2)}));
-    std::cout << instantiate_with_closed(r, Const("a")) << std::endl;
-    lean_assert(instantiate_with_closed(r, Const("a")) == mk_lambda("x", Type, mk_app({Var(0), Const("a"), Var(1)})));
-    lean_assert(instantiate_with_closed(instantiate_with_closed(r, Const("a")), Const("b")) ==
+    std::cout << instantiate(r, Const("a")) << std::endl;
+    lean_assert(instantiate(r, Const("a")) == mk_lambda("x", Type, mk_app({Var(0), Const("a"), Var(1)})));
+    lean_assert(instantiate(instantiate(r, Const("a")), Const("b")) ==
                 mk_lambda("x", Type, mk_app({Var(0), Const("a"), Const("b")})));
-    std::cout << instantiate_with_closed(binder_body(r), Const("a")) << std::endl;
-    lean_assert(instantiate_with_closed(binder_body(r), Const("a")) == mk_app({Const("a"), Var(0), Var(1)}));
+    std::cout << instantiate(binder_body(r), Const("a")) << std::endl;
+    lean_assert(instantiate(binder_body(r), Const("a")) == mk_app({Const("a"), Var(0), Var(1)}));
     std::cout << instantiate(r, Var(10)) << std::endl;
     lean_assert(instantiate(r, Var(10)) == mk_lambda("x", Type, mk_app({Var(0), Var(11), Var(1)})));
     std::cout << mk_pi("_", Var(3), Var(4)) << std::endl;

@@ -11,17 +11,21 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 
 namespace lean {
-template<bool ClosedSubst>
-expr instantiate_core(expr const & a, unsigned s, unsigned n, expr const * subst) {
+expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst) {
+    if (s >= get_free_var_range(a))
+        return a;
     return replace(a, [=](expr const & m, unsigned offset) -> optional<expr> {
+            unsigned s1 = s + offset;
+            if (s1 < s)
+                return some_expr(m); // overflow, vidx can't be >= max unsigned
+            if (s1 >= get_free_var_range(m))
+                return some_expr(m); // expression m does not contain free variables with idx >= s1
             if (is_var(m)) {
                 unsigned vidx = var_idx(m);
-                if (vidx >= offset + s) {
-                    if (vidx < offset + s + n) {
-                        if (ClosedSubst)
-                            return some_expr(subst[vidx - s - offset]);
-                        else
-                            return some_expr(lift_free_vars(subst[vidx - s - offset], offset));
+                if (vidx >= s1) {
+                    unsigned h = s1 + n;
+                    if (h < s1 /* overflow, h is bigger than any vidx */ || vidx < h) {
+                        return some_expr(lift_free_vars(subst[vidx - s1], offset));
                     } else {
                         return some_expr(mk_var(vidx - n));
                     }
@@ -31,11 +35,6 @@ expr instantiate_core(expr const & a, unsigned s, unsigned n, expr const * subst
         });
 }
 
-expr instantiate_with_closed(expr const & e, unsigned s, unsigned n, expr const * subst) { return instantiate_core<true>(e, s, n, subst); }
-expr instantiate_with_closed(expr const & e, unsigned n, expr const * s) { return instantiate_with_closed(e, 0, n, s); }
-expr instantiate_with_closed(expr const & e, std::initializer_list<expr> const & l) { return instantiate_with_closed(e, l.size(), l.begin()); }
-expr instantiate_with_closed(expr const & e, expr const & s) { return instantiate_with_closed(e, 1, &s); }
-expr instantiate(expr const & e, unsigned s, unsigned n, expr const * subst) { return instantiate_core<false>(e, s, n, subst); }
 expr instantiate(expr const & e, unsigned n, expr const * s) { return instantiate(e, 0, n, s); }
 expr instantiate(expr const & e, std::initializer_list<expr> const & l) {  return instantiate(e, l.size(), l.begin()); }
 expr instantiate(expr const & e, unsigned i, expr const & s) { return instantiate(e, i, 1, &s); }

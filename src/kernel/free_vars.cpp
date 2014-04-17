@@ -21,42 +21,30 @@ protected:
     unsigned                           m_high;
     expr_cell_offset_set               m_cached;
 
-    // Return true iff  m_low + offset <= vidx
-    bool ge_lower(unsigned vidx, unsigned offset) const {
+    bool apply(expr const & e, unsigned offset) {
+        unsigned range = get_free_var_range(e);
+        if (range == 0) {
+            lean_assert(closed(e));
+            return false;
+        }
         unsigned low1 = m_low + offset;
         if (low1 < m_low)
             return false; // overflow, vidx can't be >= max unsigned
-        return vidx >= low1;
-    }
-
-    // Return true iff vidx < m_high + offset
-    bool lt_upper(unsigned vidx, unsigned offset) const {
-        unsigned high1 = m_high + offset;
-        if (high1 < m_high)
-            return true;  // overflow, vidx is always < max unsigned
-        return vidx < high1;
-    }
-
-    // Return true iff   m_low + offset <= vidx < m_high + offset
-    bool in_interval(unsigned vidx, unsigned offset) const {
-        return ge_lower(vidx, offset) && lt_upper(vidx, offset);
-    }
-
-    bool apply(expr const & e, unsigned offset) {
-        // handle easy cases
-        switch (e.kind()) {
-        case expr_kind::Constant: case expr_kind::Sort: case expr_kind::Macro:
+        if (range <= low1) {
             return false;
-        case expr_kind::Var:
-            return in_interval(var_idx(e), offset);
-        case expr_kind::App:    case expr_kind::Let:
-        case expr_kind::Meta:   case expr_kind::Local:
-        case expr_kind::Lambda: case expr_kind::Pi:
-            break;
+        } else {
+            lean_assert(range > low1);
+            unsigned high1 = m_high + offset;
+            if (high1 < m_high)
+                return true; // overflow, vidx is always < max unsigned
+            if (range <= high1)
+                return true;
+            // At this point, e contains a free variables in the range [0, range),
+            // and it definitely contains Var(range-1).
+            // Moreover [low1, high1) is a proper subset of [0, range), i.e., range > high1
+            if (is_var(e))
+                return var_idx(e) < high1;
         }
-
-        if (closed(e))
-            return false;
 
         bool shared = false;
         if (is_shared(e)) {
@@ -101,7 +89,12 @@ public:
 };
 
 bool has_free_var(expr const & e, unsigned low, unsigned high) {
-    return high > low && !closed(e) && has_free_var_in_range_fn(low, high)(e);
+    unsigned range = get_free_var_range(e);
+    if (high <= low || range <= low)
+        return false;
+    if (range <= high)
+        return true;
+    return has_free_var_in_range_fn(low, high)(e);
 }
 bool has_free_var(expr const & e, unsigned i) { return has_free_var(e, i, i+1); }
 

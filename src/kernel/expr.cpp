@@ -79,7 +79,10 @@ void expr_cell::set_is_arrow(bool flag) {
 // Expr variables
 expr_var::expr_var(unsigned idx):
     expr_cell(expr_kind::Var, idx, false, false, false),
-    m_vidx(idx) {}
+    m_vidx(idx) {
+    if (idx == std::numeric_limits<unsigned>::max())
+        throw exception("invalid free variable index, de Bruijn index is too big");
+}
 
 // Expr constants
 expr_const::expr_const(name const & n, levels const & ls):

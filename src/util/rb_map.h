@@ -36,6 +36,8 @@ public:
     bool contains(K const & k) const { return m_map.contains(mk_pair(k, T())); }
     void erase(K const & k) { m_map.erase(mk_pair(k, T())); }
 
+    unsigned get_rc() const { return m_map.get_rc(); }
+
     class ref {
         rb_map & m_map;
         K const &   m_key;

@@ -17,7 +17,7 @@ protected:
     optional<expr> m_main_expr;
     pp_fn          m_pp_fn;
 public:
-    generic_kernel_exception(ro_environment const & env, char const * msg, optional<expr> const & m, pp_fn const & fn):
+    generic_kernel_exception(environment const & env, char const * msg, optional<expr> const & m, pp_fn const & fn):
         kernel_exception(env, msg),
         m_main_expr(m),
         m_pp_fn(fn) {}
@@ -28,40 +28,36 @@ public:
     virtual void rethrow() const { throw *this; }
 };
 
-[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, char const * msg, optional<expr> const & m) {
+[[ noreturn ]] void throw_kernel_exception(environment const & env, char const * msg, optional<expr> const & m) {
     std::string msg_str = msg;
     throw generic_kernel_exception(env, msg, m, [=](formatter const &, options const &) { return format(msg); });
 }
 
-[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, sstream const & strm, optional<expr> const & m) {
+[[ noreturn ]] void throw_kernel_exception(environment const & env, sstream const & strm, optional<expr> const & m) {
     throw_kernel_exception(env, strm.str().c_str(), m);
 }
 
-[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, char const * msg, optional<expr> const & m, pp_fn const & fn) {
+[[ noreturn ]] void throw_kernel_exception(environment const & env, char const * msg, optional<expr> const & m, pp_fn const & fn) {
     throw generic_kernel_exception(env, msg, m, fn);
 }
 
-[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, optional<expr> const & m, pp_fn const & fn) {
+[[ noreturn ]] void throw_kernel_exception(environment const & env, optional<expr> const & m, pp_fn const & fn) {
     throw generic_kernel_exception(env, "kernel exception", m, fn);
 }
 
-[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, char const * msg, expr const & m, pp_fn const & fn) {
+[[ noreturn ]] void throw_kernel_exception(environment const & env, char const * msg, expr const & m, pp_fn const & fn) {
     throw_kernel_exception(env, msg, some_expr(m), fn);
 }
 
-[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, expr const & m, pp_fn const & fn) {
+[[ noreturn ]] void throw_kernel_exception(environment const & env, expr const & m, pp_fn const & fn) {
     throw_kernel_exception(env, some_expr(m), fn);
 }
 
-[[ noreturn ]] void throw_unknown_object(ro_environment const & env, name const & n) {
-    throw_kernel_exception(env, sstream() << "unknown object '" << n << "'");
+[[ noreturn ]] void throw_unknown_declaration(environment const & env, name const & n) {
+    throw_kernel_exception(env, sstream() << "unknown declaration '" << n << "'");
 }
 
-[[ noreturn ]] void throw_already_declared(ro_environment const & env, name const & n) {
+[[ noreturn ]] void throw_already_declared(environment const & env, name const & n) {
     throw_kernel_exception(env, sstream() << "invalid object declaration, environment already has an object named '" << n << "'");
-}
-
-[[ noreturn ]] void throw_read_only_environment(ro_environment const & env) {
-    throw_kernel_exception(env, "environment cannot be updated because it has children environments");
 }
 }

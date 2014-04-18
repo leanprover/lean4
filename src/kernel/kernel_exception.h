@@ -17,13 +17,13 @@ class environment;
 /** \brief Base class for all kernel exceptions. */
 class kernel_exception : public exception {
 protected:
-    ro_environment m_env;
+    environment m_env;
 public:
-    kernel_exception(ro_environment const & env):m_env(env) {}
-    kernel_exception(ro_environment const & env, char const * msg):exception(msg), m_env(env) {}
-    kernel_exception(ro_environment const & env, sstream const & strm):exception(strm), m_env(env) {}
+    kernel_exception(environment const & env):m_env(env) {}
+    kernel_exception(environment const & env, char const * msg):exception(msg), m_env(env) {}
+    kernel_exception(environment const & env, sstream const & strm):exception(strm), m_env(env) {}
     virtual ~kernel_exception() noexcept {}
-    ro_environment const & get_environment() const { return m_env; }
+    environment const & get_environment() const { return m_env; }
     /**
         \brief Return a reference (if available) to the main expression associated with this exception.
         This information is used to provide better error messages.
@@ -34,14 +34,13 @@ public:
     virtual void rethrow() const { throw *this; }
 };
 
-[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, char const * msg, optional<expr> const & m = none_expr());
-[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, sstream const & strm,
+[[ noreturn ]] void throw_kernel_exception(environment const & env, char const * msg, optional<expr> const & m = none_expr());
+[[ noreturn ]] void throw_kernel_exception(environment const & env, sstream const & strm,
                                            optional<expr> const & m = none_expr());
-[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, char const * msg, optional<expr> const & m, pp_fn const & fn);
-[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, optional<expr> const & m, pp_fn const & fn);
-[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, char const * msg, expr const & m, pp_fn const & fn);
-[[ noreturn ]] void throw_kernel_exception(ro_environment const & env, expr const & m, pp_fn const & fn);
-[[ noreturn ]] void throw_unknown_object(ro_environment const & env, name const & n);
-[[ noreturn ]] void throw_already_declared(ro_environment const & env, name const & n);
-[[ noreturn ]] void throw_read_only_environment(ro_environment const & env);
+[[ noreturn ]] void throw_kernel_exception(environment const & env, char const * msg, optional<expr> const & m, pp_fn const & fn);
+[[ noreturn ]] void throw_kernel_exception(environment const & env, optional<expr> const & m, pp_fn const & fn);
+[[ noreturn ]] void throw_kernel_exception(environment const & env, char const * msg, expr const & m, pp_fn const & fn);
+[[ noreturn ]] void throw_kernel_exception(environment const & env, expr const & m, pp_fn const & fn);
+[[ noreturn ]] void throw_unknown_declaration(environment const & env, name const & n);
+[[ noreturn ]] void throw_already_declared(environment const & env, name const & n);
 }

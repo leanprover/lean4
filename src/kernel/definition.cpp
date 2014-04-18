@@ -59,6 +59,9 @@ struct definition::cell {
     }
 };
 
+definition g_dummy = mk_axiom(name(), param_names(), level_cnstrs(), expr());
+
+definition::definition():definition(g_dummy) {}
 definition::definition(cell * ptr):m_ptr(ptr) {}
 definition::definition(definition const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
 definition::definition(definition && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }

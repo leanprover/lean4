@@ -20,6 +20,15 @@ class definition {
     explicit definition(cell * ptr);
     friend class cell;
 public:
+    /**
+       \brief The default constructor creates a reference to a "dummy"
+       definition.  The actual "dummy" definition is not relevant, and
+       no procedure should rely on the kind of definition used.
+
+       We have a default constructor because some collections only work
+       with types that have a default constructor.
+    */
+    definition();
     definition(definition const & s);
     definition(definition && s);
     ~definition();

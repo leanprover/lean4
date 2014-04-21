@@ -19,20 +19,20 @@ public:
     }
 };
 
-environment_header::environment_header(bool proof_irrel, bool eta, std::unique_ptr<normalizer_extension const> ext):
-    m_proof_irrel(proof_irrel), m_eta(eta), m_norm_ext(std::move(ext)) {}
+environment_header::environment_header(unsigned trust_lvl, bool proof_irrel, bool eta, std::unique_ptr<normalizer_extension const> ext):
+    m_trust_lvl(trust_lvl), m_proof_irrel(proof_irrel), m_eta(eta), m_norm_ext(std::move(ext)) {}
 
 environment_extension::~environment_extension() {}
 
 environment::environment(header const & h, definitions const & d, extensions const & exts):
     m_header(h), m_definitions(d), m_extensions(exts) {}
 
-environment::environment(bool proof_irrel, bool eta):
-    environment(proof_irrel, eta, std::unique_ptr<normalizer_extension>(new noop_normalizer_extension()))
+environment::environment(unsigned trust_lvl, bool proof_irrel, bool eta):
+    environment(trust_lvl, proof_irrel, eta, std::unique_ptr<normalizer_extension>(new noop_normalizer_extension()))
 {}
 
-environment::environment(bool proof_irrel, bool eta, std::unique_ptr<normalizer_extension> ext):
-    m_header(std::make_shared<environment_header>(proof_irrel, eta, std::move(ext))),
+environment::environment(unsigned trust_lvl, bool proof_irrel, bool eta, std::unique_ptr<normalizer_extension> ext):
+    m_header(std::make_shared<environment_header>(trust_lvl, proof_irrel, eta, std::move(ext))),
     m_extensions(std::make_shared<environment_extensions const>())
 {}
 

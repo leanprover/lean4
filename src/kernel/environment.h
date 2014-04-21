@@ -35,12 +35,18 @@ public:
    Moreover if environment B is an extension of environment A, then A and B share the same header.
 */
 class environment_header {
-    bool m_proof_irrel; //!< true if the kernel assumes proof irrelevance
-    bool m_eta;         //!< true if the kernel uses eta-reduction in convertability checks
+    /* In the following field, 0 means untrusted mode (i.e., check everything),
+       >= 1 means do not check imported modules, and do not check macros
+       with level less than the value of this field.
+    */
+    unsigned m_trust_lvl; //!the given one.
+    bool m_proof_irrel;   //!< true if the kernel assumes proof irrelevance
+    bool m_eta;           //!< true if the kernel uses eta-reduction in convertability checks
     std::unique_ptr<normalizer_extension const> m_norm_ext;
     void dealloc();
 public:
-    environment_header(bool proof_irrel, bool eta, std::unique_ptr<normalizer_extension const> ext);
+    environment_header(unsigned trust_lvl, bool proof_irrel, bool eta, std::unique_ptr<normalizer_extension const> ext);
+    unsigned trust_lvl() const { return m_trust_lvl; }
     bool proof_irrel() const { return m_proof_irrel; }
     bool eta() const { return m_eta; }
     normalizer_extension const & norm_ext() const { return *(m_norm_ext.get()); }
@@ -73,11 +79,14 @@ class environment {
     environment(header const & h, definitions const & d, extensions const & ext);
 
 public:
-    environment(bool proof_irrel = true, bool eta = true);
-    environment(bool proof_irrel, bool eta, std::unique_ptr<normalizer_extension> ext);
+    environment(unsigned trust_lvl = 0, bool proof_irrel = true, bool eta = true);
+    environment(unsigned trust_lvl, bool proof_irrel, bool eta, std::unique_ptr<normalizer_extension> ext);
     ~environment();
 
     std::shared_ptr<environment_header const> get_header() const { return m_header; }
+
+    /** \brief Return the trust level of this environment. */
+    unsigned trust_lvl() const { return m_header->trust_lvl(); }
 
     /** \brief Return true iff the environment assumes proof irrelevance */
     bool proof_irrel() const { return m_header->proof_irrel(); }

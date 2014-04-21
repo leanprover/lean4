@@ -24,8 +24,24 @@ environment_header::environment_header(unsigned trust_lvl, bool proof_irrel, boo
 
 environment_extension::~environment_extension() {}
 
-environment::environment(header const & h, definitions const & d, extensions const & exts):
-    m_header(h), m_definitions(d), m_extensions(exts) {}
+environment_id::environment_id():m_trail(0, list<unsigned>()) {}
+
+environment_id::environment_id(environment_id const & ancestor, bool):m_trail(car(ancestor.m_trail) + 1, ancestor.m_trail) {}
+
+bool environment_id::is_descendant(environment_id const & id) const {
+    list<unsigned> const * it = &m_trail;
+    while (!is_nil(*it)) {
+        if (is_eqp(*it, id.m_trail))
+            return true;
+        if (car(*it) >= car(id.m_trail))
+            return false;
+        it = &cdr(*it);
+    }
+    return false;
+}
+
+environment::environment(header const & h, environment_id const & ancestor, definitions const & d, extensions const & exts):
+    m_header(h), m_id(environment_id::mk_descendant(ancestor)), m_definitions(d), m_extensions(exts) {}
 
 environment::environment(unsigned trust_lvl, bool proof_irrel, bool eta):
     environment(trust_lvl, proof_irrel, eta, std::unique_ptr<normalizer_extension>(new noop_normalizer_extension()))
@@ -53,16 +69,16 @@ definition environment::get(name const & n) const {
 }
 
 environment environment::add(certified_definition const & d) const {
-    if (d.get_header().get() != m_header.get())
+    if (!m_id.is_descendant(d.get_id()))
         throw_incompatible_environment(*this);
     name const & n = d.get_definition().get_name();
     if (find(n))
         throw_already_declared(*this, n);
-    return environment(m_header, insert(m_definitions, n, d.get_definition()), m_extensions);
+    return environment(m_header, m_id, insert(m_definitions, n, d.get_definition()), m_extensions);
 }
 
 environment environment::replace(certified_definition const & t) const {
-    if (t.get_header().get() != m_header.get())
+    if (!m_id.is_descendant(t.get_id()))
         throw_incompatible_environment(*this);
     name const & n = t.get_definition().get_name();
     auto ax = find(n);
@@ -74,7 +90,7 @@ environment environment::replace(certified_definition const & t) const {
         throw_kernel_exception(*this, "invalid replacement of axiom with theorem, the new declaration is not a theorem");
     if (ax->get_type() != t.get_definition().get_type())
         throw_kernel_exception(*this, "invalid replacement of axiom with theorem, the 'replace' operation can only be used when the axiom and theorem have the same type");
-    return environment(m_header, insert(m_definitions, n, t.get_definition()), m_extensions);
+    return environment(m_header, m_id, insert(m_definitions, n, t.get_definition()), m_extensions);
 }
 
 class extension_manager {
@@ -127,6 +143,6 @@ environment environment::update(unsigned id, std::shared_ptr<environment_extensi
     if (id >= new_exts->size())
         new_exts->resize(id+1);
     (*new_exts)[id] = ext;
-    return environment(m_header, m_definitions, new_exts);
+    return environment(m_header, m_id, m_definitions, new_exts);
 }
 }

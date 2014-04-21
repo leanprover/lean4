@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include "util/rc.h"
 #include "util/optional.h"
+#include "util/list.h"
 #include "util/rb_map.h"
 #include "kernel/expr.h"
 #include "kernel/constraint.h"
@@ -60,6 +61,26 @@ public:
 typedef std::vector<std::shared_ptr<environment_extension const>> environment_extensions;
 
 /**
+   \brief environment identifier that allows us to track descendants of a given environment.
+*/
+class environment_id {
+    friend class environment; // Only the environment class can create object of this type.
+    list<unsigned> m_trail; //!< trail of ancestors. The unsigned value is redundant, it store the depth of the trail.
+    /**
+        \brief Create an identifier for an environment that is a direct descendant of the given one.
+        The bool field is just to make sure this constructor is not confused with a copy constructor
+    */
+    environment_id(environment_id const & ancestor, bool);
+    /** \brief Create an identifier for an environment without ancestors (e.g., empty environment) */
+    environment_id();
+    /** Create an identifier for an environment that is a direct descendant of the given one. */
+    static environment_id mk_descendant(environment_id const & ancestor) { return environment_id(ancestor, true); }
+public:
+    /** \brief Return true iff this object is a descendant of the given one. */
+    bool is_descendant(environment_id const & id) const;
+};
+
+/**
    \brief Lean core environment. An environment object can be extended/customized in different ways:
 
    1- By providing a normalizer_extension when creating an empty environment.
@@ -72,18 +93,23 @@ class environment {
     typedef rb_map<name, definition, name_quick_cmp>      definitions;
     typedef std::shared_ptr<environment_extensions const> extensions;
 
-    header      m_header;
-    definitions m_definitions;
-    extensions  m_extensions;
+    header         m_header;
+    environment_id m_id;
+    definitions    m_definitions;
+    extensions     m_extensions;
 
-    environment(header const & h, definitions const & d, extensions const & ext);
+    environment(header const & h, environment_id const & id, definitions const & d, extensions const & ext);
 
 public:
     environment(unsigned trust_lvl = 0, bool proof_irrel = true, bool eta = true);
     environment(unsigned trust_lvl, bool proof_irrel, bool eta, std::unique_ptr<normalizer_extension> ext);
     ~environment();
 
-    std::shared_ptr<environment_header const> get_header() const { return m_header; }
+    /** \brief Return the environment unique identifier. */
+    environment_id const & get_id() const { return m_id; }
+
+    /** \brief Return true iff this environment is a descendant of \c env. */
+    bool is_descendant(environment const & env) const { return m_id.is_descendant(env.m_id); }
 
     /** \brief Return the trust level of this environment. */
     unsigned trust_lvl() const { return m_header->trust_lvl(); }
@@ -145,12 +171,12 @@ public:
 */
 class certified_definition {
     friend class type_checker;
-    std::shared_ptr<environment_header const> m_header;
-    definition                                m_definition;
-    certified_definition(std::shared_ptr<environment_header const> const & h, definition const & d);
+    environment_id m_id;
+    definition     m_definition;
+    certified_definition(environment_id const & id, definition const & d):m_id(id), m_definition(d) {}
 public:
-    certified_definition(certified_definition const & c);
-    std::shared_ptr<environment_header const> const & get_header() const { return m_header; }
+    /** \brief Return the id of the environment that was used to type check this definition. */
+    environment_id const & get_id() const { return m_id; }
     definition const & get_definition() const { return m_definition; }
 };
 }

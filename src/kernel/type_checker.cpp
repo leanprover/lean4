@@ -4,6 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "kernel/type_checker.h"
+
+
+
 #if 0
 #include "util/freset.h"
 #include "util/flet.h"

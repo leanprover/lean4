@@ -11,7 +11,7 @@ name mk_unique(name_set const & s, name const & suggestion) {
     name n = suggestion;
     int i  = 1;
     while (true) {
-        if (s.find(n) == s.end())
+        if (!s.contains(n))
             return n;
         n = name(suggestion, i);
         i++;

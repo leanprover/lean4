@@ -146,12 +146,13 @@ static void tst5() {
 static void tst6() {
     expr f = Const("f");
     expr r = mk_redundant_dag(f, 12);
+    max_sharing_fn s;
     for (unsigned i = 0; i < 1000; i++) {
-        r = max_sharing(r);
+        r = s(r);
     }
     r = mk_big(f, 16, 0);
     for (unsigned i = 0; i < 1000000; i++) {
-        r = max_sharing(r);
+        r = s(r);
     }
 }
 

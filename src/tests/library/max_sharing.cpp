@@ -32,8 +32,22 @@ static void tst1() {
     lean_assert(is_eqp(app_arg(app_fn(F2)), app_arg(F2)));
 }
 
+static void tst2() {
+    max_sharing_fn max_fn1;
+    max_sharing_fn max_fn2;
+    expr x   = Const("x");
+    expr f   = Const("f");
+    expr g   = Const("g");
+    expr t1  = max_fn2(max_fn1(f(g(x))));
+    expr t2  = max_fn2(f(t1, g(x)));
+    expr arg1 = app_arg(app_arg(app_fn(t2)));
+    expr arg2 = app_arg(t2);
+    lean_assert(is_eqp(arg1, arg2));
+}
+
 int main() {
     save_stack_info();
     tst1();
+    tst2();
     return has_violations() ? 1 : 0;
 }

@@ -44,8 +44,7 @@ class expr_cell {
 protected:
     unsigned short     m_kind;
     // The bits of the following field mean:
-    //    0    - term is maximally shared
-    //    1-2  - term is an arrow (0 - not initialized, 1 - is arrow, 2 - is not arrow)
+    //    0-1  - term is an arrow (0 - not initialized, 1 - is arrow, 2 - is not arrow)
     // Remark: we use atomic_uchar because these flags are computed lazily (i.e., after the expression is created)
     atomic_uchar       m_flags;
     unsigned           m_has_mv:1;         // term contains metavariables
@@ -55,10 +54,6 @@ protected:
     unsigned           m_hash_alloc;  // hash based on 'time' of allocation (this is a good hash for pointer-based equality)
     MK_LEAN_RC(); // Declare m_rc counter
     void dealloc();
-
-    bool max_shared() const { return (m_flags & 1) != 0; }
-    void set_max_shared() { m_flags |= 1; }
-    friend class max_sharing_fn;
 
     optional<bool> is_arrow() const;
     void set_is_arrow(bool flag);

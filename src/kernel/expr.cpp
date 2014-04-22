@@ -59,8 +59,8 @@ void expr_cell::dec_ref(expr & e, buffer<expr_cell*> & todelete) {
 }
 
 optional<bool> expr_cell::is_arrow() const {
-    // it is stored in bits 1-2
-    unsigned r = (m_flags & (2+4)) >> 1;
+    // it is stored in bits 0-1
+    unsigned r = (m_flags & (1+2));
     if (r == 0) {
         return optional<bool>();
     } else if (r == 1) {
@@ -72,7 +72,7 @@ optional<bool> expr_cell::is_arrow() const {
 }
 
 void expr_cell::set_is_arrow(bool flag) {
-    unsigned mask = flag ? 2 : 4;
+    unsigned mask = flag ? 1 : 2;
     m_flags |= mask;
     lean_assert(is_arrow() && *is_arrow() == flag);
 }

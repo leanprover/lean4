@@ -21,22 +21,11 @@ struct max_sharing_fn::imp {
 
     expr_cache m_cache;
 
-    void cache(expr const & a) {
-        a.raw()->set_max_shared();
-        m_cache.insert(a);
-    }
-
     expr apply(expr const & a) {
         check_system("max_sharing");
         auto r = m_cache.find(a);
-        if (r != m_cache.end()) {
-            lean_assert((*r).raw()->max_shared());
+        if (r != m_cache.end())
             return *r;
-        }
-        if (a.raw()->max_shared()) {
-            m_cache.insert(a);
-            return a;
-        }
         expr res;
         switch (a.kind()) {
         case expr_kind::Constant: case expr_kind::Var:
@@ -56,7 +45,7 @@ struct max_sharing_fn::imp {
             res = update_mlocal(a, apply(mlocal_type(a)));
             break;
         }
-        cache(res);
+        m_cache.insert(a);
         return res;
     }
     expr operator()(expr const & a) { return apply(a); }
@@ -68,9 +57,6 @@ expr max_sharing_fn::operator()(expr const & a) { return (*m_ptr)(a); }
 void max_sharing_fn::clear() { m_ptr->m_cache.clear(); }
 
 expr max_sharing(expr const & a) {
-    if (a.raw()->max_shared())
-        return a;
-    else
-        return max_sharing_fn::imp()(a);
+    return max_sharing_fn::imp()(a);
 }
 }

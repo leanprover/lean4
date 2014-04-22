@@ -14,11 +14,10 @@ static void tst1() {
     expr f = Const("f");
     expr a = Const("a");
     expr x = Var(0);
-    expr t = Type();
+    expr t = Type;
     expr z = Const("z");
-    local_context lctx{mk_lift(0, 1), mk_inst(0, a)};
-    expr m = mk_metavar("a", lctx);
-    expr F = mk_let("z", Type(), Type(level()+1), mk_pi("y", t, mk_lambda("x", t, f(f(f(x, a), Const("10")), f(x, m)))));
+    expr m = mk_metavar("a", Type);
+    expr F = mk_let("z", mk_Bool(), Type, mk_pi("y", t, mk_lambda("x", t, f(f(f(x, a), Const("10")), f(x, m)))));
     expr G = deep_copy(F);
     lean_assert(F == G);
     lean_assert(!is_eqp(F, G));

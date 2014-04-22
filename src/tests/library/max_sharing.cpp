@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "kernel/abstract.h"
 #include "kernel/max_sharing.h"
-#include "library/printer.h"
 using namespace lean;
 
 static void tst1() {
@@ -21,24 +20,16 @@ static void tst1() {
     expr N = Const("N");
     expr F1, F2;
     F1 = f(Fun({x, N}, f(x, x)), Fun({y, N}, f(y, y)));
-    lean_assert(!is_eqp(arg(F1, 1), arg(F1, 2)));
+    lean_assert(!is_eqp(app_arg(app_fn(F1)), app_arg(F1)));
     F2 = max_fn(F1);
     std::cout << F2 << "\n";
-    lean_assert(is_eqp(arg(F2, 1), arg(F2, 2)));
+    lean_assert(is_eqp(app_arg(app_fn(F2)), app_arg(F2)));
     max_fn.clear();
-    local_context lctx{mk_lift(1, 1), mk_inst(0, a1)};
-    expr m1 = mk_metavar("m1", lctx);
-    expr m2 = mk_metavar("m1", lctx);
-    F1 = f(m1, m2);
-    lean_assert(!is_eqp(arg(F1, 1), arg(F1, 2)));
+    F1 = f(Let(x, Type, f(a1), f(x, x)), Let(y, Type, f(a1), f(y, y)));
+    lean_assert(!is_eqp(app_arg(app_fn(F1)), app_arg(F1)));
     F2 = max_fn(F1);
     std::cout << F2 << "\n";
-    lean_assert(is_eqp(arg(F2, 1), arg(F2, 2)));
-    F1 = f(Let({x, f(a1)}, f(x, x)), Let({y, f(a1)}, f(y, y)));
-    lean_assert(!is_eqp(arg(F1, 1), arg(F1, 2)));
-    F2 = max_fn(F1);
-    std::cout << F2 << "\n";
-    lean_assert(is_eqp(arg(F2, 1), arg(F2, 2)));
+    lean_assert(is_eqp(app_arg(app_fn(F2)), app_arg(F2)));
 }
 
 int main() {

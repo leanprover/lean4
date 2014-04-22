@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <utility>
 #include <memory>
+#include <vector>
 #include "util/rc.h"
 #include "util/optional.h"
 #include "util/list.h"

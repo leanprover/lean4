@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <utility>
+#include <vector>
 #include <limits>
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
@@ -58,10 +60,10 @@ optional<definition> environment::find(name const & n) const {
 }
 
 definition environment::get(name const & n) const {
-   definition const * r = m_definitions.find(n);
-   if (!r)
-       throw_unknown_declaration(*this, n);
-   return *r;
+    definition const * r = m_definitions.find(n);
+    if (!r)
+        throw_unknown_declaration(*this, n);
+    return *r;
 }
 
 [[ noreturn ]] void throw_incompatible_environment(environment const & env) {

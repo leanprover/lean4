@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include <utility>
 #include "util/name_generator.h"
+#include "util/name_set.h"
 #include "kernel/environment.h"
 #include "kernel/constraint.h"
 
@@ -25,7 +26,7 @@ public:
    The type checker produces constraints, and they are sent to the constraint handler.
 */
 class type_checker {
-    class imp;
+    struct imp;
     std::unique_ptr<imp> m_ptr;
 public:
     /**
@@ -34,15 +35,14 @@ public:
 
        The following set of options is supported:
          - memoize:      inferred types are memoized/cached
-         - unique_expr:  hash consing is performed on input expressions, it improves the effectiveness of memoize
          - extra_opaque: additional definitions that should be treated as opaque
     */
-    type_checker(environment const & env, name_generator const & g, constraint_handler & h, options const & o = options());
+    type_checker(environment const & env, name_generator const & g, constraint_handler & h, bool memoize = false, name_set const & extra_opaque = name_set());
     /**
        \brief Similar to the previous constructor, but if a method tries to create a constraint, then an
        exception is thrown.
     */
-    type_checker(environment const & env, name_generator const & g, options const & o = options());
+    type_checker(environment const & env, name_generator const & g, bool memoize = false, name_set const & extra_opaque = name_set());
     ~type_checker();
 
     /**

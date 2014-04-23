@@ -260,9 +260,9 @@ public:
     macro():m_rc(0) {}
     virtual ~macro() {}
     virtual name get_name() const = 0;
-    virtual expr get_type(buffer<expr> const & arg_types) const = 0;
-    virtual expr expand1(buffer<expr> const & args) const = 0;
-    virtual expr expand(buffer<expr> const & args) const = 0;
+    virtual expr get_type(unsigned num_args, expr const * arg_types) const = 0;
+    virtual optional<expr> expand1(unsigned num_args, expr const * args) const = 0;
+    virtual optional<expr> expand(unsigned num_args, expr const * args) const = 0;
     virtual int push_lua(lua_State * L) const;
     virtual bool operator==(macro const & other) const;
     bool operator<(macro const & other) const;
@@ -340,6 +340,7 @@ template<typename T> expr mk_app(T const & args) { return mk_app(args.size(), ar
        expr mk_rev_app(expr const & f, unsigned num_args, expr const * args);
        expr mk_rev_app(unsigned num_args, expr const * args);
 template<typename T> expr mk_rev_app(T const & args) { return mk_rev_app(args.size(), args.data()); }
+template<typename T> expr mk_rev_app(expr const & f, T const & args) { return mk_rev_app(f, args.size(), args.data()); }
 inline expr mk_binder(expr_kind k, name const & n, expr const & t, expr const & e) { return expr(new expr_binder(k, n, t, e)); }
 inline expr mk_lambda(name const & n, expr const & t, expr const & e) { return mk_binder(expr_kind::Lambda, n, t, e); }
 inline expr mk_pi(name const & n, expr const & t, expr const & e) { return mk_binder(expr_kind::Pi, n, t, e); }

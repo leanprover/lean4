@@ -35,7 +35,7 @@ struct definition::cell {
         m_rc(1), m_name(n), m_params(params), m_cnstrs(cs), m_type(t), m_theorem(is_axiom),
         m_weight(0), m_module_idx(0), m_opaque(true), m_use_conv_opt(false) {}
     cell(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t, bool is_thm, expr const & v,
-         bool opaque, unsigned w, unsigned mod_idx, bool use_conv_opt):
+         bool opaque, unsigned w, module_idx mod_idx, bool use_conv_opt):
         m_rc(1), m_name(n), m_params(params), m_cnstrs(cs), m_type(t), m_theorem(is_thm),
         m_value(v), m_weight(w), m_module_idx(mod_idx), m_opaque(opaque), m_use_conv_opt(use_conv_opt) {}
 
@@ -83,11 +83,12 @@ expr definition::get_type() const { return m_ptr->m_type; }
 bool definition::is_opaque() const { return m_ptr->m_opaque; }
 expr definition::get_value() const { lean_assert(is_definition()); return *(m_ptr->m_value); }
 unsigned definition::get_weight() const { return m_ptr->m_weight; }
+module_idx definition::get_module_idx() const { return m_ptr->m_module_idx; }
 bool definition::use_conv_opt() const { return m_ptr->m_use_conv_opt; }
 
 void definition::write(serializer & s) const { m_ptr->write(s); }
 
-definition mk_definition(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t, expr const & v, bool opaque, unsigned weight, unsigned mod_idx, bool use_conv_opt) {
+definition mk_definition(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t, expr const & v, bool opaque, unsigned weight, module_idx mod_idx, bool use_conv_opt) {
     return definition(new definition::cell(n, params, cs, t, false, v, opaque, weight, mod_idx, use_conv_opt));
 }
 definition mk_theorem(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t, expr const & v) {

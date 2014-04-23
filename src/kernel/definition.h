@@ -12,13 +12,25 @@ Author: Leonardo de Moura
 
 namespace lean {
 /**
+    \brief Module index. The kernel provides only basic support
+    for implementing a module system outside of the kernel.
+
+    We need at least the notion of module index in the kernel, because
+    it affects the convertability procedure.
+
+    Given an opaque definition (non-theorem) d in module m1, then d is considered
+    to be transparent for any other opaque definition in module m1.
+*/
+typedef unsigned module_idx;
+
+/**
    \brief Environment definitions, theorems, axioms and variable declarations.
 */
 class definition {
     struct cell;
     cell * m_ptr;
     explicit definition(cell * ptr);
-    friend class cell;
+    friend struct cell;
 public:
     /**
        \brief The default constructor creates a reference to a "dummy"
@@ -51,9 +63,10 @@ public:
     expr get_value() const;
     bool is_opaque() const;
     unsigned get_weight() const;
+    module_idx get_module_idx() const;
     bool use_conv_opt() const;
 
-    friend definition mk_definition(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t, expr const & v, bool opaque, unsigned weight, unsigned mod_idx, bool use_conv_opt);
+    friend definition mk_definition(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t, expr const & v, bool opaque, unsigned weight, module_idx mod_idx, bool use_conv_opt);
     friend definition mk_theorem(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t, expr const & v);
     friend definition mk_axiom(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t);
     friend definition mk_var_decl(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t);
@@ -65,7 +78,7 @@ inline optional<definition> none_definition() { return optional<definition>(); }
 inline optional<definition> some_definition(definition const & o) { return optional<definition>(o); }
 inline optional<definition> some_definition(definition && o) { return optional<definition>(std::forward<definition>(o)); }
 
-definition mk_definition(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t, expr const & v, bool opaque = false, unsigned weight = 0, unsigned mod_idx = 0, bool use_conv_opt = true);
+definition mk_definition(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t, expr const & v, bool opaque = false, unsigned weight = 0, module_idx mod_idx = 0, bool use_conv_opt = true);
 definition mk_theorem(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t, expr const & v);
 definition mk_axiom(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t);
 definition mk_var_decl(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t);

@@ -50,6 +50,8 @@ public:
     definition & operator=(definition const & s);
     definition & operator=(definition && s);
 
+    friend bool is_eqp(definition const & d1, definition const & d2) { return d1.m_ptr == d2.m_ptr; }
+
     bool is_definition() const;
     bool is_axiom() const;
     bool is_theorem() const;

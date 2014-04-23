@@ -16,7 +16,7 @@ namespace lean {
 class constraint_handler {
 public:
     virtual ~constraint_handler();
-    void add_constr(constraint const & c);
+    void add_cnstr(constraint const & c);
 };
 
 /**

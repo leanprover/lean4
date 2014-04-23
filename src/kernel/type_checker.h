@@ -34,15 +34,19 @@ public:
        type checker are based on the given name generator.
 
        The following set of options is supported:
+         - mod_idx:      if a module index is provided, then opaque definitions in module mod_idx
+                         are considered transparent if they are not in extra_opaque.
          - memoize:      inferred types are memoized/cached
          - extra_opaque: additional definitions that should be treated as opaque
     */
-    type_checker(environment const & env, name_generator const & g, constraint_handler & h, bool memoize = false, name_set const & extra_opaque = name_set());
+    type_checker(environment const & env, name_generator const & g, constraint_handler & h,
+                 optional<module_idx> mod_idx = optional<module_idx>(), bool memoize = false, name_set const & extra_opaque = name_set());
     /**
        \brief Similar to the previous constructor, but if a method tries to create a constraint, then an
        exception is thrown.
     */
-    type_checker(environment const & env, name_generator const & g, bool memoize = false, name_set const & extra_opaque = name_set());
+    type_checker(environment const & env, name_generator const & g,
+                 optional<module_idx> mod_idx = optional<module_idx>(), bool memoize = false, name_set const & extra_opaque = name_set());
     ~type_checker();
 
     /**

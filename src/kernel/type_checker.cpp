@@ -17,14 +17,16 @@ struct type_checker::imp {
     environment           m_env;
     name_generator        m_gen;
     constraint_handler &  m_chandler;
+    optional<module_idx>  m_module_idx;
     bool                  m_memoize;
     name_set              m_extra_opaque;
     max_sharing_fn        m_sharing;
     expr_map<expr>        m_cache;
     expr_map<expr>        m_whnf_cache;
 
-    imp(environment const & env, name_generator const & g, constraint_handler & h, bool memoize, name_set const & extra_opaque):
-        m_env(env), m_gen(g), m_chandler(h), m_memoize(memoize), m_extra_opaque(extra_opaque) {}
+    imp(environment const & env, name_generator const & g, constraint_handler & h,
+        optional<module_idx> mod_idx, bool memoize, name_set const & extra_opaque):
+        m_env(env), m_gen(g), m_chandler(h), m_module_idx(mod_idx), m_memoize(memoize), m_extra_opaque(extra_opaque) {}
 
     expr max_sharing(expr const & e) { return m_memoize ? m_sharing(e) : e; }
     expr instantiate(expr const & e, unsigned n, expr const * s) { return max_sharing(lean::instantiate(e, n, s)); }
@@ -115,11 +117,40 @@ struct type_checker::imp {
         return r;
     }
 
+    /**
+       \brief Predicate for deciding whether \c d is an opaque definition or not.
+
+       Here is the basic idea:
+
+       1) Each definition has an opaque flag. This flag cannot be modified after a definition is added to the environment.
+       The opaque flag affects the convertability check. The idea is to minimize the number of delta-reduction steps.
+       We also believe it increases the modularity of Lean developments by minimizing the dependency on how things are defined.
+       We should view non-opaque definitions as "inline definitions" used in programming languages such as C++.
+
+       2) Whenever type checking an expression, the user can provide an additional set of definition names (m_extra_opaque) that
+       should be considered opaque. Note that, if \c t type checks when using an extra_opaque set S, then t also type checks
+       (modulo resource constraints) with the empty set. Again, the purpose of extra_opaque is to mimimize the number
+       of delta-reduction steps.
+
+       3) To be able to prove theorems about an opaque definition, we treat an opaque definition D in a module M as
+       transparent when we are type checking another definition/theorem D' also in M. This rule only applies if
+       D is not a theorem, nor D is in the set m_extra_opaque. To implement this feature, this class has a field
+       m_module_idx that is not none when this rule should be applied.
+    */
+    bool is_opaque(definition const & d) const {
+        lean_assert(d.is_definition());
+        if (d.is_theorem()) return true;                                       // theorems are always opaque
+        if (m_extra_opaque.contains(d.get_name())) return true;                // extra_opaque set overrides opaque flag
+        if (!d.is_opaque()) return false;                                      // d is a transparent definition
+        if (m_module_idx && d.get_module_idx() == *m_module_idx) return false; // the opaque definitions in module_idx are considered transparent
+        return true;                                                           // d is opaque
+    }
+
     /** \brief Expand \c e if it is non-opaque constant with weight >= w */
     expr unfold_name_core(expr e, unsigned w) {
         if (is_constant(e)) {
             if (auto d = m_env.find(const_name(e))) {
-                if (d->is_definition() && !d->is_opaque() && d->get_weight() >= w && !m_extra_opaque.contains(d->get_name()))
+                if (d->is_definition() && !is_opaque(*d) && d->get_weight() >= w)
                     return unfold_name_core(instantiate_params(d->get_value(), d->get_params(), const_level_params(e)), w);
             }
         }
@@ -130,8 +161,7 @@ struct type_checker::imp {
        \brief Expand constants and application where the function is a constant.
 
        The unfolding is only performend if the constant corresponds to
-       a non-opaque definition with weight >= w, and it is not in the
-       set of extra_opaque constants.
+       a non-opaque definition with weight >= w.
     */
     expr unfold_names(expr const & e, unsigned w) {
         if (is_app(e)) {

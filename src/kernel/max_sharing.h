@@ -23,9 +23,10 @@ public:
 
     expr operator()(expr const & a);
 
-    /**
-       \brief Clear the cache.
-    */
+    /** \brief Return true iff \c a was already processed by this object. */
+    bool already_processed(expr const & a) const;
+
+    /** \brief Clear the cache. */
     void clear();
 };
 

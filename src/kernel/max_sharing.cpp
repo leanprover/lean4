@@ -48,13 +48,20 @@ struct max_sharing_fn::imp {
         m_cache.insert(a);
         return res;
     }
+
     expr operator()(expr const & a) { return apply(a); }
+
+    bool already_processed(expr const & a) const {
+        auto r = m_cache.find(a);
+        return r != m_cache.end() && is_eqp(*r, a);
+    }
 };
 
 max_sharing_fn::max_sharing_fn():m_ptr(new imp) {}
 max_sharing_fn::~max_sharing_fn() {}
 expr max_sharing_fn::operator()(expr const & a) { return (*m_ptr)(a); }
 void max_sharing_fn::clear() { m_ptr->m_cache.clear(); }
+bool max_sharing_fn::already_processed(expr const & a) const { return m_ptr->already_processed(a); }
 
 expr max_sharing(expr const & a) {
     return max_sharing_fn::imp()(a);

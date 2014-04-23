@@ -155,6 +155,5 @@ struct type_checker::imp {
             return unfold_name_core(e, w);
         }
     }
-
 };
 }

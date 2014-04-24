@@ -75,7 +75,7 @@ public:
 };
 
 /**
-   \brief Simplifer version of pp_jst_fn
+   \brief Simpler version of pp_jst_fn
 */
 typedef std::function<format(formatter const &, options const &, substitution const &)> pp_jst_sfn;
 

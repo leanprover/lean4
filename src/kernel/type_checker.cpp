@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/expr_maps.h"
 #include "kernel/instantiate.h"
 #include "kernel/max_sharing.h"
+#include "kernel/free_vars.h"
 
 namespace lean {
 /** \brief Auxiliary functional object used to implement type checker. */
@@ -24,13 +25,22 @@ struct type_checker::imp {
     max_sharing_fn        m_sharing;
     expr_map<expr>        m_cache;
     expr_map<expr>        m_whnf_core_cache;
-
-    // temporary flags
-    bool                  m_cnstrs_enabled; // true if constraints can be generated
+    expr_map<expr>        m_whnf_cache;
 
     imp(environment const & env, name_generator const & g, constraint_handler & h,
         optional<module_idx> mod_idx, bool memoize, name_set const & extra_opaque):
         m_env(env), m_gen(g), m_chandler(h), m_module_idx(mod_idx), m_memoize(memoize), m_extra_opaque(extra_opaque) {}
+
+    class normalizer_context : public normalizer_extension::context {
+        imp & m_imp;
+    public:
+        normalizer_context(imp & i):m_imp(i) {}
+        virtual environment const & env() const { return m_imp.m_env; }
+        virtual expr whnf(expr const & e) { return m_imp.whnf(e); }
+        virtual expr infer_type(expr const & e) { return m_imp.infer_type(e); }
+        virtual name mk_fresh_name() { return m_imp.m_gen.next(); }
+        virtual void add_cnstr(constraint const & c) { m_imp.add_cnstr(c); }
+    };
 
     expr max_sharing(expr const & e) { return m_memoize ? m_sharing(e) : e; }
     expr instantiate(expr const & e, unsigned n, expr const * s) { return max_sharing(lean::instantiate(e, n, s)); }
@@ -45,6 +55,14 @@ struct type_checker::imp {
     }
     expr instantiate_params(expr const & e, param_names const & ps, levels const & ls) {
         return max_sharing(lean::instantiate_params(e, ps, ls));
+    }
+    /** \brief Apply normalizer extensions to \c e. */
+    optional<expr> norm_ext(expr const & e) {
+        normalizer_context ctx(*this);
+        if (auto new_e = m_env.norm_ext()(e, ctx))
+            return some_expr(max_sharing(*new_e));
+        else
+            return none_expr();
     }
 
     bool check_memoized(expr const & e) const {
@@ -233,32 +251,52 @@ struct type_checker::imp {
         }
     }
 
+    /** \brief Put expression \c e in weak head normal form */
+    expr whnf(expr const & e) {
+        // check cache
+        if (m_memoize) {
+            auto it = m_whnf_cache.find(e);
+            if (it != m_whnf_cache.end())
+                return it->second;
+        }
+
+        expr t = e;
+        while (true) {
+            expr t1 = unfold_names(whnf_core(t), 0);
+            auto new_t = norm_ext(t1);
+            if (new_t) {
+                t = *new_t;
+            } else {
+                if (m_memoize)
+                    m_whnf_cache.insert(mk_pair(e, t1));
+                return t1;
+            }
+        }
+    }
+
+    /** \brief Add given constraint to the constraint handler m_chandler. */
     void add_cnstr(constraint const & c) {
         m_chandler.add_cnstr(c);
     }
 
+    /** \brief Return the current/latest justification object created by the type checker. */
     justification get_curr_justification() {
         // TODO(Leo)
         return mk_assumption_justification(0);
     }
 
-    /** \brief Cheap test for whnf (weak head normal form) just based on the kind of \c e */
-    static bool quick_is_whnf(expr const & e) {
-        switch (e.kind()) {
-        case expr_kind::Var:      case expr_kind::Sort: case expr_kind::Meta: case expr_kind::Local:
-        case expr_kind::Lambda:   case expr_kind::Pi:
-            return true;
-        case expr_kind::Constant: case expr_kind::Macro:  case expr_kind::Let:  case expr_kind::App:
-            return false;
-        }
-        lean_unreachable(); // LCOV_EXCL_LINE
-    }
-
+    /** \brief Eta-expand \c s and check if it is definitionally equal to \c t. */
     bool try_eta(expr const & t, expr const & s) {
         lean_assert(is_lambda(t));
         lean_assert(!is_lambda(s));
-        // TODO(Leo):
-        return false;
+        expr t_s = whnf(infer_type(s));
+        if (is_pi(t_s)) {
+            // new_s := lambda x : domain(t_s), s x
+            expr new_s = mk_lambda(m_gen.next(), binder_domain(t_s), mk_app(lift_free_vars(s, 1), mk_var(0)));
+            return is_def_eq(t, new_s);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -269,10 +307,8 @@ struct type_checker::imp {
     lbool quick_is_conv(expr const & t, expr const & s, bool def_eq) {
         if (t == s)
             return l_true; // t and s are structurally equal
-        if (is_metavar(t) || is_metavar(s)) {
-            // if t or s is a metavariable, then add constraint
-            if (!m_cnstrs_enabled)
-                return l_false; // constraint creation is disabled, so return error
+        if (is_meta(t) || is_meta(s)) {
+            // if t or s is a metavariable (or the application of a metavariable), then add constraint
             if (def_eq)
                 add_cnstr(mk_eq_cnstr(t, s, get_curr_justification()));
             else
@@ -299,8 +335,6 @@ struct type_checker::imp {
                 // t and s are Sorts
                 if (is_trivial(sort_level(t), sort_level(s)) && (!def_eq || is_trivial(sort_level(s), sort_level(t))))
                     return l_true;
-                if (!m_cnstrs_enabled)
-                    return l_false;
                 add_cnstr(mk_level_cnstr(sort_level(t), sort_level(s), get_curr_justification()));
                 if (def_eq)
                     add_cnstr(mk_level_cnstr(sort_level(s), sort_level(t), get_curr_justification()));
@@ -316,6 +350,10 @@ struct type_checker::imp {
         return l_undef; // This is not an "easy case"
     }
 
+    /**
+        \brief If def_eq is false, then return true iff t is convertible to s.
+               If def_eq is true,  then return true iff t is definitionally equal to s.
+    */
     bool is_conv(expr const & t, expr const & s, bool def_eq) {
         check_system("is_convertible");
         lbool r = quick_is_conv(t, s, def_eq);
@@ -329,68 +367,95 @@ struct type_checker::imp {
             if (r != l_undef) return r == l_true;
         }
 
-        // lazy delta-reduction + whnf (still not using normalizer extensions)
+        // lazy delta-reduction and then normalizer extensions
         while (true) {
-            auto d_t = is_delta(t_n);
-            auto d_s = is_delta(s_n);
-            if (!d_t && !d_s) {
-                break;
-            } else if (d_t && !d_s) {
-                t_n = whnf_core(unfold_names(t_n, 0));
-            } else if (!d_t && d_s) {
-                s_n = whnf_core(unfold_names(s_n, 0));
-            } else if (d_t->get_weight() > d_s->get_weight()) {
-                t_n = whnf_core(unfold_names(t_n, d_s->get_weight() + 1));
-            } else if (d_t->get_weight() < d_s->get_weight()) {
-                s_n = whnf_core(unfold_names(s_n, d_t->get_weight() + 1));
-            } else {
-                lean_assert(d_t && d_s && d_t->get_weight() == d_s->get_weight());
-                if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s)) {
-                    // try backtracking trick to avoild delta-reduction
-                    // TODO(Leo)
+            // first, keep applying lazy delta-reduction while applicable
+            while (true) {
+                auto d_t = is_delta(t_n);
+                auto d_s = is_delta(s_n);
+                if (!d_t && !d_s) {
+                    break;
+                } else if (d_t && !d_s) {
+                    t_n = whnf_core(unfold_names(t_n, 0));
+                } else if (!d_t && d_s) {
+                    s_n = whnf_core(unfold_names(s_n, 0));
+                } else if (d_t->get_weight() > d_s->get_weight()) {
+                    t_n = whnf_core(unfold_names(t_n, d_s->get_weight() + 1));
+                } else if (d_t->get_weight() < d_s->get_weight()) {
+                    s_n = whnf_core(unfold_names(s_n, d_t->get_weight() + 1));
+                } else {
+                    lean_assert(d_t && d_s && d_t->get_weight() == d_s->get_weight());
+                    if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s)) {
+                        // try backtracking trick to avoild delta-reduction
+                        // TODO(Leo)
+                    }
+                    t_n = whnf_core(unfold_names(t_n, d_t->get_weight() - 1));
+                    s_n = whnf_core(unfold_names(s_n, d_s->get_weight() - 1));
                 }
-                t_n = whnf_core(unfold_names(t_n, d_t->get_weight() - 1));
-                s_n = whnf_core(unfold_names(s_n, d_s->get_weight() - 1));
+                r = quick_is_conv(t_n, s_n, def_eq);
+                if (r != l_undef) return r == l_true;
             }
+            // try normalizer extensions
+            auto new_t_n = norm_ext(t_n);
+            auto new_s_n = norm_ext(s_n);
+            if (!new_t_n && !new_s_n)
+                break; // t_n and s_n are in weak head normal form
+            if (new_t_n)
+                t_n = whnf_core(*new_t_n);
+            if (new_s_n)
+                s_n = whnf_core(*new_s_n);
             r = quick_is_conv(t_n, s_n, def_eq);
             if (r != l_undef) return r == l_true;
         }
 
-        if (m_env.proof_irrel()) {
-            // Proof irrelevance support
-            flet<bool> disable_cnstrs(m_cnstrs_enabled, false); // disable constraint generation
-            auto t_type = infer_type(t);
-            if (t_type && is_proposition(*t_type)) {
-                auto s_type = infer_type(s);
-                if (s_type)
-                    return is_def_eq(*t_type, *s_type);
-            }
-        }
+        // At this point, t_n and s_n are in weak head normal form (modulo meta-variables)
 
         if (m_env.eta()) {
-            lean_assert(!is_lambda(t) || !is_lambda(s));
+            lean_assert(!is_lambda(t_n) || !is_lambda(s_n));
             // Eta-reduction support
-            if ((is_lambda(t) && try_eta(t, s)) ||
-                (is_lambda(s) && try_eta(s, t)))
+            if ((is_lambda(t_n) && try_eta(t_n, s_n)) ||
+                (is_lambda(s_n) && try_eta(s_n, t_n)))
                 return true;
+        }
+
+        if (is_app(t_n) && is_app(s_n)) {
+            expr it1 = t_n;
+            expr it2 = s_n;
+            bool ok  = true;
+            do {
+                if (!is_def_eq(app_arg(it1), app_arg(it2))) {
+                    ok = false;
+                    break;
+                }
+                it1 = app_fn(it1);
+                it2 = app_fn(it2);
+            } while (is_app(it1) && is_app(it2));
+            if (ok && is_def_eq(it1, it2))
+                return true;
+        }
+
+        if (m_env.proof_irrel()) {
+            // Proof irrelevance support
+            expr t_type = infer_type(t);
+            return is_proposition(t_type) && is_def_eq(t_type, infer_type(s));
         }
 
         return false;
     }
 
-    /** \brief Return true iff t and s are definitionally equal */
+    /** \brief Return true iff \c t and \c s are definitionally equal */
     bool is_def_eq(expr const & t, expr const & s) {
         return is_conv(t, s, true);
     }
 
-    bool is_proposition(expr const &) {
-        // TODO(Leo)
-        return false;
+    /** \brief Return true iff \c e is a proposition */
+    bool is_proposition(expr const & e) {
+        return whnf(infer_type(e)) == Bool;
     }
 
-    optional<expr> infer_type(expr const &) {
+    expr infer_type(expr const &) {
         // TODO(Leo)
-        return none_expr();
+        return expr();
     }
 };
 }

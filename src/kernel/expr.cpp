@@ -77,6 +77,14 @@ void expr_cell::set_is_arrow(bool flag) {
     lean_assert(is_arrow() && *is_arrow() == flag);
 }
 
+bool is_meta(expr const & e) {
+    expr const * it = &e;
+    while (is_app(*it)) {
+        it = &(app_fn(*it));
+    }
+    return is_metavar(*it);
+}
+
 // Expr variables
 expr_var::expr_var(unsigned idx):
     expr_cell(expr_kind::Var, idx, false, false, false),

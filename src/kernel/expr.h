@@ -319,6 +319,8 @@ inline bool is_mlocal(expr const & e)     { return is_metavar(e) || is_local(e);
 
 bool is_atomic(expr const & e);
 bool is_arrow(expr const & t);
+/** \brief Return true iff \c e is a metavariable or an application of a metavariable */
+bool is_meta(expr const & e);
 // =======================================
 
 // =======================================

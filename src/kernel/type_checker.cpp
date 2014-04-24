@@ -300,6 +300,42 @@ struct type_checker::imp {
     }
 
     /**
+        \brief Given lambda/Pi expressions \c t and \c s, return true iff \c t is convertible to \c s.
+
+        The argument \c def_eq is used to decide whether the body of the binder is checked for
+        definitional equality or convertability.
+
+        If t and s are lambda expressions, then then t is convertible to s
+           iff
+        domain(t) is definitionally equal to domain(s)
+        and
+        body(t) is definitionally equal to body(s)
+
+        For Pi expressions, it is slighly different.
+        If t and s are Pi expressions, then then t is convertible to s
+           iff
+        domain(t) is definitionally equal to domain(s)
+        and
+        body(t) is convertible to body(s)
+    */
+    bool is_conv_binder(expr t, expr s, bool def_eq) {
+        lean_assert(t.kind() == s.kind());
+        lean_assert(is_binder(t));
+        expr_kind k = t.kind();
+        buffer<expr> subst;
+        do {
+            expr var_t_type = instantiate(binder_domain(t), subst.size(), subst.data());
+            expr var_s_type = instantiate(binder_domain(s), subst.size(), subst.data());
+            if (!is_def_eq(var_t_type, var_s_type))
+                return false;
+            subst.push_back(mk_local(m_gen.next(), var_s_type));
+            t = binder_body(t);
+            s = binder_body(s);
+        } while (t.kind() == k && s.kind() == k);
+        return is_conv(instantiate(t, subst.size(), subst.data()), instantiate(s, subst.size(), subst.data()), def_eq);
+    }
+
+    /**
        \brief This is an auxiliary method for is_conv. It handles the "easy cases".
 
        If \c def_eq is true, then it checks for definitional equality.
@@ -318,19 +354,9 @@ struct type_checker::imp {
         if (t.kind() == s.kind()) {
             switch (t.kind()) {
             case expr_kind::Lambda:
-                // t and s are lambda expression, then then t is convertible to s
-                // iff
-                // domain(t) is definitionally equal to domain(s)
-                // and
-                // body(t) is definitionally equal to body(s)
-                return to_lbool(is_def_eq(binder_domain(t), binder_domain(s)) && is_def_eq(binder_body(t), binder_body(s)));
+                return to_lbool(is_conv_binder(t, s, true));
             case expr_kind::Pi:
-                // t and s are Pi expressions, then then t is convertible to s
-                // iff
-                // domain(t) is definitionally equal to domain(s)
-                // and
-                // body(t) is convertible to body(s)
-                return to_lbool(is_def_eq(binder_domain(t), binder_domain(s)) && is_conv(binder_body(t), binder_body(s), def_eq));
+                return to_lbool(is_conv_binder(t, s, def_eq));
             case expr_kind::Sort:
                 // t and s are Sorts
                 if (is_trivial(sort_level(t), sort_level(s)) && (!def_eq || is_trivial(sort_level(s), sort_level(t))))

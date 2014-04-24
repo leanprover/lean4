@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst) {
-    if (s >= get_free_var_range(a))
+    if (s >= get_free_var_range(a) || n == 0)
         return a;
     return replace(a, [=](expr const & m, unsigned offset) -> optional<expr> {
             unsigned s1 = s + offset;

@@ -45,7 +45,7 @@ struct max_sharing_fn::imp {
             res = update_mlocal(a, apply(mlocal_type(a)));
             break;
         }
-        m_cache.insert(a);
+        m_cache.insert(res);
         return res;
     }
 

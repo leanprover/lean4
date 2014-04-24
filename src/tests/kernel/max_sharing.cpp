@@ -45,9 +45,27 @@ static void tst2() {
     lean_assert(is_eqp(arg1, arg2));
 }
 
+static void tst3() {
+    max_sharing_fn max_fn;
+    expr a1 = Const("a");
+    expr a2 = Const("a");
+    expr a3 = Const("a");
+    expr g  = Const("g");
+    expr f  = Const("f");
+    expr new_a1 = max_fn(a1);
+    lean_assert(is_eqp(new_a1, a1));
+    expr t1 = max_fn(f(a2));
+    lean_assert(is_eqp(app_arg(t1), a1));
+    expr t2 = max_fn(f(a2));
+    lean_assert(is_eqp(t1, t2));
+    expr t3 = max_fn(f(a3));
+    lean_assert(is_eqp(t1, t3));
+}
+
 int main() {
     save_stack_info();
     tst1();
     tst2();
+    tst3();
     return has_violations() ? 1 : 0;
 }

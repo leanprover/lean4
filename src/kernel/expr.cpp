@@ -179,21 +179,21 @@ void expr_let::dealloc(buffer<expr_cell*> & todelete) {
 }
 expr_let::~expr_let() {}
 
-// Macro attachment
-int macro::push_lua(lua_State *) const { return 0; } // NOLINT
-void macro::display(std::ostream & out) const { out << get_name(); }
-bool macro::operator==(macro const & other) const { return typeid(*this) == typeid(other); }
-bool macro::operator<(macro const & other) const {
+// Macro definition
+int macro_definition::push_lua(lua_State *) const { return 0; } // NOLINT
+bool macro_definition::operator==(macro_definition const & other) const { return typeid(*this) == typeid(other); }
+bool macro_definition::operator<(macro_definition const & other) const {
     if (get_name() == other.get_name())
         return lt(other);
     else
         return get_name() < other.get_name();
 }
-format macro::pp(formatter const &, options const &) const { return format(get_name()); }
-bool macro::is_atomic_pp(bool, bool) const { return true; }
-unsigned macro::hash() const { return get_name().hash(); }
+format macro_definition::pp(formatter const &, options const &) const { return format(get_name()); }
+void macro_definition::display(std::ostream & out) const { out << get_name(); }
+bool macro_definition::is_atomic_pp(bool, bool) const { return true; }
+unsigned macro_definition::hash() const { return get_name().hash(); }
 
-typedef std::unordered_map<std::string, macro::reader> macro_readers;
+typedef std::unordered_map<std::string, macro_definition::reader> macro_readers;
 static std::unique_ptr<macro_readers> g_macro_readers;
 macro_readers & get_macro_readers() {
     if (!g_macro_readers)
@@ -201,26 +201,61 @@ macro_readers & get_macro_readers() {
     return *(g_macro_readers.get());
 }
 
-void macro::register_deserializer(std::string const & k, macro::reader rd) {
+void macro_definition::register_deserializer(std::string const & k, macro_definition::reader rd) {
     macro_readers & readers = get_macro_readers();
     lean_assert(readers.find(k) == readers.end());
     readers[k] = rd;
 }
-static expr read_macro(deserializer & d) {
+static expr read_macro_definition(deserializer & d, unsigned num, expr const * args) {
     auto k  = d.read_string();
     macro_readers & readers = get_macro_readers();
     auto it = readers.find(k);
     lean_assert(it != readers.end());
-    return it->second(d);
+    return it->second(d, num, args);
 }
 
-expr_macro::expr_macro(macro * m):
-    expr_cell(expr_kind::Macro, m->hash(), false, false, false),
-    m_macro(m) {
-    m_macro->inc_ref();
+static unsigned max_depth(unsigned num, expr const * args) {
+    unsigned r = 0;
+    for (unsigned i = 0; i < num; i++) {
+        unsigned d = get_depth(args[i]);
+        if (d > r)
+            r = d;
+    }
+    return r;
+}
+
+static unsigned get_free_var_range(unsigned num, expr const * args) {
+    unsigned r = 0;
+    for (unsigned i = 0; i < num; i++) {
+        unsigned d = get_free_var_range(args[i]);
+        if (d > r)
+            r = d;
+    }
+    return r;
+}
+
+expr_macro::expr_macro(macro_definition * m, unsigned num, expr const * args):
+    expr_composite(expr_kind::Macro,
+                   lean::hash(num, [&](unsigned i) { return args[i].hash(); }, m->hash()),
+                   std::any_of(args, args+num, [](expr const & e) { return e.has_metavar(); }),
+                   std::any_of(args, args+num, [](expr const & e) { return e.has_local(); }),
+                   std::any_of(args, args+num, [](expr const & e) { return e.has_param_univ(); }),
+                   max_depth(num, args) + 1,
+                   get_free_var_range(num, args)),
+    m_definition(m),
+    m_num_args(num) {
+    m_definition->inc_ref();
+    m_args = new expr[num];
+    for (unsigned i = 0; i < m_num_args; i++)
+        m_args[i] = args[i];
+}
+void expr_macro::dealloc(buffer<expr_cell*> & todelete) {
+    m_definition->dec_ref();
+    for (unsigned i = 0; i < m_num_args; i++) dec_ref(m_args[i], todelete);
+    delete(this);
 }
 expr_macro::~expr_macro() {
-    m_macro->dec_ref();
+    delete[] m_args;
 }
 
 void expr_cell::dealloc() {
@@ -233,7 +268,7 @@ void expr_cell::dealloc() {
             lean_assert(it->get_rc() == 0);
             switch (it->kind()) {
             case expr_kind::Var:        delete static_cast<expr_var*>(it); break;
-            case expr_kind::Macro:      delete static_cast<expr_macro*>(it); break;
+            case expr_kind::Macro:      static_cast<expr_macro*>(it)->dealloc(todo); break;
             case expr_kind::Meta:
             case expr_kind::Local:      static_cast<expr_mlocal*>(it)->dealloc(todo); break;
             case expr_kind::Constant:   delete static_cast<expr_const*>(it); break;
@@ -290,9 +325,9 @@ expr mk_Type() { return Type; }
 unsigned get_depth(expr const & e) {
     switch (e.kind()) {
     case expr_kind::Var:  case expr_kind::Constant: case expr_kind::Sort:
-    case expr_kind::Meta: case expr_kind::Local:    case expr_kind::Macro:
+    case expr_kind::Meta: case expr_kind::Local:
         return 1;
-    case expr_kind::Lambda: case expr_kind::Pi:
+    case expr_kind::Lambda: case expr_kind::Pi:  case expr_kind::Macro:
     case expr_kind::App:    case expr_kind::Let:
         return static_cast<expr_composite*>(e.raw())->m_depth;
     }
@@ -303,12 +338,13 @@ unsigned get_free_var_range(expr const & e) {
     switch (e.kind()) {
     case expr_kind::Var:
         return var_idx(e) + 1;
-    case expr_kind::Constant: case expr_kind::Sort: case expr_kind::Macro:
+    case expr_kind::Constant: case expr_kind::Sort:
         return 0;
     case expr_kind::Meta: case expr_kind::Local:
         return get_free_var_range(mlocal_type(e));
     case expr_kind::Lambda: case expr_kind::Pi:
     case expr_kind::App:    case expr_kind::Let:
+    case expr_kind::Macro:
         return static_cast<expr_composite*>(e.raw())->m_free_var_range;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
@@ -370,11 +406,26 @@ expr update_constant(expr const & e, levels const & new_levels) {
         return e;
 }
 
+expr update_macro(expr const & e, unsigned num, expr const * args) {
+    if (num == macro_num_args(e)) {
+        unsigned i = 0;
+        for (i = 0; i < num; i++) {
+            if (!is_eqp(macro_arg(e, i), args[i]))
+                break;
+        }
+        if (i == num)
+            return e;
+    }
+    return mk_macro(to_macro(e)->m_definition, num, args);
+}
+
 bool is_atomic(expr const & e) {
     switch (e.kind()) {
     case expr_kind::Constant: case expr_kind::Sort:
-    case expr_kind::Macro:    case expr_kind::Var:
+    case expr_kind::Var:
         return true;
+    case expr_kind::Macro:
+        return to_macro(e)->get_num_args() == 0;
     case expr_kind::App:      case expr_kind::Let:
     case expr_kind::Meta:     case expr_kind::Local:
     case expr_kind::Lambda:   case expr_kind::Pi:
@@ -399,7 +450,7 @@ expr copy(expr const & a) {
     case expr_kind::Var:      return mk_var(var_idx(a));
     case expr_kind::Constant: return mk_constant(const_name(a), const_level_params(a));
     case expr_kind::Sort:     return mk_sort(sort_level(a));
-    case expr_kind::Macro:    return mk_macro(static_cast<expr_macro*>(a.raw())->m_macro);
+    case expr_kind::Macro:    return mk_macro(to_macro(a)->m_definition, macro_num_args(a), macro_args(a));
     case expr_kind::App:      return mk_app(app_fn(a), app_arg(a));
     case expr_kind::Lambda:   return mk_lambda(binder_name(a), binder_domain(a), binder_body(a));
     case expr_kind::Pi:       return mk_pi(binder_name(a), binder_domain(a), binder_body(a));
@@ -429,7 +480,11 @@ class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp
                     s << sort_level(a);
                     break;
                 case expr_kind::Macro:
-                    to_macro(a).write(s);
+                    s << macro_num_args(a);
+                    for (unsigned i = 0; i < macro_num_args(a); i++) {
+                        write_core(macro_arg(a, i));
+                    }
+                    macro_def(a).write(s);
                     break;
                 case expr_kind::App:
                     write_core(app_fn(a)); write_core(app_arg(a));
@@ -475,9 +530,14 @@ public:
                 }
                 case expr_kind::Sort:
                     return mk_sort(read_level(d));
-                    break;
-                case expr_kind::Macro:
-                    return read_macro(d);
+                case expr_kind::Macro: {
+                    unsigned n = d.read_unsigned();
+                    buffer<expr> args;
+                    for (unsigned i = 0; i < n; i++) {
+                        args.push_back(read());
+                    }
+                    return read_macro_definition(d, args.size(), args.data());
+                }
                 case expr_kind::App: {
                     expr f = read();
                     return mk_app(f, read());

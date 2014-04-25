@@ -57,7 +57,7 @@ protected:
         bool result = false;
 
         switch (e.kind()) {
-        case expr_kind::Constant: case expr_kind::Sort: case expr_kind::Macro:
+        case expr_kind::Constant: case expr_kind::Sort:
         case expr_kind::Var:
             lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::Meta:   case expr_kind::Local:
@@ -71,6 +71,14 @@ protected:
             break;
         case expr_kind::Let:
             result = apply(let_type(e), offset) || apply(let_value(e), offset) || apply(let_body(e), offset + 1);
+            break;
+        case expr_kind::Macro:
+            for (unsigned i = 0; i < macro_num_args(e); i++) {
+                if (apply(macro_arg(e, i), offset)) {
+                    result = true;
+                    break;
+                }
+            }
             break;
         }
 

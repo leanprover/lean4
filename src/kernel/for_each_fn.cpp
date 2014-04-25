@@ -22,7 +22,7 @@ void for_each_fn::apply(expr const & e, unsigned offset) {
 
         switch (e.kind()) {
         case expr_kind::Constant: case expr_kind::Var:
-        case expr_kind::Sort:     case expr_kind::Macro:
+        case expr_kind::Sort:
             m_f(e, offset);
             goto begin_loop;
         default:
@@ -43,11 +43,19 @@ void for_each_fn::apply(expr const & e, unsigned offset) {
 
         switch (e.kind()) {
         case expr_kind::Constant: case expr_kind::Var:
-        case expr_kind::Sort:     case expr_kind::Macro:
+        case expr_kind::Sort:
             goto begin_loop;
         case expr_kind::Meta: case expr_kind::Local:
             todo.emplace_back(mlocal_type(e), offset);
             goto begin_loop;
+        case expr_kind::Macro: {
+            unsigned i = macro_num_args(e);
+            while (i > 0) {
+                --i;
+                todo.emplace_back(macro_arg(e, i), offset);
+            }
+            goto begin_loop;
+        }
         case expr_kind::App:
             todo.emplace_back(app_arg(e), offset);
             todo.emplace_back(app_fn(e), offset);

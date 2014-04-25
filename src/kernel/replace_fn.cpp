@@ -77,7 +77,7 @@ expr replace_fn::operator()(expr const & e) {
         unsigned offset  = f.m_offset;
         switch (e.kind()) {
         case expr_kind::Constant: case expr_kind::Sort:
-        case expr_kind::Macro:    case expr_kind::Var:
+        case expr_kind::Var:
             lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::Meta:     case expr_kind::Local:
             if (check_index(f, 0) && !visit(mlocal_type(e), offset))
@@ -110,6 +110,14 @@ expr replace_fn::operator()(expr const & e) {
                 goto begin_loop;
             r = update_let(e, rs(-3), rs(-2), rs(-1));
             pop_rs(3);
+            break;
+        case expr_kind::Macro:
+            while (f.m_index < macro_num_args(e)) {
+                if (!visit(macro_arg(e, f.m_index), offset))
+                    goto begin_loop;
+            }
+            r = update_macro(e, macro_num_args(e), &rs(-macro_num_args(e)));
+            pop_rs(macro_num_args(e));
             break;
         }
         save_result(e, r, offset, f.m_shared);

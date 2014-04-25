@@ -56,9 +56,9 @@ struct type_checker::imp {
     expr instantiate(expr const & e, unsigned n, expr const * s) { return max_sharing(lean::instantiate(e, n, s)); }
     expr instantiate(expr const & e, expr const & s) { return max_sharing(lean::instantiate(e, s)); }
     expr mk_rev_app(expr const & f, unsigned num, expr const * args) { return max_sharing(lean::mk_rev_app(f, num, args)); }
-    optional<expr> expand_macro(expr const & m, unsigned num, expr const * args) {
+    optional<expr> expand_macro(expr const & m) {
         lean_assert(is_macro(m));
-        if (auto new_m = to_macro(m).expand(num, args))
+        if (auto new_m = macro_def(m).expand(macro_num_args(m), macro_args(m)))
             return some_expr(max_sharing(*new_m));
         else
             return none_expr();
@@ -134,7 +134,7 @@ struct type_checker::imp {
         case expr_kind::Lambda: case expr_kind::Pi:   case expr_kind::Constant:
             lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::Macro:
-            if (auto m = expand_macro(e, 0, 0))
+            if (auto m = expand_macro(e))
                 r = whnf_core(*m);
             else
                 r = e;
@@ -160,12 +160,6 @@ struct type_checker::imp {
                 lean_assert(m <= num_args);
                 r = whnf_core(mk_rev_app(instantiate(binder_body(f), m, args.data() + (num_args - m)), num_args - m, args.data()));
                 break;
-            } else if (is_macro(f)) {
-                auto m = expand_macro(f, args.size(), args.data());
-                if (m) {
-                    r = whnf_core(*m);
-                    break;
-                }
             }
             r = is_eqp(f, *it) ? e : mk_rev_app(f, args.size(), args.data());
             break;
@@ -664,10 +658,13 @@ struct type_checker::imp {
             r = instantiate_params(d.get_type(), ps, ls);
             break;
         }
-        case expr_kind::Macro:
-            r = to_macro(e).get_type(0, 0, 0);
-            if (!infer_only && to_macro(e).trust_level() <= m_env.trust_lvl()) {
-                optional<expr> m = to_macro(e).expand(0, 0);
+        case expr_kind::Macro: {
+            buffer<expr> arg_types;
+            for (unsigned i = 0; i < macro_num_args(e); i++)
+                arg_types.push_back(infer_type_core(macro_arg(e, i), infer_only));
+            r = macro_def(e).get_type(macro_num_args(e), macro_args(e), arg_types.data());
+            if (!infer_only && macro_def(e).trust_level() <= m_env.trust_lvl()) {
+                optional<expr> m = expand_macro(e);
                 if (!m)
                     throw_kernel_exception(m_env, "failed to expand macro", some_expr(e));
                 expr t = infer_type_core(*m, infer_only);
@@ -676,6 +673,7 @@ struct type_checker::imp {
                     throw_kernel_exception(m_env, g_macro_error_msg, some_expr(e));
             }
             break;
+        }
         case expr_kind::Lambda: {
             if (!infer_only) {
                 expr t = infer_type_core(binder_domain(e), infer_only);

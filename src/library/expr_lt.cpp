@@ -92,7 +92,15 @@ bool is_lt(expr const & a, expr const & b, bool use_hash) {
         else
             return is_lt(mlocal_type(a), mlocal_type(b), use_hash);
     case expr_kind::Macro:
-        return to_macro(a) < to_macro(b);
+        if (macro_def(a) != macro_def(b))
+            return macro_def(a) < macro_def(b);
+        if (macro_num_args(a) != macro_num_args(b))
+            return macro_num_args(a) < macro_num_args(b);
+        for (unsigned i = 0; i < macro_num_args(a); i++) {
+            if (macro_arg(a, i) != macro_arg(b, i))
+                return is_lt(macro_arg(a, i), macro_arg(b, i), use_hash);
+        }
+        return false;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }

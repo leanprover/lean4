@@ -29,7 +29,7 @@ struct max_sharing_fn::imp {
         expr res;
         switch (a.kind()) {
         case expr_kind::Constant: case expr_kind::Var:
-        case expr_kind::Sort:     case expr_kind::Macro:
+        case expr_kind::Sort:
             res = a;
             break;
           case expr_kind::App:
@@ -44,7 +44,13 @@ struct max_sharing_fn::imp {
         case expr_kind::Meta:  case expr_kind::Local:
             res = update_mlocal(a, apply(mlocal_type(a)));
             break;
-        }
+        case expr_kind::Macro: {
+            buffer<expr> new_args;
+            for (unsigned i = 0; i < macro_num_args(a); i++)
+                new_args.push_back(macro_arg(a, i));
+            res = update_macro(a, new_args.size(), new_args.data());
+            break;
+        }}
         m_cache.insert(res);
         return res;
     }

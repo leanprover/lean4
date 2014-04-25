@@ -43,7 +43,13 @@ bool expr_eq_fn::apply(expr const & a, expr const & b) {
     case expr_kind::Sort:
         return sort_level(a) == sort_level(b);
     case expr_kind::Macro:
-        return to_macro(a) == to_macro(b);
+        if (macro_def(a) != macro_def(b) || macro_num_args(a) != macro_num_args(b))
+            return false;
+        for (unsigned i = 0; i < macro_num_args(a); i++) {
+            if (!apply(macro_arg(a, i), macro_arg(b, i)))
+                return false;
+        }
+        return true;
     case expr_kind::Let:
         return
             apply(let_type(a), let_type(b)) &&

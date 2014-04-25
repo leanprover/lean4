@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 expr replace_visitor::visit_sort(expr const & e, context const &) { lean_assert(is_sort(e)); return e; }
-expr replace_visitor::visit_macro(expr const & e, context const &) { lean_assert(is_macro(e)); return e; }
 expr replace_visitor::visit_var(expr const & e, context const &) { lean_assert(is_var(e)); return e; }
 expr replace_visitor::visit_constant(expr const & e, context const &) { lean_assert(is_constant(e)); return e; }
 expr replace_visitor::visit_mlocal(expr const & e, context const & ctx) {
@@ -40,6 +39,13 @@ expr replace_visitor::visit_let(expr const & e, context const & ctx) {
     freset<cache> reset(m_cache);
     expr new_b = visit(let_body(e), extend(ctx, let_name(e), new_t));
     return update_let(e, new_t, new_v, new_b);
+}
+expr replace_visitor::visit_macro(expr const & e, context const & ctx) {
+    lean_assert(is_macro(e));
+    buffer<expr> new_args;
+    for (unsigned i = 0; i < macro_num_args(e); i++)
+        new_args.push_back(visit(macro_arg(e, i), ctx));
+    return update_macro(e, new_args.size(), new_args.data());
 }
 expr replace_visitor::save_result(expr const & e, expr && r, bool shared) {
     if (shared)

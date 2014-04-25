@@ -29,8 +29,13 @@ struct print_expr_fn {
         }
     }
 
-    void print_macro(expr const & a) {
-        to_macro(a).display(out());
+    void print_macro(expr const & a, context const & c) {
+        if (macro_num_args(a) > 0) out() << "(";
+        macro_def(a).display(out());
+        for (unsigned i = 0; i < macro_num_args(a); i++) {
+            out() << " "; print(macro_arg(a, i), c);
+        }
+        if (macro_num_args(a) > 0) out() << ")";
     }
 
     void print_sort(expr const & a) {
@@ -109,7 +114,7 @@ struct print_expr_fn {
             print_sort(a);
             break;
         case expr_kind::Macro:
-            print_macro(a);
+            print_macro(a, c);
             break;
         }
     }

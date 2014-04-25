@@ -10,11 +10,9 @@ Author: Leonardo de Moura
 namespace lean {
 format pp_type_expected(formatter const & fmt, options const & opts, expr const & e);
 format pp_function_expected(formatter const & fmt, options const & opts, expr const & e);
-format pp_pair_expected(formatter const & fmt, options const & opts, expr const & e);
 format pp_app_type_mismatch(formatter const & fmt, options const & opts, expr const & app,
                             expr const & expected_type, expr const & given_type);
-format pp_proj_type_mismatch(formatter const & fmt, options const & opts, expr const & proj,
-                             expr const & arg_type);
 format pp_def_type_mismatch(formatter const & fmt, options const & opts, name const & n,
                             expr const & expected_type, expr const & given_type);
+format pp_def_lvl_cnstrs_satisfied(formatter const & fmt, options const & opts, expr const & e, level const & lhs, level const & rhs);
 }

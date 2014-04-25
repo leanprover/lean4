@@ -212,6 +212,11 @@ format pp(level l, bool unicode, unsigned indent);
 /** \brief Pretty print the given level expression using the given configuration options. */
 format pp(level const & l, options const & opts = options());
 
+/** \brief Pretty print lhs <= rhs, unicode characters are used if \c unicode is \c true. */
+format pp(level const & lhs, level const & rhs, bool unicode, unsigned indent);
+/** \brief Pretty print lhs <= rhs using the given configuration options. */
+format pp(level const & lhs, level const & rhs, options const & opts = options());
+
 /** \brief Auxiliary class used to manage universe constraints. */
 class universe_context {
     struct imp;

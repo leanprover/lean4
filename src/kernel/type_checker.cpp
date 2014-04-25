@@ -12,6 +12,10 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/max_sharing.h"
 #include "kernel/free_vars.h"
+#include "kernel/metavar.h"
+#include "kernel/error_msgs.h"
+#include "kernel/kernel_exception.h"
+#include "kernel/abstract.h"
 
 namespace lean {
 /** \brief Auxiliary functional object used to implement type checker. */
@@ -23,9 +27,13 @@ struct type_checker::imp {
     bool                  m_memoize;
     name_set              m_extra_opaque;
     max_sharing_fn        m_sharing;
-    expr_map<expr>        m_cache;
+    expr_map<expr>        m_infer_type_cache;
     expr_map<expr>        m_whnf_core_cache;
     expr_map<expr>        m_whnf_cache;
+    // The following mapping is used to store the relationship
+    // between temporary expressions created during type checking and the original ones.
+    // We need that to be able to produce error messages containing position information.
+    expr_map<expr>        m_trace;
 
     imp(environment const & env, name_generator const & g, constraint_handler & h,
         optional<module_idx> mod_idx, bool memoize, name_set const & extra_opaque):
@@ -42,6 +50,7 @@ struct type_checker::imp {
         virtual void add_cnstr(constraint const & c) { m_imp.add_cnstr(c); }
     };
 
+    bool check_memoized(expr const & e) const { return !m_memoize || m_sharing.already_processed(e); }
     expr max_sharing(expr const & e) { return m_memoize ? m_sharing(e) : e; }
     expr instantiate(expr const & e, unsigned n, expr const * s) { return max_sharing(lean::instantiate(e, n, s)); }
     expr instantiate(expr const & e, expr const & s) { return max_sharing(lean::instantiate(e, s)); }
@@ -65,8 +74,35 @@ struct type_checker::imp {
             return none_expr();
     }
 
-    bool check_memoized(expr const & e) const {
-        return !m_memoize || m_sharing.already_processed(e);
+    /** \brief Add entry <tt>new_e -> old_e</tt> in the traceability mapping */
+    void add_trace(expr const & old_e, expr const & new_e) {
+        if (!is_eqp(old_e, new_e))
+            m_trace.insert(mk_pair(new_e, old_e));
+    }
+
+    /** \brief Return the input (sub) expression that corresponds to the (temporary) expression \c e. */
+    expr trace_back(expr e) const {
+        while (true) {
+            auto it = m_trace.find(e);
+            if (it != m_trace.end())
+                e = it->second;
+            else
+                return e;
+        }
+    }
+
+    /** \brief Replace free variable \c 0 with \c s in \c e, and trace new sub-expressions created in the process. */
+    expr instantiate_with_trace(expr const & e, expr const & s) {
+        return lean::instantiate(e, s, [&](expr const & old_e, expr const & new_e) { add_trace(old_e, new_e); });
+    }
+
+    /**
+        \brief Return the body of the given binder, where the free variable #0 is replaced with a fresh local constant.
+        It also returns the fresh local constant.
+     */
+    std::pair<expr, expr> open_binder_body(expr const & e) {
+        expr local     = mk_local(m_gen.next() + binder_name(e), binder_domain(e));
+        return mk_pair(instantiate_with_trace(binder_body(e), local), local);
     }
 
     /** \brief Weak head normal form core procedure. It does not perform delta reduction nor normalization extensions. */
@@ -252,9 +288,10 @@ struct type_checker::imp {
     }
 
     /** \brief Put expression \c e in weak head normal form */
-    expr whnf(expr const & e) {
+    expr whnf(expr e) {
         // check cache
         if (m_memoize) {
+            e = max_sharing(e);
             auto it = m_whnf_cache.find(e);
             if (it != m_whnf_cache.end())
                 return it->second;
@@ -279,21 +316,24 @@ struct type_checker::imp {
         m_chandler.add_cnstr(c);
     }
 
-    /** \brief Return the current/latest justification object created by the type checker. */
-    justification get_curr_justification() {
-        // TODO(Leo)
-        return mk_assumption_justification(0);
-    }
+    /** \brief Object to simulate delayed justification creation. */
+    class delayed_justification {
+        optional<justification>        m_jst;
+        std::function<justification()> m_mk;
+    public:
+        template<typename Mk> delayed_justification(Mk && mk):m_mk(mk) {}
+        justification get() { if (!m_jst) { m_jst = m_mk(); } return *m_jst; }
+    };
 
     /** \brief Eta-expand \c s and check if it is definitionally equal to \c t. */
-    bool try_eta(expr const & t, expr const & s) {
+    bool try_eta(expr const & t, expr const & s, delayed_justification & jst) {
         lean_assert(is_lambda(t));
         lean_assert(!is_lambda(s));
         expr t_s = whnf(infer_type(s));
         if (is_pi(t_s)) {
             // new_s := lambda x : domain(t_s), s x
             expr new_s = mk_lambda(m_gen.next(), binder_domain(t_s), mk_app(lift_free_vars(s, 1), mk_var(0)));
-            return is_def_eq(t, new_s);
+            return is_def_eq(t, new_s, jst);
         } else {
             return false;
         }
@@ -318,7 +358,7 @@ struct type_checker::imp {
         and
         body(t) is convertible to body(s)
     */
-    bool is_conv_binder(expr t, expr s, bool def_eq) {
+    bool is_conv_binder(expr t, expr s, bool def_eq, delayed_justification & jst) {
         lean_assert(t.kind() == s.kind());
         lean_assert(is_binder(t));
         expr_kind k = t.kind();
@@ -326,13 +366,13 @@ struct type_checker::imp {
         do {
             expr var_t_type = instantiate(binder_domain(t), subst.size(), subst.data());
             expr var_s_type = instantiate(binder_domain(s), subst.size(), subst.data());
-            if (!is_def_eq(var_t_type, var_s_type))
+            if (!is_def_eq(var_t_type, var_s_type, jst))
                 return false;
-            subst.push_back(mk_local(m_gen.next(), var_s_type));
+            subst.push_back(mk_local(m_gen.next() + binder_name(s), var_s_type));
             t = binder_body(t);
             s = binder_body(s);
         } while (t.kind() == k && s.kind() == k);
-        return is_conv(instantiate(t, subst.size(), subst.data()), instantiate(s, subst.size(), subst.data()), def_eq);
+        return is_conv(instantiate(t, subst.size(), subst.data()), instantiate(s, subst.size(), subst.data()), def_eq, jst);
     }
 
     /**
@@ -340,30 +380,30 @@ struct type_checker::imp {
 
        If \c def_eq is true, then it checks for definitional equality.
     */
-    lbool quick_is_conv(expr const & t, expr const & s, bool def_eq) {
+    lbool quick_is_conv(expr const & t, expr const & s, bool def_eq, delayed_justification & jst) {
         if (t == s)
             return l_true; // t and s are structurally equal
         if (is_meta(t) || is_meta(s)) {
             // if t or s is a metavariable (or the application of a metavariable), then add constraint
             if (def_eq)
-                add_cnstr(mk_eq_cnstr(t, s, get_curr_justification()));
+                add_cnstr(mk_eq_cnstr(t, s, jst.get()));
             else
-                add_cnstr(mk_conv_cnstr(t, s, get_curr_justification()));
+                add_cnstr(mk_conv_cnstr(t, s, jst.get()));
             return l_true;
         }
         if (t.kind() == s.kind()) {
             switch (t.kind()) {
             case expr_kind::Lambda:
-                return to_lbool(is_conv_binder(t, s, true));
+                return to_lbool(is_conv_binder(t, s, true, jst));
             case expr_kind::Pi:
-                return to_lbool(is_conv_binder(t, s, def_eq));
+                return to_lbool(is_conv_binder(t, s, def_eq, jst));
             case expr_kind::Sort:
                 // t and s are Sorts
                 if (is_trivial(sort_level(t), sort_level(s)) && (!def_eq || is_trivial(sort_level(s), sort_level(t))))
                     return l_true;
-                add_cnstr(mk_level_cnstr(sort_level(t), sort_level(s), get_curr_justification()));
+                add_cnstr(mk_level_cnstr(sort_level(t), sort_level(s), jst.get()));
                 if (def_eq)
-                    add_cnstr(mk_level_cnstr(sort_level(s), sort_level(t), get_curr_justification()));
+                    add_cnstr(mk_level_cnstr(sort_level(s), sort_level(t), jst.get()));
                 return l_true;
             case expr_kind::Meta:
                 lean_unreachable(); // LCOV_EXCL_LINE
@@ -380,16 +420,16 @@ struct type_checker::imp {
         \brief If def_eq is false, then return true iff t is convertible to s.
                If def_eq is true,  then return true iff t is definitionally equal to s.
     */
-    bool is_conv(expr const & t, expr const & s, bool def_eq) {
+    bool is_conv(expr const & t, expr const & s, bool def_eq, delayed_justification & jst) {
         check_system("is_convertible");
-        lbool r = quick_is_conv(t, s, def_eq);
+        lbool r = quick_is_conv(t, s, def_eq, jst);
         if (r != l_undef) return r == l_true;
 
         // apply whnf (without using delta-reduction or normalizer extensions)
         expr t_n = whnf_core(t);
         expr s_n = whnf_core(s);
         if (!is_eqp(t_n, t) || !is_eqp(s_n, s)) {
-            r = quick_is_conv(t_n, s_n, def_eq);
+            r = quick_is_conv(t_n, s_n, def_eq, jst);
             if (r != l_undef) return r == l_true;
         }
 
@@ -418,7 +458,7 @@ struct type_checker::imp {
                     t_n = whnf_core(unfold_names(t_n, d_t->get_weight() - 1));
                     s_n = whnf_core(unfold_names(s_n, d_s->get_weight() - 1));
                 }
-                r = quick_is_conv(t_n, s_n, def_eq);
+                r = quick_is_conv(t_n, s_n, def_eq, jst);
                 if (r != l_undef) return r == l_true;
             }
             // try normalizer extensions
@@ -430,7 +470,7 @@ struct type_checker::imp {
                 t_n = whnf_core(*new_t_n);
             if (new_s_n)
                 s_n = whnf_core(*new_s_n);
-            r = quick_is_conv(t_n, s_n, def_eq);
+            r = quick_is_conv(t_n, s_n, def_eq, jst);
             if (r != l_undef) return r == l_true;
         }
 
@@ -439,8 +479,8 @@ struct type_checker::imp {
         if (m_env.eta()) {
             lean_assert(!is_lambda(t_n) || !is_lambda(s_n));
             // Eta-reduction support
-            if ((is_lambda(t_n) && try_eta(t_n, s_n)) ||
-                (is_lambda(s_n) && try_eta(s_n, t_n)))
+            if ((is_lambda(t_n) && try_eta(t_n, s_n, jst)) ||
+                (is_lambda(s_n) && try_eta(s_n, t_n, jst)))
                 return true;
         }
 
@@ -449,29 +489,34 @@ struct type_checker::imp {
             expr it2 = s_n;
             bool ok  = true;
             do {
-                if (!is_def_eq(app_arg(it1), app_arg(it2))) {
+                if (!is_def_eq(app_arg(it1), app_arg(it2), jst)) {
                     ok = false;
                     break;
                 }
                 it1 = app_fn(it1);
                 it2 = app_fn(it2);
             } while (is_app(it1) && is_app(it2));
-            if (ok && is_def_eq(it1, it2))
+            if (ok && is_def_eq(it1, it2, jst))
                 return true;
         }
 
         if (m_env.proof_irrel()) {
             // Proof irrelevance support
             expr t_type = infer_type(t);
-            return is_proposition(t_type) && is_def_eq(t_type, infer_type(s));
+            return is_proposition(t_type) && is_def_eq(t_type, infer_type(s), jst);
         }
 
         return false;
     }
 
+    /** \brief Return true iff \c t is convertible to s */
+    bool is_conv(expr const & t, expr const & s, delayed_justification & jst) {
+        return is_conv(t, s, false, jst);
+    }
+
     /** \brief Return true iff \c t and \c s are definitionally equal */
-    bool is_def_eq(expr const & t, expr const & s) {
-        return is_conv(t, s, true);
+    bool is_def_eq(expr const & t, expr const & s, delayed_justification & jst) {
+        return is_conv(t, s, true, jst);
     }
 
     /** \brief Return true iff \c e is a proposition */
@@ -479,9 +524,207 @@ struct type_checker::imp {
         return whnf(infer_type(e)) == Bool;
     }
 
-    expr infer_type(expr const &) {
-        // TODO(Leo)
-        return expr();
+    /**
+       \brief Make sure \c e "is" a sort, and return the corresponding sort.
+       If \c e is not a sort, then the whnf procedure is invoked. Then, there are
+       two options: the normalize \c e is a sort, or it is a meta. If it is a meta,
+       a new constraint is created forcing it to be a sort.
+
+       \remark \c s is used to extract position (line number information) when an
+       error message is produced
+    */
+    expr ensure_sort(expr e, expr const & s) {
+        if (is_sort(e))
+            return e;
+        e = whnf(e);
+        if (is_sort(e)) {
+            return e;
+        } else if (is_meta(e)) {
+            expr r = mk_sort(mk_meta_univ(m_gen.next()));
+            justification j = mk_justification(trace_back(s),
+                                               [=](formatter const & fmt, options const & o, substitution const & subst) {
+                                                   return pp_type_expected(fmt, o, subst.instantiate_metavars_wo_jst(s));
+                                               });
+            add_cnstr(mk_eq_cnstr(e, r, j));
+            return r;
+        } else {
+            throw_kernel_exception(m_env, trace_back(s),
+                                   [=](formatter const & fmt, options const & o) { return pp_type_expected(fmt, o, s); });
+        }
     }
+
+    /** \brief Similar to \c ensure_sort, but makes sure \c e "is" a Pi. */
+    expr ensure_pi(expr e, expr const & s) {
+        if (is_pi(e))
+            return e;
+        e = whnf(e);
+        if (is_pi(e)) {
+            return e;
+        } else if (is_meta(e)) {
+            // TODO(Leo)
+            return e;
+        } else {
+            throw_kernel_exception(m_env, trace_back(s),
+                                   [=](formatter const & fmt, options const & o) { return pp_function_expected(fmt, o, s); });
+        }
+    }
+
+    /** \brief Create a justification for the level constraint <tt>lhs <= rhs</tt> associated with constanc \c c. */
+    justification mk_lvl_cnstr_jst(expr const & c, level const & lhs, level const & rhs) {
+        lean_assert(is_constant(c));
+        return mk_justification(trace_back(c),
+                                [=](formatter const & fmt, options const & o, substitution const & subst) {
+                                    return pp_def_lvl_cnstrs_satisfied(fmt, o,
+                                                                       subst.instantiate_metavars_wo_jst(c),
+                                                                       subst.instantiate_metavars_wo_jst(lhs),
+                                                                       subst.instantiate_metavars_wo_jst(rhs));
+                                });
+    }
+
+    /**
+        \brief Create a justification for a application type mismatch,
+        \c e is the application, \c fn_type and \c arg_type are the function and argument type.
+    */
+    justification mk_app_mismatch_jst(expr const & e, expr const & fn_type, expr const & arg_type) {
+        lean_assert(is_app(e));
+        return mk_justification(trace_back(e),
+                                [=](formatter const & fmt, options const & o, substitution const & subst) {
+                                    return pp_app_type_mismatch(fmt, o,
+                                                                subst.instantiate_metavars_wo_jst(e),
+                                                                subst.instantiate_metavars_wo_jst(binder_domain(fn_type)),
+                                                                subst.instantiate_metavars_wo_jst(arg_type));
+                                });
+    }
+
+    /**
+        \brief Create a justification for a let definition type mismatch,
+        \c e is the let expression, and \c val_type is the type inferred for the let value.
+    */
+    justification mk_let_mismatch_jst(expr const & e, expr const & val_type) {
+        lean_assert(is_let(e));
+        return mk_justification(trace_back(e),
+                                [=](formatter const & fmt, options const & o, substitution const & subst) {
+                                    return pp_def_type_mismatch(fmt, o, let_name(e),
+                                                                subst.instantiate_metavars_wo_jst(let_type(e)),
+                                                                subst.instantiate_metavars_wo_jst(val_type));
+                                });
+    }
+
+    static constexpr char const * g_macro_error_msg = "failed to type check macro expansion";
+
+    justification mk_macro_jst(expr const & e) {
+        return mk_justification(trace_back(e),
+                                [=](formatter const &, options const &, substitution const &) {
+                                    return format(g_macro_error_msg);
+                                });
+    }
+
+    /**
+        \brief Return type of expression \c e, if \c infer_only is false, then it also check whether \c e is type correct or not.
+
+        \pre closed(e)
+    */
+    expr infer_type_core(expr const & e, bool infer_only) {
+        lean_assert(closed(e));
+        check_system("type checker");
+
+        bool shared = false;
+        if (m_memoize && is_shared(e)) {
+            shared = true;
+            auto it = m_infer_type_cache.find(e);
+            if (it != m_infer_type_cache.end())
+                return it->second;
+        }
+
+        expr r;
+        switch (e.kind()) {
+        case expr_kind::Local: case expr_kind::Meta:
+            r = mlocal_type(e);
+            break;
+        case expr_kind::Var:
+            throw_kernel_exception(m_env, "type checker does not support free variables, replace them with local constants before invoking it");
+        case expr_kind::Sort:
+            r = mk_sort(mk_succ(sort_level(e)));
+            break;
+        case expr_kind::Constant: {
+            definition d    = m_env.get(const_name(e));
+            auto const & ps = d.get_params();
+            auto const & ls = const_level_params(e);
+            auto const & cs = d.get_level_cnstrs();
+            if (!infer_only && !is_nil(cs)) {
+                // add level constraints associated with the definition
+                for (auto const & c : cs) {
+                    level lhs = lean::instantiate(c.first,  ps, ls);
+                    level rhs = lean::instantiate(c.second, ps, ls);
+                    if (!is_trivial(lhs, rhs))
+                        add_cnstr(mk_level_cnstr(lhs, rhs, mk_lvl_cnstr_jst(e, lhs, rhs)));
+                }
+            }
+            r = instantiate_params(d.get_type(), ps, ls);
+            break;
+        }
+        case expr_kind::Macro:
+            r = to_macro(e).get_type(0, 0, 0);
+            if (!infer_only && to_macro(e).trust_level() <= m_env.trust_lvl()) {
+                optional<expr> m = to_macro(e).expand(0, 0);
+                if (!m)
+                    throw_kernel_exception(m_env, "failed to expand macro", some_expr(e));
+                expr t = infer_type_core(*m, infer_only);
+                delayed_justification jst([=]() { return mk_macro_jst(e); });
+                if (!is_def_eq(r, t, jst))
+                    throw_kernel_exception(m_env, g_macro_error_msg, some_expr(e));
+            }
+            break;
+        case expr_kind::Lambda: {
+            if (!infer_only) {
+                expr t = infer_type_core(binder_domain(e), infer_only);
+                ensure_sort(t, binder_domain(e));
+            }
+            auto b = open_binder_body(e);
+            r = Pi(b.second, binder_domain(e), infer_type_core(b.first, infer_only));
+            break;
+        }
+        case expr_kind::Pi: {
+            expr t1 = ensure_sort(infer_type_core(binder_domain(e), infer_only), binder_domain(e));
+            auto b  = open_binder_body(e);
+            expr t2 = ensure_sort(infer_type_core(b.first, infer_only), binder_body(e));
+            r = mk_sort(mk_imax(sort_level(t1), sort_level(t2)));
+            break;
+        }
+        case expr_kind::App: {
+            expr f_type = ensure_pi(infer_type_core(app_fn(e), infer_only), app_fn(e));
+            if (!infer_only) {
+                expr a_type = infer_type_core(app_arg(e), infer_only);
+                delayed_justification jst([=]() { return mk_app_mismatch_jst(e, f_type, a_type); });
+                if (!is_conv(a_type, binder_domain(f_type), jst)) {
+                    throw_kernel_exception(m_env, trace_back(e),
+                                           [=](formatter const & fmt, options const & o) { return pp_app_type_mismatch(fmt, o, e, binder_domain(f_type), a_type); });
+                }
+            }
+            r = instantiate(binder_body(f_type), app_arg(e));
+            break;
+        }
+        case expr_kind::Let:
+            if (!infer_only) {
+                ensure_sort(infer_type_core(let_type(e), infer_only), let_type(e));
+                expr val_type  = infer_type_core(let_value(e), infer_only);
+                delayed_justification jst([=]() { return mk_let_mismatch_jst(e, val_type); });
+                if (!is_conv(val_type, let_type(e), jst)) {
+                    throw_kernel_exception(m_env, trace_back(e),
+                                           [=](formatter const & fmt, options const & o) { return pp_def_type_mismatch(fmt, o, let_name(e), let_type(e), val_type); });
+                }
+            }
+            r = infer_type_core(instantiate_with_trace(let_body(e), let_value(e)), infer_only);
+            break;
+        }
+
+        if (m_memoize && shared)
+            m_infer_type_cache.insert(mk_pair(e, r));
+
+        return r;
+    }
+
+    expr infer_type(expr const & e) { return infer_type_core(e, true); }
+    expr check(expr const & e) { return infer_type_core(e, false); }
 };
 }

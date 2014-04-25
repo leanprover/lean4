@@ -216,12 +216,20 @@ std::pair<expr, justification> substitution::d_instantiate_metavars(expr const &
     return mk_pair(r, fn.get_justification());
 }
 
+std::pair<level, justification> substitution::instantiate_metavars(level const & l) const {
+    return lean::instantiate_metavars(l, const_cast<substitution&>(*this), true, false);
+}
+
 expr substitution::instantiate_metavars_wo_jst(expr const & e) const {
     return instantiate_metavars_fn(const_cast<substitution&>(*this), false, false)(e);
 }
 
 expr substitution::d_instantiate_metavars_wo_jst(expr const & e) {
     return instantiate_metavars_fn(*this, false, true)(e);
+}
+
+level substitution::instantiate_metavars_wo_jst(level const & l) const {
+    return lean::instantiate_metavars(l, const_cast<substitution&>(*this), false, false).first;
 }
 
 bool substitution::occurs_expr(name const & m, expr const & e) const {

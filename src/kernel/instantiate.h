@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <functional>
 #include "kernel/expr.h"
 
 namespace lean {
@@ -16,6 +17,17 @@ expr instantiate(expr const & e, std::initializer_list<expr> const & l);
 expr instantiate(expr const & e, unsigned i, expr const & s);
 /** \brief Replace free variable \c 0 with \c s in \c e. */
 expr instantiate(expr const & e, expr const & s);
+
+/**
+    \brief Replace the free variables in \c e.
+    Whenever a new sub-expression is created in the process, the procedure \c new_eh is invoked.
+*/
+expr instantiate(expr const & e, unsigned n, expr const * s, std::function<void(expr const & old_e, expr const & new_e)> const & new_eh);
+/**
+    \brief Replace free variable \c 0 with \c s in \c e.
+    Whenever a new sub-expression is created in the process, the procedure \c new_eh is invoked.
+*/
+expr instantiate(expr const & e, expr const & s, std::function<void(expr const & old_e, expr const & new_e)> const & new_eh);
 
 expr apply_beta(expr f, unsigned num_args, expr const * args);
 bool is_head_beta(expr const & t);

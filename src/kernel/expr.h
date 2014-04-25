@@ -260,9 +260,10 @@ public:
     macro():m_rc(0) {}
     virtual ~macro() {}
     virtual name get_name() const = 0;
-    virtual expr get_type(unsigned num_args, expr const * arg_types) const = 0;
+    virtual expr get_type(unsigned num_args, expr const * args, expr const * arg_types) const = 0;
     virtual optional<expr> expand1(unsigned num_args, expr const * args) const = 0;
     virtual optional<expr> expand(unsigned num_args, expr const * args) const = 0;
+    virtual unsigned trust_level() const = 0;
     virtual int push_lua(lua_State * L) const;
     virtual bool operator==(macro const & other) const;
     bool operator<(macro const & other) const;

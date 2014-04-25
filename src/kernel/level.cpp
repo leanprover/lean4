@@ -622,6 +622,15 @@ format pp(level const & l, options const & opts) {
     return pp(l, get_pp_unicode(opts), get_pp_indent(opts));
 }
 
+format pp(level const & lhs, level const & rhs, bool unicode, unsigned indent) {
+    format leq = unicode ? format("≤") : format("<=");
+    return group(format{pp(lhs, unicode, indent), space(), leq, line(), pp(rhs, unicode, indent)});
+}
+
+format pp(level const & lhs, level const & rhs, options const & opts) {
+    return pp(lhs, rhs, get_pp_unicode(opts), get_pp_indent(opts));
+}
+
 bool is_trivial(level const & lhs, level const & rhs) {
     check_system("level constraints");
     if (is_zero(lhs) || lhs == rhs) {

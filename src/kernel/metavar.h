@@ -59,6 +59,9 @@ public:
     */
     std::pair<expr, justification> d_instantiate_metavars(expr const & e);
 
+    /** \brief Instantiate level metavariables in \c l. */
+    std::pair<level, justification> instantiate_metavars(level const & l) const;
+
     /**
        \brief Instantiate metavariables in \c e assigned in the substitution \c s,
        but does not return a justification object for the new expression.
@@ -66,6 +69,9 @@ public:
     expr instantiate_metavars_wo_jst(expr const & e) const;
 
     expr d_instantiate_metavars_wo_jst(expr const & e);
+
+    /** \brief Instantiate level metavariables in \c l, but does not return justification object. */
+    level instantiate_metavars_wo_jst(level const & l) const;
 
     /** \brief Return true iff the metavariable \c m occurrs (directly or indirectly) in \c e. */
     bool occurs_expr(name const & m, expr const & e) const;

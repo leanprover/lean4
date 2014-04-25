@@ -11,7 +11,8 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 
 namespace lean {
-expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst) {
+template<typename P = default_replace_postprocessor>
+expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst, P const & p = P()) {
     if (s >= get_free_var_range(a) || n == 0)
         return a;
     return replace(a, [=](expr const & m, unsigned offset) -> optional<expr> {
@@ -32,13 +33,21 @@ expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst) {
                 }
             }
             return none_expr();
-        });
+        }, p);
 }
 
 expr instantiate(expr const & e, unsigned n, expr const * s) { return instantiate(e, 0, n, s); }
 expr instantiate(expr const & e, std::initializer_list<expr> const & l) {  return instantiate(e, l.size(), l.begin()); }
 expr instantiate(expr const & e, unsigned i, expr const & s) { return instantiate(e, i, 1, &s); }
 expr instantiate(expr const & e, expr const & s) { return instantiate(e, 0, s); }
+
+expr instantiate(expr const & e, unsigned n, expr const * s, std::function<void(expr const & old_e, expr const & new_e)> const & new_eh) {
+    return instantiate(e, 0, n, s, new_eh);
+}
+
+expr instantiate(expr const & e, expr const & s, std::function<void(expr const & old_e, expr const & new_e)> const & new_eh) {
+    return instantiate(e, 1, &s, new_eh);
+}
 
 bool is_head_beta(expr const & t) {
     expr const * it = &t;

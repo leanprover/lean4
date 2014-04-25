@@ -40,10 +40,10 @@ struct type_checker::imp {
         optional<module_idx> mod_idx, bool memoize, name_set const & extra_opaque):
         m_env(env), m_gen(g), m_chandler(h), m_module_idx(mod_idx), m_memoize(memoize), m_extra_opaque(extra_opaque) {}
 
-    class normalizer_context : public normalizer_extension::context {
+    class type_checker_context : public extension_context {
         imp & m_imp;
     public:
-        normalizer_context(imp & i):m_imp(i) {}
+        type_checker_context(imp & i):m_imp(i) {}
         virtual environment const & env() const { return m_imp.m_env; }
         virtual expr whnf(expr const & e) { return m_imp.whnf(e); }
         virtual expr infer_type(expr const & e) { return m_imp.infer_type(e); }
@@ -58,7 +58,8 @@ struct type_checker::imp {
     expr mk_rev_app(expr const & f, unsigned num, expr const * args) { return max_sharing(lean::mk_rev_app(f, num, args)); }
     optional<expr> expand_macro(expr const & m) {
         lean_assert(is_macro(m));
-        if (auto new_m = macro_def(m).expand(macro_num_args(m), macro_args(m)))
+        type_checker_context ctx(*this);
+        if (auto new_m = macro_def(m).expand(macro_num_args(m), macro_args(m), ctx))
             return some_expr(max_sharing(*new_m));
         else
             return none_expr();
@@ -68,7 +69,7 @@ struct type_checker::imp {
     }
     /** \brief Apply normalizer extensions to \c e. */
     optional<expr> norm_ext(expr const & e) {
-        normalizer_context ctx(*this);
+        type_checker_context ctx(*this);
         if (auto new_e = m_env.norm_ext()(e, ctx))
             return some_expr(max_sharing(*new_e));
         else
@@ -662,7 +663,8 @@ struct type_checker::imp {
             buffer<expr> arg_types;
             for (unsigned i = 0; i < macro_num_args(e); i++)
                 arg_types.push_back(infer_type_core(macro_arg(e, i), infer_only));
-            r = macro_def(e).get_type(macro_num_args(e), macro_args(e), arg_types.data());
+            type_checker_context ctx(*this);
+            r = macro_def(e).get_type(macro_num_args(e), macro_args(e), arg_types.data(), ctx);
             if (!infer_only && macro_def(e).trust_level() <= m_env.trust_lvl()) {
                 optional<expr> m = expand_macro(e);
                 if (!m)

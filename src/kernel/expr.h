@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+Copyright (c) 2013-2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "util/serializer.h"
 #include "util/sexpr/format.h"
 #include "kernel/level.h"
+#include "kernel/extension_context.h"
 
 namespace lean {
 class expr;
@@ -260,9 +261,9 @@ public:
     macro_definition():m_rc(0) {}
     virtual ~macro_definition() {}
     virtual name get_name() const = 0;
-    virtual expr get_type(unsigned num, expr const * args, expr const * arg_types) const = 0;
-    virtual optional<expr> expand1(unsigned num, expr const * args) const = 0;
-    virtual optional<expr> expand(unsigned num, expr const * args) const = 0;
+    virtual expr get_type(unsigned num, expr const * args, expr const * arg_types, extension_context const & ctx) const = 0;
+    virtual optional<expr> expand1(unsigned num, expr const * args, extension_context const & ctx) const = 0;
+    virtual optional<expr> expand(unsigned num, expr const * args, extension_context const & ctx) const = 0;
     virtual unsigned trust_level() const = 0;
     virtual int push_lua(lua_State * L) const;
     virtual bool operator==(macro_definition const & other) const;

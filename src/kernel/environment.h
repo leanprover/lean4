@@ -29,26 +29,7 @@ class certified_definition;
 */
 class normalizer_extension {
 public:
-    /**
-        \brief Normalization extension context (aka API provided to the normalizer_extension procedure).
-        The extension can request
-         1) the environment being used.
-         2) the weak head normal form of an expression.
-         3) the type of an expression.
-         4) a new fresh name
-         A normalizer extension can also add a new constraint.
-    */
-    class context {
-    public:
-        virtual ~context() {}
-        virtual environment const & env() const = 0;
-        virtual expr whnf(expr const & e) = 0;
-        virtual expr infer_type(expr const & e) = 0;
-        virtual name mk_fresh_name() = 0;
-        virtual void add_cnstr(constraint const & c) = 0;
-    };
-
-    virtual optional<expr> operator()(expr const & e, context const & ctx) const;
+    virtual optional<expr> operator()(expr const & e, extension_context const & ctx) const;
 };
 
 /**

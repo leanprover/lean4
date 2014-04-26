@@ -264,7 +264,7 @@ public:
     virtual expr get_type(unsigned num, expr const * args, expr const * arg_types, extension_context const & ctx) const = 0;
     virtual optional<expr> expand1(unsigned num, expr const * args, extension_context const & ctx) const = 0;
     virtual optional<expr> expand(unsigned num, expr const * args, extension_context const & ctx) const = 0;
-    virtual unsigned trust_level() const = 0;
+    virtual unsigned trust_level() const { return 0; }
     virtual int push_lua(lua_State * L) const;
     virtual bool operator==(macro_definition const & other) const;
     bool operator!=(macro_definition const & other) const { return !operator==(other); }
@@ -396,6 +396,9 @@ inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, 
                              expr const & a6, expr const & a7, expr const & a8) const {
     return mk_app({*this, a1, a2, a3, a4, a5, a6, a7, a8});
 }
+
+/** \brief Return application (...((f x_{n-1}) x_{n-2}) ... x_0) */
+expr mk_app_vars(expr const & f, unsigned n);
 // =======================================
 
 // =======================================
@@ -488,6 +491,11 @@ inline bool has_free_vars(expr const & e) { return get_free_var_range(e) > 0; }
 inline bool closed(expr const & e) { return !has_free_vars(e); }
 /** \brief Return true iff \c e contains a free variable >= low. */
 inline bool has_free_var_ge(expr const & e, unsigned low) { return get_free_var_range(e) > low; }
+/**
+    \brief Given \c e of the form <tt>(...(f a1) ... an)</tt>, store a1 ... an in args.
+    If \c e is not an application, then nothing is stored in args.
+*/
+void get_app_args(expr const & e, buffer<expr> & args);
 // =======================================
 
 

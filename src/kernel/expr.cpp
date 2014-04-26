@@ -313,6 +313,22 @@ expr mk_rev_app(unsigned num_args, expr const * args) {
     return mk_rev_app(mk_app(args[num_args-1], args[num_args-2]), num_args-2, args);
 }
 
+expr mk_app_vars(expr const & f, unsigned n) {
+    expr r = f;
+    while (n > 0) {
+        --n;
+        r = mk_app(r, Var(n));
+    }
+    return r;
+}
+
+void get_app_args(expr const & e, buffer<expr> & args) {
+    if (is_app(e)) {
+        get_app_args(app_fn(e), args);
+        args.push_back(app_arg(e));
+    }
+}
+
 static name g_default_var_name("a");
 bool is_default_var_name(name const & n) { return n == g_default_var_name; }
 expr mk_arrow(expr const & t, expr const & e) { return mk_pi(g_default_var_name, t, e); }

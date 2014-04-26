@@ -17,9 +17,10 @@ Author: Leonardo de Moura
 #include "kernel/error_msgs.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/abstract.h"
+#include "kernel/replace_fn.h"
 
 namespace lean {
-
+static name g_x_name("x");
 /** \brief Auxiliary functional object used to implement type checker. */
 struct type_checker::imp {
     environment           m_env;
@@ -56,7 +57,10 @@ struct type_checker::imp {
     expr max_sharing(expr const & e) { return m_memoize ? m_sharing(e) : e; }
     expr instantiate(expr const & e, unsigned n, expr const * s) { return max_sharing(lean::instantiate(e, n, s)); }
     expr instantiate(expr const & e, expr const & s) { return max_sharing(lean::instantiate(e, s)); }
+    expr mk_app(expr const & f, unsigned num, expr const * args) { return max_sharing(lean::mk_app(f, num, args)); }
+    expr mk_app(expr const & f, expr const & a) { return max_sharing(lean::mk_app(f, a)); }
     expr mk_rev_app(expr const & f, unsigned num, expr const * args) { return max_sharing(lean::mk_rev_app(f, num, args)); }
+    expr mk_app_vars(expr const & f, unsigned num) { return max_sharing(lean::mk_app_vars(f, num)); }
     optional<expr> expand_macro(expr const & m) {
         lean_assert(is_macro(m));
         type_checker_context ctx(*this);
@@ -522,6 +526,50 @@ struct type_checker::imp {
     }
 
     /**
+       \brief Given a metavariable application ((?m t_1) ... t_k)
+       Create a telescope with the types of t_1 ... t_k.
+       If t_i is a local constant, then we abstract the occurrences of t_i in the types of t_{i+1} ... t_k.
+       Return false if the telescope still contains local constants after the abstraction step.
+    */
+    bool meta_to_telescope(expr const & e, buffer<expr> & telescope) {
+        lean_assert(is_meta(e));
+        lean_assert(closed(e));
+        buffer<optional<expr>> locals;
+        return meta_to_telescope_core(e, telescope, locals);
+    }
+
+    /**
+       \brief Auxiliary method for meta_to_telescope
+    */
+    bool meta_to_telescope_core(expr const & e, buffer<expr> & telescope, buffer<optional<expr>> & locals) {
+        lean_assert(is_meta(e));
+        if (is_app(e)) {
+            if (!meta_to_telescope_core(app_fn(e), telescope, locals))
+                return false;
+            // infer type and abstract local constants
+            unsigned n = locals.size();
+            expr t = replace(infer_type(app_arg(e)),
+                             [&](expr const & e, unsigned offset) -> optional<expr> {
+                                 if (is_local(e)) {
+                                     for (unsigned i = 0; i < n; i++) {
+                                         if (locals[i] && is_eqp(*locals[i], e))
+                                             return some_expr(mk_var(offset + n - i - 1));
+                                     }
+                                 }
+                                 return none_expr();
+                             });
+            if (has_local(t))
+                return false;
+            telescope.push_back(t);
+            if (is_local(e))
+                locals.push_back(some_expr(e));
+            else
+                locals.push_back(none_expr());
+        }
+        return true;
+    }
+
+    /**
        \brief Make sure \c e "is" a sort, and return the corresponding sort.
        If \c e is not a sort, then the whnf procedure is invoked. Then, there are
        two options: the normalize \c e is a sort, or it is a meta. If it is a meta,
@@ -550,6 +598,16 @@ struct type_checker::imp {
         }
     }
 
+    expr mk_tele_pi(buffer<expr> const & telescope, expr const & range) {
+        expr r = range;
+        unsigned i = telescope.size();
+        while (i > 0) {
+            --i;
+            r = mk_pi(name(g_x_name, i), telescope[i], r);
+        }
+        return r;
+    }
+
     /** \brief Similar to \c ensure_sort, but makes sure \c e "is" a Pi. */
     expr ensure_pi(expr e, expr const & s) {
         if (is_pi(e))
@@ -558,8 +616,28 @@ struct type_checker::imp {
         if (is_pi(e)) {
             return e;
         } else if (is_meta(e)) {
-            // TODO(Leo)
-            return e;
+            buffer<expr> telescope;
+            if (!meta_to_telescope(e, telescope))
+                throw_kernel_exception(m_env, trace_back(s),
+                                       [=](formatter const & fmt, options const & o) { return pp_function_expected(fmt, o, s); });
+            expr ta    = mk_sort(mk_meta_univ(m_gen.next()));
+            expr A     = mk_metavar(m_gen.next(), mk_tele_pi(telescope, ta));
+            expr A_xs  = mk_app_vars(A, telescope.size());
+            telescope.push_back(A_xs);
+            expr tb    = mk_sort(mk_meta_univ(m_gen.next()));
+            expr B     = mk_metavar(m_gen.next(), mk_tele_pi(telescope, tb));
+            buffer<expr> args;
+            get_app_args(e, args);
+            expr A_args = mk_app(A, args.size(), args.data());
+            args.push_back(Var(0));
+            expr B_args = mk_app(B, args.size(), args.data());
+            expr r      = mk_pi(g_x_name, A, B);
+            justification j = mk_justification(trace_back(s),
+                                               [=](formatter const & fmt, options const & o, substitution const & subst) {
+                                                   return pp_function_expected(fmt, o, subst.instantiate_metavars_wo_jst(s));
+                                               });
+            add_cnstr(mk_eq_cnstr(e, r, j));
+            return r;
         } else {
             throw_kernel_exception(m_env, trace_back(s),
                                    [=](formatter const & fmt, options const & o) { return pp_function_expected(fmt, o, s); });

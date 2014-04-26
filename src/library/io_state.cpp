@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "kernel/io_state.h"
 #include "kernel/kernel_exception.h"
+#include "library/io_state.h"
 
 namespace lean {
 io_state::io_state(formatter const & fmt):

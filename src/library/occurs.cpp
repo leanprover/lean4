@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "kernel/occurs.h"
 #include "kernel/find_fn.h"
+#include "library/occurs.h"
 
 namespace lean {
 bool occurs(expr const & n, expr const & m) {

@@ -1,4 +1,5 @@
-add_library(library deep_copy.cpp expr_lt.cpp)
+add_library(library deep_copy.cpp expr_lt.cpp io_state.cpp
+  occurs.cpp)
 # io_state_stream.cpp
 # kernel_bindings.cpp
 # context_to_lambda.cpp placeholder.cpp

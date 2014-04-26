@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 
 namespace lean {
+
 /** \brief Auxiliary functional object used to implement type checker. */
 struct type_checker::imp {
     environment           m_env;
@@ -682,7 +683,7 @@ struct type_checker::imp {
                 ensure_sort(t, binder_domain(e));
             }
             auto b = open_binder_body(e);
-            r = Pi(b.second, binder_domain(e), infer_type_core(b.first, infer_only));
+            r = mk_pi(binder_name(e), binder_domain(e), abstract_p(infer_type_core(b.first, infer_only), b.second));
             break;
         }
         case expr_kind::Pi: {

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <utility>
+#include <vector>
 #include "util/interrupt.h"
 #include "util/lbool.h"
 #include "util/flet.h"

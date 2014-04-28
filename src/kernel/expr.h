@@ -261,9 +261,9 @@ public:
     macro_definition():m_rc(0) {}
     virtual ~macro_definition() {}
     virtual name get_name() const = 0;
-    virtual expr get_type(unsigned num, expr const * args, expr const * arg_types, extension_context const & ctx) const = 0;
-    virtual optional<expr> expand1(unsigned num, expr const * args, extension_context const & ctx) const = 0;
-    virtual optional<expr> expand(unsigned num, expr const * args, extension_context const & ctx) const = 0;
+    virtual expr get_type(unsigned num, expr const * args, expr const * arg_types, extension_context & ctx) const = 0;
+    virtual optional<expr> expand1(unsigned num, expr const * args, extension_context & ctx) const = 0;
+    virtual optional<expr> expand(unsigned num, expr const * args, extension_context & ctx) const = 0;
     virtual unsigned trust_level() const { return 0; }
     virtual int push_lua(lua_State * L) const;
     virtual bool operator==(macro_definition const & other) const;

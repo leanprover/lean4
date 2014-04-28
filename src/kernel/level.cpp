@@ -205,13 +205,17 @@ level mk_meta_univ(name const & n) {
     return level(new level_param_core(false, n));
 }
 
-static level g_zero(new level_cell(level_kind::Zero, 7u));
-static level g_one(mk_succ(g_zero));
+level const & mk_level_zero() {
+    static level g_zero(new level_cell(level_kind::Zero, 7u));
+    return g_zero;
+}
 
-level const & mk_level_zero() { return g_zero; }
-level const & mk_level_one()  { return g_one; }
+level const & mk_level_one()  {
+    static level g_one(mk_succ(mk_level_zero()));
+    return g_one;
+}
 
-level::level():level(g_zero) {}
+level::level():level(mk_level_zero()) {}
 level::level(level_cell * ptr):m_ptr(ptr) { lean_assert(m_ptr->get_rc() == 1); }
 level::level(level const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
 level::level(level && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }

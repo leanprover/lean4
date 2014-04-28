@@ -5,6 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/definition.h"
+#include "kernel/environment.h"
+#include "kernel/for_each_fn.h"
 
 namespace lean {
 static serializer & operator<<(serializer & s, param_names const & ps) { return write_list<name>(s, ps); }
@@ -90,6 +92,18 @@ void definition::write(serializer & s) const { m_ptr->write(s); }
 
 definition mk_definition(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t, expr const & v, bool opaque, unsigned weight, module_idx mod_idx, bool use_conv_opt) {
     return definition(new definition::cell(n, params, cs, t, false, v, opaque, weight, mod_idx, use_conv_opt));
+}
+definition mk_definition(environment const & env, name const & n, param_names const & params, level_cnstrs const & cs, expr const & t, expr const & v, bool opaque, module_idx mod_idx, bool use_conv_opt) {
+    unsigned w = 0;
+    for_each(v, [&](expr const & e, unsigned) {
+            if (is_constant(e)) {
+                auto d = env.find(const_name(e));
+                if (d && d->get_weight() > w)
+                    w = d->get_weight();
+            }
+            return true;
+        });
+    return mk_definition(n, params, cs, t, v, opaque, w+1, mod_idx, use_conv_opt);
 }
 definition mk_theorem(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t, expr const & v) {
     return definition(new definition::cell(n, params, cs, t, true, v, true, 0, 0, false));

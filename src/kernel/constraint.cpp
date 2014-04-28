@@ -134,10 +134,13 @@ std::ostream & operator<<(std::ostream & out, constraint const & c) {
     switch (c.kind()) {
     case constraint_kind::Eq:
         out << cnstr_lhs_expr(c) << " ≈ " << cnstr_rhs_expr(c);
+        break;
     case constraint_kind::Convertible:
         out << cnstr_lhs_expr(c) << " ↠ " << cnstr_rhs_expr(c);
+        break;
     case constraint_kind::Level:
         out << cnstr_lhs_level(c) << " ≤ " << cnstr_rhs_level(c);
+        break;
     case constraint_kind::Choice:
         out << cnstr_choice_expr(c) << " ∊ {";
         bool first = true;
@@ -146,6 +149,7 @@ std::ostream & operator<<(std::ostream & out, constraint const & c) {
             out << e;
         }
         out << "}";
+        break;
     }
     return out;
 }

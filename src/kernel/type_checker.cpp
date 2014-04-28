@@ -47,9 +47,12 @@ struct type_checker::imp {
     // We need that to be able to produce error messages containing position information.
     expr_map<expr>        m_trace;
 
+    // temp flag
+    bool                  m_cnstrs_enabled;
+
     imp(environment const & env, name_generator const & g, constraint_handler & h,
         optional<module_idx> mod_idx, bool memoize, name_set const & extra_opaque):
-        m_env(env), m_gen(g), m_chandler(h), m_module_idx(mod_idx), m_memoize(memoize), m_extra_opaque(extra_opaque) {}
+        m_env(env), m_gen(g), m_chandler(h), m_module_idx(mod_idx), m_memoize(memoize), m_extra_opaque(extra_opaque), m_cnstrs_enabled(true) {}
 
     class type_checker_context : public extension_context {
         imp & m_imp;
@@ -321,9 +324,15 @@ struct type_checker::imp {
         }
     }
 
+    /** \brief Auxiliary exception used to sign that constraints cannot be created when \c m_cnstrs_enabled flag is false. */
+    struct add_cnstr_exception {};
+
     /** \brief Add given constraint to the constraint handler m_chandler. */
     void add_cnstr(constraint const & c) {
-        m_chandler.add_cnstr(c);
+        if (m_cnstrs_enabled)
+            m_chandler.add_cnstr(c);
+        else
+            throw add_cnstr_exception();
     }
 
     /** \brief Object to simulate delayed justification creation. */
@@ -427,6 +436,26 @@ struct type_checker::imp {
     }
 
     /**
+       \brief Return true if arguments of \c t are definitionally equal to arguments of \c s.
+       Constraint generation is disabled when performing this test.
+       This method is used to implement an optimization in the method \c is_conv.
+    */
+    bool is_def_eq_args(expr t, expr s, delayed_justification & jst) {
+        flet<bool> disable_cnstrs(m_cnstrs_enabled, false); // disable constraint generation when processing arguments.
+        try {
+            while (is_app(t) && is_app(s)) {
+                if (!is_def_eq(app_arg(t), app_arg(s), jst))
+                    return false;
+                t = app_fn(t);
+                s = app_fn(s);
+            }
+            return !is_app(t) && !is_app(s);
+        } catch (add_cnstr_exception &) {
+            return false;
+        }
+    }
+
+    /**
         \brief If def_eq is false, then return true iff t is convertible to s.
                If def_eq is true,  then return true iff t is definitionally equal to s.
     */
@@ -461,9 +490,16 @@ struct type_checker::imp {
                     s_n = whnf_core(unfold_names(s_n, d_t->get_weight() + 1));
                 } else {
                     lean_assert(d_t && d_s && d_t->get_weight() == d_s->get_weight());
-                    if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s)) {
-                        // try backtracking trick to avoild delta-reduction
-                        // TODO(Leo)
+                    // If t_n and s_n are both applications of the same (non-opaque) definition,
+                    // then we try to check if their arguments are definitionally equal.
+                    // If they are, then t_n and s_n must be definitionally equal, and we can
+                    // skip the delta-reduction step.
+                    if (is_app(t_n) && is_app(s_n) &&
+                        is_eqp(*d_t, *d_s) &&          // same definition
+                        !is_opaque(*d_t) &&            // if d_t is opaque, we don't need to try this optimization
+                        d_t->use_conv_opt() &&         // the flag use_conv_opt() can be used to disable this optimization
+                        is_def_eq_args(t_n, s_n, jst)) {
+                        return true;
                     }
                     t_n = whnf_core(unfold_names(t_n, d_t->get_weight() - 1));
                     s_n = whnf_core(unfold_names(s_n, d_s->get_weight() - 1));
@@ -823,7 +859,6 @@ struct type_checker::imp {
         delayed_justification j([]() { return justification(); });
         return is_conv(t, s, j);
     }
-
 };
 
 no_constraint_handler g_no_constraint_handler;

@@ -30,7 +30,7 @@ public:
 
 [[ noreturn ]] void throw_kernel_exception(environment const & env, char const * msg, optional<expr> const & m) {
     std::string msg_str = msg;
-    throw generic_kernel_exception(env, msg, m, [=](formatter const &, options const &) { return format(msg); });
+    throw generic_kernel_exception(env, msg, m, [=](formatter const &, options const &) { return format(msg_str); });
 }
 
 [[ noreturn ]] void throw_kernel_exception(environment const & env, sstream const & strm, optional<expr> const & m) {

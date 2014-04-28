@@ -16,7 +16,7 @@ namespace lean {
 */
 class noop_normalizer_extension : public normalizer_extension {
 public:
-    virtual optional<expr> operator()(expr const &, extension_context const &) const {
+    virtual optional<expr> operator()(expr const &, extension_context &) const {
         return none_expr();
     }
 };

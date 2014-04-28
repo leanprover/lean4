@@ -174,9 +174,9 @@ struct type_checker::imp {
                 }
                 lean_assert(m <= num_args);
                 r = whnf_core(mk_rev_app(instantiate(binder_body(f), m, args.data() + (num_args - m)), num_args - m, args.data()));
-                break;
+            } else {
+                r = is_eqp(f, *it) ? e : mk_rev_app(f, args.size(), args.data());
             }
-            r = is_eqp(f, *it) ? e : mk_rev_app(f, args.size(), args.data());
             break;
         }}
 
@@ -309,7 +309,7 @@ struct type_checker::imp {
 
         expr t = e;
         while (true) {
-            expr t1 = unfold_names(whnf_core(t), 0);
+            expr t1 = whnf_core(t, 0);
             auto new_t = norm_ext(t1);
             if (new_t) {
                 t = *new_t;
@@ -521,12 +521,12 @@ struct type_checker::imp {
 
     /** \brief Return true iff \c t is convertible to s */
     bool is_conv(expr const & t, expr const & s, delayed_justification & jst) {
-        return is_conv(t, s, false, jst);
+        return is_conv(max_sharing(t), max_sharing(s), false, jst);
     }
 
     /** \brief Return true iff \c t and \c s are definitionally equal */
     bool is_def_eq(expr const & t, expr const & s, delayed_justification & jst) {
-        return is_conv(t, s, true, jst);
+        return is_conv(max_sharing(t), max_sharing(s), true, jst);
     }
 
     /** \brief Return true iff \c e is a proposition */
@@ -894,6 +894,14 @@ certified_definition check(environment const & env, name_generator const & g, de
     }
 
     // TODO(Leo): solve universe level constraints
+    #if 1
+    // temporary code
+    for (auto c : chandler.m_cnstrs) {
+        std::cout << c << "\n";
+    }
+    if (!chandler.m_cnstrs.empty())
+        throw_kernel_exception(env, "invalid declaration, unsatisfied level constraints");
+    #endif
 
     return certified_definition(env.get_id(), d);
 }

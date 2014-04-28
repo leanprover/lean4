@@ -16,8 +16,8 @@ namespace lean {
 */
 class noop_normalizer_extension : public normalizer_extension {
 public:
-    virtual optional<std::pair<expr, constraints>> operator()(expr const &, environment const &, type_checker &) const {
-        return optional<std::pair<expr, constraints>>();
+    virtual optional<expr> operator()(expr const &, extension_context const &) const {
+        return none_expr();
     }
 };
 
@@ -53,6 +53,8 @@ environment::environment(unsigned trust_lvl, bool proof_irrel, bool eta, std::un
     m_header(std::make_shared<environment_header>(trust_lvl, proof_irrel, eta, std::move(ext))),
     m_extensions(std::make_shared<environment_extensions const>())
 {}
+
+environment::~environment() {}
 
 optional<definition> environment::find(name const & n) const {
     definition const * r = m_definitions.find(n);

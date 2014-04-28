@@ -30,7 +30,8 @@ class certified_definition;
 */
 class normalizer_extension {
 public:
-    virtual optional<expr> operator()(expr const & e, extension_context const & ctx) const;
+    virtual ~normalizer_extension() {}
+    virtual optional<expr> operator()(expr const & e, extension_context const & ctx) const = 0;
 };
 
 /**

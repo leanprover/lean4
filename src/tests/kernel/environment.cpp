@@ -7,286 +7,143 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "util/exception.h"
 #include "util/trace.h"
-#include "kernel/kernel_exception.h"
 #include "kernel/environment.h"
 #include "kernel/type_checker.h"
-#include "kernel/kernel.h"
-#include "kernel/normalizer.h"
 #include "kernel/abstract.h"
-#include "library/printer.h"
-#include "library/io_state_stream.h"
-#include "library/arith/arith.h"
-#include "frontends/lean/frontend.h"
-#include "frontends/lua/register_modules.h"
+#include "kernel/kernel_exception.h"
 using namespace lean;
 
-static void tst1() {
-    environment env;
-    level u = env->add_uvar_cnstr("u", level() + 1);
-    level w = env->add_uvar_cnstr("w", u + 1);
-    lean_assert(!env->has_children());
-    lean_assert(!env->has_parent());
-    {
-        environment child = env->mk_child();
-        lean_assert(child->is_ge(w, u));
-        lean_assert(child->is_ge(w, level() + 2));
-        lean_assert(env->is_ge(w, level() + 2));
-        lean_assert(env->has_children());
-        lean_assert(child->has_parent());
-        lean_assert(!env->has_parent());
-        try {
-            level o = env->add_uvar_cnstr("o", w + 1);
-            lean_unreachable();
-        } catch (exception const & ex) {
-            std::cout << "expected error: " << ex.what() << "\n";
-        }
-    }
-    std::cout << "tst1 checkpoint" << std::endl;
-    level o = env->add_uvar_cnstr("o", w + 1);
-    lean_assert(!env->has_children());
-    std::cout << env;
+static environment add_def(environment const & env, definition const & d) {
+    auto cd = check(env, name_generator("test"), d, true, name_set());
+    return env.add(cd);
 }
 
-static environment mk_child() {
-    environment env;
-    level u = env->add_uvar_cnstr("u", level() + 1);
-    return env->mk_child();
+static void tst1() {
+    environment env1;
+    auto env2 = add_def(env1, mk_definition("Bool", param_names(), level_cnstrs(), mk_Type(), mk_Bool()));
+    lean_assert(!env1.find("Bool"));
+    lean_assert(env2.find("Bool"));
+    lean_assert(env2.find("Bool")->get_value() == mk_Bool());
+    try {
+        auto env3 = add_def(env2, mk_definition("Bool", param_names(), level_cnstrs(), mk_Type(), mk_Bool()));
+        lean_unreachable();
+    } catch (kernel_exception & ex) {
+        std::cout << "expected error: " << ex.pp(mk_simple_formatter(), options()) << "\n";
+    }
+    try {
+        auto env4 = add_def(env2, mk_definition("BuggyBool", param_names(), level_cnstrs(), mk_Bool(), mk_Bool()));
+        lean_unreachable();
+    } catch (kernel_exception & ex) {
+        std::cout << "expected error: " << ex.pp(mk_simple_formatter(), options()) << "\n";
+    }
+    try {
+        auto env5 = add_def(env2, mk_definition("Type1", param_names(), level_cnstrs(), mk_metavar("T", mk_sort(mk_meta_univ("l"))), mk_Type()));
+        lean_unreachable();
+    } catch (kernel_exception & ex) {
+        std::cout << "expected error: " << ex.pp(mk_simple_formatter(), options()) << "\n";
+    }
+    try {
+        auto env6 = add_def(env2, mk_definition("Type1", param_names(), level_cnstrs(), mk_Type(), mk_metavar("T", mk_sort(mk_meta_univ("l")))));
+        lean_unreachable();
+    } catch (kernel_exception & ex) {
+        std::cout << "expected error: " << ex.pp(mk_simple_formatter(), options()) << "\n";
+    }
+    try {
+        auto env7 = add_def(env2, mk_definition("foo", param_names(), level_cnstrs(), mk_Type() >> mk_Type(), mk_Bool()));
+        lean_unreachable();
+    } catch (kernel_exception & ex) {
+        std::cout << "expected error: " << ex.pp(mk_simple_formatter(), options()) << "\n";
+    }
+    expr A = Const("A");
+    expr x = Const("x");
+    auto env3 = add_def(env2, mk_definition("id", param_names(), level_cnstrs(),
+                                            Pi(A, mk_Type(), A >> A),
+                                            Fun({{A, mk_Type()}, {x, A}}, x)));
+    expr c  = mk_local("c", Bool);
+    expr id = Const("id");
+    type_checker checker(env3, name_generator("tmp"));
+    lean_assert(checker.check(id(Bool)) == Bool >> Bool);
+    lean_assert(checker.whnf(id(Bool, c)) == c);
+    lean_assert(checker.whnf(id(Bool, id(Bool, id(Bool, c)))) == c);
+
+    type_checker checker2(env2, name_generator("tmp"));
+    lean_assert(checker2.whnf(id(Bool, id(Bool, id(Bool, c)))) == id(Bool, id(Bool, id(Bool, c))));
 }
 
 static void tst2() {
-    environment child = mk_child();
-    lean_assert(child->has_parent());
-    lean_assert(!child->has_children());
-    environment parent = child->parent();
-    std::cout << parent;
-    lean_assert(parent->has_children());
-    std::cout << "uvar: " << child->get_uvar("u") << "\n";
+    environment env;
+    name base("base");
+    env = add_def(env, mk_var_decl(name(base, 0u), param_names(), level_cnstrs(), Bool >> (Bool >> Bool)));
+    expr x = Const("x");
+    expr y = Const("y");
+    for (unsigned i = 1; i <= 100; i++) {
+        expr prev = Const(name(base, i-1));
+        env = add_def(env, mk_definition(env, name(base, i), param_names(), level_cnstrs(), Bool >> (Bool >> Bool),
+                                         Fun({{x, Bool}, {y, Bool}}, prev(prev(x, y), prev(y, x)))));
+    }
+    expr A = Const("A");
+    env = add_def(env, mk_definition("id", param_names(), level_cnstrs(),
+                                     Pi(A, mk_Type(), A >> A),
+                                     Fun({{A, mk_Type()}, {x, A}}, x)));
+    type_checker checker(env, name_generator("tmp"));
+    expr f96 = Const(name(base, 96));
+    expr f97 = Const(name(base, 97));
+    expr f98 = Const(name(base, 98));
+    expr f3  = Const(name(base, 3));
+    expr c1  =  mk_local("c1", Bool);
+    expr c2  = mk_local("c2", Bool);
+    expr id = Const("id");
+    std::cout << checker.whnf(f3(c1, c2)) << "\n";
+    lean_assert_eq(env.find(name(base, 98))->get_weight(), 98);
+    lean_assert(checker.is_conv(f98(c1, c2), f97(f97(c1, c2), f97(c2, c1))));
+    lean_assert(checker.is_conv(f98(c1, id(Bool, id(Bool, c2))), f97(f97(c1, id(Bool, c2)), f97(c2, c1))));
+    name_set s;
+    s.insert(name(base, 96));
+    type_checker checker2(env, name_generator("tmp"), optional<module_idx>(), true, s);
+    lean_assert_eq(checker2.whnf(f98(c1, c2)),
+                   f96(f96(f97(c1, c2), f97(c2, c1)), f96(f97(c2, c1), f97(c1, c2))));
 }
+
+class normalizer_extension_tst : public normalizer_extension {
+public:
+    virtual optional<expr> operator()(expr const & e, extension_context & ctx) const {
+        if (!is_app(e))
+            return none_expr();
+        expr const & f = app_fn(e);
+        expr const & a = app_arg(e);
+        if (!is_constant(f) || const_name(f) != name("proj1"))
+            return none_expr();
+        expr a_n = ctx.whnf(a);
+        if (!is_app(a_n) || !is_app(app_fn(a_n)) || !is_constant(app_fn(app_fn(a_n))))
+            return none_expr();
+        expr const & mk = app_fn(app_fn(a_n));
+        if (const_name(mk) != name("mk"))
+            return none_expr();
+        // In a real implementation, we must check if proj1 and mk were defined in the environment.
+        return some_expr(app_arg(app_fn(a_n)));
+    }
+};
 
 static void tst3() {
-    std::cout << "tst3\n";
-    environment env; init_test_frontend(env);
-    try {
-        env->add_definition("a", Int, Const("a"));
-        lean_unreachable();
-    } catch (exception const & ex) {
-        std::cout << "expected error: " << ex.what() << "\n";
-    }
-    env->add_definition("a", Int, mk_Int_add(iVal(1), iVal(2)));
-    std::cout << env << "\n";
-    expr t = mk_Int_add(Const("a"), iVal(1));
-    std::cout << t << " --> " << normalize(t, env) << "\n";
-    lean_assert(normalize(t, env) == iVal(4));
-    env->add_definition("b", Int, mk_Int_mul(iVal(2), Const("a")));
-    std::cout << "b --> " << normalize(Const("b"), env) << "\n";
-    lean_assert(normalize(Const("b"), env) == iVal(6));
-    try {
-        env->add_definition("c", mk_arrow(Int, Int), Const("a"));
-        lean_unreachable();
-    } catch (exception const & ex) {
-        std::cout << "expected error: " << ex.what() << "\n";
-    }
-    try {
-        env->add_definition("a", Int, iVal(10));
-        lean_unreachable();
-    } catch (exception const & ex) {
-        std::cout << "expected error: " << ex.what() << "\n";
-    }
-    environment c_env = env->mk_child();
-    try {
-        env->add_definition("c", Int, Const("a"));
-        lean_unreachable();
-    } catch (exception const & ex) {
-        std::cout << "expected error: " << ex.what() << "\n";
-    }
-    lean_assert(normalize(Const("b"), env) == iVal(6));
-    lean_assert(normalize(Const("b"), c_env) == iVal(6));
-    c_env->add_definition("c", Int, Const("a"));
-    lean_assert(normalize(Const("c"), c_env) == iVal(3));
-    expr r = normalize(Const("c"), env);
-    lean_assert(r == Const("c"));
-    std::cout << "end tst3" << std::endl;
-}
-
-static void tst4() {
-    std::cout << "tst4\n";
-    environment env; init_test_frontend(env);
-    env->add_definition("a", Int, iVal(1), true); // add opaque definition
-    expr t = mk_Int_add(Const("a"), iVal(1));
-    std::cout << t << " --> " << normalize(t, env) << "\n";
-    lean_assert(normalize(t, env) == t);
-    env->add_definition("b", Int, mk_Int_add(Const("a"), iVal(1)));
-    expr t2 = mk_Int_sub(Const("b"), iVal(9));
-    std::cout << t2 << " --> " << normalize(t2, env) << "\n";
-    lean_assert_eq(normalize(t2, env, context()),
-                   mk_Int_sub(mk_Int_add(Const("a"), iVal(1)), iVal(9)));
-}
-
-static void tst5() {
-    environment env; init_test_frontend(env);
-    env->add_definition("a", Int, iVal(1), true); // add opaque definition
-    try {
-        std::cout << type_check(mk_Int_add(Const("a"), Int), env) << "\n";
-        lean_unreachable();
-    } catch (exception const & ex) {
-        std::cout << "expected error: " << ex.what() << "\n";
-    }
-}
-
-static void tst6() {
-    environment env; init_test_frontend(env);
-    level u = env->add_uvar_cnstr("u", level() + 1);
-    level w = env->add_uvar_cnstr("w", u + 1);
-    env->add_var("f", mk_arrow(Type(u), Type(u)));
-    expr t = Const("f")(Int);
-    std::cout << "type of " << t << " is " << type_check(t, env) << "\n";
-    try {
-        type_check(Const("f")(Type(w)), env);
-        lean_unreachable();
-    } catch (exception const & ex) {
-        std::cout << "expected error: " << ex.what() << "\n";
-    }
-    try {
-        type_check(Const("f")(Type(u)), env);
-        lean_unreachable();
-    } catch (exception const & ex) {
-        std::cout << "expected error: " << ex.what() << "\n";
-    }
-    t = Const("f")(Type());
-    std::cout << "type of " << t << " is " << type_check(t, env) << "\n";
-    std::cout << type_check(mk_arrow(Type(u), Type(w)), env) << "\n";
-    lean_assert(type_check(mk_arrow(Type(u), Type(w)), env) == Type(max(u+1, w+1)));
-    std::cout << type_check(mk_arrow(Int, Int), env) << "\n";
-    lean_assert(type_check(mk_arrow(Int, Int), env) == Type());
-}
-
-static void tst7() {
-    environment env; init_test_frontend(env);
-    env->add_var("a", Int);
-    env->add_var("b", Int);
-}
-
-static void tst8() {
-    environment env;
-    std::cout << "=======================\n";
-    env->add_var("a", Type());
-    env->add_var("b", Type());
-    environment env2 = env->mk_child();
-    env2->add_var("c", Type());
-    env2->add_var("d", Type());
-    env2->add_var("e", Type());
-    unsigned counter = 0;
-    std::for_each(env2->begin_local_objects(), env2->end_local_objects(), [&](object const & obj) { std::cout << obj.keyword() << " " << obj.get_name() << "\n"; counter++; });
-    lean_assert(counter == 3);
-    std::cout << "=======================\n";
-    counter = 0;
-    std::for_each(env2->begin_objects(), env2->end_objects(), [&](object const & obj) { std::cout << obj.keyword() << " " << obj.get_name() << "\n"; counter++; });
-    lean_assert(counter == 5);
-    environment env3 = env2->mk_child();
-    env3->add_var("f", Type() >> Type());
-    std::cout << "=======================\n";
-    counter = 0;
-    std::for_each(env3->begin_objects(), env3->end_objects(), [&](object const & obj) { std::cout << obj.keyword() << " " << obj.get_name() << "\n"; counter++; });
-    lean_assert(counter == 6);
-}
-
-static void tst9() {
-    environment env;
-    env->add_uvar_cnstr("u1", level());
-    env->add_uvar_cnstr("u2", level());
-    env->add_uvar_cnstr("u1", level("u2"));
-}
-
-static void tst10() {
-    environment env;
-    init_test_frontend(env);
-    env->add_definition("a", Int, iVal(1));
-    lean_assert(env->get_object("a").get_weight() == 1);
+    environment env(0, true, true, std::unique_ptr<normalizer_extension>(new normalizer_extension_tst()));
+    expr A = Const("A");
+    expr x = Const("x");
+    expr id = Const("id");
+    env = add_def(env, mk_definition("id", param_names(), level_cnstrs(),
+                                     Pi(A, mk_Type(), A >> A),
+                                     Fun({{A, mk_Type()}, {x, A}}, x)));
+    expr mk = Const("mk");
+    expr proj1 = Const("proj1");
     expr a = Const("a");
     expr b = Const("b");
-    expr c = Const("c");
-    env->add_definition("b", Int, mk_Int_add(a, a));
-    lean_assert(env->get_object("b").get_weight() == 2);
-    env->add_definition("c", Int, mk_Int_add(a, b));
-    lean_assert(env->get_object("c").get_weight() == 3);
-    env->add_definition("d", Int, mk_Int_add(b, b));
-    lean_assert(env->get_object("d").get_weight() == 3);
-}
-
-struct my_extension : public environment_extension {
-    unsigned m_value1;
-    unsigned m_value2;
-    my_extension():m_value1(0), m_value2(0) {}
-};
-
-struct my_extension_reg {
-    unsigned m_extid;
-    my_extension_reg() {
-        m_extid = environment_cell::register_extension([](){ return std::unique_ptr<environment_extension>(new my_extension()); });
-    }
-};
-
-static my_extension_reg R;
-
-static void tst11() {
-    unsigned extid = R.m_extid;
-    environment env;
-    my_extension & ext  = env->get_extension<my_extension>(extid);
-    ext.m_value1 = 10;
-    ext.m_value2 = 20;
-    my_extension & ext2 = env->get_extension<my_extension>(extid);
-    lean_assert(ext2.m_value1 == 10);
-    lean_assert(ext2.m_value2 == 20);
-    environment child = env->mk_child();
-    my_extension & ext3 = child->get_extension<my_extension>(extid);
-    lean_assert(ext3.m_value1 == 0);
-    lean_assert(ext3.m_value2 == 0);
-    my_extension const * ext4 = ext3.get_parent<my_extension>();
-    lean_assert(ext4);
-    lean_assert(ext4->m_value1 == 10);
-    lean_assert(ext4->m_value2 == 20);
-    lean_assert(ext4->get_parent<my_extension>() == nullptr);
-}
-
-static void tst12() {
-    unsigned extid = R.m_extid;
-    environment env;
-    environment child = env->mk_child();
-    my_extension & ext = child->get_extension<my_extension>(extid);
-    lean_assert(ext.m_value1 == 0);
-    lean_assert(ext.m_value2 == 0);
-    lean_assert(ext.get_parent<my_extension>() == nullptr);
-}
-
-static void tst13() {
-    ro_environment::weak_ref wref;
-    {
-        environment env;
-        ro_environment roenv(env);
-        wref = roenv.to_weak_ref();
-    }
-    try {
-        ro_environment env2(wref);
-        lean_unreachable();
-    } catch (exception &) {}
+    type_checker checker(env, name_generator("tmp"));
+    lean_assert_eq(checker.whnf(proj1(proj1(mk(id(A, mk(a, b)), b)))), a);
 }
 
 int main() {
     save_stack_info();
-    register_modules();
-    enable_trace("is_convertible");
     tst1();
     tst2();
     tst3();
-    tst4();
-    tst5();
-    tst6();
-    tst7();
-    tst8();
-    tst9();
-    tst10();
-    tst11();
-    tst12();
-    tst13();
     return has_violations() ? 1 : 0;
 }

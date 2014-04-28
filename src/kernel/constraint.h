@@ -68,11 +68,11 @@ constraint mk_conv_cnstr(expr const & lhs, expr const & rhs, justification const
 constraint mk_level_cnstr(level const & lhs, level const & rhs, justification const & j);
 constraint mk_choice_cnstr(expr const & t, list<expr> const & s, justification const & j);
 
-bool is_eq_cnstr(constraint const & c) { return c.kind() == constraint_kind::Eq; }
-bool is_conv_cnstr(constraint const & c) { return c.kind() == constraint_kind::Convertible; }
-bool is_level_cnstr(constraint const & c) { return c.kind() == constraint_kind::Level; }
-bool is_choice_cnstr(constraint const & c) { return c.kind() == constraint_kind::Choice; }
-bool is_eqc_cnstr(constraint const & c) { return is_eq_cnstr(c) || is_conv_cnstr(c); }
+inline bool is_eq_cnstr(constraint const & c) { return c.kind() == constraint_kind::Eq; }
+inline bool is_conv_cnstr(constraint const & c) { return c.kind() == constraint_kind::Convertible; }
+inline bool is_level_cnstr(constraint const & c) { return c.kind() == constraint_kind::Level; }
+inline bool is_choice_cnstr(constraint const & c) { return c.kind() == constraint_kind::Choice; }
+inline bool is_eqc_cnstr(constraint const & c) { return is_eq_cnstr(c) || is_conv_cnstr(c); }
 
 /** \brief Return the lhs of an equality/convertability constraint. */
 expr const & cnstr_lhs_expr(constraint const & c);

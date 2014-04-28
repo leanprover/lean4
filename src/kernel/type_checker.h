@@ -15,8 +15,22 @@ Author: Leonardo de Moura
 namespace lean {
 class constraint_handler {
 public:
-    virtual ~constraint_handler();
-    void add_cnstr(constraint const & c);
+    virtual ~constraint_handler() {}
+    virtual void add_cnstr(constraint const & c) = 0;
+};
+
+/** \brief This handler always throw an exception (\c no_constraints_allowed_exception) when \c add_cnstr is invoked. */
+class no_constraint_handler : public constraint_handler {
+public:
+    virtual void add_cnstr(constraint const & c);
+};
+
+/** \brief Exception used in \c no_constraint_handler. */
+class no_constraints_allowed_exception : public exception {
+public:
+    no_constraints_allowed_exception();
+    virtual exception * clone() const;
+    virtual void rethrow() const;
 };
 
 /**
@@ -73,7 +87,7 @@ public:
     /** \brief Return true iff t is convertible to s. */
     bool is_conv(expr const & t, expr const & s);
     /** \brief Return true iff t is definitionally equal to s. */
-    bool is_defeq(expr const & t, expr const & s);
+    bool is_def_eq(expr const & t, expr const & s);
     /** \brief Return true iff t is a proposition. */
     bool is_prop(expr const & t);
     /** \brief Return the weak head normal form of \c t. */
@@ -88,5 +102,5 @@ public:
    \brief Type check the given definition, and return a certified definition if it is type correct.
    Throw an exception if the definition is type incorrect.
 */
-certified_definition check(environment const & env, name_generator const & g, options const & o, definition const & d);
+certified_definition check(environment const & env, name_generator const & g, definition const & d, bool memoize, name_set const & extra_opaque);
 }

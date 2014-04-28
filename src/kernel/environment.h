@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "util/optional.h"
 #include "util/list.h"
 #include "util/rb_map.h"
+#include "util/name_set.h"
 #include "kernel/expr.h"
 #include "kernel/constraint.h"
 #include "kernel/definition.h"
@@ -166,12 +167,14 @@ public:
     environment update(unsigned extid, std::shared_ptr<environment_extension const> const & ext) const;
 };
 
+class name_generator;
+
 /**
    \brief A certified definition is one that has been type checked.
    Only the type_checker class can create certified definitions.
 */
 class certified_definition {
-    friend class type_checker;
+    friend certified_definition check(environment const & env, name_generator const & g, definition const & d, bool memoize, name_set const & extra_opaque);
     environment_id m_id;
     definition     m_definition;
     certified_definition(environment_id const & id, definition const & d):m_id(id), m_definition(d) {}

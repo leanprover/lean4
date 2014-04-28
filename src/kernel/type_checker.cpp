@@ -21,6 +21,15 @@ Author: Leonardo de Moura
 
 namespace lean {
 static name g_x_name("x");
+
+no_constraints_allowed_exception::no_constraints_allowed_exception():exception("constraints are not allowed in this type checker") {}
+exception * no_constraints_allowed_exception::clone() const { return new no_constraints_allowed_exception(); }
+void no_constraints_allowed_exception::rethrow() const { throw *this; }
+
+void no_constraint_handler::add_cnstr(constraint const &) {
+    throw no_constraints_allowed_exception();
+}
+
 /** \brief Auxiliary functional object used to implement type checker. */
 struct type_checker::imp {
     environment           m_env;
@@ -504,7 +513,7 @@ struct type_checker::imp {
         if (m_env.proof_irrel()) {
             // Proof irrelevance support
             expr t_type = infer_type(t);
-            return is_proposition(t_type) && is_def_eq(t_type, infer_type(s), jst);
+            return is_prop(t_type) && is_def_eq(t_type, infer_type(s), jst);
         }
 
         return false;
@@ -521,7 +530,7 @@ struct type_checker::imp {
     }
 
     /** \brief Return true iff \c e is a proposition */
-    bool is_proposition(expr const & e) {
+    bool is_prop(expr const & e) {
         return whnf(infer_type(e)) == Bool;
     }
 
@@ -806,5 +815,86 @@ struct type_checker::imp {
 
     expr infer_type(expr const & e) { return infer_type_core(e, true); }
     expr check(expr const & e) { return infer_type_core(e, false); }
+    bool is_conv(expr const & t, expr const & s) {
+        delayed_justification j([]() { return justification(); });
+        return is_conv(t, s, j);
+    }
+    bool is_def_eq(expr const & t, expr const & s) {
+        delayed_justification j([]() { return justification(); });
+        return is_conv(t, s, j);
+    }
+
 };
+
+no_constraint_handler g_no_constraint_handler;
+
+type_checker::type_checker(environment const & env, name_generator const & g, constraint_handler & h,
+                           optional<module_idx> mod_idx, bool memoize, name_set const & extra_opaque):
+    m_ptr(new imp(env, g, h, mod_idx, memoize, extra_opaque)) {}
+
+type_checker::type_checker(environment const & env, name_generator const & g,
+                           optional<module_idx> mod_idx, bool memoize, name_set const & extra_opaque):
+    type_checker(env, g, g_no_constraint_handler, mod_idx, memoize, extra_opaque) {}
+
+type_checker::~type_checker() {}
+expr type_checker::infer(expr const & t) { return m_ptr->infer_type(t); }
+expr type_checker::check(expr const & t) { return m_ptr->check(t); }
+bool type_checker::is_conv(expr const & t, expr const & s) { return m_ptr->is_conv(t, s); }
+bool type_checker::is_def_eq(expr const & t, expr const & s) { return m_ptr->is_def_eq(t, s); }
+bool type_checker::is_prop(expr const & t) { return m_ptr->is_prop(t); }
+expr type_checker::whnf(expr const & t) { return m_ptr->whnf(t); }
+expr type_checker::ensure_pi(expr const & t) { return m_ptr->ensure_pi(t, t); }
+expr type_checker::ensure_sort(expr const & t) { return m_ptr->ensure_sort(t, t); }
+
+static void check_no_metavar(environment const & env, expr const & e) {
+    if (has_metavar(e))
+        throw kernel_exception(env, "failed to add declaration to environment, it contains metavariables");
+}
+
+static void check_no_local(environment const & env, expr const & e) {
+    if (has_local(e))
+        throw kernel_exception(env, "failed to add declaration to environment, it contains local constants");
+}
+
+static void check_no_mlocal(environment const & env, expr const & e) {
+    check_no_metavar(env, e);
+    check_no_local(env, e);
+}
+
+static void check_name(environment const & env, name const & n) {
+    if (env.find(n))
+        throw_already_declared(env, n);
+}
+
+struct simple_constraint_handler : public constraint_handler {
+    std::vector<constraint> m_cnstrs;
+    virtual void add_cnstr(constraint const & c) { m_cnstrs.push_back(c); }
+};
+
+certified_definition check(environment const & env, name_generator const & g, definition const & d, bool memoize, name_set const & extra_opaque) {
+    check_no_mlocal(env, d.get_type());
+    if (d.is_definition())
+        check_no_mlocal(env, d.get_value());
+    check_name(env, d.get_name());
+
+    optional<module_idx> midx;
+    if (!d.is_definition() || d.is_opaque())
+        midx = optional<module_idx>(d.get_module_idx());
+
+    simple_constraint_handler chandler;
+    type_checker checker(env, g, chandler, midx, memoize, extra_opaque);
+
+    checker.check(d.get_type());
+    if (d.is_definition()) {
+        expr val_type = checker.check(d.get_value());
+        if (!checker.is_conv(val_type, d.get_type())) {
+            throw_kernel_exception(env, d.get_value(),
+                                   [=](formatter const & fmt, options const & o) { return pp_def_type_mismatch(fmt, o, d.get_name(), d.get_type(), val_type); });
+        }
+    }
+
+    // TODO(Leo): solve universe level constraints
+
+    return certified_definition(env.get_id(), d);
+}
 }

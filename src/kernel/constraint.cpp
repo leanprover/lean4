@@ -40,6 +40,17 @@ struct choice_constraint_cell : public constraint_cell {
         m_expr(e), m_choices(s) {}
 };
 
+void constraint_cell::dealloc() {
+    switch (m_kind) {
+    case constraint_kind::Eq: case constraint_kind::Convertible:
+        delete static_cast<eqc_constraint_cell*>(this); break;
+    case constraint_kind::Level:
+        delete static_cast<level_constraint_cell*>(this); break;
+    case constraint_kind::Choice:
+        delete static_cast<choice_constraint_cell*>(this); break;
+    }
+}
+
 constraint::constraint(constraint_cell * ptr):m_ptr(ptr) { lean_assert(m_ptr->get_rc() == 1); }
 constraint::constraint(constraint const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
 constraint::constraint(constraint && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }

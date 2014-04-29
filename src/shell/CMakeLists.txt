@@ -67,14 +67,14 @@ install(TARGETS lean DESTINATION bin)
 #            COMMAND "../test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t" ${T_NAME})
 # ENDFOREACH(T)
 
-# # LEAN LUA TESTS
-# file(GLOB LEANLUATESTS "${LEAN_SOURCE_DIR}/../tests/lua/*.lua")
-# FOREACH(T ${LEANLUATESTS})
-#   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-#   add_test(NAME "leanluatest_${T_NAME}"
-#            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lua"
-#            COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t" ${T_NAME})
-# ENDFOREACH(T)
+# LEAN LUA TESTS
+file(GLOB LEANLUATESTS "${LEAN_SOURCE_DIR}/../tests/lua/*.lua")
+FOREACH(T ${LEANLUATESTS})
+  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+  add_test(NAME "leanluatest_${T_NAME}"
+           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lua"
+           COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t" ${T_NAME})
+ENDFOREACH(T)
 
 # # LEAN DOCS
 # file(GLOB LEANDOCS "${LEAN_SOURCE_DIR}/../doc/lean/*.md")

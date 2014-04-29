@@ -1,4 +1,4 @@
-local m = splay_map()
+local m = rb_map()
 for i = 1, 100 do
    m:insert(i, i * 3)
 end

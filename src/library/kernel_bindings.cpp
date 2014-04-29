@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/sstream.h"
 #include "util/script_state.h"
+#include "util/list_lua.h"
 #include "library/io_state_stream.h"
 #include "library/expr_lt.h"
 #include "library/kernel_bindings.h"
@@ -76,6 +77,14 @@ static int level_succ_of(lua_State * L) {
     else throw exception("arg #1 must be a level succ expression");
 }
 
+static int level_instantiate(lua_State * L) {
+    auto ps = table_to_list<name>(L, 2, to_name_ext);
+    auto ls = table_to_list<level>(L, 3, to_level);
+    if (length(ps) != length(ls))
+        throw exception("arg #2 and #3 size do not match");
+    return push_level(L, instantiate(to_level(L, 1), ps, ls));
+}
+
 static const struct luaL_Reg level_m[] = {
     {"__gc",            level_gc}, // never throws
     {"__tostring",      safe_function<level_tostring>},
@@ -98,6 +107,7 @@ static const struct luaL_Reg level_m[] = {
     {"lhs",             safe_function<level_lhs>},
     {"rhs",             safe_function<level_rhs>},
     {"succ_of",         safe_function<level_succ_of>},
+    {"instantiate",     safe_function<level_instantiate>},
     {0, 0}
 };
 

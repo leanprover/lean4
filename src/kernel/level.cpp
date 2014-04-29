@@ -27,7 +27,7 @@ struct level_cell {
     MK_LEAN_RC()
     level_kind m_kind;
     unsigned   m_hash;
-    level_cell(level_kind k, unsigned h):m_rc(1), m_kind(k), m_hash(h) {}
+    level_cell(level_kind k, unsigned h):m_rc(0), m_kind(k), m_hash(h) {}
 };
 
 struct level_composite : public level_cell {
@@ -216,7 +216,7 @@ level const & mk_level_one()  {
 }
 
 level::level():level(mk_level_zero()) {}
-level::level(level_cell * ptr):m_ptr(ptr) { lean_assert(m_ptr->get_rc() == 1); }
+level::level(level_cell * ptr):m_ptr(ptr) { if (m_ptr) m_ptr->inc_ref(); }
 level::level(level const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
 level::level(level && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
 level::~level() { if (m_ptr) m_ptr->dec_ref(); }

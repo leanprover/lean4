@@ -26,3 +26,8 @@ assert(mk_level_one():kind() == level_kind.Succ)
 assert(not mk_level_one():has_meta())
 assert(not mk_level_succ(mk_param_univ("a")):has_meta())
 assert(mk_level_succ(mk_meta_univ("a")):has_meta())
+local l = mk_level_max(mk_param_univ("a"), mk_param_univ("b"))
+assert(l:instantiate({"a"}, {mk_level_one()}) == mk_level_max(mk_level_one(), mk_param_univ("b")))
+assert(l:instantiate({"a", "b"}, {mk_level_one(), mk_param_univ("c")}) == mk_level_max(mk_level_one(), mk_param_univ("c")))
+assert(not pcall(function() l:instantiate({"a", "b", "C"}, {mk_level_one(), mk_param_univ("c")}) end))
+

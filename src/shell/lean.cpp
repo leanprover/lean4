@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/formatter.h"
+#if 0
 #include "kernel/io_state.h"
 #include "library/printer.h"
 #include "library/kernel_bindings.h"
@@ -29,17 +30,21 @@ Author: Leonardo de Moura
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/register_module.h"
 #include "frontends/lua/register_modules.h"
+#endif
 #include "version.h"
 #include "githash.h" // NOLINT
 
-using lean::shell;
-using lean::parser;
 using lean::script_state;
 using lean::unreachable_reached;
+
+#if 0
+using lean::shell;
+using lean::parser;
 using lean::invoke_debugger;
 using lean::notify_assertion_violation;
 using lean::environment;
 using lean::io_state;
+#endif
 
 enum class input_kind { Unspecified, Lean, OLean, Lua };
 
@@ -110,11 +115,11 @@ static struct option g_long_options[] = {
 
 int main(int argc, char ** argv) {
     lean::save_stack_info();
-    lean::register_modules();
-    bool no_kernel      = false;
-    bool export_objects = false;
-    bool trust_imported = false;
-    bool quiet          = false;
+    // lean::register_modules();
+    // bool no_kernel      = false;
+    // bool export_objects = false;
+    // bool trust_imported = false;
+    // bool quiet          = false;
     std::string output;
     input_kind default_k = input_kind::Lean; // default
     while (true) {
@@ -150,18 +155,18 @@ int main(int argc, char ** argv) {
             lean::set_thread_stack_size(atoi(optarg)*1024);
             break;
         case 'n':
-            no_kernel = true;
+            // no_kernel = true;
             break;
         case 'o':
             output = optarg;
-            export_objects = true;
+            // export_objects = true;
             break;
         case 't':
-            trust_imported = true;
-            lean::set_default_trust_imported_for_lua(true);
+            // trust_imported = true;
+            // lean::set_default_trust_imported_for_lua(true);
             break;
         case 'q':
-            quiet = true;
+            // quiet = true;
             break;
         default:
             std::cerr << "Unknown command line option\n";
@@ -169,16 +174,20 @@ int main(int argc, char ** argv) {
             return 1;
         }
     }
-    environment env;
-    env->set_trusted_imported(trust_imported);
-    io_state ios = init_frontend(env, no_kernel);
-    if (quiet)
-        ios.set_option("verbose", false);
+
+    // environment env;
+    // env->set_trusted_imported(trust_imported);
+    // io_state ios = init_frontend(env, no_kernel);
+    // if (quiet)
+    //     ios.set_option("verbose", false);
+
     script_state S;
-    S.apply([&](lua_State * L) {
-            set_global_environment(L, env);
-            set_global_io_state(L, ios);
-        });
+
+    // S.apply([&](lua_State * L) {
+    //         set_global_environment(L, env);
+    //         set_global_io_state(L, ios);
+    //     });
+
     try {
         if (optind >= argc) {
             display_header(std::cout);
@@ -189,11 +198,12 @@ int main(int argc, char ** argv) {
 #else
                 std::cout << "Type Ctrl-D or 'exit.' to exit or 'help.' for help."<< std::endl;
 #endif
-                shell sh(env, &S);
-                int status = sh() ? 0 : 1;
-                if (export_objects)
-                    env->export_objects(output);
-                return status;
+                // shell sh(env, &S);
+                // int status = sh() ? 0 : 1;
+                // if (export_objects)
+                //    env->export_objects(output);
+                // return status;
+                return 0;
             } else {
                 lean_assert(default_k == input_kind::Lua);
                 S.import("repl");
@@ -214,32 +224,32 @@ int main(int argc, char ** argv) {
                     }
                 }
                 if (k == input_kind::Lean) {
-                    if (!parse_commands(env, ios, argv[i], &S, false, false))
-                        ok = false;
+                    // if (!parse_commands(env, ios, argv[i], &S, false, false))
+                    //    ok = false;
                 } else if (k == input_kind::OLean) {
-                    try {
-                        env->load(std::string(argv[i]), ios);
-                    } catch (lean::exception & ex) {
-                        std::cerr << "Failed to load binary file '" << argv[i] << "': " << ex.what() << "\n";
-                        ok = false;
-                    }
+                    // try {
+                    //    env->load(std::string(argv[i]), ios);
+                    // } catch (lean::exception & ex) {
+                    //    std::cerr << "Failed to load binary file '" << argv[i] << "': " << ex.what() << "\n";
+                    //    ok = false;
+                    // }
                 } else if (k == input_kind::Lua) {
                     try {
                         S.dofile(argv[i]);
                     } catch (lean::exception & ex) {
-                        ::lean::display_error(ios, nullptr, ex);
+                        // ::lean::display_error(ios, nullptr, ex);
                         ok = false;
                     }
                 } else {
                     lean_unreachable(); // LCOV_EXCL_LINE
                 }
             }
-            if (export_objects)
-                env->export_objects(output);
+            // if (export_objects)
+            //    env->export_objects(output);
             return ok ? 0 : 1;
         }
     } catch (lean::exception & ex) {
-        ::lean::display_error(ios, nullptr, ex);
+        // ::lean::display_error(ios, nullptr, ex);
     }
     return 1;
 }

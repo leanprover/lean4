@@ -35,23 +35,45 @@ static int mk_level_max(lua_State * L)  { return push_level(L, mk_max(to_level(L
 static int mk_level_imax(lua_State * L) { return push_level(L, mk_imax(to_level(L, 1), to_level(L, 2))); }
 static int mk_param_univ(lua_State * L) { return push_level(L, mk_param_univ(to_name_ext(L, 1))); }
 static int mk_meta_univ(lua_State * L)  { return push_level(L, mk_meta_univ(to_name_ext(L, 1))); }
-
-#define LEVEL_PRED(P)                           \
-static int level_ ## P(lua_State * L)    {      \
-    lua_pushboolean(L, P(to_level(L, 1)));      \
-    return 1;                                   \
-}
-
+#define LEVEL_PRED(P) static int level_ ## P(lua_State * L) { return pushboolean(L, P(to_level(L, 1))); }
 LEVEL_PRED(is_zero)
 LEVEL_PRED(is_param)
 LEVEL_PRED(is_meta)
 LEVEL_PRED(is_succ)
 LEVEL_PRED(is_max)
 LEVEL_PRED(is_imax)
+LEVEL_PRED(is_explicit)
+LEVEL_PRED(has_meta)
+LEVEL_PRED(has_param)
+LEVEL_PRED(is_not_zero)
+static int level_get_kind(lua_State * L) { return pushinteger(L, static_cast<int>(kind(to_level(L, 1)))); }
+static int level_trivially_leq(lua_State * L) { return pushboolean(L, is_trivial(to_level(L, 1), to_level(L, 2))); }
 
-static int level_get_kind(lua_State * L) {
-    lua_pushinteger(L, static_cast<int>(kind(to_level(L, 1))));
-    return 1;
+static int level_id(lua_State * L) {
+    level const & l = to_level(L, 1);
+    if (is_param(l))     return push_name(L, param_id(l));
+    else if (is_meta(l)) return push_name(L, meta_id(l));
+    else throw exception("arg #1 must be a level parameter/metavariable");
+}
+
+static int level_lhs(lua_State * L) {
+    level const & l = to_level(L, 1);
+    if (is_max(l))       return push_level(L, max_lhs(l));
+    else if (is_imax(l)) return push_level(L, imax_lhs(l));
+    else throw exception("arg #1 must be a level max/imax expression");
+}
+
+static int level_rhs(lua_State * L) {
+    level const & l = to_level(L, 1);
+    if (is_max(l))       return push_level(L, max_rhs(l));
+    else if (is_imax(l)) return push_level(L, imax_rhs(l));
+    else throw exception("arg #1 must be a level max/imax expression");
+}
+
+static int level_succ_of(lua_State * L) {
+    level const & l = to_level(L, 1);
+    if (is_succ(l))      return push_level(L, succ_of(l));
+    else throw exception("arg #1 must be a level succ expression");
 }
 
 static const struct luaL_Reg level_m[] = {
@@ -59,6 +81,7 @@ static const struct luaL_Reg level_m[] = {
     {"__tostring",      safe_function<level_tostring>},
     {"__eq",            safe_function<level_eq>},
     {"__lt",            safe_function<level_lt>},
+    {"succ",            safe_function<mk_level_succ>},
     {"kind",            safe_function<level_get_kind>},
     {"is_zero",         safe_function<level_is_zero>},
     {"is_param",        safe_function<level_is_param>},
@@ -66,7 +89,15 @@ static const struct luaL_Reg level_m[] = {
     {"is_succ",         safe_function<level_is_succ>},
     {"is_max",          safe_function<level_is_max>},
     {"is_imax",         safe_function<level_is_imax>},
-    {"succ",            safe_function<mk_level_succ>},
+    {"is_explicit",     safe_function<level_is_explicit>},
+    {"has_meta",        safe_function<level_has_meta>},
+    {"has_param",       safe_function<level_has_param>},
+    {"is_not_zero",     safe_function<level_is_not_zero>},
+    {"trivially_leq",   safe_function<level_trivially_leq>},
+    {"id",              safe_function<level_id>},
+    {"lhs",             safe_function<level_lhs>},
+    {"rhs",             safe_function<level_rhs>},
+    {"succ_of",         safe_function<level_succ_of>},
     {0, 0}
 };
 

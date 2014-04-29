@@ -1,3 +1,4 @@
+![Logo](images/lean.png)
 <table>
   <tr>
     <th>Ubuntu</th><th>OS X</th><th>Windows</th><th>Coverage</th><th>Builds / UnitTests / Dynamic Analyses</th>

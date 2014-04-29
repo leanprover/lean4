@@ -406,14 +406,10 @@ static int mk_sexpr(lua_State * L) {
     return push_sexpr(L, r);
 }
 
-static int sexpr_eq(lua_State * L)        { lua_pushboolean(L, to_sexpr(L, 1) == to_sexpr(L, 2));  return 1; }
-static int sexpr_lt(lua_State * L)        { lua_pushboolean(L, to_sexpr(L, 1) < to_sexpr(L, 2));   return 1; }
+static int sexpr_eq(lua_State * L)        { return pushboolean(L, to_sexpr(L, 1) == to_sexpr(L, 2)); }
+static int sexpr_lt(lua_State * L)        { return pushboolean(L, to_sexpr(L, 1) < to_sexpr(L, 2)); }
 
-#define SEXPR_PRED(P)                           \
-static int sexpr_ ## P(lua_State * L)    {      \
-    lua_pushboolean(L, P(to_sexpr(L, 1)));      \
-    return 1;                                   \
-}
+#define SEXPR_PRED(P) static int sexpr_ ## P(lua_State * L) { return pushboolean(L, P(to_sexpr(L, 1))); }
 
 SEXPR_PRED(is_nil)
 SEXPR_PRED(is_cons)
@@ -453,8 +449,7 @@ static int sexpr_to_bool(lua_State * L) {
     sexpr const & e = to_sexpr(L, 1);
     if (!is_bool(e))
         throw exception("s-expression is not a Boolean");
-    lua_pushboolean(L, to_bool(e));
-    return 1;
+    return pushboolean(L, to_bool(e));
 }
 
 static int sexpr_to_string(lua_State * L) {

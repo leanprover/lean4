@@ -128,4 +128,11 @@ void set_migrate_fn_field(lua_State * src, int i, lua_migrate_fn fn);
    for the userdata at position \c i.
 */
 lua_migrate_fn get_migrate_fn(lua_State * src, int i);
+// =======================================
+
+// =======================================
+// Useful macros
+inline int pushboolean(lua_State * L, bool b) { lua_pushboolean(L, b); return 1; }
+// =======================================
+
 }

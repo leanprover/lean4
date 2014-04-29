@@ -178,13 +178,11 @@ static int mpq_tostring(lua_State * L) {
 }
 
 static int mpq_eq(lua_State * L) {
-    lua_pushboolean(L, to_mpq<1>(L) == to_mpq<2>(L));
-    return 1;
+    return pushboolean(L, to_mpq<1>(L) == to_mpq<2>(L));
 }
 
 static int mpq_lt(lua_State * L) {
-    lua_pushboolean(L, to_mpq<1>(L) < to_mpq<2>(L));
-    return 1;
+    return pushboolean(L, to_mpq<1>(L) < to_mpq<2>(L));
 }
 
 static int mpq_add(lua_State * L) {

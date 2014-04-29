@@ -23,13 +23,11 @@ static int lua_rb_map_size(lua_State * L) {
 }
 
 static int lua_rb_map_contains(lua_State * L) {
-    lua_pushboolean(L, to_lua_rb_map(L, 1).contains(luaref(L, 2)));
-    return 1;
+    return pushboolean(L, to_lua_rb_map(L, 1).contains(luaref(L, 2)));
 }
 
 static int lua_rb_map_empty(lua_State * L) {
-    lua_pushboolean(L, to_lua_rb_map(L, 1).empty());
-    return 1;
+    return pushboolean(L, to_lua_rb_map(L, 1).empty());
 }
 
 static int lua_rb_map_insert(lua_State * L) {

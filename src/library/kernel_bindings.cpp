@@ -26,16 +26,8 @@ static int level_tostring(lua_State * L) {
     return 1;
 }
 
-static int level_eq(lua_State * L) {
-    lua_pushboolean(L, to_level(L, 1) == to_level(L, 2));
-    return 1;
-}
-
-static int level_lt(lua_State * L) {
-    lua_pushboolean(L, is_lt(to_level(L, 1), to_level(L, 2)));
-    return 1;
-}
-
+static int level_eq(lua_State * L) { return pushboolean(L, to_level(L, 1) == to_level(L, 2)); }
+static int level_lt(lua_State * L) { return pushboolean(L, is_lt(to_level(L, 1), to_level(L, 2))); }
 static int mk_level_zero(lua_State * L) { return push_level(L, mk_level_zero()); }
 static int mk_level_one(lua_State * L)  { return push_level(L, mk_level_one());  }
 static int mk_level_succ(lua_State * L) { return push_level(L, mk_succ(to_level(L, 1))); }

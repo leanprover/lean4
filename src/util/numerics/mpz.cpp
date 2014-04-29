@@ -126,13 +126,11 @@ static int mpz_tostring(lua_State * L) {
 }
 
 static int mpz_eq(lua_State * L) {
-    lua_pushboolean(L, to_mpz<1>(L) == to_mpz<2>(L));
-    return 1;
+    return pushboolean(L, to_mpz<1>(L) == to_mpz<2>(L));
 }
 
 static int mpz_lt(lua_State * L) {
-    lua_pushboolean(L, to_mpz<1>(L) < to_mpz<2>(L));
-    return 1;
+    return pushboolean(L, to_mpz<1>(L) < to_mpz<2>(L));
 }
 
 static int mpz_add(lua_State * L) {

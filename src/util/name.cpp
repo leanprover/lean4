@@ -478,13 +478,11 @@ static int name_tostring(lua_State * L) {
 }
 
 static int name_eq(lua_State * L) {
-    lua_pushboolean(L, to_name(L, 1) == to_name(L, 2));
-    return 1;
+    return pushboolean(L, to_name(L, 1) == to_name(L, 2));
 }
 
 static int name_lt(lua_State * L) {
-    lua_pushboolean(L, to_name(L, 1) < to_name(L, 2));
-    return 1;
+    return pushboolean(L, to_name(L, 1) < to_name(L, 2));
 }
 
 static int name_hash(lua_State * L) {
@@ -492,11 +490,7 @@ static int name_hash(lua_State * L) {
     return 1;
 }
 
-#define NAME_PRED(P)                            \
-static int name_ ## P(lua_State * L) {          \
-    lua_pushboolean(L, to_name(L, 1).P());      \
-    return 1;                                   \
-}
+#define NAME_PRED(P) static int name_ ## P(lua_State * L) { return pushboolean(L, to_name(L, 1).P()); }
 
 NAME_PRED(is_atomic)
 NAME_PRED(is_anonymous)

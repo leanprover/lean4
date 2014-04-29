@@ -241,20 +241,17 @@ static int options_size(lua_State * L) {
 }
 
 static int options_contains(lua_State * L) {
-    lua_pushboolean(L, to_options(L, 1).contains(to_name_ext(L, 2)));
-    return 1;
+    return pushboolean(L, to_options(L, 1).contains(to_name_ext(L, 2)));
 }
 
 static int options_empty(lua_State * L) {
-    lua_pushboolean(L, to_options(L, 1).empty());
-    return 1;
+    return pushboolean(L, to_options(L, 1).empty());
 }
 
 static int options_get_bool(lua_State * L) {
     int nargs = lua_gettop(L);
     bool defval = nargs < 3 ? false : lua_toboolean(L, 3);
-    lua_pushboolean(L, to_options(L, 1).get_bool(to_name_ext(L, 2), defval));
-    return 1;
+    return pushboolean(L, to_options(L, 1).get_bool(to_name_ext(L, 2), defval));
 }
 
 static int options_get_int(lua_State * L) {

@@ -69,8 +69,7 @@ bool is_exception(lua_State * L, int i) {
 }
 
 static int exception_what(lua_State * L) {
-    lua_pushstring(L, to_exception(L, 1).what());
-    return 1;
+    return pushstring(L, to_exception(L, 1).what());
 }
 
 static int exception_rethrow(lua_State * L) {

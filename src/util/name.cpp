@@ -472,26 +472,11 @@ name to_name_ext(lua_State * L, int idx) {
     }
 }
 
-static int name_tostring(lua_State * L) {
-    lua_pushstring(L, to_name(L, 1).to_string().c_str());
-    return 1;
-}
-
-static int name_eq(lua_State * L) {
-    return pushboolean(L, to_name(L, 1) == to_name(L, 2));
-}
-
-static int name_lt(lua_State * L) {
-    return pushboolean(L, to_name(L, 1) < to_name(L, 2));
-}
-
-static int name_hash(lua_State * L) {
-    lua_pushinteger(L, to_name(L, 1).hash());
-    return 1;
-}
-
+static int name_tostring(lua_State * L) { return pushstring(L, to_name(L, 1).to_string().c_str()); }
+static int name_eq(lua_State * L) { return pushboolean(L, to_name(L, 1) == to_name(L, 2)); }
+static int name_lt(lua_State * L) { return pushboolean(L, to_name(L, 1) < to_name(L, 2)); }
+static int name_hash(lua_State * L) { return pushinteger(L, to_name(L, 1).hash()); }
 #define NAME_PRED(P) static int name_ ## P(lua_State * L) { return pushboolean(L, to_name(L, 1).P()); }
-
 NAME_PRED(is_atomic)
 NAME_PRED(is_anonymous)
 NAME_PRED(is_string)
@@ -506,15 +491,13 @@ static int name_get_prefix(lua_State * L) {
 static int name_get_numeral(lua_State * L) {
     if (!to_name(L, 1).is_numeral())
         throw exception("invalid get_numeral, hierarchical name with numeric head expected");
-    lua_pushinteger(L, to_name(L, 1).get_numeral());
-    return 1;
+    return pushinteger(L, to_name(L, 1).get_numeral());
 }
 
 static int name_get_string(lua_State * L) {
     if (!to_name(L, 1).is_string())
         throw exception("invalid get_string,  hierarchical name with string head expected");
-    lua_pushstring(L, to_name(L, 1).get_string());
-    return 1;
+    return pushstring(L, to_name(L, 1).get_string());
 }
 
 static const struct luaL_Reg name_m[] = {

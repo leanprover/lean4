@@ -365,8 +365,7 @@ DECL_UDATA(sexpr)
 static int sexpr_tostring(lua_State * L) {
     std::ostringstream out;
     out << to_sexpr(L, 1);
-    lua_pushstring(L, out.str().c_str());
-    return 1;
+    return pushstring(L, out.str().c_str());
 }
 
 static sexpr to_sexpr_elem(lua_State * L, int idx) {
@@ -427,8 +426,7 @@ static int sexpr_length(lua_State * L) {
     sexpr const & e = to_sexpr(L, 1);
     if (!is_list(e))
         throw exception("s-expression is not a list");
-    lua_pushinteger(L, length(e));
-    return 1;
+    return pushinteger(L, length(e));
 }
 
 static int sexpr_head(lua_State * L) {
@@ -456,24 +454,21 @@ static int sexpr_to_string(lua_State * L) {
     sexpr const & e = to_sexpr(L, 1);
     if (!is_string(e))
         throw exception("s-expression is not a string");
-    lua_pushstring(L, to_string(e).c_str());
-    return 1;
+    return pushstring(L, to_string(e).c_str());
 }
 
 static int sexpr_to_int(lua_State * L) {
     sexpr const & e = to_sexpr(L, 1);
     if (!is_int(e))
         throw exception("s-expression is not an integer");
-    lua_pushinteger(L, to_int(e));
-    return 1;
+    return pushinteger(L, to_int(e));
 }
 
 static int sexpr_to_double(lua_State * L) {
     sexpr const & e = to_sexpr(L, 1);
     if (!is_double(e))
         throw exception("s-expression is not a double");
-    lua_pushnumber(L, to_double(e));
-    return 1;
+    return pushnumber(L, to_double(e));
 }
 
 static int sexpr_to_name(lua_State * L) {
@@ -498,8 +493,7 @@ static int sexpr_to_mpq(lua_State * L) {
 }
 
 static int sexpr_get_kind(lua_State * L) {
-    lua_pushinteger(L, static_cast<int>(to_sexpr(L, 1).kind()));
-    return 1;
+    return pushinteger(L, static_cast<int>(to_sexpr(L, 1).kind()));
 }
 
 static int sexpr_fields(lua_State * L) {

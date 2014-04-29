@@ -18,8 +18,7 @@ static int mk_lua_rb_map(lua_State * L) {
 }
 
 static int lua_rb_map_size(lua_State * L) {
-    lua_pushinteger(L, to_lua_rb_map(L, 1).size());
-    return 1;
+    return pushinteger(L, to_lua_rb_map(L, 1).size());
 }
 
 static int lua_rb_map_contains(lua_State * L) {

@@ -133,6 +133,9 @@ lua_migrate_fn get_migrate_fn(lua_State * src, int i);
 // =======================================
 // Useful macros
 inline int pushboolean(lua_State * L, bool b) { lua_pushboolean(L, b); return 1; }
+inline int pushstring(lua_State * L, char const * s) { lua_pushstring(L, s); return 1; }
+inline int pushinteger(lua_State * L, lua_Integer v) { lua_pushinteger(L, v); return 1; }
+inline int pushnumber(lua_State * L, lua_Number v) { lua_pushnumber(L, v); return 1; }
 // =======================================
 
 }

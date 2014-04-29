@@ -231,13 +231,11 @@ static int mk_options(lua_State * L) {
 static int options_tostring(lua_State * L) {
     std::ostringstream out;
     out << to_options(L, 1);
-    lua_pushstring(L, out.str().c_str());
-    return 1;
+    return pushstring(L, out.str().c_str());
 }
 
 static int options_size(lua_State * L) {
-    lua_pushinteger(L, to_options(L, 1).size());
-    return 1;
+    return pushinteger(L, to_options(L, 1).size());
 }
 
 static int options_contains(lua_State * L) {
@@ -257,29 +255,25 @@ static int options_get_bool(lua_State * L) {
 static int options_get_int(lua_State * L) {
     int nargs = lua_gettop(L);
     int defval = nargs < 3 ? 0 : lua_tointeger(L, 3);
-    lua_pushinteger(L, to_options(L, 1).get_int(to_name_ext(L, 2), defval));
-    return 1;
+    return pushinteger(L, to_options(L, 1).get_int(to_name_ext(L, 2), defval));
 }
 
 static int options_get_unsigned(lua_State * L) {
     int nargs = lua_gettop(L);
     unsigned defval = nargs < 3 ? 0 : lua_tointeger(L, 3);
-    lua_pushnumber(L, to_options(L, 1).get_unsigned(to_name_ext(L, 2), defval));
-    return 1;
+    return pushnumber(L, to_options(L, 1).get_unsigned(to_name_ext(L, 2), defval));
 }
 
 static int options_get_double(lua_State * L) {
     int nargs = lua_gettop(L);
     double defval = nargs < 3 ? 0.0 : lua_tonumber(L, 3);
-    lua_pushnumber(L, to_options(L, 1).get_double(to_name_ext(L, 2), defval));
-    return 1;
+    return pushnumber(L, to_options(L, 1).get_double(to_name_ext(L, 2), defval));
 }
 
 static int options_get_string(lua_State * L) {
     int nargs = lua_gettop(L);
     char const * defval = nargs < 3 ? "" : lua_tostring(L, 3);
-    lua_pushstring(L, to_options(L, 1).get_string(to_name_ext(L, 2), defval));
-    return 1;
+    return pushstring(L, to_options(L, 1).get_string(to_name_ext(L, 2), defval));
 }
 
 static int options_update_bool(lua_State * L) {

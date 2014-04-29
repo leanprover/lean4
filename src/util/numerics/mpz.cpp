@@ -121,8 +121,7 @@ static int mpz_tostring(lua_State * L) {
     mpz * n = static_cast<mpz*>(luaL_checkudata(L, 1, mpz_mt));
     std::ostringstream out;
     out << *n;
-    lua_pushstring(L, out.str().c_str());
-    return 1;
+    return pushstring(L, out.str().c_str());
 }
 
 static int mpz_eq(lua_State * L) {

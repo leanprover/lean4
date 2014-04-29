@@ -2,8 +2,6 @@ language: cpp
 
 env:
   global:
-   # BB_TOKEN
-   - secure: "gBp3VTkChQflgWBoEnHhA2y7+KCdHS8u+uqij6kh4v+I5bj/Bu7uEeqMDZwmRRoTkrDu6eYHxCJQOr9ODAVc2BP4Y8zUFWuVKUrkvP9Qeeqe/X+7WFuQSHMy3yC5ESb8LVdiy4aAQuSt0sHC0M3BdnBMTZ9Ergkcc9lmW6bu9XQ="
    # GH_TOKEN
    - secure: "Zdab8c1wnKcwYWEVBvtaClCzw7sYmFPZ47urG4jSeO5FL+M4MiR6c7STeoW7wge9k3uUyMTAodD/bJ0RhskBp0wbvg0UoYQaFRm+RwsDiM7CNj+fYM8wnV0cvTJj869NsqQ92zde6L5gFEHNDrVUwC6PJpIC4JxRRfzIA4/qH5A="
    # DROPBOX_KEY
@@ -191,9 +189,6 @@ install:
     fi
 
 before_script:
-- if [[ $LEANREPO == BLESSED && $TRIGGER_BB == TRUE ]]; then
-      git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/soonhok/lean.git +master;
-  fi
 - if [[ $LEANREPO == BLESSED && $TRIGGER_OSX == TRUE ]]; then
       MSG=`git log --pretty=oneline --abbrev-commit -n 1 | cut -d ' ' -f 2-`;
       cp .travis.yml /tmp/.travis.temp.yml;

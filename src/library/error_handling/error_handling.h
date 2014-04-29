@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/exception.h"
 #include "kernel/pos_info_provider.h"
-#include "kernel/io_state.h"
+#include "library/io_state.h"
 
 namespace lean {
 /**

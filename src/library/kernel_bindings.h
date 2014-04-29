@@ -1,31 +1,27 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+Copyright (c) 2013-2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
 #pragma once
 #include "util/lua.h"
-#include "kernel/threadsafe_environment.h"
+#include "kernel/environment.h"
 
 namespace lean {
 void open_kernel_module(lua_State * L);
 UDATA_DEFS(level)
-UDATA_DEFS(local_entry)
-UDATA_DEFS_CORE(local_context)
 UDATA_DEFS(expr);
-UDATA_DEFS(context_entry)
-UDATA_DEFS(context)
 UDATA_DEFS(formatter)
-UDATA_DEFS(object)
+UDATA_DEFS(definition)
 UDATA_DEFS(environment)
 UDATA_DEFS(justification)
-UDATA_DEFS(metavar_env)
+UDATA_DEFS(constraint)
+UDATA_DEFS(substitution)
 UDATA_DEFS(io_state)
-int push_environment(lua_State * L, ro_environment const & env);
 int push_optional_expr(lua_State * L, optional<expr> const & e);
 int push_optional_justification(lua_State * L, optional<justification> const & j);
-int push_optional_object(lua_State * L, optional<object> const & o);
+int push_optional_definition(lua_State * L, optional<definition> const & o);
 /**
    \brief Return the formatter object associated with the given Lua State.
    This procedure checks for options at:
@@ -56,26 +52,6 @@ class set_environment {
 public:
     set_environment(lua_State * L, environment const & env);
     ~set_environment();
-};
-
-/**
-   \brief Helper class for getting a read-only reference
-   for an environment object on the Lua stack.
-*/
-class ro_shared_environment : public read_only_shared_environment {
-public:
-    ro_shared_environment(lua_State * L, int idx);
-    ro_shared_environment(lua_State * L);
-};
-
-/**
-   \brief Helper class for getting a read-write reference
-   for an environment object on the Lua stack.
-*/
-class rw_shared_environment : public read_write_shared_environment {
-public:
-    rw_shared_environment(lua_State * L, int idx);
-    rw_shared_environment(lua_State * L);
 };
 
 /** \brief Set the Lua registry of a Lua state with an io_state object. */

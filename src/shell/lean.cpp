@@ -19,12 +19,12 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/formatter.h"
+#include "library/error_handling/error_handling.h"
 #if 0
 #include "kernel/io_state.h"
 #include "library/printer.h"
 #include "library/kernel_bindings.h"
 #include "library/io_state_stream.h"
-#include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/shell.h"
 #include "frontends/lean/frontend.h"
@@ -36,6 +36,7 @@ Author: Leonardo de Moura
 
 using lean::script_state;
 using lean::unreachable_reached;
+using lean::io_state;
 
 #if 0
 using lean::shell;
@@ -43,7 +44,6 @@ using lean::parser;
 using lean::invoke_debugger;
 using lean::notify_assertion_violation;
 using lean::environment;
-using lean::io_state;
 #endif
 
 enum class input_kind { Unspecified, Lean, OLean, Lua };
@@ -175,6 +175,7 @@ int main(int argc, char ** argv) {
         }
     }
 
+    io_state ios(lean::mk_simple_formatter());
     // environment env;
     // env->set_trusted_imported(trust_imported);
     // io_state ios = init_frontend(env, no_kernel);
@@ -237,7 +238,7 @@ int main(int argc, char ** argv) {
                     try {
                         S.dofile(argv[i]);
                     } catch (lean::exception & ex) {
-                        // ::lean::display_error(ios, nullptr, ex);
+                        ::lean::display_error(ios, nullptr, ex);
                         ok = false;
                     }
                 } else {

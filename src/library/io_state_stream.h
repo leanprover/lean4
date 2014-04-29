@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "kernel/io_state.h"
+#include "library/io_state.h"
 
 namespace lean {
 /**
@@ -50,8 +50,6 @@ class kernel_exception;
 
 io_state_stream const & operator<<(io_state_stream const & out, endl_class);
 io_state_stream const & operator<<(io_state_stream const & out, expr const & e);
-io_state_stream const & operator<<(io_state_stream const & out, object const & obj);
-io_state_stream const & operator<<(io_state_stream const & out, environment const & env);
 io_state_stream const & operator<<(io_state_stream const & out, kernel_exception const & ex);
 template<typename T> io_state_stream const & operator<<(io_state_stream const & out, T const & t) {
     out.get_stream() << t;

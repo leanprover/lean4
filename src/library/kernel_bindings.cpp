@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+Copyright (c) 2013-2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
@@ -8,23 +8,9 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/sstream.h"
 #include "util/script_state.h"
-#include "kernel/expr.h"
-#include "kernel/context.h"
-#include "kernel/formatter.h"
-#include "kernel/environment.h"
-#include "kernel/metavar.h"
-#include "kernel/abstract.h"
-#include "kernel/free_vars.h"
-#include "kernel/for_each_fn.h"
-#include "kernel/instantiate.h"
-#include "kernel/occurs.h"
-#include "kernel/kernel.h"
-#include "kernel/io_state.h"
-#include "kernel/type_checker.h"
 #include "library/io_state_stream.h"
 #include "library/expr_lt.h"
 #include "library/kernel_bindings.h"
-#include "library/printer.h"
 
 // Lua Bindings for the Kernel classes. We do not include the Lua
 // bindings in the kernel because we do not want to inflate the Kernel.
@@ -46,30 +32,17 @@ static int level_eq(lua_State * L) {
 }
 
 static int level_lt(lua_State * L) {
-    lua_pushboolean(L, to_level(L, 1) < to_level(L, 2));
+    lua_pushboolean(L, is_lt(to_level(L, 1), to_level(L, 2)));
     return 1;
 }
 
-static int mk_level(lua_State * L) {
-    int nargs = lua_gettop(L);
-    if (nargs == 0) {
-        // bottom
-        return push_level(L, level());
-    } else if (nargs == 1) {
-        // uvar
-        return push_level(L, level(to_name_ext(L, 1)));
-    } else if (nargs == 2 && lua_isnumber(L, 2)) {
-        // lift
-        return push_level(L, to_level(L, 1) + luaL_checkinteger(L, 2));
-    } else {
-        // max
-        level r = to_level(L, 1);
-        for (int i = 2; i <= nargs; i++) {
-            r = max(r, to_level(L, i));
-        }
-        return push_level(L, r);
-    }
-}
+static int mk_level_zero(lua_State * L) { return push_level(L, mk_level_zero()); }
+static int mk_level_one(lua_State * L)  { return push_level(L, mk_level_one());  }
+static int mk_level_succ(lua_State * L) { return push_level(L, mk_succ(to_level(L, 1))); }
+static int mk_level_max(lua_State * L)  { return push_level(L, mk_max(to_level(L, 1), to_level(L, 2))); }
+static int mk_level_imax(lua_State * L) { return push_level(L, mk_imax(to_level(L, 1), to_level(L, 2))); }
+static int mk_param_univ(lua_State * L) { return push_level(L, mk_param_univ(to_name_ext(L, 1))); }
+static int mk_meta_univ(lua_State * L)  { return push_level(L, mk_meta_univ(to_name_ext(L, 1))); }
 
 #define LEVEL_PRED(P)                           \
 static int level_ ## P(lua_State * L)    {      \
@@ -77,10 +50,69 @@ static int level_ ## P(lua_State * L)    {      \
     return 1;                                   \
 }
 
-LEVEL_PRED(is_bottom)
-LEVEL_PRED(is_uvar)
-LEVEL_PRED(is_lift)
+LEVEL_PRED(is_zero)
+LEVEL_PRED(is_param)
+LEVEL_PRED(is_meta)
+LEVEL_PRED(is_succ)
 LEVEL_PRED(is_max)
+LEVEL_PRED(is_imax)
+
+static int level_get_kind(lua_State * L) {
+    lua_pushinteger(L, static_cast<int>(kind(to_level(L, 1))));
+    return 1;
+}
+
+static const struct luaL_Reg level_m[] = {
+    {"__gc",            level_gc}, // never throws
+    {"__tostring",      safe_function<level_tostring>},
+    {"__eq",            safe_function<level_eq>},
+    {"__lt",            safe_function<level_lt>},
+    {"kind",            safe_function<level_get_kind>},
+    {"is_zero",         safe_function<level_is_zero>},
+    {"is_param",        safe_function<level_is_param>},
+    {"is_meta",         safe_function<level_is_meta>},
+    {"is_succ",         safe_function<level_is_succ>},
+    {"is_max",          safe_function<level_is_max>},
+    {"is_imax",         safe_function<level_is_imax>},
+    {"succ",            safe_function<mk_level_succ>},
+    {0, 0}
+};
+
+static void open_level(lua_State * L) {
+    luaL_newmetatable(L, level_mt);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    setfuncs(L, level_m, 0);
+
+    SET_GLOBAL_FUN(mk_level_zero,  "level");
+    SET_GLOBAL_FUN(mk_level_zero,  "mk_level_zero");
+    SET_GLOBAL_FUN(mk_level_one,   "mk_level_one");
+    SET_GLOBAL_FUN(mk_level_succ,  "mk_level_succ");
+    SET_GLOBAL_FUN(mk_level_max,   "mk_level_max");
+    SET_GLOBAL_FUN(mk_level_imax,  "mk_level_imax");
+    SET_GLOBAL_FUN(mk_param_univ,  "mk_param_univ");
+    SET_GLOBAL_FUN(mk_meta_univ,   "mk_meta_univ");
+
+    SET_GLOBAL_FUN(level_pred, "is_level");
+
+    lua_newtable(L);
+    SET_ENUM("Zero",      level_kind::Zero);
+    SET_ENUM("Succ",      level_kind::Succ);
+    SET_ENUM("Max",       level_kind::Max);
+    SET_ENUM("IMax",      level_kind::IMax);
+    SET_ENUM("Param",     level_kind::Param);
+    SET_ENUM("Meta",      level_kind::Meta);
+    lua_setglobal(L, "level_kind");
+}
+
+void open_kernel_module(lua_State * L) {
+    // TODO(Leo)
+    open_level(L);
+}
+}
+
+#if 0
+namespace lean {
 
 static int level_name(lua_State * L) {
     if (!is_uvar(to_level(L, 1)))
@@ -114,160 +146,6 @@ static int level_max_level(lua_State * L) {
     return push_level(L, max_level(to_level(L, 1), luaL_checkinteger(L, 2)));
 }
 
-static int level_get_kind(lua_State * L) {
-    lua_pushinteger(L, static_cast<int>(kind(to_level(L, 1))));
-    return 1;
-}
-
-static const struct luaL_Reg level_m[] = {
-    {"__gc",            level_gc}, // never throws
-    {"__tostring",      safe_function<level_tostring>},
-    {"__eq",            safe_function<level_eq>},
-    {"__lt",            safe_function<level_lt>},
-    {"kind",            safe_function<level_get_kind>},
-    {"is_bottom",       safe_function<level_is_bottom>},
-    {"is_lift",         safe_function<level_is_lift>},
-    {"is_max",          safe_function<level_is_max>},
-    {"is_uvar",         safe_function<level_is_uvar>},
-    {"uvar_name",       safe_function<level_name>},
-    {"lift_of",         safe_function<level_lift_of>},
-    {"lift_offset",     safe_function<level_lift_offset>},
-    {"max_size",        safe_function<level_max_size>},
-    {"max_level",       safe_function<level_max_level>},
-    {0, 0}
-};
-
-static void open_level(lua_State * L) {
-    luaL_newmetatable(L, level_mt);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    setfuncs(L, level_m, 0);
-
-    SET_GLOBAL_FUN(mk_level,   "level");
-    SET_GLOBAL_FUN(level_pred, "is_level");
-
-    lua_newtable(L);
-    SET_ENUM("UVar",      level_kind::UVar);
-    SET_ENUM("Lift",      level_kind::Lift);
-    SET_ENUM("Max",       level_kind::Max);
-    lua_setglobal(L, "level_kind");
-}
-
-DECL_UDATA(local_entry)
-
-static int local_entry_eq(lua_State * L) {
-    lua_pushboolean(L, to_local_entry(L, 1) == to_local_entry(L, 2));
-    return 1;
-}
-
-static int local_entry_mk_lift(lua_State * L) {
-    return push_local_entry(L, mk_lift(luaL_checkinteger(L, 1), luaL_checkinteger(L, 2)));
-}
-
-static int local_entry_mk_inst(lua_State * L) {
-    return push_local_entry(L, mk_inst(luaL_checkinteger(L, 1), to_expr(L, 2)));
-}
-
-static int local_entry_is_lift(lua_State * L) {
-    lua_pushboolean(L, is_local_entry(L, 1) && to_local_entry(L, 1).is_lift());
-    return 1;
-}
-
-static int local_entry_is_inst(lua_State * L) {
-    lua_pushboolean(L, is_local_entry(L, 1) && to_local_entry(L, 1).is_inst());
-    return 1;
-}
-
-static int local_entry_s(lua_State * L) {
-    lua_pushinteger(L, to_local_entry(L, 1).s());
-    return 1;
-}
-
-static int local_entry_n(lua_State * L) {
-    local_entry & e = to_local_entry(L, 1);
-    if (!e.is_lift())
-        throw exception("Lean lift local entry expected");
-    lua_pushinteger(L, to_local_entry(L, 1).n());
-    return 1;
-}
-
-static int local_entry_v(lua_State * L) {
-    local_entry & e = to_local_entry(L, 1);
-    if (!e.is_inst())
-        throw exception("Lean inst local entry expected");
-    return push_expr(L, to_local_entry(L, 1).v());
-    return 1;
-}
-
-static const struct luaL_Reg local_entry_m[] = {
-    {"__gc",      local_entry_gc}, // never throws
-    {"__eq",      safe_function<local_entry_eq>},
-    {"is_lift",   safe_function<local_entry_is_lift>},
-    {"is_inst",   safe_function<local_entry_is_inst>},
-    {"s",         safe_function<local_entry_s>},
-    {"n",         safe_function<local_entry_n>},
-    {"v",         safe_function<local_entry_v>},
-    {0, 0}
-};
-
-DECL_UDATA(local_context)
-
-static int mk_local_context(lua_State * L) {
-    int nargs = lua_gettop(L);
-    if (nargs == 0) {
-        return push_local_context(L, local_context());
-    } else {
-        return push_local_context(L, local_context(to_local_entry(L, 1), to_local_context(L, 2)));
-    }
-}
-
-static int local_context_head(lua_State * L) {
-    return push_local_entry(L, head(to_local_context(L, 1)));
-}
-
-static int local_context_tail(lua_State * L) {
-    return push_local_context(L, tail(to_local_context(L, 1)));
-}
-
-static int local_context_is_nil(lua_State * L) {
-    lua_pushboolean(L, !to_local_context(L, 1));
-    return 1;
-}
-
-static const struct luaL_Reg local_context_m[] = {
-    {"__gc",      local_context_gc},
-    {"head",      local_context_head},
-    {"tail",      local_context_tail},
-    {"is_nil",    local_context_is_nil},
-    {0, 0}
-};
-
-static void local_entry_migrate(lua_State * src, int i, lua_State * tgt) {
-    push_local_entry(tgt, to_local_entry(src, i));
-}
-
-static void local_context_migrate(lua_State * src, int i, lua_State * tgt) {
-    push_local_context(tgt, to_local_context(src, i));
-}
-
-static void open_local_context(lua_State * L) {
-    luaL_newmetatable(L, local_entry_mt);
-    set_migrate_fn_field(L, -1, local_entry_migrate);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    setfuncs(L, local_entry_m, 0);
-    SET_GLOBAL_FUN(local_entry_mk_lift, "mk_lift");
-    SET_GLOBAL_FUN(local_entry_mk_inst, "mk_inst");
-    SET_GLOBAL_FUN(local_entry_pred,    "is_local_entry");
-
-    luaL_newmetatable(L, local_context_mt);
-    set_migrate_fn_field(L, -1, local_context_migrate);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    setfuncs(L, local_context_m, 0);
-    SET_GLOBAL_FUN(mk_local_context,   "local_context");
-    SET_GLOBAL_FUN(local_context_pred, "is_local_context");
-}
 
 DECL_UDATA(expr)
 
@@ -1963,3 +1841,4 @@ void open_kernel_module(lua_State * L) {
     open_io_state(L);
 }
 }
+#endif

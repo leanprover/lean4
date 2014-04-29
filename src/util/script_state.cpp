@@ -18,7 +18,7 @@ Author: Leonardo de Moura
 #include "util/script_state.h"
 #include "util/script_exception.h"
 #include "util/name.h"
-#include "util/splay_map.h"
+#include "util/rb_map.h"
 #include "util/lean_path.h"
 
 extern "C" void * lua_realloc(void *, void * q, size_t, size_t new_size) { return lean::realloc(q, new_size); }
@@ -84,7 +84,7 @@ struct script_state::imp {
         luaL_openlibs(m_state);
         open_exception(m_state);
         open_name(m_state);
-        open_splay_map(m_state);
+        open_rb_map(m_state);
         open_extra(m_state);
 
         for (auto f : g_modules) {

@@ -3,7 +3,7 @@
     <th>Ubuntu</th><th>OS X</th><th>Windows</th><th>Coverage</th><th>Builds / UnitTests / Dynamic Analyses</th>
   </tr>
   <tr>
-    <td><a href="https://travis-ci.org/leodemoura/lean"><img src="https://travis-ci.org/leodemoura/lean.png?branch=master" title="Ubuntu 12.04 LTS 64bit, g++-4.8 | clang++-3.3"/></a></td>
+    <td><a href="https://travis-ci.org/leanprover/lean"><img src="https://travis-ci.org/leanprover/lean.png?branch=master" title="Ubuntu 12.04 LTS 64bit, g++-4.8 | clang++-3.3"/></a></td>
     <td><a href="https://travis-ci.org/soonhokong/lean-osx"><img src="https://travis-ci.org/soonhokong/lean-osx.png?branch=master" title="Mac OS X 10.8.2, g++-4.9"/></a></td>
     <td><a href="https://travis-ci.org/soonhokong/lean-windows"><img src="https://travis-ci.org/soonhokong/lean-windows.png?branch=master" title="Windows, x86_64-w64-mingw32-g++-4.8.2"/></a></td>
     <td><a href="https://coveralls.io/r/soonhokong/lean?branch=master"><img src="https://coveralls.io/repos/soonhokong/lean/badge.png?branch=master"/></a></td>
@@ -11,7 +11,7 @@
   </tr>
 </table>
 
-**Remark: Lean 0.2 is under development. To try Lean, please use [version 0.1](https://github.com/leodemoura/lean0.1).**
+**Remark: Lean 0.2 is under development. To try Lean, please use [version 0.1](https://github.com/leanprover/lean0.1).**
 
 About
 -----

@@ -30,7 +30,7 @@ Preparing working environment on Ubuntu 12.04
     sudo apt-get install libboost1.54-dev
     sudo apt-get install libboost-thread1.54-dev
 
-### Fork Lean on github : https://github.com/leodemoura/lean
+### Fork Lean on github : https://github.com/leanprover/lean
 
 ### Create a projects directory
 

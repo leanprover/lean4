@@ -2,7 +2,7 @@ Lean Tutorial
 =============
 
 **WARNING: This tutoral is for Lean 0.1, before major modifications performed in version 0.2.
-Version 0.2 is still under development. [Here you can find a snapshot of Lean 0.1](https://github.com/leodemoura/lean0.1).**
+Version 0.2 is still under development. [Here you can find a snapshot of Lean 0.1](https://github.com/leanprover/lean0.1).**
 
 Introduction
 ------------

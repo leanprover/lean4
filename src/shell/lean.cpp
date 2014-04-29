@@ -29,8 +29,8 @@ Author: Leonardo de Moura
 #include "frontends/lean/shell.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/register_module.h"
-#include "frontends/lua/register_modules.h"
 #endif
+#include "frontends/lua/register_modules.h"
 #include "version.h"
 #include "githash.h" // NOLINT
 
@@ -115,7 +115,7 @@ static struct option g_long_options[] = {
 
 int main(int argc, char ** argv) {
     lean::save_stack_info();
-    // lean::register_modules();
+    lean::register_modules();
     // bool no_kernel      = false;
     // bool export_objects = false;
     // bool trust_imported = false;

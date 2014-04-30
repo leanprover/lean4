@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include "util/lua.h"
 #include "util/serializer.h"
+#include "util/list.h"
 
 namespace lean {
 constexpr char const * lean_name_separator = "::";
@@ -146,5 +147,8 @@ inline deserializer & operator>>(deserializer & d, name & n) { n = read_name(d);
 
 UDATA_DEFS(name)
 name to_name_ext(lua_State * L, int idx);
+list<name> & to_list_name(lua_State * L, int idx);
+list<name> to_list_name_ext(lua_State * L, int idx);
+int push_list_name(lua_State * L, list<name> const & l);
 void open_name(lua_State * L);
 }

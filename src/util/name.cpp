@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "util/trace.h"
 #include "util/ascii.h"
 #include "util/object_serializer.h"
+#include "util/list_lua.h"
 
 namespace lean {
 constexpr char const * anonymous_str = "[anonymous]";
@@ -520,6 +521,8 @@ static void name_migrate(lua_State * src, int i, lua_State * tgt) {
     push_name(tgt, to_name(src, i));
 }
 
+DEFINE_LUA_LIST(name, push_name, to_name_ext)
+
 void open_name(lua_State * L) {
     luaL_newmetatable(L, name_mt);
     set_migrate_fn_field(L, -1, name_migrate);
@@ -529,6 +532,8 @@ void open_name(lua_State * L) {
 
     SET_GLOBAL_FUN(mk_name,   "name");
     SET_GLOBAL_FUN(name_pred, "is_name");
+
+    open_list_name(L);
 }
 }
 void print(lean::name const & n) { std::cout << n << std::endl; }

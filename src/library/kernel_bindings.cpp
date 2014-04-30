@@ -49,6 +49,7 @@ LEVEL_PRED(has_param)
 LEVEL_PRED(is_not_zero)
 static int level_get_kind(lua_State * L) { return pushinteger(L, static_cast<int>(kind(to_level(L, 1)))); }
 static int level_trivially_leq(lua_State * L) { return pushboolean(L, is_trivial(to_level(L, 1), to_level(L, 2))); }
+static int level_is_eqp(lua_State * L) { return pushboolean(L, is_eqp(to_level(L, 1), to_level(L, 2))); }
 
 static int level_id(lua_State * L) {
     level const & l = to_level(L, 1);
@@ -103,6 +104,7 @@ static const struct luaL_Reg level_m[] = {
     {"has_param",       safe_function<level_has_param>},
     {"is_not_zero",     safe_function<level_is_not_zero>},
     {"trivially_leq",   safe_function<level_trivially_leq>},
+    {"is_eqp",          safe_function<level_is_eqp>},
     {"id",              safe_function<level_id>},
     {"lhs",             safe_function<level_lhs>},
     {"rhs",             safe_function<level_rhs>},
@@ -146,40 +148,6 @@ void open_kernel_module(lua_State * L) {
 
 #if 0
 namespace lean {
-
-static int level_name(lua_State * L) {
-    if (!is_uvar(to_level(L, 1)))
-        throw exception("arg #1 must be a Lean level universal variable");
-    return push_name(L, uvar_name(to_level(L, 1)));
-}
-
-static int level_lift_of(lua_State * L) {
-    if (!is_lift(to_level(L, 1)))
-        throw exception("arg #1 must be a Lean level lift");
-    return push_level(L, lift_of(to_level(L, 1)));
-}
-
-static int level_lift_offset(lua_State * L) {
-    if (!is_lift(to_level(L, 1)))
-        throw exception("arg #1 must be a Lean level lift");
-    lua_pushinteger(L, lift_offset(to_level(L, 1)));
-    return 1;
-}
-
-static int level_max_size(lua_State * L) {
-    if (!is_max(to_level(L, 1)))
-        throw exception("arg #1 must be a Lean level max");
-    lua_pushinteger(L, max_size(to_level(L, 1)));
-    return 1;
-}
-
-static int level_max_level(lua_State * L) {
-    if (!is_max(to_level(L, 1)))
-        throw exception("arg #1 must be a Lean level max");
-    return push_level(L, max_level(to_level(L, 1), luaL_checkinteger(L, 2)));
-}
-
-
 DECL_UDATA(expr)
 
 int push_optional_expr(lua_State * L, optional<expr> const & e) {

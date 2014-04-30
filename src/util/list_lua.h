@@ -24,4 +24,54 @@ list<T> table_to_list(lua_State * L, int idx, Proc const & to_value) {
         throw exception("invalid argument, lua table expected");
     }
 }
+
+#define DEFINE_LUA_LIST(T, PushVal, ToVal)                              \
+typedef list<T> list_ ## T;                                             \
+DECL_UDATA(list_ ## T)                                                  \
+static int list_ ## T ## _cons(lua_State * L) { return push_list_ ## T(L, list<T>(ToVal(L, 1), to_list_ ## T(L, 2))); } \
+static int list_ ## T ## _nil(lua_State * L) { return push_list_ ## T(L, list<T>()); } \
+static int list_ ## T ## _mk(lua_State * L) {                           \
+    int nargs = lua_gettop(L);                                          \
+    return (nargs == 0) ? list_ ## T ## _nil(L) : list_ ## T ## _cons(L); \
+}                                                                       \
+static int list_ ## T ## _is_nil(lua_State * L) { return pushboolean(L, is_nil(to_list_ ## T(L, 1))); } \
+static int list_ ## T ## _car(lua_State * L) {                          \
+    list<T> & l = to_list_ ## T(L, 1);                                  \
+    if (is_nil(l)) throw exception("arg #1 must be a cons cell");       \
+    return push_list_ ## T(L, car(l));                                  \
+}                                                                       \
+static int list_ ## T ## _cdr(lua_State * L) {                          \
+    list<T> & l = to_list_ ## T(L, 1);                                  \
+    if (is_nil(l)) throw exception("arg #1 must be a cons cell");       \
+    return push_list_ ## T(L, cdr(l));                                  \
+}                                                                       \
+static int list_ ## T ## _eq(lua_State * L) { return pushboolean(L, to_list_ ## T(L, 1) == to_list_ ## T(L, 2)); } \
+static int list_ ## T ## _is_eqp(lua_State * L) { return pushboolean(L, is_eqp(to_list_ ## T(L, 1), to_list_ ## T(L, 2))); } \
+static const struct luaL_Reg list_ ## T ## _m[] = {                     \
+    {"__gc",            list_ ## T ## _gc},                             \
+    {"__eq",            safe_function<list_ ## T ## _eq>},              \
+    {"is_nil",          safe_function<list_ ## T ## _is_nil>},          \
+    {"empty",           safe_function<list_ ## T ## _is_nil>},          \
+    {"car",             safe_function<list_ ## T ## _car>},             \
+    {"cdr",             safe_function<list_ ## T ## _cdr>},             \
+    {"head",            safe_function<list_ ## T ## _car>},             \
+    {"tail",            safe_function<list_ ## T ## _cdr>},             \
+    {"is_eqp",          safe_function<list_ ## T ## _is_eqp>},          \
+    {0, 0}                                                              \
+};                                                                      \
+list<T> to_list_ ## T ## _ext(lua_State * L, int idx) {                 \
+    if (is_list_ ## T(L, idx))                                          \
+        return to_list_ ## T(L, idx);                                   \
+    else                                                                \
+        return table_to_list<T>(L, idx, ToVal);                         \
+}                                                                       \
+static void open_list_ ## T(lua_State * L) {                            \
+    luaL_newmetatable(L, list_ ## T ## _mt);                            \
+    lua_pushvalue(L, -1);                                               \
+    lua_setfield(L, -2, "__index");                                     \
+    setfuncs(L, list_ ## T ## _m, 0);                                   \
+                                                                        \
+    set_global_function<list_ ## T ## _mk>(L, "list_" #T);              \
+    set_global_function<list_ ## T ## _pred>(L, "is_list_" #T);         \
+}
 }

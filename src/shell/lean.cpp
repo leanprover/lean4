@@ -36,14 +36,16 @@ Author: Leonardo de Moura
 
 using lean::script_state;
 using lean::unreachable_reached;
+using lean::environment;
 using lean::io_state;
+using lean::io_state_stream;
+using lean::regular;
 
 #if 0
 using lean::shell;
 using lean::parser;
 using lean::invoke_debugger;
 using lean::notify_assertion_violation;
-using lean::environment;
 #endif
 
 enum class input_kind { Unspecified, Lean, OLean, Lua };
@@ -238,7 +240,8 @@ int main(int argc, char ** argv) {
                     try {
                         S.dofile(argv[i]);
                     } catch (lean::exception & ex) {
-                        ::lean::display_error(ios, nullptr, ex);
+                        environment env; // TODO(Leo): use global environment
+                        ::lean::display_error(regular(env, ios), nullptr, ex);
                         ok = false;
                     }
                 } else {

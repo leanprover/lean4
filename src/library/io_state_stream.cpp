@@ -14,7 +14,7 @@ io_state_stream const & operator<<(io_state_stream const & out, endl_class) {
 
 io_state_stream const & operator<<(io_state_stream const & out, expr const & e) {
     options const & opts = out.get_options();
-    out.get_stream() << mk_pair(out.get_formatter()(e, opts), opts);
+    out.get_stream() << mk_pair(out.get_formatter()(out.get_environment(), e, opts), opts);
     return out;
 }
 

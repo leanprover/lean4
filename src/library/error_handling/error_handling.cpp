@@ -17,46 +17,46 @@ Author: Leonardo de Moura
 // #include "library/unsolved_metavar_exception.h"
 
 namespace lean {
-void display_error_pos(io_state const & ios, char const * strm_name, unsigned line, unsigned pos) {
-    regular(ios) << strm_name << ":" << line << ":";
+void display_error_pos(io_state_stream const & ios, char const * strm_name, unsigned line, unsigned pos) {
+    ios << strm_name << ":" << line << ":";
     if (pos != static_cast<unsigned>(-1))
-        regular(ios) << pos << ":";
-    regular(ios) << " error:";
+        ios << pos << ":";
+    ios << " error:";
 }
 
-void display_error_pos(io_state const & ios, pos_info_provider const * p, expr const & e) {
+void display_error_pos(io_state_stream const & ios, pos_info_provider const * p, expr const & e) {
     if (p) {
         auto pos = p->get_pos_info(e);
         display_error_pos(ios, p->get_file_name(), pos.first, pos.second);
     } else {
-        regular(ios) << "error:";
+        ios << "error:";
     }
 }
 
-void display_error_pos(io_state const & ios, pos_info_provider const * p, optional<expr> const & e) {
+void display_error_pos(io_state_stream const & ios, pos_info_provider const * p, optional<expr> const & e) {
     if (e) {
         display_error_pos(ios, p, *e);
     } else if (p) {
         auto pos = p->get_some_pos();
         display_error_pos(ios, p->get_file_name(), pos.first, pos.second);
     } else {
-        regular(ios) << "error:";
+        ios << "error:";
     }
 }
 
-void display_error(io_state const & ios, pos_info_provider const * p, exception const & ex);
+void display_error(io_state_stream const & ios, pos_info_provider const * p, exception const & ex);
 
-static void display_error(io_state const & ios, pos_info_provider const * p, kernel_exception const & ex) {
+static void display_error(io_state_stream const & ios, pos_info_provider const * p, kernel_exception const & ex) {
     display_error_pos(ios, p, ex.get_main_expr());
-    regular(ios) << " " << ex << endl;
+    ios << " " << ex << endl;
 }
 
-// static void display_error(io_state const & ios, pos_info_provider const * p, elaborator_exception const & ex) {
+// static void display_error(io_state_stream const & ios, pos_info_provider const * p, elaborator_exception const & ex) {
 //     formatter fmt = ios.get_formatter();
 //     options opts  = ios.get_options();
 //     auto j = ex.get_justification();
 //     j = remove_detail(j);
-//     regular(ios) << mk_pair(j.pp(fmt, opts, p, true), opts) << endl;
+//     ios << mk_pair(j.pp(fmt, opts, p, true), opts) << endl;
 // }
 
 // struct delta_pos_info_provider : public pos_info_provider {
@@ -76,45 +76,45 @@ static void display_error(io_state const & ios, pos_info_provider const * p, ker
 // };
 
 
-static void display_error(io_state const & ios, pos_info_provider const * p, script_exception const & ex) {
+static void display_error(io_state_stream const & ios, pos_info_provider const * p, script_exception const & ex) {
     if (p) {
         char const * msg = ex.get_msg();
         char const * space = msg && *msg == ' ' ? "" : " ";
         switch (ex.get_source()) {
         case script_exception::source::String:
             display_error_pos(ios, p->get_file_name(), ex.get_line() + p->get_some_pos().first - 1, static_cast<unsigned>(-1));
-            regular(ios) << " executing script," << space << msg << endl;
+            ios << " executing script," << space << msg << endl;
             break;
         case script_exception::source::File:
             display_error_pos(ios, p->get_file_name(), p->get_some_pos().first, p->get_some_pos().second);
-            regular(ios) << " executing external script (" << ex.get_file_name() << ":" << ex.get_line() << ")," << space << msg << endl;
+            ios << " executing external script (" << ex.get_file_name() << ":" << ex.get_line() << ")," << space << msg << endl;
             break;
         case script_exception::source::Unknown:
             display_error_pos(ios, p->get_file_name(), p->get_some_pos().first, p->get_some_pos().second);
-            regular(ios) << " executing script, exact error position is not available, " << ex.what() << endl;
+            ios << " executing script, exact error position is not available, " << ex.what() << endl;
             break;
         }
     } else {
-        regular(ios) << ex.what() << endl;
+        ios << ex.what() << endl;
     }
 }
 
-static void display_error(io_state const & ios, pos_info_provider const * p, script_nested_exception const & ex) {
+static void display_error(io_state_stream const & ios, pos_info_provider const * p, script_nested_exception const & ex) {
     switch (ex.get_source()) {
     case script_exception::source::String:
         if (p) {
             display_error_pos(ios, p->get_file_name(), ex.get_line() + p->get_some_pos().first - 1, static_cast<unsigned>(-1));
-            regular(ios) << " executing script" << endl;
+            ios << " executing script" << endl;
         }
         display_error(ios, nullptr, ex.get_exception());
         break;
     case script_exception::source::File:
         if (p) {
             display_error_pos(ios, p->get_file_name(), p->get_some_pos().first, p->get_some_pos().second);
-            regular(ios) << " executing external script (" << ex.get_file_name() << ":" << ex.get_line() << ")" << endl;
+            ios << " executing external script (" << ex.get_file_name() << ":" << ex.get_line() << ")" << endl;
         } else {
             display_error_pos(ios, ex.get_file_name(), ex.get_line(), -1);
-            regular(ios) << " executing script" << endl;
+            ios << " executing script" << endl;
         }
         display_error(ios, nullptr, ex.get_exception());
         break;
@@ -124,21 +124,21 @@ static void display_error(io_state const & ios, pos_info_provider const * p, scr
     }
 }
 
-// static void display_error(io_state const & ios, pos_info_provider const *, parser_nested_exception const & ex) {
+// static void display_error(io_state_stream const & ios, pos_info_provider const *, parser_nested_exception const & ex) {
 //     display_error(ios, &(ex.get_provider()), ex.get_exception());
 // }
 
-// static void display_error(io_state const & ios, pos_info_provider const *, parser_exception const & ex) {
-//     regular(ios) << ex.what() << endl;
+// static void display_error(io_state_stream const & ios, pos_info_provider const *, parser_exception const & ex) {
+//     ios << ex.what() << endl;
 // }
 
-// static void display_error(io_state const & ios, pos_info_provider const * p, unsolved_metavar_exception const & ex) {
+// static void display_error(io_state_stream const & ios, pos_info_provider const * p, unsolved_metavar_exception const & ex) {
 //     display_error_pos(ios, p, ex.get_expr());
 //     formatter fmt = ios.get_formatter();
 //     options opts  = ios.get_options();
 //     unsigned indent = get_pp_indent(opts);
 //     format r = nest(indent, compose(line(), fmt(ex.get_expr(), opts)));
-//     regular(ios) << " " << ex.what() << mk_pair(r, opts) << endl;
+//     ios << " " << ex.what() << mk_pair(r, opts) << endl;
 //     if (p) {
 //         name_set already_displayed;
 //         for_each(ex.get_expr(), [&](expr const & e, unsigned) -> bool {
@@ -146,9 +146,9 @@ static void display_error(io_state const & ios, pos_info_provider const * p, scr
 //                     name const & m = metavar_name(e);
 //                     if (already_displayed.find(m) == already_displayed.end()) {
 //                         already_displayed.insert(m);
-//                         for (unsigned i = 0; i < indent; i++) regular(ios) << " ";
+//                         for (unsigned i = 0; i < indent; i++) ios << " ";
 //                         display_error_pos(ios, p, e);
-//                         regular(ios) << " unsolved metavar " << m << endl;
+//                         ios << " unsolved metavar " << m << endl;
 //                     }
 //                 }
 //                 return true;
@@ -156,7 +156,7 @@ static void display_error(io_state const & ios, pos_info_provider const * p, scr
 //     }
 // }
 
-void display_error(io_state const & ios, pos_info_provider const * p, exception const & ex) {
+void display_error(io_state_stream const & ios, pos_info_provider const * p, exception const & ex) {
     if (auto k_ex = dynamic_cast<kernel_exception const *>(&ex)) {
         display_error(ios, p, *k_ex);
     // } else if (auto e_ex = dynamic_cast<elaborator_exception const *>(&ex)) {
@@ -173,9 +173,9 @@ void display_error(io_state const & ios, pos_info_provider const * p, exception 
     //     display_error(ios, p, *n_ex);
     } else if (p) {
         display_error_pos(ios, p->get_file_name(), p->get_some_pos().first, p->get_some_pos().second);
-        regular(ios) << " " << ex.what() << endl;
+        ios << " " << ex.what() << endl;
     } else {
-        regular(ios) << "error: " << ex.what() << endl;
+        ios << "error: " << ex.what() << endl;
     }
 }
 }

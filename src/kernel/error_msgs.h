@@ -8,11 +8,12 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "kernel/formatter.h"
 namespace lean {
-format pp_type_expected(formatter const & fmt, options const & opts, expr const & e);
-format pp_function_expected(formatter const & fmt, options const & opts, expr const & e);
-format pp_app_type_mismatch(formatter const & fmt, options const & opts, expr const & app,
+format pp_type_expected(formatter const & fmt, environment const & env, options const & opts, expr const & e);
+format pp_function_expected(formatter const & fmt, environment const & env, options const & opts, expr const & e);
+format pp_app_type_mismatch(formatter const & fmt, environment const & env, options const & opts, expr const & app,
                             expr const & expected_type, expr const & given_type);
-format pp_def_type_mismatch(formatter const & fmt, options const & opts, name const & n,
+format pp_def_type_mismatch(formatter const & fmt, environment const & env, options const & opts, name const & n,
                             expr const & expected_type, expr const & given_type);
-format pp_def_lvl_cnstrs_satisfied(formatter const & fmt, options const & opts, expr const & e, level const & lhs, level const & rhs);
+format pp_def_lvl_cnstrs_satisfied(formatter const & fmt, environment const & env, options const & opts, expr const & e,
+                                   level const & lhs, level const & rhs);
 }

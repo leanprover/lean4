@@ -13,13 +13,15 @@ namespace lean {
 */
 class io_state_stream {
 protected:
-    io_state const & m_io_state;
+    environment const & m_env;
+    io_state const &    m_io_state;
 public:
-    io_state_stream(io_state const & s):m_io_state(s) {}
+    io_state_stream(environment const & env, io_state const & s):m_env(env), m_io_state(s) {}
     virtual std::ostream & get_stream() const = 0;
     void flush() { get_stream().flush(); }
     formatter get_formatter() const { return m_io_state.get_formatter(); }
     options get_options() const { return m_io_state.get_options(); }
+    environment const & get_environment() const { return m_env; }
 };
 
 /**
@@ -28,7 +30,7 @@ public:
 */
 class regular : public io_state_stream {
 public:
-    regular(io_state const & s):io_state_stream(s) {}
+    regular(environment const & env, io_state const & s):io_state_stream(env, s) {}
     std::ostream & get_stream() const { return m_io_state.get_regular_channel().get_stream(); }
 };
 
@@ -38,7 +40,7 @@ public:
 */
 class diagnostic : public io_state_stream {
 public:
-    diagnostic(io_state const & s):io_state_stream(s) {}
+    diagnostic(environment const & env, io_state const & s):io_state_stream(env, s) {}
     std::ostream & get_stream() const { return m_io_state.get_diagnostic_channel().get_stream(); }
 };
 

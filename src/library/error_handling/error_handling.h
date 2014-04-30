@@ -7,12 +7,12 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/exception.h"
 #include "kernel/pos_info_provider.h"
-#include "library/io_state.h"
+#include "library/io_state_stream.h"
 
 namespace lean {
 /**
    \brief Display exception in the regular stream of \c ios, using the configuration options and formatter from \c ios.
    Exceptions that contain expressions use the given \c pos_info_provider (if available) to retrieve line number information.
 */
-void display_error(io_state const & ios, pos_info_provider const * p, exception const & ex);
+void display_error(io_state_stream const & ios, pos_info_provider const * p, exception const & ex);
 }

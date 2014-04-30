@@ -17,7 +17,7 @@ class formatter_cell {
 public:
     virtual ~formatter_cell() {}
     /** \brief Format the given expression. */
-    virtual format operator()(expr const & e, options const & opts) = 0;
+    virtual format operator()(environment const & env, expr const & e, options const & opts) = 0;
 };
 /**
    \brief Smart-pointer for the actual formatter object (aka \c formatter_cell).
@@ -26,7 +26,7 @@ class formatter {
     std::shared_ptr<formatter_cell> m_cell;
     formatter(formatter_cell * c):m_cell(c) {}
 public:
-    format operator()(expr const & e, options const & opts = options()) const { return (*m_cell)(e, opts); }
+    format operator()(environment const & env, expr const & e, options const & opts = options()) const { return (*m_cell)(env, e, opts); }
     template<typename FCell> friend formatter mk_formatter(FCell && fcell);
 };
 

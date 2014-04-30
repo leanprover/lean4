@@ -134,7 +134,7 @@ std::ostream & operator<<(std::ostream & out, expr const & e) {
 
 class simple_formatter_cell : public formatter_cell {
 public:
-    virtual format operator()(expr const & e, options const &) {
+    virtual format operator()(environment const &, expr const & e, options const &) {
         std::ostringstream s; s << e; return format(s.str());
     }
 };

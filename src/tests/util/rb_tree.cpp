@@ -17,6 +17,9 @@ Author: Leonardo de Moura
 #include "util/thread.h"
 using namespace lean;
 
+// Uncomment for running more comprehensive tests
+// #define RB_TREE_BIG_TEST
+
 struct int_lt { int operator()(int i1, int i2) const { return i1 < i2 ? -1 : (i1 > i2 ? 1 : 0); } };
 typedef rb_tree<int, int_lt> int_rb_tree;
 typedef std::unordered_set<int> int_set;
@@ -163,11 +166,13 @@ static void tst4() {
     driver(4,  32, 10000, 0.5, 0.01);
     driver(4,  10000, 10000, 0.5, 0.01);
     driver(16, 16, 10000, 0.5, 0.1);
+#ifdef RB_TREE_BIG_TEST
     driver(128, 64, 10000, 0.5, 0.1);
     driver(128, 64, 10000, 0.4, 0.1);
     driver(128, 1000, 10000, 0.5, 0.5);
     driver(128, 1000, 10000, 0.5, 0.01);
     driver(1024, 10000, 10000, 0.8, 0.01);
+#endif
 }
 
 
@@ -180,10 +185,18 @@ static void tst5() {
     lean_assert(*(s.find(10)) == 10);
 }
 
+#ifdef RB_TREE_BIG_TEST
+#define DEFAULT_SZ 10000
+#define DEFAULT_STEP 1000
+#else
+#define DEFAULT_SZ 100
+#define DEFAULT_STEP 5
+#endif
+
 #if !defined(__APPLE__) && defined(LEAN_MULTI_THREAD)
 static void tst6() {
     int_rb_tree t;
-    const unsigned SZ = 10000;
+    const unsigned SZ = DEFAULT_SZ;
     for (unsigned i = 0; i < SZ; i++) {
         t.insert(i);
     }
@@ -193,13 +206,13 @@ static void tst6() {
         trees.push_back(t);
     }
     std::vector<thread> threads;
-    const unsigned STEP = 1000;
+    const unsigned STEP = DEFAULT_STEP;
     for (unsigned i = 0; i < N; i++) {
         threads.push_back(thread([i, &trees]() {
                     int_rb_tree t2 = trees[i];
-                    for (unsigned j = 0; j < SZ; j += STEP) {
-                        t2.contains(j+i);
-                        t2.erase(j+i);
+                    for (unsigned j = i; j < SZ; j += STEP) {
+                        t2.contains(j);
+                        t2.erase(j);
                     }
                     trees[i] = t2;
                 }));
@@ -208,12 +221,12 @@ static void tst6() {
         threads[i].join();
     }
     for (unsigned i = 0; i < N; i++) {
-        if (trees[i].size() != SZ - SZ/STEP) {
-            std::cout << "ERROR size: " << trees[i].size() << " " << (SZ - SZ/STEP) << "\n";
+        if (trees[i].size() != SZ - (SZ - i)/STEP - ((SZ - i) % STEP != 0 ? 1 : 0)) {
+            std::cout << "ERROR size: " << trees[i].size() << " " << ((SZ - i) - (SZ - i)/STEP) << "\n";
             lean_unreachable();
         }
         for (unsigned j = 0; j < SZ; j++) {
-            if ((j % STEP == 0) == (!(j + i < SZ) || trees[i].contains(j+i))) {
+            if (j + i < SZ && ((j % STEP == 0) == trees[i].contains(j+i))) {
                 std::cout << "ERROR elem: " << i << " " << j << "\n";
                 lean_unreachable();
             }

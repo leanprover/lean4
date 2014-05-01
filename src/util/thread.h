@@ -18,6 +18,7 @@ namespace lean {
 inline void set_thread_stack_size(size_t ) {}
 using std::thread;
 using std::mutex;
+using std::recursive_mutex;
 using std::atomic;
 using std::atomic_bool;
 using std::atomic_ushort;
@@ -40,7 +41,7 @@ namespace lean {
 void set_thread_stack_size(size_t );
 boost::thread::attributes const & get_thread_attributes();
 using boost::thread;
-using boost::mutex;
+using boost::recursive_mutex;
 using boost::atomic;
 using boost::memory_order_relaxed;
 using boost::condition_variable;
@@ -114,6 +115,11 @@ public:
     static void yield() {}
 };
 class mutex {
+public:
+    void lock() {}
+    void unlock() {}
+};
+class recursive_mutex {
 public:
     void lock() {}
     void unlock() {}

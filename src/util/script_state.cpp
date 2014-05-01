@@ -40,8 +40,8 @@ void open_extra(lua_State * L);
 static char g_weak_ptr_key; // key for Lua registry (used at get_weak_ptr and save_weak_ptr)
 
 struct script_state::imp {
-    lua_State * m_state;
-    mutex       m_mutex;
+    lua_State *           m_state;
+    recursive_mutex       m_mutex;
     std::unordered_set<std::string> m_imported_modules;
 
     static std::weak_ptr<imp> * get_weak_ptr(lua_State * L) {
@@ -100,12 +100,12 @@ struct script_state::imp {
     }
 
     void dofile(char const * fname) {
-        lock_guard<mutex> lock(m_mutex);
+        lock_guard<recursive_mutex> lock(m_mutex);
         ::lean::dofile(m_state, fname);
     }
 
     void dostring(char const * str) {
-        lock_guard<mutex> lock(m_mutex);
+        lock_guard<recursive_mutex> lock(m_mutex);
         ::lean::dostring(m_state, str);
     }
 
@@ -162,7 +162,7 @@ bool script_state::import_explicit(char const * str) {
     return m_ptr->import_explicit(str);
 }
 
-mutex & script_state::get_mutex() {
+recursive_mutex & script_state::get_mutex() {
     return m_ptr->m_mutex;
 }
 

@@ -11,10 +11,11 @@ Author: Leonardo de Moura
 namespace lean {
 void open_kernel_module(lua_State * L);
 UDATA_DEFS(level)
-UDATA_DEFS(expr);
+UDATA_DEFS(expr)
 UDATA_DEFS(formatter)
 UDATA_DEFS(definition)
 UDATA_DEFS(environment)
+UDATA_DEFS(substitution)
 UDATA_DEFS(justification)
 UDATA_DEFS(constraint)
 UDATA_DEFS(substitution)

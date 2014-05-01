@@ -377,7 +377,7 @@ struct type_checker::imp {
                 ensure_sort(t, binder_domain(e));
             }
             auto b = open_binder_body(e);
-            r = mk_pi(binder_name(e), binder_domain(e), abstract_p(infer_type_core(b.first, infer_only), b.second));
+            r = mk_pi(binder_name(e), binder_domain(e), abstract_p(infer_type_core(b.first, infer_only), b.second), binder_info(e));
             break;
         }
         case expr_kind::Pi: {

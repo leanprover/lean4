@@ -133,7 +133,7 @@ void expr_app::dealloc(buffer<expr_cell*> & todelete) {
 static unsigned dec(unsigned k) { return k == 0 ? 0 : k - 1; }
 
 // Expr binders (Lambda, Pi)
-expr_binder::expr_binder(expr_kind k, name const & n, expr const & t, expr const & b):
+expr_binder::expr_binder(expr_kind k, name const & n, expr const & t, expr const & b, expr_binder_info const & i):
     expr_composite(k, ::lean::hash(t.hash(), b.hash()),
                    t.has_metavar()    || b.has_metavar(),
                    t.has_local()      || b.has_local(),
@@ -142,7 +142,8 @@ expr_binder::expr_binder(expr_kind k, name const & n, expr const & t, expr const
                    std::max(get_free_var_range(t), dec(get_free_var_range(b)))),
     m_name(n),
     m_domain(t),
-    m_body(b) {
+    m_body(b),
+    m_info(i) {
     lean_assert(k == expr_kind::Lambda || k == expr_kind::Pi);
 }
 void expr_binder::dealloc(buffer<expr_cell*> & todelete) {
@@ -389,7 +390,7 @@ expr update_rev_app(expr const & e, unsigned num, expr const * new_args) {
 
 expr update_binder(expr const & e, expr const & new_domain, expr const & new_body) {
     if (!is_eqp(binder_domain(e), new_domain) || !is_eqp(binder_body(e), new_body))
-        return mk_binder(e.kind(), binder_name(e), new_domain, new_body);
+        return mk_binder(e.kind(), binder_name(e), new_domain, new_body, binder_info(e));
     else
         return e;
 }
@@ -468,13 +469,25 @@ expr copy(expr const & a) {
     case expr_kind::Sort:     return mk_sort(sort_level(a));
     case expr_kind::Macro:    return mk_macro(to_macro(a)->m_definition, macro_num_args(a), macro_args(a));
     case expr_kind::App:      return mk_app(app_fn(a), app_arg(a));
-    case expr_kind::Lambda:   return mk_lambda(binder_name(a), binder_domain(a), binder_body(a));
-    case expr_kind::Pi:       return mk_pi(binder_name(a), binder_domain(a), binder_body(a));
+    case expr_kind::Lambda:   return mk_lambda(binder_name(a), binder_domain(a), binder_body(a), binder_info(a));
+    case expr_kind::Pi:       return mk_pi(binder_name(a), binder_domain(a), binder_body(a), binder_info(a));
     case expr_kind::Let:      return mk_let(let_name(a), let_type(a), let_value(a), let_body(a));
     case expr_kind::Meta:     return mk_metavar(mlocal_name(a), mlocal_type(a));
     case expr_kind::Local:    return mk_local(mlocal_name(a), mlocal_type(a));
     }
     lean_unreachable(); // LCOV_EXCL_LINE
+}
+
+serializer & operator<<(serializer & s, expr_binder_info const & i) {
+    s.write_bool(i.is_implicit());
+    s.write_bool(i.is_cast());
+    return s;
+}
+
+static expr_binder_info read_expr_binder_info(deserializer & d) {
+    bool imp = d.read_bool();
+    bool cast = d.read_bool();
+    return expr_binder_info(imp, cast);
 }
 
 class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp> {
@@ -506,7 +519,7 @@ class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp
                     write_core(app_fn(a)); write_core(app_arg(a));
                     break;
                 case expr_kind::Lambda: case expr_kind::Pi:
-                    s << binder_name(a); write_core(binder_domain(a)); write_core(binder_body(a));
+                    s << binder_name(a) << binder_info(a); write_core(binder_domain(a)); write_core(binder_body(a));
                     break;
                 case expr_kind::Let:
                     s << let_name(a); write_core(let_type(a)); write_core(let_value(a)); write_core(let_body(a));
@@ -528,9 +541,10 @@ class expr_deserializer : public object_deserializer<expr> {
 public:
     expr read_binder(expr_kind k) {
         deserializer & d = get_owner();
-        name n = read_name(d);
-        expr t = read();
-        return mk_binder(k, n, t, read());
+        name n             = read_name(d);
+        expr_binder_info i = read_expr_binder_info(d);
+        expr t             = read();
+        return mk_binder(k, n, t, read(), i);
     }
 
     expr read() {

@@ -146,6 +146,35 @@ static void open_level(lua_State * L) {
     lua_setglobal(L, "level_kind");
 }
 
+// Expr_binder_info
+DECL_UDATA(expr_binder_info)
+static int mk_binder_info(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs == 0)
+        return push_expr_binder_info(L, expr_binder_info());
+    else if (nargs == 1)
+        return push_expr_binder_info(L, expr_binder_info(lua_toboolean(L, 1)));
+    else
+        return push_expr_binder_info(L, expr_binder_info(lua_toboolean(L, 1), lua_toboolean(L, 2)));
+}
+static int binder_info_is_implicit(lua_State * L) { return pushboolean(L, to_expr_binder_info(L, 1).is_implicit()); }
+static int binder_info_is_cast(lua_State * L) { return pushboolean(L, to_expr_binder_info(L, 1).is_cast()); }
+static const struct luaL_Reg binder_info_m[] = {
+    {"__gc",            expr_binder_info_gc},
+    {"is_implicit",     safe_function<binder_info_is_implicit>},
+    {"is_cast",         safe_function<binder_info_is_cast>},
+    {0, 0}
+};
+static void open_binder_info(lua_State * L) {
+    luaL_newmetatable(L, expr_binder_info_mt);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    setfuncs(L, binder_info_m, 0);
+
+    SET_GLOBAL_FUN(mk_binder_info, "binder_info");
+    SET_GLOBAL_FUN(expr_binder_info_pred, "is_binder_info");
+}
+
 // Expressions
 DECL_UDATA(expr)
 DEFINE_LUA_LIST(expr, push_expr, to_expr)
@@ -180,8 +209,20 @@ static int expr_mk_app(lua_State * L) {
         r = mk_app(r, to_expr(L, i));
     return push_expr(L, r);
 }
-static int expr_mk_lambda(lua_State * L) { return push_expr(L, mk_lambda(to_name_ext(L, 1), to_expr(L, 2), to_expr(L, 3))); }
-static int expr_mk_pi(lua_State * L) { return push_expr(L, mk_pi(to_name_ext(L, 1), to_expr(L, 2), to_expr(L, 3))); }
+static int expr_mk_lambda(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs == 3)
+        return push_expr(L, mk_lambda(to_name_ext(L, 1), to_expr(L, 2), to_expr(L, 3)));
+    else
+        return push_expr(L, mk_lambda(to_name_ext(L, 1), to_expr(L, 2), to_expr(L, 3), to_expr_binder_info(L, 4)));
+}
+static int expr_mk_pi(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs == 3)
+        return push_expr(L, mk_pi(to_name_ext(L, 1), to_expr(L, 2), to_expr(L, 3)));
+    else
+        return push_expr(L, mk_pi(to_name_ext(L, 1), to_expr(L, 2), to_expr(L, 3), to_expr_binder_info(L, 4)));
+}
 static int expr_mk_arrow(lua_State * L) { return push_expr(L, mk_arrow(to_expr(L, 1), to_expr(L, 2))); }
 static int expr_mk_let(lua_State * L) { return push_expr(L, mk_let(to_name_ext(L, 1), to_expr(L, 2), to_expr(L, 3), to_expr(L, 4))); }
 
@@ -828,6 +869,7 @@ void open_kernel_module(lua_State * L) {
     // TODO(Leo)
     open_level(L);
     open_list_level(L);
+    open_binder_info(L);
     open_expr(L);
     open_list_expr(L);
     open_formatter(L);

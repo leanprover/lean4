@@ -46,13 +46,14 @@ void display_assumptions(std::ostream & out, justification const & j) {
 }
 
 static std::ostream & operator<<(std::ostream & out, substitution const & s) {
-    bool first = true;
-    s.for_each([&](name const & n, expr const & v, justification const & j) {
-            if (first) first = false; else out << "\n";
-            out << "?" << n << " <- " << v << " {";
-            display_assumptions(out, j);
-            out << "}";
-        });
+    // bool first = true;
+    // s.for_each([&](name const & n, expr const & v, justification const & j) {
+    //         if (first) first = false; else out << "\n";
+    //         out << "?" << n << " <- " << v << " {";
+    //         display_assumptions(out, j);
+    //         out << "}";
+    //     });
+    s.for_each_expr([](name const &, expr const &, justification const &) {});
     return out;
 }
 

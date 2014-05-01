@@ -93,18 +93,6 @@ substitution substitution::assign(name const & m, level const & l) const {
     return assign(m, l, justification());
 }
 
-void substitution::for_each(std::function<void(name const & n, expr const & e, justification const & j)> const & fn) const {
-    m_expr_subst.for_each([=](name const & n, std::pair<expr, justification> const & a) {
-            fn(n, a.first, a.second);
-        });
-}
-
-void substitution::for_each(std::function<void(name const & n, level const & e, justification const & j)> const & fn) const {
-    m_level_subst.for_each([=](name const & n, std::pair<level, justification> const & a) {
-            fn(n, a.first, a.second);
-        });
-}
-
 std::pair<level, justification> substitution::d_instantiate_metavars(level const & l, bool use_jst, bool updt) {
     if (!has_param(l))
         return mk_pair(l, justification());

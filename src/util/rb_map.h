@@ -62,7 +62,7 @@ public:
     ref operator[](K const & k) { return ref(*this, k); }
 
     template<typename F>
-    void for_each(F f) const {
+    void for_each(F && f) const {
         auto f_prime = [&](entry const & e) { f(e.first, e.second); };
         return m_map.for_each(f_prime);
     }
@@ -90,7 +90,7 @@ rb_map<K, T, CMP> erase(rb_map<K, T, CMP> const & m, K const & k) {
     return r;
 }
 template<typename K, typename T, typename CMP, typename F>
-void for_each(rb_map<K, T, CMP> const & m, F f) {
+void for_each(rb_map<K, T, CMP> const & m, F && f) {
     return m.for_each(f);
 }
 void open_rb_map(lua_State * L);

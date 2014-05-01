@@ -29,11 +29,10 @@ namespace lean {
 
    \warning The calling thread must own the lock to m_mutex
 */
-template<typename Mutex>
 class unlock_guard {
-    Mutex & m_mutex;
+    mutex & m_mutex;
 public:
-    explicit unlock_guard(Mutex & m):m_mutex(m) { m_mutex.unlock(); }
+    explicit unlock_guard(mutex & m):m_mutex(m) { m_mutex.unlock(); }
     unlock_guard(unlock_guard const &) = delete;
     unlock_guard(unlock_guard &&) = delete;
     unlock_guard & operator=(unlock_guard const &) = delete;

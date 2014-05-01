@@ -65,7 +65,7 @@ struct type_checker::imp {
     name_generator             m_gen;
     constraint_handler &       m_chandler;
     std::unique_ptr<converter> m_conv;
-    expr_map<expr>             m_infer_type_cache;
+    expr_struct_map<expr>      m_infer_type_cache;
     converter_context          m_conv_ctx;
     type_checker_context       m_tc_ctx;
     // The following mapping is used to store the relationship
@@ -320,9 +320,7 @@ struct type_checker::imp {
         lean_assert(closed(e));
         check_system("type checker");
 
-        bool shared = false;
-        if (m_memoize && is_shared(e)) {
-            shared = true;
+        if (m_memoize) {
             auto it = m_infer_type_cache.find(e);
             if (it != m_infer_type_cache.end())
                 return it->second;
@@ -418,7 +416,7 @@ struct type_checker::imp {
             break;
         }
 
-        if (m_memoize && shared)
+        if (m_memoize)
             m_infer_type_cache.insert(mk_pair(e, r));
 
         return r;

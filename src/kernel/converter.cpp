@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 #include "util/lbool.h"
 #include "kernel/converter.h"
-#include "kernel/max_sharing.h"
 #include "kernel/expr_maps.h"
 #include "kernel/instantiate.h"
 #include "kernel/free_vars.h"
@@ -39,9 +38,8 @@ struct default_converter : public converter {
     optional<module_idx>  m_module_idx;
     bool                  m_memoize;
     name_set              m_extra_opaque;
-    max_sharing_fn        m_sharing;
-    expr_map<expr>        m_whnf_core_cache;
-    expr_map<expr>        m_whnf_cache;
+    expr_struct_map<expr> m_whnf_core_cache;
+    expr_struct_map<expr> m_whnf_cache;
 
     default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize, name_set const & extra_opaque):
         m_env(env), m_module_idx(mod_idx), m_memoize(memoize), m_extra_opaque(extra_opaque) {}
@@ -58,38 +56,21 @@ struct default_converter : public converter {
         virtual void add_cnstr(constraint const & c) { m_ctx.add_cnstr(c); }
     };
 
-    bool check_memoized(expr const & e) const { return !m_memoize || m_sharing.already_processed(e); }
-    expr max_sharing(expr const & e) { return m_memoize ? m_sharing(e) : e; }
-    expr instantiate(expr const & e, unsigned n, expr const * s) { return max_sharing(lean::instantiate(e, n, s)); }
-    expr instantiate(expr const & e, expr const & s) { return max_sharing(lean::instantiate(e, s)); }
-    expr mk_app(expr const & f, unsigned num, expr const * args) { return max_sharing(lean::mk_app(f, num, args)); }
-    expr mk_app(expr const & f, expr const & a) { return max_sharing(lean::mk_app(f, a)); }
-    expr mk_rev_app(expr const & f, unsigned num, expr const * args) { return max_sharing(lean::mk_rev_app(f, num, args)); }
-    expr mk_app_vars(expr const & f, unsigned num) { return max_sharing(lean::mk_app_vars(f, num)); }
     optional<expr> expand_macro(expr const & m, context & c) {
         lean_assert(is_macro(m));
         extended_context xctx(*this, c);
-        if (auto new_m = macro_def(m).expand(macro_num_args(m), macro_args(m), xctx))
-            return some_expr(max_sharing(*new_m));
-        else
-            return none_expr();
+        return macro_def(m).expand(macro_num_args(m), macro_args(m), xctx);
     }
-    expr instantiate_params(expr const & e, param_names const & ps, levels const & ls) {
-        return max_sharing(lean::instantiate_params(e, ps, ls));
-    }
+
     /** \brief Apply normalizer extensions to \c e. */
     optional<expr> norm_ext(expr const & e, context & c) {
         extended_context xctx(*this, c);
-        if (auto new_e = m_env.norm_ext()(e, xctx))
-            return some_expr(max_sharing(*new_e));
-        else
-            return none_expr();
+        return m_env.norm_ext()(e, xctx);
     }
 
     /** \brief Weak head normal form core procedure. It does not perform delta reduction nor normalization extensions. */
     expr whnf_core(expr const & e, context & c) {
         check_system("whnf");
-        lean_assert(check_memoized(e));
 
         // handle easy cases
         switch (e.kind()) {
@@ -267,7 +248,6 @@ struct default_converter : public converter {
         expr e = e_prime;
         // check cache
         if (m_memoize) {
-            e = max_sharing(e);
             auto it = m_whnf_cache.find(e);
             if (it != m_whnf_cache.end())
                 return it->second;
@@ -295,7 +275,7 @@ struct default_converter : public converter {
         if (is_pi(t_s)) {
             // new_s := lambda x : domain(t_s), s x
             expr new_s = mk_lambda(c.mk_fresh_name(), binder_domain(t_s), mk_app(lift_free_vars(s, 1), mk_var(0)));
-            return is_def_eq_core(t, new_s, c, jst);
+            return is_def_eq(t, new_s, c, jst);
         } else {
             return false;
         }
@@ -328,7 +308,7 @@ struct default_converter : public converter {
         do {
             expr var_t_type = instantiate(binder_domain(t), subst.size(), subst.data());
             expr var_s_type = instantiate(binder_domain(s), subst.size(), subst.data());
-            if (!is_def_eq_core(var_t_type, var_s_type, c, jst))
+            if (!is_def_eq(var_t_type, var_s_type, c, jst))
                 return false;
             subst.push_back(mk_local(c.mk_fresh_name() + binder_name(s), var_s_type));
             t = binder_body(t);
@@ -387,7 +367,7 @@ struct default_converter : public converter {
         context::disable_cnstrs_scope scope(c);
         try {
             while (is_app(t) && is_app(s)) {
-                if (!is_def_eq_core(app_arg(t), app_arg(s), c, jst))
+                if (!is_def_eq(app_arg(t), app_arg(s), c, jst))
                     return false;
                 t = app_fn(t);
                 s = app_fn(s);
@@ -478,21 +458,21 @@ struct default_converter : public converter {
             expr it2 = s_n;
             bool ok  = true;
             do {
-                if (!is_def_eq_core(app_arg(it1), app_arg(it2), c, jst)) {
+                if (!is_def_eq(app_arg(it1), app_arg(it2), c, jst)) {
                     ok = false;
                     break;
                 }
                 it1 = app_fn(it1);
                 it2 = app_fn(it2);
             } while (is_app(it1) && is_app(it2));
-            if (ok && is_def_eq_core(it1, it2, c, jst))
+            if (ok && is_def_eq(it1, it2, c, jst))
                 return true;
         }
 
         if (m_env.proof_irrel()) {
             // Proof irrelevance support
             expr t_type = c.infer_type(t);
-            return is_prop(t_type, c) && is_def_eq_core(t_type, c.infer_type(s), c, jst);
+            return is_prop(t_type, c) && is_def_eq(t_type, c.infer_type(s), c, jst);
         }
 
         return false;
@@ -502,16 +482,12 @@ struct default_converter : public converter {
         return whnf(c.infer_type(e), c) == Bool;
     }
 
-    bool is_def_eq_core(expr const & t, expr const & s, context & c, delayed_justification & j) {
+    virtual bool is_def_eq(expr const & t, expr const & s, context & c, delayed_justification & j) {
         return is_conv(t, s, true, c, j);
     }
 
     virtual bool is_conv(expr const & t, expr const & s, context & c, delayed_justification & j) {
-        return is_conv(max_sharing(t), max_sharing(s), false, c, j);
-    }
-
-    virtual bool is_def_eq(expr const & t, expr const & s, context & c, delayed_justification & j) {
-        return is_def_eq_core(max_sharing(t), max_sharing(s), c, j);
+        return is_conv(t, s, false, c, j);
     }
 };
 

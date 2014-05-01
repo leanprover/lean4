@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+Copyright (c) 2013-14 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "util/name_set.h"
 #include "kernel/environment.h"
 #include "kernel/constraint.h"
+#include "kernel/converter.h"
 
 namespace lean {
 class constraint_handler {
@@ -53,14 +54,14 @@ public:
          - memoize:      inferred types are memoized/cached
          - extra_opaque: additional definitions that should be treated as opaque
     */
-    type_checker(environment const & env, name_generator const & g, constraint_handler & h,
-                 optional<module_idx> mod_idx = optional<module_idx>(), bool memoize = false, name_set const & extra_opaque = name_set());
+    type_checker(environment const & env, name_generator const & g, constraint_handler & h, std::unique_ptr<converter> && conv, bool memoize = true);
+    type_checker(environment const & env, name_generator const & g, constraint_handler & h, bool memoize = true):type_checker(env, g, h, mk_default_converter(env), memoize) {}
     /**
        \brief Similar to the previous constructor, but if a method tries to create a constraint, then an
        exception is thrown.
     */
-    type_checker(environment const & env, name_generator const & g,
-                 optional<module_idx> mod_idx = optional<module_idx>(), bool memoize = false, name_set const & extra_opaque = name_set());
+    type_checker(environment const & env, name_generator const & g, std::unique_ptr<converter> && conv, bool memoize = true);
+    type_checker(environment const & env, name_generator const & g, bool memoize = true):type_checker(env, g, mk_default_converter(env), memoize) {}
     ~type_checker();
 
     /**

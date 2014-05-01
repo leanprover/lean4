@@ -38,7 +38,7 @@ struct level_composite : public level_cell {
         level_cell(k, h), m_depth(d), m_has_param(has_param), m_has_meta(has_meta) {}
 };
 
-static bool is_composite(level const & l) {
+bool is_composite(level const & l) {
     switch (kind(l)) {
     case level_kind::Succ: case level_kind::Max: case level_kind::IMax:
         return true;
@@ -96,7 +96,7 @@ struct level_param_core : public level_cell {
         m_id(id) {}
 };
 
-static bool is_param_core(level const & l) { return is_param(l) || is_meta(l); }
+bool is_param_core(level const & l) { return is_param(l) || is_meta(l); }
 
 static level_param_core const & to_param_core(level const & l) {
     lean_assert(is_param_core(l));

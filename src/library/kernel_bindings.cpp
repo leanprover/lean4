@@ -10,6 +10,10 @@ Author: Leonardo de Moura
 #include "util/script_state.h"
 #include "util/list_lua.h"
 #include "kernel/abstract.h"
+#include "kernel/for_each_fn.h"
+#include "kernel/free_vars.h"
+#include "kernel/instantiate.h"
+#include "library/occurs.h"
 #include "library/io_state_stream.h"
 #include "library/expr_lt.h"
 #include "library/kernel_bindings.h"
@@ -184,7 +188,14 @@ int push_optional_expr(lua_State * L, optional<expr> const & e) {  return e ? pu
 expr & to_app(lua_State * L, int idx) {
     expr & r = to_expr(L, idx);
     if (!is_app(r))
-        throw exception("Lean application expression expected");
+        throw exception(sstream() << "arg #" << idx << " must be an application");
+    return r;
+}
+
+expr & to_binder(lua_State * L, int idx) {
+    expr & r = to_expr(L, idx);
+    if (!is_binder(r))
+        throw exception(sstream() << "arg #" << idx << " must be a binder (i.e., lambda or Pi)");
     return r;
 }
 
@@ -310,49 +321,50 @@ EXPR_PRED(has_param_univ)
 EXPR_PRED(has_free_vars)
 EXPR_PRED(closed)
 
-// static int expr_fields(lua_State * L) {
-//     expr & e = to_expr(L, 1);
-//     switch (e.kind()) {
-//     case expr_kind::Var:      return pushinteger(L, var_idx(e));
-//     case expr_kind::Constant: push_name(L, const_name(e));
-//     case expr_kind::Sort:     return push_level(L, ty_level(e));
-//     case expr_kind::Macro:    return to_macro(e).push_lua(L);
-//     case expr_kind::App:      lua_pushinteger(L, num_args(e)); expr_args(L); return 2;
-//     case expr_kind::HEq:      push_expr(L, heq_lhs(e)); push_expr(L, heq_rhs(e)); return 3;
-//     case expr_kind::Pair:     push_expr(L, pair_first(e)); push_expr(L, pair_second(e)); push_expr(L, pair_type(e)); return 3;
-//     case expr_kind::Proj:     lua_pushboolean(L, proj_first(e)); push_expr(L, proj_arg(e)); return 2;
-//     case expr_kind::Lambda:
-//     case expr_kind::Pi:
-//     case expr_kind::Sigma:
-//         push_name(L, abst_name(e)); push_expr(L, abst_domain(e)); push_expr(L, abst_body(e)); return 3;
-//     case expr_kind::Let:
-//         push_name(L, let_name(e));  push_optional_expr(L, let_type(e)); push_expr(L, let_value(e)); push_expr(L, let_body(e)); return 4;
-//     case expr_kind::MetaVar:  push_name(L, metavar_name(e)); push_local_context(L, metavar_lctx(e)); return 2;
-//     }
-//     lean_unreachable(); // LCOV_EXCL_LINE
-//     return 0;           // LCOV_EXCL_LINE
-// }
+static int expr_fields(lua_State * L) {
+    expr & e = to_expr(L, 1);
+    switch (e.kind()) {
+    case expr_kind::Var:
+        return pushinteger(L, var_idx(e));
+    case expr_kind::Constant:
+        push_name(L, const_name(e)); push_list_level(L, const_level_params(e)); return 2;
+    case expr_kind::Sort:
+        return push_level(L, sort_level(e));
+    case expr_kind::Macro:
+        // TODO(Leo)
+        return 0;
+    case expr_kind::App:
+        push_expr(L, app_fn(e)); push_expr(L, app_arg(e)); return 2;
+    case expr_kind::Lambda:
+    case expr_kind::Pi:
+        push_name(L, binder_name(e)); push_expr(L, binder_domain(e)); push_expr(L, binder_body(e)); push_expr_binder_info(L, binder_info(e)); return 4;
+    case expr_kind::Let:
+        push_name(L, let_name(e));  push_expr(L, let_type(e)); push_expr(L, let_value(e)); push_expr(L, let_body(e)); return 4;
+    case expr_kind::Meta:
+    case expr_kind::Local:
+        push_name(L, mlocal_name(e)); push_expr(L, mlocal_type(e)); return 2;
+    }
+    lean_unreachable(); // LCOV_EXCL_LINE
+    return 0;           // LCOV_EXCL_LINE
+}
 
 static int expr_fn(lua_State * L) { return push_expr(L, app_fn(to_app(L, 1))); }
 static int expr_arg(lua_State * L) { return push_expr(L, app_arg(to_app(L, 1))); }
 
-#if 0
 static int expr_for_each(lua_State * L) {
     expr & e = to_expr(L, 1);    // expr
     luaL_checktype(L, 2, LUA_TFUNCTION); // user-fun
-    auto f = [&](expr const & a, unsigned offset) {
-        lua_pushvalue(L, 2); // push user-fun
-        push_expr(L, a);
-        lua_pushinteger(L, offset);
-        pcall(L, 2, 1, 0);
-        bool r = true;
-        if (lua_isboolean(L, -1))
-            r = lua_toboolean(L, -1);
-        lua_pop(L, 1);
-        return r;
-    };
-    for_each_fn<decltype(f)> proc(f);
-    proc(e);
+    for_each(e, [&](expr const & a, unsigned offset) {
+            lua_pushvalue(L, 2); // push user-fun
+            push_expr(L, a);
+            lua_pushinteger(L, offset);
+            pcall(L, 2, 1, 0);
+            bool r = true;
+            if (lua_isboolean(L, -1))
+                r = lua_toboolean(L, -1);
+            lua_pop(L, 1);
+            return r;
+        });
     return 0;
 }
 
@@ -415,63 +427,17 @@ static int expr_abstract(lua_State * L) {
     }
 }
 
-static int expr_occurs(lua_State * L) {
-    lua_pushboolean(L, occurs(to_expr(L, 1), to_expr(L, 2)));
-    return 1;
-}
+static int binder_name(lua_State * L) { return push_name(L, binder_name(to_binder(L, 1))); }
+static int binder_domain(lua_State * L) { return push_expr(L, binder_domain(to_binder(L, 1))); }
+static int binder_body(lua_State * L) { return push_expr(L, binder_body(to_binder(L, 1))); }
+static int binder_info(lua_State * L) { return push_expr_binder_info(L, binder_info(to_binder(L, 1))); }
 
-static int expr_is_eqp(lua_State * L) {
-    lua_pushboolean(L, is_eqp(to_expr(L, 1), to_expr(L, 2)));
-    return 1;
-}
+static int expr_occurs(lua_State * L) { return pushboolean(L, occurs(to_expr(L, 1), to_expr(L, 2))); }
+static int expr_is_eqp(lua_State * L) { return pushboolean(L, is_eqp(to_expr(L, 1), to_expr(L, 2))); }
+static int expr_hash(lua_State * L) { return pushinteger(L, to_expr(L, 1).hash()); }
+static int expr_depth(lua_State * L) { return pushinteger(L, get_depth(to_expr(L, 1))); }
+static int expr_is_lt(lua_State * L) { return pushboolean(L, is_lt(to_expr(L, 1), to_expr(L, 2), false)); }
 
-static int expr_hash(lua_State * L) {
-    lua_pushinteger(L, to_expr(L, 1).hash());
-    return 1;
-}
-
-static int expr_head_beta_reduce(lua_State * L) {
-    return push_expr(L, head_beta_reduce(to_expr(L, 1)));
-}
-
-static int expr_beta_reduce(lua_State * L) {
-    return push_expr(L, beta_reduce(to_expr(L, 1)));
-}
-
-static void check_abstraction(lua_State * L, int idx, char const * msg) {
-    if (!is_abstraction(to_expr(L, idx)))
-        throw exception(msg);
-}
-
-static int expr_abst_name(lua_State * L) {
-    check_abstraction(L, 1, "invalid abst_name call, expression is not an abstraction");
-    return push_name(L, abst_name(to_expr(L, 1)));
-}
-
-static int expr_abst_domain(lua_State * L) {
-    check_abstraction(L, 1, "invalid abst_domain call, expression is not an abstraction");
-    return push_expr(L, abst_domain(to_expr(L, 1)));
-}
-
-static int expr_abst_body(lua_State * L) {
-    check_abstraction(L, 1, "invalid abst_body call, expression is not an abstraction");
-    return push_expr(L, abst_body(to_expr(L, 1)));
-}
-
-static int expr_mk_eq(lua_State * L) {
-    return push_expr(L, mk_eq(to_expr(L, 1), to_expr(L, 2), to_expr(L, 3)));
-}
-
-static int expr_depth(lua_State * L) {
-    lua_pushinteger(L, get_depth(to_expr(L, 1)));
-    return 1;
-}
-
-static int expr_is_lt(lua_State * L) {
-    lua_pushboolean(L, is_lt(to_expr(L, 1), to_expr(L, 2), false));
-    return 1;
-}
-#endif
 
 static const struct luaL_Reg expr_m[] = {
     {"__gc",             expr_gc}, // never throws
@@ -499,27 +465,23 @@ static const struct luaL_Reg expr_m[] = {
     {"has_param_univ",   safe_function<expr_has_param_univ>},
     {"arg",              safe_function<expr_arg>},
     {"fn",               safe_function<expr_fn>},
-
-    // {"fields",           safe_function<expr_fields>},
-    // {"data",             safe_function<expr_fields>},
-    // {"args",             safe_function<expr_args>},
-    // {"num_args",         safe_function<expr_num_args>},
-    // {"depth",            safe_function<expr_depth>},
-    // {"abst_name",        safe_function<expr_abst_name>},
-    // {"abst_domain",      safe_function<expr_abst_domain>},
-    // {"abst_body",        safe_function<expr_abst_body>},
-    // {"for_each",         safe_function<expr_for_each>},
-    // {"has_free_var",     safe_function<expr_has_free_var>},
-    // {"lift_free_vars",   safe_function<expr_lift_free_vars>},
-    // {"lower_free_vars",  safe_function<expr_lower_free_vars>},
-    // {"instantiate",      safe_function<expr_instantiate>},
-    // {"beta_reduce",      safe_function<expr_beta_reduce>},
-    // {"head_beta_reduce", safe_function<expr_head_beta_reduce>},
-    // {"abstract",         safe_function<expr_abstract>},
-    // {"occurs",           safe_function<expr_occurs>},
-    // {"is_eqp",           safe_function<expr_is_eqp>},
-    // {"is_lt",            safe_function<expr_is_lt>},
-    // {"hash",             safe_function<expr_hash>},
+    {"fields",           safe_function<expr_fields>},
+    {"data",             safe_function<expr_fields>},
+    {"depth",            safe_function<expr_depth>},
+    {"binder_name",      safe_function<binder_name>},
+    {"binder_domain",    safe_function<binder_domain>},
+    {"binder_body",      safe_function<binder_body>},
+    {"binder_info",      safe_function<binder_info>},
+    {"for_each",         safe_function<expr_for_each>},
+    {"has_free_var",     safe_function<expr_has_free_var>},
+    {"lift_free_vars",   safe_function<expr_lift_free_vars>},
+    {"lower_free_vars",  safe_function<expr_lower_free_vars>},
+    {"instantiate",      safe_function<expr_instantiate>},
+    {"abstract",         safe_function<expr_abstract>},
+    {"occurs",           safe_function<expr_occurs>},
+    {"is_eqp",           safe_function<expr_is_eqp>},
+    {"is_lt",            safe_function<expr_is_lt>},
+    {"hash",             safe_function<expr_hash>},
     {0, 0}
 };
 

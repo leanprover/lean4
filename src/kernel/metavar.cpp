@@ -94,7 +94,7 @@ substitution substitution::assign(name const & m, level const & l) const {
 }
 
 std::pair<level, justification> substitution::d_instantiate_metavars(level const & l, bool use_jst, bool updt) {
-    if (!has_param(l))
+    if (!has_meta(l))
         return mk_pair(l, justification());
     justification j;
     auto save_jst = [&](justification const & j2) { j = mk_composite1(j, j2); };

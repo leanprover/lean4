@@ -96,10 +96,6 @@ public:
 
     /** \brief Return true iff the metavariable \c m occurrs (directly or indirectly) in \c e. */
     bool occurs_expr(name const & m, expr const & e) const;
-    /** \brief Return true iff the meta universe parameter \c m occurrs (directly or indirectly) in \c e. */
-    bool occurs_level(name const & m, expr const & e) const;
-
     bool occurs(expr const & m, expr const & e) const { lean_assert(is_metavar(m)); return occurs_expr(mlocal_name(m), e); }
-    bool occurs(level const & m, expr const & e) const { lean_assert(is_meta(m)); return occurs_expr(meta_id(m), e); }
 };
 }

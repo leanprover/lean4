@@ -47,9 +47,11 @@ static int list_ ## T ## _cdr(lua_State * L) {                          \
 }                                                                       \
 static int list_ ## T ## _eq(lua_State * L) { return push_boolean(L, to_list_ ## T(L, 1) == to_list_ ## T(L, 2)); } \
 static int list_ ## T ## _is_eqp(lua_State * L) { return push_boolean(L, is_eqp(to_list_ ## T(L, 1), to_list_ ## T(L, 2))); } \
+static int list_ ## T ## _len(lua_State * L) { return push_integer(L, length(to_list_ ## T(L, 1))); } \
 static const struct luaL_Reg list_ ## T ## _m[] = {                     \
     {"__gc",            list_ ## T ## _gc},                             \
     {"__eq",            safe_function<list_ ## T ## _eq>},              \
+    {"__len",           safe_function<list_ ## T ## _len>},             \
     {"is_nil",          safe_function<list_ ## T ## _is_nil>},          \
     {"empty",           safe_function<list_ ## T ## _is_nil>},          \
     {"car",             safe_function<list_ ## T ## _car>},             \

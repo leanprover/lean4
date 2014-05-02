@@ -38,7 +38,7 @@ static int list_ ## T ## _is_nil(lua_State * L) { return push_boolean(L, is_nil(
 static int list_ ## T ## _car(lua_State * L) {                          \
     list<T> & l = to_list_ ## T(L, 1);                                  \
     if (is_nil(l)) throw exception("arg #1 must be a cons cell");       \
-    return push_list_ ## T(L, car(l));                                  \
+    return PushVal(L, car(l));                                          \
 }                                                                       \
 static int list_ ## T ## _cdr(lua_State * L) {                          \
     list<T> & l = to_list_ ## T(L, 1);                                  \

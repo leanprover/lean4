@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/instantiate.h"
 #include "kernel/metavar.h"
+#include "kernel/error_msgs.h"
 #include "library/occurs.h"
 #include "library/io_state_stream.h"
 #include "library/expr_lt.h"
@@ -454,7 +455,7 @@ static int expr_mk_macro(lua_State * L) {
 
 static int macro_def(lua_State * L) { return push_macro_definition(L, macro_def(to_macro_app(L, 1))); }
 static int macro_num_args(lua_State * L) { return push_integer(L, macro_num_args(to_macro_app(L, 1))); }
-static int macro_arg(lua_State * L) { return push_expr(L, macro_arg(to_macro_app(L, 1), push_integer(L, 2))); }
+static int macro_arg(lua_State * L) { return push_expr(L, macro_arg(to_macro_app(L, 1), luaL_checkinteger(L, 2))); }
 
 static const struct luaL_Reg expr_m[] = {
     {"__gc",             expr_gc}, // never throws
@@ -931,10 +932,32 @@ static int justification_child2(lua_State * L) {
         throw exception("arg #1 must be a composite justification");
     return push_justification(L, composite_child2(to_justification(L, 1)));
 }
-static int justification_depends_on(lua_State * L) { return push_boolean(L, depends_on(to_justification(L, 1), push_integer(L, 2))); }
-static int mk_assumption_justification(lua_State * L) { return push_justification(L, mk_assumption_justification(push_integer(L, 1))); }
-static int mk_justification(lua_State * L) { return push_justification(L, justification()); }
+static int justification_depends_on(lua_State * L) { return push_boolean(L, depends_on(to_justification(L, 1), luaL_checkinteger(L, 2))); }
+static int mk_assumption_justification(lua_State * L) { return push_justification(L, mk_assumption_justification(luaL_checkinteger(L, 1))); }
 static int mk_composite1(lua_State * L) { return push_justification(L, mk_composite1(to_justification(L, 1), to_justification(L, 2))); }
+static int mk_justification(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs == 0) {
+        return push_justification(L, justification());
+    } else if (nargs == 1) {
+        std::string s = lua_tostring(L, 1);
+        return push_justification(L, mk_justification(none_expr(), [=](formatter const &, options const &, substitution const &) {
+                    return format(s.c_str());
+                }));
+    } else {
+        std::string s   = lua_tostring(L, 1);
+        environment env = to_environment(L, 2);
+        expr e          = to_expr(L, 3);
+        justification j = mk_justification(some_expr(e), [=](formatter const & fmt, options const & opts, substitution const & subst) {
+                expr new_e = subst.instantiate_metavars_wo_jst(e);
+                format r;
+                r += format(s.c_str());
+                r += pp_indent_expr(fmt, env, opts, new_e);
+                return r;
+            });
+        return push_justification(L, j);
+    }
+}
 
 static const struct luaL_Reg justification_m[] = {
     {"__gc",            justification_gc}, // never throws
@@ -943,7 +966,7 @@ static const struct luaL_Reg justification_m[] = {
     {"is_asserted",     safe_function<justification_is_asserted>},
     {"is_assumption",   safe_function<justification_is_assumption>},
     {"is_composite",    safe_function<justification_is_composite>},
-    {"get_main_expr",   safe_function<justification_get_main_expr>},
+    {"main_expr",       safe_function<justification_get_main_expr>},
     {"pp",              safe_function<justification_pp>},
     {"depends_on",      safe_function<justification_depends_on>},
     {"assumption_idx",  safe_function<justification_assumption_idx>},

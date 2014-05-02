@@ -72,6 +72,8 @@ public:
     friend justification mk_assumption_justification(unsigned idx, optional<expr> const & s, pp_jst_fn const & fn);
     friend justification mk_assumption_justification(unsigned idx);
     friend justification mk_justification(optional<expr> const & s, pp_jst_fn const & fn);
+
+    friend bool is_eqp(justification const & j1, justification const & j2) { return j1.raw() == j2.raw(); }
 };
 
 /**

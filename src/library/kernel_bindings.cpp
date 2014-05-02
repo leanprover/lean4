@@ -958,6 +958,7 @@ static int mk_justification(lua_State * L) {
         return push_justification(L, j);
     }
 }
+static int justification_is_eqp(lua_State * L) { return push_boolean(L, is_eqp(to_justification(L, 1), to_justification(L, 2))); }
 
 static const struct luaL_Reg justification_m[] = {
     {"__gc",            justification_gc}, // never throws
@@ -972,6 +973,7 @@ static const struct luaL_Reg justification_m[] = {
     {"assumption_idx",  safe_function<justification_assumption_idx>},
     {"child1",          safe_function<justification_child1>},
     {"child2",          safe_function<justification_child2>},
+    {"is_eqp",          safe_function<justification_is_eqp>},
     {0, 0}
 };
 

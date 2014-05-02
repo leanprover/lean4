@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/error_msgs.h"
 
 namespace lean {
-static format pp_indent_expr(formatter const & fmt, environment const & env, options const & opts, expr const & e) {
+format pp_indent_expr(formatter const & fmt, environment const & env, options const & opts, expr const & e) {
     return nest(get_pp_indent(opts), compose(line(), fmt(env, e, opts)));
 }
 

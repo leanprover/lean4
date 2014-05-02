@@ -14,6 +14,6 @@ We just have to go to our fork page at github; select `settings` (it is an icon 
 select `Service Hooks`; select `Travis`; and provide the required information.
 We must have an account at Travis.
 
-By default, build reports are sent to the [leansmt-dev](https://groups.google.com/forum/#!forum/leansmt-dev) Google group.
+By default, build reports are sent to the [lean-build](https://groups.google.com/forum/#!forum/lean-build) Google group.
 You can change that by modifying the file [.travis.yml](../../.travis.yml) in the Lean root directory. The file contains a
 `recipients:` entry.

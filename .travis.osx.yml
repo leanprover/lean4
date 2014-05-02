@@ -119,6 +119,6 @@ install:
 notifications:
   email:
     recipients:
-    - leansmt-dev@googlegroups.com
+    - lean-build@googlegroups.com
     on_success: always
     on_failure: always

@@ -121,7 +121,7 @@ public:
     friend expr mk_proj(bool fst, expr const & p);
     friend expr mk_binder(expr_kind k, name const & n, expr const & t, expr const & e, expr_binder_info const & i);
     friend expr mk_let(name const & n, expr const & t, expr const & v, expr const & e);
-    friend expr mk_macro(macro_definition * m, unsigned num, expr const * args);
+    friend expr mk_macro(macro_definition const & m, unsigned num, expr const * args);
 
     friend bool is_eqp(expr const & a, expr const & b) { return a.m_ptr == b.m_ptr; }
     // Overloaded operator() can be used to create applications
@@ -262,29 +262,26 @@ public:
 
 class formatter;
 
-/** \brief Base class for macro definition attachments */
-class macro_definition {
+/** \brief Abstract class for macro_definitions */
+class macro_definition_cell {
+protected:
     void dealloc() { delete this; }
     MK_LEAN_RC();
-protected:
     /**
-        \brief Auxiliary method used for implementing a total order on macro
-        attachments. It is invoked by operator<, and it is only invoked when
-        <tt>get_name() == other.get_name()</tt>
+       \brief Auxiliary method used for implementing a total order on macro
+       attachments. It is invoked by operator<, and it is only invoked when
+       <tt>get_name() == other.get_name()</tt>
     */
-    virtual bool lt(macro_definition const &) const { return false; }
+    virtual bool lt(macro_definition_cell const &) const;
 public:
-    macro_definition():m_rc(0) {}
-    virtual ~macro_definition() {}
+    macro_definition_cell():m_rc(0) {}
+    virtual ~macro_definition_cell() {}
     virtual name get_name() const = 0;
     virtual expr get_type(unsigned num, expr const * args, expr const * arg_types, extension_context & ctx) const = 0;
     virtual optional<expr> expand1(unsigned num, expr const * args, extension_context & ctx) const = 0;
     virtual optional<expr> expand(unsigned num, expr const * args, extension_context & ctx) const = 0;
-    virtual unsigned trust_level() const { return 0; }
-    virtual int push_lua(lua_State * L) const;
-    virtual bool operator==(macro_definition const & other) const;
-    bool operator!=(macro_definition const & other) const { return !operator==(other); }
-    bool operator<(macro_definition const & other) const;
+    virtual unsigned trust_level() const;
+    virtual bool operator==(macro_definition_cell const & other) const;
     virtual void display(std::ostream & out) const;
     virtual format pp(formatter const & fmt, options const & opts) const;
     virtual bool is_atomic_pp(bool unicode, bool coercion) const;
@@ -293,24 +290,56 @@ public:
     typedef std::function<expr(deserializer&, unsigned, expr const *)> reader;
     static void register_deserializer(std::string const & k, reader rd);
     struct register_deserializer_fn {
-        register_deserializer_fn(std::string const & k, macro_definition::reader rd) { macro_definition::register_deserializer(k, rd); }
+        register_deserializer_fn(std::string const & k, macro_definition_cell::reader rd) {
+            macro_definition_cell::register_deserializer(k, rd);
+        }
     };
+};
+
+/** \brief Smart pointer for macro definitions */
+class macro_definition {
+public:
+    macro_definition_cell * m_ptr;
+public:
+    explicit macro_definition(macro_definition_cell * ptr);
+    macro_definition(macro_definition const & s);
+    macro_definition(macro_definition && s);
+    ~macro_definition();
+
+    macro_definition & operator=(macro_definition const & s);
+    macro_definition & operator=(macro_definition && s);
+
+    name get_name() const { return m_ptr->get_name(); }
+    expr get_type(unsigned num, expr const * args, expr const * arg_types, extension_context & ctx) const {
+        return m_ptr->get_type(num, args, arg_types, ctx);
+    }
+    optional<expr> expand1(unsigned num, expr const * args, extension_context & ctx) const { return m_ptr->expand1(num, args, ctx); }
+    optional<expr> expand(unsigned num, expr const * args, extension_context & ctx) const { return m_ptr->expand(num, args, ctx); }
+    unsigned trust_level() const { return m_ptr->trust_level(); }
+    bool operator==(macro_definition const & other) const { return m_ptr->operator==(*other.m_ptr); }
+    bool operator!=(macro_definition const & other) const { return !operator==(other); }
+    bool operator<(macro_definition const & other) const;
+    void display(std::ostream & out) const { return m_ptr->display(out); }
+    format pp(formatter const & fmt, options const & opts) const { return m_ptr->pp(fmt, opts); }
+    bool is_atomic_pp(bool unicode, bool coercion) const { return m_ptr->is_atomic_pp(unicode, coercion); }
+    unsigned hash() const { return m_ptr->hash(); }
+    void write(serializer & s) const { return m_ptr->write(s); }
 };
 
 /** \brief Macro attachments */
 class expr_macro : public expr_composite {
-    macro_definition * m_definition;
-    unsigned           m_num_args;
-    expr *             m_args;
+    macro_definition m_definition;
+    unsigned         m_num_args;
+    expr *           m_args;
     friend class expr_cell;
     friend expr copy(expr const & a);
     friend expr update_macro(expr const & e, unsigned num, expr const * args);
     void dealloc(buffer<expr_cell*> & todelete);
 public:
-    expr_macro(macro_definition * v, unsigned num, expr const * args);
+    expr_macro(macro_definition const & v, unsigned num, expr const * args);
     ~expr_macro();
 
-    macro_definition const & get_def() const { return *m_definition; }
+    macro_definition const & get_def() const { return m_definition; }
     expr const * get_args() const { return m_args; }
     expr const & get_arg(unsigned idx) const { lean_assert(idx < m_num_args); return m_args[idx]; }
     unsigned get_num_args() const { return m_num_args; }
@@ -357,7 +386,7 @@ inline expr Var(unsigned idx) { return mk_var(idx); }
 inline expr mk_constant(name const & n, levels const & ls) { return expr(new expr_const(n, ls)); }
 inline expr mk_constant(name const & n) { return mk_constant(n, levels()); }
 inline expr Const(name const & n) { return mk_constant(n); }
-inline expr mk_macro(macro_definition * m, unsigned num = 0, expr const * args = nullptr) { return expr(new expr_macro(m, num, args)); }
+inline expr mk_macro(macro_definition const & m, unsigned num = 0, expr const * args = nullptr) { return expr(new expr_macro(m, num, args)); }
 inline expr mk_mlocal(bool is_meta, name const & n, expr const & t) { return expr(new expr_mlocal(is_meta, n, t)); }
 inline expr mk_metavar(name const & n, expr const & t) { return mk_mlocal(true, n, t); }
 inline expr mk_local(name const & n, expr const & t) { return mk_mlocal(false, n, t); }

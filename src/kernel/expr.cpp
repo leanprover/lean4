@@ -181,20 +181,16 @@ void expr_let::dealloc(buffer<expr_cell*> & todelete) {
 expr_let::~expr_let() {}
 
 // Macro definition
-int macro_definition::push_lua(lua_State *) const { return 0; } // NOLINT
-bool macro_definition::operator==(macro_definition const & other) const { return typeid(*this) == typeid(other); }
-bool macro_definition::operator<(macro_definition const & other) const {
-    if (get_name() == other.get_name())
-        return lt(other);
-    else
-        return get_name() < other.get_name();
-}
-format macro_definition::pp(formatter const &, options const &) const { return format(get_name()); }
-void macro_definition::display(std::ostream & out) const { out << get_name(); }
-bool macro_definition::is_atomic_pp(bool, bool) const { return true; }
-unsigned macro_definition::hash() const { return get_name().hash(); }
+bool macro_definition_cell::lt(macro_definition_cell const &) const { return false; }
+bool macro_definition_cell::operator==(macro_definition_cell const & other) const { return typeid(*this) == typeid(other); }
+unsigned macro_definition_cell::trust_level() const { return 0; }
 
-typedef std::unordered_map<std::string, macro_definition::reader> macro_readers;
+format macro_definition_cell::pp(formatter const &, options const &) const { return format(get_name()); }
+void macro_definition_cell::display(std::ostream & out) const { out << get_name(); }
+bool macro_definition_cell::is_atomic_pp(bool, bool) const { return true; }
+unsigned macro_definition_cell::hash() const { return get_name().hash(); }
+
+typedef std::unordered_map<std::string, macro_definition_cell::reader> macro_readers;
 static std::unique_ptr<macro_readers> g_macro_readers;
 macro_readers & get_macro_readers() {
     if (!g_macro_readers)
@@ -202,7 +198,7 @@ macro_readers & get_macro_readers() {
     return *(g_macro_readers.get());
 }
 
-void macro_definition::register_deserializer(std::string const & k, macro_definition::reader rd) {
+void macro_definition_cell::register_deserializer(std::string const & k, macro_definition_cell::reader rd) {
     macro_readers & readers = get_macro_readers();
     lean_assert(readers.find(k) == readers.end());
     readers[k] = rd;
@@ -213,6 +209,19 @@ static expr read_macro_definition(deserializer & d, unsigned num, expr const * a
     auto it = readers.find(k);
     lean_assert(it != readers.end());
     return it->second(d, num, args);
+}
+
+macro_definition::macro_definition(macro_definition_cell * ptr):m_ptr(ptr) { lean_assert(m_ptr); m_ptr->inc_ref(); }
+macro_definition::macro_definition(macro_definition const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
+macro_definition::macro_definition(macro_definition && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
+macro_definition::~macro_definition() { if (m_ptr) m_ptr->dec_ref(); }
+macro_definition & macro_definition::operator=(macro_definition const & s) { LEAN_COPY_REF(s); }
+macro_definition & macro_definition::operator=(macro_definition && s) { LEAN_MOVE_REF(s); }
+bool macro_definition::operator<(macro_definition const & other) const {
+    if (get_name() == other.get_name())
+        return m_ptr->lt(*other.m_ptr);
+    else
+        return get_name() < other.get_name();
 }
 
 static unsigned max_depth(unsigned num, expr const * args) {
@@ -235,9 +244,9 @@ static unsigned get_free_var_range(unsigned num, expr const * args) {
     return r;
 }
 
-expr_macro::expr_macro(macro_definition * m, unsigned num, expr const * args):
+expr_macro::expr_macro(macro_definition const & m, unsigned num, expr const * args):
     expr_composite(expr_kind::Macro,
-                   lean::hash(num, [&](unsigned i) { return args[i].hash(); }, m->hash()),
+                   lean::hash(num, [&](unsigned i) { return args[i].hash(); }, m.hash()),
                    std::any_of(args, args+num, [](expr const & e) { return e.has_metavar(); }),
                    std::any_of(args, args+num, [](expr const & e) { return e.has_local(); }),
                    std::any_of(args, args+num, [](expr const & e) { return e.has_param_univ(); }),
@@ -245,13 +254,11 @@ expr_macro::expr_macro(macro_definition * m, unsigned num, expr const * args):
                    get_free_var_range(num, args)),
     m_definition(m),
     m_num_args(num) {
-    m_definition->inc_ref();
     m_args = new expr[num];
     for (unsigned i = 0; i < m_num_args; i++)
         m_args[i] = args[i];
 }
 void expr_macro::dealloc(buffer<expr_cell*> & todelete) {
-    m_definition->dec_ref();
     for (unsigned i = 0; i < m_num_args; i++) dec_ref(m_args[i], todelete);
     delete(this);
 }

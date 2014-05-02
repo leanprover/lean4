@@ -241,7 +241,9 @@ int main() {
     tst3();
     tst4();
     tst5();
+#if !defined(__APPLE__) && defined(LEAN_MULTI_THREAD)
     tst6();
+#endif
     return has_violations() ? 1 : 0;
 }
 

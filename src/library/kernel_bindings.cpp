@@ -785,7 +785,7 @@ static int print(lua_State * L, int start, bool reg) {
         lua_call(L, 1, 1);
         s = lua_tolstring(L, -1, &l);
         if (s == NULL)
-            throw exception("'to_string' must return a string to 'print'");
+            throw exception("'tostring' must return a string to 'print'");
         if (i > start) {
             print(ios, reg, "\t");
         }
@@ -989,6 +989,90 @@ static void open_justification(lua_State * L) {
     SET_GLOBAL_FUN(justification_pred, "is_justification");
 }
 
+// Constraint
+DECL_UDATA(constraint)
+
+#define CNSTR_PRED(P) static int constraint_ ## P(lua_State * L) {  return push_boolean(L, P(to_constraint(L, 1))); }
+CNSTR_PRED(is_eq_cnstr)
+CNSTR_PRED(is_conv_cnstr)
+CNSTR_PRED(is_eqc_cnstr)
+CNSTR_PRED(is_level_cnstr)
+CNSTR_PRED(is_choice_cnstr)
+static int constraint_eq(lua_State * L) { return push_boolean(L, to_constraint(L, 1) == to_constraint(L, 2)); }
+static int constraint_is_eqp(lua_State * L) { return push_boolean(L, is_eqp(to_constraint(L, 1), to_constraint(L, 2))); }
+static int constraint_kind(lua_State * L) { return push_integer(L, static_cast<int>(to_constraint(L, 1).kind())); }
+static int constraint_hash(lua_State * L) { return push_integer(L, to_constraint(L, 1).hash()); }
+static int constraint_jst(lua_State * L) { return push_justification(L, to_constraint(L, 1).get_justification()); }
+static int constraint_lhs(lua_State * L) {
+    constraint const & c = to_constraint(L, 1);
+    if (is_eqc_cnstr(c))
+        return push_expr(L, cnstr_lhs_expr(c));
+    else if (is_level_cnstr(c))
+        return push_level(L, cnstr_lhs_level(c));
+    else
+        throw exception("arg #1 must be an equality/convertability/level constraint");
+}
+static int constraint_rhs(lua_State * L) {
+    constraint const & c = to_constraint(L, 1);
+    if (is_eqc_cnstr(c))
+        return push_expr(L, cnstr_rhs_expr(c));
+    else if (is_level_cnstr(c))
+        return push_level(L, cnstr_rhs_level(c));
+    else
+        throw exception("arg #1 must be an equality/convertability/level constraint");
+}
+static int constraint_choice_expr(lua_State * L) { return push_expr(L, cnstr_choice_expr(to_constraint(L, 1))); }
+static int constraint_choice_set(lua_State * L) { return push_list_expr(L, cnstr_choice_set(to_constraint(L, 1))); }
+static int constraint_tostring(lua_State * L) {
+    std::ostringstream out;
+    out << to_constraint(L, 1);
+    return push_string(L, out.str().c_str());
+}
+static int mk_eq_cnstr(lua_State * L) { return push_constraint(L, mk_eq_cnstr(to_expr(L, 1), to_expr(L, 2), to_justification(L, 3))); }
+static int mk_conv_cnstr(lua_State * L) { return push_constraint(L, mk_conv_cnstr(to_expr(L, 1), to_expr(L, 2), to_justification(L, 3))); }
+static int mk_level_cnstr(lua_State * L) { return push_constraint(L, mk_level_cnstr(to_level(L, 1), to_level(L, 2), to_justification(L, 3))); }
+static int mk_choice_cnstr(lua_State * L) { return push_constraint(L, mk_choice_cnstr(to_expr(L, 1), to_list_expr_ext(L, 3), to_justification(L, 3))); }
+
+static const struct luaL_Reg constraint_m[] = {
+    {"__gc",            constraint_gc}, // never throws
+    {"__tostring",      safe_function<constraint_tostring>},
+    {"__eq",            safe_function<constraint_eq>},
+    {"is_eq",           safe_function<constraint_is_eq_cnstr>},
+    {"is_conv",         safe_function<constraint_is_conv_cnstr>},
+    {"is_eqc",          safe_function<constraint_is_eqc_cnstr>},
+    {"is_level",        safe_function<constraint_is_level_cnstr>},
+    {"is_choice",       safe_function<constraint_is_choice_cnstr>},
+    {"is_choice",       safe_function<constraint_is_eqp>},
+    {"kind",            safe_function<constraint_kind>},
+    {"hash",            safe_function<constraint_hash>},
+    {"lhs",             safe_function<constraint_lhs>},
+    {"rhs",             safe_function<constraint_rhs>},
+    {"justification",   safe_function<constraint_jst>},
+    {"choice_expr",     safe_function<constraint_choice_expr>},
+    {"choice_set",      safe_function<constraint_choice_set>},
+    {0, 0}
+};
+
+static void open_constraint(lua_State * L) {
+    luaL_newmetatable(L, constraint_mt);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    setfuncs(L, constraint_m, 0);
+
+    SET_GLOBAL_FUN(constraint_pred,  "is_constraint");
+    SET_GLOBAL_FUN(mk_eq_cnstr,      "mk_eq_cnstr");
+    SET_GLOBAL_FUN(mk_conv_cnstr,    "mk_conv_cnstr");
+    SET_GLOBAL_FUN(mk_level_cnstr,   "mk_level_cnstr");
+    SET_GLOBAL_FUN(mk_choice_cnstr,  "mk_choice_cnstr");
+
+    lua_newtable(L);
+    SET_ENUM("Eq",          constraint_kind::Eq);
+    SET_ENUM("Convertible", constraint_kind::Convertible);
+    SET_ENUM("Level",       constraint_kind::Level);
+    SET_ENUM("Choice",      constraint_kind::Choice);
+    lua_setglobal(L, "constraint_kind");
+}
+
 // Substitution
 DECL_UDATA(substitution)
 static int mk_substitution(lua_State * L) { return push_substitution(L, substitution()); }
@@ -1132,6 +1216,7 @@ void open_kernel_module(lua_State * L) {
     open_environment(L);
     open_io_state(L);
     open_justification(L);
+    open_constraint(L);
     open_substitution(L);
 }
 }

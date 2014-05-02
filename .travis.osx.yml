@@ -16,9 +16,9 @@ env:
 before_script:
 - mkdir -p build
 - cd build
-- CPLUS_INCLUDE_PATH=/usr/local/include/c++/4.9.0/:/usr/local/include/c++/4.9.0/x86_64-apple-darwin12.4.0:/usr/local/include/c++/4.9.0/bits/
+- CPLUS_INCLUDE_PATH=/usr/local/include/c++/4.8.1/:/usr/local/include/c++/4.8.1/x86_64-apple-darwin12.5.0:/usr/local/include/c++/4.8.1/bits/
 - export CPLUS_INCLUDE_PATH
-- LIBRARY_PATH=/usr/local/lib:/local/lib/gcc/x86_64-apple-darwin12.4.0/4.9.0/
+- LIBRARY_PATH=/usr/local/lib:/usr/local/lib/gcc/x86_64-apple-darwin12.5.0/4.8.1/
 - export LIBRARY_PATH
 - cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DTCMALLOC=${TCMALLOC} -DCMAKE_CXX_COMPILER=/usr/local/bin/${CMAKE_CXX_COMPILER} ../src -G Ninja
 - cd ..
@@ -29,7 +29,7 @@ before_script:
 
 script:
 - cd build
-- SITE=OSX10.8.2@Travis
+- SITE=OSX10.8.5@Travis
 - if [[ $CMAKE_BUILD_TYPE == RELEASE ]]; then
       BUILD_TYPE=Release;
   else
@@ -37,7 +37,7 @@ script:
       CTEST_FLAGS="-E leanslowtests";
   fi
 - LUA_VERSION=LUA_${LUA}
-- BUILD_NAME=${TRAVIS_BRANCH}_g++-4.9.0_${BUILD_TYPE}_${LUA_VERSION}
+- BUILD_NAME=${TRAVIS_BRANCH}_g++-4.8.1_${BUILD_TYPE}_${LUA_VERSION}
 - if [[ $TCMALLOC == ON ]]; then
       BUILD_NAME=${BUILD_NAME}_TC;
   fi;
@@ -92,10 +92,8 @@ after_script:
 
 install:
 - if [[ $CMAKE_CXX_COMPILER == g++ ]]; then
-      cd /;
-      wget http://dl.dropboxusercontent.com/u/203889738/gcc/gcc-4.9.0_OSX.tar.bz2 -O /tmp/gcc-mlion.tar.bz2;
-      sudo tar xfj /tmp/gcc-mlion.tar.bz2;
-      cd -;
+      wget http://dreal.cs.cmu.edu/required_packages/gcc-4.8-bin.tar.gz;
+      sudo tar xfz gcc-4.8-bin.tar.gz -C /;
       sudo chown -R `whoami` /usr/local;
       brew install gmp; brew link --overwrite gmp;
       brew install mpfr; brew link --overwrite mpfr;

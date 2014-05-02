@@ -1000,7 +1000,7 @@ CNSTR_PRED(is_level_cnstr)
 CNSTR_PRED(is_choice_cnstr)
 static int constraint_eq(lua_State * L) { return push_boolean(L, to_constraint(L, 1) == to_constraint(L, 2)); }
 static int constraint_is_eqp(lua_State * L) { return push_boolean(L, is_eqp(to_constraint(L, 1), to_constraint(L, 2))); }
-static int constraint_kind(lua_State * L) { return push_integer(L, static_cast<int>(to_constraint(L, 1).kind())); }
+static int constraint_get_kind(lua_State * L) { return push_integer(L, static_cast<int>(to_constraint(L, 1).kind())); }
 static int constraint_hash(lua_State * L) { return push_integer(L, to_constraint(L, 1).hash()); }
 static int constraint_jst(lua_State * L) { return push_justification(L, to_constraint(L, 1).get_justification()); }
 static int constraint_lhs(lua_State * L) {
@@ -1043,7 +1043,7 @@ static const struct luaL_Reg constraint_m[] = {
     {"is_level",        safe_function<constraint_is_level_cnstr>},
     {"is_choice",       safe_function<constraint_is_choice_cnstr>},
     {"is_eqp",          safe_function<constraint_is_eqp>},
-    {"kind",            safe_function<constraint_kind>},
+    {"kind",            safe_function<constraint_get_kind>},
     {"hash",            safe_function<constraint_hash>},
     {"lhs",             safe_function<constraint_lhs>},
     {"rhs",             safe_function<constraint_rhs>},

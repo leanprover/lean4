@@ -32,7 +32,7 @@ namespace lean {
    It means, t must be definitionally equal to one of the terms in the (finite)
    set {s_1, ..., s_k}.
 */
-enum constraint_kind { Eq, Convertible, Level, Choice };
+enum class constraint_kind { Eq, Convertible, Level, Choice };
 struct constraint_cell;
 class constraint {
     constraint_cell * m_ptr;

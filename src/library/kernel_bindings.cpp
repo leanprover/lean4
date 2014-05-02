@@ -1031,7 +1031,7 @@ static int constraint_tostring(lua_State * L) {
 static int mk_eq_cnstr(lua_State * L) { return push_constraint(L, mk_eq_cnstr(to_expr(L, 1), to_expr(L, 2), to_justification(L, 3))); }
 static int mk_conv_cnstr(lua_State * L) { return push_constraint(L, mk_conv_cnstr(to_expr(L, 1), to_expr(L, 2), to_justification(L, 3))); }
 static int mk_level_cnstr(lua_State * L) { return push_constraint(L, mk_level_cnstr(to_level(L, 1), to_level(L, 2), to_justification(L, 3))); }
-static int mk_choice_cnstr(lua_State * L) { return push_constraint(L, mk_choice_cnstr(to_expr(L, 1), to_list_expr_ext(L, 3), to_justification(L, 3))); }
+static int mk_choice_cnstr(lua_State * L) { return push_constraint(L, mk_choice_cnstr(to_expr(L, 1), to_list_expr_ext(L, 2), to_justification(L, 3))); }
 
 static const struct luaL_Reg constraint_m[] = {
     {"__gc",            constraint_gc}, // never throws
@@ -1042,7 +1042,7 @@ static const struct luaL_Reg constraint_m[] = {
     {"is_eqc",          safe_function<constraint_is_eqc_cnstr>},
     {"is_level",        safe_function<constraint_is_level_cnstr>},
     {"is_choice",       safe_function<constraint_is_choice_cnstr>},
-    {"is_choice",       safe_function<constraint_is_eqp>},
+    {"is_eqp",          safe_function<constraint_is_eqp>},
     {"kind",            safe_function<constraint_kind>},
     {"hash",            safe_function<constraint_hash>},
     {"lhs",             safe_function<constraint_lhs>},

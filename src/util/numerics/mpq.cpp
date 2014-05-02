@@ -173,15 +173,15 @@ static int mpq_tostring(lua_State * L) {
     mpq * n = static_cast<mpq*>(luaL_checkudata(L, 1, mpq_mt));
     std::ostringstream out;
     out << *n;
-    return pushstring(L, out.str().c_str());
+    return push_string(L, out.str().c_str());
 }
 
 static int mpq_eq(lua_State * L) {
-    return pushboolean(L, to_mpq<1>(L) == to_mpq<2>(L));
+    return push_boolean(L, to_mpq<1>(L) == to_mpq<2>(L));
 }
 
 static int mpq_lt(lua_State * L) {
-    return pushboolean(L, to_mpq<1>(L) < to_mpq<2>(L));
+    return push_boolean(L, to_mpq<1>(L) < to_mpq<2>(L));
 }
 
 static int mpq_add(lua_State * L) {

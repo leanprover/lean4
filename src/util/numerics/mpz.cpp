@@ -121,15 +121,15 @@ static int mpz_tostring(lua_State * L) {
     mpz * n = static_cast<mpz*>(luaL_checkudata(L, 1, mpz_mt));
     std::ostringstream out;
     out << *n;
-    return pushstring(L, out.str().c_str());
+    return push_string(L, out.str().c_str());
 }
 
 static int mpz_eq(lua_State * L) {
-    return pushboolean(L, to_mpz<1>(L) == to_mpz<2>(L));
+    return push_boolean(L, to_mpz<1>(L) == to_mpz<2>(L));
 }
 
 static int mpz_lt(lua_State * L) {
-    return pushboolean(L, to_mpz<1>(L) < to_mpz<2>(L));
+    return push_boolean(L, to_mpz<1>(L) < to_mpz<2>(L));
 }
 
 static int mpz_add(lua_State * L) {

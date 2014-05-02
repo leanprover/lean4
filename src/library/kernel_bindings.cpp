@@ -30,7 +30,7 @@ io_state * get_io_state(lua_State * L);
 DECL_UDATA(level)
 DEFINE_LUA_LIST(level, push_level, to_level)
 
-int push_optional_level(lua_State * L, optional<level> const & l) {  return l ? push_level(L, *l) : pushnil(L); }
+int push_optional_level(lua_State * L, optional<level> const & l) {  return l ? push_level(L, *l) : push_nil(L); }
 
 static int level_tostring(lua_State * L) {
     std::ostringstream out;
@@ -40,8 +40,8 @@ static int level_tostring(lua_State * L) {
     return 1;
 }
 
-static int level_eq(lua_State * L) { return pushboolean(L, to_level(L, 1) == to_level(L, 2)); }
-static int level_lt(lua_State * L) { return pushboolean(L, is_lt(to_level(L, 1), to_level(L, 2))); }
+static int level_eq(lua_State * L) { return push_boolean(L, to_level(L, 1) == to_level(L, 2)); }
+static int level_lt(lua_State * L) { return push_boolean(L, is_lt(to_level(L, 1), to_level(L, 2))); }
 static int mk_level_zero(lua_State * L) { return push_level(L, mk_level_zero()); }
 static int mk_level_one(lua_State * L)  { return push_level(L, mk_level_one());  }
 static int mk_level_succ(lua_State * L) { return push_level(L, mk_succ(to_level(L, 1))); }
@@ -49,7 +49,7 @@ static int mk_level_max(lua_State * L)  { return push_level(L, mk_max(to_level(L
 static int mk_level_imax(lua_State * L) { return push_level(L, mk_imax(to_level(L, 1), to_level(L, 2))); }
 static int mk_param_univ(lua_State * L) { return push_level(L, mk_param_univ(to_name_ext(L, 1))); }
 static int mk_meta_univ(lua_State * L)  { return push_level(L, mk_meta_univ(to_name_ext(L, 1))); }
-#define LEVEL_PRED(P) static int level_ ## P(lua_State * L) { return pushboolean(L, P(to_level(L, 1))); }
+#define LEVEL_PRED(P) static int level_ ## P(lua_State * L) { return push_boolean(L, P(to_level(L, 1))); }
 LEVEL_PRED(is_zero)
 LEVEL_PRED(is_param)
 LEVEL_PRED(is_meta)
@@ -60,9 +60,9 @@ LEVEL_PRED(is_explicit)
 LEVEL_PRED(has_meta)
 LEVEL_PRED(has_param)
 LEVEL_PRED(is_not_zero)
-static int level_get_kind(lua_State * L) { return pushinteger(L, static_cast<int>(kind(to_level(L, 1)))); }
-static int level_trivially_leq(lua_State * L) { return pushboolean(L, is_trivial(to_level(L, 1), to_level(L, 2))); }
-static int level_is_eqp(lua_State * L) { return pushboolean(L, is_eqp(to_level(L, 1), to_level(L, 2))); }
+static int level_get_kind(lua_State * L) { return push_integer(L, static_cast<int>(kind(to_level(L, 1)))); }
+static int level_trivially_leq(lua_State * L) { return push_boolean(L, is_trivial(to_level(L, 1), to_level(L, 2))); }
+static int level_is_eqp(lua_State * L) { return push_boolean(L, is_eqp(to_level(L, 1), to_level(L, 2))); }
 
 static int level_id(lua_State * L) {
     level const & l = to_level(L, 1);
@@ -164,8 +164,8 @@ static int mk_binder_info(lua_State * L) {
     else
         return push_expr_binder_info(L, expr_binder_info(lua_toboolean(L, 1), lua_toboolean(L, 2)));
 }
-static int binder_info_is_implicit(lua_State * L) { return pushboolean(L, to_expr_binder_info(L, 1).is_implicit()); }
-static int binder_info_is_cast(lua_State * L) { return pushboolean(L, to_expr_binder_info(L, 1).is_cast()); }
+static int binder_info_is_implicit(lua_State * L) { return push_boolean(L, to_expr_binder_info(L, 1).is_implicit()); }
+static int binder_info_is_cast(lua_State * L) { return push_boolean(L, to_expr_binder_info(L, 1).is_cast()); }
 static const struct luaL_Reg binder_info_m[] = {
     {"__gc",            expr_binder_info_gc},
     {"is_implicit",     safe_function<binder_info_is_implicit>},
@@ -186,7 +186,7 @@ static void open_binder_info(lua_State * L) {
 DECL_UDATA(expr)
 DEFINE_LUA_LIST(expr, push_expr, to_expr)
 
-int push_optional_expr(lua_State * L, optional<expr> const & e) {  return e ? push_expr(L, *e) : pushnil(L); }
+int push_optional_expr(lua_State * L, optional<expr> const & e) {  return e ? push_expr(L, *e) : push_nil(L); }
 
 expr & to_app(lua_State * L, int idx) {
     expr & r = to_expr(L, idx);
@@ -215,11 +215,11 @@ static int expr_tostring(lua_State * L) {
     options opts    = get_global_options(L);
     environment env = get_global_environment(L);
     out << mk_pair(fmt(env, to_expr(L, 1), opts), opts);
-    return pushstring(L, out.str().c_str());
+    return push_string(L, out.str().c_str());
 }
 
-static int expr_eq(lua_State * L) { return pushboolean(L, to_expr(L, 1) == to_expr(L, 2)); }
-static int expr_lt(lua_State * L) { return pushboolean(L, to_expr(L, 1) < to_expr(L, 2)); }
+static int expr_eq(lua_State * L) { return push_boolean(L, to_expr(L, 1) == to_expr(L, 2)); }
+static int expr_lt(lua_State * L) { return push_boolean(L, to_expr(L, 1) < to_expr(L, 2)); }
 static int expr_mk_constant(lua_State * L) { return push_expr(L, mk_constant(to_name_ext(L, 1))); }
 static int expr_mk_var(lua_State * L) { return push_expr(L, mk_var(luaL_checkinteger(L, 1))); }
 static int expr_mk_app(lua_State * L) {
@@ -309,9 +309,9 @@ static int expr_pi(lua_State * L)  { return expr_abst<Pi, Pi>(L); }
 static int expr_mk_sort(lua_State * L) { return push_expr(L, mk_sort(to_level(L, 1))); }
 static int expr_mk_metavar(lua_State * L) { return push_expr(L, mk_metavar(to_name_ext(L, 1), to_expr(L, 2))); }
 static int expr_mk_local(lua_State * L) { return push_expr(L, mk_local(to_name_ext(L, 1), to_expr(L, 2))); }
-static int expr_get_kind(lua_State * L) { return pushinteger(L, static_cast<int>(to_expr(L, 1).kind())); }
+static int expr_get_kind(lua_State * L) { return push_integer(L, static_cast<int>(to_expr(L, 1).kind())); }
 
-#define EXPR_PRED(P) static int expr_ ## P(lua_State * L) {  return pushboolean(L, P(to_expr(L, 1))); }
+#define EXPR_PRED(P) static int expr_ ## P(lua_State * L) {  return push_boolean(L, P(to_expr(L, 1))); }
 
 EXPR_PRED(is_constant)
 EXPR_PRED(is_var)
@@ -335,7 +335,7 @@ static int expr_fields(lua_State * L) {
     expr & e = to_expr(L, 1);
     switch (e.kind()) {
     case expr_kind::Var:
-        return pushinteger(L, var_idx(e));
+        return push_integer(L, var_idx(e));
     case expr_kind::Constant:
         push_name(L, const_name(e)); push_list_level(L, const_level_params(e)); return 2;
     case expr_kind::Sort:
@@ -380,10 +380,9 @@ static int expr_for_each(lua_State * L) {
 static int expr_has_free_var(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 2)
-        lua_pushboolean(L, has_free_var(to_expr(L, 1), luaL_checkinteger(L, 2)));
+        return push_boolean(L, has_free_var(to_expr(L, 1), luaL_checkinteger(L, 2)));
     else
-        lua_pushboolean(L, has_free_var(to_expr(L, 1), luaL_checkinteger(L, 2), luaL_checkinteger(L, 3)));
-    return 1;
+        return push_boolean(L, has_free_var(to_expr(L, 1), luaL_checkinteger(L, 2), luaL_checkinteger(L, 3)));
 }
 
 static int expr_lift_free_vars(lua_State * L) {
@@ -441,11 +440,11 @@ static int binder_domain(lua_State * L) { return push_expr(L, binder_domain(to_b
 static int binder_body(lua_State * L) { return push_expr(L, binder_body(to_binder(L, 1))); }
 static int binder_info(lua_State * L) { return push_expr_binder_info(L, binder_info(to_binder(L, 1))); }
 
-static int expr_occurs(lua_State * L) { return pushboolean(L, occurs(to_expr(L, 1), to_expr(L, 2))); }
-static int expr_is_eqp(lua_State * L) { return pushboolean(L, is_eqp(to_expr(L, 1), to_expr(L, 2))); }
-static int expr_hash(lua_State * L) { return pushinteger(L, to_expr(L, 1).hash()); }
-static int expr_depth(lua_State * L) { return pushinteger(L, get_depth(to_expr(L, 1))); }
-static int expr_is_lt(lua_State * L) { return pushboolean(L, is_lt(to_expr(L, 1), to_expr(L, 2), false)); }
+static int expr_occurs(lua_State * L) { return push_boolean(L, occurs(to_expr(L, 1), to_expr(L, 2))); }
+static int expr_is_eqp(lua_State * L) { return push_boolean(L, is_eqp(to_expr(L, 1), to_expr(L, 2))); }
+static int expr_hash(lua_State * L) { return push_integer(L, to_expr(L, 1).hash()); }
+static int expr_depth(lua_State * L) { return push_integer(L, get_depth(to_expr(L, 1))); }
+static int expr_is_lt(lua_State * L) { return push_boolean(L, is_lt(to_expr(L, 1), to_expr(L, 2), false)); }
 
 static int expr_mk_macro(lua_State * L) {
     buffer<expr> args;
@@ -454,8 +453,8 @@ static int expr_mk_macro(lua_State * L) {
 }
 
 static int macro_def(lua_State * L) { return push_macro_definition(L, macro_def(to_macro_app(L, 1))); }
-static int macro_num_args(lua_State * L) { return pushinteger(L, macro_num_args(to_macro_app(L, 1))); }
-static int macro_arg(lua_State * L) { return push_expr(L, macro_arg(to_macro_app(L, 1), pushinteger(L, 2))); }
+static int macro_num_args(lua_State * L) { return push_integer(L, macro_num_args(to_macro_app(L, 1))); }
+static int macro_arg(lua_State * L) { return push_expr(L, macro_arg(to_macro_app(L, 1), push_integer(L, 2))); }
 
 static const struct luaL_Reg expr_m[] = {
     {"__gc",             expr_gc}, // never throws
@@ -559,15 +558,15 @@ static void open_expr(lua_State * L) {
 DECL_UDATA(macro_definition)
 
 int macro_get_name(lua_State * L) { return push_name(L, to_macro_definition(L, 1).get_name()); }
-int macro_trust_level(lua_State * L) { return pushinteger(L, to_macro_definition(L, 1).trust_level()); }
-int macro_eq(lua_State * L) { return pushboolean(L, to_macro_definition(L, 1) == to_macro_definition(L, 2)); }
-int macro_hash(lua_State * L) { return pushinteger(L, to_macro_definition(L, 1).hash()); }
+int macro_trust_level(lua_State * L) { return push_integer(L, to_macro_definition(L, 1).trust_level()); }
+int macro_eq(lua_State * L) { return push_boolean(L, to_macro_definition(L, 1) == to_macro_definition(L, 2)); }
+int macro_hash(lua_State * L) { return push_integer(L, to_macro_definition(L, 1).hash()); }
 static int macro_tostring(lua_State * L) {
     std::ostringstream out;
     formatter fmt   = get_global_formatter(L);
     options opts    = get_global_options(L);
     out << mk_pair(to_macro_definition(L, 1).pp(fmt, opts), opts);
-    return pushstring(L, out.str().c_str());
+    return push_string(L, out.str().c_str());
 }
 
 static const struct luaL_Reg macro_definition_m[] = {
@@ -885,7 +884,7 @@ io_state * get_io_state(lua_State * L) {
 // Justification
 DECL_UDATA(justification)
 
-int push_optional_justification(lua_State * L, optional<justification> const & j) { return j ? push_justification(L, *j) : pushnil(L); }
+int push_optional_justification(lua_State * L, optional<justification> const & j) { return j ? push_justification(L, *j) : push_nil(L); }
 
 static int justification_tostring(lua_State * L) {
     std::ostringstream out;
@@ -895,7 +894,7 @@ static int justification_tostring(lua_State * L) {
     return 1;
 }
 
-#define JST_PRED(P) static int justification_ ## P(lua_State * L) { return pushboolean(L, to_justification(L, 1).P()); }
+#define JST_PRED(P) static int justification_ ## P(lua_State * L) { return push_boolean(L, to_justification(L, 1).P()); }
 JST_PRED(is_none)
 JST_PRED(is_asserted)
 JST_PRED(is_assumption)
@@ -920,7 +919,7 @@ static int justification_pp(lua_State * L) {
 static int justification_assumption_idx(lua_State * L) {
     if (!to_justification(L, 1).is_assumption())
         throw exception("arg #1 must be an assumption justification");
-    return pushinteger(L, assumption_idx(to_justification(L, 1)));
+    return push_integer(L, assumption_idx(to_justification(L, 1)));
 }
 static int justification_child1(lua_State * L) {
     if (!to_justification(L, 1).is_composite())
@@ -932,8 +931,8 @@ static int justification_child2(lua_State * L) {
         throw exception("arg #1 must be a composite justification");
     return push_justification(L, composite_child2(to_justification(L, 1)));
 }
-static int justification_depends_on(lua_State * L) { return pushboolean(L, depends_on(to_justification(L, 1), pushinteger(L, 2))); }
-static int mk_assumption_justification(lua_State * L) { return push_justification(L, mk_assumption_justification(pushinteger(L, 1))); }
+static int justification_depends_on(lua_State * L) { return push_boolean(L, depends_on(to_justification(L, 1), push_integer(L, 2))); }
+static int mk_assumption_justification(lua_State * L) { return push_justification(L, mk_assumption_justification(push_integer(L, 1))); }
 static int mk_justification(lua_State * L) { return push_justification(L, justification()); }
 static int mk_composite1(lua_State * L) { return push_justification(L, mk_composite1(to_justification(L, 1), to_justification(L, 2))); }
 
@@ -1010,21 +1009,21 @@ static int subst_assign(lua_State * L) {
 }
 static int subst_is_assigned(lua_State * L) {
     if (is_expr(L, 2))
-        return pushboolean(L, to_substitution(L, 1).is_assigned(to_expr(L, 2)));
+        return push_boolean(L, to_substitution(L, 1).is_assigned(to_expr(L, 2)));
     else
-        return pushboolean(L, to_substitution(L, 1).is_assigned(to_level(L, 2)));
+        return push_boolean(L, to_substitution(L, 1).is_assigned(to_level(L, 2)));
 }
-static int subst_is_expr_assigned(lua_State * L) { return pushboolean(L, to_substitution(L, 1).is_expr_assigned(to_name_ext(L, 2))); }
-static int subst_is_level_assigned(lua_State * L) { return pushboolean(L, to_substitution(L, 1).is_level_assigned(to_name_ext(L, 2))); }
-static int subst_occurs(lua_State * L) { return pushboolean(L, to_substitution(L, 1).occurs(to_expr(L, 2), to_expr(L, 3))); }
-static int subst_occurs_expr(lua_State * L) { return pushboolean(L, to_substitution(L, 1).occurs_expr(to_name_ext(L, 2), to_expr(L, 3))); }
+static int subst_is_expr_assigned(lua_State * L) { return push_boolean(L, to_substitution(L, 1).is_expr_assigned(to_name_ext(L, 2))); }
+static int subst_is_level_assigned(lua_State * L) { return push_boolean(L, to_substitution(L, 1).is_level_assigned(to_name_ext(L, 2))); }
+static int subst_occurs(lua_State * L) { return push_boolean(L, to_substitution(L, 1).occurs(to_expr(L, 2), to_expr(L, 3))); }
+static int subst_occurs_expr(lua_State * L) { return push_boolean(L, to_substitution(L, 1).occurs_expr(to_name_ext(L, 2), to_expr(L, 3))); }
 static int subst_get_expr_assignment(lua_State * L) {
     auto r = to_substitution(L, 1).get_expr_assignment(to_name_ext(L, 2));
     if (r) {
         push_expr(L, r->first);
         push_justification(L, r->second);
     } else {
-        pushnil(L); pushnil(L);
+        push_nil(L); push_nil(L);
     }
     return 2;
 }
@@ -1034,7 +1033,7 @@ static int subst_get_level_assignment(lua_State * L) {
         push_level(L, r->first);
         push_justification(L, r->second);
     } else {
-        pushnil(L); pushnil(L);
+        push_nil(L); push_nil(L);
     }
     return 2;
 }
@@ -1045,7 +1044,7 @@ static int subst_get_assignment(lua_State * L) {
             push_expr(L, r->first);
             push_justification(L, r->second);
         } else {
-            pushnil(L); pushnil(L);
+            push_nil(L); push_nil(L);
         }
     } else {
         auto r = to_substitution(L, 1).get_assignment(to_level(L, 2));
@@ -1053,7 +1052,7 @@ static int subst_get_assignment(lua_State * L) {
             push_level(L, r->first);
             push_justification(L, r->second);
         } else {
-            pushnil(L); pushnil(L);
+            push_nil(L); push_nil(L);
         }
     }
     return 2;
@@ -1111,361 +1110,3 @@ void open_kernel_module(lua_State * L) {
     open_substitution(L);
 }
 }
-
-#if 0
-namespace lean {
-
-DECL_UDATA(object)
-
-int push_optional_object(lua_State * L, optional<object> const & o) {
-    if (o)
-        push_object(L, *o);
-    else
-        lua_pushnil(L);
-    return 1;
-}
-
-static int object_keyword(lua_State * L) {
-    lua_pushstring(L, to_object(L, 1).keyword());
-    return 1;
-}
-
-static int object_has_name(lua_State * L) {
-    lua_pushboolean(L, to_object(L, 1).has_name());
-    return 1;
-}
-
-static int object_get_name(lua_State * L) {
-    object const & o = to_object(L, 1);
-    if (!o.has_name())
-        throw exception("kernel object does not have a name");
-    return push_name(L, o.get_name());
-}
-
-static int object_has_type(lua_State * L) {
-    lua_pushboolean(L, to_object(L, 1).has_type());
-    return 1;
-}
-
-static int object_get_type(lua_State * L) {
-    object const & o = to_object(L, 1);
-    if (!o.has_type())
-        throw exception("kernel object does not have a type");
-    return push_expr(L, o.get_type());
-}
-
-static int object_has_cnstr_level(lua_State * L) {
-    lua_pushboolean(L, to_object(L, 1).has_cnstr_level());
-    return 1;
-}
-
-static int object_get_cnstr_level(lua_State * L) {
-    object const & o = to_object(L, 1);
-    if (!o.has_cnstr_level())
-        throw exception("kernel object does not have a constraint level");
-    return push_level(L, o.get_cnstr_level());
-}
-
-static int object_get_value(lua_State * L) {
-    object const & o = to_object(L, 1);
-    if (!o.is_definition() && !o.is_builtin())
-        throw exception("kernel object is not a definition/theorem/builtin");
-    return push_expr(L, o.get_value());
-}
-
-static int object_get_weight(lua_State * L) {
-    object const & o = to_object(L, 1);
-    if (!o.is_definition())
-        throw exception("kernel object is not a definition");
-    lua_pushinteger(L, o.get_weight());
-    return 1;
-}
-
-#define OBJECT_PRED(P)                                  \
-static int object_ ## P(lua_State * L) {                \
-    lua_pushboolean(L, to_object(L, 1).P());    \
-    return 1;                                           \
-}
-
-OBJECT_PRED(is_definition)
-OBJECT_PRED(is_opaque)
-OBJECT_PRED(is_axiom)
-OBJECT_PRED(is_theorem)
-OBJECT_PRED(is_var_decl)
-OBJECT_PRED(is_builtin)
-OBJECT_PRED(is_builtin_set)
-
-#define OBJECT_EXTRA_PRED(P)                    \
-static int object_ ## P(lua_State * L) {        \
-    lua_pushboolean(L, P(to_object(L, 1)));     \
-    return 1;                                   \
-}
-
-OBJECT_EXTRA_PRED(is_begin_import)
-OBJECT_EXTRA_PRED(is_begin_builtin_import)
-OBJECT_EXTRA_PRED(is_end_import)
-
-static int object_in_builtin_set(lua_State * L) {
-    lua_pushboolean(L, to_object(L, 1).in_builtin_set(to_expr(L, 2)));
-    return 1;
-}
-
-static int object_tostring(lua_State * L) {
-    std::ostringstream out;
-    formatter fmt = get_global_formatter(L);
-    options opts  = get_global_options(L);
-    out << mk_pair(fmt(to_object(L, 1), opts), opts);
-    lua_pushstring(L, out.str().c_str());
-    return 1;
-}
-
-static const struct luaL_Reg object_m[] = {
-    {"__gc",            object_gc}, // never throws
-    {"__tostring",      safe_function<object_tostring>},
-    {"keyword",         safe_function<object_keyword>},
-    {"has_name",        safe_function<object_has_name>},
-    {"get_name",        safe_function<object_get_name>},
-    {"has_type",        safe_function<object_has_type>},
-    {"get_type",        safe_function<object_get_type>},
-    {"has_cnstr_level", safe_function<object_has_cnstr_level>},
-    {"get_cnstr_level", safe_function<object_get_cnstr_level>},
-    {"is_definition",   safe_function<object_is_definition>},
-    {"is_opaque",       safe_function<object_is_opaque>},
-    {"get_value",       safe_function<object_get_value>},
-    {"get_weight",      safe_function<object_get_weight>},
-    {"is_axiom",        safe_function<object_is_axiom>},
-    {"is_theorem",      safe_function<object_is_theorem>},
-    {"is_var_decl",     safe_function<object_is_var_decl>},
-    {"is_builtin",      safe_function<object_is_builtin>},
-    {"is_builtin_set",  safe_function<object_is_builtin_set>},
-    {"in_builtin_set",  safe_function<object_in_builtin_set>},
-    {"is_begin_import", safe_function<object_is_begin_import>},
-    {"is_begin_builtin_import", safe_function<object_is_begin_builtin_import>},
-    {"is_end_import",   safe_function<object_is_end_import>},
-    {0, 0}
-};
-
-static void open_object(lua_State * L) {
-    luaL_newmetatable(L, object_mt);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    setfuncs(L, object_m, 0);
-
-    SET_GLOBAL_FUN(object_pred, "is_kernel_object");
-}
-
-
-DECL_UDATA(metavar_env)
-
-static int menv_mk_metavar(lua_State * L) {
-    int nargs = lua_gettop(L);
-    if (nargs == 1) {
-        return push_expr(L, to_metavar_env(L, 1)->mk_metavar());
-    } else if (nargs == 2) {
-        return push_expr(L, to_metavar_env(L, 1)->mk_metavar(to_context(L, 2)));
-    } else {
-        return push_expr(L, to_metavar_env(L, 1)->mk_metavar(to_context(L, 2), some_expr(to_expr(L, 3))));
-    }
-}
-
-static expr & to_metavar(lua_State * L, int i, bool lctx = true) {
-    expr & e = to_expr(L, i);
-    if (is_metavar(e)) {
-        if (lctx || !has_local_context(e))
-            return e;
-        throw exception(sstream() << "arg #" << i << " must be a metavariable without a local context");
-    }
-    throw exception(sstream() << "arg #" << i << " must be a metavariable");
-}
-
-static int menv_get_timestamp(lua_State * L) {
-    lua_pushinteger(L, to_metavar_env(L, 1)->get_timestamp());
-    return 1;
-}
-
-static int menv_get_context(lua_State * L) {
-    if (is_expr(L, 2))
-        return push_context(L, to_metavar_env(L, 1)->get_context(to_metavar(L, 2, false)));
-    else
-        return push_context(L, to_metavar_env(L, 1)->get_context(to_name_ext(L, 2)));
-}
-
-static int menv_has_type(lua_State * L) {
-    if (is_expr(L, 2))
-        lua_pushboolean(L, to_metavar_env(L, 1)->has_type(to_metavar(L, 2)));
-    else
-        lua_pushboolean(L, to_metavar_env(L, 1)->has_type(to_name_ext(L, 2)));
-    return 1;
-}
-
-static int menv_get_type(lua_State * L) {
-    if (is_expr(L, 2))
-        return push_expr(L, to_metavar_env(L, 1)->get_type(to_metavar(L, 2)));
-    else
-        return push_expr(L, to_metavar_env(L, 1)->get_type(to_name_ext(L, 2)));
-}
-
-static int menv_is_assigned(lua_State * L) {
-    if (is_expr(L, 2))
-        lua_pushboolean(L, to_metavar_env(L, 1)->is_assigned(to_metavar(L, 2)));
-    else
-        lua_pushboolean(L, to_metavar_env(L, 1)->is_assigned(to_name_ext(L, 2)));
-    return 1;
-}
-
-static int menv_assign(lua_State * L) {
-    int nargs = lua_gettop(L);
-    justification jst;
-    if (nargs == 4)
-        jst = to_justification(L, 4);
-    if (is_expr(L, 2))
-        to_metavar_env(L, 1)->assign(to_metavar(L, 2, false), to_expr(L, 3), jst);
-    else
-        to_metavar_env(L, 1)->assign(to_name_ext(L, 2), to_expr(L, 3), jst);
-    return 0;
-}
-
-static int menv_get_subst(lua_State * L) {
-    if (is_expr(L, 2))
-        return push_optional_expr(L, to_metavar_env(L, 1)->get_subst(to_metavar(L, 2)));
-    else
-        return push_optional_expr(L, to_metavar_env(L, 1)->get_subst(to_name_ext(L, 2)));
-}
-
-static int menv_get_justification(lua_State * L) {
-    if (is_expr(L, 2))
-        return push_optional_justification(L, to_metavar_env(L, 1)->get_justification(to_metavar(L, 2)));
-    else
-        return push_optional_justification(L, to_metavar_env(L, 1)->get_justification(to_name_ext(L, 2)));
-}
-
-static int menv_get_subst_jst(lua_State * L) {
-    optional<std::pair<expr, justification>> r;
-    if (is_expr(L, 2)) {
-        r = to_metavar_env(L, 1)->get_subst_jst(to_metavar(L, 2));
-    } else {
-        r = to_metavar_env(L, 1)->get_subst_jst(to_name_ext(L, 2));
-    }
-    if (r) {
-        push_expr(L, r->first);
-        push_justification(L, r->second);
-        return 2;
-    } else {
-        return 0;
-    }
-}
-
-static int menv_for_each_subst(lua_State * L) {
-    luaL_checktype(L, 2, LUA_TFUNCTION); // user-fun
-    to_metavar_env(L, 1)->for_each_subst([&](name const & n, expr const & e) {
-            lua_pushvalue(L, 2); // push user-fun
-            push_name(L, n);
-            push_expr(L, e);
-            pcall(L, 2, 0, 0);
-        });
-    return 0;
-}
-
-static int mk_metavar_env(lua_State * L) {
-    if (lua_gettop(L) == 1)
-        return push_metavar_env(L, metavar_env(to_name_ext(L, 1)));
-    else
-        return push_metavar_env(L, metavar_env());
-}
-
-static int menv_copy(lua_State * L) {
-    return push_metavar_env(L, metavar_env(to_metavar_env(L, 1).copy()));
-}
-
-static int instantiate_metavars(lua_State * L) {
-    return push_expr(L, to_metavar_env(L, 2)->instantiate_metavars(to_expr(L, 1)));
-}
-
-static const struct luaL_Reg metavar_env_m[] = {
-    {"__gc",              metavar_env_gc}, // never throws
-    {"mk_metavar",        safe_function<menv_mk_metavar>},
-    {"get_timestamp",     safe_function<menv_get_timestamp>},
-    {"get_context",       safe_function<menv_get_context>},
-    {"has_type",          safe_function<menv_has_type>},
-    {"get_type",          safe_function<menv_get_type>},
-    {"is_assigned",       safe_function<menv_is_assigned>},
-    {"assign",            safe_function<menv_assign>},
-    {"get_subst",         safe_function<menv_get_subst>},
-    {"get_justification", safe_function<menv_get_justification>},
-    {"get_subst_jst",     safe_function<menv_get_subst_jst>},
-    {"for_each_subst",    safe_function<menv_for_each_subst>},
-    {"copy",              safe_function<menv_copy>},
-    {0, 0}
-};
-
-static void open_metavar_env(lua_State * L) {
-    luaL_newmetatable(L, metavar_env_mt);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    setfuncs(L, metavar_env_m, 0);
-
-    SET_GLOBAL_FUN(mk_metavar_env,   "metavar_env");
-    SET_GLOBAL_FUN(metavar_env_pred, "is_metavar_env");
-    SET_GLOBAL_FUN(instantiate_metavars, "instantiate_metavars");
-}
-
-constexpr char const * type_inferer_mt = "type_inferer";
-type_inferer & to_type_inferer(lua_State * L, int i) { return *static_cast<type_inferer*>(luaL_checkudata(L, i, type_inferer_mt)); }
-DECL_PRED(type_inferer)
-DECL_GC(type_inferer)
-
-static int type_inferer_call(lua_State * L) {
-    int nargs = lua_gettop(L);
-    type_inferer & inferer = to_type_inferer(L, 1);
-    if (nargs == 2)
-        return push_expr(L, inferer(to_expr(L, 2)));
-    else
-        return push_expr(L, inferer(to_expr(L, 2), to_context(L, 3)));
-}
-
-static int type_inferer_clear(lua_State * L) {
-    to_type_inferer(L, 1).clear();
-    return 0;
-}
-
-static int mk_type_inferer(lua_State * L) {
-    void * mem = lua_newuserdata(L, sizeof(type_inferer));
-    new (mem) type_inferer(to_environment(L, 1));
-    luaL_getmetatable(L, type_inferer_mt);
-    lua_setmetatable(L, -2);
-    return 1;
-}
-
-static const struct luaL_Reg type_inferer_m[] = {
-    {"__gc",            type_inferer_gc}, // never throws
-    {"__call",          safe_function<type_inferer_call>},
-    {"clear",           safe_function<type_inferer_clear>},
-    {0, 0}
-};
-
-void open_type_inferer(lua_State * L) {
-    luaL_newmetatable(L, type_inferer_mt);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    setfuncs(L, type_inferer_m, 0);
-
-    SET_GLOBAL_FUN(mk_type_inferer,          "type_inferer");
-    SET_GLOBAL_FUN(type_inferer_pred,        "is_type_inferer");
-}
-
-
-void open_kernel_module(lua_State * L) {
-    open_level(L);
-    open_local_context(L);
-    open_expr(L);
-    open_context(L);
-    open_formatter(L);
-    open_environment(L);
-    open_object(L);
-    open_justification(L);
-    open_metavar_env(L);
-    open_type_inferer(L);
-    open_io_state(L);
-}
-}
-#endif

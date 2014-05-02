@@ -69,7 +69,7 @@ bool is_exception(lua_State * L, int i) {
 }
 
 static int exception_what(lua_State * L) {
-    return pushstring(L, to_exception(L, 1).what());
+    return push_string(L, to_exception(L, 1).what());
 }
 
 static int exception_rethrow(lua_State * L) {
@@ -78,7 +78,7 @@ static int exception_rethrow(lua_State * L) {
 }
 
 static int exception_pred(lua_State * L) {
-    return pushboolean(L, is_exception(L, 1));
+    return push_boolean(L, is_exception(L, 1));
 }
 
 static const struct luaL_Reg exception_m[] = {

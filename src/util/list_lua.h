@@ -34,7 +34,7 @@ static int list_ ## T ## _mk(lua_State * L) {                           \
     int nargs = lua_gettop(L);                                          \
     return (nargs == 0) ? list_ ## T ## _nil(L) : list_ ## T ## _cons(L); \
 }                                                                       \
-static int list_ ## T ## _is_nil(lua_State * L) { return pushboolean(L, is_nil(to_list_ ## T(L, 1))); } \
+static int list_ ## T ## _is_nil(lua_State * L) { return push_boolean(L, is_nil(to_list_ ## T(L, 1))); } \
 static int list_ ## T ## _car(lua_State * L) {                          \
     list<T> & l = to_list_ ## T(L, 1);                                  \
     if (is_nil(l)) throw exception("arg #1 must be a cons cell");       \
@@ -45,8 +45,8 @@ static int list_ ## T ## _cdr(lua_State * L) {                          \
     if (is_nil(l)) throw exception("arg #1 must be a cons cell");       \
     return push_list_ ## T(L, cdr(l));                                  \
 }                                                                       \
-static int list_ ## T ## _eq(lua_State * L) { return pushboolean(L, to_list_ ## T(L, 1) == to_list_ ## T(L, 2)); } \
-static int list_ ## T ## _is_eqp(lua_State * L) { return pushboolean(L, is_eqp(to_list_ ## T(L, 1), to_list_ ## T(L, 2))); } \
+static int list_ ## T ## _eq(lua_State * L) { return push_boolean(L, to_list_ ## T(L, 1) == to_list_ ## T(L, 2)); } \
+static int list_ ## T ## _is_eqp(lua_State * L) { return push_boolean(L, is_eqp(to_list_ ## T(L, 1), to_list_ ## T(L, 2))); } \
 static const struct luaL_Reg list_ ## T ## _m[] = {                     \
     {"__gc",            list_ ## T ## _gc},                             \
     {"__eq",            safe_function<list_ ## T ## _eq>},              \

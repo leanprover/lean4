@@ -298,7 +298,7 @@ int state_set_global(lua_State * L) {
 }
 
 static int state_pred(lua_State * L) {
-    return pushboolean(L, is_state(L, 1));
+    return push_boolean(L, is_state(L, 1));
 }
 
 static const struct luaL_Reg state_m[] = {
@@ -537,7 +537,7 @@ static int thread_gc(lua_State * L) {
 }
 
 static int thread_pred(lua_State * L) {
-    return pushboolean(L, is_thread(L, 1));
+    return push_boolean(L, is_thread(L, 1));
 }
 
 static int thread_write(lua_State * L) {

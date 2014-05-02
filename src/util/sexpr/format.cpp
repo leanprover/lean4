@@ -416,7 +416,7 @@ format to_format_elem(lua_State * L, int idx) {
 static int format_tostring(lua_State * L) {
     std::ostringstream out;
     out << mk_pair(to_format(L, 1), get_global_options(L));
-    return pushstring(L, out.str().c_str());
+    return push_string(L, out.str().c_str());
 }
 
 static int format_concat(lua_State * L) {

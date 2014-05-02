@@ -18,15 +18,15 @@ static int mk_lua_rb_map(lua_State * L) {
 }
 
 static int lua_rb_map_size(lua_State * L) {
-    return pushinteger(L, to_lua_rb_map(L, 1).size());
+    return push_integer(L, to_lua_rb_map(L, 1).size());
 }
 
 static int lua_rb_map_contains(lua_State * L) {
-    return pushboolean(L, to_lua_rb_map(L, 1).contains(luaref(L, 2)));
+    return push_boolean(L, to_lua_rb_map(L, 1).contains(luaref(L, 2)));
 }
 
 static int lua_rb_map_empty(lua_State * L) {
-    return pushboolean(L, to_lua_rb_map(L, 1).empty());
+    return push_boolean(L, to_lua_rb_map(L, 1).empty());
 }
 
 static int lua_rb_map_insert(lua_State * L) {

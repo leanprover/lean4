@@ -365,7 +365,7 @@ DECL_UDATA(sexpr)
 static int sexpr_tostring(lua_State * L) {
     std::ostringstream out;
     out << to_sexpr(L, 1);
-    return pushstring(L, out.str().c_str());
+    return push_string(L, out.str().c_str());
 }
 
 static sexpr to_sexpr_elem(lua_State * L, int idx) {
@@ -405,10 +405,10 @@ static int mk_sexpr(lua_State * L) {
     return push_sexpr(L, r);
 }
 
-static int sexpr_eq(lua_State * L)        { return pushboolean(L, to_sexpr(L, 1) == to_sexpr(L, 2)); }
-static int sexpr_lt(lua_State * L)        { return pushboolean(L, to_sexpr(L, 1) < to_sexpr(L, 2)); }
+static int sexpr_eq(lua_State * L)        { return push_boolean(L, to_sexpr(L, 1) == to_sexpr(L, 2)); }
+static int sexpr_lt(lua_State * L)        { return push_boolean(L, to_sexpr(L, 1) < to_sexpr(L, 2)); }
 
-#define SEXPR_PRED(P) static int sexpr_ ## P(lua_State * L) { return pushboolean(L, P(to_sexpr(L, 1))); }
+#define SEXPR_PRED(P) static int sexpr_ ## P(lua_State * L) { return push_boolean(L, P(to_sexpr(L, 1))); }
 
 SEXPR_PRED(is_nil)
 SEXPR_PRED(is_cons)
@@ -426,7 +426,7 @@ static int sexpr_length(lua_State * L) {
     sexpr const & e = to_sexpr(L, 1);
     if (!is_list(e))
         throw exception("s-expression is not a list");
-    return pushinteger(L, length(e));
+    return push_integer(L, length(e));
 }
 
 static int sexpr_head(lua_State * L) {
@@ -447,28 +447,28 @@ static int sexpr_to_bool(lua_State * L) {
     sexpr const & e = to_sexpr(L, 1);
     if (!is_bool(e))
         throw exception("s-expression is not a Boolean");
-    return pushboolean(L, to_bool(e));
+    return push_boolean(L, to_bool(e));
 }
 
 static int sexpr_to_string(lua_State * L) {
     sexpr const & e = to_sexpr(L, 1);
     if (!is_string(e))
         throw exception("s-expression is not a string");
-    return pushstring(L, to_string(e).c_str());
+    return push_string(L, to_string(e).c_str());
 }
 
 static int sexpr_to_int(lua_State * L) {
     sexpr const & e = to_sexpr(L, 1);
     if (!is_int(e))
         throw exception("s-expression is not an integer");
-    return pushinteger(L, to_int(e));
+    return push_integer(L, to_int(e));
 }
 
 static int sexpr_to_double(lua_State * L) {
     sexpr const & e = to_sexpr(L, 1);
     if (!is_double(e))
         throw exception("s-expression is not a double");
-    return pushnumber(L, to_double(e));
+    return push_number(L, to_double(e));
 }
 
 static int sexpr_to_name(lua_State * L) {
@@ -493,7 +493,7 @@ static int sexpr_to_mpq(lua_State * L) {
 }
 
 static int sexpr_get_kind(lua_State * L) {
-    return pushinteger(L, static_cast<int>(to_sexpr(L, 1).kind()));
+    return push_integer(L, static_cast<int>(to_sexpr(L, 1).kind()));
 }
 
 static int sexpr_fields(lua_State * L) {

@@ -1,16 +1,15 @@
 language: cpp
-
+cache: apt
 env:
   global:
-   # GH_TOKEN
-   - secure: "Zdab8c1wnKcwYWEVBvtaClCzw7sYmFPZ47urG4jSeO5FL+M4MiR6c7STeoW7wge9k3uUyMTAodD/bJ0RhskBp0wbvg0UoYQaFRm+RwsDiM7CNj+fYM8wnV0cvTJj869NsqQ92zde6L5gFEHNDrVUwC6PJpIC4JxRRfzIA4/qH5A="
-   # DROPBOX_KEY
-   - secure: "b9qdjrlr2khvQclMg12Fjg0DF3Chv46SdNRymK7cPukAhIaqaPn8g0FL4K9xW/asXRXdWcd3dYBoarjkqX43mNV9nl5Hl2VwV7T6KeGAxQSRqdYioMugIY0P8xrj4i5dwuvt8aqSlCctSozE1e/th8EWjjy6TWi890MJB//NGRE="
-   # LEANREPO
-   - secure: "KsbUsMxTFDbUaObKOTxfWSu0gGzbUWlJr52nI1ITMqLxswettUR9bYAa1HTA+7hXXCT1W5I+RjxeWi74C+w/eTJGPGePX0irtzjNF/XVhP1ADoJJVQCF64yv02GNBeeUzGSDiW4bmO8ZLxTzvFr2ZskJDe/bIytQd3pJAlU6M0w="
-   # COVERALLS.IO TOKEN
-   - secure: "UaRz6E3zZeOG/2UzrGrsofYPkQG3qWzooYV6cRm5G+pMYReee8MdosnP6GtmPFhoFlkHeLQl21BpoJu3yFtrQoD2qpdrnb2uOJMYlSHLJtcZ5+pOl3DuX1qu06xXtz4PrZUSTx4WyaYynBP5kpky2Ghzmm1B5LKLUBcpCyP7uaw="
-
+   # GH_TOKEN=[secure]             (to push to osx/windows repo under soonhokong)
+   - secure: "bDcZ1BusPgeFcilXBXqJ+aLWmCD6ET6SY6GaIDz66zFFVvHULkr8PcGQgKHw/VxH4Kbll52hkKwYgKhXyBF+VlHiyAxQHzlr17honzIl42vbz+tC5qr4/oDASolqayUtz9xJqNOFbTwvh5EHZLbG5hjudSdGE8LX3QC6IN7wYy8="
+   # DROPBOX_KEY=[secure]          (to send binaries to dropbox, "access_token")
+   - secure: "CyASf1F7hGwB85jUQOfDoNBQSouSayP4BVvjqAJdRxirui/oyw2sJ02HC6ZTM+LO+ZyWy3eJOGwe81z6PEQFzovv9C8VLRbhV8Tk7aN+nQTCyyKLoxsON/T5PO/C74ZSu5hTNMwnHrbdphc88Y4ZrQqL2M3cTWT5nVFCshEq6IM="
+   # REPO=BLESSED                  (to perform extra stuff only for pushes to the blessed repo)
+   - secure: "iZEcYPaxqGRQs7loHwO88DlewbRngBwoNGfo438jabh0adF3y9zCPw0tcAtp6IJuCw8E6QVoM9JMwoQRvPbnqBelFjpXH+U3eYdaeeZRkBkyOthTWzzdwEexlnK7dXVEc+gTDjh2NBD9juXKDSJ5xOF1HfhEJaMXSLairnhpL6k="
+   # COVERALLS_REPO_TOKEN=[secure] (from https://coveralls.io/r/leanprover/lean)
+   - secure: "j14U5pV2qkArCTt4MdI+rYe9MzcIcoMYrPX3Kp4bFNAyxfTALHG25bZUaEyqBJKPevch02+i8hs3I/+b9Iue0j8be8hjy7GSKDEkhbd8HIWJMvMBM1Y+h88ZPTvTiEB9OCbHa6PrETN+3WO8cSe3PufWO7cwoOqzWuY440ZZqSM="
   matrix:
    # =======================================================
    # TESTCOV Build
@@ -172,10 +171,10 @@ install:
   - until sudo apt-get -qq install libstdc++-4.8-dev; do echo retry; done
   - if [[ $CMAKE_CXX_COMPILER == g++-4.8 ]]; then until sudo apt-get -qq install g++-4.8; do echo retry; done fi
   - if [[ $CMAKE_CXX_COMPILER == clang++-3.3 ]]; then until sudo apt-get -qq install clang-3.3; do echo retry; done fi
-  - if [[ $LEANREPO == BLESSED && $MEMCHECK == TRUE ]]; then
+  - if [[ $REPO == BLESSED && $MEMCHECK == TRUE ]]; then
        sudo apt-get -qq install valgrind;
     fi
-  - if [[ $LEANREPO == BLESSED && ($UPLOAD || $BUILD_DOXYGEN == TRUE) ]]; then
+  - if [[ $REPO == BLESSED && ($UPLOAD || $BUILD_DOXYGEN == TRUE) ]]; then
        sudo apt-get -qq install python python-pip;
        sudo pip install dropbox;
     fi
@@ -189,7 +188,7 @@ install:
     fi
 
 before_script:
-- if [[ $LEANREPO == BLESSED && $TRIGGER_OSX == TRUE ]]; then
+- if [[ $REPO == BLESSED && $TRIGGER_OSX == TRUE ]]; then
       MSG=`git log --pretty=oneline --abbrev-commit -n 1 | cut -d ' ' -f 2-`;
       cp .travis.yml /tmp/.travis.temp.yml;
       cp .travis.osx.yml .travis.yml;
@@ -201,7 +200,7 @@ before_script:
       mv /tmp/.travis.temp.yml .travis.yml;
       git reset --hard HEAD~;
   fi
-- if [[ $LEANREPO == BLESSED && $TRIGGER_WINDOWS == TRUE ]]; then
+- if [[ $REPO == BLESSED && $TRIGGER_WINDOWS == TRUE ]]; then
       MSG=`git log --pretty=oneline --abbrev-commit -n 1 | cut -d ' ' -f 2-`;
       cp .travis.yml /tmp/.travis.temp.yml;
       cp .travis.windows.yml .travis.yml;
@@ -255,20 +254,20 @@ script:
 
 after_script:
 - cd build
-- if [[ $LEANREPO == BLESSED && $TESTCOV == ON ]]; then
+- if [[ $REPO == BLESSED && $TESTCOV == ON ]]; then
      ctest -D ExperimentalCoverage;
      ninja cov;
      npm install coveralls --save;
      cat coverage.info.cleaned | ./node_modules/coveralls/bin/coveralls.js;
   fi
-- if [[ $LEANREPO == BLESSED && $MEMCHECK == TRUE ]]; then
+- if [[ $REPO == BLESSED && $MEMCHECK == TRUE ]]; then
      MEMCHECK_SUPP=`readlink -f ../src/memcheck.supp`;
      CONFIG_FILE=DartConfiguration.tcl;
      sed -i "s,^MemoryCheckSuppressionFile:\W*$,MemoryCheckSuppressionFile:$MEMCHECK_SUPP," $CONFIG_FILE;
      ulimit -s unlimited;
      yes "C" | ctest -D ExperimentalMemCheck -VV -I $MEMCHECK_RANGE | ../script/demangle_cpptype.py;
   fi
-- if [[ $LEANREPO == BLESSED && $PUSH_TO_CDASH == TRUE ]]; then
+- if [[ $REPO == BLESSED && $PUSH_TO_CDASH == TRUE ]]; then
       GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`;
       GIT_SUBJECT=`git log --oneline -n 1 | cut -d ' ' -f 2-`;
       GIT_SUBJECT=${GIT_SUBJECT//\"/\\\"};
@@ -278,11 +277,11 @@ after_script:
       find Testing \( -name "LastTest_*.log" -o -name "LastDynamicAnalysis_*.log" \) -exec sh -c 'TMP=`mktemp /tmp/ctesttmp_XXXX`; ../script/demangle_cpptype.py {} > $TMP; mv -v $TMP {}' ";";
       ctest -D ExperimentalSubmit;
   fi
-- if [[ $LEANREPO == BLESSED && $PACKAGE == TRUE ]]; then
+- if [[ $REPO == BLESSED && $PACKAGE == TRUE ]]; then
      make package;
   fi
 - cd ..
-- if [[ $LEANREPO == BLESSED && $BUILD_DOXYGEN == TRUE ]]; then
+- if [[ $REPO == BLESSED && $BUILD_DOXYGEN == TRUE ]]; then
       sudo apt-get -qq install graphviz doxygen parallel;
       script/doxygen.sh > /dev/null;
       DOXYGEN_DIR=doc/html;
@@ -290,7 +289,7 @@ after_script:
       find $DOXYGEN_DIR -type f | split -l 100 - doxygen_files.txt.;
       ls -1 doxygen_files.txt.* | parallel -u -j 10 ./script/dropbox_upload.py --destpath /Public --dropbox-token ${DROPBOX_KEY} --copylist {};
   fi
-- if [[ $LEANREPO == BLESSED && $UPLOAD ]]; then
+- if [[ $REPO == BLESSED && $UPLOAD ]]; then
       UPLOAD_DIR=bin;
       BINARY=lean_${UPLOAD};
       NOW=`TZ='America/Los_Angeles' date +"%Y%m%d_%H%M"`;
@@ -302,7 +301,7 @@ after_script:
           ARCHIVE_BINARY=${ARCHIVE_BINARY}_tcmalloc;
       fi;
       mkdir ${UPLOAD_DIR};
-      if [[ $LEANREPO == BLESSED && $PACKAGE == TRUE ]]; then
+      if [[ $REPO == BLESSED && $PACKAGE == TRUE ]]; then
           cp -v build/lean*.tar.gz ${UPLOAD_DIR}/;
       fi;
       cp -v build/shell/lean ${UPLOAD_DIR}/${BINARY};

@@ -2,7 +2,7 @@ language: cpp
 
 env:
   global:
-  # DROPBOX_KEY
+  # DROPBOX_KEY=[secure]
   - secure: "fQ9mzDBBvId1qpEK/DhwlwRYBGrP0XG/XKUvTRTmX3kv7YIrKFZs/TGEDyvwnfaq6IY6rpHdqsnd/ic22DVsEGIGQO0BWUybZP0nmBHmL9aOqjjdUlgVs5vKhWmij8NkCp5LA3GU0fPm0tOonNmejxsxfNUdxk66hOlLLgPhzVo="
   matrix:
   - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE UPLOAD=windows DROPBOX=TRUE PUSH_TO_CDASH=TRUE PACKAGE=TRUE

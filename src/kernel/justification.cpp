@@ -137,8 +137,8 @@ bool depends_on(justification const & j, unsigned i) {
                 return true;
             break;
         case justification_kind::Composite: case justification_kind::ExtComposite:
-            for (unsigned i = 0; i < 2; i++) {
-                justification c = to_composite(curr)->m_child[i];
+            for (unsigned k = 0; k < 2; k++) {
+                justification c = to_composite(curr)->m_child[k];
                 if (may_contain(get_approx_assumption_set(c), i))
                     todo.push_back(c.raw());
             }

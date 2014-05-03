@@ -1,14 +1,15 @@
 ![Logo](images/lean.png)
 <table>
   <tr>
-    <th>Ubuntu</th><th>OS X</th><th>Windows</th><th>Coverage</th><th>Builds / UnitTests / Dynamic Analyses</th>
+    <th>Ubuntu</th><th>OS X</th><th>Windows</th><th>Coverage</th><th>Builds/Tests</th><th>Static Analysis</th>
   </tr>
   <tr>
     <td><a href="https://travis-ci.org/leanprover/lean"><img src="https://travis-ci.org/leanprover/lean.png?branch=master" title="Ubuntu 12.04 LTS 64bit, g++-4.8 | clang++-3.3"/></a></td>
     <td><a href="https://travis-ci.org/soonhokong/lean-osx"><img src="https://travis-ci.org/soonhokong/lean-osx.png?branch=master" title="Mac OS X 10.8.2, g++-4.9"/></a></td>
     <td><a href="https://travis-ci.org/soonhokong/lean-windows"><img src="https://travis-ci.org/soonhokong/lean-windows.png?branch=master" title="Windows, x86_64-w64-mingw32-g++-4.8.2"/></a></td>
     <td><a href="https://coveralls.io/r/leanprover/lean?branch=master"><img src="https://coveralls.io/repos/leanprover/lean/badge.png?branch=master"/></a></td>
-    <td><a href="http://build.leanprover.net">http://build.leanprover.net</a></td>
+    <td><a href="http://build.leanprover.net">build.leanprover.net</a></td>
+    <td><a href="https://scan.coverity.com/projects/2153"><img alt="Coverity Scan Build Status" src="https://scan.coverity.com/projects/2153/badge.svg"/></a></td>
   </tr>
 </table>
 

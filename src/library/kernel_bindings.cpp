@@ -847,13 +847,28 @@ static void open_certified_definition(lua_State * L) {
 
 // Environment
 DECL_UDATA(environment)
-
+static int environment_is_descendant(lua_State * L) { return push_boolean(L, to_environment(L, 1).is_descendant(to_environment(L, 2))); }
+static int environment_trust_lvl(lua_State * L) { return push_integer(L, to_environment(L, 1).trust_lvl()); }
+static int environment_proof_irrel(lua_State * L) { return push_boolean(L, to_environment(L, 1).proof_irrel()); }
+static int environment_eta(lua_State * L) { return push_boolean(L, to_environment(L, 1).eta()); }
+static int environment_find(lua_State * L) { return push_optional_definition(L, to_environment(L, 1).find(to_name_ext(L, 2))); }
+static int environment_get(lua_State * L) { return push_definition(L, to_environment(L, 1).get(to_name_ext(L, 2))); }
+static int environment_add(lua_State * L) { return push_environment(L, to_environment(L, 1).add(to_certified_definition(L, 2))); }
+static int environment_replace(lua_State * L) { return push_environment(L, to_environment(L, 1).replace(to_certified_definition(L, 2))); }
 static int mk_empty_environment(lua_State * L) {
     return push_environment(L, environment());
 }
 
 static const struct luaL_Reg environment_m[] = {
     {"__gc",           environment_gc}, // never throws
+    {"is_descendant",  safe_function<environment_is_descendant>},
+    {"trust_lvl",      safe_function<environment_trust_lvl>},
+    {"proof_irrel",    safe_function<environment_proof_irrel>},
+    {"eta",            safe_function<environment_eta>},
+    {"find",           safe_function<environment_find>},
+    {"get",            safe_function<environment_get>},
+    {"add",            safe_function<environment_add>},
+    {"replace",        safe_function<environment_replace>},
     {0, 0}
 };
 

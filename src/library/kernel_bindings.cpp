@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/script_state.h"
 #include "util/list_lua.h"
+#include "util/pair_lua.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/free_vars.h"
@@ -154,6 +155,10 @@ static void open_level(lua_State * L) {
     lua_setglobal(L, "level_kind");
 }
 
+DEFINE_LUA_HOMO_PAIR(level, push_level, to_level)
+typedef std::pair<level, level> pair_level;
+DEFINE_LUA_LIST(pair_level, push_pair_level, to_pair_level_ext)
+
 // Expr_binder_info
 DECL_UDATA(expr_binder_info)
 static int mk_binder_info(lua_State * L) {
@@ -275,7 +280,7 @@ typedef expr (*MkAbst1)(expr const & n, expr const & t, expr const & b);
 typedef expr (*MkAbst2)(name const & n, expr const & t, expr const & b);
 
 template<MkAbst1 F1, MkAbst2 F2>
-int expr_abst(lua_State * L) {
+static int expr_abst(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs < 2)
         throw exception("function must have at least 2 arguments");
@@ -557,11 +562,10 @@ static void open_expr(lua_State * L) {
 }
 // macro_definition
 DECL_UDATA(macro_definition)
-
-int macro_get_name(lua_State * L) { return push_name(L, to_macro_definition(L, 1).get_name()); }
-int macro_trust_level(lua_State * L) { return push_integer(L, to_macro_definition(L, 1).trust_level()); }
-int macro_eq(lua_State * L) { return push_boolean(L, to_macro_definition(L, 1) == to_macro_definition(L, 2)); }
-int macro_hash(lua_State * L) { return push_integer(L, to_macro_definition(L, 1).hash()); }
+static int macro_get_name(lua_State * L) { return push_name(L, to_macro_definition(L, 1).get_name()); }
+static int macro_trust_level(lua_State * L) { return push_integer(L, to_macro_definition(L, 1).trust_level()); }
+static int macro_eq(lua_State * L) { return push_boolean(L, to_macro_definition(L, 1) == to_macro_definition(L, 2)); }
+static int macro_hash(lua_State * L) { return push_integer(L, to_macro_definition(L, 1).hash()); }
 static int macro_tostring(lua_State * L) {
     std::ostringstream out;
     formatter fmt   = get_global_formatter(L);
@@ -580,13 +584,137 @@ static const struct luaL_Reg macro_definition_m[] = {
     {0, 0}
 };
 
-void open_macro_definition(lua_State * L) {
+static void open_macro_definition(lua_State * L) {
     luaL_newmetatable(L, macro_definition_mt);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, macro_definition_m, 0);
 
     SET_GLOBAL_FUN(macro_definition_pred, "is_macro_definition");
+}
+
+// definition
+DECL_UDATA(definition)
+int push_optional_definition(lua_State * L, optional<definition> const & e) {  return e ? push_definition(L, *e) : push_nil(L); }
+#define DEFINITION_PRED(P) static int definition_ ## P(lua_State * L) {  return push_boolean(L, to_definition(L, 1).P()); }
+DEFINITION_PRED(is_definition)
+DEFINITION_PRED(is_theorem)
+DEFINITION_PRED(is_axiom)
+DEFINITION_PRED(is_var_decl)
+DEFINITION_PRED(is_opaque)
+DEFINITION_PRED(use_conv_opt)
+static int definition_get_name(lua_State * L) { return push_name(L, to_definition(L, 1).get_name()); }
+static int definition_get_params(lua_State * L) { return push_list_name(L, to_definition(L, 1).get_params()); }
+static int definition_get_level_cnstrs(lua_State * L) { return push_list_pair_level(L, to_definition(L, 1).get_level_cnstrs()); }
+static int definition_get_type(lua_State * L) { return push_expr(L, to_definition(L, 1).get_type()); }
+static int definition_get_value(lua_State * L) {
+    if (to_definition(L, 1).is_definition())
+        return push_expr(L, to_definition(L, 1).get_value());
+    throw exception("arg #1 must be a definition");
+}
+static int definition_get_weight(lua_State * L) { return push_integer(L, to_definition(L, 1).get_weight()); }
+static int definition_get_module_idx(lua_State * L) { return push_integer(L, to_definition(L, 1).get_module_idx()); }
+static int mk_var_decl(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs == 2)
+        return push_definition(L, mk_var_decl(to_name_ext(L, 1), param_names(), level_cnstrs(), to_expr(L, 2)));
+    else
+        return push_definition(L, mk_var_decl(to_name_ext(L, 1), to_list_name_ext(L, 2), to_list_pair_level_ext(L, 3), to_expr(L, 4)));
+}
+static int mk_axiom(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs == 2)
+        return push_definition(L, mk_axiom(to_name_ext(L, 1), param_names(), level_cnstrs(), to_expr(L, 2)));
+    else
+        return push_definition(L, mk_axiom(to_name_ext(L, 1), to_list_name_ext(L, 2), to_list_pair_level_ext(L, 3), to_expr(L, 4)));
+}
+static int mk_theorem(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs == 3)
+        return push_definition(L, mk_theorem(to_name_ext(L, 1), param_names(), level_cnstrs(), to_expr(L, 2), to_expr(L, 3)));
+    else
+        return push_definition(L, mk_theorem(to_name_ext(L, 1), to_list_name_ext(L, 2), to_list_pair_level_ext(L, 3), to_expr(L, 4), to_expr(L, 5)));
+}
+static void get_definition_args(lua_State * L, int idx, bool & opaque, int & weight, module_idx & mod_idx, bool & use_conv_opt) {
+    if (lua_istable(L, idx)) {
+        push_string(L, "opaque");
+        lua_gettable(L, idx);
+        if (lua_isboolean(L, -1))
+            opaque = lua_toboolean(L, -1);
+        lua_pop(L, 1);
+
+        push_string(L, "use_conv_opt");
+        lua_gettable(L, idx);
+        if (lua_isboolean(L, -1))
+            use_conv_opt = lua_toboolean(L, -1);
+        lua_pop(L, 1);
+
+        push_string(L, "module_idx");
+        lua_gettable(L, idx);
+        if (lua_isnumber(L, -1))
+            mod_idx = lua_tointeger(L, -1);
+        lua_pop(L, 1);
+
+        push_string(L, "weight");
+        lua_gettable(L, idx);
+        if (lua_isnumber(L, -1))
+            weight = lua_tointeger(L, -1);
+        lua_pop(L, 1);
+    } else if (idx <= lua_gettop(L) && !lua_isnil(L, idx)) {
+        throw exception(sstream() << "arg #" << idx << " must be a table");
+    }
+}
+static int mk_definition(lua_State * L) {
+    int nargs = lua_gettop(L);
+    bool opaque = true; int weight = 0; module_idx mod_idx = 0; bool use_conv_opt = true;
+    if (is_environment(L, 1)) {
+        if (nargs <= 5) {
+            get_definition_args(L, 5, opaque, weight, mod_idx, use_conv_opt);
+            return push_definition(L, mk_definition(to_environment(L, 1), to_name_ext(L, 2), param_names(), level_cnstrs(), to_expr(L, 3), to_expr(L, 4), opaque, mod_idx, use_conv_opt));
+        } else {
+            get_definition_args(L, 7, opaque, weight, mod_idx, use_conv_opt);
+            return push_definition(L, mk_definition(to_environment(L, 1), to_name_ext(L, 2), to_list_name_ext(L, 3), to_list_pair_level_ext(L, 4), to_expr(L, 5), to_expr(L, 6), opaque, mod_idx, use_conv_opt));
+        }
+    } else {
+        if (nargs <= 4) {
+            get_definition_args(L, 4, opaque, weight, mod_idx, use_conv_opt);
+            return push_definition(L, mk_definition(to_name_ext(L, 1), param_names(), level_cnstrs(), to_expr(L, 2), to_expr(L, 3), opaque, weight, mod_idx, use_conv_opt));
+        } else {
+            get_definition_args(L, 6, opaque, weight, mod_idx, use_conv_opt);
+            return push_definition(L, mk_definition(to_name_ext(L, 1), to_list_name_ext(L, 2), to_list_pair_level_ext(L, 3), to_expr(L, 4), to_expr(L, 5), opaque, weight, mod_idx, use_conv_opt));
+        }
+    }
+}
+
+static const struct luaL_Reg definition_m[] = {
+    {"__gc",             definition_gc}, // never throws
+    {"is_definition",    safe_function<definition_is_definition>},
+    {"is_theorem",       safe_function<definition_is_theorem>},
+    {"is_axiom",         safe_function<definition_is_axiom>},
+    {"is_var_decl",      safe_function<definition_is_var_decl>},
+    {"opaque",           safe_function<definition_is_opaque>},
+    {"use_conv_opt",     safe_function<definition_use_conv_opt>},
+    {"name",             safe_function<definition_get_name>},
+    {"univ_params",      safe_function<definition_get_params>},
+    {"univ_cnstrs",      safe_function<definition_get_level_cnstrs>},
+    {"type",             safe_function<definition_get_type>},
+    {"value",            safe_function<definition_get_value>},
+    {"weight",           safe_function<definition_get_weight>},
+    {"module_idx",       safe_function<definition_get_module_idx>},
+    {0, 0}
+};
+
+static void open_definition(lua_State * L) {
+    luaL_newmetatable(L, definition_mt);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    setfuncs(L, definition_m, 0);
+
+    SET_GLOBAL_FUN(definition_pred, "is_definition");
+    SET_GLOBAL_FUN(mk_var_decl,     "mk_var_decl");
+    SET_GLOBAL_FUN(mk_axiom,        "mk_axiom");
+    SET_GLOBAL_FUN(mk_theorem,      "mk_theorem");
+    SET_GLOBAL_FUN(mk_definition,   "mk_definition");
 }
 
 // Formatter
@@ -753,9 +881,9 @@ int mk_io_state(lua_State * L) {
         return push_io_state(L, io_state(to_options(L, 1), to_formatter(L, 2)));
 }
 
-int io_state_get_options(lua_State * L) { return push_options(L, to_io_state(L, 1).get_options()); }
-int io_state_get_formatter(lua_State * L) { return push_formatter(L, to_io_state(L, 1).get_formatter()); }
-int io_state_set_options(lua_State * L) { to_io_state(L, 1).set_options(to_options(L, 2)); return 0; }
+static int io_state_get_options(lua_State * L) { return push_options(L, to_io_state(L, 1).get_options()); }
+static int io_state_get_formatter(lua_State * L) { return push_formatter(L, to_io_state(L, 1).get_formatter()); }
+static int io_state_set_options(lua_State * L) { to_io_state(L, 1).set_options(to_options(L, 2)); return 0; }
 
 static mutex g_print_mutex;
 
@@ -801,17 +929,9 @@ static int print(lua_State * L, io_state & ios, int start, bool reg) {
     return print(L, start, reg);
 }
 
-static int print(lua_State * L) {
-    return print(L, 1, true);
-}
-
-int io_state_print_regular(lua_State * L) {
-    return print(L, to_io_state(L, 1), 2, true);
-}
-
-int io_state_print_diagnostic(lua_State * L) {
-    return print(L, to_io_state(L, 1), 2, false);
-}
+static int print(lua_State * L) { return print(L, 1, true); }
+static int io_state_print_regular(lua_State * L) { return print(L, to_io_state(L, 1), 2, true); }
+static int io_state_print_diagnostic(lua_State * L) { return print(L, to_io_state(L, 1), 2, false); }
 
 static const struct luaL_Reg io_state_m[] = {
     {"__gc",             io_state_gc}, // never throws
@@ -1205,13 +1325,15 @@ static void open_substitution(lua_State * L) {
 }
 
 void open_kernel_module(lua_State * L) {
-    // TODO(Leo)
     open_level(L);
     open_list_level(L);
+    open_pair_level(L);
+    open_list_pair_level(L);
     open_binder_info(L);
     open_expr(L);
     open_list_expr(L);
     open_macro_definition(L);
+    open_definition(L);
     open_formatter(L);
     open_environment(L);
     open_io_state(L);

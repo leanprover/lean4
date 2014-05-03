@@ -23,7 +23,7 @@ UDATA_DEFS(substitution)
 UDATA_DEFS(io_state)
 int push_optional_expr(lua_State * L, optional<expr> const & e);
 int push_optional_justification(lua_State * L, optional<justification> const & j);
-int push_optional_definition(lua_State * L, optional<definition> const & o);
+int push_optional_definition(lua_State * L, optional<definition> const & d);
 /**
    \brief Return the formatter object associated with the given Lua State.
    This procedure checks for options at:

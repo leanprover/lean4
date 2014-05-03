@@ -806,6 +806,24 @@ static void open_formatter(lua_State * L) {
     SET_GLOBAL_FUN(set_formatter,  "set_formatter");
 }
 
+// Environment_id
+DECL_UDATA(environment_id)
+static int environment_id_descendant(lua_State * L) { return push_boolean(L, to_environment_id(L, 1).is_descendant(to_environment_id(L, 2))); }
+static const struct luaL_Reg environment_id_m[] = {
+    {"__gc",             environment_id_gc}, // never throws
+    {"is_descendant",    safe_function<environment_id_descendant>},
+    {0, 0}
+};
+
+static void open_environment_id(lua_State * L) {
+    luaL_newmetatable(L, environment_id_mt);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    setfuncs(L, environment_id_m, 0);
+
+    SET_GLOBAL_FUN(environment_id_pred, "is_environment_id");
+}
+
 // Environment
 DECL_UDATA(environment)
 
@@ -1335,6 +1353,7 @@ void open_kernel_module(lua_State * L) {
     open_macro_definition(L);
     open_definition(L);
     open_formatter(L);
+    open_environment_id(L);
     open_environment(L);
     open_io_state(L);
     open_justification(L);

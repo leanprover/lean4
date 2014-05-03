@@ -824,6 +824,27 @@ static void open_environment_id(lua_State * L) {
     SET_GLOBAL_FUN(environment_id_pred, "is_environment_id");
 }
 
+// certified_definition
+DECL_UDATA(certified_definition)
+static int certified_definition_get_definition(lua_State * L) { return push_definition(L, to_certified_definition(L, 1).get_definition()); }
+static int certified_definition_get_id(lua_State * L) { return push_environment_id(L, to_certified_definition(L, 1). get_id()); }
+
+static const struct luaL_Reg certified_definition_m[] = {
+    {"__gc",             certified_definition_gc}, // never throws
+    {"definition",       safe_function<certified_definition_get_definition>},
+    {"environment_id",   safe_function<certified_definition_get_id>},
+    {0, 0}
+};
+
+static void open_certified_definition(lua_State * L) {
+    luaL_newmetatable(L, certified_definition_mt);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    setfuncs(L, certified_definition_m, 0);
+
+    SET_GLOBAL_FUN(certified_definition_pred, "is_certified_definition");
+}
+
 // Environment
 DECL_UDATA(environment)
 
@@ -1354,6 +1375,7 @@ void open_kernel_module(lua_State * L) {
     open_definition(L);
     open_formatter(L);
     open_environment_id(L);
+    open_certified_definition(L);
     open_environment(L);
     open_io_state(L);
     open_justification(L);

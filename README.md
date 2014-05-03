@@ -1,4 +1,4 @@
-![Logo](images/lean.png)
+<p align=center><img src="https://leanprover.github.io/images/lean_logo.svg" alt="logo" width="300px"/></p>
 <table>
   <tr>
     <th>Ubuntu</th><th>OS X</th><th>Windows</th><th>Coverage</th><th>Builds/Tests</th><th>Static Analysis</th>

@@ -10,6 +10,8 @@ env:
    - secure: "iZEcYPaxqGRQs7loHwO88DlewbRngBwoNGfo438jabh0adF3y9zCPw0tcAtp6IJuCw8E6QVoM9JMwoQRvPbnqBelFjpXH+U3eYdaeeZRkBkyOthTWzzdwEexlnK7dXVEc+gTDjh2NBD9juXKDSJ5xOF1HfhEJaMXSLairnhpL6k="
    # COVERALLS_REPO_TOKEN=[secure] (from https://coveralls.io/r/leanprover/lean)
    - secure: "j14U5pV2qkArCTt4MdI+rYe9MzcIcoMYrPX3Kp4bFNAyxfTALHG25bZUaEyqBJKPevch02+i8hs3I/+b9Iue0j8be8hjy7GSKDEkhbd8HIWJMvMBM1Y+h88ZPTvTiEB9OCbHa6PrETN+3WO8cSe3PufWO7cwoOqzWuY440ZZqSM="
+   # BB_TOKEN=[secure]             (to push to https://bitbucket.org/leanprover/lean for backup & email diff)
+   - secure: "NvPi430kKhteshcxiYP4oHbMFaSiz6bmoENA55sxD7bI0EmsKvuRJFPfFr3g8gl9hNnuNABOTK4xNcWjNDRtHBjnGYHytyaYLEYjpNGTlmTzc21q/FheWL32K2rkvvaRa0ZrDt8p1k1lr07Z69oFFIGCigAdcTCEhMO9Clxlxts="
   matrix:
    # =======================================================
    # TESTCOV Build
@@ -188,6 +190,10 @@ install:
     fi
 
 before_script:
+- if [[ $REPO == BLESSED && $TRIGGER_BB == TRUE ]]; then
+      git fetch --unshallow;
+      git push -q https://soonhok:${BB_TOKEN}@bitbucket.org/leanprover/lean.git +HEAD:master;
+  fi
 - if [[ $REPO == BLESSED && $TRIGGER_OSX == TRUE ]]; then
       MSG=`git log --pretty=oneline --abbrev-commit -n 1 | cut -d ' ' -f 2-`;
       cp .travis.yml /tmp/.travis.temp.yml;

@@ -8,7 +8,7 @@
     <td><a href="https://travis-ci.org/soonhokong/lean-osx"><img src="https://travis-ci.org/soonhokong/lean-osx.png?branch=master" title="Mac OS X 10.8.2, g++-4.9"/></a></td>
     <td><a href="https://travis-ci.org/soonhokong/lean-windows"><img src="https://travis-ci.org/soonhokong/lean-windows.png?branch=master" title="Windows, x86_64-w64-mingw32-g++-4.8.2"/></a></td>
     <td><a href="https://coveralls.io/r/leanprover/lean?branch=master"><img src="https://coveralls.io/repos/leanprover/lean/badge.png?branch=master"/></a></td>
-    <td><a href="http://build.leanprover.net"><img src="http://img.shields.io/badge/CDash-Check-brightgreen.svg"/></a></td>
+    <td><a href="http://build.leanprover.net"><img src="https://leanprover.github.io/images/cdash.svg"/></a></td>
     <td><a href="https://scan.coverity.com/projects/2153"><img alt="Coverity Scan Build Status" src="https://scan.coverity.com/projects/2153/badge.svg"/></a></td>
   </tr>
 </table>

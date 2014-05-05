@@ -139,4 +139,11 @@ inline int push_number(lua_State * L, lua_Number v) { lua_pushnumber(L, v); retu
 inline int push_nil(lua_State * L) { lua_pushnil(L); return 1; }
 // =======================================
 
+// =======================================
+// Utilities for simulating Python-like named parameters using Lua tables.
+// In the following function \c idx is the position of the Lua table on the Lua stack.
+bool get_bool_named_param(lua_State * L, int idx, char const * opt_name, bool def_value);
+int get_int_named_param(lua_State * L, int idx, char const * opt_name, int def_value);
+unsigned get_uint_named_param(lua_State * L, int idx, char const * opt_name, unsigned def_value);
+// =======================================
 }

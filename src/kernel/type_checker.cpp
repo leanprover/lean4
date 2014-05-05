@@ -382,7 +382,10 @@ struct type_checker::imp {
             expr t1 = ensure_sort(infer_type_core(binder_domain(e), infer_only), binder_domain(e));
             auto b  = open_binder_body(e);
             expr t2 = ensure_sort(infer_type_core(b.first, infer_only), binder_body(e));
-            r = mk_sort(mk_imax(sort_level(t1), sort_level(t2)));
+            if (m_env.impredicative())
+                r = mk_sort(mk_imax(sort_level(t1), sort_level(t2)));
+            else
+                r = mk_sort(mk_max(sort_level(t1), sort_level(t2)));
             break;
         }
         case expr_kind::App: {

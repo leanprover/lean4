@@ -46,13 +46,15 @@ class environment_header {
     unsigned m_trust_lvl; //!the given one.
     bool m_proof_irrel;   //!< true if the kernel assumes proof irrelevance
     bool m_eta;           //!< true if the kernel uses eta-reduction in convertability checks
+    bool m_impredicative; //!< true if the kernel should treat (universe level 0) as a impredicative Prop/Bool.
     std::unique_ptr<normalizer_extension const> m_norm_ext;
     void dealloc();
 public:
-    environment_header(unsigned trust_lvl, bool proof_irrel, bool eta, std::unique_ptr<normalizer_extension const> ext);
+    environment_header(unsigned trust_lvl, bool proof_irrel, bool eta, bool impredicative, std::unique_ptr<normalizer_extension const> ext);
     unsigned trust_lvl() const { return m_trust_lvl; }
     bool proof_irrel() const { return m_proof_irrel; }
     bool eta() const { return m_eta; }
+    bool impredicative() const { return m_impredicative; }
     normalizer_extension const & norm_ext() const { return *(m_norm_ext.get()); }
 };
 
@@ -104,8 +106,8 @@ class environment {
     environment(header const & h, environment_id const & id, definitions const & d, extensions const & ext);
 
 public:
-    environment(unsigned trust_lvl = 0, bool proof_irrel = true, bool eta = true);
-    environment(unsigned trust_lvl, bool proof_irrel, bool eta, std::unique_ptr<normalizer_extension> ext);
+    environment(unsigned trust_lvl = 0, bool proof_irrel = true, bool eta = true, bool impredicative = true);
+    environment(unsigned trust_lvl, bool proof_irrel, bool eta, bool impredicative, std::unique_ptr<normalizer_extension> ext);
     ~environment();
 
     /** \brief Return the environment unique identifier. */
@@ -122,6 +124,9 @@ public:
 
     /** \brief Return true iff the environment assumes Eta-reduction */
     bool eta() const { return m_header->eta(); }
+
+    /** \brief Return true iff the environment treats universe level 0 as an impredicative Prop/Bool */
+    bool impredicative() const { return m_header->impredicative(); }
 
     /** \brief Return reference to the normalizer extension associatied with this environment. */
     normalizer_extension const & norm_ext() const { return m_header->norm_ext(); }

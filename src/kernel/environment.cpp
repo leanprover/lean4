@@ -21,8 +21,8 @@ public:
     }
 };
 
-environment_header::environment_header(unsigned trust_lvl, bool proof_irrel, bool eta, std::unique_ptr<normalizer_extension const> ext):
-    m_trust_lvl(trust_lvl), m_proof_irrel(proof_irrel), m_eta(eta), m_norm_ext(std::move(ext)) {}
+environment_header::environment_header(unsigned trust_lvl, bool proof_irrel, bool eta, bool impredicative, std::unique_ptr<normalizer_extension const> ext):
+    m_trust_lvl(trust_lvl), m_proof_irrel(proof_irrel), m_eta(eta), m_impredicative(impredicative), m_norm_ext(std::move(ext)) {}
 
 environment_extension::~environment_extension() {}
 
@@ -45,12 +45,12 @@ bool environment_id::is_descendant(environment_id const & id) const {
 environment::environment(header const & h, environment_id const & ancestor, definitions const & d, extensions const & exts):
     m_header(h), m_id(environment_id::mk_descendant(ancestor)), m_definitions(d), m_extensions(exts) {}
 
-environment::environment(unsigned trust_lvl, bool proof_irrel, bool eta):
-    environment(trust_lvl, proof_irrel, eta, std::unique_ptr<normalizer_extension>(new noop_normalizer_extension()))
+environment::environment(unsigned trust_lvl, bool proof_irrel, bool eta, bool impredicative):
+    environment(trust_lvl, proof_irrel, eta, impredicative, std::unique_ptr<normalizer_extension>(new noop_normalizer_extension()))
 {}
 
-environment::environment(unsigned trust_lvl, bool proof_irrel, bool eta, std::unique_ptr<normalizer_extension> ext):
-    m_header(std::make_shared<environment_header>(trust_lvl, proof_irrel, eta, std::move(ext))),
+environment::environment(unsigned trust_lvl, bool proof_irrel, bool eta, bool impredicative, std::unique_ptr<normalizer_extension> ext):
+    m_header(std::make_shared<environment_header>(trust_lvl, proof_irrel, eta, impredicative, std::move(ext))),
     m_extensions(std::make_shared<environment_extensions const>())
 {}
 

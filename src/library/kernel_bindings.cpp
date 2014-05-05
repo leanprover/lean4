@@ -635,38 +635,15 @@ static int mk_theorem(lua_State * L) {
     else
         return push_definition(L, mk_theorem(to_name_ext(L, 1), to_list_name_ext(L, 2), to_list_pair_level_ext(L, 3), to_expr(L, 4), to_expr(L, 5)));
 }
-static void get_definition_args(lua_State * L, int idx, bool & opaque, int & weight, module_idx & mod_idx, bool & use_conv_opt) {
-    if (lua_istable(L, idx)) {
-        push_string(L, "opaque");
-        lua_gettable(L, idx);
-        if (lua_isboolean(L, -1))
-            opaque = lua_toboolean(L, -1);
-        lua_pop(L, 1);
-
-        push_string(L, "use_conv_opt");
-        lua_gettable(L, idx);
-        if (lua_isboolean(L, -1))
-            use_conv_opt = lua_toboolean(L, -1);
-        lua_pop(L, 1);
-
-        push_string(L, "module_idx");
-        lua_gettable(L, idx);
-        if (lua_isnumber(L, -1))
-            mod_idx = lua_tointeger(L, -1);
-        lua_pop(L, 1);
-
-        push_string(L, "weight");
-        lua_gettable(L, idx);
-        if (lua_isnumber(L, -1))
-            weight = lua_tointeger(L, -1);
-        lua_pop(L, 1);
-    } else if (idx <= lua_gettop(L) && !lua_isnil(L, idx)) {
-        throw exception(sstream() << "arg #" << idx << " must be a table");
-    }
+static void get_definition_args(lua_State * L, int idx, bool & opaque, unsigned & weight, module_idx & mod_idx, bool & use_conv_opt) {
+    opaque       = get_bool_named_param(L, idx, "opaque", opaque);
+    use_conv_opt = get_bool_named_param(L, idx, "use_conv_opt", use_conv_opt);
+    mod_idx      = get_uint_named_param(L, idx, "module_idx", mod_idx);
+    weight       = get_uint_named_param(L, idx, "weight", weight);
 }
 static int mk_definition(lua_State * L) {
     int nargs = lua_gettop(L);
-    bool opaque = true; int weight = 0; module_idx mod_idx = 0; bool use_conv_opt = true;
+    bool opaque = true; unsigned weight = 0; module_idx mod_idx = 0; bool use_conv_opt = true;
     if (is_environment(L, 1)) {
         if (nargs <= 5) {
             get_definition_args(L, 5, opaque, weight, mod_idx, use_conv_opt);

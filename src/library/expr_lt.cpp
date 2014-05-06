@@ -20,6 +20,7 @@ bool is_lt(level const & a, level const & b, bool use_hash) {
     case level_kind::Zero:       return true;
     case level_kind::Succ:       return is_lt(succ_of(a), succ_of(b), use_hash);
     case level_kind::Param:      return param_id(a) < param_id(b);
+    case level_kind::Global:     return global_id(a) < global_id(b);
     case level_kind::Meta:       return meta_id(a) < meta_id(b);
     case level_kind::Max:
         if (max_lhs(a) != max_lhs(b))

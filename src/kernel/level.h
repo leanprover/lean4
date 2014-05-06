@@ -31,11 +31,12 @@ struct level_cell;
                     Their definitions "mirror" the typing rules for Pi and Sigma.
 
    - Param(n)     : A parameter. In Lean, we have universe polymorphic definitions.
+   - Global(n)    : A global level.
    - Meta(n)      : Placeholder. It is the equivalent of a metavariable for universe levels.
                     The elaborator is responsible for replacing Meta with level expressions
                     that do not contain Meta.
 */
-enum class level_kind { Zero, Succ, Max, IMax, Param, Meta };
+enum class level_kind { Zero, Succ, Max, IMax, Param, Global, Meta };
 
 /**
    \brief Universe level.
@@ -82,6 +83,7 @@ level mk_max(level const & l1, level const & l2);
 level mk_imax(level const & l1, level const & l2);
 level mk_succ(level const & l);
 level mk_param_univ(name const & n);
+level mk_global_univ(name const & n);
 level mk_meta_univ(name const & n);
 
 /** \brief An arbitrary (monotonic) total order on universe level terms. */
@@ -89,12 +91,13 @@ bool is_lt(level const & l1, level const & l2);
 
 inline unsigned hash(level const & l) { return l.hash(); }
 inline level_kind kind(level const & l) { return l.kind(); }
-inline bool is_zero(level const & l)  { return kind(l) == level_kind::Zero; }
-inline bool is_param(level const & l) { return kind(l) == level_kind::Param; }
-inline bool is_meta(level const & l)  { return kind(l) == level_kind::Meta; }
-inline bool is_succ(level const & l)  { return kind(l) == level_kind::Succ; }
-inline bool is_max(level const & l)   { return kind(l) == level_kind::Max; }
-inline bool is_imax(level const & l)  { return kind(l) == level_kind::IMax; }
+inline bool is_zero(level const & l)   { return kind(l) == level_kind::Zero; }
+inline bool is_param(level const & l)  { return kind(l) == level_kind::Param; }
+inline bool is_global(level const & l) { return kind(l) == level_kind::Global; }
+inline bool is_meta(level const & l)   { return kind(l) == level_kind::Meta; }
+inline bool is_succ(level const & l)   { return kind(l) == level_kind::Succ; }
+inline bool is_max(level const & l)    { return kind(l) == level_kind::Max; }
+inline bool is_imax(level const & l)   { return kind(l) == level_kind::IMax; }
 
 unsigned get_depth(level const & l);
 
@@ -104,6 +107,7 @@ level const & imax_lhs(level const & l);
 level const & imax_rhs(level const & l);
 level const & succ_of(level const & l);
 name const & param_id(level const & l);
+name const & global_id(level const & l);
 name const & meta_id(level const & l);
 /**
    \brief Return true iff \c l is an explicit level.
@@ -115,8 +119,11 @@ bool is_explicit(level const & l);
 
 /** \brief Return true iff \c l contains placeholder (aka meta parameters). */
 bool has_meta(level const & l);
+/** \brief Return true iff \c l contains globals */
+bool has_global(level const & l);
 /** \brief Return true iff \c l contains parameters */
 bool has_param(level const & l);
+
 
 /**
    \brief Return a new level expression based on <tt>l == succ(arg)</tt>, where \c arg is replaced with
@@ -145,6 +152,7 @@ bool is_trivial(level const & lhs, level const & rhs);
 typedef list<level> levels;
 
 bool has_meta(levels const & ls);
+bool has_global(levels const & ls);
 bool has_param(levels const & ls);
 
 /**
@@ -156,6 +164,8 @@ typedef list<level_cnstr> level_cnstrs;
 
 bool has_param(level_cnstr const & c);
 bool has_param(level_cnstrs const & cs);
+bool has_global(level_cnstr const & c);
+bool has_global(level_cnstrs const & cs);
 bool has_meta(level_cnstr const & c);
 bool has_meta(level_cnstrs const & cs);
 

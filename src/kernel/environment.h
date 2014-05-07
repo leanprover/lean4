@@ -101,9 +101,10 @@ class environment {
     header         m_header;
     environment_id m_id;
     definitions    m_definitions;
+    name_set       m_global_levels;
     extensions     m_extensions;
 
-    environment(header const & h, environment_id const & id, definitions const & d, extensions const & ext);
+    environment(header const & h, environment_id const & id, definitions const & d, name_set const & global_levels, extensions const & ext);
 
 public:
     environment(unsigned trust_lvl = 0, bool proof_irrel = true, bool eta = true, bool impredicative = true);
@@ -136,6 +137,15 @@ public:
 
     /** \brief Return definition with name \c n. Throws and exception if definition does not exist in this environment. */
     definition get(name const & n) const;
+
+    /**
+        \brief Add a new global universe level with name \c n
+        This method throws an exception if the environment already contains a level named \c n.
+    */
+    environment add_global_level(name const & n) const;
+
+    /** \brief Return true iff the environment has a universe level named \c n. */
+    bool is_global_level(name const & n) const;
 
     /**
        \brief Extends the current environment with the given (certified) definition

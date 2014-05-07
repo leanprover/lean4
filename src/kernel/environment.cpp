@@ -42,8 +42,8 @@ bool environment_id::is_descendant(environment_id const & id) const {
     return false;
 }
 
-environment::environment(header const & h, environment_id const & ancestor, definitions const & d, extensions const & exts):
-    m_header(h), m_id(environment_id::mk_descendant(ancestor)), m_definitions(d), m_extensions(exts) {}
+environment::environment(header const & h, environment_id const & ancestor, definitions const & d, name_set const & g, extensions const & exts):
+    m_header(h), m_id(environment_id::mk_descendant(ancestor)), m_definitions(d), m_global_levels(g), m_extensions(exts) {}
 
 environment::environment(unsigned trust_lvl, bool proof_irrel, bool eta, bool impredicative):
     environment(trust_lvl, proof_irrel, eta, impredicative, std::unique_ptr<normalizer_extension>(new noop_normalizer_extension()))
@@ -78,7 +78,18 @@ environment environment::add(certified_definition const & d) const {
     name const & n = d.get_definition().get_name();
     if (find(n))
         throw_already_declared(*this, n);
-    return environment(m_header, m_id, insert(m_definitions, n, d.get_definition()), m_extensions);
+    return environment(m_header, m_id, insert(m_definitions, n, d.get_definition()), m_global_levels, m_extensions);
+}
+
+environment environment::add_global_level(name const & n) const {
+    if (m_global_levels.contains(n))
+        throw_kernel_exception(*this,
+                               "invalid global universe level declaration, environment already contains a universe level with the given name");
+    return environment(m_header, m_id, m_definitions, insert(m_global_levels, n), m_extensions);
+}
+
+bool environment::is_global_level(name const & n) const {
+    return m_global_levels.contains(n);
 }
 
 environment environment::replace(certified_definition const & t) const {
@@ -94,7 +105,7 @@ environment environment::replace(certified_definition const & t) const {
         throw_kernel_exception(*this, "invalid replacement of axiom with theorem, the new declaration is not a theorem");
     if (ax->get_type() != t.get_definition().get_type())
         throw_kernel_exception(*this, "invalid replacement of axiom with theorem, the 'replace' operation can only be used when the axiom and theorem have the same type");
-    return environment(m_header, m_id, insert(m_definitions, n, t.get_definition()), m_extensions);
+    return environment(m_header, m_id, insert(m_definitions, n, t.get_definition()), m_global_levels, m_extensions);
 }
 
 class extension_manager {
@@ -147,6 +158,6 @@ environment environment::update(unsigned id, std::shared_ptr<environment_extensi
     if (id >= new_exts->size())
         new_exts->resize(id+1);
     (*new_exts)[id] = ext;
-    return environment(m_header, m_id, m_definitions, new_exts);
+    return environment(m_header, m_id, m_definitions, m_global_levels, new_exts);
 }
 }

@@ -75,6 +75,7 @@ struct type_checker::imp {
     bool                       m_memoize;
     // temp flag
     bool                       m_cnstrs_enabled;
+    param_names                m_params;
 
     imp(environment const & env, name_generator const & g, constraint_handler & h, std::unique_ptr<converter> && conv, bool memoize):
         m_env(env), m_gen(g), m_chandler(h), m_conv(std::move(conv)), m_conv_ctx(*this), m_tc_ctx(*this),
@@ -426,7 +427,10 @@ struct type_checker::imp {
     }
 
     expr infer_type(expr const & e) { return infer_type_core(e, true); }
-    expr check(expr const & e) { return infer_type_core(e, false); }
+    expr check(expr const & e, param_names const & ps) {
+        flet<param_names> updt(m_params, ps);
+        return infer_type_core(e, false);
+    }
     bool is_conv(expr const & t, expr const & s) { return m_conv->is_conv(t, s, m_conv_ctx); }
     bool is_def_eq(expr const & t, expr const & s) { return m_conv->is_def_eq(t, s, m_conv_ctx); }
     expr whnf(expr const & t) { return m_conv->whnf(t, m_conv_ctx); }
@@ -442,7 +446,7 @@ type_checker::type_checker(environment const & env, name_generator const & g, st
 
 type_checker::~type_checker() {}
 expr type_checker::infer(expr const & t) { return m_ptr->infer_type(t); }
-expr type_checker::check(expr const & t) { return m_ptr->check(t); }
+expr type_checker::check(expr const & t, param_names const & ps) { return m_ptr->check(t, ps); }
 bool type_checker::is_conv(expr const & t, expr const & s) { return m_ptr->is_conv(t, s); }
 bool type_checker::is_def_eq(expr const & t, expr const & s) { return m_ptr->is_def_eq(t, s); }
 bool type_checker::is_prop(expr const & t) { return m_ptr->is_prop(t); }

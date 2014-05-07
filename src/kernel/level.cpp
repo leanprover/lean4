@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "util/object_serializer.h"
 #include "util/interrupt.h"
 #include "kernel/level.h"
+#include "kernel/environment.h"
 
 namespace lean {
 level_cell const & to_cell(level const & l) {
@@ -94,7 +95,7 @@ level const & imax_rhs(level const & l) { lean_assert(is_imax(l)); return to_max
 struct level_param_core : public level_cell {
     name m_id;
     level_param_core(level_kind k, name const & id):
-        level_cell(k, hash(id.hash(), is_param ? 11u : 13u)),
+        level_cell(k, hash(id.hash(), static_cast<unsigned>(k))),
         m_id(id) {
         lean_assert(k == level_kind::Meta || k == level_kind::Param || k == level_kind::Global);
     }
@@ -427,26 +428,54 @@ bool has_meta(levels const & ls) { return std::any_of(ls.begin(), ls.end(), [](l
 bool has_meta(level_cnstr const & c) { return has_meta(c.first) || has_meta(c.second); }
 bool has_meta(level_cnstrs const & cs) { return std::any_of(cs.begin(), cs.end(), [](level_cnstr const & c) { return has_meta(c); }); }
 
-static optional<name> get_undef_param(level const & l, param_names const & ps) {
-    if (!has_param(l))
-        return optional<name>();
+void for_each_level_fn::apply(level const & l) {
+    if (!m_f(l))
+        return;
+    switch (l.kind()) {
+    case level_kind::Succ:                          apply(succ_of(l)); break;
+    case level_kind::Max: case level_kind::IMax:    apply(to_max_core(l).m_lhs); apply(to_max_core(l).m_rhs); break;
+    case level_kind::Zero: case level_kind::Param:
+    case level_kind::Meta: case level_kind::Global: break;
+    }
+}
+
+level replace_level_fn::apply(level const & l) {
+    optional<level> r = m_f(l);
+    if (r)
+        return *r;
     switch (l.kind()) {
     case level_kind::Succ:
-        return get_undef_param(succ_of(l), ps);
+        return update_succ(l, apply(succ_of(l)));
     case level_kind::Max: case level_kind::IMax:
-        if (auto it = get_undef_param(to_max_core(l).m_lhs, ps))
-            return it;
-        else
-            return get_undef_param(to_max_core(l).m_rhs, ps);
-    case level_kind::Param:
-        if (std::find(ps.begin(), ps.end(), param_id(l)) == ps.end())
-            return optional<name>(param_id(l));
-        else
-            return optional<name>();
-    case level_kind::Zero: case level_kind::Meta: case level_kind::Global:
-        lean_unreachable(); // LCOV_EXCL_LINE
+        return update_max(l, apply(to_max_core(l).m_lhs), apply(to_max_core(l).m_rhs));
+    case level_kind::Zero: case level_kind::Param: case level_kind::Meta: case level_kind::Global:
+        return l;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
+}
+
+optional<name> get_undef_param(level const & l, param_names const & ps) {
+    optional<name> r;
+    for_each(l, [&](level const & l) {
+            if (!has_param(l))
+                return false;
+            if (l.kind() == level_kind::Param && std::find(ps.begin(), ps.end(), param_id(l)) != ps.end())
+                r = param_id(l);
+            return true;
+        });
+    return r;
+}
+
+optional<name> get_undef_global(level const & l, environment const & env) {
+    optional<name> r;
+    for_each(l, [&](level const & l) {
+            if (!has_global(l))
+                return false;
+            if (l.kind() == level_kind::Global && env.is_global_level(global_id(l)))
+                r = global_id(l);
+            return true;
+        });
+    return r;
 }
 
 optional<name> get_undef_param(level_cnstrs const & cs, param_names const & ps) {
@@ -454,6 +483,16 @@ optional<name> get_undef_param(level_cnstrs const & cs, param_names const & ps) 
         if (auto it = get_undef_param(c.first, ps))
             return it;
         if (auto it = get_undef_param(c.second, ps))
+            return it;
+    }
+    return optional<name>();
+}
+
+optional<name> get_undef_global(level_cnstrs const & cs, environment const & env) {
+    for (auto const & c : cs) {
+        if (auto it = get_undef_global(c.first, env))
+            return it;
+        if (auto it = get_undef_global(c.second, env))
             return it;
     }
     return optional<name>();
@@ -473,21 +512,6 @@ level update_max(level const & l, level const & new_lhs, level const & new_rhs) 
         return mk_max(new_lhs, new_rhs);
     else
         return mk_imax(new_lhs, new_rhs);
-}
-
-level replace_level_fn::apply(level const & l) {
-    optional<level> r = m_f(l);
-    if (r)
-        return *r;
-    switch (l.kind()) {
-    case level_kind::Succ:
-        return update_succ(l, apply(succ_of(l)));
-    case level_kind::Max: case level_kind::IMax:
-        return update_max(l, apply(to_max_core(l).m_lhs), apply(to_max_core(l).m_rhs));
-    case level_kind::Zero: case level_kind::Param: case level_kind::Meta: case level_kind::Global:
-        return l;
-    }
-    lean_unreachable(); // LCOV_EXCL_LINE
 }
 
 level instantiate(level const & l, param_names const & ps, levels const & ls) {

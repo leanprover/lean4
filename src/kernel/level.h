@@ -124,7 +124,6 @@ bool has_global(level const & l);
 /** \brief Return true iff \c l contains parameters */
 bool has_param(level const & l);
 
-
 /**
    \brief Return a new level expression based on <tt>l == succ(arg)</tt>, where \c arg is replaced with
    \c new_arg.
@@ -169,17 +168,17 @@ bool has_global(level_cnstrs const & cs);
 bool has_meta(level_cnstr const & c);
 bool has_meta(level_cnstrs const & cs);
 
-typedef list<name> param_names;
+/** \brief Functional for applying <tt>F</tt> to each level expressions. */
+class for_each_level_fn {
+    std::function<bool(level const &)>  m_f; // NOLINT
+    void apply(level const & l);
+public:
+    template<typename F> for_each_level_fn(F const & f):m_f(f) {}
+    void operator()(level const & l) { return apply(l); }
+};
+template<typename F> void for_each(level const & l, F const & f) { return for_each_level_fn(f)(l); }
 
-/**
-   \brief If \c cs contains a parameter that is not in \c param_names, then return it.
-   Otherwise, return none.
-*/
-optional<name> get_undef_param(level_cnstrs const & cs, param_names const & ps);
-
-/**
-   \brief Functional for applying <tt>F</tt> to the level expressions.
-*/
+/** \brief Functional for applying <tt>F</tt> to the level expressions. */
 class replace_level_fn {
     std::function<optional<level>(level const &)>  m_f;
     level apply(level const & l);
@@ -187,10 +186,21 @@ public:
     template<typename F> replace_level_fn(F const & f):m_f(f) {}
     level operator()(level const & l) { return apply(l); }
 };
+template<typename F> level replace(level const & l, F const & f) { return replace_level_fn(f)(l); }
 
-template<typename F> level replace(level const & l, F const & f) {
-    return replace_level_fn(f)(l);
-}
+typedef list<name> param_names;
+
+/** \brief If \c l contains a global that is not in \c env, then return it. Otherwise, return none. */
+optional<name> get_undef_global(level const & l, environment const & env);
+
+/** \brief If \c l contains a parameter that is not in \c ps, then return it. Otherwise, return none. */
+optional<name> get_undef_param(level const & l, param_names const & ps);
+
+/** \brief If \c cs contains a global that is not in \c env, then return it. Otherwise, return none. */
+optional<name> get_undef_global(level_cnstrs const & cs, environment const & env);
+
+/** \brief If \c cs contains a parameter that is not in \c ps, then return it. Otherwise, return none. */
+optional<name> get_undef_param(level_cnstrs const & cs, param_names const & ps);
 
 /**
     \brief Instantiate the universe level parameters \c ps occurring in \c l with the levels \c ls.

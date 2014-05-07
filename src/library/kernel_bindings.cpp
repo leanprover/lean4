@@ -44,16 +44,18 @@ static int level_tostring(lua_State * L) {
 
 static int level_eq(lua_State * L) { return push_boolean(L, to_level(L, 1) == to_level(L, 2)); }
 static int level_lt(lua_State * L) { return push_boolean(L, is_lt(to_level(L, 1), to_level(L, 2))); }
-static int mk_level_zero(lua_State * L) { return push_level(L, mk_level_zero()); }
-static int mk_level_one(lua_State * L)  { return push_level(L, mk_level_one());  }
-static int mk_level_succ(lua_State * L) { return push_level(L, mk_succ(to_level(L, 1))); }
-static int mk_level_max(lua_State * L)  { return push_level(L, mk_max(to_level(L, 1), to_level(L, 2))); }
-static int mk_level_imax(lua_State * L) { return push_level(L, mk_imax(to_level(L, 1), to_level(L, 2))); }
-static int mk_param_univ(lua_State * L) { return push_level(L, mk_param_univ(to_name_ext(L, 1))); }
-static int mk_meta_univ(lua_State * L)  { return push_level(L, mk_meta_univ(to_name_ext(L, 1))); }
+static int mk_level_zero(lua_State * L)  { return push_level(L, mk_level_zero()); }
+static int mk_level_one(lua_State * L)   { return push_level(L, mk_level_one());  }
+static int mk_level_succ(lua_State * L)  { return push_level(L, mk_succ(to_level(L, 1))); }
+static int mk_level_max(lua_State * L)   { return push_level(L, mk_max(to_level(L, 1), to_level(L, 2))); }
+static int mk_level_imax(lua_State * L)  { return push_level(L, mk_imax(to_level(L, 1), to_level(L, 2))); }
+static int mk_param_univ(lua_State * L)  { return push_level(L, mk_param_univ(to_name_ext(L, 1))); }
+static int mk_global_univ(lua_State * L) { return push_level(L, mk_global_univ(to_name_ext(L, 1))); }
+static int mk_meta_univ(lua_State * L)   { return push_level(L, mk_meta_univ(to_name_ext(L, 1))); }
 #define LEVEL_PRED(P) static int level_ ## P(lua_State * L) { return push_boolean(L, P(to_level(L, 1))); }
 LEVEL_PRED(is_zero)
 LEVEL_PRED(is_param)
+LEVEL_PRED(is_global)
 LEVEL_PRED(is_meta)
 LEVEL_PRED(is_succ)
 LEVEL_PRED(is_max)
@@ -68,9 +70,10 @@ static int level_is_eqp(lua_State * L) { return push_boolean(L, is_eqp(to_level(
 
 static int level_id(lua_State * L) {
     level const & l = to_level(L, 1);
-    if (is_param(l))     return push_name(L, param_id(l));
-    else if (is_meta(l)) return push_name(L, meta_id(l));
-    else throw exception("arg #1 must be a level parameter/metavariable");
+    if (is_param(l))       return push_name(L, param_id(l));
+    else if (is_global(l)) return push_name(L, global_id(l));
+    else if (is_meta(l))   return push_name(L, meta_id(l));
+    else throw exception("arg #1 must be a level parameter/global/metavariable");
 }
 
 static int level_lhs(lua_State * L) {
@@ -110,6 +113,7 @@ static const struct luaL_Reg level_m[] = {
     {"kind",            safe_function<level_get_kind>},
     {"is_zero",         safe_function<level_is_zero>},
     {"is_param",        safe_function<level_is_param>},
+    {"is_global",       safe_function<level_is_global>},
     {"is_meta",         safe_function<level_is_meta>},
     {"is_succ",         safe_function<level_is_succ>},
     {"is_max",          safe_function<level_is_max>},
@@ -134,14 +138,15 @@ static void open_level(lua_State * L) {
     lua_setfield(L, -2, "__index");
     setfuncs(L, level_m, 0);
 
-    SET_GLOBAL_FUN(mk_level_zero,  "level");
-    SET_GLOBAL_FUN(mk_level_zero,  "mk_level_zero");
-    SET_GLOBAL_FUN(mk_level_one,   "mk_level_one");
-    SET_GLOBAL_FUN(mk_level_succ,  "mk_level_succ");
-    SET_GLOBAL_FUN(mk_level_max,   "mk_level_max");
-    SET_GLOBAL_FUN(mk_level_imax,  "mk_level_imax");
-    SET_GLOBAL_FUN(mk_param_univ,  "mk_param_univ");
-    SET_GLOBAL_FUN(mk_meta_univ,   "mk_meta_univ");
+    SET_GLOBAL_FUN(mk_level_zero,   "level");
+    SET_GLOBAL_FUN(mk_level_zero,   "mk_level_zero");
+    SET_GLOBAL_FUN(mk_level_one,    "mk_level_one");
+    SET_GLOBAL_FUN(mk_level_succ,   "mk_level_succ");
+    SET_GLOBAL_FUN(mk_level_max,    "mk_level_max");
+    SET_GLOBAL_FUN(mk_level_imax,   "mk_level_imax");
+    SET_GLOBAL_FUN(mk_param_univ,   "mk_param_univ");
+    SET_GLOBAL_FUN(mk_global_univ,  "mk_global_univ");
+    SET_GLOBAL_FUN(mk_meta_univ,    "mk_meta_univ");
 
     SET_GLOBAL_FUN(level_pred, "is_level");
 

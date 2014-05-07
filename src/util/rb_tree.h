@@ -365,7 +365,7 @@ public:
 };
 
 template<typename T, typename CMP>
-rb_tree<T, CMP> insert(rb_tree<T, CMP> & t, T const & v) { rb_tree<T, CMP> r(t); r.insert(v); return r; }
+rb_tree<T, CMP> insert(rb_tree<T, CMP> const & t, T const & v) { rb_tree<T, CMP> r(t); r.insert(v); return r; }
 template<typename T, typename CMP>
-rb_tree<T, CMP> erase(rb_tree<T, CMP> & t, T const & v) { rb_tree<T, CMP> r(t); r.erase(v); return r; }
+rb_tree<T, CMP> erase(rb_tree<T, CMP> const & t, T const & v) { rb_tree<T, CMP> r(t); r.erase(v); return r; }
 }

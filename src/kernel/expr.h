@@ -218,7 +218,7 @@ public:
     bool is_cast() const { return m_cast; }
 };
 
-/** \brief Super class for lambda, pi and sigma */
+/** \brief Super class for lambda and pi */
 class expr_binder : public expr_composite {
     name             m_name;
     expr             m_domain;

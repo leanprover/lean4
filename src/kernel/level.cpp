@@ -101,7 +101,7 @@ struct level_param_core : public level_cell {
     }
 };
 
-bool is_param_core(level const & l) { return is_param(l) || is_meta(l); }
+bool is_param_core(level const & l) { return is_param(l) || is_global(l) || is_meta(l); }
 
 static level_param_core const & to_param_core(level const & l) {
     lean_assert(is_param_core(l));

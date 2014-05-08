@@ -10,12 +10,14 @@ Author: Leonardo de Moura
 #include "util/script_state.h"
 #include "util/list_lua.h"
 #include "util/pair_lua.h"
+#include "util/luaref.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/free_vars.h"
 #include "kernel/instantiate.h"
 #include "kernel/metavar.h"
 #include "kernel/error_msgs.h"
+#include "kernel/type_checker.h"
 #include "library/occurs.h"
 #include "library/io_state_stream.h"
 #include "library/expr_lt.h"
@@ -1374,6 +1376,95 @@ static void open_substitution(lua_State * L) {
     SET_GLOBAL_FUN(substitution_pred, "is_substitution");
 }
 
+// constraint_handler
+class lua_constraint_handler : public constraint_handler {
+    luaref m_f;
+public:
+    lua_constraint_handler(luaref const & f):m_f(f) {}
+    virtual void add_cnstr(constraint const & c) {
+        lua_State * L = m_f.get_state();
+        m_f.push();
+        push_constraint(L, c);
+        pcall(L, 1, 0, 0);
+    }
+};
+DECL_UDATA(lua_constraint_handler)
+int mk_constraint_handler(lua_State * L) {
+    luaL_checktype(L, 1, LUA_TFUNCTION); // user-fun
+    return push_lua_constraint_handler(L, lua_constraint_handler(luaref(L, 1)));
+}
+
+static const struct luaL_Reg lua_constraint_handler_m[] = {
+    {"__gc", lua_constraint_handler_gc},
+    {0, 0}
+};
+
+static void open_constraint_handler(lua_State * L) {
+    luaL_newmetatable(L, lua_constraint_handler_mt);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    setfuncs(L, lua_constraint_handler_m, 0);
+
+    SET_GLOBAL_FUN(mk_constraint_handler, "constraint_handler");
+    SET_GLOBAL_FUN(lua_constraint_handler_pred, "is_constraint_handler");
+}
+
+// type_checker
+typedef std::shared_ptr<type_checker> type_checker_ref;
+DECL_UDATA(type_checker_ref)
+
+int mk_type_checker(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs <= 2) {
+        return push_type_checker_ref(L, std::make_shared<type_checker>(to_environment(L, 1), to_name_generator(L, 2)));
+    } else if (nargs == 3 && is_lua_constraint_handler(L, 3)) {
+        return push_type_checker_ref(L, std::make_shared<type_checker>(to_environment(L, 1), to_name_generator(L, 2),
+                                                                       to_lua_constraint_handler(L, 3)));
+    } else if (nargs == 3) {
+        // TODO(Leo)
+    } else {
+        // TODO(Leo)
+    }
+    return 0;
+}
+int type_checker_whnf(lua_State * L) { return push_expr(L, to_type_checker_ref(L, 1)->whnf(to_expr(L, 2))); }
+int type_checker_ensure_pi(lua_State * L) { return push_expr(L, to_type_checker_ref(L, 1)->ensure_pi(to_expr(L, 2))); }
+int type_checker_ensure_sort(lua_State * L) { return push_expr(L, to_type_checker_ref(L, 1)->ensure_sort(to_expr(L, 2))); }
+int type_checker_check(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs <= 2)
+        return push_expr(L, to_type_checker_ref(L, 1)->check(to_expr(L, 2), param_names()));
+    else
+        return push_expr(L, to_type_checker_ref(L, 1)->check(to_expr(L, 2), to_list_name(L, 3)));
+}
+int type_checker_infer(lua_State * L) { return push_expr(L, to_type_checker_ref(L, 1)->infer(to_expr(L, 2))); }
+int type_checker_is_conv(lua_State * L) { return push_boolean(L, to_type_checker_ref(L, 1)->is_conv(to_expr(L, 2), to_expr(L, 3))); }
+int type_checker_is_def_eq(lua_State * L) { return push_boolean(L, to_type_checker_ref(L, 1)->is_def_eq(to_expr(L, 2), to_expr(L, 3))); }
+int type_checker_is_prop(lua_State * L) { return push_boolean(L, to_type_checker_ref(L, 1)->is_prop(to_expr(L, 2))); }
+
+static const struct luaL_Reg type_checker_ref_m[] = {
+    {"__gc",        type_checker_ref_gc},
+    {"whnf",        safe_function<type_checker_whnf>},
+    {"ensure_pi",   safe_function<type_checker_ensure_pi>},
+    {"ensure_sort", safe_function<type_checker_ensure_sort>},
+    {"check",       safe_function<type_checker_check>},
+    {"infer",       safe_function<type_checker_infer>},
+    {"is_conv",     safe_function<type_checker_is_conv>},
+    {"is_def_eq",   safe_function<type_checker_is_def_eq>},
+    {"is_prop",     safe_function<type_checker_is_prop>},
+    {0, 0}
+};
+
+static void open_type_checker(lua_State * L) {
+    luaL_newmetatable(L, type_checker_ref_mt);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    setfuncs(L, type_checker_ref_m, 0);
+
+    SET_GLOBAL_FUN(mk_type_checker, "type_checker");
+    SET_GLOBAL_FUN(type_checker_ref_pred, "is_type_checker");
+}
+
 void open_kernel_module(lua_State * L) {
     open_level(L);
     open_list_level(L);
@@ -1392,5 +1483,7 @@ void open_kernel_module(lua_State * L) {
     open_justification(L);
     open_constraint(L);
     open_substitution(L);
+    open_constraint_handler(L);
+    open_type_checker(L);
 }
 }

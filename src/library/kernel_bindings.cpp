@@ -841,22 +841,30 @@ static int environment_get(lua_State * L) { return push_definition(L, to_environ
 static int environment_add(lua_State * L) { return push_environment(L, to_environment(L, 1).add(to_certified_definition(L, 2))); }
 static int environment_replace(lua_State * L) { return push_environment(L, to_environment(L, 1).replace(to_certified_definition(L, 2))); }
 static int mk_empty_environment(lua_State * L) {
-    return push_environment(L, environment());
+    unsigned trust_lvl = get_uint_named_param(L, 1, "trust_lvl", 0);
+    trust_lvl          = get_uint_named_param(L, 1, "trust_level", trust_lvl);
+    bool proof_irrel   = get_bool_named_param(L, 1, "proof_irrel", true);
+    proof_irrel   = get_bool_named_param(L, 1, "proof_irrelevance", proof_irrel);
+    bool eta           = get_bool_named_param(L, 1, "eta", true);
+    bool impredicative = get_bool_named_param(L, 1, "impredicative", true);
+    return push_environment(L, environment(trust_lvl, proof_irrel, eta, impredicative));
 }
 
 static const struct luaL_Reg environment_m[] = {
-    {"__gc",             environment_gc}, // never throws
-    {"is_descendant",    safe_function<environment_is_descendant>},
-    {"trust_lvl",        safe_function<environment_trust_lvl>},
-    {"proof_irrel",      safe_function<environment_proof_irrel>},
-    {"eta",              safe_function<environment_eta>},
-    {"impredicative",    safe_function<environment_impredicative>},
-    {"add_global_level", safe_function<environment_add_global_level>},
-    {"is_global_level",  safe_function<environment_is_global_level>},
-    {"find",             safe_function<environment_find>},
-    {"get",              safe_function<environment_get>},
-    {"add",              safe_function<environment_add>},
-    {"replace",          safe_function<environment_replace>},
+    {"__gc",              environment_gc}, // never throws
+    {"is_descendant",     safe_function<environment_is_descendant>},
+    {"trust_lvl",         safe_function<environment_trust_lvl>},
+    {"trust_level",       safe_function<environment_trust_lvl>},
+    {"proof_irrel",       safe_function<environment_proof_irrel>},
+    {"proof_irrelevance", safe_function<environment_proof_irrel>},
+    {"eta",               safe_function<environment_eta>},
+    {"impredicative",     safe_function<environment_impredicative>},
+    {"add_global_level",  safe_function<environment_add_global_level>},
+    {"is_global_level",   safe_function<environment_is_global_level>},
+    {"find",              safe_function<environment_find>},
+    {"get",               safe_function<environment_get>},
+    {"add",               safe_function<environment_add>},
+    {"replace",           safe_function<environment_replace>},
     {0, 0}
 };
 

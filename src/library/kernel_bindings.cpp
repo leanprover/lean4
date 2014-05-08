@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/script_state.h"
 #include "util/list_lua.h"
 #include "util/pair_lua.h"
+#include "util/lua_named_param.h"
 #include "util/luaref.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+Copyright (c) 2013-2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
@@ -137,13 +137,5 @@ inline int push_string(lua_State * L, char const * s) { lua_pushstring(L, s); re
 inline int push_integer(lua_State * L, lua_Integer v) { lua_pushinteger(L, v); return 1; }
 inline int push_number(lua_State * L, lua_Number v) { lua_pushnumber(L, v); return 1; }
 inline int push_nil(lua_State * L) { lua_pushnil(L); return 1; }
-// =======================================
-
-// =======================================
-// Utilities for simulating Python-like named parameters using Lua tables.
-// In the following function \c idx is the position of the Lua table on the Lua stack.
-bool get_bool_named_param(lua_State * L, int idx, char const * opt_name, bool def_value);
-int get_int_named_param(lua_State * L, int idx, char const * opt_name, int def_value);
-unsigned get_uint_named_param(lua_State * L, int idx, char const * opt_name, unsigned def_value);
 // =======================================
 }

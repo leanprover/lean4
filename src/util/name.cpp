@@ -19,7 +19,7 @@ Author: Leonardo de Moura
 #include "util/trace.h"
 #include "util/ascii.h"
 #include "util/object_serializer.h"
-#include "util/list_lua.h"
+#include "util/lua_list.h"
 
 namespace lean {
 constexpr char const * anonymous_str = "[anonymous]";

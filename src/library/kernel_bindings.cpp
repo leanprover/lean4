@@ -8,8 +8,8 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/sstream.h"
 #include "util/script_state.h"
-#include "util/list_lua.h"
-#include "util/pair_lua.h"
+#include "util/lua_list.h"
+#include "util/lua_pair.h"
 #include "util/lua_named_param.h"
 #include "util/luaref.h"
 #include "kernel/abstract.h"

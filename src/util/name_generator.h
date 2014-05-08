@@ -36,4 +36,7 @@ public:
     friend void swap(name_generator & a, name_generator & b);
 };
 void swap(name_generator & a, name_generator & b);
+
+UDATA_DEFS(name_generator)
+void open_name_generator(lua_State * L);
 }

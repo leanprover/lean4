@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "util/script_state.h"
 #include "util/script_exception.h"
 #include "util/name.h"
+#include "util/name_generator.h"
 #include "util/rb_map.h"
 #include "util/lean_path.h"
 
@@ -84,6 +85,7 @@ struct script_state::imp {
         luaL_openlibs(m_state);
         open_exception(m_state);
         open_name(m_state);
+        open_name_generator(m_state);
         open_rb_map(m_state);
         open_extra(m_state);
 

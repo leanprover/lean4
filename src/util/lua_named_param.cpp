@@ -67,10 +67,56 @@ unsigned get_uint_named_param(lua_State * L, int idx, char const * opt_name, uns
             return static_cast<unsigned>(result);
         } else if (lua_isnil(L, -1)) {
             lua_pop(L, 1);
-            return static_cast<unsigned>(def_value);
+            return def_value;
         } else {
             lua_pop(L, 1);
-            throw exception(sstream() << "field '" << opt_name << "' must be an integer in table at arg #" << idx);
+            throw exception(sstream() << "field '" << opt_name << "' must be a unsigned integer in table at arg #" << idx);
+        }
+    } else if (idx <= lua_gettop(L) && !lua_isnil(L, idx)) {
+        throw exception(sstream() << "arg #" << idx << " must be a table");
+    } else {
+        return def_value;
+    }
+}
+
+optional<unsigned> get_opt_uint_named_param(lua_State * L, int idx, char const * opt_name, optional<unsigned> const & def_value) {
+    if (lua_istable(L, idx)) {
+        push_string(L, opt_name);
+        lua_gettable(L, idx);
+        if (lua_isnumber(L, -1)) {
+            long result = lua_tointeger(L, -1);
+            lua_pop(L, 1);
+            if (result < 0 || result > std::numeric_limits<unsigned>::max())
+                throw exception(sstream() << "field '" << opt_name << "' must be a unsigned integer in table at arg #" << idx);
+            return optional<unsigned>(static_cast<unsigned>(result));
+        } else if (lua_isnil(L, -1)) {
+            lua_pop(L, 1);
+            return def_value;
+        } else {
+            lua_pop(L, 1);
+            throw exception(sstream() << "field '" << opt_name << "' must be a unsigned integer in table at arg #" << idx);
+        }
+    } else if (idx <= lua_gettop(L) && !lua_isnil(L, idx)) {
+        throw exception(sstream() << "arg #" << idx << " must be a table");
+    } else {
+        return def_value;
+    }
+}
+
+name_set get_name_set_named_param(lua_State * L, int idx, char const * opt_name, name_set const & def_value) {
+    if (lua_istable(L, idx)) {
+        push_string(L, opt_name);
+        lua_gettable(L, idx);
+        if (is_name_set(L, -1)) {
+            name_set result = to_name_set(L, -1);
+            lua_pop(L, 1);
+            return result;
+        } else if (lua_isnil(L, -1)) {
+            lua_pop(L, 1);
+            return def_value;
+        } else {
+            lua_pop(L, 1);
+            throw exception(sstream() << "field '" << opt_name << "' must be a name_set in table at arg #" << idx);
         }
     } else if (idx <= lua_gettop(L) && !lua_isnil(L, idx)) {
         throw exception(sstream() << "arg #" << idx << " must be a table");

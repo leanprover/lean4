@@ -94,18 +94,18 @@ ENDFOREACH(T)
 #            COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t" ${T})
 # ENDFOREACH(T)
 
-# # LEAN LUA THREAD TESTS
-# if((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Linux"))
-#   if ((NOT (${CMAKE_CXX_COMPILER} MATCHES "clang")) AND (${MULTI_THREAD} MATCHES "ON"))
-#     file(GLOB LEANLUATHREADTESTS "${LEAN_SOURCE_DIR}/../tests/lua/threads/*.lua")
-#     FOREACH(T ${LEANLUATHREADTESTS})
-#       GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-#       add_test(NAME "leanluathreadtest_${T_NAME}"
-#         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lua/threads"
-#         COMMAND "../test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t" ${T})
-#     ENDFOREACH(T)
-#   endif()
-# endif()
+# LEAN LUA THREAD TESTS
+if((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Linux"))
+  if ((NOT (${CMAKE_CXX_COMPILER} MATCHES "clang")) AND (${MULTI_THREAD} MATCHES "ON"))
+    file(GLOB LEANLUATHREADTESTS "${LEAN_SOURCE_DIR}/../tests/lua/threads/*.lua")
+    FOREACH(T ${LEANLUATHREADTESTS})
+      GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+      add_test(NAME "leanluathreadtest_${T_NAME}"
+        WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lua/threads"
+        COMMAND "../test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t" ${T})
+    ENDFOREACH(T)
+  endif()
+endif()
 
 # # Create the script lean.sh
 # # This is used to create a soft dependency on the Lean executable

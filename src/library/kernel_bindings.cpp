@@ -821,14 +821,21 @@ static const struct luaL_Reg certified_definition_m[] = {
     {0, 0}
 };
 
+static void certified_definition_migrate(lua_State * src, int i, lua_State * tgt) {
+    push_certified_definition(tgt, to_certified_definition(src, i));
+}
+
 static void open_certified_definition(lua_State * L) {
     luaL_newmetatable(L, certified_definition_mt);
+    set_migrate_fn_field(L, -1, certified_definition_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, certified_definition_m, 0);
 
     SET_GLOBAL_FUN(certified_definition_pred, "is_certified_definition");
 }
+static bool operator!=(certified_definition const &, certified_definition const &) { return true; }
+DEFINE_LUA_LIST(certified_definition, push_certified_definition, to_certified_definition)
 
 // Environment
 DECL_UDATA(environment)
@@ -1529,6 +1536,7 @@ void open_kernel_module(lua_State * L) {
     open_formatter(L);
     open_environment_id(L);
     open_certified_definition(L);
+    open_list_certified_definition(L);
     open_environment(L);
     open_io_state(L);
     open_justification(L);

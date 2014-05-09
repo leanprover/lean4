@@ -1422,7 +1422,9 @@ static void get_type_checker_args(lua_State * L, int idx, optional<module_idx> &
 
 int mk_type_checker(lua_State * L) {
     int nargs = lua_gettop(L);
-    if (nargs <= 2) {
+    if (nargs == 1) {
+        return push_type_checker_ref(L, std::make_shared<type_checker>(to_environment(L, 1)));
+    } else if (nargs == 2) {
         return push_type_checker_ref(L, std::make_shared<type_checker>(to_environment(L, 1), to_name_generator(L, 2)));
     } else if (nargs == 3 && is_lua_constraint_handler(L, 3)) {
         return push_type_checker_ref(L, std::make_shared<type_checker>(to_environment(L, 1), to_name_generator(L, 2),
@@ -1473,6 +1475,34 @@ static const struct luaL_Reg type_checker_ref_m[] = {
     {0, 0}
 };
 
+// type_check procedure
+static int type_check(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs == 2)
+        return push_certified_definition(L, check(to_environment(L, 1), to_definition(L, 2)));
+    else if (nargs == 3)
+        return push_certified_definition(L, check(to_environment(L, 1), to_definition(L, 2), to_name_generator(L, 3)));
+    else if (nargs == 4)
+        return push_certified_definition(L, check(to_environment(L, 1), to_definition(L, 2), to_name_generator(L, 3), to_name_set(L, 4)));
+    else
+        return push_certified_definition(L, check(to_environment(L, 1), to_definition(L, 2), to_name_generator(L, 3), to_name_set(L, 4),
+                                                  lua_toboolean(L, 5)));
+}
+
+static int add_declaration(lua_State * L) {
+    int nargs = lua_gettop(L);
+    optional<certified_definition> d;
+    if (nargs == 2)
+        d = check(to_environment(L, 1), to_definition(L, 2));
+    else if (nargs == 3)
+        d = check(to_environment(L, 1), to_definition(L, 2), to_name_generator(L, 3));
+    else if (nargs == 4)
+        d = check(to_environment(L, 1), to_definition(L, 2), to_name_generator(L, 3), to_name_set(L, 4));
+    else
+        d = check(to_environment(L, 1), to_definition(L, 2), to_name_generator(L, 3), to_name_set(L, 4), lua_toboolean(L, 5));
+    return push_environment(L, to_environment(L, 1).add(*d));
+}
+
 static void open_type_checker(lua_State * L) {
     luaL_newmetatable(L, type_checker_ref_mt);
     lua_pushvalue(L, -1);
@@ -1481,6 +1511,9 @@ static void open_type_checker(lua_State * L) {
 
     SET_GLOBAL_FUN(mk_type_checker, "type_checker");
     SET_GLOBAL_FUN(type_checker_ref_pred, "is_type_checker");
+    SET_GLOBAL_FUN(type_check, "type_check");
+    SET_GLOBAL_FUN(type_check, "check");
+    SET_GLOBAL_FUN(add_declaration, "add_decl");
 }
 
 void open_kernel_module(lua_State * L) {

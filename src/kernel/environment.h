@@ -190,7 +190,7 @@ class name_generator;
    Only the type_checker class can create certified definitions.
 */
 class certified_definition {
-    friend certified_definition check(environment const & env, name_generator const & g, definition const & d, bool memoize, name_set const & extra_opaque);
+    friend certified_definition check(environment const & env, definition const & d, name_generator const & g, name_set const & extra_opaque, bool memoize);
     environment_id m_id;
     definition     m_definition;
     certified_definition(environment_id const & id, definition const & d):m_id(id), m_definition(d) {}

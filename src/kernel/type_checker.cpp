@@ -444,6 +444,11 @@ type_checker::type_checker(environment const & env, name_generator const & g, co
 type_checker::type_checker(environment const & env, name_generator const & g, std::unique_ptr<converter> && conv, bool memoize):
     type_checker(env, g, g_no_constraint_handler, std::move(conv), memoize) {}
 
+static name g_tmp_prefix = name::mk_internal_unique_name();
+
+type_checker::type_checker(environment const & env):
+    type_checker(env, name_generator(g_tmp_prefix), g_no_constraint_handler, mk_default_converter(env), true) {}
+
 type_checker::~type_checker() {}
 expr type_checker::infer(expr const & t) { return m_ptr->infer_type(t); }
 expr type_checker::check(expr const & t, param_names const & ps) { return m_ptr->check(t, ps); }
@@ -479,7 +484,7 @@ struct simple_constraint_handler : public constraint_handler {
     virtual void add_cnstr(constraint const & c) { m_cnstrs.push_back(c); }
 };
 
-certified_definition check(environment const & env, name_generator const & g, definition const & d, bool memoize, name_set const & extra_opaque) {
+certified_definition check(environment const & env, definition const & d, name_generator const & g, name_set const & extra_opaque, bool memoize) {
     check_no_mlocal(env, d.get_type());
     if (d.is_definition())
         check_no_mlocal(env, d.get_value());
@@ -513,5 +518,9 @@ certified_definition check(environment const & env, name_generator const & g, de
     #endif
 
     return certified_definition(env.get_id(), d);
+}
+
+certified_definition check(environment const & env, definition const & d, name_set const & extra_opaque, bool memoize) {
+    return check(env, d, name_generator(g_tmp_prefix), extra_opaque, memoize);
 }
 }

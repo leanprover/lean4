@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 using namespace lean;
 
 static environment add_def(environment const & env, definition const & d) {
-    auto cd = check(env, name_generator("test"), d, true, name_set());
+    auto cd = check(env, d, name_generator("test"));
     return env.add(cd);
 }
 

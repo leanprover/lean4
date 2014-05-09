@@ -67,8 +67,12 @@ list<T> to_list_ ## T ## _ext(lua_State * L, int idx) {                 \
     else                                                                \
         return table_to_list<T>(L, idx, ToVal);                         \
 }                                                                       \
+static void list_ ## T ## _migrate(lua_State * src, int i, lua_State * tgt) { \
+    push_list_ ## T(tgt, to_list_ ## T(src, i));                        \
+}                                                                       \
 static void open_list_ ## T(lua_State * L) {                            \
     luaL_newmetatable(L, list_ ## T ## _mt);                            \
+    set_migrate_fn_field(L, -1, list_ ## T ## _migrate);                \
     lua_pushvalue(L, -1);                                               \
     lua_setfield(L, -2, "__index");                                     \
     setfuncs(L, list_ ## T ## _m, 0);                                   \

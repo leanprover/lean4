@@ -35,7 +35,7 @@ bool environment_id::is_descendant(environment_id const & id) const {
     while (!is_nil(*it)) {
         if (is_eqp(*it, id.m_trail))
             return true;
-        if (car(*it) >= car(id.m_trail))
+        if (car(*it) < car(id.m_trail))
             return false;
         it = &cdr(*it);
     }

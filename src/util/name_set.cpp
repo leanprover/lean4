@@ -19,7 +19,13 @@ name mk_unique(name_set const & s, name const & suggestion) {
 }
 
 DECL_UDATA(name_set)
-static int mk_name_set(lua_State * L) { return push_name_set(L, name_set()); }
+static int mk_name_set(lua_State * L) {
+    name_set r;
+    int nargs = lua_gettop(L);
+    for (int i = 1; i <= nargs; i++)
+        r.insert(to_name_ext(L, i));
+    return push_name_set(L, r);
+}
 static int name_set_insert(lua_State * L) { return push_name_set(L, insert(to_name_set(L, 1), to_name_ext(L, 2))); }
 static int name_set_contains(lua_State * L) { return push_boolean(L, to_name_set(L, 1).contains(to_name_ext(L, 2))); }
 static int name_set_erase(lua_State * L) { return push_name_set(L, erase(to_name_set(L, 1), to_name_ext(L, 2))); }

@@ -1414,6 +1414,12 @@ static void open_constraint_handler(lua_State * L) {
 typedef std::shared_ptr<type_checker> type_checker_ref;
 DECL_UDATA(type_checker_ref)
 
+static void get_type_checker_args(lua_State * L, int idx, optional<module_idx> & mod_idx, bool & memoize, name_set & extra_opaque) {
+    mod_idx      = get_opt_uint_named_param(L, idx, "module_idx", optional<module_idx>());
+    memoize      = get_bool_named_param(L, idx, "memoize", true);
+    extra_opaque = get_name_set_named_param(L, idx, "extra_opaque", name_set());
+}
+
 int mk_type_checker(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs <= 2) {
@@ -1421,12 +1427,23 @@ int mk_type_checker(lua_State * L) {
     } else if (nargs == 3 && is_lua_constraint_handler(L, 3)) {
         return push_type_checker_ref(L, std::make_shared<type_checker>(to_environment(L, 1), to_name_generator(L, 2),
                                                                        to_lua_constraint_handler(L, 3)));
-    } else if (nargs == 3) {
-        // TODO(Leo)
     } else {
-        // TODO(Leo)
+        optional<module_idx> mod_idx; bool memoize; name_set extra_opaque;
+        if (nargs == 3) {
+            get_type_checker_args(L, 3, mod_idx, memoize, extra_opaque);
+            auto t = std::make_shared<type_checker>(to_environment(L, 1), to_name_generator(L, 2),
+                                                    mk_default_converter(to_environment(L, 1), mod_idx, memoize, extra_opaque),
+                                                    memoize);
+            return push_type_checker_ref(L, t);
+        } else {
+            get_type_checker_args(L, 4, mod_idx, memoize, extra_opaque);
+            auto t = std::make_shared<type_checker>(to_environment(L, 1), to_name_generator(L, 2),
+                                                    to_lua_constraint_handler(L, 3),
+                                                    mk_default_converter(to_environment(L, 1), mod_idx, memoize, extra_opaque),
+                                                    memoize);
+            return push_type_checker_ref(L, t);
+        }
     }
-    return 0;
 }
 int type_checker_whnf(lua_State * L) { return push_expr(L, to_type_checker_ref(L, 1)->whnf(to_expr(L, 2))); }
 int type_checker_ensure_pi(lua_State * L) { return push_expr(L, to_type_checker_ref(L, 1)->ensure_pi(to_expr(L, 2))); }

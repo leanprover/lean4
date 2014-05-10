@@ -621,7 +621,6 @@ DEFINITION_PRED(is_opaque)
 DEFINITION_PRED(use_conv_opt)
 static int definition_get_name(lua_State * L) { return push_name(L, to_definition(L, 1).get_name()); }
 static int definition_get_params(lua_State * L) { return push_list_name(L, to_definition(L, 1).get_params()); }
-static int definition_get_level_cnstrs(lua_State * L) { return push_list_pair_level(L, to_definition(L, 1).get_level_cnstrs()); }
 static int definition_get_type(lua_State * L) { return push_expr(L, to_definition(L, 1).get_type()); }
 static int definition_get_value(lua_State * L) {
     if (to_definition(L, 1).is_definition())
@@ -633,23 +632,23 @@ static int definition_get_module_idx(lua_State * L) { return push_integer(L, to_
 static int mk_var_decl(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 2)
-        return push_definition(L, mk_var_decl(to_name_ext(L, 1), param_names(), level_cnstrs(), to_expr(L, 2)));
+        return push_definition(L, mk_var_decl(to_name_ext(L, 1), param_names(), to_expr(L, 2)));
     else
-        return push_definition(L, mk_var_decl(to_name_ext(L, 1), to_list_name_ext(L, 2), to_list_pair_level_ext(L, 3), to_expr(L, 4)));
+        return push_definition(L, mk_var_decl(to_name_ext(L, 1), to_list_name_ext(L, 2), to_expr(L, 3)));
 }
 static int mk_axiom(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 2)
-        return push_definition(L, mk_axiom(to_name_ext(L, 1), param_names(), level_cnstrs(), to_expr(L, 2)));
+        return push_definition(L, mk_axiom(to_name_ext(L, 1), param_names(), to_expr(L, 2)));
     else
-        return push_definition(L, mk_axiom(to_name_ext(L, 1), to_list_name_ext(L, 2), to_list_pair_level_ext(L, 3), to_expr(L, 4)));
+        return push_definition(L, mk_axiom(to_name_ext(L, 1), to_list_name_ext(L, 2), to_expr(L, 3)));
 }
 static int mk_theorem(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 3)
-        return push_definition(L, mk_theorem(to_name_ext(L, 1), param_names(), level_cnstrs(), to_expr(L, 2), to_expr(L, 3)));
+        return push_definition(L, mk_theorem(to_name_ext(L, 1), param_names(), to_expr(L, 2), to_expr(L, 3)));
     else
-        return push_definition(L, mk_theorem(to_name_ext(L, 1), to_list_name_ext(L, 2), to_list_pair_level_ext(L, 3), to_expr(L, 4), to_expr(L, 5)));
+        return push_definition(L, mk_theorem(to_name_ext(L, 1), to_list_name_ext(L, 2), to_expr(L, 3), to_expr(L, 4)));
 }
 static void get_definition_args(lua_State * L, int idx, bool & opaque, unsigned & weight, module_idx & mod_idx, bool & use_conv_opt) {
     opaque       = get_bool_named_param(L, idx, "opaque", opaque);
@@ -663,23 +662,22 @@ static int mk_definition(lua_State * L) {
     if (is_environment(L, 1)) {
         if (nargs <= 5) {
             get_definition_args(L, 5, opaque, weight, mod_idx, use_conv_opt);
-            return push_definition(L, mk_definition(to_environment(L, 1), to_name_ext(L, 2), param_names(), level_cnstrs(),
+            return push_definition(L, mk_definition(to_environment(L, 1), to_name_ext(L, 2), param_names(),
                                                     to_expr(L, 3), to_expr(L, 4), opaque, mod_idx, use_conv_opt));
         } else {
-            get_definition_args(L, 7, opaque, weight, mod_idx, use_conv_opt);
+            get_definition_args(L, 6, opaque, weight, mod_idx, use_conv_opt);
             return push_definition(L, mk_definition(to_environment(L, 1), to_name_ext(L, 2), to_list_name_ext(L, 3),
-                                                    to_list_pair_level_ext(L, 4), to_expr(L, 5), to_expr(L, 6),
-                                                    opaque, mod_idx, use_conv_opt));
+                                                    to_expr(L, 4), to_expr(L, 5), opaque, mod_idx, use_conv_opt));
         }
     } else {
         if (nargs <= 4) {
             get_definition_args(L, 4, opaque, weight, mod_idx, use_conv_opt);
-            return push_definition(L, mk_definition(to_name_ext(L, 1), param_names(), level_cnstrs(), to_expr(L, 2),
+            return push_definition(L, mk_definition(to_name_ext(L, 1), param_names(), to_expr(L, 2),
                                                     to_expr(L, 3), opaque, weight, mod_idx, use_conv_opt));
         } else {
-            get_definition_args(L, 6, opaque, weight, mod_idx, use_conv_opt);
-            return push_definition(L, mk_definition(to_name_ext(L, 1), to_list_name_ext(L, 2), to_list_pair_level_ext(L, 3),
-                                                    to_expr(L, 4), to_expr(L, 5), opaque, weight, mod_idx, use_conv_opt));
+            get_definition_args(L, 5, opaque, weight, mod_idx, use_conv_opt);
+            return push_definition(L, mk_definition(to_name_ext(L, 1), to_list_name_ext(L, 2),
+                                                    to_expr(L, 3), to_expr(L, 4), opaque, weight, mod_idx, use_conv_opt));
         }
     }
 }
@@ -694,7 +692,6 @@ static const struct luaL_Reg definition_m[] = {
     {"use_conv_opt",     safe_function<definition_use_conv_opt>},
     {"name",             safe_function<definition_get_name>},
     {"univ_params",      safe_function<definition_get_params>},
-    {"univ_cnstrs",      safe_function<definition_get_level_cnstrs>},
     {"type",             safe_function<definition_get_type>},
     {"value",            safe_function<definition_get_value>},
     {"weight",           safe_function<definition_get_weight>},

@@ -341,16 +341,6 @@ struct type_checker::imp {
             definition d    = m_env.get(const_name(e));
             auto const & ps = d.get_params();
             auto const & ls = const_level_params(e);
-            auto const & cs = d.get_level_cnstrs();
-            if (!infer_only && !is_nil(cs)) {
-                // add level constraints associated with the definition
-                for (auto const & c : cs) {
-                    level lhs = lean::instantiate(c.first,  ps, ls);
-                    level rhs = lean::instantiate(c.second, ps, ls);
-                    if (!is_trivial(lhs, rhs))
-                        add_cnstr(mk_level_cnstr(lhs, rhs, mk_lvl_cnstr_jst(e, lhs, rhs)));
-                }
-            }
             r = instantiate_params(d.get_type(), ps, ls);
             break;
         }

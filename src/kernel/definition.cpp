@@ -16,7 +16,6 @@ struct definition::cell {
     MK_LEAN_RC();
     name           m_name;
     param_names    m_params;
-    level_cnstrs   m_cnstrs;
     expr           m_type;
     bool           m_theorem;
     optional<expr> m_value;        // if none, then definition is actually a postulate
@@ -33,12 +32,12 @@ struct definition::cell {
     bool           m_use_conv_opt;
     void dealloc() { delete this; }
 
-    cell(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t, bool is_axiom):
-        m_rc(1), m_name(n), m_params(params), m_cnstrs(cs), m_type(t), m_theorem(is_axiom),
+    cell(name const & n, param_names const & params, expr const & t, bool is_axiom):
+        m_rc(1), m_name(n), m_params(params), m_type(t), m_theorem(is_axiom),
         m_weight(0), m_module_idx(0), m_opaque(true), m_use_conv_opt(false) {}
-    cell(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t, bool is_thm, expr const & v,
+    cell(name const & n, param_names const & params, expr const & t, bool is_thm, expr const & v,
          bool opaque, unsigned w, module_idx mod_idx, bool use_conv_opt):
-        m_rc(1), m_name(n), m_params(params), m_cnstrs(cs), m_type(t), m_theorem(is_thm),
+        m_rc(1), m_name(n), m_params(params), m_type(t), m_theorem(is_thm),
         m_value(v), m_weight(w), m_module_idx(mod_idx), m_opaque(opaque), m_use_conv_opt(use_conv_opt) {}
 
     void write(serializer & s) const {
@@ -52,7 +51,7 @@ struct definition::cell {
         }
         if (m_theorem)
             k |= 8;
-        s << k << m_name << m_params << m_cnstrs << m_type;
+        s << k << m_name << m_params << m_type;
         if (m_value) {
             s << *m_value;
             if (!m_theorem)
@@ -61,7 +60,7 @@ struct definition::cell {
     }
 };
 
-definition g_dummy = mk_axiom(name(), param_names(), level_cnstrs(), expr());
+definition g_dummy = mk_axiom(name(), param_names(), expr());
 
 definition::definition():definition(g_dummy) {}
 definition::definition(cell * ptr):m_ptr(ptr) {}
@@ -79,7 +78,6 @@ bool definition::is_theorem() const    { return is_definition() && m_ptr->m_theo
 
 name definition::get_name() const { return m_ptr->m_name; }
 param_names const & definition::get_params() const { return m_ptr->m_params; }
-level_cnstrs const & definition::get_level_cnstrs() const { return m_ptr->m_cnstrs; }
 expr definition::get_type() const { return m_ptr->m_type; }
 
 bool definition::is_opaque() const { return m_ptr->m_opaque; }
@@ -90,10 +88,12 @@ bool definition::use_conv_opt() const { return m_ptr->m_use_conv_opt; }
 
 void definition::write(serializer & s) const { m_ptr->write(s); }
 
-definition mk_definition(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t, expr const & v, bool opaque, unsigned weight, module_idx mod_idx, bool use_conv_opt) {
-    return definition(new definition::cell(n, params, cs, t, false, v, opaque, weight, mod_idx, use_conv_opt));
+definition mk_definition(name const & n, param_names const & params, expr const & t, expr const & v,
+                         bool opaque, unsigned weight, module_idx mod_idx, bool use_conv_opt) {
+    return definition(new definition::cell(n, params, t, false, v, opaque, weight, mod_idx, use_conv_opt));
 }
-definition mk_definition(environment const & env, name const & n, param_names const & params, level_cnstrs const & cs, expr const & t, expr const & v, bool opaque, module_idx mod_idx, bool use_conv_opt) {
+definition mk_definition(environment const & env, name const & n, param_names const & params, expr const & t, expr const & v,
+                         bool opaque, module_idx mod_idx, bool use_conv_opt) {
     unsigned w = 0;
     for_each(v, [&](expr const & e, unsigned) {
             if (is_constant(e)) {
@@ -103,16 +103,16 @@ definition mk_definition(environment const & env, name const & n, param_names co
             }
             return true;
         });
-    return mk_definition(n, params, cs, t, v, opaque, w+1, mod_idx, use_conv_opt);
+    return mk_definition(n, params, t, v, opaque, w+1, mod_idx, use_conv_opt);
 }
-definition mk_theorem(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t, expr const & v) {
-    return definition(new definition::cell(n, params, cs, t, true, v, true, 0, 0, false));
+definition mk_theorem(name const & n, param_names const & params, expr const & t, expr const & v) {
+    return definition(new definition::cell(n, params, t, true, v, true, 0, 0, false));
 }
-definition mk_axiom(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t) {
-    return definition(new definition::cell(n, params, cs, t, true));
+definition mk_axiom(name const & n, param_names const & params, expr const & t) {
+    return definition(new definition::cell(n, params, t, true));
 }
-definition mk_var_decl(name const & n, param_names const & params, level_cnstrs const & cs, expr const & t) {
-    return definition(new definition::cell(n, params, cs, t, false));
+definition mk_var_decl(name const & n, param_names const & params, expr const & t) {
+    return definition(new definition::cell(n, params, t, false));
 }
 
 definition read_definition(deserializer & d, unsigned module_idx) {
@@ -121,23 +121,22 @@ definition read_definition(deserializer & d, unsigned module_idx) {
     bool is_theorem = (k & 8) != 0;
     name n          = read_name(d);
     param_names ps  = read_params(d);
-    level_cnstrs cs = read_level_cnstrs(d);
     expr t          = read_expr(d);
     if (has_value) {
         expr v      = read_expr(d);
         if (is_theorem) {
-            return mk_theorem(n, ps, cs, t, v);
+            return mk_theorem(n, ps, t, v);
         } else {
             unsigned w        = d.read_unsigned();
             bool is_opaque    = (k & 2) != 0;
             bool use_conv_opt = (k & 4) != 0;
-            return mk_definition(n, ps, cs, t, v, is_opaque, w, module_idx, use_conv_opt);
+            return mk_definition(n, ps, t, v, is_opaque, w, module_idx, use_conv_opt);
         }
     } else {
         if (is_theorem)
-            return mk_axiom(n, ps, cs, t);
+            return mk_axiom(n, ps, t);
         else
-            return mk_var_decl(n, ps, cs, t);
+            return mk_var_decl(n, ps, t);
     }
 }
 }

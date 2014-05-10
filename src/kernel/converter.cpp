@@ -12,11 +12,6 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 
 namespace lean {
-bool converter::is_conv(expr const & t, expr const & s, context & c) {
-    delayed_justification j([]() { return justification(); });
-    return is_conv(t, s, c, j);
-}
-
 bool converter::is_def_eq(expr const & t, expr const & s, context & c) {
     delayed_justification j([]() { return justification(); });
     return is_def_eq(t, s, c, j);
@@ -25,7 +20,6 @@ bool converter::is_def_eq(expr const & t, expr const & s, context & c) {
 /** \brief Do nothing converter */
 struct dummy_converter : public converter {
     virtual expr whnf(expr const & e, context &) { return e; }
-    virtual bool is_conv(expr const &, expr const &, context &, delayed_justification &) { return true; }
     virtual bool is_def_eq(expr const &, expr const &, context &, delayed_justification &) { return true; }
 };
 
@@ -282,25 +276,15 @@ struct default_converter : public converter {
     }
 
     /**
-        \brief Given lambda/Pi expressions \c t and \c s, return true iff \c t is convertible to \c s.
+        \brief Given lambda/Pi expressions \c t and \c s, return true iff \c t is def eq to \c s.
 
-        The argument \c def_eq is used to decide whether the body of the binder is checked for
-        definitional equality or convertability.
-
-        If t and s are lambda expressions, then then t is convertible to s
+        t and s are definitionally equal
            iff
         domain(t) is definitionally equal to domain(s)
         and
         body(t) is definitionally equal to body(s)
-
-        For Pi expressions, it is slighly different.
-        If t and s are Pi expressions, then then t is convertible to s
-           iff
-        domain(t) is definitionally equal to domain(s)
-        and
-        body(t) is convertible to body(s)
     */
-    bool is_conv_binder(expr t, expr s, bool def_eq, context & c, delayed_justification & jst) {
+    bool is_def_eq_binder(expr t, expr s, context & c, delayed_justification & jst) {
         lean_assert(t.kind() == s.kind());
         lean_assert(is_binder(t));
         expr_kind k = t.kind();
@@ -314,15 +298,11 @@ struct default_converter : public converter {
             t = binder_body(t);
             s = binder_body(s);
         } while (t.kind() == k && s.kind() == k);
-        return is_conv(instantiate(t, subst.size(), subst.data()), instantiate(s, subst.size(), subst.data()), def_eq, c, jst);
+        return is_def_eq(instantiate(t, subst.size(), subst.data()), instantiate(s, subst.size(), subst.data()), c, jst);
     }
 
-    /**
-       \brief This is an auxiliary method for is_conv. It handles the "easy cases".
-
-       If \c def_eq is true, then it checks for definitional equality.
-    */
-    lbool quick_is_conv(expr const & t, expr const & s, bool def_eq, context & c, delayed_justification & jst) {
+    /** \brief This is an auxiliary method for is_def_eq. It handles the "easy cases". */
+    lbool quick_is_def_eq(expr const & t, expr const & s, context & c, delayed_justification & jst) {
         if (t == s)
             return l_true; // t and s are structurally equal
         if (is_meta(t) || is_meta(s)) {
@@ -332,17 +312,13 @@ struct default_converter : public converter {
         }
         if (t.kind() == s.kind()) {
             switch (t.kind()) {
-            case expr_kind::Lambda:
-                return to_lbool(is_conv_binder(t, s, true, c, jst));
-            case expr_kind::Pi:
-                return to_lbool(is_conv_binder(t, s, def_eq, c, jst));
+            case expr_kind::Lambda: case expr_kind::Pi:
+                return to_lbool(is_def_eq_binder(t, s, c, jst));
             case expr_kind::Sort:
                 // t and s are Sorts
-                if (is_trivial(sort_level(t), sort_level(s)) && (!def_eq || is_trivial(sort_level(s), sort_level(t))))
+                if (is_trivial(sort_level(t), sort_level(s)))
                     return l_true;
                 c.add_cnstr(mk_level_cnstr(sort_level(t), sort_level(s), jst.get()));
-                if (def_eq)
-                    c.add_cnstr(mk_level_cnstr(sort_level(s), sort_level(t), jst.get()));
                 return l_true;
             case expr_kind::Meta:
                 lean_unreachable(); // LCOV_EXCL_LINE
@@ -357,11 +333,9 @@ struct default_converter : public converter {
 
     /**
        \brief Return true if arguments of \c t are definitionally equal to arguments of \c s.
-       Constraint generation is disabled when performing this test.
-       This method is used to implement an optimization in the method \c is_conv.
+       This method is used to implement an optimization in the method \c is_def_eq.
     */
     bool is_def_eq_args(expr t, expr s, context & c, delayed_justification & jst) {
-        context::disable_cnstrs_scope scope(c);
         try {
             while (is_app(t) && is_app(s)) {
                 if (!is_def_eq(app_arg(t), app_arg(s), c, jst))
@@ -375,20 +349,17 @@ struct default_converter : public converter {
         }
     }
 
-    /**
-        \brief If def_eq is false, then return true iff t is convertible to s.
-               If def_eq is true,  then return true iff t is definitionally equal to s.
-    */
-    bool is_conv(expr const & t, expr const & s, bool def_eq, context & c, delayed_justification & jst) {
-        check_system("is_convertible");
-        lbool r = quick_is_conv(t, s, def_eq, c, jst);
+    /** Return true iff t is definitionally equal to s. */
+    virtual bool is_def_eq(expr const & t, expr const & s, context & c, delayed_justification & jst) {
+        check_system("is_definitionally_equal");
+        lbool r = quick_is_def_eq(t, s, c, jst);
         if (r != l_undef) return r == l_true;
 
         // apply whnf (without using delta-reduction or normalizer extensions)
         expr t_n = whnf_core(t, c);
         expr s_n = whnf_core(s, c);
         if (!is_eqp(t_n, t) || !is_eqp(s_n, s)) {
-            r = quick_is_conv(t_n, s_n, def_eq, c, jst);
+            r = quick_is_def_eq(t_n, s_n, c, jst);
             if (r != l_undef) return r == l_true;
         }
 
@@ -414,8 +385,12 @@ struct default_converter : public converter {
                     // then we try to check if their arguments are definitionally equal.
                     // If they are, then t_n and s_n must be definitionally equal, and we can
                     // skip the delta-reduction step.
+                    // We only apply the optimization if t_n and s_n do not contain metavariables.
+                    // In this way we don't have to backtrack constraints if the optimization fail.
                     if (is_app(t_n) && is_app(s_n) &&
                         is_eqp(*d_t, *d_s) &&          // same definition
+                        !has_metavar(t_n) &&
+                        !has_metavar(s_n) &&
                         !is_opaque(*d_t) &&            // if d_t is opaque, we don't need to try this optimization
                         d_t->use_conv_opt() &&         // the flag use_conv_opt() can be used to disable this optimization
                         is_def_eq_args(t_n, s_n, c, jst)) {
@@ -424,7 +399,7 @@ struct default_converter : public converter {
                     t_n = whnf_core(unfold_names(t_n, d_t->get_weight() - 1), c);
                     s_n = whnf_core(unfold_names(s_n, d_s->get_weight() - 1), c);
                 }
-                r = quick_is_conv(t_n, s_n, def_eq, c, jst);
+                r = quick_is_def_eq(t_n, s_n, c, jst);
                 if (r != l_undef) return r == l_true;
             }
             // try normalizer extensions
@@ -436,7 +411,7 @@ struct default_converter : public converter {
                 t_n = whnf_core(*new_t_n, c);
             if (new_s_n)
                 s_n = whnf_core(*new_s_n, c);
-            r = quick_is_conv(t_n, s_n, def_eq, c, jst);
+            r = quick_is_def_eq(t_n, s_n, c, jst);
             if (r != l_undef) return r == l_true;
         }
 
@@ -477,14 +452,6 @@ struct default_converter : public converter {
 
     bool is_prop(expr const & e, context & c) {
         return whnf(c.infer_type(e), c) == Bool;
-    }
-
-    virtual bool is_def_eq(expr const & t, expr const & s, context & c, delayed_justification & j) {
-        return is_conv(t, s, true, c, j);
-    }
-
-    virtual bool is_conv(expr const & t, expr const & s, context & c, delayed_justification & j) {
-        return is_conv(t, s, false, c, j);
     }
 };
 

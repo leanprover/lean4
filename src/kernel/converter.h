@@ -24,26 +24,16 @@ class converter {
 public:
     /** \brief Abstract context that must be provided to a converter object. */
     class context {
-        virtual bool enable_cnstrs(bool flag) = 0;
     public:
         virtual name mk_fresh_name() = 0;
         virtual expr infer_type(expr const & e) = 0;
         virtual void add_cnstr(constraint const & c) = 0;
-        class disable_cnstrs_scope {
-            context & m_ctx;
-            bool      m_old;
-        public:
-            disable_cnstrs_scope(context & ctx):m_ctx(ctx), m_old(m_ctx.enable_cnstrs(false)) {}
-            ~disable_cnstrs_scope() { m_ctx.enable_cnstrs(m_old); }
-        };
     };
 
     virtual ~converter() {}
 
     virtual expr whnf(expr const & e, context & c) = 0;
-    virtual bool is_conv(expr const & t, expr const & s, context & c, delayed_justification & j) = 0;
     virtual bool is_def_eq(expr const & t, expr const & s, context & c, delayed_justification & j) = 0;
-    bool is_conv(expr const & t, expr const & s, context & c);
     bool is_def_eq(expr const & t, expr const & s, context & c);
 };
 

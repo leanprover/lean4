@@ -36,12 +36,6 @@ struct type_checker::imp {
     /** \brief Interface type_checker <-> converter */
     class converter_context : public converter::context {
         imp & m_imp;
-        virtual bool enable_cnstrs(bool flag) {
-            bool r = m_imp.m_cnstrs_enabled;
-            m_imp.m_cnstrs_enabled = flag;
-            return r;
-        }
-
     public:
         converter_context(imp & i):m_imp(i) {}
         virtual name mk_fresh_name() { return m_imp.m_gen.next(); }
@@ -74,12 +68,11 @@ struct type_checker::imp {
     expr_map<expr>             m_trace;
     bool                       m_memoize;
     // temp flag
-    bool                       m_cnstrs_enabled;
     param_names                m_params;
 
     imp(environment const & env, name_generator const & g, constraint_handler & h, std::unique_ptr<converter> && conv, bool memoize):
         m_env(env), m_gen(g), m_chandler(h), m_conv(std::move(conv)), m_conv_ctx(*this), m_tc_ctx(*this),
-        m_memoize(memoize), m_cnstrs_enabled(true) {}
+        m_memoize(memoize) {}
 
     optional<expr> expand_macro(expr const & m) {
         lean_assert(is_macro(m));
@@ -122,10 +115,7 @@ struct type_checker::imp {
 
     /** \brief Add given constraint to the constraint handler m_chandler. */
     void add_cnstr(constraint const & c) {
-        if (m_cnstrs_enabled)
-            m_chandler.add_cnstr(c);
-        else
-            throw add_cnstr_exception();
+        m_chandler.add_cnstr(c);
     }
 
     /** \brief Return true iff \c t and \c s are definitionally equal */

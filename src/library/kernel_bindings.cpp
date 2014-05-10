@@ -234,13 +234,19 @@ static int expr_tostring(lua_State * L) {
 
 static int expr_eq(lua_State * L) { return push_boolean(L, to_expr(L, 1) == to_expr(L, 2)); }
 static int expr_lt(lua_State * L) { return push_boolean(L, to_expr(L, 1) < to_expr(L, 2)); }
-static int expr_mk_constant(lua_State * L) { return push_expr(L, mk_constant(to_name_ext(L, 1))); }
+static int expr_mk_constant(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs == 1)
+        return push_expr(L, mk_constant(to_name_ext(L, 1)));
+    else
+        return push_expr(L, mk_constant(to_name_ext(L, 1), to_list_level_ext(L, 2)));
+}
 static int expr_mk_var(lua_State * L) { return push_expr(L, mk_var(luaL_checkinteger(L, 1))); }
 static int expr_mk_app(lua_State * L) {
     int nargs = lua_gettop(L);
     expr r;
     r = mk_app(to_expr(L, 1), to_expr(L, 2));
-    for (int i = 3; i < nargs; i++)
+    for (int i = 3; i <= nargs; i++)
         r = mk_app(r, to_expr(L, i));
     return push_expr(L, r);
 }
@@ -458,8 +464,10 @@ static int expr_occurs(lua_State * L) { return push_boolean(L, occurs(to_expr(L,
 static int expr_is_eqp(lua_State * L) { return push_boolean(L, is_eqp(to_expr(L, 1), to_expr(L, 2))); }
 static int expr_hash(lua_State * L) { return push_integer(L, to_expr(L, 1).hash()); }
 static int expr_depth(lua_State * L) { return push_integer(L, get_depth(to_expr(L, 1))); }
-static int expr_is_lt(lua_State * L) { return push_boolean(L, is_lt(to_expr(L, 1), to_expr(L, 2), false)); }
-
+static int expr_is_lt(lua_State * L) {
+    int nargs = lua_gettop(L);
+    return push_boolean(L, is_lt(to_expr(L, 1), to_expr(L, 2), nargs == 3 && lua_toboolean(L, 3)));
+}
 static int expr_mk_macro(lua_State * L) {
     buffer<expr> args;
     copy_lua_array(L, 2, args);
@@ -655,18 +663,23 @@ static int mk_definition(lua_State * L) {
     if (is_environment(L, 1)) {
         if (nargs <= 5) {
             get_definition_args(L, 5, opaque, weight, mod_idx, use_conv_opt);
-            return push_definition(L, mk_definition(to_environment(L, 1), to_name_ext(L, 2), param_names(), level_cnstrs(), to_expr(L, 3), to_expr(L, 4), opaque, mod_idx, use_conv_opt));
+            return push_definition(L, mk_definition(to_environment(L, 1), to_name_ext(L, 2), param_names(), level_cnstrs(),
+                                                    to_expr(L, 3), to_expr(L, 4), opaque, mod_idx, use_conv_opt));
         } else {
             get_definition_args(L, 7, opaque, weight, mod_idx, use_conv_opt);
-            return push_definition(L, mk_definition(to_environment(L, 1), to_name_ext(L, 2), to_list_name_ext(L, 3), to_list_pair_level_ext(L, 4), to_expr(L, 5), to_expr(L, 6), opaque, mod_idx, use_conv_opt));
+            return push_definition(L, mk_definition(to_environment(L, 1), to_name_ext(L, 2), to_list_name_ext(L, 3),
+                                                    to_list_pair_level_ext(L, 4), to_expr(L, 5), to_expr(L, 6),
+                                                    opaque, mod_idx, use_conv_opt));
         }
     } else {
         if (nargs <= 4) {
             get_definition_args(L, 4, opaque, weight, mod_idx, use_conv_opt);
-            return push_definition(L, mk_definition(to_name_ext(L, 1), param_names(), level_cnstrs(), to_expr(L, 2), to_expr(L, 3), opaque, weight, mod_idx, use_conv_opt));
+            return push_definition(L, mk_definition(to_name_ext(L, 1), param_names(), level_cnstrs(), to_expr(L, 2),
+                                                    to_expr(L, 3), opaque, weight, mod_idx, use_conv_opt));
         } else {
             get_definition_args(L, 6, opaque, weight, mod_idx, use_conv_opt);
-            return push_definition(L, mk_definition(to_name_ext(L, 1), to_list_name_ext(L, 2), to_list_pair_level_ext(L, 3), to_expr(L, 4), to_expr(L, 5), opaque, weight, mod_idx, use_conv_opt));
+            return push_definition(L, mk_definition(to_name_ext(L, 1), to_list_name_ext(L, 2), to_list_pair_level_ext(L, 3),
+                                                    to_expr(L, 4), to_expr(L, 5), opaque, weight, mod_idx, use_conv_opt));
         }
     }
 }

@@ -154,20 +154,6 @@ bool has_meta(levels const & ls);
 bool has_global(levels const & ls);
 bool has_param(levels const & ls);
 
-/**
-   \brief Simpler version of the constraint class.
-   We use in the definition of objects.
-*/
-typedef std::pair<level, level> level_cnstr;
-typedef list<level_cnstr> level_cnstrs;
-
-bool has_param(level_cnstr const & c);
-bool has_param(level_cnstrs const & cs);
-bool has_global(level_cnstr const & c);
-bool has_global(level_cnstrs const & cs);
-bool has_meta(level_cnstr const & c);
-bool has_meta(level_cnstrs const & cs);
-
 /** \brief Functional for applying <tt>F</tt> to each level expressions. */
 class for_each_level_fn {
     std::function<bool(level const &)>  m_f; // NOLINT
@@ -196,12 +182,6 @@ optional<name> get_undef_global(level const & l, environment const & env);
 /** \brief If \c l contains a parameter that is not in \c ps, then return it. Otherwise, return none. */
 optional<name> get_undef_param(level const & l, param_names const & ps);
 
-/** \brief If \c cs contains a global that is not in \c env, then return it. Otherwise, return none. */
-optional<name> get_undef_global(level_cnstrs const & cs, environment const & env);
-
-/** \brief If \c cs contains a parameter that is not in \c ps, then return it. Otherwise, return none. */
-optional<name> get_undef_param(level_cnstrs const & cs, param_names const & ps);
-
 /**
     \brief Instantiate the universe level parameters \c ps occurring in \c l with the levels \c ls.
     \pre length(ps) == length(ls)
@@ -223,9 +203,6 @@ inline deserializer & operator>>(deserializer & d, level & l) { l = read_level(d
 
 serializer & operator<<(serializer & s, levels const & ls);
 levels read_levels(deserializer & d);
-
-serializer & operator<<(serializer & s, level_cnstrs const & cs);
-level_cnstrs read_level_cnstrs(deserializer & d);
 
 /** \brief Pretty print the given level expression, unicode characters are used if \c unicode is \c true. */
 format pp(level l, bool unicode, unsigned indent);

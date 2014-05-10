@@ -399,34 +399,9 @@ serializer & operator<<(serializer & s, levels const & ls) { return write_list<l
 
 levels read_levels(deserializer & d) { return read_list<level>(d, read_level); }
 
-serializer & operator<<(serializer & s, level_cnstr const & c) {
-    s << c.first << c.second;
-    return s;
-}
-
-level_cnstr read_level_cnstr(deserializer & d) {
-    level lhs = read_level(d);
-    level rhs = read_level(d);
-    return level_cnstr(lhs, rhs);
-}
-
-serializer & operator<<(serializer & s, level_cnstrs const & cs) {
-    return write_list<level_cnstr>(s, cs);
-}
-
-level_cnstrs read_level_cnstrs(deserializer & d) { return read_list<level_cnstr>(d, read_level_cnstr); }
-
 bool has_param(levels const & ls) { return std::any_of(ls.begin(), ls.end(), [](level const & l) { return has_param(l); }); }
-bool has_param(level_cnstr const & c) { return has_param(c.first) || has_param(c.second); }
-bool has_param(level_cnstrs const & cs) { return std::any_of(cs.begin(), cs.end(), [](level_cnstr const & c) { return has_param(c); }); }
-
 bool has_global(levels const & ls) { return std::any_of(ls.begin(), ls.end(), [](level const & l) { return has_global(l); }); }
-bool has_global(level_cnstr const & c) { return has_global(c.first) || has_global(c.second); }
-bool has_global(level_cnstrs const & cs) { return std::any_of(cs.begin(), cs.end(), [](level_cnstr const & c) { return has_global(c); }); }
-
 bool has_meta(levels const & ls) { return std::any_of(ls.begin(), ls.end(), [](level const & l) { return has_meta(l); }); }
-bool has_meta(level_cnstr const & c) { return has_meta(c.first) || has_meta(c.second); }
-bool has_meta(level_cnstrs const & cs) { return std::any_of(cs.begin(), cs.end(), [](level_cnstr const & c) { return has_meta(c); }); }
 
 void for_each_level_fn::apply(level const & l) {
     if (!m_f(l))
@@ -476,26 +451,6 @@ optional<name> get_undef_global(level const & l, environment const & env) {
             return true;
         });
     return r;
-}
-
-optional<name> get_undef_param(level_cnstrs const & cs, param_names const & ps) {
-    for (auto const & c : cs) {
-        if (auto it = get_undef_param(c.first, ps))
-            return it;
-        if (auto it = get_undef_param(c.second, ps))
-            return it;
-    }
-    return optional<name>();
-}
-
-optional<name> get_undef_global(level_cnstrs const & cs, environment const & env) {
-    for (auto const & c : cs) {
-        if (auto it = get_undef_global(c.first, env))
-            return it;
-        if (auto it = get_undef_global(c.second, env))
-            return it;
-    }
-    return optional<name>();
 }
 
 level update_succ(level const & l, level const & new_arg) {

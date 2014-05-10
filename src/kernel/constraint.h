@@ -10,17 +10,15 @@ Author: Leonardo de Moura
 #include "kernel/justification.h"
 namespace lean {
 /**
-   \brief The lean kernel type checker produces three kinds of constraints:
+   \brief The lean kernel type checker produces two kinds of constraints:
 
    - Equality constraint:          t ≈ s
         The terms t and s must be definitionally equal.
-   - Convertability constraint:    t ↠ s
-        The term t must be convertible to s
-   - Universe level constaint:     l ≤ m
+   - Universe level constaint:     l = m
         The universe level l must be less than or equal to m.
 
-   \remark The first two kinds are only generated if the input term
-   contains metavariables.
+   \remark The constraints are only generated if the input term contains
+   metavariables or level metavariables.
 
    Each constraint is associated with a justification object.
 
@@ -32,7 +30,7 @@ namespace lean {
    It means, t must be definitionally equal to one of the terms in the (finite)
    set {s_1, ..., s_k}.
 */
-enum class constraint_kind { Eq, Convertible, Level, Choice };
+enum class constraint_kind { Eq, Level, Choice };
 struct constraint_cell;
 class constraint {
     constraint_cell * m_ptr;
@@ -53,7 +51,6 @@ public:
     friend void swap(constraint & l1, constraint & l2) { std::swap(l1, l2); }
 
     friend constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j);
-    friend constraint mk_conv_cnstr(expr const & lhs, expr const & rhs, justification const & j);
     friend constraint mk_level_cnstr(level const & lhs, level const & rhs, justification const & j);
     friend constraint mk_choice_cnstr(expr const & t, list<expr> const & s, justification const & j);
 
@@ -64,19 +61,16 @@ bool operator==(constraint const & c1, constraint const & c2);
 inline bool operator!=(constraint const & c1, constraint const & c2) { return !(c1 == c2); }
 
 constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j);
-constraint mk_conv_cnstr(expr const & lhs, expr const & rhs, justification const & j);
 constraint mk_level_cnstr(level const & lhs, level const & rhs, justification const & j);
 constraint mk_choice_cnstr(expr const & t, list<expr> const & s, justification const & j);
 
 inline bool is_eq_cnstr(constraint const & c) { return c.kind() == constraint_kind::Eq; }
-inline bool is_conv_cnstr(constraint const & c) { return c.kind() == constraint_kind::Convertible; }
 inline bool is_level_cnstr(constraint const & c) { return c.kind() == constraint_kind::Level; }
 inline bool is_choice_cnstr(constraint const & c) { return c.kind() == constraint_kind::Choice; }
-inline bool is_eqc_cnstr(constraint const & c) { return is_eq_cnstr(c) || is_conv_cnstr(c); }
 
-/** \brief Return the lhs of an equality/convertability constraint. */
+/** \brief Return the lhs of an equality constraint. */
 expr const & cnstr_lhs_expr(constraint const & c);
-/** \brief Return the rhs of an equality/convertability constraint. */
+/** \brief Return the rhs of an equality constraint. */
 expr const & cnstr_rhs_expr(constraint const & c);
 /** \brief Return the lhs of an level constraint. */
 level const & cnstr_lhs_level(constraint const & c);
@@ -87,10 +81,10 @@ expr const & cnstr_choice_expr(constraint const & c);
 /** \brief Return the choice set of a choice constraint. */
 list<expr> const & cnstr_choice_set(constraint const & c);
 
-/** \brief Update equality/convertability constraint c with new_lhs, new_rhs and justification. */
-constraint updt_eqc_cnstr(constraint const & c, expr const & new_lhs, expr const & new_rhs, justification const & new_jst);
-/** \brief Update equality/convertability constraint c with new_lhs and new_rhs, but keeping the same justification. */
-constraint updt_eqc_cnstr(constraint const & c, expr const & new_lhs, expr const & new_rhs);
+/** \brief Update equality constraint c with new_lhs, new_rhs and justification. */
+constraint updt_eq_cnstr(constraint const & c, expr const & new_lhs, expr const & new_rhs, justification const & new_jst);
+/** \brief Update equality constraint c with new_lhs and new_rhs, but keeping the same justification. */
+constraint updt_eq_cnstr(constraint const & c, expr const & new_lhs, expr const & new_rhs);
 /** \brief Update level constraint c with new_lhs, new_rhs and justification. */
 constraint updt_level_cnstr(constraint const & c, level const & new_lhs, level const & new_rhs, justification const & new_jst);
 /** \brief Update level constraint c with new_lhs and new_rhs, but keeping the same justification. */

@@ -327,10 +327,7 @@ struct default_converter : public converter {
             return l_true; // t and s are structurally equal
         if (is_meta(t) || is_meta(s)) {
             // if t or s is a metavariable (or the application of a metavariable), then add constraint
-            if (def_eq)
-                c.add_cnstr(mk_eq_cnstr(t, s, jst.get()));
-            else
-                c.add_cnstr(mk_conv_cnstr(t, s, jst.get()));
+            c.add_cnstr(mk_eq_cnstr(t, s, jst.get()));
             return l_true;
         }
         if (t.kind() == s.kind()) {

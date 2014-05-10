@@ -163,10 +163,6 @@ static void open_level(lua_State * L) {
     lua_setglobal(L, "level_kind");
 }
 
-DEFINE_LUA_HOMO_PAIR(level, push_level, to_level)
-typedef std::pair<level, level> pair_level;
-DEFINE_LUA_LIST(pair_level, push_pair_level, to_pair_level_ext)
-
 // Expr_binder_info
 DECL_UDATA(expr_binder_info)
 static int mk_binder_info(lua_State * L) {
@@ -1536,8 +1532,6 @@ static void open_type_checker(lua_State * L) {
 void open_kernel_module(lua_State * L) {
     open_level(L);
     open_list_level(L);
-    open_pair_level(L);
-    open_list_pair_level(L);
     open_binder_info(L);
     open_expr(L);
     open_list_expr(L);

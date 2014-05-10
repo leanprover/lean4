@@ -70,6 +70,20 @@ struct print_expr_fn {
         print_child(binder_body(e), extend(c, binder_name(e), binder_domain(e)));
     }
 
+    void print_const(expr const & a) {
+        list<level> const & ls = const_level_params(a);
+        out() << const_name(a);
+        if (!is_nil(ls)) {
+            out() << ".{";
+            bool first = true;
+            for (auto l : ls) {
+                if (first) first = false; else out() << " ";
+                out() << l;
+            }
+            out() << "}";
+        }
+    }
+
     void print(expr const & a, context const & c) {
         switch (a.kind()) {
         case expr_kind::Meta: case expr_kind::Local:
@@ -84,7 +98,7 @@ struct print_expr_fn {
             break;
         }
         case expr_kind::Constant:
-            out() << const_name(a);
+            print_const(a);
             break;
         case expr_kind::App:
             print_app(a, c);

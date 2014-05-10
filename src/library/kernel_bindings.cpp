@@ -1464,7 +1464,6 @@ int type_checker_check(lua_State * L) {
         return push_expr(L, to_type_checker_ref(L, 1)->check(to_expr(L, 2), to_list_name(L, 3)));
 }
 int type_checker_infer(lua_State * L) { return push_expr(L, to_type_checker_ref(L, 1)->infer(to_expr(L, 2))); }
-int type_checker_is_conv(lua_State * L) { return push_boolean(L, to_type_checker_ref(L, 1)->is_conv(to_expr(L, 2), to_expr(L, 3))); }
 int type_checker_is_def_eq(lua_State * L) { return push_boolean(L, to_type_checker_ref(L, 1)->is_def_eq(to_expr(L, 2), to_expr(L, 3))); }
 int type_checker_is_prop(lua_State * L) { return push_boolean(L, to_type_checker_ref(L, 1)->is_prop(to_expr(L, 2))); }
 
@@ -1475,7 +1474,6 @@ static const struct luaL_Reg type_checker_ref_m[] = {
     {"ensure_sort", safe_function<type_checker_ensure_sort>},
     {"check",       safe_function<type_checker_check>},
     {"infer",       safe_function<type_checker_infer>},
-    {"is_conv",     safe_function<type_checker_is_conv>},
     {"is_def_eq",   safe_function<type_checker_is_def_eq>},
     {"is_prop",     safe_function<type_checker_is_prop>},
     {0, 0}

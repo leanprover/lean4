@@ -128,14 +128,9 @@ struct type_checker::imp {
             throw add_cnstr_exception();
     }
 
-    /** \brief Return true iff \c t is convertible to s */
-    bool is_conv(expr const & t, expr const & s, delayed_justification & jst) {
-        return m_conv->is_conv(t, s, m_conv_ctx, jst);
-    }
-
     /** \brief Return true iff \c t and \c s are definitionally equal */
     bool is_def_eq(expr const & t, expr const & s, delayed_justification & jst) {
-        return m_conv->is_conv(t, s, m_conv_ctx, jst);
+        return m_conv->is_def_eq(t, s, m_conv_ctx, jst);
     }
 
     /** \brief Return true iff \c e is a proposition */
@@ -384,7 +379,7 @@ struct type_checker::imp {
             if (!infer_only) {
                 expr a_type = infer_type_core(app_arg(e), infer_only);
                 delayed_justification jst([=]() { return mk_app_mismatch_jst(e, f_type, a_type); });
-                if (!is_conv(a_type, binder_domain(f_type), jst)) {
+                if (!is_def_eq(a_type, binder_domain(f_type), jst)) {
                     throw_kernel_exception(m_env, trace_back(e),
                                            [=](formatter const & fmt, options const & o) {
                                                return pp_app_type_mismatch(fmt, m_env, o, e, binder_domain(f_type), a_type);
@@ -399,7 +394,7 @@ struct type_checker::imp {
                 ensure_sort(infer_type_core(let_type(e), infer_only), let_type(e));
                 expr val_type  = infer_type_core(let_value(e), infer_only);
                 delayed_justification jst([=]() { return mk_let_mismatch_jst(e, val_type); });
-                if (!is_conv(val_type, let_type(e), jst)) {
+                if (!is_def_eq(val_type, let_type(e), jst)) {
                     throw_kernel_exception(m_env, trace_back(e),
                                            [=](formatter const & fmt, options const & o) {
                                                return pp_def_type_mismatch(fmt, m_env, o, let_name(e), let_type(e), val_type);
@@ -421,7 +416,6 @@ struct type_checker::imp {
         flet<param_names> updt(m_params, ps);
         return infer_type_core(e, false);
     }
-    bool is_conv(expr const & t, expr const & s) { return m_conv->is_conv(t, s, m_conv_ctx); }
     bool is_def_eq(expr const & t, expr const & s) { return m_conv->is_def_eq(t, s, m_conv_ctx); }
     expr whnf(expr const & t) { return m_conv->whnf(t, m_conv_ctx); }
 };
@@ -442,7 +436,6 @@ type_checker::type_checker(environment const & env):
 type_checker::~type_checker() {}
 expr type_checker::infer(expr const & t) { return m_ptr->infer_type(t); }
 expr type_checker::check(expr const & t, param_names const & ps) { return m_ptr->check(t, ps); }
-bool type_checker::is_conv(expr const & t, expr const & s) { return m_ptr->is_conv(t, s); }
 bool type_checker::is_def_eq(expr const & t, expr const & s) { return m_ptr->is_def_eq(t, s); }
 bool type_checker::is_prop(expr const & t) { return m_ptr->is_prop(t); }
 expr type_checker::whnf(expr const & t) { return m_ptr->whnf(t); }
@@ -489,7 +482,7 @@ certified_definition check(environment const & env, definition const & d, name_g
             midx = optional<module_idx>(d.get_module_idx());
         type_checker checker2(env, g, chandler, mk_default_converter(env, midx, memoize, extra_opaque));
         expr val_type = checker2.check(d.get_value());
-        if (!checker2.is_conv(val_type, d.get_type())) {
+        if (!checker2.is_def_eq(val_type, d.get_type())) {
             throw_kernel_exception(env, d.get_value(),
                                    [=](formatter const & fmt, options const & o) {
                                        return pp_def_type_mismatch(fmt, env, o, d.get_name(), d.get_type(), val_type);

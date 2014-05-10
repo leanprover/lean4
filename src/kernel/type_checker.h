@@ -85,8 +85,6 @@ public:
        constraint handler can be solved.
     */
     expr check(expr const & t, param_names const & ps = param_names());
-    /** \brief Return true iff t is convertible to s. */
-    bool is_conv(expr const & t, expr const & s);
     /** \brief Return true iff t is definitionally equal to s. */
     bool is_def_eq(expr const & t, expr const & s);
     /** \brief Return true iff t is a proposition. */

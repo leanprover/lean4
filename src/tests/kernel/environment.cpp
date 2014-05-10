@@ -95,8 +95,8 @@ static void tst2() {
     expr id = Const("id");
     std::cout << checker.whnf(f3(c1, c2)) << "\n";
     lean_assert_eq(env.find(name(base, 98))->get_weight(), 98);
-    lean_assert(checker.is_conv(f98(c1, c2), f97(f97(c1, c2), f97(c2, c1))));
-    lean_assert(checker.is_conv(f98(c1, id(Bool, id(Bool, c2))), f97(f97(c1, id(Bool, c2)), f97(c2, c1))));
+    lean_assert(checker.is_def_eq(f98(c1, c2), f97(f97(c1, c2), f97(c2, c1))));
+    lean_assert(checker.is_def_eq(f98(c1, id(Bool, id(Bool, c2))), f97(f97(c1, id(Bool, c2)), f97(c2, c1))));
     name_set s;
     s.insert(name(base, 96));
     type_checker checker2(env, name_generator("tmp"), mk_default_converter(env, optional<module_idx>(), true, s));

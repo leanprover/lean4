@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <utility>
 #include <algorithm>
 #include <vector>
 #include "util/safe_arith.h"
@@ -191,17 +192,35 @@ level mk_succ(level const & l) {
     return level(new level_succ(l));
 }
 
+/** \brief Convert (succ^k l) into (l, k). If l is not a succ, then return (l, 0) */
+std::pair<level, unsigned> to_offset(level l) {
+    unsigned k = 0;
+    while (is_succ(l)) {
+        l = succ_of(l);
+        k++;
+    }
+    return mk_pair(l, k);
+}
+
 level mk_max(level const & l1, level const & l2)  {
-    if (is_explicit(l1) && is_explicit(l2))
+    if (is_explicit(l1) && is_explicit(l2)) {
         return get_depth(l1) >= get_depth(l2) ? l1 : l2;
-    else if (l1 == l2)
+    } else if (l1 == l2) {
         return l1;
-    else if (is_zero(l1))
+    } else if (is_zero(l1)) {
         return l2;
-    else if (is_zero(l2))
+    } else if (is_zero(l2)) {
         return l1;
-    else
-        return level(new level_max_core(false, l1, l2));
+    } else {
+        auto p1 = to_offset(l1);
+        auto p2 = to_offset(l2);
+        if (p1.first == p2.first) {
+            lean_assert(p1.second != p2.second);
+            return p1.second > p2.second ? l1 : l2;
+        } else {
+            return level(new level_max_core(false, l1, l2));
+        }
+    }
 }
 
 level mk_imax(level const & l1, level const & l2) {
@@ -289,30 +308,43 @@ bool is_not_zero(level const & l) {
 }
 
 // Monotonic total order on universe level terms.
-bool is_lt(level const & a, level const & b) {
+bool is_lt(level const & a, level const & b, bool use_hash) {
     if (is_eqp(a, b))              return false;
     unsigned da = get_depth(a);
     unsigned db = get_depth(b);
     if (da < db)                   return true;
     if (da > db)                   return false;
     if (kind(a) != kind(b))        return kind(a) < kind(b);
-    if (hash(a) < hash(b))         return true;
-    if (hash(a) > hash(b))         return false;
+    if (use_hash) {
+        if (hash(a) < hash(b))         return true;
+        if (hash(a) > hash(b))         return false;
+    }
     if (a == b)                    return false;
     switch (kind(a)) {
     case level_kind::Zero:
-        return false;
+        lean_unreachable(); // LCOV_EXCL_LINE
     case level_kind::Param: case level_kind::Global: case level_kind::Meta:
         return to_param_core(a).m_id < to_param_core(b).m_id;
     case level_kind::Max: case level_kind::IMax:
         if (to_max_core(a).m_lhs != to_max_core(b).m_lhs)
-            return is_lt(to_max_core(a).m_lhs, to_max_core(b).m_lhs);
+            return is_lt(to_max_core(a).m_lhs, to_max_core(b).m_lhs, use_hash);
         else
-            return is_lt(to_max_core(a).m_rhs, to_max_core(b).m_rhs);
+            return is_lt(to_max_core(a).m_rhs, to_max_core(b).m_rhs, use_hash);
     case level_kind::Succ:
-        return is_lt(succ_of(a), succ_of(b));
+        return is_lt(succ_of(a), succ_of(b), use_hash);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
+}
+
+bool is_lt(levels const & as, levels const & bs, bool use_hash) {
+    if (is_nil(as))
+        return !is_nil(bs);
+    if (is_nil(bs))
+        return false;
+    if (car(as) == car(bs))
+        return is_lt(cdr(as), cdr(bs), use_hash);
+    else
+        return is_lt(car(as), car(bs), use_hash);
 }
 
 class level_serializer : public object_serializer<level, level::ptr_hash, level::ptr_eq> {
@@ -494,7 +526,7 @@ level instantiate(level const & l, param_names const & ps, levels const & ls) {
 static void print(std::ostream & out, level l);
 
 static void print_child(std::ostream & out, level const & l) {
-    if (is_explicit(l) || is_param(l) || is_meta(l)) {
+    if (is_explicit(l) || is_param(l) || is_meta(l) || is_global(l)) {
         print(out, l);
     } else {
         out << "(";
@@ -512,7 +544,7 @@ static void print(std::ostream & out, level l) {
         case level_kind::Zero:
             lean_unreachable(); // LCOV_EXCL_LINE
         case level_kind::Param: case level_kind::Global:
-            out << param_id(l); break;
+            out << to_param_core(l).m_id; break;
         case level_kind::Meta:
             out << "?" << meta_id(l); break;
         case level_kind::Succ:
@@ -522,15 +554,15 @@ static void print(std::ostream & out, level l) {
                 out << "max ";
             else
                 out << "imax ";
-            print_child(out, max_lhs(l));
+            print_child(out, to_max_core(l).m_lhs);
             // max and imax are right associative
-            while (kind(max_rhs(l)) == kind(l)) {
-                l = max_rhs(l);
+            while (kind(to_max_core(l).m_rhs) == kind(l)) {
+                l = to_max_core(l).m_rhs;
                 out << " ";
-                print_child(out, max_lhs(l));
+                print_child(out, to_max_core(l).m_lhs);
             }
             out << " ";
-            print_child(out, max_rhs(l));
+            print_child(out, to_max_core(l).m_rhs);
             break;
         }
     }
@@ -544,7 +576,7 @@ std::ostream & operator<<(std::ostream & out, level const & l) {
 format pp(level l, bool unicode, unsigned indent);
 
 static format pp_child(level const & l, bool unicode, unsigned indent) {
-    if (is_explicit(l) || is_param(l) || is_meta(l)) {
+    if (is_explicit(l) || is_param(l) || is_meta(l) || is_global(l)) {
         return pp(l, unicode, indent);
     } else {
         return paren(pp(l, unicode, indent));
@@ -560,20 +592,20 @@ format pp(level l, bool unicode, unsigned indent) {
         case level_kind::Zero:
             lean_unreachable(); // LCOV_EXCL_LINE
         case level_kind::Param: case level_kind::Global:
-            return format(param_id(l));
+            return format(to_param_core(l).m_id);
         case level_kind::Meta:
             return format{format("?"), format(meta_id(l))};
         case level_kind::Succ:
             return group(compose(format("succ"), nest(indent, compose(line(), pp_child(succ_of(l), unicode, indent)))));
         case level_kind::Max: case level_kind::IMax: {
             format r = format(is_max(l) ? "max" : "imax");
-            r += nest(indent, compose(line(), pp_child(max_lhs(l), unicode, indent)));
+            r += nest(indent, compose(line(), pp_child(to_max_core(l).m_lhs, unicode, indent)));
             // max and imax are right associative
-            while (kind(max_rhs(l)) == kind(l)) {
-                l = max_rhs(l);
-                r += nest(indent, compose(line(), pp_child(max_lhs(l), unicode, indent)));
+            while (kind(to_max_core(l).m_rhs) == kind(l)) {
+                l = to_max_core(l).m_rhs;
+                r += nest(indent, compose(line(), pp_child(to_max_core(l).m_lhs, unicode, indent)));
             }
-            r += nest(indent, compose(line(), pp_child(max_rhs(l), unicode, indent)));
+            r += nest(indent, compose(line(), pp_child(to_max_core(l).m_rhs, unicode, indent)));
             return group(r);
         }}
         lean_unreachable(); // LCOV_EXCL_LINE
@@ -593,32 +625,120 @@ format pp(level const & lhs, level const & rhs, options const & opts) {
     return pp(lhs, rhs, get_pp_unicode(opts), get_pp_indent(opts));
 }
 
-bool is_trivial(level const & lhs, level const & rhs) {
-    check_system("level constraints");
-    if (is_zero(lhs) || lhs == rhs) {
-        // 0 <= l
-        // l <= l
-        return true;
-    } else if (is_succ(lhs) && is_succ(rhs)) {
-        // is_trivial(l <= r) implies   is_trivial(succ l <= succ r)
-        return is_trivial(succ_of(lhs), succ_of(rhs));
-    } else if (is_succ(rhs)) {
-        // is_trivial(l <= r)  implies is_trivial(l <= succ^k r)
-        lean_assert(!is_succ(lhs));
-        level it = succ_of(rhs);
-        while (is_succ(it))
-            it = succ_of(it);
-        return is_trivial(lhs, it);
-    } else if (is_max(rhs)) {
-        // is_trivial(l <= l1) implies  is_trivial(l <= max(l1, l2))
-        // is_trivial(l <= l2) implies  is_trivial(l <= max(l1, l2))
-        return is_trivial(lhs, max_lhs(rhs)) || is_trivial(lhs, max_rhs(rhs));
-    } else if (is_imax(rhs)) {
-        // is_trivial(l <= l2) implies is_trivial(l <= imax(l1, l2))
-        return is_trivial(lhs, imax_rhs(rhs));
+// A total order on level expressions that has the following properties
+//  - succ(l) is an immediate successor of l.
+//  - zero is the minimal element.
+// This total order is used in the normalization procedure.
+static bool is_norm_lt(level const & a, level const & b) {
+    if (is_eqp(a, b)) return false;
+    auto p1 = to_offset(a);
+    auto p2 = to_offset(b);
+    level const & l1 = p1.first;
+    level const & l2 = p2.first;
+    if (l1 != l2) {
+        if (kind(l1) != kind(l2)) return kind(l1) < kind(l2);
+        switch (kind(l1)) {
+        case level_kind::Zero: case level_kind::Succ:
+            lean_unreachable(); // LCOV_EXCL_LINE
+        case level_kind::Param: case level_kind::Global: case level_kind::Meta:
+            return to_param_core(l1).m_id < to_param_core(l2).m_id;
+        case level_kind::Max: case level_kind::IMax:
+            if (to_max_core(l1).m_lhs != to_max_core(l2).m_lhs)
+                return is_norm_lt(to_max_core(l1).m_lhs, to_max_core(l2).m_lhs);
+            else
+                return is_norm_lt(to_max_core(l1).m_rhs, to_max_core(l2).m_rhs);
+        }
+        lean_unreachable(); // LCOV_EXCL_LINE
     } else {
-        return false;
+        return p1.second < p2.second;
     }
+}
+
+void push_max_args(level const & l, buffer<level> & r) {
+    if (is_max(l)) {
+        push_max_args(max_lhs(l), r);
+        push_max_args(max_rhs(l), r);
+    } else {
+        r.push_back(l);
+    }
+}
+
+level mk_max(buffer<level> const & args) {
+    lean_assert(!args.empty());
+    unsigned nargs = args.size();
+    if (nargs == 1) {
+        return args[0];
+    } else {
+        lean_assert(nargs >= 2);
+        level r = mk_max(args[nargs-2], args[nargs-1]);
+        unsigned i = nargs-2;
+        while (i > 0) {
+            --i;
+            r = mk_max(args[i], r);
+        }
+        return r;
+    }
+}
+
+level mk_succ(level l, unsigned k) {
+    while (k > 0) {
+        --k;
+        l = mk_succ(l);
+    }
+    return l;
+}
+
+level normalize(level const & l) {
+    auto p = to_offset(l);
+    level const & r = p.first;
+    switch (kind(r)) {
+    case level_kind::Succ:
+        lean_unreachable(); // LCOV_EXCL_LINE
+    case level_kind::Zero:   case level_kind::Param:
+    case level_kind::Global: case level_kind::Meta:
+        return l;
+    case level_kind::IMax: {
+        auto l1 = normalize(imax_lhs(r));
+        auto l2 = normalize(imax_rhs(r));
+        if (!is_eqp(l1, imax_lhs(r)) || !is_eqp(l2, imax_rhs(r)))
+            return mk_succ(mk_imax(l1, l2), p.second);
+        else
+            return l;
+    }
+    case level_kind::Max: {
+        buffer<level> todo;
+        buffer<level> args;
+        push_max_args(r, todo);
+        for (level const & a : todo)
+            push_max_args(normalize(a), args);
+        std::sort(args.begin(), args.end(), is_norm_lt);
+        buffer<level> & rargs = todo;
+        rargs.clear();
+        rargs.push_back(args[0]);
+        auto p_prev = to_offset(args[0]);
+        for (unsigned i = 1; i < args.size(); i++) {
+            auto p_curr = to_offset(args[i]);
+            if (p_prev.first == p_curr.first) {
+                if (p_prev.second < p_curr.second) {
+                    p_prev = p_curr;
+                    rargs.pop_back();
+                    rargs.push_back(args[i]);
+                }
+            } else {
+                p_prev = p_curr;
+                rargs.push_back(args[i]);
+            }
+        }
+        for (level & a : rargs)
+            a = mk_succ(a, p.second);
+        return mk_max(rargs);
+    }}
+    lean_unreachable(); // LCOV_EXCL_LINE
+}
+
+bool is_equivalent(level const & lhs, level const & rhs) {
+    check_system("level constraints");
+    return lhs == rhs || normalize(lhs) == normalize(rhs);
 }
 }
 void print(lean::level const & l) { std::cout << l << std::endl; }

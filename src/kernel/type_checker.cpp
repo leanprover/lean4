@@ -452,25 +452,19 @@ static void check_name(environment const & env, name const & n) {
         throw_already_declared(env, n);
 }
 
-struct simple_constraint_handler : public constraint_handler {
-    std::vector<constraint> m_cnstrs;
-    virtual void add_cnstr(constraint const & c) { m_cnstrs.push_back(c); }
-};
-
 certified_definition check(environment const & env, definition const & d, name_generator const & g, name_set const & extra_opaque, bool memoize) {
     check_no_mlocal(env, d.get_type());
     if (d.is_definition())
         check_no_mlocal(env, d.get_value());
     check_name(env, d.get_name());
 
-    simple_constraint_handler chandler;
-    type_checker checker1(env, g, chandler, mk_default_converter(env, optional<module_idx>(), memoize, extra_opaque));
+    type_checker checker1(env, g, mk_default_converter(env, optional<module_idx>(), memoize, extra_opaque));
     checker1.check(d.get_type());
     if (d.is_definition()) {
         optional<module_idx> midx;
         if (d.is_opaque())
             midx = optional<module_idx>(d.get_module_idx());
-        type_checker checker2(env, g, chandler, mk_default_converter(env, midx, memoize, extra_opaque));
+        type_checker checker2(env, g, mk_default_converter(env, midx, memoize, extra_opaque));
         expr val_type = checker2.check(d.get_value());
         if (!checker2.is_def_eq(val_type, d.get_type())) {
             throw_kernel_exception(env, d.get_value(),
@@ -479,17 +473,6 @@ certified_definition check(environment const & env, definition const & d, name_g
                                    });
         }
     }
-
-    // TODO(Leo): solve universe level constraints
-    #if 1
-    // temporary code
-    for (auto c : chandler.m_cnstrs) {
-        std::cout << c << "\n";
-    }
-    if (!chandler.m_cnstrs.empty())
-        throw_kernel_exception(env, "invalid declaration, unsatisfied level constraints");
-    #endif
-
     return certified_definition(env.get_id(), d);
 }
 

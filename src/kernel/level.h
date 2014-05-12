@@ -86,9 +86,6 @@ level mk_param_univ(name const & n);
 level mk_global_univ(name const & n);
 level mk_meta_univ(name const & n);
 
-/** \brief An arbitrary (monotonic) total order on universe level terms. */
-bool is_lt(level const & l1, level const & l2);
-
 inline unsigned hash(level const & l) { return l.hash(); }
 inline level_kind kind(level const & l) { return l.kind(); }
 inline bool is_zero(level const & l)   { return kind(l) == level_kind::Zero; }
@@ -140,19 +137,22 @@ level update_succ(level const & l, level const & new_arg);
 level update_max(level const & l, level const & new_lhs, level const & new_rhs);
 
 /**
-   \brief Return true if lhs <= rhs is a trivial constraint.
-   That is, it is a constraint that is always valid, and can be discarded.
-   This is not a complete procedure. It only "catches" the easy cases.
-
-   \remark The type checker produces many trivial constraints.
+   \brief Return true if lhs and rhs denote the same level.
+   The check is done by normalization.
 */
-bool is_trivial(level const & lhs, level const & rhs);
+bool is_equivalent(level const & lhs, level const & rhs);
+/** \brief Return the given level expression normal form */
+level normalize(level const & l);
 
 typedef list<level> levels;
 
 bool has_meta(levels const & ls);
 bool has_global(levels const & ls);
 bool has_param(levels const & ls);
+
+/** \brief An arbitrary (monotonic) total order on universe level terms. */
+bool is_lt(level const & l1, level const & l2, bool use_hash);
+bool is_lt(levels const & as, levels const & bs, bool use_hash);
 
 /** \brief Functional for applying <tt>F</tt> to each level expressions. */
 class for_each_level_fn {

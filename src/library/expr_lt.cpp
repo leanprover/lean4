@@ -8,45 +8,6 @@ Author: Leonardo de Moura
 #include "library/expr_lt.h"
 
 namespace lean {
-bool is_lt(level const & a, level const & b, bool use_hash) {
-    if (is_eqp(a, b))            return false;
-    if (kind(a) != kind(b))      return kind(a) < kind(b);
-    if (use_hash) {
-        if (hash(a) < hash(b))   return true;
-        if (hash(a) > hash(b))   return false;
-    }
-    if (a == b)                  return false;
-    switch (kind(a)) {
-    case level_kind::Zero:       return true;
-    case level_kind::Succ:       return is_lt(succ_of(a), succ_of(b), use_hash);
-    case level_kind::Param:      return param_id(a) < param_id(b);
-    case level_kind::Global:     return global_id(a) < global_id(b);
-    case level_kind::Meta:       return meta_id(a) < meta_id(b);
-    case level_kind::Max:
-        if (max_lhs(a) != max_lhs(b))
-            return is_lt(max_lhs(a), max_lhs(b), use_hash);
-        else
-            return is_lt(max_lhs(a), max_lhs(b), use_hash);
-    case level_kind::IMax:
-        if (imax_lhs(a) != imax_lhs(b))
-            return is_lt(imax_lhs(a), imax_lhs(b), use_hash);
-        else
-            return is_lt(imax_lhs(a), imax_lhs(b), use_hash);
-    }
-    lean_unreachable(); // LCOV_EXCL_LINE
-}
-
-bool is_lt(levels const & as, levels const & bs, bool use_hash) {
-    if (is_nil(as))
-        return !is_nil(bs);
-    if (is_nil(bs))
-        return false;
-    if (car(as) == car(bs))
-        return is_lt(cdr(as), cdr(bs), use_hash);
-    else
-        return is_lt(car(as), car(bs), use_hash);
-}
-
 bool is_lt(expr const & a, expr const & b, bool use_hash) {
     if (is_eqp(a, b))                    return false;
     unsigned da = get_depth(a);

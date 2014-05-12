@@ -46,7 +46,10 @@ static int level_tostring(lua_State * L) {
 }
 
 static int level_eq(lua_State * L) { return push_boolean(L, to_level(L, 1) == to_level(L, 2)); }
-static int level_lt(lua_State * L) { return push_boolean(L, is_lt(to_level(L, 1), to_level(L, 2))); }
+static int level_lt(lua_State * L) {
+    int nargs = lua_gettop(L);
+    return push_boolean(L, is_lt(to_level(L, 1), to_level(L, 2), nargs == 3 && lua_toboolean(L, 3)));
+}
 static int mk_level_zero(lua_State * L)  { return push_level(L, mk_level_zero()); }
 static int mk_level_one(lua_State * L)   { return push_level(L, mk_level_one());  }
 static int mk_level_succ(lua_State * L)  { return push_level(L, mk_succ(to_level(L, 1))); }
@@ -67,8 +70,9 @@ LEVEL_PRED(is_explicit)
 LEVEL_PRED(has_meta)
 LEVEL_PRED(has_param)
 LEVEL_PRED(is_not_zero)
+static int level_normalize(lua_State * L)  { return push_level(L, normalize(to_level(L, 1))); }
 static int level_get_kind(lua_State * L) { return push_integer(L, static_cast<int>(kind(to_level(L, 1)))); }
-static int level_trivially_leq(lua_State * L) { return push_boolean(L, is_trivial(to_level(L, 1), to_level(L, 2))); }
+static int level_is_equivalent(lua_State * L) { return push_boolean(L, is_equivalent(to_level(L, 1), to_level(L, 2))); }
 static int level_is_eqp(lua_State * L) { return push_boolean(L, is_eqp(to_level(L, 1), to_level(L, 2))); }
 
 static int level_id(lua_State * L) {
@@ -125,13 +129,16 @@ static const struct luaL_Reg level_m[] = {
     {"has_meta",        safe_function<level_has_meta>},
     {"has_param",       safe_function<level_has_param>},
     {"is_not_zero",     safe_function<level_is_not_zero>},
-    {"trivially_leq",   safe_function<level_trivially_leq>},
+    {"is_equivalent",   safe_function<level_is_equivalent>},
     {"is_eqp",          safe_function<level_is_eqp>},
+    {"is_lt",           safe_function<level_lt>},
     {"id",              safe_function<level_id>},
     {"lhs",             safe_function<level_lhs>},
     {"rhs",             safe_function<level_rhs>},
     {"succ_of",         safe_function<level_succ_of>},
     {"instantiate",     safe_function<level_instantiate>},
+    {"normalize",       safe_function<level_normalize>},
+    {"norm",            safe_function<level_normalize>},
     {0, 0}
 };
 

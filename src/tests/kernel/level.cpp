@@ -50,28 +50,14 @@ static void tst2() {
     level p1 = mk_param_univ("p1");
     level p2 = mk_param_univ("p2");
     level m1 = mk_meta_univ("m1");
-    lean_assert(is_trivial(zero, mk_succ(mk_max(p1, p2))));
-    lean_assert(is_trivial(mk_succ(mk_max(p1, p2)), mk_succ(mk_max(p1, p2))));
-    lean_assert(is_trivial(p1, mk_succ(mk_max(p1, p2))));
-    lean_assert(!is_trivial(p1, mk_succ(mk_imax(p1, p2))));
-    lean_assert(is_trivial(p2, mk_succ(mk_max(p1, p2))));
-    lean_assert(is_trivial(mk_succ(p2), mk_succ(mk_max(p1, p2))));
-    lean_assert(is_trivial(p2, mk_succ(mk_imax(p1, p2))));
-    lean_assert(is_trivial(mk_succ(p2), mk_succ(mk_imax(p1, p2))));
-    lean_assert(!is_trivial(mk_succ(mk_succ(p2)), mk_succ(mk_max(p1, p2))));
-    lean_assert(!is_trivial(mk_succ(mk_max(p1, p2)), zero));
-    lean_assert(is_trivial(mk_succ(mk_succ(p1)), mk_succ(mk_succ(mk_succ(p1)))));
-    lean_assert(!is_trivial(mk_succ(mk_succ(p1)), mk_succ(mk_succ(mk_succ(p2)))));
-    lean_assert(!is_trivial(mk_succ(mk_succ(mk_succ(p1))), mk_succ(mk_succ(p1))));
-    lean_assert(is_trivial(p1, mk_max(m1, mk_max(p1, p2))));
-    lean_assert(!is_trivial(p1, mk_imax(m1, mk_imax(p1, p2))));
-    lean_assert(is_trivial(p2, mk_imax(m1, mk_imax(p1, p2))));
-    lean_assert(is_trivial(zero, one));
-    lean_assert(is_trivial(one, two));
-    lean_assert(!is_trivial(one, zero));
-    lean_assert(!is_trivial(two, one));
-    lean_assert(!is_trivial(m1, p1));
-    lean_assert(!is_trivial(p1, m1));
+    lean_assert(is_equivalent(mk_succ(p2), mk_max(p2, mk_succ(p2))));
+    lean_assert(is_equivalent(mk_max(p1, p2), mk_max(p2, p1)));
+    lean_assert(!is_equivalent(mk_imax(p1, p2), mk_imax(p2, p1)));
+    lean_assert(is_equivalent(mk_imax(mk_succ(p1), mk_succ(p2)), mk_imax(mk_succ(p2), mk_succ(p1))));
+    lean_assert(is_equivalent(mk_succ(mk_max(m1, p1)), mk_max(mk_succ(p1), mk_succ(m1))));
+    lean_assert(is_equivalent(one, mk_succ(zero)));
+    lean_assert(!is_equivalent(zero, two));
+    lean_assert(!is_equivalent(zero, p2));
 }
 
 int main() {

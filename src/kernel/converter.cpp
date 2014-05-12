@@ -316,10 +316,14 @@ struct default_converter : public converter {
                 return to_lbool(is_def_eq_binder(t, s, c, jst));
             case expr_kind::Sort:
                 // t and s are Sorts
-                if (is_trivial(sort_level(t), sort_level(s)))
+                if (is_equivalent(sort_level(t), sort_level(s))) {
                     return l_true;
-                c.add_cnstr(mk_level_cnstr(sort_level(t), sort_level(s), jst.get()));
-                return l_true;
+                } else if (has_meta(sort_level(t)) || has_meta(sort_level(s))) {
+                    c.add_cnstr(mk_level_cnstr(sort_level(t), sort_level(s), jst.get()));
+                    return l_true;
+                } else {
+                    return l_false;
+                }
             case expr_kind::Meta:
                 lean_unreachable(); // LCOV_EXCL_LINE
             case expr_kind::Var: case expr_kind::Local: case expr_kind::App:

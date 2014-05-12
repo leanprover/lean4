@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 #include "util/lbool.h"
 #include "util/flet.h"
+#include "util/sstream.h"
 #include "kernel/type_checker.h"
 #include "kernel/expr_maps.h"
 #include "kernel/instantiate.h"
@@ -326,6 +327,9 @@ struct type_checker::imp {
             definition d    = m_env.get(const_name(e));
             auto const & ps = d.get_params();
             auto const & ls = const_level_params(e);
+            if (length(ps) != length(ls))
+                throw_kernel_exception(m_env, sstream() << "incorrect number of universe levels parameters for '" << const_name(e) << "', #"
+                                       << length(ps)  << " expected, #" << length(ls) << " provided");
             r = instantiate_params(d.get_type(), ps, ls);
             break;
         }

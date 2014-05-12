@@ -464,7 +464,7 @@ level replace_level_fn::apply(level const & l) {
 optional<name> get_undef_param(level const & l, param_names const & ps) {
     optional<name> r;
     for_each(l, [&](level const & l) {
-            if (!has_param(l))
+            if (!has_param(l) || r)
                 return false;
             if (is_param(l) && std::find(ps.begin(), ps.end(), param_id(l)) == ps.end())
                 r = param_id(l);
@@ -476,9 +476,9 @@ optional<name> get_undef_param(level const & l, param_names const & ps) {
 optional<name> get_undef_global(level const & l, environment const & env) {
     optional<name> r;
     for_each(l, [&](level const & l) {
-            if (!has_global(l))
+            if (!has_global(l) || r)
                 return false;
-            if (is_global(l) && env.is_global_level(global_id(l)))
+            if (is_global(l) && !env.is_global_level(global_id(l)))
                 r = global_id(l);
             return true;
         });

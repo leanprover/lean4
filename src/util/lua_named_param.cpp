@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <limits>
 #include "util/lua_named_param.h"
 #include "util/sstream.h"
+#include "util/int64.h"
 
 namespace lean {
 bool get_bool_named_param(lua_State * L, int idx, char const * opt_name, bool def_value) {
@@ -60,9 +61,9 @@ unsigned get_uint_named_param(lua_State * L, int idx, char const * opt_name, uns
         push_string(L, opt_name);
         lua_gettable(L, idx);
         if (lua_isnumber(L, -1)) {
-            long result = lua_tointeger(L, -1);
+            int64 result = lua_tointeger(L, -1);
             lua_pop(L, 1);
-            if (result < 0 || result > std::numeric_limits<unsigned>::max())
+            if (result < 0 || result > static_cast<int64>(std::numeric_limits<unsigned>::max()))
                 throw exception(sstream() << "field '" << opt_name << "' must be a unsigned integer in table at arg #" << idx);
             return static_cast<unsigned>(result);
         } else if (lua_isnil(L, -1)) {
@@ -84,9 +85,9 @@ optional<unsigned> get_opt_uint_named_param(lua_State * L, int idx, char const *
         push_string(L, opt_name);
         lua_gettable(L, idx);
         if (lua_isnumber(L, -1)) {
-            long result = lua_tointeger(L, -1);
+            int64 result = lua_tointeger(L, -1);
             lua_pop(L, 1);
-            if (result < 0 || result > std::numeric_limits<unsigned>::max())
+            if (result < 0 || result > static_cast<int64>(std::numeric_limits<unsigned>::max()))
                 throw exception(sstream() << "field '" << opt_name << "' must be a unsigned integer in table at arg #" << idx);
             return optional<unsigned>(static_cast<unsigned>(result));
         } else if (lua_isnil(L, -1)) {

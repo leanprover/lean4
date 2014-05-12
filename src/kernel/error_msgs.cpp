@@ -24,9 +24,9 @@ format pp_app_type_mismatch(formatter const & fmt, environment const & env, opti
     format r;
     r += format("type mismatch at application");
     r += pp_indent_expr(fmt, env, opts, app);
-    r += format("expected type:");
+    r += compose(line(), format("expected type:"));
     r += pp_indent_expr(fmt, env, opts, expected_type);
-    r += format("given type:");
+    r += compose(line(), format("given type:"));
     r += pp_indent_expr(fmt, env, opts, given_type);
     return r;
 }

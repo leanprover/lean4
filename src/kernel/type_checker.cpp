@@ -298,6 +298,13 @@ struct type_checker::imp {
                                 });
     }
 
+    void check_level(level const & l) {
+        if (auto n1 = get_undef_global(l, m_env))
+            throw_kernel_exception(m_env, sstream() << "invalid reference to undefined global universe level '" << *n1 << "'");
+        if (auto n2 = get_undef_param(l, m_params))
+            throw_kernel_exception(m_env, sstream() << "invalid reference to undefined universe level parameter '" << *n2 << "'");
+    }
+
     /**
         \brief Return type of expression \c e, if \c infer_only is false, then it also check whether \c e is type correct or not.
 
@@ -321,6 +328,8 @@ struct type_checker::imp {
         case expr_kind::Var:
             throw_kernel_exception(m_env, "type checker does not support free variables, replace them with local constants before invoking it");
         case expr_kind::Sort:
+            if (!infer_only)
+                check_level(sort_level(e));
             r = mk_sort(mk_succ(sort_level(e)));
             break;
         case expr_kind::Constant: {
@@ -330,6 +339,10 @@ struct type_checker::imp {
             if (length(ps) != length(ls))
                 throw_kernel_exception(m_env, sstream() << "incorrect number of universe levels parameters for '" << const_name(e) << "', #"
                                        << length(ps)  << " expected, #" << length(ls) << " provided");
+            if (!infer_only) {
+                for (level const & l : ls)
+                    check_level(l);
+            }
             r = instantiate_params(d.get_type(), ps, ls);
             break;
         }
@@ -463,13 +476,13 @@ certified_definition check(environment const & env, definition const & d, name_g
     check_name(env, d.get_name());
 
     type_checker checker1(env, g, mk_default_converter(env, optional<module_idx>(), memoize, extra_opaque));
-    checker1.check(d.get_type());
+    checker1.check(d.get_type(), d.get_params());
     if (d.is_definition()) {
         optional<module_idx> midx;
         if (d.is_opaque())
             midx = optional<module_idx>(d.get_module_idx());
         type_checker checker2(env, g, mk_default_converter(env, midx, memoize, extra_opaque));
-        expr val_type = checker2.check(d.get_value());
+        expr val_type = checker2.check(d.get_value(), d.get_params());
         if (!checker2.is_def_eq(val_type, d.get_type())) {
             throw_kernel_exception(env, d.get_value(),
                                    [=](formatter const & fmt, options const & o) {

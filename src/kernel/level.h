@@ -95,6 +95,7 @@ inline bool is_meta(level const & l)   { return kind(l) == level_kind::Meta; }
 inline bool is_succ(level const & l)   { return kind(l) == level_kind::Succ; }
 inline bool is_max(level const & l)    { return kind(l) == level_kind::Max; }
 inline bool is_imax(level const & l)   { return kind(l) == level_kind::IMax; }
+bool is_one(level const & l);
 
 unsigned get_depth(level const & l);
 

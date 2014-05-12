@@ -40,9 +40,11 @@ struct print_expr_fn {
 
     void print_sort(expr const & a) {
         if (is_zero(sort_level(a))) {
-            out () << "Bool";
+            out() << "Bool";
+        } else if (is_one(sort_level(a))) {
+            out() << "Type";
         } else {
-            out() << "(Type " << sort_level(a) << ")";
+            out() << "Type.{" << sort_level(a) << "}";
         }
     }
 

@@ -248,6 +248,10 @@ level const & mk_level_one()  {
     return g_one;
 }
 
+bool is_one(level const & l) {
+    return l == mk_level_one();
+}
+
 level::level():level(mk_level_zero()) {}
 level::level(level_cell * ptr):m_ptr(ptr) { if (m_ptr) m_ptr->inc_ref(); }
 level::level(level const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }

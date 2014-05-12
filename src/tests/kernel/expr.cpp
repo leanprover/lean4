@@ -388,8 +388,10 @@ int main() {
     tst17();
     tst18();
     std::cout << "sizeof(expr):            " << sizeof(expr) << "\n";
-    std::cout << "sizeof(expr_app):        " << sizeof(expr_app) << "\n";
     std::cout << "sizeof(expr_cell):       " << sizeof(expr_cell) << "\n";
+    std::cout << "sizeof(expr_app):        " << sizeof(expr_app) << "\n";
+    std::cout << "sizeof(expr_var):        " << sizeof(expr_var) << "\n";
+    std::cout << "sizeof(expr_const):      " << sizeof(expr_const) << "\n";
     std::cout << "sizeof(optional<expr>):  " << sizeof(optional<expr>) << "\n";
     std::cout << "sizeof(optional<sexpr>): " << sizeof(optional<sexpr>) << "\n";
     std::cout << "sizeof(std::function):   " << sizeof(std::function<expr(expr const &, optional<expr> const &)>) << "\n";

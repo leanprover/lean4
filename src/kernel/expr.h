@@ -25,6 +25,10 @@ Author: Leonardo de Moura
 #include "kernel/extension_context.h"
 
 namespace lean {
+// Tags are used by frontends to mark expressions. They are automatically propagated by
+// procedures such as update_app, update_binder, etc.
+typedef unsigned tag;
+constexpr tag nulltag = std::numeric_limits<unsigned>::max();
 class expr;
 /* =======================================
    Expressions
@@ -43,16 +47,17 @@ class expr;
 enum class expr_kind { Var, Sort, Constant, Meta, Local, App, Lambda, Pi, Let, Macro };
 class expr_cell {
 protected:
-    unsigned short     m_kind;
     // The bits of the following field mean:
     //    0-1  - term is an arrow (0 - not initialized, 1 - is arrow, 2 - is not arrow)
     // Remark: we use atomic_uchar because these flags are computed lazily (i.e., after the expression is created)
     atomic_uchar       m_flags;
+    unsigned           m_kind:8;
     unsigned           m_has_mv:1;         // term contains metavariables
     unsigned           m_has_local:1;      // term contains local constants
     unsigned           m_has_param_univ:1; // term constains parametric universe levels
-    unsigned           m_hash;        // hash based on the structure of the expression (this is a good hash for structural equality)
-    unsigned           m_hash_alloc;  // hash based on 'time' of allocation (this is a good hash for pointer-based equality)
+    unsigned           m_hash;             // hash based on the structure of the expression (this is a good hash for structural equality)
+    unsigned           m_hash_alloc;       // hash based on 'time' of allocation (this is a good hash for pointer-based equality)
+    atomic_uint        m_tag;
     MK_LEAN_RC(); // Declare m_rc counter
     void dealloc();
 
@@ -69,6 +74,8 @@ public:
     bool has_metavar() const { return m_has_mv; }
     bool has_local() const { return m_has_local; }
     bool has_param_univ() const { return m_has_param_univ; }
+    void set_tag(tag t);
+    tag get_tag() const { return m_tag; }
 };
 
 class macro_definition;
@@ -109,6 +116,10 @@ public:
     bool has_metavar() const { return m_ptr->has_metavar(); }
     bool has_local() const { return m_ptr->has_local(); }
     bool has_param_univ() const { return m_ptr->has_param_univ(); }
+
+    void set_tag(tag t) { m_ptr->set_tag(t); }
+    tag get_tag() const { return m_ptr->get_tag(); }
+
 
     expr_cell * raw() const { return m_ptr; }
 

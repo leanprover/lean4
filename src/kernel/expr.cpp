@@ -31,12 +31,13 @@ unsigned hash_levels(levels const & ls) {
 }
 
 expr_cell::expr_cell(expr_kind k, unsigned h, bool has_mv, bool has_local, bool has_param_univ):
-    m_kind(static_cast<unsigned>(k)),
     m_flags(0),
+    m_kind(static_cast<unsigned>(k)),
     m_has_mv(has_mv),
     m_has_local(has_local),
     m_has_param_univ(has_param_univ),
     m_hash(h),
+    m_tag(nulltag),
     m_rc(0) {
     // m_hash_alloc does not need to be a unique identifier.
     // We want diverse hash codes because given expr_cell * c1 and expr_cell * c2,
@@ -75,6 +76,10 @@ void expr_cell::set_is_arrow(bool flag) {
     unsigned mask = flag ? 1 : 2;
     m_flags |= mask;
     lean_assert(is_arrow() && *is_arrow() == flag);
+}
+
+void expr_cell::set_tag(tag t) {
+    m_tag = t;
 }
 
 bool is_meta(expr const & e) {
@@ -376,9 +381,16 @@ unsigned get_free_var_range(expr const & e) {
 
 bool operator==(expr const & a, expr const & b) { return expr_eq_fn()(a, b); }
 
+static expr copy_tag(expr const & e, expr && new_e) {
+    tag t = e.get_tag();
+    if (t != nulltag)
+        new_e.set_tag(t);
+    return new_e;
+}
+
 expr update_app(expr const & e, expr const & new_fn, expr const & new_arg) {
     if (!is_eqp(app_fn(e), new_fn) || !is_eqp(app_arg(e), new_arg))
-        return mk_app(new_fn, new_arg);
+        return copy_tag(e, mk_app(new_fn, new_arg));
     else
         return e;
 }
@@ -387,45 +399,45 @@ expr update_rev_app(expr const & e, unsigned num, expr const * new_args) {
     expr const * it = &e;
     for (unsigned i = 0; i < num - 1; i++) {
         if (!is_app(*it) || !is_eqp(app_arg(*it), new_args[i]))
-            return mk_rev_app(num, new_args);
+            return copy_tag(e, mk_rev_app(num, new_args));
         it = &app_fn(*it);
     }
     if (!is_eqp(*it, new_args[num - 1]))
-        return mk_rev_app(num, new_args);
+        return copy_tag(e, mk_rev_app(num, new_args));
     return e;
 }
 
 expr update_binder(expr const & e, expr const & new_domain, expr const & new_body) {
     if (!is_eqp(binder_domain(e), new_domain) || !is_eqp(binder_body(e), new_body))
-        return mk_binder(e.kind(), binder_name(e), new_domain, new_body, binder_info(e));
+        return copy_tag(e, mk_binder(e.kind(), binder_name(e), new_domain, new_body, binder_info(e)));
     else
         return e;
 }
 
 expr update_let(expr const & e, expr const & new_type, expr const & new_val, expr const & new_body) {
     if (!is_eqp(let_type(e), new_type) || !is_eqp(let_value(e), new_val) || !is_eqp(let_body(e), new_body))
-        return mk_let(let_name(e), new_type, new_val, new_body);
+        return copy_tag(e, mk_let(let_name(e), new_type, new_val, new_body));
     else
         return e;
 }
 
 expr update_mlocal(expr const & e, expr const & new_type) {
     if (!is_eqp(mlocal_type(e), new_type))
-        return mk_mlocal(is_metavar(e), mlocal_name(e), new_type);
+        return copy_tag(e, mk_mlocal(is_metavar(e), mlocal_name(e), new_type));
     else
         return e;
 }
 
 expr update_sort(expr const & e, level const & new_level) {
     if (!is_eqp(sort_level(e), new_level))
-        return mk_sort(new_level);
+        return copy_tag(e, mk_sort(new_level));
     else
         return e;
 }
 
 expr update_constant(expr const & e, levels const & new_levels) {
     if (!is_eqp(const_level_params(e), new_levels))
-        return mk_constant(const_name(e), new_levels);
+        return copy_tag(e, mk_constant(const_name(e), new_levels));
     else
         return e;
 }
@@ -440,7 +452,7 @@ expr update_macro(expr const & e, unsigned num, expr const * args) {
         if (i == num)
             return e;
     }
-    return mk_macro(to_macro(e)->m_definition, num, args);
+    return copy_tag(e, mk_macro(to_macro(e)->m_definition, num, args));
 }
 
 bool is_atomic(expr const & e) {

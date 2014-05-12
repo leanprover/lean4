@@ -22,6 +22,7 @@ using std::recursive_mutex;
 using std::atomic;
 using std::atomic_bool;
 using std::atomic_ushort;
+using std::atomic_uint;
 using std::atomic_uchar;
 using std::condition_variable;
 using std::lock_guard;
@@ -52,6 +53,7 @@ namespace this_thread = boost::this_thread;
 typedef atomic<bool>           atomic_bool;
 typedef atomic<unsigned short> atomic_ushort;
 typedef atomic<unsigned char>  atomic_uchar;
+typedef atomic<unsigned>       atomic_uint;
 template<typename T> T atomic_load(atomic<T> const * a) { return a->load(); }
 template<typename T> T atomic_fetch_add_explicit(atomic<T> * a, T v, boost::memory_order mo) { return a->fetch_add(v, mo); }
 template<typename T> T atomic_fetch_sub_explicit(atomic<T> * a, T v, boost::memory_order mo) { return a->fetch_sub(v, mo); }
@@ -97,6 +99,7 @@ public:
 typedef atomic<unsigned short> atomic_ushort;
 typedef atomic<unsigned char>  atomic_uchar;
 typedef atomic<bool>           atomic_bool;
+typedef atomic<unsigned>       atomic_uint;
 class thread {
 public:
     thread() {}

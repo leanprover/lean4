@@ -63,10 +63,6 @@ struct type_checker::imp {
     expr_struct_map<expr>      m_infer_type_cache;
     converter_context          m_conv_ctx;
     type_checker_context       m_tc_ctx;
-    // The following mapping is used to store the relationship
-    // between temporary expressions created during type checking and the original ones.
-    // We need that to be able to produce error messages containing position information.
-    expr_map<expr>             m_trace;
     bool                       m_memoize;
     // temp flag
     param_names                m_params;
@@ -83,35 +79,13 @@ struct type_checker::imp {
             return none_expr();
     }
 
-    /** \brief Add entry <tt>new_e -> old_e</tt> in the traceability mapping */
-    void add_trace(expr const & old_e, expr const & new_e) {
-        if (!is_eqp(old_e, new_e))
-            m_trace.insert(mk_pair(new_e, old_e));
-    }
-
-    /** \brief Return the input (sub) expression that corresponds to the (temporary) expression \c e. */
-    expr trace_back(expr e) const {
-        while (true) {
-            auto it = m_trace.find(e);
-            if (it != m_trace.end())
-                e = it->second;
-            else
-                return e;
-        }
-    }
-
-    /** \brief Replace free variable \c 0 with \c s in \c e, and trace new sub-expressions created in the process. */
-    expr instantiate_with_trace(expr const & e, expr const & s) {
-        return lean::instantiate(e, s, [&](expr const & old_e, expr const & new_e) { add_trace(old_e, new_e); });
-    }
-
     /**
         \brief Return the body of the given binder, where the free variable #0 is replaced with a fresh local constant.
         It also returns the fresh local constant.
      */
     std::pair<expr, expr> open_binder_body(expr const & e) {
         expr local     = mk_local(m_gen.next() + binder_name(e), binder_domain(e));
-        return mk_pair(instantiate_with_trace(binder_body(e), local), local);
+        return mk_pair(instantiate(binder_body(e), local), local);
     }
 
     /** \brief Add given constraint to the constraint handler m_chandler. */
@@ -190,14 +164,14 @@ struct type_checker::imp {
             return e;
         } else if (is_meta(e)) {
             expr r = mk_sort(mk_meta_univ(m_gen.next()));
-            justification j = mk_justification(trace_back(s),
+            justification j = mk_justification(s,
                                                [=](formatter const & fmt, options const & o, substitution const & subst) {
                                                    return pp_type_expected(fmt, m_env, o, subst.instantiate_metavars_wo_jst(s));
                                                });
             add_cnstr(mk_eq_cnstr(e, r, j));
             return r;
         } else {
-            throw_kernel_exception(m_env, trace_back(s),
+            throw_kernel_exception(m_env, s,
                                    [=](formatter const & fmt, options const & o) { return pp_type_expected(fmt, m_env, o, s); });
         }
     }
@@ -222,7 +196,7 @@ struct type_checker::imp {
         } else if (is_meta(e)) {
             buffer<expr> telescope;
             if (!meta_to_telescope(e, telescope))
-                throw_kernel_exception(m_env, trace_back(s),
+                throw_kernel_exception(m_env, s,
                                        [=](formatter const & fmt, options const & o) { return pp_function_expected(fmt, m_env, o, s); });
             expr ta    = mk_sort(mk_meta_univ(m_gen.next()));
             expr A     = mk_metavar(m_gen.next(), mk_tele_pi(telescope, ta));
@@ -236,14 +210,14 @@ struct type_checker::imp {
             args.push_back(Var(0));
             expr B_args = mk_app(B, args.size(), args.data());
             expr r      = mk_pi(g_x_name, A, B);
-            justification j = mk_justification(trace_back(s),
+            justification j = mk_justification(s,
                                                [=](formatter const & fmt, options const & o, substitution const & subst) {
                                                    return pp_function_expected(fmt, m_env, o, subst.instantiate_metavars_wo_jst(s));
                                                });
             add_cnstr(mk_eq_cnstr(e, r, j));
             return r;
         } else {
-            throw_kernel_exception(m_env, trace_back(s),
+            throw_kernel_exception(m_env, s,
                                    [=](formatter const & fmt, options const & o) { return pp_function_expected(fmt, m_env, o, s); });
         }
     }
@@ -251,7 +225,7 @@ struct type_checker::imp {
     /** \brief Create a justification for the level constraint <tt>lhs <= rhs</tt> associated with constanc \c c. */
     justification mk_lvl_cnstr_jst(expr const & c, level const & lhs, level const & rhs) {
         lean_assert(is_constant(c));
-        return mk_justification(trace_back(c),
+        return mk_justification(c,
                                 [=](formatter const & fmt, options const & o, substitution const & subst) {
                                     return pp_def_lvl_cnstrs_satisfied(fmt, m_env, o,
                                                                        subst.instantiate_metavars_wo_jst(c),
@@ -266,7 +240,7 @@ struct type_checker::imp {
     */
     justification mk_app_mismatch_jst(expr const & e, expr const & fn_type, expr const & arg_type) {
         lean_assert(is_app(e));
-        return mk_justification(trace_back(e),
+        return mk_justification(e,
                                 [=](formatter const & fmt, options const & o, substitution const & subst) {
                                     return pp_app_type_mismatch(fmt, m_env, o,
                                                                 subst.instantiate_metavars_wo_jst(e),
@@ -281,7 +255,7 @@ struct type_checker::imp {
     */
     justification mk_let_mismatch_jst(expr const & e, expr const & val_type) {
         lean_assert(is_let(e));
-        return mk_justification(trace_back(e),
+        return mk_justification(e,
                                 [=](formatter const & fmt, options const & o, substitution const & subst) {
                                     return pp_def_type_mismatch(fmt, m_env, o, let_name(e),
                                                                 subst.instantiate_metavars_wo_jst(let_type(e)),
@@ -292,7 +266,7 @@ struct type_checker::imp {
     static constexpr char const * g_macro_error_msg = "failed to type check macro expansion";
 
     justification mk_macro_jst(expr const & e) {
-        return mk_justification(trace_back(e),
+        return mk_justification(e,
                                 [=](formatter const &, options const &, substitution const &) {
                                     return format(g_macro_error_msg);
                                 });
@@ -387,7 +361,7 @@ struct type_checker::imp {
                 expr a_type = infer_type_core(app_arg(e), infer_only);
                 delayed_justification jst([=]() { return mk_app_mismatch_jst(e, f_type, a_type); });
                 if (!is_def_eq(a_type, binder_domain(f_type), jst)) {
-                    throw_kernel_exception(m_env, trace_back(e),
+                    throw_kernel_exception(m_env, e,
                                            [=](formatter const & fmt, options const & o) {
                                                return pp_app_type_mismatch(fmt, m_env, o, e, binder_domain(f_type), a_type);
                                            });
@@ -402,13 +376,13 @@ struct type_checker::imp {
                 expr val_type  = infer_type_core(let_value(e), infer_only);
                 delayed_justification jst([=]() { return mk_let_mismatch_jst(e, val_type); });
                 if (!is_def_eq(val_type, let_type(e), jst)) {
-                    throw_kernel_exception(m_env, trace_back(e),
+                    throw_kernel_exception(m_env, e,
                                            [=](formatter const & fmt, options const & o) {
                                                return pp_def_type_mismatch(fmt, m_env, o, let_name(e), let_type(e), val_type);
                                            });
                 }
             }
-            r = infer_type_core(instantiate_with_trace(let_body(e), let_value(e)), infer_only);
+            r = infer_type_core(instantiate(let_body(e), let_value(e)), infer_only);
             break;
         }
 

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "util/list.h"
+#include "util/sstream.h"
 
 namespace lean {
 /** \brief Convert a Lua table into a list<T> */
@@ -21,7 +22,7 @@ list<T> table_to_list(lua_State * L, int idx, Proc const & to_value) {
         }
         return r;
     } else {
-        throw exception("invalid argument, lua table expected");
+        throw exception(sstream() << "arg #" << idx << " must be a lua table");
     }
 }
 

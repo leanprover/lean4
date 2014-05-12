@@ -481,6 +481,12 @@ static int macro_def(lua_State * L) { return push_macro_definition(L, macro_def(
 static int macro_num_args(lua_State * L) { return push_integer(L, macro_num_args(to_macro_app(L, 1))); }
 static int macro_arg(lua_State * L) { return push_expr(L, macro_arg(to_macro_app(L, 1), luaL_checkinteger(L, 2))); }
 
+static int expr_set_tag(lua_State * L) { to_expr(L, 1).set_tag(luaL_checkinteger(L, 2)); return 0; }
+static int expr_tag(lua_State * L) {
+    auto t = to_expr(L, 1).get_tag();
+    return (t == nulltag) ? push_nil(L) : push_integer(L, t);
+}
+
 static const struct luaL_Reg expr_m[] = {
     {"__gc",             expr_gc}, // never throws
     {"__tostring",       safe_function<expr_tostring>},
@@ -527,6 +533,8 @@ static const struct luaL_Reg expr_m[] = {
     {"is_eqp",           safe_function<expr_is_eqp>},
     {"is_lt",            safe_function<expr_is_lt>},
     {"hash",             safe_function<expr_hash>},
+    {"tag",              safe_function<expr_tag>},
+    {"set_tag",          safe_function<expr_set_tag>},
     {0, 0}
 };
 

@@ -662,8 +662,12 @@ static void get_definition_args(lua_State * L, int idx, bool & opaque, unsigned 
 static int mk_definition(lua_State * L) {
     int nargs = lua_gettop(L);
     bool opaque = true; unsigned weight = 0; module_idx mod_idx = 0; bool use_conv_opt = true;
-    if (is_environment(L, 1)) {
-        if (nargs <= 5) {
+    if (nargs < 3) {
+        throw exception("mk_definition must have at least 3 arguments");
+    } else if (is_environment(L, 1)) {
+        if (nargs < 4) {
+            throw exception("mk_definition must have at least 4 arguments, when the first argument is an environment");
+        } else if (is_expr(L, 3)) {
             get_definition_args(L, 5, opaque, weight, mod_idx, use_conv_opt);
             return push_definition(L, mk_definition(to_environment(L, 1), to_name_ext(L, 2), param_names(),
                                                     to_expr(L, 3), to_expr(L, 4), opaque, mod_idx, use_conv_opt));
@@ -673,7 +677,7 @@ static int mk_definition(lua_State * L) {
                                                     to_expr(L, 4), to_expr(L, 5), opaque, mod_idx, use_conv_opt));
         }
     } else {
-        if (nargs <= 4) {
+        if (is_expr(L, 2)) {
             get_definition_args(L, 4, opaque, weight, mod_idx, use_conv_opt);
             return push_definition(L, mk_definition(to_name_ext(L, 1), param_names(), to_expr(L, 2),
                                                     to_expr(L, 3), opaque, weight, mod_idx, use_conv_opt));

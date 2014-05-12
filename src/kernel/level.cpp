@@ -239,12 +239,12 @@ level mk_global_univ(name const & n) { return level(new level_param_core(level_k
 level mk_meta_univ(name const & n) { return level(new level_param_core(level_kind::Meta, n)); }
 
 level const & mk_level_zero() {
-    static level g_zero(new level_cell(level_kind::Zero, 7u));
+    static LEAN_THREAD_LOCAL level g_zero(new level_cell(level_kind::Zero, 7u));
     return g_zero;
 }
 
 level const & mk_level_one()  {
-    static level g_one(mk_succ(mk_level_zero()));
+    static LEAN_THREAD_LOCAL level g_one(mk_succ(mk_level_zero()));
     return g_one;
 }
 

@@ -466,7 +466,7 @@ optional<name> get_undef_param(level const & l, param_names const & ps) {
     for_each(l, [&](level const & l) {
             if (!has_param(l))
                 return false;
-            if (l.kind() == level_kind::Param && std::find(ps.begin(), ps.end(), param_id(l)) != ps.end())
+            if (is_param(l) && std::find(ps.begin(), ps.end(), param_id(l)) == ps.end())
                 r = param_id(l);
             return true;
         });
@@ -478,7 +478,7 @@ optional<name> get_undef_global(level const & l, environment const & env) {
     for_each(l, [&](level const & l) {
             if (!has_global(l))
                 return false;
-            if (l.kind() == level_kind::Global && env.is_global_level(global_id(l)))
+            if (is_global(l) && env.is_global_level(global_id(l)))
                 r = global_id(l);
             return true;
         });

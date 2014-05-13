@@ -62,16 +62,36 @@ struct default_converter : public converter {
         return m_env.norm_ext()(e, xctx);
     }
 
+    /** \brief Try to apply eta-reduction to \c e. */
+    expr try_eta(expr const & e) {
+        lean_assert(is_lambda(e));
+        expr const & b = binder_body(e);
+        if (is_lambda(b)) {
+            expr new_b = try_eta(b);
+            if (is_eqp(b, new_b)) {
+                return e;
+            } else if (is_app(new_b) && is_var(app_arg(new_b), 0) && !has_free_var(app_fn(new_b), 0)) {
+                return lower_free_vars(app_fn(new_b), 1);
+            } else {
+                return update_binder(e, binder_domain(e), new_b);
+            }
+        } else if (is_app(b) && is_var(app_arg(b), 0) && !has_free_var(app_fn(b), 0)) {
+            return lower_free_vars(app_fn(b), 1);
+        } else {
+            return e;
+        }
+    }
+
     /** \brief Weak head normal form core procedure. It does not perform delta reduction nor normalization extensions. */
     expr whnf_core(expr const & e, context & c) {
         check_system("whnf");
 
         // handle easy cases
         switch (e.kind()) {
-        case expr_kind::Var:    case expr_kind::Sort: case expr_kind::Meta: case expr_kind::Local:
-        case expr_kind::Lambda: case expr_kind::Pi:   case expr_kind::Constant:
+        case expr_kind::Var:  case expr_kind::Sort: case expr_kind::Meta: case expr_kind::Local:
+        case expr_kind::Pi:   case expr_kind::Constant:
             return e;
-        case expr_kind::Macro:  case expr_kind::Let:  case expr_kind::App:
+        case expr_kind::Lambda: case expr_kind::Macro:  case expr_kind::Let:  case expr_kind::App:
             break;
         }
 
@@ -86,8 +106,11 @@ struct default_converter : public converter {
         expr r;
         switch (e.kind()) {
         case expr_kind::Var:    case expr_kind::Sort: case expr_kind::Meta: case expr_kind::Local:
-        case expr_kind::Lambda: case expr_kind::Pi:   case expr_kind::Constant:
+        case expr_kind::Pi:   case expr_kind::Constant:
             lean_unreachable(); // LCOV_EXCL_LINE
+        case expr_kind::Lambda:
+            r = (m_env.eta()) ? try_eta(e) : e;
+            break;
         case expr_kind::Macro:
             if (auto m = expand_macro(e, c))
                 r = whnf_core(*m, c);
@@ -261,20 +284,6 @@ struct default_converter : public converter {
         }
     }
 
-    /** \brief Eta-expand \c s and check if it is definitionally equal to \c t. */
-    bool try_eta(expr const & t, expr const & s, context & c, delayed_justification & jst) {
-        lean_assert(is_lambda(t));
-        lean_assert(!is_lambda(s));
-        expr t_s = whnf(c.infer_type(s), c);
-        if (is_pi(t_s)) {
-            // new_s := lambda x : domain(t_s), s x
-            expr new_s = mk_lambda(c.mk_fresh_name(), binder_domain(t_s), mk_app(lift_free_vars(s, 1), mk_var(0)));
-            return is_def_eq(t, new_s, c, jst);
-        } else {
-            return false;
-        }
-    }
-
     /**
         \brief Given lambda/Pi expressions \c t and \c s, return true iff \c t is def eq to \c s.
 
@@ -419,16 +428,7 @@ struct default_converter : public converter {
             if (r != l_undef) return r == l_true;
         }
 
-        // At this point, t_n and s_n are in weak head normal form (modulo meta-variables)
-
-        if (m_env.eta()) {
-            lean_assert(!is_lambda(t_n) || !is_lambda(s_n));
-            // Eta-reduction support
-            if ((is_lambda(t_n) && try_eta(t_n, s_n, c, jst)) ||
-                (is_lambda(s_n) && try_eta(s_n, t_n, c, jst)))
-                return true;
-        }
-
+        // At this point, t_n and s_n are in weak head normal form (modulo meta-variables and proof irrelevance)
         if (is_app(t_n) && is_app(s_n)) {
             expr it1 = t_n;
             expr it2 = s_n;

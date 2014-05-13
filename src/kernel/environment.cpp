@@ -108,6 +108,10 @@ environment environment::replace(certified_definition const & t) const {
     return environment(m_header, m_id, insert(m_definitions, n, t.get_definition()), m_global_levels, m_extensions);
 }
 
+environment environment::forget() const {
+    return environment(m_header, environment_id(), m_definitions, m_global_levels, m_extensions);
+}
+
 class extension_manager {
     std::vector<std::shared_ptr<environment_extension const>> m_exts;
     mutex                                                     m_mutex;

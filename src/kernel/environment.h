@@ -181,6 +181,13 @@ public:
 
     /** \brief Update the environment extension with the given id. */
     environment update(unsigned extid, std::shared_ptr<environment_extension const> const & ext) const;
+
+    /**
+        \brief Return a new environment, where its "history" has been truncated/forgotten.
+        That is, <tt>is_descendant(e)</tt> will return false for any environment \c e that
+        is not pointer equal to the result.
+    */
+    environment forget() const;
 };
 
 class name_generator;

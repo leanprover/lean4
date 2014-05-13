@@ -884,6 +884,7 @@ static int mk_empty_environment(lua_State * L) {
     bool impredicative = get_bool_named_param(L, 1, "impredicative", true);
     return push_environment(L, environment(trust_lvl, proof_irrel, eta, impredicative));
 }
+static int environment_forget(lua_State * L) { return push_environment(L, to_environment(L, 1).forget()); }
 
 static const struct luaL_Reg environment_m[] = {
     {"__gc",              environment_gc}, // never throws
@@ -900,6 +901,7 @@ static const struct luaL_Reg environment_m[] = {
     {"get",               safe_function<environment_get>},
     {"add",               safe_function<environment_add>},
     {"replace",           safe_function<environment_replace>},
+    {"forget",            safe_function<environment_forget>},
     {0, 0}
 };
 

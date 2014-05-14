@@ -6,4 +6,7 @@ assert(binder_info(true):is_implicit())
 assert(not binder_info(true):is_cast())
 assert(binder_info(true, true):is_implicit())
 assert(binder_info(true, true):is_cast())
+assert(binder_info():is_contextual())
+assert(not binder_info(true, true, false):is_contextual())
+assert(binder_info(false, false, true):is_contextual())
 

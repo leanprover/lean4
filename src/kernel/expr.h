@@ -221,12 +221,15 @@ public:
    is only used for elaboration.
 */
 class expr_binder_info {
-    bool m_implicit; //! if true, binder argument is an implicit argument
-    bool m_cast;     //! if true, binder argument is a target for using cast
+    unsigned m_implicit:1;   //! if true, binder argument is an implicit argument
+    unsigned m_cast:1;       //! if true, binder argument is a target for using cast
+    unsigned m_contextual:1; //! if true, binder argument is assumed to be part of the context, and may be argument for metavariables.
 public:
-    expr_binder_info(bool implicit = false, bool cast = false):m_implicit(implicit), m_cast(cast) {}
+    expr_binder_info(bool implicit = false, bool cast = false, bool contextual = true):
+        m_implicit(implicit), m_cast(cast), m_contextual(contextual) {}
     bool is_implicit() const { return m_implicit; }
     bool is_cast() const { return m_cast; }
+    bool is_contextual() const { return m_contextual; }
 };
 
 /** \brief Super class for lambda and pi */

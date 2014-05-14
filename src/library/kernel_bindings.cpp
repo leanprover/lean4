@@ -178,15 +178,19 @@ static int mk_binder_info(lua_State * L) {
         return push_expr_binder_info(L, expr_binder_info());
     else if (nargs == 1)
         return push_expr_binder_info(L, expr_binder_info(lua_toboolean(L, 1)));
-    else
+    else if (nargs == 2)
         return push_expr_binder_info(L, expr_binder_info(lua_toboolean(L, 1), lua_toboolean(L, 2)));
+    else
+        return push_expr_binder_info(L, expr_binder_info(lua_toboolean(L, 1), lua_toboolean(L, 2), lua_toboolean(L, 3)));
 }
 static int binder_info_is_implicit(lua_State * L) { return push_boolean(L, to_expr_binder_info(L, 1).is_implicit()); }
 static int binder_info_is_cast(lua_State * L) { return push_boolean(L, to_expr_binder_info(L, 1).is_cast()); }
+static int binder_info_is_contextual(lua_State * L) { return push_boolean(L, to_expr_binder_info(L, 1).is_contextual()); }
 static const struct luaL_Reg binder_info_m[] = {
     {"__gc",            expr_binder_info_gc},
     {"is_implicit",     safe_function<binder_info_is_implicit>},
     {"is_cast",         safe_function<binder_info_is_cast>},
+    {"is_contextual",   safe_function<binder_info_is_contextual>},
     {0, 0}
 };
 static void open_binder_info(lua_State * L) {

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/rb_map.h"
 #include "util/optional.h"
+#include "util/buffer.h"
 
 namespace lean {
 template<typename Key, typename Val, typename KeyCMP>
@@ -83,6 +84,18 @@ class trie : public KeyCMP {
         return new_t1;
     }
 
+    template<typename F>
+    static void for_each(F && f, node const & n, buffer<Key> & prefix) {
+        if (n->m_value) {
+            f(prefix.size(), prefix.data(), *(n->m_value));
+        }
+        n->m_children.for_each([&](Key const & k, node const & c) {
+                prefix.push_back(k);
+                for_each(f, c, prefix);
+                prefix.pop_back();
+            });
+    }
+
     node m_root;
     trie(node const & n):m_root(n) {}
 public:
@@ -119,6 +132,23 @@ public:
 
     void merge(trie const & t) {
         m_root = merge(m_root.steal(), t.m_root);
+    }
+
+    template<typename F>
+    void for_each(F && f) const {
+        buffer<Key> prefix;
+        for_each(f, m_root, prefix);
+    }
+
+    // for debugging purposes
+    void display(std::ostream & out) const {
+        for_each([&](unsigned num_keys, Key const * keys, Val const & v) {
+                for (unsigned i = 0; i < num_keys; i++) {
+                    if (i > 0) out << ", ";
+                    out << keys[i];
+                }
+                out << " -> " << v << "\n";
+            });
     }
 };
 

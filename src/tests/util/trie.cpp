@@ -27,6 +27,7 @@ static void tst1() {
     t2 = insert(t2, "help", 12);
     lean_assert(*find(t2, "abd") == 11);
     lean_assert(!find(t, "abd"));
+    t2.display(std::cout);
     ctrie<int> t3 = *t2.find('a');
     lean_assert(*find(t3, "bc") == 10);
     lean_assert(*find(t3, "bd") == 11);
@@ -54,6 +55,8 @@ static void tst2() {
     lean_assert(*find(t1, "abd") == 12);
     lean_assert(!find(t2, "abc"));
     lean_assert(*find(t2, "abd") == 12);
+    std::cout << "---------\n";
+    t1.display(std::cout);
 }
 
 int main() {

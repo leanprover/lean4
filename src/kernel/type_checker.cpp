@@ -209,7 +209,7 @@ struct type_checker::imp {
             expr A_args = mk_app(A, args.size(), args.data());
             args.push_back(Var(0));
             expr B_args = mk_app(B, args.size(), args.data());
-            expr r      = mk_pi(g_x_name, A, B);
+            expr r      = mk_pi(g_x_name, A_args, B_args);
             justification j = mk_justification(s,
                                                [=](formatter const & fmt, options const & o, substitution const & subst) {
                                                    return pp_function_expected(fmt, m_env, o, subst.instantiate_metavars_wo_jst(s));

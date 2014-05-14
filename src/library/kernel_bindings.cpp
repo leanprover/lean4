@@ -226,6 +226,13 @@ expr & to_macro_app(lua_State * L, int idx) {
     return r;
 }
 
+expr & to_let(lua_State * L, int idx) {
+    expr & r = to_expr(L, idx);
+    if (!is_let(r))
+        throw exception(sstream() << "arg #" << idx << " must be a let-expression");
+    return r;
+}
+
 static int expr_tostring(lua_State * L) {
     std::ostringstream out;
     formatter fmt   = get_global_formatter(L);
@@ -508,6 +515,11 @@ static int binder_domain(lua_State * L) { return push_expr(L, binder_domain(to_b
 static int binder_body(lua_State * L) { return push_expr(L, binder_body(to_binder(L, 1))); }
 static int binder_info(lua_State * L) { return push_expr_binder_info(L, binder_info(to_binder(L, 1))); }
 
+static int let_name(lua_State * L) { return push_name(L, let_name(to_let(L, 1))); }
+static int let_type(lua_State * L) { return push_expr(L, let_type(to_let(L, 1))); }
+static int let_value(lua_State * L) { return push_expr(L, let_value(to_let(L, 1))); }
+static int let_body(lua_State * L) { return push_expr(L, let_body(to_let(L, 1))); }
+
 static int expr_occurs(lua_State * L) { return push_boolean(L, occurs(to_expr(L, 1), to_expr(L, 2))); }
 static int expr_is_eqp(lua_State * L) { return push_boolean(L, is_eqp(to_expr(L, 1), to_expr(L, 2))); }
 static int expr_hash(lua_State * L) { return push_integer(L, to_expr(L, 1).hash()); }
@@ -565,6 +577,10 @@ static const struct luaL_Reg expr_m[] = {
     {"binder_domain",    safe_function<binder_domain>},
     {"binder_body",      safe_function<binder_body>},
     {"binder_info",      safe_function<binder_info>},
+    {"let_name",         safe_function<let_name>},
+    {"let_type",         safe_function<let_type>},
+    {"let_value",        safe_function<let_value>},
+    {"let_body",         safe_function<let_body>},
     {"macro_def",        safe_function<macro_def>},
     {"macro_num_args",   safe_function<macro_num_args>},
     {"macro_arg",        safe_function<macro_arg>},

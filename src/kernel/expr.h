@@ -425,6 +425,10 @@ inline expr mk_pi(name const & n, expr const & t, expr const & e, expr_binder_in
 inline expr mk_let(name const & n, expr const & t, expr const & v, expr const & e) { return expr(new expr_let(n, t, v, e)); }
 inline expr mk_sort(level const & l) { return expr(new expr_sort(l)); }
 
+/** \brief Return <tt>Pi(x.{sz-1}, domain[sz-1], ..., Pi(x.{0}, domain[0], range)...)</tt> */
+expr mk_pi(unsigned sz, expr const * domain, expr const & range);
+inline expr mk_pi(buffer<expr> const & domain, expr const & range) { return mk_pi(domain.size(), domain.data(), range); }
+
 expr mk_Bool();
 expr mk_Type();
 extern expr Type;

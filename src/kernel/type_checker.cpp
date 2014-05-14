@@ -176,16 +176,6 @@ struct type_checker::imp {
         }
     }
 
-    expr mk_tele_pi(buffer<expr> const & telescope, expr const & range) {
-        expr r = range;
-        unsigned i = telescope.size();
-        while (i > 0) {
-            --i;
-            r = mk_pi(name(g_x_name, i), telescope[i], r);
-        }
-        return r;
-    }
-
     /** \brief Similar to \c ensure_sort, but makes sure \c e "is" a Pi. */
     expr ensure_pi(expr e, expr const & s) {
         if (is_pi(e))
@@ -199,11 +189,11 @@ struct type_checker::imp {
                 throw_kernel_exception(m_env, s,
                                        [=](formatter const & fmt, options const & o) { return pp_function_expected(fmt, m_env, o, s); });
             expr ta    = mk_sort(mk_meta_univ(m_gen.next()));
-            expr A     = mk_metavar(m_gen.next(), mk_tele_pi(telescope, ta));
+            expr A     = mk_metavar(m_gen.next(), mk_pi(telescope, ta));
             expr A_xs  = mk_app_vars(A, telescope.size());
             telescope.push_back(A_xs);
             expr tb    = mk_sort(mk_meta_univ(m_gen.next()));
-            expr B     = mk_metavar(m_gen.next(), mk_tele_pi(telescope, tb));
+            expr B     = mk_metavar(m_gen.next(), mk_pi(telescope, tb));
             buffer<expr> args;
             get_app_args(e, args);
             expr A_args = mk_app(A, args.size(), args.data());

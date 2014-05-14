@@ -346,6 +346,16 @@ static name g_default_var_name("a");
 bool is_default_var_name(name const & n) { return n == g_default_var_name; }
 expr mk_arrow(expr const & t, expr const & e) { return mk_pi(g_default_var_name, t, e); }
 
+expr mk_pi(unsigned sz, expr const * domain, expr const & range) {
+    expr r = range;
+    unsigned i = sz;
+    while (i > 0) {
+        --i;
+        r = mk_pi(name(g_default_var_name, i), domain[i], r);
+    }
+    return r;
+}
+
 expr Bool = mk_sort(mk_level_zero());
 expr Type = mk_sort(mk_level_one());
 expr mk_Bool() { return Bool; }

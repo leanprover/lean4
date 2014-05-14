@@ -171,7 +171,7 @@ expr_let::expr_let(name const & n, expr const & t, expr const & v, expr const & 
                    t.has_local()      || v.has_local()      || b.has_local(),
                    t.has_param_univ() || v.has_param_univ() || b.has_param_univ(),
                    std::max({get_depth(t), get_depth(v), get_depth(b)}) + 1,
-                   std::max({get_free_var_range(t), dec(get_free_var_range(v)), dec(get_free_var_range(b))})),
+                   std::max({get_free_var_range(t), get_free_var_range(v), dec(get_free_var_range(b))})),
     m_name(n),
     m_type(t),
     m_value(v),

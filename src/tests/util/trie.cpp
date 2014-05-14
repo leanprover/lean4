@@ -32,7 +32,32 @@ static void tst1() {
     lean_assert(*find(t3, "bd") == 11);
 }
 
+static void tst2() {
+    ctrie<int> t1;
+    t1 = insert(t1, "hello", 1);
+    t1 = insert(t1, "abc", 2);
+    t1 = insert(t1, "hallo", 3);
+
+    ctrie<int> t2;
+    t2 = insert(t2, "hell", 11);
+    t2 = insert(t2, "abd", 12);
+    t2 = insert(t2, "heaaaaaa", 13);
+    t2 = insert(t2, "hallo", 14);
+    t2 = insert(t2, "abe", 15);
+
+    t1.merge(t2);
+
+    lean_assert(*find(t1, "hallo") == 14);
+    lean_assert(*find(t1, "hello") == 1);
+    lean_assert(*find(t1, "heaaaaaa") == 13);
+    lean_assert(*find(t1, "abc") == 2);
+    lean_assert(*find(t1, "abd") == 12);
+    lean_assert(!find(t2, "abc"));
+    lean_assert(*find(t2, "abd") == 12);
+}
+
 int main() {
     tst1();
+    tst2();
     return has_violations() ? 1 : 0;
 }

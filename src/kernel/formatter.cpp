@@ -88,8 +88,11 @@ struct print_expr_fn {
 
     void print(expr const & a, context const & c) {
         switch (a.kind()) {
-        case expr_kind::Meta: case expr_kind::Local:
-            out() << mlocal_name(a);
+        case expr_kind::Meta:
+            out() << "?" << mlocal_name(a);
+            break;
+        case expr_kind::Local:
+            out() << "!" << mlocal_name(a);
             break;
         case expr_kind::Var: {
             auto e = find(c, var_idx(a));

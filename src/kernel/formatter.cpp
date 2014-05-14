@@ -66,8 +66,17 @@ struct print_expr_fn {
     }
 
     void print_binder(char const * bname, expr const & e, context const & c) {
-        out() << bname << " " << binder_name(e) << " : ";
+        out() << bname << " ";
+        if (binder_info(e).is_implicit())
+            out() << "{";
+        else if (binder_info(e).is_cast())
+            out() << "[";
+        out() << binder_name(e) << " : ";
         print_child(binder_domain(e), c);
+        if (binder_info(e).is_implicit())
+            out() << "}";
+        else if (binder_info(e).is_cast())
+            out() << "]";
         out() << ", ";
         print_child(binder_body(e), extend(c, binder_name(e), binder_domain(e)));
     }

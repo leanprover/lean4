@@ -141,15 +141,15 @@ protected:
         return map_reuse(ls, [&](level const & l) { return visit_level(l); }, [](level const & l1, level const & l2) { return is_eqp(l1, l2); });
     }
 
-    virtual expr visit_sort(expr const & s, context const &) {
+    virtual expr visit_sort(expr const & s) {
         return update_sort(s, visit_level(sort_level(s)));
     }
 
-    virtual expr visit_constant(expr const & c, context const &) {
+    virtual expr visit_constant(expr const & c) {
         return update_constant(c, visit_levels(const_level_params(c)));
     }
 
-    virtual expr visit_meta(expr const & m, context const &) {
+    virtual expr visit_meta(expr const & m) {
         name const & m_name = mlocal_name(m);
         auto p1 = m_subst.get_expr_assignment(m_name);
         if (p1) {
@@ -183,28 +183,28 @@ protected:
         }
     }
 
-    virtual expr visit_app(expr const & e, context const & ctx) {
+    virtual expr visit_app(expr const & e) {
         buffer<expr> args;
         expr const * it = &e;
         while (is_app(*it)) {
-            args.push_back(visit(app_arg(*it), ctx));
+            args.push_back(visit(app_arg(*it)));
             it = &app_fn(*it);
         }
         expr const & f = *it;
         if (is_metavar(f) && m_subst.is_expr_assigned(mlocal_name(f))) {
-            expr new_f = visit_meta(f, ctx);
+            expr new_f = visit_meta(f);
             return apply_beta(new_f, args.size(), args.data());
         } else {
-            args.push_back(visit(f, ctx));
+            args.push_back(visit(f));
             return update_rev_app(e, args);
         }
     }
 
-    virtual expr visit(expr const & e, context const & ctx) {
+    virtual expr visit(expr const & e) {
         if (!has_metavar(e)) {
             return e;
         } else {
-            return replace_visitor::visit(e, ctx);
+            return replace_visitor::visit(e);
         }
     }
 

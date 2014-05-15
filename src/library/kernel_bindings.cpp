@@ -279,7 +279,15 @@ static int expr_mk_pi(lua_State * L) {
     else
         return push_expr(L, mk_pi(to_name_ext(L, 1), to_expr(L, 2), to_expr(L, 3), to_expr_binder_info(L, 4)));
 }
-static int expr_mk_arrow(lua_State * L) { return push_expr(L, mk_arrow(to_expr(L, 1), to_expr(L, 2))); }
+static int expr_mk_arrow(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs < 2)
+        throw exception("function must have at least 2 arguments");
+    expr r = mk_arrow(to_expr(L, nargs - 1), to_expr(L, nargs));
+    for (int i = nargs - 2; i >= 1; i--)
+        r = mk_arrow(to_expr(L, i), r);
+    return push_expr(L, r);
+}
 static int expr_mk_let(lua_State * L) { return push_expr(L, mk_let(to_name_ext(L, 1), to_expr(L, 2), to_expr(L, 3), to_expr(L, 4))); }
 
 static expr get_expr_from_table(lua_State * L, int t, int i) {

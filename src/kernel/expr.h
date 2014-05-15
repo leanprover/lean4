@@ -297,9 +297,9 @@ public:
     macro_definition_cell():m_rc(0) {}
     virtual ~macro_definition_cell() {}
     virtual name get_name() const = 0;
-    virtual expr get_type(unsigned num, expr const * args, expr const * arg_types, extension_context & ctx) const = 0;
-    virtual optional<expr> expand1(unsigned num, expr const * args, extension_context & ctx) const = 0;
-    virtual optional<expr> expand(unsigned num, expr const * args, extension_context & ctx) const = 0;
+    virtual expr get_type(expr const & m, expr const * arg_types, extension_context & ctx) const = 0;
+    virtual optional<expr> expand(expr const & m, extension_context & ctx) const = 0;
+    virtual optional<expr> expand1(expr const & m, extension_context & ctx) const { return expand(m, ctx); }
     virtual unsigned trust_level() const;
     virtual bool operator==(macro_definition_cell const & other) const;
     virtual void display(std::ostream & out) const;
@@ -330,11 +330,9 @@ public:
     macro_definition & operator=(macro_definition && s);
 
     name get_name() const { return m_ptr->get_name(); }
-    expr get_type(unsigned num, expr const * args, expr const * arg_types, extension_context & ctx) const {
-        return m_ptr->get_type(num, args, arg_types, ctx);
-    }
-    optional<expr> expand1(unsigned num, expr const * args, extension_context & ctx) const { return m_ptr->expand1(num, args, ctx); }
-    optional<expr> expand(unsigned num, expr const * args, extension_context & ctx) const { return m_ptr->expand(num, args, ctx); }
+    expr get_type(expr const & m, expr const * arg_types, extension_context & ctx) const { return m_ptr->get_type(m, arg_types, ctx); }
+    optional<expr> expand(expr const & m, extension_context & ctx) const { return m_ptr->expand(m, ctx); }
+    optional<expr> expand1(expr const & m, extension_context & ctx) const { return m_ptr->expand1(m, ctx); }
     unsigned trust_level() const { return m_ptr->trust_level(); }
     bool operator==(macro_definition const & other) const { return m_ptr->operator==(*other.m_ptr); }
     bool operator!=(macro_definition const & other) const { return !operator==(other); }

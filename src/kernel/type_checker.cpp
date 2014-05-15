@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/expr_maps.h"
 #include "kernel/instantiate.h"
-#include "kernel/max_sharing.h"
 #include "kernel/free_vars.h"
 #include "kernel/metavar.h"
 #include "kernel/error_msgs.h"
@@ -78,10 +77,7 @@ struct type_checker::imp {
 
     optional<expr> expand_macro(expr const & m) {
         lean_assert(is_macro(m));
-        if (auto new_m = macro_def(m).expand(macro_num_args(m), macro_args(m), m_tc_ctx))
-            return some_expr(max_sharing(*new_m));
-        else
-            return none_expr();
+        return macro_def(m).expand(m, m_tc_ctx);
     }
 
     /**
@@ -319,7 +315,7 @@ struct type_checker::imp {
             buffer<expr> arg_types;
             for (unsigned i = 0; i < macro_num_args(e); i++)
                 arg_types.push_back(infer_type_core(macro_arg(e, i), infer_only));
-            r = macro_def(e).get_type(macro_num_args(e), macro_args(e), arg_types.data(), m_tc_ctx);
+            r = macro_def(e).get_type(e, arg_types.data(), m_tc_ctx);
             if (!infer_only && macro_def(e).trust_level() <= m_env.trust_lvl()) {
                 optional<expr> m = expand_macro(e);
                 if (!m)

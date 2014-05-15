@@ -54,7 +54,7 @@ struct default_converter : public converter {
     optional<expr> expand_macro(expr const & m, context & c) {
         lean_assert(is_macro(m));
         extended_context xctx(*this, c);
-        return macro_def(m).expand(macro_num_args(m), macro_args(m), xctx);
+        return macro_def(m).expand(m, xctx);
     }
 
     /** \brief Apply normalizer extensions to \c e. */

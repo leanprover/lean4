@@ -33,7 +33,7 @@ struct print_expr_fn {
         if (macro_num_args(a) > 0) out() << "(";
         macro_def(a).display(out());
         for (unsigned i = 0; i < macro_num_args(a); i++) {
-            out() << " "; print(macro_arg(a, i), c);
+            out() << " "; print_child(macro_arg(a, i), c);
         }
         if (macro_num_args(a) > 0) out() << ")";
     }

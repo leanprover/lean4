@@ -708,7 +708,7 @@ static int definition_get_value(lua_State * L) {
 }
 static int definition_get_weight(lua_State * L) { return push_integer(L, to_definition(L, 1).get_weight()); }
 static list<name> to_param_names(lua_State * L, int _idx) {
-    return table_to_list<name>(L, _idx, [](lua_State * L, int idx) {
+    return table_to_list<name>(L, _idx, [](lua_State * L, int idx) -> name {
             if (is_level(L, idx)) {
                 level const & l = to_level(L, idx);
                 if (is_param(l))

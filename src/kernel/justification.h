@@ -110,6 +110,7 @@ justification mk_assumption_justification(unsigned idx);
    \brief Create a justification for constraints produced by the type checker.
 */
 justification mk_justification(optional<expr> const & s, pp_jst_fn const & fn);
+justification mk_justification(char const * msg, optional<expr> const & s = none_expr());
 /**
    \brief Create a justification for constraints produced by the type checker.
    It is similar to the previous function, but the position of \c s will be automatically included.

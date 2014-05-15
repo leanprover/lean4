@@ -241,7 +241,12 @@ justification mk_justification(optional<expr> const & s, pp_jst_sfn const & fn) 
     return mk_justification(s, [=](formatter const & fmt, options const & opts, pos_info_provider const * p, substitution const & subst) {
             return compose(to_pos(s, p), fn(fmt, opts, subst)); });
 }
-
+justification mk_justification(char const * msg, optional<expr> const & s) {
+    std::string _msg(msg);
+    return mk_justification(s, [=](formatter const &, options const &, pos_info_provider const *, substitution const &) {
+            return format(_msg);
+        });
+}
 std::ostream & operator<<(std::ostream & out, justification const & j) {
     if (j.is_none()) {
         out << "none";

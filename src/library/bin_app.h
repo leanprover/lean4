@@ -8,6 +8,8 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
+/** \brief Return true iff \c t is of the form <tt>((f s1) s2)</tt> */
+bool is_bin_app(expr const & t, expr const & f);
 /** \brief Return true iff \c t is of the form <tt>((f s1) s2)</tt>, if the result is true, then store a1 -> lhs, a2 -> rhs */
 bool is_bin_app(expr const & t, expr const & f, expr & lhs, expr & rhs);
 

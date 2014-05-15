@@ -8,15 +8,6 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-/** \brief Object to simulate delayed justification creation. */
-class delayed_justification {
-    optional<justification>        m_jst;
-    std::function<justification()> m_mk;
-public:
-    template<typename Mk> delayed_justification(Mk && mk):m_mk(mk) {}
-    justification get() { if (!m_jst) { m_jst = m_mk(); } return *m_jst; }
-};
-
 /** \brief Auxiliary exception used to sign that constraints cannot be created when \c m_cnstrs_enabled flag is false. */
 struct add_cnstr_exception {};
 

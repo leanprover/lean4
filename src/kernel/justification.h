@@ -140,4 +140,13 @@ bool depends_on(justification const & j, unsigned i);
 
 /** \brief Printer for debugging purposes */
 std::ostream & operator<<(std::ostream & out, justification const & j);
+
+/** \brief Object to simulate delayed justification creation. */
+class delayed_justification {
+    optional<justification>        m_jst;
+    std::function<justification()> m_mk;
+public:
+    template<typename Mk> delayed_justification(Mk && mk):m_mk(mk) {}
+    justification get() { if (!m_jst) { m_jst = m_mk(); } return *m_jst; }
+};
 }

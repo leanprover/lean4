@@ -263,11 +263,11 @@ struct type_checker::imp {
                                 });
     }
 
-    void check_level(level const & l) {
+    void check_level(level const & l, expr const & s) {
         if (auto n1 = get_undef_global(l, m_env))
-            throw_kernel_exception(m_env, sstream() << "invalid reference to undefined global universe level '" << *n1 << "'");
+            throw_kernel_exception(m_env, sstream() << "invalid reference to undefined global universe level '" << *n1 << "'", s);
         if (auto n2 = get_undef_param(l, m_params))
-            throw_kernel_exception(m_env, sstream() << "invalid reference to undefined universe level parameter '" << *n2 << "'");
+            throw_kernel_exception(m_env, sstream() << "invalid reference to undefined universe level parameter '" << *n2 << "'", s);
     }
 
     /**
@@ -291,10 +291,10 @@ struct type_checker::imp {
             r = mlocal_type(e);
             break;
         case expr_kind::Var:
-            throw_kernel_exception(m_env, "type checker does not support free variables, replace them with local constants before invoking it");
+            throw_kernel_exception(m_env, "type checker does not support free variables, replace them with local constants before invoking it", e);
         case expr_kind::Sort:
             if (!infer_only)
-                check_level(sort_level(e));
+                check_level(sort_level(e), e);
             r = mk_sort(mk_succ(sort_level(e)));
             break;
         case expr_kind::Constant: {
@@ -306,7 +306,7 @@ struct type_checker::imp {
                                        << length(ps)  << " expected, #" << length(ls) << " provided");
             if (!infer_only) {
                 for (level const & l : ls)
-                    check_level(l);
+                    check_level(l, e);
             }
             r = instantiate_params(d.get_type(), ps, ls);
             break;
@@ -319,11 +319,11 @@ struct type_checker::imp {
             if (!infer_only && macro_def(e).trust_level() <= m_env.trust_lvl()) {
                 optional<expr> m = expand_macro(e);
                 if (!m)
-                    throw_kernel_exception(m_env, "failed to expand macro", some_expr(e));
+                    throw_kernel_exception(m_env, "failed to expand macro", e);
                 expr t = infer_type_core(*m, infer_only);
                 delayed_justification jst([=]() { return mk_macro_jst(e); });
                 if (!is_def_eq(r, t, jst))
-                    throw_kernel_exception(m_env, g_macro_error_msg, some_expr(e));
+                    throw_kernel_exception(m_env, g_macro_error_msg, e);
             }
             break;
         }
@@ -416,12 +416,12 @@ expr type_checker::ensure_sort(expr const & t) { return m_ptr->ensure_sort(t, t)
 
 static void check_no_metavar(environment const & env, expr const & e) {
     if (has_metavar(e))
-        throw kernel_exception(env, "failed to add declaration to environment, it contains metavariables");
+        throw_kernel_exception(env, "failed to add declaration to environment, it contains metavariables", e);
 }
 
 static void check_no_local(environment const & env, expr const & e) {
     if (has_local(e))
-        throw kernel_exception(env, "failed to add declaration to environment, it contains local constants");
+        throw_kernel_exception(env, "failed to add declaration to environment, it contains local constants", e);
 }
 
 static void check_no_mlocal(environment const & env, expr const & e) {

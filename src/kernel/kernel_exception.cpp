@@ -37,6 +37,14 @@ public:
     throw_kernel_exception(env, strm.str().c_str(), m);
 }
 
+[[ noreturn ]] void throw_kernel_exception(environment const & env, char const * msg, expr const & m) {
+    throw_kernel_exception(env, msg, some_expr(m));
+}
+
+[[ noreturn ]] void throw_kernel_exception(environment const & env, sstream const & strm, expr const & m) {
+    throw_kernel_exception(env, strm, some_expr(m));
+}
+
 [[ noreturn ]] void throw_kernel_exception(environment const & env, char const * msg, optional<expr> const & m, pp_fn const & fn) {
     throw generic_kernel_exception(env, msg, m, fn);
 }

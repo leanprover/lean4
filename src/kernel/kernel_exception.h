@@ -35,8 +35,9 @@ public:
 };
 
 [[ noreturn ]] void throw_kernel_exception(environment const & env, char const * msg, optional<expr> const & m = none_expr());
-[[ noreturn ]] void throw_kernel_exception(environment const & env, sstream const & strm,
-                                           optional<expr> const & m = none_expr());
+[[ noreturn ]] void throw_kernel_exception(environment const & env, sstream const & strm, optional<expr> const & m = none_expr());
+[[ noreturn ]] void throw_kernel_exception(environment const & env, char const * msg, expr const & m);
+[[ noreturn ]] void throw_kernel_exception(environment const & env, sstream const & strm, expr const & m);
 [[ noreturn ]] void throw_kernel_exception(environment const & env, char const * msg, optional<expr> const & m, pp_fn const & fn);
 [[ noreturn ]] void throw_kernel_exception(environment const & env, optional<expr> const & m, pp_fn const & fn);
 [[ noreturn ]] void throw_kernel_exception(environment const & env, char const * msg, expr const & m, pp_fn const & fn);

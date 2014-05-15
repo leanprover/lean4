@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "util/script_state.h"
 
 namespace lean {
-void open_frontend_lean(lua_State *) {
+void open_frontend_lean(lua_State *) { // NOLINT
     // TODO(Leo)
 }
 void register_frontend_lean_module() {

@@ -150,8 +150,11 @@ public:
 
 // =======================================
 // Structural equality
-       bool operator==(expr const & a, expr const & b);
+/** \brief Binder information is ignored in the following predicate */
+bool operator==(expr const & a, expr const & b);
 inline bool operator!=(expr const & a, expr const & b) { return !operator==(a, b); }
+/** \brief Similar to ==, but it also compares binder information */
+bool is_bi_equal(expr const & a, expr const & b);
 // =======================================
 
 SPECIALIZE_OPTIONAL_FOR_SMART_PTR(expr)
@@ -231,6 +234,9 @@ public:
     bool is_cast() const { return m_cast; }
     bool is_contextual() const { return m_contextual; }
 };
+
+bool operator==(expr_binder_info const & i1, expr_binder_info const & i2);
+inline bool operator!=(expr_binder_info const & i1, expr_binder_info const & i2) { return !(i1 == i2); }
 
 /** \brief Super class for lambda and pi */
 class expr_binder : public expr_composite {

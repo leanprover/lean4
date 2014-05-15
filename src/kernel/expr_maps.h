@@ -26,4 +26,8 @@ using expr_cell_offset_map = typename std::unordered_map<expr_cell_offset, T, ex
 // Maps based on structural equality. That is, two keys are equal iff they are structurally equal
 template<typename T>
 using expr_struct_map = typename std::unordered_map<expr, T, expr_hash, std::equal_to<expr>>;
+// The following map also takes into account binder information
+struct is_bi_equal_proc { bool operator()(expr const & e1, expr const & e2) const { return is_bi_equal(e1, e2); } };
+template<typename T>
+using expr_bi_struct_map = typename std::unordered_map<expr, T, expr_hash, is_bi_equal_proc>;
 };

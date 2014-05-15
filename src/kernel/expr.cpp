@@ -137,6 +137,10 @@ void expr_app::dealloc(buffer<expr_cell*> & todelete) {
 
 static unsigned dec(unsigned k) { return k == 0 ? 0 : k - 1; }
 
+bool operator==(expr_binder_info const & i1, expr_binder_info const & i2) {
+    return i1.is_implicit() == i2.is_implicit() && i1.is_cast() == i2.is_cast() && i1.is_contextual() == i2.is_contextual();
+}
+
 // Expr binders (Lambda, Pi)
 expr_binder::expr_binder(expr_kind k, name const & n, expr const & t, expr const & b, expr_binder_info const & i):
     expr_composite(k, ::lean::hash(t.hash(), b.hash()),
@@ -390,6 +394,7 @@ unsigned get_free_var_range(expr const & e) {
 }
 
 bool operator==(expr const & a, expr const & b) { return expr_eq_fn()(a, b); }
+bool is_bi_equal(expr const & a, expr const & b) { return expr_eq_fn(true)(a, b); }
 
 static expr copy_tag(expr const & e, expr && new_e) {
     tag t = e.get_tag();

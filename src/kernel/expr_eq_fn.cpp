@@ -39,7 +39,8 @@ bool expr_eq_fn::apply(expr const & a, expr const & b) {
     case expr_kind::Lambda: case expr_kind::Pi:
         return
             apply(binder_domain(a), binder_domain(b)) &&
-            apply(binder_body(a), binder_body(b));
+            apply(binder_body(a), binder_body(b)) &&
+            (!m_compare_binder_info || binder_info(a) == binder_info(b));
     case expr_kind::Sort:
         return sort_level(a) == sort_level(b);
     case expr_kind::Macro:

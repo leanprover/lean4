@@ -60,7 +60,11 @@ struct type_checker::imp {
     name_generator             m_gen;
     constraint_handler &       m_chandler;
     std::unique_ptr<converter> m_conv;
-    expr_struct_map<expr>      m_infer_type_cache;
+    // In the type checker cache, we must take into account binder information.
+    // Examples:
+    // The type of (lambda x : A, t)   is (Pi x : A, typeof(t))
+    // The type of (lambda {x : A}, t) is (Pi {x : A}, typeof(t))
+    expr_bi_struct_map<expr>   m_infer_type_cache;
     converter_context          m_conv_ctx;
     type_checker_context       m_tc_ctx;
     bool                       m_memoize;

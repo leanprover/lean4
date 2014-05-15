@@ -246,7 +246,8 @@ static int expr_tostring(lua_State * L) {
     return push_string(L, out.str().c_str());
 }
 
-static int expr_eq(lua_State * L) { return push_boolean(L, to_expr(L, 1) == to_expr(L, 2)); }
+static int expr_is_equal(lua_State * L) { return push_boolean(L, to_expr(L, 1) == to_expr(L, 2)); }
+static int expr_is_bi_equal(lua_State * L) { return push_boolean(L, is_bi_equal(to_expr(L, 1), to_expr(L, 2))); }
 static int expr_lt(lua_State * L) { return push_boolean(L, to_expr(L, 1) < to_expr(L, 2)); }
 static int expr_mk_constant(lua_State * L) {
     int nargs = lua_gettop(L);
@@ -551,7 +552,7 @@ static int expr_tag(lua_State * L) {
 static const struct luaL_Reg expr_m[] = {
     {"__gc",             expr_gc}, // never throws
     {"__tostring",       safe_function<expr_tostring>},
-    {"__eq",             safe_function<expr_eq>},
+    {"__eq",             safe_function<expr_is_equal>},
     {"__lt",             safe_function<expr_lt>},
     {"__call",           safe_function<expr_mk_app>},
     {"kind",             safe_function<expr_get_kind>},
@@ -597,6 +598,8 @@ static const struct luaL_Reg expr_m[] = {
     {"occurs",           safe_function<expr_occurs>},
     {"is_eqp",           safe_function<expr_is_eqp>},
     {"is_lt",            safe_function<expr_is_lt>},
+    {"is_equal",         safe_function<expr_is_equal>},
+    {"is_bi_equal",      safe_function<expr_is_bi_equal>},
     {"hash",             safe_function<expr_hash>},
     {"tag",              safe_function<expr_tag>},
     {"set_tag",          safe_function<expr_set_tag>},

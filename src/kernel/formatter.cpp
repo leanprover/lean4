@@ -30,12 +30,10 @@ struct print_expr_fn {
     }
 
     void print_macro(expr const & a, context const & c) {
-        if (macro_num_args(a) > 0) out() << "(";
         macro_def(a).display(out());
         for (unsigned i = 0; i < macro_num_args(a); i++) {
             out() << " "; print_child(macro_arg(a, i), c);
         }
-        if (macro_num_args(a) > 0) out() << ")";
     }
 
     void print_sort(expr const & a) {

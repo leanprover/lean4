@@ -276,6 +276,9 @@ struct type_checker::imp {
         \pre closed(e)
     */
     expr infer_type_core(expr const & e, bool infer_only) {
+        if (is_var(e))
+            throw_kernel_exception(m_env, "type checker does not support free variables, replace them with local constants before invoking it", e);
+
         lean_assert(closed(e));
         check_system("type checker");
 
@@ -291,7 +294,7 @@ struct type_checker::imp {
             r = mlocal_type(e);
             break;
         case expr_kind::Var:
-            throw_kernel_exception(m_env, "type checker does not support free variables, replace them with local constants before invoking it", e);
+            lean_unreachable();  // LCOV_EXCL_LINE
         case expr_kind::Sort:
             if (!infer_only)
                 check_level(sort_level(e), e);
